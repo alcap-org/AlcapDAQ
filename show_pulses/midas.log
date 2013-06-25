@@ -1,0 +1,921 @@
+Sun Aug  3 15:17:27 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 17680, index 7 because the pid no longer exists
+Sun Aug  3 15:17:27 2008 [show_pulses] Deleted /System/Clients/17680 entry for client show_pulses
+
+Sun Aug  3 15:19:03 2008 [ODBEdit] [odb.c:1264:db_open_database] removing client show_pulses, pid 17712, index 7 because the pid no longer exists
+Sun Aug  3 15:19:03 2008 [ODBEdit] Deleted /System/Clients/17712 entry for client show_pulses
+
+Sun Aug  3 16:02:48 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 18015, index 6 because the pid no longer exists
+Sun Aug  3 16:02:48 2008 [show_pulses] Deleted /System/Clients/18015 entry for client show_pulses
+
+Sun Aug  3 16:03:41 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 18030, index 7 because the pid no longer exists
+Sun Aug  3 16:03:41 2008 [show_pulses] Deleted /System/Clients/18030 entry for client show_pulses
+
+Mon Aug  4 11:09:55 2008 [ODBEdit] [odb.c:1264:db_open_database] removing client show_pulses, pid 19467, index 7 because the pid no longer exists
+Mon Aug  4 11:09:55 2008 [ODBEdit] Deleted /System/Clients/19467 entry for client show_pulses
+
+Mon Aug  4 12:02:18 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 19678, index 8 because the pid no longer exists
+Mon Aug  4 12:02:18 2008 [show_pulses] Deleted /System/Clients/19678 entry for client show_pulses
+
+Mon Aug  4 14:27:00 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 19932, index 7 because the pid no longer exists
+Mon Aug  4 14:27:00 2008 [show_pulses] Deleted /System/Clients/19932 entry for client show_pulses
+
+Mon Aug  4 18:25:55 2008 [ODBEdit] [odb.c:1264:db_open_database] removing client Ebuilder, pid 17922, index 1 because the pid no longer exists
+Mon Aug  4 18:25:55 2008 [ODBEdit] Deleted /System/Clients/17922 entry for client Ebuilder
+
+Mon Aug  4 19:20:41 2008 [ODBEdit] [odb.c:1264:db_open_database] removing client show_pulses, pid 30656, index 7 because the pid no longer exists
+Mon Aug  4 19:20:41 2008 [ODBEdit] Deleted /System/Clients/30656 entry for client show_pulses
+
+Mon Aug  4 19:23:02 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 30669, index 1 because the pid no longer exists
+Mon Aug  4 19:23:02 2008 [show_pulses] Deleted /System/Clients/30669 entry for client show_pulses
+
+Mon Aug  4 19:23:15 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 30678, index 7 because the pid no longer exists
+Mon Aug  4 19:23:15 2008 [show_pulses] Deleted /System/Clients/30678 entry for client show_pulses
+
+Mon Aug  4 19:23:31 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 30685, index 1 because the pid no longer exists
+Mon Aug  4 19:23:31 2008 [show_pulses] Deleted /System/Clients/30685 entry for client show_pulses
+
+Mon Aug  4 19:23:48 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 30692, index 7 because the pid no longer exists
+Mon Aug  4 19:23:48 2008 [show_pulses] Deleted /System/Clients/30692 entry for client show_pulses
+
+Mon Aug  4 19:24:07 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 30699, index 1 because the pid no longer exists
+Mon Aug  4 19:24:07 2008 [show_pulses] Deleted /System/Clients/30699 entry for client show_pulses
+
+Mon Aug  4 20:25:07 2008 [ODBEdit] [odb.c:1264:db_open_database] removing client show_pulses, pid 30706, index 1 because the pid no longer exists
+Mon Aug  4 20:25:07 2008 [ODBEdit] Deleted /System/Clients/30706 entry for client show_pulses
+
+Mon Aug  4 20:27:32 2008 [ODBEdit] [odb.c:1264:db_open_database] removing client Ebuilder, pid 30529, index 2 because the pid no longer exists
+Mon Aug  4 20:27:32 2008 [ODBEdit] Deleted /System/Clients/30529 entry for client Ebuilder
+
+Mon Aug  4 20:41:04 2008 [ODBEdit] [odb.c:1264:db_open_database] removing client Analyzer, pid 30838, index 1 because the pid no longer exists
+Mon Aug  4 20:41:04 2008 [ODBEdit] [odb.c:1264:db_open_database] removing client Ebuilder, pid 30875, index 2 because the pid no longer exists
+Mon Aug  4 20:41:04 2008 [ODBEdit] Deleted /System/Clients/1 entry for client Analyzer
+
+Mon Aug  4 20:41:41 2008 [ODBEdit] Deleted /System/Clients/30875 entry for client Ebuilder
+
+Mon Aug  4 21:40:57 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 31179, index 7 because the pid no longer exists
+Mon Aug  4 21:40:57 2008 [show_pulses] Deleted /System/Clients/31179 entry for client show_pulses
+
+Mon Aug  4 21:41:34 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 31195, index 7 because the pid no longer exists
+Mon Aug  4 21:41:34 2008 [show_pulses] Deleted /System/Clients/31195 entry for client show_pulses
+
+Mon Aug  4 21:41:50 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 31202, index 8 because the pid no longer exists
+Mon Aug  4 21:41:50 2008 [show_pulses] Deleted /System/Clients/31202 entry for client show_pulses
+
+Mon Aug  4 21:42:05 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 31211, index 7 because the pid no longer exists
+Mon Aug  4 21:42:05 2008 [show_pulses] Deleted /System/Clients/31211 entry for client show_pulses
+
+Mon Aug  4 21:42:22 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 31219, index 8 because the pid no longer exists
+Mon Aug  4 21:42:22 2008 [show_pulses] Deleted /System/Clients/31219 entry for client show_pulses
+
+Mon Aug  4 21:52:20 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 31321, index 7 because the pid no longer exists
+Mon Aug  4 21:52:20 2008 [show_pulses] Deleted /System/Clients/31321 entry for client show_pulses
+
+Mon Aug  4 21:52:28 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 31331, index 8 because the pid no longer exists
+Mon Aug  4 21:52:28 2008 [show_pulses] Deleted /System/Clients/31331 entry for client show_pulses
+
+Tue Aug  5 14:10:40 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 32708, index 7 because the pid no longer exists
+Tue Aug  5 14:10:40 2008 [show_pulses] Deleted /System/Clients/32708 entry for client show_pulses
+
+Tue Aug  5 14:10:49 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 32716, index 8 because the pid no longer exists
+Tue Aug  5 14:10:49 2008 [show_pulses] Deleted /System/Clients/32716 entry for client show_pulses
+
+Tue Aug  5 14:10:57 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 32724, index 7 because the pid no longer exists
+Tue Aug  5 14:10:57 2008 [show_pulses] Deleted /System/Clients/32724 entry for client show_pulses
+
+Tue Aug  5 14:11:28 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 32731, index 8 because the pid no longer exists
+Tue Aug  5 14:11:28 2008 [show_pulses] Deleted /System/Clients/32731 entry for client show_pulses
+
+Tue Aug  5 14:12:06 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 32739, index 7 because the pid no longer exists
+Tue Aug  5 14:12:06 2008 [show_pulses] Deleted /System/Clients/32739 entry for client show_pulses
+
+Tue Aug  5 14:12:57 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 32746, index 8 because the pid no longer exists
+Tue Aug  5 14:12:57 2008 [show_pulses] Deleted /System/Clients/32746 entry for client show_pulses
+
+Tue Aug  5 14:19:11 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 317, index 7 because the pid no longer exists
+Tue Aug  5 14:19:11 2008 [show_pulses] Deleted /System/Clients/317 entry for client show_pulses
+
+Tue Aug  5 14:56:39 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 382, index 7 because the pid no longer exists
+Tue Aug  5 14:56:39 2008 [show_pulses] Deleted /System/Clients/382 entry for client show_pulses
+
+Tue Aug  5 14:57:01 2008 [ODBEdit] [odb.c:1264:db_open_database] removing client show_pulses, pid 389, index 1 because the pid no longer exists
+Tue Aug  5 14:57:01 2008 [ODBEdit] Deleted /System/Clients/389 entry for client show_pulses
+
+Tue Aug  5 14:59:17 2008 [ODBEdit] [odb.c:1264:db_open_database] removing client Ebuilder, pid 31299, index 2 because the pid no longer exists
+Tue Aug  5 14:59:17 2008 [ODBEdit] Deleted /System/Clients/31299 entry for client Ebuilder
+
+Tue Aug  5 15:00:44 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 441, index 6 because the pid no longer exists
+Tue Aug  5 15:00:44 2008 [show_pulses] Deleted /System/Clients/441 entry for client show_pulses
+
+Tue Aug  5 15:28:59 2008 [ODBEdit] [odb.c:1264:db_open_database] removing client show_pulses, pid 567, index 6 because the pid no longer exists
+Tue Aug  5 15:28:59 2008 [ODBEdit] Deleted /System/Clients/567 entry for client show_pulses
+
+Tue Aug  5 17:32:23 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 1045, index 6 because the pid no longer exists
+Tue Aug  5 17:32:23 2008 [show_pulses] Deleted /System/Clients/1045 entry for client show_pulses
+
+Tue Aug  5 17:48:07 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 1143, index 6 because the pid no longer exists
+Tue Aug  5 17:48:07 2008 [show_pulses] Deleted /System/Clients/1143 entry for client show_pulses
+
+Tue Aug  5 18:29:54 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 1233, index 6 because the pid no longer exists
+Tue Aug  5 18:29:54 2008 [show_pulses] Deleted /System/Clients/1233 entry for client show_pulses
+
+Tue Aug  5 19:06:46 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 1294, index 6 because the pid no longer exists
+Tue Aug  5 19:06:46 2008 [show_pulses] Deleted /System/Clients/1294 entry for client show_pulses
+
+Fri Aug 22 13:53:51 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 5797, index 6 because the pid no longer exists
+Fri Aug 22 13:53:51 2008 [show_pulses] Deleted /System/Clients/5797 entry for client show_pulses
+
+Fri Aug 22 13:54:14 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 5804, index 7 because the pid no longer exists
+Fri Aug 22 13:54:14 2008 [show_pulses] Deleted /System/Clients/5804 entry for client show_pulses
+
+Fri Aug 22 14:03:19 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 5839, index 6 because the pid no longer exists
+Fri Aug 22 14:03:19 2008 [show_pulses] Deleted /System/Clients/5839 entry for client show_pulses
+
+Fri Aug 22 14:05:33 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 5864, index 6 because the pid no longer exists
+Fri Aug 22 14:05:33 2008 [show_pulses] Deleted /System/Clients/5864 entry for client show_pulses
+
+Fri Aug 22 14:13:15 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 5933, index 6 because the pid no longer exists
+Fri Aug 22 14:13:15 2008 [show_pulses] Deleted /System/Clients/5933 entry for client show_pulses
+
+Fri Aug 22 14:15:20 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 5941, index 6 because the pid no longer exists
+Fri Aug 22 14:15:20 2008 [show_pulses] Deleted /System/Clients/5941 entry for client show_pulses
+
+Fri Aug 22 14:43:58 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 6039, index 6 because the pid no longer exists
+Fri Aug 22 14:43:58 2008 [show_pulses] Deleted /System/Clients/6039 entry for client show_pulses
+
+Fri Aug 22 14:48:24 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 6046, index 7 because the pid no longer exists
+Fri Aug 22 14:48:24 2008 [show_pulses] Deleted /System/Clients/6046 entry for client show_pulses
+
+Fri Aug 22 14:48:34 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 6057, index 6 because the pid no longer exists
+Fri Aug 22 14:48:34 2008 [show_pulses] Deleted /System/Clients/6057 entry for client show_pulses
+
+Fri Aug 22 15:06:57 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 6168, index 6 because the pid no longer exists
+Fri Aug 22 15:06:57 2008 [show_pulses] Deleted /System/Clients/6168 entry for client show_pulses
+
+Fri Aug 22 15:50:57 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 6275, index 6 because the pid no longer exists
+Fri Aug 22 15:50:57 2008 [show_pulses] Deleted /System/Clients/6275 entry for client show_pulses
+
+Mon Aug 25 09:36:46 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 13393, index 6 because the pid no longer exists
+Mon Aug 25 09:36:46 2008 [show_pulses] Deleted /System/Clients/13393 entry for client show_pulses
+
+Mon Sep  8 10:51:58 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 29212, index 6 because the pid no longer exists
+Mon Sep  8 10:51:58 2008 [show_pulses] Deleted /System/Clients/29212 entry for client show_pulses
+
+Mon Sep  8 11:03:34 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 29255, index 6 because the pid no longer exists
+Mon Sep  8 11:03:34 2008 [show_pulses] Deleted /System/Clients/29255 entry for client show_pulses
+
+Mon Sep  8 12:33:45 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29475, index 6 because the pid no longer exists
+Mon Sep  8 12:33:45 2008 [show_pulses] Deleted /System/Clients/29475 entry for client show_pulses1
+
+Mon Sep  8 13:53:25 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29582, index 6 because the pid no longer exists
+Mon Sep  8 13:53:25 2008 [show_pulses] Deleted /System/Clients/29582 entry for client show_pulses1
+
+Mon Sep  8 13:54:30 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29592, index 8 because the pid no longer exists
+Mon Sep  8 13:54:30 2008 [show_pulses] Deleted /System/Clients/29592 entry for client show_pulses1
+
+Mon Sep  8 14:06:01 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29599, index 6 because the pid no longer exists
+Mon Sep  8 14:06:01 2008 [show_pulses] Deleted /System/Clients/29599 entry for client show_pulses1
+
+Mon Sep  8 14:19:59 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29644, index 8 because the pid no longer exists
+Mon Sep  8 14:19:59 2008 [show_pulses] Deleted /System/Clients/29644 entry for client show_pulses1
+
+Mon Sep  8 14:36:37 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29744, index 6 because the pid no longer exists
+Mon Sep  8 14:36:37 2008 [show_pulses] Deleted /System/Clients/29744 entry for client show_pulses1
+
+Mon Sep  8 14:40:05 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29758, index 8 because the pid no longer exists
+Mon Sep  8 14:40:05 2008 [show_pulses] Deleted /System/Clients/29758 entry for client show_pulses1
+
+Mon Sep  8 14:42:49 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29776, index 6 because the pid no longer exists
+Mon Sep  8 14:42:49 2008 [show_pulses] Deleted /System/Clients/29776 entry for client show_pulses1
+
+Thu Sep 11 14:51:44 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 32584, index 5 because the pid no longer exists
+Thu Sep 11 14:51:44 2008 [show_pulses] Deleted /System/Clients/32584 entry for client show_pulses
+
+Fri Sep 12 17:05:29 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 1868, index 6 because the pid no longer exists
+Fri Sep 12 17:05:29 2008 [show_pulses] Deleted /System/Clients/1868 entry for client show_pulses1
+
+Fri Sep 12 17:20:35 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 1876, index 7 because the pid no longer exists
+Fri Sep 12 17:20:35 2008 [show_pulses] Deleted /System/Clients/1876 entry for client show_pulses1
+
+Fri Sep 12 17:21:46 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 1955, index 6 because the pid no longer exists
+Fri Sep 12 17:21:46 2008 [show_pulses] Deleted /System/Clients/1955 entry for client show_pulses1
+
+Fri Sep 12 18:23:28 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 2028, index 5 because the pid no longer exists
+Fri Sep 12 18:23:28 2008 [show_pulses] Deleted /System/Clients/2028 entry for client show_pulses
+
+Mon Sep 15 15:46:26 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 9241, index 5 because the pid no longer exists
+Mon Sep 15 15:46:26 2008 [show_pulses] Deleted /System/Clients/9241 entry for client show_pulses
+
+Mon Sep 15 15:50:49 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 9249, index 6 because the pid no longer exists
+Mon Sep 15 15:50:49 2008 [show_pulses] Deleted /System/Clients/9249 entry for client show_pulses
+
+Mon Sep 15 15:53:15 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 9320, index 6 because the pid no longer exists
+Mon Sep 15 15:53:15 2008 [show_pulses] Deleted /System/Clients/9320 entry for client show_pulses1
+
+Mon Sep 15 16:10:51 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 9374, index 5 because the pid no longer exists
+Mon Sep 15 16:10:51 2008 [show_pulses] Deleted /System/Clients/9374 entry for client show_pulses
+
+Mon Sep 15 16:14:47 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 9384, index 6 because the pid no longer exists
+Mon Sep 15 16:14:47 2008 [show_pulses] Deleted /System/Clients/9384 entry for client show_pulses
+
+Mon Sep 15 16:21:13 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 9403, index 5 because the pid no longer exists
+Mon Sep 15 16:21:13 2008 [show_pulses] Deleted /System/Clients/9403 entry for client show_pulses
+
+Mon Sep 15 16:41:45 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 9455, index 5 because the pid no longer exists
+Mon Sep 15 16:41:45 2008 [show_pulses] Deleted /System/Clients/9455 entry for client show_pulses
+
+Mon Sep 15 16:55:16 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 9706, index 5 because the pid no longer exists
+Mon Sep 15 16:55:16 2008 [show_pulses] Deleted /System/Clients/9706 entry for client show_pulses
+
+Mon Sep 15 17:03:32 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 9743, index 5 because the pid no longer exists
+Mon Sep 15 17:03:32 2008 [show_pulses] Deleted /System/Clients/9743 entry for client show_pulses
+
+Mon Sep 15 17:25:17 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 9753, index 6 because the pid no longer exists
+Mon Sep 15 17:25:17 2008 [show_pulses] Deleted /System/Clients/9753 entry for client show_pulses
+
+Mon Sep 15 17:36:32 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 9779, index 5 because the pid no longer exists
+Mon Sep 15 17:36:32 2008 [show_pulses] Deleted /System/Clients/9779 entry for client show_pulses
+
+Mon Sep 15 17:51:32 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 9794, index 6 because the pid no longer exists
+Mon Sep 15 17:51:32 2008 [show_pulses] Deleted /System/Clients/9794 entry for client show_pulses
+
+Mon Sep 15 17:54:02 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 9811, index 5 because the pid no longer exists
+Mon Sep 15 17:54:02 2008 [show_pulses] Deleted /System/Clients/9811 entry for client show_pulses
+
+Tue Sep 16 13:44:22 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 13905, index 5 because the pid no longer exists
+Tue Sep 16 13:44:22 2008 [show_pulses] Deleted /System/Clients/13905 entry for client show_pulses
+
+Tue Sep 16 13:45:09 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 13933, index 5 because the pid no longer exists
+Tue Sep 16 13:45:09 2008 [show_pulses] Deleted /System/Clients/13933 entry for client show_pulses
+
+Tue Sep 16 13:45:52 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 13951, index 6 because the pid no longer exists
+Tue Sep 16 13:45:52 2008 [show_pulses] Deleted /System/Clients/13951 entry for client show_pulses
+
+Tue Sep 16 13:47:51 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 13969, index 5 because the pid no longer exists
+Tue Sep 16 13:47:51 2008 [show_pulses] Deleted /System/Clients/13969 entry for client show_pulses
+
+Tue Sep 16 13:50:37 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 13988, index 6 because the pid no longer exists
+Tue Sep 16 13:50:37 2008 [show_pulses] Deleted /System/Clients/13988 entry for client show_pulses
+
+Tue Sep 16 13:51:38 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14008, index 5 because the pid no longer exists
+Tue Sep 16 13:51:38 2008 [show_pulses] Deleted /System/Clients/14008 entry for client show_pulses
+
+Tue Sep 16 13:52:35 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14026, index 6 because the pid no longer exists
+Tue Sep 16 13:52:35 2008 [show_pulses] Deleted /System/Clients/14026 entry for client show_pulses
+
+Tue Sep 16 14:47:38 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14177, index 5 because the pid no longer exists
+Tue Sep 16 14:47:38 2008 [show_pulses] Deleted /System/Clients/14177 entry for client show_pulses
+
+Tue Sep 16 14:49:21 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14184, index 6 because the pid no longer exists
+Tue Sep 16 14:49:21 2008 [show_pulses] Deleted /System/Clients/14184 entry for client show_pulses
+
+Tue Sep 16 15:31:09 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14267, index 5 because the pid no longer exists
+Tue Sep 16 15:31:09 2008 [show_pulses] Deleted /System/Clients/14267 entry for client show_pulses
+
+Tue Sep 16 15:32:57 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14328, index 5 because the pid no longer exists
+Tue Sep 16 15:32:57 2008 [show_pulses] Deleted /System/Clients/14328 entry for client show_pulses
+
+Tue Sep 16 15:33:58 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14346, index 6 because the pid no longer exists
+Tue Sep 16 15:33:58 2008 [show_pulses] Deleted /System/Clients/14346 entry for client show_pulses
+
+Tue Sep 16 15:34:22 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14364, index 5 because the pid no longer exists
+Tue Sep 16 15:34:22 2008 [show_pulses] Deleted /System/Clients/14364 entry for client show_pulses
+
+Tue Sep 16 15:36:59 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14414, index 5 because the pid no longer exists
+Tue Sep 16 15:36:59 2008 [show_pulses] Deleted /System/Clients/14414 entry for client show_pulses
+
+Tue Sep 16 16:26:58 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 14517, index 5 because the pid no longer exists
+Tue Sep 16 16:26:58 2008 [show_pulses] Deleted /System/Clients/14517 entry for client show_pulses1
+
+Tue Sep 16 16:37:55 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 14537, index 5 because the pid no longer exists
+Tue Sep 16 16:37:55 2008 [show_pulses] Deleted /System/Clients/14537 entry for client show_pulses1
+
+Tue Sep 16 17:29:10 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14839, index 5 because the pid no longer exists
+Tue Sep 16 17:29:10 2008 [show_pulses] Deleted /System/Clients/14839 entry for client show_pulses
+
+Tue Sep 16 17:30:02 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14846, index 6 because the pid no longer exists
+Tue Sep 16 17:30:02 2008 [show_pulses] Deleted /System/Clients/14846 entry for client show_pulses
+
+Tue Sep 16 17:40:52 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14869, index 5 because the pid no longer exists
+Tue Sep 16 17:40:52 2008 [show_pulses] Deleted /System/Clients/14869 entry for client show_pulses
+
+Tue Sep 16 17:43:57 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14877, index 6 because the pid no longer exists
+Tue Sep 16 17:43:57 2008 [show_pulses] Deleted /System/Clients/14877 entry for client show_pulses
+
+Tue Sep 16 17:49:20 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14897, index 5 because the pid no longer exists
+Tue Sep 16 17:49:20 2008 [show_pulses] Deleted /System/Clients/14897 entry for client show_pulses
+
+Tue Sep 16 17:50:10 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14904, index 6 because the pid no longer exists
+Tue Sep 16 17:50:10 2008 [show_pulses] Deleted /System/Clients/14904 entry for client show_pulses
+
+Tue Sep 16 17:55:05 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14922, index 5 because the pid no longer exists
+Tue Sep 16 17:55:05 2008 [show_pulses] Deleted /System/Clients/14922 entry for client show_pulses
+
+Tue Sep 16 17:59:07 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14930, index 6 because the pid no longer exists
+Tue Sep 16 17:59:07 2008 [show_pulses] Deleted /System/Clients/14930 entry for client show_pulses
+
+Tue Sep 16 17:59:52 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14941, index 5 because the pid no longer exists
+Tue Sep 16 17:59:52 2008 [show_pulses] Deleted /System/Clients/14941 entry for client show_pulses
+
+Tue Sep 16 18:04:38 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14948, index 6 because the pid no longer exists
+Tue Sep 16 18:04:38 2008 [show_pulses] Deleted /System/Clients/14948 entry for client show_pulses
+
+Tue Sep 16 18:04:43 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14962, index 5 because the pid no longer exists
+Tue Sep 16 18:04:43 2008 [show_pulses] Deleted /System/Clients/14962 entry for client show_pulses
+
+Tue Sep 16 18:05:47 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14969, index 6 because the pid no longer exists
+Tue Sep 16 18:05:47 2008 [show_pulses] Deleted /System/Clients/14969 entry for client show_pulses
+
+Wed Sep 17 12:54:46 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 16277, index 6 because the pid no longer exists
+Wed Sep 17 12:54:46 2008 [show_pulses] Deleted /System/Clients/16277 entry for client show_pulses1
+
+Wed Sep 17 12:56:35 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 16285, index 7 because the pid no longer exists
+Wed Sep 17 12:56:35 2008 [show_pulses] Deleted /System/Clients/16285 entry for client show_pulses1
+
+Wed Sep 17 12:58:00 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 16293, index 6 because the pid no longer exists
+Wed Sep 17 12:58:00 2008 [show_pulses] Deleted /System/Clients/16293 entry for client show_pulses1
+
+Wed Sep 17 13:03:35 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 16326, index 6 because the pid no longer exists
+Wed Sep 17 13:03:35 2008 [show_pulses] Deleted /System/Clients/16326 entry for client show_pulses1
+
+Thu Sep 18 15:45:15 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 18193, index 5 because the pid no longer exists
+Thu Sep 18 15:45:15 2008 [show_pulses] Deleted /System/Clients/18193 entry for client show_pulses
+
+Fri Sep 19 13:50:45 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 19687, index 5 because the pid no longer exists
+Fri Sep 19 13:50:45 2008 [show_pulses] Deleted /System/Clients/19687 entry for client show_pulses
+
+Fri Sep 19 13:52:11 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 19696, index 6 because the pid no longer exists
+Fri Sep 19 13:52:11 2008 [show_pulses] Deleted /System/Clients/19696 entry for client show_pulses
+
+Fri Sep 19 13:53:59 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 19714, index 5 because the pid no longer exists
+Fri Sep 19 13:53:59 2008 [show_pulses] Deleted /System/Clients/19714 entry for client show_pulses
+
+Fri Sep 19 13:54:36 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 19733, index 6 because the pid no longer exists
+Fri Sep 19 13:54:36 2008 [show_pulses] Deleted /System/Clients/19733 entry for client show_pulses
+
+Fri Sep 19 14:01:50 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 19752, index 5 because the pid no longer exists
+Fri Sep 19 14:01:50 2008 [show_pulses] Deleted /System/Clients/19752 entry for client show_pulses
+
+Fri Sep 19 14:14:29 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 19775, index 6 because the pid no longer exists
+Fri Sep 19 14:14:29 2008 [show_pulses] Deleted /System/Clients/19775 entry for client show_pulses
+
+Fri Sep 19 14:15:35 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 19880, index 5 because the pid no longer exists
+Fri Sep 19 14:15:35 2008 [show_pulses] Deleted /System/Clients/19880 entry for client show_pulses
+
+Fri Sep 19 14:53:50 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 19964, index 5 because the pid no longer exists
+Fri Sep 19 14:53:50 2008 [show_pulses] Deleted /System/Clients/19964 entry for client show_pulses
+
+Fri Sep 19 15:17:54 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 19989, index 6 because the pid no longer exists
+Fri Sep 19 15:17:54 2008 [show_pulses] Deleted /System/Clients/19989 entry for client show_pulses
+
+Fri Sep 19 15:34:44 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20077, index 5 because the pid no longer exists
+Fri Sep 19 15:34:44 2008 [show_pulses] Deleted /System/Clients/20077 entry for client show_pulses
+
+Fri Sep 19 15:35:17 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20096, index 6 because the pid no longer exists
+Fri Sep 19 15:35:17 2008 [show_pulses] Deleted /System/Clients/20096 entry for client show_pulses
+
+Fri Sep 19 15:42:48 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20153, index 5 because the pid no longer exists
+Fri Sep 19 15:42:48 2008 [show_pulses] Deleted /System/Clients/20153 entry for client show_pulses
+
+Fri Sep 19 15:44:06 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20172, index 6 because the pid no longer exists
+Fri Sep 19 15:44:06 2008 [show_pulses] Deleted /System/Clients/20172 entry for client show_pulses
+
+Fri Sep 19 15:50:45 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20222, index 5 because the pid no longer exists
+Fri Sep 19 15:50:45 2008 [show_pulses] Deleted /System/Clients/20222 entry for client show_pulses
+
+Fri Sep 19 15:51:17 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20239, index 5 because the pid no longer exists
+Fri Sep 19 15:51:17 2008 [show_pulses] Deleted /System/Clients/20239 entry for client show_pulses
+
+Fri Sep 19 15:51:37 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20246, index 6 because the pid no longer exists
+Fri Sep 19 15:51:37 2008 [show_pulses] Deleted /System/Clients/20246 entry for client show_pulses
+
+Fri Sep 19 15:52:18 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20253, index 5 because the pid no longer exists
+Fri Sep 19 15:52:18 2008 [show_pulses] Deleted /System/Clients/20253 entry for client show_pulses
+
+Fri Sep 19 15:52:29 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20261, index 6 because the pid no longer exists
+Fri Sep 19 15:52:29 2008 [show_pulses] Deleted /System/Clients/20261 entry for client show_pulses
+
+Fri Sep 19 16:22:58 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20268, index 5 because the pid no longer exists
+Fri Sep 19 16:22:58 2008 [show_pulses] Deleted /System/Clients/20268 entry for client show_pulses
+
+Fri Sep 19 16:29:45 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20313, index 6 because the pid no longer exists
+Fri Sep 19 16:29:45 2008 [show_pulses] Deleted /System/Clients/20313 entry for client show_pulses
+
+Fri Sep 19 17:25:05 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20528, index 5 because the pid no longer exists
+Fri Sep 19 17:25:05 2008 [show_pulses] Deleted /System/Clients/20528 entry for client show_pulses
+
+Fri Sep 19 17:26:14 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20536, index 6 because the pid no longer exists
+Fri Sep 19 17:26:14 2008 [show_pulses] Deleted /System/Clients/20536 entry for client show_pulses
+
+Fri Sep 19 17:27:05 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20544, index 5 because the pid no longer exists
+Fri Sep 19 17:27:05 2008 [show_pulses] Deleted /System/Clients/20544 entry for client show_pulses
+
+Fri Sep 19 17:28:38 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20551, index 6 because the pid no longer exists
+Fri Sep 19 17:28:38 2008 [show_pulses] Deleted /System/Clients/20551 entry for client show_pulses
+
+Fri Sep 19 17:29:38 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20559, index 5 because the pid no longer exists
+Fri Sep 19 17:29:38 2008 [show_pulses] Deleted /System/Clients/20559 entry for client show_pulses
+
+Fri Sep 19 17:30:31 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20566, index 6 because the pid no longer exists
+Fri Sep 19 17:30:31 2008 [show_pulses] Deleted /System/Clients/20566 entry for client show_pulses
+
+Fri Sep 19 17:48:50 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 20584, index 5 because the pid no longer exists
+Fri Sep 19 17:48:50 2008 [show_pulses] Deleted /System/Clients/20584 entry for client show_pulses
+
+Mon Sep 22 11:29:10 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 27709, index 5 because the pid no longer exists
+Mon Sep 22 11:29:10 2008 [show_pulses] Deleted /System/Clients/27709 entry for client show_pulses
+
+Mon Sep 22 11:36:45 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 27790, index 5 because the pid no longer exists
+Mon Sep 22 11:36:45 2008 [show_pulses] Deleted /System/Clients/27790 entry for client show_pulses1
+
+Mon Sep 22 11:39:47 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 27807, index 5 because the pid no longer exists
+Mon Sep 22 11:39:47 2008 [show_pulses] Deleted /System/Clients/27807 entry for client show_pulses1
+
+Mon Sep 22 11:52:57 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 27870, index 5 because the pid no longer exists
+Mon Sep 22 11:52:57 2008 [show_pulses] Deleted /System/Clients/27870 entry for client show_pulses1
+
+Mon Sep 22 11:54:45 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 27892, index 7 because the pid no longer exists
+Mon Sep 22 11:54:45 2008 [show_pulses] Deleted /System/Clients/27892 entry for client show_pulses1
+
+Mon Sep 22 11:59:02 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 27911, index 5 because the pid no longer exists
+Mon Sep 22 11:59:02 2008 [show_pulses] Deleted /System/Clients/27911 entry for client show_pulses1
+
+Mon Sep 22 12:01:22 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 27930, index 7 because the pid no longer exists
+Mon Sep 22 12:01:22 2008 [show_pulses] Deleted /System/Clients/27930 entry for client show_pulses1
+
+Mon Sep 22 14:28:18 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 28362, index 5 because the pid no longer exists
+Mon Sep 22 14:28:18 2008 [show_pulses] Deleted /System/Clients/28362 entry for client show_pulses1
+
+Mon Sep 22 14:42:55 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 28370, index 7 because the pid no longer exists
+Mon Sep 22 14:42:55 2008 [show_pulses] Deleted /System/Clients/28370 entry for client show_pulses1
+
+Mon Sep 22 14:53:32 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 28762, index 5 because the pid no longer exists
+Mon Sep 22 14:53:32 2008 [show_pulses] Deleted /System/Clients/28762 entry for client show_pulses1
+
+Mon Sep 22 15:02:15 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29401, index 5 because the pid no longer exists
+Mon Sep 22 15:02:15 2008 [show_pulses] Deleted /System/Clients/29401 entry for client show_pulses1
+
+Mon Sep 22 15:05:45 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29408, index 5 because the pid no longer exists
+Mon Sep 22 15:05:45 2008 [show_pulses] Deleted /System/Clients/29408 entry for client show_pulses1
+
+Mon Sep 22 15:14:59 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29443, index 5 because the pid no longer exists
+Mon Sep 22 15:14:59 2008 [show_pulses] Deleted /System/Clients/29443 entry for client show_pulses1
+
+Mon Sep 22 15:18:17 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29462, index 7 because the pid no longer exists
+Mon Sep 22 15:18:17 2008 [show_pulses] Deleted /System/Clients/29462 entry for client show_pulses1
+
+Mon Sep 22 15:24:09 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29491, index 5 because the pid no longer exists
+Mon Sep 22 15:24:09 2008 [show_pulses] Deleted /System/Clients/29491 entry for client show_pulses1
+
+Mon Sep 22 15:36:03 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29532, index 5 because the pid no longer exists
+Mon Sep 22 15:36:03 2008 [show_pulses] Deleted /System/Clients/29532 entry for client show_pulses1
+
+Mon Sep 22 15:39:54 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29601, index 7 because the pid no longer exists
+Mon Sep 22 15:39:54 2008 [show_pulses] Deleted /System/Clients/29601 entry for client show_pulses1
+
+Mon Sep 22 15:41:18 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29608, index 10 because the pid no longer exists
+Mon Sep 22 15:41:18 2008 [show_pulses] Deleted /System/Clients/29608 entry for client show_pulses1
+
+Mon Sep 22 15:41:24 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29616, index 7 because the pid no longer exists
+Mon Sep 22 15:41:24 2008 [show_pulses] Deleted /System/Clients/29616 entry for client show_pulses1
+
+Mon Sep 22 15:42:20 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29623, index 10 because the pid no longer exists
+Mon Sep 22 15:42:20 2008 [show_pulses] Deleted /System/Clients/29623 entry for client show_pulses1
+
+Mon Sep 22 15:43:25 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 29630, index 7 because the pid no longer exists
+Mon Sep 22 15:43:25 2008 [show_pulses] Deleted /System/Clients/29630 entry for client show_pulses1
+
+Tue Sep 23 14:09:40 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 31036, index 7 because the pid no longer exists
+Tue Sep 23 14:09:40 2008 [show_pulses] Deleted /System/Clients/31036 entry for client show_pulses2
+
+Thu Oct 23 13:55:10 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 25380, index 7 because the pid no longer exists
+Thu Oct 23 13:55:10 2008 [show_pulses] Deleted /System/Clients/25380 entry for client show_pulses2
+
+Thu Oct 23 14:01:25 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 25463, index 7 because the pid no longer exists
+Thu Oct 23 14:01:25 2008 [show_pulses] Deleted /System/Clients/25463 entry for client show_pulses2
+
+Thu Oct 23 14:12:04 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 25497, index 7 because the pid no longer exists
+Thu Oct 23 14:12:04 2008 [show_pulses] Deleted /System/Clients/25497 entry for client show_pulses2
+
+Thu Oct 23 14:12:25 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 25509, index 7 because the pid no longer exists
+Thu Oct 23 14:12:25 2008 [show_pulses] Deleted /System/Clients/25509 entry for client show_pulses2
+
+Thu Oct 23 14:14:45 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 25527, index 7 because the pid no longer exists
+Thu Oct 23 14:14:45 2008 [show_pulses] Deleted /System/Clients/25527 entry for client show_pulses2
+
+Thu Oct 23 14:19:30 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 25534, index 7 because the pid no longer exists
+Thu Oct 23 14:19:30 2008 [show_pulses] Deleted /System/Clients/25534 entry for client show_pulses2
+
+Thu Oct 23 14:27:11 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 25590, index 7 because the pid no longer exists
+Thu Oct 23 14:27:12 2008 [show_pulses] Deleted /System/Clients/25590 entry for client show_pulses2
+
+Thu Oct 23 14:27:26 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 25603, index 8 because the pid no longer exists
+Thu Oct 23 14:27:26 2008 [show_pulses] Deleted /System/Clients/25603 entry for client show_pulses2
+
+Thu Oct 23 14:30:43 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 25623, index 5 because the pid no longer exists
+Thu Oct 23 14:30:43 2008 [show_pulses] Deleted /System/Clients/25623 entry for client show_pulses1
+
+Thu Oct 23 14:38:41 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 25650, index 5 because the pid no longer exists
+Thu Oct 23 14:38:41 2008 [show_pulses] Deleted /System/Clients/25650 entry for client show_pulses1
+
+Thu Oct 23 14:38:56 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 25666, index 5 because the pid no longer exists
+Thu Oct 23 14:38:56 2008 [show_pulses] Deleted /System/Clients/25666 entry for client show_pulses1
+
+Thu Oct 23 14:44:33 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 25826, index 5 because the pid no longer exists
+Thu Oct 23 14:44:33 2008 [show_pulses] Deleted /System/Clients/25826 entry for client show_pulses1
+
+Thu Oct 23 14:47:49 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 25845, index 5 because the pid no longer exists
+Thu Oct 23 14:47:49 2008 [show_pulses] Deleted /System/Clients/25845 entry for client show_pulses1
+
+Thu Oct 23 14:48:00 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 25852, index 7 because the pid no longer exists
+Thu Oct 23 14:48:00 2008 [show_pulses] Deleted /System/Clients/25852 entry for client show_pulses1
+
+Thu Oct 23 14:53:06 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 25942, index 7 because the pid no longer exists
+Thu Oct 23 14:53:06 2008 [show_pulses] Deleted /System/Clients/25942 entry for client show_pulses2
+
+Thu Oct 23 14:53:16 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 25949, index 5 because the pid no longer exists
+Thu Oct 23 14:53:16 2008 [show_pulses] Deleted /System/Clients/25949 entry for client show_pulses1
+
+Thu Oct 23 14:53:25 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 25956, index 7 because the pid no longer exists
+Thu Oct 23 14:53:25 2008 [show_pulses] Deleted /System/Clients/25956 entry for client show_pulses1
+
+Thu Oct 23 14:53:31 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 25963, index 5 because the pid no longer exists
+Thu Oct 23 14:53:31 2008 [show_pulses] Deleted /System/Clients/25963 entry for client show_pulses1
+
+Thu Oct 23 14:53:41 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 25970, index 7 because the pid no longer exists
+Thu Oct 23 14:53:41 2008 [show_pulses] Deleted /System/Clients/25970 entry for client show_pulses1
+
+Thu Oct 23 14:53:50 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 25977, index 5 because the pid no longer exists
+Thu Oct 23 14:53:50 2008 [show_pulses] Deleted /System/Clients/25977 entry for client show_pulses1
+
+Thu Oct 23 14:54:04 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 25984, index 7 because the pid no longer exists
+Thu Oct 23 14:54:04 2008 [show_pulses] Deleted /System/Clients/25984 entry for client show_pulses1
+
+Thu Oct 23 14:54:17 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 25991, index 5 because the pid no longer exists
+Thu Oct 23 14:54:17 2008 [show_pulses] Deleted /System/Clients/25991 entry for client show_pulses1
+
+Thu Oct 23 14:54:42 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 25999, index 7 because the pid no longer exists
+Thu Oct 23 14:54:42 2008 [show_pulses] Deleted /System/Clients/25999 entry for client show_pulses1
+
+Thu Oct 23 14:54:51 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 26006, index 5 because the pid no longer exists
+Thu Oct 23 14:54:51 2008 [show_pulses] Deleted /System/Clients/26006 entry for client show_pulses1
+
+Thu Oct 23 14:59:48 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 26013, index 7 because the pid no longer exists
+Thu Oct 23 14:59:48 2008 [show_pulses] Deleted /System/Clients/26013 entry for client show_pulses1
+
+Thu Oct 23 14:59:56 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 26024, index 5 because the pid no longer exists
+Thu Oct 23 14:59:56 2008 [show_pulses] Deleted /System/Clients/26024 entry for client show_pulses1
+
+Thu Oct 23 16:24:24 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 26137, index 7 because the pid no longer exists
+Thu Oct 23 16:24:24 2008 [show_pulses] Deleted /System/Clients/26137 entry for client show_pulses2
+
+Thu Oct 23 16:30:07 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 26176, index 5 because the pid no longer exists
+Thu Oct 23 16:30:07 2008 [show_pulses] Deleted /System/Clients/26176 entry for client show_pulses1
+
+Fri Oct 24 11:03:08 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 27530, index 5 because the pid no longer exists
+Fri Oct 24 11:03:08 2008 [show_pulses] Deleted /System/Clients/27530 entry for client show_pulses1
+
+Fri Oct 24 11:08:10 2008 [show_pulses] [odb.c:1264:db_open_database] removing client Analyzer, pid 27713, index 0 because the pid no longer exists
+Fri Oct 24 11:08:10 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 27537, index 7 because the pid no longer exists
+Fri Oct 24 11:08:10 2008 [show_pulses] Deleted /System/Clients/27537 entry for client show_pulses1
+
+Fri Oct 24 11:08:10 2008 [show_pulses] Deleted /System/Clients/1 entry for client Analyzer
+
+Fri Oct 24 11:11:08 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 27770, index 0 because the pid no longer exists
+Fri Oct 24 11:11:08 2008 [show_pulses] Deleted /System/Clients/27770 entry for client show_pulses1
+
+Fri Oct 24 11:52:51 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses1, pid 27828, index 0 because the pid no longer exists
+Fri Oct 24 11:52:51 2008 [show_pulses] Deleted /System/Clients/27828 entry for client show_pulses1
+
+Fri Oct 24 12:35:17 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses3, pid 27910, index 8 because the pid no longer exists
+Fri Oct 24 12:35:17 2008 [show_pulses] Deleted /System/Clients/27910 entry for client show_pulses3
+
+Fri Oct 24 12:42:48 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 27958, index 7 because the pid no longer exists
+Fri Oct 24 12:42:48 2008 [show_pulses] Deleted /System/Clients/27958 entry for client show_pulses2
+
+Fri Oct 24 12:43:31 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 27966, index 8 because the pid no longer exists
+Fri Oct 24 12:43:31 2008 [show_pulses] Deleted /System/Clients/27966 entry for client show_pulses2
+
+Fri Oct 24 12:44:14 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 27973, index 7 because the pid no longer exists
+Fri Oct 24 12:44:14 2008 [show_pulses] Deleted /System/Clients/27973 entry for client show_pulses2
+
+Fri Oct 24 12:44:58 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 27981, index 8 because the pid no longer exists
+Fri Oct 24 12:44:58 2008 [show_pulses] Deleted /System/Clients/27981 entry for client show_pulses2
+
+Fri Oct 24 12:45:37 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 27988, index 7 because the pid no longer exists
+Fri Oct 24 12:45:37 2008 [show_pulses] Deleted /System/Clients/27988 entry for client show_pulses2
+
+Fri Oct 24 12:59:53 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 27995, index 8 because the pid no longer exists
+Fri Oct 24 12:59:53 2008 [show_pulses] Deleted /System/Clients/27995 entry for client show_pulses2
+
+Fri Oct 24 13:00:27 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses2, pid 28057, index 7 because the pid no longer exists
+Fri Oct 24 13:00:27 2008 [show_pulses] Deleted /System/Clients/28057 entry for client show_pulses2
+
+Mon Oct 27 10:09:50 2008 [show_pulses] [odb.c:1264:db_open_database] removing client Analyzer, pid 760, index 0 because the pid no longer exists
+Mon Oct 27 10:09:50 2008 [show_pulses] Deleted /System/Clients/1 entry for client Analyzer
+
+Mon Oct 27 10:12:54 2008 [show_pulses] [odb.c:1264:db_open_database] removing client Analyzer, pid 809, index 0 because the pid no longer exists
+Mon Oct 27 10:12:54 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 801, index 6 because the pid no longer exists
+Mon Oct 27 10:12:54 2008 [show_pulses] Deleted /System/Clients/801 entry for client show_pulses
+
+Mon Oct 27 10:21:11 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 851, index 0 because the pid no longer exists
+Mon Oct 27 10:21:11 2008 [show_pulses] Deleted /System/Clients/851 entry for client show_pulses
+
+Mon Oct 27 10:21:50 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 913, index 0 because the pid no longer exists
+Mon Oct 27 10:21:50 2008 [show_pulses] Deleted /System/Clients/913 entry for client show_pulses
+
+Mon Oct 27 10:25:08 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 931, index 0 because the pid no longer exists
+Mon Oct 27 10:25:08 2008 [show_pulses] Deleted /System/Clients/931 entry for client show_pulses
+
+Mon Oct 27 10:25:49 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 975, index 0 because the pid no longer exists
+Mon Oct 27 10:25:49 2008 [show_pulses] Deleted /System/Clients/975 entry for client show_pulses
+
+Mon Oct 27 10:27:12 2008 [show_pulses] [odb.c:1264:db_open_database] removing client Analyzer, pid 991, index 0 because the pid no longer exists
+Mon Oct 27 10:27:12 2008 [show_pulses] Deleted /System/Clients/1 entry for client Analyzer
+
+Mon Oct 27 10:27:27 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 1030, index 6 because the pid no longer exists
+Mon Oct 27 10:27:27 2008 [show_pulses] Deleted /System/Clients/1030 entry for client show_pulses
+
+Mon Oct 27 10:27:49 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 1037, index 0 because the pid no longer exists
+Mon Oct 27 10:27:49 2008 [show_pulses] Deleted /System/Clients/1037 entry for client show_pulses
+
+Mon Oct 27 10:29:55 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 1051, index 0 because the pid no longer exists
+Mon Oct 27 10:29:55 2008 [show_pulses] Deleted /System/Clients/1051 entry for client show_pulses
+
+Mon Oct 27 10:32:26 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 1107, index 0 because the pid no longer exists
+Mon Oct 27 10:32:26 2008 [show_pulses] Deleted /System/Clients/1107 entry for client show_pulses
+
+Mon Oct 27 10:32:45 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 1232, index 6 because the pid no longer exists
+Mon Oct 27 10:32:45 2008 [show_pulses] Deleted /System/Clients/1232 entry for client show_pulses
+
+Mon Oct 27 10:33:22 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 1239, index 0 because the pid no longer exists
+Mon Oct 27 10:33:22 2008 [show_pulses] Deleted /System/Clients/1239 entry for client show_pulses
+
+Mon Oct 27 10:39:47 2008 [show_pulses] [odb.c:1264:db_open_database] removing client Analyzer, pid 1284, index 0 because the pid no longer exists
+Mon Oct 27 10:39:47 2008 [show_pulses] Deleted /System/Clients/1 entry for client Analyzer
+
+Mon Oct 27 10:40:04 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 1349, index 6 because the pid no longer exists
+Mon Oct 27 10:40:04 2008 [show_pulses] Deleted /System/Clients/1349 entry for client show_pulses
+
+Mon Oct 27 10:40:43 2008 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 1356, index 0 because the pid no longer exists
+Mon Oct 27 10:40:43 2008 [show_pulses] Deleted /System/Clients/1356 entry for client show_pulses
+
+Fri Jan  9 11:27:14 2009 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 5879, index 4 because the pid no longer exists
+Fri Jan  9 11:27:14 2009 [show_pulses] Deleted /System/Clients/5879 entry for client show_pulses
+
+Fri Jan  9 14:59:00 2009 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 6136, index 4 because the pid no longer exists
+Fri Jan  9 14:59:00 2009 [show_pulses] Deleted /System/Clients/6136 entry for client show_pulses
+
+Fri Jan  9 15:05:40 2009 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 6163, index 5 because the pid no longer exists
+Fri Jan  9 15:05:40 2009 [show_pulses] Deleted /System/Clients/6163 entry for client show_pulses
+
+Fri Jan  9 15:15:46 2009 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 6204, index 4 because the pid no longer exists
+Fri Jan  9 15:15:46 2009 [show_pulses] Deleted /System/Clients/6204 entry for client show_pulses
+
+Fri Jan  9 15:25:16 2009 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 6245, index 4 because the pid no longer exists
+Fri Jan  9 15:25:16 2009 [show_pulses] Deleted /System/Clients/6245 entry for client show_pulses
+
+Mon Mar  2 18:12:41 2009 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 5915, index 4 because the pid no longer exists
+Mon Mar  2 18:12:41 2009 [show_pulses] Deleted /System/Clients/5915 entry for client show_pulses
+
+Mon Mar  2 18:14:46 2009 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 5924, index 5 because the pid no longer exists
+Mon Mar  2 18:14:46 2009 [show_pulses] Deleted /System/Clients/5924 entry for client show_pulses
+
+Mon Jun  7 14:40:01 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 8200, index 3 because the pid no longer exists
+Mon Jun  7 14:40:01 2010 [show_pulses] Deleted /System/Clients/8200 entry for client show_pulses
+
+Mon Jun  7 17:14:40 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 2479, index 4 because the pid no longer exists
+Mon Jun  7 17:14:40 2010 [show_pulses] Deleted /System/Clients/2479 entry for client show_pulses
+
+Tue Jun  8 10:20:45 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 2314, index 4 because the pid no longer exists
+Tue Jun  8 10:20:45 2010 [show_pulses] Deleted /System/Clients/2314 entry for client show_pulses
+
+Tue Jun  8 10:23:10 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 2337, index 4 because the pid no longer exists
+Tue Jun  8 10:23:10 2010 [show_pulses] Deleted /System/Clients/2337 entry for client show_pulses
+
+Tue Jun  8 10:23:57 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 2347, index 5 because the pid no longer exists
+Tue Jun  8 10:23:57 2010 [show_pulses] Deleted /System/Clients/2347 entry for client show_pulses
+
+Thu Jun 10 13:05:10 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 2369, index 4 because the pid no longer exists
+Thu Jun 10 13:05:10 2010 [show_pulses] Deleted /System/Clients/2369 entry for client show_pulses
+
+Thu Jun 10 13:11:17 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 2418, index 4 because the pid no longer exists
+Thu Jun 10 13:11:17 2010 [show_pulses] Deleted /System/Clients/2418 entry for client show_pulses
+
+Thu Jun 10 13:29:55 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 2598, index 4 because the pid no longer exists
+Thu Jun 10 13:29:55 2010 [show_pulses] Deleted /System/Clients/2598 entry for client show_pulses
+
+Sun Jun 20 18:51:15 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14781, index 4 because the pid no longer exists
+Sun Jun 20 18:51:15 2010 [show_pulses] Deleted /System/Clients/14781 entry for client show_pulses
+
+Sun Jun 20 18:57:40 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14804, index 5 because the pid no longer exists
+Sun Jun 20 18:57:40 2010 [show_pulses] Deleted /System/Clients/14804 entry for client show_pulses
+
+Sun Jun 20 19:01:38 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14814, index 4 because the pid no longer exists
+Sun Jun 20 19:01:38 2010 [show_pulses] Deleted /System/Clients/14814 entry for client show_pulses
+
+Sun Jun 20 19:04:57 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14826, index 5 because the pid no longer exists
+Sun Jun 20 19:04:57 2010 [show_pulses] Deleted /System/Clients/14826 entry for client show_pulses
+
+Sun Jun 20 19:09:10 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14868, index 4 because the pid no longer exists
+Sun Jun 20 19:09:10 2010 [show_pulses] Deleted /System/Clients/14868 entry for client show_pulses
+
+Sun Jun 20 19:09:22 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14878, index 5 because the pid no longer exists
+Sun Jun 20 19:09:22 2010 [show_pulses] Deleted /System/Clients/14878 entry for client show_pulses
+
+Sun Jun 20 19:11:34 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14888, index 4 because the pid no longer exists
+Sun Jun 20 19:11:34 2010 [show_pulses] Deleted /System/Clients/14888 entry for client show_pulses
+
+Sun Jun 20 19:11:43 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14901, index 5 because the pid no longer exists
+Sun Jun 20 19:11:43 2010 [show_pulses] Deleted /System/Clients/14901 entry for client show_pulses
+
+Sun Jun 20 19:15:38 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14921, index 4 because the pid no longer exists
+Sun Jun 20 19:15:38 2010 [show_pulses] Deleted /System/Clients/14921 entry for client show_pulses
+
+Sun Jun 20 19:16:38 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14931, index 5 because the pid no longer exists
+Sun Jun 20 19:16:38 2010 [show_pulses] Deleted /System/Clients/14931 entry for client show_pulses
+
+Sun Jun 20 19:16:55 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14941, index 4 because the pid no longer exists
+Sun Jun 20 19:16:55 2010 [show_pulses] Deleted /System/Clients/14941 entry for client show_pulses
+
+Sun Jun 20 19:17:42 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14952, index 5 because the pid no longer exists
+Sun Jun 20 19:17:42 2010 [show_pulses] Deleted /System/Clients/14952 entry for client show_pulses
+
+Sun Jun 20 19:17:55 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14965, index 4 because the pid no longer exists
+Sun Jun 20 19:17:55 2010 [show_pulses] Deleted /System/Clients/14965 entry for client show_pulses
+
+Sun Jun 20 19:19:13 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14987, index 4 because the pid no longer exists
+Sun Jun 20 19:19:13 2010 [show_pulses] Deleted /System/Clients/14987 entry for client show_pulses
+
+Sun Jun 20 19:19:34 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 14997, index 5 because the pid no longer exists
+Sun Jun 20 19:19:34 2010 [show_pulses] Deleted /System/Clients/14997 entry for client show_pulses
+
+Sun Jun 20 19:19:51 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 15007, index 4 because the pid no longer exists
+Sun Jun 20 19:19:51 2010 [show_pulses] Deleted /System/Clients/15007 entry for client show_pulses
+
+Sun Jun 20 19:20:24 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 15017, index 5 because the pid no longer exists
+Sun Jun 20 19:20:24 2010 [show_pulses] Deleted /System/Clients/15017 entry for client show_pulses
+
+Sun Jun 20 19:20:35 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 15027, index 4 because the pid no longer exists
+Sun Jun 20 19:20:35 2010 [show_pulses] Deleted /System/Clients/15027 entry for client show_pulses
+
+Sun Jun 20 19:42:11 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 15149, index 4 because the pid no longer exists
+Sun Jun 20 19:42:11 2010 [show_pulses] Deleted /System/Clients/15149 entry for client show_pulses
+
+Sun Jun 20 19:42:22 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 15159, index 5 because the pid no longer exists
+Sun Jun 20 19:42:22 2010 [show_pulses] Deleted /System/Clients/15159 entry for client show_pulses
+
+Sun Jun 20 21:39:05 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 15827, index 5 because the pid no longer exists
+Sun Jun 20 21:39:05 2010 [show_pulses] Deleted /System/Clients/15827 entry for client show_pulses
+
+Sun Jun 20 21:39:17 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 15839, index 6 because the pid no longer exists
+Sun Jun 20 21:39:17 2010 [show_pulses] Deleted /System/Clients/15839 entry for client show_pulses
+
+Sun Jun 20 21:39:42 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 15849, index 5 because the pid no longer exists
+Sun Jun 20 21:39:42 2010 [show_pulses] Deleted /System/Clients/15849 entry for client show_pulses
+
+Sun Jun 20 21:39:55 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 15859, index 6 because the pid no longer exists
+Sun Jun 20 21:39:55 2010 [show_pulses] Deleted /System/Clients/15859 entry for client show_pulses
+
+Wed Jul 28 14:58:33 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 12267, index 4 because the pid no longer exists
+Wed Jul 28 14:58:33 2010 [show_pulses] Deleted /System/Clients/12267 entry for client show_pulses
+
+Wed Jul 28 15:01:20 2010 [ODBEdit] [odb.c:1264:db_open_database] removing client ODBEdit, pid 12287, index 4 because the pid no longer exists
+Wed Jul 28 15:01:20 2010 [ODBEdit] Deleted /System/Clients/12287 entry for client ODBEdit
+
+Wed Jul 28 15:01:58 2010 [ODBEdit] [odb.c:1264:db_open_database] removing client mhttpd, pid 12181, index 0 because the pid no longer exists
+Wed Jul 28 15:01:58 2010 [ODBEdit] Deleted /System/Clients/12181 entry for client mhttpd
+
+Sun Aug 15 21:04:21 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 22788, index 4 because the pid no longer exists
+Sun Aug 15 21:04:21 2010 [show_pulses] Deleted /System/Clients/22788 entry for client show_pulses
+
+Sun Aug 15 21:04:30 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 22798, index 5 because the pid no longer exists
+Sun Aug 15 21:04:30 2010 [show_pulses] Deleted /System/Clients/22798 entry for client show_pulses
+
+Sun Aug 15 21:04:39 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 22808, index 4 because the pid no longer exists
+Sun Aug 15 21:04:39 2010 [show_pulses] Deleted /System/Clients/22808 entry for client show_pulses
+
+Sun Aug 15 21:04:50 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 22818, index 5 because the pid no longer exists
+Sun Aug 15 21:04:50 2010 [show_pulses] Deleted /System/Clients/22818 entry for client show_pulses
+
+Sun Aug 15 21:05:01 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 22828, index 4 because the pid no longer exists
+Sun Aug 15 21:05:01 2010 [show_pulses] Deleted /System/Clients/22828 entry for client show_pulses
+
+Sun Aug 15 21:05:10 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 22839, index 5 because the pid no longer exists
+Sun Aug 15 21:05:10 2010 [show_pulses] Deleted /System/Clients/22839 entry for client show_pulses
+
+Sun Aug 15 21:10:48 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 22870, index 4 because the pid no longer exists
+Sun Aug 15 21:10:48 2010 [show_pulses] Deleted /System/Clients/22870 entry for client show_pulses
+
+Sun Aug 15 21:12:52 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 22931, index 4 because the pid no longer exists
+Sun Aug 15 21:12:52 2010 [show_pulses] Deleted /System/Clients/22931 entry for client show_pulses
+
+Sun Aug 15 22:08:10 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 22978, index 4 because the pid no longer exists
+Sun Aug 15 22:08:10 2010 [show_pulses] Deleted /System/Clients/22978 entry for client show_pulses
+
+Sun Aug 15 22:08:19 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 22988, index 5 because the pid no longer exists
+Sun Aug 15 22:08:19 2010 [show_pulses] Deleted /System/Clients/22988 entry for client show_pulses
+
+Sun Aug 15 22:08:28 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 22999, index 4 because the pid no longer exists
+Sun Aug 15 22:08:28 2010 [show_pulses] Deleted /System/Clients/22999 entry for client show_pulses
+
+Sun Aug 15 22:08:34 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 23009, index 5 because the pid no longer exists
+Sun Aug 15 22:08:34 2010 [show_pulses] Deleted /System/Clients/23009 entry for client show_pulses
+
+Sun Aug 15 22:08:41 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 23019, index 4 because the pid no longer exists
+Sun Aug 15 22:08:41 2010 [show_pulses] Deleted /System/Clients/23019 entry for client show_pulses
+
+Sun Aug 15 22:08:49 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 23029, index 5 because the pid no longer exists
+Sun Aug 15 22:08:49 2010 [show_pulses] Deleted /System/Clients/23029 entry for client show_pulses
+
+Sun Aug 15 22:08:57 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 23039, index 4 because the pid no longer exists
+Sun Aug 15 22:08:57 2010 [show_pulses] Deleted /System/Clients/23039 entry for client show_pulses
+
+Sun Aug 15 22:09:03 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 23049, index 5 because the pid no longer exists
+Sun Aug 15 22:09:03 2010 [show_pulses] Deleted /System/Clients/23049 entry for client show_pulses
+
+Sun Aug 15 22:09:10 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 23059, index 4 because the pid no longer exists
+Sun Aug 15 22:09:10 2010 [show_pulses] Deleted /System/Clients/23059 entry for client show_pulses
+
+Sun Aug 15 22:10:06 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 23089, index 4 because the pid no longer exists
+Sun Aug 15 22:10:06 2010 [show_pulses] Deleted /System/Clients/23089 entry for client show_pulses
+
+Thu Aug 19 16:04:59 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 25453, index 4 because the pid no longer exists
+Thu Aug 19 16:04:59 2010 [show_pulses] Deleted /System/Clients/25453 entry for client show_pulses
+
+Thu Aug 19 16:05:20 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 25463, index 5 because the pid no longer exists
+Thu Aug 19 16:05:20 2010 [show_pulses] Deleted /System/Clients/25463 entry for client show_pulses
+
+Thu Aug 19 16:05:29 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 25474, index 4 because the pid no longer exists
+Thu Aug 19 16:05:29 2010 [show_pulses] Deleted /System/Clients/25474 entry for client show_pulses
+
+Thu Aug 19 16:05:39 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 25484, index 5 because the pid no longer exists
+Thu Aug 19 16:05:39 2010 [show_pulses] Deleted /System/Clients/25484 entry for client show_pulses
+
+Thu Aug 19 17:20:26 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 25557, index 4 because the pid no longer exists
+Thu Aug 19 17:20:26 2010 [show_pulses] Deleted /System/Clients/25557 entry for client show_pulses
+
+Thu Aug 19 17:20:57 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 25567, index 4 because the pid no longer exists
+Thu Aug 19 17:20:57 2010 [show_pulses] Deleted /System/Clients/25567 entry for client show_pulses
+
+Thu Aug 19 17:25:59 2010 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 25671, index 4 because the pid no longer exists
+Thu Aug 19 17:25:59 2010 [show_pulses] Deleted /System/Clients/25671 entry for client show_pulses
+
+Tue May 29 08:15:52 2012 [show_pulses] [odb.c:1264:db_open_database] removing client ODBEdit, pid 5212, index 0 because the pid no longer exists
+Tue May 29 08:15:52 2012 [show_pulses] [odb.c:1264:db_open_database] removing client mhttpd, pid 5101, index 1 because the pid no longer exists
+Tue May 29 08:15:52 2012 [show_pulses] [odb.c:1264:db_open_database] removing client Crate 3, pid 5277, index 2 because the pid no longer exists
+Tue May 29 08:15:52 2012 [show_pulses] [odb.c:1264:db_open_database] removing client Logger, pid 5256, index 3 because the pid no longer exists
+Tue May 29 08:15:52 2012 [show_pulses] [odb.c:1264:db_open_database] removing client Ebuilder, pid 6054, index 6 because the pid no longer exists
+Tue May 29 08:15:52 2012 [show_pulses] Deleted /System/Clients/5212 entry for client ODBEdit
+
+Tue May 29 08:15:52 2012 [show_pulses] Deleted /System/Clients/5277 entry for client Crate 3
+
+Tue May 29 08:15:52 2012 [show_pulses] Deleted /System/Clients/5101 entry for client mhttpd
+
+Thu May 31 14:11:52 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 24394, index 0 because the pid no longer exists
+Thu May 31 14:11:52 2012 [show_pulses] Deleted /System/Clients/24394 entry for client show_pulses
+
+Thu May 31 14:13:19 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 24414, index 1 because the pid no longer exists
+Thu May 31 14:13:19 2012 [show_pulses] Deleted /System/Clients/24414 entry for client show_pulses
+
+Thu May 31 14:17:48 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 24434, index 0 because the pid no longer exists
+Thu May 31 14:17:48 2012 [show_pulses] Deleted /System/Clients/24434 entry for client show_pulses
+
+Thu May 31 14:18:18 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 24447, index 1 because the pid no longer exists
+Thu May 31 14:18:18 2012 [show_pulses] Deleted /System/Clients/24447 entry for client show_pulses
+
+Fri Jun  1 13:32:33 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 24454, index 0 because the pid no longer exists
+Fri Jun  1 13:32:33 2012 [show_pulses] Deleted /System/Clients/24454 entry for client show_pulses
+
+Fri Jun  1 13:34:08 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 390, index 0 because the pid no longer exists
+Fri Jun  1 13:34:08 2012 [show_pulses] Deleted /System/Clients/390 entry for client show_pulses
+
+Fri Jun  1 13:48:26 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 406, index 0 because the pid no longer exists
+Fri Jun  1 13:48:26 2012 [show_pulses] Deleted /System/Clients/406 entry for client show_pulses
+
+Fri Jun  1 13:51:46 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 420, index 1 because the pid no longer exists
+Fri Jun  1 13:51:46 2012 [show_pulses] Deleted /System/Clients/420 entry for client show_pulses
+
+Fri Jun  1 13:52:20 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 431, index 0 because the pid no longer exists
+Fri Jun  1 13:52:20 2012 [show_pulses] Deleted /System/Clients/431 entry for client show_pulses
+
+Fri Jun  1 13:56:22 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 438, index 0 because the pid no longer exists
+Fri Jun  1 13:56:22 2012 [show_pulses] Deleted /System/Clients/438 entry for client show_pulses
+
+Fri Jun  1 13:58:13 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 445, index 1 because the pid no longer exists
+Fri Jun  1 13:58:13 2012 [show_pulses] Deleted /System/Clients/445 entry for client show_pulses
+
+Fri Jun  1 14:00:40 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 453, index 0 because the pid no longer exists
+Fri Jun  1 14:00:40 2012 [show_pulses] Deleted /System/Clients/453 entry for client show_pulses
+
+Fri Jun  1 14:01:50 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 507, index 1 because the pid no longer exists
+Fri Jun  1 14:01:50 2012 [show_pulses] Deleted /System/Clients/507 entry for client show_pulses
+
+Fri Jun  1 14:03:05 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 526, index 0 because the pid no longer exists
+Fri Jun  1 14:03:05 2012 [show_pulses] Deleted /System/Clients/526 entry for client show_pulses
+
+Fri Jun  1 14:04:07 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 533, index 1 because the pid no longer exists
+Fri Jun  1 14:04:07 2012 [show_pulses] Deleted /System/Clients/533 entry for client show_pulses
+
+Fri Jun  1 14:05:36 2012 [show_pulses] [odb.c:1264:db_open_database] removing client show_pulses, pid 579, index 0 because the pid no longer exists
+Fri Jun  1 14:05:36 2012 [show_pulses] Deleted /System/Clients/579 entry for client show_pulses
+

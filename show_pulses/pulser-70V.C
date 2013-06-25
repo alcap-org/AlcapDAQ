@@ -1,0 +1,86 @@
+{
+//=========Macro generated from canvas: c1/c1
+//=========  (Fri Jun  1 14:04:49 2012) by ROOT version5.22/00j
+   TCanvas *c1 = new TCanvas("c1", "c1",10,44,700,500);
+   c1->Range(-1024.5,-84.2625,9215.5,758.3625);
+   c1->SetBorderSize(2);
+   c1->SetFrameFillColor(0);
+   
+   TH1 *Pulser spectrum, -70V = new TH1D("Pulser spectrum, -70V","Minimum sample in island",8192,-0.5,8191.5);
+   Pulser spectrum, -70V->SetBinContent(1588,1);
+   Pulser spectrum, -70V->SetBinContent(1589,1);
+   Pulser spectrum, -70V->SetBinContent(1590,8);
+   Pulser spectrum, -70V->SetBinContent(1591,13);
+   Pulser spectrum, -70V->SetBinContent(1592,34);
+   Pulser spectrum, -70V->SetBinContent(1593,63);
+   Pulser spectrum, -70V->SetBinContent(1594,129);
+   Pulser spectrum, -70V->SetBinContent(1595,228);
+   Pulser spectrum, -70V->SetBinContent(1596,359);
+   Pulser spectrum, -70V->SetBinContent(1597,465);
+   Pulser spectrum, -70V->SetBinContent(1598,519);
+   Pulser spectrum, -70V->SetBinContent(1599,597);
+   Pulser spectrum, -70V->SetBinContent(1600,574);
+   Pulser spectrum, -70V->SetBinContent(1601,507);
+   Pulser spectrum, -70V->SetBinContent(1602,390);
+   Pulser spectrum, -70V->SetBinContent(1603,245);
+   Pulser spectrum, -70V->SetBinContent(1604,175);
+   Pulser spectrum, -70V->SetBinContent(1605,97);
+   Pulser spectrum, -70V->SetBinContent(1606,51);
+   Pulser spectrum, -70V->SetBinContent(1607,38);
+   Pulser spectrum, -70V->SetBinContent(1608,20);
+   Pulser spectrum, -70V->SetBinContent(1609,8);
+   Pulser spectrum, -70V->SetBinContent(1610,3);
+   Pulser spectrum, -70V->SetBinContent(1612,1);
+   Pulser spectrum, -70V->SetBinContent(2437,1);
+   Pulser spectrum, -70V->SetBinContent(2438,1);
+   Pulser spectrum, -70V->SetBinContent(2439,2);
+   Pulser spectrum, -70V->SetBinContent(2440,18);
+   Pulser spectrum, -70V->SetBinContent(2441,40);
+   Pulser spectrum, -70V->SetBinContent(2442,82);
+   Pulser spectrum, -70V->SetBinContent(2443,140);
+   Pulser spectrum, -70V->SetBinContent(2444,283);
+   Pulser spectrum, -70V->SetBinContent(2445,411);
+   Pulser spectrum, -70V->SetBinContent(2446,507);
+   Pulser spectrum, -70V->SetBinContent(2447,544);
+   Pulser spectrum, -70V->SetBinContent(2448,642);
+   Pulser spectrum, -70V->SetBinContent(2449,535);
+   Pulser spectrum, -70V->SetBinContent(2450,440);
+   Pulser spectrum, -70V->SetBinContent(2451,340);
+   Pulser spectrum, -70V->SetBinContent(2452,230);
+   Pulser spectrum, -70V->SetBinContent(2453,115);
+   Pulser spectrum, -70V->SetBinContent(2454,77);
+   Pulser spectrum, -70V->SetBinContent(2455,61);
+   Pulser spectrum, -70V->SetBinContent(2456,34);
+   Pulser spectrum, -70V->SetBinContent(2457,13);
+   Pulser spectrum, -70V->SetBinContent(2458,7);
+   Pulser spectrum, -70V->SetBinContent(2459,4);
+   Pulser spectrum, -70V->SetBinContent(2460,2);
+   Pulser spectrum, -70V->SetEntries(9055);
+   
+   TPaveStats *ptstats = new TPaveStats(0.78,0.835,0.98,0.995,"brNDC");
+   ptstats->SetName("stats");
+   ptstats->SetBorderSize(2);
+   ptstats->SetFillColor(19);
+   ptstats->SetTextAlign(12);
+   TText *text = ptstats->AddText("Pulser spectrum, -70V");
+   text->SetTextSize(0.0368);
+   text = ptstats->AddText("Entries = 9055   ");
+   text = ptstats->AddText("Mean  =   2023");
+   text = ptstats->AddText("RMS   =  424.3");
+   ptstats->SetOptStat(1111);
+   ptstats->SetOptFit(0);
+   ptstats->Draw();
+   Pulser spectrum, -70V->GetListOfFunctions()->Add(ptstats);
+   ptstats->SetParent(Pulser spectrum, -70V->GetListOfFunctions());
+   Pulser spectrum, -70V->Draw("");
+   
+   TPaveText *pt = new TPaveText(0.01,0.9416102,0.4222414,0.995,"blNDC");
+   pt->SetName("title");
+   pt->SetBorderSize(2);
+   pt->SetFillColor(19);
+   text = pt->AddText("Minimum sample in island");
+   pt->Draw();
+   c1->Modified();
+   c1->cd();
+   c1->SetSelected(c1);
+}

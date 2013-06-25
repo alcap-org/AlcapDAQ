@@ -1,0 +1,144 @@
+Wed Dec 21 09:31:37 2005 [Crate 8] [odb.c:1264:db_open_database] removing client Crate 8, pid 19040, index 2 because the pid no longer exists
+Wed Dec 21 09:31:37 2005 [Crate 8] Deleted /System/Clients/19040 entry for client Crate 8
+
+Wed Dec 21 09:32:15 2005 [Crate 8] [odb.c:1264:db_open_database] removing client Crate 8, pid 19075, index 5 because the pid no longer exists
+Wed Dec 21 09:32:15 2005 [Crate 8] Deleted /System/Clients/19075 entry for client Crate 8
+
+Wed Dec 21 09:45:29 2005 [ODBEdit] [odb.c:1264:db_open_database] removing client Crate 8, pid 19768, index 9 because the pid no longer exists
+Wed Dec 21 09:45:29 2005 [ODBEdit] Deleted /System/Clients/19768 entry for client Crate 8
+
+Wed Dec 21 10:11:35 2005 [ODBEdit] [odb.c:1611:db_lock_database] cannot lock database, ss_mutex_wait_for() status 408, aborting...
+Wed Dec 21 10:11:36 2005 [ODBEdit] [odb.c:1264:db_open_database] removing client ODBEdit, pid 22066, index 0 because the pid no longer exists
+Wed Dec 21 10:24:34 2005 [ODBEdit] [odb.c:1264:db_open_database] removing client Crate 8, pid 22259, index 1 because the pid no longer exists
+Tue Apr  4 11:49:20 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client mhttpd, pid 19449, index 0 because the pid no longer exists
+Tue Apr  4 11:49:20 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client Crate 81, pid 24670, index 1 because the pid no longer exists
+Tue Apr  4 11:49:27 2006 [ODBEdit] [odb.c:1611:db_lock_database] cannot lock database, ss_mutex_wait_for() status 408, aborting...
+Tue Apr  4 11:49:27 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 11:49:28 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client ODBEdit, pid 25038, index 0 because the pid no longer exists
+Tue Apr  4 11:50:16 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 11:52:15 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client mhttpd, pid 25042, index 0 because the pid no longer exists
+Tue Apr  4 11:52:22 2006 [ODBEdit] [odb.c:1611:db_lock_database] cannot lock database, ss_mutex_wait_for() status 408, aborting...
+Tue Apr  4 11:52:22 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 11:52:22 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client ODBEdit, pid 25427, index 0 because the pid no longer exists
+Tue Apr  4 11:55:06 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:04:27 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:06:39 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:07:11 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:09:08 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:09:47 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:14:07 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:16:43 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:18:08 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:19:36 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:21:15 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:22:35 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:24:32 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:25:46 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:26:35 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:30:12 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:31:17 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:48:58 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:51:21 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:52:44 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:53:33 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:57:10 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 12:58:09 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 14:32:25 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 14:33:57 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 14:39:32 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 14:40:17 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 14:42:33 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 14:47:21 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 14:47:55 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 14:50:42 2006 [Logger] [odb.c:1264:db_open_database] removing client Ebuilder, pid 26678, index 0 because the pid no longer exists
+Tue Apr  4 14:50:42 2006 [Logger] Deleted /System/Clients/26678 entry for client Ebuilder
+
+Tue Apr  4 14:51:03 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client ODBEdit, pid 27039, index 0 because the pid no longer exists
+Tue Apr  4 14:51:34 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client ODBEdit, pid 27754, index 0 because the pid no longer exists
+Tue Apr  4 14:51:54 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client ODBEdit, pid 27759, index 0 because the pid no longer exists
+Tue Apr  4 14:51:54 2006 [ODBEdit] Deleted /System/Clients/27759 entry for client ODBEdit
+
+Tue Apr  4 14:52:13 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client ODBEdit, pid 27760, index 1 because the pid no longer exists
+Tue Apr  4 14:52:13 2006 [ODBEdit] Deleted /System/Clients/27760 entry for client ODBEdit
+
+Tue Apr  4 16:22:04 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client mhttpd, pid 29041, index 0 because the pid no longer exists
+Tue Apr  4 16:22:11 2006 [ODBEdit] [odb.c:1611:db_lock_database] cannot lock database, ss_mutex_wait_for() status 408, aborting...
+Tue Apr  4 16:22:11 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 16:22:12 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client ODBEdit, pid 29502, index 0 because the pid no longer exists
+Tue Apr  4 16:23:04 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 16:23:33 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 16:25:19 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 16:28:54 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 16:30:06 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 16:33:41 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 16:50:57 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 16:54:26 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 16:56:00 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 16:59:00 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:02:28 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:07:44 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:08:05 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:08:40 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:09:45 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:10:16 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:14:29 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:19:47 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:20:22 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:21:13 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:24:41 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:28:22 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:31:56 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:35:10 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:40:14 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:51:09 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:53:44 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:55:10 2006 [fadc_extract] [odb.c:957:db_validate_db] Warning: database data area is 100% full
+Tue Apr  4 17:57:35 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client Ebuilder, pid 29960, index 1 because the pid no longer exists
+Tue Apr  4 17:57:35 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client Logger, pid 30093, index 2 because the pid no longer exists
+Tue Apr  4 17:57:35 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client Analyzer, pid 30287, index 3 because the pid no longer exists
+Tue Apr  4 17:57:35 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client Crate 6, pid 30612, index 5 because the pid no longer exists
+Tue Apr  4 17:57:35 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client Crate 7, pid 30014, index 7 because the pid no longer exists
+Sat Apr  8 16:34:20 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client Analyzer, pid 32296, index 3 because the pid no longer exists
+Sat Apr  8 16:34:28 2006 [ODBEdit] [odb.c:1611:db_lock_database] cannot lock database, ss_mutex_wait_for() status 408, aborting...
+Sat Apr  8 16:34:28 2006 [fadc_extract] [odb.c:961:db_validate_db] Warning: database corruption, total_size_data 0x003B9828
+Sat Apr  8 16:34:28 2006 [ODBEdit] [system.c:567:ss_shm_open] Shared memory segment with key 0x4d024573 already exists, please remove it manually: ipcrm -M 0x4d024573
+Sat Apr  8 16:34:28 2006 [ODBEdit] [midas.c:2507:cm_connect_experiment1] cannot open database
+Sat Apr  8 16:35:07 2006 [mhttpd] [system.c:567:ss_shm_open] Shared memory segment with key 0x4d024573 already exists, please remove it manually: ipcrm -M 0x4d024573
+Sat Apr  8 16:35:07 2006 [mhttpd] [midas.c:2507:cm_connect_experiment1] cannot open database
+Sat Apr  8 16:35:55 2006 [ODBEdit] [system.c:567:ss_shm_open] Shared memory segment with key 0x4d024573 already exists, please remove it manually: ipcrm -M 0x4d024573
+Sat Apr  8 16:35:55 2006 [ODBEdit] [midas.c:2507:cm_connect_experiment1] cannot open database
+Wed May 17 12:45:15 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client mhttpd, pid 3916, index 0 because the pid no longer exists
+Wed May 17 12:45:22 2006 [ODBEdit] [system.c:558:ss_shm_open] Shared memory segment '/home/data/midas-mucap/.ODB.SHM' size 679936 is smaller than requested size 8523840. Please remove it and try again
+Wed May 17 12:45:22 2006 [ODBEdit] [midas.c:2511:cm_connect_experiment1] cannot open database
+Thu May 18 09:05:26 2006 [ODBEdit] [odb.c:1264:db_open_database] removing client Ebuilder, pid 3901, index 2 because the pid no longer exists
+Mon Jul 30 09:22:21 2007 [ODBEdit] [odb.c:1264:db_open_database] removing client mhttpd, pid 29432, index 0 because the pid no longer exists
+Thu Jan  8 15:38:48 2009 [ODBEdit] [odb.c:1264:db_open_database] removing client Crate 9, pid 11565, index 3 because the pid no longer exists
+Thu Jan  8 15:38:48 2009 [ODBEdit] Deleted /System/Clients/11565 entry for client Crate 9
+
+Thu Jan  8 17:28:29 2009 [ODBEdit] [odb.c:1264:db_open_database] removing client Ebuilder, pid 5936, index 4 because the pid no longer exists
+Thu Jan  8 17:28:29 2009 [ODBEdit] Deleted /System/Clients/5936 entry for client Ebuilder
+
+Fri Jun 18 19:18:12 2010 [Crate 9] Program Crate 9 on host daq01 stopped
+Fri Jun 18 20:10:11 2010 [Crate 9] Program Crate 9 on host daq01 stopped
+Fri Jun 18 20:11:18 2010 [Crate 9] Program Crate 9 on host daq01 stopped
+Fri Jun 18 20:22:55 2010 [Crate 9] Program Crate 9 on host daq01 stopped
+Fri Jun 18 20:23:51 2010 [Crate 9] Program Crate 9 on host daq01 stopped
+Fri Jun 18 20:50:46 2010 [Crate 9] Program Crate 9 on host daq01 stopped
+Fri Jun 18 20:52:29 2010 [Crate 9] Program Crate 9 on host daq01 stopped
+Fri Jun 18 21:31:59 2010 [Crate 9] Program Crate 9 on host daq01 stopped
+Fri Jun 18 21:34:35 2010 [Crate 9] Program Crate 9 on host daq01 stopped
+Fri Jun 18 21:35:53 2010 [Crate 9] Program Crate 9 on host daq01 stopped
+Fri Apr  6 16:08:43 2012 [midas.c:11026:rpc_register_server] bind() failed: Address already in use
+Fri Apr  6 16:22:13 2012 [Crate 9] [midas.c:8869:rpc_server_connect] cannot get host name
+Fri Apr  6 16:32:41 2012 [Crate 9] [midas.c:8869:rpc_server_connect] cannot get host name
+Mon Apr  9 10:27:52 2012 [Crate 9] [midas.c:8869:rpc_server_connect] cannot get host name
+Mon Apr  9 10:31:55 2012 [Crate 9] [midas.c:8869:rpc_server_connect] cannot get host name
+Mon Apr  9 10:32:09 2012 [Crate 9] [midas.c:2666:cm_list_experiments] cannot get host name
+Mon Apr  9 10:47:35 2012 [Crate 9] [midas.c:8869:rpc_server_connect] cannot get host name
+Mon Apr  9 10:47:43 2012 [Crate 9] [midas.c:8869:rpc_server_connect] cannot get host name
+Mon Apr  9 10:53:38 2012 [Crate 9] [midas.c:8869:rpc_server_connect] cannot get host name
+Thu Apr 19 14:16:22 2012 [Crate 9] [midas.c:8869:rpc_server_connect] cannot get host name
+Wed Jun 26 00:57:20 2013 [Crate 9] [odb.c:3276:db_get_value] invalid database handle
+Wed Jun 26 00:57:20 2013 [Crate 9] [odb.c:3276:db_get_value] invalid database handle
+Wed Jun 26 00:57:20 2013 [Crate 9] [odb.c:2208:db_find_key] invalid database handle
+Wed Jun 26 00:57:20 2013 [Crate 9] [odb.c:1591:db_lock_database] invalid database handle, aborting...

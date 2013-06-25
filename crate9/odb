@@ -1,0 +1,1169 @@
+[/Equipment/Crate 9/Settings]
+Enabled = BOOL : y
+Master = BOOL : n
+Synchronous = BOOL : y
+Diagnostic Print Level = INT : 2
+Operator Message Level = INT : -1
+
+[/Equipment/Crate 9/Settings/NFADC 01]
+Enabled = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 01/Channel 0]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 01/Channel 1]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 01/Channel 2]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 01/Channel 3]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 01/Channel 4]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 01/Channel 5]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 01/Channel 6]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 01/Channel 7]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 02]
+Enabled = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 02/Channel 0]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 02/Channel 1]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 02/Channel 2]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 02/Channel 3]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 02/Channel 4]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 02/Channel 5]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 02/Channel 6]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 02/Channel 7]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 03]
+Enabled = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 03/Channel 0]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 03/Channel 1]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 03/Channel 2]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 03/Channel 3]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 03/Channel 4]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 03/Channel 5]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 03/Channel 6]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 03/Channel 7]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 04]
+Enabled = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 04/Channel 0]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 04/Channel 1]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 04/Channel 2]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 04/Channel 3]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 04/Channel 4]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 04/Channel 5]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 04/Channel 6]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 04/Channel 7]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 05]
+Enabled = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 05/Channel 0]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 05/Channel 1]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 05/Channel 2]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 05/Channel 3]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 05/Channel 4]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 05/Channel 5]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 05/Channel 6]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 05/Channel 7]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 06]
+Enabled = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 06/Channel 0]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 06/Channel 1]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 06/Channel 2]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 06/Channel 3]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 06/Channel 4]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 06/Channel 5]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 06/Channel 6]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 06/Channel 7]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 07]
+Enabled = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 07/Channel 0]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 07/Channel 1]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 07/Channel 2]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 07/Channel 3]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 07/Channel 4]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 07/Channel 5]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 07/Channel 6]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 07/Channel 7]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 08]
+Enabled = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 08/Channel 0]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 08/Channel 1]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 08/Channel 2]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 08/Channel 3]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 08/Channel 4]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 08/Channel 5]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 08/Channel 6]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 08/Channel 7]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 09]
+Enabled = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 09/Channel 0]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 09/Channel 1]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 09/Channel 2]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 09/Channel 3]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 09/Channel 4]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 09/Channel 5]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 09/Channel 6]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 09/Channel 7]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0a]
+Enabled = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 0a/Channel 0]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0a/Channel 1]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0a/Channel 2]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0a/Channel 3]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0a/Channel 4]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0a/Channel 5]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0a/Channel 6]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0a/Channel 7]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0b]
+Enabled = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 0b/Channel 0]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0b/Channel 1]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0b/Channel 2]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0b/Channel 3]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0b/Channel 4]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0b/Channel 5]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0b/Channel 6]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0b/Channel 7]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0c]
+Enabled = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 0c/Channel 0]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0c/Channel 1]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0c/Channel 2]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0c/Channel 3]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0c/Channel 4]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0c/Channel 5]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0c/Channel 6]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0c/Channel 7]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0d]
+Enabled = BOOL : n
+
+[/Equipment/Crate 9/Settings/NFADC 0d/Channel 0]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0d/Channel 1]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0d/Channel 2]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0d/Channel 3]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0d/Channel 4]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0d/Channel 5]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0d/Channel 6]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0d/Channel 7]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0e]
+Enabled = BOOL : n
+
+[/Equipment/Crate 9/Settings/NFADC 0e/Channel 0]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0e/Channel 1]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0e/Channel 2]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0e/Channel 3]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0e/Channel 4]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0e/Channel 5]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0e/Channel 6]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
+[/Equipment/Crate 9/Settings/NFADC 0e/Channel 7]
+LED Mode = INT : 5
+Lower threshold = INT : 500
+Upper threshold = INT : 1450
+Pulser period = INT : 10000000
+Trigger mask = INT : 8
+Presamples = INT : 1022
+Stretch samples = INT : 1022
+DCM phase = INT : 0
+
