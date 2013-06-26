@@ -15,7 +15,8 @@ MIDAS_LIB = $(MIDASSYS)/linux/lib/mfe.o -L $(MIDASSYS)/linux/lib -lmidas
 CXX_LIBS += $(MIDAS_LIB)
 
 
-CXXFLAGS += $(MIDAS_INCLUDE) -DPART_OF_MUCAP -DDO_IOPERM
+#CXXFLAGS += $(MIDAS_INCLUDE) -DPART_OF_MUCAP -DDO_IOPERM
+CXXFLAGS += $(MIDAS_INCLUDE) -DDO_IOPERM
 CFLAGS = $(CXXFLAGS)
 
 MODULES = crate.o rpc_master.o rpc_slave.o diag.o odb_wrapper.o
