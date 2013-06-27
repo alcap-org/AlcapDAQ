@@ -111,7 +111,7 @@ int processIsland(int t0, int nsamples, int *samples, int channel)
 	int min = 4097;
 	int max = -1;
 
-	double binWidth = 1000./100.00;
+	double binWidth = 100./100.00;
 	TH1D *waveform = new TH1D("waveform", title, nsamples, -0.5*binWidth, (nsamples-0.5)*binWidth);
 	for(int i = 0; i < nsamples; i++) {
 		waveform->SetBinContent(i+1, samples[i]);
@@ -141,11 +141,11 @@ int processIsland(int t0, int nsamples, int *samples, int channel)
 	fgets(dummy, sizeof(dummy), stdin);
 	if(dummy[0] == 'q') {
 		return 1;
-		//    }
-}
+	}
+//}
 
-delete waveform;
-//delete c;
+	delete waveform;
+	//delete c;
 
 return 0;
 }
