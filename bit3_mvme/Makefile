@@ -19,7 +19,7 @@ ROOTCFLAGS := $(shell $(ROOTSYS)/bin/root-config --cflags)
 CXXFLAGS += -DHAVE_ROOT $(ROOTCFLAGS)
 
 #TARGETS = r
-DRV = bt617.o rpv130.o
+DRV = bt617.o rpv130.o v1290.o
 
 all: $(DRV)
 
