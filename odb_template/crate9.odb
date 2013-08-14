@@ -1,0 +1,113 @@
+[/Equipment/Crate 9/Settings]
+Enabled = BOOL : y
+Master = BOOL : n
+Diagnostic Print Level = INT : 0
+Operator Message Level = INT : -1
+Synchronous = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 7]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC 80]
+Enabled = BOOL : y
+Interface = INT : 2
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 6]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 2
+Stretch samples = INT : 15
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 5]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 4]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 3]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 10
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 2]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 10
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 1]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 10
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 0]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 10
+
+[/Equipment/Crate 9/Common]
+Event ID = WORD : 1000
+Trigger mask = WORD : 65535
+Buffer = STRING : [32] BUF9
+Type = INT : 66
+Source = INT : 16777215
+Format = STRING : [8] MIDAS
+Enabled = BOOL : y
+Read on = INT : 1
+Period = INT : 500
+Event limit = DOUBLE : 0
+Num subevents = DWORD : 0
+Log history = INT : 0
+Frontend host = STRING : [32] daq2.MuSIC
+Frontend name = STRING : [32] Crate 9
+Frontend file name = STRING : [256] crate.cpp
+
+[/Equipment/Crate 9/Statistics]
+Events sent = DOUBLE : 1796
+Events per sec. = DOUBLE : 0
+kBytes per sec. = DOUBLE : 0
+

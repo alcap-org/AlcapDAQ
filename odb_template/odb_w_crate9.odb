@@ -1,0 +1,369 @@
+[/System/Clients/3365]
+Name = STRING : [32] Logger
+Host = STRING : [256] abner
+Hardware type = INT : 42
+Server Port = INT : 38210
+Transition START = INT : 200
+Transition STOP = INT : 800
+Transition PAUSE = INT : 500
+Transition RESUME = INT : 500
+
+[/System/Clients/3365/RPC]
+14000 = BOOL : y
+
+[/System/Clients/4714]
+Name = STRING : [32] Crate 4
+Host = STRING : [256] abner
+Hardware type = INT : 42
+Server Port = INT : 40153
+Link timeout = INT : 60000
+Transition START = INT[2] :
+[0] 404
+[1] 504
+Transition STOP = INT : 504
+Transition PAUSE = INT : 504
+Transition RESUME = INT : 504
+
+[/System/Clients/3363]
+Name = STRING : [32] mhttpd
+Host = STRING : [256] abner
+Hardware type = INT : 42
+Server Port = INT : 56634
+
+[/System/Clients/4856]
+Name = STRING : [32] ODBEdit
+Host = STRING : [256] abner
+Hardware type = INT : 42
+Server Port = INT : 47545
+
+[/System]
+Client Notify = INT : 0
+Prompt = STRING : [256] [%h:%e:%s]%p>
+
+[/Programs/Logger]
+Required = BOOL : n
+Watchdog timeout = INT : 10000
+Check interval = DWORD : 180000
+Start command = STRING : [256] 
+Auto start = BOOL : n
+Auto stop = BOOL : n
+Auto restart = BOOL : n
+Alarm class = STRING : [32] 
+First failed = DWORD : 0
+
+[/Programs/Crate 3]
+Required = BOOL : n
+Watchdog timeout = INT : 60000
+Check interval = DWORD : 180000
+Start command = STRING : [256] 
+Auto start = BOOL : n
+Auto stop = BOOL : n
+Auto restart = BOOL : n
+Alarm class = STRING : [32] 
+First failed = DWORD : 1376413547
+
+[/Programs/Crate 4]
+Required = BOOL : n
+Watchdog timeout = INT : 60000
+Check interval = DWORD : 180000
+Start command = STRING : [256] 
+Auto start = BOOL : n
+Auto stop = BOOL : n
+Auto restart = BOOL : n
+Alarm class = STRING : [32] 
+First failed = DWORD : 0
+
+[/Programs/ODBEdit]
+Required = BOOL : n
+Watchdog timeout = INT : 10000
+Check interval = DWORD : 180000
+Start command = STRING : [256] 
+Auto start = BOOL : n
+Auto stop = BOOL : n
+Auto restart = BOOL : n
+Alarm class = STRING : [32] 
+First failed = DWORD : 0
+
+[/Programs/mhttpd]
+Required = BOOL : n
+Watchdog timeout = INT : 10000
+Check interval = DWORD : 180000
+Start command = STRING : [256] 
+Auto start = BOOL : n
+Auto stop = BOOL : n
+Auto restart = BOOL : n
+Alarm class = STRING : [32] 
+First failed = DWORD : 0
+
+[/Programs]
+Execute on start run = STRING : [256] 
+Execute on stop run = STRING : [256] 
+
+[/Experiment]
+Name = STRING : [32] AlCap
+
+[/Logger]
+Data dir = STRING : [256] /home/daq/AlcapDAQ/dir/
+Message file = STRING : [256] midas.log
+Write data = BOOL : y
+ODB Dump = BOOL : n
+ODB Dump File = STRING : [256] run%05d.odb
+Auto restart = BOOL : n
+Tape message = BOOL : y
+
+[/Logger/Channels/0/Settings]
+Active = BOOL : y
+Type = STRING : [8] Disk
+Filename = STRING : [256] run%05d.mid
+Format = STRING : [8] MIDAS
+Compression = INT : 0
+ODB dump = BOOL : y
+Log messages = DWORD : 0
+Buffer = STRING : [32] SYSTEM
+Event ID = INT : -1
+Trigger mask = INT : -1
+Event limit = DWORD : 0
+Byte limit = DOUBLE : 0
+Tape capacity = DOUBLE : 0
+Subdir format = STRING : [32] 
+Current filename = STRING : [256] 
+
+[/Logger/Channels/0/Statistics]
+Events written = DOUBLE : 0
+Bytes written = DOUBLE : 0
+Bytes written total = DOUBLE : 0
+Files written = INT : 0
+
+[/Runinfo]
+State = INT : 1
+Online Mode = INT : 1
+Run number = INT : 2
+Transition in progress = INT : 0
+Requested transition = INT : 0
+Start time = STRING : [32] Mon Aug 12 20:24:14 2013
+Start time binary = DWORD : 1376364254
+Stop time = STRING : [32] Mon Aug 12 20:25:19 2013
+Stop time binary = DWORD : 1376364319
+
+[/Equipment/Crate 3/Settings]
+Master = BOOL : y
+Diagnostic Print Level = INT : -1076314356
+Operator Message Level = INT : -1076314356
+Enabled = BOOL : y
+Synchronous = BOOL : y
+
+[/Equipment/Crate 3/Common]
+Event ID = WORD : 1000
+Trigger mask = WORD : 65535
+Buffer = STRING : [32] BUF3
+Type = INT : 66
+Source = INT : 16777215
+Format = STRING : [8] MIDAS
+Enabled = BOOL : y
+Read on = INT : 1
+Period = INT : 500
+Event limit = DOUBLE : 0
+Num subevents = DWORD : 0
+Log history = INT : 0
+Frontend host = STRING : [32] abner
+Frontend name = STRING : [32] Crate 3
+Frontend file name = STRING : [256] crate.cpp
+
+[/Equipment/Crate 3/Statistics]
+Events sent = DOUBLE : 0
+Events per sec. = DOUBLE : 0
+kBytes per sec. = DOUBLE : 0
+
+[/Equipment/Crate 4/Settings]
+Master = BOOL : n
+Diagnostic Print Level = INT : -1080806612
+Operator Message Level = INT : -1080806612
+Enabled = BOOL : y
+Synchronous = BOOL : y
+
+[/Equipment/Crate 4/Common]
+Event ID = WORD : 1000
+Trigger mask = WORD : 65535
+Buffer = STRING : [32] BUF4
+Type = INT : 66
+Source = INT : 16777215
+Format = STRING : [8] MIDAS
+Enabled = BOOL : y
+Read on = INT : 1
+Period = INT : 500
+Event limit = DOUBLE : 0
+Num subevents = DWORD : 0
+Log history = INT : 0
+Frontend host = STRING : [32] abner
+Frontend name = STRING : [32] Crate 4
+Frontend file name = STRING : [256] crate.cpp
+
+[/Equipment/Crate 4/Statistics]
+Events sent = DOUBLE : 0
+Events per sec. = DOUBLE : 0
+kBytes per sec. = DOUBLE : 0
+
+[/Equipment/Crate 9/Settings]
+Enabled = BOOL : y
+Master = BOOL : n
+Diagnostic Print Level = INT : 0
+Operator Message Level = INT : -1
+Synchronous = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 7]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC 80]
+Enabled = BOOL : y
+Interface = INT : 2
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 6]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 2
+Stretch samples = INT : 15
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 5]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 4]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 3]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 10
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 2]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 10
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 1]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 10
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 0]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 10
+
+[/Equipment/Crate 9/Common]
+Event ID = WORD : 1000
+Trigger mask = WORD : 65535
+Buffer = STRING : [32] BUF9
+Type = INT : 66
+Source = INT : 16777215
+Format = STRING : [8] MIDAS
+Enabled = BOOL : y
+Read on = INT : 1
+Period = INT : 500
+Event limit = DOUBLE : 0
+Num subevents = DWORD : 0
+Log history = INT : 0
+Frontend host = STRING : [32] daq2.MuSIC
+Frontend name = STRING : [32] Crate 9
+Frontend file name = STRING : [256] crate.cpp
+
+[/Equipment/Crate 9/Statistics]
+Events sent = DOUBLE : 1796
+Events per sec. = DOUBLE : 0
+kBytes per sec. = DOUBLE : 0
+
+[/Alarms]
+Alarm system active = BOOL : y
+
+[/Alarms/Alarms/Demo ODB]
+Active = BOOL : n
+Triggered = INT : 0
+Type = INT : 3
+Check interval = INT : 60
+Checked last = DWORD : 0
+Time triggered first = STRING : [32] 
+Time triggered last = STRING : [32] 
+Condition = STRING : [256] /Runinfo/Run number > 100
+Alarm Class = STRING : [32] Alarm
+Alarm Message = STRING : [80] Run number became too large
+
+[/Alarms/Alarms/Demo periodic]
+Active = BOOL : n
+Triggered = INT : 0
+Type = INT : 4
+Check interval = INT : 28800
+Checked last = DWORD : 0
+Time triggered first = STRING : [32] 
+Time triggered last = STRING : [32] 
+Condition = STRING : [256] 
+Alarm Class = STRING : [32] Warning
+Alarm Message = STRING : [80] Please do your shift checks
+
+[/Alarms/Classes/Alarm]
+Write system message = BOOL : y
+Write Elog message = BOOL : n
+System message interval = INT : 60
+System message last = DWORD : 0
+Execute command = STRING : [256] 
+Execute interval = INT : 0
+Execute last = DWORD : 0
+Stop run = BOOL : n
+Display BGColor = STRING : [32] red
+Display FGColor = STRING : [32] black
+
+[/Alarms/Classes/Warning]
+Write system message = BOOL : y
+Write Elog message = BOOL : n
+System message interval = INT : 60
+System message last = DWORD : 0
+Execute command = STRING : [256] 
+Execute interval = INT : 0
+Execute last = DWORD : 0
+Stop run = BOOL : n
+Display BGColor = STRING : [32] red
+Display FGColor = STRING : [32] black
+
