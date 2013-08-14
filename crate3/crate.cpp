@@ -108,11 +108,13 @@ EQUIPMENT equipment[] = {
  */
 extern struct readout_module rpc_master_module;
 extern struct readout_module rpc_slave_module;
-extern struct readout_module rpv130_module;
+//extern struct readout_module rpv130_module;
+extern struct readout_module parport_module;
 
 struct readout_module *trigger_modules[] = { 
   &rpc_master_module,
-  &rpv130_module,
+  //&rpv130_module,
+  &parport_module,
   &rpc_slave_module,  // must be last!
 };
 int num_trigger_modules = sizeof(trigger_modules)/sizeof(trigger_modules[0]);
@@ -147,15 +149,17 @@ INT frontend_early_init()
   //char *hostnames[] = {"fe1", "fe2", "fe3", "turtle", "fe5", "fe6"};
   //char *hostnames[] = {"fe1", "fe2", "daq2.MuSIC", "fe4", "fe5", "fe6", "fe7"};
   //int crate_numbers[] = {1, 2, 3, 4, 5, 6, 9};
-	char *hostnames[] = {"daq2.MuSIC"};
-	int crate_numbers[] = {3};
-  BOOL crate_has_periodic[] = {FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE};
+  //char *hostnames[] = {"daq2.MuSIC"};
+  //int crate_numbers[] = {3};
+  //BOOL crate_has_periodic[] = {FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE};
 
-  int num_hostnames = sizeof(hostnames)/sizeof(char *);
-  char my_hostname[256];
+  //int num_hostnames = sizeof(hostnames)/sizeof(char *);
+  
+  //char my_hostname[256];
 
-  gethostname(my_hostname, sizeof(my_hostname));
+  //gethostname(my_hostname, sizeof(my_hostname));
 
+#if 0
   BOOL has_periodic = FALSE; 
   for(int i = 0; i < num_hostnames; i++) {
     if(!strcmp(my_hostname, hostnames[i])) {
@@ -163,6 +167,10 @@ INT frontend_early_init()
       has_periodic = crate_has_periodic[i];
     }
   }
+#endif 
+
+  crate_number = 3;
+  BOOL has_periodic = FALSE;
 
   printf("Hostname and crate cumber defined, crate number = %d  ... \n",crate_number);
 
@@ -178,8 +186,8 @@ INT frontend_early_init()
 #endif
     frontend_index = crate_number;
 
-  printf("Crate number = %d\n",crate_number);
-
+    printf("Crate number = %d\n",crate_number);
+    
     if(has_periodic) {
       sprintf(equipment[1].name, "Periodic %d", crate_number);
       equipment[1].info.event_id = 2000 + crate_number;
@@ -439,7 +447,7 @@ INT frontend_loop()
   }
 
   // Call appropriate poll functions, depending on whether we're live or dead
-  printf("fe loop: cycle_active %i\n",cycle_active);
+  //printf("fe loop: cycle_active %i\n",cycle_active);
   if (cycle_active) { 
 
     for(int i = 0; i < num_trigger_modules; i++) {

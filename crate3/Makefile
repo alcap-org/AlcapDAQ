@@ -20,13 +20,14 @@ CXXFLAGS += $(MIDAS_INCLUDE) -DDO_IOPERM
 CFLAGS = $(CXXFLAGS)
 
 MODULES = crate.o rpc_master.o rpc_slave.o diag.o odb_wrapper.o
-MODULES += rpv130_module.o
-VMEDRVS += ../bit3_mvme/rpv130.o ../bit3_mvme/bt617.o
+#MODULES += rpv130_module.o
+#VMEDRVS += ../bit3_mvme/rpv130.o ../bit3_mvme/bt617.o
+DRVS += parport_module.o
 
 all: crate
 
-crate: $(MODULES)
-	$(CXX) -o $@ $(MODULES) $(CXX_LIBS) $(VMEDRVS)
+crate: $(MODULES) $(DRVS)
+	$(CXX) -o $@ $(MODULES) $(CXX_LIBS) $(DRVS)
 
 .c.o: $(DRV)
 	$(CXX) $(CXXFLAGS) -c $< 

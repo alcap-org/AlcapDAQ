@@ -206,3 +206,31 @@ Mon Jun  7 14:01:34 2010 Program  on host daq01 stopped
 Wed Jul 28 15:02:42 2010 [Ebuilder] [odb.c:1264:db_open_database] removing client Ebuilder, pid 12319, index 1 because the pid no longer exists
 Wed Jul 28 15:02:42 2010 [Ebuilder] Deleted /System/Clients/12319 entry for client Ebuilder
 
+Tue Aug 13 18:32:14 2013 Program  on host abner stopped
+Wed Aug 14 10:46:16 2013 [Ebuilder] [odb.c:1264:db_open_database] removing client Ebuilder, pid 14164, index 1 because the pid no longer exists
+Wed Aug 14 10:46:16 2013 [Ebuilder] Deleted /System/Clients/14164 entry for client Ebuilder
+
+Wed Aug 14 10:46:19 2013 [Ebuilder] [odb.c:1264:db_open_database] removing client Ebuilder, pid 14165, index 2 because the pid no longer exists
+Wed Aug 14 10:46:19 2013 [Ebuilder] Deleted /System/Clients/14165 entry for client Ebuilder
+
+Wed Aug 14 10:46:19 2013 [Ebuilder] [odb.c:1264:db_open_database] removing client Ebuilder, pid 14166, index 1 because the pid no longer exists
+Wed Aug 14 10:46:19 2013 [Ebuilder] Deleted /System/Clients/14166 entry for client Ebuilder
+
+Wed Aug 14 10:46:20 2013 [Ebuilder] [odb.c:1264:db_open_database] removing client Ebuilder, pid 14167, index 2 because the pid no longer exists
+Wed Aug 14 10:46:20 2013 [Ebuilder] Deleted /System/Clients/14167 entry for client Ebuilder
+
+Wed Aug 14 10:46:21 2013 [Ebuilder] [odb.c:1264:db_open_database] removing client Ebuilder, pid 14168, index 1 because the pid no longer exists
+Wed Aug 14 10:46:21 2013 [Ebuilder] Deleted /System/Clients/14168 entry for client Ebuilder
+
+Wed Aug 14 10:46:22 2013 [Ebuilder] [odb.c:1264:db_open_database] removing client Ebuilder, pid 14169, index 2 because the pid no longer exists
+Wed Aug 14 10:46:22 2013 [Ebuilder] Deleted /System/Clients/14169 entry for client Ebuilder
+
+Wed Aug 14 10:46:23 2013 [Ebuilder] [odb.c:1264:db_open_database] removing client Ebuilder, pid 14170, index 1 because the pid no longer exists
+Wed Aug 14 10:46:23 2013 [Ebuilder] Deleted /System/Clients/14170 entry for client Ebuilder
+
+Wed Aug 14 10:46:33 2013 [Ebuilder] [odb.c:1264:db_open_database] removing client Ebuilder, pid 14171, index 2 because the pid no longer exists
+Wed Aug 14 10:46:33 2013 [Ebuilder] Deleted /System/Clients/14171 entry for client Ebuilder
+
+Wed Aug 14 10:46:47 2013 [Ebuilder] [odb.c:1264:db_open_database] removing client Ebuilder, pid 14173, index 1 because the pid no longer exists
+Wed Aug 14 10:46:47 2013 [Ebuilder] Deleted /System/Clients/14173 entry for client Ebuilder
+

@@ -358,13 +358,13 @@ void setupRegs()
 #endif
 
         if(chan % 2 == 0) { 
-          setReg("eth2", i, frontend, 0, r0, 0);
-          setReg("eth2", i, frontend, 1, r1, 0);
-          setReg("eth2", i, frontend, 4, r2, 1);
+          setReg("eth1", i, frontend, 0, r0, 0);
+          setReg("eth1", i, frontend, 1, r1, 0);
+          setReg("eth1", i, frontend, 4, r2, 1);
         } else {
-          setReg("eth2", i, frontend, 2, r0, 0);
-          setReg("eth2", i, frontend, 3, r1, 0);
-          setReg("eth2", i, frontend, 5, r2, 1);
+          setReg("eth1", i, frontend, 2, r0, 0);
+          setReg("eth1", i, frontend, 3, r1, 0);
+          setReg("eth1", i, frontend, 5, r2, 1);
         }
       }
     } 
@@ -439,7 +439,7 @@ INT new_fadc_read(char *pevent)
 
     gettimeofday(&t2,0);
     double tdiff = (t2.tv_usec-t1.tv_usec) + 1000000*(t2.tv_sec-t1.tv_sec);
-    if(tdiff > 20000) {
+    if(tdiff > 200000) {
       printf("Timed out:\n");
       allPacketsReceived(true);  // for diagnostic printout
       timed_out = true;

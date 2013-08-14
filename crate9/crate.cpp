@@ -148,8 +148,9 @@ INT frontend_early_init()
 {
   // Determine our crate ID by comparing against a list of hostnames
   printf("Enter\n");
+#if 0
   //char *hostnames[] = {"musun1.phys.washington.edu"};
-  char *hostnames[] = {"daq2.MuSIC"};
+  char *hostnames[] = {"aber."};
   int crate_numbers[] = {9};
   BOOL crate_has_periodic[] = {FALSE};
 
@@ -165,7 +166,10 @@ printf("nnnnnnnn \n");
       has_periodic = crate_has_periodic[i];
     }
   }
+#endif
 
+	crate_number = 9;
+	BOOL has_periodic = FALSE;
   if(crate_number > 0) {
     frontend_name = new char[32];
     strcpy(frontend_name, "Crate ");
