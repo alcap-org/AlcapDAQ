@@ -1,0 +1,141 @@
+                    MIDAS Usage with the PCOS setup
+                    ===============================
+
+                           S. Ritt, Feb 97
+
+
+
+Introduction
+------------
+
+The MIDAS data acquisition system reads trigger data from CAMAC, writes it
+to disk/tape and presents histograms and N-tuples to PAW. Each of these
+tasks is performed by one process: Frontend, Logger and Analyzer. All
+parameters of the system are stored in an "online database". They can be
+edited with the ODBEdit program. 
+
+Starting DAQ
+------------
+
+First, start the data acquisition by double clicking the DAQ icons in the
+yellow folder labeled "midas" on the Windows NT desktop.  If this
+processes is already running ("DAQ" icon in the Windows task bar at the
+bottom of the screen is present), don't start DAQ again. 
+
+Controlling DAQ
+---------------
+
+Start ODBedit. This program is a simple command interface to the MIDAS
+system. Following commands are used most often: 
+
+start              to start a run
+stop               to stop a run
+histo <id>         to clear histos/n-tuples
+cd <dir>           to go to a subdirectory
+cd ..              go one directory up
+dir                to list a directory
+set <key> <value>  to set a value in the ODB
+
+If a directory or key contains blanks, embrace them with quotation marks
+like
+
+  set "/runinfo/run number" 123
+
+Following values are of major interest:
+
+- /runinfo/run number    
+  the current run number, gets incremented by the start command
+
+- /logger/channels/0/state
+  set this value to "on" or "off" to enable logging to disk
+ 
+- /logger/channels/1/state
+  set this value to "on" or "off" to enable logging to tape
+
+- /logger/channels/0/statistics
+  contains the number of logged events
+
+- /equipment/trigger/variables
+  contains the last trigger event
+
+- /equipment/trigger/settings
+  contains CAMAC parameters
+
+- /analyzer/parameters
+  contains analyzer parameters
+
+Viewing histos
+--------------
+
+Start PAW. The \midas\work\pawlogon.kumac file attaches automatically to
+the online data with the "hi/gl onln" command. 
+
+Now all standard PAW commands can be used. Follwing histograms are
+defined: 
+
+100-         raw ADC histo where
+200-         pedestal subtracted ADC histo
+300-         TDC histos
+400-         chamber histos
+500-         chamber 2D histos
+
+These histograms are saved into runxxxx.hbook (where xxxx is the run
+number) in the \midas\work\data directory at the end of a run. They can be
+loaded later into PAW with
+
+PAW> hi/file 1 \midas\work\data\run1234.hbook
+
+Paw then switches to the internal //LUN1 directory, which contains the
+histograms from run 1234. To switch back to the online histos, enter
+
+PAW> cd //onln
+
+To turn on statistics, date and file display in PAW, enter
+
+PAW> opt stat
+PAW> opt date
+PAW> opt file
+
+These commands can also written to the c:\midas\work\pawlogon.kumac file.
+
+An online N-tuple with ID 1 is defined, too. This N-tuple contains the
+last 10000 ADC, TDC and wire chamber values. After 10000 events, the first
+events gets overwritten (ring-buffer). All N-tupe operations like
+
+PAW> nt/pl 1.adc0%adc1 tdc0>100
+
+can be used. 
+
+To make MIDAS controllable from inside PAW, following 
+macros were defined:
+
+exec start         to start a run
+exec stop          to stop a run
+exec clear         to clear all histos
+exec clear 1       to clear N-tuple 1
+exec print1        to prepare for printing
+exec print2        to print everything which was displayed between
+                   print1 and print2
+exec cleanup       Reset the DAQ system
+
+Troubleshooting
+---------------
+
+If the system hangs, never reboot the computer! Instead, enter the PAW
+command
+
+exec cleanup
+
+This command stops the DAQ program and PAW. Then restart the DAQ program
+and PAW. Note that you cannot start DAQ when PAW is running, so make sure
+PAW is not running when DAQ is started. 
+
+If the problem still persists, check the hardware:
+
+- Is the CAMAC crate power on ?
+- Does the hardware produce triggers ?
+- Does the ADC get proper gates ?
+
+
+                        --------------oOo---------------
+

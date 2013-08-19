@@ -1,0 +1,67 @@
+Using the CERN library with MIDAS
+=================================
+
+It is possible to use the cerlib "hbook" functions to create histos and 
+n-tuples, which can be seen online with PAW. Follow these steps to write
+an analyzer which uses this functionality:
+
+- get the files from ftp://asisftp.cern.ch/cernlib/<os>/pro/bin and
+  put them into c:\cern\bin, where <os> is your operating system (like
+  intel_wnt for Windows NT)
+
+- get packlib.lib from ftp://asisftp.cern.ch/cernlib/<os>/pro/lib and
+  put them into c:\cern\lib
+
+- get cfortran.c from ftp://zebra.desy.de/cfortran/cfortran.h and put it
+  to c:\cern\include. Add the include path c:\cern\include to your project.
+
+- get hbook.h from 
+  ftp://asisftp.cern.ch/cernlib/share/pro/include/cfortran/hbook.h and
+  put it to c:\cern\include. Add the line
+
+  #define HFNOV(A1,A2)  CCALLSFSUB2(HFNOV,hfnov,INT,FLOATV,A1,A2)
+
+  if it is not already there.
+
+Windows NT:
+-----------
+
+- In project settings / C++ / Code generation, set "debug multithreaded dll"
+  for "run-time library". Alternatively, use the /MDd compiler switch.
+
+- In project settings / Link / Input, ignore the libraries 
+  "libc.lib;msvcrt.lib". Alternatively, use the /nodefaultlib:"libc.lib" and
+  /nodefaultlib:"msvcrt.lib" compiler switches.
+
+- inlucd packlib.lib in your project.
+
+- Use following code to book and fill a histo: 
+
+  #define VISUAL_CPLUSPLUS
+  #include <cfortran.h>
+  #include <hbook.h>
+
+  #define PAWC_SIZE 50000
+  int PAWC[PAWC_SIZE];
+
+  INT analyzer_init()
+  {
+    /* create global section */
+    HLIMAP(PAWC_SIZE, "MIDA");
+
+    /* book histo "ADC0" with ID 100, 500 bins, from 0 to 4096 */
+    HBOOK1(100, "ADC0", 500, 0.f, 4096.f, 0.f);
+  }
+
+  INT analyze_trigger_event(EVENT_HEADER *pevent)
+  {
+    ...
+    /* fill histo ADC0 */
+    HFILL(100, (float) adc, 0.f, 1.f);
+  }
+
+- Use following commands inside PAW to view this histo:
+
+  PAW > histo/global mida
+  PAW > histo/plot 100
+

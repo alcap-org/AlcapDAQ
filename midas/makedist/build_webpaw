@@ -1,0 +1,31 @@
+#!/bin/csh
+#Usage: build_webpaw <version>
+#Build WebPAW distribution
+
+set version = $argv[1]
+set dir = /tmp/webpaw-$version
+set archive = webpaw-$version.tar.gz
+
+# create temporary directory
+rm -Rf $dir
+mkdir $dir
+
+# checkout files
+echo Checkout files...
+cvs update utils/webpaw.c
+cp utils/webpaw.c $dir
+cp Makefile.webpaw $dir/Makefile
+cp COPYING $dir
+
+# create webpaw-x.xx.tar.gz file
+echo Creating archive...
+cd /tmp
+tar -cvzf $archive webpaw-$version/
+
+# remove temporary files
+rm -Rf $dir
+
+# transfer archive
+mv /tmp/$archive ~/html/webpaw/download/
+
+

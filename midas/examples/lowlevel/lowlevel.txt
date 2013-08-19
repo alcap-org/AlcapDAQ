@@ -1,0 +1,45 @@
+Following low-level examples are included
+=========================================
+
+produce:
+--------
+
+A simple data producer. It simply connects to a buffer on the local
+machine (not possible under MS-DOS) or to a remote host which has the
+server program running. 
+
+An event-id can be selected (e.g. 1 or 2 or so), a host (either enter
+RETURN for the local host or the IP name for a remote host), an event
+size (1 Byte up to 64k) and a cache size. The cache is installed on
+the machine where the buffer is created and limits the access to the
+buffer by caching the data. This avoids numerous semaphore calls and
+speeds up data transfer expecially for small event sizes. 
+
+The producer just generates dummy events until it is interrupted via
+Ctrl-C. 
+
+consume:
+--------
+
+A simple consumer getting data from a local or remote host and
+checking the data inegrety. First, the first and last word in the
+events is checked in order to detect overwritten data, then the serial
+number of the event is checked in order to detect lost events. 
+
+By specifying different id's, several types of events can be passed
+through the same buffer although this is not advisable for high rate
+applications.
+
+
+rpc_test:
+---------
+
+A simple program to test the RPC layer in MIDAS. It connects to a
+MIDAS server and executes a test routine on the server.
+
+rpc_srvr, rpc_clnt:
+-------------------
+
+This is a standalone RPC server and client which do not use any midas
+functionality. This can be used to implement simple RPC client/server
+programs which have nothing to do with midas

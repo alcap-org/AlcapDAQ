@@ -1,0 +1,183 @@
+/*! @page AppendixD Midas build options and operation considerations
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref AppendixC - @ref Top - @ref AppendixE
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+The section covers the @ref building_option for customization of the DAQ system
+as well as the different @ref Environment_variables options for its operation.
+
+<hr> @section building_option Building Options
+
+- By default Midas is build with a minimum of pre-compiler flags. But the @ref Makefile 
+contains options for the user to apply customization by enabling internal options 
+already available in the package.
+ - @ref YBOS_VERSION_3_3 , @ref EVID_TWIST , @ref INCLUDE_FTPLIB , @ref INCLUDE_ZLIB , 
+  @ref SPECIFIC_OS_PRG
+
+- Other flags are avaiable at the application level:
+ - @ref HAVE_CAMAC , @ref HAVE_ROOT , @ref HAVE_HBOOK , @ref HAVE_MYSQL , 
+  @ref USE_EVENT_CHANNEL ,  @ref DM_DUAL_THREAD , @ref USE_INT
+
+- By default the midas applications are built for use with dynamic library 
+\b libmidas.so. If static build is required the whole package can be built using the 
+option \b static.
+\code
+> make static
+\endcode
+
+- The basic Midas package builds without external package library reference. But it does try
+to build an extra core analyzer application to be used in conjunction with ROOT 
+if $ROOTSYS is found. This is required ONLY if the examples/experiment makefile is used for 
+generating a complete Midas/ROOT analyzer application.
+
+- In case of HBOOK/PAW analyzer application, the build should be done from examples/hbookexpt
+directory and the environment variable CERNLIB_PACK should be pointing to a valid cernpacklib.a
+library.
+
+- For development it could be useful to built individual application in static. This 
+can be done using the @ref USERFLAGS option such as:
+\code
+> rm linux/bin/mstat; make USERFLAGS=-static linux/bin/mstat
+\endcode
+
+- The current OS support is done through fix flag established in the general
+@ref Makefile. Currently the OS supported are:
+ - \b OS_OSF1 , \b OS_ULTRIX , \b OS_FREEBSD ,  \b OS_LINUX , \b OS_SOLARIS.
+
+- For \b OS_IRIX please contact Pierre. The \b OS_VMS is not included in the Makefile
+as it requires a particular makefile and since several years now the VMS support
+has been dropped. 
+\code
+OSFLAGS = -DOS_LINUX ...
+\endcode
+
+- Other OS supported are: 
+ - OS_WINNT : See file makefile.nt. 
+ - OS_VXWORKS : See file makefile.ppc_tri.
+
+<hr> @section USERFLAGS USERFLAGS
+This flag can be used at the command prompt for individual application built.
+\code
+make USERFLAGS=-static linux/bin/mstat
+\endcode
+
+<hr> @section MIDAS_PREF_FLAGS MIDAS_PREF_FLAGS
+This flag is for internal global Makefile preference.
+Included in the \b OSFLAGS.
+\code
+MIDAS_PREF_FLAGS  = -DYBOS_VERSION_3_3 -DEVID_TWIST
+\endcode
+
+<hr> @section HAVE_CAMAC HAVE_CAMAC
+This flag enable the CAMAC RPC service within the frontend code. The application
+@ref mcnaf_task and the web @ref CNAF_page are by default not CAMAC enabled
+(HAVE_CAMAC undefined).
+
+<hr> @section HAVE_ROOT HAVE_ROOT
+This flag is used for the midas @ref analyzer_task in the case \b ROOT environment
+is required. An example of the makefile resides in \b examples/experiment/Makefile.
+This flag is enabled by the presence of a valid \b ROOTSYS environment variable.
+In the case \b ROOTSYS is not found the analyzer is build without \b ROOT support.
+In this later case, the application @ref rmidas_task will be missing. refer to @ref analyzer_struct
+for further details.
+
+<hr> @section HAVE_HBOOK HAVE_HBOOK
+This flag is used for \b examples/hbookexpt/Makefile for building the midas @ref analyzer_task
+against \b HBOOK and \b PAW. The path to the cernlib is requested and expected to be found under
+/cern/pro/lib (see makefile). This can always be overwritten during the makefile using the
+following command:
+\code
+make CERNLIB_PACK=<your path>/libpacklib.a
+\endcode
+
+<hr> @section HAVE_MYSQL HAVE_MYSQL
+This flag is used for the @ref mlogger_task to building the application with \em mySQL support.
+The build requires to have access to the mysql include files as well as the mysql library.
+Refers to @ref for further information on that option.
+\code
+\endcode
+
+- For operation of the analyzer \b without \b HBOOK or \b ROOT, refer to @ref analyzer_struct
+for further details.
+
+
+<hr> @section SPECIFIC_OS_PRG SPECIFIC_OS_PRG
+This flag is for internal Makefile preference. Used in particular for additional
+applications build based on the OS selection. In the example
+below @ref mspeaker_task and @ref dio_task are built only under OS_LINUX.
+\code
+SPECIFIC_OS_PRG = $(BIN_DIR)/mlxspeaker_task $(BIN_DIR)/dio_task
+\endcode
+
+<hr> @section INCLUDE_FTPLIB INCLUDE_FTPLIB
+FTP support "INCLUDE_FTPLIB" Application such as the @ref mlogger_task,
+@ref lazylogger_task can use the ftp channel for data transfer.
+
+<hr> @section INCLUDE_ZLIB INCLUDE_ZLIB
+The applications @ref lazylogger_task, @ref mdump_task can be built with \b zlib.a
+in order to gain direct access to the data within a file with extension
+\b mid.gz or \b ybs.gz. By default this option is disabled except for the system analyzer
+core code \b mana.c.
+\code
+make USERFLAGS=-DINCLUDE_ZLIB linux/lib/ybos.o
+make USERFLAGS=-static linux/bin/mdump
+\endcode
+
+<hr> @section YBOS_VERSION_3_3 YBOS_VERSION_3_3
+The default built for ybos support is version 4.0.
+If lower version is required include \b YBOS_VERSION_3_3
+during compilation of the ybos.c
+\code
+make USERFLAGS=-DYBOS_VERSION_3_3 linux/lib/ybos.o
+\endcode
+
+<hr> @section DM_DUAL_THREAD DM_DUAL_THREAD
+Valid only under VxWorks. This flag enable the dual thread task when running the
+frontend code under VxWorks. The main function calls are the dm_xxxx in @ref midas.c
+(Contact Pierre for more information).
+
+<hr> @section USE_EVENT_CHANNEL USE_EVENT_CHANNEL
+To be used in conjunction with the @ref DM_DUAL_THREAD.
+
+<hr> @section USE_INT USE_INT
+In @ref mfe.c. Enable the use of interrupt mechanism. This option is so far only valid
+under VxWorks Operating system. (Contact Stefan or Pierre for further information).
+
+<hr> @section Environment_variables Environment variables
+Midas uses a several environment variables to facilitate the different application
+startup.
+ 
+@subsection  MIDASSYS MIDASSYS
+ From version 1.9.4 this environmental variable is required. It should point
+to the main path of the installed Midas package. The application odbedit
+will generate a warning message in the case this variable is not defined.
+@subsection  MIDAS_EXPTAB MIDAS_EXPTAB
+ This variable specify the location of the \b exptab file containing the predefined
+ midas experiment. The default location is for OS_UNIX: /etc, /. For OS_WINNT:
+ \\system32, \\system.
+@subsection   MIDAS_SERVER_HOST MIDAS_SERVER_HOST
+ This variable predefines the names of the host on which the Midas experiment
+ shared memories are residing. It is needed when connection to a remote experiment
+ is requested. This variable is valid for Unix as well as Windows OS.
+@subsection   MIDAS_EXPT_NAME MIDAS_EXPT_NAME
+ This variable predefines the name of the experiment to connect by default. It
+ prevents the requested application to ask for the experiment name when multiple
+ experiments are available on the host or to add the -e \<expt_name\> argument to
+ the application command.
+ This variable is valid for Unix as well as Windows OS.
+@subsection   MIDAS_DIR MIDAS_DIR
+ This variable predefines the LOCAL directory path where the shared memories
+ for the experiment are located. It supersede the host_name and the expt_name
+ as well as the @ref MIDAS_SERVER_HOST and @ref MIDAS_EXPT_NAME as a given directory
+ path can only refer to a single experiment.
+@subsection  MCHART_DIR MCHART_DIR
+ This variable is ... for later...
+ This variable is valid only under Linux as the -D is not supported under WindowsXX
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref AppendixC - @ref Top - @ref AppendixE 
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+*/
+

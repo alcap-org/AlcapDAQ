@@ -1,0 +1,222 @@
+/*! \page Event_Builder Event Builder Functions
+
+Midas supports event building operation through a dedicated @ref mevb_task 
+application. Similar to the @ref frontend_task, the @ref mevb_task application
+requires the definition of an equipment structure which describes its mode
+of operation. The set of parameter for this equipment is limited to:
+- Equipment name (appears in the Equipment list).
+- Equipment type  (should be 0).
+- Destination buffer name (SYSTEM if destination event goes to logger).
+- Event ID and Trigger mask for the build event (destination event ID).
+- Data format (should match the source data format).
+
+Based on the given buffer name provided at the startup time through the 
+<em> -b buffer_name </em> argument, the @ref mevb_task will scan all the equipments and 
+handle the building of an event based on the identical buffer name found in 
+the equipment list <b> if the frontend equipment type includes the @ref EQ_EB flag </b>.
+
+@section princple_eb Principle of the Event Builder and related frontend fragment
+
+Possibly in case of multiple frontend, the same "fragment" code may run in the different
+hardware frontend. In order to prevent to build nFragment different frontend task, the 
+-i index provided at the start of the frontend will replicate the same application image
+with the necessary dynamic modification required for the proper Event Building operation.
+The "-i index" argument will provide the index to be appended to the minimal set of
+parameter to distinguish the different frontends. These parameters are:
+- \b frontend_name : Name of the frontend application.
+- \b equipment \b name : Name of the equipment (from the Equipment structure).
+- \b event \b buffer: Name of the destination buffer (from the Equipment structure).
+
+\code
+Frontend code:
+  /* The frontend name (client name) as seen by other MIDAS clients   */
+  char *frontend_name = "ebfe";
+  ...
+   EQUIPMENT equipment[] = {
+
+      {"Trigger",              /* equipment name */
+       1, TRIGGER_ALL,         /* event ID, trigger mask */
+       "BUF",                  /* event buffer */
+       EQ_POLLED | EQ_EB,       /* equipment type + EQ_EB flag <<<<<< */
+       LAM_SOURCE(0, 0xFFFFFF), /* event source crate 0, all stations */
+       "MIDAS",                 /* format */
+\endcode
+
+Once the frontend is started with <em> -i 1 </em>, the Midas client name, equipment name and 
+buffer name will be modified.
+
+\code
+> ebfe -i 1 -D
+...
+odbedit
+[local:midas:S]/Equipment>ls
+Trigger01
+[local:midas:S]Trigger01>ls -lr
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Trigger01                       DIR
+    Common                      DIR
+        Event ID                WORD    1     2     18h  0   RWD  1
+        Trigger mask            WORD    1     2     18h  0   RWD  65535
+        Buffer                  STRING  1     32    18h  0   RWD  BUF01
+        Type                    INT     1     4     18h  0   RWD  66
+        Source                  INT     1     4     18h  0   RWD  16777215
+        Format                  STRING  1     8     18h  0   RWD  MIDAS
+        Enabled                 BOOL    1     4     18h  0   RWD  y
+        Read on                 INT     1     4     18h  0   RWD  257
+        Period                  INT     1     4     18h  0   RWD  500
+        Event limit             DOUBLE  1     8     18h  0   RWD  0
+        Num subevents           DWORD   1     4     18h  0   RWD  0
+        Log history             INT     1     4     18h  0   RWD  0
+        Frontend host           STRING  1     32    18h  0   RWD  hostname
+        Frontend name           STRING  1     32    18h  0   RWD  ebfe01
+        Frontend file name      STRING  1     256   18h  0   RWD  .../eventbuilder/ebfe.c
+...
+\endcode
+
+Independently of the event ID, each fragment frontend will send its data to the composed 
+event buffer (BUFxx). The event builder task will make up a list of all the equipment
+belonging to the same event buffer name (BUFxx). If multiple equipments exists in the same 
+frontend, the equipment type (EQ_EB) and the event buffer name will distinguish them.
+
+The Event Builder flowchart below shows a general picture of the event process cycle of the
+task. The Event Builder runs in polling mode over all the source buffers collected at the 
+begin of run procedure. Once a fragment has been received from all enabled source
+("../Settings/Fragment Required y"), an internal event serial number check is performed
+prior passing all the fragment to the user code. Content of each fragment can be done within
+the user code for further consistency check. 
+
+ * <center> Event Builder Flowchart.
+ *  \image html eventbuilder.jpg
+ *  \image latex eventbuilder.eps "Event Builder Flowchart." width=12cm
+ * </center> 
+
+Each frontend channel needs to send its "midas event" (fragment in this case)
+to a dedicated midas buffer with a unique "Event Identifier".
+This is specified within the frontend code in the equipment
+definition ( BUF1 instead of default SYSTEM, see also @ref ODB_Equipment_Tree):
+\code
+EQUIPMENT equipment[] = {
+
+  { "Trigger1",            // equipment name
+    1, 0,                  // event ID, trigger mask 
+    "BUF1",                // event buffer
+    ...
+\endcode
+ 
+The user has the possibility of interfering into the event building process
+at several stages:
+- [Begin of run] Like in the frontend, a hook to the begin of run is available
+                for initialization etc.
+- [End of run]   Like in the frontend, a hook to the end of run is available
+                for proper closure of private task etc.
+- [Event-By-Event] Once all the fragments for a given serial number (match), the
+    user has the possibility to access these fragments for further
+    "user fragment analysis" and/or appending private data to the
+    built event through the mean of bank creation (see eb_user()).
+
+In the case of serial number mismatch or error returned from the user code, the event builder
+will abort by issuing a "stop run" transition and return to an "idle" state. 
+<strong> THERE IS NO RECOVERY PROCESS AVAILABLE YET! </strong>
+
+@section eb_tree Event builder Tree
+
+The Event builder tree will be created under the Equipment list and will
+appear as a standard equipment. The sub tree \em /Common will contains the
+specific setting of the equipment while the \em /Variables will remain empty.
+\em /Settings will have particualr parameter for the Event Builder itself
+
+\code
+[local:midas:S]EB>ls -lr
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+EB                              DIR
+    Common                      DIR
+        Event ID                WORD    1     2     5m   0   RWD  1
+        Trigger mask            WORD    1     2     5m   0   RWD  0
+        Buffer                  STRING  1     32    5m   0   RWD  SYSTEM
+        Type                    INT     1     4     5m   0   RWD  0
+        Source                  INT     1     4     5m   0   RWD  0
+        Format                  STRING  1     8     5m   0   RWD  MIDAS
+        Enabled                 BOOL    1     4     5m   0   RWD  y
+        Read on                 INT     1     4     5m   0   RWD  0
+        Period                  INT     1     4     5m   0   RWD  0
+        Event limit             DOUBLE  1     8     5m   0   RWD  0
+        Num subevents           DWORD   1     4     5m   0   RWD  0
+        Log history             INT     1     4     5m   0   RWD  0
+        Frontend host           STRING  1     32    5m   0   RWD  hostname
+        Frontend name           STRING  1     32    5m   0   RWD  Ebuilder
+        Frontend file name      STRING  1     256   5m   0   RWD  c:\...\ebuser.c
+    Variables                   DIR
+    Statistics                  DIR
+        Events sent             DOUBLE  1     8     3s   0   RWDE 944
+        Events per sec.         DOUBLE  1     8     3s   0   RWDE 0
+        kBytes per sec.         DOUBLE  1     8     3s   0   RWDE 0
+    Settings                    DIR
+        Number of Fragment      INT     1     4     9s   0   RWD  2
+        User build              BOOL    1     4     9s   0   RWD  n
+        User Field              STRING  1     64    9s   0   RWD  100
+        Fragment Required       BOOL    2     4     9s   0   RWD
+                                        [0]             y
+                                        [1]             y
+\endcode
+
+@section EB_Operation EB Operation
+
+Using the "eb>" as the cwd for the example, the test procedure is the following:
+cwd : midas/examples/eventbuilder  -> refered as eb>
+
+- Build the mevb task:
+\code
+eb> setenv MIDASSYS /home/midas/midas-1.9.5
+eb> make
+cc  -g -I/usr/local/include -I../../drivers -DOS_LINUX -Dextname -c ebuser.c
+cc  -g -I/usr/local/include -I../../drivers -DOS_LINUX -Dextname -o mevb mevb.c \
+          ebuser.o /usr/local/lib/libmidas.a  -lm -lz -lutil -lnsl
+cc  -g -I/usr/local/include -I../../drivers -DOS_LINUX -Dextname \
+          -c ../../drivers/bus/camacnul.c
+cc  -g -I/usr/local/include -I../../drivers -DOS_LINUX -Dextname -o ebfe \
+        ebfe.c camacnul.o /usr/local/lib/mfe.o /usr/local/lib/libmidas.a \
+        -lm -lz -lutil -lnsl
+eb>
+\endcode
+- Start the following 4 applications in 4 differents windows connecting to
+  a defined experiment.
+  -- If no experiment defined yet, set the environment variable MIDAS_DIR to your
+     current directory before spawning the windows.
+\code
+
+xterm1: eb> ebfe -i 1 
+xterm2: eb> ebfe -i 2 
+xterm3: eb> mevb -b BUF
+xterm4: eb> odbedit
+
+[local:Default:S]/>ls
+System                          
+Programs                        
+Experiment                      
+Logger                          
+Runinfo                         
+Alarms                          
+Equipment                       
+[local:Default:S]/>scl
+N[local:midas:S]EB>scl
+Name                Host
+ebfe01              hostname
+ebfe02              hostname
+ODBEdit             hostname
+Ebuilder            hostname
+[local:Default:S]/>
+[local:Default:S]/>start now
+Starting run #2
+\endcode
+
+- The xterm3 (mevb) should display something equivalent to the following,
+as the print statements are coming from the ebuser code.
+\code
+\endcode
+- The same procedure can be repeated with the fe1 and fe2 started on remote
+  nodes.
+\code
+\endcode
+*/

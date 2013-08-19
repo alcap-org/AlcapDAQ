@@ -1,0 +1,160 @@
+#####################################################################
+#
+#  Name:         Makefile
+#  Created by:   Stefan Ritt
+#
+#  Contents:     Makefile for MIDAS binaries and examples under VxWorks
+#
+#  Revision history
+#  ------------------------------------------------------------------
+#  date         by    modification
+#  ---------    ---   -----------------------------------------------
+#  11-MAR-96    SR    created
+#
+#####################################################################
+#
+# Usage:
+#        gmake             To compile the MIDAS library and binaries
+#        gmake install     To install the library and binaries
+#        gmake examples    To compile low-level examples (not necessary)
+#        gmake drivers     To compile CAMAC device drivers (not necessary)
+#
+#
+
+#
+# System direcotries for installation, modify if needed
+#
+SYSOBJ_DIR = /export/soft/wind/68k/target/lib
+SYSINC_DIR = /export/soft/wind/68k/target/h
+
+#####################################################################
+
+#
+# Midas input directories
+#
+INC_DIR  = ../include
+SRC_DIR  = ../src
+EXAM_DIR = ../examples
+DRV_DIR  = ../drivers
+
+#
+# Midas output directory
+#
+OBJ_DIR  = obj
+
+#
+# Compiler settincs etc
+#
+CPU = MC68020
+
+CC = cc68k
+LD = ld68k
+RM = rm
+CP = cp
+
+CFLAGS = -m68020 -msoft-float -O -fvolatile -fno-builtin \
+-I$(INC_DIR) -I$(SYSINC_DIR) -I$(DRV_DIR)\
+-ansi -nostdinc -DCPU=$(CPU) -g
+OSFLAGS = -DOS_VXWORKS
+
+#
+# targets
+#
+EXAMPLES = $(OBJ_DIR)/produce.o $(OBJ_DIR)/rpc_test.o $(OBJ_DIR)/minife.o \
+	$(OBJ_DIR)/minirc.o $(OBJ_DIR)/odb_test.o $(OBJ_DIR)/camacsrv.o
+
+DRIVERS = $(OBJ_DIR)/camacnul.o $(OBJ_DIR)/ces8210.o
+
+OBJS =  $(OBJ_DIR)/midas.o $(OBJ_DIR)/system.o $(OBJ_DIR)/mrpc.o \
+	$(OBJ_DIR)/odb.o $(OBJ_DIR)/ybos.o
+
+LIB =   $(OBJ_DIR)/libmidas.o
+
+all:    $(OBJ_DIR) $(OBJ_DIR)/mfe.o $(LIB)
+
+examples: $(EXAMPLES)
+
+drivers: $(DRIVERS)
+
+#####################################################################
+
+#
+# examples
+#
+
+$(OBJ_DIR)/produce.o: $(EXAM_DIR)/lowlevel/produce.c
+	$(CC) $(CFLAGS) $(OSFLAGS) -c -o $(OBJ_DIR)/produce.o $(EXAM_DIR)/lowlevel/produce.c
+$(OBJ_DIR)/rpc_test.o: $(EXAM_DIR)/lowlevel/rpc_test.c
+	$(CC) $(CFLAGS) $(OSFLAGS) -c -o $(OBJ_DIR)/rpc_test.o $(EXAM_DIR)/lowlevel/rpc_test.c
+$(OBJ_DIR)/minife.o: $(LIB) $(EXAM_DIR)/lowlevel/minife.c
+	$(CC) $(CFLAGS) $(OSFLAGS) -c -o $(OBJ_DIR)/minife.o $(EXAM_DIR)/basic/minife.c
+$(OBJ_DIR)/minirc.o: $(LIB) $(EXAM_DIR)/lowlevel/minirc.c
+	$(CC) $(CFLAGS) $(OSFLAGS) -c -o $(OBJ_DIR)/minirc.o $(EXAM_DIR)/basic/minirc.c
+$(OBJ_DIR)/odb_test.o: $(LIB) $(EXAM_DIR)/basic/odb_test.c
+	$(CC) $(CFLAGS) $(OSFLAGS) -c -o $(OBJ_DIR)/odb_test.o $(EXAM_DIR)/basic/odb_test.c
+$(OBJ_DIR)/camacsrv.o: $(LIB) $(EXAM_DIR)/lowlevel/camacsrv.c
+	$(CC) $(CFLAGS) $(OSFLAGS) -c -o $(OBJ_DIR)/camacsrv.o $(EXAM_DIR)/lowlevel/camacsrv.c
+
+#
+# drivers
+#
+
+$(OBJ_DIR)/camacnul.o: $(DRV_DIR)/camacnul.c
+	$(CC) $(CFLAGS) $(OSFLAGS) -c -o $(OBJ_DIR)/camacnul.o $(DRV_DIR)/camacnul.c
+$(OBJ_DIR)/ces8210.o: $(DRV_DIR)/ces8210.c
+	$(CC) $(CFLAGS) $(OSFLAGS) -c -o $(OBJ_DIR)/ces8210.o $(DRV_DIR)/ces8210.c
+
+#
+# midas library
+#
+
+$(LIB): $(OBJS)
+	$(RM) -f $(LIB)
+	$(LD) -o $(LIB) -r $(OBJS)
+
+#
+# library objects
+#
+
+$(OBJ_DIR)/midas.o: $(SRC_DIR)/midas.c $(INC_DIR)/msystem.h $(INC_DIR)/midas.h $(INC_DIR)/midasinc.h $(INC_DIR)/mrpc.h
+	$(CC) -c $(CFLAGS) $(OSFLAGS) -o $(OBJ_DIR)/midas.o $(SRC_DIR)/midas.c
+$(OBJ_DIR)/system.o: $(SRC_DIR)/system.c $(INC_DIR)/msystem.h $(INC_DIR)/midas.h $(INC_DIR)/midasinc.h $(INC_DIR)/mrpc.h
+	$(CC) -c $(CFLAGS) $(OSFLAGS) -o $(OBJ_DIR)/system.o $(SRC_DIR)/system.c
+$(OBJ_DIR)/mrpc.o: $(SRC_DIR)/mrpc.c $(INC_DIR)/msystem.h $(INC_DIR)/midas.h $(INC_DIR)/mrpc.h
+	$(CC) -c $(CFLAGS) $(OSFLAGS) -o $(OBJ_DIR)/mrpc.o $(SRC_DIR)/mrpc.c
+$(OBJ_DIR)/odb.o: $(SRC_DIR)/odb.c $(INC_DIR)/msystem.h $(INC_DIR)/midas.h $(INC_DIR)/midasinc.h $(INC_DIR)/mrpc.h
+	$(CC) -c $(CFLAGS) $(OSFLAGS) -o $(OBJ_DIR)/odb.o $(SRC_DIR)/odb.c
+$(OBJ_DIR)/ybos.o: $(SRC_DIR)/ybos.c $(INC_DIR)/msystem.h $(INC_DIR)/midas.h $(INC_DIR)/midasinc.h $(INC_DIR)/mrpc.h
+	$(CC) -c $(CFLAGS) $(OSFLAGS) -o $(OBJ_DIR)/ybos.o $(SRC_DIR)/ybos.c
+
+#
+# frontend framework
+#
+
+$(OBJ_DIR)/mfe.o: $(SRC_DIR)/mfe.c $(INC_DIR)/msystem.h $(INC_DIR)/midas.h $(INC_DIR)/midasinc.h $(INC_DIR)/mrpc.h
+	$(CC) -c $(CFLAGS) $(OSFLAGS) -o $(OBJ_DIR)/mfe.o $(SRC_DIR)/mfe.c
+
+#####################################################################
+
+install:
+
+# include
+	@echo "... "
+	@echo "... Installing include files to $(SYSINC_DIR)"
+	@echo "... "
+
+	$(CP) $(INC_DIR)/midas.h $(SYSINC_DIR)
+	$(CP) $(INC_DIR)/ybos.h $(SYSINC_DIR)
+
+# library + objects
+	@echo "... "
+	@echo "... Installing library and objects to $(SYSOBJ_DIR)"
+	@echo "... "
+
+	$(CP) $(LIB) $(SYSOBJ_DIR)
+	$(CP) $(OBJ_DIR)/mfe.o $(SYSOBJ_DIR)
+
+clean:
+	$(RM) -f $(OBJ_DIR)/*.o $(OBJ_DIR)/*.a *~ \#*
+
+

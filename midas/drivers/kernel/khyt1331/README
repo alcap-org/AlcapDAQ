@@ -1,0 +1,142 @@
+       Linux Kernel Driver for Hytec Ltd. 1331 CAMAC Controller with
+                                5331 PCI card
+       =============================================================
+                      Stefan Ritt <stefan.ritt@psi.ch>
+                                August 2001
+                             updated July 2003
+                                
+
+Introduction
+============
+
+This distribution contains a linux kernel mode driver for the Hytec Ltd. CAMAC
+controller model 1331 Turbo together with the model 5331 PCI card. Information
+for the hardware can be found at http://www.hytec-electronics.co.uk/5331.html.
+
+The driver consists of two parts, namely a kernel mode driver and a user library.
+The kernel mode driver is installed as a loadable module into the kernel and
+communicates via the special device "/dev/camac". Most CAMAC operations are done
+via ioctl() calls on this device. A wrapper library is included which handles
+these ioctl() calls and exports two sets of CAMAC functions. The first set
+conforms to the ESONE standard, while the second set conforms to the less known
+Midas CAMAC standard (MCSTD, see
+http://midas.triumf.ca/docmidas/MidasCAMACstandardfunctions.html).
+
+The kernel driver has been written for the Linux kernel 2.4.2, which comes with
+RedHat 7.1. It could be ported back to the 2.2.x kernel because no special
+feature of 2.4.x are used, although many data structures and function parameters
+have changed between 2.2 and 2.4, which makes the porting a bit painful. The
+driver has been updated on July 2003 to compile under kernel 2.4.20, which comes
+with Red Hat 7.3.
+
+The driver supports only one 5331 card with up to four CAMAC crates.
+
+Two test applications, "camactest.c" for the MCSTD calls, and "esonetest.c" for
+the ESONE calls are supplied in this distribution. They demonstrate basic data
+IO and the usage of asynchronous LAM service routines.
+
+
+Installation
+============
+
+A makefile comes with this distribution which builds the kernel driver, the
+library and the test programs. If "make" works fine on a system, it can be
+followed by a "make install" under the root account which installs the driver.
+If the make does not succeed, there can be several reasons:
+
+- The makefile tries to figure out from the kernel include files if the kernel
+has been built using MODVERSIONS. It therefore needs the file "config.h" usually
+under /usr/src/linux/include/linux. The first "linux" under /usr/src is mostly a
+symbolic link to linux-2.4.x or something. If this is not the case, the link can
+be created or the path to the include file can be edited in the makefile under
+the variable "KERNEL_SRC". It might be necessary to install the kernel sources
+manually, depending on the initial Linux installation and on the distribution.
+
+- The driver uses major device number 60, which is defined in
+/usr/src/linux/Documentation/devices.txt as "LOCAL/EXPERIMENTAL", which should
+not conflict with any existing device. This can be checked with 
+  
+   ls -l /dev | grep "60,"
+   
+If no device appears wiht this command, it should be fine.
+
+- If other problems occur, please mail them to the author so they will appear
+in this section in a future release.
+
+After successful installation, the driver "khyt1331" should be part of the
+kernel, which can be checked with the "lsmod" command. The driver creates an
+entry under /proc/khyt1331, which shows some information about the 5331 PCI
+card and the attached crates. So see if the interface can talk to a crate,
+just switch the crate on (this is possible without rebooting the PC) and enter
+
+  cat /proc/khyt1331
+  
+This should produce some output like this:
+
+  Hytec 5331 card found at address 0xF440, using interrupt 5
+  Device not in use
+  CAMAC crate 0: responding
+  CAMAC crate 1: not responding
+  CAMAC crate 2: not responding
+  CAMAC crate 3: not responding
+
+The driver only allows one process at a time to open the device. Thus if a
+process has the device open, its PID is displayed.
+
+If the driver should be started automatically after a reboot, one can put
+following line into /etc/modules.conf
+
+  alias char-major-60 khyt1331
+
+This causes the kernel to load the driver from the
+/lib/modules/2.4.x/kernel/drivers/char/khyt1331.o as soon as a program tries
+to access the /etc/camac device. 
+
+Running the test programs
+=========================
+
+The two test programs "camactest" and "esonetest" have exactly the same
+functionality, they only use different standard calls. They first write and read
+back a value from crate 0, station 1. Putting a standard CAMAC dataway display in
+"online-mode" into slot one should make the program work. The programs then wait
+in an infinite loop to receive interrupts (LAMS) from station 1. This can be done
+with most dataway display by pressing their "LAM" button. This tests the whole
+chain of interrupt flow going through the CAMAC controller, the PCI card, into
+the kernel, and via signalling into the user space routine.
+
+
+Performance
+===========
+
+Writing device drivers running in kernel mode always causes some overhead for
+device context switches, especially when dealing with interrupts. Due to
+optimized kernel design and faster PCs this situation has become better.
+
+On a 233 MHz PII with kernel 2.4.2 a typical time of 8.6us for a 16-bit random
+CAMAC write has been measured and a interrupt response time (time of first CAMAC
+access from user code minus time of external signal, measured with an
+oscilloscope) of 40us has been measured. On a 933 MHz PIII, these times were
+6.3us and 26us, respectively. If the CAMAC access is done without user-mode /
+kernel-mode switches (like in a loop directly in the driver), the time for the
+16-bit CAMAC access is 4.2us, which is then limited only by the communication
+between 5331 PCI interface and the 1331 CAMAC controller.
+
+
+Obtaining the latest version
+============================
+
+The latest version of this package can be obtained from
+
+http://midas.psi.ch/download/khyt1331-latest.tar.gz
+
+or via CVSWEB from 
+
+http://midas.psi.ch/cgi-bin/cvsweb/midas/drivers/kernel/khyt1331/
+
+
+
+
+
+------------------------
+Stefan Ritt, August 2001
+

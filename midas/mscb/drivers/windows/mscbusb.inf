@@ -1,0 +1,62 @@
+[Version]
+Signature=$CHICAGO$
+Class=MSCB
+ClassGUID={CBEB3FB1-AE9F-471c-9016-9B6AC6DCD323}
+Provider=%MFGNAME%
+DriverVer=03/04/2004
+
+[Manufacturer]
+%MFGNAME%=DeviceList
+
+[DestinationDirs]
+DefaultDestDir=10,System32\Drivers
+
+[SourceDisksFiles]
+mscbusb.sys=1
+
+[SourceDisksNames]
+1=%INSTDISK%,,,
+
+[DeviceList]
+%DESCRIPTION%=DriverInstall,USB\VID_10C4&PID_1175
+
+
+;------------------------------------------------------------------------------
+;  Windows 2000 Sections
+;------------------------------------------------------------------------------
+
+; install class, Windows 2000:
+[ClassInstall32] 
+AddReg=_AddReg_ClassInstall
+
+[DriverInstall.NT]
+CopyFiles=DriverCopyFiles
+
+[DriverCopyFiles]
+mscbusb.sys,,,2
+
+[DriverInstall.NT.Services]
+AddService=mscbusb,2,DriverService
+
+[DriverService]
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%10%\system32\drivers\mscbusb.sys
+
+;------------------------------------------------------------------------------
+;  String Definitions
+;------------------------------------------------------------------------------
+
+[Strings]
+MFGNAME="PSI S. Ritt"
+INSTDISK="MSCB Installation Disc"
+DESCRIPTION="MSCB SCS-250 Submaster"
+
+; device class display name, shown in Device Manager
+S_DeviceClassDisplayName="MSCB USB Submasters"
+
+
+
+
+

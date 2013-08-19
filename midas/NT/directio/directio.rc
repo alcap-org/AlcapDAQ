@@ -1,0 +1,33 @@
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION    1,0,0,1
+PRODUCTVERSION 1,0,0,1
+FILEFLAGSMASK  0
+FILEFLAGS      0
+FILEOS         VOS_NT_WINDOWS32
+FILETYPE       VFT_DRV
+FILESUBTYPE    VFT2_DRV_SYSTEM
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"   /* LANG_ENGLISH/SUBLANG_ENGLISH_US, Unicode CP */
+        BEGIN
+            VALUE "CompanyName",     "c't / S. Ritt"
+            VALUE "FileDescription", "1.10"
+            VALUE "FileVersion",     "1.10"
+            VALUE "InternalName",    "DirectIO.sys"
+            VALUE "LegalCopyright",  "Copyright (C) 1996 by c't"
+            VALUE "OriginalFilename","DirectNT.sys"
+            VALUE "ProductName",     "DirectIO driver"
+            VALUE "ProductVersion",  "1.10"
+        END
+
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 0x04B0
+    END
+END
+

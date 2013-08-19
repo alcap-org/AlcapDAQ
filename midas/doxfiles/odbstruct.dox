@@ -1,0 +1,1312 @@
+/*! \page ODB_Structure ODB Structure
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref Internal - @ref Top - @ref AppendixA
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+The Online Database contains information that system and user wants to share.
+Basically all transactions for experiment setup and monitoring go through the ODB.
+It also contains some specific system information related to the "Midas client"
+currently involved in an experiment (/system).
+
+Each ODB field or so called \b KEY is accessible by the user through either an
+interactive way (see @ref odbedit_task) or by C-programming
+(see functions db_xxx in @ref Midas_Library).
+
+The ODB information is stored in a "tree/branch" structure where each branch refers
+to a specific set of data. On the first invocation of the database (first Midas
+application) a minimal system record will be created. Later on each application
+will add its own set of parameters to the database depending on its requirement.
+For instance, starting the ODB for the first time, the tree \b /Runfinfo,
+/Experiment, /System  will be created. The application @ref mlogger_task
+will add its own tree \b /Logger/... 
+
+As mentioned earlier, ODB is the main communication platform between any Midas
+application. As such, the content of the ODB is application dependent.
+Several "dormant" trees can be awaken by the user in order to provide extra
+flexibility of the system. Such "dormant" tree are \b Alias, Script, Edit on Start
+, Security, Run parameters .
+
+- @ref ODB_System_Tree 
+- @ref ODB_RunInfo_Tree  
+- @ref ODB_Equipment_Tree
+- @ref ODB_Logger_Tree
+- @ref ODB_Experiment_Tree
+- @ref ODB_History_Tree  
+- @ref ODB_Alarms_Tree
+- @ref ODB_Script_Tree
+- @ref ODB_Alias_Tree
+- @ref ODB_Elog_Tree
+- @ref ODB_Programs_Tree
+- @ref ODB_Lazy_Tree
+- @ref ODB_EBuilder_Tree
+- @ref ODB_Custom_Tree
+
+<hr> @section ODB_System_Tree ODB /System Tree
+The system tree contains information specific  to each "Midas client" currenltly
+connected to the experiment. This information is not primarly for the user but
+may be informative in some respect to the reader.
+
+\code
+[host:expt:Stopped]/>ls -r -l /system
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+System                          DIR
+    Clients                     DIR
+        29580                   DIR
+            Name                STRING  1     32    17h  0   R    decay
+            Host                STRING  1     256   17h  0   R    host1
+            Hardware type       INT     1     4     17h  0   R    42
+            Server Port         INT     1     4     17h  0   R    1227
+            Transition Mask     DWORD   1     4     17h  0   R    329
+            Deferred Transition DWORD   1     4     17h  0   R    6
+            RPC                 DIR
+                16000           BOOL    1     4     17h  0   R    y
+                16001           BOOL    1     4     17h  0   R    y
+        29638                   DIR
+            Name                STRING  1     32    17h  0   R    MStatus
+            Host                STRING  1     256   17h  0   R    host1
+            Hardware type       INT     1     4     17h  0   R    42
+            Server Port         INT     1     4     17h  0   R    1228
+            Transition Mask     DWORD   1     4     17h  0   R    0
+            Deferred Transition DWORD   1     4     17h  0   R    0
+        29810                   DIR
+            Name                STRING  1     32    17h  0   R    Nova_029810
+            Host                STRING  1     256   17h  0   R    host
+            Hardware type       INT     1     4     17h  0   R    42
+            Server Port         INT     1     4     17h  0   R    1235
+            Transition Mask     DWORD   1     4     17h  0   R    0
+        29919                   DIR
+            Name                STRING  1     32    17h  0   R    Epics
+            Host                STRING  1     256   17h  0   R    host
+            Hardware type       INT     1     4     17h  0   R    42
+            Server Port         INT     1     4     17h  0   R    1237
+            Transition Mask     DWORD   1     4     17h  0   R    329
+            Deferred Transition DWORD   1     4     17h  0   R    0
+            RPC                 DIR
+                16000           BOOL    1     4     17h  0   R    y
+                16001           BOOL    1     4     17h  0   R    y
+        12164                   DIR
+            Name                STRING  1     32    6s   0   R    ODBEdit
+            Host                STRING  1     256   6s   0   R    host2
+            Hardware type       INT     1     4     6s   0   R    42
+            Server Port         INT     1     4     6s   0   R    4893
+            Transition Mask     DWORD   1     4     6s   0   R    0
+            Deferred Transition DWORD   1     4     6s   0   R    0
+            Link timeout        INT     1     4     6s   0   R    10000
+    Client Notify               INT     1     4     6s   0   RWD  0
+    Prompt                      STRING  1     256   >99d 0   RWD  [%h:%e:%S]%p>
+    Tmp                         DIR
+\endcode
+
+- [Remark 1] The key \b Prompt sets up the prompt of the ODBEdit program.
+\code
+odbedit
+[local:midas:Stopped]/>cd /System/
+[local:midas:Stopped]/System>ls
+Clients                         
+Tmp                             
+Client Notify                   0
+Prompt                          [%h:%e:%S]%p>
+
+[local:midas:Stopped]/System>set Prompt my_prompt>
+my_prompt>set Prompt [Host:%h-Expt:%e:State:%s]Path:%p>
+[Host:local-Expt:midas-State:S]Path:/System>set Prompt [Host:%h-Expt:%e-State:%S]Path:%p>
+[Host:local-Expt:midas-State:Stopped]Path:/System>
+\endcode
+
+
+<hr> @section ODB_RunInfo_Tree ODB /RunInfo Tree
+This branch contains system information related to the run information.
+Several time fields are available for run time statistics.
+\code
+odb -e expt -h host
+[host:expt:Running]/>ls -r -l /runinfo
+Key name                      Type    #Val  Size  Last Opn Mode Value
+------------------------------------------------------------------------
+Runinfo                        DIR
+    State                      INT     1     4     2h   0   RWD  3
+    Online Mode                INT     1     4     2h   0   RWD  1
+    Run number                 INT     1     4     2h   0   RWD  8521
+    Transition in progress     INT     1     4     2h   0   RWD  0
+    Requested transition       INT     1     4     2h   0   RWD  0
+    Start time                 STRING  1     32    2h   0   RWD  Thu Mar 23 10:03:44 2000
+    Start time binary          DWORD   1     4     2h   0   RWD  953834624
+    Stop time                  STRING  1     32    2h   0   RWD  Thu Mar 23 10:03:33 2000
+    Stop time binary           DWORD   1     4     2h   0   RWD  0
+\endcode 
+
+  - <b>[State]</b> Specifies in which state the current run is.
+    The possible states are 1: STOPPED, 2: RUNNING, 3: PAUSED.
+  - <b>[Online Mode]</b> Specifies the expected acquisition mode.
+    This parameter allows the user to detect if the data are coming from a "real-time"
+    hardware source or from a data save-set. Note that for analysis replay using
+    "analyzer" this flag will be switched off.
+  - <b>[Run number]</b> Specifies the current run number. This number is automatically
+    incremented by a successful run start procedure.
+  - <b>[Transition in progress]</b> Specifies the current internal state of the system.
+    This parameter is used for multiple source of "run start" synchronization.
+  - <b>[Requested transition]</b> Specifies the current internal of the @ref Deferred_Transition state of the system.
+  - <b>[Start Time]</b> Specifies in an ASCII format the time at which the last run has been started.
+  - <b>[Start Time binary]</b> Specifies in a binary format at the time at which the
+    last run has been started This field is useful for time interval computation.
+  - <b>[Stop Time]</b> Specifies in an ASCII format the time at which the last run has
+    been stopped.
+  - <b>[Stop Time binary]</b> Specifies in a binary format the time at which the last
+    run has been stopped. This field is useful for time interval computation.
+
+
+<hr> @section ODB_Equipment_Tree ODB /Equipment Tree
+Every frontend create a entry under the /Equipment tree. The name of the sub-tree is
+taken from the frontend source code in the equipment declaration (frontend.c).
+More detailed explanation of the composition of that tree will be found throughout this
+document.
+\code
+  {
+   "DspecCheck",      // equipment name
+   ...
+   ,
+  {
+   "Scaler",      // equipment name
+   ...
+   ,
+\endcode  
+
+Example:
+\code 
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+HistoCheck                      DIR
+DSpecCheck                      DIR
+HistoPoll                       DIR
+HistoEOR                        DIR
+DSpecEOR                        DIR
+Scaler                          DIR
+SuconMagnet                     DIR
+TempBridge                      DIR
+Cryostat                        DIR
+Meters                          DIR
+RFSource                        DIR
+DSPec                           DIR
+\endcode  
+
+The equipment tree is then split in several sections which by default the system creates.
+  - Common : Contains the system information. Should not be overwritten by the user.
+  - Variables : Contains the equipment data if enabled (see below).
+  - Settings : Contains the equipment specific information that the user may want to
+  maintain. In the case of a @ref Slow_Control_system equipment, extended tree
+  structure is created by the system.
+  - Statistics : Contains equipment statistics information such as event taken, event rate, data rate.
+
+\code 
+[local:S]ls -l -r /equipment/scaler
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Scaler                          DIR
+    Common                      DIR
+        Event ID                WORD    1     2     16h  0   RWD  1
+        Trigger mask            WORD    1     2     16h  0   RWD  256
+        Buffer                  STRING  1     32    16h  0   RWD  SYSTEM
+        Type                    INT     1     4     16h  0   RWD  1
+        Source                  INT     1     4     16h  0   RWD  0
+        Format                  STRING  1     8     16h  0   RWD  MIDAS
+        Enabled                 BOOL    1     4     16h  0   RWD  y
+        Read on                 INT     1     4     16h  0   RWD  377
+        Period                  INT     1     4     16h  0   RWD  1000
+        Event limit             DOUBLE  1     8     16h  0   RWD  0
+        Num subevents           DWORD   1     4     16h  0   RWD  0
+        Log history             INT     1     4     16h  0   RWD  0
+        Frontend host           STRING  1     32    16h  0   RWD  midtis03
+        Frontend name           STRING  1     32    16h  0   RWD  feLTNO
+        Frontend file name      STRING  1     256   16h  0   RWD  C:\online\sc_ltno.c
+    Variables                   DIR
+        SCLR                    DWORD   6     4     1s   0   RWD  
+                                        [0]             0
+                                        [1]             0
+                                        [2]             0
+                                        [3]             0
+                                        [4]             0
+                                        [5]             0
+        RATE                    FLOAT   6     4     1s   0   RWD  
+                                        [0]             0
+                                        [1]             0
+                                        [2]             0
+                                        [3]             0
+                                        [4]             0
+                                        [5]             0
+    Statistics                  DIR
+        Events sent             DOUBLE  1     8     1s   0   RWDE 370
+        Events per sec.         DOUBLE  1     8     1s   0   RWDE 0.789578
+        kBytes per sec.         DOUBLE  1     8     1s   0   RWDE 0.0678543
+\endcode  
+
+
+<hr> @section ODB_Logger_Tree ODB /Logger Tree
+The /Logger ODB tree contains all the relevant information for the Midas logger
+utility (@ref mlogger_task) to run properly. This utility provides the mean of
+storing the physical data retrieved by the frontend to a storage media.
+The user has no code to write in order for the system to operate correctly.
+Its general behavior can be customized and multiple logging channels can be defined.
+The application supports so far three type of storage devices i.e.: \em Disk,
+\em Tape and \em FTP channel.
+
+Default settings are created automatically when the logger starts the first time:
+\code 
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Logger                          DIR
+    Data dir                    STRING  1     256   4h   0   RWD  /scr0/spring2000
+    Message file                STRING  1     256   22h  0   RWD  midas.log
+    Write data                  BOOL    1     4     2h   0   RWD  n
+    ODB Dump                    BOOL    1     4     22h  0   RWD  y
+    ODB Dump File               STRING  1     256   22h  0   RWD  run%05d.odb
+    Auto restart                BOOL    1     4     22h  0   RWD  y
+    Tape message                BOOL    1     4     15h  0   RWD  y
+    Channels                    DIR
+        0                       DIR
+            Settings            DIR
+                Active          BOOL    1     4     1h   0   RWD  y
+                Type            STRING  1     8     1h   0   RWD  Disk
+                Filename        STRING  1     256   1h   0   RWD  run%05d.ybs
+                Format          STRING  1     8     1h   0   RWD  YBOS
+                ODB Dump        BOOL    1     4     1h   0   RWD  y
+                Log messages    DWORD   1     4     1h   0   RWD  0
+                Buffer          STRING  1     32    1h   0   RWD  SYSTEM
+                Event ID        INT     1     4     1h   0   RWD  -1
+                Trigger Mask    INT     1     4     1h   0   RWD  -1
+                Event limit     DWORD   1     4     1h   0   RWD  0
+                Byte limit      DOUBLE  1     8     1h   0   RWD  0
+                Tape capacity   DOUBLE  1     8     1h   0   RWD  0
+    Subdir format   STRING  1     32    7h   0   RWD  %Y%m%d
+    Current filenameSTRING  1     256   7h   0   RWD  20020605\run00078.mid
+      Statistics          DIR
+                Events written  DOUBLE  1     8     1h   0   RWD  0
+                Bytes written   DOUBLE  1     8     1h   0   RWD  0
+                Bytes written toDOUBLE  1     8     1h   0   RWD  3.24316e+11
+                Files written   INT     1     4     1h   0   RWD  334
+\endcode  
+
+\anchor mySQL
+From Midas version 1.9.5, the logger has the possibility to store information to a 
+mySQL database. This is achieved by defining at build time the preprocessor flag
+@ref HAVE_MYSQL. This option when enabled will create a sub tree \em SQL under
+/Logger in the ODB. This tree contains information for mySQL access with predefined
+mySQL database name \em Midas and table \em Runlog. Under 2 dedicated sub directories
+i.e: BOR and EOR, predefined links exists which will be used respectively at BOR and EOR
+for storing into the database. These elements are ODB links allowing the user to extend the 
+list with any parameter of the ODB database. This logger mySQL option is to replace 
+or complement the \em runlog.txt functionality of the ana_end_of_run() function from the
+analyzer.c.
+
+\code
+[local:midas:S]/Logger>ls -lr SQL
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+SQL                             DIR
+    Create database             BOOL    1     4     27s  0   RWD  n
+    Write data                  BOOL    1     4     27s  0   RWD  n
+    Hostname                    STRING  1     80    27s  0   RWD  localhost
+    Username                    STRING  1     80    27s  0   RWD  root
+    Password                    STRING  1     80    27s  0   RWD
+    Database                    STRING  1     32    27s  0   RWD  midas
+    Table                       STRING  1     80    27s  0   RWD  Runlog
+    Links BOR                   DIR
+        Run number              LINK    1     20    58s  0   RWD  /Runinfo/Run number
+        Start time              LINK    1     20    58s  0   RWD  /Runinfo/Start time
+    Links EOR                   DIR
+        Stop time               LINK    1     19    4m   0   RWD  /Runinfo/Stop time
+\endcode
+
+  \anchor Data_Dir 
+  - [Data dir] Specifies in which directory files produced by the logger should
+  be written. Once the Logger in running, this @ref Data_Dir  will be pointing to
+  the location of the midas.log , ODB dump files, history files, message files.
+  In the case of multiple logging channels, the data path for all the channels is defaulted
+  to the same location. In the case where specific directory has to be assigned to each
+  individual logging channel, the field \b /logger/channel/\<x\>/Settings/Filename 
+  can contain the full path of the location of the \b .mid, .ybs, .asc  file. By finding
+  the OS specific \b SEPARATOR_DIR  ("/", "\"). The field \b Filename  will overwite
+  the global @ref Data_Dir  setting for that particular channel.
+  - [History Dir] This field is optional and doesn't appear by default in
+  the logger. If present the location of the @ref History_System  files is reassigned
+  to the defined path instead of the default @ref Data_Dir .
+  - [Elog Dir] This field is optional and doesn't appear by default in the logger. 
+  If present the location of the @ref Electronic_Logbook  files is reassigned to the
+  defined path instead of the default @ref Data_Dir.
+  - [Message file] Specifies the file name for the log file which contains all messages
+  from the MIDAS message system. The message log file is a simple ASCII file, which
+  can be viewed at any time to see a history of what happened in an experiment.
+  - [Write data] Global flag which turns data logging on and off for all channels.
+  It can be set to zero temporarily to make a short test run without data logging.
+  The key "Write data?" is predefined logger key for enabling data logging.
+  This action can be overridden by setting the active key to 1.
+  - [ODB Dump] Specifies if a dump of the complete ODB should be written to the file
+  specified by ODB Dump File.
+  - [ODB Dump File] At the end of each run. If the file name contains a "%",
+  this gets replaced by the current run number similar to the printf() C function.
+  The format specifier %05d from above would be evaluated to a five digit run number
+  with leading zeros like run00002.odb. The ODB dump file is in ASCII format and can
+  be used for off-line analysis to check run parameters etc. For a description of the
+  ASCII format see db_copy().
+  - [Auto restart] When this flag is one, a new run gets automatically restarted
+  when the previous run has been stopped by the logger due to an event or byte limit.
+  - [Tape message] Specifies if tape messages during mounting and writing of EOF
+  marks are generated. This can be useful for slow tapes to inform all users in a
+  counting house about the tape status.
+  - [channels] Sub-directory which contains settings for individual channels.
+  By default, only channel "0" is created. To define other channels, an existing
+  channel can be copied:
+\code 
+[loca]]Logger>cd channels
+[local]Channels>ls
+0
+[local]Channels>copy 0 1
+[local]Channels>ls
+0
+1
+\endcode  
+  The Settings part of the channel tree has the following meaning:
+  - [active] turns a channel on (1) or off (0). Data is only logged to channels that
+    are active. 
+  - [Type] Specify the type of media on which the logging should take place.
+  It can be Disk, Tape or FTP to write directly to a remote computer via FTP.
+  - [Filename] Specify the name of a file in case of a disk logging, where %05d is
+  replaced by the current run number the same way as for the ODB dump files. In the case
+  of a tape logging, the filename specifies a tape device like /dev/nrmt0 or /dev/nst0
+  under UNIX or \\\\.\\tape0 under Windows NT.
+    - In FTP mode, the filename specifies the access information for the FTP server.
+  It has the following format:
+  \code
+  <host name>, <port number>, <user name>, <password>, <directory>, <file name>
+  \endcode
+  The normal FTP port number is 21 and 1021 for a Unitree Archive like the one used
+  at the Paul Scherrer Institute. By using the FTP mode, a back-end computer can
+  directly write to the archive.
+  \code
+  myhost.my.domain,21,john,password,/usr/users/data,run%05d.mid
+  \endcode
+  - [Format] Specifies the format to be used for writing the data to the logging
+  channel. It can one of the five value: MIDAS, YBOS, ROOT, ASCII and DUMP.
+  The MIDAS and YBOS binary formats @ref Midas_format and @ref YBOS_format, respectively. 
+  The extention for the file name has to match one of the following.
+      - \b .mid  for \b MIDAS 
+      - \b .ybs  for \b YBOS 
+      - \b .root for \b ROOT 
+      - \b .asc  for \b ASCII 
+      - \b .txt  for \b DUMP 
+  
+- The ASCII format converts events into readable text format which can be easily
+  analyzed by programs which have problems reading binary data. While the ASCII
+  format tries to minimize the file size by printing one event per line, the DUMP
+  format gives a very detailed ASCII representation of the event including bank
+  information, serial numbers etc, it should be used for diagnostics.
+  Consistency of this type of format has to be maintained between the frontend
+  declaration and the logger.
+
+- [ODB Dump] Specifies the complete dump of the ODB to the logging channel before
+  and after every run. The ODB content is dumped in one long ASCII string reflecting
+  the status at begin-of-run event and at end-of-run event. These special events have
+  an ID of EVENT_ID_BOR and EVENTID_EOR and a serial number
+  equals to the current run number. An analyzer in the off-line analysis stage can
+  restore the ODB to its online state.
+
+- [Log messages] This is a bit-field for logging system messages.
+  If a bit in this field is set, the according system message is written to the
+  logging channel as a message event with an ID of EVENT_ID_MESSAGE (0x8002).
+  The bits are 1 for error, 2 for info, 4 for debug, 8 for user, 16 for log, 32
+  for talk, 64 for call messages and 255 to log all messages. For an explanation
+  of these messages refer to @ref Buffer_Manager, Event ID and Trigger .
+
+- [Mask] Specify which events to log. See @ref Frontend_code to learn how events are
+  selected by their ID and trigger mask. To receive all events, -1 is used for the
+  event ID and the trigger mask. By using a buffer other than the "SYSTEM" buffer,
+  event filters can be realized. An analyzer can request all events from the "SYSTEM"
+  buffer, but only write acceptable events to a new buffer called "FILTERED".
+  When the logger request now only events from the new buffer instead of the "SYSTEM"
+  buffer, only filtered events get logged.
+
+- [Event limit, Byte limit and Tape capacity] These fields can be used to stop
+  a run when set to a non-zero value. The statistics values Events written,
+  Bytes written and Bytes written total are checked respectively against these limits.
+  When one of these condition is reached, the run is stopped automatically by the logger.
+  Updates of the statistics branch is performed automatically every so often.
+  This branch contains the number of events and bytes written. These two keys are
+  cleared at the beginning of each run.
+  The <b> Bytes written total </b> and <b> Files written </b>
+  keys are only reset when a tape is rewound with the ODBEdit command rewind.
+  The Bytes written total entry can therefore be used as an indicator if a tape is full.
+  The Files written entry can be used off-line to determine how many files on tape have
+  to be skipped in order to reach a specific run.
+
+- [Subdir format, Current filename] In the case the <b> Subdir format </b> is not empty,
+  this field will enable the placement of the data log file into a sub directory. The name
+  of this subdirectory is composed by the given \b Subdir format string. Its format
+  follows the definition of the system call strftime() . Ordinary characters placed
+  in the format string are copied to s without conversion.  Conversion specifiers are
+  introduced by a `%' character, and are replaced in s as follows for the most used one:
+    - %Y : Year  (ex: 2002)
+    - %y : Year  (range:00..99)
+    - %m : Month (range: 01..12)
+    - %d : Day   (range: 00..31)
+  The other characters are: %a, %A, %b, %B, %c, %C, %d, %D, %e, %E, %G, %g, %h, %H, %I,
+  %j, %k, %l, %m, %M, %n, %O, %p, %P, %r, %R, %s, %S, %t, %T, %u, %U, %V, %w, %W, %x,
+  %X, %y, %Y, %z, %Z, %+, %%. (See man strftime() for explanations).
+
+- [Current filename]  will reflect the full path of the saved data file.
+
+
+<hr> @section ODB_Experiment_Tree ODB /Experiment Tree
+Under this tree, the Midas system stores special features for the user in order to
+facilitate his job on controlling a run. Initially only one empty key is defined
+labeled \b Name  for the experiment name. The user can create four system keys in
+order to provide extra run control flexibility i.e.:
+\b "Run Parameter/", \b "Edit on Start/", \b "Lock when running/"  and \b "Security/".
+\code 
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Experiment                      DIR
+    Name                        STRING  1     32    22s  0   RWD  chaos
+    Run Parameter               DIR
+        Beam Polarity           STRING  1     256   2h   0   R    negative
+        Beam Momentum           FLOAT   1     4     2h   0   R    91
+        2LT: log file name?     STRING  1     256   2h   0   R    cni05
+        1LT: file name?         STRING  1     256   2h   0   R    files.cni.zero
+        Comment                 STRING  1     256   2h   0   R    ch2 target
+        Target Angle            FLOAT   1     4     2h   0   R    0
+        Target Material         STRING  1     256   2h   0   R    ch2
+    Edit on start               DIR
+        Beam Momentum           FLOAT   1     4     2h   0   R    91
+        Beam Polarity           STRING  1     256   2h   0   R    negative
+        Target Material         STRING  1     256   2h   0   R    ch2
+        Target Angle            FLOAT   1     4     2h   0   R    0
+        1LT: file name?         STRING  1     256   2h   0   R    files.cni.zero
+        Trigger 2               BOOL    1     4     2h   0   RWD  n
+        2LT: log file name?     STRING  1     256   2h   0   R    cni05
+        Comment                 STRING  1     256   2h   0   R    ch2 target
+        Write data              BOOL    1     4     2h   0   RWD  y
+    Lock when running           DIR
+        Run Parameter           DIR
+            Beam Polarity       STRING  1     256   2h   0   R    negative
+            Beam Momentum       FLOAT   1     4     2h   0   R    91
+            2LT: log file name? STRING  1     256   2h   0   R    cni05
+            1LT: file name?     STRING  1     256   2h   0   R    files.cni.zero
+            Comment             STRING  1     256   2h   0   R    ch2 target
+            Target Angle        FLOAT   1     4     2h   0   R    0
+            Target Material     STRING  1     256   2h   0   R    ch2
+    Security                    DIR
+        Password                STRING  1     32    16h  0   RWD  #@D&%F56
+        Allowed hosts           DIR
+            host.sample.domain  INT     1     4     >99d 0   RWD  0
+            pierre.triumf.ca    INT     1     4     >99d 0   RWD  0
+            pcch02.triumf.ca    INT     1     4     >99d 0   RWD  0
+            koslx1.triumf.ca    INT     1     4     >99d 0   RWD  0
+            koslx2.triumf.ca    INT     1     4     >99d 0   RWD  0
+            vwchaos.triumf.ca   INT     1     4     >99d 0   RWD  0
+            koslx0.triumf.ca    INT     1     4     >99d 0   RWD  0
+        Allowed programs        DIR
+            mstat               INT     1     4     >99d 0   RWD  0
+            mhttpd              INT     1     4     >99d 0   RWD  0
+        Web Password            STRING  1     32    16h  0   RWD  pon4@#@%SSDF2
+\endcode  
+  - [Name] Specifies the name of the experiment.
+  - [Run Parameters] Specifies a fix directory name where you can create
+    and define keys which can be presented at Run start for run condition selection.
+    The actual activation of any of those line is done via a "logical link key"
+    defined in the Edit on Start/ sub-tree.
+    The links don't have to point to run parameters
+    necessarily. They can point to any ODB key including the logger settings. It can
+    make sense to create a link to the logger setting which enables/disables writing
+    of data. A quick test run can then be made without data logging for example:
+    \code
+    [local]/>create key "/Experiment/Run parameters"
+    \endcode 
+    Then one or more run parameters can be created in that directory:
+    \code
+    [local]Run parameters>create int "Run mode"
+    [local]Run parameters>create string Comment
+    \endcode 
+- [Edit on Start] Specifies a fix directory name where you can define an
+  ODB link (similar to a symbolic link in UNIX) key to the pre-defined directory Run
+  Parameters. Any link key present in this directory pointing to a valid ODB
+  key will be requested for input during the run start procedure.
+  <br><br>
+  A new feature has been added to this section for the possibility of
+  preventing the user to change the run number from the web interface during
+  the start sequence. By defining the key
+  \b /Experiment/Edit on Start/Edit run number 
+  as a boolean variable the ability of editing the run number is
+  enabled or disabled. By default if this key is not present the run number
+  is editable.  
+  <br><br>
+  \code 
+  [local]/>create key "Experiment/Edit on start"
+  [local]/>cd "Experiment/Edit on start"
+  [local]/>ln "/Experiment/Run parameters/Run mode" "Run mode"
+  \endcode 
+  When a run is started from ODBEdit, all links in /Experiment/Edit on start are
+  scanned and read in:
+  \code
+  [local]/>start
+  Run mode [0]:1
+  Run number [3]:<return to accept>
+  Are the above parameters correct?
+  ([y]/n/q): <return to accept "y">
+  Starting run #2
+  Run #2 started
+  \endcode 
+  \code
+  [local]/>cd "Experiment/Edit on start"
+  [local]/>create BOOL "Edit run number"
+  \endcode 
+- [Lock when running] Specifies a fix directory for defining logical
+  link keys to be set in Read only access mode while the run is in progress.
+  The lock when running can contains logical link to key(s) for setting these
+  keys protection to "read only" while running.
+  In the example below, all the parameters under the declared tree will
+  be switched to read only preventing any parameters modification during the run.
+  \code
+  [local]/>create key "Experiment/Lock when running"
+  [local]/>cd "Experiment/Lock when running"
+  [local]/>ln "/Experiment/Run parameters" "Run parameter"
+  [local]/>ln "/Logger/Write Data" "Write Data?"
+  \endcode 
+- [Security] Specifies a fix directory name where information regarding
+  security can be setup.
+  By default, there is no restriction for user to connect locally or remotely
+  to a given experiment. If an access restriction has to be setup in order
+  to protect the experiment from unwilling access, a password mechanism has to
+  be defined.
+- [Password] Specifies the encrypted password for accessing current experiment.
+  \code
+  [local]/>passwd
+  Password:<xxxx>
+  Retype password:<xxxx>
+  \endcode 
+  To remove the full password checking mechanism, the ODB security sub-tree has to
+  be entirely deleted using the following command:
+  \code
+  [local]/>rm /Experiment/Security
+  Are you sure to delete the key
+  "/Experiment/Security"
+  and all its subkeys? (y/[n]) y
+  \endcode 
+  <br><br>
+  After running the odb command passwd, four new sub-fields will be present under
+  the Security tree.
+    - Password
+    - Allowed hosts                   
+    - Allowed programs                  
+    - Web Password
+- [Allowed hosts] Specifies a fix directory name where allowed remote hostname
+  can be defined for free access to the current experiment.
+  While the access restriction can make sense to deny access to outsider to a
+  given experiment, it can be annoying for the people working directly at the
+  back-end computer or for the automatic frontend reloading mechanism
+  (MS-DOS, VxWorks configuration). To address this problem specific hosts
+  can be exempt from having to supply a password and being granted of full access.
+  \code
+  [local]/>cd "/Experiment/Security/Allowed hosts"
+  [local]rhosts>create int myhost.domain
+  [local]rhosts>
+  \endcode 
+  Where \<myhost\>.\<domain\> has to be replaces by the full IP address of the host
+  requesting full clearance.
+- [Allowed programs] Specifies a list of programs having full access to
+  the ODB independently of the node they running from.
+  \code
+  [local]/>cd "/Experiment/Security/Allowed programs"
+  [local]:S>create int mstat
+  [local]:S>
+  \endcode 
+  <br><br>
+- [Web Password] Specifies a separate password for the Web server access
+  (@ref mhttpd_task ). If this field is active, the user will be requested to
+  provide the "Web Password" when accessing the requested experiment in a
+  "Write Access". In all condition the Read Only Access" is available.
+
+
+<hr> @section ODB_History_Tree ODB /History Tree
+
+This tree is automatically created when the logger is started.
+The logger will create a default sub-tree containing the following structure:
+\code 
+[local:midas:S]/History>ls -l -r
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+History                         DIR
+    Links                       DIR
+        System                  DIR
+    Trigger per sec.    /Equipment/Trigger/Statistics/Events per sec.
+    Trigger kB per sec. /Equipment/Trigger/Statistics/kBytes per sec.
+
+[local:midas:S]/>cd /History/Links/System/
+[local:midas:S]System>ls -l
+Key name            Type  #Val Size Last Opn Mode Value
+-----------------------------------------------------------
+Trigger per sec.    LINK  1    46   >99d 0   RWD  /Equipment/Trigger/Statistics/Events per sec.
+Trigger kB per sec. LINK  1    46   >99d 0   RWD  /Equipment/Trigger/Statistics/kBytes per sec.
+\endcode  
+A second sub-tree is added to the /History by the @ref mhttpd_task  Midas web server
+when the button "History" on the main status page is pressed.
+\code 
+[local:midas:S]/History>ls -l -r Display
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Display                         DIR
+  Default                       DIR
+    Trigger rate                DIR
+        Variables               STRING  2     32    36h  0   RWD
+                                        [0]             System:Trigger per sec.
+                                        [1]             System:Trigger kB per sec.
+        Factor                  FLOAT   2     4     36h  0   RWD
+                                        [0]             1
+                                        [1]             1
+        Timescale               INT     1     4     36h  0   RWD  3600
+        Zero ylow               BOOL    1     4     36h  0   RWD  y
+\endcode  
+This define a default history display under the Midas web server as long as the reference
+to "System" is correct. See @ref History_System for more information regarding
+explanation on these fields.
+
+Where the 2 trigger fields are symbolic links to the given path.
+The sub-tree \b System  defines a "virtual" equipment and get by the system
+assigned a particular "History Event ID".
+
+
+<hr> @section ODB_Alarms_Tree ODB /Alarms Tree
+
+This branch contains system information related to alarms.
+Currently the overall alarm is checked once every minute. Once the alarm has been
+triggered, the message associated to the alarm can be repeated at a different rate.
+The structure is split in 2 sections. The \b "Alarms"  itself which define the
+condition to be tested and the \b "Classes"  which defines the action to be taken
+when the alarm occurs.
+In order to make the system flexible, beside some default message logging
+(Classes/Write system message), each action may have a particular "detached script"
+spawned by it (Classes/Execute command).
+\code 
+odb -e expt -h host
+[host:expt:Stopped]/Alarms>ls -lr
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Alarms                          DIR
+    Alarm system active         BOOL    1     4     6h   0   RWD  n
+    Alarms                      DIR
+        Test                    DIR
+            Active              BOOL    1     4     31h  0   RWD  n
+            Triggered           INT     1     4     31h  0   RWD  0
+            Type                INT     1     4     31h  0   RWD  3
+            Check interval      INT     1     4     31h  0   RWD  60
+            Checked last        DWORD   1     4     31h  0   RWD  0
+            Time triggered firstSTRING  1     32    31h  0   RWD  
+            Time triggered last STRING  1     32    31h  0   RWD  
+            Condition           STRING  1     256   31h  0   RWD  /Runinfo/Run number > 10
+            Alarm Class         STRING  1     32    31h  0   RWD  Alarm
+            Alarm Message       STRING  1     80    31h  0   RWD  Run number became too large
+        wc3_anode               DIR
+            Active              BOOL    1     4     31h  0   RWD  n
+            Triggered           INT     1     4     31h  0   RWD  0
+            Type                INT     1     4     31h  0   RWD  3
+            Check interval      INT     1     4     31h  0   RWD  10
+            Checked last        DWORD   1     4     31h  0   RWD  958070825
+            Time triggered firstSTRING  1     32    31h  0   RWD  
+            Time triggered last STRING  1     32    31h  0   RWD  
+            Condition           STRING  1     256   31h  0   RWD  /equipment/chv/variables/chvv[6] < 900
+            Alarm Class         STRING  1     32    31h  0   RWD  Alarm
+            Alarm Message       STRING  1     80    31h  0   RWD  WC3 Anode voltage is too low 
+        chaos                   DIR
+            Active              BOOL    1     4     31h  0   RWD  n
+            Triggered           INT     1     4     31h  0   RWD  0
+            Type                INT     1     4     31h  0   RWD  3
+            Check interval      INT     1     4     31h  0   RWD  10
+            Checked last        DWORD   1     4     31h  0   RWD  0
+            Time triggered firstSTRING  1     32    31h  0   RWD  
+            Time triggered last STRING  1     32    31h  0   RWD  
+            Condition           STRING  1     256   31h  0   RWD  /Equipment/B12Y/Variables/B12Y[2] < 3000
+            Alarm Class         STRING  1     32    31h  0   RWD  Alarm
+            Alarm Message       STRING  1     80    31h  0   RWD  CHAOS magnet has tripped.
+    Classes                     DIR
+        Alarm                   DIR
+            Write system messageBOOL    1     4     31h  0   RWD  y
+            Write Elog message  BOOL    1     4     31h  0   RWD  n
+            System message interINT     1     4     31h  0   RWD  60
+            System message last DWORD   1     4     31h  0   RWD  0
+            Execute command     STRING  1     256   31h  0   RWD  
+            Execute interval    INT     1     4     31h  0   RWD  0
+            Execute last        DWORD   1     4     31h  0   RWD  0
+            Stop run            BOOL    1     4     31h  0   RWD  n
+        Warning                 DIR
+            Write system messageBOOL    1     4     31h  0   RWD  y
+            Write Elog message  BOOL    1     4     31h  0   RWD  n
+            System message interINT     1     4     31h  0   RWD  60
+            System message last DWORD   1     4     31h  0   RWD  0
+            Execute command     STRING  1     256   31h  0   RWD  
+            Execute interval    INT     1     4     31h  0   RWD  0
+            Execute last        DWORD   1     4     31h  0   RWD  0
+            Stop run            BOOL    1     4     31h  0   RWD  n
+\endcode  
+- [Alarm system active] Overall Alarm enable flag.
+- [Alarms] Sub-tree defining each individual alarm condition.
+- [Classes] Sub-tree defining each individual action to be performed by a
+  pre-defined and requested alarm.
+
+<hr> @section ODB_Script_Tree ODB /Script Tree
+
+This branch permits to invoke scripts from the web page.
+By creating the ODB tree \b /Script  every entry in that tree
+will be available on the Web status page with the name of the key.
+Each key entry is then composed with a list of ODB field (or links).
+The first ODB field should be the executable command followed by
+as many arguments as you wish to be passed to the script.
+
+\code
+[host::expt:Stopped]/Script>ls
+BNMR Hold
+Continue
+Real
+Test
+Kill
+[host:expt:Stopped]/Script>ls -lr Continue
+Key name           Type    #Val  Size  Last Opn Mode Value
+----------------------------------------------------------
+Continue           DIR
+    cmd            STRING  1     128   39h  0   RWD /home/bnmr/perl/continue.pl
+    Name           STRING  1     32    28s  0   RWD  bnmr1
+    hold           BOOL    1     4     31h  0   RWD  n
+\endcode 
+
+
+<hr> @section ODB_Alias_Tree ODB /Alias Tree
+
+This branch is not present until the user creates it. It is meant to
+contain symbolic links list to any ODB location. It is used for the Midas web 
+interface where all the sub-trees will appear in the main window.
+By default the clicking of the button in the web interface will spawn a new frame.
+To force the display of the alias link in the same frame, a "&" has to be added to
+the name of the alias.
+
+\code 
+odbedit
+ls
+create key Alias       
+cd Alias
+ln /Equipment/Trigger/Common "Trig Setting" <-- New frame
+ln /Equipment/Trigger/Common "Trig Setting&"      <-- Same frame
+\endcode 
+
+<hr> @section ODB_Elog_Tree ODB /Elog Tree
+
+This branch describes the Elog settings used through the Midas web server.
+See @ref mhttpd_task for setting up the different Elog page display.
+
+\code 
+[local:midas:S]/Elog>ls -lr
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Elog                            DIR
+    Email                       STRING  1     64    25h  0   RWD  midas@triumf.ca
+    Display run number          BOOL    1     4     25h  0   RWD  y
+    Allow delete                BOOL    1     4     25h  0   RWD  n
+    Types                       STRING  20    32    25h  0   RWD  
+                                        [0]             Routine
+                                        [1]             Shift summary
+                                        [2]             Minor error
+                                        [3]             Severe error
+                                        [4]             Fix
+                                        [5]             Question
+                                        [6]             Info
+                                        [7]             Modification
+                                        [8]             Reply
+                                        [9]             Alarm
+                                        [10]            Test
+                                        [11]            Other
+                                        [12]            
+                                        [13]            
+                                        [14]            
+                                        [15]            
+                                        [16]            
+                                        [17]            
+                                        [18]            
+                                        [19]            
+    Systems                     STRING  20    32    25h  0   RWD  
+                                        [0]             General
+                                        [1]             DAQ
+                                        [2]             Detector
+                                        [3]             Electronics
+                                        [4]             Target
+                                        [5]             Beamline
+                                        [6]             
+                                        [7]             
+                                        [8]             
+                                        [9]             
+                                        [10]            
+                                        [11]            
+                                        [12]            
+                                        [13]            
+                                        [14]            
+                                        [15]            
+                                        [16]            
+                                        [17]            
+                                        [18]            
+                                        [19]            
+Buttons                         
+                                8h
+                                24h
+                                3d
+                                7d
+Host name                       myhost.triumf.ca
+    SMTP host                   STRING  1     64    25h  0   RWD  trmail.triumf.ca
+
+\endcode  
+
+- [Email] Defines the Email address for Elog reply.
+- [Display run number] Allows to disable the run number display in the
+  Elog entries.
+- [Allow delete] Flag for permiting the deletion of Elog entry.
+- [Types] Pre-defined types displayed when composing an Elog entry. A maximum of 20 types are available.
+  The list will be terminated by the encounter of the first blank type. 
+- [Systems] Pre-defined categories displayed when composing an Elog entry.
+  A maximum of 20 types are available.
+  The list will be terminated by the encounter of the first blank type. 
+- [SMTP host] Mail server address for routing the composed Elog message to the
+  destination.
+- [Buttons] Permits to recall up to four possible time span for the Elog command.
+- [Host name] Host name.
+- [Email \<...\>] Email address to where the message should be sent when composing
+it under "Systems" of the type \<...\>,
+
+
+<hr> @section ODB_Programs_Tree ODB /Programs Tree
+
+System created tree containing task specific characteristics such as the
+watchdog and alarm condition. See @ref Alarm_System .
+
+\code
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Programs                        DIR
+    EBuilder                    DIR
+        Required                BOOL    1     4     0s   0   RWD  y
+        Watchdog timeout        INT     1     4     0s   0   RWD  10000
+        Check interval          DWORD   1     4     0s   0   RWD  10000
+        Start command           STRING  1     256   0s   0   RWD  mevb -D
+        Auto start              BOOL    1     4     0s   0   RWD  n
+        Auto stop               BOOL    1     4     0s   0   RWD  n
+        Auto restart            BOOL    1     4     0s   0   RWD  n
+        Alarm class             STRING  1     32    0s   0   RWD  Alarm
+        First failed            DWORD   1     4     0s   0   RWD  0
+\endcode 
+
+
+
+<hr> @section ODB_Lazy_Tree ODB /Lazy Tree
+
+Backup facility Tree. Created with default parameters on the first activation
+of @ref lazylogger_task. This task connects to a defined channel (i.e: Tape).
+when started. Multiple instance of the program can run contemporary.
+
+\code
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Lazy                            DIR
+    Tape                        DIR
+        Settings                DIR
+            Maintain free space(INT     1     4     23h  0   RWD  15
+            Stay behind         INT     1     4     23h  0   RWD  -1
+            Alarm Class         STRING  1     32    23h  0   RWD  
+            Running condition   STRING  1     128   23h  0   RWD  ALWAYS
+            Data dir            STRING  1     256   23h  0   RWD  /data_onl/current
+            Data format         STRING  1     8     23h  0   RWD  YBOS
+            Filename format     STRING  1     128   23h  0   RWD  run%05d.ybs
+            Backup type         STRING  1     8     23h  0   RWD  Tape
+            Execute after rewindSTRING  1     64    23h  0   RWD  ask_for_tape.sh
+            Path                STRING  1     128   23h  0   RWD  /dev/nst0
+            Capacity (Bytes)    FLOAT   1     4     23h  0   RWD  4.8e+10
+            List label          STRING  1     128   3h   0   RWD  tw0078
+            Execute before writiSTRING  1     64    23h  0   RWD  lazy_prewrite.csh
+            Execute after writinSTRING  1     64    23h  0   RWD  rundb_addrun.pl
+        Statistics              DIR
+            Backup file         STRING  1     128   3h   0   RWDE run05627.ybs
+            File size [Bytes]   FLOAT   1     4     3h   0   RWDE 2.00176e+09
+            KBytes copied       FLOAT   1     4     3h   0   RWDE 2.00176e+09
+            Total Bytes copied  FLOAT   1     4     3h   0   RWDE 2.00176e+09
+            Copy progress [%]   FLOAT   1     4     3h   0   RWDE 100
+            Copy Rate [bytes perFLOAT   1     4     3h   0   RWDE 6.21462e+06
+            Backup status [%]   FLOAT   1     4     3h   0   RWDE 4.17034
+            Number of Files     INT     1     4     3h   0   RWDE 1
+            Current Lazy run    INT     1     4     3h   0   RWDE 5627
+        List                    DIR
+            TW0076              INT     15    4     3h   0   RWD  
+                                        [0]             5575
+                                        [1]             5576
+                                        [2]             5577
+\endcode 
+
+
+
+<hr> @section ODB_EBuilder_Tree ODB /EBuilder Tree
+
+The Event Builder tree is created by @ref mevb_task and is placed in the  
+Equipment list.
+
+\code
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+EBuilder                        DIR
+    Settings                    DIR
+        Event ID                WORD    1     2     65h  0   RWD  1
+        Trigger mask            WORD    1     2     65h  0   RWD  1
+        Buffer                  STRING  1     32    65h  0   RWD  SYSTEM
+        Format                  STRING  1     32    65h  0   RWD  YBOS
+        Event mask              DWORD   1     4     65h  0   RWD  3
+        hostname                STRING  1     64    3h   0   RWD  myhost
+    Statistics                  DIR
+        Events sent             DOUBLE  1     8     3h   0   RWD  653423
+        Events per sec.         DOUBLE  1     8     3h   0   RWD  1779.17
+        kBytes per sec.         DOUBLE  1     8     3h   0   RWD  0
+    Channels                    DIR
+        Frag1                   DIR
+            Settings            DIR
+                Event ID        WORD    1     2     65h  0   RWD  1
+                Trigger mask    WORD    1     2     65h  0   RWD  65535
+                Buffer          STRING  1     32    65h  0   RWD  YBUF1
+                Format          STRING  1     32    65h  0   RWD  YBOS
+                Event mask      DWORD   1     4     65h  0   RWD  1
+            Statistics          DIR
+                Events sent     DOUBLE  1     8     3h   0   RWD  653423
+                Events per sec. DOUBLE  1     8     3h   0   RWD  1779.17
+                kBytes per sec. DOUBLE  1     8     3h   0   RWD  0
+        Frag2                   DIR
+            Settings            DIR
+                Event ID        WORD    1     2     65h  0   RWD  5
+                Trigger mask    WORD    1     2     65h  0   RWD  65535
+                Buffer          STRING  1     32    65h  0   RWD  YBUF2
+                Format          STRING  1     32    65h  0   RWD  YBOS
+                Event mask      DWORD   1     4     65h  0   RWD  2
+            Statistics          DIR
+                Events sent     DOUBLE  1     8     3h   0   RWD  653423
+                Events per sec. DOUBLE  1     8     3h   0   RWD  1779.17
+                kBytes per sec. DOUBLE  1     8     3h   0   RWD  0
+\endcode 
+
+
+<hr> @section ODB_Custom_Tree ODB /Custom Tree
+
+Web string for custom web page. \b Editable ONLY from your Web browser through
+@ref Custom_page .
+
+\code 
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+WebLtno&                        STRING  1     2976  25h  0   RWD  <multi-line>
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76 [en] (Windows NT 5.0; U) [Netscape]">
+   <meta name="Author" content="Pierre-Andr?Amaudruz">
+   <title>Set value</title>
+</head>
+<body text="#000000" bgcolor="#FFFFCC" link="#FF0000" vlink="#800080" alink="#0000FF">
+<form method="GET" action="http://myhost.triumf.ca:8081/CS/WebLtno&">
+<input type=hidden name=exp value="ltno">
+<center><table CELLSPACING=1 CELLPADDING=1 COLS=3 WIDTH="100%" BGCOLOR="#99FF99" >
+<caption><b><font face="Georgia"><font color="#000099"><font size=+2>LTNO
+Custom Web Page</font></font></font></b></caption>
+
+<tr BGCOLOR="#FFCC99">
+<td><b><font color="#FF0000">Actions: </font></b>
+<input type=submit name=cmd value=Status>
+<input type=submit name=cmd value=Start>
+<input type=submit name=cmd value=Stop>
+...
+<td BGCOLOR="#66FFFF"><b>Polarity section:</b>
+<br>Run#: <odb src="/runinfo/run number">
+<br>Run#: <odb src="/runinfo/run number">
+<br>Run#: <odb src="/runinfo/run number">
+<br>Run#: <odb src="/runinfo/run number" edit=1></td>
+</tr>
+</table></center>
+
+<img src="http://myhost.triumf.ca:8081/HS/Meterdis.gif?exp=ltno&scale=12h&width=400">
+<img src="http://myhost.triumf.ca:8081/HS/Bridge.gif?exp=ltno&scale=12h&width=400">
+<b><i><font color="#000099"><a href="http://myhost.triumf.ca/ltno/index.html">
+<br>
+LTNO help</a></font></i></b>
+</body>
+</html>
+\endcode  
+
+<hr> @section Hot_Link Hot Link
+
+It is often desirable to modify hardware parameters like discriminator
+levels or trigger logic connected to the frontend computer.
+Given the according hardware is accessible from the frontend code,
+theses parameters are easily controllable when a hot-link ODB
+is established between the frontend and the ODB itself.
+
+ * <center>
+ *  HotLink process
+ * \image html hotlink.gif 
+ * \image latex hotlink.eps "HotLink process" width=12cm
+ * </center> 
+
+First the parameters have to be defined in the ODB under the Settings tree
+for the given equipment. Let's assume we have two discriminator levels
+belonging to the trigger electronics, which should be controllable.
+Following commands define these levels in the ODB:
+\code
+[local]/>cd /Equipment/Trigger/
+[local]Trigger>create key Settings
+[local]Trigger>cd Settings
+[local]Settings>create int level1
+[local]Settings>create int level2
+[local]Settings>ls
+\endcode 
+
+The frontend can now map a C structure to these settings.
+In order to simplify this process, ODBEdit can be requested to generate a
+header file containing this C structure. This file is usually called event.h.
+It can be generated in the current directory
+with the ODB command \b make  which generates in the current directory
+the header file \b experim.h :
+\code 
+[local]Settings>make
+\endcode  
+
+Now this file can be copied to the frontend directory and included in the frontend
+source code. It contains a section with a C structure of the trigger settings
+and an ASCII representation:
+\code 
+typedef struct {
+  INT       level1;
+  INT       level2;
+  TRIGGER_SETTINGS;
+
+#define TRIGGER_SETTINGS_STR(_name) char *_name[] = {\
+"[.]",\
+"level1 = INT : 0",\
+"level2 = INT : 0",\
+"",\
+NULL  
+\endcode  
+
+This definition can be used to define a C structure containing the parameters in
+frontend.c:
+\code 
+#include <experim.h>
+
+TRIGGER_SETTINGS trigger_settings;
+\endcode  
+
+A hot-link between the ODB values and the C structure is established in the
+frontend_init() routine:
+\code 
+INT frontend_init()
+{
+HNDLE hDB, hkey;
+TRIGGER_SETTINGS_STR(trigger_settings_str);
+
+  cm_get_experiment_database(&hDB, NULL);
+
+  db_create_record(hDB, 0,
+    "/Equipment/Trigger/Settings",
+    strcomb(trigger_settings_str));
+
+  db_find_key(hDB, 0,
+    "/Equipment/Trigger/Settings", &hkey);
+
+  if (db_open_record(hDB, hkey,
+      &trigger_settings,
+      sizeof(trigger_settings), MODE_READ,
+      trigger_update) != DB_SUCCESS)
+    {
+    cm_msg(MERROR, "frontend_init",
+      "Cannot open Trigger Settings in ODB");
+    return -1;
+     
+  return SUCCESS;
+\endcode   
+
+The db_create_record() function re-creates the settings sub-tree in the ODB from
+the ASCII representation in case it has been corrupted or deleted.
+The db_open_record() now establishes the hot-link between the settings in the ODB
+and the trigger_settings structure.
+Each time the ODB settings are modified, the changes are written to the
+trigger_settings structure and the callback routine trigger_update()
+is executed afterwards. This routine has the task to set the hardware
+according to the settings in the trigger_settings structure.
+
+It may look like:
+\code 
+void trigger_update(INT hDB, INT hkey)
+{
+  printf("New levels: %d %d",
+    trigger_settings.level1,
+    trigger_settings.level2);
+ 
+\endcode  
+
+Of course the printf() function should be replaced by a function which accesses
+the hardware properly. Modifying the trigger values with ODBEdit can test the
+whole scheme:
+\code 
+[local]/>cd /Equipment/Trigger/Settings
+[local]Settings>set level1 123
+[local]Settings>set level2 456
+\endcode  
+Immediately after each modification the frontend should display the new values.
+The settings can be saved to a file and loaded back later:
+\code 
+[local]/>cd /Equipment/Trigger/Settings
+[local]Settings>save settings.odb
+[local]Settings>set level1 789
+[local]Settings>load settings.odb
+\endcode  
+The settings can also be modified from any application just by accessing the ODB.
+Following listing is a complete user application that modifies the trigger level:
+\code 
+#include <midas.h>
+
+main()
+{
+HNDLE hDB;
+INT   level;
+
+  cm_connect_experiment("", "Sample", "Test",
+                        NULL);
+  cm_get_experiment_database(&hDB, NULL);
+
+  level = 321;
+  db_set_value(hDB, 0,
+    "/Equipment/Trigger/Settings/Level1",
+    &level, sizeof(INT), 1, TID_INT);
+
+  cm_disconnect_experiment();
+ 
+\endcode  
+The following figure summarizes the involved components:
+
+To make sure a hot-link exists, one can use the ODBEdit command \b sor 
+(show open records):
+\code [local]Settings>cd /
+[local]/>sor
+/Equipment/Trigger/Settings open 1 times by ...
+\endcode  
+
+<hr> @section History_System History System
+
+The history system is an add-on capability build in the data logger
+(see @ref mlogger_task ) to record information in parallel to the data logging.
+This information is recorded with a time stamp and saved into "data base file"
+like for later retrieval. One set of file is created per day containing all
+the requested history events.
+
+The history is working only if the logger is running, but it is not necessary to
+have any channel enabled.
+
+The definition of the history event is done through two different means:
+- \b frontend history event:  Each equipment has the capability to generate
+"history data" if the particular history field value is different then zero.
+The value will reflect the periodicity of the history logging
+(see @ref The_Equipment_Structure).
+- \b "Virtual History event":  Composed within the Online Database under the
+specific tree "/History/Links" (see @ref ODB_History_Tree)
+
+Both definition mode takes effects when the data logger gets a "start run"
+transition. Any modification during the run is not applied until the next run
+is started.
+
+- [frontend history event]
+As mentioned earlier, each equipment can be enabled to generate history event
+based on the periodicity of the history value (in second!).
+The content if the event will be completely copied into the history files
+using the definition of the event as tag names for every element of the event.
+
+The history variable name for each element of the event is composed following one
+of the rules below:
+
+- [bank event] \b /equipment/\<...\>/Variables/<bank name\>[]  is the only
+reference of the event, the history name is composed of the bank name follwed
+by the corresponding index of the element.
+- [bank event] \b /equipment/\<...\>/Settings/Names \<bank_name\>[]  is present,
+the history name is composed of the corresponding name found in the
+"Names <bank_name>" array. The size of this array should match the size of the
+\b /equipment/\<...\>/Variables/\<bank name[]\> .
+\code 
+[host:chaos:Running]Target>ls -l -r
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Target                          DIR
+    settings                    DIR
+        Names TGT_              STRING  7     32    10h  0   RWD  
+                                        [0]             Time
+                                        [1]             Cryostat vacuum
+                                        [2]             Heat Pipe pressure
+                                        [3]             Target pressure
+                                        [4]             Target temperature
+                                        [5]             Shield temperature
+                                        [6]             Diode temperature
+    Common                      DIR
+          ...
+    Variables                   DIR
+        TGT_                    FLOAT   7     4     10s  0   RWD  
+                                        [0]             114059
+                                        [1]             4.661
+                                        [2]             23.16
+                                        [3]             -0.498
+                                        [4]             22.888
+                                        [5]             82.099
+                                        [6]             40
+    Statistics                  DIR
+          ...
+
+\endcode  
+- [fixed event] The names of the individual element under
+\b /equipment/\<...\>/variables/  will be used for the history name composition.
+- [fixed event with array] If the \b /equipment/\<...\>/Settings/Names[] 
+exists, each element of the array will be referenced using the corresponding
+name of the \b /Settings/Names[]  array.
+- [ODB history event]
+
+
+<hr> @section Alarm_System Alarm System
+
+The alarm system is built in and part of the main experiment scheduler.
+This means no separate task is necessary to beneficate from it, but this feature
+is active during \b ONLINE  mode \b ONLY . Alarm setup and activation is done
+through the Online DataBase.
+Alarm system includes several other features such as: sequencing control of the
+experiment.
+The alarm capabilities are:
+- Alarm setting on any ODB variables against threshold parameter.
+- Alarm check frequency
+- Alarm trigger frequency
+- Customizable alarm scheme, under this scheme multiple choice of alarm type
+  can be selected.
+- Program control on run transition.
+
+Beside the setup through ODBEdit, the Alarm can also be setup through the Midas
+web page..
+
+ * <center> Midas Web Alarm setting display
+ *  \image html malarm01.gif
+ *  \image latex malarm01.eps "Midas Web Alarm setting display" width=12cm
+ * </center> 
+
+ * <center> Midas Web Alarm setting display
+ *  \image html mprog01.gif
+ *  \image latex mprog01.eps "Midas Web Alarm setting display" width=12cm
+ * </center> 
+
+ * <center> Midas Web Alarm Program status display
+ *  \image html mprog02.gif
+ *  \image latex mprog02.eps "Midas Web Alarm Program status display" width=12cm
+ * </center> 
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref Internal - @ref Top - @ref AppendixA
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+*/
+

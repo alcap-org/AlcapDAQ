@@ -1,0 +1,83 @@
+/*! @page Intro Introduction
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref NDF - @ref Top - @ref Comp
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+<em> ... A few words... </em>
+ 
+Acquiring, collecting and analyzing data is the essence of mankind to satisfy
+his urge for understanding natural phenomena by comparing "real" events to his own
+symbolic representation. These fundamental steps paved human evolution and in the
+world of science they have been the keys to major steps forward in our understanding
+of nature. Until the last couple of decade's -when "Silicium" was still underground,
+the PPP protocol (Paper, Pencil and Patience) was the basic tool for this "unique"
+task. With the development of the "Central Processing Unit", data acquisition using
+computers wired to dedicated hardware instrumentation became available. This has
+allowed scientists to sit back and turn their minds towards finding solutions to
+problems such as "How do I analyze all these data?" Since the last decade or so when
+"connectivity" appeared to be a powerful word, the data acquisition system had to adapt
+itself to that new vocabulary. 
+
+Based on this sudden new technology, several successful
+systems using de-centralization of information have been developed. But the task is not
+simple! If the hardware is available, implementing a true distributed intelligence
+environment for a particular application requires that each node have full knowledge
+of the capability of all the other nodes. Complexity rises quickly and generalization
+of such systems is tough. Recently more pragmatic approaches emerged from all this,
+suggesting that central database information on a system may be more adequate, especially
+since processing and networking speed are not a "real" concern these days.
+MIDAS and its predecessor HIX may be counted part of the precursor packages in the field.
+
+The old question: "How do we analyze all these data?" still remains and may have been the
+driving force behind this evolution :-).
+
+
+@section intro1 What is Midas?
+The Maximum Integrated Data Acquisition System (MIDAS) is a general-purpose
+system for event based data acquisition in small and medium scale physics 
+experiments. It has been developed at the Paul Scherrer Institute (Switzerland)
+and at TRIUMF (Canada) between 1993 and 2000 (Release of Version 1.8.0).
+Presently ongoing development are more focused on the interfacing capability of
+the Midas package to external applications such as ROOT for data analysis 
+(see @ref analyzer_struct). 
+
+Midas is based on a modular networking capability and a central database system.
+MIDAS consists of a C library and several applications. They run on many
+different operating systems such as UNIX like, Windows NT, VxWorks, VMS and
+MS-DOS. While the system is already in use in several laboratories, the development
+continues with addition of new features and tools.
+Current development involves RTLinux for either dedicated frontend or composite frontend 
+and backend system. 
+
+For the newest status, check the MIDAS home page:
+   <a HREF="http://midas.psi.ch"> Switzerland </a>, 
+   <a HREF="http://midas.triumf.ca"> Canada </a>
+
+@section intro2 What can MIDAS do for you?
+
+MIDAS has been designed for small and medium experiments. It can be used in distributed
+environments where one or more frontends are connected to the backend via Ethernet.
+The frontend might be an embedded system like a VME CPU running VxWorks or a PC running
+Windows NT or Linux. Data rates around 1MB/sec through standard Ethernet and 6.1MB/sec
+over Fast Ethernet can be achieved.
+
+For small experiments and test setups the front-end program can run on the back-end
+computer thus eliminating the need of network transfer, presuming that the back-end
+computer has direct access to the hardware. Device drivers for common PC-CAMAC interfaces
+have been written for Windows NT and Linux. Drivers for PC-VME interfaces are commercially
+available for Windows NT.
+
+For data analysis, users can write a complete analyzer or use the standard MIDAS analyzer
+which uses HBOOK  routines for histogramming and PAW  for histogram display.
+
+The MIDAS package contains also a slow control system which can be used to control high
+voltage supplies, temperature control units etc. The slow control system is fully integrated
+in the main data acquisition and act as a front-end with particular built-in control mechanism.
+Slow control values can be written together with event data to tape.
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref NDF - @ref Top - @ref Comp
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+*/
+

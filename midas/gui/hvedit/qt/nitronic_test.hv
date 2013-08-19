@@ -1,0 +1,65 @@
+! NITRONIC
+!
+!	settings as of Run ??
+!
+!       ! is a comment line
+!
+! modified:
+!
+! 09-May-2002	TP: increase S1 HV to 2.1kV
+! 08-May-2002   TP: change of S1 pm tube; HV reduced from 2.1 to 2.0 kV
+! 01-Mar-2002	TP: commented out ch24; ch25 of Nitronic seems to work
+!		    properly
+!
+!--------------------------------------------------------------------
+!
+!	This file is read by program HVEdit to set default things
+!	to the LEM HV-remote controller
+!
+!	Contains channel encoding.
+!
+!	------------->   D O  N O T change the format !!!!!!!!! <----------
+!
+!---------------------------------------------------------------------
+!
+!	Define output channels:
+!	=======================
+!
+!	SYNTAX: S (CH_No) $(Voltage)kV %(Current)mA &(Name)
+!
+!         S		keyword at the beginning of the line
+!         (CH_No) 	channel number (1-32 for the Nitronic HVS 132)
+!         $(Voltage)	voltage in kV, e.g. $1.34kV
+!	  %(Current)	current limit in mA, e.g. %0.12mA
+!	  &(Name)	name of the channel (no spaces allowed)
+!
+!	typical line would be: S 13 $1.34kV %0.07mA &Anode_MCP2
+!
+!
+!	 D o   N O T  change the format of the lines !!!!!!!!!!!!!!!!!
+!	===============================================================
+!
+!--------------------------------------------------------------------------
+!
+!
+D >nitronic<
+S 05 $3.73kV %0.010mA &5-7_TD_F
+S 06 $3.54kV %0.010mA &6-7_TD_V
+S 07 $3.95kV %0.010mA &7-7_TD_H
+S 08 $3.35kV %0.325mA &8-7_TD_MCP3
+S 10 $2.10kV %1.500mA &10-3_S1
+S 11 $1.65kV %1.500mA &11-3_MCP1_i
+S 12 $1.95kV %1.500mA &12-3_MCP1_a
+S 20 $2.60kV %0.300mA &20-3_MCP2
+S 21 $2.90kV %0.530mA &21+7_MCP1
+S 22 $0.40kV %0.100mA &22+7_MCP2Anode
+!S 24 $2.00kV %0.700mA &24+7_Li_new
+S 25 $2.00kV %0.700mA &25+3_L_i
+S 26 $2.10kV %0.700mA &26+3_L_a
+S 27 $2.10kV %0.700mA &27+3_T_i
+S 28 $2.00kV %0.700mA &28+3_T_a
+S 29 $2.10kV %0.700mA &29+3_R_i
+S 30 $2.10kV %0.700mA &30+3_R_a
+S 31 $2.20kV %0.700mA &31+3_B_i
+S 32 $2.20kV %0.700mA &32+3_B_a
+! End

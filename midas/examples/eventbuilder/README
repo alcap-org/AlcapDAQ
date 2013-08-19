@@ -1,0 +1,265 @@
+Readme for the Midas Event Builder "mevb".
+
+Topics in this document:
+
+Purpose
+Function description
+ODB structure
+Operation
+Bugs
+Status
+
+
+--------------------------------------------------------------------------
+Purpose:
+-------
+
+In the case where overall data collection is handled by multiple
+physically separated frontend, it could be necessary to assemble these
+data fragments into a dedicated event. The synchonization of the fragment
+collection is left to the user which is done usually through specific
+hardware mechanism.
+Once the fragments are composed in each frontend, they are sent
+to the "Event Builder" (eb) where the serial number (pheader->serial_number)
+of each fragment is compared one event at a time for serial match.
+In case of match, a new event will be composed with its own event ID and
+serial number followed by all the expected fragments.
+The composed event is then sent to the next stage which is usually the
+data logger (mlogger).
+
+--------------------------------------------------------------------------
+Function description:
+--------------------
+
+Each frontend channel needs to send its "midas event" (fragment in this case)
+to a dedicated midas buffer with a unique "Event Identifier".
+This is specified within the frontend code in the equipment
+definition ( BUF1 instead of default SYSTEM):
+
+EQUIPMENT equipment[] = {
+
+  { "Trigger1",            // equipment name
+    1, 0,                  // event ID, trigger mask 
+    "BUF1",                // event buffer
+    ...
+
+The user has the possibility of interfering into the event building process
+at several stages:
+Begin of run:   like in the frontend, a hook to the begin of run is available
+                for initialization etc.
+	      
+End of run:     like in the frontend, a hook to the end of run is available
+                for proper closure of private task etc.
+
+Event-By_Event: Once all the fragments for a given serial number (match), the
+		user has the possibility to access these fragments for further
+		"user fragment analysis" and/or appending private data to the
+		built event through the mean of bank creation (see example).
+
+In the case of serial number mismatch of "user fragment analysis" error,
+THERE IS NO RECOVERY PROCESS AVAILABLE YET!
+
+--------------------------------------------------------------------------
+ODB structure:
+-------------
+
+The Event builder tree will be created with default settings from the
+mevb.h header file. The location of the tree is at the root level of
+the midas experiment. Each frontend fragment and the "built event"
+has its own subdirectory under the /EBuilder with a Settings tree
+defining the frontend characteristics and Statistics for status information.
+
+The fields "Event ID", "Buffer" have to match the frontend equipment
+definition in order to garantee the proper data transfer.
+
+[local:midas:S]/>ls -lr EBuilder
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+EBuilder                        DIR
+    Settings                    DIR
+        Event ID                WORD    1     2     35h  0   RWD  1
+        Trigger mask            WORD    1     2     35h  0   RWD  1
+        Buffer                  STRING  1     32    35h  0   RWD  SYSTEM
+        Format                  STRING  1     32    35h  0   RWD  MIDAS
+        User build              BOOL    1     4     35h  0   RWD  n
+        Event mask              DWORD   1     4     35h  0   RWD  3
+        Hostname                STRING  1     64    43m  0   RWD  dasdevpc
+    Statistics                  DIR
+        Events sent             DOUBLE  1     8     38m  0   RWD  1883
+        Events per sec.         DOUBLE  1     8     38m  0   RWD  0
+        kBytes per sec.         DOUBLE  1     8     38m  0   RWD  0
+    Channels                    DIR
+        Frag1                   DIR
+            Settings            DIR
+                Event ID        WORD    1     2     35h  0   RWD  1
+                Trigger mask    WORD    1     2     35h  0   RWD  65535
+                Buffer          STRING  1     32    35h  0   RWD  BUF1
+                Format          STRING  1     32    35h  0   RWD  MIDAS
+                Event mask      DWORD   1     4     35h  0   RWD  1
+            Statistics          DIR
+                Events sent     DOUBLE  1     8     38m  0   RWD  1883
+                Events per sec. DOUBLE  1     8     38m  0   RWD  1881.12
+                kBytes per sec. DOUBLE  1     8     38m  0   RWD  0
+        Frag2                   DIR
+            Settings            DIR
+                Event ID        WORD    1     2     35h  0   RWD  2
+                Trigger mask    WORD    1     2     35h  0   RWD  65535
+                Buffer          STRING  1     32    35h  0   RWD  BUF2
+                Format          STRING  1     32    35h  0   RWD  MIDAS
+                Event mask      DWORD   1     4     35h  0   RWD  2
+            Statistics          DIR
+                Events sent     DOUBLE  1     8     38m  0   RWD  1884
+                Events per sec. DOUBLE  1     8     38m  0   RWD  1882.12
+                kBytes per sec. DOUBLE  1     8     38m  0   RWD  0
+
+
+--------------------------------------------------------------------------
+Operation:
+---------
+cwd : midas/examples/eventbuilder  -> refered as eb>
+
+- Build the mevb task:
+eb> make
+cc  -g -I/usr/local/include -I../../drivers -DOS_LINUX -Dextname -c ebuser.c
+cc  -g -I/usr/local/include -I../../drivers -DOS_LINUX -Dextname -o mevb mevb.c \
+          ebuser.o /usr/local/lib/libmidas.a  -lm -lz -lutil -lnsl
+cc  -g -I/usr/local/include -I../../drivers -DOS_LINUX -Dextname \
+          -c ../../drivers/bus/camacnul.c
+cc  -g -I/usr/local/include -I../../drivers -DOS_LINUX -Dextname -o fe1 \
+        fe1.c camacnul.o /usr/local/lib/mfe.o /usr/local/lib/libmidas.a \
+	-lm -lz -lutil -lnsl
+cc  -g -I/usr/local/include -I../../drivers -DOS_LINUX -Dextname -o fe2 \
+        fe2.c camacnul.o /usr/local/lib/mfe.o /usr/local/lib/libmidas.a \
+	-lm -lz -lutil -lnsl
+eb>
+
+- Start the following 4 applications in 4 differents windows connecting to
+  a defined experiment.
+  -- If no experiment defined yet, set the environment variable MIDAS_DIR to your
+     current directory before spawning the windows.
+     eb> pwd
+     /home/midas/midas-1.8.3/examples/eventbuilder
+     eb> setenv MIDAS_DIR /home/midas/midas-1.8.3/examples/eventbuilder
+     eb> odbedit 
+     [local:Default:S]/>ls
+     System                          
+     Programs                        
+     Experiment                      
+     Logger                          
+     Runinfo                         
+     Alarms                          
+     [local:Default:S]/>q
+     eb>
+
+xterm1: eb> fe1
+xterm2: eb> fe2
+xterm3: eb> mevb
+xterm4: eb> odbedit
+[local:Default:S]/>ls
+System                          
+Programs                        
+Experiment                      
+Logger                          
+Runinfo                         
+Alarms                          
+Equipment                       
+EBuilder                        <--- New tree 
+[local:Default:S]/>scl
+Name                Host
+Fe1                 dasdevpc    <--- fragment 1        
+Fe2                 dasdevpc    <--- fragment 2
+EBuilder            dasdevpc    <--- Event builder
+ODBEdit             dasdevpc   
+[local:Default:S]/>
+[local:Default:S]/>start now
+Starting run #2
+
+12:12:11 [ODBEdit] Run #2 started
+[local:Default:R]/>stop
+
+12:12:13 [ODBEdit] Run #2 stopped
+12:12:16 [EBuilder] Run 2 Stop on frag#0; events_sent 144; npulser 0
+12:12:16 [EBuilder] Run 2 Stop on frag#1; events_sent 144; npulser 0
+[local:Default:S]/>
+
+The xterm3 (mevb) should display something equivalent to:
+ New Run 2
+In eb_begin_of_run
+ nfrag : 2
+bm_empty_buffer:1
+bm_empty_buffer:1
+Event Serial1 Fragment#:1 Data size:56 Serial1 Fragment#:2 Data size:56 Serial1 
+Event Serial2 Fragment#:1 Data size:56 Serial2 Fragment#:2 Data size:56 Serial2 
+Event Serial3 Fragment#:1 Data size:56 Serial3 Fragment#:2 Data size:56 Serial3 
+Event Serial4 Fragment#:1 Data size:56 Serial4 Fragment#:2 Data size:56 Serial4 
+Event Serial5 Fragment#:1 Data size:56 Serial5 Fragment#:2 Data size:56 Serial5 
+...
+Event Serial141 Fragment#:1 Data size:56 Serial141 Fragment#:2 Data size:56 Serial141 
+Event Serial142 Fragment#:1 Data size:56 Serial142 Fragment#:2 Data size:56 Serial142 
+Event Serial143 Fragment#:1 Data size:56 Serial143 Fragment#:2 Data size:56 Serial143 
+Event Serial144 Fragment#:1 Data size:56 Serial144 Fragment#:2 Data size:56 Serial144 
+In eb_end_of_run
+Run 2 Stop on frag#0; events_sent 144; npulser 0
+Time between request and actual stop: 3457 ms
+In eb_end_of_run
+Run 2 Stop on frag#1; events_sent 144; npulser 0
+Time between request and actual stop: 3459 ms
+
+The print statements are coming from the ebuser code.
+
+- The same procedure can be repeated with the fe1 and fe2 started on remote
+  nodes.
+eb> odb -e midas
+[local:midas:S]/>scl
+Name                Host
+Fe1                 midtwist.triumf.ca     <-- Node 1
+Fe2                 midm9b.triumf.ca       <-- Node 2
+EBuilder            dasdevpc               <-- Node 3
+ODBEdit             dasdevpc               <-- Node 3
+[local:midas:S]/>
+
+Thu> mevb -e midas
+Program mevb/EBuilder version 2 started
+
+
+ New Run 209
+In eb_begin_of_run
+ nfrag : 2
+bm_empty_buffer:1
+bm_empty_buffer:1
+Event Serial1 Fragment#:1 Data size:56 Serial1 Fragment#:2 Data size:56 Serial1 
+Event Serial2 Fragment#:1 Data size:56 Serial2 Fragment#:2 Data size:56 Serial2 
+Event Serial3 Fragment#:1 Data size:56 Serial3 Fragment#:2 Data size:56 Serial3 
+Event Serial4 Fragment#:1 Data size:56 Serial4 Fragment#:2 Data size:56 Serial4 
+Event Serial5 Fragment#:1 Data size:56 Serial5 Fragment#:2 Data size:56 Serial5 
+...
+Event Serial233 Fragment#:1 Data size:56 Serial233 Fragment#:2 Data size:56 Serial233 
+Event Serial234 Fragment#:1 Data size:56 Serial234 Fragment#:2 Data size:56 Serial234 
+Event Serial235 Fragment#:1 Data size:56 Serial235 Fragment#:2 Data size:56 Serial235 
+In eb_end_of_run
+Run 209 Stop on frag#0; events_sent 235; npulser 0
+Time between request and actual stop: 4488 ms
+
+--------------------------------------------------------------------------
+Bugs:
+----
+Under Linux if the FEx are remote and have already collected data without
+the mevb running, on the next run start, the mevb will exit with event
+mismatch. Make sure the mevb is started before the FEx or the FEx are
+"fresh" when mevb is launched.
+It appears when mevb is running under Windows this problem is not occuring.
+
+mdump needs to be updated for event information extraction from the /EBuilder
+tree. This will permit a proper event display from the SYSTEM buffer.
+
+--------------------------------------------------------------------------
+Status:
+---------
+Jan 17/2002:
+- Initial Version composed of:
+Makefile* : Build fe1, fe2, mevb.
+fe1.c     : frontend code for event fragment 1.
+fe2.c     : frontend code for event fragment 2.
+mevb.h    : Event builder header file.
+mevb.c    : Event builder core code.
+ebuser.c  : User code for event building.

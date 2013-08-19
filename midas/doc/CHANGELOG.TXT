@@ -1,0 +1,1229 @@
+Revision History
+================
+
+Version 1.9.5, released Oct 7th, 2004
+-------------------------------------
+
+- increased number of clients for ODB. Please recompile all applications
+  and recreate ODB from scratch
+- Sequence based transitions. Users can specify the sequence in which 
+  clients go through run transitions
+- Histogram subdirectories in midas root analyzer
+- Large file (>2GB) support in logger
+- odbedit can save ODB in XML format
+- Improvements in event builder
+- MySQL support in logger for writing run table
+- Improved debugging of mserver via -d flag
+- Fix of many small bugs
+
+Version 1.9.4, released July 9th, 2004
+--------------------------------------
+
+This version is mainly a maintencance update, fixing many little
+things here and there, but not adding much functionality. 
+
+Version 1.9.3, released May 17th, 2003
+--------------------------------------
+
+- Support for ROOT output in logger and analyzer
+- ROOT online histos for analyzer
+- examples/experiment now uses ROOT, examples/hbookexpt old HBOOK
+- added simple rmidas histo display
+- cleanup makefile for different analyzers
+- bugs in mhttpd fixed
+- implemented ODB validitation
+- fixed buffer overflows in mhttpd
+- several other small modifications and bug fixes
+
+Version 1.9.2, released Oct 04, 2002
+------------------------------------
+
+- odbedit: <tab> completion is working with flags too.
+- odbedit: Load protect the data dir if changed.
+- mdump: Display data in bank default type.
+- lazylogger: Implement extra field settings for tape manipulation
+- lazylogger: "Tape Data Append" flag,
+- lazylogger: multiple lazylogger instance with split run capability
+- lazylogger: Message with block number for Tape.
+- mlxspeaker: Added possible system call to wav file for "beeping" user
+              before message.
+- mhist: Add index range for -i with -v.
+- eventbuilder: Revised version with user code.
+- stripchart.tcl: Handle arrayes.
+- cm_cleanup() accept single client name as argument.
+- fix rpc_db_get_key_info()
+- fix ces8210 driver.  
+
+Version 1.9.1, released May 22, 2002
+------------------------------------
+
+- Added event fragmentation via EQ_FRAGMENTED and bm_defragment_event
+- Added "/logger/channels/x/settings/Create subdir every" and "Subdir Format"
+- Avoid overwriting of run number in history display if there are many runs
+- Fixed several bugs in history display configuration page
+- Added "/Programs/<name>/Check interval" which can be reduced to auto restart
+  programs faster than every 5 minutes (as it was before)
+- Added extra variables to hs_enum_vars for mhist to display array size
+
+Version 1.9.0, released May 13, 2002
+------------------------------------
+
+- Added slowdev class driver.
+- Added jorway73a SCSI/CAMAC driver.
+- Makefile option for "analyzer_lite" (without HBOOK).
+- Removed lingering in mhttpd
+- Fixed big bug that history files did not get closed in hs_hread. This
+  cause mhttpd to crash after ~100 history updates
+- Added /Experiment/Parameter Comment feature
+- If custom page /Custom/Status is present, it gets displayed instead of
+  the standard status page
+- Speeded up return of long pages like HV slow control
+- Added "/logger/history dir" and "/logger/elog dir"
+- Added event builder section in mhttpd
+- Added "/Experiment/Edit on start/Edit run number" to disable default
+  behaviour of editing the run number on start
+- Added log axis and time axis in history display
+- Added run marks in history display
+- Added zoom and offset feature in history display
+- Fixed bug where query in elog stopped at 12:00
+- Added periodic alarms
+- Fixed problem that <tab> completion was not working if only one
+  value in directory
+- Added /Elog/Buttons for variable elog history display
+- Fixed bug where keys containing "+" were not properly displayed
+  in mhttpd odb display
+- Run start abort by frontend causes logger to overwrite old data
+  file on next start by default now
+- Added history display configuration page
+- Made run numbers in history display vertical and not overwriting
+  each other if too many are shown
+- Added optional debug output in cm_transition
+- Added debug output via "-v" flag in odbedit start/stop commands
+- Added "more lines" button in runlog.txt display
+- Put some spaces between panel names in history display
+- Added extra parameter to db_get_value, all user code so far using
+  this function has to be adjusted!
+- Added "last x" buttons in Elog display
+- Added "-v" flag to logger for verbose display of history booking
+- mhttpd now displays link destination on ODB pages
+- db_create_link now fails if destination doesn't exist
+- Tab completion in odbedit now also works with "-l" flag
+
+Version 1.8.3, released August 8, 2001
+--------------------------------------
+
+- Fixed problems occuring under RedHat 7.1
+- modified mserver.c to run under xinetd
+- put xinetd configuration info into INSTALL file
+- added /Custom tree in ODB for mhttpd to display user-specific pages
+- standalone elogd program included for offline logbook display
+- added mail notification in elog in mhttpd
+
+Version 1.8.2, released November 20, 2000
+-----------------------------------------
+
+- Parallelized Midas analyzer using the PVM system. 
+  See http://pibeta.psi.ch/handbook/analyzer/parallel.html for some details
+- Added use_tests in analyzer request to make "analyzer tests" work correctly
+  This needs modification of existing "analyzer.c" files.
+- Added manual triggered events, use EQ_MANUAL_TRIG in FE equipment list to
+  display a button in mhttpd to trigger that event manually. Might be useful
+  for "histogram" type of events.
+- Added number of messages for cm_msg_retrieve and in odbedit "old" command
+- Fixed various bugs in history system
+- bk_close returns bank size
+- Added cm_msg1 to produce messages which go to a differnt logging file
+- Create default /runinfo structure in cm_connect_experiment
+
+Version 1.8.1, released June 7, 2000
+------------------------------------
+
+- Set environment variable MIDAS_DIR as the default data directory in /logger/data dir
+- Added MIDAS_EXPTAB environmant variable to point to "exptab" directory
+- Added delete option in elog system
+- ODB directories can now be attached to elog messages
+- Added history graphics display in mhttpd
+- Added -E flag to mhttpd to work only as an elog server (w/o any MIDAS experiment)
+- Added WebPAW display. See http://midas.psi.ch/webpaw
+
+Version 1.8.0, released March 6, 2000
+-------------------------------------
+
+- We made major modifications in the equipment and runinfo ODB trees so we switched
+  to a new major version.
+
+- Added deferred transitions:
+
+In some experiments, it can happen that a run transition like start/stop/pause/resume
+should only be done after certain hardware requirements are met. Examples are "scans"
+where a scan of some beamline element for example should first be finished before
+the run can be stopped. Another example is to start a run only when a target has been
+cooled down or the beam comes back after a shutdown. To accomodate this, deferred
+transitions have been introduced. Here is how it works:
+
+1) The frontend registers a deferred transition handler like
+
+  cm_register_deferred_transition(TR_STOP, callback);
+
+where callback is a function which has to decide when the transition shouldbe done.
+
+2) Write the callback function. It can look like
+
+BOOL callback(INT transition, BOOL first)
+{
+static DWORD t;
+
+  if (first)
+    {
+    t = ss_time();
+    printf("Stop requested\n");
+    }
+
+  return ss_time() > t + 10;
+}
+  
+If the transition is requested by entering "stop" in odbedit or by pressing the
+stop button in the web interface, the function is called once with first = TRUE.
+Then it is called periodically with first = FALSE and can return FALSE if the
+transition should not be performed or TRUE if it should be performed. In the above
+example all it does is to note the current time the first time, and then return TRUE
+when ten seconds have elapes. Thus the stop tranistion is deferred by ten seconds.
+Of course in a real application it has to check the hardware when it is finished.
+
+Once a client has registered a callback, the odbedit command "start/stop/.." prints
+a notification that the transition is in progress. If one wants to stop the run anyhow
+without waiting for the frontend, on can issue a "stop now" command.
+
+- Introduced "super"-events. Some experiments produce very small but many events.
+In this case, the "signal-to-noise" ratio between the MIDAS event header and the
+user data is pretty poor, since the event header contains 16 bytes. To overcome this
+problem and to improve performance, several of this small events can now be packed into
+one MIDAS event. To distinguish the events, they are called sub-events and super-events.
+To define the number of sub-event per super-event, one changes a number in the equipment
+list like:
+
+  { "Trigger",            /* equipment name */
+    1, 0,                 /* event ID, trigger mask */
+    "SYSTEM",             /* event buffer */
+
+    ...
+
+    0,                    /* stop run after this event limit */
+    1000,                 /* number of sub events */
+    0,                    /* don't log history */
+
+    ...
+  },
+  
+*** please note that all existing frontends have to be changed to contain
+    the "number of sub events" parameter. If this feature is not used, it
+    should be zero ***
+
+This causes the readout routine to be called 1000 times before any MIDAS event is
+sent to the backend. To simplify the composition of the events, the readout routine
+contains a new parameter "offset", which contains the current offset in the 
+super-event for the next sub-event.
+
+*** please also note that all existing frontends have also to be changed
+    to contain the offset parameter, even if it is not used ***
+
+If it is desired to put all sub-events into a bank, more complicated operations have
+to be performed. On the first call (offset==0), the bank has to be opened, then the
+bank has to be filled until the number of subevents is reached. To close the bank,
+the readout routine is called with offset==-1 to indicate the end of super-event.
+The code could look like this:
+
+INT read_trigger_event(char *pevent, INT offset)
+{
+static WORD *pdata;
+int    a;
+
+  if (offset == 0)
+    {
+    /* init bank structure */
+    bk_init(pevent);
+
+    /* create ADC bank */
+    bk_create(pevent, "ADC0", TID_WORD, &pdata);
+    }
+
+  if (offset == -1)
+    {
+    bk_close(pevent, pdata);
+    return bk_size(pevent);
+    }
+
+  /* read ADC values */
+  for (a=0 ; a<N_ADC ; a++)
+    cami(CRATE, SLOT_ADC, a, 0, pdata++);
+
+  if (offset == 0)
+    return N_ADC*sizeof(WORD)+sizeof(BANK_HEADER)+sizeof(BANK);
+
+  return N_ADC*sizeof(WORD);
+}
+
+- The EPICS devices driver has been revised to incorporate the ability to set the
+EPICS CA channel labels (.DESC descriptors) from the MIDAS ODB.
+
+- Auto restart has been added to the frontend. If the frontend stop the run after
+a number of events, and the /logger/auto restart falg is "y", the frontend starts
+the next run after five seconds automatically.
+
+- The rhosts directory under /Experiment/Security has been renamed to 
+"allowed hosts". In addition, an "allowed programs" directory has been added which
+can be used to grant certain MIDAS program to access the experiment without
+supplying a password, independent from where they have been started. This feature
+can be used to grant mhttpd access without password submission.
+
+- A WWW password has been added. It can be created/changed by typing webpasswd in 
+ODBEDIT just like the standard MIDAS password. Once activated, it prevents any
+web access which "modifies" the experiment, like ODB modifications, ELOG submissions
+or start/stop of the run.
+
+- Contol-C handling has been improved. In certain cases in can happen that pressing
+Control-C produces the message "Received break. Aborting...", but the program is in
+an endless loop and cannot gracefully exit. If then Ctrl-C is pressed twice, a "hard"
+abort is done, which is equivalent of killing the process (kill -9 under unix).
+
+- The file in which the analyzer running online saves and loads its last histograms
+(last.rz) can now specdified with /analyzer/output/last hist filename.
+
+- Added -P flag into analyzer to protect certain subtrees from being overwritten
+  by the ODB dump from the .mid file.
+
+- Added "/Analyzer/Output/Events to ODB" flag to prevent analyzer from writing
+  events to the ODB every second. This can be useful when dealing with large
+  events which should not go to the ODB. This flag is off by default and has to
+  be turned on if one wants to see copies of analyzed events in the ODB under
+  /Equipment/<name>/Variables.
+
+Version 1.7.1, released Feb 9, 2000
+-----------------------------------
+
+- Skipped versions 1.6.5 to 1.6.9 because we switched to a new protocol, which is
+  not compatible with 1.6.x. Version 1.7.0 was only for internal usage.
+- Fixed Y2K problem
+- Added alarm system, still lacking documentation (:-(
+- Added automatic program start/stop on run transitions (/programs/excute on start run)
+- Added auto start/stop under /programs. So programs can be automatically started
+  at the beginning of a run or stopped at the end of a run
+- Added 32-bit MIDAS banks. Use bk_init32 to create 32-bit banks.
+- Added electronic log book. Use "elog" program to submit an electronic logbook 
+  entry or the Elog page in mhttpd.
+- Use /programs/<name>/Watchdog timeout in all programs as timeout value. The
+  default value can be submitted by calling cm_connect_experiment1(..., timeout)
+- Fixed certain mutex bugs when accessing the ODB which caused MIDAS to crash 
+  once in a while.
+- Events bigger than the buffer cache automatically bypass the cache.
+- midas.log is now placed in the same directory as the .SHM files in case
+  there is no data dir in the ODB
+- Fixed lots of bugs, please refer to individual source files.
+
+Version 1.6.4, released Aug 6, 1999
+-----------------------------------
+
+- Debugged FTP mode in lazylogger
+- Added bm_skip_event
+- Added Ctrl-C handler
+- Added JMidas graphical control program written in Java. This should be considered
+  a pre-beta program, which is not intended for serious use, just for demonstration.
+  It needs JDK 1.2. For Linux look at http://www.blackdown.org.
+
+Version 1.6.3, released Feb 18, 1999
+------------------------------------
+
+- Added MIDAS format to lazylogger
+- Added FTP support to lazylogger
+- Added debug logging facility to mserver (-d flag)
+- Added dm_xxx() funciton for Dual Memory buffer handling
+- ODBEdit saves .odb files now with full ODB pathname. When loading those
+  files, they are written to their original location independent of the
+  current path in the ODB
+- ODBEdit now accepts wildcards in the "ls" and "set" commands
+- ODB records can now be open several times with different dispatch functions
+  which are all called when the record is changed
+- Added db_set_data_index2 function to avoid too many record updates when
+  setting an array of values
+- BOOL values are displayed as 'y' and 'n' in the ODB
+- Added message display in mhttpd
+- Added hex display in mhttpd ODB display
+- Logger can now be stopped tiwh "!"
+- Fixed watchdog timeout on remote tape operations
+- Analyzer prints error message if histo dump flag is on when running offline
+- Analyzer does not stop if a file in a range of files is missing
+- Set /Analyzer/Bank switches/... to FALSE by default to avoid N-tuple
+  overflow when an analyzer is started the first time
+- Assume MIDAS data format on /dev/... input
+- Analyzers puts current offline run number into ODB
+- Added -f flag to filter events in analyzer
+
+Version 1.6.2, released Dec 10, 1998
+------------------------------------
+
+- Added -v (verbose) flag to analyzer
+- Program abort with "!" (without return) now also works under Unix
+
+Version 1.6.1, released Oct 28, 1998
+------------------------------------
+
+- Fixed problem wiht "!" for stopping the analyer
+
+Version 1.6.0
+-------------
+
+- Same as 1.6
+
+Version 1.6, released Oct 23, 1998, after switching to 1.x.x numbering scheme
+-----------------------------------------------------------------------------
+
+- Introduces CVS (concurrent version system) for revision control. All files
+  have how a LOG in their header shich shows their revision
+- Class & device drivers have now their own local memory so they
+  can be used in different equipment
+- Wrote EPICS Channel Access device driver ch_acc.c
+- Fixed a bug in mfe.c which had to do with the event_buffer_size
+- Added prepaus, postpause, preresume and postresume tranistions
+- Modified the frontend tr_pause request to tr_prepause, so that the frontend
+  first stops sending events when a run is paused.
+- Fixed "odbedit aborted" when ODBEdit normally exits.
+- Removed gethostbyname from client connection acception to speed up the
+  connection process to a frontend or analyzer when they are busy.
+- Fixed minor bus in mana.c
+- Some revisions of the drivers/ directory
+- Modified version scheme from 1.06 to 1.6.0 where last digit is patch level
+
+Version 1.05, intermediate version, never released
+--------------------------------------------------
+
+Version 1.04, released Aug 6, 1998
+-----------------------------------
+
+- Version after Pion-Beta beamtime '98
+- Fixed some bugs in mhttpd
+- HTTPD written
+- fixed byte swapping bug in fcna function
+- Defined macro language for frontend (midas_macro.h), example is in 
+  \midas\examples\macro.
+- Limited shared memory size for Solaris
+- Rewrote VxWorks makefiles, replaced "ar" in unix makefile by "ld"
+- Support for multiple LAMs in frontend
+- Wrote camacrpc.c which emulates MIDAS CAMAC Standard functions
+  from mcstd.h through RPC server camacrpc.c.
+- MCNAF uses camacrpc.c. If linked to other CAMAC drivers, MCNAF
+  can be used locally on a computer which has CAMAC access.
+
+Version 1.03, released March 04, 1998
+-------------------------------------
+
+- Improved event sending over the network. A third TCP socket is now only
+  used for sending event. For that reason, no programs of version 1.03 can
+  run together with programs of 1.02 or prior.
+
+- All functions receiving events (like the ones passed via bm_request_event)
+  are now called with two pointers. The first one pointing to the MIDAS
+  header of the event (as before version 1.03) and an additional pointer
+  pointing to the data part of the event.
+
+- Added bm_empty_buffers function.
+
+- ODB shared memory now gets flushed to disk after every run and whenever
+  a client disconnects.
+
+- Support for Solaris
+
+Version 1.02, released October 3, 1997
+---------------------------------------
+
+- During run start/stop, the current time places under /runinfo is fetched
+  from the server. This insures that the time is correct independent of the
+  local clock of clients.
+
+- Added "Log messages" flag under channel settings for logger. Messages having
+  their bit (from midas.h MT_xxx) set in "log messages" cause the logger to
+  include these messages in the data stream going to disk or tape. The event
+  ID of those events is EVENTID_MESSAGE (0x8002). Having "Log messages" set
+  to 8 causes all user messages to be logged.
+
+- ODBEdit now only displays the last name from the current directory like
+  "Settings" instead of /Logger/Channel/0/Settings. This makes editing of
+  long lines in ODBEdit easier because a wrap around is more unlikely. To
+  get the full directory, the command "pwd" has been added.
+
+- The environment variables MIDAS_SERVER_HOST and MIDAS_EXPT_NAME can be set
+  to tell all MIDAS applications where to connect to. These values can be
+  overwritten with the command line parameters -h and -e.
+
+- Added "copy" command in ODBEdit.
+
+- Improved the way <tab> works in ODBEdit. When different keys start with the
+  same character and one presses <tab>, the key name is expanded until the
+  first non-matching character.
+
+- Improved UNIX makefile so that the same makefile (which is now located
+  directly under midas-x.xx) can be used for all supported UNIXes. For each
+  UNIX brand, a corresponding subdirecory for libraries and binaries is
+  created.
+
+- Added chat mode in ODBEdit. Using the command "chat", users can talk to
+  each other like on Internet Chat. All messages are logged in the midas
+  log file.
+
+Version 1.01, released October xx, 1997
+---------------------------------------
+
+- Simplified RPC connection between clients. When a client contacts another
+  client (for example to start/stop a run) the connection works without
+  callback (as it does for the main MIDAS server). This saves system re-
+  sources and speeds up run transitions.
+
+  IMPORTANT NOTE: Due to this change, programs of Version 1.01 or later
+  won't work together with programs of Version 1.00 or earlier!
+
+- Added cm_synchronize function which synchronized MIDAS clients. It is
+  used in the frontend framework (mfe.c) to get the time from the server
+  and set it on the local frontend.
+
+- Added -h flag to ODBEdit "ls" command to display values in hex format
+
+- Statistics of logging channels get zeroed (except "bytes written total")
+  even if channel is not active. This is useful in status display programs
+  to indicate that a channels is inactive.
+
+- Logger can now stop a run after a given number of received events. The
+  event limit in the /Equipment/<name>/Common works on events of a specific
+  type, the event limit in /Logger/Channels/<n>/Settings on all events
+  going to a specific channel.
+
+- If ODBEdit is started with a command (-c flag), it no longer produces
+  program started/stopped messages which would go to midas.log.
+
+- If ODBEdit is started with a command which starts with "@", the command
+  is treated as a file name and the commands inside that file are executed.
+  This feature can be used as a kind of batch processing.
+
+Version 1.00, released September 8, 1997
+----------------------------------------
+
+- Added FTP functionality in MLogger. The logger can now write directly
+  to remote computers via FTP. In the logger/channels settings, set type
+  to FTP and path to <host>,<port>,<user>,<password>,<directory>,<filename>
+  where <port> is usually 21. 
+
+  This feature is used at PSI to write directly to the PSI archive (via
+  port 1021)
+
+- Added -s flag to analyzer to set the PAWC size.
+
+Version 0.99, released August 22, 1997, after first beam time at PSI
+--------------------------------------------------------------------
+
+- Improved ODBEdit command line editing (Insert mode)
+
+- Added system call cm_execute(command) which lets applications execute
+  shell commands at the server.
+
+- Host names can now be 256 characters long instead of only 32 characters
+
+- Fixed many minor bugs, mostly connected with HBOOK in mana.o
+
+- Auto restart feature now works
+
+- Time tag is printed with messages in ODBEdit
+
+- ODBEdit array access improved. Following schemes are possible:
+
+  set <key> value
+  set <key>[index] value
+  set <key>[*] value         for all values of an array
+  set <key>[n..m] value      for range of values of an array
+
+Version 0.67, released June 24th, 1997
+--------------------------------------
+
+- Added password access. When /experiment/security/password is present,
+  each client has to enter that password before it can connect. If the
+  host of the client is present under /experiment/security/rhosts/<host>,
+  the password validation is skipped. The password can be set with 
+  the "passwd" command inside ODBEdit.
+
+  The design of the password system is equivalent to the UNIX password
+  system.
+
+- Changed ODBEdit commands dealing with arrays. A array of n values is
+  now created with
+
+    create <type> <name>[n]
+
+  and set with
+
+    set <name>[i] <value>
+
+- Added ODBEdit command line recall (via arrow keys) and completion 
+  (via TAB)
+
+- db_write_changed records and update_odb in mfe.c now work in RPC_FTCP
+  mode in decrease network traffic.
+
+- Implemented automatic key locking when runs are started. If a ODB tree
+  "/Experiment/Lock when running" is present with a list of links, the
+  targets of these links are locked for write access when a run is
+  started and freed when a run is stopped. This can be useful to lock
+  HV demand values or trigger settings during a run.
+
+- rpc_set_tcp_size(size) now sets the TCP buffer size of rpc_send_event.
+  The default has decreased from 64k to 8k to avoid "bursts" from the
+  frontend.
+
+Version 0.65, released June 6th, 1997
+------------------------------------
+
+- Fixed several memory leaks
+
+- Reduced max. event size to 4k on VxWorks
+
+- Increase logger timeout to 5min because of exabyte tape rewind
+
+Version 0.66, released June 13th, 1997
+--------------------------------------
+
+- Extended slow control system so that an equipment can have several
+  devices of the same type. See LRS1440.C for an example.
+
+- Changed ODBEdit "talk" command to more general "msg" command. This
+  command produces a message of type "user" which is tagged with the
+  user's name. Mspeaker not talsk messages of type MT_TALK and MT_USER.
+  The user name shows also up in the MIDAS logging file. This way the
+  log file can be used as an electronic logbook. Whenever anything has
+  been changed by an user, she/he writes a message with ODBEdit> msg 
+  which then shows up in the message file together with the run start/stop
+  messages.
+
+- Fixed a bug in mlogger.c which occured when writing to two tapes.
+
+Version 0.64, released June 4, 1997
+-----------------------------------
+
+- changed maximum number of ODB clients from 10 to 32. Old *.SHM files
+  cannot be used with this new version. To recycle old ODBs, follow this
+  procedure:
+  
+  o Start ODBEdit from V0.63
+  o Save the odb under init.odb "save init.odb"
+  o Delete ODB.SHM
+  o Start ODBEdit from V0.64
+  o Load init.odb
+
+  Delete all SYSTEM.SHM and SYSMSG.SHM files before starting any V0.64
+  program. In case of problem one might have to delete the shared memory
+  segments under UNIX manually with "ipcs" and "ipcrm".
+
+- Changed timeout behavior of logger to avoid timeouts. Increase the
+  logger timeout to 120s for use of two exabytes in parallel.
+
+- Added a bm_delete_request in tr_poststop of logger
+
+- Added a transition lock. When a run is started or stopped, another
+  instance of ODBEdit cannot start or stop a run during the transition.
+  The flag is /Runinfo/In progress
+
+- Fixed a problem with the statistics update of event. Had to split
+  channel entries into /Logger/Channels/x/Settings and
+  /Logger/Channels/x/Statistics.
+
+- Fixed a couple of bugs
+
+Version 0.63, released May. 16, 1997
+------------------------------------
+
+- Added HBOOK support (from CERN library) to anaylzer module mana.c.
+  Details about the analyzer implementation can be found under
+  http://pibeta.psi.ch/~pibeta/handbook/analyzer.
+
+- Removed .MTX files under UNIX. Now, .SHM files are also used to
+  generated keys for semaphores.
+
+- mserver can now be started from inetd. For setup, following changes
+  have to be made:
+
+  Add following line to /etc/services
+
+    midas    1175/tcp
+
+  Add following line to /etc/inetd.conf
+
+    midas stream tcp nowait root /usr/local/bin/mserver /usr/local/bin/mserver
+
+  if your executable is under /usr/local/bin/. Note that the last 
+  argument is also the full path name, not only "mserver" as it
+  is for other entries in inetd.conf. After that, mserver is
+  started automatically whenenver someone wants to connect.
+
+- Added MAX_EVENT_SIZE definition in midas.h. After modifying it, one has
+  to recompile ALL midas programs. The upper limit is given by the shared
+  memory resources on a given computer (usually some MB).
+
+- Added confirmation for delteting keys and changing access mode to keys
+  in ODBEdit.
+
+Version 0.62, released Apr. 10, 1997
+------------------------------------
+
+- Changed db_get_data arguments which contain ODB type now.
+
+- Added db_get_data_index routine
+
+- Added new YBOS.C/YBOS.H files from P. Amaudruz, modified them slightly
+  to avoid compiler warnings. Moved all global definitions from YBOS.H
+  to YBOS.C.
+
+- Fixed a few bugs in the history system (hs_read(), mhist).
+
+- Designed device driver concept for slow control. Added EQ_SLOW to
+  equipment type (besides EQ_PERIODIC and EQ_POLLED). Any equipment
+  of type EQ_SLOW must define a class driver and a device driver list
+  in the equipment table. A class driver links ODB values to input/output
+  channels while device drivers carry out only simple commands like
+  set channel/get channel. Device drivers have to talk to the hardware
+  (RS232 for example) which class drivers are hardware independent.
+  Class drivers also have to supply a readout routine, which is used
+  to produce events which go to the DAQ data stream.
+
+  Two class drivers have been written, one for high voltage equipment
+  and one for multimeter like equipment. Three device drivers have
+  been written, one for the LeCroy LRS1440 HV system and two for 
+  Keithly PC plug-in boards (DAS-TEMP and DAS-1600). A NULL device
+  driver has also been implemented for testing class drivers without any
+  hardware.
+
+  The HV class driver supports following features:
+
+  o Setting of demand values (linked to /Equipment/HV/Variables/Demand)
+  o Automatic read back of HV values (linked to .../Measured)
+  o Setting of current limits and voltage limits for all channels
+  o Ramping of HV values according to a specified ramp speed
+
+  Range checking and un-tripping has not yet been implemented.
+
+  The multimeter class driver supports following features:
+
+  o Reading of input channels
+  o Writing to output channels
+  o Offset and Factor values for all channels to convert channel
+    values to meaningful units
+
+  Both class drivers do the reading of channels in their idle loops.
+  They only send the update to the ODB if values change more than what
+  is specified in their update threshold.
+
+Version 0.61, released Mar. 26, 1997
+------------------------------------
+
+- Modified cm_msg to contain routine name where error occured.
+
+- Added "are these parameters correct?" query when starting a run with 
+  ODBEdit.
+
+- Modified data file name generation from runxxxx.dat with four digits
+  to a variable number of digits (for experiments having more than 9999
+  runs). The file name can now be run%05d.dat or so which is directly
+  used as a format specifier for printf().
+
+- Fixed a bug that clients were killed by the watchdog when thy system
+  time was changed by the superuser.
+
+- Added a function db_create_record to create records in the ODB. Records
+  are a set of keys which match a C structure in the user program. 
+  Previously, they could be mapped ("hot linked") to the C structure with
+  db_open_record. This function checked the size of the record versus the
+  C structure, but there was no way to check if the order and type of
+  the variables in the ODB were correct. This led to errors when the
+  structure of the logging channels (CHN_INFO) was changed and the logger
+  run on an experiment which still had the old ODB structure 
+  /logger/channels/x/common.
+
+  The new function db_create_record creates an ODB tree which matches
+  exactly a C structure. This is done by supplying this function with
+  a string representation of the C structure ("init_str"). If the record
+  or part of it exists already in the ODB, it is merged with the init_str,
+  with values in the ODB having priority. Only non-existing ODB values
+  are created from init_str.
+
+  The string representation can be created with the ODBEdit command
+  "save -s tmp.h" which creates a string from the current point in the ODB.
+  The ODBEdit command "save -c tmp.h" can be used to create a C structure
+  from the current ODB tree.
+
+  One example of this usage is the "event" command in ODBEdit. It creates
+  "event.h" which contains C structures and string representation of all
+  "FIXED" events plus some general ODB branches. The frontend framework 
+  MFE.C regenerates the event representation in the ODB automatically.
+
+Version 0.60, released Mar. 3, 1997
+-----------------------------------
+
+- A framework named "FAL" to run MIDAS on a single Windows NT computer 
+  has been created. This framework uses the user "frontend.c" and 
+  "analyzer.c" modules and incorporates the F)rontend, A)nalyzer and 
+  L)ogger in one program. This speeds up things because events don't have
+  to be passed between different processes if the frontend and analyzer
+  are running on the same machine.
+
+- Support for multiple analyzers. Each analyzer creats its own "common"
+  and "statistics" subtree under /analzyer/<name>/<event> where <name>
+  is the analyer name specified as analyzer_name in analyzer.c.
+
+- Developped history system. Events may be written to a history file on
+  disk with the hs_xxx routines. An example of a standalone program to
+  log the PSI accelerator status can be found under 
+  \midas\examples\acslog.c. Since this program receives UDP packets from
+  the PSI accelerator, it runs only in the psi.ch domain, but the code
+  gives a starting point for statndalone history loggers.
+
+  History logging is also incorporated into the frontend framework. A new
+  flag in the equipment was added to enable history logging. Existing
+  frontend user programs have to be changed to include this flag in the
+  equipment list. The actual logging is then done in the "mlogger" program.
+
+  Additional to the change in the frontend equipment list, the 
+  /equipment/<name>/common ODB tree has to include the new flag 
+  "Log history". Although this is created by the frontend program auto-
+  matically, existing setups might be corrupted because this flag
+  is added at the end of the /common tree. Best is if all 
+  "/equipment/<name>/common" structures are deleted inside odbedit
+  before running a V0.60 program.
+
+  The history is written to YYMMDD.hst files (with YYMMDD the date when
+  the history was logged) in the actual data directory. Every day a new 
+  file is created. If the disk runs out of space, old history files can 
+  be deleted even when the history system is running.
+  
+  The "mhist" utility can be used to query the history files. Started in
+  the directory where the history files reside, it queries the user for
+  the event and variable to dump as well as the time interval. The output
+  can be directly imported into EXCEL and displayed as a value over time
+  curve.
+  
+- Added a new logging format called "dump". If /Logger/channels/x/format
+  equals "dump", the events are written to the data file in detailed
+  ASCII format, each value with its name tag. This can be used for
+  debugging purposes. The format "ascii" writes also data in ascii format
+  to the data file, but with less tag information. This format can be used
+  for simple experiments which want to analyze their data later on a system
+  which cannot read binary data (like FORTRAN on a VAX...).
+
+- All MIDAS tools now use consistent flags:
+
+    tool [-h Hostname] [-e Experiment] [...]
+
+  If Hostname is missing or equal to "local", a connection to the local
+  computer is established. Depending on the MIDAS environment variable
+  and the "exptab" file, the proper shared memory is accessed. The flags
+  can have more than one letter (like "-host" instead "-h").
+
+  If Experiment is missing and more than one experiment is defined on the
+  target, a list of defined experiments is presented.
+
+- A message type MTALK is defined additionally to MERROR and MINFO and
+  can be used in cm_msg to produce messages which are spoken in systems
+  with a speech output.
+
+- Removed password entry in exptab. If the exptab file is used system wide,
+  it should be readable world and writeable root only.
+
+- Added rename command in ODBEdit
+
+- Added "Tape capacity" feature. For tape channels, a tape capacity is
+  defined under "/logger/channels/x/Tape capacity". This capacity in bytes
+  must be set by the operator once (like 5000000 for a 5BG tape). Then,
+  a counter named "Bytes written total" under the statistics tree is
+  incremented together with the "bytes written" counter, but not cleared
+  at the end of a run. If the "bytes written total" counter reaches the
+  tape capacity, the run is stopped. The counter cna be reset manually when
+  a new tape is loaded or by the "rewind" command, which has been added
+  to ODBEdit.
+
+  Note that each logging channel must now have a structure similar to:
+
+    [Logger/Channels/0]
+    State = STRING : [8] on
+    Type = STRING : [8] Tape
+    Path = STRING : [256] /dev/nrmt0
+    Format = STRING : [8] YBOS
+    ODB Dump = BOOL : 1
+    Buffer = STRING : [32] SYSTEM
+    Event ID = INT : -1
+    Trigger Mask = INT : -1
+    Byte limit = DOUBLE : 0
+    Tape capacity = DOUBLE : 5000000
+
+    [Logger/Channels/0/Statistics]
+    Events written = DOUBLE : 0
+    Bytes written = DOUBLE : 0
+    Bytes written total = DOUBLE : 1200056
+
+- A timeout counter has been added to CAM_WAITQ in mhyt1331.h. This can be
+  useful when a fast frontend looks for the Q bit of a CAMAC ADC. If the
+  ADC gets no gate, the frontend would block forever. With this timeout,
+  the frontend can detect the missing gate and recover.
+
+- A bug in ss_sleep under VxWorks has been fixed.
+
+Version 0.59, released Jan. 29, 1997
+------------------------------------
+
+- Wrote "mtape" utility which is similar to the UNIX mt command, but also
+  runs on Windows NT and has some MIDAS extensions.
+
+- Merged MSG() and sm_send routine into cm_msg routine.
+
+- Added some ss_tape_xxx functions
+
+- Added "magic number" for MIDAS data format. When the third and fourth
+  byte on a tape file are equal to MIDAS_MAGIC (0x494d) defined in midas.h,
+  this tape is considered in MIDAS data format. This number is generated 
+  when writing an ODB dump at the beginning of a run in MIDAS format. The
+  event header contains as event id 0x8000, as trigger mask 0x494d and as
+  serial number the run number.
+
+- added "truncate" command to ODBedit. With this command, an array inside
+  the odb can be trucated. Without a parameter, a given key is truncated
+  to one element.
+
+- added "-w" flag to the "scl" command in ODBedit to display watchdog
+  information for all clients.
+
+Version 0.58, released Jan. 15, 1997
+------------------------------------
+
+- Changed usage of MIDAS environment variable slightly. When the directory
+  pointed to by the MIDAS environment variable contains no "exptab" file,
+  the shared memeory files are created in that directory instead of the
+  local directory. This has the advantage that a single experiment on a
+  machine doesn't need an exptab file and still all local clients connect
+  to the same shared memory independent from where they are started.
+
+- Added ss_directio_xxx routines for direct port access under Windows NT.
+  Please refer to \midas\divers\directio\readme.txt to install the 
+  necessary device driver.
+
+- Added "event" command to ODBedit. This command creates a file called 
+  "event.h". This file contains C structures for following ODB subtrees: 
+
+    TREE                            STRUCTURE
+	-----------------------------------------
+    /runinfo                        RUNINFO
+    /analyzer/parameters            ANA_PARAM
+	  /experiment/run parameters      EXP_PARAM
+    /equipment/<name>/variables     <name>_EVENT     if format is FIXED
+    /equipment/<name>/settings      <name>_SETTINGS
+
+  These structures can be used in the analyzer and the frontend to access 
+  the variables in those trees via C structures like:
+
+  ...
+  #include "event.h"
+
+  ANA_PARAM ana_param;
+  HNDLE     hKey;
+
+  INT analyzer_init()
+  {
+    db_find_key(hDB, 0, "/Analyzer/Parameters", &hKey);
+    db_open_record(hDB, hKey, &ana_param, sizeof(ana_param), MODE_READ, NULL);
+  }
+
+  INT analyze_trigger_event(EVENT_HEADER *pevent)
+  {
+  INT offset;
+
+    offset = ana_param.offset;
+  }
+
+  Since the analyzer parameters in the above example are opened in update
+  mode, a change of /analyzer/parameters/offset via ODBEDIT will immediately
+  affect the "offset" variable in the analyzer. This way, the analyzer can
+  be steered without recompilation.
+
+- Modified mlogger to produce only one line for each system message which goes
+  to sysmsg.log in the format
+
+  Date/Time                Client    Message
+  --------------------------------------------------
+  Wed Jan 15 09:17:46 1997 [ODBEdit] ODBEdit started
+  
+- Changed the way a frontend sends event data. If the buffer name in the
+  equipment list of frontend.c is an empty string (""), the events are
+  not sent to any buffer which feed loggers ana analyzers. This makes
+  sense together with the RO_ODB flag, in which case events are only sent
+  to the online database, but not to any buffer.
+
+- Moved YBOS routines to ybos.h and ybos.c
+
+Version 0.57, released Dec. 12, 1996
+------------------------------------
+
+- Added ODB dump facility for individual logging channels. If the flag
+  "/logger/channels/x/ODB Dump" is one, the current ODB is written to
+  the logging channel at the beginning and end of a run. It resides in
+  ASCII format in a system event with event_id = 0x8000 (begin of run)
+  and 0x8001 (end of run). The serial number of the system event is the
+  run number. This system events only get generated if the logging channel
+  is written in MIDAS or ASCII format.
+
+- Run parameter ODB subtree defined in "/experiment/run parameter".
+
+- Added edit of run parameter at the start of a run. If the ODB subtree
+  "/Experiment/Edit on start" contains any value or link to another value,
+  odbedit asks the user to enter those values when starting a run.
+
+- Fixed a bug in ss_sleep which did not work under UNIX if millitime<1000
+
+- Created analyzer framework. For a user-written analyzer, a similar
+  scheme than for the frontend exists. A user-writter analyze.c has to
+  be linked with midas\src\mana.c. One example is under 
+  midas\examples\analyze.c. It request a trigger event (id 1) and a
+  scaler event (id 2). Like the equipment list in the frontend,
+  one defines "event requests" at the beginning of analyze.c together
+  with a callback routine which is called when an event of the specified
+  type is received. Following functionality was added to the framework:
+
+  - Callback routines for receiving events, start/stop of runs, init/exit
+  - The event request is copied to /analyzer/<event name>/common in the
+    ODB. Changes of these values lead automatically to a request 
+	modification 	in the analyzer. Setting the "sampling type" from 1 
+	(GET_ALL) to 2 (GET_SOME) immediately modifies the behaviour of the 
+	analyzer such that only a subset of events are seen by the analyzer. 
+	Setting "enabled" to zero removes totally the analyzer request of a 
+	specific event.
+  - A statistics subtree under /analyzer/<event name>/statistics tells
+    how many event were analyzed.
+  - For events with "FIXED" format, a header file "event.h" is created
+    at the startup of the analyzer. This may be used in the user code
+	to access those events directly with a C-structure.
+  - When a run is stopped, all events in the buffers are analyzed before
+    the analyzer agrees to stop the run.
+  - When a new version of an analyzer is started and the previous version
+    is still running, it is shutdown automatically.
+  - Offline mode is supported. Starting an analyzer with the -f <filename>
+    flag causes the analyzer to read events from that file instead from
+	the buffers. This option only works for files in MIDAS format. If
+	those files contain an ODB dump, this dump is read from the file and
+	stored to the local ODB. This feature enables the analyzer to see the
+	same settings as it has been online.
+
+- Added evaluation of environment variable "MIDAS" to find an "exptab"
+  file with experiment definitions. If several MIDAS experiments are
+  defined in an exptab file, this unique files should be stored at a
+  central position, e.g. together with the midas system binaries under
+  /usr/local/bin or under \midas\bin. An environment variable should
+  then be defined like
+
+  setenv MIDAS /usr/local/bin                under UNIX
+  set MIDAS=\midas\bin                       under NT
+
+  to point to that exptab file. This way, MIDAS programs can be started
+  from any directory and still connect to the proper experiment.
+
+Version 0.56, released Nov. 27, 1996
+------------------------------------
+
+- Added a flag "RO_ODB" to equipment read-on options. When this flag is
+  set, periodic events are copied to /equipment/xxx/variables when they
+  are read out; polled events are copied there once every ten seconds.
+  Currently, fixed and MIDAS formats are supported for this operation.
+
+- Added auto restart feature. If "/logger/auto restart" equals one, the
+  logger automatically restarts a new run after it stopped a run due to
+  the byte limit. If a run is stopped manually (not by the logger), a new
+  run is NOT automatically restarted. This gives a user the chance to stop
+  DAQ without having the logger always restarting runs even if the auto
+  restart flag is on.
+
+- Added free disk space check. When the logger writes to disk and the disk
+  has less than 10MB free space, the run is automatically stopped.
+
+- Added ODB dump facility. If "/logger/odb dump" is one, the current ODB
+  is saved into "/logger/odb dump file" at the end of each run. This feature
+  gives a carbon copy of all settings after each run, which makes it very
+  easy to look at settings like HV demand values at run xxx.
+
+- Modified callback scheme, which now uses two different ports for TCP
+  connections. This solves problems with the MS-DOS version.
+
+Version 0.55, released Nov. 18, 1996
+------------------------------------
+
+- Fixed a bug where a frontend got killed after it has stopped a run.
+
+- Added frontend event format "FIXED". In this mode, data is sent in fixed
+  length binary records. The contents of that data is described under
+  /equipment/xxx/variables. To generate a C header file, go to 
+  /equipment/xxx/variables and enter "gen event.h" in odbedit. Then use
+  event.h in your frontend code to assemble the event.
+
+- Modified MIDAS bank routines to become simpler. Use a sequence like
+
+  DWORD *pdata;
+
+  bk_init(pevent);
+  bk_create("TRIG", TID_DWORD, &pdata);
+  *pdata++ = x;
+  bk_close(pdata);
+
+  in the frontend code to assemble a MIDAS bank called "TRIG".
+
+- Added ASCII format for logging. When /logger/channels/x/format is set to
+  ASCII, all data is converted to plain text before logging to disk or
+  tape. Currently, ASCII conversion is possible for frontend event formats
+  "FIXED" and "MIDAS".
+
+- Added specific hardware type ID's and structures in midas/include/hardware.h.
+  The ID's can be used when creating MIDAS banks:
+
+  bk_create("ADC", TID_DWORD | TID_LRS1882, &pdata);
+
+  This way the type of the bank gets known to the system and can be
+  decoded correctly when logging in ASCII format.
+
+Version 0.54, released Nov. 11, 1996
+------------------------------------
+
+- Optimized mfe.c for minimal computer deadtime. Polled events are read out
+  now in a loop for 100ms before the scheduler checks scalers etc.
+
+- Added an asynchronous mode to cm_transition. If this function is called
+  with async_flag == ASYNC, then it returns immediately, without waiting
+  for the clients to respond on the run transition (asynchronous RPC call).
+  This mode is useful when the run gets stopped inside the system, like
+  when the logger reaches the byte limit. It avoids deadlock situation where
+  the logger would wait for the frontend to stop the run and the frontend
+  would wait for the logger to log the remaining events. Under nomal
+  circumstances, cm_transition should be called with async_flag == SYNC.
+
+- Move logging statistic from /logger/channels/x/ to 
+  /logger/channels/x/statistics. This way the statistics can be updated
+  automatically via db_send_changed_records in the logger main loop.
+
+- Fixed problem in mlogger that logging channels were opened twice on a
+  start/pause/start sequence (as opposed to a start/pause/resume sequence).
+
+- Fixed the problem that the mlogger exited at the following condition:
+  a) the mlogger contacted the mfe to stop a run
+  b) that mfe exited of crashed
+
+- When odbedit contacted other clients to start/stop a run and those
+  clients crashed afterwards, the network connection was not closed
+  properly and odbedit could run out of network connections. Fixed that
+  by adding a cm_yield into the odbedit loop.
+
+- Added routines for writing to tape under Window NT.
+
+- Added routines for logging data in MIDAS format. For this format, fixed
+  length records are created on a tape as specified with TAPE_BUFFER_SIZE
+  in midas.h. Events are copied inside this buffer without any physical record
+  header since the event headers contain already the size information for
+  the data. Events can of course span more than one record.
+
+- Added bank manipulation routines bk_init, bk_create, bk_close and bk_locate
+  which are similar to the YBOS routines but are byte oriented and have less 
+  overhead.
+
+- A remote consumer works again, but with a limited data rate.
+
+- Modified shutdown command in odbedit. "shutdown all" shuts down all clients
+  while "shutdown <client>" shuts down an individual clients. Client names
+  can be seen under "/system/clients/..." in the ODB tree.
+
+- Worked on unix makefile to be usable for different unix systems. One can now
+  select the operating system by outcommenting lines in the makefile.
+  A "make install" is included for installing midas binaries in a system
+  directory (usually /usr/local/bin).
+
+- A consumer may call bm_receive_event directly instead using a callback
+  routine. The consume.c example was modified to show both schemes.
+
+Version 0.53, released Oct. 24, 1996
+------------------------------------
+
+- A user-written RPC server can now listen under a different port than the
+  main MIDAS server. This can be achieved by calling rpc_register_server and
+  rpc_connect with a port number different from the main MIDAS port number
+  1175 (see RPC_SRVR and RPC_CLNT for details).
+
+- Periodic events can now be read out during states like "running", "paused"
+  and "stopped", and on transitions like "start", "stop", "pause", "resume".
+  This is controlled by the read_on flag in the equipment list. Several
+  read-on flags RO_xxx can be or'ed together.
+
+- Added conditional compling code for Free BSD Unix. This turned out to be
+  the same as Linux.
+
+- Frontend now works under MS-DOS.
+
+- Added pause/resume command to ODBEDIT.
+
+- Added command line flags to ODBEDIT. 
+  Usage: odbedit [-e Experiment] [-d Directory] [-c Command] [Hostname]
+
+- Added -v flag in ODBEDIT "ls" command to only show value of a key. So if
+  a shell script wants to find only a value like the run number, the command
+  
+    odbedit -d /runinfo -c 'ls -v "run number"' 
+
+  will just return the bare run number and the command 
+
+    odbedit -d /runinfo -c 'set "run number" 10'
+
+  will set it to ten.
+
+
+Version 0.52, released Oct. 15, 1996
+------------------------------------
+
+- fixed several memory leaks
+
+- optimized calles to ss_millitime in mfe.c
+
+- cm_disconnect got a shutdown flag
+
+- ss_clear_screen and ss_printf added
+
+- added periodic routine frontend_loop in mfeuser which is called on
+  periodically when the frontend is idle and the flag frontend_call_loop
+  in mfeuser.c is TRUE. This routine can be used to perform periodic tasks
+  which are not correlated   with sending of events. One example is the
+  measurement of ADC values and sending them to the ODB when they have
+  changed.
+
+- added a status display to mfe.c which shows the status of the different
+  equipment when the display_status flag in mfeuser.c is TRUE.
+
+- removed "format" parameter from db_open_record
+
+- added db_send_changed_record routine which automatically sends all changed
+  records opened via db_open_record(..., MODE_WRITE, ...). This way a client
+  can write to the local copy of a record and later progagate the changes to
+  the ODB by calling db_send_changed_records periodically.
+
+- removed MODE_EXCLUSIVE access in db_open_record, only MODE_READ and
+  MODE_WRITE are allowed. MODE_READ means that one sees automatically updated
+  ODB -> client when the ODB record is changed, MODE_WRITE means that no other
+  client may write to the record and the local record is automatically copied
+  to the ODB when db_send_changed_records() is called.
+
+- added macros TRIGGER_MASK, EVENT_ID, TIME_STAMP and SERIAL_NUMBER to access
+  the midas event header inside mfeuser.c
+
+Version 0.51, released Oct. 2, 1996
+-----------------------------------
+
+Version after work at TRIUMF. Basic logger and frontend written. Tested under
+VxWorks and Ultrix.
+
+
+Version 0.50, released Sept. 1996
+---------------------------------
+Initial version
+
+

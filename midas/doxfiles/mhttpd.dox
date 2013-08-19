@@ -1,0 +1,528 @@
+/*! @page mhttpd_task mhttpd task
+
+ \htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+ @ref Utilities - @ref Top - @ref AppendixA
+ \htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+
+\b mhttpd is the Midas Web Server. It provides Midas DAQ control through
+the web using any web browser. 
+
+This daemon application has to run in order to allow the user to
+access from a Web browser any Midas experiment running on a given host.
+Full monitoring and "Almost" full control of a particular experiment can be achieved
+through this Midas Web server. The color coding is green for present/enabled, red for
+missing/disabled, yellow for inactive. It is important to note the refresh of the
+page is not "event driven" but is controlled by a timer (see \b Config- button).
+This mean the information at any given time may reflect the experiment state of up to
+n second in the paste, where n is the timer setting of the refresh parameter.
+Its basic functionality are:
+- Run control (start/stop).
+- Frontend up-to-date status and statistics display.
+- Logger up-to-date status and statistics display.
+- Lazylogger up-to-date status and statistics display.
+- Current connected client listing.
+- Slow control data display.
+- Basic access to ODB.
+- Graphical history data display.
+- Electronic LogBook recording/retrival messages
+- Alarm monitoring/control
+- ... and more ...
+
+Each section is further described below:
+- @ref Start_page - Run control page
+- @ref ODB_page - Online Database manipulation (equivalent to ODBedit)
+- @ref Equipment_page (Frontend info)
+- @ref CNAF_page (CAMAC access page)
+- @ref Message_page (Message Log) 
+- @ref Elog_page (Electronic Log)
+- @ref Program_page (Program control)
+- @ref History_page (History display)
+- @ref Alarm_page (Alarm control)
+- @ref Custom_page (User defined Web page)
+
+<hr> 
+
+\b mhttpd requires as argument the TCP/IP port number in order to listen to
+the web based request.
+
+- <b> Arguments </b>
+  - [-h ] : help
+  - [-p port ] : port number, no default, should be 8081 for <b> Example </b>.
+  - [-D ] : start program as a daemon
+
+- <b> Usage </b>
+ \code
+  >mhttpd -p 8081 -D
+ \endcode
+
+- Description
+  Once the connection to a given experiment is established, the main Midas status
+  page is displayed with the current ODB information related to this experiment.
+  The page is sub-divised in several sections:
+
+-[Experiment/Date] Current Experiment, current date.
+
+-[Action/Pages buttons] Run control button, Page switch button. At any web
+page level within the Midas Web page the main status page can be invoked with
+the \<status> button.
+ - [Start... button] Depending on the run state, a single or the two first buttons
+   will be showing the possible action (Start/Pause/Resume/Stop) (see @ref Start_page).
+ - [ODB button] Online DataBase access. Depending on the security, R/W access can be
+   granted to operated on any ODB field (see @ref ODB_page).
+ - [CNAF button] If one of the equipment is a CAMAC frontend, it is possible to
+   issue CAMAC command through this button. In this case the frontend is acting as a
+   RPC CAMAC server for the request (see @ref CNAF_page).
+ - [Messages button] Shows the n last entries of the Midas system message log.
+   The last entry is always present in the status page (see below)
+   (see @ref Message_page).
+ - [Elog button] Electronic Log book. Permit to record permanently (file)
+   comments/messages composed by the user (see @ref Elog_page).
+ - [Alarms button] Display current Alarm setting for the entire experiment.
+   The activation of an alarm has to be done through ODB under the \b /Alarms
+   tree (See @ref Alarm_System)
+ - [Program button] Display current program (midas application) status.
+   Each program has a specific information record associated to it.
+   This record is tagged as a hyperlink in the listing (see @ref Program_page).
+ - [History button] Display History graphs of pre-defined variables.
+   The history setting has to be done through ODB under the \b /History
+   (see @ref History_System , @ref History_page).
+ - [Config button] Allows to change the page refresh rate.
+ - [Help button] Help and link to the main Midas web pages.
+ - [User button(s)] If the user define a new tree in ODB named \b Script than
+    any sub-tree name will appear as a button of that name. Each sub-tree
+    (/Script/\<button name>/) should contain at least one string key being the
+    script command to be executed. Further keys will be passed as
+   - <b> Arguments </b> to the script. Midas Symbolic link are permitted.
+   - <b> Example </b>: The <b> Example </b> below defines a script names
+    \b doit with 2 <b> Arguments </b> (run\# device) which will be invoked when the button
+    \<doit> is pressed.
+    \code
+    odbedit
+    mkdir Script
+    cd Script 
+    mkdir doit
+    cd doit
+    create string cmd
+    ln "/runinfo/run number" run
+    create string dest
+    set dest /dev/hda
+    \endcode
+- [Version >= 1.8.3 Alias Hyperlink] This line will be present on the
+  status page only if the ODB tree \b /Alias.
+  The distinction for spawning a secondary frame with the link
+  request is done by default. For forcing the link in the current frame, add
+  the terminal charater "&" at the end of the link name.
+- <b> Example </b>: The <b> Example </b> will create a shortcut to the defined location in the ODB.  
+  \code
+   odbedit
+   ls
+   create key Alias       
+   cd Alias
+   ln /Equipment/Trigger/Common "Trig Setting"
+   ln /Analyzer/Output "Analyzer"
+
+   create key "Alias new window"                     <-- Version < 1.8.3
+   cd "Alias new window"
+   ln /equipment/Scalers/Variables "Scalers Var" 
+
+  or
+   cd Alias
+   ln /Equipment/Trigger/Common "Trig Setting&"      <-- Version >= 1.8.3
+  \endcode
+- [General info]
+  Current run number, state, General Enable flag for Alarm, Auto restart flag
+  Condition of mlogger. 
+- [Equipment listing] Equipment name (see @ref Equipment_page),
+  host on which its running, Statistics for that current run, analyzed percentage by the
+  "analyzer" (The numbers are valid only if the name of the analyser is "Analyzer").
+- [Logger listing] Logger list. Multiple logger channel can be active
+  (single application).
+  The hyperlink "0" will bring you to the odb tree /Logger/channels/0/Settings.
+  This section is present only when the Midas application @ref mlogger_task
+  is running.
+- [Lazylogger listing] Lazylogger list. Multiple lazy application can be active.
+  This section is present only when the Midas application @ref lazylogger_task
+  is running.
+- [Last system message] Display a single line containing the last system message
+  received at the time of the last display refresh.
+- [Current client listing] List of the current active Midas application with
+  the hostname on which their running.
+
+ * <center> Midas Web server
+ *  \image html mhttp01.gif
+ *  \image latex mhttp01.eps "Midas Web server" width=12cm
+ * </center> 
+
+<hr> @section Start_page Start page
+Once the \b Start button is pressed, you will be prompt for experiment
+specific parameters before starting the run. The minimum set of parameter is
+the run number, it will be incremented by one relative to the last value from
+the status page.
+In the case you have defined the ODB tree <b> /Experiment/Edit on Start </b> all
+the parameters sitting in this directory will be displayed for possible modification.
+The \b Ok button will proceed to the start of the run. The \b Cancel
+will abort the start procedure and return you to the status page.
+
+ * <center> Start run request page. In this case the user has multiple run parameters defined under
+"/Experiment/Edit on Start"
+ *  \image html mhstart.gif
+ *  \image latex mhstart.eps "Start run request page." width=12cm
+ * </center> 
+
+The title of each field is taken from the ODB key name it self. In the case this
+label has a poor meaning and extra explanation is required, you can do so by creating
+a new ODB tree under experiment <b> Parameter Comments/  </b>.
+Then by creating a string entry named as the one in \b Edit on Start- you can place
+the extra information relative to that key (html tags accepted).
+
+This "parameter comment" option is available and visible \b ONLY under the midas
+web page, the <b> odbedit start </b> command will not display this extra information.
+
+\code
+[local:midas:S]/Experiment>ls -lr
+Key name                        Type   #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Experiment                      DIR
+    Name                        STRING  1     32    17s  0   RWD  midas
+    Edit on Start               DIR
+        Write data              BOOL    1     4     16m  0   RWD  y
+        enable                  BOOL    1     4     16m  0   RWD  n
+        nchannels               INT     1     4     16m  0   RWD  0
+        dwelling time (ns)      INT     1     4     16m  0   RWD  0
+    Parameter Comments          DIR
+        Write Data              STRING  1     64    44m  0   RWD  Enable logging
+        enable                  STRING  1     64    7m   0   RWD  Scaler for expt B1 only
+        nchannels               STRING  1     64    14m  0   RWD  <i>maximum 1024</i>
+        dwelling time (ns)      STRING  1     64    8m   0   RWD  <b>Check hardware now</b>
+
+[local:midas:S]Edit on Start>ls -l
+Key name                        Type   #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Write Data                      LINK    1     19    50m  0   RWD  /logger/Write data
+enable                          LINK    1     12    22m  0   RWD  /sis/enable
+number of channels              LINK    1     15    22m  0   RWD  /sis/nchannels
+dwelling time (ns)              LINK    1     24    12m  0   RWD  /sis/dwelling time (ns)
+\endcode 
+
+ * <center> Start run request page. Extra comment on the run condition is displayed below each
+entry.
+ *  \image html mhstart2.gif
+ *  \image latex mhstart2.eps "Start run request page." width=12cm
+ * </center> 
+
+
+<hr> @section ODB_page ODB page
+The ODB page shows the ODB root tree at first. Clicking on the hyperlink will walk
+you to the requested ODB field. The <b> Example </b> below show the sequence for changing
+the variable "PA" under the /equipment/PA/Settings/Channels ODB directory.
+A possible shortcut 
+
+If the ODB is Write protected, a first window will request the web password.
+
+ * <center> ODB page access.
+ *  \image html mhedit.gif
+ *  \image latex mhedit.eps "ODB page access." width=12cm
+ * </center> 
+
+
+<hr> @section Equipment_page Equipment page
+The equipment names are linked to their respective \b /Variables sub-tree.
+This permit to access as a shortcut the current values of the equipment.
+In the case the equipment is a slow control equipment, the parameters list may
+be hyperlinked for parameter modification.
+This option is possible only if the parameter names have a particular name syntax
+(see @ref History_System).
+
+ * <center> Slow control page.
+ *  \image html mhsc.gif
+ *  \image latex mhsc.eps "Slow control page." width=12cm
+ * </center> 
+
+<hr> @section CNAF_page CNAF page
+If one of the active equipment is a CAMAC based data collector, it will be possible to
+remotely access CAMAC through this web based CAMAC page. The status of the connection
+is displayed in the top right hand side corner of the window.
+
+ * <center> CAMAC command pages.
+ *  \image html mhcnaf.gif
+ *  \image latex mhcnaf.eps "CAMAC command pages." width=12cm
+ * </center> 
+
+
+<hr> @section Message_page Message page
+This page display by block of 100 lines the content of the Midas System log file
+starting with the most recent messages. The Midas log file resides in the directory
+defined by the experiment.
+
+
+ * <center> Message page.
+ *  \image html mhmes.gif
+ *  \image latex mhmes.eps "Message page." width=12cm
+ * </center> 
+
+
+<hr> @section Elog_page Elog page
+The Electronic Log page show the most recent Log message recorded in the system. The
+top buttons allows you to either Create/Edit/Reply/Query/Show a message. 
+
+From version 1.9.0, this page contains extra parameters for time selection and Email
+forwarding. Please refer to the ODB structure for further information. 
+
+ * <center> main Elog page.
+ *  \image html mhelog.gif
+ *  \image latex mhelog.eps "main Elog page." width=12cm
+ * </center> 
+
+The format of the message log can be written in HTML format.
+
+
+ * <center> HTML Elog message.
+ *  \image html mheloghtml.gif
+ *  \image latex mheloghtml.eps "HTML Elog message." width=12cm
+ * </center> 
+
+
+The \b runlog button display the content of the file \b runlog.txt which is
+expected to be in the data directory specified by the ODB key \b /Logger/Data Dir .
+Regardless of its content, it will be displayed in the web page.
+Its common uses is to \b append lines after every run.
+The task appending this run information can be any of the midas application.
+<b> Example </b> is available in the <b> Example </b>/experiment/analyzer.c which at each
+end-of-run (EOR) will write to the runlog.txt some statistical informations.
+
+
+ * <center> Elog page, Runlog display.
+ *  \image html mhelogrun.gif
+ *  \image latex mhelogrun.eps "Elog page, Runlog display." width=12cm
+ * </center> 
+
+When composing a new entry into the Elog, several fields are available to specify
+the nature of the message i.e: Author, Type, System, Subject. Under Type and
+System a pulldown menu provides multiple category. These categories are user definable
+through the odb under the tree \b /Elog/Types, \b /Elog/Systems. The number of category
+is fixed to 20 maximum but any remaining field can be left empty.
+
+ * <center> Elog page, New Elog entry form.
+ *  \image html mhelognew.gif
+ *  \image latex mhelognew.eps "Elog page, New Elog entry form." width=12cm
+ * </center> 
+
+<hr> @section Program_page Program page
+This page present the current active list of the task attached to the given
+experiment. On the right hand side a dedicated button allows to stop the program which
+is equivalent to the ODBedit command \b odbedit\> sh \<task name\> .
+
+The task name hyperlink pops a new window pointing to the ODB section
+related to that program. The ODB structure for each program permit to apply alarm
+on the task presence condition and automatic spawning at either the begining or the
+end of a run.
+
+ * <center> Program page.
+ *  \image html mhprg.gif
+ *  \image latex mhprg.eps "Program page." width=12cm
+ * </center> 
+
+<hr> @section History_page History page
+This page reflects the @ref History_System settings (CVS r1.271). It lists on the
+top of the page the possible group names containing a list of panels defined in
+the ODB.
+Next a serie of buttons defines the time scale of the graph with predefined time
+window, <b> "<<","<" "+" "-" ">" ">>" </b> buttons permit the shifting of the
+graph in the time direction. Other buttons will allow graph resizing, Elog attachment
+creation, configuration of the panel and custom time frame graph display.
+By default a single group is created "Default" containing the trigger rate for the
+"Trigger" equipment.
+
+The configuration options for a given panel consists in:
+- Zooming capability, run markers, logarithmic scale.
+- Data query in time.
+- Time scale in date format.
+- Web based page creation ("new" button) for up to 10 history channels per page.
+
+ * <center> History page.
+ *  \image html history20.jpg
+ *  \image latex history20.eps "History page." width=12cm
+ * </center> 
+
+ * <center> History channel selection Page.
+ *  \image html historyselect.jpg
+ *  \image latex historyselect.eps "History channel selection Page." width=12cm
+ * </center> 
+
+<hr> @section Alarm_page Alarm page
+This page reflects the @ref Alarm_System settings. It presents the four type of
+alarms:
+- [Evaluated alarms] Triggered by ODB value on given arithmetical condition.   
+- [Program alarms] Triggered on condition of the state of the defined task.
+- [Internal alarms] Trigger on internal (program) alarm setting through the use
+of the \em al_...()  functions.
+- [Periodic alarms] Triggered by timeout condition defined in the alarm setting.
+
+<hr> @section Custom_page Custom page
+The Custom page is available from the Version 1.8.3.
+
+This page reflects the html content of a given ODB key under the \b /Custom/
+key. If keys are defined in the ODB under the \b /Custom/ the name of the key
+will appear in the main status page as the \b Alias keys. By clicking on the
+Custom page name, the content of the \b /Custom/\<page\> is interpreted as html
+content.
+
+ * <center> Custom web page with history graph.
+ *  \image html mhcustom1.gif
+ *  \image latex mhcustom1.eps "Custom web page with history graph." width=12cm
+ * </center> 
+
+The access to the ODB field is then possible using specific HTML tags:
+
+- <b> \<odb src="odb field"\> </b>  Display ODB field.
+- <b> \<odb src="odb field" edit=1\> </b>  Display and Editable ODB field.
+- \<form method="GET" action="http://hostname.domain:port/CS/\<Custom_page_key\>"\>
+ Define method for key access.
+- \<meta http-equiv="Refresh" content="60"> Standard page refresh in second.
+- \<input type=submit name=cmd value=\<Midas_page\>\>
+Define button for accessing Midas web pages.
+Valid values are the standard midas buttons (Start, Pause, Resume, Stop,
+ODB, Elog, Alarms, History, Programs, etc).
+- \<img src="http://hostname.domain:port/HS/Meterdis.gif&scale=12h&width=300"\>
+Reference to an history page.
+
+ * <center> ODB /Custom/ html field.
+ *  \image html mhcustom2.gif
+ *  \image latex mhcustom2.eps "ODB /Custom/ html field." width=12cm
+ * </center> 
+
+
+The insertion of a new Custom page requires the following steps:
+- Create an initial html file using your prefered HTML editor.
+- Insert the ODB HTML tags at your wish.
+- Invoke ODBedit, create the Custom directory, import the html file.
+
+- <b> Example </b> of loading the file mcustom.html into odb.
+  \code
+  Tue> odbedit
+  [local:midas:Stopped]/>ls
+  System                          
+  Programs                        
+  Experiment                      
+  Logger                          
+  Runinfo                         
+  Alarms                          
+  Equipment                       
+  [local:midas:Stopped]/>mkdir Custom
+  [local:midas:Stopped]/>cd Custom/
+  [local:midas:Stopped]/Custom>import mcustom.html
+  Key name: Test&
+  [local:midas:Stopped]/Custom>
+  \endcode
+
+- Once the file is load into ODB, you can \b ONLY- edit it through the web 
+  (as long as the mhttpd is active). Clicking on the \b ODB(button) ...
+  Custom(Key) ... Edit(Hyperlink at the bottom of the key)-. The Custom page
+  can also be exported back to a ASCII file using the ODBedit command "export"
+  \code
+  Tue> odbedit
+  [local:midas:Stopped]/>cd Custom/
+  [local:midas:Stopped]/Custom>export test&
+  File name: mcustom.html
+  [local:midas:Stopped]/Custom>
+  \endcode
+
+- The character "&" at the end of the custom key name
+  forces the page to be open within the current frame.
+  If this character is omitted, the page will be spawned into a new frame (default).
+
+- If the custom page name is set to \b Status- (no "&") it will become the default
+  midas Web page!
+
+- html code <b> Example </b> mcustom.html
+\code
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+ <head>
+ <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+ <meta name="GENERATOR" content="Mozilla/4.76 [en] (Windows NT 5.0; U) [Netscape]">
+ <meta name="Author" content="Pierre-André Amaudruz">
+ <title>Set value</title>
+ </head>
+ <body text="#000000" bgcolor="#FFFFCC" link="#FF0000" vlink="#800080" alink="#0000FF">
+ <form method="GET" action="http://host.domain:port/CS/WebLtno&">
+ <input type=hidden name=exp value="ltno">
+  <center><table CELLSPACING=0 CELLPADDING=0 COLS=3 WIDTH="100%" BGCOLOR="#99FF99" >
+  <caption><b><font face="Georgia"><font color="#000099"><font size=+2>LTNO
+     Custom Web Page</font></font></font></b></caption>
+  <tr BGCOLOR="#FFCC99">
+  <td><b><font color="#FF0000">Actions: </font></b>
+  <input type=submit name=cmd value=Status>
+  <input type=submit name=cmd value=Start>
+  <input type=submit name=cmd value=Stop>
+
+  <td>
+  <input type=submit name=cmd value=ODB>
+  <input type=submit name=cmd value=History>
+  <input type=submit name=cmd value=Elog></td>
+  </td>
+
+  <td>
+  <div align=right><b>LTNO experiment </b></div>
+  </td>
+  </tr>
+
+  <tr>
+  <td><b>Cryostat section:</b>
+  <br>LN2 Bath Level : <odb src="/equipment/cryostat/variables/measured[12]">
+  <br>Run# : <odb src="/runinfo/run number" edit=1>
+  <br>Run#: <odb src="/runinfo/run number">
+  <br>Run#: <odb src="/runinfo/run number"></td>
+
+  <td WIDTH="100%" BGCOLOR="#009900"><b>RF source section:</b>
+  <br>Run#: <odb src="/runinfo/run number">
+  <br>Run#: <odb src="/runinfo/run number">
+  <br>Run#: <odb src="/runinfo/run number">
+  <br>Run#: <odb src="/runinfo/run number"></td>
+  <td WIDTH="50%" BGCOLOR="#FF6600"><b>Run section:</b>
+  <br>Start Time: <odb src="/runinfo/start time">
+  <br>Stop Time: <odb src="/runinfo/stop time">
+  <br>Run#: <odb src="/runinfo/run number">
+  <br>Run#: <odb src="/runinfo/run number"></td>
+  </tr>
+
+  <tr>
+  <td BGCOLOR="#CC6600"><b>Sucon magnet section:</b>
+  <br>Run#: <odb src="/runinfo/run number">
+  <br>Run#: <odb src="/runinfo/run number">
+  <br>Run#: <odb src="/runinfo/run number">
+  <br>Run#: <odb src="/runinfo/run number"></td>
+
+  <td BGCOLOR="#FFCC33"><b>Scalers section:</b>
+  <br>Beam Current: <odb src="/equipment/epics/variables/measured[10]">
+  <br>Run#: <odb src="/runinfo/run number">
+  <br>Run#: <odb src="/runinfo/run number">
+  <br>Run#: <odb src="/runinfo/run number"></td>
+
+  <td BGCOLOR="#66FFFF"><b>Polarity section:</b>
+  <br>Run#: <odb src="/runinfo/run number">
+  <br>Run#: <odb src="/runinfo/run number">
+  <br>Run#: <odb src="/runinfo/run number">
+  <br>Run#: <odb src="/runinfo/run number"></td>
+  </tr>
+  </table></center>
+
+  <img src="http://host.domain:port/HS/Meterdis.gif?exp=ltno&scale=12h&width=400">
+  <img src="http://host.domain:port/HS/Bridge.gif?exp=ltno&scale=12h&width=400">
+  <b><i><font color="#000099"><a href="http://host.domain/index.html">
+  <br> LTNO help</a></font></i></b>
+  </body>
+</html>
+\endcode
+ 
+ * <center> web page produced by mcustom.html.
+ *  \image html mhcustom3.gif
+ *  \image latex mhcustom3.eps "web page produced by mcustom.html." width=12cm
+ * </center> 
+ 
+ \htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+ @ref Utilities - @ref Top - @ref AppendixA
+ \htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+ */

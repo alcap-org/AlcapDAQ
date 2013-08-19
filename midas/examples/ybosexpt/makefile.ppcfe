@@ -1,0 +1,115 @@
+#####################################################################
+#
+#  Name:         Makefile
+#  Created by:   Stefan Ritt
+#
+#  Contents:     Makefile for MIDAS example frontend and analyzer
+#
+#  Revision history
+#  ------------------------------------------------------------------
+#  date         by    modification
+#  ---------    ---   -----------------------------------------------
+#  05-SEP-97    SR    created
+#  $Log: makefile.ppcfe,v $
+#  Revision 1.1.1.1  2005/06/20 23:37:11  mucap
+#  Importing release 1.9.5 of the MIDAS source code as distributed by PSI.
+#  (Next, I'll commit our local customizations.)
+#
+#  Revision 1.3  2002/03/02 01:28:56  pierre
+#  -include cvs tag & INTERFACE
+#
+#
+#####################################################################
+
+#--------------------------------------------------------------------
+# The following lines contain specific switches for different UNIX
+# systems. Find the one which matches your OS and outcomment the 
+# lines below.
+
+#-------------------------------------------------------------------
+# The following lines define directories. Adjust if necessary
+#                 
+# User obj directory
+OBJ_DIR 	= ppcobj
+# VxWorks include directory
+SYSINC_DIR      = /vxworks/include
+# VxWorks Cross-compiler directory
+VXW_DIR         = /vxworks-ppc
+# Midas system include
+INC_DIR 	= /usr/local/include
+# Midas VxWorks obj directory 
+LIB_DIR 	= /midas/vxworks/$(OBJ_DIR)
+# Midas drivers directory (should after install /midas/drivers)
+DRV_DIR         = ../../drivers
+
+#-----------------------
+# Common flags
+# -save-temps
+CC_COMPILER	 = -ansi -fstrength-reduce -fkeep-inline-functions
+CC_DEBUGGING     = -g
+CC_WARNINGS_ALL  = -Wall 
+CC_WARNINGS_NORMAL = 
+CC_WARNINGS_NONE =
+CC_OPTIM_NORMAL  = -g -O -finline-functions -fkeep-inline-functions
+CC_OPTIM_TARGET  = -O -fvolatile
+
+CC = $(VXW_DIR)/bin/ccppc
+LD = $(VXW_DIR)/bin/ldppc
+
+# internally defined by X-compile
+# CPU= -DPPC604
+
+# Define Current Configuration
+CC_OPTIM	 = $(CC_OPTIM_NORMAL)
+CC_INCLUDES      = -I$(INC_DIR) -I$(SYSINC_DIR)
+CC_WARNINGS	 = $(CC_WARNINGS_NORMAL)
+CC_DEFINES	 = -DOS_VXWORKS $(CPU) -DPPCxxx
+
+CFLAGS = $(CC_OPTIM) $(CC_WARNINGS) $(CC_INCLUDES) $(CC_COMPILER) $(CC_DEFINES)
+#-------------------------------------------------------------------
+# Hardware driver can be (camacnul, kcs2926, kcs2927, hyt1331)
+#
+INTERFACE = vxVME
+DRIVER = camacnul
+
+#-------------------------------------------------------------------
+# Frontend code name defaulted to frontend in this example.
+# comment out the line and run your own frontend as follow:
+# gmake UFE=my_frontend
+#
+UFE = ybos_simfe
+
+#                 
+####################################################################
+# Lines below here should not be edited
+####################################################################
+
+# MIDAS library
+LIB = 
+
+all: $(OBJ_DIR) $(UFE) 
+
+$(UFE): $(LIB) $(OBJ_DIR)/$(DRIVER).o $(OBJ_DIR)/$(INTERFACE).o $(OBJ_DIR)/esone.o 
+	$(CC) $(CFLAGS) $(INCLUDES) $(OSFLAGS) -c -o $(OBJ_DIR)/$(UFE).o $(UFE).c
+	$(LD) -o $(OBJ_DIR)/mfe.o -r \
+	$(LIB_DIR)/mfe.o $(OBJ_DIR)/$(UFE).o $(OBJ_DIR)/$(DRIVER).o \
+	$(OBJ_DIR)/$(INTERFACE).o $(OBJ_DIR)/esone.o
+
+$(OBJ_DIR)/$(DRIVER).o: $(DRV_DIR)/bus/$(DRIVER).c
+	$(CC) $(CFLAGS) $(OSFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/$(INTERFACE).o: $(DRV_DIR)/bus/$(INTERFACE).c
+	$(CC) $(CFLAGS) $(OSFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/esone.o: $(DRV_DIR)/bus/esone.c
+	$(CC) $(CFLAGS) $(OSFLAGS) -c -o $@ $<
+
+$(OBJ_DIR):
+	@if [ ! -d  $(OBJ_DIR) ] ; then \
+           echo "Making directory $(OBJ_DIR)" ; \
+           mkdir $(OBJ_DIR); \
+        fi;
+
+clean:
+	rm -f $(OBJ_DIR)/*.o *~ \#*
+

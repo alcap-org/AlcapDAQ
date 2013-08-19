@@ -1,0 +1,86 @@
+! FUG
+!
+!	settings as of Run ??
+!
+!       ! is a comment line
+!
+!--------------------------------------------------------------------
+!
+!	This file is read by program HVEdit to set default things
+!	to the LEM HV-remote controller
+!
+!	Contains channel encoding.
+!
+!	------------->   D O  N O T change the format !!!!!!!!! <----------
+!
+!---------------------------------------------------------------------
+!
+!	Define output channels:
+!	=======================
+!
+!	FP-AO-200 modules in position 1, 4 and 5, should be set to 0-21mA
+!	output current, which is transformed by a 500 Ohm resistance
+!	(two 1kOhm in parallel) into a voltage between 0 and 10 V.
+!
+!	
+!	  Output 	FP-module Channel	Which Supply
+!	controller	     address
+!	=================================================================
+!
+!		1	010001 (U) 010002 (I)	20.0kV, 0.6 mA, T A R G E T
+!		2	010004 (U) 010008 (I)   35.0kV, 1.0 mA, L 1
+!		3	010010 (U) 010020 (I)	35.0kV, 1.0 mA, M I R R O R
+!		4	010040 (U) 010080 (I)   35.0kV, 1.0 mA, L 2
+!
+!		5	040001 (U) 040002 (I)	35.0kV, 4.0 mA, L 3
+!		6	040004 (U) 040008 (I)   35.0kV, 4.0 mA, R A  -  L
+!		7	040010 (U) 040020 (I)	35.0kV, 4.0 mA, R A  -  R
+!		8	040040 (U) 040080 (I)   20.0kV, 0.6 mA, G U A R D  Ring
+!
+!		9	050001 (U) 050002 (I)	12.5kV, 1.0 mA, G R I D  1
+!		10	050004 (U) 050008 (I)   12.5kV, 1.0 mA, G1
+!		11	050010 (U) 050020 (I)	12.5kV, 1.0 mA, G2
+!		12	050040 (U) 050080 (I)   12.5kV, 1.0 mA, S A M P L E
+!
+!---------------------------------------------------------------------------
+!
+!	the data set is organized as follows:
+!
+!	1.:  O (capital!), label as output definition
+!	2.:  port number at controller
+!	3.:  address of voltage output channel
+!	4.:  address of current_limit output channel
+!	5.:  @ The maximum HV of the corresponding FUG supply
+!	6.:  # The maximum current of the corresponding FUG supply
+!	7.:  $ The voltage to be set (kV)
+!	8.:  % The maximum current to be set (mA)
+!	9.:  & The LEM-device to which the HV is applied
+!
+!	Only the columns 7. ($) and 8. (%) are read;
+!	The other columns are only for control; they are defined
+!	and read by the program from LEM_HV_SETUP.DATA
+!
+!
+!	 D o   N O T  change the format of the lines !!!!!!!!!!!!!!!!!
+!	===============================================================
+!
+!
+!--------------------------------------------------------------------------
+!
+! Refer to Field-Point FP-1000/1001 Programmer Reference Manual.
+! ! is a comment line
+!
+D >fug<
+S 01 $10.00kV %0.020mA &Moderator
+S 02 $8.00kV %0.003mA &Guard
+S 03 $6.93kV %0.003mA &Grid_1
+S 04 $5.67kV %0.001mA &Lense_1
+S 05 $10.00kV %0.001mA &Mirror
+S 06 $9.33kV %0.001mA &Lense_2
+S 07 $5.60kV %0.001mA &Lense_3
+S 08 $7.11kV %0.002mA &RA-L
+S 09 $7.11kV %0.002mA &RA-R
+S 10 $0.00kV %0.001mA &Sample_G1
+S 11 $0.00kV %0.001mA &Sample_G2
+S 12 $0.00kV %0.001mA &Sample
+! End

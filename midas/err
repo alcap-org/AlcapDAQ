@@ -1,0 +1,403 @@
+src/midas.c: In function ‘rpc_server_connect’:
+src/midas.c:8835: warning: pointer targets in passing argument 3 of ‘getsockname’ differ in signedness
+/usr/include/sys/socket.h:119: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/midas.c:8837: warning: pointer targets in passing argument 3 of ‘getsockname’ differ in signedness
+/usr/include/sys/socket.h:119: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/midas.c:8839: warning: pointer targets in passing argument 3 of ‘getsockname’ differ in signedness
+/usr/include/sys/socket.h:119: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/midas.c:8930: warning: pointer targets in passing argument 3 of ‘accept’ differ in signedness
+/usr/include/sys/socket.h:214: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/midas.c:8933: warning: pointer targets in passing argument 3 of ‘accept’ differ in signedness
+/usr/include/sys/socket.h:214: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/midas.c:8936: warning: pointer targets in passing argument 3 of ‘accept’ differ in signedness
+/usr/include/sys/socket.h:214: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/midas.c: In function ‘rpc_register_server’:
+src/midas.c:11040: warning: pointer targets in passing argument 3 of ‘getsockname’ differ in signedness
+/usr/include/sys/socket.h:119: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/midas.c: In function ‘rpc_server_accept’:
+src/midas.c:11720: warning: pointer targets in passing argument 3 of ‘accept’ differ in signedness
+/usr/include/sys/socket.h:214: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/midas.c:11729: warning: pointer targets in passing argument 3 of ‘getpeername’ differ in signedness
+/usr/include/sys/socket.h:133: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/midas.c: In function ‘rpc_client_accept’:
+src/midas.c:11957: warning: pointer targets in passing argument 3 of ‘accept’ differ in signedness
+/usr/include/sys/socket.h:214: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/system.c: In function ‘ss_shell’:
+src/system.c:1451: warning: missing sentinel in function call
+src/system.c: In function ‘ss_suspend_init_ipc’:
+src/system.c:3026: warning: pointer targets in passing argument 3 of ‘getsockname’ differ in signedness
+/usr/include/sys/socket.h:119: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/system.c: In function ‘ss_suspend’:
+src/system.c:3492: warning: pointer targets in passing argument 6 of ‘recvfrom’ differ in signedness
+/usr/include/sys/socket.h:166: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/system.c:3519: warning: pointer targets in passing argument 6 of ‘recvfrom’ differ in signedness
+/usr/include/sys/socket.h:166: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/ftplib.c: In function ‘ftp_data’:
+src/ftplib.c:318: warning: pointer targets in passing argument 3 of ‘getsockname’ differ in signedness
+/usr/include/sys/socket.h:119: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/ftplib.c:340: warning: pointer targets in passing argument 3 of ‘accept’ differ in signedness
+/usr/include/sys/socket.h:214: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/mana.c:619: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:696: warning: non-local variable ‘<anonymous struct> clp’ uses anonymous type
+src/mana.c:705: warning: non-local variable ‘<anonymous struct> clp_descrip []’ uses anonymous type
+src/mana.c:786: warning: non-local variable ‘<anonymous struct> out_info’ uses anonymous type
+src/mana.c: In function ‘void add_data_dir(char*, char*)’:
+src/mana.c:897: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘EVENT_DEF* db_get_event_definition(short int)’:
+src/mana.c:952: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:954: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:963: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:968: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:973: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:984: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:986: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:988: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:990: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:992: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:994: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:997: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:1002: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘INT book_ttree()’:
+src/mana.c:1687: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:1712: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:1750: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:1756: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:1796: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘INT SaveRootHistograms(TFolder*, const char*)’:
+src/mana.c:1834: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘INT mana_init()’:
+src/mana.c:1951: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘INT bor(INT, char*)’:
+src/mana.c:2157: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2190: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2239: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2252: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2275: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2314: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘INT eor(INT, char*)’:
+src/mana.c:2399: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘INT write_event_ascii(FILE*, EVENT_HEADER*, ANALYZE_REQUEST*)’:
+src/mana.c:2570: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2626: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2630: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2640: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2650: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2667: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2678: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2698: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2709: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2719: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:2727: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘INT write_event_ttree(FILE*, EVENT_HEADER*, ANALYZE_REQUEST*)’:
+src/mana.c:3356: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:3406: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:3418: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:3450: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:3474: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘INT write_event_odb(EVENT_HEADER*)’:
+src/mana.c:3541: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:3562: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:3576: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:3589: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: At global scope:
+src/mana.c:3600: warning: non-local variable ‘<anonymous struct> last_time_event [50]’ uses anonymous type
+src/mana.c: In function ‘INT process_event(ANALYZE_REQUEST*, EVENT_HEADER*)’:
+src/mana.c:3650: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:3655: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:3731: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:3741: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:3771: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘void receive_event(HNDLE, HNDLE, EVENT_HEADER*, void*)’:
+src/mana.c:3830: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘void register_requests()’:
+src/mana.c:3896: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:3910: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘INT init_module_parameters(BOOL)’:
+src/mana.c:4241: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:4252: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘INT bevid_2_mheader(EVENT_HEADER*, DWORD*)’:
+src/mana.c:4272: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘void odb_load(EVENT_HEADER*)’:
+src/mana.c:4317: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:4328: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:4339: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘MA_FILE* ma_open(char*)’:
+src/mana.c:4408: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:4431: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘int ma_read_event(MA_FILE*, EVENT_HEADER*, int)’:
+src/mana.c:4491: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:4516: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘INT analyze_run(INT, char*, char*)’:
+src/mana.c:4623: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:4629: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:4685: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘INT loop_runs_offline()’:
+src/mana.c:4937: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c: In function ‘int main(int, char**)’:
+src/mana.c:5975: warning: deprecated conversion from string constant to ‘char*’
+src/mana.c:6039: warning: deprecated conversion from string constant to ‘char*’
+src/mfe.c: In function ‘send_event’:
+src/mfe.c:1047: warning: pointer targets in assignment differ in signedness
+src/fal.c:317: warning: parameter names (without types) in function declaration
+src/mhttpd.c: In function ‘show_elog_submit_query’:
+src/mhttpd.c:3173: warning: pointer targets in passing argument 1 of ‘time’ differ in signedness
+/usr/include/time.h:186: note: expected ‘time_t *’ but argument is of type ‘DWORD *’
+src/mhttpd.c:3174: warning: pointer targets in passing argument 1 of ‘localtime’ differ in signedness
+/usr/include/time.h:237: note: expected ‘const time_t *’ but argument is of type ‘DWORD *’
+src/mhttpd.c:3223: warning: pointer targets in passing argument 1 of ‘time’ differ in signedness
+/usr/include/time.h:186: note: expected ‘time_t *’ but argument is of type ‘DWORD *’
+src/mhttpd.c:3225: warning: pointer targets in passing argument 1 of ‘localtime’ differ in signedness
+/usr/include/time.h:237: note: expected ‘const time_t *’ but argument is of type ‘DWORD *’
+src/mhttpd.c: In function ‘server_loop’:
+src/mhttpd.c:10064: warning: pointer targets in passing argument 3 of ‘accept’ differ in signedness
+/usr/include/sys/socket.h:214: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/mlogger.c:338: warning: non-local variable ‘<anonymous struct> hist_log [50]’ uses anonymous type
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘void logger_init()’:
+src/mlogger.c:374: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:378: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:382: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:385: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:389: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:393: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:396: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:399: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:402: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:404: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘void log_odb_dump(LOG_CHN*, short int, INT)’:
+src/mlogger.c:423: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:428: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘void odb_save(char*)’:
+src/mlogger.c:454: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘INT tape_open(char*, INT*)’:
+src/mlogger.c:1060: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1062: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘INT ftp_error(char*)’:
+src/mlogger.c:1074: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘INT ftp_open(char*, FTP_CON**)’:
+src/mlogger.c:1126: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1130: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1134: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1134: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1139: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1144: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘EVENT_DEF* db_get_event_definition(short int)’:
+src/mlogger.c:1385: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1397: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1399: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1408: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1413: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1423: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1425: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1427: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1429: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1431: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1433: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1436: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1441: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘INT dump_write(LOG_CHN*, EVENT_HEADER*, INT)’:
+src/mlogger.c:1483: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1534: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1562: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1571: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1581: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1589: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘INT ascii_write(LOG_CHN*, EVENT_HEADER*, INT)’:
+src/mlogger.c:1783: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1789: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1798: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1818: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1823: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘INT root_book_trees(TREE_STRUCT*)’:
+src/mlogger.c:1956: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1958: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1984: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1994: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1996: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:1999: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘INT root_book_bank(EVENT_TREE*, HNDLE, int, char*)’:
+src/mlogger.c:2024: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2030: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘INT root_write(LOG_CHN*, EVENT_HEADER*, INT)’:
+src/mlogger.c:2162: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2183: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2249: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘INT root_log_open(LOG_CHN*, INT)’:
+src/mlogger.c:2276: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2295: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2311: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘INT log_open(LOG_CHN*, INT)’:
+src/mlogger.c:2367: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2370: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2373: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2376: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2383: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘INT log_write(LOG_CHN*, EVENT_HEADER*)’:
+src/mlogger.c:2454: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2459: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2461: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2477: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2481: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2487: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2502: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2506: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2512: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2526: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2534: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2539: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2550: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2551: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2553: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2565: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2569: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘INT open_history()’:
+src/mlogger.c:2596: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2598: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2603: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2604: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2606: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2608: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2611: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2611: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2613: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2616: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2616: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2623: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2625: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2637: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2646: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2649: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2654: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2672: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2686: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2714: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2732: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2776: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2785: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2800: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2809: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2822: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2845: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2852: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2909: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2917: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:2936: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘void close_history()’:
+src/mlogger.c:2950: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘INT log_callback(INT, void**)’:
+src/mlogger.c:3055: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3057: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3064: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3079: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3083: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3087: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3092: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3101: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3103: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3112: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3114: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3119: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: At global scope:
+src/mlogger.c:3136: warning: non-local variable ‘<anonymous struct> eb’ uses anonymous type
+src/mlogger.c: In function ‘INT tr_start(INT, char*)’:
+src/mlogger.c:3164: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3169: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3173: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3176: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3179: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3182: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3186: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3189: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3203: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3214: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3225: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3228: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3233: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3236: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3258: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3268: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3277: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3279: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3281: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3287: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3298: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3323: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3344: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3349: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3377: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3393: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3401: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3410: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3423: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3431: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3434: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3447: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3456: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3463: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘INT tr_stop(INT, char*)’:
+src/mlogger.c:3505: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3563: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3568: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3589: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c: In function ‘int main(int, char**)’:
+src/mlogger.c:3672: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3718: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3718: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3723: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3744: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3770: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3777: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3779: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3786: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3788: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3811: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3813: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3820: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3825: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3829: warning: deprecated conversion from string constant to ‘char*’
+src/mlogger.c:3832: warning: deprecated conversion from string constant to ‘char*’
+utils/mtape.c: In function ‘tape_dir’:
+utils/mtape.c:133: warning: pointer targets in passing argument 1 of ‘ctime’ differ in signedness
+/usr/include/time.h:258: note: expected ‘const time_t *’ but argument is of type ‘DWORD *’
+utils/mtape.c:136: warning: pointer targets in passing argument 1 of ‘ctime’ differ in signedness
+/usr/include/time.h:258: note: expected ‘const time_t *’ but argument is of type ‘DWORD *’
+utils/mhist.c: In function ‘display_single_hist’:
+utils/mhist.c:319: warning: pointer targets in passing argument 1 of ‘ctime’ differ in signedness
+/usr/include/time.h:258: note: expected ‘const time_t *’ but argument is of type ‘DWORD *’
+utils/mhist.c: In function ‘display_range_hist’:
+utils/mhist.c:379: warning: pointer targets in passing argument 1 of ‘ctime’ differ in signedness
+/usr/include/time.h:258: note: expected ‘const time_t *’ but argument is of type ‘DWORD *’
+utils/mhist.c: In function ‘convert_time’:
+utils/mhist.c:430: warning: pointer targets in passing argument 1 of ‘localtime’ differ in signedness
+/usr/include/time.h:237: note: expected ‘const time_t *’ but argument is of type ‘DWORD *’
+utils/mchart.c: In function ‘mchart_get_names’:
+utils/mchart.c:190: warning: operation on ‘p’ may be undefined
+utils/webpaw.c: In function ‘server_loop’:
+utils/webpaw.c:1542: warning: pointer targets in passing argument 3 of ‘accept’ differ in signedness
+/usr/include/sys/socket.h:214: note: expected ‘socklen_t * __restrict__’ but argument is of type ‘int *’
+src/rmidas.c: In member function ‘int RMidasFrame::ConnectServer()’:
+src/rmidas.c:308: warning: deprecated conversion from string constant to ‘char*’
+src/rmidas.c: In function ‘void rmidas()’:
+src/rmidas.c:580: warning: deprecated conversion from string constant to ‘char*’

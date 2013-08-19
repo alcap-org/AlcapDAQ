@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# /etc/hotplug/usb/scs_250
+#
+# Sets up newly plugged in USB MSCB submaster SCS-250 camera so that 
+# all users can access it
+#
+
+if [ "${ACTION}" = "add" ] && [ -f "${DEVICE}" ]
+then
+    chmod 0666 "${DEVICE}"
+fi

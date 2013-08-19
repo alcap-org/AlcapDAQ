@@ -1,0 +1,34 @@
+How to install hvEdit
+---------------------
+
+You need to have installed Qt version 3.0.3 or higher. Qt 3.0.3
+is part of Redhat 7.3 or higher.
+
+
+1) generating the Makefile from hvEdit.pro
+   ---------------------------------------
+
+The Makefile is created by the following command:
+
+   qmake hvEdit.pro
+
+If everything goes smoothly there should be a file Makefile. hvEdit.pro
+assumes that a system variable MIDAS_ROOT exists which points to the current
+midas directory. Furthermore there is a variable HOME in the hvEdit.pro
+file which might be modified by the user beforehand executing qmake. HOME
+points to the directory where hvEdit shall be installed.
+
+
+2) Build hvEdit
+   ------------
+
+Simply execute
+
+   make
+
+This will start the build procedure which takes some time. In order to get rid
+of all the object files etc. you should execute at the end
+
+   make clean
+  
+which removes all necessary files again.

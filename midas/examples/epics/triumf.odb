@@ -1,0 +1,38 @@
+[/Equipment/Beamline/Settings/Devices/Beamline]
+Channel name = STRING[10] :
+[32] TRINAT:VAR1
+[32] TRINAT:VAR2
+[32] TRINAT:VAR3
+[32] TRINAT:VAR4
+[32] TRINAT:VAR5
+[32] TRINAT:VAR6
+[32] TRINAT:VAR7
+[32] TRINAT:VAR8
+[32] TRINAT:VAR9
+[32] TRINAT:VAR10
+
+[/Equipment/Beamline/Settings]
+Names = STRING[10] :
+[32] VAR1
+[32] VAR2
+[32] VAR3
+[32] VAR4
+[32] VAR5
+[32] VAR6
+[32] VAR7
+[32] VAR8
+[32] VAR9
+[32] Watchdog
+Update Threshold Measured = FLOAT[10] :
+[0] 1
+[1] 1
+[2] 1
+[3] 1
+[4] 1
+[5] 1
+[6] 1
+[7] 1
+[8] 1
+[9] 1
+
+

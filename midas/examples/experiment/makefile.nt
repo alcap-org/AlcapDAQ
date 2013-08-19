@@ -1,0 +1,75 @@
+#####################################################################
+#
+#  Name:         makefile.nt
+#  Created by:   Stefan Ritt
+#
+#  Contents:     Makefile for MIDAS example frontend and analyzer
+#                under Windows NT 
+#
+#  Revision history
+#  ------------------------------------------------------------------
+#  date         by    modification
+#  ---------    ---   -----------------------------------------------
+#  13-NOV-97    SR    created
+#
+#  $Log: makefile.nt,v $
+#  Revision 1.1.1.1  2005/06/20 23:37:11  mucap
+#  Importing release 1.9.5 of the MIDAS source code as distributed by PSI.
+#  (Next, I'll commit our local customizations.)
+#
+#  Revision 1.7  2004/09/30 23:20:46  midas
+#  Use USE_ROOT for mana.c
+#
+#  Revision 1.6  2004/06/18 10:01:40  midas
+#  Added /GX
+#
+#  Revision 1.5  2003/09/02 20:31:48  pierre
+#  include cvs tag
+#
+#####################################################################
+
+
+#-------------------------------------------------------------------
+# The following lines define direcories. Adjust if necessary
+#                 
+MIDAS_DIR       = \midas
+INC_DIR         = $(MIDAS_DIR)\include
+DRV_DIR         = $(MIDAS_DIR)\drivers
+SRC_DIR         = $(MIDAS_DIR)\src
+LIB_DIR         = $(MIDAS_DIR)\nt\lib
+ZLIB_DIR        = $(MIDAS_DIR)\nt\lib
+ROOT_DIR        = $(ROOTSYS)
+
+#-------------------------------------------------------------------
+# List of analyzer modules
+#                 
+MODULES = adccalib.obj adcsum.obj scaler.obj
+
+####################################################################
+# Lines below here should not be edited
+####################################################################
+
+LIBRARY = $(LIB_DIR)\midas.lib
+
+# compiler
+CC = cl
+CFLAGS = /I$(INC_DIR) /I$(ROOT_DIR)/include /nologo /GX /D WIN32
+
+all: frontend.exe analyzer.exe
+
+frontend.exe:  $(LIBRARY) $(LIB_DIR)\mfe.obj frontend.c $(DRV_DIR)\bus\camacnul.c
+  $(CC) $(CFLAGS) /Fefrontend.exe frontend.c $(DRV_DIR)\bus\camacnul.c $(LIB_DIR)\mfe.obj $(LIBRARY) $(LIBS) wsock32.lib
+
+analyzer.exe: $(LIBRARY) rmana.obj analyzer.obj $(MODULES)
+  $(CC) /Feanalyzer.exe rmana.obj analyzer.obj \
+    $(MODULES) libCore.lib libTree.lib libHist.lib libRint.lib $(ZLIB_DIR)\zlib.lib \
+    $(LIBRARY) $(LIBS) wsock32.lib /link /libpath:"$(ROOT_DIR)/lib"
+
+.c.obj:
+  $(CC) $(CFLAGS) /TP /c $<
+
+rmana.obj: $(SRC_DIR)\mana.c
+  $(CC) $(CFLAGS) /D USE_ROOT  /TP /c $(SRC_DIR)\mana.c /Fo"rmana.obj"
+
+clean:
+  del *.obj

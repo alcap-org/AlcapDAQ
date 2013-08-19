@@ -1,0 +1,715 @@
+/*! @page analyzer_struct MIDAS Analyzer
+
+- The Midas Analyzer application is composed of a collection of files providing a 
+framework in which the user can gain access to the online data during data acquisition
+or offline data through a replay of a stored data save-set.
+
+- The Midas distribution contains 2 directories where predefined set of analyzer files
+and their corresponding working demo code are available. The internal functionality of 
+both example is similar and differ only on the histogram tool used for the data representation.
+These analyzer set are specific to 2 major data analysis tools i.e: \b ROOT, \b HBOOK:
+ - \b examples/experiment: Analyzer tailored towards \b ROOT analysis
+ - \b examples/hbookexpt: Analyzer tailored towards \b HBOOK with \b PAW.
+ 
+- The purpose of the demo analyzer is to demonstrate the analyzer structure and to provide
+the user a set of code "template" for further development. The demo will run online
+or offline following the information given further down. The analysis goal is to:
+ -# Initialize the ODB with predefined (user specific) structure (experim.h).
+ -# Allocate memory space for histogram definition (booking).
+ -# Acquire data from the frontend (or data file). 
+ -# Process the incoming data bank event-by-event through user specific code (module).
+ -# Generate computed quantitied banks (in module).
+ -# Fill (increment) predefined histogram with data available within the user code.
+ -# Produce a result file containing histogram results and computed data (if possible)
+    for further replay through dedicated analysis tool (PAW, ROOT).
+ 
+- The analyzer is structured with the following files:
+ - experim.h
+  - ODB experiment include file defining the ODB structure required by the analyzer.
+ - analyzer.c: main user core code.
+  - Defines the incoming bank structures
+  - Defines the analyzer modules
+  - Initialize the ODB structure requirements
+  - Provides Begin_of_Run and End_of_Run functions with run info logging example.
+ - adccalib.c, adcsum.c, scaler.c (Root example)
+  - Three user analysis modules to where events from the demo frontend.c
+    sends data to.
+ - \b Makefile
+  - Specific makefile for building the corresponding frontend and analyzer code. The 
+    frontend code is build against the \b camacnul.c driver providing a simulated data
+    stream. 
+
+ - \b ROOT histogram booking code (excerpt of experiment/adcsum.c)
+  - \anchor Folder Histogram under ROOT is supported from version 1.9.5. This provides a cleaner
+  way to organize the histogram grouping. This functionality is implemented with the function
+  open_subfolder() and close_subfolder(). Dedicated Macro is also now available for histogram
+  booking.
+\code
+INT adc_summing_init(void)
+{
+   /* book ADC sum histo */
+   hAdcSum = H1_BOOK("ADCSUM", "ADC sum", 500, 0, 10000);
+
+   /* book ADC average in separate subfolder */
+   open_subfolder("Average");
+   hAdcAvg = H1_BOOK("ADCAVG", "ADC average", 500, 0, 10000);
+   close_subfolder();
+
+   return SUCCESS;
+}
+\endcode
+ - \b HBOOK histogram booking code (excerpt of hbookexpt/adccalib.c)
+\code
+INT adc_calib_init(void)
+{
+   char name[256];
+   int i;
+
+   /* book CADC histos */
+   for (i = 0; i < N_ADC; i++) {
+      sprintf(name, "CADC%02d", i);
+      HBOOK1(ADCCALIB_ID_BASE + i, name, ADC_N_BINS,
+             (float) ADC_X_LOW, (float) ADC_X_HIGH, 0.f);
+   }
+
+   return SUCCESS;
+}
+\endcode
+
+- The build is also specific to the type of histogram package involved and requires the 
+proper libraries to generate the executable. Each directory has its own \b Makefile:
+ - \b ROOT (examples/experiment)
+  - The environment \b $ROOTSYS is expected to point to a valid ROOT installed path.
+  - The analyzer build requires a Midas core analyzer object file which should be present
+  in the standard midas/\<os\>/lib directory. In order to have this file \b (rmana.o),
+  the ROOTSYS had to be valid at the time of the Midas build too (See @ref HAVE_HBOOK).
+ - \b HBOOK (examples/hbookexpt)
+  - The analyzer build requires a Midas core analyzer object file which should be present
+  in the standatd midas/\<os\>/lib directory. This file \b (hmana.o) doesn't require any 
+  specific library.
+  - The analyzer build requires also at that stage to have access to some of the cernlib
+  library files (See @ref HAVE_HBOOK). 
+ - \b Analyzer \b Lite
+  - In the case private histogramming or simple analyzed data storage is requested, 
+  ROOT and HBOOK can be disabled by undefining both HAVE_ROOT and HAVE_HBOOK during the
+  build.
+  - This Lite version does't require any reference to the external histogramming package.
+  Removal of specific definition histogram statement, function call from all the demo code
+  (analyzer.c, adccalib.c, adcsum.c) needs to be done for successful build.
+  - This Lite version will have no option of saving computed data from within the
+  system analyzer framework, therefore this operation has to be performed by the user
+  in the user code (module). 
+
+The following @ref Multi_Stage_Concept section describes in more details the analyzer 
+concept and specific of the operation of the demo.
+
+<hr> @section Multi_Stage_Concept MultiStage Concept
+
+In order to make data analysis more flexible, a multi-stage concept has been chosen
+for the analyzer. A raw event is passed through several stages in the analyzer,
+where each stage has a specific task. The stages read part of the event, analyze
+it and can add the results of the analysis back to the event. Therefore each stage
+in the chain can read all results from previous stages. The first stages in the
+chain typically deal with data calibration (adccalib.c), while the last stages contain
+the code which produces "physical" (adcsum.c) results like particle energies etc.
+The multi stage concept allows collaborations of people to use standard modules for
+the calibration stages which ensures that all members deal with the identical
+calibrated data, while the last stages can be modified by individuals to look
+at different aspects of the data.
+The stage system makes use of the MIDAS bank system. Each stage can read existing
+banks from an event and add more banks with calculated data. Following picture gives an
+example of an analyzer consisting of three stages where the first two stages
+make an ADC and a MWPC calibration, respectively. They add a "Calibrated ADC" bank
+and a "MWPC" bank which are used by the third stage which calculates angles between
+particles:
+
+ * <center> 
+ *  \image html multistage.jpg
+ *  \image latex multistage.eps "Three stage analyzer." width=12cm
+ * </center> 
+
+Since data is contained in MIDAS banks, the system knows how to interpret the data.
+By declaring new bank name in the analyzer.c as possible production data bank, a simple
+switch in the ODB gives the option to enable the recording of this bank into the
+result file.
+The user code for each stage is contained in a "module". Each module has a begin-of-run,
+end-of-run and an event routine. The BOR routine is typically used to book histograms,
+the EOR routine can do peak fitting etc. The event routine is called for each event
+that is received online or off-line.
+
+@subsection Analyzer_parameters Analyzer parameters
+
+Each analyzer has a dedicated directory in the ODB under which all the parameters 
+realitve to this analyzer can be accessed. The path name is given from the "Analyzer name"
+specified in the analyzer.c under the analyzer_name. In case of concurrent analyzer, make
+sure that no conflict in name is present. By default the name is "Analyzer".
+\code
+/* The analyzer name (client name) as seen by other MIDAS clients   */
+char *analyzer_name = "Analyzer";
+\endcode
+
+The ODB structure under it has the following fields
+\code
+[host:expt:S]/Analyzer>ls -l
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Parameters                      DIR
+Output                          DIR
+Book N-tuples                   BOOL    1     4     1m   0   RWD  y
+Bank switches                   DIR
+Module switches                 DIR
+ODB Load                        BOOL    1     4     19h  0   RWD  n
+Trigger                         DIR
+Scaler                          DIR
+\endcode
+
+- \b Parameters : Created by the analyzer, contains all references to user parameters section.
+- \b Output : System directory providing output control of the analyzer results.
+  \code
+[local:midas:S]/Analyzer>ls -lr output
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Output                          DIR
+    Filename                    STRING  1     256   47h  0   RWD  run01100.root
+    RWNT                        BOOL    1     4     47h  0   RWD  n
+    Histo Dump                  BOOL    1     4     47h  0   RWD  n
+    Histo Dump Filename         STRING  1     256   47h  0   RWD  his%05d.root
+    Clear histos                BOOL    1     4     47h  0   RWD  y
+    Last Histo Filename         STRING  1     256   47h  0   RWD  last.root
+    Events to ODB               BOOL    1     4     47h  0   RWD  y
+    Global Memory Name          STRING  1     8     47h  0   RWD  ONLN
+    \endcode
+ - \b Filename : Replay result file name. 
+ - \b RWNT : To be ignored for \b ROOT, N-Tuple Raw-wise data type.
+ - \b Histo \b Dump : Enable the saving of the run results (see next field)
+ - \b Histo \b Dump \b Filename : Online Result file name
+ - \b Clear \b Histos : Boolean flag to enable the clearing of all histograms at the
+ begining of each run (online or offline).
+ - \b Last \b Histo \b Filename : Temporary results file for recovery procedure.
+ - \b Event \b to \b ODB : Boolean flag for debugging purpose allowing a copy
+ of the data to be sent to the ODB at regular time interval (1 second).
+ - \b Global \b Memory \b Name : Shared memory name for communication between Midas
+ and HBOOK. To be ignored for \b ROOT as the data sharing is done through a TCP/IP channel.
+
+- \b Bank \b switches : Contains the list of all declared banks (BANK_LIST in analyzer.c)
+to be enabled for writing to the output result file. By default all the banks
+are disabled.
+ \code
+ [local:midas:S]/Analyzer>ls "Bank switches" -l
+ Key name                        Type    #Val  Size  Last Opn Mode Value
+ ---------------------------------------------------------------------------
+ ADC0                            DWORD   1     4     1h   0   RWD  0
+ TDC0                            DWORD   1     4     1h   0   RWD  0
+ CADC                            DWORD   1     4     1h   0   RWD  0
+ ASUM                            DWORD   1     4     1h   0   RWD  0
+ SCLR                            DWORD   1     4     1h   0   RWD  0
+ ACUM                            DWORD   1     4     1h   0   RWD  0
+ \endcode
+- \b Module \b switches : Contains the list of all declared module (ANA_MODULE in analyzer.c) 
+to be controlled (by default all modules are enabled)
+ \code
+ [local:midas:S]/Analyzer>ls "module switches" -l
+ Key name                        Type    #Val  Size  Last Opn Mode Value
+ ---------------------------------------------------------------------------
+ ADC calibration                 BOOL    1     4     1h   0   RWD  y
+ ADC summing                     BOOL    1     4     1h   0   RWD  y
+ Scaler accumulation             BOOL    1     4     1h   0   RWD  y
+ \endcode
+- \b ODB \b Load : Boolean switch to allow retrieval of the entire ODB structure from the 
+input data file. Used only during offline, this option permits to replay the data in the 
+same exact condition as during online.
+All the ODB parameter settings will be restored to their last value as at the end of
+the data acquisition of this particular run.
+- \b Trigger, \b Scaler : Subdirectories of all the declared requested event.
+(ANALYZE_REQUEST in analyzer.c)
+- \b BOOK \b N_tuples : Boolean flag for booking N-Tuples at the initialization of the
+module. This flag is specific to the \b HBOOK analyzer.
+- \b BOOK \b TTree : Boolean flag for booking TTree at the initialization of the
+module. This flag is specific to the \b ROOT analyzer.
+
+@subsection Analyzer_module_parameters Analyzer Module parameters
+Each analyzer module can contain a set of parameters to either control its behavior, .
+These parameters are kept in the ODB under
+/Analyzer/Parameters/\<module name> and mapped automatically to C structures in
+the analyzer modules. Changing these values in the ODB can therefore control the analyzer.
+In order to keep the ODB variables and the C structure definitions matched, the ODBEdit
+command \b make generates the file experim.h which contains C structures for all the
+analyzer parameters. This file is included in all analyzer source code files and provides
+access to the parameters from within the module file under the name \<module name>_param.
+ - Module name: adc_calib_module (extern ANA_MODULE adc_calib_module from analyzer.c)
+ - Module file name: adccalib.c
+ - Module structure declaration in adccalib.c: 
+\code
+ANA_MODULE adc_calib_module = {
+   "ADC calibration",           /* module name           */
+   "Stefan Ritt",               /* author                */
+   adc_calib,                   /* event routine         */
+   adc_calib_bor,               /* BOR routine           */
+   adc_calib_eor,               /* EOR routine           */
+   adc_calib_init,              /* init routine          */
+   NULL,                        /* exit routine          */
+   &adccalib_param,             /* parameter structure   */
+   sizeof(adccalib_param),      /* structure size        */
+   adc_calibration_param_str,   /* initial parameters    */
+};
+\endcode
+  - ODB parameter variable in the code:
+  \<module name>_param -> adccalib_param  ( from adc_calib_module, the _ is dropped, 
+  module is removed)
+  - ODB parameter path:
+  /\<Analyzer>/Parameters/ADC calibration/ (using the module name from the structure)
+  - Access to the module parameter:
+  \code
+     /* subtract pedestal */
+    for (i = 0; i < N_ADC; i++)
+       cadc[i] = (float) ((double) pdata[i] - adccalib_param.pedestal[i] + 0.5);
+  \endcode
+  - ODB module parameter declaration
+  \code
+  [local:midas:S]Parameters>pwd
+ /Analyzer/Parameters
+ [local:midas:S]Parameters>ls -lr
+ Key name                        Type    #Val  Size  Last Opn Mode Value
+ ---------------------------------------------------------------------------
+ Parameters                      DIR
+     ADC calibration             DIR
+         Pedestal                INT     8     4     47h  0   RWD
+                                         [0]             174
+                                         [1]             194
+                                         [2]             176
+                                         [3]             182
+                                         [4]             185
+                                         [5]             215
+                                         [6]             202
+                                         [7]             202
+         Software Gain           FLOAT   8     4     47h  0   RWD
+                                         [0]             1
+                                         [1]             1
+                                         [2]             1
+                                         [3]             1
+                                         [4]             1
+                                         [5]             1
+                                         [6]             1
+                                         [7]             1
+         Histo threshold         DOUBLE  1     8     47h  0   RWD  20
+     ADC summing                 DIR
+         ADC threshold           FLOAT   1     4     47h  0   RWD  5
+     Global                      DIR
+        ADC Threshold           FLOAT   1     4     47h  0   RWD  5
+  \endcode
+
+@subsection Analyzer_flow_chart Analyzer Flow chart
+The general operation of the analyzer can be summerized as follow:
+- The analyzer is a Midas client at the same level as the odb or any other Midas
+@ref Utilities application.
+- When the analyzer is started with the proper argument (experiment, host for remote
+connection or -i input_file, -o output_file for off-line use), the initialization 
+phase will setup the following items:
+ -# Setup the internal list of defined module.
+ \code
+ ANA_MODULE *trigger_module[] = {
+    &adc_calib_module,
+    &adc_summing_module,
+    NULL
+ };
+ \endcode
+ -# Setup the internal list of banks.
+ \code
+ BANK_LIST ana_trigger_bank_list[] = {
+ 
+    /* online banks */
+    {"ADC0", TID_STRUCT, sizeof(ADC0_BANK), ana_adc0_bank_str}
+    ,
+    {"TDC0", TID_WORD, N_TDC, NULL}
+    , ...
+ \endcode
+ -# Define the internal event request structure and attaching the corresponding
+ module and bank list.
+ \code
+   ANALYZE_REQUEST analyze_request[] = {
+   {"Trigger",                  /* equipment name */
+    {1,                         /* event ID */
+     TRIGGER_ALL,               /* trigger mask */
+     GET_SOME,                  /* get some events */
+     "SYSTEM",                  /* event buffer */
+     TRUE,                      /* enabled */
+     "", "",}
+    ,
+    NULL,                       /* analyzer routine */
+    trigger_module,             /* module list */
+    ana_trigger_bank_list,      /* bank list */
+    1000,                       /* RWNT buffer size */
+    TRUE,                       /* Use tests for this event */
+    }
+   , ...
+ \endcode
+ -# Setup the ODB path for each defined module.
+ -# Book the defined histograms of each module.
+ -# Book memory for N-Tuples or TTree.
+ -# Initialize the internal "hotlinks" to the defined ODB analyzer module parameter path.
+  - Once the analyzer is in idle state (for online only), it will wakeup on the transition
+ "Begin-of-Run" and go sequencially through all the modules BOR functions. which generally
+ will ensure proper histogramming booking and possible clearing. It will resume its idle
+ state waiting for the arrival of an event matching one of the event request structure 
+ declared during initialization (analyzer.c)
+ - In case of off-line analysis, once the initialization phase successfully complete,
+ it will go through the BOR and start the event-by-event acquisition.
+ \code
+ INT analyzer_init()
+ {
+   HNDLE hDB, hKey;
+   char str[80];
+
+   RUNINFO_STR(runinfo_str);
+   EXP_PARAM_STR(exp_param_str);
+   GLOBAL_PARAM_STR(global_param_str);
+   TRIGGER_SETTINGS_STR(trigger_settings_str);
+
+   /* open ODB structures */
+   cm_get_experiment_database(&hDB, NULL);
+   db_create_record(hDB, 0, "/Runinfo", strcomb(runinfo_str));
+   db_find_key(hDB, 0, "/Runinfo", &hKey);
+   if (db_open_record(hDB, hKey, &runinfo, sizeof(runinfo), MODE_READ, NULL, NULL) !=
+     DB_SUCCESS) {
+    cm_msg(MERROR, "analyzer_init", "Cannot open \"/Runinfo\" tree in ODB");
+    return 0;
+   }
+ \endcode
+ -# When an event is received and matches one the the event request structure, it is
+    passed in sequence to all the defined module for that event request (see in
+    the ANALYZER_REQUEST structure the line containing the comment module list.
+  - If some of the module don't need to be invoked by the incoming event, it can be
+    disabled interactively through ODB from the /analyzer/Module switches directory 
+   \code
+   [ladd00:p3a:Stopped]Module switches>ls
+   ADC calibration                 y
+   ADC summing                     y
+   Scaler accumulation             y
+   [ladd00:p3a:Stopped]Module switches>
+   \endcode
+  - if the module switch is enabled, the event will be presented in the module at the
+    defined event-by-event function declared in the module structure (adccalib.c)
+    in this case the function is adc_calib().
+  - The Midas event header is accessible through the pointer \b pheader
+    while the data is located by the pointer \b pevent
+  \code
+  INT adc_calib(EVENT_HEADER * pheader, void *pevent)
+  {
+   INT i;
+   WORD *pdata;
+   float *cadc;
+
+   /* look for ADC0 bank, return if not present */
+   if (!bk_locate(pevent, "ADC0", &pdata))
+    return 1;
+  \endcode
+
+- Refer to the example found under \b examples/experiment directory for \b ROOT analyzer
+and \b examples/hbookexpt directory for \b HBOOK analyzer.
+
+
+@subsection HBOOK_analyzer  HBOOK analyzer description (old doc)
+
+PAWC_DEFINE(8000000);
+ 
+This defines a section of 8 megabytes or 2 megawords of share memory for
+HBOOK/Midas data storage. This definition is found in analyzer.c.
+In case many histograms are booked in the user code, this value probably has 
+to be increased in order not to crash HBOOK.
+If the analyzer runs online, the section is kept in shared memory.
+In case the operating system only supports a smaller amount of shared memory,
+this value has to be decreased. Next, the file contains the analyzer name
+
+char *analyzer_name = "Analyzer";
+
+under which the analyzer appears in the ODB (via the ODBEdit command scl).
+This also determines the analyzer root tree name as /Analyzer.
+In case several analyzers are running simultaneously (in case of distributed analysis
+on different machines for example), they have to use different names like Analyzer1
+and Analyzer2 which then creates two separate ODB trees /Analyzer1 and
+/Analyzer2 which is necessary to control the analyzers individually.
+Following structures are then defined in analyzer.c: runinfo, global_param,
+exp_param and trigger_settings.
+They correspond to the ODB trees /Runinfo, /Analyzer/Parameters/Global,
+/Experiment/Run parameters and /Equipment/Trigger/Settings, respectively.
+The mapping is done in the analyzer_init() routine.
+Any analyzer module (via an extern statement) can use the contents of these structures.
+If the experiment parameters contain an flag to indicate the run type for example,
+the analyzer can analyze calibration and data runs differently.
+The module declaration section in analyzer.c defines two "chains" of modules,
+one for trigger events and one for scaler events.
+The framework calls these according to their order in these lists. The modules of
+type ANA_MODULE are defined in their source code file. The enabled flag for each
+module is copied to the ODB under /Analyzer/Module switches.
+By setting this flag zero in the ODB, modules can be disabled temporarily.
+Next, all banks have to be defined. This is necessary because the framework
+automatically books N-tuples for all banks at startup before any event is received.
+Online banks which come from the frontend are first defined, then banks created
+by the analyzer:
+\code
+ ...
+ // online banks 
+ { "ADC0", TID_DWORD, N_ADC, NULL },
+ { "TDC0", TID_DWORD, N_TDC, NULL },
+
+ // calculated banks  
+ { "CADC", TID_FLOAT, N_ADC, NULL },
+ { "ASUM", TID_STRUCT, sizeof(ASUM_BANK),
+  asum_bank_str },
+\endcode
+
+The first entry is the bank name, the second the bank type.
+The type has to match the type which is created by the frontend.
+The type TID_STRUCT is a special bank type.
+These banks have a fixed length which matches a C structure.
+This is useful when an analyzer wants to access named variables inside a bank
+like asum_bank.sum.
+The third entry is the size of the bank in bytes in case of structured banks
+or the maximum number of items (not bytes!) in case of variable length banks.
+The last entry is the ASCII representation of the bank in case of structured banks.
+This is used to create the bank on startup under /Equipment/Trigger/Variables/\<bank name>.
+
+The next section in analyzer.c defines the ANALYZE_REQUEST list.
+This determines which events are received and which routines are called to analyze
+these events. A request can either contain an "analyzer routine"
+which is called to analyze the event or a "module list" which has been defined above.
+In the latter case all modules are called for each event.
+The requests are copied to the ODB under /Analyzer/\<equipment name>/Common.
+Statistics like number of analyzed events is written under
+/Analyzer/\<equipment name>/Statistics.
+This scheme is very similar to the frontend Common and Statistics tree under
+/Equipment/\<equipment name>/.
+The last entry of the analyzer request determines the HBOOK buffer size for
+online N-tuples.
+The analyzer_init() and analyzer_exit() routines are called when the analyzer
+starts or exits, while the ana_begin_of_run() and ana_end_of_run() are
+called at the beginning and end of each run.
+The ana_end_of_run() routine in the example code writes a run log file runlog.txt
+which contains the current time, run number, run start time and number of
+received events. 
+
+If more parameters are necessary, perform the following procedure:
+-# modify/add new parameters in the current ODB.
+\code
+[host:expt:S]ADC calibration>set Pedestal[9] 3
+[host:expt:S]ADC calibration>set "Software Gain[9]" 3
+[host:expt:S]ADC calibration>create double "Upper threshold"
+[host:expt:S]ADC calibration>set "Upper threshold" 400
+[host:expt:S]ADC calibration>ls -lr
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+ADC calibration                 DIR
+    Pedestal                    INT     10    4     2m   0   RWD
+                                        [0]             174
+                                        [1]             194
+                                        [2]             176
+                                        [3]             182
+                                        [4]             185
+                                        [5]             215
+                                        [6]             202
+                                        [7]             202
+                                        [8]             0
+                                        [9]             3
+    Software Gain               FLOAT   10    4     2m   0   RWD
+                                        [0]             1
+                                        [1]             1
+                                        [2]             1
+                                        [3]             1
+                                        [4]             1
+                                        [5]             1
+                                        [6]             1
+                                        [7]             1
+                                        [8]             0
+                                        [9]             0
+    Histo threshold             DOUBLE  1     8     53m  0   RWD  20
+    Upper threshold             DOUBLE  1     4     3s   0   RWD  400
+\endcode
+-# Generate experim.h
+\code
+[host:expt:S]ADC calibration>make
+"experim.h" has been written to /home/midas/online
+\endcode
+-# Update the module with the new parameters.
+\code
+---> adccalib.c
+...
+fill ADC histos if above threshold 
+for (i=0 ; i<n_adc ; i++)
+if ((cadc[i] > (float) adccalib_param.histo_threshold)
+ && (cadc[i] < (float) adccalib_param.upper_threshold))
+    HF1(ADCCALIB_ID_BASE+i, cadc[i], 1.f);
+\endcode
+-# Rebuild the analyzer.
+
+In the case global parameter is necessary for several modules, start by doing the step
+1 & 2 from the enumeration above and carry on with the following procedure below:
+-# Declare the parameter global in analyzer.c
+\code
+// ODB structures 
+...
+GLOBAL_PARAM     global_param;
+...
+\endcode
+-# Update ODB structure and open record for that parameter (hot link).
+\code
+---> analyzer.c
+...
+sprintf(str, "/%s/Parameters/Global", analyzer_name);
+db_create_record(hDB, 0, str, strcomb(global_param_str));
+db_find_key(hDB, 0, str, &hKey);
+if (db_open_record(hDB, hKey, &global_param
+    , sizeof(global_param), MODE_READ, NULL, NULL) != DB_SUCCESS) {
+  cm_msg(MERROR, "analyzer_init", "Cannot open \"%s\" tree in ODB", str);
+  return 0;
+}
+\endcode
+-# Declare the parameter \b extern in the required module
+\code
+---> adccalib.c
+...
+extern GLOBAL_PARAM  global_param;
+...
+\endcode
+
+@subsection PAW_Online_usage Online usage with PAW
+
+Once the analyzer is build, run it by entering:
+<b> analyzer [-h \<host name>] [-e \<exp name>] </b>
+
+where \<host name> and \<exp name> are optional parameters to connect the analyzer
+to a remote back-end computer.
+This attaches the analyzer to the ODB, initializes all modules, creates the PAW
+shared memory and starts receiving events from the system buffer.
+Then start PAW and connect to the shared memory and display its contents
+
+\code
+PAW > global_s onln
+PAW > hist/list
+    1  Trigger
+    2  Scaler
+ 1000  CADC00
+ 1001  CADC01
+ 1002  CADC02
+ 1003  CADC03
+ 1004  CADC04
+ 1005  CADC05
+ 1006  CADC06
+ 1007  CADC07
+ 2000  ADC sum
+\endcode
+
+For each equipment, a N-tuple is created with a N-tuple ID equal to the event ID.
+The CADC histograms are created from the adc_calib_bor() routine in adccalib.c.
+The N-tuple contents is derived from the banks of the trigger event.
+Each bank has a switch under /Analyzer/Bank switches.
+If the switch is on (1), the bank is contained in the N-tuple.
+The switches can be modified during runtime causing the N-tuples to be rebooked.
+The N-tuples can be plotted with the standard PAW commands:
+
+\code
+PAW > nt/print 1
+...
+PAW > nt/plot 1.sum
+PAW > nt/plot 1.sum cadc0>3000
+\endcode
+
+ * <center> 
+ *  \image html paw01.jpg
+ *  \image latex paw01.eps "PAW output for online N-tuples." width=12cm
+ * </center> 
+
+While histograms contain the full statistics of a run, N-tuples are kept in a ring-buffer.
+The size of this buffer is defined in the ANALYZE_REQUEST structure as the last parameter.
+A value of 10000 creates a buffer which contains N-tuples for 10000 events.
+After 10000 events, the first events are overwritten. If the value is increased,
+it might be that the PAWC size (PAWC_DEFINE in analyzer.c) has to be increased, too.
+An advantage of keeping the last 10000 events in a buffer is that cuts can be made
+immediately without having to wait for histograms to be filled. On the other hand care
+has to be taken in interpreting the data. If modifications in the hardware are made during
+a run, events which reflect the modifications are mixed with old data.
+To clear the ring-buffer for a N-tuple or a histogram during a run, the ODBEdit command
+<b> [local]/>hi analyzer \<id> </b>
+
+where \<id> is the N-tuple ID or histogram ID. An ID of zero clears all histograms but
+no N-tuples. The analyzer has two more ODB switches of interest when running online.
+The /Analyzer/Output/Histo Dump flag and /Analyzer/Output/Histo Dump Filename determine if
+HBOOK histograms are written after a run. This file contains all histograms and the last
+ring-buffer of N-tuples. It can be read in with PAW:
+
+\code
+PAW >hi/file 1 run00001.rz 8190
+PAW > ldir
+\endcode
+
+The /Analyzer/Output/Clear histos flag tells the analyzer to clear all histograms and
+N-tuples at the beginning of a run. If turned off, histograms can be accumulated over
+several runs.
+
+@subsection PAW_Offline_usage Offline usage with PAW
+
+The analyzer can be used for off-line analysis without recompilation.
+It can read from MIDAS binary files (*.mid), analyze the data the same way
+as online, and the write the result to an output file in MIDAS binary format,
+ASCII format or HBOOK RZ format. 
+If written to a RZ file, the output contains all histograms and N-tuples as
+online, with the difference that the N-tuples contain all events,
+not only the last 10000. The contents of the N-tuples can be a combination
+of raw event data and calculated data. Banks can be turned on and
+off in the output via the /Analyzer/Bank switches flags. Individual modules can be
+activated/deactivated via the /Analyzer/Module switches flags.
+
+The RZ files can be analyzed and plotted with PAW. Following flags are available when the
+analyzer is started off-line:
+- -i [filename1] [filename2] ...
+Input file name(s). Up to ten different file names can be specified in a -i statement.
+File names can contain the sequence "%05d" which is  replaced with the current run number
+in conjunction with the -r flag. Following filename extensions are recognized by the
+analyzer: .mid (MIDAS binary), .asc (ASCII data), .mid.gz (MIDAS binary gnu-zipped) and
+.asc.gz (ASCII data gnu-zipped). Files are un-zipped on-the-fly.
+- -o [filename]
+Output file name. The file names can contain the sequence "%05d" which is replaced with
+the current run number in conjunction with the -r flag. Following file formats can be
+generated: .mid (MIDAS binary), .asc (ASCII data), .rz (HBOOK RZ file), .mid.gz (MIDAS
+binary gnu-zipped) and .asc.gz (ASCII data gnu-zipped). For HBOOK files, CWNT are used by
+default. RWNT can be produced by specifying the -w flag. Files are zipped on-the-fly.
+- -r [range]
+Range of run numbers to be analyzed like -r 120 125 to analyze runs 120 to 125 (inclusive).
+The -r flag must be used with a "%05d" in the input file name.
+- -n [count]
+Analyze only count events. Since the number of events for all event types is considered,
+one might get less than count trigger events if some scaler or other events are present
+in the data.
+- -n [first] [last]
+Analyze only events with serial numbers between first and last.
+- -n [first] [last] [n]
+Analyze every n-th event from first to last.
+- -c [filename1] [filename2] ...
+Load configuration file name(s) before analyzing a run. File names may contain a "%05d" to
+be replaced with the run number. If more than one file is specified, parameters from the
+first file get superseded from the second file and so on.
+Parameters are stored in the ODB and can be read by the analyzer modules.
+They are conserved even after the analyzer has stopped.
+Therefore, only parameters which change between runs have to be loaded every time.
+To set a parameter like /Analyzer/Parameters/ADC summing/offset one would load a
+configuration file which contains: 
+\code[Analyzer/Parameters/ADC summing]
+Offset = FLOAT : 123
+\endcode
+Loaded parameters can be inspected with ODBEdit after the analyzer has been started.
+- -p [param=value]
+Set individual parameters to a specific value. Overrides any setting in configuration files.
+Parameter names are relative to the /Analyzer/Parameters directory. To set the key
+/Analyzer/Parameters/ADC summing/offset to a specific value, one uses 
+-p "ADC summing/offset"=123.
+The quotation marks are necessary since the key name contains a blank.
+To specify a parameter which is not under the /Analyzer/Parameters tree, one uses the full
+path (including the initial "/") of the parameter like 
+-p "/Experiment/Run Parameters/Run mode"=1.
+- -w
+Produce row-wise N-tuples in output RZ file. By default, column-wise N-tuples are used. 
+- -v
+Convert only input file to output file. Useful for format conversions. No data analysis is performed. 
+- -d
+Debug flag when started the analyzer from a debugger.
+Prevents the system to kill the analyzer when the debugger stops at a breakpoint.
+*/

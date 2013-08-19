@@ -1,0 +1,95 @@
+======================================================
+
+The Maximum Integrated Data Acquisition System (MIDAS)
+ 
+                Stefan Ritt, September 97
+
+======================================================
+
+
+Overview 
+--------
+
+The MIDAS data acquisition system has been developed for small and
+medium scale experiments in nuclear and particle physics. It supports
+event based data acquisition as well as monitoring continous data
+streams. The complexity ranges from test systems, where a single PC is
+connected to CAMAC via a PC-CAMAC interface, to experiments with
+several front-end computers and analysis workstations. The system
+currently runs under Windows NT, UNIX, VMS, VxWorks and MS-DOS and can
+be ported easily to any operating system which supports TCP/IP
+sockets. A speed optimized RPC layer is used for data exchange, with
+which sustained data rates of 980kB/sec. over standard ethernet can be
+achieved. An integrated slow control system contains a fast online
+database and a history system. Drivers exist for CAMAC, VME, Fastbus,
+High Voltage Crates, GBIB and several PC plug-in DAQ boards. A
+framework is supplied which can be extended by user code for front-end
+readout on one side and data analysis on the other side.  The online
+data can be presented by PAW as histograms and N-tuples. A run control
+program has been written as a user interface to the data acquisition
+and to the slow control system. The system was successfully used in
+several experiments at PSI and at TRIUMF.
+
+Components
+----------
+
+The MIDAS system consists of a set of library functions and
+applications. The library is designed in two layers. The lower layer
+covers all operating system dependent calls, mainly shared memory
+access and semaphore operations. The upper layer is entirely operating
+system independent. Since the lower layer only contains 7% of the
+code, porting the library to a different operating system is fairly
+easy. The MIDAS library contains routines for buffer management, a
+message system, a history system and an online database. MIDAS buffers
+are FIFOs (first-in, firsto-out) which support multiple producers and
+multiple consumers. Consumers may request a certain subset of event
+types from a buffer. They can also specify wether they want to
+receive all events of a given type or only as many as they can process
+without blocking the producers. A watchdog scheme has been designed
+which removes crashed clients from a buffer so as not to block the
+whole system. The transfer speed between a producer and a consumer is
+on the order of 10MB/sec for local access and 980kB/sec for remote
+access over standard ethernet. 
+
+The history system is used to store data on a hard disk and produce
+value-over-time plots. It is capable of storing several thousand
+events per second and of changing the event definition during an
+experiment.  The online database is a central data storage which
+contains all variables of an experiment like logging channel
+information, event definitions, slow control variables, front-end
+parameters and histogram definitions. It is kept entirelyin shared
+memory for fastest access of up to 50,000 read/writes per second
+locally and 500 read/writes remotely. The online database is
+hierarchically structured, similar to a file system, with directories
+and sub-directories. The data is stored in key/data pairs, where a key
+corresponds to a file name and the data to the file contents. Keys can
+be created and deleted dynamically during runtime. A client can
+register a "hot-link" of a local C-structure to a sub-tree in the
+online database. Whenever a value in the sub-tree is changed by
+someone else, the client C-structure automatically receives an update
+of the changed data. This scheme makes it very easy to dynamically
+control the behavior of front-end programs and analyzers.
+
+The slow control system is also based on this principle. Whenever a
+demand value is changed in the online database, the slow control
+front-end receives an update and can propagate it to the proper
+hardware via a device driver. An image of the whole database contents
+can be written to the logging channels to reflect the current status
+of an experiment.  Several applications have been written using the
+MIDAS library. A general purpose logger supports multiple logging
+channels to disks and tapes. Different logging channels can receive
+different types of events in different formats. Currently three data
+formats are supported: ASCII, an optimized MIDAS format and the YBOS
+format. A command-line based editor has been created which can be used
+to change values in the online database interactively and to perform
+run control. A graphical implementation of that program implemented in
+Java is under construction. This makes it possible to control an
+experiment from any computer running a Java capable browser. 
+
+The MIDAS data acquisition system has been used successfully at the
+Pion-Beta experiment at PSI, Switzerland. Two PCs were used as
+front-end computers connected to CAMAC, Fastbus and a LeCroy LRS1440
+high voltage system. Several PC plug-in cards were used to read
+temperatures and gas flows. Two additional PCs were used as back-end
+computers running different analyzers under Windows NT. Data was
+written to two DLT tape units in parallel. 

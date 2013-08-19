@@ -1,0 +1,145 @@
+/*! @page AppendixG  Frequently Asked Questions
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref AppendixE - @ref Top - @ref AppendixA 
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+Feel free to ask questions to one of us (
+<a href=mailto:midas@psi.ch> Stefan Ritt </a>,
+<a href=mailto:midas@triumf.ca> Pierre-Andre Amaudruz</a>)
+or visit the <a href=http://midas.triumf.ca/forum> Midas Forum </a>
+
+-# <b> Why the CAMAC frontend generate a core dump (linux)?</b>
+  - If you're not using a Linux driver for the CAMAC access, you need to
+  start the CAMAC frontend application through the task launcher first.
+  See @ref dio_task or @ref mcnaf_task.
+  This task laucher will grant you access permission to the IO port
+  mapped to your CAMAC interface.
+  <br><br>
+-# <b> Where does Midas log file resides?</b>
+  - As soon as any midas application is started, a file midas.log is
+  produce. The location of this file depends on the setup of the experiment.
+  -# if \b exptab is present and contains the experiment name with the
+  corresponding directory, this is where the file \b midas.log will reside.
+  -# if the midas logger @ref mlogger_task is running the
+  midas.log will be in the directory pointed by the "Data Dir" key
+  under the /logger key in the ODB tree.
+  -# Otherwise the file midas.log will be created in the current
+  directory in which the Midas application is started.
+  <br><br>
+-# <b> How do I protected my experiment from being controlled by aliases?</b> 
+  - Every experiment may have a dedicated password for accessing the experiment
+  from the web browser. This is setup through the ODBedit program with the
+  command \b webpass. This will create a \b Security tree under
+  \b /Experiment with a new key <b> Web Password</b> with the encrypted word.
+  By default Midas allows Full Read Access to all the Midas Web pages. Only
+  when modification of a Midas field the web password will be requested. The
+  password is stared as a cookie in the target web client for 24 hours
+  See @ref ODB_Experiment_Tree.
+  - Other options of protection are described in @ref ODB_Experiment_Tree
+  which gives to dedicated hosts access to ODB or dedicated programs.
+  <br><br>
+-# <b> Can I compose my own experimental web page?</b>
+  - Only under 1.8.3 though. You can create your own html code using your
+  favorite HMTL editor. By including custom Midas Tags, you will have access
+  to any field in the ODB of your experiment as well as the standard button for
+  start/stop and page switch. See @ref mhttpd_task , @ref Custom_page. 
+  <br><br>
+-# <b> How do I prevent user to modify ODB values while the run is in progress?</b>
+  - By creating the particular \b /Experiment/Lock when running/ ODB tree, you
+  can include symbolic links to any odb field which needs to be set to 
+  <b>Read Only</b> field while the run state is on. See @ref ODB_Experiment_Tree. 
+  <br><br>
+-# <b> Is there a way to invoke my own scripts from the web?</b>
+  - Yes, by creating the ODB tree \b /Script every entry in that tree
+  will be available on the Web status page with the name of the key. Each key entry
+  is then composed with a list of ODB field (or links) starting with 
+  the executable command followed by as many arguments as you wish to be
+  passed to the script. See @ref ODB_Script_Tree.
+  <br><br>
+-# <b> I've seen the ODB prompt displaying the run state, how do you do that?</b>
+  - Modify the \b /System/prompt field. The "S" is the trick. 
+  \code 
+ Fri> odb -e bnmr1 -h isdaq01
+ [host:expt:Stopped]/cd /System/
+ [host:expt:Stopped]/System>ls
+ Clients
+ Client Notify                   0
+ Prompt                          [%h:%e:%S]%p
+ Tmp
+ [host:expt:Stopped]/System
+ [host:expt:Stopped]/Systemset prompt [%h:%e:%S]%p>
+ [host:expt:Stopped]/System>ls
+ Clients
+ Client Notify                   0
+ Prompt                          [%h:%e:%S]%p>
+ Tmp
+ [host:expt:Stopped]/System>set Prompt [%h:%e:%s]%p>
+ [host:expt:S]/System>set Prompt [%h:%e:%S]%p>
+ [host:expt:Stopped]/System>     
+  \endcode
+  <br><br>
+-# <b> I've setup the alarm on one parameter in ODB but I can't make it trigger? </b>
+  - The alarm scheme works only under \b ONLINE. See @ref ODB_RunInfo_Tree
+  for <b> Online Mode</b>. This flag may have been turned off due to analysis
+  replay using this ODB. Set this key back to 1 to get the alarm to work again.
+  <br><br>
+-# <b> How do I extend an array in ODB? </b>
+  - When listing the array from ODB with the -l switch, you get a column indicating
+  the index of the listed array. You can extend the array by setting the array value 
+  at the new index. The intermediate indices will be fill with the default value
+  depending on the type of the array. This can easly corrected by using the 
+  wildcard to access all or a range of indices.
+  \code 
+[local:midas:S]/>mkdir tmp
+[local:midas:S]/>cd tmp
+[local:midas:S]/tmp>create int number
+[local:midas:S]/tmp>create string foo
+String length [32]: 
+[local:midas:S]/tmp>ls -l
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+number                          INT     1     4     >99d 0   RWD  0
+foo                             STRING  1     32    1s   0   RWD  
+[local:midas:S]/tmp>set number[4] 5
+[local:midas:S]/tmp>set foo[3]
+[local:midas:S]/tmp>ls -l
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+number                          INT     5     4     12s  0   RWD  
+                                        [0]             0
+                                        [1]             0
+                                        [2]             0
+                                        [3]             0
+                                        [4]             5
+foo                             STRING  4     32    2s   0   RWD  
+                                        [0]             
+                                        [1]             
+                                        [2]             
+                                        [3]             
+[local:midas:S]/tmp>set number[1..3] 9
+[local:midas:S]/tmp>set foo[2] "A default string"
+[local:midas:S]/tmp>ls -l
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+number                          INT     5     4     26s  0   RWD  
+                                        [0]             0
+                                        [1]             9
+                                        [2]             9
+                                        [3]             9
+                                        [4]             5
+foo                             STRING  4     32    3s   0   RWD  
+                                        [0]             
+                                        [1]             
+                                        [2]             A default string
+                                        [3]             
+  \endcode
+  
+-# How do I ...
+  - ...
+  <br><br>
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref AppendixE - @ref Top - @ref AppendixA 
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+*/

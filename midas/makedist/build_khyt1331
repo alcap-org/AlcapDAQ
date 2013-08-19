@@ -1,0 +1,36 @@
+#!/bin/csh
+#Usage: build_khyt1331 <version>
+#Build khyt1331 driver distribution
+
+set version = $argv[1]
+set dir = /tmp/khyt1331-$version
+set archive = khyt1331-$version.tar.gz
+
+# create temporary directory
+rm -Rf $dir
+mkdir $dir
+
+# checkout files
+echo Checkout files...
+cvs update drivers/kernel/
+cp drivers/kernel/khyt1331/*.c $dir
+cp drivers/kernel/khyt1331/*.h $dir
+cp drivers/kernel/khyt1331/Makefile $dir
+cp drivers/kernel/khyt1331/README $dir
+cp include/esone.h $dir
+cp include/mcstd.h $dir
+cp COPYING $dir
+
+# create khyt1331-x.x.tar.gz file
+echo Creating archive...
+cd /tmp
+tar -cvzf $archive khyt1331-$version/
+
+# remove temporary files
+rm -Rf $dir
+
+# transfer archive
+cd ~/midas
+cp /tmp/$archive ~/html/download/
+cp /tmp/$archive ~/html/download/khyt1331-latest.tar.gz
+rm /tmp/$archive

@@ -1,0 +1,257 @@
+How to install MIDAS under Unix
+-------------------------------
+
+Currently, following Unix systems are directly supported:
+
+Linux
+DEC Unix (OSF/1)
+DEC Ultrix
+FreeBSD
+
+The system can probably compiled under other versions with minor
+modifications.
+
+Follow these steps to do an installation:
+
+1) Untar midas-x.xx.tar.gz (where x.xx is the current version) to a
+directory of your choice (assuming <home> is your home directory like 
+/usr/users/john):
+
+  mkdir <home>/midas
+  <copy midas-x.xx.tar.gz to that directory>
+  tar -xzvf midas-x.xx.tar.gz
+
+In case GNU-tar is not available, one can first unzip the file and
+then detar it:
+
+  gunzip midas-x.xx.tar.gz
+  tar -xvf midas-x.xx.tar
+
+Following directory structure is created:
+
+<home>/midas/midas-x.xx   MIDAS root for version x.xx
+./doc                     Documentation
+./src                     Source files
+./include                 Include files
+./drivers                 Device drivers
+./examples                Example programs
+./examples/experiment     Sample experiment
+./unix                    Unix makefile
+
+2) Compile the Z library which is needed to write compressed data.
+Note that on standard Linux systems this library is already installed
+and steps 2) and 3) can be skipped.
+
+Untar zlib-1.0.4.tar.gz in the same directory:
+
+  tar -xzvf zlib-1.0.4.tar.gz
+
+A directory <home>/midas/zlib-1.0.4 is created.
+
+3) Build the Z library:
+
+  cd zlib-1.0.4
+  make
+
+After the build completes sucessfully, a library called zlib.a should
+have been created in the zlib directory.
+
+4) Build the MIDAS binaries and library. Edit the first section of the
+makefile to select the correct operating system if necessary.
+
+  cd <home>/midas/midas-x.xx
+  make
+
+On some distributions you might get linker errors due to different shared
+libraries. In this case try to build the static executables:
+
+  make USERFLAGS=-static
+
+5) Install the MIDAS binaries and library. Edit the target directories
+in the makefile if the default values (/usr/local/bin, /usr/local/lib
+and /usr/local/include) don't suit you. Then enter as a super-user:
+
+  make install
+
+Next define the environment variable MIDASSYS, pointing to the installation
+directory, like
+
+setenv MIDASSYS /usr/local
+
+or
+
+export MIDASSYS=/usr/local
+
+If you installed midas under your home directory, this could then be
+
+setenv MIDASSYS /home/john/midas-1.9.4
+
+or similar. This variable is necessary so that other packages find the
+midas library and include files under $MIDASSYS/lib and $MIDASSYS/include.
+To make this variable permanent, put above statement into your startup
+script (.tcshrc or .bashrc or similar).
+
+6) Under Linux, the MIDAS library is installed as a shared library. On
+the other systems, step 6) can be skipped. 
+
+Make the shared library libmidas.so known to the system. Edit
+/etc/ld.so.conf as root and edit the line
+
+  /usr/local/lib
+
+if you have chosen the standard installation directory. Alternatively,
+you can copy libmidas.so to /usr/lib.
+
+Run ldconfig as root to make the library known to the system.
+
+7) Make sure the CERN library is installed properly. The MIDAS
+analyzer needs libpacklib.a which is usually installed under
+/cern/pro/lib. PAW should be installed under /cern/pro/bin.
+
+From version 1.9.3 on, the MIDAS analyzer can be used with 
+ROOT. In that case, install ROOT and make sure the environment
+variable ROOTSYS is set properly (refer to the ROOT documentation).
+
+8) Create a working directory which hosts the frontend and analyzer
+program of your experiment (in the following example called "online"). 
+Copy the example experiment as a starting point: 
+
+  mkdir <home>/online
+  cd <home>/online
+  cp <home>/midas/midas-x.xx/examples/experiment/* .
+
+If you want to build an analyzer which uses HBOOK instead of ROOT,
+copy from a different location:
+
+  cp <home>/midas/midas-x.xx/example/hbookexpt/* .
+
+9) Edit the makefile in the working directory to select the correct
+operating system and the proper directories. Most probable you have
+to correct the DRV_DIR, which should point to 
+<home>/midas/midas-x.xx/drivers/bus
+Then build the example frontend and analyzer:
+
+  make
+
+10) Create the file /etc/exptab containing following line:
+
+test <home>/online <login name> 
+
+This defines the experiment "test" (you can of course choose
+any other name) running in the directory <home>/online. If you access
+the MIDAS system from another computer like a frontend, the MIDAS
+server process switchs to the user UID using <login name>.
+
+If you do not have root privileges (and thus cannot write into /etc),
+you can alternatively set the environment variable MIDAS_DIR to point 
+to your directory:
+
+  setenv MIDAS_DIR <home>/online
+
+This command can be added to your .login file.
+
+11) Test the system by running a sample experiment with a frontend which
+produces random data:
+
+  cd <home>/online
+  frontend
+
+  <open another window>
+  cd <home>/online
+  analyzer
+
+  <open another window>
+  odbedit
+  [local]/> start
+  ...
+  [local]/> stop
+
+The frontend should produce trigger and scaler events. The analyzer
+gets those events and histogramms them. Now you can run PAW and look
+at the N-tuples and histos:
+
+  paw
+  PAW> hi/hio/gl onln
+  PAW> hi/list
+  PAW> hi/pl 1000
+
+12) If everything workes successfully, you can edit the frontend and
+analyzer to suit your experiment. If you use a real CAMAC driver in
+the frontend, it has to access the hardware directly. To be able
+to do this from a non-root account, start the frontend with
+
+  dio ./frontend
+
+The dio program is a little wrapper program which opens the ports
+used by CAMAC drivers. dio has to have the setuid-bit set, which is
+normally done during installation.
+
+13) If the frontend runs on another computer, the MIDAS server program
+has to be installed. You can either start mserver manually or via
+(x)inetd. To configure (x)inetd, add following line to your /etc/services
+file:
+
+  midas   1175/tcp
+
+Usage with inetd:
+-----------------
+
+Then add this line to your /etc/inetd.conf file:
+
+  midas   stream tcp nowait root /usr/local/bin/mserver
+/usr/local/bin/mserver
+
+Send a hangup signal to inetd:
+
+  killall -HUP inetd
+
+Usage with xinetd (e.g. RedHat >= 7.1):
+---------------------------------------
+
+Create /etc/xinetd.c/midas containing:
+
+# default: on
+# description: The midas server serves Midas DAQ sessions
+service midas
+{
+        flags                   = REUSE
+        socket_type             = stream
+        wait                    = no
+        user                    = root
+        server                  = /usr/local/bin/mserver
+        log_on_success          += USERID HOST PID
+        log_on_failure          += USERID HOST PID
+        disable                 = no
+}
+
+Send a USR1 signal to xinetd
+
+  killall -USR1 xinetd
+
+
+Setup of exptab:
+----------------
+
+To connect to different experiments, the server has to know in 
+which directories and under which user names the experiments are 
+running. For this purpose a list of all experiments running on a 
+machine has to be defined in a file called exptab. This file is 
+located under /etc and contains one line for each experiment 
+describing the experiment name, the directory and the user name. 
+Create this file with an editor and write following line to define 
+an experiment called "Sample":
+
+Sample <home>/online <login name>
+
+where <home> stands for your home directory (like /usr/users/john) 
+and <login name> is your login name.
+
+To test the server, start odbedit with the host flag
+
+  odbedit -h <your-host>
+
+Note that if you create the exptab file, you should not use
+the MIDAS_DIR environment variable.
+
+
+

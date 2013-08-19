@@ -1,0 +1,81 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>Qt_hvEditAbout</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>Qt_hvEditAbout</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>225</width>
+            <height>106</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>HVEdit About</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>pixmapLabel1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>70</width>
+                <height>70</height>
+            </rect>
+        </property>
+        <property name="pixmap">
+            <pixmap>image0</pixmap>
+        </property>
+        <property name="scaledContents">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>100</x>
+                <y>10</y>
+                <width>109</width>
+                <height>34</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&lt;b&gt;&lt;font size="+4"&gt;HVEdit...&lt;/font&gt;&lt;/b&gt;</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel3</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>90</x>
+                <y>50</y>
+                <width>120</width>
+                <height>70</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&lt;p align="center"&gt;by Andreas Suter
+Paul Scherrer Institut
+Switzerland&lt;/p&gt;</string>
+        </property>
+    </widget>
+</widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="1331">789c85d3c14ac4301006e07b9f2234b7225977a5e0223e82e251100f69d2a91e5641d78388efee2493b433d9741d4ae94fbea66933dd74eaf1e14e759be6f3688faf4eb917fba13aff75387c3f3ddffe34edd54ee1b157dbf6a2698d72eafefd6d0cd780d7fa32568896e2f596a2a60840710ab1b7fdbeb721ba105def76343a861828c58162bed7e70810d7104b63596386a51c0d98d9684d8891d2e030169e4f493681247a4292c964318c2c86e2901027c9d834cd908c20cb7b712389347552332511668508a3232985305a2ec67b5f33e2d3f8715c3579bfd78c5926023470ee59d858139a09a06a2299b08221c40c6e5a9e6536a88499d71249d5848fcc48cdc48da037120651364334e63f931b6dcdf0de4b265736b23d61c5f0ae0149c8a0e06dc30d6453b61e009fa6f82f0a04277b5aa804ce185eedef4df30788e346cb</data>
+    </image>
+</images>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

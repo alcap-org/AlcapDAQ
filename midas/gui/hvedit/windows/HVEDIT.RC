@@ -1,0 +1,298 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""res\\hvedit.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "\r\n"
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "#include ""afxres.rc""  // Standard components\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\hvedit.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  34, 22, 217, 55
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About High Voltage"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "High Voltage Editor Version 1.0",IDC_STATIC,40,10,119,8
+    LTEXT           "S. Ritt, Dec. 1995",IDC_STATIC,39,28,119,8
+    DEFPUSHBUTTON   "OK",IDOK,176,6,32,14,WS_GROUP
+    ICON            IDR_MAINFRAME,IDC_STATIC,12,11,18,20
+END
+
+IDD_HVEDIT_DIALOG DIALOG DISCARDABLE  0, 0, 256, 226
+STYLE DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "High Voltage"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "",IDC_STATIC,4,0,129,224
+    LTEXT           "Available Groups",IDC_STATIC,8,8,60,10
+    LISTBOX         IDC_LIST_GROUP,8,20,120,44,WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Channel      Demand    Measured",IDC_STATIC,8,76,120,8
+    LISTBOX         IDC_LIST_CHANNELS,8,88,120,130,LBS_USETABSTOPS | 
+                    LBS_EXTENDEDSEL | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "",IDC_STATIC,137,0,117,29,WS_GROUP
+    GROUPBOX        "",IDC_STATIC,137,32,117,108,WS_GROUP
+    LTEXT           "&Input:",IDC_STATIC,143,41,20,12
+    COMBOBOX        IDC_COMBO1,169,40,81,96,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "Set",IDC_SET,141,60,110,14
+    PUSHBUTTON      "+1",IDC_P1,141,80,16,14
+    PUSHBUTTON      "+10",IDC_P10,157,80,16,14
+    PUSHBUTTON      "+100",IDC_P100,173,80,22,14
+    PUSHBUTTON      "-1",IDC_M1,197,80,16,14
+    PUSHBUTTON      "-10",IDC_M10,213,80,16,14
+    PUSHBUTTON      "-100",IDC_M100,229,80,22,14
+    PUSHBUTTON      "&Zero",IDC_ZERO,141,100,54,14
+    PUSHBUTTON      "&Restore",IDC_RESTORE,197,100,54,14
+    PUSHBUTTON      "&Select all",IDC_SELALL,141,120,110,14,WS_GROUP
+    GROUPBOX        "",IDC_STATIC,137,144,117,48
+    PUSHBUTTON      "Sa&ve",IDC_SAVE,141,152,54,14
+    PUSHBUTTON      "&Load",IDC_LOAD,197,152,54,14
+    PUSHBUTTON      "&Print",IDC_PRINT,141,172,54,14
+    PUSHBUTTON      "&Configure",IDC_CONFIG,197,172,54,14
+    PUSHBUTTON      "&Help",IDC_HLP,197,207,54,14
+    PUSHBUTTON      "Switch all channels off",IDC_ALL_OFF,141,9,110,14,
+                    WS_GROUP
+    CTEXT           "",IDC_MESSAGE,8,62,120,10,SS_SUNKEN | NOT WS_GROUP
+END
+
+IDD_CONFIG DIALOG DISCARDABLE  0, 0, 250, 201
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Configuration"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         IDC_LIST,8,8,152,164,LBS_USETABSTOPS | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT,8,180,152,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,193,9,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,193,30,50,14
+    LTEXT           "Enter channel names in the form GROUP%NAME",IDC_STATIC,
+                    182,78,60,28
+END
+
+IDD_HOSTDLG DIALOG DISCARDABLE  0, 0, 188, 124
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Select MIDAS host"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Host TCP/IP address:",IDC_STATIC,7,7,92,9
+    EDITTEXT        IDC_HOST,7,18,92,12,ES_AUTOHSCROLL
+    LTEXT           "&Available experiments:",IDC_STATIC,7,49,80,9
+    LISTBOX         IDC_EXPERIMENT,7,62,92,54,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,23,50,14
+END
+
+IDD_PASSDLG DIALOG DISCARDABLE  0, 0, 186, 46
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Enter MIDAS password"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_EDIT,7,7,91,14,ES_PASSWORD | ES_AUTOHSCROLL | 
+                    WS_GROUP
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+END
+
+IDD_PRINT DIALOG DISCARDABLE  0, 0, 147, 86
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Print"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Do you want to print",IDC_STATIC,7,7,133,8
+    CONTROL         "Channels of currently selected group",IDC_SEL,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,7,23,130,10
+    CONTROL         "All channels",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON | 
+                    WS_TABSTOP,7,41,54,10
+    DEFPUSHBUTTON   "Print",IDOK,19,65,50,14,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,78,65,50,14
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Stefan Ritt\0"
+            VALUE "FileDescription", "HVEDIT MFC Application\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "HVEDIT\0"
+            VALUE "LegalCopyright", "Copyright © 1995\0"
+            VALUE "OriginalFilename", "HVEDIT.EXE\0"
+            VALUE "ProductName", "HVEDIT Application\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP1             BITMAP  DISCARDABLE     "hlp\\icon.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_HOSTDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 181
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 117
+    END
+
+    IDD_PASSDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 39
+    END
+
+    IDD_PRINT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 140
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 79
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ABOUTBOX            "&About hvedit..."
+    IDP_SOCKETS_INIT_FAILED "Windows sockets initialization failed."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "res\hvedit.rc2"  // non-Microsoft Visual C++ edited resources
+
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+#include "afxres.rc"  // Standard components
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

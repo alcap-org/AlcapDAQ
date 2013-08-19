@@ -1,0 +1,360 @@
+/*! @page AppendixE Midas Code and Libraries
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref AppendixD - @ref Top - @ref AppendixG 
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+This section covers several aspect of the Midas system.
+
+- @ref state_transition
+- @ref Midas_Data_Types 
+  - @ref Midas_bank_examples
+- @ref YBOS_Bank_Types
+  - @ref YBOS_bank_examples
+- @ref Midas_Library
+
+<hr> @section state_transition State Codes & Transition Codes
+
+- State Codes : These number will be apparent in the ODB under the @ref ODB_RunInfo_Tree.
+  - STATE_STOPPED 
+  - STATE_PAUSED  
+  - STATE_RUNNING 
+- Transition Codes
+These number will be apparent in the ODB under the @ref ODB_RunInfo_Tree.
+  - TR_START 
+  - TR_STOP  
+  - TR_PAUSE 
+  - TR_RESUME
+
+<hr> @section Midas_Data_Types Midas Data Types
+Midas defined its own data type for OS compatibility. It is suggested to use them
+in order to insure a proper compilation when moving code from one OS to another.
+\em float and \em double retain OS definition.
+
+- BYTE      unsigned char
+- WORD      unsigned short int (16bits word)
+- DWORD     unsigned 32bits word
+- INT       signed 32bits word
+- BOOL      OS dependent.
+
+When defining a data type either in the frontend code for bank definition or in user code
+to define ODB variables, Midas requires the use of its own data type declaration. The list
+below shows the main Type IDentification to be used (refers to @ref mdefineh
+for complete listing):
+
+- TID_BYTE      unsigned byte         0       255 
+- TID_SBYTE     signed BYTE         -128      127 
+- TID_CHAR      single character      0       255 
+- TID_WORD      two BYTE             0      65535
+- TID_SHORT     signed WORD        -32768    32767
+- TID_DWORD     four bytes            0      2**32-1
+- TID_INT       signed DWORD        -2**31    2**31-1
+- TID_BOOL      four bytes bool       0        1   
+- TID_FLOAT     four bytes float format                
+- TID_DOUBLE    eight bytes float format                
+
+<hr> @section Midas_bank_examples Midas bank examples
+There are several examples under the Midas source code that
+you can check. Please have a look at
+- Frontend code midas/examples/experiment/frontend.c etc...
+- Backend code midas/examples/experiment/analyzer.c etc...
+
+<hr> @section YBOS_Bank_Types YBOS Bank Types
+YBOS defines several type but all types should be 4 bytes aligned.
+Distinction of signed and unsigned is not done. When mixing MIDAS and YBOS
+in the frontend for RO_ODB see @ref The_Equipment_Structure make
+sure the bank types are compatible (see also @ref ybosdefineh)
+
+- \b I1_BKTYPE  Bank of Bytes
+- \b I2_BKTYPE  Bank of 2 bytes data
+- \b I4_BKTYPE  Bank of 4 bytes data
+- \b F4_BKTYPE  Bank of float data
+- \b D8_BKTYPE  Bank of double data
+- \b A1_BKTYPE  Bank of ASCII char 
+
+
+<hr> @section YBOS_bank_examples YBOS bank examples
+Basic examples using YBOS banks are available in the midas tree under examples/ybosexpt.
+
+- <b>Frontend code</b>
+Example 1, 2 shows the bank creation with some CAMAC acquisition.
+\code
+-------- example 1 -------- Simple 16 bits bank construction
+
+void read_cft (DWORD *pevent)
+{
+  DWORD *pbkdat, slot;
+  
+  ybk_create((DWORD *)pevent, "TDCP", I2_BKTYPE, &pbkdat);
+  for (slot=FIRST_CFT;slot<=LAST_CFT;slot++)
+    {
+      cami(3,slot,1,6,(WORD *)pbkdat);
+      ((WORD *)pbkdat)++;
+      cam16i_rq(3,slot,0,4,(WORD **)&pbkdat,16);
+    }
+  ybk_close((DWORD *)pevent, I2_BKTYPE, pbkdat);
+  return;
+}
+-------- example 2 -------- Simple 32bit bank construction
+{
+  DWORD *pbkdat;
+  
+  ybk_create((DWORD *)pevent, "TICS", I4_BKTYPE, &pbkdat);
+  camo(2,22,0,17,ZERO);
+  cam24i_r(2,22,0,0,(DWORD **) &pbkdat,10);
+  cam24i_r(2,22,0,0,(DWORD **) &pbkdat,10);
+  cam24i_r(2,22,0,0,(DWORD **) &pbkdat,10);
+  cam24i_r(2,22,0,0,(DWORD **) &pbkdat,10);
+  cam24i_r(2,22,0,0,(DWORD **) &pbkdat,9);
+  ybk_close((DWORD *)pevent, I4_BKTYPE, pbkdat);
+  return 0;
+}
+\endcode
+
+Example 3 shows a creation of an EVID bank containg a duplicate of the midas header.
+As the Midas header is stripped out of the event when data are logger, it is necessary
+to compose such event to retain event information for off-line analysis. Uses of
+predefined macros (see @ref Midas_Library) are available in order to extract from a
+pre-composed Midas event the internal header fields i.e. Event ID, Trigger mask,
+Serial number, Time stamp. In this EVID bank we added the current run number which
+is retrieve by the frontend at the begin of a run.
+
+\code
+-------- example 3 -------- Full equipment readout function
+
+INT read_cum_scaler_event(char *pevent, INT off)
+{
+  INT i;
+  DWORD *pbkdat, *pbktop, *podbvar;
+  
+  ybk_init((DWORD *) pevent);
+  
+  // collect user hardware SCALER data
+  ybk_create((DWORD *)pevent, "EVID", I4_BKTYPE, (DWORD *)(&pbkdat));
+  *(pbkdat)++ = gbl_tgt_counter++;                      // event counter 
+  *((WORD *)pbkdat) = EVENT_ID(pevent);     ((WORD *)pbkdat)++;
+  *((WORD *)pbkdat) = TRIGGER_MASK(pevent); ((WORD *)pbkdat)++;
+  *(pbkdat)++ = SERIAL_NUMBER(pevent);
+  *(pbkdat)++ = TIME_STAMP(pevent);
+  *(pbkdat)++ = gbl_run_number;                         // run number
+  ybk_close((DWORD *)pevent, pbkdat);
+  
+  // BEGIN OF CUMULATIVE SCALER EVENT
+  ybk_create((DWORD *)pevent, "CUSC", I4_BKTYPE, (DWORD *)(&pbkdat));
+  for (i=0 ; i<NSCALERS ; i++){
+    *pbkdat++ = scaler[i].cuval[0];
+    *pbkdat++ = scaler[i].cuval[1];
+  }
+
+  ybk_close(DWORD *)pevent, I4_BKTYPE, pbkdat);
+  // END OF CUMULATIVE SCALER EVENT
+  
+  // event in bytes for Midas
+  return (ybk_size ((DWORD *)pevent));
+}
+\endcode
+
+- <b>Backend code</b>
+If the data logging is done through YBOS format (see @ref ODB_Logger_Tree Format)
+the events on the storage media will have been stripped from the MIDAS header used for
+transfering the event from the frontend to the backend. This means the logger data
+format is a "TRUE" YBOS format. Uses of standard YBOS library is then possible.
+
+\code
+--- Example of YBOS bank extraction ----
+
+void process_event(HNDLE hBuf, HNDLE request_id, EVENT_HEADER *pheader, void *pevent)
+{
+    INT status;
+    DWORD *plrl, *pybk, *pdata, bklen, bktyp;
+    char  banklist[YB_STRING_BANKLIST_MAX];
+
+    // pointer to data section 
+    plrl = (DWORD *)       pevent;
+
+    // Swap event 
+    yb_any_event_swap(FORMAT_YBOS,plrl);
+
+    // bank name given through argument list
+    if ((status = ybk_find (plrl, sbank_name, &bklen, &bktyp, (void *)&pybk)) == YB_SUCCESS)
+    {
+      // given bank found in list 
+      status = ybk_list (plrl, banklist);
+      printf("#banks:%i Bank list:-%s-\n",status,banklist);
+      printf("Bank:%s - Length (I*4):%i - Type:%i - pBk:0x%p\n",sbank_name, bklen, bktyp, pybk);
+
+      // check id EVID found in event for id and msk selection 
+      if ((status = ybk_find (plrl, "EVID", &bklen, &bktyp, (void *)&pybk)) == YB_SUCCESS)
+      {
+        pdata = (DWORD *)((YBOS_BANK_HEADER *)pybk + 1);
+  ...
+      }
+
+     // iterate through the event 
+     pybk = NULL;
+     while ((bklen = ybk_iterate(plrl, &pybk, (void *)&pdata))
+                   && (pybk != NULL))
+       printf("bank length in 4 bytes unit: %d\n",bklen);
+ 
+    }
+    else
+    {
+      status = ybk_list (plrl, banklist);
+      printf("Bank -%s- not found (%i) in ",sbank_name, status);
+      printf("#banks:%i Bank list:-%s-\n",status,banklist);
+    }
+    ...
+    ... ...
+}
+\endcode
+
+<hr> @section Midas_Library Midas Code and Libraries
+
+The Midas libraries are composed of 5 main source code and their corresponding header files.
+
+-# @ref midasincludecode : Midas abstract layer.
+-# @ref msystemincludecode : Midas function implementation.
+-# @ref mrpcincludecode : Midas RPC functions.
+-# @ref odbcode : Online Database functions.
+-# @ref ybosincludecode : YBOS specific functions.
+
+
+Within these files, all the functions have been categorized depending on their scope.
+
+- \b al_xxx(...) : Alarm system calls
+- \b bk_xxx(...) : Midas bank manipulation calls
+- \b bm_xxx(...) : Buffer management calls
+- \b cm_xxx(...) : Common system calls
+- \b db_xxx(...) : Database managment calls
+- \b el_xxx(...) : Electronic Log book calls
+- \b hs_xxx(...) : History manipulation calls
+- \b ss_xxx(...) : System calls
+- \b ybk_xxx(...) : YBOS bank manipulation
+
+<hr> @section midas_macro MIDAS Macros
+Several group of MACROs are available for simplifying user job on setting or getting Midas
+information. They are also listed in the @ref Midas_Library. All of them are defined in
+the @ref mmacroh, @ref msmacroh, @ref ybosmacroh header files.
+- <b>Message Macros</b>.
+  These Macros compact the 3 first arguments of the cm_msg() call.
+  It replaces the type of message, the routine name and the line number in the
+  C-code. See example in cm_msg().
+  - @ref MERROR : For error (MT_ERROR, __FILE__, __LINE__)
+  - @ref MINFO : For info (MT_INFO, __FILE__, __LINE__)
+  - @ref MDEBUG : For debug (MT_DEBUG, __FILE__, __LINE__)
+  - @ref MUSER : Produced by interactive user (MT_USER,  __FILE__, __LINE__)
+  - @ref MLOG : Info message which is only logged (MT_LOG, __FILE__, __LINE__)
+  - @ref MTALK : Info message for speech system (MT_TALK, __FILE__, __LINE__)
+  - @ref MCALL : Info message for telephone call (MT_CALL, __FILE__, __LINE__)
+- <b>DAQ Event/LAM Macros</b>. To be used in the frontend/analyzer code.
+  - <b>CAMAC LAM manipulation</b>.
+  These Macros are used in the frontend code to interact with the LAM register.
+  Usualy the CAMAC Crate Controler has the feature to register one bit per slot and
+  be able to present this register to the user. It may even have the option to
+  mask off this register to allow to set a "general" LAM register containing
+  either "1" (At least one LAM from the masked LAM is set) or "0" ( no LAM set
+  from the maksed LAM register).
+  The poll_event() uses this feature and return a variable which contains a
+  bit-wise value of the current LAM register in the Crate Controller.
+  - @ref LAM_SOURCE
+  - @ref LAM_STATION
+  - @ref LAM_SOURCE_CRATE
+  - @ref LAM_SOURCE_STATION
+- <b>BYTE swap manipulation</b>.
+  These Macros can be used in the backend analyzer when <b> little-endian/big-endian </b>
+  are mixed in the event.
+  - @ref WORD_SWAP 
+  - @ref DWORD_SWAP 
+  - @ref QWORD_SWAP 
+- <b>MIDAS Event Header manipulation</b>.
+  Every event travelling through the Midas system has a "Event Header" containing
+  the minimum information required to identify its content. The size of the header
+  has been kept as small as possible in order to minimize its impact on the data
+  rate as well as on the data storage requirment. The following macros permit to
+  read or override the content of the event header as long as the argument of
+  the macro refers to the top of the Midas event (pevent).
+  This argument is available in the frontend code in any of the user
+  readout function (pevent).
+  It is also available in the user analyzer code which retrieve the event and
+  provide directly access to the event header (pheader) and to the user part of the event
+  (pevent). Sub-function using pevent would then be able to get back the the header
+  through the use of the macros.
+  - @ref TRIGGER_MASK
+  - @ref EVENT_ID
+  - @ref SERIAL_NUMBER
+  - @ref TIME_STAMP
+   - from examples/experiment/adccalib.c
+  \code
+INT adc_calib(EVENT_HEADER *pheader, void *pevent)
+{
+  INT    i, n_adc;
+  WORD   *pdata;
+  float  *cadc;
+ 
+  // look for ADC0 bank, return if not present 
+  n_adc = bk_locate(pevent, "ADC0", &pdata);
+  if (n_adc == 0 || n_adc > N_ADC)
+    return 1;
+
+  // create calibrated ADC bank
+  bk_create(pevent, "CADC", TID_FLOAT, &cadc);
+  ...
+}
+  \endcode
+   - from examples/experiment/frontend.c
+  \code
+INT read_trigger_event(char *pevent, INT off)
+{
+  WORD *pdata, a;
+  INT  q, timeout;
+
+  // init bank structure 
+  bk_init(pevent);
+  ...
+}
+  \endcode
+  - Frontend C-code fragment from running experiment:
+  \code
+INT read_ge_event(char *pevent, INT offset)
+{
+  static WORD *pdata;
+  INT i, x, q;
+  WORD temp;
+  
+  // Change the time stamp in millisecond for the Super event
+  TIME_STAMP(pevent) = ss_millitime();
+  
+  bk_init(pevent);
+  bk_create(pevent, "GERM", TID_WORD, &pdata);
+  ...
+}
+\endcode
+  - Frontend C-code fragment from running experiment
+  \code
+  ...
+  lam = *((DWORD *)pevent);
+
+  if (lam & LAM_STATION(JW_N))
+  {
+    ...
+    // compose event header
+    TRIGGER_MASK(pevent) = JW_MASK;
+    EVENT_ID(pevent)     = JW_ID;
+    SERIAL_NUMBER(pevent)= eq->serial_number++;
+    // read MCS event
+    size = read_mcs_event(pevent);
+    // Correct serial in case event is empty 
+    if (size == 0)
+      SERIAL_NUMBER(pevent) = eq->serial_number--;
+    ...
+  }
+  ...
+\endcode
+
+<hr> @subsection YBOS_library YBOS library
+Exportable ybos functions through inclusion of ybos.h
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref AppendixD - @ref Top - @ref AppendixG 
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+*/

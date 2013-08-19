@@ -1,0 +1,183 @@
+#####################################################################
+#
+#  Name:         Makefile
+#  Created by:   Stefan Ritt
+#
+#  Contents:     Makefile for MIDAS binaries and examples under 
+#                Windows NT
+#
+#  $Log: makefile.nt,v $
+#  Revision 1.1.1.1  2005/06/20 23:37:00  mucap
+#  Importing release 1.9.5 of the MIDAS source code as distributed by PSI.
+#  (Next, I'll commit our local customizations.)
+#
+#  Revision 1.10  2003/06/17 06:36:11  midas
+#  Removed hvedit from makefile
+#
+#  Revision 1.9  2002/03/02 08:22:13  midas
+#  Use $WINDIR instead of c:\winnt
+#
+#  Revision 1.8  2002/02/05 02:02:48  midas
+#  Remved elog
+#
+#  Revision 1.7  2001/05/23 13:13:43  midas
+#  Added elogd
+#
+#  Revision 1.6  2000/05/04 14:23:23  midas
+#  Adde mgd into mhttpd
+#
+#  Revision 1.5  2000/02/10 08:06:39  midas
+#  Made adjustments for changed driver directory structure
+#
+#  Revision 1.4  1999/10/07 13:17:34  midas
+#  Put a few EXPRT im msystem.h to make NT happy, updated NT makefile
+#
+#  Revision 1.3  1998/10/30 08:44:11  midas
+#  Removed version
+#
+#  Revision 1.2  1998/10/12 12:18:55  midas
+#  Added Log tag in header
+#
+#
+#####################################################################
+
+#
+# System directories
+#
+SYSBIN_DIR = $(WINDIR)\system32
+SYSLIB_DIR = c:\msdev\lib
+SYSINC_DIR = c:\msdev\include
+#
+# Midas related directories
+INC_DIR  = include
+SRC_DIR  = src
+UTL_DIR  = utils
+DRV_DIR  = drivers
+EXAM_DIR = examples
+ZLIB_DIR = zlib-1.0.4
+
+OS_DIR = nt
+CC = cl
+OSFLAGS = /D WIN32
+CFLAGS = /I$(INC_DIR) /I$(DRV_DIR) /nologo
+LIBS = 
+
+#
+# Midas operating system dependent directories
+LIB_DIR  = $(OS_DIR)\lib
+BIN_DIR  = $(OS_DIR)\bin
+
+# targets
+EXAMPLES = $(BIN_DIR)/consume.exe $(BIN_DIR)/produce.exe \
+	$(BIN_DIR)/rpc_test.exe $(BIN_DIR)/msgdump.exe \
+	$(BIN_DIR)/minife.exe $(BIN_DIR)/minirc.exe \
+	$(BIN_DIR)/odb_test.exe
+
+OBJS =  $(LIB_DIR)/midas.obj \
+  $(LIB_DIR)/system.obj \
+  $(LIB_DIR)/mrpc.obj \
+  $(LIB_DIR)/odb.obj \
+  $(LIB_DIR)/ybos.obj \
+  $(LIB_DIR)/ftplib.obj
+
+LIBRARY =   $(LIB_DIR)/midas.lib
+
+all:    $(LIB_DIR) $(BIN_DIR) \
+  $(LIB_DIR)/mana.obj \
+  $(LIB_DIR)/mfe.obj \
+  $(BIN_DIR)/mserver.exe \
+  $(BIN_DIR)/mhttpd.exe \
+  $(BIN_DIR)/mcnaf.exe \
+  $(BIN_DIR)/mlogger.exe \
+  $(BIN_DIR)/odbedit.exe \
+  $(BIN_DIR)/mtape.exe \
+  $(BIN_DIR)/mhist.exe \
+  $(BIN_DIR)/mstat.exe \
+  $(BIN_DIR)/mdump.exe \
+  $(BIN_DIR)/odbhist.exe \
+  $(BIN_DIR)/lazylogger.exe
+
+examples: $(EXAMPLES)
+
+# create library and binary directories
+$(LIB_DIR):
+	if not exist $(OS_DIR) mkdir $(OS_DIR)
+	if not exist $(LIB_DIR) mkdir $(LIB_DIR)
+
+$(BIN_DIR):
+	if not exist $(OS_DIR) mkdir $(OS_DIR)
+	if not exist $(BIN_DIR) mkdir $(BIN_DIR)
+
+# main binaries
+$(BIN_DIR)/mserver.exe:  $(LIBRARY) $(SRC_DIR)/mserver.c
+	$(CC) $(CFLAGS) /Fe$(BIN_DIR)/mserver.exe $(SRC_DIR)/mserver.c $(LIBRARY) $(LIBS) wsock32.lib
+$(BIN_DIR)/mhttpd.exe:  $(LIBRARY) $(SRC_DIR)/mhttpd.c $(SRC_DIR)/mgd.c
+	$(CC) $(CFLAGS) /Fe$(BIN_DIR)/mhttpd.exe $(SRC_DIR)/mhttpd.c $(SRC_DIR)/mgd.c $(LIBRARY) $(LIBS) wsock32.lib
+$(BIN_DIR)/mlogger.exe:  $(LIBRARY) $(SRC_DIR)/mlogger.c
+	$(CC) $(CFLAGS) /Fe$(BIN_DIR)/mlogger.exe $(SRC_DIR)/mlogger.c $(LIBRARY) $(LIBS)
+$(BIN_DIR)/odbedit.exe: $(LIBRARY) $(SRC_DIR)/odbedit.c $(SRC_DIR)/cmdedit.c
+	$(CC) $(CFLAGS) /Fe$(BIN_DIR)/odbedit.exe $(SRC_DIR)/cmdedit.c $(SRC_DIR)/odbedit.c $(LIBRARY) $(LIBS)
+$(BIN_DIR)/lazylogger.exe: $(LIBRARY) $(SRC_DIR)/lazylogger.c
+	$(CC) $(CFLAGS) /Fe$(BIN_DIR)/lazylogger.exe $(SRC_DIR)/lazylogger.c $(LIBRARY) $(LIBS)
+
+# examples
+$(BIN_DIR)/consume.exe: $(LIBRARY) $(EXAM_DIR)/lowlevel/consume.c
+	$(CC) $(CFLAGS) /Fe$(BIN_DIR)/consume.exe $(EXAM_DIR)/lowlevel/consume.c $(LIBRARY) $(LIBS)
+$(BIN_DIR)/produce.exe: $(LIBRARY) $(EXAM_DIR)/lowlevel/produce.c
+	$(CC) $(CFLAGS) /Fe$(BIN_DIR)/produce.exe $(EXAM_DIR)/lowlevel/produce.c $(LIBRARY) $(LIBS)
+$(BIN_DIR)/rpc_test.exe: $(LIBRARY) $(EXAM_DIR)/lowlevel/rpc_test.c
+	$(CC) $(CFLAGS) /Fe$(BIN_DIR)/rpc_test.exe $(EXAM_DIR)/lowlevel/rpc_test.c $(LIBRARY) $(LIBS)
+$(BIN_DIR)/msgdump.exe: $(LIBRARY) $(EXAM_DIR)/basic/msgdump.c
+	$(CC) $(CFLAGS) /Fe$(BIN_DIR)/msgdump.exe $(EXAM_DIR)/basic/msgdump.c $(LIBRARY) $(LIBS)
+$(BIN_DIR)/minife.exe:  $(LIBRARY) $(EXAM_DIR)/basic/minife.c
+	$(CC) $(CFLAGS) /Fe$(BIN_DIR)/minife.exe  $(EXAM_DIR)/basic/minife.c $(LIBRARY) $(LIBS)
+$(BIN_DIR)/minirc.exe:  $(LIBRARY) $(EXAM_DIR)/basic/minirc.c
+	$(CC) $(CFLAGS) /Fe$(BIN_DIR)/minirc.exe  $(EXAM_DIR)/basic/minirc.c $(LIBRARY) $(LIBS)
+$(BIN_DIR)/odb_test.exe:  $(LIBRARY) $(EXAM_DIR)/basic/odb_test.c
+	$(CC) $(CFLAGS) /Fe$(BIN_DIR)/odb_test.exe  $(EXAM_DIR)/basic/odb_test.c $(LIBRARY) $(LIBS)
+
+# midas library
+$(LIBRARY): $(OBJS)
+	start net stop midas
+	start net stop mhttpd
+	link $(OBJS) wsock32.lib winmm.lib /subsystem:windows /dll /machine:I386 /out:$(LIB_DIR)/midas.dll /implib:$(LIBRARY)
+	copy $(LIB_DIR)\midas.dll $(SYSBIN_DIR)\midas.dll
+
+# library objects
+$(LIB_DIR)/midas.obj: $(SRC_DIR)/midas.c $(INC_DIR)/msystem.h $(INC_DIR)/midas.h $(INC_DIR)/midasinc.h $(INC_DIR)/mrpc.h
+	$(CC) /c /DMIDAS_DLL $(CFLAGS) /Fo$(LIB_DIR)/midas.obj $(SRC_DIR)/midas.c
+$(LIB_DIR)/system.obj: $(SRC_DIR)/system.c $(INC_DIR)/msystem.h $(INC_DIR)/midas.h $(INC_DIR)/midasinc.h $(INC_DIR)/mrpc.h
+	$(CC) /c /DMIDAS_DLL $(CFLAGS) /Fo$(LIB_DIR)/system.obj $(SRC_DIR)/system.c
+$(LIB_DIR)/mrpc.obj: $(SRC_DIR)/mrpc.c $(INC_DIR)/msystem.h $(INC_DIR)/midas.h $(INC_DIR)/mrpc.h
+	$(CC) /c /DMIDAS_DLL $(CFLAGS) /Fo$(LIB_DIR)/mrpc.obj $(SRC_DIR)/mrpc.c
+$(LIB_DIR)/odb.obj: $(SRC_DIR)/odb.c $(INC_DIR)/msystem.h $(INC_DIR)/midas.h $(INC_DIR)/midasinc.h $(INC_DIR)/mrpc.h
+	$(CC) /c /DMIDAS_DLL $(CFLAGS) /Fo$(LIB_DIR)/odb.obj $(SRC_DIR)/odb.c
+$(LIB_DIR)/ybos.obj: $(SRC_DIR)/ybos.c $(INC_DIR)/msystem.h $(INC_DIR)/midas.h $(INC_DIR)/midasinc.h $(INC_DIR)/mrpc.h
+	$(CC) /c /DMIDAS_DLL $(CFLAGS) /Fo$(LIB_DIR)/ybos.obj $(SRC_DIR)/ybos.c
+$(LIB_DIR)/ftplib.obj: $(SRC_DIR)/ftplib.c $(INC_DIR)/msystem.h $(INC_DIR)/midas.h $(INC_DIR)/midasinc.h
+	$(CC) /c /DMIDAS_DLL $(CFLAGS) /Fo$(LIB_DIR)/ftplib.obj $(SRC_DIR)/ftplib.c
+
+# frontend + backend
+$(LIB_DIR)/mfe.obj: $(SRC_DIR)/mfe.c $(INC_DIR)/msystem.h $(INC_DIR)/midas.h $(INC_DIR)/midasinc.h $(INC_DIR)/mrpc.h
+	$(CC) /c $(CFLAGS) /Fo$(LIB_DIR)/mfe.obj $(SRC_DIR)/mfe.c
+$(LIB_DIR)/mana.obj: $(SRC_DIR)/mana.c $(INC_DIR)/msystem.h $(INC_DIR)/midas.h $(INC_DIR)/midasinc.h $(INC_DIR)/mrpc.h
+	$(CC) /c $(CFLAGS) /Fo$(LIB_DIR)/mana.obj $(SRC_DIR)/mana.c
+
+# utilities
+$(BIN_DIR)/mdump.exe:	$(LIBRARY) $(UTL_DIR)/mdump.c
+	$(CC) $(CFLAGS) $(OSFLAGS) /Fe$(BIN_DIR)/mdump.exe $(UTL_DIR)/mdump.c $(LIBRARY) $(LIBS)
+$(BIN_DIR)/odbhist.exe:	$(LIBRARY) $(UTL_DIR)/odbhist.c
+	$(CC) $(CFLAGS) $(OSFLAGS) /Fe$(BIN_DIR)/odbhist.exe $(UTL_DIR)/odbhist.c $(LIBRARY) $(LIBS)
+$(BIN_DIR)/mtape.exe:  $(LIBRARY) $(UTL_DIR)/mtape.c
+	$(CC) $(CFLAGS) $(OSFLAGS) /Fe$(BIN_DIR)/mtape.exe $(UTL_DIR)/mtape.c $(LIBRARY) $(LIBS)
+$(BIN_DIR)/mhist.exe:  $(LIBRARY) $(UTL_DIR)/mhist.c
+	$(CC) $(CFLAGS) $(OSFLAGS) /Fe$(BIN_DIR)/mhist.exe $(UTL_DIR)/mhist.c $(LIBRARY) $(LIBS)
+$(BIN_DIR)/mstat.exe:  $(LIBRARY) $(UTL_DIR)/mstat.c 
+	$(CC) $(CFLAGS) $(OSFLAGS) /Fe$(BIN_DIR)/mstat.exe $(UTL_DIR)/mstat.c $(LIBRARY) $(LIBS) wsock32.lib
+$(BIN_DIR)/mcnaf.exe:$(LIBRARY) $(UTL_DIR)/mcnaf.c $(DRV_DIR)/bus/camacrpc.c
+	$(CC) $(CFLAGS) $(OSFLAGS) /Fe$(BIN_DIR)/mcnaf.exe $(UTL_DIR)/mcnaf.c $(DRV_DIR)/bus/camacrpc.c $(LIBRARY) wsock32.lib $(LIBS)
+
+
+clean:
+	del $(LIB_DIR)\*.obj
+	del $(BIN_DIR)\*.*

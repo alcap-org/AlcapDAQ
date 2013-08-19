@@ -1,0 +1,21 @@
+# hveditrc
+# Adminstration file for hvEdit
+#
+# this file should be placed in $HOME/.qt,
+#
+# Andreas Suter, 2003/10/27
+#
+
+[General]
+DEFAULT_SETTING_DIR=.
+DEFAULT_DOC_DIR=gui/hvedit/qt/doc
+
+[ODB Keys]
+MIDAS_KEY_HV_ROOT=/Equipment/HV
+MIDAS_KEY_HV_NAMES=Settings/Names
+MIDAS_KEY_HV_DEMAND=Variables/Demand
+MIDAS_KEY_HV_MEASURED=Variables/Measured
+MIDAS_KEY_HV_CURRENT=Variables/Current
+MIDAS_KEY_HV_CURRENT_LIMIT=Settings/Current Limit
+
+# end of hveditrc

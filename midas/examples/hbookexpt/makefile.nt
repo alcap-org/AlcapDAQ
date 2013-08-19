@@ -1,0 +1,69 @@
+#####################################################################
+#
+#  Name:         makefile.nt
+#  Created by:   Stefan Ritt
+#
+#  Contents:     Makefile for MIDAS example frontend and analyzer
+#                under Windows NT 
+#
+#  Revision history
+#  ------------------------------------------------------------------
+#  date         by    modification
+#  ---------    ---   -----------------------------------------------
+#  13-NOV-97    SR    created
+#
+#  $Log: makefile.nt,v $
+#  Revision 1.1.1.1  2005/06/20 23:37:11  mucap
+#  Importing release 1.9.5 of the MIDAS source code as distributed by PSI.
+#  (Next, I'll commit our local customizations.)
+#
+#  Revision 1.2  2003/09/02 20:32:47  pierre
+#  include cvs tag, local hmana.obj build
+#
+#####################################################################
+
+
+#-------------------------------------------------------------------
+# The following lines define direcories. Adjust if necessary
+#                 
+MIDAS_DIR       = \midas
+INC_DIR         = $(MIDAS_DIR)\include
+DRV_DIR         = $(MIDAS_DIR)\drivers
+SRC_DIR         = $(MIDAS_DIR)\src
+LIB_DIR         = $(MIDAS_DIR)\nt\lib
+ZLIB_DIR        = $(MIDAS_DIR)\nt\lib
+CERNLIB_DIR     = \cern\lib
+
+#-------------------------------------------------------------------
+# List of analyzer modules
+#                 
+MODULES = adccalib.obj adcsum.obj scaler.obj
+
+####################################################################
+# Lines below here should not be edited
+####################################################################
+
+LIBRARY = $(LIB_DIR)\midas.lib
+
+# compiler
+CC = cl
+CFLAGS = /I$(INC_DIR) /nologo /D WIN32 /D HAVE_HBOOK
+
+all: frontend.exe analyzer.exe
+
+frontend.exe:  $(LIBRARY) $(LIB_DIR)\mfe.obj frontend.c $(DRV_DIR)\bus\camacnul.c
+  $(CC) $(CFLAGS) /Fefrontend.exe $(LIB_DIR)\mfe.obj frontend.c $(DRV_DIR)\bus\camacnul.c $(LIBRARY) $(LIBS) wsock32.lib
+
+analyzer.exe: $(LIBRARY) hmana.obj analyzer.obj $(MODULES)
+  $(CC) /Feanalyzer.exe hmana.obj analyzer.obj \
+    $(MODULES) packlib.lib $(ZLIB_DIR)\zlib.lib \
+    $(LIBRARY) $(LIBS) wsock32.lib /link /libpath:"$(CERNLIB_DIR)"
+
+.c.obj:
+  $(CC) $(CFLAGS) /c $<
+
+hmana.obj: $(SRC_DIR)\mana.c
+  $(CC) $(CFLAGS) /c $(SRC_DIR)\mana.c /Fohmana.obj
+
+clean:
+  del *.obj

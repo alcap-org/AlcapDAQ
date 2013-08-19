@@ -1,0 +1,1224 @@
+/*! \page Internal Internal features
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref quickstart - @ref Top - @ref Utilities
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+This section refers to the Midas built-in capabilities. The following sections 
+describe in more details the essential aspect of each feature starting from the frontend
+to the Electronic Logbook.
+- @ref Transition_sequence : Transition Sequence
+- @ref Frontend_code
+  - @ref The_Equipment_Structure : Frontend acquisition characteristics 
+    - @ref MIDAS_event_construction : Midas event description 
+    - @ref YBOS_event_construction : YBOS  event description
+    - @ref FIXED_event_construction :FIXED  event description
+  - @ref Deferred_Transition : Transition postpawning operation
+  - @ref Super_Event : Short event compaction operation
+  - @ref Event_Builder : Event Builder operation 
+- @ref ODB_Structure : Online Database Trees
+- @ref Hot_Link : Notification mechanism
+- @ref Alarm_System : Alarm scheme
+- @ref Slow_Control_system : Specific Slow Control mechanism
+- @ref Electronic_Logbook : Essential utility
+- @ref Log_File : Message, error, report
+
+<br>
+
+<hr> @section Transition_sequence Run Transition Sequence
+The run transition sequence has been modified since Midas version 1.9.5.
+The new scheme utilize transition sequence level which provides to the user
+a full control of the sequencing of any Midas client.
+
+Midas defines 3 states of Data acquistion: \em STOPPED, \em PAUSED, \em RUNNING
+
+These 3 states requires 4 transitions : \em TR_START, \em TR_PAUSE
+, \em TR_RESUME, \em TR_STOP
+
+Any Midas client can request notification for run transition. This 
+notification is done by registering to the system for a given transition
+( cm_register_transition() ) by specifying the transition type and the
+sequencing number (1 to 1000). 
+
+By Default the following sequence numbers are used:
+- Frontend     : TR_START: 500, TR_PAUSE: 500, TR_RESUME: 500,TR_STOP: 500 
+- Analyzer     : TR_START: 500, TR_PAUSE: 500, TR_RESUME: 500,TR_STOP: 500 
+- Logger       : TR_START: 200, TR_PAUSE: 500, TR_RESUME: 500,TR_STOP: 800 
+- EventBuilder : TR_START: 300, TR_PAUSE: 500, TR_RESUME: 500,TR_STOP: 700 
+
+The sequence number appears into the ODBedit under /System/Clients/
+\code
+[local:midas:S]Clients>ls -lr
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Clients                         DIR
+    1832                        DIR     <------------ Frontend 1
+        Name                    STRING  1     32    21h  0   R    ebfe01
+        Host                    STRING  1     256   21h  0   R    pierre2
+        Hardware type           INT     1     4     21h  0   R    42
+        Server Port             INT     1     4     21h  0   R    2582
+        Transition START        INT     1     4     21h  0   R    500
+        Transition STOP         INT     1     4     21h  0   R    500
+        Transition PAUSE        INT     1     4     21h  0   R    500
+        Transition RESUME       INT     1     4     21h  0   R    500
+        RPC                     DIR
+            17000               BOOL    1     4     21h  0   R    y
+    3872                        DIR     <------------ Frontend 2 
+        Name                    STRING  1     32    21h  0   R    ebfe02
+        Host                    STRING  1     256   21h  0   R    pierre2
+        Hardware type           INT     1     4     21h  0   R    42
+        Server Port             INT     1     4     21h  0   R    2585
+        Transition START        INT     1     4     21h  0   R    500
+        Transition STOP         INT     1     4     21h  0   R    500
+        Transition PAUSE        INT     1     4     21h  0   R    500
+        Transition RESUME       INT     1     4     21h  0   R    500
+        RPC                     DIR
+            17000               BOOL    1     4     21h  0   R    y
+    2220                        DIR     <------------ ODBedit doesn't need transition
+        Name                    STRING  1     32    42s  0   R    ODBEdit
+        Host                    STRING  1     256   42s  0   R    pierre2
+        Hardware type           INT     1     4     42s  0   R    42
+        Server Port             INT     1     4     42s  0   R    3429
+    568                         DIR     <------------ Event Builder
+        Name                    STRING  1     32    26s  0   R    Ebuilder
+        Host                    STRING  1     256   26s  0   R    pierre2
+        Hardware type           INT     1     4     26s  0   R    42
+        Server Port             INT     1     4     26s  0   R    3432
+        Transition START        INT     1     4     26s  0   R    300
+        Transition STOP         INT     1     4     26s  0   R    700
+    2848                        DIR     <------------ Logger 
+        Name                    STRING  1     32    5s   0   R    Logger
+        Host                    STRING  1     256   5s   0   R    pierre2
+        Hardware type           INT     1     4     5s   0   R    42
+        Server Port             INT     1     4     5s   0   R    3436
+        Transition START        INT     1     4     5s   0   R    200
+        Transition STOP         INT     1     4     5s   0   R    800
+        Transition PAUSE        INT     1     4     5s   0   R    500
+        Transition RESUME       INT     1     4     5s   0   R    500
+        RPC                     DIR
+            14000               BOOL    1     4     5s   0   R    y
+\endcode
+
+The \em /System/Clients/... tree reflects the system at a given time. If a permanent
+change of a client sequence number is required, the system call cm_set_transition_sequence()
+can be used. 
+
+
+<hr> @section Frontend_code Frontend code
+Under MIDAS, experiment hardware is structured into "equipment" which refers to a
+collection of hardware devices such as: a set of high voltage supplies, one or more
+crates of digitizing electronics like ADCs and TDCs or a set of scaler. On a software
+point of view, we keep that same equipment term to refer to the mean of collecting the
+data related to this "hardware equipment". The data from this equipment is then gathered
+into an "event" and send to the back-end computer for logging and/or analysis.
+
+The frontend program (image) consists of a system framework contained in mfe.c
+(hidden to the user) and a user part contained in frontend.c .
+The hardware access is only apparent in the user code.
+
+Several libraries and drivers exist for various bus systems like CAMAC, VME or RS232.
+They are located in the drivers directory of the MIDAS distribution.
+Some libraries consist only of a header file, others of a C file plus a header file.
+The file names usually refer to the manufacturer abbreviation followed by
+the model number of the device. The libraries are continuously expanding to widen
+Midas support.
+
+ESONE standard routines for CAMAC are supplied and permit to re-use the frontend code
+between different platform as well as different CAMAC hardware interface without
+the need of modification of the code.
+
+The user frontend code consists of several sections described in order below.
+Example of frontend code can be found under the \b ../examples/experiment directory:
+
+- <b> [Global declaration] </b>
+Up to the User global section  the declarations are system wide and should not
+be remove.
+  - @ref frontend_name  This value can be modified to reflect the purpose of the code.
+  - @ref frontend_call_loop() Enables the function frontend_loop() to be run
+    after every equipment loop.
+  - @ref display_period  defined in millisecond the time interval between refresh of a
+    frontend status display. The value of zero disable the display.
+    If the frontend is started in the background with the display enabled,
+    the stdout should be redirected to the null device to prevent process to hang.
+  - @ref max_event_size  specify the maximum size of the expected event in byte.
+  - @ref event_buffer_size  specify the maximum size of the buffer in byte to be
+    allocated by the system.
+    After these system parameters, the user may add his or her own declarations.
+    \code 
+    // The frontend name (client name) as seen by other MIDAS clients
+    char *frontend_name = "Sample Frontend";
+
+    // The frontend file name, don't change it
+    char *frontend_file_name = __FILE__;
+
+    // frontend_loop is called periodically if this variable is TRUE
+    BOOL frontend_call_loop = FALSE;
+
+    //a frontend status page is displayed with this frequency in ms
+    INT display_period = 3000;
+
+    //maximum event size produced by this frontend
+    INT max_event_size = 10000;
+
+    //buffer size to hold events
+    INT event_buffer_size = 10*10000;
+
+    // Global user section
+    // number of channels
+    #define N_ADC  8  
+    #define N_TDC  8 
+    #define N_SCLR 8
+
+    CAMAC crate and slots
+    #define CRATE      0
+    #define SLOT_C212 23
+    #define SLOT_ADC   1
+    #define SLOT_TDC   2
+    #define SLOT_SCLR  3
+    \endcode      
+- <b> [Prototype functions] </b>
+The first group of prototype(7) declare the pre-defined system functions should be
+present. The second group defines the user functions associated to the declared
+equipments. All the fields are described in detailed in the following section.
+\code 
+INT frontend_init();
+INT frontend_exit();
+INT begin_of_run(INT run_number, char *error);
+INT end_of_run(INT run_number, char *error);
+INT pause_run(INT run_number, char *error);
+INT resume_run(INT run_number, char *error);
+INT frontend_loop();
+
+INT read_trigger_event(char *pevent, INT off);
+INT read_scaler_event(char *pevent, INT off);
+\endcode
+  - \b [Remark] Each equipment has the option to force it-self to run at individual
+transition time see @ref ro_mode . At transition time
+the system functions begin_of_run(), end_of_run(), pause_run(), resume_run() 
+runs \b prior the equipment functions. This gives the system the chance to take basic
+action on the transition request (Enable/disable LAM) before the equipment runs. The sequence
+of operation is the following:
+   - frontend_init() : Runs once after system initialization, before equipment registration.
+   - begin_of_run() : Runs after systerm statistics reset, before any other Equipments at each
+      Begining of Run request.
+   - pause_run(): Runs before any other Equipments at each Run Pause request.
+   - resume_run(): Runs before any other Equipments at each Run Resume request.
+   - end_of_run(): Runs before any other Equipments at each End of Run request.
+   - frontend_exit(): Runs once before Slow Control Equipment exit. 
+
+- <b> [Bank definition]</b>
+Since the introduction of \b ROOT , the frontend requires to have the
+definition of the banks in the case you desire to store the raw data in \b
+ROOT format. This procedure is equivalent to the bank declaration in the
+analyzer. In the case the format declared is MIDAS, the example below
+shows the a structured bank and a standard variable length bank declaration
+for the trigger bank list. The trigger_bank_list[] is declared in the
+equipment structure (see @ref Eq_example ).
+\code
+   ADC0_BANK_STR(adc0_bank_str);
+   BANK_LIST trigger_bank_list[] = {
+      {"ADC0", TID_STRUCT, sizeof(ADC0_BANK), adc0_bank_str},
+      {"TDC0", TID_WORD, N_TDC, NULL},
+      {""},
+   };
+
+   BANK_LIST scaler_bank_list[] = {
+      {"SCLR", TID_DWORD, N_ADC, NULL},
+      {""},
+   };
+\endcode
+
+- <b> [Equipment definition] </b>
+See @ref The_Equipment_Structure for further explanation.
+\anchor Eq_example 
+\code
+#undef USE_INT
+EQUIPMENT equipment[] = {
+
+  { "Trigger",                                  // equipment name 
+    1, 0,                                       // event ID, trigger mask 
+    "SYSTEM",                                   // event buffer
+#ifdef USE_INT
+    EQ_INTERRUPT,                               // equipment type
+#else
+    EQ_POLLED,                                  // equipment type 
+#endif
+    LAM_SOURCE(CRATE, LAM_STATION(SLOT_C212)),  // event source crate 0 
+    "MIDAS",                                    // format 
+    TRUE,                                       // enabled 
+    RO_RUNNING |                                // read only when running 
+    RO_ODB,                                     // and update ODB  
+    500,                                        // poll for 500ms 
+    0,                                          // stop run after this event limit 
+    0,                                          // number of sub events 
+    0,                                          // don't log history 
+    "", "", "",}
+    ,
+    read_trigger_event,                         // readout routine 
+    NULL, NULL,
+    trigger_bank_list,                          // bank list
+    }
+   ,
+  ...
+\endcode 
+
+- [frontend_init()]
+  This function run once only at the application startup.
+  Allows hardware checking, loading/setting of global variables,
+  hot-link settings to the ODB etc...
+  In case of CAMAC the standard call can be:
+  \code
+    cam_init();                                 // Init CAMAC access
+    cam_crate_clear(CRATE);                     // Clear Crate
+    cam_crate_zinit(CRATE);                     // Z crate
+    cam_inhibit_set(CRATE);                     // Set I crate 
+    return SUCCESS;
+  \endcode
+
+- [begin_of_run()]
+  This function is called for every run start transition.
+  Allows to update user parameter, load/setup/clear hardware. At the exit of this function
+  the acquisition should be armed and ready to test the LAM.
+  In case of CAMAC frontend, the LAM has to be declared to the Crate Controller.
+  The function \b cam_lam_enable(CRATE, SLOT_IO)  is then necessary in order to enable
+  the proper LAM source station. The LAM source station has to alos be enabled (F26).
+  <br><br>
+  The argument \b run_number provides the current run number being started.
+  The argument \b error can be used for returning a message to the system.
+  This string will be logged into the {b midas.log  file.
+  <br><br>
+  \code 
+    // clear units
+    camc(CRATE, SLOT_C212, 0, 9);
+    camc(CRATE, SLOT_2249A, 0, 9);
+    camc(CRATE, SLOT_SC2, 0, 9);
+    camc(CRATE, SLOT_SC3, 0, 9);
+
+    camc(CRATE, SLOT_C212, 0, 26);              // Enable LAM generation
+
+    cam_inhibit_clear(CRATE);                   // Remove I
+
+    cam_lam_enable(CRATE, SLOT_C212);           // Declare Station to CC as LAM source
+
+    // set and clear OR1320 pattern bits
+    camo(CRATE, SLOT_OR1320, 0, 18, 0x0330);
+    camo(CRATE, SLOT_OR1320, 0, 21, 0x0663);    // Open run gate, reset latch
+    return SUCCESS;
+  \endcode
+
+- [poll_event()]
+  If the equipment definition is \b EQ_POLLED  as an acquisition
+  type, the \b poll_event()  will be call as often as possible over the corresponding
+  poll time (ex:500ms see @ref The_Equipment_Structure) given by each polling equipment.
+  The code below shows a typical CAMAC LAM polling loop. The \b source corresponds
+  to a bitwise LAM station susceptible to generate LAM for that particular equipement.
+  If the LAM is ORed for several station and is independent of the equipment, the
+  LAM test can be simplified (see example below) 
+  <br><br>
+  \code
+  // Trigger event routines ---------------------------------------
+  INT poll_event(INT source, INT count, BOOL test)
+      // Polling routine for events. Returns TRUE if event
+      // is available. If test equals TRUE, don't return. The test
+      // flag is used to time the polling.
+  {
+    int   i;
+    DWORD lam;
+ 
+    for (i=0 ; i<count ; i++)
+      {
+        cam_lam_read(LAM_SOURCE_CRATE(source), &lam);
+        if (lam & LAM_SOURCE_STATION(source)) // Any of the equipment LAM
+     // *** or *** 
+        if (lam)                              // Any LAM (independent of the equipment)
+           if (!test)
+            return lam;
+ 
+    return 0; 
+  \endcode
+  <br><br>
+  - <b> [Remark] </b> When multiple LAM source is specified for a given equipment like:
+  \code
+      LAM_SOURCE(JW_C,  LAM_STATION(GE_N)
+                      | LAM_STATION(JW_N)),
+  \endcode
+  The polling function will pass to the readout function the actual LAM pattern
+  read during the last polling. This pattern is a bitwise LAM station. The content
+  of the \b pevent will be overwritten. This option allows you to determine which
+  of the station has been the real source of the LAM.
+  
+  \code
+  INT read_trigger_event(char *pevent, INT off)
+  {
+    DWORD lam;
+
+    lam = *((DWORD *)pevent);
+
+    // check LAM versus MCS station
+    // The clear is performed at the end of the readout function
+    if (lam & LAM_STATION(JW_N))
+    {
+     ...
+       ... 
+  }
+  \endcode
+
+- [read_trigger_event()]
+  Event readout function defined in the equipment list. Refer to further section
+  for event composition explanation @ref FIXED_event_construction ,
+  @ref MIDAS_event_construction , @ref YBOS_event_construction .
+\code
+// Event readout -------------------------------------------------
+INT read_trigger_event(char *pevent, INT off)
+{
+  WORD *pdata, a;
+ 
+  // init bank structure
+  bk_init(pevent);
+ 
+  // create ADC bank
+  bk_create(pevent, "ADC0", TID_WORD, &pdata);
+  ...
+}
+\endcode
+
+ - [pause_run() / resume_run()]
+  These two functions are called respectively upon "Pause" and
+  "Resume" command. Any code relevant to the upcoming run state can be
+  include. Possible commands when CAMAC is involved can be
+  cam_inhibit_set(CRATE) and cam_inhibit_clear(CRATE).  
+  The argument \b run_number provides the current run number being paused/resumed.
+  The argument \b error  can be used for returning a message to the system.
+  This string will be logged into the midas.log  file.
+
+- [end_of_run()]
+  For every "stop run" transition this function is called and provides
+  opportunity to disable the hardware. In case of CAMAC frontend the
+  LAM should be disable.
+  <br><br>
+  The argument \b run_number  provides the current run number being ended.
+  The argument \b error  can be used for returning a message to the system.
+  This string will be logged into the midas.log file.
+  <br><br>
+  \code
+    // set and clear OR1320 pattern bits or close run gate.
+    camo(CRATE, SLOT_OR1320, 0, 18, 0x0CC3);
+    camo(CRATE, SLOT_OR1320, 0, 21, 0x0990);
+
+    camc(CRATE, SLOT_C212, 0, 26);            // Enable LAM generation
+    cam_lam_disable(CRATE, SLOT_C212);        // disable LAM in crate controller
+    cam_inhibit_set(CRATE);                   // set crate inhibit
+  \endcode
+
+- [frontend_exit()]
+  This function runs when the frontend is requested to terminate. Can be
+  used for local statistic collection etc.
+
+
+\subsection The_Equipment_Structure The Equipment structure
+
+To write a frontend program, the user section (frontend.c) has to have an equipment
+list organized as a structure definition. Here is the structure listing for a trigger
+and scaler equipment from the sample experiment example frontend.c.
+
+\code
+#undef USE_INT
+EQUIPMENT equipment[] = {
+
+  { "Trigger",            // equipment name 
+    1, 0,                 // event ID, trigger mask 
+    "SYSTEM",             // event buffer
+#ifdef USE_INT
+    EQ_INTERRUPT,         // equipment type #else
+    EQ_POLLED,            // equipment type 
+#endif
+    LAM_SOURCE(0,0xFFFFFF),// event source crate 0, all stations 
+    "MIDAS",              // format 
+    TRUE,                 // enabled 
+    RO_RUNNING |          // read only when running 
+    RO_ODB,               // and update ODB  
+    500,                  // poll for 500ms 
+    0,                    // stop run after this event limit 
+    0,                    // number of sub events 
+    0,                    // don't log history 
+    "", "", "",}
+    ,
+    read_trigger_event,   // readout routine 
+    NULL, NULL,
+    trigger_bank_list,    // bank list
+    }
+   ,
+  ...
+\endcode
+
+- <b>["trigger","scaler"]</b>: Each equipment has to have a unique equipment name defined
+under a given node. The name will be the reference name of the equipment generating the
+event.
+
+- <b>[1, 0]</b>: Each equipment has to be associated to an unique event ID and to a trigger
+mask. Both the event ID and the trigger mask will be part of the event header of that
+particular equipment. The trigger mask can be modified dynamically by the readout
+routine to define a sub-event type on an event-by-event basis. This can be used to
+mix "physics events" (from a physics trigger) and "calibration events" (from a clock
+for example) in one run and identify them later. Both parameters are declared as 16bit
+value. If the Trigger mask is used in a single bit-wise mode, only up to 16 masks are
+possible.
+
+- <b>["SYSTEM"]</b> After composition of an "equipment", the Midas frontend mfe.c
+takes over the sending of this event to the "system buffer" on the back-end computer.
+Dedicated buffer can be specified on those lines allowing a secondary stage on the
+back-end (Event builder to collect and assemble these events coming from different
+buffers in order to compose a larger event. In this case the event coming from the
+frontend are called fragment). In this example both events are placed in the same
+buffer called "SYSTEM" (default).
+  - <b> [Remark]  </b>If this field is left empty ("") the readout function associated to
+that equipment will still be performed, but the actual event won't be sent to the
+buffer. The positive side-effect of that configuration is to allow that particular
+equipment to be mirrored in the ODB if the RO_ODB is turned on.
+
+- <b>[EQ_xxx]</b> The field specify the type of equipment. It can be composed of several 
+bitwise flags. The following @ref EQ_POLLED, @ref EQ_INTERRUPT and @ref EQ_SLOW flags cannot be 
+Ored togheter. The possible options are: 
+  - [@ref EQ_POLLED] In this mode, the name of the routine performing the trigger check
+    function is defaulted to poll_event().
+    As polling consists on checking a variable for a true condition, if the loop would
+    be infinite, the frontend would not be able respond to any network commands.
+    Therefore the loop count is determined when the frontend starts so that
+    it returns after a given time-out when no event is available. This time-out is usually
+    in the order of 500 milliseconds. 
+    This flag is mainly used for data acquisition based on a "LAM".
+    \code
+    EQUIPMENT equipment[] = {
+
+      { "Trigger",            // equipment name   ...
+        500,                  // poll for 500ms 
+      ...  
+    \endcode
+  - [@ref EQ_INTERRUPT] For this mode, Midas requires complete configuration and control
+    of the interrupt source. This is provided by an interrupt configuration routine 
+    interrupt_configure()  that has to be coded by the user in the user section of the
+    frontend code. A pointer to this routine is passed to the system instead of the
+    polling routine. The interrupt configuration routine has the following declaration:
+    \code
+    INT interrupt_configure(INT cmd, INT source [], PTYPE adr)
+    {
+      switch(cmd)
+        {
+        case CMD_INTERRUPT_ENABLE:
+          cam_interrupt_enable();
+          break;
+        case CMD_INTERRUPT_DISABLE:
+          cam_interrupt_disable();
+          break;
+        case CMD_INTERRUPT_ATTACH:
+          cam_interrupt_attach((void (*)())adr);
+          break;
+        case CMD_INTERRUPT_DETACH:
+          cam_interrupt_detach();
+          break;
+
+      return CM_SUCCESS; 
+
+    \endcode
+  - [@ref EQ_PERIODIC] In this mode the function associated to this equipment is called 
+    periodically. No hardware requirements is necessary to trigger the readout function.
+    The "poll" field in the equipment declaration is in this case used for periodicity.
+  - [@ref EQ_SLOW] Declare the equipment as a Slow Control equipment. This will enable
+    the call to the \b idle function part of the class driver.
+  - [@ref EQ_MANUAL_TRIG] This flag enables the equipment to be triggered by remote
+    procedure call (RPC). If present, the web interface will provide a button for that
+    action.
+  - [@ref EQ_FRAGMENTED] This flag enables large event (beyond Midas configuration limit)
+    to be handled by the system. This flag requires to have a valid \b  max_event_size_frag 
+    variable defined in the user frontend code (frontend.c). The @ref max_event_size
+    variable is used as fragment size in this case. This option is meant to be used experiment where
+    the event rate is not an issue but the size of the data needs to be extremely large.
+    In any selected case, when the equipment will be required to run, a
+    declared function will be call doing the actual user required operation.
+    Under the four commands listed above, the user has to implement the adequate
+    hardware operation performing the requested action.
+    In \b  drivers  examples can be found on such a interrupt code.
+    See source code such as hyt1331.c, ces8210.c.
+        - CMD_INTERRUPT_ENABLE: to enable an interrupt
+        - CMD_INTERRUPT_DISABLE: to disable an interrupt
+        - CMD_INTERRUPT_INSTALL: to install an interrupt callback routine at address adr.
+        - CMD_INTERRUPT_DEINSTALL: to de-install an interrupt.
+  - [@ref EQ_EB] This flag identify the equipment as a \b fragment \b event and should be
+    ored with the EQ_POLLED in order to be identifyed by the Event_Builder. 
+
+- [@ref LAM_SOURCE(0,0xFFFFFF)] This parameter is a bit-wise representation of the
+24 CAMAC slots which may raise the LAM. It defines which CAMAC slot is allowed to
+trigger the call to the readout routine. (See read_trigger_event() ).
+- <b> ["MIDAS"] </b> This line specifies the data format used for generating the event.
+The following options are possible: MIDAS, YBOS and FIXED. The format has to agree
+with the way the event is composed in the user read-out routine. It tells the system
+how to interpret an event when it is copied to the ODB or displayed in a user-readable
+form.
+
+<center> <b> MIDAS and YBOS or FIXED and YBOS data format can be mixed at the
+frontend level, but the data logger (mlogger) is not able to handle this format
+diversity on a event-by-event basis. In practice a given experiment should keep the
+data format identical throughout the equipment definition. 
+</b> </center> 
+
+- [TRUE] "enable" switch for the equipment. Only when enable (TRUE) the related
+equipment is active.
+
+- \anchor ro_mode [ RO_RUNNING] Specify when the read-out of an event should be occurring
+(transition state) or be enabled (state). Following options are possible:
+
+<table cellpadding="3" ALIGN="center" cellspacing="3" border="1" BORDERCOLOR="#f00000" BGCOLOR="00ffff">
+ <TR><td> RO_RUNNING </td> <td> Read on state "running"</td></TR>
+ <TR><td> RO_STOPPED</td><td> Read on state "stopped"</td></TR>
+ <TR><td> RO_PAUSED  </td><td>  Read on state "paused"</td></TR>
+ <TR><td> RO_BOR </td><td>  Read after begin-of-run</td></TR>
+ <TR><td> RO_EOR </td><td>  Read before end-of-run</td></TR>
+ <TR><td> RO_PAUSE </td><td>  Read when run gets paused</td></TR>
+ <TR><td> RO_RESUME  </td><td> Read when run gets resumed</td></TR>
+ <TR><td> RO_TRANSITIONS</td> <td>  Read on all transitions</td></TR>
+ <TR><td> RO_ALWAYS </td> <td>  Read independently of the states and force
+      a read for all transitions.</td></TR>
+ <TR><td> RO_ODB </td><td>  Equipment event mirrored into ODB under variables</td></TR>
+</table> 
+
+These flags can be combined with the logical OR operator. Trigger events in the
+above example are read out only when running while scaler events is read out when
+running and additionally on all transitions. A special flag RO_ODB tells the system
+to copy the event to the /Equipment/\<equipment name\>/Variables ODB tree once every
+ten seconds for diagnostic. Later on, the event content can then be displayed with
+ODBEdit.
+
+  - [500] Time interval for Periodic equipment (EQ_PERIODIC) or time out value
+    in case of EQ_POLLING (unit in millisecond).
+  - [0 (stop after...)] Specify the number of events to be taken prior forcing an
+    End-Of-Run transition. The value 0 disables this option.
+  - [0 (@ref Super_Event )] Enable the Super event capability. Specify
+    the maximum number of events in the Super event.  
+  - [0 (@ref History_System )] Enable the MIDAS history system for that equipment.
+    The value (positive in seconds) indicates the time interval for generating the event
+    to be available for history logging by the mlogger task if running.
+  - ["","",""] Reserved field for system. Should be present and remain empty.
+  - [read_trigger_event()] User read-out routine declaration (could be any name).
+    Every time the frontend is initialized, it copies the equipment settings to the ODB
+    under /Equipment/\<equipment name\>/Common. A hot-link to that ODB tree is created
+    allowing some of the settings to be changed during run-time. Modification of "Enabled"
+    flag, RO_xxx flags, "period" and "event limit" from the ODB is immediately reflected
+    into the frontend which will act upon them.
+    This function has to be present in the frontend code and will be called for every
+    trigger under one of the two conditions:
+    - [In polling mode] The poll_event has detected a trigger request while polling on a
+    trigger source.
+    - [In interrupt mode] An interrupt source pre-defined through the
+    interrupt_configuration has occurred.
+    - [Remark 1 ] The first argument of the readout function provide the pointer to
+    the newly constructed event and point to the first valid location for storing the data.
+    - [Remark 2 ] The content of the memory location pointed by \b  pevent  prior
+    its uses in the readout function contains the LAM source bitwise register.
+    This feature can be exploited in order to identify which slot has triggered the
+    readout when multiple LAM has been assigned to the same readout function.
+\b Example: 
+\code 
+... in the equipment declaration
+    ...
+    LAM_SOURCE(JW_C,  LAM_STATION(GE_N) | LAM_STATION(JW_N)), // event source 
+    ...
+    "", "", "",
+    event_dispatcher,   // readout routine 
+...
+
+INT event_dispatcher(char *pevent)
+{
+  DWORD lam, dword;
+  INT   size=0;
+  EQUIPMENT      *eq;
+
+  // the *pevent contains the LAM pattern returned from poll_event
+  //  The value can be used to dispatch to the proper LAM function
+ 
+  // !!!! ONLY one of the LAM is processed in the loop !!!!
+  lam = *((DWORD *)pevent);
+
+  // check LAM versus MCS station
+  if (lam & LAM_STATION(JW_N))
+  {
+    ...
+    // read MCS event 
+    size = read_mcs_event(pevent);
+    ...
+   
+  else if (lam & LAM_STATION(GE_N))
+  {
+    ...
+    // read GE event
+    size = read_ge_event(pevent);
+    ...
+   
+  return size;
+ 
+\endcode  
+    - [Remark 3 ] In the above example, the Midas Event Header will contains the same
+    Event ID as well as the Trigger mask for both LAM. The event serial number will be
+    incremented by one for every call to event_dispatcher() as long as the returned size
+    is non-zero.
+    - [Remark 4 ] The return value should represent the number of bytes collected
+    in this function. If the returned value is set to zero, The event will be dismissed
+    and the serial number to that event will be decremented by one.
+
+\subsection FIXED_event_construction  FIXED event construction
+
+The FIXED format is the simplest event format. The event length is fixed and maps to
+a C structure that is filled by the readout routine. Since the standard MIDAS analyzer
+cannot work with this format, it is only recommended for experiment, which use its own
+analyzer and want to avoid the overhead of a bank structure.
+For fixed events, the structure has to be defined twice: Once for the compiler in
+form of a C structure and once for the ODB in form of an ASCII representation.
+The ASCII string is supplied to the system as the "init string" in the equipment list.
+
+Following statements would define a fixed event with two ADC and TDC values:
+
+\code
+typedef struct {
+  int adc0;
+  int adc1;
+  int tdc0;
+  int tdc1;
+  TRIGGER_EVENT;
+char *trigger_event_str[] = {
+"adc0 = INT : 0",
+"adc1 = INT : 0",
+"tdc0 = INT : 0",
+"tdc1 = INT : 0",
+  ASUM_BANK;
+\endcode
+
+The \b trigger_event_str  has to be defined before the equipment list and a reference
+to it has to be placed in the equipment list like:
+
+\code{
+...
+  read_trigger_event, // readout routine 
+  poll_trigger_event, // polling routine 
+  trigger_event_str,  // init string 
+ ,
+\endcode
+
+The readout routine could then look like this, where the <...> statements have to
+be filled with the appropriate code accessing the hardware:
+
+\code
+INT read_trigger_event(char *pevent)
+{
+TRIGGER_EVENT *ptrg;
+
+  ptrg = (TRIGGER_EVENT *) pevent;
+  ptrg->adc0 = <...>;
+  ptrg->adc1 = <...>;
+  ptrg->tdc0 = <...>;
+  ptrg->tdc1 = <...>;
+
+  return sizeof(TRIGGER_EVENT);
+\endcode
+
+<hr> @section MIDAS_event_construction MIDAS event construction
+
+The MIDAS event format is a variable length event format. It uses "banks" as
+subsets of an event. A bank is composed of a bank header followed by the data.
+The bank header itself is made of 4 fields i.e: bank name (4 char max), bank type,
+bank length. Usually a bank contains an array of values that logically belong
+together. For example, an experiment can generate an ADC bank, a TDC bank and a
+bank with trigger information. The length of a bank can vary from one event to
+another due to zero suppression from the hardware. Beside the variable data length
+support of the bank structure, onother main advantage is the possibility for the
+analyzer to add more (calculated) banks during the analysis process to the event
+in process. After the first analysis stage, the event can contain additionally to
+the raw ADC bank a bank with calibrated ADC values called CADC bank for example.
+In this CADC bank the raw ADC values could be offset or gain corrected.
+
+MIDAS banks are created in the frontend readout code with calls to the MIDAS library.
+Following routines exist:
+- bk_init() , bk_init32() Initializes a bank structure in an event.
+- bk_create() Creates a bank with a given name (exactly four characters)
+- bk_close() Closes a bank previously opened with bk_create().
+- bk_locate() Locate a bank within anevent by its name.
+- bk_iterate() Return bank and data pointers to each bank in the event.
+- bk_list() Construct a string of all the bank name in the event.
+- bk_size() Returns the size in bytes of all banks including the bank
+headers in an event.
+The following code composes a event containing two ADC and two TDC values, the <...>
+statements have to be filled with specific code accessing the hardware:
+
+\code
+INT read_trigger_event(char *pevent)
+{
+INT *pdata;
+
+  bk_init(pevent);
+
+  bk_create(pevent, "ADC0", TID_INT, &pdata);
+  *pdata++ = <ADC0>
+  *pdata++ = <ADC1>
+  bk_close(pevent, pdata);
+
+  bk_create(pevent, "TDC0", TID_INT, &pdata);
+  *pdata++ = <TDC0>
+  *pdata++ = <TDC1>
+  bk_close(pevent, pdata);
+
+  return bk_size(pevent);
+\endcode
+
+Upon normal completion, the readout routine returns the event size in bytes.
+If the event is not valid, the routine can return zero. In this case no event
+is sent to the back-end. This can be used to implement a software event filter
+(sometimes called "third level trigger").
+
+\code
+INT read_trigger_event(char *pevent)
+{
+WORD *pdata, a;
+
+  // init bank structure 
+  bk_init(pevent);
+
+  // create ADC bank 
+  bk_create(pevent, "ADC0", TID_WORD, &pdata);
+
+  // read ADC bank 
+  for (a=0 ; a<8 ; a++)
+    cami(1, 1, a, 0, pdata++);
+
+  bk_close(pevent, pdata);
+
+  // create TDC bank 
+  bk_create(pevent, "TDC0", TID_WORD, &pdata);
+
+  // read TDC bank 
+  for (a=0 ; a<8 ; a++)
+    cami(1, 2, a, 0, pdata++);
+
+  bk_close(pevent, pdata);
+
+  return bk_size(pevent);
+ 
+\endcode
+
+
+<hr> @section YBOS_event_construction YBOS event construction
+
+The YBOS event format is also a bank format used in other DAQ systems.
+The advantage of using this format is the fact that recorded data can be analyzed
+with pre-existing analyzers understanding YBOS format. The disadvantage is that it
+has a slightly larger overhead than the MIDAS format and it supports fewer different
+bank types. An introduction to YBOS can be found under:
+
+<a href=http://www-cdf.fnal.gov/offline/ybos/ybos.html> YBOS </a>  
+
+The scheme of bank creation is exactly the same as for MIDAS events, only the
+routines are named differently. The YBOS format is double word oriented i.e. all
+incrementation are done in 4 bytes steps.
+Following routines exist:
+
+- ybk_init() Initializes a bank structure in an event.
+- ybk_create() Creates a bank with a given name (exactly four characters)
+- ybk_close() Closes a bank previously opened with ybk_create().
+- ybk_size() Returns the size in bytes of all banks including the bank
+headers in an event.
+
+The following code creates an ADC0 bank in YBOS format:
+
+\code
+INT read_trigger_event(char *pevent)
+{
+  DWORD i;
+  DWORD *pbkdat;
+
+  ybk_init((DWORD *) pevent);
+
+  // collect user hardware data 
+  ybk_create((DWORD *)pevent, "ADC0", I4_BKTYPE, (DWORD *)(&pbkdat));
+  for (i=0 ; i<8 ; i++)
+    *pbkdat++ = i & 0xFFF;
+  ybk_close((DWORD *)pevent, pbkdat);
+
+  ybk_create((DWORD *)pevent, "TDC0", I2_BKTYPE, (DWORD *)(&pbkdat));
+  for (i=0 ; i<8 ; i++)
+    *((WORD *)pbkdat)++ = (WORD)(0x10+i) & 0xFFF;
+  ybk_close((DWORD *) pevent, pbkdat);
+
+  ybk_create((DWORD *)pevent, "SIMU", I2_BKTYPE, (DWORD *)(&pbkdat));
+  for (i=0 ; i<9 ; i++)
+    *((WORD *)pbkdat)++ = (WORD) (0x20+i) & 0xFFF;
+  ybk_close((DWORD *) pevent, I2_BKTYPE, pbkdat);
+
+  return (ybk_size((DWORD *)pevent));
+ 
+\endcode
+
+
+<hr> @section Deferred_Transition Deferred Transition
+
+This option permits the user to postpone any transition issued by any requester
+until some condition are satisfied. As examples:
+- It may not be advised to pause or stop a run until let say some hardware
+has turned off a particular valve. 
+- The start of the acquisition system is postpone until the beam rate has
+been stable for a given period of time.
+- While active, a particular acquisition system should not be interrupted
+until the "cycle" is complete.
+
+In these examples, any application having access to the state of the hardware
+can register to be a "transition Deferred" client.
+It will then catch any transition request and postpone the trigger of such transition
+until \em condition  is satisfied.
+The Deferred_Transition requires 3 steps for setup:
+
+  - Register the deferred transition. 
+    \code
+    //-- Frontend Init
+    INT frontend_init()
+    {
+      INT    status, index, size;
+      BOOL   found=FALSE; 
+
+      // register for deferred transition
+      cm_register_deferred_transition(TR_STOP, wait_end_cycle);
+      cm_register_deferred_transition(TR_PAUSE, wait_end_cycle);
+      ...  
+    \endcode
+  - Provide callback function to serve the deferred transition 
+  \code
+  //-- Deferred transition callback
+  BOOL wait_end_cycle(int transition, BOOL first)
+  {
+    if (first)
+    {
+      transition_PS_requested = TRUE;
+      return FALSE;
+
+
+    if (end_of_mcs_cycle)
+    {
+      transition_PS_requested = FALSE;
+      end_of_mcs_cycle = FALSE;
+      return TRUE;
+
+    else
+      return FALSE;
+
+  \endcode
+  - Implement the condition code 
+  \code
+  ... In this case at the end of the readout function...
+    ...
+  INT read_mcs_event(char *pevent, INT offset)
+  {
+    ...
+
+    if (transition_PS_requested)
+    {
+      // Prevent to get new MCS by skipping re_arm_cycle and GE by GE_DISABLE LAM
+      cam_lam_disable(JW_C,JW_N);
+      cam_lam_disable(GE_C,GE_N);
+      cam_lam_clear(JW_C,JW_N);
+      cam_lam_clear(GE_C,GE_N);
+      camc(GE_C,GE_N,0,GE_DISABLE);
+      end_of_mcs_cycle = TRUE;
+
+    re_arm_cycle(); 
+    return bk_size(pevent);
+  \endcode
+  In the example above the frontend code register for PAUSE and STOP.
+  The second argument of the cm_register \em wait_end_cycle  is the declaration of
+  the callback function. The callback function will be called as soon as the
+  transition is requested and will provide the Boolean flag first  to be TRUE.
+  By setting the \em transition_PS_requested , the user will have the acknowledgment
+  of the transition request. By returning FALSE from the callback you will prevent
+  the transition to occur. As soon as the user condition is satisfied
+  (end_of_mcs_cycle = TRUE), the return code in the callback will be set to TRUE and the
+  requested transition will be issued.
+  The Deferred transition shows up in the ODB under
+  <b>/runinfo/Requested transition</b>  and will contain the transition code
+  (see @ref state_transition ).
+  When the system is in deferred state, an ODBedit override command can be issued to
+  \b force the transition to happen. eg: odbedit\> stop now, odbedit\> start now  .
+  This overide will do the transition function regarless of the state of the
+  hardware involved.
+
+<hr> @section Super_Event Super Event
+
+The Super Event is a option implemented in the frontend code in order to reduce the
+amount of data to be transfered to the backend by removing the bank header for each event
+constructed. In other words, when an equipment readout in either \em MIDAS or
+\em YBOS  format (bank format) is complete, the event is composed of the bank header
+followed by the data section.
+The overhead in bytes of the bank structure is 16 bytes for bk_init(),
+20 bytes for bk_init32() and ybk_init(). If the data section size is close to
+the number above, the data transfer as well as the data storage has an non-negligible
+overhead. To address this problem, the equipment can be setup to generate a so called
+<b> Super Event </b>  which is an event composed of the initial standard bank header for the
+first event of the super event and up to <b> number of sub event </b> maximum successive
+data section before the closing of the bank.
+
+To demonstrate the use of it, let see the following example:
+
+- Define equipment to be able to generate {\em Super Event 
+  \code
+  { "GE",                 // equipment name 
+      2, 0x0002,            // event ID, trigger mask 
+      "SYSTEM",             // event buffer 
+  #ifdef USE_INT
+      EQ_INTERRUPT,         // equipment type 
+  #else
+      EQ_POLLED,            // equipment type 
+  #endif
+      LAM_SOURCE(GE_C, LAM_STATION(GE_N)),      // event source 
+      "MIDAS",              // format 
+      TRUE,                 // enabled 
+      RO_RUNNING,           // read only when running 
+      200,                  // poll for 200ms 
+      0,                    // stop run after this event limit 
+      1000,                 // -----> number of sub event <-----  enable Super event
+      0,                    // don't log history 
+      "", "", "",
+      read_ge_event,        // readout routine 
+       ,
+      ...
+  \endcode
+- Setup the readout function for Super Event  collection.
+  \code
+  //-- Event readout
+  // Global and fixed -- Expect NWORDS 16bits data readout per sub-event
+  #define NWORDS 3
+
+  INT read_ge_event(char *pevent, INT offset)
+  {
+    static WORD *pdata;
+
+    // Super event structure 
+    if (offset == 0)
+    {
+      // FIRST event of the Super event 
+      bk_init(pevent);
+      bk_create(pevent, "GERM", TID_WORD, &pdata);
+
+    else if (offset == -1)
+    {
+      // close the Super event if offset is -1
+      bk_close(pevent, pdata);
+
+      // End of Super Event
+      return bk_size(pevent);
+
+
+    // read GE sub event (ADC) 
+    cam16i(GE_C, GE_N, 0, GE_READ, pdata++);
+    cam16i(GE_C, GE_N, 1, GE_READ, pdata++);
+    cam16i(GE_C, GE_N, 2, GE_READ, pdata++);
+
+    // clear hardware 
+    re_arm_ge(); 
+
+    if (offset == 0)
+    {
+      // Compute the proper event length on the FIRST event in the Super Event
+      // NWORDS correspond to the !! NWORDS WORD above !!
+      // sizeof(BANK_HEADER) + sizeof(BANK) will make the 16 bytes header
+      // sizeof(WORD) is defined by the TID_WORD in bk_create()
+
+      return NWORDS * sizeof(WORD) + sizeof(BANK_HEADER) + sizeof(BANK);
+
+    else
+      // Return the data section size only
+      // sizeof(WORD) is defined by the TID_WORD in bk_create()
+
+      return NWORDS * sizeof(WORD);
+  \endcode
+  <br><br>
+  The encoded decryption of the data section is left to the user. If the number of words
+  per sub-event is fixed (NWORD), the sub-event extraction is simple. In the case of
+  variable sub-event length, it is necessary to tag the first or the last word of
+  each sub-event.
+  The content of the sub-event is essentially the responsibility of the user.
+  - [Remark 1 ] The backend analyzer will have to be informed by the user on
+    the content structure of the data section of the event as no particular tagging
+    is applied to the <b> Super Event </b> by the Midas transfer mechanism.
+  - [Remark 2 ] If the <b> Super Event </b> is composed in a remote equipment
+    running a different \em Endian mode than the backend processor,
+    it would be necessary to insure the data type consistency throughout the
+    <b> Super Event </b> in order to guaranty the proper byte swapping of the data content.
+  - [Remark 3 ] The event rate in the equipment statistic will indicates the
+    rate of sub-events. 
+
+
+<hr> @section Slow_Control_system Slow Control System
+
+Instead of talking directly to each other, frontend and control programs exchange
+information through the ODB. Each slow control equipment gets a corresponding
+ODB tree under /Equipment. This tree contains variables needed to control the
+equipment as well as variables measured by the equipment.
+In case of a high voltage equipment this is a Demand array with contains
+voltages to be set, a Measured array which contains read back voltages and a
+Current array which contains the current drawn from each channel.
+To change the voltage of a channel, a control program writes to the Demand
+array the desired value.
+This array is connected to the high voltage frontend via a ODB hot-link.
+Each time it gets modified, the frontend receives a notification and sets
+the new value. In the other direction the frontend continuously reads the
+voltage and current values from all channels and updates the according ODB
+arrays if there has been a significant change.
+This design has a possible inconvenience due to fact that ODB is the key
+element of that control. Any failure or corruption of the database can
+results in wrong driver control. Therefore it is not recommended to use
+this system to control systems that need redundancy for safety purposes.
+On the other hand this system has several advantages:
+
+- The control program does not need any knowledge of the frontend,
+  it only talks to the ODB.
+- The control variables only exist at one place that guarantees consistency
+  between all clients.
+- Basic control can be done through ODBEdit without the need of a special
+  control program.
+- A special control program can be tested without having a frontend running.
+- In case of n frontend and m control programs, only n+m network
+connections are needed instead of n*m connection for point-to-point connections.
+Since all slow control values are contained in the ODB, they get automatically
+dumped to the logging channels.
+The slow control frontend use the same framework as the normal frontend and
+behave similar in many respects.
+They also create periodic events that contain the slow control variables and are
+logged together with trigger and scaler events. The only difference is that a
+routine is called periodically from the framework that has the task to
+read channels and to update the ODB.
+To access slow control hardware, a two-layer driver concept is used.
+The upper layer is a "class driver", which establishes the connection to the
+ODB variables and contains high level functionality like channel limits,
+ramping etc. It uses a "device driver" to access the channels.
+These drivers implement only very simple commands like "set channel"
+and "read channel". The device drivers themselves can use bus drivers like
+RS232 or GPIB to control the actual device.
+ 
+ * <center> Class driver, Device and Bus driver in the slow control system
+ *  \image html classes2.jpg
+ *  \image latex classes2.eps "Class driver, Device and Bus driver in the slow control system" width=12cm
+ * </center> 
+
+The separation into class and device drivers has the advantage that it is
+very easy to add new devices, because only the simple device driver needs
+to be written. All higher functionality is inherited from the class driver.
+he device driver can implement richer functionality,
+depending on the hardware. For some high voltage devices there is a current
+read-back for example.
+This is usually reflected by additional variables in the ODB,
+i.e. a Current array. Frontend equipment uses exactly one class driver, but a
+class driver can use more than one device driver.
+This makes it possible to control
+several high voltage devices for example with one frontend in one equipment.
+The number of channels for each device driver is defined in the slow
+control frontend.
+Several equipment with different class drivers can be defined in a
+single frontend.
+
+\code
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+Epics                           DIR
+    Settings                    DIR
+        Channels                DIR
+            Epics               INT     1     4     25h  0   RWD  3
+        Devices                 DIR
+            Epics               DIR
+                Channel name    STRING  10    32    25h  0   RWD  
+                                        [0]             GPS:VAR1
+                                        [1]             GPS:VAR2
+                                        [2]             GPS:VAR3
+        Names                   STRING  10    32    17h  1   RWD  
+                                        [0]             Current
+                                        [1]             Voltage
+                                        [2]             Watchdog
+        Update Threshold MeasureFLOAT   10    4     17h  0   RWD  
+                                        [0]             2
+                                        [1]             2
+                                        [2]             2
+    Common                      DIR
+        Event ID                WORD    1     2     17h  0   RWD  3
+        Trigger mask            WORD    1     2     17h  0   RWD  0
+        Buffer                  STRING  1     32    17h  0   RWD  SYSTEM
+        Type                    INT     1     4     17h  0   RWD  4
+        Source                  INT     1     4     17h  0   RWD  0
+        Format                  STRING  1     8     17h  0   RWD  FIXED
+        Enabled                 BOOL    1     4     17h  0   RWD  y
+        Read on                 INT     1     4     17h  0   RWD  121
+        Period                  INT     1     4     17h  0   RWD  60000
+        Event limit             DOUBLE  1     8     17h  0   RWD  0
+        Num subevents           DWORD   1     4     17h  0   RWD  0
+        Log history             INT     1     4     17h  0   RWD  1
+        Frontend host           STRING  1     32    17h  0   RWD  hostname
+        Frontend name           STRING  1     32    17h  0   RWD  Epics
+        Frontend file name      STRING  1     256   17h  0   RWD  feepic.c
+    Variables                   DIR
+        Demand                  FLOAT   10    4     0s   1   RWD  
+                                        [0]             1.56
+                                        [1]             120
+                                        [2]             87
+        Measured                FLOAT   10    4     2s   0   RWD  
+                                        [0]             1.56
+                                        [1]             120
+                                        [2]             87
+    Statistics                  DIR
+        Events sent             DOUBLE  1     8     17h  0   RWDE 26
+        Events per sec.         DOUBLE  1     8     17h  0   RWDE 0
+        kBytes per sec.         DOUBLE  1     8     17h  0   RWDE 0
+\endcode 
+
+<hr> @section Electronic_Logbook Electronic Logbook
+The Electronic logbook is an alternative way of recording experiment information.
+This is implemented through the Midas web server @ref mhttpd_task (see @ref Elog_page).
+The definition of the options can be found in the ODB data base under
+@ref ODB_Elog_Tree.
+
+
+<hr> @section Log_File Log file
+
+Midas provides a general log file \b midas.log for recording system and
+user messages across the different components of the data acquisition clients.
+The location of this file is dependent on the mode of installation of the system.
+-# [without @ref ODB_Logger_Tree] In this case the location is defined
+by either the @ref MIDAS_DIR  environment (see @ref Environment_variables )
+or the definition of the experiment in the \b exptab  file
+(see @ref Experiment_Definition ). In both case the log file will be in
+the experiment specific directory.
+-# [with /Logger Tree] The \b midas.log  will be sitting into the
+defined directory specified by <b>Data Dir</b> . 
+
+\b midas.log file will contains system and user messages generated by
+any application connected to the given experiment.
+
+The @ref midas_macro definition provides a list of possible type of messages.
+
+\code 
+Fri Mar 24 10:48:40 2000 [CHAOS] Run 8362 started
+Fri Mar 24 10:48:40 2000 [Logger] Run #8362 started
+Fri Mar 24 10:55:04 2000 [Lazy_Tape] cni-043[10] (cp:383.6s) /dev/nst0/run08360.ybs 849.896MB file NEW
+Fri Mar 24 11:24:03 2000 [MStatus] Program MStatus on host umelba started
+Fri Mar 24 11:24:03 2000 [MStatus] Program MStatus on host umelba stopped
+Fri Mar 24 11:27:02 2000 [Logger] stopping run after having received 1200000 events
+Fri Mar 24 11:27:03 2000 [CHAOS] Run 8362 stopped
+Fri Mar 24 11:27:03 2000 [SUSIYBOS] saving info in run log
+Fri Mar 24 11:27:03 2000 [Logger] Run #8362 stopped
+Fri Mar 24 11:27:13 2000 [Logger] starting new run
+Fri Mar 24 11:27:14 2000 [CHAOS] Run 8363 started
+Fri Mar 24 11:27:14 2000 [CHAOS] odb_access_file -I- /Equipment/kos_trigger/Dump not found
+Fri Mar 24 11:27:14 2000 [Logger] Run #8363 started
+Fri Mar 24 11:33:47 2000 [Lazy_Tape] cni-043[11] (cp:391.8s) /dev/nst0/run08361.ybs 850.209MB file NEW
+Fri Mar 24 11:42:35 2000 [CHAOS] Run 8363 stopped
+Fri Mar 24 11:42:40 2000 [SUSIYBOS] saving info in run log
+Fri Mar 24 11:42:41 2000 [ODBEdit] Run #8363 stopped
+Fri Mar 24 12:19:57 2000 [MChart] client [umelba.Triumf.CA]MChart failed watchdog test after 10 sec
+Fri Mar 24 12:19:57 2000 [MChart] Program MChart on host koslx0 stopped
+\endcode  
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref quickstart - @ref Top - @ref Utilities
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+*/

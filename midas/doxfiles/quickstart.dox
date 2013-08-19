@@ -1,0 +1,349 @@
+/*! \page quickstart Quick Start
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref Comp - @ref Top - @ref Internal
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+
+<STRONG>
+This section is under revision to better reflect the latest installation and 
+basic operation of the <b>Midas package</b>.
+</STRONG>
+ 
+...
+This section will... describes step-by-step the installation procedure of the Midas package
+on several platform as well as the procedure to run a demo sample experiment.
+In a second stage, the frontend or the analyzer can be moved to another computer
+to test the remote connection capability.
+
+The Midas Package source and binaries can be found at :
+<a href=http://midas.psi.ch/download> PSI </a> or at 
+<a href=http://midas.triumf.ca/download> TRIUMF </a>.
+An <a href=http://midas.psi.ch/cgi-bin/cvsweb/midas/> online CVS web site </a>
+is also available for the latest developments.
+
+Even though Midas is available for multiple platforms, the following description
+are for @ref Linux_installation and @ref Windows_installation.
+
+<hr> @section Linux_installation Linux installation
+
+-# <b>Extraction: </b>
+  - <b>Compressed files</b>
+    The compressed file contains the source and binary code. It does expand under the
+    directory name of \b midas. This extraction can be done at the user level.
+    \code 
+    cd /home/mydir
+    tar -zxvf midas-1.9.x.tar.gz
+    \endcode
+    The midas directory structure will be composed of several subdirectories such as:
+    \code
+    >ls
+    COPYING  doc/      examples/  include/  linux/     makefile.nt  mscb/  utils/
+    CVS/     drivers/  gui/       java/     Makefile*  mcleanup*    src/   vxworks/
+    \endcode    
+  - <b>RPM</b>
+    <b> Current RPM is not fully up-to-date. We suggest that you use the compressed files
+    or the CVS repository.</b>
+    In the case of the \b rpm, the binaries are placed in the \b /usr/local/bin
+    \b /usr/local/include \b /usr/local/lib.
+  - <b>CVS</b>
+    The source code can be extracted from the
+    <a href=http://midas.psi.ch/cgi-bin/cvsweb/midas>
+    CVS repository</a>. The following two anonymous commands can used for 
+    respectively <b>checking out</b> (first time) and <b>updating</b> the full midas tree.
+    The password required for access is "cvs".
+    \code
+    cvs -e ssh -d :ext:cvs@midas.psi.ch:/usr/local/cvsroot checkout midas
+    
+    cvs -e ssh -d :ext:cvs@midas.psi.ch:/usr/local/cvsroot update
+    \endcode
+<br><br>
+-# <b> Installation: </b>
+The installation consists in placing the image files in the \b /usr/local/ directories.
+This operation requires superuser privilege. The open "install" from the Makefile will
+automatically do this installation for you.
+\code 
+cd /home/mydir/midas
+su - 
+make install
+\endcode
+<br><br>
+-# <b> Configuration: </b>
+Several system files needs to be modified for the full Midas implementation.
+  - <b>/etc/services :</b> For remote access. Inclusion of the midas service.
+       Add following line:
+    \code 
+    # midas service
+    midas           1175/tcp                        # Midas server
+    \endcode
+  - <b>/etc/xinetd.d/midas :</b> Daemon definition. Create new file named \b midas
+    \code 
+    service midas
+    {
+            flags                   = REUSE NOLIBWRAP
+            socket_type             = stream
+            wait                    = no
+            user                    = root
+            server                  = /usr/local/bin/mserver
+            log_on_success          += USERID HOST PID
+            log_on_failure          += USERID HOST PID
+            disable                 = no
+    }    \endcode
+  - <b>/etc/ld.so.conf :</b> Dynamic Linked library list. Add directory pointing to 
+  location of the midas.so file (add /usr/local/lib).
+    \code 
+    /usr/local/lib
+    \endcode
+  The system environment \b LD_LIBRARY_PATH can used instead.
+  - <b>/etc/exptab :</b> Midas Experiment definition file (see below).
+<br><br>
+-# \anchor Experiment_Definition <b> Experiment definition: </b>
+  Midas system supports multiple experiment running contemporary on the same computer.
+  Even though it may not be efficient, this capability makes sense when the experiments
+  are simple detector lab setups which shared hardware resources for data collection.
+  In order to support this feature, Midas requires a uniquely identified set of
+  parameter for each experiment that is used to define the location of the Online Database.
+  <br><br>
+  Every experiment under Midas has its own ODB.
+  In order to differentiate them, an experiment name and directory are assigned to each
+  experiment. This allows several experiments to run concurrently on the same host
+  using a common Midas installation.
+  <br><br>
+  Whenever a program participating in an experiment is started, the experiment name
+  can be specified as a command line argument or as an environment variable.
+  <br><br>
+  A list of all possible running experiments on a given machine is kept in the file
+  \b exptab. This file \b exptab is expected by default to be located under
+  \b /etc/exptab. This can be overwritten by the @ref Environment_variables
+  @ref MIDAS_EXPTAB.
+  <br><br>
+  \b exptab file is composed of one line per experiment definition. Each line
+  contains three parameters, i.e:
+  <b>experiment name</b>, <b>experiment directory name</b> and <b>user name</b>.
+  Example:
+  \code
+  #
+  # Midas experiment list
+  midas   /home/midas/online     midas
+  decay   /home/slave/decay_daq  slave
+  \endcode
+  <br>
+  Experiments not defined into \b exptab are not accessible remotely, but can still be
+  accessed locally using the @ref Environment_variables @ref MIDAS_DIR if defined.
+  This environment superceed the \b exptab definition.
+  <br><br>
+-# <b> Compilation & Build: </b>
+  You should be able to rebuild the full package once the Midas tree structure has been
+  placed in your temporary directory. The compilation and link will try to generate the \b rmidas
+  application which requires \b ROOT. The application \b mana will also be compiled for \b HBOOK and 
+  \b ROOT. Look in the make listing below for the @ref HAVE_HBOOK, @ref HAVE_ROOT. 
+  <br><br>
+  \code
+  > cd /home/mydir/midas
+  > make
+  cc -c -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/lib/midas.o src/midas.c
+  cc -c -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/lib/system.o src/system.c
+  cc -c -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/lib/mrpc.o src/mrpc.c
+  cc -c -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/lib/odb.o src/odb.c
+  cc -c -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/lib/ybos.o src/ybos.c
+  cc -c -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/lib/ftplib.o src/ftplib.c
+  rm -f linux/lib/libmidas.a
+  ar -crv linux/lib/libmidas.a linux/lib/midas.o linux/lib/system.o linux/lib/mrpc.o 
+  linux/lib/odb.o linux/lib/ybos.o linux/lib/ftplib.o
+  a - linux/lib/midas.o
+  a - linux/lib/system.o
+  a - linux/lib/mrpc.o
+  a - linux/lib/odb.o
+  a - linux/lib/ybos.o
+  a - linux/lib/ftplib.o
+  rm -f linux/lib/libmidas.so
+  ld -shared -o linux/lib/libmidas.so linux/lib/midas.o linux/lib/system.o
+  linux/lib/mrpc.o linux/lib/odb.o linux/lib/ybos.o linux/lib/ftplib.o -lutil 
+  -lpthread -lc
+  cc -c -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC    
+  -o linux/lib/mana.o src/mana.c
+  cc -Dextname -DHAVE_HBOOK -c -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib 
+  -DINCLUDE_FTPLIB -DOS_LINUX -fPIC    -o linux/lib/hmana.o src/mana.c
+  ...
+  g++ -DHAVE_ROOT -c -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB 
+  -DOS_LINUX -fPIC   -D_REENTRANT -I/home1/midas/ root/include -o linux/lib/rmana.o 
+  src/mana.c
+  g++ -c -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINU 
+  -fPIC   -o linux/lib/mfe.o src/mfe.c
+  cc -Dextname -c -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib 
+  -DINCLUDE_FTPLIB -DOS_LINUX -fPIC    -o linux/lib/fal.o src/fal.c
+  ...
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/mserver src/mserver.c -lmidas -lutil -lpthread
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/mhttpd src/mhttpd.c src/mgd.c -lmidas -lutil -lpthread -lm
+  g++ -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -DHAVE_ROOT -D_REENTRANT -I/home1/midas/root/include 
+  -o linux/bin/mlogger src/mlogger.c -lmidas 
+  -L/home1/midas/root/lib -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree
+  -lRint -lPostscript -lMatrix -lPhysics -lpthread -lm -ldl -rdynamic -lutil -lpthread
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/odbedit src/odbedit.c src/cmdedit.c -lmidas -lutil -lpthread
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/mtape utils/mtape.c -lmidas -lutil -lpthread
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/mhist utils/mhist.c -lmidas -lutil -lpthread
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/mstat utils/mstat.c -lmidas -lutil -lpthread
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/mcnaf utils/mcnaf.c drivers/bus/camacrpc.c -lmidas -lutil -lpthread
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/mdump utils/mdump.c -lmidas -lz -lutil -lpthread
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/lazylogger src/lazylogger.c -lmidas -lz -lutil -lpthread
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/mchart utils/mchart.c -lmidas -lutil -lpthread
+  cp -f utils/stripchart.tcl linux/bin/.
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/webpaw utils/webpaw.c -lmidas -lutil -lpthread
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/odbhist utils/odbhist.c -lmidas -lutil -lpthread
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/melog utils/melog.c -lmidas -lutil -lpthread
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/mlxspeaker utils/mlxspeaker.c -lmidas -lutil -lpthread
+  cc -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC   
+  -o linux/bin/dio utils/dio.c -lmidas -lutil-lpthread
+  g++ -g -O2 -Wall -Iinclude -Idrivers -Llinux/lib -DINCLUDE_FTPLIB -DOS_LINUX -fPIC  
+  -DHAVE_ROOT -D_REENTRANT -I/home1/midas/root/include -o linux/bin/rmidas src/rmidas.c 
+  -lmidas -L/home1/midas/root/lib -lCore -lCint -lHist -lGraf -lGraf3d -lGpad 
+  -lTree -lRint -lPostscript -lMatrix -lPhysics -lGui -lpthread -lm -ldl -rdynamic
+  -lutil -lpthread
+  \endcode
+  <br><br>
+-# <b> Demo examples: </b>
+  The midas file structure contains examples of code which can be (should be) used for template.
+  In the <b> midas/examples/experiment</b> you will find a full set for frontend and analysis code.
+  The building of this example is performed with the \b Makefile of this directory. The reference
+  to the Midas package is done relative to your current location (../../include). In the case the 
+  content of this directory is copied to a different location (template), you will need to
+  modify the local parameters within the Makefile
+  \code
+  #-------------------------------------------------------------------
+  # The following lines define direcories. Adjust if necessary
+  #                 
+  DRV_DIR   = ../../drivers/bus
+  INC_DIR   = ../../include
+  LIB_DIR   = ../../linux/lib
+ \endcode
+  Replace by: 
+  \code
+  #-------------------------------------------------------------------
+  # The following lines define direcories. Adjust if necessary
+  #                 
+  DRV_DIR   = /home/mydir/midas/drivers/bus
+  INC_DIR   = /usr/local/include
+  LIB_DIR   = /usr/local//lib
+ \endcode
+<br><br>
+  \code 
+  > cd /home/mydir/midas/examples/experiment
+  > make 
+  gcc -g -O2 -Wall -g -I../../include -I../../drivers/bus -DOS_LINUX -Dextname -c
+  -o camacnul.o ../../drivers/bus/camacnul.c
+  g++ -g -O2 -Wall -g -I../../include -I../../drivers/bus -DOS_LINUX -Dextname -o
+  frontend frontend.c
+  camacnul.o ../../linux/lib/mfe.o ../../linux/lib/libmidas.a  -lm -lz -lutil
+  -lnsl -lpthread
+  g++  -D_REENTRANT -I/home1/midas/root/include -DHAVE_ROOT -g -O2 -Wall -g 
+  -I../../include -I../../drivers/bus -DOS_LINUX -Dextname -o analyzer.o 
+  -c analyzer.c
+  g++  -D_REENTRANT -I/home1/midas/root/include -DHAVE_ROOT -g -O2 -Wall -g 
+  -I../../include -I../../drivers/bus -DOS_LINUX -Dextname -o adccalib.o -c adccalib.c
+  g++  -D_REENTRANT -I/home1/midas/root/include -DHAVE_ROOT -g -O2 -Wall -g 
+  -I../../include -I../../drivers/bus -DOS_LINUX -Dextname -o adcsum.o -c adcsum.c
+  g++  -D_REENTRANT -I/home1/midas/root/include -DHAVE_ROOT -g -O2 -Wall -g 
+  -I../../include -I../../drivers/bus -DOS_LINUX -Dextname -o scaler.o -c scaler.c
+  g++  -o analyzer ../../linux/lib/rmana.o analyzer.o adccalib.o adcsum.o scaler.o 
+  ../../linux/lib/libmidas.a  -L/home1/midas/root/lib -lCore -lCint -lHist -lGraf 
+  -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lpthread -lm -ldl 
+  -rdynamic -lThread -lm -lz -lutil -lnsl -lpthread
+>  
+  \endcode
+  For testing the system, you can start the frontend as follow:
+  \code
+> frontend
+  Event buffer size      :     100000
+  Buffer allocation      : 2 x 100000
+  System max event size  :     524288
+  User max event size    :     10000
+  User max frag. size    :     5242880
+  # of events per buffer :     10
+  
+  Connect to experiment ...Available experiments on local computer:
+  0 : midas         
+  1 : root
+  Select number:0                    <---- predefined experiment from exptab file
+
+  Sample Frontend connected to <local>. Press "!" to exit                 17:27:47
+  ================================================================================
+  Run status:   Stopped    Run number 0
+  ================================================================================
+  Equipment     Status     Events     Events/sec Rate[kB/s] ODB->FE    FE->ODB
+  --------------------------------------------------------------------------------
+  Trigger       OK         0          0.0        0.0        0          0
+  Scaler        OK         0          0.0        0.0        0          0
+  \endcode
+  In a different terminal window
+  \code
+  >odbedit
+  Available experiments on local computer:
+  0 : midas
+  1 : root
+  Select number: 0
+  [local:midas:S]/>start now
+  Starting run #1
+  17:28:58 [ODBEdit] Run #1 started
+  [local:midas:R]/>
+  \endcode
+  The run has been started as seen in the frontend terminal window.
+  See the /examples/experiment/frontend.c for data generation code.
+  \code
+  Sample Frontend connected to <local>. Press "!" to exit                 17:29:07
+  ================================================================================
+  Run status:   Running    Run number 1
+  ================================================================================
+  Equipment     Status     Events     Events/sec Rate[kB/s] ODB->FE    FE->ODB
+  --------------------------------------------------------------------------------
+  Trigger       OK         865        99.3       5.4        0          9
+  Scaler        OK         1          0.0        0.0        0          1
+  \endcode
+
+
+<hr> @section Windows_installation Windows installation
+
+-# <b> Extraction: </b>
+\code 
+\endcode
+-# <b> Installation: </b>
+\code 
+\endcode
+-# <b> Configuration: </b>
+\code 
+\endcode
+-# <b> Experiment definition: </b>
+\code 
+\endcode
+-# <b> Compilation: </b>
+\code 
+\endcode
+-# <b> Demo examples: </b>
+
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref Comp - @ref Top - @ref Internal
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+*/
+

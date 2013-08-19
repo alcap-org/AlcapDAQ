@@ -1,0 +1,102 @@
+#####################################################################
+#
+#  Name:         Makefile
+#  Created by:   Stefan Ritt
+#
+#  Contents:     Makefile for MIDAS example frontend and analyzer
+#
+#  Revision history
+#  ------------------------------------------------------------------
+#  date         by    modification
+#  ---------    ---   -----------------------------------------------
+#  05-SEP-97    SR    created
+#
+#####################################################################
+
+#--------------------------------------------------------------------
+# The following lines contain specific switches for different UNIX
+# systems. Find the one which matches your OS and outcomment the 
+# lines below.
+
+#-------------------------------------------------------------------
+# The following lines define directories. Adjust if necessary
+#                 
+# User obj directory
+OBJ_DIR 	= 68kobj
+# VxWorks include directory
+SYSINC_DIR      = /vxworks/include
+# VxWorks Cross-compiler directory
+VXW_DIR         = /vxworks
+# Midas system include
+INC_DIR 	= /usr/local/include
+# Midas VxWorks obj directory 
+LIB_DIR 	= /midas/vxworks/$(OBJ_DIR)
+# Midas drivers directory (should after install /midas/drivers)
+DRV_DIR         = ../../drivers
+
+#-----------------------
+# Common flags
+#
+CC = $(VXW_DIR)/bin/cc68k
+LD = $(VXW_DIR)/bin/ld68k
+CPU= MC68040
+
+#CC_COMPILER	 = -ansi -pedantic -pipe -nostdinc -v
+CC_COMPILER	 = -ansi -fstrength-reduce -O
+#CC_COMPILER	 = -ansi 
+CC_DEBUGGING     = -g
+CC_WARNINGS_ALL  = -Wall
+CC_WARNINGS_NONE =
+CC_OPTIM         = 
+#CC_OPTIM         = -fno-builtin
+CC_OPTIM_NORMAL  = -O -fstrength-reduce -fcombine-regs
+CC_OPTIM_TARGET  = -O -fvolatile
+
+# Define Current Configuration
+CC_OPTIM	 = 
+CC_INCLUDES      = -I$(INC_DIR) -I$(VXW_DIR) 
+CC_WARNINGS	 = $(CC_WARNINGS_NONE)
+CC_DEFINES	 = -DOS_VXWORKS -m68040 -DCPU=$(CPU) $(DEFINE_CC) $(EXTRA_DEFINE)
+
+CFLAGS = $(CC_OPTIM) $(CC_WARNINGS) $(CC_INCLUDES) $(CC_COMPILER) $(CC_DEFINES)
+
+#-------------------------------------------------------------------
+# Hardware driver can be (camacnul, kcs2926, kcs2927, hyt1331)
+#
+DRIVER = camacnul
+
+#-------------------------------------------------------------------
+# Frontend code name defaulted to frontend in this example.
+# comment out the line and run your own frontend as follow:
+# gmake UFE=my_frontend
+#
+UFE = ybos_simfe
+
+#                 
+####################################################################
+# Lines below here should not be edited
+####################################################################
+# MIDAS library
+LIB = 
+
+all: $(OBJ_DIR) $(OBJ_DIR)/$(DRIVER).o $(UFE) $(DRV_DIR)/bus/esone.c
+
+$(UFE): $(LIB) $(OBJ_DIR)/$(DRIVER).o $(OBJ_DIR)/esone.o
+	$(CC) $(CFLAGS) $(INCLUDES) $(OSFLAGS) -c -o $(OBJ_DIR)/$(UFE).o $(UFE).c
+	$(LD) -o $(OBJ_DIR)/mfe.o -r \
+		$(LIB_DIR)/mfe.o $(OBJ_DIR)/$(UFE).o $(OBJ_DIR)/$(DRIVER).o $(OBJ_DIR)/esone.o
+
+$(OBJ_DIR)/$(DRIVER).o: $(DRV_DIR)/bus/$(DRIVER).c
+	$(CC) $(CFLAGS) $(OSFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/esone.o: $(DRV_DIR)/bus/esone.c
+	$(CC) $(CFLAGS) $(OSFLAGS) -c -o $@ $<
+
+$(OBJ_DIR):
+	@if [ ! -d  $(OBJ_DIR) ] ; then \
+           echo "Making directory $(OBJ_DIR)" ; \
+           mkdir $(OBJ_DIR); \
+        fi;
+
+clean:
+	rm -f $(OBJ_DIR)/*.o *~ \#*

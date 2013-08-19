@@ -1,0 +1,43 @@
+Following basic examples are included
+======================================
+
+odb_test:
+---------
+
+A simple test program which shows basic ODB operation. It read
+a value from the online database (the run number), increments
+it and writes it back to the ODB. Then it opens a "hot link" to
+that value and enters an infinite loop. Whenever the run number
+gets changed by someone else (like from ODBEdit), the local
+function run_number_changes is called automatically.
+
+msgdump:
+--------
+
+Displays all messages produced via the cm_msg call in other clients.
+
+analyzer:
+---------
+
+Very basic analyzer which requests two event types (trigger event 
+ID 1 and scaler event ID 2). It simply prints a notification when one
+of the events is received. This program has to becompiles together
+with mana.c to work properly.
+
+minife:
+-------
+
+Mini-Frontend showing the basic concept of a MIDAS frontend. It
+connects to an experiment and and waits for a run start command via 
+an RPC call. When a run is started, it sends empty events with
+ID 1.
+
+Normally, the mfe.c frontend framework is used to build a frontend.
+
+
+minirc:
+-------
+
+Mini-Runcontrol program which can be used to start and stop a run.
+Usually this is done inside odbedit.
+

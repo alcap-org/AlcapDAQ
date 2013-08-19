@@ -1,0 +1,142 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>Qt_fileList</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>Qt_fileList</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>498</width>
+            <height>392</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>HV Settings from File</string>
+    </property>
+    <widget class="QTable">
+        <column>
+            <property name="text">
+                <string>Name</string>
+            </property>
+        </column>
+        <column>
+            <property name="text">
+                <string>Channel</string>
+            </property>
+        </column>
+        <column>
+            <property name="text">
+                <string>HV Demand (kV)</string>
+            </property>
+        </column>
+        <column>
+            <property name="text">
+                <string>Current Limit (mA)</string>
+            </property>
+        </column>
+        <property name="name">
+            <cstring>hv_table</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>480</width>
+                <height>320</height>
+            </rect>
+        </property>
+        <property name="numRows">
+            <number>12</number>
+        </property>
+        <property name="numCols">
+            <number>4</number>
+        </property>
+        <property name="readOnly">
+            <bool>true</bool>
+        </property>
+        <property name="selectionMode">
+            <enum>NoSelection</enum>
+        </property>
+        <property name="focusStyle">
+            <enum>FollowStyle</enum>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>load_pushButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>12</x>
+                <y>342</y>
+                <width>82</width>
+                <height>30</height>
+            </rect>
+        </property>
+        <property name="sizePolicy">
+            <sizepolicy>
+                <hsizetype>0</hsizetype>
+                <vsizetype>0</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+            </sizepolicy>
+        </property>
+        <property name="minimumSize">
+            <size>
+                <width>50</width>
+                <height>30</height>
+            </size>
+        </property>
+        <property name="text">
+            <string>Load</string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>cancel_pushButton</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>406</x>
+                <y>342</y>
+                <width>82</width>
+                <height>30</height>
+            </rect>
+        </property>
+        <property name="sizePolicy">
+            <sizepolicy>
+                <hsizetype>0</hsizetype>
+                <vsizetype>0</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+            </sizepolicy>
+        </property>
+        <property name="minimumSize">
+            <size>
+                <width>50</width>
+                <height>30</height>
+            </size>
+        </property>
+        <property name="text">
+            <string>Cancel</string>
+        </property>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>load_pushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Qt_fileList</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>cancel_pushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Qt_fileList</receiver>
+        <slot>reject()</slot>
+    </connection>
+</connections>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

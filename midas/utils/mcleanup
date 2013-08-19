@@ -1,0 +1,42 @@
+#!/bin/csh
+#
+# This script will kill all Midas processes and will remove all
+# shared memory segments and semaphores
+# 
+#  10-Jan-1994   -   L. Felawka
+#  17-Nov-2000   -   S. Ritt; modified for Linux cluster
+#
+echo "Killing Midas processes ..."
+set procs = "analyzer odbedit"
+foreach i ($procs)
+  echo /$i'$/{printf"echo -n Process with pid \\\\\"%06d\\\\\" \\\('$i'\\\) ... ;kill -9 %s;echo killed\\n",$2,$2}' | cat >> /tmp/procs.$$
+  echo /$i' /{printf"echo -n Process with pid \\\\\"%06d\\\\\" \\\('$i'\\\) ... ;kill -9 %s;echo killed\\n",$2,$2}' | cat >> /tmp/procs.$$
+end
+rm -f /tmp/killproc.* >& /dev/null
+ps auxw | awk -f /tmp/procs.$$ | sort -ru > /tmp/killproc.$$
+rm -f /tmp/procs.$$
+source /tmp/killproc.$$
+#
+#
+rm -f /tmp/killshm.* >& /dev/null
+echo "Cleaning up shared memory segments for user $USER ..."
+ipcs -m | awk '{\
+ if ( $2 > 1  && match($3, usr) )\
+  {\
+    printf "echo Shared memory segment id %s ...\n", $2 \
+    printf "ipcrm shm %s\n", $2\
+  }\
+}' usr=$USER >> /tmp/killshm.$$
+source /tmp/killshm.$$
+#
+#
+rm -f /tmp/killsem.* >& /dev/null
+echo "Cleaning up semaphores for user $USER ..."
+ipcs -s | awk '{\
+ if (match($3, usr) )\
+  {\
+    printf "echo Semaphore id %s ...\n", $2 \
+    printf "ipcrm sem %s\n", $2\
+  }\
+}' usr=$USER >> /tmp/killsem.$$
+source /tmp/killsem.$$

@@ -1,0 +1,142 @@
+/*! @page AppendixB Supported hardware
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref AppendixA - @ref Top - @ref AppendixC 
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+ 
+Drivers included in the driver's directory of the MIDAS distribution support
+various hardware modules.
+The driver library is continuously extended to suit the needs of various experiments.
+For the slow control system. An example is available in the distribution under
+\b examples/slowcont/frontend.c including the \b hv and \b multi class with
+the \b nulldev device and \b null bus driver.
+Note not all the device drivers implement the triple layer (Class,Device,Bus)
+but includes directly the hardware calls. For some more explanation on the Slow control
+scheme, refer to @ref Slow_Control_system
+Refer to the nulldev.c for a proper example.
+
+Follows the class, device, bus and divers directory content under midas/drivers.
+
+ * <center> Class, Device, Bus and Divers Driver listing
+ *  \image html drivers.jpg
+ *  \image latex drivers.eps "Class, Device, Bus and Divers Driver listing" width=12cm
+ * </center> 
+
+- @ref CAMAC_drivers
+- @ref VME_drivers
+- @ref GPIB_drivers
+- @ref Other_drivers
+
+<hr> @section CAMAC_drivers CAMAC drivers
+The CAMAC drivers can be used in different configuration and may have special behaviors
+depending on the type of hardware involved. Below are summurized some remarks about
+these particular hardware modules.
+
+- CAMAC controllers
+  - \b [hyt1331.c]
+  This interface uses an ISA board to connect to the crate controller. This card implement
+  a "fast" readout cycle by re-triggering the CAMAC read at the end of the previous one.
+  This feature is unfortunately not reliable when fast processor is used. Wrong returned
+  data can be expected when CPU clocks is above 250MHz. Attempt on "slowing down"
+  the IO through software has not guaranteed perfect result.
+  Contact has been taken with HYTEC in order to see if possible fix can be applied to
+  the interface. First revision of the PC-card PAL has been tested but did not
+  show improvement. CVS version of the hyt1331.c until 1.2 contains "fast readout
+  cycle" and should not be trusted. CVS 1.3 driver revision contains a patch to
+  this problem. In the mean time you can apply your own patch
+  (see @ref AppendixG) and also <a href=http://www.hytec-electronics.co.uk>Hytec</a>)
+  - <b> [hyt1331.c Version >= 1.8.3]</b>
+  This version has been modified for 5331 PCI card support running under the @ref dio_task.  
+  - <b>[khyt1331.c Version >= 1.8.3]</b>
+  A full Linux driver is available for the 5331 PCI card interfacing to the
+  hyt1331. The kernel driver has been written for the Linux kernel 2.4.2,
+  which comes with RedHat 7.1. It could be ported back to the 2.2.x kernel because no special
+  feature of 2.4.x are used, although many data structures and function
+  parameters have changed between 2.2 and 2.4, which makes the porting a bit painful.
+  The driver supports only one 5331 card with up to four CAMAC crates.
+  - <b>[kcs292x.c]</b>
+  The 2926 is an 8 bit ISA board, while the 2927 is a 16bit ISA board.
+  An equivalent PCI interface (2915) exists but is not yet supported by Midas (See
+  <a href=http://www.kscorp.com/www/camac/1000/2915.html>KCS</a>).
+  No support for Windowx yet.
+  <br><br>
+  Both cards can be used also through a proper Linux driver \em camaclx.c.
+  This requires to first load a module \em camac-kcs292x.o.
+  This software is available but not part of the Midas distribution yet.
+  Please contact <a href=mailto:midas@triumf.ca>midas@triumf.ca</a> for further information.
+  <br><br>
+  - <b>[wecc32.c]</b>
+  The CAMAC crate controller CC32 interface to a PCI card... you will need the
+  proper Linux module... Currently under test. WindowsNT and W95 drivers available but not
+  implemented under Midas.
+  (see <a href=http://www.wiener-d.com/cc32.htm>CC32</a>)
+  - <b>[dsp004.c]</b>
+  The dsp004 is an 8 bit ISA board PC interface which connect to the
+  PC6002 CAMAC crate controller. This module is not being manufactured anymore, but
+  somehow several labs still have that controller in use.
+  - <b>[ces8210.c]</b>
+  The CAMAC crate controller CBD8210 interface is a VME module to give access up to 7 CAMAC
+  crate. In conjunction with the mvmestd.h and mcstd.h, this driver can be used on any Midas/VME interface.
+  - <b>[jorway73a.c]</b>
+  The CAMAC crate controller Jorway73a is accessed through SCSI commands.
+  This driver implement the mcstd.h calls.
+
+- CAMAC drivers
+  - \b [camacnul.c] Handy fake CAMAC driver for code development.
+  - \b [camacrpc.c] Remote Procedure Call CAMAC driver used for accessing the CAMAC
+  server part of the standard Midas frontend code. This driver is used for example
+  in the @ref mcnaf_task, @ref mhttpd_task utilities.
+
+
+<hr> @section VME_drivers VME drivers
+The VME modules drivers can be interfaced to any type of PCI/VME controller.
+This is done by dedicated Midas VME Standard calls from the mvmestd.h files.
+
+- PCI/VME interface
+  - \b [sis1100.c]
+  PCI/VME with optical fiber link. Driver is under development (March 2002).
+  (see <a href=http://www.sruck.de/vme.htm>SIS</a>).
+  - \b [bt617.c]
+  Routines for accessing VME over SBS Bit3 Model 617 interface under Windows NT
+  using the NT device driver Model 983 and under Linux using the vmehb device driver.
+  The VME calls are implemented for the "mvmestd" Midas VME Standard.
+  (see <a href=http://www.sbs.com/computer/products/cp_adapters.shtml>Bit3</a>).
+  - \b [wevmemm.c]
+  PCI/VME Wiener board supported. (see <a href=http://www.wiener-d.com/vmepci.htm>Wiener PCI</a>).
+  - [vxVME.c] mvmestd implementation for VxWorks Operating System. Does require
+  cross compiler for the VxWorks target hardware processor and proper WindRiver license. 
+
+- VME modules
+  - \b [lrs1190.c] LeCroy Dual-port memory ECL 32bits.
+  - \b [lrs1151.c] LeCroy 16 ECL 32bits scalers.
+  - \b [lrs2365.c] LeCroy Logic matrix.
+  - \b [lrs2373.c] LeCroy Memory Lookup unit.
+  - \b [sis3700.c] SIS FERA Fifo 32 bits.
+  - \b [sis3801.c] SIS MultiChannel Scalers 32 channels.
+  - \b [sis3803.c] SIS Standard 32 Scalers 32 bits.
+  - \b [ps7106.c] Phillips Scientific Discriminator.
+  - \b [ces8210.c] CES CAMAC crate controller.
+  - \b [vmeio.c] Triumf VMEIO General purpose I/O 24bits.
+
+<hr> @section GPIB_drivers GPIB drivers
+There is no specific GPIB driver part of the Midas package. But GPIB is used at
+Triumf under WindowsNT for several Slow Control frontends.
+The basic GPIB DLL library is provided by
+<a href=http://www.ni.com/default.htm>National Instrument</a>.
+Please contact <a href=mailto:midas@triumf.ca>midas@triumf.ca</a> for further information.
+
+For GPIB Linux support please refer to
+<a href=http://www.llp.fu-berlin.de/pool/software/busses/>The Linux Lab Project</a>
+
+<hr> @section Other_drivers Other drivers
+
+- <b>[Serial driver]</b> rs232.c communication routines.
+- <b>[Network driver]</b> \b tcpip.c/h TCP/IP socket communication routines.
+- <b>[SCSI driver]</b> Support for the jorway73a SCSI/CAMAC controller under Linux has been done
+   by Greg Hackman (see @ref CAMAC_drivers).
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref AppendixA - @ref Top - @ref AppendixC 
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+*/

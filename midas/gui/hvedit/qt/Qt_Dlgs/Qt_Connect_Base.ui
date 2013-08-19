@@ -1,0 +1,142 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>Qt_Connect_Base</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>Qt_Connect_Base</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>200</width>
+            <height>220</height>
+        </rect>
+    </property>
+    <property name="sizePolicy">
+        <sizepolicy>
+            <hsizetype>1</hsizetype>
+            <vsizetype>1</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+    </property>
+    <property name="minimumSize">
+        <size>
+            <width>200</width>
+            <height>220</height>
+        </size>
+    </property>
+    <property name="maximumSize">
+        <size>
+            <width>200</width>
+            <height>220</height>
+        </size>
+    </property>
+    <property name="caption">
+        <string>connect to experiment</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>host_textLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>32</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="frameShape">
+            <enum>NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Plain</enum>
+        </property>
+        <property name="text">
+            <string>&lt;b&gt;Host&lt;/b&gt;</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>exp_textLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>50</y>
+                <width>71</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Experiments</string>
+        </property>
+    </widget>
+    <widget class="QListBox">
+        <property name="name">
+            <cstring>exp_listBox</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>70</y>
+                <width>170</width>
+                <height>140</height>
+            </rect>
+        </property>
+        <property name="toolTip" stdset="0">
+            <string>list of experiments</string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>host_lineEdit</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>40</x>
+                <y>10</y>
+                <width>140</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property name="toolTip" stdset="0">
+            <string>enter host name</string>
+        </property>
+    </widget>
+</widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="1241">789cadd3cb0ac2301005d07dbe62e8ec824c7d2cc54f505c0ae22244451755d0ba10f1df6dfa30b593a4d57ae92209077a3b6d6309abe51c642caea94a8f1af4415d406e6f49725f6f660f114dc6602e184503111168589c4f3bb3c66c8dc33c66abcc769fa5d8521644f2c61a3faa4c08bd4d0059e34735e3edfd9dc1f67bf989733ed8f06cce58869bf2106d98a9ce6a46d954a6217e33bc0def939f20fec120151dc2cf5ed6ec67a88ba1f63e6c3a3d4ccb9c5d86bdd3ee26fcfd388ca7cf070b1972fc17cfa9780179e2df10</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>host_lineEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>Qt_Connect_Base</receiver>
+        <slot>getExpList()</slot>
+    </connection>
+    <connection>
+        <sender>exp_listBox</sender>
+        <signal>doubleClicked(QListBoxItem*)</signal>
+        <receiver>Qt_Connect_Base</receiver>
+        <slot>gotExperiment()</slot>
+    </connection>
+    <connection>
+        <sender>exp_listBox</sender>
+        <signal>returnPressed(QListBoxItem*)</signal>
+        <receiver>Qt_Connect_Base</receiver>
+        <slot>gotExperiment()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>getExpList()</slot>
+    <slot>gotExperiment()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

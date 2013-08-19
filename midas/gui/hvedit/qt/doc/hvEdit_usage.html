@@ -1,0 +1,377 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>hvEdit Help</title>
+                                                
+  <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">                   
+  <meta name="author" content="PSIUser">
+
+  <link rel=stylesheet href="style.css" type="text/css">
+</head>
+  
+<body>
+             
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
+ <tbody>
+  <tr>
+              
+  <td valign="top" width="210"><a href="http://www.psi.ch/index.shtml"><img src="images/psi_logo_150.gif"
+ alt="" width="150" height="55" border="0" align="middle"></a> &nbsp; <br>
+  </td>
+
+  <td valign="top"><br>
+  </td>
+              
+  <td valign="middle" align="right" width="70"><a href="http://lmu.web.psi.ch/lem/index.html"><img
+ src="images/precess.gif" alt="" width="40" height="49" border="0" align="middle"></a>  <br>
+  </td>
+  
+  </tr>                              
+ </tbody>        
+</table>
+             
+<hr width="100%" size="2">
+
+<div align="right">&nbsp;       
+<table cellpadding="0" cellspacing="0" border="0" width="250">
+  <tbody>
+     <tr>
+     <td valign="top" width="75"><a href="hvEdit_install.html">next</a><br></td>
+     <td valign="top" width="95"><a href="hvEdit_intro.html">previous</a><br></td>
+     <td valign="top" width="125"><a href="hvEdit_Help.html">table of contents</a><br></td>
+     </tr>
+  </tbody>       
+</table>
+</div>
+       
+<h1>Usage</h1>
+
+<p> This GUI is used to set the high voltages (HV) of a midas experiment, 
+especially the low energy muon spin rotation (LEmuSR) experiment at PSI. The
+functionality is rather straight forward and hence the different menus are
+going to be explained only very briefly.
+</p>
+
+<h3>Menus</h3>
+<ol>
+  <li><a href="hvEdit_usage.html#connect">Connect to an experiment</a></li>
+  <li><a href="hvEdit_usage.html#disconnect">Disconnect from an experiment</a></li>
+  <li><a href="hvEdit_usage.html#open">Open</a></li>
+  <li><a href="hvEdit_usage.html#save">Save</a></li>
+  <li><a href="hvEdit_usage.html#print">Print</a></li>
+  <li><a href="hvEdit_usage.html#exit">Exit</a></li>
+</ol>
+
+<h2><a name="connect"><img src="images/connect.png"> 
+    Connect to an experiment</a>
+</h2>
+<img src="images/hvEdit_connect.png" ismap usemap="#img_table_connect">
+<p>By selecting 'Connect to Experiment' the above dialog pops up. In the field
+<a name="host">host</a> the host name of the experiment has to be entered. If
+nothing is entered, on 'return', the current host is chosen. In case an unavailable
+host is chosen, unfortunately it tries to connect for a <em>very, very</em> long
+time before a timeout error message appears. <a name="exp">If</a> the host is found, 
+a list of available experiments will show up in the 'Experiments' field. By double
+clicking onto the wished name, this dialog closes and the HV tabes should show
+the first device list. The 'Devices' field will show the list of available HV devcies
+and the 'host' and 'experiment' label will show the current connection.
+</p>
+
+<h2><a name="disconnect"><img src="images/disconnect.png">
+    Disconnect from an experiment</a>
+</h2>
+
+<p>This will disconnect 'hvEdit' from the current experiment and flash the GUI.
+</p>
+
+<h2><a name="open"><img src="images/fileopen.png" width="22" height="22"> Open</a></h2>
+
+<p>An open dialog pops up were one can choose from predefined HV settings. They are
+device specific and therefore only a HV table for this specfic device will be loaded.
+Details about the structure of the 'hv'-files are found under <a href="hvEdit_usage.html#tech_notes">'Technicalities'</a>.
+</p>
+
+<h2><a name="save"><img src="images/filesave.png"> Save</a></h2>
+
+<p>A current HV setting can be saved to a file. The file name has to look like
+<strong>deviceName_whatever.hv</strong>, e.g. fug_18kv.hv (for details see 
+<a href="hvEdit_usage.html#tech_notes">'Technicalities'</a>).
+</p>
+
+<h2><a name="print"><img src="images/print.png"> Print</a></h2>
+
+<p>Prints the current 'HV/Current Limit' settings of the shown device.
+</p>
+
+<h2><a name="exit"><img src="images/close.png"> Exit</a></h2>
+
+<p>Closes the connection to <code>midas</code> properly, before exiting the
+program.
+</p>
+
+<h3>Buttons</h3>
+<img src="images/hvEdit_main.png" ismap usemap="#img_table_main">
+
+<h3><a name="hv_cl_tab">HV/Current Limit Tabs</a></h3>
+<p>For each device a tab list exists. In the 'HV' tab the HV informations are shown.
+Only the column 'HV Demand' is not read only, i.e. here by click onto a cell the
+value can be changed interactively. The same can be achieved by using the 'Input:'
+field together with the 'Set' button (to the right of the tabs). Analogous the
+'Current Limit' tab shows the informations related to current. Here only the column
+'Current Limit' is editable. The editable columns allow multiselect of cells, i.e. 
+with mouse cursor whole regions can be selected, the 'shift' key together with the
+keyboard allow the same. By pressing 'ctrl' multiselection of disjointed cells can
+be selected. In case of multiselection the value has to be changed via the
+'Input:/Set' facility.
+</p>
+
+<h3><a name="devices">Device list</a></h3>
+<p>Here the list of <em>all</em> the available HV devcies of the experiment
+are shown. To switch from one device to another, just select the corresponding
+name and the HV/Current Limit tabs will switch.
+</p>
+
+<h3><a name="host_exp">Host/Experiment</a></h3>
+<p>This fields show the connection informations, host name and the chosen
+experiment. It serves only as an information.
+</p>
+
+<h3><a name="switch_all_ch_off">Switch All Channels Off</a></h3>
+<p>Switches <strong>all</strong> the HV channels off, i.e. <strong>all</strong>
+channels of <strong>all</strong> devices are going to be set to zero! This is a 
+usefull HV emergency exit, so to speak.
+</p>
+
+<h3><a name="set">Set HV values</a></h3>
+<p>The 'Input' field and the 'Set' button are one unit. A value entered will
+change the selected cells of 'HV Demand' or 'Current Limit', <em>only</em> if
+the 'Set' button is going to be pressed. This is a measure of precaution against
+nervous guys.
+</p>
+
+<h3><a name="increment">Increments</a></h3>
+<p> The buttons <code>-1.0, -0.1, ...</code> are HV increments in units of (kV).
+They act on the selected cells of 'HV Demand'.
+</p>
+
+<h3><a name="zero">Zero</a></h3>
+<p>This switches the selected (see HV/Current Limit tabs) to <strong>zero</strong>.
+The cell of the 'HV Demand' table is multi selective.
+</p>
+
+<h3><a name="restore">Restore</a></h3>
+<p>Restores the value of the selected 'HV Demand' cells to their last value.
+</p>
+
+<h3><a name="select_all">Select All</a></h3>
+<p>Select the whole 'HV Demand' column of active device.
+</p>
+
+<h3><a name="scale_by_factor">Scale by factor</a></h3>
+<p>Scales selected HV demand elements by the factor given in the text field. 
+</p>
+
+
+<h2><a name="tech_notes">Technicalities</a></h2>
+
+<h3>The file 'hveditrc'</h3>
+
+<p>The file 'hveditrc' is going to be read at the startup of 'hvEdit'. It should
+be placed in '$HOME/.qt'. If 'hveditrc' does not exist, some hardcoded default values 
+will be tried, wich might not always work properly. 'hveditrc' serves as an startup
+administration file in which path information etc. are stored. The syntax of the file is:
+</p>
+
+<ul>
+  <li> Lines starting with the character '#' are ignored (comments).</li>
+  <li> Group tags are '[General]' and '[ODB Keys]' and are used to group the
+       keywords in a logical order.</li>
+  <li> Keyword <code>'DEFAULT_SETTING_DIR='</code>: The path where to find
+       the predefined HV setting '.hv'-files,
+	   e.g. <code>DEFAULT_SETTING_DIR=~/online/hv_settings</code></li>
+  <li> Keyword <code>'DEFAULT_DOC_DIR='</code>: Documentation Path.</li>
+  <li> Keyword <code>'MIDAS_KEY_HV_ROOT='</code>: ODB Root key for the hv devices,
+       e.g. <code>MIDAS_KEY_HV_ROOT=/Equipment/HV</code></li>
+  <li> Keyword <code>'MIDAS_KEY_HV_NAMES='</code>: ODB Key of the HV names.</li>
+  <li> Keyword <code>'MIDAS_KEY_HV_DEMAND='</code>: ODB Key of the HV demand list.</li>
+  <li> Keyword <code>'MIDAS_KEY_HV_MEASURED='</code>: ODB Key of the HV measured list.</li>
+  <li> Keyword <code>'MIDAS_KEY_HV_CURRENT='</code>: ODB Key of the measured current list.</li>
+  <li> Keyword <code>'MIDAS_KEY_HV_CURRENT_LIMIT='</code>: ODB Key of the current limit list.</li>
+</ul>
+
+<p>An example 'hveditrc' file is:
+</p>
+<pre>
+# hveditrc
+# Adminstration file for hvEdit
+#
+# this file should be placed in $HOME/.qt,
+#
+# Andreas Suter, 2003/10/27
+#
+
+[General]
+DEFAULT_SETTING_DIR=.
+DEFAULT_DOC_DIR=gui/hvedit/qt/doc
+
+[ODB Keys]
+MIDAS_KEY_HV_ROOT=/Equipment/HV
+MIDAS_KEY_HV_NAMES=Settings/Names
+MIDAS_KEY_HV_DEMAND=Variables/Demand
+MIDAS_KEY_HV_MEASURED=Variables/Measured
+MIDAS_KEY_HV_CURRENT=Variables/Current
+MIDAS_KEY_HV_CURRENT_LIMIT=Settings/Current Limit
+
+# end of hveditrc
+</pre>
+
+<h3>The 'hv'-file structure</h3>
+
+<p>'hvEdit' can read default HV settings from files with the extension 'hv'. These
+files do have the following file structure:</p>
+
+<ul>
+  <li> Lines starting with the character '!' are going to be ignored (comments).</li>
+  <li> A line starting with the character 'D' is needed to indicate the device
+       name. The syntax of this line is 'D >device_name<', e.g. 'D >fug<' for the
+	   device 'fug'.</li>
+  <li> A line stating with the character 'S' indicates a hv channel. This line
+       is coded as follows:<br>
+	   "S ch_no $'hv'kV %'current_limit'mA &'name'"
+	   <ul>
+	     <li> 'ch_no' is the hv channel of the device <\li>
+		 <li> $'hv'kV is the demanded HV value, e.g. <code>$10.0kV</code>.</li>
+		 <li> %'current_limit'mA is the current limit value, e.g.
+		      <code>%0.05mA</code>.</li>
+		 <li> &'name' is the name of this channel, e.g. <code>&Moderator</code>.</li>
+	   </ul>
+  </li>
+</ul>
+
+<p> An example for such a 'hv'-file is:
+</p>
+
+<pre>
+! FUG
+!
+!--------------------------------------------------------------------
+!
+!	This file is read by program HVEdit to set default things
+!	to the LEM HV-remote controller
+!
+!	Contains channel encoding.
+!
+!	------------->   D O  N O T change the format !!!!!!!!!
+!
+!---------------------------------------------------------------------
+!
+!	Define output channels:
+!	=======================
+!
+!	FP-AO-200 modules in position 1, 4 and 5, should be set to 0-21mA
+!	output current, which is transformed by a 500 Ohm resistance
+!	(two 1kOhm in parallel) into a voltage between 0 and 10 V.
+!
+!
+!	  Output 	FP-module Channel	Which Supply
+!	controller	     address
+!	=================================================================
+!
+!		1	010001 (U) 010002 (I)	20.0kV, 0.6 mA, T A R G E T
+!		2	010004 (U) 010008 (I)   35.0kV, 1.0 mA, L 1
+!		3	010010 (U) 010020 (I)	35.0kV, 1.0 mA, M I R R O R
+!		4	010040 (U) 010080 (I)   35.0kV, 1.0 mA, L 2
+!
+!		5	040001 (U) 040002 (I)	35.0kV, 4.0 mA, L 3
+!		6	040004 (U) 040008 (I)   35.0kV, 4.0 mA, R A  -  L
+!		7	040010 (U) 040020 (I)	35.0kV, 4.0 mA, R A  -  R
+!		8	040040 (U) 040080 (I)   20.0kV, 0.6 mA, G U A R D  Ring
+!
+!		9	050001 (U) 050002 (I)	12.5kV, 1.0 mA, G R I D  1
+!		10	050004 (U) 050008 (I)   12.5kV, 1.0 mA, G1
+!		11	050010 (U) 050020 (I)	12.5kV, 1.0 mA, G2
+!		12	050040 (U) 050080 (I)   12.5kV, 1.0 mA, S A M P L E
+!
+!---------------------------------------------------------------------------
+!
+!	the data set is organized as follows:
+!
+!	1.:  O (capital!), label as output definition
+!	2.:  port number at controller
+!	3.:  address of voltage output channel
+!	4.:  address of current_limit output channel
+!	5.:  @ The maximum HV of the corresponding FUG supply
+!	6.:  # The maximum current of the corresponding FUG supply
+!	7.:  $ The voltage to be set (kV)
+!	8.:  % The maximum current to be set (mA)
+!	9.:  & The LEM-device to which the HV is applied
+!
+!	Only the columns 7. ($) and 8. (%) are read;
+!	The other columns are only for control; they are defined
+!	and read by the program from LEM_HV_SETUP.DATA
+!
+!
+!	 D o   N O T  change the format of the lines !!!!!!!!!!!!!!!!!
+!	===============================================================
+!
+!
+!--------------------------------------------------------------------------
+!
+! Refer to Field-Point FP-1000/1001 Programmer Reference Manual.
+! ! is a comment line
+!
+D >fug&lt
+
+S 01 $10.00kV %0.020mA &Moderator
+S 02 $8.00kV %0.003mA &Guard
+S 03 $6.93kV %0.003mA &Grid_1
+S 04 $5.67kV %0.001mA &Lense_1
+S 05 $10.00kV %0.001mA &Mirror
+S 06 $9.33kV %0.001mA &Lense_2
+S 07 $5.60kV %0.001mA &Lense_3
+S 08 $7.11kV %0.002mA &RA-L
+S 09 $7.11kV %0.002mA &RA-R
+S 10 $0.00kV %0.001mA &Sample_G1
+S 11 $0.00kV %0.001mA &Sample_G2
+S 12 $0.00kV %0.001mA &Sample
+! End
+</pre>
+
+<hr width="100%" size="2">
+<div align="right">&nbsp;
+<table cellpadding="0" cellspacing="0" border="0" width="250">
+  <tbody>
+    <tr>
+    <td valign="top" width="75"><a href="hvEdit_install.html">next</a><br></td>
+    <td valign="top" width="95"><a href="hvEdit_intro.html">previous</a><br></td>
+    <td valign="top" width="125"><a href="hvEdit_Help.html">table of contents</a><br></td>
+    </tr>                           
+  </tbody>
+</table>
+</div>
+
+<!--
+Here the map table for the image 'images/hvEdit_main.png' is placed 
+-->
+<map name="img_table_main">
+  <area coords="1,184,465,542" href="hvEdit_usage.html#hv_cl_tab">
+  <area coords="11,77,387,177" href="hvEdit_usage.html#devices">
+  <area coords="417,108,802,144" href="hvEdit_usage.html#host_exp">
+  <area coords="487,255,783,271" href="hvEdit_usage.html#switch_all_ch_off">
+  <area coords="487,312,783,362" href="hvEdit_usage.html#set">
+  <area coords="487,375,783,393" href="hvEdit_usage.html#increment">
+  <area coords="487,405,610,423" href="hvEdit_usage.html#zero">
+  <area coords="664,405,783,423" href="hvEdit_usage.html#restore">
+  <area coords="487,472,783,483" href="hvEdit_usage.html#select_all">
+  <area coords="487,501,789,521" href="hvEdit_usage.html#scale_by_factor">
+</map>
+<!--
+Here the map table for the image 'images/hvEdit_connect.png' is placed 
+-->
+<map name="img_table_connect">
+  <area coords="8,25,192,57" href="hvEdit_usage.html#host">
+  <area coords="8,68,192,235" href="hvEdit_usage.html#exp">
+</map>
+
+</body>
+</html>

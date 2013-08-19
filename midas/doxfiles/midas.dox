@@ -1,0 +1,34 @@
+/*! \mainpage Midas documentation
+  \anchor Top <b> Welcome to the world of Midas. </b>
+  
+  @section Introduction
+   Midas is a versatile Data acquisition System for middle range physics experiments.
+   This document will try to answer most of your questions regarding
+   installation, setup, running, and development.
+   
+   If you think Midas can help you for your projects and you want to get more info on it,
+   feel free to browse through the following Web sites:
+   <a HREF=http://midas.psi.ch> Switzerland </a>, 
+   <a HREF=http://midas.triumf.ca> Canada </a>
+  
+  Chapters are: 
+  \arg @ref NDF : Whats new in Midas.
+  \arg @ref Intro : Some initial words and description
+  \arg @ref Comp : listing 
+  \arg @ref quickstart : The HowTo for installation.
+  \arg @ref Internal : The main internal components of the system. 
+  \arg @ref Utilities : The Midas applications.
+  \arg @ref AppendixA : Supported data format
+  \arg @ref AppendixB : Supported hardware.
+  \arg @ref AppendixC : CAMAC and VME access function call.
+  \arg @ref AppendixD : Midas build options and operation consideration.
+  \arg @ref AppendixE : Midas Library.
+  \arg @ref AppendixG : Frequently Asked Questions.    
+    
+  <br>
+  \htmlonly <center><small> <em>
+  Powered by<br><a href=http://www.stack.nl/~dimitri/doxygen/features.html>
+  <img src="doxygen.png" alt="doxygen" style="border: 0px solid;"></a>
+  </em> </small> </center> \endhtmlonly 
+*/
+

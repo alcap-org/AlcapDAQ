@@ -1,0 +1,126 @@
+/*! \page NDF New Documented Features
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref Top - @ref Top - @ref Intro
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+Some of the midas features are not yet fully documented or even referenced
+anywhere in the documentation.
+
+This section will maintain an up-to-date information with a log 
+of the latest documentation on past and current features. It will also
+mention the wish list documentation on current developments.
+ 
+
+- <b> Current doc revision: 1.9.5-0 </b>
+- <b> Software version: 1.9.5 </b>
+- <b> Latest tarball : <a href=http://midas.triumf.ca/download> 1.9.5 </a> </b>
+- <b> Latest RPM : <a href=http://midas.triumf.ca/download> 1.9.2-1  </a> </b>
+
+- <b> [1.9.5] </b>
+ - <b> When upgrading to 1.9.5, \em ALL midas applications including user
+   applications needs to be rebuild \em AND the \b ODB.SHM (.ODB.SHM) shared
+   memory need to be removed. Prior the removal of the ODB.SHM, the ODB database
+   can be saved in ASCII format for later restoration. </b>
+ - <b> @ref Transition_sequence changed to multiple level scheme. </b>
+ - <b> odbedit_task support of XML format for ODB dump. </b>
+ - <b> Large File support (>2GB) from @ref mlogger_task application. </b>
+ - <b> @ref Folder Root Histogram support within mana. </b>
+ - <b> @ref mevb_task application. </b>
+ - <b> New @ref frontend_task argument for Event Builder option (-i index). </b>
+   - <b> Documentation on "Tests" results from analyzer.</b>
+ - <b> @ref mySQL support from @ref mlogger_task. </b>
+ - <b> Increase system wide parameters values (see midas.h).
+ - <b> Fix numerous small annoying bugs... </b>
+ - <b> Improve debugging messages in mserver -d (/tmp/mserver.log). </b>
+
+- <b> [<1.9.5] </b>
+ - In writing
+  - <b> Epics Slow Control documentation </b>
+
+  - <b> Introduce @ref MIDASSYS environment variable </b>
+  - <b> Analyzer documention revision @ref analyzer_struct </b>
+  - <b> Watchdog bug fix (RH9.0) </b>
+
+  - <b> Restructured Midas distribution </b>
+   - In the same effort as the documentation, the midas tree and CVS have been  
+     modified. The <a href=http://midas.triumf.ca/download> download area </a> now
+     contains separate directories for doc, add-ons, publications etc.
+ - <b> [DOCUMENTATION in progress] </b>
+  - A large effort has been put on the documentation for switching from the
+  \b DOC++ to <a href=http://www.stack.nl/~dimitri/doxygen/features.html> Doxygen</a>
+  We feel the cross-referencing to the source code is excellent and hopefully
+  will server better its purpose. Currently the @ref analyzer_struct is not complete
+  as well as the @ref quickstart. This \b Doxygen related files will be made accessible
+  for better update.
+  
+ - <b> [Midas Short Course] </b>
+  - During the RealTime Conference 2003 held in Montreal, a short course
+  was offered to introduce the Midas DAQ to the audience. This course (.ppt, .pdf) is now
+  part of the Midas distribution and can be found under the doc/course/ directory
+  as 2 files (part1, part2). The Part 1 describes the basic of the system and its
+  implementation, while part 2 lists specific features.
+  <a href=http://midas.triumf.ca/download/course/course_rt03.zip>
+   Part1.pdf, Part2.pdf </a>.
+
+- <b> [1.9.3] </b>
+  - Support for ROOT files.
+  - @ref mlogger_task: New Data format \b ROOT and corresponding file extension
+    \b root
+  - @ref rmidas_task: Initial Root/Midas GUI for Histogram and Run control.
+  - @ref analyzer_struct: New framework for Online/Offline Root analysis using socket
+    connection.
+  - \b Makefile for ROOT, remove \b MANA_LITE, create @ref HAVE_ROOT, @ref HAVE_HBOOK.
+  -  New Analyzer \b mana, \b hmana, \b rmana depending on the type of package.
+
+- <b> [1.9.2] </b>
+  - odbedit: \<tab\> completion is working with flags too, "Load" protect the data dir if
+     changed.
+  - @ref lazylogger_task: This task has been improved for tape manilupation as well as
+    messages display. It has also now extra fiilds for shell scripts when the tape rewinds.
+    It supports also split run capability when running multiple instance of the task.
+    Please refer to the documentation for explanation of the new fields.
+  - mlxspeaker: Added possible system call to wav file for "beeping" user before message.
+  - mhist: Add index range for -i with -v.
+  - eventbuilder: Revised version with user code scheme. Still in a development stage.
+  - cm_cleanup() if you were using this call, you need now to provide an empty char arg to
+    make it compatible.
+
+- <b> [1.9.1] </b>
+  - This version addresses several bugs reported in the web interface, history,
+logger, odbedit and implements new features in particular for the history pages on web
+interface. The detail list of the modifications can be found in
+<a href=http://midas.triumf.ca/download/CHANGELOG> CHANGELOG </a>.
+    - <b>[EQ_FRAGMENTED]</b> Possibility to send extremely large event through the system without
+      modification of the system configuration (see @ref The_Equipment_Structure)
+    - <b>[logger subdir option]</b> Allows to redirect the data files to a subdirectory based on 
+      the time of the creation of the data file (see @ref ODB_Logger_Tree).
+    - Option for building an analyzer without the CERN library (HBOOK)
+      (see @ref AppendixD).
+    - <b>[ MOD. REQ.]</b> This release requires several modifications in the
+      user code in order to compile the 1.9.1.
+      -# <b>[db_get_value() function]</b> Requires an extra parameter see @ref Midas_Library.
+      -# <b>[max_event_size_frag]</b> Required in all the frontend code as follow:
+\code
+// maximum event size produced by this frontend
+INT max_event_size = 10000;
+// maximum event size for fragmented events (EQ_FRAGMENTED) 
+INT max_event_size_frag = 5*1024*1024;
+\endcode
+  - <b>[/Logger tree]</b> As this tree includes new field, you will need to recreate this tree.
+  - <b>[general]</b> It is wise to create a fresh ODB when switching to 1.9.1 version.
+    This can be done by:
+    -# removing all attached midas client to your experiment
+    -# saving the current ODB to a file
+    -# removing all shared memory files (hidden files .*.SHM)
+    -# creating new ODB (odbedit -s size)
+    -# trimming the odb save file to keep user specific structures (if any).
+    -# restoring the trimmed odb file.
+
+- <b> [<1.9.1] </b>
+  - Hopefully nobody is still running an older version.
+  
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref Top - @ref Top - @ref Intro
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+*/

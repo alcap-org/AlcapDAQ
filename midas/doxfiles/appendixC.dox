@@ -1,0 +1,93 @@
+/*! @page AppendixC CAMAC and VME access function call
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref AppendixB - @ref Top - @ref AppendixD 
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+ 
+Midas defines its own set of CAMAC and VME calls in order to unify the different hardware
+modules that it supports. This interface method permits to be totally hardware as well
+as OS \b independent. The same user code developed on a system can be used as
+a template for another application on a different operating system.
+
+While the file mcstd.h (Midas Camac Standard) provides the interface for
+the CAMAC access, the file mvmestd.h (Midas VME Standard) is for the VME access.
+
+An extra CAMAC interface built on the top of \b mcstd provides the ESONE standard
+CAMAC calls (esone.c).
+
+<hr> @section Midas_CAMAC_standard_functions Midas CAMAC standard functions
+Please refer to the file below for function description.  
+@ref mcstd.h
+
+<hr> @section ESONE_CAMAC_standard_functions ESONE CAMAC standard functions
+
+<strong>Not all the functionality of ESONE standard have been fully tested</strong>
+
+Please refer to the file for function description.  
+
+@ref esone.c
+
+<hr> @section Midas_VME_standard_functions Midas VME standard functions
+This interface is under revision for providing basic VME access through a 
+independent software interface. Please refer to the file below for specific function
+explanation.
+
+@ref mvmestd.h
+
+<hr> @section Compute_Busy_Logic Computer Busy Logic
+A "computer busy logic" has to be implemented for a front-end to work properly.
+The reason for this is that some ADC modules can be re-triggered.
+If they receive more than one gate pulse before being read out, they accumulate
+the input charge that leads to wrong results. Therefore only one gate
+pulse should be sent to the ADC's, additional pulses must be blocked before the
+event is read out by the front-end.
+This operation is usually performed by a latch module, which is set by the trigger
+signal and reset by the computer after it has read out the event:
+
+The output of this latch is shaped (limited in its pulse with to match the
+ADC gate width) and distributed to the ADC's. This scheme has two problems.
+The computer generates the reset signal, usually by two CAMAC output functions
+to a CAMAC IO unit. Therefore the duration of the pulse is a couple of ms.
+There is a non-negligible probability that during the reset pulse there is
+another hardware trigger. If this happens and both inputs of the latch are active,
+its function is undefined. Usually it generates several output pulses that lead
+to wrong ADC values. The second problem lies in the fact that the latch can be
+just reset when a trigger input is active.
+This can happen since trigger signals usually have a width of a few tens of nanoseconds.
+In this case the latch output signal does not carry the timing of the trigger signal,
+but the timing of the reset signal.
+The wrong timing of the output can lead to false ADC and TDC signals.
+To overcome this problem, a more elaborate scheme is necessary. One possible solution
+is the use of a latch module with edge-sensitive input and veto input.
+At PSI, the module "D. TRIGGER / DT102" can be used. The veto input is also connected
+to the computer:
+
+ * <center> Latched trigger layout.
+ *  \image html latch02.gif
+ *  \image latex latch02.eps "Latched trigger layout." width=12cm
+ * </center> 
+
+To reset this latch, following bit sequence is applied to the computer output (signals
+are displayed active low):
+
+ * <center> Improved Latched trigger layout.
+ *  \image html latch01.gif
+ *  \image latex latch01.eps "Improved Latched trigger layout." width=12cm
+ * </center> 
+
+The active veto signal during the reset pulse avoids that the latch can receive a
+"set" and a "reset" simultaneously. The edge sensitive input ensures that the latch
+can only trigger on a leading edge of a trigger signal, not on the removing of the
+veto signal. This ensures that the timing of the trigger is always carried at the
+ADC/TDC gate signal.
+
+ * <center> Veto Timing.
+ *  \image html timing01.gif
+ *  \image latex timing01.eps "Veto Timing." width=12cm
+ * </center> 
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref AppendixB - @ref Top - @ref AppendixD 
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+*/
+

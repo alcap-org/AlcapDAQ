@@ -1,0 +1,1430 @@
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<class>Qt_hvEdit_Base</class>
+<widget class="QMainWindow">
+    <property name="name">
+        <cstring>Qt_hvEdit_Base</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>810</width>
+            <height>550</height>
+        </rect>
+    </property>
+    <property name="sizePolicy">
+        <sizepolicy>
+            <hsizetype>0</hsizetype>
+            <vsizetype>0</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+    </property>
+    <property name="minimumSize">
+        <size>
+            <width>21</width>
+            <height>110</height>
+        </size>
+    </property>
+    <property name="maximumSize">
+        <size>
+            <width>810</width>
+            <height>550</height>
+        </size>
+    </property>
+    <property name="sizeIncrement">
+        <size>
+            <width>810</width>
+            <height>550</height>
+        </size>
+    </property>
+    <property name="baseSize">
+        <size>
+            <width>810</width>
+            <height>550</height>
+        </size>
+    </property>
+    <property name="caption">
+        <string>hvEdit</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <property name="toolTip" stdset="0">
+        <string></string>
+    </property>
+    <widget class="QGroupBox">
+        <property name="name">
+            <cstring>hve_Device_groupBox</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>391</width>
+                <height>111</height>
+            </rect>
+        </property>
+        <property name="frameShape">
+            <enum>MShape</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Sunken</enum>
+        </property>
+        <property name="title">
+            <string>Devices</string>
+        </property>
+        <widget class="QListBox">
+            <property name="name">
+                <cstring>hve_Device_listBox</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>20</y>
+                    <width>370</width>
+                    <height>81</height>
+                </rect>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QFrame">
+        <property name="name">
+            <cstring>frame12</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>410</x>
+                <y>30</y>
+                <width>392</width>
+                <height>46</height>
+            </rect>
+        </property>
+        <property name="frameShape">
+            <enum>StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Raised</enum>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>hve_Host_textLabel</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>12</x>
+                    <y>12</y>
+                    <width>38</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>&lt;b&gt;host: &lt;/b&gt;</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>hve_Host_lineEdit</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>56</x>
+                    <y>12</y>
+                    <width>108</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>108</width>
+                    <height>22</height>
+                </size>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>108</width>
+                    <height>22</height>
+                </size>
+            </property>
+            <property name="readOnly">
+                <bool>true</bool>
+            </property>
+        </widget>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>hve_Exp_textLabel</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>192</x>
+                    <y>12</y>
+                    <width>74</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>&lt;b&gt;experiment:&lt;/b&gt;</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit">
+            <property name="name">
+                <cstring>hve_Exp_lineEdit</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>272</x>
+                    <y>12</y>
+                    <width>108</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>108</width>
+                    <height>22</height>
+                </size>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>108</width>
+                    <height>22</height>
+                </size>
+            </property>
+            <property name="readOnly">
+                <bool>true</bool>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QTabWidget">
+        <property name="name">
+            <cstring>hve_HV_tabWidget</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>118</y>
+                <width>460</width>
+                <height>350</height>
+            </rect>
+        </property>
+        <widget class="QWidget">
+            <property name="name">
+                <cstring>tab</cstring>
+            </property>
+            <attribute name="title">
+                <string>HV</string>
+            </attribute>
+            <widget class="QTable">
+                <column>
+                    <property name="text">
+                        <string>Name</string>
+                    </property>
+                </column>
+                <column>
+                    <property name="text">
+                        <string>HV Demanded</string>
+                    </property>
+                </column>
+                <column>
+                    <property name="text">
+                        <string>HV Measured</string>
+                    </property>
+                </column>
+                <column>
+                    <property name="text">
+                        <string>Current Measured</string>
+                    </property>
+                </column>
+                <property name="name">
+                    <cstring>hve_HV_table</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>0</x>
+                        <y>0</y>
+                        <width>460</width>
+                        <height>330</height>
+                    </rect>
+                </property>
+                <property name="resizePolicy">
+                    <enum>Manual</enum>
+                </property>
+                <property name="vScrollBarMode">
+                    <enum>Auto</enum>
+                </property>
+                <property name="hScrollBarMode">
+                    <enum>Auto</enum>
+                </property>
+                <property name="numRows">
+                    <number>15</number>
+                </property>
+                <property name="numCols">
+                    <number>4</number>
+                </property>
+                <property name="showGrid">
+                    <bool>true</bool>
+                </property>
+            </widget>
+        </widget>
+        <widget class="QWidget">
+            <property name="name">
+                <cstring>tab</cstring>
+            </property>
+            <attribute name="title">
+                <string>Current Limit</string>
+            </attribute>
+            <widget class="QTable">
+                <column>
+                    <property name="text">
+                        <string>Name</string>
+                    </property>
+                </column>
+                <column>
+                    <property name="text">
+                        <string>Current Measured</string>
+                    </property>
+                </column>
+                <column>
+                    <property name="text">
+                        <string>Current Limit</string>
+                    </property>
+                </column>
+                <property name="name">
+                    <cstring>hve_currentLimit_table</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>0</x>
+                        <y>0</y>
+                        <width>460</width>
+                        <height>330</height>
+                    </rect>
+                </property>
+                <property name="numRows">
+                    <number>15</number>
+                </property>
+                <property name="numCols">
+                    <number>3</number>
+                </property>
+            </widget>
+        </widget>
+    </widget>
+    <widget class="QFrame">
+        <property name="name">
+            <cstring>frame13</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>470</x>
+                <y>148</y>
+                <width>330</width>
+                <height>260</height>
+            </rect>
+        </property>
+        <property name="frameShape">
+            <enum>StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Raised</enum>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout34</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>10</y>
+                    <width>307</width>
+                    <height>236</height>
+                </rect>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>hve_SwitchAllOff_pushButton</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>305</width>
+                            <height>24</height>
+                        </size>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>305</width>
+                            <height>24</height>
+                        </size>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>Switch All Channels Off</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>set ALL HV demand to zero</string>
+                    </property>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer11</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout30</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>hve_Input_textLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&lt;b&gt;Input: &lt;/b&gt;</string>
+                            </property>
+                        </widget>
+                        <widget class="QComboBox">
+                            <property name="name">
+                                <cstring>hve_Input_comboBox</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>250</width>
+                                    <height>24</height>
+                                </size>
+                            </property>
+                            <property name="maximumSize">
+                                <size>
+                                    <width>250</width>
+                                    <height>24</height>
+                                </size>
+                            </property>
+                            <property name="editable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>HV demand or current limit values</string>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>hve_Set_pushButton</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>305</width>
+                            <height>24</height>
+                        </size>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>305</width>
+                            <height>24</height>
+                        </size>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>Set</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>set input value</string>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout27</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout25</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <property name="margin">
+                                    <number>0</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>6</number>
+                                </property>
+                                <widget class="QPushButton">
+                                    <property name="name">
+                                        <cstring>hve_M100_pushButton</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>1</hsizetype>
+                                            <vsizetype>1</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="minimumSize">
+                                        <size>
+                                            <width>40</width>
+                                            <height>24</height>
+                                        </size>
+                                    </property>
+                                    <property name="maximumSize">
+                                        <size>
+                                            <width>40</width>
+                                            <height>24</height>
+                                        </size>
+                                    </property>
+                                    <property name="font">
+                                        <font>
+                                            <bold>1</bold>
+                                        </font>
+                                    </property>
+                                    <property name="text">
+                                        <string>-1.0</string>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>decrease selected HV by 1.0 kV</string>
+                                    </property>
+                                </widget>
+                                <widget class="QPushButton">
+                                    <property name="name">
+                                        <cstring>hve_M010_pushButton</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>0</hsizetype>
+                                            <vsizetype>0</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="minimumSize">
+                                        <size>
+                                            <width>40</width>
+                                            <height>24</height>
+                                        </size>
+                                    </property>
+                                    <property name="maximumSize">
+                                        <size>
+                                            <width>40</width>
+                                            <height>24</height>
+                                        </size>
+                                    </property>
+                                    <property name="font">
+                                        <font>
+                                            <bold>1</bold>
+                                        </font>
+                                    </property>
+                                    <property name="text">
+                                        <string>-0.1</string>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>decrease selected HV by 0.1 kV</string>
+                                    </property>
+                                </widget>
+                                <widget class="QPushButton">
+                                    <property name="name">
+                                        <cstring>hve_M001_pushButton</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>0</hsizetype>
+                                            <vsizetype>0</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="minimumSize">
+                                        <size>
+                                            <width>40</width>
+                                            <height>24</height>
+                                        </size>
+                                    </property>
+                                    <property name="maximumSize">
+                                        <size>
+                                            <width>40</width>
+                                            <height>24</height>
+                                        </size>
+                                    </property>
+                                    <property name="font">
+                                        <font>
+                                            <bold>1</bold>
+                                        </font>
+                                    </property>
+                                    <property name="text">
+                                        <string>-0.01</string>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>decrease selected HV by 0.01 kV</string>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer9</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>20</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout26</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <property name="margin">
+                                    <number>0</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>6</number>
+                                </property>
+                                <widget class="QPushButton">
+                                    <property name="name">
+                                        <cstring>hve_P001_pushButton</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>0</hsizetype>
+                                            <vsizetype>0</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="minimumSize">
+                                        <size>
+                                            <width>40</width>
+                                            <height>24</height>
+                                        </size>
+                                    </property>
+                                    <property name="maximumSize">
+                                        <size>
+                                            <width>40</width>
+                                            <height>24</height>
+                                        </size>
+                                    </property>
+                                    <property name="font">
+                                        <font>
+                                            <bold>1</bold>
+                                        </font>
+                                    </property>
+                                    <property name="text">
+                                        <string>+0.01</string>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>increase selected HV by 0.01 kV</string>
+                                    </property>
+                                </widget>
+                                <widget class="QPushButton">
+                                    <property name="name">
+                                        <cstring>hve_P010_pushButton</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>0</hsizetype>
+                                            <vsizetype>0</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="minimumSize">
+                                        <size>
+                                            <width>40</width>
+                                            <height>24</height>
+                                        </size>
+                                    </property>
+                                    <property name="maximumSize">
+                                        <size>
+                                            <width>40</width>
+                                            <height>24</height>
+                                        </size>
+                                    </property>
+                                    <property name="font">
+                                        <font>
+                                            <bold>1</bold>
+                                        </font>
+                                    </property>
+                                    <property name="text">
+                                        <string>+0.1</string>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>increase selected HV by 0.01 kV</string>
+                                    </property>
+                                </widget>
+                                <widget class="QPushButton">
+                                    <property name="name">
+                                        <cstring>hve_P100_pushButton</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>0</hsizetype>
+                                            <vsizetype>0</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="minimumSize">
+                                        <size>
+                                            <width>40</width>
+                                            <height>24</height>
+                                        </size>
+                                    </property>
+                                    <property name="maximumSize">
+                                        <size>
+                                            <width>40</width>
+                                            <height>24</height>
+                                        </size>
+                                    </property>
+                                    <property name="font">
+                                        <font>
+                                            <bold>1</bold>
+                                        </font>
+                                    </property>
+                                    <property name="text">
+                                        <string>+1.0</string>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>increase selected HV by 0.01 kV</string>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout32</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>hve_Zero_pushButton</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>130</width>
+                                    <height>24</height>
+                                </size>
+                            </property>
+                            <property name="maximumSize">
+                                <size>
+                                    <width>130</width>
+                                    <height>24</height>
+                                </size>
+                            </property>
+                            <property name="font">
+                                <font>
+                                    <bold>1</bold>
+                                </font>
+                            </property>
+                            <property name="text">
+                                <string>Zero</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>set all the selected HV/current Limit to zero</string>
+                            </property>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer10</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>20</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>hve_Restore_pushButton</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>130</width>
+                                    <height>24</height>
+                                </size>
+                            </property>
+                            <property name="maximumSize">
+                                <size>
+                                    <width>130</width>
+                                    <height>24</height>
+                                </size>
+                            </property>
+                            <property name="font">
+                                <font>
+                                    <bold>1</bold>
+                                </font>
+                            </property>
+                            <property name="text">
+                                <string>Restore</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>restore the selected values</string>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer12</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>hve_SelectAll_pushButton</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>305</width>
+                            <height>24</height>
+                        </size>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>305</width>
+                            <height>24</height>
+                        </size>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string>Select All</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>select all channels of the current device</string>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+    </widget>
+    <widget class="QFrame">
+        <property name="name">
+            <cstring>frame5</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>470</x>
+                <y>418</y>
+                <width>327</width>
+                <height>46</height>
+            </rect>
+        </property>
+        <property name="minimumSize">
+            <size>
+                <width>327</width>
+                <height>0</height>
+            </size>
+        </property>
+        <property name="frameShape">
+            <enum>StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Raised</enum>
+        </property>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>hve_Scale_pushButton</cstring>
+                </property>
+                <property name="font">
+                    <font>
+                        <bold>1</bold>
+                    </font>
+                </property>
+                <property name="text">
+                    <string>Scale by factor</string>
+                </property>
+                <property name="toolTip" stdset="0">
+                    <string>scales the selection by the factor of the combobox next to this button</string>
+                </property>
+            </widget>
+            <widget class="QComboBox">
+                <item>
+                    <property name="text">
+                        <string>1.0</string>
+                    </property>
+                </item>
+                <item>
+                    <property name="text">
+                        <string>1.05</string>
+                    </property>
+                </item>
+                <item>
+                    <property name="text">
+                        <string>1.1</string>
+                    </property>
+                </item>
+                <item>
+                    <property name="text">
+                        <string>1.5</string>
+                    </property>
+                </item>
+                <property name="name">
+                    <cstring>hve_Scale_comboBox</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>1</hsizetype>
+                        <vsizetype>0</vsizetype>
+                        <horstretch>2</horstretch>
+                        <verstretch>0</verstretch>
+                    </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                    <size>
+                        <width>0</width>
+                        <height>24</height>
+                    </size>
+                </property>
+                <property name="editable">
+                    <bool>true</bool>
+                </property>
+            </widget>
+        </hbox>
+    </widget>
+</widget>
+<menubar>
+    <property name="name">
+        <cstring>menubar</cstring>
+    </property>
+    <item text="&amp;File" name="fileMenu">
+        <action name="fileOpenAction"/>
+        <action name="fileSaveAction"/>
+        <separator/>
+        <action name="filePrintAction"/>
+        <separator/>
+        <action name="fileExitAction"/>
+    </item>
+    <item text="&amp;Connect" name="PopupMenu_2">
+        <action name="connectToExpAction"/>
+        <action name="disconnectFromExpAction"/>
+    </item>
+    <item text="&amp;Help" name="helpMenu">
+        <action name="helpContentsAction"/>
+        <action name="helpIndexAction"/>
+        <separator/>
+        <action name="helpAboutQtAction"/>
+        <action name="helpAboutAction"/>
+    </item>
+</menubar>
+<toolbars>
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>toolBar</cstring>
+        </property>
+        <property name="label">
+            <string>Tools</string>
+        </property>
+        <action name="fileOpenAction"/>
+        <action name="fileSaveAction"/>
+        <action name="filePrintAction"/>
+        <separator/>
+        <action name="connectToExpAction"/>
+        <action name="disconnectFromExpAction"/>
+        <separator/>
+        <action name="fileExitAction"/>
+    </toolbar>
+</toolbars>
+<actions>
+    <action>
+        <property name="name">
+            <cstring>fileOpenAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image1</iconset>
+        </property>
+        <property name="text">
+            <string>Open</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Open...</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+O</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSaveAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image2</iconset>
+        </property>
+        <property name="text">
+            <string>Save</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Save</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+S</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>filePrintAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image3</iconset>
+        </property>
+        <property name="text">
+            <string>Print</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Print...</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+P</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileExitAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image4</iconset>
+        </property>
+        <property name="text">
+            <string>Exit</string>
+        </property>
+        <property name="menuText">
+            <string>E&amp;xit</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpContentsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Contents</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Contents...</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpIndexAction</cstring>
+        </property>
+        <property name="text">
+            <string>Index</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Index...</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpAboutAction</cstring>
+        </property>
+        <property name="text">
+            <string>About HVEdit</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;About HVEdit</string>
+        </property>
+        <property name="accel">
+            <string></string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>connectToExpAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image5</iconset>
+        </property>
+        <property name="text">
+            <string>Connect to Experiment</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+C</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>disconnectFromExpAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image6</iconset>
+        </property>
+        <property name="text">
+            <string>Disconnect from Experiment</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+D</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpAboutQtAction</cstring>
+        </property>
+        <property name="text">
+            <string>About Qt...</string>
+        </property>
+    </action>
+</actions>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="1301">789c7dd3c16ec2300c00d07bbf226a6f151a6c083169e213401c274d3b2471aaedc0260d3820c4bfcf4e1a7052276e0f71fae4d4693aefd5fb7eabfa79733ce9d3b755f64bffa91ece87c3e5e373736ddae58bc27bad9edb59d33e29ab76bf3f8ec680e36ee1835247e9ea952e4a35a516233cb5940e43c45d4869825213d361f0abf0e81ea1c7a98ad1252390b27990dc48a46438c98c48649392d4c8443239494c814ccd4424262b638c29993b32d6d6faaa99a042214003928904001c1a0720aee589c3201350de7ba87237a8267df977f1443419910ceb283188a261bb573371834b867fa8d1c488263d125030fcd4404a8241c18f0d37104d7ef4007899e9ffce1108df345123a8181eededadf907292b1c3f</data>
+    </image>
+    <image name="image1">
+        <data format="XPM.GZ" length="1082">789c6d914b6f82401845f7fe0ae2b7338defaaa4e9425db7e9b249d3050ce313c41151b1e97fefdc0b145ff7b2e0e4702724d36a389f1f6f4ea3554bf6de7ea91cb5f0764e2348a328fbfa7efda9d5bb5dc73ebd8ed3a93fd5ea4d4739eff146e35decbbb419e014d81fa0c03151a3c08c3843815be0f308054e80830e0a5c1319a0cad175735c105d14b8246a1478060ebb2830058efa28d0100314180379124f0e890cd0cf51a91c57448d0235d01ba2400fe8b751e089e8a2c03d507551e09138408107a28f027744069800831e0a8c880a056e80fa1905ce890c70069c0d51604064789b0f5318c9f3c87822bea2931b1304ba70e5b432a52ba634f84ccfe6f67fe06ce868164b91d59cb14ed1e566edfb0b9130da20215d61240c79441c31d615a6295b63c2183bb34b7649b2af8c1863e29867a687e341ff1b3b524671b7b6eeb4ba30f67e52ab6213dadd29ae4c53b2fcea20455f19a14b53abe49c5e18ba3156a99ac8b5a9764ab21b4337b52e933b53eeee37d52e7b60ca9b7f64cadbfe7da9fd01e5a6fb7d</data>
+    </image>
+    <image name="image2">
+        <data format="XPM.GZ" length="932">789c95d1414f83300005e03bbfa2a1376236a00b93187f82c6a389f1505a4ad956d8601e8cf1bfcb6b03523316f7de92f5cba3175847e4f5e58944eba03ff3732d88d0bc2391fc30e6f3edfdf12b08d394e0979024bc0bc21511e4b96d4a9ce970a6b10d583b32e6d883890db803598c82da928d0f2bc72c733c596e50b0b4942828c12ccb73f7f01edca628585916287804ef372878b09428c8c17c086360e12884a301f916051bb08851b0b5cc51b003458a82025436f6bd5dccb8502fb3851762162ea7a52c94a85c867f21259d16aee677bc452ede91d7ef885bef2c2e7ee68bfe7d03b5bfd09d46f60753d33f8b768b69f4e5a532edc2726cfce5342da6e9bc65359c7b3d964af59f2f77e56bdfb47c3f043f9dcae2e6</data>
+    </image>
+    <image name="image3">
+        <data format="XPM.GZ" length="1082">789c95d14b6f82401405e03dbf62223bd3f8c08a9aa60b75dda6cb264d17700147647c01cad8f4bf977329086ad3f61c49fc7254e2d06d8bd79727d1ee1a71e2244b12249dbd687ba952faedfdf1c3685996c85f83bee8b7ee8c56479078deac7dbccf3f2ccc1e079c15242a7800ad010abae0a087820ed3434113bcb75170c70c5030058763144c407b82823138b25070ce7451700f8e3d145c82fc55be51c6cc6333839213fee513d34741093a23145c836e0f05b7cc090a1e41b25050316d149c32a93c3a5d90a8b86f589208f4413e2a3ec9884928b801fd210aae981c7001062314f4981c7e9a37f3fb623a1c97ae16c7e3f8443f2e015d2d0bd427b9a48b85072fe4a3b8585668a442252f965515d558d6ce262ab3a5dd79d9c7493de9a15a8e51989fe3f9caca25f6753327fa5e12ada7d3fa92558bd2b3d9ed456b2965edaa96549f64a3f372e9c4d9bc9ed83cff536ae66fcff45fcbe783f105c21a106f</data>
+    </image>
+    <image name="image4">
+        <data format="XPM.GZ" length="661">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232520022630543251d2e253d856405bffcbc54105b19c8564e4b330002103711c20501b04aac005946190c306594e1004d46191920c9282b1329a30c97017112132182101a5526118982cac01427c225805248322051b804aa8c329204b132384dc3e602dcaec6e353dca1832d48b1ca101b7378621b2385d45a730100ef6d772d</data>
+    </image>
+    <image name="image5">
+        <data format="XPM.GZ" length="887">789cb591c14ac4301086ef7d8ad0dc8ab8ee06ca96c547503c0ae2a19d74b6dda6eda2eb41c47737d33f95ba6cc48b7f7ac8d72fc9c0cc2a538f0f772a5b25afa7f2d492a2a67c51997debfbf7a7e7db8f24dd6c94ffd65bb54eaf92f45a91ba1f875af6daeff5cd14c11e680cf008cc73a0031605700452b8db0524603de15696602528efc2b6c0a23046f00024020e82521587ada05405964063709805a52a6c039c2d0932cfb807e63e532b2ee6df8c8e9ab28a184db68e19b6fadce829c45ecd81d1fb86fc6a58547b90741a46fe85d8ca753e2e18e285aa5dc4b0edff64167578d091d7bc182f9a20be0d5b1f88a343f4b20722ce7a10fae645640af6e7807e99dce72ef902821aca7c</data>
+    </image>
+    <image name="image6">
+        <data format="XPM.GZ" length="872">789cb591c14e84301086ef3c45c3dc8871dd6d826e363e82c6a389f1c04ee9165820d1f5608cefee4c7f40943d787120305f3f3a2dd355661e1fee4cb64a5e4fc5a962c3a17831997b6bdbf7a7e7db8f24dd6c8cdceb6bb34e2f92f4d2b0b9efbb5273929cae62281e81d6027b609e031be0760bec803cccad07646019f1462fc5bda2d685ad80ccd62ab68aba0cac53d4658005d05a7cec157519d8001c2d2b7a3fe201984bc47f3f1bff608834a56930f260342df693984ccc895d3913e33a42c4ded1b798aa45236a0c183a040e421eaa92a80926c8988f4a1e4d2dd10c86fda0245cd92c4c5452f0f8271366d55a5a549b76d0fd32d8752baff9debc73a3e8759604cd7b80193f7a307454c4a2a3c81d2d4fe1fcc97dee922f88f7b943</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>fileSaveAction</sender>
+        <signal>activated()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>fileSave()</slot>
+    </connection>
+    <connection>
+        <sender>filePrintAction</sender>
+        <signal>activated()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>filePrint()</slot>
+    </connection>
+    <connection>
+        <sender>fileExitAction</sender>
+        <signal>activated()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>fileExit()</slot>
+    </connection>
+    <connection>
+        <sender>helpIndexAction</sender>
+        <signal>activated()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>helpIndex()</slot>
+    </connection>
+    <connection>
+        <sender>helpContentsAction</sender>
+        <signal>activated()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>helpContents()</slot>
+    </connection>
+    <connection>
+        <sender>helpAboutAction</sender>
+        <signal>activated()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>helpAbout()</slot>
+    </connection>
+    <connection>
+        <sender>connectToExpAction</sender>
+        <signal>activated()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>connectToExp()</slot>
+    </connection>
+    <connection>
+        <sender>disconnectFromExpAction</sender>
+        <signal>activated()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>disconnectFromExp()</slot>
+    </connection>
+    <connection>
+        <sender>hve_Device_listBox</sender>
+        <signal>currentChanged(QListBoxItem*)</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>changedDeviceSelection()</slot>
+    </connection>
+    <connection>
+        <sender>hve_SelectAll_pushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>onSelectAll()</slot>
+    </connection>
+    <connection>
+        <sender>hve_Zero_pushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>onZero()</slot>
+    </connection>
+    <connection>
+        <sender>hve_SwitchAllOff_pushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>onSwitchAllChannelsOff()</slot>
+    </connection>
+    <connection>
+        <sender>hve_Restore_pushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>onRestore()</slot>
+    </connection>
+    <connection>
+        <sender>hve_M100_pushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>onM100()</slot>
+    </connection>
+    <connection>
+        <sender>hve_M010_pushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>onM010()</slot>
+    </connection>
+    <connection>
+        <sender>hve_M001_pushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>onM001()</slot>
+    </connection>
+    <connection>
+        <sender>hve_P001_pushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>onP001()</slot>
+    </connection>
+    <connection>
+        <sender>hve_P010_pushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>onP010()</slot>
+    </connection>
+    <connection>
+        <sender>hve_P100_pushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>onP100()</slot>
+    </connection>
+    <connection>
+        <sender>hve_Set_pushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>onSet()</slot>
+    </connection>
+    <connection>
+        <sender>helpAboutQtAction</sender>
+        <signal>activated()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>helpAboutQt()</slot>
+    </connection>
+    <connection>
+        <sender>fileOpenAction</sender>
+        <signal>activated()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>fileOpen()</slot>
+    </connection>
+    <connection>
+        <sender>hve_Scale_pushButton</sender>
+        <signal>clicked()</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>onScale()</slot>
+    </connection>
+    <connection>
+        <sender>hve_Input_comboBox</sender>
+        <signal>activated(int)</signal>
+        <receiver>Qt_hvEdit_Base</receiver>
+        <slot>onSet()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot access="protected">fileOpen()</slot>
+    <slot access="protected">fileSave()</slot>
+    <slot access="protected">fileSaveAs()</slot>
+    <slot access="protected">filePrint()</slot>
+    <slot access="protected">fileExit()</slot>
+    <slot access="protected">helpIndex()</slot>
+    <slot access="protected">helpContents()</slot>
+    <slot access="protected">helpAbout()</slot>
+    <slot>connectToExp()</slot>
+    <slot>disconnectFromExp()</slot>
+    <slot access="protected">changedDeviceSelection()</slot>
+    <slot access="protected">onSelectAll()</slot>
+    <slot access="protected">onZero()</slot>
+    <slot access="protected">onSwitchAllChannelsOff()</slot>
+    <slot access="protected">onRestore()</slot>
+    <slot access="protected">onM100()</slot>
+    <slot access="protected">onM010()</slot>
+    <slot access="protected">onM001()</slot>
+    <slot access="protected">onP001()</slot>
+    <slot access="protected">onP010()</slot>
+    <slot access="protected">onP100()</slot>
+    <slot access="protected">onSet()</slot>
+    <slot access="protected">helpAboutQt()</slot>
+    <slot access="protected">onScale()</slot>
+    <slot access="protected">onSetSingle(int, int)</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

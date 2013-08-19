@@ -1,0 +1,1248 @@
+/*! @page Utilities
+
+\htmlonly <img ALIGN="left" alt="previous.gif" src="previous.gif"> \endhtmlonly 
+@ref Internal - @ref Top - @ref AppendixA
+\htmlonly <img alt="next.gif" src="next.gif"> \endhtmlonly
+
+
+The Midas system provides several off-the-shelf programs to control, monitor,
+debug the data aquisition system. Starting with the main utility (odbedit) which
+provide access to the Online data base and run control.  
+- @ref odbedit_task : Online Database Editor
+  - @ref ODB_Structure
+- @ref frontend_task : Midas Frontend application  
+- @ref mstat_task : Midas ASCII status report
+- @ref analyzer_task : Midas data analyzer
+  - @ref analyzer_struct
+- @ref mlogger_task : Midas data logger
+- @ref lazylogger_task : Background data logger
+- @ref mdump_task : Event dump application
+- @ref mevb_task : Event Builder application
+- @ref mspeaker_task : Speech synthesizer
+- @ref mcnaf_task : CAMAC standalone application 
+- @ref mhttpd_task : Midas Web server
+- @ref melog_task : Electronic entry application 
+- @ref mhist_task : History retrieval application
+- @ref mchart_task : Standalone Chart display application
+- @ref mtape_task : Tape device manipulator
+- @ref dio_task : Direct IO provider
+- @ref stripchartfile : Tcl/Tk for chart display
+- @ref rmidas_task : Root/Midas Simple GUI application
+- @ref hvedit_task : High Voltage Slow Control GUI
+- @ref mserver_task : Midas Remote server
+
+<hr> @section frontend_task Midas Frontend application
+The purpose of the @ref frontend_task is to collect data from the hardware and transmit this
+information to a central place where data logging and analysis can be performed. This task
+is achieved with a) a specific code written by the user describing the sequence of action to acquire
+the hardware data and b) a framework code handling the data flow control, data transmission and run
+control operation. From Midas version 1.9.5 a new argument (-i index) has been introduce to
+facilitate the multiple frontend configuration operation required for the @ref Event_Builder.
+
+- <b> Arguments </b>
+  - [-h ] : help
+  - [-h hostname ] : host name (see @ref odbedit_task)
+  - [-e exptname ] : experiment name (see @ref odbedit_task)
+  - [-D ] : Become a Daemon.
+  - [-O ] : Become a Daemon but keep stdout 
+  - [-d ] : Used for debugging.
+  - [-i index] : Set frontend index (used with @ref mevb_task).
+ 
+- <b> Usage </b>
+
+\code
+\endcode
+
+
+<hr> @section odbedit_task odbedit task
+\b odbedit refers to the Online DataBase Editor. This is the main application to
+interact with the different components of the Midas system.
+
+See @ref ODB_Structure for more information.
+
+- <b> Arguments </b>
+  - [-h ] : help.
+  - [-h hostname ] :Specifies host to connect to.
+  Must be a valid IP host name. This option supersedes the MIDAS_SERVER_HOST
+  environment variable.
+  - [-e exptname ] :Specifies the experiment to connect to.
+  This option supersedes the MIDAS_EXPT_NAME
+  environment variable.
+  - [-c command ] :Perform a single command. Can be used to perform operations in
+  script files.
+  - [-c \@commandFile ] :Perform commands in sequence found in the commandFile.
+  - [-s size ] : size in byte (for creation). Specify the size of the ODB file to
+  be created when no share file is present in the experiment directory (default 128KB).
+  - [-d ODB tree] :Specify the initial entry ODB path to go to.
+ 
+- <b> Usage </b>
+  ODBedit is the MIDAS run control program.
+  It has a simple command line interface with command line editing similar to the UNIX
+  tcsh shell.
+  Following edit keys are implemented:
+  - [Backspace] Erase character left from cursor
+  - [Delete/Ctrl-D] Erase character under cursor
+  - [Ctrl-W/Ctrl-U] Erase current line
+  - [Ctrl-K]          Erase line from cursor to end
+  - [Left arrow/Ctrl-B] Move cursor left
+  - [Right arrow/Ctrl-F]  Move cursor right
+  - [Home/Ctrl-A]   Move cursor to beginning of line
+  - [End/Ctrl-E]       Move cursor to end of line
+  - [Up arrow/Ctrl-P]      Recall previous command
+  - [Down arrow/Ctrl-N] Recall next command
+  - [Ctrl-F]      Find most recent command which starts with current line
+  - [Tab/Ctrl-I]  Complete directory. The command \b ls /Sy \<tab\> yields to
+  \b ls /System.
+
+- <b> Remarks </b>
+ - ODBedit treats the hierarchical online database very much like a file system.
+   Most commands are similar to UNIX file commands like ls, cd, chmod, ln etc.
+   The help command displays a short description of all commands.
+ - From Midas version 1.9.5, the ODB content can be saved into XML format if the
+   file extension is \em .xml
+   \code
+   C:\odbedit
+   [local:midas:S]/>save odb.xml
+   [local:midas:S]/>q
+   more odb.xml
+   <?xml version="1.0" encoding="ISO-8859-1"?>
+   <!-- created by ODBEdit on Wed Oct 06 22:48:26 2004 -->
+   <dir name="root">
+     <dir name="System">
+       <dir name="Clients">
+         <dir name="3880">
+           <key name="Name" type="STRING" size="32">ebfe01</key>
+           <key name="Host" type="STRING" size="256">pierre2</key>
+           <key name="Hardware type" type="INT">42</key>
+        <key name="Server Port" type="INT">4658</key>
+   ...
+   \endcode
+
+\code
+[local:midas:Stopped]/>help
+Database commands ([] are options, <> are placeholders):
+
+alarm                   - reset all alarms
+cd <dir>                - change current directory
+chat                    - enter chat mode
+chmod <mode> <key>      - change access mode of a key
+                          1=read | 2=write | 4=delete
+cleanup                 - delete hanging clients
+copy <src> <dest>       - copy a subtree to a new location
+create <type> <key>     - create a key of a certain type
+create <type> <key>[n]  - create an array of size [n]
+del/rm [-l] [-f] \<key>  - delete a key and its subkeys
+  -l                      follow links
+  -f                      force deletion without asking
+exec <key>/<cmd>        - execute shell command (stored in key) on server
+find <pattern>          - find a key with wildcard pattern
+help/? [command]        - print this help [for a specific command]
+hi [analyzer] [id]      - tell analyzer to clear histos
+ln <source> <linkname>  - create a link to <source> key
+load <file>             - load database from .ODB file at current position
+ls/dir [-lhvrp] [<pat>] - show database entries which match pattern
+  -l                      detailed info
+  -h                      hex format
+  -v                      only value
+  -r                      show database entries recursively
+  -p                      pause between screens
+make [analyzer name]    - create experim.h
+mem                     - show memeory <b> Usage </b>
+mkdir <subdir>          - make new <subdir>
+move <key> [top/bottom/[n]] - move key to position in keylist
+msg [user] <msg>        - compose user message
+old                     - display old messages
+passwd                  - change MIDAS password
+pause                   - pause current run
+pwd                     - show current directory
+resume                  - resume current run
+rename <old> <new>      - rename key
+rewind [channel]        - rewind tapes in logger
+save [-c -s] <file>     - save database at current position
+                          in ASCII format
+  -c                      as a C structure
+  -s                      as a #define'd string
+set <key> <value>       - set the value of a key
+set <key>[i] <value>    - set the value of index i
+set <key>[*] <value>    - set the value of all indices of a key
+set <key>[i..j] <value> - set the value of all indices i..j
+scl [-w]                - show all active clients [with watchdog info]
+shutdown <client>/all   - shutdown individual or all clients
+sor                     - show open records in current subtree
+start [number] [now] [-v]   - start a run [with a specific number], [without question]
+                           [-v verbose the transaction to the different clients]
+stop [-v]                   - stop current run
+                           [-v verbose the transaction to the different clients]
+trunc <key> <index>     - truncate key to [index] values
+ver                     - show MIDAS library version
+webpasswd               - change WWW password for mhttpd
+wait <key>              - wait for key to get modified
+quit/exit               - exit
+\endcode
+
+- <b> Example </b>
+\code
+ >odbedit -c stop
+ >odbedit
+  [hostxxx:exptxxx:Running]/> ls /equipment/trigger
+\endcode
+
+<hr> @section mstat_task mstat task
+\b mstat is a simple ASCII status display. It presents in a compact form the most valuable
+information of the current condition of the Midas Acquisition system.
+The display is composed at the most of 5 sections depending on the current status
+of the experiment. The section displayed in order from top to bottom refer to:
+- Run information.
+- Equipment listing and statistics. if any frontend is active.
+- Logger information and statistics if mlogger is active.
+- Lazylogger status if lazylogger is active.
+- Client listing.
+
+- <b> Arguments </b>
+  - [-h ] : help
+  - [-h hostname ] : host name (see @ref odbedit_task)
+  - [-e exptname ] : experiment name (see @ref odbedit_task)
+  - [-l ] : loop.
+  Forces mstat to remain in a display loop. Enter "!" to terminate the command.
+  - [-w time ] : refresh rate in second.
+  Specifies the delay in second before refreshing the screen with up to date information.
+  Default: 5 seconds. Has to be used in conjunction with -l switch. Enter "R" to refresh
+  screen on next update.
+ 
+- <b> Usage </b>
+ \code
+ >mstat -l
+*-v1.8.0- MIDAS status page -------------------------Mon Apr  3 11:52:52 2000-* 
+Experiment:chaos       Run#:8699    State:Running          Run time :00:11:34   
+Start time:Mon Apr  3 11:41:18 2000                                             
+                                                                                
+FE Equip.   Node              Event Taken    Event Rate[/s] Data Rate[Kb/s]     
+B12Y        pcch02            67             0.0            0.0                 
+CUM_Scaler  vwchaos           23             0.2            0.2                 
+CHV         pcch02            68             0.0            0.0                 
+KOS_Scalers vwchaos           330            0.4            0.6                 
+KOS_Trigger vwchaos           434226         652.4          408.3               
+KOS_File    vwchaos           0              0.0            0.0                 
+Target      pcch02            66             0.0            0.0                 
+                                                                                
+Logger Data dir: /scr0/spring2000            Message File: midas.log            
+Chan.   Active Type      Filename            Events Taken   KBytes Taken        
+  0     Yes    Disk      run08699.ybs        434206          4.24e+06           
+                                                                                
+Lazy Label     Progress  File name           #files         Total               
+cni-53         100[%]    run08696.ybs        15             44.3[%]             
+                                                                                
+Clients:  MStatus/koslx0         Logger/koslx0          Lazy_Tape/koslx0        
+          CHV/pcch02             MChart1/umelba         ODBEdit/koslx0          
+          CHAOS/vwchaos          ecl/koslx0             Speaker/koslx0          
+          MChart/umelba          targetFE/pcch02        HV_MONITOR/umelba       
+          SUSIYBOS/koslx0        History/kosal2         MStatus1/dasdevpc       
+*------------------------------------------------------------------------------*
+ \endcode
+
+<hr> @section analyzer_task analyzer task
+\b analyzer is the main online / offline event analysis application. \b analyzer
+uses fully the \b ODB capabilities as all the analyzer parameters are dynamically
+controllable from the Online Database editor @ref odbedit_task.
+
+For more detailed information see @ref analyzer_struct
+
+- <b> Arguments </b> 
+ - -c \<filename1> \<filename2> Configuration file name(s).
+                     May contain a '%05d' to be replaced by the run number.
+                     Up to ten files can be specified in one "-c" statement.
+ - -d                Debug flag when started the analyzer fron a debugger.
+                     Prevents the system to kill the analyzer when the
+                     debugger stops at a breakpoint
+ - -D                Start analyzer as a daemon in the background (UNIX only).
+ - -e \<experiment>  MIDAS experiment to connect to. (see @ref odbedit_task)
+ - -f                Filter mode. Write original events to output file
+                     only if analyzer accepts them (doesn't return ANA_SKIP).
+ - -h \<hostname>    MIDAS host to connect to when running the analyzer online
+                     (see @ref odbedit_task)
+ - -i \<filename1> \<filename2> Input file name. May contain a '%05d' to be
+            replaced by the run number. 
+            Up to ten input files can be specified in one "-i" statement.
+ - -l                If set, don't load histos from last histo file when
+                     running online.
+ - -L                HBOOK LREC size. Default is 8190.
+ - -n \<count>         Analyze only "count" events.
+ - -n \<first> \<last> Analyze only events from "first" to "last".
+ - -n \<first> \<last> \<n> Analyze every n-th event from "first" to "last".
+ - -o \<filename>   Output file name. Extension may be .mid (MIDAS binary),
+                    .asc (ASCII) or .rz (HBOOK). If the name contains a '%05d',
+                    one output file is generated for each run. Use "OFLN" as
+                    output file name to creaate a HBOOK shared memory instead
+                    of a file.
+ - -p \<param=value> Set individual parameters to a specific value.
+                    Overrides any setting in configuration files
+ - -P \<ODB tree>   Protect an ODB subtree from being overwritten
+                    with the online data when ODB gets loaded from .mid file
+ - -q               Quiet flag. If set, don't display run progress in
+                    offline mode.
+ - -r \<range>      Range of run numbers to analyzer like "-r 120 125"
+                    to analyze runs 120 to 125 (inclusive). The "-r"
+                    flag must be used with a '%05d' in the input file name.
+ - -s \<port#>      Specify the ROOT server TCP/IP port number (default 9090).
+ - -v               Verbose output.
+ - -w               Produce row-wise N-tuples in outpur .rz file. By
+                    default, column-wise N-tuples are used.
+- <b> Remarks </b>
+  - The creation of the \b experim.h is done through the \b odbedit> make \<analyzer>.
+  In order to include your \b analyzer section, the ODB \b /\<Analyzer>/Parameters has to be
+  present.
+
+- <b> Usage </b>
+ \code
+  >analyzer
+  >analyzer -D -r 9092
+  >analyzer -i run00023.mid -o run00023.rz -w
+  >analyzer -i run%05d.mid -o runall.rz -r 23 75 -w 
+ \endcode
+
+
+<hr> @section mlogger_task mlogger task
+\b mlogger is the main application to collect data from the different frontend
+under certain condition and store them onto physical device such as \em disk or
+\em tape. It also act as an history event collector if either the history flags
+is enabled in the frontend equipment (see @ref The_Equipment_Structure or if the
+ODB tree /History/Links is defined (See @ref History_System).
+See the @ref ODB_Logger_Tree for reference on the tree structure.
+
+- <b> Arguments </b> 
+  - [-h ] : help
+  - [-e exptname ] : experiment name (see @ref odbedit_task)
+  - [-D ] : start program as a daemon (UNIX only).
+  - [-s] : Save mode (debugging: protect ODB).
+  - [-v] : Verbose (not to be used in conjunction with -D).
+
+- <b> Usage </b>
+ \code
+ >mlogger -D 
+\endcode
+
+- <b> Remarks </b> 
+ - The \b mlogger application requires to have an existing \b /Equipment/ tree
+  in the ODB! 
+ - As soon as the mlogger is running, the history is mechanism is enabled. 
+ - The data channels as well as the history logging is rescanned automatically
+  at each "begin of run" transition. In other word, additional channel can be defined
+  while running but effect will be taken place only at the following begin of run transition.
+ - The default setting defines a data "Midas" format with a file name
+  of the type "run\%05d.mid". Make sure this is the requested setting for your experiment.
+ - Once the mlogger is running, you should be able to monitor its state.
+  through the @ref mstat_task or through the @ref mhttpd_task web browser.
+ - From version 1.9.5
+  - mlogger will not run if started remotely (argument -h hostname has been removed).
+  - The file size limitation (<2GB) has been removed for older OS version.
+  - @ref mySQL data entry support.
+ 
+ 
+<hr> @section lazylogger_task lazylogger task
+\b lazylogger is an application which decouples the data aquisition from the data logging
+mechanism. The need of such application has been dictated by the slow response time of
+some of the media logging devices (Tape devices). Delay due to tape mounting,
+retension, reposition imply that the data acquisition has to hold until operation
+completion. By using \b mlogger to log data to disk in a first stage and then using
+\b lazylogger to copy or move the stored files to the "slow device" we can keep the
+acquisition running without interruption.
+- Multiple lazylogger can be running comtemporary on the same computer, each one 
+  taking care of a particular channel.
+- Each lazylogger channel will have a dedicated ODB tree containg its own information.
+- All the lazylogger channel will be under the ODB \b /Lazy/\<channel_name\>/...
+- Each channel tree is composed of three sub-tree \b Settings, Statistics, List.
+
+Self-explanatory the \b Settings and Statistics contains the running operation of the
+channel. While the \b List- will have a dynamic list of run number which has
+been sucessfully manipulate by the Lazylogger channel.
+This list won't exists until the first successful operation of the channel is complete.
+
+- <b> Arguments </b> 
+  - [-h ] : help.
+  - [-h hostname ] : host name.
+  - [-e exptname ] : experiment name.
+  - [-D ] : start program as a daemon.
+  - [-c channel ] : logging channel. Specify the lazylogger to activate.
+  - [-z ] : zap statistics. Clear the statistics tree of all the defined
+            lazylogger channels. 
+ 
+- <b> ODB parameters (Settings/) </b> 
+\code
+    Settings        DIR
+        Maintain free space(%)    INT     1     4     3m   0   RWD  0
+        Stay behind               INT     1     4     3m   0   RWD  -3
+        Alarm Class               STRING  1     32    3m   0   RWD  
+        Running condition         STRING  1     128   3m   0   RWD  ALWAYS
+        Data dir                  STRING  1     256   3m   0   RWD  /home/midas/online
+        Data format               STRING  1     8     3m   0   RWD  MIDAS
+        Filename format           STRING  1     128   3m   0   RWD  run%05d.mid
+        Backup type               STRING  1     8     3m   0   RWD  Tape
+        Execute after rewind      STRING  1     64    3m   0   RWD  
+        Path                      STRING  1     128   3m   0   RWD  
+        Capacity (Bytes)          FLOAT   1     4     3m   0   RWD  5e+09
+        List label                STRING  1     128   3m   0   RWD  
+  Execute before writing file     STRING  1     64    11h  0   RWD  lazy_prewrite.csh
+  Execute after writing file      STRING  1     64    11h  0   RWD  rundb_addrun.pl
+  Modulo.Position                 STRING  1     8     11h  0   RWD  2.1
+  Tape Data Append                BOOL    1     4     11h  0   RWD  y
+\endcode
+ <br><br>
+  - <b>[Maintain free space]</b> As the Data Logger (mlogger) runs independently from
+  the Lazylogger, the disk will contains all the recorded data files. Under this condition,
+  Lazylogger can be instructed to "purge" the data logging device (disk) after successful
+  backup of the data onto the "slow device". The \em Maintain free space(\%) parameter
+  controls (if none zero) the percentage of disk space required to be maintain free.
+    - The condition for removing a data file is defined as:
+  <b><center>
+  The data file corresponding to the given run number following the format declared
+  under "Settings/Filename format" IS PRESENT on the "Settings/Data Dir" path.
+  \b AND  The given run number appears anywhere under the "List/" directory of ALL the Lazy
+  channel having the same "Settings/Filename format"as this channel.
+  \b AND  The given run number appears anywhere under the "List/" directory of that channel
+  </center></b>
+ <br><br>
+  - <b>[Stay behind]</b> This parameter defines how many consecutive data file should be kept
+  between the current run and the last lazylogger run.
+    - <b> Example  with "Stay behind = -3" </b>:
+    -# Current acquisition run number 253 -\> run00253.mid is being logger by mlogger.
+    -# Files available on the disk corresponding to run \#248, \#249, \#250, \#251, \#252.
+    -# Lazylogger will start backing up run \#250 as soon new run 254 will start.
+    -3 "Stay behind = -3" will correspond to 3 file untouch on the disk
+    (\#251, \#252, \#253).
+  The negative sign instructs lazylogger to \b always scan the entire "Data Dir" from the
+  oldest to the most recent file sitting on the disk at the "Data Dir" path- for backup.
+  If the "Stay behind" is positive, lazylogger will \b backup starting from- x behind
+  the current acquisition run number. Run older will be ignored.
+  <br><br>
+  - <b>[Alarm Class]</b> Specify the Alarm class to be used in case of triggered alarm.
+  <br><br>
+  - <b>[Running condition]</b> Specify the type of condition for which lazylogger should
+  be actived. By default lazylogger is \b ALWAYS- running. In the case of high data
+  rate acquisition it could be necessary to activate lazylogger only when the run is either
+  pauses, stopped or when some external condition is satisfied such as "Low beam intensity".
+  In this later case, condition based on a single field of the ODB can be given to
+  establish when the application should be active.
+    - <b> Example </b>:
+      \code
+      odbedit> set "Running condition" WHILE_ACQ_NOT_RUNNING
+      odbedit> set "Running condition" "/alias/max_rate \< 200"
+      \endcode
+  - <b>[Data dir]</b> Specify the Data directory path of the data files. By default if the
+  "/Logger/Data Dir" is present, the pointed value is taken otherwise the current directory
+  where lazylogger has been started is used.
+   <br><br>
+  - <b>[Data format]</b> Specify the Data format of the data files. Currently supported format
+  are: \b MIDAS or \b YBOS.
+   <br><br>
+  - <b>[Filename format]</b> Specify the file format of the data files. Same format as
+  given for the data logger.
+ <br><br>
+  - <b>[Backup type]</b> Specify the "slow device" backup type. Default \b Tape.
+  Can be \b Disk or \b Ftp. 
+   <br><br>
+  - <b>[Execute after rewind]</b> Specify a script to be run after completion of a lazylogger
+  backup set (see below "Capacity (Bytes)").
+   <br><br>
+  - <b>[Path]</b> Specify the "slow device" path. Three possible type of Path:
+    - For Tape : \b /dev/nst0- (UNIX like).
+    - For Disk : \b /data1/myexpt
+    - For Ftp  : \b host,port,user,password,directory
+   <br><br>
+  - <b>[Capacity (Bytes)]</b> Specify the maximum "slow device" capacity in bytes.
+  When this capacity is reached, lazylogger will close the backup device and clear
+  the "List Label" field to prevent further backup (see below).
+  It will aslo rewind the stream device if possible.
+  - <b>[List label]</b> Specify a label for a set of backed up files to the "slow device".
+  This label is used only internaly by lazylogger for creating under the "/List" a
+  new array composed of the backed up runs until the "Capacity" value has been reached.
+  As the backup set is complete, lazylogger will clear this field and therefore
+  prevent any further backup until a none empty label list is entered again.
+  In the other hand the list label will remain under the "/List" key to display all
+  run being backed up until the corresponding files have been removed from the disk.
+  - <b>[Exec preW file]</b> Permits to run a script before the begining of the lazy job.
+  The <b> Arguments </b> passed to the scripts are: input file name , output file name, current block number.
+  - <b>[Exec postW file]</b> Permits to run a script after the completion of the lazy job.
+  The <b> Arguments </b> passed to the scripts are: list label, current job number, source path,
+  file name, file size in MB, current block number.
+ <br><br>
+  - <b>[Modulo.Position]</b> This field is for multiple instance of lazylogger where each instance
+  works on a sub-set of run number. By specifying the <b>Modulo.Position</b>
+  you're telling the current lazy instance how many instance are simultaneously
+  running (3.) and the position of which this instance is assigned to (.1).
+  As an example for 3 lazylogger running contemporaneously the field assignment
+  should be :
+  \code
+  Channel    Field    Run#
+  Lazy_1     3.0      21, 24, 27, ...
+  Lazy_2     3.1      22, 25, 28, ...
+  Lazy_3     3.2      23, 26, 29, ...
+  \endcode
+ <br><br>
+  - <b>[Tape Data Append]</b> Enable the spooling of the Tape device to the End_of_Device (EOD) before
+  starting the lazy job. This command is valid only for "Backup Type" Tape. If this flag is not enable
+  the lazy job starts at the current tape position.
+ <br><br>
+  - <b>[Statistics/]</b> ODB tree specifying general information about the status of
+  the current lazylogger channel state.
+ <br><br>
+  - <b>[List/]</b> ODB tree, will contain arrays of run number associated to the
+   array name backup-set label. Any run number appearing in any of the array is
+   considered to have been backed up.
+  
+- <b> Usage </b>
+ lazylogger requires to be setup prior data file can be moved.
+ This setup consists in 4 steps:
+  - <b>[Step 1] </b> Invoking lazylogger once for setting up the appropriate ODB
+  tree and exit.
+  \code
+  >lazylogger -c Tape
+  \endcode
+  - <b>[Step 2]</b> Edit the newly created ODB tree. Correct the setting field to
+  match your requirement.
+\code
+> odbedit -e midas
+[local:midas:Stopped]/>cd /Lazy/tape/
+[local:midas:Stopped]tape>ls
+[local:midas:Stopped]tape>ls -lr
+Key name                        Type    #Val  Size  Last Opn Mode Value
+---------------------------------------------------------------------------
+tape                            DIR
+    Settings                    DIR
+        Maintain free space(%)  INT     1     4     3m   0   RWD  0
+        Stay behind             INT     1     4     3m   0   RWD  -3
+        Alarm Class             STRING  1     32    3m   0   RWD  
+        Running condition       STRING  1     128   3m   0   RWD  ALWAYS
+        Data dir                STRING  1     256   3m   0   RWD  /home/midas/online
+        Data format             STRING  1     8     3m   0   RWD  MIDAS
+        Filename format         STRING  1     128   3m   0   RWD  run%05d.mid
+        Backup type             STRING  1     8     3m   0   RWD  Tape
+        Execute after rewind    STRING  1     64    3m   0   RWD  
+        Path                    STRING  1     128   3m   0   RWD  
+        Capacity (Bytes)        FLOAT   1     4     3m   0   RWD  5e+09
+        List label              STRING  1     128   3m   0   RWD  
+    Statistics                  DIR
+        Backup file             STRING  1     128   3m   0   RWD  none 
+        File size [Bytes]       FLOAT   1     4     3m   0   RWD  0
+        KBytes copied           FLOAT   1     4     3m   0   RWD  0
+        Total Bytes copied      FLOAT   1     4     3m   0   RWD  0
+        Copy progress [%]       FLOAT   1     4     3m   0   RWD  0
+        Copy Rate [bytes per s] FLOAT   1     4     3m   0   RWD  0
+        Backup status [%]       FLOAT   1     4     3m   0   RWD  0
+        Number of Files         INT     1     4     3m   0   RWD  0
+        Current Lazy run        INT     1     4     3m   0   RWD  0
+[local:midas:Stopped]tape>cd Settings/
+[local:midas:Stopped]Settings>set "Data dir" /data
+[local:midas:Stopped]Settings>set "Capacity (Bytes)" 15e9
+\endcode
+  - <b>[Step 3]</b> Start lazylogger in the background
+\code
+>lazylogger -c Tape -D
+\endcode
+  - <b>[Step 4]</b> At this point the lazylogger is running and waiting for the
+  "list label" to be defined before starting the copy procedure. @ref mstat_task
+  will display information regarding the status of the lazylogger. 
+\code
+> odbedit -e midas
+[local:midas:Stopped]/>cd /Lazy/tape/Settings
+[local:midas:Stopped]Settings>set "List label" cni-043
+\endcode
+
+- <b> Remarks </b>
+ - For every major operation of the lazylogger a message is sent to the
+Message buffer and will be appended to the default Midas log file (midas.log). These
+messages are the only mean of finding out What/When/Where/How the lazylogger has operate
+on a data file. See below a fragment of the @ref midas.log for the chaos experiment.
+In this case the \b Maintain free space(%) field was enabled which produce the
+cleanup of the data files and the entry in the \b List tree after copy.
+\code
+Fri Mar 24 14:40:08 2000 [Lazy_Tape] 8351 (rm:16050ms) /scr0/spring2000/run08351.ybs file REMOVED
+Fri Mar 24 14:40:08 2000 [Lazy_Tape] Tape run#8351 entry REMOVED
+Fri Mar 24 14:59:55 2000 [Logger] stopping run after having received 1200000 events
+Fri Mar 24 14:59:56 2000 [CHAOS] Run 8366 stopped
+Fri Mar 24 14:59:56 2000 [Logger] Run #8366 stopped
+Fri Mar 24 14:59:57 2000 [SUSIYBOS] saving info in run log
+Fri Mar 24 15:00:07 2000 [Logger] starting new run
+Fri Mar 24 15:00:07 2000 [CHAOS] Run 8367 started
+Fri Mar 24 15:00:07 2000 [Logger] Run #8367 started
+Fri Mar 24 15:06:59 2000 [Lazy_Tape] cni-043[15] (cp:410.6s) /dev/nst0/run08365.ybs 864.020MB file NEW
+Fri Mar 24 15:07:35 2000 [Lazy_Tape] 8352 (rm:25854ms) /scr0/spring2000/run08352.ybs file REMOVED
+Fri Mar 24 15:07:35 2000 [Lazy_Tape] Tape run#8352 entry REMOVED
+Fri Mar 24 15:27:09 2000 [Lazy_Tape] 8353 (rm:23693ms) /scr0/spring2000/run08353.ybs file REMOVED
+Fri Mar 24 15:27:09 2000 [Lazy_Tape] Tape run#8353 entry REMOVED
+Fri Mar 24 15:33:22 2000 [Logger] stopping run after having received 1200000 events
+Fri Mar 24 15:33:22 2000 [CHAOS] Run 8367 stopped
+Fri Mar 24 15:33:23 2000 [Logger] Run #8367 stopped
+Fri Mar 24 15:33:24 2000 [SUSIYBOS] saving info in run log
+Fri Mar 24 15:33:33 2000 [Logger] starting new run
+Fri Mar 24 15:33:34 2000 [CHAOS] Run 8368 started
+Fri Mar 24 15:33:34 2000 [Logger] Run #8368 started
+Fri Mar 24 15:40:18 2000 [Lazy_Tape] cni-043[16] (cp:395.4s) /dev/nst0/run08366.ybs 857.677MB file NEW
+Fri Mar 24 15:50:15 2000 [Lazy_Tape] 8354 (rm:28867ms) /scr0/spring2000/run08354.ybs file REMOVED
+Fri Mar 24 15:50:15 2000 [Lazy_Tape] Tape run#8354 entry REMOVED
+...
+\endcode
+ - Once lazylogger has started a job on a data file, trying to
+terminate the application will result on producing a log message informing about the
+actual percentage of the backup being completed so far. This message will repeat it self
+until completion of the backup and only then the lazylogger application will terminate.
+ - If an interruption of the lazylogger is forced (kill...) The state
+of the backup device is undertermined. Recovery is not possible and the full backup set
+has to be redone. In order to do this, you need:
+ - To rewind the backup device.
+ - Delete the /Lazy/\<channel_name>/List/\<list label> array.
+ - Restart lazylogger with the -z switch which will "zap" the statistics entries.
+ - In order to facilitate the recovery procedure, \b lazylogger produces an
+ODB ASCII file of the lazy channel tree after completion of successful operation.
+This file (\b Tape_recover.odb) stored in @ref Data_Dir can be used for ODB
+as well as lazylogger recovery.
+
+
+<hr> @section mdump_task mdump task
+This application allows to "peep" into the data flow in order to display a
+snap-shot of the event. Its use is particularly powerful during experiment setup.
+In addition \b mdump has
+the capability to operate on data save-set files stored on disk or tape.
+The main \b mdump restriction is the fact that it works only for events formatted
+in banks (i.e.: MIDAS, YBOS bank).
+
+- <b> Arguments </b> for Online 
+  - [-h ] : help for online use.
+  - [-h hostname ] : Host name.
+  - [-e exptname ] : Experiment name.
+  - [-b bank name] : Display event containg only specified bank name.
+  - [-c compose] : Retrieve and compose file with either Add run\# or Not (def:N).
+  - [-f format] : Data representation (x/d/ascii) def:hex.
+  - [-g type ] : Sampling mode either Some or All (def:S).
+     >>> in case of -c it is recommented to used -g all.
+  - [-i id ] : Event Id.
+  - [-j ] : Display bank header only.
+  - [-k id ] : Event mask.
+     \>\>\> -i and -k are valid for YBOS ONLY if EVID bank is present in the event
+  - [-l number ] : Number of consecutive event to display (def:1).
+  - [-m mode] : Display mode either Bank or Raw (def:B)
+  - [-p path] : Path for file composition (see -c)
+  - [-s ] : Data transfer rate diagnositic.
+  - [-w time] : Insert wait in [sec] between each display.
+  - [-x filename ] : Input channel. data file name of data device. (def:online)
+  - [-y ] : Display consistency check only.
+  - [-z buffer name] : Midas buffer name to attach to (def:SYSTEM)
+
+
+- Additional <b> Arguments </b> for Offline
+  - [-x -h ] : help for offline use.
+  - [-t type ] : Bank format (Midas/Ybos).
+     \>\>\> if -x is a /dev/xxx, -t has to be specified.
+  - [-r \#] : skip record(YBOS) or event(MIDAS) to \#.
+  - [-w what] :  Header, Record, Length, Event, Jbank_list (def:E)
+     \>\>\> Header & Record are not supported for MIDAS as it has no physical record
+  structure.
+ 
+ 
+- <b> Usage </b>
+mdump can operate on either data stream (online) or on save-set data file.
+Specific help is available for each mode.
+\code
+ > mdump -h
+ > mdump -x -h
+\endcode 
+\code
+Tue> mdump -x run37496.mid | more
+------------------------ Event# 0 --------------------------------
+------------------------ Event# 1 --------------------------------
+Evid:0001- Mask:0100- Serial:1- Time:0x393c299a- Dsize:72/0x48
+#banks:2 - Bank list:-SCLRRATE-
+
+Bank:SCLR Length: 24(I*1)/6(I*4)/6(Type) Type:Integer*4
+   1-> 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 
+
+Bank:RATE Length: 24(I*1)/6(I*4)/6(Type) Type:Real*4 (FMT machine dependent)
+   1-> 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 
+------------------------ Event# 2 --------------------------------
+Evid:0001- Mask:0004- Serial:1- Time:0x393c299a- Dsize:56/0x38
+#banks:2 - Bank list:-MMESMMOD-
+
+Bank:MMES Length: 24(I*1)/6(I*4)/6(Type) Type:Real*4 (FMT machine dependent)
+   1-> 0x3de35788 0x3d0b0e29 0x00000000 0x00000000 0x3f800000 0x00000000 
+
+Bank:MMOD Length: 4(I*1)/1(I*4)/1(Type) Type:Integer*4
+   1-> 0x00000001 
+------------------------ Event# 3 --------------------------------
+Evid:0001- Mask:0008- Serial:1- Time:0x393c299a- Dsize:48/0x30
+#banks:1 - Bank list:-BMES-
+
+Bank:BMES Length: 28(I*1)/7(I*4)/7(Type) Type:Real*4 (FMT machine dependent)
+   1-> 0x443d7333 0x444cf333 0x44454000 0x4448e000 0x43bca667 0x43ce0000 0x43f98000 
+------------------------ Event# 4 --------------------------------
+Evid:0001- Mask:0010- Serial:1- Time:0x393c299a- Dsize:168/0xa8
+#banks:1 - Bank list:-CMES-
+
+Bank:CMES Length: 148(I*1)/37(I*4)/37(Type) Type:Real*4 (FMT machine dependent)
+   1-> 0x3f2f9fe2 0x3ff77fd6 0x3f173fe6 0x3daeffe2 0x410f83e8 0x40ac07e3 0x3f6ebfd8 0x3c47ffde 
+   9-> 0x3e60ffda 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x3f800000 
+  17-> 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 
+  25-> 0x3f800000 0x3f800000 0x3f800000 0x00000000 0x3f800000 0x00000000 0x3f800000 0x3f800000 
+  33-> 0x3f800000 0x3f800000 0x3f800000 0x3f800000 0x00000000 
+------------------------ Event# 5 --------------------------------
+Evid:0001- Mask:0020- Serial:1- Time:0x393c299a- Dsize:32/0x20
+#banks:1 - Bank list:-METR-
+
+Bank:METR Length: 12(I*1)/3(I*4)/3(Type) Type:Real*4 (FMT machine dependent)
+   1-> 0x00000000 0x39005d87 0x00000000 
+...
+\endcode
+
+- <b> Example </b>
+ \code
+ > mdump -j
+ \endcode
+
+
+<hr> @section mevb_task mevb task
+\b mevb is an event builder application taking several frontends Midas data source
+and assemble a new overall Midas event.
+
+In the case where overall data collection is handled by multiple
+physically separated frontend, it could be necessary to assemble these
+data fragments into a dedicated event. The synchonization of the fragment
+collection is left to the user which is done usually through specific
+hardware mechanism.
+Once the fragments are composed in each frontend, they are sent
+to the "Event Builder" (eb) where the serial number (pheader-\>serial_number)
+of each fragment is compared one event at a time for serial match.
+In case of match, a new event will be composed with its own event ID and
+serial number followed by all the expected fragments.
+The composed event is then sent to the next stage which is usually the
+data logger (mlogger).
+
+The @ref mhttpd_task will present the status of the event builder as an extra equipment
+with its corresponding statistical information.
+
+- <b> Arguments </b>
+  - [-h ] : help
+  - [-h hostname ] : host name 
+  - [-e exptname ] : experiment name
+  - [-b ] : Buffer name
+  - [-v ] : Show wheel
+  - [-d ] : debug messages
+  - [-D ] : start program as a daemon
+- <b> Usage </b>
+\code
+  Thu> mevb -e midas
+  Program mevb/EBuilder version 2 started
+\endcode
+
+\arg See @ref Event_Builder for more details
+
+<hr> @section mspeaker_task mspeaker, mlxspeaker tasks
+\b mspeaker, mlxspeaker are utilities which listen to the Midas messages system
+and pipe these messages to a speech synthesizer application. \b mspeaker
+is for the Windows based system and interface to the
+<a href=http://www.fbyte.com> FirstByte/ProVoice package</a>.
+The \b mlxspeaker is for Linux based system and interface to the
+<a href=http://www.cstr.ed.ac.uk/projects/festival>Festival</a>.
+In case of use of either package, the speech synthesis system has to be install
+prior the activation of the \b mspeaker, mlxspeaker.
+
+- <b> Arguments </b>
+  - [-h ] : help
+  - [-h hostname ] : host name 
+  - [-e exptname ] : experiment name
+  - [-t mt_talk_cmd] : Specify the talk alert command (ux only). 
+  - [-u mt_user_cmd] : Specify the user alert command (ux only).
+  - [-s shut up time]: Specify the min time interval between alert [s]
+        The -t & -u switch require a command equivalent to:
+        '-t play --volume=0.3 file.wav' 
+  - [-D ] : start program as a daemon
+ 
+- <b> Usage </b>
+\code
+> mlxspeaker -D
+\endcode
+
+<hr> @section mcnaf_task mcnaf task
+\b mcnaf is an interactive CAMAC tool which allow "direct" access to the CAMAC
+hardware. This application is operational under either of the two following
+conditions:
+    -# \b mcnaf has been built against a particular CAMAC driver (see @ref CAMAC_drivers).
+    -# A user frontend code using a valid CAMAC driver is currently active. In this case
+    the frontend acts as a RPC CAMAC server and will handle the CAMAC request. This 
+    last option is only available if the frontend code (mfe.c) from the
+    @ref building_option has included the @ref HAVE_CAMAC pre-compiler flag.
+
+- <b> Arguments </b>
+  - [-h ] : help
+  - [-h hostname ] : host name 
+  - [-e exptname ] : experiment name
+  - [-f frontend name] : Frontend name to connect to.
+  - [-s RPC server name] : CAMAC RPC server name for remote connection.
+ 
+- <b> Building application </b>
+  The \b midas/utils/makefile.mcnaf will build a collection of \b mcnaf
+  applications which are hardware dependent, see <b> Example </b> below:
+  - <b>[miocnaf]</b> cnaf application using the declared CAMAC hardware DRIVER
+    (kcs2927 in this case). To be used with \b dio CAMAC application starter
+    (see @ref dio_task).
+  - <b>[mwecnaf]</b> cnaf application using the WI-E-N-ER PCI/CAMAC interface
+    (see @ref CAMAC_drivers). Please contact mailto:midas@triumf.ca
+    for further information.
+  - <b>[mcnaf]</b> cnaf application using the CAMAC RPC capability of any Midas
+    frontend program having CAMAC access.
+  - <b>[mdrvcnaf]</b> cnaf application using the Linux CAMAC driver for either
+    kcs2927, kcs2926, dsp004. This application would require to have the proper
+    Linux module loaded in the system first.
+    Please contact mailto:midas@triumf.ca for further information.
+
+\code
+Thu> cd /midas/utils
+Thu> make -f makefile.mcnaf DRIVER=kcs2927
+gcc -O3 -I../include -DOS_LINUX -c -o mcnaf.o mcnaf.c
+gcc -O3 -I../include -DOS_LINUX -c -o kcs2927.o ../drivers/bus/kcs2927.c
+gcc -O3 -I../include -DOS_LINUX -o miocnaf mcnaf.o kcs2927.o  ../linux/lib/libmidas.a -lutil
+gcc -O3 -I../include -DOS_LINUX -c -o wecc32.o ../drivers/bus/wecc32.c
+gcc -O3 -I../include -DOS_LINUX -o mwecnaf mcnaf.o wecc32.o  ../linux/lib/libmidas.a -lutil 
+gcc -O3 -I../include -DOS_LINUX -c -o camacrpc.o ../drivers/bus/camacrpc.c
+gcc -O3 -I../include -DOS_LINUX -o mcnaf mcnaf.o camacrpc.o  ../linux/lib/libmidas.a -lutil 
+gcc -O3 -I../include -DOS_LINUX -c -o camaclx.o ../drivers/bus/camaclx.c
+gcc -O3 -I../include -DOS_LINUX -o mdrvcnaf mcnaf.o camaclx.o  ../linux/lib/libmidas.a -lutil 
+rm *.o
+\endcode
+
+- <b> Running application </b>
+  - Direct CAMAC access: This requires the computer to have the proper CAMAC interface
+    installed and the \b BASE ADDRESS matching the value defined in the corresponding CAMAC
+    driver. For kcs2926.c, kcs2927.c, dsp004.c, hyt1331.c, the base address
+    (CAMAC_BASE) is set to 0x280.
+  \code
+   >dio miocnaf
+   \endcode
+  - RPC CAMAC through frontend: This requires to have a frontend running which
+    will be able to serve the CAMAC RPC request.
+    Any Midas frontend has that capability built-in but it has to have the proper
+    CAMAC driver included in it.
+    \code
+     >mcnaf -e <expt> -h <host> -f <fe_name>
+     \endcode
+   
+- <b> Usage </b>
+  \code
+  ........
+  \endcode
+
+
+<hr> @section melog_task melog task
+Electronic Log utility. Submit full Elog entry to the specified Elog port.
+
+- <b> Arguments </b>
+  - [-h ] : help
+  - [-h hostname ] : host name
+  - [-l exptname or logbook ]
+  - [-u username password ]
+  - [-f \<attachment\> ] : up to 10 files.
+  - -a \<attribute\>=\<value\> : up to 20 attributes. The attribute "Author=..." must
+  at least be present for submission of Elog.
+  - -m \<textfile\> | text\> Arguments with blanks must be enclosed in quotes.
+  The elog message can either be submitted on the command line
+  or in a file with the -m flag. Multiple attributes and attachments
+  can be supplied.
+ 
+- <b> Usage </b>
+ By default the attributes are "Author", "Type", "System" and "Subject". The "Author"
+ attribute has to be present in the elog command in order to successfully submit the
+ message. If multiple attributes are required append before "text" field the full
+ specification of the attribute. In case of multiple attachement, only one "-f"
+ is required followed by up to 10 file names.
+ \code
+ >melog -h myhost -p 8081 -l myexpt -a author=pierre "Just a elog message"
+ >melog -h myhost -p 8081 -l myexpt -a author=pierre -f file2attach.txt \
+                 "Just this message with an attachement"
+ >melog -h myhost -p 8081 -l myexpt -a author=pierre -m file_containing_the_message.txt
+ >melog -h myhost -p 8081 -l myexpt -a Author=pierre -a Type=routine -a system=general \
+                 -a Subject="my test" "A full Elog message"
+\endcode
+- <b> Remarks </b>
+
+
+<hr> @section mhist_task mhist task
+History data retriever.
+
+- <b> Arguments </b>
+  - [-h ] : help
+  - [-e Event ID] : specify event ID
+  - [-v Variable Name] : specify variable name for given Event ID
+  - [-i Index] : index of variables which are arrays
+  - [-i Index1:Index2] index range of variables which are arrays (max 50)
+  - [-t Interval] : minimum interval in sec. between two displayed records
+  - [-h Hours] : display between some hours ago and now
+  - [-d Days] : display between some days ago and now
+  - [-f File] : specify history file explicitly
+  - [-s Start date] : specify start date DDMMYY[.HHMM[SS]]
+  - [-p End date] : specify end date DDMMYY[.HHMM[SS]]
+  - [-l] : list available events and variables
+  - [-b] : display time stamp in decimal format
+  - [-z] : History directory (def: cwd).
+ 
+- <b> Usage </b>
+- <b> Example </b>
+  \code
+  --- All variables of event ID 9 during last hour with at least 5 minutes interval.
+  > mhist
+  Available events:
+  ID 9: Target
+  ID 5: CHV
+  ID 6: B12Y
+  ID 20: System
+
+  Select event ID: 9
+
+  Available variables:
+  0: Time
+  1: Cryostat vacuum
+  2: Heat Pipe pressure
+  3: Target pressure
+  4: Target temperature
+  5: Shield temperature
+  6: Diode temperature
+
+  Select variable (0..6,-1 for all): -1
+
+  How many hours: 1
+
+  Interval [sec]: 300
+
+  Date    Time    Cryostat vacuum Heat Pipe pressure  Target pressure Target temperature      Shield temperature      Diode temperature
+  Jun 19 10:26:23 2000    104444  4.614   23.16   -0.498  22.931  82.163  40
+  Jun 19 10:31:24 2000    104956  4.602   23.16   -0.498  22.892  82.108  40
+  Jun 19 10:36:24 2000    105509  4.597   23.099  -0.498  22.892  82.126  40
+  Jun 19 10:41:33 2000    110021  4.592   23.16   -0.498  22.856  82.08   40
+  Jun 19 10:46:40 2000    110534  4.597   23.147  -0.498  22.892  82.117  40
+  Jun 19 10:51:44 2000    111046  4.622   23.172  -0.498  22.907  82.117  40
+  Jun 19 10:56:47 2000    111558  4.617   23.086  -0.498  22.892  82.117  40
+  Jun 19 11:01:56 2000    112009  4.624   23.208  -0.498  22.892  82.117  40
+  Jun 19 11:07:00 2000    112521  4.629   23.172  -0.498  22.896  82.099  40
+  Jun 19 11:12:05 2000    113034  4.639   23.074  -0.498  22.896  82.117  40
+  Jun 19 11:17:09 2000    113546  4.644   23.172  -0.498  22.892  82.126  40
+  Jun 19 11:22:15 2000    114059  4.661   23.16   -0.498  22.888  82.099  40
+  \endcode
+
+  - Single variable "I-WC1+_Anode" of event 5 every hour over the full April 24/2000.
+
+  \code
+   mhist -e 5 -v "I-WC1+_Anode" -t 3600 -s 240400 -p 250400
+  Apr 24 00:00:09 2000    160
+  Apr 24 01:00:12 2000    160
+  Apr 24 02:00:13 2000    160
+  Apr 24 03:00:14 2000    160
+  Apr 24 04:00:21 2000    180
+  Apr 24 05:00:26 2000    0
+  Apr 24 06:00:31 2000    160
+  Apr 24 07:00:37 2000    160
+  Apr 24 08:00:40 2000    160
+  Apr 24 09:00:49 2000    160
+  Apr 24 10:00:52 2000    160
+  Apr 24 11:01:01 2000    160
+  Apr 24 12:01:03 2000    160
+  Apr 24 13:01:03 2000    0
+  Apr 24 14:01:04 2000    0
+  Apr 24 15:01:05 2000    -20
+  Apr 24 16:01:11 2000    0
+  Apr 24 17:01:14 2000    0
+  Apr 24 18:01:19 2000    -20
+  Apr 24 19:01:19 2000    0
+  Apr 24 20:01:21 2000    0
+  Apr 24 21:01:23 2000    0
+  Apr 24 22:01:32 2000    0
+  Apr 24 23:01:39 2000    0
+  \endcode
+- <b> Remarks </b> History data can be retrieved and display through the
+Midas web page (see @ref mhttpd_task).
+
+
+- <b> Example </b> 
+ * <center> Midas Web History display.
+ *  \image html mhhist.gif
+ *  \image latex mhhist.eps "Midas Web History display." width=12cm
+ * </center> 
+
+
+<hr> @section mchart_task mchart task
+mchart is a periodic data retriever of a specific path in the ODB which can be used
+in conjunction with a stripchart graphic program.
+
+- In the first of two step procedure, a specific path in the ODB can be scanned
+  for composing a configuration file by extracting all numerical data
+  references \b file.conf .
+- In the second step the mchart will produce at fix time interval a refreshed data
+  file containing the values of the numerical data specified in the
+  configuration file.  
+  This file is then available for a stripchart program to be used for chart recording
+  type of graph.
+
+Two possible stripchart available are:
+
+- \b gstripchart The configuration file generated by mchart is compatible
+with the GNU stripchart which permit sofisticated data equation manipulation. In the
+other hand, the data display is not very fency and provide just a basic chart recorder.
+- @ref stripchartfile This tcl/tk application written by Gertjan Hofman
+provides a far better graphical chart recorder display tool, it also permits
+history save-set display, but the equation scheme is not implemented.
+
+- <b> Arguments </b>
+  - [-h ] : help
+  - [-h hostname ] : host name.
+  - [-e exptname ] : experiment name.
+  - [-D ] : start program as a daemon.
+  - [-u time] : data update periodicity (def:5s).
+  - [-f file] : file name (+.conf: if using existing file).
+  - [-q ODBpath] : ODB tree path for extraction of the variables.
+  - [-c ] : ONLY creates the configuration file for later use.
+  - [-b lower_value] : sets general lower limit for all variables.
+  - [-t upper_value] : sets general upper limit for all variables.
+  - [-g ] : spawn the graphical stripchart if available.
+  - [-gg ] : force the use of gstripchart for graphic.
+  - [-gh ] : force the use of stripchart (tcl/tk) for graphic.
+ 
+- <b> Usage </b>
+The configuration contains an entry for each variable found under the ODBpath requested.
+The format is described in the gstripchart documentation.
+
+Once the configuration file has been created, it is possible to apply any valid
+operation (equation) to the parameters of the file following the gstripchart syntax.
+
+In the case of the use of the \em stripchart from G.Hofman, only the "filename",
+"pattern", "maximum", "minimum" fields are used.
+
+When using mchart with -D Argument, it is necessary to have the @ref MCHART_DIR defined
+in order to allow the daemon to find the location of the configuration and data files
+(see @ref Environment_variables).
+
+\code
+chaos:~/chart> more trigger.conf 
+#Equipment:            >/equipment/kos_trigger/statistics
+menu:                   on
+slider:                 on
+type:                   gtk
+minor_ticks:            12
+major_ticks:            6
+chart-interval:         1.000
+chart-filter:           0.500
+slider-interval:        0.200
+slider-filter:          0.200
+begin:        Events_sent
+  filename:     /home/chaos/chart/trigger
+  fields:       2
+  pattern:      Events_sent
+  equation:     \$2
+  color:        \$blue
+  maximum:      1083540.00
+  minimum:      270885.00
+  id_char:      1
+end:            Events_sent
+begin:        Events_per_sec.
+  filename:     /home/chaos/chart/trigger
+  fields:       2
+  pattern:      Events_per_sec.
+  equation:     $2
+  color:        \$red
+  maximum:      1305.56
+  minimum:      326.39
+  id_char:      1
+end:            Events_per_sec.
+begin:        kBytes_per_sec.
+  filename:     /home/chaos/chart/trigger
+  fields:       2
+  pattern:      kBytes_per_sec.
+  equation:     $2
+  color:        \$brown
+  maximum:      898.46
+  minimum:      224.61
+  id_char:      1
+end:            kBytes_per_sec.
+ \endcode
+
+A second file (data file) will be updated a fixed interval by the {\em mchart- utility.
+  \code
+  chaos:~/chart> more trigger
+    Events_sent 6.620470e+05
+    Events_per_sec. 6.463608e+02
+    kBytes_per_sec. 4.424778e+02
+ \endcode
+ 
+- <b> Example </b>
+
+- Creation with ODBpath being one array and one element of 2 sitting under
+variables/:
+ \code 
+  chaos:~/chart> mchart -f chvv -q /equipment/chv/variables/chvv -c
+  chaos:~/chart> ls -l chvv*
+  -rw-r--r--   1 chaos    users         474 Apr 18 14:37 chvv
+  -rw-r--r--   1 chaos    users        4656 Apr 18 14:37 chvv.conf
+ \endcode
+- Creation with ODBpath of all the sub-keys sittings in variables:
+ \code
+  mchart -e myexpt -h myhost -f chv -q /equipment/chv/variables -c
+ \endcode
+- Creation and running in debug:
+ \code
+  chaos:~/chart> mchart -f chv -q /equipment/chv/variables -d
+  CHVV : size:68
+  #name:17 #Values:17
+  CHVI : size:68
+ \endcode
+- Running a pre-existing conf file (chv.conf) debug:
+ \code
+  chaos:~/chart> mchart -f chv.conf -d
+  CHVV : size:68
+  #name:17 #Values:17
+  CHVI : size:68
+  #name:17 #Values:17
+ \endcode
+- Running a pre-existing configuration file and spawning @ref gstripchart:
+ \code
+  chaos:~/chart> mchart -f chv.conf -gg
+  spawning graph with gstripchart -g 500x200-200-800 -f /home/chaos/chart/chv.conf ...
+ \endcode
+- Running a pre-existing configuration file and spawning stripchart, this will work
+only if Tcl/Tk and bltwish packages are installed and the stripchart.tcl has been
+installed through the Midas Makefile.
+ \code
+  chaos:~/chart> mchart -f chv.conf -gh
+  spawning graph with stripchart /home/chaos/chart/chv.conf ...
+ \endcode
+
+<hr> @section mtape_task mtape task
+Tape manipulation utility.
+
+- <b> Arguments </b> 
+  - [-h ] : help
+  - [-h hostname ] : host name 
+  - [-e exptname ] : experiment name
+  - [-D ] : start program as a daemon
+ 
+- <b> Usage </b>
+- <b> Example </b>
+ \code
+ >mtape
+ \endcode
+
+<hr> @section dio_task dio task
+Direct I/O task provider (LINUX).
+
+If no particular Linux driver is installed for the CAMAC access, the \b dio-
+program will allows you to gain access to the I/O ports to which the CAMAC
+interface card is connected to. 
+
+- <b> Arguments </b>
+  - [application name ] : Program name requiring I/O permission.
+- <b> Usage </b>
+ \code
+ >dio miocnaf
+ >dio frontend 
+ \endcode
+- <b> Remark </b>
+- This "hacking" utility restricts the access
+to a range of I/O port from 0x200 to 0x3FF.
+
+- As this mode of I/O access by-passes the driver (if any),
+concurrent access to the same I/O port may produce unexpected
+result and in the worth case freeze the computer.
+It is therefore important to ensure to run one and only one dio
+application to a given port in order to prevent potential hangup problem.
+
+- Interrupt handling, DMA capabilities of the interface will not be
+accessible under this mode of operation.
+
+
+<hr> @section stripchartfile stripchart.tcl file
+Graphical stripchart data display.
+Operates on @ref mchart_task data or on Midas history save-set files.
+(see also @ref History_System).
+
+- <b> Arguments </b>
+   - [-mhist ] : start stripchart for Midas history data.
+- <b> Usage </b>:
+ stripchart <-options> \<config-file\>
+ -mhist   (look at history file -default)
+ -dmhist  debug mhist 
+ -debug   debug stripchart
+ config_file: see mchart_task
+ \code
+ > stripchart.tcl -debug
+ > stripchart.tcl
+ \endcode
+- <b> Example </b>
+ \code
+ > stripchart.tcl -h
+ \endcode 
+@anchor gstripchart
+ * <center> gstripchart display with parameters and data pop-up.
+ *  \image html gstripchart1.jpg
+ *  \image latex gstripchart1.eps "gstripchart display with parameters and data pop-up." width=12cm
+ * </center> 
+
+ * <center> stripchart.tcl mhist mode: main window with pull-downs.
+ *  \image html stripchart1.jpg
+ *  \image latex stripchart1.eps "stripchart.tcl mhist mode: main window with pull-downs." width=12cm
+ * </center> 
+
+ * <center> stripchart.tcl Online data, running in conjunction with mchart
+ *  \image html stripchart2.jpg
+ *  \image latex stripchart2.eps "stripchart.tcl Online data, running in conjunction with mchart" width=12cm
+ * </center> 
+
+<hr> @section rmidas_task rmidas task
+ Root/Midas remote GUI application for root histograms and possible run control under the ROOT.
+ environment.
+
+- <b> Arguments </b>
+  - [-h ] : help
+  - [-h hostname ] : host name 
+  - [-e exptname ] : experiment name
+- <b> Usage </b>
+  to be written.
+- <b> Example </b>
+ \code
+ >rmidas midasserver.domain
+ \endcode
+ 
+ * <center> rmidas display sample. Using the example/experiment/ demo setup.
+ *  \image html rmidas.jpg
+ *  \image latex rmidas.eps "rmidas display sample. Using the example/experiment/ demo setup." width=12cm
+ * </center> 
+ 
+
+<hr> @section hvedit_task hvedit task
+ High Voltage editor, graphical interface to the Slow Control System. Originally for
+ Windows machines, but recently ported on Linux under Qt by Andreas Suter.
+
+- <b> Arguments </b>
+  - [-h ] : help
+  - [-h hostname ] : host name 
+  - [-e exptname ] : experiment name
+  - [-D ] : start program as a daemon
+- <b> Usage </b>
+  To control the high voltage system, the program HVEdit can be used under Windows 95/NT.
+  It can be used to set channels, save and load values from disk and print them.
+  The program can be started several times even on different computers.
+  Since they are all linked to the same ODB arrays, the demand and measured values are
+  consistent between them at any time. HVEdit is started from the command line:
+- <b> Example </b>
+ \code
+ >hvedit
+ \endcode
+
+<hr> @section mserver_task Midas Remote server
+\em mserver provides remote access to any midas client. This task usually runs in the
+background and doesn't not to be modified. In the case debugging is required, the
+\em mserver can be started with the -d flag which will write an entry for each transaction
+appearing into the mserver. This log entry contains the time stamp and RPC call request.
+
+- <b> Arguments </b>
+  - [-h ] : help
+  - [-s ] : Single process  server
+  - [-t ] : Multi thread server
+  - [-m ] : Milti process server (default)
+  - [-d ] : Write debug info to /tmp/mserver.log
+  - [-D ] : Become a Daemon
+  
+- <b> Usage </b>
+*/

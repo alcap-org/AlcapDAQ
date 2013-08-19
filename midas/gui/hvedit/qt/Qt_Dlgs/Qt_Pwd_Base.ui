@@ -1,0 +1,71 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>Qt_Pwd_Base</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>Qt_Pwd_Base</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>253</width>
+            <height>44</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Password</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>pwd_textLabel</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>71</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&lt;b&gt;Password:&lt;/b&gt; </string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>pwd_lineEdit</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>80</x>
+                <y>10</y>
+                <width>160</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property name="echoMode">
+            <enum>Password</enum>
+        </property>
+    </widget>
+</widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="1301">789ca5d3c14ec3300c00d07bbf226a6e15f260a84208f1094c3b22210e4e9a0a0e0309c66142fb77e2246e9d90f6006ea5d5d99367a7d9a6538ffb07d56d9acf231e5fadb22ff8a1bae1eb70383d3ddf7f37edf556f9fb465db5174dab9555bbf73747cfe09ff565084a1da53df6b73d526a28b5bdddc66f074ac79131c6941628b59c8e63a8acb5bf75f800c4f94e6bd1880ba7cbf0dabf8c99d70a53a9c266ea99bb35861b4e464f81298cd122821193873a5995a29f4a2f0ba6107f34bf04c89e5315c313582b7ace07e7b9ed30c8d98bed316b26aa5808bc819a610200ce1b0750fdad409c0f3211493357998c57ba9c2bf41248d514a466c4449971f31e8add5b33bcc14b469ebd6438d8e4c713168c3cc1909368bc90875c1a6093ff0d78a3b94cf9de730495779aa904568c8cf67cd7fc00c72a1b02</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>pwd_lineEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>Qt_Pwd_Base</receiver>
+        <slot>GetPassword()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>GetPassword()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

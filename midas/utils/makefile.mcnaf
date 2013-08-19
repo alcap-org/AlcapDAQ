@@ -1,0 +1,138 @@
+#!/bin/csh
+#-----------------------------------------------------------------------------
+#  Copyright (c) 1993      TRIUMF Data Acquistion Group
+#  Please leave this header in any reproduction of that distribution
+# 
+#  TRIUMF Data Acquisition Group, 4004 Wesbrook Mall, Vancouver, B.C. V6T 2A3
+#  Email: online@triumf.ca           Tel: (604) 222-1047  Fax: (604) 222-1074
+# -----------------------------------------------------------------------------
+#  
+#  Description:
+# 	Makefile for mcnaf under linux using either
+#	DirectIO (mdcnaf) or Linux driver (mcnaf)
+#  Usage: gmake DRIVER=xxx
+#         Where xxx can be either :
+#	  camacnul, camacrpc, hyt1331, kcs2926, kcs2927, dsp004, wecc32
+# 	  ex: gmake DRIVER=camacrpc
+#  Remarks: in order to run mdcnaf under (hyt1331, kcs2926, kcs2927, dsp004)
+#           you need to :
+#           1) compile the driver with CAMAC_BASE = 0x280
+#	    2) spawn this task using the Dio to gain IO permission.
+#           		ex : dio mdcnaf
+#
+#	For the wecc32, you need to have the module installed prior its uses.
+#       wecc32 doesn't require dio.
+#
+#  Author:  Pierre-Andre Amaudruz Data Acquisition Group
+# 
+#  Revision History:
+#    $Log: makefile.mcnaf,v $
+#    Revision 1.1.1.1  2005/06/20 23:37:38  mucap
+#    Importing release 1.9.5 of the MIDAS source code as distributed by PSI.
+#    (Next, I'll commit our local customizations.)
+#
+#    Revision 1.8  2004/08/26 20:17:51  pierre
+#    add pthread lib
+#
+#    Revision 1.7  2002/05/08 22:17:17  pierre
+#    improve comments, add MIDAS_BASE
+#
+#    Revision 1.6  2000/04/18 19:12:55  pierre
+#    - Added mwecnaf from /drivers/bus/wecc32.c (PCI/CAMAC CC32 Wiener interface)
+#
+#    Revision 1.5  1999/12/21 21:05:40  pierre
+#    - default hyt1331, build all 3 applications, cosmetic
+#
+#    Revision 1.4  1999/12/08 00:13:35  pierre
+#    - remove OS_UNIX
+#
+#    Revision 1.3  1998/11/23 16:20:38  pierre
+#    change names :  miocnaf  <- DirectIO (DRIVER=... hy1331, kcs2927, kcs2926, dsp004)
+#    		mdrvcnaf <- Linux camac (drivers/camaclx.c)
+#    		mcnaf    <- Camac RPC (drivers/camacrpc.c)
+#    Added install option
+#
+#    Revision 1.2  1998/11/19 22:38:44  pierre
+#    add -lutil for Linux
+#
+#    Revision 1.1  1998/10/23 09:15:48  midas
+#    Moved makefile.mcnaf from examples\basic\ to utils\
+#
+#    Revision 1.1  1998/10/09 22:36:01  midas
+#    -PAA- for DirectIO and for Linux drivers
+#
+#
+
+BIN_DIR = $(HOME)/bin
+MIDAS_BASE= ..
+INC_DIR= $(MIDAS_BASE)/include
+DRV_DIR= $(MIDAS_BASE)/drivers
+LIB_DIR= $(MIDAS_BASE)/linux/lib
+LIBS = $(LIB_DIR)/libmidas.a -lutil -lpthread
+SYSBIN_DIR = /usr/local/bin
+#
+CC   = gcc
+INCLUDES = -I$(INC_DIR)
+OSFLAGS = -DOS_LINUX
+CFLAGS  = -O3
+DIO_LDFLAGS = 
+# -DMODULE -D__KERNEL__ 
+DRV_LDFLAGS =
+
+##
+## Possible DRIVER declaration:
+## <option> : camacnul, hyt1331, kcs2926, kcs2927, dsp004
+##            jorway73a
+## make -f makefile.mcnaf DRIVER=<option>
+##
+ifndef ($(DRIVER))
+DRIVER = hyt1331
+endif
+
+## DRIVER = camacnul
+## miocnaf : with DRIVER (definition above).
+## mcnaf   : with camacrpc (using FE code).
+## mdrvcnaf: with Linux driver for KCS2926/2927, DSP004.
+##
+## make -f makefile.mcnaf mjcnaf
+##
+all: mcnaf miocnaf rmobj
+
+miocnaf: mcnaf.o $(DRIVER).o
+	$(CC) $(CFLAGS) $(INCLUDES) $(OSFLAGS) -o miocnaf mcnaf.o $(DRIVER).o $(DIO_LDFLAGS) $(LIBS)
+
+mdrvcnaf: mcnaf.o camaclx.o
+	$(CC) $(CFLAGS) $(INCLUDES) $(OSFLAGS) -o mdrvcnaf mcnaf.o camaclx.o $(DRV_LDFLAGS) $(LIBS) 
+
+mcnaf: mcnaf.o camacrpc.o
+	$(CC) $(CFLAGS) $(INCLUDES) $(OSFLAGS) -o mcnaf mcnaf.o camacrpc.o  $(LIBS) 
+
+mcnaf.o: mcnaf.c
+	$(CC) $(CFLAGS) $(INCLUDES) $(OSFLAGS) -c -o $@ $<
+
+$(DRIVER).o: $(DRV_DIR)/bus/$(DRIVER).c
+	$(CC) $(CFLAGS) $(INCLUDES) $(OSFLAGS) -c -o $@ $<
+
+camacrpc.o: $(DRV_DIR)/bus/camacrpc.c
+	$(CC) $(CFLAGS) $(INCLUDES) $(OSFLAGS) -c -o $@ $<
+
+camaclx.o: $(DRV_DIR)/bus/camaclx.c
+	$(CC) $(CFLAGS) $(INCLUDES) $(OSFLAGS) -c -o $@ $<
+
+install: all
+	@echo "... "
+	@echo "... Installing CNAF programs to $(SYSBIN_DIR)"
+	@echo "... "
+
+	@for i in miocnaf mdrvcnaf mcnaf ; \
+	  do \
+	  echo $$i ; \
+	  cp ./$$i $(SYSBIN_DIR)/. ; \
+	  chmod 755 $(SYSBIN_DIR)/$$i ; \
+	  done
+
+rmobj:
+	rm *.o
+
+clean cleanup:
+	rm -f *.o miocnaf mcnaf mdrvcnaf  

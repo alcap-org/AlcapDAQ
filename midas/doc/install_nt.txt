@@ -1,0 +1,140 @@
+How to install MIDAS under Windows NT
+-------------------------------------
+
+The MIDAS archive for Windows NT contains additionally to the
+source code all pre-compiled executables.
+
+Follow these steps to do an installation:
+
+1) Unpack midas-x.xx.exe (where x.xx is the current version) to a
+directory of your choice (usually c:\) by executing it.
+
+Following directory structure is created:
+
+c:\midas-x.xx             MIDAS root for version x.xx
+.\doc                     Documentation
+.\src                     Source files
+.\include                 Include files
+.\drivers                 Device drivers
+.\examples                Example programs
+.\examples/experiment     Sample experiment
+.\nt                      NT makefiles for Visual C++
+.\nt\bin                  Executables for Windows NT
+.\nt\lib                  Libraries for Windows NT
+.\nt\directio             DirectIO kernel driver for HW access
+.\nt\service              Run mserver as a NT service
+
+2) Install to MIDAS binaries and libraries. Enter:
+
+  cd \midas-x.xx
+  install
+
+This will install the MIDAS library under c:\midas\nt\lib, 
+the MIDAS programs under c:\midas\nt\bin and the include files 
+under c:\midas\include. Edit the file install.bat if you want 
+to change these directories.
+
+Next define the environment variable MIDASSYS, pointing to the installation
+directory, like
+
+set MIDASSYS=c:\midas\nt
+
+or similar. This variable is necessary so that other packages find the
+midas library and include files under $MIDASSYS/lib and $MIDASSYS/include.
+To make this variable permanent, use the system properties panel
+(usually Control Panel/System/Advanced/Environment Variables/
+System Variables/New). You need to re-open all command windows to see
+this change.
+
+3) Set the path environment variable to the MIDAS executables at
+c:\midas\nt\bin. To do so, right-click on the "My Computer"
+icon on the desktop. Select "Properties" from the menue. On the
+dialog box, click on the "environment" tab. Under "System
+variables", search and select "Path". On the "value" field, go
+to the end of the path and add the MIDAS executable direcotry.
+The path should then look somehow like:
+
+  %SystemRoot%\system32;%SystemRoot%;c:\midas\nt\bin;
+
+Press the "Set" and "OK" button.
+
+4) Make sure the CERN library is installed properly. The MIDAS
+analyzer needs libpacklib.a which is usually installed under
+\cern\lib.
+
+5) Create a working directory which hosts the frontend and analyzer
+program of your experiment (in the following example called "online"). 
+Copy the example experiment as a starting point and compile it: 
+
+  mkdir c:\online
+  cd \online
+  copy \midas-x.xx\examples\experiment\* .
+
+  nmake -f makefile.nt frontend.exe
+  nmake -f makefile.nt analyzer.exe
+
+It might be that the libraries CONSOLE.LIB and MSFRT.LIB are missing 
+during the linking of the analyzer. In this case, copy both libraries 
+from \midas-x.xx\nt\lib to the default library directory of you 
+compiler, usually c:\msdev\lib.
+
+6) Set the environment variable MIDAS_DIR to point to your directory.
+Open the "environment" dialog box as under 3). Then enter "MIDAS_DIR"
+in the "Variable" box and "c:\online" in the "Value" box (without
+quotation marks). Press the "Set" and "OK" buttons.
+
+7) Test the system by running a sample experiment with a frontend which
+produces random data:
+
+  cd c:\online\debug
+  start frontend
+  start analyzer
+  start mlogger
+
+Start and stop a run
+
+  [local]/> start
+  ...<hit return to accept default values>...
+  [local]/> stop
+
+The frontend should produce trigger and scaler events. The analyzer
+gets those events and histogramms them. Now you can run PAW and look
+at the N-tuples and histos:
+
+  pawnt
+  PAW> hi/hio/gl onln
+  PAW> hi/list
+  PAW> hi/pl 1000
+
+8) If everything workes fine, you can edit the frontend and analyzer 
+to suit your experiment. This is of course the main work. To understand
+the modular analyzer concept, read http://pibeta.psi.ch/handbook/analyzer.
+
+9) If the frontend runs on another computer, the MIDAS server program
+has to be installed. You can either start mserver manually or as a
+NT service. To start mserver as a service, execute 
+
+  c:\midas-x.xx\nt\service\install.bat
+
+and follow the instructions printed by this batch file. 
+
+To connect to different experiments, the server has to know in which 
+directories and under which user names the experiments are running. 
+For this purpose a list of all experiments running on a machine has 
+to be defined in a file called "exptab". This file is located under 
+C:\winnt\system32 and contains one line for each experiment describing 
+the experiment name and the directory. Create this file with an editor 
+and write following line:
+
+Test c:\online
+
+this defines experiment "Test" in directory c:\online.
+
+To test the server, start odbedit with the host flag
+
+  odbedit -h <your-host>
+
+10) If you want to access hardware directly under Windows NT, you have
+to install the DirectIO driver. Using this driver it is possible for
+example to access a PC-CAMAC interface in the frontend program running
+directly on the Windows NT machine.
