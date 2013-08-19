@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 #ifndef __CINT__
-#include "/home/nam/fadc_software/midas/include/midas.h"
+#include "midas.h"
 #include "../../compress/mucap_compress.h"
 #endif
 
