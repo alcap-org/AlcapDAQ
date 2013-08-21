@@ -1,0 +1,29 @@
+# MIDAS
+midas.log
+
+# OS Files
+*~
+*.swp
+
+# ROOT Files
+*.root
+
+# ROOTCINT generated dictionaries and rlibmap generated .rootmap files 
+# *Dict.cpp and *Dict.h files are only ignored in the top-level directory
+*.rootmap
+/*Dict.cpp
+/*Dict.h
+
+# Compilation products
+*.a
+*.o
+*.so
+*.d
+/Makefile.MODULES
+/blank
+
+# AlCapAna specific binaries
+alcapana
+mucap_compress
+mucap_expand
+mucap_optimize

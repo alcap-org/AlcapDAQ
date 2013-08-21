@@ -1,0 +1,162 @@
+/********************************************************************\
+
+  Name:         MV1724ProcessRaw
+  Created by:   V.Tishchenko
+
+  Contents:     Module to decode CAEN v1724 digitizer data.
+
+\********************************************************************/
+
+/* Standard includes */
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string>
+#include <map>
+#include <utility>
+
+/* MIDAS includes */
+#include "midas.h"
+
+/* ROOT includes */
+#include <TH1.h>
+#include <TH2.h>
+
+/*-- Module declaration --------------------------------------------*/
+static INT  module_init(void);
+static INT  module_event(EVENT_HEADER*, void*);
+
+struct caen_event_t
+{
+  uint32_t time;
+  uint16_t samples[4096];
+};
+
+caen_event_t xxx;
+
+extern HNDLE hDB;
+
+ANA_MODULE MV1724ProcessRaw_module =
+{
+  "MV1724ProcessRaw",            /* module name           */
+  "Vladimir Tishchenko",         /* author                */
+  module_event,                  /* event routine         */
+  NULL,                          /* BOR routine           */
+  NULL,                          /* EOR routine           */
+  module_init,                   /* init routine          */
+  NULL,                          /* exit routine          */
+  NULL,                          /* parameter structure   */
+  0,                             /* structure size        */
+  NULL,                          /* initial parameters    */
+};
+
+/*-- Number of channels in V1724 -----------------------------------*/
+static const int NCHAN = 8;
+
+/*-- Histogram declaration -----------------------------------------*/
+static TH2D *h2_v1724_pulses[NCHAN];
+
+/*--module init routine --------------------------------------------*/
+INT module_init()
+{
+
+  for (int i=0; i<NCHAN; i++)
+    {
+      h2_v1724_pulses[i] = new TH2D(Form("h2_v1724_pulses_chan_%i",i),"v1724 raw pulses",256,0.5,256.5,16385,-0.5,16384.5); 
+      h2_v1724_pulses[i]->SetXTitle("time (ct)");
+      h2_v1724_pulses[i]->SetYTitle("ADC");
+    }
+  
+  return SUCCESS;
+}
+
+/*-- module event routine -----------------------------------------*/
+INT module_event(EVENT_HEADER *pheader, void *pevent)
+{
+  // Get the event number
+  int midas_event_number = pheader->serial_number;
+
+  BYTE *pdata;
+
+  char bank_name[8];
+  sprintf(bank_name,"CDG%i",0);
+  unsigned int bank_len = bk_locate(pevent, bank_name, &pdata);
+  if ( bank_len == 0 )
+    {
+      return SUCCESS;
+    }
+  
+  printf("bank [%s] size %d ----------------------------------------\n",bank_name,bank_len);
+
+  uint32_t *p32 = (uint32_t*)pdata;
+  uint32_t *p32_0 = (uint32_t*)pdata;
+
+  while ( (p32 - p32_0)*4 < bank_len )
+    {
+
+      uint32_t caen_event_cw = p32[0]>>28;
+      printf("CW: %08x\n",caen_event_cw);
+      if ( caen_event_cw != 0xA )
+	{
+	  printf("***ERROR! Wrong data format: incorrect control word 0x%08x\n", caen_event_cw);
+	  return SUCCESS;
+	}
+      
+      uint32_t caen_event_size = p32[0] & 0x0FFFFFFF;
+      printf("caen event size: %i\n",caen_event_size);
+      
+      uint32_t caen_channel_mask = p32[1] & 0x000000FF;
+      // count the number of channels in the event
+      int nchannels = 0;
+      for (int ichannel=0; ichannel<NCHAN; ichannel++ )
+	{
+	  if ( caen_channel_mask & (1<<ichannel) ) nchannels++; 
+	}
+      printf("caen channel mask: 0x%08x (%i)\n",caen_channel_mask,nchannels);
+      
+      uint32_t caen_event_counter = p32[2] & 0x00FFFFFF;
+      printf("caen event counter: %i\n",caen_event_counter);
+      
+      uint32_t caen_trigger_time = p32[3];
+      printf("caen trigger time: %i\n",caen_trigger_time);
+      
+      // number of samples per channel
+      unsigned int nsamples = ((caen_event_size-4)*2) / nchannels;
+      printf("waveform length: %i\n",nsamples);
+      
+      // decode ADC samples
+      for (int ichannel = 0; ichannel < NCHAN; ichannel++)
+	{
+	  if ( caen_channel_mask & (1<<ichannel) )
+	    {
+	      // channel enabled
+	      unsigned int isample = 0;
+	      unsigned int nwords = nsamples/2;
+	      //printf("*-- channel %i -------------------------------------------------------------*\n",ichannel);
+	      for (int iword=0; iword<nwords; iword++)
+		{
+		  for (int isubword=0; isubword<2; isubword++)
+		    {
+		      uint32_t adc;
+		      if (isubword == 0 )
+			adc = (p32[4+iword+ichannel*nwords] & 0x3fff);
+		      else 
+			adc = ((p32[4+iword+ichannel*nwords] >> 16) & 0x3fff);
+		      
+		      //printf("adc[%i] = %i\n", isample, adc);
+		      h2_v1724_pulses[ichannel]->Fill(isample,adc);
+		      isample++;
+		    }
+		}
+	    }
+	}
+      
+      p32 += caen_event_size;
+      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
+
+    }
+
+  return SUCCESS;
+}
+
+

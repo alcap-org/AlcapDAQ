@@ -1,0 +1,4994 @@
+[/System/Clients/8133]
+Name = STRING : [32] ODBEdit
+Host = STRING : [256] pcl11.hep.anl.gov
+Hardware type = INT : 44
+Server Port = INT : 50589
+
+[/System]
+Client Notify = INT : 0
+Prompt = STRING : [256] [%h:%e:%s]%p>
+
+[/Programs/ODBEdit]
+Required = BOOL : n
+Watchdog timeout = INT : 10000
+Check interval = DWORD : 180000
+Start command = STRING : [256] 
+Auto start = BOOL : n
+Auto stop = BOOL : n
+Auto restart = BOOL : n
+Alarm class = STRING : [32] 
+First failed = DWORD : 0
+
+[/Programs/Analyzer]
+Required = BOOL : n
+Watchdog timeout = INT : 10000
+Check interval = DWORD : 180000
+Start command = STRING : [256] 
+Auto start = BOOL : n
+Auto stop = BOOL : n
+Auto restart = BOOL : n
+Alarm class = STRING : [32] 
+First failed = DWORD : 0
+
+[/Experiment]
+Name = STRING : [32] Default
+
+[/Logger]
+Data dir = STRING : [256] /users/pdk/winterp/AlCap/daq/work/
+Message file = STRING : [256] midas.log
+
+[/Runinfo]
+State = INT : 1
+Online Mode = INT : 0
+Run number = INT : 381
+Transition in progress = INT : 0
+Requested transition = INT : 0
+Start time = STRING : [32] Tue Sep 09 15:04:42 1997
+Start time binary = DWORD : 0
+Stop time = STRING : [32] Tue Sep 09 15:04:42 1997
+Stop time binary = DWORD : 0
+
+[/Alarms]
+Alarm system active = BOOL : y
+
+[/Alarms/Alarms/Demo ODB]
+Active = BOOL : n
+Triggered = INT : 0
+Type = INT : 3
+Check interval = INT : 60
+Checked last = DWORD : 0
+Time triggered first = STRING : [32] 
+Time triggered last = STRING : [32] 
+Condition = STRING : [256] /Runinfo/Run number > 100
+Alarm Class = STRING : [32] Alarm
+Alarm Message = STRING : [80] Run number became too large
+
+[/Alarms/Alarms/Demo periodic]
+Active = BOOL : n
+Triggered = INT : 0
+Type = INT : 4
+Check interval = INT : 28800
+Checked last = DWORD : 0
+Time triggered first = STRING : [32] 
+Time triggered last = STRING : [32] 
+Condition = STRING : [256] 
+Alarm Class = STRING : [32] Warning
+Alarm Message = STRING : [80] Please do your shift checks
+
+[/Alarms/Classes/Alarm]
+Write system message = BOOL : y
+Write Elog message = BOOL : n
+System message interval = INT : 60
+System message last = DWORD : 0
+Execute command = STRING : [256] 
+Execute interval = INT : 0
+Execute last = DWORD : 0
+Stop run = BOOL : n
+Display BGColor = STRING : [32] red
+Display FGColor = STRING : [32] black
+
+[/Alarms/Classes/Warning]
+Write system message = BOOL : y
+Write Elog message = BOOL : n
+System message interval = INT : 60
+System message last = DWORD : 0
+Execute command = STRING : [256] 
+Execute interval = INT : 0
+Execute last = DWORD : 0
+Stop run = BOOL : n
+Display BGColor = STRING : [32] red
+Display FGColor = STRING : [32] black
+
+[/Equipment/Crate 3/Settings]
+Enabled = BOOL : y
+Master = BOOL : y
+Diagnostic Print Level = INT : 2
+
+[/Equipment/Crate 3/Settings/CAEN 1]
+enabled status = BOOL : y
+vme address = DWORD : 134217728
+ext clock frequency MHz = INT : 25
+active readout mode = BOOL : y
+Record trailing edges = BOOL : n
+Half-full level = INT : 16000
+Active readout buffer size = INT : 131072
+
+[/Equipment/Crate 3/Settings/CAEN 1/wiring]
+channel = INT[128] :
+[0] 6501
+[1] 6801
+[2] 11407
+[3] 6702
+[4] 6703
+[5] 6802
+[6] 6701
+[7] 6704
+[8] 12009
+[9] 11409
+[10] 6301
+[11] 6302
+[12] 6103
+[13] 6104
+[14] 6105
+[15] 6106
+[16] 7001
+[17] 7002
+[18] 7003
+[19] 7004
+[20] 7005
+[21] 7006
+[22] 7007
+[23] 7008
+[24] 7009
+[25] 7010
+[26] 7011
+[27] 7012
+[28] 7013
+[29] 7014
+[30] 7015
+[31] 7016
+[32] 11421
+[33] 11422
+[34] 11423
+[35] 11424
+[36] 11425
+[37] 11426
+[38] 11427
+[39] 11428
+[40] 11429
+[41] 11430
+[42] 11431
+[43] 11432
+[44] 11433
+[45] 11434
+[46] 11435
+[47] 11436
+[48] 7021
+[49] 7022
+[50] 7023
+[51] 7024
+[52] 7025
+[53] 7026
+[54] 7027
+[55] 7028
+[56] 7029
+[57] 7030
+[58] 7031
+[59] 7032
+[60] 7033
+[61] 7034
+[62] 7035
+[63] 7036
+[64] 11441
+[65] 11442
+[66] 11443
+[67] 11444
+[68] 11445
+[69] 11446
+[70] 11447
+[71] 11448
+[72] 11449
+[73] 11450
+[74] 11451
+[75] 11452
+[76] 11453
+[77] 11454
+[78] 11455
+[79] 11456
+[80] 7041
+[81] 7042
+[82] 7043
+[83] 7044
+[84] 7045
+[85] 7046
+[86] 7047
+[87] 7048
+[88] 7049
+[89] 7050
+[90] 7051
+[91] 7052
+[92] 7053
+[93] 7054
+[94] 7055
+[95] 7056
+[96] 11441
+[97] 11442
+[98] 11443
+[99] 11444
+[100] 11445
+[101] 11446
+[102] 11447
+[103] 11448
+[104] 11449
+[105] 11450
+[106] 11451
+[107] 11452
+[108] 11453
+[109] 11454
+[110] 11455
+[111] 11456
+[112] 7061
+[113] 7062
+[114] 7063
+[115] 7064
+[116] 7065
+[117] 7066
+[118] 7067
+[119] 7068
+[120] 7069
+[121] 7070
+[122] 7071
+[123] 7072
+[124] 7073
+[125] 7074
+[126] 7075
+[127] 7076
+
+[/Equipment/Crate 3/Settings/CAEN 1/channels]
+channel enabled = BOOL[128] :
+[0] y
+[1] y
+[2] y
+[3] y
+[4] y
+[5] y
+[6] y
+[7] y
+[8] y
+[9] y
+[10] y
+[11] y
+[12] y
+[13] y
+[14] y
+[15] y
+[16] y
+[17] y
+[18] y
+[19] y
+[20] y
+[21] y
+[22] y
+[23] y
+[24] y
+[25] y
+[26] y
+[27] y
+[28] y
+[29] y
+[30] y
+[31] y
+[32] y
+[33] y
+[34] y
+[35] y
+[36] y
+[37] y
+[38] y
+[39] y
+[40] y
+[41] y
+[42] y
+[43] y
+[44] y
+[45] y
+[46] y
+[47] y
+[48] y
+[49] y
+[50] y
+[51] y
+[52] y
+[53] y
+[54] y
+[55] y
+[56] y
+[57] y
+[58] y
+[59] y
+[60] y
+[61] y
+[62] y
+[63] y
+[64] y
+[65] y
+[66] y
+[67] y
+[68] y
+[69] y
+[70] y
+[71] y
+[72] y
+[73] y
+[74] y
+[75] y
+[76] y
+[77] y
+[78] y
+[79] y
+[80] y
+[81] y
+[82] y
+[83] y
+[84] y
+[85] y
+[86] y
+[87] y
+[88] y
+[89] y
+[90] y
+[91] y
+[92] y
+[93] y
+[94] y
+[95] y
+[96] y
+[97] y
+[98] y
+[99] y
+[100] y
+[101] y
+[102] y
+[103] y
+[104] y
+[105] y
+[106] y
+[107] y
+[108] y
+[109] y
+[110] y
+[111] y
+[112] y
+[113] y
+[114] y
+[115] y
+[116] y
+[117] y
+[118] y
+[119] y
+[120] y
+[121] y
+[122] y
+[123] y
+[124] y
+[125] y
+[126] y
+[127] y
+
+[/Equipment/Crate 3/Settings/CAEN 2]
+enabled status = BOOL : y
+vme address = DWORD : 134348800
+ext clock frequency MHz = INT : 25
+active readout mode = BOOL : y
+Record trailing edges = BOOL : n
+Half-full level = INT : 16000
+Active readout buffer size = INT : 131072
+
+[/Equipment/Crate 3/Settings/CAEN 2/wiring]
+channel = INT[128] :
+[0] 12001
+[1] 6502
+[2] 6002
+[3] 6820
+[4] 6809
+[5] 6810
+[6] 6001
+[7] 12008
+[8] 12009
+[9] 12010
+[10] 12011
+[11] 12012
+[12] 12013
+[13] 12014
+[14] 12015
+[15] 12016
+[16] 12017
+[17] 12018
+[18] 12019
+[19] 12020
+[20] 12021
+[21] 12022
+[22] 12023
+[23] 12024
+[24] 12025
+[25] 12026
+[26] 12027
+[27] 12028
+[28] 12029
+[29] 12030
+[30] 12031
+[31] 12032
+[32] 12033
+[33] 12034
+[34] 12035
+[35] 12036
+[36] 12037
+[37] 12038
+[38] 12039
+[39] 12040
+[40] 12041
+[41] 6803
+[42] 12042
+[43] 12044
+[44] 12045
+[45] 12046
+[46] 12047
+[47] 12048
+[48] 12049
+[49] 12050
+[50] 12051
+[51] 12052
+[52] 12053
+[53] 12054
+[54] 12055
+[55] 12056
+[56] 12057
+[57] 12058
+[58] 12059
+[59] 12060
+[60] 12061
+[61] 12062
+[62] 12063
+[63] 12064
+[64] 12065
+[65] 12066
+[66] 12067
+[67] 12068
+[68] 12069
+[69] 12070
+[70] 12071
+[71] 12072
+[72] 12073
+[73] 12074
+[74] 6012
+[75] 6004
+[76] 12077
+[77] 12078
+[78] 12079
+[79] 12080
+[80] 12081
+[81] 12082
+[82] 12083
+[83] 12084
+[84] 12085
+[85] 12086
+[86] 12087
+[87] 12088
+[88] 12089
+[89] 12090
+[90] 12091
+[91] 12092
+[92] 12093
+[93] 12094
+[94] 12095
+[95] 12096
+[96] 12097
+[97] 12098
+[98] 12099
+[99] 12100
+[100] 12101
+[101] 12102
+[102] 12103
+[103] 12104
+[104] 12105
+[105] 12106
+[106] 12107
+[107] 12108
+[108] 6006
+[109] 6007
+[110] 6008
+[111] 6009
+[112] 12113
+[113] 12114
+[114] 12115
+[115] 12116
+[116] 12117
+[117] 12118
+[118] 12119
+[119] 12120
+[120] 12121
+[121] 12122
+[122] 12123
+[123] 12124
+[124] 12125
+[125] 12126
+[126] 12127
+[127] 12128
+
+[/Equipment/Crate 3/Settings/CAEN 2/channels]
+channel enabled = BOOL[128] :
+[0] y
+[1] y
+[2] y
+[3] y
+[4] y
+[5] y
+[6] y
+[7] y
+[8] y
+[9] y
+[10] y
+[11] y
+[12] y
+[13] y
+[14] y
+[15] y
+[16] y
+[17] y
+[18] y
+[19] y
+[20] y
+[21] y
+[22] y
+[23] y
+[24] y
+[25] y
+[26] y
+[27] y
+[28] y
+[29] y
+[30] y
+[31] y
+[32] y
+[33] y
+[34] y
+[35] y
+[36] y
+[37] y
+[38] y
+[39] y
+[40] y
+[41] y
+[42] y
+[43] y
+[44] y
+[45] y
+[46] y
+[47] y
+[48] y
+[49] y
+[50] y
+[51] y
+[52] y
+[53] y
+[54] y
+[55] y
+[56] y
+[57] y
+[58] y
+[59] y
+[60] y
+[61] y
+[62] y
+[63] y
+[64] y
+[65] y
+[66] y
+[67] y
+[68] y
+[69] y
+[70] y
+[71] y
+[72] y
+[73] y
+[74] y
+[75] y
+[76] y
+[77] y
+[78] y
+[79] y
+[80] y
+[81] y
+[82] y
+[83] y
+[84] y
+[85] y
+[86] y
+[87] y
+[88] y
+[89] y
+[90] y
+[91] y
+[92] y
+[93] y
+[94] y
+[95] y
+[96] y
+[97] y
+[98] y
+[99] y
+[100] y
+[101] y
+[102] y
+[103] y
+[104] y
+[105] y
+[106] y
+[107] y
+[108] y
+[109] y
+[110] y
+[111] y
+[112] y
+[113] y
+[114] y
+[115] y
+[116] y
+[117] y
+[118] y
+[119] y
+[120] y
+[121] y
+[122] y
+[123] y
+[124] y
+[125] y
+[126] y
+[127] y
+
+[/Equipment/Crate 3/Settings/VMIC]
+vme address = WORD : 2048
+
+[/Equipment/Crate 3/Settings/FADC CLOCK]
+a16 base address = WORD : 40960
+Frequency = INT : 25
+
+[/Equipment/Crate 3/Settings/FADC 0]
+enabled status = BOOL : y
+a16 base address = WORD : 45056
+a32 base address = DWORD : 135266304
+Pedestal = WORD : 30
+
+[/Equipment/Crate 3/Settings/FADC 1]
+enabled status = BOOL : y
+a16 base address = WORD : 45312
+a32 base address = DWORD : 136314880
+Pedestal = WORD : 30
+
+[/Equipment/Crate 3/Settings/FADC 2]
+enabled status = BOOL : y
+a16 base address = WORD : 45568
+a32 base address = DWORD : 137363456
+Pedestal = WORD : 30
+
+[/Equipment/Crate 3/Settings/FADC 3]
+enabled status = BOOL : y
+a16 base address = WORD : 45824
+a32 base address = DWORD : 138412032
+Pedestal = WORD : 30
+
+[/Equipment/Crate 3/Settings]
+Operator Message Level = INT : 0
+
+[/Equipment/Crate 3/Settings/COMP 1]
+enabled status = BOOL : n
+vme address = DWORD : 134545408
+ext clock frequency MHz = INT : 50
+active readout mode = BOOL : y
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 0]
+channel = INT[64] :
+[0] 2672
+[1] 2671
+[2] 2670
+[3] 2669
+[4] 2668
+[5] 2667
+[6] 2666
+[7] 2665
+[8] 2664
+[9] 2663
+[10] 2662
+[11] 2661
+[12] 2660
+[13] 2659
+[14] 2658
+[15] 2657
+[16] 2656
+[17] 2655
+[18] 2654
+[19] 2653
+[20] 2652
+[21] 2651
+[22] 2650
+[23] 2649
+[24] 2648
+[25] 2647
+[26] 2646
+[27] 2645
+[28] 2644
+[29] 2643
+[30] 2642
+[31] 2641
+[32] 2640
+[33] 2639
+[34] 2638
+[35] 2637
+[36] 2636
+[37] 2635
+[38] 2634
+[39] 2633
+[40] 2632
+[41] 2631
+[42] 2630
+[43] 2629
+[44] 2628
+[45] 2627
+[46] 2626
+[47] 2625
+[48] 2624
+[49] 2623
+[50] 2622
+[51] 2621
+[52] 2620
+[53] 2619
+[54] 2618
+[55] 2617
+[56] 2616
+[57] 2615
+[58] 2614
+[59] 2613
+[60] 2612
+[61] 2611
+[62] 2610
+[63] 2609
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 1]
+channel = INT[64] :
+[0] 2608
+[1] 2607
+[2] 2606
+[3] 2605
+[4] 2604
+[5] 2603
+[6] 2602
+[7] 2601
+[8] 2600
+[9] 2599
+[10] 2598
+[11] 2597
+[12] 2596
+[13] 2595
+[14] 2594
+[15] 2593
+[16] 2592
+[17] 2591
+[18] 2590
+[19] 2589
+[20] 2588
+[21] 2587
+[22] 2586
+[23] 2585
+[24] 2584
+[25] 2583
+[26] 2582
+[27] 2581
+[28] 2580
+[29] 2579
+[30] 2578
+[31] 2577
+[32] 2576
+[33] 2575
+[34] 2574
+[35] 2573
+[36] 2572
+[37] 2571
+[38] 2570
+[39] 2569
+[40] 2568
+[41] 2567
+[42] 2566
+[43] 2565
+[44] 2564
+[45] 2563
+[46] 2562
+[47] 2561
+[48] 2560
+[49] 2559
+[50] 2558
+[51] 2557
+[52] 2556
+[53] 2555
+[54] 2554
+[55] 2553
+[56] 2552
+[57] 2551
+[58] 2550
+[59] 2549
+[60] 2548
+[61] 2547
+[62] 2546
+[63] 2545
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 2]
+channel = INT[64] :
+[0] 2544
+[1] 2543
+[2] 2542
+[3] 2541
+[4] 2540
+[5] 2539
+[6] 2538
+[7] 2537
+[8] 2536
+[9] 2535
+[10] 2534
+[11] 2533
+[12] 2532
+[13] 2531
+[14] 2530
+[15] 2529
+[16] 2528
+[17] 2527
+[18] 2526
+[19] 2525
+[20] 2524
+[21] 2523
+[22] 2522
+[23] 2521
+[24] 2520
+[25] 2519
+[26] 2518
+[27] 2517
+[28] 2516
+[29] 2515
+[30] 2514
+[31] 2513
+[32] 2512
+[33] 2511
+[34] 2510
+[35] 2509
+[36] 2508
+[37] 2507
+[38] 2506
+[39] 2505
+[40] 2504
+[41] 2503
+[42] 2502
+[43] 2501
+[44] 2500
+[45] 2499
+[46] 2498
+[47] 2497
+[48] 2496
+[49] 2495
+[50] 2494
+[51] 2493
+[52] 2492
+[53] 2491
+[54] 2490
+[55] 2489
+[56] 2488
+[57] 2487
+[58] 2486
+[59] 2485
+[60] 2484
+[61] 2483
+[62] 2482
+[63] 2481
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 3]
+channel = INT[64] :
+[0] 2480
+[1] 2479
+[2] 2478
+[3] 2477
+[4] 2476
+[5] 2475
+[6] 2474
+[7] 2473
+[8] 2472
+[9] 2471
+[10] 2470
+[11] 2469
+[12] 2468
+[13] 2467
+[14] 2466
+[15] 2465
+[16] 2464
+[17] 2463
+[18] 2462
+[19] 2461
+[20] 2460
+[21] 2459
+[22] 2458
+[23] 2457
+[24] 2456
+[25] 2455
+[26] 2454
+[27] 2453
+[28] 2452
+[29] 2451
+[30] 2450
+[31] 2449
+[32] 2448
+[33] 2447
+[34] 2446
+[35] 2445
+[36] 2444
+[37] 2443
+[38] 2442
+[39] 2441
+[40] 2440
+[41] 2439
+[42] 2438
+[43] 2437
+[44] 2436
+[45] 2435
+[46] 2434
+[47] 2433
+[48] 2432
+[49] 2431
+[50] 2430
+[51] 2429
+[52] 2428
+[53] 2427
+[54] 2426
+[55] 2425
+[56] 2424
+[57] 2423
+[58] 2422
+[59] 2421
+[60] 2420
+[61] 2419
+[62] 2418
+[63] 2417
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 4]
+channel = INT[64] :
+[0] 2416
+[1] 2415
+[2] 2414
+[3] 2413
+[4] 2412
+[5] 2411
+[6] 2410
+[7] 2409
+[8] 2408
+[9] 2407
+[10] 2406
+[11] 2405
+[12] 2404
+[13] 2403
+[14] 2402
+[15] 2401
+[16] 2400
+[17] 2399
+[18] 2398
+[19] 2397
+[20] 2396
+[21] 2395
+[22] 2394
+[23] 2393
+[24] 2392
+[25] 2391
+[26] 2390
+[27] 2389
+[28] 2388
+[29] 2387
+[30] 2386
+[31] 2385
+[32] 2384
+[33] 2383
+[34] 2382
+[35] 2381
+[36] 2380
+[37] 2379
+[38] 2378
+[39] 2377
+[40] 2376
+[41] 2375
+[42] 2374
+[43] 2373
+[44] 2372
+[45] 2371
+[46] 2370
+[47] 2369
+[48] 2368
+[49] 2367
+[50] 2366
+[51] 2365
+[52] 2364
+[53] 2363
+[54] 2362
+[55] 2361
+[56] 2360
+[57] 2359
+[58] 2358
+[59] 2357
+[60] 2356
+[61] 2355
+[62] 2354
+[63] 2353
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 5]
+channel = INT[64] :
+[0] 2352
+[1] 2351
+[2] 2350
+[3] 2349
+[4] 2348
+[5] 2347
+[6] 2346
+[7] 2345
+[8] 2344
+[9] 2343
+[10] 2342
+[11] 2341
+[12] 2340
+[13] 2339
+[14] 2338
+[15] 2337
+[16] 2336
+[17] 2335
+[18] 2334
+[19] 2333
+[20] 2332
+[21] 2331
+[22] 2330
+[23] 2329
+[24] 2328
+[25] 2327
+[26] 2326
+[27] 2325
+[28] 2324
+[29] 2323
+[30] 2322
+[31] 2321
+[32] 2320
+[33] 2319
+[34] 2318
+[35] 2317
+[36] 2316
+[37] 2315
+[38] 2314
+[39] 2313
+[40] 2312
+[41] 2311
+[42] 2310
+[43] 2309
+[44] 2308
+[45] 2307
+[46] 2306
+[47] 2305
+[48] 2304
+[49] 2303
+[50] 2302
+[51] 2301
+[52] 2300
+[53] 2299
+[54] 2298
+[55] 2297
+[56] 2296
+[57] 2295
+[58] 2294
+[59] 2293
+[60] 2292
+[61] 2291
+[62] 2290
+[63] 2289
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 6]
+channel = INT[64] :
+[0] 2288
+[1] 2287
+[2] 2286
+[3] 2285
+[4] 2284
+[5] 2283
+[6] 2282
+[7] 2281
+[8] 2280
+[9] 2279
+[10] 2278
+[11] 2277
+[12] 2276
+[13] 2275
+[14] 2274
+[15] 2273
+[16] 2272
+[17] 2271
+[18] 2270
+[19] 2269
+[20] 2268
+[21] 2267
+[22] 2266
+[23] 2265
+[24] 2264
+[25] 2263
+[26] 2262
+[27] 2261
+[28] 2260
+[29] 2259
+[30] 2258
+[31] 2257
+[32] 2256
+[33] 2255
+[34] 2254
+[35] 2253
+[36] 2252
+[37] 2251
+[38] 2250
+[39] 2249
+[40] 2248
+[41] 2247
+[42] 2246
+[43] 2245
+[44] 2244
+[45] 2243
+[46] 2242
+[47] 2241
+[48] 2240
+[49] 2239
+[50] 2238
+[51] 2237
+[52] 2236
+[53] 2235
+[54] 2234
+[55] 2233
+[56] 2232
+[57] 2231
+[58] 2230
+[59] 2229
+[60] 2228
+[61] 2227
+[62] 2226
+[63] 2225
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 7]
+channel = INT[64] :
+[0] 2224
+[1] 2223
+[2] 2222
+[3] 2221
+[4] 2220
+[5] 2219
+[6] 2218
+[7] 2217
+[8] 2216
+[9] 2215
+[10] 2214
+[11] 2213
+[12] 2212
+[13] 2211
+[14] 2210
+[15] 2209
+[16] 2208
+[17] 2207
+[18] 2206
+[19] 2205
+[20] 2204
+[21] 2203
+[22] 2202
+[23] 2201
+[24] 2200
+[25] 2199
+[26] 2198
+[27] 2197
+[28] 2196
+[29] 2195
+[30] 2194
+[31] 2193
+[32] 2192
+[33] 2191
+[34] 2190
+[35] 2189
+[36] 2188
+[37] 2187
+[38] 2186
+[39] 2185
+[40] 2184
+[41] 2183
+[42] 2182
+[43] 2181
+[44] 2180
+[45] 2179
+[46] 2178
+[47] 2177
+[48] 2176
+[49] 2175
+[50] 2174
+[51] 2173
+[52] 2172
+[53] 2171
+[54] 2170
+[55] 2169
+[56] 2168
+[57] 2167
+[58] 2166
+[59] 2165
+[60] 2164
+[61] 2163
+[62] 2162
+[63] 2161
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 8]
+channel = INT[64] :
+[0] 2160
+[1] 2159
+[2] 2158
+[3] 2157
+[4] 2156
+[5] 2155
+[6] 2154
+[7] 2153
+[8] 2152
+[9] 2151
+[10] 2150
+[11] 2149
+[12] 2148
+[13] 2147
+[14] 2146
+[15] 2145
+[16] 2144
+[17] 2143
+[18] 2142
+[19] 2141
+[20] 2140
+[21] 2139
+[22] 2138
+[23] 2137
+[24] 2136
+[25] 2135
+[26] 2134
+[27] 2133
+[28] 2132
+[29] 2131
+[30] 2130
+[31] 2129
+[32] 2128
+[33] 2127
+[34] 2126
+[35] 2125
+[36] 2124
+[37] 2123
+[38] 2122
+[39] 2121
+[40] 2120
+[41] 2119
+[42] 2118
+[43] 2117
+[44] 2116
+[45] 2115
+[46] 2114
+[47] 2113
+[48] 2112
+[49] 2111
+[50] 2110
+[51] 2109
+[52] 2108
+[53] 2107
+[54] 2106
+[55] 2105
+[56] 2104
+[57] 2103
+[58] 2102
+[59] 2101
+[60] 2100
+[61] 2099
+[62] 2098
+[63] 2097
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 9]
+channel = INT[64] :
+[0] 2096
+[1] 2095
+[2] 2094
+[3] 2093
+[4] 2092
+[5] 2091
+[6] 2090
+[7] 2089
+[8] 2088
+[9] 2087
+[10] 2086
+[11] 2085
+[12] 2084
+[13] 2083
+[14] 2082
+[15] 2081
+[16] 2080
+[17] 2079
+[18] 2078
+[19] 2077
+[20] 2076
+[21] 2075
+[22] 2074
+[23] 2073
+[24] 2072
+[25] 2071
+[26] 2070
+[27] 2069
+[28] 2068
+[29] 2067
+[30] 2066
+[31] 2065
+[32] 2064
+[33] 2063
+[34] 2062
+[35] 2061
+[36] 2060
+[37] 2059
+[38] 2058
+[39] 2057
+[40] 2056
+[41] 2055
+[42] 2054
+[43] 2053
+[44] 2052
+[45] 2051
+[46] 2050
+[47] 2049
+[48] 2048
+[49] 2047
+[50] 2046
+[51] 2045
+[52] 2044
+[53] 2043
+[54] 2042
+[55] 2041
+[56] 2040
+[57] 2039
+[58] 2038
+[59] 2037
+[60] 2036
+[61] 2035
+[62] 2034
+[63] 2033
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 10]
+channel = INT[64] :
+[0] 2032
+[1] 2031
+[2] 2030
+[3] 2029
+[4] 2028
+[5] 2027
+[6] 2026
+[7] 2025
+[8] 2024
+[9] 2023
+[10] 2022
+[11] 2021
+[12] 2020
+[13] 2019
+[14] 2018
+[15] 2017
+[16] 2016
+[17] 2015
+[18] 2014
+[19] 2013
+[20] 2012
+[21] 2011
+[22] 2010
+[23] 2009
+[24] 2008
+[25] 2007
+[26] 2006
+[27] 2005
+[28] 2004
+[29] 2003
+[30] 2002
+[31] 2001
+[32] 3024
+[33] 3023
+[34] 3022
+[35] 3021
+[36] 3020
+[37] 3019
+[38] 3018
+[39] 3017
+[40] 3016
+[41] 3015
+[42] 3014
+[43] 3013
+[44] 3012
+[45] 3011
+[46] 3010
+[47] 3009
+[48] 3008
+[49] 3007
+[50] 3006
+[51] 3005
+[52] 3004
+[53] 3003
+[54] 3002
+[55] 3001
+[56] 3000
+[57] 2999
+[58] 2998
+[59] 2997
+[60] 2996
+[61] 2995
+[62] 2994
+[63] 2993
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 11]
+channel = INT[64] :
+[0] 2992
+[1] 2991
+[2] 2990
+[3] 2989
+[4] 2988
+[5] 2987
+[6] 2986
+[7] 2985
+[8] 2984
+[9] 2983
+[10] 2982
+[11] 2981
+[12] 2980
+[13] 2979
+[14] 2978
+[15] 2977
+[16] 2976
+[17] 2975
+[18] 2974
+[19] 2973
+[20] 2972
+[21] 2971
+[22] 2970
+[23] 2969
+[24] 2968
+[25] 2967
+[26] 2966
+[27] 2965
+[28] 2964
+[29] 2963
+[30] 2962
+[31] 2961
+[32] 2960
+[33] 2959
+[34] 2958
+[35] 2957
+[36] 2956
+[37] 2955
+[38] 2954
+[39] 2953
+[40] 2952
+[41] 2951
+[42] 2950
+[43] 2949
+[44] 2948
+[45] 2947
+[46] 2946
+[47] 2945
+[48] 2944
+[49] 2943
+[50] 2942
+[51] 2941
+[52] 2940
+[53] 2939
+[54] 2938
+[55] 2937
+[56] 2936
+[57] 2935
+[58] 2934
+[59] 2933
+[60] 2932
+[61] 2931
+[62] 2930
+[63] 2929
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 12]
+channel = INT[64] :
+[0] 2928
+[1] 2927
+[2] 2926
+[3] 2925
+[4] 2924
+[5] 2923
+[6] 2922
+[7] 2921
+[8] 2920
+[9] 2919
+[10] 2918
+[11] 2917
+[12] 2916
+[13] 2915
+[14] 2914
+[15] 2913
+[16] 2912
+[17] 2911
+[18] 2910
+[19] 2909
+[20] 2908
+[21] 2907
+[22] 2906
+[23] 2905
+[24] 2904
+[25] 2903
+[26] 2902
+[27] 2901
+[28] 2900
+[29] 2899
+[30] 2898
+[31] 2897
+[32] 2896
+[33] 2895
+[34] 2894
+[35] 2893
+[36] 2892
+[37] 2891
+[38] 2890
+[39] 2889
+[40] 2888
+[41] 2887
+[42] 2886
+[43] 2885
+[44] 2884
+[45] 2883
+[46] 2882
+[47] 2881
+[48] 2880
+[49] 2879
+[50] 2878
+[51] 2877
+[52] 2876
+[53] 2875
+[54] 2874
+[55] 2873
+[56] 2872
+[57] 2871
+[58] 2870
+[59] 2869
+[60] 2868
+[61] 2867
+[62] 2866
+[63] 2865
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 13]
+channel = INT[64] :
+[0] 2864
+[1] 2863
+[2] 2862
+[3] 2861
+[4] 2860
+[5] 2859
+[6] 2858
+[7] 2857
+[8] 2856
+[9] 2855
+[10] 2854
+[11] 2853
+[12] 2852
+[13] 2851
+[14] 2850
+[15] 2849
+[16] 2848
+[17] 2847
+[18] 2846
+[19] 2845
+[20] 2844
+[21] 2843
+[22] 2842
+[23] 2841
+[24] 2840
+[25] 2839
+[26] 2838
+[27] 2837
+[28] 2836
+[29] 2835
+[30] 2834
+[31] 2833
+[32] 2832
+[33] 2831
+[34] 2830
+[35] 2829
+[36] 2828
+[37] 2827
+[38] 2826
+[39] 2825
+[40] 2824
+[41] 2823
+[42] 2822
+[43] 2821
+[44] 2820
+[45] 2819
+[46] 2818
+[47] 2817
+[48] 2816
+[49] 2815
+[50] 2814
+[51] 2813
+[52] 2812
+[53] 2811
+[54] 2810
+[55] 2809
+[56] 2808
+[57] 2807
+[58] 2806
+[59] 2805
+[60] 2804
+[61] 2803
+[62] 2802
+[63] 2801
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 14]
+channel = INT[64] :
+[0] 2800
+[1] 2799
+[2] 2798
+[3] 2797
+[4] 2796
+[5] 2795
+[6] 2794
+[7] 2793
+[8] 2792
+[9] 2791
+[10] 2790
+[11] 2789
+[12] 2788
+[13] 2787
+[14] 2786
+[15] 2785
+[16] 2784
+[17] 2783
+[18] 2782
+[19] 2781
+[20] 2780
+[21] 2779
+[22] 2778
+[23] 2777
+[24] 2776
+[25] 2775
+[26] 2774
+[27] 2773
+[28] 2772
+[29] 2771
+[30] 2770
+[31] 2769
+[32] 2768
+[33] 2767
+[34] 2766
+[35] 2765
+[36] 2764
+[37] 2763
+[38] 2762
+[39] 2761
+[40] 2760
+[41] 2759
+[42] 2758
+[43] 2757
+[44] 2756
+[45] 2755
+[46] 2754
+[47] 2753
+[48] 2752
+[49] 2751
+[50] 2750
+[51] 2749
+[52] 2748
+[53] 2747
+[54] 2746
+[55] 2745
+[56] 2744
+[57] 2743
+[58] 2742
+[59] 2741
+[60] 2740
+[61] 2739
+[62] 2738
+[63] 2737
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 15]
+channel = INT[64] :
+[0] 2736
+[1] 2735
+[2] 2734
+[3] 2733
+[4] 2732
+[5] 2731
+[6] 2730
+[7] 2729
+[8] 2728
+[9] 2727
+[10] 2726
+[11] 2725
+[12] 2724
+[13] 2723
+[14] 2722
+[15] 2721
+[16] 2720
+[17] 2719
+[18] 2718
+[19] 2717
+[20] 2716
+[21] 2715
+[22] 2714
+[23] 2713
+[24] 2712
+[25] 2711
+[26] 2710
+[27] 2709
+[28] 2708
+[29] 2707
+[30] 2706
+[31] 2705
+[32] 2704
+[33] 2703
+[34] 2702
+[35] 2701
+[36] 2700
+[37] 2699
+[38] 2698
+[39] 2697
+[40] 2696
+[41] 2695
+[42] 2694
+[43] 2693
+[44] 2692
+[45] 2691
+[46] 2690
+[47] 2689
+[48] 2688
+[49] 2687
+[50] 2686
+[51] 2685
+[52] 2684
+[53] 2683
+[54] 2682
+[55] 2681
+[56] 2680
+[57] 2679
+[58] 2678
+[59] 2677
+[60] 2676
+[61] 2675
+[62] 2674
+[63] 2673
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 16]
+channel = INT[64] :
+[0] 3664
+[1] 3663
+[2] 3662
+[3] 3661
+[4] 3660
+[5] 3659
+[6] 3658
+[7] 3657
+[8] 3656
+[9] 3655
+[10] 3654
+[11] 3653
+[12] 3652
+[13] 3651
+[14] 3650
+[15] 3649
+[16] 3648
+[17] 3647
+[18] 3646
+[19] 3645
+[20] 3644
+[21] 3643
+[22] 3642
+[23] 3641
+[24] 3640
+[25] 3639
+[26] 3638
+[27] 3637
+[28] 3636
+[29] 3635
+[30] 3634
+[31] 3633
+[32] 3632
+[33] 3631
+[34] 3630
+[35] 3629
+[36] 3628
+[37] 3627
+[38] 3626
+[39] 3625
+[40] 3624
+[41] 3623
+[42] 3622
+[43] 3621
+[44] 3620
+[45] 3619
+[46] 3618
+[47] 3617
+[48] 3616
+[49] 3615
+[50] 3614
+[51] 3613
+[52] 3612
+[53] 3611
+[54] 3610
+[55] 3609
+[56] 3608
+[57] 3607
+[58] 3606
+[59] 3605
+[60] 3604
+[61] 3603
+[62] 3602
+[63] 3601
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 17]
+channel = INT[64] :
+[0] 3920
+[1] 3919
+[2] 3918
+[3] 3917
+[4] 3916
+[5] 3915
+[6] 3914
+[7] 3913
+[8] 3912
+[9] 3911
+[10] 3910
+[11] 3909
+[12] 3908
+[13] 3907
+[14] 3906
+[15] 3905
+[16] 3904
+[17] 3903
+[18] 3902
+[19] 3901
+[20] 3900
+[21] 3899
+[22] 3898
+[23] 3897
+[24] 3896
+[25] 3895
+[26] 3894
+[27] 3893
+[28] 3892
+[29] 3891
+[30] 3890
+[31] 3889
+[32] 3888
+[33] 3887
+[34] 3886
+[35] 3885
+[36] 3884
+[37] 3883
+[38] 3882
+[39] 3881
+[40] 3880
+[41] 3879
+[42] 3878
+[43] 3877
+[44] 3876
+[45] 3875
+[46] 3874
+[47] 3873
+[48] 3872
+[49] 3871
+[50] 3870
+[51] 3869
+[52] 3868
+[53] 3867
+[54] 3866
+[55] 3865
+[56] 3864
+[57] 3863
+[58] 3862
+[59] 3861
+[60] 3860
+[61] 3859
+[62] 3858
+[63] 3857
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 18]
+channel = INT[64] :
+[0] 3856
+[1] 3855
+[2] 3854
+[3] 3853
+[4] 3852
+[5] 3851
+[6] 3850
+[7] 3849
+[8] 3848
+[9] 3847
+[10] 3846
+[11] 3845
+[12] 3844
+[13] 3843
+[14] 3842
+[15] 3841
+[16] 3840
+[17] 3839
+[18] 3838
+[19] 3837
+[20] 3836
+[21] 3835
+[22] 3834
+[23] 3833
+[24] 3832
+[25] 3831
+[26] 3830
+[27] 3829
+[28] 3828
+[29] 3827
+[30] 3826
+[31] 3825
+[32] 3824
+[33] 3823
+[34] 3822
+[35] 3821
+[36] 3820
+[37] 3819
+[38] 3818
+[39] 3817
+[40] 3816
+[41] 3815
+[42] 3814
+[43] 3813
+[44] 3812
+[45] 3811
+[46] 3810
+[47] 3809
+[48] 3808
+[49] 3807
+[50] 3806
+[51] 3805
+[52] 3804
+[53] 3803
+[54] 3802
+[55] 3801
+[56] 3800
+[57] 3799
+[58] 3798
+[59] 3797
+[60] 3796
+[61] 3795
+[62] 3794
+[63] 3793
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 19]
+channel = INT[64] :
+[0] 3792
+[1] 3791
+[2] 3790
+[3] 3789
+[4] 3788
+[5] 3787
+[6] 3786
+[7] 3785
+[8] 3784
+[9] 3783
+[10] 3782
+[11] 3781
+[12] 3780
+[13] 3779
+[14] 3778
+[15] 3777
+[16] 3776
+[17] 3775
+[18] 3774
+[19] 3773
+[20] 3772
+[21] 3771
+[22] 3770
+[23] 3769
+[24] 3768
+[25] 3767
+[26] 3766
+[27] 3765
+[28] 3764
+[29] 3763
+[30] 3762
+[31] 3761
+[32] 3760
+[33] 3759
+[34] 3758
+[35] 3757
+[36] 3756
+[37] 3755
+[38] 3754
+[39] 3753
+[40] 3752
+[41] 3751
+[42] 3750
+[43] 3749
+[44] 3748
+[45] 3747
+[46] 3746
+[47] 3745
+[48] 3744
+[49] 3743
+[50] 3742
+[51] 3741
+[52] 3740
+[53] 3739
+[54] 3738
+[55] 3737
+[56] 3736
+[57] 3735
+[58] 3734
+[59] 3733
+[60] 3732
+[61] 3731
+[62] 3730
+[63] 3729
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 20]
+channel = INT[64] :
+[0] 3728
+[1] 3727
+[2] 3726
+[3] 3725
+[4] 3724
+[5] 3723
+[6] 3722
+[7] 3721
+[8] 3720
+[9] 3719
+[10] 3718
+[11] 3717
+[12] 3716
+[13] 3715
+[14] 3714
+[15] 3713
+[16] 3712
+[17] 3711
+[18] 3710
+[19] 3709
+[20] 3708
+[21] 3707
+[22] 3706
+[23] 3705
+[24] 3704
+[25] 3703
+[26] 3702
+[27] 3701
+[28] 3700
+[29] 3699
+[30] 3698
+[31] 3697
+[32] 3696
+[33] 3695
+[34] 3694
+[35] 3693
+[36] 3692
+[37] 3691
+[38] 3690
+[39] 3689
+[40] 3688
+[41] 3687
+[42] 3686
+[43] 3685
+[44] 3684
+[45] 3683
+[46] 3682
+[47] 3681
+[48] 3680
+[49] 3679
+[50] 3678
+[51] 3677
+[52] 3676
+[53] 3675
+[54] 3674
+[55] 3673
+[56] 3672
+[57] 3671
+[58] 3670
+[59] 3669
+[60] 3668
+[61] 3667
+[62] 3666
+[63] 3665
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 21]
+channel = INT[64] :
+[0] 3181
+[1] 3182
+[2] 3183
+[3] 3184
+[4] 3185
+[5] 3186
+[6] 3187
+[7] 3188
+[8] 3189
+[9] 3190
+[10] 3191
+[11] 3192
+[12] 3193
+[13] 3194
+[14] 3195
+[15] 3196
+[16] 3197
+[17] 3198
+[18] 3199
+[19] 3200
+[20] 3201
+[21] 3202
+[22] 3203
+[23] 3204
+[24] 3205
+[25] 3206
+[26] 3207
+[27] 3208
+[28] 3209
+[29] 3210
+[30] 3211
+[31] 3212
+[32] 3213
+[33] 3214
+[34] 3215
+[35] 3216
+[36] 3217
+[37] 3218
+[38] 3219
+[39] 3220
+[40] 3221
+[41] 3222
+[42] 3223
+[43] 3224
+[44] 3225
+[45] 3226
+[46] 3227
+[47] 3228
+[48] 3229
+[49] 3230
+[50] 3231
+[51] 3232
+[52] 3233
+[53] 3234
+[54] 3235
+[55] 3236
+[56] 3237
+[57] 3238
+[58] 3239
+[59] 3240
+[60] 3241
+[61] 3242
+[62] 3243
+[63] 3244
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 22]
+channel = INT[64] :
+[0] 3245
+[1] 3246
+[2] 3247
+[3] 3248
+[4] 3249
+[5] 3250
+[6] 3251
+[7] 3252
+[8] 3253
+[9] 3254
+[10] 3255
+[11] 3256
+[12] 3257
+[13] 3258
+[14] 3259
+[15] 3260
+[16] 3261
+[17] 3262
+[18] 3263
+[19] 3264
+[20] 3265
+[21] 3266
+[22] 3267
+[23] 3268
+[24] 3269
+[25] 3270
+[26] 3271
+[27] 3272
+[28] 3273
+[29] 3274
+[30] 3275
+[31] 3276
+[32] 3277
+[33] 3278
+[34] 3279
+[35] 3280
+[36] 3281
+[37] 3282
+[38] 3283
+[39] 3284
+[40] 3285
+[41] 3286
+[42] 3287
+[43] 3288
+[44] 3289
+[45] 3290
+[46] 3291
+[47] 3292
+[48] 3293
+[49] 3294
+[50] 3295
+[51] 3296
+[52] 3297
+[53] 3298
+[54] 3299
+[55] 3300
+[56] 3301
+[57] 3302
+[58] 3303
+[59] 3304
+[60] 3305
+[61] 3306
+[62] 3307
+[63] 3308
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 23]
+channel = INT[64] :
+[0] 3309
+[1] 3310
+[2] 3311
+[3] 3312
+[4] 3313
+[5] 3314
+[6] 3315
+[7] 3316
+[8] 3317
+[9] 3318
+[10] 3319
+[11] 3320
+[12] 3321
+[13] 3322
+[14] 3323
+[15] 3324
+[16] 3325
+[17] 3326
+[18] 3327
+[19] 3328
+[20] 3329
+[21] 3330
+[22] 3331
+[23] 3332
+[24] 3333
+[25] 3334
+[26] 3335
+[27] 3336
+[28] 3337
+[29] 3338
+[30] 3339
+[31] 3340
+[32] 3341
+[33] 3342
+[34] 3343
+[35] 3344
+[36] 3345
+[37] 3346
+[38] 3347
+[39] 3348
+[40] 3349
+[41] 3350
+[42] 3351
+[43] 3352
+[44] 3353
+[45] 3354
+[46] 3355
+[47] 3356
+[48] 3357
+[49] 3358
+[50] 3359
+[51] 3360
+[52] 3361
+[53] 3362
+[54] 3363
+[55] 3364
+[56] 3365
+[57] 3366
+[58] 3367
+[59] 3368
+[60] 3369
+[61] 3370
+[62] 3371
+[63] 3372
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 24]
+channel = INT[64] :
+[0] 3373
+[1] 3374
+[2] 3375
+[3] 3376
+[4] 3377
+[5] 3378
+[6] 3379
+[7] 3380
+[8] 3381
+[9] 3382
+[10] 3383
+[11] 3384
+[12] 3385
+[13] 3386
+[14] 3387
+[15] 3388
+[16] 3389
+[17] 3390
+[18] 3391
+[19] 3392
+[20] 3393
+[21] 3394
+[22] 3395
+[23] 3396
+[24] 3397
+[25] 3398
+[26] 3399
+[27] 3400
+[28] 3401
+[29] 3402
+[30] 3403
+[31] 3404
+[32] 3405
+[33] 3406
+[34] 3407
+[35] 3408
+[36] 3409
+[37] 3410
+[38] 3411
+[39] 3412
+[40] 3413
+[41] 3414
+[42] 3415
+[43] 3416
+[44] 3417
+[45] 3418
+[46] 3419
+[47] 3420
+[48] 3101
+[49] 3102
+[50] 3103
+[51] 3104
+[52] 3105
+[53] 3106
+[54] 3107
+[55] 3108
+[56] 3109
+[57] 3110
+[58] 3111
+[59] 3112
+[60] 3113
+[61] 3114
+[62] 3115
+[63] 3116
+
+[/Equipment/Crate 3/Settings/COMP 1/wiring/FPGA 25]
+channel = INT[64] :
+[0] 3117
+[1] 3118
+[2] 3119
+[3] 3120
+[4] 3121
+[5] 3122
+[6] 3123
+[7] 3124
+[8] 3125
+[9] 3126
+[10] 3127
+[11] 3128
+[12] 3129
+[13] 3130
+[14] 3131
+[15] 3132
+[16] 3133
+[17] 3134
+[18] 3135
+[19] 3136
+[20] 3137
+[21] 3138
+[22] 3139
+[23] 3140
+[24] 3141
+[25] 3142
+[26] 3143
+[27] 3144
+[28] 3145
+[29] 3146
+[30] 3147
+[31] 3148
+[32] 3149
+[33] 3150
+[34] 3151
+[35] 3152
+[36] 3153
+[37] 3154
+[38] 3155
+[39] 3156
+[40] 3157
+[41] 3158
+[42] 3159
+[43] 3160
+[44] 3161
+[45] 3162
+[46] 3163
+[47] 3164
+[48] 3165
+[49] 3166
+[50] 3167
+[51] 3168
+[52] 3169
+[53] 3170
+[54] 3171
+[55] 3172
+[56] 3173
+[57] 3174
+[58] 3175
+[59] 3176
+[60] 3177
+[61] 3178
+[62] 3179
+[63] 3180
+
+[/Equipment/Crate 3/Settings]
+Synchronous = BOOL : y
+
+[/Equipment/Crate 3/Common]
+Event ID = WORD : 1000
+Trigger mask = WORD : 65535
+Buffer = STRING : [32] BUF3
+Type = INT : 66
+Source = INT : 16777215
+Format = STRING : [8] MIDAS
+Enabled = BOOL : y
+Read on = INT : 1
+Period = INT : 500
+Event limit = DOUBLE : 0
+Num subevents = DWORD : 0
+Log history = INT : 0
+Frontend host = STRING : [32] daq2.MuSIC
+Frontend name = STRING : [32] Crate 3
+Frontend file name = STRING : [256] crate.cpp
+
+[/Equipment/Crate 3/Statistics]
+Events sent = DOUBLE : 201
+Events per sec. = DOUBLE : 0
+kBytes per sec. = DOUBLE : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Global Module]
+personality = BYTE : 2
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Global Channel]
+channel enabled = BYTE : 1
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot02]
+personality = BYTE : 2
+data address = DWORD : 2162688
+data count address = DWORD : 2097152
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot03]
+personality = BYTE : 2
+data address = DWORD : 3211264
+data count address = DWORD : 3145728
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 8
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 8
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 8
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 8
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot04]
+personality = BYTE : 2
+data address = DWORD : 4259840
+data count address = DWORD : 4194304
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot05]
+personality = BYTE : 2
+data address = DWORD : 5308416
+data count address = DWORD : 5242880
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch00]
+channel enabled = BYTE : 1
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch01]
+channel enabled = BYTE : 1
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch02]
+channel enabled = BYTE : 1
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch03]
+channel enabled = BYTE : 1
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot06]
+personality = BYTE : 2
+data address = DWORD : 6356992
+data count address = DWORD : 6291456
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot07]
+personality = BYTE : 2
+data address = DWORD : 7405568
+data count address = DWORD : 7340032
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot08]
+personality = BYTE : 2
+data address = DWORD : 8454144
+data count address = DWORD : 8388608
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot09]
+personality = BYTE : 2
+data address = DWORD : 9502720
+data count address = DWORD : 9437184
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot10]
+personality = BYTE : 2
+data address = DWORD : 10551296
+data count address = DWORD : 10485760
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot11]
+personality = BYTE : 2
+data address = DWORD : 11599872
+data count address = DWORD : 11534336
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot12]
+personality = BYTE : 2
+data address = DWORD : 12648448
+data count address = DWORD : 12582912
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot13]
+personality = BYTE : 2
+data address = DWORD : 13697024
+data count address = DWORD : 13631488
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot14]
+personality = BYTE : 2
+data address = DWORD : 14745600
+data count address = DWORD : 14680064
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot15]
+personality = BYTE : 2
+data address = DWORD : 15794176
+data count address = DWORD : 15728640
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot16]
+personality = BYTE : 2
+data address = DWORD : 17825792
+data count address = DWORD : 16777216
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot17]
+personality = BYTE : 2
+data address = DWORD : 17891328
+data count address = DWORD : 17825792
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot18]
+personality = BYTE : 2
+data address = DWORD : 18939904
+data count address = DWORD : 18874368
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot19]
+personality = BYTE : 2
+data address = DWORD : 19988480
+data count address = DWORD : 19922944
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot20]
+personality = BYTE : 2
+data address = DWORD : 21037056
+data count address = DWORD : 20971520
+channel typing map = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch00]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch01]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch02]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch03]
+channel enabled = BYTE : 0
+threshold type = BYTE : 1
+limit interrupt enable = BYTE : 0
+overflow interrupt enable = BYTE : 0
+DCM loss interrupt enable = BYTE : 0
+elevation = BYTE : 20
+digital threshold = BYTE : 20
+analog threshold = BYTE : 35
+presamples = BYTE : 2
+data block count = BYTE : 4
+FIFO limit value = INT : 0
+
+[/Equipment/Crate 7/Settings/Software Settings/Global Settings]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot02Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot02Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot02Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot02Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot03Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot03Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot03Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot03Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot04Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot04Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot04Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot04Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot05Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot05Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot05Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot05Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot06Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot06Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot06Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot06Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot07Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot07Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot07Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot07Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot08Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot08Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot08Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot08Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot09Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot09Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot09Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot09Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot10Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot10Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot10Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot10Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot11Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot11Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot11Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot11Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot12Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot12Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot12Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot12Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot13Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot13Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot13Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot13Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot14Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot14Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot14Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot14Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot15Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot15Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot15Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot15Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot16Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot16Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot16Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot16Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot17Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot17Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot17Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot17Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot18Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot18Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot18Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot18Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot19Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot19Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot19Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot19Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot20Ch00]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot20Ch01]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot20Ch02]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Software Settings/Slot20Ch03]
+Time Centroid tc = INT : 0
+Max Time Difference dt = INT : 50
+Threshold = INT : 10
+Left Window = INT : 3
+Right Window = INT : 10
+
+[/Equipment/Crate 7/Settings/Channel Enabled]
+LinkSlot02Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch00/channel enabled
+LinkSlot02Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch01/channel enabled
+LinkSlot02Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch02/channel enabled
+LinkSlot02Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch03/channel enabled
+LinkSlot03Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch00/channel enabled
+LinkSlot03Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch01/channel enabled
+LinkSlot03Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch02/channel enabled
+LinkSlot03Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch03/channel enabled
+LinkSlot04Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch00/channel enabled
+LinkSlot04Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch01/channel enabled
+LinkSlot04Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch02/channel enabled
+LinkSlot04Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch03/channel enabled
+LinkSlot05Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch00/channel enabled
+LinkSlot05Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch01/channel enabled
+LinkSlot05Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch02/channel enabled
+LinkSlot05Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch03/channel enabled
+LinkSlot06Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch00/channel enabled
+LinkSlot06Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch01/channel enabled
+LinkSlot06Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch02/channel enabled
+LinkSlot06Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch03/channel enabled
+LinkSlot07Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch00/channel enabled
+LinkSlot07Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch01/channel enabled
+LinkSlot07Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch02/channel enabled
+LinkSlot07Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch03/channel enabled
+LinkSlot08Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch00/channel enabled
+LinkSlot08Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch01/channel enabled
+LinkSlot08Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch02/channel enabled
+LinkSlot08Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch03/channel enabled
+LinkSlot09Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch00/channel enabled
+LinkSlot09Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch01/channel enabled
+LinkSlot09Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch02/channel enabled
+LinkSlot09Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch03/channel enabled
+LinkSlot10Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch00/channel enabled
+LinkSlot10Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch01/channel enabled
+LinkSlot10Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch02/channel enabled
+LinkSlot10Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch03/channel enabled
+LinkSlot11Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch00/channel enabled
+LinkSlot11Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch01/channel enabled
+LinkSlot11Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch02/channel enabled
+LinkSlot11Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch03/channel enabled
+LinkSlot12Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch00/channel enabled
+LinkSlot12Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch01/channel enabled
+LinkSlot12Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch02/channel enabled
+LinkSlot12Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch03/channel enabled
+LinkSlot13Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch00/channel enabled
+LinkSlot13Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch01/channel enabled
+LinkSlot13Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch02/channel enabled
+LinkSlot13Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch03/channel enabled
+LinkSlot14Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch00/channel enabled
+LinkSlot14Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch01/channel enabled
+LinkSlot14Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch02/channel enabled
+LinkSlot14Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch03/channel enabled
+LinkSlot15Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch00/channel enabled
+LinkSlot15Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch01/channel enabled
+LinkSlot15Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch02/channel enabled
+LinkSlot15Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch03/channel enabled
+LinkSlot16Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch00/channel enabled
+LinkSlot16Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch01/channel enabled
+LinkSlot16Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch02/channel enabled
+LinkSlot16Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch03/channel enabled
+LinkSlot17Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch00/channel enabled
+LinkSlot17Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch01/channel enabled
+LinkSlot17Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch02/channel enabled
+LinkSlot17Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch03/channel enabled
+LinkSlot18Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch00/channel enabled
+LinkSlot18Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch01/channel enabled
+LinkSlot18Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch02/channel enabled
+LinkSlot18Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch03/channel enabled
+LinkSlot19Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch00/channel enabled
+LinkSlot19Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch01/channel enabled
+LinkSlot19Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch02/channel enabled
+LinkSlot19Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch03/channel enabled
+LinkSlot20Ch00 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch00/channel enabled
+LinkSlot20Ch01 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch01/channel enabled
+LinkSlot20Ch02 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch02/channel enabled
+LinkSlot20Ch03 = LINK : [73] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch03/channel enabled
+
+[/Equipment/Crate 7/Settings/Digital Threshold]
+LinkSlot02Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch00/digital threshold
+LinkSlot02Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch01/digital threshold
+LinkSlot02Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch02/digital threshold
+LinkSlot02Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch03/digital threshold
+LinkSlot03Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch00/digital threshold
+LinkSlot03Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch01/digital threshold
+LinkSlot03Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch02/digital threshold
+LinkSlot03Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch03/digital threshold
+LinkSlot04Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch00/digital threshold
+LinkSlot04Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch01/digital threshold
+LinkSlot04Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch02/digital threshold
+LinkSlot04Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch03/digital threshold
+LinkSlot05Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch00/digital threshold
+LinkSlot05Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch01/digital threshold
+LinkSlot05Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch02/digital threshold
+LinkSlot05Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch03/digital threshold
+LinkSlot06Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch00/digital threshold
+LinkSlot06Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch01/digital threshold
+LinkSlot06Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch02/digital threshold
+LinkSlot06Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch03/digital threshold
+LinkSlot07Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch00/digital threshold
+LinkSlot07Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch01/digital threshold
+LinkSlot07Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch02/digital threshold
+LinkSlot07Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch03/digital threshold
+LinkSlot08Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch00/digital threshold
+LinkSlot08Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch01/digital threshold
+LinkSlot08Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch02/digital threshold
+LinkSlot08Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch03/digital threshold
+LinkSlot09Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch00/digital threshold
+LinkSlot09Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch01/digital threshold
+LinkSlot09Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch02/digital threshold
+LinkSlot09Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch03/digital threshold
+LinkSlot10Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch00/digital threshold
+LinkSlot10Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch01/digital threshold
+LinkSlot10Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch02/digital threshold
+LinkSlot10Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch03/digital threshold
+LinkSlot11Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch00/digital threshold
+LinkSlot11Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch01/digital threshold
+LinkSlot11Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch02/digital threshold
+LinkSlot11Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch03/digital threshold
+LinkSlot12Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch00/digital threshold
+LinkSlot12Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch01/digital threshold
+LinkSlot12Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch02/digital threshold
+LinkSlot12Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch03/digital threshold
+LinkSlot13Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch00/digital threshold
+LinkSlot13Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch01/digital threshold
+LinkSlot13Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch02/digital threshold
+LinkSlot13Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch03/digital threshold
+LinkSlot14Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch00/digital threshold
+LinkSlot14Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch01/digital threshold
+LinkSlot14Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch02/digital threshold
+LinkSlot14Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch03/digital threshold
+LinkSlot15Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch00/digital threshold
+LinkSlot15Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch01/digital threshold
+LinkSlot15Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch02/digital threshold
+LinkSlot15Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch03/digital threshold
+LinkSlot16Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch00/digital threshold
+LinkSlot16Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch01/digital threshold
+LinkSlot16Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch02/digital threshold
+LinkSlot16Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch03/digital threshold
+LinkSlot17Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch00/digital threshold
+LinkSlot17Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch01/digital threshold
+LinkSlot17Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch02/digital threshold
+LinkSlot17Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch03/digital threshold
+LinkSlot18Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch00/digital threshold
+LinkSlot18Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch01/digital threshold
+LinkSlot18Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch02/digital threshold
+LinkSlot18Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch03/digital threshold
+LinkSlot19Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch00/digital threshold
+LinkSlot19Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch01/digital threshold
+LinkSlot19Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch02/digital threshold
+LinkSlot19Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch03/digital threshold
+LinkSlot20Ch00 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch00/digital threshold
+LinkSlot20Ch01 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch01/digital threshold
+LinkSlot20Ch02 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch02/digital threshold
+LinkSlot20Ch03 = LINK : [75] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch03/digital threshold
+
+[/Equipment/Crate 7/Settings/Analog Threshold]
+LinkSlot02Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch00/analog threshold
+LinkSlot02Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch01/analog threshold
+LinkSlot02Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch02/analog threshold
+LinkSlot02Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch03/analog threshold
+LinkSlot03Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch00/analog threshold
+LinkSlot03Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch01/analog threshold
+LinkSlot03Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch02/analog threshold
+LinkSlot03Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch03/analog threshold
+LinkSlot04Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch00/analog threshold
+LinkSlot04Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch01/analog threshold
+LinkSlot04Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch02/analog threshold
+LinkSlot04Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch03/analog threshold
+LinkSlot05Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch00/analog threshold
+LinkSlot05Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch01/analog threshold
+LinkSlot05Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch02/analog threshold
+LinkSlot05Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch03/analog threshold
+LinkSlot06Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch00/analog threshold
+LinkSlot06Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch01/analog threshold
+LinkSlot06Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch02/analog threshold
+LinkSlot06Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch03/analog threshold
+LinkSlot07Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch00/analog threshold
+LinkSlot07Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch01/analog threshold
+LinkSlot07Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch02/analog threshold
+LinkSlot07Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch03/analog threshold
+LinkSlot08Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch00/analog threshold
+LinkSlot08Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch01/analog threshold
+LinkSlot08Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch02/analog threshold
+LinkSlot08Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch03/analog threshold
+LinkSlot09Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch00/analog threshold
+LinkSlot09Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch01/analog threshold
+LinkSlot09Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch02/analog threshold
+LinkSlot09Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch03/analog threshold
+LinkSlot10Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch00/analog threshold
+LinkSlot10Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch01/analog threshold
+LinkSlot10Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch02/analog threshold
+LinkSlot10Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch03/analog threshold
+LinkSlot11Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch00/analog threshold
+LinkSlot11Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch01/analog threshold
+LinkSlot11Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch02/analog threshold
+LinkSlot11Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch03/analog threshold
+LinkSlot12Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch00/analog threshold
+LinkSlot12Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch01/analog threshold
+LinkSlot12Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch02/analog threshold
+LinkSlot12Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch03/analog threshold
+LinkSlot13Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch00/analog threshold
+LinkSlot13Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch01/analog threshold
+LinkSlot13Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch02/analog threshold
+LinkSlot13Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch03/analog threshold
+LinkSlot14Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch00/analog threshold
+LinkSlot14Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch01/analog threshold
+LinkSlot14Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch02/analog threshold
+LinkSlot14Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch03/analog threshold
+LinkSlot15Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch00/analog threshold
+LinkSlot15Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch01/analog threshold
+LinkSlot15Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch02/analog threshold
+LinkSlot15Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch03/analog threshold
+LinkSlot16Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch00/analog threshold
+LinkSlot16Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch01/analog threshold
+LinkSlot16Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch02/analog threshold
+LinkSlot16Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch03/analog threshold
+LinkSlot17Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch00/analog threshold
+LinkSlot17Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch01/analog threshold
+LinkSlot17Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch02/analog threshold
+LinkSlot17Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch03/analog threshold
+LinkSlot18Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch00/analog threshold
+LinkSlot18Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch01/analog threshold
+LinkSlot18Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch02/analog threshold
+LinkSlot18Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch03/analog threshold
+LinkSlot19Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch00/analog threshold
+LinkSlot19Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch01/analog threshold
+LinkSlot19Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch02/analog threshold
+LinkSlot19Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch03/analog threshold
+LinkSlot20Ch00 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch00/analog threshold
+LinkSlot20Ch01 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch01/analog threshold
+LinkSlot20Ch02 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch02/analog threshold
+LinkSlot20Ch03 = LINK : [74] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch03/analog threshold
+
+[/Equipment/Crate 7/Settings/Elevation]
+LinkSlot02Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch00/elevation
+LinkSlot02Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch01/elevation
+LinkSlot02Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch02/elevation
+LinkSlot02Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot02Ch03/elevation
+LinkSlot03Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch00/elevation
+LinkSlot03Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch01/elevation
+LinkSlot03Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch02/elevation
+LinkSlot03Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot03Ch03/elevation
+LinkSlot04Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch00/elevation
+LinkSlot04Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch01/elevation
+LinkSlot04Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch02/elevation
+LinkSlot04Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot04Ch03/elevation
+LinkSlot05Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch00/elevation
+LinkSlot05Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch01/elevation
+LinkSlot05Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch02/elevation
+LinkSlot05Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot05Ch03/elevation
+LinkSlot06Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch00/elevation
+LinkSlot06Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch01/elevation
+LinkSlot06Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch02/elevation
+LinkSlot06Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot06Ch03/elevation
+LinkSlot07Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch00/elevation
+LinkSlot07Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch01/elevation
+LinkSlot07Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch02/elevation
+LinkSlot07Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot07Ch03/elevation
+LinkSlot08Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch00/elevation
+LinkSlot08Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch01/elevation
+LinkSlot08Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch02/elevation
+LinkSlot08Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot08Ch03/elevation
+LinkSlot09Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch00/elevation
+LinkSlot09Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch01/elevation
+LinkSlot09Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch02/elevation
+LinkSlot09Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot09Ch03/elevation
+LinkSlot10Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch00/elevation
+LinkSlot10Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch01/elevation
+LinkSlot10Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch02/elevation
+LinkSlot10Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot10Ch03/elevation
+LinkSlot11Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch00/elevation
+LinkSlot11Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch01/elevation
+LinkSlot11Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch02/elevation
+LinkSlot11Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot11Ch03/elevation
+LinkSlot12Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch00/elevation
+LinkSlot12Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch01/elevation
+LinkSlot12Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch02/elevation
+LinkSlot12Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot12Ch03/elevation
+LinkSlot13Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch00/elevation
+LinkSlot13Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch01/elevation
+LinkSlot13Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch02/elevation
+LinkSlot13Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot13Ch03/elevation
+LinkSlot14Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch00/elevation
+LinkSlot14Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch01/elevation
+LinkSlot14Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch02/elevation
+LinkSlot14Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot14Ch03/elevation
+LinkSlot15Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch00/elevation
+LinkSlot15Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch01/elevation
+LinkSlot15Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch02/elevation
+LinkSlot15Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot15Ch03/elevation
+LinkSlot16Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch00/elevation
+LinkSlot16Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch01/elevation
+LinkSlot16Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch02/elevation
+LinkSlot16Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot16Ch03/elevation
+LinkSlot17Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch00/elevation
+LinkSlot17Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch01/elevation
+LinkSlot17Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch02/elevation
+LinkSlot17Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot17Ch03/elevation
+LinkSlot18Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch00/elevation
+LinkSlot18Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch01/elevation
+LinkSlot18Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch02/elevation
+LinkSlot18Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot18Ch03/elevation
+LinkSlot19Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch00/elevation
+LinkSlot19Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch01/elevation
+LinkSlot19Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch02/elevation
+LinkSlot19Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot19Ch03/elevation
+LinkSlot20Ch00 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch00/elevation
+LinkSlot20Ch01 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch01/elevation
+LinkSlot20Ch02 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch02/elevation
+LinkSlot20Ch03 = LINK : [67] /Equipment/Crate 7/Settings/Hardware Settings/Slot20Ch03/elevation
+
+[/Equipment/Crate 7/Settings/Data Address]
+LinkSlot02 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot02/data address
+LinkSlot03 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot03/data address
+LinkSlot04 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot04/data address
+LinkSlot05 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot05/data address
+LinkSlot06 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot06/data address
+LinkSlot07 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot07/data address
+LinkSlot08 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot08/data address
+LinkSlot09 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot09/data address
+LinkSlot10 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot10/data address
+LinkSlot11 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot11/data address
+LinkSlot12 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot12/data address
+LinkSlot13 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot13/data address
+LinkSlot14 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot14/data address
+LinkSlot15 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot15/data address
+LinkSlot16 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot16/data address
+LinkSlot17 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot17/data address
+LinkSlot18 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot18/data address
+LinkSlot19 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot19/data address
+LinkSlot20 = LINK : [66] /Equipment/Crate 7/Settings/Hardware Settings/Slot20/data address
+
+[/Equipment/Crate 7/Settings/Data Count Address]
+LinkSlot02 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot02/data count address
+LinkSlot03 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot03/data count address
+LinkSlot04 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot04/data count address
+LinkSlot05 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot05/data count address
+LinkSlot06 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot06/data count address
+LinkSlot07 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot07/data count address
+LinkSlot08 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot08/data count address
+LinkSlot09 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot09/data count address
+LinkSlot10 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot10/data count address
+LinkSlot11 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot11/data count address
+LinkSlot12 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot12/data count address
+LinkSlot13 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot13/data count address
+LinkSlot14 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot14/data count address
+LinkSlot15 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot15/data count address
+LinkSlot16 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot16/data count address
+LinkSlot17 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot17/data count address
+LinkSlot18 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot18/data count address
+LinkSlot19 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot19/data count address
+LinkSlot20 = LINK : [72] /Equipment/Crate 7/Settings/Hardware Settings/Slot20/data count address
+
+[/Equipment/Crate 7/Settings/Personality]
+LinkSlot02 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot02/personality
+LinkSlot03 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot03/personality
+LinkSlot04 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot04/personality
+LinkSlot05 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot05/personality
+LinkSlot06 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot06/personality
+LinkSlot07 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot07/personality
+LinkSlot08 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot08/personality
+LinkSlot09 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot09/personality
+LinkSlot10 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot10/personality
+LinkSlot11 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot11/personality
+LinkSlot12 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot12/personality
+LinkSlot13 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot13/personality
+LinkSlot14 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot14/personality
+LinkSlot15 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot15/personality
+LinkSlot16 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot16/personality
+LinkSlot17 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot17/personality
+LinkSlot18 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot18/personality
+LinkSlot19 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot19/personality
+LinkSlot20 = LINK : [65] /Equipment/Crate 7/Settings/Hardware Settings/Slot20/personality
+
+[/Equipment/Crate 7/Settings]
+Enabled = BOOL : n
+Master = BOOL : n
+Synchronous = BOOL : y
+Diagnostic Print Level = INT : 0
+Operator = INT : -1
+
+[/Equipment/Crate 7/Settings/Mode]
+Disc = BYTE : 0
+Struck = BYTE : 1
+File Name = STRING : [256] 
+
+[/Equipment/Crate 7/Settings/Banks]
+Fitted Event Bank = BYTE : 0
+Raw Event Bank = BYTE : 0
+Sampling Rate = INT : 100
+Pair Event Bank = BYTE : 0
+ZLIB Compressed Event Bank = BYTE : 1
+
+[/Equipment/Crate 7/Status/Slot02]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot03]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot04]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot05]
+Date Code = DWORD : 107283831
+Board Id = DWORD : 102
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 1
+
+[/Equipment/Crate 7/Status/Slot06]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot07]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot08]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot09]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot10]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot11]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot12]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot13]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot14]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot15]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot16]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot17]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot18]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot19]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Status/Slot20]
+Date Code = DWORD : 0
+Board Id = DWORD : 0
+Frontend Revision = DWORD : 1
+Dataformat Revision = DWORD : 1
+DCM status = BYTE : 0
+
+[/Equipment/Crate 7/Run End Status/Slot02]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot03]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot04]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot05]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot06]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot07]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot08]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot09]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot10]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot11]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot12]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot13]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot14]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot15]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot16]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot17]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot18]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot19]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Run End Status/Slot20]
+DCM_status = DWORD : 0
+
+[/Equipment/Crate 7/Common]
+Event ID = WORD : 1000
+Trigger mask = WORD : 65535
+Buffer = STRING : [32] BUF7
+Type = INT : 68
+Source = INT : 16777215
+Format = STRING : [8] MIDAS
+Enabled = BOOL : y
+Read on = INT : 1
+Period = INT : 500
+Event limit = DOUBLE : 0
+Num subevents = DWORD : 0
+Log history = INT : 0
+Frontend host = STRING : [32] musun1.phys.washington.edu
+Frontend name = STRING : [32] Crate 7
+Frontend file name = STRING : [256] crate.cpp
+
+[/Equipment/Crate 7/Statistics]
+Events sent = DOUBLE : 156
+Events per sec. = DOUBLE : 0
+kBytes per sec. = DOUBLE : 0
+
+[/Equipment/EB/Common]
+Event ID = WORD : 1
+Trigger mask = WORD : 0
+Buffer = STRING : [32] SYSTEM
+Type = INT : 0
+Source = INT : 0
+Format = STRING : [8] MIDAS
+Enabled = BOOL : y
+Read on = INT : 0
+Period = INT : 0
+Event limit = DOUBLE : 0
+Num subevents = DWORD : 0
+Log history = INT : 0
+Frontend host = STRING : [32] daq2.MuSIC
+Frontend name = STRING : [32] Ebuilder
+Frontend file name = STRING : [256] ebuser.cpp
+
+[/Equipment/EB/Statistics]
+Events sent = DOUBLE : 201
+Events per sec. = DOUBLE : 0
+kBytes per sec. = DOUBLE : 0
+
+[/Equipment/EB/Settings]
+Number of Fragment = INT : 2
+User build = BOOL : n
+User Field = STRING : [64] 100
+Fragment Required = BOOL[2] :
+[0] y
+[1] y
+
+[/Equipment/Crate 9/Settings]
+Enabled = BOOL : y
+Master = BOOL : n
+Diagnostic Print Level = INT : 0
+Operator Message Level = INT : -1
+Synchronous = BOOL : y
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 7]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC 80]
+Enabled = BOOL : y
+Interface = INT : 2
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 6]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 2
+Stretch samples = INT : 15
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 5]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 4]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 3]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 10
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 2]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 10
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 1]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 10
+
+[/Equipment/Crate 9/Settings/NFADC 80/Channel 0]
+LED Mode = INT : 4
+Lower threshold = INT : 3000
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 20
+DCM phase = INT : 10
+
+[/Equipment/Crate 9/Common]
+Event ID = WORD : 1000
+Trigger mask = WORD : 65535
+Buffer = STRING : [32] BUF9
+Type = INT : 66
+Source = INT : 16777215
+Format = STRING : [8] MIDAS
+Enabled = BOOL : y
+Read on = INT : 1
+Period = INT : 500
+Event limit = DOUBLE : 0
+Num subevents = DWORD : 0
+Log history = INT : 0
+Frontend host = STRING : [32] daq2.MuSIC
+Frontend name = STRING : [32] Crate 9
+Frontend file name = STRING : [256] crate.cpp
+
+[/Equipment/Crate 9/Statistics]
+Events sent = DOUBLE : 201
+Events per sec. = DOUBLE : 0
+kBytes per sec. = DOUBLE : 0
+
+[/Analyzer/Output]
+Filename = STRING : [256] hist00381.root
+RWNT = BOOL : n
+Histo Dump = BOOL : n
+Histo Dump Filename = STRING : [256] his%05d.root
+Clear histos = BOOL : y
+Last Histo Filename = STRING : [256] last.root
+Events to ODB = BOOL : n
+Global Memory Name = STRING : [8] ONLN
+
+[/Analyzer/Module switches]
+MOctalFADCProcessRaw = BOOL : y
+MTreeOutput = BOOL : y
+
+[/Analyzer/Trigger/Common]
+Event ID = INT : 1
+Trigger mask = INT : -1
+Sampling type = INT : 2
+Buffer = STRING : [32] SYSTEM
+Enabled = BOOL : y
+Client name = STRING : [32] Analyzer
+Host = STRING : [32] pcl11.hep.anl.gov
+
+[/Analyzer/Trigger/Statistics]
+Events received = DOUBLE : 253
+Events per sec. = DOUBLE : 818.182
+Events written = DOUBLE : 253
+
+[/Analyzer]
+Book TTree = BOOL : n
+ODB Load = BOOL : y
+
+[/Analyzer/WireMap]
+BankName = STRING[48] :
+[5] Na80
+[5] Nb80
+[5] Nc80
+[5] Nd80
+[5] Ne80
+[5] Nf80
+[5] Ng80
+[5] Nh80
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+[5] 
+ClockTick = FLOAT[48] :
+[0] 6.25
+[1] 6.25
+[2] 6.25
+[3] 6.25
+[4] 6.25
+[5] 6.25
+[6] 6.25
+[7] 6.25
+[8] 0
+[9] 0
+[10] 0
+[11] 0
+[12] 0
+[13] 0
+[14] 0
+[15] 0
+[16] 0
+[17] 0
+[18] 0
+[19] 0
+[20] 0
+[21] 0
+[22] 0
+[23] 0
+[24] 0
+[25] 0
+[26] 0
+[27] 0
+[28] 0
+[29] 0
+[30] 0
+[31] 0
+[32] 0
+[33] 0
+[34] 0
+[35] 0
+[36] 0
+[37] 0
+[38] 0
+[39] 0
+[40] 0
+[41] 0
+[42] 0
+[43] 0
+[44] 0
+[45] 0
+[46] 0
+[47] 0
+

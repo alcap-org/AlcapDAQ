@@ -1,0 +1,39 @@
+#!/bin/sh
+topdir=`dirname $0`
+
+sourcedirs="$topdir/src"
+
+MOBJS="MODULE_OBJS = "
+SOURCE_DIRS="../../src/common"
+
+#echo -n "MODULE_OBJS = " > Makefile.MODULES
+
+for module in `cat MODULES`; do 
+  basename=`basename $module`
+  dirname=`dirname $module`
+  MOBJS=$MOBJS" $basename.o"
+  SOURCE_DIRS=$SOURCE_DIRS":../../src/$dirname"
+  echo "$basename.o:	../../src/$module.cpp" >> Makefile.MODULES
+  echo "" >> Makefile.MODULES
+done
+
+#echo "TGlobalData.o:   ../../src/common/TGlobalData.cpp" >> Makefile.MODULES
+#echo "" >> Makefile.MODULES
+#
+#echo "TOctalFADCBankReader.o: ../../src/FADC/TOctalFADCBankReader.cpp"  >> Makefile.MODULES
+#echo "" >> Makefile.MODULES
+#
+#echo "TOctalFADCIsland.o: ../../src/FADC/TOctalFADCIsland.cpp"  >> Makefile.MODULES
+#echo "" >> Makefile.MODULES
+#
+#echo "TPulseIsland.o: ../../src/common/TPulseIsland.cpp"  >> Makefile.MODULES
+#echo "" >> Makefile.MODULES
+#
+
+echo "SOURCE_DIRS += "$SOURCE_DIRS >> Makefile.MODULES
+echo "" >> Makefile.MODULES
+echo "INCLUDE_DIRS += "$SOURCE_DIRS >> Makefile.MODULES
+echo "" >> Makefile.MODULES
+echo $MOBJS >> Makefile.MODULES
+
+
