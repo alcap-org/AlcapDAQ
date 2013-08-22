@@ -118,6 +118,7 @@ INT MOctalFADCProcessRaw(EVENT_HEADER *pheader, void *pevent)
       if(islands[j]) { delete islands[j]; islands[j] = NULL; }
     }
     islands.clear();
+    pulse_islands_map.erase(iter); // AE: need to erase the key so that blocks after the first will be recorded
   }
 
   // Get islands from all banks and add them to the global structure
@@ -189,5 +190,28 @@ vector<string> GetAllFADCBankNames()
 
 double GetClockTickForChannel(string bank_name)
 {
-  return 6.25;
+  HNDLE hDB, hKey;
+  KEY key;
+  char keyName[200]; // AE: can't be a pointer otherwise not enough memory assigned to it for later
+
+  string bank_addr = bank_name.substr(2, 2); // AE: last two characters of the bank name are the address
+  string bank_channel = bank_name.substr(1,1); // AE: the second character is a letter corresponding to the channel number
+  int channel = *(bank_channel.c_str()) - 97; // AE: in ASCII 'a'=97, 'b'=98 etc.
+  sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Channel %d/DCM phase", bank_addr.c_str(), channel);
+
+  int DCMPhase;
+  double clockTickInNs;
+
+  cm_get_experiment_database(&hDB, NULL);
+
+  if(db_find_key(hDB,0,keyName, &hKey) == SUCCESS){
+    db_get_key(hDB, hKey, &key);
+
+    int size = sizeof(DCMPhase);
+    if(db_get_value(hDB, 0, keyName , &DCMPhase, &size, TID_INT, 0) == DB_SUCCESS){
+      clockTickInNs = 6.25 * DCMPhase;
+    }
+  }
+
+  return clockTickInNs;
 }
