@@ -1,13 +1,11 @@
-// CalibrateFADC.C
-// -- Calibrates the FADC channel histogram
-// -- x-axis: sample number --> time/ns
-// -- y-axis: FADC value --> voltage/mV --> energy/MeV
+// Calibrate.C
+// -- A general calibration function that re scales the x-axis to change x --> new_x
 
 #include <sstream>
 
 #include "TH1.h"
 
-TH1* CalibrateFADC(TH1* hist, double x, double new_x) { // changes x --> new_x
+TH1* Calibrate(TH1* hist, double x, double new_x) { // changes x --> new_x
 
   std::stringstream calibHistname;
   calibHistname << "Calib_" << hist->GetName();
@@ -39,10 +37,6 @@ TH1* CalibrateFADC(TH1* hist, double x, double new_x) { // changes x --> new_x
 /*TH1* EnergyCalibration(TH1* hist, double energy_input) {
 
   // Calibrate peak height histogram
-  //TF1* gauss = new TF1("gaus", "TMath::Gaus(x, [0], [1])", low_bin_val, high_bin_val);
-  //gauss->SetParameter(0, peak_height_hist->GetMean());
-  //gauss->SetParameter(1, 1);
-  //peak_height_hist->Fit("gaus");
 
   double hist_mean = hist->GetMean();
   double scaling_factor = energy_input / peak_height_mean;

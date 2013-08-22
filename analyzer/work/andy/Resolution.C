@@ -7,7 +7,6 @@
 #include <sstream>
 #include <vector>
 #include <map>
-#include <cmath>
 #include <algorithm>
 
 #include "TFile.h"
@@ -18,10 +17,10 @@
 #include "../../src/common/TPulseIsland.h"
 
 // Prototypes
-double SlowPulseResolution(TH1* slow_pulse_hist);
-double FastPulseResolution(TH1* fast_pulse_hist);
+double GetPulseHeight(TH1* pulse_hist);
+double GetPulseIntegral(TH1* pulse_hist);
 TH1* RemovePedestal(TH1* hist);
-TH1* CalibrateFADC(TH1* hist, double x, double new_x);
+TH1* Calibrate(TH1* hist, double x, double new_x);
 
 void Resolution(std::string filename) {
   
@@ -78,8 +77,9 @@ void Resolution(std::string filename) {
 
 	  // Calibrate the histogram
 	  // convert 1 tick --> clockTickInNs
-	  TH1F* calib_hist = (TH1F*) CalibrateFADC(hist1, 1, (*islandIter)->GetClockTickInNs());
+	  TH1F* calib_hist = (TH1F*) Calibrate(hist1, 1, (*islandIter)->GetClockTickInNs());
 	  calib_hist->Write();
+	  hist1->GetXaxis()->SetTitle("time / ns");
 
 	  // Now remove the pedestal
 	  TH1F* pedSub = (TH1F*) RemovePedestal(calib_hist);
@@ -87,11 +87,11 @@ void Resolution(std::string filename) {
 
 	  // if the bank name is Nge0 then it's a slow pulse
 	  if ( (*islandIter)->GetBankName() == "Ng80") {
-	    peakHeights.push_back(SlowPulseResolution(pedSub));
+	    peakHeights.push_back(GetPulseHeight(pedSub));
 	  }
 	  // else if the bank name is Nhe0 then it's a fast pulse
 	  else if ( (*islandIter)->GetBankName() == "Nh80") {
-	    integrals.push_back(FastPulseResolution(pedSub));
+	    integrals.push_back(GetPulseIntegral(pedSub));
 	  }
 	} // end for islandIter
       } // end if theVector.empty() 
@@ -108,7 +108,7 @@ void Resolution(std::string filename) {
   int low_bin_val = *(peakHeights.begin());
   int high_bin_val = *(peakHeights.end() - 1);
 
-  TH1F* peak_height_hist = new TH1F("peak_height_hist", "peak_height_hist", 100, low_bin_val, high_bin_val);
+  TH1F* peak_height_hist = new TH1F("peak_height_hist", "peak_height_hist", 50, low_bin_val, high_bin_val);
 
   for (std::vector<double>::iterator it = peakHeights.begin(); it != peakHeights.end(); it++) {
     peak_height_hist->Fill(*it);
@@ -139,15 +139,17 @@ void Resolution(std::string filename) {
   double preAmpOutputInMeV = 3.8;
   double peak_height_mean = peak_height_hist->GetMean();
 
-  TH1F* calib_peak_height_hist = (TH1F*) CalibrateFADC(peak_height_hist, peak_height_mean, preAmpOutputInMeV);
+  TH1F* calib_peak_height_hist = (TH1F*) Calibrate(peak_height_mean, gauss->GetParameter(0), preAmpOutputInMeV);
 
   calib_peak_height_hist->GetXaxis()->SetTitle("energy / MeV");
   calib_peak_height_hist->GetYaxis()->SetTitle("number of pulses");
+  gauss->Draw();
+  gauss->Write();
   calib_peak_height_hist->Write();
 
 
   double integral_mean = integral_hist->GetMean();
-  TH1F* calib_integral_hist = (TH1F*) CalibrateFADC(integral_hist, integral_mean, preAmpOutputInMeV);
+  TH1F* calib_integral_hist = (TH1F*) Calibrate(integral_hist, integral_mean, preAmpOutputInMeV);
 
   calib_integral_hist->GetXaxis()->SetTitle("energy / MeV");
   calib_integral_hist->GetYaxis()->SetTitle("number of pulses");
@@ -156,25 +158,3 @@ void Resolution(std::string filename) {
   out_file->Close();
 }
 
-// Gets the resolution for the slow pulse which 
-// is just the peak heigh
-double SlowPulseResolution(TH1* slow_pulse_hist) {
-  
-  // Get the peak height
-  //  std::cout << "Min value = " << std::fabs(slow_pulse_hist->GetMinimum()) << std::endl;
-  double peak_height = std::fabs(slow_pulse_hist->GetMinimum());
-
-  return peak_height;
-}
-
-// Gets the resoultion for the fast pulse which
-// is the integral of the pulse
-double FastPulseResolution(TH1* fast_pulse_hist) {
-
-  // Want to integrate in the pulse
-  if (std::fabs(fast_pulse_hist->Integral(0,100)) <= 0.1)
-    std::cout << "Integral = " << std::fabs(fast_pulse_hist->Integral(0,100)) << std::endl;
-  double integral = std::fabs(fast_pulse_hist->Integral(0,100));
-
-  return integral;
-}
