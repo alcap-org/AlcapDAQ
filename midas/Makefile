@@ -518,7 +518,7 @@ ROOTLIBS    := $(ROOTSYS)/lib/libRoot.a -lssl -ldl -lcrypt
 ROOTGLIBS   := $(ROOTLIBS) -lfreetype
 endif
 
-CFLAGS     += -DHAVE_ROOT $(ROOTCFLAGS)
+CFLAGS     += -DHAVE_ROOT -DHAVE_STRLCPY $(ROOTCFLAGS)
 
 $(BIN_DIR)/rmidas: $(BIN_DIR)/%: $(SRC_DIR)/%.c
 	$(CXX) $(CFLAGS) $(OSFLAGS) -DHAVE_ROOT $(ROOTCFLAGS) -o $@ $< $(LIB) $(ROOTGLIBS) $(LIBS)
@@ -580,7 +580,7 @@ $(LIB_DIR)/fal.o: $(SRC_DIR)/fal.c msystem.h midas.h midasinc.h mrpc.h
 	$(CC) -Dextname -c $(CFLAGS) $(OSFLAGS) -o $@ $<
 $(LIB_DIR)/mana.o: $(SRC_DIR)/mana.cpp msystem.h midas.h midasinc.h mrpc.h
 	$(CC) -c $(CFLAGS) $(OSFLAGS) -o $@ $<
-$(LIB_DIR)/hmana.o: $(SRC_DIR)/mana.c msystem.h midas.h midasinc.h mrpc.h
+$(LIB_DIR)/hmana.o: $(SRC_DIR)/mana.cpp msystem.h midas.h midasinc.h mrpc.h
 	$(CC) -Dextname -DHAVE_HBOOK -c $(CFLAGS) $(OSFLAGS) -o $@ $<
 ifdef ROOTSYS
 $(LIB_DIR)/rmana.o: $(SRC_DIR)/mana.cpp msystem.h midas.h midasinc.h mrpc.h
