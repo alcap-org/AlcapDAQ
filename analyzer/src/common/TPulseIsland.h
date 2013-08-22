@@ -20,6 +20,11 @@ class TPulseIsland : public TObject {
 
   void Reset(Option_t* o = "");
 
+  std::vector<int> GetSamples() const { return fSamples; }
+  double GetClockTickInNs() const { return fClockTickInNs; }
+  int GetTimeStamp() const { return fTimeStamp; }
+  std::string GetBankName() const { return fBankName; }
+
   ClassDef(TPulseIsland, 1);
 };
 
