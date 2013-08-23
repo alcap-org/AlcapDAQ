@@ -164,26 +164,50 @@ INT MOctalFADCProcessRaw(EVENT_HEADER *pheader, void *pevent)
 
 vector<string> GetAllFADCBankNames()
 {
+  // Want to go throgh the equipment tree and work out which FADCs and channels are on and store their bank names in the vector which we return
   HNDLE hDB, hKey;
   KEY key;
-  char *keyName = "/Analyzer/WireMap/BankName";
+  char keyName[200];
   vector<string> v;
+  INT iAddr, iChn; // loop counters
+  INT n_addresses = 256; // 8 dip switches gives 2^8 combinations 
+  INT n_channels = 8;
 
   cm_get_experiment_database(&hDB, NULL);
 
-  if(db_find_key(hDB,0,keyName, &hKey) == SUCCESS){
-    db_get_key(hDB, hKey, &key);
+  // Loop through all the possible FADC addresses to get the current FADCs we have
+  for (iAddr = 0; iAddr < n_addresses; iAddr++) {
+    sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %x", iAddr);
+    if(db_find_key(hDB,0,keyName, &hKey) == SUCCESS){
 
-    char BankNames[key.num_values][key.item_size];
-       
-    int size = sizeof(BankNames);
-    if(db_get_value(hDB, 0, keyName , BankNames, &size, TID_STRING, 0) == DB_SUCCESS){
-      for(int i=0; i<key.num_values; i++){
-        if(strcmp(BankNames[i], "") != 0) 
-	  v.push_back(BankNames[i]);
-      }
-    }
-  }
+      // Loop through all the channels to see which ones are taking data
+      for (iChn = 0; iChn < n_channels; iChn++) {
+	sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %x/Channel %d", iAddr, iChn);
+	
+	if(db_find_key(hDB,0,keyName, &hKey) == SUCCESS){
+	  sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %x/Channel %d/Trigger mask", iAddr, iChn);
+
+	  if(db_find_key(hDB,0,keyName, &hKey) == SUCCESS){
+	    db_get_key(hDB, hKey, &key);
+
+	    int trigger_mask;
+	    int size = sizeof(trigger_mask);
+	    if(db_get_value(hDB, 0, keyName , &trigger_mask, &size, TID_INT, 0) == DB_SUCCESS) {
+	      
+	      if (trigger_mask == 1){ // if this channel is taking data
+		// work out and store the bank name
+		char bank_name[5];
+		int channel_letter = (iChn + 97); // 'a' = 97 in ASCII
+		sprintf(bank_name, "N%c%x", channel_letter, iAddr);
+		v.push_back(bank_name);
+	      } // end if trigger_mask
+
+	    } // end if db_get_value
+	  } // end db_find_key Trigger mask
+	} // end db_find_key Channel 
+      } // end for channel
+    } // end db_find_key Address
+  } // end for address
 
   return v;
 }
