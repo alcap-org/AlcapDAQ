@@ -2,7 +2,7 @@
 
 FillHistBase::FillHistBase(char *HistogramDirectoryName){
   dir = gDirectory->mkdir(HistogramDirectoryName);
-  gDirectory->cd("/");
+  dir->cd();
 }
 
 FillHistBase::~FillHistBase()
