@@ -12,6 +12,7 @@ class FastSlowPulseAnalysis : public FillHistBase{
   ~FastSlowPulseAnalysis();
   
   TH1* Calibrate(TH1* hist, double x, double new_x);
+  TH1* RemovePedestal(TH1* hist);
 
  private:
   virtual int ProcessEntry(TGlobalData *gData);

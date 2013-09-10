@@ -74,6 +74,9 @@ int FastSlowPulseAnalysis::ProcessEntry(TGlobalData *gData){
   	// Now calibrate the pulse with 1 clock tick = clickTimeInNs()
   	TH1F* hCalib = (TH1F*) Calibrate(hFastPulse, 1, (*islandIter)->GetClockTickInNs());
   	hCalib->GetXaxis()->SetTitle("time / ns");
+  	
+  	// Now remove the pedestal
+  	TH1F* hPedSub = (TH1F*) RemovePedestal(hCalib);
   }
   
   // Loop through the slow pulse islands and plot the pulse
@@ -98,6 +101,9 @@ int FastSlowPulseAnalysis::ProcessEntry(TGlobalData *gData){
   	// Now calibrate the pulse with 1 clock tick = clickTimeInNs()
   	TH1F* hCalib = (TH1F*) Calibrate(hSlowPulse, 1, (*islandIter)->GetClockTickInNs());
   	hCalib->GetXaxis()->SetTitle("time / ns");
+  	
+  	// Now remove the pedestal
+  	TH1F* hPedSub = (TH1F*) RemovePedestal(hCalib);
   }
   return 0;
 }
@@ -128,4 +134,39 @@ TH1* FastSlowPulseAnalysis::Calibrate(TH1* hist, double x, double new_x) { // ch
 
   }
   return hCalib;
+}
+
+TH1* FastSlowPulseAnalysis::RemovePedestal(TH1* hist) {
+
+  std::stringstream pedSubHistname;
+  pedSubHistname << "PedSub_" << hist->GetName();
+
+  double low_val = hist->GetBinLowEdge(1);
+  double high_val = hist->GetBinLowEdge(hist->GetXaxis()->GetNbins() + 1);
+  int n_bins = hist->GetXaxis()->GetNbins();
+
+  // Create the pedestal subtracted histogram
+  TH1F* hPedSub = new TH1F(pedSubHistname.str().c_str(), pedSubHistname.str().c_str(), n_bins,low_val,high_val);
+  hPedSub->GetXaxis()->SetTitle(hist->GetXaxis()->GetTitle());
+  hPedSub->GetYaxis()->SetTitle(hist->GetYaxis()->GetTitle());  
+
+  // Loop through the first few bins and take the mean value for the pedestal
+  double pedestal = 0.0;
+  int nBinsForMean = 5;
+  for (int iBin = 1; iBin <= nBinsForMean; iBin++) {
+    pedestal += hist->GetBinContent(iBin);
+  }
+  pedestal /= nBinsForMean;
+
+  // Loop through the bins (NB bin numbering starts at 1!)
+  for (int iBin = 1; iBin <= hist->GetXaxis()->GetNbins(); iBin++) {
+    double binValue = hist->GetBinContent(iBin);
+    float binCenter = hist->GetBinCenter(iBin);
+
+    if (binValue != 0) { // make sure the bin's not empty
+      hPedSub->Fill(binCenter, binValue - pedestal);
+    }
+  }
+
+  return hPedSub;
 }
