@@ -6,6 +6,7 @@
 
 #include "FillHistBase.h"
 #include "SimpleHistograms.h"
+#include "FastSlowPulseAnalysis.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -66,6 +67,7 @@ int main(int argc, char **argv){
   fillhists = new FillHistBase *[20]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new SimpleHistograms("SimpleHistograms");
+  fillhists[n_fillhist++] = new FastSlowPulseAnalysis("FastSlowPulseAnalysis");
   
   fileOut->cd();
   root_event_loop();
