@@ -19,6 +19,7 @@ static TH1 *hNumberOfNoCoincidences = 0;
 SimpleHistograms::SimpleHistograms(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){
   hNumberOfNoCoincidences = new TH1F("hNumberOfNoCoincidences", "Number of missing coincidences per tree entry", 15, -1.5, 13.5);
+  dir->cd("/");
 }
 
 SimpleHistograms::~SimpleHistograms(){
