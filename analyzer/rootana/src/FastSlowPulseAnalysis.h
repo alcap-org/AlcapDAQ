@@ -4,10 +4,14 @@
 #include "FillHistBase.h"
 #include "TGlobalData.h"
 
+#include "TH1.h"
+
 class FastSlowPulseAnalysis : public FillHistBase{
  public:
   FastSlowPulseAnalysis(char *HistogramDirectoryName);
   ~FastSlowPulseAnalysis();
+  
+  TH1* Calibrate(TH1* hist, double x, double new_x);
 
  private:
   virtual int ProcessEntry(TGlobalData *gData);

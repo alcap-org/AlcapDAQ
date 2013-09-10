@@ -1,3 +1,8 @@
+// FastSlowPulseAnalysis.cpp
+// Author: Andrew Edmonds
+// Created: 10/09/2013
+// -- The fast / slow pulse analysis for runs 403 and 406 (elog:112)
+
 #include "FastSlowPulseAnalysis.h"
 #include <iostream>
 #include <stdio.h>
@@ -52,7 +57,9 @@ int FastSlowPulseAnalysis::ProcessEntry(TGlobalData *gData){
   	std::stringstream histname;
   	histname << "FastPulse" << fast_pulse_counter << "_Island" << islandIter - fast_pulse_islands.begin();;
   	fast_pulse_counter++;
-  	TH1F* hFastPulse = new TH1F(histname.str().c_str(), histname.str().c_str(), 200,0,200);
+  	TH1F* hFastPulse = new TH1F(histname.str().c_str(), histname.str().c_str(), 100,0,100);
+  	hFastPulse->GetXaxis()->SetTitle("Clock Ticks (since time stamp)");
+  	hFastPulse->GetYaxis()->SetTitle("Sample Value");
   
  	std::vector<int> theSamples = (*islandIter)->GetSamples();
 	  
@@ -63,6 +70,10 @@ int FastSlowPulseAnalysis::ProcessEntry(TGlobalData *gData){
   		hFastPulse->Fill(sampleCounter, *sampleIter);
   		sampleCounter++;
   	}
+  	
+  	// Now calibrate the pulse with 1 clock tick = clickTimeInNs()
+  	TH1F* hCalib = (TH1F*) Calibrate(hFastPulse, 1, (*islandIter)->GetClockTickInNs());
+  	hCalib->GetXaxis()->SetTitle("time / ns");
   }
   
   // Loop through the slow pulse islands and plot the pulse
@@ -71,6 +82,8 @@ int FastSlowPulseAnalysis::ProcessEntry(TGlobalData *gData){
   	histname << "SlowPulse" << slow_pulse_counter << "_Island" << islandIter - slow_pulse_islands.begin();;
   	slow_pulse_counter++;
   	TH1F* hSlowPulse = new TH1F(histname.str().c_str(), histname.str().c_str(), 200,0,200);
+  	hSlowPulse->GetXaxis()->SetTitle("Clock Ticks (since time stamp)");
+  	hSlowPulse->GetYaxis()->SetTitle("Sample Value");
   
  	std::vector<int> theSamples = (*islandIter)->GetSamples();
 	  
@@ -81,7 +94,38 @@ int FastSlowPulseAnalysis::ProcessEntry(TGlobalData *gData){
   		hSlowPulse->Fill(sampleCounter, *sampleIter);
   		sampleCounter++;
   	}
+  	
+  	// Now calibrate the pulse with 1 clock tick = clickTimeInNs()
+  	TH1F* hCalib = (TH1F*) Calibrate(hSlowPulse, 1, (*islandIter)->GetClockTickInNs());
+  	hCalib->GetXaxis()->SetTitle("time / ns");
   }
   return 0;
 }
 
+TH1* FastSlowPulseAnalysis::Calibrate(TH1* hist, double x, double new_x) { // changes x --> new_x
+
+  std::stringstream calibHistname;
+  calibHistname << "Calib_" << hist->GetName();
+
+  double scaling_factor = new_x / x;
+  double low_val = hist->GetBinLowEdge(1) * scaling_factor;
+  double high_val = hist->GetBinLowEdge(hist->GetXaxis()->GetNbins() + 1) * scaling_factor;
+  double n_bins = hist->GetXaxis()->GetNbins();
+
+  TH1F* hCalib  = new TH1F(calibHistname.str().c_str(), calibHistname.str().c_str(), n_bins, low_val, high_val);
+
+  hCalib->GetXaxis()->SetTitle(hist->GetXaxis()->GetTitle());
+  hCalib->GetYaxis()->SetTitle(hist->GetYaxis()->GetTitle());
+
+
+  // Now fill the calibrated histogram
+  for (int iBin = 1; iBin <= hist->GetXaxis()->GetNbins(); iBin++) {
+    double binCenter = hist->GetBinCenter(iBin) * scaling_factor;
+    double binContent = hist->GetBinContent(iBin);
+
+    if (binContent != 0) // ignore empty bins
+      hCalib->Fill(binCenter, binContent);
+
+  }
+  return hCalib;
+}
