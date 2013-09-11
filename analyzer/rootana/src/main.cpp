@@ -71,6 +71,10 @@ int main(int argc, char **argv){
   
   fileOut->cd();
   root_event_loop();
+  
+  for (int i_module = 0; i_module < n_fillhist; i_module++) {
+  	delete fillhists[i_module];
+  }
 
   fileOut->Write();
   fileOut->Close();
