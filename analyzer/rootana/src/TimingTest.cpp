@@ -29,7 +29,7 @@ using std::pair;
 static bool verbose = false;
 //static TH1 *hCCh7 = 0;
 
-static int CCh7_counter = 1;
+static int C7_counter = 1;
 
 
 TimingTest::TimingTest(char *HistogramDirectoryName) :
@@ -48,36 +48,36 @@ int TimingTest::ProcessEntry(TGlobalData *gData){
   typedef vector<TPulseIsland*>::iterator island_iterator;
   typedef vector<int>::iterator int_iterator;
 
-  vector<TPulseIsland*> C_Ch7_islands, C_Ch6_islands, B_Ch7_islands, A_Ch7_islands, B_Ch5_islands;
+  vector<TPulseIsland*> C7_islands, C6_islands, B7_islands, A7_islands, B5_islands;
 
   for(map_iterator iter = gData->fPulseIslandToChannelMap.begin();
       iter != gData->fPulseIslandToChannelMap.end(); iter++){
     if(strcmp((iter->first).data(), "Nhe0") == 0){
-      C_Ch7_islands = iter->second;
+      C7_islands = iter->second;
     }
     else if(strcmp((iter->first).data(), "Nge0") == 0){
-      C_Ch6_islands = iter->second;
+      C6_islands = iter->second;
     } 
     else if(strcmp((iter->first).data(), "Nhc0") == 0){
-      B_Ch7_islands = iter->second;
+      B7_islands = iter->second;
     }  
     else if(strcmp((iter->first).data(), "Nh80") == 0){
-      A_Ch7_islands = iter->second;
+      A7_islands = iter->second;
     }  
     else if(strcmp((iter->first).data(), "Nfc0") == 0){
-      B_Ch5_islands = iter->second;
+      B5_islands = iter->second;
     }
   }
   
   // Loop through the FADC C Ch 7 pulse islands and plot the pulse
-  for (island_iterator islandIter = C_Ch7_islands.begin(); islandIter != C_Ch7_islands.end(); islandIter++) {
+  for (island_iterator islandIter = C7_islands.begin(); islandIter != C7_islands.end(); islandIter++) {
   	std::stringstream histname;
-  	histname << "FADC-C_Ch-7_Number" << CCh7_counter << "_Island" << islandIter - C_Ch7_islands.begin();;
-  	CCh7_counter++;
+  	histname << "C7_Number" << C7_counter << "_Island" << islandIter - C7_islands.begin();;
+  	C7_counter++;
   	
-  	TH1F* hCCh7 = new TH1F(histname.str().c_str(), histname.str().c_str(), 100,0,100);
-  	hCCh7->GetXaxis()->SetTitle("Clock Ticks (since time stamp)");
-  	hCCh7->GetYaxis()->SetTitle("Sample Value");
+  	TH1F* hC7 = new TH1F(histname.str().c_str(), histname.str().c_str(), 100,0,100);
+  	hC7->GetXaxis()->SetTitle("Clock Ticks (since time stamp)");
+  	hC7->GetYaxis()->SetTitle("Sample Value");
   
  	std::vector<int> theSamples = (*islandIter)->GetSamples();
 	  
@@ -85,12 +85,12 @@ int TimingTest::ProcessEntry(TGlobalData *gData){
   	int sampleCounter = 0;
   	for (int_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
   		
-  		hCCh7->Fill(sampleCounter, *sampleIter);
+  		hC7->Fill(sampleCounter, *sampleIter);
   		sampleCounter++;
   	}
   	
   	// Now calibrate the pulse with 1 clock tick = clickTimeInNs()
-  	TH1F* hCalib = (TH1F*) Calibrate(hCCh7, 1, (*islandIter)->GetClockTickInNs());
+  	TH1F* hCalib = (TH1F*) Calibrate(hC7, 1, (*islandIter)->GetClockTickInNs());
   	hCalib->GetXaxis()->SetTitle("time / ns");
   	
 /*  	// Now remove the pedestal
