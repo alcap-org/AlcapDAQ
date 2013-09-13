@@ -27,14 +27,14 @@ using std::vector;
 using std::pair;
 
 static bool verbose = false;
-static TH1 *hC7_times = 0;
+static TH1 *hDiff_C7C6 = 0;
 static TH1 *hC6_times = 0;
 
 
 TimingTest::TimingTest(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){
   
-  hC7_times = new TH1F("hC7_times", "hC7_times", 200, 0, 200);
+  hDiff_C7C6 = new TH1F("hDiff_C7C6", "hDiff_C7C6", 200, -100, 100);
   hC6_times = new TH1F("hC6_times", "hC6_times", 200, 0, 200);
 
   dir->cd("/");
@@ -71,26 +71,27 @@ int TimingTest::ProcessEntry(TGlobalData *gData){
     }
   }
   
-  // Loop through the FADC C Ch 7 pulse islands and plot the pulse
-  for (island_iterator islandIter = C7_islands.begin(); islandIter != C7_islands.end(); islandIter++) {
+  // Check that all channels have the same number of islands
+  if (C7_islands.size() == C6_islands.size() && C7_islands.size() == B7_islands.size() 
+  		&& C7_islands.size() == A7_islands.size() && C7_islands.size() == B5_islands.size()) {
+  		
+  	// Loop through the islands
+  	for (int iIsland = 0; iIsland < C7_islands.size(); iIsland++) {
+  	
+  		// Get the pulse times for each channel
+  		// C7
+  		std::vector<int> theSamples = C7_islands[iIsland]->GetSamples();
+  		std::vector<double> thePedSubSamples = RemovePedestal(theSamples);
+  		double C7_pulse_time = GetPulseTime(thePedSubSamples) * C7_islands[iIsland]->GetClockTickInNs();
+  		
+  		// C6
+  		theSamples = C6_islands[iIsland]->GetSamples();
+  		thePedSubSamples = RemovePedestal(theSamples);
+  		double C6_pulse_time = GetPulseTime(thePedSubSamples) * C6_islands[iIsland]->GetClockTickInNs();
+  		
+  		hDiff_C7C6->Fill(C7_pulse_time - C6_pulse_time);
   
- 	std::vector<int> theSamples = (*islandIter)->GetSamples();
-  	
-  	// Remove the pedestal
-  	std::vector<double> thePedSubSamples = RemovePedestal(theSamples);
-  	
-  	hC7_times->Fill(GetPulseTime(thePedSubSamples) * (*islandIter)->GetClockTickInNs());
-  }
-  
-  // Loop through the FADC C Ch 6 pulse islands and plot the pulse
-  for (island_iterator islandIter = C6_islands.begin(); islandIter != C6_islands.end(); islandIter++) {
-  
- 	std::vector<int> theSamples = (*islandIter)->GetSamples();
-  	
-  	// Remove the pedestal
-  	std::vector<double> thePedSubSamples = RemovePedestal(theSamples);
-  	
-  	hC6_times->Fill(GetPulseTime(thePedSubSamples) * (*islandIter)->GetClockTickInNs());
+  	}
   }
   
   return 0;
