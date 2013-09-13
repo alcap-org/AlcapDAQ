@@ -27,13 +27,15 @@ using std::vector;
 using std::pair;
 
 static bool verbose = false;
-//static TH1 *hCCh7 = 0;
+static TH1 *hC7_times = 0;
 
 static int C7_counter = 1;
 
 
 TimingTest::TimingTest(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){
+  
+  hC7_times = new TH1F("hC7_times", "hC7_times", 200, 0, 200);
 
   dir->cd("/");
 }
@@ -93,11 +95,10 @@ int TimingTest::ProcessEntry(TGlobalData *gData){
   	TH1F* hCalib = (TH1F*) Calibrate(hC7, 1, (*islandIter)->GetClockTickInNs());
   	hCalib->GetXaxis()->SetTitle("time / ns");
   	
-/*  	// Now remove the pedestal
+  	// Now remove the pedestal
   	TH1F* hPedSub = (TH1F*) RemovePedestal(hCalib);
   	
-  	// Get the pulse integral
-  	fast_pulse_integrals.push_back(GetPulseIntegral(hPedSub));*/
+  	hC7_times->Fill(GetPulseTime(hPedSub));
   }
   
   return 0;
@@ -132,4 +133,51 @@ TH1* TimingTest::Calibrate(TH1* hist, double x, double new_x) {
 
   }
   return hCalib;
+}
+
+// RemovePedestal()
+// -- Assumes the pedestal is the mean of the first five bins
+// -- Subtracts this from all the values
+TH1* TimingTest::RemovePedestal(TH1* hist) {
+
+  std::stringstream pedSubHistname;
+  pedSubHistname << "PedSub_" << hist->GetName();
+
+  double low_val = hist->GetBinLowEdge(1);
+  double high_val = hist->GetBinLowEdge(hist->GetXaxis()->GetNbins() + 1);
+  int n_bins = hist->GetXaxis()->GetNbins();
+
+  // Create the pedestal subtracted histogram
+  TH1F* hPedSub = new TH1F(pedSubHistname.str().c_str(), pedSubHistname.str().c_str(), n_bins,low_val,high_val);
+  hPedSub->GetXaxis()->SetTitle(hist->GetXaxis()->GetTitle());
+  hPedSub->GetYaxis()->SetTitle(hist->GetYaxis()->GetTitle());  
+
+  // Loop through the first few bins and take the mean value for the pedestal
+  double pedestal = 0.0;
+  int nBinsForMean = 5;
+  for (int iBin = 1; iBin <= nBinsForMean; iBin++) {
+    pedestal += hist->GetBinContent(iBin);
+  }
+  pedestal /= nBinsForMean;
+
+  // Loop through the bins (NB bin numbering starts at 1!)
+  for (int iBin = 1; iBin <= hist->GetXaxis()->GetNbins(); iBin++) {
+    double binValue = hist->GetBinContent(iBin);
+    float binCenter = hist->GetBinCenter(iBin);
+
+    if (binValue != 0) { // make sure the bin's not empty
+      hPedSub->Fill(binCenter, binValue - pedestal);
+    }
+  }
+
+  return hPedSub;
+}
+
+// GetPulseTime()
+// - Returns the time of the pulse height
+// - NB assuming a negative pulse
+double TimingTest::GetPulseTime(TH1* pulse_hist) {
+  
+  double pulse_time = pulse_hist->GetBinCenter(pulse_hist->GetMinimumBin());
+  return pulse_time;
 }
