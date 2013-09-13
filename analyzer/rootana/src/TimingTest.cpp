@@ -28,14 +28,17 @@ using std::pair;
 
 static bool verbose = false;
 static TH1 *hC7_times = 0;
-
 static int C7_counter = 1;
+
+static TH1 *hC6_times = 0;
+static int C6_counter = 1;
 
 
 TimingTest::TimingTest(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){
   
   hC7_times = new TH1F("hC7_times", "hC7_times", 200, 0, 200);
+  hC6_times = new TH1F("hC6_times", "hC6_times", 200, 0, 200);
 
   dir->cd("/");
 }
@@ -99,6 +102,36 @@ int TimingTest::ProcessEntry(TGlobalData *gData){
   	TH1F* hPedSub = (TH1F*) RemovePedestal(hCalib);
   	
   	hC7_times->Fill(GetPulseTime(hPedSub));
+  }
+  
+  // Loop through the FADC C Ch 6 pulse islands and plot the pulse
+  for (island_iterator islandIter = C6_islands.begin(); islandIter != C6_islands.end(); islandIter++) {
+  	std::stringstream histname;
+  	histname << "C6_Number" << C6_counter << "_Island" << islandIter - C6_islands.begin();;
+  	C6_counter++;
+  	
+  	TH1F* hC6 = new TH1F(histname.str().c_str(), histname.str().c_str(), 100,0,100);
+  	hC6->GetXaxis()->SetTitle("Clock Ticks (since time stamp)");
+  	hC6->GetYaxis()->SetTitle("Sample Value");
+  
+ 	std::vector<int> theSamples = (*islandIter)->GetSamples();
+	  
+  	// Loop through the samples
+  	int sampleCounter = 0;
+  	for (int_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
+  		
+  		hC6->Fill(sampleCounter, *sampleIter);
+  		sampleCounter++;
+  	}
+  	
+  	// Now calibrate the pulse with 1 clock tick = clickTimeInNs()
+  	TH1F* hCalib = (TH1F*) Calibrate(hC6, 1, (*islandIter)->GetClockTickInNs());
+  	hCalib->GetXaxis()->SetTitle("time / ns");
+  	
+  	// Now remove the pedestal
+  	TH1F* hPedSub = (TH1F*) RemovePedestal(hCalib);
+  	
+  	hC6_times->Fill(GetPulseTime(hPedSub));
   }
   
   return 0;
