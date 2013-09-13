@@ -12,9 +12,9 @@ class TimingTest : public FillHistBase{
   ~TimingTest();
   
   TH1* Calibrate(TH1* hist, double x, double new_x);
-  TH1* RemovePedestal(TH1* hist);
+  std::vector<double> RemovePedestal(std::vector<int> samples);
   
-  double GetPulseTime(TH1* pulse_hist);
+  double GetPulseTime(std::vector<double> samples);
 
  private:
   virtual int ProcessEntry(TGlobalData *gData);
