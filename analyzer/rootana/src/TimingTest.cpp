@@ -58,6 +58,42 @@ TimingTest::TimingTest(char *HistogramDirectoryName) :
   hDiff_B5A7 = new TH1F("hDiff_B5A7", "hDiff_B5A7", 32, -100, 100);
   
   hDiff_C7B5 = new TH1F("hDiff_C7B5", "hDiff_C7B5", 32, -100, 100);
+  
+  
+  hDiff_C7C6->GetXaxis()->SetTitle("Time Difference / ns");
+  hDiff_B7C6->GetXaxis()->SetTitle("Time Difference / ns");
+  hDiff_A7C6->GetXaxis()->SetTitle("Time Difference / ns");
+  hDiff_B5C6->GetXaxis()->SetTitle("Time Difference / ns");
+  hDiff_C7B7->GetXaxis()->SetTitle("Time Difference / ns");
+  hDiff_A7B7->GetXaxis()->SetTitle("Time Difference / ns");
+  hDiff_B5B7->GetXaxis()->SetTitle("Time Difference / ns");
+  hDiff_C7A7->GetXaxis()->SetTitle("Time Difference / ns");
+  hDiff_B5A7->GetXaxis()->SetTitle("Time Difference / ns");
+  hDiff_C7B5->GetXaxis()->SetTitle("Time Difference / ns");
+  
+    
+  hDiff_C7C6->GetYaxis()->SetTitle("Number of Pulses");
+  hDiff_B7C6->GetYaxis()->SetTitle("Number of Pulses");
+  hDiff_A7C6->GetYaxis()->SetTitle("Number of Pulses");
+  hDiff_B5C6->GetYaxis()->SetTitle("Number of Pulses");
+  hDiff_C7B7->GetYaxis()->SetTitle("Number of Pulses");
+  hDiff_A7B7->GetYaxis()->SetTitle("Number of Pulses");
+  hDiff_B5B7->GetYaxis()->SetTitle("Number of Pulses");
+  hDiff_C7A7->GetYaxis()->SetTitle("Number of Pulses");
+  hDiff_B5A7->GetYaxis()->SetTitle("Number of Pulses");
+  hDiff_C7B5->GetYaxis()->SetTitle("Number of Pulses");
+    
+    
+  hDiff_C7C6->SetTitle("Time Difference between channels C7 (2ns) and C6 (5ns)");
+  hDiff_B7C6->SetTitle("Time Difference between channels B7 (5ns) and C6 (5ns)");
+  hDiff_A7C6->SetTitle("Time Difference between channels A7 (1+5ns) and C6 (5ns)");
+  hDiff_B5C6->SetTitle("Time Difference between channels B5 (1+2ns) and C6 (5ns)");
+  hDiff_C7B7->SetTitle("Time Difference between channels C7 (2ns) and B7 (5ns)");
+  hDiff_A7B7->SetTitle("Time Difference between channels A7 (1+5ns) and B7 (5ns)");
+  hDiff_B5B7->SetTitle("Time Difference between channels B5 (1+2ns) and B7 (5ns)");
+  hDiff_C7A7->SetTitle("Time Difference between channels C7 (2ns) and A7 (1+5ns)");
+  hDiff_B5A7->SetTitle("Time Difference between channels B5 (1+2ns) and A7 (1+5ns)");
+  hDiff_C7B5->SetTitle("Time Difference between channels C7 (2ns) and B5 (1+2ns)");
 
   dir->cd("/");
 }
