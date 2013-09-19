@@ -51,7 +51,6 @@ int PlotPulses::ProcessEntry(TGlobalData *gData){
     for (island_iterator islandIter = theIslands.begin(); islandIter != theIslands.end(); islandIter++) {
   		std::stringstream histname;
   		histname << "Entry" << entry_counter << "Bank" << iter->first << "_Island" << islandIter - theIslands.begin();;
-		entry_counter++;
 		
 		// Plot the pulse as it is
 		TH1F* hPulse = new TH1F(histname.str().c_str(), histname.str().c_str(), 100,0,100);
@@ -77,6 +76,7 @@ int PlotPulses::ProcessEntry(TGlobalData *gData){
   	}
   }
   
+  entry_counter++;
   return 0;
 }
 
