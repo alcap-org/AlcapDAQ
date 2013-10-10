@@ -9,7 +9,7 @@ class PulseFinder : public FillHistBase{
   PulseFinder(char *HistogramDirectoryName);
   ~PulseFinder();
   
-  double GetPedestal(std::vector<int> samples);
+  void GetPedestalAndRMS(std::vector<int> samples, double& pedestal, double& RMS);
 
  private:
   virtual int ProcessEntry(TGlobalData *gData);
