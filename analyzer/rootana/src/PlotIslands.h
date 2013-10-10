@@ -1,15 +1,15 @@
-#ifndef PlotPulses_h__
-#define PlotPulses_h__
+#ifndef PlotIslands_h__
+#define PlotIslands_h__
 
 #include "FillHistBase.h"
 #include "TGlobalData.h"
 
 #include "TH1.h"
 
-class PlotPulses : public FillHistBase{
+class PlotIslands : public FillHistBase{
  public:
-  PlotPulses(char *HistogramDirectoryName);
-  ~PlotPulses();
+  PlotIslands(char *HistogramDirectoryName);
+  ~PlotIslands();
   
   TH1* Calibrate(TH1* hist, double x, double new_x);
   TH1* RemovePedestal(TH1* hist);

@@ -1,9 +1,9 @@
-// PlotPulses.cpp
+// PlotIslands.cpp
 // Author: Andrew Edmonds
 // Created: 19/09/2013
 // -- A module that plots the calibrated pulse and the pedestal subtracted pulse
 
-#include "PlotPulses.h"
+#include "PlotIslands.h"
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,16 +24,16 @@ static bool verbose = false;
 static int entry_counter = 1;
 
 
-PlotPulses::PlotPulses(char *HistogramDirectoryName) :
+PlotIslands::PlotIslands(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){
 
   dir->cd("/");
 }
 
-PlotPulses::~PlotPulses() {
+PlotIslands::~PlotIslands() {
 }
 
-int PlotPulses::ProcessEntry(TGlobalData *gData){
+int PlotIslands::ProcessEntry(TGlobalData *gData){
   typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
@@ -83,7 +83,7 @@ int PlotPulses::ProcessEntry(TGlobalData *gData){
 // Calibrate()
 // -- Takes a calibration point (i.e. x --> new_x) and calculates the scaling factor
 // -- Reassigns the old bin contents to new bin centers
-TH1* PlotPulses::Calibrate(TH1* hist, double x, double new_x) {
+TH1* PlotIslands::Calibrate(TH1* hist, double x, double new_x) {
 
   std::stringstream calibHistname;
   calibHistname << "Calib_" << hist->GetName();
@@ -114,7 +114,7 @@ TH1* PlotPulses::Calibrate(TH1* hist, double x, double new_x) {
 // RemovePedestal()
 // -- Assumes the pedestal is the mean of the first five bins
 // -- Subtracts this from all the values
-TH1* PlotPulses::RemovePedestal(TH1* hist) {
+TH1* PlotIslands::RemovePedestal(TH1* hist) {
 
   std::stringstream pedSubHistname;
   pedSubHistname << "PedSub_" << hist->GetName();
