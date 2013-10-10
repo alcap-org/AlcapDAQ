@@ -11,6 +11,7 @@
 #include <map>
 #include <utility>
 
+#include <sstream>
 #include <cmath>
 
 #include "TH1.h"
@@ -21,11 +22,10 @@ using std::vector;
 using std::pair;
 
 static bool verbose = true;
-static TH1 *hPulse = 0;
+static int entry_counter = 1;
 
 PulseFinder::PulseFinder(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){
-  hPulse = new TH1F("hPulse", "The pulse found", 15, -1.5, 13.5);
   dir->cd("/");
 }
 
@@ -37,6 +37,7 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
   typedef vector<TPulseIsland*>::iterator island_iterator;
+  typedef vector<int>::iterator int_iterator;
 
   vector<TPulseIsland*> islands;
 
@@ -49,15 +50,25 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 
   for (island_iterator islandIter = islands.begin(); islandIter != islands.end(); islandIter++) {
   
+  	// Create the histogram
+  	std::stringstream histname;
+  	histname << "Entry" << entry_counter << "_Island" << islandIter - islands.begin();
+  	TH1F* hIsland = new TH1F(histname.str().c_str(), histname.str().c_str(), 100, 0, 100);
+  	
   	// Get the samples
   	std::vector<int> theSamples = (*islandIter)->GetSamples();
+  	
+  	// Fill the histogram
+  	for (int_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
+  		hIsland->Fill(sampleIter - theSamples.begin(), *sampleIter);
+  	}
   	
   	// Get the pedestal and RMS
   	double pedestal = 0; double RMS = 0;
   	GetPedestalAndRMS(theSamples, pedestal, RMS);
   }
 
-
+  entry_counter++;
   return 0;
 }
 
