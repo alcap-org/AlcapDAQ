@@ -16,6 +16,9 @@
 
 #include "TH1.h"
 
+#include "TCanvas.h"
+#include "TLine.h"
+
 using std::string;
 using std::map;
 using std::vector;
@@ -38,6 +41,8 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
   typedef vector<TPulseIsland*>::iterator island_iterator;
   typedef vector<int>::iterator int_iterator;
+  
+  int bin_min = 0; int bin_max = 50; int n_bins = bin_max;
 
   vector<TPulseIsland*> islands;
 
@@ -53,7 +58,7 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
   	// Create the histogram
   	std::stringstream histname;
   	histname << "Entry" << entry_counter << "_Island" << islandIter - islands.begin();
-  	TH1F* hIsland = new TH1F(histname.str().c_str(), histname.str().c_str(), 100, 0, 100);
+  	TH1F* hIsland = new TH1F(histname.str().c_str(), histname.str().c_str(), n_bins, bin_min, bin_max);
   	
   	// Get the samples
   	std::vector<int> theSamples = (*islandIter)->GetSamples();
@@ -66,8 +71,45 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
   	// Get the pedestal and RMS
   	double pedestal = 0; double RMS = 0;
   	GetPedestalAndRMS(theSamples, pedestal, RMS);
-  }
+  	
+  	std::stringstream canvasname;
+  	canvasname << "Canvas_Entry" << entry_counter << "_Island" << islandIter - islands.begin();
+  	TCanvas* c1 = new TCanvas(canvasname.str().c_str(), canvasname.str().c_str());
+  	
+  	hIsland->Draw();
+  	
+  	// Plot a line on the histogram of the pedestal and RMS
+  	TLine* pedestal_line = new TLine(bin_min, pedestal, bin_max, pedestal);
+    pedestal_line->SetLineStyle(1);
+    pedestal_line->Draw();
+    
+  	TLine* upper_rms_line = new TLine(bin_min, pedestal+RMS, bin_max, pedestal+RMS);
+  	upper_rms_line->SetLineColor(kRed);
+    upper_rms_line->SetLineStyle(7);
+    upper_rms_line->Draw();
+    
+  	TLine* lower_rms_line = new TLine(bin_min, pedestal-RMS, bin_max, pedestal-RMS);
+  	lower_rms_line->SetLineColor(kRed);
+    lower_rms_line->SetLineStyle(7);
+    lower_rms_line->Draw();
+    
+  	c1->Update();
+  	c1->Write();
+    
+    if (verbose) {
+    	std::cout << "Pedestal Line: (" << pedestal_line->GetX1() << "," << pedestal_line->GetY1() 
+    				<< ") to (" << pedestal_line->GetX2() << "," << pedestal_line->GetY2() << ")" << std::endl;
+    	std::cout << "Upper RMS Line: (" << upper_rms_line->GetX1() << "," << upper_rms_line->GetY1() 
+    				<< ") to (" << upper_rms_line->GetX2() << "," << upper_rms_line->GetY2() << ")" << std::endl;
+    	std::cout << "Lower RMS Line: (" << lower_rms_line->GetX1() << "," << lower_rms_line->GetY1() 
+    				<< ") to (" << lower_rms_line->GetX2() << "," << lower_rms_line->GetY2() << ")" << std::endl;
+    }
+    	
+    if (verbose) // line break between islands
+  		std::cout << std::endl;
 
+  }
+  
   entry_counter++;
   return 0;
 }
@@ -102,7 +144,4 @@ void PulseFinder::GetPedestalAndRMS(std::vector<int> samples, double& pedestal, 
   
   if (verbose)
   	std::cout << "RMS: " << RMS << std::endl;
-  
-  if (verbose)
-  	std::cout << std::endl;
 }
