@@ -122,7 +122,8 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
     bool pulse_found = false;
     std::vector<TH1F*> hPulseHists;
     
-    for (int_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
+    // NB end two elements before the end so that the iterator isn't inspecting some random bit of memory
+    for (int_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end()-2; sampleIter++) { 
     	
     	// Ignore bins with sample value of 0
     	if (*sampleIter == 0 || *(sampleIter+2) == 0) {
