@@ -41,34 +41,38 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
   typedef vector<TPulseIsland*>::iterator island_iterator;
   typedef vector<int>::iterator int_iterator;
-  
-  int bin_min = 0; int bin_max = 50; int n_bins = bin_max;
 
   vector<TPulseIsland*> islands;
 
   for(map_iterator iter = gData->fPulseIslandToChannelMap.begin();
       iter != gData->fPulseIslandToChannelMap.end(); iter++){
-    if(strcmp((iter->first).data(), "Nhe0") == 0){
+    if(strcmp((iter->first).data(), "Nh80") == 0){
       islands = iter->second;
     }   
   }
 
   for (island_iterator islandIter = islands.begin(); islandIter != islands.end(); islandIter++) {
   
+  	if (verbose)
+  		std::cout << "Entry " << entry_counter << " Island " << islandIter - islands.begin() << std::endl;
+  		
+  	// Get the samples
+  	std::vector<int> theSamples = (*islandIter)->GetSamples();
+  	
+  	
   	// Create the histogram
   	std::stringstream histname;
   	histname << "Entry" << entry_counter << "_Island" << islandIter - islands.begin();
+  	
+  	int bin_min = 0; int bin_max = theSamples.size(); int n_bins = bin_max;
   	TH1F* hIsland = new TH1F(histname.str().c_str(), histname.str().c_str(), n_bins, bin_min, bin_max);
   	
-  	if (verbose)
-  		std::cout << "Entry " << entry_counter << " Island " << islandIter - islands.begin() << std::endl;
-  	// Get the samples
-  	std::vector<int> theSamples = (*islandIter)->GetSamples();
   	
   	// Fill the histogram
   	for (int_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
   		hIsland->Fill(sampleIter - theSamples.begin(), *sampleIter);
   	}
+  	
   	
   	// Get the pedestal and RMS
   	double pedestal = 0; double RMS = 0;
@@ -79,6 +83,7 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
   	TCanvas* c1 = new TCanvas(canvasname.str().c_str(), canvasname.str().c_str());
   	
   	hIsland->Draw();
+  	
   	
   	// Plot a line on the histogram of the pedestal and RMS
   	TLine* pedestal_line = new TLine(bin_min, pedestal, bin_max, pedestal);
@@ -107,6 +112,7 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
     	std::cout << "Lower RMS Line: (" << lower_rms_line->GetX1() << "," << lower_rms_line->GetY1() 
     				<< ") to (" << lower_rms_line->GetX2() << "," << lower_rms_line->GetY2() << ")" << std::endl;
     }
+    
     
     
     // Loop through the samples and find the start of the pulse
