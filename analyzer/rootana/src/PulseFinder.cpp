@@ -46,7 +46,7 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 
   for(map_iterator iter = gData->fPulseIslandToChannelMap.begin();
       iter != gData->fPulseIslandToChannelMap.end(); iter++){
-    if(strcmp((iter->first).data(), "Nh80") == 0){
+    if(strcmp((iter->first).data(), "Nhe0") == 0){
       islands = iter->second;
     }   
   }
@@ -123,13 +123,7 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
     std::vector<TH1F*> hPulseHists;
     
     // NB end two elements before the end so that the iterator isn't inspecting some random bit of memory
-    for (int_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end()-2; sampleIter++) { 
-    	
-    	// Ignore bins with sample value of 0
-    	if (*sampleIter == 0 || *(sampleIter+2) == 0) {
-    		pulse_found = false;
-    		break;
-    	}
+    for (int_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end()-2; sampleIter++) {
     
   		if ( *(sampleIter) < pedestal && *(sampleIter+2) < (pedestal - 5*RMS) && *(sampleIter+1) < *(sampleIter) && pulse_found == false) {
   			// Found a pulse
