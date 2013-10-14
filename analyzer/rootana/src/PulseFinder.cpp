@@ -24,7 +24,7 @@ using std::map;
 using std::vector;
 using std::pair;
 
-static bool verbose = true;
+static bool verbose = false;
 static int entry_counter = 1;
 
 PulseFinder::PulseFinder(char *HistogramDirectoryName) :
@@ -50,6 +50,9 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
       islands = iter->second;
     }   
   }
+
+	
+  int total_pulse_counter = 0; // to keep track of the total number of pulses in the entry
 
   for (island_iterator islandIter = islands.begin(); islandIter != islands.end(); islandIter++) {
   
@@ -157,13 +160,17 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
   				pulse_found = false; // no longer have a pulse
   		}
   	} 
-    	
+  	
+    total_pulse_counter += pulse_counter; // keep track of the total number of pulses in the entry
+    
     if (verbose) // line break between islands
   		std::cout << std::endl;
 
   }
-  
+  std::cout << total_pulse_counter << " pulses found in entry " << entry_counter << std::endl;
+ 
   entry_counter++;
+  
   return 0;
 }
 
