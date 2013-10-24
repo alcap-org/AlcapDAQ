@@ -1,0 +1,116 @@
+
+# EPICSGFA_PIE1_bl.setup
+#
+# Loadfile for PIE3 beamline using EPICSGFA fe
+# CA_Name      ,<usd>,<rdonly>,<chan flags>,<MidasName>,<minval>,<maxval>,<thresh>,<tol>
+#              ,y/[n],[y]/n,[US],[CA_Name],[0.0] , [0.0]  , [0.1]   ,[0.0]
+# <40Char,                              ,  <32Char
+# CA_NAME        U   Ro  Fl  Midas_Name   Minval    Maxval  Thres     Tolerance
+#
+MHC4:IST:2     , y , y , I , Protons
+#
+QTH51:SOL:2    , y , n , IFZMCT , QTH51 Demand       ,-100.0,100.0,         , 0.1 , 0.2      # QUAD
+QTH51:IST:2    , y , y , I , QTH51 Actual
+#
+QTH52:SOL:2    , y , n , IFZMCT , QTH52 Demand       ,-100.0,100.0,         , 0.1 , 0.2      # QUAD
+QTH52:IST:2    , y , y , I , QTH52 Actual
+# 
+FSH51:SOL:2   , y , n , IVMCF , FSH51 Demand        ,         ,       , 0.1,  1.0	# FENTE
+FSH51:IST1:2  , y , y , IG , FSH51 Actual       ,         ,       , 0.1 
+#
+QTH53:SOL:2    , y , n , IFZMCT , QTH53 Demand       ,-100.0,100.0,         , 0.1 , 0.2      # QUAD
+QTH53:IST:2    , y , y , I , QTH53 Actual
+# 
+ASZ51:SOL:2    , y , n , IFZMCT , ASZ51 Demand       ,-200.0,200.0,         , 0.1 , 0.4     # BEND
+ASZ51:IST:2    , y , y , I , ASZ51 Actual
+# 
+KSG51:COM:2    , y , n , I , Beamblock Command                                  # BX
+KSG51:STA:1    , y , y , IG , Beamblock Status
+#  
+QTB51:SOL:2    , y , n , IFZMCT , QTB51 Demand        ,-100.0,100.0,         , 0.1 , 0.2   # QUAD
+QTB51:IST:2    , y , y , I , QTB51 Actual
+# 
+QTB52:SOL:2    , y , n , IFZMCT , QTB52 Demand        ,-100.0,100.0,         , 0.1 , 0.2   # QUAD
+QTB52:IST:2    , y , y , I , QTB52 Actual
+# 
+DSC51-L:SOL:2    , y , n , IFZMCT , DSC51-L Demand    ,-100.0,100.0,         , 0.1 , 0.2   # Degrader left
+DSC51-L:IST:2    , y , y , I    , DSC51-L Actual
+# 
+DSC51-R:SOL:2    , y , n , IFZMCT , DSC51-R Demand    ,-100.0,100.0,         , 0.1 , 0.2   # Degrader right
+DSC51-R:IST:2    , y , y , I    , DSC51-R Actual
+# 
+#FSH52:SOL:2   , y , n , IVMCF , FSH52 Demand       ,         ,       , 0.1     , 1.0    # FENTE
+#FSH52:IST1:2  , y , y , IG    , FSH52 Actual       ,         ,        , 0.1 
+# 
+ASY51:SOL:2    , y , n , IFZMCT, ASY51 Demand         ,-200.0,200.0,         , 0.1 , 0.4   # BEND
+ASY51:IST:2    , y , y , I ,     ASY51 Actual
+# 
+QSL51:SOL:2    , y , n , IFZMCT, QSL51 Demand         ,-100.0,100.0,         , 0.1 , 0.2   # QUAD
+QSL51:IST:2    , y , y , I    , QSL51 Actual
+# 
+QSL52:SOL:2    , y , n , IFZMCT, QSL52 Demand         ,-100.0,100.0,         , 0.1 , 0.2   # QUAD
+QSL52:IST:2    , y , y , I    , QSL52 Actual
+# 
+#FS53-L:SOL:2   , y , n , IVMCF, FS53-L Demand        ,         ,       , 0.1     , 1.0    # FENTE
+#FS53-L:IST1:2  , y , y , IG    , FS53-L Actual       ,         ,       , 0.1 
+#FS53-R:SOL:2   , y , n , IVMCF, FS53-R Demand        ,         ,       , 0.1     , 1.0    # FENTE
+#FS53-R:IST1:2  , y , y , IG    , FS53-R Actual       ,         ,       , 0.1 
+#FS53-O:SOL:2   , y , n , IVMCF, FS53-O Demand        ,         ,       , 0.1     , 1.0    # FENTE
+#FS53-O:IST1:2  , y , y , IG    , FS53-O Actual       ,         ,       , 0.1 
+#FS53-U:SOL:2   , y , n , IVMCF, FS53-U Demand        ,         ,       , 0.1     , 1.0    # FENTE
+#FS53-U:IST1:2  , y , y , IG    , FS53-U Actual       ,         ,       , 0.1 
+# 
+ASL51:SOL:2    , y , n , IFZMCT, ASL51 Demand        ,-200.0,200.0,         , 0.1 , 0.4   # BEND
+ASL51:IST:2    , y , y , I ,     ASL51 Actual
+# 
+QSL53:SOL:2    , y , n , IFZMCT, QSL53 Demand        ,-100.0,100.0,         , 0.1 , 0.2   # QUAD
+QSL53:IST:2    , y , y , I    , QSL53 Actual
+# 
+QSL54:SOL:2    , y , n , IFZMCT, QSL54 Demand        ,-100.0,100.0,         , 0.1 , 0.2   # QUAD
+QSL54:IST:2    , y , y , I    , QSL54 Actual
+
+#################Inside PiE1############ 
+
+SSK51:SOL:2   , y , n , IFZMCT, SSK51 Demand          ,-200.0,200.0,         , 0.1 , 0.4    # STER
+SSK51:IST:2   , y , y , I,     SSK51 Actual      
+# 
+SEP2:SOL:2    , y , n , IFZMCT, SEP2 Demand         ,-500.0,500.0,         , 0.1 , 1.0   # PS  
+SEP2:IST:2    , y , y , I,     SEP2 Actual     
+# 
+QSE51:SOL:2    , y , n , IFZMCT, QSE51 Demand        ,-100.0,100.0,         , 0.1 , 0.2   # QUAD
+QSE51:IST:2    , y , y , I    , QSE51 Actual
+# 
+QSE52:SOL:2    , y , n , IFZMCT, QSE52 Demand        ,-100.0,100.0,         , 0.1 , 0.2   # QUAD
+QSE52:IST:2    , y , y , I    , QSE52 Actual
+# 
+ASK51:SOL:2    , y , n , IFZMCT, ASK51 Demand        ,-200.0,200.0,         , 0.1 , 0.4   # BEND
+ASK51:IST:2    , y , y , I ,     ASK51 Actual
+# 
+QSN51:SOL:2    , y , n , IFZMCT, QSN51 Demand        ,-100.0,100.0,         , 0.1 , 0.2   # QUAD
+QSN51:IST:2    , y , y , I    , QSN51 Actual
+# 
+QSL55:SOL:2    , y , n , IFZMCT, QSL55 Demand        ,-100.0,100.0,         , 0.1 , 0.2    # QUAD
+QSL55:IST:2    , y , y , I,     QSL55 Actual     
+# 
+QSN52:SOL:2    , y , n , IFZMCT, QSN52 Demand        ,-100.0,100.0,         , 0.1 , 0.2    # QUAD
+QSN52:IST:2    , y , y , I,     QSN52 Actual     
+# 
+#FS54-L:SOL:2   , y , n , IVMCF, FS54-L Demand        ,         ,       , 0.1     , 1.0     # FENTE
+#FS54-L:IST1:2  , y , y , IG    , FS54-L Actual       ,         ,       , 0.1
+#FS54-R:SOL:2   , y , n , IVMCF, FS54-R Demand        ,         ,       , 0.1     , 1.0     # FENTE
+#FS54-R:IST1:2  , y , y , IG    , FS54-R Actual       ,         ,       , 0.1 
+#FS54-O:SOL:2   , y , n , IVMCF, FS54-O Demand        ,         ,       , 0.1     , 1.0     # FENTE
+#FS54-O:IST1:2  , y , y , IG    , FS54-O Actual       ,         ,       , 0.1 
+#FS54-U:SOL:2   , y , n , IVMCF, FS54-U Demand        ,         ,       , 0.1     , 1.0     # FENTE
+#FS54-U:IST1:2  , y , y , IG    , FS54-U Actual       ,         ,       , 0.1 
+# 
+QSN53:SOL:2    , y , n , IFZMCT, QSN53 Demand        ,-100.0,100.0,         , 0.1 , 0.2    # QUAD
+QSN53:IST:2    , y , y , I,     QSN53 Actual   
+# 
+QSL56:SOL:2    , y , n , IFZMCT, QSL56 Demand        ,-100.0,100.0,         , 0.1 , 0.2    # QUAD
+QSL56:IST:2    , y , y , I,     QSL56 Actual   
+# 
+QSN54:SOL:2    , y , n , IFZMCT, QSN54 Demand        ,-100.0,100.0,         , 0.1 , 0.2    # QUAD
+QSN54:IST:2    , y , y , I,     QSN54 Actual   
+##########################################################################################
+#EOF EPICSGFA_PIE1_bl.setup

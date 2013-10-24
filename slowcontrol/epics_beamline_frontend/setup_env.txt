@@ -1,0 +1,3 @@
+export EPICS_CA_SERVER_PORT=5062
+export EPICS_CA_ADDR_LIST=hipa-cagw01.psi.ch
+export EPICS_CA_AUTO_ADDR_LIST=NO 
