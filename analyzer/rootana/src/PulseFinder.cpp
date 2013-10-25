@@ -52,6 +52,7 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
   int bin_min = 0; int bin_max = 0; int n_bins = 0;
 
   vector<TPulseIsland*> islands;
+  vector<TPulseIsland*> pulses;
  
   int total_pulse_counter = 0; // to keep track of the total number of pulses in the entry
   
@@ -139,6 +140,8 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	    bool pulse_found = false;
 	    
 	    std::vector<TH1F*> hPulseHists; // filled only if plotting the pulses
+	    std::vector<int> pulse_samples; // the sample values for the pulse
+	    int pulse_timestamp; // the timestamp for the pulse is the timestamp for the island plus the position of the first sample of the pulse
 	    
 	    // NB end an element before the end so that the iterator isn't inspecting some random bit of memory
 	    for (int_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end()-1; sampleIter++) {
@@ -162,6 +165,7 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	  			
 	  				hPulseHists.push_back(hPulse); 
 	  			}
+	  			pulse_timestamp = (*islandIter)->GetTimeStamp() + (sampleIter - theSamples.begin());
 	  			pulse_counter++;		
 	  			pulse_found = true;
 	  		}
@@ -175,6 +179,8 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	  					std::cout << "Pulse filled at " << sampleIter - theSamples.begin() << " with sample value " << *sampleIter << std::endl;
 	  			}
 	  			
+	  			pulse_samples.push_back(*(sampleIter)); // add this sample to the vector for the pulse
+	  			
 	  			// Check to see if we are at the end of the pulse
 	  			// Take the mean of this sample and the next two and if it's roughly the pedestal then end the pulse
 	  			double mean = ( *(sampleIter) + *(sampleIter+1) + *(sampleIter+2) ) / 3;
@@ -182,6 +188,14 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	  				pulse_found = false; // no longer have a pulse
 	  		}
 	  	}
+	  	
+	  	// Create the TPulseIsland for the pulse
+	  	TPulseIsland pulse(pulse_timestamp, pulse_samples, (*islandIter)->GetClockTickInNs(), "Pulses"); 
+	  	pulses.push_back(&pulse);
+	  	
+	  	// Create the std::pair so that we can add it to gData
+	  	std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Pulses", pulses);
+	  	gData->fPulseIslandToChannelMap.insert(thePair);
 	  	
 	    total_pulse_counter += pulse_counter; // keep track of the total number of pulses in the entry
 	    grand_total_pulse_counter += pulse_counter;
@@ -192,8 +206,10 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	  }
   }
   std::cout << total_pulse_counter << " pulses found in entry " << entry_counter << std::endl;
-  std::cout << "Total number of islands = " << total_island_counter << std::endl;
-  std::cout << "Grand total number of pulses = " << grand_total_pulse_counter << std::endl;
+  if (verbose) {
+  	std::cout << "Total number of islands = " << total_island_counter << std::endl;
+  	std::cout << "Grand total number of pulses = " << grand_total_pulse_counter << std::endl;
+  }
   entry_counter++;
   
   return 0;
