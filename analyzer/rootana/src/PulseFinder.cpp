@@ -193,10 +193,6 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	  	TPulseIsland pulse(pulse_timestamp, pulse_samples, (*islandIter)->GetClockTickInNs(), "Pulses"); 
 	  	pulses.push_back(&pulse);
 	  	
-	  	// Create the std::pair so that we can add it to gData
-	  	std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Pulses", pulses);
-	  	gData->fPulseIslandToChannelMap.insert(thePair);
-	  	
 	    total_pulse_counter += pulse_counter; // keep track of the total number of pulses in the entry
 	    grand_total_pulse_counter += pulse_counter;
 	    
@@ -205,6 +201,11 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 
 	  }
   }
+  
+  // Create the std::pair so that we can add it to gData
+  std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Pulses", pulses);
+  gData->fPulseIslandToChannelMap.insert(thePair);
+	  	
   std::cout << total_pulse_counter << " pulses found in entry " << entry_counter << std::endl;
   if (verbose) {
   	std::cout << "Total number of islands = " << total_island_counter << std::endl;
