@@ -26,6 +26,10 @@ using std::pair;
 
 static bool verbose = false;
 static int entry_counter = 1;
+static int total_island_counter = 0;
+static int grand_total_pulse_counter = 0;
+
+static const int threshold_n_sigma = 5;
 
 PulseFinder::PulseFinder(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){
@@ -45,14 +49,14 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
   vector<TPulseIsland*> islands;
  
   int total_pulse_counter = 0; // to keep track of the total number of pulses in the entry
-
+  
   for(map_iterator iter = gData->fPulseIslandToChannelMap.begin();
       iter != gData->fPulseIslandToChannelMap.end(); iter++) {
     
       islands = iter->second;   
 
 	  for (island_iterator islandIter = islands.begin(); islandIter != islands.end(); islandIter++) {
-	  
+	  	total_island_counter++;
 	  	if (verbose)
 	  		std::cout << "Entry " << entry_counter << " Bank " << iter->first << " Island " << islandIter - islands.begin() << std::endl;
 	  		
@@ -62,7 +66,7 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	  	
 	  	// Create the histogram
 	  	std::stringstream histname;
-	  	histname << "Entry" << entry_counter << "_Bank" << iter->first << "_Island" << islandIter - islands.begin();
+	  	histname << "Entry" << entry_counter << "_" << iter->first << "_Island" << islandIter - islands.begin();
 	  	
 	  	int bin_min = 0; int bin_max = theSamples.size(); int n_bins = bin_max;
 	  	TH1F* hIsland = new TH1F(histname.str().c_str(), histname.str().c_str(), n_bins, bin_min, bin_max);
@@ -79,7 +83,7 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	  	GetPedestalAndRMS(theSamples, pedestal, RMS);
 	  	
 	  	std::stringstream canvasname;
-	  	canvasname << "Entry" << entry_counter << "_Bank" << iter->first << "_Island" << islandIter - islands.begin() << "_Canvas";
+	  	canvasname << "Entry" << entry_counter << "_" << iter->first << "_Island" << islandIter - islands.begin() << "_Canvas";
 	  	TCanvas* c1 = new TCanvas(canvasname.str().c_str(), canvasname.str().c_str());
 	  	
 	  	hIsland->Draw();
@@ -100,6 +104,11 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	  	lower_rms_line->SetLineColor(kRed);
 	    lower_rms_line->SetLineStyle(7);
 	    lower_rms_line->Draw();
+	    
+	    TLine* threshold_line = new TLine(bin_min, pedestal-(threshold_n_sigma*RMS), bin_max, pedestal-(threshold_n_sigma*RMS));
+	  	threshold_line->SetLineColor(kRed);
+	    threshold_line->SetLineStyle(7);
+	    threshold_line->Draw();
 	    
 	  	c1->Update();
 	  	c1->Write();
@@ -122,20 +131,20 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	    bool pulse_found = false;
 	    std::vector<TH1F*> hPulseHists;
 	    
-	    // NB end two elements before the end so that the iterator isn't inspecting some random bit of memory
-	    for (int_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end()-2; sampleIter++) {
+	    // NB end an element before the end so that the iterator isn't inspecting some random bit of memory
+	    for (int_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end()-1; sampleIter++) {
 	    
-	  		if ( *(sampleIter) < pedestal && *(sampleIter+2) < (pedestal - 5*RMS) && *(sampleIter+1) < *(sampleIter) && pulse_found == false) {
+	  		if ( *(sampleIter) < pedestal && *(sampleIter+1) < (pedestal - threshold_n_sigma*RMS) && pulse_found == false) {
 	  			// Found a pulse
 	  			if (verbose) {
 	  				std::cout << "Start of pulse found!" << std::endl;
 	  				std::cout << "Sample Value = " << *(sampleIter) << ", element = " << sampleIter - theSamples.begin() << std::endl;
-	  				std::cout << "Sample Value + 2 = " << *(sampleIter+2) << ", element = " << sampleIter + 2 - theSamples.begin() << std::endl;
+	  				std::cout << "Sample Value + 1 = " << *(sampleIter+1) << ", element = " << sampleIter + 1 - theSamples.begin() << std::endl;
 	  			}
 	  			
 	  			// Create a new histogram to store the found pulse
 	  			std::stringstream pulsehistname;
-	  			pulsehistname << "Entry" << entry_counter << "_Bank" << iter->first << "_Island" << islandIter - islands.begin() << "_Pulse" << pulse_counter;
+	  			pulsehistname << "Entry" << entry_counter << "_" << iter->first << "_Island" << islandIter - islands.begin() << "_Pulse" << pulse_counter;
 	  			pulse_counter++;
 	  			
 	  			TH1F* hPulse = new TH1F(pulsehistname.str().c_str(), pulsehistname.str().c_str(), n_bins, bin_min, bin_max);
@@ -153,12 +162,15 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	  				std::cout << "Pulse filled at " << sampleIter - theSamples.begin() << " with sample value " << *sampleIter << std::endl;
 	  			
 	  			// Check to see if we are at the end of the pulse
-	  			if (*(sampleIter) > pedestal)
+	  			// Take the mean of this sample and the next two and if it's roughly the pedestal then end the pulse
+	  			double mean = ( *(sampleIter) + *(sampleIter+1) + *(sampleIter+2) ) / 3;
+	  			if ( (mean > pedestal - 1*RMS) && (mean < pedestal + 1*RMS) )
 	  				pulse_found = false; // no longer have a pulse
 	  		}
 	  	}
 	  	
 	    total_pulse_counter += pulse_counter; // keep track of the total number of pulses in the entry
+	    grand_total_pulse_counter += pulse_counter;
 	    
 	    if (verbose) // line break between islands
 	  		std::cout << std::endl;
@@ -166,7 +178,8 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	  }
   }
   std::cout << total_pulse_counter << " pulses found in entry " << entry_counter << std::endl;
- 
+  std::cout << "Total number of islands = " << total_island_counter << std::endl;
+  std::cout << "Grand total number of pulses = " << grand_total_pulse_counter << std::endl;
   entry_counter++;
   
   return 0;
