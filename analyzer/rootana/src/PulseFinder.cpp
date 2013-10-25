@@ -190,8 +190,8 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	  	}
 	  	
 	  	// Create the TPulseIsland for the pulse
-	  	TPulseIsland pulse(pulse_timestamp, pulse_samples, (*islandIter)->GetClockTickInNs(), "Pulses"); 
-	  	pulses.push_back(&pulse);
+	  	TPulseIsland* pulse = new TPulseIsland(pulse_timestamp, pulse_samples, (*islandIter)->GetClockTickInNs(), "Pulses"); 
+	  	pulses.push_back(pulse);
 	  	
 	    total_pulse_counter += pulse_counter; // keep track of the total number of pulses in the entry
 	    grand_total_pulse_counter += pulse_counter;
