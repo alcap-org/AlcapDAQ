@@ -179,7 +179,7 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	  					std::cout << "Pulse filled at " << sampleIter - theSamples.begin() << " with sample value " << *sampleIter << std::endl;
 	  			}
 	  			
-	  			pulse_samples.push_back(*(sampleIter)); // add this sample to the vector for the pulse
+	  			pulse_samples.push_back( std::abs(*(sampleIter)-pedestal)); // add this sample to the vector for the pulse
 	  			
 	  			// Check to see if we are at the end of the pulse
 	  			// Take the mean of this sample and the next two and if it's roughly the pedestal then end the pulse
@@ -190,7 +190,7 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	  	}
 	  	
 	  	// Create the TPulseIsland for the pulse
-	  	TPulseIsland* pulse = new TPulseIsland(pulse_timestamp, pulse_samples, (*islandIter)->GetClockTickInNs(), "Pulses"); 
+	  	TPulseIsland* pulse = new TPulseIsland(pulse_timestamp, pulse_samples, (*islandIter)->GetClockTickInNs(), iter->first); 
 	  	pulses.push_back(pulse);
 	  	
 	    total_pulse_counter += pulse_counter; // keep track of the total number of pulses in the entry
