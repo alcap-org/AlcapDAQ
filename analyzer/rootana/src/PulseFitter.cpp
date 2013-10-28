@@ -16,6 +16,8 @@
 
 #include "TH1.h"
 
+#include "TF1.h"
+
 #include "TCanvas.h"
 #include "TLine.h"
 
@@ -54,14 +56,17 @@ int PulseFitter::ProcessEntry(TGlobalData *gData){
 	  for (pulse_iterator pulseIter = pulses.begin(); pulseIter != pulses.end(); pulseIter++) {
 	  	
 	  	if (verbose)
-	  		std::cout << "Entry: " << entry_counter << " Bank: " << iter->first << ", Pulse: " << pulseIter - pulses.begin() << std::endl;
+	  		std::cout << "Entry: " << entry_counter << " Bank: " << (*pulseIter)->GetBankName() << ", Pulse: " << pulseIter - pulses.begin() << std::endl;
+	  	
+	  	if (strcmp((*pulseIter)->GetBankName().c_str(), "Nh80") != 0)
+	  		continue;
 	  		
 	  	// Get the samples
 	  	std::vector<int> theSamples = (*pulseIter)->GetSamples();
 	  	
 	  	// Create the histogram
 	  	std::stringstream histname;
-	  	histname << "Entry" << entry_counter << "_" << iter->first << "_Pulse" << pulseIter - pulses.begin();
+	  	histname << "Entry" << entry_counter << "_" << (*pulseIter)->GetBankName() << "_Pulse" << pulseIter - pulses.begin();
 	  	
 	  	int bin_min = 0; int bin_max = theSamples.size(); int n_bins = bin_max;
 	  	TH1F* hPulse = new TH1F(histname.str().c_str(), histname.str().c_str(), n_bins, bin_min, bin_max);
@@ -70,6 +75,12 @@ int PulseFitter::ProcessEntry(TGlobalData *gData){
 	  	for (int_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
 	  		hPulse->Fill(sampleIter - theSamples.begin(), *sampleIter);
 	  	}
+	  	
+	  	TF1* gaussian = new TF1("gaus", "[0]*TMath::Gaus(x, [1], [2], 0)", hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax());
+	  	gaussian->SetParameter(0, 250);
+	  	gaussian->SetParameter(1, 20);
+	  	gaussian->SetParameter(2, 20);
+	  	hPulse->Fit("gaus");
 	  }
   }
   entry_counter++;
