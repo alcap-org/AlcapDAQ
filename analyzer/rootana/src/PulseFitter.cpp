@@ -36,6 +36,7 @@ static bool verbose = false;
 static int entry_counter = 1;
 
 static TH2F* hTemplate = NULL;
+static double anchor_time = 0;
 
 PulseFitter::PulseFitter(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){
@@ -141,10 +142,21 @@ int PulseFitter::ProcessEntry(TGlobalData *gData){
 	  							hPulse->GetXaxis()->GetXmax(),hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax(), 
 	  							hPulse->GetMaximum()+500,hPulse->GetMinimum(),hPulse->GetMaximum()+500);
 	  	}
-	  	// Add the fit to the histogram
+	  	// Add the fit to the template
 	  	for (int iBin = 1; iBin <= hTemplate->GetNbinsX(); iBin++) {
 	  		
-	  		hTemplate->Fill(iBin, gaussian->Eval(iBin));
+	  		double time_shift = 0;
+	  		// Get the time shift
+	  		if (anchor_time == 0) {
+	  			// Have this pulse as the anchor
+	  			anchor_time = gaussian->GetMaximumX(); // anchor to the maximum value of the function
+	  		}
+	  		else {
+	  			double this_time = gaussian->GetMaximumX();
+	  			time_shift = this_time - anchor_time;
+	  		}
+	  		
+	  		hTemplate->Fill(iBin - time_shift, gaussian->Eval(iBin));
 	  	
 	  	}
 	  				
