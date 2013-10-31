@@ -18,6 +18,7 @@
 #include "TH2.h"
 
 #include "TF1.h"
+#include "TMath.h"
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -71,45 +72,95 @@ int PulseFitter::ProcessEntry(TGlobalData *gData){
 	  	if (verbose)
 	  		std::cout << "Entry: " << entry_counter << " Bank: " << (*pulseIter)->GetBankName() << ", Pulse: " << pulseIter - pulses.begin() << std::endl;
 	  	
-	  	if (strcmp((*pulseIter)->GetBankName().c_str(), "Nh80") != 0)
-	  		continue;
+	  	if (strcmp((*pulseIter)->GetBankName().c_str(), "Nh80") == 0)
+	  		GaussianFit(*pulseIter, pulseIter - pulses.begin());
+	  	
+	  }
+  }
+  entry_counter++;
+  
+  return 0;
+}
+
+void PulseFitter::GaussianFit(TPulseIsland* pulse, int pulse_number) {
+	
+	// Get the samples
+	std::vector<int> theSamples = pulse->GetSamples();
+	  	
+	// Create the histogram
+	std::stringstream histname;
+	histname << "Entry" << entry_counter << "_" << pulse->GetBankName() << "_Pulse" << pulse_number;
+	  	
+	int bin_min = 0; int bin_max = theSamples.size() * pulse->GetClockTickInNs(); int n_bins = theSamples.size();
+	TH1F* hPulse = new TH1F(histname.str().c_str(), histname.str().c_str(), n_bins, bin_min, bin_max);
+	  	
+	hPulse->GetXaxis()->SetTitle("time [ns]");
+	hPulse->GetYaxis()->SetTitle("ADC Value");
+	  	
+	// Fill the histogram
+	for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
+		hPulse->Fill( (sampleIter - theSamples.begin()) * pulse->GetClockTickInNs(), *sampleIter);
+	}
+	  	
+	std::stringstream canvasname;
+	canvasname << "Canvas_" << histname.str();
+	TCanvas* c1 = new TCanvas(canvasname.str().c_str(), canvasname.str().c_str());
+	  	
+	TF1* gaussian = new TF1("gaus", "[0]*TMath::Gaus(x, [1], [2], 0)", hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax());
+	gaussian->SetParameter(0, 250);
+	gaussian->SetParameter(1, 1500);
+	gaussian->SetParameter(2, 1500);
+	  	
+	gaussian->SetLineColor(kRed);
+	gaussian->SetLineWidth(2);
+	hPulse->Fit("gaus", "Q");
+	  		  	
+	  	
+	// Create the histogram if it's not been created
+	if (hTemplate == NULL) {
+		hTemplate = new TH2F("hTemplate", "hTemplate", 
+	  				hPulse->GetXaxis()->GetXmax(),hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax(), 
+	  				hPulse->GetMaximum()+500,hPulse->GetMinimum(),hPulse->GetMaximum()+500);
+	}
+	// Add the fit to the template
+	for (int iBin = 1; iBin <= hTemplate->GetNbinsX(); iBin++) {
 	  		
-	  	// Get the samples
-	  	std::vector<int> theSamples = (*pulseIter)->GetSamples();
-	  	
-	  	// Create the histogram
-	  	std::stringstream histname;
-	  	histname << "Entry" << entry_counter << "_" << (*pulseIter)->GetBankName() << "_Pulse" << pulseIter - pulses.begin();
-	  	
-	  	int bin_min = 0; int bin_max = theSamples.size() * (*pulseIter)->GetClockTickInNs(); int n_bins = theSamples.size();
-	  	TH1F* hPulse = new TH1F(histname.str().c_str(), histname.str().c_str(), n_bins, bin_min, bin_max);
-	  	
-	  	hPulse->GetXaxis()->SetTitle("time [ns]");
-	  	hPulse->GetYaxis()->SetTitle("ADC Value");
-	  	
-	  	// Fill the histogram
-	  	for (int_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
-	  		hPulse->Fill( (sampleIter - theSamples.begin()) * (*pulseIter)->GetClockTickInNs(), *sampleIter);
+		double time_shift = 0;
+	  	// Get the time shift
+	  	if (anchor_time == 0) {
+	  		// Have this pulse as the anchor
+	  		anchor_time = gaussian->GetMaximumX(); // anchor to the maximum value of the function
 	  	}
+	  	else {
+	  		double this_time = gaussian->GetMaximumX();
+	  		time_shift = this_time - anchor_time;
+	  	}
+	  		
+	  	hTemplate->Fill(iBin - time_shift, gaussian->Eval(iBin));
 	  	
-	  	std::stringstream canvasname;
-	  	canvasname << "Canvas_" << histname.str();
-	  	TCanvas* c1 = new TCanvas(canvasname.str().c_str(), canvasname.str().c_str());
-	  	
-	  	TF1* gaussian = new TF1("gaus", "[0]*TMath::Gaus(x, [1], [2], 0)", hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax());
-	  	gaussian->SetParameter(0, 250);
-	  	gaussian->SetParameter(1, 1500);
-	  	gaussian->SetParameter(2, 1500);
-	  	
-	  	gaussian->SetLineColor(kRed);
-	  	gaussian->SetLineWidth(2);
-	  	hPulse->Fit("gaus", "Q");
-	  	
-/*	  	TF1* skew_gaussian = new TF1("skew-gaus", "2*[0]*TMath::Gaus(x, [1], [2], 0)*(0.5*(1 + TMath::Erf( ([3]*x)/sqrt(2) )))", hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax());
+	}
+	
+	int n_params = 6;
+	TF1* myfunc = new TF1("myfunc", this, &PulseFitter::ConvolutionGaussianLandau, hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax(), n_params, "PulseFitter", "ConvolutionGaussianLandau");
+	
+	myfunc->SetParameter(0, 1000);
+	myfunc->SetParameter(1, 1500);
+	myfunc->SetParameter(2, 500);
+	myfunc->SetParameter(3, 0.01);
+	myfunc->SetParameter(4, 100);
+	myfunc->SetParameter(5, 100);
+	
+	myfunc->SetLineWidth(2);
+	myfunc->SetLineColor(kMagenta);
+	hPulse->Fit("myfunc");
+	// Now get the template out
+	
+	
+		  	TF1* skew_gaussian = new TF1("skew-gaus", "2*[0]*TMath::Gaus(x, [1], [2], 0)*(0.5*(1 + TMath::Erf( ([3]*x)/sqrt(2) )))", hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax());
 	  	skew_gaussian->SetParameter(0, 250);
-	  	skew_gaussian->SetParameter(1, 20);
-	  	skew_gaussian->SetParameter(2, 20);
-	  	skew_gaussian->SetParameter(3, -1);
+	  	skew_gaussian->SetParameter(1, 1500);
+	  	skew_gaussian->SetParameter(2, 1500);
+	  	skew_gaussian->SetParameter(3, 0);
 	  	
 	  	skew_gaussian->SetLineWidth(2);
 	  	skew_gaussian->SetLineColor(kBlue);
@@ -118,6 +169,7 @@ int PulseFitter::ProcessEntry(TGlobalData *gData){
 	  	hPulse->Draw();
 	  	skew_gaussian->Draw("SAMES");
 	  	gaussian->Draw("SAMES");
+	  	myfunc->Draw("SAMES");
 	  	
 	  	TLegend* legend = new TLegend(0.5, 0.85, 0.7, 0.75, "");
 	  	legend->SetBorderSize(0);
@@ -125,44 +177,45 @@ int PulseFitter::ProcessEntry(TGlobalData *gData){
         legend->SetFillColor(kWhite);
         legend->AddEntry(gaussian, "Gaussian", "l");
         legend->AddEntry(skew_gaussian, "Skewed Gaussian", "l");
+        legend->AddEntry(myfunc, "Convoluted Landau & Gaussian", "l");
         legend->Draw();
         
 	  	c1->Update();
 	  	c1->Write();
 	  	
-	  	std::cout << "Difference in parameters:\tdelta_p0 = " << skew_gaussian->GetParameter(0) - gaussian->GetParameter(0)
-	  				<< "\tdelta_p1 = " << skew_gaussian->GetParameter(1) - gaussian->GetParameter(1)
-	  				<< "\tdelta_p2 = " << skew_gaussian->GetParameter(2) - gaussian->GetParameter(2)
-	  				<< "\tdelta_p3 = " << skew_gaussian->GetParameter(3) - 0 << std::endl;
-*/	  	
+//	  	std::cout << "Difference in parameters:\tdelta_p0 = " << skew_gaussian->GetParameter(0) - gaussian->GetParameter(0)
+//	  				<< "\tdelta_p1 = " << skew_gaussian->GetParameter(1) - gaussian->GetParameter(1)
+//	  				<< "\tdelta_p2 = " << skew_gaussian->GetParameter(2) - gaussian->GetParameter(2)
+//	  				<< "\tdelta_p3 = " << skew_gaussian->GetParameter(3) - 0 << std::endl;
+
 	  	
-	  	// Create the histogram if it's not been created
-	  	if (hTemplate == NULL) {
-	  		hTemplate = new TH2F("hTemplate", "hTemplate", 
-	  							hPulse->GetXaxis()->GetXmax(),hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax(), 
-	  							hPulse->GetMaximum()+500,hPulse->GetMinimum(),hPulse->GetMaximum()+500);
-	  	}
-	  	// Add the fit to the template
-	  	for (int iBin = 1; iBin <= hTemplate->GetNbinsX(); iBin++) {
-	  		
-	  		double time_shift = 0;
-	  		// Get the time shift
-	  		if (anchor_time == 0) {
-	  			// Have this pulse as the anchor
-	  			anchor_time = gaussian->GetMaximumX(); // anchor to the maximum value of the function
-	  		}
-	  		else {
-	  			double this_time = gaussian->GetMaximumX();
-	  			time_shift = this_time - anchor_time;
-	  		}
-	  		
-	  		hTemplate->Fill(iBin - time_shift, gaussian->Eval(iBin));
-	  	
-	  	}
-	  				
-	  }
-  }
-  entry_counter++;
-  
-  return 0;
+}
+
+// Want to keep Landau at x
+// Shift Gaussian along x
+// Sum the product of Landau(x) and Gaussian(x+x_shift)
+double PulseFitter::ConvolutionGaussianLandau(double *x, double *par) {
+
+	// Parameter List:
+	// par[0] = Gaussian scaling
+	// par[1] = Gaussian mean
+	// par[2] = Gaussian sigma
+	// par[3] = Landau scaling
+	// par[4] = Landau mpv
+	// par[5] = Landau sigma
+	
+	double t =x[0]; // time to evaluate the convoluted function at
+	
+	double max_shift = 5*par[2];
+	double tau_low = t - max_shift;
+	double tau_high = t + max_shift;
+	double n_steps = 1000;
+	double dtau = (tau_high - tau_low) / n_steps;
+	double sum = 0.0;
+	
+	for (double tau = tau_low; tau <= tau_high; tau += dtau) {
+		sum += par[3]*TMath::Landau(tau, par[4], par[5]) * par[0]*TMath::Gaus(t-tau, par[1], par[2]);
+	}
+	
+	return sum;
 }
