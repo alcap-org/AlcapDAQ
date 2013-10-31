@@ -36,7 +36,8 @@ static bool verbose = false;
 
 static int entry_counter = 1;
 
-static TH2F* hTemplate = NULL;
+static TH2F* h2DTemplate = NULL;
+static TH1F* hTemplate = NULL;
 static double anchor_time = 0;
 
 PulseFitter::PulseFitter(char *HistogramDirectoryName) :
@@ -50,6 +51,39 @@ PulseFitter::PulseFitter(char *HistogramDirectoryName) :
 }
 
 PulseFitter::~PulseFitter(){
+
+	dir->cd(); // cd into the module's directory
+	
+	// Now get the template out
+	// Want <ADC>(t)
+	hTemplate = new TH1F("hTemplate", "hTemplate", h2DTemplate->GetXaxis()->GetXmax(), h2DTemplate->GetXaxis()->GetXmin(), h2DTemplate->GetXaxis()->GetXmax());
+	//std::cout << "Template: " << std::endl;
+	
+	for (int iBin = 1; iBin <= h2DTemplate->GetNbinsX(); iBin++) {
+		
+		double avg_ADC = 0.0;
+		int n_entries = 0;
+		
+		for (int jBin = 1; jBin <= h2DTemplate->GetNbinsY(); jBin++) {
+			
+/*			if (h2DTemplate->GetBinContent(iBin, jBin) != 0) {
+			std::cout << "iBin = " << iBin << ", jBin = " << jBin << std::endl;
+			std::cout << "GetBin(iBin, jBin) = " << h2DTemplate->GetBin(iBin, jBin) << std::endl;
+			std::cout << "GetBinCenter(y-axis) = " << h2DTemplate->GetYaxis()->GetBinCenter(jBin) << std::endl;
+			std::cout << "GetBinContent = " << h2DTemplate->GetBinContent(iBin, jBin) << std::endl;
+			}
+*/		
+			avg_ADC += h2DTemplate->GetYaxis()->GetBinCenter(jBin) * h2DTemplate->GetBinContent(iBin, jBin);
+			n_entries += h2DTemplate->GetBinContent(iBin, jBin);
+		
+		}
+		avg_ADC /= n_entries;
+		
+		hTemplate->Fill(iBin, avg_ADC);
+	
+	}
+	std::cout << std::endl;
+
 }
 
 int PulseFitter::ProcessEntry(TGlobalData *gData){
@@ -106,24 +140,24 @@ void PulseFitter::GaussianFit(TPulseIsland* pulse, int pulse_number) {
 	canvasname << "Canvas_" << histname.str();
 	TCanvas* c1 = new TCanvas(canvasname.str().c_str(), canvasname.str().c_str());
 	  	
-	TF1* gaussian = new TF1("gaus", "[0]*TMath::Gaus(x, [1], [2], 0)", hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax());
+	TF1* gaussian = new TF1("gaus", "[0]*TMath::Gaus(x, [1], [2], 0)", hPulse->GetXaxis()->GetXmin()+500,hPulse->GetXaxis()->GetXmax()-500);
 	gaussian->SetParameter(0, 250);
 	gaussian->SetParameter(1, 1500);
 	gaussian->SetParameter(2, 1500);
 	  	
 	gaussian->SetLineColor(kRed);
 	gaussian->SetLineWidth(2);
-	hPulse->Fit("gaus", "Q");
+	hPulse->Fit("gaus", "QR");
 	  		  	
 	  	
 	// Create the histogram if it's not been created
-	if (hTemplate == NULL) {
-		hTemplate = new TH2F("hTemplate", "hTemplate", 
+	if (h2DTemplate == NULL) {
+		h2DTemplate = new TH2F("h2DTemplate", "h2DTemplate", 
 	  				hPulse->GetXaxis()->GetXmax(),hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax(), 
 	  				hPulse->GetMaximum()+500,hPulse->GetMinimum(),hPulse->GetMaximum()+500);
 	}
 	// Add the fit to the template
-	for (int iBin = 1; iBin <= hTemplate->GetNbinsX(); iBin++) {
+	for (int iBin = 1; iBin <= h2DTemplate->GetNbinsX(); iBin++) {
 	  		
 		double time_shift = 0;
 	  	// Get the time shift
@@ -136,27 +170,12 @@ void PulseFitter::GaussianFit(TPulseIsland* pulse, int pulse_number) {
 	  		time_shift = this_time - anchor_time;
 	  	}
 	  		
-	  	hTemplate->Fill(iBin - time_shift, gaussian->Eval(iBin));
+	  	h2DTemplate->Fill(iBin - time_shift, gaussian->Eval(iBin));
 	  	
 	}
 	
-	int n_params = 6;
-	TF1* myfunc = new TF1("myfunc", this, &PulseFitter::ConvolutionGaussianLandau, hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax(), n_params, "PulseFitter", "ConvolutionGaussianLandau");
 	
-	myfunc->SetParameter(0, 1000);
-	myfunc->SetParameter(1, 1500);
-	myfunc->SetParameter(2, 500);
-	myfunc->SetParameter(3, 0.01);
-	myfunc->SetParameter(4, 100);
-	myfunc->SetParameter(5, 100);
-	
-	myfunc->SetLineWidth(2);
-	myfunc->SetLineColor(kMagenta);
-	hPulse->Fit("myfunc");
-	// Now get the template out
-	
-	
-		  	TF1* skew_gaussian = new TF1("skew-gaus", "2*[0]*TMath::Gaus(x, [1], [2], 0)*(0.5*(1 + TMath::Erf( ([3]*x)/sqrt(2) )))", hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax());
+	/*	  	TF1* skew_gaussian = new TF1("skew-gaus", "2*[0]*TMath::Gaus(x, [1], [2], 0)*(0.5*(1 + TMath::Erf( ([3]*x)/sqrt(2) )))", hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax());
 	  	skew_gaussian->SetParameter(0, 250);
 	  	skew_gaussian->SetParameter(1, 1500);
 	  	skew_gaussian->SetParameter(2, 1500);
@@ -188,34 +207,5 @@ void PulseFitter::GaussianFit(TPulseIsland* pulse, int pulse_number) {
 //	  				<< "\tdelta_p2 = " << skew_gaussian->GetParameter(2) - gaussian->GetParameter(2)
 //	  				<< "\tdelta_p3 = " << skew_gaussian->GetParameter(3) - 0 << std::endl;
 
-	  	
-}
-
-// Want to keep Landau at x
-// Shift Gaussian along x
-// Sum the product of Landau(x) and Gaussian(x+x_shift)
-double PulseFitter::ConvolutionGaussianLandau(double *x, double *par) {
-
-	// Parameter List:
-	// par[0] = Gaussian scaling
-	// par[1] = Gaussian mean
-	// par[2] = Gaussian sigma
-	// par[3] = Landau scaling
-	// par[4] = Landau mpv
-	// par[5] = Landau sigma
-	
-	double t =x[0]; // time to evaluate the convoluted function at
-	
-	double max_shift = 5*par[2];
-	double tau_low = t - max_shift;
-	double tau_high = t + max_shift;
-	double n_steps = 1000;
-	double dtau = (tau_high - tau_low) / n_steps;
-	double sum = 0.0;
-	
-	for (double tau = tau_low; tau <= tau_high; tau += dtau) {
-		sum += par[3]*TMath::Landau(tau, par[4], par[5]) * par[0]*TMath::Gaus(t-tau, par[1], par[2]);
-	}
-	
-	return sum;
+	  	*/
 }
