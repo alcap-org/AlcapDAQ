@@ -39,6 +39,7 @@ static int entry_counter = 1;
 static TH2F* h2DTemplateSlow = NULL;
 static TH2F* h2DTemplateFast = NULL;
 static double anchor_time = 0;
+static double anchor_amp = 0;
 
 static TH1F* hPseudotime = NULL;
 static TH2F* hMVsPsi = NULL;
@@ -105,8 +106,8 @@ int CreateTemplates::ProcessEntry(TGlobalData *gData){
 	  	if (verbose)
 	  		std::cout << "Entry: " << entry_counter << " Bank: " << (*pulseIter)->GetBankName() << ", Pulse: " << pulseIter - pulses.begin() << std::endl;
 	  	
-	  	//if (strcmp((*pulseIter)->GetBankName().c_str(), "Nh80") == 0)
-	  	//	GaussianFit(*pulseIter, pulseIter - pulses.begin());
+	  	if (strcmp((*pulseIter)->GetBankName().c_str(), "Nh80") == 0)
+	  		GaussianFit(*pulseIter, pulseIter - pulses.begin());
 	  	
 	  	if (strcmp((*pulseIter)->GetBankName().c_str(), "Ng80") == 0)
 	  		PseudotimeFit(*pulseIter, pulseIter - pulses.begin());
@@ -133,8 +134,16 @@ void CreateTemplates::GaussianFit(TPulseIsland* pulse, int pulse_number) {
 	hPulse->GetXaxis()->SetTitle("time [ns]");
 	hPulse->GetYaxis()->SetTitle("ADC Value");
 	  	
-	// Fill the histogram
+	// Fill the histogram and record a_max and t_max
+	double a_max = 0;
+	double t_max = 0;
 	for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
+	
+		if ( (*sampleIter) > a_max) {
+			a_max = (*sampleIter);
+			t_max = (sampleIter - theSamples.begin()) * pulse->GetClockTickInNs();
+		}
+		
 		hPulse->Fill( (sampleIter - theSamples.begin()) * pulse->GetClockTickInNs(), *sampleIter);
 	}
 	  	
@@ -155,11 +164,41 @@ void CreateTemplates::GaussianFit(TPulseIsland* pulse, int pulse_number) {
 	// Create the histogram if it's not been created
 	if (h2DTemplateSlow == NULL) {
 		h2DTemplateSlow = new TH2F("h2DTemplateSlow", "h2DTemplateSlow", 
-	  				hPulse->GetXaxis()->GetXmax(),hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax(), 
+	  				hPulse->GetNbinsX(),hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax(), 
 	  				hPulse->GetMaximum()+500,hPulse->GetMinimum(),hPulse->GetMaximum()+500);
+	  	
+	  	h2DTemplateSlow->SetTitle("Slow Pulse 2D Template Histogram");
+	  	h2DTemplateSlow->GetXaxis()->SetTitle("time [ns]");
+	  	h2DTemplateSlow->GetYaxis()->SetTitle("ADC value");
+	}
+	// Get the amplitude and time shift values from the fit
+	double A = gaussian->GetMaximum();
+	double delta_t = t_max - gaussian->GetMaximumX();
+	
+	// Normalise the data to A = 1, delta_t = 0
+	for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
+		
+		double ADC = (*sampleIter);
+		double time = (sampleIter - theSamples.begin()) * pulse->GetClockTickInNs();
+		double time_shift = 0;
+		double amp_scale_factor = 0;
+		
+		if (anchor_time == 0) {
+	  		// Have this pulse as the anchor
+	  		anchor_time = t_max + delta_t; // anchor to the maximum value of the function
+	  	}
+	  	time_shift = t_max - anchor_time;
+	  	
+	  	if (anchor_amp == 0) {
+	  		// Have this pulse as the anchor
+	  		anchor_amp = A;
+	  	}
+	  	amp_scale_factor = a_max / anchor_amp;
+		
+		h2DTemplateSlow->Fill(time - time_shift, ADC * amp_scale_factor);
 	}
 	// Add the fit to the template
-	for (int iBin = 1; iBin <= h2DTemplateSlow->GetNbinsX(); iBin++) {
+/*	for (int iBin = 1; iBin <= h2DTemplateSlow->GetNbinsX(); iBin++) {
 	  		
 		double time_shift = 0;
 	  	// Get the time shift
@@ -175,7 +214,7 @@ void CreateTemplates::GaussianFit(TPulseIsland* pulse, int pulse_number) {
 	  	h2DTemplateSlow->Fill(iBin - time_shift, gaussian->Eval(iBin));
 	  	
 	}
-	
+*/	
 	
 	/*	  	TF1* skew_gaussian = new TF1("skew-gaus", "2*[0]*TMath::Gaus(x, [1], [2], 0)*(0.5*(1 + TMath::Erf( ([3]*x)/sqrt(2) )))", hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax());
 	  	skew_gaussian->SetParameter(0, 250);
