@@ -307,7 +307,8 @@ MYSQL_LIBS=/usr/lib/mysql/libmysqlclient.a
 #
 CC = cc
 CXX = g++
-CFLAGS = -g -O0 -Wall -Wuninitialized -I$(INC_DIR) -I$(DRV_DIR) -L$(LIB_DIR) -DINCLUDE_FTPLIB $(MIDAS_PREF_FLAGS) $(USERFLAGS)
+CFLAGS = -g -O0 -Wall -Wuninitialized -I$(INC_DIR) -I$(MXML_DIR) -I$(DRV_DIR)\
+				 -L$(LIB_DIR) -DINCLUDE_FTPLIB $(MIDAS_PREF_FLAGS) $(USERFLAGS)
 
 # >2GB file support
 CFLAGS += -D_LARGEFILE64_SOURCE
@@ -441,7 +442,9 @@ PROGS = $(BIN_DIR)/mserver $(BIN_DIR)/mhttpd \
 	$(BIN_DIR)/melog \
 	$(SPECIFIC_OS_PRG)
 
+ifdef ROOTSYS
 ANALYZER = $(LIB_DIR)/mana.o
+endif
 
 ifdef CERNLIB
 ANALYZER += $(LIB_DIR)/hmana.o
