@@ -442,9 +442,7 @@ PROGS = $(BIN_DIR)/mserver $(BIN_DIR)/mhttpd \
 	$(BIN_DIR)/melog \
 	$(SPECIFIC_OS_PRG)
 
-ifdef ROOTSYS
 ANALYZER = $(LIB_DIR)/mana.o
-endif
 
 ifdef CERNLIB
 ANALYZER += $(LIB_DIR)/hmana.o
@@ -514,6 +512,7 @@ ifdef ROOTSYS
 ROOTLIBS    := $(shell $(ROOTSYS)/bin/root-config --libs)
 ROOTGLIBS   := $(shell $(ROOTSYS)/bin/root-config --glibs)
 ROOTCFLAGS  := $(shell $(ROOTSYS)/bin/root-config --cflags)
+CFLAGS     += -DHAVE_ROOT $(ROOTCFLAGS)
 
 ifdef NEED_RPATH
 ROOTLIBS   += -Wl,-rpath,$(ROOTSYS)/lib
@@ -525,13 +524,9 @@ ROOTLIBS    := $(ROOTSYS)/lib/libRoot.a -lssl -ldl -lcrypt
 ROOTGLIBS   := $(ROOTLIBS) -lfreetype
 endif
 
-CFLAGS     += -DHAVE_ROOT $(ROOTCFLAGS)
-
 $(BIN_DIR)/rmidas: $(BIN_DIR)/%: $(SRC_DIR)/%.c
-	$(CXX) $(CFLAGS) $(OSFLAGS) -DHAVE_ROOT $(ROOTCFLAGS) -o $@ $< $(LIB) $(ROOTGLIBS) $(LIBS)
-
+	$(CXX) $(CFLAGS) $(OSFLAGS) $(ROOTCFLAGS) -o $@ $< $(LIB) $(ROOTGLIBS) $(LIBS)
 endif # ROOTSYS
-
 
 $(BIN_DIR)/mlogger: $(BIN_DIR)/%: $(SRC_DIR)/%.c
 	$(CXX) $(CFLAGS) $(OSFLAGS) -o $@ $< $(LIB) $(ROOTLIBS) $(LIBS)
