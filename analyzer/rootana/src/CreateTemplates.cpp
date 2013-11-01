@@ -63,8 +63,7 @@ CreateTemplates::~CreateTemplates(){
 	// Now get the template out
 	// Want <ADC>(t)
 	if (h2DTemplateSlow != NULL) {
-		hTemplateSlow = new TH1F("hTemplateSlow", "hTemplateSlow", h2DTemplateSlow->GetXaxis()->GetXmax(), h2DTemplateSlow->GetXaxis()->GetXmin(), h2DTemplateSlow->GetXaxis()->GetXmax());
-		//std::cout << "Template: " << std::endl;
+		hTemplateSlow = new TH1F("hTemplateSlow", "hTemplateSlow", h2DTemplateSlow->GetNbinsX(), h2DTemplateSlow->GetXaxis()->GetXmin(), h2DTemplateSlow->GetXaxis()->GetXmax());
 	
 		for (int iBin = 1; iBin <= h2DTemplateSlow->GetNbinsX(); iBin++) {
 		
@@ -79,10 +78,9 @@ CreateTemplates::~CreateTemplates(){
 			}
 			avg_ADC /= n_entries;
 			
-			hTemplateSlow->Fill(iBin, avg_ADC);
+			hTemplateSlow->SetBinContent(iBin, avg_ADC);
 	
 		}
-		std::cout << std::endl;
 	}
 }
 
@@ -171,11 +169,12 @@ void CreateTemplates::GaussianFit(TPulseIsland* pulse, int pulse_number) {
 	  	h2DTemplateSlow->GetXaxis()->SetTitle("time [ns]");
 	  	h2DTemplateSlow->GetYaxis()->SetTitle("ADC value");
 	}
+	
 	// Get the amplitude and time shift values from the fit
 	double A = gaussian->GetMaximum();
 	double delta_t = t_max - gaussian->GetMaximumX();
 	
-	// Normalise the data to A = 1, delta_t = 0
+	// Normalise the data and plot it in the 2D histogram
 	for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
 		
 		double ADC = (*sampleIter);
@@ -197,24 +196,6 @@ void CreateTemplates::GaussianFit(TPulseIsland* pulse, int pulse_number) {
 		
 		h2DTemplateSlow->Fill(time - time_shift, ADC * amp_scale_factor);
 	}
-	// Add the fit to the template
-/*	for (int iBin = 1; iBin <= h2DTemplateSlow->GetNbinsX(); iBin++) {
-	  		
-		double time_shift = 0;
-	  	// Get the time shift
-	  	if (anchor_time == 0) {
-	  		// Have this pulse as the anchor
-	  		anchor_time = gaussian->GetMaximumX(); // anchor to the maximum value of the function
-	  	}
-	  	else {
-	  		double this_time = gaussian->GetMaximumX();
-	  		time_shift = this_time - anchor_time;
-	  	}
-	  		
-	  	h2DTemplateSlow->Fill(iBin - time_shift, gaussian->Eval(iBin));
-	  	
-	}
-*/	
 	
 	/*	  	TF1* skew_gaussian = new TF1("skew-gaus", "2*[0]*TMath::Gaus(x, [1], [2], 0)*(0.5*(1 + TMath::Erf( ([3]*x)/sqrt(2) )))", hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax());
 	  	skew_gaussian->SetParameter(0, 250);
