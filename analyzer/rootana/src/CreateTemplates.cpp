@@ -1,9 +1,9 @@
-// PulseFitter.cpp
+// CreateTemplates.cpp
 // Author: Andrew Edmonds
 // Created: 25th Oct 2013
 // -- Pulse fitter module
 
-#include "PulseFitter.h"
+#include "CreateTemplates.h"
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,11 +36,16 @@ static bool verbose = false;
 
 static int entry_counter = 1;
 
-static TH2F* h2DTemplate = NULL;
-static TH1F* hTemplate = NULL;
+static TH2F* h2DTemplateSlow = NULL;
+static TH2F* h2DTemplateFast = NULL;
 static double anchor_time = 0;
 
-PulseFitter::PulseFitter(char *HistogramDirectoryName) :
+static TH1F* hPseudotime = NULL;
+static TH2F* hMVsPsi = NULL;
+
+static TH1F* hTemplateSlow = NULL;
+
+CreateTemplates::CreateTemplates(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){
   
   gROOT->SetStyle("Plain");
@@ -50,43 +55,37 @@ PulseFitter::PulseFitter(char *HistogramDirectoryName) :
   dir->cd("/");
 }
 
-PulseFitter::~PulseFitter(){
+CreateTemplates::~CreateTemplates(){
 
 	dir->cd(); // cd into the module's directory
 	
 	// Now get the template out
 	// Want <ADC>(t)
-	hTemplate = new TH1F("hTemplate", "hTemplate", h2DTemplate->GetXaxis()->GetXmax(), h2DTemplate->GetXaxis()->GetXmin(), h2DTemplate->GetXaxis()->GetXmax());
-	//std::cout << "Template: " << std::endl;
+	if (h2DTemplateSlow != NULL) {
+		hTemplateSlow = new TH1F("hTemplateSlow", "hTemplateSlow", h2DTemplateSlow->GetXaxis()->GetXmax(), h2DTemplateSlow->GetXaxis()->GetXmin(), h2DTemplateSlow->GetXaxis()->GetXmax());
+		//std::cout << "Template: " << std::endl;
 	
-	for (int iBin = 1; iBin <= h2DTemplate->GetNbinsX(); iBin++) {
+		for (int iBin = 1; iBin <= h2DTemplateSlow->GetNbinsX(); iBin++) {
 		
-		double avg_ADC = 0.0;
-		int n_entries = 0;
+			double avg_ADC = 0.0;
+			int n_entries = 0;
 		
-		for (int jBin = 1; jBin <= h2DTemplate->GetNbinsY(); jBin++) {
+			for (int jBin = 1; jBin <= h2DTemplateSlow->GetNbinsY(); jBin++) {
 			
-/*			if (h2DTemplate->GetBinContent(iBin, jBin) != 0) {
-			std::cout << "iBin = " << iBin << ", jBin = " << jBin << std::endl;
-			std::cout << "GetBin(iBin, jBin) = " << h2DTemplate->GetBin(iBin, jBin) << std::endl;
-			std::cout << "GetBinCenter(y-axis) = " << h2DTemplate->GetYaxis()->GetBinCenter(jBin) << std::endl;
-			std::cout << "GetBinContent = " << h2DTemplate->GetBinContent(iBin, jBin) << std::endl;
+				avg_ADC += h2DTemplateSlow->GetYaxis()->GetBinCenter(jBin) * h2DTemplateSlow->GetBinContent(iBin, jBin);
+				n_entries += h2DTemplateSlow->GetBinContent(iBin, jBin);
+		
 			}
-*/		
-			avg_ADC += h2DTemplate->GetYaxis()->GetBinCenter(jBin) * h2DTemplate->GetBinContent(iBin, jBin);
-			n_entries += h2DTemplate->GetBinContent(iBin, jBin);
-		
-		}
-		avg_ADC /= n_entries;
-		
-		hTemplate->Fill(iBin, avg_ADC);
+			avg_ADC /= n_entries;
+			
+			hTemplateSlow->Fill(iBin, avg_ADC);
 	
+		}
+		std::cout << std::endl;
 	}
-	std::cout << std::endl;
-
 }
 
-int PulseFitter::ProcessEntry(TGlobalData *gData){
+int CreateTemplates::ProcessEntry(TGlobalData *gData){
   typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
@@ -106,8 +105,11 @@ int PulseFitter::ProcessEntry(TGlobalData *gData){
 	  	if (verbose)
 	  		std::cout << "Entry: " << entry_counter << " Bank: " << (*pulseIter)->GetBankName() << ", Pulse: " << pulseIter - pulses.begin() << std::endl;
 	  	
-	  	if (strcmp((*pulseIter)->GetBankName().c_str(), "Nh80") == 0)
-	  		GaussianFit(*pulseIter, pulseIter - pulses.begin());
+	  	//if (strcmp((*pulseIter)->GetBankName().c_str(), "Nh80") == 0)
+	  	//	GaussianFit(*pulseIter, pulseIter - pulses.begin());
+	  	
+	  	if (strcmp((*pulseIter)->GetBankName().c_str(), "Ng80") == 0)
+	  		PseudotimeFit(*pulseIter, pulseIter - pulses.begin());
 	  	
 	  }
   }
@@ -116,7 +118,7 @@ int PulseFitter::ProcessEntry(TGlobalData *gData){
   return 0;
 }
 
-void PulseFitter::GaussianFit(TPulseIsland* pulse, int pulse_number) {
+void CreateTemplates::GaussianFit(TPulseIsland* pulse, int pulse_number) {
 	
 	// Get the samples
 	std::vector<int> theSamples = pulse->GetSamples();
@@ -151,13 +153,13 @@ void PulseFitter::GaussianFit(TPulseIsland* pulse, int pulse_number) {
 	  		  	
 	  	
 	// Create the histogram if it's not been created
-	if (h2DTemplate == NULL) {
-		h2DTemplate = new TH2F("h2DTemplate", "h2DTemplate", 
+	if (h2DTemplateSlow == NULL) {
+		h2DTemplateSlow = new TH2F("h2DTemplateSlow", "h2DTemplateSlow", 
 	  				hPulse->GetXaxis()->GetXmax(),hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax(), 
 	  				hPulse->GetMaximum()+500,hPulse->GetMinimum(),hPulse->GetMaximum()+500);
 	}
 	// Add the fit to the template
-	for (int iBin = 1; iBin <= h2DTemplate->GetNbinsX(); iBin++) {
+	for (int iBin = 1; iBin <= h2DTemplateSlow->GetNbinsX(); iBin++) {
 	  		
 		double time_shift = 0;
 	  	// Get the time shift
@@ -170,7 +172,7 @@ void PulseFitter::GaussianFit(TPulseIsland* pulse, int pulse_number) {
 	  		time_shift = this_time - anchor_time;
 	  	}
 	  		
-	  	h2DTemplate->Fill(iBin - time_shift, gaussian->Eval(iBin));
+	  	h2DTemplateSlow->Fill(iBin - time_shift, gaussian->Eval(iBin));
 	  	
 	}
 	
@@ -209,3 +211,92 @@ void PulseFitter::GaussianFit(TPulseIsland* pulse, int pulse_number) {
 
 	  	*/
 }
+
+
+void CreateTemplates::PseudotimeFit(TPulseIsland* pulse, int pulse_number) {
+	
+	// Get the samples
+	std::vector<int> theSamples = pulse->GetSamples();
+	  	
+	// Create the histogram
+	std::stringstream histname;
+	histname << "Entry" << entry_counter << "_" << pulse->GetBankName() << "_Pulse" << pulse_number;
+	  	
+	int bin_min = 0; int bin_max = theSamples.size() * pulse->GetClockTickInNs(); int n_bins = theSamples.size();
+	TH1F* hPulse = new TH1F(histname.str().c_str(), histname.str().c_str(), n_bins, bin_min, bin_max);
+	  	
+	hPulse->GetXaxis()->SetTitle("time [ns]");
+	hPulse->GetYaxis()->SetTitle("ADC Value");
+	  	
+	// Fill the histogram and remember the maximum sample
+	int max_sample_value = 0;
+	int max_sample_position = 0;
+	
+	for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
+	
+		if (*(sampleIter) > max_sample_value) {
+	    	max_sample_value = *(sampleIter);
+	    	max_sample_position = sampleIter - theSamples.begin();
+	    }
+	    
+		hPulse->Fill( (sampleIter - theSamples.begin()) * pulse->GetClockTickInNs(), *sampleIter);
+	}
+	  	
+	// Get the pseudotime distribution
+	if (hPseudotime == NULL) { // create the histogram
+		hPseudotime = new TH1F("hPseudotime", "hPseudotime", 100,0,TMath::PiOver2());
+	}
+	
+	// Calculate pseudotime
+	// Get the amplitudes of the samples before and after the maximum
+	int a_p = theSamples[max_sample_position - 1]; // the amplitude of the previous sample
+	int a_n = theSamples[max_sample_position + 1]; // the amplitude of the next sample
+	    
+	double del_p = std::abs(max_sample_value - a_p);
+	double del_n = std::abs(max_sample_value - a_n);
+	    
+	double psi = std::atan2(del_p, del_n); // pseudotime
+	
+	hPseudotime->Fill(psi);
+	
+	// Calculate the constant in the function tau(psi)
+	// tau(psi) = constant * integral(0->psi)(f(psi))
+	// for psi=pi/2, tau = ClockTickInNs() ==> constant = ClockTickInNs() / integral(0->pi/2)f(psi)
+	
+	double constant = pulse->GetClockTickInNs() / hPseudotime->Integral("width");
+	std::cout << pulse->GetClockTickInNs() << ", " << hPseudotime->Integral("width") << std::endl;
+	std::cout << "Constant: " << constant << std::endl;
+	
+	
+	// Get the pseudotime distribution
+	if (hMVsPsi == NULL) { // create the histogram
+		hMVsPsi = new TH2F("hMVsPsi", "hMVsPsi", 100,0,TMath::PiOver2(), 1000,0,1000);
+	}
+	hMVsPsi->Fill(psi, max_sample_value);
+	  		  	
+	  	
+	// Create the histogram if it's not been created
+/*	if (h2DTemplateFast == NULL) {
+		h2DTemplateFast = new TH2F("h2DTemplateFast", "h2DTemplateFast", 
+	  				hPulse->GetXaxis()->GetXmax(),hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax(), 
+	  				hPulse->GetMaximum()+500,hPulse->GetMinimum(),hPulse->GetMaximum()+500);
+	}
+	// Add the fit to the template
+	for (int iBin = 1; iBin <= h2DTemplateFast->GetNbinsX(); iBin++) {
+	  		
+		double time_shift = 0;
+	  	// Get the time shift
+	  	if (anchor_time == 0) {
+	  		// Have this pulse as the anchor
+	  		anchor_time = gaussian->GetMaximumX(); // anchor to the maximum value of the function
+	  	}
+	  	else {
+	  		double this_time = gaussian->GetMaximumX();
+	  		time_shift = this_time - anchor_time;
+	  	}
+	  		
+	  	h2DTemplateFast->Fill(iBin - time_shift, gaussian->Eval(iBin));	  	
+	}
+*/
+}
+

@@ -4,4 +4,6 @@ SOURCES += \
 main.cpp \
 FillHistBase.cpp \
 SimpleHistograms.cpp \
-FastSlowPulseAnalysis.cpp \
+PlotIslands.cpp \
+PulseFinder.cpp \
+CreateTemplates.cpp
