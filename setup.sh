@@ -1,6 +1,9 @@
 #!/bin/bash
-. $PWD/root/bin/thisroot.sh
-mkdir dir
+#. $PWD/root/bin/thisroot.sh
+if [ ! -d "./dir" ]; then 
+	mkdir dir
+fi
+
 export MIDAS_DIR=$PWD/dir
 export MIDASSYS=$PWD/midas
 export MIDAS_HOME=$MIDASSYS

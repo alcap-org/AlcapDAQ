@@ -410,12 +410,13 @@ endif
 #
 # Midas directories
 #
-INC_DIR  = include
+INC_DIR  = include 
 SRC_DIR  = src
 UTL_DIR  = utils
 DRV_DIR  = drivers
 EXAM_DIR = examples
 ZLIB_DIR = ./zlib-1.0.4
+MXML_DIR = ./mxml
 
 #
 # Midas operating system dependent directories
@@ -452,7 +453,7 @@ ANALYZER += $(LIB_DIR)/rmana.o
 endif
 
 OBJS =  $(LIB_DIR)/midas.o $(LIB_DIR)/system.o $(LIB_DIR)/mrpc.o \
-	$(LIB_DIR)/odb.o $(LIB_DIR)/ybos.o $(LIB_DIR)/ftplib.o
+	$(LIB_DIR)/odb.o $(LIB_DIR)/ybos.o $(LIB_DIR)/ftplib.o $(LIB_DIR)/strlcpy.o
 
 LIBNAME=$(LIB_DIR)/libmidas.a
 LIB    =$(LIBNAME)
@@ -475,6 +476,9 @@ examples: $(EXAMPLES)
 #
 # create library and binary directories
 #
+
+$(LIB_DIR)/strlcpy.o: $(MXML_DIR)/strlcpy.c
+	$(CC) -c $(CFLAGS) $(OSFLAGS) -o $@ $<
 
 $(OS_DIR):
 	@if [ ! -d  $(OS_DIR) ] ; then \
@@ -518,7 +522,7 @@ ROOTLIBS    := $(ROOTSYS)/lib/libRoot.a -lssl -ldl -lcrypt
 ROOTGLIBS   := $(ROOTLIBS) -lfreetype
 endif
 
-CFLAGS     += -DHAVE_ROOT -DHAVE_STRLCPY $(ROOTCFLAGS)
+CFLAGS     += -DHAVE_ROOT $(ROOTCFLAGS)
 
 $(BIN_DIR)/rmidas: $(BIN_DIR)/%: $(SRC_DIR)/%.c
 	$(CXX) $(CFLAGS) $(OSFLAGS) -DHAVE_ROOT $(ROOTCFLAGS) -o $@ $< $(LIB) $(ROOTGLIBS) $(LIBS)
@@ -538,7 +542,7 @@ $(BIN_DIR)/odbedit: $(SRC_DIR)/odbedit.c $(SRC_DIR)/cmdedit.c
 $(BIN_DIR)/mhttpd: $(SRC_DIR)/mhttpd.c $(SRC_DIR)/mgd.c
 	$(CC) $(CFLAGS) $(OSFLAGS) -o $@ $(SRC_DIR)/mhttpd.c $(SRC_DIR)/mgd.c $(LIB) $(LIBS) -lm
 
-$(PROGS): $(LIBNAME) $(SHLIB)
+$(PROGS): $(LIBNAME) $(SHLIB) 
 
 #
 # examples
@@ -579,9 +583,9 @@ $(LIB_DIR)/fal.o: $(SRC_DIR)/fal.c msystem.h midas.h midasinc.h mrpc.h
 $(LIB_DIR)/fal.o: $(SRC_DIR)/fal.c msystem.h midas.h midasinc.h mrpc.h
 	$(CC) -Dextname -c $(CFLAGS) $(OSFLAGS) -o $@ $<
 $(LIB_DIR)/mana.o: $(SRC_DIR)/mana.cpp msystem.h midas.h midasinc.h mrpc.h
-	$(CC) -c $(CFLAGS) $(OSFLAGS) -o $@ $<
+	$(CXX) -c $(CFLAGS) $(OSFLAGS) -o $@ $<
 $(LIB_DIR)/hmana.o: $(SRC_DIR)/mana.cpp msystem.h midas.h midasinc.h mrpc.h
-	$(CC) -Dextname -DHAVE_HBOOK -c $(CFLAGS) $(OSFLAGS) -o $@ $<
+	$(CXX) -Dextname -DHAVE_HBOOK -c $(CFLAGS) $(OSFLAGS) -o $@ $<
 ifdef ROOTSYS
 $(LIB_DIR)/rmana.o: $(SRC_DIR)/mana.cpp msystem.h midas.h midasinc.h mrpc.h
 	$(CXX) -DUSE_ROOT -c $(CFLAGS) $(OSFLAGS) $(ROOTCFLAGS) -o $@ $<
