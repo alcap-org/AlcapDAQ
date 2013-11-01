@@ -111,11 +111,8 @@ decompressor.o: decompressor.c
 	$(CC) -c $(MIDAS_CFLAGS) -I/usr/include/sasl  -UUSE_ROOT  $<
 
 clean: 
-	rm -f *.d *.o *Dict.cpp *Dict.h blank MODULES.h Makefile.MODULES \
+	rm -f *.d *.o *Dict.cpp *Dict.h MODULES.h Makefile.MODULES \
 	alcapana libDataClasses.so libDataClasses.rootmap
-
-blank:
-	touch blank
 
 print: 
 	@echo "DATA_CLASSES = $(DATA_CLASSES)"; echo
@@ -126,4 +123,4 @@ print:
 	@echo "base_objs = $(base_objs)"; echo
 	@echo "MODULE_OBJS = $(MODULE_OBJS)"; echo
 
-include blank $(wildcard *.d)
+include $(wildcard *.d)
