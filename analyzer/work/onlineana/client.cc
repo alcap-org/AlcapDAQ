@@ -24,8 +24,8 @@
 	{
 		TObjString *histname = names.At(i);
 		//printf("object %d: %s\n", i, histname->GetString().Data());
-		//sprintf(req,"GET %s", histname->GetString().Data());
 		// Get the histogram
+		sprintf(req,"GET %s", histname->GetString().Data());
 		s->Send(req);
 		s->Recv(msg);
 		TH1 *hist = (TH1*) msg->ReadObject(msg->GetClass());
