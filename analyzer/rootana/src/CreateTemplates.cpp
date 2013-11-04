@@ -51,8 +51,10 @@ static TH1F* hAvgMVsPsi = NULL;
 
 static TH1F* hTemplateSlow = NULL;
 
-static string fast_pulse_bankname = "Ng80";
-static string slow_pulse_bankname = "Nh80";
+static const int n_fast_pulse_banks = 1;
+static const int n_slow_pulse_banks = 1;
+static string fast_pulse_banknames[n_fast_pulse_banks] = {"Ng80"};
+static string slow_pulse_banknames[n_slow_pulse_banks] = {"Nh80"};
 
 CreateTemplates::CreateTemplates(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){
@@ -119,11 +121,16 @@ int CreateTemplates::ProcessEntry(TGlobalData *gData){
 	  	if (verbose)
 	  		std::cout << "Entry: " << entry_counter << " Bank: " << (*pulseIter)->GetBankName() << ", Pulse: " << pulseIter - pulses.begin() << std::endl;
 	  	
-	  	if (strcmp((*pulseIter)->GetBankName().c_str(), slow_pulse_bankname.c_str()) == 0)
-	  		GaussianFit(*pulseIter, pulseIter - pulses.begin());
+	  	// Compare the bank names against all the slow pulse banks
+	  	for (int iBankName = 0; iBankName < n_slow_pulse_banks; iBankName++) {
+	  		if (strcmp((*pulseIter)->GetBankName().c_str(), slow_pulse_banknames[iBankName].c_str()) == 0)
+	  			GaussianFit(*pulseIter, pulseIter - pulses.begin());
+	  	}
 	  	
-	  	if (strcmp((*pulseIter)->GetBankName().c_str(), fast_pulse_bankname.c_str()) == 0)
-	  		PseudotimeDistributions(*pulseIter, pulseIter - pulses.begin());
+	  	for (int iBankName = 0; iBankName < n_fast_pulse_banks; iBankName++) {
+	  		if (strcmp((*pulseIter)->GetBankName().c_str(), fast_pulse_banknames[iBankName].c_str()) == 0)
+	  			PseudotimeDistributions(*pulseIter, pulseIter - pulses.begin());
+	  	}
 	  	
 	  }
   }
@@ -347,7 +354,7 @@ void CreateTemplates::PseudotimeTemplate() {
 
 	for (int iEntry = 1; iEntry <= entry_counter; iEntry++) {
 		std::stringstream histname;
-		histname << "Entry" << iEntry << "_" << fast_pulse_bankname << "_Pulse0";
+		histname << "Entry" << iEntry << "_" << fast_pulse_banknames[0] << "_Pulse0";
 		TH1F* hFastPulse = (TH1F*) dir->Get(histname.str().c_str());
 		
 		if (hFastPulse == NULL)
