@@ -7,7 +7,7 @@ the running online analyzer and displays them using ROOT
 macros. Compile the display with the command "make". Run the
 display with no arguments.
 
-  ./online-display
+    ./online-display
 
 This shows a main display canvas and a row of buttons. Clicking
 the buttons will invoke a ROOT macro (see Adding a Macro, below).
@@ -26,12 +26,12 @@ An example macro is included, raw_parameter_display.C. This grabs
 some histograms defined in the MuSun analysis and draws them on 
 the canvas. The minimal macro would look like this:
 
-  {
-    TCanvas *MuSunCanvas = (TCanvas *) gROOT->GetListOfCanvases()->At(0);
-    MuSunCanvas->cd();
-    TH1 *parameters_muSC = getHist("muSC_count_raw");
-    parameters_muSC->Draw();
-  }
+    {
+      TCanvas *MuSunCanvas = (TCanvas *) gROOT->GetListOfCanvases()->At(0);
+      MuSunCanvas->cd();
+      TH1 *parameters_muSC = getHist("muSC_count_raw");
+      parameters_muSC->Draw();
+    }
 
 This fetches the canvas, grabs the histogram with the getHist() function,
 and draws it on the canvas.
@@ -39,11 +39,11 @@ and draws it on the canvas.
 To add macro, you must create in the online-display/ directory and 
 register it in mainWindow.cpp:
 
-  struct screen_info screens[] = {
-      {"Raw", "raw_parameter_display.C"},
-      // Add more displays here after writing a ROOT macro, eg:
-      // {"FADC_display", "fadc_display.C"},
-  };
+    struct screen_info screens[] = {
+        {"Raw", "raw_parameter_display.C"},
+        // Add more displays here after writing a ROOT macro, eg:
+        // {"FADC_display", "fadc_display.C"},
+    };
 
 Recompile after registering a macro. You don't need to recompile after
 making changes to a macro, once it is registered. The first string,
@@ -58,6 +58,6 @@ histograms. For instance, the online analyzer writes the histograms
 it has created to a file on disk somewhere. You must only provide the 
 filename as an argument.
 
-  ./online-display /path/to/analyzer/output/hist00231.root
+    ./online-display /path/to/analyzer/output/hist00231.root
 
 From here, it is the same as in online mode.
