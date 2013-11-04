@@ -10,7 +10,8 @@ class CreateTemplates : public FillHistBase{
   ~CreateTemplates();
   
   void GaussianFit(TPulseIsland* pulse, int pulse_number); // for slow pulses
-  void PseudotimeFit(TPulseIsland* pulse, int pulse_number); // for fast pulses
+  void PseudotimeDistributions(TPulseIsland* pulse, int pulse_number); // for fast pulses
+  void PseudotimeTemplate();
 
  private:
   virtual int ProcessEntry(TGlobalData *gData);

@@ -38,13 +38,21 @@ static int entry_counter = 1;
 
 static TH2F* h2DTemplateSlow = NULL;
 static TH2F* h2DTemplateFast = NULL;
-static double anchor_time = 0;
-static double anchor_amp = 0;
+static double anchor_time_slow = 0;
+static double anchor_amp_slow = 0;
+static double anchor_time_fast = 0;
+static double anchor_amp_fast = 0;
 
 static TH1F* hPseudotime = NULL;
+static TH1F* hTau = NULL;
+
 static TH2F* hMVsPsi = NULL;
+static TH1F* hAvgMVsPsi = NULL;
 
 static TH1F* hTemplateSlow = NULL;
+
+static string fast_pulse_bankname = "Ng80";
+static string slow_pulse_bankname = "Nh80";
 
 CreateTemplates::CreateTemplates(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){
@@ -86,6 +94,9 @@ CreateTemplates::~CreateTemplates(){
 	
 		}
 	}
+	
+	// Now that we have all the pulses from all the entries, complete the fast pulse pseudotime template
+	PseudotimeTemplate();
 }
 
 int CreateTemplates::ProcessEntry(TGlobalData *gData){
@@ -108,11 +119,11 @@ int CreateTemplates::ProcessEntry(TGlobalData *gData){
 	  	if (verbose)
 	  		std::cout << "Entry: " << entry_counter << " Bank: " << (*pulseIter)->GetBankName() << ", Pulse: " << pulseIter - pulses.begin() << std::endl;
 	  	
-	  	if (strcmp((*pulseIter)->GetBankName().c_str(), "Nh80") == 0)
+	  	if (strcmp((*pulseIter)->GetBankName().c_str(), slow_pulse_bankname.c_str()) == 0)
 	  		GaussianFit(*pulseIter, pulseIter - pulses.begin());
 	  	
-	  	if (strcmp((*pulseIter)->GetBankName().c_str(), "Ng80") == 0)
-	  		PseudotimeFit(*pulseIter, pulseIter - pulses.begin());
+	  	if (strcmp((*pulseIter)->GetBankName().c_str(), fast_pulse_bankname.c_str()) == 0)
+	  		PseudotimeDistributions(*pulseIter, pulseIter - pulses.begin());
 	  	
 	  }
   }
@@ -186,17 +197,17 @@ void CreateTemplates::GaussianFit(TPulseIsland* pulse, int pulse_number) {
 		double time_shift = 0;
 		double amp_scale_factor = 0;
 		
-		if (anchor_time == 0) {
+		if (anchor_time_slow == 0) {
 	  		// Have this pulse as the anchor
-	  		anchor_time = t_max + delta_t; // anchor to the maximum value of the function
+	  		anchor_time_slow = t_max + delta_t; // anchor to the maximum value of the function
 	  	}
-	  	time_shift = t_max - anchor_time;
+	  	time_shift = t_max - anchor_time_slow;
 	  	
-	  	if (anchor_amp == 0) {
+	  	if (anchor_amp_slow == 0) {
 	  		// Have this pulse as the anchor
-	  		anchor_amp = A;
+	  		anchor_amp_slow = A;
 	  	}
-	  	amp_scale_factor = a_max / anchor_amp;
+	  	amp_scale_factor = a_max / anchor_amp_slow;
 		
 		h2DTemplateSlow->Fill(time - time_shift, ADC * amp_scale_factor);
 	}
@@ -236,8 +247,8 @@ void CreateTemplates::GaussianFit(TPulseIsland* pulse, int pulse_number) {
 	  	*/
 }
 
-
-void CreateTemplates::PseudotimeFit(TPulseIsland* pulse, int pulse_number) {
+// Get the plots we need to fill on a pulse-by-pulse basis
+void CreateTemplates::PseudotimeDistributions(TPulseIsland* pulse, int pulse_number) {
 	
 	// Get the samples
 	std::vector<int> theSamples = pulse->GetSamples();
@@ -271,7 +282,7 @@ void CreateTemplates::PseudotimeFit(TPulseIsland* pulse, int pulse_number) {
 		hPseudotime = new TH1F("hPseudotime", "hPseudotime", 100,0,TMath::PiOver2());
 	}
 	
-	// Calculate pseudotime
+	// Calculate pseudotime and plot its distribution
 	// Get the amplitudes of the samples before and after the maximum
 	int a_p = theSamples[max_sample_position - 1]; // the amplitude of the previous sample
 	int a_n = theSamples[max_sample_position + 1]; // the amplitude of the next sample
@@ -283,44 +294,128 @@ void CreateTemplates::PseudotimeFit(TPulseIsland* pulse, int pulse_number) {
 	
 	hPseudotime->Fill(psi);
 	
+	
+	// Plot the M vs Psi distribution
+	if (hMVsPsi == NULL) { // create the histogram
+		hMVsPsi = new TH2F("hMVsPsi", "M vs #psi", 100,0,TMath::PiOver2(), 1000,0,1000);
+	}
+	hMVsPsi->Fill(psi, max_sample_value);
+}
+
+void CreateTemplates::PseudotimeTemplate() {
+	
+	double fast_pulse_clocktick = 6.25;
+	
 	// Calculate the constant in the function tau(psi)
 	// tau(psi) = constant * integral(0->psi)(f(psi))
 	// for psi=pi/2, tau = ClockTickInNs() ==> constant = ClockTickInNs() / integral(0->pi/2)f(psi)
 	
-	double constant = pulse->GetClockTickInNs() / hPseudotime->Integral("width");
-	std::cout << pulse->GetClockTickInNs() << ", " << hPseudotime->Integral("width") << std::endl;
-	std::cout << "Constant: " << constant << std::endl;
+	double constant = fast_pulse_clocktick / hPseudotime->Integral("width");
 	
+	// Plot tau(psi)
+	int n_bins = 100;
+	hTau = new TH1F("hTau", "#tau(#psi)", n_bins,0,TMath::PiOver2());
+	for (int iBin = 1; iBin <= hPseudotime->GetNbinsX(); iBin++) {
+		hTau->SetBinContent(iBin, constant * hPseudotime->Integral(1, iBin, "width"));
+	}
 	
-	// Get the pseudotime distribution
-	if (hMVsPsi == NULL) { // create the histogram
-		hMVsPsi = new TH2F("hMVsPsi", "hMVsPsi", 100,0,TMath::PiOver2(), 1000,0,1000);
+	// Plot the average value of M (max sample) as a function of psi
+	hAvgMVsPsi = new TH1F("hAvgMVsPsi", "<M>(#psi)", n_bins,0,TMath::PiOver2());
+	
+	for (int iBin = 1; iBin <= hMVsPsi->GetNbinsX(); iBin++) {
+		
+		double avg_M = 0.0;
+		int n_entries = 0;
+		
+		for (int jBin = 1; jBin <= hMVsPsi->GetNbinsY(); jBin++) {
+			
+			avg_M += hMVsPsi->GetYaxis()->GetBinCenter(jBin) * hMVsPsi->GetBinContent(iBin, jBin);
+			n_entries += hMVsPsi->GetBinContent(iBin, jBin);
+		
+		}
+		if (n_entries != 0) {
+			avg_M /= n_entries;
+			hAvgMVsPsi->SetBinContent(iBin, avg_M);
+		}
 	}
-	hMVsPsi->Fill(psi, max_sample_value);
-	  		  	
-	  	
-	// Create the histogram if it's not been created
-/*	if (h2DTemplateFast == NULL) {
-		h2DTemplateFast = new TH2F("h2DTemplateFast", "h2DTemplateFast", 
-	  				hPulse->GetXaxis()->GetXmax(),hPulse->GetXaxis()->GetXmin(),hPulse->GetXaxis()->GetXmax(), 
-	  				hPulse->GetMaximum()+500,hPulse->GetMinimum(),hPulse->GetMaximum()+500);
-	}
-	// Add the fit to the template
-	for (int iBin = 1; iBin <= h2DTemplateFast->GetNbinsX(); iBin++) {
-	  		
-		double time_shift = 0;
-	  	// Get the time shift
-	  	if (anchor_time == 0) {
-	  		// Have this pulse as the anchor
-	  		anchor_time = gaussian->GetMaximumX(); // anchor to the maximum value of the function
-	  	}
-	  	else {
-	  		double this_time = gaussian->GetMaximumX();
-	  		time_shift = this_time - anchor_time;
-	  	}
-	  		
-	  	h2DTemplateFast->Fill(iBin - time_shift, gaussian->Eval(iBin));	  	
-	}
-*/
-}
+	
+	// Get R(psi) by assuming R_max = 1 and using <M>(psi) = k*R(psi)
+	// Get the maximum <M> which is the same as k
+	double k = hAvgMVsPsi->GetMaximum();
+	
+	// No we have everything, so loop through all the fast pulses again to get the true amplitude and delta_t
 
+	for (int iEntry = 1; iEntry <= entry_counter; iEntry++) {
+		std::stringstream histname;
+		histname << "Entry" << iEntry << "_" << fast_pulse_bankname << "_Pulse0";
+		TH1F* hFastPulse = (TH1F*) dir->Get(histname.str().c_str());
+		
+		if (hFastPulse == NULL)
+			continue; // skip the loop if there's not a fast pulse in this entry
+			
+		// Calculate psi for this pulse
+		double a_max = hFastPulse->GetMaximum();
+		double a_max_bin = hFastPulse->GetMaximumBin();
+		double t_max = a_max_bin * fast_pulse_clocktick;
+		
+		int a_p = hFastPulse->GetBinContent(a_max_bin - 1); // the amplitude of the previous sample
+		int a_n = hFastPulse->GetBinContent(a_max_bin + 1); // the amplitude of the next sample
+		    
+		double del_p = std::abs(a_max - a_p);
+		double del_n = std::abs(a_max - a_n);
+	    
+		double psi = std::atan2(del_p, del_n); // pseudotime
+		
+		
+		// Calculate R(psi)
+		double R = hAvgMVsPsi->GetBinContent(hAvgMVsPsi->FindBin(psi)) / k;
+		
+		// Calculate tau(psi)
+		double tau = hTau->GetBinContent(hTau->FindBin(psi));
+		
+		// Finally get A and delta_t
+		double A = a_max / R;
+		double delta_t = -0.5 + tau;
+		
+		// Create the histogram if it's not been created
+		if (h2DTemplateFast == NULL) {
+			h2DTemplateFast = new TH2F("h2DTemplateFast", "h2DTemplateFast", 
+	  					hFastPulse->GetNbinsX(),hFastPulse->GetXaxis()->GetXmin(),hFastPulse->GetXaxis()->GetXmax(), 
+	  					hFastPulse->GetMaximum()+500,hFastPulse->GetMinimum(),hFastPulse->GetMaximum()+500);
+	  	
+	  		h2DTemplateFast->SetTitle("Fast Pulse 2D Template Histogram");
+	  		h2DTemplateFast->GetXaxis()->SetTitle("time [ns]");
+	  		h2DTemplateFast->GetYaxis()->SetTitle("ADC value");
+		}
+	
+		// Normalise the data and plot it in the 2D histogram
+		for (int iBin = 1; iBin <= hFastPulse->GetNbinsX(); iBin++) {
+		
+			double ADC = hFastPulse->GetBinContent(iBin);
+			double time = iBin * fast_pulse_clocktick;
+			double time_shift = 0;
+			double amp_scale_factor = 0;
+		
+			if (anchor_time_fast == 0) {
+	  			// Have this pulse as the anchor
+	  			anchor_time_fast = t_max + delta_t; // anchor to the maximum value of the function
+	  		}
+	  		time_shift = t_max - anchor_time_fast;
+	  	
+	  		if (anchor_amp_fast == 0) {
+	  			// Have this pulse as the anchor
+	  			anchor_amp_fast = A;
+	  		}
+	  		amp_scale_factor = a_max / anchor_amp_fast;
+		
+			h2DTemplateFast->Fill(time - time_shift, ADC * amp_scale_factor);
+		}
+		
+		if (verbose) {
+			std::cout << "Fast Pulse: " << std::endl;
+			std::cout << "a_max = " << a_max << "\tt_max = " << t_max << std::endl;
+			std::cout << "psi = " << psi << "\tR = " << R << "\ttau = " << tau << std::endl;
+			std::cout << "A = " << A << "\tdelta_t = " << delta_t << std::endl << std::endl;
+		}
+	}
+}
