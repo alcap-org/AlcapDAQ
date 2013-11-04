@@ -1,0 +1,171 @@
+raw_parameter_display()
+{
+  /*****************************************************************/
+  // Prepare the canvas
+
+  gROOT->LoadMacro("palette.cxx");
+  SetRainbowPalette();
+  gStyle->SetOptStat("ne");
+ 
+  TCanvas *MuSunCanvas = (TCanvas *) gROOT->GetListOfCanvases()->At(0);
+  MuSunCanvas->Divide(3,3);
+
+  /*****************************************************************/
+
+  MuSunCanvas->cd(1);
+  TH1 *parameters_muSC = getHist("muSC_count_raw");
+  parameters_muSC->SetFillColor(kBlack);
+  int muSCtot=parameters_muSC->Integral();
+  printf("muSC_count_raw: %d \n",muSCtot);
+  parameters_muSC->Draw();
+  //parameters_muSC->SetTitle(gROOT->GetFile()->GetName());
+
+  TH1 *parameters_all = getHist("hParameters_All");
+  MuSunCanvas->cd(2);
+  gPad->SetLogy();
+  TH1 *parameters_muPC1 = extractParameters(parameters_all, "muPC", 4001, 4074);
+  parameters_muPC1->SetFillColor(kBlack);
+  parameters_muPC1->Draw();
+
+#if 0
+  MuSunCanvas->cd(3);
+  gPad->SetLogy();
+  TH1 *caen0_32BitInterpolator = getHist("DAQ_caen0_edges_leading_32BitInterp_noRollover");
+  caen0_32BitInterpolator->SetLineColor(kBlue);
+  TH1 *caen1_32BitInterpolator = getHist("DAQ_caen1_edges_leading_32BitInterp_noRollover");
+  caen1_32BitInterpolator->SetLineColor(kRed);
+  TH1 *caen2_32BitInterpolator = getHist("DAQ_caen2_edges_leading_32BitInterp_noRollover");
+  caen2_32BitInterpolator->SetLineColor(kGreen);
+
+  TH1 *biggest;
+  TH1 *smaller1;
+  TH1 *smaller2;
+  
+  if ((caen0_32BitInterpolator->Integral() > caen1_32BitInterpolator->Integral()) &&
+      (caen0_32BitInterpolator->Integral() > caen2_32BitInterpolator->Integral())) {
+    biggest = caen0_32BitInterpolator;
+    smaller1 = caen1_32BitInterpolator;
+    smaller2 = caen2_32BitInterpolator;
+  } else {
+    smaller1 = caen0_32BitInterpolator;
+    if (caen1_32BitInterpolator->Integral() > caen2_32BitInterpolator->Integral()) {
+      biggest = caen1_32BitInterpolator;
+      smaller2 =  caen2_32BitInterpolator;
+    } else {
+      biggest = caen2_32BitInterpolator;
+      smaller2 =  caen1_32BitInterpolator;
+    }
+  }
+  biggest->SetTitle("CAEN Interpolator Distributions");
+  biggest->SetMinimum(1); 
+  biggest->Draw();
+  smaller1->Draw("same");
+  smaller2->Draw("same");
+  TText *txt0 = new TText;
+  txt0->SetTextColor(kBlue);
+  txt0->DrawTextNDC(.7, .25, "CAEN 0");
+  TText *txt1 = new TText;
+  txt1->SetTextColor(kRed);
+  txt1->DrawTextNDC(.7, .20, "CAEN 1");
+  TText *txt2 = new TText;
+  txt2->SetTextColor(kGreen);
+  txt2->DrawTextNDC(.7, .15, "CAEN 2");
+#endif
+
+  MuSunCanvas->cd(3);
+  TH1 *blocks_total = getHist("blocks_total");
+  //TH1 *blocks_analyzed = getHist("blocks_analyzed");
+  TH1 *blocks_skipped_duplication = getHist("blocks_skipped_duplication");
+  TH1 *blocks_skipped_caen_error = getHist("blocks_skipped_caen_error");
+  TH1 *blocks_skipped_comp_error = getHist("blocks_skipped_comp_error");
+  TH1 *blocks_skipped_caen_rollover_error = getHist("blocks_skipped_caen_rollover_error");
+  //TH1 *blocks_skipped_tdc400_time_order_error = getHist("blocks_skipped_tdc400_time_order_error");
+  //TH1 *blocks_skipped_tdc400_DAQ_flagged_error = getHist("blocks_skipped_tdc400_DAQ_flagged_error");
+  //TH1 *blocks_skipped_stack_bank_overflow = getHist("blocks_skipped_stack_bank_overflow");
+  TH1 *blocks_skipped_muSC_matching_errors = getHist("blocks_skipped_muSC_matching_errors");
+  //TH1 *blocks_skipped_eSC_caen_only = getHist("blocks_skipped_eSC_caen_only");
+  //TH1 *blocks_skipped_eSC_comp_only = getHist("blocks_skipped_eSC_comp_only");
+  TH1 *blocks_skipped_global_TPC_discharge = getHist("hTpcDischargeBlockCut");
+  
+  TH1 *blocks_skipped_all = new TH1D("blocks_skipped_all", "blocks_skipped_all", 11, 0.5, 11.5);
+  TH1 *blocks_total2 = new TH1D("blocks_total2", "blocks_total2", 11, 0.5, 11.5);
+  blocks_total2->SetBinContent(1, blocks_total->Integral());
+  blocks_skipped_all->SetBinContent(2, blocks_skipped_caen_error->Integral());
+  blocks_skipped_all->SetBinContent(3, blocks_skipped_comp_error->Integral());
+  blocks_skipped_all->SetBinContent(4, blocks_skipped_caen_rollover_error->Integral());
+//  blocks_skipped_all->SetBinContent(5, blocks_skipped_tdc400_time_order_error->Integral());
+//  blocks_skipped_all->SetBinContent(6, blocks_skipped_tdc400_DAQ_flagged_error->Integral());
+//  blocks_skipped_all->SetBinContent(7, blocks_skipped_stack_bank_overflow->Integral());
+  blocks_skipped_all->SetBinContent(8, blocks_skipped_muSC_matching_errors->Integral());
+//  blocks_skipped_all->SetBinContent(9, blocks_skipped_eSC_caen_only->Integral());
+//  blocks_skipped_all->SetBinContent(10, blocks_skipped_eSC_comp_only->Integral());
+  if(blocks_skipped_global_TPC_discharge)
+    blocks_skipped_all->SetBinContent(11, blocks_skipped_global_TPC_discharge->Integral());
+  
+  blocks_skipped_all->SetLineColor(kRed);
+//
+//  blocks_total2->SetTitle("Blocks: total (black), cut by analysis (red)");
+  blocks_total2->Draw();
+  blocks_total2->GetXaxis()->SetBinLabel(1, "Total");
+  blocks_total2->GetXaxis()->SetBinLabel(2, "CAEN");
+  blocks_total2->GetXaxis()->SetBinLabel(3, "COMP");
+  blocks_total2->GetXaxis()->SetBinLabel(4, "Rollover");
+  blocks_total2->GetXaxis()->SetBinLabel(5, "TDC400 order");
+  blocks_total2->GetXaxis()->SetBinLabel(6, "TDC400 DAQ");
+  blocks_total2->GetXaxis()->SetBinLabel(7, "Stack");
+  blocks_total2->GetXaxis()->SetBinLabel(8, "muSC");
+  blocks_total2->GetXaxis()->SetBinLabel(9, "eSC CAEN");
+  blocks_total2->GetXaxis()->SetBinLabel(10, "eSC COMP");
+  blocks_total2->GetXaxis()->SetBinLabel(11, "TPC discharge");
+  blocks_total2->GetXaxis()->SetLabelSize(0.06);
+  blocks_skipped_all->Draw("same");
+
+  MuSunCanvas->cd(4);
+  TH1 *MuSCAreaHist = getHist("hMUSCArea");
+  MuSCAreaHist->SetTitle("WFD muSC Area Spectrum");
+  MuSCAreaHist->SetLineColor(kRed);
+  MuSCAreaHist->Draw();
+
+  MuSunCanvas->cd(5);
+  TH1 *MuSCAmpHist = getHist("hMUSCMaxVal");
+  MuSCAmpHist->SetTitle("WFD muSC Amp Spectrum");
+  MuSCAmpHist->SetLineColor(kRed);
+  MuSCAmpHist->Draw();
+
+  MuSunCanvas->cd(6);
+  gPad->SetLogy();
+  parameters_all->Draw();
+
+  MuSunCanvas->cd(7);
+  TH1 *parameters_ePC1 = extractParameters(parameters_all, "ePC1", 1, 1192);
+  gPad->SetLogy();
+  parameters_ePC1->SetFillColor(kBlack);
+  parameters_ePC1->Draw();
+
+  MuSunCanvas->cd(8);
+  TH1 *parameters_ePC2 = extractParameters(parameters_all, "ePC2", 2001, 3920);
+  gPad->SetLogy();
+  parameters_ePC2->SetFillColor(kBlack);
+  parameters_ePC2->Draw();
+
+  MuSunCanvas->cd(9);
+  TH1 *parameters_hodoscope = extractParameters(parameters_all, "eSC", 7001-1, 7076-1);
+  parameters_hodoscope->SetFillColor(kBlack);
+  parameters_hodoscope->Draw();
+
+  /*****************************************************************/
+}
+
+TH1 *extractParameters(TH1 *parametersAll, char *title, int first, int last)
+{
+  char name[80];
+  sprintf(name, "hPar%d_%d", first, last);
+  TH1D *h = new TH1D(name, title, last-first+1, first-0.5, last+0.5);
+
+  for(int i = first; i <= last; i++) 
+  {
+    h->SetBinContent(i-first+1, parametersAll->GetBinContent(i));
+  }
+
+  return h;
+}
