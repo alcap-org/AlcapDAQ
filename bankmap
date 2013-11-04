@@ -1,0 +1,36 @@
+Na80  muSc
+Nb80  muSc-A
+Nc80  ScL
+Nd80  ScR
+Ne80  ScGe
+Nf80  blank
+Ng80  blank
+Nh80  blank
+
+Nac0  SiL2-slow
+Nbc0  SiR2-slow
+Ncc0  Ge-slow
+Ndc0  blank
+Nec0  SiL2-fast
+Nfc0  SiR2-fast
+Ngc0  Ge-fast
+Nhc0  blank
+
+Nae0  SiL1-1-fast
+Nbe0  SiL1-2-fast
+Nce0  SiL1-3-fast
+Nde0  SiL1-4-fast
+Nee0  SiR1-1-fast
+Nfe0  SiR1-2-fast
+Nge0  SiR1-3-fast
+Nhe0  SiR1-4-fast
+
+Naf0  SiL1-1-slow
+Nbf0  SiL1-2-slow
+Ncf0  SiL1-3-slow
+Ndf0  SiL1-4-slow
+Nef0  SiR1-1-slow
+Nff0  SiR1-2-slow
+Ngf0  SiR1-3-slow
+Nhf0  SiR1-4-slow
+
