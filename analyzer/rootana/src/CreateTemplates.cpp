@@ -64,6 +64,10 @@ CreateTemplates::~CreateTemplates(){
 	// Want <ADC>(t)
 	if (h2DTemplateSlow != NULL) {
 		hTemplateSlow = new TH1F("hTemplateSlow", "hTemplateSlow", h2DTemplateSlow->GetNbinsX(), h2DTemplateSlow->GetXaxis()->GetXmin(), h2DTemplateSlow->GetXaxis()->GetXmax());
+		
+		hTemplateSlow->SetTitle("Template for the Slow Pulses");
+		hTemplateSlow->GetXaxis()->SetTitle("time [ns]");
+		hTemplateSlow->GetYaxis()->SetTitle("ADC value");
 	
 		for (int iBin = 1; iBin <= h2DTemplateSlow->GetNbinsX(); iBin++) {
 		
