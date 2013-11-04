@@ -30,11 +30,13 @@ bool openHistSocket(const char *hostname, unsigned int port)
 {
   closeHistSource();
 
-  histSocket = new TSocket(hostname, 9090);
+  histSocket = new TSocket(hostname, port);
   bool isValid = histSocket->IsValid();
   if(!isValid) {
     delete histSocket;
     histSocket = NULL;
+		printf("Cannot establish connection to %s:%d\n", hostname, port);
+		exit(1);
   }
 
   char str[20];
