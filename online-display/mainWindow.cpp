@@ -217,79 +217,70 @@ TOnlineFrame::~TOnlineFrame()
 }
 
 Bool_t TOnlineFrame::ProcessMessage(Long_t msg, Long_t param1,
-				    Long_t param2)
+		Long_t param2)
 {
-    switch (GET_MSG(msg)) {
-    case kC_COMMAND:
+	switch (GET_MSG(msg)) 
+	{
+		case kC_COMMAND:
+			switch (GET_SUBMSG(msg)) 
+			{
+				case kCM_BUTTON:
+					if(param1 >= SCREENS_BASE) 
+					{
+						fCurrentDisplay = param1 - SCREENS_BASE;
+						printf("fCurrentDisplay: %d \n",fCurrentDisplay); 
+					}
+					else if(param1 == B_PRINT) 
+					{  // SMC
+						// for pdf  exchange next two lines
+						bool png=1;
+						char pdfcommand[2000]="convert";
 
-      switch (GET_SUBMSG(msg)) {
+						//bool png=0;
+						//char pdfcommand[2000]="gs -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=online.pdf";
 
-      case kCM_BUTTON:
-	if(param1 >= SCREENS_BASE) {
-	  fCurrentDisplay = param1 - SCREENS_BASE;
-	  printf("fCurrentDisplay: %d \n",fCurrentDisplay); 
+						for (int fCurr=0; fCurr < num_online; fCurr++){
+							runMacro(screens[fCurr].macroName);
+							char outfile[80]="";
+							if(png)
+								sprintf(outfile,"%s.png",screens[fCurr].visibleName);
+							else
+								sprintf(outfile,"%s.pdf",screens[fCurr].visibleName);
+							sprintf(pdfcommand,"%s %s",pdfcommand,outfile);
+							fEmbeddedCanvas->GetCanvas()->Print(outfile);
+						}
 
+						if(png)
+							sprintf(pdfcommand,"%s %s",pdfcommand,"online.pdf");
+						printf("%s \n", pdfcommand);
+						gSystem->Exec(pdfcommand);
+					}
+					break;
 
+				case kCM_COMBOBOX:
+					std::ofstream numfile;
+					if (param1 == B_CHANGE_PAD)
+					{
+						fAnalyzerPad = param2;
+						numfile.open("boxnumber.txt");
+						numfile<<fAnalyzerPad;
+						numfile.close();
+					}
+
+					else if (param1 == B_CHANGE_ERANGE)
+					{
+						fPadERange = param2;
+						numfile.open("ERangenumber.txt");
+						numfile<<fPadERange;
+						numfile.close();
+					}
+					break;
+			}
+
+			if(param1 != B_PRINT) runMacro(screens[fCurrentDisplay].macroName);
 	}
-	else if(param1 == B_PRINT) {  // SMC
-	  // for pdf  exchange next two lines
-	  bool png=1;
-	  char pdfcommand[2000]="convert";
 
-	  //bool png=0;
-	  //char pdfcommand[2000]="gs -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=online.pdf";
-
-	  for (int fCurr=0; fCurr < num_online; fCurr++){
-	    runMacro(screens[fCurr].macroName);
-	    char outfile[80]="";
-	    if(png)
-	      sprintf(outfile,"%s.png",screens[fCurr].visibleName);
-	    else
-	      sprintf(outfile,"%s.pdf",screens[fCurr].visibleName);
-	    sprintf(pdfcommand,"%s %s",pdfcommand,outfile);
-	    fEmbeddedCanvas->GetCanvas()->Print(outfile);
-	  }
-
-	  if(png)
-	    sprintf(pdfcommand,"%s %s",pdfcommand,"online.pdf");
-	  printf("%s \n", pdfcommand);
-	  gSystem->Exec(pdfcommand);
-	}
-
-	break;
-
-      case kCM_COMBOBOX:
-
-	std::ofstream numfile;
-
-	if (param1 == B_CHANGE_PAD)
-	  {
-	    fAnalyzerPad = param2;
-
-	    numfile.open("boxnumber.txt");
-	    numfile<<fAnalyzerPad;
-	    numfile.close();
-	  }
-
-	else if (param1 == B_CHANGE_ERANGE)
-	  {
-	    fPadERange = param2;
-
-	    numfile.open("ERangenumber.txt");
-	    numfile<<fPadERange;
-	    numfile.close();
-	  }
-
-	break;
-
-
-      }
-
-     if(param1 != B_PRINT) runMacro(screens[fCurrentDisplay].macroName);
-
-    }
-
-    return false;
+	return false;
 }
 
 void TOnlineFrame::CloseWindow()
@@ -316,52 +307,52 @@ void TOnlineFrame::runMacro(const char *macro)
 
 int main(int argc, char **argv)
 {
-    int fake_argc = 1;
-    char *fake_argv[] = {"./online-display"};
+	int fake_argc = 1;
+	std::string tmpstr ("./online-display");
+	char *fake_argv[] = {(char *)tmpstr.c_str()};
 
-    TApplication theApp("RMidas", &fake_argc, fake_argv);
+	TApplication theApp("RMidas", &fake_argc, fake_argv);
 
-    if (gROOT->IsBatch()) {
-	printf("%s: cannot run in batch mode\n", argv[0]);
-	return 1;
-    }
+	if (gROOT->IsBatch()) {
+		printf("%s: cannot run in batch mode\n", argv[0]);
+		return 1;
+	}
 
-    if(argc < 2) {
-      openHistSocket("localhost");
-    } else {
-      openHistFile(argv[1]);
-    }
+	if(argc < 2) {
+		openHistSocket("localhost");
+	} else {
+		openHistFile(argv[1]);
+	}
 
-    std::ofstream numfile;
-    numfile.open("boxnumber.txt");
-    numfile<<0;
-    numfile.close();
+	std::ofstream numfile;
+	numfile.open("boxnumber.txt");
+	numfile<<0;
+	numfile.close();
 
-    numfile.open("ERangenumber.txt");
-    numfile<<0;
-    numfile.close();
+	numfile.open("ERangenumber.txt");
+	numfile<<0;
+	numfile.close();
 
-    char windowTitle[100]; 
-    if(argc < 2) {
-      sprintf(windowTitle,"MuSun Online Browser - Current Run");
-    } else {
-      sprintf(windowTitle,"MuSun Online Browser %s", argv[1]);
-    }
+	char windowTitle[100]; 
+	if(argc < 2) {
+		sprintf(windowTitle,"AlCap Online Browser - Current Run");
+	} else {
+		sprintf(windowTitle,"AlCap Online Browser %s", argv[1]);
+	}
 
-    TOnlineFrame *onlineFrame = new TOnlineFrame(gClient->GetRoot(),
-      windowTitle);
+	TOnlineFrame *onlineFrame = new TOnlineFrame(gClient->GetRoot(), windowTitle);
 
-    time_t lastCycleTime = time(NULL);
-    while(true) {
-      theApp.Run(1);
-      if(time(NULL) > lastCycleTime + 2) {
-	printf("Considering cycling\n");
-        onlineFrame->ConsiderCycling(); 
-	lastCycleTime = time(NULL);
-      } else {
-        usleep(10000);
-      }
-    }
+	time_t lastCycleTime = time(NULL);
+	while(true) {
+		theApp.Run(1);
+		if(time(NULL) > lastCycleTime + 2) {
+			printf("Considering cycling\n");
+			onlineFrame->ConsiderCycling(); 
+			lastCycleTime = time(NULL);
+		} else {
+			usleep(10000);
+		}
+	}
 
-    return 0;
+	return 0;
 }

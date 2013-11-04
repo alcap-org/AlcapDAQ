@@ -13,14 +13,6 @@
 static TSocket *histSocket = NULL;
 static TFile *histFile = NULL;
 
-// prototypes
-bool openHistFile(const char *filename);
-bool openHistSocket(const char *hostname);
-void closeHistSource();
-TH1 *getHist(const char *histName);
-TH1 *getHistFromSocket(const char *histName);
-TH1 *getHistFromFile(const char *histName);
-
 bool openHistFile(const char *filename)
 {
   closeHistSource();
@@ -34,7 +26,7 @@ bool openHistFile(const char *filename)
   return isOpen;
 }
 
-bool openHistSocket(const char *hostname)
+bool openHistSocket(const char *hostname, unsigned int port)
 {
   closeHistSource();
 
