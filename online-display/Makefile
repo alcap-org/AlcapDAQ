@@ -1,15 +1,14 @@
 OBJS=getHist.o mainWindow.o Dictionary.o
 CXXFLAGS=`$(ROOTSYS)/bin/root-config --cflags`
-LIBS= `$(ROOTSYS)/bin/root-config --glibs` -lThread 
+LIBS= `$(ROOTSYS)/bin/root-config --glibs` -lThread
 
 all: online-display
 
-Dictionary.cpp: 
-	rootcint -f $@ -c getHist.h LinkDef.h
+Dictionary.cpp:
+		rootcint -f $@ -c getHist.h LinkDef.h
 
 online-display: $(OBJS)
-	$(CXX) -o $@ $(OBJS) $(LIBS)
+		g++ -o $@ $(OBJS) $(LIBS)
 
 clean:
-	rm -f online-display *.o Dictionary.h Dictionary.cpp
-
+		rm online-display *.o Dictionary.h Dictionary.cpp

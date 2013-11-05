@@ -26,8 +26,6 @@ ROOT_CFLAGS += -DHAS_STRLCPY
 
 MIDAS_CFLAGS = -I$(MIDASSYS)/include -L../md5-lib/ -lmd5 -I./
 
-
-
 #The following if statements set the lib path for 64-bit or 32-bit linux
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),32)
@@ -59,22 +57,6 @@ Makefile.MODULES: MODULES
 
 # Defines MODULE_OBJS = ...
 include Makefile.MODULES
-
-
-# CAEN
-CAEN_DIR = ../CAEN
-LDFLAGS += -L $(CAEN_DIR)/lib -lCAENDigitizer -lCAENComm -lCAENVME
-# CAEN_DIGITIZER library
-CXXFLAGS += -I $(CAEN_DIR)/CAENDigitizer/CAENDigitizer_2.3.2/include
-#LDFLAGS += -L $(CAEN_DIR)/CAENDigitizer/CAENDigitizer_2.3.2/lib/i686 -lCAENDigitizer
-# CAEN Comm library
-CXXFLAGS += -I $(CAEN_DIR)/CAENComm/include
-#LDFLAGS += -L $(CAEN_DIR)/CAENComm/lib -lCAENComm
-# CAEN VME library
-CXXFLAGS += -I $(CAEN_DIR)/CAENVMELib/CAENVMELib-2.30.2/include
-#LDFLAGS += -L $(CAEN_DIR)/CAENVMELib/CAENVMELib-2.30.2/lib/X86 -lCAENVME
-
-
 
 # Tell GNU where to find header and source files.
 vpath %.h : $(INCLUDE_DIRS)
@@ -110,7 +92,7 @@ MODULES.h: MODULES
 	$(CXX) -MM $(CXXFLAGS) $< > $(notdir $(patsubst %.cpp,%.d,$<))
 
 alcapana: $(objs) $(ANA_OBJS) libDataClasses.so
-	$(CXX) $(ICCFLAGS) -o $@ $^ $(ALL_LIBS) $(LDFLAGS) -lmucap_compress -lm -lz  -Wl,-rpath,$(shell pwd)
+	$(CXX) $(ICCFLAGS) -o $@ $^ $(ALL_LIBS) -lmucap_compress -lm -lz  -Wl,-rpath,$(shell pwd)
 
 
 DataLibraryDict.cpp: $(DATA_LIBRARY_HEADERS) ../../src/common/DataLibraryLinkDef.h
@@ -129,11 +111,8 @@ decompressor.o: decompressor.c
 	$(CC) -c $(MIDAS_CFLAGS) -I/usr/include/sasl  -UUSE_ROOT  $<
 
 clean: 
-	rm -f *.d *.o *Dict.cpp *Dict.h blank MODULES.h Makefile.MODULES \
+	rm -f *.d *.o *Dict.cpp *Dict.h MODULES.h Makefile.MODULES \
 	alcapana libDataClasses.so libDataClasses.rootmap
-
-blank:
-	touch blank
 
 print: 
 	@echo "DATA_CLASSES = $(DATA_CLASSES)"; echo
@@ -144,4 +123,4 @@ print:
 	@echo "base_objs = $(base_objs)"; echo
 	@echo "MODULE_OBJS = $(MODULE_OBJS)"; echo
 
-include blank $(wildcard *.d)
+include $(wildcard *.d)
