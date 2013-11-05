@@ -3,6 +3,8 @@
 * file on disk or an online server.
 */
 
+#include <stdlib.h>
+
 #include "TSocket.h"
 #include "TMessage.h"
 #include "TFile.h"
@@ -35,7 +37,7 @@ bool openHistSocket(const char *hostname, unsigned int port)
   if(!isValid) {
     delete histSocket;
     histSocket = NULL;
-		printf("Cannot establish connection to %s:%d\n", hostname, port);
+		printf("Cannot connect to %s:%d\n", hostname, port);
 		exit(1);
   }
 

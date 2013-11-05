@@ -305,6 +305,8 @@ void TOnlineFrame::runMacro(const char *macro)
   gROOT->Macro(macro);
 }
 
+void HelpMessage();
+
 int main(int argc, char **argv)
 {
 	int fake_argc = 1;
@@ -318,11 +320,37 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	if(argc < 2) {
-		openHistSocket("localhost");
-	} else {
-		openHistFile(argv[1]);
+	int c;
+	std::string hostname = "localhost";
+	int port = 9090;
+	std::string inputfilename = "";
+
+	while ((c = getopt(argc, argv, "hH:p:i:"))!= -1)
+	{
+		switch(c)
+		{
+			case 'h':
+				HelpMessage();
+				return 0;
+				break;
+			case 'H':
+				hostname = optarg;
+				break;
+			case 'p':
+				port = atoi(optarg);
+				break;
+			case 'i':
+				inputfilename = optarg;
+				break;
+			default:
+				break;
+		}
 	}
+
+	if(inputfilename.length() != 0)
+		openHistFile(inputfilename.c_str());
+	else
+		openHistSocket(hostname.c_str(),port);
 
 	std::ofstream numfile;
 	numfile.open("boxnumber.txt");
@@ -334,11 +362,11 @@ int main(int argc, char **argv)
 	numfile.close();
 
 	char windowTitle[100]; 
-	if(argc < 2) {
-		sprintf(windowTitle,"AlCap Online Browser - Current Run");
-	} else {
-		sprintf(windowTitle,"AlCap Online Browser %s", argv[1]);
-	}
+	if(inputfilename.length() != 0)
+		sprintf(windowTitle,"AlCap Online Browser - %s", inputfilename.c_str());
+	else 
+		sprintf(windowTitle,"AlCap Online Browser on %s:%d", 
+				hostname.c_str(), port);
 
 	TOnlineFrame *onlineFrame = new TOnlineFrame(gClient->GetRoot(), windowTitle);
 
@@ -355,4 +383,11 @@ int main(int argc, char **argv)
 	}
 
 	return 0;
+}
+
+void HelpMessage()
+{
+	printf("Default connection is to localhost:9090; to specify another host:\n");
+	printf("\t./online-display -H hostname -p portnumber\n");
+	printf("or to open a ROOT file: \n\t./online-display -i inputrootfile\n");
 }
