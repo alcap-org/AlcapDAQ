@@ -25,7 +25,7 @@ using std::vector;
 using std::pair;
 
 static bool verbose = false;
-static bool plot = false;
+static bool plot = true;
 static int entry_counter = 1;
 static int total_island_counter = 0;
 static int grand_total_pulse_counter = 0;
@@ -182,9 +182,9 @@ int PulseFinder::ProcessEntry(TGlobalData *gData){
 	  			pulse_samples.push_back( std::abs(*(sampleIter)-pedestal)); // add this sample to the vector for the pulse
 	  			
 	  			// Check to see if we are at the end of the pulse
-	  			// Take the mean of this sample and the next two and if it's roughly the pedestal then end the pulse
+	  			// Take the mean of this sample and the next two and if it's less than the pedestal + 1*RMS end the pulse
 	  			double mean = ( *(sampleIter) + *(sampleIter+1) + *(sampleIter+2) ) / 3;
-	  			if ( (mean > pedestal - 1*RMS) && (mean < pedestal + 1*RMS) )
+	  			if ( (mean > pedestal - 1*RMS) )
 	  				pulse_found = false; // no longer have a pulse
 	  		}
 	  	}
