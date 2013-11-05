@@ -17,6 +17,11 @@
 #include "TGLabel.h"
 #include "TG3DLine.h"
 #include "TGFileDialog.h"
+#include "TSocket.h"
+#include "TMessage.h"
+#include "TH1D.h"
+#include "TH1.h"
+#include "TObjArray.h"
 
 #include "getHist.h"
 
@@ -39,6 +44,7 @@ private:
   TGTextEntry *fServerName;
   TGTextEntry *fServerPort;
   ULong_t      run_nr;
+	TSocket *fpSock;
 
 public:
   TOnlineFrame(const TGWindow * p);
@@ -57,6 +63,8 @@ public:
   const unsigned int getAutoUpdateTime() const;
   TSocket *ConnectToServer();
   TFile *OpenRootFile(const char *filename, const Bool_t update_filename = kTRUE );
+	TSocket *GetSocketHandle(){return fpSock;}
+	TH1 *GetHist(const char *histname);
 };
 
 struct screen_info 
@@ -442,6 +450,8 @@ TSocket *TOnlineFrame::ConnectToServer()
     }
   //fFileName->SetText("");
   fFileName->ChangeBackground(ucolor_white);
+
+	fpSock = s;
   return s;
 }
 
@@ -549,6 +559,25 @@ void TOnlineFrame::print_msg(const char *msg, const Int_t partidx)
   fStatusBar->SetText(msg, partidx);
 }
 
+TH1 *TOnlineFrame::GetHist(const char *histname)
+{
+	if (!fpSock)
+	{
+		return NULL;
+	}
+
+	char request[2048];
+	sprintf(request, "GET %s", histname);
+	fpSock->Send(request);
+	TMessage *tmsg;
+	fpSock->Recv(tmsg);
+	TH1 *hist = (TH1*)tmsg->ReadObject(tmsg->GetClass());
+
+	hist->Print();
+	hist->Draw();
+
+	return hist;
+}
 /*
   void cycleThread(void *v)
   {
@@ -622,6 +651,7 @@ int main(int argc, char **argv)
 		onlineFrame->setServerName(server_name.c_str());
 		onlineFrame->setServerPort(server_port);
 		onlineFrame->ConnectToServer();
+		onlineFrame->GetHist("htest");
 	}
 
 	//onlineFrame->runMacro("modules/common/root_init.C");
