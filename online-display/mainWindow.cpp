@@ -624,33 +624,34 @@ int main(int argc, char **argv)
 		onlineFrame->ConnectToServer();
 	}
 
-	onlineFrame->runMacro("modules/common/root_init.C");
+	//onlineFrame->runMacro("modules/common/root_init.C");
 
   /*
     TThread *ct = new TThread(cycleThread, onlineFrame);
     ct->Run();
   */
   
-  theApp.SetIdleTimer(1,".q");
+  //theApp.SetIdleTimer(1,".q");
 
+		theApp.Run(1);
+#if 0
   time_t lastCycleTime = 0;//time(NULL);
   while(true) 
-    {
-      theApp.Run(1);
-      if(time(NULL) > lastCycleTime + onlineFrame->getAutoUpdateTime()) 
 	{
-	  //printf("Considering cycling\n");
-	  onlineFrame->ConsiderCycling(); 
-	  onlineFrame->ConsiderAutoupdate(); 
-	  lastCycleTime = time(NULL);
-	}
-#if 0
- else 
-	{
-	  usleep(10000);
+		theApp.Run(1);
+		if(time(NULL) > lastCycleTime + onlineFrame->getAutoUpdateTime()) 
+		{
+			//printf("Considering cycling\n");
+			onlineFrame->ConsiderCycling(); 
+			onlineFrame->ConsiderAutoupdate(); 
+			lastCycleTime = time(NULL);
+		}
+		else 
+		{
+			usleep(10000);
+		}
 	}
 #endif
-    }
   
   return 0;
 }
