@@ -624,7 +624,7 @@ int main(int argc, char **argv)
 		onlineFrame->ConnectToServer();
 	}
 
-  //onlineFrame->runMacro("common/root_init.C");
+	onlineFrame->runMacro("modules/common/root_init.C");
 
   /*
     TThread *ct = new TThread(cycleThread, onlineFrame);
