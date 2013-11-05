@@ -11,5 +11,5 @@ online-display: $(OBJS)
 	$(CXX) -o $@ $(OBJS) $(LIBS)
 
 clean:
-	rm online-display *.o Dictionary.h Dictionary.cpp
+	rm -f online-display *.o Dictionary.h Dictionary.cpp
 
