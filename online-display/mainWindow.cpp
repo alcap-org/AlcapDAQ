@@ -5,6 +5,7 @@
 #include <vector>
 #include <time.h>
 #include <stdlib.h>
+#include <libgen.h>
 // test
 #include "TApplication.h"
 #include "TGButton.h"
@@ -288,9 +289,9 @@ Bool_t TOnlineFrame::ProcessMessage(Long_t msg, Long_t param1,
 	  else if (param1 == B_PRINT) 
 	    {  
 	      unsigned long int t = time(NULL);
-	      sprintf(name,"~/Pictures/online-display/%s_run_%06ld_%d.pdf",screens[fCurrentDisplay].visibleName,run_nr,t);
+	      sprintf(name,"~/Pictures/online-display/%s_run_%06ld_%lu.pdf",screens[fCurrentDisplay].visibleName,run_nr,t);
 	      fEmbeddedCanvas->GetCanvas()->Print(name);
-	      sprintf(name,"~/Pictures/online-display/%s_run_%06ld_%d.png",screens[fCurrentDisplay].visibleName,run_nr,t);
+	      sprintf(name,"~/Pictures/online-display/%s_run_%06ld_%lu.png",screens[fCurrentDisplay].visibleName,run_nr,t);
 	      fEmbeddedCanvas->GetCanvas()->Print(name);
 	      sprintf(text,"Canvas printed to file [%s]",name);
 	      print_msg(text);
@@ -369,7 +370,7 @@ void TOnlineFrame::ConsiderCycling()
 
 void TOnlineFrame::ConsiderAutoupdate(const Bool_t force)
 {
-  if (fAutoUpdate->GetState() == kButtonDown && fCycleDisplays->GetState() != kButtonDown || force ) 
+  if (((fAutoUpdate->GetState() == kButtonDown) && fCycleDisplays->GetState()) != kButtonDown || force ) 
     {
       const char *macro = screens[fCurrentDisplay].macroName;
       runMacro(macro);
@@ -471,7 +472,7 @@ TFile *TOnlineFrame::OpenRootFile(const char *filename, const Bool_t update_file
     {
       sprintf(msg,"Connected to ROOT file %s",filename);
       print_msg(msg);
-      print_msg(basename(filename),1);
+      print_msg(basename((char*)filename),1);
       print_msg("File",2);
       //fFileName->SetText(basename(filename));
       //ConsiderAutoupdate( kTRUE );
@@ -481,7 +482,7 @@ TFile *TOnlineFrame::OpenRootFile(const char *filename, const Bool_t update_file
     }
 
   if ( update_filename )
-    fFileName->SetText(basename(filename));
+    fFileName->SetText(basename((char*)filename));
 
   fServerName->ChangeBackground(ucolor_white);
 
