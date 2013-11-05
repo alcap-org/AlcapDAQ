@@ -295,7 +295,8 @@ Bool_t TOnlineFrame::ProcessMessage(Long_t msg, Long_t param1,
 					if ( param1 == B_UPDATE || param1 >= SCREENS_BASE )
 					{
 						const char *macro = screens[fCurrentDisplay].macroName;
-						runMacro(macro);
+						gROOT->Macro(macro);
+						//runMacro(macro);
 					}
 					else if (param1 == B_PRINT) 
 					{  
