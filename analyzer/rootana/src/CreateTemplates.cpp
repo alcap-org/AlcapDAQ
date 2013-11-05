@@ -32,7 +32,7 @@ using std::map;
 using std::vector;
 using std::pair;
 
-static bool verbose = false;
+static bool verbose = true;
 
 static int entry_counter = 1;
 
@@ -49,6 +49,7 @@ static double anchor_amp_slow = 0;
 static double anchor_time_fast = 0;
 static double anchor_amp_fast = 0;
 
+static int n_psi_bins = 50;
 static TH1F* hPseudotime[n_fast_pulse_banks] = {NULL};
 static TH1F* hTau[n_fast_pulse_banks] = {NULL};
 
@@ -95,15 +96,19 @@ CreateTemplates::~CreateTemplates(){
 	
 		// Calculate the constant to get tau(psi)
 		double constant = CalculatePseudotimeConstant(hPseudotime[iBank], 6.25); // TODO: find a way to read 6.25 from somewhere
+		if (verbose) {
+			std::cout << "CalculatePseudotimeConstant() called" << std::endl;
+			std::cout << "constant = " << constant << std::endl;
+		}
 		
 		// Plot the tau distribution
 		std::stringstream histname;
 		histname << "hTau_" << fast_pulse_banknames[iBank];
-		hTau[iBank] = new TH1F(histname.str().c_str(), histname.str().c_str(), 100,0,TMath::PiOver2());
+		hTau[iBank] = new TH1F(histname.str().c_str(), histname.str().c_str(), n_psi_bins,0,TMath::PiOver2());
 		histname.str("");
 		
 		std::stringstream histtitle;
-	  	histtitle << "Tau disttributions as a function of #psi for bank " << fast_pulse_banknames[iBank];
+	  	histtitle << "Tau distributions as a function of #psi for bank " << fast_pulse_banknames[iBank];
 	  	hTau[iBank]->SetTitle(histtitle.str().c_str());
 		hTau[iBank]->GetXaxis()->SetTitle("#psi");
 		hTau[iBank]->GetYaxis()->SetTitle("#tau(#psi)");
@@ -114,7 +119,7 @@ CreateTemplates::~CreateTemplates(){
 		
 		// Plot the average a_max distribution
 		histname << "hAvgMVsPsi_" << fast_pulse_banknames[iBank];
-		hAvgAMaxVsPsi[iBank] = new TH1F(histname.str().c_str(), histname.str().c_str(), 100,0,TMath::PiOver2());
+		hAvgAMaxVsPsi[iBank] = new TH1F(histname.str().c_str(), histname.str().c_str(), n_psi_bins,0,TMath::PiOver2());
 		histname.str("");
 		
 	  	histtitle << "The average a_{max} distribution for bank " << fast_pulse_banknames[iBank];
@@ -127,6 +132,10 @@ CreateTemplates::~CreateTemplates(){
 		
 		// Calculate the constant, k for R(psi)
 		double k = CalculateRConstant(hAvgAMaxVsPsi[iBank]);
+		if (verbose) {
+			std::cout << "CalculateRConstant() called" << std::endl;
+			std::cout << "k = " << k << std::endl;
+		}
 		
 		
 		// Loop through all the fast pulses again and plot the 2D template
@@ -198,16 +207,27 @@ int CreateTemplates::ProcessEntry(TGlobalData *gData){
 	  	for (int iBank = 0; iBank < n_slow_pulse_banks; iBank++) {
 	  		if (strcmp((*pulseIter)->GetBankName().c_str(), slow_pulse_banknames[iBank].c_str()) == 0) {
 	  		
+	  			if (verbose)
+	  				std::cout << "Slow Pulse" << std::endl;
+	  		
 	  			// Plot the pulse in a histogram and store the a_max and t_max values
 	  			double a_max, t_max;
 	  			TH1F* hPulse = PlotPulse(*pulseIter, pulseIter - pulses.begin(), a_max, t_max);
+	  			if (verbose) {
+	  				std::cout << "PlotPulse() called" << std::endl;
+	  				std::cout << "a_max = " << a_max << "\tt_max = " << t_max << std::endl;
+	  			}
 	  			
 	  			// Fit a Gaussian to the histogram
+	  			if (verbose)
+	  				std::cout << "FitGaussian() called" << std::endl;
 	  			TF1* fit = FitGaussian(hPulse);
 	  			
 	  			// Get the true amplitude and delta_t values from the fit
 				double A = fit->GetMaximum();
 				double delta_t = t_max - fit->GetMaximumX();
+				if (verbose)
+					std::cout << "A = " << A << "\tdelta_t = " << delta_t << std::endl;
 				
 				
 				// Create the histogram if it's not been created
@@ -233,15 +253,22 @@ int CreateTemplates::ProcessEntry(TGlobalData *gData){
 	  	for (int iBank = 0; iBank < n_fast_pulse_banks; iBank++) {
 	  		if (strcmp((*pulseIter)->GetBankName().c_str(), fast_pulse_banknames[iBank].c_str()) == 0) {
 	  		
+	  			if (verbose)
+	  				std::cout << "Fast Pulse" << std::endl;
+	  		
 	  			// Plot the pulse in a histogram and store the a_max and t_max values
 	  			double a_max, t_max;
 	  			TH1F* hPulse = PlotPulse(*pulseIter, pulseIter - pulses.begin(), a_max, t_max);
+	  			if (verbose) {
+	  				std::cout << "PlotPulse() called" << std::endl;
+	  				std::cout << "a_max = " << a_max << "\tt_max = " << t_max << std::endl;
+	  			}
 	  			
 	  			// Create the pseudotime histogram if it doesn't currently exist
 				if (hPseudotime[iBank] == NULL) { // create the histogram
 					std::stringstream histname;
 					histname << "hPseudotime_" << fast_pulse_banknames[iBank];
-					hPseudotime[iBank] = new TH1F(histname.str().c_str(), histname.str().c_str(), 100,0,TMath::PiOver2());
+					hPseudotime[iBank] = new TH1F(histname.str().c_str(), histname.str().c_str(), n_psi_bins,0,TMath::PiOver2());
 					
 					std::stringstream histtitle;
 	  				histtitle << "Pseudotime Distribution for bank " << fast_pulse_banknames[iBank];
@@ -254,7 +281,7 @@ int CreateTemplates::ProcessEntry(TGlobalData *gData){
 				if (hAMaxVsPsi[iBank] == NULL) { // create the histogram
 					std::stringstream histname;
 					histname << "hAMaxVsPsi_" << fast_pulse_banknames[iBank];
-					hAMaxVsPsi[iBank] = new TH2F(histname.str().c_str(), histname.str().c_str(), 100,0,TMath::PiOver2(), 1000,0,1000);
+					hAMaxVsPsi[iBank] = new TH2F(histname.str().c_str(), histname.str().c_str(), n_psi_bins,0,TMath::PiOver2(), 1000,0,1000);
 					
 					std::stringstream histtitle;
 	  				histtitle << "Distribution of a_{max} vs #psi for bank " << fast_pulse_banknames[iBank];
@@ -319,7 +346,11 @@ TF1* CreateTemplates::FitGaussian(TH1F* hPulse) {
 	gaussian->SetLineColor(kRed);
 	gaussian->SetLineWidth(2);
 	hPulse->Fit("gaus", "QR");
-	  		  	
+	 
+	if (verbose) {
+		std::cout << "Fit parameters: [0] = " << gaussian->GetParameter(0) << "\t[1] = " << gaussian->GetParameter(1) << "\t[2] = " << gaussian->GetParameter(2) << std::endl;
+	}
+	
 	return gaussian;
 }
 
@@ -390,6 +421,13 @@ void CreateTemplates::FillPseudotimeDistributions(TH1F* hPulse, TH1F* hPseudotim
 	// Calculate pseusotime
 	double psi = std::atan2(del_p, del_n);
 	
+	if (verbose) {
+		std::cout << "FillPseudotimeDistributions() called" << std::endl;
+		std::cout << "a_max = " << a_max << "\ta_p = " << a_p << "\ta_n = " << a_n << std::endl;
+		std::cout << "del_p = " << del_p << "\tdel_n = " << del_n << std::endl;
+		std::cout << "psi = " << psi << std::endl;
+	}
+	
 	// Fill the supplied histograms
 	hPseudotime->Fill(psi);
 	hAMaxVsPsi->Fill(psi, a_max);
@@ -403,10 +441,21 @@ double CreateTemplates::CalculatePseudotimeConstant(TH1F* hPseudotime, double cl
 	return clock_tick / hPseudotime->Integral("width");
 }
 
+// Plot the distributions tau(psi)
 void CreateTemplates::PlotTauDistribution(TH1F* hTau, TH1F* hPseudotime, double constant) {
 
+	if (verbose)
+		std::cout << "PlotTauDistributionCalled()" << std::endl;
+		
 	for (int iBin = 1; iBin <= hPseudotime->GetNbinsX(); iBin++) {
-		hTau->SetBinContent(iBin, constant * hPseudotime->Integral(1, iBin, "width"));
+	
+		double psi = hPseudotime->GetBinCenter(iBin);
+		double tau = constant * hPseudotime->Integral(1, iBin, "width");
+		
+		if (verbose)
+			std::cout << "tau(" << psi << ") = " << tau << std::endl;
+			
+		hTau->SetBinContent(iBin, tau);
 	}
 }
 
@@ -466,4 +515,13 @@ void CreateTemplates::GetFastPulsePseudotimeVariables(TH1F* hFastPulse, double& 
 	// Finally get A and delta_t
 	A = a_max / R;
 	delta_t = -0.5 + tau;
+	
+	if (verbose) {
+		std::cout << "GetFastPulsePseudotimeVariables() called" << std::endl;
+		std::cout << "a_max = " << a_max << "\ta_p = " << a_p << "\ta_n = " << a_n << std::endl;
+		std::cout << "del_p = " << del_p << "\tdel_n = " << del_n << std::endl;
+		std::cout << "psi = " << psi << std::endl;
+		std::cout << "R = " << R << "\ttau = " << tau << std::endl;
+		std::cout << "A = " << A << "\tdelta_t = " << delta_t << std::endl;
+	}
 }
