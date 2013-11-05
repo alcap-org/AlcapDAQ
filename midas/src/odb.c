@@ -333,6 +333,7 @@ The Online Database file
 #include "midas.h"
 #include "msystem.h"
 #include <assert.h>
+#include "strlcpy.h"
 
 /*------------------------------------------------------------------*/
 

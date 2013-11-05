@@ -118,7 +118,6 @@ INT MOctalFADCProcessRaw(EVENT_HEADER *pheader, void *pevent)
       if(islands[j]) { delete islands[j]; islands[j] = NULL; }
     }
     islands.clear();
-    pulse_islands_map.erase(iter); // AE: need to erase the key so that blocks after the first will be recorded
   }
 
   // Get islands from all banks and add them to the global structure

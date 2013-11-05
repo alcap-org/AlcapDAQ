@@ -1997,10 +1997,6 @@ extern "C" {
    INT EXPRT cm_msg_retrieve(INT n_message, char *message, INT * buf_size);
 
    BOOL EXPRT equal_ustring(char *str1, char *str2);
-#ifndef HAVE_STRLCPY
-   INT EXPRT strlcpy(char *dst, const char *src, INT size);
-   INT EXPRT strlcat(char *dst, const char *src, INT size);
-#endif
 
    /*---- buffer manager ----*/
    INT EXPRT bm_open_buffer(char *buffer_name, INT buffer_size, INT * buffer_handle);

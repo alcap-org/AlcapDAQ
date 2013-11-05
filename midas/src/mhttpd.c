@@ -856,6 +856,7 @@
 #include "midas.h"
 #include "msystem.h"
 #include "mgd.h"
+#include "strlcpy.h"
 
 /* refresh times in seconds */
 #define DEFAULT_REFRESH 60

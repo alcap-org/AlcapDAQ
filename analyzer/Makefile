@@ -62,7 +62,7 @@ include Makefile.MODULES
 
 
 # CAEN
-CAEN_DIR = /home/daq/AlcapDAQ/CAEN
+CAEN_DIR = ../CAEN
 LDFLAGS += -L $(CAEN_DIR)/lib -lCAENDigitizer -lCAENComm -lCAENVME
 # CAEN_DIGITIZER library
 CXXFLAGS += -I $(CAEN_DIR)/CAENDigitizer/CAENDigitizer_2.3.2/include
