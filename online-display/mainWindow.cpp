@@ -22,6 +22,7 @@
 #include "TH1D.h"
 #include "TH1.h"
 #include "TObjArray.h"
+#include "TObjString.h"
 
 #include "getHist.h"
 
@@ -65,6 +66,7 @@ public:
   TFile *OpenRootFile(const char *filename, const Bool_t update_filename = kTRUE );
 	TSocket *GetSocketHandle(){return fpSock;}
 	TH1 *GetHist(const char *histname);
+	std::vector<const char *> GetHistTitles();
 };
 
 struct screen_info 
@@ -572,11 +574,35 @@ TH1 *TOnlineFrame::GetHist(const char *histname)
 	TMessage *tmsg;
 	fpSock->Recv(tmsg);
 	TH1 *hist = (TH1*)tmsg->ReadObject(tmsg->GetClass());
-
-	hist->Print();
-	hist->Draw();
-
 	return hist;
+}
+
+std::vector<const char *> TOnlineFrame::GetHistTitles()
+{
+	std::vector<const char*> vTitles;
+	if (!fpSock)
+		return vTitles;
+
+	fpSock->Send("LIST");
+	TMessage *tmsg;
+	fpSock->Recv(tmsg);
+	tmsg->Print();
+	TObjArray *objArray = (TObjArray *)tmsg->ReadObject(tmsg->GetClass());
+	for (unsigned int i = 0; i < objArray->GetEntries(); ++i)
+	{
+		TObjString *title = (TObjString *)objArray->At(i);
+		vTitles.push_back((const char *)title->GetString().Data());
+		printf("obj %s\n", title->GetString().Data());
+	}
+
+	for (unsigned int i = 0; i < vTitles.size(); ++i)
+	{
+		printf("%d: %s\n",i,  vTitles.at(i));
+	}
+	printf("%s\n", vTitles.at(0));
+	printf("%s\n", vTitles.at(1));
+
+	return vTitles;
 }
 /*
   void cycleThread(void *v)
@@ -592,14 +618,7 @@ TH1 *TOnlineFrame::GetHist(const char *histname)
 }
 */
 
-void HelpMessage()
-{
-	printf("Default connection is to localhost:9090.\n");
-	printf("To specify another host, use: \n");
-	printf("\t ./online-display -H hostname -p port\n");
-	printf("Or, to open a ROOT file:\n");
-	printf("\t ./online-display -i filename\n");
-}
+void HelpMessage();
 
 int main(int argc, char **argv)
 {
@@ -651,7 +670,17 @@ int main(int argc, char **argv)
 		onlineFrame->setServerName(server_name.c_str());
 		onlineFrame->setServerPort(server_port);
 		onlineFrame->ConnectToServer();
-		onlineFrame->GetHist("htest");
+		onlineFrame->GetHistTitles();
+		TH1 *h1 = onlineFrame->GetHist("hDummy1");
+		if (h1)
+		{
+			h1->Draw();
+		}
+		TH1 *h2 = onlineFrame->GetHist("hNOctalFADCIslandReadPerBlock");
+		if (h2)
+		{
+			h2->Draw();
+		}
 	}
 
 	//onlineFrame->runMacro("modules/common/root_init.C");
@@ -684,4 +713,13 @@ int main(int argc, char **argv)
 #endif
   
   return 0;
+}
+
+void HelpMessage()
+{
+	printf("Default connection is to localhost:9090.\n");
+	printf("To specify another host, use: \n");
+	printf("\t ./online-display -H hostname -p port\n");
+	printf("Or, to open a ROOT file:\n");
+	printf("\t ./online-display -i filename\n");
 }
