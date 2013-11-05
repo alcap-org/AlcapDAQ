@@ -32,7 +32,7 @@ using std::map;
 using std::vector;
 using std::pair;
 
-static bool verbose = true;
+static bool verbose = false;
 
 static int entry_counter = 1;
 
@@ -40,6 +40,9 @@ static const int n_slow_pulse_banks = 1;
 static const int n_fast_pulse_banks = 1;
 static string slow_pulse_banknames[n_slow_pulse_banks] = {"Nh80"};
 static string fast_pulse_banknames[n_fast_pulse_banks] = {"Ng80"};
+
+static double fast_clock_tick = 0;
+static double slow_clock_tick = 0;
 
 static TH2F* h2DTemplateSlow[n_slow_pulse_banks] = {NULL};
 static TH2F* h2DTemplateFast[n_fast_pulse_banks] = {NULL};
@@ -95,7 +98,7 @@ CreateTemplates::~CreateTemplates(){
 	for (int iBank = 0; iBank < n_fast_pulse_banks; iBank++) {
 	
 		// Calculate the constant to get tau(psi)
-		double constant = CalculatePseudotimeConstant(hPseudotime[iBank], 6.25); // TODO: find a way to read 6.25 from somewhere
+		double constant = CalculatePseudotimeConstant(hPseudotime[iBank], fast_clock_tick);
 		if (verbose) {
 			std::cout << "CalculatePseudotimeConstant() called" << std::endl;
 			std::cout << "constant = " << constant << std::endl;
@@ -149,7 +152,7 @@ CreateTemplates::~CreateTemplates(){
 				continue; // skip the loop if there's not a fast pulse in this entry
 			
 			double a_max, t_max, A, delta_t;
-			GetFastPulsePseudotimeVariables(hFastPulse, a_max, t_max, A, delta_t, 6.25, iBank, constant, k);
+			GetFastPulsePseudotimeVariables(hFastPulse, a_max, t_max, A, delta_t, fast_clock_tick, iBank, constant, k);
 			
 			// Create the 2D template histogram if it's not been created yet
 			if (h2DTemplateFast[iBank] == NULL) {
@@ -209,6 +212,9 @@ int CreateTemplates::ProcessEntry(TGlobalData *gData){
 	  		
 	  			if (verbose)
 	  				std::cout << "Slow Pulse" << std::endl;
+	  			
+	  			// Set the slow clock tick
+	  			slow_clock_tick = (*pulseIter)->GetClockTickInNs();
 	  		
 	  			// Plot the pulse in a histogram and store the a_max and t_max values
 	  			double a_max, t_max;
@@ -255,6 +261,9 @@ int CreateTemplates::ProcessEntry(TGlobalData *gData){
 	  		
 	  			if (verbose)
 	  				std::cout << "Fast Pulse" << std::endl;
+	  			
+	  			// Set the fast clock tick
+	  			fast_clock_tick = (*pulseIter)->GetClockTickInNs();
 	  		
 	  			// Plot the pulse in a histogram and store the a_max and t_max values
 	  			double a_max, t_max;
