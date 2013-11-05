@@ -90,7 +90,6 @@ int main(int argc, char **argv)
   }
 
   TOnlineFrame *onlineFrame = new TOnlineFrame(gClient->GetRoot());   
-	TMessage *msg;
 	
 	if (root_file_name.length() != 0)
 		onlineFrame->OpenRootFile(root_file_name.c_str());
@@ -99,14 +98,19 @@ int main(int argc, char **argv)
 		onlineFrame->setServerName(server_name.c_str());
 		onlineFrame->setServerPort(server_port);
 		onlineFrame->ConnectToServer();
-		TSocket *s = onlineFrame->GetSocketHandle();
-		s->Send("LIST");
-		s->Recv(msg);
-		TObjArray *objlist = (TObjArray*)msg->ReadObject(msg->GetClass());
-		for (int i = 0; i < objlist->GetEntries(); ++i)
-		{
-			objlist->At(i)->Print();
-		}
+		std::vector<TString> histTitles = onlineFrame->GetHistTitles();
+		printf("hist: %s\n", histTitles.at(0).Data());
+		char histname[1024];
+	 	sprintf(histname,"%s", histTitles.at(1).Data());
+		printf("%s\n", histname);
+
+		onlineFrame->GetHisto(histname);
+
+		//TObjArray *objlist = onlineFrame->GetHistTitles();
+		//for (int i = 0; i < objlist->GetEntries(); ++i)
+		//{
+			//objlist->At(i)->Print();
+		//}
 	}
 
 	//onlineFrame->runMacro("modules/common/root_init.C");

@@ -15,6 +15,8 @@
 #include "TSocket.h"
 #include "TObjArray.h"
 
+class TH1;
+
 class TOnlineFrame : public TGMainFrame 
 {
 private:
@@ -54,6 +56,9 @@ public:
   TSocket *ConnectToServer();
   TFile *OpenRootFile(const char *filename, const Bool_t update_filename = kTRUE );
 	TSocket *GetSocketHandle() {return fpSock;}
+	std::vector<TString> GetHistTitles();
+	void GetHisto(char * histname);
+	//TH1 *GetHisto(TString histname) {return GetHisto(histname.Data());}
 };
 
 struct screen_info 

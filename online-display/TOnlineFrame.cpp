@@ -17,6 +17,11 @@
 #include "TGLabel.h"
 #include "TG3DLine.h"
 #include "TGFileDialog.h"
+#include "TObjString.h"
+#include "TH1.h"
+#include "TH1D.h"
+#include "TH1F.h"
+#include "TH1I.h"
 
 #include "getHist.h"
 #include "TOnlineFrame.h"
@@ -490,16 +495,60 @@ void TOnlineFrame::print_msg(const char *msg, const Int_t partidx)
 	fStatusBar->SetText(msg, partidx);
 }
 
-/*
-	 void cycleThread(void *v)
-	 {
-	 TOnlineFrame *onlineFrame = (TOnlineFrame *) v;
+//TObjArray *TOnlineFrame::GetHistTitles()
+//{
+	//if(!fpSock)
+		//return NULL;
 
-	 printf("Entering cycleThread\n");
-	 while(1)
-	 {
-	 TThread::Sleep(20,0);
-	 onlineFrame->ConsiderCycling();
-	 }
-	 }
-	 */
+	//TMessage *msg;
+	//fpSock->Send("LIST");
+	//fpSock->Recv(msg);
+	//TObjArray *objArray = (TObjArray*)msg->ReadObject(msg->GetClass());
+	//delete msg;
+	//return objArray;
+//}
+
+
+std::vector<TString> TOnlineFrame::GetHistTitles()
+{
+	std::vector<TString> v;
+	if(fpSock)
+	{
+		TMessage *msg;
+		fpSock->Send("LIST");
+		fpSock->Recv(msg);
+		TObjArray *objArray = (TObjArray*)msg->ReadObject(msg->GetClass());
+
+		for (unsigned int i = 0; i < objArray->GetEntries(); ++i)
+		{
+			TObjString *aString = (TObjString*)objArray->At(i);
+			v.push_back(aString->GetString());
+			//printf("title: %s\n", aString->GetString().Data());
+		}
+
+		delete msg;
+	}
+
+	return v;
+}
+
+void TOnlineFrame::GetHisto(char * histname)
+{
+	if (!fpSock)
+		return ;
+
+	char req[2048];
+	sprintf(req, "GET %s", histname);
+	TMessage *msg;
+
+	fpSock->Send(req);
+	fpSock->Recv(msg);
+	TH1 *hist = (TH1*) msg->ReadObject(msg->GetClass());
+
+	hist->Print();
+	//TH1D *h2 = (TH1D *)hist;
+	hist->Draw();
+	delete msg;
+
+	return ;
+}
