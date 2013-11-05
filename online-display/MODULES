@@ -1,0 +1,16 @@
+# file: MODULES
+# Contents: the list of ROOT macros for the online-display
+# Format: TextOnTheButton FullMacroName
+# Use # for comments
+# 
+# MODULES
+#
+#======================================================
+#             Ge
+#======================================================
+v1724raw v1724/raw.C
+#
+#======================================================
+#             EMC
+#======================================================
+EMC EMC/raw.C
