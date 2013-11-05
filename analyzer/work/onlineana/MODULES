@@ -2,3 +2,4 @@ FADC/MOctalFADCProcessRaw
 common/MTreeOutput
 DummyDet/DummyHisto
 Si/MSiliconHeight
+Ge/MGePulseHeight
