@@ -47,10 +47,10 @@ static double slow_clock_tick = 0;
 static TH2F* h2DTemplateSlow[n_slow_pulse_banks] = {NULL};
 static TH2F* h2DTemplateFast[n_fast_pulse_banks] = {NULL};
 
-static double anchor_time_slow = 0;
-static double anchor_amp_slow = 0;
-static double anchor_time_fast = 0;
-static double anchor_amp_fast = 0;
+static double anchor_time_slow[n_slow_pulse_banks] = {0};
+static double anchor_ADC_slow[n_slow_pulse_banks] = {0};
+static double anchor_time_fast[n_fast_pulse_banks] = {0};
+static double anchor_ADC_fast[n_fast_pulse_banks] = {0};
 
 static int n_psi_bins = 50;
 static TH1F* hPseudotime[n_fast_pulse_banks] = {NULL};
@@ -169,8 +169,14 @@ CreateTemplates::~CreateTemplates(){
 	  			h2DTemplateFast[iBank]->GetYaxis()->SetTitle("ADC value");
 			}
 			
-			// Fill the 2D template histogram
-			Fill2DTemplateHistogram(hFastPulse, h2DTemplateFast[iBank], a_max, t_max, A, delta_t);
+			// Fill the 2D template histogram but set the anchor time and ADC first
+				if (anchor_time_fast[iBank] == 0)
+					anchor_time_fast[iBank] = t_max + delta_t;
+				
+				if (anchor_ADC_fast[iBank] == 0)
+					anchor_ADC_fast[iBank] = A;
+					
+			Fill2DTemplateHistogram(hFastPulse, h2DTemplateFast[iBank], a_max, t_max, A, delta_t, anchor_time_fast[iBank], anchor_ADC_fast[iBank]);
 		}
 		
 		// Now get the final template for the fast pulse
@@ -251,8 +257,14 @@ int CreateTemplates::ProcessEntry(TGlobalData *gData){
 	  				h2DTemplateSlow[iBank]->GetYaxis()->SetTitle("ADC value");
 				}
 				
-				// Fill the 2D template histogram
-				Fill2DTemplateHistogram(hPulse, h2DTemplateSlow[iBank], a_max, t_max, A, delta_t);
+				// Fill the 2D template histogram but set the anchor time and ADC first
+				if (anchor_time_slow[iBank] == 0)
+					anchor_time_slow[iBank] = t_max + delta_t;
+				
+				if (anchor_ADC_slow[iBank] == 0)
+					anchor_ADC_slow[iBank] = A;
+				
+				Fill2DTemplateHistogram(hPulse, h2DTemplateSlow[iBank], a_max, t_max, A, delta_t, anchor_time_slow[iBank], anchor_ADC_slow[iBank]);
 	  		}
 	  	}
 	  	
@@ -364,30 +376,20 @@ TF1* CreateTemplates::FitGaussian(TH1F* hPulse) {
 }
 
 // FIll the 2D template histogram
-void CreateTemplates::Fill2DTemplateHistogram(TH1F* hPulse, TH2F* h2DTemplate, double a_max, double t_max, double A, double delta_t) {
+void CreateTemplates::Fill2DTemplateHistogram(TH1F* hPulse, TH2F* h2DTemplate, double a_max, double t_max, double A, double delta_t, double anchor_time, double anchor_ADC) {
 
 	// Normalise the data and plot it in the 2D histogram
 	for (int iBin = 1; iBin <= hPulse->GetNbinsX(); iBin++) {
 	
 		double ADC = hPulse->GetBinContent(iBin);
 		double time = iBin * hPulse->GetBinWidth(1);
-		double time_shift = 0;
-		double amp_scale_factor = 0;
+		
+		double true_time = t_max + delta_t;
+		double time_shift = true_time - anchor_time;
 	
-		if (anchor_time_fast == 0) {
-			// Have this pulse as the anchor
-			anchor_time_fast = t_max + delta_t; // anchor to the maximum value of the function
-		}
-		time_shift = t_max - anchor_time_fast;
-	
-		if (anchor_amp_fast == 0) {
-			// Have this pulse as the anchor
-			anchor_amp_fast = A;
-		}
-		amp_scale_factor = a_max / anchor_amp_fast;
-	
-		//h2DTemplate->Fill(time - time_shift, ADC * amp_scale_factor);
-		h2DTemplate->Fill(time, ADC);
+		double ADC_scale_factor = anchor_ADC / A;
+		
+		h2DTemplate->Fill(time - time_shift, ADC * ADC_scale_factor);
 	}
 }
 

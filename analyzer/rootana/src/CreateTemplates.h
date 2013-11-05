@@ -13,7 +13,7 @@ class CreateTemplates : public FillHistBase{
   
   // For both fast and slow pulses
   TH1F* PlotPulse(TPulseIsland* pulse, int pulse_number, double& a_max, double& t_max);
-  void Fill2DTemplateHistogram(TH1F* hPulse, TH2F* h2DTemplate, double a_max, double t_max, double A, double delta_t);
+  void Fill2DTemplateHistogram(TH1F* hPulse, TH2F* h2DTemplate, double a_max, double t_max, double A, double delta_t, double anchor_time, double anchor_ADC);
   void Plot1DTemplateHistogram(TH2F* h2DTemplate, TH1F* h1DTemplate);
   
   // For slow pulses
