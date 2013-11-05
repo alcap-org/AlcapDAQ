@@ -74,42 +74,42 @@ TObject *getObjectFromFile(const char *name);
 
 TFile *openRootFile(const char *filename) 
 {
-  closeSource();
-  
-  r_file = new TFile(filename);
-  if ( r_file->IsZombie() )
-    {
-      printf("***ERROR! Cannot open ROOT file [%s]\n",filename);
-      delete r_file;
-      r_file = NULL;
-#if 0
-      r_folder = NULL;
-#endif
-      gl_status = RDISP_ERR_NO_FILE;
-    }
-#if 0
-  else 
-    {
-      // *** get top folder ***
-      r_file->GetObject("histos",r_folder);
-      if ( !r_folder )
-	{      
-	  printf("**ERROR! Cannot load folder 'histos' from file [%filename]\n",filename);
-	  delete r_file;
-	  r_file = NULL;
-	  r_folder = NULL;  
-	  gl_status = RDISP_ERR_NO_FOLDER;
-	}
-      else
-	{
-	  r_folder->SetOwner( kTRUE );
-	}
-    }
-#endif
-  
-  printf("Connected to source file :[%s]\n",filename);
+	closeSource();
 
-  return r_file;
+	r_file = new TFile(filename);
+	if ( r_file->IsZombie() )
+	{
+		printf("***ERROR! Cannot open ROOT file [%s]\n",filename);
+		delete r_file;
+		r_file = NULL;
+#if 0
+		r_folder = NULL;
+#endif
+		gl_status = RDISP_ERR_NO_FILE;
+	}
+#if 0
+	else 
+	{
+		// *** get top folder ***
+		r_file->GetObject("histos",r_folder);
+		if ( !r_folder )
+		{      
+			printf("**ERROR! Cannot load folder 'histos' from file [%filename]\n",filename);
+			delete r_file;
+			r_file = NULL;
+			r_folder = NULL;  
+			gl_status = RDISP_ERR_NO_FOLDER;
+		}
+		else
+		{
+			r_folder->SetOwner( kTRUE );
+		}
+	}
+#endif
+
+	printf("Connected to source file :[%s]\n",filename);
+
+	return r_file;
 }
 
 /** 
@@ -123,52 +123,52 @@ TFile *openRootFile(const char *filename)
 
 TSocket *openSocket(const char *hostname, const int port_nr)
 {
-  Int_t status;
-  
-  closeSource();
+	Int_t status;
 
-  r_socket = new TSocket(hostname, port_nr);
+	closeSource();
 
-  if ( ! r_socket->IsValid()  ) 
-    {
-      delete r_socket;
-      r_socket = NULL;
-      gl_status = RDISP_ERR_NO_CON;
-      return r_socket;
-    }
-  
-  char str[64];
-  sprintf(str,"ERROR");
-  status = r_socket->Select(TSocket::kRead,timeout);
-  if ( status == 1 ) 
-    {
-      r_socket->Recv(str, sizeof(str));
-      if ( strncmp(str, "RMSERV", 6) != 0 ) 
+	r_socket = new TSocket(hostname, port_nr);
+
+	if ( ! r_socket->IsValid()  ) 
 	{
-	  // *** incorrect responce from the server ***
-	  printf("***ERROR! Unexpected response from the server [%s] on port %i: [%s]",hostname,port_nr,str);
-	  r_socket->Close();
-	  delete r_socket;
-	  r_socket = NULL;
-	  gl_status = RDISP_ERR_BAD_RESPONSE;
-	  return r_socket;
-	}      
-    }
-  else
-    {
-      // *** no response from the server ***
-      printf("***ERROR! No response from the server [%s] on port %i\n",hostname, port_nr);
-      r_socket->Close();
-      delete r_socket;
-      r_socket = NULL;
-      gl_status = RDISP_ERR_NO_RESPONSE;
-      return r_socket;
-    }
+		delete r_socket;
+		r_socket = NULL;
+		gl_status = RDISP_ERR_NO_CON;
+		return r_socket;
+	}
 
-  printf("Successfully connected to server on host [%s] port %i\n",hostname,port_nr);
-  gl_status = 0;
+	char str[64];
+	sprintf(str,"ERROR");
+	status = r_socket->Select(TSocket::kRead,timeout);
+	if ( status == 1 ) 
+	{
+		r_socket->Recv(str, sizeof(str));
+		if ( strncmp(str, "RMSERV", 6) != 0 ) 
+		{
+			// *** incorrect responce from the server ***
+			printf("***ERROR! Unexpected response from the server [%s] on port %i: [%s]",hostname,port_nr,str);
+			r_socket->Close();
+			delete r_socket;
+			r_socket = NULL;
+			gl_status = RDISP_ERR_BAD_RESPONSE;
+			return r_socket;
+		}      
+	}
+	else
+	{
+		// *** no response from the server ***
+		printf("***ERROR! No response from the server [%s] on port %i\n",hostname, port_nr);
+		r_socket->Close();
+		delete r_socket;
+		r_socket = NULL;
+		gl_status = RDISP_ERR_NO_RESPONSE;
+		return r_socket;
+	}
 
-  return r_socket;
+	printf("Successfully connected to server on host [%s] port %i\n",hostname,port_nr);
+	gl_status = 0;
+
+	return r_socket;
 }
 
 /** 
@@ -177,185 +177,185 @@ TSocket *openSocket(const char *hostname, const int port_nr)
  */
 void closeSource()
 {
-  if (r_socket != NULL) 
-    {
-      r_socket->Close(); 
-      delete r_socket;
-      r_socket = NULL;
-    }
-  
-  if (r_file != NULL) 
-    {
-#if 0
-      r_folder->Clear();
-      delete r_folder;
-      r_folder = NULL;
-#endif
-      r_file->Close("R");
-      delete r_file;
-      r_file = NULL;
-    }
+	if (r_socket != NULL) 
+	{
+		r_socket->Close(); 
+		delete r_socket;
+		r_socket = NULL;
+	}
 
-  clear_recv_buffer();
+	if (r_file != NULL) 
+	{
+#if 0
+		r_folder->Clear();
+		delete r_folder;
+		r_folder = NULL;
+#endif
+		r_file->Close("R");
+		delete r_file;
+		r_file = NULL;
+	}
+
+	clear_recv_buffer();
 }
 
 TObject *getObject(const char *name)
 {
-  if (r_socket != NULL) 
-    {
-      return getObjectFromSocket( name );
-    } 
-  else if (r_file != NULL) 
-    {
-      return getObjectFromFile( name );
-    } 
+	if (r_socket != NULL) 
+	{
+		return getObjectFromSocket( name );
+	} 
+	else if (r_file != NULL) 
+	{
+		return getObjectFromFile( name );
+	} 
 
-  /// no sources available
-  if ( gl_status == 0 )
-    {
-      printf("No connection\n");
-      gl_status = RDISP_ERR_NO_SOURCE;
-    }
-  return NULL;
+	/// no sources available
+	if ( gl_status == 0 )
+	{
+		printf("No connection\n");
+		gl_status = RDISP_ERR_NO_SOURCE;
+	}
+	return NULL;
 }
 
 /*
-void *getPointer(const char *name)
-{
+	 void *getPointer(const char *name)
+	 {
 
-  TMessage *m;
-  char str[256];
+	 TMessage *m;
+	 char str[256];
 
-  sprintf(str, "GetPointer %s", Name);
-  histSocket->Send(str);
-  histSocket->Recv(m);
+	 sprintf(str, "GetPointer %s", Name);
+	 histSocket->Send(str);
+	 histSocket->Recv(m);
 
-  unsigned long p;
-  m->ReadULong( p );
-  
-  delete m;
+	 unsigned long p;
+	 m->ReadULong( p );
 
-  return (void*)p;
+	 delete m;
 
-}
-*/
+	 return (void*)p;
+
+	 }
+	 */
 
 TObject *getObjectFromSocket(const char *name)
 {
-  TMessage *m;
-  char str[256];
-  TObject *obj;
+	TMessage *m;
+	char str[256];
+	TObject *obj;
 
-  if ( strlen(name) > 230 )
-    {
-      printf("***ERROR! Best object name\n");	
-      return NULL;
-    }
+	if ( strlen(name) > 230 )
+	{
+		printf("***ERROR! Best object name\n");	
+		return NULL;
+	}
 
-  if ( ! folder ) 
-    {
-      folder = new TFolder("heap","heap");
-      folder->SetOwner( kTRUE );
-    }
-  
-  sprintf(str, "FindObject %s", name);
-  
-  // make sure that the socket is alive
-  Int_t status = r_socket->Select(TSocket::kWrite,timeout);
-  if ( status != 1 )
-    {
-      printf("***ERROR! Broken connection to socket\n");
-      closeSource();
-      gl_status = RDISP_ERR_NO_CON;
-      return NULL;
-    }
-  r_socket->Send(str);
+	if ( ! folder ) 
+	{
+		folder = new TFolder("heap","heap");
+		folder->SetOwner( kTRUE );
+	}
 
-  // receive reply from server
-  //printf("Trying socket...\n");
-  status = r_socket->Select(TSocket::kRead,timeout);
-  if ( status != 1 )
-    {
-      printf("***ERROR! Broken connection to socket\n");
-      closeSource();
-      gl_status = RDISP_ERR_NO_CON;
-      return NULL;
-    }
-  //printf("Alive!\n");
-  Int_t n = r_socket->Recv(m);
+	sprintf(str, "FindObject %s", name);
 
-  if ( n <= 0 )
-    {
-      printf("***ERROR! Broken pipe\n");
-      closeSource();
-      gl_status = RDISP_ERR_NO_CON;
-      return NULL;
-    }
-  
-  obj = (TObject*)m->ReadObject(m->GetClass());
+	// make sure that the socket is alive
+	Int_t status = r_socket->Select(TSocket::kWrite,timeout);
+	if ( status != 1 )
+	{
+		printf("***ERROR! Broken connection to socket\n");
+		closeSource();
+		gl_status = RDISP_ERR_NO_CON;
+		return NULL;
+	}
+	r_socket->Send(str);
 
-  if (obj == 0) 
-    {
-      printf("Unable to get object [%s] from socket\n", name);
-    }
-  else
-    {
-      folder->Add( obj );
-    }
+	// receive reply from server
+	//printf("Trying socket...\n");
+	status = r_socket->Select(TSocket::kRead,timeout);
+	if ( status != 1 )
+	{
+		printf("***ERROR! Broken connection to socket\n");
+		closeSource();
+		gl_status = RDISP_ERR_NO_CON;
+		return NULL;
+	}
+	//printf("Alive!\n");
+	Int_t n = r_socket->Recv(m);
 
-  delete m;
+	if ( n <= 0 )
+	{
+		printf("***ERROR! Broken pipe\n");
+		closeSource();
+		gl_status = RDISP_ERR_NO_CON;
+		return NULL;
+	}
 
-  return obj;
+	obj = (TObject*)m->ReadObject(m->GetClass());
+
+	if (obj == 0) 
+	{
+		printf("Unable to get object [%s] from socket\n", name);
+	}
+	else
+	{
+		folder->Add( obj );
+	}
+
+	delete m;
+
+	return obj;
 }
 
 TObject *getObjectFromFile(const char *name)
 {
 
 #if 0
-  if ( ! r_file || ! r_folder )
+	if ( ! r_file || ! r_folder )
 #endif
-  if ( ! r_file )
-    {
-      printf("***ERROR! File is not open\n");
-      if ( gl_status == 0 )
-	{
-	  gl_status = RDISP_ERR_NO_SOURCE;
-	}
-      return NULL;
-    }
+		if ( ! r_file )
+		{
+			printf("***ERROR! File is not open\n");
+			if ( gl_status == 0 )
+			{
+				gl_status = RDISP_ERR_NO_SOURCE;
+			}
+			return NULL;
+		}
 
- 
-  /*
-  if ( ! folder ) 
-    {
-      folder = new TFolder("heap","heap");
-      folder->SetOwner( kTRUE );
-    }
-  */
-  /*
-  TFolder *f;
-  r_file->GetObject("histos",f);
-  if ( !f )
-    {
-      printf("***ERROR! Cannot load folder histos from the ROOT file\n");
-      return NULL;
-    }
-  */
+
+	/*
+		 if ( ! folder ) 
+		 {
+		 folder = new TFolder("heap","heap");
+		 folder->SetOwner( kTRUE );
+		 }
+		 */
+	/*
+		 TFolder *f;
+		 r_file->GetObject("histos",f);
+		 if ( !f )
+		 {
+		 printf("***ERROR! Cannot load folder histos from the ROOT file\n");
+		 return NULL;
+		 }
+		 */
 
 #if 0
-  TObject *obj = r_folder->FindObject(name);
+	TObject *obj = r_folder->FindObject(name);
 #else
-  TObject *obj = r_file->Get(name);
+	TObject *obj = r_file->Get(name);
 #endif
 
-  /*
-  if ( obj )
-    {
-      folder->Add( obj );
-    }
-  */
+	/*
+		 if ( obj )
+		 {
+		 folder->Add( obj );
+		 }
+		 */
 
-  return obj;
+	return obj;
 }
 
 /** 
@@ -364,7 +364,7 @@ TObject *getObjectFromFile(const char *name)
  */
 void clear_recv_buffer()
 {
-  if (folder) folder->Clear();
+	if (folder) folder->Clear();
 }
 
 /** 
@@ -376,38 +376,38 @@ void clear_recv_buffer()
 
 int get_status_code()
 {
-  switch ( gl_status )
-    {
-    case 0:
-      // no error
-      break;
-    case RDISP_ERR_NO_CON:
-      printf("No connection to remote server\n");
-      break;
-    case RDISP_ERR_BAD_RESPONSE:
-      printf("Bad response from the server\n");
-      break;
-    case RDISP_ERR_NO_RESPONSE:
-      printf("No response from the server\n");
-      break;
-    case RDISP_ERR_NO_SOURCE:
-      printf("No sources opened\n");
-      break;
-    case RDISP_ERR_BROKEN_PIPE:
-      printf("Broken pipe\n");
-      break;
-    case RDISP_ERR_NO_FILE:
-      printf("Cannot open ROOT file\n");
-      break;
-    case RDISP_ERR_NO_FOLDER:
-      printf("Cannot load root folder from the ROOT file\n");
-      break;
-    default:
-      printf("Unknown error\n");
-      break;
-    }
+	switch ( gl_status )
+	{
+		case 0:
+			// no error
+			break;
+		case RDISP_ERR_NO_CON:
+			printf("No connection to remote server\n");
+			break;
+		case RDISP_ERR_BAD_RESPONSE:
+			printf("Bad response from the server\n");
+			break;
+		case RDISP_ERR_NO_RESPONSE:
+			printf("No response from the server\n");
+			break;
+		case RDISP_ERR_NO_SOURCE:
+			printf("No sources opened\n");
+			break;
+		case RDISP_ERR_BROKEN_PIPE:
+			printf("Broken pipe\n");
+			break;
+		case RDISP_ERR_NO_FILE:
+			printf("Cannot open ROOT file\n");
+			break;
+		case RDISP_ERR_NO_FOLDER:
+			printf("Cannot load root folder from the ROOT file\n");
+			break;
+		default:
+			printf("Unknown error\n");
+			break;
+	}
 
-  return gl_status;
+	return gl_status;
 }
 
 
@@ -417,7 +417,7 @@ int get_status_code()
  */
 void reset_error_code()
 {
-  gl_status = 0;
+	gl_status = 0;
 }
 
 /**
@@ -425,57 +425,57 @@ void reset_error_code()
  */
 ULong_t get_run_number()
 {
-  
-  ULong_t run_nr = 0;
 
-  if (r_socket != NULL) 
-    {
-      TMessage *m;
-      char str[256];
-      
-      sprintf(str, "GetRunNumber");
-      Int_t status = r_socket->Select(TSocket::kWrite,timeout);
-      if ( status != 1 )
-	{
-	  printf("***ERROR! Broken connection to socket\n");
-	  closeSource();
-	  gl_status = RDISP_ERR_NO_CON;
-	  return 0;
-	}
-      r_socket->Send(str);
+	ULong_t run_nr = 0;
 
-      status = r_socket->Select(TSocket::kRead,timeout);
-      if ( status != 1 )
+	if (r_socket != NULL) 
 	{
-	  printf("***ERROR! Broken connection to socket\n");
-	  closeSource();
-	  gl_status = RDISP_ERR_NO_CON;
-	  return 0;
-	}
-      Int_t n = r_socket->Recv(m);
+		TMessage *m;
+		char str[256];
 
-      if ( n <= 0 )
-	{
-	  printf("***ERROR! Broken pipe\n");
-	  closeSource();
-	  gl_status = RDISP_ERR_NO_CON;
-	  return NULL;
-	}
-      m->ReadULong( run_nr );
-      
-      delete m;
-    
-    }
-  else if ( r_file != NULL) 
-    {
-      TH1I *h1 = (TH1I*)getObjectFromFile( "run_number/h1_run_number" );
-      if ( h1 )
-	{
-	  run_nr = h1->GetBinContent(1);
-	}
-    }
+		sprintf(str, "GetRunNumber");
+		Int_t status = r_socket->Select(TSocket::kWrite,timeout);
+		if ( status != 1 )
+		{
+			printf("***ERROR! Broken connection to socket\n");
+			closeSource();
+			gl_status = RDISP_ERR_NO_CON;
+			return 0;
+		}
+		r_socket->Send(str);
 
-  return run_nr;
- 
+		status = r_socket->Select(TSocket::kRead,timeout);
+		if ( status != 1 )
+		{
+			printf("***ERROR! Broken connection to socket\n");
+			closeSource();
+			gl_status = RDISP_ERR_NO_CON;
+			return 0;
+		}
+		Int_t n = r_socket->Recv(m);
+
+		if ( n <= 0 )
+		{
+			printf("***ERROR! Broken pipe\n");
+			closeSource();
+			gl_status = RDISP_ERR_NO_CON;
+			return 0;
+		}
+		m->ReadULong( run_nr );
+
+		delete m;
+
+	}
+	else if ( r_file != NULL) 
+	{
+		TH1I *h1 = (TH1I*)getObjectFromFile( "run_number/h1_run_number" );
+		if ( h1 )
+		{
+			run_nr = h1->GetBinContent(1);
+		}
+	}
+
+	return run_nr;
+
 
 }

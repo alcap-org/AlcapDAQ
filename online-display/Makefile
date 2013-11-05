@@ -8,7 +8,7 @@ Dictionary.cpp:
 	rootcint -f $@ -c getHist.h LinkDef.h
 
 online-display: $(OBJS)
-	g++ -o $@ $(OBJS) $(LIBS)
+	$(CXX) -o $@ $(OBJS) $(LIBS)
 
 clean:
 	rm online-display *.o Dictionary.h Dictionary.cpp
