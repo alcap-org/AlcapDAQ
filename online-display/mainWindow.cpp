@@ -425,7 +425,8 @@ TSocket *TOnlineFrame::ConnectToServer()
       sprintf(msg,"Cannot connect to port %d on host [%s]",port_nr,hostname);
       print_msg(msg);
       print_msg("ERROR",2);
-      fServerName->ChangeBackground(ucolor_white);      
+			exit(1);
+      //fServerName->ChangeBackground(ucolor_white);      
     }
   else
     {
@@ -462,8 +463,9 @@ TFile *TOnlineFrame::OpenRootFile(const char *filename, const Bool_t update_file
       print_msg(msg);
       print_msg("ERROR",1);
       print_msg("ERROR",2);
+			exit(1);
       //fFileName->SetText("");
-      fFileName->ChangeBackground(ucolor_white);
+      //fFileName->ChangeBackground(ucolor_white);
     }
   else
     {
@@ -560,8 +562,43 @@ void TOnlineFrame::print_msg(const char *msg, const Int_t partidx)
 }
 */
 
+void HelpMessage()
+{
+	printf("Default connection is to localhost:9090.\n");
+	printf("To specify another host, use: \n");
+	printf("\t ./online-display -H hostname -p port\n");
+	printf("Or, to open a ROOT file:\n");
+	printf("\t ./online-display -i filename\n");
+}
+
 int main(int argc, char **argv)
 {
+	int c;
+	std::string server_name = "localhost";
+	int server_port = 9090;
+	std::string root_file_name = "";
+
+	while ((c = getopt(argc, argv, "hH:p:i:")) != -1)
+	{
+		switch (c)
+		{
+			case 'h':
+				HelpMessage();
+				return 0;
+			case 'H':
+				server_name = optarg;
+				break;
+			case 'p':
+				server_port = atoi(optarg);
+				break;
+			case 'i':
+				root_file_name = optarg;
+				break;
+			default:
+				break;
+		}
+	}
+
   int fake_argc = 1;
   char fake_arg_str[256];
   sprintf(fake_arg_str,"./online-display");
@@ -576,23 +613,17 @@ int main(int argc, char **argv)
 
   TOnlineFrame *onlineFrame = new TOnlineFrame(gClient->GetRoot());   
   char msg[1024];
-  const char *server_name = "localhost";
-  const unsigned int server_port = 9090;
-  const char *root_file = argv[1];
-  onlineFrame->setServerName(server_name);
-  onlineFrame->setServerPort(server_port);
+	
+	if (root_file_name.length() != 0)
+		onlineFrame->OpenRootFile(root_file_name.c_str());
+	else
+	{
+		onlineFrame->setServerName(server_name.c_str());
+		onlineFrame->setServerPort(server_port);
+		onlineFrame->ConnectToServer();
+	}
 
-  if(argc < 2) 
-    {      
-      onlineFrame->ConnectToServer();
-    }
-  else 
-    {
-      onlineFrame->OpenRootFile( argv[1] );
-    }
-  
-
-  onlineFrame->runMacro("common/root_init.C");
+  //onlineFrame->runMacro("common/root_init.C");
 
   /*
     TThread *ct = new TThread(cycleThread, onlineFrame);
