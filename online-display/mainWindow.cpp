@@ -66,7 +66,7 @@ public:
   TFile *OpenRootFile(const char *filename, const Bool_t update_filename = kTRUE );
 	TSocket *GetSocketHandle(){return fpSock;}
 	TH1 *GetHist(const char *histname);
-	std::vector<const char *> GetHistTitles();
+	std::vector<TString> GetHistTitles();
 };
 
 struct screen_info 
@@ -133,9 +133,10 @@ TOnlineFrame::TOnlineFrame(const TGWindow * p):TGMainFrame(p, width,
 
   // configure macro path
   std::string macro_path = gROOT->GetMacroPath();
-  macro_path += std::string(":")+std::string(env_value)+std::string("/online-display/modules");
+  macro_path += std::string(":")+std::string(env_value)
+		+std::string("/online-display/modules");
   gROOT->SetMacroPath( macro_path.c_str() );
-
+	printf("macro_path %s\n", macro_path.c_str());
 
   // a little frame at the top
   fTopFrame = new TGHorizontalFrame(this, width - 10, 30, kChildFrame);//, kFixedWidth);
@@ -277,82 +278,80 @@ TOnlineFrame::~TOnlineFrame()
 Bool_t TOnlineFrame::ProcessMessage(Long_t msg, Long_t param1,
 				    Long_t param2)
 {
-  Bool_t ret = false;
-  char name[1024];
-  char text[1024];
+	Bool_t ret = false;
+	char name[1024];
+	char text[1024];
 
-  switch (GET_MSG(msg)) 
-    {
-    case kC_COMMAND:      
-      switch (GET_SUBMSG(msg)) 
-	{	
-	case kCM_BUTTON:
-	  if (param1 >= SCREENS_BASE) 
-	    {
-	      fCurrentDisplay = param1 - SCREENS_BASE;
-	    }
-	  if ( param1 == B_UPDATE || param1 >= SCREENS_BASE )
-	    {
-	      const char *macro = screens[fCurrentDisplay].macroName;
-	      runMacro(macro);
-	    }
-	  else if (param1 == B_PRINT) 
-	    {  
-	      unsigned long int t = time(NULL);
-	      sprintf(name,"~/Pictures/online-display/%s_run_%06ld_%lu.pdf",screens[fCurrentDisplay].visibleName,run_nr,t);
-	      fEmbeddedCanvas->GetCanvas()->Print(name);
-	      sprintf(name,"~/Pictures/online-display/%s_run_%06ld_%lu.png",screens[fCurrentDisplay].visibleName,run_nr,t);
-	      fEmbeddedCanvas->GetCanvas()->Print(name);
-	      sprintf(text,"Canvas printed to file [%s]",name);
-	      print_msg(text);
-	    }
-	  else if ( param1 == B_CONNECT )
-	    {
-	      if ( ConnectToServer() )
-		{
-		  ConsiderAutoupdate( kTRUE );
-		}
-	    }
-	  else if ( param1 == B_FILE_OPEN )
-	    {
-	      TGFileInfo fi;
-	      const char *file_types[] = {"hist files", "h*.root",
-					  0, 0};
-	      fi.fFileTypes = file_types;
-	      fi.fMultipleSelection = kFALSE;
-	      fi.SetMultipleSelection( kFALSE );
-	      TGFileDialog *f = new TGFileDialog(gClient->GetRoot(),this,kFDOpen,&fi);
-	      if ( fi.fFilename )
-		{
-		  if ( OpenRootFile(fi.fFilename) )
-		    {
-		      ConsiderAutoupdate( kTRUE );
-		    }
-		}
-	    }
-	  ret = true;
-	  break;
-	default:
-	  printf("Unknown command received\n");
-	  break;	  
-	} // switch (GET_SUBMSG(msg))
-      break; // case kC_COMMAND
-    case kC_TEXTENTRY:
-      switch (GET_SUBMSG(msg)) 
-	{	
-	case kTE_ENTER:
-	  if ( OpenRootFile( fFileName->GetText(), kFALSE ) )
-	    {
-	      ConsiderAutoupdate( kTRUE );
-	    }
-	  break;	  
-	}
-      break; // case kC_TEXTENTRY
-    } // switch (GET_MSG(msg)) 
-  
+	switch (GET_MSG(msg)) 
+	{
+		case kC_COMMAND:      
+			switch (GET_SUBMSG(msg)) 
+			{	
+				case kCM_BUTTON:
+					if (param1 >= SCREENS_BASE) 
+					{
+						fCurrentDisplay = param1 - SCREENS_BASE;
+					}
+					if ( param1 == B_UPDATE || param1 >= SCREENS_BASE )
+					{
+						const char *macro = screens[fCurrentDisplay].macroName;
+						runMacro(macro);
+					}
+					else if (param1 == B_PRINT) 
+					{  
+						unsigned long int t = time(NULL);
+						sprintf(name,"~/Pictures/online-display/%s_run_%06ld_%lu.pdf",screens[fCurrentDisplay].visibleName,run_nr,t);
+						fEmbeddedCanvas->GetCanvas()->Print(name);
+						sprintf(name,"~/Pictures/online-display/%s_run_%06ld_%lu.png",screens[fCurrentDisplay].visibleName,run_nr,t);
+						fEmbeddedCanvas->GetCanvas()->Print(name);
+						sprintf(text,"Canvas printed to file [%s]",name);
+						print_msg(text);
+					}
+					else if ( param1 == B_CONNECT )
+					{
+						if ( ConnectToServer() )
+						{
+							ConsiderAutoupdate( kTRUE );
+						}
+					}
+					else if ( param1 == B_FILE_OPEN )
+					{
+						TGFileInfo fi;
+						const char *file_types[] = {"hist files", "h*.root",
+							0, 0};
+						fi.fFileTypes = file_types;
+						fi.fMultipleSelection = kFALSE;
+						fi.SetMultipleSelection( kFALSE );
+						TGFileDialog *f = new TGFileDialog(gClient->GetRoot(),this,kFDOpen,&fi);
+						if ( fi.fFilename )
+						{
+							if ( OpenRootFile(fi.fFilename) )
+							{
+								ConsiderAutoupdate( kTRUE );
+							}
+						}
+					}
+					ret = true;
+					break;
+				default:
+					printf("Unknown command received\n");
+					break;	  
+			} // switch (GET_SUBMSG(msg))
+			break; // case kC_COMMAND
+		case kC_TEXTENTRY:
+			switch (GET_SUBMSG(msg)) 
+			{	
+				case kTE_ENTER:
+					if ( OpenRootFile( fFileName->GetText(), kFALSE ) )
+					{
+						ConsiderAutoupdate( kTRUE );
+					}
+					break;	  
+			}
+			break; // case kC_TEXTENTRY
+	} // switch (GET_MSG(msg)) 
 
-
-  return ret;
+	return ret;
 }
 
 void TOnlineFrame::CloseWindow()
@@ -574,34 +573,29 @@ TH1 *TOnlineFrame::GetHist(const char *histname)
 	TMessage *tmsg;
 	fpSock->Recv(tmsg);
 	TH1 *hist = (TH1*)tmsg->ReadObject(tmsg->GetClass());
+	delete tmsg;
 	return hist;
 }
 
-std::vector<const char *> TOnlineFrame::GetHistTitles()
+std::vector<TString> TOnlineFrame::GetHistTitles()
 {
-	std::vector<const char*> vTitles;
+	std::vector<TString> vTitles;
 	if (!fpSock)
 		return vTitles;
 
 	fpSock->Send("LIST");
 	TMessage *tmsg;
 	fpSock->Recv(tmsg);
-	tmsg->Print();
 	TObjArray *objArray = (TObjArray *)tmsg->ReadObject(tmsg->GetClass());
 	for (unsigned int i = 0; i < objArray->GetEntries(); ++i)
 	{
 		TObjString *title = (TObjString *)objArray->At(i);
-		vTitles.push_back((const char *)title->GetString().Data());
-		printf("obj %s\n", title->GetString().Data());
+		//vTitles.push_back((const char *)title->GetString().Data());
+		vTitles.push_back((TString)title->GetString());
+		//printf("obj %s\n", title->GetString().Data());
 	}
 
-	for (unsigned int i = 0; i < vTitles.size(); ++i)
-	{
-		printf("%d: %s\n",i,  vTitles.at(i));
-	}
-	printf("%s\n", vTitles.at(0));
-	printf("%s\n", vTitles.at(1));
-
+	delete tmsg;
 	return vTitles;
 }
 /*
@@ -670,17 +664,16 @@ int main(int argc, char **argv)
 		onlineFrame->setServerName(server_name.c_str());
 		onlineFrame->setServerPort(server_port);
 		onlineFrame->ConnectToServer();
-		onlineFrame->GetHistTitles();
-		TH1 *h1 = onlineFrame->GetHist("hDummy1");
-		if (h1)
+		/*
+		std::vector<TString> vHistTitles = onlineFrame->GetHistTitles();
+		for (int i = 0; i < vHistTitles.size(); ++i)
 		{
-			h1->Draw();
+			//printf("%d: %s\n", i, vHistTitles.at(i).Data());
+			TH1 *hist = onlineFrame->GetHist(vHistTitles.at(i).Data());
+			//if(hist)
+				//hist->Draw();
 		}
-		TH1 *h2 = onlineFrame->GetHist("hNOctalFADCIslandReadPerBlock");
-		if (h2)
-		{
-			h2->Draw();
-		}
+		*/
 	}
 
 	//onlineFrame->runMacro("modules/common/root_init.C");
