@@ -56,8 +56,8 @@ public:
   TSocket *ConnectToServer();
   TFile *OpenRootFile(const char *filename, const Bool_t update_filename = kTRUE );
 	TSocket *GetSocketHandle() {return fpSock;}
+	TH1* GetHist(const char * histname);
 	std::vector<TString> GetHistTitles();
-	void GetHisto(char * histname);
 	//TH1 *GetHisto(TString histname) {return GetHisto(histname.Data());}
 };
 

@@ -229,7 +229,8 @@ Bool_t TOnlineFrame::ProcessMessage(Long_t msg, Long_t param1,
 					if ( param1 == B_UPDATE || param1 >= SCREENS_BASE )
 					{
 						const char *macro = screens[fCurrentDisplay].macroName;
-						runMacro(macro);
+						//runMacro(macro);
+						gROOT->Macro(macro);
 					}
 					else if (param1 == B_PRINT) 
 					{  
@@ -509,33 +510,11 @@ void TOnlineFrame::print_msg(const char *msg, const Int_t partidx)
 //}
 
 
-std::vector<TString> TOnlineFrame::GetHistTitles()
-{
-	std::vector<TString> v;
-	if(fpSock)
-	{
-		TMessage *msg;
-		fpSock->Send("LIST");
-		fpSock->Recv(msg);
-		TObjArray *objArray = (TObjArray*)msg->ReadObject(msg->GetClass());
 
-		for (unsigned int i = 0; i < objArray->GetEntries(); ++i)
-		{
-			TObjString *aString = (TObjString*)objArray->At(i);
-			v.push_back(aString->GetString());
-			//printf("title: %s\n", aString->GetString().Data());
-		}
-
-		delete msg;
-	}
-
-	return v;
-}
-
-void TOnlineFrame::GetHisto(char * histname)
+TH1* TOnlineFrame::GetHist(const char * histname)
 {
 	if (!fpSock)
-		return ;
+		return NULL;
 
 	char req[2048];
 	sprintf(req, "GET %s", histname);
@@ -544,11 +523,28 @@ void TOnlineFrame::GetHisto(char * histname)
 	fpSock->Send(req);
 	fpSock->Recv(msg);
 	TH1 *hist = (TH1*) msg->ReadObject(msg->GetClass());
+	//hist->Print();
+	//hist->Draw();
 
-	hist->Print();
-	//TH1D *h2 = (TH1D *)hist;
-	hist->Draw();
 	delete msg;
+	return hist;
+}
 
-	return ;
+std::vector<TString> TOnlineFrame::GetHistTitles()
+{
+	std::vector<TString> v;
+	if(!fpSock)
+		return v;
+
+	fpSock->Send("LIST");
+	TMessage *msg;
+	fpSock->Recv(msg);
+	TObjArray *objArray = (TObjArray *)msg->ReadObject(msg->GetClass());
+	for (unsigned int i = 0; i < objArray->GetEntries(); ++i)
+	{
+		TObjString *title = (TObjString *)objArray->At(i);
+		v.push_back((TString)title->GetString());
+	}
+	delete msg;
+	return v;
 }

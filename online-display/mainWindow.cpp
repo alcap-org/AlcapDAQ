@@ -17,6 +17,12 @@
 #include "TGLabel.h"
 #include "TG3DLine.h"
 #include "TGFileDialog.h"
+#include "TSocket.h"
+#include "TMessage.h"
+#include "TH1D.h"
+#include "TH1.h"
+#include "TObjArray.h"
+#include "TObjString.h"
 
 #include "getHist.h"
 #include "TOnlineFrame.h"
@@ -40,14 +46,7 @@ int height = 600;
 	 }
 	 */
 
-void HelpMessage()
-{
-	printf("Default connection is to localhost:9090.\n");
-	printf("To specify another host, use: \n");
-	printf("\t ./online-display -H hostname -p port\n");
-	printf("Or, to open a ROOT file:\n");
-	printf("\t ./online-display -i filename\n");
-}
+void HelpMessage();
 
 int main(int argc, char **argv)
 {
@@ -98,18 +97,20 @@ int main(int argc, char **argv)
 		onlineFrame->setServerName(server_name.c_str());
 		onlineFrame->setServerPort(server_port);
 		onlineFrame->ConnectToServer();
-		std::vector<TString> histTitles = onlineFrame->GetHistTitles();
-		printf("hist: %s\n", histTitles.at(0).Data());
-		char histname[1024];
-	 	sprintf(histname,"%s", histTitles.at(1).Data());
-		printf("%s\n", histname);
-
-		onlineFrame->GetHisto(histname);
 
 		//TObjArray *objlist = onlineFrame->GetHistTitles();
 		//for (int i = 0; i < objlist->GetEntries(); ++i)
 		//{
 			//objlist->At(i)->Print();
+		//}
+		
+		//std::vector<TString> vHistTitles = onlineFrame->GetHistTitles();
+		//for (int i = 0; i < vHistTitles.size(); ++i)
+		//{
+			//printf("%d: %s\n", i, vHistTitles.at(i).Data());
+			//TH1 *hist = onlineFrame->GetHist(vHistTitles.at(i).Data());
+			//if(hist)
+				//hist->Draw();
 		//}
 	}
 
@@ -143,4 +144,13 @@ int main(int argc, char **argv)
 #endif
   
   return 0;
+}
+
+void HelpMessage()
+{
+	printf("Default connection is to localhost:9090.\n");
+	printf("To specify another host, use: \n");
+	printf("\t ./online-display -H hostname -p port\n");
+	printf("Or, to open a ROOT file:\n");
+	printf("\t ./online-display -i filename\n");
 }
