@@ -100,7 +100,7 @@ int main(int argc, char **argv)
 
 		// Get list of all histograms, then copy them to the current directory
 		std::vector<TString> vHistTitles = onlineFrame->GetHistTitles();
-		for (int i = 0; i < vHistTitles.size(); ++i)
+		for (unsigned int i = 0; i < vHistTitles.size(); ++i)
 		{
 			//printf("%d: %s\n", i, vHistTitles.at(i).Data());
 			TH1 *hist = onlineFrame->GetHist(vHistTitles.at(i).Data());
