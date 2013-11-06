@@ -22,4 +22,6 @@ Dummy dummy.C
 #             Si
 SiL1Slow Si/thin_left_slow_silicon_heights.C
 SiR1Slow Si/thin_right_slow_silicon_heights.C
+SiL1Fast Si/thin_left_fast_silicon_heights.C
+SiR1Fast Si/thin_right_fast_silicon_heights.C
 #======================================================

@@ -12,7 +12,7 @@ void thin_left_slow_silicon_heights()
 	for (int j = 0; j < 4; ++j)
 	{
 		sprintf(histTitle,"hSiL1_%dSlow_Heights",j+1);
-		left_slow[j] = (TH1 *)gDirectory->FindObject(histTitle);
+		left_slow[j] = (TH1 *)gDirectory->Get(histTitle);
 		AlCapCanvas->cd(j+1);
 		left_slow[j]->Draw();
 	}

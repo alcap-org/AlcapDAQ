@@ -1,4 +1,4 @@
-void thin_right_slow_silicon_heights()
+void thin_left_fast_silicon_heights()
 {
   /*****************************************************************/
   // Prepare the canvas
@@ -7,13 +7,13 @@ void thin_right_slow_silicon_heights()
 	AlCapCanvas->Clear();
   AlCapCanvas->Divide(2,2);
   /*****************************************************************/
-	TH1 *right_slow[4];
+	TH1 *left_slow[4];
 	char histTitle[1024];
 	for (int j = 0; j < 4; ++j)
 	{
-		sprintf(histTitle,"hSiR1_%dSlow_Heights",j+1);
-		right_slow[j] = (TH1 *)gDirectory->Get(histTitle);
+		sprintf(histTitle,"hSiL1_%dFast_Heights",j+1);
+		left_slow[j] = (TH1 *)gDirectory->Get(histTitle);
 		AlCapCanvas->cd(j+1);
-		right_slow[j]->Draw();
+		left_slow[j]->Draw();
 	}
 }
