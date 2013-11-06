@@ -1,9 +1,9 @@
 /********************************************************************\
 
-  Name:         MSiPulseHeight
-  Created by:   Andrew Edmonds
+Name:         MSiPulseHeight
+Created by:   Andrew Edmonds
 
-  Contents:     A module to plot the pulse heights of the silicon detector
+Contents:     A module to plot the pulse heights of the silicon detector
 
 \********************************************************************/
 
@@ -25,6 +25,7 @@
 #include "TOctalFADCIsland.h"
 #include "TOctalFADCBankReader.h"
 #include "TGlobalData.h"
+#include "TSimpleSiPulse.h"
 
 using std::string;
 using std::map;
@@ -68,20 +69,20 @@ static vector<TOctalFADCBankReader*> fadc_bank_readers;
 
 ANA_MODULE MSiPulseHeight_module =
 {
-  "MSiPulseHeight",                    /* module name           */
-  "Andrew Edmonds",              /* author                */
-  MSiPulseHeight,                      /* event routine         */
-  NULL,                          /* BOR routine           */
-  NULL,                          /* EOR routine           */
-  MSiPulseHeight_init,                 /* init routine          */
-  NULL,                          /* exit routine          */
-  NULL,                          /* parameter structure   */
-  0,                             /* structure size        */
-  NULL,                          /* initial parameters    */
+	"MSiPulseHeight",                    /* module name           */
+	"Andrew Edmonds",              /* author                */
+	MSiPulseHeight,                      /* event routine         */
+	NULL,                          /* BOR routine           */
+	NULL,                          /* EOR routine           */
+	MSiPulseHeight_init,                 /* init routine          */
+	NULL,                          /* exit routine          */
+	NULL,                          /* parameter structure   */
+	0,                             /* structure size        */
+	NULL,                          /* initial parameters    */
 };
 
 /** This method initializes histograms.
-  */
+*/
 INT MSiPulseHeight_init()
 {
   // This histogram has the bank names labeled on the X-axis, and the midas
@@ -151,79 +152,97 @@ INT MSiPulseHeight_init()
 }
 
 /** This method processes one MIDAS block, producing a vector
-  * of TOctalFADCIsland objects from the raw Octal FADC data.
-  */
+ * of TOctalFADCIsland objects from the raw Octal FADC data.
+ */
 INT MSiPulseHeight(EVENT_HEADER *pheader, void *pevent)
 {
-  // Get the event number
-  int midas_event_number = pheader->serial_number;
+	// Get the event number
+	int midas_event_number = pheader->serial_number;
 
-  // Some typedefs
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+	// Some typedefs
+	typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
+	typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
+	typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
-  // Fetch a reference to the gData structure that stores a map
-  // of (bank_name, vector<TPulseIsland*>) pairs
-  TStringPulseIslandMap& pulse_islands_map =
-    gData->fPulseIslandToChannelMap;
+	// Fetch a reference to the gData structure that stores a map
+	// of (bank_name, vector<TPulseIsland*>) pairs
+	TStringPulseIslandMap& pulse_islands_map =
+		gData->fPulseIslandToChannelMap;
 
-  // Iterate through the banks readers
-  for (std::vector<TOctalFADCBankReader*>::iterator bankReaderIter = fadc_bank_readers.begin();
-  	   bankReaderIter != fadc_bank_readers.end(); bankReaderIter++) {
-  	   
-  	   (*bankReaderIter)->ProcessEvent(pheader, pevent);
-  	   std::vector<TOctalFADCIsland*> theOctalFADCIslands = (*bankReaderIter)->GetIslandVectorCopy();
-  	   
-  	   // Loop over the islands and fill the relevant histogram with the peak height
-  	   for (std::vector<TOctalFADCIsland*>::iterator octalFADCIslandIter = theOctalFADCIslands.begin();
-  	   		octalFADCIslandIter != theOctalFADCIslands.end(); octalFADCIslandIter++) {
-  	   		
-  	   		if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nac0") == 0)
-    			hSiL2Slow_Heights->Fill((*octalFADCIslandIter)->GetMax()); // NB the pulses might be negative so this could be wrong!!!
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nbc0") == 0)
-    			hSiR2Slow_Heights->Fill((*octalFADCIslandIter)->GetMax());
-    			
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nec0") == 0)
-    			hSiL2Fast_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nfc0") == 0)
-				hSiR2Fast_Heights->Fill((*octalFADCIslandIter)->GetMax());
+	// Iterate through the banks readers
+	for (std::vector<TOctalFADCBankReader*>::iterator 
+			bankReaderIter = fadc_bank_readers.begin();
+			bankReaderIter != fadc_bank_readers.end(); 
+			bankReaderIter++) 
+	{
+		(*bankReaderIter)->ProcessEvent(pheader, pevent);
+		std::vector<TOctalFADCIsland*> theOctalFADCIslands = 
+			(*bankReaderIter)->GetIslandVectorCopy();
 
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nae0") == 0)
-				hSiL1_1Fast_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nbe0") == 0)
-				hSiL1_2Fast_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nce0") == 0)
-				hSiL1_3Fast_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nde0") == 0)
-				hSiL1_4Fast_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nee0") == 0)
-				hSiR1_1Fast_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nfe0") == 0)
-				hSiR1_2Fast_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nge0") == 0)
-				hSiR1_3Fast_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nhe0") == 0)
-				hSiR1_4Fast_Heights->Fill((*octalFADCIslandIter)->GetMax());
+		// Loop over the islands and fill the relevant histogram with the peak height
+		for (std::vector<TOctalFADCIsland*>::iterator octalFADCIslandIter = 
+				theOctalFADCIslands.begin();
+				octalFADCIslandIter != theOctalFADCIslands.end(); 
+				octalFADCIslandIter++) 
+		{
+			std::string bankname = (*bankReaderIter)->GetBankName();
+			TSimpleSiPulse *siPulse = new TSimpleSiPulse(*octalFADCIslandIter);
+			double pulseheight;
+			if (siPulse->IsPositive())
+			{
+				pulseheight = pulseheight - siPulse->GetPedestal();
+			}
+			else
+			{
+				TSimpleSiPulse *invertedPulse = siPulse->Invert();
+				pulseheight = invertedPulse->GetMax() - invertedPulse->GetPedestal();
+			}
 
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Naf0") == 0)
-				hSiL1_1Slow_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nbf0") == 0)
-				hSiL1_2Slow_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Ncf0") == 0)
-				hSiL1_3Slow_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Ndf0") == 0)
-				hSiL1_4Slow_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nef0") == 0)
-				hSiR1_1Slow_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nff0") == 0)
-				hSiR1_2Slow_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Ngf0") == 0)
-				hSiR1_3Slow_Heights->Fill((*octalFADCIslandIter)->GetMax());
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nhf0") == 0)
-				hSiR1_4Slow_Heights->Fill((*octalFADCIslandIter)->GetMax()); 
-  	   }
-  	   
-  }
-  return SUCCESS;
+			if (strcmp(bankname.c_str(), "Nac0") == 0)
+				hSiL2Slow_Heights->Fill(pulseheight); 
+			// NB the pulses might be negative so this could be wrong!!!
+			else if (strcmp(bankname.c_str(), "Nbc0") == 0)
+				hSiR2Slow_Heights->Fill(pulseheight);
+
+			else if (strcmp(bankname.c_str(), "Nec0") == 0)
+				hSiL2Fast_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Nfc0") == 0)
+				hSiR2Fast_Heights->Fill(pulseheight);
+
+			else if (strcmp(bankname.c_str(), "Nae0") == 0)
+				hSiL1_1Fast_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Nbe0") == 0)
+				hSiL1_2Fast_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Nce0") == 0)
+				hSiL1_3Fast_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Nde0") == 0)
+				hSiL1_4Fast_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Nee0") == 0)
+				hSiR1_1Fast_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Nfe0") == 0)
+				hSiR1_2Fast_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Nge0") == 0)
+				hSiR1_3Fast_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Nhe0") == 0)
+				hSiR1_4Fast_Heights->Fill(pulseheight);
+
+			else if (strcmp(bankname.c_str(), "Naf0") == 0)
+				hSiL1_1Slow_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Nbf0") == 0)
+				hSiL1_2Slow_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Ncf0") == 0)
+				hSiL1_3Slow_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Ndf0") == 0)
+				hSiL1_4Slow_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Nef0") == 0)
+				hSiR1_1Slow_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Nff0") == 0)
+				hSiR1_2Slow_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Ngf0") == 0)
+				hSiR1_3Slow_Heights->Fill(pulseheight);
+			else if (strcmp(bankname.c_str(), "Nhf0") == 0)
+				hSiR1_4Slow_Heights->Fill(pulseheight); 
+		}
+	}
+	return SUCCESS;
 }

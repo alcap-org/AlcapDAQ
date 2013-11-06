@@ -46,7 +46,7 @@ class TOctalFADCIsland {
     }
   };
 
-  private:
+  protected:
   int fTime;
   std::vector<int> fData;
 };
