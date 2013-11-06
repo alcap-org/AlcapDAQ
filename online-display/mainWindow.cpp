@@ -98,20 +98,18 @@ int main(int argc, char **argv)
 		onlineFrame->setServerPort(server_port);
 		onlineFrame->ConnectToServer();
 
-		//TObjArray *objlist = onlineFrame->GetHistTitles();
-		//for (int i = 0; i < objlist->GetEntries(); ++i)
-		//{
-			//objlist->At(i)->Print();
-		//}
-		
-		//std::vector<TString> vHistTitles = onlineFrame->GetHistTitles();
-		//for (int i = 0; i < vHistTitles.size(); ++i)
-		//{
+		// Get list of all histograms, then copy them to the current directory
+		std::vector<TString> vHistTitles = onlineFrame->GetHistTitles();
+		for (int i = 0; i < vHistTitles.size(); ++i)
+		{
 			//printf("%d: %s\n", i, vHistTitles.at(i).Data());
-			//TH1 *hist = onlineFrame->GetHist(vHistTitles.at(i).Data());
-			//if(hist)
+			TH1 *hist = onlineFrame->GetHist(vHistTitles.at(i).Data());
+			if(hist)
+			{
 				//hist->Draw();
-		//}
+				hist->Clone(vHistTitles.at(i).Data());
+			}
+		}
 	}
 
 	//onlineFrame->runMacro("modules/common/root_init.C");
