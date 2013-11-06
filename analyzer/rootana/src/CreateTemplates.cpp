@@ -14,6 +14,8 @@
 #include <sstream>
 #include <cmath>
 
+#include "TFile.h"
+
 #include "TH1.h"
 #include "TH2.h"
 
@@ -190,6 +192,22 @@ CreateTemplates::~CreateTemplates(){
 		
 		Plot1DTemplateHistogram(h2DTemplateFast[iBank], hTemplateFast[iBank]);
 	}
+	
+	// Open a new TFile to store the templates
+	TFile* template_file = new TFile("templates.root", "RECREATE");
+	
+	for (int iBank = 0; iBank < n_slow_pulse_banks; iBank++) {
+		// Copy the template to a new histogram because ROOT is a pain...
+		TH1F* template_to_write = (TH1F*) hTemplateSlow[iBank]->Clone();
+		template_file->Write(template_to_write->GetName());
+	}
+	for (int iBank = 0; iBank < n_fast_pulse_banks; iBank++) {
+		// Copy the template to a new histogram because ROOT is a pain...
+		TH1F* template_to_write = (TH1F*) hTemplateFast[iBank]->Clone();
+		template_file->Write(template_to_write->GetName());
+	}
+	template_file->Close();
+	
 }
 
 int CreateTemplates::ProcessEntry(TGlobalData *gData){
