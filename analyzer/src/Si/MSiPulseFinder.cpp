@@ -13,6 +13,8 @@
 #include <string>
 #include <map>
 #include <utility>
+#include <cmath>
+#include <iostream>
 
 /* MIDAS includes */
 #include "midas.h"
@@ -37,7 +39,7 @@ INT  MSiPulseFinder(EVENT_HEADER*, void*);
 vector<string> GetAllFADCBankNames();
 double GetClockTickForChannel(string bank_name);
 
-vector<TPulseIsland*> GetPulsesFromIsland(TOctalFADCIsland* island);
+vector<TOctalFADCIsland*> GetPulsesFromIsland(TOctalFADCIsland* island);
 void GetPedestalAndRMS(std::vector<int> samples, double& pedestal, double& RMS);
 
 extern HNDLE hDB;
@@ -101,114 +103,26 @@ INT MSiPulseFinder(EVENT_HEADER *pheader, void *pevent)
   	   for (std::vector<TOctalFADCIsland*>::iterator octalFADCIslandIter = theOctalFADCIslands.begin();
   	   		octalFADCIslandIter != theOctalFADCIslands.end(); octalFADCIslandIter++) {
   	   		
-  	   		// Find all the pulses in this island
-  	   		vector<TPulseIsland*> pulses = GetPulsesFromIsland(*octalFADCIslandIter);
-  	   		
   	   		// Create a new "bank" to store the pulses
-  	   		// SiL2-slow
-  	   		if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nac0") == 0) {
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nac0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-    		// SiR2-slow
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nbc0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nbc0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
+  	   		std:;string old_bank_name = (*bankReaderIter)->GetBankName();
+  	   		std::string new_bank_name = old_bank_name + "P";
     		
-    		// SiL2-fast
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nec0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nec0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-    		// SiR2-fast
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nfc0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nfc0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-			
-			// SiL1-1-fast
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nae0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nae0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-			// SiL1-2-fast
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nbe0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nbe0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-			// SiL1-3-fast
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nce0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nce0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-			// SiL1-4-fast
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nde0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nde0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-    		
-			// SiR1-1-fast
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nee0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nee0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-    		// SiR1-2-fast
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nfe0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nfe0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-    		// SiR1-3-fast
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nge0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nge0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-    		// SiR1-4-fast
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nhe0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nhe0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-
-			// SiL1-1-slow
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Naf0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Naf0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-			// SiL1-2-slow
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nbf0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nbf0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-			// SiL1-3-slow
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Ncf0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Ncf0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-			// SiL1-4-slow
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Ndf0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Ndf0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-			// SiR1-1-slow
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nef0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nef0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-			// SiR1-2-slow
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nff0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nff0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-			// SiR1-3-slow
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Ngf0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Ngf0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
-			// SiR1-4-slow
-			else if (strcmp((*bankReaderIter)->GetBankName().c_str(), "Nhf0") == 0){
-    			std::pair<std::string, std::vector<TPulseIsland*> > thePair ("Nhf0P", pulses);
-    			gData->fPulseIslandToChannelMap.insert(thePair);
-    		}
+    		// Find all the pulses in this island
+  	   		vector<TOctalFADCIsland*> octal_fadc_pulses = GetPulsesFromIsland(*octalFADCIslandIter);
+  	   		
+  	   		// The pulses need converting from TOctalFADCIslands to TPulseIslands
+  	   		std::vector<TPulseIsland*> pulses;
+  	   		for (std::vector<TOctalFADCIsland*>::iterator theOctalPulseIter = octal_fadc_pulses.begin(); 
+  	   			theOctalPulseIter != octal_fadc_pulses.end(); theOctalPulseIter++) {
+  	   		
+  	   			TPulseIsland* pulse = new TPulseIsland((*theOctalPulseIter)->GetTime(), (*theOctalPulseIter)->GetSampleVector(), GetClockTickForChannel(old_bank_name), new_bank_name);
+  	   			
+  	   			pulses.push_back(pulse);
+  	   		}
+  	   		
+  	   		// Now add the new "banks" to gData for use by other modules
+    		std::pair<std::string, std::vector<TPulseIsland*> > thePair (new_bank_name, pulses);
+    		gData->fPulseIslandToChannelMap.insert(thePair);
   	   }
   	   
   }
@@ -217,10 +131,13 @@ INT MSiPulseFinder(EVENT_HEADER *pheader, void *pevent)
 
 // GetPulsesFromIsland()
 // -- Finds all the pulses on the island and returns them as a vector
-vector<TPulseIsland*> GetPulsesFromIsland(TOctalFADCIsland* island) {
-
+vector<TOctalFADCIsland*> GetPulsesFromIsland(TOctalFADCIsland* island) {
+	
+	// The vector of pulses that we will return
+	std::vector<TOctalFADCIsland*> pulses;
+	
 	// Get the samples
-	std::vector<int> theSamples = island->GetSamples();
+	std::vector<int> theSamples = island->GetSampleVector();
 	
 	// Get the pedestal and RMS
 	double pedestal = 0; double RMS = 0;
@@ -235,7 +152,7 @@ vector<TPulseIsland*> GetPulsesFromIsland(TOctalFADCIsland* island) {
 	std::vector<int> pulse_samples;
 	
 	// NB end an element before the end so that the iterator isn't inspecting some random bit of memory
-	for (int_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end()-1; sampleIter++) {
+	for (std::vector<int>::iterator	 sampleIter = theSamples.begin(); sampleIter != theSamples.end()-1; sampleIter++) {
 	    
 	    // Start pulse if:
 	    //  - the current sample is less than the pedestal
@@ -244,7 +161,7 @@ vector<TPulseIsland*> GetPulsesFromIsland(TOctalFADCIsland* island) {
 	    // NB assuming negative pulses !!!
 	  	if ( *(sampleIter) < pedestal && *(sampleIter+1) < (pedestal - threshold_n_sigma*RMS) && pulse_found == false) {
 	  	
-	  		pulse_timestamp = island->GetTimeStamp() + (sampleIter - theSamples.begin());
+	  		pulse_timestamp = island->GetTime() + (sampleIter - theSamples.begin());
 	  		pulse_found = true;
 	  	}
 	  		
@@ -257,10 +174,17 @@ vector<TPulseIsland*> GetPulsesFromIsland(TOctalFADCIsland* island) {
 	  		// End the pulse if:
 	  		//  -- the 3-bin mean of this sample and the next two is less than the pedestal
 	  		double mean = ( *(sampleIter) + *(sampleIter+1) + *(sampleIter+2) ) / 3;
-	  		if ( (mean > pedestal - 1*RMS) )
+	  		if ( (mean > pedestal - 1*RMS) ) {
 	  			pulse_found = false; // no longer have a pulse
+	  			
+	  			// Create the TPulseIsland and add it to the vector of pulses
+				TOctalFADCIsland* pulse = new TOctalFADCIsland(pulse_timestamp, pulse_samples); 
+	  			pulses.push_back(pulse);
+	  		}
 	  	}
-	}  	
+	}
+	
+	return pulses;
 }
 
 // GetPedestalAndRMS()
@@ -277,19 +201,11 @@ void GetPedestalAndRMS(std::vector<int> samples, double& pedestal, double& RMS) 
   }
   pedestal /= nBinsForMean;
   
-  if (verbose)
-  	std::cout << "Pedestal: " << pedestal << std::endl;
-  
   // Get the standard deviation
   RMS = 0.0;
   for (int i = 0; i < nBinsForMean; i++) {
     RMS += (samples[i] - pedestal)*(samples[i] - pedestal);
-    if (verbose)
-    	std::cout << "RMS step " << i << ": " << RMS << ", sample: " << samples[i] << std::endl;
   }
   RMS /= nBinsForMean;
   RMS = std::sqrt(RMS);
-  
-  if (verbose)
-  	std::cout << "RMS: " << RMS << std::endl;
 }
