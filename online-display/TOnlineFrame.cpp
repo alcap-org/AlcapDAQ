@@ -178,7 +178,7 @@ TOnlineFrame::TOnlineFrame(const TGWindow * p):TGMainFrame(p, width,
 	// a menu for changing screens
 	//fScreenFrame = new TGHorizontalFrame(fTopFrame, 480, 28, kChildFrame);//, kFixedWidth); 
 	//fTopFrame->AddFrame(fScreenFrame, new TGLayoutHints(kLHintsLeft));
-	for (int i = 0; i < screens.size(); i++) 
+	for (unsigned int i = 0; i < screens.size(); i++) 
 	{
 		TGTextButton *b = new TGTextButton(frame_user, screens[i].visibleName, 
 				SCREENS_BASE + i);
@@ -540,7 +540,7 @@ std::vector<TString> TOnlineFrame::GetHistTitles()
 	TMessage *msg;
 	fpSock->Recv(msg);
 	TObjArray *objArray = (TObjArray *)msg->ReadObject(msg->GetClass());
-	for (unsigned int i = 0; i < objArray->GetEntries(); ++i)
+	for (int i = 0; i < objArray->GetEntries(); ++i)
 	{
 		TObjString *title = (TObjString *)objArray->At(i);
 		v.push_back((TString)title->GetString());
