@@ -17,4 +17,6 @@
 #pragma link C++ class map<string, vector<TPulseIsland*> >+;
 #pragma link C++ class map<string, vector<TPulseIsland*> >::iterator;
 #pragma link C++ class pair<string,vector<TPulseIsland*> >+;
+
+#pragma link C++ class TSimpleSiPulse+;
 #endif
