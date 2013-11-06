@@ -1,4 +1,5 @@
 FADC/MOctalFADCProcessRaw
 Si/MSiPulseFinder
 Si/MSiPulseHeight
+Si/MSiPulseTime
 common/MTreeOutput
