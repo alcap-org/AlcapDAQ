@@ -1,6 +1,6 @@
 /********************************************************************\
 
-  Name:         MSiliconHeight
+  Name:         MSiPulseHeight
   Created by:   Andrew Edmonds
 
   Contents:     A module to plot the pulse heights of the silicon detector
@@ -32,8 +32,8 @@ using std::vector;
 using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
-INT  MSiliconHeight_init(void);
-INT  MSiliconHeight(EVENT_HEADER*, void*);
+INT  MSiPulseHeight_init(void);
+INT  MSiPulseHeight(EVENT_HEADER*, void*);
 vector<string> GetAllFADCBankNames();
 double GetClockTickForChannel(string bank_name);
 
@@ -66,14 +66,14 @@ static TH1* hSiR1_4Slow_Heights; // Bank: Nhf0
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
 
-ANA_MODULE MSiliconHeight_module =
+ANA_MODULE MSiPulseHeight_module =
 {
-  "MSiliconHeight",                    /* module name           */
+  "MSiPulseHeight",                    /* module name           */
   "Andrew Edmonds",              /* author                */
-  MSiliconHeight,                      /* event routine         */
+  MSiPulseHeight,                      /* event routine         */
   NULL,                          /* BOR routine           */
   NULL,                          /* EOR routine           */
-  MSiliconHeight_init,                 /* init routine          */
+  MSiPulseHeight_init,                 /* init routine          */
   NULL,                          /* exit routine          */
   NULL,                          /* parameter structure   */
   0,                             /* structure size        */
@@ -82,7 +82,7 @@ ANA_MODULE MSiliconHeight_module =
 
 /** This method initializes histograms.
   */
-INT MSiliconHeight_init()
+INT MSiPulseHeight_init()
 {
   // This histogram has the bank names labeled on the X-axis, and the midas
   // block number on the Y-axis.
@@ -149,7 +149,7 @@ INT MSiliconHeight_init()
 /** This method processes one MIDAS block, producing a vector
   * of TOctalFADCIsland objects from the raw Octal FADC data.
   */
-INT MSiliconHeight(EVENT_HEADER *pheader, void *pevent)
+INT MSiPulseHeight(EVENT_HEADER *pheader, void *pevent)
 {
   // Get the event number
   int midas_event_number = pheader->serial_number;
