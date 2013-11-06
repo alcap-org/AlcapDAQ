@@ -27,6 +27,8 @@ Contents:     A module to plot the pulse heights of the silicon detector
 #include "TGlobalData.h"
 #include "TSimpleSiPulse.h"
 
+#include "FSimpleSiPulseFinder.h"
+
 using std::string;
 using std::map;
 using std::vector;
@@ -186,62 +188,69 @@ INT MSiPulseHeight(EVENT_HEADER *pheader, void *pevent)
 				octalFADCIslandIter++) 
 		{
 			std::string bankname = (*bankReaderIter)->GetBankName();
-			TSimpleSiPulse *siPulse = new TSimpleSiPulse(*octalFADCIslandIter);
-			double pulseheight;
-			if (siPulse->IsPositive())
-			{
-				pulseheight = pulseheight - siPulse->GetPedestal();
+			TSimpleSiPulse *siIsland = new TSimpleSiPulse(*octalFADCIslandIter);
+			
+			// Get the pulses on this island (there may be more than 1)
+			std::vector<TSimpleSiPulse*> si_pulses = FSimpleSiPulseFinder(siIsland);
+			
+			// Loop through the pulses that have been found
+			for (std::vector<TSimpleSiPulse*>::iterator siPulse = si_pulses.begin(); siPulse != si_pulses.end(); siPulse++) {
+				double pulseheight;
+				if ((*siPulse)->IsPositive())
+				{
+					pulseheight = pulseheight - (*siPulse)->GetPedestal();
+				}
+				else
+				{
+					TSimpleSiPulse *invertedPulse = (*siPulse)->Invert();
+					pulseheight = invertedPulse->GetMax() - invertedPulse->GetPedestal();
+				}
+
+				if (strcmp(bankname.c_str(), "Nac0") == 0)
+					hSiL2Slow_Heights->Fill(pulseheight); 
+				// NB the pulses might be negative so this could be wrong!!!
+				else if (strcmp(bankname.c_str(), "Nbc0") == 0)
+					hSiR2Slow_Heights->Fill(pulseheight);
+
+				else if (strcmp(bankname.c_str(), "Nec0") == 0)
+					hSiL2Fast_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Nfc0") == 0)
+					hSiR2Fast_Heights->Fill(pulseheight);
+
+				else if (strcmp(bankname.c_str(), "Nae0") == 0)
+					hSiL1_1Fast_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Nbe0") == 0)
+					hSiL1_2Fast_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Nce0") == 0)
+					hSiL1_3Fast_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Nde0") == 0)
+					hSiL1_4Fast_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Nee0") == 0)
+					hSiR1_1Fast_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Nfe0") == 0)
+					hSiR1_2Fast_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Nge0") == 0)
+					hSiR1_3Fast_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Nhe0") == 0)
+					hSiR1_4Fast_Heights->Fill(pulseheight);
+
+				else if (strcmp(bankname.c_str(), "Naf0") == 0)
+					hSiL1_1Slow_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Nbf0") == 0)
+					hSiL1_2Slow_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Ncf0") == 0)
+					hSiL1_3Slow_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Ndf0") == 0)
+					hSiL1_4Slow_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Nef0") == 0)
+					hSiR1_1Slow_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Nff0") == 0)
+					hSiR1_2Slow_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Ngf0") == 0)
+					hSiR1_3Slow_Heights->Fill(pulseheight);
+				else if (strcmp(bankname.c_str(), "Nhf0") == 0)
+					hSiR1_4Slow_Heights->Fill(pulseheight); 
 			}
-			else
-			{
-				TSimpleSiPulse *invertedPulse = siPulse->Invert();
-				pulseheight = invertedPulse->GetMax() - invertedPulse->GetPedestal();
-			}
-
-			if (strcmp(bankname.c_str(), "Nac0") == 0)
-				hSiL2Slow_Heights->Fill(pulseheight); 
-			// NB the pulses might be negative so this could be wrong!!!
-			else if (strcmp(bankname.c_str(), "Nbc0") == 0)
-				hSiR2Slow_Heights->Fill(pulseheight);
-
-			else if (strcmp(bankname.c_str(), "Nec0") == 0)
-				hSiL2Fast_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Nfc0") == 0)
-				hSiR2Fast_Heights->Fill(pulseheight);
-
-			else if (strcmp(bankname.c_str(), "Nae0") == 0)
-				hSiL1_1Fast_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Nbe0") == 0)
-				hSiL1_2Fast_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Nce0") == 0)
-				hSiL1_3Fast_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Nde0") == 0)
-				hSiL1_4Fast_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Nee0") == 0)
-				hSiR1_1Fast_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Nfe0") == 0)
-				hSiR1_2Fast_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Nge0") == 0)
-				hSiR1_3Fast_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Nhe0") == 0)
-				hSiR1_4Fast_Heights->Fill(pulseheight);
-
-			else if (strcmp(bankname.c_str(), "Naf0") == 0)
-				hSiL1_1Slow_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Nbf0") == 0)
-				hSiL1_2Slow_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Ncf0") == 0)
-				hSiL1_3Slow_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Ndf0") == 0)
-				hSiL1_4Slow_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Nef0") == 0)
-				hSiR1_1Slow_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Nff0") == 0)
-				hSiR1_2Slow_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Ngf0") == 0)
-				hSiR1_3Slow_Heights->Fill(pulseheight);
-			else if (strcmp(bankname.c_str(), "Nhf0") == 0)
-				hSiR1_4Slow_Heights->Fill(pulseheight); 
 		}
 	}
 	return SUCCESS;
