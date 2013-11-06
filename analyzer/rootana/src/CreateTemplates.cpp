@@ -38,31 +38,33 @@ static bool verbose = false;
 
 static int entry_counter = 1;
 
-static const int n_slow_pulse_banks = 1;
-static const int n_fast_pulse_banks = 1;
-static string slow_pulse_banknames[n_slow_pulse_banks] = {"Nh80"};
-static string fast_pulse_banknames[n_fast_pulse_banks] = {"Ng80"};
+static const int n_slow_pulse_banks = 0;
+static const int n_fast_pulse_banks = 5;
+static string slow_pulse_banknames[n_slow_pulse_banks] = {};
+static string fast_pulse_banknames[n_fast_pulse_banks] = {"Nhe0", "Nge0", "Nhc0", "Nh80", "Nfc0"};
+
+static std::vector<int> fast_pulse_numbers;
 
 static double fast_clock_tick = 0;
 static double slow_clock_tick = 0;
 
-static TH2F* h2DTemplateSlow[n_slow_pulse_banks] = {NULL};
-static TH2F* h2DTemplateFast[n_fast_pulse_banks] = {NULL};
+static TH2F* h2DTemplateSlow[n_slow_pulse_banks];
+static TH2F* h2DTemplateFast[n_fast_pulse_banks];
 
-static double anchor_time_slow[n_slow_pulse_banks] = {0};
-static double anchor_ADC_slow[n_slow_pulse_banks] = {0};
-static double anchor_time_fast[n_fast_pulse_banks] = {0};
-static double anchor_ADC_fast[n_fast_pulse_banks] = {0};
+static double anchor_time_slow[n_slow_pulse_banks];
+static double anchor_ADC_slow[n_slow_pulse_banks];
+static double anchor_time_fast[n_fast_pulse_banks];
+static double anchor_ADC_fast[n_fast_pulse_banks];
 
 static int n_psi_bins = 50;
-static TH1F* hPseudotime[n_fast_pulse_banks] = {NULL};
-static TH1F* hTau[n_fast_pulse_banks] = {NULL};
+static TH1F* hPseudotime[n_fast_pulse_banks];
+static TH1F* hTau[n_fast_pulse_banks];
 
-static TH2F* hAMaxVsPsi[n_fast_pulse_banks] = {NULL};
-static TH1F* hAvgAMaxVsPsi[n_fast_pulse_banks] = {NULL};
+static TH2F* hAMaxVsPsi[n_fast_pulse_banks];
+static TH1F* hAvgAMaxVsPsi[n_fast_pulse_banks];
 
-static TH1F* hTemplateSlow[n_slow_pulse_banks] = {NULL};
-static TH1F* hTemplateFast[n_fast_pulse_banks] = {NULL};
+static TH1F* hTemplateSlow[n_slow_pulse_banks];
+static TH1F* hTemplateFast[n_fast_pulse_banks];
 
 CreateTemplates::CreateTemplates(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){
@@ -141,17 +143,27 @@ CreateTemplates::~CreateTemplates(){
 			std::cout << "CalculateRConstant() called" << std::endl;
 			std::cout << "k = " << k << std::endl;
 		}
+	}
 		
 		
-		// Loop through all the fast pulses again and plot the 2D template
-		for (int iEntry = 1; iEntry <= entry_counter; iEntry++) {
+	// Loop through all the fast pulses again and plot the 2D template
+	int fast_pulse_counter = 0;
+	for (int iEntry = 1; iEntry <= entry_counter; iEntry++) {
+	
+		for (int iBank = 0; iBank < n_fast_pulse_banks; iBank++) {
+				
 			std::stringstream histname;
-			histname << "Entry" << iEntry << "_" << fast_pulse_banknames[iBank] << "_Pulse0"; // TODO: Get correct pulse numbers
+			histname << "Entry" << iEntry << "_" << fast_pulse_banknames[iBank] << "_Pulse" << fast_pulse_numbers[fast_pulse_counter];
+			fast_pulse_counter++;
 			TH1F* hFastPulse = (TH1F*) dir->Get(histname.str().c_str());
 			histname.str("");
 		
 			if (hFastPulse == NULL)
 				continue; // skip the loop if there's not a fast pulse in this entry
+			
+			// Recalculate the constants because we are in a different for loop
+			double constant = CalculatePseudotimeConstant(hPseudotime[iBank], fast_clock_tick);
+			double k = CalculateRConstant(hAvgAMaxVsPsi[iBank]);
 			
 			double a_max, t_max, A, delta_t;
 			GetFastPulsePseudotimeVariables(hFastPulse, a_max, t_max, A, delta_t, fast_clock_tick, iBank, constant, k);
@@ -180,11 +192,15 @@ CreateTemplates::~CreateTemplates(){
 					
 			Fill2DTemplateHistogram(hFastPulse, h2DTemplateFast[iBank], a_max, t_max, A, delta_t, anchor_time_fast[iBank], anchor_ADC_fast[iBank]);
 		}
-		
-		// Now get the final template for the fast pulse
+	}
+	
+	// Loop through the banks again and create the final 1D template
+	for (int iBank = 0; iBank < n_fast_pulse_banks; iBank++) {
+		std::stringstream histname;
 		histname << "hTemplateFast_" << fast_pulse_banknames[iBank];
 		hTemplateFast[iBank] = new TH1F(histname.str().c_str(), histname.str().c_str(), h2DTemplateFast[iBank]->GetNbinsX(), h2DTemplateFast[iBank]->GetXaxis()->GetXmin(), h2DTemplateFast[iBank]->GetXaxis()->GetXmax());
 		
+		std::stringstream histtitle;
 	  	histtitle << "Template for the Fast Pulses from bank " << fast_pulse_banknames[iBank];
 		hTemplateFast[iBank]->SetTitle(histtitle.str().c_str());
 		hTemplateFast[iBank]->GetXaxis()->SetTitle("time [ns]");
@@ -298,6 +314,7 @@ int CreateTemplates::ProcessEntry(TGlobalData *gData){
 	  			// Plot the pulse in a histogram and store the a_max and t_max values
 	  			double a_max, t_max;
 	  			TH1F* hPulse = PlotPulse(*pulseIter, pulseIter - pulses.begin(), a_max, t_max);
+	  			fast_pulse_numbers.push_back(pulseIter - pulses.begin());
 	  			if (verbose) {
 	  				std::cout << "PlotPulse() called" << std::endl;
 	  				std::cout << "a_max = " << a_max << "\tt_max = " << t_max << std::endl;
