@@ -17,3 +17,9 @@
 #
 # Dummy hist
 Dummy dummy.C
+#
+#======================================================
+#             Si
+SiL1Slow Si/thin_left_slow_silicon_heights.C
+SiR1Slow Si/thin_right_slow_silicon_heights.C
+#======================================================
