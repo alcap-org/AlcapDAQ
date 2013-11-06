@@ -88,53 +88,57 @@ INT MSiPulseHeight_init()
   // block number on the Y-axis.
   // This uses the TH1::kCanRebin mechanism to expand automatically to the
   // number of FADC banks.
-  hSiL2Slow_Heights = new TH1I("hSiL2Slow_Heights", "Plot of the pulse heights from the SiL2 slow detector", 100,0,100);
+  int n_bins = 100;
+  int x_min = 0;
+  int x_max = 100;
+  
+  hSiL2Slow_Heights = new TH1I("hSiL2Slow_Heights", "Plot of the pulse heights from the SiL2 slow detector", n_bins, x_min, x_max);
   hSiL2Slow_Heights->SetBit(TH1::kCanRebin);
-  hSiR2Slow_Heights = new TH1I("hSiR2Slow_Heights", "Plot of the pulse heights from the SiR2 slow detector", 100,0,100);
+  hSiR2Slow_Heights = new TH1I("hSiR2Slow_Heights", "Plot of the pulse heights from the SiR2 slow detector", n_bins, x_min, x_max);
   hSiR2Slow_Heights->SetBit(TH1::kCanRebin);
   
   
-  hSiL2Fast_Heights = new TH1I("hSiL2Fast_Heights", "Plot of the pulse heights from the SiL2 fast detector", 100,0,100);
+  hSiL2Fast_Heights = new TH1I("hSiL2Fast_Heights", "Plot of the pulse heights from the SiL2 fast detector", n_bins, x_min, x_max);
   hSiL2Fast_Heights->SetBit(TH1::kCanRebin);
-  hSiR2Fast_Heights = new TH1I("hSiR2Fast_Heights", "Plot of the pulse heights from the SiR2 fast detector", 100,0,100);
+  hSiR2Fast_Heights = new TH1I("hSiR2Fast_Heights", "Plot of the pulse heights from the SiR2 fast detector", n_bins, x_min, x_max);
   hSiR2Fast_Heights->SetBit(TH1::kCanRebin);
   
   
-  hSiL1_1Fast_Heights = new TH1I("hSiL1_1Fast_Heights", "Plot of the pulse heights from the SiL1_1 fast detector", 100,0,100);
+  hSiL1_1Fast_Heights = new TH1I("hSiL1_1Fast_Heights", "Plot of the pulse heights from the SiL1_1 fast detector", n_bins, x_min, x_max);
   hSiL1_1Fast_Heights->SetBit(TH1::kCanRebin);
-  hSiL1_2Fast_Heights = new TH1I("hSiL1_2Fast_Heights", "Plot of the pulse heights from the SiL1_2 fast detector", 100,0,100);
+  hSiL1_2Fast_Heights = new TH1I("hSiL1_2Fast_Heights", "Plot of the pulse heights from the SiL1_2 fast detector", n_bins, x_min, x_max);
   hSiL1_2Fast_Heights->SetBit(TH1::kCanRebin);
-  hSiL1_3Fast_Heights = new TH1I("hSiL1_3Fast_Heights", "Plot of the pulse heights from the SiL1_3 fast detector", 100,0,100);
+  hSiL1_3Fast_Heights = new TH1I("hSiL1_3Fast_Heights", "Plot of the pulse heights from the SiL1_3 fast detector", n_bins, x_min, x_max);
   hSiL1_3Fast_Heights->SetBit(TH1::kCanRebin);
-  hSiL1_4Fast_Heights = new TH1I("hSiL1_4Fast_Heights", "Plot of the pulse heights from the SiL1_4 fast detector", 100,0,100);
+  hSiL1_4Fast_Heights = new TH1I("hSiL1_4Fast_Heights", "Plot of the pulse heights from the SiL1_4 fast detector", n_bins, x_min, x_max);
   hSiL1_4Fast_Heights->SetBit(TH1::kCanRebin);
   
-  hSiR1_1Fast_Heights = new TH1I("hSiR1_1Fast_Heights", "Plot of the pulse heights from the SiR1_1 fast detector", 100,0,100);
+  hSiR1_1Fast_Heights = new TH1I("hSiR1_1Fast_Heights", "Plot of the pulse heights from the SiR1_1 fast detector", n_bins, x_min, x_max);
   hSiR1_1Fast_Heights->SetBit(TH1::kCanRebin);
-  hSiR1_2Fast_Heights = new TH1I("hSiR1_2Fast_Heights", "Plot of the pulse heights from the SiR1_2 fast detector", 100,0,100);
+  hSiR1_2Fast_Heights = new TH1I("hSiR1_2Fast_Heights", "Plot of the pulse heights from the SiR1_2 fast detector", n_bins, x_min, x_max);
   hSiR1_2Fast_Heights->SetBit(TH1::kCanRebin);
-  hSiR1_3Fast_Heights = new TH1I("hSiR1_3Fast_Heights", "Plot of the pulse heights from the SiR1_3 fast detector", 100,0,100);
+  hSiR1_3Fast_Heights = new TH1I("hSiR1_3Fast_Heights", "Plot of the pulse heights from the SiR1_3 fast detector", n_bins, x_min, x_max);
   hSiR1_3Fast_Heights->SetBit(TH1::kCanRebin);
-  hSiR1_4Fast_Heights = new TH1I("hSiR1_4Fast_Heights", "Plot of the pulse heights from the SiR1_4 fast detector", 100,0,100);
+  hSiR1_4Fast_Heights = new TH1I("hSiR1_4Fast_Heights", "Plot of the pulse heights from the SiR1_4 fast detector", n_bins, x_min, x_max);
   hSiR1_4Fast_Heights->SetBit(TH1::kCanRebin);
   
   
-  hSiL1_1Slow_Heights = new TH1I("hSiL1_1Slow_Heights", "Plot of the pulse heights from the SiL1_1 slow detector", 100,0,100);
+  hSiL1_1Slow_Heights = new TH1I("hSiL1_1Slow_Heights", "Plot of the pulse heights from the SiL1_1 slow detector", n_bins, x_min, x_max);
   hSiL1_1Slow_Heights->SetBit(TH1::kCanRebin);
-  hSiL1_2Slow_Heights = new TH1I("hSiL1_2Slow_Heights", "Plot of the pulse heights from the SiL1_2 slow detector", 100,0,100);
+  hSiL1_2Slow_Heights = new TH1I("hSiL1_2Slow_Heights", "Plot of the pulse heights from the SiL1_2 slow detector", n_bins, x_min, x_max);
   hSiL1_2Slow_Heights->SetBit(TH1::kCanRebin);
-  hSiL1_3Slow_Heights = new TH1I("hSiL1_3Slow_Heights", "Plot of the pulse heights from the SiL1_3 slow detector", 100,0,100);
+  hSiL1_3Slow_Heights = new TH1I("hSiL1_3Slow_Heights", "Plot of the pulse heights from the SiL1_3 slow detector", n_bins, x_min, x_max);
   hSiL1_3Slow_Heights->SetBit(TH1::kCanRebin);
-  hSiL1_4Slow_Heights = new TH1I("hSiL1_4Slow_Heights", "Plot of the pulse heights from the SiL1_4 slow detector", 100,0,100);
+  hSiL1_4Slow_Heights = new TH1I("hSiL1_4Slow_Heights", "Plot of the pulse heights from the SiL1_4 slow detector", n_bins, x_min, x_max);
   hSiL1_4Slow_Heights->SetBit(TH1::kCanRebin);
   
-  hSiR1_1Slow_Heights = new TH1I("hSiR1_1Slow_Heights", "Plot of the pulse heights from the SiR1_1 slow detector", 100,0,100);
+  hSiR1_1Slow_Heights = new TH1I("hSiR1_1Slow_Heights", "Plot of the pulse heights from the SiR1_1 slow detector", n_bins, x_min, x_max);
   hSiR1_1Slow_Heights->SetBit(TH1::kCanRebin);
-  hSiR1_2Slow_Heights = new TH1I("hSiR1_2Slow_Heights", "Plot of the pulse heights from the SiR1_2 slow detector", 100,0,100);
+  hSiR1_2Slow_Heights = new TH1I("hSiR1_2Slow_Heights", "Plot of the pulse heights from the SiR1_2 slow detector", n_bins, x_min, x_max);
   hSiR1_2Slow_Heights->SetBit(TH1::kCanRebin);
-  hSiR1_3Slow_Heights = new TH1I("hSiR1_3Slow_Heights", "Plot of the pulse heights from the SiR1_3 slow detector", 100,0,100);
+  hSiR1_3Slow_Heights = new TH1I("hSiR1_3Slow_Heights", "Plot of the pulse heights from the SiR1_3 slow detector", n_bins, x_min, x_max);
   hSiR1_3Slow_Heights->SetBit(TH1::kCanRebin);
-  hSiR1_4Slow_Heights = new TH1I("hSiR1_4Slow_Heights", "Plot of the pulse heights from the SiR1_4 slow detector", 100,0,100);
+  hSiR1_4Slow_Heights = new TH1I("hSiR1_4Slow_Heights", "Plot of the pulse heights from the SiR1_4 slow detector", n_bins, x_min, x_max);
   hSiR1_4Slow_Heights->SetBit(TH1::kCanRebin);
 
   vector<string> bank_names = GetAllFADCBankNames();
