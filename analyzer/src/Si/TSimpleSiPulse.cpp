@@ -37,7 +37,6 @@ TSimpleSiPulse::TSimpleSiPulse(TOctalFADCIsland *island, unsigned int nped)
 		fIsPositive = true;
 	else
 		fIsPositive = false;
-	PrintInfo();
 }
 
 // Use this constructor if you are getting pulses from an island since
