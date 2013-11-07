@@ -200,14 +200,15 @@ TH1* PlotPulse(TSimpleSiPulse* pulse_to_plot, std::string bankname) {
 	else if (bankname == "Nhf0")
 		detector = "hSiR1_4Slow";
 	
-	TH1I* hPlot = new TH1I(detector.c_str(), detector.c_str(), 100, 0, 100);
+	TH1I* hPlot = new TH1I(detector.c_str(), detector.c_str(), 100, pulse_to_plot->GetTime(), pulse_to_plot->GetTime() + 100);
+	hPlot->SetBit(TH1::kCanRebin);
 	
 	// Get the samples and fill the histogram
 	std::vector<int> theSamples = pulse_to_plot->GetSampleVector();
 	
 	for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
 	
-		hPlot->Fill(sampleIter - theSamples.begin(), (*sampleIter));
+		hPlot->Fill(pulse_to_plot->GetTime() + (sampleIter - theSamples.begin()), (*sampleIter));
 	
 	}
 	
