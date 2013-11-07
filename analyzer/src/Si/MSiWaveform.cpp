@@ -45,30 +45,28 @@ double GetClockTickForChannel(string bank_name);
 extern HNDLE hDB;
 extern TGlobalData* gData;
 
-static TH1* hSiRaw;
-
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
 
 ANA_MODULE MSiWaveform_module =
 {
-	"MSiWaveform", 		/* module name           */
-	"Nam Tran", 					/* author                */
-	MSiWaveform, 			/* event routine         */
-	NULL, 								/* BOR routine           */
-	NULL, 								/* EOR routine           */
-	MSiWaveform_init, 	/* init routine          */
-	NULL, 								/* exit routine          */
-	NULL, 								/* parameter structure   */
-	0, 										/* structure size        */
-	NULL, 								/* initial parameters    */
+	"MSiWaveform",    /* module name           */
+	"Nam Tran",       /* author                */
+	MSiWaveform,      /* event routine         */
+	NULL,             /* BOR routine           */
+	NULL,             /* EOR routine           */
+	MSiWaveform_init, /* init routine          */
+	NULL,             /* exit routine          */
+	NULL,             /* parameter structure   */
+	0,                /* structure size        */
+	NULL,             /* initial parameters    */
 };
 
 /** This method initializes histograms.
 */
 INT MSiWaveform_init()
 {
-	hSiRaw = new TH1I("hSiRaw","hSiRaw",100,0,100);
-
+	gFile->mkdir("SiRawDir");
+	gFile->cd("SiRawDir");
 	for (detIter aDetIter = DetectorToRawHistMap.begin(); 
 			aDetIter != DetectorToRawHistMap.end(); aDetIter++)
 	{
