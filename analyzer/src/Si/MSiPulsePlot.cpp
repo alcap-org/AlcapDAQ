@@ -121,7 +121,7 @@ INT MSiPulsePlot(EVENT_HEADER *pheader, void *pevent)
   	   		// Change the title of the histogram to add the island number
   	   		std::stringstream histname;
   	   		int island_number = octalFADCIslandIter - theOctalFADCIslands.begin() + 1;
-  	   		histname << hIslandPlot->GetName() << "_Island" << island_number;
+  	   		histname << hIslandPlot->GetName() << "_Event" << midas_event_number << "_Island" << island_number;
   	   		hIslandPlot->SetName(histname.str().c_str());
   	   		
   	   		// Add the histogram to the vector of island plots
@@ -137,7 +137,7 @@ INT MSiPulsePlot(EVENT_HEADER *pheader, void *pevent)
   	   			
   	   			// Change the title of the histogram to add the island number and pulse number
   	   			std::stringstream histname;
-  	   			histname << hPulsePlot->GetName() << "_Island" << island_number << "_Pulse" << iter - pulses_on_island.begin() + 1;
+  	   			histname << hPulsePlot->GetName() << "_Event" << midas_event_number << "_Island" << island_number << "_Pulse" << iter - pulses_on_island.begin() + 1;
   	   			hPulsePlot->SetName(histname.str().c_str());
   	   			
   	   			pulsesOnIslandPlots.push_back(hPulsePlot);
