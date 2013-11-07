@@ -29,7 +29,7 @@ Contents:     A module to plot waveforms of pulses from Si detectors
 #include "TOctalFADCBankReader.h"
 #include "TGlobalData.h"
 #include "TSimpleSiPulse.h"
-#include "DetectorMap2.h"
+#include "DetectorMap.h"
 
 using std::string;
 using std::map;

@@ -83,43 +83,12 @@ TSimpleSiPulse *TSimpleSiPulse::Invert()
 	return invertedPulse;
 }
 
-TSimpleSiPulse *TSimpleSiPulse::Offset(double offset)
+TH1I * TSimpleSiPulse::GetWaveform(std::string histname)
 {
-	std::vector<int> offsetSamples;
-	for (unsigned int i = 0; i < fData.size(); ++i)
-		offsetSamples.push_back(offset + fData.at(i));
-
-	TOctalFADCIsland *offsetIsland = 
-		new TOctalFADCIsland(fTime, offsetSamples);
-
-	TSimpleSiPulse *offsetPulse = new TSimpleSiPulse(offsetIsland);
-	return offsetPulse;
-}
-
-TH1 * TSimpleSiPulse::GetWaveform(std::string histname)
-{
-	TH1D *h = new TH1D(histname.c_str(),histname.c_str(),100,0,100);
+	TH1I *h = new TH1I(histname.c_str(),histname.c_str(),100,0,100);
 	for (unsigned int i = 0; i < fData.size(); ++i)
 	{
 		h->SetBinContent(i+1,fData.at(i));
 	}
 	return h;
-}
-
-std::string TSimpleSiPulse::GetRawHistName()
-{
-	fRawHistName = "h" + fDetName + "Raw";
-	return fRawHistName;
-}
-
-std::string TSimpleSiPulse::GetTimingHistName()
-{
-	fTimingHistName = "h" + fDetName + "Timing";
-	return fTimingHistName;
-}
-
-std::string TSimpleSiPulse::GetPulseHeightHistName()
-{
-	fPulseHeightHistName = "h" + fDetName + "PulseHeight";
-	return fPulseHeightHistName;
 }
