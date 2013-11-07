@@ -184,7 +184,7 @@ INT MSiPulseHeight(EVENT_HEADER *pheader, void *pevent)
 			double pulseheight;
 			if ((*siPulse)->IsPositive())
 			{
-				pulseheight = pulseheight - (*siPulse)->GetPedestal();
+				pulseheight = (*siPulse)->GetMax() - (*siPulse)->GetPedestal();
 			}
 			else
 			{
