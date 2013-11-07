@@ -121,7 +121,8 @@ INT MSiPulseFinder(EVENT_HEADER *pheader, void *pevent)
   	   for (std::vector<TOctalFADCIsland*>::iterator octalFADCIslandIter = theOctalFADCIslands.begin();
   	   		octalFADCIslandIter != theOctalFADCIslands.end(); octalFADCIslandIter++) {
   	   		// Create a TSimpleSiPulse for the island
-  	   		TSimpleSiPulse* simple_si_island = new TSimpleSiPulse((*octalFADCIslandIter), 10);
+  	   		unsigned int nped = 10;
+  	   		TSimpleSiPulse* simple_si_island = new TSimpleSiPulse((*octalFADCIslandIter), nped);
     		
     		// Find all the pulses in this island
   	   		vector<TSimpleSiPulse*> simple_si_pulses_on_island = GetPulsesFromIsland(simple_si_island);
@@ -200,7 +201,7 @@ vector<TSimpleSiPulse*> GetPulsesFromIsland(TSimpleSiPulse* island) {
 	  				
 	  				// Create the TSimpleSiPulse and add it to the vector of pulses
 	  				TOctalFADCIsland* octal_pulse = new TOctalFADCIsland(pulse_timestamp, pulse_samples);
-					TSimpleSiPulse* pulse = new TSimpleSiPulse(octal_pulse, 0); 
+					TSimpleSiPulse* pulse = new TSimpleSiPulse(octal_pulse, island->GetPedestal()); 
 	  				pulses.push_back(pulse);
 	  			}
 	  		}
@@ -210,7 +211,7 @@ vector<TSimpleSiPulse*> GetPulsesFromIsland(TSimpleSiPulse* island) {
 	  				
 	  				// Create the TSimpleSiPulse and add it to the vector of pulses
 	  				TOctalFADCIsland* octal_pulse = new TOctalFADCIsland(pulse_timestamp, pulse_samples);
-					TSimpleSiPulse* pulse = new TSimpleSiPulse(octal_pulse, 0); 
+					TSimpleSiPulse* pulse = new TSimpleSiPulse(octal_pulse, island->GetPedestal()); 
 	  				pulses.push_back(pulse);
 	  			}
 	  		}

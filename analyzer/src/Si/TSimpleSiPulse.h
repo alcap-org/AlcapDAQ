@@ -8,6 +8,7 @@ class TSimpleSiPulse : public TOctalFADCIsland
 {
 	public:
 		TSimpleSiPulse(TOctalFADCIsland *island, unsigned int nped = 7);
+		TSimpleSiPulse(TOctalFADCIsland *island, double pedestal);
 		~TSimpleSiPulse();
 	private:
 		double fPedestal;

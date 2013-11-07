@@ -37,6 +37,30 @@ TSimpleSiPulse::TSimpleSiPulse(TOctalFADCIsland *island, unsigned int nped)
 		fIsPositive = true;
 	else
 		fIsPositive = false;
+	PrintInfo();
+}
+
+// Use this constructor if you are getting pulses from an island since
+// we should probably use the pedestal from the island for all its pulses
+TSimpleSiPulse::TSimpleSiPulse(TOctalFADCIsland *island, double pedestal)
+{
+	fTime = island->GetTime();
+	fData = island->GetSampleVector();
+	fPedestal = pedestal;
+	
+	fNPedSamples = 0;
+	fRMSNoise = 0;
+	fThreshold = 0;
+
+	double weight = 0;
+	for (unsigned int i = 0; i < fData.size(); ++i)
+	{
+		weight += fData.at(i) - fPedestal;
+	}
+	if (weight >= 0)
+		fIsPositive = true;
+	else
+		fIsPositive = false;
 }
 
 void TSimpleSiPulse::PrintInfo()
@@ -54,6 +78,6 @@ TSimpleSiPulse *TSimpleSiPulse::Invert()
 	TOctalFADCIsland *invertedIsland = 
 		new TOctalFADCIsland(fTime, invertedSamples);
 
-	TSimpleSiPulse *invertedPulse = new TSimpleSiPulse(invertedIsland);
+	TSimpleSiPulse *invertedPulse = new TSimpleSiPulse(invertedIsland, -fPedestal);
 	return invertedPulse;
 }
