@@ -65,8 +65,8 @@ ANA_MODULE MSiWaveform_module =
 */
 INT MSiWaveform_init()
 {
-	gFile->mkdir("SiRawDir");
-	gFile->cd("SiRawDir");
+	gDirectory->mkdir("SiRawDir");
+	gDirectory->cd("SiRawDir");
 	for (detIter aDetIter = DetectorToRawHistMap.begin(); 
 			aDetIter != DetectorToRawHistMap.end(); aDetIter++)
 	{
