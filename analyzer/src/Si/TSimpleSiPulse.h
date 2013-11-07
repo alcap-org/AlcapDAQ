@@ -2,26 +2,41 @@
 #define TSIPULSE_H_YAHE2XWS
 
 #include <vector>
+#include <string>
+
 class TOctalFADCIsland;
+class TH1D;
 
 class TSimpleSiPulse : public TOctalFADCIsland 
 {
 	public:
 		TSimpleSiPulse(TOctalFADCIsland *island, unsigned int nped = 7);
+		TSimpleSiPulse(TOctalFADCIsland *island, std::string detname, 
+				unsigned int nped = 7);
 		~TSimpleSiPulse();
 	private:
+		std::string fDetName;
 		double fPedestal;
 		double fRMSNoise;
 		double fThreshold;
 		bool fIsPositive;
 		unsigned int fNPedSamples;
+		std::string fRawHistName;
+		std::string fPulseHeightHistName;
+		std::string fTimingHistName;
 	public:
 		double GetPedestal(){return fPedestal;}
 		double GetThreshold() {return fThreshold;}
 		bool IsPositive() {return fIsPositive;};
 		void PrintInfo();
-		//TSimpleSiPulse Offset(int offset);
+		TSimpleSiPulse * Offset(){ return Offset(fPedestal);}
+		TSimpleSiPulse * Offset(double offset);
 		TSimpleSiPulse * Invert();
+		std::string GetRawHistName();
+		std::string GetPulseHeightHistName();
+		std::string GetTimingHistName();
+
+		TH1D * GetWaveform();
 }; // end of class declaration TSimpleSiPulse 
 
 #endif /* end of include guard: TSIPULSE_H_YAHE2XWS */

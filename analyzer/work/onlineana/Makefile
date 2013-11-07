@@ -44,9 +44,10 @@ ALL_LIBS =  $(MIDAS_LIBS) $(ROOT_LIBS) $(UNCOMPRESS_LIBS)
 
 OPTFLAGS = -g -O3
 
+# gnu++0x is for an easy initialization of std::map
 CXXFLAGS = $(OPTFLAGS) \
            $(INCLUDE_CFLAGS) $(MIDAS_CFLAGS) $(ROOT_CFLAGS) \
-           -I$(COMPRESS) -DHAVE_ROOT -fPIC
+           -I$(COMPRESS) -DHAVE_ROOT -fPIC  -std=gnu++0x
 
 
 # Makefile.MODULES is generated from the MODULE file. It defines

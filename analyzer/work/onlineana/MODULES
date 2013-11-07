@@ -1,3 +1,4 @@
 FADC/MOctalFADCProcessRaw
 common/MTreeOutput
 Si/MSiPulseHeight
+Si/MSiWaveform
