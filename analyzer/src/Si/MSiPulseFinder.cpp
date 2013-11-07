@@ -41,13 +41,12 @@ vector<string> GetAllFADCBankNames();
 double GetClockTickForChannel(string bank_name);
 
 vector<TSimpleSiPulse*> GetPulsesFromIsland(TSimpleSiPulse* island);
-void GetPedestalAndRMS(std::vector<int> samples, double& pedestal, double& RMS);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
-static map<string, std::vector<TSimpleSiPulse*> > theSimpleSiPulseMap;
+map<string, std::vector<TSimpleSiPulse*> > theSimpleSiPulseMap;
 
 ANA_MODULE MSiPulseFinder_module =
 {
@@ -93,6 +92,20 @@ INT MSiPulseFinder(EVENT_HEADER *pheader, void *pevent)
   // of (bank_name, vector<TPulseIsland*>) pairs
   TStringPulseIslandMap& pulse_islands_map =
     gData->fPulseIslandToChannelMap;
+  
+  // Clear the pulses from theSimpleSiPulseMap
+  for (std::map<string, vector<TSimpleSiPulse*> >::iterator simpleSiMapIter = theSimpleSiPulseMap.begin();
+		simpleSiMapIter != theSimpleSiPulseMap.end(); 
+		simpleSiMapIter++) {
+    
+    	vector<TSimpleSiPulse*>& pulses = simpleSiMapIter->second;
+    	// Delete the pointers to TSiSimplePulses, then clear the vector
+    	for(unsigned int j=0; j<pulses.size(); j++) {
+      	if(pulses[j]) { delete pulses[j]; pulses[j] = NULL; }
+    	}
+    	pulses.clear();
+  }
+  theSimpleSiPulseMap.clear(); // clear the pulse map so more than the first event is read
 
   // Iterate through the banks readers
   for (std::vector<TOctalFADCBankReader*>::iterator bankReaderIter = fadc_bank_readers.begin();
@@ -101,23 +114,34 @@ INT MSiPulseFinder(EVENT_HEADER *pheader, void *pevent)
   	   (*bankReaderIter)->ProcessEvent(pheader, pevent);
   	   std::vector<TOctalFADCIsland*> theOctalFADCIslands = (*bankReaderIter)->GetIslandVectorCopy();
   	   
+  	   // Have a vector ready for all the simple_si_pulses
+  	   vector<TSimpleSiPulse*> simple_si_pulses;
+  	   
   	   // Loop over the islands
   	   for (std::vector<TOctalFADCIsland*>::iterator octalFADCIslandIter = theOctalFADCIslands.begin();
   	   		octalFADCIslandIter != theOctalFADCIslands.end(); octalFADCIslandIter++) {
-  	   		
   	   		// Create a TSimpleSiPulse for the island
   	   		TSimpleSiPulse* simple_si_island = new TSimpleSiPulse((*octalFADCIslandIter), 10);
     		
     		// Find all the pulses in this island
-  	   		vector<TSimpleSiPulse*> simple_si_pulses = GetPulsesFromIsland(simple_si_island);
+  	   		vector<TSimpleSiPulse*> simple_si_pulses_on_island = GetPulsesFromIsland(simple_si_island);
   	   		
-  	   		// Create a new "bank" to store the pulses that are on that island
-  	   		std::string new_bank_name = (*bankReaderIter)->GetBankName() + "P";
-    		std::pair<std::string, std::vector<TSimpleSiPulse*> > thePair (new_bank_name, simple_si_pulses);
-    		theSimpleSiPulseMap.insert(thePair);
+  	   		// Loop through and add the pulses to the main pulses vector
+  	   		for (std::vector<TSimpleSiPulse*>::iterator iter = simple_si_pulses_on_island.begin(); 
+  	   				iter != simple_si_pulses_on_island.end(); iter++) {
+  	   		
+  	   			simple_si_pulses.push_back(*iter);
+  	   		}
+  	   		
   	   }
   	   
+  	   // Create a new "bank" to store the pulses that are on that island
+  	   std::string new_bank_name = (*bankReaderIter)->GetBankName() + "P";
+       std::pair<std::string, std::vector<TSimpleSiPulse*> > thePair (new_bank_name, simple_si_pulses);
+       theSimpleSiPulseMap.insert(thePair);
+  	   
   }
+
   return SUCCESS;
 }
 
@@ -147,16 +171,15 @@ vector<TSimpleSiPulse*> GetPulsesFromIsland(TSimpleSiPulse* island) {
 	    //  - the current sample is greater/less than the pedestal
 	    //  - the next sample is greater/less then the threshold
 	    //  - we haven't already started a pulse
-	    // NB assuming negative pulses !!!
 	    if (island->IsPositive() == true) {
-	  		if ( *(sampleIter) > pedestal && *(sampleIter+1) > threshold && pulse_found == false) {
+	  		if ( *(sampleIter) > pedestal && *(sampleIter+1) > pedestal + threshold && pulse_found == false) {
 	  	
 	  			pulse_timestamp = island->GetTime() + (sampleIter - theSamples.begin());
 	  			pulse_found = true;
 	  		}
 	  	}
 	  	else {
-	  		if ( *(sampleIter) < pedestal && *(sampleIter+1) < threshold && pulse_found == false) {
+	  		if ( *(sampleIter) < pedestal && *(sampleIter+1) < pedestal - threshold && pulse_found == false) {
 	  	
 	  			pulse_timestamp = island->GetTime() + (sampleIter - theSamples.begin());
 	  			pulse_found = true;
@@ -166,8 +189,7 @@ vector<TSimpleSiPulse*> GetPulsesFromIsland(TSimpleSiPulse* island) {
 	  	// If a pulse has been found fill a new sample vector
 	  	if (pulse_found == true) {
 	  	
-	  		pulse_samples.push_back( std::abs(*(sampleIter)-pedestal)); // add this sample to the vector for the pulse
-	  		// NB pedestal subtracted and taken the absolute difference to get a positive pulse
+	  		pulse_samples.push_back(*sampleIter); // add this sample to the vector for the pulse
 	  			
 	  		// End the (positive/negative) pulse if:
 	  		//  -- the 3-bin mean is less/greater than the pedestal
@@ -175,20 +197,20 @@ vector<TSimpleSiPulse*> GetPulsesFromIsland(TSimpleSiPulse* island) {
 	  		if (island->IsPositive() == true) {
 	  			if ( (mean < pedestal) ) {
 	  				pulse_found = false; // no longer have a pulse
-	  			
+	  				
 	  				// Create the TSimpleSiPulse and add it to the vector of pulses
 	  				TOctalFADCIsland* octal_pulse = new TOctalFADCIsland(pulse_timestamp, pulse_samples);
-					TSimpleSiPulse* pulse = new TSimpleSiPulse(octal_pulse); 
+					TSimpleSiPulse* pulse = new TSimpleSiPulse(octal_pulse, 0); 
 	  				pulses.push_back(pulse);
 	  			}
 	  		}
 	  		else {
 	  			if ( (mean > pedestal) ) {
 	  				pulse_found = false; // no longer have a pulse
-	  			
+	  				
 	  				// Create the TSimpleSiPulse and add it to the vector of pulses
 	  				TOctalFADCIsland* octal_pulse = new TOctalFADCIsland(pulse_timestamp, pulse_samples);
-					TSimpleSiPulse* pulse = new TSimpleSiPulse(octal_pulse); 
+					TSimpleSiPulse* pulse = new TSimpleSiPulse(octal_pulse, 0); 
 	  				pulses.push_back(pulse);
 	  			}
 	  		}

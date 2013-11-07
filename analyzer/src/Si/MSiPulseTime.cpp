@@ -40,7 +40,7 @@ double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
-static map<string, vector<TSimpleSiPulse*> > theSimpleSiPulseMap;
+extern map<string, vector<TSimpleSiPulse*> > theSimpleSiPulseMap;
 
 static TH1* hSiL2Slow_Times; // Bank: Nac0
 static TH1* hSiR2Slow_Times; // Bank: Nbc0
