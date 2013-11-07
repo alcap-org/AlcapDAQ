@@ -5,7 +5,7 @@
 #include <string>
 
 class TOctalFADCIsland;
-class TH1D;
+class TH1;
 
 class TSimpleSiPulse : public TOctalFADCIsland 
 {
@@ -36,7 +36,7 @@ class TSimpleSiPulse : public TOctalFADCIsland
 		std::string GetPulseHeightHistName();
 		std::string GetTimingHistName();
 
-		TH1D * GetWaveform();
+		TH1 * GetWaveform(std::string histname);
 }; // end of class declaration TSimpleSiPulse 
 
 #endif /* end of include guard: TSIPULSE_H_YAHE2XWS */

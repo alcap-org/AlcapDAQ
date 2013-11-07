@@ -9,6 +9,7 @@ Contents:     A module to plot waveforms of pulses from Si detectors
 
 /* Standard includes */
 #include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include <string>
 #include <map>
@@ -18,15 +19,17 @@ Contents:     A module to plot waveforms of pulses from Si detectors
 #include "midas.h"
 
 /* ROOT includes */
-#include <TH1.h>
-#include <TH2.h>
+#include "TH1.h"
+#include "TH2.h"
+#include "TFile.h"
+#include "TDirectory.h"
 
 /* AlCap includes */
 #include "TOctalFADCIsland.h"
 #include "TOctalFADCBankReader.h"
 #include "TGlobalData.h"
 #include "TSimpleSiPulse.h"
-#include "DetectorMap.h"
+#include "DetectorMap2.h"
 
 using std::string;
 using std::map;
@@ -65,6 +68,15 @@ ANA_MODULE MSiWaveform_module =
 INT MSiWaveform_init()
 {
 	hSiRaw = new TH1I("hSiRaw","hSiRaw",100,0,100);
+
+	for (detIter aDetIter = DetectorToRawHistMap.begin(); 
+			aDetIter != DetectorToRawHistMap.end(); aDetIter++)
+	{
+		string detname = aDetIter->first;
+		string histname = detname + "Raw";
+		aDetIter->second =
+			new TH1I(histname.c_str(), histname.c_str(), 100, 0, 100);
+	}
 
 	vector<string> bank_names = GetAllFADCBankNames();
 
@@ -111,6 +123,7 @@ INT MSiWaveform(EVENT_HEADER *pheader, void *pevent)
 		{
 			std::string bankname = (*bankReaderIter)->GetBankName();
 			TSimpleSiPulse *siPulse = new TSimpleSiPulse(*octalFADCIslandIter);
+
 			double pulseheight;
 			if (siPulse->IsPositive())
 			{
@@ -122,11 +135,22 @@ INT MSiWaveform(EVENT_HEADER *pheader, void *pevent)
 				pulseheight = invertedPulse->GetMax() - invertedPulse->GetPedestal();
 			}
 
-			if (strcmp(bankname.c_str(), "Nfc0") == 0)
+			if (ChannelToDetectorMap.find(bankname) == ChannelToDetectorMap.end())
 			{
-				hSiRaw->Reset();
-				hSiRaw = siPulse->GetWaveform();
+				// not found, do nothing
 			}
+			else
+			{
+				string detname = ChannelToDetectorMap[bankname];
+				string histname = detname + "Raw";
+				delete gDirectory->Get(histname.c_str());
+				DetectorToRawHistMap[detname] = (TH1I *)siPulse->GetWaveform(detname+"Raw");
+			}
+			//if (strcmp(bankname.c_str(), "Nfc0") == 0)
+			//{
+				//hSiRaw->Reset();
+				//hSiRaw = siPulse->GetWaveform();
+			//}
 		}
 	}
 

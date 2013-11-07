@@ -96,9 +96,9 @@ TSimpleSiPulse *TSimpleSiPulse::Offset(double offset)
 	return offsetPulse;
 }
 
-TH1D * TSimpleSiPulse::GetWaveform()
+TH1 * TSimpleSiPulse::GetWaveform(std::string histname)
 {
-	TH1D *h = new TH1D("wf","wf",100,0,100);
+	TH1D *h = new TH1D(histname.c_str(),histname.c_str(),100,0,100);
 	for (unsigned int i = 0; i < fData.size(); ++i)
 	{
 		h->SetBinContent(i+1,fData.at(i));
