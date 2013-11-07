@@ -12,7 +12,11 @@ TSimpleSiPulse::TSimpleSiPulse(TOctalFADCIsland *island, unsigned int nped)
 {
 	fTime = island->GetTime();
 	fData = island->GetSampleVector();
-	fNPedSamples = nped;
+	
+	if (fData.size() < nped)
+		fNPedSamples = 0;
+	else
+		fNPedSamples = nped;
 
 	fPedestal = island->GetAverage(0,fNPedSamples);
 
