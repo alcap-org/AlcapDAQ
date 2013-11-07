@@ -20,8 +20,15 @@ Dummy dummy.C
 #
 #======================================================
 #             Si
-SiL1Slow Si/thin_left_slow_silicon_heights.C
-SiR1Slow Si/thin_right_slow_silicon_heights.C
-SiL1Fast Si/thin_left_fast_silicon_heights.C
-SiR1Fast Si/thin_right_fast_silicon_heights.C
+SiL1SlowHeights Si/thin_left_slow_silicon_heights.C
+SiR1SlowHeights Si/thin_right_slow_silicon_heights.C
+SiL1FastHeights Si/thin_left_fast_silicon_heights.C
+SiR1FastHeights Si/thin_right_fast_silicon_heights.C
+Si2Heights Si/thick_silicon_heights.C
+
+SiL1SlowTimes Si/thin_left_slow_silicon_times.C
+SiR1SlowTimes Si/thin_right_slow_silicon_times.C
+SiL1FastTimes Si/thin_left_fast_silicon_times.C
+SiR1FastTimes Si/thin_right_fast_silicon_times.C
+Si2Times Si/thick_silicon_times.C
 #======================================================
