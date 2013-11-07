@@ -2,7 +2,10 @@
 #define TSIPULSE_H_YAHE2XWS
 
 #include <vector>
+#include <string>
+
 class TOctalFADCIsland;
+class TH1I;
 
 class TSimpleSiPulse : public TOctalFADCIsland 
 {
@@ -10,7 +13,10 @@ class TSimpleSiPulse : public TOctalFADCIsland
 		TSimpleSiPulse(TOctalFADCIsland *island, unsigned int nped = 7);
 		TSimpleSiPulse(TOctalFADCIsland *island, double pedestal);
 		~TSimpleSiPulse();
+		TSimpleSiPulse(TOctalFADCIsland *island, std::string detname, 
+				unsigned int nped = 7);
 	private:
+		std::string fDetName;
 		double fPedestal;
 		double fRMSNoise;
 		double fThreshold;
@@ -21,8 +27,10 @@ class TSimpleSiPulse : public TOctalFADCIsland
 		double GetThreshold() {return fThreshold;}
 		bool IsPositive() {return fIsPositive;};
 		void PrintInfo();
-		//TSimpleSiPulse Offset(int offset);
+
 		TSimpleSiPulse * Invert();
+
+		TH1I * GetWaveform(std::string histname);
 }; // end of class declaration TSimpleSiPulse 
 
 #endif /* end of include guard: TSIPULSE_H_YAHE2XWS */
