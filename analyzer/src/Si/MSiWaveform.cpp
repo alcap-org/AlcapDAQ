@@ -148,7 +148,7 @@ INT MSiWaveform(EVENT_HEADER *pheader, void *pevent)
 			{
 				string detname = ChannelToDetectorMap[bankname];
 				std::stringstream histname;
-				histname << detname << "Raw" << "_Event" << midas_event_number << "_Island" << island_number;
+				histname << "h" << detname << "Raw" << "_Event" << midas_event_number << "_Island" << island_number;
 				DetectorToRawHistMap[detname] = (TH1I *)siPulse->GetWaveform(histname.str());
 				
 				// Loop through the pulses from where we were and store their waveforms in a vector
