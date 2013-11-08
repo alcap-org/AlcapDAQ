@@ -135,3 +135,8 @@ double TSimpleSiPulse::GetPulseHeight() {
 	
 	return pulseheight;			
 }
+
+double TSimpleSiPulse::GetPulseTime() {
+	
+	return GetMaxBinTime();
+}

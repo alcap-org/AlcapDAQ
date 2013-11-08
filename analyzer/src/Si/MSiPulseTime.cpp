@@ -22,6 +22,8 @@ Contents:     A module to plot the pulse Times of the silicon detector
 #include <TH2.h>
 
 /* AlCap includes */
+#include "DetectorMap.h"
+
 #include "TOctalFADCIsland.h"
 #include "TOctalFADCBankReader.h"
 #include "TGlobalData.h"
@@ -41,30 +43,6 @@ double GetClockTickForChannel(string bank_name);
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern map<string, vector<TSimpleSiPulse*> > theSimpleSiPulseMap;
-
-static TH1* hSiL2Slow_Times; // Bank: Nac0
-static TH1* hSiR2Slow_Times; // Bank: Nbc0
-
-static TH1* hSiL2Fast_Times; // Bank: Nec0
-static TH1* hSiR2Fast_Times; // Bank: Nfc0
-
-static TH1* hSiL1_1Fast_Times; // Bank: Nae0
-static TH1* hSiL1_2Fast_Times; // Bank: Nbe0
-static TH1* hSiL1_3Fast_Times; // Bank: Nce0
-static TH1* hSiL1_4Fast_Times; // Bank: Nde0
-static TH1* hSiR1_1Fast_Times; // Bank: Nee0
-static TH1* hSiR1_2Fast_Times; // Bank: Nfe0
-static TH1* hSiR1_3Fast_Times; // Bank: Nge0
-static TH1* hSiR1_4Fast_Times; // Bank: Nhe0
-
-static TH1* hSiL1_1Slow_Times; // Bank: Naf0
-static TH1* hSiL1_2Slow_Times; // Bank: Nbf0
-static TH1* hSiL1_3Slow_Times; // Bank: Ncf0
-static TH1* hSiL1_4Slow_Times; // Bank: Ndf0
-static TH1* hSiR1_1Slow_Times; // Bank: Nef0
-static TH1* hSiR1_2Slow_Times; // Bank: Nff0
-static TH1* hSiR1_3Slow_Times; // Bank: Ngf0
-static TH1* hSiR1_4Slow_Times; // Bank: Nhf0
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
 
@@ -94,54 +72,17 @@ INT MSiPulseTime_init()
   int x_min = 0;
   int x_max = 100;
   
-  hSiL2Slow_Times = new TH1I("hSiL2Slow_Times", "Plot of the pulse times from the SiL2 slow detector", n_bins, x_min, x_max);
-  hSiL2Slow_Times->SetBit(TH1::kCanRebin);
-  hSiR2Slow_Times = new TH1I("hSiR2Slow_Times", "Plot of the pulse times from the SiR2 slow detector", n_bins, x_min, x_max);
-  hSiR2Slow_Times->SetBit(TH1::kCanRebin);
-  
-  
-  hSiL2Fast_Times = new TH1I("hSiL2Fast_Times", "Plot of the pulse times from the SiL2 fast detector", n_bins, x_min, x_max);
-  hSiL2Fast_Times->SetBit(TH1::kCanRebin);
-  hSiR2Fast_Times = new TH1I("hSiR2Fast_Times", "Plot of the pulse times from the SiR2 fast detector", n_bins, x_min, x_max);
-  hSiR2Fast_Times->SetBit(TH1::kCanRebin);
-  
-  
-  hSiL1_1Fast_Times = new TH1I("hSiL1_1Fast_Times", "Plot of the pulse times from the SiL1_1 fast detector", n_bins, x_min, x_max);
-  hSiL1_1Fast_Times->SetBit(TH1::kCanRebin);
-  hSiL1_2Fast_Times = new TH1I("hSiL1_2Fast_Times", "Plot of the pulse times from the SiL1_2 fast detector", n_bins, x_min, x_max);
-  hSiL1_2Fast_Times->SetBit(TH1::kCanRebin);
-  hSiL1_3Fast_Times = new TH1I("hSiL1_3Fast_Times", "Plot of the pulse times from the SiL1_3 fast detector", n_bins, x_min, x_max);
-  hSiL1_3Fast_Times->SetBit(TH1::kCanRebin);
-  hSiL1_4Fast_Times = new TH1I("hSiL1_4Fast_Times", "Plot of the pulse times from the SiL1_4 fast detector", n_bins, x_min, x_max);
-  hSiL1_4Fast_Times->SetBit(TH1::kCanRebin);
-  
-  hSiR1_1Fast_Times = new TH1I("hSiR1_1Fast_Times", "Plot of the pulse times from the SiR1_1 fast detector", n_bins, x_min, x_max);
-  hSiR1_1Fast_Times->SetBit(TH1::kCanRebin);
-  hSiR1_2Fast_Times = new TH1I("hSiR1_2Fast_Times", "Plot of the pulse times from the SiR1_2 fast detector", n_bins, x_min, x_max);
-  hSiR1_2Fast_Times->SetBit(TH1::kCanRebin);
-  hSiR1_3Fast_Times = new TH1I("hSiR1_3Fast_Times", "Plot of the pulse times from the SiR1_3 fast detector", n_bins, x_min, x_max);
-  hSiR1_3Fast_Times->SetBit(TH1::kCanRebin);
-  hSiR1_4Fast_Times = new TH1I("hSiR1_4Fast_Times", "Plot of the pulse times from the SiR1_4 fast detector", n_bins, x_min, x_max);
-  hSiR1_4Fast_Times->SetBit(TH1::kCanRebin);
-  
-  
-  hSiL1_1Slow_Times = new TH1I("hSiL1_1Slow_Times", "Plot of the pulse times from the SiL1_1 slow detector", n_bins, x_min, x_max);
-  hSiL1_1Slow_Times->SetBit(TH1::kCanRebin);
-  hSiL1_2Slow_Times = new TH1I("hSiL1_2Slow_Times", "Plot of the pulse times from the SiL1_2 slow detector", n_bins, x_min, x_max);
-  hSiL1_2Slow_Times->SetBit(TH1::kCanRebin);
-  hSiL1_3Slow_Times = new TH1I("hSiL1_3Slow_Times", "Plot of the pulse times from the SiL1_3 slow detector", n_bins, x_min, x_max);
-  hSiL1_3Slow_Times->SetBit(TH1::kCanRebin);
-  hSiL1_4Slow_Times = new TH1I("hSiL1_4Slow_Times", "Plot of the pulse times from the SiL1_4 slow detector", n_bins, x_min, x_max);
-  hSiL1_4Slow_Times->SetBit(TH1::kCanRebin);
-  
-  hSiR1_1Slow_Times = new TH1I("hSiR1_1Slow_Times", "Plot of the pulse times from the SiR1_1 slow detector", n_bins, x_min, x_max);
-  hSiR1_1Slow_Times->SetBit(TH1::kCanRebin);
-  hSiR1_2Slow_Times = new TH1I("hSiR1_2Slow_Times", "Plot of the pulse times from the SiR1_2 slow detector", n_bins, x_min, x_max);
-  hSiR1_2Slow_Times->SetBit(TH1::kCanRebin);
-  hSiR1_3Slow_Times = new TH1I("hSiR1_3Slow_Times", "Plot of the pulse times from the SiR1_3 slow detector", n_bins, x_min, x_max);
-  hSiR1_3Slow_Times->SetBit(TH1::kCanRebin);
-  hSiR1_4Slow_Times = new TH1I("hSiR1_4Slow_Times", "Plot of the pulse times from the SiR1_4 slow detector", n_bins, x_min, x_max);
-  hSiR1_4Slow_Times->SetBit(TH1::kCanRebin);
+  // Iterate through the detectors and create a time histogram for each one
+  for (detIter aDetIter = DetectorToTimeHistMap.begin(); aDetIter != DetectorToTimeHistMap.end(); aDetIter++) {
+  	
+  	std::string detname = aDetIter->first;
+  	std::string histname = "h" + detname + "_Times";
+  	std::string histtitle = "Plot of the pulse times for the " + detname + " detector";
+  	if ((aDetIter->second) == NULL) {
+  		aDetIter->second = new TH1I(histname.c_str(), histtitle.c_str(), n_bins, x_min, x_max);
+  		(aDetIter->second)->SetBit(TH1::kCanRebin);
+  	}
+  }
 
   vector<string> bank_names = GetAllFADCBankNames();
 
@@ -181,51 +122,19 @@ INT MSiPulseTime(EVENT_HEADER *pheader, void *pevent)
 		// Loop over the TSimpleSiPulses and plot the histogram
 		for (std::vector<TSimpleSiPulse*>::iterator siPulse = theSiPulses.begin(); siPulse != theSiPulses.end(); siPulse++) {
 
-			double pulsetime = (*siPulse)->GetMaxBinTime();
-
-			if (strcmp(bankname.c_str(), "Nac0P") == 0)
-				hSiL2Slow_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Nbc0P") == 0)
-				hSiR2Slow_Times->Fill(pulsetime);
-
-			else if (strcmp(bankname.c_str(), "Nec0P") == 0)
-				hSiL2Fast_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Nfc0P") == 0)
-				hSiR2Fast_Times->Fill(pulsetime);
-
-			else if (strcmp(bankname.c_str(), "Nae0P") == 0)
-				hSiL1_1Fast_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Nbe0P") == 0)
-				hSiL1_2Fast_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Nce0P") == 0)
-				hSiL1_3Fast_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Nde0P") == 0)
-				hSiL1_4Fast_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Nee0P") == 0)
-				hSiR1_1Fast_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Nfe0P") == 0)
-				hSiR1_2Fast_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Nge0P") == 0)
-				hSiR1_3Fast_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Nhe0P") == 0)
-				hSiR1_4Fast_Times->Fill(pulsetime);
-
-			else if (strcmp(bankname.c_str(), "Naf0P") == 0)
-				hSiL1_1Slow_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Nbf0P") == 0)
-				hSiL1_2Slow_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Ncf0P") == 0)
-				hSiL1_3Slow_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Ndf0P") == 0)
-				hSiL1_4Slow_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Nef0P") == 0)
-				hSiR1_1Slow_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Nff0P") == 0)
-				hSiR1_2Slow_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Ngf0P") == 0)
-				hSiR1_3Slow_Times->Fill(pulsetime);
-			else if (strcmp(bankname.c_str(), "Nhf0P") == 0)
-				hSiR1_4Slow_Times->Fill(pulsetime);
+			string actualBankname = bankname.substr(0,4); // remove the "P" from the new bankname
+			
+			// Find the detector name
+			if (ChannelToDetectorMap.find(actualBankname) == ChannelToDetectorMap.end())
+			{
+				// not found, do nothing
+			}
+			else
+			{
+				// Get the detector name and use that to fill the corresponding time histogram
+				string detname = ChannelToDetectorMap[actualBankname];
+				DetectorToTimeHistMap[detname]->Fill((*siPulse)->GetPulseTime());
+			}
 		}
 	}
 	return SUCCESS;

@@ -24,7 +24,7 @@ typedef std::map<std::string, TH1I *> det2histMap;
 typedef bank2detMap::iterator bankIter;
 typedef det2histMap::iterator detIter;
 
-bank2detMap ChannelToDetectorMap = create_map<std::string, std::string>
+static bank2detMap ChannelToDetectorMap = create_map<std::string, std::string>
 	("Na80",  "muSc")
 	("Nb80",  "muScA")
 	("Nc80",  "ScL")
@@ -94,7 +94,7 @@ static TH1I *hSiR1_2Slow_Raw; // Bank: Nff0
 static TH1I *hSiR1_3Slow_Raw; // Bank: Ngf0
 static TH1I *hSiR1_4Slow_Raw; // Bank: Nhf0
 
-det2histMap DetectorToRawHistMap =
+static det2histMap DetectorToRawHistMap =
 	create_map<std::string, TH1I *>
 	("muSc", hmuSc_Raw)
 	("muScA", hmuScA_Raw)
@@ -166,7 +166,7 @@ static TH1I *hSiR1_2Slow_Heights; // Bank: Nff0
 static TH1I *hSiR1_3Slow_Heights; // Bank: Ngf0
 static TH1I *hSiR1_4Slow_Heights; // Bank: Nhf0
 
-det2histMap DetectorToHeightHistMap =
+static det2histMap DetectorToHeightHistMap =
 	create_map<std::string, TH1I *>
 	("muSc", hmuSc_Heights)
 	("muScA", hmuScA_Heights)
@@ -205,6 +205,79 @@ det2histMap DetectorToHeightHistMap =
 	("SiR1_2Slow", hSiR1_2Slow_Heights)
 	("SiR1_3Slow", hSiR1_3Slow_Heights)
 	("SiR1_4Slow", hSiR1_4Slow_Heights);
+	
+	
+static TH1I *hmuSc_Times;   // Bank: Na80
+static TH1I *hmuScA_Times;  // Bank: Nb80
+static TH1I *hScL_Times; 		// Bank: Nc80
+static TH1I *hScR_Times; 		// Bank: Nd80
+static TH1I *hScGe_Times;		// Bank: Ne80
+
+static TH1I *hSiL2Slow_Times; // Bank: Nac0
+static TH1I *hSiR2Slow_Times; // Bank: Nbc0
+static TH1I *hGeSlow_Times;  // Bank: Ncc0
+
+static TH1I *hSiL2Fast_Times; // Bank: Nec0
+static TH1I *hSiR2Fast_Times; // Bank: Nfc0
+static TH1I *hGeFast_Times;  // Bank: Ngc0
+
+static TH1I *hSiL1_1Fast_Times; // Bank: Nae0
+static TH1I *hSiL1_2Fast_Times; // Bank: Nbe0
+static TH1I *hSiL1_3Fast_Times; // Bank: Nce0
+static TH1I *hSiL1_4Fast_Times; // Bank: Nde0
+static TH1I *hSiR1_1Fast_Times; // Bank: Nee0
+static TH1I *hSiR1_2Fast_Times; // Bank: Nfe0
+static TH1I *hSiR1_3Fast_Times; // Bank: Nge0
+static TH1I *hSiR1_4Fast_Times; // Bank: Nhe0
+
+static TH1I *hSiL1_1Slow_Times; // Bank: Naf0
+static TH1I *hSiL1_2Slow_Times; // Bank: Nbf0
+static TH1I *hSiL1_3Slow_Times; // Bank: Ncf0
+static TH1I *hSiL1_4Slow_Times; // Bank: Ndf0
+static TH1I *hSiR1_1Slow_Times; // Bank: Nef0
+static TH1I *hSiR1_2Slow_Times; // Bank: Nff0
+static TH1I *hSiR1_3Slow_Times; // Bank: Ngf0
+static TH1I *hSiR1_4Slow_Times; // Bank: Nhf0
+
+static det2histMap DetectorToTimeHistMap =
+	create_map<std::string, TH1I *>
+	("muSc", hmuSc_Times)
+	("muScA", hmuScA_Times)
+	("ScL", hScL_Times)
+	("ScR", hScR_Times)
+	("ScGe", hScGe_Times)
+	//("blank", hBlank_Times)
+	//("blank", hBlank_Times)
+	//("blank", hBlank_Times)
+
+	("SiL2Slow", hSiL2Slow_Times)
+	("SiR2Slow", hSiR2Slow_Times)
+	("GeSlow", hGeSlow_Times)
+	//("blank", hBlank_Times)
+
+	("SiL2Fast", hSiL2Fast_Times)
+	("SiR2Fast", hSiR2Fast_Times)
+	("GeFast", hGeFast_Times)
+	//("blank", hBlank_Times)
+
+
+	("SiL1_1Fast", hSiL1_1Fast_Times)
+	("SiL1_2Fast", hSiL1_2Fast_Times)
+	("SiL1_3Fast", hSiL1_3Fast_Times)
+	("SiL1_4Fast", hSiL1_4Fast_Times)
+	("SiR1_1Fast", hSiR1_1Fast_Times)
+	("SiR1_2Fast", hSiR1_2Fast_Times)
+	("SiR1_3Fast", hSiR1_3Fast_Times)
+	("SiR1_4Fast", hSiR1_4Fast_Times)
+
+	("SiL1_1Slow", hSiL1_1Slow_Times)
+	("SiL1_2Slow", hSiL1_2Slow_Times)
+	("SiL1_3Slow", hSiL1_3Slow_Times)
+	("SiL1_4Slow", hSiL1_4Slow_Times)
+	("SiR1_1Slow", hSiR1_1Slow_Times)
+	("SiR1_2Slow", hSiR1_2Slow_Times)
+	("SiR1_3Slow", hSiR1_3Slow_Times)
+	("SiR1_4Slow", hSiR1_4Slow_Times);
 	
 
 #endif /* end of include guard: DETECTORMAP_H_MPIL1BS0 */

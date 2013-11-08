@@ -32,6 +32,7 @@ class TSimpleSiPulse : public TOctalFADCIsland
 
 		TH1I * GetWaveform(std::string histname);
 		double GetPulseHeight();
+		double GetPulseTime();
 }; // end of class declaration TSimpleSiPulse 
 
 #endif /* end of include guard: TSIPULSE_H_YAHE2XWS */
