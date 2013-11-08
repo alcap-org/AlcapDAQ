@@ -134,5 +134,78 @@ det2histMap DetectorToRawHistMap =
 	("SiR1_3Slow", hSiR1_3Slow_Raw)
 	("SiR1_4Slow", hSiR1_4Slow_Raw);
 
+static TH1I *hmuSc_Heights;   // Bank: Na80
+static TH1I *hmuScA_Heights;  // Bank: Nb80
+static TH1I *hScL_Heights; 		// Bank: Nc80
+static TH1I *hScR_Heights; 		// Bank: Nd80
+static TH1I *hScGe_Heights;		// Bank: Ne80
+
+static TH1I *hSiL2Slow_Heights; // Bank: Nac0
+static TH1I *hSiR2Slow_Heights; // Bank: Nbc0
+static TH1I *hGeSlow_Heights;  // Bank: Ncc0
+
+static TH1I *hSiL2Fast_Heights; // Bank: Nec0
+static TH1I *hSiR2Fast_Heights; // Bank: Nfc0
+static TH1I *hGeFast_Heights;  // Bank: Ngc0
+
+static TH1I *hSiL1_1Fast_Heights; // Bank: Nae0
+static TH1I *hSiL1_2Fast_Heights; // Bank: Nbe0
+static TH1I *hSiL1_3Fast_Heights; // Bank: Nce0
+static TH1I *hSiL1_4Fast_Heights; // Bank: Nde0
+static TH1I *hSiR1_1Fast_Heights; // Bank: Nee0
+static TH1I *hSiR1_2Fast_Heights; // Bank: Nfe0
+static TH1I *hSiR1_3Fast_Heights; // Bank: Nge0
+static TH1I *hSiR1_4Fast_Heights; // Bank: Nhe0
+
+static TH1I *hSiL1_1Slow_Heights; // Bank: Naf0
+static TH1I *hSiL1_2Slow_Heights; // Bank: Nbf0
+static TH1I *hSiL1_3Slow_Heights; // Bank: Ncf0
+static TH1I *hSiL1_4Slow_Heights; // Bank: Ndf0
+static TH1I *hSiR1_1Slow_Heights; // Bank: Nef0
+static TH1I *hSiR1_2Slow_Heights; // Bank: Nff0
+static TH1I *hSiR1_3Slow_Heights; // Bank: Ngf0
+static TH1I *hSiR1_4Slow_Heights; // Bank: Nhf0
+
+det2histMap DetectorToHeightHistMap =
+	create_map<std::string, TH1I *>
+	("muSc", hmuSc_Heights)
+	("muScA", hmuScA_Heights)
+	("ScL", hScL_Heights)
+	("ScR", hScR_Heights)
+	("ScGe", hScGe_Heights)
+	//("blank", hBlank_Heights)
+	//("blank", hBlank_Heights)
+	//("blank", hBlank_Heights)
+
+	("SiL2Slow", hSiL2Slow_Heights)
+	("SiR2Slow", hSiR2Slow_Heights)
+	("GeSlow", hGeSlow_Heights)
+	//("blank", hBlank_Heights)
+
+	("SiL2Fast", hSiL2Fast_Heights)
+	("SiR2Fast", hSiR2Fast_Heights)
+	("GeFast", hGeFast_Heights)
+	//("blank", hBlank_Heights)
+
+
+	("SiL1_1Fast", hSiL1_1Fast_Heights)
+	("SiL1_2Fast", hSiL1_2Fast_Heights)
+	("SiL1_3Fast", hSiL1_3Fast_Heights)
+	("SiL1_4Fast", hSiL1_4Fast_Heights)
+	("SiR1_1Fast", hSiR1_1Fast_Heights)
+	("SiR1_2Fast", hSiR1_2Fast_Heights)
+	("SiR1_3Fast", hSiR1_3Fast_Heights)
+	("SiR1_4Fast", hSiR1_4Fast_Heights)
+
+	("SiL1_1Slow", hSiL1_1Slow_Heights)
+	("SiL1_2Slow", hSiL1_2Slow_Heights)
+	("SiL1_3Slow", hSiL1_3Slow_Heights)
+	("SiL1_4Slow", hSiL1_4Slow_Heights)
+	("SiR1_1Slow", hSiR1_1Slow_Heights)
+	("SiR1_2Slow", hSiR1_2Slow_Heights)
+	("SiR1_3Slow", hSiR1_3Slow_Heights)
+	("SiR1_4Slow", hSiR1_4Slow_Heights);
+	
+
 #endif /* end of include guard: DETECTORMAP_H_MPIL1BS0 */
 

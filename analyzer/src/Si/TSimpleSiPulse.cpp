@@ -119,3 +119,19 @@ TH1I * TSimpleSiPulse::GetWaveform(std::string histname)
 	}
 	return h;
 }
+
+double TSimpleSiPulse::GetPulseHeight() {
+
+	double pulseheight;
+	if (fIsPositive)
+	{
+		pulseheight = GetMax() - fPedestal;
+	}
+	else
+	{
+		TSimpleSiPulse *invertedPulse = this->Invert();
+		pulseheight = invertedPulse->GetMax() - invertedPulse->GetPedestal();
+	}
+	
+	return pulseheight;			
+}

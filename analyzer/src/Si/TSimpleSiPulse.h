@@ -31,6 +31,7 @@ class TSimpleSiPulse : public TOctalFADCIsland
 		TSimpleSiPulse * Invert();
 
 		TH1I * GetWaveform(std::string histname);
+		double GetPulseHeight();
 }; // end of class declaration TSimpleSiPulse 
 
 #endif /* end of include guard: TSIPULSE_H_YAHE2XWS */
