@@ -76,7 +76,7 @@ INT MSiPulseHeight_init()
   for (detIter aDetIter = DetectorToHeightHistMap.begin(); aDetIter != DetectorToHeightHistMap.end(); aDetIter++) {
   	
   	std::string detname = aDetIter->first;
-  	std::string histname = detname + "_Heights";
+  	std::string histname = "h" + detname + "_Heights";
   	std::string histtitle = "Plot of the pulse heights for the " + detname + " detector";
   	aDetIter->second = new TH1I(histname.c_str(), histtitle.c_str(), n_bins, x_min, x_max);
   	(aDetIter->second)->SetBit(TH1::kCanRebin);
