@@ -78,8 +78,10 @@ INT MSiPulseHeight_init()
   	std::string detname = aDetIter->first;
   	std::string histname = "h" + detname + "_Heights";
   	std::string histtitle = "Plot of the pulse heights for the " + detname + " detector";
-  	aDetIter->second = new TH1I(histname.c_str(), histtitle.c_str(), n_bins, x_min, x_max);
-  	(aDetIter->second)->SetBit(TH1::kCanRebin);
+  	if ((aDetIter->second) == NULL) {
+  		aDetIter->second = new TH1I(histname.c_str(), histtitle.c_str(), n_bins, x_min, x_max);
+  		(aDetIter->second)->SetBit(TH1::kCanRebin);
+  	}
   }
 
   vector<string> bank_names = GetAllFADCBankNames();
