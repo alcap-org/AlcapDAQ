@@ -15,6 +15,7 @@
 #include <utility>
 #include <cmath>
 #include <iostream>
+#include <sstream>
 
 /* MIDAS includes */
 #include "midas.h"
@@ -46,6 +47,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
+map<string, int> theNSubPulseMap;
 map<string, std::vector<TSimpleSiPulse*> > theSimpleSiPulseMap;
 
 ANA_MODULE MSiPulseFinder_module =
@@ -106,6 +108,8 @@ INT MSiPulseFinder(EVENT_HEADER *pheader, void *pevent)
     	pulses.clear();
   }
   theSimpleSiPulseMap.clear(); // clear the pulse map so more than the first event is read
+  
+  theNSubPulseMap.clear(); // need to clear the NSubPulses map
 
   // Iterate through the banks readers
   for (std::vector<TOctalFADCBankReader*>::iterator bankReaderIter = fadc_bank_readers.begin();
@@ -113,6 +117,7 @@ INT MSiPulseFinder(EVENT_HEADER *pheader, void *pevent)
   	   
   	   (*bankReaderIter)->ProcessEvent(pheader, pevent);
   	   std::vector<TOctalFADCIsland*> theOctalFADCIslands = (*bankReaderIter)->GetIslandVectorCopy();
+  	   std::string bankname = (*bankReaderIter)->GetBankName();
   	   
   	   // Have a vector ready for all the simple_si_pulses
   	   vector<TSimpleSiPulse*> simple_si_pulses;
@@ -120,12 +125,18 @@ INT MSiPulseFinder(EVENT_HEADER *pheader, void *pevent)
   	   // Loop over the islands
   	   for (std::vector<TOctalFADCIsland*>::iterator octalFADCIslandIter = theOctalFADCIslands.begin();
   	   		octalFADCIslandIter != theOctalFADCIslands.end(); octalFADCIslandIter++) {
+  	   		
   	   		// Create a TSimpleSiPulse for the island
   	   		unsigned int nped = 10;
   	   		TSimpleSiPulse* simple_si_island = new TSimpleSiPulse((*octalFADCIslandIter), nped);
     		
     		// Find all the pulses in this island
   	   		vector<TSimpleSiPulse*> simple_si_pulses_on_island = GetPulsesFromIsland(simple_si_island);
+  	   		
+  	   		// Create a bank and island name "bank" to store the number of sub pulses
+  	   		std::stringstream bankislandname;
+  	   		bankislandname << bankname << (octalFADCIslandIter - theOctalFADCIslands.begin() + 1);
+  	   		theNSubPulseMap.insert(std::pair<string, int>(bankislandname.str(), simple_si_pulses_on_island.size())); // set the number of sub pulses on the island
   	   		
   	   		// Loop through and add the pulses to the main pulses vector
   	   		for (std::vector<TSimpleSiPulse*>::iterator iter = simple_si_pulses_on_island.begin(); 
@@ -137,8 +148,7 @@ INT MSiPulseFinder(EVENT_HEADER *pheader, void *pevent)
   	   }
   	   
   	   // Create a new "bank" to store the pulses that are on that island
-  	   std::string new_bank_name = (*bankReaderIter)->GetBankName() + "P";
-       std::pair<std::string, std::vector<TSimpleSiPulse*> > thePair (new_bank_name, simple_si_pulses);
+       std::pair<std::string, std::vector<TSimpleSiPulse*> > thePair (bankname, simple_si_pulses);
        theSimpleSiPulseMap.insert(thePair);
   	   
   }

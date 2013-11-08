@@ -24,6 +24,7 @@ Contents:     A module to plot waveforms of pulses from Si detectors
 #include "TH2.h"
 #include "TFile.h"
 #include "TDirectory.h"
+#include "TLine.h"
 
 /* AlCap includes */
 #include "TOctalFADCIsland.h"
@@ -45,6 +46,9 @@ double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
+extern map<string, vector<TSimpleSiPulse*> > theSimpleSiPulseMap;
+extern map<string, int> theNSubPulseMap;
+map <string, vector<TH1I*> > thePulseHistMap;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
 
@@ -113,6 +117,7 @@ INT MSiWaveform(EVENT_HEADER *pheader, void *pevent)
 			(*bankReaderIter)->GetIslandVectorCopy();
 		
 		int island_number = 0;
+		int total_pulse_number = 0;
 		// Loop over the islands and fill the relevant histogram with the peak height
 		for (std::vector<TOctalFADCIsland*>::iterator octalFADCIslandIter = 
 				theOctalFADCIslands.begin();
@@ -145,6 +150,27 @@ INT MSiWaveform(EVENT_HEADER *pheader, void *pevent)
 				std::stringstream histname;
 				histname << detname << "Raw" << "_Event" << midas_event_number << "_Island" << island_number;
 				DetectorToRawHistMap[detname] = (TH1I *)siPulse->GetWaveform(histname.str());
+				
+				// Loop through the pulses from where we were and store their waveforms in a vector
+				std::vector<TH1I*> thePulses;
+				std::stringstream bankislandname;
+				bankislandname << bankname << island_number;
+				
+				std::vector<TSimpleSiPulse*> theBankPulses = theSimpleSiPulseMap[bankname];
+				for (int iPulse = 0; iPulse < theNSubPulseMap[bankislandname.str()]; iPulse++) {
+					
+					std::stringstream pulsehistname;
+					pulsehistname << histname.str() << "_Pulse" << iPulse+1;
+					
+					TH1I* hPulse = theBankPulses[iPulse + total_pulse_number]->GetWaveform(pulsehistname.str());
+					hPulse->SetLineColor(kMagenta);
+					
+					thePulses.push_back(hPulse);
+				}
+				std::pair<std::string, std::vector<TH1I*> > thePair(detname, thePulses);
+				thePulseHistMap.insert(thePair);
+				
+				total_pulse_number += thePulses.size();
 			}
 			//if (strcmp(bankname.c_str(), "Nfc0") == 0)
 			//{

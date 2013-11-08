@@ -121,18 +121,16 @@ INT MSiPulseTime(EVENT_HEADER *pheader, void *pevent)
 			
 		// Loop over the TSimpleSiPulses and plot the histogram
 		for (std::vector<TSimpleSiPulse*>::iterator siPulse = theSiPulses.begin(); siPulse != theSiPulses.end(); siPulse++) {
-
-			string actualBankname = bankname.substr(0,4); // remove the "P" from the new bankname
 			
 			// Find the detector name
-			if (ChannelToDetectorMap.find(actualBankname) == ChannelToDetectorMap.end())
+			if (ChannelToDetectorMap.find(bankname) == ChannelToDetectorMap.end())
 			{
 				// not found, do nothing
 			}
 			else
 			{
 				// Get the detector name and use that to fill the corresponding time histogram
-				string detname = ChannelToDetectorMap[actualBankname];
+				string detname = ChannelToDetectorMap[bankname];
 				DetectorToTimeHistMap[detname]->Fill((*siPulse)->GetPulseTime());
 			}
 		}
