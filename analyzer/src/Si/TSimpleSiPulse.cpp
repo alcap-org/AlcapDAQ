@@ -111,11 +111,11 @@ TSimpleSiPulse *TSimpleSiPulse::Invert()
 
 TH1I * TSimpleSiPulse::GetWaveform(std::string histname)
 {
-	TH1I *h = new TH1I(histname.c_str(),histname.c_str(),100,0,100);
+	TH1I *h = new TH1I(histname.c_str(),histname.c_str(),100,GetTime(),GetTime()+100);
 	h->SetBit(TH1::kCanRebin);
 	for (unsigned int i = 0; i < fData.size(); ++i)
 	{
-		h->SetBinContent(i+1,fData.at(i));
+		h->Fill(GetTime()+i,fData.at(i));
 	}
 	return h;
 }
