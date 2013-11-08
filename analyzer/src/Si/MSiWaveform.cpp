@@ -14,6 +14,7 @@ Contents:     A module to plot waveforms of pulses from Si detectors
 #include <string>
 #include <map>
 #include <utility>
+#include <sstream>
 
 /* MIDAS includes */
 #include "midas.h"
@@ -65,8 +66,6 @@ ANA_MODULE MSiWaveform_module =
 */
 INT MSiWaveform_init()
 {
-	gDirectory->mkdir("SiRawDir");
-	gDirectory->cd("SiRawDir");
 	for (detIter aDetIter = DetectorToRawHistMap.begin(); 
 			aDetIter != DetectorToRawHistMap.end(); aDetIter++)
 	{
@@ -112,13 +111,16 @@ INT MSiWaveform(EVENT_HEADER *pheader, void *pevent)
 		(*bankReaderIter)->ProcessEvent(pheader, pevent);
 		std::vector<TOctalFADCIsland*> theOctalFADCIslands = 
 			(*bankReaderIter)->GetIslandVectorCopy();
-
+		
+		int island_number = 0;
 		// Loop over the islands and fill the relevant histogram with the peak height
 		for (std::vector<TOctalFADCIsland*>::iterator octalFADCIslandIter = 
 				theOctalFADCIslands.begin();
 				octalFADCIslandIter != theOctalFADCIslands.end(); 
 				octalFADCIslandIter++) 
 		{
+			island_number++;
+			
 			std::string bankname = (*bankReaderIter)->GetBankName();
 			TSimpleSiPulse *siPulse = new TSimpleSiPulse(*octalFADCIslandIter);
 
@@ -140,9 +142,9 @@ INT MSiWaveform(EVENT_HEADER *pheader, void *pevent)
 			else
 			{
 				string detname = ChannelToDetectorMap[bankname];
-				string histname = detname + "Raw";
-				delete gDirectory->Get(histname.c_str());
-				DetectorToRawHistMap[detname] = (TH1I *)siPulse->GetWaveform(detname+"Raw");
+				std::stringstream histname;
+				histname << detname << "Raw" << "_Event" << midas_event_number << "_Island" << island_number;
+				DetectorToRawHistMap[detname] = (TH1I *)siPulse->GetWaveform(histname.str());
 			}
 			//if (strcmp(bankname.c_str(), "Nfc0") == 0)
 			//{
