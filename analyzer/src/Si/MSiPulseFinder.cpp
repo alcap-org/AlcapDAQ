@@ -223,6 +223,7 @@ vector<TSimpleSiPulse*> GetPulsesFromIsland(TSimpleSiPulse* island) {
 	  				TOctalFADCIsland* octal_pulse = new TOctalFADCIsland(pulse_timestamp, pulse_samples);
 					TSimpleSiPulse* pulse = new TSimpleSiPulse(octal_pulse, island->GetPedestal()); 
 	  				pulses.push_back(pulse);
+	  				pulse_samples.clear();
 	  			}
 	  		}
 	  	}
