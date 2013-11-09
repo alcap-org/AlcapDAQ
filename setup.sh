@@ -14,7 +14,7 @@ export LD_LIBRARY_PATH=$MIDASSYS/linux/lib:$PWD/compress:$LD_LIBRARY_PATH
 
 cd compress && make && cd -
 
-cd CAEN && ./install.sh && cd -
+cd CAEN && mkdir -p lib && ./link.sh && cd -
 
 for crate in $(ls -d crate*);
 do

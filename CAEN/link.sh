@@ -25,11 +25,15 @@ link64 ()
 }
 
 # get OS type from shell
+echo "**************************************"
 ARCH=$(uname -p)
 
 if [[ $ARCH == "x86_64" ]]; then
-	echo "x64"
+	echo "Linking CAEN x64 libraries ..."
 	link64
 else
+	echo "Linking CAEN x86 libraries ..."
 	link32
 fi
+
+echo "**************************************"
