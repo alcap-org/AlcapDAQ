@@ -1,3 +1,12 @@
+# get OS type from shell
+OSTYPE = $(shell uname)
+ifeq ($(OSTYPE),Linux)
+OSTYPE = linux
+ifeq ($(shell uname -p),x86_64)
+  OSTYPE = linux64
+endif
+endif
+
 CC = gcc
 CXX = g++
 CXXFLAGS = -g -Wall -O3 -I/usr/include 
@@ -8,7 +17,7 @@ KERNEL_INCLUDE = -I /usr/src/kernels/$(KERNEL_VERSION)/include
 CXXFLAGS += $(KERNEL_INCLUDE)
 
 MIDAS_INCLUDE = -I $(MIDASSYS)/include
-MIDAS_LIB = $(MIDASSYS)/linux/lib/mfe.o -L $(MIDASSYS)/linux/lib -lmidas
+MIDAS_LIB = $(MIDASSYS)/$(OSTYPE)/lib/mfe.o -L $(MIDASSYS)/$(OSTYPE)/lib -lmidas
 CXX_LIBS += $(MIDAS_LIB)
 
 CXXFLAGS += $(MIDAS_INCLUDE) -DPART_OF_MUCAP -DDO_IOPERM
