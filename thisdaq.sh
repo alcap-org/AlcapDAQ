@@ -2,7 +2,7 @@
 
 DAQdir=$(dirname ${BASH_SOURCE[0]} | xargs readlink -e)
 
-. $DAQdir/root/bin/thisroot.sh
+#. $DAQdir/root/bin/thisroot.sh
 
 uname=`uname -p`
 arch=''

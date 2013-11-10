@@ -1,16 +1,29 @@
 #!/bin/bash
-#. $PWD/root/bin/thisroot.sh
-if [ ! -d "./dir" ]; then 
-	mkdir dir
-fi
+unset MIDAS_DIR
+unset MIDASSYS
+unset MIDAS_HOME
+unset MIDAS_EXPTAB
+
+mkdir -p dir
 
 cd midas && make && cd -
 
-export MIDAS_DIR=$PWD/dir
+#export MIDAS_DIR=$PWD/dir
+if [[ ! -f exptab ]]; then
+	echo "Alcap $PWD/dir $(whoami)" > exptab
+fi
+export MIDAS_EXPTAB=$PWD/exptab
 export MIDASSYS=$PWD/midas
 export MIDAS_HOME=$MIDASSYS
-export PATH=$MIDASSYS/linux/bin:$PATH
-export LD_LIBRARY_PATH=$MIDASSYS/linux/lib:$PWD/compress:$LD_LIBRARY_PATH
+
+uname=`uname -p`
+arch=''
+if [ "$uname" == "x86_64" ]; then
+    arch='64'
+fi
+
+export PATH=$MIDASSYS/linux$arch/bin:$PATH
+export LD_LIBRARY_PATH=$MIDASSYS/linux$arch/lib:$PWD/compress:$LD_LIBRARY_PATH
 
 cd compress && make && cd -
 
