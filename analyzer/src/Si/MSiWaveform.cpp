@@ -47,8 +47,8 @@ double GetClockTickForChannel(string bank_name);
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern map<string, vector<TSimpleSiPulse*> > theSimpleSiPulseMap;
-extern map<string, int> theNSubPulseMap;
-map <string, vector<TH1I*> > thePulseHistMap;
+extern map<string, int> theNSubSiPulseMap;
+map <string, vector<TH1I*> > theSiPulseHistMap;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
 
@@ -74,6 +74,10 @@ INT MSiWaveform_init()
 			aDetIter != DetectorToRawHistMap.end(); aDetIter++)
 	{
 		string detname = aDetIter->first;
+		
+		if (detname.substr(0,2) != "Si")
+			continue;
+				
 		string histname = detname + "Raw";
 		aDetIter->second =
 			new TH1I(histname.c_str(), histname.c_str(), 100, 0, 100);
@@ -127,6 +131,11 @@ INT MSiWaveform(EVENT_HEADER *pheader, void *pevent)
 			island_number++;
 			
 			std::string bankname = (*bankReaderIter)->GetBankName();
+			string detname = ChannelToDetectorMap[bankname];
+			
+			if (detname.substr(0,2) != "Si")
+				continue;
+				
 			TSimpleSiPulse *siPulse = new TSimpleSiPulse(*octalFADCIslandIter);
 
 			double pulseheight;
@@ -146,7 +155,6 @@ INT MSiWaveform(EVENT_HEADER *pheader, void *pevent)
 			}
 			else
 			{
-				string detname = ChannelToDetectorMap[bankname];
 				std::stringstream histname;
 				histname << "h" << detname << "Raw" << "_Event" << midas_event_number << "_Island" << island_number;
 				DetectorToRawHistMap[detname] = (TH1I *)siPulse->GetWaveform(histname.str());
@@ -157,7 +165,7 @@ INT MSiWaveform(EVENT_HEADER *pheader, void *pevent)
 				bankislandname << bankname << island_number;
 				
 				std::vector<TSimpleSiPulse*> theBankPulses = theSimpleSiPulseMap[bankname];
-				for (int iPulse = 0; iPulse < theNSubPulseMap[bankislandname.str()]; iPulse++) {
+				for (int iPulse = 0; iPulse < theNSubSiPulseMap[bankislandname.str()]; iPulse++) {
 					
 					std::stringstream pulsehistname;
 					pulsehistname << histname.str() << "_Pulse" << iPulse+1;
@@ -168,7 +176,7 @@ INT MSiWaveform(EVENT_HEADER *pheader, void *pevent)
 					thePulses.push_back(hPulse);
 				}
 				std::pair<std::string, std::vector<TH1I*> > thePair(detname, thePulses);
-				thePulseHistMap.insert(thePair);
+				theSiPulseHistMap.insert(thePair);
 				
 				total_pulse_number += thePulses.size();
 			}

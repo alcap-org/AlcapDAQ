@@ -76,12 +76,14 @@ INT MSiPulseHeight_init()
   for (detIter aDetIter = DetectorToHeightHistMap.begin(); aDetIter != DetectorToHeightHistMap.end(); aDetIter++) {
   	
   	std::string detname = aDetIter->first;
+  	
+  	if (detname.substr(0,2) != "Si")
+		continue;
+				
   	std::string histname = "h" + detname + "_Heights";
   	std::string histtitle = "Plot of the pulse heights for the " + detname + " detector";
-  	if ((aDetIter->second) == NULL) {
-  		aDetIter->second = new TH1I(histname.c_str(), histtitle.c_str(), n_bins, x_min, x_max);
-  		(aDetIter->second)->SetBit(TH1::kCanRebin);
-  	}
+  	aDetIter->second = new TH1I(histname.c_str(), histtitle.c_str(), n_bins, x_min, x_max);
+  	(aDetIter->second)->SetBit(TH1::kCanRebin);
   }
 
   vector<string> bank_names = GetAllFADCBankNames();
@@ -117,6 +119,11 @@ INT MSiPulseHeight(EVENT_HEADER *pheader, void *pevent)
 			simpleSiMapIter++) 
 	{
 		std::string bankname = simpleSiMapIter->first;
+		string detname = ChannelToDetectorMap[bankname];
+			
+		if (detname.substr(0,2) != "Si")
+			continue;
+			
 		std::vector<TSimpleSiPulse*> theSiPulses = simpleSiMapIter->second;
 			
 		// Loop over the TSimpleSiPulses and plot the histogram
@@ -130,7 +137,6 @@ INT MSiPulseHeight(EVENT_HEADER *pheader, void *pevent)
 			else
 			{
 				// Get the detector name and use that to fill the corresponding height histogram
-				string detname = ChannelToDetectorMap[bankname];
 				DetectorToHeightHistMap[detname]->Fill((*siPulse)->GetPulseHeight());
 				DetectorToHeightHistMap[detname]->GetXaxis()->SetTitle("Pulse Height [ADC value]");
 				DetectorToHeightHistMap[detname]->GetYaxis()->SetTitle("Arbitrary Unit");

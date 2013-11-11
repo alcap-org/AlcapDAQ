@@ -47,7 +47,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
-map<string, int> theNSubPulseMap;
+map<string, int> theNSubSiPulseMap;
 map<string, std::vector<TSimpleSiPulse*> > theSimpleSiPulseMap;
 
 ANA_MODULE MSiPulseFinder_module =
@@ -109,7 +109,7 @@ INT MSiPulseFinder(EVENT_HEADER *pheader, void *pevent)
   }
   theSimpleSiPulseMap.clear(); // clear the pulse map so more than the first event is read
   
-  theNSubPulseMap.clear(); // need to clear the NSubPulses map
+  theNSubSiPulseMap.clear(); // need to clear the NSubPulses map
 
   // Iterate through the banks readers
   for (std::vector<TOctalFADCBankReader*>::iterator bankReaderIter = fadc_bank_readers.begin();
@@ -136,7 +136,7 @@ INT MSiPulseFinder(EVENT_HEADER *pheader, void *pevent)
   	   		// Create a bank and island name "bank" to store the number of sub pulses
   	   		std::stringstream bankislandname;
   	   		bankislandname << bankname << (octalFADCIslandIter - theOctalFADCIslands.begin() + 1);
-  	   		theNSubPulseMap.insert(std::pair<string, int>(bankislandname.str(), simple_si_pulses_on_island.size())); // set the number of sub pulses on the island
+  	   		theNSubSiPulseMap.insert(std::pair<string, int>(bankislandname.str(), simple_si_pulses_on_island.size())); // set the number of sub pulses on the island
   	   		
   	   		// Loop through and add the pulses to the main pulses vector
   	   		for (std::vector<TSimpleSiPulse*>::iterator iter = simple_si_pulses_on_island.begin(); 
