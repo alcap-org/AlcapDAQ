@@ -119,8 +119,8 @@ INT MGePulseFinder(EVENT_HEADER *pheader, void *pevent)
   	   std::vector<TOctalFADCIsland*> theOctalFADCIslands = (*bankReaderIter)->GetIslandVectorCopy();
   	   std::string bankname = (*bankReaderIter)->GetBankName();
   	   
-  	   // Have a vector ready for all the simple_si_pulses
-  	   vector<TSimpleGePulse*> simple_si_pulses;
+  	   // Have a vector ready for all the simple_ge_pulses
+  	   vector<TSimpleGePulse*> simple_ge_pulses;
   	   
   	   // Loop over the islands
   	   for (std::vector<TOctalFADCIsland*>::iterator octalFADCIslandIter = theOctalFADCIslands.begin();
@@ -131,24 +131,24 @@ INT MGePulseFinder(EVENT_HEADER *pheader, void *pevent)
   	   		TSimpleGePulse* simple_ge_island = new TSimpleGePulse((*octalFADCIslandIter), nped);
     		
     		// Find all the pulses in this island
-  	   		vector<TSimpleGePulse*> simple_si_pulses_on_island = GetPulsesFromIsland(simple_ge_island);
+  	   		vector<TSimpleGePulse*> simple_ge_pulses_on_island = GetPulsesFromIsland(simple_ge_island);
   	   		
   	   		// Create a bank and island name "bank" to store the number of sub pulses
   	   		std::stringstream bankislandname;
   	   		bankislandname << bankname << (octalFADCIslandIter - theOctalFADCIslands.begin() + 1);
-  	   		theNSubGePulseMap.insert(std::pair<string, int>(bankislandname.str(), simple_si_pulses_on_island.size())); // set the number of sub pulses on the island
+  	   		theNSubGePulseMap.insert(std::pair<string, int>(bankislandname.str(), simple_ge_pulses_on_island.size())); // set the number of sub pulses on the island
   	   		
   	   		// Loop through and add the pulses to the main pulses vector
-  	   		for (std::vector<TSimpleGePulse*>::iterator iter = simple_si_pulses_on_island.begin(); 
-  	   				iter != simple_si_pulses_on_island.end(); iter++) {
+  	   		for (std::vector<TSimpleGePulse*>::iterator iter = simple_ge_pulses_on_island.begin(); 
+  	   				iter != simple_ge_pulses_on_island.end(); iter++) {
   	   		
-  	   			simple_si_pulses.push_back(*iter);
+  	   			simple_ge_pulses.push_back(*iter);
   	   		}
   	   		
   	   }
   	   
   	   // Create a new "bank" to store the pulses that are on that island
-       std::pair<std::string, std::vector<TSimpleGePulse*> > thePair (bankname, simple_si_pulses);
+       std::pair<std::string, std::vector<TSimpleGePulse*> > thePair (bankname, simple_ge_pulses);
        theSimpleGePulseMap.insert(thePair);
   	   
   }
