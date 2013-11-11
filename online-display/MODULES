@@ -45,3 +45,8 @@ FADCIslandsReadPerBlock FADC/fadc_islands_read_per_block.C
 GeHeights Ge/thick_germanium_heights.C
 GeTimes   Ge/thick_germanium_times.C
 GePulses  Ge/thick_germanium_pulses.C
+#======================================================
+#             Sc
+ScHeights Sc/thick_scintillator_heights.C
+ScTimes   Sc/thick_scintillator_times.C
+ScPulses  Sc/thick_scintillator_pulses.C
