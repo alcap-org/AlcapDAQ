@@ -32,6 +32,9 @@ SiL1FastTimes Si/thin_left_fast_silicon_times.C
 SiR1FastTimes Si/thin_right_fast_silicon_times.C
 Si2Times Si/thick_silicon_times.C
 
+SiL1SlowPulses Si/thin_left_slow_silicon_pulses.C
+SiR1SlowPulses Si/thin_right_slow_silicon_pulses.C
+SiL1FastPulses Si/thin_left_fast_silicon_pulses.C
 SiR1FastPulses Si/thin_right_fast_silicon_pulses.C
 Si2Pulses Si/thick_silicon_pulses.C
 #======================================================

@@ -1,4 +1,4 @@
-void thin_right_fast_silicon_pulses()
+void thin_left_slow_silicon_pulses()
 {
   /*****************************************************************/
   // Prepare the canvas
@@ -7,9 +7,9 @@ void thin_right_fast_silicon_pulses()
 	AlCapCanvas->Clear();
   AlCapCanvas->Divide(2,2);
   /*****************************************************************/
-	TH1 *right_fast_island[4];
+	TH1 *left_slow_island[4];
 	const int max_pulses = 10;
-	TH1 *right_fast_pulse[4][max_pulses];
+	TH1 *left_slow_pulse[4][max_pulses];
 	
 	int event_number = 1;
 	int island_number = 38;
@@ -19,24 +19,24 @@ void thin_right_fast_silicon_pulses()
 	
 	for (int j = 0; j < 4; ++j) // loop through the channels
 	{
-		sprintf(islandHistTitle,"hSiR1_%dFastRaw_Event%d_Island%d;1",j+1, event_number, island_number);
-		right_fast_island[j] = (TH1 *)gDirectory->Get(islandHistTitle);
+		sprintf(islandHistTitle,"hSiL1_%dSlowRaw_Event%d_Island%d;1",j+1, event_number, island_number);
+		left_slow_island[j] = (TH1 *)gDirectory->Get(islandHistTitle);
 		
 		AlCapCanvas->cd(j+1);
-		if (right_fast_island[j])
-			right_fast_island[j]->Draw();
+		if (left_slow_island[j])
+			left_slow_island[j]->Draw();
 		
 		// loop through pulses and find them all
 		int pulse_number = 1;
 		bool final_pulse = false;
 		
 		while (final_pulse != true) {
-			sprintf(pulseHistTitle,"hSiR1_%dFastRaw_Event%d_Island%d_Pulse%d;1",j+1, event_number, island_number, pulse_number);
-			right_fast_pulse[j][pulse_number-1] = (TH1 *)gDirectory->Get(pulseHistTitle);
+			sprintf(pulseHistTitle,"hSiL1_%dSlowRaw_Event%d_Island%d_Pulse%d;1",j+1, event_number, island_number, pulse_number);
+			left_slow_pulse[j][pulse_number-1] = (TH1 *)gDirectory->Get(pulseHistTitle);
 			
-			if (right_fast_pulse[j][pulse_number-1]) {
-				right_fast_pulse[j][pulse_number-1]->SetLineColor(kMagenta);
-				right_fast_pulse[j][pulse_number-1]->Draw("SAME");
+			if (left_slow_pulse[j][pulse_number-1]) {
+				left_slow_pulse[j][pulse_number-1]->SetLineColor(kMagenta);
+				left_slow_pulse[j][pulse_number-1]->Draw("SAME");
 				pulse_number++;
 			}
 			else
