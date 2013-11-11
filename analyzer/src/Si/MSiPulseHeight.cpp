@@ -132,6 +132,8 @@ INT MSiPulseHeight(EVENT_HEADER *pheader, void *pevent)
 				// Get the detector name and use that to fill the corresponding height histogram
 				string detname = ChannelToDetectorMap[bankname];
 				DetectorToHeightHistMap[detname]->Fill((*siPulse)->GetPulseHeight());
+				DetectorToHeightHistMap[detname]->GetXaxis()->SetTitle("Pulse Height [ADC value]");
+				DetectorToHeightHistMap[detname]->GetYaxis()->SetTitle("Arbitrary Unit");
 			}
 		}
 	}

@@ -117,6 +117,10 @@ TH1I * TSimpleSiPulse::GetWaveform(std::string histname)
 	{
 		h->Fill(GetTime()+i,fData.at(i));
 	}
+	
+	h->GetXaxis()->SetTitle("clock ticks");
+	h->GetYaxis()->SetTitle("ADC value");
+	
 	return h;
 }
 

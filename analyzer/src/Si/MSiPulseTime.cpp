@@ -131,7 +131,9 @@ INT MSiPulseTime(EVENT_HEADER *pheader, void *pevent)
 			{
 				// Get the detector name and use that to fill the corresponding time histogram
 				string detname = ChannelToDetectorMap[bankname];
-				DetectorToTimeHistMap[detname]->Fill((*siPulse)->GetPulseTime());
+				DetectorToTimeHistMap[detname]->Fill((*siPulse)->GetPulseTime() * GetClockTickForChannel(bankname));
+				DetectorToTimeHistMap[detname]->GetXaxis()->SetTitle("time [ns]");
+				DetectorToTimeHistMap[detname]->GetYaxis()->SetTitle("Arbitrary Unit");
 			}
 		}
 	}
