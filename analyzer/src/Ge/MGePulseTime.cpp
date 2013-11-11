@@ -1,9 +1,9 @@
 /********************************************************************\
 
-Name:         MGePulseHeight
+Name:         MGePulseTime
 Created by:   Andrew Edmonds
 
-Contents:     A module to plot the pulse heights of the silicon detector
+Contents:     A module to plot the pulse Times of the silicon detector
 
 \********************************************************************/
 
@@ -35,8 +35,8 @@ using std::vector;
 using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
-INT  MGePulseHeight_init(void);
-INT  MGePulseHeight(EVENT_HEADER*, void*);
+INT  MGePulseTime_init(void);
+INT  MGePulseTime(EVENT_HEADER*, void*);
 vector<string> GetAllFADCBankNames();
 double GetClockTickForChannel(string bank_name);
 
@@ -46,14 +46,14 @@ extern map<string, vector<TSimpleGePulse*> > theSimpleGePulseMap;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
 
-ANA_MODULE MGePulseHeight_module =
+ANA_MODULE MGePulseTime_module =
 {
-	"MGePulseHeight",                    /* module name           */
+	"MGePulseTime",                    /* module name           */
 	"Andrew Edmonds",              /* author                */
-	MGePulseHeight,                      /* event routine         */
+	MGePulseTime,                      /* event routine         */
 	NULL,                          /* BOR routine           */
 	NULL,                          /* EOR routine           */
-	MGePulseHeight_init,                 /* init routine          */
+	MGePulseTime_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
 	NULL,                          /* parameter structure   */
 	0,                             /* structure size        */
@@ -62,7 +62,7 @@ ANA_MODULE MGePulseHeight_module =
 
 /** This method initializes histograms.
 */
-INT MGePulseHeight_init()
+INT MGePulseTime_init()
 {
   // This histogram has the bank names labeled on the X-axis, and the midas
   // block number on the Y-axis.
@@ -72,18 +72,18 @@ INT MGePulseHeight_init()
   int x_min = 0;
   int x_max = 100;
   
-  // Iterate through the detectors and create a height histogram for each one
-  for (detIter aDetIter = DetectorToHeightHistMap.begin(); aDetIter != DetectorToHeightHistMap.end(); aDetIter++) {
+  // Iterate through the detectors and create a time histogram for each one
+  for (detIter aDetIter = DetectorToTimeHistMap.begin(); aDetIter != DetectorToTimeHistMap.end(); aDetIter++) {
   	
   	std::string detname = aDetIter->first;
   	
   	if (detname.substr(0,2) != "Ge")
 		continue;
 				
-  	std::string histname = "h" + detname + "_Heights";
-  	std::string histtitle = "Plot of the pulse heights for the " + detname + " detector";
+  	std::string histname = "h" + detname + "_Times";
+  	std::string histtitle = "Plot of the pulse times for the " + detname + " detector";
   	aDetIter->second = new TH1I(histname.c_str(), histtitle.c_str(), n_bins, x_min, x_max);
-   	(aDetIter->second)->SetBit(TH1::kCanRebin);
+  	(aDetIter->second)->SetBit(TH1::kCanRebin);
   }
 
   vector<string> bank_names = GetAllFADCBankNames();
@@ -98,7 +98,7 @@ INT MGePulseHeight_init()
 /** This method processes one MIDAS block, producing a vector
  * of TOctalFADCIsland objects from the raw Octal FADC data.
  */
-INT MGePulseHeight(EVENT_HEADER *pheader, void *pevent)
+INT MGePulseTime(EVENT_HEADER *pheader, void *pevent)
 {
 	// Get the event number
 	int midas_event_number = pheader->serial_number;
@@ -123,7 +123,7 @@ INT MGePulseHeight(EVENT_HEADER *pheader, void *pevent)
 			
 		if (detname.substr(0,2) != "Ge")
 			continue;
-			
+		
 		std::vector<TSimpleGePulse*> theGePulses = simpleGeMapIter->second;
 			
 		// Loop over the TSimpleGePulses and plot the histogram
@@ -136,10 +136,10 @@ INT MGePulseHeight(EVENT_HEADER *pheader, void *pevent)
 			}
 			else
 			{
-				// Get the detector name and use that to fill the corresponding height histogram
-				DetectorToHeightHistMap[detname]->Fill((*gePulse)->GetPulseHeight());
-				DetectorToHeightHistMap[detname]->GetXaxis()->SetTitle("Pulse Height [ADC value]");
-				DetectorToHeightHistMap[detname]->GetYaxis()->SetTitle("Arbitrary Unit");
+				// Get the detector name and use that to fill the corresponding time histogram
+				DetectorToTimeHistMap[detname]->Fill((*gePulse)->GetPulseTime() * GetClockTickForChannel(bankname));
+				DetectorToTimeHistMap[detname]->GetXaxis()->SetTitle("time [ns]");
+				DetectorToTimeHistMap[detname]->GetYaxis()->SetTitle("Arbitrary Unit");
 			}
 		}
 	}
