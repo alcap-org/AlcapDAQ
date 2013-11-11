@@ -38,7 +38,10 @@ SiL1FastPulses Si/thin_left_fast_silicon_pulses.C
 SiR1FastPulses Si/thin_right_fast_silicon_pulses.C
 Si2Pulses Si/thick_silicon_pulses.C
 #======================================================
-#======================================================
 #             FADC
 FADCIslandsReadPerBlock FADC/fadc_islands_read_per_block.C
 #======================================================
+#             Ge
+GeHeights Ge/thick_germanium_heights.C
+GeTimes   Ge/thick_germanium_times.C
+GePulses  Ge/thick_germanium_pulses.C
