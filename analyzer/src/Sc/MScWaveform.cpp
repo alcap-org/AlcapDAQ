@@ -75,7 +75,7 @@ INT MScWaveform_init()
 	{
 		string detname = aDetIter->first;
 		
-		if (detname.substr(0,2) != "Sc")
+		if (detname.substr(0,2) != "Sc" && detname.substr(0,2) != "mu")
 			continue;
 				
 		string histname = detname + "Raw";
@@ -133,7 +133,7 @@ INT MScWaveform(EVENT_HEADER *pheader, void *pevent)
 			std::string bankname = (*bankReaderIter)->GetBankName();
 			string detname = ChannelToDetectorMap[bankname];
 			
-			if (detname.substr(0,2) != "Sc")
+			if (detname.substr(0,2) != "Sc" && detname.substr(0,2) != "mu")
 				continue;
 				
 			TSimpleScPulse *scPulse = new TSimpleScPulse(*octalFADCIslandIter);

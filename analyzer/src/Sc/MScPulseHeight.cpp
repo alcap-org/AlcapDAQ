@@ -77,7 +77,7 @@ INT MScPulseHeight_init()
   	
   	std::string detname = aDetIter->first;
   	
-  	if (detname.substr(0,2) != "Sc")
+  	if (detname.substr(0,2) != "Sc" && detname.substr(0,2) != "mu")
 		continue;
 				
   	std::string histname = "h" + detname + "_Heights";
@@ -121,7 +121,7 @@ INT MScPulseHeight(EVENT_HEADER *pheader, void *pevent)
 		std::string bankname = simpleScMapIter->first;
 		string detname = ChannelToDetectorMap[bankname];
 			
-		if (detname.substr(0,2) != "Sc")
+		if (detname.substr(0,2) != "Sc" || detname.substr(0,2) != "mu")
 			continue;
 			
 		std::vector<TSimpleScPulse*> theScPulses = simpleScMapIter->second;
