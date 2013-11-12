@@ -171,62 +171,83 @@ vector<TSimpleSiPulse*> GetPulsesFromIsland(TSimpleSiPulse* island) {
 	double threshold = island->GetThreshold();
 	
 	// Loop through the samples
-	bool pulse_found = false; // haven't found a pulse yet
+	bool pulse_start = false; // haven't started a pulse yet
+	bool pulse_finish = false; // haven't finihsed a pulse yet
 	int pulse_timestamp = 0;
 	std::vector<int> pulse_samples;
 	
 	// NB end an element before the end so that the iterator isn't inspecting some random bit of memory
-	for (std::vector<int>::iterator	 sampleIter = theSamples.begin(); sampleIter != theSamples.end()-1; sampleIter++) {
+	for (std::vector<int>::iterator	 sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
+	
+		// If we get to the samples with value 0 we are at the end of the island and should exit the loop
+		if ( (*sampleIter) == 0)
+			break;
 	    
 	    // Start (positive/negative) pulse if:
 	    //  - the current sample is greater/less than the pedestal
 	    //  - the next sample is greater/less then the threshold
 	    //  - we haven't already started a pulse
 	    if (island->IsPositive() == true) {
-	  		if ( *(sampleIter) > pedestal && *(sampleIter+1) > pedestal + threshold && pulse_found == false) {
+	  		if ( *(sampleIter) > pedestal && *(sampleIter+1) > (pedestal + threshold) && pulse_start == false) {
 	  	
 	  			pulse_timestamp = island->GetTime() + (sampleIter - theSamples.begin());
-	  			pulse_found = true;
+	  			pulse_start = true;
 	  		}
 	  	}
 	  	else {
-	  		if ( *(sampleIter) < pedestal && *(sampleIter+1) < pedestal - threshold && pulse_found == false) {
+	  		if ( *(sampleIter) < pedestal && *(sampleIter+1) < (pedestal - threshold) && pulse_start == false) {
 	  	
 	  			pulse_timestamp = island->GetTime() + (sampleIter - theSamples.begin());
-	  			pulse_found = true;
+	  			pulse_start = true;
 	  		}
 	  	}
 	  		
-	  	// If a pulse has been found fill a new sample vector
-	  	if (pulse_found == true) {
+	  	// If a pulse has been started, fill a new sample vector
+	  	if (pulse_start == true) {
 	  	
 	  		pulse_samples.push_back(*sampleIter); // add this sample to the vector for the pulse
 	  			
 	  		// End the (positive/negative) pulse if:
-	  		//  -- the 3-bin mean is less/greater than the pedestal
-	  		double mean = ( *(sampleIter) + *(sampleIter+1) + *(sampleIter+2) ) / 3;
-	  		if (island->IsPositive() == true) {
-	  			if ( (mean < pedestal) ) {
-	  				pulse_found = false; // no longer have a pulse
-	  				
-	  				// Create the TSimpleSiPulse and add it to the vector of pulses
-	  				TOctalFADCIsland* octal_pulse = new TOctalFADCIsland(pulse_timestamp, pulse_samples);
-					TSimpleSiPulse* pulse = new TSimpleSiPulse(octal_pulse, island->GetPedestal()); 
-	  				pulses.push_back(pulse);
-	  			}
+	  		//  -- if the next bin is 0 (we'll be at the end of the island and it will mess up the mean)
+	  		//  -- or the 3-bin mean is less/greater than the pedestal
+	  		
+	  		if ( *(sampleIter+1) == 0 || sampleIter == theSamples.end()-1) {
+	  			pulse_start = false;
+	  			pulse_finish = true;
 	  		}
 	  		else {
-	  			if ( (mean > pedestal) ) {
-	  				pulse_found = false; // no longer have a pulse
-	  				
-	  				// Create the TSimpleSiPulse and add it to the vector of pulses
-	  				TOctalFADCIsland* octal_pulse = new TOctalFADCIsland(pulse_timestamp, pulse_samples);
-					TSimpleSiPulse* pulse = new TSimpleSiPulse(octal_pulse, island->GetPedestal()); 
-	  				pulses.push_back(pulse);
-	  				pulse_samples.clear();
-	  			}
-	  		}
+		  		double mean = ( *(sampleIter) + *(sampleIter+1) + *(sampleIter+2) ) / 3;
+		  		if (island->IsPositive() == true) {
+		  			if ( (mean < (pedestal - island->GetRMSNoise()) ) ) {
+		  				pulse_start = false; // no longer have a pulse
+	  					pulse_finish = true;
+		  			}
+		  		}
+		  		else {
+		  			if ( (mean > (pedestal + island->GetRMSNoise()) ) ) {
+		  				pulse_start = false; // no longer have a pulse
+	  					pulse_finish = true;
+		  			}
+		  		}
+		  	}
 	  	}
+	  	
+	  	if (pulse_finish == true) {
+	  	
+	  		// If there's only one sample then there's something wrong and it's not a pulse
+	  		if (pulse_samples.size() > 1) {
+	  			// Create the TSimpleSiPulse and add it to the vector of pulses
+		  		TOctalFADCIsland* octal_pulse = new TOctalFADCIsland(pulse_timestamp, pulse_samples);
+				TSimpleSiPulse* pulse = new TSimpleSiPulse(octal_pulse, island->GetPedestal()); 
+		  		pulses.push_back(pulse);
+		  		pulse_samples.clear();
+		  		pulse_finish = false;
+		  	}
+		  	else {
+		  		pulse_samples.clear();
+		  		pulse_finish = false;
+		  	}
+		}
 	}
 	
 	return pulses;
