@@ -42,8 +42,10 @@ TSimpleSiPulse::TSimpleSiPulse(TOctalFADCIsland *island, std::string detname,
 	else
 		fIsPositive = false;
 	
-	if (detname.find("Slow") != std::string::npos)
+	if (detname.find("Slow") != std::string::npos) {
 		fIsSlowPulse = true;
+		fSlowPulseFit = NULL;
+	}
 	else
 		fIsSlowPulse = false;
 }
@@ -73,8 +75,10 @@ TSimpleSiPulse::TSimpleSiPulse(TOctalFADCIsland *island, std::string detname, do
 	else
 		fIsPositive = false;
 	
-	if (detname.find("Slow") != std::string::npos)
+	if (detname.find("Slow") != std::string::npos) {
 		fIsSlowPulse = true;
+		fSlowPulseFit = NULL;
+	}
 	else
 		fIsSlowPulse = false;
 	
@@ -120,14 +124,26 @@ TH1I * TSimpleSiPulse::GetWaveform(std::string histname)
 double TSimpleSiPulse::GetPulseHeight() {
 
 	double pulseheight;
-	if (fIsPositive)
-	{
-		pulseheight = GetMax() - fPedestal;
+	
+	if (fIsSlowPulse && fSlowPulseFit != NULL) {
+		// If it's a slow pulse get the pulse height from the fit
+		if (fIsPositive) {
+			pulseheight = fSlowPulseFit->GetMaximum() - fPedestal;
+		}
+		else {
+			pulseheight = fPedestal - fSlowPulseFit->GetMinimum();
+		}
 	}
-	else
-	{
-		TSimpleSiPulse *invertedPulse = this->Invert();
-		pulseheight = invertedPulse->GetMax() - invertedPulse->GetPedestal();
+	else {
+		if (fIsPositive)
+		{
+			pulseheight = GetMax() - fPedestal;
+		}
+		else
+		{
+			TSimpleSiPulse *invertedPulse = this->Invert();
+			pulseheight = invertedPulse->GetMax() - invertedPulse->GetPedestal();
+		}
 	}
 	
 	return pulseheight;			
@@ -135,5 +151,19 @@ double TSimpleSiPulse::GetPulseHeight() {
 
 double TSimpleSiPulse::GetPulseTime() {
 	
-	return GetMaxBinTime();
+	double pulsetime;
+	
+	if (fIsSlowPulse && fSlowPulseFit != NULL) {
+	
+		if (fIsPositive) {
+			pulsetime = fSlowPulseFit->GetMaximumX();
+		}
+		else {
+			pulsetime = fSlowPulseFit->GetMinimumX();
+		}
+	}
+	else
+		pulsetime = GetMaxBinTime();
+		
+	return pulsetime;
 }

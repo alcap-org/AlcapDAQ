@@ -124,6 +124,8 @@ INT MSiPulseFitter(EVENT_HEADER *pheader, void *pevent)
         		gaussian->SetLineColor(kRed);
         		gaussian->SetLineWidth(2);
         		hPulse->Fit("gaus", "QR");
+        		
+        		(*siPulse)->SetSlowPulseFit(gaussian);
 			}
 		}
 	}
