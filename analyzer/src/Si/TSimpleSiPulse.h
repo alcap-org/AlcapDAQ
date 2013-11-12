@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include "TF1.h"
+
 class TOctalFADCIsland;
 class TH1I;
 
@@ -22,13 +24,17 @@ class TSimpleSiPulse : public TOctalFADCIsland
 		bool fIsPositive;
 		unsigned int fNPedSamples;
 		
+		TH1I* fWaveform;
+		
 		bool fIsSlowPulse;
+		TF1* fSlowPulseFit;
 		
 	public:
 		double GetPedestal(){return fPedestal;}
 		double GetThreshold() {return fThreshold;}
 		double GetRMSNoise() {return fRMSNoise;}
 		bool IsPositive() {return fIsPositive;};
+		bool IsSlowPulse() {return fIsSlowPulse;}
 		void PrintInfo();
 
 		TSimpleSiPulse * Invert();

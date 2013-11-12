@@ -1,9 +1,10 @@
 FADC/MOctalFADCProcessRaw
 
 Si/MSiPulseFinder
+Si/MSiWaveform
+Si/MSiPulseFitter
 Si/MSiPulseHeight
 Si/MSiPulseTime
-Si/MSiWaveform
 
 Ge/MGePulseFinder
 Ge/MGePulseHeight

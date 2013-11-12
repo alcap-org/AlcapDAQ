@@ -29,6 +29,8 @@ TSimpleSiPulse::TSimpleSiPulse(TOctalFADCIsland *island, std::string detname,
 	}
 	fRMSNoise = sqrt(dev2/(fNPedSamples - 1));
 	fThreshold = 5*fRMSNoise;
+	
+	fWaveform = NULL;
 
 	double weight = 0;
 	for (unsigned int i = 0; i < fData.size(); ++i)
@@ -39,6 +41,11 @@ TSimpleSiPulse::TSimpleSiPulse(TOctalFADCIsland *island, std::string detname,
 		fIsPositive = true;
 	else
 		fIsPositive = false;
+	
+	if (detname.find("Slow") != std::string::npos)
+		fIsSlowPulse = true;
+	else
+		fIsSlowPulse = false;
 }
 
 // Use this constructor if you are getting pulses from an island since
@@ -53,6 +60,8 @@ TSimpleSiPulse::TSimpleSiPulse(TOctalFADCIsland *island, std::string detname, do
 	fNPedSamples = 0;
 	fRMSNoise = 0;
 	fThreshold = 0;
+	
+	fWaveform = NULL;
 
 	double weight = 0;
 	for (unsigned int i = 0; i < fData.size(); ++i)
@@ -63,6 +72,12 @@ TSimpleSiPulse::TSimpleSiPulse(TOctalFADCIsland *island, std::string detname, do
 		fIsPositive = true;
 	else
 		fIsPositive = false;
+	
+	if (detname.find("Slow") != std::string::npos)
+		fIsSlowPulse = true;
+	else
+		fIsSlowPulse = false;
+	
 }
 
 void TSimpleSiPulse::PrintInfo()
@@ -86,17 +101,20 @@ TSimpleSiPulse *TSimpleSiPulse::Invert()
 
 TH1I * TSimpleSiPulse::GetWaveform(std::string histname)
 {
-	TH1I *h = new TH1I(histname.c_str(),histname.c_str(),100,GetTime(),GetTime()+100);
-	h->SetBit(TH1::kCanRebin);
-	for (unsigned int i = 0; i < fData.size(); ++i)
-	{
-		h->Fill(GetTime()+i,fData.at(i));
+	if (fWaveform == NULL) {
+	
+		fWaveform = new TH1I(histname.c_str(),histname.c_str(),GetNSamples(),GetTime(),GetTime()+GetNSamples());
+		fWaveform->SetBit(TH1::kCanRebin);
+		for (unsigned int i = 0; i < fData.size(); ++i)
+		{
+			fWaveform->Fill(GetTime()+i,fData.at(i));
+		}
+	
+		fWaveform->GetXaxis()->SetTitle("clock ticks");
+		fWaveform->GetYaxis()->SetTitle("ADC value");
 	}
 	
-	h->GetXaxis()->SetTitle("clock ticks");
-	h->GetYaxis()->SetTitle("ADC value");
-	
-	return h;
+	return fWaveform;
 }
 
 double TSimpleSiPulse::GetPulseHeight() {
