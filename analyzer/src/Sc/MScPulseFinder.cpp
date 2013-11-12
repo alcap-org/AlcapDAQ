@@ -101,7 +101,7 @@ INT MScPulseFinder(EVENT_HEADER *pheader, void *pevent)
 		simpleScMapIter++) {
     
     	vector<TSimpleScPulse*>& pulses = simpleScMapIter->second;
-    	// Delete the pointers to TSiSimplePulses, then clear the vector
+    	// Delete the pointers to TScSimplePulses, then clear the vector
     	for(unsigned int j=0; j<pulses.size(); j++) {
       	if(pulses[j]) { delete pulses[j]; pulses[j] = NULL; }
     	}
@@ -119,8 +119,8 @@ INT MScPulseFinder(EVENT_HEADER *pheader, void *pevent)
   	   std::vector<TOctalFADCIsland*> theOctalFADCIslands = (*bankReaderIter)->GetIslandVectorCopy();
   	   std::string bankname = (*bankReaderIter)->GetBankName();
   	   
-  	   // Have a vector ready for all the simple_sc_pulses
-  	   vector<TSimpleScPulse*> simple_sc_pulses;
+  	   // Have a vector ready for all the simple_si_pulses
+  	   vector<TSimpleScPulse*> simple_si_pulses;
   	   
   	   // Loop over the islands
   	   for (std::vector<TOctalFADCIsland*>::iterator octalFADCIslandIter = theOctalFADCIslands.begin();
@@ -128,27 +128,27 @@ INT MScPulseFinder(EVENT_HEADER *pheader, void *pevent)
   	   		
   	   		// Create a TSimpleScPulse for the island
   	   		unsigned int nped = 10;
-  	   		TSimpleScPulse* simple_sc_island = new TSimpleScPulse((*octalFADCIslandIter), nped);
+  	   		TSimpleScPulse* simple_si_island = new TSimpleScPulse((*octalFADCIslandIter), nped);
     		
     		// Find all the pulses in this island
-  	   		vector<TSimpleScPulse*> simple_sc_pulses_on_island = GetPulsesFromIsland(simple_sc_island);
+  	   		vector<TSimpleScPulse*> simple_si_pulses_on_island = GetPulsesFromIsland(simple_si_island);
   	   		
   	   		// Create a bank and island name "bank" to store the number of sub pulses
   	   		std::stringstream bankislandname;
   	   		bankislandname << bankname << (octalFADCIslandIter - theOctalFADCIslands.begin() + 1);
-  	   		theNSubScPulseMap.insert(std::pair<string, int>(bankislandname.str(), simple_sc_pulses_on_island.size())); // set the number of sub pulses on the island
+  	   		theNSubScPulseMap.insert(std::pair<string, int>(bankislandname.str(), simple_si_pulses_on_island.size())); // set the number of sub pulses on the island
   	   		
   	   		// Loop through and add the pulses to the main pulses vector
-  	   		for (std::vector<TSimpleScPulse*>::iterator iter = simple_sc_pulses_on_island.begin(); 
-  	   				iter != simple_sc_pulses_on_island.end(); iter++) {
+  	   		for (std::vector<TSimpleScPulse*>::iterator iter = simple_si_pulses_on_island.begin(); 
+  	   				iter != simple_si_pulses_on_island.end(); iter++) {
   	   		
-  	   			simple_sc_pulses.push_back(*iter);
+  	   			simple_si_pulses.push_back(*iter);
   	   		}
   	   		
   	   }
   	   
   	   // Create a new "bank" to store the pulses that are on that island
-       std::pair<std::string, std::vector<TSimpleScPulse*> > thePair (bankname, simple_sc_pulses);
+       std::pair<std::string, std::vector<TSimpleScPulse*> > thePair (bankname, simple_si_pulses);
        theSimpleScPulseMap.insert(thePair);
   	   
   }
@@ -171,62 +171,83 @@ vector<TSimpleScPulse*> GetPulsesFromIsland(TSimpleScPulse* island) {
 	double threshold = island->GetThreshold();
 	
 	// Loop through the samples
-	bool pulse_found = false; // haven't found a pulse yet
+	bool pulse_start = false; // haven't started a pulse yet
+	bool pulse_finish = false; // haven't finihsed a pulse yet
 	int pulse_timestamp = 0;
 	std::vector<int> pulse_samples;
 	
 	// NB end an element before the end so that the iterator isn't inspecting some random bit of memory
-	for (std::vector<int>::iterator	 sampleIter = theSamples.begin(); sampleIter != theSamples.end()-1; sampleIter++) {
+	for (std::vector<int>::iterator	 sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
+	
+		// If we get to the samples with value 0 we are at the end of the island and should exit the loop
+		if ( (*sampleIter) == 0)
+			break;
 	    
 	    // Start (positive/negative) pulse if:
 	    //  - the current sample is greater/less than the pedestal
 	    //  - the next sample is greater/less then the threshold
 	    //  - we haven't already started a pulse
 	    if (island->IsPositive() == true) {
-	  		if ( *(sampleIter) > pedestal && *(sampleIter+1) > pedestal + threshold && pulse_found == false) {
+	  		if ( *(sampleIter) > pedestal && *(sampleIter+1) > (pedestal + threshold) && pulse_start == false) {
 	  	
 	  			pulse_timestamp = island->GetTime() + (sampleIter - theSamples.begin());
-	  			pulse_found = true;
+	  			pulse_start = true;
 	  		}
 	  	}
 	  	else {
-	  		if ( *(sampleIter) < pedestal && *(sampleIter+1) < pedestal - threshold && pulse_found == false) {
+	  		if ( *(sampleIter) < pedestal && *(sampleIter+1) < (pedestal - threshold) && pulse_start == false) {
 	  	
 	  			pulse_timestamp = island->GetTime() + (sampleIter - theSamples.begin());
-	  			pulse_found = true;
+	  			pulse_start = true;
 	  		}
 	  	}
 	  		
-	  	// If a pulse has been found fill a new sample vector
-	  	if (pulse_found == true) {
+	  	// If a pulse has been started, fill a new sample vector
+	  	if (pulse_start == true) {
 	  	
 	  		pulse_samples.push_back(*sampleIter); // add this sample to the vector for the pulse
 	  			
 	  		// End the (positive/negative) pulse if:
-	  		//  -- the 3-bin mean is less/greater than the pedestal
-	  		double mean = ( *(sampleIter) + *(sampleIter+1) + *(sampleIter+2) ) / 3;
-	  		if (island->IsPositive() == true) {
-	  			if ( (mean < pedestal) ) {
-	  				pulse_found = false; // no lonscr have a pulse
-	  				
-	  				// Create the TSimpleScPulse and add it to the vector of pulses
-	  				TOctalFADCIsland* octal_pulse = new TOctalFADCIsland(pulse_timestamp, pulse_samples);
-					TSimpleScPulse* pulse = new TSimpleScPulse(octal_pulse, island->GetPedestal()); 
-	  				pulses.push_back(pulse);
-	  			}
+	  		//  -- if the next bin is 0 (we'll be at the end of the island and it will mess up the mean)
+	  		//  -- or the 3-bin mean is less/greater than the pedestal
+	  		
+	  		if ( *(sampleIter+1) == 0 || sampleIter == theSamples.end()-1) {
+	  			pulse_start = false;
+	  			pulse_finish = true;
 	  		}
 	  		else {
-	  			if ( (mean > pedestal) ) {
-	  				pulse_found = false; // no lonscr have a pulse
-	  				
-	  				// Create the TSimpleScPulse and add it to the vector of pulses
-	  				TOctalFADCIsland* octal_pulse = new TOctalFADCIsland(pulse_timestamp, pulse_samples);
-					TSimpleScPulse* pulse = new TSimpleScPulse(octal_pulse, island->GetPedestal()); 
-	  				pulses.push_back(pulse);
-	  				pulse_samples.clear();
-	  			}
-	  		}
+		  		double mean = ( *(sampleIter) + *(sampleIter+1) + *(sampleIter+2) ) / 3;
+		  		if (island->IsPositive() == true) {
+		  			if ( (mean < (pedestal - island->GetRMSNoise()) ) ) {
+		  				pulse_start = false; // no longer have a pulse
+	  					pulse_finish = true;
+		  			}
+		  		}
+		  		else {
+		  			if ( (mean > (pedestal + island->GetRMSNoise()) ) ) {
+		  				pulse_start = false; // no longer have a pulse
+	  					pulse_finish = true;
+		  			}
+		  		}
+		  	}
 	  	}
+	  	
+	  	if (pulse_finish == true) {
+	  	
+	  		// If there's only one sample then there's something wrong and it's not a pulse
+	  		if (pulse_samples.size() > 1) {
+	  			// Create the TSimpleScPulse and add it to the vector of pulses
+		  		TOctalFADCIsland* octal_pulse = new TOctalFADCIsland(pulse_timestamp, pulse_samples);
+				TSimpleScPulse* pulse = new TSimpleScPulse(octal_pulse, island->GetPedestal()); 
+		  		pulses.push_back(pulse);
+		  		pulse_samples.clear();
+		  		pulse_finish = false;
+		  	}
+		  	else {
+		  		pulse_samples.clear();
+		  		pulse_finish = false;
+		  	}
+		}
 	}
 	
 	return pulses;

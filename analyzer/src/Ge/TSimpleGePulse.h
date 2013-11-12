@@ -25,6 +25,7 @@ class TSimpleGePulse : public TOctalFADCIsland
 	public:
 		double GetPedestal(){return fPedestal;}
 		double GetThreshold() {return fThreshold;}
+		double GetRMSNoise() {return fRMSNoise;}
 		bool IsPositive() {return fIsPositive;};
 		void PrintInfo();
 
