@@ -136,7 +136,7 @@ INT MSiWaveform(EVENT_HEADER *pheader, void *pevent)
 			if (detname.substr(0,2) != "Si")
 				continue;
 				
-			TSimpleSiPulse *siPulse = new TSimpleSiPulse(*octalFADCIslandIter);
+			TSimpleSiPulse *siPulse = new TSimpleSiPulse(*octalFADCIslandIter, detname);
 
 			double pulseheight;
 			if (siPulse->IsPositive())

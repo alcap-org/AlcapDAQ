@@ -29,6 +29,7 @@
 #include "TOctalFADCBankReader.h"
 #include "TGlobalData.h"
 #include "TSimpleSiPulse.h"
+#include "DetectorMap.h"
 
 using std::string;
 using std::map;
@@ -41,7 +42,7 @@ INT  MSiPulseFinder(EVENT_HEADER*, void*);
 vector<string> GetAllFADCBankNames();
 double GetClockTickForChannel(string bank_name);
 
-vector<TSimpleSiPulse*> GetPulsesFromIsland(TSimpleSiPulse* island);
+vector<TSimpleSiPulse*> GetPulsesFromIsland(TSimpleSiPulse* island, string bankname);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -128,10 +129,10 @@ INT MSiPulseFinder(EVENT_HEADER *pheader, void *pevent)
   	   		
   	   		// Create a TSimpleSiPulse for the island
   	   		unsigned int nped = 10;
-  	   		TSimpleSiPulse* simple_si_island = new TSimpleSiPulse((*octalFADCIslandIter), nped);
+  	   		TSimpleSiPulse* simple_si_island = new TSimpleSiPulse((*octalFADCIslandIter), ChannelToDetectorMap[bankname], nped);
     		
     		// Find all the pulses in this island
-  	   		vector<TSimpleSiPulse*> simple_si_pulses_on_island = GetPulsesFromIsland(simple_si_island);
+  	   		vector<TSimpleSiPulse*> simple_si_pulses_on_island = GetPulsesFromIsland(simple_si_island, bankname);
   	   		
   	   		// Create a bank and island name "bank" to store the number of sub pulses
   	   		std::stringstream bankislandname;
@@ -158,7 +159,7 @@ INT MSiPulseFinder(EVENT_HEADER *pheader, void *pevent)
 
 // GetPulsesFromIsland()
 // -- Finds all the pulses on the island and returns them as a vector
-vector<TSimpleSiPulse*> GetPulsesFromIsland(TSimpleSiPulse* island) {
+vector<TSimpleSiPulse*> GetPulsesFromIsland(TSimpleSiPulse* island, string bankname) {
 	
 	// The vector of pulses that we will return
 	std::vector<TSimpleSiPulse*> pulses;
@@ -238,7 +239,7 @@ vector<TSimpleSiPulse*> GetPulsesFromIsland(TSimpleSiPulse* island) {
 	  		if (pulse_samples.size() > 1) {
 	  			// Create the TSimpleSiPulse and add it to the vector of pulses
 		  		TOctalFADCIsland* octal_pulse = new TOctalFADCIsland(pulse_timestamp, pulse_samples);
-				TSimpleSiPulse* pulse = new TSimpleSiPulse(octal_pulse, island->GetPedestal()); 
+				TSimpleSiPulse* pulse = new TSimpleSiPulse(octal_pulse, ChannelToDetectorMap[bankname], island->GetPedestal()); 
 		  		pulses.push_back(pulse);
 		  		pulse_samples.clear();
 		  		pulse_finish = false;

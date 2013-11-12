@@ -10,8 +10,7 @@ class TH1I;
 class TSimpleSiPulse : public TOctalFADCIsland 
 {
 	public:
-		TSimpleSiPulse(TOctalFADCIsland *island, unsigned int nped = 7);
-		TSimpleSiPulse(TOctalFADCIsland *island, double pedestal);
+		TSimpleSiPulse(TOctalFADCIsland *island, std::string detname, double pedestal);
 		~TSimpleSiPulse();
 		TSimpleSiPulse(TOctalFADCIsland *island, std::string detname, 
 				unsigned int nped = 7);
@@ -22,6 +21,9 @@ class TSimpleSiPulse : public TOctalFADCIsland
 		double fThreshold;
 		bool fIsPositive;
 		unsigned int fNPedSamples;
+		
+		bool fIsSlowPulse;
+		
 	public:
 		double GetPedestal(){return fPedestal;}
 		double GetThreshold() {return fThreshold;}
