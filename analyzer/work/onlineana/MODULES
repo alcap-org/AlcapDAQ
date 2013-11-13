@@ -1,8 +1,19 @@
 FADC/MOctalFADCProcessRaw
-common/MTreeOutput
 
 Si/MSiPulseFinder
-Si/MSiPulseHeight
-Si/MSiPulseTime
 Si/MSiWaveform
 Si/MSiPulseFitter
+Si/MSiPulseHeight
+Si/MSiPulseTime
+
+Ge/MGePulseFinder
+Ge/MGePulseHeight
+Ge/MGePulseTime
+Ge/MGeWaveform
+
+Sc/MScPulseFinder
+Sc/MScPulseHeight
+Sc/MScPulseTime
+Sc/MScWaveform
+
+common/MTreeOutput
