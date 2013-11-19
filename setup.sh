@@ -25,7 +25,7 @@ fi
 export PATH=$MIDASSYS/linux$arch/bin:$PATH
 export LD_LIBRARY_PATH=$MIDASSYS/linux$arch/lib:$PWD/compress:$LD_LIBRARY_PATH
 
-cd compress && make && cd -
+#cd compress && make && cd -
 
 cd CAEN && mkdir -p lib && ./link.sh && cd -
 

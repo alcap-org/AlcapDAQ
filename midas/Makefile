@@ -374,7 +374,7 @@ endif
 #
 ifeq ($(OSTYPE),Linux)
 OSTYPE = linux
-ifeq ($(shell uname -p),x86_64)
+ifeq ($(shell uname -m),x86_64)
   OSTYPE = linux64
 endif
 endif
