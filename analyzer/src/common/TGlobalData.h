@@ -16,12 +16,6 @@ class TGlobalData : public TObject{
   std::map<std::string, std::vector<TPulseIsland*> >
     fPulseIslandToChannelMap;
 
-  // Map of bank names to detector names
-  std::map<std::string, std::string> fBankToDetectorMap;
-
-  //std::string GetBankName(std::string DetectorName){ };
-  //std::string GetDetectorName(std::string BankName){ };
-
   ClassDef(TGlobalData, 2)
 };
 #endif

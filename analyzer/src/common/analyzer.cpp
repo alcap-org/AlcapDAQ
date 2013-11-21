@@ -34,6 +34,7 @@ PAWC_DEFINE(1000000);
 
 /* AlCap includes */
 #include "TGlobalData.h"
+#include "TSetupData.h"
 
 /*-- Globals -------------------------------------------------------*/
 
@@ -50,8 +51,9 @@ INT  odb_size = DEFAULT_ODB_SIZE;
  * downstream modules
  */
 TGlobalData* gData;
+TSetupData* gSetup;
 
-void UpdateDetectorBankNameMap(TGlobalData *gData);
+void UpdateDetectorBankNameMap(TSetupData *gSetup);
 
 /*-- Module declarations -------------------------------------------*/
 
@@ -114,7 +116,8 @@ INT analyzer_init()
   // Initialize gData
   gData = new TGlobalData();
 
-  UpdateDetectorBankNameMap(gData);
+  // Initialize gSetup
+  gSetup = new TSetupData();
 
   // Override ROOT's handling of signals
   signal(SIGHUP , catastrophe);
@@ -140,6 +143,11 @@ INT analyzer_exit()
     gData = NULL;
   }
 
+  if(gSetup) {
+    delete gSetup;
+    gSetup = NULL;
+  }
+
   return CM_SUCCESS;
 }
 
@@ -147,6 +155,8 @@ INT analyzer_exit()
 
 INT ana_begin_of_run(INT run_number, char *error)
 {
+  UpdateDetectorBankNameMap(gSetup);
+
   printf("Analyzer saw beginning of run %d\n", run_number);
   return CM_SUCCESS;
 }
@@ -183,7 +193,7 @@ INT analyzer_loop()
 /*------------------------------------------------------------------*/
 //}
 
-void UpdateDetectorBankNameMap(TGlobalData *gData){
+void UpdateDetectorBankNameMap(TSetupData *gSetup){
   // Want to go through the /Analyzer/WireMap and map detector names and 
   HNDLE hDB, hKey;
   char keyName[200];
@@ -237,7 +247,7 @@ void UpdateDetectorBankNameMap(TGlobalData *gData){
     if(strcmp(DetectorNames[i], "") == 0) printf("Warning: No detector name associated with this bank %s!\n", BankNames[i]);
     
     std::string bank(BankNames[i]), detector(DetectorNames[i]);
-    gData->fBankToDetectorMap.insert(std::pair<std::string, std::string>(bank, detector));
+    gSetup->fBankToDetectorMap.insert(std::pair<std::string, std::string>(bank, detector));
   }
   
 }

@@ -22,6 +22,7 @@
 
 /* AlCap includes */
 #include "TGlobalData.h"
+#include "TSetupData.h"
 
 /*-- Module declaration --------------------------------------------*/
 
@@ -31,11 +32,14 @@ INT  MTreeOutput(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
+extern TSetupData* gSetup;
 extern char *gMiasTreeOutputFileName;
 
 static TFile *fTreeFile = NULL;
 static TTree *fEventTree = NULL;
 static TBranch *fEventBranch = NULL;
+static TTree *fSetupTree = NULL;
+static TBranch *fSetupBranch = NULL;
 
 ANA_MODULE MTreeOutput_module =
 {
@@ -77,6 +81,16 @@ INT MTreeOutput_init()
   fEventBranch = fEventTree->Branch("Event", "TGlobalData", &gData, bufsize, split);
   fEventBranch->SetAutoDelete(kFALSE);
 
+  // The TTree with the setup information
+  fSetupTree = new TTree("SetupTree","All setup information");
+  fSetupTree->SetAutoSave(300000000); // autosave when 300 Mbyte written.
+  fSetupTree->SetMaxVirtualSize(300000000); // 300 Mbyte
+
+  fSetupBranch = fSetupTree->Branch("Setup", "TSetupData", &gSetup, bufsize, split);
+  fSetupBranch->SetAutoDelete(kFALSE);
+  
+  fSetupTree->Fill();
+  
   return SUCCESS;
 }
 
