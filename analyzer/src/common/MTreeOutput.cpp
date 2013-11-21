@@ -21,7 +21,6 @@
 #include <TBranch.h>
 
 /* AlCap includes */
-#include "TOctalFADCIsland.h"
 #include "TGlobalData.h"
 
 /*-- Module declaration --------------------------------------------*/

@@ -27,7 +27,6 @@
 /* AlCap includes */
 #include "TOctalFADCIsland.h"
 #include "TOctalFADCBankReader.h"
-#include "TGlobalData.h"
 #include "TSimpleSiPulse.h"
 #include "DetectorMap.h"
 
@@ -45,7 +44,6 @@ double GetClockTickForChannel(string bank_name);
 vector<TSimpleSiPulse*> GetPulsesFromIsland(TSimpleSiPulse* island, string bankname);
 
 extern HNDLE hDB;
-extern TGlobalData* gData;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
 map<string, int> theNSubSiPulseMap;
@@ -83,19 +81,6 @@ INT MSiPulseFinder_init()
   */
 INT MSiPulseFinder(EVENT_HEADER *pheader, void *pevent)
 {
-  // Get the event number
-  int midas_event_number = pheader->serial_number;
-
-  // Some typedefs
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
-
-  // Fetch a reference to the gData structure that stores a map
-  // of (bank_name, vector<TPulseIsland*>) pairs
-  TStringPulseIslandMap& pulse_islands_map =
-    gData->fPulseIslandToChannelMap;
-  
   // Clear the pulses from theSimpleSiPulseMap
   for (std::map<string, vector<TSimpleSiPulse*> >::iterator simpleSiMapIter = theSimpleSiPulseMap.begin();
 		simpleSiMapIter != theSimpleSiPulseMap.end(); 

@@ -51,7 +51,8 @@ OBJECTS := $(notdir $(patsubst %.cpp,%.o,$(OBJECTS)))
 	$(CXX) -MM $(CXXFLAGS) $< > $(notdir $(patsubst %.cpp,%.d,$<))
 
 rootana: $(OBJECTS)
-	$(CXX) $(ICCFLAGS) $(ROOT_LIBS) -o rootana $(OBJECTS) ../work/$(USER)/libDataClasses.so
+#	$(CXX) $(ICCFLAGS) $(ROOT_LIBS) -o rootana $(OBJECTS) ../work/grange/libDataClasses.so
+	$(CXX) $(ICCFLAGS) -Wl,--no-as-needed -o rootana $(OBJECTS) $(ROOT_LIBS) ../work/$(USER)/libDataClasses.so
 
 clean: 
 	rm -f *.d *.o *Dict.cpp *Dict.h blank rootana

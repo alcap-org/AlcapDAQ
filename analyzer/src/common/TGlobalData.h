@@ -14,11 +14,15 @@
 class TGlobalData : public TObject{
  public:
   // Map of bank names to vectors of islands.
-  // Elements are of the type
-  //   std::pair<std::string, std::vector<TPulseIsland*> >
   std::map<std::string, std::vector<TPulseIsland*> >
     fPulseIslandToChannelMap;
 
-  ClassDef(TGlobalData, 1)
+  // Map of bank names to detector names
+  std::map<std::string, std::string> fBankToDetectorMap;
+
+  //std::string GetBankName(std::string DetectorName){ };
+  //std::string GetDetectorName(std::string BankName){ };
+
+  ClassDef(TGlobalData, 2)
 };
 #endif

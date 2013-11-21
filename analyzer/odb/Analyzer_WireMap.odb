@@ -1,37 +1,37 @@
 [/Analyzer/WireMap]
 BankName = STRING[48] :
-[5] Na80
-[5] Nb80
-[5] Nc80
-[5] Nd80
-[5] Ne80
-[5] Nf80
-[5] Ng80
-[5] Nh80
-[5] Nac0
-[5] Nbc0
-[5] Ncc0
-[5] Ndc0
-[5] Nec0
-[5] Nfc0
-[5] Ngc0
-[5] Nhc0
-[5] Nae0
-[5] Nbe0
-[5] Nce0
-[5] Nde0
-[5] Nee0
-[5] Nfe0
-[5] Nge0
-[5] Nhe0
-[5] Naf0
-[5] Nbf0
-[5] Ncf0
-[5] Ndf0
-[5] Nef0
-[5] Nff0
-[5] Ngf0
-[5] Nhf0
+[5] na80
+[5] nb80
+[5] nc80
+[5] nd80
+[5] ne80
+[5] nf80
+[5] ng80
+[5] nh80
+[5] nac0
+[5] nbc0
+[5] ncc0
+[5] ndc0
+[5] nec0
+[5] nfc0
+[5] ngc0
+[5] nhc0
+[5] nae0
+[5] nbe0
+[5] nce0
+[5] nde0
+[5] nee0
+[5] nfe0
+[5] nge0
+[5] nhe0
+[5] naf0
+[5] nbf0
+[5] ncf0
+[5] ndf0
+[5] nef0
+[5] nff0
+[5] ngf0
+[5] nhf0
 [5] 
 [5] 
 [5] 
@@ -146,5 +146,4 @@ EquipmentName = STRING[48] :
 [80] 
 [80] 
 [80] 
-
 
