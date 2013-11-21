@@ -1,3 +1,12 @@
+# get OS type from shell
+OSTYPE = $(shell uname)
+ifeq ($(OSTYPE),Linux)
+OSTYPE = linux
+ifeq ($(shell uname -m),x86_64)
+  OSTYPE = linux64
+endif
+endif
+
 CC = gcc
 CXX = g++
 CXXFLAGS = -g -Wall -O3 -I/usr/include 
@@ -8,7 +17,7 @@ KERNEL_INCLUDE = -I /usr/src/kernels/$(KERNEL_VERSION)/include
 CXXFLAGS += $(KERNEL_INCLUDE)
 
 MIDAS_INCLUDE = -I $(MIDASSYS)/include
-MIDAS_LIB = $(MIDASSYS)/linux/lib/mfe.o -L $(MIDASSYS)/linux/lib -lmidas
+MIDAS_LIB = $(MIDASSYS)/$(OSTYPE)/lib/mfe.o -L $(MIDASSYS)/$(OSTYPE)/lib -lmidas
 CXX_LIBS += $(MIDAS_LIB)
 
 CXXFLAGS += $(MIDAS_INCLUDE) -DPART_OF_MUCAP -DDO_IOPERM
@@ -18,7 +27,7 @@ MODULES = crate.o rpc_master.o rpc_slave.o diag.o odb_wrapper.o
 MODULES += dt5720_module.o
 
 # CAEN
-CAEN_DIR = /home/daq/AlcapDAQ/CAEN
+CAEN_DIR = ../CAEN
 LDFLAGS += -L $(CAEN_DIR)/lib -lCAENDigitizer -lCAENComm -lCAENVME
 # CAEN_DIGITIZER library
 CXXFLAGS += -I $(CAEN_DIR)/CAENDigitizer/CAENDigitizer_2.3.2/include
