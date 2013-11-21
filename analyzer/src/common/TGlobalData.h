@@ -6,7 +6,6 @@
 #include <string>
 
 #include <TObject.h>
-
 #include "TPulseIsland.h"
 
 /** This class holds all of the data created by analysis modules.

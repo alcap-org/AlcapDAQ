@@ -51,6 +51,7 @@ INT  odb_size = DEFAULT_ODB_SIZE;
  */
 TGlobalData* gData;
 
+void UpdateDetectorBankNameMap(TGlobalData *gData);
 
 /*-- Module declarations -------------------------------------------*/
 
@@ -112,6 +113,8 @@ INT analyzer_init()
 {
   // Initialize gData
   gData = new TGlobalData();
+
+  UpdateDetectorBankNameMap(gData);
 
   // Override ROOT's handling of signals
   signal(SIGHUP , catastrophe);
@@ -179,3 +182,62 @@ INT analyzer_loop()
 
 /*------------------------------------------------------------------*/
 //}
+
+void UpdateDetectorBankNameMap(TGlobalData *gData){
+  // Want to go through the /Analyzer/WireMap and map detector names and 
+  HNDLE hDB, hKey;
+  char keyName[200];
+  
+  if(cm_get_experiment_database(&hDB, NULL) != CM_SUCCESS){
+    printf("Warning: Could not connect to ODB database!\n");
+    return;
+  }
+  
+  sprintf(keyName, "/Analyzer/WireMap/BankName");
+  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }
+  KEY bk_key;
+  if(db_get_key(hDB, hKey, &bk_key) != DB_SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }    
+  char BankNames[bk_key.num_values][bk_key.item_size];
+  int size = sizeof(BankNames);
+  if(db_get_value(hDB, 0, keyName , BankNames, &size, TID_STRING, 0) != DB_SUCCESS){
+    printf("Warning: Could not retrieve values for key %s\n", keyName);
+    return;
+  }
+  
+  sprintf(keyName, "/Analyzer/WireMap/DetectorName");
+  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }  
+  KEY det_key;
+  if(db_get_key(hDB, hKey, &det_key) != DB_SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }
+  char DetectorNames[det_key.num_values][det_key.item_size];
+  size = sizeof(DetectorNames);
+  if(db_get_value(hDB, 0, keyName , DetectorNames, &size, TID_STRING, 0) != DB_SUCCESS){
+    printf("Warning: Could not retrieve values for key %s\n", keyName);
+    return;
+  }
+  
+  if(det_key.num_values != bk_key.num_values){
+    printf("Warning: Key sizes are not equal for banks and detectors in /Analyzer/WireMap/\n");
+    return;
+  }
+  else printf("sizes are %d\n", det_key.num_values);
+  for(int i=0; i<det_key.num_values; i++){
+    if(strcmp(BankNames[i], "") == 0) continue;
+    if(strcmp(DetectorNames[i], "") == 0) printf("Warning: No detector name associated with this bank %s!\n", BankNames[i]);
+    
+    std::string bank(BankNames[i]), detector(DetectorNames[i]);
+    gData->fBankToDetectorMap.insert(std::pair<std::string, std::string>(bank, detector));
+  }
+  
+}
