@@ -1,8 +1,8 @@
-[/System/Clients/8133]
+[/System/Clients/29651]
 Name = STRING : [32] ODBEdit
 Host = STRING : [256] pcl11.hep.anl.gov
 Hardware type = INT : 44
-Server Port = INT : 50589
+Server Port = INT : 49693
 
 [/System]
 Client Notify = INT : 0
@@ -34,7 +34,7 @@ First failed = DWORD : 0
 Name = STRING : [32] Default
 
 [/Logger]
-Data dir = STRING : [256] /users/pdk/winterp/AlCap/daq/work/
+Data dir = STRING : [256] /users/pdk/winterp/AlCap/AlcapDAQ/analyzer/work/
 Message file = STRING : [256] midas.log
 
 [/Runinfo]
@@ -4902,30 +4902,30 @@ BankName = STRING[48] :
 [5] Nf80
 [5] Ng80
 [5] Nh80
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
-[5] 
+[5] Nac0
+[5] Nbc0
+[5] Ncc0
+[5] Ndc0
+[5] Nec0
+[5] Nfc0
+[5] Ngc0
+[5] Nhc0
+[5] Nae0
+[5] Nbe0
+[5] Nce0
+[5] Nde0
+[5] Nee0
+[5] Nfe0
+[5] Nge0
+[5] Nhe0
+[5] Naf0
+[5] Nbf0
+[5] Ncf0
+[5] Ndf0
+[5] Nef0
+[5] Nff0
+[5] Ngf0
+[5] Nhf0
 [5] 
 [5] 
 [5] 
@@ -4948,33 +4948,33 @@ ClockTick = FLOAT[48] :
 [2] 6.25
 [3] 6.25
 [4] 6.25
-[5] 6.25
-[6] 6.25
-[7] 6.25
-[8] 0
-[9] 0
-[10] 0
+[5] 0
+[6] 0
+[7] 0
+[8] 6.25
+[9] 6.25
+[10] 6.25
 [11] 0
-[12] 0
-[13] 0
-[14] 0
+[12] 6.25
+[13] 6.25
+[14] 6.25
 [15] 0
-[16] 0
-[17] 0
-[18] 0
-[19] 0
-[20] 0
-[21] 0
-[22] 0
-[23] 0
-[24] 0
-[25] 0
-[26] 0
-[27] 0
-[28] 0
-[29] 0
-[30] 0
-[31] 0
+[16] 6.25
+[17] 6.25
+[18] 6.25
+[19] 6.25
+[20] 6.25
+[21] 6.25
+[22] 6.25
+[23] 6.25
+[24] 6.25
+[25] 6.25
+[26] 6.25
+[27] 6.25
+[28] 6.25
+[29] 6.25
+[30] 6.25
+[31] 6.25
 [32] 0
 [33] 0
 [34] 0
@@ -4991,4 +4991,335 @@ ClockTick = FLOAT[48] :
 [45] 0
 [46] 0
 [47] 0
+DetectorName = STRING[48] :
+[80] muSc
+[80] muSc-A
+[80] ScL
+[80] ScR
+[80] ScGe
+[80] 
+[80] 
+[80] 
+[80] SiL2-slow
+[80] SiR2-slow
+[80] Ge-slow
+[80] 
+[80] SiL2-fast
+[80] SiR2-fast
+[80] Ge-fast
+[80] 
+[80] SiL1-1-fast
+[80] SiL1-2-fast
+[80] SiL1-3-fast
+[80] SiL1-4-fast
+[80] SiR1-1-fast
+[80] SiR1-2-fast
+[80] SiR1-3-fast
+[80] SiR1-4-fast
+[80] SiL1-1-slow
+[80] SiL1-2-slow
+[80] SiL1-3-slow
+[80] SiL1-4-slow
+[80] SiR1-1-slow
+[80] SiR1-2-slow
+[80] SiR1-3-slow
+[80] SiR1-4-slow
+[80] 
+[80] 
+[80] 
+[80] 
+[80] 
+[80] 
+[80] 
+[80] 
+[80] 
+[80] 
+[80] 
+[80] 
+[80] 
+[80] 
+[80] 
+[80] 
+
+[/Custom]
+DetectorBankMap = STRING : [====#$@$#====]
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (X11; U; Linux 2.0.34 i686)
+[Netscape]">
+   <title>custom midas page</title>
+</head>
+<body>
+
+<h1>
+<meta http-equiv="refresh" content="5" >
+<u>Custom webpage sandbox for AlCap</u></h1>
+
+<form name="form1" method="Get" action="/CS/DetectorBankMap">
+
+<input type=hidden name="redir" value="DetectorBankMap">
+
+<table border="6" width="640">
+<tr>
+<th align="center"><input name="cmd" value="Status" type="submit"></th>
+<th align="center"><input name="cmd" value="Start" type="submit"></th>
+<th align="center"><input name="cmd" value="Pause" type="submit"></th>
+<th align="center"><input name="cmd" value="Stop" type="submit"></th>
+<th align="center"><input name="cmd" value="ODB" type="submit"></th>
+<th align="center"><input name="cmd" value="Messages" type="submit"></th>
+</tr>
+<tr>
+<td colspan="2" align="center"> Equipment </td>
+<td colspan="2" align="center"> Clock tick </td>
+<td colspan="2" align="center"> Bank name </td>
+</tr>
+<tr><tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[0]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[0]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[0]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[1]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[1]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[1]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[2]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[2]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[2]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[3]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[3]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[3]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[4]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[4]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[4]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[5]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[5]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[5]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[6]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[6]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[6]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[7]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[7]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[7]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[8]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[8]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[8]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[9]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[9]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[9]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[10]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[10]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[10]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[11]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[11]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[11]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[12]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[12]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[12]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[13]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[13]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[13]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[14]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[14]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[14]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[15]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[15]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[15]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[16]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[16]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[16]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[17]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[17]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[17]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[18]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[18]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[18]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[19]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[19]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[19]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[20]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[20]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[20]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[21]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[21]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[21]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[22]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[22]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[22]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[23]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[23]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[23]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[24]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[24]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[24]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[25]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[25]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[25]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[26]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[26]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[26]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[27]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[27]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[27]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[28]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[28]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[28]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[29]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[29]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[29]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[30]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[30]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[30]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[31]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[31]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[31]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[32]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[32]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[32]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[33]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[33]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[33]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[34]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[34]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[34]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[35]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[35]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[35]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[36]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[36]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[36]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[37]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[37]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[37]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[38]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[38]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[38]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[39]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[39]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[39]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[40]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[40]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[40]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[41]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[41]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[41]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[42]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[42]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[42]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[43]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[43]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[43]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[44]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[44]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[44]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[45]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[45]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[45]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[46]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[46]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[46]" edit=1></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/DetectorName[47]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/ClockTick[47]" edit=1></td>
+<td colspan="2" align="center"><odb src="/Analyzer/WireMap/BankName[47]" edit=1></td>
+</tr>
+</table> 
+
+</body>
+</html>
+</form>
+
+====#$@$#====
 
