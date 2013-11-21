@@ -1,8 +1,14 @@
-[/System/Clients/29651]
+[/System/Clients/30178]
+Name = STRING : [32] mhttpd
+Host = STRING : [256] pcl11.hep.anl.gov
+Hardware type = INT : 44
+Server Port = INT : 53454
+
+[/System/Clients/30422]
 Name = STRING : [32] ODBEdit
 Host = STRING : [256] pcl11.hep.anl.gov
 Hardware type = INT : 44
-Server Port = INT : 49693
+Server Port = INT : 53270
 
 [/System]
 Client Notify = INT : 0
@@ -30,17 +36,29 @@ Auto restart = BOOL : n
 Alarm class = STRING : [32] 
 First failed = DWORD : 0
 
+[/Programs/mhttpd]
+Required = BOOL : n
+Watchdog timeout = INT : 10000
+Check interval = DWORD : 180000
+Start command = STRING : [256] 
+Auto start = BOOL : n
+Auto stop = BOOL : n
+Auto restart = BOOL : n
+Alarm class = STRING : [32] 
+First failed = DWORD : 0
+
 [/Experiment]
 Name = STRING : [32] Default
 
 [/Logger]
 Data dir = STRING : [256] /users/pdk/winterp/AlCap/AlcapDAQ/analyzer/work/
 Message file = STRING : [256] midas.log
+Auto restart = BOOL : y
 
 [/Runinfo]
 State = INT : 1
 Online Mode = INT : 0
-Run number = INT : 381
+Run number = INT : 419
 Transition in progress = INT : 0
 Requested transition = INT : 0
 Start time = STRING : [32] Tue Sep 09 15:04:42 1997
@@ -102,7 +120,7 @@ Display FGColor = STRING : [32] black
 [/Equipment/Crate 3/Settings]
 Enabled = BOOL : y
 Master = BOOL : y
-Diagnostic Print Level = INT : 2
+Diagnostic Print Level = INT : -1074740852
 
 [/Equipment/Crate 3/Settings/CAEN 1]
 enabled status = BOOL : y
@@ -678,7 +696,7 @@ a32 base address = DWORD : 138412032
 Pedestal = WORD : 30
 
 [/Equipment/Crate 3/Settings]
-Operator Message Level = INT : 0
+Operator Message Level = INT : -1074740852
 
 [/Equipment/Crate 3/Settings/COMP 1]
 enabled status = BOOL : n
@@ -2444,12 +2462,12 @@ Period = INT : 500
 Event limit = DOUBLE : 0
 Num subevents = DWORD : 0
 Log history = INT : 0
-Frontend host = STRING : [32] daq2.MuSIC
+Frontend host = STRING : [32] abner
 Frontend name = STRING : [32] Crate 3
 Frontend file name = STRING : [256] crate.cpp
 
 [/Equipment/Crate 3/Statistics]
-Events sent = DOUBLE : 201
+Events sent = DOUBLE : 60
 Events per sec. = DOUBLE : 0
 kBytes per sec. = DOUBLE : 0
 
@@ -4730,12 +4748,12 @@ Period = INT : 0
 Event limit = DOUBLE : 0
 Num subevents = DWORD : 0
 Log history = INT : 0
-Frontend host = STRING : [32] daq2.MuSIC
+Frontend host = STRING : [32] abner
 Frontend name = STRING : [32] Ebuilder
 Frontend file name = STRING : [256] ebuser.cpp
 
 [/Equipment/EB/Statistics]
-Events sent = DOUBLE : 201
+Events sent = DOUBLE : 60
 Events per sec. = DOUBLE : 0
 kBytes per sec. = DOUBLE : 0
 
@@ -4756,87 +4774,255 @@ Synchronous = BOOL : y
 
 [/Equipment/Crate 9/Settings/NFADC 80/Channel 7]
 LED Mode = INT : 4
-Lower threshold = INT : 3000
+Lower threshold = INT : 2500
 Upper threshold = INT : 4095
 Pulser period = INT : 5000000
-Trigger mask = INT : 1
+Trigger mask = INT : 0
 Presamples = INT : 3
-Stretch samples = INT : 20
+Stretch samples = INT : 1
 DCM phase = INT : 1
 
 [/Equipment/Crate 9/Settings/NFADC 80]
 Enabled = BOOL : y
-Interface = INT : 2
+Interface = INT : 1
 
 [/Equipment/Crate 9/Settings/NFADC 80/Channel 6]
 LED Mode = INT : 4
-Lower threshold = INT : 3000
+Lower threshold = INT : 2500
 Upper threshold = INT : 4095
 Pulser period = INT : 5000000
-Trigger mask = INT : 1
-Presamples = INT : 2
-Stretch samples = INT : 15
+Trigger mask = INT : 0
+Presamples = INT : 3
+Stretch samples = INT : 1
 DCM phase = INT : 1
 
 [/Equipment/Crate 9/Settings/NFADC 80/Channel 5]
 LED Mode = INT : 4
-Lower threshold = INT : 3000
+Lower threshold = INT : 2500
 Upper threshold = INT : 4095
 Pulser period = INT : 5000000
-Trigger mask = INT : 1
+Trigger mask = INT : 0
 Presamples = INT : 3
-Stretch samples = INT : 20
+Stretch samples = INT : 1
 DCM phase = INT : 1
 
 [/Equipment/Crate 9/Settings/NFADC 80/Channel 4]
 LED Mode = INT : 4
-Lower threshold = INT : 3000
+Lower threshold = INT : 2500
 Upper threshold = INT : 4095
 Pulser period = INT : 5000000
-Trigger mask = INT : 1
+Trigger mask = INT : 0
 Presamples = INT : 3
-Stretch samples = INT : 20
+Stretch samples = INT : 1
 DCM phase = INT : 1
 
 [/Equipment/Crate 9/Settings/NFADC 80/Channel 3]
 LED Mode = INT : 4
-Lower threshold = INT : 3000
+Lower threshold = INT : 2500
 Upper threshold = INT : 4095
 Pulser period = INT : 5000000
-Trigger mask = INT : 1
+Trigger mask = INT : 0
 Presamples = INT : 3
-Stretch samples = INT : 20
-DCM phase = INT : 10
+Stretch samples = INT : 1
+DCM phase = INT : 1
 
 [/Equipment/Crate 9/Settings/NFADC 80/Channel 2]
 LED Mode = INT : 4
-Lower threshold = INT : 3000
+Lower threshold = INT : 2500
 Upper threshold = INT : 4095
 Pulser period = INT : 5000000
-Trigger mask = INT : 1
+Trigger mask = INT : 0
 Presamples = INT : 3
-Stretch samples = INT : 20
-DCM phase = INT : 10
+Stretch samples = INT : 1
+DCM phase = INT : 1
 
 [/Equipment/Crate 9/Settings/NFADC 80/Channel 1]
 LED Mode = INT : 4
-Lower threshold = INT : 3000
+Lower threshold = INT : 2500
 Upper threshold = INT : 4095
 Pulser period = INT : 5000000
-Trigger mask = INT : 1
+Trigger mask = INT : 0
 Presamples = INT : 3
-Stretch samples = INT : 20
-DCM phase = INT : 10
+Stretch samples = INT : 1
+DCM phase = INT : 1
 
 [/Equipment/Crate 9/Settings/NFADC 80/Channel 0]
 LED Mode = INT : 4
-Lower threshold = INT : 3000
+Lower threshold = INT : 2500
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 0
+Presamples = INT : 3
+Stretch samples = INT : 1
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC C0]
+Enabled = BOOL : y
+Interface = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC C0/Channel 0]
+LED Mode = INT : 4
+Lower threshold = INT : 2500
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 0
+Presamples = INT : 3
+Stretch samples = INT : 1
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC C0/Channel 1]
+LED Mode = INT : 4
+Lower threshold = INT : 2500
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 0
+Presamples = INT : 3
+Stretch samples = INT : 1
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC C0/Channel 2]
+LED Mode = INT : 4
+Lower threshold = INT : 2300
+Upper threshold = INT : 4095
+Pulser period = INT : 5000
+Trigger mask = INT : 0
+Presamples = INT : 3
+Stretch samples = INT : 7
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC C0/Channel 3]
+LED Mode = INT : 4
+Lower threshold = INT : 2500
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 0
+Presamples = INT : 3
+Stretch samples = INT : 1
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC C0/Channel 7]
+LED Mode = INT : 4
+Lower threshold = INT : 2300
 Upper threshold = INT : 4095
 Pulser period = INT : 5000000
 Trigger mask = INT : 1
 Presamples = INT : 3
-Stretch samples = INT : 20
-DCM phase = INT : 10
+Stretch samples = INT : 10
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC C0/Channel 6]
+LED Mode = INT : 4
+Lower threshold = INT : 2300
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 10
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC C0/Channel 5]
+LED Mode = INT : 4
+Lower threshold = INT : 2300
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 10
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC C0/Channel 4]
+LED Mode = INT : 4
+Lower threshold = INT : 2300
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 10
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC E0]
+Enabled = BOOL : y
+Interface = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC E0/Channel 7]
+LED Mode = INT : 4
+Lower threshold = INT : 2300
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 10
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC E0/Channel 6]
+LED Mode = INT : 4
+Lower threshold = INT : 2300
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 10
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC E0/Channel 5]
+LED Mode = INT : 4
+Lower threshold = INT : 2300
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 10
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC E0/Channel 4]
+LED Mode = INT : 4
+Lower threshold = INT : 2300
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 10
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC E0/Channel 0]
+LED Mode = INT : 4
+Lower threshold = INT : 2300
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 10
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC E0/Channel 1]
+LED Mode = INT : 4
+Lower threshold = INT : 2300
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 10
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC E0/Channel 2]
+LED Mode = INT : 4
+Lower threshold = INT : 2300
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 10
+DCM phase = INT : 1
+
+[/Equipment/Crate 9/Settings/NFADC E0/Channel 3]
+LED Mode = INT : 4
+Lower threshold = INT : 2300
+Upper threshold = INT : 4095
+Pulser period = INT : 5000000
+Trigger mask = INT : 1
+Presamples = INT : 3
+Stretch samples = INT : 10
+DCM phase = INT : 1
 
 [/Equipment/Crate 9/Common]
 Event ID = WORD : 1000
@@ -4851,17 +5037,108 @@ Period = INT : 500
 Event limit = DOUBLE : 0
 Num subevents = DWORD : 0
 Log history = INT : 0
-Frontend host = STRING : [32] daq2.MuSIC
+Frontend host = STRING : [32] abner
 Frontend name = STRING : [32] Crate 9
 Frontend file name = STRING : [256] crate.cpp
 
 [/Equipment/Crate 9/Statistics]
-Events sent = DOUBLE : 201
+Events sent = DOUBLE : 60
+Events per sec. = DOUBLE : 0
+kBytes per sec. = DOUBLE : 0
+
+[/Equipment/Crate 4/Settings]
+Master = BOOL : n
+Diagnostic Print Level = INT : -1076627060
+Operator Message Level = INT : -1076627060
+Enabled = BOOL : n
+Synchronous = BOOL : y
+
+[/Equipment/Crate 4/Common]
+Event ID = WORD : 1000
+Trigger mask = WORD : 65535
+Buffer = STRING : [32] BUF4
+Type = INT : 66
+Source = INT : 16777215
+Format = STRING : [8] MIDAS
+Enabled = BOOL : n
+Read on = INT : 1
+Period = INT : 500
+Event limit = DOUBLE : 0
+Num subevents = DWORD : 0
+Log history = INT : 0
+Frontend host = STRING : [32] abner
+Frontend name = STRING : [32] Crate 4
+Frontend file name = STRING : [256] crate.cpp
+
+[/Equipment/Crate 4/Statistics]
+Events sent = DOUBLE : 0
+Events per sec. = DOUBLE : 0
+kBytes per sec. = DOUBLE : 0
+
+[/Equipment/Crate 5/Settings]
+Master = BOOL : n
+Diagnostic Print Level = INT : -1079790036
+Operator Message Level = INT : -1079790036
+Enabled = BOOL : n
+Synchronous = BOOL : y
+
+[/Equipment/Crate 5/Settings/CAEN]
+software_trigger_mode = BYTE : 0
+hardware_trigger_mode = BYTE : 0
+self_trigger_mode = BYTE : 1
+trigger_positive_edge = BOOL : y
+max_events_per_block = DWORD : 1024
+event_aligned_readout = BOOL : y
+logic_level = STRING : [4] NIM
+post_trigger_size = BYTE : 20
+gpi_acquisition_mode = BOOL : y
+zero_suppression_mode = BYTE : 0
+event_packing = BOOL : n
+
+[/Equipment/Crate 5/Settings/CAEN/Ch00]
+enable = BOOL : y
+offset = FLOAT : 0
+self_trigger_threshhold = FLOAT : 0.1
+
+[/Equipment/Crate 5/Settings/CAEN/Ch01]
+enable = BOOL : n
+offset = FLOAT : 0
+self_trigger_threshhold = FLOAT : 0
+
+[/Equipment/Crate 5/Settings/CAEN/Ch02]
+enable = BOOL : n
+offset = FLOAT : 0
+self_trigger_threshhold = FLOAT : 0
+
+[/Equipment/Crate 5/Settings/CAEN/Ch03]
+enable = BOOL : n
+offset = FLOAT : 0
+self_trigger_threshhold = FLOAT : 0
+
+[/Equipment/Crate 5/Common]
+Event ID = WORD : 1000
+Trigger mask = WORD : 65535
+Buffer = STRING : [32] BUF5
+Type = INT : 66
+Source = INT : 16777215
+Format = STRING : [8] MIDAS
+Enabled = BOOL : n
+Read on = INT : 1
+Period = INT : 500
+Event limit = DOUBLE : 0
+Num subevents = DWORD : 0
+Log history = INT : 0
+Frontend host = STRING : [32] abner
+Frontend name = STRING : [32] Crate 5
+Frontend file name = STRING : [256] crate.cpp
+
+[/Equipment/Crate 5/Statistics]
+Events sent = DOUBLE : 64
 Events per sec. = DOUBLE : 0
 kBytes per sec. = DOUBLE : 0
 
 [/Analyzer/Output]
-Filename = STRING : [256] hist00381.root
+Filename = STRING : [256] hist00419.root
 RWNT = BOOL : n
 Histo Dump = BOOL : n
 Histo Dump Filename = STRING : [256] his%05d.root
@@ -4873,6 +5150,10 @@ Global Memory Name = STRING : [8] ONLN
 [/Analyzer/Module switches]
 MOctalFADCProcessRaw = BOOL : y
 MTreeOutput = BOOL : y
+MV1724ProcessRaw = BOOL : y
+MSiPulseFinder = BOOL : y
+MScPulseFinder = BOOL : y
+MGePulseFinder = BOOL : y
 
 [/Analyzer/Trigger/Common]
 Event ID = INT : 1
@@ -4884,9 +5165,9 @@ Client name = STRING : [32] Analyzer
 Host = STRING : [32] pcl11.hep.anl.gov
 
 [/Analyzer/Trigger/Statistics]
-Events received = DOUBLE : 253
-Events per sec. = DOUBLE : 818.182
-Events written = DOUBLE : 253
+Events received = DOUBLE : 0
+Events per sec. = DOUBLE : 0
+Events written = DOUBLE : 0
 
 [/Analyzer]
 Book TTree = BOOL : n
@@ -5060,6 +5341,8 @@ DetectorBankMap = STRING : [====#$@$#====]
 <form name="form1" method="Get" action="/CS/DetectorBankMap">
 
 <input type=hidden name="redir" value="DetectorBankMap">
+
+<h3><font color="red">To initialize empty entries go to /Analyzer/WireMap via the ODB button</font><h3>
 
 <table border="6" width="640">
 <tr>
