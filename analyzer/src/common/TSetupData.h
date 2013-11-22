@@ -8,13 +8,16 @@
 #include <TObject.h>
 #include "TPulseIsland.h"
 
-/** This class holds all of the setup information
+/** This class holds all of the setup data for each run.
   */
 class TSetupData : public TObject{
  public:
-  // Map of detector to bank names.
+  // Map of bank names to detector names
   std::map<std::string, std::string> fBankToDetectorMap;
 
-  ClassDef(TSetupData, 2)
+  //std::string GetBankName(std::string DetectorName){ };
+  //std::string GetDetectorName(std::string BankName){ };
+
+  ClassDef(TSetupData, 1)
 };
 #endif
