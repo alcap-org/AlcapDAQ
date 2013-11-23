@@ -35,6 +35,11 @@ double TPulseIsland::GetPulseHeight() const {
   return *(std::max_element(fSamples.begin(), fSamples.end() ));
 }
 
+double TPulseIsland::GetPulseTime() const {
+
+  return fTimeStamp * fClockTickInNs;
+}
+
 double TPulseIsland::GetPedestal(int nPedSamples) const {
 
   double pedestal = 0;
