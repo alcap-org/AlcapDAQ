@@ -28,6 +28,7 @@ class TPulseIsland : public TObject {
   double GetPulseHeight() const;
   double GetPulseTime() const;  
 
+  int GetPeakSample() const;
   double GetPedestal(int nPedSamples) const;
   ClassDef(TPulseIsland, 1);
 };
