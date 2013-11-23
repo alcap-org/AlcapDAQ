@@ -41,6 +41,7 @@ double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
+extern TGlobalSetup* gSetup;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
 map <std::string, TH1I*> height_histograms_map;
