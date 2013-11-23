@@ -16,7 +16,7 @@ class TSetupData : public TObject{
   std::map<std::string, std::string> fBankToDetectorMap;
 
   //std::string GetBankName(std::string DetectorName){ };
-  //std::string GetDetectorName(std::string BankName){ };
+  std::string GetDetectorName(std::string BankName){ return BankName + "Det"; }; // a placeholder for testing
 
   ClassDef(TSetupData, 1)
 };

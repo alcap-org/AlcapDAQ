@@ -24,7 +24,9 @@ class TPulseIsland : public TObject {
   double GetClockTickInNs() const { return fClockTickInNs; }
   int GetTimeStamp() const { return fTimeStamp; }
   std::string GetBankName() const { return fBankName; }
-
+  
+  double GetPedestal(int nPedSamples) const;
+  double GetPulseHeight() const;
   ClassDef(TPulseIsland, 1);
 };
 

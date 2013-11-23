@@ -1,5 +1,7 @@
 #include "TPulseIsland.h"
 
+#include <algorithm>
+
 using std::vector;
 using std::string;
 
@@ -25,4 +27,22 @@ void TPulseIsland::Reset(Option_t* o)
   fSamples.clear();
   fClockTickInNs = 0.0;
   fBankName = "";
+}
+
+double TPulseIsland::GetPulseHeight() const {
+
+  // max_element returns an iterator to the maximum element in the range.
+  return *(std::max_element(fSamples.begin(), fSamples.end() ));
+}
+
+double TPulseIsland::GetPedestal(int nPedSamples) const {
+
+  double pedestal = 0;
+  for (int iSample = 0; iSample < nPedSamples; iSample++) {
+    pedestal += fSamples.at(iSample);
+  }
+
+  pedestal /= nPedSamples;
+
+  return pedestal;
 }
