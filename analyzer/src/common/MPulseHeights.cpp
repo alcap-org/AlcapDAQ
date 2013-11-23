@@ -45,8 +45,6 @@ extern TGlobalData* gData;
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
 map <std::string, TH1I*> height_histograms_map;
 
-TSetupData* setup_data;
-
 ANA_MODULE MPulseHeights_module =
 {
 	"MPulseHeights",                    /* module name           */
@@ -74,7 +72,7 @@ INT MPulseHeights_init()
   for(unsigned int i=0; i<bank_names.size(); i++) {
     fadc_bank_readers.push_back(new TOctalFADCBankReader(bank_names[i]));
     
-    std::string detname = setup_data->GetDetectorName(bank_names[i]);
+    std::string detname = gSetup->GetDetectorName(bank_names[i]);
     std::string histname = "h" + detname + "_Heights";
     std::string histtitle = "Plot of the pulse heights for the " + detname + " detector";
     TH1I* hDetHeights = new TH1I(histname.c_str(), histtitle.c_str(), 100,0,100);
