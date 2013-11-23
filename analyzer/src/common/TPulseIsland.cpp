@@ -1,6 +1,6 @@
 #include "TPulseIsland.h"
 
-#include <algorithm>
+#include <cmath>
 
 using std::vector;
 using std::string;
@@ -30,9 +30,20 @@ void TPulseIsland::Reset(Option_t* o)
 }
 
 double TPulseIsland::GetPulseHeight() const {
+  
+  double pedestal = GetPedestal(10); // get the pedestal
 
-  // max_element returns an iterator to the maximum element in the range.
-  return *(std::max_element(fSamples.begin(), fSamples.end() ));
+  // Go through the samples and get the samples with the largest difference between it and the pedestal
+  // (should take into account both positive and negative pulses)
+  double pulseheight = 0;
+  for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {
+  
+    double this_height = std::abs(*(sampleIter) - pedestal);
+    if ( this_height > pulseheight )
+      pulseheight = this_height;
+  }
+
+  return pulseheight;
 }
 
 double TPulseIsland::GetPulseTime() const {
