@@ -143,7 +143,7 @@ INT MOctalFADCProcessRaw(EVENT_HEADER *pheader, void *pevent)
     }
 
     // Add a pair (bank_name, vector_of_islands) to the std::map in gData
-    pulse_islands_map.insert(TStringPulseIslandPair(bank_name, pulse_islands));
+    pulse_islands_map[bank_name] = pulse_islands;
 
     // Fill Diagnostic histogram
     hNOctalFADCIslandsReadPerBlock->Fill(bank_name.c_str(), midas_event_number,

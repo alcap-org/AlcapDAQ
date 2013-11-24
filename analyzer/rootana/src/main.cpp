@@ -6,6 +6,7 @@
 
 #include "FillHistBase.h"
 #include "SimpleHistograms.h"
+#include "MyModule.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -54,6 +55,7 @@ int main(int argc, char **argv){
   br = tree->GetBranch("Event");
   br->SetAddress(&g_event);
 
+
   // Let's open the output file for histograms etc.
   TFile *fileOut = new TFile(outfilename, "RECREATE");
   if(!fileOut->IsOpen()){
@@ -66,6 +68,7 @@ int main(int argc, char **argv){
   fillhists = new FillHistBase *[20]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new SimpleHistograms("SimpleHistograms");
+  fillhists[n_fillhist++] = new MyModule("MyModule");
   
   fileOut->cd();
   root_event_loop();

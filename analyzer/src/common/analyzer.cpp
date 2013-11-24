@@ -34,6 +34,7 @@ PAWC_DEFINE(1000000);
 
 /* AlCap includes */
 #include "TGlobalData.h"
+#include "TSetupData.h"
 
 /*-- Globals -------------------------------------------------------*/
 
@@ -50,7 +51,9 @@ INT  odb_size = DEFAULT_ODB_SIZE;
  * downstream modules
  */
 TGlobalData* gData;
+TSetupData* gSetup;
 
+void UpdateDetectorBankNameMap(TSetupData *gSetup);
 
 /*-- Module declarations -------------------------------------------*/
 
@@ -113,6 +116,9 @@ INT analyzer_init()
   // Initialize gData
   gData = new TGlobalData();
 
+  // Initialize gSetup
+  gSetup = new TSetupData();
+
   // Override ROOT's handling of signals
   signal(SIGHUP , catastrophe);
   signal(SIGINT , catastrophe);
@@ -137,6 +143,11 @@ INT analyzer_exit()
     gData = NULL;
   }
 
+  if(gSetup) {
+    delete gSetup;
+    gSetup = NULL;
+  }
+
   return CM_SUCCESS;
 }
 
@@ -144,6 +155,8 @@ INT analyzer_exit()
 
 INT ana_begin_of_run(INT run_number, char *error)
 {
+  UpdateDetectorBankNameMap(gSetup);
+
   printf("Analyzer saw beginning of run %d\n", run_number);
   return CM_SUCCESS;
 }
@@ -179,3 +192,92 @@ INT analyzer_loop()
 
 /*------------------------------------------------------------------*/
 //}
+
+void UpdateDetectorBankNameMap(TSetupData *gSetup){
+  // Want to go through the /Analyzer/WireMap and map detector names and 
+  HNDLE hDB, hKey;
+  char keyName[200];
+  
+  if(cm_get_experiment_database(&hDB, NULL) != CM_SUCCESS){
+    printf("Warning: Could not connect to ODB database!\n");
+    return;
+  }
+  
+  sprintf(keyName, "/Analyzer/WireMap/BankName");
+  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }
+  KEY bk_key;
+  if(db_get_key(hDB, hKey, &bk_key) != DB_SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }    
+  char BankNames[bk_key.num_values][bk_key.item_size];
+  int size = sizeof(BankNames);
+  if(db_get_value(hDB, 0, keyName , BankNames, &size, TID_STRING, 0) != DB_SUCCESS){
+    printf("Warning: Could not retrieve values for key %s\n", keyName);
+    return;
+  }
+  
+  sprintf(keyName, "/Analyzer/WireMap/DetectorName");
+  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }  
+  KEY det_key;
+  if(db_get_key(hDB, hKey, &det_key) != DB_SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }
+  char DetectorNames[det_key.num_values][det_key.item_size];
+  size = sizeof(DetectorNames);
+  if(db_get_value(hDB, 0, keyName , DetectorNames, &size, TID_STRING, 0) != DB_SUCCESS){
+    printf("Warning: Could not retrieve values for key %s\n", keyName);
+    return;
+  }
+  
+  if(det_key.num_values != bk_key.num_values){
+    printf("Warning: Key sizes are not equal for banks and detectors in /Analyzer/WireMap/\n");
+    return;
+  }
+  else printf("sizes are %d\n", det_key.num_values);
+  for(int i=0; i<det_key.num_values; i++){
+    if(strcmp(BankNames[i], "") == 0) continue;
+    if(strcmp(DetectorNames[i], "") == 0) printf("Warning: No detector name associated with bank %s!\n", BankNames[i]);
+    
+    std::string bank(BankNames[i]), detector(DetectorNames[i]);
+    gSetup->fBankToDetectorMap.insert(std::pair<std::string, std::string>(bank, detector));
+
+    if(BankNames[i][0] == 'N'){
+      std::string iAddr(BankNames[i]);
+      int iChn = (int)(*(iAddr.substr(1,1).c_str()) - 97);
+      iAddr = iAddr.substr(2, 2);
+
+      char wireKey[100];
+      bool enabled = false;
+      int size = sizeof(int);
+      sprintf(wireKey, "/Analyzer/WireMap/Enabled");
+      if(db_find_key(hDB,0,wireKey, &hKey) == SUCCESS){
+	// Let's first reset /Analyzer/WireMap/Enabled for this channel to 'n'
+	db_set_data_index(hDB, hKey, &enabled, size, i, TID_BOOL);
+
+	sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Enabled", iAddr.c_str());
+	if(db_get_value(hDB, 0, keyName , &enabled, &size, TID_BOOL, 0) == DB_SUCCESS) {
+	  if(enabled == true){
+	    sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Channel %d/Trigger mask", iAddr.c_str(), iChn);
+	    int trigger_mask;
+	    size = sizeof(trigger_mask);
+	    if(db_get_value(hDB, 0, keyName , &trigger_mask, &size, TID_INT, 0) == DB_SUCCESS) {
+	      if (trigger_mask == 1){ // if this channel is taking data
+		enabled = true;
+		db_set_data_index(hDB, hKey, &enabled, size, i, TID_BOOL);	
+	      }
+	    } // We found the channel 'Trigger mask' key in ODB
+	  } // This module is enabled
+	} // We got the value of the module 'Enable' key in ODB
+      } // We found the 'Enabled' key in the ODB
+    } // end if bank is starting with letter 'N' 
+  } // end loop over all non empty banks
+  
+}
