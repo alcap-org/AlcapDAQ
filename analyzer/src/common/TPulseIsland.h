@@ -5,6 +5,7 @@
 #include <string>
 
 #include <TObject.h>
+#include <TH1.h>
 
 class TPulseIsland : public TObject {
   private:
@@ -27,6 +28,7 @@ class TPulseIsland : public TObject {
   
   double GetPulseHeight() const;
   double GetPulseTime() const;  
+  TH1I* GetPulseWaveform(std::string histname, std::string histtitle) const;
 
   int GetPeakSample() const;
   double GetPedestal(int nPedSamples) const;

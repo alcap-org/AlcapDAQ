@@ -49,6 +49,21 @@ double TPulseIsland::GetPulseTime() const {
   return (fTimeStamp + GetPeakSample()) * fClockTickInNs;
 }
 
+// GetPulseWaveform()
+// -- Fills a histogram with all the samples and returns it
+TH1I* TPulseIsland::GetPulseWaveform(std::string histname, std::string histtitle) const {
+
+  TH1I* hWaveform = new TH1I(histname.c_str(), histtitle.c_str(), 100,0,100);
+  hWaveform->SetBit(TH1::kCanRebin);
+  
+  // Loop over the samples and fill the histogram
+  for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {
+    hWaveform->Fill(sampleIter - fSamples.begin(), *sampleIter);
+  }
+
+  return hWaveform;
+}
+
 
 // GetPeakSample()
 // -- Goes through the samples and finds the element with the largest difference from the pedestal

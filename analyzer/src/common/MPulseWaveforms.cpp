@@ -116,18 +116,9 @@ INT MPulseWaveforms(EVENT_HEADER *pheader, void *pevent)
 	      std::stringstream histname;
 	      histname << "h" << detname << "_Waveform_Block" << midas_event_number << "_Pulse" << pulseIter - thePulses.begin();
 	      std::string histtitle = "Plot of the pulse waveforms for the " + detname + " detector";
-	      TH1I* hDetWaveform = new TH1I(histname.str().c_str(), histtitle.c_str(), 100,0,100);
+	      TH1I* hDetWaveform = (*pulseIter)->GetPulseWaveform(histname.str(), histtitle);
 	      hDetWaveform->GetXaxis()->SetTitle("Time");
 	      hDetWaveform->GetYaxis()->SetTitle("ADC Value");
-	      hDetWaveform->SetBit(TH1::kCanRebin);
-
-	      // Get the samples
-	      std::vector<int> theSamples = (*pulseIter)->GetSamples();
-	      
-	      // Loop over the samples and fill the histogram
-	      for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
-		hDetWaveform->Fill(sampleIter - theSamples.begin(), *sampleIter);
-	      }
 
 	      waveform_histograms_map[bankname].push_back(hDetWaveform);
 	    }
