@@ -305,8 +305,6 @@ MYSQL_LIBS=/usr/lib/mysql/libmysqlclient.a
 #-----------------------
 # Common flags
 #
-CC = cc
-CXX = g++
 CFLAGS = -g -O0 -Wall -Wuninitialized -I$(INC_DIR) -I$(MXML_DIR) -I$(DRV_DIR)\
 				 -L$(LIB_DIR) -DINCLUDE_FTPLIB $(MIDAS_PREF_FLAGS) $(USERFLAGS)
 
