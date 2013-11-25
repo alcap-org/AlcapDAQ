@@ -73,11 +73,11 @@ void TOctalFADCBankReader::ProcessEvent(EVENT_HEADER* pheader, void *pevent)
                    ((raw[i*10+8] & 0xf) << 8) |
                    (raw[i*10+9]);
 
-    if (firstIsland) lastTimestamp = -1;//to make sure first four readings enter pulse
+    //if (i==0) lastTimestamp = -1;//to make sure first four readings enter pulse
 
     if(timestamp != lastTimestamp + 1) {
       if(!firstIsland) {
-        if(islandSamples.size() > 4) {
+        if(islandSamples.size() > 12) {
           // This is a new island, so put the old
           // island on fData and start again.
           // Remember, time stamps are actually 4 samples long
@@ -96,13 +96,13 @@ printf("\n");
 #endif
           islandSamples.clear();
         }
-        // Ignore islands with 4 or less samples.
+        // Ignore islands with 12 or less samples.
       }
       firstIsland = false;
       islandTimestamp = timestamp;
     }
 
-    //only fill pulse if these samples follow previous
+    //only fill pulse if these samples follow the previous
     if (timestamp == lastTimestamp + 1){
       islandSamples.push_back(sampleA1);
       islandSamples.push_back(sampleB1);
