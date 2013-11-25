@@ -20,7 +20,6 @@ TSetupData::TSetupData() {
       int size = sizeof(bankname);
 
       db_get_data_index(hDB, hKey, &bankname, &size, iElement, TID_STRING);
-      printf("Bank #%d: %s\n", iElement, bankname);
       
       // Find the detector name key
       if(db_find_key(hDB,0,"Analyzer/WireMap/DetectorName", &hKey) == SUCCESS) { // find the bank
@@ -29,7 +28,6 @@ TSetupData::TSetupData() {
 	char detectorname[80];
 	int size = sizeof(detectorname);
 	db_get_data_index(hDB, hKey, &detectorname, &size, iElement, TID_STRING);
-	printf("Detector Name: %s\n", detectorname);
 
 	std::pair<std::string, std::string> thePair(bankname, detectorname);
 	fBankToDetectorMap[bankname] = detectorname;
