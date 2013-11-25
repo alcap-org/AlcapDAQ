@@ -12,11 +12,12 @@
   */
 class TSetupData : public TObject{
  public:
+  TSetupData();
   // Map of bank names to detector names
   std::map<std::string, std::string> fBankToDetectorMap;
 
   //std::string GetBankName(std::string DetectorName){ };
-  std::string GetDetectorName(std::string BankName){ return BankName + "Det"; }; // a placeholder for testing
+  std::string GetDetectorName(std::string BankName) { return fBankToDetectorMap[BankName]; };
 
   ClassDef(TSetupData, 1)
 };
