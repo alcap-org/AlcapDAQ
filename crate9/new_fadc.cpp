@@ -358,13 +358,13 @@ void setupRegs()
 #endif
 
         if(chan % 2 == 0) { 
-          setReg("eth1", i, frontend, 0, r0, 0);
-          setReg("eth1", i, frontend, 1, r1, 0);
-          setReg("eth1", i, frontend, 4, r2, 1);
+          setReg("eth0", i, frontend, 0, r0, 0);
+          setReg("eth0", i, frontend, 1, r1, 0);
+          setReg("eth0", i, frontend, 4, r2, 1);
         } else {
-          setReg("eth1", i, frontend, 2, r0, 0);
-          setReg("eth1", i, frontend, 3, r1, 0);
-          setReg("eth1", i, frontend, 5, r2, 1);
+          setReg("eth0", i, frontend, 2, r0, 0);
+          setReg("eth0", i, frontend, 3, r1, 0);
+          setReg("eth0", i, frontend, 5, r2, 1);
         }
       }
     } 
