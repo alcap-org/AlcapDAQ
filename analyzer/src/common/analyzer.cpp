@@ -194,7 +194,7 @@ INT analyzer_loop()
 //}
 
 void UpdateDetectorBankNameMap(TSetupData *gSetup){
-  // Want to go through the /Analyzer/WireMap and map detector names and 
+  // Want to go through the /Analyzer/WireMap and map bank names and detector names 
   HNDLE hDB, hKey;
   char keyName[200];
   
