@@ -118,7 +118,7 @@ INT analyzer_init()
 
   // Initialize gSetup
   gSetup = new TSetupData();
-
+  UpdateDetectorBankNameMap(gSetup);
   // Override ROOT's handling of signals
   signal(SIGHUP , catastrophe);
   signal(SIGINT , catastrophe);
@@ -155,8 +155,6 @@ INT analyzer_exit()
 
 INT ana_begin_of_run(INT run_number, char *error)
 {
-  UpdateDetectorBankNameMap(gSetup);
-
   printf("Analyzer saw beginning of run %d\n", run_number);
   return CM_SUCCESS;
 }
