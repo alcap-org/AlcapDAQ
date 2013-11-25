@@ -247,7 +247,7 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     if(strcmp(DetectorNames[i], "") == 0) printf("Warning: No detector name associated with bank %s!\n", BankNames[i]);
     
     std::string bank(BankNames[i]), detector(DetectorNames[i]);
-    gSetup->fBankToDetectorMap.insert(std::pair<std::string, std::string>(bank, detector));
+    gSetup->fBankToDetectorMap[bank] = detector;
 
     if(BankNames[i][0] == 'N'){
       std::string iAddr(BankNames[i]);
