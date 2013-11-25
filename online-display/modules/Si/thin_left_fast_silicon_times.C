@@ -4,16 +4,20 @@ void thin_left_fast_silicon_times()
   // Prepare the canvas
   gStyle->SetOptStat("ne");
   TCanvas *AlCapCanvas = (TCanvas *) gROOT->GetListOfCanvases()->At(0);
-	AlCapCanvas->Clear();
+  AlCapCanvas->Clear();
   AlCapCanvas->Divide(2,2);
+
+  gROOT->ProcessLine(".L modules/common/get_histogram.C+");
   /*****************************************************************/
-	TH1 *left_slow[4];
-	char histTitle[1024];
-	for (int j = 0; j < 4; ++j)
-	{
-		sprintf(histTitle,"hSiL1_%dFast_Times",j+1);
-		left_slow[j] = (TH1 *)gDirectory->Get(histTitle);
-		AlCapCanvas->cd(j+1);
-		left_slow[j]->Draw();
-	}
+  std::string hist_type = "Times";
+  const int n_detectors = 4;
+  std::string det_names[n_detectors] = {"SiL1-1-fast", "SiL1-2-fast", "SiL1-3-fast", "SiL1-4-fast"};
+
+  for (int iDet = 0; iDet < n_detectors; iDet++) {
+    TH1* hist = get_histogram(det_names[iDet], hist_type);
+    if (hist) {
+      AlCapCanvas->cd(iDet+1);
+      hist->Draw();
+    }
+  }
 }

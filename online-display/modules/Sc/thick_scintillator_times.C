@@ -4,26 +4,20 @@ void thick_scintillator_times()
   // Prepare the canvas
   gStyle->SetOptStat("ne");
   TCanvas *AlCapCanvas = (TCanvas *) gROOT->GetListOfCanvases()->At(0);
-	AlCapCanvas->Clear();
+  AlCapCanvas->Clear();
   AlCapCanvas->Divide(2,3);
-  /*****************************************************************/
-	TH1 *muSc = (TH1 *)gDirectory->Get("hmuSc_Times");
-	AlCapCanvas->cd(1);
-	muSc->Draw();
 
-	TH1 *muScA = (TH1 *)gDirectory->Get("hmuScA_Times");
-	AlCapCanvas->cd(2);
-	muScA->Draw();
-	
-	TH1 *ScL = (TH1 *)gDirectory->Get("hScL_Times");
-	AlCapCanvas->cd(3);
-	ScL->Draw();
-	
-	TH1 *ScR = (TH1 *)gDirectory->Get("hScR_Times");
-	AlCapCanvas->cd(4);
-	ScR->Draw();
-	
-	TH1 *ScGe = (TH1 *)gDirectory->Get("hScGe_Times");
-	AlCapCanvas->cd(5);
-	ScGe->Draw();
+  gROOT->ProcessLine(".L modules/common/get_histogram.C+");
+  /*****************************************************************/
+  std::string hist_type = "Times";
+  const int n_detectors = 5;
+  std::string det_names[n_detectors] = {"muSc", "muSc-A", "ScL", "ScR", "ScGe"};
+
+  for (int iDet = 0; iDet < n_detectors; iDet++) {
+    TH1* hist = get_histogram(det_names[iDet], hist_type);
+    if (hist) {
+      AlCapCanvas->cd(iDet+1);
+      hist->Draw();
+    }
+  }
 }

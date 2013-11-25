@@ -4,22 +4,20 @@ void thick_silicon_times()
   // Prepare the canvas
   gStyle->SetOptStat("ne");
   TCanvas *AlCapCanvas = (TCanvas *) gROOT->GetListOfCanvases()->At(0);
-	AlCapCanvas->Clear();
+  AlCapCanvas->Clear();
   AlCapCanvas->Divide(2,2);
-  /*****************************************************************/
-	TH1 *thick_left_fast = (TH1 *)gDirectory->Get("hSiL2Fast_Times");
-	AlCapCanvas->cd(1);
-	thick_left_fast->Draw();
 
-	TH1 *thick_left_slow = (TH1 *)gDirectory->Get("hSiL2Slow_Times");
-	AlCapCanvas->cd(2);
-	thick_left_slow->Draw();
-	
-	TH1 *thick_right_fast = (TH1 *)gDirectory->Get("hSiR2Fast_Times");
-	AlCapCanvas->cd(3);
-	thick_right_fast->Draw();
-	
-	TH1 *thick_right_slow = (TH1 *)gDirectory->Get("hSiR2Slow_Times");
-	AlCapCanvas->cd(4);
-	thick_right_slow->Draw();	
+  gROOT->ProcessLine(".L modules/common/get_histogram.C+");
+  /*****************************************************************/
+  std::string hist_type = "Times";
+  const int n_detectors = 4;
+  std::string det_names[n_detectors] = {"SiL2-fast", "SiL2-slow", "SiR2-fast", "SiR2-slow"};
+
+  for (int iDet = 0; iDet < n_detectors; iDet++) {
+    TH1* hist = get_histogram(det_names[iDet], hist_type);
+    if (hist) {
+      AlCapCanvas->cd(iDet+1);
+      hist->Draw();
+    }
+  }
 }
