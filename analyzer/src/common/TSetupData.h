@@ -12,7 +12,6 @@
   */
 class TSetupData : public TObject{
  public:
-  TSetupData();
   // Map of bank names to detector names
   std::map<std::string, std::string> fBankToDetectorMap;
 
