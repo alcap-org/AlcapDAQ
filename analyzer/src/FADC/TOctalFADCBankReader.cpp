@@ -13,17 +13,17 @@ TOctalFADCBankReader::TOctalFADCBankReader(string bankname)
 }
 
 /** Reads the specified MIDAS bank, interpretting the raw data format into
-  * a vector<TOctalFADCIsland*>. Steps to use:
-  *
-  * \code
-  * TOctalFADCBankReader reader("BANK"); // BANK is the MIDAS bank name
-  * reader.ProcessEvent(pheader, pevent);
-  * vector<TOctalFADCIsland*> islands = reader.GetIslandVectorCopy();
-  * // Do stuff with islands
-  * \endcode
-  *
-  * Automatically calls ClearEvent() at the beginning of ProcessEvent().
-  */
+* a vector<TOctalFADCIsland*>. Steps to use:
+*
+* \code
+* TOctalFADCBankReader reader("BANK"); // BANK is the MIDAS bank name
+* reader.ProcessEvent(pheader, pevent);
+* vector<TOctalFADCIsland*> islands = reader.GetIslandVectorCopy();
+* // Do stuff with islands
+* \endcode
+*
+* Automatically calls ClearEvent() at the beginning of ProcessEvent().
+*/
 void TOctalFADCBankReader::ProcessEvent(EVENT_HEADER* pheader, void *pevent)
 {
   ClearEvent();
@@ -41,16 +41,16 @@ void TOctalFADCBankReader::ProcessEvent(EVENT_HEADER* pheader, void *pevent)
   for(int i=0; i < nBlocks; i++){
     // data format:
     //
-    //  bits 
-    //  79          FADC 0 / 1
-    //  78-52       timestamp
-    //  51-48       overflow
-    //  47-36       sampleB0
-    //  35-24       sampleA0
-    //  23-12       sampleB1
-    //  11-0        sampleA1
-    //  
-    //  Island samples in the order A1 B1 A0 B0
+    // bits
+    // 79 FADC 0 / 1
+    // 78-52 timestamp
+    // 51-48 overflow
+    // 47-36 sampleB0
+    // 35-24 sampleA0
+    // 23-12 sampleB1
+    // 11-0 sampleA1
+    //
+    // Island samples in the order A1 B1 A0 B0
 
     int timestamp = ((raw[i*10+0] & 0x7f) << 20) |
                      (raw[i*10+1] << 12) |
@@ -73,10 +73,12 @@ void TOctalFADCBankReader::ProcessEvent(EVENT_HEADER* pheader, void *pevent)
                    ((raw[i*10+8] & 0xf) << 8) |
                    (raw[i*10+9]);
 
+    if (firstIsland) lastTimestamp = -1;//to make sure first four readings enter pulse
+
     if(timestamp != lastTimestamp + 1) {
       if(!firstIsland) {
         if(islandSamples.size() > 4) {
-          // This is a new island, so put the old 
+          // This is a new island, so put the old
           // island on fData and start again.
           // Remember, time stamps are actually 4 samples long
           fData.push_back(
@@ -85,12 +87,12 @@ void TOctalFADCBankReader::ProcessEvent(EVENT_HEADER* pheader, void *pevent)
 
 
 #if 0
-          printf("Time = %d, nsamples = %d, char = %c , channel = %d\n",
-            islandTimestamp, islandSamples.size(),fBankName.at(1),channel);
-          for(int k=0; k<islandSamples.size(); k++){
-            printf("%d ",islandSamples[k]);
-          }
-          printf("\n");
+printf("Time = %d, nsamples = %d, char = %c , channel = %d\n",
+islandTimestamp, islandSamples.size(),fBankName.at(1),channel);
+for(int k=0; k<islandSamples.size(); k++){
+printf("%d ",islandSamples[k]);
+}
+printf("\n");
 #endif
           islandSamples.clear();
         }
@@ -99,21 +101,25 @@ void TOctalFADCBankReader::ProcessEvent(EVENT_HEADER* pheader, void *pevent)
       firstIsland = false;
       islandTimestamp = timestamp;
     }
+
+    //only fill pulse if these samples follow previous
+    if (timestamp == lastTimestamp + 1){
+      islandSamples.push_back(sampleA1);
+      islandSamples.push_back(sampleB1);
+      islandSamples.push_back(sampleA0);
+      islandSamples.push_back(sampleB0);
+    } 
     lastTimestamp = timestamp;
 
 #if 0
-    for(int k=0; k<10; k++){
-      printf("%x ",raw[i*10 + k]);
-    }
-    printf("\n");
-    printf("fadc=%x t=%2x %2x %2x %2x %2x\n", i, timestamp, 
-           sampleA1, sampleB1, sampleA0,sampleB0);
+for(int k=0; k<10; k++){
+printf("%x ",raw[i*10 + k]);
+}
+printf("\n");
+printf("fadc=%x t=%2x %2x %2x %2x %2x\n", i, timestamp,
+sampleA1, sampleB1, sampleA0,sampleB0);
 #endif
 
-    islandSamples.push_back(sampleA1);
-    islandSamples.push_back(sampleB1);
-    islandSamples.push_back(sampleA0);
-    islandSamples.push_back(sampleB0);
   }
 
   if(fData.size()>1)
