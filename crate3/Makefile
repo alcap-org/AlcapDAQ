@@ -1,3 +1,12 @@
+# get OS type from shell
+OSTYPE = $(shell uname)
+ifeq ($(OSTYPE),Linux)
+OSTYPE = linux
+ifeq ($(shell uname -m),x86_64)
+  OSTYPE = linux64
+endif
+endif
+
 CC = gcc
 CXX = g++
 CXXFLAGS = -g -Wall -O3 -I/usr/include 
@@ -11,7 +20,7 @@ KINOKO_DRV = ../bit3_mvme/kinoko_vmedrv
 CXXFLAGS += -I$(KINOKO_DRV) -I../bit3_mvme/
 
 MIDAS_INCLUDE = -I $(MIDASSYS)/include
-MIDAS_LIB = $(MIDASSYS)/linux/lib/mfe.o -L $(MIDASSYS)/linux/lib -lmidas
+MIDAS_LIB = $(MIDASSYS)/$(OSTYPE)/lib/mfe.o -L $(MIDASSYS)/$(OSTYPE)/lib -lmidas
 CXX_LIBS += $(MIDAS_LIB)
 
 

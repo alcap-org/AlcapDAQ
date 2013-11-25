@@ -1,0 +1,330 @@
+ EPICS installation for BulkmuSR experiments
+ ===========================================
+ CR RA36 05-JAN-2011  LU RA36 05-JAN-2011
+
+
+ Installation of EPICS provided by GFA@PSI on psw405
+ ---------------------------------------------------
+
+ - install yumex (Yum extender) the yum GUI
+
+   yum install yumex
+
+ - EPICS for SL5 is provided by GFA
+   The file gfa.repo must be in directory /etc/yum.repos.d/
+
+   cat gfa.repo
+     [gfa]
+     name=GFA repo for SL5
+     baseurl=http://linux.web.psi.ch/dist/scientific/5/gfa/current/
+     enabled=1
+
+   Usually gfa.repo is present on all Scientific Linux 5 installations -
+   however enabled=0 is set
+
+   Modify gfa.repo setting enabled=1  
+
+ - Start yumex (only works on the Desktop) or 
+   execute command yum install epics-base
+
+   . In the Category selection box select Repositories 
+   . Select Option Available
+   . in the Category List select gfa
+   . select epics-base for i386 currently 3.14.8-5
+     Information is
+       RPM Group     : Development/Languages
+       Source        : epics-base-3.14.8-5.src.rpm
+       Build Time    : Wed Dec  8 09:46:02 2010
+
+   . press the Process Queue button to initiate installation
+
+     09:39:30 : Package Queue:
+     09:39:30 :  Packages to install
+     09:39:30 :  ---> epics-base-3.14.8-5.i386
+     09:39:30 : Preparing for install/remove/update
+     09:39:30 : --> Preparing for install
+     09:39:30 : --> Running transaction check
+     09:39:30 : ---> Package epics-base.i386 0:3.14.8-5 set to be updated
+     09:39:33 : --> Finished Dependency Resolution
+     09:39:33 : Beginning Kernel Module Plugin
+     09:39:33 : Finished Kernel Module Plugin
+
+   . confirm when asked to install
+
+     09:40:07 : Downloading Packages:
+     09:40:07 : Checking GPG Signatures:
+     09:40:08 : Running Transaction Test
+     09:40:10 : Finished Transaction Test
+     09:40:10 : Transaction Test Succeeded
+     09:40:10 : --> Populating transaction set with selected packages. Please wait.
+     09:40:10 : ---> Package epics-base.i386 0:3.14.8-5 set to be updated
+     09:40:10 : Running Transaction
+     09:40:35 : Installed:
+     09:40:35 :  --> epics-base-3.14.8-5.i386
+
+   . EPICS should now be installed in /usr/local/epics and /usr/local/bin
+
+     currently installed version is in directory /usr/local/epics/base-3.14.8/
+
+     du -k /usr/local/epics/base-3.14.8 -> 39768
+
+     ls -Rl base-3.14.8/ > epics-base-3.14.8.lis
+     See epics-base-3.14.8.lis for installed files
+
+   . create link to the current version
+     cd /usr/local/epics
+     ln -s base-3.14.8 base
+
+   . For bash, the location of basic EPICS executables should be appended to the 
+     PATH variable and global variables EPICS_CA_AUTO_ADDR_LIST, EPICS_CA_ADDR_LIST and
+     EPICS_CA_SERVER_PORT should be set and exported.
+
+     NOTE: Channel access gateway and listener port of gateway may change!
+
+     For all users using a bash shell : file /etc/profile.d/epics.sh will be executed:
+
+     # EPICS base initalization script (sh)
+     epics_base="/usr/local/epics/base/bin/SL5-x86"
+
+     if [ -d $epics_base ] ; then
+       if ! echo ${PATH} | /bin/grep -q $epics_base ; then
+         PATH=$PATH:$epics_base
+         export PATH
+       fi
+
+       # set channel access environment for HIPA
+       if [ -z "$EPICS_CA_ADDR_LIST" ] ; then
+         EPICS_CA_ADDR_LIST="hipa-cagw01"
+         EPICS_CA_AUTO_ADDR_LIST="NO"
+         EPICS_CA_SERVER_PORT="5062"
+         export EPICS_CA_ADDR_LIST EPICS_CA_AUTO_ADDR_LIST EPICS_CA_SERVER_PORT
+       fi
+
+     fi
+     # EOF /etc/profile.d/epics.sh
+
+   . For csh location of executables should be appended to path variable and
+     global variables EPICS_CA_AUTO_ADDR_LIST, EPICS_CA_ADDR_LIST and
+     EPICS_CA_SERVER_PORT should be set.
+     For all users using a csh shell : file /etc/profile.d/epics.csh will be executed:
+
+     # EPICS base initalization script (csh)
+     set epics_base = "/usr/local/epics/base/bin/SL5-x86"
+
+     if (-d $epics_base) then
+       if ( "${path}" !~ *$epics_base* ) then
+         set path = ( $path $epics_base )
+       endif
+
+       if ( $?EPICS_CA_ADDR_LIST ) then
+         exit
+       endif
+
+       # set channel access environment for HIPA
+       setenv EPICS_CA_ADDR_LIST      "hipa-cagw01"
+       setenv EPICS_CA_AUTO_ADDR_LIST "NO"
+       setenv EPICS_CA_SERVER_PORT    "5062"
+     endif
+     # EOF /etc/profile.d/epics.csh
+
+ - In addition an EPICS channel viewer may also be installed
+
+     executing command yum install psi-capv-view
+
+     or when using yumex by selecting psi-capv-view in the gfa repository
+
+ - However it is not necessary as a lot EPICS applications are installed and may be used 
+   in gfalc05 or hipa-lc02. Additionally read access to hipa and proscan
+   channel access gateways is allowed.
+   
+     - Login as <user_of_domain_D.PSI.CH> on gfalc05 or hipa-lc02
+     - Execute command cahipa to define EPICS_CA_... variables for HIPA
+    [- Execute command capro to define EPICS_CA_... variables for ProScan 
+       NOTE: overwrites previously defined EPICS_CA_... variables for HIPA]
+     - Start the EPICS channel viewer using the command 
+       capv-view hipa &
+       . reads EPICS channel names from an Oracle database (here hipa)
+       . displays channel information with an update rate of 1 second 
+       NOTE: channel access gateway IP name or IP address must be defined in
+             EPICS_CA_ADDR_LIST
+
+ - Get Channel information (examples on gfalc05 cagw: hipa)
+
+   . Success
+     cainfo ACM:INTERRUPT_MSG:1
+        ACM:INTERRUPT_MSG:1:
+        NAME    ACM:INTERRUPT_MSG:1
+        VAL     {0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+                 :
+                 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0}
+        EGU     {}
+        SIZE    128
+        SEVR    NO_ALARM
+        STAT    NO_ALARM
+        TIME    {01/05/11 15:52:13.364695789}
+        TYPE    DBF_CHAR
+        HOPR    0
+        LOPR    0
+        DRVH    0
+        DRVL    0
+        HIHI    0
+        HIGH    0
+        LOLO    0
+        LOW     0
+        ACCESS  R
+        IOC     hipa-cagw01.psi.ch
+        RTYP    waveform
+        DESC    "last interrupt for HIPA"
+
+   . ERROR Unknown channel
+     cainfo ACM:INTERRUPT_MSG:1222
+        can't find channel ACM:INTERRUPT_MSG:1222
+
+   . ERROR (Read) Access not allowed or wrong server port
+     cainfo ACM:INTERRUPT_MSG:1
+        Channel connect timed out: 'ACM:INTERRUPT_MSG:1' not found.
+        ACM:INTERRUPT_MSG:1
+         State:         never connected
+         Host:          <disconnected>
+         Access:        no read, no write
+         Data type:     DBR_invalid (native: TYPENOTCONN)
+         Element count: 0
+
+   . ERROR Bad internet address
+     cainfo ACM:INTERRUPT_MSG:1
+       ../iocinf.cpp: Parsing 'EPICS_CA_ADDR_LIST'
+        Bad internet address or host name: 'hipa-cagw01a'
+       CA.Client.Exception...............................................
+        Warning: "Empty PV search address list"
+        Source File: ../udpiiu.cpp line 346
+        Current Time: Wed Jan 05 2011 16:16:46.233764242
+       ..................................................................
+       Channel connect timed out: 'ACM:INTERRUPT_MSG:1' not found.
+
+ - Get Channel data  (examples on gfalc05 cagw: hipa)
+   . Success 
+     caget ACM:INTERRUPT_MSG:1
+        ACM:INTERRUPT_MSG:1 {0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0}
+
+   . ERROR Unknown channel
+     caget ACM:INTERRUPT_MSG:1222
+       can't find channel ACM:INTERRUPT_MSG:1222
+
+   . ERROR (Read) Access not allowed or wrong server port
+     caget ACM:INTERRUPT_MSG:1
+        Channel connect timed out: 'ACM:INTERRUPT_MSG:1' not found.
+
+   . ERROR Bad internet address
+     caget ACM:INTERRUPT_MSG:1
+       ../iocinf.cpp: Parsing 'EPICS_CA_ADDR_LIST'
+        Bad internet address or host name: 'hipa-cagw01a'
+       CA.Client.Exception...............................................
+        Warning: "Empty PV search address list"
+        Source File: ../udpiiu.cpp line 346
+        Current Time: Wed Jan 05 2011 16:16:46.233764242
+       ..................................................................
+       Channel connect timed out: 'ACM:INTERRUPT_MSG:1' not found.
+
+ - See http://epics.web.psi.ch for information about EPICS@PSI
+
+   . in the Training section on the left select ". CA client lessons"
+   . Read about "Lessons on Channel Access Client Programming"
+   . Download Channel Access Lessons 1-5
+
+   NOTE: there exist two different major releases of EPICS Channel Access    
+
+     EPICS R3.12 Channel Access Reference Manual  11-DEC-1996
+     http://www.aps.anl.gov/epics/EpicsDocumentation/AppDevManuals/ChannelAccess/cadoc_1.htm
+
+     EPICS R3.14 Channel Access Reference Manual  15-NOV-2002
+     http://www.aps.anl.gov/epics/base/R3-14/8-docs/CAref.html
+    
+     Lessons 1-3, 4a and 5a are based on release R3.12 and lessons 4b and 5b on release R3.14. 
+
+   Release R3.14 is backward compatible to R3.12 however to use the superior functionality of
+   R3.14 code must be written entirely using R3.14 function calls.   
+ 
+ - For the development of an application using EPICS channel access on
+   Scientific Linux SL5 only 
+
+   . Header files in directory include/ and include/os/Linux are necessary
+   . Binary file caRepeater in directory bin/SL5-x86 is necessary
+     Executables caget, cainfo and caput may be helpful for basic tests.
+   . Linux .so libraries libca.so and libCom.so in directory lib/SL5-x86 are necessary.
+
+   -> These directories and files were copied to 
+      /afs/psi.ch/user/r/raselli/midas/musr-1.9.5/slowcont/epics
+
+      epics-3.14.8
+      epics-3.14.8/bin/SL5-x86/caRepeater
+      epics-3.14.8/include/*.h
+      epics-3.14.8/include/os/Linux/*.h
+      epics-3.14.8/lib/SL5-x86/libca.so
+      epics-3.14.8/lib/SL5-x86/libCom.so
+
+   -> to simplify compilation instructions the following symbolic links were 
+      set
+
+      ln -s epics-3.14.8/bin/SL5-x86/   bin
+      ln -s epics-3.14.8/include        include
+      ln -s epics-3.14.8/lib/SL5-x86/   lib
+
+   -> to simplify definition of EPICS environment defepicsdev.bash is defined 
+      as follows
+
+      #! /bin/bash
+
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/lib
+      export LD_LIBRARY_PATH
+
+      PATH=$PATH:$PWD/bin
+      export PATH
+
+      export EPICS_CA_AUTO_ADDR_LIST=NO
+    # export EPICS_CA_ADDR_LIST=hipa-cagw01
+      export EPICS_CA_ADDR_LIST="hipa-cagw01 mpc1365"
+      export EPICS_CA_SERVER_PORT=5062
+
+    -> before an EPICS application is executed in a bash shell
+       . defepicsdev.bash has to be executed to define the EPICS environment
+
+ 
+ Information about proton accelerator and beamline hardware
+ ----------------------------------------------------------
+
+ - Information about proton accelerator and beamline hardware
+   http://city.psi.ch              NOTE: do not use the Windows Internet Explorer
+   . select ACS  -> http://www.acs.psi.ch/acs/ without specifying a password
+   . expand HIPA Database by clicking  +
+   . click on Reports
+   . select PDF or HTML of Device Listing (Heilige Liste) - Query by Beamline 
+   . select Beamline e.g.: PIM31
+   . press "Submit Query" button
+
+   or
+   
+   http://controls.web.psi.ch      NOTE: do not use the Windows Internet Explorer
+   . in the HIPA section select HIPA Configuration Database Information
+   . select Beamline Devices (Heilige Liste)
+   . select Beamline e.g.: PIM31
+   . press "Submit Query" button
+    
+ 
+ - List of HIPA EPICS devices
+   . http://city.psi.ch            NOTE: do not use the Windows Internet Explorer
+   . select ACS  -> http://www.acs.psi.ch/acs/ without specifying a password
+   . expand HIPA Database by clicking  +
+   . click on Device Browser
+   . select HIPA Epics Device Browser (new)
+   . delete string A in Device Pattern and select Machine Section e.g: PIM31
+   . press "Submit Query" button
+
+
+ Development of EPICS Midas frontend for bulkmuSR instruments 
+ ------------------------------------------------------------
+
+EOF /afs/psi.ch/user/r/raselli/midas/musr-1.9.5/slowcont/epics/EpicsformuSR.txt
+

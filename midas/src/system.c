@@ -331,6 +331,7 @@ The Midas System file
 
 #include "midas.h"
 #include "msystem.h"
+#include "strlcpy.h"
 
 #ifdef OS_UNIX
 #include <sys/mount.h>

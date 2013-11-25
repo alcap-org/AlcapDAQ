@@ -1,6 +1,7 @@
 /root/
 midas/linux/bin/*
 /dir/
+CAEN/lib/*
 */*.so
 */*.d
 */*.a

@@ -9,7 +9,7 @@
 #pragma link off all functions;
 
 #pragma link C++ class TGlobalData+;
-#pragma link C++ class TOctalFADCIsland+;
+
 #pragma link C++ class TPulseIsland+;
 #pragma link C++ class vector<TPulseIsland*>+;
 #pragma link C++ class vector<TPulseIsland*>::iterator;
@@ -17,4 +17,11 @@
 #pragma link C++ class map<string, vector<TPulseIsland*> >+;
 #pragma link C++ class map<string, vector<TPulseIsland*> >::iterator;
 #pragma link C++ class pair<string,vector<TPulseIsland*> >+;
+
+#pragma link C++ class TSetupData+;
+
+#pragma link C++ class map<string, string>+;
+#pragma link C++ class map<string, string>::iterator;
+#pragma link C++ class pair<string, string>+;
+
 #endif

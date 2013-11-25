@@ -118,7 +118,6 @@ INT MOctalFADCProcessRaw(EVENT_HEADER *pheader, void *pevent)
       if(islands[j]) { delete islands[j]; islands[j] = NULL; }
     }
     islands.clear();
-    pulse_islands_map.erase(iter); // AE: need to erase the key so that blocks after the first will be recorded
   }
 
   // Get islands from all banks and add them to the global structure
@@ -144,7 +143,7 @@ INT MOctalFADCProcessRaw(EVENT_HEADER *pheader, void *pevent)
     }
 
     // Add a pair (bank_name, vector_of_islands) to the std::map in gData
-    pulse_islands_map.insert(TStringPulseIslandPair(bank_name, pulse_islands));
+    pulse_islands_map[bank_name] = pulse_islands;
 
     // Fill Diagnostic histogram
     hNOctalFADCIslandsReadPerBlock->Fill(bank_name.c_str(), midas_event_number,

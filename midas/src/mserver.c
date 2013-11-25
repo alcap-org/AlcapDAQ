@@ -175,6 +175,7 @@
 
 #include "midas.h"
 #include "msystem.h"
+#include "strlcpy.h"
 
 #ifdef OS_UNIX
 #include <grp.h>

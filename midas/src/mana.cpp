@@ -6018,6 +6018,7 @@ int main(int argc, char *argv[])
 
    manaApp->Run();
 #else
+#ifdef HAVE_ROOT
    if(clp.graphics){
      /* start event thread */
      TThread *th2 = new TThread("root_event_loop", root_event_loop, NULL);
@@ -6025,6 +6026,8 @@ int main(int argc, char *argv[])
      
      manaApp->Run();
    }
+#endif // HAVE_ROOT
+
    else if (clp.online)
       loop_online();
    else

@@ -1,0 +1,21 @@
+ReadMe.muSREPICS
+================
+
+EpicsformuSR.txt        Some comments how epics was installed
+
+epics_ca.h              EPICS Channel Access header file for Midas device driver
+epics_ca_ori.c          original EPICS CA Midas device driver from S. Ritt
+epics_ca_private.h      EPICS CA Midas device driver private header file to 
+                        be able to call epics_ca by another device driver.
+                        Contains brief description about DD variables and channel 
+                        flags used
+epics_ca.c              EPICS CA Midas device driver for bulk muSR
+EPICSGFA_eblpie3.c      Midas frontend.c "bulk muSR style" for PiE3
+Makefile                for PiE3 frontend
+defepicsdev.bash        bash file to define EPICS variables if they are not already
+                        defined
+epicsrun.bash           bash file calling defepicsdev.bash before Midas frontend is 
+                        started
+EPICSGFA_PIE3_bl.setup  Load file for EPICS Channels on PiE3 for ALC without
+                        HV channel(s) of spin rotator/separator 
+                        NOTE: PiE3 equipment names and equipment types may have changed
