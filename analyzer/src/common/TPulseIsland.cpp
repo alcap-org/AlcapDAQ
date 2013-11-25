@@ -1,6 +1,10 @@
 #include "TPulseIsland.h"
 
 #include <cmath>
+#include <sstream>
+#include <cstdlib>
+
+#include "TF1.h"
 
 using std::vector;
 using std::string;
@@ -35,10 +39,26 @@ double TPulseIsland::GetPulseHeight() const {
   
   double pedestal = GetPedestal(10); // get the pedestal
 
+  int peak_sample_element = GetPeakSample();
+  std::stringstream histname;
+  histname << "waveform" << std::rand()%1000;
+  TH1I* hWaveform  = GetPulseWaveform(histname.str().c_str(), histname.str().c_str()); // get the histogram for fitting purposes
+
+  TF1* gaussian = new TF1("gaus", "[0]*TMath::Gaus(x, [1], [2], 0) + [3]", peak_sample_element-10, peak_sample_element+10);
+  gaussian->SetParameter(0, -1000);
+  gaussian->SetParameter(1, hWaveform->GetMean());
+  gaussian->SetParameter(2, hWaveform->GetRMS());
+  gaussian->FixParameter(3, pedestal);
+                
+  gaussian->SetLineColor(kRed);
+  gaussian->SetLineWidth(2);
+  hWaveform->Fit("gaus", "QR");
+  
+  delete hWaveform;
   // Go through the samples and get the samples with the largest difference between it and the pedestal
   // (should take into account both positive and negative pulses)
  
-  return std::abs(fSamples.at(GetPeakSample()) - pedestal);
+  return gaussian->GetMinimum();//std::abs(fSamples.at(peak_sample_element) - pedestal);
 }
 
 // GetPulseTime()
@@ -47,6 +67,20 @@ double TPulseIsland::GetPulseHeight() const {
 double TPulseIsland::GetPulseTime() const {
 
   return (fTimeStamp + GetPeakSample()) * fClockTickInNs;
+}
+
+// GetPulseWaveform()
+// -- Fills a histogram with all the samples and returns it
+TH1I* TPulseIsland::GetPulseWaveform(std::string histname, std::string histtitle) const {
+
+  TH1I* hWaveform = new TH1I(histname.c_str(), histtitle.c_str(), 200,0,200);
+
+  // Loop over the samples and fill the histogram
+  for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {
+    hWaveform->Fill(sampleIter - fSamples.begin(), *sampleIter);
+  }
+
+  return hWaveform;
 }
 
 
