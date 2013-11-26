@@ -43,3 +43,6 @@ GeTimes   Ge/thick_germanium_times.C
 #             Sc
 ScHeights Sc/thick_scintillator_heights.C
 ScTimes   Sc/thick_scintillator_times.C
+#======================================================
+#           Common
+AvgPulseLengths common/avg_pulse_lengths.C
