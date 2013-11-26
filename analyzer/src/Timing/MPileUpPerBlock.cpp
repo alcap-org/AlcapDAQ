@@ -1,9 +1,9 @@
 /********************************************************************\
 
-  Name:         MSiPulseFinder
-  Created by:   Andrew Edmonds
+  Name:         MPileUpPerBlock
+  Created by:   John R Quirk
 
-  Contents:     A module to plot the pulse heights of the silicon detector
+  Contents:     A module to plot the number of muSC events per MIDAS block
 
 \********************************************************************/
 

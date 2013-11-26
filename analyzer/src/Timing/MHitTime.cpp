@@ -1,9 +1,9 @@
 /********************************************************************\
 
-  Name:         MSiPulseFinder
-  Created by:   Andrew Edmonds
+  Name:         MHitTime
+  Created by:   John R Quirk
 
-  Contents:     A module to plot the pulse heights of the silicon detector
+  Contents:     A module that plots the time of hits relative to muSC
 
 \********************************************************************/
 
