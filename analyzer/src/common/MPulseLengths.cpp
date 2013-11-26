@@ -74,7 +74,7 @@ INT MPulseLengths_init()
     fadc_bank_readers.push_back(new TOctalFADCBankReader(bank_names[i]));    
   }
 
-  std::string histname = "hPulseLengthsPerChannel";
+  std::string histname = "hAvgPulseLengthsPerChannel";
   std::string histtitle = "Plot of the average pulse lengths per event for the each channel";
   average_length_histogram = new TH2I(histname.c_str(), histtitle.c_str(), 1,0,1, 5000,0,5000);
   average_length_histogram->GetXaxis()->SetTitle("Bank Name");
