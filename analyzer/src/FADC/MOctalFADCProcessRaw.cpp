@@ -190,6 +190,7 @@ double GetClockTickForChannel(string bank_name)
 
   int DCMPhase;
   double clockTickInNs;
+  double FADC_frequency = 170e6; // 170 MHz
 
   cm_get_experiment_database(&hDB, NULL);
 
@@ -198,7 +199,8 @@ double GetClockTickForChannel(string bank_name)
 
     int size = sizeof(DCMPhase);
     if(db_get_value(hDB, 0, keyName , &DCMPhase, &size, TID_INT, 0) == DB_SUCCESS){
-      clockTickInNs = 6.25 * DCMPhase;
+      double true_frequency = FADC_frequency / DCMPhase;
+      clockTickInNs = (1/true_frequency) * 1e9;
     }
   }
 
