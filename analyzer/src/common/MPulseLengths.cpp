@@ -1,9 +1,9 @@
 /********************************************************************\
 
-Name:         MPulseHeights
+Name:         MPulseLengths
 Created by:   Andrew Edmonds
 
-Contents:     A module to fill a histogram of the pulse heights from each channel
+Contents:     A module to fill a histogram of the pulse lengths from each channel
 
 \********************************************************************/
 
@@ -19,7 +19,7 @@ Contents:     A module to fill a histogram of the pulse heights from each channe
 #include "midas.h"
 
 /* ROOT includes */
-#include <TH1.h>
+#include <TH2.h>
 
 /* AlCap includes */
 #include "TOctalFADCIsland.h"
@@ -34,8 +34,8 @@ using std::vector;
 using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
-INT  MPulseHeights_init(void);
-INT  MPulseHeights(EVENT_HEADER*, void*);
+INT  MPulseLengths_init(void);
+INT  MPulseLengths(EVENT_HEADER*, void*);
 vector<string> GetAllFADCBankNames();
 double GetClockTickForChannel(string bank_name);
 
@@ -44,16 +44,16 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
-map <std::string, TH1I*> height_histograms_map;
+static TH2I* average_length_histogram;
 
-ANA_MODULE MPulseHeights_module =
+ANA_MODULE MPulseLengths_module =
 {
-	"MPulseHeights",                    /* module name           */
+	"MPulseLengths",                    /* module name           */
 	"Andrew Edmonds",              /* author                */
-	MPulseHeights,                      /* event routine         */
+	MPulseLengths,                      /* event routine         */
 	NULL,                          /* BOR routine           */
 	NULL,                          /* EOR routine           */
-	MPulseHeights_init,                 /* init routine          */
+	MPulseLengths_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
 	NULL,                          /* parameter structure   */
 	0,                             /* structure size        */
@@ -62,28 +62,24 @@ ANA_MODULE MPulseHeights_module =
 
 /** This method initializes histograms.
 */
-INT MPulseHeights_init()
+INT MPulseLengths_init()
 {
-  // This histogram has the pulse heights on the X-axis and the number of pulses on the Y-axis
+  // This histogram has the pulse lengths on the X-axis and the number of pulses on the Y-axis
   // One histogram is created for each detector
   // This uses the TH1::kCanRebin mechanism to expand automatically to the
   // number of FADC banks.
   vector<string> bank_names = GetAllFADCBankNames();
 
   for(unsigned int i=0; i<bank_names.size(); i++) {
-    fadc_bank_readers.push_back(new TOctalFADCBankReader(bank_names[i]));
-    
-    std::string detname = gSetup->GetDetectorName(bank_names[i]);
-    std::string histname = "h" + detname + "_Heights";
-    std::string histtitle = "Plot of the pulse heights for the " + detname + " detector";
-    TH1I* hDetHeights = new TH1I(histname.c_str(), histtitle.c_str(), 4095,0,4095);
-    hDetHeights->GetXaxis()->SetTitle("Pulse Height [ADC value]");
-    hDetHeights->GetYaxis()->SetTitle("Arbitrary Unit");
-    hDetHeights->SetBit(TH1::kCanRebin);
-
-    std::pair<std::string, TH1I*> thePair(bank_names[i], hDetHeights);
-    height_histograms_map.insert(thePair);
+    fadc_bank_readers.push_back(new TOctalFADCBankReader(bank_names[i]));    
   }
+
+  std::string histname = "hPulseLengthsPerChannel";
+  std::string histtitle = "Plot of the average pulse lengths per event for the each channel";
+  average_length_histogram = new TH2I(histname.c_str(), histtitle.c_str(), 1,0,1, 5000,0,5000);
+  average_length_histogram->GetXaxis()->SetTitle("Bank Name");
+  average_length_histogram->GetYaxis()->SetTitle("MIDAS Event Number");
+  average_length_histogram->SetBit(TH1::kCanRebin);
 
   return SUCCESS;
 }
@@ -91,7 +87,7 @@ INT MPulseHeights_init()
 /** This method processes one MIDAS block, producing a vector
  * of TOctalFADCIsland objects from the raw Octal FADC data.
  */
-INT MPulseHeights(EVENT_HEADER *pheader, void *pevent)
+INT MPulseLengths(EVENT_HEADER *pheader, void *pevent)
 {
 	// Get the event number
 	int midas_event_number = pheader->serial_number;
@@ -111,16 +107,16 @@ INT MPulseHeights(EVENT_HEADER *pheader, void *pevent)
 	{
 	  std::string bankname = theMapIter->first;
 	  std::vector<TPulseIsland*> thePulses = theMapIter->second;
-			
-	  // Loop over the TPulseIslands and plot the histogram
-	  for (std::vector<TPulseIsland*>::iterator thePulseIter = thePulses.begin(); thePulseIter != thePulses.end(); thePulseIter++) {
-			
-	    // Find the relevant bank name from the detector name
-	    if (height_histograms_map.find(bankname) != height_histograms_map.end()) {
-	      // Fill the histogram
-	      height_histograms_map[bankname]->Fill((*thePulseIter)->GetPulseHeight());
-		      
+	  
+	  if (thePulses.size() != 0) {
+	    // Loop over the TPulseIslands and plot the histogram
+	    double total_length_of_pulses = 0;
+	    for (std::vector<TPulseIsland*>::iterator thePulseIter = thePulses.begin(); thePulseIter != thePulses.end(); thePulseIter++) {
+	      
+	      total_length_of_pulses += (*thePulseIter)->GetPulseLength();
 	    }
+	    // Fill the histogram
+	    average_length_histogram->Fill(bankname.c_str(), midas_event_number, total_length_of_pulses / thePulses.size());
 	  }
 	}
 	return SUCCESS;

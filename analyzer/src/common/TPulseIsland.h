@@ -29,6 +29,7 @@ class TPulseIsland : public TObject {
   double GetPulseHeight() const;
   double GetPulseTime() const;  
   TH1I* GetPulseWaveform(std::string histname, std::string histtitle) const;
+  int GetPulseLength() const { return fSamples.size(); }
 
   int GetPeakSample() const;
   double GetPedestal(int nPedSamples) const;
