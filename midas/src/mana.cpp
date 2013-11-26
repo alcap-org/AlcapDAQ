@@ -5782,18 +5782,7 @@ int main(int argc, char *argv[])
       printf("Becoming a daemon...\n");
       clp.quiet = TRUE;
       ss_daemon_init(FALSE);
-   }
-
-  /* Don't run offline if MIDAS_DIR is not defined */ 
-   if ( ! clp.online ) 
-     { 
-       if ( !getenv("MIDAS_DIR") ) 
-         { 
-           printf("For offline running the directory MIDAS_DIR must be defined\n"); 
-           return 1; 
-         } 
-     } 
- 
+   } 
  
    /* set default buffer size */
    if (clp.pvm_buf_size == 0)
@@ -5807,6 +5796,17 @@ int main(int argc, char *argv[])
 
    /* set online mode if no input filename is given */
    clp.online = (clp.input_file_name[0][0] == 0);
+
+  /* Don't run offline if MIDAS_DIR is not defined */ 
+   if ( ! clp.online ) 
+     { 
+       if ( !getenv("MIDAS_DIR") ) 
+         { 
+           printf("For offline running the directory MIDAS_DIR must be defined\n"); 
+           return 1; 
+         } 
+     } 
+
 
 #ifdef HAVE_HBOOK
    /* set Ntuple format to RWNT if online */
@@ -5860,7 +5860,8 @@ int main(int argc, char *argv[])
    db_set_value(hDB, 0, "/Runinfo/Online Mode", &clp.online, sizeof(clp.online), 1,
                 TID_INT);
    /* set run number in the database -- Brendan Kiburg 1/24/2008 */
-   db_set_value(hDB, 0, "/Runinfo/Run number", &myrunnumber, sizeof(int), 1, TID_INT);
+   /* commented out by VT on 11/25/2013 */
+   //db_set_value(hDB, 0, "/Runinfo/Run number", &myrunnumber, sizeof(int), 1, TID_INT);
 
    if (clp.online) {
       /* check for duplicate name */
