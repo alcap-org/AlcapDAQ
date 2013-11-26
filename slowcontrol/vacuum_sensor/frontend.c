@@ -66,27 +66,28 @@ static const char CONT_MOD[] = "COM,1\r\n";
 /*-- Equipment list ------------------------------------------------*/
 
 BANK_LIST vacuum_bank_list[] = {
-  { "PRS1", TID_FLOAT,  1, NULL },
+  { "PRS0", TID_FLOAT,  1, NULL },
+  { "PRM0", TIF_INT,    1, NULL },
   { "" },
 };
 
 #undef USE_INT
 
 EQUIPMENT equipment[] = {
-   {"VacuumMonitor",            /* equipment name */
-     { 24, 0,                       /* event ID, trigger mask */
-       "SYSTEM",                   /* event buffer */
-       EQ_PERIODIC,                  /* equipment type */
-       0,                          /* event source */
-       "MIDAS",                    /* format */
-       TRUE,                       /* enabled */
-       RO_ALWAYS|RO_ODB,           /* read all the time */
-       1000,                      /* reads spaced by this many ms */
-       0,                          /* stop run after this event limit */
-       0,                          /* number of sub events */
-       0,                          /* log history every event */
+   {"VacuumMonitor",     /* equipment name */
+     { 24, 0,            /* event ID, trigger mask */
+       "SYSTEM",         /* event buffer */
+       EQ_PERIODIC,      /* equipment type */
+       0,                /* event source */
+       "MIDAS",          /* format */
+       TRUE,             /* enabled */
+       RO_ALWAYS, /* read all the time */
+       1000,             /* reads spaced by this many ms */
+       0,                /* stop run after this event limit */
+       0,                /* number of sub events */
+       0,                /* log history every event */
        "", "", "", },
-    vacuum_gauge_read,              /* readout routine */
+    vacuum_gauge_read,   /* readout routine */
     NULL, NULL, 
     vacuum_bank_list,
    },
@@ -170,8 +171,8 @@ INT frontend_init()
   vacuum_config.c_cflag |= CLOCAL;        // Do not become owner of device?
   vacuum_config.c_cflag |= CREAD;         // Enable reading
   vacuum_config.c_cflag |= (CSIZE & CS8); // 8-bit bytes
-  cfsetispeed(&vacuum_config, B9600);      // Default baudrate for vacuum is 9600
-  cfsetospeed(&vacuum_config, B9600);      // Default baudrate for vacuum is 9600
+  cfsetispeed(&vacuum_config, B9600);     // Default baudrate for vacuum is 9600
+  cfsetospeed(&vacuum_config, B9600);     // Default baudrate for vacuum is 9600
   /* Control */
   vacuum_config.c_cc[VTIME] = 10; // Interbyte timeout of 1 sec
   vacuum_config.c_cc[VMIN]  = 28; // Longest msg is 2 measurements, 28 chars
