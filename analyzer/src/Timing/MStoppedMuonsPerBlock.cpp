@@ -130,15 +130,15 @@ INT MStoppedMuonsPerBlock(EVENT_HEADER *pheader, void *pevent)
 
     if ((*c_muveto_pulse)->GetPulseTime() - cTime < tw_muveto)
       continue;
-    if ((*c_scr_pulse)->GetPulseTime() - cTime > tw_sc)
+    if ((*c_scr_pulse)->GetPulseTime() - cTime < tw_sc)
       continue;
-    if ((*c_scl_pulse)->GetPulseTime() - cTime > tw_sc)
+    if ((*c_scl_pulse)->GetPulseTime() - cTime < tw_sc)
       continue;
     for (int iSiR = 0; iSiR < nSiR; iSiR++)
-      if ((*c_sir_pulse[iSiR])->GetPulseTime() - cTime > tw_si)
+      if ((*c_sir_pulse[iSiR])->GetPulseTime() - cTime < tw_si)
 	continue;
     for (int iSiL = 0; iSiL < nSiL; iSiL++)
-      if ((*c_sil_pulse[iSiL])->GetPulseTime() - cTime > tw_si)
+      if ((*c_sil_pulse[iSiL])->GetPulseTime() - cTime < tw_si)
 	continue;
 
     nStopped++;
