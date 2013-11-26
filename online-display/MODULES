@@ -32,11 +32,6 @@ SiL1FastTimes Si/thin_left_fast_silicon_times.C
 SiR1FastTimes Si/thin_right_fast_silicon_times.C
 Si2Times Si/thick_silicon_times.C
 
-SiL1SlowPulses Si/thin_left_slow_silicon_pulses.C
-SiR1SlowPulses Si/thin_right_slow_silicon_pulses.C
-SiL1FastPulses Si/thin_left_fast_silicon_pulses.C
-SiR1FastPulses Si/thin_right_fast_silicon_pulses.C
-Si2Pulses Si/thick_silicon_pulses.C
 #======================================================
 #             FADC
 FADCIslandsReadPerBlock FADC/fadc_islands_read_per_block.C
@@ -44,9 +39,7 @@ FADCIslandsReadPerBlock FADC/fadc_islands_read_per_block.C
 #             Ge
 GeHeights Ge/thick_germanium_heights.C
 GeTimes   Ge/thick_germanium_times.C
-GePulses  Ge/thick_germanium_pulses.C
 #======================================================
 #             Sc
 ScHeights Sc/thick_scintillator_heights.C
 ScTimes   Sc/thick_scintillator_times.C
-ScPulses  Sc/thick_scintillator_pulses.C

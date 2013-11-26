@@ -118,7 +118,7 @@ INT analyzer_init()
 
   // Initialize gSetup
   gSetup = new TSetupData();
-
+  UpdateDetectorBankNameMap(gSetup);
   // Override ROOT's handling of signals
   signal(SIGHUP , catastrophe);
   signal(SIGINT , catastrophe);
@@ -155,8 +155,6 @@ INT analyzer_exit()
 
 INT ana_begin_of_run(INT run_number, char *error)
 {
-  UpdateDetectorBankNameMap(gSetup);
-
   printf("Analyzer saw beginning of run %d\n", run_number);
   return CM_SUCCESS;
 }
@@ -194,7 +192,7 @@ INT analyzer_loop()
 //}
 
 void UpdateDetectorBankNameMap(TSetupData *gSetup){
-  // Want to go through the /Analyzer/WireMap and map detector names and 
+  // Want to go through the /Analyzer/WireMap and map bank names and detector names 
   HNDLE hDB, hKey;
   char keyName[200];
   
@@ -247,7 +245,7 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     if(strcmp(DetectorNames[i], "") == 0) printf("Warning: No detector name associated with bank %s!\n", BankNames[i]);
     
     std::string bank(BankNames[i]), detector(DetectorNames[i]);
-    gSetup->fBankToDetectorMap.insert(std::pair<std::string, std::string>(bank, detector));
+    gSetup->fBankToDetectorMap[bank] = detector;
 
     if(BankNames[i][0] == 'N'){
       std::string iAddr(BankNames[i]);
