@@ -40,7 +40,7 @@ double TPulseIsland::GetPulseHeight() const {
   double pedestal = GetPedestal(10); // get the pedestal
 
   int peak_sample_element = GetPeakSample();
-  std::stringstream histname;
+  /*  std::stringstream histname;
   histname << "waveform" << std::rand()%1000;
   TH1I* hWaveform  = GetPulseWaveform(histname.str().c_str(), histname.str().c_str()); // get the histogram for fitting purposes
 
@@ -54,11 +54,11 @@ double TPulseIsland::GetPulseHeight() const {
   gaussian->SetLineWidth(2);
   hWaveform->Fit("gaus", "QR");
   
-  delete hWaveform;
+  delete hWaveform;*/
   // Go through the samples and get the samples with the largest difference between it and the pedestal
   // (should take into account both positive and negative pulses)
  
-  return gaussian->GetMinimum();//std::abs(fSamples.at(peak_sample_element) - pedestal);
+  return std::abs(fSamples.at(peak_sample_element) - pedestal);
 }
 
 // GetPulseTime()
