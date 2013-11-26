@@ -76,7 +76,7 @@ INT MPulseHeights_init()
     std::string detname = gSetup->GetDetectorName(bank_names[i]);
     std::string histname = "h" + detname + "_Heights";
     std::string histtitle = "Plot of the pulse heights for the " + detname + " detector";
-    TH1I* hDetHeights = new TH1I(histname.c_str(), histtitle.c_str(), 100,0,100);
+    TH1I* hDetHeights = new TH1I(histname.c_str(), histtitle.c_str(), 4095,0,4095);
     hDetHeights->GetXaxis()->SetTitle("Pulse Height [ADC value]");
     hDetHeights->GetYaxis()->SetTitle("Arbitrary Unit");
     hDetHeights->SetBit(TH1::kCanRebin);
