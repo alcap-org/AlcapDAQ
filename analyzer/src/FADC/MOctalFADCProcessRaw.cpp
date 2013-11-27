@@ -47,6 +47,7 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 static TH2* hNOctalFADCIslandsReadPerBlock;
+static TH1* hPulseTimeDiff;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
 
@@ -77,6 +78,9 @@ INT MOctalFADCProcessRaw_init()
     "Number of FADC Islands read by block",
     1,0,1, 3000,0,3000);
   hNOctalFADCIslandsReadPerBlock->SetBit(TH1::kCanRebin);
+
+  hPulseTimeDiff = new TH1I("pulseIslandTimeDiffs","",100,0,100);
+  hPulseTimeDiff->SetBit(TH1::kCanRebin);
 
   vector<string> bank_names = GetAllFADCBankNames();
 
@@ -139,6 +143,7 @@ INT MOctalFADCProcessRaw(EVENT_HEADER *pheader, void *pevent)
     // owns the memory associated with these.
     vector<TPulseIsland*> pulse_islands;
     for(unsigned int j=0; j<fadc_islands.size(); j++) {
+      if (j!=0) hPulseTime->Fill(fadc_islands[j]->GetTime() - fadc_islands[j-1]->GetTime());
       pulse_islands.push_back(new TPulseIsland(
         fadc_islands[j]->GetTime(), fadc_islands[j]->GetSampleVector(),
         clock_tick, bank_name));
