@@ -38,7 +38,7 @@ LIBS = -lm -lz -lutil -lnsl -lpthread
 SRC_DIR         = $(MIDASSYS)
 DRV_DIR         = $(MIDASSYS)/drivers
 INC_DIR 	= $(MIDASSYS)/include
-LIB_DIR 	= $(MIDASSYS)/linux64/lib
+LIB_DIR 	= $(MIDASSYS)/linux/lib
 
 ####################################################################
 # Lines below here should not be edited
