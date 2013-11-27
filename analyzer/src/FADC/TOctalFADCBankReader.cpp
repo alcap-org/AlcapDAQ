@@ -35,6 +35,7 @@ void TOctalFADCBankReader::ProcessEvent(EVENT_HEADER* pheader, void *pevent)
   vector<int> islandSamples;
   islandSamples.reserve(kSamplesArrayInitialSize);
 
+  bool newPulse = 1;
   int islandTimestamp = 0; // time of first 4-sample block in stitched island
   int lastTimestamp = 0; // To see the end of the last island.
   bool firstIsland = true; // Beginning of first island is not end of an island
@@ -85,7 +86,7 @@ void TOctalFADCBankReader::ProcessEvent(EVENT_HEADER* pheader, void *pevent)
             new TOctalFADCIsland(islandTimestamp*4,islandSamples)
           );
 
-
+          newPulse = 1;
 #if 0
 printf("Time = %d, nsamples = %d, char = %c , channel = %d\n",
 islandTimestamp, islandSamples.size(),fBankName.at(1),channel);
@@ -102,14 +103,17 @@ printf("\n");
       islandTimestamp = timestamp;
     }
 
-    //only fill pulse if these samples follow the previous
-    if (timestamp == lastTimestamp + 1){
+    //only fill pulse if these samples follow the previous or form the beginning
+    //if ((timestamp == lastTimestamp + 1)){
+    if ((newPulse) || (timestamp == lastTimestamp + 1)){
       islandSamples.push_back(sampleA1);
       islandSamples.push_back(sampleB1);
       islandSamples.push_back(sampleA0);
       islandSamples.push_back(sampleB0);
     } 
+
     lastTimestamp = timestamp;
+    newPulse = 0;
 
 #if 0
 for(int k=0; k<10; k++){
