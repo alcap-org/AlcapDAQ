@@ -44,7 +44,7 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
-static TH1* hPulseTimeDiff;
+static std::map<std::string, TH1*>  time_separation_histogram_map;
 
 ANA_MODULE MPulseTimeSeparation_module =
 {
@@ -69,12 +69,21 @@ INT MPulseTimeSeparation_init()
   // This uses the TH1::kCanRebin mechanism to expand automatically to the
   // number of FADC banks.
 
-  hPulseTimeDiff = new TH1I("pulseIslandTimeDiffs","Time difference between consecutive pulses in all channels",100,0,100);
-  hPulseTimeDiff->GetXaxis()->SetTitle("time [ns]");
-  hPulseTimeDiff->GetYaxis()->SetTitle("Number of pulse pairs");
-  hPulseTimeDiff->SetBit(TH1::kCanRebin);
-
   vector<string> bank_names = GetAllFADCBankNames();
+
+  for(unsigned int i=0; i<bank_names.size(); i++) {
+    fadc_bank_readers.push_back(new TOctalFADCBankReader(bank_names[i]));
+
+    std::string detname = gSetup->GetDetectorName(bank_names[i]);
+    std::string histname = "h" + detname + "_PulseSeparation";
+    std::string histtitle = "Plot of the pulse times for the " + detname + " detector";
+    TH1I* hPulseTimeDiff = new TH1I(histname.c_str(),histtitle.c_str(),100,0,100);
+    hPulseTimeDiff->GetXaxis()->SetTitle("Time Stamp");
+    hPulseTimeDiff->GetYaxis()->SetTitle("Number of pulse pairs");
+    hPulseTimeDiff->SetBit(TH1::kCanRebin);
+
+    time_separation_histogram_map[bank_names[i]] = hPulseTimeDiff;
+  }
 
   return SUCCESS;
 }
@@ -107,7 +116,8 @@ INT MPulseTimeSeparation(EVENT_HEADER *pheader, void *pevent)
 	  for (std::vector<TPulseIsland*>::iterator thePulseIter = thePulses.begin(); thePulseIter != thePulses.end(); thePulseIter++) {
 	    
 	    if (thePulseIter!=thePulses.begin()) 
-	      hPulseTimeDiff->Fill((*thePulseIter)->GetPulseTime() - (*(thePulseIter-1))->GetPulseTime());	      	  }
+	      time_separation_histogram_map[bankname]->Fill((*thePulseIter)->GetTimeStamp() - (*(thePulseIter-1))->GetTimeStamp());	      	  
+	  }
 	}
 	return SUCCESS;
 }
