@@ -36,14 +36,12 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MPulseHeights_init(void);
 INT  MPulseHeights(EVENT_HEADER*, void*);
-vector<string> GetAllFADCBankNames();
 double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-static vector<TOctalFADCBankReader*> fadc_bank_readers;
 map <std::string, TH1I*> height_histograms_map;
 
 ANA_MODULE MPulseHeights_module =
@@ -68,12 +66,12 @@ INT MPulseHeights_init()
   // One histogram is created for each detector
   // This uses the TH1::kCanRebin mechanism to expand automatically to the
   // number of FADC banks.
-  vector<string> bank_names = GetAllFADCBankNames();
+  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
+      mapIter != bank_to_detector_map.end(); mapIter++) { 
 
-  for(unsigned int i=0; i<bank_names.size(); i++) {
-    fadc_bank_readers.push_back(new TOctalFADCBankReader(bank_names[i]));
-    
-    std::string detname = gSetup->GetDetectorName(bank_names[i]);
+    std::string bankname = mapIter->first;
+    std::string detname = gSetup->GetDetectorName(bankname);
     std::string histname = "h" + detname + "_Heights";
     std::string histtitle = "Plot of the pulse heights for the " + detname + " detector";
     TH1I* hDetHeights = new TH1I(histname.c_str(), histtitle.c_str(), 4095,0,4095);
@@ -81,8 +79,7 @@ INT MPulseHeights_init()
     hDetHeights->GetYaxis()->SetTitle("Arbitrary Unit");
     hDetHeights->SetBit(TH1::kCanRebin);
 
-    std::pair<std::string, TH1I*> thePair(bank_names[i], hDetHeights);
-    height_histograms_map.insert(thePair);
+    height_histograms_map[bankname] = hDetHeights;
   }
 
   return SUCCESS;

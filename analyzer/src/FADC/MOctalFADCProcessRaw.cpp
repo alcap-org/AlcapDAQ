@@ -39,7 +39,6 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MOctalFADCProcessRaw_init(void);
 INT  MOctalFADCProcessRaw(EVENT_HEADER*, void*);
-vector<string> GetAllFADCBankNames();
 double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
@@ -75,13 +74,18 @@ INT MOctalFADCProcessRaw_init()
   hNOctalFADCIslandsReadPerBlock = new TH2I(
     "hNOctalFADCIslandsReadPerBlock",
     "Number of FADC Islands read by block",
-    1,0,1, 3000,0,3000);
+    1,0,1, 10000,0,10000);
   hNOctalFADCIslandsReadPerBlock->SetBit(TH1::kCanRebin);
 
-  vector<string> bank_names = GetAllFADCBankNames();
+  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
+      mapIter != bank_to_detector_map.end(); mapIter++) { 
+    
+    std::string bankname = mapIter->first;
 
-  for(unsigned int i=0; i<bank_names.size(); i++) {
-    fadc_bank_readers.push_back(new TOctalFADCBankReader(bank_names[i]));
+    // We only want the FADC banks here
+    if (TSetupData::IsFADC(bankname))
+      fadc_bank_readers.push_back(new TOctalFADCBankReader(bankname));
   }
 
   return SUCCESS;
@@ -161,20 +165,6 @@ INT MOctalFADCProcessRaw(EVENT_HEADER *pheader, void *pevent)
   }
 
   return SUCCESS;
-}
-
-vector<string> GetAllFADCBankNames()
-{
-  vector<string> v;
-
-  // Loop through all gSetup and get the banknames
-  for (std::map<std::string, std::string>::iterator iter = gSetup->fBankToDetectorMap.begin();
-       iter != gSetup->fBankToDetectorMap.end();
-       iter++) {
-    v.push_back(iter->first);
-  }
-
-  return v;
 }
 
 double GetClockTickForChannel(string bank_name)

@@ -36,7 +36,6 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MPulseTimes_init(void);
 INT  MPulseTimes(EVENT_HEADER*, void*);
-vector<string> GetAllFADCBankNames();
 double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
@@ -66,23 +65,21 @@ INT MPulseTimes_init()
 {
   // This histogram has the pulse times on the X-axis and the number of pulses on the Y-axis
   // One histogram is created for each detector
-  // This uses the TH1::kCanRebin mechanism to expand automatically to the
-  // number of FADC banks.
-  vector<string> bank_names = GetAllFADCBankNames();
 
-  for(unsigned int i=0; i<bank_names.size(); i++) {
-    fadc_bank_readers.push_back(new TOctalFADCBankReader(bank_names[i]));
-    
-    std::string detname = gSetup->GetDetectorName(bank_names[i]);
+  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
+      mapIter != bank_to_detector_map.end(); mapIter++) { 
+
+    std::string bankname = mapIter->first;
+    std::string detname = gSetup->GetDetectorName(bankname);
     std::string histname = "h" + detname + "_Times";
     std::string histtitle = "Plot of the pulse times for the " + detname + " detector";
-    TH1I* hDetTimes = new TH1I(histname.c_str(), histtitle.c_str(), 100,0,100);
+    TH1I* hDetTimes = new TH1I(histname.c_str(), histtitle.c_str(), 1e6,0,1e3);
     hDetTimes->GetXaxis()->SetTitle("Pulse Time [ns]");
     hDetTimes->GetYaxis()->SetTitle("Arbitrary Unit");
     hDetTimes->SetBit(TH1::kCanRebin);
 
-    std::pair<std::string, TH1I*> thePair(bank_names[i], hDetTimes);
-    time_histograms_map.insert(thePair);
+    time_histograms_map[bankname]=  hDetTimes;
   }
 
   return SUCCESS;

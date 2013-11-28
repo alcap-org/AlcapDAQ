@@ -18,6 +18,8 @@ class TSetupData : public TObject{
   //std::string GetBankName(std::string DetectorName){ };
   std::string GetDetectorName(std::string BankName) { return fBankToDetectorMap[BankName]; };
 
+  static bool IsFADC(std::string BankName) { return BankName[0] == 'N'; } // if the first letter is an N then the bank name is for the FADC
+
   ClassDef(TSetupData, 1)
 };
 #endif
