@@ -33,14 +33,14 @@ BankName = STRING[48] :
 [5] Ngf0
 [5] Nhf0
 [5]
-[5] CDG0
-[5] CDG1
-[5] CDG2
-[5] CDG3
-[5] CDG4
-[5] CDG5
-[5] CDG6
-[5] CDG7 
+[5] Ca00
+[5] Cb00
+[5] Cc00
+[5] Cd00
+[5] Ce00
+[5] Cf00
+[5] Cg00
+[5] Ch00 
 [5] 
 [5] 
 [5] 
@@ -131,14 +131,14 @@ DetectorName = STRING[48] :
 [80] SiR1-3-slow
 [80] SiR1-4-slow
 [80] 
-[80] CDG0
-[80] CDG1
-[80] CDG2
-[80] CDG3
-[80] CDG4
-[80] CDG5
-[80] CDG6
-[80] CDG7
+[80] Ca00
+[80] Cb00
+[80] Cc00
+[80] Cd00
+[80] Ce00
+[80] Cf00
+[80] Cg00
+[80] Ch00
 [80] 
 [80] 
 [80] 
