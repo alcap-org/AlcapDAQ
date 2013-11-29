@@ -36,7 +36,7 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MShortPulseTimes_init(void);
 INT  MShortPulseTimes(EVENT_HEADER*, void*);
-vector<string> GetAllFADCBankNames();
+vector<string> GetAllBankNames();
 double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
@@ -70,12 +70,11 @@ INT MShortPulseTimes_init()
   // This uses the TH1::kCanRebin mechanism to expand automatically to the
   // number of FADC banks.
 
-  vector<string> bank_names = GetAllFADCBankNames();
+  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin();
+      mapIter != bank_to_detector_map.end(); mapIter++) {
 
-  for(unsigned int i=0; i<bank_names.size(); i++) {
-    fadc_bank_readers.push_back(new TOctalFADCBankReader(bank_names[i]));
-
-    std::string detname = gSetup->GetDetectorName(bank_names[i]);
+    std::string detname = gSetup->GetDetectorName(mapIter->first);
     std::string histname = "h" + detname + "_ShortPulseTimes";
     std::string histtitle = "Plot of the short pulse times for the " + detname + " detector";
     TH1D* hShortPulseTime = new TH1D(histname.c_str(),histtitle.c_str(),100,0,100);
@@ -83,8 +82,7 @@ INT MShortPulseTimes_init()
     hShortPulseTime->GetYaxis()->SetTitle("Number of 4-sample pulses");
     hShortPulseTime->SetBit(TH1::kCanRebin);
 
-    time_short_pulse_histogram_map[bank_names[i]] = hShortPulseTime;
-
+    time_short_pulse_histogram_map[mapIter->first] = hShortPulseTime;
   }
 
   return SUCCESS;
