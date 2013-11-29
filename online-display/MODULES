@@ -24,7 +24,8 @@ SiL1SlowHeights Si/thin_left_slow_silicon_heights.C
 SiR1SlowHeights Si/thin_right_slow_silicon_heights.C
 SiL1FastHeights Si/thin_left_fast_silicon_heights.C
 SiR1FastHeights Si/thin_right_fast_silicon_heights.C
-Si2Heights Si/thick_silicon_heights.C
+Si2Heights    Si/thick_silicon_heights.C
+FitSi2Heights Si/thick_silicon_heights_gausfit.C
 
 SiL1SlowTimes Si/thin_left_slow_silicon_times.C
 SiR1SlowTimes Si/thin_right_slow_silicon_times.C
@@ -37,12 +38,14 @@ Si2Times Si/thick_silicon_times.C
 FADCIslandsReadPerBlock FADC/fadc_islands_read_per_block.C
 #======================================================
 #             Ge
-GeHeights Ge/thick_germanium_heights.C
-GeTimes   Ge/thick_germanium_times.C
+GeHeights    Ge/thick_germanium_heights.C
+FitGeHeights Ge/thick_germanium_heights_gausfit.C
+GeTimes      Ge/thick_germanium_times.C
 #======================================================
 #             Sc
-ScHeights Sc/thick_scintillator_heights.C
-ScTimes   Sc/thick_scintillator_times.C
+ScHeights    Sc/thick_scintillator_heights.C
+FitScHeights Sc/thick_scintillator_heights_gausfit.C
+ScTimes      Sc/thick_scintillator_times.C
 #======================================================
 #           Common
 AvgPulseLengths common/avg_pulse_lengths.C
