@@ -26,6 +26,7 @@
 //JG: added alcap includes
 /* AlCap includes */
 #include "TGlobalData.h"
+#include "TSetupData.h"
 
 using std::string;
 using std::map;
@@ -34,13 +35,14 @@ using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
 static INT  module_init(void);
-vector<string> GetAllCAENBankNames();
 static INT  module_event(EVENT_HEADER*, void*);
 //double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
+extern TSetupData* gSetup;
 
+vector<string> caen_bank_names;
 //static vector<TV1724BankReader*> caen_bank_readers;
 
 struct caen_event_t
@@ -71,22 +73,32 @@ ANA_MODULE MV1724ProcessRaw_module =
 static const int NCHAN = 8;
 
 /*-- Histogram declaration -----------------------------------------*/
-static TH2D *h2_v1724_pulses[NCHAN];
+static vector<TH2D *> h2_v1724_pulses;
 
 /*--module init routine --------------------------------------------*/
 INT module_init()
 {
+  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
+      mapIter != bank_to_detector_map.end(); mapIter++) { 
+    
+    std::string bankname = mapIter->first;
+    
+    // We only want the CAEN banks here
+    if (TSetupData::IsCAEN(bankname)) {
+      caen_bank_names.push_back(bankname);
 
-  for (int i=0; i<NCHAN; i++)
-    {
-      h2_v1724_pulses[i] = new TH2D(Form("h2_v1724_pulses_chan_%i",i),"v1724 raw pulses",256,0.5,256.5,16385,-0.5,16384.5); 
-      h2_v1724_pulses[i]->SetXTitle("time (ct)");
-      h2_v1724_pulses[i]->SetYTitle("ADC");
+      int i = caen_bank_names.size() - 1; // get the current number of CAEN banks => current channel number
+      TH2D* hist = new TH2D(Form("h2_v1724_pulses_chan_%i",i),"v1724 raw pulses",256,0.5,256.5,16385,-0.5,16384.5); 
+      hist->SetXTitle("time (ct)");
+      hist->SetYTitle("ADC");
+
+      h2_v1724_pulses.push_back(hist);
     }
+  }
   
-  printf("caen init!\n");
+  //  printf("caen init!\n");
   
-  vector<string> bank_names = GetAllCAENBankNames();  
   //for (int i=0; i<bank_names.size(); i++)  printf(" name for bank %d is %s \n",i,bank_names[i].data());
   
   return SUCCESS;
@@ -129,10 +141,10 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
   //printf("caen ER!\n");
 
   char bank_name[8];
-  sprintf(bank_name,"CDG%i",0);//single bank recorded, may add more
+  sprintf(bank_name,"CDG%i",0); // one MIDAS bank per board
   unsigned int bank_len = bk_locate(pevent, bank_name, &pdata);
 
-  vector<string> bank_names = GetAllCAENBankNames();  
+  //  printf("MIDAS bank [%s] size %d ----------------------------------------\n",bank_name,bank_len);
 
   /* uncomment when have real data
   if ( bank_len == 0 )
@@ -141,7 +153,6 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
     }
   */
   
-  //printf("bank [%s] size %d ----------------------------------------\n",bank_name,bank_len);
 
   uint32_t *p32 = (uint32_t*)pdata;
   uint32_t *p32_0 = (uint32_t*)pdata;
@@ -151,7 +162,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
     {
 
       uint32_t caen_event_cw = p32[0]>>28;
-      printf("CW: %08x\n",caen_event_cw);
+      //      printf("CW: %08x\n",caen_event_cw);
       if ( caen_event_cw != 0xA )
 	{
 	  printf("***ERROR! Wrong data format: incorrect control word 0x%08x\n", caen_event_cw);
@@ -159,7 +170,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	}
       
       uint32_t caen_event_size = p32[0] & 0x0FFFFFFF;
-      printf("caen event size: %i\n",caen_event_size);
+      //      printf("caen event size: %i\n",caen_event_size);
       
       uint32_t caen_channel_mask = p32[1] & 0x000000FF;
       // count the number of channels in the event
@@ -168,71 +179,73 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	{
 	  if ( caen_channel_mask & (1<<ichannel) ) nchannels++; 
 	}
-      printf("caen channel mask: 0x%08x (%i)\n",caen_channel_mask,nchannels);
+      //      printf("caen channel mask: 0x%08x (%i)\n",caen_channel_mask,nchannels);
       
       uint32_t caen_event_counter = p32[2] & 0x00FFFFFF;
-      printf("caen event counter: %i\n",caen_event_counter);
+      //      printf("caen event counter: %i\n",caen_event_counter);
       
       uint32_t caen_trigger_time = p32[3];
-      printf("caen trigger time: %i\n",caen_trigger_time);// = clock ticks?
+      //      printf("caen trigger time: %i\n",caen_trigger_time);// = clock ticks?
       
       // number of samples per channel
       unsigned int nsamples = ((caen_event_size-4)*2) / nchannels;
-      printf("waveform length: %i\n",nsamples);
+      //      printf("waveform length: %i\n",nsamples);
 
-      vector<TPulseIsland*> pulse_islands;
-      
-      // decode ADC samples
-      for (int ichannel = 0; ichannel < NCHAN; ichannel++)//only one channel used atm
-	{
+      // Loop through the channels (i.e. banks)
+      for (std::vector<std::string>::iterator bankNameIter = caen_bank_names.begin();
+	   bankNameIter != caen_bank_names.end(); bankNameIter++) {
+        
+	vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
+	std::vector<int> sample_vector;
+	int ichannel = bankNameIter - caen_bank_names.begin();
 
-          std::vector<int> sample_vector;
+	//	printf("TGlobalData bank [%s] ----------------------------------------\n", (*bankNameIter).c_str());
+	//	printf("Number of TPulseIslands already existing = %d\n", pulse_islands.size());
+	//	printf("*-- channel %i -------------------------------------------------------------*\n",ichannel);
 
-	  if ( caen_channel_mask & (1<<ichannel) )
-	    {
-	      // channel enabled
-	      unsigned int isample = 0;
-	      unsigned int nwords = nsamples/2;
-	      //printf("*-- channel %i -------------------------------------------------------------*\n",ichannel);
-	      for (int iword=0; iword<nwords; iword++)
-		{
+	if ( caen_channel_mask & (1<<ichannel) )
+	  {
+	    // channel enabled
+	    unsigned int isample = 0;
+	    unsigned int nwords = nsamples/2;
 
-		  for (int isubword=0; isubword<2; isubword++)
-		    {
-		      uint32_t adc;
-		      		      
-		      if (isubword == 0 )
-			adc = (p32[4+iword+ichannel*nwords] & 0x3fff);
-		      else 
-			adc = ((p32[4+iword+ichannel*nwords] >> 16) & 0x3fff);
+	    for (int iword=0; iword<nwords; iword++)
+	      {
+		
+		for (int isubword=0; isubword<2; isubword++)
+		  {
+		    uint32_t adc;
+		    
+		    if (isubword == 0 )
+		      adc = (p32[4+iword+ichannel*nwords] & 0x3fff);
+		    else 
+		      adc = ((p32[4+iword+ichannel*nwords] >> 16) & 0x3fff);
 		      
-		      //printf("adc[%i] = %i\n", isample, adc);
-		      h2_v1724_pulses[ichannel]->Fill(isample,adc);
-		      isample++;
+		    //		      printf("adc[%i] = %i\n", isample, adc);
+		    h2_v1724_pulses[ichannel]->Fill(isample,adc);
+		    isample++;
 		      
-                      sample_vector.push_back(adc);
+		    sample_vector.push_back(adc);
 
-		    }
-		}
+		  }
+	      }
               
-              for(unsigned int j=0; j<caen_event_counter; j++) {//event counter = trigger counter?
-                pulse_islands.push_back(new TPulseIsland(
-                caen_trigger_time, sample_vector,
-                isample, bank_name));
-              }
-	      
-            }
-	}
+	    
+	    pulse_islands.push_back(new TPulseIsland(
+						       caen_trigger_time, sample_vector,
+						       isample, *bankNameIter));
+	  }
+      }
       
       p32 += caen_event_size;
-      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
+      //      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
 
     }
     
   
   /* fake data! just to show how to push to a tree: */
 
-  vector<TPulseIsland*> pulse_islands[bank_names.size()];
+  /*  vector<TPulseIsland*> pulse_islands[bank_names.size()];
 
   TRandom3 *rndm = new TRandom3(0);
 
@@ -303,36 +316,10 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
     pulse_islands_map.insert(TStringPulseIslandPair(bank_name2, pulse_islands[j]));
 
   }
-
+  */
   //printf("bank_names size %d\n",(int)bank_names.size());
 
   /* --- */
   
   return SUCCESS;
-}
-
-vector<string> GetAllCAENBankNames()
-{
-  // Want to go throgh the equipment tree and work out which FADCs and channels are on and store their bank names in the vector which we return
-  HNDLE hDB, hKey;
-  KEY key;
-  char keyName[200];
-  vector<string> v;
-  INT iAddr, iChn; // loop counters
-  INT n_addresses = 256; // 8 dip switches gives 2^8 combinations 
-  INT n_channels = 8;
-
-  cm_get_experiment_database(&hDB, NULL);
-
-  // for now, using simple code to test pushing multiple banks to TTree.  Follow GetAllFADCBankNames() to test real implementation data 
-
-  for (int i=0; i<NCHAN; i++){
-  
-    char bank_name[5];
-    sprintf(bank_name, "CDG%d",i);
-    v.push_back(bank_name);
-  
-  }
-
-  return v;
 }

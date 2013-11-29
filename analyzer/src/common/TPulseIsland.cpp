@@ -109,6 +109,9 @@ int TPulseIsland::GetPeakSample() const {
 // -- Calculates the pedestal for this TPulseIsland using the given number of bins
 double TPulseIsland::GetPedestal(int nPedSamples) const {
 
+  if (nPedSamples > fSamples.size())
+    nPedSamples = 2;
+
   double pedestal = 0;
   for (int iSample = 0; iSample < nPedSamples; iSample++) {
     pedestal += fSamples.at(iSample);

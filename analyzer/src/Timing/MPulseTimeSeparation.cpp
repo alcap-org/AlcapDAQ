@@ -36,7 +36,7 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MPulseTimeSeparation_init(void);
 INT  MPulseTimeSeparation(EVENT_HEADER*, void*);
-vector<string> GetAllFADCBankNames();
+vector<string> GetAllBankNames();
 double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
@@ -66,15 +66,12 @@ INT MPulseTimeSeparation_init()
 {
   // This histogram has the pulse times on the X-axis and the number of pulses on the Y-axis
   // One histogram is created for each detector
-  // This uses the TH1::kCanRebin mechanism to expand automatically to the
-  // number of FADC banks.
 
-  vector<string> bank_names = GetAllFADCBankNames();
+  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
+      mapIter != bank_to_detector_map.end(); mapIter++) { 
 
-  for(unsigned int i=0; i<bank_names.size(); i++) {
-    fadc_bank_readers.push_back(new TOctalFADCBankReader(bank_names[i]));
-
-    std::string detname = gSetup->GetDetectorName(bank_names[i]);
+    std::string detname = gSetup->GetDetectorName(mapIter->first);
     std::string histname = "h" + detname + "_PulseSeparation";
     std::string histtitle = "Plot of the pulse times for the " + detname + " detector";
     TH1I* hPulseTimeDiff = new TH1I(histname.c_str(),histtitle.c_str(),100,0,100);
@@ -82,7 +79,7 @@ INT MPulseTimeSeparation_init()
     hPulseTimeDiff->GetYaxis()->SetTitle("Number of pulse pairs");
     hPulseTimeDiff->SetBit(TH1::kCanRebin);
 
-    time_separation_histogram_map[bank_names[i]] = hPulseTimeDiff;
+    time_separation_histogram_map[mapIter->first] = hPulseTimeDiff;
   }
 
   return SUCCESS;

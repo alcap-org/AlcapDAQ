@@ -65,8 +65,8 @@ static const char CONT_MOD[] = "COM,1\r\n";
 /*-- Equipment list ------------------------------------------------*/
 
 BANK_LIST vacuum_bank_list[] = {
-  { "PRS0", TID_FLOAT,  1, NULL },
-  { "PRM0", TID_INT,    1, NULL },
+  { "PRS0", TID_INT,  1, NULL },
+  { "PRM0", TID_FLOAT,    1, NULL },
   { "" },
 };
 
@@ -305,7 +305,7 @@ INT vacuum_gauge_read(char *pevent, INT off) {
   const static int num_digits;
   // Record status
   bk_create(pevent, "PRS0", TID_INT, &status);
-  *status++ = atoi(resp);
+  *status = atoi(resp);
   if (*status == 0) {
     bk_close(pevent, status);
     // Record pressure
@@ -331,6 +331,6 @@ INT vacuum_gauge_read(char *pevent, INT off) {
     cm_msg(MERROR, "read_vacuum_gauge", "Vacuum gauge unknown status (status %d)", *status);
   }
 
-  bk_close(pevent, status);
+  bk_close(pevent, ++status);
   return CM_SUCCESS;
 }

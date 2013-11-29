@@ -36,7 +36,6 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MPulseLengths_init(void);
 INT  MPulseLengths(EVENT_HEADER*, void*);
-vector<string> GetAllFADCBankNames();
 double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
@@ -66,13 +65,6 @@ INT MPulseLengths_init()
 {
   // This histogram has the pulse lengths on the X-axis and the number of pulses on the Y-axis
   // One histogram is created for each detector
-  // This uses the TH1::kCanRebin mechanism to expand automatically to the
-  // number of FADC banks.
-  vector<string> bank_names = GetAllFADCBankNames();
-
-  for(unsigned int i=0; i<bank_names.size(); i++) {
-    fadc_bank_readers.push_back(new TOctalFADCBankReader(bank_names[i]));    
-  }
 
   std::string histname = "hAvgPulseLengthsPerChannel";
   std::string histtitle = "Plot of the average pulse lengths per event for the each channel";
