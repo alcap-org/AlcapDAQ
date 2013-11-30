@@ -1,10 +1,9 @@
 /********************************************************************\
 
-Name:         MPulseWaveforms
-Created by:   Andrew Edmonds
+Name:         MPulseTimeSeparation
+Created by:   Joe Grange
 
-Contents:     A module to plot the waveforms of the pulses from each channel
-              NB Plots ALL the pulses so only use to analyze a few events
+Contents:     A module to fill a histogram of any pulses with only 4 samples
 
 \********************************************************************/
 
@@ -35,8 +34,9 @@ using std::vector;
 using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
-INT  MPulseWaveforms_init(void);
-INT  MPulseWaveforms(EVENT_HEADER*, void*);
+INT  MShortPulseTimes_init(void);
+INT  MShortPulseTimes(EVENT_HEADER*, void*);
+vector<string> GetAllBankNames();
 double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
@@ -44,16 +44,17 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
-map <std::string, std::vector<TH1I*> > waveform_histograms_map;
 
-ANA_MODULE MPulseWaveforms_module =
+static std::map<std::string, TH1*>  time_short_pulse_histogram_map;
+
+ANA_MODULE MShortPulseTimes_module =
 {
-	"MPulseWaveforms",                    /* module name           */
-	"Andrew Edmonds",              /* author                */
-	MPulseWaveforms,                      /* event routine         */
+	"MShortPulseTimes",                    /* module name           */
+	"Joe Grange",              /* author                */
+	MShortPulseTimes,                      /* event routine         */
 	NULL,                          /* BOR routine           */
 	NULL,                          /* EOR routine           */
-	MPulseWaveforms_init,                 /* init routine          */
+	MShortPulseTimes_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
 	NULL,                          /* parameter structure   */
 	0,                             /* structure size        */
@@ -62,19 +63,26 @@ ANA_MODULE MPulseWaveforms_module =
 
 /** This method initializes histograms.
 */
-INT MPulseWaveforms_init()
+INT MShortPulseTimes_init()
 {
-  // This histogram has the pulse waveforms on the X-axis and the number of pulses on the Y-axis
+  // This histogram has the pulse times on the X-axis and the number of pulses on the Y-axis
   // One histogram is created for each detector
   // This uses the TH1::kCanRebin mechanism to expand automatically to the
   // number of FADC banks.
-  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
-  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
-      mapIter != bank_to_detector_map.end(); mapIter++) { 
 
-    std::string bankname = mapIter->first;
-    std::vector<TH1I*> waveform_vector;
-    waveform_histograms_map[bankname] = waveform_vector;
+  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin();
+      mapIter != bank_to_detector_map.end(); mapIter++) {
+
+    std::string detname = gSetup->GetDetectorName(mapIter->first);
+    std::string histname = "h" + detname + "_ShortPulseTimes";
+    std::string histtitle = "Plot of the short pulse times for the " + detname + " detector";
+    TH1D* hShortPulseTime = new TH1D(histname.c_str(),histtitle.c_str(),100,0,100);
+    hShortPulseTime->GetXaxis()->SetTitle("Time Stamp");
+    hShortPulseTime->GetYaxis()->SetTitle("Number of 4-sample pulses");
+    hShortPulseTime->SetBit(TH1::kCanRebin);
+
+    time_short_pulse_histogram_map[mapIter->first] = hShortPulseTime;
   }
 
   return SUCCESS;
@@ -83,7 +91,7 @@ INT MPulseWaveforms_init()
 /** This method processes one MIDAS block, producing a vector
  * of TOctalFADCIsland objects from the raw Octal FADC data.
  */
-INT MPulseWaveforms(EVENT_HEADER *pheader, void *pevent)
+INT MShortPulseTimes(EVENT_HEADER *pheader, void *pevent)
 {
 	// Get the event number
 	int midas_event_number = pheader->serial_number;
@@ -105,22 +113,13 @@ INT MPulseWaveforms(EVENT_HEADER *pheader, void *pevent)
 	  std::vector<TPulseIsland*> thePulses = theMapIter->second;
 			
 	  // Loop over the TPulseIslands and plot the histogram
-	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); pulseIter++) {
-	    
-			
-	    // Find the relevant bank name from the detector name
-	    if (waveform_histograms_map.find(bankname) != waveform_histograms_map.end()) {
-	      std::string detname = gSetup->GetDetectorName(bankname);
-	      std::stringstream histname;
-	      histname << "h" << detname << "_Waveform_Block" << midas_event_number << "_Pulse" << pulseIter - thePulses.begin();
-	      std::string histtitle = "Plot of the pulse waveforms for the " + detname + " detector";
-	      TH1I* hDetWaveform = (*pulseIter)->GetPulseWaveform(histname.str(), histtitle);
-	      hDetWaveform->GetXaxis()->SetTitle("Time");
-	      hDetWaveform->GetYaxis()->SetTitle("ADC Value");
+	  for (std::vector<TPulseIsland*>::iterator thePulseIter = thePulses.begin(); thePulseIter != thePulses.end(); thePulseIter++) {
 
-	      waveform_histograms_map[bankname].push_back(hDetWaveform);
-	    }
+        //samples = (*thePulseIter)->GetSamples();
+        if ((*thePulseIter)->GetSamples().size()==4) time_short_pulse_histogram_map[bankname]->Fill((*thePulseIter)->GetPulseTime());        
+	    
 	  }
+
 	}
 	return SUCCESS;
 }

@@ -74,10 +74,18 @@ static const int NCHAN = 8;
 
 /*-- Histogram declaration -----------------------------------------*/
 static vector<TH2D *> h2_v1724_pulses;
+static TH2* hNV1724IslandsReadPerBlock;
 
 /*--module init routine --------------------------------------------*/
 INT module_init()
 {
+
+  hNV1724IslandsReadPerBlock = new TH2I(
+    "hNV1724IslandsReadPerBlock",
+    "Number of CAEN Islands read by block",
+    1,0,1, 3000,0,3000);
+  hNV1724IslandsReadPerBlock->SetBit(TH1::kCanRebin);
+
   std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
   for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
       mapIter != bank_to_detector_map.end(); mapIter++) { 
@@ -242,6 +250,8 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 
     }
     
+
+  hNV1724IslandsReadPerBlock->Fill(bank_name,midas_event_number,pulse_islands.size());
   
   /* fake data! just to show how to push to a tree: */
 
