@@ -114,8 +114,7 @@ INT MExpectedIslands(EVENT_HEADER *pheader, void *pevent)
 	    if (initial_pulse_time > pulse_period) {
 	      expected_pulses += initial_pulse_time / pulse_period; // add the number that were missed at the start
 	    }
-	    printf("%f\n", (*(thePulses.begin()))->GetClockTickInNs());
-	    printf("%s: Pulse Period = %f ms\nInitial time stamp: %d\nInitial pulse time: %f ms\nRemaining time: %f ms\nExpected number of pulses = %d\n\n", bankname.c_str(), pulse_period, (*(thePulses.begin()))->GetTimeStamp(), initial_pulse_time, remaining_time, expected_pulses);
+	    //	    printf("%s: Pulse Period = %f ms\nInitial time stamp: %d\nInitial pulse time: %f ms\nRemaining time: %f ms\nExpected number of pulses = %d\n\n", bankname.c_str(), pulse_period, (*(thePulses.begin()))->GetTimeStamp(), initial_pulse_time, remaining_time, expected_pulses);
 
 	    // Fill the histogram
 	    hExpectedNumberOfIslands->Fill(bankname.c_str(), midas_event_number, expected_pulses + 1); // extra +1 so that we count the initial pulse
