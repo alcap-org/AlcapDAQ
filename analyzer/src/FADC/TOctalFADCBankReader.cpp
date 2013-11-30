@@ -73,8 +73,6 @@ void TOctalFADCBankReader::ProcessEvent(EVENT_HEADER* pheader, void *pevent)
                    ((raw[i*10+8] & 0xf) << 8) |
                    (raw[i*10+9]);
 
-    //if (i==0) lastTimestamp = -1;//to make sure first four readings enter pulse
-
     if(timestamp != lastTimestamp + 1) {
       if(!firstIsland) {
         if(islandSamples.size() > 12) {
@@ -84,7 +82,6 @@ void TOctalFADCBankReader::ProcessEvent(EVENT_HEADER* pheader, void *pevent)
           fData.push_back(
             new TOctalFADCIsland(islandTimestamp*4,islandSamples)
           );
-
 
 #if 0
 printf("Time = %d, nsamples = %d, char = %c , channel = %d\n",
@@ -102,13 +99,15 @@ printf("\n");
       islandTimestamp = timestamp;
     }
 
-    //only fill pulse if these samples follow the previous
+    //only fill pulse if these samples follow the previous or form the beginning
+    //if ((timestamp == lastTimestamp + 1)){
     if (timestamp == lastTimestamp + 1){
       islandSamples.push_back(sampleA1);
       islandSamples.push_back(sampleB1);
       islandSamples.push_back(sampleA0);
       islandSamples.push_back(sampleB0);
     } 
+
     lastTimestamp = timestamp;
 
 #if 0

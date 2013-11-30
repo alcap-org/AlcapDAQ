@@ -79,6 +79,7 @@ const int max_boards = 256;
 struct fadc_board 
 {
   bool enabled;
+  INT  interface;
   map<int, fadc_packet *> packets;
   int start_packet;
   int stop_packet;
@@ -309,6 +310,10 @@ void setupRegs()
                    crate_number, i);
     board[i].enabled = enabled;
 
+    const char *yn = board[i].enabled ? "YES" : "NO";
+    printf("FADC board 0x%02x: enabled: %s\n", i, yn);
+
+    board[i].interface = odb_get_int("/Equipment/Crate %d/Settings/NFADC %02x/Interface", crate_number, i);
 
     for(int chan = 0; chan < 8; chan++) {
       int led_mode = 
@@ -361,14 +366,18 @@ void setupRegs()
         }
 #endif
 
+	char interface[8];
+	sprintf(interface,"eth%i",board[i].interface);
+	//printf("Board %i interface %i (%s)\n",i,board[i].interface,interface);
+
         if(chan % 2 == 0) { 
-          setReg("eth0", i, frontend, 0, r0, 0);
-          setReg("eth0", i, frontend, 1, r1, 0);
-          setReg("eth0", i, frontend, 4, r2, 1);
+          setReg(interface, i, frontend, 0, r0, 0);
+          setReg(interface, i, frontend, 1, r1, 0);
+          setReg(interface, i, frontend, 4, r2, 1);
         } else {
-          setReg("eth0", i, frontend, 2, r0, 0);
-          setReg("eth0", i, frontend, 3, r1, 0);
-          setReg("eth0", i, frontend, 5, r2, 1);
+          setReg(interface, i, frontend, 2, r0, 0);
+          setReg(interface, i, frontend, 3, r1, 0);
+          setReg(interface, i, frontend, 5, r2, 1);
         }
       }
     } 
@@ -456,8 +465,7 @@ INT new_fadc_read(char *pevent)
       printf("Board %d: start %d (%c) - stop %d (%c) - buffer full (%c)\n", i,
         board[i].start_packet, board[i].start_packet_seen ? '-' :  'X',
         board[i].stop_packet, board[i].stop_packet_seen ? '-' :  'X',
-        board[i].buffer_full ? '-' :  'X');
-      
+        board[i].buffer_full ? '-' :  'X');      
     }
   }
 
