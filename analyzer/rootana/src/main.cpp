@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <map>
 #include "utils.h"
 
 #include "FillHistBase.h"
@@ -12,6 +13,7 @@
 #include "TBranch.h"
 #include "TFile.h"
 #include "TGlobalData.h"
+#include "TSetupData.h"
 
 void help_command_line(char *my_name);
 bool isNumber(char *c);
@@ -22,8 +24,11 @@ void *root_event_loop(void *arg = NULL);
 ARGUMENTS arguments = {"","",0,0,-1};
 
 static TTree *tree = NULL;
+static TTree *InfoTree = NULL;
 static TBranch *br = NULL;
+static TBranch *InfoBr = NULL;
 static TGlobalData *g_event;
+static TSetupData *s_data;
 
 static int n_fillhist = 0;  // keeps track of the total number of modules
 static FillHistBase **fillhists;
@@ -44,7 +49,25 @@ int main(int argc, char **argv){
     delete treefile;
     return 1;
   }
-  
+
+  //Info Tree  
+  InfoTree = (TTree *)treefile->Get("SetupTree");
+  InfoTree->Print();
+  if(!InfoTree) {
+    printf("Could not find InfoTree. Exiting.\n");
+    treefile->Close();
+    return 1;
+  }
+  s_data = 0;
+  InfoBr = InfoTree->GetBranch("Setup");
+  InfoBr->SetAddress(&s_data);
+  InfoTree->GetEntry(0);
+  std::map<std::string, std::string>::iterator it_info;
+  for (it_info=s_data->fBankToDetectorMap.begin();it_info!=s_data->fBankToDetectorMap.end();++it_info){
+  printf("%s => %s\n",it_info->first.c_str(),it_info->second.c_str());
+  }
+
+  //Event Tree
   tree = (TTree *)treefile->Get("EventTree");
   if(!tree) {
     printf("Could not find EventTree. Exiting.\n");

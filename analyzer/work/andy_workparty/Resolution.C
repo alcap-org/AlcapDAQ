@@ -139,12 +139,10 @@ void Resolution(std::string filename) {
   double preAmpOutputInMeV = 3.8;
   double peak_height_mean = peak_height_hist->GetMean();
 
-  TH1F* calib_peak_height_hist = (TH1F*) Calibrate(peak_height_mean, gauss->GetParameter(0), preAmpOutputInMeV);
+  TH1F* calib_peak_height_hist = (TH1F*) Calibrate(peak_height_mean, preAmpOutputInMeV);
 
   calib_peak_height_hist->GetXaxis()->SetTitle("energy / MeV");
   calib_peak_height_hist->GetYaxis()->SetTitle("number of pulses");
-  gauss->Draw();
-  gauss->Write();
   calib_peak_height_hist->Write();
 
 

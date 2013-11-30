@@ -68,11 +68,11 @@ DRIVER = camacnul
 ####################################################################
 
 # MIDAS library
-LIB = $(LIB_DIR)/libmidas.a ../compress/libmucap_compress.a
+LIB = $(LIB_DIR)/libmidas.a ../analyzer/compress/libmucap_compress.a
 
 # compiler
 CC = cc
-CFLAGS += -g -I$(INC_DIR) -I$(DRV_DIR) -Wall -I../compress
+CFLAGS += -g -I$(INC_DIR) -I$(DRV_DIR) -Wall -I../analyzer/compress
 LDFLAGS +=
 
 all: mevb 

@@ -2,8 +2,8 @@
 //#define PARALLEL_PORT1 0x4451
 //#define PARALLEL_PORT1 0x44c0
 //#define PARALLEL_PORT1 0x4440  // always reads 4
-#define PARALLEL_PORT0 0x1310
-#define PARALLEL_PORT1 0x1311
+#define PARALLEL_PORT0 0x1250
+#define PARALLEL_PORT1 0x1251
 
 // #define PARALLEL_PORT0 0x378
 // #define PARALLEL_PORT1 (0x378+1)
@@ -133,7 +133,7 @@ INT parport_poll_live()
     }
 #endif 
 
-  int p = inb(PARALLEL_PORT1);
+  unsigned char p = inb(PARALLEL_PORT1);
 
 
   if ( !(p & 0x40) )
