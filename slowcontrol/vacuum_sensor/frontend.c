@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-INT crate_number=0;
+INT crate_number=10;
 
 HNDLE hDB;
 HNDLE hKey;
@@ -81,6 +81,7 @@ EQUIPMENT equipment[] = {
        "MIDAS",            /* format */
        TRUE,               /* enabled */
        RO_ALWAYS | RO_ODB, /* read all the time */
+
        1000,               /* reads spaced by this many ms */
        0,                  /* stop run after this event limit */
        0,                  /* number of sub events */
@@ -93,6 +94,7 @@ EQUIPMENT equipment[] = {
 
    {""}
 };
+
 
 
 #ifdef __cplusplus
@@ -138,7 +140,7 @@ INT frontend_init()
   // Open serial port for vacuum
   vacuum = open(vacuum_port, O_RDWR | O_NOCTTY);
   printf("Opening vacuum gauge port...");
-  if (vacuum == -1) {
+  if (vacuum < 0) {
     err = errno;
     printf("failed!\n");
     cm_msg(MERROR, "vacuum_gauge_init",
@@ -148,7 +150,7 @@ INT frontend_init()
   printf("done.\n");
   printf("Getting current serial port attributes...");
   ret = tcgetattr(vacuum, &vacuum_config);
-  if (ret == -1) {
+  if (ret < 0) {
     err = errno;
     printf("failed!\n");
     cm_msg(MERROR, "vacuum_gauge_init",
@@ -188,7 +190,7 @@ INT frontend_init()
   // Apply the attributes
   printf("Setting new serial port attributes...");
   ret = tcsetattr(vacuum, TCSAFLUSH, &vacuum_config); // Flush the output, discard input, and apply changes
-  if (ret == -1) {
+  if (ret < 0) {
     err = errno;
     printf("failed!\n");
     cm_msg(MERROR, "vacuum_gauge_init",
@@ -200,7 +202,7 @@ INT frontend_init()
   // Tell the vacuum gauge to await an inquiry
   printf("Setting vacuum gauge to measurement request mode...");
   ret = write(vacuum,INQ_MODE,sizeof(INQ_MODE)-1);
-  if (ret == -1) {
+  if (ret < 0) {
     err = errno;
     printf("failed!\n");
     cm_msg(MERROR, "vacuum_gauge_init",
@@ -210,7 +212,7 @@ INT frontend_init()
   printf("done.\n");
   printf("Checking vacuum acknowledgement...");
   ret = read(vacuum, resp, 3);
-  if (ret == -1) {
+  if (ret < 0) {
     err = errno;
     printf("failed!\n");
     cm_msg(MERROR, "vacuum_gauge_init",
@@ -281,14 +283,19 @@ INT vacuum_gauge_read(char *pevent, INT off) {
 
   bk_init(pevent);
 
-  ret = write(vacuum, &ENQ, sizeof(ENQ) - 1);
-  if (ret == -1) {
+  ret = write(vacuum, &ENQ, sizeof(ENQ));
+  printf("write ret %i\n",ret);
+
+  if (ret < 0) {
     cm_msg(MERROR, "read_vacuum_gauge",
 	   "Cannot write to vacuum gauge to request measurement (errno %d)", errno);
     return FE_ERR_HW;
   }
-  ret = read(vacuum, resp, 15);
-  if (ret == -1) {
+  ret = read(vacuum, resp, 15); // this line is bad, it waits for 13 bytes to be read before returning anything; 
+  // it hangs your frontend so that cannot communicate with the mserver
+  // you should look at something that has time out feature
+
+  if (ret < 0) {
     cm_msg(MERROR, "read_vacuum_gauge",
 	   "Cannot read from vacuum gauge to get requested reading (errno %d)", errno);
     return FE_ERR_HW;
@@ -307,7 +314,7 @@ INT vacuum_gauge_read(char *pevent, INT off) {
   bk_create(pevent, "PRS0", TID_INT, &status);
   *status = atoi(resp);
   if (*status == 0) {
-    bk_close(pevent, status);
+    bk_close(pevent, ++status);
     // Record pressure
     bk_create(pevent, "PRM0", TID_FLOAT, &pressure);
     for (i = 0; i < num_digits; i++)
@@ -332,5 +339,5 @@ INT vacuum_gauge_read(char *pevent, INT off) {
   }
 
   bk_close(pevent, ++status);
-  return CM_SUCCESS;
+  return bk_size(pevent);
 }

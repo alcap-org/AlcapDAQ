@@ -146,7 +146,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 
   BYTE *pdata;
 
-  //printf("caen ER!\n");
+  printf("In caen ER!\n");
 
   char bank_name[8];
   sprintf(bank_name,"CDG%i",0); // one MIDAS bank per board
