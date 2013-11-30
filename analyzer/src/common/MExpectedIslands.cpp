@@ -99,9 +99,9 @@ INT MExpectedIslands(EVENT_HEADER *pheader, void *pevent)
 	  std::string bankname = theMapIter->first;
 	  std::vector<TPulseIsland*> thePulses = theMapIter->second;
 	
-	  double pulse_frequency = 70; // Hz
+	  double pulse_frequency = 65; // Hz
 	  double pulse_period = (1 / pulse_frequency) * 1e3; // ms
-	  double gate_width = 100; // ms
+	  double gate_width = 110; // ms
 
 	  if (thePulses.size() != 0) {
 	    double initial_pulse_time = (*(thePulses.begin()))->GetTimeStamp() * (*(thePulses.begin()))->GetClockTickInNs() * 1e-6; // ms
@@ -111,10 +111,11 @@ INT MExpectedIslands(EVENT_HEADER *pheader, void *pevent)
 	    int expected_pulses = remaining_time / pulse_period;
 
 	    // If the initial pulse_time is greater than the pulse period then a pulse should have been seen before now
-	    if (initial_pulse_time > pulse_period)
-	      expected_pulses++;
-
-	    //	    printf("Pulse Period = %f ms\nInitial pulse time: %f ms\nRemaining time: %f ms\nExpected number of remaining pulses = %d\n\n", pulse_period, initial_pulse_time, remaining_time, expected_pulses);
+	    if (initial_pulse_time > pulse_period) {
+	      expected_pulses += initial_pulse_time / pulse_period; // add the number that were missed at the start
+	    }
+	    printf("%f\n", (*(thePulses.begin()))->GetClockTickInNs());
+	    printf("%s: Pulse Period = %f ms\nInitial time stamp: %d\nInitial pulse time: %f ms\nRemaining time: %f ms\nExpected number of pulses = %d\n\n", bankname.c_str(), pulse_period, (*(thePulses.begin()))->GetTimeStamp(), initial_pulse_time, remaining_time, expected_pulses);
 
 	    // Fill the histogram
 	    hExpectedNumberOfIslands->Fill(bankname.c_str(), midas_event_number, expected_pulses + 1); // extra +1 so that we count the initial pulse
