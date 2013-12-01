@@ -39,8 +39,6 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MOctalFADCProcessRaw_init(void);
 INT  MOctalFADCProcessRaw(EVENT_HEADER*, void*);
-vector<string> GetAllFADCBankNames();
-double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -75,13 +73,18 @@ INT MOctalFADCProcessRaw_init()
   hNOctalFADCIslandsReadPerBlock = new TH2I(
     "hNOctalFADCIslandsReadPerBlock",
     "Number of FADC Islands read by block",
-    1,0,1, 3000,0,3000);
+    1,0,1, 10000,0,10000);
   hNOctalFADCIslandsReadPerBlock->SetBit(TH1::kCanRebin);
 
-  vector<string> bank_names = GetAllFADCBankNames();
+  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
+      mapIter != bank_to_detector_map.end(); mapIter++) { 
+    
+    std::string bankname = mapIter->first;
 
-  for(unsigned int i=0; i<bank_names.size(); i++) {
-    fadc_bank_readers.push_back(new TOctalFADCBankReader(bank_names[i]));
+    // We only want the FADC banks here
+    if (TSetupData::IsFADC(bankname))
+      fadc_bank_readers.push_back(new TOctalFADCBankReader(bankname));
   }
 
   return SUCCESS;
@@ -133,7 +136,7 @@ INT MOctalFADCProcessRaw(EVENT_HEADER *pheader, void *pevent)
       fadc_bank_readers[i]->GetIslandVectorCopy();
 
     // Get clock tick for this channel.
-    double clock_tick = GetClockTickForChannel(bank_name);
+    double clock_tick = gSetup->GetClockTick(bank_name);
 
     // Make vector of TPulseIsland from TOctalFADCIsland. Now this module
     // owns the memory associated with these.
@@ -161,48 +164,4 @@ INT MOctalFADCProcessRaw(EVENT_HEADER *pheader, void *pevent)
   }
 
   return SUCCESS;
-}
-
-vector<string> GetAllFADCBankNames()
-{
-  vector<string> v;
-
-  // Loop through all gSetup and get the banknames
-  for (std::map<std::string, std::string>::iterator iter = gSetup->fBankToDetectorMap.begin();
-       iter != gSetup->fBankToDetectorMap.end();
-       iter++) {
-    v.push_back(iter->first);
-  }
-
-  return v;
-}
-
-double GetClockTickForChannel(string bank_name)
-{
-  HNDLE hDB, hKey;
-  KEY key;
-  char keyName[200]; // AE: can't be a pointer otherwise not enough memory assigned to it for later
-
-  string bank_addr = bank_name.substr(2, 2); // AE: last two characters of the bank name are the address
-  string bank_channel = bank_name.substr(1,1); // AE: the second character is a letter corresponding to the channel number
-  int channel = *(bank_channel.c_str()) - 97; // AE: in ASCII 'a'=97, 'b'=98 etc.
-  sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Channel %d/DCM phase", bank_addr.c_str(), channel);
-
-  int DCMPhase;
-  double clockTickInNs;
-  double FADC_frequency = 170e6; // 170 MHz
-
-  cm_get_experiment_database(&hDB, NULL);
-
-  if(db_find_key(hDB,0,keyName, &hKey) == SUCCESS){
-    db_get_key(hDB, hKey, &key);
-
-    int size = sizeof(DCMPhase);
-    if(db_get_value(hDB, 0, keyName , &DCMPhase, &size, TID_INT, 0) == DB_SUCCESS){
-      double true_frequency = FADC_frequency / DCMPhase;
-      clockTickInNs = (1/true_frequency) * 1e9;
-    }
-  }
-
-  return clockTickInNs;
 }

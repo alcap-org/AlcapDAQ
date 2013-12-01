@@ -1,7 +1,7 @@
 /********************************************************************\
 
-Name:         MPulseTimes
-Created by:   Andrew Edmonds
+Name:         MPulseTimeSeparation
+Created by:   Joe Grange
 
 Contents:     A module to fill a histogram of the pulse times from each channel
 
@@ -34,8 +34,9 @@ using std::vector;
 using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
-INT  MPulseTimes_init(void);
-INT  MPulseTimes(EVENT_HEADER*, void*);
+INT  MPulseTimeSeparation_init(void);
+INT  MPulseTimeSeparation(EVENT_HEADER*, void*);
+vector<string> GetAllBankNames();
 double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
@@ -43,16 +44,17 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
-map <std::string, TH1I*> time_histograms_map;
+static std::map<std::string, TH1*>  time_separation_histogram_map;
+static std::map<std::string, TH1*>  time_separation_wrt_first_pulse_histogram_map;
 
-ANA_MODULE MPulseTimes_module =
+ANA_MODULE MPulseTimeSeparation_module =
 {
-	"MPulseTimes",                    /* module name           */
-	"Andrew Edmonds",              /* author                */
-	MPulseTimes,                      /* event routine         */
+	"MPulseTimeSeparation",                    /* module name           */
+	"Joe Grange",              /* author                */
+	MPulseTimeSeparation,                      /* event routine         */
 	NULL,                          /* BOR routine           */
 	NULL,                          /* EOR routine           */
-	MPulseTimes_init,                 /* init routine          */
+	MPulseTimeSeparation_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
 	NULL,                          /* parameter structure   */
 	0,                             /* structure size        */
@@ -61,7 +63,7 @@ ANA_MODULE MPulseTimes_module =
 
 /** This method initializes histograms.
 */
-INT MPulseTimes_init()
+INT MPulseTimeSeparation_init()
 {
   // This histogram has the pulse times on the X-axis and the number of pulses on the Y-axis
   // One histogram is created for each detector
@@ -70,16 +72,24 @@ INT MPulseTimes_init()
   for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
       mapIter != bank_to_detector_map.end(); mapIter++) { 
 
-    std::string bankname = mapIter->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
-    std::string histname = "h" + detname + "_Times";
-    std::string histtitle = "Plot of the pulse times for the " + detname + " detector";
-    TH1I* hDetTimes = new TH1I(histname.c_str(), histtitle.c_str(), 1e6,0,1e3);
-    hDetTimes->GetXaxis()->SetTitle("Pulse Time [ns]");
-    hDetTimes->GetYaxis()->SetTitle("Arbitrary Unit");
-    hDetTimes->SetBit(TH1::kCanRebin);
+    std::string detname = gSetup->GetDetectorName(mapIter->first);
+    std::string histname = "h" + detname + "_PulseSeparation";
+    std::string histtitle = "Plot of the time difference between consecutive pulses for the " + detname + " detector";
+    TH1I* hPulseTimeDiff = new TH1I(histname.c_str(),histtitle.c_str(),200,0,200);
+    hPulseTimeDiff->GetXaxis()->SetTitle("Time Difference Between Consecutive Pulses [ms]");
+    hPulseTimeDiff->GetYaxis()->SetTitle("Number of pulse pairs");
+    hPulseTimeDiff->SetBit(TH1::kCanRebin);
 
-    time_histograms_map[bankname]=  hDetTimes;
+    time_separation_histogram_map[mapIter->first] = hPulseTimeDiff;
+
+    histname = "h" + detname + "_PulseSeparationWRTFirstPulse";
+    histtitle = "Plot of the time difference wrt the first pulse for the " + detname + " detector";
+    hPulseTimeDiff = new TH1I(histname.c_str(), histtitle.c_str(),200,0,200);
+    hPulseTimeDiff->GetXaxis()->SetTitle("Time Difference Between wrt the First Pulse [ms]");
+    hPulseTimeDiff->GetYaxis()->SetTitle("Number of pulse pairs");
+    hPulseTimeDiff->SetBit(TH1::kCanRebin);
+
+    time_separation_wrt_first_pulse_histogram_map[mapIter->first] = hPulseTimeDiff;
   }
 
   return SUCCESS;
@@ -88,7 +98,7 @@ INT MPulseTimes_init()
 /** This method processes one MIDAS block, producing a vector
  * of TOctalFADCIsland objects from the raw Octal FADC data.
  */
-INT MPulseTimes(EVENT_HEADER *pheader, void *pevent)
+INT MPulseTimeSeparation(EVENT_HEADER *pheader, void *pevent)
 {
 	// Get the event number
 	int midas_event_number = pheader->serial_number;
@@ -111,13 +121,22 @@ INT MPulseTimes(EVENT_HEADER *pheader, void *pevent)
 			
 	  // Loop over the TPulseIslands and plot the histogram
 	  for (std::vector<TPulseIsland*>::iterator thePulseIter = thePulses.begin(); thePulseIter != thePulses.end(); thePulseIter++) {
-			
-	    // Find the relevant bank name from the detector name
-	    if (time_histograms_map.find(bankname) != time_histograms_map.end()) {
-	      // Fill the histogram
-	      time_histograms_map[bankname]->Fill((*thePulseIter)->GetPulseTime());
-		      
-	    }
+	    
+	    //	    if ((*thePulseIter)->GetPulseLength() == 4) {
+	      if (thePulseIter!=thePulses.begin()) 
+		time_separation_histogram_map[bankname]->Fill( ((*thePulseIter)->GetTimeStamp() - (*(thePulseIter-1))->GetTimeStamp()) * (*thePulseIter)->GetClockTickInNs() * 1e-6); // ns->ms
+
+	      int initial_time_stamp = (*thePulses.begin())->GetTimeStamp();
+
+	      double pulse_frequency = 65; // Hz
+	      double pulse_period = (1 / pulse_frequency) * 1e9; // ns
+	 
+	      if (initial_time_stamp * (*thePulseIter)->GetClockTickInNs() > pulse_period) {
+		initial_time_stamp += pulse_period / (*thePulseIter)->GetClockTickInNs();
+	      }
+
+	      time_separation_wrt_first_pulse_histogram_map[bankname]->Fill( ((*thePulseIter)->GetTimeStamp() - initial_time_stamp)  * (*thePulseIter)->GetClockTickInNs() * 1e-6); // ns->ms	      	  
+	      //	    }
 	  }
 	}
 	return SUCCESS;

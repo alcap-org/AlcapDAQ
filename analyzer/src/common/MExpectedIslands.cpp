@@ -1,9 +1,9 @@
 /********************************************************************\
 
-Name:         MPulseLengths
+Name:         MExpectedIslands
 Created by:   Andrew Edmonds
 
-Contents:     A module to fill a histogram of the pulse lengths from each channel
+Contents:     A module to fill a 2D histogram of the number of expected pulses per event from each channel
 
 \********************************************************************/
 
@@ -34,8 +34,8 @@ using std::vector;
 using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
-INT  MPulseLengths_init(void);
-INT  MPulseLengths(EVENT_HEADER*, void*);
+INT  MExpectedIslands_init(void);
+INT  MExpectedIslands(EVENT_HEADER*, void*);
 double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
@@ -43,17 +43,16 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
-static TH2I* average_length_histogram;
-map <std::string, TH1I*> length_histograms_map;
+static TH2I* hExpectedNumberOfIslands;
 
-ANA_MODULE MPulseLengths_module =
+ANA_MODULE MExpectedIslands_module =
 {
-	"MPulseLengths",                    /* module name           */
+	"MExpectedIslands",                    /* module name           */
 	"Andrew Edmonds",              /* author                */
-	MPulseLengths,                      /* event routine         */
+	MExpectedIslands,                      /* event routine         */
 	NULL,                          /* BOR routine           */
 	NULL,                          /* EOR routine           */
-	MPulseLengths_init,                 /* init routine          */
+	MExpectedIslands_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
 	NULL,                          /* parameter structure   */
 	0,                             /* structure size        */
@@ -62,33 +61,16 @@ ANA_MODULE MPulseLengths_module =
 
 /** This method initializes histograms.
 */
-INT MPulseLengths_init()
+INT MExpectedIslands_init()
 {
-  // This histogram has the pulse lengths on the X-axis and the number of pulses on the Y-axis
+  // This histogram has the pulse counters on the X-axis and the number of pulses on the Y-axis
   // One histogram is created for each detector
-  
-  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
-  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
-      mapIter != bank_to_detector_map.end(); mapIter++) { 
 
-    std::string bankname = mapIter->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
-    std::string histname = "h" + detname + "_Lengths";
-    std::string histtitle = "Plot of the pulse lengths for the " + detname + " detector";
-    TH1I* hDetLengths = new TH1I(histname.c_str(), histtitle.c_str(), 100,0,100);
-    hDetLengths->GetXaxis()->SetTitle("Pulse Lengths [N Samples]");
-    hDetLengths->GetYaxis()->SetTitle("Arbitrary Unit");
-    hDetLengths->SetBit(TH1::kCanRebin);
 
-    length_histograms_map[bankname] = hDetLengths;
-  }
-
-  std::string histname = "hAvgPulseLengthsPerChannel";
-  std::string histtitle = "Plot of the average pulse lengths per event for the each channel";
-  average_length_histogram = new TH2I(histname.c_str(), histtitle.c_str(), 1,0,1, 5000,0,5000);
-  average_length_histogram->GetXaxis()->SetTitle("Bank Name");
-  average_length_histogram->GetYaxis()->SetTitle("MIDAS Event Number");
-  average_length_histogram->SetBit(TH1::kCanRebin);
+  hExpectedNumberOfIslands = new TH2I("hExpectedNumberOfIslands", "Expected Number of Islands per Channel per Event", 1,0,1, 10000,0,10000);
+  hExpectedNumberOfIslands->GetXaxis()->SetTitle("Bank Name");
+  hExpectedNumberOfIslands->GetYaxis()->SetTitle("MIDAS Event Number");
+  hExpectedNumberOfIslands->SetBit(TH1::kCanRebin);
 
   return SUCCESS;
 }
@@ -96,7 +78,7 @@ INT MPulseLengths_init()
 /** This method processes one MIDAS block, producing a vector
  * of TOctalFADCIsland objects from the raw Octal FADC data.
  */
-INT MPulseLengths(EVENT_HEADER *pheader, void *pevent)
+INT MExpectedIslands(EVENT_HEADER *pheader, void *pevent)
 {
 	// Get the event number
 	int midas_event_number = pheader->serial_number;
@@ -116,16 +98,29 @@ INT MPulseLengths(EVENT_HEADER *pheader, void *pevent)
 	{
 	  std::string bankname = theMapIter->first;
 	  std::vector<TPulseIsland*> thePulses = theMapIter->second;
-	  
+	
+	  double pulse_frequency = 65; // Hz
+	  double pulse_period = (1 / pulse_frequency) * 1e3; // ms
+	  double gate_width = 110; // ms
+
 	  if (thePulses.size() != 0) {
-	    // Loop over the TPulseIslands and plot the histogram
-	    double total_length_of_pulses = 0;
-	    for (std::vector<TPulseIsland*>::iterator thePulseIter = thePulses.begin(); thePulseIter != thePulses.end(); thePulseIter++) {
-	      length_histograms_map[bankname]->Fill((*thePulseIter)->GetPulseLength());
-	      total_length_of_pulses += (*thePulseIter)->GetPulseLength();
+	    double initial_pulse_time = (*(thePulses.begin()))->GetTimeStamp() * (*(thePulses.begin()))->GetClockTickInNs() * 1e-6; // ms
+	    
+	    // Work out how many more pulses we expect for the given pulser period and the given gate width
+	    double remaining_time = gate_width - initial_pulse_time;
+	    int expected_pulses = remaining_time / pulse_period;
+
+	    // If the initial pulse_time is greater than the pulse period then a pulse should have been seen before now
+	    if (initial_pulse_time > pulse_period) {
+	      expected_pulses += initial_pulse_time / pulse_period; // add the number that were missed at the start
 	    }
+	    //	    printf("%s: Pulse Period = %f ms\nInitial time stamp: %d\nInitial pulse time: %f ms\nRemaining time: %f ms\nExpected number of pulses = %d\n\n", bankname.c_str(), pulse_period, (*(thePulses.begin()))->GetTimeStamp(), initial_pulse_time, remaining_time, expected_pulses);
+
 	    // Fill the histogram
-	    average_length_histogram->Fill(bankname.c_str(), midas_event_number, total_length_of_pulses / thePulses.size());
+	    hExpectedNumberOfIslands->Fill(bankname.c_str(), midas_event_number, expected_pulses + 1); // extra +1 so that we count the initial pulse
+	  }		     
+	  else {
+	    hExpectedNumberOfIslands->Fill(bankname.c_str(), midas_event_number, 0);
 	  }
 	}
 	return SUCCESS;

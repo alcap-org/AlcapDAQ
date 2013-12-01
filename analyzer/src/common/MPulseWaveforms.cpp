@@ -37,7 +37,6 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MPulseWaveforms_init(void);
 INT  MPulseWaveforms(EVENT_HEADER*, void*);
-vector<string> GetAllFADCBankNames();
 double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
@@ -69,14 +68,13 @@ INT MPulseWaveforms_init()
   // One histogram is created for each detector
   // This uses the TH1::kCanRebin mechanism to expand automatically to the
   // number of FADC banks.
-  vector<string> bank_names = GetAllFADCBankNames();
+  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
+      mapIter != bank_to_detector_map.end(); mapIter++) { 
 
-  for(unsigned int i=0; i<bank_names.size(); i++) {
-    fadc_bank_readers.push_back(new TOctalFADCBankReader(bank_names[i]));
-
+    std::string bankname = mapIter->first;
     std::vector<TH1I*> waveform_vector;
-    std::pair<std::string, std::vector<TH1I*> > thePair(bank_names[i], waveform_vector);
-    waveform_histograms_map.insert(thePair);
+    waveform_histograms_map[bankname] = waveform_vector;
   }
 
   return SUCCESS;
