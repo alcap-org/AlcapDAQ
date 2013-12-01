@@ -1,0 +1,363 @@
+#ifndef __UNIVERSE_DEFS
+#define __UNIVERSE_DEFS
+/* $Id: universe.h,v 1.1 2004/09/22 10:36:51 mucap Exp $ */
+/* the defines in this header file describe the registers and bit fields
+   of the Tundra Universe chip, with the names choosen as in the
+   Manufacturers Documentation, see
+   http://www.tundra.com/Tundra/Products/Bus/BPI/Universe.html
+   for reference.
+   */
+/* ifdef's for pre 2.0.31/2.1.38 Kernels, wich do not define
+   the TUNDRA Vendor/Device IDs */
+#ifndef PCI_VENDOR_ID_TUNDRA
+#define PCI_VENDOR_ID_TUNDRA            0x10e3
+#endif
+#ifndef PCI_DEVICE_ID_TUNDRA_CA91C042
+#define PCI_DEVICE_ID_TUNDRA_CA91C042   0x0000
+#endif
+
+/* Universe Register Offsets */
+/* general PCI configuration registers */
+#define UNIV_PCI_ID		0x000
+#define UNIV_PCI_CSR		0x004
+#define UNIV_PCI_CLASS		0x008
+#define UNIV_BM_PCI_CLASS_BASE		0xFF000000
+#define UNIV_OF_PCI_CLASS_BASE		24
+#define UNIV_BM_PCI_CLASS_SUB		0x00FF0000
+#define UNIV_OF_PCI_CLASS_SUB		16
+#define UNIV_BM_PCI_CLASS_PROG		0x0000FF00
+#define UNIV_OF_PCI_CLASS_PROG		8
+#define UNIV_BM_PCI_CLASS_RID		0x000000FF
+#define UNIV_OF_PCI_CLASS_RID		0
+
+#define UNIV_OF_PCI_CLASS_RID_UNIVERSE_I 0
+#define UNIV_OF_PCI_CLASS_RID_UNIVERSE_II 1
+
+#define UNIV_PCI_MISC0		0x00C
+#define UNIV_BM_PCI_MISC0_BISTC		0x80000000
+#define UNIV_BM_PCI_MISC0_SBIST		0x60000000
+#define UNIV_BM_PCI_MISC0_CCODE		0x0F000000
+#define UNIV_BM_PCI_MISC0_MFUNCT       	0x00800000
+#define UNIV_BM_PCI_MISC0_LAYOUT	0x007F0000
+#define UNIV_BM_PCI_MISC0_LTIMER	0x0000FF00
+#define UNIV_OF_PCI_MISC0_LTIMER	8
+#define UNIV_PCI_BS		0x010
+#define UNIV_PCI_MISC1		0x03C
+
+struct univ_pci_slave_image_block_type {
+  unsigned int control;
+  unsigned int base_address;
+  unsigned int bound_address;
+  unsigned int translation_offset;
+};
+#define UNIV_BM_LSI_CTL_EN	0x80000000
+#define UNIV_BM_LSI_CTL_PWEN	0x40000000
+#define UNIV_BM_LSI_CTL_VDW	0x00C00000
+#define UNIV_OF_LSI_CTL_VDW     22
+#define UNIV_BM_LSI_CTL_VAS	0x00070000
+#define UNIV_OF_LSI_CTL_VAS	16
+#define UNIV_BM_LSI_CTL_PGM	0x0000C000
+#define UNIV_OF_LSI_CTL_PGM	14
+#define UNIV_BM_LSI_CTL_SUPER	0x00003000
+#define UNIV_OF_LSI_CTL_SUPER	12
+#define UNIV_BM_LSI_CTL_VCT	0x00000100
+#define UNIV_BM_LSI_CTL_LAS	0x00000003
+#define UNIV_OF_LSI_CTL_LAS     0
+#define UNIV_BM_LSI_CTL_RESERVED (~ (UNIV_BM_LSI_CTL_EN | UNIV_BM_LSI_CTL_PWEN | UNIV_BM_LSI_CTL_VDW | UNIV_BM_LSI_CTL_VAS | UNIV_BM_LSI_CTL_PGM | UNIV_BM_LSI_CTL_SUPER | UNIV_BM_LSI_CTL_VCT | UNIV_BM_LSI_CTL_LAS))
+
+/* PCI Slave image 0 Registers */
+#define UNIV_LSI0_CTL		0x100
+#define UNIV_LSI0_BS		0x104
+#define UNIV_LSI0_BD		0x108
+#define UNIV_LSI0_TO		0x10C
+/* PCI Slave image 1 Registers */
+#define UNIV_LSI1_CTL		0x114
+#define UNIV_LSI1_BS		0x118
+#define UNIV_LSI1_BD		0x11C
+#define UNIV_LSI1_TO		0x120
+/* PCI Slave image 2 Registers */
+#define UNIV_LSI2_CTL		0x128
+#define UNIV_LSI2_BS		0x12C
+#define UNIV_LSI2_BD		0x130
+#define UNIV_LSI2_TO		0x134
+/* PCI Slave image 3 Registers */
+#define UNIV_LSI3_CTL		0x13C
+#define UNIV_LSI3_BS		0x140
+#define UNIV_LSI3_BD		0x144
+#define UNIV_LSI3_TO		0x148
+
+/* Special Cycle control Registers */
+#define UNIV_SCYC_CTL		0x170
+#define UNIV_SCYC_ADDR		0x174
+#define UNIV_SCYC_EN		0x178
+#define UNIV_SCYC_CMP		0x17C
+#define UNIV_SCYC_SWP		0x180
+
+#define UNIV_LMISC		0x184
+#define UNIV_BM_LMISC_CRT		0xF0000000
+#define UNIV_OF_LMISC_CRT		28
+#define UNIV_BM_LMISC_CWT		0x0F000000
+#define UNIV_OF_LMISC_CWT		24
+#define UNIV_SLSI		0x188
+#define UNIV_BM_SLSI_EN			0x80000000
+#define UNIV_BM_SLSI_PWEN		0x40000000
+#define UNIV_BM_SLSI_VDW		0x00F00000
+#define UNIV_OF_SLSI_VDW		20
+#define UNIV_BM_SLSI_PGM		0x0000F000
+#define UNIV_OF_SLSI_PGM		12
+#define UNIV_BM_SLSI_SUPER		0x00000F00
+#define UNIV_OF_SLSI_SUPER		8
+#define UNIV_BM_SLSI_BS			0x000000F6
+#define UNIV_OF_SLSI_BS			2
+#define UNIV_BM_SLSI_LAS		0x00000003
+#define UNIV_OF_SLSI_LAS		0
+#define UNIV_BM_SLSI_RESERVED		0x3F0F0000
+#define UNIV_L_CMDERR		0x18C
+#define UNIV_LAERR		0x190
+
+/* additional UNIVERSE II slave images */
+#define UNIV_LSI4_CTL		0x1A0
+#define UNIV_LSI4_BS		0x1A4
+#define UNIV_LSI4_BD		0x1A8
+#define UNIV_LSI4_TO		0x1AC
+
+#define UNIV_LSI5_CTL		0x1B4
+#define UNIV_LSI5_BS		0x1B8
+#define UNIV_LSI5_BD		0x1BC
+#define UNIV_LSI5_TO		0x1C0
+
+#define UNIV_LSI6_CTL		0x1C8
+#define UNIV_LSI6_BS		0x1CC
+#define UNIV_LSI6_BD		0x1D0
+#define UNIV_LSI6_TO		0x1D4
+
+#define UNIV_LSI7_CTL		0x1DC
+#define UNIV_LSI7_BS		0x1E0
+#define UNIV_LSI7_BD		0x1E4
+#define UNIV_LSI7_TO		0x1E8
+/* end of additional UNIVERSE II slave images */
+
+/* DMA Registers */
+#define UNIV_DCTL		0x200
+#define UNIV_BM_DCTL_L2V		0x80000000
+#define UNIV_BM_DCTL_VDW		0x00C00000
+#define UNIV_OF_DCTL_VDW		22
+#define UNIV_BM_DCTL_VAS		0x00070000
+#define UNIV_OF_DCTL_VAS		16
+#define UNIV_BM_DCTL_PGM		0x0000C000
+#define UNIV_OF_DCTL_PGM		14
+#define UNIV_BM_DCTL_SUPER		0x00003000
+#define UNIV_OF_DCTL_SUPER		12
+#define UNIV_BM_DCTL_VCT		0x00000100
+#define UNIV_BM_DCTL_LD64EN		0x00000080
+#define UNIV_DTBC		0x204
+#define UNIV_DLA		0x208
+#define UNIV_DVA		0x210
+#define UNIV_DCPP		0x218
+#define UNIV_DGCS		0x220
+#define UNIV_BM_DGCS_GO			0x80000000
+#define UNIV_BM_DGCS_STOP_REQ		0x40000000
+#define UNIV_BM_DGCS_HALT_REQ		0x20000000
+#define UNIV_BM_DGCS_CHAIN		0x08000000
+#define UNIV_BM_DGCS_VON		0x00F00000
+#define UNIV_OF_DGCS_VON		20
+#define UNIV_BM_DGCS_VOFF		0x000F0000
+#define UNIV_OF_DGCS_VOFF		16
+#define UNIV_BM_DGCS_ACT		0x00008000
+#define UNIV_BM_DGCS_STOP		0x00004000
+#define UNIV_BM_DGCS_HALT		0x00002000
+#define UNIV_BM_DGCS_DONE		0x00000800
+#define UNIV_BM_DGCS_LERR		0x00000400
+#define UNIV_BM_DGCS_VERR		0x00000200
+#define UNIV_BM_DGCS_PERR		0x00000100
+#define UNIV_BM_DGCS_INT_STOP		0x00000040
+#define UNIV_BM_DGCS_INT_HALT		0x00000020
+#define UNIV_BM_DGCS_INT_DONE		0x00000008
+#define UNIV_BM_DGCS_INT_LERR		0x00000004
+#define UNIV_BM_DGCS_INT_VERR		0x00000002
+#define UNIV_BM_DGCS_INT_PERR		0x00000001
+#define UNIV_D_LLUE		0x224
+
+/* Interrupt Control Registers */
+#define UNIV_LINT_EN		0x300
+#define UNIV_BM_LINT_ACFAIL		0x00008000
+#define UNIV_BM_LINT_SYSFAIL		0x00004000
+#define UNIV_BM_LINT_SW_INT		0x00002000
+#define UNIV_BM_LINT_SW_IACK		0x00001000
+#define UNIV_BM_LINT_VERR		0x00000400
+#define UNIV_BM_LINT_LERR		0x00000200
+#define UNIV_BM_LINT_DMA		0x00000100
+#define UNIV_BM_LINT_VIRQ		0x000000FE
+#define UNIV_BM_LINT_VIRQ7		0x00000080
+#define UNIV_BM_LINT_VIRQ6		0x00000040
+#define UNIV_BM_LINT_VIRQ5		0x00000020
+#define UNIV_BM_LINT_VIRQ4		0x00000010
+#define UNIV_BM_LINT_VIRQ3		0x00000008
+#define UNIV_BM_LINT_VIRQ2		0x00000004
+#define UNIV_BM_LINT_VIRQ1		0x00000002
+#define UNIV_BM_LINT_VOWN		0x00000001
+#define UNIV_LINT_STAT		0x304
+#define UNIV_LINT_MAP0		0x308
+#define UNIV_LINT_MAP1		0x30C
+#define UNIV_VINT_EN		0x310
+#define UNIV_VINT_STAT		0x314
+#define UNIV_VINT_MAP0		0x318
+#define UNIV_VINT_MAP1		0x31C
+#define UNIV_VINT_STATID	0x320
+#define UNIV_V1_STATID		0x324
+#define UNIV_V2_STATID		0x328
+#define UNIV_V3_STATID		0x32C
+#define UNIV_V4_STATID		0x330
+#define UNIV_V5_STATID		0x334
+#define UNIV_V6_STATID		0x338
+#define UNIV_V7_STATID		0x33C
+#define UNIV_BM_VX_STATID_STATID	0x000000FF
+#define UNIV_OF_VX_STATID_STATID        0
+#define UNIV_BM_VX_STATID_ERR		0x00000100
+
+
+
+/* additional UNIVERSE II interrupt registers */
+#define UNIV_LINT_MAP2		0x340
+#define UNIV_VINT_MAP2		0x344
+#define UNIV_MBOX0		0x348
+#define UNIV_MBOX1		0x34C
+#define UNIV_MBOX2		0x350
+#define UNIV_MBOX3		0x354
+#define UNIV_SEMA0		0x358
+#define UNIV_SEMA1		0x35C
+
+/* end of additional UNIVERSE II interrupt registers */
+
+
+/* VME-Master control registers */
+#define UNIV_MAST_CTL		0x400
+#define UNIV_BM_MAST_CTL_MAXRTRY	0xF0000000
+#define UNIV_OF_MAST_CTL_MAXRTRY	28
+#define UNIV_BM_MAST_CTL_PWON		0x0F000000
+#define UNIV_OF_MAST_CTL_PWON		24
+#define UNIV_BM_MAST_CTL_VRL		0x00C00000
+#define UNIV_OF_MAST_CTL_VRL		22
+#define UNIV_BM_MAST_CTL_VRM		0x00200000
+#define UNIV_BM_MAST_CTL_VREL		0x00100000
+#define UNIV_BM_MAST_CTL_VOWN		0x00080000
+#define UNIV_BM_MAST_CTL_VOWN_ACK	0x00040000
+#define UNIV_BM_MAST_CTL_PABS		0x00001000
+#define UNIV_BM_MAST_CTL_BUS_NO		0x0000000F
+#define UNIV_OF_MAST_CTL_BUS_NO		0
+#define UNIV_MISC_CTL		0x404
+#define UNIV_BM_MISC_CTL_VBTO   	0xF0000000
+#define UNIV_OF_MISC_CTL_VBTO   	28
+#define UNIV_BM_MISC_CTL_VARB   	0x04000000
+#define UNIV_BM_MISC_CTL_VARBTO 	0x03000000
+#define UNIV_OF_MISC_CTL_VARBTO 	24
+#define UNIV_BM_MISC_CTL_SW_LRST	0x00800000
+#define UNIV_BM_MISC_CTL_SW_SRST	0x00400000
+#define UNIV_BM_MISC_CTL_BI	   	0x00100000
+#define UNIV_BM_MISC_CTL_ENGBI  	0x00080000
+#define UNIV_BM_MISC_CTL_RESCIND	0x00040000
+#define UNIV_BM_MISC_CTL_SYSCON 	0x00020000
+#define UNIV_BM_MISC_CTL_V64AUTO	0x00010000
+#define UNIV_BM_MISC_CTL_RESERVED	0x0820FFFF
+#define UNIV_MISC_STAT		0x408
+#define UNIV_BM_MISC_STAT_ENDIAN 	0x80000000
+#define UNIV_BM_MISC_STAT_LCLSIZE	0x40000000
+#define UNIV_BM_MISC_STAT_DY4AUTO	0x08000000
+#define UNIV_BM_MISC_STAT_MYBBSY 	0x00200000
+#define UNIV_BM_MISC_STAT_DY4DONE	0x00080000
+#define UNIV_BM_MISC_STAT_TXFE	 	0x00040000
+#define UNIV_BM_MISC_STAT_RXFE	 	0x00020000
+#define UNIV_BM_MISC_STAT_DY4AUTOID	0x0000FF00
+#define UNIV_OF_MISC_STAT_DY4AUTOID	8
+#define UNIV_USER_AM		0x40C
+
+#define UNIV_BM_VSI_CTL_EN	0x80000000
+#define UNIV_BM_VSI_CTL_PWEN	0x40000000
+#define UNIV_BM_VSI_CTL_PREN	0x20000000
+#define UNIV_BM_VSI_CTL_PGM	0x00C00000
+#define UNIV_OF_VSI_CTL_PGM	22
+#define UNIV_BM_VSI_CTL_SUPER	0x00300000
+#define UNIV_OF_VSI_CTL_SUPER	20
+#define UNIV_BM_VSI_CTL_VAS	0x00070000
+#define UNIV_OF_VSI_CTL_VAS	16
+#define UNIV_BM_VSI_CTL_LD64EN	0x00000080
+#define UNIV_BM_VSI_CTL_LLRMW	0x00000040
+#define UNIV_BM_VSI_CTL_LAS	0x00000003
+#define UNIV_OF_VSI_CTL_LAS     0
+#define UNIV_BM_VSI_CTL_RESERVED 0x1F08FF3C
+/* VME Slave image 0 control */
+#define UNIV_VSI0_CTL		0xF00
+#define UNIV_VSI0_BS		0xF04
+#define UNIV_VSI0_BD		0xF08
+#define UNIV_VSI0_TO		0xF0C
+/* VME Slave image 1 control */
+#define UNIV_VSI1_CTL		0xF14
+#define UNIV_VSI1_BS		0xF18
+#define UNIV_VSI1_BD		0xF1C
+#define UNIV_VSI1_TO		0xF20
+/* VME Slave image 2 control */
+#define UNIV_VSI2_CTL		0xF28
+#define UNIV_VSI2_BS		0xF2C
+#define UNIV_VSI2_BD		0xF30
+#define UNIV_VSI2_TO		0xF34
+/* VME Slave image 3 control */
+#define UNIV_VSI3_CTL		0xF3C
+#define UNIV_VSI3_BS		0xF40
+#define UNIV_VSI3_BD		0xF44
+#define UNIV_VSI3_TO		0xF48
+
+
+/* additional UNIVERSE II location monito registers */
+#define UNIV_LM_CTL		0xF64
+#define UNIV_LM_BS		0xF66
+/* end of additional UNIVERSE II location monito registers */
+
+
+/* VME Misc registers */
+#define UNIV_VRAI_CTL		0xF70
+#define UNIV_BM_VRAI_CTL_EN		0x80000000
+#define UNIV_BM_VRAI_CTL_PGM		0x00C00000
+#define UNIV_OF_VRAI_CTL_PGM		22
+#define UNIV_BM_VRAI_CTL_SUPER		0x00300000
+#define UNIV_OF_VRAI_CTL_SUPER		20
+#define UNIV_BM_VRAI_CTL_VAS		0x00030000
+#define UNIV_OF_VRAI_CTL_VAS		16
+#define UNIV_VRAI_BS		0xF74
+#define UNIV_VCSR_CTL		0xF80
+#define UNIV_VCSR_TO		0xF84
+#define UNIV_V_AMERR		0xF88
+#define UNIV_VAERR		0xF8C
+
+/* additional UNIVERSE II VMEBus slave images */
+#define UNIV_VSI4_CTL		0xF90
+#define UNIV_VSI4_BS		0xF94
+#define UNIV_VSI4_BD		0xF98
+#define UNIV_VSI4_TO		0xF9C
+
+#define UNIV_VSI5_CTL		0xFA4
+#define UNIV_VSI5_BS		0xFA8
+#define UNIV_VSI5_BD		0xFAC
+#define UNIV_VSI5_TO		0xFB0
+
+#define UNIV_VSI6_CTL		0xFB8
+#define UNIV_VSI6_BS		0xFBC
+#define UNIV_VSI6_BD		0xFC0
+#define UNIV_VSI6_TO		0xFC4
+
+#define UNIV_VSI7_CTL		0xFCC
+#define UNIV_VSI7_BS		0xFD0
+#define UNIV_VSI7_BD		0xFD4
+#define UNIV_VSI7_TO		0xFD8
+/* end of additional UNIVERSE II VMEBus slave images */
+
+
+
+#define UNIV_VCSR_CLR		0xFF4
+#define UNIV_VCSR_SET		0xFF8
+#define UNIV_BM_VCSR_RESET		0x80000000
+#define UNIV_BM_VCSR_SYSFAIL		0x40000000
+#define UNIV_BM_VCSR_FAIL		0x20000000
+#define UNIV_VCSR_BS		0xFFC
+
+
+#endif
