@@ -4759,7 +4759,7 @@ kBytes per sec. = DOUBLE : 0
 
 [/Equipment/EB/Settings]
 Number of Fragment = INT : 2
-User build = BOOL : n
+User build = BOOL : y
 User Field = STRING : [64] 100
 Fragment Required = BOOL[2] :
 [0] y
