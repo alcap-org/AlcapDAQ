@@ -462,10 +462,10 @@ INT new_fadc_read(char *pevent)
 
   for(int i = 0; i < max_boards; i++) {
     if(board[i].enabled) {
-      printf("Board %d: start %d (%c) - stop %d (%c) - buffer full (%c)\n", i,
-        board[i].start_packet, board[i].start_packet_seen ? '-' :  'X',
-        board[i].stop_packet, board[i].stop_packet_seen ? '-' :  'X',
-        board[i].buffer_full ? '-' :  'X');      
+      printf("Board %0x%02x: start %d (%c) - stop %d (%c) - buffer full (%c)\n", i,
+        board[i].start_packet, board[i].start_packet_seen ? '+' :  '-',
+        board[i].stop_packet, board[i].stop_packet_seen ? '+' :  '-',
+        board[i].buffer_full ? '-' :  '+');      
     }
   }
 
