@@ -460,16 +460,51 @@ INT new_fadc_read(char *pevent)
     }
   } 
 
+  bool buffer_full = false;
+
   for(int i = 0; i < max_boards; i++) {
     if(board[i].enabled) {
-      printf("Board %0x%02x: start %d (%c) - stop %d (%c) - buffer full (%c)\n", i,
+      printf("Board 0x%02x: start %d (%c) - stop %d (%c) - buffer full (%c)\n", i,
         board[i].start_packet, board[i].start_packet_seen ? '+' :  '-',
         board[i].stop_packet, board[i].stop_packet_seen ? '+' :  '-',
-        board[i].buffer_full ? '-' :  '+');      
-    }
+        board[i].buffer_full ? '+' :  '-');      
+      
+      if(board[i].buffer_full) buffer_full = true;
+    } // board[i] is enabled
   }
 
   bk_init32(pevent);
+
+  // Peter Winter 12/01/2013: 
+  // Adding to write the board numbers with buffer overflow
+  // and data package loss to new banks
+  
+  
+  if(buffer_full){  
+    // We have buffer overflow somewhere, 
+    // so let's write all board numbers to the bank NBUF that have buffer overflow
+    INT *pbuffer_full;
+    bk_create(pevent, "NBUF", TID_INT, &pbuffer_full);    
+    // Let's add the boards that have buffer overflow
+    for(int j=0; j < max_boards; ++j){
+      if(board[j].buffer_full) *pbuffer_full++ = j;
+    }
+    bk_close(pevent, pbuffer_full);
+  } // 
+  
+  /*
+  if(timed_out){  
+    // We have some missing packets, so let's write all board numbers to 
+    // the bank NLSS in case we are missing data packages
+    INT *p_package_loss;
+    bk_create(pevent, "NLSS", TID_INT, &p_package_loss);
+    // Let's add the boards that have buffer overflow
+    for(int j=0; j < max_boards; ++j){
+
+    }    
+    bk_close(pevent, p_package_loss);
+  }
+  */
 
 //  if(!timed_out) {
 //    printf("Block OK\n");
