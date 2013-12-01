@@ -492,7 +492,6 @@ INT new_fadc_read(char *pevent)
     bk_close(pevent, pbuffer_full);
   } // 
   
-  /*
   if(timed_out){  
     // We have some missing packets, so let's write all board numbers to 
     // the bank NLSS in case we are missing data packages
@@ -500,11 +499,17 @@ INT new_fadc_read(char *pevent)
     bk_create(pevent, "NLSS", TID_INT, &p_package_loss);
     // Let's add the boards that have buffer overflow
     for(int j=0; j < max_boards; ++j){
-
-    }    
+      if(board[j].enabled){
+	for(int m=board[j].first_packet; m<=board[j].last_packet; ++m){
+	  if(!board[j].packets[m]){
+	    *p_package_loss++ = j;
+	    *p_package_loss++ = m;
+	  }
+	}
+      }    
+    }
     bk_close(pevent, p_package_loss);
   }
-  */
 
 //  if(!timed_out) {
 //    printf("Block OK\n");
