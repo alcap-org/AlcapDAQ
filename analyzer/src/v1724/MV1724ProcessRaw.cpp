@@ -241,7 +241,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	    
 	    pulse_islands.push_back(new TPulseIsland(
 						       caen_trigger_time, sample_vector,
-						       isample, *bankNameIter));
+						       gSetup->GetClockTick(*bankNameIter), *bankNameIter));
 	  }
       }
       
@@ -251,7 +251,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
     }
     
 
-  hNV1724IslandsReadPerBlock->Fill(bank_name,midas_event_number,pulse_islands.size());
+  //  hNV1724IslandsReadPerBlock->Fill(bank_name,midas_event_number,pulse_islands.size());
   
   /* fake data! just to show how to push to a tree: */
 
