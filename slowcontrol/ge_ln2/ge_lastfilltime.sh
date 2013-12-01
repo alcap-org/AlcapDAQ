@@ -8,7 +8,7 @@ odbedit -e AlCap -c "exp /Equipment/Germanium/LastFill /home/daq/AlcapDAQ/slowco
 LASTFILL=`date -f /home/daq/AlcapDAQ/slowcontrol/lastfill.txt +%s`
 NOW=`date +%s`
 CMD_ALLOWWRITE="chmod 3 /Equipment/Germanium/AlarmCheck/LastFillTime"
-CMD_DISALLOWWRITE="AlCap chmod 1 /Equipment/Germanium/AlarmCheck/LastFillTime"
+CMD_DISALLOWWRITE="chmod 1 /Equipment/Germanium/AlarmCheck/LastFillTime"
 CMD_SETTIME="set /Equipment/Germanium/AlarmCheck/LastFillTime $((NOW-LASTFILL))"
 
 # Load time into ODB
