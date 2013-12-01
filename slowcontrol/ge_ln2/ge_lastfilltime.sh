@@ -1,7 +1,9 @@
 #!/bin/bash
 
+. /home/daq/AlcapDAQ/thisdaq.sh
+
 # Get the last fill
-odbedit -e AlCap -c "exp /Equipment/Germanium/LastFill /home/bumuon/alcap/AlcapDAQ/slowcontrol/lastfill.txt"
+odbedit -e AlCap -c "exp /Equipment/Germanium/LastFill /home/daq/AlcapDAQ/slowcontrol/lastfill.txt"
 
 LASTFILL=`date -f /home/daq/AlcapDAQ/slowcontrol/lastfill.txt +%s`
 NOW=`date +%s`
