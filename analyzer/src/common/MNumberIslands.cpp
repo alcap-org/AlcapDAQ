@@ -67,7 +67,7 @@ INT MNumberIslands_init()
   // One histogram is created for each detector
 
 
-  hNumberOfIslands = new TH2I("hNumberOfIslands", "Expected Number of Islands per Channel per Event", 1,0,1, 10000,0,10000);
+  hNumberOfIslands = new TH2I("hNumberOfIslands", "Number of Islands per Channel per Event", 1,0,1, 10000,0,10000);
   hNumberOfIslands->GetXaxis()->SetTitle("Bank Name");
   hNumberOfIslands->GetYaxis()->SetTitle("MIDAS Event Number");
   hNumberOfIslands->SetBit(TH1::kCanRebin);

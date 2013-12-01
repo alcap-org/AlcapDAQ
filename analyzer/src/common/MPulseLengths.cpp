@@ -44,6 +44,7 @@ extern TSetupData* gSetup;
 
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
 static TH2I* average_length_histogram;
+map <std::string, TH1I*> length_histograms_map;
 
 ANA_MODULE MPulseLengths_module =
 {
@@ -65,6 +66,22 @@ INT MPulseLengths_init()
 {
   // This histogram has the pulse lengths on the X-axis and the number of pulses on the Y-axis
   // One histogram is created for each detector
+  
+  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
+      mapIter != bank_to_detector_map.end(); mapIter++) { 
+
+    std::string bankname = mapIter->first;
+    std::string detname = gSetup->GetDetectorName(bankname);
+    std::string histname = "h" + detname + "_Lengths";
+    std::string histtitle = "Plot of the pulse lengths for the " + detname + " detector";
+    TH1I* hDetLengths = new TH1I(histname.c_str(), histtitle.c_str(), 100,0,100);
+    hDetLengths->GetXaxis()->SetTitle("Pulse Lengths [N Samples]");
+    hDetLengths->GetYaxis()->SetTitle("Arbitrary Unit");
+    hDetLengths->SetBit(TH1::kCanRebin);
+
+    length_histograms_map[bankname] = hDetLengths;
+  }
 
   std::string histname = "hAvgPulseLengthsPerChannel";
   std::string histtitle = "Plot of the average pulse lengths per event for the each channel";
@@ -104,7 +121,7 @@ INT MPulseLengths(EVENT_HEADER *pheader, void *pevent)
 	    // Loop over the TPulseIslands and plot the histogram
 	    double total_length_of_pulses = 0;
 	    for (std::vector<TPulseIsland*>::iterator thePulseIter = thePulses.begin(); thePulseIter != thePulses.end(); thePulseIter++) {
-	      
+	      length_histograms_map[bankname]->Fill((*thePulseIter)->GetPulseLength());
 	      total_length_of_pulses += (*thePulseIter)->GetPulseLength();
 	    }
 	    // Fill the histogram

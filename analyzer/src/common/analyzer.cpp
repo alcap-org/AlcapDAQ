@@ -278,4 +278,38 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     } // end if bank is starting with letter 'N' 
   } // end loop over all non empty banks
   
+ for(int i=0; i<det_key.num_values; i++){
+   // Calculate the clock ticks for each bank and update TSetupData
+   if(BankNames[i][0] == 'N'){ // FADC banks
+     std::string bank_name(BankNames[i]);
+     int iChn = (int)(*(bank_name.substr(1,1).c_str()) - 97);
+     std::string iAddr = bank_name.substr(2, 2);
+    
+     sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Channel %d/DCM phase", iAddr.c_str(), iChn);
+    
+     int DCMPhase;
+     double clockTickInNs;
+     double FADC_frequency = 170e6; // 170 MHz
+
+     if(db_find_key(hDB,0,keyName, &hKey) == SUCCESS){
+       db_get_key(hDB, hKey, &bk_key);
+
+       int size = sizeof(DCMPhase);
+       if(db_get_value(hDB, 0, keyName , &DCMPhase, &size, TID_INT, 0) == DB_SUCCESS){
+	 double true_frequency = FADC_frequency / DCMPhase;
+	 clockTickInNs = (1/true_frequency) * 1e9;
+
+	 gSetup->fBankToClockTickMap[bank_name] = clockTickInNs;
+       }
+     }
+   }
+   else if (BankNames[i][0] == 'C') { // CAEN banks
+     std::string bank_name(BankNames[i]);
+
+     double CAEN_frequency = 100e6; // 100 MHz (internal clock)
+     double clockTickInNs = (1 / CAEN_frequency) * 1e9;
+
+     gSetup->fBankToClockTickMap[bank_name] = clockTickInNs;
+   }
+ }
 }
