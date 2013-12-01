@@ -3,7 +3,7 @@
 # Get the last fill
 odbedit -e AlCap -c "exp /Equipment/Germanium/LastFill /home/bumuon/alcap/AlcapDAQ/slowcontrol/lastfill.txt"
 
-LASTFILL=`date -f /home/bumuon/alcap/AlcapDAQ/slowcontrol/lastfill.txt +%s`
+LASTFILL=`date -f /home/daq/AlcapDAQ/slowcontrol/lastfill.txt +%s`
 NOW=`date +%s`
 CMD_ALLOWWRITE="chmod 3 /Equipment/Germanium/AlarmCheck/LastFillTime"
 CMD_DISALLOWWRITE="AlCap chmod 1 /Equipment/Germanium/AlarmCheck/LastFillTime"
