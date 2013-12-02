@@ -1,6 +1,11 @@
+common/MUnCompressRawData
+
 FADC/MOctalFADCProcessRaw
+
 v1724/MV1724ProcessRaw
-common/MPulseHeights
-common/MPulseTimes
-common/MPulseWaveforms
+
+muSC_muPC/MCaenCompProcessRaw
+
+common/MCommonOnlineDisplayPlots
+
 common/MTreeOutput
