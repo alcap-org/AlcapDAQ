@@ -153,14 +153,16 @@ INT dt5720_init()
   CAEN_DGTZ_BoardInfo_t BoardInfo;
 
   /* Grab Board */
-  /*  int iLine = 0;
-      ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,iLine,0,VME_BASE,&handle);*/
-  ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,1,0,VME_BASE,&handle);
-  /*  while(ret==CAEN_DGTZ_CommError)
+  /* int iLine = 0;
+       ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,iLine,0,VME_BASE,&handle);*/
+  ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,0,0,VME_BASE,&handle);
+  /*
+  while(ret==CAEN_DGTZ_CommError)
     {
-      iLine++;
+      //iLine++;
       ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,iLine,0,VME_BASE,&handle);
-    }*/
+    }
+  */
   if(is_caen_error(ret,__LINE__-1,"dt5720_init")) return FE_ERR_HW;
 
   /* Get Board Info */
