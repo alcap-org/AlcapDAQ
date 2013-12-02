@@ -23,6 +23,7 @@ caen_uh_shapes v1724/caen_uh_shapes.C
 #
 #======================================================
 #             FADC
+#======================================================
 fadc_80_heights FADC/fadc_80_heights.C
 fadc_80_times FADC/fadc_80_times.C
 fadc_80_shapes FADC/fadc_80_shapes.C
@@ -38,3 +39,8 @@ fadc_82_shapes FADC/fadc_82_shapes.C
 FADCIslandsReadPerBlock FADC/fadc_islands_read_per_block.C
 FADCPacketLoss FADC/fadc_packet_losses.C
 FADCOverflowingBuffers FADC/fadc_overflowing_buffers.C
+
+#======================================================
+#         Common
+#======================================================
+raw_pulse_count common/raw_pulse_count.C
