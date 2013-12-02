@@ -229,7 +229,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 		    else 
 		      adc = ((p32[4+iword+ichannel*nwords] >> 16) & 0x3fff);
 		      
-		    //		      printf("adc[%i] = %i\n", isample, adc);
+		    //printf("CAEN V1724 channel %d: adc[%i] = %i\n", ichannel, isample, adc);
 		    h2_v1724_pulses[ichannel]->Fill(isample,adc);
 		    isample++;
 		      
