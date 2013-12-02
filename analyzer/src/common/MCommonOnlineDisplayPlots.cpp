@@ -44,6 +44,7 @@ extern TSetupData* gSetup;
 map <std::string, TH1I*> height_histograms_map;
 map <std::string, TH1I*> timestamp_histograms_map;
 map <std::string, TH2D*> shape_histograms_map;
+static TH1I* hPulseRawCount;
 
 ANA_MODULE MCommonOnlineDisplayPlots_module =
 {
@@ -107,6 +108,14 @@ INT MCommonOnlineDisplayPlots_init()
     shape_histograms_map[bankname] = hPulseShapes;
   }
 
+  // hPulseRawCount
+  std::string histname = "hPulseRawCount";
+  std::string histtitle = "Plot of the raw counts in each channels";
+  hPulseRawCount = new TH1I(histname.c_str(), histtitle.c_str(), 1,0,1);
+  hPulseRawCount->GetXaxis()->SetTitle("Channel");
+  hPulseRawCount->GetYaxis()->SetTitle("Number of Pulses");
+  hPulseRawCount->SetBit(TH1::kCanRebin);
+
   return SUCCESS;
 }
 
@@ -150,8 +159,10 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 	      for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
 		shape_histograms_map[bankname]->Fill(sampleIter - theSamples.begin(), (*sampleIter));
 	      }
-	    }
+	    }	    
 	  }
+
+	  hPulseRawCount->Fill(bankname.c_str(), thePulses.size());
 	}
 	return SUCCESS;
 }
