@@ -674,7 +674,7 @@ typedef INT midas_thread_t;
 
 #define EVENT_BUFFER_SIZE      0x1000000     /**< buffer used for events      */
 #define EVENT_BUFFER_NAME      "SYSTEM"      /**< buffer name for commands    */
-#define MAX_EVENT_SIZE         0x100000      /**< maximum event size 512k     */
+#define MAX_EVENT_SIZE         0x800000      /**< maximum event size 8MB     */
 #define DEFAULT_EVENT_BUFFER_SIZE 0x4000000;  /**< 2M                          */
 #define DEFAULT_ODB_SIZE       0x800000      /**< online database 1M          */
 
