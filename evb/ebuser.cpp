@@ -269,7 +269,6 @@ INT eb_user(INT nfrag, BOOL mismatch, EBUILDER_CHANNEL * ebch
     return EB_USER_ERROR;
   }
 
-
   // Initialize output event
   bk_init32(pevent);
 

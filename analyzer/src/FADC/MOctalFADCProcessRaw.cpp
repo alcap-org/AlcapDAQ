@@ -155,8 +155,8 @@ INT MOctalFADCProcessRaw(EVENT_HEADER *pheader, void *pevent)
       fadc_islands.size());
 
     // print for testing
-    if(midas_event_number == 1) {
-      printf("TEST MESSAGE: Read %d events from bank %s in event %d\n",
+    if(midas_event_number == 1) {      
+		  printf("TEST MESSAGE: Read %d events from bank %s in event %d\n",
         fadc_bank_readers[i]->GetNIslands(),
         fadc_bank_readers[i]->GetBankName().c_str(),
         midas_event_number);

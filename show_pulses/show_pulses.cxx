@@ -13,7 +13,7 @@
 #ifndef __CINT__
 //#include "/home/nam/fadc_software/midas/include/midas.h"
 #include "midas.h"
-#include "../../compress/mucap_compress.h"
+#include "../analyzer/compress/mucap_compress.h"
 #endif
 
 #include "TH1.h"
