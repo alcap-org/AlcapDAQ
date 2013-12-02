@@ -36,6 +36,8 @@ Si2Times Si/thick_silicon_times.C
 #======================================================
 #             FADC
 FADCIslandsReadPerBlock FADC/fadc_islands_read_per_block.C
+FADCPacketLoss FADC/fadc_packet_losses.C
+FADCOverflowingBuffers FADC/fadc_overflowing_buffers.C
 #======================================================
 #             Ge
 GeHeights    Ge/thick_germanium_heights.C
@@ -49,3 +51,4 @@ ScTimes      Sc/thick_scintillator_times.C
 #======================================================
 #           Common
 AvgPulseLengths common/avg_pulse_lengths.C
+IslandLoss common/IslandLoss.C
