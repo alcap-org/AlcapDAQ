@@ -39,6 +39,7 @@ INT  MShortPulseTimes(EVENT_HEADER*, void*);
 vector<string> GetAllBankNames();
 double GetClockTickForChannel(string bank_name);
 
+string testname = "CaenCh0";
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
@@ -46,6 +47,7 @@ extern TSetupData* gSetup;
 static vector<TOctalFADCBankReader*> fadc_bank_readers;
 
 static std::map<std::string, TH1*>  time_short_pulse_histogram_map;
+static std::map<std::string, TH1*>  time_nshort_pulse_histogram_map;
 
 ANA_MODULE MShortPulseTimes_module =
 {
@@ -77,12 +79,25 @@ INT MShortPulseTimes_init()
     std::string detname = gSetup->GetDetectorName(mapIter->first);
     std::string histname = "h" + detname + "_ShortPulseTimes";
     std::string histtitle = "Plot of the short pulse times for the " + detname + " detector";
-    TH1D* hShortPulseTime = new TH1D(histname.c_str(),histtitle.c_str(),100,0,100);
-    hShortPulseTime->GetXaxis()->SetTitle("Time Stamp");
+    TH1D* hShortPulseTime = new TH1D(histname.c_str(),histtitle.c_str(),240,0,120e6);
+    hShortPulseTime->GetXaxis()->SetTitle("Pulse time (ns)");
+    hShortPulseTime->GetXaxis()->CenterTitle(1);
     hShortPulseTime->GetYaxis()->SetTitle("Number of 4-sample pulses");
-    hShortPulseTime->SetBit(TH1::kCanRebin);
+    hShortPulseTime->GetYaxis()->CenterTitle(1);
+    //hShortPulseTime->SetBit(TH1::kCanRebin);
+
+    std::string histname2 = "h" + detname + "_NonShortPulseTimes";
+    std::string histtitle2 = "Plot of the non-short pulse times for the " + detname + " detector";
+    TH1D* hNonShortPulseTime = new TH1D(histname2.c_str(),histtitle2.c_str(),240,0,120e6);
+    hNonShortPulseTime->GetXaxis()->SetTitle("Pulse time (ns)");
+    hNonShortPulseTime->GetXaxis()->CenterTitle(1);
+    hNonShortPulseTime->GetYaxis()->SetTitle("Number of all other pulses");
+    hNonShortPulseTime->GetYaxis()->CenterTitle(1);
+    //hNonShortPulseTime->SetBit(TH1::kCanRebin);
 
     time_short_pulse_histogram_map[mapIter->first] = hShortPulseTime;
+    time_nshort_pulse_histogram_map[mapIter->first] = hNonShortPulseTime;
+
   }
 
   return SUCCESS;
@@ -114,9 +129,11 @@ INT MShortPulseTimes(EVENT_HEADER *pheader, void *pevent)
 			
 	  // Loop over the TPulseIslands and plot the histogram
 	  for (std::vector<TPulseIsland*>::iterator thePulseIter = thePulses.begin(); thePulseIter != thePulses.end(); thePulseIter++) {
+        if (gSetup->GetDetectorName(theMapIter->first)=="CDG0" && ((*thePulseIter)->GetSamples().size()>0)) printf("\nfound caen\n");
 
         //samples = (*thePulseIter)->GetSamples();
         if ((*thePulseIter)->GetSamples().size()==4) time_short_pulse_histogram_map[bankname]->Fill((*thePulseIter)->GetPulseTime());        
+        else time_nshort_pulse_histogram_map[bankname]->Fill((*thePulseIter)->GetPulseTime());
 	    
 	  }
 
