@@ -1035,6 +1035,9 @@ INT source_scan(INT fmt, EQUIPMENT_INFO *eq_info)
        return status;        // Event mark as EB_SKIP or EB_ABORT by user
      }
 
+     /* Overall event to be sent */
+     act_size = ((EVENT_HEADER *) dest_event)->data_size + sizeof(EVENT_HEADER);
+
      /* Allow bypass of fragment assembly if user did it on its own */
      if (!ebset.user_build) {
        for (j = 0; j < nfragment; j++) {
