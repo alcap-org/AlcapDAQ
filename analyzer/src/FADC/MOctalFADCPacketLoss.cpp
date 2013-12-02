@@ -3,7 +3,7 @@
   Name:         MOctalFADCPacketLoss
   Created by:   Andrew Edmonds
 
-  Contents:     Module to plot the number of lost packets per event
+  Contents:     Module to plot the average number of lost packets per
 
 \********************************************************************/
 
@@ -39,7 +39,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-static TH2* hNOctalFADCPacketLoss;
+static TH1* hNOctalFADCAvgPacketLoss;
 
 ANA_MODULE MOctalFADCPacketLoss_module =
 {
@@ -63,13 +63,13 @@ INT MOctalFADCPacketLoss_init()
   // block number on the Y-axis.
   // This uses the TH1::kCanRebin mechanism to expand automatically to the
   // number of FADC banks.
-  hNOctalFADCPacketLoss = new TH2I(
-    "hNOctalFADCPacketLoss",
-    "Number of FADC packets lost per event per board",
-    3,128, 131, 5000,0,5000);
-  hNOctalFADCPacketLoss->SetBit(TH1::kCanRebin);
-  hNOctalFADCPacketLoss->GetXaxis()->SetTitle("FADC Board Number");
-  hNOctalFADCPacketLoss->GetYaxis()->SetTitle("MIDAS Event Number");
+  hNOctalFADCAvgPacketLoss = new TH1F(
+    "hNOctalFADCAvgPacketLoss",
+    "Average Number of FADC packets lost per board",
+    3,128, 131);
+  hNOctalFADCAvgPacketLoss->SetBit(TH1::kCanRebin);
+  hNOctalFADCAvgPacketLoss->GetXaxis()->SetTitle("FADC Board Number");
+  hNOctalFADCAvgPacketLoss->GetYaxis()->SetTitle("Average Number of Packets Lost per Event");
 
   return SUCCESS;
 }
@@ -93,12 +93,20 @@ INT MOctalFADCPacketLoss(EVENT_HEADER *pheader, void *pevent)
     packet_lost = *(raw+i+1);
     n_packets_lost++;
   }
-  if (n_packets_lost > 0)
-    printf("Event #%d: Board %d lost packet #%d\n", midas_event_number, board_number, packet_lost);
+
+  //  if (n_packets_lost > 0)
+  //    printf("Event #%d: Board %d lost packet #%d\n", midas_event_number, board_number, packet_lost);
+
+  // Want the average and since I'll scale by 1/midas_event_number at the end, I should undo it now before I add the new data
+  if (midas_event_number > 1)
+    hNOctalFADCAvgPacketLoss->Scale(midas_event_number-1);
 
   // Fill Diagnostic histogram
-  if (n_packets_lost != 0)
-    hNOctalFADCPacketLoss->Fill(board_number, midas_event_number, n_packets_lost);
+  if (board_number != 0)
+    hNOctalFADCAvgPacketLoss->Fill(board_number, n_packets_lost);
+
+  // Scale down for the average, the final midas event should leave this correct
+  hNOctalFADCAvgPacketLoss->Scale(1.0 / midas_event_number);
 
   return SUCCESS;
 }
