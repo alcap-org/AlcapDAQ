@@ -42,7 +42,7 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 map <std::string, TH1I*> height_histograms_map;
-map <std::string, TH1I*> timestamp_histograms_map;
+map <std::string, TH1I*> time_histograms_map;
 map <std::string, TH2D*> shape_histograms_map;
 static TH1I* hPulseRawCount;
 
@@ -66,7 +66,7 @@ INT MCommonOnlineDisplayPlots_init()
 {
   // The following histograms are created for each channel:
   // hPulseHeights: ADC value (x-axis) vs number of pulses (y-axis)
-  // hPulseTimestamps: time stamp (x-axis) vs number of pulses (y-axis)
+  // hPulseTimes: time stamp (x-axis) vs number of pulses (y-axis)
   // hPulseRawCount: number of pulses (y-axis) - channels on x-axis?
   // hPulseShapes: sample number (x-axis) vs ADC value (y-axis) vs pulse (z-axis)
 
@@ -91,19 +91,19 @@ INT MCommonOnlineDisplayPlots_init()
     hPulseHeights->GetYaxis()->SetTitle("Number of Pulses");
     height_histograms_map[bankname] = hPulseHeights;
 
-    // hPulseTimestamps
-    histname = "h" + bankname + "_Timestamps";
-    histtitle = "Plot of the pulse timestamps in the " + bankname + " channels";
-    TH1I* hPulseTimestamps = new TH1I(histname.c_str(), histtitle.c_str(), 1000,0,1e6);
-    hPulseTimestamps->GetXaxis()->SetTitle("Time Stamp");
-    hPulseTimestamps->GetYaxis()->SetTitle("Number of Pulses");
-    timestamp_histograms_map[bankname] = hPulseTimestamps;
+    // hPulseTimes
+    histname = "h" + bankname + "_Times";
+    histtitle = "Plot of the pulse times in the " + bankname + " channels";
+    TH1I* hPulseTimes = new TH1I(histname.c_str(), histtitle.c_str(), 1000,0,1e6);
+    hPulseTimes->GetXaxis()->SetTitle("Time");
+    hPulseTimes->GetYaxis()->SetTitle("Number of Pulses");
+    time_histograms_map[bankname] = hPulseTimes;
 
     // hPulseShapes
     histname = "h" + bankname + "_Shapes";
     histtitle = "Plot of the pulse shapes in the " + bankname + " channels";
     TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(), 256,0.5,256.5,max_adc_value,-0.5,max_adc_value-0.5);      
-    hPulseShapes->GetXaxis()->SetTitle("Time Stamp");
+    hPulseShapes->GetXaxis()->SetTitle("Time");
     hPulseShapes->GetYaxis()->SetTitle("ADC Value");
     shape_histograms_map[bankname] = hPulseShapes;
   }
@@ -150,8 +150,8 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 	    if (height_histograms_map.find(bankname) != height_histograms_map.end())
 	      height_histograms_map[bankname]->Fill((*pulseIter)->GetPulseHeight());
 
-	    if (timestamp_histograms_map.find(bankname) != timestamp_histograms_map.end())
-	      timestamp_histograms_map[bankname]->Fill((*pulseIter)->GetTimeStamp());
+	    if (time_histograms_map.find(bankname) != time_histograms_map.end())
+	      time_histograms_map[bankname]->Fill((*pulseIter)->GetPulseTime());
 
 	    if (shape_histograms_map.find(bankname) != shape_histograms_map.end()) {
 	      
