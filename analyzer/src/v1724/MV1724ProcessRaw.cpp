@@ -73,7 +73,6 @@ ANA_MODULE MV1724ProcessRaw_module =
 static const int NCHAN = 8;
 
 /*-- Histogram declaration -----------------------------------------*/
-static vector<TH2D *> h2_v1724_pulses;
 static TH2* hNV1724IslandsReadPerBlock;
 
 /*--module init routine --------------------------------------------*/
@@ -93,16 +92,8 @@ INT module_init()
     std::string bankname = mapIter->first;
     
     // We only want the CAEN banks here
-    if (TSetupData::IsCAEN(bankname)) {
+    if (TSetupData::IsCAEN(bankname))
       caen_bank_names.push_back(bankname);
-
-      int i = caen_bank_names.size() - 1; // get the current number of CAEN banks => current channel number
-      TH2D* hist = new TH2D(Form("h2_v1724_pulses_chan_%i",i),"v1724 raw pulses",256,0.5,256.5,16385,-0.5,16384.5); 
-      hist->SetXTitle("time (ct)");
-      hist->SetYTitle("ADC");
-
-      h2_v1724_pulses.push_back(hist);
-    }
   }
   
   //  printf("caen init!\n");
@@ -146,7 +137,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 
   BYTE *pdata;
 
-  printf("In caen ER!\n");
+  //  printf("In caen ER!\n");
 
   char bank_name[8];
   sprintf(bank_name,"CDG%i",0); // one MIDAS bank per board
@@ -229,8 +220,8 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 		    else 
 		      adc = ((p32[4+iword+ichannel*nwords] >> 16) & 0x3fff);
 		      
-		    //		      printf("adc[%i] = %i\n", isample, adc);
-		    h2_v1724_pulses[ichannel]->Fill(isample,adc);
+		    //printf("CAEN V1724 channel %d: adc[%i] = %i\n", ichannel, isample, adc);
+		    //		    h2_v1724_pulses[ichannel]->Fill(isample,adc);
 		    isample++;
 		      
 		    sample_vector.push_back(adc);
@@ -250,6 +241,19 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 
     }
     
+  // print for testing
+  if(midas_event_number == 1) {
+    // Loop through all the banks and print an output (because this ProcessRaw loops through pulses then banks, it has been put here)
+    for (std::vector<std::string>::iterator bankNameIter = caen_bank_names.begin();
+	 bankNameIter != caen_bank_names.end(); bankNameIter++) {
+      
+      vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
+      printf("TEST MESSAGE: Read %d events from bank %s in event %d\n",
+	     pulse_islands.size(),
+	     (*(bankNameIter)).c_str(),
+	     midas_event_number);
+    }
+  }
 
   //  hNV1724IslandsReadPerBlock->Fill(bank_name,midas_event_number,pulse_islands.size());
   
