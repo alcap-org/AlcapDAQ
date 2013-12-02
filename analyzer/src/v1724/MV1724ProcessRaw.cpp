@@ -146,7 +146,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 
   BYTE *pdata;
 
-  printf("In caen ER!\n");
+  //  printf("In caen ER!\n");
 
   char bank_name[8];
   sprintf(bank_name,"CDG%i",0); // one MIDAS bank per board
@@ -250,6 +250,19 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 
     }
     
+  // print for testing
+  if(midas_event_number == 1) {
+    // Loop through all the banks and print an output (because this ProcessRaw loops through pulses then banks, it has been put here)
+    for (std::vector<std::string>::iterator bankNameIter = caen_bank_names.begin();
+	 bankNameIter != caen_bank_names.end(); bankNameIter++) {
+      
+      vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
+      printf("TEST MESSAGE: Read %d events from bank %s in event %d\n",
+	     pulse_islands.size(),
+	     (*(bankNameIter)).c_str(),
+	     midas_event_number);
+    }
+  }
 
   //  hNV1724IslandsReadPerBlock->Fill(bank_name,midas_event_number,pulse_islands.size());
   

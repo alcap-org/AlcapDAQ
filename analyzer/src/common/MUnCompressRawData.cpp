@@ -84,8 +84,8 @@ INT MUnCompressRawData(EVENT_HEADER *pheader, void *pevent)
   char sdate[100], stime[100];
   strftime(sdate, 100, fdate, &block_tm);
   strftime(stime, 100, ftime, &block_tm);
-  printf("Current block (serial number %d) stored on %s at %s\n", 
-	 event_serial, sdate, stime);
+  //  printf("Current block (serial number %d) stored on %s at %s\n", 
+  //	 event_serial, sdate, stime);
 
   if (event_id == EVENTID_BOR || 
       event_id == EVENTID_EOR ||
