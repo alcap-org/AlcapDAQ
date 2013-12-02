@@ -6,9 +6,12 @@
 # MODULES
 #
 #======================================================
-#             Ge
+#             CAEN
 #======================================================
-v1724raw v1724/raw.C
+# v1724raw v1724/raw.C
+caen_uh_heights v1724/caen_uh_heights.C
+caen_uh_times v1724/caen_uh_times.C
+caen_uh_shapes v1724/caen_uh_shapes.C
 #
 #======================================================
 #             EMC
@@ -16,39 +19,22 @@ v1724raw v1724/raw.C
 #EMC EMC/raw.C
 #
 # Dummy hist
-Dummy dummy.C
+#Dummy dummy.C
 #
 #======================================================
-#             Si
-SiL1SlowHeights Si/thin_left_slow_silicon_heights.C
-SiR1SlowHeights Si/thin_right_slow_silicon_heights.C
-SiL1FastHeights Si/thin_left_fast_silicon_heights.C
-SiR1FastHeights Si/thin_right_fast_silicon_heights.C
-Si2Heights    Si/thick_silicon_heights.C
-FitSi2Heights Si/thick_silicon_heights_gausfit.C
-
-SiL1SlowTimes Si/thin_left_slow_silicon_times.C
-SiR1SlowTimes Si/thin_right_slow_silicon_times.C
-SiL1FastTimes Si/thin_left_fast_silicon_times.C
-SiR1FastTimes Si/thin_right_fast_silicon_times.C
-Si2Times Si/thick_silicon_times.C
-
-#======================================================
 #             FADC
+fadc_80_heights FADC/fadc_80_heights.C
+fadc_80_times FADC/fadc_80_times.C
+fadc_80_shapes FADC/fadc_80_shapes.C
+
+fadc_81_heights FADC/fadc_81_heights.C
+fadc_81_times FADC/fadc_81_times.C
+fadc_81_shapes FADC/fadc_81_shapes.C
+
+fadc_82_heights FADC/fadc_82_heights.C
+fadc_82_times FADC/fadc_82_times.C
+fadc_82_shapes FADC/fadc_82_shapes.C
+
 FADCIslandsReadPerBlock FADC/fadc_islands_read_per_block.C
 FADCPacketLoss FADC/fadc_packet_losses.C
 FADCOverflowingBuffers FADC/fadc_overflowing_buffers.C
-#======================================================
-#             Ge
-GeHeights    Ge/thick_germanium_heights.C
-FitGeHeights Ge/thick_germanium_heights_gausfit.C
-GeTimes      Ge/thick_germanium_times.C
-#======================================================
-#             Sc
-ScHeights    Sc/thick_scintillator_heights.C
-FitScHeights Sc/thick_scintillator_heights_gausfit.C
-ScTimes      Sc/thick_scintillator_times.C
-#======================================================
-#           Common
-AvgPulseLengths common/avg_pulse_lengths.C
-IslandLoss common/IslandLoss.C
