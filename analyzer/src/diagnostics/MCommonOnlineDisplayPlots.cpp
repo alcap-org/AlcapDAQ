@@ -78,8 +78,10 @@ INT MCommonOnlineDisplayPlots_init()
     int n_digitizer_bits = 0;
     if (TSetupData::IsFADC(bankname))
       n_digitizer_bits = 12;
-    else if (TSetupData::IsCAEN(bankname))
+    else if (TSetupData::IsHoustonCAEN(bankname))
       n_digitizer_bits = 14; //?
+    else if (TSetupData::IsBostonCAEN(bankname))
+      n_digitizer_bits = 12;
     
     long max_adc_value = std::pow(2, n_digitizer_bits);
 

@@ -1,4 +1,4 @@
-void fadc_81_heights()
+void caen_bu_times()
 {
   /*****************************************************************/
   // Prepare the canvas
@@ -9,9 +9,9 @@ void fadc_81_heights()
 
   gROOT->ProcessLine(".L modules/common/get_histogram.C+");
   /*****************************************************************/
-  std::string hist_type = "Heights";
+  std::string hist_type = "Times";
   const int n_channels = 8;
-  std::string bank_names[n_channels] = {"Na81", "Nb81", "Nc81", "Nd81", "Ne81", "Nf81", "Ng81", "Nh81"};
+  std::string bank_names[n_channels] = {"CaBU", "CbBU", "CcBU", "CdBU", "CeBU", "CfBU", "CgBU", "ChBU"};
 
   for (int iChn = 0; iChn < n_channels; iChn++) {
     TH1* hist = get_histogram(bank_names[iChn], hist_type);

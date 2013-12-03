@@ -12,6 +12,10 @@
 caen_uh_heights v1724/caen_uh_heights.C
 caen_uh_times v1724/caen_uh_times.C
 caen_uh_shapes v1724/caen_uh_shapes.C
+
+caen_bu_heights dt5720/caen_bu_heights.C
+caen_bu_times dt5720/caen_bu_times.C
+caen_bu_shapes dt5720/caen_bu_shapes.C
 #
 #======================================================
 #             EMC
@@ -24,21 +28,21 @@ caen_uh_shapes v1724/caen_uh_shapes.C
 #======================================================
 #             FADC
 #======================================================
-fadc_80_heights FADC/fadc_80_heights.C
-fadc_80_times FADC/fadc_80_times.C
-fadc_80_shapes FADC/fadc_80_shapes.C
+FADC_80_heights FADC/fadc_single_plots.C ("80","Heights")
+FADC_80_times FADC/fadc_single_plots.C  ("80","Times")
+FADC_80_shapes FADC/fadc_single_plots.C ("80","Shapes")
 
-fadc_81_heights FADC/fadc_81_heights.C
-fadc_81_times FADC/fadc_81_times.C
-fadc_81_shapes FADC/fadc_81_shapes.C
+FADC_81_heights FADC/fadc_single_plots.C ("81","Heights")
+FADC_81_times FADC/fadc_single_plots.C ("81","Times")
+FADC_81_shapes FADC/fadc_single_plots.C ("81","Shapes")
 
-fadc_82_heights FADC/fadc_82_heights.C
-fadc_82_times FADC/fadc_82_times.C
-fadc_82_shapes FADC/fadc_82_shapes.C
+FADC_82_heights FADC/fadc_single_plots.C ("82","Heights")
+FADC_82_times FADC/fadc_single_plots.C ("82","Times")
+FADC_82_shapes FADC/fadc_single_plots.C ("82","Shapes")
 
-FADCIslandsReadPerBlock FADC/fadc_islands_read_per_block.C
-FADCPacketLoss FADC/fadc_packet_losses.C
-FADCOverflowingBuffers FADC/fadc_overflowing_buffers.C
+FADC_IslandsPerBlock FADC/fadc_islands_read_per_block.C
+FADC_PacketLoss FADC/fadc_packet_losses.C
+FADC_OverflowingBuffers FADC/fadc_overflowing_buffers.C
 
 #======================================================
 #         Common

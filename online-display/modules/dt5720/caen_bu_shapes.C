@@ -1,4 +1,4 @@
-void fadc_80_times()
+void caen_bu_shapes()
 {
   /*****************************************************************/
   // Prepare the canvas
@@ -9,15 +9,15 @@ void fadc_80_times()
 
   gROOT->ProcessLine(".L modules/common/get_histogram.C+");
   /*****************************************************************/
-  std::string hist_type = "Times";
+  std::string hist_type = "Shapes";
   const int n_channels = 8;
-  std::string bank_names[n_channels] = {"Na80", "Nb80", "Nc80", "Nd80", "Ne80", "Nf80", "Ng80", "Nh80"};
+  std::string bank_names[n_channels] = {"CaBU", "CbBU", "CcBU", "CdBU", "CeBU", "CfBU", "CgBU", "ChBU"};
 
   for (int iChn = 0; iChn < n_channels; iChn++) {
     TH1* hist = get_histogram(bank_names[iChn], hist_type);
     if (hist) {
       AlCapCanvas->cd(iChn+1);
-      hist->Draw();
+      hist->Draw("COLZ");
     }
   }
 }

@@ -5,6 +5,7 @@ unset MIDAS_HOME
 unset MIDAS_EXPTAB
 
 mkdir -p dir
+START_DIR=$PWD
 
 cd midas && make && cd -
 
@@ -15,6 +16,8 @@ fi
 export MIDAS_EXPTAB=$PWD/exptab
 export MIDASSYS=$PWD/midas
 export MIDAS_HOME=$MIDASSYS
+export MIDAS_DIR=$PWD/analyzer/work
+#export MIDAS_ROOT=$HOME_COMET/Alcap/AlcapDAQ/midas
 
 uname=`uname -p`
 arch=''
@@ -33,6 +36,12 @@ for crate in $(ls -d crate*);
 do
 	echo "****************************************************"
 	echo "Making "$crate
-	cd $crate && make && cd -
+	cd $crate 
+	if [ $? -eq 0 ]; then
+		make 
+		cd -
+	fi
 	echo "Done "$crate"!"
 done
+
+cd  $START_DIR
