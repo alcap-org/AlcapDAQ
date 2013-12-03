@@ -15,6 +15,7 @@ class TSetupData : public TObject{
   // Map of bank names to detector names
   std::map<std::string, std::string> fBankToDetectorMap;
   std::map<std::string, double> fBankToClockTickMap;
+  std::map<std::string, int> fBankToBitMap;
 
   //std::string GetBankName(std::string DetectorName){ };
   std::string GetDetectorName(std::string BankName) { 
@@ -24,9 +25,11 @@ class TSetupData : public TObject{
       return BankName + "_Det";
   };
   double GetClockTick(std::string BankName) { return fBankToClockTickMap[BankName]; };
+  int GetNBits(std::string BankName) { return fBankToBitMap[BankName]; };
 
   static bool IsFADC(std::string BankName) { return BankName[0] == 'N'; } // if the first letter is N then the bank name is for a FADC
-  static bool IsCAEN(std::string BankName) { return BankName[0] == 'C'; } // if the first letter is C then the bank name is for a CAEN
+  static bool IsHoustonCAEN(std::string BankName) { return BankName.substr(2,2) == "UH"; } // if the first letter is C then the bank name is for a CAEN
+  static bool IsBostonCAEN(std::string BankName) { return BankName.substr(2,2)  == "BU"; } // if the first letter is C then the bank name is for a CAEN
 
   ClassDef(TSetupData, 1)
 };

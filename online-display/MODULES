@@ -12,11 +12,16 @@
 caen_uh_heights v1724/caen_uh_heights.C
 caen_uh_times v1724/caen_uh_times.C
 caen_uh_shapes v1724/caen_uh_shapes.C
+
+caen_bu_heights dt5720/caen_bu_heights.C
+caen_bu_times dt5720/caen_bu_times.C
+caen_bu_shapes dt5720/caen_bu_shapes.C
 #
 #======================================================
 #             EMC
 #======================================================
 #EMC EMC/raw.C
+muPC muSCmuPC/muPC.C
 #
 # Dummy hist
 #Dummy dummy.C

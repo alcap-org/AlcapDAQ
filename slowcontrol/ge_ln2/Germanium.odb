@@ -1,0 +1,45 @@
+[/Equipment/Germanium/Settings]
+Master = BOOL : n
+Diagnostic Print Level = INT : -1079790036
+Operator Message Level = INT : -1079790036
+Enabled = BOOL : y
+Synchronous = BOOL : y
+
+[/Equipment/Germanium/Settings/Alarm]
+JustFilled = BOOL : n
+LastFill = STRING : [64] Thu Jan  1 01:00:00 CET 1970
+TimeSinceFill = INT : 28800
+
+[/Equipment/Germanium/Common]
+Event ID = WORD : 1000
+Trigger mask = WORD : 65535
+Buffer = STRING : [32] SYSTEM
+Type = INT : 66
+Source = INT : 16777215
+Format = STRING : [8] MIDAS
+Enabled = BOOL : y
+Read on = INT : 1
+Period = INT : 500
+Event limit = DOUBLE : 0
+Num subevents = DWORD : 0
+Log history = INT : 0
+Frontend host = STRING : [32] abner
+Frontend name = STRING : [32] Germanium
+Frontend file name = STRING : [256] crate.cpp
+
+[/Equipment/Germanium/Statistics]
+Events sent = DOUBLE : 0
+Events per sec. = DOUBLE : 0
+kBytes per sec. = DOUBLE : 0
+
+[/Alarms/Alarms/Germanium]
+Active = BOOL : y
+Triggered = INT : 0
+Type = INT : 3
+Check interval = INT : 60
+Checked last = DWORD : 0
+Time triggered first = STRING : [32]
+Time triggered last = STRING : [32]
+Condition = STRING : [256] /Equipment/Germanium/Settings/Alarm/TimeSinceFill > 28800
+Alarm Class = STRING : [32] Alarm
+Alarm Message = STRING : [80] Germanium must be filled
