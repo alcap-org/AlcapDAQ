@@ -1,4 +1,4 @@
-all: alcapana_t libDataClasses.so libDataClasses.rootmap
+all: alcapana libDataClasses.so libDataClasses.rootmap
 
 .PHONY: clean print all
 
@@ -99,7 +99,7 @@ M4FLAGS = -I.
 	$(CXX) -c -Wall $(CXXFLAGS) $<
 	$(CXX) -MM $(CXXFLAGS) $< > $(notdir $(patsubst %.cpp,%.d,$<))
 
-alcapana_t: $(objs) $(ANA_OBJS) libDataClasses.so
+alcapana: $(objs) $(ANA_OBJS) libDataClasses.so
 	$(CXX) $(ICCFLAGS) -o $@ $^ $(ALL_LIBS) -lmucap_compress -lm -lz  -Wl,-rpath,$(shell pwd)
 
 DataLibraryDict.cpp: $(DATA_LIBRARY_HEADERS) ../../src/common/DataLibraryLinkDef.h
@@ -119,7 +119,7 @@ decompressor.o: decompressor.c
 
 clean: 
 	rm -f *.d *.o *Dict.cpp *Dict.h MODULES.h Makefile.MODULES \
-	alcapana_t libDataClasses.so libDataClasses.rootmap
+	alcapana libDataClasses.so libDataClasses.rootmap
 
 print: 
 	@echo "DATA_CLASSES = $(DATA_CLASSES)"; echo

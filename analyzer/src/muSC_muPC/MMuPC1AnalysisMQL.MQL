@@ -1,0 +1,558 @@
+/********************************************************************\
+
+  Name:         MMuPC1AnalysisMQL.MQL
+
+  Contents:     This module identifies good, 2-plane (XY) muPC1 hits.
+		A bank of good muPC1 hits and muPC1 sparks are exported
+		for use in MCoincidenceCalcs.
+
+\********************************************************************/
+
+module MMuPC1AnalysisMQL;
+
+// Include header files
+literal "#include <common.h>";
+literal "#include <ucb_common.h>";
+
+// Set the enable flags
+literal "#define Tier1 ON";
+literal "#define Tier2 OFF";
+literal "#define Tier3 OFF";
+
+/**************************************************\
+                Import HITS bank
+\**************************************************/
+
+import hits from HITS
+{
+  double time, 
+  int parameter
+};
+
+/**************************************************\
+               muPC1 calculations
+\**************************************************/ 
+
+/*--------------------------------------
+  select muPC1 data from HITS
+----------------------------------------*/
+select from hits into muPC1_hits
+  where "(parameter >= 4001) && (parameter <= 4074)"
+{
+  double time = time, 
+  int parameter = parameter
+};
+histogram1d from muPC1_hits
+  enable "Tier1"
+  name "parameters_muPC1" title "#muPC1 hits"
+  "parameter" bins 101 from 3999.5 to 4100.5;
+
+/*--------------------------------------
+  Xwire clustering
+----------------------------------------*/
+
+// Select raw muPC1X data
+select from muPC1_hits into muPC1X_raw
+  where "(parameter >= 4001) && (parameter <= (4000+kMuPC1NumXWires))"
+{ 
+  double time = time, 
+  int Xwire = "parameter - 4000"
+};
+
+
+// Xwire raw autocorrelation
+join muPC1X_raw with muPC1X_raw into muPC1X_raw_auto
+  coincidence time_1 with time_2 from -50005 to 1
+  enable "Tier3";
+histogram2d from muPC1X_raw_auto
+  enable "Tier3"
+  name "muPC1_X_raw_autosingles_2D" title "#muPC1 raw Xwire singles autocorr 2D"
+  "Xwire_1" bins "kMuPC1NumXWires" from 0.5 to "kMuPC1NumXWires+0.5"
+  "Xwire_2" bins "kMuPC1NumXWires" from 0.5 to "kMuPC1NumXWires+0.5";
+histogram1d from muPC1X_raw_auto
+  enable "Tier3"
+  where "(time_2 - time_1) >= 0"
+  name "muPC1_X_raw_autocorr_all_1D" title "#muPC1 raw Xwire autocorr neighbors 1D"
+  "time_2 - time_1" bins 11001 from -5002.5 to 50002.5;
+histogram2d from muPC1X_raw_auto
+  enable "Tier3"
+  where "((time_2 - time_1) >= 0) && (Xwire_1==Xwire_2)"
+  name "muPC1_X_raw_autocorr_2D" title "#muPC1 raw Xwire autocorr 2D"
+  "time_2 - time_1" bins 11001 from -5002.5 to 50002.5
+  "Xwire_1" bins "kMuPC1NumXWires" from 0.5 to "kMuPC1NumXWires+0.5";
+
+
+// Identify muPC1X-plane spark events
+cluster from muPC1X_raw into muPC1X_spark_search
+  coincidence time_1 with time_2 from -1000 to 1000
+  order by time
+{
+  double time = time_min,
+  int cluster_size = cluster_size,
+};
+histogram1d from muPC1X_spark_search
+  enable "Tier1"
+  name "muPC1_spark_search_Xwires" title "#muPC1 spark search Xwire cluster_size"
+  "cluster_size" bins "(3*kMuPC1NumXWires)" from 0.5 to "(3*kMuPC1NumXWires)+0.5";
+select from muPC1X_spark_search into muPC1X_sparks
+  where "(cluster_size >= kMuPC1XSparkSizeCutoff)"
+{
+  double time = time
+};
+histogram1d from muPC1X_sparks
+  enable "Tier1"
+  name "muPC1_spark_count_Xwires" title "Number of #muPC1 Xwire sparks"
+  "1" bins 3 from -0.5 to 2.5;
+
+
+// Xwire Spark Cuts (SC)
+join muPC1X_raw with muPC1X_sparks into muPC1X_SC
+  invert
+  coincidence muPC1X_raw_time with muPC1X_sparks_time from -100 to "kSparkCutDeadtime"
+{
+  double time = muPC1X_raw_time,
+  int Xwire = Xwire
+};
+
+
+// Xwire SC autocorrelation
+join muPC1X_SC with muPC1X_SC into muPC1X_SC_auto
+  coincidence time_1 with time_2 from -50005 to 1
+  enable "Tier3";
+histogram1d from muPC1X_SC_auto
+  enable "Tier3"
+  where "(time_2 - time_1) >= 0"
+  name "muPC1_X_SC_autocorr_all_1D" title "#muPC1 SC Xwire autocorr neighbors 1D"
+  "time_2 - time_1" bins 11001 from -5002.5 to 50002.5;
+histogram2d from muPC1X_SC_auto
+  enable "Tier3"
+  where "((time_2 - time_1) >= 0) && (Xwire_1==Xwire_2)"
+  name "muPC1_X_SC_autocorr_2D" title "#muPC1 SC Xwire autocorr 2D"
+  "time_2 - time_1" bins 11001 from -5002.5 to 50002.5
+  "Xwire_1" bins "kMuPC1NumXWires" from 0.5 to "kMuPC1NumXWires+0.5";
+
+
+// Xwire Artificial Deadtime (AD)
+cluster from muPC1X_SC into muPC1X_AD
+  non_transitive
+  coincidence time_1 with time_2 from "-kMuPC1XClusterInterval" to "kMuPC1XClusterInterval"
+  where "Xwire_1 == Xwire_2"
+  order by time
+{
+  double time = time_min,
+  int Xwire = Xwire_1
+};
+
+
+// Xwire AD autocorrelation
+join muPC1X_AD with muPC1X_AD into muPC1X_AD_auto
+  coincidence time_1 with time_2 from -50005 to 1
+  enable "Tier3";
+histogram1d from muPC1X_AD_auto
+  enable "Tier3"
+  where "(time_2 - time_1) >= 0"
+  name "muPC1_X_AD_autocorr_all_1D" title "#muPC1 AD Xwire autocorr neighbors 1D"
+  "time_2 - time_1" bins 11001 from -5002.5 to 50002.5;
+histogram2d from muPC1X_AD_auto
+  enable "Tier3"
+  where "((time_2 - time_1) >= 0) && (Xwire_1==Xwire_2)"
+  name "muPC1_X_AD_autocorr_2D" title "#muPC1 AD Xwire autocorr 2D"
+  "time_2 - time_1" bins 11001 from -5002.5 to 50002.5
+  "Xwire_1" bins "kMuPC1NumXWires" from 0.5 to "kMuPC1NumXWires+0.5";
+
+
+// Investigate appropriate cluster gap size, by looking at distribution of 
+// the separations between cluster groups
+cluster from muPC1X_AD into muPC1X_cluster_contiguous
+  coincidence time_1 with time_2 from "-kMuPC1XClusterInterval" to "kMuPC1XClusterInterval"
+  where "((abs(Xwire_1-Xwire_2)-1) == 0)"
+  order by time
+{
+  double time = time_min,
+  int Xwire_min = Xwire_min,
+  int Xwire_max = Xwire_max
+};
+join muPC1X_cluster_contiguous with muPC1X_cluster_contiguous into muPC1X_cluster_contiguous_sep
+  coincidence time_1 with time_2 from "-kMuPC1XClusterInterval" to 5
+  where "!((time_1==time_2) && (Xwire_min_1==Xwire_min_2) && (Xwire_max_1==Xwire_max_2)) &&
+	  ((Xwire_min_1 > Xwire_max_2) || (Xwire_min_2 > Xwire_max_1))"
+  enable "Tier3"
+{
+  int cluster_sep = "MIN(abs(Xwire_min_1-Xwire_max_2),abs(Xwire_min_2-Xwire_max_1))"
+};
+histogram1d from muPC1X_cluster_contiguous_sep
+  enable "Tier3"
+  name "muPC1_X_cluster_contiguous_separation" title "#muPC1 Xwire contiguous cluster wire separation"
+  "cluster_sep" bins 31 from -0.5 to 30.5;
+
+
+// Xwire clustering
+cluster from muPC1X_AD into muPC1X
+  coincidence time_1 with time_2 from "-kMuPC1XClusterInterval" to "kMuPC1XClusterInterval"
+  where "(abs(Xwire_1-Xwire_2)-1) <= kMuPC1XClusterMaxGap"
+  order by time
+{
+  double time = time_min,
+  double Xwire = Xwire_avg,
+  int cluster_size = cluster_size,
+  int cluster_width = Xwire_width
+};
+histogram1d from muPC1X
+  enable "Tier1"
+  name "muPC1_X_final_cluster_size" title "#muPC1 Xwire cluster size"
+  "cluster_size" bins "kMuPC1NumXWires+1" from 0.5 to "kMuPC1NumXWires+1.5";
+histogram1d from muPC1X
+  enable "Tier1"
+  name "muPC1_X_final_cluster_width" title "#muPC1 Xwire cluster width"
+  "cluster_width" bins "kMuPC1NumXWires+1" from 0.5 to "kMuPC1NumXWires+1.5";
+histogram1d from muPC1X
+  enable "Tier1"
+  name "muPC1_X_final_cluster_avg" title "#muPC1 Xwire cluster average"
+  "Xwire" bins "kMuPC1NumXWires" from 0.5 to "kMuPC1NumXWires+0.5";
+
+
+// Prepare the muPC1X table for export
+select from muPC1X into muPC1X_export
+{
+  double Xwire = Xwire,
+  double muPC1Time = time
+};
+
+
+// Final Xwire cluster temporal autocorrelations
+join muPC1X with muPC1X into muPC1X_auto
+  coincidence time_1 with time_2 from -50005 to 1
+  enable "Tier3"
+{
+  double time_1 = time_1,
+  double time_2 = time_2
+};
+histogram1d from muPC1X_auto
+  enable "Tier3"
+  where "(time_2 - time_1) >= 0"
+  name "muPC1_X_final_cluster_autocorr_all_1D" 
+  title "#muPC1 clustered Xwire autocorr neighbors 1D"
+  "time_2 - time_1" bins 11001 from -5002.5 to 50002.5;
+
+
+// Final Xwire cluster spatial autocorrelations
+join muPC1X with muPC1X into muPC1X_spatial_auto
+  coincidence time_1 with time_2 from -150 to 1
+  enable "Tier3"
+{
+  double time1 = time_1,
+  double time2 = time_2,
+  double wire_diff = "fabs(Xwire_1-Xwire_2)"
+};
+histogram1d from muPC1X_spatial_auto
+  enable "Tier3"
+  where "fabs(time_2-time_1)>=0"
+  name "muPC1_X_final_cluster_autocorr_spatial_all_1D" 
+  title "#muPC1X clustered autocorr neighbors spatial, 0-150 ns"
+  "wire_diff" bins "kMuPC1NumXWires+1" from -0.5 to "kMuPC1NumXWires+0.5";
+
+
+/*--------------------------------------
+  Ywire clustering
+----------------------------------------*/
+
+// Select raw muPC1Y data
+select from muPC1_hits into muPC1Y_raw
+  where "(parameter >= 4051) && (parameter <= (4050+kMuPC1NumYWires))"
+{ 
+  double time = time, 
+  int Ywire = "parameter - 4050"
+};
+
+
+// Ywire raw autocorrelation
+join muPC1Y_raw with muPC1Y_raw into muPC1Y_raw_auto
+  coincidence time_1 with time_2 from -50005 to 1
+  enable "Tier3";
+histogram2d from muPC1Y_raw_auto
+  enable "Tier3"
+  name "muPC1_Y_raw_autosingles_2D" title "#muPC1 raw Ywire singles autocorr 2D"
+  "Ywire_1" bins "kMuPC1NumYWires" from 0.5 to "kMuPC1NumYWires+0.5"
+  "Ywire_2" bins "kMuPC1NumYWires" from 0.5 to "kMuPC1NumYWires+0.5";
+histogram1d from muPC1Y_raw_auto
+  enable "Tier3"
+  where "(time_2 - time_1) >= 0"
+  name "muPC1_Y_raw_autocorr_all_1D" title "#muPC1 raw Ywire autocorr neighbors 1D"
+  "time_2 - time_1" bins 11001 from -5002.5 to 50002.5;
+histogram2d from muPC1Y_raw_auto
+  enable "Tier3"
+  where "((time_2 - time_1) >= 0) && (Ywire_1==Ywire_2)"
+  name "muPC1_Y_raw_autocorr_2D" title "#muPC1 raw Ywire autocorr 2D"
+  "time_2 - time_1" bins 11001 from -5002.5 to 50002.5
+  "Ywire_1" bins "kMuPC1NumYWires" from 0.5 to "kMuPC1NumYWires+0.5";
+
+
+// Identify muPC1Y-plane spark events
+cluster from muPC1Y_raw into muPC1Y_spark_search
+  coincidence time_1 with time_2 from -1000 to 1000
+  order by time
+{
+  double time = time_min,
+  int cluster_size = cluster_size,
+};
+histogram1d from muPC1Y_spark_search
+  enable "Tier1"
+  name "muPC1_spark_search_Ywires" title "#muPC1 spark search Ywire cluster_size"
+  "cluster_size" bins "(3*kMuPC1NumYWires)" from 0.5 to "(3*kMuPC1NumYWires)+0.5";
+select from muPC1Y_spark_search into muPC1Y_sparks
+  where "(cluster_size >= kMuPC1YSparkSizeCutoff)"
+{
+  double time = time
+};
+histogram1d from muPC1Y_sparks
+  enable "Tier1"
+  name "muPC1_spark_count_Ywires" title "Number of #muPC1 Ywire sparks"
+  "1" bins 3 from -0.5 to 2.5;
+
+
+// Ywire Spark Cuts (SC)
+join muPC1Y_raw with muPC1Y_sparks into muPC1Y_SC
+  invert
+  coincidence muPC1Y_raw_time with muPC1Y_sparks_time from -100 to "kSparkCutDeadtime"
+{
+  double time = muPC1Y_raw_time,
+  int Ywire = Ywire
+};
+
+
+// Ywire SC autocorrelation
+join muPC1Y_SC with muPC1Y_SC into muPC1Y_SC_auto
+  coincidence time_1 with time_2 from -50005 to 1
+  enable "Tier3";
+histogram1d from muPC1Y_SC_auto
+  enable "Tier3"
+  where "(time_2 - time_1) >= 0"
+  name "muPC1_Y_SC_autocorr_all_1D" title "#muPC1 SC Ywire autocorr neighbors 1D"
+  "time_2 - time_1" bins 11001 from -5002.5 to 50002.5;
+histogram2d from muPC1Y_SC_auto
+  enable "Tier3"
+  where "((time_2 - time_1) >= 0) && (Ywire_1==Ywire_2)"
+  name "muPC1_Y_SC_autocorr_2D" title "#muPC1 SC Ywire autocorr 2D"
+  "time_2 - time_1" bins 11001 from -5002.5 to 50002.5
+  "Ywire_1" bins "kMuPC1NumYWires" from 0.5 to "kMuPC1NumYWires+0.5";
+
+
+// Ywire Artificial Deadtime (AD)
+cluster from muPC1Y_SC into muPC1Y_AD
+  non_transitive
+  coincidence time_1 with time_2 from "-kMuPC1YClusterInterval" to "kMuPC1YClusterInterval"
+  where "Ywire_1 == Ywire_2"
+  order by time
+{
+  double time = time_min,
+  int Ywire = Ywire_1
+};
+
+
+// Ywire AD autocorrelation
+join muPC1Y_AD with muPC1Y_AD into muPC1Y_AD_auto
+  coincidence time_1 with time_2 from -50005 to 1
+  enable "Tier3";
+histogram1d from muPC1Y_AD_auto
+  enable "Tier3"
+  where "(time_2 - time_1) >= 0"
+  name "muPC1_Y_AD_autocorr_all_1D" title "#muPC1 AD Ywire autocorr neighbors 1D"
+  "time_2 - time_1" bins 11001 from -5002.5 to 50002.5;
+histogram2d from muPC1Y_AD_auto
+  enable "Tier3"
+  where "((time_2 - time_1) >= 0) && (Ywire_1==Ywire_2)"
+  name "muPC1_Y_AD_autocorr_2D" title "#muPC1 AD Ywire autocorr 2D"
+  "time_2 - time_1" bins 11001 from -5002.5 to 50002.5
+  "Ywire_1" bins "kMuPC1NumYWires" from 0.5 to "kMuPC1NumYWires+0.5";
+
+
+// Investigate appropriate cluster gap size, by looking at distribution of 
+// the separations between cluster groups
+cluster from muPC1Y_AD into muPC1Y_cluster_contiguous
+  coincidence time_1 with time_2 from "-kMuPC1YClusterInterval" to "kMuPC1YClusterInterval"
+  where "((abs(Ywire_1-Ywire_2)-1) == 0)"
+  order by time
+{
+  double time = time_min,
+  int Ywire_min = Ywire_min,
+  int Ywire_max = Ywire_max
+};
+join muPC1Y_cluster_contiguous with muPC1Y_cluster_contiguous into muPC1Y_cluster_contiguous_sep
+  coincidence time_1 with time_2 from "-kMuPC1YClusterInterval" to 5
+  where "!((time_1==time_2) && (Ywire_min_1==Ywire_min_2) && (Ywire_max_1==Ywire_max_2)) &&
+	  ((Ywire_min_1 > Ywire_max_2) || (Ywire_min_2 > Ywire_max_1))"
+  enable "Tier3"
+{
+  int cluster_sep = "MIN(abs(Ywire_min_1-Ywire_max_2),abs(Ywire_min_2-Ywire_max_1))"
+};
+histogram1d from muPC1Y_cluster_contiguous_sep
+  enable "Tier3"
+  name "muPC1_Y_cluster_contiguous_separation" 
+  title "#muPC1 Ywire contiguous cluster wire separation"
+  "cluster_sep" bins 31 from -0.5 to 30.5;
+
+
+// Ywire clustering
+cluster from muPC1Y_AD into muPC1Y
+  coincidence time_1 with time_2 from "-kMuPC1YClusterInterval" to "kMuPC1YClusterInterval"
+  where "(abs(Ywire_1-Ywire_2)-1) <= kMuPC1YClusterMaxGap"
+  order by time
+{
+  double time = time_min,
+  double Ywire = Ywire_avg,
+  int cluster_size = cluster_size,
+  int cluster_width = Ywire_width
+};
+histogram1d from muPC1Y
+  enable "Tier1"
+  name "muPC1_Y_final_cluster_size" title "#muPC1 Ywire cluster size"
+  "cluster_size" bins "kMuPC1NumYWires+1" from 0.5 to "kMuPC1NumYWires+1.5";
+histogram1d from muPC1Y
+  enable "Tier1"
+  name "muPC1_Y_final_cluster_width" title "#muPC1 Ywire cluster width"
+  "cluster_width" bins "kMuPC1NumYWires+1" from 0.5 to "kMuPC1NumYWires+1.5";
+histogram1d from muPC1Y
+  enable "Tier1"
+  name "muPC1_Y_final_cluster_avg" title "#muPC1 Ywire cluster average"
+  "Ywire" bins "kMuPC1NumYWires" from 0.5 to "kMuPC1NumYWires+0.5";
+
+
+// Prepare the muPC1Y table for export
+select from muPC1Y into muPC1Y_export
+{
+  double Ywire = Ywire,
+  double muPC1Time = time
+};
+
+
+// Final Ywire cluster temporal autocorrelation
+join muPC1Y with muPC1Y into muPC1Y_temporal_auto
+  coincidence time_1 with time_2 from -50005 to 1
+  enable "Tier3"
+{
+  double time_1 = time_1,
+  double time_2 = time_2
+};
+histogram1d from muPC1Y_temporal_auto
+  enable "Tier3"
+  where "(time_2 - time_1) >= 0"
+  name "muPC1_Y_final_cluster_autocorr_all_1D" 
+  title "#muPC1 clustered Ywire autocorr neighbors 1D"
+  "time_2 - time_1" bins 11001 from -5002.5 to 50002.5;
+
+
+// Final Ywire cluster spatial autocorrelations
+join muPC1Y with muPC1Y into muPC1Y_spatial_auto
+  coincidence time_1 with time_2 from -150 to 1
+  enable "Tier3"
+{
+  double time1 = time_1,
+  double time2 = time_2,
+  double wire_diff = "fabs(Ywire_1-Ywire_2)"
+};
+histogram1d from muPC1Y_spatial_auto
+  enable "Tier3"
+  where "fabs(time_2-time_1)>=0"
+  name "muPC1_Y_final_cluster_autocorr_spatial_all_1D" 
+  title "#muPC1Y clustered autocorr neighbors spatial, 0-150 ns"
+  "wire_diff" bins "kMuPC1NumYWires+1" from -0.5 to "kMuPC1NumYWires+0.5";
+
+/*--------------------------------------
+  Coincidence: Xwires and Ywires
+----------------------------------------*/
+
+// Temporal join of muPC1 X/Y-planes
+join muPC1X with muPC1Y into muPC1XY
+  coincidence muPC1X_time with muPC1Y_time from -601 to 601
+  order by muPC1Time
+{
+  double Xwire = Xwire,
+  double Ywire = Ywire,
+  double muPC1Time = "MIN(muPC1X_time, muPC1Y_time)"
+  double XYtdiff = "muPC1Y_time - muPC1X_time"
+};
+histogram1d from muPC1XY
+  enable "Tier1"
+  name "muPC1_coinc_XY_tdiff" title "#muPC1 wires: T_{Y} - T_{X}"
+  "XYtdiff" bins 961 from -600.625 to 600.625;
+
+
+// Select muPC1XY temporal coincidences
+select from muPC1XY into muPC1
+  where "(XYtdiff >= -95) && (XYtdiff <= 95)"
+{
+  double Xwire = Xwire,
+  double Ywire = Ywire,
+  double muPC1Time = muPC1Time
+};
+histogram2d from muPC1
+  enable "Tier1"
+  name "muPC1_coinc_XY_2D" title "#muPC1 2D XY-coincidences"
+  "Xwire" bins "kMuPC1NumXWires" from 0.5 to "kMuPC1NumXWires+0.5"
+  "Ywire" bins "kMuPC1NumYWires" from 0.5 to "kMuPC1NumYWires+0.5";
+
+
+// Final muPC1 autocorrelation
+join muPC1 with muPC1 into muPC1_auto
+  coincidence muPC1Time_1 with muPC1Time_2 from -50005 to 1
+  enable "Tier3"
+{
+  double muPC1Time_1 = muPC1Time_1,
+  double muPC1Time_2 = muPC1Time_2
+};
+histogram1d from muPC1_auto
+  enable "Tier3"
+  where "(muPC1Time_2 - muPC1Time_1) >= 0"
+  name "muPC1_coinc_XY_autocorr_all_1D" title "#muPC1 XY-coinc autocorr neighbors 1D"
+  "muPC1Time_2 - muPC1Time_1" bins 11001 from -5002.5 to 50002.5;
+
+/*--------------------------------------
+  Combine spark information for export
+----------------------------------------*/
+
+// Merge muPC1X and muPC1Y spark tables for export
+merge muPC1X_sparks with muPC1Y_sparks into muPC1_sparks_union
+  order by time
+{
+  double time = time
+};
+
+
+// Cluster the spark times
+cluster from muPC1_sparks_union into muPC1_sparks_clustered
+  coincidence time_1 with time_2 from -200 to 200
+{
+  double time = time_min,
+  int cluster_size = cluster_size
+};
+histogram1d from muPC1_sparks_clustered
+  enable "Tier1"
+  name "muPC1_spark_clustered_blocktime" 
+  title "Time of muPC1 sparks, after clustering (500ms window)"
+  "time" bins 500 from 0 to 500000000;
+
+
+// Identify 2-plane spark events
+select from muPC1_sparks_clustered into muPC1_sparks_chamberwide
+  where "cluster_size == 2"
+{
+  double time = time
+};
+histogram1d from muPC1_sparks_chamberwide
+  enable "Tier1"
+  name "muPC1_spark_chamberwide_count" title "Number of 2-plane muPC1 sparks"
+  "1" bins 3 from -0.5 to 2.5;
+histogram1d from muPC1_sparks_chamberwide
+  enable "Tier1"
+  name "muPC1_spark_chamberwide_blocktime" 
+  title "Time of 2-plane muPC1 sparks (500ms window)"
+  "time" bins 500 from 0 to 500000000;
+
+/**************************************************\
+                Export muPC1 bank
+\**************************************************/
+
+export muPC1X_export to MP1X;
+export muPC1Y_export to MP1Y;
+export muPC1 to MPC1;
+export muPC1_sparks_union to M1SP;

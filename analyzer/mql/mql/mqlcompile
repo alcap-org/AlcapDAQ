@@ -1,0 +1,3 @@
+#!/bin/sh
+dir=`dirname $0`
+java -Xmx256m -cp $dir/mql.jar MqlCompiler $1 $2
