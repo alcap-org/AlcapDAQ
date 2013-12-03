@@ -95,7 +95,7 @@ void TOctalFADCBankReader::ProcessEvent(EVENT_HEADER* pheader, void *pevent)
     lastTimestamp = timestamp;
 
     //last pulse in the block!
-    if (i==nSamples-1){
+    if ((i==nSamples-1) && (islandSamples.size() > 4)){
       fData.push_back(
         new TOctalFADCIsland(islandTimestamp*4,islandSamples)
       );
