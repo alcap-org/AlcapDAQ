@@ -7,7 +7,7 @@ void caen_uh_times()
   AlCapCanvas->Clear();
   AlCapCanvas->Divide(4,2);
 
-  gROOT->ProcessLine(".L modules/common/get_histogram.C");
+  // gROOT->ProcessLine(".L common/get_histogram.C") // get_histogram defined here
   /*****************************************************************/
   std::string hist_type = "Times";
   const int n_channels = 8;
