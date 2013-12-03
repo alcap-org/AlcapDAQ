@@ -7,7 +7,7 @@ void fadc_single_plots(std::string fadc_id,std::string hist_type)
   AlCapCanvas->Clear();
   AlCapCanvas->Divide(4,2);
 
-  gROOT->ProcessLine(".L modules/common/get_histogram.C+");
+  gROOT->ProcessLine(".L modules/common/get_histogram.C");
   /*****************************************************************/
   const int n_channels = 8;
   std::string bank_names[n_channels] = {"Na", "Nb", "Nc", "Nd", "Ne", "Nf", "Ng", "Nh"};
