@@ -1,0 +1,574 @@
+/*
+ * This file defines the lexical structure and the grammar for MQL (the
+ * "Muon Query Language").  It is formatted as input to the JavaCC tool,
+ * which uses it to build a parser for MQL.
+ *
+ * Much of what follows is modeled on and/or copied from various
+ * example files that accompany JavaCC.  The following legal notice
+ * appears at the top of those files:
+ *
+
+ Copyright © 2002 Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ California 95054, U.S.A. All rights reserved.  Sun Microsystems, Inc. has
+ intellectual property rights relating to technology embodied in the product
+ that is described in this document. In particular, and without limitation,
+ these intellectual property rights may include one or more of the U.S.
+ patents listed at http://www.sun.com/patents and one or more additional
+ patents or pending patent applications in the U.S. and in other countries.
+ U.S. Government Rights - Commercial software. Government users are subject
+ to the Sun Microsystems, Inc. standard license agreement and applicable
+ provisions of the FAR and its supplements.  Use is subject to license terms.
+ Sun,  Sun Microsystems,  the Sun logo and  Java are trademarks or registered
+ trademarks of Sun Microsystems, Inc. in the U.S. and other countries.  This
+ product is covered and controlled by U.S. Export Control laws and may be
+ subject to the export or import laws in other countries.  Nuclear, missile,
+ chemical biological weapons or nuclear maritime end uses or end users, whether
+ direct or indirect, are strictly prohibited.  Export or reexport to countries
+ subject to U.S. embargo or to entities identified on U.S. export exclusion
+ lists, including, but not limited to, the denied persons and specially
+ designated nationals lists is strictly prohibited.
+
+ *
+ * However, the distribution site http://javacc.dev.java.net/, which appears
+ * to be owned by Sun Microsystems, Inc., states that the project is licensed
+ * under the  Berkeley Software Distribution (BSD) License, with a link to
+ * http://www.opensource.org/licenses/bsd-license.html, which reads as follows:
+ *
+
+  Redistribution and use in source and binary forms, with or without 
+  modification, are permitted provided that the following conditions are met:
+
+  * Redistributions of source code must retain the above copyright notice, 
+    this list of conditions and the following disclaimer.
+  * Redistributions in binary form must reproduce the above copyright notice, 
+    this list of conditions and the following disclaimer in the documentation 
+    and/or other materials provided with the distribution.
+  * Neither the name of the <ORGANIZATION> nor the names of its contributors 
+    may be used to endorse or promote products derived from this software 
+    without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
+  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+  POSSIBILITY OF SUCH DAMAGE.
+
+ *
+ * Consequently, I conclude that it's OK to copy this stuff.
+ */
+
+options {
+  JAVA_UNICODE_ESCAPE = true;
+  MULTI=true;
+  NODE_PREFIX="Mql";
+}
+
+PARSER_BEGIN(MqlParser)
+
+import java.io.*;
+
+public class MqlParser
+{
+  public static void main(String args[]) {
+    try {
+      FileReader inputFile = new FileReader(args[0]);
+      MqlParser t = new MqlParser(inputFile);
+      SimpleNode n = t.Root();
+      n.dump("");
+      System.out.println("Thank you.");
+    } catch (Exception e) {
+      System.out.println("Oops.");
+      System.out.println(e.getMessage());
+      e.printStackTrace();
+    }
+  }
+}
+
+PARSER_END(MqlParser)
+
+/*
+ * The next part defines the lexical analyzer that breaks up the input 
+ * into tokens.  This "lexing" is the step before the actual parsing.
+ */
+
+SKIP : /* WHITE SPACE */
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+}
+
+SPECIAL_TOKEN : /* COMMENTS */
+{
+  <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+| <FORMAL_COMMENT: "/**" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+| <MULTI_LINE_COMMENT: "/*" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+}
+
+TOKEN: /* RESERVED WORDS AND LITERALS */
+{
+  < IMPORT: "import" >
+| < NTUPLE_IMPORT: "ntuple_import" >
+| < EXPORT: "export" >
+| < SELECT: "select" >
+| < JOIN: "join" >
+| < CLUSTER: "cluster" >
+| < NTUPLE: "ntuple" >
+| < MERGE: "merge" >
+| < HISTOGRAM1D: "histogram1d" >
+| < HISTOGRAMS1D: "histograms1d" >
+| < HISTOGRAM2D: "histogram2d" >
+| < HISTOGRAMS2D: "histograms2d" >
+| < HISTOGRAM3D: "histogram3d" >
+| < HISTOGRAMS3D: "histograms3d" >
+| < LITERAL: "literal" >
+
+| < MODULE: "module" >
+
+| < BOOL: "bool" >
+| < BYTE: "byte" >
+| < SHORT: "short" >
+| < INT: "int" >
+| < FLOAT: "float" >
+| < DOUBLE: "double" >
+| < STRUCT: "struct" >
+
+| < FROM: "from" >
+| < TO: "to" >
+| < BINS: "bins" >
+| < INTO: "into" >
+| < WHERE: "where" >
+| < ENABLE: "enable" >
+| < COINCIDENCE: "coincidence" >
+| < WITH: "with" >
+| < MODULO: "modulo" >
+| < NAME: "name" >
+| < TITLE: "title" >
+| < UNIQUE: "unique" >
+| < NON_TRANSITIVE: "non_transitive" >
+| < INVERT: "invert" >
+| < ORDER: "order" >
+| < BY: "by" >
+}
+
+TOKEN : /* LITERALS */
+{
+  < INTEGER_LITERAL:
+        <DECIMAL_LITERAL> (["l","L"])?
+      | <HEX_LITERAL> (["l","L"])?
+      | <OCTAL_LITERAL> (["l","L"])?
+  >
+|
+  < #DECIMAL_LITERAL: (["+","-"])? ["1"-"9"] (["0"-"9"])* >
+|
+  < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
+|
+  < #OCTAL_LITERAL: "0" (["0"-"7"])* >
+|
+  < FLOATING_POINT_LITERAL:
+        (["+","-"])? (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])?
+      | (["+","-"])? "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])?
+      | (["+","-"])? (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])?
+      | (["+","-"])? (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"]
+  >
+|
+  < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+|
+  < CHARACTER_LITERAL:
+      "'"
+      (   (~["'","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )
+      "'"
+  >
+|
+  < STRING_LITERAL:
+      "\""
+//      (   (~["\"","\\","\n","\r"])
+      (   (~["\"","\\"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )*
+      "\""
+  >
+}
+
+TOKEN : /* IDENTIFIERS */
+{ 
+  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+| 
+  < #LETTER: 
+      [ 
+       "\u0024",
+       "\u0041"-"\u005a",
+       "\u005f",
+       "\u0061"-"\u007a",
+       "\u00c0"-"\u00d6",
+       "\u00d8"-"\u00f6",
+       "\u00f8"-"\u00ff",
+       "\u0100"-"\u1fff",
+       "\u3040"-"\u318f",
+       "\u3300"-"\u337f",
+       "\u3400"-"\u3d2d",
+       "\u4e00"-"\u9fff",
+       "\uf900"-"\ufaff"
+      ]
+  > 
+| 
+  < #DIGIT:
+      [
+       "\u0030"-"\u0039",
+       "\u0660"-"\u0669",
+       "\u06f0"-"\u06f9",
+       "\u0966"-"\u096f",
+       "\u09e6"-"\u09ef",
+       "\u0a66"-"\u0a6f",
+       "\u0ae6"-"\u0aef",
+       "\u0b66"-"\u0b6f", 
+       "\u0be7"-"\u0bef",
+       "\u0c66"-"\u0c6f",
+       "\u0ce6"-"\u0cef",
+       "\u0d66"-"\u0d6f",
+       "\u0e50"-"\u0e59",
+       "\u0ed0"-"\u0ed9",
+       "\u1040"-"\u1049"
+      ]
+  >
+}
+
+TOKEN : /* SEPARATORS */
+{
+ < SEMICOLON: ";" >
+}
+
+/*
+ * Here begins the actual grammar for MQL.
+ */
+
+MqlRoot Root() : { }
+{
+  ModuleDeclaration()
+  ( Statement() )*
+  <EOF>
+
+  { return jjtThis; }
+}
+
+void ModuleDeclaration() : { }
+{
+  "module" Identifier() ";"
+}
+
+void Statement() #void : { }
+{
+  ImportStatement()
+| NtupleImportStatement()
+| ExportStatement()
+| SelectStatement()
+| JoinStatement() 
+| ClusterStatement() 
+| MergeStatement()
+| NtupleStatement()
+| Histogram1DStatement()
+| Histograms1DStatement()
+| Histogram2DStatement()
+| Histograms2DStatement()
+| Histogram3DStatement()
+| Histograms3DStatement()
+| LiteralStatement()
+}
+
+void BankName() : { }
+{
+  Identifier() 
+}
+
+void Type() : { }
+{
+   ("bool" { jjtThis.set(MqlType.BOOLEAN); })
+ | ("byte" { jjtThis.set(MqlType.BYTE); })
+ | ("short" { jjtThis.set(MqlType.SHORT); })
+ | ("int"    { jjtThis.set(MqlType.INTEGER); })
+ | ("float" { jjtThis.set(MqlType.FLOAT); })
+ | ("double" { jjtThis.set(MqlType.DOUBLE); })
+ | ("struct" Identifier() { jjtThis.set(MqlType.STRUCT); })
+
+}
+
+void ColumnEntry() : { }
+{
+  [ Type() ] Identifier() [ "=" Expression() ] [ "," ]
+}
+
+void ColumnList() : { }
+{
+  "{" ( ColumnEntry() )* "}"
+}
+
+void Expression() : { }
+{
+  Identifier()
+|
+  StringLiteral() 
+}
+
+void ImportStatement() : { }
+{
+  "import" TableName() "from" BankName() ColumnList() ";"
+}
+
+void NtupleImportStatement() : { }
+{
+  "ntuple_import" TableName() "from" TableName() ColumnList() ";"
+}
+
+void ExportStatement() : { }
+{
+  "export" TableName() "to" BankName() ";"
+}
+
+void SelectStatement() : { }
+{
+  "select" "from" TableName()
+  "into" TableName()
+  ( SortExpression() | WhereExpression() | EnableExpression() )*
+  [ ColumnList() ] ";"
+}
+
+void WhereExpression() : { }
+{
+  "where" Expression()
+}
+
+void EnableExpression() : { }
+{
+  "enable" Expression()
+}
+
+void ModuloExpression() : { }
+{
+  "modulo" Identifier() "from" NumericalExpression() "to" NumericalExpression()
+}
+
+void SortExpression() : { }
+{
+  "order" "by" Expression()
+}
+
+void CoincExpression() : { }
+{
+  "coincidence" Identifier() "with" Identifier() "from" 
+  NumericalExpression() "to" NumericalExpression()
+}
+
+void UniqueOption() : { }
+{
+  "unique"
+}
+
+void InvertOption() : { }
+{
+  "invert"
+}
+
+void NonTransitiveOption() : { }
+{
+  "non_transitive"
+}
+
+void JoinStatement() : { }
+{
+  "join" TableName()
+  "with" TableName()
+  "into" TableName()
+  [ UniqueOption() | InvertOption() ]
+  [ CoincExpression() ]
+  ( SortExpression() | WhereExpression() | EnableExpression() )*
+  [ ColumnList() ] ";"
+}
+
+void ClusterStatement() : { }
+{
+  "cluster" "from" TableName()
+  "into" TableName()
+  [ NonTransitiveOption() ]
+  [ CoincExpression() ]
+  [ ModuloExpression() ]
+  ( SortExpression() | WhereExpression() | EnableExpression() )*
+  [ ColumnList() ] ";"
+}
+
+void MergeStatement() : { }
+{
+  "merge" TableName()
+  ( "with" TableName() )*
+  "into" TableName()
+  ( SortExpression() | WhereExpression() | EnableExpression() )*
+  [ ColumnList() ] ";"
+}
+
+void NtupleStatement() : { }
+{
+  "ntuple" "from" TableName()
+  HistName() [ HistTitle() ]
+  ( WhereExpression() | EnableExpression() )*
+  [ ColumnList() ] ";"
+}
+
+void Number() #String : 
+{ 
+  Token t;
+}
+{
+  ( t=<INTEGER_LITERAL> { jjtThis.set(t.image); } )
+  | ( t=<FLOATING_POINT_LITERAL> { jjtThis.set(t.image); } )
+}
+
+void NumericalExpression() : { }
+{
+  Number() 
+|
+  StringLiteral() 
+}
+
+void Axis() : { }
+{
+  Expression() 
+  "bins" NumericalExpression()
+  "from" NumericalExpression() 
+  "to" NumericalExpression()
+  [ HistTitle() ]
+}
+
+void HistogramSelector() : { }
+{
+  "select"
+  Expression() 
+  "from" NumericalExpression() 
+  "to" NumericalExpression()
+}
+
+void StringLiteral() #String :
+{
+  Token t;
+}
+{
+  t=<STRING_LITERAL>
+  {
+    // Delete the leading and trailing quotation marks
+    String s = t.image;
+    jjtThis.set(s.substring(1, s.length() - 1)); 
+  }
+}
+
+void Identifier() #String :
+{
+  Token t;
+}
+{
+  t=<IDENTIFIER>
+  {
+    jjtThis.set(t.image);
+  }
+}
+
+void HistName() : { }
+{
+  "name" StringLiteral()
+}
+
+void HistTitle() : { }
+{
+  "title" StringLiteral()
+}
+
+void TableName() : { }
+{
+  Identifier()
+}
+
+void Histogram1DStatement() : { }
+{
+  "histogram1d" "from" TableName()
+  ( WhereExpression() | EnableExpression() )*
+  HistName() [ HistTitle() ]
+  Axis() 
+  ";"
+}
+
+void Histograms1DStatement() : { }
+{
+  "histograms1d" "from" TableName()
+  ( WhereExpression() | EnableExpression() )*
+  HistName() [ HistTitle() ]
+  HistogramSelector()
+  Axis() 
+  ";"
+}
+
+void Histogram2DStatement() : { }
+{
+  "histogram2d" "from" TableName()
+  ( WhereExpression() | EnableExpression() )*
+  HistName() [ HistTitle() ]
+  Axis() 
+  Axis() 
+  ";"
+}
+
+void Histograms2DStatement() : { }
+{
+  "histograms2d" "from" TableName()
+  ( WhereExpression() | EnableExpression() )*
+  HistName() [ HistTitle() ]
+  HistogramSelector()
+  Axis() 
+  Axis() 
+  ";"
+}
+
+
+void Histogram3DStatement() : { }
+{
+  "histogram3d" "from" TableName()
+  ( WhereExpression() | EnableExpression() )*
+  HistName() [ HistTitle() ]
+  Axis() 
+  Axis() 
+  Axis() 
+  ";"
+}
+
+void Histograms3DStatement() : { }
+{
+  "histograms3d" "from" TableName()
+  ( WhereExpression() | EnableExpression() )*
+  HistName() [ HistTitle() ]
+  HistogramSelector()
+  Axis() 
+  Axis() 
+  Axis() 
+  ";"
+}
+
+void LiteralStatement() : { }
+{
+  "literal" Expression() ";"
+}
