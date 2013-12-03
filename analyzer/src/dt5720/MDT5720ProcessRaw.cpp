@@ -1,6 +1,6 @@
 /********************************************************************\
 
-  Name:         MV1724ProcessRaw
+  Name:         MDT5720ProcessRaw
   Created by:   V.Tishchenko, J.Grange hoping to extend it
 
   Contents:     Module to decode CAEN v1724 digitizer data.
@@ -42,8 +42,8 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-vector<string> caen_houston_bank_names;
-//static vector<TV1724BankReader*> caen_bank_readers;
+vector<string> caen_boston_bank_names;
+//static vector<TDT5720BankReader*> caen_bank_readers;
 
 struct caen_event_t
 {
@@ -51,13 +51,13 @@ struct caen_event_t
   uint16_t samples[4096];
 };
 
-caen_event_t xxx;//JG: should be implemented in event routine?
+//caen_event_t xxx;//JG: should be implemented in event routine?
 
 extern HNDLE hDB;
 
-ANA_MODULE MV1724ProcessRaw_module =
+ANA_MODULE MDT5720ProcessRaw_module =
 {
-  "MV1724ProcessRaw",            /* module name           */
+  "MDT5720ProcessRaw",            /* module name           */
   "Vladimir Tishchenko",         /* author                */
   module_event,                  /* event routine         */
   NULL,                          /* BOR routine           */
@@ -69,21 +69,21 @@ ANA_MODULE MV1724ProcessRaw_module =
   NULL,                          /* initial parameters    */
 };
 
-/*-- Number of channels in V1724 -----------------------------------*/
+/*-- Number of channels in DT5720 -----------------------------------*/
 static const int NCHAN = 8;
 
 /*-- Histogram declaration -----------------------------------------*/
-static TH2* hNV1724IslandsReadPerBlock;
+static TH2* hNDT5720IslandsReadPerBlock;
 
 /*--module init routine --------------------------------------------*/
 INT module_init()
 {
 
-  hNV1724IslandsReadPerBlock = new TH2I(
-    "hNV1724IslandsReadPerBlock",
+  hNDT5720IslandsReadPerBlock = new TH2I(
+    "hNDT5720IslandsReadPerBlock",
     "Number of CAEN Islands read by block",
     1,0,1, 3000,0,3000);
-  hNV1724IslandsReadPerBlock->SetBit(TH1::kCanRebin);
+  hNDT5720IslandsReadPerBlock->SetBit(TH1::kCanRebin);
 
   std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
   for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
@@ -92,8 +92,8 @@ INT module_init()
     std::string bankname = mapIter->first;
     
     // We only want the CAEN banks here
-    if (TSetupData::IsHoustonCAEN(bankname))
-      caen_houston_bank_names.push_back(bankname);
+    if (TSetupData::IsBostonCAEN(bankname))
+      caen_boston_bank_names.push_back(bankname);
   }
   
   //  printf("caen init!\n");
@@ -140,7 +140,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
   //  printf("In caen ER!\n");
 
   char bank_name[8];
-  sprintf(bank_name,"CDG%i",0); // one MIDAS bank per board
+  sprintf(bank_name,"CND%i",0); // one MIDAS bank per board
   unsigned int bank_len = bk_locate(pevent, bank_name, &pdata);
 
   //  printf("MIDAS bank [%s] size %d ----------------------------------------\n",bank_name,bank_len);
@@ -191,12 +191,12 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
       //      printf("waveform length: %i\n",nsamples);
 
       // Loop through the channels (i.e. banks)
-      for (std::vector<std::string>::iterator bankNameIter = caen_houston_bank_names.begin();
-	   bankNameIter != caen_houston_bank_names.end(); bankNameIter++) {
+      for (std::vector<std::string>::iterator bankNameIter = caen_boston_bank_names.begin();
+	   bankNameIter != caen_boston_bank_names.end(); bankNameIter++) {
         
 	vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
 	std::vector<int> sample_vector;
-	int ichannel = bankNameIter - caen_houston_bank_names.begin();
+	int ichannel = bankNameIter - caen_boston_bank_names.begin();
 
 	//	printf("TGlobalData bank [%s] ----------------------------------------\n", (*bankNameIter).c_str());
 	//	printf("Number of TPulseIslands already existing = %d\n", pulse_islands.size());
@@ -220,7 +220,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 		    else 
 		      adc = ((p32[4+iword+ichannel*nwords] >> 16) & 0x3fff);
 		      
-		    //printf("CAEN V1724 channel %d: adc[%i] = %i\n", ichannel, isample, adc);
+		    //printf("CAEN DT5720 channel %d: adc[%i] = %i\n", ichannel, isample, adc);
 		    //		    h2_v1724_pulses[ichannel]->Fill(isample,adc);
 		    isample++;
 		      
@@ -244,8 +244,8 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
   // print for testing
   if(midas_event_number == 1) {
     // Loop through all the banks and print an output (because this ProcessRaw loops through pulses then banks, it has been put here)
-    for (std::vector<std::string>::iterator bankNameIter = caen_houston_bank_names.begin();
-	 bankNameIter != caen_houston_bank_names.end(); bankNameIter++) {
+    for (std::vector<std::string>::iterator bankNameIter = caen_boston_bank_names.begin();
+	 bankNameIter != caen_boston_bank_names.end(); bankNameIter++) {
       
       vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
       printf("TEST MESSAGE: Read %d events from bank %s in event %d\n",
@@ -255,7 +255,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
     }
   }
 
-  //  hNV1724IslandsReadPerBlock->Fill(bank_name,midas_event_number,pulse_islands.size());
+  //  hNDT5720IslandsReadPerBlock->Fill(bank_name,midas_event_number,pulse_islands.size());
   
   /* fake data! just to show how to push to a tree: */
 

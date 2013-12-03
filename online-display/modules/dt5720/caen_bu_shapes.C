@@ -1,4 +1,4 @@
-void caen_uh_heights()
+void caen_bu_shapes()
 {
   /*****************************************************************/
   // Prepare the canvas
@@ -9,15 +9,15 @@ void caen_uh_heights()
 
   gROOT->ProcessLine(".L modules/common/get_histogram.C+");
   /*****************************************************************/
-  std::string hist_type = "Heights";
+  std::string hist_type = "Shapes";
   const int n_channels = 8;
-  std::string bank_names[n_channels] = {"CaUH", "CbUH", "CcUH", "CdUH", "CeUH", "CfUH", "CgUH", "ChUH"};
+  std::string bank_names[n_channels] = {"CaBU", "CbBU", "CcBU", "CdBU", "CeBU", "CfBU", "CgBU", "ChBU"};
 
   for (int iChn = 0; iChn < n_channels; iChn++) {
     TH1* hist = get_histogram(bank_names[iChn], hist_type);
     if (hist) {
       AlCapCanvas->cd(iChn+1);
-      hist->Draw();
+      hist->Draw("COLZ");
     }
   }
 }
