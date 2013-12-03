@@ -25,15 +25,15 @@ caen_uh_shapes v1724/caen_uh_shapes.C
 #             FADC
 #======================================================
 fadc_80_heights FADC/fadc_80_heights.C
-fadc_80_times FADC/fadc_80_times.C
+fadc_80_times FADC/fadc_times.C("80")
 fadc_80_shapes FADC/fadc_80_shapes.C
 
 fadc_81_heights FADC/fadc_81_heights.C
-fadc_81_times FADC/fadc_81_times.C
+fadc_81_times FADC/fadc_times.C("81")
 fadc_81_shapes FADC/fadc_81_shapes.C
 
 fadc_82_heights FADC/fadc_82_heights.C
-fadc_82_times FADC/fadc_82_times.C
+fadc_82_times FADC/fadc_times.C("82")
 fadc_82_shapes FADC/fadc_82_shapes.C
 
 FADCIslandsReadPerBlock FADC/fadc_islands_read_per_block.C
