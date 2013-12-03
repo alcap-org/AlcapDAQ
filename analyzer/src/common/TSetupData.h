@@ -17,7 +17,12 @@ class TSetupData : public TObject{
   std::map<std::string, double> fBankToClockTickMap;
 
   //std::string GetBankName(std::string DetectorName){ };
-  std::string GetDetectorName(std::string BankName) { return fBankToDetectorMap[BankName]; };
+  std::string GetDetectorName(std::string BankName) { 
+    if (fBankToDetectorMap[BankName] != "")
+      return fBankToDetectorMap[BankName]; 
+    else
+      return BankName + "_Det";
+  };
   double GetClockTick(std::string BankName) { return fBankToClockTickMap[BankName]; };
 
   static bool IsFADC(std::string BankName) { return BankName[0] == 'N'; } // if the first letter is N then the bank name is for a FADC

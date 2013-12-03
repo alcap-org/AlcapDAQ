@@ -27,11 +27,11 @@ MODULES = crate.o rpc_master.o rpc_slave.o diag.o odb_wrapper.o
 MODULES += v1724_module.o
 
 # CAEN
-CAEN_DIR = ../CAEN
+CAEN_DIR = $(DAQdir)/CAEN
 LDFLAGS += -L $(CAEN_DIR)/lib -lCAENDigitizer -lCAENComm -lCAENVME
 # CAEN_DIGITIZER library
 CXXFLAGS += -I $(CAEN_DIR)/CAENDigitizer/CAENDigitizer_2.3.2/include
-#LDFLAGS += -L $(CAEN_DIR)/CAENDigitizer/CAENDigitizer_2.3.2/lib/i686 -lCAENDigitizer
+#LDFLAGS += -L $(CAEN_DIR)/CAENDigitizer/CAENDigitizer_2.3.2/lib/i686 
 # CAEN Comm library
 CXXFLAGS += -I $(CAEN_DIR)/CAENComm/include
 #LDFLAGS += -L $(CAEN_DIR)/CAENComm/lib -lCAENComm

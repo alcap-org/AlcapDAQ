@@ -1,5 +1,9 @@
 #!/bin/bash
 
-mserver -D
-mhttpd -D -p 8080
+screen -d -m -S mserver mserver
+screen -d -m -S mhttpd mhttpd -p 8080 
+
+
+
+
 

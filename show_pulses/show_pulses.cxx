@@ -13,7 +13,7 @@
 #ifndef __CINT__
 //#include "/home/nam/fadc_software/midas/include/midas.h"
 #include "midas.h"
-#include "../../compress/mucap_compress.h"
+#include "../analyzer/compress/mucap_compress.h"
 #endif
 
 #include "TH1.h"
@@ -36,6 +36,7 @@ bool get_input_event(FILE * fp, char *pevent, int event_number)
 		return !SUCCESS;
 
 	header = (EVENT_HEADER *) pevent;
+	printf("block# %d\n", header->serial_number);
 
 	if (event_number == 0 && header->trigger_mask != MIDAS_MAGIC) {
 		fprintf(stderr, "Input is not a valid MIDAS file\n");
@@ -88,7 +89,7 @@ void process_file(char *input_filename, int addr, int fadc)
 		EVENT_HEADER *header = (EVENT_HEADER *) input_event;
 
 		if(header->event_id == 1) {
-			expand_event(header+1, header+1);
+			//expand_event(header+1, header+1);
 			int stop = process_event(header + 1, addr, fadc);
 			if(stop) break;
 		}
@@ -161,7 +162,9 @@ int process_event(void *pevent, int addr, int fadc)
 		sprintf(name, "N%c%02x", 'a' + i, addr);
 		unsigned char *raw;
 		int bank_size = bk_locate(pevent, name, &raw);
+		printf("bank_size %d,", bank_size);
 		bank_size = bank_size / 10;
+		printf(" npkt %d\n", bank_size);
 
 #ifdef PRINT_SAMPLES
 		printf("-------------------------------------------------------------------------------\n");
@@ -175,6 +178,7 @@ int process_event(void *pevent, int addr, int fadc)
 		// loop through words to build up "islands"
 		int lastTimestamp = 0;
 		for(int j = 0; j < bank_size; j++) {
+			printf("pkt %d\n", j);
 
 			// data format:
 			//

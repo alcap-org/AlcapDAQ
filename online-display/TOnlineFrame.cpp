@@ -6,6 +6,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <libgen.h>
+#include <iostream>
 
 #include "TApplication.h"
 #include "TGButton.h"
@@ -26,11 +27,15 @@
 #include "getHist.h"
 #include "TOnlineFrame.h"
 
+using std::ifstream;
+using std::cout;
+using std::endl;
+
 TOnlineFrame::TOnlineFrame(const TGWindow * p):TGMainFrame(p, width,
 		height)
 {
 
-	fCurrentDisplay = 0;
+	fCurrentDisplay = 8;
 	run_nr = 0;
 
 	// read macroses from the external file
@@ -52,6 +57,7 @@ TOnlineFrame::TOnlineFrame(const TGWindow * p):TGMainFrame(p, width,
 	std::cout << "Reading modules from file [" << is_name << "]" << std::endl;
 	ifstream *is = new ifstream( is_name.c_str() );
 	char buf[1024];
+	std::string args;
 	while ( is->good() )
 	{
 		*is >> std::ws;
@@ -59,10 +65,15 @@ TOnlineFrame::TOnlineFrame(const TGWindow * p):TGMainFrame(p, width,
 		if ( buf[0] == '#' ) continue;
 		if ( is->gcount() < 2 ) break;
 		std::istringstream iss (buf,std::istringstream::in);
-		screen_info info;
-		iss >> std::ws >> info.visibleName >> std::ws >> info.macroName;
+		screen_info info={"","","",false};
+		iss >> std::ws >> info.visibleName >> std::ws >> info.macroName>> std::ws >>args;
+		if (!args.empty()) {
+			info.macroArgs=args;
+			info.hasArgs =true;
+		}
 		screens.push_back(info);
 		std::cout << buf << std::endl;
+		args="";
 	}
 	delete is;
 
@@ -182,9 +193,10 @@ TOnlineFrame::TOnlineFrame(const TGWindow * p):TGMainFrame(p, width,
 	{
 		TGTextButton *b = new TGTextButton(frame_user, screens[i].visibleName, 
 				SCREENS_BASE + i);
-		b->SetToolTipText(screens[i].macroName);
+		b->SetToolTipText((screens[i].macroName + screens[i].macroArgs).c_str());
 		b->Associate(this);
 		frame_user->AddFrame(b, new TGLayoutHints(kLHintsLeft|kFitWidth));
+		fButtons[screens[i].visibleName]=b;
 	}
 
 	// our big embedded canvas
@@ -203,6 +215,7 @@ TOnlineFrame::TOnlineFrame(const TGWindow * p):TGMainFrame(p, width,
 	Resize(GetDefaultSize());
 	MapWindow();
 	SetMinWidth(300);
+
 }
 
 TOnlineFrame::~TOnlineFrame()
@@ -224,13 +237,14 @@ Bool_t TOnlineFrame::ProcessMessage(Long_t msg, Long_t param1,
 				case kCM_BUTTON:
 					if (param1 >= SCREENS_BASE) 
 					{
+						ULong_t ucolor_black;
+						gClient->GetColorByName("#000000",ucolor_black);
+						fButtons[screens[fCurrentDisplay].visibleName]->SetTextColor(ucolor_black);
 						fCurrentDisplay = param1 - SCREENS_BASE;
 					}
 					if ( param1 == B_UPDATE || param1 >= SCREENS_BASE )
 					{
-						const char *macro = screens[fCurrentDisplay].macroName;
-						//runMacro(macro);
-						gROOT->Macro(macro);
+						UpdateDisplay();
 					}
 					else if (param1 == B_PRINT) 
 					{  
@@ -291,6 +305,30 @@ Bool_t TOnlineFrame::ProcessMessage(Long_t msg, Long_t param1,
 	return ret;
 }
 
+void TOnlineFrame::UpdateDisplay(){
+	screen_info &current_display=screens[fCurrentDisplay];
+	//runMacro(macro);
+	if(fLoadedMacros.count(current_display.macroName) ==0) {
+		gROOT->LoadMacro(current_display.macroName.c_str());
+		cout<<"Loaded macro: "<<current_display.macroName<<endl;
+		fLoadedMacros.insert(current_display.macroName);
+	}
+	int last_slash=current_display.macroName.rfind("/")+1;
+	std::string command=current_display.macroName.substr(last_slash);
+	int extension_start=command.find(".");
+	command=command.substr(0,extension_start);
+	if(!current_display.hasArgs) command+="()";
+	else command+=current_display.macroArgs;
+	cout<<"Processing Line: "<<command<<endl;
+	gROOT->ProcessLine(command.c_str());
+
+	cout<< "about to set color"<<endl;
+		ULong_t ucolor_red;
+		gClient->GetColorByName("#FF0000",ucolor_red);
+	fButtons[screens[fCurrentDisplay].visibleName]->SetTextColor(ucolor_red);
+	gPad->Update();
+}
+
 void TOnlineFrame::CloseWindow()
 {
 	DeleteWindow();
@@ -303,7 +341,7 @@ void TOnlineFrame::ConsiderCycling()
 	if(fCycleDisplays->GetState() == kButtonDown) 
 	{
 		fCurrentDisplay = (fCurrentDisplay+1) % screens.size();
-		const char *macro = screens[fCurrentDisplay].macroName;
+		const char *macro = screens[fCurrentDisplay].macroName.c_str();
 		runMacro(macro);
 	}
 }
@@ -318,7 +356,7 @@ void TOnlineFrame::ConsiderAutoupdate(const Bool_t force)
 {
 	if (((fAutoUpdate->GetState() == kButtonDown) && fCycleDisplays->GetState()) != kButtonDown || force ) 
 	{
-		const char *macro = screens[fCurrentDisplay].macroName;
+		const char *macro = screens[fCurrentDisplay].macroName.c_str();
 		runMacro(macro);
 	}
 }

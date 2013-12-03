@@ -325,6 +325,7 @@ INT load_fragment(void)
       size = sizeof(format);
       db_get_value(hDB, hSubkey, "common/Format", format, &size, TID_STRING, 0);
       size = sizeof(BOOL);
+      enabled = FALSE;
       db_get_value(hDB, hSubkey, "Settings/Enabled", &enabled, &size, TID_BOOL, 0);
       /* Check if equipment match EB requirements */
       if ((type & EQ_EB) && enabled 
@@ -337,6 +338,7 @@ INT load_fragment(void)
           db_get_value(hDB, hSubkey, "common/Trigger Mask", &ebch[nfragment].trigger_mask, &size, TID_WORD, 0);
           size = sizeof(WORD);
           db_get_value(hDB, hSubkey, "common/Event ID", &ebch[nfragment].event_id, &size, TID_WORD, 0);
+	  printf("%s enabled\n",key.name);
           nfragment++;
         }
     }
@@ -1032,6 +1034,9 @@ INT source_scan(INT fmt, EQUIPMENT_INFO *eq_info)
        }
        return status;        // Event mark as EB_SKIP or EB_ABORT by user
      }
+
+     /* Overall event to be sent */
+     act_size = ((EVENT_HEADER *) dest_event)->data_size + sizeof(EVENT_HEADER);
 
      /* Allow bypass of fragment assembly if user did it on its own */
      if (!ebset.user_build) {

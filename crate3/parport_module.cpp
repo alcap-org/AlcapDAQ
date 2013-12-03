@@ -2,8 +2,10 @@
 //#define PARALLEL_PORT1 0x4451
 //#define PARALLEL_PORT1 0x44c0
 //#define PARALLEL_PORT1 0x4440  // always reads 4
-#define PARALLEL_PORT0 0x1250
-#define PARALLEL_PORT1 0x1251
+//#define PARALLEL_PORT0 0x1250
+//#define PARALLEL_PORT1 0x1251
+#define PARALLEL_PORT0 0x1150
+#define PARALLEL_PORT1 0x1151
 
 // #define PARALLEL_PORT0 0x378
 // #define PARALLEL_PORT1 (0x378+1)
@@ -102,7 +104,14 @@ INT parport_start_block()
 #endif
   block_nr++;
   printf("parport_start_block %i\n",block_nr);
-  setPP(255, 1);
+  //setPP(255, 1);
+
+  // Send reset 
+  setPP(1<<1, 1);
+  setPP(0, 1);
+
+  // start new segment
+  setPP(1, 1);
   setPP(0, 1);
   return SUCCESS;
 }
