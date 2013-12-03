@@ -121,6 +121,7 @@ int main(int argc, char **argv)
   
   //theApp.SetIdleTimer(1,".q");
 
+		onlineFrame->UpdateDisplay();
 		theApp.Run(1);
 #if 0
   time_t lastCycleTime = 0;//time(NULL);

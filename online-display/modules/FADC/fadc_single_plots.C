@@ -1,4 +1,4 @@
-void fadc_82_shapes()
+void fadc_single_plots(std::string fadc_id,std::string hist_type)
 {
   /*****************************************************************/
   // Prepare the canvas
@@ -9,15 +9,16 @@ void fadc_82_shapes()
 
   gROOT->ProcessLine(".L modules/common/get_histogram.C+");
   /*****************************************************************/
-  std::string hist_type = "Shapes";
   const int n_channels = 8;
-  std::string bank_names[n_channels] = {"Na82", "Nb82", "Nc82", "Nd82", "Ne82", "Nf82", "Ng82", "Nh82"};
+  std::string bank_names[n_channels] = {"Na", "Nb", "Nc", "Nd", "Ne", "Nf", "Ng", "Nh"};
+  std::string name;
 
   for (int iChn = 0; iChn < n_channels; iChn++) {
-    TH1* hist = get_histogram(bank_names[iChn], hist_type);
+    name=bank_names[iChn]+fadc_id;
+    TH1* hist = get_histogram(name, hist_type);
     if (hist) {
       AlCapCanvas->cd(iChn+1);
-      hist->Draw("COLZ");
+      hist->Draw();
     }
   }
 }

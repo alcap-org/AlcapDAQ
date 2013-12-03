@@ -14,6 +14,8 @@
 #include "TMessage.h"
 #include "TSocket.h"
 #include "TObjArray.h"
+#include <set>
+#include <map>
 
 class TH1;
 
@@ -39,33 +41,40 @@ private:
 	TSocket *fpSock;
 
 public:
-  TOnlineFrame(const TGWindow * p);
-  ~TOnlineFrame();
-  
-  void CloseWindow();
-  Bool_t ProcessMessage(Long_t msg, Long_t param1, Long_t param2);
-  void ConsiderCycling();
-  void ConsiderAutoupdate(const Bool_t force = kFALSE);
-  void runMacro(const char *macro);
-  void print_msg(const char *msg, const Int_t partidx = 0);
-  const char *getServerName() const;
-  void setServerName(const char *name);
-  const unsigned int getServerPort() const;
-  void setServerPort(const unsigned int port_nr);
-  const unsigned int getAutoUpdateTime() const;
-  TSocket *ConnectToServer();
-  TFile *OpenRootFile(const char *filename, const Bool_t update_filename = kTRUE );
+	TOnlineFrame(const TGWindow * p);
+	~TOnlineFrame();
+
+	void CloseWindow();
+	Bool_t ProcessMessage(Long_t msg, Long_t param1, Long_t param2);
+	void ConsiderCycling();
+	void ConsiderAutoupdate(const Bool_t force = kFALSE);
+	void runMacro(const char *macro);
+	void print_msg(const char *msg, const Int_t partidx = 0);
+	const char *getServerName() const;
+	void setServerName(const char *name);
+	const unsigned int getServerPort() const;
+	void setServerPort(const unsigned int port_nr);
+	const unsigned int getAutoUpdateTime() const;
+	TSocket *ConnectToServer();
+	TFile *OpenRootFile(const char *filename, const Bool_t update_filename = kTRUE );
 	TSocket *GetSocketHandle() {return fpSock;}
 	TH1* GetHist(const char * histname);
 	std::vector<TString> GetHistTitles();
 	//TH1 *GetHisto(TString histname) {return GetHisto(histname.Data());}
+	void UpdateDisplay();
+
+	std::set<std::string> fLoadedMacros;
+	std::map<std::string, TGTextButton*> fButtons;
 };
 
 struct screen_info 
 {
   char visibleName[32];
-  char macroName[256];
+  std::string macroName;
+  std::string macroArgs;
+  bool hasArgs;
 };
+
 
 extern std::vector<screen_info> screens;
 extern int width;
