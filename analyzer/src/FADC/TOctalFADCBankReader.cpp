@@ -77,7 +77,7 @@ void TOctalFADCBankReader::ProcessEvent(EVENT_HEADER* pheader, void *pevent)
       if(islandSamples.size() > 4) {
           // This is a new island, so put the old
           // island on fData and start again.
-          // Remember, time stamps are actually 4 samples long
+          // Remember, time stamps are actually 4 samples long.
           fData.push_back(
             new TOctalFADCIsland(islandTimestamp*4,islandSamples)
           );
