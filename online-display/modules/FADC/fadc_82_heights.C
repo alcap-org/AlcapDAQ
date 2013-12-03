@@ -1,22 +1,22 @@
-void thin_right_slow_silicon_heights()
+void fadc_82_heights()
 {
   /*****************************************************************/
   // Prepare the canvas
   gStyle->SetOptStat("ne");
   TCanvas *AlCapCanvas = (TCanvas *) gROOT->GetListOfCanvases()->At(0);
   AlCapCanvas->Clear();
-  AlCapCanvas->Divide(2,2);
+  AlCapCanvas->Divide(4,2);
 
   gROOT->ProcessLine(".L modules/common/get_histogram.C+");
   /*****************************************************************/
   std::string hist_type = "Heights";
-  const int n_detectors = 4;
-  std::string det_names[n_detectors] = {"SiR1-1-slow", "SiR1-2-slow", "SiR1-3-slow", "SiR1-4-slow"};
+  const int n_channels = 8;
+  std::string bank_names[n_channels] = {"Na82", "Nb82", "Nc82", "Nd82", "Ne82", "Nf82", "Ng82", "Nh82"};
 
-  for (int iDet = 0; iDet < n_detectors; iDet++) {
-    TH1* hist = get_histogram(det_names[iDet], hist_type);
+  for (int iChn = 0; iChn < n_channels; iChn++) {
+    TH1* hist = get_histogram(bank_names[iChn], hist_type);
     if (hist) {
-      AlCapCanvas->cd(iDet+1);
+      AlCapCanvas->cd(iChn+1);
       hist->Draw();
     }
   }

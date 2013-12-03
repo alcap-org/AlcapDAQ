@@ -73,7 +73,6 @@ ANA_MODULE MV1724ProcessRaw_module =
 static const int NCHAN = 8;
 
 /*-- Histogram declaration -----------------------------------------*/
-static vector<TH2D *> h2_v1724_pulses;
 static TH2* hNV1724IslandsReadPerBlock;
 
 /*--module init routine --------------------------------------------*/
@@ -93,16 +92,8 @@ INT module_init()
     std::string bankname = mapIter->first;
     
     // We only want the CAEN banks here
-    if (TSetupData::IsCAEN(bankname)) {
+    if (TSetupData::IsCAEN(bankname))
       caen_bank_names.push_back(bankname);
-
-      int i = caen_bank_names.size() - 1; // get the current number of CAEN banks => current channel number
-      TH2D* hist = new TH2D(Form("h2_v1724_pulses_chan_%i",i),"v1724 raw pulses",256,0.5,256.5,16385,-0.5,16384.5); 
-      hist->SetXTitle("time (ct)");
-      hist->SetYTitle("ADC");
-
-      h2_v1724_pulses.push_back(hist);
-    }
   }
   
   //  printf("caen init!\n");
@@ -230,7 +221,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 		      adc = ((p32[4+iword+ichannel*nwords] >> 16) & 0x3fff);
 		      
 		    //printf("CAEN V1724 channel %d: adc[%i] = %i\n", ichannel, isample, adc);
-		    h2_v1724_pulses[ichannel]->Fill(isample,adc);
+		    //		    h2_v1724_pulses[ichannel]->Fill(isample,adc);
 		    isample++;
 		      
 		    sample_vector.push_back(adc);
