@@ -70,7 +70,7 @@ ANA_MODULE MDT5720ProcessRaw_module =
 };
 
 /*-- Number of channels in DT5720 -----------------------------------*/
-static const int NCHAN = 8;
+static const int NCHAN = 4;
 
 /*-- Histogram declaration -----------------------------------------*/
 static TH2* hNDT5720IslandsReadPerBlock;
