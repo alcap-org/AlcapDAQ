@@ -258,7 +258,7 @@ TObject *getObjectFromSocket(const char *name)
 		folder->SetOwner( kTRUE );
 	}
 
-	sprintf(str, "FindObject %s", name);
+	sprintf(str, "GET %s", name);
 
 	// make sure that the socket is alive
 	Int_t status = r_socket->Select(TSocket::kWrite,timeout);
