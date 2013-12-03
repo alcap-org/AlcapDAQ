@@ -62,18 +62,17 @@ typedef struct s_v1724_odb
   DWORD vme_base;                     ///< VME base address of the module
   BOOL enabled;                       ///< don't readout the module if false    
   DWORD wf_length;                    ///< waveform length, samples
+  BYTE  acquisition_mode;             ///< Acquisition mode: 0=CAEN_DGTZ_SW_CONTROLLED, 1=CAEN_DGTZ_S_IN_CONTROLLED;
   BYTE  software_trigger_mode;        ///< Software trigger mode: 0=CAEN_DGTZ_TRGMODE_DISABLED, 1=CAEN_DGTZ_TRGMODE_ACQ_ONLY, 2=CAEN_DGTZ_TRGMODE_EXTOUT_ONLY, 3=CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT
   BYTE  hardware_trigger_mode;        ///< Hardware trigger mode: 0=CAEN_DGTZ_TRGMODE_DISABLED, 1=CAEN_DGTZ_TRGMODE_ACQ_ONLY, 2=CAEN_DGTZ_TRGMODE_EXTOUT_ONLY, 3=CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT
-  BYTE  acquisition_mode;             ///< Acquisition mode: 0=CAEN_DGTZ_SW_CONTROLLED, 1=CAEN_DGTZ_S_IN_CONTROLLED;
+  BYTE  trigger_edge;                 ///< Trigger edge, 0=CAEN_DGTZ_TriggerOnRisingEdge, 1=CAEN_DGTZ_TriggerOnFallingEdge
   char  ROC_FirmwareRel[128];
   char  AMC_FirmwareRel[128];
   struct {
     BOOL      enabled;
-    DWORD     offset;                     ///< DC offset
-    BYTE      polarity;                   ///< Pulse polarity: 0=CAEN_DGTZ_PulsePolarityPositive, 1=CAEN_DGTZ_PulsePolarityNegative
-    BYTE      self_trigger_mode;          ///< Self trigger mode:  0=CAEN_DGTZ_TRGMODE_DISABLED, 1=CAEN_DGTZ_TRGMODE_ACQ_ONLY, 2=CAEN_DGTZ_TRGMODE_EXTOUT_ONLY, 3=CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT
-    BYTE      trigger_edge;               ///< Trigger edge, 0=CAEN_DGTZ_TriggerOnRisingEdge, 1=CAEN_DGTZ_TriggerOnFallingEdge
-    DWORD     trigger_threshold;          ///< Trigger threshold
+    DWORD     offset;                 ///< DC offset
+    BYTE      self_trigger_mode;      ///< Self trigger mode:  0=CAEN_DGTZ_TRGMODE_DISABLED, 1=CAEN_DGTZ_TRGMODE_ACQ_ONLY, 2=CAEN_DGTZ_TRGMODE_EXTOUT_ONLY, 3=CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT
+    DWORD     trigger_threshold;      ///< Trigger threshold
   } ch[8];
 
 } S_V1724_ODB_DEF;
@@ -85,74 +84,59 @@ static S_V1724_ODB_DEF S_V1724_ODB[NBOARDS];
 VME base = DWORD : 0x32100000\n\
 enabled = BOOL : y\n\
 waveform length = DWORD : 32\n\
+acquisition mode = BYTE : 1\n\
 software trigger mode = BYTE : 0\n\
 hardware trigger mode = BYTE : 0\n\
-acquisition mode = BYTE : 1\n\
+trigger edge (0-ris 1-fal) = BYTE : 1\n\
 ROC firmware = STRING : [128] -\n\
 AMC firmware = STRING : [128] -\n\
 \n\
 [Ch0]\n\
 enabled = BOOL : y\n\
 DC offset = DWORD : 0\n\
-pulse polarity = BYTE : 0\n\
 self-trigger mode = BYTE : 0\n\
-trigger edge = BYTE : 0\n\
 trigger threshhold = DWORD : 0\n\
 \n\
 [Ch1]\n\
 enabled = BOOL : y\n\
 DC offset = DWORD : 0\n\
-pulse polarity = BYTE : 0\n\
 self-trigger mode = BYTE : 1\n\
-trigger edge = BYTE : 0\n\
 trigger threshhold = DWORD : 0\n\
 \n\
 [Ch2]\n\
 enabled = BOOL : y\n\
 DC offset = DWORD : 0\n\
-pulse polarity = BYTE : 0\n\
 self-trigger mode = BYTE : 1\n\
-trigger edge = BYTE : 0\n\
 trigger threshhold = DWORD : 0\n\
 \n\
 [Ch3]\n\
 enabled = BOOL : y\n\
 DC offset = DWORD : 0\n\
-pulse polarity = BYTE : 0\n\
 self-trigger mode = BYTE : 1\n\
-trigger edge = BYTE : 0\n\
 trigger threshhold = DWORD : 0\n\
 \n\
 [Ch4]\n\
 enabled = BOOL : y\n\
 DC offset = DWORD : 0\n\
-pulse polarity = BYTE : 0\n\
 self-trigger mode = BYTE : 1\n\
-trigger edge = BYTE : 0\n\
 trigger threshhold = DWORD : 0\n\
 \n\
 [Ch5]\n\
 enabled = BOOL : y\n\
 DC offset = DWORD : 0\n\
-pulse polarity = BYTE : 0\n\
 self-trigger mode = BYTE : 1\n\
-trigger edge = BYTE : 0\n\
 trigger threshhold = DWORD : 0\n\
 \n\
 [Ch6]\n\
 enabled = BOOL : y\n\
 DC offset = DWORD : 0\n\
-pulse polarity = BYTE : 0\n\
 self-trigger mode = BYTE : 1\n\
-trigger edge = BYTE : 0\n\
 trigger threshhold = DWORD : 0\n\
 \n\
 [Ch7]\n\
 enabled = BOOL : y\n\
 DC offset = DWORD : 0\n\
-pulse polarity = BYTE : 0\n\
 self-trigger mode = BYTE : 1\n\
-trigger edge = BYTE : 0\n\
 trigger threshhold = DWORD : 0\n\
 "
 
@@ -444,14 +428,15 @@ INT v1724_bor()
       // =====================================================================================
       // Trigger polarity
       // =====================================================================================
-      for (uint32_t ichan=0; ichan<8; ichan++)
+      int trigger_edge = S_V1724_ODB[iboard].trigger_edge;
+      if ( trigger_edge == 0 )
+	ret = CAEN_DGTZ_SetTriggerPolarity (handle[iboard], 0, CAEN_DGTZ_TriggerOnRisingEdge);
+      else
+	ret = CAEN_DGTZ_SetTriggerPolarity (handle[iboard], 0, CAEN_DGTZ_TriggerOnFallingEdge);
+      if ( ret != CAEN_DGTZ_Success )
 	{
-	  ret = CAEN_DGTZ_SetTriggerPolarity (handle[iboard], ichan, (CAEN_DGTZ_TriggerPolarity_t)S_V1724_ODB[iboard].ch[ichan].trigger_edge);
-	  if ( ret != CAEN_DGTZ_Success )
-	    {
-	      cm_msg(MERROR,"v1724_init","Cannot SetTriggerPolarity. Error 0x%08x\n",ret);
-	      return FE_ERR_HW;
-	    }
+	  cm_msg(MERROR,"v1724_init","Cannot SetTriggerPolarity. Error 0x%08x\n",ret);
+	  return FE_ERR_HW;
 	}
 
       // =====================================================================================
@@ -483,11 +468,11 @@ INT v1724_bor()
 	}
 #endif 
 
-#if 0
+#if 1
       // =====================================================================================
       // Set post-trigger size
       // =====================================================================================
-      ret = CAEN_DGTZ_SetPostTriggerSize(handle[iboard],20);
+      ret = CAEN_DGTZ_SetPostTriggerSize(handle[iboard],50);
       if ( ret != CAEN_DGTZ_Success )
 	{
 	  cm_msg(MERROR,"v1724_init","Cannot SetPostTriggerSize. Error 0x%08x\n",ret);
@@ -507,7 +492,8 @@ INT v1724_bor()
 	      return FE_ERR_HW;
 	    }
 	}
-      
+
+#if 0      
       // =====================================================================================
       // Pulse polarity
       // =====================================================================================
@@ -522,6 +508,7 @@ INT v1724_bor()
 	      return FE_ERR_HW;
 	    }
 	}
+#endif
       
 #if 0
       // =====================================================================================
@@ -627,7 +614,7 @@ INT v1724_read(char *pevent)
       memcpy(pdata, data_buffer[iboard], data_size[iboard]);
       pdata += data_size[iboard];
       bk_close(pevent, pdata);
-      printf("board %i data size: %i\n",iboard,data_size[iboard]);
+      //printf("board %i data size: %i\n",iboard,data_size[iboard]);
       // reset data couner for the next event
       data_size[iboard] = 0;
     }
@@ -665,7 +652,7 @@ void v1724_readout()
 	    {
 	      cm_msg(MERROR,"v1724_readout","Cannot DGTZ_ReadData. Error 0x%08x\n",ret);
 	    }
-	  printf("data size: %i\n", caen_data_size);
+	  //printf("data size: %i\n", caen_data_size);
 
 #if 0
 	  uint32_t numEvents;
