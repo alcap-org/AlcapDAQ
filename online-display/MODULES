@@ -21,6 +21,7 @@ caen_bu_shapes dt5720/caen_bu_shapes.C
 #             EMC
 #======================================================
 #EMC EMC/raw.C
+muPC muSCmuPC/muPC.C
 #
 # Dummy hist
 #Dummy dummy.C

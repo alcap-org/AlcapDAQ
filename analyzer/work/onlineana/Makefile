@@ -1,4 +1,4 @@
-all: alcapana libDataClasses.so libDataClasses.rootmap
+all: alcapana_t libDataClasses.so libDataClasses.rootmap
 
 .PHONY: clean print all
 
@@ -87,13 +87,20 @@ MODULES.h: MODULES
 	../../generate-MODULES.h ./ 
 #$(INCLUDE_DIRS) 
 
+M4FLAGS = -I. 
+
+%.mql: %.MQL
+	m4 $(M4FLAGS) $< > $@
+
+%.cpp: %.mql
+	../../mql/mqlcompile $< $@
+
 %.o: %.cpp
 	$(CXX) -c -Wall $(CXXFLAGS) $<
 	$(CXX) -MM $(CXXFLAGS) $< > $(notdir $(patsubst %.cpp,%.d,$<))
 
-alcapana: $(objs) $(ANA_OBJS) libDataClasses.so
+alcapana_t: $(objs) $(ANA_OBJS) libDataClasses.so
 	$(CXX) $(ICCFLAGS) -o $@ $^ $(ALL_LIBS) -lmucap_compress -lm -lz  -Wl,-rpath,$(shell pwd)
-
 
 DataLibraryDict.cpp: $(DATA_LIBRARY_HEADERS) ../../src/common/DataLibraryLinkDef.h
 	$(ROOTSYS)/bin/rootcint -f $@ -c $(UIUC_CFLAGS) -p $^
@@ -112,7 +119,7 @@ decompressor.o: decompressor.c
 
 clean: 
 	rm -f *.d *.o *Dict.cpp *Dict.h MODULES.h Makefile.MODULES \
-	alcapana libDataClasses.so libDataClasses.rootmap
+	alcapana_t libDataClasses.so libDataClasses.rootmap
 
 print: 
 	@echo "DATA_CLASSES = $(DATA_CLASSES)"; echo
