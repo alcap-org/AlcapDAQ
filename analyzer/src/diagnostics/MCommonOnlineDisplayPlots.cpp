@@ -45,6 +45,7 @@ extern TSetupData* gSetup;
 map <std::string, TH1I*> height_histograms_map;
 map <std::string, TH1I*> time_histograms_map;
 map <std::string, TH2D*> shape_histograms_map;
+map <std::string, TH2D*> latest_pulse_histograms_map;
 static TH1I* hPulseRawCount;
 
 ANA_MODULE MCommonOnlineDisplayPlots_module =
@@ -109,6 +110,15 @@ INT MCommonOnlineDisplayPlots_init()
     hPulseShapes->GetXaxis()->SetTitle("Time");
     hPulseShapes->GetYaxis()->SetTitle("ADC Value");
     shape_histograms_map[bankname] = hPulseShapes;
+
+    //hLatestPulse
+    histname = "h" + bankname + "_LatestPulse";
+    histtitle = "Plot of the latest pulse in the " + bankname + " channels";
+    TH2D* hLatestPulse = new TH2D(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5,max_adc_value,-0.5,max_adc_value-0.5);
+    hLatestPulse->GetXaxis()->SetTitle("Time");
+    hLatestPulse->GetYaxis()->SetTitle("ADC Value");
+    latest_pulse_histograms_map[bankname] = hLatestPulse;
+
   }
 
   // hPulseRawCount
@@ -133,6 +143,8 @@ INT MCommonOnlineDisplayPlots_bor(INT run_number) {
     height_histograms_map[bankname]->Reset();
     time_histograms_map[bankname]->Reset();
     shape_histograms_map[bankname]->Reset();
+    latest_pulse_histograms_map[bankname]->Reset();
+
   }
 
   hPulseRawCount->Reset();
@@ -175,10 +187,13 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 	    // only fill this histogram every 10 events
 	    if (midas_event_number % 10 == 0) {
 	      if (shape_histograms_map.find(bankname) != shape_histograms_map.end()) {
-		
+
+		latest_pulse_histograms_map[bankname]->Reset();	
+	
 		std::vector<int> theSamples = (*pulseIter)->GetSamples();
 		for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
 		  shape_histograms_map[bankname]->Fill(sampleIter - theSamples.begin(), (*sampleIter));
+                  latest_pulse_histograms_map[bankname]->Fill(sampleIter - theSamples.begin(), (*sampleIter));
 		}
 	      }	    
 	    }
