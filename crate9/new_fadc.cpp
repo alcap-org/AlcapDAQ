@@ -27,7 +27,7 @@ using namespace std;
 #include "odb_wrapper.h"
 #include "diag.h"
 
-INT new_fadc_bor();
+INT new_fadc_pre_bor();
 INT new_fadc_eor();
 INT new_fadc_read(char *pevent);
 
@@ -40,15 +40,15 @@ unsigned char *packet_space = 0;
 bool frame_examined[NUM_FRAMES];
 
 struct readout_module new_fadc_module = {
-  NULL,                 // init
-  NULL,                 // exit
-  NULL,                 // pre_bor
-  new_fadc_bor,          // bor
+  NULL,                  // init
+  NULL,                  // exit
+  new_fadc_pre_bor,      // pre_bor
+  NULL,                  // bor
   new_fadc_eor,          // eor
   NULL,                  // poll_live
   NULL,                  // poll_dead
-  NULL,                 // start_cycle
-  NULL,                 // stop_cycle
+  NULL,                  // start_cycle
+  NULL,                  // stop_cycle
   new_fadc_read,         // read
 };
 
@@ -384,7 +384,7 @@ void setupRegs()
   }
 }
 
-INT new_fadc_bor()
+INT new_fadc_pre_bor()
 {
     // open a socket to receive packets for our protocol
     packet_socket = socket(PF_PACKET, SOCK_RAW, htons(0x0b04));

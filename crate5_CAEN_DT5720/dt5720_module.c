@@ -38,7 +38,7 @@ static uint32_t  data_size;
 
 static INT dt5720_init();
 static void dt5720_exit();
-static INT dt5720_bor();
+static INT dt5720_pre_bor();
 static INT dt5720_eor();
 static INT dt5720_poll_live();
 static INT dt5720_read(char *pevent); // MIDAS readout routine 
@@ -55,13 +55,13 @@ typedef struct timespec timer_start;
 struct readout_module dt5720_module = {
   dt5720_init,             // init
   dt5720_exit,             // exit
-  NULL,                   // pre_bor
-  dt5720_bor,              // bor
+  dt5720_pre_bor,          // pre_bor
+  NULL,                    // bor
   dt5720_eor,              // eor
   dt5720_poll_live,        // poll_live
-  NULL,                   // poll_dead
-  NULL,                   // start_block
-  NULL,                   // stop_block
+  NULL,                    // poll_dead
+  NULL,                    // start_block
+  NULL,                    // stop_block
   dt5720_read              // read
 };
 
@@ -198,19 +198,18 @@ INT dt5720_init()
   status = db_find_key(hDB,0,str,&hKey);
   status = db_open_record(hDB,hKey,&S_DT5720_ODB,sizeof(S_DT5720_ODB),MODE_READ,NULL,NULL);
 
+  // configure clock input
   if ( S_DT5720_ODB.ext_clock ) 
     {
       printf("Using external clock\n");
-      CAEN_DGTZ_WriteRegister(handle, CAEN_DGTZ_ACQ_CONTROL_ADD, 1<<6);
+      ret = CAEN_DGTZ_WriteRegister(handle, CAEN_DGTZ_ACQ_CONTROL_ADD, 1<<6); 
+      if(is_caen_error(ret,__LINE__-1,"dt5720_init")) return FE_ERR_HW;
     }
   else
     {
       printf("Using internal clock\n");
     }
 
-
-  data_buffer_size = 32*1024*1024;
-  data_buffer = (char*) malloc(data_buffer_size);
 
   return status;
 
@@ -225,7 +224,7 @@ void dt5720_exit()
   free(data_buffer);
 }
 
-INT dt5720_bor()
+INT dt5720_pre_bor()
 {
   CAEN_DGTZ_ErrorCode ret;
 
@@ -546,7 +545,23 @@ BOOL dt5720_update_digitizer()
       cm_msg(MERROR,"dt5720_update_digitizer","Cannot SetRecordLength. Error 0x%08x\n",ret);
       return FE_ERR_HW;
     }
+  
+  // ======================================================================================
+  // Channel configuration through register 0x8000=CAEN_DGTZ_BROAD_CH_CTRL_ADD
+  // ======================================================================================
+  uint32_t data;
+  ret = CAEN_DGTZ_ReadRegister(handle, CAEN_DGTZ_BROAD_CH_CTRL_ADD, &data);
+  if(is_caen_error(ret,__LINE__-1,"dt5720_update_digitizer")) return FE_ERR_HW;
 
+  // Bit 4 must always be set to 1
+  data |= (1<<4);
+  // enable trigger overlap
+  data |= (1<<1);
+  ret = CAEN_DGTZ_WriteRegister(handle, CAEN_DGTZ_BROAD_CH_CTRL_ADD, data);
+  if(is_caen_error(ret,__LINE__-1,"dt5720_update_digitizer")) return FE_ERR_HW;
+
+  data_buffer_size = 32*1024*1024;
+  data_buffer = (char*) malloc(data_buffer_size);
 
   return true;
 }

@@ -30,7 +30,7 @@ extern HNDLE hDB;
 
 static INT v1724_init();
 static void v1724_exit();
-static INT v1724_bor();
+static INT v1724_pre_bor();
 static INT v1724_eor();
 static INT v1724_poll_live();
 static INT v1724_read(char *pevent); // MIDAS readout routine 
@@ -42,8 +42,8 @@ typedef struct timespec timer_start;
 struct readout_module v1724_module = {
   v1724_init,             // init
   v1724_exit,             // exit
-  NULL,                   // pre_bor
-  v1724_bor,              // bor
+  v1724_pre_bor,          // pre_bor
+  NULL,                   // bor
   v1724_eor,              // eor
   v1724_poll_live,        // poll_live
   NULL,                   // poll_dead
@@ -258,6 +258,7 @@ INT v1724_init()
 	  cm_msg(MERROR,"v1724_init","Cannot allocate memory for data buffers.\n");
 	  return FE_ERR_HW;
 	}
+     
     }
 
   printf("  [done]\n");
@@ -299,7 +300,7 @@ void v1724_exit()
     }
 }
 
-INT v1724_bor()
+INT v1724_pre_bor()
 {
 
   CAEN_DGTZ_ErrorCode ret;
@@ -557,6 +558,29 @@ INT v1724_bor()
 	}
 
       data_size[iboard] = 0;
+
+
+      // ======================================================================================
+      // Channel configuration through register 0x8000=CAEN_DGTZ_BROAD_CH_CTRL_ADD
+      // ======================================================================================
+      uint32_t data;
+      ret = CAEN_DGTZ_ReadRegister(handle[iboard], CAEN_DGTZ_BROAD_CH_CTRL_ADD, &data);
+      if ( ret != CAEN_DGTZ_Success )
+	{
+	  cm_msg(MERROR,"v1724_init","Cannot read from register 0x8000. Error 0x%08x\n",ret);
+	  return FE_ERR_HW;
+	}
+      
+      // enable trigger overlap
+      data |= (1<<1);
+      printf("channel configuration register 0x8000: %0x08x\n",data);
+      ret = CAEN_DGTZ_WriteRegister(handle[iboard], CAEN_DGTZ_BROAD_CH_CTRL_ADD, data);
+      if ( ret != CAEN_DGTZ_Success )
+	{
+	  cm_msg(MERROR,"v1724_init","Cannot write to register 0x8000. Error 0x%08x\n",ret);
+	  return FE_ERR_HW;
+	}
+ 
     }
 
   return SUCCESS;
