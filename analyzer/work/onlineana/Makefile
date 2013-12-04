@@ -87,13 +87,20 @@ MODULES.h: MODULES
 	../../generate-MODULES.h ./ 
 #$(INCLUDE_DIRS) 
 
+M4FLAGS = -I. 
+
+%.mql: %.MQL
+	m4 $(M4FLAGS) $< > $@
+
+%.cpp: %.mql
+	../../mql/mqlcompile $< $@
+
 %.o: %.cpp
 	$(CXX) -c -Wall $(CXXFLAGS) $<
 	$(CXX) -MM $(CXXFLAGS) $< > $(notdir $(patsubst %.cpp,%.d,$<))
 
 alcapana: $(objs) $(ANA_OBJS) libDataClasses.so
 	$(CXX) $(ICCFLAGS) -o $@ $^ $(ALL_LIBS) -lmucap_compress -lm -lz  -Wl,-rpath,$(shell pwd)
-
 
 DataLibraryDict.cpp: $(DATA_LIBRARY_HEADERS) ../../src/common/DataLibraryLinkDef.h
 	$(ROOTSYS)/bin/rootcint -f $@ -c $(UIUC_CFLAGS) -p $^

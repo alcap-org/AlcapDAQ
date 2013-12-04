@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /home/daq/AlcapDAQ/thisdaq.sh
+
 # Get the last fill
 # JF  = Just Filled     (BOOL in MIDAS)
 # LF  = Last Fill       (STRING in MIDAS)
