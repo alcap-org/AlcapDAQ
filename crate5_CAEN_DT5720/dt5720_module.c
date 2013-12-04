@@ -82,6 +82,7 @@ typedef struct s_dt5720_odb{
   BYTE      zero_suppression_mode;
   BOOL      event_packing;
   BOOL      ext_clock;
+  DWORD     wf_length;
   struct {
     BOOL      enable;
     float     offset;
@@ -120,6 +121,7 @@ gpi_acquisition_mode = BOOL : n\n\
 zero_suppression_mode = BYTE : 0\n\
 event_packing = BOOL : n\n\
 ext_clock = BOOL : n\n\
+waveform length = DWORD : 64\n\
 \n\
 [Ch00]\n\
 enable = BOOL : n\n\
@@ -534,6 +536,17 @@ BOOL dt5720_update_digitizer()
 						      3,
 						      analog2adc_trigger(3));
   if(is_caen_error(ret,__LINE__,"dt5720_update_digitizer")) return false;
+
+  // =====================================================================================
+  // Record length
+  // =====================================================================================
+  ret = CAEN_DGTZ_SetRecordLength(handle, S_DT5720_ODB.wf_length);
+  if ( ret != CAEN_DGTZ_Success )
+    {
+      cm_msg(MERROR,"dt5720_update_digitizer","Cannot SetRecordLength. Error 0x%08x\n",ret);
+      return FE_ERR_HW;
+    }
+
 
   return true;
 }
