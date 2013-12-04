@@ -81,6 +81,7 @@ typedef struct s_dt5720_odb{
   BOOL      gpi_acquisition_mode;
   BYTE      zero_suppression_mode;
   BOOL      event_packing;
+  BOOL      ext_clock;
   struct {
     BOOL      enable;
     float     offset;
@@ -118,6 +119,7 @@ post_trigger_size = BYTE : 20\n\
 gpi_acquisition_mode = BOOL : n\n\
 zero_suppression_mode = BYTE : 0\n\
 event_packing = BOOL : n\n\
+ext_clock = BOOL : n\n\
 \n\
 [Ch00]\n\
 enable = BOOL : n\n\
@@ -171,7 +173,7 @@ INT dt5720_init()
   printf("\nConnected to CAEN Desktop Digitizer Model %s\n",BoardInfo.ModelName);
   printf("\tROC FPGA Release is %s\n",BoardInfo.ROC_FirmwareRel);
   printf("\tAMC FPGA Release is %s\n",BoardInfo.AMC_FirmwareRel);
-
+  
   /* Reset Digitizer */
   ret = CAEN_DGTZ_Reset(handle);
   if(is_caen_error(ret,__LINE__-1,"dt5720_init")) return FE_ERR_HW;
@@ -193,6 +195,17 @@ INT dt5720_init()
 
   status = db_find_key(hDB,0,str,&hKey);
   status = db_open_record(hDB,hKey,&S_DT5720_ODB,sizeof(S_DT5720_ODB),MODE_READ,NULL,NULL);
+
+  if ( S_DT5720_ODB.ext_clock ) 
+    {
+      printf("Using external clock\n");
+      CAEN_DGTZ_WriteRegister(handle, CAEN_DGTZ_ACQ_CONTROL_ADD, 1<<6);
+    }
+  else
+    {
+      printf("Using internal clock\n");
+    }
+
 
   data_buffer_size = 32*1024*1024;
   data_buffer = (char*) malloc(data_buffer_size);
