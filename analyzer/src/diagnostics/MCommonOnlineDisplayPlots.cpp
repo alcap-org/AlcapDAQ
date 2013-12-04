@@ -104,7 +104,7 @@ INT MCommonOnlineDisplayPlots_init()
     // hPulseShapes
     histname = "h" + bankname + "_Shapes";
     histtitle = "Plot of the pulse shapes in the " + bankname + " channels";
-    TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(), 256,0.5,256.5,max_adc_value,-0.5,max_adc_value-0.5);      
+    TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(), 64,0.5,64.5,max_adc_value,-0.5,max_adc_value-0.5);      
     hPulseShapes->GetXaxis()->SetTitle("Time");
     hPulseShapes->GetYaxis()->SetTitle("ADC Value");
     shape_histograms_map[bankname] = hPulseShapes;
