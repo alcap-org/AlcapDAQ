@@ -12,16 +12,16 @@
 #include "odb_wrapper.h"
 #include "diag.h"
 
-INT caenV767_bor();
+INT caenV767_pre_bor();
 INT caenV767_eor();
 INT caenV767_poll_live();
 INT caenV767_read(char *pevent);
 
 struct readout_module caenV767_module = {
-  NULL,                 // init
-  NULL,                 // exit
-  NULL,                 // pre_bor
-  caenV767_bor,          // bor
+  NULL,                  // init
+  NULL,                  // exit
+  caenV767_pre_bor,      // pre_bor
+  NULL,                  // bor
   caenV767_eor,          // eor
   caenV767_poll_live,    // poll_live
   NULL,                 // poll_dead
@@ -195,7 +195,7 @@ INT caenV767_bor1(struct caenV767 *caen)
  * Called at the beginning of the run to discover CAENV767 modules
  * and initialize them.
  */
-INT caenV767_bor()
+INT caenV767_pre_bor()
 {
   // Use the ODB to find any CAENV767 modules
   for(int j = 0; j < MAX_CAENV767; j++) {
