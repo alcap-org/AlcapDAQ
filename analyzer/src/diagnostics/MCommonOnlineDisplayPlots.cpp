@@ -35,6 +35,7 @@ using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
 INT  MCommonOnlineDisplayPlots_init(void);
+INT  MCommonOnlineDisplayPlots_bor(INT);
 INT  MCommonOnlineDisplayPlots(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
@@ -51,7 +52,7 @@ ANA_MODULE MCommonOnlineDisplayPlots_module =
 	"MCommonOnlineDisplayPlots",                    /* module name           */
 	"Andrew Edmonds",              /* author                */
 	MCommonOnlineDisplayPlots,                      /* event routine         */
-	NULL,                          /* BOR routine           */
+	MCommonOnlineDisplayPlots_bor,                          /* BOR routine           */
 	NULL,                          /* EOR routine           */
 	MCommonOnlineDisplayPlots_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
@@ -104,7 +105,7 @@ INT MCommonOnlineDisplayPlots_init()
     // hPulseShapes
     histname = "h" + bankname + "_Shapes";
     histtitle = "Plot of the pulse shapes in the " + bankname + " channels";
-    TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(), 256,0.5,256.5,max_adc_value,-0.5,max_adc_value-0.5);      
+    TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5,max_adc_value,-0.5,max_adc_value-0.5);      
     hPulseShapes->GetXaxis()->SetTitle("Time");
     hPulseShapes->GetYaxis()->SetTitle("ADC Value");
     shape_histograms_map[bankname] = hPulseShapes;
@@ -119,6 +120,22 @@ INT MCommonOnlineDisplayPlots_init()
   hPulseRawCount->SetBit(TH1::kCanRebin);
 
   return SUCCESS;
+}
+
+// Resets the histograms at the beginning of each run so that the online display updates
+INT MCommonOnlineDisplayPlots_bor(INT run_number) {
+
+  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
+      mapIter != bank_to_detector_map.end(); mapIter++) { 
+  
+    std::string bankname = mapIter->first;
+    height_histograms_map[bankname]->Reset();
+    time_histograms_map[bankname]->Reset();
+    shape_histograms_map[bankname]->Reset();
+  }
+
+  hPulseRawCount->Reset();
 }
 
 /** This method processes one MIDAS block, producing a vector
@@ -155,13 +172,16 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 	    if (time_histograms_map.find(bankname) != time_histograms_map.end())
 	      time_histograms_map[bankname]->Fill((*pulseIter)->GetPulseTime());
 
-	    if (shape_histograms_map.find(bankname) != shape_histograms_map.end()) {
-	      
-	      std::vector<int> theSamples = (*pulseIter)->GetSamples();
-	      for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
-		shape_histograms_map[bankname]->Fill(sampleIter - theSamples.begin(), (*sampleIter));
-	      }
-	    }	    
+	    // only fill this histogram every 10 events
+	    if (midas_event_number % 10 == 0) {
+	      if (shape_histograms_map.find(bankname) != shape_histograms_map.end()) {
+		
+		std::vector<int> theSamples = (*pulseIter)->GetSamples();
+		for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
+		  shape_histograms_map[bankname]->Fill(sampleIter - theSamples.begin(), (*sampleIter));
+		}
+	      }	    
+	    }
 	  }
 
 	  hPulseRawCount->Fill(bankname.c_str(), thePulses.size());
