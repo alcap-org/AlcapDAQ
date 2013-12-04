@@ -69,8 +69,8 @@ static const char CONT_MOD[] = "COM,1\r\n";
 /*-- Equipment list ------------------------------------------------*/
 
 BANK_LIST vacuum_bank_list[] = {
-  { "PRS0", TID_INT,  1, NULL },
-  { "PRM0", TID_FLOAT,    1, NULL },
+  { "PRS0", TID_INT,   1, NULL },
+  { "PRM0", TID_FLOAT, 1, NULL },
   { "" },
 };
 
@@ -200,7 +200,7 @@ INT frontend_init()
 
   // Tell the vacuum gauge to await an inquiry
   printf("Setting vacuum gauge to measurement request mode...");
-  ret = write(vacuum,INQ_MODE,sizeof(INQ_MODE)-1);
+  ret = write(vacuum, INQ_MODE, sizeof(INQ_MODE)-1);
   if (ret < 0) {
     err = errno;
     printf("failed!\n");
@@ -210,7 +210,10 @@ INT frontend_init()
   }
   printf("done.\n");
   printf("Checking vacuum acknowledgement...");
-  
+
+  FD_ZERO(&vac_ready);
+  FD_SET(vacuum, &vac_ready);
+  select(FD_SETSIZE, &vac_ready, NULL, NULL, &vac_timeout);  
   if(!FD_ISSET(vacuum, &vac_ready)) {
     printf("failed!\n");
     cm_msg(MERROR, "vacuum_gauge_init",

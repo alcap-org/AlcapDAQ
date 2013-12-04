@@ -276,15 +276,17 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     else if (BankNames[i][2] == 'U' && BankNames[i][3] == 'H') { // UH CAEN banks
       std::string bank_name(BankNames[i]);
 
-      double caen_uh_frequency = 100e6; // 100 MHz (internal clock)
+      //      double caen_uh_frequency = 100e6; // 100 MHz (internal clock)
+      double caen_uh_frequency = 50e6; // 50 MHz (current external clock)
       double clockTickInNs = (1 / caen_uh_frequency) * 1e9;
 
       gSetup->fBankToClockTickMap[bank_name] = clockTickInNs;
     }
-    else if (BankNames[i][2] == 'B' && BankNames[i][3] == 'U') { // UH CAEN banks
+    else if (BankNames[i][2] == 'B' && BankNames[i][3] == 'U') { // BU CAEN banks
       std::string bank_name(BankNames[i]);
 
-      double caen_bu_frequency = 250e6; // 250 MHz (internal clock)
+      //      double caen_bu_frequency = 250e6; // 250 MHz (internal clock)
+      double caen_bu_frequency = 50e6; // 50 MHz (current external clock)
       double clockTickInNs = (1 / caen_bu_frequency) * 1e9;
 
       gSetup->fBankToClockTickMap[bank_name] = clockTickInNs;
