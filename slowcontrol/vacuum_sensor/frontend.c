@@ -290,26 +290,22 @@ INT vacuum_gauge_read(char *pevent, INT off) {
 
   ret = write(vacuum, &ENQ, sizeof(ENQ));
   if (ret < 0) {
-    cm_msg(MERROR, "read_vacuum_gauge",
-	   "Cannot write to vacuum gauge to request measurement (errno %d)", errno);
+    printf("Cannot write to vacuum gauge to request measurement (errno %d)", errno);
     return 0;
   }
   FD_ZERO(&vac_ready);
   FD_SET(vacuum, &vac_ready);
   select(FD_SETSIZE, &vac_ready, NULL, NULL, &vac_timeout);
   if(!FD_ISSET(vacuum, &vac_ready)) {
-    cm_msg(MERROR, "read_vacuum_gauge",
-	   "Nothing to be read from vacuum gauge");
+    printf("Nothing to be read from vacuum gauge");
     return 0;
   }
   ret = read(vacuum, resp, 15);
   if (ret < 0) {
-    cm_msg(MERROR, "read_vacuum_gauge",
-	   "Cannot read from vacuum gauge to get requested reading (errno %d)", errno);
+    printf("Cannot read from vacuum gauge to get requested reading (errno %d)", errno);
     return 0;
   } else if (ret != 15) {
-    cm_msg(MERROR, "read_vacuum_gauge",
-	   "Received incorrect size response (expected 15, received %d)", ret);
+    printf("Received incorrect size response (expected 15, received %d)", ret);
     return 0;
   }
 
@@ -337,19 +333,19 @@ INT vacuum_gauge_read(char *pevent, INT off) {
     bk_close(pevent, pressure);
     return bk_size(pevent);
   } else if (*status == 1) {
-    cm_msg(MINFO, "read_vacuum_gauge", "Vacuum gauge under range.");
+    printf("Vacuum gauge under range.");
   } else if (*status == 2) {
-    cm_msg(MINFO, "read_vacuum_gauge", "Vacuum gauge over range.");
+    printf("Vacuum gauge over range.");
   } else if (*status == 3) {
-    cm_msg(MERROR, "read_vacuum_gauge", "Vacuum gauge error.");
+    printf("Vacuum gauge error.");
   } else if (*status == 4) {
-    cm_msg(MINFO, "read_vacuum_gauge", "Vacuum gauge off.");
+    printf("Vacuum gauge off.");
   } else if (*status == 5) {
-    cm_msg(MINFO, "read_vacuum_gauge", "Vacuum gauge not attached.");
+    printf("Vacuum gauge not attached.");
   } else if (*status == 6) {
-    cm_msg(MERROR, "read_vacuum_gauge", "Vacuum gauge unidentifiable.");
+    printf("Vacuum gauge unidentifiable.");
   } else {
-    cm_msg(MERROR, "read_vacuum_gauge", "Vacuum gauge unknown status (status %d)", *status);
+    printf("Vacuum gauge unknown status (status %d)", *status);
   }
 
   printf("Didn't read pressure.");
