@@ -97,6 +97,7 @@ int main(int argc, char **argv)
 		onlineFrame->setServerName(server_name.c_str());
 		onlineFrame->setServerPort(server_port);
 		onlineFrame->ConnectToServer();
+		onlineFrame->Print();
 
 		// Get list of all histograms, then copy them to the current directory
 		std::vector<TString> vHistTitles = onlineFrame->GetHistTitles();

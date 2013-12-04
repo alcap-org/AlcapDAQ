@@ -1,0 +1,454 @@
+\documentclass[12pt]{article}
+
+\usepackage{times}
+\usepackage{fullpage}
+\usepackage{graphicx}
+
+\begin{document}
+
+\title{$\mu$QL: the Muon Query Language}
+\author{Fred Gray \\ University of California, Berkeley \\ DRAFT}
+\date{August 22, 2003}
+\maketitle
+
+Historically, the {\tt mu} analysis program had a mechanism known as
+{\tt superq} that found coincidences between the TPC and other detector
+elements.  It also had the ability to produce an HBOOK column-wise ntuple 
+from the output of {\tt superq}.  However, the code implementing {\tt superq} 
+grew to be untenable, and it was removed.  
+This document describes the replacement for {\tt superq}, a new mechanism 
+for generating cross-detector coincidences.  The Muon Query Language ($\mu$QL) 
+is a special-purpose high-level language with a relatively simple syntax 
+in which coincidences, histograms, and ntuples may be specified compactly and 
+conveniently.  It is processed by a translator that generates C++ code 
+suitable for incorporation into the MIDAS analyzer framework.  Consequently, 
+it permits the user to do a great deal of $\mu$Cap analysis work without 
+detailed knowledge of C++.
+
+\section{Introduction}
+
+In 1969, E.F. Codd proposed the {\em relational model} that has become 
+the basis of essentially all modern database systems.  It provides a 
+mathematical foundation with which to reason about database queries.  Data are 
+arranged in tables (formally known as {\em relations}) such as the following:
+
+\vspace{5mm}
+\begin{tabular}{|c|c|c||c|c|c|}
+\multicolumn{3}{l}{Table {\em Owners}} & \multicolumn{3}{l}{Table {\em Dogs}} \\
+\hline
+Name & Address & Phone number & Owner & Dog & Breed \\
+\hline
+Wilma & 1100 Hartford Avenue & 523-1546 & Wilma & Vinnie & Border collie \\
+Milo & 2419 California Street  & 721-0559 & John & Fluffy & Toy poodle \\
+John & 1940 Tyvola Road & 537-3646 & Milo & Ursula & Beagle \\
+ & & & Wilma & Outback & Australian shepherd \\
+\hline
+\end{tabular}
+\vspace{5mm}
+
+These two tables might be present in a database belonging to a pet store,
+for instance.  The tables consist of columns (formally, {\em attributes})
+identified by names, and rows ({\em }).  There is no natural ordering
+within the table, either for the columns or the rows; they are treated as 
+unordered sets.  Moreover, each row is required to be distinct from all 
+other rows in the same table.  Each entry in the table is single-valued;
+information is organized into a normalized form so that there is no need for 
+array-valued cells.  In the example, it is seen that owners (notably Wilma) may
+have multiple dogs, so the relation from owner to dog is given in its own 
+table.
+
+Codd defined a {\em relational algebra} that includes a number of operations
+on tables.  One of the more interesting operators is the Cartesian product
+$A \times B$, which yields a new table in which each row from $A$ is 
+joined with each row from $B$.   In the example, 
+{\em Owners $\times$ Dogs} would be
+
+\vspace{5mm}
+\begin{tabular}{|c|c|c|c|c|c|}
+\multicolumn{6}{l}{Table {\em Owners $\times$ Dogs}} \\
+\hline
+Name & Address & Phone number & Owner & Dog & Breed \\
+\hline
+Wilma & 1100 Hartford Avenue & 523-1546 & Wilma & Vinnie & Border collie \\
+Wilma & 1100 Hartford Avenue & 523-1546 & John & Fluffy & Toy poodle \\
+Wilma & 1100 Hartford Avenue & 523-1546 & Milo & Ursula & Beagle \\
+Wilma & 1100 Hartford Avenue & 523-1546 & Wilma & Outback & Australian shepherd \\
+Milo & 2419 California Street  & 721-0559 & Wilma & Vinnie & Border collie \\
+Milo & 2419 California Street  & 721-0559 & John & Fluffy & Toy poodle \\ 
+Milo & 2419 California Street  & 721-0559 & Milo & Ursula & Beagle \\
+Milo & 2419 California Street  & 721-0559 & Wilma & Outback & Australian shepherd \\
+John & 1940 Tyvola Road & 537-3646 & Wilma & Vinnie & Border collie \\
+John & 1940 Tyvola Road & 537-3646 & John & Fluffy & Toy poodle \\
+John & 1940 Tyvola Road & 537-3646 & Milo & Ursula & Beagle \\
+John & 1940 Tyvola Road & 537-3646 & Wilma & Outback & Australian shepherd \\
+\hline
+\end{tabular}
+\vspace{5mm}
+
+At first glace, this operation does not appear to have been very useful.
+However, it is a useful step towards the definition of an operation called
+the $\theta$-join $A~\theta(A,B)~B$.  This operation takes the Cartesian 
+product of two tables and restricts it to those rows satisfying some condition.
+In the example, it would be natural to take the 
+condition {\em Owners.Name == Dog.Owner}, effectively yielding the set of
+{\em (Owner, Dog)} pairs:
+
+\vspace{5mm} 
+\begin{tabular}{|c|c|c|c|c|c|}
+\multicolumn{6}{l}{Table {\em Owners $\theta($Owners.Name == Dog.Owner$)$ Dogs}} \\
+\hline
+Name & Address & Phone number & Owner & Dog & Breed \\
+\hline
+Wilma & 1100 Hartford Avenue & 523-1546 & Wilma & Vinnie & Border collie \\
+Wilma & 1100 Hartford Avenue & 523-1546 & Wilma & Outback & Australian shepherd \\
+Milo & 2419 California Street  & 721-0559 & Milo & Ursula & Beagle \\
+John & 1940 Tyvola Road & 537-3646 & John & Fluffy & Toy poodle \\
+\hline
+\end{tabular}
+\vspace{5mm} 
+
+Indeed, this operation is so natural that it would even be called the 
+{\em natural join} of the two tables: a $\theta$-join between the 
+{\em primary key} of one table and its representation as a {\em foreign key}
+in the other. 
+
+Codd proceeded to develop a {\em relational calculus}; the word {\em calculus} 
+is used to mean ``a system for doing calculations'' and in this case has
+nothing to do with derivatives or integrals.  He proved that it was equivalent
+in power to the algebraic formalism, and he proposed a query language 
+called ALPHA based on it.  Today, nearly all database systems are based on a
+query language called SQL (structured query language) that is loosely derived
+from ALPHA.  In SQL, the simple query ``Where does Wilma live?'' would be
+written 
+\begin{small}
+\begin{verbatim}
+SELECT Address FROM Owners WHERE Owners.Name='Wilma'
+\end{verbatim}
+\end{small}
+The more complex $\theta$-join example above would be written as
+\begin{small}
+\begin{verbatim}
+SELECT * FROM Owners, Dogs WHERE Owners.Name=Dogs.Owner
+\end{verbatim}
+\end{small}
+The asterisk means that all columns from both tables should be included
+in the result.
+
+The author submits that the analysis of data from experiments such as
+$\mu$Cap (and also $\mu$Lan) involves a substantial amount of processing that
+can conveniently be written in terms of a quasi-relational model. 
+Data from various detector systems arrive in parallel streams that may
+be regarded as tables:
+
+\vspace{5mm}
+\begin{tabular}{|c|c||c|c|c|}
+\multicolumn{2}{l}{Table {\em HITS}} & \multicolumn{3}{l}{Table {\em TPC}} \\
+\hline
+Time & Parameter number & Entrance time & Endpoint time & Endpoint anode \\
+\hline
+1550 & 6000 & 1557 & 3722 & 39 \\
+1553 & 6002 & 5917 & 9002 & 41 \\
+4561 & 7011 & $\vdots$ & $\vdots$ & $\vdots$ \\
+4566 & 7031 & $\vdots$ & $\vdots$ & $\vdots$ \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+\hline
+\end{tabular}
+\vspace{5mm}
+
+The formation of coincidences between these detectors is a fundamental 
+step in the data analysis.  Code written manually to construct these 
+coincidences tends to grow out of hand because there are so many different
+combinations to be tried.  At some level, all of this code ends up 
+looking the same, often with the same mistakes tediously made and corrected
+in each instance.   It will be useful to have a tool that generates this
+code from a more compact high-level description.  This tool will also serve
+as a bridge over the Fortran/C++ schism within the collaboration, because it
+should be possible for people on both sides of the divide to work with it
+easily.  We define a language with a passing similarity to SQL
+in which we can compactly represent queries.  
+
+This introduction concludes with a simple example program in the higher-level 
+language, which we will call $\mu$QL.  At this point, it should be read just
+to see the flavor of the relation-oriented approach.
+The example makes an autocorrelation plot for a single parameter number 
+in the HITS bank:
+
+\begin{small}
+\begin{verbatim}
+// Give a name to this module 
+module autocorr;
+
+// Define a table corresponding to a MIDAS bank created outside this module 
+import hits from HITS
+  { double time, int parameter };
+
+// Pick out only the S2 hits and make a table containing only their times
+select from hits into s2
+  where "parameter == 6000"
+  { time };
+
+// Make a table of all pairs of S2 hits that occur within 100 ns of each other
+join s2 with s2 into s2_autocorr 
+  coincidence time_1 with time_2 from 0 to 100;
+
+// Plot these time differences in a histogram
+histogram1d from s2_autocorr 
+  name "s2_autocorr" title "S2 Autocorrelation" 
+  "time_1 - time_2" bins 50 from 0 to 100;
+\end{verbatim}
+\end{small}
+
+The $\mu$QL language in which this example is written is defined in detail in 
+the rest of this document.  It is processed by an automated tool into an
+equivalent C++ program.  The translator performs a number of optimizations;
+not all tables mentioned in the input file are actually generated in concrete
+form.  
+
+\section{$\mu$QL Statements}
+
+\subsection{A few general comments}
+
+\begin{itemize}
+\item Whitespace is free-form.  That is, spaces, tabs, and carraige returns
+  characters are all equivalent.  Wherever one whitespace character is
+  permitted, an arbitrary amount of whitespace may be inserted.
+\item Table and column names must be valid C++ identifiers, which roughly 
+  means that they must consist only of letters, numbers, and underscores,
+  and must begin only with a letter.  They may be of any length that you care
+  to type.
+\item C and C++ style comments are allowed.  Thus, a comment may be enclosed
+  in slash-star marks like this: {\tt /* I am a comment */}, or two slashes
+  may be used to form a comment through the end of the current line as in
+  the example in the previous section.
+\end{itemize}
+
+\subsection{select}
+
+The {\tt select} statement makes a new table containing a subset of the 
+rows and/or columns in the original table.
+\footnote{{\tt Typewriter} font is used to
+indicate a word to be typed literally, while {\em italics} should be
+replaced by an actual value.  {\bf[} Square brackets {\bf]} indicate an 
+optional element, but \{ curly braces \} should be taken literally.}
+
+\begin{flushleft}
+{\tt select from} {\em table1} {\tt into} {\em table2} \\
+\hspace{1cm} {\bf[} {\tt where} ``{\em expression}'' {\bf]} \\
+\hspace{1cm} {\bf[} {\em column-list} {\bf]} {\tt ;}
+\end{flushleft}
+
+\begin{itemize}
+\item {\em table1} and {\em table2} are the original and output table names,
+  respectively.  They are not punctuated.
+\item {\tt where} ``{\em expression}'': the expression selects which rows
+  of the input table are to be copied into the output table.  Any arithmetic
+  expression that is valid in C should be acceptable here.  The expression 
+  must be in double quotation marks.
+\item {\em column-list} means \\
+{\tt\{} {\bf[} {\em type} {\bf]} {\em column-name} {\bf[} {\tt =}
+  ``{\em expression}'' {\bf]} {\bf[} {\tt ,} $\cdots$ {\bf]} {\tt\}} \\
+
+It is a list of columns to include in the output table.  For each column, at
+least the name is listed.  Optionally, the name may appear with an expression 
+that defines it in terms of the columns of the input table.   If there is no
+expression, then it is copied directly from the column with the same name
+in the input table.  Optionally, a data type may be included: it must
+be either {\tt int} (integer) or {\tt double} (double-precision floating 
+point).  If not specified, it defaults to {\tt double} (for derived columns,
+defined by an expression) or to the type of the corresponding column in the 
+input table (for columns that are directly copied).  The column list is
+enclosed in curly braces.
+\end{itemize}
+
+\subsection{join}
+
+The {\tt join} statement makes a new table by taking the $\theta$-join of
+two input tables.
+
+\begin{flushleft}
+{\tt join} {\em table1} {\tt with} {\em table2} {\tt into} {\em table3}  \\
+{\bf[} {\tt unique} {\bf]} {\bf[} {\tt invert} {\bf]} \\
+\hspace{1cm} {\bf[} {\tt coincidence} {\em column-name1} {\tt with} {\em colummn-name2} {\tt from} {\em min} {\tt to} {\em max} {\bf]} \\
+\hspace{1cm} {\bf[} {\tt where} ``{\em expression}'' {\bf]} \\
+\hspace{1cm} {\bf[} {\em column-list} {\bf]} {\tt ;}
+\end{flushleft}
+
+\begin{itemize}
+\item {\em table1} and {\em table2} are the names of the two input tables.
+\item {\tt unique} modifies the usual $\theta$-join so that only the 
+  first match from the second input table is included in the output.  
+  Thus, each row from the first input table appears at most once.
+\item {\tt invert} reverses the usual logic so that only rows from the 
+  first input table that have no matches in the second input table are 
+  included.  Of course, with this option, it is not allowed to use columns
+  from the second input table in constructing the output table.
+\item The optional coincidence condition is nearly synonymous with 
+  the {\tt where} clause
+  {\tt where} ``{\em column-name1} - {\em colummn-name2} $>$ {\em min} \&\& {\em column-name1} - {\em colummn-name2} $<$ {\em max}''
+However, it also asserts that {\em table1} is sorted in ascending order of
+{\em column-name1} and likewise that {\em table2} is sorted by 
+{\em colummn-name2}.  Consequently, it permits important optimizations
+to be performed.  The column names are derived from the names of the columns
+in the input tables as described in the next item.
+\item The {\tt where} clause selects rows in the output table just as it 
+does in the {\tt select} statement; together with the coincidence condition, 
+it defines the $\theta$ in $\theta$-join.  In the expression, the columns 
+of the two input tables are renamed as follows to avoid collisions:
+\begin{itemize}
+\item If the column name is already unique within the two tables, 
+  it is not changed.
+\item If joining two distinct tables, the column is renamed to 
+  {\em table-name}{\tt \_}{\em column-name}.  That is, if the two tables are
+  named {\tt t0} and {\tt hodoscope} and they each contain a column
+  named {\tt time}, the two columns are renamed {\tt t0\_time} and 
+  {\tt hodoscope\_time}.
+\item If joining a table to itself, the two instances of {\em column-name} 
+  are renamed {\em column-name}{\tt \_1} and {\em column-name}{\tt \_2}.
+\end{itemize}
+\item The {\em column-list} is much the same as for a {\tt select} 
+  statement, except for the renaming rules described in the previous item.
+\end{itemize}
+
+\subsection{import}
+
+The {\tt import} statement associates a table with the contents of a 
+MIDAS bank. 
+
+\begin{flushleft}
+{\tt import} {\em table} {\tt from} ``{\em bank}'' \\
+\hspace{1cm} {\em column-list} {\tt ;}
+\end{flushleft}
+
+The bank must have a four character name, following the MIDAS convention.
+Currently, it is necessary to supply a column list that describes
+the format of the bank.  This column list is in the form used by the 
+{\tt select} and {\tt join} statements, except that it is not permitted
+to include expressions in the list, only types and names.  The author is
+thinking of ways to determine this list automatically, at least in 
+requirement. 
+
+\subsection{export}
+
+The {\tt export} statement causes a table to be copied to a MIDAS bank
+where it can be used by other analysis modules, whether they are written 
+in MQL or directly in C++:
+
+{\tt export} {\em table} {\tt to} ``{\em bank}'' {\tt ;}
+
+\subsection{Histogramming}
+
+There are six histogramming-related statements with very similar syntax:
+
+\begin{flushleft}
+{\tt histogram1d} {\tt from} {\em table} \\
+\hspace{1cm}  {\bf[} {\tt where} ``{\em expression}'' {\bf]}  \\
+\hspace{1cm}  {\tt name} ``{\em name}'' {\bf[} {\tt title} ``{\em title}'' {\bf]} \\
+\hspace{1cm}  ``expression'' {\tt bins} {\em nbins} {\tt from} {\em min} {\tt to} {\em max} {\bf[} {\tt title}  ``{\em axis-title}'' {\bf]} ;
+\end{flushleft}
+\vspace{5mm}
+
+\begin{flushleft}
+{\tt histogram2d} {\tt from} {\em table} \\
+\hspace{1cm}  {\bf[} {\tt where} ``{\em expression}'' {\bf]} \\
+\hspace{1cm}  {\tt name} ``{\em name}'' {\bf[} {\tt title} ``{\em title}'' {\bf]} \\
+\hspace{1cm} ``x-expression'' {\tt bins} {\em nbins-x} {\tt from} {\em min-x} {\tt to} {\em max-x} {\bf[} {\tt title}  ``{\em x-axis-title}'' {\bf]} \\
+\hspace{1cm}  ``y-expression'' {\tt bins} {\em nbins-y} {\tt from} {\em min-y} {\tt to} {\em max-y} {\bf[} {\tt title}  ``{\em y-axis-title}'' {\bf]} ;
+\end{flushleft}
+\vspace{5mm}
+
+
+\begin{flushleft}
+{\tt histogram3d} {\tt from} {\em table1} \\
+\hspace{1cm}  {\bf[} {\tt where} ``{\em expression}'' {\bf]} \\
+\hspace{1cm}  {\tt name} ``{\em name}'' {\bf[} {\tt title} ``{\em title}'' {\bf]} \\
+\hspace{1cm}  ``x-expression'' {\tt bins} {\em nbins-x} {\tt from} {\em min-x} {\tt to} {\em max-x} {\bf[} {\tt title}  ``{\em x-axis-title}'' {\bf]} \\
+\hspace{1cm}  ``y-expression'' {\tt bins} {\em nbins-y} {\tt from} {\em min-y} {\tt to} {\em max-y} {\bf[} {\tt title}  ``{\em y-axis-title}'' {\bf]} \\
+\hspace{1cm}  ``z-expression'' {\tt bins} {\em nbins-z} {\tt from} {\em min-z} {\tt to} {\em max-z} {\bf[} {\tt title}  ``{\em z-axis-title}'' {\bf]} ;
+\end{flushleft}
+\vspace{5mm}
+
+The meaning of the fields in these expressions should be clear; they generate
+single one-, two-, and three-dimensional ROOT histograms, respectively.  
+However, one often wishes to generate a series of related histograms
+at the same time.  This capability is provided by variants of the statements
+with an additional ``s'' in the keyword and a {\tt select} clause that
+specifies which histogram in the series is to be filled:
+
+\begin{flushleft}
+{\tt histograms1d} {\tt from} {\em table} \\
+\hspace{1cm}  {\bf[} {\tt where} ``{\em expression}'' {\bf]} \\
+\hspace{1cm}  {\tt name} ``{\em name}'' {\bf[} {\tt title} ``{\em title}'' {\bf]} \\
+\hspace{1cm}  {\tt select} ``{\em selector-expression}'' {\tt from} {\em m} {\tt to} {\em n} \\ 
+\hspace{1cm}  ``expression'' {\tt bins} {\em nbins} {\tt from} {\em min} {\tt to} {\em max} {\bf[} {\tt title}  ``{\em axis-title}'' {\bf]} ;
+\end{flushleft}
+\vspace{5mm}
+
+\begin{flushleft}
+{\tt histograms2d} {\tt from} {\em table} \\
+\hspace{1cm}  {\bf[} {\tt where} ``{\em expression}'' {\bf]} \\
+\hspace{1cm}  {\tt name} ``{\em name}'' {\bf[} {\tt title} ``{\em title}'' {\bf]} \\
+\hspace{1cm}  {\tt select} ``{\em selector-expression}'' {\tt from} {\em m} {\tt to} {\em n} \\ 
+\hspace{1cm} ``x-expression'' {\tt bins} {\em nbins-x} {\tt from} {\em min-x} {\tt to} {\em max-x} {\bf[} {\tt title}  ``{\em x-axis-title}'' {\bf]} \\
+\hspace{1cm}  ``y-expression'' {\tt bins} {\em nbins-y} {\tt from} {\em min-y} {\tt to} {\em max-y} {\bf[} {\tt title}  ``{\em y-axis-title}'' {\bf]} ;
+\end{flushleft}
+\vspace{5mm}
+
+\begin{flushleft}
+{\tt histograms3d} {\tt from} {\em table1} \\
+\hspace{1cm}  {\bf[} {\tt where} ``{\em expression}'' {\bf]} \\
+\hspace{1cm}  {\tt name} ``{\em name}'' {\bf[} {\tt title} ``{\em title}'' {\bf]} \\
+\hspace{1cm}  {\tt select} ``{\em selector-expression}'' {\tt from} {\em m} {\tt to} {\em n} \\ 
+\hspace{1cm}  ``x-expression'' {\tt bins} {\em nbins-x} {\tt from} {\em min-x} {\tt to} {\em max-x} {\bf[} {\tt title}  ``{\em x-axis-title}'' {\bf]} \\
+\hspace{1cm}  ``y-expression'' {\tt bins} {\em nbins-y} {\tt from} {\em min-y} {\tt to} {\em max-y} {\bf[} {\tt title}  ``{\em y-axis-title}'' {\bf]} \\
+\hspace{1cm}  ``z-expression'' {\tt bins} {\em nbins-z} {\tt from} {\em min-z} {\tt to} {\em max-z} {\bf[} {\tt title}  ``{\em z-axis-title}'' {\bf]} ;
+\end{flushleft}
+\vspace{5mm}
+
+\subsection{Ntuples}
+
+A ROOT ntuple is essentially an on-disk representation of a table.  
+It may be generated using the statement
+
+\begin{flushleft}
+{\tt ntuple} {\tt from} {\em table} {\tt name} ``{\em name}'' \\
+\hspace{1cm} {\bf[} {\tt title} ``{\em title}'' {\bf]} \\
+\hspace{1cm} {\bf[} {\tt where} ``{\em where-expression}'' {\bf]} \\
+\hspace{1cm} {\bf[} ``{\em column-list}'' {\bf]} {\tt ;}
+\end{flushleft}
+
+The {\em column-list} is defined the same way as in the {\tt select} statement.
+If it is omitted, then all columns of the table are copied to the ntuple.
+
+\section{Implementation notes}
+
+The $\mu$QL-to-C++ tranlator is written in Java.  The front end uses tools
+called JJTree and JavaCC that simplify the construction of parsers.  JavaCC 
+takes a formal description of the grammar for a language and generates
+a parser for that language.  JJTree is a preprocessor for JavaCC that 
+generates code to build a parse tree that corresponds to the input file.
+
+After parsing the input, the translator makes several passes through 
+the resulting tree.  On the first pass, it locates and records the definitions 
+of all tables.  It then begins writing out the associated C++ code, beginning
+with a standard preamble and proceeding with various declarations and
+initializations.  Finally, the code that implements the table operations 
+described in the input file is generated, though not generally in the same
+order that it was specified in.  
+
+In most cases, it is possible to perform operations on the contents of 
+tables as they are generated rather than first generating the table and 
+then going through a second loop to use its data.  Indeed, the only tables 
+that even need to be generated in concrete form are those which appear as
+{\em table2} in a {\tt join} statement.  These tables are generated with
+high priority as soon as the inputs upon which they depend exist, as in 
+the following program:
+\begin{center}
+$A = W \times X$ \\
+$B = Y \times Z$ \\
+$C = A \times B$ \\
+\end{center}
+In this situation, the second statement $B = Y \times Z$ will be 
+evaluated first, and the other two will be evaluated at the same time,
+with $C = A \times B$ nested inside $A = W \times X$.  
+
+\end{document}

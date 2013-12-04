@@ -42,7 +42,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-vector<string> caen_bank_names;
+vector<string> caen_houston_bank_names;
 //static vector<TV1724BankReader*> caen_bank_readers;
 
 struct caen_event_t
@@ -92,8 +92,8 @@ INT module_init()
     std::string bankname = mapIter->first;
     
     // We only want the CAEN banks here
-    if (TSetupData::IsCAEN(bankname))
-      caen_bank_names.push_back(bankname);
+    if (TSetupData::IsHoustonCAEN(bankname))
+      caen_houston_bank_names.push_back(bankname);
   }
   
   //  printf("caen init!\n");
@@ -191,12 +191,12 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
       //      printf("waveform length: %i\n",nsamples);
 
       // Loop through the channels (i.e. banks)
-      for (std::vector<std::string>::iterator bankNameIter = caen_bank_names.begin();
-	   bankNameIter != caen_bank_names.end(); bankNameIter++) {
+      for (std::vector<std::string>::iterator bankNameIter = caen_houston_bank_names.begin();
+	   bankNameIter != caen_houston_bank_names.end(); bankNameIter++) {
         
 	vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
 	std::vector<int> sample_vector;
-	int ichannel = bankNameIter - caen_bank_names.begin();
+	int ichannel = bankNameIter - caen_houston_bank_names.begin();
 
 	//	printf("TGlobalData bank [%s] ----------------------------------------\n", (*bankNameIter).c_str());
 	//	printf("Number of TPulseIslands already existing = %d\n", pulse_islands.size());
@@ -244,8 +244,8 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
   // print for testing
   if(midas_event_number == 1) {
     // Loop through all the banks and print an output (because this ProcessRaw loops through pulses then banks, it has been put here)
-    for (std::vector<std::string>::iterator bankNameIter = caen_bank_names.begin();
-	 bankNameIter != caen_bank_names.end(); bankNameIter++) {
+    for (std::vector<std::string>::iterator bankNameIter = caen_houston_bank_names.begin();
+	 bankNameIter != caen_houston_bank_names.end(); bankNameIter++) {
       
       vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
       printf("TEST MESSAGE: Read %d events from bank %s in event %d\n",

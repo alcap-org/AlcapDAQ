@@ -19,7 +19,6 @@ INT crate_number=10;
 HNDLE hDB;
 HNDLE hKey;
 int size;
-char kName_Alarm[128] = "/Equipment/VacuumMonitor/Variables/Alarm_Triggered";
 
 INT vacuum_gauge_read(char *pevent, INT off);
 
@@ -46,12 +45,14 @@ INT max_event_size_frag = 5 * 1024 * 1024;
 INT event_buffer_size = 10 * 10000;
 
 // Globals to this file only
-static HNDLE kAlarm;
+static int readline();
 static int vacuum;
 static struct termios vacuum_config;
 static struct timeval vac_timeout;
 static fd_set vac_ready;
-static char vacuum_port[] = "/dev/ttyS0";
+static const char vacuum_port[] = "/dev/ttyS0";
+static const resp_size = 256;
+static char resp[256];
 // Characters we will use
 static const char NUL = '\x00'; // For NULL terminated strings
 static const char ACK = '\x06'; // For acknowledging
@@ -68,8 +69,8 @@ static const char CONT_MOD[] = "COM,1\r\n";
 /*-- Equipment list ------------------------------------------------*/
 
 BANK_LIST vacuum_bank_list[] = {
-  { "PRS0", TID_INT,  1, NULL },
-  { "PRM0", TID_FLOAT,    1, NULL },
+  { "PRS0", TID_INT,   1, NULL },
+  { "PRM0", TID_FLOAT, 1, NULL },
   { "" },
 };
 
@@ -84,7 +85,6 @@ EQUIPMENT equipment[] = {
        "MIDAS",            /* format */
        TRUE,               /* enabled */
        RO_ALWAYS | RO_ODB, /* read all the time */
-
        1000,               /* reads spaced by this many ms */
        0,                  /* stop run after this event limit */
        0,                  /* number of sub events */
@@ -131,14 +131,7 @@ INT frontend_init()
 {
 
   int ret, err;
-  char resp[256];
-
-  // Create alarm and value if doesn't exist
-  cm_get_experiment_database(&hDB, NULL);  
-  if (db_find_key(hDB, 0, kName_Alarm, &kAlarm) != SUCCESS) {
-    db_create_key(hDB, 0, kName_Alarm, TID_INT);
-    db_find_key(hDB, 0, kName_Alarm, &kAlarm);
-  }
+  cm_get_experiment_database(&hDB, NULL);
 
   // Open serial port for vacuum
   vacuum = open(vacuum_port, O_RDWR | O_NOCTTY);
@@ -207,7 +200,7 @@ INT frontend_init()
 
   // Tell the vacuum gauge to await an inquiry
   printf("Setting vacuum gauge to measurement request mode...");
-  ret = write(vacuum,INQ_MODE,sizeof(INQ_MODE)-1);
+  ret = write(vacuum, INQ_MODE, sizeof(INQ_MODE)-1);
   if (ret < 0) {
     err = errno;
     printf("failed!\n");
@@ -217,9 +210,10 @@ INT frontend_init()
   }
   printf("done.\n");
   printf("Checking vacuum acknowledgement...");
+
   FD_ZERO(&vac_ready);
   FD_SET(vacuum, &vac_ready);
-  ret = select(FD_SETSIZE, &vac_ready, NULL, NULL, &vac_timeout);
+  select(FD_SETSIZE, &vac_ready, NULL, NULL, &vac_timeout);  
   if(!FD_ISSET(vacuum, &vac_ready)) {
     printf("failed!\n");
     cm_msg(MERROR, "vacuum_gauge_init",
@@ -292,42 +286,42 @@ INT resume_run(INT run_number, char *error)
 INT vacuum_gauge_read(char *pevent, INT off) {
 
   int i;
-  int ret, *status;
-  float* pressure;
-  char resp[256], pressure_str[11];
-
-  bk_init(pevent);
+  int ret;
 
   ret = write(vacuum, &ENQ, sizeof(ENQ));
   if (ret < 0) {
     cm_msg(MERROR, "read_vacuum_gauge",
 	   "Cannot write to vacuum gauge to request measurement (errno %d)", errno);
-    return FE_ERR_HW;
+    return 0;
   }
   FD_ZERO(&vac_ready);
   FD_SET(vacuum, &vac_ready);
-  ret = select(FD_SETSIZE, &vac_ready, NULL, NULL, &vac_timeout);
+  select(FD_SETSIZE, &vac_ready, NULL, NULL, &vac_timeout);
   if(!FD_ISSET(vacuum, &vac_ready)) {
     cm_msg(MERROR, "read_vacuum_gauge",
 	   "Nothing to be read from vacuum gauge");
-    return FE_ERR_HW;
+    return 0;
   }
   ret = read(vacuum, resp, 15);
   if (ret < 0) {
     cm_msg(MERROR, "read_vacuum_gauge",
 	   "Cannot read from vacuum gauge to get requested reading (errno %d)", errno);
-    return FE_ERR_HW;
+    return 0;
   } else if (ret != 15) {
     cm_msg(MERROR, "read_vacuum_gauge",
 	   "Received incorrect size response (expected 15, received %d)", ret);
-    return FE_ERR_HW;
+    return 0;
   }
 
   // Response should be format "S,sX.XXXXEsXX\r\n"
   // Where s is sign, S is status number, and X are numbers
   // Extract strings we need
+  bk_init(pevent);
   const static int reading_offset = 3;
-  const static int num_digits = 11;
+  const static int num_digits = 11; // If this is changed, change 3 lines below as well
+  INT* status;
+  float* pressure;
+  char pressure_str[12]; // Num digits + 1
   // Record status
   bk_create(pevent, "PRS0", TID_INT, &status);
   *status = atoi(resp);
@@ -339,7 +333,9 @@ INT vacuum_gauge_read(char *pevent, INT off) {
       pressure_str[i] = resp[i + reading_offset];
     pressure_str[num_digits] = NUL;
     *pressure++ = atof(pressure_str);
+    printf("Read pressure %f\n", *(pressure-1));
     bk_close(pevent, pressure);
+    return bk_size(pevent);
   } else if (*status == 1) {
     cm_msg(MINFO, "read_vacuum_gauge", "Vacuum gauge under range.");
   } else if (*status == 2) {
@@ -356,6 +352,27 @@ INT vacuum_gauge_read(char *pevent, INT off) {
     cm_msg(MERROR, "read_vacuum_gauge", "Vacuum gauge unknown status (status %d)", *status);
   }
 
+  printf("Didn't read pressure.");
   bk_close(pevent, ++status);
   return bk_size(pevent);
+}
+
+// Readline using file descriptor vacuum and response array resp
+int readline() {
+  static int ret;
+  static int nRead;
+  memset(resp, NUL, resp_size);
+  nRead = 0;
+  do {
+    FD_ZERO(&vac_ready);
+    FD_SET(vacuum, &vac_ready);
+    select(FD_SETSIZE, &vac_ready, NULL, NULL, &vac_timeout);
+    if(!FD_ISSET(vacuum,&vac_ready))
+      return 0;
+    ret = read(vacuum, resp + nRead, 1);
+    if (ret < 0)
+      return ret;
+    nRead++;
+  } while (resp[nRead-1] != LF);
+  return nRead;
 }
