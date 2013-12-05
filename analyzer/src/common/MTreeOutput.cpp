@@ -23,6 +23,7 @@
 /* AlCap includes */
 #include "TGlobalData.h"
 #include "TSetupData.h"
+#include "TVacuumData.h"
 
 /*-- Module declaration --------------------------------------------*/
 
@@ -33,6 +34,7 @@ INT  MTreeOutput(EVENT_HEADER*, void*);
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
+extern TVacuumData* gVacuum;
 extern char *gMiasTreeOutputFileName;
 
 static TFile *fTreeFile = NULL;
@@ -40,6 +42,8 @@ static TTree *fEventTree = NULL;
 static TBranch *fEventBranch = NULL;
 static TTree *fSetupTree = NULL;
 static TBranch *fSetupBranch = NULL;
+static TTree *fVacuumTree = NULL;
+static TBranch *fVacuumBranch = NULL;
 
 ANA_MODULE MTreeOutput_module =
 {
@@ -90,6 +94,16 @@ INT MTreeOutput_init()
   fSetupBranch->SetAutoDelete(kFALSE);
   
   fSetupTree->Fill();
+
+  // The TTree with the Vacuum information
+  fVacuumTree = new TTree("VacuumTree","All setup information");
+  fVacuumTree->SetAutoSave(300000000); // autosave when 300 Mbyte written.
+  fVacuumTree->SetMaxVirtualSize(300000000); // 300 Mbyte
+
+  fVacuumBranch = fVacuumTree->Branch("Vacuum", "TVacuumData", &gVacuum, bufsize, split);
+  fVacuumBranch->SetAutoDelete(kFALSE);
+  printf("In MTreeOutput_init!\n");
+  printf("gVacuum.size = %d\n",gVacuum->GetStatus().size());
   
   return SUCCESS;
 }
@@ -98,6 +112,7 @@ INT MTreeOutput_init()
 INT MTreeOutput(EVENT_HEADER *pheader, void *pevent)
 {
   fEventTree->Fill();
+  fVacuumTree->Fill();
   return SUCCESS;
 }
 
