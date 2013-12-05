@@ -19,7 +19,7 @@ void fadc_single_plots(std::string fadc_id,std::string hist_type)
     if (hist) {
       AlCapCanvas->cd(iChn+1);
 
-      if (hist_type == "Shapes" || hist_type == "LatestPulse")
+      if (hist_type == "Shapes")
 	hist->Draw("COLZ");
       else
 	hist->Draw();
