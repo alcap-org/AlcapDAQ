@@ -44,10 +44,10 @@ BankName = STRING[48] :
 [5] CbBU
 [5] CcBU
 [5] CdBU
-[5] CeBU
-[5] CfBU
-[5] CgBU
-[5] ChBU
+[5] 
+[5] 
+[5] 
+[5] 
 ClockTick = FLOAT[48] :
 [0] 6.25
 [1] 6.25
@@ -98,22 +98,6 @@ ClockTick = FLOAT[48] :
 [46] 6.25
 [47] 6.25
 DetectorName = STRING[48] :
-[80] muSc
-[80] muSc-A
-[80] ScL
-[80] ScR
-[80] ScGe
-[80] 
-[80] 
-[80] 
-[80] SiL2-slow
-[80] SiR2-slow
-[80] Ge-slow
-[80] test
-[80] SiL2-fast
-[80] SiR2-fast
-[80] Ge-fast
-[80] 
 [80] SiL1-1-fast
 [80] SiL1-2-fast
 [80] SiL1-3-fast
@@ -122,6 +106,14 @@ DetectorName = STRING[48] :
 [80] SiR1-2-fast
 [80] SiR1-3-fast
 [80] SiR1-4-fast
+[80] SiL2-slow
+[80] SiR2-slow
+[80] SiL2-fast
+[80] ScL
+[80] SiR2-fast
+[80] ScR
+[80] ScVe
+[80] 
 [80] SiL1-1-slow
 [80] SiL1-2-slow
 [80] SiL1-3-slow
@@ -138,9 +130,17 @@ DetectorName = STRING[48] :
 [80] 
 [80] 
 [80] 
+[80] Ge-slow
+[80] Ge-fast
 [80] 
 [80] 
 [80] 
+[80] 
+[80] 
+[80] 
+[80] 
+[80] muSC
+[80] muSCA
 [80] 
 [80] 
 [80] 
