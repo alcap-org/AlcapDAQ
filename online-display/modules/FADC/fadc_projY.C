@@ -1,7 +1,7 @@
 void fadc_projY(std::string fadc_id,std::string hist_type)
 {
   /*****************************************************************/
-  // Prepare the canvas
+  // Prepare the canvas.
   gStyle->SetOptStat("ne");
   TCanvas *AlCapCanvas = (TCanvas *) gROOT->GetListOfCanvases()->At(0);
   AlCapCanvas->Clear();
