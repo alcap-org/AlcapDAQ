@@ -19,7 +19,7 @@ export MIDAS_HOME=$MIDASSYS
 export MIDAS_DIR=$PWD/analyzer/work
 #export MIDAS_ROOT=$HOME_COMET/Alcap/AlcapDAQ/midas
 
-uname=`uname -p`
+uname=`uname -m`
 arch=''
 if [ "$uname" == "x86_64" ]; then
     arch='64'

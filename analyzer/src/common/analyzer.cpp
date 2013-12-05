@@ -67,6 +67,10 @@ BANK_LIST ana_trigger_bank_list[] = {
 };
 
 /*-- Event request list --------------------------------------------*/
+extern ANA_MODULE MVacuumHisto_module;
+ANA_MODULE *SC_module[] = {
+  &MVacuumHisto_module,
+NULL };
 
 ANALYZE_REQUEST analyze_request[] = {
   { "Trigger",            /* equipment name */
@@ -78,6 +82,20 @@ ANALYZE_REQUEST analyze_request[] = {
       "", "", },
     NULL,                 /* analyzer routine */
     trigger_module,       /* module list */
+    ana_trigger_bank_list,/* bank list */
+    1000,                 /* RWNT buffer size */
+    TRUE,                 /* Use tests for this event */
+  },
+
+  { "SlowControl",            /* equipment name */
+    { 24,                    /* event ID */
+      TRIGGER_ALL,          /* trigger mask */
+      GET_SOME,             /* get some events */
+      "SYSTEM",             /* event buffer */
+      TRUE,                 /* enabled */
+      "", "", },
+    NULL,                 /* analyzer routine */
+    SC_module,       /* module list */
     ana_trigger_bank_list,/* bank list */
     1000,                 /* RWNT buffer size */
     TRUE,                 /* Use tests for this event */
