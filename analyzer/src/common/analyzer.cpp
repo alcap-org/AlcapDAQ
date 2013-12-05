@@ -59,6 +59,8 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup);
 
 #include "MODULES.h"
 
+extern ANA_MODULE MVacuumPressure_module;
+
 /*-- Bank definitions ----------------------------------------------*/
 
 BANK_LIST ana_trigger_bank_list[] = {
@@ -66,9 +68,14 @@ BANK_LIST ana_trigger_bank_list[] = {
   { "" },
 };
 
+BANK_LIST ana_vacuum_bank_list[] = {
+
+  { "" },
+};
+
 /*-- Event request list --------------------------------------------*/
 extern ANA_MODULE MVacuumHisto_module;
-ANA_MODULE *SC_module[] = {
+ANA_MODULE *Vacuum_module[] = {
   &MVacuumHisto_module,
 NULL };
 
@@ -87,7 +94,7 @@ ANALYZE_REQUEST analyze_request[] = {
     TRUE,                 /* Use tests for this event */
   },
 
-  { "SlowControl",            /* equipment name */
+  { "Vacuum",            /* equipment name */
     { 24,                    /* event ID */
       TRIGGER_ALL,          /* trigger mask */
       GET_SOME,             /* get some events */
@@ -95,8 +102,8 @@ ANALYZE_REQUEST analyze_request[] = {
       TRUE,                 /* enabled */
       "", "", },
     NULL,                 /* analyzer routine */
-    SC_module,       /* module list */
-    ana_trigger_bank_list,/* bank list */
+    Vacuum_module,       /* module list */
+    ana_vacuum_bank_list,/* bank list */
     1000,                 /* RWNT buffer size */
     TRUE,                 /* Use tests for this event */
   },
