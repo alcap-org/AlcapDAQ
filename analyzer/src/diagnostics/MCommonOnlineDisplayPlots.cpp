@@ -185,18 +185,16 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 	      time_histograms_map[bankname]->Fill((*pulseIter)->GetPulseTime());
 
 	    // only fill this histogram every 10 events
-	    if (midas_event_number % 10 == 0) {
-	      if (shape_histograms_map.find(bankname) != shape_histograms_map.end()) {
-
-		latest_pulse_histograms_map[bankname]->Reset();	
-	
-		std::vector<int> theSamples = (*pulseIter)->GetSamples();
-		for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
-		  shape_histograms_map[bankname]->Fill(sampleIter - theSamples.begin(), (*sampleIter));
-                  latest_pulse_histograms_map[bankname]->SetBinContent(sampleIter - theSamples.begin(),(*sampleIter));
-		}
-	      }	    
-	    }
+	    if (shape_histograms_map.find(bankname) != shape_histograms_map.end()) {
+	      
+	      latest_pulse_histograms_map[bankname]->Reset();	
+	      
+	      std::vector<int> theSamples = (*pulseIter)->GetSamples();
+	      for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
+		shape_histograms_map[bankname]->Fill(sampleIter - theSamples.begin(), (*sampleIter));
+		latest_pulse_histograms_map[bankname]->SetBinContent(sampleIter - theSamples.begin(),(*sampleIter));
+	      }
+	    }	    
 	  }
 
 	  hPulseRawCount->Fill(bankname.c_str(), thePulses.size());
