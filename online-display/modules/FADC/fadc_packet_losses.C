@@ -9,7 +9,7 @@ void fadc_packet_losses()
   /*****************************************************************/
   
   AlCapCanvas->cd();
-  TH2* fadc_hist = (TH2 *)gDirectory->Get("hNOctalFADCAvgPacketLoss");
-  fadc_hist->Draw("COLZ");
+  TH1* fadc_hist = (TH1 *)gDirectory->Get("hNOctalFADCAvgPacketLoss");
+  fadc_hist->Draw();
   
 }
