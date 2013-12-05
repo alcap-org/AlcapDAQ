@@ -35,6 +35,7 @@ PAWC_DEFINE(1000000);
 /* AlCap includes */
 #include "TGlobalData.h"
 #include "TSetupData.h"
+#include "TVacuumData.h"
 
 /*-- Globals -------------------------------------------------------*/
 
@@ -52,14 +53,13 @@ INT  odb_size = DEFAULT_ODB_SIZE;
  */
 TGlobalData* gData;
 TSetupData* gSetup;
+TVacuumData* gVacuum;
 
 void UpdateDetectorBankNameMap(TSetupData *gSetup);
 
 /*-- Module declarations -------------------------------------------*/
 
 #include "MODULES.h"
-
-extern ANA_MODULE MVacuumPressure_module;
 
 /*-- Bank definitions ----------------------------------------------*/
 
@@ -75,8 +75,10 @@ BANK_LIST ana_vacuum_bank_list[] = {
 
 /*-- Event request list --------------------------------------------*/
 extern ANA_MODULE MVacuumHisto_module;
+extern ANA_MODULE MVacuumOnlineDisplayPlots_module;
 ANA_MODULE *Vacuum_module[] = {
   &MVacuumHisto_module,
+  &MVacuumOnlineDisplayPlots_module,
 NULL };
 
 ANALYZE_REQUEST analyze_request[] = {
@@ -156,6 +158,9 @@ INT analyzer_init()
   signal(SIGPIPE , catastrophe);
   signal(SIGTERM , catastrophe);
 
+  // Initialize gVacuum
+  gVacuum = new TVacuumData();
+
   return SUCCESS;
 }
 
@@ -171,6 +176,11 @@ INT analyzer_exit()
   if(gSetup) {
     delete gSetup;
     gSetup = NULL;
+  }
+
+  if(gVacuum) {
+  	  delete gVacuum;
+  	  gVacuum = NULL;
   }
 
   return CM_SUCCESS;

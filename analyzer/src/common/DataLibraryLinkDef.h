@@ -24,4 +24,6 @@
 #pragma link C++ class map<string, string>::iterator;
 #pragma link C++ class pair<string, string>+;
 
+#pragma link C++ class TVacuumData+;
+
 #endif
