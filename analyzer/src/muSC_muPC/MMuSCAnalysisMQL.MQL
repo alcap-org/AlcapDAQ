@@ -1,0 +1,276 @@
+/********************************************************************\
+
+  Name:         MMuSCAnalysisMQL.MQL
+
+  Contents:     This module analyzes all available muSC data, as well
+		the muSCA veto counter.  It exports two banks: MUSC,
+		comprised of good t0 seed hits, and MUFP, the union of 
+		all muSC information, for use in pileup protection.  
+
+\********************************************************************/
+
+module MMuSCAnalysisMQL;
+
+// Include header files
+literal "#include <common.h>";
+literal "#include <ucb_common.h>";
+
+// Set the enable flags
+literal "#define Tier1 ON";
+literal "#define Tier2 ON";
+literal "#define Tier3 ON";
+
+/**************************************************\
+                  Import Banks
+\**************************************************/
+
+import hits from HITS
+{
+  double time, 
+  int parameter
+};
+histogram1d from hits
+  enable "Tier1"
+  where "parameter >= 6000 && parameter <= 6011"
+  name "parameters_muSC" title "#muSC parameters"
+  "parameter" bins 12 from 5999.5 to 6011.5;
+
+histogram1d from hits
+  enable "Tier1"
+  where "parameter >=1000 && parameter <= 7000"
+  name "parameters_6k" title "parameters"
+  "parameter" bins 6001 from 999.5 to 7000.5;
+
+
+/**************************************************\
+                muSC calculations
+\**************************************************/
+
+/*--------------------------------------
+  muSC copy1 processing
+----------------------------------------*/
+
+// Select muSC copy1 hits from HITS
+select from hits into muSC_copy1_raw
+  where "(parameter == 6011)"
+{ 
+  double time = time
+};
+histogram1d from muSC_copy1_raw
+  enable "Tier1"
+  name "muSC_count_raw" title "#muSC copy1 raw count"
+  "1" bins 3 from -0.5 to 2.5;
+
+
+// muSC copy1 raw autocorrelation
+join muSC_copy1_raw with muSC_copy1_raw into muSC_copy1_raw_auto
+  coincidence time_1 with time_2 from -50500 to 1
+  enable "Tier3";
+histogram1d from muSC_copy1_raw_auto
+  enable "Tier3"
+  where "(time_2 - time_1) >= 0"
+  name "muSC_copy1_raw_autocorr" title "#muSC copy1 raw autocorr"
+  "time_2 - time_1" bins 44201 from -5000.625 to 50250.625;
+ 
+
+// Artifical deadtime (AD) clustering to suppress afterpulsing
+cluster from muSC_copy1_raw into muSC_copy1_AD
+  non_transitive
+  coincidence time_1 with time_2 from "-kMuSCADInterval" to "kMuSCADInterval"
+{
+  double time = time_min
+};
+
+
+// muSC copy1 AD autocorrelation
+join muSC_copy1_AD with muSC_copy1_AD into muSC_copy1_AD_auto
+  coincidence time_1 with time_2 from -50500 to 1
+  enable "Tier3";
+histogram1d from muSC_copy1_AD_auto
+  enable "Tier3"
+	  where "(time_2 - time_1) >= 0"
+  name "muSC_copy1_AD_autocorr" title "#muSC copy1 AD autocorr"
+  "time_2 - time_1" bins 44201 from -5000.625 to 50250.625;
+
+// Artifical deadtime (AD) clustering again, with a longer deadtime (for runs 
+// where the muSC was misbehaving...)
+cluster from muSC_copy1_raw into muSC_copy1_AD2
+  non_transitive
+  coincidence time_1 with time_2 from "-kMuSCAD2Interval" to "kMuSCAD2Interval"
+{
+  double time = time_min
+};
+
+/*--------------------------------------
+  Kicker processing
+----------------------------------------*/
+// Select kicker hits from HITS
+select from hits into kick_raw
+  where "(parameter == 6050)"
+{ 
+  double time = "time"
+};
+histogram1d from kick_raw
+  enable "Tier1"
+  name "kick_count_raw" title "kick raw count"
+  "1" bins 3 from -0.5 to 2.5;
+
+histogram1d from kick_raw
+  enable "Tier1"
+  name "kick_raw_times" title "kicker raw times"
+  "time" bins 20000 from 0. to 130E6;
+
+// muSC-lo raw autocorrelation
+join kick_raw with kick_raw into kick_raw_auto
+  coincidence time_1 with time_2 from -50500 to 1
+  enable "Tier3";
+histogram1d from kick_raw_auto
+  enable "Tier3"
+  where "(time_2 - time_1) >= 0"
+  name "kick_raw_autocorr" title "kick raw autocorr"
+  "time_2 - time_1" bins 44201 from -5000.625 to 50250.625;
+
+// Artifical deadtime (AD) clustering to suppress afterpulsing
+cluster from kick_raw into kick_AD
+  non_transitive
+  coincidence time_1 with time_2 from "-kMuSCloADInterval" to "kMuSCloADInterval"
+{
+  double time = time_min
+};
+
+// Determine temporal coincidence interval between muSC and muSClo
+join muSC_copy1_AD with kick_raw into muSC_kick_tdiff_check
+  coincidence muSC_copy1_AD_time with kick_raw_time from -30001 to 30001
+  enable "Tier2";
+histogram1d from muSC_kick_tdiff_check
+  enable "Tier2"
+  name "muSC_kick_tdiff" title "#kick/#muSC tdiff"
+  "muSC_copy1_AD_time-kick_raw_time" bins 48001 from -30000.625 to 30000.625;
+
+/*--------------------------------------
+  muSC-lo only processing
+----------------------------------------*/
+
+// Select muSC-lo hits from HITS
+select from hits into muSC_lo_raw
+  where "(parameter == 6803)"
+{ 
+  double time = "time"
+};
+histogram1d from muSC_lo_raw
+  enable "Tier1"
+  name "muSClo_count_raw" title "#muSClo raw count"
+  "1" bins 3 from -0.5 to 2.5;
+
+
+// muSC-lo raw autocorrelation
+join muSC_lo_raw with muSC_lo_raw into muSC_lo_raw_auto
+  coincidence time_1 with time_2 from -50500 to 1
+  enable "Tier3";
+histogram1d from muSC_lo_raw_auto
+  enable "Tier3"
+  where "(time_2 - time_1) >= 0"
+  name "muSC_lo_raw_autocorr" title "#muSC-lo raw autocorr"
+  "time_2 - time_1" bins 44201 from -5000.625 to 50250.625;
+
+
+// Artifical deadtime (AD) clustering to suppress afterpulsing
+cluster from muSC_lo_raw into muSC_lo_AD
+  non_transitive
+  coincidence time_1 with time_2 from "-kMuSCloADInterval" to "kMuSCloADInterval"
+{
+  double time = time_min
+};
+
+// Determine temporal coincidence interval between muSC and muSClo
+join muSC_copy1_AD with muSC_lo_raw into muSC_muSClo_tdiff_check
+  coincidence muSC_copy1_AD_time with muSC_lo_raw_time from -30001 to 30001
+  enable "Tier2";
+histogram1d from muSC_muSClo_tdiff_check
+  enable "Tier2"
+  name "muSClo_muSC_tdiff" title "#muSClo/#muSC tdiff"
+  "muSC_lo_raw_time-muSC_copy1_AD_time" bins 48001 from -30000.625 to 30000.625;
+
+// Determine temporal coincidence interval between muSC and muSClo
+join muSC_lo_raw with kick_raw into muSClo_kick_tdiff_check
+  coincidence muSC_lo_raw_time with kick_raw_time from -30001 to 30001
+  enable "Tier2";
+histogram1d from muSClo_kick_tdiff_check
+  enable "Tier2"
+  name "muSClo_kick_tdiff" title "#kick/#muSClo tdiff"
+  "muSC_lo_raw_time-kick_raw_time" bins 48001 from -30000.625 to 30000.625;
+
+/*--------------------------------------
+  muSC pileup gate generator analysis
+----------------------------------------*/
+
+// Select the B and BBar gated hits
+select from hits into muSC_gate_B
+  where "parameter == 6003"
+{
+  double time = time
+};
+select from hits into muSC_gate_BBar
+  where "parameter == 6004"
+{
+  double time = time
+};
+
+
+// Temporal coincidence between the B and BBar gated signals
+join muSC_gate_B with muSC_gate_BBar into muSC_gate_B_BBar
+  unique
+  coincidence muSC_gate_B_time with muSC_gate_BBar_time from -5000 to 0
+  enable "Tier1";
+histogram1d from muSC_gate_B_BBar
+  enable "Tier1"
+  name "muSC_gate_B_BBar_tdiff" title "muSC_gate_B_BBar_tdiff"
+  "muSC_gate_BBar_time - muSC_gate_B_time" bins 8000 from -5000.75 to 4999.25;
+
+
+/**************************************************\
+                muSCA calculations
+\**************************************************/
+
+// Select muSCA hits from HITS
+select from hits into muSCA_raw
+  where "(parameter == 6002)"
+{ 
+  double time = "time",
+};
+histogram1d from muSCA_raw
+  enable "Tier1"
+  name "muSCA_count_raw" title "raw muSCA count"
+  "1" bins 3 from -0.5 to 2.5;
+
+
+// muSCA raw autocorrelation
+join muSCA_raw with muSCA_raw into muSCA_raw_auto
+  coincidence time_1 with time_2 from -50500 to 1
+  enable "Tier3";
+histogram1d from muSCA_raw_auto
+  enable "Tier3"
+  where "(time_2 - time_1) >= 0"
+  name "muSCA_raw_autocorr" title "muSCA raw autocorr"
+  "time_2 - time_1" bins 44201 from -5000.625 to 50250.625;
+
+
+// Artifical deadtime (AD) clustering to suppress afterpulsing
+cluster from muSCA_raw into muSCA_AD
+  non_transitive
+  coincidence time_1 with time_2 from "-kMuSCAADInterval" to "kMuSCAADInterval"
+{
+  double time = time_min
+};
+
+
+// muSCA autocorrelation after AD clustering
+join muSCA_AD with muSCA_AD into muSCA_AD_auto
+  coincidence time_1 with time_2 from -50500 to 1
+  enable "Tier3";
+histogram1d from muSCA_AD_auto
+  enable "Tier3"
+  where "(time_2 - time_1) >= 0"
+  name "muSCA_AD_autocorr" title "muSCA AD autocorr"
+  "time_2 - time_1" bins 44201 from -5000.625 to 50250.625;
+

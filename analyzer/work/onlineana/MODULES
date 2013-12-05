@@ -7,6 +7,7 @@ dt5720/MDT5720ProcessRaw
 muSC_muPC/MCaenCompProcessRaw
 muSC_muPC/MMuPC1AnalysisC
 muSC_muPC/MMuPC1AnalysisMQL
+muSC_muPC/MMuSCAnalysisMQL
 
 diagnostics/MCommonOnlineDisplayPlots
 

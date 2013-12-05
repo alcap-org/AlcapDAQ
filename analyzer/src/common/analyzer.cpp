@@ -292,6 +292,15 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
       gSetup->fBankToClockTickMap[bank_name] = clockTickInNs;
     }
 
+    // Let's set the sampling frequency in the ODB based on the calculated clock ticks now:
+    sprintf(keyName, "/Analyzer/WireMap/SamplingFrequency");
+    if(db_find_key(hDB, 0, keyName, &hKey) == SUCCESS){
+      std::string bank_name(BankNames[i]);
+      float frequency = 1./gSetup->fBankToClockTickMap[bank_name]*1E9;
+      int size = sizeof(float);
+      db_set_data_index(hDB, hKey, &frequency, size, i, TID_FLOAT);
+    }
+
     //////////////////////////////////////
     // Add the number of bits for each digitizer
     if(BankNames[i][0] == 'N') {// FADC banks
@@ -308,6 +317,7 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
       std::string bank_name(BankNames[i]);
       gSetup->fBankToBitMap[bank_name] = 12;
     }
+
 
     ///////////////////////////////////////
     // Check to see if the bank is enabled   
