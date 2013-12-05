@@ -59,9 +59,16 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup);
 
 #include "MODULES.h"
 
+extern ANA_MODULE MVacuumPressure_module;
+
 /*-- Bank definitions ----------------------------------------------*/
 
 BANK_LIST ana_trigger_bank_list[] = {
+
+  { "" },
+};
+
+BANK_LIST ana_vacuum_bank_list[] = {
 
   { "" },
 };
@@ -81,6 +88,20 @@ ANALYZE_REQUEST analyze_request[] = {
     ana_trigger_bank_list,/* bank list */
     1000,                 /* RWNT buffer size */
     TRUE,                 /* Use tests for this event */
+  },
+
+  { "Vacuum",
+    { 24,
+      TRIGGER_ALL,
+      GET_SOME,
+      "SYSTEM",
+      TRUE,
+      "", "", },
+    NULL,
+    &MVacuumPressure_module,
+    ana_vacuum_bank_list,
+    1000,
+    TRUE,
   },
 
   { "" },
