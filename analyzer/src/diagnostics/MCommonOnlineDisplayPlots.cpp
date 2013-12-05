@@ -45,7 +45,7 @@ extern TSetupData* gSetup;
 map <std::string, TH1I*> height_histograms_map;
 map <std::string, TH1I*> time_histograms_map;
 map <std::string, TH2D*> shape_histograms_map;
-map <std::string, TH2D*> latest_pulse_histograms_map;
+map <std::string, TH1I*> latest_pulse_histograms_map;
 static TH1I* hPulseRawCount;
 
 ANA_MODULE MCommonOnlineDisplayPlots_module =
@@ -114,7 +114,7 @@ INT MCommonOnlineDisplayPlots_init()
     //hLatestPulse
     histname = "h" + bankname + "_LatestPulse";
     histtitle = "Plot of the latest pulse in the " + bankname + " channels";
-    TH2D* hLatestPulse = new TH2D(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5,max_adc_value,-0.5,max_adc_value-0.5);
+    TH1I* hLatestPulse = new TH1I(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5);
     hLatestPulse->GetXaxis()->SetTitle("Time");
     hLatestPulse->GetYaxis()->SetTitle("ADC Value");
     latest_pulse_histograms_map[bankname] = hLatestPulse;
@@ -193,7 +193,7 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 		std::vector<int> theSamples = (*pulseIter)->GetSamples();
 		for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
 		  shape_histograms_map[bankname]->Fill(sampleIter - theSamples.begin(), (*sampleIter));
-                  latest_pulse_histograms_map[bankname]->Fill(sampleIter - theSamples.begin(), (*sampleIter));
+                  latest_pulse_histograms_map[bankname]->SetBinContent(sampleIter - theSamples.begin(),(*sampleIter));
 		}
 	      }	    
 	    }
