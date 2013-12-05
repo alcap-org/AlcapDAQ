@@ -106,7 +106,7 @@ INT MCommonOnlineDisplayPlots_init()
     // hPulseShapes
     histname = "h" + bankname + "_Shapes";
     histtitle = "Plot of the pulse shapes in the " + bankname + " channels";
-    TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5,max_adc_value,-0.5,max_adc_value-0.5);      
+    TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5,max_adc_value+1,0,max_adc_value+1);      
     hPulseShapes->GetXaxis()->SetTitle("Time");
     hPulseShapes->GetYaxis()->SetTitle("ADC Value");
     shape_histograms_map[bankname] = hPulseShapes;
@@ -176,7 +176,7 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 			
 	  // Loop over the TPulseIslands and plot the histogram
 	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); pulseIter++) {
-			
+
 	    // Make sure the histograms exist and then fill them
 	    if (height_histograms_map.find(bankname) != height_histograms_map.end())
 	      height_histograms_map[bankname]->Fill((*pulseIter)->GetPulseHeight());
@@ -184,7 +184,6 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 	    if (time_histograms_map.find(bankname) != time_histograms_map.end())
 	      time_histograms_map[bankname]->Fill((*pulseIter)->GetPulseTime());
 
-	    // only fill this histogram every 10 events
 	    if (shape_histograms_map.find(bankname) != shape_histograms_map.end()) {
 	      
 	      latest_pulse_histograms_map[bankname]->Reset();	
@@ -194,7 +193,7 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 		shape_histograms_map[bankname]->Fill(sampleIter - theSamples.begin(), (*sampleIter));
 		latest_pulse_histograms_map[bankname]->SetBinContent(sampleIter - theSamples.begin(),(*sampleIter));
 	      }
-	    }	    
+	    }
 	  }
 
 	  hPulseRawCount->Fill(bankname.c_str(), thePulses.size());
