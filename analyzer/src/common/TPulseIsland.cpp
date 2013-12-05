@@ -16,12 +16,13 @@ TPulseIsland::TPulseIsland()
 
 TPulseIsland::TPulseIsland(
   int timestamp, const vector<int>& samples_vector,
-  double clock_tick_in_ns, string bank_name)
+  double clock_tick_in_ns, double adc_value_in_MeV, string bank_name)
 {
   Reset();
   fTimeStamp = timestamp;
   fSamples = samples_vector;
   fClockTickInNs = clock_tick_in_ns;
+  fADCValueInMeV = adc_value_in_MeV;
   fBankName = bank_name;
 }
 
@@ -57,7 +58,7 @@ double TPulseIsland::GetPulseHeight() const {
   // Go through the samples and get the samples with the largest difference between it and the pedestal
   // (should take into account both positive and negative pulses)
 
-  return fSamples.at(peak_sample_element);
+  return ( fSamples.at(peak_sample_element) * fADCValueInMeV);
 }
 
 // GetPulseTime()

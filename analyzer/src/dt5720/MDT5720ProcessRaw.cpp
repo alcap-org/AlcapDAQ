@@ -232,7 +232,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	    
 	    pulse_islands.push_back(new TPulseIsland(
 						       caen_trigger_time, sample_vector,
-						       gSetup->GetClockTick(*bankNameIter), *bankNameIter));
+						       gSetup->GetClockTick(*bankNameIter), gSetup->GetADCValue(*bankNameIter), *bankNameIter));
 	  }
       }
       

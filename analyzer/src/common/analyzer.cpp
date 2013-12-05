@@ -292,6 +292,12 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
       gSetup->fBankToClockTickMap[bank_name] = clockTickInNs;
     }
 
+    //////////////////////////////////////////////////
+    // Get the ADC value to MeV calibration constant
+    double adcValueInMeV = 1;
+    std::string bank_name(BankNames[i]);
+    gSetup->fBankToADCValueMap[bank_name] = adcValueInMeV;
+
     //////////////////////////////////////
     // Add the number of bits for each digitizer
     if(BankNames[i][0] == 'N') {// FADC banks
