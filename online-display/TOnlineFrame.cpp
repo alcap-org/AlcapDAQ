@@ -218,6 +218,8 @@ TOnlineFrame::TOnlineFrame(const TGWindow * p):TGMainFrame(p, width,
 
 // Define the histogram 
 	gROOT->LoadMacro("modules/common/get_histogram.C");
+        gROOT->LoadMacro("modules/common/get_histogram_2d.C");
+
 }
 
 TOnlineFrame::~TOnlineFrame()
