@@ -133,7 +133,7 @@ INT MdEdxPlot(EVENT_HEADER *pheader, void *pevent)
 	std::vector<std::map<double, double> > thinSiLeft_TimeHeightMaps;
 	for (std::vector<std::string>::iterator bankNameIter = left_thin_banknames.begin();
 	     bankNameIter != left_thin_banknames.end(); bankNameIter++) {
-	  
+
 	  std::vector<TPulseIsland*> temp_vector = gData->fPulseIslandToChannelMap[*bankNameIter];
 	  //skip bank if it doesen't exist
 	  if (temp_vector.size() == 0) continue;
@@ -174,9 +174,9 @@ INT MdEdxPlot(EVENT_HEADER *pheader, void *pevent)
 	// SiR
 	// Just loop over the banks we know are connected to these detectors
 	std::vector<std::map<double, double> > thinSiRight_TimeHeightMaps;
-	for (std::vector<std::string>::iterator bankNameIter = left_thin_banknames.begin();
-	     bankNameIter != left_thin_banknames.end(); bankNameIter++) {
-	  
+	for (std::vector<std::string>::iterator bankNameIter = right_thin_banknames.begin();
+	     bankNameIter != right_thin_banknames.end(); bankNameIter++) {
+
 	  std::vector<TPulseIsland*> temp_vector = gData->fPulseIslandToChannelMap[*bankNameIter];
 	  //skip bank if it doesen't exist
 	  if (temp_vector.size() == 0) continue;
@@ -188,10 +188,10 @@ INT MdEdxPlot(EVENT_HEADER *pheader, void *pevent)
 	  thinRightSum = MakePulseHeightSums(thinSiRight_TimeHeightMaps, 1000);
 
 	std::vector<std::map<double, double> > totalRight_TimeHeightMaps;
-	for (std::vector<std::string>::iterator leftThickIter = left_thick_banknames.begin();
-	     leftThickIter != left_thick_banknames.end(); leftThickIter++) {
+	for (std::vector<std::string>::iterator rightThickIter = right_thick_banknames.begin();
+	     rightThickIter != right_thick_banknames.end(); rightThickIter++) {
 
-	  std::vector<TPulseIsland*> temp_vector = gData->fPulseIslandToChannelMap[*leftThickIter];
+	  std::vector<TPulseIsland*> temp_vector = gData->fPulseIslandToChannelMap[*rightThickIter];
 	  //skip bank if it doesen't exist
 	  if (temp_vector.size() == 0) continue;
 	  
@@ -207,7 +207,7 @@ INT MdEdxPlot(EVENT_HEADER *pheader, void *pevent)
 	for (std::map<double, double>::iterator thinHit = thinRightSum.begin(), totalHit = totalRightSum.begin(); 
 	     thinHit != thinRightSum.end() || totalHit != totalRightSum.end(); thinHit++, totalHit++) {
 
-	  hdEdx_left->Fill((*thinHit).second, (*totalHit).second);
+	  hdEdx_right->Fill((*thinHit).second, (*totalHit).second);
 	}	
 
 	return SUCCESS;
