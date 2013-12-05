@@ -3,7 +3,7 @@
   Name:         MOctalFADCPacketLoss
   Created by:   Andrew Edmonds
 
-  Contents:     Module to plot the average number of lost packets per
+  Contents:     Module to plot the average number of lost packets per FADC board
 
 \********************************************************************/
 
@@ -82,6 +82,10 @@ INT MOctalFADCPacketLoss(EVENT_HEADER *pheader, void *pevent)
   // Get the event number
   int midas_event_number = pheader->serial_number;
 
+  // Want the average and since I'll scale by 1/midas_event_number at the end, I should undo it now before I add the new data
+  if (midas_event_number > 1)
+    hNOctalFADCAvgPacketLoss->Scale(midas_event_number-1);   
+
   unsigned int* raw; // Points at the raw data
   int bankSize = bk_locate(pevent,"NLSS",&raw);
 
@@ -92,18 +96,11 @@ INT MOctalFADCPacketLoss(EVENT_HEADER *pheader, void *pevent)
     board_number = *(raw+i);
     packet_lost = *(raw+i+1);
     n_packets_lost++;
+    //    printf("Event #%d: Board %d lost packet #%d\n", midas_event_number, board_number, packet_lost);
+
+    // Fill Diagnostic histogram
+    hNOctalFADCAvgPacketLoss->Fill(board_number, 1);   
   }
-
-  //  if (n_packets_lost > 0)
-  //    printf("Event #%d: Board %d lost packet #%d\n", midas_event_number, board_number, packet_lost);
-
-  // Want the average and since I'll scale by 1/midas_event_number at the end, I should undo it now before I add the new data
-  if (midas_event_number > 1)
-    hNOctalFADCAvgPacketLoss->Scale(midas_event_number-1);
-
-  // Fill Diagnostic histogram
-  if (board_number != 0)
-    hNOctalFADCAvgPacketLoss->Fill(board_number, n_packets_lost);
 
   // Scale down for the average, the final midas event should leave this correct
   hNOctalFADCAvgPacketLoss->Scale(1.0 / midas_event_number);
