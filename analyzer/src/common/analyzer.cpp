@@ -75,26 +75,11 @@ BANK_LIST ana_vacuum_bank_list[] = {
 
 /*-- Event request list --------------------------------------------*/
 extern ANA_MODULE MVacuumHisto_module;
-extern ANA_MODULE MVacuumOnlineDisplayPlots_module;
 ANA_MODULE *Vacuum_module[] = {
   &MVacuumHisto_module,
-  &MVacuumOnlineDisplayPlots_module,
 NULL };
 
 ANALYZE_REQUEST analyze_request[] = {
-  { "Trigger",            /* equipment name */
-    { 1,                    /* event ID */
-      TRIGGER_ALL,          /* trigger mask */
-      GET_SOME,             /* get some events */
-      "SYSTEM",             /* event buffer */
-      TRUE,                 /* enabled */
-      "", "", },
-    NULL,                 /* analyzer routine */
-    trigger_module,       /* module list */
-    ana_trigger_bank_list,/* bank list */
-    1000,                 /* RWNT buffer size */
-    TRUE,                 /* Use tests for this event */
-  },
 
   { "Vacuum",            /* equipment name */
     { 24,                    /* event ID */
@@ -106,6 +91,20 @@ ANALYZE_REQUEST analyze_request[] = {
     NULL,                 /* analyzer routine */
     Vacuum_module,       /* module list */
     ana_vacuum_bank_list,/* bank list */
+    1000,                 /* RWNT buffer size */
+    TRUE,                 /* Use tests for this event */
+  },
+
+  { "Trigger",            /* equipment name */
+    { 1,                    /* event ID */
+      TRIGGER_ALL,          /* trigger mask */
+      GET_SOME,             /* get some events */
+      "SYSTEM",             /* event buffer */
+      TRUE,                 /* enabled */
+      "", "", },
+    NULL,                 /* analyzer routine */
+    trigger_module,       /* module list */
+    ana_trigger_bank_list,/* bank list */
     1000,                 /* RWNT buffer size */
     TRUE,                 /* Use tests for this event */
   },

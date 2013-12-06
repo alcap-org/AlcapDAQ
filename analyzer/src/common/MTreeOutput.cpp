@@ -102,8 +102,6 @@ INT MTreeOutput_init()
 
   fVacuumBranch = fVacuumTree->Branch("Vacuum", "TVacuumData", &gVacuum, bufsize, split);
   fVacuumBranch->SetAutoDelete(kFALSE);
-  printf("In MTreeOutput_init!\n");
-  printf("gVacuum.size = %d\n",gVacuum->GetStatus().size());
   
   return SUCCESS;
 }
