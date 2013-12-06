@@ -97,9 +97,9 @@ INT MVacuumHisto(EVENT_HEADER *pheader, void *pevent)
 //	char banklist[STRING_BANKLIST_MAX];
 //	int nbanks = bk_list(pevent, banklist);
 //	printf("nbanks = %d, %s\n", nbanks, banklist);
-	printf("eventid = %d\n",eventid);
+	//printf("eventid = %d\n",eventid);
 	int midas_event_number = pheader->serial_number;
-	printf("serial_number = %d\n", midas_event_number);
+	//printf("serial_number = %d\n", midas_event_number);
 //	char fdate[] = "%Y-%m-%d", ftime[] = "%H:%M:%S";
 //	struct tm block_tm;
 //	localtime_r(&block_time, &block_tm);
