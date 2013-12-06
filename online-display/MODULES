@@ -46,6 +46,11 @@ FADC_PacketLoss FADC/fadc_packet_losses.C
 FADC_OverflowingBuffers FADC/fadc_overflowing_buffers.C
 
 #======================================================
+#        Vacuum
+#======================================================
+VacuumMonitor vacuum/VacuumMonitor.C
+
+#======================================================
 #         Common
 #======================================================
 raw_pulse_count common/raw_pulse_count.C

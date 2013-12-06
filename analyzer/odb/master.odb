@@ -51,7 +51,7 @@ First failed = DWORD : 0
 Name = STRING : [32] Default
 
 [/Logger]
-Data dir = STRING : [256] /users/pdk/winterp/AlCap/AlcapDAQ/analyzer/work/
+Data dir = STRING : [256] /home/chen/MyWorkArea/AlcapDAQ/analyzer/work/chen/
 Message file = STRING : [256] midas.log
 Auto restart = BOOL : y
 

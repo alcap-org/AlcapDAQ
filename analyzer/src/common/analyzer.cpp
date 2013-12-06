@@ -35,6 +35,7 @@ PAWC_DEFINE(1000000);
 /* AlCap includes */
 #include "TGlobalData.h"
 #include "TSetupData.h"
+#include "TVacuumData.h"
 
 /*-- Globals -------------------------------------------------------*/
 
@@ -52,14 +53,13 @@ INT  odb_size = DEFAULT_ODB_SIZE;
  */
 TGlobalData* gData;
 TSetupData* gSetup;
+TVacuumData* gVacuum;
 
 void UpdateDetectorBankNameMap(TSetupData *gSetup);
 
 /*-- Module declarations -------------------------------------------*/
 
 #include "MODULES.h"
-
-extern ANA_MODULE MVacuumPressure_module;
 
 /*-- Bank definitions ----------------------------------------------*/
 
@@ -74,8 +74,27 @@ BANK_LIST ana_vacuum_bank_list[] = {
 };
 
 /*-- Event request list --------------------------------------------*/
+extern ANA_MODULE MVacuumHisto_module;
+ANA_MODULE *Vacuum_module[] = {
+  &MVacuumHisto_module,
+NULL };
 
 ANALYZE_REQUEST analyze_request[] = {
+
+  { "Vacuum",            /* equipment name */
+    { 24,                    /* event ID */
+      TRIGGER_ALL,          /* trigger mask */
+      GET_SOME,             /* get some events */
+      "SYSTEM",             /* event buffer */
+      TRUE,                 /* enabled */
+      "", "", },
+    NULL,                 /* analyzer routine */
+    Vacuum_module,       /* module list */
+    ana_vacuum_bank_list,/* bank list */
+    1000,                 /* RWNT buffer size */
+    TRUE,                 /* Use tests for this event */
+  },
+
   { "Trigger",            /* equipment name */
     { 1,                    /* event ID */
       TRIGGER_ALL,          /* trigger mask */
@@ -88,20 +107,6 @@ ANALYZE_REQUEST analyze_request[] = {
     ana_trigger_bank_list,/* bank list */
     1000,                 /* RWNT buffer size */
     TRUE,                 /* Use tests for this event */
-  },
-
-  { "Vacuum",
-    { 24,
-      TRIGGER_ALL,
-      GET_SOME,
-      "SYSTEM",
-      TRUE,
-      "", "", },
-    NULL,
-    &MVacuumPressure_module,
-    ana_vacuum_bank_list,
-    1000,
-    TRUE,
   },
 
   { "" },
@@ -152,6 +157,9 @@ INT analyzer_init()
   signal(SIGPIPE , catastrophe);
   signal(SIGTERM , catastrophe);
 
+  // Initialize gVacuum
+  gVacuum = new TVacuumData();
+
   return SUCCESS;
 }
 
@@ -167,6 +175,11 @@ INT analyzer_exit()
   if(gSetup) {
     delete gSetup;
     gSetup = NULL;
+  }
+
+  if(gVacuum) {
+  	  delete gVacuum;
+  	  gVacuum = NULL;
   }
 
   return CM_SUCCESS;
