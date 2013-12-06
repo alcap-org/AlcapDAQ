@@ -16,12 +16,13 @@ TPulseIsland::TPulseIsland()
 
 TPulseIsland::TPulseIsland(
   int timestamp, const vector<int>& samples_vector,
-  double clock_tick_in_ns, string bank_name)
+  double clock_tick_in_ns, double adc_value_in_MeV, string bank_name)
 {
   Reset();
   fTimeStamp = timestamp;
   fSamples = samples_vector;
   fClockTickInNs = clock_tick_in_ns;
+  fADCValueInMeV = adc_value_in_MeV;
   fBankName = bank_name;
 }
 
@@ -37,8 +38,7 @@ void TPulseIsland::Reset(Option_t* o)
 // -- Gets the position of the peak from GetPeakSample() and then returns the pulse height
 double TPulseIsland::GetPulseHeight() const {
   
-  double pedestal = GetPedestal(10); // get the pedestal
-
+  double pedestal = 2750;
   int peak_sample_element = GetPeakSample();
   /*  std::stringstream histname;
   histname << "waveform" << std::rand()%1000;
@@ -57,8 +57,8 @@ double TPulseIsland::GetPulseHeight() const {
   delete hWaveform;*/
   // Go through the samples and get the samples with the largest difference between it and the pedestal
   // (should take into account both positive and negative pulses)
- 
-  return std::abs(fSamples.at(peak_sample_element) - pedestal);
+
+  return ( std::abs(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
 }
 
 // GetPulseTime()
@@ -90,12 +90,12 @@ TH1I* TPulseIsland::GetPulseWaveform(std::string histname, std::string histtitle
 // -- It returns its position in the fSamples vector
 int TPulseIsland::GetPeakSample() const {
 
-  double pedestal = GetPedestal(10);
-  double peak_sample_value = 0;
-  double peak_sample_pos = 0;
+  double pedestal = 2750;
+  int peak_sample_value = 0;
+  int peak_sample_pos = 0;
   for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {
   
-    double this_height = std::abs(*(sampleIter) - pedestal);
+    int this_height = std::abs(*(sampleIter) - pedestal);
     if ( this_height > peak_sample_value ) {
       peak_sample_value = this_height;
       peak_sample_pos = sampleIter - fSamples.begin();

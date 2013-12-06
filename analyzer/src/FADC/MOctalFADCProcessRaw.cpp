@@ -135,8 +135,9 @@ INT MOctalFADCProcessRaw(EVENT_HEADER *pheader, void *pevent)
     vector<TOctalFADCIsland*> fadc_islands =
       fadc_bank_readers[i]->GetIslandVectorCopy();
 
-    // Get clock tick for this channel.
+    // Get clock tick and ADC calibration for this channel.
     double clock_tick = gSetup->GetClockTick(bank_name);
+    double adc_value = gSetup->GetADCValue(bank_name);
 
     // Make vector of TPulseIsland from TOctalFADCIsland. Now this module
     // owns the memory associated with these.
@@ -144,7 +145,7 @@ INT MOctalFADCProcessRaw(EVENT_HEADER *pheader, void *pevent)
     for(unsigned int j=0; j<fadc_islands.size(); j++) {
       pulse_islands.push_back(new TPulseIsland(
         fadc_islands[j]->GetTime(), fadc_islands[j]->GetSampleVector(),
-        clock_tick, bank_name));
+        clock_tick, adc_value, bank_name));
     }
 
     // Add a pair (bank_name, vector_of_islands) to the std::map in gData

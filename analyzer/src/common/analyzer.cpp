@@ -234,6 +234,26 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     printf("Warning: Could not retrieve values for key %s\n", keyName);
     return;
   }
+
+  //////////////////////////////////////////////////
+  // Get the sampling frequency of the different digitizers
+  sprintf(keyName, "/Analyzer/WireMap/SamplingFrequency");  
+  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }  
+  KEY freq_key;
+  if(db_get_key(hDB, hKey, &freq_key) != DB_SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }
+  float SamplingFrequencies[freq_key.num_values];
+  size = sizeof(SamplingFrequencies);
+  if(db_get_value(hDB, 0, keyName , SamplingFrequencies, &size, TID_FLOAT, 0) != DB_SUCCESS){
+    printf("Warning: Could not retrieve values for key %s\n", keyName);
+    return;
+  }
+
   
   if(det_key.num_values != bk_key.num_values){
     printf("Warning: Key sizes are not equal for banks and detectors in /Analyzer/WireMap/\n");
@@ -248,49 +268,34 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     std::string bank(BankNames[i]), detector(DetectorNames[i]);
     gSetup->fBankToDetectorMap[bank] = detector;
 
+
     //////////////////////////////////////////////////
     // Calculate and the add the clock ticks to TSetupData
+    std::string bank_name(BankNames[i]);
+    int DCMPhase = 1; // assume DCMPhase = 1 for most digitizers (it's only applicable to the FADCs)
     if(BankNames[i][0] == 'N'){ // FADC banks
-      std::string bank_name(BankNames[i]);
       int iChn = (int)(*(bank_name.substr(1,1).c_str()) - 97);
       std::string iAddr = bank_name.substr(2, 2);
-    
-      sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Channel %d/DCM phase", iAddr.c_str(), iChn);
-    
-      int DCMPhase;
-      double clockTickInNs;
-      double FADC_frequency = 170e6; // 170 MHz
 
+      sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Channel %d/DCM phase", iAddr.c_str(), iChn);
       if(db_find_key(hDB,0,keyName, &hKey) == SUCCESS){
 	db_get_key(hDB, hKey, &bk_key);
 
 	int size = sizeof(DCMPhase);
 	if(db_get_value(hDB, 0, keyName , &DCMPhase, &size, TID_INT, 0) == DB_SUCCESS){
-	  double true_frequency = FADC_frequency / DCMPhase;
-	  clockTickInNs = (1/true_frequency) * 1e9;
-
-	  gSetup->fBankToClockTickMap[bank_name] = clockTickInNs;
+	  //	  printf("Found the DCM Phase!\n");
 	}
       }
     }
-    else if (BankNames[i][2] == 'U' && BankNames[i][3] == 'H') { // UH CAEN banks
-      std::string bank_name(BankNames[i]);
+    double true_frequency = SamplingFrequencies[i] /= DCMPhase;
+    double clockTickInNs = (1/true_frequency) * 1e9;
+    //    printf("Bank %s: f = %f, clockTick = %f\n", bank_name.c_str(), true_frequency, clockTickInNs);
+    gSetup->fBankToClockTickMap[bank_name] = clockTickInNs;
 
-      //      double caen_uh_frequency = 100e6; // 100 MHz (internal clock)
-      double caen_uh_frequency = 50e6; // 50 MHz (current external clock)
-      double clockTickInNs = (1 / caen_uh_frequency) * 1e9;
-
-      gSetup->fBankToClockTickMap[bank_name] = clockTickInNs;
-    }
-    else if (BankNames[i][2] == 'B' && BankNames[i][3] == 'U') { // BU CAEN banks
-      std::string bank_name(BankNames[i]);
-
-      //      double caen_bu_frequency = 250e6; // 250 MHz (internal clock)
-      double caen_bu_frequency = 50e6; // 50 MHz (current external clock)
-      double clockTickInNs = (1 / caen_bu_frequency) * 1e9;
-
-      gSetup->fBankToClockTickMap[bank_name] = clockTickInNs;
-    }
+    //////////////////////////////////////////////////
+    // Get the ADC value to MeV calibration constant
+    double adcValueInMeV = 1;
+    gSetup->fBankToADCValueMap[bank_name] = adcValueInMeV;
 
     // Let's set the sampling frequency in the ODB based on the calculated clock ticks now:
     sprintf(keyName, "/Analyzer/WireMap/SamplingFrequency");
@@ -304,17 +309,14 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     //////////////////////////////////////
     // Add the number of bits for each digitizer
     if(BankNames[i][0] == 'N') {// FADC banks
-      std::string bank_name(BankNames[i]);
       gSetup->fBankToBitMap[bank_name] = 12;
     }
 
     else if (BankNames[i][2] == 'U' && BankNames[i][3] == 'H') { // UH CAEN banks
-      std::string bank_name(BankNames[i]);
       gSetup->fBankToBitMap[bank_name] = 14;
     }
 
     else if (BankNames[i][2] == 'B' && BankNames[i][3] == 'U') { // UH CAEN banks
-      std::string bank_name(BankNames[i]);
       gSetup->fBankToBitMap[bank_name] = 12;
     }
 
