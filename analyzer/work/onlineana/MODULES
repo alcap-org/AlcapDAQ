@@ -10,4 +10,6 @@ muSC_muPC/MMuPC1AnalysisMQL
 
 diagnostics/MCommonOnlineDisplayPlots
 
+vacuum/MVacuumHisto
+
 common/MTreeOutput
