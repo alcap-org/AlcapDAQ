@@ -38,7 +38,7 @@ void TPulseIsland::Reset(Option_t* o)
 // -- Gets the position of the peak from GetPeakSample() and then returns the pulse height
 double TPulseIsland::GetPulseHeight() const {
   
-  double pedestal = GetPedestal();
+  double pedestal = GetPedestal(10);
   int peak_sample_element = GetPeakSample();
   /*  std::stringstream histname;
   histname << "waveform" << std::rand()%1000;
@@ -90,7 +90,7 @@ TH1I* TPulseIsland::GetPulseWaveform(std::string histname, std::string histtitle
 // -- It returns its position in the fSamples vector
 int TPulseIsland::GetPeakSample() const {
 
-  double pedestal = GetPedestal();
+  double pedestal = GetPedestal(10);
   int peak_sample_value = 0;
   int peak_sample_pos = 0;
   for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {
