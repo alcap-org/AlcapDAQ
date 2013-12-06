@@ -38,7 +38,7 @@ void TPulseIsland::Reset(Option_t* o)
 // -- Gets the position of the peak from GetPeakSample() and then returns the pulse height
 double TPulseIsland::GetPulseHeight() const {
   
-  double pedestal = 2750;
+  double pedestal = GetPedestal();
   int peak_sample_element = GetPeakSample();
   /*  std::stringstream histname;
   histname << "waveform" << std::rand()%1000;
@@ -58,7 +58,7 @@ double TPulseIsland::GetPulseHeight() const {
   // Go through the samples and get the samples with the largest difference between it and the pedestal
   // (should take into account both positive and negative pulses)
 
-  return ( std::abs(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
+  return ( -1.*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
 }
 
 // GetPulseTime()
@@ -90,7 +90,7 @@ TH1I* TPulseIsland::GetPulseWaveform(std::string histname, std::string histtitle
 // -- It returns its position in the fSamples vector
 int TPulseIsland::GetPeakSample() const {
 
-  double pedestal = 2750;
+  double pedestal = GetPedestal();
   int peak_sample_value = 0;
   int peak_sample_pos = 0;
   for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {
@@ -108,6 +108,7 @@ int TPulseIsland::GetPeakSample() const {
 // GetPedestal()
 // -- Calculates the pedestal for this TPulseIsland using the given number of bins
 double TPulseIsland::GetPedestal(int nPedSamples) const {
+  return 2750;  // Fixed pedestal
 
   if (nPedSamples > fSamples.size())
     nPedSamples = 2;
