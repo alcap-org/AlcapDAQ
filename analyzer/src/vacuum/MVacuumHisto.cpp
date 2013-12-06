@@ -27,8 +27,7 @@ Contents:     Create histograms for vacuum monitor
 //#include "TOctalFADCBankReader.h"
 #include "TVacuumData.h"
 
-//#define MAX_PRESSURE_POINTS 7200
-#define MAX_PRESSURE_POINTS 72
+#define MAX_PRESSURE_POINTS 7200
 
 using std::string;
 using std::map;
