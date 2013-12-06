@@ -43,6 +43,7 @@ extern HNDLE hDB;
 extern TVacuumData* gVacuum;
 
 static TH1F* hVacuumPressure;
+static TH1I* hVacuumStatus;
 
 ANA_MODULE MVacuumHisto_module =
 {
@@ -62,7 +63,12 @@ ANA_MODULE MVacuumHisto_module =
  */
 INT MVacuumHisto_init()
 {
-	hVacuumPressure = new TH1F("Pressure","Pressure (mbar)",MAX_PRESSURE_POINTS,-(double)MAX_PRESSURE_POINTS/60,0);
+	hVacuumPressure = new TH1F("Vacuum_Pressure","Pressure (mbar)",MAX_PRESSURE_POINTS,-(double)MAX_PRESSURE_POINTS/60,0);
+	hVacuumPressure->GetXaxis()->SetTitle("Time to now (min)");
+	hVacuumPressure->GetYaxis()->SetTitle("Pressure (mbar)");
+	hVacuumStatus = new TH1I("Vacuum_Status","Status",MAX_PRESSURE_POINTS,-(double)MAX_PRESSURE_POINTS/60,0);
+	hVacuumStatus->GetXaxis()->SetTitle("Time to now (min)");
+	hVacuumStatus->GetYaxis()->SetTitle("Status of Vacuum Gauge");
 
 	return SUCCESS;
 }
@@ -118,9 +124,11 @@ INT MVacuumHisto(EVENT_HEADER *pheader, void *pevent)
 		for (int ibin = 1; ibin <= MAX_PRESSURE_POINTS; ibin++){
 			if (ibin!=MAX_PRESSURE_POINTS){
 				hVacuumPressure->SetBinContent(ibin,hVacuumPressure->GetBinContent(ibin+1));
+				hVacuumStatus->SetBinContent(ibin,hVacuumPressure->GetBinContent(ibin+1));
 			}
 			else{
 				hVacuumPressure->SetBinContent(ibin,*ppressure);
+				hVacuumStatus->SetBinContent(ibin,*pstatus);
 			}
 		}
 	}
