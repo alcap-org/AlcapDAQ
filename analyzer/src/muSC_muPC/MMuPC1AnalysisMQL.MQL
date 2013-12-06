@@ -506,6 +506,35 @@ histogram1d from muPC1_auto
   name "muPC1_coinc_XY_autocorr_all_1D" title "#muPC1 XY-coinc autocorr neighbors 1D"
   "muPC1Time_2 - muPC1Time_1" bins 11001 from -5002.5 to 50002.5;
 
+/*-------------------------------------
+  Let's make XY coincidence spectra with 
+  muSC coincidence
+--------------------------------------*/
+// Select muSC hits from HITS
+select from hits into muSC
+  where "(parameter == 6011)"
+{ 
+  double time = time
+};
+join muSC with muPC1 into muSC_muPC1
+  coincidence time with muPC1Time from -10000 to 10000
+{
+  double Xwire = Xwire,
+  double Ywire = Ywire,
+  double time = time,
+  double muPC1Time = muPC1Time
+};
+histogram1d from muSC_muPC1
+  name "muSC_muPC1_time_difference" title "Time difference of hits between muSC - muPC"
+  "time-muPC1Time" bins 501 from -10020 to 10020;
+
+histogram2d from muSC_muPC1
+  enable "Tier1"
+  where "((time-muPC1Time) >= -160) && ((time-muPC1Time) <= 20)"
+  name "muPC1_coinc_XY_2D_with_muSC" title "#muPC1 2D XY-coincidences with muSC coincidence"
+  "Xwire" bins "kMuPC1NumXWires" from 0.5 to "kMuPC1NumXWires+0.5"
+  "Ywire" bins "kMuPC1NumYWires" from 0.5 to "kMuPC1NumYWires+0.5";
+
 /*--------------------------------------
   Combine spark information for export
 ----------------------------------------*/

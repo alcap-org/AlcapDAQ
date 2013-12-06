@@ -50,7 +50,7 @@ histogram1d from hits
   muSC copy1 processing
 ----------------------------------------*/
 
-// Select muSC copy1 hits from HITS
+// Select muSC hits from HITS
 select from hits into muSC_copy1_raw
   where "(parameter == 6011)"
 { 

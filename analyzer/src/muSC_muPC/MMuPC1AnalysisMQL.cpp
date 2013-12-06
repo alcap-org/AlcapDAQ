@@ -68,7 +68,7 @@ struct _u_MMuPC1AnalysisMQL_4
 static MqlArray<struct _u_MMuPC1AnalysisMQL_4> _t_muPC1X_raw_auto;
 
 // Comparison for muPC1X_raw on variable time
-static int _u_MMuPC1AnalysisMQL_37(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_39(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_3 *_o1 = (struct _u_MMuPC1AnalysisMQL_3 *) _v1;
   struct _u_MMuPC1AnalysisMQL_3 *_o2 = (struct _u_MMuPC1AnalysisMQL_3 *) _v2;
@@ -89,7 +89,7 @@ static int _u_MMuPC1AnalysisMQL_37(const void *_v1, const void *_v2)
   if(_diff > 0) return  1;
 }
 // Comparison for muPC1X_raw on variable time
-static int _u_MMuPC1AnalysisMQL_38(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_40(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_3 *_o1 = (struct _u_MMuPC1AnalysisMQL_3 *) _v1;
   struct _u_MMuPC1AnalysisMQL_3 *_o2 = (struct _u_MMuPC1AnalysisMQL_3 *) _v2;
@@ -120,7 +120,7 @@ struct _u_MMuPC1AnalysisMQL_5
 static MqlArray<struct _u_MMuPC1AnalysisMQL_5> _t_muPC1X_spark_search;
 
 // Comparison for muPC1X_raw on variable time
-static int _u_MMuPC1AnalysisMQL_39(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_41(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_3 *_o1 = (struct _u_MMuPC1AnalysisMQL_3 *) _v1;
   struct _u_MMuPC1AnalysisMQL_3 *_o2 = (struct _u_MMuPC1AnalysisMQL_3 *) _v2;
@@ -141,7 +141,7 @@ static int _u_MMuPC1AnalysisMQL_39(const void *_v1, const void *_v2)
   if(_diff > 0) return  1;
 }
 // Comparison for muPC1X_spark_search on variable time
-static int _u_MMuPC1AnalysisMQL_40(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_42(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_5 *_o1 = (struct _u_MMuPC1AnalysisMQL_5 *) _v1;
   struct _u_MMuPC1AnalysisMQL_5 *_o2 = (struct _u_MMuPC1AnalysisMQL_5 *) _v2;
@@ -177,7 +177,7 @@ struct _u_MMuPC1AnalysisMQL_7
 static MqlArray<struct _u_MMuPC1AnalysisMQL_7> _t_muPC1X_SC;
 
 // Comparison for muPC1X_raw on variable time
-static int _u_MMuPC1AnalysisMQL_41(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_43(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_3 *_o1 = (struct _u_MMuPC1AnalysisMQL_3 *) _v1;
   struct _u_MMuPC1AnalysisMQL_3 *_o2 = (struct _u_MMuPC1AnalysisMQL_3 *) _v2;
@@ -198,7 +198,7 @@ static int _u_MMuPC1AnalysisMQL_41(const void *_v1, const void *_v2)
   if(_diff > 0) return  1;
 }
 // Comparison for muPC1X_sparks on variable time
-static int _u_MMuPC1AnalysisMQL_42(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_44(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_6 *_o1 = (struct _u_MMuPC1AnalysisMQL_6 *) _v1;
   struct _u_MMuPC1AnalysisMQL_6 *_o2 = (struct _u_MMuPC1AnalysisMQL_6 *) _v2;
@@ -226,7 +226,7 @@ struct _u_MMuPC1AnalysisMQL_8
 static MqlArray<struct _u_MMuPC1AnalysisMQL_8> _t_muPC1X_SC_auto;
 
 // Comparison for muPC1X_SC on variable time
-static int _u_MMuPC1AnalysisMQL_43(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_45(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_7 *_o1 = (struct _u_MMuPC1AnalysisMQL_7 *) _v1;
   struct _u_MMuPC1AnalysisMQL_7 *_o2 = (struct _u_MMuPC1AnalysisMQL_7 *) _v2;
@@ -247,7 +247,7 @@ static int _u_MMuPC1AnalysisMQL_43(const void *_v1, const void *_v2)
   if(_diff > 0) return  1;
 }
 // Comparison for muPC1X_SC on variable time
-static int _u_MMuPC1AnalysisMQL_44(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_46(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_7 *_o1 = (struct _u_MMuPC1AnalysisMQL_7 *) _v1;
   struct _u_MMuPC1AnalysisMQL_7 *_o2 = (struct _u_MMuPC1AnalysisMQL_7 *) _v2;
@@ -277,61 +277,10 @@ struct _u_MMuPC1AnalysisMQL_9
 static MqlArray<struct _u_MMuPC1AnalysisMQL_9> _t_muPC1X_AD;
 
 // Comparison for muPC1X_SC on variable time
-static int _u_MMuPC1AnalysisMQL_45(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_47(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_7 *_o1 = (struct _u_MMuPC1AnalysisMQL_7 *) _v1;
   struct _u_MMuPC1AnalysisMQL_7 *_o2 = (struct _u_MMuPC1AnalysisMQL_7 *) _v2;
-  double _sv1, _sv2;
-  {
-    double time = _o1->time;
-    int Xwire = _o1->Xwire;
-    _sv1 = time;
-  }
-  {
-    double time = _o2->time;
-    int Xwire = _o2->Xwire;
-    _sv2 = time;
-  }
-  double _diff = _sv1 - _sv2;
-  if(_diff < 0) return -1;
-  if(_diff == 0) return 0;
-  if(_diff > 0) return  1;
-}
-// Comparison for muPC1X_AD on variable time
-static int _u_MMuPC1AnalysisMQL_46(const void *_v1, const void *_v2)
-{
-  struct _u_MMuPC1AnalysisMQL_9 *_o1 = (struct _u_MMuPC1AnalysisMQL_9 *) _v1;
-  struct _u_MMuPC1AnalysisMQL_9 *_o2 = (struct _u_MMuPC1AnalysisMQL_9 *) _v2;
-  double _sv1, _sv2;
-  {
-    double time = _o1->time;
-    int Xwire = _o1->Xwire;
-    _sv1 = time;
-  }
-  {
-    double time = _o2->time;
-    int Xwire = _o2->Xwire;
-    _sv2 = time;
-  }
-  double _diff = _sv1 - _sv2;
-  if(_diff < 0) return -1;
-  if(_diff == 0) return 0;
-  if(_diff > 0) return  1;
-}
-struct _u_MMuPC1AnalysisMQL_10
-{
-  double time_1;
-  int Xwire_1;
-  double time_2;
-  int Xwire_2;
-};
-static MqlArray<struct _u_MMuPC1AnalysisMQL_10> _t_muPC1X_AD_auto;
-
-// Comparison for muPC1X_AD on variable time
-static int _u_MMuPC1AnalysisMQL_47(const void *_v1, const void *_v2)
-{
-  struct _u_MMuPC1AnalysisMQL_9 *_o1 = (struct _u_MMuPC1AnalysisMQL_9 *) _v1;
-  struct _u_MMuPC1AnalysisMQL_9 *_o2 = (struct _u_MMuPC1AnalysisMQL_9 *) _v2;
   double _sv1, _sv2;
   {
     double time = _o1->time;
@@ -369,15 +318,14 @@ static int _u_MMuPC1AnalysisMQL_48(const void *_v1, const void *_v2)
   if(_diff == 0) return 0;
   if(_diff > 0) return  1;
 }
-static TH1D *_h_muPC1_X_AD_autocorr_all_1D;
-static TH2D *_h_muPC1_X_AD_autocorr_2D;
-struct _u_MMuPC1AnalysisMQL_11
+struct _u_MMuPC1AnalysisMQL_10
 {
-  double time;
-  int Xwire_min;
-  int Xwire_max;
+  double time_1;
+  int Xwire_1;
+  double time_2;
+  int Xwire_2;
 };
-static MqlArray<struct _u_MMuPC1AnalysisMQL_11> _t_muPC1X_cluster_contiguous;
+static MqlArray<struct _u_MMuPC1AnalysisMQL_10> _t_muPC1X_AD_auto;
 
 // Comparison for muPC1X_AD on variable time
 static int _u_MMuPC1AnalysisMQL_49(const void *_v1, const void *_v2)
@@ -400,8 +348,60 @@ static int _u_MMuPC1AnalysisMQL_49(const void *_v1, const void *_v2)
   if(_diff == 0) return 0;
   if(_diff > 0) return  1;
 }
-// Comparison for muPC1X_cluster_contiguous on variable time
+// Comparison for muPC1X_AD on variable time
 static int _u_MMuPC1AnalysisMQL_50(const void *_v1, const void *_v2)
+{
+  struct _u_MMuPC1AnalysisMQL_9 *_o1 = (struct _u_MMuPC1AnalysisMQL_9 *) _v1;
+  struct _u_MMuPC1AnalysisMQL_9 *_o2 = (struct _u_MMuPC1AnalysisMQL_9 *) _v2;
+  double _sv1, _sv2;
+  {
+    double time = _o1->time;
+    int Xwire = _o1->Xwire;
+    _sv1 = time;
+  }
+  {
+    double time = _o2->time;
+    int Xwire = _o2->Xwire;
+    _sv2 = time;
+  }
+  double _diff = _sv1 - _sv2;
+  if(_diff < 0) return -1;
+  if(_diff == 0) return 0;
+  if(_diff > 0) return  1;
+}
+static TH1D *_h_muPC1_X_AD_autocorr_all_1D;
+static TH2D *_h_muPC1_X_AD_autocorr_2D;
+struct _u_MMuPC1AnalysisMQL_11
+{
+  double time;
+  int Xwire_min;
+  int Xwire_max;
+};
+static MqlArray<struct _u_MMuPC1AnalysisMQL_11> _t_muPC1X_cluster_contiguous;
+
+// Comparison for muPC1X_AD on variable time
+static int _u_MMuPC1AnalysisMQL_51(const void *_v1, const void *_v2)
+{
+  struct _u_MMuPC1AnalysisMQL_9 *_o1 = (struct _u_MMuPC1AnalysisMQL_9 *) _v1;
+  struct _u_MMuPC1AnalysisMQL_9 *_o2 = (struct _u_MMuPC1AnalysisMQL_9 *) _v2;
+  double _sv1, _sv2;
+  {
+    double time = _o1->time;
+    int Xwire = _o1->Xwire;
+    _sv1 = time;
+  }
+  {
+    double time = _o2->time;
+    int Xwire = _o2->Xwire;
+    _sv2 = time;
+  }
+  double _diff = _sv1 - _sv2;
+  if(_diff < 0) return -1;
+  if(_diff == 0) return 0;
+  if(_diff > 0) return  1;
+}
+// Comparison for muPC1X_cluster_contiguous on variable time
+static int _u_MMuPC1AnalysisMQL_52(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_11 *_o1 = (struct _u_MMuPC1AnalysisMQL_11 *) _v1;
   struct _u_MMuPC1AnalysisMQL_11 *_o2 = (struct _u_MMuPC1AnalysisMQL_11 *) _v2;
@@ -430,7 +430,7 @@ struct _u_MMuPC1AnalysisMQL_12
 static MqlArray<struct _u_MMuPC1AnalysisMQL_12> _t_muPC1X_cluster_contiguous_sep;
 
 // Comparison for muPC1X_cluster_contiguous on variable time
-static int _u_MMuPC1AnalysisMQL_51(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_53(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_11 *_o1 = (struct _u_MMuPC1AnalysisMQL_11 *) _v1;
   struct _u_MMuPC1AnalysisMQL_11 *_o2 = (struct _u_MMuPC1AnalysisMQL_11 *) _v2;
@@ -453,7 +453,7 @@ static int _u_MMuPC1AnalysisMQL_51(const void *_v1, const void *_v2)
   if(_diff > 0) return  1;
 }
 // Comparison for muPC1X_cluster_contiguous on variable time
-static int _u_MMuPC1AnalysisMQL_52(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_54(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_11 *_o1 = (struct _u_MMuPC1AnalysisMQL_11 *) _v1;
   struct _u_MMuPC1AnalysisMQL_11 *_o2 = (struct _u_MMuPC1AnalysisMQL_11 *) _v2;
@@ -486,7 +486,7 @@ struct _u_MMuPC1AnalysisMQL_13
 static MqlArray<struct _u_MMuPC1AnalysisMQL_13> _t_muPC1X;
 
 // Comparison for muPC1X_AD on variable time
-static int _u_MMuPC1AnalysisMQL_53(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_55(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_9 *_o1 = (struct _u_MMuPC1AnalysisMQL_9 *) _v1;
   struct _u_MMuPC1AnalysisMQL_9 *_o2 = (struct _u_MMuPC1AnalysisMQL_9 *) _v2;
@@ -507,7 +507,7 @@ static int _u_MMuPC1AnalysisMQL_53(const void *_v1, const void *_v2)
   if(_diff > 0) return  1;
 }
 // Comparison for muPC1X on variable time
-static int _u_MMuPC1AnalysisMQL_54(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_56(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_13 *_o1 = (struct _u_MMuPC1AnalysisMQL_13 *) _v1;
   struct _u_MMuPC1AnalysisMQL_13 *_o2 = (struct _u_MMuPC1AnalysisMQL_13 *) _v2;
@@ -547,65 +547,6 @@ struct _u_MMuPC1AnalysisMQL_15
   double time_2;
 };
 static MqlArray<struct _u_MMuPC1AnalysisMQL_15> _t_muPC1X_auto;
-
-// Comparison for muPC1X on variable time
-static int _u_MMuPC1AnalysisMQL_55(const void *_v1, const void *_v2)
-{
-  struct _u_MMuPC1AnalysisMQL_13 *_o1 = (struct _u_MMuPC1AnalysisMQL_13 *) _v1;
-  struct _u_MMuPC1AnalysisMQL_13 *_o2 = (struct _u_MMuPC1AnalysisMQL_13 *) _v2;
-  double _sv1, _sv2;
-  {
-    double time = _o1->time;
-    double Xwire = _o1->Xwire;
-    int cluster_size = _o1->cluster_size;
-    int cluster_width = _o1->cluster_width;
-    _sv1 = time;
-  }
-  {
-    double time = _o2->time;
-    double Xwire = _o2->Xwire;
-    int cluster_size = _o2->cluster_size;
-    int cluster_width = _o2->cluster_width;
-    _sv2 = time;
-  }
-  double _diff = _sv1 - _sv2;
-  if(_diff < 0) return -1;
-  if(_diff == 0) return 0;
-  if(_diff > 0) return  1;
-}
-// Comparison for muPC1X on variable time
-static int _u_MMuPC1AnalysisMQL_56(const void *_v1, const void *_v2)
-{
-  struct _u_MMuPC1AnalysisMQL_13 *_o1 = (struct _u_MMuPC1AnalysisMQL_13 *) _v1;
-  struct _u_MMuPC1AnalysisMQL_13 *_o2 = (struct _u_MMuPC1AnalysisMQL_13 *) _v2;
-  double _sv1, _sv2;
-  {
-    double time = _o1->time;
-    double Xwire = _o1->Xwire;
-    int cluster_size = _o1->cluster_size;
-    int cluster_width = _o1->cluster_width;
-    _sv1 = time;
-  }
-  {
-    double time = _o2->time;
-    double Xwire = _o2->Xwire;
-    int cluster_size = _o2->cluster_size;
-    int cluster_width = _o2->cluster_width;
-    _sv2 = time;
-  }
-  double _diff = _sv1 - _sv2;
-  if(_diff < 0) return -1;
-  if(_diff == 0) return 0;
-  if(_diff > 0) return  1;
-}
-static TH1D *_h_muPC1_X_final_cluster_autocorr_all_1D;
-struct _u_MMuPC1AnalysisMQL_16
-{
-  double time1;
-  double time2;
-  double wire_diff;
-};
-static MqlArray<struct _u_MMuPC1AnalysisMQL_16> _t_muPC1X_spatial_auto;
 
 // Comparison for muPC1X on variable time
 static int _u_MMuPC1AnalysisMQL_57(const void *_v1, const void *_v2)
@@ -657,6 +598,65 @@ static int _u_MMuPC1AnalysisMQL_58(const void *_v1, const void *_v2)
   if(_diff == 0) return 0;
   if(_diff > 0) return  1;
 }
+static TH1D *_h_muPC1_X_final_cluster_autocorr_all_1D;
+struct _u_MMuPC1AnalysisMQL_16
+{
+  double time1;
+  double time2;
+  double wire_diff;
+};
+static MqlArray<struct _u_MMuPC1AnalysisMQL_16> _t_muPC1X_spatial_auto;
+
+// Comparison for muPC1X on variable time
+static int _u_MMuPC1AnalysisMQL_59(const void *_v1, const void *_v2)
+{
+  struct _u_MMuPC1AnalysisMQL_13 *_o1 = (struct _u_MMuPC1AnalysisMQL_13 *) _v1;
+  struct _u_MMuPC1AnalysisMQL_13 *_o2 = (struct _u_MMuPC1AnalysisMQL_13 *) _v2;
+  double _sv1, _sv2;
+  {
+    double time = _o1->time;
+    double Xwire = _o1->Xwire;
+    int cluster_size = _o1->cluster_size;
+    int cluster_width = _o1->cluster_width;
+    _sv1 = time;
+  }
+  {
+    double time = _o2->time;
+    double Xwire = _o2->Xwire;
+    int cluster_size = _o2->cluster_size;
+    int cluster_width = _o2->cluster_width;
+    _sv2 = time;
+  }
+  double _diff = _sv1 - _sv2;
+  if(_diff < 0) return -1;
+  if(_diff == 0) return 0;
+  if(_diff > 0) return  1;
+}
+// Comparison for muPC1X on variable time
+static int _u_MMuPC1AnalysisMQL_60(const void *_v1, const void *_v2)
+{
+  struct _u_MMuPC1AnalysisMQL_13 *_o1 = (struct _u_MMuPC1AnalysisMQL_13 *) _v1;
+  struct _u_MMuPC1AnalysisMQL_13 *_o2 = (struct _u_MMuPC1AnalysisMQL_13 *) _v2;
+  double _sv1, _sv2;
+  {
+    double time = _o1->time;
+    double Xwire = _o1->Xwire;
+    int cluster_size = _o1->cluster_size;
+    int cluster_width = _o1->cluster_width;
+    _sv1 = time;
+  }
+  {
+    double time = _o2->time;
+    double Xwire = _o2->Xwire;
+    int cluster_size = _o2->cluster_size;
+    int cluster_width = _o2->cluster_width;
+    _sv2 = time;
+  }
+  double _diff = _sv1 - _sv2;
+  if(_diff < 0) return -1;
+  if(_diff == 0) return 0;
+  if(_diff > 0) return  1;
+}
 static TH1D *_h_muPC1_X_final_cluster_autocorr_spatial_all_1D;
 struct _u_MMuPC1AnalysisMQL_17
 {
@@ -675,7 +675,7 @@ struct _u_MMuPC1AnalysisMQL_18
 static MqlArray<struct _u_MMuPC1AnalysisMQL_18> _t_muPC1Y_raw_auto;
 
 // Comparison for muPC1Y_raw on variable time
-static int _u_MMuPC1AnalysisMQL_59(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_61(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_17 *_o1 = (struct _u_MMuPC1AnalysisMQL_17 *) _v1;
   struct _u_MMuPC1AnalysisMQL_17 *_o2 = (struct _u_MMuPC1AnalysisMQL_17 *) _v2;
@@ -696,7 +696,7 @@ static int _u_MMuPC1AnalysisMQL_59(const void *_v1, const void *_v2)
   if(_diff > 0) return  1;
 }
 // Comparison for muPC1Y_raw on variable time
-static int _u_MMuPC1AnalysisMQL_60(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_62(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_17 *_o1 = (struct _u_MMuPC1AnalysisMQL_17 *) _v1;
   struct _u_MMuPC1AnalysisMQL_17 *_o2 = (struct _u_MMuPC1AnalysisMQL_17 *) _v2;
@@ -727,7 +727,7 @@ struct _u_MMuPC1AnalysisMQL_19
 static MqlArray<struct _u_MMuPC1AnalysisMQL_19> _t_muPC1Y_spark_search;
 
 // Comparison for muPC1Y_raw on variable time
-static int _u_MMuPC1AnalysisMQL_61(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_63(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_17 *_o1 = (struct _u_MMuPC1AnalysisMQL_17 *) _v1;
   struct _u_MMuPC1AnalysisMQL_17 *_o2 = (struct _u_MMuPC1AnalysisMQL_17 *) _v2;
@@ -748,7 +748,7 @@ static int _u_MMuPC1AnalysisMQL_61(const void *_v1, const void *_v2)
   if(_diff > 0) return  1;
 }
 // Comparison for muPC1Y_spark_search on variable time
-static int _u_MMuPC1AnalysisMQL_62(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_64(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_19 *_o1 = (struct _u_MMuPC1AnalysisMQL_19 *) _v1;
   struct _u_MMuPC1AnalysisMQL_19 *_o2 = (struct _u_MMuPC1AnalysisMQL_19 *) _v2;
@@ -784,7 +784,7 @@ struct _u_MMuPC1AnalysisMQL_21
 static MqlArray<struct _u_MMuPC1AnalysisMQL_21> _t_muPC1Y_SC;
 
 // Comparison for muPC1Y_raw on variable time
-static int _u_MMuPC1AnalysisMQL_63(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_65(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_17 *_o1 = (struct _u_MMuPC1AnalysisMQL_17 *) _v1;
   struct _u_MMuPC1AnalysisMQL_17 *_o2 = (struct _u_MMuPC1AnalysisMQL_17 *) _v2;
@@ -805,7 +805,7 @@ static int _u_MMuPC1AnalysisMQL_63(const void *_v1, const void *_v2)
   if(_diff > 0) return  1;
 }
 // Comparison for muPC1Y_sparks on variable time
-static int _u_MMuPC1AnalysisMQL_64(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_66(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_20 *_o1 = (struct _u_MMuPC1AnalysisMQL_20 *) _v1;
   struct _u_MMuPC1AnalysisMQL_20 *_o2 = (struct _u_MMuPC1AnalysisMQL_20 *) _v2;
@@ -833,7 +833,7 @@ struct _u_MMuPC1AnalysisMQL_22
 static MqlArray<struct _u_MMuPC1AnalysisMQL_22> _t_muPC1Y_SC_auto;
 
 // Comparison for muPC1Y_SC on variable time
-static int _u_MMuPC1AnalysisMQL_65(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_67(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_21 *_o1 = (struct _u_MMuPC1AnalysisMQL_21 *) _v1;
   struct _u_MMuPC1AnalysisMQL_21 *_o2 = (struct _u_MMuPC1AnalysisMQL_21 *) _v2;
@@ -854,7 +854,7 @@ static int _u_MMuPC1AnalysisMQL_65(const void *_v1, const void *_v2)
   if(_diff > 0) return  1;
 }
 // Comparison for muPC1Y_SC on variable time
-static int _u_MMuPC1AnalysisMQL_66(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_68(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_21 *_o1 = (struct _u_MMuPC1AnalysisMQL_21 *) _v1;
   struct _u_MMuPC1AnalysisMQL_21 *_o2 = (struct _u_MMuPC1AnalysisMQL_21 *) _v2;
@@ -884,61 +884,10 @@ struct _u_MMuPC1AnalysisMQL_23
 static MqlArray<struct _u_MMuPC1AnalysisMQL_23> _t_muPC1Y_AD;
 
 // Comparison for muPC1Y_SC on variable time
-static int _u_MMuPC1AnalysisMQL_67(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_69(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_21 *_o1 = (struct _u_MMuPC1AnalysisMQL_21 *) _v1;
   struct _u_MMuPC1AnalysisMQL_21 *_o2 = (struct _u_MMuPC1AnalysisMQL_21 *) _v2;
-  double _sv1, _sv2;
-  {
-    double time = _o1->time;
-    int Ywire = _o1->Ywire;
-    _sv1 = time;
-  }
-  {
-    double time = _o2->time;
-    int Ywire = _o2->Ywire;
-    _sv2 = time;
-  }
-  double _diff = _sv1 - _sv2;
-  if(_diff < 0) return -1;
-  if(_diff == 0) return 0;
-  if(_diff > 0) return  1;
-}
-// Comparison for muPC1Y_AD on variable time
-static int _u_MMuPC1AnalysisMQL_68(const void *_v1, const void *_v2)
-{
-  struct _u_MMuPC1AnalysisMQL_23 *_o1 = (struct _u_MMuPC1AnalysisMQL_23 *) _v1;
-  struct _u_MMuPC1AnalysisMQL_23 *_o2 = (struct _u_MMuPC1AnalysisMQL_23 *) _v2;
-  double _sv1, _sv2;
-  {
-    double time = _o1->time;
-    int Ywire = _o1->Ywire;
-    _sv1 = time;
-  }
-  {
-    double time = _o2->time;
-    int Ywire = _o2->Ywire;
-    _sv2 = time;
-  }
-  double _diff = _sv1 - _sv2;
-  if(_diff < 0) return -1;
-  if(_diff == 0) return 0;
-  if(_diff > 0) return  1;
-}
-struct _u_MMuPC1AnalysisMQL_24
-{
-  double time_1;
-  int Ywire_1;
-  double time_2;
-  int Ywire_2;
-};
-static MqlArray<struct _u_MMuPC1AnalysisMQL_24> _t_muPC1Y_AD_auto;
-
-// Comparison for muPC1Y_AD on variable time
-static int _u_MMuPC1AnalysisMQL_69(const void *_v1, const void *_v2)
-{
-  struct _u_MMuPC1AnalysisMQL_23 *_o1 = (struct _u_MMuPC1AnalysisMQL_23 *) _v1;
-  struct _u_MMuPC1AnalysisMQL_23 *_o2 = (struct _u_MMuPC1AnalysisMQL_23 *) _v2;
   double _sv1, _sv2;
   {
     double time = _o1->time;
@@ -976,15 +925,14 @@ static int _u_MMuPC1AnalysisMQL_70(const void *_v1, const void *_v2)
   if(_diff == 0) return 0;
   if(_diff > 0) return  1;
 }
-static TH1D *_h_muPC1_Y_AD_autocorr_all_1D;
-static TH2D *_h_muPC1_Y_AD_autocorr_2D;
-struct _u_MMuPC1AnalysisMQL_25
+struct _u_MMuPC1AnalysisMQL_24
 {
-  double time;
-  int Ywire_min;
-  int Ywire_max;
+  double time_1;
+  int Ywire_1;
+  double time_2;
+  int Ywire_2;
 };
-static MqlArray<struct _u_MMuPC1AnalysisMQL_25> _t_muPC1Y_cluster_contiguous;
+static MqlArray<struct _u_MMuPC1AnalysisMQL_24> _t_muPC1Y_AD_auto;
 
 // Comparison for muPC1Y_AD on variable time
 static int _u_MMuPC1AnalysisMQL_71(const void *_v1, const void *_v2)
@@ -1007,8 +955,60 @@ static int _u_MMuPC1AnalysisMQL_71(const void *_v1, const void *_v2)
   if(_diff == 0) return 0;
   if(_diff > 0) return  1;
 }
-// Comparison for muPC1Y_cluster_contiguous on variable time
+// Comparison for muPC1Y_AD on variable time
 static int _u_MMuPC1AnalysisMQL_72(const void *_v1, const void *_v2)
+{
+  struct _u_MMuPC1AnalysisMQL_23 *_o1 = (struct _u_MMuPC1AnalysisMQL_23 *) _v1;
+  struct _u_MMuPC1AnalysisMQL_23 *_o2 = (struct _u_MMuPC1AnalysisMQL_23 *) _v2;
+  double _sv1, _sv2;
+  {
+    double time = _o1->time;
+    int Ywire = _o1->Ywire;
+    _sv1 = time;
+  }
+  {
+    double time = _o2->time;
+    int Ywire = _o2->Ywire;
+    _sv2 = time;
+  }
+  double _diff = _sv1 - _sv2;
+  if(_diff < 0) return -1;
+  if(_diff == 0) return 0;
+  if(_diff > 0) return  1;
+}
+static TH1D *_h_muPC1_Y_AD_autocorr_all_1D;
+static TH2D *_h_muPC1_Y_AD_autocorr_2D;
+struct _u_MMuPC1AnalysisMQL_25
+{
+  double time;
+  int Ywire_min;
+  int Ywire_max;
+};
+static MqlArray<struct _u_MMuPC1AnalysisMQL_25> _t_muPC1Y_cluster_contiguous;
+
+// Comparison for muPC1Y_AD on variable time
+static int _u_MMuPC1AnalysisMQL_73(const void *_v1, const void *_v2)
+{
+  struct _u_MMuPC1AnalysisMQL_23 *_o1 = (struct _u_MMuPC1AnalysisMQL_23 *) _v1;
+  struct _u_MMuPC1AnalysisMQL_23 *_o2 = (struct _u_MMuPC1AnalysisMQL_23 *) _v2;
+  double _sv1, _sv2;
+  {
+    double time = _o1->time;
+    int Ywire = _o1->Ywire;
+    _sv1 = time;
+  }
+  {
+    double time = _o2->time;
+    int Ywire = _o2->Ywire;
+    _sv2 = time;
+  }
+  double _diff = _sv1 - _sv2;
+  if(_diff < 0) return -1;
+  if(_diff == 0) return 0;
+  if(_diff > 0) return  1;
+}
+// Comparison for muPC1Y_cluster_contiguous on variable time
+static int _u_MMuPC1AnalysisMQL_74(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_25 *_o1 = (struct _u_MMuPC1AnalysisMQL_25 *) _v1;
   struct _u_MMuPC1AnalysisMQL_25 *_o2 = (struct _u_MMuPC1AnalysisMQL_25 *) _v2;
@@ -1037,7 +1037,7 @@ struct _u_MMuPC1AnalysisMQL_26
 static MqlArray<struct _u_MMuPC1AnalysisMQL_26> _t_muPC1Y_cluster_contiguous_sep;
 
 // Comparison for muPC1Y_cluster_contiguous on variable time
-static int _u_MMuPC1AnalysisMQL_73(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_75(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_25 *_o1 = (struct _u_MMuPC1AnalysisMQL_25 *) _v1;
   struct _u_MMuPC1AnalysisMQL_25 *_o2 = (struct _u_MMuPC1AnalysisMQL_25 *) _v2;
@@ -1060,7 +1060,7 @@ static int _u_MMuPC1AnalysisMQL_73(const void *_v1, const void *_v2)
   if(_diff > 0) return  1;
 }
 // Comparison for muPC1Y_cluster_contiguous on variable time
-static int _u_MMuPC1AnalysisMQL_74(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_76(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_25 *_o1 = (struct _u_MMuPC1AnalysisMQL_25 *) _v1;
   struct _u_MMuPC1AnalysisMQL_25 *_o2 = (struct _u_MMuPC1AnalysisMQL_25 *) _v2;
@@ -1093,7 +1093,7 @@ struct _u_MMuPC1AnalysisMQL_27
 static MqlArray<struct _u_MMuPC1AnalysisMQL_27> _t_muPC1Y;
 
 // Comparison for muPC1Y_AD on variable time
-static int _u_MMuPC1AnalysisMQL_75(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_77(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_23 *_o1 = (struct _u_MMuPC1AnalysisMQL_23 *) _v1;
   struct _u_MMuPC1AnalysisMQL_23 *_o2 = (struct _u_MMuPC1AnalysisMQL_23 *) _v2;
@@ -1114,7 +1114,7 @@ static int _u_MMuPC1AnalysisMQL_75(const void *_v1, const void *_v2)
   if(_diff > 0) return  1;
 }
 // Comparison for muPC1Y on variable time
-static int _u_MMuPC1AnalysisMQL_76(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_78(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_27 *_o1 = (struct _u_MMuPC1AnalysisMQL_27 *) _v1;
   struct _u_MMuPC1AnalysisMQL_27 *_o2 = (struct _u_MMuPC1AnalysisMQL_27 *) _v2;
@@ -1154,65 +1154,6 @@ struct _u_MMuPC1AnalysisMQL_29
   double time_2;
 };
 static MqlArray<struct _u_MMuPC1AnalysisMQL_29> _t_muPC1Y_temporal_auto;
-
-// Comparison for muPC1Y on variable time
-static int _u_MMuPC1AnalysisMQL_77(const void *_v1, const void *_v2)
-{
-  struct _u_MMuPC1AnalysisMQL_27 *_o1 = (struct _u_MMuPC1AnalysisMQL_27 *) _v1;
-  struct _u_MMuPC1AnalysisMQL_27 *_o2 = (struct _u_MMuPC1AnalysisMQL_27 *) _v2;
-  double _sv1, _sv2;
-  {
-    double time = _o1->time;
-    double Ywire = _o1->Ywire;
-    int cluster_size = _o1->cluster_size;
-    int cluster_width = _o1->cluster_width;
-    _sv1 = time;
-  }
-  {
-    double time = _o2->time;
-    double Ywire = _o2->Ywire;
-    int cluster_size = _o2->cluster_size;
-    int cluster_width = _o2->cluster_width;
-    _sv2 = time;
-  }
-  double _diff = _sv1 - _sv2;
-  if(_diff < 0) return -1;
-  if(_diff == 0) return 0;
-  if(_diff > 0) return  1;
-}
-// Comparison for muPC1Y on variable time
-static int _u_MMuPC1AnalysisMQL_78(const void *_v1, const void *_v2)
-{
-  struct _u_MMuPC1AnalysisMQL_27 *_o1 = (struct _u_MMuPC1AnalysisMQL_27 *) _v1;
-  struct _u_MMuPC1AnalysisMQL_27 *_o2 = (struct _u_MMuPC1AnalysisMQL_27 *) _v2;
-  double _sv1, _sv2;
-  {
-    double time = _o1->time;
-    double Ywire = _o1->Ywire;
-    int cluster_size = _o1->cluster_size;
-    int cluster_width = _o1->cluster_width;
-    _sv1 = time;
-  }
-  {
-    double time = _o2->time;
-    double Ywire = _o2->Ywire;
-    int cluster_size = _o2->cluster_size;
-    int cluster_width = _o2->cluster_width;
-    _sv2 = time;
-  }
-  double _diff = _sv1 - _sv2;
-  if(_diff < 0) return -1;
-  if(_diff == 0) return 0;
-  if(_diff > 0) return  1;
-}
-static TH1D *_h_muPC1_Y_final_cluster_autocorr_all_1D;
-struct _u_MMuPC1AnalysisMQL_30
-{
-  double time1;
-  double time2;
-  double wire_diff;
-};
-static MqlArray<struct _u_MMuPC1AnalysisMQL_30> _t_muPC1Y_spatial_auto;
 
 // Comparison for muPC1Y on variable time
 static int _u_MMuPC1AnalysisMQL_79(const void *_v1, const void *_v2)
@@ -1264,32 +1205,31 @@ static int _u_MMuPC1AnalysisMQL_80(const void *_v1, const void *_v2)
   if(_diff == 0) return 0;
   if(_diff > 0) return  1;
 }
-static TH1D *_h_muPC1_Y_final_cluster_autocorr_spatial_all_1D;
-struct _u_MMuPC1AnalysisMQL_31
+static TH1D *_h_muPC1_Y_final_cluster_autocorr_all_1D;
+struct _u_MMuPC1AnalysisMQL_30
 {
-  double Xwire;
-  double Ywire;
-  double muPC1Time;
-  double XYtdiff;
+  double time1;
+  double time2;
+  double wire_diff;
 };
-static MqlArray<struct _u_MMuPC1AnalysisMQL_31> _t_muPC1XY;
+static MqlArray<struct _u_MMuPC1AnalysisMQL_30> _t_muPC1Y_spatial_auto;
 
-// Comparison for muPC1X on variable time
+// Comparison for muPC1Y on variable time
 static int _u_MMuPC1AnalysisMQL_81(const void *_v1, const void *_v2)
 {
-  struct _u_MMuPC1AnalysisMQL_13 *_o1 = (struct _u_MMuPC1AnalysisMQL_13 *) _v1;
-  struct _u_MMuPC1AnalysisMQL_13 *_o2 = (struct _u_MMuPC1AnalysisMQL_13 *) _v2;
+  struct _u_MMuPC1AnalysisMQL_27 *_o1 = (struct _u_MMuPC1AnalysisMQL_27 *) _v1;
+  struct _u_MMuPC1AnalysisMQL_27 *_o2 = (struct _u_MMuPC1AnalysisMQL_27 *) _v2;
   double _sv1, _sv2;
   {
     double time = _o1->time;
-    double Xwire = _o1->Xwire;
+    double Ywire = _o1->Ywire;
     int cluster_size = _o1->cluster_size;
     int cluster_width = _o1->cluster_width;
     _sv1 = time;
   }
   {
     double time = _o2->time;
-    double Xwire = _o2->Xwire;
+    double Ywire = _o2->Ywire;
     int cluster_size = _o2->cluster_size;
     int cluster_width = _o2->cluster_width;
     _sv2 = time;
@@ -1324,8 +1264,68 @@ static int _u_MMuPC1AnalysisMQL_82(const void *_v1, const void *_v2)
   if(_diff == 0) return 0;
   if(_diff > 0) return  1;
 }
-// Comparison for muPC1XY on variable muPC1Time
+static TH1D *_h_muPC1_Y_final_cluster_autocorr_spatial_all_1D;
+struct _u_MMuPC1AnalysisMQL_31
+{
+  double Xwire;
+  double Ywire;
+  double muPC1Time;
+  double XYtdiff;
+};
+static MqlArray<struct _u_MMuPC1AnalysisMQL_31> _t_muPC1XY;
+
+// Comparison for muPC1X on variable time
 static int _u_MMuPC1AnalysisMQL_83(const void *_v1, const void *_v2)
+{
+  struct _u_MMuPC1AnalysisMQL_13 *_o1 = (struct _u_MMuPC1AnalysisMQL_13 *) _v1;
+  struct _u_MMuPC1AnalysisMQL_13 *_o2 = (struct _u_MMuPC1AnalysisMQL_13 *) _v2;
+  double _sv1, _sv2;
+  {
+    double time = _o1->time;
+    double Xwire = _o1->Xwire;
+    int cluster_size = _o1->cluster_size;
+    int cluster_width = _o1->cluster_width;
+    _sv1 = time;
+  }
+  {
+    double time = _o2->time;
+    double Xwire = _o2->Xwire;
+    int cluster_size = _o2->cluster_size;
+    int cluster_width = _o2->cluster_width;
+    _sv2 = time;
+  }
+  double _diff = _sv1 - _sv2;
+  if(_diff < 0) return -1;
+  if(_diff == 0) return 0;
+  if(_diff > 0) return  1;
+}
+// Comparison for muPC1Y on variable time
+static int _u_MMuPC1AnalysisMQL_84(const void *_v1, const void *_v2)
+{
+  struct _u_MMuPC1AnalysisMQL_27 *_o1 = (struct _u_MMuPC1AnalysisMQL_27 *) _v1;
+  struct _u_MMuPC1AnalysisMQL_27 *_o2 = (struct _u_MMuPC1AnalysisMQL_27 *) _v2;
+  double _sv1, _sv2;
+  {
+    double time = _o1->time;
+    double Ywire = _o1->Ywire;
+    int cluster_size = _o1->cluster_size;
+    int cluster_width = _o1->cluster_width;
+    _sv1 = time;
+  }
+  {
+    double time = _o2->time;
+    double Ywire = _o2->Ywire;
+    int cluster_size = _o2->cluster_size;
+    int cluster_width = _o2->cluster_width;
+    _sv2 = time;
+  }
+  double _diff = _sv1 - _sv2;
+  if(_diff < 0) return -1;
+  if(_diff == 0) return 0;
+  if(_diff > 0) return  1;
+}
+// Comparison for muPC1XY on variable muPC1Time
+static int _u_MMuPC1AnalysisMQL_85(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_31 *_o1 = (struct _u_MMuPC1AnalysisMQL_31 *) _v1;
   struct _u_MMuPC1AnalysisMQL_31 *_o2 = (struct _u_MMuPC1AnalysisMQL_31 *) _v2;
@@ -1367,7 +1367,7 @@ struct _u_MMuPC1AnalysisMQL_33
 static MqlArray<struct _u_MMuPC1AnalysisMQL_33> _t_muPC1_auto;
 
 // Comparison for muPC1 on variable muPC1Time
-static int _u_MMuPC1AnalysisMQL_84(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_86(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_32 *_o1 = (struct _u_MMuPC1AnalysisMQL_32 *) _v1;
   struct _u_MMuPC1AnalysisMQL_32 *_o2 = (struct _u_MMuPC1AnalysisMQL_32 *) _v2;
@@ -1390,7 +1390,7 @@ static int _u_MMuPC1AnalysisMQL_84(const void *_v1, const void *_v2)
   if(_diff > 0) return  1;
 }
 // Comparison for muPC1 on variable muPC1Time
-static int _u_MMuPC1AnalysisMQL_85(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_87(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_32 *_o1 = (struct _u_MMuPC1AnalysisMQL_32 *) _v1;
   struct _u_MMuPC1AnalysisMQL_32 *_o2 = (struct _u_MMuPC1AnalysisMQL_32 *) _v2;
@@ -1417,10 +1417,19 @@ struct _u_MMuPC1AnalysisMQL_34
 {
   double time;
 };
-static MqlArray<struct _u_MMuPC1AnalysisMQL_34> _t_muPC1_sparks_union;
+static MqlArray<struct _u_MMuPC1AnalysisMQL_34> _t_muSC;
 
-// Comparison for muPC1_sparks_union on variable time
-static int _u_MMuPC1AnalysisMQL_86(const void *_v1, const void *_v2)
+struct _u_MMuPC1AnalysisMQL_35
+{
+  double Xwire;
+  double Ywire;
+  double time;
+  double muPC1Time;
+};
+static MqlArray<struct _u_MMuPC1AnalysisMQL_35> _t_muSC_muPC1;
+
+// Comparison for muSC on variable time
+static int _u_MMuPC1AnalysisMQL_88(const void *_v1, const void *_v2)
 {
   struct _u_MMuPC1AnalysisMQL_34 *_o1 = (struct _u_MMuPC1AnalysisMQL_34 *) _v1;
   struct _u_MMuPC1AnalysisMQL_34 *_o2 = (struct _u_MMuPC1AnalysisMQL_34 *) _v2;
@@ -1438,18 +1447,68 @@ static int _u_MMuPC1AnalysisMQL_86(const void *_v1, const void *_v2)
   if(_diff == 0) return 0;
   if(_diff > 0) return  1;
 }
-struct _u_MMuPC1AnalysisMQL_35
+// Comparison for muPC1 on variable muPC1Time
+static int _u_MMuPC1AnalysisMQL_89(const void *_v1, const void *_v2)
+{
+  struct _u_MMuPC1AnalysisMQL_32 *_o1 = (struct _u_MMuPC1AnalysisMQL_32 *) _v1;
+  struct _u_MMuPC1AnalysisMQL_32 *_o2 = (struct _u_MMuPC1AnalysisMQL_32 *) _v2;
+  double _sv1, _sv2;
+  {
+    double Xwire = _o1->Xwire;
+    double Ywire = _o1->Ywire;
+    double muPC1Time = _o1->muPC1Time;
+    _sv1 = muPC1Time;
+  }
+  {
+    double Xwire = _o2->Xwire;
+    double Ywire = _o2->Ywire;
+    double muPC1Time = _o2->muPC1Time;
+    _sv2 = muPC1Time;
+  }
+  double _diff = _sv1 - _sv2;
+  if(_diff < 0) return -1;
+  if(_diff == 0) return 0;
+  if(_diff > 0) return  1;
+}
+static TH1D *_h_muSC_muPC1_time_difference;
+static TH2D *_h_muPC1_coinc_XY_2D_with_muSC;
+struct _u_MMuPC1AnalysisMQL_36
+{
+  double time;
+};
+static MqlArray<struct _u_MMuPC1AnalysisMQL_36> _t_muPC1_sparks_union;
+
+// Comparison for muPC1_sparks_union on variable time
+static int _u_MMuPC1AnalysisMQL_90(const void *_v1, const void *_v2)
+{
+  struct _u_MMuPC1AnalysisMQL_36 *_o1 = (struct _u_MMuPC1AnalysisMQL_36 *) _v1;
+  struct _u_MMuPC1AnalysisMQL_36 *_o2 = (struct _u_MMuPC1AnalysisMQL_36 *) _v2;
+  double _sv1, _sv2;
+  {
+    double time = _o1->time;
+    _sv1 = time;
+  }
+  {
+    double time = _o2->time;
+    _sv2 = time;
+  }
+  double _diff = _sv1 - _sv2;
+  if(_diff < 0) return -1;
+  if(_diff == 0) return 0;
+  if(_diff > 0) return  1;
+}
+struct _u_MMuPC1AnalysisMQL_37
 {
   double time;
   int cluster_size;
 };
-static MqlArray<struct _u_MMuPC1AnalysisMQL_35> _t_muPC1_sparks_clustered;
+static MqlArray<struct _u_MMuPC1AnalysisMQL_37> _t_muPC1_sparks_clustered;
 
 // Comparison for muPC1_sparks_union on variable time
-static int _u_MMuPC1AnalysisMQL_87(const void *_v1, const void *_v2)
+static int _u_MMuPC1AnalysisMQL_91(const void *_v1, const void *_v2)
 {
-  struct _u_MMuPC1AnalysisMQL_34 *_o1 = (struct _u_MMuPC1AnalysisMQL_34 *) _v1;
-  struct _u_MMuPC1AnalysisMQL_34 *_o2 = (struct _u_MMuPC1AnalysisMQL_34 *) _v2;
+  struct _u_MMuPC1AnalysisMQL_36 *_o1 = (struct _u_MMuPC1AnalysisMQL_36 *) _v1;
+  struct _u_MMuPC1AnalysisMQL_36 *_o2 = (struct _u_MMuPC1AnalysisMQL_36 *) _v2;
   double _sv1, _sv2;
   {
     double time = _o1->time;
@@ -1465,11 +1524,11 @@ static int _u_MMuPC1AnalysisMQL_87(const void *_v1, const void *_v2)
   if(_diff > 0) return  1;
 }
 static TH1D *_h_muPC1_spark_clustered_blocktime;
-struct _u_MMuPC1AnalysisMQL_36
+struct _u_MMuPC1AnalysisMQL_38
 {
   double time;
 };
-static MqlArray<struct _u_MMuPC1AnalysisMQL_36> _t_muPC1_sparks_chamberwide;
+static MqlArray<struct _u_MMuPC1AnalysisMQL_38> _t_muPC1_sparks_chamberwide;
 
 static TH1D *_h_muPC1_spark_chamberwide_count;
 static TH1D *_h_muPC1_spark_chamberwide_blocktime;
@@ -1698,6 +1757,17 @@ INT MMuPC1AnalysisMQL_init()
       11001, -5002.5, 50002.5);
     _h_muPC1_coinc_XY_autocorr_all_1D->GetXaxis()->SetTitle("muPC1Time_2 - muPC1Time_1");
   }
+  _h_muSC_muPC1_time_difference = new TH1D("muSC_muPC1_time_difference", "Time difference of hits between muSC - muPC", 
+    501, -10020, 10020);
+  _h_muSC_muPC1_time_difference->GetXaxis()->SetTitle("time-muPC1Time");
+  if(Tier1)
+  {
+    _h_muPC1_coinc_XY_2D_with_muSC = new TH2D("muPC1_coinc_XY_2D_with_muSC", "#muPC1 2D XY-coincidences with muSC coincidence", 
+      kMuPC1NumXWires, 0.5, kMuPC1NumXWires+0.5, 
+      kMuPC1NumYWires, 0.5, kMuPC1NumYWires+0.5);
+    _h_muPC1_coinc_XY_2D_with_muSC->GetXaxis()->SetTitle("Xwire");
+    _h_muPC1_coinc_XY_2D_with_muSC->GetYaxis()->SetTitle("Ywire");
+  }
   if(Tier1)
   {
     _h_muPC1_spark_clustered_blocktime = new TH1D("muPC1_spark_clustered_blocktime", "Time of muPC1 sparks, after clustering (500ms window)", 
@@ -1722,8 +1792,8 @@ INT MMuPC1AnalysisMQL_init()
 INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
 {
   _t_muPC1X_auto.reset();
-  _t_muPC1X_cluster_contiguous.reset();
   _t_muPC1_sparks_union.reset();
+  _t_muPC1X_cluster_contiguous.reset();
   _t_muPC1Y_temporal_auto.reset();
   _t_muPC1X_raw_auto.reset();
   _t_muPC1X_AD.reset();
@@ -1736,6 +1806,7 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
   _t_muPC1Y_raw_auto.reset();
   _t_muPC1Y.reset();
   _t_muPC1X.reset();
+  _t_muSC.reset();
   _t_muPC1Y_cluster_contiguous_sep.reset();
   _t_muPC1_auto.reset();
   _t_muPC1Y_SC_auto.reset();
@@ -1750,6 +1821,7 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
   _t_muPC1_hits.reset();
   _t_muPC1Y_raw.reset();
   _t_muPC1Y_SC.reset();
+  _t_muSC_muPC1.reset();
   _t_muPC1_sparks_chamberwide.reset();
   _t_muPC1Y_AD_auto.reset();
   _t_muPC1Y_cluster_contiguous.reset();
@@ -1757,35 +1829,31 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
   _t_muPC1Y_spatial_auto.reset();
   _t_muPC1X_raw.reset();
   _t_muPC1X_SC_auto.reset();
-  int _u_MMuPC1AnalysisMQL_88 = 0;
-  double _u_MMuPC1AnalysisMQL_89 = 0;
-  bool _u_MMuPC1AnalysisMQL_90 = false;
-  bool _u_MMuPC1AnalysisMQL_91 = false;
   int _u_MMuPC1AnalysisMQL_92 = 0;
-  int _u_MMuPC1AnalysisMQL_93 = 0;
-  double _u_MMuPC1AnalysisMQL_94 = 0;
+  double _u_MMuPC1AnalysisMQL_93 = 0;
+  bool _u_MMuPC1AnalysisMQL_94 = false;
   bool _u_MMuPC1AnalysisMQL_95 = false;
-  bool _u_MMuPC1AnalysisMQL_96 = false;
+  int _u_MMuPC1AnalysisMQL_96 = 0;
   int _u_MMuPC1AnalysisMQL_97 = 0;
-  int _u_MMuPC1AnalysisMQL_98 = 0;
-  double _u_MMuPC1AnalysisMQL_99 = 0;
+  double _u_MMuPC1AnalysisMQL_98 = 0;
+  bool _u_MMuPC1AnalysisMQL_99 = false;
   bool _u_MMuPC1AnalysisMQL_100 = false;
-  bool _u_MMuPC1AnalysisMQL_101 = false;
+  int _u_MMuPC1AnalysisMQL_101 = 0;
   int _u_MMuPC1AnalysisMQL_102 = 0;
-  int _u_MMuPC1AnalysisMQL_103 = 0;
-  double _u_MMuPC1AnalysisMQL_104 = 0;
+  double _u_MMuPC1AnalysisMQL_103 = 0;
+  bool _u_MMuPC1AnalysisMQL_104 = false;
   bool _u_MMuPC1AnalysisMQL_105 = false;
-  bool _u_MMuPC1AnalysisMQL_106 = false;
+  int _u_MMuPC1AnalysisMQL_106 = 0;
   int _u_MMuPC1AnalysisMQL_107 = 0;
-  int _u_MMuPC1AnalysisMQL_108 = 0;
-  double _u_MMuPC1AnalysisMQL_109 = 0;
+  double _u_MMuPC1AnalysisMQL_108 = 0;
+  bool _u_MMuPC1AnalysisMQL_109 = false;
   bool _u_MMuPC1AnalysisMQL_110 = false;
-  bool _u_MMuPC1AnalysisMQL_111 = false;
+  int _u_MMuPC1AnalysisMQL_111 = 0;
   int _u_MMuPC1AnalysisMQL_112 = 0;
-  int _u_MMuPC1AnalysisMQL_113 = 0;
-  double _u_MMuPC1AnalysisMQL_114 = 0;
+  double _u_MMuPC1AnalysisMQL_113 = 0;
+  bool _u_MMuPC1AnalysisMQL_114 = false;
   bool _u_MMuPC1AnalysisMQL_115 = false;
-  bool _u_MMuPC1AnalysisMQL_116 = false;
+  int _u_MMuPC1AnalysisMQL_116 = 0;
   int _u_MMuPC1AnalysisMQL_117 = 0;
   double _u_MMuPC1AnalysisMQL_118 = 0;
   bool _u_MMuPC1AnalysisMQL_119 = false;
@@ -1795,30 +1863,30 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
   bool _u_MMuPC1AnalysisMQL_123 = false;
   bool _u_MMuPC1AnalysisMQL_124 = false;
   int _u_MMuPC1AnalysisMQL_125 = 0;
-  int _u_MMuPC1AnalysisMQL_126 = 0;
-  double _u_MMuPC1AnalysisMQL_127 = 0;
+  double _u_MMuPC1AnalysisMQL_126 = 0;
+  bool _u_MMuPC1AnalysisMQL_127 = false;
   bool _u_MMuPC1AnalysisMQL_128 = false;
-  bool _u_MMuPC1AnalysisMQL_129 = false;
+  int _u_MMuPC1AnalysisMQL_129 = 0;
   int _u_MMuPC1AnalysisMQL_130 = 0;
-  int _u_MMuPC1AnalysisMQL_131 = 0;
-  double _u_MMuPC1AnalysisMQL_132 = 0;
+  double _u_MMuPC1AnalysisMQL_131 = 0;
+  bool _u_MMuPC1AnalysisMQL_132 = false;
   bool _u_MMuPC1AnalysisMQL_133 = false;
-  bool _u_MMuPC1AnalysisMQL_134 = false;
+  int _u_MMuPC1AnalysisMQL_134 = 0;
   int _u_MMuPC1AnalysisMQL_135 = 0;
-  int _u_MMuPC1AnalysisMQL_136 = 0;
-  double _u_MMuPC1AnalysisMQL_137 = 0;
+  double _u_MMuPC1AnalysisMQL_136 = 0;
+  bool _u_MMuPC1AnalysisMQL_137 = false;
   bool _u_MMuPC1AnalysisMQL_138 = false;
-  bool _u_MMuPC1AnalysisMQL_139 = false;
+  int _u_MMuPC1AnalysisMQL_139 = 0;
   int _u_MMuPC1AnalysisMQL_140 = 0;
-  int _u_MMuPC1AnalysisMQL_141 = 0;
-  double _u_MMuPC1AnalysisMQL_142 = 0;
+  double _u_MMuPC1AnalysisMQL_141 = 0;
+  bool _u_MMuPC1AnalysisMQL_142 = false;
   bool _u_MMuPC1AnalysisMQL_143 = false;
-  bool _u_MMuPC1AnalysisMQL_144 = false;
+  int _u_MMuPC1AnalysisMQL_144 = 0;
   int _u_MMuPC1AnalysisMQL_145 = 0;
-  int _u_MMuPC1AnalysisMQL_146 = 0;
-  double _u_MMuPC1AnalysisMQL_147 = 0;
+  double _u_MMuPC1AnalysisMQL_146 = 0;
+  bool _u_MMuPC1AnalysisMQL_147 = false;
   bool _u_MMuPC1AnalysisMQL_148 = false;
-  bool _u_MMuPC1AnalysisMQL_149 = false;
+  int _u_MMuPC1AnalysisMQL_149 = 0;
   int _u_MMuPC1AnalysisMQL_150 = 0;
   double _u_MMuPC1AnalysisMQL_151 = 0;
   bool _u_MMuPC1AnalysisMQL_152 = false;
@@ -1832,12 +1900,20 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
   bool _u_MMuPC1AnalysisMQL_160 = false;
   bool _u_MMuPC1AnalysisMQL_161 = false;
   int _u_MMuPC1AnalysisMQL_162 = 0;
+  double _u_MMuPC1AnalysisMQL_163 = 0;
+  bool _u_MMuPC1AnalysisMQL_164 = false;
+  bool _u_MMuPC1AnalysisMQL_165 = false;
+  int _u_MMuPC1AnalysisMQL_166 = 0;
+  double _u_MMuPC1AnalysisMQL_167 = 0;
+  bool _u_MMuPC1AnalysisMQL_168 = false;
+  bool _u_MMuPC1AnalysisMQL_169 = false;
+  int _u_MMuPC1AnalysisMQL_170 = 0;
   _t_hits.fromBank(pevent, "HITS");
   
-  for(int _u_MMuPC1AnalysisMQL_163 = 0; _u_MMuPC1AnalysisMQL_163 < _t_hits.size(); _u_MMuPC1AnalysisMQL_163++)
+  for(int _u_MMuPC1AnalysisMQL_171 = 0; _u_MMuPC1AnalysisMQL_171 < _t_hits.size(); _u_MMuPC1AnalysisMQL_171++)
   {
-    double time = _t_hits[_u_MMuPC1AnalysisMQL_163].time;
-    int parameter = _t_hits[_u_MMuPC1AnalysisMQL_163].parameter;
+    double time = _t_hits[_u_MMuPC1AnalysisMQL_171].time;
+    int parameter = _t_hits[_u_MMuPC1AnalysisMQL_171].parameter;
     if((parameter >= 4001) && (parameter <= 4074))
     {
       {
@@ -1851,9 +1927,9 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
             double time_0 = time;
             int Xwire = parameter - 4000;
             double time = time_0;
-            int _u_MMuPC1AnalysisMQL_164 = _t_muPC1X_raw.next();
-            _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_164].time = time_0;
-            _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_164].Xwire = Xwire;
+            int _u_MMuPC1AnalysisMQL_172 = _t_muPC1X_raw.next();
+            _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_172].time = time_0;
+            _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_172].Xwire = Xwire;
           }
         }
         if((parameter >= 4051) && (parameter <= (4050+kMuPC1NumYWires)))
@@ -1862,9 +1938,9 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
             double time_0 = time;
             int Ywire = parameter - 4050;
             double time = time_0;
-            int _u_MMuPC1AnalysisMQL_165 = _t_muPC1Y_raw.next();
-            _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_165].time = time_0;
-            _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_165].Ywire = Ywire;
+            int _u_MMuPC1AnalysisMQL_173 = _t_muPC1Y_raw.next();
+            _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_173].time = time_0;
+            _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_173].Ywire = Ywire;
           }
         }
         if(Tier1)
@@ -1873,53 +1949,62 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         }
       }
     }
+    if((parameter == 6011))
+    {
+      {
+        double time_0 = time;
+        double time = time_0;
+        int _u_MMuPC1AnalysisMQL_174 = _t_muSC.next();
+        _t_muSC[_u_MMuPC1AnalysisMQL_174].time = time_0;
+      }
+    }
   }
   if(Tier3)
   {
-    for(int _u_MMuPC1AnalysisMQL_166 = 0; _u_MMuPC1AnalysisMQL_166 < _t_muPC1X_raw.size(); _u_MMuPC1AnalysisMQL_166++)
+    for(int _u_MMuPC1AnalysisMQL_175 = 0; _u_MMuPC1AnalysisMQL_175 < _t_muPC1X_raw.size(); _u_MMuPC1AnalysisMQL_175++)
     {
-      double time = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_166].time;
-      int Xwire = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_166].Xwire;
+      double time = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_175].time;
+      int Xwire = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_175].Xwire;
       {
         
-        double time_1 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_166].time;
-        int Xwire_1 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_166].Xwire;
+        double time_1 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_175].time;
+        int Xwire_1 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_175].Xwire;
         
-        if(!_u_MMuPC1AnalysisMQL_90)
+        if(!_u_MMuPC1AnalysisMQL_94)
         {
-          if(!_t_muPC1X_raw.checkSort(_u_MMuPC1AnalysisMQL_38))
+          if(!_t_muPC1X_raw.checkSort(_u_MMuPC1AnalysisMQL_40))
           {
-            printf("Warning: table muPC1X_raw is not sorted on time_2 as required for join with muPC1X_raw (_u_MMuPC1AnalysisMQL_38)\n");
+            printf("Warning: table muPC1X_raw is not sorted on time_2 as required for join with muPC1X_raw (_u_MMuPC1AnalysisMQL_40)\n");
           }
-          _u_MMuPC1AnalysisMQL_90 = true;
+          _u_MMuPC1AnalysisMQL_94 = true;
         }
-        else if(!_u_MMuPC1AnalysisMQL_91)
+        else if(!_u_MMuPC1AnalysisMQL_95)
         {
-          if(!(time_1 >= _u_MMuPC1AnalysisMQL_89))
+          if(!(time_1 >= _u_MMuPC1AnalysisMQL_93))
           {
             printf("Warning: table muPC1X_raw is not sorted on time_1 as required for join with muPC1X_raw\n");
-            _u_MMuPC1AnalysisMQL_91 = true;
+            _u_MMuPC1AnalysisMQL_95 = true;
           }
         }
-        _u_MMuPC1AnalysisMQL_89 = time_1;
-        for( ; _u_MMuPC1AnalysisMQL_88 < _t_muPC1X_raw.size(); _u_MMuPC1AnalysisMQL_88++)
+        _u_MMuPC1AnalysisMQL_93 = time_1;
+        for( ; _u_MMuPC1AnalysisMQL_92 < _t_muPC1X_raw.size(); _u_MMuPC1AnalysisMQL_92++)
         {
-          double time_2 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_88].time;
-          int Xwire_2 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_88].Xwire;
+          double time_2 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_92].time;
+          int Xwire_2 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_92].Xwire;
           
-          double _u_MMuPC1AnalysisMQL_167 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_167 < 1)
+          double _u_MMuPC1AnalysisMQL_176 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_176 < 1)
           {
             break;
           }
         }
-        for(int _u_MMuPC1AnalysisMQL_169 = _u_MMuPC1AnalysisMQL_88; _u_MMuPC1AnalysisMQL_169 < _t_muPC1X_raw.size(); _u_MMuPC1AnalysisMQL_169++)
+        for(int _u_MMuPC1AnalysisMQL_178 = _u_MMuPC1AnalysisMQL_92; _u_MMuPC1AnalysisMQL_178 < _t_muPC1X_raw.size(); _u_MMuPC1AnalysisMQL_178++)
         {
-          double time_2 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_169].time;
-          int Xwire_2 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_169].Xwire;
+          double time_2 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_178].time;
+          int Xwire_2 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_178].Xwire;
           
-          double _u_MMuPC1AnalysisMQL_167 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_167 < -50005)
+          double _u_MMuPC1AnalysisMQL_176 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_176 < -50005)
           {
             break;
           }
@@ -1955,49 +2040,49 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
       }
     }
   }
-  bool _u_MMuPC1AnalysisMQL_170[_t_muPC1X_raw.size()];
-  memset(_u_MMuPC1AnalysisMQL_170, 0, sizeof(_u_MMuPC1AnalysisMQL_170));
-  if(!_t_muPC1X_raw.checkSort(_u_MMuPC1AnalysisMQL_39))
+  bool _u_MMuPC1AnalysisMQL_179[_t_muPC1X_raw.size()];
+  memset(_u_MMuPC1AnalysisMQL_179, 0, sizeof(_u_MMuPC1AnalysisMQL_179));
+  if(!_t_muPC1X_raw.checkSort(_u_MMuPC1AnalysisMQL_41))
   {
     printf("Warning: table muPC1X_raw is not sorted on time_1 as required for cluster.\n");
   }
-  for(int _u_MMuPC1AnalysisMQL_171 = 0; _u_MMuPC1AnalysisMQL_171 < _t_muPC1X_raw.size(); _u_MMuPC1AnalysisMQL_171++)
+  for(int _u_MMuPC1AnalysisMQL_180 = 0; _u_MMuPC1AnalysisMQL_180 < _t_muPC1X_raw.size(); _u_MMuPC1AnalysisMQL_180++)
   {
-    double time = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_171].time;
-    int Xwire = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_171].Xwire;
-    if(_u_MMuPC1AnalysisMQL_170[_u_MMuPC1AnalysisMQL_171])
+    double time = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_180].time;
+    int Xwire = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_180].Xwire;
+    if(_u_MMuPC1AnalysisMQL_179[_u_MMuPC1AnalysisMQL_180])
     {
       continue;
     }
-    _u_MMuPC1AnalysisMQL_170[_u_MMuPC1AnalysisMQL_171] = true;
+    _u_MMuPC1AnalysisMQL_179[_u_MMuPC1AnalysisMQL_180] = true;
     int cluster_size = 1;
     int cluster_members[_t_muPC1X_raw.size()];
-    cluster_members[0] = _u_MMuPC1AnalysisMQL_171;
+    cluster_members[0] = _u_MMuPC1AnalysisMQL_180;
     
-    for(int _u_MMuPC1AnalysisMQL_172 = _u_MMuPC1AnalysisMQL_171 + 1; _u_MMuPC1AnalysisMQL_172 < _t_muPC1X_raw.size(); _u_MMuPC1AnalysisMQL_172++)
+    for(int _u_MMuPC1AnalysisMQL_181 = _u_MMuPC1AnalysisMQL_180 + 1; _u_MMuPC1AnalysisMQL_181 < _t_muPC1X_raw.size(); _u_MMuPC1AnalysisMQL_181++)
     {
-      if(_u_MMuPC1AnalysisMQL_170[_u_MMuPC1AnalysisMQL_172])
+      if(_u_MMuPC1AnalysisMQL_179[_u_MMuPC1AnalysisMQL_181])
       {
         continue;
       }
       bool coincidence_seen = false;
-      for(int _u_MMuPC1AnalysisMQL_173 = 0; _u_MMuPC1AnalysisMQL_173 < cluster_size; _u_MMuPC1AnalysisMQL_173++)
+      for(int _u_MMuPC1AnalysisMQL_182 = 0; _u_MMuPC1AnalysisMQL_182 < cluster_size; _u_MMuPC1AnalysisMQL_182++)
       {
-        int _u_MMuPC1AnalysisMQL_174 = cluster_members[_u_MMuPC1AnalysisMQL_173];
-        double time_1 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_174].time;
-        double time_2 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_172].time;
-        int Xwire_1 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_174].Xwire;
-        int Xwire_2 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_172].Xwire;
+        int _u_MMuPC1AnalysisMQL_183 = cluster_members[_u_MMuPC1AnalysisMQL_182];
+        double time_1 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_183].time;
+        double time_2 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_181].time;
+        int Xwire_1 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_183].Xwire;
+        int Xwire_2 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_181].Xwire;
         
-        double _u_MMuPC1AnalysisMQL_175 = time_1 - time_2;
-        if(_u_MMuPC1AnalysisMQL_175 < -1000)
+        double _u_MMuPC1AnalysisMQL_184 = time_1 - time_2;
+        if(_u_MMuPC1AnalysisMQL_184 < -1000)
         {
           continue;
         }
         coincidence_seen = true;
-        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_172;
-        _u_MMuPC1AnalysisMQL_170[_u_MMuPC1AnalysisMQL_172] = true;
-        _u_MMuPC1AnalysisMQL_172 = _u_MMuPC1AnalysisMQL_171;
+        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_181;
+        _u_MMuPC1AnalysisMQL_179[_u_MMuPC1AnalysisMQL_181] = true;
+        _u_MMuPC1AnalysisMQL_181 = _u_MMuPC1AnalysisMQL_180;
         break;
       }
       if(!coincidence_seen)
@@ -2005,28 +2090,28 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         break;
       }
     }
-    double time_min = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_171].time;
+    double time_min = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_180].time;
     double time_max = time_min;
     double time_sum = 0;
-    int Xwire_min = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_171].Xwire;
+    int Xwire_min = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_180].Xwire;
     int Xwire_max = Xwire_min;
     int Xwire_sum = 0;
-    for(int _u_MMuPC1AnalysisMQL_173 = 0; _u_MMuPC1AnalysisMQL_173 < cluster_size; _u_MMuPC1AnalysisMQL_173++)
+    for(int _u_MMuPC1AnalysisMQL_182 = 0; _u_MMuPC1AnalysisMQL_182 < cluster_size; _u_MMuPC1AnalysisMQL_182++)
     {
-      int _u_MMuPC1AnalysisMQL_174 = cluster_members[_u_MMuPC1AnalysisMQL_173];
-      time = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_174].time;
+      int _u_MMuPC1AnalysisMQL_183 = cluster_members[_u_MMuPC1AnalysisMQL_182];
+      time = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_183].time;
       time_min = MIN(time_min, time);
       time_max = MAX(time_max, time);
       time_sum = time_sum + time;
-      Xwire = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_174].Xwire;
+      Xwire = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_183].Xwire;
       Xwire_min = MIN(Xwire_min, Xwire);
       Xwire_max = MAX(Xwire_max, Xwire);
       Xwire_sum = Xwire_sum + Xwire;
     }
-    double time_1 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_171].time;
+    double time_1 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_180].time;
     double time_avg = time_sum/((double)cluster_size);
     double time_width = time_max - time_min + 1;
-    int Xwire_1 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_171].Xwire;
+    int Xwire_1 = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_180].Xwire;
     double Xwire_avg = Xwire_sum/((double)cluster_size);
     int Xwire_width = Xwire_max - Xwire_min + 1;
     {
@@ -2042,8 +2127,8 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
           {
             _h_muPC1_spark_count_Xwires->Fill(1);
           }
-          int _u_MMuPC1AnalysisMQL_176 = _t_muPC1X_sparks.next();
-          _t_muPC1X_sparks[_u_MMuPC1AnalysisMQL_176].time = time_0;
+          int _u_MMuPC1AnalysisMQL_185 = _t_muPC1X_sparks.next();
+          _t_muPC1X_sparks[_u_MMuPC1AnalysisMQL_185].time = time_0;
         }
       }
       if(Tier1)
@@ -2052,115 +2137,115 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
       }
     }
   }
-  _t_muPC1X_spark_search.sort(_u_MMuPC1AnalysisMQL_40);
-  for(int _u_MMuPC1AnalysisMQL_177 = 0; _u_MMuPC1AnalysisMQL_177 < _t_muPC1X_raw.size(); _u_MMuPC1AnalysisMQL_177++)
+  _t_muPC1X_spark_search.sort(_u_MMuPC1AnalysisMQL_42);
+  for(int _u_MMuPC1AnalysisMQL_186 = 0; _u_MMuPC1AnalysisMQL_186 < _t_muPC1X_raw.size(); _u_MMuPC1AnalysisMQL_186++)
   {
-    double time = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_177].time;
-    int Xwire = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_177].Xwire;
+    double time = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_186].time;
+    int Xwire = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_186].Xwire;
     {
       
-      double muPC1X_raw_time = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_177].time;
-      int Xwire = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_177].Xwire;
+      double muPC1X_raw_time = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_186].time;
+      int Xwire = _t_muPC1X_raw[_u_MMuPC1AnalysisMQL_186].Xwire;
       
-      if(!_u_MMuPC1AnalysisMQL_95)
+      if(!_u_MMuPC1AnalysisMQL_99)
       {
-        if(!_t_muPC1X_sparks.checkSort(_u_MMuPC1AnalysisMQL_42))
+        if(!_t_muPC1X_sparks.checkSort(_u_MMuPC1AnalysisMQL_44))
         {
-          printf("Warning: table muPC1X_sparks is not sorted on muPC1X_sparks_time as required for join with muPC1X_raw (_u_MMuPC1AnalysisMQL_42)\n");
+          printf("Warning: table muPC1X_sparks is not sorted on muPC1X_sparks_time as required for join with muPC1X_raw (_u_MMuPC1AnalysisMQL_44)\n");
         }
-        _u_MMuPC1AnalysisMQL_95 = true;
+        _u_MMuPC1AnalysisMQL_99 = true;
       }
-      else if(!_u_MMuPC1AnalysisMQL_96)
+      else if(!_u_MMuPC1AnalysisMQL_100)
       {
-        if(!(muPC1X_raw_time >= _u_MMuPC1AnalysisMQL_94))
+        if(!(muPC1X_raw_time >= _u_MMuPC1AnalysisMQL_98))
         {
           printf("Warning: table muPC1X_raw is not sorted on muPC1X_raw_time as required for join with muPC1X_sparks\n");
-          _u_MMuPC1AnalysisMQL_96 = true;
+          _u_MMuPC1AnalysisMQL_100 = true;
         }
       }
-      _u_MMuPC1AnalysisMQL_94 = muPC1X_raw_time;
-      for( ; _u_MMuPC1AnalysisMQL_93 < _t_muPC1X_sparks.size(); _u_MMuPC1AnalysisMQL_93++)
+      _u_MMuPC1AnalysisMQL_98 = muPC1X_raw_time;
+      for( ; _u_MMuPC1AnalysisMQL_97 < _t_muPC1X_sparks.size(); _u_MMuPC1AnalysisMQL_97++)
       {
-        double muPC1X_sparks_time = _t_muPC1X_sparks[_u_MMuPC1AnalysisMQL_93].time;
+        double muPC1X_sparks_time = _t_muPC1X_sparks[_u_MMuPC1AnalysisMQL_97].time;
         
-        double _u_MMuPC1AnalysisMQL_178 = muPC1X_raw_time - muPC1X_sparks_time;
-        if(_u_MMuPC1AnalysisMQL_178 < kSparkCutDeadtime)
+        double _u_MMuPC1AnalysisMQL_187 = muPC1X_raw_time - muPC1X_sparks_time;
+        if(_u_MMuPC1AnalysisMQL_187 < kSparkCutDeadtime)
         {
           break;
         }
       }
-      _u_MMuPC1AnalysisMQL_97 = 0;
-      for(int _u_MMuPC1AnalysisMQL_180 = _u_MMuPC1AnalysisMQL_93; _u_MMuPC1AnalysisMQL_180 < _t_muPC1X_sparks.size(); _u_MMuPC1AnalysisMQL_180++)
+      _u_MMuPC1AnalysisMQL_101 = 0;
+      for(int _u_MMuPC1AnalysisMQL_189 = _u_MMuPC1AnalysisMQL_97; _u_MMuPC1AnalysisMQL_189 < _t_muPC1X_sparks.size(); _u_MMuPC1AnalysisMQL_189++)
       {
-        double muPC1X_sparks_time = _t_muPC1X_sparks[_u_MMuPC1AnalysisMQL_180].time;
+        double muPC1X_sparks_time = _t_muPC1X_sparks[_u_MMuPC1AnalysisMQL_189].time;
         
-        double _u_MMuPC1AnalysisMQL_178 = muPC1X_raw_time - muPC1X_sparks_time;
-        if(_u_MMuPC1AnalysisMQL_178 < -100)
+        double _u_MMuPC1AnalysisMQL_187 = muPC1X_raw_time - muPC1X_sparks_time;
+        if(_u_MMuPC1AnalysisMQL_187 < -100)
         {
           break;
         }
-        _u_MMuPC1AnalysisMQL_97++;
+        _u_MMuPC1AnalysisMQL_101++;
       }
       
-      if(_u_MMuPC1AnalysisMQL_97 == 0)
+      if(_u_MMuPC1AnalysisMQL_101 == 0)
       {
         {
           double time = muPC1X_raw_time;
           int Xwire_0 = Xwire;
           int Xwire = Xwire_0;
-          int _u_MMuPC1AnalysisMQL_181 = _t_muPC1X_SC.next();
-          _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_181].time = time;
-          _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_181].Xwire = Xwire_0;
+          int _u_MMuPC1AnalysisMQL_190 = _t_muPC1X_SC.next();
+          _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_190].time = time;
+          _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_190].Xwire = Xwire_0;
         }
       }
     }
   }
   if(Tier3)
   {
-    for(int _u_MMuPC1AnalysisMQL_182 = 0; _u_MMuPC1AnalysisMQL_182 < _t_muPC1X_SC.size(); _u_MMuPC1AnalysisMQL_182++)
+    for(int _u_MMuPC1AnalysisMQL_191 = 0; _u_MMuPC1AnalysisMQL_191 < _t_muPC1X_SC.size(); _u_MMuPC1AnalysisMQL_191++)
     {
-      double time = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_182].time;
-      int Xwire = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_182].Xwire;
+      double time = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_191].time;
+      int Xwire = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_191].Xwire;
       {
         
-        double time_1 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_182].time;
-        int Xwire_1 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_182].Xwire;
+        double time_1 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_191].time;
+        int Xwire_1 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_191].Xwire;
         
-        if(!_u_MMuPC1AnalysisMQL_100)
+        if(!_u_MMuPC1AnalysisMQL_104)
         {
-          if(!_t_muPC1X_SC.checkSort(_u_MMuPC1AnalysisMQL_44))
+          if(!_t_muPC1X_SC.checkSort(_u_MMuPC1AnalysisMQL_46))
           {
-            printf("Warning: table muPC1X_SC is not sorted on time_2 as required for join with muPC1X_SC (_u_MMuPC1AnalysisMQL_44)\n");
+            printf("Warning: table muPC1X_SC is not sorted on time_2 as required for join with muPC1X_SC (_u_MMuPC1AnalysisMQL_46)\n");
           }
-          _u_MMuPC1AnalysisMQL_100 = true;
+          _u_MMuPC1AnalysisMQL_104 = true;
         }
-        else if(!_u_MMuPC1AnalysisMQL_101)
+        else if(!_u_MMuPC1AnalysisMQL_105)
         {
-          if(!(time_1 >= _u_MMuPC1AnalysisMQL_99))
+          if(!(time_1 >= _u_MMuPC1AnalysisMQL_103))
           {
             printf("Warning: table muPC1X_SC is not sorted on time_1 as required for join with muPC1X_SC\n");
-            _u_MMuPC1AnalysisMQL_101 = true;
+            _u_MMuPC1AnalysisMQL_105 = true;
           }
         }
-        _u_MMuPC1AnalysisMQL_99 = time_1;
-        for( ; _u_MMuPC1AnalysisMQL_98 < _t_muPC1X_SC.size(); _u_MMuPC1AnalysisMQL_98++)
+        _u_MMuPC1AnalysisMQL_103 = time_1;
+        for( ; _u_MMuPC1AnalysisMQL_102 < _t_muPC1X_SC.size(); _u_MMuPC1AnalysisMQL_102++)
         {
-          double time_2 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_98].time;
-          int Xwire_2 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_98].Xwire;
+          double time_2 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_102].time;
+          int Xwire_2 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_102].Xwire;
           
-          double _u_MMuPC1AnalysisMQL_183 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_183 < 1)
+          double _u_MMuPC1AnalysisMQL_192 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_192 < 1)
           {
             break;
           }
         }
-        for(int _u_MMuPC1AnalysisMQL_185 = _u_MMuPC1AnalysisMQL_98; _u_MMuPC1AnalysisMQL_185 < _t_muPC1X_SC.size(); _u_MMuPC1AnalysisMQL_185++)
+        for(int _u_MMuPC1AnalysisMQL_194 = _u_MMuPC1AnalysisMQL_102; _u_MMuPC1AnalysisMQL_194 < _t_muPC1X_SC.size(); _u_MMuPC1AnalysisMQL_194++)
         {
-          double time_2 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_185].time;
-          int Xwire_2 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_185].Xwire;
+          double time_2 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_194].time;
+          int Xwire_2 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_194].Xwire;
           
-          double _u_MMuPC1AnalysisMQL_183 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_183 < -50005)
+          double _u_MMuPC1AnalysisMQL_192 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_192 < -50005)
           {
             break;
           }
@@ -2192,43 +2277,43 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
       }
     }
   }
-  bool _u_MMuPC1AnalysisMQL_186[_t_muPC1X_SC.size()];
-  memset(_u_MMuPC1AnalysisMQL_186, 0, sizeof(_u_MMuPC1AnalysisMQL_186));
-  if(!_t_muPC1X_SC.checkSort(_u_MMuPC1AnalysisMQL_45))
+  bool _u_MMuPC1AnalysisMQL_195[_t_muPC1X_SC.size()];
+  memset(_u_MMuPC1AnalysisMQL_195, 0, sizeof(_u_MMuPC1AnalysisMQL_195));
+  if(!_t_muPC1X_SC.checkSort(_u_MMuPC1AnalysisMQL_47))
   {
     printf("Warning: table muPC1X_SC is not sorted on time_1 as required for cluster.\n");
   }
-  for(int _u_MMuPC1AnalysisMQL_187 = 0; _u_MMuPC1AnalysisMQL_187 < _t_muPC1X_SC.size(); _u_MMuPC1AnalysisMQL_187++)
+  for(int _u_MMuPC1AnalysisMQL_196 = 0; _u_MMuPC1AnalysisMQL_196 < _t_muPC1X_SC.size(); _u_MMuPC1AnalysisMQL_196++)
   {
-    double time = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_187].time;
-    int Xwire = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_187].Xwire;
-    if(_u_MMuPC1AnalysisMQL_186[_u_MMuPC1AnalysisMQL_187])
+    double time = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_196].time;
+    int Xwire = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_196].Xwire;
+    if(_u_MMuPC1AnalysisMQL_195[_u_MMuPC1AnalysisMQL_196])
     {
       continue;
     }
-    _u_MMuPC1AnalysisMQL_186[_u_MMuPC1AnalysisMQL_187] = true;
+    _u_MMuPC1AnalysisMQL_195[_u_MMuPC1AnalysisMQL_196] = true;
     int cluster_size = 1;
     int cluster_members[_t_muPC1X_SC.size()];
-    cluster_members[0] = _u_MMuPC1AnalysisMQL_187;
+    cluster_members[0] = _u_MMuPC1AnalysisMQL_196;
     
-    for(int _u_MMuPC1AnalysisMQL_188 = _u_MMuPC1AnalysisMQL_187 + 1; _u_MMuPC1AnalysisMQL_188 < _t_muPC1X_SC.size(); _u_MMuPC1AnalysisMQL_188++)
+    for(int _u_MMuPC1AnalysisMQL_197 = _u_MMuPC1AnalysisMQL_196 + 1; _u_MMuPC1AnalysisMQL_197 < _t_muPC1X_SC.size(); _u_MMuPC1AnalysisMQL_197++)
     {
-      if(_u_MMuPC1AnalysisMQL_186[_u_MMuPC1AnalysisMQL_188])
+      if(_u_MMuPC1AnalysisMQL_195[_u_MMuPC1AnalysisMQL_197])
       {
         continue;
       }
       bool coincidence_seen = false;
-      for(int _u_MMuPC1AnalysisMQL_189 = 0; _u_MMuPC1AnalysisMQL_189 < cluster_size; _u_MMuPC1AnalysisMQL_189++)
+      for(int _u_MMuPC1AnalysisMQL_198 = 0; _u_MMuPC1AnalysisMQL_198 < cluster_size; _u_MMuPC1AnalysisMQL_198++)
       {
-        if(_u_MMuPC1AnalysisMQL_189 > 0) break;
-        int _u_MMuPC1AnalysisMQL_190 = cluster_members[_u_MMuPC1AnalysisMQL_189];
-        double time_1 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_190].time;
-        double time_2 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_188].time;
-        int Xwire_1 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_190].Xwire;
-        int Xwire_2 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_188].Xwire;
+        if(_u_MMuPC1AnalysisMQL_198 > 0) break;
+        int _u_MMuPC1AnalysisMQL_199 = cluster_members[_u_MMuPC1AnalysisMQL_198];
+        double time_1 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_199].time;
+        double time_2 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_197].time;
+        int Xwire_1 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_199].Xwire;
+        int Xwire_2 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_197].Xwire;
         
-        double _u_MMuPC1AnalysisMQL_191 = time_1 - time_2;
-        if(_u_MMuPC1AnalysisMQL_191 < -kMuPC1XClusterInterval)
+        double _u_MMuPC1AnalysisMQL_200 = time_1 - time_2;
+        if(_u_MMuPC1AnalysisMQL_200 < -kMuPC1XClusterInterval)
         {
           continue;
         }
@@ -2237,8 +2322,8 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         {
           continue;
         }
-        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_188;
-        _u_MMuPC1AnalysisMQL_186[_u_MMuPC1AnalysisMQL_188] = true;
+        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_197;
+        _u_MMuPC1AnalysisMQL_195[_u_MMuPC1AnalysisMQL_197] = true;
         break;
       }
       if(!coincidence_seen)
@@ -2246,85 +2331,85 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         break;
       }
     }
-    double time_min = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_187].time;
+    double time_min = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_196].time;
     double time_max = time_min;
     double time_sum = 0;
-    int Xwire_min = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_187].Xwire;
+    int Xwire_min = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_196].Xwire;
     int Xwire_max = Xwire_min;
     int Xwire_sum = 0;
-    for(int _u_MMuPC1AnalysisMQL_189 = 0; _u_MMuPC1AnalysisMQL_189 < cluster_size; _u_MMuPC1AnalysisMQL_189++)
+    for(int _u_MMuPC1AnalysisMQL_198 = 0; _u_MMuPC1AnalysisMQL_198 < cluster_size; _u_MMuPC1AnalysisMQL_198++)
     {
-      int _u_MMuPC1AnalysisMQL_190 = cluster_members[_u_MMuPC1AnalysisMQL_189];
-      time = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_190].time;
+      int _u_MMuPC1AnalysisMQL_199 = cluster_members[_u_MMuPC1AnalysisMQL_198];
+      time = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_199].time;
       time_min = MIN(time_min, time);
       time_max = MAX(time_max, time);
       time_sum = time_sum + time;
-      Xwire = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_190].Xwire;
+      Xwire = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_199].Xwire;
       Xwire_min = MIN(Xwire_min, Xwire);
       Xwire_max = MAX(Xwire_max, Xwire);
       Xwire_sum = Xwire_sum + Xwire;
     }
-    double time_1 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_187].time;
+    double time_1 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_196].time;
     double time_avg = time_sum/((double)cluster_size);
     double time_width = time_max - time_min + 1;
-    int Xwire_1 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_187].Xwire;
+    int Xwire_1 = _t_muPC1X_SC[_u_MMuPC1AnalysisMQL_196].Xwire;
     double Xwire_avg = Xwire_sum/((double)cluster_size);
     int Xwire_width = Xwire_max - Xwire_min + 1;
     {
       double time = time_min;
       int Xwire = Xwire_1;
-      int _u_MMuPC1AnalysisMQL_192 = _t_muPC1X_AD.next();
-      _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_192].time = time;
-      _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_192].Xwire = Xwire;
+      int _u_MMuPC1AnalysisMQL_201 = _t_muPC1X_AD.next();
+      _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_201].time = time;
+      _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_201].Xwire = Xwire;
     }
   }
-  _t_muPC1X_AD.sort(_u_MMuPC1AnalysisMQL_46);
+  _t_muPC1X_AD.sort(_u_MMuPC1AnalysisMQL_48);
   if(Tier3)
   {
-    for(int _u_MMuPC1AnalysisMQL_193 = 0; _u_MMuPC1AnalysisMQL_193 < _t_muPC1X_AD.size(); _u_MMuPC1AnalysisMQL_193++)
+    for(int _u_MMuPC1AnalysisMQL_202 = 0; _u_MMuPC1AnalysisMQL_202 < _t_muPC1X_AD.size(); _u_MMuPC1AnalysisMQL_202++)
     {
-      double time = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_193].time;
-      int Xwire = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_193].Xwire;
+      double time = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_202].time;
+      int Xwire = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_202].Xwire;
       {
         
-        double time_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_193].time;
-        int Xwire_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_193].Xwire;
+        double time_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_202].time;
+        int Xwire_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_202].Xwire;
         
-        if(!_u_MMuPC1AnalysisMQL_105)
+        if(!_u_MMuPC1AnalysisMQL_109)
         {
-          if(!_t_muPC1X_AD.checkSort(_u_MMuPC1AnalysisMQL_48))
+          if(!_t_muPC1X_AD.checkSort(_u_MMuPC1AnalysisMQL_50))
           {
-            printf("Warning: table muPC1X_AD is not sorted on time_2 as required for join with muPC1X_AD (_u_MMuPC1AnalysisMQL_48)\n");
+            printf("Warning: table muPC1X_AD is not sorted on time_2 as required for join with muPC1X_AD (_u_MMuPC1AnalysisMQL_50)\n");
           }
-          _u_MMuPC1AnalysisMQL_105 = true;
+          _u_MMuPC1AnalysisMQL_109 = true;
         }
-        else if(!_u_MMuPC1AnalysisMQL_106)
+        else if(!_u_MMuPC1AnalysisMQL_110)
         {
-          if(!(time_1 >= _u_MMuPC1AnalysisMQL_104))
+          if(!(time_1 >= _u_MMuPC1AnalysisMQL_108))
           {
             printf("Warning: table muPC1X_AD is not sorted on time_1 as required for join with muPC1X_AD\n");
-            _u_MMuPC1AnalysisMQL_106 = true;
+            _u_MMuPC1AnalysisMQL_110 = true;
           }
         }
-        _u_MMuPC1AnalysisMQL_104 = time_1;
-        for( ; _u_MMuPC1AnalysisMQL_103 < _t_muPC1X_AD.size(); _u_MMuPC1AnalysisMQL_103++)
+        _u_MMuPC1AnalysisMQL_108 = time_1;
+        for( ; _u_MMuPC1AnalysisMQL_107 < _t_muPC1X_AD.size(); _u_MMuPC1AnalysisMQL_107++)
         {
-          double time_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_103].time;
-          int Xwire_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_103].Xwire;
+          double time_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_107].time;
+          int Xwire_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_107].Xwire;
           
-          double _u_MMuPC1AnalysisMQL_194 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_194 < 1)
+          double _u_MMuPC1AnalysisMQL_203 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_203 < 1)
           {
             break;
           }
         }
-        for(int _u_MMuPC1AnalysisMQL_196 = _u_MMuPC1AnalysisMQL_103; _u_MMuPC1AnalysisMQL_196 < _t_muPC1X_AD.size(); _u_MMuPC1AnalysisMQL_196++)
+        for(int _u_MMuPC1AnalysisMQL_205 = _u_MMuPC1AnalysisMQL_107; _u_MMuPC1AnalysisMQL_205 < _t_muPC1X_AD.size(); _u_MMuPC1AnalysisMQL_205++)
         {
-          double time_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_196].time;
-          int Xwire_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_196].Xwire;
+          double time_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_205].time;
+          int Xwire_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_205].Xwire;
           
-          double _u_MMuPC1AnalysisMQL_194 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_194 < -50005)
+          double _u_MMuPC1AnalysisMQL_203 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_203 < -50005)
           {
             break;
           }
@@ -2356,42 +2441,42 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
       }
     }
   }
-  bool _u_MMuPC1AnalysisMQL_197[_t_muPC1X_AD.size()];
-  memset(_u_MMuPC1AnalysisMQL_197, 0, sizeof(_u_MMuPC1AnalysisMQL_197));
-  if(!_t_muPC1X_AD.checkSort(_u_MMuPC1AnalysisMQL_49))
+  bool _u_MMuPC1AnalysisMQL_206[_t_muPC1X_AD.size()];
+  memset(_u_MMuPC1AnalysisMQL_206, 0, sizeof(_u_MMuPC1AnalysisMQL_206));
+  if(!_t_muPC1X_AD.checkSort(_u_MMuPC1AnalysisMQL_51))
   {
     printf("Warning: table muPC1X_AD is not sorted on time_1 as required for cluster.\n");
   }
-  for(int _u_MMuPC1AnalysisMQL_198 = 0; _u_MMuPC1AnalysisMQL_198 < _t_muPC1X_AD.size(); _u_MMuPC1AnalysisMQL_198++)
+  for(int _u_MMuPC1AnalysisMQL_207 = 0; _u_MMuPC1AnalysisMQL_207 < _t_muPC1X_AD.size(); _u_MMuPC1AnalysisMQL_207++)
   {
-    double time = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_198].time;
-    int Xwire = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_198].Xwire;
-    if(_u_MMuPC1AnalysisMQL_197[_u_MMuPC1AnalysisMQL_198])
+    double time = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_207].time;
+    int Xwire = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_207].Xwire;
+    if(_u_MMuPC1AnalysisMQL_206[_u_MMuPC1AnalysisMQL_207])
     {
       continue;
     }
-    _u_MMuPC1AnalysisMQL_197[_u_MMuPC1AnalysisMQL_198] = true;
+    _u_MMuPC1AnalysisMQL_206[_u_MMuPC1AnalysisMQL_207] = true;
     int cluster_size = 1;
     int cluster_members[_t_muPC1X_AD.size()];
-    cluster_members[0] = _u_MMuPC1AnalysisMQL_198;
+    cluster_members[0] = _u_MMuPC1AnalysisMQL_207;
     
-    for(int _u_MMuPC1AnalysisMQL_199 = _u_MMuPC1AnalysisMQL_198 + 1; _u_MMuPC1AnalysisMQL_199 < _t_muPC1X_AD.size(); _u_MMuPC1AnalysisMQL_199++)
+    for(int _u_MMuPC1AnalysisMQL_208 = _u_MMuPC1AnalysisMQL_207 + 1; _u_MMuPC1AnalysisMQL_208 < _t_muPC1X_AD.size(); _u_MMuPC1AnalysisMQL_208++)
     {
-      if(_u_MMuPC1AnalysisMQL_197[_u_MMuPC1AnalysisMQL_199])
+      if(_u_MMuPC1AnalysisMQL_206[_u_MMuPC1AnalysisMQL_208])
       {
         continue;
       }
       bool coincidence_seen = false;
-      for(int _u_MMuPC1AnalysisMQL_200 = 0; _u_MMuPC1AnalysisMQL_200 < cluster_size; _u_MMuPC1AnalysisMQL_200++)
+      for(int _u_MMuPC1AnalysisMQL_209 = 0; _u_MMuPC1AnalysisMQL_209 < cluster_size; _u_MMuPC1AnalysisMQL_209++)
       {
-        int _u_MMuPC1AnalysisMQL_201 = cluster_members[_u_MMuPC1AnalysisMQL_200];
-        double time_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_201].time;
-        double time_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_199].time;
-        int Xwire_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_201].Xwire;
-        int Xwire_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_199].Xwire;
+        int _u_MMuPC1AnalysisMQL_210 = cluster_members[_u_MMuPC1AnalysisMQL_209];
+        double time_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_210].time;
+        double time_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_208].time;
+        int Xwire_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_210].Xwire;
+        int Xwire_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_208].Xwire;
         
-        double _u_MMuPC1AnalysisMQL_202 = time_1 - time_2;
-        if(_u_MMuPC1AnalysisMQL_202 < -kMuPC1XClusterInterval)
+        double _u_MMuPC1AnalysisMQL_211 = time_1 - time_2;
+        if(_u_MMuPC1AnalysisMQL_211 < -kMuPC1XClusterInterval)
         {
           continue;
         }
@@ -2400,9 +2485,9 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         {
           continue;
         }
-        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_199;
-        _u_MMuPC1AnalysisMQL_197[_u_MMuPC1AnalysisMQL_199] = true;
-        _u_MMuPC1AnalysisMQL_199 = _u_MMuPC1AnalysisMQL_198;
+        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_208;
+        _u_MMuPC1AnalysisMQL_206[_u_MMuPC1AnalysisMQL_208] = true;
+        _u_MMuPC1AnalysisMQL_208 = _u_MMuPC1AnalysisMQL_207;
         break;
       }
       if(!coincidence_seen)
@@ -2410,28 +2495,28 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         break;
       }
     }
-    double time_min = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_198].time;
+    double time_min = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_207].time;
     double time_max = time_min;
     double time_sum = 0;
-    int Xwire_min = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_198].Xwire;
+    int Xwire_min = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_207].Xwire;
     int Xwire_max = Xwire_min;
     int Xwire_sum = 0;
-    for(int _u_MMuPC1AnalysisMQL_200 = 0; _u_MMuPC1AnalysisMQL_200 < cluster_size; _u_MMuPC1AnalysisMQL_200++)
+    for(int _u_MMuPC1AnalysisMQL_209 = 0; _u_MMuPC1AnalysisMQL_209 < cluster_size; _u_MMuPC1AnalysisMQL_209++)
     {
-      int _u_MMuPC1AnalysisMQL_201 = cluster_members[_u_MMuPC1AnalysisMQL_200];
-      time = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_201].time;
+      int _u_MMuPC1AnalysisMQL_210 = cluster_members[_u_MMuPC1AnalysisMQL_209];
+      time = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_210].time;
       time_min = MIN(time_min, time);
       time_max = MAX(time_max, time);
       time_sum = time_sum + time;
-      Xwire = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_201].Xwire;
+      Xwire = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_210].Xwire;
       Xwire_min = MIN(Xwire_min, Xwire);
       Xwire_max = MAX(Xwire_max, Xwire);
       Xwire_sum = Xwire_sum + Xwire;
     }
-    double time_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_198].time;
+    double time_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_207].time;
     double time_avg = time_sum/((double)cluster_size);
     double time_width = time_max - time_min + 1;
-    int Xwire_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_198].Xwire;
+    int Xwire_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_207].Xwire;
     double Xwire_avg = Xwire_sum/((double)cluster_size);
     int Xwire_width = Xwire_max - Xwire_min + 1;
     {
@@ -2440,63 +2525,63 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
       int Xwire_max_0 = Xwire_max;
       int Xwire_min = Xwire_min_0;
       int Xwire_max = Xwire_max_0;
-      int _u_MMuPC1AnalysisMQL_203 = _t_muPC1X_cluster_contiguous.next();
-      _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_203].time = time;
-      _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_203].Xwire_min = Xwire_min_0;
-      _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_203].Xwire_max = Xwire_max_0;
+      int _u_MMuPC1AnalysisMQL_212 = _t_muPC1X_cluster_contiguous.next();
+      _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_212].time = time;
+      _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_212].Xwire_min = Xwire_min_0;
+      _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_212].Xwire_max = Xwire_max_0;
     }
   }
-  _t_muPC1X_cluster_contiguous.sort(_u_MMuPC1AnalysisMQL_50);
+  _t_muPC1X_cluster_contiguous.sort(_u_MMuPC1AnalysisMQL_52);
   if(Tier3)
   {
-    for(int _u_MMuPC1AnalysisMQL_204 = 0; _u_MMuPC1AnalysisMQL_204 < _t_muPC1X_cluster_contiguous.size(); _u_MMuPC1AnalysisMQL_204++)
+    for(int _u_MMuPC1AnalysisMQL_213 = 0; _u_MMuPC1AnalysisMQL_213 < _t_muPC1X_cluster_contiguous.size(); _u_MMuPC1AnalysisMQL_213++)
     {
-      double time = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_204].time;
-      int Xwire_min = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_204].Xwire_min;
-      int Xwire_max = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_204].Xwire_max;
+      double time = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_213].time;
+      int Xwire_min = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_213].Xwire_min;
+      int Xwire_max = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_213].Xwire_max;
       {
         
-        double time_1 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_204].time;
-        int Xwire_min_1 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_204].Xwire_min;
-        int Xwire_max_1 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_204].Xwire_max;
+        double time_1 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_213].time;
+        int Xwire_min_1 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_213].Xwire_min;
+        int Xwire_max_1 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_213].Xwire_max;
         
-        if(!_u_MMuPC1AnalysisMQL_110)
+        if(!_u_MMuPC1AnalysisMQL_114)
         {
-          if(!_t_muPC1X_cluster_contiguous.checkSort(_u_MMuPC1AnalysisMQL_52))
+          if(!_t_muPC1X_cluster_contiguous.checkSort(_u_MMuPC1AnalysisMQL_54))
           {
-            printf("Warning: table muPC1X_cluster_contiguous is not sorted on time_2 as required for join with muPC1X_cluster_contiguous (_u_MMuPC1AnalysisMQL_52)\n");
+            printf("Warning: table muPC1X_cluster_contiguous is not sorted on time_2 as required for join with muPC1X_cluster_contiguous (_u_MMuPC1AnalysisMQL_54)\n");
           }
-          _u_MMuPC1AnalysisMQL_110 = true;
+          _u_MMuPC1AnalysisMQL_114 = true;
         }
-        else if(!_u_MMuPC1AnalysisMQL_111)
+        else if(!_u_MMuPC1AnalysisMQL_115)
         {
-          if(!(time_1 >= _u_MMuPC1AnalysisMQL_109))
+          if(!(time_1 >= _u_MMuPC1AnalysisMQL_113))
           {
             printf("Warning: table muPC1X_cluster_contiguous is not sorted on time_1 as required for join with muPC1X_cluster_contiguous\n");
-            _u_MMuPC1AnalysisMQL_111 = true;
+            _u_MMuPC1AnalysisMQL_115 = true;
           }
         }
-        _u_MMuPC1AnalysisMQL_109 = time_1;
-        for( ; _u_MMuPC1AnalysisMQL_108 < _t_muPC1X_cluster_contiguous.size(); _u_MMuPC1AnalysisMQL_108++)
+        _u_MMuPC1AnalysisMQL_113 = time_1;
+        for( ; _u_MMuPC1AnalysisMQL_112 < _t_muPC1X_cluster_contiguous.size(); _u_MMuPC1AnalysisMQL_112++)
         {
-          double time_2 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_108].time;
-          int Xwire_min_2 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_108].Xwire_min;
-          int Xwire_max_2 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_108].Xwire_max;
+          double time_2 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_112].time;
+          int Xwire_min_2 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_112].Xwire_min;
+          int Xwire_max_2 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_112].Xwire_max;
           
-          double _u_MMuPC1AnalysisMQL_205 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_205 < 5)
+          double _u_MMuPC1AnalysisMQL_214 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_214 < 5)
           {
             break;
           }
         }
-        for(int _u_MMuPC1AnalysisMQL_207 = _u_MMuPC1AnalysisMQL_108; _u_MMuPC1AnalysisMQL_207 < _t_muPC1X_cluster_contiguous.size(); _u_MMuPC1AnalysisMQL_207++)
+        for(int _u_MMuPC1AnalysisMQL_216 = _u_MMuPC1AnalysisMQL_112; _u_MMuPC1AnalysisMQL_216 < _t_muPC1X_cluster_contiguous.size(); _u_MMuPC1AnalysisMQL_216++)
         {
-          double time_2 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_207].time;
-          int Xwire_min_2 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_207].Xwire_min;
-          int Xwire_max_2 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_207].Xwire_max;
+          double time_2 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_216].time;
+          int Xwire_min_2 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_216].Xwire_min;
+          int Xwire_max_2 = _t_muPC1X_cluster_contiguous[_u_MMuPC1AnalysisMQL_216].Xwire_max;
           
-          double _u_MMuPC1AnalysisMQL_205 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_205 < -kMuPC1XClusterInterval)
+          double _u_MMuPC1AnalysisMQL_214 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_214 < -kMuPC1XClusterInterval)
           {
             break;
           }
@@ -2515,42 +2600,42 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
       }
     }
   }
-  bool _u_MMuPC1AnalysisMQL_208[_t_muPC1X_AD.size()];
-  memset(_u_MMuPC1AnalysisMQL_208, 0, sizeof(_u_MMuPC1AnalysisMQL_208));
-  if(!_t_muPC1X_AD.checkSort(_u_MMuPC1AnalysisMQL_53))
+  bool _u_MMuPC1AnalysisMQL_217[_t_muPC1X_AD.size()];
+  memset(_u_MMuPC1AnalysisMQL_217, 0, sizeof(_u_MMuPC1AnalysisMQL_217));
+  if(!_t_muPC1X_AD.checkSort(_u_MMuPC1AnalysisMQL_55))
   {
     printf("Warning: table muPC1X_AD is not sorted on time_1 as required for cluster.\n");
   }
-  for(int _u_MMuPC1AnalysisMQL_209 = 0; _u_MMuPC1AnalysisMQL_209 < _t_muPC1X_AD.size(); _u_MMuPC1AnalysisMQL_209++)
+  for(int _u_MMuPC1AnalysisMQL_218 = 0; _u_MMuPC1AnalysisMQL_218 < _t_muPC1X_AD.size(); _u_MMuPC1AnalysisMQL_218++)
   {
-    double time = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_209].time;
-    int Xwire = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_209].Xwire;
-    if(_u_MMuPC1AnalysisMQL_208[_u_MMuPC1AnalysisMQL_209])
+    double time = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_218].time;
+    int Xwire = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_218].Xwire;
+    if(_u_MMuPC1AnalysisMQL_217[_u_MMuPC1AnalysisMQL_218])
     {
       continue;
     }
-    _u_MMuPC1AnalysisMQL_208[_u_MMuPC1AnalysisMQL_209] = true;
+    _u_MMuPC1AnalysisMQL_217[_u_MMuPC1AnalysisMQL_218] = true;
     int cluster_size = 1;
     int cluster_members[_t_muPC1X_AD.size()];
-    cluster_members[0] = _u_MMuPC1AnalysisMQL_209;
+    cluster_members[0] = _u_MMuPC1AnalysisMQL_218;
     
-    for(int _u_MMuPC1AnalysisMQL_210 = _u_MMuPC1AnalysisMQL_209 + 1; _u_MMuPC1AnalysisMQL_210 < _t_muPC1X_AD.size(); _u_MMuPC1AnalysisMQL_210++)
+    for(int _u_MMuPC1AnalysisMQL_219 = _u_MMuPC1AnalysisMQL_218 + 1; _u_MMuPC1AnalysisMQL_219 < _t_muPC1X_AD.size(); _u_MMuPC1AnalysisMQL_219++)
     {
-      if(_u_MMuPC1AnalysisMQL_208[_u_MMuPC1AnalysisMQL_210])
+      if(_u_MMuPC1AnalysisMQL_217[_u_MMuPC1AnalysisMQL_219])
       {
         continue;
       }
       bool coincidence_seen = false;
-      for(int _u_MMuPC1AnalysisMQL_211 = 0; _u_MMuPC1AnalysisMQL_211 < cluster_size; _u_MMuPC1AnalysisMQL_211++)
+      for(int _u_MMuPC1AnalysisMQL_220 = 0; _u_MMuPC1AnalysisMQL_220 < cluster_size; _u_MMuPC1AnalysisMQL_220++)
       {
-        int _u_MMuPC1AnalysisMQL_212 = cluster_members[_u_MMuPC1AnalysisMQL_211];
-        double time_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_212].time;
-        double time_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_210].time;
-        int Xwire_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_212].Xwire;
-        int Xwire_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_210].Xwire;
+        int _u_MMuPC1AnalysisMQL_221 = cluster_members[_u_MMuPC1AnalysisMQL_220];
+        double time_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_221].time;
+        double time_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_219].time;
+        int Xwire_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_221].Xwire;
+        int Xwire_2 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_219].Xwire;
         
-        double _u_MMuPC1AnalysisMQL_213 = time_1 - time_2;
-        if(_u_MMuPC1AnalysisMQL_213 < -kMuPC1XClusterInterval)
+        double _u_MMuPC1AnalysisMQL_222 = time_1 - time_2;
+        if(_u_MMuPC1AnalysisMQL_222 < -kMuPC1XClusterInterval)
         {
           continue;
         }
@@ -2559,9 +2644,9 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         {
           continue;
         }
-        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_210;
-        _u_MMuPC1AnalysisMQL_208[_u_MMuPC1AnalysisMQL_210] = true;
-        _u_MMuPC1AnalysisMQL_210 = _u_MMuPC1AnalysisMQL_209;
+        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_219;
+        _u_MMuPC1AnalysisMQL_217[_u_MMuPC1AnalysisMQL_219] = true;
+        _u_MMuPC1AnalysisMQL_219 = _u_MMuPC1AnalysisMQL_218;
         break;
       }
       if(!coincidence_seen)
@@ -2569,28 +2654,28 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         break;
       }
     }
-    double time_min = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_209].time;
+    double time_min = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_218].time;
     double time_max = time_min;
     double time_sum = 0;
-    int Xwire_min = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_209].Xwire;
+    int Xwire_min = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_218].Xwire;
     int Xwire_max = Xwire_min;
     int Xwire_sum = 0;
-    for(int _u_MMuPC1AnalysisMQL_211 = 0; _u_MMuPC1AnalysisMQL_211 < cluster_size; _u_MMuPC1AnalysisMQL_211++)
+    for(int _u_MMuPC1AnalysisMQL_220 = 0; _u_MMuPC1AnalysisMQL_220 < cluster_size; _u_MMuPC1AnalysisMQL_220++)
     {
-      int _u_MMuPC1AnalysisMQL_212 = cluster_members[_u_MMuPC1AnalysisMQL_211];
-      time = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_212].time;
+      int _u_MMuPC1AnalysisMQL_221 = cluster_members[_u_MMuPC1AnalysisMQL_220];
+      time = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_221].time;
       time_min = MIN(time_min, time);
       time_max = MAX(time_max, time);
       time_sum = time_sum + time;
-      Xwire = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_212].Xwire;
+      Xwire = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_221].Xwire;
       Xwire_min = MIN(Xwire_min, Xwire);
       Xwire_max = MAX(Xwire_max, Xwire);
       Xwire_sum = Xwire_sum + Xwire;
     }
-    double time_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_209].time;
+    double time_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_218].time;
     double time_avg = time_sum/((double)cluster_size);
     double time_width = time_max - time_min + 1;
-    int Xwire_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_209].Xwire;
+    int Xwire_1 = _t_muPC1X_AD[_u_MMuPC1AnalysisMQL_218].Xwire;
     double Xwire_avg = Xwire_sum/((double)cluster_size);
     int Xwire_width = Xwire_max - Xwire_min + 1;
     {
@@ -2615,106 +2700,32 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         double Xwire_0 = Xwire;
         double muPC1Time = time;
         double Xwire = Xwire_0;
-        int _u_MMuPC1AnalysisMQL_214 = _t_muPC1X_export.next();
-        _t_muPC1X_export[_u_MMuPC1AnalysisMQL_214].Xwire = Xwire_0;
-        _t_muPC1X_export[_u_MMuPC1AnalysisMQL_214].muPC1Time = muPC1Time;
+        int _u_MMuPC1AnalysisMQL_223 = _t_muPC1X_export.next();
+        _t_muPC1X_export[_u_MMuPC1AnalysisMQL_223].Xwire = Xwire_0;
+        _t_muPC1X_export[_u_MMuPC1AnalysisMQL_223].muPC1Time = muPC1Time;
       }
-      int _u_MMuPC1AnalysisMQL_215 = _t_muPC1X.next();
-      _t_muPC1X[_u_MMuPC1AnalysisMQL_215].time = time;
-      _t_muPC1X[_u_MMuPC1AnalysisMQL_215].Xwire = Xwire;
-      _t_muPC1X[_u_MMuPC1AnalysisMQL_215].cluster_size = cluster_size_0;
-      _t_muPC1X[_u_MMuPC1AnalysisMQL_215].cluster_width = cluster_width;
+      int _u_MMuPC1AnalysisMQL_224 = _t_muPC1X.next();
+      _t_muPC1X[_u_MMuPC1AnalysisMQL_224].time = time;
+      _t_muPC1X[_u_MMuPC1AnalysisMQL_224].Xwire = Xwire;
+      _t_muPC1X[_u_MMuPC1AnalysisMQL_224].cluster_size = cluster_size_0;
+      _t_muPC1X[_u_MMuPC1AnalysisMQL_224].cluster_width = cluster_width;
     }
   }
-  _t_muPC1X.sort(_u_MMuPC1AnalysisMQL_54);
+  _t_muPC1X.sort(_u_MMuPC1AnalysisMQL_56);
   if(Tier3)
   {
-    for(int _u_MMuPC1AnalysisMQL_216 = 0; _u_MMuPC1AnalysisMQL_216 < _t_muPC1X.size(); _u_MMuPC1AnalysisMQL_216++)
+    for(int _u_MMuPC1AnalysisMQL_225 = 0; _u_MMuPC1AnalysisMQL_225 < _t_muPC1X.size(); _u_MMuPC1AnalysisMQL_225++)
     {
-      double time = _t_muPC1X[_u_MMuPC1AnalysisMQL_216].time;
-      double Xwire = _t_muPC1X[_u_MMuPC1AnalysisMQL_216].Xwire;
-      int cluster_size = _t_muPC1X[_u_MMuPC1AnalysisMQL_216].cluster_size;
-      int cluster_width = _t_muPC1X[_u_MMuPC1AnalysisMQL_216].cluster_width;
+      double time = _t_muPC1X[_u_MMuPC1AnalysisMQL_225].time;
+      double Xwire = _t_muPC1X[_u_MMuPC1AnalysisMQL_225].Xwire;
+      int cluster_size = _t_muPC1X[_u_MMuPC1AnalysisMQL_225].cluster_size;
+      int cluster_width = _t_muPC1X[_u_MMuPC1AnalysisMQL_225].cluster_width;
       {
         
-        double time_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_216].time;
-        double Xwire_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_216].Xwire;
-        int cluster_size_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_216].cluster_size;
-        int cluster_width_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_216].cluster_width;
-        
-        if(!_u_MMuPC1AnalysisMQL_115)
-        {
-          if(!_t_muPC1X.checkSort(_u_MMuPC1AnalysisMQL_56))
-          {
-            printf("Warning: table muPC1X is not sorted on time_2 as required for join with muPC1X (_u_MMuPC1AnalysisMQL_56)\n");
-          }
-          _u_MMuPC1AnalysisMQL_115 = true;
-        }
-        else if(!_u_MMuPC1AnalysisMQL_116)
-        {
-          if(!(time_1 >= _u_MMuPC1AnalysisMQL_114))
-          {
-            printf("Warning: table muPC1X is not sorted on time_1 as required for join with muPC1X\n");
-            _u_MMuPC1AnalysisMQL_116 = true;
-          }
-        }
-        _u_MMuPC1AnalysisMQL_114 = time_1;
-        for( ; _u_MMuPC1AnalysisMQL_113 < _t_muPC1X.size(); _u_MMuPC1AnalysisMQL_113++)
-        {
-          double time_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_113].time;
-          double Xwire_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_113].Xwire;
-          int cluster_size_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_113].cluster_size;
-          int cluster_width_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_113].cluster_width;
-          
-          double _u_MMuPC1AnalysisMQL_217 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_217 < 1)
-          {
-            break;
-          }
-        }
-        for(int _u_MMuPC1AnalysisMQL_219 = _u_MMuPC1AnalysisMQL_113; _u_MMuPC1AnalysisMQL_219 < _t_muPC1X.size(); _u_MMuPC1AnalysisMQL_219++)
-        {
-          double time_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_219].time;
-          double Xwire_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_219].Xwire;
-          int cluster_size_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_219].cluster_size;
-          int cluster_width_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_219].cluster_width;
-          
-          double _u_MMuPC1AnalysisMQL_217 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_217 < -50005)
-          {
-            break;
-          }
-          {
-            double time_1_0 = time_1;
-            double time_2_0 = time_2;
-            double time_1 = time_1_0;
-            double time_2 = time_2_0;
-            if(Tier3)
-            {
-              if((time_2 - time_1) >= 0)
-              {
-                _h_muPC1_X_final_cluster_autocorr_all_1D->Fill(time_2 - time_1);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  if(Tier3)
-  {
-    for(int _u_MMuPC1AnalysisMQL_220 = 0; _u_MMuPC1AnalysisMQL_220 < _t_muPC1X.size(); _u_MMuPC1AnalysisMQL_220++)
-    {
-      double time = _t_muPC1X[_u_MMuPC1AnalysisMQL_220].time;
-      double Xwire = _t_muPC1X[_u_MMuPC1AnalysisMQL_220].Xwire;
-      int cluster_size = _t_muPC1X[_u_MMuPC1AnalysisMQL_220].cluster_size;
-      int cluster_width = _t_muPC1X[_u_MMuPC1AnalysisMQL_220].cluster_width;
-      {
-        
-        double time_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_220].time;
-        double Xwire_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_220].Xwire;
-        int cluster_size_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_220].cluster_size;
-        int cluster_width_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_220].cluster_width;
+        double time_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_225].time;
+        double Xwire_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_225].Xwire;
+        int cluster_size_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_225].cluster_size;
+        int cluster_width_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_225].cluster_width;
         
         if(!_u_MMuPC1AnalysisMQL_119)
         {
@@ -2740,21 +2751,95 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
           int cluster_size_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_117].cluster_size;
           int cluster_width_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_117].cluster_width;
           
-          double _u_MMuPC1AnalysisMQL_221 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_221 < 1)
+          double _u_MMuPC1AnalysisMQL_226 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_226 < 1)
           {
             break;
           }
         }
-        for(int _u_MMuPC1AnalysisMQL_223 = _u_MMuPC1AnalysisMQL_117; _u_MMuPC1AnalysisMQL_223 < _t_muPC1X.size(); _u_MMuPC1AnalysisMQL_223++)
+        for(int _u_MMuPC1AnalysisMQL_228 = _u_MMuPC1AnalysisMQL_117; _u_MMuPC1AnalysisMQL_228 < _t_muPC1X.size(); _u_MMuPC1AnalysisMQL_228++)
         {
-          double time_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_223].time;
-          double Xwire_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_223].Xwire;
-          int cluster_size_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_223].cluster_size;
-          int cluster_width_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_223].cluster_width;
+          double time_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_228].time;
+          double Xwire_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_228].Xwire;
+          int cluster_size_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_228].cluster_size;
+          int cluster_width_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_228].cluster_width;
           
-          double _u_MMuPC1AnalysisMQL_221 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_221 < -150)
+          double _u_MMuPC1AnalysisMQL_226 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_226 < -50005)
+          {
+            break;
+          }
+          {
+            double time_1_0 = time_1;
+            double time_2_0 = time_2;
+            double time_1 = time_1_0;
+            double time_2 = time_2_0;
+            if(Tier3)
+            {
+              if((time_2 - time_1) >= 0)
+              {
+                _h_muPC1_X_final_cluster_autocorr_all_1D->Fill(time_2 - time_1);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if(Tier3)
+  {
+    for(int _u_MMuPC1AnalysisMQL_229 = 0; _u_MMuPC1AnalysisMQL_229 < _t_muPC1X.size(); _u_MMuPC1AnalysisMQL_229++)
+    {
+      double time = _t_muPC1X[_u_MMuPC1AnalysisMQL_229].time;
+      double Xwire = _t_muPC1X[_u_MMuPC1AnalysisMQL_229].Xwire;
+      int cluster_size = _t_muPC1X[_u_MMuPC1AnalysisMQL_229].cluster_size;
+      int cluster_width = _t_muPC1X[_u_MMuPC1AnalysisMQL_229].cluster_width;
+      {
+        
+        double time_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_229].time;
+        double Xwire_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_229].Xwire;
+        int cluster_size_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_229].cluster_size;
+        int cluster_width_1 = _t_muPC1X[_u_MMuPC1AnalysisMQL_229].cluster_width;
+        
+        if(!_u_MMuPC1AnalysisMQL_123)
+        {
+          if(!_t_muPC1X.checkSort(_u_MMuPC1AnalysisMQL_60))
+          {
+            printf("Warning: table muPC1X is not sorted on time_2 as required for join with muPC1X (_u_MMuPC1AnalysisMQL_60)\n");
+          }
+          _u_MMuPC1AnalysisMQL_123 = true;
+        }
+        else if(!_u_MMuPC1AnalysisMQL_124)
+        {
+          if(!(time_1 >= _u_MMuPC1AnalysisMQL_122))
+          {
+            printf("Warning: table muPC1X is not sorted on time_1 as required for join with muPC1X\n");
+            _u_MMuPC1AnalysisMQL_124 = true;
+          }
+        }
+        _u_MMuPC1AnalysisMQL_122 = time_1;
+        for( ; _u_MMuPC1AnalysisMQL_121 < _t_muPC1X.size(); _u_MMuPC1AnalysisMQL_121++)
+        {
+          double time_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_121].time;
+          double Xwire_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_121].Xwire;
+          int cluster_size_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_121].cluster_size;
+          int cluster_width_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_121].cluster_width;
+          
+          double _u_MMuPC1AnalysisMQL_230 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_230 < 1)
+          {
+            break;
+          }
+        }
+        for(int _u_MMuPC1AnalysisMQL_232 = _u_MMuPC1AnalysisMQL_121; _u_MMuPC1AnalysisMQL_232 < _t_muPC1X.size(); _u_MMuPC1AnalysisMQL_232++)
+        {
+          double time_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_232].time;
+          double Xwire_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_232].Xwire;
+          int cluster_size_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_232].cluster_size;
+          int cluster_width_2 = _t_muPC1X[_u_MMuPC1AnalysisMQL_232].cluster_width;
+          
+          double _u_MMuPC1AnalysisMQL_230 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_230 < -150)
           {
             break;
           }
@@ -2776,50 +2861,50 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
   }
   if(Tier3)
   {
-    for(int _u_MMuPC1AnalysisMQL_224 = 0; _u_MMuPC1AnalysisMQL_224 < _t_muPC1Y_raw.size(); _u_MMuPC1AnalysisMQL_224++)
+    for(int _u_MMuPC1AnalysisMQL_233 = 0; _u_MMuPC1AnalysisMQL_233 < _t_muPC1Y_raw.size(); _u_MMuPC1AnalysisMQL_233++)
     {
-      double time = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_224].time;
-      int Ywire = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_224].Ywire;
+      double time = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_233].time;
+      int Ywire = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_233].Ywire;
       {
         
-        double time_1 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_224].time;
-        int Ywire_1 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_224].Ywire;
+        double time_1 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_233].time;
+        int Ywire_1 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_233].Ywire;
         
-        if(!_u_MMuPC1AnalysisMQL_123)
+        if(!_u_MMuPC1AnalysisMQL_127)
         {
-          if(!_t_muPC1Y_raw.checkSort(_u_MMuPC1AnalysisMQL_60))
+          if(!_t_muPC1Y_raw.checkSort(_u_MMuPC1AnalysisMQL_62))
           {
-            printf("Warning: table muPC1Y_raw is not sorted on time_2 as required for join with muPC1Y_raw (_u_MMuPC1AnalysisMQL_60)\n");
+            printf("Warning: table muPC1Y_raw is not sorted on time_2 as required for join with muPC1Y_raw (_u_MMuPC1AnalysisMQL_62)\n");
           }
-          _u_MMuPC1AnalysisMQL_123 = true;
+          _u_MMuPC1AnalysisMQL_127 = true;
         }
-        else if(!_u_MMuPC1AnalysisMQL_124)
+        else if(!_u_MMuPC1AnalysisMQL_128)
         {
-          if(!(time_1 >= _u_MMuPC1AnalysisMQL_122))
+          if(!(time_1 >= _u_MMuPC1AnalysisMQL_126))
           {
             printf("Warning: table muPC1Y_raw is not sorted on time_1 as required for join with muPC1Y_raw\n");
-            _u_MMuPC1AnalysisMQL_124 = true;
+            _u_MMuPC1AnalysisMQL_128 = true;
           }
         }
-        _u_MMuPC1AnalysisMQL_122 = time_1;
-        for( ; _u_MMuPC1AnalysisMQL_121 < _t_muPC1Y_raw.size(); _u_MMuPC1AnalysisMQL_121++)
+        _u_MMuPC1AnalysisMQL_126 = time_1;
+        for( ; _u_MMuPC1AnalysisMQL_125 < _t_muPC1Y_raw.size(); _u_MMuPC1AnalysisMQL_125++)
         {
-          double time_2 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_121].time;
-          int Ywire_2 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_121].Ywire;
+          double time_2 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_125].time;
+          int Ywire_2 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_125].Ywire;
           
-          double _u_MMuPC1AnalysisMQL_225 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_225 < 1)
+          double _u_MMuPC1AnalysisMQL_234 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_234 < 1)
           {
             break;
           }
         }
-        for(int _u_MMuPC1AnalysisMQL_227 = _u_MMuPC1AnalysisMQL_121; _u_MMuPC1AnalysisMQL_227 < _t_muPC1Y_raw.size(); _u_MMuPC1AnalysisMQL_227++)
+        for(int _u_MMuPC1AnalysisMQL_236 = _u_MMuPC1AnalysisMQL_125; _u_MMuPC1AnalysisMQL_236 < _t_muPC1Y_raw.size(); _u_MMuPC1AnalysisMQL_236++)
         {
-          double time_2 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_227].time;
-          int Ywire_2 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_227].Ywire;
+          double time_2 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_236].time;
+          int Ywire_2 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_236].Ywire;
           
-          double _u_MMuPC1AnalysisMQL_225 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_225 < -50005)
+          double _u_MMuPC1AnalysisMQL_234 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_234 < -50005)
           {
             break;
           }
@@ -2855,49 +2940,49 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
       }
     }
   }
-  bool _u_MMuPC1AnalysisMQL_228[_t_muPC1Y_raw.size()];
-  memset(_u_MMuPC1AnalysisMQL_228, 0, sizeof(_u_MMuPC1AnalysisMQL_228));
-  if(!_t_muPC1Y_raw.checkSort(_u_MMuPC1AnalysisMQL_61))
+  bool _u_MMuPC1AnalysisMQL_237[_t_muPC1Y_raw.size()];
+  memset(_u_MMuPC1AnalysisMQL_237, 0, sizeof(_u_MMuPC1AnalysisMQL_237));
+  if(!_t_muPC1Y_raw.checkSort(_u_MMuPC1AnalysisMQL_63))
   {
     printf("Warning: table muPC1Y_raw is not sorted on time_1 as required for cluster.\n");
   }
-  for(int _u_MMuPC1AnalysisMQL_229 = 0; _u_MMuPC1AnalysisMQL_229 < _t_muPC1Y_raw.size(); _u_MMuPC1AnalysisMQL_229++)
+  for(int _u_MMuPC1AnalysisMQL_238 = 0; _u_MMuPC1AnalysisMQL_238 < _t_muPC1Y_raw.size(); _u_MMuPC1AnalysisMQL_238++)
   {
-    double time = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_229].time;
-    int Ywire = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_229].Ywire;
-    if(_u_MMuPC1AnalysisMQL_228[_u_MMuPC1AnalysisMQL_229])
+    double time = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_238].time;
+    int Ywire = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_238].Ywire;
+    if(_u_MMuPC1AnalysisMQL_237[_u_MMuPC1AnalysisMQL_238])
     {
       continue;
     }
-    _u_MMuPC1AnalysisMQL_228[_u_MMuPC1AnalysisMQL_229] = true;
+    _u_MMuPC1AnalysisMQL_237[_u_MMuPC1AnalysisMQL_238] = true;
     int cluster_size = 1;
     int cluster_members[_t_muPC1Y_raw.size()];
-    cluster_members[0] = _u_MMuPC1AnalysisMQL_229;
+    cluster_members[0] = _u_MMuPC1AnalysisMQL_238;
     
-    for(int _u_MMuPC1AnalysisMQL_230 = _u_MMuPC1AnalysisMQL_229 + 1; _u_MMuPC1AnalysisMQL_230 < _t_muPC1Y_raw.size(); _u_MMuPC1AnalysisMQL_230++)
+    for(int _u_MMuPC1AnalysisMQL_239 = _u_MMuPC1AnalysisMQL_238 + 1; _u_MMuPC1AnalysisMQL_239 < _t_muPC1Y_raw.size(); _u_MMuPC1AnalysisMQL_239++)
     {
-      if(_u_MMuPC1AnalysisMQL_228[_u_MMuPC1AnalysisMQL_230])
+      if(_u_MMuPC1AnalysisMQL_237[_u_MMuPC1AnalysisMQL_239])
       {
         continue;
       }
       bool coincidence_seen = false;
-      for(int _u_MMuPC1AnalysisMQL_231 = 0; _u_MMuPC1AnalysisMQL_231 < cluster_size; _u_MMuPC1AnalysisMQL_231++)
+      for(int _u_MMuPC1AnalysisMQL_240 = 0; _u_MMuPC1AnalysisMQL_240 < cluster_size; _u_MMuPC1AnalysisMQL_240++)
       {
-        int _u_MMuPC1AnalysisMQL_232 = cluster_members[_u_MMuPC1AnalysisMQL_231];
-        double time_1 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_232].time;
-        double time_2 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_230].time;
-        int Ywire_1 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_232].Ywire;
-        int Ywire_2 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_230].Ywire;
+        int _u_MMuPC1AnalysisMQL_241 = cluster_members[_u_MMuPC1AnalysisMQL_240];
+        double time_1 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_241].time;
+        double time_2 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_239].time;
+        int Ywire_1 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_241].Ywire;
+        int Ywire_2 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_239].Ywire;
         
-        double _u_MMuPC1AnalysisMQL_233 = time_1 - time_2;
-        if(_u_MMuPC1AnalysisMQL_233 < -1000)
+        double _u_MMuPC1AnalysisMQL_242 = time_1 - time_2;
+        if(_u_MMuPC1AnalysisMQL_242 < -1000)
         {
           continue;
         }
         coincidence_seen = true;
-        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_230;
-        _u_MMuPC1AnalysisMQL_228[_u_MMuPC1AnalysisMQL_230] = true;
-        _u_MMuPC1AnalysisMQL_230 = _u_MMuPC1AnalysisMQL_229;
+        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_239;
+        _u_MMuPC1AnalysisMQL_237[_u_MMuPC1AnalysisMQL_239] = true;
+        _u_MMuPC1AnalysisMQL_239 = _u_MMuPC1AnalysisMQL_238;
         break;
       }
       if(!coincidence_seen)
@@ -2905,28 +2990,28 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         break;
       }
     }
-    double time_min = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_229].time;
+    double time_min = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_238].time;
     double time_max = time_min;
     double time_sum = 0;
-    int Ywire_min = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_229].Ywire;
+    int Ywire_min = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_238].Ywire;
     int Ywire_max = Ywire_min;
     int Ywire_sum = 0;
-    for(int _u_MMuPC1AnalysisMQL_231 = 0; _u_MMuPC1AnalysisMQL_231 < cluster_size; _u_MMuPC1AnalysisMQL_231++)
+    for(int _u_MMuPC1AnalysisMQL_240 = 0; _u_MMuPC1AnalysisMQL_240 < cluster_size; _u_MMuPC1AnalysisMQL_240++)
     {
-      int _u_MMuPC1AnalysisMQL_232 = cluster_members[_u_MMuPC1AnalysisMQL_231];
-      time = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_232].time;
+      int _u_MMuPC1AnalysisMQL_241 = cluster_members[_u_MMuPC1AnalysisMQL_240];
+      time = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_241].time;
       time_min = MIN(time_min, time);
       time_max = MAX(time_max, time);
       time_sum = time_sum + time;
-      Ywire = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_232].Ywire;
+      Ywire = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_241].Ywire;
       Ywire_min = MIN(Ywire_min, Ywire);
       Ywire_max = MAX(Ywire_max, Ywire);
       Ywire_sum = Ywire_sum + Ywire;
     }
-    double time_1 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_229].time;
+    double time_1 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_238].time;
     double time_avg = time_sum/((double)cluster_size);
     double time_width = time_max - time_min + 1;
-    int Ywire_1 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_229].Ywire;
+    int Ywire_1 = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_238].Ywire;
     double Ywire_avg = Ywire_sum/((double)cluster_size);
     int Ywire_width = Ywire_max - Ywire_min + 1;
     {
@@ -2942,8 +3027,8 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
           {
             _h_muPC1_spark_count_Ywires->Fill(1);
           }
-          int _u_MMuPC1AnalysisMQL_234 = _t_muPC1Y_sparks.next();
-          _t_muPC1Y_sparks[_u_MMuPC1AnalysisMQL_234].time = time_0;
+          int _u_MMuPC1AnalysisMQL_243 = _t_muPC1Y_sparks.next();
+          _t_muPC1Y_sparks[_u_MMuPC1AnalysisMQL_243].time = time_0;
         }
       }
       if(Tier1)
@@ -2952,115 +3037,115 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
       }
     }
   }
-  _t_muPC1Y_spark_search.sort(_u_MMuPC1AnalysisMQL_62);
-  for(int _u_MMuPC1AnalysisMQL_235 = 0; _u_MMuPC1AnalysisMQL_235 < _t_muPC1Y_raw.size(); _u_MMuPC1AnalysisMQL_235++)
+  _t_muPC1Y_spark_search.sort(_u_MMuPC1AnalysisMQL_64);
+  for(int _u_MMuPC1AnalysisMQL_244 = 0; _u_MMuPC1AnalysisMQL_244 < _t_muPC1Y_raw.size(); _u_MMuPC1AnalysisMQL_244++)
   {
-    double time = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_235].time;
-    int Ywire = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_235].Ywire;
+    double time = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_244].time;
+    int Ywire = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_244].Ywire;
     {
       
-      double muPC1Y_raw_time = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_235].time;
-      int Ywire = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_235].Ywire;
+      double muPC1Y_raw_time = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_244].time;
+      int Ywire = _t_muPC1Y_raw[_u_MMuPC1AnalysisMQL_244].Ywire;
       
-      if(!_u_MMuPC1AnalysisMQL_128)
+      if(!_u_MMuPC1AnalysisMQL_132)
       {
-        if(!_t_muPC1Y_sparks.checkSort(_u_MMuPC1AnalysisMQL_64))
+        if(!_t_muPC1Y_sparks.checkSort(_u_MMuPC1AnalysisMQL_66))
         {
-          printf("Warning: table muPC1Y_sparks is not sorted on muPC1Y_sparks_time as required for join with muPC1Y_raw (_u_MMuPC1AnalysisMQL_64)\n");
+          printf("Warning: table muPC1Y_sparks is not sorted on muPC1Y_sparks_time as required for join with muPC1Y_raw (_u_MMuPC1AnalysisMQL_66)\n");
         }
-        _u_MMuPC1AnalysisMQL_128 = true;
+        _u_MMuPC1AnalysisMQL_132 = true;
       }
-      else if(!_u_MMuPC1AnalysisMQL_129)
+      else if(!_u_MMuPC1AnalysisMQL_133)
       {
-        if(!(muPC1Y_raw_time >= _u_MMuPC1AnalysisMQL_127))
+        if(!(muPC1Y_raw_time >= _u_MMuPC1AnalysisMQL_131))
         {
           printf("Warning: table muPC1Y_raw is not sorted on muPC1Y_raw_time as required for join with muPC1Y_sparks\n");
-          _u_MMuPC1AnalysisMQL_129 = true;
+          _u_MMuPC1AnalysisMQL_133 = true;
         }
       }
-      _u_MMuPC1AnalysisMQL_127 = muPC1Y_raw_time;
-      for( ; _u_MMuPC1AnalysisMQL_126 < _t_muPC1Y_sparks.size(); _u_MMuPC1AnalysisMQL_126++)
+      _u_MMuPC1AnalysisMQL_131 = muPC1Y_raw_time;
+      for( ; _u_MMuPC1AnalysisMQL_130 < _t_muPC1Y_sparks.size(); _u_MMuPC1AnalysisMQL_130++)
       {
-        double muPC1Y_sparks_time = _t_muPC1Y_sparks[_u_MMuPC1AnalysisMQL_126].time;
+        double muPC1Y_sparks_time = _t_muPC1Y_sparks[_u_MMuPC1AnalysisMQL_130].time;
         
-        double _u_MMuPC1AnalysisMQL_236 = muPC1Y_raw_time - muPC1Y_sparks_time;
-        if(_u_MMuPC1AnalysisMQL_236 < kSparkCutDeadtime)
+        double _u_MMuPC1AnalysisMQL_245 = muPC1Y_raw_time - muPC1Y_sparks_time;
+        if(_u_MMuPC1AnalysisMQL_245 < kSparkCutDeadtime)
         {
           break;
         }
       }
-      _u_MMuPC1AnalysisMQL_130 = 0;
-      for(int _u_MMuPC1AnalysisMQL_238 = _u_MMuPC1AnalysisMQL_126; _u_MMuPC1AnalysisMQL_238 < _t_muPC1Y_sparks.size(); _u_MMuPC1AnalysisMQL_238++)
+      _u_MMuPC1AnalysisMQL_134 = 0;
+      for(int _u_MMuPC1AnalysisMQL_247 = _u_MMuPC1AnalysisMQL_130; _u_MMuPC1AnalysisMQL_247 < _t_muPC1Y_sparks.size(); _u_MMuPC1AnalysisMQL_247++)
       {
-        double muPC1Y_sparks_time = _t_muPC1Y_sparks[_u_MMuPC1AnalysisMQL_238].time;
+        double muPC1Y_sparks_time = _t_muPC1Y_sparks[_u_MMuPC1AnalysisMQL_247].time;
         
-        double _u_MMuPC1AnalysisMQL_236 = muPC1Y_raw_time - muPC1Y_sparks_time;
-        if(_u_MMuPC1AnalysisMQL_236 < -100)
+        double _u_MMuPC1AnalysisMQL_245 = muPC1Y_raw_time - muPC1Y_sparks_time;
+        if(_u_MMuPC1AnalysisMQL_245 < -100)
         {
           break;
         }
-        _u_MMuPC1AnalysisMQL_130++;
+        _u_MMuPC1AnalysisMQL_134++;
       }
       
-      if(_u_MMuPC1AnalysisMQL_130 == 0)
+      if(_u_MMuPC1AnalysisMQL_134 == 0)
       {
         {
           double time = muPC1Y_raw_time;
           int Ywire_0 = Ywire;
           int Ywire = Ywire_0;
-          int _u_MMuPC1AnalysisMQL_239 = _t_muPC1Y_SC.next();
-          _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_239].time = time;
-          _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_239].Ywire = Ywire_0;
+          int _u_MMuPC1AnalysisMQL_248 = _t_muPC1Y_SC.next();
+          _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_248].time = time;
+          _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_248].Ywire = Ywire_0;
         }
       }
     }
   }
   if(Tier3)
   {
-    for(int _u_MMuPC1AnalysisMQL_240 = 0; _u_MMuPC1AnalysisMQL_240 < _t_muPC1Y_SC.size(); _u_MMuPC1AnalysisMQL_240++)
+    for(int _u_MMuPC1AnalysisMQL_249 = 0; _u_MMuPC1AnalysisMQL_249 < _t_muPC1Y_SC.size(); _u_MMuPC1AnalysisMQL_249++)
     {
-      double time = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_240].time;
-      int Ywire = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_240].Ywire;
+      double time = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_249].time;
+      int Ywire = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_249].Ywire;
       {
         
-        double time_1 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_240].time;
-        int Ywire_1 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_240].Ywire;
+        double time_1 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_249].time;
+        int Ywire_1 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_249].Ywire;
         
-        if(!_u_MMuPC1AnalysisMQL_133)
+        if(!_u_MMuPC1AnalysisMQL_137)
         {
-          if(!_t_muPC1Y_SC.checkSort(_u_MMuPC1AnalysisMQL_66))
+          if(!_t_muPC1Y_SC.checkSort(_u_MMuPC1AnalysisMQL_68))
           {
-            printf("Warning: table muPC1Y_SC is not sorted on time_2 as required for join with muPC1Y_SC (_u_MMuPC1AnalysisMQL_66)\n");
+            printf("Warning: table muPC1Y_SC is not sorted on time_2 as required for join with muPC1Y_SC (_u_MMuPC1AnalysisMQL_68)\n");
           }
-          _u_MMuPC1AnalysisMQL_133 = true;
+          _u_MMuPC1AnalysisMQL_137 = true;
         }
-        else if(!_u_MMuPC1AnalysisMQL_134)
+        else if(!_u_MMuPC1AnalysisMQL_138)
         {
-          if(!(time_1 >= _u_MMuPC1AnalysisMQL_132))
+          if(!(time_1 >= _u_MMuPC1AnalysisMQL_136))
           {
             printf("Warning: table muPC1Y_SC is not sorted on time_1 as required for join with muPC1Y_SC\n");
-            _u_MMuPC1AnalysisMQL_134 = true;
+            _u_MMuPC1AnalysisMQL_138 = true;
           }
         }
-        _u_MMuPC1AnalysisMQL_132 = time_1;
-        for( ; _u_MMuPC1AnalysisMQL_131 < _t_muPC1Y_SC.size(); _u_MMuPC1AnalysisMQL_131++)
+        _u_MMuPC1AnalysisMQL_136 = time_1;
+        for( ; _u_MMuPC1AnalysisMQL_135 < _t_muPC1Y_SC.size(); _u_MMuPC1AnalysisMQL_135++)
         {
-          double time_2 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_131].time;
-          int Ywire_2 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_131].Ywire;
+          double time_2 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_135].time;
+          int Ywire_2 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_135].Ywire;
           
-          double _u_MMuPC1AnalysisMQL_241 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_241 < 1)
+          double _u_MMuPC1AnalysisMQL_250 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_250 < 1)
           {
             break;
           }
         }
-        for(int _u_MMuPC1AnalysisMQL_243 = _u_MMuPC1AnalysisMQL_131; _u_MMuPC1AnalysisMQL_243 < _t_muPC1Y_SC.size(); _u_MMuPC1AnalysisMQL_243++)
+        for(int _u_MMuPC1AnalysisMQL_252 = _u_MMuPC1AnalysisMQL_135; _u_MMuPC1AnalysisMQL_252 < _t_muPC1Y_SC.size(); _u_MMuPC1AnalysisMQL_252++)
         {
-          double time_2 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_243].time;
-          int Ywire_2 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_243].Ywire;
+          double time_2 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_252].time;
+          int Ywire_2 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_252].Ywire;
           
-          double _u_MMuPC1AnalysisMQL_241 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_241 < -50005)
+          double _u_MMuPC1AnalysisMQL_250 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_250 < -50005)
           {
             break;
           }
@@ -3092,43 +3177,43 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
       }
     }
   }
-  bool _u_MMuPC1AnalysisMQL_244[_t_muPC1Y_SC.size()];
-  memset(_u_MMuPC1AnalysisMQL_244, 0, sizeof(_u_MMuPC1AnalysisMQL_244));
-  if(!_t_muPC1Y_SC.checkSort(_u_MMuPC1AnalysisMQL_67))
+  bool _u_MMuPC1AnalysisMQL_253[_t_muPC1Y_SC.size()];
+  memset(_u_MMuPC1AnalysisMQL_253, 0, sizeof(_u_MMuPC1AnalysisMQL_253));
+  if(!_t_muPC1Y_SC.checkSort(_u_MMuPC1AnalysisMQL_69))
   {
     printf("Warning: table muPC1Y_SC is not sorted on time_1 as required for cluster.\n");
   }
-  for(int _u_MMuPC1AnalysisMQL_245 = 0; _u_MMuPC1AnalysisMQL_245 < _t_muPC1Y_SC.size(); _u_MMuPC1AnalysisMQL_245++)
+  for(int _u_MMuPC1AnalysisMQL_254 = 0; _u_MMuPC1AnalysisMQL_254 < _t_muPC1Y_SC.size(); _u_MMuPC1AnalysisMQL_254++)
   {
-    double time = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_245].time;
-    int Ywire = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_245].Ywire;
-    if(_u_MMuPC1AnalysisMQL_244[_u_MMuPC1AnalysisMQL_245])
+    double time = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_254].time;
+    int Ywire = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_254].Ywire;
+    if(_u_MMuPC1AnalysisMQL_253[_u_MMuPC1AnalysisMQL_254])
     {
       continue;
     }
-    _u_MMuPC1AnalysisMQL_244[_u_MMuPC1AnalysisMQL_245] = true;
+    _u_MMuPC1AnalysisMQL_253[_u_MMuPC1AnalysisMQL_254] = true;
     int cluster_size = 1;
     int cluster_members[_t_muPC1Y_SC.size()];
-    cluster_members[0] = _u_MMuPC1AnalysisMQL_245;
+    cluster_members[0] = _u_MMuPC1AnalysisMQL_254;
     
-    for(int _u_MMuPC1AnalysisMQL_246 = _u_MMuPC1AnalysisMQL_245 + 1; _u_MMuPC1AnalysisMQL_246 < _t_muPC1Y_SC.size(); _u_MMuPC1AnalysisMQL_246++)
+    for(int _u_MMuPC1AnalysisMQL_255 = _u_MMuPC1AnalysisMQL_254 + 1; _u_MMuPC1AnalysisMQL_255 < _t_muPC1Y_SC.size(); _u_MMuPC1AnalysisMQL_255++)
     {
-      if(_u_MMuPC1AnalysisMQL_244[_u_MMuPC1AnalysisMQL_246])
+      if(_u_MMuPC1AnalysisMQL_253[_u_MMuPC1AnalysisMQL_255])
       {
         continue;
       }
       bool coincidence_seen = false;
-      for(int _u_MMuPC1AnalysisMQL_247 = 0; _u_MMuPC1AnalysisMQL_247 < cluster_size; _u_MMuPC1AnalysisMQL_247++)
+      for(int _u_MMuPC1AnalysisMQL_256 = 0; _u_MMuPC1AnalysisMQL_256 < cluster_size; _u_MMuPC1AnalysisMQL_256++)
       {
-        if(_u_MMuPC1AnalysisMQL_247 > 0) break;
-        int _u_MMuPC1AnalysisMQL_248 = cluster_members[_u_MMuPC1AnalysisMQL_247];
-        double time_1 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_248].time;
-        double time_2 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_246].time;
-        int Ywire_1 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_248].Ywire;
-        int Ywire_2 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_246].Ywire;
+        if(_u_MMuPC1AnalysisMQL_256 > 0) break;
+        int _u_MMuPC1AnalysisMQL_257 = cluster_members[_u_MMuPC1AnalysisMQL_256];
+        double time_1 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_257].time;
+        double time_2 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_255].time;
+        int Ywire_1 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_257].Ywire;
+        int Ywire_2 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_255].Ywire;
         
-        double _u_MMuPC1AnalysisMQL_249 = time_1 - time_2;
-        if(_u_MMuPC1AnalysisMQL_249 < -kMuPC1YClusterInterval)
+        double _u_MMuPC1AnalysisMQL_258 = time_1 - time_2;
+        if(_u_MMuPC1AnalysisMQL_258 < -kMuPC1YClusterInterval)
         {
           continue;
         }
@@ -3137,8 +3222,8 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         {
           continue;
         }
-        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_246;
-        _u_MMuPC1AnalysisMQL_244[_u_MMuPC1AnalysisMQL_246] = true;
+        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_255;
+        _u_MMuPC1AnalysisMQL_253[_u_MMuPC1AnalysisMQL_255] = true;
         break;
       }
       if(!coincidence_seen)
@@ -3146,85 +3231,85 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         break;
       }
     }
-    double time_min = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_245].time;
+    double time_min = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_254].time;
     double time_max = time_min;
     double time_sum = 0;
-    int Ywire_min = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_245].Ywire;
+    int Ywire_min = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_254].Ywire;
     int Ywire_max = Ywire_min;
     int Ywire_sum = 0;
-    for(int _u_MMuPC1AnalysisMQL_247 = 0; _u_MMuPC1AnalysisMQL_247 < cluster_size; _u_MMuPC1AnalysisMQL_247++)
+    for(int _u_MMuPC1AnalysisMQL_256 = 0; _u_MMuPC1AnalysisMQL_256 < cluster_size; _u_MMuPC1AnalysisMQL_256++)
     {
-      int _u_MMuPC1AnalysisMQL_248 = cluster_members[_u_MMuPC1AnalysisMQL_247];
-      time = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_248].time;
+      int _u_MMuPC1AnalysisMQL_257 = cluster_members[_u_MMuPC1AnalysisMQL_256];
+      time = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_257].time;
       time_min = MIN(time_min, time);
       time_max = MAX(time_max, time);
       time_sum = time_sum + time;
-      Ywire = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_248].Ywire;
+      Ywire = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_257].Ywire;
       Ywire_min = MIN(Ywire_min, Ywire);
       Ywire_max = MAX(Ywire_max, Ywire);
       Ywire_sum = Ywire_sum + Ywire;
     }
-    double time_1 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_245].time;
+    double time_1 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_254].time;
     double time_avg = time_sum/((double)cluster_size);
     double time_width = time_max - time_min + 1;
-    int Ywire_1 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_245].Ywire;
+    int Ywire_1 = _t_muPC1Y_SC[_u_MMuPC1AnalysisMQL_254].Ywire;
     double Ywire_avg = Ywire_sum/((double)cluster_size);
     int Ywire_width = Ywire_max - Ywire_min + 1;
     {
       double time = time_min;
       int Ywire = Ywire_1;
-      int _u_MMuPC1AnalysisMQL_250 = _t_muPC1Y_AD.next();
-      _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_250].time = time;
-      _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_250].Ywire = Ywire;
+      int _u_MMuPC1AnalysisMQL_259 = _t_muPC1Y_AD.next();
+      _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_259].time = time;
+      _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_259].Ywire = Ywire;
     }
   }
-  _t_muPC1Y_AD.sort(_u_MMuPC1AnalysisMQL_68);
+  _t_muPC1Y_AD.sort(_u_MMuPC1AnalysisMQL_70);
   if(Tier3)
   {
-    for(int _u_MMuPC1AnalysisMQL_251 = 0; _u_MMuPC1AnalysisMQL_251 < _t_muPC1Y_AD.size(); _u_MMuPC1AnalysisMQL_251++)
+    for(int _u_MMuPC1AnalysisMQL_260 = 0; _u_MMuPC1AnalysisMQL_260 < _t_muPC1Y_AD.size(); _u_MMuPC1AnalysisMQL_260++)
     {
-      double time = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_251].time;
-      int Ywire = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_251].Ywire;
+      double time = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_260].time;
+      int Ywire = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_260].Ywire;
       {
         
-        double time_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_251].time;
-        int Ywire_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_251].Ywire;
+        double time_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_260].time;
+        int Ywire_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_260].Ywire;
         
-        if(!_u_MMuPC1AnalysisMQL_138)
+        if(!_u_MMuPC1AnalysisMQL_142)
         {
-          if(!_t_muPC1Y_AD.checkSort(_u_MMuPC1AnalysisMQL_70))
+          if(!_t_muPC1Y_AD.checkSort(_u_MMuPC1AnalysisMQL_72))
           {
-            printf("Warning: table muPC1Y_AD is not sorted on time_2 as required for join with muPC1Y_AD (_u_MMuPC1AnalysisMQL_70)\n");
+            printf("Warning: table muPC1Y_AD is not sorted on time_2 as required for join with muPC1Y_AD (_u_MMuPC1AnalysisMQL_72)\n");
           }
-          _u_MMuPC1AnalysisMQL_138 = true;
+          _u_MMuPC1AnalysisMQL_142 = true;
         }
-        else if(!_u_MMuPC1AnalysisMQL_139)
+        else if(!_u_MMuPC1AnalysisMQL_143)
         {
-          if(!(time_1 >= _u_MMuPC1AnalysisMQL_137))
+          if(!(time_1 >= _u_MMuPC1AnalysisMQL_141))
           {
             printf("Warning: table muPC1Y_AD is not sorted on time_1 as required for join with muPC1Y_AD\n");
-            _u_MMuPC1AnalysisMQL_139 = true;
+            _u_MMuPC1AnalysisMQL_143 = true;
           }
         }
-        _u_MMuPC1AnalysisMQL_137 = time_1;
-        for( ; _u_MMuPC1AnalysisMQL_136 < _t_muPC1Y_AD.size(); _u_MMuPC1AnalysisMQL_136++)
+        _u_MMuPC1AnalysisMQL_141 = time_1;
+        for( ; _u_MMuPC1AnalysisMQL_140 < _t_muPC1Y_AD.size(); _u_MMuPC1AnalysisMQL_140++)
         {
-          double time_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_136].time;
-          int Ywire_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_136].Ywire;
+          double time_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_140].time;
+          int Ywire_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_140].Ywire;
           
-          double _u_MMuPC1AnalysisMQL_252 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_252 < 1)
+          double _u_MMuPC1AnalysisMQL_261 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_261 < 1)
           {
             break;
           }
         }
-        for(int _u_MMuPC1AnalysisMQL_254 = _u_MMuPC1AnalysisMQL_136; _u_MMuPC1AnalysisMQL_254 < _t_muPC1Y_AD.size(); _u_MMuPC1AnalysisMQL_254++)
+        for(int _u_MMuPC1AnalysisMQL_263 = _u_MMuPC1AnalysisMQL_140; _u_MMuPC1AnalysisMQL_263 < _t_muPC1Y_AD.size(); _u_MMuPC1AnalysisMQL_263++)
         {
-          double time_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_254].time;
-          int Ywire_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_254].Ywire;
+          double time_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_263].time;
+          int Ywire_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_263].Ywire;
           
-          double _u_MMuPC1AnalysisMQL_252 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_252 < -50005)
+          double _u_MMuPC1AnalysisMQL_261 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_261 < -50005)
           {
             break;
           }
@@ -3256,42 +3341,42 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
       }
     }
   }
-  bool _u_MMuPC1AnalysisMQL_255[_t_muPC1Y_AD.size()];
-  memset(_u_MMuPC1AnalysisMQL_255, 0, sizeof(_u_MMuPC1AnalysisMQL_255));
-  if(!_t_muPC1Y_AD.checkSort(_u_MMuPC1AnalysisMQL_71))
+  bool _u_MMuPC1AnalysisMQL_264[_t_muPC1Y_AD.size()];
+  memset(_u_MMuPC1AnalysisMQL_264, 0, sizeof(_u_MMuPC1AnalysisMQL_264));
+  if(!_t_muPC1Y_AD.checkSort(_u_MMuPC1AnalysisMQL_73))
   {
     printf("Warning: table muPC1Y_AD is not sorted on time_1 as required for cluster.\n");
   }
-  for(int _u_MMuPC1AnalysisMQL_256 = 0; _u_MMuPC1AnalysisMQL_256 < _t_muPC1Y_AD.size(); _u_MMuPC1AnalysisMQL_256++)
+  for(int _u_MMuPC1AnalysisMQL_265 = 0; _u_MMuPC1AnalysisMQL_265 < _t_muPC1Y_AD.size(); _u_MMuPC1AnalysisMQL_265++)
   {
-    double time = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_256].time;
-    int Ywire = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_256].Ywire;
-    if(_u_MMuPC1AnalysisMQL_255[_u_MMuPC1AnalysisMQL_256])
+    double time = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_265].time;
+    int Ywire = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_265].Ywire;
+    if(_u_MMuPC1AnalysisMQL_264[_u_MMuPC1AnalysisMQL_265])
     {
       continue;
     }
-    _u_MMuPC1AnalysisMQL_255[_u_MMuPC1AnalysisMQL_256] = true;
+    _u_MMuPC1AnalysisMQL_264[_u_MMuPC1AnalysisMQL_265] = true;
     int cluster_size = 1;
     int cluster_members[_t_muPC1Y_AD.size()];
-    cluster_members[0] = _u_MMuPC1AnalysisMQL_256;
+    cluster_members[0] = _u_MMuPC1AnalysisMQL_265;
     
-    for(int _u_MMuPC1AnalysisMQL_257 = _u_MMuPC1AnalysisMQL_256 + 1; _u_MMuPC1AnalysisMQL_257 < _t_muPC1Y_AD.size(); _u_MMuPC1AnalysisMQL_257++)
+    for(int _u_MMuPC1AnalysisMQL_266 = _u_MMuPC1AnalysisMQL_265 + 1; _u_MMuPC1AnalysisMQL_266 < _t_muPC1Y_AD.size(); _u_MMuPC1AnalysisMQL_266++)
     {
-      if(_u_MMuPC1AnalysisMQL_255[_u_MMuPC1AnalysisMQL_257])
+      if(_u_MMuPC1AnalysisMQL_264[_u_MMuPC1AnalysisMQL_266])
       {
         continue;
       }
       bool coincidence_seen = false;
-      for(int _u_MMuPC1AnalysisMQL_258 = 0; _u_MMuPC1AnalysisMQL_258 < cluster_size; _u_MMuPC1AnalysisMQL_258++)
+      for(int _u_MMuPC1AnalysisMQL_267 = 0; _u_MMuPC1AnalysisMQL_267 < cluster_size; _u_MMuPC1AnalysisMQL_267++)
       {
-        int _u_MMuPC1AnalysisMQL_259 = cluster_members[_u_MMuPC1AnalysisMQL_258];
-        double time_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_259].time;
-        double time_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_257].time;
-        int Ywire_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_259].Ywire;
-        int Ywire_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_257].Ywire;
+        int _u_MMuPC1AnalysisMQL_268 = cluster_members[_u_MMuPC1AnalysisMQL_267];
+        double time_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_268].time;
+        double time_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_266].time;
+        int Ywire_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_268].Ywire;
+        int Ywire_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_266].Ywire;
         
-        double _u_MMuPC1AnalysisMQL_260 = time_1 - time_2;
-        if(_u_MMuPC1AnalysisMQL_260 < -kMuPC1YClusterInterval)
+        double _u_MMuPC1AnalysisMQL_269 = time_1 - time_2;
+        if(_u_MMuPC1AnalysisMQL_269 < -kMuPC1YClusterInterval)
         {
           continue;
         }
@@ -3300,9 +3385,9 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         {
           continue;
         }
-        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_257;
-        _u_MMuPC1AnalysisMQL_255[_u_MMuPC1AnalysisMQL_257] = true;
-        _u_MMuPC1AnalysisMQL_257 = _u_MMuPC1AnalysisMQL_256;
+        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_266;
+        _u_MMuPC1AnalysisMQL_264[_u_MMuPC1AnalysisMQL_266] = true;
+        _u_MMuPC1AnalysisMQL_266 = _u_MMuPC1AnalysisMQL_265;
         break;
       }
       if(!coincidence_seen)
@@ -3310,28 +3395,28 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         break;
       }
     }
-    double time_min = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_256].time;
+    double time_min = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_265].time;
     double time_max = time_min;
     double time_sum = 0;
-    int Ywire_min = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_256].Ywire;
+    int Ywire_min = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_265].Ywire;
     int Ywire_max = Ywire_min;
     int Ywire_sum = 0;
-    for(int _u_MMuPC1AnalysisMQL_258 = 0; _u_MMuPC1AnalysisMQL_258 < cluster_size; _u_MMuPC1AnalysisMQL_258++)
+    for(int _u_MMuPC1AnalysisMQL_267 = 0; _u_MMuPC1AnalysisMQL_267 < cluster_size; _u_MMuPC1AnalysisMQL_267++)
     {
-      int _u_MMuPC1AnalysisMQL_259 = cluster_members[_u_MMuPC1AnalysisMQL_258];
-      time = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_259].time;
+      int _u_MMuPC1AnalysisMQL_268 = cluster_members[_u_MMuPC1AnalysisMQL_267];
+      time = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_268].time;
       time_min = MIN(time_min, time);
       time_max = MAX(time_max, time);
       time_sum = time_sum + time;
-      Ywire = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_259].Ywire;
+      Ywire = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_268].Ywire;
       Ywire_min = MIN(Ywire_min, Ywire);
       Ywire_max = MAX(Ywire_max, Ywire);
       Ywire_sum = Ywire_sum + Ywire;
     }
-    double time_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_256].time;
+    double time_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_265].time;
     double time_avg = time_sum/((double)cluster_size);
     double time_width = time_max - time_min + 1;
-    int Ywire_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_256].Ywire;
+    int Ywire_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_265].Ywire;
     double Ywire_avg = Ywire_sum/((double)cluster_size);
     int Ywire_width = Ywire_max - Ywire_min + 1;
     {
@@ -3340,63 +3425,63 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
       int Ywire_max_0 = Ywire_max;
       int Ywire_min = Ywire_min_0;
       int Ywire_max = Ywire_max_0;
-      int _u_MMuPC1AnalysisMQL_261 = _t_muPC1Y_cluster_contiguous.next();
-      _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_261].time = time;
-      _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_261].Ywire_min = Ywire_min_0;
-      _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_261].Ywire_max = Ywire_max_0;
+      int _u_MMuPC1AnalysisMQL_270 = _t_muPC1Y_cluster_contiguous.next();
+      _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_270].time = time;
+      _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_270].Ywire_min = Ywire_min_0;
+      _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_270].Ywire_max = Ywire_max_0;
     }
   }
-  _t_muPC1Y_cluster_contiguous.sort(_u_MMuPC1AnalysisMQL_72);
+  _t_muPC1Y_cluster_contiguous.sort(_u_MMuPC1AnalysisMQL_74);
   if(Tier3)
   {
-    for(int _u_MMuPC1AnalysisMQL_262 = 0; _u_MMuPC1AnalysisMQL_262 < _t_muPC1Y_cluster_contiguous.size(); _u_MMuPC1AnalysisMQL_262++)
+    for(int _u_MMuPC1AnalysisMQL_271 = 0; _u_MMuPC1AnalysisMQL_271 < _t_muPC1Y_cluster_contiguous.size(); _u_MMuPC1AnalysisMQL_271++)
     {
-      double time = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_262].time;
-      int Ywire_min = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_262].Ywire_min;
-      int Ywire_max = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_262].Ywire_max;
+      double time = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_271].time;
+      int Ywire_min = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_271].Ywire_min;
+      int Ywire_max = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_271].Ywire_max;
       {
         
-        double time_1 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_262].time;
-        int Ywire_min_1 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_262].Ywire_min;
-        int Ywire_max_1 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_262].Ywire_max;
+        double time_1 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_271].time;
+        int Ywire_min_1 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_271].Ywire_min;
+        int Ywire_max_1 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_271].Ywire_max;
         
-        if(!_u_MMuPC1AnalysisMQL_143)
+        if(!_u_MMuPC1AnalysisMQL_147)
         {
-          if(!_t_muPC1Y_cluster_contiguous.checkSort(_u_MMuPC1AnalysisMQL_74))
+          if(!_t_muPC1Y_cluster_contiguous.checkSort(_u_MMuPC1AnalysisMQL_76))
           {
-            printf("Warning: table muPC1Y_cluster_contiguous is not sorted on time_2 as required for join with muPC1Y_cluster_contiguous (_u_MMuPC1AnalysisMQL_74)\n");
+            printf("Warning: table muPC1Y_cluster_contiguous is not sorted on time_2 as required for join with muPC1Y_cluster_contiguous (_u_MMuPC1AnalysisMQL_76)\n");
           }
-          _u_MMuPC1AnalysisMQL_143 = true;
+          _u_MMuPC1AnalysisMQL_147 = true;
         }
-        else if(!_u_MMuPC1AnalysisMQL_144)
+        else if(!_u_MMuPC1AnalysisMQL_148)
         {
-          if(!(time_1 >= _u_MMuPC1AnalysisMQL_142))
+          if(!(time_1 >= _u_MMuPC1AnalysisMQL_146))
           {
             printf("Warning: table muPC1Y_cluster_contiguous is not sorted on time_1 as required for join with muPC1Y_cluster_contiguous\n");
-            _u_MMuPC1AnalysisMQL_144 = true;
+            _u_MMuPC1AnalysisMQL_148 = true;
           }
         }
-        _u_MMuPC1AnalysisMQL_142 = time_1;
-        for( ; _u_MMuPC1AnalysisMQL_141 < _t_muPC1Y_cluster_contiguous.size(); _u_MMuPC1AnalysisMQL_141++)
+        _u_MMuPC1AnalysisMQL_146 = time_1;
+        for( ; _u_MMuPC1AnalysisMQL_145 < _t_muPC1Y_cluster_contiguous.size(); _u_MMuPC1AnalysisMQL_145++)
         {
-          double time_2 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_141].time;
-          int Ywire_min_2 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_141].Ywire_min;
-          int Ywire_max_2 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_141].Ywire_max;
+          double time_2 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_145].time;
+          int Ywire_min_2 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_145].Ywire_min;
+          int Ywire_max_2 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_145].Ywire_max;
           
-          double _u_MMuPC1AnalysisMQL_263 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_263 < 5)
+          double _u_MMuPC1AnalysisMQL_272 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_272 < 5)
           {
             break;
           }
         }
-        for(int _u_MMuPC1AnalysisMQL_265 = _u_MMuPC1AnalysisMQL_141; _u_MMuPC1AnalysisMQL_265 < _t_muPC1Y_cluster_contiguous.size(); _u_MMuPC1AnalysisMQL_265++)
+        for(int _u_MMuPC1AnalysisMQL_274 = _u_MMuPC1AnalysisMQL_145; _u_MMuPC1AnalysisMQL_274 < _t_muPC1Y_cluster_contiguous.size(); _u_MMuPC1AnalysisMQL_274++)
         {
-          double time_2 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_265].time;
-          int Ywire_min_2 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_265].Ywire_min;
-          int Ywire_max_2 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_265].Ywire_max;
+          double time_2 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_274].time;
+          int Ywire_min_2 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_274].Ywire_min;
+          int Ywire_max_2 = _t_muPC1Y_cluster_contiguous[_u_MMuPC1AnalysisMQL_274].Ywire_max;
           
-          double _u_MMuPC1AnalysisMQL_263 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_263 < -kMuPC1YClusterInterval)
+          double _u_MMuPC1AnalysisMQL_272 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_272 < -kMuPC1YClusterInterval)
           {
             break;
           }
@@ -3415,42 +3500,42 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
       }
     }
   }
-  bool _u_MMuPC1AnalysisMQL_266[_t_muPC1Y_AD.size()];
-  memset(_u_MMuPC1AnalysisMQL_266, 0, sizeof(_u_MMuPC1AnalysisMQL_266));
-  if(!_t_muPC1Y_AD.checkSort(_u_MMuPC1AnalysisMQL_75))
+  bool _u_MMuPC1AnalysisMQL_275[_t_muPC1Y_AD.size()];
+  memset(_u_MMuPC1AnalysisMQL_275, 0, sizeof(_u_MMuPC1AnalysisMQL_275));
+  if(!_t_muPC1Y_AD.checkSort(_u_MMuPC1AnalysisMQL_77))
   {
     printf("Warning: table muPC1Y_AD is not sorted on time_1 as required for cluster.\n");
   }
-  for(int _u_MMuPC1AnalysisMQL_267 = 0; _u_MMuPC1AnalysisMQL_267 < _t_muPC1Y_AD.size(); _u_MMuPC1AnalysisMQL_267++)
+  for(int _u_MMuPC1AnalysisMQL_276 = 0; _u_MMuPC1AnalysisMQL_276 < _t_muPC1Y_AD.size(); _u_MMuPC1AnalysisMQL_276++)
   {
-    double time = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_267].time;
-    int Ywire = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_267].Ywire;
-    if(_u_MMuPC1AnalysisMQL_266[_u_MMuPC1AnalysisMQL_267])
+    double time = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_276].time;
+    int Ywire = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_276].Ywire;
+    if(_u_MMuPC1AnalysisMQL_275[_u_MMuPC1AnalysisMQL_276])
     {
       continue;
     }
-    _u_MMuPC1AnalysisMQL_266[_u_MMuPC1AnalysisMQL_267] = true;
+    _u_MMuPC1AnalysisMQL_275[_u_MMuPC1AnalysisMQL_276] = true;
     int cluster_size = 1;
     int cluster_members[_t_muPC1Y_AD.size()];
-    cluster_members[0] = _u_MMuPC1AnalysisMQL_267;
+    cluster_members[0] = _u_MMuPC1AnalysisMQL_276;
     
-    for(int _u_MMuPC1AnalysisMQL_268 = _u_MMuPC1AnalysisMQL_267 + 1; _u_MMuPC1AnalysisMQL_268 < _t_muPC1Y_AD.size(); _u_MMuPC1AnalysisMQL_268++)
+    for(int _u_MMuPC1AnalysisMQL_277 = _u_MMuPC1AnalysisMQL_276 + 1; _u_MMuPC1AnalysisMQL_277 < _t_muPC1Y_AD.size(); _u_MMuPC1AnalysisMQL_277++)
     {
-      if(_u_MMuPC1AnalysisMQL_266[_u_MMuPC1AnalysisMQL_268])
+      if(_u_MMuPC1AnalysisMQL_275[_u_MMuPC1AnalysisMQL_277])
       {
         continue;
       }
       bool coincidence_seen = false;
-      for(int _u_MMuPC1AnalysisMQL_269 = 0; _u_MMuPC1AnalysisMQL_269 < cluster_size; _u_MMuPC1AnalysisMQL_269++)
+      for(int _u_MMuPC1AnalysisMQL_278 = 0; _u_MMuPC1AnalysisMQL_278 < cluster_size; _u_MMuPC1AnalysisMQL_278++)
       {
-        int _u_MMuPC1AnalysisMQL_270 = cluster_members[_u_MMuPC1AnalysisMQL_269];
-        double time_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_270].time;
-        double time_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_268].time;
-        int Ywire_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_270].Ywire;
-        int Ywire_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_268].Ywire;
+        int _u_MMuPC1AnalysisMQL_279 = cluster_members[_u_MMuPC1AnalysisMQL_278];
+        double time_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_279].time;
+        double time_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_277].time;
+        int Ywire_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_279].Ywire;
+        int Ywire_2 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_277].Ywire;
         
-        double _u_MMuPC1AnalysisMQL_271 = time_1 - time_2;
-        if(_u_MMuPC1AnalysisMQL_271 < -kMuPC1YClusterInterval)
+        double _u_MMuPC1AnalysisMQL_280 = time_1 - time_2;
+        if(_u_MMuPC1AnalysisMQL_280 < -kMuPC1YClusterInterval)
         {
           continue;
         }
@@ -3459,9 +3544,9 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         {
           continue;
         }
-        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_268;
-        _u_MMuPC1AnalysisMQL_266[_u_MMuPC1AnalysisMQL_268] = true;
-        _u_MMuPC1AnalysisMQL_268 = _u_MMuPC1AnalysisMQL_267;
+        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_277;
+        _u_MMuPC1AnalysisMQL_275[_u_MMuPC1AnalysisMQL_277] = true;
+        _u_MMuPC1AnalysisMQL_277 = _u_MMuPC1AnalysisMQL_276;
         break;
       }
       if(!coincidence_seen)
@@ -3469,28 +3554,28 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         break;
       }
     }
-    double time_min = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_267].time;
+    double time_min = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_276].time;
     double time_max = time_min;
     double time_sum = 0;
-    int Ywire_min = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_267].Ywire;
+    int Ywire_min = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_276].Ywire;
     int Ywire_max = Ywire_min;
     int Ywire_sum = 0;
-    for(int _u_MMuPC1AnalysisMQL_269 = 0; _u_MMuPC1AnalysisMQL_269 < cluster_size; _u_MMuPC1AnalysisMQL_269++)
+    for(int _u_MMuPC1AnalysisMQL_278 = 0; _u_MMuPC1AnalysisMQL_278 < cluster_size; _u_MMuPC1AnalysisMQL_278++)
     {
-      int _u_MMuPC1AnalysisMQL_270 = cluster_members[_u_MMuPC1AnalysisMQL_269];
-      time = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_270].time;
+      int _u_MMuPC1AnalysisMQL_279 = cluster_members[_u_MMuPC1AnalysisMQL_278];
+      time = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_279].time;
       time_min = MIN(time_min, time);
       time_max = MAX(time_max, time);
       time_sum = time_sum + time;
-      Ywire = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_270].Ywire;
+      Ywire = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_279].Ywire;
       Ywire_min = MIN(Ywire_min, Ywire);
       Ywire_max = MAX(Ywire_max, Ywire);
       Ywire_sum = Ywire_sum + Ywire;
     }
-    double time_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_267].time;
+    double time_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_276].time;
     double time_avg = time_sum/((double)cluster_size);
     double time_width = time_max - time_min + 1;
-    int Ywire_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_267].Ywire;
+    int Ywire_1 = _t_muPC1Y_AD[_u_MMuPC1AnalysisMQL_276].Ywire;
     double Ywire_avg = Ywire_sum/((double)cluster_size);
     int Ywire_width = Ywire_max - Ywire_min + 1;
     {
@@ -3515,106 +3600,32 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         double Ywire_0 = Ywire;
         double muPC1Time = time;
         double Ywire = Ywire_0;
-        int _u_MMuPC1AnalysisMQL_272 = _t_muPC1Y_export.next();
-        _t_muPC1Y_export[_u_MMuPC1AnalysisMQL_272].Ywire = Ywire_0;
-        _t_muPC1Y_export[_u_MMuPC1AnalysisMQL_272].muPC1Time = muPC1Time;
+        int _u_MMuPC1AnalysisMQL_281 = _t_muPC1Y_export.next();
+        _t_muPC1Y_export[_u_MMuPC1AnalysisMQL_281].Ywire = Ywire_0;
+        _t_muPC1Y_export[_u_MMuPC1AnalysisMQL_281].muPC1Time = muPC1Time;
       }
-      int _u_MMuPC1AnalysisMQL_273 = _t_muPC1Y.next();
-      _t_muPC1Y[_u_MMuPC1AnalysisMQL_273].time = time;
-      _t_muPC1Y[_u_MMuPC1AnalysisMQL_273].Ywire = Ywire;
-      _t_muPC1Y[_u_MMuPC1AnalysisMQL_273].cluster_size = cluster_size_0;
-      _t_muPC1Y[_u_MMuPC1AnalysisMQL_273].cluster_width = cluster_width;
+      int _u_MMuPC1AnalysisMQL_282 = _t_muPC1Y.next();
+      _t_muPC1Y[_u_MMuPC1AnalysisMQL_282].time = time;
+      _t_muPC1Y[_u_MMuPC1AnalysisMQL_282].Ywire = Ywire;
+      _t_muPC1Y[_u_MMuPC1AnalysisMQL_282].cluster_size = cluster_size_0;
+      _t_muPC1Y[_u_MMuPC1AnalysisMQL_282].cluster_width = cluster_width;
     }
   }
-  _t_muPC1Y.sort(_u_MMuPC1AnalysisMQL_76);
+  _t_muPC1Y.sort(_u_MMuPC1AnalysisMQL_78);
   if(Tier3)
   {
-    for(int _u_MMuPC1AnalysisMQL_274 = 0; _u_MMuPC1AnalysisMQL_274 < _t_muPC1Y.size(); _u_MMuPC1AnalysisMQL_274++)
+    for(int _u_MMuPC1AnalysisMQL_283 = 0; _u_MMuPC1AnalysisMQL_283 < _t_muPC1Y.size(); _u_MMuPC1AnalysisMQL_283++)
     {
-      double time = _t_muPC1Y[_u_MMuPC1AnalysisMQL_274].time;
-      double Ywire = _t_muPC1Y[_u_MMuPC1AnalysisMQL_274].Ywire;
-      int cluster_size = _t_muPC1Y[_u_MMuPC1AnalysisMQL_274].cluster_size;
-      int cluster_width = _t_muPC1Y[_u_MMuPC1AnalysisMQL_274].cluster_width;
+      double time = _t_muPC1Y[_u_MMuPC1AnalysisMQL_283].time;
+      double Ywire = _t_muPC1Y[_u_MMuPC1AnalysisMQL_283].Ywire;
+      int cluster_size = _t_muPC1Y[_u_MMuPC1AnalysisMQL_283].cluster_size;
+      int cluster_width = _t_muPC1Y[_u_MMuPC1AnalysisMQL_283].cluster_width;
       {
         
-        double time_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_274].time;
-        double Ywire_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_274].Ywire;
-        int cluster_size_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_274].cluster_size;
-        int cluster_width_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_274].cluster_width;
-        
-        if(!_u_MMuPC1AnalysisMQL_148)
-        {
-          if(!_t_muPC1Y.checkSort(_u_MMuPC1AnalysisMQL_78))
-          {
-            printf("Warning: table muPC1Y is not sorted on time_2 as required for join with muPC1Y (_u_MMuPC1AnalysisMQL_78)\n");
-          }
-          _u_MMuPC1AnalysisMQL_148 = true;
-        }
-        else if(!_u_MMuPC1AnalysisMQL_149)
-        {
-          if(!(time_1 >= _u_MMuPC1AnalysisMQL_147))
-          {
-            printf("Warning: table muPC1Y is not sorted on time_1 as required for join with muPC1Y\n");
-            _u_MMuPC1AnalysisMQL_149 = true;
-          }
-        }
-        _u_MMuPC1AnalysisMQL_147 = time_1;
-        for( ; _u_MMuPC1AnalysisMQL_146 < _t_muPC1Y.size(); _u_MMuPC1AnalysisMQL_146++)
-        {
-          double time_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_146].time;
-          double Ywire_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_146].Ywire;
-          int cluster_size_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_146].cluster_size;
-          int cluster_width_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_146].cluster_width;
-          
-          double _u_MMuPC1AnalysisMQL_275 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_275 < 1)
-          {
-            break;
-          }
-        }
-        for(int _u_MMuPC1AnalysisMQL_277 = _u_MMuPC1AnalysisMQL_146; _u_MMuPC1AnalysisMQL_277 < _t_muPC1Y.size(); _u_MMuPC1AnalysisMQL_277++)
-        {
-          double time_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_277].time;
-          double Ywire_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_277].Ywire;
-          int cluster_size_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_277].cluster_size;
-          int cluster_width_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_277].cluster_width;
-          
-          double _u_MMuPC1AnalysisMQL_275 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_275 < -50005)
-          {
-            break;
-          }
-          {
-            double time_1_0 = time_1;
-            double time_2_0 = time_2;
-            double time_1 = time_1_0;
-            double time_2 = time_2_0;
-            if(Tier3)
-            {
-              if((time_2 - time_1) >= 0)
-              {
-                _h_muPC1_Y_final_cluster_autocorr_all_1D->Fill(time_2 - time_1);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  if(Tier3)
-  {
-    for(int _u_MMuPC1AnalysisMQL_278 = 0; _u_MMuPC1AnalysisMQL_278 < _t_muPC1Y.size(); _u_MMuPC1AnalysisMQL_278++)
-    {
-      double time = _t_muPC1Y[_u_MMuPC1AnalysisMQL_278].time;
-      double Ywire = _t_muPC1Y[_u_MMuPC1AnalysisMQL_278].Ywire;
-      int cluster_size = _t_muPC1Y[_u_MMuPC1AnalysisMQL_278].cluster_size;
-      int cluster_width = _t_muPC1Y[_u_MMuPC1AnalysisMQL_278].cluster_width;
-      {
-        
-        double time_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_278].time;
-        double Ywire_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_278].Ywire;
-        int cluster_size_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_278].cluster_size;
-        int cluster_width_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_278].cluster_width;
+        double time_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_283].time;
+        double Ywire_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_283].Ywire;
+        int cluster_size_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_283].cluster_size;
+        int cluster_width_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_283].cluster_width;
         
         if(!_u_MMuPC1AnalysisMQL_152)
         {
@@ -3640,21 +3651,95 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
           int cluster_size_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_150].cluster_size;
           int cluster_width_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_150].cluster_width;
           
-          double _u_MMuPC1AnalysisMQL_279 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_279 < 1)
+          double _u_MMuPC1AnalysisMQL_284 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_284 < 1)
           {
             break;
           }
         }
-        for(int _u_MMuPC1AnalysisMQL_281 = _u_MMuPC1AnalysisMQL_150; _u_MMuPC1AnalysisMQL_281 < _t_muPC1Y.size(); _u_MMuPC1AnalysisMQL_281++)
+        for(int _u_MMuPC1AnalysisMQL_286 = _u_MMuPC1AnalysisMQL_150; _u_MMuPC1AnalysisMQL_286 < _t_muPC1Y.size(); _u_MMuPC1AnalysisMQL_286++)
         {
-          double time_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_281].time;
-          double Ywire_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_281].Ywire;
-          int cluster_size_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_281].cluster_size;
-          int cluster_width_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_281].cluster_width;
+          double time_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_286].time;
+          double Ywire_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_286].Ywire;
+          int cluster_size_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_286].cluster_size;
+          int cluster_width_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_286].cluster_width;
           
-          double _u_MMuPC1AnalysisMQL_279 = time_1 - time_2;
-          if(_u_MMuPC1AnalysisMQL_279 < -150)
+          double _u_MMuPC1AnalysisMQL_284 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_284 < -50005)
+          {
+            break;
+          }
+          {
+            double time_1_0 = time_1;
+            double time_2_0 = time_2;
+            double time_1 = time_1_0;
+            double time_2 = time_2_0;
+            if(Tier3)
+            {
+              if((time_2 - time_1) >= 0)
+              {
+                _h_muPC1_Y_final_cluster_autocorr_all_1D->Fill(time_2 - time_1);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if(Tier3)
+  {
+    for(int _u_MMuPC1AnalysisMQL_287 = 0; _u_MMuPC1AnalysisMQL_287 < _t_muPC1Y.size(); _u_MMuPC1AnalysisMQL_287++)
+    {
+      double time = _t_muPC1Y[_u_MMuPC1AnalysisMQL_287].time;
+      double Ywire = _t_muPC1Y[_u_MMuPC1AnalysisMQL_287].Ywire;
+      int cluster_size = _t_muPC1Y[_u_MMuPC1AnalysisMQL_287].cluster_size;
+      int cluster_width = _t_muPC1Y[_u_MMuPC1AnalysisMQL_287].cluster_width;
+      {
+        
+        double time_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_287].time;
+        double Ywire_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_287].Ywire;
+        int cluster_size_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_287].cluster_size;
+        int cluster_width_1 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_287].cluster_width;
+        
+        if(!_u_MMuPC1AnalysisMQL_156)
+        {
+          if(!_t_muPC1Y.checkSort(_u_MMuPC1AnalysisMQL_82))
+          {
+            printf("Warning: table muPC1Y is not sorted on time_2 as required for join with muPC1Y (_u_MMuPC1AnalysisMQL_82)\n");
+          }
+          _u_MMuPC1AnalysisMQL_156 = true;
+        }
+        else if(!_u_MMuPC1AnalysisMQL_157)
+        {
+          if(!(time_1 >= _u_MMuPC1AnalysisMQL_155))
+          {
+            printf("Warning: table muPC1Y is not sorted on time_1 as required for join with muPC1Y\n");
+            _u_MMuPC1AnalysisMQL_157 = true;
+          }
+        }
+        _u_MMuPC1AnalysisMQL_155 = time_1;
+        for( ; _u_MMuPC1AnalysisMQL_154 < _t_muPC1Y.size(); _u_MMuPC1AnalysisMQL_154++)
+        {
+          double time_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_154].time;
+          double Ywire_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_154].Ywire;
+          int cluster_size_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_154].cluster_size;
+          int cluster_width_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_154].cluster_width;
+          
+          double _u_MMuPC1AnalysisMQL_288 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_288 < 1)
+          {
+            break;
+          }
+        }
+        for(int _u_MMuPC1AnalysisMQL_290 = _u_MMuPC1AnalysisMQL_154; _u_MMuPC1AnalysisMQL_290 < _t_muPC1Y.size(); _u_MMuPC1AnalysisMQL_290++)
+        {
+          double time_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_290].time;
+          double Ywire_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_290].Ywire;
+          int cluster_size_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_290].cluster_size;
+          int cluster_width_2 = _t_muPC1Y[_u_MMuPC1AnalysisMQL_290].cluster_width;
+          
+          double _u_MMuPC1AnalysisMQL_288 = time_1 - time_2;
+          if(_u_MMuPC1AnalysisMQL_288 < -150)
           {
             break;
           }
@@ -3674,58 +3759,58 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
       }
     }
   }
-  for(int _u_MMuPC1AnalysisMQL_282 = 0; _u_MMuPC1AnalysisMQL_282 < _t_muPC1X.size(); _u_MMuPC1AnalysisMQL_282++)
+  for(int _u_MMuPC1AnalysisMQL_291 = 0; _u_MMuPC1AnalysisMQL_291 < _t_muPC1X.size(); _u_MMuPC1AnalysisMQL_291++)
   {
-    double time = _t_muPC1X[_u_MMuPC1AnalysisMQL_282].time;
-    double Xwire = _t_muPC1X[_u_MMuPC1AnalysisMQL_282].Xwire;
-    int cluster_size = _t_muPC1X[_u_MMuPC1AnalysisMQL_282].cluster_size;
-    int cluster_width = _t_muPC1X[_u_MMuPC1AnalysisMQL_282].cluster_width;
+    double time = _t_muPC1X[_u_MMuPC1AnalysisMQL_291].time;
+    double Xwire = _t_muPC1X[_u_MMuPC1AnalysisMQL_291].Xwire;
+    int cluster_size = _t_muPC1X[_u_MMuPC1AnalysisMQL_291].cluster_size;
+    int cluster_width = _t_muPC1X[_u_MMuPC1AnalysisMQL_291].cluster_width;
     {
       
-      double muPC1X_time = _t_muPC1X[_u_MMuPC1AnalysisMQL_282].time;
-      double Xwire = _t_muPC1X[_u_MMuPC1AnalysisMQL_282].Xwire;
-      int muPC1X_cluster_size = _t_muPC1X[_u_MMuPC1AnalysisMQL_282].cluster_size;
-      int muPC1X_cluster_width = _t_muPC1X[_u_MMuPC1AnalysisMQL_282].cluster_width;
+      double muPC1X_time = _t_muPC1X[_u_MMuPC1AnalysisMQL_291].time;
+      double Xwire = _t_muPC1X[_u_MMuPC1AnalysisMQL_291].Xwire;
+      int muPC1X_cluster_size = _t_muPC1X[_u_MMuPC1AnalysisMQL_291].cluster_size;
+      int muPC1X_cluster_width = _t_muPC1X[_u_MMuPC1AnalysisMQL_291].cluster_width;
       
-      if(!_u_MMuPC1AnalysisMQL_156)
+      if(!_u_MMuPC1AnalysisMQL_160)
       {
-        if(!_t_muPC1Y.checkSort(_u_MMuPC1AnalysisMQL_82))
+        if(!_t_muPC1Y.checkSort(_u_MMuPC1AnalysisMQL_84))
         {
-          printf("Warning: table muPC1Y is not sorted on muPC1Y_time as required for join with muPC1X (_u_MMuPC1AnalysisMQL_82)\n");
+          printf("Warning: table muPC1Y is not sorted on muPC1Y_time as required for join with muPC1X (_u_MMuPC1AnalysisMQL_84)\n");
         }
-        _u_MMuPC1AnalysisMQL_156 = true;
+        _u_MMuPC1AnalysisMQL_160 = true;
       }
-      else if(!_u_MMuPC1AnalysisMQL_157)
+      else if(!_u_MMuPC1AnalysisMQL_161)
       {
-        if(!(muPC1X_time >= _u_MMuPC1AnalysisMQL_155))
+        if(!(muPC1X_time >= _u_MMuPC1AnalysisMQL_159))
         {
           printf("Warning: table muPC1X is not sorted on muPC1X_time as required for join with muPC1Y\n");
-          _u_MMuPC1AnalysisMQL_157 = true;
+          _u_MMuPC1AnalysisMQL_161 = true;
         }
       }
-      _u_MMuPC1AnalysisMQL_155 = muPC1X_time;
-      for( ; _u_MMuPC1AnalysisMQL_154 < _t_muPC1Y.size(); _u_MMuPC1AnalysisMQL_154++)
+      _u_MMuPC1AnalysisMQL_159 = muPC1X_time;
+      for( ; _u_MMuPC1AnalysisMQL_158 < _t_muPC1Y.size(); _u_MMuPC1AnalysisMQL_158++)
       {
-        double muPC1Y_time = _t_muPC1Y[_u_MMuPC1AnalysisMQL_154].time;
-        double Ywire = _t_muPC1Y[_u_MMuPC1AnalysisMQL_154].Ywire;
-        int muPC1Y_cluster_size = _t_muPC1Y[_u_MMuPC1AnalysisMQL_154].cluster_size;
-        int muPC1Y_cluster_width = _t_muPC1Y[_u_MMuPC1AnalysisMQL_154].cluster_width;
+        double muPC1Y_time = _t_muPC1Y[_u_MMuPC1AnalysisMQL_158].time;
+        double Ywire = _t_muPC1Y[_u_MMuPC1AnalysisMQL_158].Ywire;
+        int muPC1Y_cluster_size = _t_muPC1Y[_u_MMuPC1AnalysisMQL_158].cluster_size;
+        int muPC1Y_cluster_width = _t_muPC1Y[_u_MMuPC1AnalysisMQL_158].cluster_width;
         
-        double _u_MMuPC1AnalysisMQL_283 = muPC1X_time - muPC1Y_time;
-        if(_u_MMuPC1AnalysisMQL_283 < 601)
+        double _u_MMuPC1AnalysisMQL_292 = muPC1X_time - muPC1Y_time;
+        if(_u_MMuPC1AnalysisMQL_292 < 601)
         {
           break;
         }
       }
-      for(int _u_MMuPC1AnalysisMQL_285 = _u_MMuPC1AnalysisMQL_154; _u_MMuPC1AnalysisMQL_285 < _t_muPC1Y.size(); _u_MMuPC1AnalysisMQL_285++)
+      for(int _u_MMuPC1AnalysisMQL_294 = _u_MMuPC1AnalysisMQL_158; _u_MMuPC1AnalysisMQL_294 < _t_muPC1Y.size(); _u_MMuPC1AnalysisMQL_294++)
       {
-        double muPC1Y_time = _t_muPC1Y[_u_MMuPC1AnalysisMQL_285].time;
-        double Ywire = _t_muPC1Y[_u_MMuPC1AnalysisMQL_285].Ywire;
-        int muPC1Y_cluster_size = _t_muPC1Y[_u_MMuPC1AnalysisMQL_285].cluster_size;
-        int muPC1Y_cluster_width = _t_muPC1Y[_u_MMuPC1AnalysisMQL_285].cluster_width;
+        double muPC1Y_time = _t_muPC1Y[_u_MMuPC1AnalysisMQL_294].time;
+        double Ywire = _t_muPC1Y[_u_MMuPC1AnalysisMQL_294].Ywire;
+        int muPC1Y_cluster_size = _t_muPC1Y[_u_MMuPC1AnalysisMQL_294].cluster_size;
+        int muPC1Y_cluster_width = _t_muPC1Y[_u_MMuPC1AnalysisMQL_294].cluster_width;
         
-        double _u_MMuPC1AnalysisMQL_283 = muPC1X_time - muPC1Y_time;
-        if(_u_MMuPC1AnalysisMQL_283 < -601)
+        double _u_MMuPC1AnalysisMQL_292 = muPC1X_time - muPC1Y_time;
+        if(_u_MMuPC1AnalysisMQL_292 < -601)
         {
           break;
         }
@@ -3736,22 +3821,22 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
           double XYtdiff = muPC1Y_time - muPC1X_time;
           double Xwire = Xwire_0;
           double Ywire = Ywire_0;
-          int _u_MMuPC1AnalysisMQL_286 = _t_muPC1XY.next();
-          _t_muPC1XY[_u_MMuPC1AnalysisMQL_286].Xwire = Xwire_0;
-          _t_muPC1XY[_u_MMuPC1AnalysisMQL_286].Ywire = Ywire_0;
-          _t_muPC1XY[_u_MMuPC1AnalysisMQL_286].muPC1Time = muPC1Time;
-          _t_muPC1XY[_u_MMuPC1AnalysisMQL_286].XYtdiff = XYtdiff;
+          int _u_MMuPC1AnalysisMQL_295 = _t_muPC1XY.next();
+          _t_muPC1XY[_u_MMuPC1AnalysisMQL_295].Xwire = Xwire_0;
+          _t_muPC1XY[_u_MMuPC1AnalysisMQL_295].Ywire = Ywire_0;
+          _t_muPC1XY[_u_MMuPC1AnalysisMQL_295].muPC1Time = muPC1Time;
+          _t_muPC1XY[_u_MMuPC1AnalysisMQL_295].XYtdiff = XYtdiff;
         }
       }
     }
   }
-  _t_muPC1XY.sort(_u_MMuPC1AnalysisMQL_83);
-  for(int _u_MMuPC1AnalysisMQL_287 = 0; _u_MMuPC1AnalysisMQL_287 < _t_muPC1XY.size(); _u_MMuPC1AnalysisMQL_287++)
+  _t_muPC1XY.sort(_u_MMuPC1AnalysisMQL_85);
+  for(int _u_MMuPC1AnalysisMQL_296 = 0; _u_MMuPC1AnalysisMQL_296 < _t_muPC1XY.size(); _u_MMuPC1AnalysisMQL_296++)
   {
-    double Xwire = _t_muPC1XY[_u_MMuPC1AnalysisMQL_287].Xwire;
-    double Ywire = _t_muPC1XY[_u_MMuPC1AnalysisMQL_287].Ywire;
-    double muPC1Time = _t_muPC1XY[_u_MMuPC1AnalysisMQL_287].muPC1Time;
-    double XYtdiff = _t_muPC1XY[_u_MMuPC1AnalysisMQL_287].XYtdiff;
+    double Xwire = _t_muPC1XY[_u_MMuPC1AnalysisMQL_296].Xwire;
+    double Ywire = _t_muPC1XY[_u_MMuPC1AnalysisMQL_296].Ywire;
+    double muPC1Time = _t_muPC1XY[_u_MMuPC1AnalysisMQL_296].muPC1Time;
+    double XYtdiff = _t_muPC1XY[_u_MMuPC1AnalysisMQL_296].XYtdiff;
     if(Tier1)
     {
       _h_muPC1_coinc_XY_tdiff->Fill(XYtdiff);
@@ -3769,63 +3854,63 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         {
           _h_muPC1_coinc_XY_2D->Fill(Xwire, Ywire);
         }
-        int _u_MMuPC1AnalysisMQL_288 = _t_muPC1.next();
-        _t_muPC1[_u_MMuPC1AnalysisMQL_288].Xwire = Xwire_0;
-        _t_muPC1[_u_MMuPC1AnalysisMQL_288].Ywire = Ywire_0;
-        _t_muPC1[_u_MMuPC1AnalysisMQL_288].muPC1Time = muPC1Time_0;
+        int _u_MMuPC1AnalysisMQL_297 = _t_muPC1.next();
+        _t_muPC1[_u_MMuPC1AnalysisMQL_297].Xwire = Xwire_0;
+        _t_muPC1[_u_MMuPC1AnalysisMQL_297].Ywire = Ywire_0;
+        _t_muPC1[_u_MMuPC1AnalysisMQL_297].muPC1Time = muPC1Time_0;
       }
     }
   }
   if(Tier3)
   {
-    for(int _u_MMuPC1AnalysisMQL_289 = 0; _u_MMuPC1AnalysisMQL_289 < _t_muPC1.size(); _u_MMuPC1AnalysisMQL_289++)
+    for(int _u_MMuPC1AnalysisMQL_298 = 0; _u_MMuPC1AnalysisMQL_298 < _t_muPC1.size(); _u_MMuPC1AnalysisMQL_298++)
     {
-      double Xwire = _t_muPC1[_u_MMuPC1AnalysisMQL_289].Xwire;
-      double Ywire = _t_muPC1[_u_MMuPC1AnalysisMQL_289].Ywire;
-      double muPC1Time = _t_muPC1[_u_MMuPC1AnalysisMQL_289].muPC1Time;
+      double Xwire = _t_muPC1[_u_MMuPC1AnalysisMQL_298].Xwire;
+      double Ywire = _t_muPC1[_u_MMuPC1AnalysisMQL_298].Ywire;
+      double muPC1Time = _t_muPC1[_u_MMuPC1AnalysisMQL_298].muPC1Time;
       {
         
-        double Xwire_1 = _t_muPC1[_u_MMuPC1AnalysisMQL_289].Xwire;
-        double Ywire_1 = _t_muPC1[_u_MMuPC1AnalysisMQL_289].Ywire;
-        double muPC1Time_1 = _t_muPC1[_u_MMuPC1AnalysisMQL_289].muPC1Time;
+        double Xwire_1 = _t_muPC1[_u_MMuPC1AnalysisMQL_298].Xwire;
+        double Ywire_1 = _t_muPC1[_u_MMuPC1AnalysisMQL_298].Ywire;
+        double muPC1Time_1 = _t_muPC1[_u_MMuPC1AnalysisMQL_298].muPC1Time;
         
-        if(!_u_MMuPC1AnalysisMQL_160)
+        if(!_u_MMuPC1AnalysisMQL_164)
         {
-          if(!_t_muPC1.checkSort(_u_MMuPC1AnalysisMQL_85))
+          if(!_t_muPC1.checkSort(_u_MMuPC1AnalysisMQL_87))
           {
-            printf("Warning: table muPC1 is not sorted on muPC1Time_2 as required for join with muPC1 (_u_MMuPC1AnalysisMQL_85)\n");
+            printf("Warning: table muPC1 is not sorted on muPC1Time_2 as required for join with muPC1 (_u_MMuPC1AnalysisMQL_87)\n");
           }
-          _u_MMuPC1AnalysisMQL_160 = true;
+          _u_MMuPC1AnalysisMQL_164 = true;
         }
-        else if(!_u_MMuPC1AnalysisMQL_161)
+        else if(!_u_MMuPC1AnalysisMQL_165)
         {
-          if(!(muPC1Time_1 >= _u_MMuPC1AnalysisMQL_159))
+          if(!(muPC1Time_1 >= _u_MMuPC1AnalysisMQL_163))
           {
             printf("Warning: table muPC1 is not sorted on muPC1Time_1 as required for join with muPC1\n");
-            _u_MMuPC1AnalysisMQL_161 = true;
+            _u_MMuPC1AnalysisMQL_165 = true;
           }
         }
-        _u_MMuPC1AnalysisMQL_159 = muPC1Time_1;
-        for( ; _u_MMuPC1AnalysisMQL_158 < _t_muPC1.size(); _u_MMuPC1AnalysisMQL_158++)
+        _u_MMuPC1AnalysisMQL_163 = muPC1Time_1;
+        for( ; _u_MMuPC1AnalysisMQL_162 < _t_muPC1.size(); _u_MMuPC1AnalysisMQL_162++)
         {
-          double Xwire_2 = _t_muPC1[_u_MMuPC1AnalysisMQL_158].Xwire;
-          double Ywire_2 = _t_muPC1[_u_MMuPC1AnalysisMQL_158].Ywire;
-          double muPC1Time_2 = _t_muPC1[_u_MMuPC1AnalysisMQL_158].muPC1Time;
+          double Xwire_2 = _t_muPC1[_u_MMuPC1AnalysisMQL_162].Xwire;
+          double Ywire_2 = _t_muPC1[_u_MMuPC1AnalysisMQL_162].Ywire;
+          double muPC1Time_2 = _t_muPC1[_u_MMuPC1AnalysisMQL_162].muPC1Time;
           
-          double _u_MMuPC1AnalysisMQL_290 = muPC1Time_1 - muPC1Time_2;
-          if(_u_MMuPC1AnalysisMQL_290 < 1)
+          double _u_MMuPC1AnalysisMQL_299 = muPC1Time_1 - muPC1Time_2;
+          if(_u_MMuPC1AnalysisMQL_299 < 1)
           {
             break;
           }
         }
-        for(int _u_MMuPC1AnalysisMQL_292 = _u_MMuPC1AnalysisMQL_158; _u_MMuPC1AnalysisMQL_292 < _t_muPC1.size(); _u_MMuPC1AnalysisMQL_292++)
+        for(int _u_MMuPC1AnalysisMQL_301 = _u_MMuPC1AnalysisMQL_162; _u_MMuPC1AnalysisMQL_301 < _t_muPC1.size(); _u_MMuPC1AnalysisMQL_301++)
         {
-          double Xwire_2 = _t_muPC1[_u_MMuPC1AnalysisMQL_292].Xwire;
-          double Ywire_2 = _t_muPC1[_u_MMuPC1AnalysisMQL_292].Ywire;
-          double muPC1Time_2 = _t_muPC1[_u_MMuPC1AnalysisMQL_292].muPC1Time;
+          double Xwire_2 = _t_muPC1[_u_MMuPC1AnalysisMQL_301].Xwire;
+          double Ywire_2 = _t_muPC1[_u_MMuPC1AnalysisMQL_301].Ywire;
+          double muPC1Time_2 = _t_muPC1[_u_MMuPC1AnalysisMQL_301].muPC1Time;
           
-          double _u_MMuPC1AnalysisMQL_290 = muPC1Time_1 - muPC1Time_2;
-          if(_u_MMuPC1AnalysisMQL_290 < -50005)
+          double _u_MMuPC1AnalysisMQL_299 = muPC1Time_1 - muPC1Time_2;
+          if(_u_MMuPC1AnalysisMQL_299 < -50005)
           {
             break;
           }
@@ -3846,67 +3931,135 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
       }
     }
   }
-  for(int _u_MMuPC1AnalysisMQL_293 = 0; _u_MMuPC1AnalysisMQL_293 < _t_muPC1X_sparks.size(); _u_MMuPC1AnalysisMQL_293++)
+  for(int _u_MMuPC1AnalysisMQL_302 = 0; _u_MMuPC1AnalysisMQL_302 < _t_muSC.size(); _u_MMuPC1AnalysisMQL_302++)
   {
-    double time = _t_muPC1X_sparks[_u_MMuPC1AnalysisMQL_293].time;
+    double time = _t_muSC[_u_MMuPC1AnalysisMQL_302].time;
+    {
+      
+      double time = _t_muSC[_u_MMuPC1AnalysisMQL_302].time;
+      
+      if(!_u_MMuPC1AnalysisMQL_168)
+      {
+        if(!_t_muPC1.checkSort(_u_MMuPC1AnalysisMQL_89))
+        {
+          printf("Warning: table muPC1 is not sorted on muPC1Time as required for join with muSC (_u_MMuPC1AnalysisMQL_89)\n");
+        }
+        _u_MMuPC1AnalysisMQL_168 = true;
+      }
+      else if(!_u_MMuPC1AnalysisMQL_169)
+      {
+        if(!(time >= _u_MMuPC1AnalysisMQL_167))
+        {
+          printf("Warning: table muSC is not sorted on time as required for join with muPC1\n");
+          _u_MMuPC1AnalysisMQL_169 = true;
+        }
+      }
+      _u_MMuPC1AnalysisMQL_167 = time;
+      for( ; _u_MMuPC1AnalysisMQL_166 < _t_muPC1.size(); _u_MMuPC1AnalysisMQL_166++)
+      {
+        double Xwire = _t_muPC1[_u_MMuPC1AnalysisMQL_166].Xwire;
+        double Ywire = _t_muPC1[_u_MMuPC1AnalysisMQL_166].Ywire;
+        double muPC1Time = _t_muPC1[_u_MMuPC1AnalysisMQL_166].muPC1Time;
+        
+        double _u_MMuPC1AnalysisMQL_303 = time - muPC1Time;
+        if(_u_MMuPC1AnalysisMQL_303 < 10000)
+        {
+          break;
+        }
+      }
+      for(int _u_MMuPC1AnalysisMQL_305 = _u_MMuPC1AnalysisMQL_166; _u_MMuPC1AnalysisMQL_305 < _t_muPC1.size(); _u_MMuPC1AnalysisMQL_305++)
+      {
+        double Xwire = _t_muPC1[_u_MMuPC1AnalysisMQL_305].Xwire;
+        double Ywire = _t_muPC1[_u_MMuPC1AnalysisMQL_305].Ywire;
+        double muPC1Time = _t_muPC1[_u_MMuPC1AnalysisMQL_305].muPC1Time;
+        
+        double _u_MMuPC1AnalysisMQL_303 = time - muPC1Time;
+        if(_u_MMuPC1AnalysisMQL_303 < -10000)
+        {
+          break;
+        }
+        {
+          double Xwire_0 = Xwire;
+          double Ywire_0 = Ywire;
+          double time_0 = time;
+          double muPC1Time_0 = muPC1Time;
+          double Xwire = Xwire_0;
+          double Ywire = Ywire_0;
+          double time = time_0;
+          double muPC1Time = muPC1Time_0;
+          _h_muSC_muPC1_time_difference->Fill(time-muPC1Time);
+          if(Tier1)
+          {
+            if(((time-muPC1Time) >= -160) && ((time-muPC1Time) <= 20))
+            {
+              _h_muPC1_coinc_XY_2D_with_muSC->Fill(Xwire, Ywire);
+            }
+          }
+        }
+      }
+    }
+  }
+  for(int _u_MMuPC1AnalysisMQL_306 = 0; _u_MMuPC1AnalysisMQL_306 < _t_muPC1X_sparks.size(); _u_MMuPC1AnalysisMQL_306++)
+  {
+    double time = _t_muPC1X_sparks[_u_MMuPC1AnalysisMQL_306].time;
     {
       double time_0 = time;
       double time = time_0;
-      int _u_MMuPC1AnalysisMQL_294 = _t_muPC1_sparks_union.next();
-      _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_294].time = time_0;
+      int _u_MMuPC1AnalysisMQL_307 = _t_muPC1_sparks_union.next();
+      _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_307].time = time_0;
     }
   }
-  for(int _u_MMuPC1AnalysisMQL_295 = 0; _u_MMuPC1AnalysisMQL_295 < _t_muPC1Y_sparks.size(); _u_MMuPC1AnalysisMQL_295++)
+  for(int _u_MMuPC1AnalysisMQL_308 = 0; _u_MMuPC1AnalysisMQL_308 < _t_muPC1Y_sparks.size(); _u_MMuPC1AnalysisMQL_308++)
   {
-    double time = _t_muPC1Y_sparks[_u_MMuPC1AnalysisMQL_295].time;
+    double time = _t_muPC1Y_sparks[_u_MMuPC1AnalysisMQL_308].time;
     {
       double time_0 = time;
       double time = time_0;
-      int _u_MMuPC1AnalysisMQL_296 = _t_muPC1_sparks_union.next();
-      _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_296].time = time_0;
+      int _u_MMuPC1AnalysisMQL_309 = _t_muPC1_sparks_union.next();
+      _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_309].time = time_0;
     }
   }
-  _t_muPC1_sparks_union.sort(_u_MMuPC1AnalysisMQL_86);
-  bool _u_MMuPC1AnalysisMQL_297[_t_muPC1_sparks_union.size()];
-  memset(_u_MMuPC1AnalysisMQL_297, 0, sizeof(_u_MMuPC1AnalysisMQL_297));
-  if(!_t_muPC1_sparks_union.checkSort(_u_MMuPC1AnalysisMQL_87))
+  _t_muPC1_sparks_union.sort(_u_MMuPC1AnalysisMQL_90);
+  bool _u_MMuPC1AnalysisMQL_310[_t_muPC1_sparks_union.size()];
+  memset(_u_MMuPC1AnalysisMQL_310, 0, sizeof(_u_MMuPC1AnalysisMQL_310));
+  if(!_t_muPC1_sparks_union.checkSort(_u_MMuPC1AnalysisMQL_91))
   {
     printf("Warning: table muPC1_sparks_union is not sorted on time_1 as required for cluster.\n");
   }
-  for(int _u_MMuPC1AnalysisMQL_298 = 0; _u_MMuPC1AnalysisMQL_298 < _t_muPC1_sparks_union.size(); _u_MMuPC1AnalysisMQL_298++)
+  for(int _u_MMuPC1AnalysisMQL_311 = 0; _u_MMuPC1AnalysisMQL_311 < _t_muPC1_sparks_union.size(); _u_MMuPC1AnalysisMQL_311++)
   {
-    double time = _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_298].time;
-    if(_u_MMuPC1AnalysisMQL_297[_u_MMuPC1AnalysisMQL_298])
+    double time = _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_311].time;
+    if(_u_MMuPC1AnalysisMQL_310[_u_MMuPC1AnalysisMQL_311])
     {
       continue;
     }
-    _u_MMuPC1AnalysisMQL_297[_u_MMuPC1AnalysisMQL_298] = true;
+    _u_MMuPC1AnalysisMQL_310[_u_MMuPC1AnalysisMQL_311] = true;
     int cluster_size = 1;
     int cluster_members[_t_muPC1_sparks_union.size()];
-    cluster_members[0] = _u_MMuPC1AnalysisMQL_298;
+    cluster_members[0] = _u_MMuPC1AnalysisMQL_311;
     
-    for(int _u_MMuPC1AnalysisMQL_299 = _u_MMuPC1AnalysisMQL_298 + 1; _u_MMuPC1AnalysisMQL_299 < _t_muPC1_sparks_union.size(); _u_MMuPC1AnalysisMQL_299++)
+    for(int _u_MMuPC1AnalysisMQL_312 = _u_MMuPC1AnalysisMQL_311 + 1; _u_MMuPC1AnalysisMQL_312 < _t_muPC1_sparks_union.size(); _u_MMuPC1AnalysisMQL_312++)
     {
-      if(_u_MMuPC1AnalysisMQL_297[_u_MMuPC1AnalysisMQL_299])
+      if(_u_MMuPC1AnalysisMQL_310[_u_MMuPC1AnalysisMQL_312])
       {
         continue;
       }
       bool coincidence_seen = false;
-      for(int _u_MMuPC1AnalysisMQL_300 = 0; _u_MMuPC1AnalysisMQL_300 < cluster_size; _u_MMuPC1AnalysisMQL_300++)
+      for(int _u_MMuPC1AnalysisMQL_313 = 0; _u_MMuPC1AnalysisMQL_313 < cluster_size; _u_MMuPC1AnalysisMQL_313++)
       {
-        int _u_MMuPC1AnalysisMQL_301 = cluster_members[_u_MMuPC1AnalysisMQL_300];
-        double time_1 = _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_301].time;
-        double time_2 = _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_299].time;
+        int _u_MMuPC1AnalysisMQL_314 = cluster_members[_u_MMuPC1AnalysisMQL_313];
+        double time_1 = _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_314].time;
+        double time_2 = _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_312].time;
         
-        double _u_MMuPC1AnalysisMQL_302 = time_1 - time_2;
-        if(_u_MMuPC1AnalysisMQL_302 < -200)
+        double _u_MMuPC1AnalysisMQL_315 = time_1 - time_2;
+        if(_u_MMuPC1AnalysisMQL_315 < -200)
         {
           continue;
         }
         coincidence_seen = true;
-        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_299;
-        _u_MMuPC1AnalysisMQL_297[_u_MMuPC1AnalysisMQL_299] = true;
-        _u_MMuPC1AnalysisMQL_299 = _u_MMuPC1AnalysisMQL_298;
+        cluster_members[cluster_size++] = _u_MMuPC1AnalysisMQL_312;
+        _u_MMuPC1AnalysisMQL_310[_u_MMuPC1AnalysisMQL_312] = true;
+        _u_MMuPC1AnalysisMQL_312 = _u_MMuPC1AnalysisMQL_311;
         break;
       }
       if(!coincidence_seen)
@@ -3914,18 +4067,18 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
         break;
       }
     }
-    double time_min = _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_298].time;
+    double time_min = _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_311].time;
     double time_max = time_min;
     double time_sum = 0;
-    for(int _u_MMuPC1AnalysisMQL_300 = 0; _u_MMuPC1AnalysisMQL_300 < cluster_size; _u_MMuPC1AnalysisMQL_300++)
+    for(int _u_MMuPC1AnalysisMQL_313 = 0; _u_MMuPC1AnalysisMQL_313 < cluster_size; _u_MMuPC1AnalysisMQL_313++)
     {
-      int _u_MMuPC1AnalysisMQL_301 = cluster_members[_u_MMuPC1AnalysisMQL_300];
-      time = _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_301].time;
+      int _u_MMuPC1AnalysisMQL_314 = cluster_members[_u_MMuPC1AnalysisMQL_313];
+      time = _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_314].time;
       time_min = MIN(time_min, time);
       time_max = MAX(time_max, time);
       time_sum = time_sum + time;
     }
-    double time_1 = _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_298].time;
+    double time_1 = _t_muPC1_sparks_union[_u_MMuPC1AnalysisMQL_311].time;
     double time_avg = time_sum/((double)cluster_size);
     double time_width = time_max - time_min + 1;
     {
@@ -3954,9 +4107,9 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
     }
   }
   _t_muPC1X_auto.finish();
-  _t_muPC1X_cluster_contiguous.finish();
   _t_muPC1_sparks_union.toBank(pevent, "M1SP");
   _t_muPC1_sparks_union.finish();
+  _t_muPC1X_cluster_contiguous.finish();
   _t_muPC1Y_temporal_auto.finish();
   _t_muPC1X_raw_auto.finish();
   _t_muPC1X_AD.finish();
@@ -3971,6 +4124,7 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
   _t_muPC1Y_raw_auto.finish();
   _t_muPC1Y.finish();
   _t_muPC1X.finish();
+  _t_muSC.finish();
   _t_muPC1Y_cluster_contiguous_sep.finish();
   _t_muPC1_auto.finish();
   _t_muPC1Y_SC_auto.finish();
@@ -3986,6 +4140,7 @@ INT MMuPC1AnalysisMQL(EVENT_HEADER *pheader, void *pevent)
   _t_muPC1_hits.finish();
   _t_muPC1Y_raw.finish();
   _t_muPC1Y_SC.finish();
+  _t_muSC_muPC1.finish();
   _t_muPC1_sparks_chamberwide.finish();
   _t_muPC1Y_AD_auto.finish();
   _t_muPC1Y_cluster_contiguous.finish();

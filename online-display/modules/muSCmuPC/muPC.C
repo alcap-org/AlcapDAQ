@@ -43,9 +43,8 @@ void muPC()
   hmupc1y->Draw("");
   hmupc1y->Fit("gaus","","",1.,24.);
 
-  /*
-  MuSunCanvas->cd(3);  
-  TH2 *hmupcCoinc = (TH2*) getObject("hMuscMupc1XY");
+  MuSunCanvas->cd(4);  
+  TH2 *hmupcCoinc = (TH2*) getObject("muPC1_coinc_XY_2D_with_muSC");
   hmupcCoinc->GetXaxis()->Set(24, 0.5, 24.5);
   hmupcCoinc->GetYaxis()->Set(24, 0.5, 24.5);
   hmupcCoinc->SetTitle("muPC1 coinc muSC");
@@ -54,11 +53,10 @@ void muPC()
   TLine *crosshair_vert = new TLine();
   crosshair_horiz->SetLineColor(kWhite);
   crosshair_vert->SetLineColor(kWhite);
-  crosshair_horiz->DrawLine(0,12.5+5.0/2,25,12.5+5.0/2);
-  crosshair_vert->DrawLine(12.5+1.5/2,0,12.5+1.5/2,25);
   crosshair_horiz->DrawLine(0,vertPos,25,vertPos);
   crosshair_vert->DrawLine(horzPos,0,horzPos,25);
 
+  /*
   MuSunCanvas->cd(4);
   TH2 *h4  = (TH2*) getObject("hmupcXY_BestEntrance");
   h4->SetTitle("muPC1 coinc Best Entrance");
