@@ -303,7 +303,7 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     sprintf(keyName, "/Analyzer/WireMap/SamplingFrequency");
     if(db_find_key(hDB, 0, keyName, &hKey) == SUCCESS){
       std::string bank_name(BankNames[i]);
-      float frequency = 1./gSetup->fBankToClockTickMap[bank_name]*1E9;
+      float frequency = 1.E9/gSetup->fBankToClockTickMap[bank_name];
       int size = sizeof(float);
       db_set_data_index(hDB, hKey, &frequency, size, i, TID_FLOAT);
     }*/
