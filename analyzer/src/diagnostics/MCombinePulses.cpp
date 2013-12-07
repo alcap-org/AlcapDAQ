@@ -82,9 +82,9 @@ INT MCombinePulses_init()
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
 
-    if (detname.substr(0,4) == "SiL1" && detname.substr(7,4) == "fast")
+    if (detname.substr(0,4) == "SiL1" && detname.substr(7,1) == "S")
       left_thin_banknames.push_back(bankname);
-    else if (detname.substr(0,4) == "SiR1" && detname.substr(7,4) == "fast")
+    else if (detname.substr(0,4) == "SiR1" && detname.substr(7,1) == "S")
       right_thin_banknames.push_back(bankname);
   }
 
