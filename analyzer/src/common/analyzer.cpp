@@ -297,14 +297,16 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     double adcValueInMeV = 1;
     gSetup->fBankToADCValueMap[bank_name] = adcValueInMeV;
 
+    /* AE: The clock ticks is calculated from the sampling frequency so the clock ticks kept on changing in the ODB every time I ran 
     // Let's set the sampling frequency in the ODB based on the calculated clock ticks now:
+
     sprintf(keyName, "/Analyzer/WireMap/SamplingFrequency");
     if(db_find_key(hDB, 0, keyName, &hKey) == SUCCESS){
       std::string bank_name(BankNames[i]);
       float frequency = 1./gSetup->fBankToClockTickMap[bank_name]*1E9;
       int size = sizeof(float);
       db_set_data_index(hDB, hKey, &frequency, size, i, TID_FLOAT);
-    }
+    }*/
 
     //////////////////////////////////////
     // Add the number of bits for each digitizer
