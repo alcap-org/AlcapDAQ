@@ -106,7 +106,7 @@ INT MCommonOnlineDisplayPlots_init()
     time_histograms_map[bankname] = hPulseTimes;
 
     // hPulseShapes
-    histname = "h" + bankame + "_Shapes";
+    histname = "h" + bankname + "_Shapes";
     histtitle = "Plot of the pulse shapes in the " + detname + " channels";
     TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5,max_adc_value+1,0,max_adc_value+1);      
     hPulseShapes->GetXaxis()->SetTitle("Time Stamp");
