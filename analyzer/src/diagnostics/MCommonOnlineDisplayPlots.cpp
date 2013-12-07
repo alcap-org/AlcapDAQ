@@ -107,7 +107,7 @@ INT MCommonOnlineDisplayPlots_init()
     histname = "h" + bankname + "_Shapes";
     histtitle = "Plot of the pulse shapes in the " + bankname + " channels";
     TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5,max_adc_value+1,0,max_adc_value+1);      
-    hPulseShapes->GetXaxis()->SetTitle("Time");
+    hPulseShapes->GetXaxis()->SetTitle("Time Stamp");
     hPulseShapes->GetYaxis()->SetTitle("ADC Value");
     shape_histograms_map[bankname] = hPulseShapes;
 
@@ -115,7 +115,7 @@ INT MCommonOnlineDisplayPlots_init()
     histname = "h" + bankname + "_LatestPulse";
     histtitle = "Plot of the latest pulse in the " + bankname + " channels";
     TH1I* hLatestPulse = new TH1I(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5);
-    hLatestPulse->GetXaxis()->SetTitle("Time");
+    hLatestPulse->GetXaxis()->SetTitle("Time Stamp");
     hLatestPulse->GetYaxis()->SetTitle("ADC Value");
     latest_pulse_histograms_map[bankname] = hLatestPulse;
 
