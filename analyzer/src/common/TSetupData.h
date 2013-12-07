@@ -20,10 +20,10 @@ class TSetupData : public TObject{
 
   //std::string GetBankName(std::string DetectorName){ };
   std::string GetDetectorName(std::string BankName) { 
-    if (fBankToDetectorMap[BankName] != "")
+    if (fBankToDetectorMap[BankName] != "blank")
       return fBankToDetectorMap[BankName]; 
     else
-      return BankName + "_Det";
+      return BankName;
   };
   double GetClockTick(std::string BankName) { return fBankToClockTickMap[BankName]; };
   int GetNBits(std::string BankName) { return fBankToBitMap[BankName]; };
