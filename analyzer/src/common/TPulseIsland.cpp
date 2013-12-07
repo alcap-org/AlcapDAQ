@@ -108,7 +108,14 @@ int TPulseIsland::GetPeakSample() const {
 // GetPedestal()
 // -- Calculates the pedestal for this TPulseIsland using the given number of bins
 double TPulseIsland::GetPedestal(int nPedSamples) const {
-  return 2750;  // Fixed pedestal
+
+  // Hard-coding pedestals for the time being....
+  if ( fBankName == "CeUH" )
+    return 8100;
+  else if ( fBankName == "CfUH" )
+    return 8680;
+  else
+    return 2750;  // Fixed pedestal
 
   if (nPedSamples > fSamples.size())
     nPedSamples = 2;
