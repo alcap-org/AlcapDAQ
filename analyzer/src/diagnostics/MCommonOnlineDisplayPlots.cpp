@@ -77,6 +77,8 @@ INT MCommonOnlineDisplayPlots_init()
       mapIter != bank_to_detector_map.end(); mapIter++) { 
 
     std::string bankname = mapIter->first;
+    std::string detname = gSetup->GetDetectorName(bankname);
+
     int n_digitizer_bits = 0;
     if (TSetupData::IsFADC(bankname))
       n_digitizer_bits = 12;
@@ -88,32 +90,32 @@ INT MCommonOnlineDisplayPlots_init()
     long max_adc_value = std::pow(2, n_digitizer_bits);
 
     // hPulseHeights
-    std::string histname = "h" + bankname + "_Heights";
-    std::string histtitle = "Plot of the pulse heights in the " + bankname + " channels";
+    std::string histname = "h" + detname + "_Heights";
+    std::string histtitle = "Plot of the pulse heights in the " + detname + " channels";
     TH1I* hPulseHeights = new TH1I(histname.c_str(), histtitle.c_str(), max_adc_value,0,max_adc_value);
     hPulseHeights->GetXaxis()->SetTitle("Pulse Height [ADC value]");
     hPulseHeights->GetYaxis()->SetTitle("Number of Pulses");
     height_histograms_map[bankname] = hPulseHeights;
 
     // hPulseTimes
-    histname = "h" + bankname + "_Times";
-    histtitle = "Plot of the pulse times in the " + bankname + " channels";
+    histname = "h" + detname + "_Times";
+    histtitle = "Plot of the pulse times in the " + detname + " channels";
     TH1I* hPulseTimes = new TH1I(histname.c_str(), histtitle.c_str(), 1000,0,1e6);
     hPulseTimes->GetXaxis()->SetTitle("Time");
     hPulseTimes->GetYaxis()->SetTitle("Number of Pulses");
     time_histograms_map[bankname] = hPulseTimes;
 
     // hPulseShapes
-    histname = "h" + bankname + "_Shapes";
-    histtitle = "Plot of the pulse shapes in the " + bankname + " channels";
+    histname = "h" + detname + "_Shapes";
+    histtitle = "Plot of the pulse shapes in the " + detname + " channels";
     TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5,max_adc_value+1,0,max_adc_value+1);      
     hPulseShapes->GetXaxis()->SetTitle("Time Stamp");
     hPulseShapes->GetYaxis()->SetTitle("ADC Value");
     shape_histograms_map[bankname] = hPulseShapes;
 
     //hLatestPulse
-    histname = "h" + bankname + "_LatestPulse";
-    histtitle = "Plot of the latest pulse in the " + bankname + " channels";
+    histname = "h" + detname + "_LatestPulse";
+    histtitle = "Plot of the latest pulse in the " + detname + " channels";
     TH1I* hLatestPulse = new TH1I(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5);
     hLatestPulse->GetXaxis()->SetTitle("Time Stamp");
     hLatestPulse->GetYaxis()->SetTitle("ADC Value");
@@ -172,6 +174,7 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 	for (map_iterator theMapIter = pulse_islands_map.begin(); theMapIter != pulse_islands_map.end(); theMapIter++) 
 	{
 	  std::string bankname = theMapIter->first;
+	  std::string detname = gSetup->GetDetectorName(bankname);
 	  std::vector<TPulseIsland*> thePulses = theMapIter->second;
 			
 	  // Loop over the TPulseIslands and plot the histogram
@@ -190,8 +193,12 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 	      
 	      std::vector<int> theSamples = (*pulseIter)->GetSamples();
 	      for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
-		shape_histograms_map[bankname]->Fill(sampleIter - theSamples.begin(), (*sampleIter));
-		latest_pulse_histograms_map[bankname]->SetBinContent(sampleIter - theSamples.begin(),(*sampleIter));
+		int sample_number = sampleIter - theSamples.begin();
+		int sample_value = *sampleIter;
+
+		shape_histograms_map[bankname]->Fill(sample_number, sample_value);
+		latest_pulse_histograms_map[bankname]->SetBinContent(sample_number, sample_value);
+
 	      }
 	    }
 	  }
