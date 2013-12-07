@@ -9,7 +9,7 @@ void fadc_overflowing_buffers()
   /*****************************************************************/
   
   AlCapCanvas->cd();
-  TH2* fadc_hist = (TH2 *)gDirectory->Get("hNOctalFADCBufferOverflow");
+  TH2* fadc_hist = (TH2 *)getObject("hNOctalFADCBufferOverflow");
   fadc_hist->Draw("COLZ");
   
 }

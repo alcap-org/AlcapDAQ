@@ -9,7 +9,7 @@ void fadc_islands_read_per_block()
   /*****************************************************************/
   
   AlCapCanvas->cd();
-  TH2* fadc_blocks_read = (TH2 *)gDirectory->Get("hNOctalFADCIslandsReadPerBlock");
+  TH2* fadc_blocks_read = (TH2 *)getObject("hNOctalFADCIslandsReadPerBlock");
   fadc_blocks_read->Draw("COLZ");
   
 }
