@@ -234,26 +234,6 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     printf("Warning: Could not retrieve values for key %s\n", keyName);
     return;
   }
-
-  //////////////////////////////////////////////////
-  // Get the sampling frequency of the different digitizers
-  sprintf(keyName, "/Analyzer/WireMap/SamplingFrequency");  
-  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
-    printf("Warning: Could not find key %s\n", keyName);
-    return;
-  }  
-  KEY freq_key;
-  if(db_get_key(hDB, hKey, &freq_key) != DB_SUCCESS){
-    printf("Warning: Could not find key %s\n", keyName);
-    return;
-  }
-  float SamplingFrequencies[freq_key.num_values];
-  size = sizeof(SamplingFrequencies);
-  if(db_get_value(hDB, 0, keyName , SamplingFrequencies, &size, TID_FLOAT, 0) != DB_SUCCESS){
-    printf("Warning: Could not retrieve values for key %s\n", keyName);
-    return;
-  }
-
   
   if(det_key.num_values != bk_key.num_values){
     printf("Warning: Key sizes are not equal for banks and detectors in /Analyzer/WireMap/\n");
@@ -286,6 +266,32 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
 	  //	  printf("Found the DCM Phase!\n");
 	}
       }
+      //////////////////////////////////////////////////
+      // Get the sampling frequency of the different digitizers
+      sprintf(keyName, "/Analyzer/WireMap/SamplingFrequency");
+      if(db_find_key(hDB, 0, keyName, &hKey) == SUCCESS){
+	std::string bank_name(BankNames[i]);
+	float frequency = 170E6 / DCMPhase;
+	int size = sizeof(float);
+	db_set_data_index(hDB, hKey, &frequency, size, i, TID_FLOAT);
+      }
+    }
+    
+    sprintf(keyName, "/Analyzer/WireMap/SamplingFrequency");  
+    if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+      printf("Warning: Could not find key %s\n", keyName);
+      return;
+    }  
+    KEY freq_key;
+    if(db_get_key(hDB, hKey, &freq_key) != DB_SUCCESS){
+      printf("Warning: Could not find key %s\n", keyName);
+      return;
+    }
+    float SamplingFrequencies[freq_key.num_values];
+    size = sizeof(SamplingFrequencies);
+    if(db_get_value(hDB, 0, keyName , SamplingFrequencies, &size, TID_FLOAT, 0) != DB_SUCCESS){
+      printf("Warning: Could not retrieve values for key %s\n", keyName);
+      return;
     }
     double true_frequency = SamplingFrequencies[i] /= DCMPhase;
     double clockTickInNs = (1/true_frequency) * 1e9;
@@ -296,17 +302,6 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     // Get the ADC value to MeV calibration constant
     double adcValueInMeV = 1;
     gSetup->fBankToADCValueMap[bank_name] = adcValueInMeV;
-
-    /* AE: The clock ticks is calculated from the sampling frequency so the clock ticks kept on changing in the ODB every time I ran 
-    // Let's set the sampling frequency in the ODB based on the calculated clock ticks now:
-
-    sprintf(keyName, "/Analyzer/WireMap/SamplingFrequency");
-    if(db_find_key(hDB, 0, keyName, &hKey) == SUCCESS){
-      std::string bank_name(BankNames[i]);
-      float frequency = 1.E9/gSetup->fBankToClockTickMap[bank_name];
-      int size = sizeof(float);
-      db_set_data_index(hDB, hKey, &frequency, size, i, TID_FLOAT);
-    }*/
 
     //////////////////////////////////////
     // Add the number of bits for each digitizer
