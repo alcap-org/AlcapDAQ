@@ -90,7 +90,7 @@ INT MCommonOnlineDisplayPlots_init()
     long max_adc_value = std::pow(2, n_digitizer_bits);
 
     // hPulseHeights
-    std::string histname = "h" + detname + "_Heights";
+    std::string histname = "h" + bankname + "_Heights";
     std::string histtitle = "Plot of the pulse heights in the " + detname + " channels";
     TH1I* hPulseHeights = new TH1I(histname.c_str(), histtitle.c_str(), max_adc_value,0,max_adc_value);
     hPulseHeights->GetXaxis()->SetTitle("Pulse Height [ADC value]");
@@ -98,7 +98,7 @@ INT MCommonOnlineDisplayPlots_init()
     height_histograms_map[bankname] = hPulseHeights;
 
     // hPulseTimes
-    histname = "h" + detname + "_Times";
+    histname = "h" + bankname + "_Times";
     histtitle = "Plot of the pulse times in the " + detname + " channels";
     TH1I* hPulseTimes = new TH1I(histname.c_str(), histtitle.c_str(), 1000,0,1e6);
     hPulseTimes->GetXaxis()->SetTitle("Time");
@@ -106,7 +106,7 @@ INT MCommonOnlineDisplayPlots_init()
     time_histograms_map[bankname] = hPulseTimes;
 
     // hPulseShapes
-    histname = "h" + detname + "_Shapes";
+    histname = "h" + bankame + "_Shapes";
     histtitle = "Plot of the pulse shapes in the " + detname + " channels";
     TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5,max_adc_value+1,0,max_adc_value+1);      
     hPulseShapes->GetXaxis()->SetTitle("Time Stamp");
@@ -114,7 +114,7 @@ INT MCommonOnlineDisplayPlots_init()
     shape_histograms_map[bankname] = hPulseShapes;
 
     //hLatestPulse
-    histname = "h" + detname + "_LatestPulse";
+    histname = "h" + bankname + "_LatestPulse";
     histtitle = "Plot of the latest pulse in the " + detname + " channels";
     TH1I* hLatestPulse = new TH1I(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5);
     hLatestPulse->GetXaxis()->SetTitle("Time Stamp");
