@@ -295,8 +295,8 @@ NEED_LIBROOTA=
 # Optional libmysqlclient library for mlogger
 #
 # To add mySQL support to the logger, say "make ... NEED_MYSQL=1"
-NEED_MYSQL=
-MYSQL_LIBS=/usr/lib/mysql/libmysqlclient.a
+NEED_MYSQL=1
+MYSQL_LIBS=/usr/lib/mysql/libmysqlclient.so
 
 #####################################################################
 # Nothing needs to be modified after this line 
