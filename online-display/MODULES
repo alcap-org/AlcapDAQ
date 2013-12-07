@@ -59,8 +59,9 @@ FADC_OverflowingBuffers FADC/fadc_overflowing_buffers.C
 #         Common
 #======================================================
 raw_pulse_count common/raw_pulse_count.C
+beam_tuning common/beam_tuning.C
 
 #======================================================
 #         Physics
 #======================================================
-dEdx physics/silicon_dEdx.C
+#dEdx physics/silicon_dEdx.C
