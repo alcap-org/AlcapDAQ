@@ -1,0 +1,95 @@
+\documentclass[10pt]{article}
+
+\usepackage{amssymb}
+
+\newcommand{\comment}[1]{}
+\renewcommand{\labelitemi}{$\blacksquare$}
+\renewcommand{\labelitemii}{$\Box$}
+
+
+
+\begin{document}
+
+These are the various observations that should be made during a shift.
+Numbers in parenthesis are the expected values.  If anything is not
+as it is supposed to be, contact an expert and note it in the
+shift summary.\newline
+
+
+\noindent Shift Crew:\rule[-1pt]{240pt}{1pt} \newline
+Shift: \rule[-1pt]{60pt}{1pt} \newline
+Date:\rule[-1pt]{60pt}{1pt} \newline
+
+
+  \begin{itemize}
+  \item Run monitoring
+    \begin{itemize}
+    \item Event builder rate \rule[-1pt]{40pt}{1pt} (2000 kB/s - 4000 kB/s when beam is on)
+    \item Analyzer running
+    \item Lazy label Tape 1 \rule[-1pt]{40pt}{1pt} Tape 2 \rule[-1pt]{40pt}{1pt}
+    \item kicker O-scope
+    \end{itemize}
+  \item Raid Status
+    \begin{itemize}
+    \item Go to https://be02:8080 
+      Login as administrator with the mulan password.
+      Check the raid status
+    \item Check for any alarms
+    \end{itemize}
+  \item Kicker
+    \begin{itemize}
+    \item HV setting \rule[-1pt]{40pt}{1pt} (12.5 kV)
+    \item Current reading \rule[-1pt]{40pt}{1pt} 
+    \item LEDs on kicker cards OK
+    \end{itemize}
+  \item{Tape Robots}
+    \begin{itemize}
+    \item Is it working?
+    \item Any replaced tapes?  \rule[-1pt]{40pt}{1pt}
+    \end{itemize}
+  \item Separator 
+    \begin{itemize}
+    \item HV setting \rule[-1pt]{40pt}{1pt} (185 kV)
+      \item Magnet setting \rule[-1pt]{40pt}{1pt} (920 w/ HV at 185)
+    \end{itemize}
+  \item EMC
+    \begin{itemize}
+    \item EMC HV \rule[-1pt]{40pt}{1pt} (3kV)
+    \item EMC current \rule[-1pt]{40pt}{1pt}
+    \item CF$_{4}$ bottle pressure \rule[-1pt]{40pt}{1pt}(100 bar) demand \rule[-1pt]{40pt}{1pt}(0.5 bar)
+    \item C$_{4}$H$_{10}$ bottle pressure \rule[-1pt]{40pt}{1pt}(0.0 bar) demand \rule[-1pt]{40pt}{1pt} (0.5 bar)
+    \item Bubble rate \rule[-1pt]{40pt}{1pt} ($\approx$0.5 hz)
+    \item Gas alarms in ready state
+    \end{itemize}
+  \item Laser 
+    \begin{itemize} 
+    \item N$_{2}$ bottle pressure \rule[-1pt]{40pt}{1pt} ($\ge$ 25 bar) demand \rule[-1pt]{40pt}{1pt} (5 bar)
+    \item If running, laser chould make clicking sound
+    \end{itemize}
+  \item Beam
+    \begin{itemize}
+    \item Rate \rule[-1pt]{40pt}{1pt} (5-7 MHz)  
+\item quality \rule[-1pt]{40pt}{1pt}
+  \end{itemize}
+
+    \item Target Open Run
+      \begin{itemize}
+      \item Rate in X buff \rule[-1pt]{40pt}{1pt} (5-7 Mhz)
+      \item Beam spot OK
+      \item check water bottles while in area
+      \end{itemize}
+   
+  \item Online Plots
+    \begin{itemize}
+    \item MPV vs. SN......comment on oddities:\rule[-1pt]{40pt}{1pt}
+    \item Magnet trend plots.....comment on oddities: \rule[-1pt]{40pt}{1pt}
+    \end{itemize}
+  \item Additional things
+    \begin{itemize}
+    \item Empty A/C water bottles
+    \item Clean up area
+    \end{itemize}
+  \end{itemize}
+  
+  
+\end{document}

@@ -1,0 +1,175 @@
+<html>
+
+<body>
+
+<h2>Three simple steps to add your own plot to the on-line display</h2>
+
+<p>
+If you know <a href="http://root.cern.ch">ROOT</a> basics, adding your 
+own plot into the system will be as easy as writing a ROOT macro. This
+HOWTO page will guide through this process.
+</p>
+
+<ol>
+  <li>
+      The On-line muLan WEB page lives in <b>/home/mulan/DAQ/www/online</b> directory on <b>mulanbe.psi.ch</b>. 
+      So login to mulanbe and go there.</li>
+  <li>
+      Add a line into the file <b>index.txt</b> (for macros to be listed in main menu) or into the
+      file <b>all_macros.txt</b> (for macros to be listed in "All macros" section), 
+      containing four records  describing your future macro.
+      <pre>
+     "Title"      "handler"      "Directory"    "Macro_name"
+      </pre>
+      Meaning of fields:
+      <ul>
+         <li><em>Title</em> is a title which will appear on the WEB page;</li>
+         <li><em>Handler</em> is the name of pre-defined handlers which will be called to process your macro (see below for details).</li>
+         <li><em>Directory</em> is a directory name where you will put your macro.</li>
+         <li><em>Macro_name</em> is the name of your ROOT macro, whithout ".C" extention.</li>
+      </ul>
+      <font color="#000FF">Records have to be enclosed in quotation marks.</font><br>
+      <b><font color="#FF0000">WARNING!</font> The system is primitive and there is no
+      error processing, so, please, be carefull at this step and don't make mistakes!</b><br>
+
+      <em>Example:</em>
+      <pre>
+     "WFD raw area"        "process_run.php"   "wfd"    "wfd_raw_area"
+      </pre>
+      </li>
+  <li>
+      Go to your directory <b>"Directory"</b> and create your ROOT macro, satisfying the following rules:
+      <ul>
+         <li>It has to have the name <b>Macro_name.C</b>, where <b>Macro_name</b> is the 
+             name you put into <b>index.txt</b> file</li>
+         <li>It has to have a list of arguments depending on the <b>Handler</b> you are using:
+              <table rules="all" frame="border">
+              <tr>
+                 <td>Handler</td>
+                 <td>Arguments</td>
+              </tr>
+              <tr>
+	         <td>process_run.php</td>
+                 <td>(int run_nr)</td>
+              </tr>
+              <tr>
+	         <td>process_run_crate_slotrange.php</td>
+                 <td>(int run_nr, int crate, int slot1, int slot2)</td>
+              </tr>
+	      <tr>
+	         <td>process_run_ledbox.php</td>
+		 <td>(int run_nr, int led_box_nr)</td>
+	      </tr>
+	      <tr>
+	         <td>process_run_SNrange.php</td>
+		 <td>(int run_nr, int SN1, int SN2)</td>
+	      </tr>
+	      <tr>
+	         <td>process_void.php</td>
+		 <td>()</td>
+	      </tr>
+              </table>
+         </li>
+         <li>
+             It has to generate the file <b>../png/Macro_name.png</b>
+         </li>
+         <li> 
+             Remember that your macro will be executed as a precompiled macro (it will be called with <b>"+"</b> mark: 
+             <b>.x Macro_name.C+(...)</b>). Therefore, don't forget to include all header files which you 
+             might need.
+         </li>
+      </ul>
+  </li>
+</ol>
+This is, basically, all you need to do. 
+
+<h2>Example</h2>
+
+<p>
+This simple example shows you how your macro can look like.
+</p>
+
+
+<pre>
+file index.txt:
+-------------------------------------------------------------------
+
+ "test plot"     "process_run.php"   "example"    "testmacro"
+
+-------------------------------------------------------------------
+
+
+
+file testmacro.C:
+-----------------
+
+/* this file will plot 2D histogram WFDRawTimeG0 as a color plot */
+
+/* some includes which will simplify your job */
+#include "../common/init.C"
+#include "../common/gethist.C"
+
+void testmacro(const int run_nr = 0) 
+{
+
+  //=========================================================
+  //   *** some initialization for pretty print view ***
+  //=========================================================
+
+  init();
+
+  //=========================================================
+  //                  *** create canvas ***
+  //=========================================================
+  
+  TCanvas *c1 = new TCanvas("c1","c1",0,0,600,600);
+  c1->Draw();
+  c1->cd();
+
+  //=========================================================
+  //      *** receive histograms for given run_nr ***
+  //=========================================================
+
+
+  TH2D  *h2 = (TH2D*) get_hist("WFDRawTimeG0", run_nr);
+
+  //=========================================================
+  //      *** plot the histogram ***
+  //=========================================================
+
+  if ( h2 ) {
+
+     h2->Draw("ColZ");
+  }   
+
+  //=========================================================
+  //      *** save canvas as PNG image file ***
+  //=========================================================
+
+  c1->SaveAs("../png/testmacro.png");
+
+  //=========================================================
+  //   *** finally, you can event put some comments  ***
+  //       on the WEB page, which will appear below
+  //       your picture in HTML format!
+  //=========================================================
+
+  ofstream *os = new ofstream("../html/testmacro.html");
+  *os &lt;&lt; "&lt;h2&gt;Hello, Word!&lt;/h2&gt;";
+  *os << "&lt;font color=\"#0000FF\"&gt;Congratulation! You have created your first on-line plot!&lt;/font&gt;";  
+  delete os;
+
+}
+
+</pre>
+
+<p>
+To make you own macro you can just copy and paste this example. You can also find it
+in the <b>/home/mulan/DAQ/www/online/example</b> directory. And, of cause, don't forget
+to replace <b>"testmacro"</b> with the name of your own macro everywhere in this example.<br> 
+Enjoy!
+</p>
+
+</body>
+
+</html>

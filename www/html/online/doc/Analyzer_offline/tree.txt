@@ -1,0 +1,41 @@
+
+This is an introduction to the offline analyzer that produces root trees. I will post replies to this message if anything changes in my code structure.
+
+1) Get the code. You can check out the code by running
+svn checkout svn+ssh://mulanbe.psi.ch/home/mulan/subversion-repository/DAQ
+in your home directory on the analysis machine
+
+2) Turn on the output you want. In the module DAQ/analyzer/offline/production/modules/make_WFDcoinFill_tree.cpp, at the top, there are defines for RECORD_RAW, RECORD_PULSES, etc. The latter ones are dependent on the former, so if you want to record coincidences, be sure you also record pulses. At some point I will make modifications so the code will find the pulses but not record them if all you want are coincident pulses.
+
+3) compile midas and the analyzer.
+a) cd DAQ/midas-1.9.5; make
+b) cd DAQ/analyzer/offline/production; make
+
+4) Run the analyzer. NOTE!!! when specifying an output file, use the -T switch rather than the -o switch. This is very important, because the default midas analyzer output does not understand how to create trees.
+./ranalyzer -i /mnt/raid/data/run.mid -T /mnt/raid/users/me/output.root -s 0
+
+5) Open and look at the root file.
+a) root -l output.root
+b) WFDcoinFill->StartViewer()
+c) You can point and click in this interface to create histograms
+
+6) Using the command line:
+a) You have more control over drawing histograms on the command line. For example
+WFDcoinFill->Draw("Y:X>>myhist(300,0,300,400,0,400),"mycut","mydrawoptions",numberOfFills,StartFillNumber)
+will draw Y vs X (where these are names like Blocktime and SerialNumber determined from the tree viewer),
+pipe the ouput to a histogram named myhist with the number of bins specified in the usual order (nbins, low, high),
+apply a cut like "BlockTime>600 && BlockTime<700",
+and draw the histogram with options like "colz".
+You can leave off the last two parameters if you want to look at the whole tree. If you want to prototype your code, I suggest setting numberOfFills to 1000.
+
+For a 1D histogram, use
+WFDcoinFill->Draw("X>>myhist(300,0,300),"mycut","mydrawoptions",numberOfFills,StartFillNumber)
+
+7) TChains
+a) You can look at multiple files at once using TChains.
+b) TChain *WFDcoinFill=new TChain("WFDcoinFill")
+c) WFDcoinFill->AddFile("file1.root")
+d) WFDcoinFill->AddFile("file2.root")
+...
+z) WFDcoinFill->StartViewer() or WFDcoinFill->Draw(...)
+ELOG V2.6.2-1699

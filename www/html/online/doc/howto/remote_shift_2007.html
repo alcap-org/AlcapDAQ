@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.0 Transitional//EN'>
+<html>
+<head>
+  <title>MuLan online</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+
+<body>
+
+
+<tr><td><table class="listframe" width="100%" cellspacing=0 cellpadding=0>
+<tr><td class="attribhead">
+<input type=hidden name="Author" value="Kevin Lynch">
+<input type=hidden name="Co-Author(s)" value="">
+<input type=hidden name="Category" value="howto">
+<input type=hidden name="Type" value="Howto">
+
+<input type=hidden name="Subject" value="The all new &quot;Remote shift howto&quot; (and how to look at online plots)">
+<input type=hidden name=browsing value=1>
+Message ID:&nbsp;<b>189</b>
+&nbsp;&nbsp;&nbsp;&nbsp;Entry time:&nbsp;<b>06/11/07 14:10</b>
+</td></tr>
+<tr><td><table width="100%" cellpadding=0 cellspacing=0><tr><td nowrap class="attribname">Author:</td><td class="attribvalue">
+Kevin Lynch&nbsp;</td>
+</tr><tr><td nowrap class="attribname">Co-Author(s):</td><td class="attribvalue">
+&nbsp;</td>
+</tr><tr><td nowrap class="attribname">Category:</td><td class="attribvalue">
+
+howto&nbsp;</td>
+</tr><tr><td nowrap class="attribname">Type:</td><td class="attribvalue">
+Howto&nbsp;</td>
+</tr><tr><td nowrap class="attribname">Subject:</td><td class="attribvalue">
+The all new "Remote shift howto" (and how to look at online plots)&nbsp;</td>
+</tr></table></td></tr>
+</table><!-- listframe -->
+</td></tr>
+<tr><td class="messageframe">In 2006, Dan posted a "Remote shift howto" (<a href="../Summer2006/531">elog:Summer2006/531</a>).  A few very minor items have changed since then.  The easiest thing for me to do is copy that elog verbatim, and change the relevant bits:<br />
+
+<br />
+The job of the remote shift taker is to make sure that the experiment doesn't "catch fire" while the local crew takes a break from constant shift taking. That means the remote shift taker monitors the experiment, fixes minor problems, records experimental changes, and contacts someone local if a problem that disrupts data taking occurs. This e-log will outline how to perform these duties.<br />
+<br />
+Contact phone numbers (from the US ... from other countries, the international access code may be different):<br />
+011 41 56 310 5883 (on site cell phone)<br />
+011 41 56 310 5997 (MuLan barrack)<br />
+011 41 56 310 3666 (MuCap barrack)<br />
+mulanatpsi (mulan skype account)<br />
+<br />
+<br />
+First, because of the PSI firewall an SSH tunnel with several port forwards are necessary.  Before you can open a tunnel to OUR machine, you need to connect to poke an initial hole through the PSI firewall by loggin in to balrog.psi.ch.  You need a PSI login to do this.  Contact Peter Winter for help in this regard.  <br />
+
+<br />
+Once your balrog connection is open, you can open tunnels to mulanbe.  The command I use from linux is:<pre>
+ssh mulan@mulanbe.psi.ch -L 8000:mulanbe:80 -L 8001:be02:8081 -L 8003:be02:8080 -L 5900:sepii:5900
+</pre>Similar port forwarding can be accomplished with any ssh program such as putty. For information on how to port forward with putty see <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/">http://www.chiark.greenend.org.uk/~sgtatham/putty/</a><br />
+Several links in this e-log assume you use the same ports as me.<br />
+<br />
+Here is how those five ports are used:<br />
+<br />
+    * 8000:mulanbe:80 gives access to the online histograms and run log pages<br />
+          o <a href="http://localhost:8000/online">http://localhost:8000/online</a> (online analysis histograms, trend plots, etc)<br />
+
+          o <a href="http://localhost:8000/mulan">http://localhost:8000/mulan</a> (click "Run Log" or "Last 20 Runs" to get to run log) <br />
+    * 8001:be02:8081 gives access to midas web page<br />
+          o <a href="http://localhost:8001">http://localhost:8001</a><br />
+    * 8003:be02:8080 gives access to raid status page<br />
+          o <a href="https://localhost:8003">https://localhost:8003</a> (note the https)<br />
+
+    * 5900:sepii:5900 gives access to the separator vnc server<br />
+          o vncviewer localhost:0 (you need the vnc password, exhalle)<br />
+<br />
+Another useful webpage is the PSI accelerator status <a href="http://www.acs.psi.ch/acs/ACSstatus-g-r.html">http://www.acs.psi.ch/acs/ACSstatus-g-r.html</a><br />
+<br />
+What to monitor:<br />
+<br />
+    * The most important thing to watch is that the Event Builder data rate is what you expect (28 MB/s).<br />
+
+      This is found on the midas status page near the top. If it suddenly drops (or increases) this could indicate several<br />
+      possibilities:<br />
+          o Proton current has changed to or from "cosmic mode" (check proton status page)<br />
+          o Something is wrong with the daq (are all expected frontends running? see <a href="177">elog:177</a>)<br />
+          o Separator has tripped (check vnc session or click SeparatorMonitor on midas status page, values are: HV current, vacuum, and status)<br />
+
+          o The kicker has tripped (call the contact number above).<br />
+    * Next, watch several subsystems and plots to make sure things are running correctly:<br />
+          o Make sure the online analyzer is running. The right most column on the midas status page should be green. If not go to the programs page of midas and click "Start Analyzer".<br />
+          o Check that the lazy tape program(s) are running.  The "lazy label" should not say "(empty)"<br />
+          o Monitor the online histograms and trend plots. If problems are observed on these plots usually just note the problem, but call the number above if significant problems are suspected.<br />
+                + WFD raw time and WFD raw fill<br />
+
+                + Slow Control-&gt;VME monitor and Slow Control-&gt;Beamline<br />
+                + Trend Plots-&gt;tau,N/B<br />
+    * If conditions change (such as proton beam stops) be sure to change the runlog by going to /Experiment/Edit on Start and changing the correct parameters.<br />
+      Also you can retroactively change the runlog by going to the run log page.<br />
+<br />
+<br />
+
+Things to do at the end of the shift:<br />
+<br />
+    * Check the status of the raid (<a href="https://localhost:8003/">https://localhost:8003/</a>) log in as administrator using mulan "root" password.<br />
+    * Make sure the local shift people have arrived (we should use IM or something to make sure people are present).<br />
+    * Write a shift summary e-log including any comments on problems or oddities.</td></tr>
+
+</table>
+
+
+</body>
+</html>

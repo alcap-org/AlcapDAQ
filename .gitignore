@@ -10,5 +10,7 @@ CAEN/lib/*
 bit3_mvme/kinoko_vmedrv/*.o
 bit3_mvme/kinoko_vmedrv/*.ko*
 bit3_mvme/kinoko_vmedrv/*.mod*
-
-
+www/html/cache/*
+www/html/trend/*
+*~
+#*
