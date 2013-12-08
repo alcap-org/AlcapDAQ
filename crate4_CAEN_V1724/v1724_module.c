@@ -66,6 +66,7 @@ typedef struct s_v1724_odb
   BYTE  software_trigger_mode;        ///< Software trigger mode: 0=CAEN_DGTZ_TRGMODE_DISABLED, 1=CAEN_DGTZ_TRGMODE_ACQ_ONLY, 2=CAEN_DGTZ_TRGMODE_EXTOUT_ONLY, 3=CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT
   BYTE  hardware_trigger_mode;        ///< Hardware trigger mode: 0=CAEN_DGTZ_TRGMODE_DISABLED, 1=CAEN_DGTZ_TRGMODE_ACQ_ONLY, 2=CAEN_DGTZ_TRGMODE_EXTOUT_ONLY, 3=CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT
   BYTE  trigger_edge;                 ///< Trigger edge, 0=CAEN_DGTZ_TriggerOnRisingEdge, 1=CAEN_DGTZ_TriggerOnFallingEdge
+  INT down_sampling_factor;           ///< Sampling frequency will be divided by this factor, 1=no down sampling
   char  ROC_FirmwareRel[128];
   char  AMC_FirmwareRel[128];
   struct {
@@ -88,6 +89,7 @@ acquisition mode = BYTE : 1\n\
 software trigger mode = BYTE : 0\n\
 hardware trigger mode = BYTE : 0\n\
 trigger edge (0-ris 1-fal) = BYTE : 1\n\
+down sampling factor = INT : 1\n\
 ROC firmware = STRING : [128] -\n\
 AMC firmware = STRING : [128] -\n\
 \n\
@@ -258,7 +260,56 @@ INT v1724_init()
 	  cm_msg(MERROR,"v1724_init","Cannot allocate memory for data buffers.\n");
 	  return FE_ERR_HW;
 	}
+
+#if 0            
+      // PW
+      uint32_t mydata;
+      ret = CAEN_DGTZ_ReadRegister(handle[iboard], 0x8100, &mydata);
+      if ( ret != CAEN_DGTZ_Success )
+	{
+	  cm_msg(MERROR,"v1724_init","Cannot read register 0x8100. Error 0x%08x\n",ret);
+	  return FE_ERR_HW;
+	}
+      printf("Acquisition control register is: %d\n", mydata);
+      mydata |= (1<<4);
+      ret = CAEN_DGTZ_WriteRegister(handle[iboard], 0x8100, mydata);
+      if ( ret != CAEN_DGTZ_Success )
+	{
+	  cm_msg(MERROR,"v1724_init","Cannot write register 0x8100. Error 0x%08x\n",ret);
+	  return FE_ERR_HW;
+	}
+      ret = CAEN_DGTZ_ReadRegister(handle[iboard], 0x8100, &mydata);
+      if ( ret != CAEN_DGTZ_Success )
+	{
+	  cm_msg(MERROR,"v1724_init","Cannot read register 0x8100. Error 0x%08x\n",ret);
+	  return FE_ERR_HW;
+	}
+      printf("2nd time Acquisition control register is: %d\n", mydata);
      
+      ret = CAEN_DGTZ_ReadRegister(handle[iboard], CAEN_DGTZ_DOWNSAMPLE_FACT_ADD, &mydata);
+      if ( ret != CAEN_DGTZ_Success )
+	{
+	  cm_msg(MERROR,"v1724_init","Cannot read register 0x%04x. Error 0x%08x\n",CAEN_DGTZ_DOWNSAMPLE_FACT_ADD, ret);
+	  return FE_ERR_HW;
+	}
+      printf("The down sampling factor currently is: 0x%08x\n", mydata);
+      mydata = 10;
+      ret = CAEN_DGTZ_WriteRegister(handle[iboard], CAEN_DGTZ_DOWNSAMPLE_FACT_ADD, mydata);
+      if ( ret != CAEN_DGTZ_Success )
+	{
+	  cm_msg(MERROR,"v1724_init","Cannot write register 0x8128. Error 0x%08x\n",ret);
+	  return FE_ERR_HW;
+	}
+      ret = CAEN_DGTZ_ReadRegister(handle[iboard], CAEN_DGTZ_DOWNSAMPLE_FACT_ADD, &mydata);
+      if ( ret != CAEN_DGTZ_Success )
+	{
+	  cm_msg(MERROR,"v1724_init","2: Cannot read register 0x%04x. Error 0x%08x\n", CAEN_DGTZ_DOWNSAMPLE_FACT_ADD,ret);
+	  return FE_ERR_HW;
+	}
+      printf("The down sampling factor currently is: 0x%08x\n", mydata);
+      // end PW
+#endif
+
     }
 
   printf("  [done]\n");
@@ -346,6 +397,7 @@ INT v1724_pre_bor()
 	  cm_msg(MERROR,"v1724_init","Cannot configure Acquisition Control. Error 0x%08x\n",ret);
 	  return FE_ERR_HW;
 	}
+      
 
     
       // =====================================================================================
@@ -580,7 +632,7 @@ INT v1724_pre_bor()
 	  cm_msg(MERROR,"v1724_init","Cannot write to register 0x8000. Error 0x%08x\n",ret);
 	  return FE_ERR_HW;
 	}
- 
+
     }
 
   return SUCCESS;

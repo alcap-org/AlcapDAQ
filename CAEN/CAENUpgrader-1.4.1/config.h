@@ -11,7 +11,7 @@
 #define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the `CAENComm' library (-lCAENComm). */
-/* #undef HAVE_LIBCAENCOMM */
+#define HAVE_LIBCAENCOMM 1
 
 /* Define to 1 if you have the `CAENVME' library (-lCAENVME). */
 #define HAVE_LIBCAENVME 1
