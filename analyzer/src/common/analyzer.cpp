@@ -265,16 +265,16 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     if(strcmp(DetectorNames[i], "") == 0) printf("Warning: No detector name associated with bank %s!\n", BankNames[i]);
     ///////////////////////////////////////
     // Add the detector names to TSetupData
-    std::string bank(BankNames[i]), detector(DetectorNames[i]);
-    gSetup->fBankToDetectorMap[bank] = detector;
+    std::string bank_name(BankNames[i]), detector(DetectorNames[i]);
+    gSetup->SetDetectorName(bank_name,detector);
 
 
     //////////////////////////////////////////////////
     // Calculate and the add the clock ticks to TSetupData
-    std::string bank_name(BankNames[i]);
     int DCMPhase = 1; // assume DCMPhase = 1 for most digitizers (it's only applicable to the FADCs)
-    if(BankNames[i][0] == 'N'){ // FADC banks
-      int iChn = (int)(*(bank_name.substr(1,1).c_str()) - 97);
+    int TriggerPolarity=1; // Default is to have a positive trigger threshold
+    if(TSetupData::IsFADC(bank_name)){ 
+      int iChn = (int)(bank_name[1] - 97);
       std::string iAddr = bank_name.substr(2, 2);
 
       sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Channel %d/DCM phase", iAddr.c_str(), iChn);
@@ -286,16 +286,26 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
 	  //	  printf("Found the DCM Phase!\n");
 	}
       }
+
+      sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Polarity", iAddr.c_str(), iChn);
+      if(db_find_key(hDB,0,keyName, &hKey) == SUCCESS){
+	db_get_key(hDB, hKey, &bk_key);
+
+	int size = sizeof(TriggerPolarity);
+	if(db_get_value(hDB, 0, keyName , &TriggerPolarity, &size, TID_INT, 0) == DB_SUCCESS){
+	}
+      }
     }
     double true_frequency = SamplingFrequencies[i] /= DCMPhase;
     double clockTickInNs = (1/true_frequency) * 1e9;
     //    printf("Bank %s: f = %f, clockTick = %f\n", bank_name.c_str(), true_frequency, clockTickInNs);
-    gSetup->fBankToClockTickMap[bank_name] = clockTickInNs;
+    gSetup->SetClockTick(bank_name,clockTickInNs);
+    gSetup->SetTriggerPolarity(bank_name, TriggerPolarity);
 
     //////////////////////////////////////////////////
     // Get the ADC value to MeV calibration constant
     double adcValueInMeV = 1;
-    gSetup->fBankToADCValueMap[bank_name] = adcValueInMeV;
+    gSetup->SetADCValue(bank_name,adcValueInMeV);
 
     /* AE: The clock ticks is calculated from the sampling frequency so the clock ticks kept on changing in the ODB every time I ran 
     // Let's set the sampling frequency in the ODB based on the calculated clock ticks now:
@@ -310,24 +320,22 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
 
     //////////////////////////////////////
     // Add the number of bits for each digitizer
-    if(BankNames[i][0] == 'N') {// FADC banks
-      gSetup->fBankToBitMap[bank_name] = 12;
+    if(TSetupData::IsFADC(bank_name )) {// FADC banks
+      gSetup->SetNBits(bank_name,12);
     }
-
-    else if (BankNames[i][2] == 'U' && BankNames[i][3] == 'H') { // UH CAEN banks
-      gSetup->fBankToBitMap[bank_name] = 14;
+    else if(TSetupData::IsHoustonCAEN(bank_name)) { // UH CAEN banks
+      gSetup->SetNBits(bank_name,14);
     }
-
-    else if (BankNames[i][2] == 'B' && BankNames[i][3] == 'U') { // UH CAEN banks
-      gSetup->fBankToBitMap[bank_name] = 12;
+    else if (TSetupData::IsBostonCAEN(bank_name)) { // UH CAEN banks
+      gSetup->SetNBits(bank_name,12);
     }
 
 
     ///////////////////////////////////////
     // Check to see if the bank is enabled   
-    if(BankNames[i][0] == 'N'){
-      std::string iAddr(BankNames[i]);
-      int iChn = (int)(*(iAddr.substr(1,1).c_str()) - 97);
+    if(TSetupData::IsFADC(bank_name )) { // FADC banks
+      std::string iAddr(bank_name);
+      int iChn = (int)(iAddr[1] - 97);
       iAddr = iAddr.substr(2, 2);
 
       char wireKey[100];
@@ -340,13 +348,12 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
 
 	sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Enabled", iAddr.c_str());
 	if(db_get_value(hDB, 0, keyName , &enabled, &size, TID_BOOL, 0) == DB_SUCCESS) {
-	  if(enabled == true){
+	  if(enabled){
 	    sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Channel %d/Trigger mask", iAddr.c_str(), iChn);
 	    int trigger_mask;
 	    size = sizeof(trigger_mask);
 	    if(db_get_value(hDB, 0, keyName , &trigger_mask, &size, TID_INT, 0) == DB_SUCCESS) {
 	      if (trigger_mask == 1){ // if this channel is taking data
-		enabled = true;
 		db_set_data_index(hDB, hKey, &enabled, size, i, TID_BOOL);	
 	      }
 	    } // We found the channel 'Trigger mask' key in ODB

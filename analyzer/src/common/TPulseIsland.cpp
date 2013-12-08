@@ -16,7 +16,7 @@ TPulseIsland::TPulseIsland()
 
 TPulseIsland::TPulseIsland(
   int timestamp, const vector<int>& samples_vector,
-  double clock_tick_in_ns, double adc_value_in_MeV, string bank_name)
+  double clock_tick_in_ns, double adc_value_in_MeV, string bank_name,int pol)
 {
   Reset();
   fTimeStamp = timestamp;
@@ -24,6 +24,7 @@ TPulseIsland::TPulseIsland(
   fClockTickInNs = clock_tick_in_ns;
   fADCValueInMeV = adc_value_in_MeV;
   fBankName = bank_name;
+  fPolarity= pol;
 }
 
 void TPulseIsland::Reset(Option_t* o)
@@ -32,6 +33,7 @@ void TPulseIsland::Reset(Option_t* o)
   fSamples.clear();
   fClockTickInNs = 0.0;
   fBankName = "";
+  fPolarity= 1;
 }
 
 // GetPulseHeight()
@@ -91,11 +93,13 @@ TH1I* TPulseIsland::GetPulseWaveform(std::string histname, std::string histtitle
 int TPulseIsland::GetPeakSample() const {
 
   double pedestal = GetPedestal(10);
+  int trigger_polarity=GetTriggerPolarity();
+  int channel_polarity=GetChannelPolarity();
   int peak_sample_value = 0;
   int peak_sample_pos = 0;
   for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {
   
-    int this_height = std::abs(*(sampleIter) - pedestal);
+    int this_height = trigger_polarity*channel_polarity*(*(sampleIter) - pedestal);
     if ( this_height > peak_sample_value ) {
       peak_sample_value = this_height;
       peak_sample_pos = sampleIter - fSamples.begin();
