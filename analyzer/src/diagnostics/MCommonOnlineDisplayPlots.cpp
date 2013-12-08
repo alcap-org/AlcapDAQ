@@ -181,12 +181,8 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); pulseIter++) {
 
 	    // Make sure the histograms exist and then fill them
-	    if (height_histograms_map.find(bankname) != height_histograms_map.end())
-	      height_histograms_map[bankname]->Fill((*pulseIter)->GetPulseHeight());
-
-	    if (time_histograms_map.find(bankname) != time_histograms_map.end())
-	      time_histograms_map[bankname]->Fill((*pulseIter)->GetPulseTime());
-
+	    // Also check that this pulse didn't underflow (i.e. has a sample value at any point of 4096)
+	    bool underflow = false;
 	    if (shape_histograms_map.find(bankname) != shape_histograms_map.end()) {
 	      
 	      latest_pulse_histograms_map[bankname]->Reset();	
@@ -196,10 +192,21 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 		int sample_number = sampleIter - theSamples.begin();
 		int sample_value = *sampleIter;
 
+		if (sample_value == 4096) {
+		  underflow = true;
+		  break;
+		}
 		shape_histograms_map[bankname]->Fill(sample_number, sample_value);
 		latest_pulse_histograms_map[bankname]->SetBinContent(sample_number, sample_value);
-
 	      }
+	    }
+
+	    if (underflow == false) {
+	      if (height_histograms_map.find(bankname) != height_histograms_map.end())
+		height_histograms_map[bankname]->Fill((*pulseIter)->GetPulseHeight());
+
+	      if (time_histograms_map.find(bankname) != time_histograms_map.end())
+		time_histograms_map[bankname]->Fill((*pulseIter)->GetPulseTime());
 	    }
 	  }
 
