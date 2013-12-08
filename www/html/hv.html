@@ -1,0 +1,295 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+<title>AlCap HV Trendplots</title>
+ <script language="JavaScript">
+    function changePicture(name){
+    var currentName = "";
+    var yaxis = "measured";
+    var limit = "5000";
+   for( j=0; j<document.pickPlot.yaxis.length ; j++){
+      if(document.pickPlot.yaxis[j].checked == true){
+      yaxis= document.pickPlot.yaxis[j].value;
+      }
+      }
+   for( i=0; i<document.pickLimit.limit.length ; i++){
+      if(document.pickLimit.limit[i].checked == true){
+       limit= document.pickLimit.limit[i].value;
+      }
+    }
+    currentName = "/cgi-bin/alcap/apache.py?name="+ name +"&yaxis="+yaxis + "&left=" + limit;
+    document.images.pic1.src = currentName;
+}   
+
+ function openPicture(name){
+    var thisPlot = "";
+    var yaxis = "measured";
+    var limit = "5000";
+   for( j=0; j<document.pickPlot.yaxis.length ; j++){
+      if(document.pickPlot.yaxis[j].checked == true){
+      plot= document.pickPlot.yaxis[j].value;
+      }
+      }
+   for( i=0; i<document.pickLimit.limit.length ; i++){
+      if(document.pickLimit.limit[i].checked == true){
+       limit= document.pickLimit.limit[i].value;
+      }
+    }
+      thisPlot =  "/cgi-bin/alcap/apache.py?name="+ name +"&yaxis="+yaxis + "&left=" + limit;
+      aaa = window.open(thisPlot, '', 'height=900,width=900,scrollbars=auto,resizable=yes,status=no');
+}
+
+ function changePictureE(ename){
+    var EcurrentName = "";
+    var limit = "-24";
+ for( i=0; i<document.pickELimit.limit.length ; i++){
+      if(document.pickELimit.limit[i].checked == true){
+       limit= document.pickELimit.limit[i].value;
+      }
+    }
+  
+      EcurrentName = "/cgi-bin/alcap/apache.py?table=run6_slow_Environment&name="+ename+"&xaxis=timestamp&yaxis=Input&left="+limit;					       
+      document.images.pic2.src = EcurrentName;
+      }
+
+ function openPictureE(ename){
+    var thisPlotE = "";
+ var limit = "-24";
+ for( i=0; i<document.pickELimit.limit.length ; i++){
+      if(document.pickELimit.limit[i].checked == true){
+       limit= document.pickELimit.limit[i].value;
+      }
+    }
+      thisPlotE =  "/cgi-bin/alcap/apache.py?table=run6_slow_Environment&name="+ename+"&xaxis=timestamp&yaxis=Input&left="+limit;
+      eee = window.open(thisPlotE, '', 'height=900,width=900,scrollbars=auto,resizable=yes,status=no');
+
+
+      }
+  </script>
+</head>
+
+<body bgcolor=black text=white>
+<div align="center">
+<h1><i>AlCap High Voltage Trend Plots</i></h1>
+</div>
+
+<HR>
+<P>
+Overall discrepancy monitor:
+<P>
+<img src="/cgi-bin/alcap/hv_diff.py">
+<P>
+<HR>
+
+<table align="center">
+<tr>
+<td>
+<table><tr>
+<td>
+<form name="pickPlot">
+  <table align="left" cellspacing="0" cellpadding="5" border="0">
+    <tr>
+      <td align = left>
+        Plot to display:<br>
+        <input type="radio" name="yaxis" value="measured">Measured Voltage<br>
+        <input type="radio" name="yaxis" value="demand">Demand Voltage<br>
+        <input type="radio" name="yaxis" value="current">Measured Current<br>
+      </td>
+    </tr>
+  </table>
+</form>
+</td><td>
+<form name="pickLimit">
+  <table align="left" cellspacing="0" cellpadding="5" border="0">
+    <tr>
+      <td align = left>
+        Time range:<br>
+        <input type="radio" name="limit" value="-1">1 hour<br>
+        <input type="radio" name="limit" value="-4">4 hour<br>
+        <input type="radio" name="limit" value="-8">8 hours<br>
+        <input type="radio" name="limit" value="-24">24 hours<br>
+        <input type="radio" name="limit" value="-168">1 week<br>
+      </td>
+    </tr>
+  </table>
+</form>
+</td></tr>
+<td>
+<table cellspacing="1" cellpadding="5" border="1" width="30%" aligh="left">
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU01')" onClick="this.style.backgroundColor='orange';openPicture('IU01')" onMouseOut="this.style.backgroundColor='black'">IU01</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID01')" onClick="this.style.backgroundColor='orange';openPicture('ID01')" onMouseOut="this.style.backgroundColor='black'">ID01</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU01')" onClick="this.style.backgroundColor='orange';openPicture('OU01')" onMouseOut="this.style.backgroundColor='black'">OU01</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD01')" onClick="this.style.backgroundColor='orange';openPicture('OD01')" onMouseOut="this.style.backgroundColor='black'">OD01</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU02')" onClick="this.style.backgroundColor='orange';openPicture('IU02')" onMouseOut="this.style.backgroundColor='black'">IU02</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID02')" onClick="this.style.backgroundColor='orange';openPicture('ID02')" onMouseOut="this.style.backgroundColor='black'">ID02</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU02')" onClick="this.style.backgroundColor='orange';openPicture('OU02')" onMouseOut="this.style.backgroundColor='black'">OU02</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD02')" onClick="this.style.backgroundColor='orange';openPicture('OD02')" onMouseOut="this.style.backgroundColor='black'">OD02</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU03')" onClick="this.style.backgroundColor='orange';openPicture('IU03')" onMouseOut="this.style.backgroundColor='black'">IU03</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID03')" onClick="this.style.backgroundColor='orange';openPicture('ID03')" onMouseOut="this.style.backgroundColor='black'">ID03</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU03')" onClick="this.style.backgroundColor='orange';openPicture('OU03')" onMouseOut="this.style.backgroundColor='black'">OU03</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD03')" onClick="this.style.backgroundColor='orange';openPicture('OD03')" onMouseOut="this.style.backgroundColor='black'">OD03</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU04')" onClick="this.style.backgroundColor='orange';openPicture('IU04')" onMouseOut="this.style.backgroundColor='black'">IU04</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID04')" onClick="this.style.backgroundColor='orange';openPicture('ID04')" onMouseOut="this.style.backgroundColor='black'">ID04</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU04')" onClick="this.style.backgroundColor='orange';openPicture('OU04')" onMouseOut="this.style.backgroundColor='black'">OU04</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD04')" onClick="this.style.backgroundColor='orange';openPicture('OD04')" onMouseOut="this.style.backgroundColor='black'">OD04</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU05')" onClick="this.style.backgroundColor='orange';openPicture('IU05')" onMouseOut="this.style.backgroundColor='black'">IU05</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID05')" onClick="this.style.backgroundColor='orange';openPicture('ID05')" onMouseOut="this.style.backgroundColor='black'">ID05</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU05')" onClick="this.style.backgroundColor='orange';openPicture('OU05')" onMouseOut="this.style.backgroundColor='black'">OU05</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD05')" onClick="this.style.backgroundColor='orange';openPicture('OD05')" onMouseOut="this.style.backgroundColor='black'">OD05</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU06')" onClick="this.style.backgroundColor='orange';openPicture('IU06')" onMouseOut="this.style.backgroundColor='black'">IU06</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID06')" onClick="this.style.backgroundColor='orange';openPicture('ID06')" onMouseOut="this.style.backgroundColor='black'">ID06</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU06')" onClick="this.style.backgroundColor='orange';openPicture('OU06')" onMouseOut="this.style.backgroundColor='black'">OU06</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD06')" onClick="this.style.backgroundColor='orange';openPicture('OD06')" onMouseOut="this.style.backgroundColor='black'">OD06</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU07')" onClick="this.style.backgroundColor='orange';openPicture('IU07')" onMouseOut="this.style.backgroundColor='black'">IU07</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID07')" onClick="this.style.backgroundColor='orange';openPicture('ID07')" onMouseOut="this.style.backgroundColor='black'">ID07</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU07')" onClick="this.style.backgroundColor='orange';openPicture('OU07')" onMouseOut="this.style.backgroundColor='black'">OU07</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD07')" onClick="this.style.backgroundColor='orange';openPicture('OD07')" onMouseOut="this.style.backgroundColor='black'">OD07</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU08')" onClick="this.style.backgroundColor='orange';openPicture('IU08')" onMouseOut="this.style.backgroundColor='black'">IU08</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID08')" onClick="this.style.backgroundColor='orange';openPicture('ID08')" onMouseOut="this.style.backgroundColor='black'">ID08</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU08')" onClick="this.style.backgroundColor='orange';openPicture('OU08')" onMouseOut="this.style.backgroundColor='black'">OU08</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD08')" onClick="this.style.backgroundColor='orange';openPicture('OD08')" onMouseOut="this.style.backgroundColor='black'">OD08</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU09')" onClick="this.style.backgroundColor='orange';openPicture('IU09')" onMouseOut="this.style.backgroundColor='black'">IU09</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID09')" onClick="this.style.backgroundColor='orange';openPicture('ID09')" onMouseOut="this.style.backgroundColor='black'">ID09</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU09')" onClick="this.style.backgroundColor='orange';openPicture('OU09')" onMouseOut="this.style.backgroundColor='black'">OU09</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD09')" onClick="this.style.backgroundColor='orange';openPicture('OD09')" onMouseOut="this.style.backgroundColor='black'">OD09</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU10')" onClick="this.style.backgroundColor='orange';openPicture('IU10')" onMouseOut="this.style.backgroundColor='black'">IU10</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID10')" onClick="this.style.backgroundColor='orange';openPicture('ID10')" onMouseOut="this.style.backgroundColor='black'">ID10</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU10')" onClick="this.style.backgroundColor='orange';openPicture('OU10')" onMouseOut="this.style.backgroundColor='black'">OU10</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD10')" onClick="this.style.backgroundColor='orange';openPicture('OD10')" onMouseOut="this.style.backgroundColor='black'">OD10</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU11')" onClick="this.style.backgroundColor='orange';openPicture('IU11')" onMouseOut="this.style.backgroundColor='black'">IU11</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID11')" onClick="this.style.backgroundColor='orange';openPicture('ID11')" onMouseOut="this.style.backgroundColor='black'">ID11</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU11')" onClick="this.style.backgroundColor='orange';openPicture('OU11')" onMouseOut="this.style.backgroundColor='black'">OU11</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD11')" onClick="this.style.backgroundColor='orange';openPicture('OD11')" onMouseOut="this.style.backgroundColor='black'">OD11</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU12')" onClick="this.style.backgroundColor='orange';openPicture('IU12')" onMouseOut="this.style.backgroundColor='black'">IU12</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID12')" onClick="this.style.backgroundColor='orange';openPicture('ID12')" onMouseOut="this.style.backgroundColor='black'">ID12</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU12')" onClick="this.style.backgroundColor='orange';openPicture('OU12')" onMouseOut="this.style.backgroundColor='black'">OU12</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD12')" onClick="this.style.backgroundColor='orange';openPicture('OD12')" onMouseOut="this.style.backgroundColor='black'">OD12</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU13')" onClick="this.style.backgroundColor='orange';openPicture('IU13')" onMouseOut="this.style.backgroundColor='black'">IU13</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID13')" onClick="this.style.backgroundColor='orange';openPicture('ID13')" onMouseOut="this.style.backgroundColor='black'">ID13</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU13')" onClick="this.style.backgroundColor='orange';openPicture('OU13')" onMouseOut="this.style.backgroundColor='black'">OU13</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD13')" onClick="this.style.backgroundColor='orange';openPicture('OD13')" onMouseOut="this.style.backgroundColor='black'">OD13</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU14')" onClick="this.style.backgroundColor='orange';openPicture('IU14')" onMouseOut="this.style.backgroundColor='black'">IU14</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID14')" onClick="this.style.backgroundColor='orange';openPicture('ID14')" onMouseOut="this.style.backgroundColor='black'">ID14</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU14')" onClick="this.style.backgroundColor='orange';openPicture('OU14')" onMouseOut="this.style.backgroundColor='black'">OU14</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD14')" onClick="this.style.backgroundColor='orange';openPicture('OD14')" onMouseOut="this.style.backgroundColor='black'">OD14</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU15')" onClick="this.style.backgroundColor='orange';openPicture('IU15')" onMouseOut="this.style.backgroundColor='black'">IU15</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID15')" onClick="this.style.backgroundColor='orange';openPicture('ID15')" onMouseOut="this.style.backgroundColor='black'">ID15</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU15')" onClick="this.style.backgroundColor='orange';openPicture('OU15')" onMouseOut="this.style.backgroundColor='black'">OU15</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD15')" onClick="this.style.backgroundColor='orange';openPicture('OD15')" onMouseOut="this.style.backgroundColor='black'">OD15</td>
+</tr>
+<tr>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('IU16')" onClick="this.style.backgroundColor='orange';openPicture('IU16')" onMouseOut="this.style.backgroundColor='black'">IU16</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('ID16')" onClick="this.style.backgroundColor='orange';openPicture('ID16')" onMouseOut="this.style.backgroundColor='black'">ID16</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OU16')" onClick="this.style.backgroundColor='orange';openPicture('OU16')" onMouseOut="this.style.backgroundColor='black'">OU16</td>
+  <td align="left" onMouseOver="this.style.backgroundColor='red';changePicture('OD16')" onClick="this.style.backgroundColor='orange';openPicture('OD16')" onMouseOut="this.style.backgroundColor='black'">OD16</td>
+</tr>
+<tr>
+ <td align="left" onMouseOver="this.style.backgroundColor='cyan';changePicture('NU03')" onClick="this.style.backgroundColor='orange';openPicture('NU03')" onMouseOut="this.style.backgroundColor='black'">NU03</td>
+ <td align="left" onMouseOver="this.style.backgroundColor='cyan';changePicture('ND03')" onClick="this.style.backgroundColor='orange';openPicture('ND03')" onMouseOut="this.style.backgroundColor='black'">ND03</td>
+ <td align="left" onMouseOver="this.style.backgroundColor='cyan';changePicture('NU06')" onClick="this.style.backgroundColor='orange';openPicture('NU06')" onMouseOut="this.style.backgroundColor='black'">NU06</td>
+ <td align="left" onMouseOver="this.style.backgroundColor='cyan';changePicture('ND06')" onClick="this.style.backgroundColor='orange';openPicture('ND06')" onMouseOut="this.style.backgroundColor='black'">ND06</td>
+ </tr><tr>
+<td align="left" onMouseOver="this.style.backgroundColor='cyan';changePicture('NU11')" onClick="this.style.backgroundColor='orange';openPicture('NU11')" onMouseOut="this.style.backgroundColor='black'">NU11</td>
+ <td align="left" onMouseOver="this.style.backgroundColor='cyan';changePicture('ND11')" onClick="this.style.backgroundColor='orange';openPicture('ND11')" onMouseOut="this.style.backgroundColor='black'">ND11</td>
+ <td align="left" onMouseOver="this.style.backgroundColor='cyan';changePicture('NU14')" onClick="this.style.backgroundColor='orange';openPicture('NU14')" onMouseOut="this.style.backgroundColor='black'">NU14</td>
+ <td align="left" onMouseOver="this.style.backgroundColor='cyan';changePicture('ND14')" onClick="this.style.backgroundColor='orange';openPicture('ND14')" onMouseOut="this.style.backgroundColor='black'">ND14</td>
+</tr>
+
+</table>
+
+
+</tr>
+</table>
+
+</td>
+
+<td><img src="/cgi-bin/alcap/apache.py?name=IU12&yaxis=current&left=-2" name="pic1" border="1"></td>
+
+</tr>
+</table>
+Highlight a cell to display plot.<br>
+Click on a cell to open plot in new window.
+<br><br>
+<hr>
+
+<h2>Environmental monitoring</h2>
+
+<table width="100%" cellspacing="100">
+<tr>
+<td>
+
+<form name="pickELimit">
+  <table align="left" cellspacing="0" cellpadding="5" border="0">
+    <tr>
+      <td align = left>
+        Time range:<br>
+        <input type="radio" name="limit" value="-1">1 hour<br>
+        <input type="radio" name="limit" value="-4">4 hour<br>
+        <input type="radio" name="limit" value="-8">8 hours<br>
+        <input type="radio" name="limit" value="-24">24 hours<br>
+        <input type="radio" name="limit" value="-168">1 week<br>
+      </td>
+    </tr>
+  </table>
+</form>
+
+<table cellspacing="1" cellpadding="5" border="1" width="100%" aligh="left">
+<tr>
+<td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('muSR B-field 1')" onClick="this.style.backgroundColor='orange';openPictureE('muSR b-field 1')" onMouseOut="this.style.backgroundColor='black'">muSR B-field 1</td></tr>
+<tr>
+<td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('muSR B-field 2')" onClick="this.style.backgroundColor='orange';openPictureE('muSR b-field 2')" onMouseOut="this.style.backgroundColor='black'">muSR B-field 2</td></tr>
+<tr><td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('Ext. humidity')" onClick="this.style.backgroundColor='orange';openPictureE('Ext. humidity')" onMouseOut="this.style.backgroundColor='black'">Ext. humidity</td></tr>
+<tr><td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('Ext. B-field x')" onClick="this.style.backgroundColor='orange';openPictureE('Ext. B-field x')" onMouseOut="this.style.backgroundColor='black'">Ext. B-field x</td></tr>
+<tr><td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('Ext. B-field y')" onClick="this.style.backgroundColor='orange';openPictureE('Ext. B-field y')" onMouseOut="this.style.backgroundColor='black'">Ext. B-field y</td></tr>
+<tr><td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('Ext. B-field z')" onClick="this.style.backgroundColor='orange';openPictureE('Ext. B-field z')" onMouseOut="this.style.backgroundColor='black'">Ext. B-field z</td></tr>
+<tr><td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('ePC humidity')" onClick="this.style.backgroundColor='orange';openPictureE('ePC humidity')" onMouseOut="this.style.backgroundColor='black'">ePC humidity</td><tr>
+<tr><td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('V_supply')" onClick="this.style.backgroundColor='orange';openPictureE('V_supply')" onMouseOut="this.style.backgroundColor='black'">V_supply</td><tr>
+<tr><td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('muSR temp. 1')" onClick="this.style.backgroundColor='orange';openPictureE('muSR temp. 1')" onMouseOut="this.style.backgroundColor='black'">muSR temp. 1</td></tr>
+<tr><td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('muSR temp. 2')" onClick="this.style.backgroundColor='orange';openPictureE('muSR temp. 2')" onMouseOut="this.style.backgroundColor='black'">muSR temp. 2</td></tr>
+<tr><td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('Ext. temp.')" onClick="this.style.backgroundColor='orange';openPictureE('Ext. temp.')" onMouseOut="this.style.backgroundColor='black'">Ext. temp.</td></tr>
+<tr><td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('ePC temp.')" onClick="this.style.backgroundColor='orange';openPictureE('ePC temp.')" onMouseOut="this.style.backgroundColor='black'">ePC temp.</td></tr>
+<tr><td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('HV supply temp.')" onClick="this.style.backgroundColor='orange';openPictureE('HV supply temp.')" onMouseOut="this.style.backgroundColor='black'">HV supply temp.</td></tr>
+<tr><td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('AC temp.')" onClick="this.style.backgroundColor='orange';openPictureE('AC temp.')" onMouseOut="this.style.backgroundColor='black'">AC temp.</td></tr>
+<tr><td align="left" onMouseOver="this.style.backgroundColor='green';changePictureE('WFD rack temp.')" onClick="this.style.backgroundColor='orange';openPictureE('WFD rack temp.')" onMouseOut="this.style.backgroundColor='black'">WFD rack temp.</td></tr>
+</table>
+
+</td>
+
+
+
+<td><img src="/cgi-bin/alcap/apache.py?table=run6_slow_Environment&xaxis=timestamp&yaxis=Input&name=P1T7&limit=10" name="pic2" border="1">  </td>
+</tr>
+</table>
+
+</body>
+</html>

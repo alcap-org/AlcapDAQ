@@ -1,0 +1,45 @@
+<html>
+<body>
+<h2>Remote shift howto</h2>
+
+The job of the remote shift taker is to make sure that the experiment doesn't "catch fire" while the local crew takes a break from constant shift taking.  That means the remote shift taker monitors the experiment, fixes minor problems, records experimental changes, and contacts someone local if a problem that disrupts data taking occurs.  This e-log will outline how to perform these duties.<br />
+<br />
+Contact phone number: 011 41 56 310 5883<br>
+<br />
+First, because of the PSI firewall an SSH tunnel with several port forwards are necessary.  The command I use from linux is:<br />
+
+ssh mulan@mulanbe.psi.ch -L 8000:mulanbe:80 -L 8001:be02:8081 -L 8002:mulanbe:8080 -L 8003:be02:8080 -L 5900:sepii:5900<br />
+Similar port forwarding can be accomplished with any ssh program such as putty.  For information on how to port forward with putty see (web page needed)<br />
+Several links in this e-log assume you use the same ports as me.<br />
+Here is how those five ports are used:<ul><li> 8000:mulanbe:80 gives access to the online histograms and run log pages<br />
+<ul><li> <a href="http://localhost:8000/online">http://localhost:8000/online</a> (online analysis histograms, trend plots, etc)<br />
+<li> <a href="http://localhost:8000/mulan">http://localhost:8000/mulan</a> (click "Run Log" or "Last 20 Runs" to get to run log) </ul><li> 8001:be02:8081 gives access to midas web page<br />
+
+<ul><li> <a href="http://localhost:8001">http://localhost:8001</a></ul><li> 8002:mulanbe:8080 gives access to elog at PSI, this is necesary to make posts.<br />
+<ul><li><a href="http://localhost:8002/Summer2006">http://localhost:8002/Summer2006</a></ul><li>8003:be02:8081 gives access to raid status page<br />
+<ul><li><a href="https://localhost:8003">https://localhost:8003</a> (note the https)</ul><li>5900:sepii:5900 gives access to the separator vnc server<br />
+<ul><li>vncviewer localhost:0 (you need the vnc password)</ul></ul>Another useful webpage is the PSI accelerator status <a href="http://www.acs.psi.ch/acs/ACSstatus-g-r.html">http://www.acs.psi.ch/acs/ACSstatus-g-r.html</a><br />
+
+<br />
+What to monitor:<ul><li> The most important thing to watch is that the Event Builder data rate is what you expect (2-4 MB/s). <br />
+This is found on the midas status page near the top.  If it suddenly drops (or increases) this could indicate several <br />
+possibilities:<br />
+<ul><li>Proton current has changed to or from "cosmic mode" (check <a href="http://www.acs.psi.ch/acs/ACSstatus-g-r.html">proton status</a> page)<br />
+<li>Something is wrong with the daq (are all expected frontends running? see <a href="234">elog:234</a>)<br />
+
+<li>Separator has tripped (check vnc session or click <a href="http://localhost:8001/Equipment/SeparatorMonitor/Variables">SeparatorMonitor</a> on midas status page, values are: HV current, vacuum, and status)<br />
+<li>The kicker has tripped (call the contact number above).</ul><li> Next, watch several subsystems and plots to make sure things are running correctly:<br />
+<ul><li> Make sure the online analyzer is running.  The right most column on the midas status page should be green.  If not go to the programs page of midas and click "Start Analyzer".<br />
+<li> Check that the lazy tape program(s) are running.  The lazy label should be as described in <a href="504">elog:504</a><br />
+<li> Monitor the online histograms and trend plots.  If problems are observed on these plots usually just note the problem, but call the number above if significant problems are suspected.<ul><li><a href="http://localhost:8000/online/process_run.php?title=WFD%20raw%20time&dir=wfd&macro=wfd_raw_time&run_nr=0">WFD raw time</a> and <a href="http://localhost:8000/online/process_run.php?title=WFD%20raw%20fill&dir=wfd&macro=wfd_raw_fill&run_nr=0">WFD raw fill</a><br />
+
+<li><a href="http://localhost:8000/online/process_slow.php?title=VME%20monitor&dir=slow&macro=DAWN&rollback=2">Slow Control->VME monitor</a> and <a href="http://localhost:8000/online/process_slow.php?title=Beamline&dir=slow&macro=Beamline&rollback=2">Slow Control->Beamline</a><br />
+<li><a href="http://localhost:8000/online/process_trend.php?title=tau,%20N/B&dir=trend_plots&macro=tau&run_nr_1=0&run_nr_2=0&rollback=2">Trend Plots->tau,N/B</a></ul></ul><li>If conditions change (such as proton beam stops) be sure to change the runlog by going to <a href="http://localhost:8001/Experiment/Edit%20on%20Start">/Experiment/Edit on Start</a> and changing the correct parameters.  <br />
+Also you can retroactively change the runlog by going to the <a href="http://localhost:8000/cgi-bin/mulan/make_run_selection.cgi?L:20">run log page</a>.</ul><br />
+Things to do at the end of the shift:<ul><li> Check the status of the raid (<a href="https://localhost:8003/">https://localhost:8003/</a>) log in as administrator using mulan "root" password.<br />
+
+<li> Make sure the local shift people have arrived (we should use IM or something to make sure people are present).<br />
+<li> Write a shift summary e-log including any comments on problems or oddities.<br />
+</ul>
+</body>
+</html>

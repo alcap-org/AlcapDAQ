@@ -1,0 +1,4 @@
+"VME monitor"       "process_slow.php"                  "slow" "DAWN"
+"Beamline"          "process_slow.php"                  "slow" "Beamline"
+
+

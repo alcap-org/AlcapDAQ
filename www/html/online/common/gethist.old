@@ -1,0 +1,167 @@
+
+#include <iostream>
+
+/*** includes used in this macro ***/
+#include "TObject.h"
+#include "TSocket.h"
+#include "TMessage.h"
+#include "TFile.h"
+#include "TFolder.h"
+
+#include "TObjArray.h"
+//#include "TIter.h"
+#include "TObjString.h"
+
+static const char *hostname = "tb02";
+static const int  port = 9090;
+
+static TFolder *folder = NULL;
+
+TObject *get_hist_online( const char *name )
+{
+
+  TObject *h = NULL;
+
+  /*** connect to analyzer ***/
+  TSocket *histSocket = new TSocket(hostname, port);
+  bool isValid = histSocket->IsValid();
+  if(!isValid) {
+    delete histSocket;
+    histSocket = NULL;
+    return h;
+  }
+
+  
+  TMessage *m;
+  char str[256];
+  sprintf(str, "FindObject %s", name);
+  histSocket->Send(str);
+  histSocket->Recv(m);
+
+  h = (TObject*)m->ReadObject(m->GetClass());
+
+  delete m;
+  
+
+  /*** close communication with analyzer ***/
+  if(histSocket != NULL) {
+    histSocket->Close();
+    delete histSocket;
+    histSocket = NULL;
+  }
+
+  return h;
+
+}
+
+TObject *get_hist( const char *name, const int run_nr = 0 ) 
+{
+
+  TObject *h = NULL;
+  
+  if ( run_nr ==  0 )
+    return get_hist_online( name );
+  
+  char fin_name[256];
+  sprintf(fin_name,"../root/his%06d.root",run_nr);
+  TFile *fin;
+  if ( !(fin = gROOT->GetFile(fin_name)) ) {
+    if ( folder ) {
+      delete folder;
+      folder = NULL;
+    }
+    fin = new TFile( fin_name );
+  } 
+
+
+  if ( fin ) {
+    //char h_name[256];
+    //sprintf(h_name,"histos/%s",name);
+    //TFolder *folder = (TFolder*) fin->Get( "histos" );
+    if ( ! folder ) {
+      folder = (TFolder*) fin->Get( "histos" );
+    }
+    if ( folder ) {
+      //h = fin->Get( name );
+      h = folder->FindObject( name );
+    }
+  } else {
+    cout << "***ERROR! Can't open file [" << fin_name << "]" << endl;
+  }
+
+  return h;
+
+}
+
+TObjArray *get_hist_list()
+{
+
+  TObjArray *names = NULL;
+
+  /*** connect to analyzer ***/
+  TSocket *histSocket = new TSocket(hostname, port);
+  bool isValid = histSocket->IsValid();
+  if(!isValid) {
+    delete histSocket;
+    histSocket = NULL;
+    return names;
+  }
+
+  TMessage *m;
+  histSocket->Send("LIST");
+  histSocket->Recv(m);
+
+  names = (TObjArray*) m->ReadObject(m->GetClass());
+
+  delete m;
+  
+  /*** close communication with analyzer ***/
+  if(histSocket != NULL) {
+    histSocket->Close();
+    delete histSocket;
+    histSocket = NULL;
+  }
+
+  return names;
+
+}
+
+
+TObjArray *get_hist_list(const int run_nr)
+{
+  
+  if ( run_nr == 0 )
+    return get_hist_list();
+
+  TObjArray *names = NULL;
+  
+  char fin_name[256];
+  TFile *fin;
+  sprintf(fin_name,"../root/his%06d.root",run_nr);
+  if ( !(fin = gROOT->GetFile(fin_name)) ) {
+    if ( folder ) {
+      delete folder;
+      folder = NULL;
+    }
+    fin = new TFile( fin_name );
+  } 
+  
+  if ( !fin ) 
+    return names;
+
+  if ( ! folder ) {
+    folder = (TFolder*) fin->Get( "histos" );
+  }
+
+  if ( ! folder ) 
+    return names;
+
+  names = new TObjArray(500);
+  TIter next (folder->GetListOfFolders());
+  while (TObject *obj = next())
+    if (obj->InheritsFrom("TH1"))
+      names->Add(new TObjString(obj->GetName()));
+
+  return names;
+
+}

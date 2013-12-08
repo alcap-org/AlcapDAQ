@@ -1,0 +1,380 @@
+<html>
+
+<body>
+
+<h2>HOWTO write a module for on/off-line analyzer.</h2>
+
+
+<h3>structure of decoded WFD event</h3>
+
+file <b>MODULES</b><br>
+<pre>
+decompressor
+zipcode_bank
+make_block
+island_hists
+island_pulses
+make_coincidences
+defnan
+defnan_hist
+defnan_pulses
+laser_monitor
+</pre>
+
+
+file <b>wfd_bank.h</b><br>
+<pre>
+#ifndef wfd_bank_h
+#define wfd_bank_h
+
+#ifndef make_block_c
+#define EXTERN extern
+#else
+#define EXTERN
+#endif
+
+#define WFD_MAX_ADC_SAMPLES       32
+#define WFD_MAX_BLOCKS         10000  /* assuming 512*1024 pulses */
+
+typedef struct WFD_BLOCK {
+
+  /*** fields being filled in make_block.c***/
+  WORD       time;       /* time counter */
+  WORD       fill;       /* fill counter */
+  WORD       adcsum;     /* just a sum of all ADCs */
+  BYTE       ADC[WFD_MAX_ADC_SAMPLES];
+
+  /*** fields being filled in defnan.c ***/
+  BYTE   def_peak_height;
+  BYTE   def_peak_index;
+  WORD   def_peak_area;
+  float  def_time;
+  BYTE   def_pedestal;
+
+};
+
+typedef struct WFD_BANK {
+
+  WFD_BLOCK  *blocks;
+  BYTE        crate;
+  BYTE        slot;
+  BYTE        channel;
+  BYTE        n_samples; /*** number of ADC samples ***/
+  DWORD       n_blocks;
+  BOOL        isOk;       /*** TRUE if bank is Ok (no corruption, fill and time counters are Ok)  ***/
+  
+};
+
+EXTERN WFD_BANK wfd_bank[WFD_NUMBER_OF_CRATES][WFD_NUMBER_OF_SLOTS][WFD_NUMBER_OF_CHANNELS]; 
+
+#undef EXTERN
+
+#endif /* wfd_bank_h defined */
+</pre>
+
+<br>
+file <b>wfd.h</b><br>
+
+<pre>
+#ifndef wfd_h
+#define wfd_h
+
+#ifndef make_block_c
+#define EXTERN extern
+#else
+#define EXTERN
+#endif
+
+
+#define WFD_STROFFSET           'b'
+#define WFD_NUMBER_OF_CRATES     6
+#define WFD_NUMBER_OF_SLOTS     19
+#define WFD_NUMBER_OF_CHANNELS   4
+
+#ifndef make_block_c
+extern unsigned char wfd_crate_number   [WFD_NUMBER_OF_CRATES];
+extern          char *wfd_crate_name    [WFD_NUMBER_OF_CRATES];
+extern unsigned char wfd_slot_number    [WFD_NUMBER_OF_SLOTS ];
+extern unsigned char wfd_channel_number [WFD_NUMBER_OF_CHANNELS];
+#else
+unsigned char wfd_crate_number   [WFD_NUMBER_OF_CRATES  ] = {1,2,3,4,5,6};
+unsigned char wfd_slot_number    [WFD_NUMBER_OF_SLOTS   ] = {2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+unsigned char wfd_channel_number [WFD_NUMBER_OF_CHANNELS] = {0,1,2,3};
+char         *wfd_crate_name     [WFD_NUMBER_OF_CRATES]   = {"B0","R1","G1","R0","B1","G0"};
+#endif
+
+
+#endif // wfd_h defined
+</pre>
+
+<h3>Analyzer module</h3>
+
+<pre>
+/********************************************************************\
+  Name:         island_pulses.c
+  Created by:   VT
+
+  Contents:     Accumulates pulses as 2D ADC-time_tick matrixes
+
+  Revision history
+  ------------------------------------------------------------------
+  date           by    modification
+  ---------      ---   ------------------------------------------------
+  01-July-2006   VT
+
+\********************************************************************/
+                                                        
+/*-- Include files -------------------------------------------------*/
+
+/* standard includes */
+#include &lt;stdio.h&gt;
+
+/* midas includes */
+#include &lt;midas.h&gt;
+
+/*typedef includes*/
+#include &lt;sys/types.h&gt;
+
+/* Root includes */
+#include &lt;TH1.h&gt;
+#include &lt;TH2.h&gt;
+
+
+/*-- experim.h declarations --------------------------------------*/
+
+
+/*-- Parameters ----------------------------------------------------*/
+
+static TH2D *h2_Pulses[7][22][5];
+
+//////////////////////////////////////////////////////////////////////////
+
+
+struct ISLE{
+  #include "ISLE.h"
+};
+
+/*-- Static parameters ---------------------------------------------*/
+
+/*-- Module declaration --------------------------------------------*/
+
+INT island_pulses(EVENT_HEADER*, void*);
+INT island_pulses_init(void);
+
+ANA_MODULE island_pulses_module = {
+  "island_pulses",               /* module name           */  
+  "VT",                          /* author                */
+  island_pulses,                 /* event routine         */
+  NULL,                          /* BOR routine           */
+  NULL,                          /* EOR routine           */
+  island_pulses_init,            /* init routine          */
+  NULL,                          /* exit routine          */
+  NULL,                          /* parameter structure   */
+  NULL,                          /* structure size        */
+  NULL                           /* initial parameters    */
+};
+
+/*-- init routine --------------------------------------------------*/
+
+INT island_pulses_init(void)
+{
+
+  int crate, slot, chan;
+  char name [80];
+  char title[80];
+
+  for( crate = 1 ; crate &lt;= 6 ; crate++ )
+    for( slot = 2 ; slot &lt= 20 ; slot++ )
+      for( chan = 0 ; chan &lt;= 3 ; chan++ ) {
+
+	sprintf(name,"h2_pulse_c_%1d_s_%02d_ch_%1d",crate,slot,chan);
+	sprintf(title,"Crate %1d Slot %02d Channel %1d",crate,slot,chan);
+	
+	h2_Pulses[crate][slot][chan] = H2_BOOK(name, title, 32,-0.5,31.5,256,-0.5,255.5);
+	
+      }
+
+  return SUCCESS;
+}
+
+/*-- event routine -------------------------------------------------*/
+
+INT island_pulses(EVENT_HEADER *pheader, void *pevent)
+{
+
+  int       i, size, k;//, kw, kb;
+  char      bkname[8];
+
+  int crate,slot,chan;
+
+  struct ISLE *rawIsle;
+
+  int numpulses;
+
+  if( pheader-&gt;event_id != 1 ) return SUCCESS;
+
+  //now process the data for real
+  for( crate = 1; crate &lt;= 6; crate++ ) 
+    for( slot = 2; slot &lt;= 20; slot++ ) 
+      for( chan = 0; chan &lt;= 3; chan++ ) {
+
+	sprintf(bkname,"I%1d%c%1d",crate,(char)(slot+'a'-1),chan);
+
+	size = bk_locate(pevent, bkname, &rawIsle);
+	
+	if( size == 0 ) continue;
+	
+	numpulses=int(4.0*size/(double)sizeof(struct ISLE));
+	
+	/*** 1st island is a reset block. I use it to store island length ***/
+	int n_ADC_samples = rawIsle[0].fill;
+	
+	for (i=1; i&lt;numpulses; i++){
+	  
+	  for (k=0; k&lt;n_ADC_samples; k++) 
+	    h2_Pulses[crate][slot][chan]-&gt;Fill(k, rawIsle[i].Pulse[k]);
+	  
+	}
+	
+	
+      } //end loop over banks  
+  
+  return SUCCESS;
+} 
+
+</pre>
+
+
+<h3>OR</h3>
+
+<pre>
+/********************************************************************\
+  Name:         defnan_pulses.c
+  Created by:   VT
+
+  Contents:     provides ADC-debnan_time 2D plots 
+
+  Revision history
+  ------------------------------------------------------------------
+  date           by    modification
+  ------------   ---   ------------------------------------------------
+  16-July-2006   VT
+
+\********************************************************************/
+                                                        
+/*-- Include files ------------------------------------------------------*/
+
+/*-- standard includes --------------------------------------------------*/
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+/*-- midas includes -----------------------------------------------------*/
+#include "midas.h"
+
+/*-- Root includes ------------------------------------------------------*/
+#include &lt;TH1.h&gt;
+#include &lt;TH2.h&gt;
+
+/*-- experim.h declarations ---------------------------------------------*/
+#include "wfd.h"
+#include "wfd_bank.h"
+
+/* ---- Parameters ----*/
+
+static TH2D *h2_Pulses[WFD_NUMBER_OF_CRATES][WFD_NUMBER_OF_SLOTS][WFD_NUMBER_OF_CHANNELS];
+
+
+/*-- Module declaration -------------------------------------------------*/
+
+static INT module_event(EVENT_HEADER*, void*); /* event routine */
+static INT module_init(void);                  /* init routine  */
+ 
+ANA_MODULE defnan_pulses_module = {
+  "defnan_pulses",          /* module name           */  
+  "Volodya",                /* author                */
+  module_event,             /* event routine         */
+  NULL,                     /* BOR routine           */
+  NULL,                     /* EOR routine           */
+  module_init,              /* init routine          */
+  NULL,                     /* exit routine          */
+  NULL,                     /* parameter structure   */
+  NULL,                     /* structure size        */
+  NULL,                     /* initial parameters    */
+};
+
+INT module_init(void)
+{
+  
+  int crate,slot,chan;
+  char name [256];
+  char title[256];
+
+  for( crate = 0; crate &lt; WFD_NUMBER_OF_CRATES; crate++ )
+    for( slot = 0; slot &lt; WFD_NUMBER_OF_SLOTS; slot++ )
+      for( chan = 0 ; chan &lt; WFD_NUMBER_OF_CHANNELS; chan++ ) {
+    
+	sprintf(name,"h2_defnan_pulse_c_%1d_s_%02d_ch_%1d",wfd_crate_number[crate],wfd_slot_number[slot],wfd_channel_number[chan]);
+	sprintf(title,"Crate %1d Slot %02d Channel %1d",wfd_crate_number[crate],wfd_slot_number[slot],wfd_channel_number[chan]);
+	
+	h2_Pulses[crate][slot][chan] = H2_BOOK(name, title, 32,-0.5,31.5,256,-0.5,255.5);
+
+  }
+
+  return SUCCESS;
+}
+
+INT module_event(EVENT_HEADER *pheader, void *pevent)
+{
+
+  if( pheader-&gt;event_id != 1 ) return SUCCESS;
+
+  int crate, slot, chan;
+  for ( crate = 0; crate &lt; WFD_NUMBER_OF_CRATES; crate++ )
+    for ( slot = 0; slot &lt; WFD_NUMBER_OF_SLOTS; slot++ )
+      for ( chan = 0 ; chan &lt; WFD_NUMBER_OF_CHANNELS; chan++ ) {
+	       
+	WFD_BANK *pwfd = &wfd_bank[crate][slot][chan];
+
+	if ( !pwfd-&gt;isOk ) 
+	  continue;
+
+	int n_ADC_samples = pwfd-&gt;n_samples;
+
+	WFD_BLOCK *block = pwfd-&gt;blocks;
+
+	TH2D *ph2_Pulse = h2_Pulses[crate][slot][chan];
+
+	/*** iterate over blocks ***/
+	int i;
+	for (i=0; i&lt;pwfd-&gt;sn_blocks; i++) {
+
+	  if ( block->def_time > 0 ) {
+
+	    unsigned char *adc = block->ADC;
+
+	    float dt = block->def_time - block->time;
+	    
+	    int k;
+	    for (k=0; k&lt;n_ADC_samples; k++) {
+	      int k_new = int(7.0 - dt + k);
+	      if ( k_new >= 0 && k_new &lt; n_ADC_samples) {
+		ph2_Pulse->SetCellContent(k_new+1,adc[k]+1,ph2_Pulse->GetCellContent(k_new+1,adc[k]+1)+1);
+	      }
+	    }
+
+	  }
+	  
+	  block++;
+	  
+	}
+	
+      }
+
+  return SUCCESS;
+}
+</pre>
+
+
+</body>
+
+</html>

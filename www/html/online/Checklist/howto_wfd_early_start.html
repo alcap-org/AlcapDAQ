@@ -1,0 +1,38 @@
+<html>
+<body>
+
+<h3>HOWTO take "WFD early start" run.</h3>
+
+<ol>
+  <li>Stop the DAQ:<br>
+      <em>The best way to stop the run is to set "Restart" to "N" on 
+          MIDAS page and wait till the end of the run</em>
+      </li>
+  <li>Unplug the "Kicker safe" cable.</li>
+  <li>Stop MagicBox:<br>
+      <em>Set "/Equipment/MB/Settings/Kicker/On" to "n" in ODB</em>
+      </li>
+  <li>Set WFD start to proper value (Pulser05 in ODB):<br>
+      <em>Set "/Equipment/MB/Settings/PulseReg/Pulser05/MB Clock Start" to 0  <br>
+          Set "/Equipment/MB/Settings/PulseReg/Pulser05/MB Clock Start" to 200</em>
+      </li>
+  <li>Start Kicker:<br>
+      <em>Set "/Equipment/MB/Settings/Kicker/On" to "y" in ODB</em>
+  <li>Plug the "Kicker safe" cable back.</li>
+  <li>Check Kicker traces on the scope.</li>
+  <li>Start the DAQ and take data.</li>
+  <li>To return to the normal data taking run, repeat all these steps and "MB Clock start"
+      to 234 instead of 200.</li>
+</ol>
+
+<P>
+Two shell scripts <br>
+<em>/home/mulan/DAQ/daq-scripts/set_WFDstart_early.sh</em> and <br>
+<em>/home/mulan/DAQ/daq-scripts/set_WFDstart_normal.sh</em> <br>
+Will make changes in ODB for you! Just enter the directory 
+<em>/home/mulan/DAQ/daq-scripts/<em> and execute desired  script.<br>
+</P>
+
+
+</body>
+</html>

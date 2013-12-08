@@ -51,6 +51,12 @@ FADC_82_times FADC/fadc_single_plots.C ("82","Times")
 FADC_82_shapes FADC/fadc_single_plots.C ("82","Shapes")
 FADC_82_latest_pulse FADC/fadc_single_plots.C ("82","LatestPulse")
 
+FADC_83_heights FADC/fadc_single_plots.C ("83","Heights")
+FADC_83_fit_heights FADC/fadc_fit_heights.C ("83","Heights")
+FADC_83_times FADC/fadc_single_plots.C ("83","Times")
+FADC_83_shapes FADC/fadc_single_plots.C ("83","Shapes")
+FADC_83_latest_pulse FADC/fadc_single_plots.C ("83","LatestPulse")
+
 FADC_IslandsPerBlock FADC/fadc_islands_read_per_block.C
 FADC_PacketLoss FADC/fadc_packet_losses.C
 FADC_OverflowingBuffers FADC/fadc_overflowing_buffers.C
