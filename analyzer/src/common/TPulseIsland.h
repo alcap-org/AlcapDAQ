@@ -36,7 +36,7 @@ class TPulseIsland : public TObject {
   int GetADCValueInMeV() const { return fADCValueInMeV; }
   int GetTriggerPolarity() const {return fPolarity;};
   // We need to invert things for the FADCs which start with 'N'
-  int GetChannelPolarity() const {return fBankName[0]=='N'?-1:1;};
+  int GetBoardPolarity() const {return fBankName[0]=='N'?-1:1;};
   
   double GetPulseHeight() const;
   double GetPulseTime() const;  

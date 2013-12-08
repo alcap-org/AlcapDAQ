@@ -94,12 +94,12 @@ int TPulseIsland::GetPeakSample() const {
 
   double pedestal = GetPedestal(10);
   int trigger_polarity=GetTriggerPolarity();
-  int channel_polarity=GetChannelPolarity();
+  int board_polarity=GetBoardPolarity();
   int peak_sample_value = 0;
   int peak_sample_pos = 0;
   for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {
   
-    int this_height = trigger_polarity*channel_polarity*(*(sampleIter) - pedestal);
+    int this_height = trigger_polarity*board_polarity*(*(sampleIter) - pedestal);
     if ( this_height > peak_sample_value ) {
       peak_sample_value = this_height;
       peak_sample_pos = sampleIter - fSamples.begin();
