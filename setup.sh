@@ -7,7 +7,11 @@ unset MIDAS_EXPTAB
 mkdir -p dir
 START_DIR=$PWD
 
-cd midas && make && cd -
+. ~/root/bin/thisroot.sh
+
+cd midas 
+make || FailedMake=( ${FailedMake[@]} midas )
+cd -
 
 #export MIDAS_DIR=$PWD/dir
 if [[ ! -f exptab ]]; then
@@ -30,18 +34,29 @@ export LD_LIBRARY_PATH=$MIDASSYS/linux$arch/lib:$PWD/compress:$LD_LIBRARY_PATH
 
 #cd compress && make && cd -
 
-cd CAEN && mkdir -p lib && ./link.sh && cd -
+cd CAEN 
+mkdir -p lib 
+./link.sh || FailedMake=( ${FailedMake[@]} CAEN )
+cd -
 
-for crate in $(ls -d crate*);
+for crate in crate*/;
 do
 	echo "****************************************************"
 	echo "Making "$crate
 	cd $crate 
 	if [ $? -eq 0 ]; then
-		make 
+		make  || FailedMake=( ${FailedMake[@]} $crate )
 		cd -
 	fi
 	echo "Done "$crate"!"
 done
 
 cd  $START_DIR
+
+if [ ${#FailedMake} -eq 0 ];then
+        echo SUCCESS!!
+else
+        for fail in ${FailedMake[@]}; do 
+                echo $fail failed ...
+        done
+fi
