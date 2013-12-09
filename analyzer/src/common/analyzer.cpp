@@ -195,12 +195,12 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
   // Want to go through the /Analyzer/WireMap and map bank names and detector names 
   HNDLE hDB, hKey;
   char keyName[200];
-  
+
   if(cm_get_experiment_database(&hDB, NULL) != CM_SUCCESS){
     printf("Warning: Could not connect to ODB database!\n");
     return;
   }
-  
+
   sprintf(keyName, "/Analyzer/WireMap/BankName");
   if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
     printf("Warning: Could not find key %s\n", keyName);
@@ -217,7 +217,7 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     printf("Warning: Could not retrieve values for key %s\n", keyName);
     return;
   }
-  
+
   sprintf(keyName, "/Analyzer/WireMap/DetectorName");
   if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
     printf("Warning: Could not find key %s\n", keyName);
@@ -234,7 +234,41 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     printf("Warning: Could not retrieve values for key %s\n", keyName);
     return;
   }
-  
+
+  sprintf(keyName, "/Analyzer/WireMap/TriggerPolarity");
+  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }  
+  KEY pol_key;
+  if(db_get_key(hDB, hKey, &pol_key) != DB_SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }
+  int TriggerPolarities[pol_key.num_values];
+  size = sizeof(TriggerPolarities);
+  if(db_get_value(hDB, 0, keyName , TriggerPolarities, &size, TID_INT, 0) != DB_SUCCESS){
+    printf("Warning: Could not retrieve values for key %s\n", keyName);
+    return;
+  }
+
+  sprintf(keyName, "/Analyzer/WireMap/Pedestal");
+  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }  
+  KEY ped_key;
+  if(db_get_key(hDB, hKey, &ped_key) != DB_SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }
+  int Pedestals[ped_key.num_values];
+  size = sizeof(Pedestals);
+  if(db_get_value(hDB, 0, keyName , Pedestals, &size, TID_INT, 0) != DB_SUCCESS){
+    printf("Warning: Could not retrieve values for key %s\n", keyName);
+    return;
+  }
+
   if(det_key.num_values != bk_key.num_values){
     printf("Warning: Key sizes are not equal for banks and detectors in /Analyzer/WireMap/\n");
     return;
@@ -247,12 +281,12 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     // Add the detector names to TSetupData
     std::string bank_name(BankNames[i]), detector(DetectorNames[i]);
     gSetup->SetDetectorName(bank_name,detector);
-
+    gSetup->SetTriggerPolarity(bank_name,TriggerPolarities[i]);
+    gSetup->SetPedestal(bank_name,Pedestals[i]);
 
     //////////////////////////////////////////////////
     // Calculate and the add the clock ticks to TSetupData
     int DCMPhase = 1; // assume DCMPhase = 1 for most digitizers (it's only applicable to the FADCs)
-    int TriggerPolarity=1; // Default is to have a positive trigger threshold
     if(TSetupData::IsFADC(bank_name)){ 
       int iChn = (int)(bank_name[1] - 97);
       std::string iAddr = bank_name.substr(2, 2);
@@ -266,15 +300,7 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
 	  //	  printf("Found the DCM Phase!\n");
 	}
       }
-
-      sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Polarity", iAddr.c_str(), iChn);
-      if(db_find_key(hDB,0,keyName, &hKey) == SUCCESS){
-	db_get_key(hDB, hKey, &bk_key);
-
-	int size = sizeof(TriggerPolarity);
-	if(db_get_value(hDB, 0, keyName , &TriggerPolarity, &size, TID_INT, 0) == DB_SUCCESS){
-	}
-      }
+      //
       //////////////////////////////////////////////////
       // Get the sampling frequency of the different digitizers
       sprintf(keyName, "/Analyzer/WireMap/SamplingFrequency");
@@ -285,7 +311,7 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
 	db_set_data_index(hDB, hKey, &frequency, size, i, TID_FLOAT);
       }
     }
-    
+
     sprintf(keyName, "/Analyzer/WireMap/SamplingFrequency");  
     if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
       printf("Warning: Could not find key %s\n", keyName);
@@ -306,7 +332,6 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     double clockTickInNs = (1/true_frequency) * 1e9;
     //    printf("Bank %s: f = %f, clockTick = %f\n", bank_name.c_str(), true_frequency, clockTickInNs);
     gSetup->SetClockTick(bank_name,clockTickInNs);
-    gSetup->SetTriggerPolarity(bank_name, TriggerPolarity);
 
     //////////////////////////////////////////////////
     // Get the ADC value to MeV calibration constant
@@ -324,7 +349,6 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     else if (TSetupData::IsBostonCAEN(bank_name)) { // UH CAEN banks
       gSetup->SetNBits(bank_name,12);
     }
-
 
     ///////////////////////////////////////
     // Check to see if the bank is enabled   
