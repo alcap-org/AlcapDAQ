@@ -24,7 +24,6 @@ TPulseIsland::TPulseIsland(
   fClockTickInNs = clock_tick_in_ns;
   fADCValueInMeV = adc_value_in_MeV;
   fBankName = bank_name;
-  fPolarity= pol;
 }
 
 void TPulseIsland::Reset(Option_t* o)
@@ -33,7 +32,6 @@ void TPulseIsland::Reset(Option_t* o)
   fSamples.clear();
   fClockTickInNs = 0.0;
   fBankName = "";
-  fPolarity= 1;
 }
 
 // GetPulseHeight()

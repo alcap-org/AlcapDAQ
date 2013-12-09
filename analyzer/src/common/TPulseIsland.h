@@ -6,6 +6,9 @@
 
 #include <TObject.h>
 #include <TH1.h>
+#include "TSetupData.h"
+
+extern TSetupData* gSetup;
 
 class TPulseIsland : public TObject {
   private:
@@ -19,7 +22,7 @@ class TPulseIsland : public TObject {
   // Make sure to use the getters for them in the meantime
   double fClockTickInNs; // clock tick in nanoseconds
   double fADCValueInMeV; // ADC value in MeV (assuming linear calibration)
-  int fPolarity; // Trigger threshold polarity
+  //int fPolarity; // Trigger threshold polarity
 
   public:
   TPulseIsland();
@@ -34,9 +37,9 @@ class TPulseIsland : public TObject {
 
   double GetClockTickInNs() const { return fClockTickInNs; }
   int GetADCValueInMeV() const { return fADCValueInMeV; }
-  int GetTriggerPolarity() const {return fPolarity;};
+  int GetTriggerPolarity() const {return gSetup->GetTriggerPolarity(fBankName);};
   // We need to invert things for the FADCs which start with 'N'
-  int GetChannelPolarity() const {return fBankName[0]=='N'?-1:1;};
+  int GetChannelPolarity() const {return TSetupData::IsFADC(fBankName)?-1:1;};
   
   double GetPulseHeight() const;
   double GetPulseTime() const;  
