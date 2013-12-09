@@ -164,7 +164,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
       //      printf("CW: %08x\n",caen_event_cw);
       if ( caen_event_cw != 0xA )
 	{
-	  printf("***ERROR! Wrong data format: incorrect control word 0x%08x\n", caen_event_cw);
+	  printf("***ERROR BU CAEN! Wrong data format: incorrect control word 0x%08x\n", caen_event_cw);
 	  return SUCCESS;
 	}
       
