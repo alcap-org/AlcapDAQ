@@ -93,10 +93,10 @@ int TPulseIsland::GetPeakSample() const {
   double pedestal = GetPedestal(10);
   int trigger_polarity=GetTriggerPolarity();
   int board_polarity=GetBoardPolarity();
-  int peak_sample_value = trigger_polarity*board_polarity*pedestal;
+  int peak_sample_value = -1*trigger_polarity*board_polarity*999999; // something sufficiently large or small(needs opposite sign)
   int peak_sample_pos = 0;
-  printf("Bank Name: %s\n", fBankName.c_str());
-  printf("Trigger Pol: %d, Board Pol: %d\n", trigger_polarity, board_polarity);
+  //  printf("Bank Name: %s\n", fBankName.c_str());
+  //  printf("Trigger Pol: %d, Board Pol: %d, Pedestal %f\n", trigger_polarity, board_polarity, pedestal);
   for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {
   
     int this_height = trigger_polarity*board_polarity*(*(sampleIter) - pedestal);
@@ -104,7 +104,7 @@ int TPulseIsland::GetPeakSample() const {
       peak_sample_value = this_height;
       peak_sample_pos = sampleIter - fSamples.begin();
     }
-    printf("Current Height: %d, Peak Height: %d\n", this_height, peak_sample_value);
+    //    printf("Current Samples: %d, Current Height: %d, Peak Height: %d\n", *(sampleIter), this_height, peak_sample_value);
   }
 
   return peak_sample_pos;
@@ -115,14 +115,17 @@ int TPulseIsland::GetPeakSample() const {
 double TPulseIsland::GetPedestal(int nPedSamples) const {
 
   // Hard-coding pedestals for the time being....
-  if ( fBankName == "CeUH" )
+  /*  if ( fBankName == "CeUH" )
     return 8100;
   else if ( fBankName == "CfUH" )
     return 8680;
   else
     return 2750;  // Fixed pedestal
+  */
+  double pedestal = gSetup->GetPedestal(fBankName);
+  return pedestal;
 
-  if (nPedSamples > fSamples.size())
+  /*  if (nPedSamples > fSamples.size())
     nPedSamples = 2;
 
   double pedestal = 0;
@@ -132,5 +135,5 @@ double TPulseIsland::GetPedestal(int nPedSamples) const {
 
   pedestal /= nPedSamples;
 
-  return pedestal;
+  return pedestal;*/
 }
