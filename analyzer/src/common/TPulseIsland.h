@@ -42,6 +42,8 @@ class TPulseIsland : public TObject {
   int GetBoardPolarity() const {return TSetupData::IsFADC(fBankName)?-1:1;};
 
   double GetAmplitude() const;
+  double GetFastPulseAmplitude() const;
+  double GetSlowPulseAmplitude() const;
 
   double GetPulseHeight() const;
   double GetPulseTime() const;  

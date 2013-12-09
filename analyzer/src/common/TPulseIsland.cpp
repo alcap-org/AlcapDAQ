@@ -39,10 +39,32 @@ void TPulseIsland::Reset(Option_t* o)
 double TPulseIsland::GetAmplitude() const {
 
   if (gSetup->GetIsFast(fBankName))
-    printf("FastPulse\n");
+    return GetFastPulseAmplitude();
   else
-    printf("SlowPulse\n");
+    return GetSlowPulseAmplitude();
 
+}
+
+// GetFastPulseAmplitude()
+// -- Gets the amplitude for the fast pulse
+// -- Anyone can play around with algorithms in here provided they are on their own branch
+double TPulseIsland::GetFastPulseAmplitude() const {
+
+  double pedestal = GetPedestal(10);
+  int peak_sample_element = GetPeakSample();
+
+  return ( GetTriggerPolarity()*GetBoardPolarity()*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
+}
+
+// GetSlowPulseAmplitude()
+// -- Gets the amplitude for the fast pulse
+// -- Anyone can play around with algorithms in here provided they are on their own branch
+double TPulseIsland::GetSlowPulseAmplitude() const {
+
+  double pedestal = GetPedestal(10);
+  int peak_sample_element = GetPeakSample();
+
+  return ( GetTriggerPolarity()*GetBoardPolarity()*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
 }
 
 // GetPulseHeight()
@@ -104,21 +126,27 @@ int TPulseIsland::GetPeakSample() const {
   double pedestal = GetPedestal(10);
   int trigger_polarity=GetTriggerPolarity();
   int board_polarity=GetBoardPolarity();
-  int peak_sample_value = trigger_polarity*board_polarity*pedestal; // something sufficiently large or small(needs opposite sign)
+  int peak_sample_value = 0;
   int peak_sample_pos = 0;
 
-  //  printf("Bank Name: %s\n", fBankName.c_str());
-  //  printf("Trigger Pol: %d, Board Pol: %d, Pedestal %f\n", trigger_polarity, board_polarity, pedestal);
-
+  /*  if (fBankName == "CaUH"){
+    printf("Bank Name: %s\n", fBankName.c_str());
+    printf("Trigger Pol: %d, Board Pol: %d, Pedestal %f\n", trigger_polarity, board_polarity, pedestal);
+  }
+  */
   for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {
-  
+    
     int this_height = trigger_polarity*board_polarity*(*(sampleIter) - pedestal);
     if ( this_height > peak_sample_value ) {
       peak_sample_value = this_height;
       peak_sample_pos = sampleIter - fSamples.begin();
     }
-    //    printf("Current Samples: %d, Current Height: %d, Peak Height: %d\n", *(sampleIter), this_height, peak_sample_value);
+    //    if (fBankName == "CaUH")
+    //      printf("Current Samples: %d, Current Height: %d, Peak Height: %d\n", *(sampleIter), this_height, peak_sample_value);
   }
+  //    if (fBankName == "CaUH" && peak_sample_value < 1140)
+  //      printf("Final Peak Height: %d\n", peak_sample_value);
+
 
   return peak_sample_pos;
 }
