@@ -34,6 +34,17 @@ void TPulseIsland::Reset(Option_t* o)
   fBankName = "";
 }
 
+// GetAmplitude()
+// -- Gets the amplitude of the pulse
+double TPulseIsland::GetAmplitude() const {
+
+  if (gSetup->GetIsFast(fBankName))
+    printf("FastPulse\n");
+  else
+    printf("SlowPulse\n");
+
+}
+
 // GetPulseHeight()
 // -- Gets the position of the peak from GetPeakSample() and then returns the pulse height
 double TPulseIsland::GetPulseHeight() const {
@@ -93,10 +104,12 @@ int TPulseIsland::GetPeakSample() const {
   double pedestal = GetPedestal(10);
   int trigger_polarity=GetTriggerPolarity();
   int board_polarity=GetBoardPolarity();
-  int peak_sample_value = -1*trigger_polarity*board_polarity*999999; // something sufficiently large or small(needs opposite sign)
+  int peak_sample_value = trigger_polarity*board_polarity*pedestal; // something sufficiently large or small(needs opposite sign)
   int peak_sample_pos = 0;
+
   //  printf("Bank Name: %s\n", fBankName.c_str());
   //  printf("Trigger Pol: %d, Board Pol: %d, Pedestal %f\n", trigger_polarity, board_polarity, pedestal);
+
   for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {
   
     int this_height = trigger_polarity*board_polarity*(*(sampleIter) - pedestal);

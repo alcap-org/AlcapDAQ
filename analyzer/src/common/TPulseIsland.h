@@ -40,7 +40,9 @@ class TPulseIsland : public TObject {
   int GetTriggerPolarity() const {return gSetup->GetTriggerPolarity(fBankName);};
   // We need to invert things for the FADCs which start with 'N'
   int GetBoardPolarity() const {return TSetupData::IsFADC(fBankName)?-1:1;};
-  
+
+  double GetAmplitude() const;
+
   double GetPulseHeight() const;
   double GetPulseTime() const;  
   TH1I* GetPulseWaveform(std::string histname, std::string histtitle) const;
