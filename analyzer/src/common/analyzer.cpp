@@ -284,9 +284,9 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     gSetup->SetTriggerPolarity(bank_name,TriggerPolarities[i]);
     gSetup->SetPedestal(bank_name,Pedestals[i]);
 
-    if (*(detector.end()) == 'F')
+    if (*(detector.end()-1) == 'F')
       gSetup->SetIsFast(bank_name, true);
-    else if (*(detector.end()) == 'S')
+    else if (*(detector.end()-1) == 'S')
       gSetup->SetIsFast(bank_name, false);
     else // what should we do with channels without detectors?
       gSetup->SetIsFast(bank_name, false);
