@@ -284,6 +284,13 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     gSetup->SetTriggerPolarity(bank_name,TriggerPolarities[i]);
     gSetup->SetPedestal(bank_name,Pedestals[i]);
 
+    if (*(detector.end()) == 'F')
+      gSetup->SetIsFast(bank_name, true);
+    else if (*(detector.end()) == 'S')
+      gSetup->SetIsFast(bank_name, false);
+    else // what should we do with channels without detectors?
+      gSetup->SetIsFast(bank_name, false);
+
     //////////////////////////////////////////////////
     // Calculate and the add the clock ticks to TSetupData
     int DCMPhase = 1; // assume DCMPhase = 1 for most digitizers (it's only applicable to the FADCs)

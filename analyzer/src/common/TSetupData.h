@@ -14,6 +14,7 @@ class TSetupData : public TObject{
          struct DetectorInfo{
                  int polarity;
                  int pedestal;
+	   bool isFast; // true if this is a fast pulse
          };
   std::map<std::string, DetectorInfo> fBankToDetectorConfigs;
  public:
@@ -35,6 +36,7 @@ class TSetupData : public TObject{
   double GetADCValue(std::string BankName) { return fBankToADCValueMap[BankName]; };
   int GetTriggerPolarity(std::string BankName){return fBankToDetectorConfigs[BankName].polarity;};
   int GetPedestal(std::string BankName){return fBankToDetectorConfigs[BankName].pedestal;};
+  bool GetIsFast(std::string BankName) { return fBankToDetectorConfigs[BankName].isFast; }
 
   void SetDetectorName(std::string BankName, std::string value) { fBankToDetectorMap[BankName]=value; };
   void SetClockTick(std::string BankName, double value) { fBankToClockTickMap[BankName]=value; };
@@ -42,6 +44,7 @@ class TSetupData : public TObject{
   void SetADCValue(std::string BankName, double value) { fBankToADCValueMap[BankName]=value; };
   void SetTriggerPolarity(std::string BankName, int value){fBankToDetectorConfigs[BankName].polarity=value;};
   void SetPedestal(std::string BankName, int value){fBankToDetectorConfigs[BankName].pedestal=value;};
+  void SetIsFast(std::string BankName, bool value) {fBankToDetectorConfigs[BankName].isFast=value;};
 
   static bool IsFADC(std::string BankName) { return BankName[0] == 'N'; } // if the first letter is N then the bank name is for a FADC
   static bool IsHoustonCAEN(std::string BankName) { return BankName.substr(2,2) == "UH"; } // if the first letter is C then the bank name is for a CAEN
