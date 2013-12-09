@@ -60,7 +60,7 @@ double TPulseIsland::GetPulseHeight() const {
   // Go through the samples and get the samples with the largest difference between it and the pedestal
   // (should take into account both positive and negative pulses)
 
-  return ( -1.*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
+  return ( GetTriggerPolarity()*GetBoardPolarity()*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
 }
 
 // GetPulseTime()
@@ -95,8 +95,10 @@ int TPulseIsland::GetPeakSample() const {
   double pedestal = GetPedestal(10);
   int trigger_polarity=GetTriggerPolarity();
   int board_polarity=GetBoardPolarity();
-  int peak_sample_value = 0;
+  int peak_sample_value = trigger_polarity*board_polarity*pedestal;
   int peak_sample_pos = 0;
+  printf("Bank Name: %s\n", fBankName.c_str());
+  printf("Trigger Pol: %d, Board Pol: %d\n", trigger_polarity, board_polarity);
   for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {
   
     int this_height = trigger_polarity*board_polarity*(*(sampleIter) - pedestal);
@@ -104,6 +106,7 @@ int TPulseIsland::GetPeakSample() const {
       peak_sample_value = this_height;
       peak_sample_pos = sampleIter - fSamples.begin();
     }
+    printf("Current Height: %d, Peak Height: %d\n", this_height, peak_sample_value);
   }
 
   return peak_sample_pos;

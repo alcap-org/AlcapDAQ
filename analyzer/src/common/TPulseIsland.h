@@ -19,7 +19,7 @@ class TPulseIsland : public TObject {
   // Make sure to use the getters for them in the meantime
   double fClockTickInNs; // clock tick in nanoseconds
   double fADCValueInMeV; // ADC value in MeV (assuming linear calibration)
-  int fPolarity; // Trigger threshold polarity
+  int fPolarity; // Trigger threshold polarity (i.e. the polarity of the initial pulse coming out of the detector)
 
   public:
   TPulseIsland();
