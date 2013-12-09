@@ -51,7 +51,7 @@ BankName = STRING[48] :
 DetectorName = STRING[48] :
 [80] SiL2-S
 [80] SiR2-S
-[80] Ge-S
+[80] blank
 [80] blank
 [80] blank
 [80] blank
@@ -79,9 +79,9 @@ DetectorName = STRING[48] :
 [80] ScVe
 [80] blank
 [80] blank
+[80] LiquidSc
 [80] blank
-[80] blank
-[80] blank
+[80] Ge-S
 [80] blank
 [80] blank
 [80] blank
