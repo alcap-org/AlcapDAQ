@@ -83,6 +83,9 @@ void TOctalFADCBankReader::ProcessEvent(EVENT_HEADER* pheader, void *pevent)
           );
           islandSamples.clear();
       }
+      else if (islandSamples.size() <= 4) {
+	islandSamples.clear();
+      }
       // Ignore islands with 4 or less samples.
       islandTimestamp = timestamp;
     }
