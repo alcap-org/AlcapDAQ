@@ -20,6 +20,8 @@
 
 #pragma link C++ class TSetupData+;
 
+#pragma link C++ class TAnalysedPulse+;
+
 #pragma link C++ class map<string, string>+;
 #pragma link C++ class map<string, string>::iterator;
 #pragma link C++ class pair<string, string>+;
