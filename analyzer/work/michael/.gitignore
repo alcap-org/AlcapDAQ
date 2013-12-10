@@ -1,0 +1,10 @@
+# Midas files
+*.SHM
+
+# Make byproducts
+*Dict.cpp
+*Dict.h
+MODULES.h
+Makefile.MODULES
+blank
+
