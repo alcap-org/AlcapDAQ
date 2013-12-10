@@ -21,12 +21,12 @@
 #MIDAS_DIR       = /afs/psi.ch/user/r/raselli/midas/musr-1.9.5
 INC_DIR 	= $(MIDAS_HOME)/include
 #LIB_DIR        = $(MIDAS_HOME)/linux/$(HOSTNAME)/lib
-LIB_DIR         = $(MIDAS_HOME)/linux64/lib
+LIB_DIR         = $(MIDAS_HOME)/linux/lib
 #BIN_DIR        = $(MIDAS_HOME)/linux/$(HOSTNAME)/bin
-BIN_DIR         = $(MIDAS_HOME)/linux64/bin
+BIN_DIR         = $(MIDAS_HOME)/linux/bin
 DRV_DIR		= $(MIDAS_HOME)/drivers
 #EPICS_DIR      = /usr/local/epics/base
-EPICS_DIR       = $(HOME)/installation//base-3.15.0.1
+EPICS_DIR       = /usr/local/epics/base-3.14.12/
 
 MAKEFILE = Makefile
 
@@ -58,15 +58,15 @@ OSFLAGS = -DOS_LINUX -fPIC #-static $(MIDAS_PREF_FLAGS) $(USERFLAGS)
 
 LIBRARY = $(LIB_DIR)/libmidas.a
 #LIB = $(LIBRARY) -Wl,-rpath,$(EPICS_DIR)/lib/SL3-x86 -lca -lCom
-#LIB = $(LIBRARY) -Wl,-rpath,$(EPICS_DIR)/lib/SL6-x86 -lca -lCom
-LIB = $(LIBRARY) -Wl,-rpath,$(EPICS_DIR)/lib/linux-x86_64 -lca -lCom
+LIB = $(LIBRARY) -Wl,-rpath,$(EPICS_DIR)/lib/SL6-x86 -lca -lCom
+#LIB = $(LIBRARY) -Wl,-rpath,$(EPICS_DIR)/lib/linux-x86_64 -lca -lCom
 
 # compiler
 CC = cc
 CFLAGS = -g -I$(INC_DIR) -I$(DRV_DIR)
 #LDFLAGS = -L$(LIB_DIR) -L$(EPICS_DIR)/lib/SL3-x86 
-#LDFLAGS = -L$(LIB_DIR) -L$(EPICS_DIR)/lib/SL6-x86
-LDFLAGS = -L$(LIB_DIR) -L$(EPICS_DIR)/lib/linux-x86_64 
+LDFLAGS = -L$(LIB_DIR) -L$(EPICS_DIR)/lib/SL6-x86
+#LDFLAGS = -L$(LIB_DIR) -L$(EPICS_DIR)/lib/linux-x86_64 
 
 MIDAS_H    = $(INC_DIR)/midas.h
 GENERIC_H  = $(DRV_DIR)/class/generic.h
