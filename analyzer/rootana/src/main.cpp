@@ -13,6 +13,7 @@
 #include "TFile.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
+#include "TAnalysedPulse.h"
 
 void help_command_line(char *my_name);
 bool isNumber(char *c);
@@ -28,6 +29,8 @@ static TBranch *br = NULL;
 static TBranch *InfoBr = NULL;
 static TGlobalData *g_event;
 static TSetupData *s_data;
+
+std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
 static int n_fillhist = 0;  // keeps track of the total number of modules
 static FillHistBase **fillhists;
@@ -132,9 +135,13 @@ void *root_event_loop(void *arg){
     
     // Let's get the next event
     nb = tree->GetEntry(jentry);
+  
+    // Clear gAnalysedPulseMap at the start of each tree entry
+    for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator mapIter = gAnalysedPulseMap.begin(); mapIter != gAnalysedPulseMap.end(); mapIter++) {
+      gAnalysedPulseMap.erase(mapIter);
+    }
 
     int q = 0;
-    
     for(int i=0; i < n_fillhist; i++) {
       //printf("processing fillhists[%d]\n",i);      
       q = fillhists[i]->ProcessGenericEntry(g_event, s_data);
