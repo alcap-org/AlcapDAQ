@@ -35,14 +35,8 @@ INT  MAnalysePulseIsland_init(void);
 INT  MAnalysePulseIsland_bor(INT);
 INT  MAnalysePulseIsland(EVENT_HEADER*, void*);
 
-// Amplitude Algorithms
-double GetAmplitude_MaxBin(TPulseIsland* pulse);
-
-// Time Algorithms
-double GetTime_MaxBin(TPulseIsland* pulse);
-
-// Integral Algorithms
-//double GetIntegral(TPulseIsland* pulse);
+// All Parameter Algorithms
+void GetAllParameters_MaxBin(const TPulseIsland* pulse, double& amplitude, double& time, double& integral);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -120,14 +114,10 @@ INT MAnalysePulseIsland(EVENT_HEADER *pheader, void *pevent)
 
 	    // If this is a slow pulse
 	    if ( *(detname.end() - 1) == 'S' ) {
-	      amplitude = GetAmplitude_MaxBin();
-	      time = GetTime_MaxBin();
-	      // integral = GetIntegral();
+	      GetAllParameters_MaxBin( *pulseIter, amplitude, time, integral);
 	    }
 	    else if ( *(detname.end() -1) == 'F') {
-	      amplitude = GetAmplitude_MaxBin();
-	      time = GetTime_MaxBin();
-	      // integral = GetIntegral();
+	      GetAllParameters_MaxBin( *pulseIter, amplitude, time, integral);
 	    }
 
 	    TAnalysedPulse* analysedPulse = new TAnalysedPulse(amplitude, time, integral, detname);
@@ -139,17 +129,29 @@ INT MAnalysePulseIsland(EVENT_HEADER *pheader, void *pevent)
 }
 
 
-// GetAmplitude_MaxBin()
-// -- Gets the amplitude of the pulse from the maxmimum bin taking into account the polarity of the pulse
-double GetAmplitude_MaxBin(TPulseIsland* pulse) {
+// GetAllParameters_MaxBin()
+// -- Gets all the parameters for the pulse using the max bin method
+void GetAllParameters_MaxBin(const TPulseIsland* pulse, double& amplitude, double& time, double& integral) {
 
-  double pedestal = gSetup->GetPedestal( pulse->GetBankName() );
-  int peak_sample_element = GetPeakSample();
+  std::string bankname = pulse->GetBankName();
+  double pedestal = gSetup->GetPedestal(bankname);
+  int trigger_polarity = gSetup->GetTriggerPolarity(bankname);
 
-  return ( GetTriggerPolarity()*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
+  // First find the position of the peak
+  std::vector<int> pulseSamples = pulse->GetSamples();
+  int peak_sample_value = 0;
+  int peak_sample_pos = 0;
+  for (std::vector<int>::const_iterator sampleIter = pulseSamples.begin(); sampleIter != pulseSamples.end(); sampleIter++) {
+    
+    int this_height = trigger_polarity*(*(sampleIter) - pedestal);
+    if ( this_height > peak_sample_value ) {
+      peak_sample_value = this_height;
+      peak_sample_pos = sampleIter - pulseSamples.begin();
+    }
+  }
 
-}
-
-double GetTime_MaxBin(TPulseIsland* pulse) {
-
+  // Now assign the parameters
+  amplitude = peak_sample_value;
+  time = pulse->GetTimeStamp() + peak_sample_pos;
+  integral = 0;
 }
