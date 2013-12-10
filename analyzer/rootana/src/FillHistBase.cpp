@@ -9,17 +9,17 @@ FillHistBase::~FillHistBase()
 {
 }
 
-int FillHistBase::ProcessEntry(TGlobalData *gData){
+int FillHistBase::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   // This is a virtual function and should be overwritten by the deriving analysis module!
   return 0;
 }
 
-int FillHistBase::ProcessGenericEntry(TGlobalData *gData){
+int FillHistBase::ProcessGenericEntry(TGlobalData *gData, TSetupData *gSetup){
   // This is called by our main routine and would allow later to split into different 
   // process routines if we have more than one Tree and hence different tpyes of data input.
 
   if(dir) dir->cd();
-  int ret = ProcessEntry(gData);
+  int ret = ProcessEntry(gData, gSetup);
   gDirectory->cd("/");
 
   return ret;
