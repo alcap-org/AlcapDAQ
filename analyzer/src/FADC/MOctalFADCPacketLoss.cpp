@@ -66,7 +66,7 @@ INT MOctalFADCPacketLoss_init()
   hNOctalFADCAvgPacketLoss = new TH1F(
     "hNOctalFADCAvgPacketLoss",
     "Average Number of FADC packets lost per board",
-    3,128, 131);
+    4,128, 132);
   hNOctalFADCAvgPacketLoss->SetBit(TH1::kCanRebin);
   hNOctalFADCAvgPacketLoss->GetXaxis()->SetTitle("FADC Board Number");
   hNOctalFADCAvgPacketLoss->GetYaxis()->SetTitle("Average Number of Packets Lost per Event");
