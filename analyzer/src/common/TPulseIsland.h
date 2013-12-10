@@ -6,28 +6,45 @@
 
 #include <TObject.h>
 #include <TH1.h>
+#include "TSetupData.h"
+
+extern TSetupData* gSetup;
 
 class TPulseIsland : public TObject {
   private:
   std::vector<int> fSamples; // adc samples
-  double fClockTickInNs; // clock tick in nanoseconds
   int fTimeStamp; // time stamp in clock ticks
-  double fADCValueInMeV; // ADC value in MeV (assuming linear calibration)
   std::string fBankName; // FADC Bank name of this island's channel
+
+  // These values are the same for all pulses coming from the same channel in a
+  // run so at some point we should remove them and get them from the run's
+  // TSetupData.
+  // Make sure to use the getters for them in the meantime
+  double fClockTickInNs; // clock tick in nanoseconds
+  double fADCValueInMeV; // ADC value in MeV (assuming linear calibration)
+  //  int fPolarity; // Trigger threshold polarity (i.e. the polarity of the initial pulse coming out of the detector)
 
   public:
   TPulseIsland();
   TPulseIsland(int timestamp, const std::vector<int>& samples_vector,
-	       double clock_tick_in_ns, double adc_value_in_MeV, std::string bank_name);
+	       double clock_tick_in_ns, double adc_value_in_MeV, std::string bank_name,int pol=1);
 
   void Reset(Option_t* o = "");
 
   std::vector<int> GetSamples() const { return fSamples; }
-  double GetClockTickInNs() const { return fClockTickInNs; }
   int GetTimeStamp() const { return fTimeStamp; }
-  int GetADCValueInMeV() const { return fADCValueInMeV; }
   std::string GetBankName() const { return fBankName; }
-  
+
+  double GetClockTickInNs() const { return fClockTickInNs; }
+  int GetADCValueInMeV() const { return fADCValueInMeV; }
+  int GetTriggerPolarity() const {return gSetup->GetTriggerPolarity(fBankName);};
+  // We need to invert things for the FADCs which start with 'N'
+  int GetBoardPolarity() const {return TSetupData::IsFADC(fBankName)?-1:1;};
+
+  double GetAmplitude() const;
+  double GetFastPulseAmplitude() const;
+  double GetSlowPulseAmplitude() const;
+
   double GetPulseHeight() const;
   double GetPulseTime() const;  
   TH1I* GetPulseWaveform(std::string histname, std::string histtitle) const;

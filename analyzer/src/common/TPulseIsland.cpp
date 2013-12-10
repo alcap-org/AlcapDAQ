@@ -16,7 +16,7 @@ TPulseIsland::TPulseIsland()
 
 TPulseIsland::TPulseIsland(
   int timestamp, const vector<int>& samples_vector,
-  double clock_tick_in_ns, double adc_value_in_MeV, string bank_name)
+  double clock_tick_in_ns, double adc_value_in_MeV, string bank_name,int pol)
 {
   Reset();
   fTimeStamp = timestamp;
@@ -32,6 +32,39 @@ void TPulseIsland::Reset(Option_t* o)
   fSamples.clear();
   fClockTickInNs = 0.0;
   fBankName = "";
+}
+
+// GetAmplitude()
+// -- Gets the amplitude of the pulse
+double TPulseIsland::GetAmplitude() const {
+
+  if (gSetup->GetIsFast(fBankName))
+    return GetFastPulseAmplitude();
+  else
+    return GetSlowPulseAmplitude();
+
+}
+
+// GetFastPulseAmplitude()
+// -- Gets the amplitude for the fast pulse
+// -- Anyone can play around with algorithms in here provided they are on their own branch
+double TPulseIsland::GetFastPulseAmplitude() const {
+
+  double pedestal = GetPedestal(10);
+  int peak_sample_element = GetPeakSample();
+
+  return ( GetTriggerPolarity()*GetBoardPolarity()*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
+}
+
+// GetSlowPulseAmplitude()
+// -- Gets the amplitude for the fast pulse
+// -- Anyone can play around with algorithms in here provided they are on their own branch
+double TPulseIsland::GetSlowPulseAmplitude() const {
+
+  double pedestal = GetPedestal(10);
+  int peak_sample_element = GetPeakSample();
+
+  return ( GetTriggerPolarity()*GetBoardPolarity()*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
 }
 
 // GetPulseHeight()
@@ -58,7 +91,7 @@ double TPulseIsland::GetPulseHeight() const {
   // Go through the samples and get the samples with the largest difference between it and the pedestal
   // (should take into account both positive and negative pulses)
 
-  return ( -1.*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
+  return ( GetTriggerPolarity()*GetBoardPolarity()*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
 }
 
 // GetPulseTime()
@@ -91,16 +124,29 @@ TH1I* TPulseIsland::GetPulseWaveform(std::string histname, std::string histtitle
 int TPulseIsland::GetPeakSample() const {
 
   double pedestal = GetPedestal(10);
+  int trigger_polarity=GetTriggerPolarity();
+  int board_polarity=GetBoardPolarity();
   int peak_sample_value = 0;
   int peak_sample_pos = 0;
+
+  /*  if (fBankName == "CaUH"){
+    printf("Bank Name: %s\n", fBankName.c_str());
+    printf("Trigger Pol: %d, Board Pol: %d, Pedestal %f\n", trigger_polarity, board_polarity, pedestal);
+  }
+  */
   for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {
-  
-    int this_height = std::abs(*(sampleIter) - pedestal);
+    
+    int this_height = trigger_polarity*board_polarity*(*(sampleIter) - pedestal);
     if ( this_height > peak_sample_value ) {
       peak_sample_value = this_height;
       peak_sample_pos = sampleIter - fSamples.begin();
     }
+    //    if (fBankName == "CaUH")
+    //      printf("Current Samples: %d, Current Height: %d, Peak Height: %d\n", *(sampleIter), this_height, peak_sample_value);
   }
+  //    if (fBankName == "CaUH" && peak_sample_value < 1140)
+  //      printf("Final Peak Height: %d\n", peak_sample_value);
+
 
   return peak_sample_pos;
 }
@@ -110,14 +156,17 @@ int TPulseIsland::GetPeakSample() const {
 double TPulseIsland::GetPedestal(int nPedSamples) const {
 
   // Hard-coding pedestals for the time being....
-  if ( fBankName == "CeUH" )
+  /*  if ( fBankName == "CeUH" )
     return 8100;
   else if ( fBankName == "CfUH" )
     return 8680;
   else
     return 2750;  // Fixed pedestal
+  */
+  double pedestal = gSetup->GetPedestal(fBankName);
+  return pedestal;
 
-  if (nPedSamples > fSamples.size())
+  /*  if (nPedSamples > fSamples.size())
     nPedSamples = 2;
 
   double pedestal = 0;
@@ -127,5 +176,5 @@ double TPulseIsland::GetPedestal(int nPedSamples) const {
 
   pedestal /= nPedSamples;
 
-  return pedestal;
+  return pedestal;*/
 }
