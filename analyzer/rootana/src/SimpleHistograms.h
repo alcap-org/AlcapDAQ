@@ -6,7 +6,7 @@
 
 class SimpleHistograms : public FillHistBase{
  public:
-  SimpleHistograms(char *HistogramDirectoryName);
+  SimpleHistograms(const char *HistogramDirectoryName);
   ~SimpleHistograms();
 
  private:

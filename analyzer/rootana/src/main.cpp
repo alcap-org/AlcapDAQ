@@ -8,6 +8,7 @@
 #include "FillHistBase.h"
 #include "SimpleHistograms.h"
 #include "MyModule.h"
+#include "NoisyModule.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -103,6 +104,7 @@ int main(int argc, char **argv){
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new SimpleHistograms("SimpleHistograms");
   fillhists[n_fillhist++] = new MyModule("MyModule");
+  fillhists[n_fillhist++] = new NoisyModule("NoisyModule");
   
   fileOut->cd();
   root_event_loop();
@@ -136,7 +138,29 @@ void *root_event_loop(void *arg){
   else if((Long64_t)arguments.start < nentries && arguments.start > 0){
     stop = (Long64_t)arguments.start;
   }
+  
+  //preprocess first event
+  if (g_event){
+    g_event->Clear("C");
+    br->SetAddress(&g_event);
+  }
+  
+  nb = tree->GetEntry(start);
+  int q = 0;
+  for (int i=0; i < n_fillhist; i++) {
+    q |= fillhists[i]->BeforeFirstEntry(g_event);
+    //if (q) break;
+    // q = fillhists[i]->ProcessGenericEntry(g_event);
+    //if (q) break;
+  }
+  if(q) {
+    printf("q was non-zero when preprocessing first entry (%d)\n",
+	   (Int_t)start);
+    return NULL;
+  }
 
+  q = 0;
+  //process entries
   for (Long64_t jentry=start; jentry<stop;jentry++) {
     if(g_event){
       g_event->Clear("C");
@@ -146,17 +170,25 @@ void *root_event_loop(void *arg){
     // Let's get the next event
     nb = tree->GetEntry(jentry);
 
-    int q = 0;
-    
     for(int i=0; i < n_fillhist; i++) {
       //printf("processing fillhists[%d]\n",i);      
-      q = fillhists[i]->ProcessGenericEntry(g_event);
-      if(q) break;
+      q |= fillhists[i]->ProcessGenericEntry(g_event);
+      //if(q) break;
     }
-    if(q) printf("q was non-zero when jentry was %d\n",(Int_t)jentry);
-    if(q) break;
+    if(q){
+      printf("q was non-zero when jentry was %d\n",(Int_t)jentry);
+      break;
+    }
   }
 
+  //post-process on last entry
+  q = 0;
+  for(int i=0; i < n_fillhist; i++) {
+    q |= fillhists[i]->AfterLastEntry(g_event);
+  }
+  if (q) printf("q was non-zero during post-processing last entry (%d)\n",
+		(Int_t)(stop-1));
+  
   return NULL;
 }
 

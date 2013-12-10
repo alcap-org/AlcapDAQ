@@ -3,7 +3,7 @@
 
 #include "TGlobalData.h"
 #include "TDirectory.h"
-
+#include <iostream>
 ///////////////////////////////////////////////////
 // This class is the generic analysis module     //
 // which takes the TGlobalData pointer for the   //
@@ -15,16 +15,18 @@
 class FillHistBase
 {
  public:
-  FillHistBase(char *HistogramDirectoryName);
+  FillHistBase(const char *HistogramDirectoryName);
   virtual ~FillHistBase();
 
-  int ProcessGenericEntry(TGlobalData *gData);
- 
+  virtual int ProcessGenericEntry(TGlobalData *gData);
+  virtual int BeforeFirstEntry(TGlobalData* gData){return 0;};
+  virtual int AfterLastEntry(TGlobalData* gData){return 0;};
+  
  protected:
   TDirectory *dir;
-
+  
  private:
-   virtual int ProcessEntry(TGlobalData *gData);
+  virtual int ProcessEntry(TGlobalData *gData);
 };
 
 #endif
