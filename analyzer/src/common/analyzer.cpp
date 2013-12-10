@@ -53,6 +53,11 @@ INT  odb_size = DEFAULT_ODB_SIZE;
 TGlobalData* gData;
 TSetupData* gSetup;
 
+TSetupData* TSetupData::Instance()
+{
+  return gSetup;
+}
+
 void UpdateDetectorBankNameMap(TSetupData *gSetup);
 
 /*-- Module declarations -------------------------------------------*/

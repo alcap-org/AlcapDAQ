@@ -33,6 +33,12 @@ static TSetupData *s_data;
 static int n_fillhist = 0;  // keeps track of the total number of modules
 static FillHistBase **fillhists;
 
+TSetupData* TSetupData::Instance()
+{
+  return s_data;
+}
+
+
 int main(int argc, char **argv){
   int ret = analyze_command_line (argc, argv);
   if(!ret) return 1;

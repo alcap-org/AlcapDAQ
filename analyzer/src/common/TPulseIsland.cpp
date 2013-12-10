@@ -38,7 +38,7 @@ void TPulseIsland::Reset(Option_t* o)
 // -- Gets the amplitude of the pulse
 double TPulseIsland::GetAmplitude() const {
 
-  if (gSetup->GetIsFast(fBankName))
+  if (TSetupData::Instance()->GetIsFast(fBankName))
     return GetFastPulseAmplitude();
   else
     return GetSlowPulseAmplitude();
@@ -163,7 +163,7 @@ double TPulseIsland::GetPedestal(int nPedSamples) const {
   else
     return 2750;  // Fixed pedestal
   */
-  double pedestal = gSetup->GetPedestal(fBankName);
+  double pedestal = TSetupData::Instance()->GetPedestal(fBankName);
   return pedestal;
 
   /*  if (nPedSamples > fSamples.size())

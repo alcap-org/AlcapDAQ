@@ -8,8 +8,6 @@
 #include <TH1.h>
 #include "TSetupData.h"
 
-extern TSetupData* gSetup;
-
 class TPulseIsland : public TObject {
   private:
   std::vector<int> fSamples; // adc samples
@@ -37,7 +35,8 @@ class TPulseIsland : public TObject {
 
   double GetClockTickInNs() const { return fClockTickInNs; }
   int GetADCValueInMeV() const { return fADCValueInMeV; }
-  int GetTriggerPolarity() const {return gSetup->GetTriggerPolarity(fBankName);};
+  //  int GetTriggerPolarity() const {return gSetup->GetTriggerPolarity(fBankName);};
+  int GetTriggerPolarity() const {return TSetupData::Instance()->GetTriggerPolarity(fBankName);};
   // We need to invert things for the FADCs which start with 'N'
   int GetBoardPolarity() const {return TSetupData::IsFADC(fBankName)?-1:1;};
 
