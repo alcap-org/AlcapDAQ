@@ -18,7 +18,7 @@
 #include "midas.h"
 
 /* ROOT includes */
-#include <TH2.h>
+#include <TH1.h>
 
 /* AlCap includes */
 #include "TOctalFADCIsland.h"
@@ -39,7 +39,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-static TH2* hNOctalFADCBufferOverflow;
+static TH1* hNOctalFADCBufferOverflow;
 
 ANA_MODULE MOctalFADCBufferOverflow_module =
 {
@@ -63,13 +63,13 @@ INT MOctalFADCBufferOverflow_init()
   // block number on the Y-axis.
   // This uses the TH1::kCanRebin mechanism to expand automatically to the
   // number of FADC banks.
-  hNOctalFADCBufferOverflow = new TH2F(
+  hNOctalFADCBufferOverflow = new TH1F(
     "hNOctalFADCBufferOverflow",
-    "FADC Boards which Overflowed in each Event",
-    3,128, 131, 1000,0,1000);
+    "Total Number of Events in which the FADC Overflowed",
+    4,128, 132);
   hNOctalFADCBufferOverflow->SetBit(TH1::kCanRebin);
   hNOctalFADCBufferOverflow->GetXaxis()->SetTitle("FADC Board Number");
-  hNOctalFADCBufferOverflow->GetYaxis()->SetTitle("Buffer Overflow");
+  hNOctalFADCBufferOverflow->GetYaxis()->SetTitle("Total Number of Buffer Overflows");
 
   return SUCCESS;
 }
@@ -87,7 +87,7 @@ INT MOctalFADCBufferOverflow(EVENT_HEADER *pheader, void *pevent)
 
   if (bankSize != 0) {
     for (int i = 0; i < bankSize; i++) {
-      hNOctalFADCBufferOverflow->Fill(*(raw+i), midas_event_number);
+      hNOctalFADCBufferOverflow->Fill(*(raw+i));
     }
   }
 
