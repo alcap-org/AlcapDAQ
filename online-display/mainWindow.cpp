@@ -54,8 +54,9 @@ int main(int argc, char **argv)
 	std::string server_name = "localhost";
 	int server_port = 9090;
 	std::string root_file_name = "";
+	std::string module_file_name = "";
 
-	while ((c = getopt(argc, argv, "hH:p:i:")) != -1)
+	while ((c = getopt(argc, argv, "hH:p:i:M:")) != -1)
 	{
 		switch (c)
 		{
@@ -70,6 +71,9 @@ int main(int argc, char **argv)
 				break;
 			case 'i':
 				root_file_name = optarg;
+				break;
+			case 'M':
+				module_file_name = optarg;
 				break;
 			default:
 				break;
@@ -88,7 +92,8 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  TOnlineFrame *onlineFrame = new TOnlineFrame(gClient->GetRoot());   
+ std::cout<<module_file_name<<std::endl;
+  TOnlineFrame *onlineFrame = new TOnlineFrame(gClient->GetRoot(),module_file_name);   
 	
 	if (root_file_name.length() != 0)
 		onlineFrame->OpenRootFile(root_file_name.c_str());
