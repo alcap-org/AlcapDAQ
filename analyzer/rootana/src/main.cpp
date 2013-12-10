@@ -8,7 +8,6 @@
 #include "FillHistBase.h"
 #include "SimpleHistograms.h"
 #include "MyModule.h"
-#include "NoisyModule.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -104,7 +103,6 @@ int main(int argc, char **argv){
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new SimpleHistograms("SimpleHistograms");
   fillhists[n_fillhist++] = new MyModule("MyModule");
-  fillhists[n_fillhist++] = new NoisyModule("NoisyModule");
   
   fileOut->cd();
   root_event_loop();
