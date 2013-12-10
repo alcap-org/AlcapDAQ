@@ -58,6 +58,11 @@ TSetupData* TSetupData::Instance()
   return gSetup;
 }
 
+TGlobalData* TGlobalData::Instance()
+{
+  return gData;
+}
+
 void UpdateDetectorBankNameMap(TSetupData *gSetup);
 
 /*-- Module declarations -------------------------------------------*/

@@ -38,6 +38,11 @@ TSetupData* TSetupData::Instance()
   return s_data;
 }
 
+TGlobalData* TGlobalData::Instance()
+{
+  return g_event;
+}
+
 
 int main(int argc, char **argv){
   int ret = analyze_command_line (argc, argv);
