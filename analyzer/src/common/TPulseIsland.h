@@ -21,13 +21,12 @@ class TPulseIsland : public TObject {
   // TSetupData.
   // Make sure to use the getters for them in the meantime
   double fClockTickInNs; // clock tick in nanoseconds
-  double fADCValueInMeV; // ADC value in MeV (assuming linear calibration)
   //  int fPolarity; // Trigger threshold polarity (i.e. the polarity of the initial pulse coming out of the detector)
 
   public:
   TPulseIsland();
   TPulseIsland(int timestamp, const std::vector<int>& samples_vector,
-	       double clock_tick_in_ns, double adc_value_in_MeV, std::string bank_name,int pol=1);
+	       double clock_tick_in_ns, std::string bank_name,int pol=1);
 
   void Reset(Option_t* o = "");
 
@@ -36,7 +35,8 @@ class TPulseIsland : public TObject {
   std::string GetBankName() const { return fBankName; }
 
   double GetClockTickInNs() const { return fClockTickInNs; }
-  int GetADCValueInMeV() const { return fADCValueInMeV; }
+  double GetADCSlopeCalib() const { return gSetup->GetADCSlopeCalib(fBankName); }
+  double GetADCOffsetCalib() const { return gSetup->GetADCOffsetCalib(fBankName); }
   int GetTriggerPolarity() const {return gSetup->GetTriggerPolarity(fBankName);};
 
   double GetAmplitude() const;

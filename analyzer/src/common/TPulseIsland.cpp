@@ -16,13 +16,12 @@ TPulseIsland::TPulseIsland()
 
 TPulseIsland::TPulseIsland(
   int timestamp, const vector<int>& samples_vector,
-  double clock_tick_in_ns, double adc_value_in_MeV, string bank_name,int pol)
+  double clock_tick_in_ns, string bank_name,int pol)
 {
   Reset();
   fTimeStamp = timestamp;
   fSamples = samples_vector;
   fClockTickInNs = clock_tick_in_ns;
-  fADCValueInMeV = adc_value_in_MeV;
   fBankName = bank_name;
 }
 
@@ -53,7 +52,7 @@ double TPulseIsland::GetFastPulseAmplitude() const {
   double pedestal = GetPedestal(10);
   int peak_sample_element = GetPeakSample();
 
-  return ( GetTriggerPolarity()*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
+  return ( (GetTriggerPolarity()*(fSamples.at(peak_sample_element) - pedestal) * GetADCSlopeCalib() ) + GetADCOffsetCalib() );
 }
 
 // GetSlowPulseAmplitude()
@@ -64,7 +63,7 @@ double TPulseIsland::GetSlowPulseAmplitude() const {
   double pedestal = GetPedestal(10);
   int peak_sample_element = GetPeakSample();
 
-  return ( GetTriggerPolarity()*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
+  return ( (GetTriggerPolarity()*(fSamples.at(peak_sample_element) - pedestal) * GetADCSlopeCalib() ) + GetADCOffsetCalib() );
 }
 
 // GetPulseHeight()
@@ -91,7 +90,10 @@ double TPulseIsland::GetPulseHeight() const {
   // Go through the samples and get the samples with the largest difference between it and the pedestal
   // (should take into account both positive and negative pulses)
 
-  return ( GetTriggerPolarity()*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
+  double pulse_height_in_ADC = GetTriggerPolarity()*(fSamples.at(peak_sample_element) - pedestal);
+  double pulse_height_in_keV = (pulse_height_in_ADC * GetADCSlopeCalib())  + GetADCOffsetCalib();
+
+  return pulse_height_in_keV;
 }
 
 // GetPulseTime()

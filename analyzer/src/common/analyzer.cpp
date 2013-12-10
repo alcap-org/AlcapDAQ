@@ -341,9 +341,46 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     gSetup->SetClockTick(bank_name,clockTickInNs);
 
     //////////////////////////////////////////////////
-    // Get the ADC value to MeV calibration constant
-    double adcValueInMeV = 1;
-    gSetup->SetADCValue(bank_name,adcValueInMeV);
+    // ADC calibration constants
+    sprintf(keyName, "/Analyzer/WireMap/ADCSlopeCalib");  
+    if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+      printf("Warning: Could not find key %s\n", keyName);
+      return;
+    }  
+    KEY adc_slope_calib_key;
+    if(db_get_key(hDB, hKey, &adc_slope_calib_key) != DB_SUCCESS){
+      printf("Warning: Could not find key %s\n", keyName);
+      return;
+    }
+    float ADCSlopeCalibs[adc_slope_calib_key.num_values];    
+    size = sizeof(ADCSlopeCalibs);
+    if(db_get_value(hDB, 0, keyName , ADCSlopeCalibs, &size, TID_FLOAT, 0) != DB_SUCCESS){
+      printf("Warning: Could not retrieve values for key %s\n", keyName);
+      return;
+    }
+
+    sprintf(keyName, "/Analyzer/WireMap/ADCOffsetCalib");  
+    if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+      printf("Warning: Could not find key %s\n", keyName);
+      return;
+    }  
+    KEY adc_offset_calib_key;
+    if(db_get_key(hDB, hKey, &adc_offset_calib_key) != DB_SUCCESS){
+      printf("Warning: Could not find key %s\n", keyName);
+      return;
+    }
+    float ADCOffsetCalibs[adc_offset_calib_key.num_values];    
+    size = sizeof(ADCOffsetCalibs);
+    if(db_get_value(hDB, 0, keyName , ADCOffsetCalibs, &size, TID_FLOAT, 0) != DB_SUCCESS){
+      printf("Warning: Could not retrieve values for key %s\n", keyName);
+      return;
+    }
+
+
+    float adcSlopeValue = ADCSlopeCalibs[i];
+    float adcOffsetValue = ADCOffsetCalibs[i];
+    gSetup->SetADCSlopeCalib(bank_name,adcSlopeValue);
+    gSetup->SetADCOffsetCalib(bank_name,adcOffsetValue);
 
     //////////////////////////////////////
     // Add the number of bits for each digitizer
