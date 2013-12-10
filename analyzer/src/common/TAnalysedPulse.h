@@ -20,6 +20,7 @@ class TAnalysedPulse : public TObject {
   public:
   TAnalysedPulse();
   TAnalysedPulse(double amplitude, double time, double integral, std::string det_name);
+  virtual ~TAnalysedPulse() {};
 
   void Reset(Option_t* o = "");
 
