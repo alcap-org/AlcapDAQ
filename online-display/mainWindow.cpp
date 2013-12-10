@@ -99,6 +99,7 @@ int main(int argc, char **argv)
 		onlineFrame->ConnectToServer();
 		onlineFrame->Print();
 
+#if 0
 		// Get list of all histograms, then copy them to the current directory
 		std::vector<TString> vHistTitles = onlineFrame->GetHistTitles();
 		for (unsigned int i = 0; i < vHistTitles.size(); ++i)
@@ -111,6 +112,7 @@ int main(int argc, char **argv)
 				hist->Clone(vHistTitles.at(i).Data());
 			}
 		}
+#endif
 	}
 
 	//onlineFrame->runMacro("modules/common/root_init.C");
