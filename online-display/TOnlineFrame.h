@@ -41,7 +41,7 @@ private:
 	TSocket *fpSock;
 
 public:
-	TOnlineFrame(const TGWindow * p);
+	TOnlineFrame(const TGWindow * p,std::string module_file_name);
 	~TOnlineFrame();
 
 	void CloseWindow();

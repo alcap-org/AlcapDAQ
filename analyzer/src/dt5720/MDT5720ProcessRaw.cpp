@@ -164,7 +164,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
       //      printf("CW: %08x\n",caen_event_cw);
       if ( caen_event_cw != 0xA )
 	{
-	  printf("***ERROR BU CAEN! Wrong data format: incorrect control word 0x%08x\n", caen_event_cw);
+	  printf("***ERROR! Wrong data format it dt5720: incorrect control word 0x%08x\n", caen_event_cw);
 	  return SUCCESS;
 	}
       
@@ -235,8 +235,9 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 						       gSetup->GetClockTick(*bankNameIter), gSetup->GetADCValue(*bankNameIter), *bankNameIter));
 	  }
       }
-      
-      p32 += caen_event_size;
+
+      // *** updated by VT: align data by 32bit 
+      p32 += caen_event_size + (caen_event_size%2);
       //      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
 
     }

@@ -112,6 +112,8 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
+  //printf("===================> %s MIDAS event %i\n",__FILE__,pheader->serial_number);
+  
   // Fetch a reference to the gData structure that stores a map
   // of (bank_name, vector<TPulseIsland*>) pairs
   TStringPulseIslandMap& pulse_islands_map =
@@ -143,7 +145,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
   sprintf(bank_name,"CDG%i",0); // one MIDAS bank per board
   unsigned int bank_len = bk_locate(pevent, bank_name, &pdata);
 
-  //  printf("MIDAS bank [%s] size %d ----------------------------------------\n",bank_name,bank_len);
+  //printf("MIDAS bank [%s] size %d ----------------------------------------\n",bank_name,bank_len);
 
   /* uncomment when have real data
   if ( bank_len == 0 )
@@ -161,7 +163,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
     {
 
       uint32_t caen_event_cw = p32[0]>>28;
-      //      printf("CW: %08x\n",caen_event_cw);
+      //printf("CW: %08x\n",caen_event_cw);
       if ( caen_event_cw != 0xA )
 	{
 	  printf("***ERROR UH CAEN! Wrong data format: incorrect control word 0x%08x\n", caen_event_cw);
@@ -169,7 +171,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	}
       
       uint32_t caen_event_size = p32[0] & 0x0FFFFFFF;
-      //      printf("caen event size: %i\n",caen_event_size);
+      //printf("caen event size: %i\n",caen_event_size);
       
       uint32_t caen_channel_mask = p32[1] & 0x000000FF;
       // count the number of channels in the event
@@ -236,7 +238,8 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	  }
       }
       
-      p32 += caen_event_size;
+      // align the event by two bytes.
+      p32 += caen_event_size + (caen_event_size%2);
       //      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
 
     }

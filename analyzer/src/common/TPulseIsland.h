@@ -35,10 +35,14 @@ class TPulseIsland : public TObject {
 
   double GetClockTickInNs() const { return fClockTickInNs; }
   int GetADCValueInMeV() const { return fADCValueInMeV; }
+<<<<<<< HEAD
   //  int GetTriggerPolarity() const {return gSetup->GetTriggerPolarity(fBankName);};
   int GetTriggerPolarity() const {return TSetupData::Instance()->GetTriggerPolarity(fBankName);};
   // We need to invert things for the FADCs which start with 'N'
   int GetBoardPolarity() const {return TSetupData::IsFADC(fBankName)?-1:1;};
+=======
+  int GetTriggerPolarity() const {return gSetup->GetTriggerPolarity(fBankName);};
+>>>>>>> e08edd00b9a2df1b88e2e6efddf20ba47ff9fba2
 
   double GetAmplitude() const;
   double GetFastPulseAmplitude() const;
