@@ -6,8 +6,7 @@
 #include "utils.h"
 
 #include "FillHistBase.h"
-#include "SimpleHistograms.h"
-#include "MyModule.h"
+#include "AnalysePulseIsland.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -90,8 +89,7 @@ int main(int argc, char **argv){
   // Now let's setup all the analysis modules we want
   fillhists = new FillHistBase *[20]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
-  fillhists[n_fillhist++] = new SimpleHistograms("SimpleHistograms");
-  fillhists[n_fillhist++] = new MyModule("MyModule");
+  fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
   
   fileOut->cd();
   root_event_loop();
@@ -139,7 +137,7 @@ void *root_event_loop(void *arg){
     
     for(int i=0; i < n_fillhist; i++) {
       //printf("processing fillhists[%d]\n",i);      
-      q = fillhists[i]->ProcessGenericEntry(g_event);
+      q = fillhists[i]->ProcessGenericEntry(g_event, s_data);
       if(q) break;
     }
     if(q) printf("q was non-zero when jentry was %d\n",(Int_t)jentry);
