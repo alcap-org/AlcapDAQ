@@ -183,7 +183,8 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
       uint32_t caen_event_counter = p32[2] & 0x00FFFFFF;
       //      printf("caen event counter: %i\n",caen_event_counter);
       
-      uint32_t caen_trigger_time = p32[3];
+      // PW: There seems to be a factor of 2 missing between the timestamp and real timestamp
+      uint32_t caen_trigger_time = 2*p32[3];
       //      printf("caen trigger time: %i\n",caen_trigger_time);// = clock ticks?
       
       // number of samples per channel
