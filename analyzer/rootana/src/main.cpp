@@ -7,6 +7,7 @@
 
 #include "FillHistBase.h"
 #include "AnalysePulseIsland.h"
+#include "CombineFastSlowPulses.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -93,6 +94,7 @@ int main(int argc, char **argv){
   fillhists = new FillHistBase *[20]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
+  fillhists[n_fillhist++] = new CombineFastSlowPulses("CombineFastSlowPulses");
   
   fileOut->cd();
   root_event_loop();
@@ -135,7 +137,7 @@ void *root_event_loop(void *arg){
     
     // Let's get the next event
     nb = tree->GetEntry(jentry);
-  
+    printf("##### New Event #####\n");
     // Clear gAnalysedPulseMap at the start of each tree entry
     for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator mapIter = gAnalysedPulseMap.begin(); mapIter != gAnalysedPulseMap.end(); mapIter++) {
       gAnalysedPulseMap.erase(mapIter);
