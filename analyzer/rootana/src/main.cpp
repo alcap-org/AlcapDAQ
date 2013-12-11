@@ -137,7 +137,7 @@ void *root_event_loop(void *arg){
     
     // Let's get the next event
     nb = tree->GetEntry(jentry);
-    printf("##### New Event #####\n");
+
     // Clear gAnalysedPulseMap at the start of each tree entry
     for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator mapIter = gAnalysedPulseMap.begin(); mapIter != gAnalysedPulseMap.end(); mapIter++) {
       gAnalysedPulseMap.erase(mapIter);

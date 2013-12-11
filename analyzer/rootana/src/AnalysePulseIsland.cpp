@@ -38,6 +38,7 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
     // Loop over the TPulseIslands and analyse the TPulseIslands into TAnalysedPulses
     std::vector<TAnalysedPulse*> analysedPulses;
+
     for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); pulseIter++) {
 
       // For the time being assume one TAnalysedPulse per TPulseIsland
