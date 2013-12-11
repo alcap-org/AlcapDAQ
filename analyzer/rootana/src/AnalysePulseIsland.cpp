@@ -27,27 +27,17 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
-  // Print the gAnalysedPulseMap beforehand to check it was deleted properly
-  for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator mapIter = gAnalysedPulseMap.begin(); mapIter != gAnalysedPulseMap.end(); mapIter++) {
-
-    //    printf("DetName: %s\n", (mapIter->first).c_str());
-
-    std::vector<TAnalysedPulse*> theAnalysedPulses = mapIter->second;
-    for (std::vector<TAnalysedPulse*>::iterator pulseIter = theAnalysedPulses.begin(); pulseIter != theAnalysedPulses.end(); pulseIter++) {
-      
-      //printf("A = %f, t = %f, I = %f\n", (*pulseIter)->GetAmplitude(), (*pulseIter)->GetTime(), (*pulseIter)->GetIntegral());
-    }
-  }
-
   for(map_iterator mapIter = gData->fPulseIslandToChannelMap.begin(); mapIter != gData->fPulseIslandToChannelMap.end(); mapIter++){
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
     std::vector<TPulseIsland*> thePulses = mapIter->second;
-			
+
+    if (thePulses.size() == 0)
+      continue; // no pulses here...
+
     // Loop over the TPulseIslands and analyse the TPulseIslands into TAnalysedPulses
     std::vector<TAnalysedPulse*> analysedPulses;
-
     for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); pulseIter++) {
 
       // For the time being assume one TAnalysedPulse per TPulseIsland
@@ -62,7 +52,7 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       else if ( *(detname.end() -1) == 'F') {
 	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral);
       }
-      
+
       TAnalysedPulse* analysedPulse = new TAnalysedPulse(amplitude, time, integral, detname);
       analysedPulses.push_back(analysedPulse);
     }    
