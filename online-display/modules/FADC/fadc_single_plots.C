@@ -23,15 +23,20 @@ void fadc_single_plots(std::string fadc_id,std::string hist_type)
 	hist->Draw("COLZ");
 	gPad->SetLogz(1);
       }
+      else if(hist_type == "LatestPulse") {
+	gPad->SetLogy(0);
+	hist->GetXaxis()->SetRange(0,hist->FindLastBinAbove(1.,2));
+      }
+      else if(hist_type == "Times"){
+	TLine *l = new TLine(1.12E8, 0, 1.12E8, hist->GetMaximum());
+	l->SetLineColor(kRed);
+	hist->GetXaxis()->SetRangeUser(0., 1.4E8);
+	hist->Draw();
+	l->Draw("SAME");
+      }
       else{
-	//hist->GetYaxis()->SetRangeUser(0.,4095.);
-	if(hist_type == "LatestPulse") {
-	  gPad->SetLogy(0);
-	  hist->GetXaxis()->SetRange(0,hist->FindLastBinAbove(1.,2));
-	}
-	else
-	  gPad->SetLogy(1);
-
+	hist->GetYaxis()->SetRangeUser(0.,4095.);
+	gPad->SetLogy(1);
 	hist->Draw();
       }
     }

@@ -17,6 +17,7 @@ void caen_uh_times()
     TH1* hist = get_histogram(bank_names[iChn], hist_type);
     if (hist) {
       AlCapCanvas->cd(iChn+1);
+      hist->GetXaxis()->SetRangeUser(0., 1.2E8);
       hist->Draw();
     }
   }
