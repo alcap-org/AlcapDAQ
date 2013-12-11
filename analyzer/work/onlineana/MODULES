@@ -11,4 +11,7 @@ muSC_muPC/MMuSCAnalysisMQL
 
 diagnostics/MCommonOnlineDisplayPlots
 
+FADC/MOctalFADCBufferOverflow
+FADC/MOctalFADCPacketLoss
+
 common/MTreeOutput

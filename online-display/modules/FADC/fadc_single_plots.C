@@ -21,9 +21,17 @@ void fadc_single_plots(std::string fadc_id,std::string hist_type)
 
       if (hist_type == "Shapes"){
 	hist->Draw("COLZ");
+	gPad->SetLogz(1);
       }
       else{
-	hist->GetYaxis()->SetRangeUser(0.,4095.);
+	//hist->GetYaxis()->SetRangeUser(0.,4095.);
+	if(hist_type == "LatestPulse") {
+	  gPad->SetLogy(0);
+	  hist->GetXaxis()->SetRange(0,hist->FindLastBinAbove(1.,2));
+	}
+	else
+	  gPad->SetLogy(1);
+
 	hist->Draw();
       }
     }
