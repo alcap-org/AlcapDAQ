@@ -4,4 +4,5 @@ SOURCES += \
 main.cpp \
 FillHistBase.cpp \
 AnalysePulseIsland.cpp \
-CombineFastSlowPulses.cpp
+CombineFastSlowPulses.cpp \
+FastVsSlow.cpp

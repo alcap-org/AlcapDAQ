@@ -8,6 +8,7 @@
 #include "FillHistBase.h"
 #include "AnalysePulseIsland.h"
 #include "CombineFastSlowPulses.h"
+#include "FastVsSlow.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -97,6 +98,7 @@ int main(int argc, char **argv){
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
   fillhists[n_fillhist++] = new CombineFastSlowPulses("CombineFastSlowPulses");
+  fillhists[n_fillhist++] = new FastVsSlow("FastVsSlow");
   
   fileOut->cd();
   root_event_loop();

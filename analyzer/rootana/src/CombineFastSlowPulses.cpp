@@ -85,23 +85,28 @@ int CombineFastSlowPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 	    TAnalysedPulse* slow_pulse = NULL;
 	    for (int b = 0; b < pulseIters.size(); ++b) {
 
-	      double pulse_time = (*(pulseIters.at(b)))->GetTime() * 1e-6; // convert to ms
+	      TAnalysedPulse* pulse = *(pulseIters.at(b));
+	      double pulse_time = pulse->GetTime() * 1e-6; // convert to ms
 
 	      if (std::fabs(pulse_time - min_time) < time_difference) {
-		if (b == 0)
-		  fast_pulse = *(pulseIters.at(b));
-		else if (b == 1)
-		  slow_pulse = *(pulseIters.at(b));
+		if ( *(pulse->GetDetName().end() -1) == 'F' ) {
+		  std::cout << "Fast? " << pulse->GetDetName() << std::endl;
+		  fast_pulse = pulse;
+		}
+		else if ( *(pulse->GetDetName().end() -1) == 'S')  {
+		  std::cout << "Slow? " << pulse->GetDetName() << std::endl;
+		  slow_pulse = pulse;
+		}
 
 		++(pulseIters.at(b)); // increment the iterator because we used the pulse
 	      }
 	    }
 	    TDetectorPulse* det_pulse = new TDetectorPulse(fast_pulse, slow_pulse, detname); // Create the TDetectorPulse
 	    detectorPulses.push_back(det_pulse);
-	    //	    std::cout << "Created a TDetectorPulse with:\n";
-	    //	    std::cout << "Fast Pulse: " << det_pulse->GetFastPulseTime() * 1e-6 << std::endl;
-	    //	    std::cout << "Slow Pulse: " << det_pulse->GetSlowPulseTime() * 1e-6 << std::endl;
-	    //	    std::cout << std::endl;
+	    std::cout << "Created a TDetectorPulse with:\n";
+	    std::cout << "Fast Pulse: " << det_pulse->GetFastPulseTime() * 1e-6 << std::endl;
+	    std::cout << "Slow Pulse: " << det_pulse->GetSlowPulseTime() * 1e-6 << std::endl;
+	    std::cout << std::endl;
 
 	    //Delete the iterators to finished banks. Go through in reverse to
 	    //avoid invalidation problems
