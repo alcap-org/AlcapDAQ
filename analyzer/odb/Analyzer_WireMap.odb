@@ -1,5 +1,5 @@
 [/Analyzer/WireMap]
-BankName = STRING[48] :
+BankName = STRING[52] :
 [5] Na80
 [5] Nb80
 [5] Nc80
@@ -44,11 +44,15 @@ BankName = STRING[48] :
 [5] CbBU
 [5] CcBU
 [5] CdBU
-[5] ZZZZ
-[5] ZZZZ
-[5] ZZZZ
-[5] ZZZZ
-DetectorName = STRING[48] :
+[5] Na84
+[5] Nb84
+[5] Nc84
+[5] Nd84
+[5] Ne84
+[5] Nf84
+[5] Ng84
+[5] Nh84
+DetectorName = STRING[52] :
 [80] SiL2-S
 [80] SiR2-S
 [80] blank
@@ -97,7 +101,11 @@ DetectorName = STRING[48] :
 [80] blank
 [80] blank
 [80] blank
-Enabled = BOOL[48] :
+[80] blank
+[80] blank
+[80] blank
+[80] blank
+Enabled = BOOL[52] :
 [0] y
 [1] y
 [2] y
@@ -146,7 +154,11 @@ Enabled = BOOL[48] :
 [45] n
 [46] n
 [47] n
-SamplingFrequency = FLOAT[48] :
+[48] n
+[49] n
+[50] n
+[51] n
+SamplingFrequency = FLOAT[52] :
 [0] 1.7e+07
 [1] 1.7e+07
 [2] 8.5e+06
@@ -195,7 +207,11 @@ SamplingFrequency = FLOAT[48] :
 [45] 0
 [46] 0
 [47] 0
-TriggerPolarity = INT[48] :
+[48] 0
+[49] 0
+[50] 0
+[51] 0
+TriggerPolarity = INT[52] :
 [0] -1
 [1] -1
 [2] -1
@@ -240,11 +256,15 @@ TriggerPolarity = INT[48] :
 [41] -1
 [42] 1
 [43] 1
-[44] -1
-[45] -1
-[46] -1
-[47] -1
-Pedestal = INT[48] :
+[44] 1
+[45] 1
+[46] 1
+[47] 1
+[48] 1
+[49] 1
+[50] 1
+[51] 1
+Pedestal = INT[52] :
 [0] 2745
 [1] 2730
 [2] 1000
@@ -293,4 +313,8 @@ Pedestal = INT[48] :
 [45] 1
 [46] 1
 [47] 1
+[48] 1
+[49] 1
+[50] 1
+[51] 1
 
