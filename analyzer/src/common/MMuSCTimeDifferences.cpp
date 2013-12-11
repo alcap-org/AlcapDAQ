@@ -99,10 +99,12 @@ INT MMuSCTimeDifferences_init()
     hTitle += detectors[i];
     hTitle += " - muSC";
     hTime[i] = new TH1F(hName.c_str(), hTitle.c_str(), 500, -10000, 10000);
+    hTime[i]->GetXaxis()->SetTitle("Time difference [ns]");
     hName += "_PP";
     hTitle += " with PP";
     hTime_PP[i] = new TH1F(hName.c_str(), hTitle.c_str(), 500, -10000, 10000);
-    
+    hTime_PP[i]->GetXaxis()->SetTitle("Time difference [ns]");
+       
     hName = "hMuSC_";
     hName += detectors[i];
     hName += "_AmplitudeVsTdiff";
@@ -111,10 +113,14 @@ INT MMuSCTimeDifferences_init()
     hTitle += " - muSC";
     hAmplitudeVsTime[i] = new TH2F(hName.c_str(), hTitle.c_str(), 250, -5000, 5000,
 				   250, 0, 1000);
+    hAmplitudeVsTime[i]->GetXaxis()->SetTitle("Time difference [ns]");
+    hAmplitudeVsTime[i]->GetYaxis()->SetTitle("Amplitude");
     hName += "_PP";
     hTitle += " with PP";
     hAmplitudeVsTime_PP[i] = new TH2F(hName.c_str(), hTitle.c_str(), 250, -5000, 5000,
 				      250, 0, 1000);
+    hAmplitudeVsTime_PP[i]->GetXaxis()->SetTitle("Time difference [ns]");
+    hAmplitudeVsTime_PP[i]->GetYaxis()->SetTitle("Amplitude");
   }
   gDirectory->cd("/");
 
