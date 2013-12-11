@@ -17,6 +17,7 @@ using std::vector;
 using std::pair;
 
 extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+extern std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
 
 CombineFastSlowPulses::CombineFastSlowPulses(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){  
@@ -62,6 +63,8 @@ int CombineFastSlowPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 	  finalIters.push_back(finalFastPulseIter);
 	  finalIters.push_back(finalSlowPulseIter);
 
+	  std::vector<TDetectorPulse*> detectorPulses;
+
 	  // Loop through both TAnalysedPulse vectors until they are both finished
 	  // NB with this alogirthm this can be extended to more than 2
 	  while (pulseIters.size() > 0) {
@@ -94,6 +97,7 @@ int CombineFastSlowPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 	      }
 	    }
 	    TDetectorPulse* det_pulse = new TDetectorPulse(fast_pulse, slow_pulse, detname); // Create the TDetectorPulse
+	    detectorPulses.push_back(det_pulse);
 	    //	    std::cout << "Created a TDetectorPulse with:\n";
 	    //	    std::cout << "Fast Pulse: " << det_pulse->GetFastPulseTime() * 1e-6 << std::endl;
 	    //	    std::cout << "Slow Pulse: " << det_pulse->GetSlowPulseTime() * 1e-6 << std::endl;
@@ -107,10 +111,12 @@ int CombineFastSlowPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 		finalIters.erase(finalIters.begin() + b);
 	      }  
 	    } // for (int b -reversed)	      
-	  } // end while 
-	}
-      }
-    }
-  }
+	  } // end while
+	  
+	  gDetectorPulseMap[detname] = detectorPulses;
+	} // end if slow channel found
+      } // end loop to find corresponding slow channel
+    } // end if fast channel
+  } // end loop to find fast channel
   return 0;
 }
