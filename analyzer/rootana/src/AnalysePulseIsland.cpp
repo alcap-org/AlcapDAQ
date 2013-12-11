@@ -85,6 +85,6 @@ void AnalysePulseIsland::GetAllParameters_MaxBin(TSetupData* gSetup, const TPuls
 
   // Now assign the parameters
   amplitude = peak_sample_value;
-  time = pulse->GetTimeStamp() + peak_sample_pos;
+  time = (pulse->GetTimeStamp() + peak_sample_pos) * gSetup->GetClockTick(bankname);
   integral = 0;
 }
