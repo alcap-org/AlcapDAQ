@@ -45,10 +45,15 @@ int CombineFastSlowPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 	  std::vector<TAnalysedPulse*> slow_pulses = findSlowIter->second;
 	  std::cout << "N(fast) = " << fast_pulses.size() << ", N(slow) = " << slow_pulses.size() << ", diff = " << (int)fast_pulses.size() 
 - (int)slow_pulses.size() << std::endl;
-	  // Loop through the fast pulses
-	  for (std::vector<TAnalysedPulse*>::iterator fastPulseIter = fast_pulses.begin(); fastPulseIter != fast_pulses.end(); fastPulseIter++) {
-	    double fast_pulse_time = (*fastPulseIter)->GetTime();
-	    std::cout << "Pulse #" << fastPulseIter - fast_pulses.begin() << " happened at " << fast_pulse_time << std::endl;
+	  // Loop through the slow pulses since there is more likely to be more of them
+	  for (std::vector<TAnalysedPulse*>::iterator slowPulseIter = slow_pulses.begin(); slowPulseIter != slow_pulses.end(); slowPulseIter++) {
+	    double slow_pulse_time = (*slowPulseIter)->GetTime();
+	    std::cout << "Slow Pulse #" << slowPulseIter - slow_pulses.begin() << " happened at " << slow_pulse_time * 1e-6 << " ms" << std::endl;
+
+	    for (std::vector<TAnalysedPulse*>::iterator fastPulseIter = fast_pulses.begin(); fastPulseIter != fast_pulses.end(); fastPulseIter++) {
+	      double fast_pulse_time = (*fastPulseIter)->GetTime();
+	      std::cout << "Fast Pulse #" << fastPulseIter - fast_pulses.begin() << " happened at " << fast_pulse_time* 1e-6  << " ms" << std::endl;
+	    }
 	  }
 
 	}
