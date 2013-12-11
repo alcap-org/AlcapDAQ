@@ -15,6 +15,7 @@
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "TAnalysedPulse.h"
+#include "TDetectorPulse.h"
 
 void help_command_line(char *my_name);
 bool isNumber(char *c);
@@ -32,6 +33,7 @@ static TGlobalData *g_event;
 static TSetupData *s_data;
 
 std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
 
 static int n_fillhist = 0;  // keeps track of the total number of modules
 static FillHistBase **fillhists;
@@ -141,6 +143,11 @@ void *root_event_loop(void *arg){
     // Clear gAnalysedPulseMap at the start of each tree entry
     for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator mapIter = gAnalysedPulseMap.begin(); mapIter != gAnalysedPulseMap.end(); mapIter++) {
       gAnalysedPulseMap.erase(mapIter);
+    }
+
+    // Clear gDetectorPulseMap at the start of each tree entry
+    for (std::map<std::string, std::vector<TDetectorPulse*> >::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
+      gDetectorPulseMap.erase(mapIter);
     }
 
     int q = 0;
