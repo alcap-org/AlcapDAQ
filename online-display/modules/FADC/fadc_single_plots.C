@@ -23,8 +23,18 @@ void fadc_single_plots(std::string fadc_id,std::string hist_type)
 	hist->Draw("COLZ");
       }
       else{
-	hist->GetYaxis()->SetRangeUser(0.,4095.);
-	hist->Draw();
+	if(hist_type == "Times"){
+	  TLine *l = new TLine(1.12E8, 0, 
+			       1.12E8, hist->GetMaximum());
+	  l->SetLineColor(kRed);
+	  hist->GetXaxis()->SetRangeUser(0., 1.2E8);
+	  hist->Draw();
+	  l->Draw("SAME");
+	}
+	else{
+	  hist->GetYaxis()->SetRangeUser(0.,4095.);
+	  hist->Draw();
+	}
       }
     }
   }
