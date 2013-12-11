@@ -100,7 +100,7 @@ INT MCommonOnlineDisplayPlots_init()
     // hPulseTimes
     histname = "h" + bankname + "_Times";
     histtitle = "Plot of the pulse times in the " + detname + " channels";
-    TH1I* hPulseTimes = new TH1I(histname.c_str(), histtitle.c_str(), 1000,0,1e6);
+    TH1I* hPulseTimes = new TH1I(histname.c_str(), histtitle.c_str(), 2000, 0, 2e8);
     hPulseTimes->GetXaxis()->SetTitle("Time");
     hPulseTimes->GetYaxis()->SetTitle("Number of Pulses");
     time_histograms_map[bankname] = hPulseTimes;
