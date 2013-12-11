@@ -36,7 +36,7 @@ void fadc_single_plots(std::string fadc_id,std::string hist_type)
       }
       else{
 	hist->GetYaxis()->SetRangeUser(0.,4095.);
-	gPad->SetLogy(1);
+	//gPad->SetLogy(1);
 	hist->Draw();
       }
     }
