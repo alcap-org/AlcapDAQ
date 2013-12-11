@@ -25,8 +25,9 @@ class TDetectorPulse : public TObject {
 
   void Reset(Option_t* o = "");
 
-  TAnalysedPulse* GetFastPulse() const { return fFastPulse; }
-  TAnalysedPulse* GetSlowPulse() const { return fSlowPulse; }
+  double GetFastPulseTime() const { if (fFastPulse) return fFastPulse->GetTime(); else return -9999; }
+  double GetSlowPulseTime() const { if (fSlowPulse) return fSlowPulse->GetTime(); else return -9999; }
+
   std::string GetDetName() const { return fDetName; }
 
   ClassDef(TDetectorPulse, 1);
