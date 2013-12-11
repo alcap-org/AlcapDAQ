@@ -335,8 +335,8 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
       printf("Warning: Could not retrieve values for key %s\n", keyName);
       return;
     }
-    double true_frequency = SamplingFrequencies[i] /= DCMPhase;
-    double clockTickInNs = (1/true_frequency) * 1e9;
+
+    double clockTickInNs = (1/SamplingFrequencies[i]) * 1e9;
     //    printf("Bank %s: f = %f, clockTick = %f\n", bank_name.c_str(), true_frequency, clockTickInNs);
     gSetup->SetClockTick(bank_name,clockTickInNs);
 
