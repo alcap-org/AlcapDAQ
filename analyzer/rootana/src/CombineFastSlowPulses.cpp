@@ -20,7 +20,8 @@ extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 extern std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
 
 CombineFastSlowPulses::CombineFastSlowPulses(char *HistogramDirectoryName) :
-  FillHistBase(HistogramDirectoryName){  
+  FillHistBase(HistogramDirectoryName){ 
+  dir->cd("/");
 }
 
 CombineFastSlowPulses::~CombineFastSlowPulses(){  

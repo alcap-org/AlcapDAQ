@@ -17,6 +17,7 @@ extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
 AnalysePulseIsland::AnalysePulseIsland(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){  
+  dir->cd("/");
 }
 
 AnalysePulseIsland::~AnalysePulseIsland(){  
@@ -86,6 +87,6 @@ void AnalysePulseIsland::GetAllParameters_MaxBin(TSetupData* gSetup, const TPuls
 
   // Now assign the parameters
   amplitude = peak_sample_value;
-  time = (pulse->GetTimeStamp() + peak_sample_pos) * gSetup->GetClockTick(bankname);
+  time = ((pulse->GetTimeStamp() + peak_sample_pos) * gSetup->GetClockTick(bankname));
   integral = 0;
 }

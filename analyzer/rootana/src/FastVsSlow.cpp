@@ -24,6 +24,7 @@ std::map<std::string, TH2F*> time_hists;
 
 FastVsSlow::FastVsSlow(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){
+  dir->cd("/");
 }
 
 FastVsSlow::~FastVsSlow(){  
