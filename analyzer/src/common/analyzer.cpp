@@ -245,7 +245,7 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     printf("Warning: Could not find key %s\n", keyName);
     return;
   }
-  double TimeShifts[timeshift_key.num_values];
+  float TimeShifts[timeshift_key.num_values];
   size = sizeof(TimeShifts);
   if(db_get_value(hDB, 0, keyName, TimeShifts, &size, TID_FLOAT, 0) != DB_SUCCESS){
     printf("Warning: Could not retrieve values for key %s\n", keyName);
