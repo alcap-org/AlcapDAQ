@@ -15,6 +15,7 @@ Contents:     A module to fill histograms for time differences for muSC hits
 #include <map>
 #include <utility>
 #include <sstream>
+#include <iostream>
 
 /* MIDAS includes */
 #include "midas.h"
@@ -81,6 +82,9 @@ INT MMuSCTimeDifferences_init()
       if(it->second != std::string("muSc")) detectors.push_back(it->second);
     }
   }
+  std::cout << "Number of detectors fo Time Correlations: " << detectors.size() << std::endl;
+  std::cout << "Size of Bank to Detector map: " << gSetup->fBankToDetectorMap.size() << std::endl;
+  std::cout << "Size of TPI map: " << gData->fPulseIslandToChannelMap.size() << std::endl;
 
   nr_detectors = detectors.size();
   hTime = new TH1*[nr_detectors];
