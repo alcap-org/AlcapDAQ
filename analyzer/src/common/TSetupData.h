@@ -23,6 +23,7 @@ class TSetupData : public TObject{
   std::map<std::string, double> fBankToClockTickMap;
   std::map<std::string, int> fBankToBitMap;
   std::map<std::string, double> fBankToADCValueMap;
+  std::map<std::string, double> fBankToTimeShift;
 
   std::string GetBankName(std::string DetectorName);
   
@@ -35,6 +36,7 @@ class TSetupData : public TObject{
   double GetClockTick(std::string BankName) { return fBankToClockTickMap[BankName]; };
   int GetNBits(std::string BankName) { return fBankToBitMap[BankName]; };
   double GetADCValue(std::string BankName) { return fBankToADCValueMap[BankName]; };
+  double GetTimeShift(std::string BankName) { return fBankToTimeShift[BankName]; };
   int GetTriggerPolarity(std::string BankName){return fBankToDetectorConfigs[BankName].polarity;};
   int GetPedestal(std::string BankName){return fBankToDetectorConfigs[BankName].pedestal;};
   bool GetIsFast(std::string BankName) { return fBankToDetectorConfigs[BankName].isFast; }
@@ -43,6 +45,7 @@ class TSetupData : public TObject{
   void SetClockTick(std::string BankName, double value) { fBankToClockTickMap[BankName]=value; };
   void SetNBits(std::string BankName, int value) { fBankToBitMap[BankName]=value; };
   void SetADCValue(std::string BankName, double value) { fBankToADCValueMap[BankName]=value; };
+  void SetTimeShift(std::string BankName, double value) {fBankToTimeShift[BankName]=value; };
   void SetTriggerPolarity(std::string BankName, int value){fBankToDetectorConfigs[BankName].polarity=value;};
   void SetPedestal(std::string BankName, int value){fBankToDetectorConfigs[BankName].pedestal=value;};
   void SetIsFast(std::string BankName, bool value) {fBankToDetectorConfigs[BankName].isFast=value;};
@@ -51,6 +54,6 @@ class TSetupData : public TObject{
   static bool IsHoustonCAEN(std::string BankName) { return BankName.substr(2,2) == "UH"; } // if the first letter is C then the bank name is for a CAEN
   static bool IsBostonCAEN(std::string BankName) { return BankName.substr(2,2)  == "BU"; } // if the first letter is C then the bank name is for a CAEN
 
-  ClassDef(TSetupData, 1)
+  ClassDef(TSetupData, 2)
 };
 #endif

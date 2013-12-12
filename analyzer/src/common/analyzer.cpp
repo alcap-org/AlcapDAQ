@@ -235,6 +235,23 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     return;
   }
 
+  sprintf(keyName, "/Analyzer/WireMap/TimeShift");
+  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }
+  KEY timeshift_key;
+  if(db_get_key(hDB, hKey, &timeshift_key) != DB_SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return;
+  }
+  double TimeShifts[timeshift_key.num_values];
+  size = sizeof(TimeShifts);
+  if(db_get_value(hDB, 0, keyName, TimeShifts, &size, TID_FLOAT, 0) != DB_SUCCESS){
+    printf("Warning: Could not retrieve values for key %s\n", keyName);
+    return;
+  }
+
   sprintf(keyName, "/Analyzer/WireMap/TriggerPolarity");
   if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
     printf("Warning: Could not find key %s\n", keyName);
@@ -283,6 +300,7 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     gSetup->SetDetectorName(bank_name,detector);
     gSetup->SetTriggerPolarity(bank_name,TriggerPolarities[i]);
     gSetup->SetPedestal(bank_name,Pedestals[i]);
+    gSetup->SetTimeShift(bank_name,TimeShifts[i]);
 
     if (*(detector.end()-1) == 'F')
       gSetup->SetIsFast(bank_name, true);
