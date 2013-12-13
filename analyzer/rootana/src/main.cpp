@@ -70,8 +70,17 @@ int main(int argc, char **argv){
   InfoBr->SetAddress(&s_data);
   InfoTree->GetEntry(0);
   std::map<std::string, std::string>::iterator it_info;
+  printf("### TSetupData ###\n");
+  printf("Bank  Detector Name  Clock Tick (ns)  Pedestal (ADC)  Trigger Polarity  Time Shift (ns)\n");
+  printf("----  -------------  ---------------  --------------  ----------------  ---------------\n");
   for (it_info=s_data->fBankToDetectorMap.begin();it_info!=s_data->fBankToDetectorMap.end();++it_info){
-  printf("%s => %s\n",it_info->first.c_str(),it_info->second.c_str());
+    std::string bankname = it_info->first;
+    std::string detname = s_data->GetDetectorName(bankname);
+    float clockTick = s_data->GetClockTick(bankname);
+    int pedestal = s_data->GetPedestal(bankname);
+    int trig_pol = s_data->GetTriggerPolarity(bankname);
+    double time_shift = s_data->GetTimeShift(bankname);
+    printf("%s  %s\t\t%f\t%d\t\t%d\t\t%f\n",bankname.c_str(), detname.c_str(), clockTick, pedestal, trig_pol, time_shift);
   }
 
   //Event Tree
