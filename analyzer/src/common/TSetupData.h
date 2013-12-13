@@ -11,11 +11,12 @@
   */
 class TSetupData : public TObject{
  private:
-         struct DetectorInfo{
+  /*         struct DetectorInfo{
                  int polarity;
                  int pedestal;
          };
   std::map<std::string, DetectorInfo> fBankToDetectorConfigs;
+  */
  public:
   // Map of bank names to detector names
   std::map<std::string, std::string> fBankToDetectorMap;
@@ -23,6 +24,8 @@ class TSetupData : public TObject{
   std::map<std::string, int> fBankToBitMap;
   std::map<std::string, double> fBankToADCValueMap;
   std::map<std::string, double> fBankToTimeShift;
+  std::map<std::string, int> fBankToPolarityMap;
+  std::map<std::string, int> fBankToPedestalMap;
 
   std::string GetBankName(std::string DetectorName);
   
@@ -36,16 +39,16 @@ class TSetupData : public TObject{
   int GetNBits(std::string BankName) { return fBankToBitMap[BankName]; };
   double GetADCValue(std::string BankName) { return fBankToADCValueMap[BankName]; };
   double GetTimeShift(std::string BankName) { return fBankToTimeShift[BankName]; };
-  int GetTriggerPolarity(std::string BankName){return fBankToDetectorConfigs[BankName].polarity;};
-  int GetPedestal(std::string BankName){return fBankToDetectorConfigs[BankName].pedestal;};
+  int GetTriggerPolarity(std::string BankName){return fBankToPolarityMap[BankName];};
+  int GetPedestal(std::string BankName){return fBankToPedestalMap[BankName];};
 
   void SetDetectorName(std::string BankName, std::string value) { fBankToDetectorMap[BankName]=value; };
   void SetClockTick(std::string BankName, double value) { fBankToClockTickMap[BankName]=value; };
   void SetNBits(std::string BankName, int value) { fBankToBitMap[BankName]=value; };
   void SetADCValue(std::string BankName, double value) { fBankToADCValueMap[BankName]=value; };
   void SetTimeShift(std::string BankName, double value) {fBankToTimeShift[BankName]=value; };
-  void SetTriggerPolarity(std::string BankName, int value){fBankToDetectorConfigs[BankName].polarity=value;};
-  void SetPedestal(std::string BankName, int value){fBankToDetectorConfigs[BankName].pedestal=value;};
+  void SetTriggerPolarity(std::string BankName, int value){fBankToPolarityMap[BankName]=value;};
+  void SetPedestal(std::string BankName, int value){fBankToPedestalMap[BankName]=value;};
 
   static bool IsFADC(std::string BankName) { return BankName[0] == 'N'; } // if the first letter is N then the bank name is for a FADC
   static bool IsHoustonCAEN(std::string BankName) { return BankName.substr(2,2) == "UH"; } // if the first letter is C then the bank name is for a CAEN
