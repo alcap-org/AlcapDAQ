@@ -20,6 +20,7 @@ bool isNumber(char *c);
 int check_arguments();
 int analyze_command_line (int argc, char **argv);
 void *root_event_loop(void *arg = NULL);
+void ClearGlobalData(TGlobalData*);
 
 ARGUMENTS arguments = {"","",0,0,-1};
 
@@ -129,6 +130,7 @@ void *root_event_loop(void *arg){
   for (Long64_t jentry=start; jentry<stop;jentry++) {
     if(g_event){
       g_event->Clear("C");
+      ClearGlobalData(g_event);
       br->SetAddress(&g_event);
     }
     
@@ -277,4 +279,27 @@ int analyze_command_line (int argc, char **argv){
   help_command_line(argv[0]);
   
   return 0;
+}
+
+void ClearGlobalData(TGlobalData* data)
+{
+  // We could put this into TGlobalData::Clear(), but we need
+  // to be sure that's okay at the alcapana level. That is, if
+  // Clear() deletes the TPulseIsland objects, but g_event doesn't
+  // own the pulses, they would be deleted later. A solution is to
+  // be sure that TGlobalData isn't called in alcapana, or ensure
+  // that g_event owns the pulse islands at that level.
+  typedef std::map<std::string, std::vector<TPulseIsland*> > PulseMap;
+  typedef PulseMap::iterator PulseMapIt;
+  PulseMapIt mapIter;
+  PulseMapIt mapEnd = data->fPulseIslandToChannelMap.end();
+  for(mapIter = data->fPulseIslandToChannelMap.begin(); mapIter != mapEnd; mapIter++) {
+    // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
+    std::vector<TPulseIsland*> pulse_vector= mapIter->second;
+    for(int i=0; i<pulse_vector.size(); i++){
+      delete pulse_vector[i];
+      pulse_vector[i] = NULL;
+    }
+    pulse_vector.clear();
+  }
 }

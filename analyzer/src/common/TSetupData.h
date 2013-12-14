@@ -24,7 +24,8 @@ class TSetupData : public TObject{
   std::map<std::string, int> fBankToBitMap;
   std::map<std::string, double> fBankToADCValueMap;
 
-  //std::string GetBankName(std::string DetectorName){ };
+  std::string GetBankName(std::string DetectorName);
+  
   std::string GetDetectorName(std::string BankName) { 
     if (fBankToDetectorMap[BankName] != "blank")
       return fBankToDetectorMap[BankName]; 
