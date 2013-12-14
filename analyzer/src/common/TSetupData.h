@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <set>
 #include <string>
 
 #include <TObject.h>
@@ -28,19 +29,23 @@ class TSetupData : public TObject{
   std::map<std::string, int> fBankToPedestalMap;
 
   std::string GetBankName(std::string DetectorName);
-  
+
   std::string GetDetectorName(std::string BankName) { 
     if (fBankToDetectorMap[BankName] != "blank")
       return fBankToDetectorMap[BankName]; 
     else
       return BankName;
   };
-  double GetClockTick(std::string BankName) { return fBankToClockTickMap[BankName]; };
-  int GetNBits(std::string BankName) { return fBankToBitMap[BankName]; };
-  double GetADCValue(std::string BankName) { return fBankToADCValueMap[BankName]; };
-  double GetTimeShift(std::string BankName) { return fBankToTimeShift[BankName]; };
-  int GetTriggerPolarity(std::string BankName){return fBankToPolarityMap[BankName];};
-  int GetPedestal(std::string BankName){return fBankToPedestalMap[BankName];};
+
+  // Fill a map of all detectors that were used to their banks
+  void GetAllDetectors(std::map<std::string,std::string>& detectors)const;
+
+  double GetClockTick(const std::string& BankName) const{ return fBankToClockTickMap[BankName]; };
+  int GetNBits(const std::string& BankName) const{ return fBankToBitMap[BankName]; };
+  double GetADCValue(const std::string& BankName) const{ return fBankToADCValueMap[BankName]; };
+  double GetTimeShift(const std::string& BankName) const{ return fBankToTimeShift[BankName]; };
+  int GetTriggerPolarity(const std::string& BankName)const{return fBankToPolarityMap[BankName];};
+  int GetPedestal(const std::string& BankName)const{return fBankToPedestalMap[BankName];};
 
   void SetDetectorName(std::string BankName, std::string value) { fBankToDetectorMap[BankName]=value; };
   void SetClockTick(std::string BankName, double value) { fBankToClockTickMap[BankName]=value; };
@@ -50,9 +55,11 @@ class TSetupData : public TObject{
   void SetTriggerPolarity(std::string BankName, int value){fBankToPolarityMap[BankName]=value;};
   void SetPedestal(std::string BankName, int value){fBankToPedestalMap[BankName]=value;};
 
-  static bool IsFADC(std::string BankName) { return BankName[0] == 'N'; } // if the first letter is N then the bank name is for a FADC
-  static bool IsHoustonCAEN(std::string BankName) { return BankName.substr(2,2) == "UH"; } // if the first letter is C then the bank name is for a CAEN
-  static bool IsBostonCAEN(std::string BankName) { return BankName.substr(2,2)  == "BU"; } // if the first letter is C then the bank name is for a CAEN
+  static bool IsFADC(const std::string& BankName) { return BankName[0] == 'N'; } // if the first letter is N then the bank name is for a FADC
+  static bool IsHoustonCAEN(const std::string& BankName) { return BankName.substr(2,2) == "UH"; } // if the first letter is C then the bank name is for a CAEN
+  static bool IsBostonCAEN(const std::string& BankName) { return BankName.substr(2,2)  == "BU"; } // if the first letter is C then the bank name is for a CAEN
+  static bool IsSlow(const std::string& BankName) { return (*BankName.end() -1 ) == 'S'; } // if the last letter is S then the bank name is for a Slow pulse
+  static bool IsFast(const std::string& BankName) { return (*BankName.end() -1 )  == 'F'; } // if the last letter is F then the bank name is for a Fast pulse
 
   ClassDef(TSetupData, 2)
 };
