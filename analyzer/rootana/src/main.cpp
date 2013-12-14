@@ -1,3 +1,5 @@
+//#define USE_PRINT_OUT 
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -7,6 +9,9 @@
 
 #include "FillHistBase.h"
 #include "AnalysePulseIsland.h"
+#include "CorrelateFastSlowPulses.h"
+#include "CheckCoincidence.h"
+#include "MakeMuonEvents.h"
 #include "CreateDetectorPulse.h"
 #include "CorrelateFastSlowPulses.h"
 
@@ -17,6 +22,7 @@
 #include "TSetupData.h"
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
+
 
 void help_command_line(char *my_name);
 bool isNumber(char *c);
@@ -69,12 +75,12 @@ int main(int argc, char **argv){
 
   //Info Tree  
   InfoTree = (TTree *)treefile->Get("SetupTree");
-  InfoTree->Print();
   if(!InfoTree) {
     printf("Could not find InfoTree. Exiting.\n");
     treefile->Close();
     return 1;
   }
+  InfoTree->Print();
   s_data = 0;
   InfoBr = InfoTree->GetBranch("Setup");
   InfoBr->SetAddress(&s_data);
@@ -117,10 +123,17 @@ int main(int argc, char **argv){
   fillhists = new FillHistBase *[20]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
+  //fillhists[n_fillhist++] = new CombineFastSlowPulses("CombineFastSlowPulses");
+  //fillhists[n_fillhist++] = new CorrelateFastSlowPulses("CorrelateFastSlowPulses");
+  fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);
+  //fillhists[n_fillhist++] = new CheckCoincidence("CheckCoincidence",s_data);
+  //  fillhists[n_fillhist++] = new FastVsSlow("FastVsSlow");
   fillhists[n_fillhist++] = new CreateDetectorPulse("CreateDetectorPulse");
   fillhists[n_fillhist++] = new CorrelateFastSlowPulses("CorrelateFastSlowPulses");
   
   fileOut->cd();
+  
+  // do the main loop
   root_event_loop();
 
   fileOut->Write();
@@ -136,7 +149,8 @@ void *root_event_loop(void *arg){
 \*************************************************************************/
   //printf("in the root_event_loop\n");
   Long64_t nentries = tree->GetEntriesFast();
-  printf("there are %d entries\n",(int)nentries);
+  printf("There are %d entries\n",(int)nentries);
+  std::cout<<"Processing file, which may take a while.  Have patience young padwan.."<<std::endl;
 
   Int_t nbytes = 0, nb = 0;
 
@@ -193,12 +207,15 @@ void *root_event_loop(void *arg){
     for (std::map<std::string, std::vector<TDetectorPulse*> >::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
       gDetectorPulseMap.erase(mapIter);
     }
-
-    int q = 0;
     for(int i=0; i < n_fillhist; i++) {
       //printf("processing fillhists[%d]\n",i);      
-      q = fillhists[i]->ProcessGenericEntry(g_event, s_data);
-      if(q) break;
+      PrintOut(i<<": Now processing "<<fillhists[i]->GetName()<<std::endl);
+      q |= fillhists[i]->ProcessGenericEntry(g_event,s_data);
+      //if(q) break;
+    }
+    if(q){
+      printf("q was non-zero when jentry was %d\n",(Int_t)jentry);
+      break;
     }
   }
 

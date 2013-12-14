@@ -1,3 +1,5 @@
+#define USE_PRINT_OUT 
+
 #include "AnalysePulseIsland.h"
 #include <iostream>
 #include <stdio.h>
@@ -28,11 +30,13 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
+   //std::cout << "Size of gData " << gData->fPulseIslandToChannelMap.size() << std::endl;
   for(map_iterator mapIter = gData->fPulseIslandToChannelMap.begin(); mapIter != gData->fPulseIslandToChannelMap.end(); mapIter++){
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
     std::vector<TPulseIsland*> thePulses = mapIter->second;
+    //std::cout<<"Analysing detector: "<<detname<<std::endl;
 
     if (thePulses.size() == 0)
       continue; // no pulses here...
@@ -48,10 +52,10 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       double integral = 0;
 
       // If this is a slow pulse
-      if ( *(detname.end() - 1) == 'S' ) {
+      if ( TSetupData::IsSlow(detname) ){
 	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral);
       }
-      else if ( *(detname.end() -1) == 'F') {
+      else if ( TSetupData::IsFast(detname)) {
 	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral);
       }
 

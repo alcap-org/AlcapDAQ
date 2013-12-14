@@ -10,3 +10,10 @@ std::string TSetupData::GetBankName(std::string DetectorName){
   
   return std::string("");
 }
+
+void TSetupData::GetAllDetectors(std::map<std::string,std::string>& detectors)const{
+   std::map<std::string, std::string>::const_iterator it;
+   for (it=fBankToDetectorMap.begin();it!= fBankToDetectorMap.end();it++){
+       if(it->second!="blank" ) detectors[it->second]=it->first;
+   }
+}

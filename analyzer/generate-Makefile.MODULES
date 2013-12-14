@@ -9,12 +9,17 @@ SOURCE_DIRS="../../src/common"
 #echo -n "MODULE_OBJS = " > Makefile.MODULES
 
 for module in `cat MODULES`; do 
+        if [[ "$module" == '#'* ]];then 
+                echo "Skipping module ${module###}"
+                continue
+        fi
   basename=`basename $module`
   dirname=`dirname $module`
   MOBJS=$MOBJS" $basename.o"
   SOURCE_DIRS=$SOURCE_DIRS":../../src/$dirname"
   echo "$basename.o:	../../src/$module.cpp" >> Makefile.MODULES
   echo "" >> Makefile.MODULES
+  echo "aded $basename.o"
 done
 
 #echo "TGlobalData.o:   ../../src/common/TGlobalData.cpp" >> Makefile.MODULES

@@ -13,12 +13,19 @@ OUTFILE=$1/MODULES.h
 
 rm -f ${OUTFILE}
 for module in `cat MODULES`; do
+  if [[ "$module" == '#'* ]];then 
+     echo "Skipping module ${module###}"
+     continue
+  fi
   basename=`basename $module`
   echo "extern ANA_MODULE ${basename}_module;" >> ${OUTFILE};
 done
 echo >> ${OUTFILE}
 echo "ANA_MODULE *trigger_module[] = {" >> ${OUTFILE}
 for module in `cat MODULES`; do 
+  if [[ "$module" == '#'* ]];then 
+     continue
+  fi
     basename=`basename $module`
     echo "  &${basename}_module," >> ${OUTFILE}; 
 done;
