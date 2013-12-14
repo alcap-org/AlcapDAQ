@@ -51,11 +51,12 @@ int MakeMuonEvents::ProcessEntry(TGlobalData *aData){
     int coincidence_window=10;
 
     // Loop over each muSc pulse
+    PulseList muSc_pulses=gAnalysedPulseMap["muSc"];
     PulseList::iterator i_muSc;
     double muSc_time;
-    for(i_muSc=gAnalysedPulseMap["muSc"].begin();i_muSc=gAnalysedPulseMap["muSc"].end();i_muSc++){
+    for(i_muSc=muSc_pulses.begin();i_muSc!=muSc_pulses.end();i_muSc++){
             // The arrival time of the muSc
-            muSc_time=i_muSc->GetTime();
+            muSc_time=(*i_muSc)->GetTime();
 
             // Loop over each detector and look for pulses that are within the
             // coincidence window of the muSc

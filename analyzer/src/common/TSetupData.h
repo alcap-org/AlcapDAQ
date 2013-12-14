@@ -49,7 +49,8 @@ class TSetupData : public TObject{
 
   double GetClockTick(const std::string& BankName) const{ return GetValue(fBankToClockTickMap,BankName);}
   int GetNBits(const std::string& BankName) const{ return GetValue(fBankToBitMap,BankName);}
-  double GetADCValue(const std::string& BankName) const{ return GetValue(fBankToADCValueMap,BankName); };
+  double GetADCSlopeCalib(const std::string& BankName) const{ return GetValue(fBankToADCSlopeCalibMap,BankName); };
+  double GetADCOffsetCalib(const std::string& BankName) const{ return GetValue(fBankToADCOffsetCalibMap,BankName); };
   double GetTimeShift(const std::string& BankName) const{ return GetValue(fBankToTimeShift,BankName); };
   int GetTriggerPolarity(const std::string& BankName)const{return GetValue(fBankToPolarityMap,BankName);};
   int GetPedestal(const std::string& BankName)const{return GetValue(fBankToPedestalMap,BankName);};
@@ -61,7 +62,7 @@ class TSetupData : public TObject{
   void SetTriggerPolarity(std::string BankName, int value){fBankToPolarityMap[BankName]=value;};
   void SetPedestal(std::string BankName, int value){fBankToPedestalMap[BankName]=value;};
   void SetADCSlopeCalib(std::string BankName, double value) { fBankToADCSlopeCalibMap[BankName] = value; };
-  void SetADCOffsetCalib(std::string BankName, double value) { fBankToSlopeOffsetMap[BankName] = value; };
+  void SetADCOffsetCalib(std::string BankName, double value) { fBankToADCOffsetCalibMap[BankName] = value; };
 
   static bool IsFADC(const std::string& BankName) { return BankName[0] == 'N'; } // if the first letter is N then the bank name is for a FADC
   static bool IsHoustonCAEN(const std::string& BankName) { return BankName.substr(2,2) == "UH"; } // if the first letter is C then the bank name is for a CAEN
