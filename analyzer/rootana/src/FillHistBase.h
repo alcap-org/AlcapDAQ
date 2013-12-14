@@ -5,6 +5,7 @@
 #include "TSetupData.h"
 #include "TDirectory.h"
 
+#include <iostream>
 // This is an efficient way to switch on and off printing text for debugging
 #ifdef USE_PRINT_OUT
 #define PrintOut(message) \
@@ -27,10 +28,13 @@ std::cout<<message;
 class FillHistBase
 {
  public:
+<<<<<<< HEAD
   FillHistBase(char *HistogramDirectoryName, TSetupData* setup=NULL);
   virtual ~FillHistBase();
 
   int ProcessGenericEntry(TGlobalData *gData, TSetupData *gSetup);
+  virtual int BeforeFirstEntry(TGlobalData* gData){return 0;};
+  virtual int AfterLastEntry(TGlobalData* gData){return 0;};
   const char* GetName()const{return dir->GetName();};
  
  protected:
@@ -39,6 +43,7 @@ class FillHistBase
 
  private:
    virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+
 };
 
 #endif

@@ -8,8 +8,6 @@
 #include <TH1.h>
 #include "TSetupData.h"
 
-extern TSetupData* gSetup;
-
 class TPulseIsland : public TObject {
   private:
   std::vector<int> fSamples; // adc samples

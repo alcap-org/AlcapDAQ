@@ -19,6 +19,9 @@ class TSetupData : public TObject{
   std::map<std::string, DetectorInfo> fBankToDetectorConfigs;
   */
  public:
+  //(Quasi-)Singleton interface
+  static TSetupData* Instance();
+
   // Map of bank names to detector names
   std::map<std::string, std::string> fBankToDetectorMap;
   std::map<std::string, double> fBankToClockTickMap;
