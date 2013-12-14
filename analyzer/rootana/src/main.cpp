@@ -59,12 +59,12 @@ int main(int argc, char **argv){
 
   //Info Tree  
   InfoTree = (TTree *)treefile->Get("SetupTree");
-  InfoTree->Print();
   if(!InfoTree) {
     printf("Could not find InfoTree. Exiting.\n");
     treefile->Close();
     return 1;
   }
+  InfoTree->Print();
   s_data = 0;
   InfoBr = InfoTree->GetBranch("Setup");
   InfoBr->SetAddress(&s_data);
