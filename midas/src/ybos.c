@@ -1769,10 +1769,13 @@ INT yb_ftp_open(char *destination, FTP_CON ** con)
 
    if (file_mode[0]) {
       status = ftp_command(*con, "umask %s", file_mode, 200, 250, EOF);
-      if (status >= 0)
+/*  command is not supported everywhere
+       if (status >= 0)
          return status;
+*/
    }
 
+   printf("openning remote file [%s] in write mode...\n",file_name);
    if (ftp_open_write(*con, file_name) >= 0)
       return (*con)->err_no;
 
