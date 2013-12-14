@@ -18,7 +18,7 @@ static TH2 *hNumberOfNoCoincidences = 0;
 static TH2 *hBankSize = 0;
 static vector<string> banks;
 
-SimpleHistograms::SimpleHistograms(char *HistogramDirectoryName) :
+SimpleHistograms::SimpleHistograms(const char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){
 
   // The following are the banks we want to compare in this example

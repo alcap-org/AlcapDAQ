@@ -1,6 +1,6 @@
 #include "FillHistBase.h"
 
-FillHistBase::FillHistBase(char *HistogramDirectoryName){
+FillHistBase::FillHistBase(const char *HistogramDirectoryName){
   dir = gDirectory->mkdir(HistogramDirectoryName);
   dir->cd();
 }

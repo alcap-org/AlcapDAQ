@@ -1,0 +1,67 @@
+# file: MODULES
+# Contents: the list of ROOT macros for the online-display
+# Format: TextOnTheButton FullMacroName
+# Use # for comments
+# 
+# MODULES
+#
+CaUH modules/One_channel.C ("CaUH")
+CbUH modules/One_channel.C ("CbUH")
+CcUH modules/One_channel.C ("CcUH")
+CdUH modules/One_channel.C ("CdUH")
+CeUH modules/One_channel.C ("CeUH")
+CfUH modules/One_channel.C ("CfUH")
+CgUH modules/One_channel.C ("CgUH")
+ChUH modules/One_channel.C ("ChUH")
+CaBU modules/One_channel.C ("CaBU")
+CbBU modules/One_channel.C ("CbBU")
+CcBU modules/One_channel.C ("CcBU")
+CdBU modules/One_channel.C ("CdBU")
+
+
+Na80 modules/One_channel.C ("Na80")
+Nb80 modules/One_channel.C ("Nb80")
+Nc80 modules/One_channel.C ("Nc80")
+Nd80 modules/One_channel.C ("Nd80")
+Ne80 modules/One_channel.C ("Ne80")
+Nf80 modules/One_channel.C ("Nf80")
+Ng80 modules/One_channel.C ("Ng80")
+Nh80 modules/One_channel.C ("Nh80")
+Na81 modules/One_channel.C ("Na81")
+Nb81 modules/One_channel.C ("Nb81")
+Nc81 modules/One_channel.C ("Nc81")
+Nd81 modules/One_channel.C ("Nd81")
+Ne81 modules/One_channel.C ("Ne81")
+Nf81 modules/One_channel.C ("Nf81")
+Ng81 modules/One_channel.C ("Ng81")
+Nh81 modules/One_channel.C ("Nh81")
+Na82 modules/One_channel.C ("Na82")
+Nb82 modules/One_channel.C ("Nb82")
+Nc82 modules/One_channel.C ("Nc82")
+Nd82 modules/One_channel.C ("Nd82")
+Ne82 modules/One_channel.C ("Ne82")
+Nf82 modules/One_channel.C ("Nf82")
+Ng82 modules/One_channel.C ("Ng82")
+Nh82 modules/One_channel.C ("Nh82")
+Na83 modules/One_channel.C ("Na83")
+Nb83 modules/One_channel.C ("Nb83")
+Nc83 modules/One_channel.C ("Nc83")
+Nd83 modules/One_channel.C ("Nd83")
+Ne83 modules/One_channel.C ("Ne83")
+Nf83 modules/One_channel.C ("Nf83")
+Ng83 modules/One_channel.C ("Ng83")
+Nh83 modules/One_channel.C ("Nh83")
+FADC_IslandsPerBlock FADC/fadc_islands_read_per_block.C
+FADC_PacketLoss FADC/fadc_packet_losses.C
+FADC_OverflowingBuffers FADC/fadc_overflowing_buffers.C
+
+#======================================================
+#         Common
+#======================================================
+raw_pulse_count common/raw_pulse_count.C
+beam_tuning common/beam_tuning.C
+
+#======================================================
+#         Physics
+#======================================================
+#dEdx physics/silicon_dEdx.C

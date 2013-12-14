@@ -40,6 +40,17 @@ std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
 static int n_fillhist = 0;  // keeps track of the total number of modules
 static FillHistBase **fillhists;
 
+TSetupData* TSetupData::Instance()
+{
+  return s_data;
+}
+
+TGlobalData* TGlobalData::Instance()
+{
+  return g_event;
+}
+
+
 int main(int argc, char **argv){
   int ret = analyze_command_line (argc, argv);
   if(!ret) return 1;
@@ -143,7 +154,29 @@ void *root_event_loop(void *arg){
   else if((Long64_t)arguments.start < nentries && arguments.start > 0){
     stop = (Long64_t)arguments.start;
   }
+  
+  //preprocess first event
+  if (g_event){
+    g_event->Clear("C");
+    br->SetAddress(&g_event);
+  }
+  
+  nb = tree->GetEntry(start);
+  int q = 0;
+  for (int i=0; i < n_fillhist; i++) {
+    q |= fillhists[i]->BeforeFirstEntry(g_event);
+    //if (q) break;
+    // q = fillhists[i]->ProcessGenericEntry(g_event);
+    //if (q) break;
+  }
+  if(q) {
+    printf("q was non-zero when preprocessing first entry (%d)\n",
+	   (Int_t)start);
+    return NULL;
+  }
 
+  q = 0;
+  //process entries
   for (Long64_t jentry=start; jentry<stop;jentry++) {
     if(g_event){
       g_event->Clear("C");
@@ -169,10 +202,16 @@ void *root_event_loop(void *arg){
       q = fillhists[i]->ProcessGenericEntry(g_event, s_data);
       if(q) break;
     }
-    if(q) printf("q was non-zero when jentry was %d\n",(Int_t)jentry);
-    if(q) break;
   }
 
+  //post-process on last entry
+  q = 0;
+  for(int i=0; i < n_fillhist; i++) {
+    q |= fillhists[i]->AfterLastEntry(g_event);
+  }
+  if (q) printf("q was non-zero during post-processing last entry (%d)\n",
+		(Int_t)(stop-1));
+  
   return NULL;
 }
 
