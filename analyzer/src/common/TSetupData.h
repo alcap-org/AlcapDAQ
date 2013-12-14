@@ -58,7 +58,7 @@ class TSetupData : public TObject{
   void SetTriggerPolarity(std::string BankName, int value){fBankToPolarityMap[BankName]=value;};
   void SetPedestal(std::string BankName, int value){fBankToPedestalMap[BankName]=value;};
   void SetADCSlopeCalib(std::string BankName, double value) { fBankToADCSlopeCalibMap[BankName] = value; };
-  void SetADCOffsetCalib(std::string BankName, double value) { fBankToSlopeOffsetMap[BankName] = value; };
+  void SetADCOffsetCalib(std::string BankName, double value) { fBankToADCOffsetCalibMap[BankName] = value; };
 
   static bool IsFADC(std::string BankName) { return BankName[0] == 'N'; } // if the first letter is N then the bank name is for a FADC
   static bool IsHoustonCAEN(std::string BankName) { return BankName.substr(2,2) == "UH"; } // if the first letter is C then the bank name is for a CAEN

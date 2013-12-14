@@ -7,8 +7,8 @@
 
 #include "FillHistBase.h"
 #include "AnalysePulseIsland.h"
-#include "CombineFastSlowPulses.h"
 #include "CreateDetectorPulse.h"
+#include "CorrelateFastSlowPulses.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -117,8 +117,8 @@ int main(int argc, char **argv){
   fillhists = new FillHistBase *[20]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
-  fillhists[n_fillhist++] = new CombineFastSlowPulses("CombineFastSlowPulses");
   fillhists[n_fillhist++] = new CreateDetectorPulse("CreateDetectorPulse");
+  fillhists[n_fillhist++] = new CorrelateFastSlowPulses("CorrelateFastSlowPulses");
   
   fileOut->cd();
   root_event_loop();
