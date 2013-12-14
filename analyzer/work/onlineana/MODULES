@@ -14,4 +14,6 @@ diagnostics/MCommonOnlineDisplayPlots
 FADC/MOctalFADCBufferOverflow
 FADC/MOctalFADCPacketLoss
 
+vacuum/MVacuumHisto
+
 common/MTreeOutput
