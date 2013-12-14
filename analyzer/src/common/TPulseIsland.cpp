@@ -14,8 +14,7 @@ TPulseIsland::TPulseIsland()
   Reset();
 }
 
-TPulseIsland::TPulseIsland(
-  int timestamp, const vector<int>& samples_vector, string bank_name)
+TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name)
 {
   Reset();
   fTimeStamp = timestamp;

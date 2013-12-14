@@ -137,7 +137,6 @@ INT MOctalFADCProcessRaw(EVENT_HEADER *pheader, void *pevent)
 
     // Get clock tick and ADC calibration for this channel.
     double clock_tick = gSetup->GetClockTick(bank_name);
-    double adc_value = gSetup->GetADCValue(bank_name);
     int polarity = gSetup->GetTriggerPolarity(bank_name);
 
     // Make vector of TPulseIsland from TOctalFADCIsland. Now this module

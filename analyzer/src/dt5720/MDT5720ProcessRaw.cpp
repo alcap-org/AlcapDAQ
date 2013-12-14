@@ -3,7 +3,7 @@
   Name:         MDT5720ProcessRaw
   Created by:   V.Tishchenko, J.Grange hoping to extend it
 
-  Contents:     Module to decode CAEN v1724 digitizer data.
+  Contents:     Module to decode CAN v1724 digitizer data.
 
 \********************************************************************/
 
