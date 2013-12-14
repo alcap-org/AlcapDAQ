@@ -1,4 +1,4 @@
-#include "CombineFastSlowPulses.h"
+#include "CreateDetectorPulse.h"
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,15 +19,15 @@ using std::pair;
 extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 extern std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
 
-CombineFastSlowPulses::CombineFastSlowPulses(char *HistogramDirectoryName) :
+CreateDetectorPulse::CreateDetectorPulse(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){ 
   dir->cd("/");
 }
 
-CombineFastSlowPulses::~CombineFastSlowPulses(){  
+CreateDetectorPulse::~CreateDetectorPulse(){  
 }
 
-int CombineFastSlowPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
