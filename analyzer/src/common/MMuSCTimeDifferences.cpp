@@ -68,7 +68,7 @@ int FillCoincidenceTimeHistogram(int tMusc, vector<TPulseIsland*> pulses,
 				 int start, TH1 *h, TH2 *hAmp, double t_low, double t_high,
 				 bool PP, TH1 *h_PP, TH2 *hAmp_PP);
 
-bool IsPileupProtected(double t, std::vector<TPulseIsland*> p, double window, int *lPP);
+bool IsPileupProtected(double t,const std::vector<TPulseIsland*>& p, double window, int *lPP);
 
 /** This method initializes histograms.
 */
@@ -191,7 +191,7 @@ int FillCoincidenceTimeHistogram(int tMusc, std::vector<TPulseIsland*> pulses,
   return start;
 }
 
-bool IsPileupProtected(double t, std::vector<TPulseIsland*> p, double window, int *lPP){
+bool IsPileupProtected(double t,const std::vector<TPulseIsland*>& p, double window, int *lPP){
   if(t < window || t > 1.12E8-window) return false; // very basic bookending
   for(int i = *lPP; i < p.size(); ++i){
     double t2 = p[i]->GetPulseTime();
