@@ -1,3 +1,5 @@
+//#define USE_PRINT_OUT 
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -10,6 +12,8 @@
 #include "CombineFastSlowPulses.h"
 #include "CorrelateFastSlowPulses.h"
 #include "FastVsSlow.h"
+#include "CheckCoincidence.h"
+#include "MakeMuonEvents.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -18,6 +22,7 @@
 #include "TSetupData.h"
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
+
 
 void help_command_line(char *my_name);
 bool isNumber(char *c);
@@ -107,11 +112,15 @@ int main(int argc, char **argv){
   fillhists = new FillHistBase *[20]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
-  fillhists[n_fillhist++] = new CombineFastSlowPulses("CombineFastSlowPulses");
-  fillhists[n_fillhist++] = new CorrelateFastSlowPulses("CorrelateFastSlowPulses");
+  //fillhists[n_fillhist++] = new CombineFastSlowPulses("CombineFastSlowPulses");
+  //fillhists[n_fillhist++] = new CorrelateFastSlowPulses("CorrelateFastSlowPulses");
+  fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);
+  //fillhists[n_fillhist++] = new CheckCoincidence("CheckCoincidence",s_data);
   //  fillhists[n_fillhist++] = new FastVsSlow("FastVsSlow");
   
   fileOut->cd();
+  
+  // do the main loop
   root_event_loop();
 
   fileOut->Write();
@@ -127,7 +136,8 @@ void *root_event_loop(void *arg){
 \*************************************************************************/
   //printf("in the root_event_loop\n");
   Long64_t nentries = tree->GetEntriesFast();
-  printf("there are %d entries\n",(int)nentries);
+  printf("There are %d entries\n",(int)nentries);
+  std::cout<<"Processing file, which may take a while.  Have patience young padwan.."<<std::endl;
 
   Int_t nbytes = 0, nb = 0;
 
@@ -166,6 +176,7 @@ void *root_event_loop(void *arg){
     int q = 0;
     for(int i=0; i < n_fillhist; i++) {
       //printf("processing fillhists[%d]\n",i);      
+      PrintOut(i<<": Now processing "<<fillhists[i]->GetName()<<std::endl);
       q = fillhists[i]->ProcessGenericEntry(g_event, s_data);
       if(q) break;
     }

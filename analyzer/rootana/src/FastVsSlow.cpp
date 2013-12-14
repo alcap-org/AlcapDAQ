@@ -1,3 +1,5 @@
+#define USE_PRINT_OUT 
+
 #include "FastVsSlow.h"
 #include <iostream>
 #include <stdio.h>
