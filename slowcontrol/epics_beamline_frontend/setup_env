@@ -1,4 +1,5 @@
 export EPICS_CA_SERVER_PORT=5062
-export EPICS_CA_ADDR_LIST=hipa-cagw02.psi.ch
+#export EPICS_CA_ADDR_LIST=hipa-cagw02.psi.ch
+export EPICS_CA_ADDR_LIST=abner.psi.ch
 export EPICS_CA_AUTO_ADDR_LIST=NO 
 #alias caput="/usr/local/epics/base-3.14.12/bin/SL6-x86_64/caput"

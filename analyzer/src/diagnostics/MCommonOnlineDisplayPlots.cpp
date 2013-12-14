@@ -116,7 +116,7 @@ INT MCommonOnlineDisplayPlots_init()
     //hLatestPulse
     histname = "h" + bankname + "_LatestPulse";
     histtitle = "Plot of the latest pulse in the " + detname + " channels";
-    TH1I* hLatestPulse = new TH1I(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5);
+    TH1I* hLatestPulse = new TH1I(histname.c_str(), histtitle.c_str(), 250, -0.5, 249.5);
     hLatestPulse->GetXaxis()->SetTitle("Time Stamp");
     hLatestPulse->GetYaxis()->SetTitle("ADC Value");
     latest_pulse_histograms_map[bankname] = hLatestPulse;

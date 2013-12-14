@@ -34,19 +34,22 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MOctalFADCBufferOverflow_init(void);
 INT  MOctalFADCBufferOverflow(EVENT_HEADER*, void*);
+static INT module_bor(INT run_number);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 static TH1* hNOctalFADCBufferOverflow;
+static TH1* hNOctalFADCBufferOverflowPercent;
+static int midas_events;
 
 ANA_MODULE MOctalFADCBufferOverflow_module =
 {
   "MOctalFADCBufferOverflow",        /* module name           */
   "Andrew Edmonds",              /* author                */
   MOctalFADCBufferOverflow,          /* event routine         */
-  NULL,                          /* BOR routine           */
+  module_bor,                    /* BOR routine           */
   NULL,                          /* EOR routine           */
   MOctalFADCBufferOverflow_init,     /* init routine          */
   NULL,                          /* exit routine          */
@@ -71,6 +74,23 @@ INT MOctalFADCBufferOverflow_init()
   hNOctalFADCBufferOverflow->GetXaxis()->SetTitle("FADC Board Number");
   hNOctalFADCBufferOverflow->GetYaxis()->SetTitle("Total Number of Buffer Overflows");
 
+  hNOctalFADCBufferOverflowPercent = new TH1F(
+    "hNOctalFADCBufferOverflowPercent",
+    "Fraction of MIDAS Events in which the FADC Overflowed",
+    4,128, 132);
+  hNOctalFADCBufferOverflowPercent->GetXaxis()->SetTitle("FADC Board Number");
+  hNOctalFADCBufferOverflowPercent->GetYaxis()->SetTitle("Fraction of events with Buffer Overflows");
+
+  return SUCCESS;
+}
+
+/**
+ *  This method executes at the start of each run
+ */
+INT module_bor(INT run_number)
+{
+  midas_events = 1;
+  
   return SUCCESS;
 }
 
@@ -80,7 +100,6 @@ INT MOctalFADCBufferOverflow_init()
 INT MOctalFADCBufferOverflow(EVENT_HEADER *pheader, void *pevent)
 {
   // Get the event number
-  int midas_event_number = pheader->serial_number;
 
   unsigned int* raw; // Points at the raw data
   int bankSize = bk_locate(pevent,"NBUF",&raw);
@@ -88,8 +107,11 @@ INT MOctalFADCBufferOverflow(EVENT_HEADER *pheader, void *pevent)
   if (bankSize != 0) {
     for (int i = 0; i < bankSize; i++) {
       hNOctalFADCBufferOverflow->Fill(*(raw+i));
+      int bin = hNOctalFADCBufferOverflowPercent->FindBin(*(raw+i));
+      hNOctalFADCBufferOverflowPercent->SetBinContent(bin, hNOctalFADCBufferOverflow->GetBinContent(bin) / midas_events);
     }
   }
+  ++midas_events;
 
   return SUCCESS;
 }

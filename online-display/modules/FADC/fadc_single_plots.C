@@ -26,6 +26,7 @@ void fadc_single_plots(std::string fadc_id,std::string hist_type)
       else if(hist_type == "LatestPulse") {
 	gPad->SetLogy(0);
 	hist->GetXaxis()->SetRange(0,hist->FindLastBinAbove(1.,2));
+	hist->Draw();
       }
       else if(hist_type == "Times"){
 	TLine *l = new TLine(1.12E8, 0, 1.12E8, hist->GetMaximum());
