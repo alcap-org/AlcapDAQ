@@ -28,7 +28,6 @@ std::cout<<message;
 class FillHistBase
 {
  public:
-<<<<<<< HEAD
   FillHistBase(char *HistogramDirectoryName, TSetupData* setup=NULL);
   virtual ~FillHistBase();
 
@@ -39,11 +38,10 @@ class FillHistBase
  
  protected:
   TDirectory *dir;
-   TSetupData* fSetup;
+  TSetupData* fSetup;
 
  private:
    virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
-
 };
 
 #endif

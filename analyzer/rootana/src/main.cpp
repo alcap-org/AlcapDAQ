@@ -9,11 +9,10 @@
 
 #include "FillHistBase.h"
 #include "AnalysePulseIsland.h"
-#include "CombineFastSlowPulses.h"
 #include "CorrelateFastSlowPulses.h"
-#include "FastVsSlow.h"
 #include "CheckCoincidence.h"
 #include "MakeMuonEvents.h"
+#include "CreateDetectorPulse.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -128,6 +127,7 @@ int main(int argc, char **argv){
   fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);
   //fillhists[n_fillhist++] = new CheckCoincidence("CheckCoincidence",s_data);
   //  fillhists[n_fillhist++] = new FastVsSlow("FastVsSlow");
+  fillhists[n_fillhist++] = new CreateDetectorPulse("CreateDetectorPulse");
   
   fileOut->cd();
   
@@ -208,7 +208,7 @@ void *root_event_loop(void *arg){
     for(int i=0; i < n_fillhist; i++) {
       //printf("processing fillhists[%d]\n",i);      
       PrintOut(i<<": Now processing "<<fillhists[i]->GetName()<<std::endl);
-      q |= fillhists[i]->ProcessGenericEntry(g_event);
+      q |= fillhists[i]->ProcessGenericEntry(g_event,s_data);
       //if(q) break;
     }
     if(q){

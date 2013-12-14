@@ -15,6 +15,9 @@ class TSetupData : public TObject{
   /*         struct DetectorInfo{
                  int polarity;
                  int pedestal;
+	   double adcSlopeCalib;
+	   double adcOffsetCalib;
+	   bool isFast; // true if this is a fast pulse
          };
   std::map<std::string, DetectorInfo> fBankToDetectorConfigs;
   */
@@ -26,7 +29,8 @@ class TSetupData : public TObject{
   std::map<std::string, std::string> fBankToDetectorMap;
   std::map<std::string, double> fBankToClockTickMap;
   std::map<std::string, int> fBankToBitMap;
-  std::map<std::string, double> fBankToADCValueMap;
+  std::map<std::string, double> fBankToADCSlopeCalibMap;
+  std::map<std::string, double> fBankToADCOffsetCalibMap;
   std::map<std::string, double> fBankToTimeShift;
   std::map<std::string, int> fBankToPolarityMap;
   std::map<std::string, int> fBankToPedestalMap;
@@ -53,10 +57,11 @@ class TSetupData : public TObject{
   void SetDetectorName(std::string BankName, std::string value) { fBankToDetectorMap[BankName]=value; };
   void SetClockTick(std::string BankName, double value) { fBankToClockTickMap[BankName]=value; };
   void SetNBits(std::string BankName, int value) { fBankToBitMap[BankName]=value; };
-  void SetADCValue(std::string BankName, double value) { fBankToADCValueMap[BankName]=value; };
   void SetTimeShift(std::string BankName, double value) {fBankToTimeShift[BankName]=value; };
   void SetTriggerPolarity(std::string BankName, int value){fBankToPolarityMap[BankName]=value;};
   void SetPedestal(std::string BankName, int value){fBankToPedestalMap[BankName]=value;};
+  void SetADCSlopeCalib(std::string BankName, double value) { fBankToADCSlopeCalibMap[BankName] = value; };
+  void SetADCOffsetCalib(std::string BankName, double value) { fBankToSlopeOffsetMap[BankName] = value; };
 
   static bool IsFADC(const std::string& BankName) { return BankName[0] == 'N'; } // if the first letter is N then the bank name is for a FADC
   static bool IsHoustonCAEN(const std::string& BankName) { return BankName.substr(2,2) == "UH"; } // if the first letter is C then the bank name is for a CAEN
