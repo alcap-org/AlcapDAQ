@@ -91,11 +91,11 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
 	      if (std::fabs(pulse_time - min_time) < time_difference) {
 		if ( *(pulse->GetDetName().end() -1) == 'F' ) {
-		  std::cout << "Fast? " << pulse->GetDetName() << std::endl;
+		  //	  std::cout << "Fast? " << pulse->GetDetName() << std::endl;
 		  fast_pulse = pulse;
 		}
 		else if ( *(pulse->GetDetName().end() -1) == 'S')  {
-		  std::cout << "Slow? " << pulse->GetDetName() << std::endl;
+		  //		  std::cout << "Slow? " << pulse->GetDetName() << std::endl;
 		  slow_pulse = pulse;
 		}
 
@@ -104,11 +104,11 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 	    }
 	    TDetectorPulse* det_pulse = new TDetectorPulse(fast_pulse, slow_pulse, detname); // Create the TDetectorPulse
 	    detectorPulses.push_back(det_pulse);
-	    std::cout << "Created a TDetectorPulse with:\n";
+	    /*	    std::cout << "Created a TDetectorPulse with:\n";
 	    std::cout << "Fast Pulse: " << det_pulse->GetFastPulseTime() * 1e-6 << std::endl;
 	    std::cout << "Slow Pulse: " << det_pulse->GetSlowPulseTime() * 1e-6 << std::endl;
 	    std::cout << std::endl;
-
+	    */
 	    //Delete the iterators to finished banks. Go through in reverse to
 	    //avoid invalidation problems
 	    for (int b = pulseIters.size()-1; b >= 0; --b) {
