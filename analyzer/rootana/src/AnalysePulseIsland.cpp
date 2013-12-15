@@ -52,12 +52,14 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       double integral = 0;
 
       // If this is a slow pulse
-      if ( TSetupData::IsSlow(detname) ){
+      if ( TSetupData::IsSlow(detname) ) {
+	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral);
+      } else if ( TSetupData::IsFast(detname)) {
+	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral);
+      } else {
 	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral);
       }
-      else if ( TSetupData::IsFast(detname)) {
-	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral);
-      }
+
 
       TAnalysedPulse* analysedPulse = new TAnalysedPulse(amplitude, time, integral, detname);
       analysedPulses.push_back(analysedPulse);
