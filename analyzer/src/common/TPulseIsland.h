@@ -8,8 +8,6 @@
 #include <TH1.h>
 #include "TSetupData.h"
 
-extern TSetupData* gSetup;
-
 class TPulseIsland : public TObject {
   private:
   std::vector<int> fSamples; // adc samples
@@ -26,7 +24,8 @@ class TPulseIsland : public TObject {
 
   public:
   TPulseIsland();
-  TPulseIsland(int timestamp, const std::vector<int>& samples_vector, std::string bank_name);
+  TPulseIsland(int timestamp, const std::vector<int>& samples_vector, 
+               std::string bank_name);
 
   void Reset(Option_t* o = "");
 
@@ -34,9 +33,9 @@ class TPulseIsland : public TObject {
   int GetTimeStamp() const { return fTimeStamp; }
   std::string GetBankName() const { return fBankName; }
 
-  double GetClockTickInNs() const { return gSetup->GetClockTick(fBankName); }
+  double GetClockTickInNs() const { return TSetupData::Instance()->GetClockTick(fBankName); }
   //int GetADCValueInMeV() const { return fADCValueInMeV; }
-  int GetTriggerPolarity() const {return gSetup->GetTriggerPolarity(fBankName);};
+  int GetTriggerPolarity() const {return TSetupData::Instance()->GetTriggerPolarity(fBankName);};
 
   double GetAmplitude() const;
   double GetFastPulseAmplitude() const;
