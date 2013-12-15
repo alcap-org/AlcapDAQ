@@ -13,6 +13,8 @@
 #include "MakeMuonEvents.h"
 #include "CreateDetectorPulse.h"
 #include "PlotAmplitude.h"
+#include "PlotTime.h"
+#include "CutNonCoincMuSc.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -124,9 +126,12 @@ int main(int argc, char **argv){
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
   fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
+  fillhists[n_fillhist++] = new PlotTime("PlotTime");
+  //  fillhists[n_fillhist++] = new CutNonCoincMuSc("CutNonCoincMuSc");
+  fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_AfterCut");
   fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);
   //fillhists[n_fillhist++] = new CheckCoincidence("CheckCoincidence",s_data);
-  fillhists[n_fillhist++] = new CreateDetectorPulse("CreateDetectorPulse");
+  //  fillhists[n_fillhist++] = new CreateDetectorPulse("CreateDetectorPulse");
   
   fileOut->cd();
   
@@ -196,15 +201,6 @@ void *root_event_loop(void *arg){
     // Let's get the next event
     nb = tree->GetEntry(jentry);
 
-    // Clear gAnalysedPulseMap at the start of each tree entry
-    for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator mapIter = gAnalysedPulseMap.begin(); mapIter != gAnalysedPulseMap.end(); mapIter++) {
-      gAnalysedPulseMap.erase(mapIter);
-    }
-
-    // Clear gDetectorPulseMap at the start of each tree entry
-    for (std::map<std::string, std::vector<TDetectorPulse*> >::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
-      gDetectorPulseMap.erase(mapIter);
-    }
     for(int i=0; i < n_fillhist; i++) {
       //printf("processing fillhists[%d]\n",i);      
       PrintOut(i<<": Now processing "<<fillhists[i]->GetName()<<std::endl);
@@ -379,4 +375,29 @@ void ClearGlobalData(TGlobalData* data)
     }
     pulse_vector.clear();
   }
+
+  std::cout << "Size of Map: " << gAnalysedPulseMap.size() << std::endl;
+
+  for(std::map<std::string, std::vector<TAnalysedPulse*> >::iterator mapIter = gAnalysedPulseMap.begin(); mapIter != gAnalysedPulseMap.end(); mapIter++) {
+    std::cout << "DetName: " << mapIter->first << std::endl;
+    // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
+    std::vector<TAnalysedPulse*> pulse_vector= mapIter->second;
+    for(int i=0; i<pulse_vector.size(); i++){
+      delete pulse_vector[i];
+      pulse_vector[i] = NULL;
+    }
+    pulse_vector.clear();
+  }
+  gAnalysedPulseMap.clear();
+
+  for(std::map<std::string, std::vector<TDetectorPulse*> >::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
+    // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
+    std::vector<TDetectorPulse*> pulse_vector= mapIter->second;
+    for(int i=0; i<pulse_vector.size(); i++){
+      delete pulse_vector[i];
+      pulse_vector[i] = NULL;
+    }
+    pulse_vector.clear();
+  }
+  gDetectorPulseMap.clear();
 }
