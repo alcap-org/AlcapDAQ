@@ -376,10 +376,9 @@ void ClearGlobalData(TGlobalData* data)
     pulse_vector.clear();
   }
 
-  std::cout << "Size of Map: " << gAnalysedPulseMap.size() << std::endl;
 
   for(std::map<std::string, std::vector<TAnalysedPulse*> >::iterator mapIter = gAnalysedPulseMap.begin(); mapIter != gAnalysedPulseMap.end(); mapIter++) {
-    std::cout << "DetName: " << mapIter->first << std::endl;
+
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
     std::vector<TAnalysedPulse*> pulse_vector= mapIter->second;
     for(int i=0; i<pulse_vector.size(); i++){
