@@ -44,4 +44,5 @@ do
 	echo "Done "$crate"!"
 done
 
+. thisdaq.sh
 cd  $START_DIR
