@@ -14,9 +14,7 @@ TPulseIsland::TPulseIsland()
   Reset();
 }
 
-TPulseIsland::TPulseIsland(
-  int timestamp, const vector<int>& samples_vector,
-  double clock_tick_in_ns, string bank_name,int pol)
+TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector,string bank_name)
 {
   Reset();
   fTimeStamp = timestamp;
@@ -38,7 +36,7 @@ void TPulseIsland::Reset(Option_t* o)
 // -- Gets the amplitude of the pulse
 double TPulseIsland::GetAmplitude() const {
 
-  if (gSetup->GetIsFast(fBankName))
+  if (gSetup->IsFast(fBankName))
     return GetFastPulseAmplitude();
   else
     return GetSlowPulseAmplitude();
