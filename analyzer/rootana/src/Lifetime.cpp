@@ -9,20 +9,22 @@
 #include "TH1I.h"
 
 extern std::map< std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
-int nECut;
-double tCut[2];
-double tPileUp;
-std::vector<int> eCut;
-std::vector<std::string> sNames;
-std::vector<std::string> sTitles;
-std::vector<TH1I*> hLifetime;
+static const int nSec = 8;
+static unsigned int nECut;
+static double tCut[3];
+static double tPileUp;
+static std::vector<int> eCut;
+static std::vector<std::string> sNames;
+static std::vector<std::string> sTitles;
+static std::vector<TH1I*> hLifetime;
 
 Lifetime::Lifetime(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName) {
 
   // Time in ns
-  tCut[0] = 800.;
-  tCut[1] = 5000.;
+  tCut[0] = 50.;
+  tCut[1] = 400.;
+  tCut[2] = 5000.;
   tPileUp = 10000.;
   // Energy cuts in ADC
   eCut.push_back(100);
@@ -72,11 +74,11 @@ Lifetime::Lifetime(char *HistogramDirectoryName) :
   sTitles.push_back("Lifetime (1500 ADC cut)");
   // Number to index later
   nECut = eCut.size();
+  // Sanity check: All vectors are the same size above
   if (nECut != sNames.size() || nECut != sTitles.size())
     std::cout << "Error! Coder forgot a line or two in initialization of Lifetime module in rootana!" << std::endl;
-
   // Prepare histograms
-  for (int iECut = 0; iECut < nECut; ++iECut)
+  for (unsigned int iECut = 0; iECut < nECut; ++iECut)
     hLifetime.push_back(new TH1I(sNames[iECut].c_str(), sTitles[iECut].c_str(), 1000, 0., 2000.));
 }
 
@@ -85,7 +87,6 @@ Lifetime::~Lifetime(){
 
 int Lifetime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
 
-  int nSec = 8;
   int iSec;
   // All fast pulses
   std::vector<TAnalysedPulse*>* musc;
@@ -125,12 +126,13 @@ int Lifetime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
     if (targ[iSec])
       cTarg[iSec] = targ[iSec]->begin();
 
-  int iECut;
+  unsigned int iECut;
   double tMusc;
-  double tTarg[8];
   bool bFound[15];
+  bool isStop;
   for (; cMusc < musc->end(); ++cMusc) {
     tMusc = (*cMusc)->GetTime();
+    isStop = false;
     // If there's pile-up, advance beyond it
     if ((cMusc+1) != musc->end() && (*(cMusc + 1))->GetTime() - tMusc < tPileUp) {
       ++cMusc;
@@ -139,28 +141,45 @@ int Lifetime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
     // Set all thresholds to not-found-yet
     for (iECut = 0; iECut < nECut; ++iECut)
       bFound[iECut] = false;
-    // Advance silicon pulses beyond time of muSc + time cut
+    // Advance silicon pulses beyond time of muSc
     for (iSec = 0; iSec < nSec; ++iSec)
       if (targ[iSec])
-	while (cTarg[iSec] != targ[iSec]->end() && (*(cTarg[iSec]))->GetTime() - tMusc < tCut[0])
+	while (cTarg[iSec] != targ[iSec]->end() && (*(cTarg[iSec]))->GetTime() < tMusc)
+	  ++(cTarg[iSec]);
+    // Check for stop in target
+    for (iSec = 0; iSec < nSec; ++iSec) {
+      if (targ[iSec]) {
+	while (cTarg[iSec] != targ[iSec]->end() && (*(cTarg[iSec]))->GetTime() - tMusc < tCut[0]) {
+	  ++(cTarg[iSec]);
+	  isStop = true;
+	}
+      }
+    }
+    // If no stop, continue
+    if (!isStop)
+      continue;
+    // Now progress until in meaasurement window
+    for (iSec = 0; iSec < nSec; ++iSec)
+      if (targ[iSec])
+	while (cTarg[iSec] != targ[iSec]->end() && (*(cTarg[iSec]))->GetTime() - tMusc < tCut[1])
 	  ++(cTarg[iSec]);
     // Check for hits
     for (iSec = 0; iSec < nSec; ++iSec) {
       if (targ[iSec]) {
-	while (cTarg[iSec] < targ[iSec]->end() && (*(cTarg[iSec]))->GetTime() - tMusc < tCut[1]) {
+	while (cTarg[iSec] < targ[iSec]->end() && (*(cTarg[iSec]))->GetTime() - tMusc < tCut[2]) {
 	  for (iECut = 0; iECut < nECut; ++iECut) {
 	    if (!(bFound[iECut])) {
 	      if ((*(cTarg[iSec]))->GetAmplitude() > eCut[iECut]) {
 		hLifetime[iECut]->Fill((*(cTarg[iSec]))->GetTime() - tMusc);
 		bFound[iECut] = true;
-	      }
-	    }
-	  }
+	      } // If energy is greater than cut value
+	    } // If no hit has been found in this energy region yet
+	  } // For all energy cuts
 	  ++(cTarg[iSec]);
-	}
-      }
-    }
-  }
+	} // While there are still silicon target events to loop through
+      } // If this section has a hits collection
+    } // For all silicon target sections
+  } // For all muSc hits
 
   return 0;
 }
