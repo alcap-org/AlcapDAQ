@@ -40,14 +40,18 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
     std::string fast_det_name = findFastIter->first;
      //std::cout << "DetName; " << fast_det_name << std::endl;
-    if ( *(fast_det_name.end()-1) == 'F') {
+    if (! TSetupData::IsFast(fast_det_name)) continue;
       //      std::cout << fast_det_name << " is a fast channel and I will now find the slow one" << std::endl;
       std::string detname = fast_det_name.substr(0, fast_det_name.size() - 2);
       std::string slow_det_name = detname + "-S"; // take off the F and add an S
 
-      for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator findSlowIter = gAnalysedPulseMap.begin(); findSlowIter != gAnalysedPulseMap.end(); findSlowIter++) {
-	
-	if (slow_det_name == findSlowIter->first) {
+      std::map<std::string, std::vector<TAnalysedPulse*> >::iterator findSlowIter= gAnalysedPulseMap.find(slow_det_name);
+      if(findSlowIter== gAnalysedPulseMap.end()) std::cout<<"Unable to find slow channel, "<<slow_det_name<<std::endl;
+//      for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator findSlowIter = gAnalysedPulseMap.begin();
+//              findSlowIter != gAnalysedPulseMap.end();
+//              findSlowIter++) {
+//	
+//	if (slow_det_name != findSlowIter->first) continue;
 	  //	  std::cout << "Found " << findSlowIter->first << ". Now need to match pulses" << std::endl;
 
 	  std::vector<TAnalysedPulse*> fast_pulses = findFastIter->second;
@@ -70,12 +74,13 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
 	  // Loop through both TAnalysedPulse vectors until they are both finished
 	  // NB with this alogirthm this can be extended to more than 2
+          double min_time = 999999; // something large
+          double pulse_time;
 	  while (pulseIters.size() > 0) {
 
 	    // Find out which of the next fast or slow pulsees happened next
-	    double min_time = 999999; // something large
 	    for (int b = 0; b < pulseIters.size(); ++b) {
-	      double pulse_time = (*(pulseIters.at(b)))->GetTime() * 1e-6; // convert to ms	      
+	      pulse_time = (*pulseIters[b])->GetTime() * 1e-6; // convert to ms	      
 	      min_time = std::min(min_time, pulse_time);
 
 	      //	      std::cout << b << ": " << pulse_time << " ms\n";
@@ -88,20 +93,20 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 	    TAnalysedPulse* slow_pulse = NULL;
 	    for (int b = 0; b < pulseIters.size(); ++b) {
 
-	      TAnalysedPulse* pulse = *(pulseIters.at(b));
+	      TAnalysedPulse* pulse = *(pulseIters[b]);
 	      double pulse_time = pulse->GetTime() * 1e-6; // convert to ms
 
 	      if (std::fabs(pulse_time - min_time) < time_difference) {
-		if ( *(pulse->GetDetName().end() -1) == 'F' ) {
+		if ( TSetupData::IsFast(pulse->GetDetName())) {
 		  PrintOut("Fast? " << pulse->GetDetName() << std::endl);
 		  fast_pulse = pulse;
 		}
-		else if ( *(pulse->GetDetName().end() -1) == 'S')  {
+		else if ( TSetupData::IsSlow(pulse->GetDetName()))  {
 		  PrintOut( "Slow? " << pulse->GetDetName() << std::endl);
 		  slow_pulse = pulse;
 		}
 
-		++(pulseIters.at(b)); // increment the iterator because we used the pulse
+		++(pulseIters[b]); // increment the iterator because we used the pulse
 	      }
 	    }
 	    TDetectorPulse* det_pulse = new TDetectorPulse(fast_pulse, slow_pulse, detname); // Create the TDetectorPulse
@@ -114,7 +119,7 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 	    //Delete the iterators to finished banks. Go through in reverse to
 	    //avoid invalidation problems
 	    for (int b = pulseIters.size()-1; b >= 0; --b) {
-	      if (pulseIters.at(b) == finalIters.at(b)){
+	      if (pulseIters[b] == finalIters[b]){
 		pulseIters.erase(pulseIters.begin() + b);
 		finalIters.erase(finalIters.begin() + b);
 	      }  
@@ -122,9 +127,7 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 	  } // end for
 	  
 	  gDetectorPulseMap[detname] = detectorPulses;
-	} // end if slow channel found
-      } // end loop to find corresponding slow channel
-    } // end if fast channel
+      //} // end loop to find corresponding slow channel
   } // end loop to find fast channel
   return 0;
 }
