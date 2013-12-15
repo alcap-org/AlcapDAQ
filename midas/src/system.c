@@ -5152,7 +5152,10 @@ double ss_file_size(char *path)
 
    /* allocate buffer with file size */
    stat(path, &stat_buf);
-   return (double) stat_buf.st_size;
+   double size = 1.0*((unsigned long int)stat_buf.st_size);
+   //printf("file [%s] size [%lu] [%f]\n",path,stat_buf.st_size,size);
+   //return (double) stat_buf.st_size;
+   return size;
 }
 
 double ss_disk_size(char *path)

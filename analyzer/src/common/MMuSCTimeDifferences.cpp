@@ -69,11 +69,14 @@ int FillCoincidenceTimeHistogram(int tMusc, vector<TPulseIsland*> pulses,
 
 bool IsPileupProtected(double t, std::vector<TPulseIsland*> p, double window, int *lPP);
 
+extern TDirectory *gManaHistsDir;
 /** This method initializes histograms.
 */
 INT MMuSCTimeDifferences_init()
 {
-  gDirectory->mkdir("MuSC_TimingCorrelations")->cd();
+  TDirectory *dir = gDirectory;
+  //gManaHistsDir->mkdir("MuSC_TimingCorrelations")->cd();
+  //gDirectory->mkdir("MuSC_TimingCorrelations")->cd();
   // Let's find all detector names other than muSC
   for(std::map<std::string, std::string>::iterator it = gSetup->fBankToDetectorMap.begin();
       it != gSetup->fBankToDetectorMap.end(); ++it){
@@ -122,7 +125,8 @@ INT MMuSCTimeDifferences_init()
     hAmplitudeVsTime_PP[i]->GetXaxis()->SetTitle("Time difference [ns]");
     hAmplitudeVsTime_PP[i]->GetYaxis()->SetTitle("Amplitude");
   }
-  gDirectory->cd("/");
+  //gDirectory->cd("/");
+  dir->cd();
 
   return SUCCESS;
 }

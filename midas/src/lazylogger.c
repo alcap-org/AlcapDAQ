@@ -1367,13 +1367,18 @@ FALSE          file not found
 {
    char *list;
    char fullfile[MAX_FILE_PATH] = { '\0' };
+   double file_size = 0;
 
-   if (ss_file_find(dir, file, &list) == 1) {
+   INT ret = ss_file_find(dir, file, &list);
+   //printf("calling ss_file_find: dir = [%s] file = [%s] ret=[%i]\n",dir,file,ret);
+   if ( ret == 1) {
       strcat(fullfile, dir);
       strcat(fullfile, file);
-      if ((lazyst.file_size = (float) (ss_file_size(fullfile))) > 0) {
-         free(list);
-         return TRUE;
+      file_size = ss_file_size(fullfile);
+      //printf("file [%s] size = [%f] \n",fullfile, file_size);
+      if ((lazyst.file_size = file_size) > 0) {
+	free(list);
+	return TRUE;
       }
    }
    free(list);

@@ -9,6 +9,8 @@ muSC_muPC/MMuPC1AnalysisC
 muSC_muPC/MMuPC1AnalysisMQL
 muSC_muPC/MMuSCAnalysisMQL
 
+common/MMuSCTimeDifferences
+
 diagnostics/MCommonOnlineDisplayPlots
 
 FADC/MOctalFADCBufferOverflow
