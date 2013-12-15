@@ -15,6 +15,7 @@ Contents:     A module to fill histograms for time differences for muSC hits
 #include <map>
 #include <utility>
 #include <sstream>
+#include <iostream>
 
 /* MIDAS includes */
 #include "midas.h"
@@ -63,20 +64,18 @@ static int *last;
 static std::vector<std::string> detectors;
 static int nr_detectors; 
 
-int FillCoincidenceTimeHistogram(int tMusc, vector<TPulseIsland*> pulses, 
+int FillCoincidenceTimeHistogram(int tMusc,const std::vector<TPulseIsland*>& pulses, 
 				 int start, TH1 *h, TH2 *hAmp, double t_low, double t_high,
-				 bool PP, TH1 *h_PP, TH2 *hAmp_PP);
+				 bool PP, TH1 *h_PP, TH2 *hAmp_PP, const std::string& bank_name);
 
-bool IsPileupProtected(double t, std::vector<TPulseIsland*> p, double window, int *lPP);
+bool IsPileupProtected(double t,const std::vector<TPulseIsland*>& p, double window, int *lPP, const std::string& bank_name);
+double GetTime(const TPulseIsland* p, const TSetupData* setup, const std::string& bank_name);
 
-extern TDirectory *gManaHistsDir;
 /** This method initializes histograms.
 */
 INT MMuSCTimeDifferences_init()
 {
-  TDirectory *dir = gDirectory;
-  //gManaHistsDir->mkdir("MuSC_TimingCorrelations")->cd();
-  //gDirectory->mkdir("MuSC_TimingCorrelations")->cd();
+  gDirectory->mkdir("MuSC_TimingCorrelations")->cd();
   // Let's find all detector names other than muSC
   for(std::map<std::string, std::string>::iterator it = gSetup->fBankToDetectorMap.begin();
       it != gSetup->fBankToDetectorMap.end(); ++it){
@@ -84,6 +83,9 @@ INT MMuSCTimeDifferences_init()
       if(it->second != std::string("muSc")) detectors.push_back(it->second);
     }
   }
+  std::cout << "Number of detectors fo Time Correlations: " << detectors.size() << std::endl;
+  std::cout << "Size of Bank to Detector map: " << gSetup->fBankToDetectorMap.size() << std::endl;
+  std::cout << "Size of TPI map: " << gData->fPulseIslandToChannelMap.size() << std::endl;
 
   nr_detectors = detectors.size();
   hTime = new TH1*[nr_detectors];
@@ -125,8 +127,7 @@ INT MMuSCTimeDifferences_init()
     hAmplitudeVsTime_PP[i]->GetXaxis()->SetTitle("Time difference [ns]");
     hAmplitudeVsTime_PP[i]->GetYaxis()->SetTitle("Amplitude");
   }
-  //gDirectory->cd("/");
-  dir->cd();
+  gDirectory->cd("/");
 
   return SUCCESS;
 }
@@ -154,27 +155,29 @@ INT MMuSCTimeDifferences(EVENT_HEADER *pheader, void *pevent){
   for(std::vector<TPulseIsland*>::iterator it_Musc = pulse_islands_map[str_MuSC].begin(); 
       it_Musc != pulse_islands_map[str_MuSC].end(); ++it_Musc){
     
-    double tMusc = (*it_Musc)->GetPulseTime();
+    double tMusc = GetTime(*it_Musc,gSetup,str_MuSC);
     
-    bool PP = IsPileupProtected(tMusc, pulse_islands_map[str_MuSC], 10000, &lPP);
+    bool PP = IsPileupProtected(tMusc, pulse_islands_map[str_MuSC], 10000, &lPP,str_MuSC);
     
+    std::string bank_name;
     for(int i=0; i<nr_detectors; ++i){
-      last[i] = FillCoincidenceTimeHistogram(tMusc, pulse_islands_map[gSetup->GetBankName(detectors[i])], 
+      bank_name=gSetup->GetBankName(detectors[i]);
+      last[i] = FillCoincidenceTimeHistogram(tMusc, pulse_islands_map[bank_name], 
 					     last[i], hTime[i], hAmplitudeVsTime[i], t_low, t_high,
-					     PP, hTime_PP[i], hAmplitudeVsTime_PP[i]);
+					     PP, hTime_PP[i], hAmplitudeVsTime_PP[i], bank_name);
     }
   }
   
   return SUCCESS;
 }
 
-int FillCoincidenceTimeHistogram(int tMusc, std::vector<TPulseIsland*> pulses, 
+int FillCoincidenceTimeHistogram(int tMusc,const std::vector<TPulseIsland*>& pulses, 
 				 int start, TH1 *h, TH2 *hAmp, double t_low, double t_high,
-				 bool PP, TH1 *h_PP, TH2 *hAmp_PP)
+				 bool PP, TH1 *h_PP, TH2 *hAmp_PP, const std::string& bank_name)
 {
   for(int p = start; p < (int)pulses.size(); ++p){
     
-    double tDiff = pulses[p]->GetPulseTime() - tMusc;
+    double tDiff = GetTime(pulses[p],gSetup, bank_name) - tMusc;
     if(tDiff < t_low){
       start = p;
       continue;
@@ -191,10 +194,10 @@ int FillCoincidenceTimeHistogram(int tMusc, std::vector<TPulseIsland*> pulses,
   return start;
 }
 
-bool IsPileupProtected(double t, std::vector<TPulseIsland*> p, double window, int *lPP){
+bool IsPileupProtected(double t,const std::vector<TPulseIsland*>& p, double window, int *lPP, const std::string& bank_name){
   if(t < window || t > 1.12E8-window) return false; // very basic bookending
-  for(int i = *lPP; i < p.size(); ++i){
-    double t2 = p[i]->GetPulseTime();
+  for(unsigned i = *lPP; i < p.size(); ++i){
+    double t2 = GetTime(p[i],gSetup,bank_name);
     if(t2 < t-window){
       *lPP = i;
     }
@@ -204,3 +207,6 @@ bool IsPileupProtected(double t, std::vector<TPulseIsland*> p, double window, in
   return true;
 }
 
+double GetTime(const TPulseIsland* p, const TSetupData* setup, const std::string& bank_name){
+   return p->GetPulseTime() - setup->GetTimeShift(bank_name);
+}

@@ -38,7 +38,7 @@ void TPulseIsland::Reset(Option_t* o)
 // -- Gets the amplitude of the pulse
 double TPulseIsland::GetAmplitude() const {
 
-  if (gSetup->GetIsFast(fBankName))
+  if (TSetupData::IsFast(fBankName))
     return GetFastPulseAmplitude();
   else
     return GetSlowPulseAmplitude();
