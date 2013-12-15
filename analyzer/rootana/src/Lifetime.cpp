@@ -8,7 +8,6 @@
 
 #include "TH1I.h"
 
-// The stuff we'll be using
 extern std::map< std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 int nECut;
 double tCut[2];
@@ -23,7 +22,7 @@ Lifetime::Lifetime(char *HistogramDirectoryName) :
 
   // Time in ns
   tCut[0] = 800.;
-  tCut[1] = 2000.;
+  tCut[1] = 5000.;
   tPileUp = 10000.;
   // Energy cuts in ADC
   eCut.push_back(100);
@@ -94,36 +93,28 @@ int Lifetime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
   if (gAnalysedPulseMap.count("muSc")) musc = &gAnalysedPulseMap.at("muSc");
   else return 0;
 
-  if (gAnalysedPulseMap.count("Si16-1")) targ[0] = &gAnalysedPulseMap.at("Si16-1");
-  else if (gAnalysedPulseMap.count("SiL16-1")) targ[0] = &gAnalysedPulseMap.at("SiL16-1");
+  if (gAnalysedPulseMap.count("Si16-1-S")) targ[0] = &gAnalysedPulseMap.at("Si16-1-S");
   else targ[0] = NULL;
 
-  if (gAnalysedPulseMap.count("Si16-2")) targ[1] = &gAnalysedPulseMap.at("Si16-2");
-  else if (gAnalysedPulseMap.count("SiL16-2")) targ[1] = &gAnalysedPulseMap.at("SiL16-2");
+  if (gAnalysedPulseMap.count("Si16-2-S")) targ[1] = &gAnalysedPulseMap.at("Si16-2-S");
   else targ[1] = NULL;
 
-  if (gAnalysedPulseMap.count("Si16-3")) targ[2] = &gAnalysedPulseMap.at("Si16-3");
-  else if (gAnalysedPulseMap.count("SiL16-3")) targ[2] = &gAnalysedPulseMap.at("SiL16-3");
+  if (gAnalysedPulseMap.count("Si16-3-S")) targ[2] = &gAnalysedPulseMap.at("Si16-3-S");
   else targ[2] = NULL;
 
-  if (gAnalysedPulseMap.count("Si16-4")) targ[3] = &gAnalysedPulseMap.at("Si16-4");
-  else if (gAnalysedPulseMap.count("SiL16-4")) targ[3] = &gAnalysedPulseMap.at("SiL16-4");
+  if (gAnalysedPulseMap.count("Si16-4-S")) targ[3] = &gAnalysedPulseMap.at("Si16-4-S");
   else targ[3] = NULL;
 
-  if (gAnalysedPulseMap.count("Si16-5")) targ[4] = &gAnalysedPulseMap.at("Si16-5");
-  else if (gAnalysedPulseMap.count("SiL16-5")) targ[4] = &gAnalysedPulseMap.at("SiL16-5");
+  if (gAnalysedPulseMap.count("Si16-5-S")) targ[4] = &gAnalysedPulseMap.at("Si16-5-S");
   else targ[4] = NULL;
 
-  if (gAnalysedPulseMap.count("Si16-6")) targ[5] = &gAnalysedPulseMap.at("Si16-6");
-  else if (gAnalysedPulseMap.count("SiL16-6")) targ[5] = &gAnalysedPulseMap.at("SiL16-6");
+  if (gAnalysedPulseMap.count("Si16-6-S")) targ[5] = &gAnalysedPulseMap.at("Si16-6-S");
   else targ[5] = NULL;
 
-  if (gAnalysedPulseMap.count("Si16-7")) targ[6] = &gAnalysedPulseMap.at("Si16-7");
-  if (gAnalysedPulseMap.count("SiL16-7")) targ[6] = &gAnalysedPulseMap.at("SiL16-7");
+  if (gAnalysedPulseMap.count("Si16-7-S")) targ[6] = &gAnalysedPulseMap.at("Si16-7-S");
   else targ[6] = NULL;
 
-  if (gAnalysedPulseMap.count("Si16-8")) targ[7] = &gAnalysedPulseMap.at("Si16-8");
-  if (gAnalysedPulseMap.count("SiL16-8")) targ[7] = &gAnalysedPulseMap.at("SiL16-8");
+  if (gAnalysedPulseMap.count("Si16-8-S")) targ[7] = &gAnalysedPulseMap.at("Si16-8-S");
   else targ[7] = NULL;
 
   // Iterators through aforementioned vectors

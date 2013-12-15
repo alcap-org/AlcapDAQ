@@ -41,7 +41,13 @@ echo "SOURCE_DIRS += "$SOURCE_DIRS
 
 echo "SOURCE_DIRS += "$SOURCE_DIRS >> Makefile.MODULES
 echo "" >> Makefile.MODULES
-echo "INCLUDE_DIRS += "$SOURCE_DIRS >> Makefile.MODULES
+
+# Get include dirs
+IncludeDirs=""
+for f in ../../src/*;do 
+        [ -d "$f" ] && IncludeDirs="$IncludeDirs:$f"
+done
+echo "INCLUDE_DIRS += "$IncludeDirs >> Makefile.MODULES
 echo "" >> Makefile.MODULES
 echo $MOBJS >> Makefile.MODULES
 
