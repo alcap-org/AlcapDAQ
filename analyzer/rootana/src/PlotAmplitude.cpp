@@ -58,8 +58,8 @@ int PlotAmplitude::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
     std::vector<TAnalysedPulse*> pulses = detIter->second;
 
-    for (std::vector<TAnalysedPulse*>::iterator fastPulseIter = pulses.begin(); fastPulseIter != pulses.end(); ++fastPulseIter) {
-      double amplitude = (*fastPulseIter)->GetAmplitude();
+    for (std::vector<TAnalysedPulse*>::iterator pulseIter = pulses.begin(); pulseIter != pulses.end(); ++pulseIter) {
+      double amplitude = (*pulseIter)->GetAmplitude();
       amplitude_plots[detname]->Fill(amplitude);
 	    
     } // end loop through pulses
