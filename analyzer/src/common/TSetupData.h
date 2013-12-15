@@ -68,7 +68,7 @@ class TSetupData : public TObject{
   static bool IsHoustonCAEN(const std::string& BankName) { return BankName.substr(2,2) == "UH"; } // if the first letter is C then the bank name is for a CAEN
   static bool IsBostonCAEN(const std::string& BankName) { return BankName.substr(2,2)  == "BU"; } // if the first letter is C then the bank name is for a CAEN
   static bool IsSlow(const std::string& BankName) { return (*BankName.end() -1 ) == 'S'; } // if the last letter is S then the bank name is for a Slow pulse
-  static bool IsFast(const std::string& BankName) { return (*BankName.end() -1 )  == 'F'; } // if the last letter is F then the bank name is for a Fast pulse
+  static bool IsFast(const std::string& BankName) { return (*(BankName.end() -1)  == 'F' || BankName.substr(0,2) == "Sc" ); } // if the last letter is F then the bank name is for a Fast pulse
 
 private:
   // A small helper function to save us copying this about the place all the time

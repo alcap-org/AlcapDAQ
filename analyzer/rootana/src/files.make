@@ -4,7 +4,7 @@ SOURCES += \
 main.cpp \
 FillHistBase.cpp \
 AnalysePulseIsland.cpp \
-CorrelateFastSlowPulses.cpp \
+PlotAmplitude.cpp \
 CreateDetectorPulse.cpp \
 CheckCoincidence.cpp \
 MakeMuonEvents.cpp \
