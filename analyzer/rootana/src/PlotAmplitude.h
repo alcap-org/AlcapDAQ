@@ -1,14 +1,14 @@
-#ifndef CorrelateFastSlowPulses_h__
-#define CorrelateFastSlowPulses_h__
+#ifndef PlotAmplitude_h__
+#define PlotAmplitude_h__
 
 #include "FillHistBase.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 
-class CorrelateFastSlowPulses : public FillHistBase{
+class PlotAmplitude : public FillHistBase{
  public:
-  CorrelateFastSlowPulses(char *HistogramDirectoryName);
-  ~CorrelateFastSlowPulses();
+  PlotAmplitude(char *HistogramDirectoryName);
+  ~PlotAmplitude();
 
  private:
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);

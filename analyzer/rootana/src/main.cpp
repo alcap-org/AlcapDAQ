@@ -9,7 +9,6 @@
 
 #include "FillHistBase.h"
 #include "AnalysePulseIsland.h"
-#include "CorrelateFastSlowPulses.h"
 #include "CheckCoincidence.h"
 #include "MakeMuonEvents.h"
 #include "CreateDetectorPulse.h"

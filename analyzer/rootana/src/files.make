@@ -6,6 +6,5 @@ FillHistBase.cpp \
 AnalysePulseIsland.cpp \
 PlotAmplitude.cpp \
 CreateDetectorPulse.cpp \
-CreateDetectorPulse.cpp \
 CheckCoincidence.cpp \
 MakeMuonEvents.cpp \
