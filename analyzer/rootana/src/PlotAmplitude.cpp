@@ -1,3 +1,5 @@
+//#define USE_PRINT_OUT 
+
 #include "CorrelateFastSlowPulses.h"
 #include <iostream>
 #include <stdio.h>

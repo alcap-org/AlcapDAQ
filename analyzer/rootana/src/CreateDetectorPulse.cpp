@@ -1,3 +1,5 @@
+//#define USE_PRINT_OUT 
+
 #include "CreateDetectorPulse.h"
 #include <iostream>
 #include <stdio.h>
@@ -33,11 +35,11 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
   // Loop through and find a fast channel
-  //  std::cout << "Size of gAnalysedPulseMap " << gAnalysedPulseMap.size() << std::endl;
+   //std::cout << "Size of gAnalysedPulseMap " << gAnalysedPulseMap.size() << std::endl;
   for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator findFastIter = gAnalysedPulseMap.begin(); findFastIter != gAnalysedPulseMap.end(); findFastIter++) {
 
     std::string fast_det_name = findFastIter->first;
-    //    std::cout << "DetName; " << fast_det_name << std::endl;
+     //std::cout << "DetName; " << fast_det_name << std::endl;
     if ( *(fast_det_name.end()-1) == 'F') {
       //      std::cout << fast_det_name << " is a fast channel and I will now find the slow one" << std::endl;
       std::string detname = fast_det_name.substr(0, fast_det_name.size() - 2);
@@ -91,11 +93,11 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
 	      if (std::fabs(pulse_time - min_time) < time_difference) {
 		if ( *(pulse->GetDetName().end() -1) == 'F' ) {
-		  //	  std::cout << "Fast? " << pulse->GetDetName() << std::endl;
+		  PrintOut("Fast? " << pulse->GetDetName() << std::endl);
 		  fast_pulse = pulse;
 		}
 		else if ( *(pulse->GetDetName().end() -1) == 'S')  {
-		  //		  std::cout << "Slow? " << pulse->GetDetName() << std::endl;
+		  PrintOut( "Slow? " << pulse->GetDetName() << std::endl);
 		  slow_pulse = pulse;
 		}
 
@@ -104,11 +106,11 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 	    }
 	    TDetectorPulse* det_pulse = new TDetectorPulse(fast_pulse, slow_pulse, detname); // Create the TDetectorPulse
 	    detectorPulses.push_back(det_pulse);
-	    /*	    std::cout << "Created a TDetectorPulse with:\n";
-	    std::cout << "Fast Pulse: " << det_pulse->GetFastPulseTime() * 1e-6 << std::endl;
-	    std::cout << "Slow Pulse: " << det_pulse->GetSlowPulseTime() * 1e-6 << std::endl;
-	    std::cout << std::endl;
-	    */
+	    PrintOut("Created a TDetectorPulse with:\n");
+	    PrintOut("Fast Pulse: " << det_pulse->GetFastPulseTime() * 1e-6 << std::endl);
+	    PrintOut( "Slow Pulse: " << det_pulse->GetSlowPulseTime() * 1e-6 << std::endl);
+	    PrintOut( std::endl);
+
 	    //Delete the iterators to finished banks. Go through in reverse to
 	    //avoid invalidation problems
 	    for (int b = pulseIters.size()-1; b >= 0; --b) {
@@ -117,7 +119,7 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 		finalIters.erase(finalIters.begin() + b);
 	      }  
 	    } // for (int b -reversed)	      
-	  } // end while
+	  } // end for
 	  
 	  gDetectorPulseMap[detname] = detectorPulses;
 	} // end if slow channel found
