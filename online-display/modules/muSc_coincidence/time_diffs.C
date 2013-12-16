@@ -64,7 +64,7 @@ void time_diffs(std::string channel,std::string suffix)
   Project_pad->cd();
   Project_pad->SetLogy();
   full_projection = AvsTdiff->ProjectionY(FullProj_name.c_str());
-  full_projection->SetTitle("Projection");
+  full_projection->SetTitle("Projection (black: no cut. red: t_diff small)");
   TH1D* coincidence_projection = AvsTdiff->ProjectionY(CutProj_name.c_str(), AvsTdiff->GetXaxis()->FindBin(cut_min), AvsTdiff->GetXaxis()->FindBin(cut_max));
   coincidence_projection->SetLineColor(kRed);
   
