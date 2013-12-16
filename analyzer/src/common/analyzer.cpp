@@ -36,6 +36,11 @@ PAWC_DEFINE(1000000);
 #include "TGlobalData.h"
 #include "TSetupData.h"
 
+TSetupData* TSetupData::Instance()
+{
+          return gSetup;
+}
+
 /*-- Globals -------------------------------------------------------*/
 
 /* The analyzer name (client name) as seen by other MIDAS clients   */
@@ -269,6 +274,23 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     return;
   }
 
+  sprintf(keyName, "/Analyzer/WireMap/TimeShift");
+  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+   printf("Warning: Could not find key %s\n", keyName);
+   return;
+  }
+  KEY timeshift_key;
+   if(db_get_key(hDB, hKey, &timeshift_key) != DB_SUCCESS){
+   printf("Warning: Could not find key %s\n", keyName);
+   return;
+  }
+  float TimeShifts[timeshift_key.num_values];
+  size = sizeof(TimeShifts);
+   if(db_get_value(hDB, 0, keyName, TimeShifts, &size, TID_FLOAT, 0) != DB_SUCCESS){
+   printf("Warning: Could not retrieve values for key %s\n", keyName);
+   return;
+  }
+
   if(det_key.num_values != bk_key.num_values){
     printf("Warning: Key sizes are not equal for banks and detectors in /Analyzer/WireMap/\n");
     return;
@@ -283,13 +305,7 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     gSetup->SetDetectorName(bank_name,detector);
     gSetup->SetTriggerPolarity(bank_name,TriggerPolarities[i]);
     gSetup->SetPedestal(bank_name,Pedestals[i]);
-
-    if (*(detector.end()-1) == 'F')
-      gSetup->SetIsFast(bank_name, true);
-    else if (*(detector.end()-1) == 'S')
-      gSetup->SetIsFast(bank_name, false);
-    else // what should we do with channels without detectors?
-      gSetup->SetIsFast(bank_name, false);
+    gSetup->SetTimeShift(bank_name,TimeShifts[i]);
 
     //////////////////////////////////////////////////
     // Calculate and the add the clock ticks to TSetupData
@@ -342,8 +358,8 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
 
     //////////////////////////////////////////////////
     // Get the ADC value to MeV calibration constant
-    double adcValueInMeV = 1;
-    gSetup->SetADCValue(bank_name,adcValueInMeV);
+    //double adcValueInMeV = 1;
+    //gSetup->SetADCValue(bank_name,adcValueInMeV);
 
     //////////////////////////////////////
     // Add the number of bits for each digitizer

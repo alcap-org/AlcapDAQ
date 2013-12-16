@@ -31,7 +31,7 @@ using std::ifstream;
 using std::cout;
 using std::endl;
 
-TOnlineFrame::TOnlineFrame(const TGWindow * p):TGMainFrame(p, width,
+TOnlineFrame::TOnlineFrame(const TGWindow * p,std::string module_file_name):TGMainFrame(p, width,
 		height)
 {
 
@@ -45,8 +45,9 @@ TOnlineFrame::TOnlineFrame(const TGWindow * p):TGMainFrame(p, width,
 	std::string is_name;
 	if ( getenv(env_name) )
 	{
+                if (module_file_name.empty() ) module_file_name="MODULES";
 		env_value = getenv(env_name);
-		is_name = env_value + "/online-display/MODULES";
+		is_name = env_value + "/online-display/"+module_file_name;
 	}
 	else
 	{
@@ -253,9 +254,9 @@ Bool_t TOnlineFrame::ProcessMessage(Long_t msg, Long_t param1,
 					else if (param1 == B_PRINT) 
 					{  
 						unsigned long int t = time(NULL);
-						sprintf(name,"~/Pictures/online-display/%s_run_%06ld_%lu.pdf",screens[fCurrentDisplay].visibleName,run_nr,t);
+						sprintf(name,"%s_run_%06ld_%lu.pdf",screens[fCurrentDisplay].visibleName,run_nr,t);
 						fEmbeddedCanvas->GetCanvas()->Print(name);
-						sprintf(name,"~/Pictures/online-display/%s_run_%06ld_%lu.png",screens[fCurrentDisplay].visibleName,run_nr,t);
+						sprintf(name,"%s_run_%06ld_%lu.png",screens[fCurrentDisplay].visibleName,run_nr,t);
 						fEmbeddedCanvas->GetCanvas()->Print(name);
 						sprintf(text,"Canvas printed to file [%s]",name);
 						print_msg(text);

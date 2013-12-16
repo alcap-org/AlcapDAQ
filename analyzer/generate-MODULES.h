@@ -12,14 +12,25 @@ fi
 OUTFILE=$1/MODULES.h
 
 rm -f ${OUTFILE}
-for module in `cat MODULES`; do
+while read module; do 
+  [ -z "$module" ] &&continue;
+  module="`tr -d '\r\n' <<<$module`"
+  if [[ "$module" == '#'* ]];then 
+          echo "Ignoring: ${module}"
+          continue
+  fi
   basename=`basename $module`
   echo "extern ANA_MODULE ${basename}_module;" >> ${OUTFILE};
-done
+done < MODULES
 echo >> ${OUTFILE}
 echo "ANA_MODULE *trigger_module[] = {" >> ${OUTFILE}
-for module in `cat MODULES`; do 
+while read module; do 
+  [ -z "$module" ] &&continue;
+  module="`tr -d '\r\n' <<<$module`"
+  if [[ "$module" == '#'* ]];then 
+     continue
+  fi
     basename=`basename $module`
     echo "  &${basename}_module," >> ${OUTFILE}; 
-done;
+done < MODULES
 echo "NULL };" >> ${OUTFILE}

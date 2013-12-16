@@ -4,7 +4,7 @@
 #include "TH2.h"
 #include "getHist.h"
 
-TH2* get_histogram_2d(std::string bank_name, std::string hist_type)
+TH2* get_histogram_2d(std::string bank_name, std::string hist_type,std::string folder="")
 {
   /*****************************************************************/
   // Prepare the canvas
@@ -14,6 +14,7 @@ TH2* get_histogram_2d(std::string bank_name, std::string hist_type)
   //  canvas->Divide(8,3);
   /*****************************************************************/
   std::string histname = "h" + bank_name + "_" + hist_type;
+  if(!folder.empty()) histname=folder+"/"+histname;
   return (TH2 *)getObject(histname.c_str());
 
 }
