@@ -10,7 +10,7 @@
 #include "TAnalysedPulse.h"
 #include "TSetupData.h"
 
-extern TSetupData* gSetup;
+//extern TSetupData* gSetup;
 
 class TDetectorPulse : public TObject {
   private:

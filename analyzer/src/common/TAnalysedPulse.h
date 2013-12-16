@@ -8,7 +8,7 @@
 #include <TH1.h>
 #include "TSetupData.h"
 
-extern TSetupData* gSetup;
+//extern TSetupData* gSetup;
 
 class TAnalysedPulse : public TObject {
   private:
