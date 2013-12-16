@@ -1,5 +1,5 @@
 [/Equipment/Crate 9/Settings/NFADC 80/Channel 0]
-Trigger mask = INT : 0
+Trigger mask = INT : 1
 [/Equipment/Crate 9/Settings/NFADC 80/Channel 1]
 Trigger mask = INT : 1
 [/Equipment/Crate 9/Settings/NFADC 80/Channel 2]
@@ -15,9 +15,9 @@ Trigger mask = INT : 0
 [/Equipment/Crate 9/Settings/NFADC 80/Channel 7]
 Trigger mask = INT : 0
 [/Equipment/Crate 9/Settings/NFADC 81/Channel 0]
-Trigger mask = INT : 0
+Trigger mask = INT : 1
 [/Equipment/Crate 9/Settings/NFADC 81/Channel 1]
-Trigger mask = INT : 0
+Trigger mask = INT : 1
 [/Equipment/Crate 9/Settings/NFADC 81/Channel 2]
 Trigger mask = INT : 1
 [/Equipment/Crate 9/Settings/NFADC 81/Channel 3]
@@ -29,7 +29,7 @@ Trigger mask = INT : 1
 [/Equipment/Crate 9/Settings/NFADC 81/Channel 6]
 Trigger mask = INT : 0
 [/Equipment/Crate 9/Settings/NFADC 81/Channel 7]
-Trigger mask = INT : 1
+Trigger mask = INT : 0
 [/Equipment/Crate 9/Settings/NFADC 82/Channel 0]
 Trigger mask = INT : 1
 [/Equipment/Crate 9/Settings/NFADC 82/Channel 1]
