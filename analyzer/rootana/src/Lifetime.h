@@ -4,6 +4,7 @@
 #include "FillHistBase.h"
 
 class TGlobalData;
+class TSetupData;
 
 class Lifetime : public FillHistBase{
  public:
