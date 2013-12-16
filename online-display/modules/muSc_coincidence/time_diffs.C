@@ -26,11 +26,13 @@ void time_diffs(std::string channel,std::string suffix)
   TDiff_pad->cd();
   TH1* tdiff = get_histogram(name,Timediff ,folder);
   tdiff->Draw();
+  TDiff_pad->SetLogy();
 
   // Draw the amplitude vs timing diff
   AmpVT_pad->cd();
+  AmpVT_pad->SetLogz();
   TH2* AvsTdiff = get_histogram_2d(name, AmplitudeVsTdiff,folder);
-  AvsTdiff->Draw("scat");
+  AvsTdiff->Draw("COLZ");
   double y_min=AvsTdiff->GetYaxis()->GetBinLowEdge(AvsTdiff->GetYaxis()->GetFirst());
   double y_max=AvsTdiff->GetYaxis()->GetBinUpEdge(AvsTdiff->GetYaxis()->GetLast());
   TLine* line=new TLine();
@@ -40,6 +42,7 @@ void time_diffs(std::string channel,std::string suffix)
 
   // Draw the cut diagram from the projection of AmplitudeVsTdiff
   Project_pad->cd();
+  Project_pad->SetLogy();
   TH1D* full_projection = AvsTdiff->ProjectionY("_py_full");
   full_projection->SetTitle("Projection");
   TH1D* coincidence_projection = AvsTdiff->ProjectionY("_py_coinc", AvsTdiff->GetXaxis()->FindBin(cut_min), AvsTdiff->GetXaxis()->FindBin(cut_max));
