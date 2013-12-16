@@ -1,4 +1,5 @@
 char*  MakeName(std::string name, std::string hist_type){
+	std::cout<< ("h"+name+"_"+hist_type).c_str()<<std::endl;
         return ("h"+name+"_"+hist_type).c_str();
 }
 
@@ -30,15 +31,15 @@ void time_diffs(std::string channel,std::string suffix)
   double cut_max=1000;
 
   // Create all histograms to avoid memory leaks and redefinition issues (thanks root...)
-  TH1* tdiff;
+  TH1* tdiff=NULL;
   //gROOT->GetObject(MakeName(name,Timediff),tdiff);
-  TH2* AvsTdiff;
+  TH2* AvsTdiff=NULL;
   //gROOT->GetObject(MakeName(name,AmplitudeVsTdiff),AvsTdiff);
-  TH1D* full_projection;
-  gROOT->GetObject(MakeName(name,FullProj_name),full_projection);
+  TH1D* full_projection=NULL;
+  gROOT->Delete(FullProj_name.c_str());//,full_projection);
   if(full_projection) delete full_projection;
-  TH1D* coincidence_projection;
-  gROOT->GetObject(MakeName(name,CutProj_name),coincidence_projection);
+  TH1D* coincidence_projection=NULL;
+  gROOT->Delete(CutProj_name.c_str());//,coincidence_projection);
   if( coincidence_projection) delete coincidence_projection;
 
   // Draw the timing plot
