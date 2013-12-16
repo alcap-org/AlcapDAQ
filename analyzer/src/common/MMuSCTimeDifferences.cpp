@@ -117,13 +117,13 @@ INT MMuSCTimeDifferences_init()
     hTitle += detectors[i];
     hTitle += " - muSC";
     hAmplitudeVsTime[i] = new TH2F(hName.c_str(), hTitle.c_str(), 250, -5000, 5000,
-				   250, 0, 1000);
+				   250, 0, 3000);
     hAmplitudeVsTime[i]->GetXaxis()->SetTitle("Time difference [ns]");
     hAmplitudeVsTime[i]->GetYaxis()->SetTitle("Amplitude");
     hName += "_PP";
     hTitle += " with PP";
     hAmplitudeVsTime_PP[i] = new TH2F(hName.c_str(), hTitle.c_str(), 250, -5000, 5000,
-				      250, 0, 1000);
+				      250, 0, 3000);
     hAmplitudeVsTime_PP[i]->GetXaxis()->SetTitle("Time difference [ns]");
     hAmplitudeVsTime_PP[i]->GetYaxis()->SetTitle("Amplitude");
   }

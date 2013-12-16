@@ -19,7 +19,7 @@ void time_diffs(std::string channel,std::string suffix)
   std::string AmplitudeVsTdiff="AmplitudeVsTdiff"+suffix;
   std::string folder="MuSC_TimingCorrelations";
 
-  double cut_min=-100;
+  double cut_min=-1000;
   double cut_max=1000;
 
   // Draw the timing plot
@@ -31,11 +31,18 @@ void time_diffs(std::string channel,std::string suffix)
   AmpVT_pad->cd();
   TH2* AvsTdiff = get_histogram_2d(name, AmplitudeVsTdiff,folder);
   AvsTdiff->Draw("scat");
+  double y_min=AvsTdiff->GetYaxis()->GetBinLowEdge(AvsTdiff->GetYaxis()->GetFirst());
+  double y_max=AvsTdiff->GetYaxis()->GetBinUpEdge(AvsTdiff->GetYaxis()->GetLast());
+  TLine* line=new TLine();
+  line->SetLineColor(kRed);
+  line->DrawLine(cut_min,y_min,cut_min,y_max);
+  line->DrawLine(cut_max,y_min,cut_max,y_max);
 
   // Draw the cut diagram from the projection of AmplitudeVsTdiff
   Project_pad->cd();
   TH1D* full_projection = AvsTdiff->ProjectionY("_py_full");
-  TH1D* coincidence_projection = AvsTdiff->ProjectionY("_py_coinc", AvsTdiff->GetXaxis()->FindBin(-1500), AvsTdiff->GetXaxis()->FindBin(-500));
+  full_projection->SetTitle("Projection");
+  TH1D* coincidence_projection = AvsTdiff->ProjectionY("_py_coinc", AvsTdiff->GetXaxis()->FindBin(cut_min), AvsTdiff->GetXaxis()->FindBin(cut_max));
   coincidence_projection->SetLineColor(kRed);
   
   coincidence_projection->Rebin(5);
