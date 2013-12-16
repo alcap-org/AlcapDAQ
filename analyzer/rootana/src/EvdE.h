@@ -1,15 +1,15 @@
-#ifndef Lifetime_h__
-#define Lifetime_h__
+#ifndef EvdE_h__
+#define EvdE_h__
 
 #include "FillHistBase.h"
 
 class TGlobalData;
 class TSetupData;
 
-class Lifetime : public FillHistBase{
+class EvdE : public FillHistBase{
  public:
-  Lifetime(char *HistogramDirectoryName);
-  ~Lifetime();
+  EvdE(char *HistogramDirectoryName);
+  ~EvdE();
 
  private:
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
