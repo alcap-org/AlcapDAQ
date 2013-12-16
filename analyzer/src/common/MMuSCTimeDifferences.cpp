@@ -75,7 +75,7 @@ double GetTime(const TPulseIsland* p, const TSetupData* setup, const std::string
 */
 INT MMuSCTimeDifferences_init()
 {
-  gDirectory->mkdir("MuSC_TimingCorrelations")->cd();
+  //gDirectory->mkdir("MuSC_TimingCorrelations")->cd();
   // Let's find all detector names other than muSC
   for(std::map<std::string, std::string>::iterator it = gSetup->fBankToDetectorMap.begin();
       it != gSetup->fBankToDetectorMap.end(); ++it){

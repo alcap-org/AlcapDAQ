@@ -17,21 +17,21 @@ void time_diffs(std::string channel,std::string suffix)
   std::string name ="MuSC_"+channel;
   std::string Timediff="Timediff"+suffix;
   std::string AmplitudeVsTdiff="AmplitudeVsTdiff"+suffix;
-  std::string folder="MuSC_TimingCorrelations";
+  //std::string folder="MuSC_TimingCorrelations";
 
   double cut_min=-1000;
   double cut_max=1000;
 
   // Draw the timing plot
   TDiff_pad->cd();
-  TH1* tdiff = get_histogram(name,Timediff ,folder);
+  TH1* tdiff = get_histogram(name,Timediff );//,folder);
   tdiff->Draw();
   TDiff_pad->SetLogy();
 
   // Draw the amplitude vs timing diff
   AmpVT_pad->cd();
   AmpVT_pad->SetLogz();
-  TH2* AvsTdiff = get_histogram_2d(name, AmplitudeVsTdiff,folder);
+  TH2* AvsTdiff = get_histogram_2d(name, AmplitudeVsTdiff);//,folder);
   AvsTdiff->Draw("COLZ");
   double y_min=AvsTdiff->GetYaxis()->GetBinLowEdge(AvsTdiff->GetYaxis()->GetFirst());
   double y_max=AvsTdiff->GetYaxis()->GetBinUpEdge(AvsTdiff->GetYaxis()->GetLast());
