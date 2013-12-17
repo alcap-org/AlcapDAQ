@@ -11,8 +11,9 @@ void fadc_overflowing_buffers()
   AlCapCanvas->cd(1);
   TH2* fadc_hist = (TH2 *)getObject("hNOctalFADCBufferOverflow");
   fadc_hist->Draw("");
-   AlCapCanvas->cd(2);
-  TH2* fadc_hist = (TH2 *)getObject("hNOctalFADCBufferOverflowPercent");
+  AlCapCanvas->cd(2);
+  fadc_hist = (TH2 *)getObject("hNOctalFADCBufferOverflowPercent");
+  fadc_hist->GetYaxis()->SetRangeUser(0., 1.2);
   fadc_hist->Draw("");
  
   

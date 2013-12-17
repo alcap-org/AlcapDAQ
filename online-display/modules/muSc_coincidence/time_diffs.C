@@ -27,8 +27,8 @@ void time_diffs(std::string channel,std::string suffix)
   AmplitudeVsTdiff+=suffix;
   //std::string folder="MuSC_TimingCorrelations";
 
-  double cut_min=-1000;
-  double cut_max=1000;
+  double cut_min=-500;
+  double cut_max=500;
 
   // Create all histograms to avoid memory leaks and redefinition issues (thanks root...)
   TH1* tdiff=NULL;
@@ -68,8 +68,8 @@ void time_diffs(std::string channel,std::string suffix)
   TH1D* coincidence_projection = AvsTdiff->ProjectionY(CutProj_name.c_str(), AvsTdiff->GetXaxis()->FindBin(cut_min), AvsTdiff->GetXaxis()->FindBin(cut_max));
   coincidence_projection->SetLineColor(kRed);
   
-  coincidence_projection->Rebin(5);
-  full_projection->Rebin(5);
+  //coincidence_projection->Rebin(5);
+  //full_projection->Rebin(5);
   
   full_projection->Draw();
   coincidence_projection->Draw("SAME");

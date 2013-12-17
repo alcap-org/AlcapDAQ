@@ -36,8 +36,10 @@ void fadc_single_plots(std::string fadc_id,std::string hist_type)
 	l->Draw("SAME");
       }
       else{
-	hist->GetYaxis()->SetRangeUser(0.,4095.);
-	//gPad->SetLogy(1);
+	if(hist_type != "Heights"){
+	  hist->GetYaxis()->SetRangeUser(0.,4095.);
+	  gPad->SetLogy(1);
+	}
 	hist->Draw();
       }
     }
