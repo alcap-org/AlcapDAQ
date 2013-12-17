@@ -7,11 +7,14 @@
 
 class CutNonCoincMuSc : public FillHistBase{
  public:
-  CutNonCoincMuSc(char *HistogramDirectoryName);
+  CutNonCoincMuSc(char *HistogramDirectoryName, std::string corr_det_name, double time_difference);
   ~CutNonCoincMuSc();
 
  private:
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+
+  std::string fCorrDetName;
+  double fTimeDifference;
 };
 
 #endif
