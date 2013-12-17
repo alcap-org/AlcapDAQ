@@ -37,9 +37,9 @@ INT max_event_size_frag = 5 * 1024 * 1024;
 INT event_buffer_size = 10 * 10000;
 
 // Globals to this file only
-static char* sLastFilled = "/Equipment/Germanium/Settings/Alarm/LastFilled";
-static char* sJustFilled = "/Equipment/Germanium/Settings/Alarm/JustFilled";
-static char* sTimeLimit  = "/Equipment/Germanium/Settings/Alarm/TimeLimit";
+static char* sLastFilled = "/Equipment/Germanium/Settings/AlarmCheck/LastFilled";
+static char* sJustFilled = "/Equipment/Germanium/Settings/AlarmCheck/JustFilled";
+static char* sTimeLimit  = "/Equipment/Germanium/Settings/AlarmCheck/TimeLimit";
 static char* sAlarmName  = "Germanium";
 static HNDLE kLastFilled;
 static HNDLE kJustFilled;
