@@ -40,27 +40,27 @@ int PlotAmplitude::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator detIter = gAnalysedPulseMap.begin(); detIter != gAnalysedPulseMap.end(); detIter++) {
 
     std::string detname = detIter->first;
-
+    std::string keyname = detIter->first + GetName();
 
     // Create the histogram if it's not been created yet
-    if ( amplitude_plots.find(detname) == amplitude_plots.end() ) {
+    if ( amplitude_plots.find(keyname) == amplitude_plots.end() ) {
 
-      // hTimeCorrelation
+      // hAmplitude
       std::string histname = "h" + detname + "_Amplitude";
       std::string histtitle = "Plot of the amplitude of pulses in the " + detname + " detector";
       int n_bits = gSetup->GetNBits(gSetup->GetBankName(detname));
       double max_adc_value = std::pow(2, n_bits);
-      TH1F* hTimeCorrelation = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value,0,max_adc_value);
-      hTimeCorrelation->GetXaxis()->SetTitle("Amplitude [ADC value]");
-      hTimeCorrelation->GetYaxis()->SetTitle("Arbitrary Unit");
-      amplitude_plots[detname] = hTimeCorrelation;
+      TH1F* hAmplitude = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value,0,max_adc_value);
+      hAmplitude->GetXaxis()->SetTitle("Amplitude [ADC value]");
+      hAmplitude->GetYaxis()->SetTitle("Arbitrary Unit");
+      amplitude_plots[keyname] = hAmplitude;
     }
 
     std::vector<TAnalysedPulse*> pulses = detIter->second;
 
     for (std::vector<TAnalysedPulse*>::iterator pulseIter = pulses.begin(); pulseIter != pulses.end(); ++pulseIter) {
       double amplitude = (*pulseIter)->GetAmplitude();
-      amplitude_plots[detname]->Fill(amplitude);
+      amplitude_plots[keyname]->Fill(amplitude);
 	    
     } // end loop through pulses
 	  
