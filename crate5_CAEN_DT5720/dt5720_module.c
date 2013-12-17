@@ -270,7 +270,7 @@ INT dt5720_eor()
 
 INT dt5720_read(char *pevent)
 {
-  printf("Read out data from desktop digitizer\n");
+  //printf("Read out data from desktop digitizer\n");
 
   // =====================================================================================
   // Read out remaining data from the digitizer
@@ -313,7 +313,7 @@ void dt5720_readout()
   /* If there's data, copy from digitizers local buffer to different local buffer */
   if(caen_data_size > 0)
     {
-      printf("data size: %i\n", caen_data_size);
+      //printf("data size: %i\n", caen_data_size);
 
       if(data_size+caen_data_size < data_buffer_size )
 	{
@@ -582,7 +582,7 @@ uint32_t analog2adc_offset(int ch)
     0x8000 -> -1V to 1V
     0xFFFF ->  0V to 2V
   */
-  int v;
+  float v;
   switch(ch)
     {
     case 0: v = S_DT5720_ODB.ch00.offset; break;
@@ -605,13 +605,18 @@ uint32_t analog2adc_offset(int ch)
 
   v += 1.;
 
-  return (uint32_t)(slope*v);
+  uint32_t dac = slope*v;
+  printf("DAC offset: channel %i DAC %i\n",ch, dac);
+
+
+  return dac;
 }
 
 uint32_t analog2adc_trigger(int ch)
 {
   static const float dynamicrange = 2.;
   static const uint32_t adcmax = 4095;
+  //static const uint32_t adcmax = 65535;
   static const uint32_t adcmin = 0;
   static const float slope = (adcmax-adcmin)/dynamicrange;
 
@@ -644,8 +649,11 @@ uint32_t analog2adc_trigger(int ch)
       v = vmin+dynamicrange/2.;
       cm_msg(MINFO,"dt5720_update_digitizer","Invalid self trigger threshold. Set to center.");
     }
+
+  uint32_t dac = (v-vmin)*slope;
+  printf("Trigger threshold: channel %i DAC %i DAC\n",ch,dac);
   
-  return (uint32_t)((v-vmin)*slope);
+  return dac;
 }
 
 BOOL is_caen_error(CAEN_DGTZ_ErrorCode e, int l, const char* r)
