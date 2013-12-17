@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 topdir=`dirname $0`
 
 sourcedirs="$topdir/src"
