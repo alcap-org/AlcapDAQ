@@ -1,6 +1,6 @@
 //#define USE_PRINT_OUT 
 
-#include "CutNonCoincMuSc.h"
+#include "CutNonCoinc.h"
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +22,7 @@ extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
 std::map<std::string, TH1F*> tdiff_plots;
 
-CutNonCoincMuSc::CutNonCoincMuSc(char *HistogramDirectoryName, std::string corr_det_name, double time_difference) :
+CutNonCoinc::CutNonCoinc(char *HistogramDirectoryName, std::string corr_det_name, double time_difference) :
   FillHistBase(HistogramDirectoryName){ 
 
   fCorrDetName = corr_det_name;
@@ -30,10 +30,10 @@ CutNonCoincMuSc::CutNonCoincMuSc(char *HistogramDirectoryName, std::string corr_
   dir->cd("/");
 }
 
-CutNonCoincMuSc::~CutNonCoincMuSc(){  
+CutNonCoinc::~CutNonCoinc(){  
 }
 
-int CutNonCoincMuSc::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int CutNonCoinc::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;

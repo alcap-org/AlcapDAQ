@@ -1,14 +1,14 @@
-#ifndef CutNonCoincMuSc_h__
-#define CutNonCoincMuSc_h__
+#ifndef CutNonCoinc_h__
+#define CutNonCoinc_h__
 
 #include "FillHistBase.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 
-class CutNonCoincMuSc : public FillHistBase{
+class CutNonCoinc : public FillHistBase{
  public:
-  CutNonCoincMuSc(char *HistogramDirectoryName, std::string corr_det_name, double time_difference);
-  ~CutNonCoincMuSc();
+  CutNonCoinc(char *HistogramDirectoryName, std::string corr_det_name, double time_difference);
+  ~CutNonCoinc();
 
  private:
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
