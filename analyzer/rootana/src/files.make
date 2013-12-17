@@ -8,4 +8,6 @@ PlotAmplitude.cpp \
 PlotTime.cpp \
 CreateDetectorPulse.cpp \
 CheckCoincidence.cpp \
+CutNonCoinc.cpp \
+EvdE.cpp \
 MakeMuonEvents.cpp \
