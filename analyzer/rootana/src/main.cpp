@@ -14,7 +14,8 @@
 #include "CreateDetectorPulse.h"
 #include "PlotAmplitude.h"
 #include "PlotTime.h"
-#include "CutNonCoincMuSc.h"
+#include "CutNonCoinc.h"
+#include "EvdE.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -127,9 +128,10 @@ int main(int argc, char **argv){
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
   fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
   fillhists[n_fillhist++] = new PlotTime("PlotTime");
-  //  fillhists[n_fillhist++] = new CutNonCoincMuSc("CutNonCoincMuSc");
+  fillhists[n_fillhist++] = new CutNonCoinc("CutNonCoinc_MuSc", "muSc",100);
   fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_AfterCut");
   fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);
+  fillhists[n_fillhist++] = new EvdE("EvdE");
   //fillhists[n_fillhist++] = new CheckCoincidence("CheckCoincidence",s_data);
   //  fillhists[n_fillhist++] = new CreateDetectorPulse("CreateDetectorPulse");
   
@@ -198,6 +200,9 @@ void *root_event_loop(void *arg){
       br->SetAddress(&g_event);
     }
     
+    if (jentry%100 == 0) {
+      printf("Completed %d events out of %d\n", jentry, stop);
+    }
     // Let's get the next event
     nb = tree->GetEntry(jentry);
 
