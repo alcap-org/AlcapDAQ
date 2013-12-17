@@ -103,11 +103,11 @@ INT MMuSCTimeDifferences_init()
     std::string hTitle("Tdiff for ");
     hTitle += detectors[i];
     hTitle += " - muSC";
-    hTime[i] = new TH1F(hName.c_str(), hTitle.c_str(), 500, -10000, 10000);
+    hTime[i] = new TH1F(hName.c_str(), hTitle.c_str(), 500, -13000, 13000);
     hTime[i]->GetXaxis()->SetTitle("Time difference [ns]");
     hName += "_PP";
     hTitle += " with PP";
-    hTime_PP[i] = new TH1F(hName.c_str(), hTitle.c_str(), 500, -10000, 10000);
+    hTime_PP[i] = new TH1F(hName.c_str(), hTitle.c_str(), 500, -13000, 13000);
     hTime_PP[i]->GetXaxis()->SetTitle("Time difference [ns]");
        
     hName = "hMuSC_";
