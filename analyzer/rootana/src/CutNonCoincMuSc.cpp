@@ -71,7 +71,7 @@ int CutNonCoincMuSc::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 	double t_diff = time - muSc_time;
 	//	tdiff_plots[detname]->Fill(t_diff);
 
-	if (std::abs(t_diff) < 1000) { // if within 200 ns
+	if (std::abs(t_diff) < 100) { // if within 200 ns
 	  coinc_found = true;
 	  break; // no need to go through the muSc pulses any more
 	}
@@ -79,8 +79,7 @@ int CutNonCoincMuSc::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
       // If no coincidence was found
       if (coinc_found == false) {
-	pulses.erase(pulseIter);
-	--pulseIter; // delete this pulse
+	delete *pulseIter;
       }
 
     } // end loop through pulses
