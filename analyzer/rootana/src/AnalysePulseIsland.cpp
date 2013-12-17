@@ -50,18 +50,19 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       double amplitude = 0;
       double time = 0;
       double integral = 0;
+      double energy = 0.;
 
       // If this is a slow pulse
       if ( TSetupData::IsSlow(detname) ) {
-	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral);
+	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral, energy);
       } else if ( TSetupData::IsFast(detname)) {
-	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral);
+	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral, energy);
       } else {
-	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral);
+	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral, energy);
       }
 
 
-      TAnalysedPulse* analysedPulse = new TAnalysedPulse(amplitude, time, integral, detname);
+      TAnalysedPulse* analysedPulse = new TAnalysedPulse(amplitude, time, integral, energy, detname);
       analysedPulses.push_back(analysedPulse);
     }    
     gAnalysedPulseMap[detname] = analysedPulses;
@@ -72,11 +73,14 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
 // GetAllParameters_MaxBin()
 // -- Gets all the parameters for the pulse using the max bin method
-void AnalysePulseIsland::GetAllParameters_MaxBin(TSetupData* gSetup, const TPulseIsland* pulse, double& amplitude, double& time, double& integral) {
+void AnalysePulseIsland::GetAllParameters_MaxBin(TSetupData* gSetup, const TPulseIsland* pulse,
+						 double& amplitude, double& time, double& integral, double& energy) {
 
   std::string bankname = pulse->GetBankName();
   double pedestal = gSetup->GetPedestal(bankname);
   int trigger_polarity = gSetup->GetTriggerPolarity(bankname);
+  double eCalib_slope = gSetup->GetADCSlopeCalib(bankname);
+  double eCalib_offset = gSetup->GetADCOffsetCalib(bankname);
 
   // First find the position of the peak
   std::vector<int> pulseSamples = pulse->GetSamples();
@@ -95,4 +99,5 @@ void AnalysePulseIsland::GetAllParameters_MaxBin(TSetupData* gSetup, const TPuls
   amplitude = peak_sample_value;
   time = ((pulse->GetTimeStamp() + peak_sample_pos) * gSetup->GetClockTick(bankname)) - gSetup->GetTimeShift(bankname);
   integral = 0;
+  energy = eCalib_slope * amplitude + eCalib_offset;
 }
