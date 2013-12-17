@@ -184,8 +184,10 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 	    // Also check that this pulse didn't underflow (i.e. has a sample value at any point of 4096)
 	    bool underflow = false;
 	    if (shape_histograms_map.find(bankname) != shape_histograms_map.end()) {
+              TH2* shape_histogram = shape_histograms_map[bankname];
+              TH1* latest_pulse_histogram = latest_pulse_histograms_map[bankname];
 	      
-	      latest_pulse_histograms_map[bankname]->Reset();	
+	      latest_pulse_histogram->Reset();	
 	      
 	      std::vector<int> theSamples = (*pulseIter)->GetSamples();
 	      for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
@@ -196,8 +198,8 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 		  underflow = true;
 		  break;
 		}
-		shape_histograms_map[bankname]->Fill(sample_number, sample_value);
-		latest_pulse_histograms_map[bankname]->SetBinContent(sample_number, sample_value);
+		shape_histogram->Fill(sample_number, sample_value);
+		latest_pulse_histogram->SetBinContent(sample_number, sample_value);
 	      }
 	    }
 
