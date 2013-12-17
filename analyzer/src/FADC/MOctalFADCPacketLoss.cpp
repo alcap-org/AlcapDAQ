@@ -33,6 +33,7 @@ using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
 INT  MOctalFADCPacketLoss_init(void);
+INT MOctalFADCPacketLoss_BOR(INT run_number);
 INT  MOctalFADCPacketLoss(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
@@ -40,13 +41,17 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 static TH1* hNOctalFADCAvgPacketLoss;
+static TH1* hNOctalFADCEventsWithPacketLoss;
+static TH1* hNOctalFADCEventsWithPacketLossPercent;
+static int midas_events;
+
 
 ANA_MODULE MOctalFADCPacketLoss_module =
 {
   "MOctalFADCPacketLoss",        /* module name           */
   "Andrew Edmonds",              /* author                */
   MOctalFADCPacketLoss,          /* event routine         */
-  NULL,                          /* BOR routine           */
+  MOctalFADCPacketLoss_BOR,      /* BOR routine           */
   NULL,                          /* EOR routine           */
   MOctalFADCPacketLoss_init,     /* init routine          */
   NULL,                          /* exit routine          */
@@ -65,12 +70,38 @@ INT MOctalFADCPacketLoss_init()
   // number of FADC banks.
   hNOctalFADCAvgPacketLoss = new TH1F(
     "hNOctalFADCAvgPacketLoss",
-    "Average Number of FADC packets lost per board",
+    "Number of FADC packets lost per board",
     4,128, 132);
   hNOctalFADCAvgPacketLoss->SetBit(TH1::kCanRebin);
   hNOctalFADCAvgPacketLoss->GetXaxis()->SetTitle("FADC Board Number");
-  hNOctalFADCAvgPacketLoss->GetYaxis()->SetTitle("Average Number of Packets Lost per Event");
+  hNOctalFADCAvgPacketLoss->GetYaxis()->SetTitle("Number of Packets Lost");
 
+  hNOctalFADCEventsWithPacketLoss = new TH1F(
+    "hNOctalFADCEventsWithPacketLoss",
+    "Number of MIDAS Events with FADC packet loss per board",
+    4,128, 132);
+  hNOctalFADCEventsWithPacketLoss->SetBit(TH1::kCanRebin);
+  hNOctalFADCEventsWithPacketLoss->GetXaxis()->SetTitle("FADC Board Number");
+  hNOctalFADCEventsWithPacketLoss->GetYaxis()->SetTitle("Number of Events with lost packets");
+
+  hNOctalFADCEventsWithPacketLossPercent = new TH1F(
+    "hNOctalFADCEventsWithPacketLossPercent",
+    "Percentage of MIDAS Events with FADC packet loss per board",
+    4,128, 132);
+  hNOctalFADCEventsWithPacketLossPercent->SetBit(TH1::kCanRebin);
+  hNOctalFADCEventsWithPacketLossPercent->GetXaxis()->SetTitle("FADC Board Number");
+  hNOctalFADCEventsWithPacketLossPercent->GetYaxis()->SetTitle("Average Number of Events with lost packets");
+
+  return SUCCESS;
+}
+
+/**
+ *  This method executes at the start of each run
+ */
+INT MOctalFADCPacketLoss_BOR(INT run_number)
+{
+  midas_events = 1;
+  
   return SUCCESS;
 }
 
@@ -83,8 +114,8 @@ INT MOctalFADCPacketLoss(EVENT_HEADER *pheader, void *pevent)
   int midas_event_number = pheader->serial_number;
 
   // Want the average and since I'll scale by 1/midas_event_number at the end, I should undo it now before I add the new data
-  if (midas_event_number > 1)
-    hNOctalFADCAvgPacketLoss->Scale(midas_event_number-1);   
+  //if (midas_event_number > 1)
+  //  hNOctalFADCAvgPacketLoss->Scale(midas_event_number-1);   
 
   unsigned int* raw; // Points at the raw data
   int bankSize = bk_locate(pevent,"NLSS",&raw);
@@ -92,9 +123,16 @@ INT MOctalFADCPacketLoss(EVENT_HEADER *pheader, void *pevent)
   int board_number = 0;
   int packet_lost = 0;
   int n_packets_lost = 0;
+
+  bool Boards[256]; // We can have maximally 256 FADC boards due to the address space
+  for(int i=0; i<256; ++i) Boards[i] = false;
+
   for (int i = 0; i < bankSize; i+=2) {
     board_number = *(raw+i);
     packet_lost = *(raw+i+1);
+    
+    if(*(raw+i) >= 0 && *(raw+i) < 255) Boards[i] = true;
+
     n_packets_lost++;
     //    printf("Event #%d: Board %d lost packet #%d\n", midas_event_number, board_number, packet_lost);
 
@@ -102,8 +140,18 @@ INT MOctalFADCPacketLoss(EVENT_HEADER *pheader, void *pevent)
     hNOctalFADCAvgPacketLoss->Fill(board_number, 1);   
   }
 
+  for(int i=0; i<256; ++i){
+    if(Boards[i] == true){
+      int bin = hNOctalFADCEventsWithPacketLoss->FindBin(i+1);
+      hNOctalFADCEventsWithPacketLoss->Fill(bin);
+      hNOctalFADCEventsWithPacketLossPercent->SetBinContent(bin, hNOctalFADCEventsWithPacketLoss->GetBinContent(bin) / midas_events);
+    }
+  }
+  
+  ++midas_events;
+
   // Scale down for the average, the final midas event should leave this correct
-  hNOctalFADCAvgPacketLoss->Scale(1.0 / midas_event_number);
+  //hNOctalFADCAvgPacketLoss->Scale(1.0 / midas_event_number);
 
   return SUCCESS;
 }
