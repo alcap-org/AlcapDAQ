@@ -355,7 +355,7 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
     // we simply check if the value detector exists
     std::string bank_name(BankNames[i]), detector(DetectorNames[i]);
     if(detector != "blank" && !(gSetup->SetDetectorName(bank_name,detector))) {
-      printf("ERROR: Detector %s listed multiple times in ODB!\n", detector.c_str());
+      printf("ERROR: Detector %s listed multiple times in ODB! (Duplicate index %d)\n", detector.c_str(), i);
       ret = false;
     }
     gSetup->SetTriggerPolarity(bank_name,TriggerPolarities[i]);
