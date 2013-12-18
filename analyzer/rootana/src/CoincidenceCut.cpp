@@ -1,6 +1,6 @@
 //#define USE_PRINT_OUT 
 
-#include "CutNonCoinc.h"
+#include "CoincidenceCut.h"
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,18 +22,19 @@ extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
 std::map<std::string, TH1F*> tdiff_plots;
 
-CutNonCoinc::CutNonCoinc(char *HistogramDirectoryName, std::string corr_det_name, double time_difference) :
+CoincidenceCut::CoincidenceCut(char *HistogramDirectoryName, std::string corr_det_name, double start_window, double stop_window) :
   FillHistBase(HistogramDirectoryName){ 
 
   fCorrDetName = corr_det_name;
-  fTimeDifference = time_difference;
+  fStartWindow = start_window;
+  fStopWindow = stop_window;
   dir->cd("/");
 }
 
-CutNonCoinc::~CutNonCoinc(){  
+CoincidenceCut::~CoincidenceCut(){  
 }
 
-int CutNonCoinc::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int CoincidenceCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
@@ -74,7 +75,7 @@ int CutNonCoinc::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 	double t_diff = time - corrDet_time;
 	//	tdiff_plots[detname]->Fill(t_diff);
 
-	if (std::abs(t_diff) < fTimeDifference) { // if within 200 ns
+	if (t_diff > fStartWindow && t_diff < fStopWindow) { // if within 200 ns
 	  coinc_found = true;
 	  break; // no need to go through the corrDet pulses any more
 	}
