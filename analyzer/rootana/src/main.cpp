@@ -14,7 +14,7 @@
 #include "CreateDetectorPulse.h"
 #include "PlotAmplitude.h"
 #include "PlotTime.h"
-#include "CutNonCoinc.h"
+#include "CoincidenceCut.h"
 #include "EvdE.h"
 
 #include "TTree.h"
@@ -128,7 +128,7 @@ int main(int argc, char **argv){
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
   fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
   fillhists[n_fillhist++] = new PlotTime("PlotTime");
-  fillhists[n_fillhist++] = new CutNonCoinc("CutNonCoinc_MuSc", "muSc",100);
+  fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc", "muSc",-100,100);
   fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_AfterCut");
   fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);
   fillhists[n_fillhist++] = new EvdE("EvdE");
