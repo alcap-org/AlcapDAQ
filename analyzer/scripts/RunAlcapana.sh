@@ -1,15 +1,17 @@
 #! /bin/bash
 
-#RunNumbers=( 3012 )
-RunNumbers=( 3012 300{6..8} 299{7..9} 300{0..2} 299{4,5} 29{59..92} )
+RunNumbers=( 3190 )
 
 DataDir="$HOME/data"
-AlcapanaPath="$HOME/AlcapDAQ/analyzer/work/krikler"
+mkdir -p $DataDir
+AlcapanaPath="$HOME/AlcapDAQ/analyzer/work/${USER}"
+
+odbedit -c "rm Analyzer/WireMap"
 
 for Run in ${RunNumbers[@]};do 
         echo Now running $Run
         cp /net/abner/data/RunPSI2013/mid/run0${Run}.odb currentRun.odb
         odbedit -c " load currentRun.odb"
-        $AlcapanaPath/alcapana -i /net/abner/data/RunPSI2013/mid/run0${Run}.mid -o $DataDir/hist${Run}.root -T $DataDir/tree${Run}.root 2>&1 |tee $DataDir/textOutput$Run >output.txt
+        $AlcapanaPath/alcapana -i /net/abner/data/RunPSI2013/mid/run0${Run}.mid -o $DataDir/hist0${Run}.root -T $DataDir/tree0${Run}.root 2>&1 |tee $DataDir/textOutput$Run >output.txt
         echo ""> output.txt
 done
