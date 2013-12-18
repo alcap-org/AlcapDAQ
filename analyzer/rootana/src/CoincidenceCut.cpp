@@ -20,8 +20,6 @@ using std::pair;
 
 extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
-std::map<std::string, TH1F*> tdiff_plots;
-
 CoincidenceCut::CoincidenceCut(char *HistogramDirectoryName, std::string corr_det_name, double start_window, double stop_window) :
   FillHistBase(HistogramDirectoryName){ 
 
@@ -48,37 +46,29 @@ int CoincidenceCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
     std::string detname = detIter->first;
     std::vector<TAnalysedPulse*>& pulses = detIter->second;
-
-    // Create the histogram if it's not been created yet
-    if ( tdiff_plots.find(detname) == tdiff_plots.end() ) {
-
-      // hTimeCorrelation
-      std::string histname = "h" + detname + "_" + GetName();
-      std::string histtitle = "Plot of the tdiff between corrDet and  " + detname;
-
-      TH1F* hTimeCorrelation = new TH1F(histname.c_str(), histtitle.c_str(), 2e6,-1e8,1e8);
-      hTimeCorrelation->GetXaxis()->SetTitle("Time [ns]");
-      hTimeCorrelation->GetYaxis()->SetTitle("Arbitrary Unit");
-
-      tdiff_plots[detname] = hTimeCorrelation;
-    }
+    std::vector<TAnalysedPulse*>::iterator currentCorrDetPulse = corrDet_pulses.begin(); // want to keep track of how far we are through the corrDet pulses
 
     // Loop through the detector pulses
     for (std::vector<TAnalysedPulse*>::iterator pulseIter = pulses.begin(); pulseIter != pulses.end(); ++pulseIter) {
 
       // Loop through the corrDet pulses
       bool coinc_found = false;
-      for (std::vector<TAnalysedPulse*>::iterator corrDetPulseIter = corrDet_pulses.begin(); corrDetPulseIter != corrDet_pulses.end(); ++corrDetPulseIter) {
+      for (std::vector<TAnalysedPulse*>::iterator corrDetPulseIter = currentCorrDetPulse; corrDetPulseIter != corrDet_pulses.end(); ++corrDetPulseIter) {
 
 	double time = (*pulseIter)->GetTime();
 	double corrDet_time = (*corrDetPulseIter)->GetTime();
 	double t_diff = time - corrDet_time;
-	//	tdiff_plots[detname]->Fill(t_diff);
-
-	if (t_diff > fStartWindow && t_diff < fStopWindow) { // if within 200 ns
+	//	std::cout << fCorrDetName << " #" << (corrDetPulseIter - corrDet_pulses.begin()) <<  ": " << corrDet_time * 1e-6 << " ms, " << detname << " #" << (pulseIter - pulses.begin()) << ": " << time * 1e-6 << std::endl;
+	if (t_diff > fStartWindow && t_diff < fStopWindow) { // if within the window
 	  coinc_found = true;
 	  break; // no need to go through the corrDet pulses any more
 	}
+	// We should be time-order here and so if we go past the time for this pulse without finding a match we can quit
+	if (corrDet_time > time) {
+	  coinc_found = false;
+	  break;
+	}
+	currentCorrDetPulse = corrDetPulseIter; // record where we are up to 
       } // end loop through corrDet pulses
 
       // If no coincidence was found
