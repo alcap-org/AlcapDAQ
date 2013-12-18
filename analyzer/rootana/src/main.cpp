@@ -90,8 +90,8 @@ int main(int argc, char **argv){
   InfoTree->GetEntry(0);
   std::map<std::string, std::string>::iterator it_info;
   printf("### TSetupData ###\n");
-  printf("Bank  Detector Name  Clock Tick (ns)  Pedestal (ADC)  Trigger Polarity  Time Shift (ns)\n");
-  printf("----  -------------  ---------------  --------------  ----------------  ---------------\n");
+  printf("Bank  Detector Name  Clock Tick (ns)  Pedestal (ADC)  Trigger Polarity  Time Shift (ns)  No. of Bits\n");
+  printf("----  -------------  ---------------  --------------  ----------------  ---------------  -----------\n");
   for (it_info=s_data->fBankToDetectorMap.begin();it_info!=s_data->fBankToDetectorMap.end();++it_info){
     std::string bankname = it_info->first;
     std::string detname = s_data->GetDetectorName(bankname);
@@ -99,7 +99,8 @@ int main(int argc, char **argv){
     int pedestal = s_data->GetPedestal(bankname);
     int trig_pol = s_data->GetTriggerPolarity(bankname);
     double time_shift = s_data->GetTimeShift(bankname);
-    printf("%s  %s\t\t%f\t%d\t\t%d\t\t%f\n",bankname.c_str(), detname.c_str(), clockTick, pedestal, trig_pol, time_shift);
+    int n_bits = s_data->GetNBits(bankname);
+    printf("%s  %s\t\t%f\t%d\t\t%d\t\t%f\t\t%d\n",bankname.c_str(), detname.c_str(), clockTick, pedestal, trig_pol, time_shift,n_bits);
   }
 
   //Event Tree
@@ -112,7 +113,6 @@ int main(int argc, char **argv){
   g_event = 0; // initialization to zero is important
   br = tree->GetBranch("Event");
   br->SetAddress(&g_event);
-
 
   // Let's open the output file for histograms etc.
   TFile *fileOut = new TFile(outfilename, "RECREATE");
@@ -128,7 +128,7 @@ int main(int argc, char **argv){
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
   fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
   fillhists[n_fillhist++] = new PlotTime("PlotTime");
-  fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc", "muSc",-100,100);
+  fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF", "muSc","Ge-F", -100,100);
   fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_AfterCut");
   fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);
   fillhists[n_fillhist++] = new EvdE("EvdE");

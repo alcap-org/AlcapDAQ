@@ -20,10 +20,11 @@ using std::pair;
 
 extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
-CoincidenceCut::CoincidenceCut(char *HistogramDirectoryName, std::string corr_det_name, double start_window, double stop_window) :
+CoincidenceCut::CoincidenceCut(char *HistogramDirectoryName, std::string det_name_a, std::string det_name_b, double start_window, double stop_window) :
   FillHistBase(HistogramDirectoryName){ 
 
-  fCorrDetName = corr_det_name;
+  fDetNameA = det_name_a;
+  fDetNameB = det_name_b;
   fStartWindow = start_window;
   fStopWindow = stop_window;
   dir->cd("/");
@@ -37,48 +38,44 @@ int CoincidenceCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
-  // Get the corrDet pulses ready for later
-  std::vector<TAnalysedPulse*> corrDet_pulses = gAnalysedPulseMap[fCorrDetName];
+  // Get the detA pulses ready for later
+  std::vector<TAnalysedPulse*> detA_pulses = gAnalysedPulseMap[fDetNameA];
+  std::vector<TAnalysedPulse*>& detB_pulses = gAnalysedPulseMap[fDetNameB];
   
-  // Loop through the detectors
-  //  std::cout << "Size of gAnalysedPulseMap " << gAnalysedPulseMap.size() << std::endl;
-  for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator detIter = gAnalysedPulseMap.begin(); detIter != gAnalysedPulseMap.end(); detIter++) {
 
-    std::string detname = detIter->first;
-    std::vector<TAnalysedPulse*>& pulses = detIter->second;
-    std::vector<TAnalysedPulse*>::iterator currentCorrDetPulse = corrDet_pulses.begin(); // want to keep track of how far we are through the corrDet pulses
+  std::vector<TAnalysedPulse*>::iterator currentDetAPulse = detA_pulses.begin(); // want to keep track of how far we are through the detA pulses
 
-    // Loop through the detector pulses
-    for (std::vector<TAnalysedPulse*>::iterator pulseIter = pulses.begin(); pulseIter != pulses.end(); ++pulseIter) {
+  // Loop through the detB pulses
+  for (std::vector<TAnalysedPulse*>::iterator pulseDetBIter = detB_pulses.begin(); pulseDetBIter != detB_pulses.end(); ++pulseDetBIter) {
 
-      // Loop through the corrDet pulses
-      bool coinc_found = false;
-      for (std::vector<TAnalysedPulse*>::iterator corrDetPulseIter = currentCorrDetPulse; corrDetPulseIter != corrDet_pulses.end(); ++corrDetPulseIter) {
+    // Loop through the detA pulses
+    bool coinc_found = false;
+    for (std::vector<TAnalysedPulse*>::iterator detAPulseIter = currentDetAPulse; detAPulseIter != detA_pulses.end(); ++detAPulseIter) {
 
-	double time = (*pulseIter)->GetTime();
-	double corrDet_time = (*corrDetPulseIter)->GetTime();
-	double t_diff = time - corrDet_time;
-	//	std::cout << fCorrDetName << " #" << (corrDetPulseIter - corrDet_pulses.begin()) <<  ": " << corrDet_time * 1e-6 << " ms, " << detname << " #" << (pulseIter - pulses.begin()) << ": " << time * 1e-6 << std::endl;
-	if (t_diff > fStartWindow && t_diff < fStopWindow) { // if within the window
-	  coinc_found = true;
-	  break; // no need to go through the corrDet pulses any more
-	}
-	// We should be time-order here and so if we go past the time for this pulse without finding a match we can quit
-	if (corrDet_time > time) {
-	  coinc_found = false;
-	  break;
-	}
-	currentCorrDetPulse = corrDetPulseIter; // record where we are up to 
-      } // end loop through corrDet pulses
+      double detB_time = (*pulseDetBIter)->GetTime();
+      double detA_time = (*detAPulseIter)->GetTime();
+      double t_diff = detB_time - detA_time;
+
+      if (t_diff > fStartWindow && t_diff < fStopWindow) { // if within the window
+	coinc_found = true;
+	break; // no need to go through the detA pulses any more
+      }
+      // We should be time-order here and so if we go past the time for this pulse without finding a match we can quit
+      if (detA_time > detB_time) {
+	coinc_found = false;
+	break;
+      }
+      currentDetAPulse = detAPulseIter; // record where we are up to 
+    } // end loop through detA pulses
 
       // If no coincidence was found
-      if (coinc_found == false) {
-	delete *pulseIter;
-	pulses.erase(pulseIter);
-	--pulseIter;
-      }
+    if (coinc_found == false) {
+      delete *pulseDetBIter;
+      detB_pulses.erase(pulseDetBIter);
+      --pulseDetBIter;
+    }
 
-    } // end loop through pulses
-  } // end loop through detectors
+  } // end loop through detB pulses
+
   return 0;
 }
