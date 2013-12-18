@@ -7,9 +7,8 @@ AnalysePulseIsland.cpp \
 PlotAmplitude.cpp \
 CreateDetectorPulse.cpp \
 CheckCoincidence.cpp \
-CutNonCoinc.cpp \
-EvdE.cpp \
 MakeMuonEvents.cpp \
 PlotTime.cpp \
 CoincidenceCut.cpp \
+PlotAmpVsTDiff.cpp \
 EvdE.cpp
