@@ -47,6 +47,7 @@ class TSetupData : public TObject{
   // Fill a map of all detectors that were used to their banks
   void GetAllDetectors(std::map<std::string,std::string>& detectors)const;
 
+  // Getters
   double GetClockTick(const std::string& BankName) const{ return GetValue(fBankToClockTickMap,BankName);}
   int GetNBits(const std::string& BankName) const{ return GetValue(fBankToBitMap,BankName);}
   double GetADCSlopeCalib(const std::string& BankName) const{ return GetValue(fBankToADCSlopeCalibMap,BankName); };
@@ -55,13 +56,21 @@ class TSetupData : public TObject{
   int GetTriggerPolarity(const std::string& BankName)const{return GetValue(fBankToPolarityMap,BankName);};
   int GetPedestal(const std::string& BankName)const{return GetValue(fBankToPedestalMap,BankName);};
 
-  void SetDetectorName(std::string BankName, std::string value) { fBankToDetectorMap[BankName]=value; };
-  void SetClockTick(std::string BankName, double value) { fBankToClockTickMap[BankName]=value; };
-  void SetNBits(std::string BankName, int value) { fBankToBitMap[BankName]=value; };
-  void SetTimeShift(std::string BankName, double value) {fBankToTimeShift[BankName]=value; };
-  void SetTriggerPolarity(std::string BankName, int value){fBankToPolarityMap[BankName]=value;};
-  void SetPedestal(std::string BankName, int value){fBankToPedestalMap[BankName]=value;};
-  void SetADCSlopeCalib(std::string BankName, double value) { fBankToADCSlopeCalibMap[BankName] = value; };
+  // Setters with check, return true if inserted
+  bool SetDetectorName(std::string BankName, std::string value) {
+    std::map< std::string, std::string >::iterator it;
+    for (it = fBankToDetectorMap.begin(); it != fBankToDetectorMap.end(); ++it)
+      if (it->second == value)
+	return false;
+    fBankToDetectorMap[BankName] = value;
+    return true;
+  }
+  void SetClockTick(std::string BankName, double value) { fBankToClockTickMap[BankName]=value; }
+  void SetNBits(std::string BankName, int value) { fBankToBitMap[BankName]=value; }
+  void SetTimeShift(std::string BankName, double value) { fBankToTimeShift[BankName]=value; }
+  void SetTriggerPolarity(std::string BankName, int value) { fBankToPolarityMap[BankName]=value; }
+  void SetPedestal(std::string BankName, int value) { fBankToPedestalMap[BankName]=value; }
+  void SetADCSlopeCalib(std::string BankName, double value) { fBankToADCSlopeCalibMap[BankName] = value; }
   void SetADCOffsetCalib(std::string BankName, double value) { fBankToADCOffsetCalibMap[BankName] = value; };
 
   static bool IsFADC(const std::string& BankName) { return BankName[0] == 'N'; } // if the first letter is N then the bank name is for a FADC

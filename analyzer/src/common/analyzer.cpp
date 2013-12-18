@@ -65,7 +65,7 @@ TGlobalData* TGlobalData::Instance()
   return gData;
 }
 
-void UpdateDetectorBankNameMap(TSetupData *gSetup);
+bool UpdateDetectorBankNameMap(TSetupData *gSetup);
 
 /*-- Module declarations -------------------------------------------*/
 
@@ -149,12 +149,18 @@ static void catastrophe(int signum)
 
 INT analyzer_init()
 {
+  bool ret;
+
   // Initialize gData
   gData = new TGlobalData();
 
   // Initialize gSetup
   gSetup = new TSetupData();
-  UpdateDetectorBankNameMap(gSetup);
+  ret = UpdateDetectorBankNameMap(gSetup);
+  if (!ret) {
+    printf("THERE WAS AN ERROR!\n");
+    return 0;
+  }
   // Override ROOT's handling of signals
   signal(SIGHUP , catastrophe);
   signal(SIGINT , catastrophe);
@@ -235,113 +241,123 @@ INT analyzer_loop()
 /*------------------------------------------------------------------*/
 //}
 
-void UpdateDetectorBankNameMap(TSetupData *gSetup){
+bool UpdateDetectorBankNameMap(TSetupData *gSetup){
   // Want to go through the /Analyzer/WireMap and map bank names and detector names 
+  bool ret = true;
   HNDLE hDB, hKey;
   char keyName[200];
 
   if(cm_get_experiment_database(&hDB, NULL) != CM_SUCCESS){
     printf("Warning: Could not connect to ODB database!\n");
-    return;
+    return false;
   }
 
   sprintf(keyName, "/Analyzer/WireMap/BankName");
   if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
     printf("Warning: Could not find key %s\n", keyName);
-    return;
+    return false;
   }
   KEY bk_key;
   if(db_get_key(hDB, hKey, &bk_key) != DB_SUCCESS){
     printf("Warning: Could not find key %s\n", keyName);
-    return;
+    return false;
   }    
   char BankNames[bk_key.num_values][bk_key.item_size];
   int size = sizeof(BankNames);
   if(db_get_value(hDB, 0, keyName , BankNames, &size, TID_STRING, 0) != DB_SUCCESS){
     printf("Warning: Could not retrieve values for key %s\n", keyName);
-    return;
+    ret = false;
   }
 
   sprintf(keyName, "/Analyzer/WireMap/DetectorName");
   if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
     printf("Warning: Could not find key %s\n", keyName);
-    return;
-  }  
+    return false;
+  }
   KEY det_key;
   if(db_get_key(hDB, hKey, &det_key) != DB_SUCCESS){
     printf("Warning: Could not find key %s\n", keyName);
-    return;
+    return false;
   }
   char DetectorNames[det_key.num_values][det_key.item_size];
   size = sizeof(DetectorNames);
   if(db_get_value(hDB, 0, keyName , DetectorNames, &size, TID_STRING, 0) != DB_SUCCESS){
     printf("Warning: Could not retrieve values for key %s\n", keyName);
-    return;
+    ret = false;
   }
 
   sprintf(keyName, "/Analyzer/WireMap/TimeShift");
   if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
     printf("Warning: Could not find key %s\n", keyName);
-    return;
+    return false;
   }
   KEY timeshift_key;
   if(db_get_key(hDB, hKey, &timeshift_key) != DB_SUCCESS){
     printf("Warning: Could not find key %s\n", keyName);
-    return;
+    return false;
   }
   float TimeShifts[timeshift_key.num_values];
   size = sizeof(TimeShifts);
   if(db_get_value(hDB, 0, keyName, TimeShifts, &size, TID_FLOAT, 0) != DB_SUCCESS){
     printf("Warning: Could not retrieve values for key %s\n", keyName);
-    return;
+    ret = false;
   }
 
   sprintf(keyName, "/Analyzer/WireMap/TriggerPolarity");
   if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
     printf("Warning: Could not find key %s\n", keyName);
-    return;
+    return false;
   }  
   KEY pol_key;
   if(db_get_key(hDB, hKey, &pol_key) != DB_SUCCESS){
     printf("Warning: Could not find key %s\n", keyName);
-    return;
+    return false;
   }
   int TriggerPolarities[pol_key.num_values];
   size = sizeof(TriggerPolarities);
   if(db_get_value(hDB, 0, keyName , TriggerPolarities, &size, TID_INT, 0) != DB_SUCCESS){
     printf("Warning: Could not retrieve values for key %s\n", keyName);
-    return;
+    ret = false;
   }
 
   sprintf(keyName, "/Analyzer/WireMap/Pedestal");
   if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
     printf("Warning: Could not find key %s\n", keyName);
-    return;
+    return false;
   }  
   KEY ped_key;
   if(db_get_key(hDB, hKey, &ped_key) != DB_SUCCESS){
     printf("Warning: Could not find key %s\n", keyName);
-    return;
+    return false;
   }
   int Pedestals[ped_key.num_values];
   size = sizeof(Pedestals);
   if(db_get_value(hDB, 0, keyName , Pedestals, &size, TID_INT, 0) != DB_SUCCESS){
     printf("Warning: Could not retrieve values for key %s\n", keyName);
-    return;
+    ret = false;
   }
 
   if(det_key.num_values != bk_key.num_values){
     printf("Warning: Key sizes are not equal for banks and detectors in /Analyzer/WireMap/\n");
-    return;
+    ret = false;
   }
   else printf("sizes are %d\n", det_key.num_values);
   for(int i=0; i<det_key.num_values; i++){
-    if(strcmp(BankNames[i], "") == 0) continue;
+    if(strcmp(BankNames[i], "") == 0) {
+      printf("Found bank name that is empty! (Index %d)\n", i);
+      ret = false;
+      continue;
+    }
     if(strcmp(DetectorNames[i], "") == 0) printf("Warning: No detector name associated with bank %s!\n", BankNames[i]);
     ///////////////////////////////////////
     // Add the detector names to TSetupData
+    // Should be a bidirectional map. Lacking that functionality
+    // we simply check if the value detector exists
     std::string bank_name(BankNames[i]), detector(DetectorNames[i]);
-    gSetup->SetDetectorName(bank_name,detector);
+    if(detector != "blank" && !(gSetup->SetDetectorName(bank_name,detector))) {
+      printf("ERROR: Detector %s listed multiple times in ODB!\n", detector.c_str());
+      ret = false;
+    }
     gSetup->SetTriggerPolarity(bank_name,TriggerPolarities[i]);
     gSetup->SetPedestal(bank_name,Pedestals[i]);
     gSetup->SetTimeShift(bank_name,TimeShifts[i]);
@@ -377,18 +393,18 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     sprintf(keyName, "/Analyzer/WireMap/SamplingFrequency");  
     if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
       printf("Warning: Could not find key %s\n", keyName);
-      return;
+      return false;
     }  
     KEY freq_key;
     if(db_get_key(hDB, hKey, &freq_key) != DB_SUCCESS){
       printf("Warning: Could not find key %s\n", keyName);
-      return;
+      return false;
     }
     float SamplingFrequencies[freq_key.num_values];
     size = sizeof(SamplingFrequencies);
     if(db_get_value(hDB, 0, keyName , SamplingFrequencies, &size, TID_FLOAT, 0) != DB_SUCCESS){
       printf("Warning: Could not retrieve values for key %s\n", keyName);
-      return;
+      ret = false;
     }
 
     double clockTickInNs = (1/SamplingFrequencies[i]) * 1e9;
@@ -400,35 +416,35 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     sprintf(keyName, "/Analyzer/WireMap/ADCSlopeCalib");  
     if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
       printf("Warning: Could not find key %s\n", keyName);
-      return;
+      return false;
     }  
     KEY adc_slope_calib_key;
     if(db_get_key(hDB, hKey, &adc_slope_calib_key) != DB_SUCCESS){
       printf("Warning: Could not find key %s\n", keyName);
-      return;
+      return false;
     }
     float ADCSlopeCalibs[adc_slope_calib_key.num_values];    
     size = sizeof(ADCSlopeCalibs);
     if(db_get_value(hDB, 0, keyName , ADCSlopeCalibs, &size, TID_FLOAT, 0) != DB_SUCCESS){
       printf("Warning: Could not retrieve values for key %s\n", keyName);
-      return;
+      ret = false;
     }
 
     sprintf(keyName, "/Analyzer/WireMap/ADCOffsetCalib");  
     if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
       printf("Warning: Could not find key %s\n", keyName);
-      return;
+      return false;
     }  
     KEY adc_offset_calib_key;
     if(db_get_key(hDB, hKey, &adc_offset_calib_key) != DB_SUCCESS){
       printf("Warning: Could not find key %s\n", keyName);
-      return;
+      return false;
     }
     float ADCOffsetCalibs[adc_offset_calib_key.num_values];    
     size = sizeof(ADCOffsetCalibs);
     if(db_get_value(hDB, 0, keyName , ADCOffsetCalibs, &size, TID_FLOAT, 0) != DB_SUCCESS){
       printf("Warning: Could not retrieve values for key %s\n", keyName);
-      return;
+      ret = false;
     }
 
 
@@ -447,6 +463,9 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
     }
     else if (TSetupData::IsBostonCAEN(bank_name)) { // UH CAEN banks
       gSetup->SetNBits(bank_name,12);
+    } else {
+      printf("Cannot determine digitizer type of bank %s!\n", bank_name.c_str());
+      ret = false;
     }
 
     ///////////////////////////////////////
@@ -474,10 +493,19 @@ void UpdateDetectorBankNameMap(TSetupData *gSetup){
 	      if (trigger_mask == 1){ // if this channel is taking data
 		db_set_data_index(hDB, hKey, &enabled, size, i, TID_BOOL);	
 	      }
-	    } // We found the channel 'Trigger mask' key in ODB
+	    } else { // We found the channel 'Trigger mask' key in ODB
+	      printf("Could not find Trigger Mask key in ODB!\n");
+	      ret = false;
+	    }
 	  } // This module is enabled
 	} // We got the value of the module 'Enable' key in ODB
-      } // We found the 'Enabled' key in the ODB
+	 
+      } else { // We found the 'Enabled' key in the ODB
+	printf("Could not find Enabled key in ODB!\n");
+	ret = false;
+      }
     } // end if bank is starting with letter 'N' 
   } // end loop over all non empty banks
+
+  return ret;
 }
