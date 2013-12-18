@@ -342,6 +342,8 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
     ret = false;
   }
   else printf("sizes are %d\n", det_key.num_values);
+
+  std::vector<bool> duplicate_dets(det_key.num_values, false); // Keep track of duplicate detector names, and check later if they'll be a problem
   for(int i=0; i<det_key.num_values; i++){
     if(strcmp(BankNames[i], "") == 0) {
       printf("Found bank name that is empty! (Index %d)\n", i);
@@ -355,8 +357,8 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
     // we simply check if the value detector exists
     std::string bank_name(BankNames[i]), detector(DetectorNames[i]);
     if(detector != "blank" && !(gSetup->SetDetectorName(bank_name,detector))) {
-      printf("ERROR: Detector %s listed multiple times in ODB! (Duplicate index %d)\n", detector.c_str(), i);
-      ret = false;
+      printf("WARNING: Detector %s listed multiple times in ODB! (Duplicate index %d)\n", detector.c_str(), i);
+      duplicate_dets.at(i) = true;
     }
     gSetup->SetTriggerPolarity(bank_name,TriggerPolarities[i]);
     gSetup->SetPedestal(bank_name,Pedestals[i]);
@@ -470,14 +472,14 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
 
     ///////////////////////////////////////
     // Check to see if the bank is enabled   
-    if(TSetupData::IsFADC(bank_name )) { // FADC banks
+    if(TSetupData::IsFADC(bank_name)) { // FADC banks
       std::string iAddr(bank_name);
       int iChn = (int)(iAddr[1] - 97);
       iAddr = iAddr.substr(2, 2);
 
       char wireKey[100];
-      bool enabled = false;
-      int size = sizeof(int);
+      BOOL enabled = false;
+      int size = sizeof(enabled);
       sprintf(wireKey, "/Analyzer/WireMap/Enabled");
       if(db_find_key(hDB,0,wireKey, &hKey) == SUCCESS){
 	// Let's first reset /Analyzer/WireMap/Enabled for this channel to 'n'
@@ -497,15 +499,63 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
 	      printf("Could not find Trigger Mask key in ODB!\n");
 	      ret = false;
 	    }
-	  } // This module is enabled
+	  } else { // This module is enabled
+	    if (duplicate_dets.at(i)) {
+	      printf("ATTENTION: Duplicate detector at index %d resolved (not enabled).\n", i);
+	      duplicate_dets.at(i) = false;
+	    }
+	  }
 	} // We got the value of the module 'Enable' key in ODB
 	 
       } else { // We found the 'Enabled' key in the ODB
 	printf("Could not find Enabled key in ODB!\n");
 	ret = false;
       }
-    } // end if bank is starting with letter 'N' 
+    } else if (TSetupData::IsHoustonCAEN(bank_name)) {
+      BOOL enabled = true;
+      int size;
+      char aCh = bank_name[1];
+      int iCh = aCh - 'a'; // a->0, b->1, etc.
+      
+      size = sizeof(enabled);
+      sprintf(keyName, "/Equipment/Crate 4/Settings/CAEN0/Ch%1d/Enabled", iCh);
+      if (db_get_value(hDB, 0, keyName, &enabled, &size, TID_BOOL, 0) == DB_SUCCESS) {
+	if (!enabled && duplicate_dets.at(i)){
+	  duplicate_dets[i] = false;
+	  printf("ATTENTION: Duplicate detector at index %d resolved (not enabled).\n", i);
+	}
+      } else {
+	printf("Could not find UH CAEN Enabled key in ODB!\n");
+	ret = false;
+      }
+    } else if (TSetupData::IsBostonCAEN(bank_name)) {
+      BOOL enabled = true;
+      int size;
+      char aCh = bank_name[1];
+      int iCh = aCh - 'a'; // a->0, b->1, etc.
+      
+      size = sizeof(enabled);
+      sprintf(keyName, "/Equipment/Crate 5/Settings/CAEN/Ch%02d/enable", iCh);
+      printf("%s\n",keyName);
+      if (db_get_value(hDB, 0, keyName, &enabled, &size, TID_BOOL, 0) == DB_SUCCESS) {
+	if (!enabled && duplicate_dets.at(i)) {
+	  printf("ATTENTION: Duplicate detector at index %d resolved (not enabled).\n", i);
+	  duplicate_dets[i] = false;
+	}
+      } else {
+	printf("Could not find BU CAEN Enabled key in ODB!\n");
+	ret = false;
+      }
+    }
   } // end loop over all non empty banks
+
+  // Check if there are duplicate detectors all enabled
+  for (int i = 0; i < duplicate_dets.size(); ++i) {
+    if (duplicate_dets.at(i)) {
+      printf("ERROR: Multiple detectors enabled! (Index %d)\n", i);
+      ret = false;
+    }
+  }
 
   return ret;
 }
