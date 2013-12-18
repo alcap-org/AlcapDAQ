@@ -5,6 +5,8 @@
 #include "TGlobalData.h"
 #include "TSetupData.h"
 
+#include "TAnalysedPulse.h"
+
 class AnalysePulseIsland : public FillHistBase{
  public:
   AnalysePulseIsland(char *HistogramDirectoryName);
@@ -15,7 +17,10 @@ class AnalysePulseIsland : public FillHistBase{
 
   void GetAllParameters_MaxBin(TSetupData* gSetup, const TPulseIsland* pulse,
 			       double& amplitude, double& time, double& integral, double& energy);
+
 };
+
+bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b);
 
 #endif
 

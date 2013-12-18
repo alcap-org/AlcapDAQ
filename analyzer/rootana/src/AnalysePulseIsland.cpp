@@ -7,6 +7,7 @@
 #include <string>
 #include <map>
 #include <utility>
+#include <algorithm>
 
 #include "TAnalysedPulse.h"
 
@@ -65,6 +66,7 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       TAnalysedPulse* analysedPulse = new TAnalysedPulse(amplitude, time, integral, energy, detname);
       analysedPulses.push_back(analysedPulse);
     }    
+    std::sort(analysedPulses.begin(), analysedPulses.end(), IsTimeOrdered);
     gAnalysedPulseMap[detname] = analysedPulses;
   }
 
@@ -100,4 +102,11 @@ void AnalysePulseIsland::GetAllParameters_MaxBin(TSetupData* gSetup, const TPuls
   time = ((pulse->GetTimeStamp() + peak_sample_pos) * gSetup->GetClockTick(bankname)) - gSetup->GetTimeShift(bankname);
   integral = 0;
   energy = eCalib_slope * amplitude + eCalib_offset;
+}
+
+bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b) {
+
+  // Want a to be before b
+  return ( a->GetTime() < b->GetTime() );
+
 }
