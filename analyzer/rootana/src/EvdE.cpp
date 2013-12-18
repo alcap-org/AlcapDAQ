@@ -10,13 +10,13 @@
 #include "TH2I.h"
 
 extern std::map< std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
-static double tCoincidence;   // Time cut to look for a thin hit on either side of a thick
-static double tPileUp;        // Pileup window time (no two muons allowed within this window of each other)
-static double tDecay;         // Window to look for the decay in
-static int nSec;              // Number of sections in the silicon thin detectors
-static double eCutThick[2];   // Thick energy cuts (right, left)
-static double eCutThin[2][4]; // Thin energy cuts (right, left)(1,2,3,4)
-static TH2I* hEvdE[2];        // Histograms (right, left)
+static double tCoincidence; // Time cut to look for a thin hit on either side of a thick
+static double tPileUp;      // Pileup window time (no two muons allowed within this window of each other)
+static double tDecay;       // Window to look for the decay in
+static int nSec;            // Number of sections in the silicon thin detectors
+static double eCutThick[2]; // Thick energy cuts (right, left)
+static double eCutThin[2];  // Thin energy cuts (right, left)
+static TH2I* hEvdE[2];      // Histograms (right, left)
 
 EvdE::EvdE(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName) {
@@ -30,14 +30,8 @@ EvdE::EvdE(char *HistogramDirectoryName) :
   // Energy cuts in ADC
   eCutThick[0] = 200.;
   eCutThick[1] = 200.;
-  eCutThin[0][0] = 200.;
-  eCutThin[0][1] = 200.;
-  eCutThin[0][2] = 200.;
-  eCutThin[0][3] = 200.;
-  eCutThin[1][0] = 200.;
-  eCutThin[1][1] = 200.;
-  eCutThin[1][2] = 200.;
-  eCutThin[1][3] = 200.;
+  eCutThin[0] = 200.;
+  eCutThin[1] = 200.;
   // Prepare histograms
   hEvdE[0] = new TH2I("hEvdE_Right", "dEdx vs E (Right);E + dE (keV);dE (keV)",
 		      400, 0., 20000.,
@@ -45,6 +39,8 @@ EvdE::EvdE(char *HistogramDirectoryName) :
   hEvdE[1] = new TH2I("hEvdE_Left", "dEdx vs E (Left);E + dE (keV);dE (keV)",
 		      400, 0., 20000.,
 		      200, 0., 10000.);
+
+  gDirectory->cd("/");
 }
 
 EvdE::~EvdE(){
@@ -53,9 +49,9 @@ EvdE::~EvdE(){
 int EvdE::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
 
   // Look for muSc and at least one arm
-  std::vector<TAnalysedPulse*> *musc;
-  std::vector<TAnalysedPulse*> *sirThin[4], *silThin[4];
-  std::vector<TAnalysedPulse*> *sirThick, *silThick;
+  static std::vector<TAnalysedPulse*> *musc;
+  static std::vector<TAnalysedPulse*> *sirThin[4], *silThin[4];
+  static std::vector<TAnalysedPulse*> *sirThick, *silThick;
   if (gAnalysedPulseMap.count("muSc")) musc = &gAnalysedPulseMap.at("muSc");
   else return 0;
 
@@ -88,13 +84,12 @@ int EvdE::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
       !(silThick && (silThin[0] || silThin[1] || silThin[2] || silThin[3])))
     return 0;
 
-  std::cout << "-------------------------------" << std::endl;
 
   // Iterators through aforementioned vectors
-  int iSec;
-  std::vector<TAnalysedPulse*>::iterator cMusc;
-  std::vector<TAnalysedPulse*>::iterator cSiRThick, cSiLThick;
-  std::vector<TAnalysedPulse*>::iterator cSiRThin[4], cSiLThin[4];
+  static int iSec;
+  static std::vector<TAnalysedPulse*>::iterator cMusc;
+  static std::vector<TAnalysedPulse*>::iterator cSiRThick, cSiLThick;
+  static std::vector<TAnalysedPulse*>::iterator cSiRThin[4], cSiLThin[4];
   cMusc = musc->begin();
   if (sirThick)
     cSiRThick = sirThick->begin();
@@ -108,10 +103,10 @@ int EvdE::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
       cSiLThin[iSec] = (silThin[iSec])->begin();
   }
 
-  double tMusc;
-  std::vector<double> tSiRThick, tSiLThick;
-  std::vector<double> eSiRThick, eSiLThick;
-  unsigned int iHit, nThickHits;
+  static double tMusc;
+  static std::vector<double> tSiRThick, tSiLThick;
+  static std::vector<double> eSiRThick, eSiLThick;
+  static unsigned int iHit, nThickHits;
   for (; cMusc < musc->end(); ++cMusc) {
     tMusc = (*cMusc)->GetTime();
     tSiRThick.clear(); tSiLThick.clear();
@@ -159,6 +154,7 @@ int EvdE::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
     if (tSiRThick.size() > 0) {                                                       // If there was at least one hit in the thick window
       nThickHits = tSiRThick.size();
       for (iHit = 0; iHit < nThickHits; ++iHit) {                                     // Loop through the times of all of the hits
+	double energy = 0.;                                                           // Keep track of energy
 	for (iSec = 0; iSec < nSec; ++iSec) {                                         // Loop through all the sections of the thin silicon
 	  if (sirThin[iSec]) {                                                        // And, if there are hits in this thin detector
 	    while (cSiRThin[iSec] != sirThin[iSec]->end() &&
@@ -166,19 +162,19 @@ int EvdE::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
 	      ++(cSiRThin[iSec]);
 	    while (cSiRThin[iSec] != sirThin[iSec]->end() &&
 		   (*(cSiRThin[iSec]))->GetTime() - tSiRThick[iHit] < tCoincidence) { // And look for hits in this window
-	      if ((*(cSiRThin[iSec]))->GetEnergy() > eCutThin[0][iSec]) {             // If a hit is found in the thin above threshold
-		hEvdE[0]->Fill(eSiRThick[iHit] + (*(cSiRThin[iSec]))->GetEnergy(), (*(cSiRThin[iSec]))->GetEnergy()); // Fill the histogram
-		break;
-	      }
+	      energy += (*(cSiRThin[iSec]))->GetEnergy();                             // Increment the energy
 	      ++(cSiRThin[iSec]);
 	    }
 	  }
 	}
+	if (energy > eCutThin[0])                                                      // If the energy is greater than our cut
+	  hEvdE[0]->Fill(eSiRThick[iHit] + energy, energy);                             // Record total energy deposited in thin detector
       }
     }
     if (tSiLThick.size() > 0) {
       nThickHits = tSiLThick.size();
       for (iHit = 0; iHit < nThickHits; ++iHit) {
+	double energy = 0.;
 	for (iSec = 0; iSec < nSec; ++iSec) {
 	  if (silThin[iSec]) {
 	    while (cSiLThin[iSec] != silThin[iSec]->end() &&
@@ -186,14 +182,13 @@ int EvdE::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
 	      ++(cSiLThin[iSec]);
 	    while (cSiLThin[iSec] != silThin[iSec]->end() &&
 		   (*(cSiLThin[iSec]))->GetTime() - tSiLThick[iHit] < tCoincidence) {
-	      if ((*(cSiLThin[iSec]))->GetEnergy() > eCutThin[1][iSec]) {
-		hEvdE[1]->Fill(eSiLThick[iHit] + (*(cSiLThin[iSec]))->GetEnergy(), (*(cSiLThin[iSec]))->GetEnergy());
-		break;
-	      }
+	      energy += (*(cSiLThin[iSec]))->GetEnergy();
 	      ++(cSiLThin[iSec]);
 	    }
 	  }
 	}
+	if (energy > eCutThin[1])
+	  hEvdE[1]->Fill(eSiLThick[iHit] + energy, energy);
       }
     }
   }
