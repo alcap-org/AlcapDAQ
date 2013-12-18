@@ -465,6 +465,8 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
     }
     else if (TSetupData::IsBostonCAEN(bank_name)) { // UH CAEN banks
       gSetup->SetNBits(bank_name,12);
+    } else if (bank_name == "ZZZZ") {
+      gSetup->SetNBits(bank_name, 0);
     } else {
       printf("Cannot determine digitizer type of bank %s!\n", bank_name.c_str());
       ret = false;
