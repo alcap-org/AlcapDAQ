@@ -78,6 +78,8 @@ Lifetime::Lifetime(char *HistogramDirectoryName) :
   // Prepare histograms
   for (unsigned int iECut = 0; iECut < nECut; ++iECut)
     hLifetime.push_back(new TH1I(sNames[iECut].c_str(), sTitles[iECut].c_str(), 1000, 0., 2000.));
+
+  gDirectory->cd("/");
 }
 
 Lifetime::~Lifetime(){

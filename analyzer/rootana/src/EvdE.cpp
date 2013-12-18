@@ -45,6 +45,8 @@ EvdE::EvdE(char *HistogramDirectoryName) :
   hEvdE[1] = new TH2I("hEvdE_Left", "dEdx vs E (Left);E + dE (keV);dE (keV)",
 		      400, 0., 20000.,
 		      200, 0., 10000.);
+
+  gDirectory->cd("/");
 }
 
 EvdE::~EvdE(){
