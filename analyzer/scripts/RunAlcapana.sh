@@ -1,14 +1,14 @@
 #! /bin/bash
 
-#RunNumbers=( 3190 )
-RunNumbers=( 3190 )
+RunNumbers=( 2826 )
+RunNumbers=( 28{27..73} )
 
 DataDir="$HOME/data"
 mkdir -p $DataDir
 AlcapanaPath="$HOME/AlcapDAQ/analyzer/work/${USER}"
 
 odbedit -c "rm Analyzer/WireMap"
-odbedit -c "load ../odb/Defaults.odb"
+odbedit -c "load $HOME/AlcapDAQ/analyzer/odb/Defaults.odb"
 
 for Run in ${RunNumbers[@]}; do 
     echo Now running $Run

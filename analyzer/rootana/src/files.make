@@ -11,4 +11,5 @@ MakeMuonEvents.cpp \
 PlotTime.cpp \
 CoincidenceCut.cpp \
 PlotAmpVsTDiff.cpp \
+ProcessCorrectionFile.cpp \
 EvdE.cpp

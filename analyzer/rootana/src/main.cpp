@@ -1,10 +1,11 @@
 //#define USE_PRINT_OUT 
 
 #include <stdio.h>
-#include <string.h>
+#include <string>
 #include <stdlib.h>
 #include <ctype.h>
 #include <map>
+#include <string>
 #include "utils.h"
 
 #include "FillHistBase.h"
@@ -25,6 +26,7 @@
 #include "TSetupData.h"
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
+#include "ProcessCorrectionFile.h"
 
 
 void help_command_line(char *my_name);
@@ -33,8 +35,9 @@ int check_arguments();
 int analyze_command_line (int argc, char **argv);
 void *root_event_loop(void *arg = NULL);
 void ClearGlobalData(TGlobalData*);
+int GetRunNumber(char* input_file);
 
-ARGUMENTS arguments = {"","",0,0,-1};
+ARGUMENTS arguments = {"","","",0,0,-1};
 
 static TTree *tree = NULL;
 static TTree *InfoTree = NULL;
@@ -42,6 +45,7 @@ static TBranch *br = NULL;
 static TBranch *InfoBr = NULL;
 static TGlobalData *g_event;
 static TSetupData *s_data;
+static char correction_file[256];
 
 std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
@@ -58,7 +62,6 @@ TGlobalData* TGlobalData::Instance()
 {
   return g_event;
 }
-
 
 int main(int argc, char **argv){
   int ret = analyze_command_line (argc, argv);
@@ -89,6 +92,9 @@ int main(int argc, char **argv){
   InfoBr = InfoTree->GetBranch("Setup");
   InfoBr->SetAddress(&s_data);
   InfoTree->GetEntry(0);
+  // Now that we've loaded the TSetupData for this run check if there are any
+  // suggested replacemets for the wiremap data
+  CheckSetupData(s_data, correction_file);
   std::map<std::string, std::string>::iterator it_info;
   printf("### TSetupData ###\n");
   printf("Bank  Detector Name  Clock Tick (ns)  Pedestal (ADC)  Trigger Polarity  Time Shift (ns)  No. of Bits\n");
@@ -127,53 +133,53 @@ int main(int argc, char **argv){
   fillhists = new FillHistBase *[50]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
-  fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
-  fillhists[n_fillhist++] = new PlotTime("PlotTime");
+  //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
+  //fillhists[n_fillhist++] = new PlotTime("PlotTime");
 
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_Ge-S_Ge-F", "Ge-S","Ge-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-1_SiL2_slow", "SiL1-1-S","SiL2-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-2_SiL2_slow", "SiL1-2-S","SiL2-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-3_SiL2_slow", "SiL1-3-S","SiL2-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-4_SiL2_slow", "SiL1-4-S","SiL2-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-1_SiL2_fast", "SiL1-1-F","SiL2-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-2_SiL2_fast", "SiL1-2-F","SiL2-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-3_SiL2_fast", "SiL1-3-F","SiL2-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-4_SiL2_fast", "SiL1-4-F","SiL2-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-1_SiR2_slow", "SiR1-1-S","SiR2-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-2_SiR2_slow", "SiR1-2-S","SiR2-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-3_SiR2_slow", "SiR1-3-S","SiR2-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-4_SiR2_slow", "SiR1-4-S","SiR2-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-1_SiR2_fast", "SiR1-1-F","SiR2-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-2_SiR2_fast", "SiR1-2-F","SiR2-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-3_SiR2_fast", "SiR1-3-F","SiR2-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-4_SiR2_fast", "SiR1-4-F","SiR2-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_Ge-S_Ge-F", "Ge-S","Ge-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-1_SiL2_slow", "SiL1-1-S","SiL2-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-2_SiL2_slow", "SiL1-2-S","SiL2-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-3_SiL2_slow", "SiL1-3-S","SiL2-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-4_SiL2_slow", "SiL1-4-S","SiL2-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-1_SiL2_fast", "SiL1-1-F","SiL2-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-2_SiL2_fast", "SiL1-2-F","SiL2-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-3_SiL2_fast", "SiL1-3-F","SiL2-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-4_SiL2_fast", "SiL1-4-F","SiL2-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-1_SiR2_slow", "SiR1-1-S","SiR2-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-2_SiR2_slow", "SiR1-2-S","SiR2-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-3_SiR2_slow", "SiR1-3-S","SiR2-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-4_SiR2_slow", "SiR1-4-S","SiR2-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-1_SiR2_fast", "SiR1-1-F","SiR2-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-2_SiR2_fast", "SiR1-2-F","SiR2-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-3_SiR2_fast", "SiR1-3-F","SiR2-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-4_SiR2_fast", "SiR1-4-F","SiR2-F");
 
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_Ge-S", "muSc","Ge-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_Ge-F", "muSc","Ge-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-1-S", "muSc","SiL1-1-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-2-S", "muSc","SiL1-2-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-3-S", "muSc","SiL1-3-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-4-S", "muSc","SiL1-4-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-1-F", "muSc","SiL1-1-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-2-F", "muSc","SiL1-2-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-3-F", "muSc","SiL1-3-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-4-F", "muSc","SiL1-4-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL2S", "muSc","SiL2-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL2F", "muSc","SiL2-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-1-S", "muSc","SiR1-1-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-2-S", "muSc","SiR1-2-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-3-S", "muSc","SiR1-3-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-4-S", "muSc","SiR1-4-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-1-F", "muSc","SiR1-1-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-2-F", "muSc","SiR1-2-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-3-F", "muSc","SiR1-3-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-4-F", "muSc","SiR1-4-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR2S", "muSc","SiR2-S");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR2F", "muSc","SiR2-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_Ge-S", "muSc","Ge-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_Ge-F", "muSc","Ge-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-1-S", "muSc","SiL1-1-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-2-S", "muSc","SiL1-2-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-3-S", "muSc","SiL1-3-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-4-S", "muSc","SiL1-4-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-1-F", "muSc","SiL1-1-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-2-F", "muSc","SiL1-2-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-3-F", "muSc","SiL1-3-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-4-F", "muSc","SiL1-4-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL2S", "muSc","SiL2-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL2F", "muSc","SiL2-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-1-S", "muSc","SiR1-1-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-2-S", "muSc","SiR1-2-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-3-S", "muSc","SiR1-3-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-4-S", "muSc","SiR1-4-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-1-F", "muSc","SiR1-1-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-2-F", "muSc","SiR1-2-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-3-F", "muSc","SiR1-3-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-4-F", "muSc","SiR1-4-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR2S", "muSc","SiR2-S");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR2F", "muSc","SiR2-F");
   //  fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF", "muSc","Ge-F", -100,100);
   //  fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_AfterCut");
   //  fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);
-  //  fillhists[n_fillhist++] = new EvdE("EvdE");
+  fillhists[n_fillhist++] = new EvdE("EvdE");
   //  fillhists[n_fillhist++] = new CreateDetectorPulse("CreateDetectorPulse");
   
   fileOut->cd();
@@ -307,7 +313,13 @@ int check_arguments(){
     printf("ERROR: Empty output file name. Did you specify the -o option?\n");
     return 0;
   }  
-
+  if(arguments.run==-1){
+          // No run number has been set, obtain it from the filename
+          arguments.run=GetRunNumber(arguments.infile);
+  }
+  if(strcmp(arguments.correction_file,"")==0){
+    sprintf(correction_file,"wiremap_corrections/correct%ld.dat",arguments.run);
+  }else sprintf(correction_file,arguments.correction_file);
   return 1;
 }
 
@@ -340,6 +352,16 @@ int analyze_command_line (int argc, char **argv){
 	  }
 	  else{
 	    printf("ERROR: No argument for input file specified\n");
+	    goto usage;
+	  }
+	  break;
+        case 's':
+	  if(i+1 < argc){
+	    arguments.correction_file = argv[i+1];
+	    i+=2;
+	  }
+	  else{
+	    printf("ERROR: No argument for TSetupData correction file specified\n");
 	    goto usage;
 	  }
 	  break;
@@ -445,4 +467,17 @@ void ClearGlobalData(TGlobalData* data)
     pulse_vector.clear();
   }
   gDetectorPulseMap.clear();
+}
+
+int GetRunNumber(char* input_file){
+        std::string run_number=input_file;
+        std::cout<<run_number<<std::endl;
+        //remove the extension
+        run_number=run_number.substr(0,run_number.find_last_of('.'));
+        std::cout<<run_number<<std::endl;
+        //find the last numbers
+        run_number=run_number.substr(run_number.find_last_not_of("01234566789")+1);
+        std::cout<<run_number<<std::endl;
+        std::cout<<atoi(run_number.c_str())<<std::endl;
+        return atoi(run_number.c_str());
 }
