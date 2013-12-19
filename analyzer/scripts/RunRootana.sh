@@ -10,7 +10,7 @@ RootanaPath="$HOME/AlcapDAQ/analyzer/rootana"
 for Run in ${RunNumbers[@]};do 
         echo Now running $Run
 
-        $RootanaPath/rootana -i $DataDir/tree0${Run}_test.root -o $DataDir/out0${Run}.root 2>&1 |tee $DataDir/rootanaTextOutput$Run > output.txt
+        $RootanaPath/rootana -i $DataDir/tree0${Run}.root -o $DataDir/out0${Run}.root 2>&1 |tee $DataDir/rootanaTextOutput$Run > output.txt
 	echo "" >> output.txt
 
 done
