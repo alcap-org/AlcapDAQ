@@ -538,7 +538,6 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
       
       size = sizeof(enabled);
       sprintf(keyName, "/Equipment/Crate 5/Settings/CAEN/Ch%02d/enable", iCh);
-      printf("%s\n",keyName);
       if (db_get_value(hDB, 0, keyName, &enabled, &size, TID_BOOL, 0) == DB_SUCCESS) {
 	if (!enabled && duplicate_dets.at(i)) {
 	  printf("ATTENTION: Duplicate detector at index %d resolved (not enabled).\n", i);
