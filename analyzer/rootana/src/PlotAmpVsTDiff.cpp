@@ -32,14 +32,17 @@ PlotAmpVsTDiff::PlotAmpVsTDiff(char *HistogramDirectoryName, std::string det_nam
   int n_bits = TSetupData::Instance()->GetNBits(TSetupData::Instance()->GetBankName(fDetNameB));
   double max_adc_value = std::pow(2, n_bits);
 
+  std::string x_axis_title = "Time Difference (" + fDetNameB + " - " + fDetNameA + ") [ns]";
+  std::string y_axis_title = "Amplitude of " + fDetNameB + " [ADC Value]";
+
   amp_vs_tdiff_plot_coarse = new TH2F(histname.c_str(), histtitle.c_str(), 100,-50000,50000, max_adc_value,0,max_adc_value);
-  amp_vs_tdiff_plot_coarse->GetXaxis()->SetTitle("Time Difference [ns]");
-  amp_vs_tdiff_plot_coarse->GetYaxis()->SetTitle("Amplitude [ADC Value]");
+  amp_vs_tdiff_plot_coarse->GetXaxis()->SetTitle(x_axis_title.c_str());
+  amp_vs_tdiff_plot_coarse->GetYaxis()->SetTitle(y_axis_title.c_str());
 
   histname = "h" + fDetNameA + "-" + fDetNameB + "_AmpVsTDiff_Fine";
   amp_vs_tdiff_plot_fine = new TH2F(histname.c_str(), histtitle.c_str(), 200,-1000,1000, max_adc_value,0,max_adc_value);
-  amp_vs_tdiff_plot_fine->GetXaxis()->SetTitle("Time Difference [ns]");
-  amp_vs_tdiff_plot_fine->GetYaxis()->SetTitle("Amplitude [ADC Value]");
+  amp_vs_tdiff_plot_fine->GetXaxis()->SetTitle(x_axis_title.c_str());
+  amp_vs_tdiff_plot_fine->GetYaxis()->SetTitle(y_axis_title.c_str());
 
   dir->cd("/");
 }
