@@ -7,10 +7,14 @@
 #include <vector>
 #include <map>
 
+static TH1F* hNumberOfMuons;
+
 Normalization::Normalization(char *HistogramDirectoryName, int threshold = 350) :
   FillHistBase(HistogramDirectoryName), fNMuons(0), fThreshold(threshold) {
 
   N_MU = 0;
+
+  hNumberOfMuons = new TH1F("hNumberOfMuons", "hNumberOfMuons", 1,0,1);
 
   gDirectory->cd("/");
 }
@@ -53,6 +57,7 @@ int Normalization::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
       ++fNMuons;
 
   N_MU = fNMuons;
+  hNumberOfMuons->Fill("muons", fNMuons);
 
   return 0;
 }
