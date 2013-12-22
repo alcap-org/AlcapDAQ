@@ -46,13 +46,13 @@ int CoincidenceCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   std::vector<TAnalysedPulse*>::iterator currentDetAPulse = detA_pulses.begin(); // want to keep track of how far we are through the detA pulses
 
   // Loop through the detB pulses
-  for (std::vector<TAnalysedPulse*>::iterator pulseDetBIter = detB_pulses.begin(); pulseDetBIter != detB_pulses.end(); ++pulseDetBIter) {
+  for (std::vector<TAnalysedPulse*>::iterator detBPulseIter = detB_pulses.begin(); detBPulseIter != detB_pulses.end(); ++detBPulseIter) {
 
     // Loop through the detA pulses
     bool coinc_found = false;
     for (std::vector<TAnalysedPulse*>::iterator detAPulseIter = currentDetAPulse; detAPulseIter != detA_pulses.end(); ++detAPulseIter) {
 
-      double detB_time = (*pulseDetBIter)->GetTime();
+      double detB_time = (*detBPulseIter)->GetTime();
       double detA_time = (*detAPulseIter)->GetTime();
       double t_diff = detB_time - detA_time;
 
@@ -70,9 +70,9 @@ int CoincidenceCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
       // If no coincidence was found
     if (coinc_found == false) {
-      delete *pulseDetBIter;
-      detB_pulses.erase(pulseDetBIter);
-      --pulseDetBIter;
+      delete *detBPulseIter;
+      detB_pulses.erase(detBPulseIter);
+      --detBPulseIter;
     }
 
   } // end loop through detB pulses
