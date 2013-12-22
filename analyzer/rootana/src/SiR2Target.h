@@ -7,7 +7,7 @@
 
 class TGlobalData;
 class TSetupData;
-class TH2I;
+class TH1I;
 
 class SiR2Target : public FillHistBase{
  public:
@@ -15,10 +15,8 @@ class SiR2Target : public FillHistBase{
   ~SiR2Target();
 
  private:
-  TH2I* fhEvdE;
-  double ftCoinc_Musc_Stop[2];    // Time window after muSc to look for stop
-  double ftCoinc_Stop_Decay[2];   // Time window after stop to look for decay
-  double ftCoinc_Decay_ArmHit[2]; // Time window after decay to look for arm hit
+  TH1I* fhSpectrum;
+  double ftCoincidence;
 
  public:
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
