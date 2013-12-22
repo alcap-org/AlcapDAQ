@@ -8,9 +8,10 @@
 #include <map>
 #include <utility>
 #include <algorithm>
+#include <sstream>
 
 #include "TAnalysedPulse.h"
-
+static int pulse_counter = 0;
 using std::string;
 using std::map;
 using std::vector;
@@ -33,7 +34,7 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
    //std::cout << "Size of gData " << gData->fPulseIslandToChannelMap.size() << std::endl;
   for(map_iterator mapIter = gData->fPulseIslandToChannelMap.begin(); mapIter != gData->fPulseIslandToChannelMap.end(); mapIter++){
-
+    pulse_counter = 0;
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
     std::vector<TPulseIsland*> thePulses = mapIter->second;
@@ -53,18 +54,25 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       double integral = 0;
       double energy = 0.;
 
-      // If this is a slow pulse
-      if ( TSetupData::IsSlow(detname) ) {
-	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral, energy);
-      } else if ( TSetupData::IsFast(detname)) {
-	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral, energy);
-      } else {
-	GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral, energy);
-      }
+      // Find all the pulses on the island first...
+      //      std::vector<TPulseIsland*> allPulses = FindPulses(*pulseIter);
+      //      std::cout << "Number of Pulses for " << detname << " on this Island: " << allPulses.size() << std::endl;
+      // Now loop through all these pulses and create TAnalysedPulses
+      //      for (std::vector<TPulseIsland*>::iterator allPulseIter = allPulses.begin(); allPulseIter != allPulses.end(); ++allPulseIter) {
+
+	// If this is a slow pulse
+	if ( TSetupData::IsSlow(detname) ) {
+	  GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral, energy);
+	} else if ( TSetupData::IsFast(detname)) {
+	  GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral, energy);
+	} else {
+	  GetAllParameters_MaxBin( gSetup, *pulseIter, amplitude, time, integral, energy);
+	}
 
 
-      TAnalysedPulse* analysedPulse = new TAnalysedPulse(amplitude, time, integral, energy, detname);
-      analysedPulses.push_back(analysedPulse);
+	TAnalysedPulse* analysedPulse = new TAnalysedPulse(amplitude, time, integral, energy, detname);
+	analysedPulses.push_back(analysedPulse);
+	//      }
     }    
     std::sort(analysedPulses.begin(), analysedPulses.end(), IsTimeOrdered);
     gAnalysedPulseMap[detname] = analysedPulses;
@@ -104,9 +112,74 @@ void AnalysePulseIsland::GetAllParameters_MaxBin(TSetupData* gSetup, const TPuls
   energy = eCalib_slope * amplitude + eCalib_offset;
 }
 
+// IsTimeOrdered()
+// -- Returns tru of the first pulse is before the second
 bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b) {
 
   // Want a to be before b
   return ( a->GetTime() < b->GetTime() );
 
+}
+
+// FindPulses()
+// -- Finds all pulses on an island and returns the vector of sub pulses
+std::vector<TPulseIsland*> AnalysePulseIsland::FindPulses(TPulseIsland* theIsland) {
+
+  // Get the output ready
+  std::vector<TPulseIsland*> output;
+
+  // Things we need from the oldpulse island
+  std::string bankname = theIsland->GetBankName();
+  std::vector<int> theSamples = theIsland->GetSamples();
+  int pedestal = TSetupData::Instance()->GetPedestal(bankname);
+  int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+  int RMS = 20; // hard-coded for the time being
+
+  // Histograms
+  std::stringstream histname;
+  histname << bankname << "new_pulses_" << pulse_counter;
+  ++pulse_counter;
+  //  TH1F* new_pulses = new TH1F(histname.str().c_str(), histname.str().c_str(), theSamples.size(),0,theSamples.size());
+  histname << "_old";
+  //  TH1F* old_pulse = new TH1F(histname.str().c_str(), histname.str().c_str(), theSamples.size(),0,theSamples.size());
+
+  // What we need for the new pulses
+  int timestamp = 0;
+  std::vector<int> newSamples;
+
+  // Loop through the samples
+  bool start_pulse = false;
+  for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+  
+    // Get the current height (taking into account pulse polarity)
+    int height = trigger_polarity*(*(sampleIter) - pedestal);
+    //    old_pulse->Fill(sampleIter - theSamples.begin(), *sampleIter);
+
+    if (start_pulse == false) { // if we haven't found a pulse yet then see if we do
+      if (height > 0 + RMS) {
+	timestamp = sampleIter - theSamples.begin();
+	start_pulse = true;
+      }
+    }
+
+    if (start_pulse == true) {
+      // see if the pulse has ended
+      if (height < 0) {
+	start_pulse = false; // the pulse is over
+
+	// Add the TPulseIsland
+	output.push_back(new TPulseIsland(timestamp, newSamples, bankname));
+
+	// Clear the old information
+	newSamples.clear();
+	timestamp = 0;
+      }
+      else {
+	newSamples.push_back(*sampleIter);
+	//	new_pulses->Fill(sampleIter - theSamples.begin(), *sampleIter);
+      }
+    }
+  }
+
+  return output;
 }
