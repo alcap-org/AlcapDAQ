@@ -18,6 +18,8 @@
 #include "CoincidenceCut.h"
 #include "EvdE.h"
 #include "PlotAmpVsTDiff.h"
+#include "Normalization.h"
+//#include "PlotShapes.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -133,8 +135,19 @@ int main(int argc, char **argv){
   fillhists = new FillHistBase *[50]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
-  //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
-  //fillhists[n_fillhist++] = new PlotTime("PlotTime");
+	fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
+	//fillhists[n_fillhist++] = new PlotTime("PlotTime");
+
+  //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF_500ns", "muSc","Ge-F", -500,500);
+  fillhists[n_fillhist++] = 
+		new CoincidenceCut("CoincidenceCut_MuSc-GeS_500ns", "muSc","Ge-S", -500,500);
+  fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_500nsCut");
+  //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_50nsCut");
+  //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF_100ns", "muSc","Ge-F", -100,100);
+  fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeS_100ns", "muSc","Ge-S", -100,100);
+  fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_100nsCut");
+  //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF_50ns", "muSc","Ge-F", -50,50);
+  //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeS_50ns", "muSc","Ge-S", -50,50);
 
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_Ge-S_Ge-F", "Ge-S","Ge-F");
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-1_SiL2_slow", "SiL1-1-S","SiL2-S");
