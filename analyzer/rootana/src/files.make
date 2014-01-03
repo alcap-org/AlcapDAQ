@@ -12,4 +12,5 @@ PlotTime.cpp \
 CoincidenceCut.cpp \
 PlotAmpVsTDiff.cpp \
 ProcessCorrectionFile.cpp \
-EvdE.cpp
+EvdE.cpp \
+DeadTimeGe.cpp

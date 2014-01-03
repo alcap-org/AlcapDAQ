@@ -20,6 +20,7 @@
 #include "PlotAmpVsTDiff.h"
 #include "Normalization.h"
 //#include "PlotShapes.h"
+#include "DeadTimeGe.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -137,6 +138,7 @@ int main(int argc, char **argv){
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
 	fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
 	//fillhists[n_fillhist++] = new PlotTime("PlotTime");
+	fillhists[n_fillhist++] = new DeadTimeGe("DeadTimeGe");
 
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF_500ns", "muSc","Ge-F", -500,500);
   fillhists[n_fillhist++] = 
@@ -146,6 +148,7 @@ int main(int argc, char **argv){
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF_100ns", "muSc","Ge-F", -100,100);
   fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeS_100ns", "muSc","Ge-S", -100,100);
   fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_100nsCut");
+
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF_50ns", "muSc","Ge-F", -50,50);
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeS_50ns", "muSc","Ge-S", -50,50);
 
