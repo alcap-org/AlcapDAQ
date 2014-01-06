@@ -136,18 +136,22 @@ int main(int argc, char **argv){
   fillhists = new FillHistBase *[50]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
-	fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
+	//fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
 	//fillhists[n_fillhist++] = new PlotTime("PlotTime");
-	fillhists[n_fillhist++] = new DeadTimeGe("DeadTimeGe");
+	//fillhists[n_fillhist++] = new DeadTimeGe("DeadTimeGe");
+	fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_Ge-S", "muSc","Ge-S");
+	fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_Ge-F", "muSc","Ge-F");
+	fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR2S", "muSc","SiR2-S");
+	fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR2F", "muSc","SiR2-F");
 
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF_500ns", "muSc","Ge-F", -500,500);
-  fillhists[n_fillhist++] = 
-		new CoincidenceCut("CoincidenceCut_MuSc-GeS_500ns", "muSc","Ge-S", -500,500);
-  fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_500nsCut");
+  //fillhists[n_fillhist++] = 
+		//new CoincidenceCut("CoincidenceCut_MuSc-GeS_500ns", "muSc","Ge-S", -500,500);
+  //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_500nsCut");
   //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_50nsCut");
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF_100ns", "muSc","Ge-F", -100,100);
-  fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeS_100ns", "muSc","Ge-S", -100,100);
-  fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_100nsCut");
+  //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeS_100ns", "muSc","Ge-S", -100,100);
+  //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_100nsCut");
 
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF_50ns", "muSc","Ge-F", -50,50);
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeS_50ns", "muSc","Ge-S", -50,50);
@@ -170,8 +174,6 @@ int main(int argc, char **argv){
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-3_SiR2_fast", "SiR1-3-F","SiR2-F");
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-4_SiR2_fast", "SiR1-4-F","SiR2-F");
 
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_Ge-S", "muSc","Ge-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_Ge-F", "muSc","Ge-F");
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-1-S", "muSc","SiL1-1-S");
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-2-S", "muSc","SiL1-2-S");
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-3-S", "muSc","SiL1-3-S");
@@ -195,7 +197,7 @@ int main(int argc, char **argv){
   //  fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF", "muSc","Ge-F", -100,100);
   //  fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_AfterCut");
   //  fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);
-  fillhists[n_fillhist++] = new EvdE("EvdE");
+  //fillhists[n_fillhist++] = new EvdE("EvdE");
   //  fillhists[n_fillhist++] = new CreateDetectorPulse("CreateDetectorPulse");
   
   fileOut->cd();
