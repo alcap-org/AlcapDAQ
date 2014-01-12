@@ -1,5 +1,6 @@
 # MIDAS
 midas.log
+work/*/.*SHM
 
 # OS Files
 *~
