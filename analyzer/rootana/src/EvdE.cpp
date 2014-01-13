@@ -7,11 +7,13 @@
 #include <vector>
 #include <map>
 
-#include "TH2I.h"
+#include "TH1D.h"
+#include "TH2D.h"
 
 extern std::map< std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 static int nSec;            // Number of sections in the silicon thin detectors
-static TH2I* hEvdE[2];      // Histograms (right, left)
+static TH2D* hEvdE[2];      // Histograms (right, left)
+static TH1D* hEvdE_log[2];
 
 EvdE::EvdE(char *HistogramDirectoryName):FillHistBase(HistogramDirectoryName) 
 {;}
@@ -31,8 +33,8 @@ EvdE::EvdE(char *HistogramDirectoryName, double t0, double t1) :
 	adcCutThick[1] = 80.;
 	adcCutThin[0] = 160.;
 	adcCutThin[1] = 160.;
-	eCutThin[0] = adcCutThin[0] * 2.7;
-	eCutThin[1] = adcCutThin[1] * 2.7;
+	eCutThin[0] = adcCutThin[0] * 2.6;
+	eCutThin[1] = adcCutThin[1] * 2.6;
 
 	slopeThick[0] = 8.06;
 	offsetThick[0] = -192.70;
@@ -58,12 +60,15 @@ EvdE::EvdE(char *HistogramDirectoryName, double t0, double t1) :
 	offsetThin[1][3] = -85.48;
 
 	// Prepare histograms
-	hEvdE[0] = new TH2I("hEvdE_Right", "dEdx vs E (Right);E + dE (keV);dE (keV)",
+	hEvdE[0] = new TH2D("hEvdE_Right", "dEdx vs E (Right);E + dE (keV);dE (keV)",
 			1000, 0., 14000.,
 			500, 0., 7000.);
-	hEvdE[1] = new TH2I("hEvdE_Left", "dEdx vs E (Left);E + dE (keV);dE (keV)",
+	hEvdE[1] = new TH2D("hEvdE_Left", "dEdx vs E (Left);E + dE (keV);dE (keV)",
 			1000, 0., 14000.,
 			500, 0., 7000.);
+
+	hEvdE_log[0] = new TH1D("hEvdE_Right_log", "logdE +logE (Right)", 100, 10., 30.);
+	hEvdE_log[1] = new TH1D("hEvdE_Left_log", "logdE +logE (Left)", 100, 10., 30.);
 
 	gDirectory->cd("/");
 }
@@ -227,6 +232,7 @@ int EvdE::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
 				{
 					double E = eSiRThick[iHit]*slopeThick[0] + offsetThick[0] + dE;
 					hEvdE[0]->Fill(E, dE);// Record total energy deposited in thin detector
+					hEvdE_log[0]->Fill(log(E) + log(dE));
 				}
 			}
 		}
@@ -257,6 +263,7 @@ int EvdE::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
 				{
 					double E = eSiLThick[iHit]*slopeThick[1] + offsetThick[1] + dE;
 					hEvdE[1]->Fill(E, dE);
+					hEvdE_log[1]->Fill(log(E) + log(dE));
 				}
 			}
 		}
