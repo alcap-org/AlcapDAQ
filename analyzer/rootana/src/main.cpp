@@ -41,6 +41,7 @@ ARGUMENTS arguments = {"","","",0,0,-1};
 
 static TTree *tree = NULL;
 static TTree *InfoTree = NULL;
+static TTree *analysedPulseTree = NULL;
 static TBranch *br = NULL;
 static TBranch *InfoBr = NULL;
 static TGlobalData *g_event;
@@ -129,6 +130,19 @@ int main(int argc, char **argv){
   }
   fileOut->cd();
 
+  int split = 1;
+  int bufsize = 64000;
+  Int_t branchstyle = 1;
+
+  if (split < 0) {branchstyle = 0; split = -1-split;}
+  TTree::SetBranchStyle(branchstyle);
+
+	analysedPulseTree = new TTree("AnalysedPulseTree","AnalysedPulseTree");
+  analysedPulseTree->SetAutoSave(300000000); // autosave when 300 Mbyte written.
+  analysedPulseTree->SetMaxVirtualSize(300000000); // 300 Mbyte
+	analysedPulseTree->Branch("AnalysedPulse","AnalysedPulse", 
+			&gAnalysedPulseMap, bufsize, split);
+
   // Now let's setup all the analysis modules we want
   fillhists = new FillHistBase *[50]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
@@ -179,7 +193,7 @@ int main(int argc, char **argv){
   //  fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF", "muSc","Ge-F", -100,100);
   //  fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_AfterCut");
   //  fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);
-  fillhists[n_fillhist++] = new EvdE("EvdE");
+  //fillhists[n_fillhist++] = new EvdE("EvdE");
   //  fillhists[n_fillhist++] = new CreateDetectorPulse("CreateDetectorPulse");
   
   fileOut->cd();
@@ -187,6 +201,7 @@ int main(int argc, char **argv){
   // do the main loop
   root_event_loop();
 
+	analysedPulseTree->Write();
   fileOut->Write();
   fileOut->Close();
   treefile->Close();
@@ -263,6 +278,7 @@ void *root_event_loop(void *arg){
       printf("q was non-zero when jentry was %d\n",(Int_t)jentry);
       break;
     }
+		analysedPulseTree->Fill();
   }
 
   //post-process on last entry

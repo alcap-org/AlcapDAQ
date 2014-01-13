@@ -12,7 +12,7 @@
   */
 class TGlobalData : public TObject{
  public:
-  static TGlobalData* Instance();
+	static TGlobalData* Instance();
 
   // Map of bank names to vectors of islands.
   std::map<std::string, std::vector<TPulseIsland*> >
