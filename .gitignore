@@ -1,5 +1,6 @@
 /root/
-midas/linux/bin/*
+midas/linux
+midas/linux64
 /dir/
 CAEN/lib/*
 */*.so
@@ -14,3 +15,4 @@ www/html/cache/*
 www/html/trend/*
 *~
 #*
+exptab
