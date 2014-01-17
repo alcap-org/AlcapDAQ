@@ -141,7 +141,7 @@ int main(int argc, char **argv){
 	analysedPulseTree->SetAutoSave(300000000); // autosave when 300 Mbyte written.
 	analysedPulseTree->SetMaxVirtualSize(300000000); // 300 Mbyte
 	analysedPulseTree->Branch("AnalysedPulse","AnalysedPulse", 
-			&gAnalysedPulseMap, bufsize, split);
+			&gAnalysedPulseMap, bufsize, 0);
 
   // Now let's setup all the analysis modules we want
   fillhists = new FillHistBase *[50]; // increase if more than 20 modules

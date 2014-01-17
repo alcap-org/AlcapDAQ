@@ -1,4 +1,4 @@
-all: rootana libAnalysis.so
+all: rootana libAnalysis.so libAnalysis.rootmap
 
 .PHONY: clean print all
 
@@ -47,6 +47,7 @@ OBJECTS := $(notdir $(patsubst %.C,%.o,$(SOURCES)))
 OBJECTS := $(notdir $(patsubst %.cpp,%.o,$(OBJECTS)))
 
 LIB_DATACLASS := $(DAQdir)/analyzer/work/$(USER)/libDataClasses.so
+DATALINKDEF := $(DAQdir)/analyzer/src/common/DataLibraryLinkDef.h
 %.o: %.cpp
 	$(CXX) -c -Wall $(CXXFLAGS) $<
 	$(CXX) -MM $(CXXFLAGS) $< > $(notdir $(patsubst %.cpp,%.d,$<))
@@ -59,6 +60,10 @@ libAnalysis.so: $(OBJECTS)
 	$(CXX) $(ICCLIBS) $(ROOT_LIBS) -shared -o libAnalysis.so \
 		$(shell root-config --ldflags) -I$(ROOTSYS)/include $^ -lMinuit -lPhysics \
 		$(LIB_DATACLASS)
+
+libAnalysis.rootmap: libAnalysis.so $(DATALINKDEF)
+	rlibmap -f -o libAnalysis.rootmap -l libAnalysis.so -d libCore \
+		-c $(DATALINKDEF)
 
 clean: 
 	rm -f *.d *.o *Dict.cpp *Dict.h blank rootana
