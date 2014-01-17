@@ -130,31 +130,31 @@ int main(int argc, char **argv){
   }
   fileOut->cd();
 
-	int split = 1;
-	int bufsize = 64000;
-	Int_t branchstyle = 1;
+	//int split = 1;
+	//int bufsize = 64000;
+	//Int_t branchstyle = 1;
 
-	if (split < 0) {branchstyle = 0; split = -1-split;}
-	TTree::SetBranchStyle(branchstyle);
+	//if (split < 0) {branchstyle = 0; split = -1-split;}
+	//TTree::SetBranchStyle(branchstyle);
 
-	analysedPulseTree = new TTree("AnalysedPulseTree","AnalysedPulseTree");
-	analysedPulseTree->SetAutoSave(300000000); // autosave when 300 Mbyte written.
-	analysedPulseTree->SetMaxVirtualSize(300000000); // 300 Mbyte
-	analysedPulseTree->Branch("AnalysedPulse","AnalysedPulse", 
-			&gAnalysedPulseMap, bufsize, 0);
+	//analysedPulseTree = new TTree("AnalysedPulseTree","AnalysedPulseTree");
+	//analysedPulseTree->SetAutoSave(300000000); // autosave when 300 Mbyte written.
+	//analysedPulseTree->SetMaxVirtualSize(300000000); // 300 Mbyte
+	//analysedPulseTree->Branch("AnalysedPulse","AnalysedPulse", 
+			//&gAnalysedPulseMap, bufsize, 0);
 
   // Now let's setup all the analysis modules we want
   fillhists = new FillHistBase *[50]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
 
-	//char foldername[256];
-	//double t0 = 0;
-	//double t1 = 5000;
-	//sprintf(foldername,"%s_%d_%d","EvdE",int(t0),int(t1));
-  //fillhists[n_fillhist++] = new EvdE(foldername, t0,t1);
+	char foldername[256];
+	double t0 = 1000;
+	double t1 = 6000;
+	sprintf(foldername,"%s_%d_%d","EvdE",int(t0),int(t1));
+	fillhists[n_fillhist++] = new EvdE(foldername, t0,t1);
 	//
-	fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
+	//fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
   //fillhists[n_fillhist++] = new PlotTime("PlotTime");
 
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_Ge-S_Ge-F", "Ge-S","Ge-F");
@@ -207,7 +207,7 @@ int main(int argc, char **argv){
   // do the main loop
   root_event_loop();
 
-	analysedPulseTree->Write();
+	//analysedPulseTree->Write();
   fileOut->Write();
   fileOut->Close();
   treefile->Close();
@@ -284,7 +284,7 @@ void *root_event_loop(void *arg){
       printf("q was non-zero when jentry was %d\n",(Int_t)jentry);
       break;
     }
-		analysedPulseTree->Fill();
+		//analysedPulseTree->Fill();
   }
 
   //post-process on last entry
