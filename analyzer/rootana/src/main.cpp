@@ -150,7 +150,7 @@ int main(int argc, char **argv){
 
 	char foldername[256];
 	double t0 = 1000;
-	double t1 = 6000;
+	double t1 = 7000;
 	sprintf(foldername,"%s_%d_%d","EvdE",int(t0),int(t1));
 	fillhists[n_fillhist++] = new EvdE(foldername, t0,t1);
 	//
