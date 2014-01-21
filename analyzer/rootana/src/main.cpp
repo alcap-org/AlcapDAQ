@@ -148,24 +148,25 @@ int main(int argc, char **argv){
 	fAnalysedPulseTree = new TTree("AnalysedPulseTree", "AnalysedPulseTree");
 	fAnalysedPulseTree->SetAutoSave(100000000);
 	fAnalysedPulseTree->SetMaxVirtualSize(100000000);
-	fAnalysedPulseBranch = fAnalysedPulseTree->Branch("AnalysedPulse", 
+	fAnalysedPulseBranch = fAnalysedPulseTree->Branch("AnalysedPulseMapWrapper", 
 			"TAnalysedPulseMapWrapper", &gAnalysedPulseMapWrapper, bufsize, split);
 	fAnalysedPulseBranch->SetAutoDelete(kFALSE);
 
   // Now let's setup all the analysis modules we want
   fillhists = new FillHistBase *[50]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
+	// this is needed to save analysed tree
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysedPulseIsland");
 
 	//fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
 	//fillhists[n_fillhist++] = new PlotTime("PlotTime");
 	
 	// EvdE
-	char foldername[256];
-	double t0 = 1000;
-	double t1 = 6000;
-	sprintf(foldername,"%s_%d_%d","EvdE",int(t0),int(t1));
-	fillhists[n_fillhist++] = new EvdE(foldername, t0,t1);
+	//char foldername[256];
+	//double t0 = 1000;
+	//double t1 = 6000;
+	//sprintf(foldername,"%s_%d_%d","EvdE",int(t0),int(t1));
+	//fillhists[n_fillhist++] = new EvdE(foldername, t0,t1);
 	
 
 	// Amplitude, Xray

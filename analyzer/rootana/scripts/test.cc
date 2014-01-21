@@ -5,7 +5,7 @@
 	gROOT->ProcessLine(".L ./libAnalysis.so");
 
 	TFile *file = 
-		TFile::Open("~/work/RunPSI2013/data/root/analysedtree/anatree02808.root");
+		TFile::Open("~/work/RunPSI2013/data/root/analysedtree/anatree03474.root");
 
 	TTree *tree = (TTree*)file->Get("AnalysedPulseTree");
 	tree->Print();
@@ -41,7 +41,8 @@
 			for (pulseIter = pulseVector.begin(); 
 					pulseIter != pulseVector.end(); ++pulseIter)
 			{
-				printf("height: %.2f\n", (*pulseIter)->GetAmplitude());
+				printf("height: %.2f", (*pulseIter)->GetAmplitude());
+				printf("time: %.2f\n", (*pulseIter)->GetTime());
 			}
 		}
 	}
