@@ -148,59 +148,23 @@ int main(int argc, char **argv){
   n_fillhist = 0;  // number of modules (global variable)
   fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
 
+	//fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
+	//fillhists[n_fillhist++] = new PlotTime("PlotTime");
+	
+	// EvdE
 	char foldername[256];
 	double t0 = 1000;
-	double t1 = 7000;
+	double t1 = 6000;
 	sprintf(foldername,"%s_%d_%d","EvdE",int(t0),int(t1));
 	fillhists[n_fillhist++] = new EvdE(foldername, t0,t1);
-	//
-	//fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
-  //fillhists[n_fillhist++] = new PlotTime("PlotTime");
+	
 
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_Ge-S_Ge-F", "Ge-S","Ge-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-1_SiL2_slow", "SiL1-1-S","SiL2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-2_SiL2_slow", "SiL1-2-S","SiL2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-3_SiL2_slow", "SiL1-3-S","SiL2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-4_SiL2_slow", "SiL1-4-S","SiL2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-1_SiL2_fast", "SiL1-1-F","SiL2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-2_SiL2_fast", "SiL1-2-F","SiL2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-3_SiL2_fast", "SiL1-3-F","SiL2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-4_SiL2_fast", "SiL1-4-F","SiL2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-1_SiR2_slow", "SiR1-1-S","SiR2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-2_SiR2_slow", "SiR1-2-S","SiR2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-3_SiR2_slow", "SiR1-3-S","SiR2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-4_SiR2_slow", "SiR1-4-S","SiR2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-1_SiR2_fast", "SiR1-1-F","SiR2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-2_SiR2_fast", "SiR1-2-F","SiR2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-3_SiR2_fast", "SiR1-3-F","SiR2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-4_SiR2_fast", "SiR1-4-F","SiR2-F");
-
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_Ge-S", "muSc","Ge-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_Ge-F", "muSc","Ge-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-1-S", "muSc","SiL1-1-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-2-S", "muSc","SiL1-2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-3-S", "muSc","SiL1-3-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-4-S", "muSc","SiL1-4-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-1-F", "muSc","SiL1-1-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-2-F", "muSc","SiL1-2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-3-F", "muSc","SiL1-3-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-4-F", "muSc","SiL1-4-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL2S", "muSc","SiL2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL2F", "muSc","SiL2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-1-S", "muSc","SiR1-1-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-2-S", "muSc","SiR1-2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-3-S", "muSc","SiR1-3-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-4-S", "muSc","SiR1-4-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-1-F", "muSc","SiR1-1-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-2-F", "muSc","SiR1-2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-3-F", "muSc","SiR1-3-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-4-F", "muSc","SiR1-4-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR2S", "muSc","SiR2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR2F", "muSc","SiR2-F");
-  //  fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF", "muSc","Ge-F", -100,100);
-  //  fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_AfterCut");
-  //  fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);
-  //  fillhists[n_fillhist++] = new CreateDetectorPulse("CreateDetectorPulse");
+	// Amplitude, Xray
+  //fillhists[n_fillhist++] = new 
+		//CoincidenceCut("CoincidenceCut_MuSc-GeF_500ns", "muSc","Ge-F", -500,500);
+  //fillhists[n_fillhist++] = new 
+		//CoincidenceCut("CoincidenceCut_MuSc-GeS_500ns", "muSc","Ge-S", -500,500);
+  //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_500nsCut");
   
   fileOut->cd();
   
