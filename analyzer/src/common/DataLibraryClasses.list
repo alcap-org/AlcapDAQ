@@ -5,3 +5,4 @@ TAnalysedPulse
 TDetectorPulse
 
 TVacuumData
+TAnalysedPulseMapWrapper

@@ -28,6 +28,8 @@
 #include "TDetectorPulse.h"
 #include "ProcessCorrectionFile.h"
 
+#include "TAnalysedPulseMapWrapper.h"
+
 
 void help_command_line(char *my_name);
 bool isNumber(char *c);
@@ -41,12 +43,15 @@ ARGUMENTS arguments = {"","","",0,0,-1};
 
 static TTree *tree = NULL;
 static TTree *InfoTree = NULL;
-static TTree *analysedPulseTree = NULL;
 static TBranch *br = NULL;
 static TBranch *InfoBr = NULL;
 static TGlobalData *g_event;
 static TSetupData *s_data;
 static char correction_file[256];
+
+TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper;
+static TTree *fAnalysedPulseTree = NULL;
+TBranch *fAnalysedPulseBranch = NULL;
 
 std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
@@ -130,33 +135,38 @@ int main(int argc, char **argv){
   }
   fileOut->cd();
 
-	//int split = 1;
-	//int bufsize = 64000;
-	//Int_t branchstyle = 1;
+	// TAnalysedMapWrapper
+	gAnalysedPulseMapWrapper = new TAnalysedPulseMapWrapper(gAnalysedPulseMap);
 
-	//if (split < 0) {branchstyle = 0; split = -1-split;}
-	//TTree::SetBranchStyle(branchstyle);
+  int split = 1;
+  int bufsize = 64000;
+  Int_t branchstyle = 1;
 
-	//analysedPulseTree = new TTree("AnalysedPulseTree","AnalysedPulseTree");
-	//analysedPulseTree->SetAutoSave(300000000); // autosave when 300 Mbyte written.
-	//analysedPulseTree->SetMaxVirtualSize(300000000); // 300 Mbyte
-	//analysedPulseTree->Branch("AnalysedPulse","AnalysedPulse", 
-			//&gAnalysedPulseMap, bufsize, 0);
+  if (split < 0) {branchstyle = 0; split = -1-split;}
+  TTree::SetBranchStyle(branchstyle);
+
+	fAnalysedPulseTree = new TTree("AnalysedPulseTree", "AnalysedPulseTree");
+	fAnalysedPulseTree->SetAutoSave(100000000);
+	fAnalysedPulseTree->SetMaxVirtualSize(100000000);
+	fAnalysedPulseBranch = fAnalysedPulseTree->Branch("AnalysedPulseMapWrapper", 
+			"TAnalysedPulseMapWrapper", &gAnalysedPulseMapWrapper, bufsize, split);
+	fAnalysedPulseBranch->SetAutoDelete(kFALSE);
 
   // Now let's setup all the analysis modules we want
   fillhists = new FillHistBase *[50]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
-  fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
+	// this is needed to save analysed tree
+  fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysedPulseIsland");
 
 	//fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
 	//fillhists[n_fillhist++] = new PlotTime("PlotTime");
 	
 	// EvdE
-	char foldername[256];
-	double t0 = 1000;
-	double t1 = 6000;
-	sprintf(foldername,"%s_%d_%d","EvdE",int(t0),int(t1));
-	fillhists[n_fillhist++] = new EvdE(foldername, t0,t1);
+	//char foldername[256];
+	//double t0 = 1000;
+	//double t1 = 6000;
+	//sprintf(foldername,"%s_%d_%d","EvdE",int(t0),int(t1));
+	//fillhists[n_fillhist++] = new EvdE(foldername, t0,t1);
 	
 
 	// Amplitude, Xray
@@ -171,7 +181,7 @@ int main(int argc, char **argv){
   // do the main loop
   root_event_loop();
 
-	//analysedPulseTree->Write();
+	fAnalysedPulseTree->Write();
   fileOut->Write();
   fileOut->Close();
   treefile->Close();
@@ -248,7 +258,10 @@ void *root_event_loop(void *arg){
       printf("q was non-zero when jentry was %d\n",(Int_t)jentry);
       break;
     }
-		//analysedPulseTree->Fill();
+
+		gAnalysedPulseMapWrapper->SetMap(gAnalysedPulseMap);
+		//gAnalysedPulseMapWrapper->ShowInfo();
+		fAnalysedPulseTree->Fill();
   }
 
   //post-process on last entry
