@@ -14,6 +14,8 @@ extern std::map< std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 static int nSec;            // Number of sections in the silicon thin detectors
 static TH2D* hEvdE[2];      // Histograms (right, left)
 static TH1D* hEvdE_log[2];
+static TH1D* hEprotons[2];
+static TH2D* hEvdEprotons[2];
 
 EvdE::EvdE(char *HistogramDirectoryName):FillHistBase(HistogramDirectoryName) 
 {;}
@@ -69,6 +71,18 @@ EvdE::EvdE(char *HistogramDirectoryName, double t0, double t1) :
 
 	hEvdE_log[0] = new TH1D("hEvdE_Right_log", "logdE +logE (Right)", 100, 10., 30.);
 	hEvdE_log[1] = new TH1D("hEvdE_Left_log", "logdE +logE (Left)", 100, 10., 30.);
+
+	hEprotons[1] = new TH1D("hEp_Left", 
+			"Energy of protons (Left)", 1000, 0., 14000.);
+	hEprotons[0] = new TH1D("hEp_Right", 
+			"Energy of protons (Right)", 1000, 0., 14000.);
+
+	hEvdEprotons[0] = new TH2D("hEvdE_Proton_Right", "dEdx vs E (Right);E + dE (keV);dE (keV)",
+			1000, 0., 14000.,
+			500, 0., 7000.);
+	hEvdEprotons[1] = new TH2D("hEvdE_Proton_Left", "dEdx vs E (Left);E + dE (keV);dE (keV)",
+			1000, 0., 14000.,
+			500, 0., 7000.);
 
 	gDirectory->cd("/");
 }
@@ -233,6 +247,11 @@ int EvdE::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
 					double E = eSiRThick[iHit]*slopeThick[0] + offsetThick[0] + dE;
 					hEvdE[0]->Fill(E, dE);// Record total energy deposited in thin detector
 					hEvdE_log[0]->Fill(log(E) + log(dE));
+					if ((log(E) + log(dE) >14.5) && (log(E) + log(dE)<15.6))
+					{
+						hEprotons[0]->Fill(E);
+						hEvdEprotons[0]->Fill(E, dE);
+					}
 				}
 			}
 		}
@@ -264,6 +283,11 @@ int EvdE::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
 					double E = eSiLThick[iHit]*slopeThick[1] + offsetThick[1] + dE;
 					hEvdE[1]->Fill(E, dE);
 					hEvdE_log[1]->Fill(log(E) + log(dE));
+					if ((log(E) + log(dE) >14.5) && (log(E) + log(dE)<15.6))
+					{
+						hEprotons[1]->Fill(E);
+						hEvdEprotons[1]->Fill(E, dE);
+					}
 				}
 			}
 		}
