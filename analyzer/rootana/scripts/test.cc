@@ -2,7 +2,7 @@
 	gROOT->ProcessLine("#include <map>");
 	gROOT->ProcessLine("#include <pair>");
 	gROOT->ProcessLine("#include <vector>");
-	gROOT->ProcessLine(".L ./libAnalysis.so");
+	gROOT->ProcessLine(".L ~/work/AlcapDAQ/analyzer/rootana/libAnalysis.so");
 
 	TFile *file = 
 		TFile::Open("~/work/RunPSI2013/data/root/analysedtree/anatree03474.root");
@@ -11,12 +11,10 @@
 	tree->Print();
 
 	TAnalysedPulseMapWrapper *mapWrapper;
-	map<string, vector<TAnalysedPulse*> > currentMap;
+	typedef map<string, vector<TAnalysedPulse*> > chn2AnalysedPulseMap;
+	chn2AnalysedPulseMap currentMap;
 
-	//string detname;
-	//vector<TAnalysedPulse *> theVector;
 	tree->SetMakeClass(1);
-	//tree->SetBranchAddress("AnalysedPulse", &mapWrapper);
 	tree->SetBranchAddress("fChn2PulseMap", &currentMap);
 
 
@@ -29,7 +27,7 @@
 		std::cout<<", size: "<<currentMap.size()<<std::endl;
 		//mapWrapper->ShowInfo();
 		
-		for (map<string, vector <TAnalysedPulse*> >::iterator mapIter = currentMap.begin(); 
+		for (chn2AnalysedPulseMap::iterator mapIter = currentMap.begin(); 
 				mapIter != currentMap.end(); ++mapIter)
 		{
 			string detname = mapIter->first;

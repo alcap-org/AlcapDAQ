@@ -17,10 +17,14 @@ class TAnalysedPulse : public TObject {
   double fIntegral;
   double fEnergy;
   std::string fDetName;
+	std::string fAlgo;
 
   public:
   TAnalysedPulse();
-  TAnalysedPulse(double amplitude, double time, double integral, double energy, std::string det_name);
+  TAnalysedPulse(double amplitude, double time, double integral, 
+			double energy, std::string det_name);
+  TAnalysedPulse(double amplitude, double time, double integral, 
+			double energy, std::string det_name, std::string algo);
   virtual ~TAnalysedPulse() {};
 
   void Reset(Option_t* o = "");
@@ -30,8 +34,9 @@ class TAnalysedPulse : public TObject {
   double GetIntegral() const { return fIntegral; }
   double GetEnergy() const { return fEnergy; }
   std::string GetDetName() const { return fDetName; }
+	std::string GetAlgorithmStamp() const { return fAlgo; }
 
-  ClassDef(TAnalysedPulse, 1);
+  ClassDef(TAnalysedPulse, 2);
 };
 
 #endif
