@@ -1,6 +1,9 @@
-#include <vector>
+#ifndef PrePulse_h__
+#define PrePulse_h__
 
-class TPulseIsland;
+#include "TPulseIsland.h"
+
+#include <vector>
 
 class PrePulse {
 
@@ -23,6 +26,11 @@ class PrePulse {
   TPulseIsland* GetPulse() const;
 
  public:
+  void Print();
+
+ public:
   static std::vector<PrePulse> FindPrePulses(TPulseIsland*, int rise, int fall);
 
 };
+
+#endif

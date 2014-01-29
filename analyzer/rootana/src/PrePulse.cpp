@@ -3,12 +3,12 @@
 
 #include <cmath>
 #include <vector>
-
+#include <iostream>
 
 PrePulse::PrePulse(int start, int stop, int loc, int height, TPulseIsland* pulse) :
   fStart(start), fStop(stop), fLocation(loc), fHeight(height), fPulse(pulse) {}
 
-PrePulse::~PrePulse();
+PrePulse::~PrePulse() {}
 
 int PrePulse::GetStart() const {
   return fStart;
@@ -30,12 +30,23 @@ TPulseIsland* PrePulse::GetPulse() const {
   return fPulse;
 }
 
+void PrePulse::Print() {
+  std::cout << "PrePulse Information:"
+	    << "\t" << "Strt" << "\t" << "Stop"
+	    << "\t" << "Loc" << "\t" << "Hght"
+	    << std::endl;
+  std::cout << "                     "
+	    << "\t" << fStart << "\t" << fStop
+	    << "\t" << fLocation << "\t" << fHeight
+	    << std::endl;
+}
+
 std::vector<PrePulse> PrePulse::FindPrePulses(TPulseIsland* pulse, int rise, int fall) {
   // Looks through pulse to look for samples that go rise as fast as rise between two samples
   // and then fall 
   std::vector<int> samples = pulse->GetSamples();
   unsigned int nsamps = samples.size();
-  int pPed = pulse->GetPedestal();
+  int pPed = pulse->GetPedestal(0);
   int pPol = pulse->GetTriggerPolarity();
   std::vector<PrePulse> prepulses;
 

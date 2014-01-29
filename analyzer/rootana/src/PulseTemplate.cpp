@@ -1,14 +1,21 @@
 #include "PulseTemplate.h"
 #include "HistogramFitFCN.h"
+#include "TPulseIsland.h"
 
 #include "TH1.h"
 #include "TH1D.h"
+#include "TFitterMinuit.h"
+#include "TDirectory.h"
+#include "TFile.h"
+#include "TString.h"
 
+#include <cmath>
+#include <iostream>
 
-PulseTemplate::PulseTemplate(int nSigma = 3, int refine = 100) : fTemplate(NULL), fFitter(NULL), fNPulses(0),
-								 fNSigma(nSigma), fRefine(refine), fNBins(0),
-								 fSumX(0.), fSumX2(0.), fSum2X(0.),
-								 fAverageChange(0.), fClockTick(0) {
+PulseTemplate::PulseTemplate(int nSigma, int refine, double convergence) : fTemplate(NULL), fFitter(NULL), fNPulses(0),
+									   fNSigma(nSigma), fRefine(refine), fNBins(0),
+									   fClockTick(0.), fSumX(0.), fSumX2(0.),
+									   fSum2X(0.), fConvergence(0.), fConvergenceLimit(convergence) {
   HistogramFitFCN* fcn = new HistogramFitFCN();
   fFitter = new TFitterMinuit(3); //  Three (3) parameters to modify (amplitude, time, pedestal)
   fFitter->SetMinuitFCN(fcn);
@@ -20,31 +27,32 @@ PulseTemplate::~PulseTemplate() {
   delete fFitter; // Fitter should own HistogramFitFCN and destroy it according to documentation
 }
 
-double PulseTemplate::AddPulse(TPulseIsland* pulse, double shift) {
+void PulseTemplate::AddPulse(TPulseIsland* pulse, double shift) {
   // Function to average in pulse with template
   // Input--
   // pulse:     Pulse to average in
   // shift:     Bin shift (timing offset of peak)
-  // Output--
-  // change:    Sum of squares of change from old template to new per bin
   TH1D* old_template;
   double norm;
   double peak;
   double sigma;
   double pol;
   double ped;
-  double change;
-  int nsampes;
+  int nsamps;
   std::vector<int> samples;
-  std::vector<double> reshaped_pulse;
+  std::vector<double> rectified_samples, reshaped_pulse;
 
-  old_template = (TH1D*)fTemplate->Clone();
+  if (fNPulses > 0)
+    old_template = (TH1D*)fTemplate->Clone("old_histogram");
   pol = (double)pulse->GetTriggerPolarity();
-  ped = (double)pulse->GetPedestal();
+  ped = pulse->GetPedestal(0);
   samples = pulse->GetSamples();
+  ped = (double)(samples[0]+samples[1]+samples[2]+samples[3]) / 4.; /*** TEMPERARY PEDESTAL ***/
   nsamps = samples.size();
+  for (int i = 0; i < nsamps; ++i)
+    rectified_samples.push_back(pol*((double)samples[i]-ped));
   // Get peak value for normalization
-  peak = 0;
+  peak = 0.;
   norm = pol * (double)samples[0];
   for (int i = 1; i < nsamps; ++i) {
     if ((double)samples[i] * pol > norm) {
@@ -52,17 +60,25 @@ double PulseTemplate::AddPulse(TPulseIsland* pulse, double shift) {
       norm = (double)samples[i];
     }
   }
+  norm *= pol;
   // Get sigma for scaling
   sigma = 0.;
-  for (int i = 0; i < nsamps; ++i)
-    sigma += std::pow((double)(samples[i]*i)*pol - peak, 2.);
-  sigma = std::sqrt(sigma) / (double)nsamps;
+  for (int i = 0; i < nsamps; ++i) {
+    std::cout << i << "\t" << sigma << "," << rectified_samples[i] << "\t";
+    if (i % 10 == 0)
+      std::cout << std::endl;
+    sigma += rectified_samples[i] * std::pow(i - peak, 2.);
+  }
+  sigma = std::sqrt(std::abs(sigma)) / (double)nsamps;
 
   // If this is the first pulse, setup some variables
   if (fNPulses == 0) {
     fClockTick = pulse->GetClockTickInNs() / (double)fRefine;
     fNBins = (int)(2. * (double)fNSigma * sigma) * fRefine;
-    fTemplate = new TH1D("template", "Template", fNBins, -(double)fNSigma, (double)fNSigma);
+    std::cout << "Making histogram: " << fNBins << " " << fNSigma << " " << sigma << " " << nsamps << " " << ped << std::endl;
+    TString str = "template_";
+    str += pulse->GetBankName();
+    fTemplate = new TH1D(str, "Template", fNBins, -(double)fNSigma, (double)fNSigma);
   }
 
   // Reshape pulse
@@ -113,14 +129,15 @@ double PulseTemplate::AddPulse(TPulseIsland* pulse, double shift) {
   // Find the change and average it with previous changes.
   // That is the dot product of the last template with
   // the new one subtracted from 1.
-  double mag_old = old_template->Integral(1, fNBins);
-  double mag_new = fTemplate->Integral(1,fNBins);
-  double dot_product = 0.;
-  for (int i = 1; i <= fNBins; ++i)
-    dot_product += old_template->GetBinContent(i) * fTemplate->GetBinContent(i);
-  double cos_similarity = dot_product / (mag_old * mag_new);
-  if (fNPulses > 0)
-    fAverageChange = ((double)(fNPulses - 1) * fAverageSimilarity + (1 - cos_similarity))/(double)fNPulses;
+  if (fNPulses > 0) {
+    double mag_old = old_template->Integral(1, fNBins);
+    double mag_new = fTemplate->Integral(1,fNBins);
+    double dot_product = 0.;
+    for (int i = 1; i <= fNBins; ++i)
+      dot_product += old_template->GetBinContent(i) * fTemplate->GetBinContent(i);
+    double cos_similarity = dot_product / (mag_old * mag_new);
+    fConvergence = ((double)(fNPulses - 1) * fConvergence + (1 - cos_similarity))/(double)fNPulses;
+  }
 
   // Recalculate values for correlation coefficient
   fSumX = 0.;
@@ -129,14 +146,12 @@ double PulseTemplate::AddPulse(TPulseIsland* pulse, double shift) {
   for (int i = 1; i <= fNBins; ++i) {
     c = fTemplate->GetBinContent(i);
     fSumX += c;
-    fSsumX2 += std::pow(c,2.);
+    fSumX2 += std::pow(c, 2.);
   }
   fSum2X = std::pow(fSumX, 2.);
 
   // Keep track of the number of pulses
-  ++fNPulse;
-
-  return fAverageChange;
+  ++fNPulses;
 }
 
 double PulseTemplate::Correlation(TPulseIsland* pulse, double& ped, double& amp, double& time) {
@@ -146,6 +161,7 @@ double PulseTemplate::Correlation(TPulseIsland* pulse, double& ped, double& amp,
   // Output--
   // ped:      Pedestal of fit
   // amp:      Amplitude of fit
+  return 0.;
 }
 
 double PulseTemplate::Chi2Fit(TPulseIsland* pulse, double& ped, double& amp, double& time) {
@@ -153,12 +169,12 @@ double PulseTemplate::Chi2Fit(TPulseIsland* pulse, double& ped, double& amp, dou
   // Then pass to fitter.
   // Returns ped in units of ADC counts, amp in... scale units(?), and time in units
   // of bins since the beginning of pulse
-  std::vector<int> samples = pulse.GetSamples();
+  std::vector<int> samples = pulse->GetSamples();
   int nel = samples.size();
   TH1D* rebinned_pulse = new TH1D("pulse2fit", "pulse2fit", nel * fRefine, -0.5, nel - 0.5);
   for (int i = 0; i < nel; ++i)
-    for (int j = 1; j <= fRefine, ++j)
-      rebinned_pulse.SetBinContent(i * fRefine + j, samples.at(i));
+    for (int j = 1; j <= fRefine; ++j)
+      rebinned_pulse->SetBinContent(i * fRefine + j, samples.at(i));
   time *= fRefine;
 
   // Prepare for minimizations
@@ -194,6 +210,38 @@ double PulseTemplate::Chi2Fit(TPulseIsland* pulse, double& ped, double& amp, dou
   return (*fcn)(params);
 }
 
+bool PulseTemplate::Converged() {
+  return (fConvergence <= fConvergenceLimit && fNPulses >= 2);
+}
+
+void PulseTemplate::Save(TFile* ofile) {
+  TDirectory* cwd = gDirectory;
+  if (ofile == NULL || !ofile->IsOpen()) {
+    std::cout << "ERROR: Cannot save template to file (file NULL or not open)!" << std::endl;
+    return;
+  }
+  ofile->cd();
+  fTemplate->Write();
+  cwd->cd();
+}
+
+void PulseTemplate::Print() {
+  std::cout << "Pulse Template Info:"
+	    << "\t" << "NP" << "\t" << "NS"
+	    << "\t" << "Ref" << "\t" << "NB"
+	    << "\t" << "T" << "\t" << "SX"
+	    << "\t" << "SX2" << "\t" << "S2X"
+	    << "\t" << "Conv" << "\t" << "ConLim"
+	    << std::endl;
+  std::cout << "                    "
+	    << "\t" << fNPulses << "\t" << fNSigma
+	    << "\t" << fRefine << "\t" << fNBins
+	    << "\t" << fClockTick << "\t" << fSumX
+	    << "\t" << fSumX2 << "\t" << fSum2X
+	    << "\t" << fConvergence << "\t" << fConvergenceLimit
+	    << std::endl;
+}
+
 int PulseTemplate::GetNumberOfPulses() {
-  retrun fNPulses;
+  return fNPulses;
 }
