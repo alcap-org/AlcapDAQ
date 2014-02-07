@@ -1,0 +1,188 @@
+================================================================
+=== SGE job  JOB_NAME=alcapana03830  JOB_ID=885864
+================================================================
+DATE=Fri Feb 7 20:20:21 CET 2014
+HOSTNAME=merlinc21
+PWD=/gpfs/home/quirk_j
+NSLOTS=1
+================================================================
+Running environment:
+MANPATH=/opt/root/root-5.34/share/man:/usr/man:/usr/share/man
+HOSTNAME=merlinc21.psi.ch
+DAQdir=/gpfs/home/quirk_j/AlcapDAQ
+SGE_TASK_STEPSIZE=undefined
+SHELL=/bin/bash
+TERM=linux
+NHOSTS=1
+SGE_O_WORKDIR=/gpfs/home/quirk_j/AlcapDAQ/analyzer/batch/scripts
+TMPDIR=/tmp/885864.1.all.q
+SGE_O_HOME=/gpfs/home/quirk_j
+SGE_ARCH=lx26-amd64
+SGE_CELL=sgemerlin4
+THISROOT=/opt/root/root-5.34/bin/thisroot.sh
+RESTARTED=0
+ARC=lx26-amd64
+USER=quirk_j
+LD_LIBRARY_PATH=/gpfs/home/quirk_j/AlcapDAQ/midas/linux64/lib:/gpfs/home/quirk_j/AlcapDAQ/compress:/opt/root/root-5.34/lib/root:/gpfs/home/quirk_j/AlcapDAQ/midas/linux64/lib:/gpfs/home/quirk_j/AlcapDAQ/compress:/gpfs/home/quirk_j/AlcapDAQ/midas/linux64/lib:/gpfs/home/quirk_j/AlcapDAQ/compress::/gpfs/home/quirk_j/AlcapDAQ/CAEN/lib:/gpfs/home/quirk_j/AlcapDAQ/CAEN/lib:/gpfs/home/quirk_j/AlcapDAQ/CAEN/lib
+SGE_TASK_LAST=undefined
+QUEUE=all.q
+LIBPATH=/opt/root/root-5.34/lib/root
+SGE_TASK_ID=undefined
+SGE_BINARY_PATH=/gpfs/home/gridengine/sge6.2u5p2/bin/lx26-amd64
+PATH=/tmp/885864.1.all.q:/gpfs/home/quirk_j/AlcapDAQ/midas/linux64/bin:/gpfs/home/quirk_j/AlcapDAQ/online-display:/opt/root/root-5.34/bin:/gpfs/home/quirk_j/AlcapDAQ/midas/linux64/bin:/gpfs/home/quirk_j/AlcapDAQ/online-display:/gpfs/home/quirk_j/AlcapDAQ/midas/linux64/bin:/gpfs/home/quirk_j/AlcapDAQ/online-display:/gpfs/home/gridengine/sge6.2u5p2/bin/lx26-amd64:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/gpfs/home/quirk_j/bin
+runlevel=3
+RUNLEVEL=3
+SGE_STDERR_PATH=/gpfs/home/quirk_j/AlcapDAQ/analyzer/batch/log/alcapana.run03830.err
+LANGSH_SOURCED=1
+PWD=/gpfs/home/quirk_j
+_LMFILES_=/usr/share/Modules/modulefiles/root/root-5.34
+SGE_STDOUT_PATH=/gpfs/home/quirk_j/AlcapDAQ/analyzer/batch/log/alcapana.run03830.out
+SGE_ACCOUNT=sge
+SGE_EXECD_PORT=6445
+LANG=en_US.UTF-8
+MODULEPATH=/usr/share/Modules/modulefiles:/etc/modulefiles
+JOB_SCRIPT=/gpfs/home/gridengine/sge6.2u5p2/spool/merlinc21/job_scripts/885864
+JOB_NAME=alcapana03830
+SGE_QMASTER_PORT=6444
+LOADEDMODULES=root/root-5.34
+SGE_ROOT=/gpfs/home/gridengine/sge6.2u5p2
+previous=N
+PREVLEVEL=N
+REQNAME=alcapana03830
+ROOTSYS=/opt/root/root-5.34
+SGE_JOB_SPOOL_DIR=/gpfs/home/gridengine/sge6.2u5p2/spool/merlinc21/active_jobs/885864.1
+ENVIRONMENT=BATCH
+CONSOLETYPE=vt
+HOME=/gpfs/home/quirk_j
+SHLVL=3
+SGE_CWD_PATH=/gpfs/home/quirk_j
+NQUEUES=1
+MIDAS_DIR=/gpfs/home/quirk_j/tmp/alcapana/run03830/ODB
+SGE_O_LOGNAME=quirk_j
+DYLD_LIBRARY_PATH=/opt/root/root-5.34/lib/root
+SGE_O_MAIL=/var/spool/mail/quirk_j
+UPSTART_INSTANCE=
+PYTHONPATH=/opt/root/root-5.34/lib/root
+TMP=/tmp/885864.1.all.q
+JOB_ID=885864
+LOGNAME=quirk_j
+UPSTART_EVENTS=runlevel
+MODULESHOME=/usr/share/Modules
+SGE_TASK_FIRST=undefined
+SHLIB_PATH=/opt/root/root-5.34/lib/root
+SGE_O_PATH=/gpfs/home/quirk_j/AlcapDAQ/midas/linux64/bin:/gpfs/home/quirk_j/AlcapDAQ/online-display:/opt/root/root-5.34/bin:/gpfs/home/quirk_j/AlcapDAQ/midas/linux64/bin:/gpfs/home/quirk_j/AlcapDAQ/online-display:/gpfs/home/quirk_j/AlcapDAQ/midas/linux64/bin:/gpfs/home/quirk_j/AlcapDAQ/online-display:/gpfs/home/gridengine/sge6.2u5p2/bin/lx26-amd64:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/gpfs/home/quirk_j/bin
+UPSTART_JOB=rc
+SGE_O_HOST=merlinl01
+SGE_O_SHELL=/bin/bash
+REQUEST=alcapana03830
+NSLOTS=1
+SGE_STDIN_PATH=/dev/null
+_=/bin/env
+================================================================
+ulimit -a
+core file size          (blocks, -c) unlimited
+data seg size           (kbytes, -d) unlimited
+scheduling priority             (-e) 0
+file size               (blocks, -f) unlimited
+pending signals                 (-i) 191992
+max locked memory       (kbytes, -l) unlimited
+max memory size         (kbytes, -m) unlimited
+open files                      (-n) 1024
+pipe size            (512 bytes, -p) 8
+POSIX message queues     (bytes, -q) 819200
+real-time priority              (-r) 0
+stack size              (kbytes, -s) unlimited
+cpu time               (seconds, -t) 86400
+max user processes              (-u) 1024
+virtual memory          (kbytes, -v) unlimited
+file locks                      (-x) unlimited
+================================================================
+Loaded environment modules:
+Currently Loaded Modulefiles:
+  1) root/root-5.34
+
+ldd /gpfs/home/quirk_j/AlcapDAQ/analyzer/work/quirk_j/alcapana
+	linux-vdso.so.1 =>  (0x00007fff09ae1000)
+	libDataClasses.so => /gpfs/home/quirk_j/AlcapDAQ/analyzer/work/quirk_j/libDataClasses.so (0x00002b66c5c11000)
+	libmidas.so => /gpfs/home/quirk_j/AlcapDAQ/midas/linux64/lib/libmidas.so (0x00002b66c5e84000)
+	libutil.so.1 => /lib64/libutil.so.1 (0x0000003246600000)
+	libCore.so.5.34 => /opt/root/root-5.34/lib/root/libCore.so.5.34 (0x00002b66c6108000)
+	libCint.so.5.34 => /opt/root/root-5.34/lib/root/libCint.so.5.34 (0x00002b66c6adb000)
+	libRIO.so.5.34 => /opt/root/root-5.34/lib/root/libRIO.so.5.34 (0x00002b66c745c000)
+	libNet.so.5.34 => /opt/root/root-5.34/lib/root/libNet.so.5.34 (0x00002b66c795a000)
+	libHist.so.5.34 => /opt/root/root-5.34/lib/root/libHist.so.5.34 (0x00002b66c7cd2000)
+	libGraf.so.5.34 => /opt/root/root-5.34/lib/root/libGraf.so.5.34 (0x00002b66c83f9000)
+	libGraf3d.so.5.34 => /opt/root/root-5.34/lib/root/libGraf3d.so.5.34 (0x00002b66c87e6000)
+	libGpad.so.5.34 => /opt/root/root-5.34/lib/root/libGpad.so.5.34 (0x00002b66c8b10000)
+	libTree.so.5.34 => /opt/root/root-5.34/lib/root/libTree.so.5.34 (0x00002b66c8e04000)
+	libRint.so.5.34 => /opt/root/root-5.34/lib/root/libRint.so.5.34 (0x00002b66c923f000)
+	libPostscript.so.5.34 => /opt/root/root-5.34/lib/root/libPostscript.so.5.34 (0x00002b66c9474000)
+	libMatrix.so.5.34 => /opt/root/root-5.34/lib/root/libMatrix.so.5.34 (0x00002b66c96e4000)
+	libPhysics.so.5.34 => /opt/root/root-5.34/lib/root/libPhysics.so.5.34 (0x00002b66c9b40000)
+	libMathCore.so.5.34 => /opt/root/root-5.34/lib/root/libMathCore.so.5.34 (0x00002b66c9ddf000)
+	libThread.so.5.34 => /opt/root/root-5.34/lib/root/libThread.so.5.34 (0x00002b66ca226000)
+	libdl.so.2 => /lib64/libdl.so.2 (0x000000323ee00000)
+	libGui.so.5.34 => /opt/root/root-5.34/lib/root/libGui.so.5.34 (0x00002b66ca47a000)
+	libMinuit.so.5.34 => /opt/root/root-5.34/lib/root/libMinuit.so.5.34 (0x00002b66cae20000)
+	libm.so.6 => /lib64/libm.so.6 (0x000000323fa00000)
+	libz.so.1 => /lib64/libz.so.1 (0x000000323f600000)
+	libstdc++.so.6 => /usr/lib64/libstdc++.so.6 (0x0000003241200000)
+	libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x0000003240600000)
+	libpthread.so.0 => /lib64/libpthread.so.0 (0x000000323f200000)
+	libc.so.6 => /lib64/libc.so.6 (0x000000323ea00000)
+	libcrypto.so.10 => /usr/lib64/libcrypto.so.10 (0x0000003243e00000)
+	libssl.so.10 => /usr/lib64/libssl.so.10 (0x0000003248e00000)
+	libfreetype.so.6 => /usr/lib64/libfreetype.so.6 (0x0000003243600000)
+	/lib64/ld-linux-x86-64.so.2 (0x000000323e600000)
+	libgssapi_krb5.so.2 => /lib64/libgssapi_krb5.so.2 (0x0000003247200000)
+	libkrb5.so.3 => /lib64/libkrb5.so.3 (0x0000003246200000)
+	libcom_err.so.2 => /lib64/libcom_err.so.2 (0x0000003243200000)
+	libk5crypto.so.3 => /lib64/libk5crypto.so.3 (0x0000003245e00000)
+	libkrb5support.so.0 => /lib64/libkrb5support.so.0 (0x0000003245a00000)
+	libkeyutils.so.1 => /lib64/libkeyutils.so.1 (0x0000003244e00000)
+	libresolv.so.2 => /lib64/libresolv.so.2 (0x0000003240e00000)
+	libselinux.so.1 => /lib64/libselinux.so.1 (0x0000003240200000)
+LD_LIBRARY_PATH=/gpfs/home/quirk_j/AlcapDAQ/midas/linux64/lib:/gpfs/home/quirk_j/AlcapDAQ/compress:/opt/root/root-5.34/lib/root:/gpfs/home/quirk_j/AlcapDAQ/midas/linux64/lib:/gpfs/home/quirk_j/AlcapDAQ/compress:/gpfs/home/quirk_j/AlcapDAQ/midas/linux64/lib:/gpfs/home/quirk_j/AlcapDAQ/compress::/gpfs/home/quirk_j/AlcapDAQ/CAEN/lib:/gpfs/home/quirk_j/AlcapDAQ/CAEN/lib:/gpfs/home/quirk_j/AlcapDAQ/CAEN/lib
+Command to run:
+/gpfs/home/quirk_j/AlcapDAQ/analyzer/work/quirk_j/alcapana -i /gpfs/home/quirk_j/data/raw/run03830.mid -o /gpfs/home/quirk_j/data/hist/hist03830.root -T /gpfs/home/quirk_j/data/tree/tree03830.root
+
+This file indicates the run number is 3830
+gMiasTreeOutputFileName = /gpfs/home/quirk_j/data/tree/tree03830.root
+sizes are 48
+Running analyzer offline. Stop with "!"
+Set run number 3830 in ODB
+Analyzer saw beginning of run 3830
+Set run number 3830 in ODB
+Load ODB from run 3830...sizes are 48
+OK
+TEST MESSAGE: Read 21 events from bank Na80 in event 1
+TEST MESSAGE: Read 1 events from bank Na81 in event 1
+TEST MESSAGE: Read 0 events from bank Na82 in event 1
+TEST MESSAGE: Read 0 events from bank Na83 in event 1
+TEST MESSAGE: Read 28 events from bank Nb80 in event 1
+TEST MESSAGE: Read 1 events from bank Nb81 in event 1
+TEST MESSAGE: Read 0 events from bank Nb82 in event 1
+TEST MESSAGE: Read 0 events from bank Nb83 in event 1
+TEST MESSAGE: Read 0 events from bank Nc81 in event 1
+TEST MESSAGE: Read 66 events from bank Nc82 in event 1
+TEST MESSAGE: Read 30 events from bank Nc83 in event 1
+TEST MESSAGE: Read 0 events from bank Nd81 in event 1
+TEST MESSAGE: Read 20 events from bank Nd82 in event 1
+TEST MESSAGE: Read 0 events from bank Nd83 in event 1
+TEST MESSAGE: Read 0 events from bank Ne81 in event 1
+TEST MESSAGE: Read 28 events from bank Ne82 in event 1
+TEST MESSAGE: Read 21 events from bank Nf81 in event 1
+TEST MESSAGE: Read 2 events from bank Nf82 in event 1
+TEST MESSAGE: Read 21 events from bank Ng81 in event 1
+TEST MESSAGE: Read 7 events from bank Ng82 in event 1
+TEST MESSAGE: Read 3 events from bank Ng83 in event 1
+TEST MESSAGE: Read 15 events from bank Nh81 in event 1
+TEST MESSAGE: Read 0 events from bank Nh82 in event 1
+TEST MESSAGE: Read 169 events from bank CaUH in event 1
+TEST MESSAGE: Read 238 events from bank CaBU in event 1
+TEST MESSAGE: Read 238 events from bank CbBU in event 1
+TEST MESSAGE: Read 238 events from bank CcBU in event 1
+/gpfs/home/quirk_j/data/raw/run03830.mid:100  /gpfs/home/quirk_j/data/hist/hist03830.root:99  events/gpfs/home/quirk_j/data/raw/run03830.mid:200  /gpfs/home/quirk_j/data/hist/hist03830.root:199  events/gpfs/home/quirk_j/data/raw/run03830.mid:300  /gpfs/home/quirk_j/data/hist/hist03830.root:299  events/gpfs/home/quirk_j/data/raw/run03830.mid:400  /gpfs/home/quirk_j/data/hist/hist03830.root:399  events/gpfs/home/quirk_j/data/raw/run03830.mid:500  /gpfs/home/quirk_j/data/hist/hist03830.root:499  events/gpfs/home/quirk_j/data/raw/run03830.mid:600  /gpfs/home/quirk_j/data/hist/hist03830.root:599  events/gpfs/home/quirk_j/data/raw/run03830.mid:700  /gpfs/home/quirk_j/data/hist/hist03830.root:699  events/gpfs/home/quirk_j/data/raw/run03830.mid:800  /gpfs/home/quirk_j/data/hist/hist03830.root:799  events/gpfs/home/quirk_j/data/raw/run03830.mid:900  /gpfs/home/quirk_j/data/hist/hist03830.root:899  events/gpfs/home/quirk_j/data/raw/run03830.mid:1000  /gpfs/home/quirk_j/data/hist/hist03830.root:999  events/gpfs/home/quirk_j/data/raw/run03830.mid:1100  /gpfs/home/quirk_j/data/hist/hist03830.root:1099  events***ERROR UH CAEN! Wrong data format: incorrect control word 0x00000000
+/gpfs/home/quirk_j/data/raw/run03830.mid:1200  /gpfs/home/quirk_j/data/hist/hist03830.root:1199  events/gpfs/home/quirk_j/data/raw/run03830.mid:1300  /gpfs/home/quirk_j/data/hist/hist03830.root:1299  events/gpfs/home/quirk_j/data/raw/run03830.mid:1400  /gpfs/home/quirk_j/data/hist/hist03830.root:1399  events/gpfs/home/quirk_j/data/raw/run03830.mid:1500  /gpfs/home/quirk_j/data/hist/hist03830.root:1499  events/gpfs/home/quirk_j/data/raw/run03830.mid:1600  /gpfs/home/quirk_j/data/hist/hist03830.root:1599  events/gpfs/home/quirk_j/data/raw/run03830.mid:1700  /gpfs/home/quirk_j/data/hist/hist03830.root:1699  events/gpfs/home/quirk_j/data/raw/run03830.mid:1800  /gpfs/home/quirk_j/data/hist/hist03830.root:1799  events/gpfs/home/quirk_j/data/raw/run03830.mid:1900  /gpfs/home/quirk_j/data/hist/hist03830.root:1899  events/gpfs/home/quirk_j/data/raw/run03830.mid:2000  /gpfs/home/quirk_j/data/hist/hist03830.root:1999  events/gpfs/home/quirk_j/data/raw/run03830.mid:2100  /gpfs/home/quirk_j/data/hist/hist03830.root:2099  events/gpfs/home/quirk_j/data/raw/run03830.mid:2200  /gpfs/home/quirk_j/data/hist/hist03830.root:2199  events/gpfs/home/quirk_j/data/raw/run03830.mid:2300  /gpfs/home/quirk_j/data/hist/hist03830.root:2299  events/gpfs/home/quirk_j/data/raw/run03830.mid:2400  /gpfs/home/quirk_j/data/hist/hist03830.root:2399  events/gpfs/home/quirk_j/data/raw/run03830.mid:2500  /gpfs/home/quirk_j/data/hist/hist03830.root:2499  events/gpfs/home/quirk_j/data/raw/run03830.mid:2600  /gpfs/home/quirk_j/data/hist/hist03830.root:2599  events/gpfs/home/quirk_j/data/raw/run03830.mid:2700  /gpfs/home/quirk_j/data/hist/hist03830.root:2699  events/gpfs/home/quirk_j/data/raw/run03830.mid:2800  /gpfs/home/quirk_j/data/hist/hist03830.root:2799  events/gpfs/home/quirk_j/data/raw/run03830.mid:2900  /gpfs/home/quirk_j/data/hist/hist03830.root:2899  events/gpfs/home/quirk_j/data/raw/run03830.mid:3000  /gpfs/home/quirk_j/data/hist/hist03830.root:2999  events/gpfs/home/quirk_j/data/raw/run03830.mid:3100  /gpfs/home/quirk_j/data/hist/hist03830.root:3099  events/gpfs/home/quirk_j/data/raw/run03830.mid:3200  /gpfs/home/quirk_j/data/hist/hist03830.root:3199  events/gpfs/home/quirk_j/data/raw/run03830.mid:3300  /gpfs/home/quirk_j/data/hist/hist03830.root:3299  events/gpfs/home/quirk_j/data/raw/run03830.mid:3400  /gpfs/home/quirk_j/data/hist/hist03830.root:3399  events/gpfs/home/quirk_j/data/raw/run03830.mid:3500  /gpfs/home/quirk_j/data/hist/hist03830.root:3499  events/gpfs/home/quirk_j/data/raw/run03830.mid:3600  /gpfs/home/quirk_j/data/hist/hist03830.root:3599  events/gpfs/home/quirk_j/data/raw/run03830.mid:3700  /gpfs/home/quirk_j/data/hist/hist03830.root:3698  events/gpfs/home/quirk_j/data/raw/run03830.mid:3800  /gpfs/home/quirk_j/data/hist/hist03830.root:3798  events/gpfs/home/quirk_j/data/raw/run03830.mid:3900  /gpfs/home/quirk_j/data/hist/hist03830.root:3898  events/gpfs/home/quirk_j/data/raw/run03830.mid:4000  /gpfs/home/quirk_j/data/hist/hist03830.root:3998  events/gpfs/home/quirk_j/data/raw/run03830.mid:4100  /gpfs/home/quirk_j/data/hist/hist03830.root:4098  events/gpfs/home/quirk_j/data/raw/run03830.mid:4200  /gpfs/home/quirk_j/data/hist/hist03830.root:4198  events/gpfs/home/quirk_j/data/raw/run03830.mid:4300  /gpfs/home/quirk_j/data/hist/hist03830.root:4298  events/gpfs/home/quirk_j/data/raw/run03830.mid:4400  /gpfs/home/quirk_j/data/hist/hist03830.root:4398  events/gpfs/home/quirk_j/data/raw/run03830.mid:4500  /gpfs/home/quirk_j/data/hist/hist03830.root:4498  events/gpfs/home/quirk_j/data/raw/run03830.mid:4600  /gpfs/home/quirk_j/data/hist/hist03830.root:4598  events/gpfs/home/quirk_j/data/raw/run03830.mid:4700  /gpfs/home/quirk_j/data/hist/hist03830.root:4698  events/gpfs/home/quirk_j/data/raw/run03830.mid:4800  /gpfs/home/quirk_j/data/hist/hist03830.root:4798  events/gpfs/home/quirk_j/data/raw/run03830.mid:4900  /gpfs/home/quirk_j/data/hist/hist03830.root:4898  events/gpfs/home/quirk_j/data/raw/run03830.mid:5000  /gpfs/home/quirk_j/data/hist/hist03830.root:4998  events/gpfs/home/quirk_j/data/raw/run03830.mid:5100  /gpfs/home/quirk_j/data/hist/hist03830.root:5098  events/gpfs/home/quirk_j/data/raw/run03830.mid:5200  /gpfs/home/quirk_j/data/hist/hist03830.root:5198  events/gpfs/home/quirk_j/data/raw/run03830.mid:5300  /gpfs/home/quirk_j/data/hist/hist03830.root:5298  events/gpfs/home/quirk_j/data/raw/run03830.mid:5400  /gpfs/home/quirk_j/data/hist/hist03830.root:5398  events/gpfs/home/quirk_j/data/raw/run03830.mid:5500  /gpfs/home/quirk_j/data/hist/hist03830.root:5498  events/gpfs/home/quirk_j/data/raw/run03830.mid:5600  /gpfs/home/quirk_j/data/hist/hist03830.root:5598  events/gpfs/home/quirk_j/data/raw/run03830.mid:5700  /gpfs/home/quirk_j/data/hist/hist03830.root:5698  events/gpfs/home/quirk_j/data/raw/run03830.mid:5800  /gpfs/home/quirk_j/data/hist/hist03830.root:5798  events/gpfs/home/quirk_j/data/raw/run03830.mid:5900  /gpfs/home/quirk_j/data/hist/hist03830.root:5898  events/gpfs/home/quirk_j/data/raw/run03830.mid:6000  /gpfs/home/quirk_j/data/hist/hist03830.root:5998  events/gpfs/home/quirk_j/data/raw/run03830.mid:6100  /gpfs/home/quirk_j/data/hist/hist03830.root:6098  events/gpfs/home/quirk_j/data/raw/run03830.mid:6200  /gpfs/home/quirk_j/data/hist/hist03830.root:6198  events/gpfs/home/quirk_j/data/raw/run03830.mid:6300  /gpfs/home/quirk_j/data/hist/hist03830.root:6298  events/gpfs/home/quirk_j/data/raw/run03830.mid:6400  /gpfs/home/quirk_j/data/hist/hist03830.root:6398  events/gpfs/home/quirk_j/data/raw/run03830.mid:6500  /gpfs/home/quirk_j/data/hist/hist03830.root:6498  events/gpfs/home/quirk_j/data/raw/run03830.mid:6600  /gpfs/home/quirk_j/data/hist/hist03830.root:6598  events/gpfs/home/quirk_j/data/raw/run03830.mid:6700  /gpfs/home/quirk_j/data/hist/hist03830.root:6698  events/gpfs/home/quirk_j/data/raw/run03830.mid:6800  /gpfs/home/quirk_j/data/hist/hist03830.root:6798  events/gpfs/home/quirk_j/data/raw/run03830.mid:6900  /gpfs/home/quirk_j/data/hist/hist03830.root:6898  events/gpfs/home/quirk_j/data/raw/run03830.mid:7000  /gpfs/home/quirk_j/data/hist/hist03830.root:6998  events/gpfs/home/quirk_j/data/raw/run03830.mid:7100  /gpfs/home/quirk_j/data/hist/hist03830.root:7098  events/gpfs/home/quirk_j/data/raw/run03830.mid:7200  /gpfs/home/quirk_j/data/hist/hist03830.root:7198  events/gpfs/home/quirk_j/data/raw/run03830.mid:7300  /gpfs/home/quirk_j/data/hist/hist03830.root:7298  events***ERROR UH CAEN! Wrong data format: incorrect control word 0x00000000
+/gpfs/home/quirk_j/data/raw/run03830.mid:7400  /gpfs/home/quirk_j/data/hist/hist03830.root:7398  events/gpfs/home/quirk_j/data/raw/run03830.mid:7500  /gpfs/home/quirk_j/data/hist/hist03830.root:7497  events/gpfs/home/quirk_j/data/raw/run03830.mid:7600  /gpfs/home/quirk_j/data/hist/hist03830.root:7597  events/gpfs/home/quirk_j/data/raw/run03830.mid:7700  /gpfs/home/quirk_j/data/hist/hist03830.root:7697  events/gpfs/home/quirk_j/data/raw/run03830.mid:7800  /gpfs/home/quirk_j/data/hist/hist03830.root:7797  events/gpfs/home/quirk_j/data/raw/run03830.mid:7900  /gpfs/home/quirk_j/data/hist/hist03830.root:7897  events/gpfs/home/quirk_j/data/raw/run03830.mid:8000  /gpfs/home/quirk_j/data/hist/hist03830.root:7997  events/gpfs/home/quirk_j/data/raw/run03830.mid:8100  /gpfs/home/quirk_j/data/hist/hist03830.root:8097  events/gpfs/home/quirk_j/data/raw/run03830.mid:8200  /gpfs/home/quirk_j/data/hist/hist03830.root:8197  events/gpfs/home/quirk_j/data/raw/run03830.mid:8300  /gpfs/home/quirk_j/data/hist/hist03830.root:8297  events/gpfs/home/quirk_j/data/raw/run03830.mid:8400  /gpfs/home/quirk_j/data/hist/hist03830.root:8397  events/gpfs/home/quirk_j/data/raw/run03830.mid:8500  /gpfs/home/quirk_j/data/hist/hist03830.root:8497  events/gpfs/home/quirk_j/data/raw/run03830.mid:8600  /gpfs/home/quirk_j/data/hist/hist03830.root:8597  events/gpfs/home/quirk_j/data/raw/run03830.mid:8696  /gpfs/home/quirk_j/data/hist/hist03830.root:8692  events, 128.68s
+Analyzer saw end of run 3830

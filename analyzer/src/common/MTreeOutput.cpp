@@ -16,6 +16,8 @@
 #include "midas.h"
 
 /* ROOT includes */
+#include <TROOT.h>
+#include <TPluginManager.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <TBranch.h>
@@ -59,10 +61,18 @@ ANA_MODULE MTreeOutput_module =
   NULL,                          /* initial parameters    */
 };
 
+extern TROOT* gROOT;
+static bool PLUGIN_LOADED = false;
+
 /** This method initializes the tree file and tree
   */
 INT MTreeOutput_init()
 {
+  if (!PLUGIN_LOADED) {
+    gROOT->GetPluginManager()->AddHandler("TVirtualStreamerInfo","*","TStreamerInfo","RIO","TStreamerInfo()");
+    PLUGIN_LOADED = true;
+  }
+    
   if(gMiasTreeOutputFileName){
     fTreeFile = TFile::Open(gMiasTreeOutputFileName, "recreate");
     if(!fTreeFile || fTreeFile->IsZombie()){

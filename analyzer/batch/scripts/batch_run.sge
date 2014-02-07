@@ -4,9 +4,7 @@
 # Test with "qsub -q short.q ./test_sequential.sge"
 ###################################################
 # Define your job name and run time. 
-#$ -N alcapana
 #$ -l s_rt=00:30:00,h_rt=00:30:30
-#$ -cwd
 
 ###################################################
 # Fix the SGE environment-handling bug (bash):
@@ -33,11 +31,10 @@ if [ -z $RAW -o -z $HIST -o -z $TREE ]; then
 elif [ ! -f $RAW ]; then
     echo "ERROR: Raw data file not found! ($RAW)"
     exit 3
-elif [ ! ( -d $(dirname $HIST) -a -d $(dirname $TREE) ) ]; then
+elif [ ! -d $(dirname $HIST) -o ! -d $(dirname $TREE) ]; then
     echo "ERROR: Make sure histogram and tree directories exist!"
     exit 4
 fi
-
 
 ################
 # BEGIN DEBUG 1

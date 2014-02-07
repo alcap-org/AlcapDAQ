@@ -1,0 +1,7 @@
+Warning in <TGMimeTypes::TGMimeTypes>: error opening mime type file /etc/root/root.mimes
+Warning in <TDirectory::Append>: Replacing existing TH1: Vacuum_Pressure (Potential memory leak).
+Warning in <TDirectory::Append>: Replacing existing TH1: Vacuum_Status (Potential memory leak).
+Encountered EOB error flag in block 3182 CAEN0 data.
+Skipping block 3182 due to CAEN processing errors.
+Encountered EOB error flag in block 6494 CAEN0 data.
+Skipping block 6494 due to CAEN processing errors.
