@@ -34,7 +34,7 @@ endif
 ROOT_LIBS = $(shell $(ROOTSYS)/bin/root-config --libs) -lThread -lGui -lMinuit
 ALL_LIBS =  $(ROOT_LIBS)
 
-OPTFLAGS = -g -O3
+OPTFLAGS = -g -O3 -Wno-write-strings
 
 CXXFLAGS = $(OPTFLAGS) \
            $(INCLUDE_CFLAGS) $(ROOT_CFLAGS) -fPIC
