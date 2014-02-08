@@ -32,7 +32,7 @@
 #include "TAnalysedPulseMapWrapper.h"
 
 // Forward declaration of functions ======================
-Int_t Main_event_loop(TTree* dataTree);
+Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments);
 void ClearGlobalData(TGlobalData*);
 TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
@@ -105,7 +105,7 @@ int main(int argc, char **argv){
   
   // Finally let's do the main loop
   fileOut->cd();
-  Main_event_loop(eventTree);
+  Main_event_loop(eventTree,arguments);
 
   // and finish up
   gAnalysedPulseTree->Write();
@@ -116,7 +116,7 @@ int main(int argc, char **argv){
   return 0;
 }
 
-Int_t Main_event_loop(TTree* dataTree,ARGUMENTS arguments){
+Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
 /*************************************************************************\
 | Loop over tree entries and call histogramming modules.                  |
 \*************************************************************************/
