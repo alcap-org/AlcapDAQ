@@ -2,6 +2,7 @@
 #define __UTILS__H
 
 #include <string.h>
+static char correction_file[300];
 
 typedef struct {
   char *infile;
@@ -63,9 +64,15 @@ int check_arguments(ARGUMENTS& arguments){
     arguments.run=GetRunNumber(arguments.infile);
   }
   if(strcmp(arguments.correction_file,"")==0){
-    sprintf(arguments.correction_file,"wiremap_corrections/correct%d.dat",arguments.run);
+    sprintf(correction_file,"wiremap_corrections/correct%d.dat",arguments.run);
+    arguments.correction_file=correction_file;
   }
   return 0; //success
+}
+
+void PrintLocation(){
+    static int count=0;
+    printf("At location %d\n",count++);
 }
 
 int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments){
@@ -78,8 +85,14 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments){
   arguments.run=-1;
 
   // Now loop over all the arguments 
-  if(argc==1) help_command_line(argv[0]); return 1;
-  if(strcmp(argv[1],"--help")==0) help_command_line(argv[0]); return 1;
+  if(argc==1) {
+      help_command_line(argv[0]);
+      return 1;
+  }
+  if(strcmp(argv[1],"--help")==0){
+      help_command_line(argv[0]);
+      return 1;
+  }
 
   for(int i=1; i<argc; /* incrementing of i done in the loop! */){
     if(argv[i][0] != '-'){

@@ -60,6 +60,7 @@ int main(int argc, char **argv){
   ARGUMENTS arguments;
   int ret = analyze_command_line (argc, argv,arguments);
   if(ret!=0) return ret;
+  printf("Starting event");
   
   gInFile = new TFile(arguments.infile);
   if(!gInFile->IsOpen()) {
@@ -270,7 +271,7 @@ TSetupData* TSetupData::Instance()
   if(s_data) return s_data;
 
   // Check we have a valid tree for the setup data
-  TTree* setupTree= GetTree(gInFile, "Setup");
+  TTree* setupTree= GetTree(gInFile, "SetupTree");
   if(!setupTree) return NULL;
 
   // Hook up the branch in the file to s_data and load in the data
