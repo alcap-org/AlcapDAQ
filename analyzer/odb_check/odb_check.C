@@ -8,6 +8,7 @@
 #include "TCanvas.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TProfile.h"
 #include "TLine.h"
 
 struct WireMap {
@@ -112,19 +113,37 @@ class ODBDraw {
 private:
   PolaritySign fDPol;
   Pedestals fDPed;
+  TH2* fPulses;
+  TProfile* fProfile;
   int fPol_File;
+  int fPol_Guess;
   int fPed_File;
   int fPed_Guess;
+public:
+  ODBDraw() {
+    fPulses = NULL;
+    fProfile = NULL;
+  }
 private:
-  double GuessPedestal(TH2* pulses) {
+  void Guess() {
     std::map<int,int> sampcnt;
-    TH1* prof = (TH1*)pulses->ProfileX();
-    prof->Rebin(4);
+    if (fProfile) {
+      delete fProfile;
+      fProfile = NULL;
+    }
+    fProfile = fPulses->ProfileX();
+    fProfile->Rebin(4);
     int bc;
-    for (int i = 1; i <= prof->GetNbinsX(); ++i) {
-      bc = (int)prof->GetBinContent(i);
+    int min, max;
+    min = max = (int)fProfile->GetBinContent(1);
+    for (int i = 1; i <= fProfile->GetNbinsX(); ++i) {
+      bc = (int)fProfile->GetBinContent(i);
       if (bc == 0)
 	continue;
+      if (bc > max)
+	max = bc;
+      else if (bc < min)
+	min = bc;
       if (sampcnt.count(bc) == 0)
 	sampcnt[bc] = 0;
       sampcnt[bc]++;
@@ -134,31 +153,37 @@ private:
     for (; i != sampcnt.end(); ++i)
       if (i->second > j->second)
 	j = i;
-    delete prof;
-    return (double)j->first;
+    fPed_Guess = j->first;
+    
+    if (max - fPed_Guess > fPed_Guess - min)
+      fPol_Guess = 1;
+    else
+      fPol_Guess = -1;
   }
 public:
   void Set(TH2* pulses, const WireMap& odb, int i) {
-    double x1 = pulses->GetXaxis()->GetBinLowEdge(1);
-    double y1 = pulses->GetYaxis()->GetBinLowEdge(1);
-    double x2 = pulses->GetXaxis()->GetBinLowEdge(pulses->GetNbinsX()+1);
-    double y2 = pulses->GetYaxis()->GetBinLowEdge(pulses->GetNbinsY()+1);
+    fPulses = pulses;
+    double x1 = fPulses->GetXaxis()->GetBinLowEdge(1);
+    double y1 = fPulses->GetYaxis()->GetBinLowEdge(1);
+    double x2 = fPulses->GetXaxis()->GetBinLowEdge(fPulses->GetNbinsX()+1);
+    double y2 = fPulses->GetYaxis()->GetBinLowEdge(fPulses->GetNbinsY()+1);
     double dx = x2-x1;
     double dy = y2-y1;
-    double ped_guess = GuessPedestal(pulses);
+    Guess();
     fPed_File = odb.pedestal[i];
-    fPed_Guess = (int)ped_guess;
     fPol_File = odb.polarity[i];
     fDPol.Set(x2-0.1*dx, y2-0.1*dy, x2, y2);
     fDPed.Set(x1, x2, (double)fPed_File, (double)fPed_Guess);
   }
   void Draw() {
+    fPulses->Draw("COLZ");
     fDPol.Draw(fPol_File);
     fDPed.Draw();
   }
   void Print() {
     std::cout <<
-      "Polarity: " << fPol_File << std::endl <<
+      "Polarity (ODB): " << fPol_File << std::endl <<
+      "Polarity (Guess): " << fPol_Guess << std::endl <<
       "Pedestal (ODB): " << fPed_File << std::endl <<
       "Pedestal (Guess): " << fPed_Guess << std::endl;
   }
@@ -188,14 +213,12 @@ void odb_check(int run) {
   std::string odb_fname(odb_dir + odb_pre + run_name + odb_ext);
   std::string hist_fname(hist_dir + hist_pre + run_name + hist_ext);
 
-
   // Values to check: Polarity, Pedestal
   std::string opt;
   if (odb_load)
     getODBValues(raw_fname, &odb);
   else
     getODBValues(odb_fname, &odb);
-  
 
   TFile hist_file(hist_fname.c_str(), "READ");
   for (unsigned int i = 0; i < odb.n; ++i) {
@@ -205,7 +228,6 @@ void odb_check(int run) {
       shapes->SetStats(0);
       odb_draw.Set(shapes, odb, i);
       c.cd();
-      shapes->Draw("COLZ");
       odb_draw.Draw();
       c.Update();
       odb_draw.Print();
