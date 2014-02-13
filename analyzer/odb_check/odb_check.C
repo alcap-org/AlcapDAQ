@@ -18,6 +18,7 @@ namespace ODB {
     std::vector<std::string> detname;
     std::vector<int> pedestal;
     std::vector<int> polarity;
+    std::vector<int> threshold;
   };
   
   class PlusSign {
@@ -110,6 +111,25 @@ namespace ODB {
     }
   };
   
+  class Threshold {
+  private:
+    TLine th;
+  public:
+    Threshold() {
+      th.SetLineColor(kRed);
+      th.SetLineStyle(kBlack);
+    }
+    void Set(double x1, double y1, double x2, double y2) {
+      th.SetX1(x1);
+      th.SetY1(y1);
+      th.SetX2(x2);
+      th.SetY2(y2);
+    }
+    void Draw() {
+      th.Draw("SAME");
+    }
+  };
+
   class PulseEstimate {
   private:
     int fPedestal;
@@ -118,9 +138,27 @@ namespace ODB {
     PulseEstimate() : fPedestal(0), fPolarity(0) {
     }
     void Estimate(TH2* pulses) {
-      TProfile* x = pulses->ProfileX();
-      TProfile* y = pulses->ProfileY();
-      
+      TH1D* proj_y = pulses->ProjectionY("_py",1);
+      fPedestal = (int)proj_y->GetBinCenter(proj_y->GetMaximumBin());
+      int min = 0, max = 0;
+      bool min_found = false, max_found = false;
+      int nbins = proj_y->GetNbinsX();
+      for (int i = 1; i < nbins; ++i) {
+	if (!min_found && proj_y->GetBinContent(i) > 0.) {
+	  min_found = true;
+	  min = i;
+	}
+	if (!max_found && proj_y->GetBinContent(nbins - i) > 0.) {
+	  max_found = true;
+	  max = nbins - i;
+	}
+	if (min_found && max_found)
+	  break;
+	}
+      if (max - fPedestal > fPedestal - min)
+	fPolarity = 1;
+      else
+	fPolarity = -1;
     }
     void Estimate2(TH2* pulses) {
       std::map<int,int> sampcnt;
@@ -160,17 +198,23 @@ namespace ODB {
     int GetPolarity() const {
       return fPolarity;
     }
+    void Print() const {
+      std::cout <<
+	"Pedestal (Est): " << fPedestal << std::endl <<
+	"Polarity (Est): " << fPolarity << std::endl;
+    }
   };
   
   class ODBDraw {
   private:
     PolaritySign fDPol;
     Pedestals fDPed;
+    Threshold fDThresh;
     TH2* fPulses;
     int fPolarity_ODB;
   public:
-    ODBDraw() : fDPol(), fDPed(), fPulses(NULL),
-		fPolarity_ODB(1) {
+    ODBDraw() : fDPol(), fDPed(), fDThresh(),
+		fPulses(NULL), fPolarity_ODB(1) {
     }
   public:
     void Set(TH2* pulses, const WireMap& odb, int i, const PulseEstimate& est) {
@@ -184,11 +228,13 @@ namespace ODB {
       fPolarity_ODB = odb.polarity[i];
       fDPol.Set(x2-0.1*dx, y2-0.1*dy, x2, y2);
       fDPed.Set(x1, x2, (double)odb.pedestal[i], (double)est.GetPedestal());
+      //fDThresh.Set(x1, (double)odb.threshold[i], x2, (double)odb.threshold[i]);
     }
     void Draw() {
       fPulses->Draw("COLZ");
       fDPol.Draw(fPolarity_ODB);
       fDPed.Draw();
+      //fDThresh.Draw();
     }
   };
   
@@ -231,11 +277,23 @@ namespace ODB {
     void SetRawDir(const std::string& raw_dir) {
       fRawDir = raw_dir;
     }
+    void SetRawDir() {
+      std::cout << "Enter raw data directory: ";
+      std::cin >> fRawDir;
+    }
     void SetODBDir(const std::string& odb_dir) {
       fODBDir = odb_dir;
     }
+    void SetODBDir() {
+      std::cout << "Enter ODB directory: ";
+      std::cin >> fODBDir;
+    }
     void SetHistDir(const std::string& hist_dir) {
       fHistDir = hist_dir;
+    }
+    void SetHistDir() {
+      std::cout << "Enter histogram directory: ";
+      std::cin >> fHistDir;
     }
     std::string GetRawFileName(int run) {
       return fRawDir + fRawPre + GetCanonicalRun(run) + fRawExt;
@@ -264,28 +322,40 @@ namespace ODB {
 		 fEstimate() {
     }
   private:
+    void SetDirs(const std::string& raw, const std::string& odb, const std::string& hist) {
+      fDataDirs.SetRawDir(raw);
+      fDataDirs.SetODBDir(odb);
+      fDataDirs.SetHistDir(hist);
+    }
+    void SetDirs() {
+      fDataDirs.SetRawDir();
+      fDataDirs.SetODBDir();
+      fDataDirs.SetHistDir();
+    }
     void LoadODBValues() {
-      static const std::string header("[/Analyzer/WireMap]");
-      static const std::string bankname_key("BankName");
-      static const std::string detname_key("DetectorName");
-      static const std::string enabled_key("Enabled");
-      static const std::string polarity_key("TriggerPolarity");
-      static const std::string pedestal_key("Pedestal");
-      static const std::string timeshift_key("TimeShift");
+      static std::string header("");
+      static std::string bankname_key("BankName");
+      static std::string detname_key("DetectorName");
+      static std::string enabled_key("Enabled");
+      static std::string polarity_key("TriggerPolarity");
+      static std::string pedestal_key("Pedestal");
+      static std::string timeshift_key("TimeShift");
       static char tmp[256];
       std::string ifname;
-      if (fLoadODBFile)
+      if (fLoadODBFile) {
 	ifname = fDataDirs.GetODBFileName(fRun);
-      else
+	header = "[/Analyzer/WireMap]";
+      } else {
 	ifname = fDataDirs.GetRawFileName(fRun);
+	header = "[Analyzer/WireMap]";
+      }
       // Clear WireMap
       fODB.n = 0;
       fODB.bankname.clear();
       fODB.detname.clear();
       fODB.pedestal.clear();
       fODB.polarity.clear();
-      // Look through MIDAS file for appropriate banks
-      std::cout << ifname << std::endl;
+      // Look through MIDAS or ODB file for appropriate banks
       std::ifstream f(ifname.c_str());
       std::string str;
       std::stringstream ss;
@@ -344,9 +414,6 @@ namespace ODB {
   public:
     void Check(int run) {
       std::string opt;
-      fDataDirs.SetRawDir("/home/jrquirk/alcap/data/raw/");
-      fDataDirs.SetODBDir("/home/jrquirk/alcap/data/odb/");
-      fDataDirs.SetHistDir("/home/jrquirk/alcap/data/hist/");
       if (fRun != run) {
 	fRun = run;
 	LoadODBValues();
@@ -356,13 +423,17 @@ namespace ODB {
       for (unsigned int i = 0; i < fODB.n; ++i) {
 	TH2* shapes;
 	hist_file.GetObject(("h" + fODB.bankname[i] + "_Shapes").c_str(), shapes);
-	if (shapes) {
+	if (shapes && shapes->GetEntries() > 0) {
 	  shapes->SetStats(0);
 	  fEstimate.Estimate(shapes);
 	  fODBDraw.Set(shapes, fODB, i, fEstimate);
 	  fCanvas.cd();
 	  fODBDraw.Draw();
 	  fCanvas.Update();
+	  std::cout <<
+	    "Pedestal (ODB): " << fODB.pedestal[i] << std::endl <<
+	    "Polarity (ODB): " << fODB.polarity[i] << std::endl;
+	  fEstimate.Print();
 	  std::cout << "[q]uit, [a]djust: ";
 	  std::cin >> opt;
 	  if (opt == "q") {
@@ -384,5 +455,9 @@ namespace ODB {
 void odb_check(int run) {
   using namespace ODB;
   ODBCheck x;
+  std::string raw_dir("/home/jrquirk/alcap/data/raw/");
+  std::string odb_dir("/home/jrquirk/alcap/data/odb/");
+  std::string hist_dir("/home/jrquirk/alcap/data/hist/");
+  x.SetDirs(raw_dir, odb_dir, hist_dir);
   x.Check(run);
 }
