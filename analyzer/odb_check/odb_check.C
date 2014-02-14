@@ -320,6 +320,7 @@ namespace ODB {
     ODBCheck() : fRun(0), fCanvas("c","Check"), fODBDraw(),
 		 fODB(), fDataDirs(), fLoadODBFile(true),
 		 fEstimate() {
+      fCanvas.SetLogz();
     }
   private:
     void SetDirs(const std::string& raw, const std::string& odb, const std::string& hist) {
@@ -418,12 +419,11 @@ namespace ODB {
 	fRun = run;
 	LoadODBValues();
       }
-      std::cout << fODB.n << std::endl;
       TFile hist_file(fDataDirs.GetHistFileName(fRun).c_str(), "READ");
       for (unsigned int i = 0; i < fODB.n; ++i) {
 	TH2* shapes;
 	hist_file.GetObject(("h" + fODB.bankname[i] + "_Shapes").c_str(), shapes);
-	if (shapes && shapes->GetEntries() > 0) {
+	if (shapes) {
 	  shapes->SetStats(0);
 	  fEstimate.Estimate(shapes);
 	  fODBDraw.Set(shapes, fODB, i, fEstimate);
@@ -434,9 +434,11 @@ namespace ODB {
 	    "Pedestal (ODB): " << fODB.pedestal[i] << std::endl <<
 	    "Polarity (ODB): " << fODB.polarity[i] << std::endl;
 	  fEstimate.Print();
-	  std::cout << "[q]uit, [a]djust: ";
+	  std::cout << "[q]uit, [n]ext, [p]rev: ";
 	  std::cin >> opt;
-	  if (opt == "q") {
+	  if (opt == "p") {
+	    i -= 2;
+	  } else if (opt == "q") {
 	    hist_file.Close();
 	    return;
 	  }
@@ -459,5 +461,6 @@ void odb_check(int run) {
   std::string odb_dir("/home/jrquirk/alcap/data/odb/");
   std::string hist_dir("/home/jrquirk/alcap/data/hist/");
   x.SetDirs(raw_dir, odb_dir, hist_dir);
+  x.LoadODBFromODBFile();
   x.Check(run);
 }
