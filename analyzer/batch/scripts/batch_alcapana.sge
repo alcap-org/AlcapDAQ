@@ -2,72 +2,128 @@
 # batch_alcapana.sge 
 # Define run time. 
 #$ -l s_rt=00:30:00,h_rt=00:30:30
-
 ###################################################
 # Fix the SGE environment-handling bug (bash):
 source /usr/share/Modules/init/sh
 export -n -f module
 
+#########################
+# Canonicalize run number
+runcanon() {
+    x=$1;
+    ((x=x))
+    if [ $x -lt 10 ]; then
+	echo 0000$x
+    elif [ $x -lt 100 ]; then
+	echo 000$x
+    elif [ $x -lt 1000 ]; then
+	echo 00$x
+    elif [ $x -lt 10000 ]; then
+	echo 0$x
+    fi
+}
 
-# Load the environment modules for this job 
-# (the order may be important), for example: 
+##############################
+# Load ROOT environment module 
 module add root
 
-#######################
-# Check input variables
-if [ $# -ne 3 ]; then
-    echo "ERROR: Require three input variables"
+##################################################
+# Check input variable and an environment variable
+if [ $# -ne 1 ]; then
+    echo "ERROR: Require run number as input and only input"
     exit 1
-fi
-RAW=$1
-HIST=$2
-TREE=$3
-if [ -z $RAW -o -z $HIST -o -z $TREE ]; then
-    echo "ERROR: Gave null argument!"
+elif [ -z "$DAQdir" ]; then
+    echo "ERROR: DAQdir not set!"
     exit 2
-elif [ ! -f $RAW ]; then
-    echo "ERROR: Raw data file not found! ($RAW)"
-    exit 3
-elif [ ! -d $(dirname $HIST) -o ! -d $(dirname $TREE) ]; then
-    echo "ERROR: Make sure histogram and tree directories exist!"
-    exit 4
 fi
 
-################
-# BEGIN DEBUG 1
-# Print the SGE environment on master host: 
-echo "================================================================"
-echo "=== SGE job  JOB_NAME=$JOB_NAME  JOB_ID=$JOB_ID"
-echo "================================================================"
-echo DATE=`date`
-echo HOSTNAME=`hostname`
-echo PWD=`pwd`
-echo "NSLOTS=$NSLOTS"
-echo "================================================================"
-echo "Running environment:"
-env
-echo "================================================================"
-echo "ulimit -a"
-ulimit -a
-echo "================================================================"
-echo "Loaded environment modules:"
-module list 2>&1
-echo
-# END DEBUG 1
-################
+##############################
+# Get the canonical run number
+# (with appropriate number of
+# zeros
+RUN=$(runcanon $1)
 
-###################################################
-# The command to run 
+###################
+# Setup environment
+. $DAQdir/thisdaq.sh
+DATADIR="$HOME/data"
+RAWDATADIR="$DATADIR/raw"
+ODBDATADIR="$DATADIR/odb"
+HISTDATADIR="$DATADIR/hist"
+TREEDATADIR="$DATADIR/tree"
+ODBDIR="$DAQdir/analyzer/odb"
+TMPDIR="$DAQdir/analyzer/batch/tmp"
+FLGDIR="$TMPDIR/flag"
+MIDAS_DIR="$TMPDIR/odb/run$RUN"
+
+#######################
+# The files we will use
+RAWFILE="$RAWDATADIR/run$RUN.mid"
+HISTFILE="$HISTDATADIR/hist$RUN.root"
+TREEFILE="$TREEDATADIR/tree$RUN.root"
+ODBDATAFILE="$ODBDATADIR/run$RUN.odb"
+FLAGFILE="$FLGDIR/alcapana.run$RUN.flag"
+
+################
+# Command to run
 CMD="$DAQdir/analyzer/work/$USER/alcapana"
-ARGS="-i $1 -o $2 -T $3"
+ARGS="-i $RAWFILE -o $HISTFILE -T $TREEFILE"
+
+############################
+# Make necessary directories
+# and ensure files exist
+if [ ! -f $RAWFILE ]; then
+    echo "ERROR: Raw file does not exist ($RAWFILE)!"
+    exit 3
+elif [ -f $HISTFILE ]; then
+    echo "ERROR: Histogram file exists ($HISTFILE)! Delete to rerun."
+    exit 4
+elif [ -f $TREEFILE ]; then
+    echo "ERROR: Tree file exists ($TREEFILE)! Delete to rerun."
+    exit 5
+elif [ ! -x $CMD ]; then
+    echo "ERROR: alcapana does not seemed to be compiled ($CMD)"
+    exit 6
+elif [ ! -f $FLAGFILE ]; then
+    echo "WARNING: Flag file did not exist. This file exists to count"
+    echo "         how many jobs you have running on the grid."
+    echo "         Creating it now..."
+    mkdir -p $FLGDIR
+    touch $FLAGFILE
+fi
+if [ -f $ODBDATAFILE ]; then
+    LOADODB=1
+else
+    echo "WARNING: ODB file not found. Loading from raw data."
+    unset LOADODB
+fi
+
+mkdir -p $HISTDATADIR
+mkdir -p $TREEDATADIR
+mkdir -p $TMPDIR
+mkdir -p $MIDAS_DIR
+
+###########
+# Setup ODB
+ODB_DEFAULTS="$(ls $ODBDIR/*.odb)"
+for IODB in $ODB_DEFAULTS; do
+    yes n | odbedit -c "load $IODB" > /dev/null
+done
+if [ $LOADODB ]; then
+    yes n | odbedit -c "load $ODBDATAFILE" > /dev/null
+else
+    odbedit -c "set '/Analyzer/ODB Load' y"
+fi
+
 
 ################
-# BEGIN DEBUG 2
+# BEGIN DEBUG
 # Check that the libraries are available (on the master host):  
 echo "ldd $CMD"
 ldd $CMD 
 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
-# Check whatever you consider imortant for running your job.
+# Check path variables
+env
 # END DEBUG 2
 ################
 
@@ -75,5 +131,9 @@ echo "Command to run:"
 echo "$CMD $ARGS"
 echo
 $CMD $ARGS
+
+##########
+# Clean up
+rm -rf $FLAGFILE $MIDAS_DIR
 
 ################################################################################

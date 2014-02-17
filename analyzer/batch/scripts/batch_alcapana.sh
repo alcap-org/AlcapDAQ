@@ -1,107 +1,204 @@
 #!/bin/bash
-# Takes 1 or two arguments. A single run or a range of runs
-# ./batch_alcapana.sh 123 456
-# If we do too many at once, we might get yelled at.
 
-# Get run list
-if [ $# -eq 1 ]; then
-    RUNS=$1
-elif [ $# -eq 2 ]; then
-    RUNS=$(seq $1 $2)
-else
-    echo "ERROR: Should only be 1 or 2 arguments (run or range of runs)!"
-    exit 1;
-fi
+usage() {
+    echo "usage: batch_alcapana.sh [-h | --help] [--usage] [-n max_jobs] [-r run_low run_high] [-t loop_time_sec] [runs...]"
+}
 
-# Setup environment
-if [ -z "$DAQdir" ]; then
-    echo "ERROR: DAQdir not set!"
-    exit 2
-fi
-. $DAQdir/thisdaq.sh
+help() {
+    usage
+    echo "At least one run must be specified by either a range (-r) of runs"
+    echo "(inclusive) or in a space seperated list. Multiple ranges and"
+    echo "runs can be specified."
+    echo "Example:"
+    echo "\$ ./batch_alcapana.sh -r 1 6 9 -n 5 125 -r 367 369"
+    echo "This will process runs 1-6, 9, 125, and 367-369, and up to 5"
+    echo "at a time."
+}
 
-#############################################
-# Export the environment variables we'll need
-export DAQdir
-export MIDAS_DIR
-export PATH
-export LD_LIBRARY_PATH
-
-# Variables we'll be using
-DATADIR="$HOME/data"
-ODBDATADIR="$DATADIR/odb"
-RAWDATADIR="$DATADIR/raw"
-HISTDATADIR="$DATADIR/hist"
-TREEDATADIR="$DATADIR/tree"
-LOGDIR="$DAQdir/analyzer/batch/log"
-
-# Default ODBs to load
-ODBDIR="$DAQdir/analyzer/odb"
-ODB_DEFAULTS="master.odb New_Analyzer_WireMap_10-Dec-2013.odb Analyzer_WireMap_TimeShift.odb AddADCCalib.odb Defaults.odb"
-
-CMD="$DAQdir/analyzer/batch/scripts/batch_alcapana.sge"
-
-#################################
-# Check that the raw data exists
-if [ ! -f $RAW ]; then
-    echo "ERROR: Raw data not found!"
-    exit 3
-fi
-
-###################################
-# Make directories that don't exist
-mkdir -p $HISTDATADIR
-mkdir -p $TREEDATADIR
-mkdir -p $LOGDIR
-
-for RUN in $RUNS; do
-    # Canonicalize run numbers
-    if [ $RUN -lt 10 ]; then
-	RUN=0000$RUN
-    elif [ $RUN -lt 100 ]; then
-	RUN=000$RUN
-    elif [ $RUN -lt 1000 ]; then
-	RUN=00$RUN
-    elif [ $RUN -lt 10000 ]; then
-	RUN=0$RUN
+runcanon() {
+    if [ $1 -lt 10 ]; then
+	echo 0000$1
+    elif [ $1 -lt 100 ]; then
+	echo 000$1
+    elif [ $1 -lt 1000 ]; then
+	echo 00$1
+    elif [ $1 -lt 10000 ]; then
+	echo 0$1
     fi
+}
 
-    # Declare outputs
-    ODB="$ODBDATADIR/run$RUN.odb"
-    RAW="$RAWDATADIR/run$RUN.mid"
-    HIST="$HISTDATADIR/hist$RUN.root"
-    TREE="$TREEDATADIR/tree$RUN.root"
-    OLOG="$LOGDIR/alcapana.run$RUN.out"
-    ELOG="$LOGDIR/alcapana.run$RUN.err"
-    
-    # Remove previous logs
-    rm -f $OLOG
-    rm -f $ELOG
+runfilecanon() {
+    x=""
+    echo "run$(runcanon $1).mid"
+}
 
-    # Prepare temporary ODB
-    TMP="$HOME/tmp/alcapana/run$RUN"
-    MIDAS_DIR="$TMP/ODB"
-    mkdir -p $TMP
-    mkdir -p $MIDAS_DIR
+flagcanon() {
+    echo "alcapana.run$(runcanon $1).flag"
+}
 
-    for I_ODB in $ODB_DEFAULTS; do
-	I_ODB=$ODBDIR/$I_ODB
-	if [ -f $I_ODB ]; then
-	    yes n | odbedit -c "load $I_ODB"
-	    echo
-	else
-	    echo "WARNING: $I_ODB not found..."
+flagadd() {
+    x=""
+    while [ $# -gt 0 ]; do
+	x="$x $1"
+	shift
+    done
+    echo "$x"
+}
+
+flagrm() {
+    rx="$1"
+    shift
+    x=""
+    y=""
+    while [ $# -gt 0 ]; do
+	x="$x $1"
+	shift
+    done
+    for ix in $x; do
+	if [ ! $ix = $rx ]; then
+	    y="$y $ix"
 	fi
     done
-    if [ -f $ODB ]; then
-	yes n | odbedit -c "load $ODB"
-	echo
+    echo $y
+}
+
+flagdone() {
+    if [ -f "$1/$(flagcanon $2)" ]; then
+	echo ""
     else
-	echo "WARNING: ODB file not found for run $RUN, loading from runfile..."
-	odbedit -c "set '/Analyzer/ODB Load' y"
+	echo "done"
     fi
+}
 
-    echo $RUN $CMD $RAW $HIST $TREE
-    qsub -N alcapana$RUN -v DAQdir,MIDAS_DIR,PATH,LD_LIBRARY_PATH -e $ELOG -o $OLOG $CMD $RAW $HIST $TREE
+flagcount() {
+    n=0
+    x=$(ls $1/alcapana.*.flag 2> /dev/null)
+    for ix in $x; do
+	((n += 1))
+    done
+    echo $n
+}
 
+RUNS=""
+NJOBS=1
+DT=30
+
+FTPUSER="mucap"
+FTPPSWD=""
+FTPSRVR="ftp://archivftp.psi.ch"
+FTPDIR="mu2e/run2013"
+
+# Get command line arguments
+while [ $# -gt 0 ]; do
+    if [ $1 = "-h" -o $1 = "--help" ]; then
+	help
+	exit 0
+    elif [ $1 = "--usage" ]; then
+	usage
+	exit 0
+    elif [ $1 = "-r" ]; then
+	if [ ! $# -ge 3 ]; then
+	    usage
+	    echo "ERROR: Range option (-r) requires two space separate arguments!"
+	    exit 1
+	fi
+	RUNS="$RUNS $(seq $2 $3)"
+	shift 3
+    elif [ $1 = "-n" ]; then
+	NJOBS=$2
+	shift 2
+    elif [ $1 = "-t" ]; then
+	DT="$2"
+	shift 2
+    elif [ $1 = "-p" ]; then
+	FTPPSWD="$2"
+	shift 2
+    else
+	RUNS="$RUNS $((10#$1))"
+	shift
+    fi
+done
+
+# Get FTP password if not passed at command line
+if [ -z "$FTPPSWD" ]; then
+    read -p "FTP Password: " FTPPSWD
+fi
+
+# Check there are no duplicates and that these are all numbers.
+for IRUN in $RUNS; do
+    if [ $IRUN -eq 0 ]; then
+	echo "ERROR: Are all arguments nonzero numbers?"
+	exit 2;
+    fi
+    NRUN=0
+    for JRUN in $RUNS; do
+	((JRUN = JRUN))
+	if [ $IRUN = $JRUN ]; then
+	    ((NRUN += 1))
+	fi
+    done
+    if [ $NRUN -ne 1 ]; then
+	echo "ERROR: Run $IRUN is repeated ($NRUN)!"
+	exit 3
+    fi
+done
+
+# Check the DAQdir is set
+if [ -z "$DAQdir" ]; then
+    echo "ERROR: Environment variable DAQdir must be set."
+    exit 4
+fi
+export DAQdir
+
+# Setup some environment variables
+LOGDIR="$DAQdir/analyzer/batch/log"
+FLGDIR="$DAQdir/analyzer/batch/tmp/flag"
+RAWDIR="$HOME/data/raw"
+
+mkdir -p $LOGDIR
+mkdir -p $FLGDIR
+mkdir -p $RAWDIR
+
+# Check other instances of this aren't running
+if [ $(flagcount $FLGDIR) -ne 0 ]; then
+    echo "ERROR: Seem to be some flags in directory ($FLGDIR). Are there other instances of this script running?"
+    echo "Remove to continue."
+    exit 5
+fi
+
+# Submit jobs
+FLAGS=""
+CMD="$DAQdir/analyzer/batch/scripts/batch_alcapana.sge"
+for IRUN in $RUNS; do
+    OLOG="$LOGDIR/alcapana.run$(runcanon $IRUN).out"
+    ELOG="$LOGDIR/alcapana.run$(runcanon $IRUN).err"
+    rm -f $OLOG
+    rm -f $ELOG
+    while [ $(flagcount $FLGDIR) -ge $NJOBS ]; do
+	sleep $DT
+    done
+    for IFLAG in $FLAGS; do
+	if [ "$(flagdone $FLGDIR $IFLAG)" ]; then
+	    echo "Finished run $IFLAG!"
+	    FLAGS="$(flagrm $IFLAG $FLAGS)"
+	    rm -f "$RAWDIR/$(runfilecanon $IFLAG)"
+	fi
+    done
+    echo "Downloading run $IRUN..."
+    wget -c --user=$FTPUSER --password=$FTPPSWD $FTPSRVR/$FTPDIR/$(runfilecanon $IRUN)
+    mv "$(runfilecanon $IRUN)" "$RAWDIR/"
+    touch $FLGDIR/$(flagcanon $IRUN)
+    FLAGS=$(flagadd $FLAGS $IRUN)
+    qsub -v DAQdir -e $ELOG -o $OLOG $CMD $IRUN
+done
+
+while [ $(flagcount $FLGDIR) -gt 0 ]; do
+    for IFLAG in $FLAGS; do
+	if [ "$(flagdone $FLGDIR $IFLAG)" ]; then
+	    echo "Finished run $IFLAG!"
+	    FLAGS="$(flagrm $IFLAG $FLAGS)"
+	    rm -f "$RAWDIR/$(runfilecanon $IFLAG)"
+	fi
+    done
+    sleep $DT
 done
