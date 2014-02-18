@@ -37,9 +37,9 @@ class TSetupData : public TObject{
 
   std::string GetBankName(std::string DetectorName);
 
-  std::string GetDetectorName(std::string BankName) { 
-    if (fBankToDetectorMap[BankName] != "blank")
-      return fBankToDetectorMap[BankName]; 
+  std::string GetDetectorName(std::string BankName)const { 
+    if (fBankToDetectorMap.find(BankName)->second!= "blank")
+      return fBankToDetectorMap.find(BankName)->second; 
     else
       return BankName;
   };
