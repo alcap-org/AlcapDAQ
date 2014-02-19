@@ -186,7 +186,11 @@ for IRUN in $RUNS; do
     done
     echo "Downloading run $IRUN..."
     wget -c --user=$FTPUSER --password=$FTPPSWD $FTPSRVR/$FTPDIR/$(runfilecanon $IRUN)
-    mv "$(runfilecanon $IRUN)" "$RAWDIR/"
+    if [ -f "$(runfilecanon $IRUN)" ]; then
+	mv "$(runfilecanon $IRUN)" "$RAWDIR/"
+    else
+	continue
+    fi
     touch $FLGDIR/$(flagcanon $IRUN)
     FLAGS=$(flagadd $FLAGS $IRUN)
     qsub -v DAQdir -e $ELOG -o $OLOG $CMD $IRUN
@@ -202,3 +206,5 @@ while [ $(flagcount $FLGDIR) -gt 0 ]; do
     done
     sleep $DT
 done
+
+rm -f $RAWDIR/run*.mid

@@ -74,15 +74,19 @@ ARGS="-i $RAWFILE -o $HISTFILE -T $TREEFILE"
 # and ensure files exist
 if [ ! -f $RAWFILE ]; then
     echo "ERROR: Raw file does not exist ($RAWFILE)!"
+    rm -f $FLAGFILE
     exit 3
 elif [ -f $HISTFILE ]; then
     echo "ERROR: Histogram file exists ($HISTFILE)! Delete to rerun."
+    rm -f $FLAGFILE
     exit 4
 elif [ -f $TREEFILE ]; then
     echo "ERROR: Tree file exists ($TREEFILE)! Delete to rerun."
+    rm -f $FLAGFILE
     exit 5
 elif [ ! -x $CMD ]; then
     echo "ERROR: alcapana does not seemed to be compiled ($CMD)"
+    rm -f $FLAGFILE
     exit 6
 elif [ ! -f $FLAGFILE ]; then
     echo "WARNING: Flag file did not exist. This file exists to count"
