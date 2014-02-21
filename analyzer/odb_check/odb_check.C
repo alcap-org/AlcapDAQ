@@ -240,19 +240,13 @@ namespace ODB {
   
   class DataDir {
   private:
-    std::string fRawExt;
-    std::string fODBExt;
-    std::string fHistExt;
-    std::string fRawDir;
-    std::string fODBDir; 
-    std::string fHistDir;
-    std::string fRawPre;
-    std::string fODBPre;
-    std::string fHistPre;
+    std::string fRawExt, fODBExt, fHistExt, fCorrExt;
+    std::string fRawDir, fODBDir, fHistDir,fCorrDir;
+    std::string fRawPre, fODBPre, fHistPre, fCorrPre;
   public:
-    DataDir() : fRawExt(".mid"), fODBExt(".odb"), fHistExt(".root"),
-		fRawDir(""), fODBDir(""), fHistDir(""),
-		fRawPre("run"), fODBPre("run"), fHistPre("hist") {
+    DataDir() : fRawExt(".mid"), fODBExt(".odb"), fHistExt(".root"), fCorrExt(".dat"),
+		fRawDir(""), fODBDir(""), fHistDir(""), fCorrDir(""),
+		fRawPre("run"), fODBPre("run"), fHistPre("hist"), fCorrPre("correct") {
     }
   private:
     std::string GetCanonicalRun(int run) {
@@ -295,6 +289,13 @@ namespace ODB {
       std::cout << "Enter histogram directory: ";
       std::cin >> fHistDir;
     }
+    void SetCorrDir(const std::string& corr_dir) {
+      fCorrDir = corr_dir;
+    }
+    void SetCorrDir() {
+      std::cout << "Enter corrections directory: ";
+      std::cin >> fCorrDir;
+    }
     std::string GetRawFileName(int run) {
       return fRawDir + fRawPre + GetCanonicalRun(run) + fRawExt;
     }
@@ -303,6 +304,11 @@ namespace ODB {
     }
     std::string GetHistFileName(int run) {
       return fHistDir + fHistPre + GetCanonicalRun(run) + fHistExt;
+    }
+    std::string GetCorrFileName(int run) {
+      std::stringstream s;
+      s << run;
+      return fCorrDir + fCorrPre + s.str() + fCorrExt;
     }
   };
   
@@ -316,23 +322,42 @@ namespace ODB {
     DataDir fDataDirs;
     bool fLoadODBFile;
     PulseEstimate fEstimate;
+    bool fBatchMode;
+    bool fOutputCorrections;
+    std::ofstream fCorrectionsFile;
   public:
     ODBCheck() : fRun(0), fCanvas("c","Check"), fODBDraw(),
 		 fODB(), fDataDirs(), fLoadODBFile(true),
-		 fEstimate() {
+		 fEstimate(), fBatchMode(false), fOutputCorrections(false),
+		 fCorrectionsFile() {
       fCanvas.SetLogz();
     }
-  private:
-    void SetDirs(const std::string& raw, const std::string& odb, const std::string& hist) {
+    void SetDirs(const std::string& raw, const std::string& odb, const std::string& hist, const std::string& corr) {
       fDataDirs.SetRawDir(raw);
       fDataDirs.SetODBDir(odb);
       fDataDirs.SetHistDir(hist);
+      fDataDirs.SetCorrDir(corr);
     }
     void SetDirs() {
       fDataDirs.SetRawDir();
       fDataDirs.SetODBDir();
       fDataDirs.SetHistDir();
+      fDataDirs.SetCorrDir();
     }
+    void SetBatchMode() {
+      fBatchMode = true;
+      fCanvas.Close();
+      std::cout << "ODBCheck INFO: Entering batch mode. Canvas is closed and interactive mode is no longer available." << std::endl;
+    }
+    void SetOutputCorrections() {
+      fOutputCorrections = true;
+    }
+    void ResetOutputCorrections() {
+      fOutputCorrections = false;
+      if (fCorrectionsFile.is_open())
+	fCorrectionsFile.close();
+    }
+  private:
     void LoadODBValues() {
       static std::string header("");
       static std::string bankname_key("BankName");
@@ -412,12 +437,30 @@ namespace ODB {
 	}
       }
     }
+    void InitiateCorrectionsFile() {
+      fCorrectionsFile.open(fDataDirs.GetCorrFileName(fRun).c_str());
+      if (fCorrectionsFile.is_open())
+	fCorrectionsFile <<
+	  "Bank name | Field | New value" << std::endl <<
+	  "--------------------------------" << std::endl;
+      else
+	std::cout << "ODBCheck ERROR: Cannot open correction file (" << fDataDirs.GetCorrFileName(fRun) << ")!" << std::endl;
+    }
+    void OutputCorrectionsIfNeeded(unsigned int i) {
+      if (fCorrectionsFile.is_open()) {
+	  if (fODB.pedestal[i] != fEstimate.GetPedestal())
+	    fCorrectionsFile << fODB.bankname[i] << "\tPedestal\t" << fEstimate.GetPedestal() << std::endl;
+	  if (fODB.polarity[i] != fEstimate.GetPolarity())
+	    fCorrectionsFile << fODB.bankname[i] << "\tPolarity\t" << fEstimate.GetPolarity() << std::endl;
+      }
+    }
   public:
     void Check(int run) {
       std::string opt;
       if (fRun != run) {
 	fRun = run;
 	LoadODBValues();
+	InitiateCorrectionsFile();
       }
       TFile hist_file(fDataDirs.GetHistFileName(fRun).c_str(), "READ");
       for (unsigned int i = 0; i < fODB.n; ++i) {
@@ -426,21 +469,26 @@ namespace ODB {
 	if (shapes) {
 	  shapes->SetStats(0);
 	  fEstimate.Estimate(shapes);
-	  fODBDraw.Set(shapes, fODB, i, fEstimate);
-	  fCanvas.cd();
-	  fODBDraw.Draw();
-	  fCanvas.Update();
-	  std::cout <<
-	    "Pedestal (ODB): " << fODB.pedestal[i] << std::endl <<
-	    "Polarity (ODB): " << fODB.polarity[i] << std::endl;
-	  fEstimate.Print();
-	  std::cout << "[q]uit, [n]ext, [p]rev: ";
-	  std::cin >> opt;
-	  if (opt == "p") {
-	    i -= 2;
-	  } else if (opt == "q") {
-	    hist_file.Close();
-	    return;
+	  if (!fBatchMode) {
+	    fODBDraw.Set(shapes, fODB, i, fEstimate);
+	    fCanvas.cd();
+	    fODBDraw.Draw();
+	    fCanvas.Update();
+	    std::cout <<
+	      "Pedestal (ODB): " << fODB.pedestal[i] << std::endl <<
+	      "Polarity (ODB): " << fODB.polarity[i] << std::endl;
+	    fEstimate.Print();
+	    std::cout << "[q]uit, [n]ext, [p]rev: ";
+	    std::cin >> opt;
+	    if (opt == "p") {
+	      i -= 2;
+	    } else if (opt == "q") {
+	      hist_file.Close();
+	      return;
+	    }
+	  }
+	  if (shapes->GetEntries()) {
+	    OutputCorrectionsIfNeeded(i);
 	  }
 	}
       } 
@@ -457,10 +505,12 @@ namespace ODB {
 void odb_check(int run) {
   using namespace ODB;
   ODBCheck x;
-  std::string raw_dir("/home/jrquirk/alcap/data/raw/");
-  std::string odb_dir("/home/jrquirk/alcap/data/odb/");
-  std::string hist_dir("/home/jrquirk/alcap/data/hist/");
-  x.SetDirs(raw_dir, odb_dir, hist_dir);
+  std::string raw_dir("/gpfs/home/quirk_j/data/raw/");
+  std::string odb_dir("/gpfs/home/quirk_j/data/odb/");
+  std::string hist_dir("/gpfs/home/quirk_j/data/hist/");
+  std::string corr_dir("/gpfs/home/quirk_j/data/corr/");
+  x.SetDirs(raw_dir, odb_dir, hist_dir, corr_dir);
   x.LoadODBFromODBFile();
+  x.SetBatchMode();
   x.Check(run);
 }
