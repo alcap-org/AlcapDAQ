@@ -19,6 +19,9 @@
 #include "CoincidenceCut.h"
 #include "EvdE.h"
 #include "PlotAmpVsTDiff.h"
+#include "Normalization.h"
+//#include "PlotShapes.h"
+#include "DeadTimeGe.h"
 
 #include "TTree.h"
 #include "TBranch.h"

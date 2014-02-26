@@ -40,7 +40,7 @@ PlotAmpVsTDiff::PlotAmpVsTDiff(char *HistogramDirectoryName, std::string det_nam
   amp_vs_tdiff_plot_coarse->GetYaxis()->SetTitle(y_axis_title.c_str());
 
   histname = "h" + fDetNameA + "-" + fDetNameB + "_AmpVsTDiff_Fine";
-  amp_vs_tdiff_plot_fine = new TH2F(histname.c_str(), histtitle.c_str(), 200,-1000,1000, max_adc_value,0,max_adc_value);
+  amp_vs_tdiff_plot_fine = new TH2F(histname.c_str(), histtitle.c_str(), 5000,-5000,20000, max_adc_value,0,max_adc_value);
   amp_vs_tdiff_plot_fine->GetXaxis()->SetTitle(x_axis_title.c_str());
   amp_vs_tdiff_plot_fine->GetYaxis()->SetTitle(y_axis_title.c_str());
 

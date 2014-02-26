@@ -14,4 +14,5 @@ CoincidenceCut.cpp \
 PlotAmpVsTDiff.cpp \
 MaxBinAPGenerator.cpp \
 ProcessCorrectionFile.cpp \
-EvdE.cpp
+EvdE.cpp \
+DeadTimeGe.cpp
