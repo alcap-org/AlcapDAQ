@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() {
-    echo "usage: batch_alcapana.sh [-h | --help] [--usage] [-n max_jobs] [-r run_low run_high] [-t loop_time_sec] [runs...]"
+    echo "usage: batch_alcapana.sh [-h | --help] [--usage] [-n max_jobs] [-r run_low run_high] [-t loop_time_sec] [-p ftp_password] [runs...]"
 }
 
 help() {
@@ -153,7 +153,10 @@ export DAQdir
 # Setup some environment variables
 LOGDIR="$DAQdir/analyzer/batch/log"
 FLGDIR="$DAQdir/analyzer/batch/tmp/flag"
-RAWDIR="$HOME/data/raw"
+DATADIR="$HOME/data"
+RAWDIR="$DATADIR/raw"
+TREEDIR="$DATADIR/tree"
+HISTDIR="$DATADIR/hist"
 
 mkdir -p $LOGDIR
 mkdir -p $FLGDIR
@@ -170,10 +173,12 @@ fi
 FLAGS=""
 CMD="$DAQdir/analyzer/batch/scripts/batch_alcapana.sge"
 for IRUN in $RUNS; do
+
     OLOG="$LOGDIR/alcapana.run$(runcanon $IRUN).out"
     ELOG="$LOGDIR/alcapana.run$(runcanon $IRUN).err"
     rm -f $OLOG
     rm -f $ELOG
+
     while [ $(flagcount $FLGDIR) -ge $NJOBS ]; do
 	sleep $DT
     done
@@ -184,6 +189,12 @@ for IRUN in $RUNS; do
 	    rm -f "$RAWDIR/$(runfilecanon $IFLAG)"
 	fi
     done
+
+    if [ -f "$TREEDIR/tree$(runcanon $IRUN).root" -o -f "$HISTDIR/hist$(runcanon $IRUN).root" ]; then
+	echo "WARNING: It seems a tree or hist file for run $IRUN exists!"
+	continue
+    fi
+
     echo "Downloading run $IRUN..."
     wget -c --user=$FTPUSER --password=$FTPPSWD $FTPSRVR/$FTPDIR/$(runfilecanon $IRUN)
     if [ -f "$(runfilecanon $IRUN)" ]; then
@@ -191,9 +202,11 @@ for IRUN in $RUNS; do
     else
 	continue
     fi
+
     touch $FLGDIR/$(flagcanon $IRUN)
     FLAGS=$(flagadd $FLAGS $IRUN)
     qsub -v DAQdir -e $ELOG -o $OLOG $CMD $IRUN
+
 done
 
 while [ $(flagcount $FLGDIR) -gt 0 ]; do

@@ -69,7 +69,8 @@ static bool PLUGIN_LOADED = false;
 INT MTreeOutput_init()
 {
   if (!PLUGIN_LOADED) {
-    gROOT->GetPluginManager()->AddHandler("TVirtualStreamerInfo","*","TStreamerInfo","RIO","TStreamerInfo()");
+    if(gROOT->GetPluginManager()->FindHandler("TVirtualStreamerInfo") == NULL)
+      gROOT->GetPluginManager()->AddHandler("TVirtualStreamerInfo","*","TStreamerInfo","RIO","TStreamerInfo()");
     PLUGIN_LOADED = true;
   }
     
