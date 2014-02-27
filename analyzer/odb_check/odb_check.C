@@ -12,6 +12,7 @@
 #include "TLine.h"
 
 namespace ODB {
+  /*** Structure to contain values read in from ODB. Threshold not implemented yet. ***/
   struct WireMap {
     unsigned int n;
     std::vector<std::string> bankname;
@@ -21,6 +22,7 @@ namespace ODB {
     std::vector<int> threshold;
   };
   
+  /*** Draws plus sign with given boundaries ***/
   class PlusSign {
   private:
     TLine lHor;
@@ -32,6 +34,7 @@ namespace ODB {
       lHor.SetLineStyle(1);
       lVer.SetLineStyle(1);
     }
+    /* Set the boundaries of the plus sign (left, bottom, right, top) */
     void Set(double x1, double y1, double x2, double y2) {
       lHor.SetX1(x1);
       lHor.SetX2(x2);
@@ -42,12 +45,14 @@ namespace ODB {
       lVer.SetY1(y1);
       lVer.SetY2(y2);
     }
+    /* Draw plus sign on current canvas */
     void Draw() {
       lHor.Draw("SAME");
       lVer.Draw("SAME");
     }
   };
   
+  /*** Draws minus sign with specified boundaries ***/
   class MinusSign {
   private:
     TLine lHor;
@@ -56,26 +61,31 @@ namespace ODB {
       lHor.SetLineColor(kRed);
       lHor.SetLineStyle(1);
     }
+    /* Set the position of the minus sign (left limit, vertical position, right limit) */
     void Set(double x1, double y1, double x2) {
       lHor.SetX1(x1);
       lHor.SetY1(y1);
       lHor.SetX2(x2);
       lHor.SetY2(y1);
     }
+    /* Draw minus sign on current canvas */
     void Draw() {
       lHor.Draw("SAME");
     }
   };
-  
+ 
+  /*** Draws plus/minus sign with specified boundaries. Sign depends on polarity argument passed to Draw ***/
   class PolaritySign {
   private:
     PlusSign p;
     MinusSign m;
   public:
+    /* Set the boundaries box of the plus/minus signs to draw */
     void Set(double x1, double y1, double x2, double y2) {
       p.Set(x1, y1, x2, y2);
       m.Set(x1, y1, x2);
     }
+    /* Draw a plus sign if the polarity is positive, minus sign if the polairty is negative. */
     void Draw(int pol) {
       if (pol >= 0)
 	p.Draw();
@@ -84,17 +94,20 @@ namespace ODB {
     }
   };
   
+  /*** Draws two horizontal lines at the ODB value and at the estimated value ***/
   class Pedestals {
   private:
     TLine odb;
     TLine guess;
   public:
+    /* Both lines are black. ODB value is solid horizontal line, estimate is dashed */
     Pedestals() {
       odb.SetLineColor(kBlack);
       guess.SetLineColor(kBlack);
       odb.SetLineStyle(1);
       guess.SetLineStyle(2);
     }
+    /* Set the horizontal limits for lines, and then the pedestal from the ODB (p_file) and the pedestal estimate (p_guess) */ 
     void Set(double x1, double x2, double p_file, double p_guess) {
       odb.SetX1(x1);
       odb.SetY1(p_file);
@@ -105,12 +118,14 @@ namespace ODB {
       guess.SetX2(x2);
       guess.SetY2(p_guess);
     }
+    /* Draw the two lines on the current canvas */
     void Draw() {
       odb.Draw("SAME");
       guess.Draw("SAME");
     }
   };
   
+  /*** This class will someday draw the ODB threshold value, and then the estimated threshold value ***/
   class Threshold {
   private:
     TLine th;
@@ -130,6 +145,7 @@ namespace ODB {
     }
   };
 
+  /*** Class to make certain estimates given a Shapes histogram. Currently estimates pedestal and polarity. ***/
   class PulseEstimate {
   private:
     int fPedestal;
@@ -137,6 +153,11 @@ namespace ODB {
   public:
     PulseEstimate() : fPedestal(0), fPolarity(0) {
     }
+    /* Estimates parameters of shapes histogram */
+    /*
+      Pedestal: Looks for the most common ADC value
+      Polarity: Looks at the max and min ADC value and whichever is further from the estimated pedestal sets the polarity.
+    */
     void Estimate(TH2* pulses) {
       TH1D* proj_y = pulses->ProjectionY("_py",1);
       fPedestal = (int)proj_y->GetBinCenter(proj_y->GetMaximumBin());
@@ -160,38 +181,6 @@ namespace ODB {
       else
 	fPolarity = -1;
     }
-    void Estimate2(TH2* pulses) {
-      std::map<int,int> sampcnt;
-      TProfile* prof;
-      prof = pulses->ProfileX();
-      prof->Rebin(4);
-      int bc;
-      int min, max;
-      min = max = (int)prof->GetBinContent(1);
-      for (int i = 1; i <= prof->GetNbinsX(); ++i) {
-	bc = (int)prof->GetBinContent(i);
-	if (bc == 0)
-	  continue;
-	if (bc > max)
-	  max = bc;
-	else if (bc < min)
-	  min = bc;
-	if (sampcnt.count(bc) == 0)
-	  sampcnt[bc] = 0;
-	sampcnt[bc]++;
-      }
-      std::map<int,int>::iterator i, j;
-      i = j = sampcnt.begin();
-      for (; i != sampcnt.end(); ++i)
-	if (i->second > j->second)
-	  j = i;
-      fPedestal = j->first;
-      
-      if (max - fPedestal > fPedestal - min)
-	fPolarity = 1;
-      else
-	fPolarity = -1;
-    }
     int GetPedestal() const {
       return fPedestal;
     }
@@ -205,6 +194,12 @@ namespace ODB {
     }
   };
   
+  /*** Class to draw all things associated with a Shapes histogram ***/
+  /*
+    Sign: Plus or minus sign depending on polairty in ODB
+    Pedestals: The ODB pedestal and estimated pedestal
+    Thresholds: Not implemented, but supposed to be the thresholds
+  */
   class ODBDraw {
   private:
     PolaritySign fDPol;
@@ -212,11 +207,13 @@ namespace ODB {
     Threshold fDThresh;
     TH2* fPulses;
     int fPolarity_ODB;
+    int fPolarity_EST;
   public:
     ODBDraw() : fDPol(), fDPed(), fDThresh(),
 		fPulses(NULL), fPolarity_ODB(1) {
     }
   public:
+    /* Set all the pedestals and polarities based on ODB values and estimates */
     void Set(TH2* pulses, const WireMap& odb, int i, const PulseEstimate& est) {
       fPulses = pulses;
       double x1 = fPulses->GetXaxis()->GetBinLowEdge(1);
@@ -226,22 +223,25 @@ namespace ODB {
       double dx = x2-x1;
       double dy = y2-y1;
       fPolarity_ODB = odb.polarity[i];
+      fPolarity_EST = est.GetPolarity();
       fDPol.Set(x2-0.1*dx, y2-0.1*dy, x2, y2);
       fDPed.Set(x1, x2, (double)odb.pedestal[i], (double)est.GetPedestal());
       //fDThresh.Set(x1, (double)odb.threshold[i], x2, (double)odb.threshold[i]);
     }
+    /* Draw pedestals, sign, and Shapes */
     void Draw() {
       fPulses->Draw("COLZ");
       fDPol.Draw(fPolarity_ODB);
       fDPed.Draw();
-      //fDThresh.Draw();
+      //fDThresh.Draw(); // Not implemented yet
     }
   };
   
+  /*** Stoes directory information for raw data (in case no ODB file available), ODB location, histograms location, and where to save the correction files ***/
   class DataDir {
   private:
     std::string fRawExt, fODBExt, fHistExt, fCorrExt;
-    std::string fRawDir, fODBDir, fHistDir,fCorrDir;
+    std::string fRawDir, fODBDir, fHistDir, fCorrDir;
     std::string fRawPre, fODBPre, fHistPre, fCorrPre;
   public:
     DataDir() : fRawExt(".mid"), fODBExt(".odb"), fHistExt(".root"), fCorrExt(".dat"),
@@ -249,6 +249,7 @@ namespace ODB {
 		fRawPre("run"), fODBPre("run"), fHistPre("hist"), fCorrPre("correct") {
     }
   private:
+    /* Return 5 character string with run number. Could be accomplished with a single printf statement */
     std::string GetCanonicalRun(int run) {
       const std::string def("00000");
       stringstream num;
@@ -312,7 +313,11 @@ namespace ODB {
     }
   };
   
-  
+  /*** The workhorse. Gets ODB information for several values,
+       makes estimates based on respective Shapes histogram,
+       then outputs correction file if estimates are
+       different. If not set to batch mode, draws Shapes
+       histogram and superimposes estimates. ***/
   class ODBCheck {
   private:
     int fRun;
@@ -325,6 +330,7 @@ namespace ODB {
     bool fBatchMode;
     bool fOutputCorrections;
     std::ofstream fCorrectionsFile;
+
   public:
     ODBCheck() : fRun(0), fCanvas("c","Check"), fODBDraw(),
 		 fODB(), fDataDirs(), fLoadODBFile(true),
@@ -332,18 +338,22 @@ namespace ODB {
 		 fCorrectionsFile() {
       fCanvas.SetLogz();
     }
+
     void SetDirs(const std::string& raw, const std::string& odb, const std::string& hist, const std::string& corr) {
       fDataDirs.SetRawDir(raw);
       fDataDirs.SetODBDir(odb);
       fDataDirs.SetHistDir(hist);
       fDataDirs.SetCorrDir(corr);
     }
+
     void SetDirs() {
       fDataDirs.SetRawDir();
       fDataDirs.SetODBDir();
       fDataDirs.SetHistDir();
       fDataDirs.SetCorrDir();
     }
+
+    /* When in batch mode, do not do any drawings or pause for any input */
     void SetBatchMode() {
       fBatchMode = true;
       fCanvas.Close();
@@ -358,6 +368,7 @@ namespace ODB {
 	fCorrectionsFile.close();
     }
   private:
+    /* Read in ODB values from ODB file or raw data file depending on flag*/ 
     void LoadODBValues() {
       static std::string header("");
       static std::string bankname_key("BankName");
@@ -375,12 +386,14 @@ namespace ODB {
 	ifname = fDataDirs.GetRawFileName(fRun);
 	header = "[Analyzer/WireMap]";
       }
+
       // Clear WireMap
       fODB.n = 0;
       fODB.bankname.clear();
       fODB.detname.clear();
       fODB.pedestal.clear();
       fODB.polarity.clear();
+
       // Look through MIDAS or ODB file for appropriate banks
       std::ifstream f(ifname.c_str());
       std::string str;
@@ -437,6 +450,8 @@ namespace ODB {
 	}
       }
     }
+
+    /* Open corrections file and write out header */
     void InitiateCorrectionsFile() {
       fCorrectionsFile.open(fDataDirs.GetCorrFileName(fRun).c_str());
       if (fCorrectionsFile.is_open())
@@ -446,6 +461,8 @@ namespace ODB {
       else
 	std::cout << "ODBCheck ERROR: Cannot open correction file (" << fDataDirs.GetCorrFileName(fRun) << ")!" << std::endl;
     }
+
+    /* Check if the estimates are different than the ODB values, and output appropriate line if so to corrections file */
     void OutputCorrectionsIfNeeded(unsigned int i) {
       if (fCorrectionsFile.is_open()) {
 	  if (fODB.pedestal[i] != fEstimate.GetPedestal())
@@ -454,7 +471,9 @@ namespace ODB {
 	    fCorrectionsFile << fODB.bankname[i] << "\tPolarity\t" << fEstimate.GetPolarity() << std::endl;
       }
     }
+
   public:
+    /* Run the check on a run */
     void Check(int run) {
       std::string opt;
       if (fRun != run) {
@@ -493,22 +512,27 @@ namespace ODB {
 	}
       } 
     }
+
+    /* Set flag to read ODB values from ODB file */
     void LoadODBFromODBFile() {
       fLoadODBFile = true;
     }
+    /* Setflag to read ODB values from raw data file */
     void LoadODBFromDataFile() {
       fLoadODBFile = false;
     }
   };
 }
 
+
+/* The main part of the script */
 void odb_check(int run) {
   using namespace ODB;
   ODBCheck x;
-  std::string raw_dir("/gpfs/home/quirk_j/data/raw/");
-  std::string odb_dir("/gpfs/home/quirk_j/data/odb/");
-  std::string hist_dir("/gpfs/home/quirk_j/data/hist/");
-  std::string corr_dir("/gpfs/home/quirk_j/data/corr/");
+  std::string raw_dir("../../../data/raw/");
+  std::string odb_dir("../../../data/odb/");
+  std::string hist_dir("../../../data/hist/");
+  std::string corr_dir("../../../data/corr/");
   x.SetDirs(raw_dir, odb_dir, hist_dir, corr_dir);
   x.LoadODBFromODBFile();
   x.SetBatchMode();
