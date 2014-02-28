@@ -10,7 +10,7 @@ extern TROOT* gROOT;
 
 void usage() {
   using namespace std;
-  cout << "usage: odb_check [-h | --help] [--usage] -d data_dir [-r first_run last_run] [run1 [run2...]]" << endl;
+  cout << "usage: odb_check [-h | --help] [--usage] -d data_dir [-c corr_dir] [-r first_run last_run] [run1 [run2...]]" << endl;
 }
 
 void help() {
@@ -20,16 +20,19 @@ void help() {
     "odb_check: Read in shapes histogram from alcapana output files," << endl <<
     "           estimate certain values, and then output to corrections file." << endl <<
     "-d       : Followed by place where hist directory and corr directory are." << endl <<
-    "           The corrections files are saves to data_dir/corr/" << endl <<
+    "           The corrections files are saves to data_dir/corr/ if" << endl <<
+    "           -c flag is no specified." << endl <<
+    " -c      : The directory where the correction files are stored. If not specified," << endl <<
+    "           data_dir/corr/ is assumed." << endl <<
     "-r       : Followed by two numbers indicating a range of runs to process." << endl <<
     "run1...  : Any arguments not associated with a flag are assumed to be run" << endl <<
     "           numbers to process." << endl;
 }
 
-bool parse_args(int argc, char* argv[], std::vector<int>& runs, std::string& data_dir) {
+bool parse_args(int argc, char* argv[], std::vector<int>& runs, std::string& data_dir, std::string& corr_dir) {
   for (int i = 1; i < argc; ++i) {
     std::string iarg(argv[i]);
-    if (iarg == "-h" || iarg == "--help") {
+    if (argc == 1 || iarg == "-h" || iarg == "--help") {
       help();
       return false;
     } else if (iarg == "--usage") {
@@ -38,10 +41,21 @@ bool parse_args(int argc, char* argv[], std::vector<int>& runs, std::string& dat
     } else if (iarg == "-d") {
       if (++i != argc) {
 	data_dir = std::string(argv[i]);
+	if (data_dir[data_dir.size() - 1] != '/')
+	  data_dir += '/';
 	continue;
       } else {
 	std::cout << "ERROR: Nothing following -d flag!" << std::endl;
 	return false;
+      }
+    } else if (iarg == "-c") {
+      if (++i != argc) {
+	corr_dir = std::string(argv[i]);
+	if (corr_dir[corr_dir.size() - 1] != '/')
+	  corr_dir += '/';
+	continue;
+      } else {
+	std::cout << "ERROR: Nothing following -c flag!" << std::endl;
       }
     } else if (iarg == "-r") {
       std::stringstream ss;
@@ -91,6 +105,8 @@ bool parse_args(int argc, char* argv[], std::vector<int>& runs, std::string& dat
     std::cout << "ERROR: No data directory indicated!" << std::endl;
     return false;
   }
+  if (corr_dir.size() == 0)
+    corr_dir = data_dir + "corr/";
   return true;
 }
 
@@ -102,18 +118,15 @@ int main(int argc, char* argv[]) {
   // Next, process command line arguments
   std::vector<int> runs;
   std::string data_dir;
-  if (!parse_args(argc, argv, runs, data_dir))
+  std::string corr_dir;
+
+  if (!parse_args(argc, argv, runs, data_dir, corr_dir))
     return 1;
-  
-  // Check if data directory ends in /
-  if (data_dir[data_dir.size() - 1] != '/')
-    data_dir += "/";
 
   ODBCheck x;
   std::string raw_dir = data_dir + "raw/";
   std::string odb_dir = data_dir + "odb/";
   std::string hist_dir = data_dir + "hist/";
-  std::string corr_dir = data_dir + "corr/";
   x.SetDirs(raw_dir, odb_dir, hist_dir, corr_dir);
   x.LoadODBFromODBFile();
   for (int r = 0; r < (int)runs.size(); ++r) {
