@@ -494,6 +494,7 @@ namespace ODB {
 	    fODBDraw.Draw();
 	    fCanvas.Update();
 	    std::cout <<
+	      "Bank (Detector): " << fODB.bankname[i] << "(" << fODB.detname[i] << ")" << std::endl <<
 	      "Pedestal (ODB): " << fODB.pedestal[i] << std::endl <<
 	      "Polarity (ODB): " << fODB.polarity[i] << std::endl;
 	    fEstimate.Print();
@@ -535,6 +536,5 @@ void odb_check(int run) {
   std::string corr_dir("../../../data/corr/");
   x.SetDirs(raw_dir, odb_dir, hist_dir, corr_dir);
   x.LoadODBFromODBFile();
-  x.SetBatchMode();
   x.Check(run);
 }
