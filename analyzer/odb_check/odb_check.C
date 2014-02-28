@@ -11,6 +11,11 @@
 #include "TProfile.h"
 #include "TLine.h"
 
+#include "TROOT.h"
+#include "TPluginManager.h"
+
+extern TROOT* gROOT;
+
 namespace ODB {
   /*** Structure to contain values read in from ODB. Threshold not implemented yet. ***/
   struct WireMap {
@@ -528,6 +533,11 @@ namespace ODB {
 
 /* The main part of the script */
 void odb_check(int run) {
+
+  // Make sure we can load files
+  if(gROOT->GetPluginManager()->FindHandler("TVirtualStreamerInfo") == NULL)
+    gROOT->GetPluginManager()->AddHandler("TVirtualStreamerInfo","*","TStreamerInfo","RIO","TStreamerInfo()");
+
   using namespace ODB;
   ODBCheck x;
   std::string raw_dir("../../../data/raw/");
