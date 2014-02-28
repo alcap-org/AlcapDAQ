@@ -142,7 +142,7 @@ void ODBCheck::OutputCorrectionsIfNeeded(unsigned int i, TH2* s, TH1* t) {
     }
     if (t && t->GetEntries()) {
       if (i >= fODB.offset.size() || fODB.offset[i] != fEstimate.GetOffset())
-	fCorrectionsFile << fODB.bankname[i] << "\tTimeOffset\t" << fEstimate.GetOffset() << std::endl;
+	fCorrectionsFile << fODB.bankname[i] << "\tTimeShift\t" << fEstimate.GetOffset() << std::endl;
     }
   }
 }
