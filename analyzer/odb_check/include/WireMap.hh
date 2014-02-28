@@ -8,4 +8,5 @@ struct WireMap {
   std::vector<int> pedestal;
   std::vector<int> polarity;
   std::vector<int> threshold;
+  std::vector<int> offset;
 };

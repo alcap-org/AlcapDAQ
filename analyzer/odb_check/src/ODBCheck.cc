@@ -33,7 +33,7 @@ void ODBCheck::LoadODBValues() {
   static std::string enabled_key("Enabled");
   static std::string polarity_key("TriggerPolarity");
   static std::string pedestal_key("Pedestal");
-  static std::string timeshift_key("TimeShift");
+  static std::string offset_key("TimeShift");
   static char tmp[256];
   std::string ifname;
   if (fLoadODBFile) {
@@ -50,6 +50,7 @@ void ODBCheck::LoadODBValues() {
   fODB.detname.clear();
   fODB.pedestal.clear();
   fODB.polarity.clear();
+  fODB.offset.clear();
   
   // Look through MIDAS or ODB file for appropriate banks
   std::ifstream f(ifname.c_str());
@@ -96,16 +97,25 @@ void ODBCheck::LoadODBValues() {
 	    f >> x;
 	    fODB.polarity.push_back(x);
 	  }
+	} else if (str == offset_key) {
+	  f.getline(tmp, 256);
+	  for (unsigned int i = 0; i < fODB.n; ++i) {
+	    f >> str;
+	    f >> x;
+	    fODB.offset.push_back(x);
+	  }
 	}
 	if (fODB.n != 0 &&
 	    fODB.bankname.size() == fODB.n &&
 	    fODB.detname.size() == fODB.n &&
 	    fODB.pedestal.size() == fODB.n &&
-	    fODB.polarity.size() == fODB.n)
+	    fODB.polarity.size() == fODB.n &&
+	    fODB.offset.size() == fODB.n)
 	  return;
       }
     }
   }
+  std::cout << "Warning: Didn't find everything in the ODB!" << std::endl;
 }
 
 void ODBCheck::InitiateCorrectionsFile() {
@@ -122,12 +132,18 @@ void ODBCheck::InitiateCorrectionsFile() {
       fDataDirs.GetCorrFileName(fRun) << ")!" << std::endl;
 }
 
-void ODBCheck::OutputCorrectionsIfNeeded(unsigned int i) {
+void ODBCheck::OutputCorrectionsIfNeeded(unsigned int i, TH2* s, TH1* t) {
   if (fCorrectionsFile.is_open()) {
-    if (fODB.pedestal[i] != fEstimate.GetPedestal())
-      fCorrectionsFile << fODB.bankname[i] << "\tPedestal\t" << fEstimate.GetPedestal() << std::endl;
-    if (fODB.polarity[i] != fEstimate.GetPolarity())
-      fCorrectionsFile << fODB.bankname[i] << "\tPolarity\t" << fEstimate.GetPolarity() << std::endl;
+    if (s && s->GetEntries()) {
+      if (i >= fODB.pedestal.size() || fODB.pedestal[i] != fEstimate.GetPedestal())
+	fCorrectionsFile << fODB.bankname[i] << "\tPedestal\t" << fEstimate.GetPedestal() << std::endl;
+      if (i >= fODB.pedestal.size() || fODB.polarity[i] != fEstimate.GetPolarity())
+	fCorrectionsFile << fODB.bankname[i] << "\tPolarity\t" << fEstimate.GetPolarity() << std::endl;
+    }
+    if (t && t->GetEntries()) {
+      if (i >= fODB.offset.size() || fODB.offset[i] != fEstimate.GetOffset())
+	fCorrectionsFile << fODB.bankname[i] << "\tTimeOffset\t" << fEstimate.GetOffset() << std::endl;
+    }
   }
 }
 
@@ -142,14 +158,19 @@ void ODBCheck::Check(int run) {
   }
   for (unsigned int i = 0; i < fODB.n; ++i) {
     TH2* shapes;
+    TH1* timing;
     hist_file.GetObject(("h" + fODB.bankname[i] + "_Shapes").c_str(), shapes);
-    if (shapes) {
+    hist_file.GetObject(("MuSC_TimingCorrelations/hMuSC_" + fODB.detname[i] + "_Timediff").c_str(), timing);
+    if (timing)
+      std::cout << "Found timing histogram!" << std::endl;
+    else
+      std::cout << "Couldn't find timing histogram " << ("MuSC_TimingCorrelations/hMuSC_" + fODB.detname[i] + "_Timediff").c_str() << std::endl;
+    if (shapes && shapes->GetEntries())
       fEstimate.Estimate(shapes);
-      if (shapes->GetEntries()) {
-	OutputCorrectionsIfNeeded(i);
-      }
-    }
-  } 
+    if (timing && timing->GetEntries())
+      fEstimate.Estimate(timing);
+    OutputCorrectionsIfNeeded(i, shapes, timing);
+  }
 }
 
 void ODBCheck::LoadODBFromODBFile() {

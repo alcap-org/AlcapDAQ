@@ -7,8 +7,11 @@
 PulseEstimate::PulseEstimate() : fPedestal(0), fPolarity(0) {}
 
 void PulseEstimate::Estimate(TH2* pulses) {
+  /* Get pedestal */
   TH1D* proj_y = pulses->ProjectionY("_py",1);
   fPedestal = (int)proj_y->GetBinCenter(proj_y->GetMaximumBin());
+
+  /* Get polarity */
   int min = 0, max = 0;
   bool min_found = false, max_found = false;
   int nbins = proj_y->GetNbinsX();
@@ -24,10 +27,16 @@ void PulseEstimate::Estimate(TH2* pulses) {
     if (min_found && max_found)
       break;
   }
+
   if (max - fPedestal > fPedestal - min)
     fPolarity = 1;
   else
     fPolarity = -1;
+}
+
+void PulseEstimate::Estimate(TH1* timing) {
+  /* Get time offset */
+  fOffset = timing->GetBinCenter(timing->GetMaximumBin());
 }
 
 int PulseEstimate::GetPedestal() const {
@@ -36,4 +45,8 @@ int PulseEstimate::GetPedestal() const {
 
 int PulseEstimate::GetPolarity() const {
   return fPolarity;
+}
+
+int PulseEstimate::GetOffset() const {
+  return fOffset;
 }

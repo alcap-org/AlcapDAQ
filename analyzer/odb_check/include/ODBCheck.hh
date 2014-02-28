@@ -5,6 +5,9 @@
 #include "DataDir.hh"
 #include "PulseEstimate.hh"
 
+#include "TH1.h"
+#include "TH2.h"
+
 #include <string>
 #include <fstream>
 
@@ -30,7 +33,7 @@ public:
 private:
   void LoadODBValues();
   void InitiateCorrectionsFile();
-  void OutputCorrectionsIfNeeded(unsigned int i);
+  void OutputCorrectionsIfNeeded(unsigned int bank_index, TH2* shapes, TH1* timing);
 
 public:
   void Check(int run);
