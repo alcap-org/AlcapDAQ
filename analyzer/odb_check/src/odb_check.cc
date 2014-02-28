@@ -30,9 +30,13 @@ void help() {
 }
 
 bool parse_args(int argc, char* argv[], std::vector<int>& runs, std::string& data_dir, std::string& corr_dir) {
+  if (argc == 1) {
+    help();
+    return false;
+  }
   for (int i = 1; i < argc; ++i) {
     std::string iarg(argv[i]);
-    if (argc == 1 || iarg == "-h" || iarg == "--help") {
+    if (iarg == "-h" || iarg == "--help") {
       help();
       return false;
     } else if (iarg == "--usage") {
