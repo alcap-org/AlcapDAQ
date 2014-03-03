@@ -1,6 +1,7 @@
 DIRS += src/
 
 SOURCES += \
+utils.cpp \
 main.cpp \
 MakeAnalysedPulses.cpp\
 FillHistBase.cpp \
