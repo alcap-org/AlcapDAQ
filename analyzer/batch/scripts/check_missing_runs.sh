@@ -6,7 +6,7 @@
 
 if [ $# -ne 2 ] ; then
   echo "Incorrect! Usage: ./check_missing_runs.sh FIRST_RUN LAST_RUN"
-  return 
+  exit 1
 fi
 
 FIRST_RUN=$1
