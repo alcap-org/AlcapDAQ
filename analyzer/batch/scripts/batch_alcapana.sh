@@ -176,8 +176,6 @@ for IRUN in $RUNS; do
 
     OLOG="$LOGDIR/alcapana.run$(runcanon $IRUN).out"
     ELOG="$LOGDIR/alcapana.run$(runcanon $IRUN).err"
-    rm -f $OLOG
-    rm -f $ELOG
 
     while [ $(flagcount $FLGDIR) -ge $NJOBS ]; do
 	sleep $DT
@@ -194,6 +192,9 @@ for IRUN in $RUNS; do
 	echo "WARNING: It seems a tree or hist file for run $IRUN exists!"
 	continue
     fi
+    
+    rm -f $OLOG
+    rm -f $ELOG
 
     echo "Downloading run $IRUN..."
     wget -c --user=$FTPUSER --password=$FTPPSWD $FTPSRVR/$FTPDIR/$(runfilecanon $IRUN)
