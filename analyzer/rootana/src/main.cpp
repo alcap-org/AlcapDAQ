@@ -40,7 +40,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments);
 void ClearGlobalData(TGlobalData*);
 TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
-Int_t PrepareModules();
+Int_t PrepareModules(const ARGUMENTS&);
 
 static TGlobalData *g_event=NULL;
 static TFile *gInFile=NULL;
@@ -104,7 +104,7 @@ int main(int argc, char **argv){
   }
 
   // Now let's setup all the analysis modules we want
-  ret= PrepareModules();
+  ret= PrepareModules(arguments);
   if(ret!=0) {
      printf("Problem setting up analysis modules.");
      return ret;
@@ -329,10 +329,10 @@ Int_t PrepareAnalysedPulseMap(TFile* fileOut){
    return 0;
 }
 
-Int_t PrepareModules(){
+Int_t PrepareModules(const ARGUMENTS& arguments){
 
   modules::reader modules_file;
-  modules_file.ReadFile("MODULES");
+  modules_file.ReadFile(arguments.mod_file);
   modules_file.PrintAllOptions();
 
   modules::manager* mgr = modules::manager::Instance();
