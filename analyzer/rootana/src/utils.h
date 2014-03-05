@@ -7,6 +7,7 @@ typedef struct {
   char *infile;
   char *outfile;
   char *correction_file;
+  char *mod_file;
   int start;
   int stop;
   int run;

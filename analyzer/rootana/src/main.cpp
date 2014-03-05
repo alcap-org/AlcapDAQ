@@ -9,6 +9,7 @@
 #include "utils.h" // Provides analyze_command_line()
 
 // Modules list
+#include "ModulesReader.h"
 #include "FillHistBase.h"
 #include "AnalysePulseIsland.h"
 #include "CheckCoincidence.h"
@@ -60,7 +61,7 @@ TGlobalData* TGlobalData::Instance()
 }
 
 int main(int argc, char **argv){
-    load_config_file("MODULES.txt");
+  //load_config_file("MODULES.txt");
 
   ARGUMENTS arguments;
   int ret = analyze_command_line (argc, argv,arguments);
@@ -330,27 +331,21 @@ Int_t PrepareAnalysedPulseMap(TFile* fileOut){
 
 Int_t PrepareModules(){
 
-  fillhists = new FillHistBase *[50]; // increase if more than 20 modules
-  n_fillhist = 0;  // number of modules (global variable)
-	// this is needed to save analysed tree
-  fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysedPulseIsland");
+  modules::reader modules_file;
+  modules_file.ReadFile("MODULES");
+  modules_file.PrintAllOptions();
 
-	//fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
-	//fillhists[n_fillhist++] = new PlotTime("PlotTime");
-	
-	// EvdE
-	//char foldername[256];
-	//double t0 = 1000;
-	//double t1 = 6000;
-	//sprintf(foldername,"%s_%d_%d","EvdE",int(t0),int(t1));
-	//fillhists[n_fillhist++] = new EvdE(foldername, t0,t1);
-	
+  modules::manager* mgr = modules::manager::Instance();
+  size_t num_modules=modules_file.GetNumModules();
+  std::string name;
+  modules::options* opts;
+  //modules::ModuleBase *mods[num_modules];
+  fillhists = new FillHistBase *[num_modules]; 
+  for(unsigned i=0;i<num_modules;i++){
+          name = modules_file.GetModule(i);
+          opts =  modules_file.GetOptions(i);
+          fillhists[i] = mgr->createModule(name,opts);
+  }
 
-	// Amplitude, Xray
-  //fillhists[n_fillhist++] = new 
-		//CoincidenceCut("CoincidenceCut_MuSc-GeF_500ns", "muSc","Ge-F", -500,500);
-  //fillhists[n_fillhist++] = new 
-		//CoincidenceCut("CoincidenceCut_MuSc-GeS_500ns", "muSc","Ge-S", -500,500);
-  //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_500nsCut");
   return 0;
 }

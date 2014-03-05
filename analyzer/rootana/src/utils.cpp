@@ -14,6 +14,7 @@ void help_command_line(char *my_name){
   fprintf (stderr,"     <first> <last>\t Analyze only events from "
 	   "<first> to <last>.\n");
   fprintf (stderr,"  -r <PSI run number>\t\t Run number specification for the shrubs.\n");
+  fprintf (stderr,"  -m <modules file>\t\t Name of the MODULES file to be used.\n");
   fprintf (stderr,"\n");
   return;
 }
@@ -35,6 +36,7 @@ int GetRunNumber(char* input_file){
 }
 
 static char correction_file[300];
+static char mod_file[300];
 int check_arguments(ARGUMENTS& arguments){
   if(arguments.stop >0){
     if(arguments.stop <= arguments.start){
@@ -55,6 +57,10 @@ int check_arguments(ARGUMENTS& arguments){
   if(arguments.run==-1){
     // No run number has been set, obtain it from the filename
     arguments.run=GetRunNumber(arguments.infile);
+  }
+  if(strcmp(arguments.mod_file,"")==0){
+    sprintf(mod_file,"MODULES");
+    arguments.mod_file=mod_file;
   }
   if(strcmp(arguments.correction_file,"")==0){
     sprintf(correction_file,"wiremap_corrections/correct%d.dat",arguments.run);
@@ -99,6 +105,16 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments){
       help_command_line(argv[0]); return 1;
    }
    switch(argv[i][1]){
+   case 'm':
+     if(i+1 < argc){
+       arguments.mod_file = argv[i+1];
+       i+=2;
+     }
+     else{
+       printf("ERROR: No argument for module file specified\n");
+       help_command_line(argv[0]); return 1;
+     }
+     break;
    case 'i':
      if(i+1 < argc){
        arguments.infile = argv[i+1];
