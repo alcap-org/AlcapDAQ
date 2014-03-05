@@ -15,6 +15,8 @@ namespace modules{
 class modules::reader{
 	typedef std::vector<std::string> OptionsList;
 	typedef std::map<std::string,modules::options* > SectionsList;
+	typedef std::vector<std::pair<std::string, modules::options*> > ModuleList;
+
     public:
 	reader(){};
 	virtual ~reader(){};
@@ -25,21 +27,28 @@ class modules::reader{
 	int FillSectionsList(std::ifstream& infile);
 	void PrintAllOptions()const;
 
+
     private:
-	void AddSection(const std::string& name);
+	bool AddSection(const std::string& name);
+	int AddModule(std::string line);
 	void AddOption(const std::string& module, const std::string& line);
 	int MakeModules(const SectionsList&);
 	bool isComment( std::stringstream& line);
-	std::string findModuleName( std::stringstream& line);
+	std::string findSectionName( std::stringstream& line);
 
     private:
 	SectionsList fAllOptions;
+	ModuleList fModules;
 	static const char* fGlobalModule;
+	int fLineNumber;
 };
 
-inline void modules::reader::AddSection(const std::string& name){
-    if(!fAllOptions[name])
+inline bool modules::reader::AddSection(const std::string& name){
+    if(!fAllOptions[name]){
 	fAllOptions[name] =new modules::options();
+	return true;
+    }
+    return false;
 }
 
 #endif // MODULESREADER__HH_

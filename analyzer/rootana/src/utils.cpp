@@ -182,6 +182,8 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments){
 int load_config_file(const char* filename){
     modules::reader modules_file;
     modules_file.ReadFile(filename);
+    printf("\n");
+    printf("Printing options:\n");
     modules_file.PrintAllOptions();
 
     return 0;
