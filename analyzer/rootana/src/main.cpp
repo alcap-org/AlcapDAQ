@@ -205,6 +205,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   return q;
   }
   
+  printf("Finished processing data normally\n");
   return 0;
 }
 
@@ -341,10 +342,13 @@ Int_t PrepareModules(const ARGUMENTS& arguments){
   modules::options* opts;
   //modules::ModuleBase *mods[num_modules];
   fillhists = new FillHistBase *[num_modules]; 
-  for(unsigned i=0;i<num_modules;i++){
+  FillHistBase* mod=NULL;
+  for(unsigned i=0, count=0;i<num_modules;i++){
           name = modules_file.GetModule(i);
           opts =  modules_file.GetOptions(i);
-          fillhists[i] = mgr->createModule(name,opts);
+	  mod = mgr->createModule(name,opts);
+	  if(mod) 
+          fillhists[++count] =mod;
   }
 
   return 0;

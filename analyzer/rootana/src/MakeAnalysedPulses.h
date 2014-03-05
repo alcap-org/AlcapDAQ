@@ -8,6 +8,7 @@
 #include "FillHistBase.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
+#include "ModulesOptions.h"
 
 class TVAnalysedPulseGenerator;
 class TPulseIsland;
@@ -21,6 +22,7 @@ class MakeAnalysedPulses : public FillHistBase{
 
  public:
   MakeAnalysedPulses(char *HistogramDirectoryName, const char* fastGen="", const char* slowGen="");
+  MakeAnalysedPulses(modules::options* opts);
   ~MakeAnalysedPulses();
 
   void SetGenerators(const std::string& fastGen, const std::string& slowGen=""){

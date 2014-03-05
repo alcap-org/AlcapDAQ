@@ -3,8 +3,8 @@
 
 # The first section must begin with [MODULES] and contain a list of all the modules we want to run with
 [ MODULES ]
-one = AnalysePulseIslands (arg_one, arg_two)
-three  = AnalysePulseIslands (     arg_one, arg_two )
+one = MakeAnalysedPulses ( MaxBin, MaxBin)
+#three  = MakeAnalysedPulses (     arg_one, arg_two )
 two(hello,there,1.23423423423   );
 
 # each subsequent section lists the options for each module above

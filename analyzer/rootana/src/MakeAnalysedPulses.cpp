@@ -18,6 +18,21 @@ MakeAnalysedPulses::MakeAnalysedPulses(
 	dir->cd("/");
 }
 
+MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
+   FillHistBase("MakeAnalysedPulses"),
+    fSlowGenerator(NULL),
+    fFastGenerator(NULL){
+	fSlowGeneratorType=opts->GetString("slow_gen");
+	fFastGeneratorType=opts->GetString("fast_gen");
+	if(fSlowGeneratorType==""){
+	    fSlowGeneratorType=opts->GetString("0");
+	}
+	if(fFastGeneratorType==""){
+	    fFastGeneratorType=opts->GetString("1");
+	}
+	dir->cd("/");
+}
+
 MakeAnalysedPulses::~MakeAnalysedPulses(){
     if(fFastGenerator) delete fFastGenerator;
     if(fSlowGenerator) delete fSlowGenerator;
@@ -76,3 +91,5 @@ TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& genera
     }
     return generator;
 }
+
+ALCAP_REGISTER_MODULE(MakeAnalysedPulses)
