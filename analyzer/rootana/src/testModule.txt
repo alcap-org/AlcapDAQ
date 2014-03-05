@@ -2,12 +2,12 @@
 # comments start with a hash (#)
 
 # The first section must begin with [MODULES] and contain a list of all the modules we want to run with
-[MODULES]
+[ MODULES ]
 one
 two
 
 # each subsequent section lists the options for each module above
-[one]
+[ one ]
 option1=hei
 option2=9.444
 

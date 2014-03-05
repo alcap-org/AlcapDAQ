@@ -1,5 +1,6 @@
-#include "utils.h"
 #include <string.h>
+#include "ModulesReader.h"
+#include "utils.h"
 #include <stdio.h>
 #include <string>
 #include <stdlib.h>
@@ -179,10 +180,9 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments){
 }
 
 int load_config_file(const char* filename){
-    // Open config file
-    // Loop over each line
-    // comments begin wit a hash (#)
-    // sections are marked with [] either side of the name
-    // options use key and values separated by '='
+    modules::reader modules_file;
+    modules_file.ReadFile(filename);
+    modules_file.PrintAllOptions();
+
     return 0;
 }

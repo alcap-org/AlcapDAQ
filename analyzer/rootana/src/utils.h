@@ -17,4 +17,5 @@ bool isNumber(char *c);
 int GetRunNumber(char* input_file);
 int check_arguments(ARGUMENTS& arguments);
 int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments);
+int load_config_file(const char* filename);
 #endif

@@ -3,12 +3,13 @@
 #include <map>
 #include <string>
 
-#include "FillHistBase.h"
+//#include "FillHistBase.h"
 #include "ModulesOptions.h"
+class FillHistBase;
 
 namespace modules{
     // In the future I plan to rename the FillHistBase class, so this will help
-    typedef FillHistBase ModuleBase;
+   typedef FillHistBase ModuleBase;
     class manager;
 }
 
