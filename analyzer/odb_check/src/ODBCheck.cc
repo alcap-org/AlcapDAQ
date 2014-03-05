@@ -9,8 +9,12 @@
 #include <sstream>
 
 ODBCheck::ODBCheck() : fRun(0), fODB(), fDataDirs(),
-		       fLoadODBFile(true), fEstimate(), fCorrectionsFile() {}
+		       fLoadODBFile(true), fEstimate(), fCorrectionsFile(), fMonitorPlotsFile(NULL) { }
 
+ODBCheck::~ODBCheck() {
+  fMonitorPlotsFile->Write();
+  fMonitorPlotsFile->Close();
+}
 
 void ODBCheck::SetDirs(const std::string& raw, const std::string& odb, const std::string& hist, const std::string& corr) {
   fDataDirs.SetRawDir(raw);
@@ -132,23 +136,44 @@ void ODBCheck::InitiateCorrectionsFile() {
       fDataDirs.GetCorrFileName(fRun) << ")!" << std::endl;
 }
 
-void ODBCheck::OutputCorrectionsIfNeeded(unsigned int i, TH2* s, TH1* t) {
+void ODBCheck::OutputCorrectionsIfNeeded(unsigned int i, TH2* s, TH1* t, int run_number) {
   if (fCorrectionsFile.is_open()) {
     if (s && s->GetEntries()) {
-      if (i >= fODB.pedestal.size() || fODB.pedestal[i] != fEstimate.GetPedestal())
+      if (i >= fODB.pedestal.size() || fODB.pedestal[i] != fEstimate.GetPedestal()) {
 	fCorrectionsFile << fODB.bankname[i] << "\tPedestal\t" << fEstimate.GetPedestal() << std::endl;
-      if (i >= fODB.pedestal.size() || fODB.polarity[i] != fEstimate.GetPolarity())
+	FillMonitorPlots(fODB.bankname[i], "Pedestal", run_number, fEstimate.GetPedestal());
+      }
+      else {
+	FillMonitorPlots(fODB.bankname[i], "Pedestal", run_number, fODB.pedestal[i]);
+      }
+
+      if (i >= fODB.pedestal.size() || fODB.polarity[i] != fEstimate.GetPolarity()) {
 	fCorrectionsFile << fODB.bankname[i] << "\tPolarity\t" << fEstimate.GetPolarity() << std::endl;
+	FillMonitorPlots(fODB.bankname[i], "Polarity", run_number, fEstimate.GetPolarity());
+      }
+      else {
+	FillMonitorPlots(fODB.bankname[i], "Polarity", run_number, fODB.polarity[i]);
+      }
     }
+
     if (t && t->GetEntries()) {
-      if (i >= fODB.offset.size() || fODB.offset[i] != fEstimate.GetOffset())
+      if (i >= fODB.offset.size() || fODB.offset[i] != fEstimate.GetOffset()) {
 	fCorrectionsFile << fODB.bankname[i] << "\tTimeShift\t" << fEstimate.GetOffset() << std::endl;
+	FillMonitorPlots(fODB.bankname[i], "TimeShift", run_number, fEstimate.GetOffset());
+      }
+      else {
+	FillMonitorPlots(fODB.bankname[i], "TimeShift", run_number, fODB.offset[i]);
+      }
     }
   }
 }
 
 void ODBCheck::Check(int run) {
   TFile hist_file(fDataDirs.GetHistFileName(run).c_str(), "READ");
+
+  if (fMonitorPlotsFile == NULL)
+    fMonitorPlotsFile = new TFile("MonitorPlots.root", "RECREATE"); 
+
   if (!hist_file.IsOpen())
     return;
   if (fRun != run) {
@@ -169,7 +194,7 @@ void ODBCheck::Check(int run) {
       fEstimate.Estimate(shapes);
     if (timing && timing->GetEntries())
       fEstimate.Estimate(timing);
-    OutputCorrectionsIfNeeded(i, shapes, timing);
+    OutputCorrectionsIfNeeded(i, shapes, timing, run);
   }
 }
 
@@ -179,4 +204,21 @@ void ODBCheck::LoadODBFromODBFile() {
 
 void ODBCheck::LoadODBFromDataFile() {
   fLoadODBFile = false;
+}
+
+void ODBCheck::FillMonitorPlots(std::string bank_name, std::string fieldname, int run_number, double value) {
+
+  std::string histname = bank_name + "_" + fieldname;
+  std::map<std::string, TH1F*>& bank_to_hist_map = fHistogramMap[fieldname]; // want a reference to the actual map so that all the runs are added to the same histogram
+
+  // Try and find the histogram for this bank and if it's not there, then create it
+  if (bank_to_hist_map.find(bank_name) == bank_to_hist_map.end()) {
+    bank_to_hist_map[bank_name] = new TH1F(histname.c_str(), histname.c_str(), 100, run_number, run_number+100);
+    bank_to_hist_map[bank_name]->SetBit(TH1::kCanRebin);
+    bank_to_hist_map[bank_name]->GetXaxis()->SetTitle("Run Number");
+    bank_to_hist_map[bank_name]->GetYaxis()->SetTitle(fieldname.c_str());
+  }
+
+  // Fill the histogram
+  bank_to_hist_map[bank_name]->Fill(run_number, value);
 }
