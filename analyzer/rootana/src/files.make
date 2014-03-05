@@ -1,6 +1,9 @@
 DIRS += src/
 
 SOURCES += \
+ModulesReader.cpp\
+ModulesOptions.cpp\
+ModulesManager.cpp\
 utils.cpp \
 main.cpp \
 MakeAnalysedPulses.cpp\

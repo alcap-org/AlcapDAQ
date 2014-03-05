@@ -1,0 +1,23 @@
+## A test config modules file
+# comments start with a hash (#)
+
+# The first section must begin with [MODULES] and contain a list of all the modules we want to run with
+[MODULES]
+one
+two
+
+# each subsequent section lists the options for each module above
+[one]
+option1=hei
+option2=9.444
+
+[two]
+# options are formed by key-value pairs, separated by an equals sign.
+option3=8
+
+[three]
+option=no_options here
+
+# if we provide options for a module not listed above then they are ignored
+[four]
+option=ignored section
