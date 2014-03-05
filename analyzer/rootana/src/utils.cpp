@@ -182,9 +182,18 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments){
 int load_config_file(const char* filename){
     modules::reader modules_file;
     modules_file.ReadFile(filename);
-    printf("\n");
-    printf("Printing options:\n");
     modules_file.PrintAllOptions();
+
+    modules::manager* mgr = modules::manager::Instance();
+    size_t num_modules=modules_file.GetNumModules();
+    std::string name;
+    modules::options* opts;
+    modules::ModuleBase *mods[num_modules];
+    for(unsigned i=0;i<num_modules;i++){
+	    name = modules_file.GetModule(i);
+	    opts =  modules_file.GetOptions(i);
+	    mods[i] = mgr->createModule(name,opts);
+    }
 
     return 0;
 }

@@ -26,7 +26,7 @@ class modules::options{
 	bool HasOption(const std::string&)const;
 	std::string GetOption(const std::string&)const;
 
-	void DumpOptions()const;
+	void DumpOptions(const std::string& prefix="     ")const;
     private:
 	template <typename T>
 	    T GetOption(const std::string&)const;

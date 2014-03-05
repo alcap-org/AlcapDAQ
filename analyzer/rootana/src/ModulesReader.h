@@ -27,6 +27,10 @@ class modules::reader{
 	int FillSectionsList(std::ifstream& infile);
 	void PrintAllOptions()const;
 
+	size_t GetNumModules()const{return fModules.size();};
+	std::string GetModule(unsigned int i)const{return fModules[i].first;};
+	modules::options* GetOptions(unsigned int i)const{return fModules[i].second;};
+	void SetDebug(){fShouldPrint=true;};
 
     private:
 	bool AddSection(const std::string& name);
@@ -41,6 +45,7 @@ class modules::reader{
 	ModuleList fModules;
 	static const char* fGlobalModule;
 	int fLineNumber;
+	bool fShouldPrint;
 };
 
 inline bool modules::reader::AddSection(const std::string& name){

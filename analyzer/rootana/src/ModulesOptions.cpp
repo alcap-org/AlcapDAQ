@@ -41,10 +41,10 @@ bool modules::options::GetBool(const std::string& name)const{
 //
 //}
 
-void modules::options::DumpOptions()const{
+void modules::options::DumpOptions(const std::string& prefix)const{
     //std::cout<<"key  "<<" = "<<" value "<<std::endl;
     OptionsOrder_t::const_iterator it;
     for(it=fOrder.begin();it!=fOrder.end();it++){
-	    std::cout<<(*it)->first<<" = "<<(*it)->second<<std::endl;
+	    std::cout<<prefix<<(*it)->first<<" = "<<(*it)->second<<std::endl;
     }
 }

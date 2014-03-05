@@ -1,4 +1,8 @@
 #include "ModulesManager.h"
+#include <iostream>
+
+using std::cout;
+using std::endl;
 
 modules::ModuleBase* modules::manager::createModule(const std::string& name, modules::options* opts){
     // get the maker for the requested module
@@ -8,6 +12,9 @@ modules::ModuleBase* modules::manager::createModule(const std::string& name, mod
 	// make the module
 	maker make= it->second;
 	module=make(opts);
+    }else{
+	cout<<"Unknown module requested: "<<name<<endl;
+	return NULL;
     }
     return module;
 }

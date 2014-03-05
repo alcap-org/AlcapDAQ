@@ -57,7 +57,7 @@ int modules::reader::ReadFile(const char* name){
 	new_section=findSectionName(line);
 	if(new_section!="") {
 	    section=new_section;
-	    std::cout<<"Found new section: "<<section<<std::endl;
+	    if(fShouldPrint) std::cout<<"Found new section: "<<section<<std::endl;
 	    if(section=="MODULES") listingModules=true;
 	    else {
 		listingModules=false;
@@ -71,7 +71,7 @@ int modules::reader::ReadFile(const char* name){
 	    if(ret!=0) return ret;
 	}else{
 	    // options use key and values separated by '='
-	    std::cout<<"Found option: "<<full_line<<std::endl;
+	    if(fShouldPrint) std::cout<<"Found option: "<<full_line<<std::endl;
 	    AddOption(section,full_line);
 	}
     }
@@ -82,10 +82,10 @@ int modules::reader::OpenFile(const char* name, std::ifstream& infile){
     infile.close();
     infile.open(name, std::ifstream::in);
     if(infile.is_open()) {
-	std::cout<<"Found modules file: "<<name<<std::endl;
+	if(fShouldPrint) std::cout<<"Found modules file: "<<name<<std::endl;
 	return 0;
     }
-    std::cout<<"Problem with modules file: "<<name<<std::endl;
+    std::cout<<"Problem opening modules file: "<<name<<std::endl;
     return 1;
 }
 
@@ -154,15 +154,17 @@ int modules::reader::AddModule(std::string line){
 	    std::cout<<"Error on line "<<fLineNumber<<": no closing parenthesis for arguments of '"<<type<<"'"<<std::endl;
 	    return 2;
 	} else {
-	    std::cout<<line<<'\t'<<br_close_pos<<'\t'<<line[br_close_pos]<<std::endl;
 	    getSeveralWords(line,args,br_pos+1, br_close_pos);
 	}
     }
 
-    std::cout<<"Adding module: '"<<type<<"'"<<std::endl;
-    std::cout<<"   with name: '"<<name<<"'"<<std::endl;
-    std::cout<<"   and "<<args.size()<<" arguments:"<<std::endl;
-    for(unsigned i=0;i<args.size();i++) std::cout<<"     "<<i<<'\t'<<args[i]<<std::endl;
+    if(fShouldPrint){
+	std::cout<<"Adding module: '"<<type<<"'"<<std::endl;
+	std::cout<<"   with name: '"<<name<<"'"<<std::endl;
+	std::cout<<"   and "<<args.size()<<" arguments:"<<std::endl;
+	for(unsigned i=0;i<args.size() ;i++)
+		std::cout<<"     "<<i<<'\t'<<args[i]<<std::endl;
+    }
 
     //Add the module to the list of modules
     modules::options* opts;
@@ -197,15 +199,19 @@ void modules::reader::AddOption(const std::string& module, const std::string& li
 
 void modules::reader::PrintAllOptions()const{
     ModuleList::const_iterator it_mod;
-    std::cout<<" All modules: "<<std::endl;
+    std::cout<<"All modules: "<<std::endl;
     for(it_mod=fModules.begin(); it_mod != fModules.end();it_mod++){
 	std::cout<<"Module: "<<it_mod->first<<std::endl;
 	it_mod->second->DumpOptions();
     }
-    std::cout<<" All sections: "<<std::endl;
+    std::cout<<"Unused sections: "<<std::endl;
     SectionsList::const_iterator it;
     for(it=fAllOptions.begin(); it != fAllOptions.end();it++){
-	    std::cout<<"Section: "<<it->first<<std::endl;
-	    it->second->DumpOptions();
+	for(it_mod=fModules.begin(); it_mod != fModules.end();it_mod++){
+	    if(it->second==it_mod->second) break;
+	}
+	if(it_mod!=fModules.end()) continue;
+	std::cout<<"Section: "<<it->first<<std::endl;
+	it->second->DumpOptions();
     }
 }
