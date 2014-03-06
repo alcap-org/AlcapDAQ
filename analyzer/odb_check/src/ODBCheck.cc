@@ -9,11 +9,12 @@
 #include <sstream>
 
 ODBCheck::ODBCheck() : fRun(0), fODB(), fDataDirs(),
-		       fLoadODBFile(true), fEstimate(), fCorrectionsFile(), fMonitorPlotsFile(NULL) { }
+		       fLoadODBFile(true), fEstimate(), fCorrectionsFile(), fMonitorPlotsFile(NULL) {}
 
 ODBCheck::~ODBCheck() {
   fMonitorPlotsFile->Write();
   fMonitorPlotsFile->Close();
+  fMonitorPlotsFile = NULL;
 }
 
 void ODBCheck::SetDirs(const std::string& raw, const std::string& odb, const std::string& hist, const std::string& corr) {
@@ -181,21 +182,27 @@ void ODBCheck::Check(int run) {
     LoadODBValues();
     InitiateCorrectionsFile();
   }
+
+  // The value we're looping over is the bank names in the ODB.
+  // Some corresponding detector names are not real,
+  // such as "blank". We hope these histograms do not exist so
+  // that we don't process them unnecessarily.
   for (unsigned int i = 0; i < fODB.n; ++i) {
     TH2* shapes;
     TH1* timing;
     hist_file.GetObject(("h" + fODB.bankname[i] + "_Shapes").c_str(), shapes);
     hist_file.GetObject(("MuSC_TimingCorrelations/hMuSC_" + fODB.detname[i] + "_Timediff").c_str(), timing);
-    if (timing)
-      std::cout << "Found timing histogram!" << std::endl;
-    else
-      std::cout << "Couldn't find timing histogram " << ("MuSC_TimingCorrelations/hMuSC_" + fODB.detname[i] + "_Timediff").c_str() << std::endl;
     if (shapes && shapes->GetEntries())
       fEstimate.Estimate(shapes);
     if (timing && timing->GetEntries())
       fEstimate.Estimate(timing);
     OutputCorrectionsIfNeeded(i, shapes, timing, run);
+    delete shapes;
+    delete timing;
+    shapes = NULL;
+    timing = NULL;
   }
+  hist_file.Close();
 }
 
 void ODBCheck::LoadODBFromODBFile() {
@@ -213,6 +220,7 @@ void ODBCheck::FillMonitorPlots(std::string bank_name, std::string fieldname, in
 
   // Try and find the histogram for this bank and if it's not there, then create it
   if (bank_to_hist_map.find(bank_name) == bank_to_hist_map.end()) {
+    fMonitorPlotsFile->cd();
     bank_to_hist_map[bank_name] = new TH1F(histname.c_str(), histname.c_str(), 100, run_number, run_number+100);
     bank_to_hist_map[bank_name]->SetBit(TH1::kCanRebin);
     bank_to_hist_map[bank_name]->GetXaxis()->SetTitle("Run Number");

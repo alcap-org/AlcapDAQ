@@ -7,6 +7,6 @@ struct WireMap {
   std::vector<std::string> detname;
   std::vector<int> pedestal;
   std::vector<int> polarity;
-  std::vector<int> threshold;
+  std::vector<int> threshold; /*** NOT IMPLEMENTED YET ***/
   std::vector<int> offset;
 };
