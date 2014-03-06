@@ -37,11 +37,6 @@ PAWC_DEFINE(1000000);
 #include "TSetupData.h"
 #include "TVacuumData.h"
 
-TSetupData* TSetupData::Instance()
-{
-          return gSetup;
-}
-
 /*-- Globals -------------------------------------------------------*/
 
 /* The analyzer name (client name) as seen by other MIDAS clients   */
@@ -199,8 +194,8 @@ INT analyzer_exit()
   }
 
   if(gVacuum) {
-  	  delete gVacuum;
-  	  gVacuum = NULL;
+    delete gVacuum;
+    gVacuum = NULL;
   }
 
   return CM_SUCCESS;
@@ -340,23 +335,6 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
   if(db_get_value(hDB, 0, keyName , Pedestals, &size, TID_INT, 0) != DB_SUCCESS){
     printf("Warning: Could not retrieve values for key %s\n", keyName);
     ret = false;
-  }
-
-  sprintf(keyName, "/Analyzer/WireMap/TimeShift");
-  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
-   printf("Warning: Could not find key %s\n", keyName);
-   return;
-  }
-  KEY timeshift_key;
-   if(db_get_key(hDB, hKey, &timeshift_key) != DB_SUCCESS){
-   printf("Warning: Could not find key %s\n", keyName);
-   return;
-  }
-  float TimeShifts[timeshift_key.num_values];
-  size = sizeof(TimeShifts);
-   if(db_get_value(hDB, 0, keyName, TimeShifts, &size, TID_FLOAT, 0) != DB_SUCCESS){
-   printf("Warning: Could not retrieve values for key %s\n", keyName);
-   return;
   }
 
   if(det_key.num_values != bk_key.num_values){
