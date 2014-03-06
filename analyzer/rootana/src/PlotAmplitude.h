@@ -14,6 +14,8 @@ class PlotAmplitude : public FillHistBase{
 
  private:
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+
+  std::map<std::string, TH1F*> fAmplitudePlots;
 };
 
 #endif
