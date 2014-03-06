@@ -6,7 +6,7 @@
 
 class MyModule : public FillHistBase{
  public:
-  MyModule(char *HistogramDirectoryName);
+  MyModule(const char *HistogramDirectoryName);
   ~MyModule();
 
  private:

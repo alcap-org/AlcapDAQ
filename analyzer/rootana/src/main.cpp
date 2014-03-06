@@ -1,118 +1,133 @@
+//#define USE_PRINT_OUT 
+
 #include <stdio.h>
-#include <string.h>
+#include <string>
 #include <stdlib.h>
 #include <ctype.h>
 #include <map>
-#include "utils.h"
 
+#include "utils.h" // Provides analyze_command_line()
+
+// Modules list
 #include "FillHistBase.h"
-#include "SimpleHistograms.h"
-#include "MyModule.h"
+#include "AnalysePulseIsland.h"
+#include "CheckCoincidence.h"
+#include "MakeMuonEvents.h"
+#include "CreateDetectorPulse.h"
+#include "PlotAmplitude.h"
+#include "PlotTime.h"
+#include "CoincidenceCut.h"
+#include "EvdE.h"
+#include "PlotAmpVsTDiff.h"
+#include "Normalization.h"
+//#include "PlotShapes.h"
+#include "DeadTimeGe.h"
 
 #include "TTree.h"
 #include "TBranch.h"
 #include "TFile.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
+#include "TAnalysedPulse.h"
+#include "TDetectorPulse.h"
+#include "ProcessCorrectionFile.h" // Provides CheckSetupData()
 
-void help_command_line(char *my_name);
-bool isNumber(char *c);
-int check_arguments();
-int analyze_command_line (int argc, char **argv);
-void *root_event_loop(void *arg = NULL);
+#include "TAnalysedPulseMapWrapper.h"
+
+// Forward declaration of functions ======================
+Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments);
 void ClearGlobalData(TGlobalData*);
+TTree* GetTree(TFile* inFile, const char* t_name);
+Int_t PrepareAnalysedPulseMap(TFile* fileOut);
+Int_t PrepareModules();
 
-ARGUMENTS arguments = {"","",0,0,-1};
+static TGlobalData *g_event=NULL;
+static TFile *gInFile=NULL;
 
-static TTree *tree = NULL;
-static TTree *InfoTree = NULL;
-static TBranch *br = NULL;
-static TBranch *InfoBr = NULL;
-static TGlobalData *g_event;
-static TSetupData *s_data;
+TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
+static TTree *gAnalysedPulseTree = NULL;
+TBranch *gAnalysedPulseBranch = NULL;
+
+std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
 
 static int n_fillhist = 0;  // keeps track of the total number of modules
 static FillHistBase **fillhists;
 
+TGlobalData* TGlobalData::Instance()
+{
+  return g_event;
+}
+
 int main(int argc, char **argv){
-  int ret = analyze_command_line (argc, argv);
-  if(!ret) return 1;
+  ARGUMENTS arguments;
+  int ret = analyze_command_line (argc, argv,arguments);
+  if(ret!=0) return ret;
+  printf("Starting event");
   
-  ret = check_arguments();
-  if(!ret) return 1;
-  
-  char *infilename = arguments.infile;
-  char *outfilename = arguments.outfile;
-  
-  TFile *treefile = new TFile(infilename);
-  if(!treefile->IsOpen()) {
-    printf("Failed to open file.  Exiting.\n");
-    delete treefile;
+  gInFile = new TFile(arguments.infile);
+  if(!gInFile->IsOpen()) {
+    printf("Failed to open input file, '%s'.  Exiting.\n",arguments.infile);
+    delete gInFile;
     return 1;
   }
 
-  //Info Tree  
-  InfoTree = (TTree *)treefile->Get("SetupTree");
-  InfoTree->Print();
-  if(!InfoTree) {
-    printf("Could not find InfoTree. Exiting.\n");
-    treefile->Close();
-    return 1;
-  }
-  s_data = 0;
-  InfoBr = InfoTree->GetBranch("Setup");
-  InfoBr->SetAddress(&s_data);
-  InfoTree->GetEntry(0);
-  std::map<std::string, std::string>::iterator it_info;
-  for (it_info=s_data->fBankToDetectorMap.begin();it_info!=s_data->fBankToDetectorMap.end();++it_info){
-  printf("%s => %s\n",it_info->first.c_str(),it_info->second.c_str());
-  }
+  // Make sure the instance of TSetupData get's loaded 
+  // (though in practice we can do this lazily)
+  TSetupData* s_data = TSetupData::Instance();
+
+  // Now that we've loaded the TSetupData for this run check if there are any
+  // suggested replacements for the wiremap data
+  CheckSetupData(s_data, arguments.correction_file);
 
   //Event Tree
-  tree = (TTree *)treefile->Get("EventTree");
-  if(!tree) {
-    printf("Could not find EventTree. Exiting.\n");
-    treefile->Close();
-    return 1;
-  }
-  g_event = 0; // initialization to zero is important
-  br = tree->GetBranch("Event");
-  br->SetAddress(&g_event);
+  TTree* eventTree = GetTree(gInFile,"EventTree");
+  if(!eventTree) return 1;
+  eventTree->SetBranchAddress("Event",&g_event);
 
-
-  // Let's open the output file for histograms etc.
-  TFile *fileOut = new TFile(outfilename, "RECREATE");
+  // Let's open the output file for analysis data, histograms and so on.
+  TFile *fileOut = new TFile(arguments.outfile, "RECREATE");
   if(!fileOut->IsOpen()){
-    printf("Could not open ROOT output file %s\n", outfilename);
+    printf("Could not open ROOT output file %s\n", arguments.outfile);
     return 1;
   }
   fileOut->cd();
+
+  // Setup the analysed pulse map to store / read in the pulses
+  ret = PrepareAnalysedPulseMap(fileOut);
+  if(ret!=0) {
+     printf("Problem preparing analysed pulse map.");
+     return ret;
+  }
 
   // Now let's setup all the analysis modules we want
-  fillhists = new FillHistBase *[20]; // increase if more than 20 modules
-  n_fillhist = 0;  // number of modules (global variable)
-  fillhists[n_fillhist++] = new SimpleHistograms("SimpleHistograms");
-  fillhists[n_fillhist++] = new MyModule("MyModule");
+  ret= PrepareModules();
+  if(ret!=0) {
+     printf("Problem setting up analysis modules.");
+     return ret;
+  }
   
+  // Finally let's do the main loop
   fileOut->cd();
-  root_event_loop();
+  Main_event_loop(eventTree,arguments);
 
+  // and finish up
+  gAnalysedPulseTree->Write();
   fileOut->Write();
   fileOut->Close();
-  treefile->Close();
+  gInFile->Close();
 
   return 0;
 }
 
-void *root_event_loop(void *arg){
+Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
 /*************************************************************************\
 | Loop over tree entries and call histogramming modules.                  |
 \*************************************************************************/
-  //printf("in the root_event_loop\n");
-  Long64_t nentries = tree->GetEntriesFast();
-  printf("there are %d entries\n",(int)nentries);
-
-  Int_t nbytes = 0, nb = 0;
+  Long64_t nentries = dataTree->GetEntriesFast();
+  printf("There are %d entries\n",(int)nentries);
+  std::cout<<"Processing file, which may take a while. "
+     "Have patience young padawan.."<<std::endl;
 
   Long64_t start = 0;
   Long64_t stop = nentries;
@@ -126,157 +141,66 @@ void *root_event_loop(void *arg){
   else if((Long64_t)arguments.start < nentries && arguments.start > 0){
     stop = (Long64_t)arguments.start;
   }
+  
+  //preprocess first event
+  if (g_event){
+    g_event->Clear("C");
+    dataTree->SetBranchAddress("Event",&g_event);
+  }
 
+  dataTree->GetEntry(start);
+  int q = 0;
+  for (int i=0; i < n_fillhist; i++) {
+    q |= fillhists[i]->BeforeFirstEntry(g_event);
+    //if (q) break;
+    // q = fillhists[i]->ProcessGenericEntry(g_event);
+    //if (q) break;
+  }
+  if(q) {
+    printf("Error while preprocessing first entry (%d)\n",(Int_t)start);
+    return q;
+  }
+
+  q = 0;
+  //process entries
   for (Long64_t jentry=start; jentry<stop;jentry++) {
     if(g_event){
       g_event->Clear("C");
       ClearGlobalData(g_event);
-      br->SetAddress(&g_event);
+      dataTree->SetBranchAddress("Event",&g_event);
     }
     
+    if (jentry%100 == 0) {
+      printf("Completed %lld events out of %lld\n", jentry, stop);
+    }
     // Let's get the next event
-    nb = tree->GetEntry(jentry);
+    dataTree->GetEntry(jentry);
 
-    int q = 0;
-    
     for(int i=0; i < n_fillhist; i++) {
       //printf("processing fillhists[%d]\n",i);      
-      q = fillhists[i]->ProcessGenericEntry(g_event);
-      if(q) break;
+      PrintOut(i<<": Now processing "<<fillhists[i]->GetName()<<std::endl);
+      q |= fillhists[i]->ProcessGenericEntry(g_event,TSetupData::Instance());
+      //if(q) break;
     }
-    if(q) printf("q was non-zero when jentry was %d\n",(Int_t)jentry);
-    if(q) break;
+    if(q){
+      printf("q was non-zero when jentry was %lld\n",jentry);
+      break;
+    }
+
+    gAnalysedPulseMapWrapper->SetMap(gAnalysedPulseMap);
+    //gAnalysedPulseMapWrapper->ShowInfo();
+    gAnalysedPulseTree->Fill();
   }
 
-  return NULL;
-}
-
-void help_command_line(char *my_name){
-  fprintf (stderr,"\nusage: %s  [flags] \n\n",my_name);
-  fprintf (stderr,"valid options are:\n");
-  fprintf (stderr,"  -i <filename>\t\t Input root tree file.\n");
-  fprintf (stderr,"  -o <filename>\t\t Output root tree file.\n");  
-  fprintf (stderr,"  -n <count>\t\t Analyze only <count> events.\n");
-  fprintf (stderr,"     <first> <last>\t Analyze only events from "
-	   "<first> to <last>.\n");
-  fprintf (stderr,"  -r <PSI run number>\t\t Run number specification for the shrubs.\n");
-  fprintf (stderr,"\n");
-  return;
-}
-
-bool isNumber(char *c){
-  for(int i=0; i<strlen(c); i++){
-    if(!isdigit(c[i])) return false;
+  //post-process on last entry
+  q = 0;
+  for(int i=0; i < n_fillhist; i++) {
+    q |= fillhists[i]->AfterLastEntry(g_event);
   }
-  return true;
-}
-
-int check_arguments(){
-  if(arguments.stop >0){
-    if(arguments.stop <= arguments.start){
-      printf("ERROR: Cannot process events from %d to %d because %d<=%d\n",
-	     arguments.start, arguments.stop, arguments.stop, arguments.start);
-      return 0;
-    }
+  if (q) {
+     printf("Error during post-processing last entry (%lld)\n",(stop-1));
+  return q;
   }
-
-  if(strcmp(arguments.infile,"")==0){
-    printf("ERROR: Empty input file name. Did you specify the -i option?\n");
-    return 0;
-  }  
-  if(strcmp(arguments.outfile,"")==0){
-    printf("ERROR: Empty output file name. Did you specify the -o option?\n");
-    return 0;
-  }  
-
-  return 1;
-}
-
-int analyze_command_line (int argc, char **argv){
-  if(argc==1) goto usage;
-  if(strcmp(argv[1],"--help")==0) goto usage;
-  
-  for(int i=1; i<argc; /* incrementing of i done in the loop! */){
-    if(argv[i][0] != '-'){
-      printf("ERROR: Wrong argument %s\n",argv[i]);
-      goto usage;
-    }
-    else{
-      if(strlen(&argv[i][1]) == 1){
-	switch(argv[i][1]){
-	case 'i':
-	  if(i+1 < argc){
-	    arguments.infile = argv[i+1];
-	    i+=2;
-	  }
-	  else{
-	    printf("ERROR: No argument for input file specified\n");
-	    goto usage;
-	  }
-	  break;
-	case 'o':
-	  if(i+1 < argc){
-	    arguments.outfile = argv[i+1];
-	    i+=2;
-	  }
-	  else{
-	    printf("ERROR: No argument for input file specified\n");
-	    goto usage;
-	  }
-	  break;
-	case 'n':
-	  if(i+1 < argc){
-	    if(isNumber(argv[i+1])){
-	      arguments.start = atoi(argv[i+1]);
-	      i+=2;
-	    }
-	    else{
-	      printf("ERROR: Argument %s for option -n is not a number\n",argv[i+1]);
-	      goto usage;
-	    }
-	    if(i < argc && argv[i][0]!='-'){
-	      if(isNumber(argv[i])){
-		arguments.stop = atoi(argv[i]);
-		i+=1;
-	      }
-	      else{
-		printf("ERROR: Argument %s for option -n is not a number\n", argv[i]);
-		goto usage;
-	      }
-	    }
-	  }
-	  else{
-	    printf("ERROR: No argument for number of processed events specified\n");
-	    goto usage;
-	  }
-	  break;
-	case 'r':
-	  if(i+1 < argc){
-	    if(isNumber(argv[i+1])){
-	      arguments.run = atoi(argv[i+1]);
-	      i+=2;
-	    }
-	    else{
-	      printf("ERROR: Argument %s for option -r is not a number\n",argv[i+1]);
-	      goto usage;
-	    }
-	  }
-	  break;
-	default:
-	  printf("ERROR: Argument %s not recognized\n",argv[i]);
-	  goto usage;
-	}
-      }
-      else{
-	
-      }
-    }
-  }
-
-  return 1;
-
- usage:
-  help_command_line(argv[0]);
   
   return 0;
 }
@@ -296,10 +220,135 @@ void ClearGlobalData(TGlobalData* data)
   for(mapIter = data->fPulseIslandToChannelMap.begin(); mapIter != mapEnd; mapIter++) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
     std::vector<TPulseIsland*> pulse_vector= mapIter->second;
-    for(int i=0; i<pulse_vector.size(); i++){
+    for(size_t i=0; i<pulse_vector.size(); i++){
       delete pulse_vector[i];
       pulse_vector[i] = NULL;
     }
     pulse_vector.clear();
   }
+
+
+  for(std::map<std::string,
+     std::vector<TAnalysedPulse*> >::iterator mapIter=gAnalysedPulseMap.begin();
+     mapIter != gAnalysedPulseMap.end(); mapIter++) {
+
+    // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
+    std::vector<TAnalysedPulse*> pulse_vector= mapIter->second;
+    for(size_t i=0; i<pulse_vector.size(); i++){
+      delete pulse_vector[i];
+      pulse_vector[i] = NULL;
+    }
+    pulse_vector.clear();
+  }
+  gAnalysedPulseMap.clear();
+
+  for(std::map<std::string, std::vector<TDetectorPulse*> >::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
+    // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
+    std::vector<TDetectorPulse*> pulse_vector= mapIter->second;
+    for(size_t i=0; i<pulse_vector.size(); i++){
+      delete pulse_vector[i];
+      pulse_vector[i] = NULL;
+    }
+    pulse_vector.clear();
+  }
+  gDetectorPulseMap.clear();
+}
+
+TTree* GetTree(TFile* inFile, const char* t_name)
+{
+   TTree* InfoTree = (TTree *)inFile->Get(t_name);
+   if(!InfoTree) {
+      printf("Unable to find TTree '%s' in %s.\n",t_name,inFile->GetName());
+      return NULL;
+   }
+   InfoTree->Print();
+
+   return InfoTree;
+}
+
+TSetupData* TSetupData::Instance()
+{
+  static TSetupData *s_data=NULL;
+
+  // if s_data is already setup then we can just return it immediately
+  if(s_data) return s_data;
+
+  // Check we have a valid tree for the setup data
+  TTree* setupTree= GetTree(gInFile, "SetupTree");
+  if(!setupTree) return NULL;
+
+  // Hook up the branch in the file to s_data and load in the data
+  setupTree->SetBranchAddress("Setup",&s_data);
+  if(!s_data) {
+     printf("Unable to find TSetupData branch 'Setup' in the file");
+     return NULL;
+  }
+  setupTree->GetEntry(0);
+
+  return s_data;
+}
+  void PrintSetupData(TSetupData* s_data){
+     if(!s_data) return;
+  // print things out
+  std::map<std::string, std::string>::iterator it_info;
+  printf("### TSetupData ###\n");
+  printf("Bank  Detector Name  Clock Tick (ns)  Pedestal (ADC)  Trigger Polarity  Time Shift (ns)  No. of Bits\n");
+  printf("----  -------------  ---------------  --------------  ----------------  ---------------  -----------\n");
+  for (it_info=s_data->fBankToDetectorMap.begin();it_info!=s_data->fBankToDetectorMap.end();++it_info){
+		 std::string bankname = it_info->first;
+		 std::string detname = s_data->GetDetectorName(bankname);
+		 float clockTick = s_data->GetClockTick(bankname);
+		 int pedestal = s_data->GetPedestal(bankname);
+		 int trig_pol = s_data->GetTriggerPolarity(bankname);
+		 double time_shift = s_data->GetTimeShift(bankname);
+		 int n_bits = s_data->GetNBits(bankname);
+		 printf("%s  %s\t\t%f\t%d\t\t%d\t\t%f\t\t%d\n",bankname.c_str(), detname.c_str(), clockTick, pedestal, trig_pol, time_shift,n_bits);
+  }
+}
+
+Int_t PrepareAnalysedPulseMap(TFile* fileOut){
+	// TAnalysedMapWrapper
+   gAnalysedPulseMapWrapper = new TAnalysedPulseMapWrapper(gAnalysedPulseMap);
+
+   int split = 1;
+   int bufsize = 64000;
+   Int_t branchstyle = 1;
+
+   if (split < 0) {branchstyle = 0; split = -1-split;}
+   TTree::SetBranchStyle(branchstyle);
+
+   gAnalysedPulseTree = new TTree("AnalysedPulseTree", "AnalysedPulseTree");
+   gAnalysedPulseTree->SetAutoSave(100000000);
+   gAnalysedPulseTree->SetMaxVirtualSize(100000000);
+   gAnalysedPulseBranch = gAnalysedPulseTree->Branch("AnalysedPulseMapWrapper", 
+                                                     "TAnalysedPulseMapWrapper", &gAnalysedPulseMapWrapper, bufsize, split);
+   gAnalysedPulseBranch->SetAutoDelete(kFALSE);
+   return 0;
+}
+
+Int_t PrepareModules(){
+
+  fillhists = new FillHistBase *[50]; // increase if more than 20 modules
+  n_fillhist = 0;  // number of modules (global variable)
+	// this is needed to save analysed tree
+  fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysedPulseIsland");
+
+	//fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
+	//fillhists[n_fillhist++] = new PlotTime("PlotTime");
+	
+	// EvdE
+	//char foldername[256];
+	//double t0 = 1000;
+	//double t1 = 6000;
+	//sprintf(foldername,"%s_%d_%d","EvdE",int(t0),int(t1));
+	//fillhists[n_fillhist++] = new EvdE(foldername, t0,t1);
+	
+
+	// Amplitude, Xray
+  //fillhists[n_fillhist++] = new 
+		//CoincidenceCut("CoincidenceCut_MuSc-GeF_500ns", "muSc","Ge-F", -500,500);
+  //fillhists[n_fillhist++] = new 
+		//CoincidenceCut("CoincidenceCut_MuSc-GeS_500ns", "muSc","Ge-S", -500,500);
+  //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_500nsCut");
+  return 0;
 }

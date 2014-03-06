@@ -3,7 +3,7 @@
   Name:         MDT5720ProcessRaw
   Created by:   V.Tishchenko, J.Grange hoping to extend it
 
-  Contents:     Module to decode CAEN v1724 digitizer data.
+  Contents:     Module to decode CAN v1724 digitizer data.
 
 \********************************************************************/
 
@@ -231,9 +231,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	      }
               
 	    
-	    pulse_islands.push_back(new TPulseIsland(
-						       caen_trigger_time, sample_vector,
-						       gSetup->GetClockTick(*bankNameIter), gSetup->GetADCValue(*bankNameIter), *bankNameIter));
+	    pulse_islands.push_back(new TPulseIsland(caen_trigger_time, sample_vector, *bankNameIter));
 	  }
       }
 

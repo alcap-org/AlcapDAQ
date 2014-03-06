@@ -9,14 +9,13 @@ muSC_muPC/MMuPC1AnalysisC
 muSC_muPC/MMuPC1AnalysisMQL
 muSC_muPC/MMuSCAnalysisMQL
 
-diagnostics/MCommonOnlineDisplayPlots
-
 FADC/MOctalFADCBufferOverflow
 FADC/MOctalFADCPacketLoss
 
-common/MExpectedIslands
+diagnostics/MCommonOnlineDisplayPlots
 common/MMuSCTimeDifferences
-common/MNumberIslands
-common/MPulseLengths
+
+vacuum/MVacuumHisto
+
 common/MTreeOutput
 

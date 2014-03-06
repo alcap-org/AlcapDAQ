@@ -14,15 +14,14 @@ TPulseIsland::TPulseIsland()
   Reset();
 }
 
-TPulseIsland::TPulseIsland(
-  int timestamp, const vector<int>& samples_vector,
-  double clock_tick_in_ns, double adc_value_in_MeV, string bank_name,int pol)
+TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector,
+                           string bank_name)
 {
   Reset();
   fTimeStamp = timestamp;
   fSamples = samples_vector;
-  fClockTickInNs = clock_tick_in_ns;
-  fADCValueInMeV = adc_value_in_MeV;
+  //fClockTickInNs = clock_tick_in_ns;
+  //fADCValueInMeV = adc_value_in_MeV;
   fBankName = bank_name;
 }
 
@@ -30,7 +29,7 @@ void TPulseIsland::Reset(Option_t* o)
 {
   fTimeStamp = 0;
   fSamples.clear();
-  fClockTickInNs = 0.0;
+  //fClockTickInNs = 0.0;
   fBankName = "";
 }
 
@@ -38,7 +37,7 @@ void TPulseIsland::Reset(Option_t* o)
 // -- Gets the amplitude of the pulse
 double TPulseIsland::GetAmplitude() const {
 
-  if (TSetupData::IsFast(fBankName))
+  if (TSetupData::Instance()->IsFast(fBankName))
     return GetFastPulseAmplitude();
   else
     return GetSlowPulseAmplitude();
@@ -53,7 +52,7 @@ double TPulseIsland::GetFastPulseAmplitude() const {
   double pedestal = GetPedestal(10);
   int peak_sample_element = GetPeakSample();
 
-  return ( GetTriggerPolarity()*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
+  return ( GetTriggerPolarity()*(fSamples.at(peak_sample_element) - pedestal) );
 }
 
 // GetSlowPulseAmplitude()
@@ -64,7 +63,7 @@ double TPulseIsland::GetSlowPulseAmplitude() const {
   double pedestal = GetPedestal(10);
   int peak_sample_element = GetPeakSample();
 
-  return ( GetTriggerPolarity()*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
+  return ( GetTriggerPolarity()*(fSamples.at(peak_sample_element) - pedestal) );
 }
 
 // GetPulseHeight()
@@ -91,7 +90,7 @@ double TPulseIsland::GetPulseHeight() const {
   // Go through the samples and get the samples with the largest difference between it and the pedestal
   // (should take into account both positive and negative pulses)
 
-  return ( GetTriggerPolarity()*(fSamples.at(peak_sample_element) - pedestal) * fADCValueInMeV);
+  return ( GetTriggerPolarity()*(fSamples.at(peak_sample_element) - pedestal) );
 }
 
 // GetPulseTime()
@@ -99,7 +98,7 @@ double TPulseIsland::GetPulseHeight() const {
 // -- It also calibrates the time to ns using fClockTickInNs
 double TPulseIsland::GetPulseTime() const {
 
-  return (fTimeStamp + GetPeakSample()) * fClockTickInNs;
+  return (fTimeStamp + GetPeakSample()) * GetClockTickInNs();
 }
 
 // GetPulseWaveform()
@@ -162,7 +161,7 @@ double TPulseIsland::GetPedestal(int nPedSamples) const {
   else
     return 2750;  // Fixed pedestal
   */
-  double pedestal = gSetup->GetPedestal(fBankName);
+  double pedestal = TSetupData::Instance()->GetPedestal(fBankName);
   return pedestal;
 
   /*  if (nPedSamples > fSamples.size())

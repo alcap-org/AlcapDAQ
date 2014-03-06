@@ -4,7 +4,7 @@ DAQdir=$(dirname ${BASH_SOURCE[0]} | xargs readlink -e)
 
 #. $DAQdir/root/bin/thisroot.sh
 
-uname=`uname -p`
+uname=`uname -m`
 arch=''
 if [ "$uname" == "x86_64" ]; then
     arch='64'

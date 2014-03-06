@@ -70,6 +70,11 @@ FADC_OverflowingBuffers FADC/fadc_overflowing_buffers.C
 Si16 FADC/fadc_si16.C
 
 #======================================================
+#        Vacuum
+#======================================================
+VacuumMonitor vacuum/VacuumMonitor.C
+
+#======================================================
 #         Common
 #======================================================
 raw_pulse_count common/raw_pulse_count.C

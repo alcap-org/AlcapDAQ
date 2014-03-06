@@ -2,7 +2,20 @@
 #define FillHistBase_h__ 1
 
 #include "TGlobalData.h"
+#include "TSetupData.h"
 #include "TDirectory.h"
+
+#include <iostream>
+// This is an efficient way to switch on and off printing text for debugging
+#ifdef USE_PRINT_OUT
+#define PrintOut(message) \
+std::cout<<message; 
+#warning Verbose is on
+#else 
+#define PrintOut(message) 
+#warning Verbose is off
+#endif
+
 
 ///////////////////////////////////////////////////
 // This class is the generic analysis module     //
@@ -15,16 +28,20 @@
 class FillHistBase
 {
  public:
-  FillHistBase(char *HistogramDirectoryName);
+  FillHistBase(char *HistogramDirectoryName, TSetupData* setup=NULL);
   virtual ~FillHistBase();
 
-  int ProcessGenericEntry(TGlobalData *gData);
+  int ProcessGenericEntry(TGlobalData *gData, TSetupData *gSetup);
+  virtual int BeforeFirstEntry(TGlobalData* gData){return 0;};
+  virtual int AfterLastEntry(TGlobalData* gData){return 0;};
+  const char* GetName()const{return dir->GetName();};
  
  protected:
   TDirectory *dir;
+  TSetupData* fSetup;
 
  private:
-   virtual int ProcessEntry(TGlobalData *gData);
+   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
 };
 
 #endif
