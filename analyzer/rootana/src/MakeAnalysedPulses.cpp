@@ -8,6 +8,8 @@ using std::cout;
 using std::endl;
 using std::string;
 
+extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+
 MakeAnalysedPulses::MakeAnalysedPulses(
     char *HistogramDirectoryName,const char* fastGen, const char* slowGen):
     FillHistBase(HistogramDirectoryName),
@@ -72,7 +74,7 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
        fSlowGenerator->ProcessPulses( gSetup, thePulseIslands,theAnalysedPulses);
     }
 
-    fAnalysedPulseMap->insert(std::make_pair(detname,theAnalysedPulses));
+    gAnalysedPulseMap.insert(std::make_pair(detname,theAnalysedPulses));
   }
   return 0;
 }
