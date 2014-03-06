@@ -27,6 +27,10 @@ PlotAmplitude::PlotAmplitude(char *HistogramDirectoryName) :
   dir->cd("/");
 }
 
+PlotAmplitude::PlotAmplitude(modules::options* opts) : FillHistBase(opts->GetString("0").c_str()) {
+  dir->cd("/");
+}
+
 PlotAmplitude::~PlotAmplitude(){  
 }
 
@@ -67,3 +71,5 @@ int PlotAmplitude::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   } // end loop through detectors
   return 0;
 }
+
+ALCAP_REGISTER_MODULE(PlotAmplitude)

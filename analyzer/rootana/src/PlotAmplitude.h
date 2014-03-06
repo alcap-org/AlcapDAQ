@@ -4,10 +4,12 @@
 #include "FillHistBase.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
+#include "ModulesOptions.h"
 
 class PlotAmplitude : public FillHistBase{
  public:
   PlotAmplitude(char *HistogramDirectoryName);
+  PlotAmplitude(modules::options* opts);
   ~PlotAmplitude();
 
  private:
