@@ -4,12 +4,14 @@
 #include "FillHistBase.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
+#include "ModulesOptions.h"
 
 #include "TH2.h"
 
 class PlotAmpVsTDiff : public FillHistBase{
  public:
   PlotAmpVsTDiff(char *HistogramDirectoryName, std::string det_name_a, std::string det_name_b);
+  PlotAmpVsTDiff(modules::options* opts);
   ~PlotAmpVsTDiff();
 
  private:
