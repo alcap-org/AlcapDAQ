@@ -106,7 +106,7 @@ int main(int argc, char **argv){
   // Now let's setup all the analysis modules we want
   ret= PrepareModules(arguments);
   if(ret!=0) {
-     printf("Problem setting up analysis modules.");
+     printf("Problem setting up analysis modules.\n");
      return ret;
   }
   
@@ -349,7 +349,9 @@ Int_t PrepareModules(const ARGUMENTS& arguments){
           opts =  modules_file.GetOptions(i);
 	  mod = mgr->createModule(name,opts);
 	  if(mod) 
-          fillhists[count++] =mod;
+	    fillhists[count++] =mod;
+	  else
+	    return 1;
   }
   n_fillhist = num_modules;
 
