@@ -4,10 +4,12 @@
 #include "FillHistBase.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
+#include "ModulesOptions.h"
 
 class PlotTime : public FillHistBase{
  public:
   PlotTime(char *HistogramDirectoryName);
+  PlotTime(modules::options* opts);
   ~PlotTime();
 
  private:

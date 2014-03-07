@@ -27,6 +27,10 @@ PlotTime::PlotTime(char *HistogramDirectoryName) :
   dir->cd("/");
 }
 
+PlotTime::PlotTime(modules::options* opts) : FillHistBase(opts->GetString("0").c_str()) {
+  dir->cd("/");
+}
+
 PlotTime::~PlotTime(){  
 }
 
@@ -66,3 +70,5 @@ int PlotTime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   } // end loop through detectors
   return 0;
 }
+
+ALCAP_REGISTER_MODULE(PlotTime)
