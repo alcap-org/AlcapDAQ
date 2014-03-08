@@ -94,5 +94,6 @@ private:
   }
 
   ClassDef(TSetupData, 2)
+
 };
 #endif

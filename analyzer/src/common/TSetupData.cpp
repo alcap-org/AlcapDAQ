@@ -17,3 +17,9 @@ void TSetupData::GetAllDetectors(std::map<std::string,std::string>& detectors)co
        if(it->second!="blank" ) detectors[it->second]=it->first;
    }
 }
+
+#ifdef ROOT_VERSION
+TSetupData* TSetupData::Instance() {
+  return NULL;
+}
+#endif
