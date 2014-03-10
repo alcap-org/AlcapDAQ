@@ -3,6 +3,7 @@
 #include "MaxBinAPGenerator.h"
 #include <iostream>
 #include <sstream>
+#include <cmath>
 #include <utility>
 
 using std::cout;
@@ -99,6 +100,7 @@ TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& genera
 
 // FindPulses()
 // -- Finds all pulses on an island and returns the vector of sub pulses
+// -- Gets called for each channel in every event
 MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::FindPulses(PulseIslandList_t theIslands) {
 
   // Get the output ready
@@ -106,13 +108,31 @@ MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::FindPulses(PulseIsland
 
   bool plot_pulses = false;
 
+  // Because FindPulses() is called for each channel individually, we can get some variables before we go into the loop
+  std::string bankname = (*(theIslands.begin()))->GetBankName();
+  std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
+  int pedestal = TSetupData::Instance()->GetPedestal(bankname);
+  int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+  int max_digitised_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname));
+
   for (PulseIslandList_t::iterator islandIter = theIslands.begin(); islandIter != theIslands.end(); ++islandIter) {
 
-    // Things we need from the oldpulse island
-    std::string bankname = (*islandIter)->GetBankName();
+    // Things we need from the old pulse island
     std::vector<int> theSamples = (*islandIter)->GetSamples();
-    int pedestal = TSetupData::Instance()->GetPedestal(bankname);
-    int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+    
+    // See if any samples are above the max digitisation value and if they are, we will skip to the next island
+    bool ignore_island = false;
+    for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+      if (*sampleIter >= max_digitised_value) {
+	std::cout << "Pulse #" << fPulseCounter << ": has a sample with value " << *sampleIter << " which is greater than or equal to the maximum digitised value of " 
+		  << max_digitised_value << " and so will be ignored." << std::endl;
+	ignore_island = true;
+	break;
+      }
+    }
+    if (ignore_island)
+      continue;
+
     int RMS = 20; // hard-coded for the time being
 
     // Histograms
@@ -122,13 +142,12 @@ MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::FindPulses(PulseIsland
     
     if (plot_pulses) {
       std::stringstream histname;
-      histname << bankname << "_SubPulses_" << fPulseCounter;
+      histname << bankname << "_" << detname << "_SubPulses_" << fPulseCounter;
       new_pulses = new TH1F(histname.str().c_str(), histname.str().c_str(), theSamples.size(),0,theSamples.size());
-    }
-    
-    if (plot_pulses) {
-      std::stringstream histname;
-      histname << bankname << "_OriginalIsland_" << fPulseCounter;
+      new_pulses->SetLineColor(kMagenta);
+      histname.str("");
+
+      histname << bankname << "_" << detname << "_OriginalIsland_" << fPulseCounter;
       old_pulse = new TH1F(histname.str().c_str(), histname.str().c_str(), theSamples.size(),0,theSamples.size());
     }
     
@@ -173,6 +192,11 @@ MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::FindPulses(PulseIsland
       }
     }
   }
+
+  std::cout << "Bank Name: " << bankname << " DetName: " << detname << std::endl;
+  std::cout << "Total number of pulse islands: " << theIslands.size() << std::endl;
+  std::cout << "Total number of sub-pulses found: " << output.size() << std::endl;
+  std::cout << std::endl;
 
   return output;
 }
