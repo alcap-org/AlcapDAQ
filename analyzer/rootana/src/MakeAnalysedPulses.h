@@ -45,6 +45,8 @@ class MakeAnalysedPulses : public FillHistBase{
   std::string fFastGeneratorType;
   BankAnalPulseList_t* fAnalysedPulseMap;
 
+  PulseIslandList_t FindPulses(PulseIslandList_t theIslands);
+  int fPulseCounter;
 };
 
 #endif // MAKEANALYSEDPULSES_H__

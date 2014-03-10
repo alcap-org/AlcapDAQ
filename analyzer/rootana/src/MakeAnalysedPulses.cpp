@@ -2,6 +2,7 @@
 #include "TVAnalysedPulseGenerator.h"
 #include "MaxBinAPGenerator.h"
 #include <iostream>
+#include <sstream>
 #include <utility>
 
 using std::cout;
@@ -16,14 +17,14 @@ MakeAnalysedPulses::MakeAnalysedPulses(
     fSlowGenerator(NULL),
     fFastGenerator(NULL),
     fSlowGeneratorType(slowGen),
-    fFastGeneratorType(fastGen){
+    fFastGeneratorType(fastGen), fPulseCounter(0){
 	dir->cd("/");
 }
 
 MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
    FillHistBase("MakeAnalysedPulses"),
     fSlowGenerator(NULL),
-    fFastGenerator(NULL){
+   fFastGenerator(NULL), fPulseCounter(0){
 	fSlowGeneratorType=opts->GetString("slow_gen");
 	fFastGeneratorType=opts->GetString("fast_gen");
 	if(fSlowGeneratorType==""){
@@ -67,6 +68,8 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
     theAnalysedPulses.clear();
 
+    PulseIslandList_t theSubPulses = FindPulses(thePulseIslands);
+
     // If this is a detector's fast channel use fFastGenerator
     if ( TSetupData::IsFast(detname) ) {
        fFastGenerator->ProcessPulses( gSetup, thePulseIslands,theAnalysedPulses);
@@ -93,5 +96,86 @@ TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& genera
     }
     return generator;
 }
+
+// FindPulses()
+// -- Finds all pulses on an island and returns the vector of sub pulses
+MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::FindPulses(PulseIslandList_t theIslands) {
+
+  // Get the output ready
+  PulseIslandList_t output;
+
+  bool plot_pulses = true;
+
+  for (PulseIslandList_t::iterator islandIter = theIslands.begin(); islandIter != theIslands.end(); ++islandIter) {
+
+    // Things we need from the oldpulse island
+    std::string bankname = (*islandIter)->GetBankName();
+    std::vector<int> theSamples = (*islandIter)->GetSamples();
+    int pedestal = TSetupData::Instance()->GetPedestal(bankname);
+    int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+    int RMS = 20; // hard-coded for the time being
+
+    // Histograms
+    TH1F* new_pulses = NULL;
+    TH1F* old_pulse = NULL;
+    ++fPulseCounter;
+    
+    if (plot_pulses) {
+      std::stringstream histname;
+      histname << bankname << "_SubPulses_" << fPulseCounter;
+      new_pulses = new TH1F(histname.str().c_str(), histname.str().c_str(), theSamples.size(),0,theSamples.size());
+    }
+    
+    if (plot_pulses) {
+      std::stringstream histname;
+      histname << bankname << "_OriginalIsland_" << fPulseCounter;
+      old_pulse = new TH1F(histname.str().c_str(), histname.str().c_str(), theSamples.size(),0,theSamples.size());
+    }
+    
+    // What we need for the new pulses
+    int timestamp = 0;
+    std::vector<int> newSamples;
+    
+    // Loop through the samples
+    bool start_pulse = false;
+    for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+      
+      // Get the current height (taking into account pulse polarity)
+      int height = trigger_polarity*(*(sampleIter) - pedestal);
+
+      if (plot_pulses)
+	old_pulse->Fill(sampleIter - theSamples.begin(), *sampleIter);
+      
+      if (start_pulse == false) { // if we haven't found a pulse yet then see if we do
+	if (height > 0 + RMS) {
+	  timestamp = sampleIter - theSamples.begin();
+	  start_pulse = true;
+	}
+      }
+      
+      if (start_pulse == true) {
+	// see if the pulse has ended
+	if (height < 0) {
+	  start_pulse = false; // the pulse is over
+	  
+	  // Add the TPulseIsland
+	  output.push_back(new TPulseIsland(timestamp, newSamples, bankname));
+	  
+	  // Clear the old information
+	  newSamples.clear();
+	  timestamp = 0;
+	}
+	else {
+	  newSamples.push_back(*sampleIter);
+	  if (plot_pulses)
+	    new_pulses->Fill(sampleIter - theSamples.begin(), *sampleIter);
+	}
+      }
+    }
+  }
+
+  return output;
+}
+
 
 ALCAP_REGISTER_MODULE(MakeAnalysedPulses)
