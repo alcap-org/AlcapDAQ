@@ -104,7 +104,7 @@ MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::FindPulses(PulseIsland
   // Get the output ready
   PulseIslandList_t output;
 
-  bool plot_pulses = true;
+  bool plot_pulses = false;
 
   for (PulseIslandList_t::iterator islandIter = theIslands.begin(); islandIter != theIslands.end(); ++islandIter) {
 
