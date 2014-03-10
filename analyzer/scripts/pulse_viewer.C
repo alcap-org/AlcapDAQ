@@ -1,17 +1,15 @@
-#ifndef ALCAP_SCRIPT_
-#define ALCAP_SCRIPT_
-#endif
-
 #include <iostream>
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <cmath>
 
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1I.h"
 #include "TString.h"
 #include "TCanvas.h"
+#include "TAxis.h"
 
 #include "../src/common/TPulseIsland.h"
 #include "../src/common/TGlobalData.h"
@@ -36,20 +34,20 @@ char GetInput() {
 }
 
 int ChooseDetector(const std::vector<std::string>& dets) {
+  std::cout << "Choose detector:" << std::endl;
   int choice = 0;
   while (choice < 1 || choice > (int)dets.size()) {
     for (int i = 1; i <= (int)dets.size(); ++i)
       std::cout << i << ":\t" << dets.at(i-1) << std::endl;
     std::cin >> choice;
   }
-  return choice;
+  return choice - 1;
 }
 
-void check(std::string fname) {
+void view_pulses(std::string fname) {
   TGlobalData* gData = NULL;
   TSetupData* gSetup = NULL;
 
-  
   TCanvas can;
   
   TFile f(fname.c_str(), "READ");
@@ -75,8 +73,11 @@ void check(std::string fname) {
       if (!std::count(dets.begin(), dets.end(), gSetup->GetDetectorName(iBank->first)))
 	dets.push_back(gSetup->GetDetectorName(iBank->first));
   }
+  std::cout << "done." << std::endl;
 
+  std::cout << "Sorting detector list...";
   std::sort(dets.begin(), dets.end());
+  std::cout << "done." << std::endl;
   
   int det = ChooseDetector(dets);
   std::string bank;
@@ -84,17 +85,22 @@ void check(std::string fname) {
   for (int iBlock = 0; iBlock < nBlocks; ++iBlock) {
     bank = gSetup->GetBankName(dets.at(det));
     events->GetEntry(iBlock);
+
     // Go to next block if there's no data for this detector
-    if (!gData->fPulseIslandToChannelMap.count(bank))
+    if (!gData->fPulseIslandToChannelMap.count(bank)) {
+      std::cout << "No hits for block " << iBlock + 1 << "." << std::endl;
       continue;
+    }
+
     std::vector<TPulseIsland*> &pulses = gData->fPulseIslandToChannelMap.at(bank);
     int nPulses = (int)pulses.size();
-    for (unsigned int iPulse = 0; iPulse < nPulses; ++iPulse) {
-      TPulseIsland* tp = pulses.at(iPulse);
-      std::vector<int> samps = tp->GetSamples();
-      TH1I pulse("pulse", (dets.at(det) + ";Time (ns); ADC Value").c_str(), samps.size(), -0.5, samps.size() - 0.5);
-      std::cout << "Time: " << tp->GetTimeStamp() << std::endl;
-      std::cout << "Block (Pulse): " << iBlock << " (" << iPulse << ")" << std::endl;
+
+    for (int iPulse = 0; iPulse < nPulses; ++iPulse) {
+      std::vector<int> samps = pulses.at(iPulse)->GetSamples();
+      TH1I pulse("pulse", (dets.at(det) + ";Time (ticks); ADC Value").c_str(), samps.size(), -0.5, samps.size() - 0.5);
+      
+      std::cout << "Time per Tick: " << gSetup->GetClockTick(bank) << std::endl;
+      std::cout << "Block (Pulse): " << iBlock + 1 << "/" << nBlocks << " (" << iPulse + 1 << "/" << nPulses << ")" << std::endl;
       for (int iSample = 0; iSample < (int)samps.size(); iSample++)
 	pulse.SetBinContent(iSample + 1, samps[iSample]);
       pulse.Draw();
@@ -105,26 +111,33 @@ void check(std::string fname) {
 	break;
       case 'p' : // Previous pulse
 	iPulse -= 2;
+	if (iPulse < -1)
+	  iPulse = -1;
 	break;
       case 'N' : // Next block
 	iPulse = nPulses;
 	break;
       case 'P' : // Previous block
 	iBlock -= 2;
+	if (iBlock < -1)
+	  iBlock = -1;
 	iPulse = nPulses;
 	break;
       case 'd' : // Choose a different detector
 	det = ChooseDetector(dets);
-	iBlock = 0;
+	iBlock = -1;
 	iPulse = nPulses;
 	break;
       case 'b' : // Enter block number
+	std::cout << "Block: ";
 	std::cin >> iBlock;
 	if (iBlock < 0 || iBlock >= nBlocks) {
 	  std::cout << "Invalid block number. Going back to first block." << std::endl;
-	  iBlock = 0;
+	  iBlock = -1;
 	}
-	iBlock--;
+	iBlock -= 2;
+	if (iBlock < -1)
+	  iBlock = -1;
 	iPulse = nPulses;
 	break;
       case 'q' : // Quit
