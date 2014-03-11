@@ -35,6 +35,7 @@ class MakeAnalysedPulses : public FillHistBase{
   TVPulseFinder* MakeFinder(const std::string& finderType);
 
   void SetAnalysedPulseMap(BankAnalPulseList_t& aMap){fAnalysedPulseMap=&aMap;}
+
  private:
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
   virtual int BeforeFirstEntry(TGlobalData* gData);
@@ -48,11 +49,9 @@ class MakeAnalysedPulses : public FillHistBase{
   std::string fFastGeneratorType;
   BankAnalPulseList_t* fAnalysedPulseMap;
 
+  // Member variables for the pulse finder
   TVPulseFinder* fPulseFinder;
-
-  PulseIslandList_t FindPulses(PulseIslandList_t theIslands);
-  long fPulseCounter;
-  long fIgnoredPulseCounter;
+  std::string fPulseFinderType;
 };
 
 #endif // MAKEANALYSEDPULSES_H__

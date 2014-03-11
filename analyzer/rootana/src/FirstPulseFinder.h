@@ -6,10 +6,13 @@
 class FirstPulseFinder : public TVPulseFinder {
 
  public:
-  FirstPulseFinder():TVPulseFinder(){};
+  FirstPulseFinder():TVPulseFinder(), fPulseCounter(0) {};
   virtual ~FirstPulseFinder(){};
 
   virtual PulseIslandList_t FindPulses(const PulseIslandList_t&);
+
+ private:
+  long fPulseCounter;
 };
 
 #endif
