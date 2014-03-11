@@ -6,28 +6,15 @@
 class FirstPulseFinder : public TVPulseFinder {
 
  public:
-  FirstPulseFinder():TVPulseFinder(), fPulseCounter(0) {};
+  FirstPulseFinder():TVPulseFinder(){};
   virtual ~FirstPulseFinder(){};
 
-  virtual PulseIslandList_t FindPulses(const PulseIslandList_t&);
-
  private:
-  long fPulseCounter;
-  
-  int fCurrentSample;
-  bool fPulseStarted;
+  virtual bool PassesSanityChecks(const TPulseIsland* island);
+  virtual int CalculateTestValue();
+  virtual bool PassesStartCondition(int val);
+  virtual bool PassesStopCondition(int val);
 
-  bool PassesSanityChecks(const TPulseIsland* island);
-  int CalculateTestValue();
-  bool PassesStartCondition(int val);
-  bool PassesStopCondition(int val);
-
-  // The information from TSetupData
-  std::string fBankName;
-  std::string fDetName;
-  int fPedestal;
-  int fTriggerPolarity;
-  int fNBits;
 };
 
 #endif
