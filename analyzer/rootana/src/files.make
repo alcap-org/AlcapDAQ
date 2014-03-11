@@ -19,4 +19,5 @@ PlotAmpVsTDiff.cpp \
 MaxBinAPGenerator.cpp \
 ProcessCorrectionFile.cpp \
 EvdE.cpp \
-DeadTimeGe.cpp
+DeadTimeGe.cpp \
+FirstPulseFinder.cpp

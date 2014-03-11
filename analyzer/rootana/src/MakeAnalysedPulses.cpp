@@ -1,6 +1,11 @@
 #include "MakeAnalysedPulses.h"
+
 #include "TVAnalysedPulseGenerator.h"
 #include "MaxBinAPGenerator.h"
+
+#include "TVPulseFinder.h"
+#include "FirstPulseFinder.h"
+
 #include <iostream>
 #include <sstream>
 #include <cmath>
@@ -18,7 +23,7 @@ MakeAnalysedPulses::MakeAnalysedPulses(
     fSlowGenerator(NULL),
     fFastGenerator(NULL),
     fSlowGeneratorType(slowGen),
-    fFastGeneratorType(fastGen), fPulseCounter(0){
+    fFastGeneratorType(fastGen), fPulseCounter(0), fPulseFinder(NULL){
 	dir->cd("/");
 }
 
@@ -47,8 +52,10 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData){
     fFastGenerator = MakeGenerator(fFastGeneratorType);
     fSlowGenerator = MakeGenerator(fSlowGeneratorType);
 
+    fPulseFinder = MakeFinder("first");
+
     // check we have a genarator for both fast and slow pulses
-    if (fFastGenerator && fSlowGenerator) return 0;
+    if (fFastGenerator && fSlowGenerator && fPulseFinder) return 0;
     return 1;
 }
 
@@ -69,7 +76,7 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
     theAnalysedPulses.clear();
 
-    PulseIslandList_t theSubPulses = FindPulses(thePulseIslands);
+    PulseIslandList_t theSubPulses = fPulseFinder->FindPulses(thePulseIslands);
 
     // If this is a detector's fast channel use fFastGenerator
     if ( TSetupData::IsFast(detname) ) {
@@ -98,6 +105,22 @@ TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& genera
     return generator;
 }
 
+TVPulseFinder* MakeAnalysedPulses::MakeFinder(const string& finderType){
+
+    // Select the finder type
+    TVPulseFinder* finder=NULL;
+    // As we develop newer techniques we can add to the list here
+    if (finderType == "first"){
+	finder = new FirstPulseFinder();
+    } else if( finderType == "PeakFitter") {
+    } else {
+	cout<<"Unknown finder requested: "<<finderType<<endl;	
+	return NULL;
+    }
+    return finder;
+}
+
+
 // FindPulses()
 // -- Finds all pulses on an island and returns the vector of sub pulses
 // -- Gets called for each channel in every event
@@ -116,6 +139,8 @@ MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::FindPulses(PulseIsland
   int max_digitised_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname));
 
   for (PulseIslandList_t::iterator islandIter = theIslands.begin(); islandIter != theIslands.end(); ++islandIter) {
+
+    ++fPulseCounter; // increase the pulse counter here
 
     // Things we need from the old pulse island
     std::vector<int> theSamples = (*islandIter)->GetSamples();
@@ -138,7 +163,6 @@ MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::FindPulses(PulseIsland
     // Histograms
     TH1F* new_pulses = NULL;
     TH1F* old_pulse = NULL;
-    ++fPulseCounter;
     
     if (plot_pulses) {
       std::stringstream histname;

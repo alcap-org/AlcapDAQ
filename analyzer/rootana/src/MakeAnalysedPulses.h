@@ -11,6 +11,7 @@
 #include "ModulesOptions.h"
 
 class TVAnalysedPulseGenerator;
+class TVPulseFinder;
 class TPulseIsland;
 class TAnalysedPulse;
 
@@ -31,6 +32,8 @@ class MakeAnalysedPulses : public FillHistBase{
   }
   TVAnalysedPulseGenerator* MakeGenerator(const std::string& generatorType);
 
+  TVPulseFinder* MakeFinder(const std::string& finderType);
+
   void SetAnalysedPulseMap(BankAnalPulseList_t& aMap){fAnalysedPulseMap=&aMap;}
  private:
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
@@ -45,8 +48,11 @@ class MakeAnalysedPulses : public FillHistBase{
   std::string fFastGeneratorType;
   BankAnalPulseList_t* fAnalysedPulseMap;
 
+  TVPulseFinder* fPulseFinder;
+
   PulseIslandList_t FindPulses(PulseIslandList_t theIslands);
-  int fPulseCounter;
+  long fPulseCounter;
+  long fIgnoredPulseCounter;
 };
 
 #endif // MAKEANALYSEDPULSES_H__
