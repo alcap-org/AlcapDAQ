@@ -21,28 +21,16 @@ FirstPulseFinder::PulseIslandList_t FirstPulseFinder::FindPulses(const PulseIsla
   std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
   int pedestal = TSetupData::Instance()->GetPedestal(bankname);
   int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
-  int max_digitised_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname));
 
   for (PulseIslandList_t::const_iterator islandIter = theIslands.begin(); islandIter != theIslands.end(); ++islandIter) {
 
     ++fPulseCounter; // increase the pulse counter here
-
-    // Things we need from the old pulse island
-    std::vector<int> theSamples = (*islandIter)->GetSamples();
     
-    // See if any samples are above the max digitisation value and if they are, we will skip to the next island
-    bool ignore_island = false;
-    for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
-      if (*sampleIter >= max_digitised_value) {
-	std::cout << "Pulse #" << fPulseCounter << ": has a sample with value " << *sampleIter << " which is greater than or equal to the maximum digitised value of " 
-		  << max_digitised_value << " and so will be ignored." << std::endl;
-	ignore_island = true;
-	break;
-      }
-    }
-    if (ignore_island)
+    // Check that the pulse island passes the sanity checks
+    if (!PassesSanityChecks(*(islandIter)))
       continue;
 
+    std::vector<int> theSamples = (*islandIter)->GetSamples();
     int RMS = 20; // hard-coded for the time being
 
     // Histograms
@@ -108,4 +96,30 @@ FirstPulseFinder::PulseIslandList_t FirstPulseFinder::FindPulses(const PulseIsla
   std::cout << std::endl;
 
   return output;
+}
+
+// PassesSanityChecks()
+// -- Checks if the pulse island passes the following sanity checks:
+//      1. overflowed the digitizer (i.e. any sample is >= 2^n, where n is the number of bits in the digitiser)
+// -- Returns: true if the pulse island passes and false if it fails
+bool FirstPulseFinder::PassesSanityChecks(const TPulseIsland* island) {
+
+  //////////////////
+  // Sanity Check 1
+  // See if any samples are above the max digitisation value
+  std::string bankname = island->GetBankName();
+  int max_digitised_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname));
+  std::vector<int> theSamples = island->GetSamples();
+
+  for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+    if (*sampleIter >= max_digitised_value) {
+      std::cout << "Pulse #" << fPulseCounter << ": has a sample with value " << *sampleIter << " which is greater than or equal to the maximum digitised value of " 
+		<< max_digitised_value << " and so will be ignored." << std::endl;
+      return false;
+    }
+  }
+  // End Sanity Check 1
+  ///////////////////////////////////
+
+  return true; // passed everything
 }

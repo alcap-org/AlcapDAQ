@@ -13,6 +13,8 @@ class FirstPulseFinder : public TVPulseFinder {
 
  private:
   long fPulseCounter;
+
+  bool PassesSanityChecks(const TPulseIsland* island);
 };
 
 #endif
