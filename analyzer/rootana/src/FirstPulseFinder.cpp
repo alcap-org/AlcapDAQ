@@ -16,11 +16,12 @@ FirstPulseFinder::PulseIslandList_t FirstPulseFinder::FindPulses(const PulseIsla
 
   bool plot_pulses = false;
 
-  // Because FindPulses() is called for each channel individually, we can get some variables before we go into the loop
-  std::string bankname = (*(theIslands.begin()))->GetBankName();
-  std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
-  int pedestal = TSetupData::Instance()->GetPedestal(bankname);
-  int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+  // Because FindPulses() is called for each channel individually, we can get the TSetupData variables here, before we go into the loop
+  fBankName = (*(theIslands.begin()))->GetBankName();
+  fDetName = TSetupData::Instance()->GetDetectorName(fBankName);
+  fPedestal = TSetupData::Instance()->GetPedestal(fBankName);
+  fTriggerPolarity = TSetupData::Instance()->GetTriggerPolarity(fBankName);
+  fNBits = TSetupData::Instance()->GetNBits(fBankName);
 
   for (PulseIslandList_t::const_iterator islandIter = theIslands.begin(); islandIter != theIslands.end(); ++islandIter) {
 
@@ -39,12 +40,12 @@ FirstPulseFinder::PulseIslandList_t FirstPulseFinder::FindPulses(const PulseIsla
     
     if (plot_pulses) {
       std::stringstream histname;
-      histname << bankname << "_" << detname << "_SubPulses_" << fPulseCounter;
+      histname << fBankName << "_" << fDetName << "_SubPulses_" << fPulseCounter;
       new_pulses = new TH1F(histname.str().c_str(), histname.str().c_str(), theSamples.size(),0,theSamples.size());
       new_pulses->SetLineColor(kMagenta);
       histname.str("");
 
-      histname << bankname << "_" << detname << "_OriginalIsland_" << fPulseCounter;
+      histname << fBankName << "_" << fDetName << "_OriginalIsland_" << fPulseCounter;
       old_pulse = new TH1F(histname.str().c_str(), histname.str().c_str(), theSamples.size(),0,theSamples.size());
     }
     
@@ -55,9 +56,10 @@ FirstPulseFinder::PulseIslandList_t FirstPulseFinder::FindPulses(const PulseIsla
     // Loop through the samples
     bool start_pulse = false;
     for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
-      
-      // Get the current height (taking into account pulse polarity)
-      int height = trigger_polarity*(*(sampleIter) - pedestal);
+
+      fCurrentSample = *(sampleIter);
+
+      int height = CalculateTestValue(); // get the test value that we will use for the start/stop conditions
 
       if (plot_pulses)
 	old_pulse->Fill(sampleIter - theSamples.begin(), *sampleIter);
@@ -75,7 +77,7 @@ FirstPulseFinder::PulseIslandList_t FirstPulseFinder::FindPulses(const PulseIsla
 	  start_pulse = false; // the pulse is over
 	  
 	  // Add the TPulseIsland
-	  output.push_back(new TPulseIsland(timestamp, newSamples, bankname));
+	  output.push_back(new TPulseIsland(timestamp, newSamples, fBankName));
 	  
 	  // Clear the old information
 	  newSamples.clear();
@@ -90,7 +92,7 @@ FirstPulseFinder::PulseIslandList_t FirstPulseFinder::FindPulses(const PulseIsla
     }
   }
 
-  std::cout << "Bank Name: " << bankname << " DetName: " << detname << std::endl;
+  std::cout << "Bank Name: " << fBankName << " DetName: " << fDetName << std::endl;
   std::cout << "Total number of pulse islands: " << theIslands.size() << std::endl;
   std::cout << "Total number of sub-pulses found: " << output.size() << std::endl;
   std::cout << std::endl;
@@ -107,8 +109,7 @@ bool FirstPulseFinder::PassesSanityChecks(const TPulseIsland* island) {
   //////////////////
   // Sanity Check 1
   // See if any samples are above the max digitisation value
-  std::string bankname = island->GetBankName();
-  int max_digitised_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname));
+  int max_digitised_value = std::pow(2, fNBits);
   std::vector<int> theSamples = island->GetSamples();
 
   for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
@@ -122,4 +123,13 @@ bool FirstPulseFinder::PassesSanityChecks(const TPulseIsland* island) {
   ///////////////////////////////////
 
   return true; // passed everything
+}
+
+// CalculateTestValue()
+// -- Calculates the test value that we will use to check against the start/stop conditions
+// -- Returns the test value
+int FirstPulseFinder::CalculateTestValue() {
+
+  // Return the current height (taking into account pulse polarity)
+  return fTriggerPolarity*(fCurrentSample - fPedestal);
 }

@@ -13,8 +13,18 @@ class FirstPulseFinder : public TVPulseFinder {
 
  private:
   long fPulseCounter;
+  
+  int fCurrentSample;
 
   bool PassesSanityChecks(const TPulseIsland* island);
+  int CalculateTestValue();
+
+  // The information from TSetupData
+  std::string fBankName;
+  std::string fDetName;
+  int fPedestal;
+  int fTriggerPolarity;
+  int fNBits;
 };
 
 #endif
