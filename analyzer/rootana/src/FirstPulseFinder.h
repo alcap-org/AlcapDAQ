@@ -10,7 +10,6 @@ class FirstPulseFinder : public TVPulseFinder {
   virtual ~FirstPulseFinder(){};
 
  private:
-  virtual bool PassesSanityChecks(const TPulseIsland* island);
   virtual int CalculateTestValue();
   virtual bool PassesStartCondition(int val);
   virtual bool PassesStopCondition(int val);

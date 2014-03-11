@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <cmath>
 
 class TVPulseFinder {
  protected:
@@ -31,8 +32,6 @@ class TVPulseFinder {
   bool fPulseStarted;
 
 
-
-  virtual bool PassesSanityChecks(const TPulseIsland* island)=0;
   virtual int CalculateTestValue()=0;
   virtual bool PassesStartCondition(int val)=0;
   virtual bool PassesStopCondition(int val)=0;
@@ -134,6 +133,32 @@ class TVPulseFinder {
     
     return output;
   }
+
+  // PassesSanityChecks()
+  // -- Checks if the pulse island passes the following sanity checks:
+  //      1. overflowed the digitizer (i.e. any sample is >= 2^n, where n is the number of bits in the digitiser)
+  // -- Returns: true if the pulse island passes and false if it fails
+  bool PassesSanityChecks(const TPulseIsland* island) {
+    
+    //////////////////
+    // Sanity Check 1
+    // See if any samples are above the max digitisation value
+    int max_digitised_value = std::pow(2, fNBits);
+    std::vector<int> theSamples = island->GetSamples();
+    
+    for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+      if (*sampleIter >= max_digitised_value) {
+	std::cout << "Pulse #" << fPulseCounter << ": has a sample with value " << *sampleIter << " which is greater than or equal to the maximum digitised value of " 
+		  << max_digitised_value << " and so will be ignored." << std::endl;
+	return false;
+      }
+    }
+    // End Sanity Check 1
+    ///////////////////////////////////
+    
+    return true; // passed everything
+  }
+
 };
 
 #endif // TVPULSEFINDER_H__
