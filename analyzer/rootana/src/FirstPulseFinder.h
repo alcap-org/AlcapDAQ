@@ -15,9 +15,12 @@ class FirstPulseFinder : public TVPulseFinder {
   long fPulseCounter;
   
   int fCurrentSample;
+  bool fPulseStarted;
 
   bool PassesSanityChecks(const TPulseIsland* island);
   int CalculateTestValue();
+  bool PassesStartCondition(int val);
+  bool PassesStopCondition(int val);
 
   // The information from TSetupData
   std::string fBankName;

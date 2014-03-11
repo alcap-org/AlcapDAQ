@@ -54,7 +54,7 @@ FirstPulseFinder::PulseIslandList_t FirstPulseFinder::FindPulses(const PulseIsla
     std::vector<int> newSamples;
     
     // Loop through the samples
-    bool start_pulse = false;
+    fPulseStarted = false;
     for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
 
       fCurrentSample = *(sampleIter);
@@ -62,19 +62,21 @@ FirstPulseFinder::PulseIslandList_t FirstPulseFinder::FindPulses(const PulseIsla
       int height = CalculateTestValue(); // get the test value that we will use for the start/stop conditions
 
       if (plot_pulses)
-	old_pulse->Fill(sampleIter - theSamples.begin(), *sampleIter);
+	old_pulse->Fill(sampleIter - theSamples.begin(), fCurrentSample);
       
-      if (start_pulse == false) { // if we haven't found a pulse yet then see if we do
-	if (height > 0 + RMS) {
+      // If the pulse hasn't started yet, then check the current height against the start condition
+      if (!fPulseStarted) {
+	if (PassesStartCondition(height)) {
 	  timestamp = sampleIter - theSamples.begin();
-	  start_pulse = true;
+	  fPulseStarted = true;
 	}
       }
       
-      if (start_pulse == true) {
-	// see if the pulse has ended
-	if (height < 0) {
-	  start_pulse = false; // the pulse is over
+      // If the pulse has started...
+      if (fPulseStarted) {
+	// ... check against the stop condition 
+	if (PassesStopCondition(height)) {
+	  fPulseStarted = false; // the pulse is over
 	  
 	  // Add the TPulseIsland
 	  output.push_back(new TPulseIsland(timestamp, newSamples, fBankName));
@@ -84,9 +86,10 @@ FirstPulseFinder::PulseIslandList_t FirstPulseFinder::FindPulses(const PulseIsla
 	  timestamp = 0;
 	}
 	else {
-	  newSamples.push_back(*sampleIter);
+	  // carry on adding samples to the pulse
+	  newSamples.push_back(fCurrentSample);
 	  if (plot_pulses)
-	    new_pulses->Fill(sampleIter - theSamples.begin(), *sampleIter);
+	    new_pulses->Fill(sampleIter - theSamples.begin(), fCurrentSample);
 	}
       }
     }
@@ -132,4 +135,30 @@ int FirstPulseFinder::CalculateTestValue() {
 
   // Return the current height (taking into account pulse polarity)
   return fTriggerPolarity*(fCurrentSample - fPedestal);
+}
+
+
+// PassesStartCondition()
+// -- Checks to see if the value given has passed the start condition
+// -- Returns true if it does pass and false if it doesn't
+bool FirstPulseFinder::PassesStartCondition(int val) {
+
+  int RMS = 20; // hard-coded for the time being
+
+  if (val > 0 + RMS)
+    return true;
+  else
+    return false;
+}
+
+
+// PassesStopCondition()
+// -- Checks to see if the value given has passed the stop condition
+// -- Returns true if it does pass and false if it doesn't
+bool FirstPulseFinder::PassesStopCondition(int val) {
+
+  if (val < 0)
+    return true;
+  else
+    return false;
 }
