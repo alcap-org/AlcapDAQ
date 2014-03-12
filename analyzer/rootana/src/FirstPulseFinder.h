@@ -1,5 +1,5 @@
-#ifndef FIRSTPULSEFINDER_H_
-#define FIRSTPULSEFINDER_H_
+#ifndef FirstPulseFinder_H_
+#define FirstPusleFinder_H_
 
 #include "TVPulseFinder.h"
 
