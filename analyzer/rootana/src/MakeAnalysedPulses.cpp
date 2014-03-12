@@ -86,9 +86,9 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
     // If this is a detector's fast channel use fFastGenerator
     if ( TSetupData::IsFast(detname) ) {
-       fFastGenerator->ProcessPulses( gSetup, thePulseIslands,theAnalysedPulses);
+       fFastGenerator->ProcessPulses( gSetup, theSubPulses,theAnalysedPulses);
     } else {// Else it is a slow pulse or not labelled, so use fSlowGenerator
-       fSlowGenerator->ProcessPulses( gSetup, thePulseIslands,theAnalysedPulses);
+       fSlowGenerator->ProcessPulses( gSetup, theSubPulses,theAnalysedPulses);
     }
 
     gAnalysedPulseMap.insert(std::make_pair(detname,theAnalysedPulses));
