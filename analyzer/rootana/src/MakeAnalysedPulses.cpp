@@ -39,6 +39,12 @@ MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
 	if(fFastGeneratorType==""){
 	    fFastGeneratorType=opts->GetString("1");
 	}
+
+	fPulseFinderType=opts->GetString("pulse_finder");
+	if (fPulseFinderType==""){
+	  fPulseFinderType=opts->GetString("2");
+	}
+
 	dir->cd("/");
 }
 
@@ -52,7 +58,7 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData){
     fFastGenerator = MakeGenerator(fFastGeneratorType);
     fSlowGenerator = MakeGenerator(fSlowGeneratorType);
 
-    fPulseFinder = MakeFinder("first");
+    fPulseFinder = MakeFinder(fPulseFinderType);
 
     // check we have a genarator for both fast and slow pulses
     if (fFastGenerator && fSlowGenerator && fPulseFinder) return 0;
