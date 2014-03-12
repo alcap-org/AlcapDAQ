@@ -106,7 +106,7 @@ class TVPulseFinder {
 	// If the pulse has started...
 	if (fPulseStarted) {
 	  // ... check against the stop condition 
-	  if (PassesStopCondition(test_value)) {
+	  if (PassesStopCondition(test_value) || (sampleIter == theSamples.end()-1)) {
 	    fPulseStarted = false; // the pulse is over
 	    
 	    // Add the TPulseIsland
