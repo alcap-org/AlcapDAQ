@@ -20,4 +20,5 @@ MaxBinAPGenerator.cpp \
 ProcessCorrectionFile.cpp \
 EvdE.cpp \
 DeadTimeGe.cpp \
-FirstPulseFinder.cpp
+FirstPulseFinder.cpp \
+NullPulseFinder.cpp

@@ -5,6 +5,7 @@
 
 #include "TVPulseFinder.h"
 #include "FirstPulseFinder.h"
+#include "NullPulseFinder.h"
 
 #include <iostream>
 #include <sstream>
@@ -118,7 +119,8 @@ TVPulseFinder* MakeAnalysedPulses::MakeFinder(const string& finderType){
     // As we develop newer techniques we can add to the list here
     if (finderType == "first"){
 	finder = new FirstPulseFinder();
-    } else if( finderType == "PeakFitter") {
+    } else if( finderType == "null") {
+      finder = new NullPulseFinder();
     } else {
 	cout<<"Unknown finder requested: "<<finderType<<endl;	
 	return NULL;
