@@ -16,7 +16,8 @@ class TVPulseFinder {
   typedef std::map<std::string, PulseIslandList_t > BankPulseList_t;
 
  public:
-  TVPulseFinder(): fPulseCounter(0) {};
+  TVPulseFinder(): fBankName(""), fDetName(""), fPedestal(0), fTriggerPolarity(0), fNBits(0), fPulseCounter(0),
+    fCurrentSample(0), fPulseStarted(false), fDoSanityChecks(true){};
   virtual ~TVPulseFinder(){};
 
   // The information from TSetupData
@@ -30,6 +31,7 @@ class TVPulseFinder {
   
   int fCurrentSample;
   bool fPulseStarted;
+  bool fDoSanityChecks; // set to false if you don't want to do the sanity checks (e.g. in the NullPulseFinder)
 
 
   virtual int CalculateTestValue()=0;
@@ -60,8 +62,10 @@ class TVPulseFinder {
       ++fPulseCounter; // increase the pulse counter here
     
       // Check that the pulse island passes the sanity checks
-      if (!PassesSanityChecks(*(islandIter)))
-	continue;
+      if (fDoSanityChecks) {
+	if (!PassesSanityChecks(*(islandIter)))
+	  continue;
+      }
       
       std::vector<int> theSamples = (*islandIter)->GetSamples();
 
@@ -106,6 +110,7 @@ class TVPulseFinder {
 	// If the pulse has started...
 	if (fPulseStarted) {
 	  // ... check against the stop condition 
+	  // also want to make sure we aren't at the final sample (otherwise we will lose the last sub pulse)
 	  if (PassesStopCondition(test_value) || (sampleIter == theSamples.end()-1)) {
 	    fPulseStarted = false; // the pulse is over
 	    

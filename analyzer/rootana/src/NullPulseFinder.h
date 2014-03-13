@@ -6,7 +6,7 @@
 class NullPulseFinder : public TVPulseFinder {
 
  public:
-  NullPulseFinder():TVPulseFinder(){};
+  NullPulseFinder():TVPulseFinder(){ fDoSanityChecks = false; };
   virtual ~NullPulseFinder(){};
 
  private:
