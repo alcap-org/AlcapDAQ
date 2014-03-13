@@ -106,6 +106,7 @@ int main(int argc, char **argv){
   // Now let's setup all the analysis modules we want
   ret= PrepareModules(arguments);
   if(ret!=0) {
+     printf("Problem setting up analysis modules.\n");
      return ret;
   }
   
@@ -143,7 +144,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   else if((Long64_t)arguments.start < nentries && arguments.start > 0){
     stop = (Long64_t)arguments.start;
   }
-  
+
   //preprocess first event
   if (g_event){
     g_event->Clear("C");
@@ -290,7 +291,8 @@ TSetupData* TSetupData::Instance()
 
   return s_data;
 }
-  void PrintSetupData(TSetupData* s_data){
+
+void PrintSetupData(TSetupData* s_data){
      if(!s_data) return;
   // print things out
   std::map<std::string, std::string>::iterator it_info;
@@ -352,8 +354,11 @@ Int_t PrepareModules(const ARGUMENTS& arguments){
           opts =  modules_file.GetOptions(i);
 	  mod = mgr->createModule(name,opts);
 	  if(mod) 
-          fillhists[++count] =mod;
+	    fillhists[count++] =mod;
+	  else
+	    return 1;
   }
+  n_fillhist = num_modules;
 
   return 0;
 }

@@ -28,7 +28,7 @@ std::cout<<message;
 class FillHistBase
 {
  public:
-  FillHistBase(char *HistogramDirectoryName, TSetupData* setup=NULL);
+  FillHistBase(const char *HistogramDirectoryName, TSetupData* setup=NULL);
   virtual ~FillHistBase();
 
   int ProcessGenericEntry(TGlobalData *gData, TSetupData *gSetup);
