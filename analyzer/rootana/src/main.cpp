@@ -106,7 +106,6 @@ int main(int argc, char **argv){
   // Now let's setup all the analysis modules we want
   ret= PrepareModules(arguments);
   if(ret!=0) {
-     printf("Problem setting up analysis modules.");
      return ret;
   }
   
@@ -338,6 +337,11 @@ Int_t PrepareModules(const ARGUMENTS& arguments){
 
   modules::manager* mgr = modules::manager::Instance();
   size_t num_modules=modules_file.GetNumModules();
+  if(num_modules==0){
+          printf("No modules were requested for use, so there's nothing to be done!\n");
+	  return 1;
+  }
+	  
   std::string name;
   modules::options* opts;
   //modules::ModuleBase *mods[num_modules];

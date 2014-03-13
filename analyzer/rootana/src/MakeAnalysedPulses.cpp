@@ -1,8 +1,10 @@
+#include "ModulesManager.h"
 #include "MakeAnalysedPulses.h"
 #include "TVAnalysedPulseGenerator.h"
 #include "MaxBinAPGenerator.h"
 #include <iostream>
 #include <utility>
+#include "RegisterModule.inc"
 
 using std::cout;
 using std::endl;
@@ -24,12 +26,6 @@ MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
     fFastGenerator(NULL){
 	fSlowGeneratorType=opts->GetString("slow_gen");
 	fFastGeneratorType=opts->GetString("fast_gen");
-	if(fSlowGeneratorType==""){
-	    fSlowGeneratorType=opts->GetString("0");
-	}
-	if(fFastGeneratorType==""){
-	    fFastGeneratorType=opts->GetString("1");
-	}
 	dir->cd("/");
 }
 
@@ -92,4 +88,5 @@ TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& genera
     return generator;
 }
 
-ALCAP_REGISTER_MODULE(MakeAnalysedPulses)
+ALCAP_REGISTER_MODULE(MakeAnalysedPulses);
+//ALCAP_REGISTER_MODULE(MakeAnalysedPulses,slow_gen,fast_gen);

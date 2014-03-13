@@ -32,6 +32,7 @@ static void getSeveralWords(const std::string& in, std::vector<std::string> &vec
 }
 
 int modules::reader::ReadFile(const char* name){
+
     // Open config file
     std::ifstream infile;
     int ret = OpenFile(name,infile);
@@ -43,7 +44,7 @@ int modules::reader::ReadFile(const char* name){
     // Loop over each line
     std::string full_line;
     std::string section=fGlobalModule, new_section;
-    bool listingModules=false;
+    Option_t current_opt;
     fLineNumber=0;
     while(std::getline(infile,full_line)){
 	fLineNumber++;
@@ -58,21 +59,23 @@ int modules::reader::ReadFile(const char* name){
 	if(new_section!="") {
 	    section=new_section;
 	    if(fShouldPrint) std::cout<<"Found new section: "<<section<<std::endl;
-	    if(section=="MODULES") listingModules=true;
-	    else {
-		listingModules=false;
+	    if(section!="MODULES") {
 		AddSection(section);
 	    }
 	    continue;
 	}
 
-	if(listingModules) { 
+	if(section=="MODULES") {
 	    ret=AddModule(full_line);
 	    if(ret!=0) return ret;
 	}else{
 	    // options use key and values separated by '='
+	    current_opt=SplitOption(full_line);
+	    if(section==fGlobalModule) {
+	        ProcessGlobalOption(current_opt);
+	    }
 	    if(fShouldPrint) std::cout<<"Found option: "<<full_line<<std::endl;
-	    AddOption(section,full_line);
+	    AddOption(section,current_opt);
 	}
     }
     return 0;
@@ -81,12 +84,12 @@ int modules::reader::ReadFile(const char* name){
 int modules::reader::OpenFile(const char* name, std::ifstream& infile){
     infile.close();
     infile.open(name, std::ifstream::in);
-    if(infile.is_open()) {
-	if(fShouldPrint) std::cout<<"Found modules file: "<<name<<std::endl;
-	return 0;
+    if(!infile.is_open()) {
+        std::cout<<"Problem opening modules file: "<<name<<std::endl;
+        return 1;
     }
-    std::cout<<"Problem opening modules file: "<<name<<std::endl;
-    return 1;
+    if(fShouldPrint) std::cout<<"Found modules file: "<<name<<std::endl;
+    return 0;
 }
 
 bool modules::reader::isComment( std::stringstream& line){
@@ -121,7 +124,6 @@ std::string modules::reader::findSectionName(std::stringstream& line){
 
 int modules::reader::AddModule(std::string line){
     std::string name, type;
-    std::vector<std::string> args;
 
     // How is this module specified ? 
     // If  the line contains an equals sign, assume we have a name and a type
@@ -135,19 +137,14 @@ int modules::reader::AddModule(std::string line){
 	// module is named
 	name=getOneWord(line,0,equ_pos);
 	line=line.substr(equ_pos+1);
-
-	// since the module has been named, create a section to store other
-	// options that may be provided subsequently
-	if(!AddSection(name)){
-	    std::cout<<"Error on line "<<fLineNumber<<": module name is being reused"<<std::endl;
-	    return 1;
-	}
     }
 
     // Get the type of the module to be used
     size_t br_pos=line.find('(');
     type=getOneWord(line,0,br_pos);
-    // Get argumenst to the module if they're provided
+
+    // Get arguments to the module if they're provided
+    std::vector<std::string> args;
     if(br_pos!=std::string::npos) {
 	size_t br_close_pos=line.rfind(')');
 	if(br_close_pos ==std::string::npos) {
@@ -169,32 +166,40 @@ int modules::reader::AddModule(std::string line){
     //Add the module to the list of modules
     modules::options* opts;
     if(name==""){
-        opts=new modules::options();
+        opts=new modules::options(type);
     }else{
+	// since the module has been named, create a section to store other
+	// options that may be provided subsequently
+	if(!AddSection(name,type)){
+	    std::cout<<"Error on line "<<fLineNumber<<": module name is being reused"<<std::endl;
+	    return 1;
+	}
         opts=fAllOptions[name];
     }
-    char number[10];
     for(unsigned i=0;i<args.size();i++) {
-	sprintf(number,"%d",i);
-	opts->AddOption(number,args[i]);
+	opts->AddArgument(i,args[i]);
     }
     fModules.push_back(std::make_pair(type,opts));
     return 0;
 }
 
-void modules::reader::AddOption(const std::string& module, const std::string& line){
-    std::string key, value;
+modules::reader::Option_t modules::reader::SplitOption( const std::string& line){
+    Option_t opt;
 
     //split the line around any equals sign
     size_t equ_pos=line.find('=');
     if(equ_pos==std::string::npos) {
-	key=line;
-	value="";
+	opt.key=line;
+	opt.value="";
     }else{
-	key=line.substr(0,equ_pos);
-	value=line.substr(equ_pos+1);
+	opt.key=line.substr(0,equ_pos);
+	opt.value=line.substr(equ_pos+1);
     }
-    fAllOptions[module]->AddOption(key,value);
+    return opt;
+}
+
+void modules::reader::AddOption(const std::string& module, Option_t opt){
+    fAllOptions[module]->AddOption(opt.key,opt.value);
 }
 
 void modules::reader::PrintAllOptions()const{
@@ -214,4 +219,14 @@ void modules::reader::PrintAllOptions()const{
 	std::cout<<"Section: "<<it->first<<std::endl;
 	it->second->DumpOptions();
     }
+}
+void modules::reader::SetDebug(){
+    std::cout<<"Debug mode activated"<<std::endl;
+    fShouldPrint=true;
+}
+
+void modules::reader::ProcessGlobalOption(Option_t opt){
+  if (opt.key=="debug"){
+     SetDebug();
+  }
 }

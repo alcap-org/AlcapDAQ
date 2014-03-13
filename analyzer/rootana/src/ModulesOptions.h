@@ -12,10 +12,11 @@ namespace modules{
 class modules::options{
 
     public:
-	options(){};
+	options(const std::string& name):fModuleName(name){};
 	virtual ~options(){};
 
 	void AddOption(const std::string& name, const std::string& option);
+	void AddArgument(const int& number, const std::string& option);
     public:
 	int GetInt(const std::string&)const;
 	double GetDouble(const std::string&)const;
@@ -35,6 +36,8 @@ class modules::options{
 	typedef std::vector<OptionsList_t::iterator> OptionsOrder_t;
 	OptionsList_t fOptions;
 	OptionsOrder_t fOrder;
+
+	std::string fModuleName;
 
 };
 

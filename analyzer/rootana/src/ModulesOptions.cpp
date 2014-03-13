@@ -1,4 +1,5 @@
 #include "ModulesOptions.h"
+#include "ModulesManager.h"
 #include <sstream>
 #include <iostream>
 
@@ -45,6 +46,13 @@ void modules::options::DumpOptions(const std::string& prefix)const{
     //std::cout<<"key  "<<" = "<<" value "<<std::endl;
     OptionsOrder_t::const_iterator it;
     for(it=fOrder.begin();it!=fOrder.end();it++){
-	    std::cout<<prefix<<(*it)->first<<" = "<<(*it)->second<<std::endl;
+        std::cout<<prefix<<(*it)->first<<" = "<<(*it)->second<<std::endl;
     }
+}
+
+void modules::options::AddArgument(const int& number, const std::string& option){
+    // Get the name of this argument
+    std::string name = modules::manager::Instance()->GetArgumentName(fModuleName,number);
+    // Set the value of the corresponding option
+    modules::options::AddOption(name,option);
 }
