@@ -68,6 +68,7 @@ class TVPulseFinder {
       }
       
       std::vector<int> theSamples = (*islandIter)->GetSamples();
+      int island_timestamp = (*islandIter)->GetTimeStamp();
 
       // Histograms
       TH1F* new_pulses = NULL;
@@ -102,7 +103,7 @@ class TVPulseFinder {
 	// If the pulse hasn't started yet, then check the current test_value against the start condition
 	if (!fPulseStarted) {
 	  if (PassesStartCondition(test_value)) {
-	    timestamp = sampleIter - theSamples.begin();
+	    timestamp = island_timestamp + (sampleIter - theSamples.begin());
 	    fPulseStarted = true;
 	  }
 	}
