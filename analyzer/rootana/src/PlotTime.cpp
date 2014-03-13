@@ -13,6 +13,8 @@
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
 
+#include "RegisterModule.inc"
+
 using std::string;
 using std::map;
 using std::vector;
@@ -25,7 +27,7 @@ PlotTime::PlotTime(char *HistogramDirectoryName) :
   dir->cd("/");
 }
 
-PlotTime::PlotTime(modules::options* opts) : FillHistBase(opts->GetString("0").c_str()) {
+PlotTime::PlotTime(modules::options* opts) : FillHistBase(opts->GetString("mod_name").c_str()) {
   dir->cd("/");
 }
 
@@ -69,4 +71,4 @@ int PlotTime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(PlotTime)
+ALCAP_REGISTER_MODULE(PlotTime,mod_name);

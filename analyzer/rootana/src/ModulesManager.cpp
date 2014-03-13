@@ -1,5 +1,7 @@
 #include "ModulesManager.h"
 #include <iostream>
+#include <string.h>
+#include <stdio.h>
 
 using std::cout;
 using std::endl;
@@ -31,8 +33,19 @@ modules::ModuleBase* modules::manager::createModule(const std::string& name){
 
 void modules::manager::registerModule(const std::string& name, modules::manager::maker make){
     fModuleMakers[name]=make;
+    fMostRecentRegister=name;
 }
 
 void modules::manager::addOptions(const std::string& name, modules::options *opts){
     fModuleOptions[name]=opts;
+}
+
+void modules::manager::addArguments(const std::string& all_args){
+    char line[1000];
+    strcpy(line,all_args.c_str());
+    char* arg = strtok(line,", ");
+    while(arg != NULL){ 
+        addArgument(arg);
+        arg = strtok(NULL,", ");
+    }
 }

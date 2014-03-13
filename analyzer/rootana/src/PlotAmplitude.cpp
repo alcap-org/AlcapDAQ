@@ -13,6 +13,8 @@
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
 
+#include "RegisterModule.inc"
+
 using std::string;
 using std::map;
 using std::vector;
@@ -25,7 +27,7 @@ PlotAmplitude::PlotAmplitude(char *HistogramDirectoryName) :
   dir->cd("/");
 }
 
-PlotAmplitude::PlotAmplitude(modules::options* opts) : FillHistBase(opts->GetString("0").c_str()) {
+PlotAmplitude::PlotAmplitude(modules::options* opts) : FillHistBase(opts->GetString("mod_name").c_str()) {
   dir->cd("/");
 }
 
@@ -70,4 +72,4 @@ int PlotAmplitude::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(PlotAmplitude)
+ALCAP_REGISTER_MODULE(PlotAmplitude,mod_name);

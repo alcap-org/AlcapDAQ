@@ -13,6 +13,8 @@
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
 
+#include "RegisterModule.inc"
+
 using std::string;
 using std::map;
 using std::vector;
@@ -47,10 +49,10 @@ PlotAmpVsTDiff::PlotAmpVsTDiff(char *HistogramDirectoryName, std::string det_nam
   dir->cd("/");
 }
 
-PlotAmpVsTDiff::PlotAmpVsTDiff(modules::options* opts) : FillHistBase( (opts->GetString("0")).c_str() ) {
+PlotAmpVsTDiff::PlotAmpVsTDiff(modules::options* opts) : FillHistBase( (opts->GetString("mod_name")).c_str() ) {
 
-  fDetNameA = opts->GetString("1");
-  fDetNameB = opts->GetString("2");
+  fDetNameA = opts->GetString("det_a");
+  fDetNameB = opts->GetString("det_b");
 
   // hAmpVsTDiff
   std::string histname = "h" + fDetNameA + "-" + fDetNameB + "_AmpVsTDiff_Coarse";
@@ -123,4 +125,4 @@ int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(PlotAmpVsTDiff)
+ALCAP_REGISTER_MODULE(PlotAmpVsTDiff,mod_name,det_a,det_b);

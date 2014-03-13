@@ -1,3 +1,4 @@
+#include "ModulesManager.h"
 #include "MakeAnalysedPulses.h"
 
 #include "TVAnalysedPulseGenerator.h"
@@ -11,6 +12,7 @@
 #include <sstream>
 #include <cmath>
 #include <utility>
+#include "RegisterModule.inc"
 
 using std::cout;
 using std::endl;
@@ -34,17 +36,7 @@ MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
    fFastGenerator(NULL){
 	fSlowGeneratorType=opts->GetString("slow_gen");
 	fFastGeneratorType=opts->GetString("fast_gen");
-	if(fSlowGeneratorType==""){
-	    fSlowGeneratorType=opts->GetString("0");
-	}
-	if(fFastGeneratorType==""){
-	    fFastGeneratorType=opts->GetString("1");
-	}
-
 	fPulseFinderType=opts->GetString("pulse_finder");
-	if (fPulseFinderType==""){
-	  fPulseFinderType=opts->GetString("2");
-	}
 
 	dir->cd("/");
 }
@@ -130,4 +122,4 @@ TVPulseFinder* MakeAnalysedPulses::MakeFinder(const string& finderType){
     return finder;
 }
 
-ALCAP_REGISTER_MODULE(MakeAnalysedPulses)
+ALCAP_REGISTER_MODULE(MakeAnalysedPulses,slow_gen,fast_gen,pulse_finder);

@@ -4,7 +4,6 @@
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "TDirectory.h"
-#include "RegisterModule.inc"
 
 #include <iostream>
 // This is an efficient way to switch on and off printing text for debugging
