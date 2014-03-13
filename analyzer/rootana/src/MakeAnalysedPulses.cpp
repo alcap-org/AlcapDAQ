@@ -85,6 +85,8 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
     PulseIslandList_t theSubPulses = fPulseFinder->FindPulses(thePulseIslands);
 
+    if (theSubPulses.size() == 0) continue; // no sub-pulses here...
+
     // If this is a detector's fast channel use fFastGenerator
     if ( TSetupData::IsFast(detname) ) {
        fFastGenerator->ProcessPulses( gSetup, theSubPulses,theAnalysedPulses);
