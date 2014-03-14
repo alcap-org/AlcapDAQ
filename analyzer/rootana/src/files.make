@@ -21,4 +21,5 @@ ProcessCorrectionFile.cpp \
 EvdE.cpp \
 DeadTimeGe.cpp \
 FirstPulseFinder.cpp \
-NullPulseFinder.cpp
+NullPulseFinder.cpp \
+AppraisePulseFinder.cpp

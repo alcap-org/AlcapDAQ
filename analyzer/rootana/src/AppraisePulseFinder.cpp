@@ -1,0 +1,91 @@
+//#define USE_PRINT_OUT 
+
+#include "AppraisePulseFinder.h"
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <map>
+#include <utility>
+#include <algorithm>
+#include <cmath>
+#include <sstream>
+
+#include "TAnalysedPulse.h"
+#include "TDetectorPulse.h"
+
+#include "RegisterModule.inc"
+
+using std::string;
+using std::map;
+using std::vector;
+using std::pair;
+
+extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+
+AppraisePulseFinder::AppraisePulseFinder(char *HistogramDirectoryName) :
+  FillHistBase(HistogramDirectoryName){  
+  dir->cd("/");
+}
+
+AppraisePulseFinder::AppraisePulseFinder(modules::options* opts) : FillHistBase(opts->GetString("mod_name").c_str()) {
+
+  fDetName = opts->GetString("det_name");
+  fPulseNumber = opts->GetInt("pulse_number");
+
+  dir->cd("/");
+}
+
+AppraisePulseFinder::~AppraisePulseFinder(){  
+}
+
+int AppraisePulseFinder::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
+  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
+  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+
+
+  // Loop through and find the correct detector, while counting up the number of pulses in all the previous detectors
+  int pulse_counter = 0;
+  for(std::map<std::string, std::vector<TPulseIsland*> >::iterator bankIter = gData->fPulseIslandToChannelMap.begin(); bankIter != gData->fPulseIslandToChannelMap.end(); ++bankIter){
+    
+    std::string bankname = bankIter->first;
+    std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
+    std::vector<TPulseIsland*> pulses = bankIter->second;
+    
+    // if this isn't the detector we're looking for, just add the number of pulses to the counter
+    if (detname != fDetName) {
+      pulse_counter += pulses.size();
+      continue;
+    }
+
+    // now we have the pulses for the detector we want so calculate what the index should be
+    int index = fPulseNumber - pulse_counter - 1;
+
+    // the index should be a number between 0 and the size of the TPulseIsland vector
+    if ( index < 0 || index > pulses.size()) {
+      std::cout << "Pulse #" << fPulseNumber << " is not from detector " << fDetName << std::endl;
+      std::cout << "Check the parameters to this module" << std::endl;
+      return 1;
+    }
+
+    // Get the TPulseIsland we want to use to appraise the pulse finder
+    TPulseIsland* thePulse = pulses.at(index);
+    std::vector<int> theSamples = thePulse->GetSamples();
+
+    // Just plot it for the time being
+    std::stringstream histname;
+    histname << bankname << "_" << fDetName << "_Pulse_" << fPulseNumber;
+    hPulse = new TH1F(histname.str().c_str(), histname.str().c_str(), theSamples.size(),0,theSamples.size());
+
+    for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+      hPulse->Fill(sampleIter - theSamples.begin(), *sampleIter);
+    }
+
+    break; // no need to loop through detectors any more
+
+  } // end loop through detectors
+  return 0;
+}
+
+ALCAP_REGISTER_MODULE(AppraisePulseFinder,mod_name,det_name,pulse_number,pulse_finder);
