@@ -32,11 +32,29 @@ AppraisePulseFinder::AppraisePulseFinder(modules::options* opts) : FillHistBase(
 
   fDetName = opts->GetString("det_name");
   fPulseNumber = opts->GetInt("pulse_number");
+  fPulseFinderType = opts->GetString("pulse_finder");
 
+  fPulseFinder = MakeFinder(fPulseFinderType);
   dir->cd("/");
 }
 
 AppraisePulseFinder::~AppraisePulseFinder(){  
+}
+
+TVPulseFinder* AppraisePulseFinder::MakeFinder(const std::string& finderType){
+
+    // Select the finder type
+    TVPulseFinder* finder=NULL;
+    // As we develop newer techniques we can add to the list here
+    if (finderType == "first"){
+	finder = new FirstPulseFinder();
+    } else if( finderType == "null") {
+      finder = new NullPulseFinder();
+    } else {
+      std::cout<<"Unknown finder requested: "<<finderType<<std::endl;	
+	return NULL;
+    }
+    return finder;
 }
 
 int AppraisePulseFinder::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
@@ -81,6 +99,11 @@ int AppraisePulseFinder::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
       hPulse->Fill(sampleIter - theSamples.begin(), *sampleIter);
     }
+
+    // Run the pulse finder on this pulse
+    std::vector<TPulseIsland*> thePulseIslandVector;
+    thePulseIslandVector.push_back(thePulse);
+    fPulseFinder->FindPulses(thePulseIslandVector);
 
     break; // no need to loop through detectors any more
 
