@@ -91,7 +91,7 @@ void view_pulses(std::string fname) {
   TCanvas can;
   
   TFile f(fname.c_str(), "READ");
-  TFile o("pulses.root", "RECREATE");
+  TFile* o = NULL;
   
   TTree *events = NULL, *setup = NULL;
   events = (TTree*) f.Get("EventTree");
@@ -170,11 +170,16 @@ void view_pulses(std::string fname) {
 	iPulse = nPulses;
 	break;
       case 's' : // Save pulse
-	o.cd();
+	if (!o) {
+	  o = new TFile("pulses.root", "RECREATE");
+	  std::cout << "Created file pulses.root for saving histograms." << std::endl;
+	}
+	o->cd();
 	{
 	  std::stringstream name;
 	  name << dets.at(det) << "_Block" << iBlock+1 << "_Pulse" << iPulse+1;
 	  pulse.Write(name.str().c_str());
+	  std::cout << "Saved pulse histogram " << name.str() << " to ./pulses.root." << std::endl;
 	}
 	iPulse--;
 	break;
@@ -204,5 +209,10 @@ void view_pulses(std::string fname) {
 	break;
       }
     }
+  }
+  if (o) {
+    o->Close();
+    delete o;
+    o = NULL;
   }
 }
