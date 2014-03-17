@@ -111,7 +111,7 @@ class TVPulseFinder {
 	// If the pulse has started...
 	if (fPulseStarted) {
 	  // ... check against the stop condition 
-	  // also want to make sure we aren't at the final sample (otherwise we will lose the last sub pulse)
+	  // also want to make sure we aren't at the final sample (otherwise we will lose the last sub pulse if we are at the final sample)
 	  if (PassesStopCondition(test_value) || (sampleIter == theSamples.end()-1)) {
 	    fPulseStarted = false; // the pulse is over
 	    
@@ -149,7 +149,7 @@ class TVPulseFinder {
     //////////////////
     // Sanity Check 1
     // See if any samples are above the max digitisation value
-    int max_digitised_value = std::pow(2, fNBits);
+    int max_digitised_value = std::pow(2, fNBits) - 1;
     std::vector<int> theSamples = island->GetSamples();
     
     for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
