@@ -3,6 +3,7 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
+#include <sstream>
 
 #include "TFile.h"
 #include "TTree.h"
@@ -10,6 +11,7 @@
 #include "TString.h"
 #include "TCanvas.h"
 #include "TAxis.h"
+#include "TLine.h"
 
 #include "../src/common/TPulseIsland.h"
 #include "../src/common/TGlobalData.h"
@@ -21,6 +23,7 @@ char GetInput() {
   opts['p'] = std::string("Previous pulse");
   opts['N'] = std::string("Next block");
   opts['P'] = std::string("Previous block");
+  opts['s'] = std::string("Save pules");
   opts['d'] = std::string("Choose a different detector");
   opts['b'] = std::string("Enter block number");
   opts['q'] = std::string("Quit");
@@ -44,6 +47,43 @@ int ChooseDetector(const std::vector<std::string>& dets) {
   return choice - 1;
 }
 
+// To draw the constant fraction time, uncomment the one line of code in
+// the main program loop in view_pulses
+double GetCFTime(TSetupData* setup, TPulseIsland* pulse) {
+
+  double fFraction = 0.5;
+
+  std::string bank = pulse->GetBankName();
+  int ped = setup->GetPedestal(bank);
+  int pol = setup->GetTriggerPolarity(bank);
+  std::cout << "Ped: " << ped << "\t Pol: " << pol << std::endl;
+  std::vector<int> samples = pulse->GetSamples();
+  int t1 = 0; // Time tick right before crossing CF level
+  int t2 = 1; // Time tick right after crossing CF level
+  int tmax = 1; // Time tick of maximum value
+  int s1 = pol * (samples[t1] - ped); // Sample value right before crossing CF level
+  int s2 = pol * (samples[t2] - ped); // Sample value right after crossing CF level
+  int smax = pol * (samples[tmax] - ped); // Sample value at maximum
+  double cf = fFraction * (double)smax;
+  for ( int iSample = 2; iSample < (int)samples.size(); ++iSample) {
+    if (pol * (samples[iSample] - ped) > smax) {
+      tmax = iSample;
+      smax = pol * (samples[tmax] - ped);
+      cf = fFraction * (double)smax;
+      while (s2 < (int)cf && s2 <= smax) {
+	++t1;
+	++t2;
+	s1 = pol * (samples[t1] - ped);
+	s2 = pol * (samples[t2] - ped);
+      }
+    }
+  }
+    
+  double t = (double)(t2 - t1) / (double)(s2 - s1) * (cf - (double)s1) + (double)t1; // Units of clock tick
+  
+  return t;
+}
+
 void view_pulses(std::string fname) {
   TGlobalData* gData = NULL;
   TSetupData* gSetup = NULL;
@@ -51,6 +91,7 @@ void view_pulses(std::string fname) {
   TCanvas can;
   
   TFile f(fname.c_str(), "READ");
+  TFile o("pulses.root", "RECREATE");
   
   TTree *events = NULL, *setup = NULL;
   events = (TTree*) f.Get("EventTree");
@@ -84,6 +125,7 @@ void view_pulses(std::string fname) {
   
   for (int iBlock = 0; iBlock < nBlocks; ++iBlock) {
     bank = gSetup->GetBankName(dets.at(det));
+    int max = (int)std::pow(2,gSetup->GetNBits(bank));
     events->GetEntry(iBlock);
 
     // Go to next block if there's no data for this detector
@@ -96,14 +138,18 @@ void view_pulses(std::string fname) {
     int nPulses = (int)pulses.size();
 
     for (int iPulse = 0; iPulse < nPulses; ++iPulse) {
+      
       std::vector<int> samps = pulses.at(iPulse)->GetSamples();
       TH1I pulse("pulse", (dets.at(det) + ";Time (ticks); ADC Value").c_str(), samps.size(), -0.5, samps.size() - 0.5);
-      
+      pulse.GetYaxis()->SetRangeUser(0, max);
+
       std::cout << "Time per Tick: " << gSetup->GetClockTick(bank) << std::endl;
       std::cout << "Block (Pulse): " << iBlock + 1 << "/" << nBlocks << " (" << iPulse + 1 << "/" << nPulses << ")" << std::endl;
       for (int iSample = 0; iSample < (int)samps.size(); iSample++)
 	pulse.SetBinContent(iSample + 1, samps[iSample]);
       pulse.Draw();
+      // To draw the constant fraction line, uncomment the following line
+      //double cft = GetCFTime(gSetup, pulses.at(iPulse)); TLine l(cft, 0, cft, max); l.Draw("SAME");
       can.Update();
       char in = GetInput();
       switch (in) {
@@ -122,6 +168,15 @@ void view_pulses(std::string fname) {
 	if (iBlock < -1)
 	  iBlock = -1;
 	iPulse = nPulses;
+	break;
+      case 's' : // Save pulse
+	o.cd();
+	{
+	  std::stringstream name;
+	  name << dets.at(det) << "_Block" << iBlock+1 << "_Pulse" << iPulse+1;
+	  pulse.Write(name.str().c_str());
+	}
+	iPulse--;
 	break;
       case 'd' : // Choose a different detector
 	det = ChooseDetector(dets);
