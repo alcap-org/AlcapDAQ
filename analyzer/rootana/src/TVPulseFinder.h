@@ -17,7 +17,7 @@ class TVPulseFinder {
 
  public:
   TVPulseFinder(): fBankName(""), fDetName(""), fPedestal(0), fTriggerPolarity(0), fNBits(0), fPulseCounter(0),
-    fCurrentSample(0), fPulseStarted(false), fDoSanityChecks(true){};
+    fCurrentSampleIter(0), fPulseStarted(false), fDoSanityChecks(true){};
   virtual ~TVPulseFinder(){};
 
   // The information from TSetupData
@@ -29,7 +29,7 @@ class TVPulseFinder {
 
   long fPulseCounter;
   
-  std::vector<int>::iterator fCurrentSample;
+  std::vector<int>::iterator fCurrentSampleIter;
   bool fPulseStarted;
   bool fDoSanityChecks; // set to false if you don't want to do the sanity checks (e.g. in the NullPulseFinder)
 
@@ -93,12 +93,12 @@ class TVPulseFinder {
       fPulseStarted = false;
       for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
 	
-	fCurrentSample = sampleIter;
+	fCurrentSampleIter = sampleIter;
 
 	int test_value = CalculateTestValue(); // get the test value that we will use for the start/stop conditions
 	
 	if (plot_pulses)
-	  old_pulse->Fill(sampleIter - theSamples.begin(), *fCurrentSample);
+	  old_pulse->Fill(sampleIter - theSamples.begin(), *fCurrentSampleIter);
 	
 	// If the pulse hasn't started yet, then check the current test_value against the start condition
 	if (!fPulseStarted) {
@@ -124,9 +124,9 @@ class TVPulseFinder {
 	  }
 	  else {
 	    // carry on adding samples to the pulse
-	    newSamples.push_back(*fCurrentSample);
+	    newSamples.push_back(*fCurrentSampleIter);
 	    if (plot_pulses)
-	      new_pulses->Fill(sampleIter - theSamples.begin(), *fCurrentSample);
+	      new_pulses->Fill(sampleIter - theSamples.begin(), *fCurrentSampleIter);
 	  }
 	}
       }
