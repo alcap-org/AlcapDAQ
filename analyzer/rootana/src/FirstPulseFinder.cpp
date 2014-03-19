@@ -10,7 +10,7 @@
 int FirstPulseFinder::CalculateTestValue() {
 
   // Return the current height (taking into account pulse polarity)
-  return fTriggerPolarity*( *(fCurrentSample) - fPedestal);
+  return fTriggerPolarity*( *(fCurrentSampleIter) - fPedestal);
 }
 
 
