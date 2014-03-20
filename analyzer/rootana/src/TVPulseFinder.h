@@ -43,12 +43,10 @@ class TVPulseFinder {
   // FindPulses()
   // -- Finds all pulses on an island and returns the vector of sub pulses
   // -- Gets called for each channel in every event
-  PulseIslandList_t FindPulses(const PulseIslandList_t& theIslands) {
+  PulseIslandList_t FindPulses(const PulseIslandList_t& theIslands, bool plot_pulses = false) {
 
     // Get the output ready
     PulseIslandList_t output;
-
-    bool plot_pulses = false;
 
     // Because FindPulses() is called for each channel individually, we can get the TSetupData variables here, before we go into the loop
     fBankName = (*(theIslands.begin()))->GetBankName();
