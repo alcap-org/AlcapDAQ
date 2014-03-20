@@ -89,29 +89,38 @@ int AppraisePulseFinder::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       return 1;
     }
 
-    // Get the TPulseIsland we want to use to appraise the pulse finder
+    // Get the TPulseIsland we want to use to appraise the pulse finder 
+    // and the samples so that we can add noise to them
     TPulseIsland* thePulse = pulses.at(index);
     std::vector<int> theSamples = thePulse->GetSamples();
 
-    // Just plot it for the time being
-    std::stringstream histname;
-    histname << bankname << "_" << fDetName << "_Pulse_" << fPulseNumber;
-    hPulse = new TH1F(histname.str().c_str(), histname.str().c_str(), theSamples.size(),0,theSamples.size());
+    // Create a histogram to plot the information
+    TH1F* appraise_hist = new TH1F("appraise_hist", "appraise_hist", 10,0,100);
+    appraise_hist->GetXaxis()->SetTitle("RMS of Noise");
+    appraise_hist->GetYaxis()->SetTitle("Number of Pulses Found");
 
-    for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
-      hPulse->Fill(sampleIter - theSamples.begin(), *sampleIter);
+    // Iterate throught this process a few times
+    int max_iteration = 50;
+    for (int iIteration = 0; iIteration < max_iteration; ++iIteration) {
+      // Add some known noise and create a new TPulseIsland
+      for (int rms = 0; rms <= 100; rms += 10) {
+	std::vector<int> theNoisySamples = AddNoise(theSamples, rms);
+	TPulseIsland* theNoisyPulse = new TPulseIsland(thePulse->GetTimeStamp(), theNoisySamples, bankname);
+	
+	// Add it to the vector of pulse islands and then test
+	std::vector<TPulseIsland*> thePulseIslandVector;
+	thePulseIslandVector.push_back(theNoisyPulse);
+
+	bool plot_pulses = false;
+	if (iIteration == 0)
+	  plot_pulses = true;
+
+	std::vector<TPulseIsland*> theSubPulses = fPulseFinder->FindPulses(thePulseIslandVector, plot_pulses);
+	
+	appraise_hist->Fill(rms, theSubPulses.size());
+      }
     }
-
-    // Add some known noise and create a new TPulseIsland
-    std::vector<int> theNoisySamples = AddNoise(theSamples, 10);
-    TPulseIsland* theNoisyPulse = new TPulseIsland(thePulse->GetTimeStamp(), theNoisySamples, bankname);
-
-    // Run the pulse finder on this pulse
-    std::vector<TPulseIsland*> thePulseIslandVector;
-    thePulseIslandVector.push_back(thePulse);
-    thePulseIslandVector.push_back(theNoisyPulse);
-
-    fPulseFinder->FindPulses(thePulseIslandVector);
+    appraise_hist->Scale(1./max_iteration);
 
     break; // no need to loop through detectors any more
 
@@ -121,15 +130,26 @@ int AppraisePulseFinder::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
 std::vector<int> AppraisePulseFinder::AddNoise(const std::vector<int> samples, int RMS) {
 
+  // if the RMS is set to 0, just return the input
+  if (RMS == 0)
+    return samples;
+
   std::vector<int> output;
-  TF1* gaus = new TF1("gaus", "TMath::Gaus(x, 0, [0])", -5*RMS,5*RMS);
+
+  // The function that we will generate noise from
+  std::stringstream funcname;
+  funcname << "gaus_" << RMS;
+  TF1* gaus = new TF1(funcname.str().c_str(), "TMath::Gaus(x, 0, [0])", -5*RMS,5*RMS);
   gaus->SetParameter(0, RMS);
 
+  // Store the histogram
   TH1* hist = gaus->GetHistogram();
-  hist->Write();
+  hist->SetTitle(funcname.str().c_str());
+  //  hist->Write();
 
+
+  // Loop through the samples and add the noise
   for (std::vector<int>::const_iterator inputIter = samples.begin(); inputIter != samples.end(); ++inputIter) {
-
     output.push_back(*(inputIter) + gaus->GetRandom());
   }
 
