@@ -11,6 +11,8 @@
 #include <cmath>
 #include <sstream>
 
+#include "TF1.h"
+
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
 
@@ -100,15 +102,38 @@ int AppraisePulseFinder::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       hPulse->Fill(sampleIter - theSamples.begin(), *sampleIter);
     }
 
+    // Add some known noise and create a new TPulseIsland
+    std::vector<int> theNoisySamples = AddNoise(theSamples, 10);
+    TPulseIsland* theNoisyPulse = new TPulseIsland(thePulse->GetTimeStamp(), theNoisySamples, bankname);
+
     // Run the pulse finder on this pulse
     std::vector<TPulseIsland*> thePulseIslandVector;
     thePulseIslandVector.push_back(thePulse);
+    thePulseIslandVector.push_back(theNoisyPulse);
+
     fPulseFinder->FindPulses(thePulseIslandVector);
 
     break; // no need to loop through detectors any more
 
   } // end loop through detectors
   return 0;
+}
+
+std::vector<int> AppraisePulseFinder::AddNoise(const std::vector<int> samples, int RMS) {
+
+  std::vector<int> output;
+  TF1* gaus = new TF1("gaus", "TMath::Gaus(x, 0, [0])", -5*RMS,5*RMS);
+  gaus->SetParameter(0, RMS);
+
+  TH1* hist = gaus->GetHistogram();
+  hist->Write();
+
+  for (std::vector<int>::const_iterator inputIter = samples.begin(); inputIter != samples.end(); ++inputIter) {
+
+    output.push_back(*(inputIter) + gaus->GetRandom());
+  }
+
+  return output;
 }
 
 ALCAP_REGISTER_MODULE(AppraisePulseFinder,mod_name,det_name,pulse_number,pulse_finder);

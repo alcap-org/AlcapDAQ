@@ -20,6 +20,7 @@ class AppraisePulseFinder : public FillHistBase{
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
 
   TVPulseFinder* MakeFinder(const std::string& finderType);
+  std::vector<int> AddNoise(const std::vector<int> samples, int RMS);
 
   std::string fDetName;
   int fPulseNumber;
