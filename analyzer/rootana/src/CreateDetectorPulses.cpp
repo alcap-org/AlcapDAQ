@@ -1,6 +1,6 @@
 //#define USE_PRINT_OUT 
 
-#include "CreateDetectorPulse.h"
+#include "CreateDetectorPulses.h"
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>

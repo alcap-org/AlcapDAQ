@@ -1,5 +1,5 @@
-#ifndef CreateDetectorPulse_h__
-#define CreateDetectorPulse_h__
+#ifndef CreateDetectorPulses_h__
+#define CreateDetectorPulses_h__
 
 #include "FillHistBase.h"
 #include "TGlobalData.h"
@@ -14,5 +14,4 @@ class CreateDetectorPulse : public FillHistBase{
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
 };
 
-#endif
-
+#endif // CreateDetectorPulses_h__
