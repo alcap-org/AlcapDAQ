@@ -12,6 +12,7 @@
 
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
+#include "RegisterModule.inc"
 
 using std::string;
 using std::map;
