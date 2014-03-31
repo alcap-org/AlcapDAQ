@@ -3,17 +3,9 @@ common/MUnCompressRawData
 FADC/MOctalFADCProcessRaw
 v1724/MV1724ProcessRaw
 dt5720/MDT5720ProcessRaw
-
 muSC_muPC/MCaenCompProcessRaw
-muSC_muPC/MMuPC1AnalysisC
-muSC_muPC/MMuPC1AnalysisMQL
-muSC_muPC/MMuSCAnalysisMQL
 
-FADC/MOctalFADCBufferOverflow
-FADC/MOctalFADCPacketLoss
-
-diagnostics/MCommonOnlineDisplayPlots
-common/MMuSCTimeDifferences
+data_quality/MDQ_BlockTime
 
 vacuum/MVacuumHisto
 
