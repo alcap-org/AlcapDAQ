@@ -13,7 +13,7 @@ std::cout<<message;
 #warning Verbose is on
 #else 
 #define PrintOut(message) 
-#warning Verbose is off
+//#warning Verbose is off
 #endif
 
 
