@@ -1,9 +1,8 @@
 DIRS += src/
 
-SOURCES += *.cpp
+SOURCES +=$(wildcard src/*.cpp)
 
-#\
-#ModulesReader.cpp\
+#SOURCES += ModulesReader.cpp\
 #ModulesOptions.cpp\
 #ModulesManager.cpp\
 #utils.cpp \
@@ -12,7 +11,7 @@ SOURCES += *.cpp
 #FillHistBase.cpp \
 #AnalysePulseIsland.cpp \
 #PlotAmplitude.cpp \
-#CreateDetectorPulse.cpp \
+#CreateDetectorPulses.cpp \
 #CheckCoincidence.cpp \
 #MakeMuonEvents.cpp \
 #PlotTime.cpp \

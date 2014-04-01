@@ -49,26 +49,28 @@ OBJECTS := $(notdir $(patsubst %.cpp,%.o,$(OBJECTS)))
 LIB_DATACLASS := $(DAQdir)/analyzer/work/$(USER)/libDataClasses.so
 DATALINKDEF := $(DAQdir)/analyzer/src/common/DataLibraryLinkDef.h
 %.o: %.cpp
-	$(CXX) -c -Wall $(CXXFLAGS) $<
-	$(CXX) -MM $(CXXFLAGS) $< > $(notdir $(patsubst %.cpp,%.d,$<))
+	@echo -e "Making object: '"$@"' from '"$^"'"
+	@$(CXX) -c -Wall $(CXXFLAGS) $<
+	@$(CXX) -MM $(CXXFLAGS) $< > $(notdir $(patsubst %.cpp,%.d,$<))
 
 rootana: $(OBJECTS)
-#	$(CXX) $(ICCFLAGS) $(ROOT_LIBS) -o rootana $(OBJECTS) ../work/grange/libDataClasses.so
-	$(CXX) $(ICCFLAGS) -Wl,--no-as-needed -o rootana $(OBJECTS) $(ROOT_LIBS) $(LIB_DATACLASS)
+	@echo -e "Building Rootana" 
+	@$(CXX) $(ICCFLAGS) -Wl,--no-as-needed -o rootana $(OBJECTS) $(ROOT_LIBS) $(LIB_DATACLASS)
 
 libAnalysis.so: $(OBJECTS)
-	$(CXX) $(ICCLIBS) $(ROOT_LIBS) -shared -o libAnalysis.so \
+	@echo -e "Making shared library: '"$@"' from '"$^"'"
+	@$(CXX) $(ICCLIBS) $(ROOT_LIBS) -shared -o libAnalysis.so \
 		$(shell root-config --ldflags) -I$(ROOTSYS)/include $^ -lMinuit -lPhysics \
 		$(LIB_DATACLASS)
 
 libAnalysis.rootmap: libAnalysis.so $(DATALINKDEF)
-	rlibmap -f -o libAnalysis.rootmap -l libAnalysis.so -d libCore \
+	@rlibmap -f -o libAnalysis.rootmap -l libAnalysis.so -d libCore \
 		-c $(DATALINKDEF)
 
 clean: 
 	rm -f *.d *.o *Dict.cpp *Dict.h blank rootana
 
 blank:
-	touch blank
+	@touch blank
 
 include blank $(wildcard *.d)
