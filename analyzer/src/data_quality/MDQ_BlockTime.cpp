@@ -3,7 +3,11 @@
 Name:         MDQ_BlockTime
 Created by:   Andrew Edmonds
 
-Contents:     One module that fills out histograms for the pulse heights, pulse shapes and the raw counts for all digitizer channels. These are all in one module to be more efficient in terms of minimising the number of times we loop through the channels.
+Contents:     A low-level data quality module
+
+Histograms: hDQ_BlockTime_[DetName] -- plots the time stamp (in ns) for each TPulseIsland
+                                    -- check that time stamps go up to ~100 ms
+                                    -- if they don't, check the sampling frequency in the ODB
 
 \********************************************************************/
 
@@ -21,7 +25,7 @@ Contents:     One module that fills out histograms for the pulse heights, pulse 
 
 /* ROOT includes */
 #include <TH1.h>
-#include <TH2.h>
+#include <TDirectory.h>
 
 /* AlCap includes */
 #include "TGlobalData.h"
@@ -61,6 +65,10 @@ ANA_MODULE MDQ_BlockTime_module =
 */
 INT MDQ_BlockTime_init()
 {
+  // Create the low-level data quality directory
+  TDirectory* dir = gDirectory->mkdir("DataQuality_LowLevel/MDQ_BlockTime");
+  dir->cd();
+
   // This module creates the following histograms:
   // hDQ_BlockTime_[DetName] -- distribution of time stamps (in ns) within a MIDAS event
 
@@ -80,6 +88,7 @@ INT MDQ_BlockTime_init()
     DQ_histograms_map[bankname] = hDQ_Histogram;
   }
 
+  dir->cd("/");
   return SUCCESS;
 }
 
