@@ -45,7 +45,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-map <std::string, TH1I*> DQ_histograms_map;
+map <std::string, TH1F*> DQ_histograms_map;
 
 ANA_MODULE MDQ_BlockTime_module =
 {
@@ -65,25 +65,12 @@ ANA_MODULE MDQ_BlockTime_module =
 */
 INT MDQ_BlockTime_init()
 {
-  // See if the DataQuality_LowLevel/ directory already exists
-  std::string module_name("MDQ_BlockTime");
-  if (gDirectory->Cd("DataQuality_LowLevel")) {
+    // See if the DataQuality_LowLevel/ directory already exists
+  if (!gDirectory->Cd("DataQuality_LowLevel")) {
     
-    // Create the module directory
-    printf("Here: %s\n", gDirectory->GetPath());
-    gDirectory->mkdir(module_name.c_str());
-    printf("Here: %s\n", gDirectory->GetPath());
-    gDirectory->Cd(module_name.c_str());
-    printf("Here: %s\n", gDirectory->GetPath());
-  }
-  else {
     std::string dir_name("DataQuality_LowLevel/");
-    dir_name += module_name;
-    printf("Here: %s\n", gDirectory->GetPath());
     gDirectory->mkdir(dir_name.c_str());
-    printf("Here: %s\n", gDirectory->GetPath());
     gDirectory->Cd(dir_name.c_str());
-    printf("Here: %s\n", gDirectory->GetPath());
   }
 
   // This module creates the following histograms:
@@ -99,7 +86,7 @@ INT MDQ_BlockTime_init()
     // hDQ_BlockTime_[DetName]
     std::string histname = "hDQ_BlockTime_" + detname;
     std::string histtitle = "Distribution of time stamps in " + detname;
-    TH1I* hDQ_Histogram = new TH1I(histname.c_str(), histtitle.c_str(), 1200, 0, 120e6);
+    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 1200, 0, 120e6);
     hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
     hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands");
     DQ_histograms_map[bankname] = hDQ_Histogram;
