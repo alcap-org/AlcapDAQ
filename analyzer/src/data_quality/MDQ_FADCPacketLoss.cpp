@@ -65,10 +65,26 @@ ANA_MODULE MDQ_FADCPacketLoss_module =
   */
 INT MDQ_FADCPacketLoss_init()
 {
-  // Create the low-level data quality directory
-  std::string dir_name("DataQuality_LowLevel/MDQ_FADCPacketLoss");
-  TDirectory* dir = gDirectory->mkdir(dir_name.c_str());
-  dir->cd(dir_name.c_str());
+  // See if the DataQuality_LowLevel/ directory already exists
+  std::string module_name("MDQ_FADCPacketLoss");
+  if (gDirectory->Cd("DataQuality_LowLevel")) {
+    
+    // Create the module directory
+    printf("Here: %s\n", gDirectory->GetPath());
+    gDirectory->mkdir(module_name.c_str());
+    printf("Here: %s\n", gDirectory->GetPath());
+    gDirectory->Cd(module_name.c_str());
+    printf("Here: %s\n", gDirectory->GetPath());
+  }
+  else {
+    std::string dir_name("DataQuality_LowLevel/");
+    dir_name += module_name;
+    printf("Here: %s\n", gDirectory->GetPath());
+    gDirectory->mkdir(dir_name.c_str());
+    printf("Here: %s\n", gDirectory->GetPath());
+    gDirectory->Cd(dir_name.c_str());
+    printf("Here: %s\n", gDirectory->GetPath());
+  }
 
   // This histogram has the bank names labeled on the X-axis, and the midas
   // block number on the Y-axis.
@@ -81,6 +97,8 @@ INT MDQ_FADCPacketLoss_init()
   hDQ_FADCPacketLoss->SetBit(TH1::kCanRebin);
   hDQ_FADCPacketLoss->GetXaxis()->SetTitle("FADC Board Number");
   hDQ_FADCPacketLoss->GetYaxis()->SetTitle("Fraction of Events with lost packets");
+
+  gDirectory->Cd("/MidasHists/");
 
   return SUCCESS;
 }

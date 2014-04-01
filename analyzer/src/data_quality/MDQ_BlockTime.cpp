@@ -65,10 +65,26 @@ ANA_MODULE MDQ_BlockTime_module =
 */
 INT MDQ_BlockTime_init()
 {
-  // Create the low-level data quality directory
-  std::string dir_name("DataQuality_LowLevel/MDQ_BlockTime");
-  TDirectory* dir = gDirectory->mkdir(dir_name.c_str());
-  gDirectory->cd(dir_name.c_str());
+  // See if the DataQuality_LowLevel/ directory already exists
+  std::string module_name("MDQ_BlockTime");
+  if (gDirectory->Cd("DataQuality_LowLevel")) {
+    
+    // Create the module directory
+    printf("Here: %s\n", gDirectory->GetPath());
+    gDirectory->mkdir(module_name.c_str());
+    printf("Here: %s\n", gDirectory->GetPath());
+    gDirectory->Cd(module_name.c_str());
+    printf("Here: %s\n", gDirectory->GetPath());
+  }
+  else {
+    std::string dir_name("DataQuality_LowLevel/");
+    dir_name += module_name;
+    printf("Here: %s\n", gDirectory->GetPath());
+    gDirectory->mkdir(dir_name.c_str());
+    printf("Here: %s\n", gDirectory->GetPath());
+    gDirectory->Cd(dir_name.c_str());
+    printf("Here: %s\n", gDirectory->GetPath());
+  }
 
   // This module creates the following histograms:
   // hDQ_BlockTime_[DetName] -- distribution of time stamps (in ns) within a MIDAS event
@@ -89,7 +105,7 @@ INT MDQ_BlockTime_init()
     DQ_histograms_map[bankname] = hDQ_Histogram;
   }
 
-  dir->cd("/");
+  gDirectory->Cd("/MidasHists/");
   return SUCCESS;
 }
 
