@@ -13,21 +13,21 @@ void TrendPlot() {
 
   TFile* files[n_runs];
 
-  for (int iFile = 0; iFile < n_runs; ++iFile) {
+  for (int iRun = 0; iRun < n_runs; ++iRun) {
 
     std::stringstream filename;
-    filename << "test0" << first_run + iFile << ".root";
+    filename << "test0" << first_run + iRun << ".root";
     std::cout << filename.str() << std::endl;
-    files[iFile] = new TFile(filename.str().c_str(), "READ");
+    files[iRun] = new TFile(filename.str().c_str(), "READ");
   }
 
   TH2F* trend_plot = new TH2F("TrendPlot", "TrendPlot", n_runs, first_run, first_run+n_runs, 1200,0,100e6);
 
-  for (int iHist = 0; iHist < n_runs; ++iHist) {
-    TH1F* hist = (TH1F*) files[iHist]->Get("DataQuality_LowLevel/MDQ_BlockTime/hDQ_BlockTime_muSc");
+  for (int iRun = 0; iRun < n_runs; ++iRun) {
+    TH1F* hist = (TH1F*) files[iRun]->Get("DataQuality_LowLevel/MDQ_BlockTime/hDQ_BlockTime_muSc");
     
     for (int iBin = 1; iBin <= hist->GetNbinsX(); ++iBin) {
-      trend_plot->Fill(first_run + iHist, hist->GetBinCenter(iBin), hist->GetBinContent(iBin)); // (x = run #, y = time stamp, z = N_TPI)
+      trend_plot->Fill(first_run + iRun, hist->GetBinCenter(iBin), hist->GetBinContent(iBin)); // (x = run #, y = time stamp, z = N_TPI)
     }
     hist->Draw();
 
