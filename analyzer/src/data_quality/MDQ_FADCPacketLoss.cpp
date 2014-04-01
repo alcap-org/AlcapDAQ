@@ -66,24 +66,11 @@ ANA_MODULE MDQ_FADCPacketLoss_module =
 INT MDQ_FADCPacketLoss_init()
 {
   // See if the DataQuality_LowLevel/ directory already exists
-  std::string module_name("MDQ_FADCPacketLoss");
-  if (gDirectory->Cd("DataQuality_LowLevel")) {
+  if (!gDirectory->Cd("DataQuality_LowLevel")) {
     
-    // Create the module directory
-    printf("Here: %s\n", gDirectory->GetPath());
-    gDirectory->mkdir(module_name.c_str());
-    printf("Here: %s\n", gDirectory->GetPath());
-    gDirectory->Cd(module_name.c_str());
-    printf("Here: %s\n", gDirectory->GetPath());
-  }
-  else {
     std::string dir_name("DataQuality_LowLevel/");
-    dir_name += module_name;
-    printf("Here: %s\n", gDirectory->GetPath());
     gDirectory->mkdir(dir_name.c_str());
-    printf("Here: %s\n", gDirectory->GetPath());
     gDirectory->Cd(dir_name.c_str());
-    printf("Here: %s\n", gDirectory->GetPath());
   }
 
   // This histogram has the bank names labeled on the X-axis, and the midas
