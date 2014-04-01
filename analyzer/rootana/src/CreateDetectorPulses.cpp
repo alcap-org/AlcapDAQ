@@ -35,24 +35,15 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
   // Loop through and find a fast channel
-   //std::cout << "Size of gAnalysedPulseMap " << gAnalysedPulseMap.size() << std::endl;
   for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator findFastIter = gAnalysedPulseMap.begin(); findFastIter != gAnalysedPulseMap.end(); findFastIter++) {
 
     std::string fast_det_name = findFastIter->first;
-     //std::cout << "DetName; " << fast_det_name << std::endl;
     if (! TSetupData::IsFast(fast_det_name)) continue;
-      //      std::cout << fast_det_name << " is a fast channel and I will now find the slow one" << std::endl;
       std::string detname = fast_det_name.substr(0, fast_det_name.size() - 2);
       std::string slow_det_name = detname + "-S"; // take off the F and add an S
 
       std::map<std::string, std::vector<TAnalysedPulse*> >::iterator findSlowIter= gAnalysedPulseMap.find(slow_det_name);
       if(findSlowIter== gAnalysedPulseMap.end()) std::cout<<"Unable to find slow channel, "<<slow_det_name<<std::endl;
-//      for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator findSlowIter = gAnalysedPulseMap.begin();
-//              findSlowIter != gAnalysedPulseMap.end();
-//              findSlowIter++) {
-//	
-//	if (slow_det_name != findSlowIter->first) continue;
-	  //	  std::cout << "Found " << findSlowIter->first << ". Now need to match pulses" << std::endl;
 
 	  std::vector<TAnalysedPulse*> fast_pulses = findFastIter->second;
 	  std::vector<TAnalysedPulse*> slow_pulses = findSlowIter->second;
@@ -83,9 +74,7 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 	      pulse_time = (*pulseIters[b])->GetTime() * 1e-6; // convert to ms	      
 	      min_time = std::min(min_time, pulse_time);
 
-	      //	      std::cout << b << ": " << pulse_time << " ms\n";
 	    }
-	    //	    std::cout << "Min Time: " << min_time << std::endl;
 
 	    // Now go through and find all the pulses that are within a certain time of this
 	    double time_difference = 0.1; // 0.1 ms
