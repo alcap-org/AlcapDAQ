@@ -17,3 +17,10 @@ void TSetupData::GetAllDetectors(std::map<std::string,std::string>& detectors)co
        if(it->second!="blank" ) detectors[it->second]=it->first;
    }
 }
+
+void TSetupData::GetAllDetectors(std::vector<std::string>& detectors)const{
+   std::map<std::string, std::string>::const_iterator it;
+   for (it=fBankToDetectorMap.begin();it!= fBankToDetectorMap.end();it++){
+       if(it->second!="blank" ) detectors.push_back(it->second);
+   }
+}
