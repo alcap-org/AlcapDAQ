@@ -4,14 +4,15 @@ debug
 
 # The first section must begin with [MODULES] and contain a list of all the modules we want to run with
 [ MODULES ]
-one = MakeAnalysedPulses ( MaxBin, MaxBin)
-#three  = MakeAnalysedPulses (     arg_one, arg_two )
-two(hello,there,1.23423423423   );
+analyse_pulses = MakeAnalysedPulses 
+detector_pulses = MakeDetectorPulses
 
 # each subsequent section lists the options for each module above
-[ one ]
-option1=hei
-option2=9.444
+[ analyse_pulses ]
+analyse_channels=all
+default_fast_generator=MaxBin
+default_slow_generator=MaxBin
+SiR2-S=MaxBin
 
 [two]
 # options are formed by key-value pairs, separated by an equals sign.
