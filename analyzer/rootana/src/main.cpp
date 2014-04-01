@@ -10,6 +10,7 @@
 
 // Modules list
 #include "ModulesReader.h"
+#include "ModulesManager.h"
 #include "FillHistBase.h"
 #include "AnalysePulseIsland.h"
 #include "CheckCoincidence.h"
@@ -61,7 +62,7 @@ TGlobalData* TGlobalData::Instance()
 }
 
 int main(int argc, char **argv){
-  //load_config_file("MODULES.txt");
+  load_config_file("MODULES.txt");
 
   ARGUMENTS arguments;
   int ret = analyze_command_line (argc, argv,arguments);
@@ -154,7 +155,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   dataTree->GetEntry(start);
   int q = 0;
   for (int i=0; i < n_fillhist; i++) {
-    q |= fillhists[i]->BeforeFirstEntry(g_event);
+    q |= fillhists[i]->BeforeFirstEntry(g_event, TSetupData::Instance());
     //if (q) break;
     // q = fillhists[i]->ProcessGenericEntry(g_event);
     //if (q) break;
@@ -198,7 +199,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   //post-process on last entry
   q = 0;
   for(int i=0; i < n_fillhist; i++) {
-    q |= fillhists[i]->AfterLastEntry(g_event);
+    q |= fillhists[i]->AfterLastEntry(g_event,TSetupData::Instance());
   }
   if (q) {
      printf("Error during post-processing last entry (%lld)\n",(stop-1));

@@ -32,8 +32,8 @@ class FillHistBase
   virtual ~FillHistBase();
 
   int ProcessGenericEntry(TGlobalData *gData, TSetupData *gSetup);
-  virtual int BeforeFirstEntry(TGlobalData* gData){return 0;};
-  virtual int AfterLastEntry(TGlobalData* gData){return 0;};
+  virtual int BeforeFirstEntry(TGlobalData* gData, TSetupData *setup){return 0;};
+  virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup){return 0;};
   const char* GetName()const{return dir->GetName();};
  
  protected:
