@@ -1,9 +1,12 @@
-all: rootana libAnalysis.so libAnalysis.rootmap
+all:  init libAnalysis.so rootana libAnalysis.rootmap
 
 .PHONY: clean print all
 
 # A list of directories with source files.
 SOURCE_DIRS = src
+
+#Where should we store all object and dependency files
+OBJ_DIR = obj
 
 # A list of directories with header files. Should be colon-separated. eg:
 #   inc:tree_files/inc:extra_stuff/inc
@@ -44,14 +47,15 @@ include src/files.make
 # Determine the names of the object files by pattern substitution
 # from the source file names.
 OBJECTS := $(notdir $(patsubst %.C,%.o,$(SOURCES)))
-OBJECTS := $(notdir $(patsubst %.cpp,%.o,$(OBJECTS)))
+OBJECTS := $(patsubst %.cpp,%.o, $(OBJECTS))
+OBJECTS := $(addprefix $(OBJ_DIR)/, $(OBJECTS))
 
 LIB_DATACLASS := $(DAQdir)/analyzer/work/$(USER)/libDataClasses.so
 DATALINKDEF := $(DAQdir)/analyzer/src/common/DataLibraryLinkDef.h
-%.o: %.cpp
+${OBJECTS}: ${OBJ_DIR}/%.o: %.cpp
 	@echo -e "Making object: '"$@"' from '"$^"'"
-	@$(CXX) -c -Wall $(CXXFLAGS) $<
-	@$(CXX) -MM $(CXXFLAGS) $< > $(notdir $(patsubst %.cpp,%.d,$<))
+	@$(CXX) -c -Wall $(CXXFLAGS) -o $@  $<
+	@$(CXX) -MM $(CXXFLAGS) $< > $(patsubst %.o,%.d,$@)
 
 rootana: $(OBJECTS)
 	@echo -e "Building Rootana" 
@@ -67,10 +71,23 @@ libAnalysis.rootmap: libAnalysis.so $(DATALINKDEF)
 	@rlibmap -f -o libAnalysis.rootmap -l libAnalysis.so -d libCore \
 		-c $(DATALINKDEF)
 
-clean: 
-	rm -f *.d *.o *Dict.cpp *Dict.h blank rootana
+init: | make_obj_dir
 
-blank:
-	@touch blank
+make_obj_dir:
+	@mkdir -p $(OBJ_DIR) 
 
-include blank $(wildcard *.d)
+clean: clean_libraries clean_rootana clean_obj_dir
+
+clean_libraries:
+	@echo Removing libraries
+	@rm -f libAnalysis.*
+
+clean_rootana:
+	@echo Removing rootana
+	@rm -f rootana
+
+clean_obj_dir:
+	@echo Removing objects
+	@rm -rf $(OBJ_DIR)
+
+include $(wildcard *.d)
