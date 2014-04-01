@@ -6,38 +6,46 @@
 
 //#include "FillHistBase.h"
 #include "ModulesOptions.h"
-#include "ModulesManager.h"
 
 namespace modules{
     class reader;
 }
 
 class modules::reader{
+	// useful typedefs and structs (but they're kept private to avoid
+	// dependencies outisde of this class )
 	typedef std::vector<std::string> OptionsList;
 	typedef std::map<std::string,modules::options* > SectionsList;
 	typedef std::vector<std::pair<std::string, modules::options*> > ModuleList;
 	struct Option_t { std::string key; std::string value;};
 
     public:
-	reader():fShouldPrint(false){};
+	// default constructor
+	reader():fShouldPrint(false),fDebugAll(false){};
+	// destructor.  Virtual in case someone ever decides to overload this
+	// class
 	virtual ~reader(){};
 
     public:
 	int ReadFile(const char* name);
-	int OpenFile(const char* name, std::ifstream& infile);
-	int FillSectionsList(std::ifstream& infile);
 	void PrintAllOptions()const;
 
 	size_t GetNumModules()const{return fModules.size();};
 	std::string GetModule(unsigned int i)const{return fModules[i].first;};
 	modules::options* GetOptions(unsigned int i)const{return fModules[i].second;};
 	void SetDebug();
+	void SetDebugAll();
 
     private:
+	int OpenFile(const char* name, std::ifstream& infile);
 	bool AddSection(const std::string& name,const std::string& type="");
 	int AddModule(std::string line);
 	void ProcessGlobalOption(Option_t opt);
-	void AddOption(const std::string& module, Option_t opt);
+	void AddOption(const std::string& module, const Option_t& opt);
+	void AddOption(const std::string& module, const std::string& flag);
+        void AddOptionAll(const std::string& key,const std::string& value="");
+        void AddOptionAll(const Option_t& opt);
+
 	Option_t SplitOption(const std::string& line);
 	int MakeModules(const SectionsList&);
 	bool isComment( std::stringstream& line);
@@ -49,14 +57,20 @@ class modules::reader{
 	static const char* fGlobalModule;
 	int fLineNumber;
 	bool fShouldPrint;
+	bool fDebugAll;
 };
 
 inline bool modules::reader::AddSection(const std::string& name,const std::string& type){
     if(!fAllOptions[name]){
 	fAllOptions[name] =new modules::options(type);
+	if(fDebugAll) AddOption(name,"debug");
 	return true;
     }
     return false;
+}
+
+inline void modules::reader::AddOptionAll(const Option_t& opt){
+	AddOptionAll(opt.key,opt.value);
 }
 
 #endif // MODULESREADER__HH_

@@ -40,6 +40,9 @@ class modules::manager{
 	// Get the instance of this class
 	static manager* Instance();
 
+	// Set the manager to output debugging commands
+	void SetDebug(bool debug=true){fDebug=debug;};
+
     private:
 	// the list of makers for all modules
 	typedef std::map<std::string, maker> MakersList; 
@@ -56,6 +59,9 @@ class modules::manager{
 
 	// the most recent module to have been registered
 	std::string fMostRecentRegister;
+
+	// flag to control verbosity
+	bool fDebug;
 };
 
 inline modules::manager* modules::manager::Instance(){
@@ -67,21 +73,21 @@ inline modules::manager* modules::manager::Instance(){
 }
 
 inline void modules::manager::addArgument(const std::string& argument){
-	addArgument(fMostRecentRegister,argument);
+    addArgument(fMostRecentRegister,argument);
 }
 
 inline void modules::manager::addArgument(const std::string& module,const std::string& argument){
-	fModuleArguments[module].push_back(argument);
+    fModuleArguments[module].push_back(argument);
 }
 
 inline std::string modules::manager::GetArgumentName(const std::string& module,const int& argument){
-	try{
-	return fModuleArguments[module].at(argument);
-	}catch(...){
-		char num[5];
-		sprintf(num,"%d",argument);
-		return std::string(num);
-	}
+    try{
+       return fModuleArguments[module].at(argument);
+    }catch(...){
+       char num[5];
+       sprintf(num,"%d",argument);
+       return std::string(num);
+    }
 }
 
 #endif // MODULESMANAGER__HH_

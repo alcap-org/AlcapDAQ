@@ -1,4 +1,5 @@
 #include "ModulesReader.h"
+#include "ModulesManager.h"
 #include <iostream>
 #include <sstream>
 #include <string.h>
@@ -198,35 +199,73 @@ modules::reader::Option_t modules::reader::SplitOption( const std::string& line)
     return opt;
 }
 
-void modules::reader::AddOption(const std::string& module, Option_t opt){
+void modules::reader::AddOption(const std::string& module, const Option_t& opt){
     fAllOptions[module]->AddOption(opt.key,opt.value);
+}
+void modules::reader::AddOption(const std::string& module, const std::string& flag){
+    fAllOptions[module]->AddOption(flag,"");
 }
 
 void modules::reader::PrintAllOptions()const{
+    // Global options that were set
+    SectionsList::const_iterator it_sec=fAllOptions.find(fGlobalModule);
+    if(it_sec!=fAllOptions.end() && it_sec->second->GetNumOptions()>0){
+       std::cout<<"__ Global otions __"<<std::endl;
+       it_sec->second->DumpOptions();
+       std::cout<<std::endl;
+    }
+
+    // Modules that were requested
+    std::cout<<"__ All modules __"<<std::endl;
     ModuleList::const_iterator it_mod;
-    std::cout<<"All modules: "<<std::endl;
     for(it_mod=fModules.begin(); it_mod != fModules.end();it_mod++){
 	std::cout<<"Module: "<<it_mod->first<<std::endl;
 	it_mod->second->DumpOptions();
+        std::cout<<std::endl;
     }
-    std::cout<<"Unused sections: "<<std::endl;
-    SectionsList::const_iterator it;
-    for(it=fAllOptions.begin(); it != fAllOptions.end();it++){
+    
+    // Sections that were added, but don't correspond to a module
+    std::cout<<"__ Unused sections __"<<std::endl;
+    for(it_sec=fAllOptions.begin(); it_sec != fAllOptions.end();it_sec++){
+	if(it_sec->first==fGlobalModule) continue;
 	for(it_mod=fModules.begin(); it_mod != fModules.end();it_mod++){
-	    if(it->second==it_mod->second) break;
+	    if(it_sec->second==it_mod->second ) break;
 	}
 	if(it_mod!=fModules.end()) continue;
-	std::cout<<"Section: "<<it->first<<std::endl;
-	it->second->DumpOptions();
+	std::cout<<"Section: "<<it_sec->first<<std::endl;
+	it_sec->second->DumpOptions();
+        std::cout<<std::endl;
     }
 }
+
 void modules::reader::SetDebug(){
     std::cout<<"Debug mode activated"<<std::endl;
     fShouldPrint=true;
+    modules::manager::Instance()->SetDebug();
+}
+
+void modules::reader::SetDebugAll(){
+    SetDebug();
+    fDebugAll=true;
+    AddOptionAll("debug");
+}
+
+void modules::reader::AddOptionAll(const std::string& key,const std::string& value){
+    for(SectionsList::iterator it_sec=fAllOptions.begin(); it_sec != fAllOptions.end();it_sec++){
+       if(it_sec->first==fGlobalModule) continue;
+       it_sec->second->AddOption(key,value);
+    }
 }
 
 void modules::reader::ProcessGlobalOption(Option_t opt){
   if (opt.key=="debug"){
-     SetDebug();
+     if (opt.value=="all"){
+        SetDebugAll();
+     } else{
+        SetDebug();
+     }
+  }else {
+     if(fShouldPrint) std::cout<<"Warning: Unknown global option given, '"<<opt.key<<"'"<<std::endl;
+     return;
   }
 }

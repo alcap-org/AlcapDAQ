@@ -22,9 +22,10 @@ class modules::options{
 	double GetDouble(const std::string&)const;
 	std::string GetString(const std::string&)const;
 	bool GetBool(const std::string&)const;
-	//std::vector<std::string> GetVectorStrings(const std::string&)const;
+	int GetVectorStrings(const std::string&, std::vector<std::string>& vect)const;
 
 	bool HasOption(const std::string&)const;
+	bool GetNumOptions()const{return fOptions.size();};
 	std::string GetOption(const std::string&)const;
 
 	void DumpOptions(const std::string& prefix="     ")const;

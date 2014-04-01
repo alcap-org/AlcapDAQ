@@ -33,20 +33,23 @@ bool modules::options::GetBool(const std::string& name)const{
     return GetOption<bool>(name);
 }
 
-//std::vector<std::string> modules::options::GetVectorStrings(const std::string& name)const{
-//    std::stringstream ss(GetOption(name));
-//    std::vector<std::string> values;
-//    std::string val;
-//    while(ss>>val) values.push_back(val);
-//    return values;
-//
-//}
+int modules::options::GetVectorStrings(const std::string& name, std::vector<std::string>& vect)const{
+    std::stringstream ss(GetOption(name));
+    std::string val;
+    while(ss>>val) vect.push_back(val);
+    return vect.size();
+
+}
 
 void modules::options::DumpOptions(const std::string& prefix)const{
     //std::cout<<"key  "<<" = "<<" value "<<std::endl;
     OptionsOrder_t::const_iterator it;
     for(it=fOrder.begin();it!=fOrder.end();it++){
-        std::cout<<prefix<<(*it)->first<<" = "<<(*it)->second<<std::endl;
+        std::cout<<prefix<<(*it)->first;
+	if((*it)->second!=""){
+	   std::cout<<" = "<<(*it)->second;
+	}
+	std::cout<<std::endl;
     }
 }
 
