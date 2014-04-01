@@ -68,7 +68,7 @@ INT MDQ_BlockTime_init()
   // Create the low-level data quality directory
   std::string dir_name("DataQuality_LowLevel/MDQ_BlockTime");
   TDirectory* dir = gDirectory->mkdir(dir_name.c_str());
-  dir->cd(dir_name.c_str());
+  gDirectory->cd(dir_name.c_str());
 
   // This module creates the following histograms:
   // hDQ_BlockTime_[DetName] -- distribution of time stamps (in ns) within a MIDAS event
