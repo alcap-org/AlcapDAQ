@@ -44,7 +44,7 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 static TH1* hDQ_FADCPacketLoss;
-static int midas_events;
+static int n_total_midas_events;
 
 
 ANA_MODULE MDQ_FADCPacketLoss_module =
@@ -90,7 +90,7 @@ INT MDQ_FADCPacketLoss_init()
  */
 INT MDQ_FADCPacketLoss_BOR(INT run_number)
 {
-  midas_events = 1;
+  n_total_midas_events = 1;
   
   return SUCCESS;
 }
@@ -129,11 +129,11 @@ INT MDQ_FADCPacketLoss(EVENT_HEADER *pheader, void *pevent)
 
   for(int i=0; i<256; ++i){
     if(Boards[i] == true){
-      hDQ_FADCPacketLoss->Scale(1.0 / midas_events);
+      hDQ_FADCPacketLoss->Scale(1.0 / n_total_midas_events);
     }
   }
   
-  ++midas_events;
+  ++n_total_midas_events;
 
   return SUCCESS;
 }
