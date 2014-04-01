@@ -14,7 +14,7 @@
 #include "AnalysePulseIsland.h"
 #include "CheckCoincidence.h"
 #include "MakeMuonEvents.h"
-#include "CreateDetectorPulse.h"
+#include "CreateDetectorPulses.h"
 #include "PlotAmplitude.h"
 #include "PlotTime.h"
 #include "CoincidenceCut.h"
