@@ -42,7 +42,6 @@ void TrendPlot() {
 	while (dirKey = (TKey*)nextDirKey()) {
 	  // Get the names of all the histograms and count them up
 	  if (strcmp(dirKey->ReadObj()->ClassName(), "TH1F") == 0) {
-	    std::cout << "Histogram: " << dirKey->ReadObj()->GetName() << std::endl;
 	    histogram_names.push_back(dirKey->ReadObj()->GetName());
 	  }
 	}
@@ -59,13 +58,21 @@ void TrendPlot() {
     std::string trendplotname = histogram_names.at(iHist) + "_TrendPlot";
     std::string trendplottitle = "Trend plot of " + histogram_names.at(iHist);
 
-    TH2F* trend_plot = new TH2F(trendplotname.c_str(), trendplottitle.c_str(), n_runs, first_run, first_run+n_runs, 1200,0,100e6);
+    // Get some useful information from the histogram in the first run file (for the y-axis range of the trend plot)
+    std::string histname = "DataQuality_LowLevel/" + histogram_names.at(iHist);
+    TH1F* hist = (TH1F*) files[0]->Get(histname.c_str());
 
+    TH2F* trend_plot = new TH2F(trendplotname.c_str(), trendplottitle.c_str(), n_runs, first_run, first_run+n_runs, hist->GetNbinsX(), hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
+
+    trend_plot->GetYaxis()->SetTitle(hist->GetXaxis()->GetTitle());
+    trend_plot->GetXaxis()->SetTitle("Run Number");
+
+    // Now go through all the runs and fill the trend plot
     for (int iRun = 0; iRun < n_runs; ++iRun) {
 
       std::string histname = "DataQuality_LowLevel/" + histogram_names.at(iHist);
       TH1F* hist = (TH1F*) files[iRun]->Get(histname.c_str());
-    
+
       for (int iBin = 1; iBin <= hist->GetNbinsX(); ++iBin) {
 	trend_plot->Fill(first_run + iRun, hist->GetBinCenter(iBin), hist->GetBinContent(iBin)); // (x = run #, y = time stamp, z = N_TPI)
       }
