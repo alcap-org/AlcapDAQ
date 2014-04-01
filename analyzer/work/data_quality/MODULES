@@ -6,6 +6,7 @@ dt5720/MDT5720ProcessRaw
 muSC_muPC/MCaenCompProcessRaw
 
 data_quality/MDQ_BlockTime
+data_quality/MDQ_FADCPacketLoss
 
 vacuum/MVacuumHisto
 
