@@ -6,6 +6,7 @@
 #include <TFile.h>
 #include <TKey.h>
 
+#include <iostream>
 #include <sstream>
 
 void TrendPlot(const char* data_dir, int first_run, const int n_runs) {
@@ -81,7 +82,11 @@ void TrendPlot(const char* data_dir, int first_run, const int n_runs) {
 
     // Now go through all the runs and fill the trend plot
     for (int iRun = 0; iRun < n_runs; ++iRun) {
-
+      
+      // Make sure this file exists (in our golden runs, there may be some missing)
+      if (files[iRun]->IsZombie())
+	continue;
+      
       std::string histname = "DataQuality_LowLevel/" + histogram_names.at(iHist);
       TH1F* hist = (TH1F*) files[iRun]->Get(histname.c_str());
 
