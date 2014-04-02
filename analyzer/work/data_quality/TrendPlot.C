@@ -66,6 +66,11 @@ void TrendPlot() {
 
     trend_plot->GetYaxis()->SetTitle(hist->GetXaxis()->GetTitle());
     trend_plot->GetXaxis()->SetTitle("Run Number");
+    trend_plot->GetZaxis()->SetTitle(hist->GetYaxis()->GetTitle());
+    trend_plot->GetZaxis()->SetLabelSize(0.03);
+    trend_plot->GetZaxis()->SetTitleOffset(0.85);
+    trend_plot->GetZaxis()->SetTitleSize(0.03);
+    trend_plot->SetStats(false);
 
     // Now go through all the runs and fill the trend plot
     for (int iRun = 0; iRun < n_runs; ++iRun) {
