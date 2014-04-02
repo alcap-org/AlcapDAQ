@@ -1,15 +1,20 @@
+#include <TROOT.h>
+#include <TStyle.h>
+#include <TCanvas.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <TFile.h>
+#include <TKey.h>
+
 #include <sstream>
 
-void TrendPlot() {
+void TrendPlot(int first_run, const int n_runs) {
 
   gROOT->Reset();
   gROOT->SetStyle("Plain");
   gStyle->SetCanvasBorderMode(0); // turn off canvas borders
 
   TCanvas* c1 = new TCanvas("c1", "c1");
-
-  const int n_runs = 3;
-  const int first_run = 2600;
 
   TFile* files[n_runs];
 
