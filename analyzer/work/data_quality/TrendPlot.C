@@ -8,7 +8,7 @@
 
 #include <sstream>
 
-void TrendPlot(int first_run, const int n_runs) {
+void TrendPlot(const char* data_dir, int first_run, const int n_runs) {
 
   gROOT->Reset();
   gROOT->SetStyle("Plain");
@@ -22,7 +22,7 @@ void TrendPlot(int first_run, const int n_runs) {
 
     // Open up the file for this run
     std::stringstream filename;
-    filename << "test0" << first_run + iRun << ".root";
+    filename << data_dir << "/hist/hist0" << first_run + iRun << ".root";
     files[iRun] = new TFile(filename.str().c_str(), "READ");
   }
 
