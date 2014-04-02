@@ -55,6 +55,8 @@ void TrendPlot(const char* data_dir, int first_run, const int n_runs) {
     }
   }
 
+  // Open a PDF to save all the trend plots to
+  c1->Print("DQ_LowLevel_TrendPlots.pdf[");
 
   // Now go through the histograms and create a trend plot for each one
   for (int iHist = 0; iHist < histogram_names.size(); ++iHist) {
@@ -93,9 +95,11 @@ void TrendPlot(const char* data_dir, int first_run, const int n_runs) {
 
     c1->Update();
 
-    std::string trendplotfile = trendplotname + ".pdf";
-    c1->Print(trendplotfile.c_str());
+    c1->Print("DQ_LowLevel_TrendPlots.pdf");
   }
+
+  // Close the PDF file
+  c1->Print("DQ_LowLevel_TrendPlots.pdf]");
 
 
 }
