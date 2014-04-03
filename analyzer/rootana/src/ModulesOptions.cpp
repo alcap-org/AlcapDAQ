@@ -3,15 +3,15 @@
 #include <sstream>
 #include <iostream>
 
-std::string modules::options::GetOption(const std::string& name)const{
-    OptionsList_t::const_iterator it = fOptions.find(name);
-    std::string options= it!=fOptions.end()? it->second : "";
-    return options;
+std::string modules::options::GetOption(const std::string& key)const{
+    OptionsList_t::const_iterator it = fOptions.find(key);
+    std::string value= it!=fOptions.end()? it->second : "";
+    return value;
 }
 
 template <typename T>
-T modules::options::GetOption(const std::string& name)const{
-    std::stringstream ss(GetOption(name));
+T modules::options::GetOption(const std::string& key)const{
+    std::stringstream ss(GetOption(key));
     T val=T();
     ss>>val;
     return val;
@@ -38,7 +38,6 @@ int modules::options::GetVectorStrings(const std::string& name, std::vector<std:
     std::string val;
     while(ss>>val) vect.push_back(val);
     return vect.size();
-
 }
 
 void modules::options::DumpOptions(const std::string& prefix)const{
