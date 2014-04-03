@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string>
 #include <stdlib.h>
+#include <iostream>
 
 void help_command_line(char *my_name){
   fprintf (stderr,"\nusage: %s  [flags] \n\n",my_name);
@@ -203,12 +204,16 @@ int load_config_file(const char* filename){
 
     modules::manager* mgr = modules::manager::Instance();
     size_t num_modules=modules_file.GetNumModules();
+    std::cout<<"number of modules requested: "<<num_modules<<std::endl;
     std::string name;
     modules::options* opts;
     modules::ModuleBase *mods[num_modules];
     for(unsigned i=0;i<num_modules;i++){
 	    name = modules_file.GetModule(i);
 	    opts =  modules_file.GetOptions(i);
+	    std::cout<<"Creating module: "<<name<<std::endl;
+	    std::cout<<"With options:"<<std::endl;
+	    opts->DumpOptions("  ");
 	    mods[i] = mgr->createModule(name,opts);
     }
 
