@@ -82,7 +82,7 @@ INT MDQ_IslandCounter_init()
     // hDQ_IslandCounter_[DetName]
     std::string histname = "hDQ_IslandCounter_" + detname;
     std::string histtitle = "Distribution of the number of islands per event in " + detname;
-    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 1500, 0, 1500);
+    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 3500, 0, 3500);
     hDQ_Histogram->GetXaxis()->SetTitle("Number of TPulseIslands");
     hDQ_Histogram->GetYaxis()->SetTitle("Number of Events");
     DQ_IslandCounter_histograms_map[bankname] = hDQ_Histogram;
