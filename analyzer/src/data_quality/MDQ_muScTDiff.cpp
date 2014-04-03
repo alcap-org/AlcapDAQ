@@ -44,6 +44,7 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 map <std::string, TH1F*> DQ_muScTDiff_histograms_map;
+float axis_limit = 50000;
 
 ANA_MODULE MDQ_muScTDiff_module =
 {
@@ -82,7 +83,7 @@ INT MDQ_muScTDiff_init()
     // hDQ_muScTDiff_[DetName]
     std::string histname = "hDQ_muScTDiff_" + detname;
     std::string histtitle = "Time differences between muSc and " + detname;
-    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 10000, -50000, 50000);
+    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 10000, -axis_limit, axis_limit);
     std::string axislabel = "Time Difference (muSc - " + detname + ") [ns]";
     hDQ_Histogram->GetXaxis()->SetTitle(axislabel.c_str());
     hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands");
@@ -114,37 +115,41 @@ INT MDQ_muScTDiff(EVENT_HEADER *pheader, void *pevent)
 	std::string muSc_bankname = gSetup->GetBankName("muSc");
 	std::vector<TPulseIsland*> theMuScPulses = pulse_islands_map[muSc_bankname];
 
-	// Loop over the muSc pulses
-	for (std::vector<TPulseIsland*>::iterator muScPulseIter = theMuScPulses.begin(); muScPulseIter != theMuScPulses.end(); ++muScPulseIter) {
+	// Loop over the map and get each bankname, vector pair
+	for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) 
+	  {
+	    std::string bankname = mapIter->first;
+	    std::string detname = gSetup->GetDetectorName(bankname);
+	    
+	    // Don't bother comparing muSc to muSc
+	    if (detname == "muSc")
+	      continue;
 
-	  // Loop over the map and get each bankname, vector pair
-	  for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) 
-	    {
-	      std::string bankname = mapIter->first;
-	      std::string detname = gSetup->GetDetectorName(bankname);
-	      
-	      // Don't bother comparing muSc to muSc
-	      if (detname == "muSc")
-		continue;
-
-	      std::vector<TPulseIsland*> thePulses = mapIter->second;
+	    std::vector<TPulseIsland*> thePulses = mapIter->second;
 			
-	      // Loop over the TPulseIslands and plot the histogram
-	      for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
+	    // Make sure the histograms exist (put here so that it find() only called once per detector)
+	    if (DQ_muScTDiff_histograms_map.find(bankname) != DQ_muScTDiff_histograms_map.end()) {
 
+	      // Loop over the muSc pulses
+	      for (std::vector<TPulseIsland*>::iterator muScPulseIter = theMuScPulses.begin(); muScPulseIter != theMuScPulses.end(); ++muScPulseIter) {
 
-		// Make sure the histograms exist and then fill them
-		if (DQ_muScTDiff_histograms_map.find(bankname) != DQ_muScTDiff_histograms_map.end()) {
+		// Loop over the TPulseIslands and plot the histogram
+		for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
 
 		  // Get the pulse times for the muSc pulse and the detector pulse
 		  double muSc_time = (*muScPulseIter)->GetPulseTime();
 		  double det_time = (*pulseIter)->GetPulseTime();
 		  double tdiff = muSc_time - det_time;
 
+		  // The pulses should be time-ordered so if the tdiff goes outside of the axis range, then we can just skip to the next muSc pulse
+		  if (std::fabs(tdiff) > axis_limit)
+		    break;
+
+		  // Fill the histogram
 		  DQ_muScTDiff_histograms_map[bankname]->Fill(tdiff);
 		}
 	      }
 	    }
-	}
+	  }
 	return SUCCESS;
 }
