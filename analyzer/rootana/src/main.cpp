@@ -62,7 +62,7 @@ TGlobalData* TGlobalData::Instance()
 }
 
 int main(int argc, char **argv){
-  load_config_file("MODULES.txt");
+//load_config_file("MODULES.txt");
 
   ARGUMENTS arguments;
   int ret = analyze_command_line (argc, argv,arguments);
