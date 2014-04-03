@@ -4,9 +4,8 @@ Name:         MDQ_IslandCounter
 Created by:   Andrew Edmonds
 
 Contents:     hDQ_IslandCounter_[DetName] 
-               - Plots: the time stamp (in ns) for each TPulseIsland
-               - To Check: time stamps go up to ~100 ms
-               - Soln: if they don't, check the sampling frequency in the ODB
+               - Plots: the number of TPulseIslands in each event for each detector
+               - To Check: number stays fairly consistent
 
 \********************************************************************/
 
@@ -82,10 +81,10 @@ INT MDQ_IslandCounter_init()
 
     // hDQ_IslandCounter_[DetName]
     std::string histname = "hDQ_IslandCounter_" + detname;
-    std::string histtitle = "Distribution of time stamps in " + detname;
-    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 1200, 0, 120e6);
-    hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
-    hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands");
+    std::string histtitle = "Distribution of the number of islands per event in " + detname;
+    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 1500, 0, 1500);
+    hDQ_Histogram->GetXaxis()->SetTitle("Number of TPulseIslands");
+    hDQ_Histogram->GetYaxis()->SetTitle("Number of Events");
     DQ_IslandCounter_histograms_map[bankname] = hDQ_Histogram;
   }
 
@@ -117,17 +116,11 @@ INT MDQ_IslandCounter(EVENT_HEADER *pheader, void *pevent)
 	  std::string detname = gSetup->GetDetectorName(bankname);
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
 			
-	  // Loop over the TPulseIslands and plot the histogram
-	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
-
-	    // Make sure the histograms exist and then fill them
-	    if (DQ_IslandCounter_histograms_map.find(bankname) != DQ_IslandCounter_histograms_map.end()) {
-	      int time_stamp = (*pulseIter)->GetTimeStamp();
-	      double clock_tick_in_ns = (*pulseIter)->GetClockTickInNs();
-	      double block_time = time_stamp * clock_tick_in_ns;
-
-	      DQ_IslandCounter_histograms_map[bankname]->Fill(block_time);
-	    }
+	  // Make sure the histograms exist and then fill them
+	  if (DQ_IslandCounter_histograms_map.find(bankname) != DQ_IslandCounter_histograms_map.end()) {
+	    int n_pulse_islands = thePulses.size();
+	    
+	    DQ_IslandCounter_histograms_map[bankname]->Fill(n_pulse_islands);
 	  }
 	}
 	return SUCCESS;
