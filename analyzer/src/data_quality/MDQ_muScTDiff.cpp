@@ -4,9 +4,8 @@ Name:         MDQ_muScTDiff
 Created by:   Andrew Edmonds
 
 Contents:     hDQ_muScTDiff_[DetName] 
-               - Plots: the time stamp (in ns) for each TPulseIsland
-               - To Check: time stamps go up to ~100 ms
-               - Soln: if they don't, check the sampling frequency in the ODB
+               - Plots: the time differences (in ns) between the pulses in the muSc and each detector
+               - To Check: the time shift for the ODB correction
 
 \********************************************************************/
 
@@ -44,7 +43,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-map <std::string, TH1F*> DQ_histograms_map;
+map <std::string, TH1F*> DQ_muScTDiff_histograms_map;
 
 ANA_MODULE MDQ_muScTDiff_module =
 {
@@ -82,11 +81,11 @@ INT MDQ_muScTDiff_init()
 
     // hDQ_muScTDiff_[DetName]
     std::string histname = "hDQ_muScTDiff_" + detname;
-    std::string histtitle = "Distribution of time stamps in " + detname;
-    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 1200, 0, 120e6);
-    hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
+    std::string histtitle = "Time differences between muSc and " + detname;
+    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 10000, -50000, 50000);
+    hDQ_Histogram->GetXaxis()->SetTitle("Time Difference [ns]");
     hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands");
-    DQ_histograms_map[bankname] = hDQ_Histogram;
+    DQ_muScTDiff_histograms_map[bankname] = hDQ_Histogram;
   }
 
   gDirectory->Cd("/MidasHists/");
@@ -121,12 +120,12 @@ INT MDQ_muScTDiff(EVENT_HEADER *pheader, void *pevent)
 	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
 
 	    // Make sure the histograms exist and then fill them
-	    if (DQ_histograms_map.find(bankname) != DQ_histograms_map.end()) {
+	    if (DQ_muScTDiff_histograms_map.find(bankname) != DQ_muScTDiff_histograms_map.end()) {
 	      int time_stamp = (*pulseIter)->GetTimeStamp();
 	      double clock_tick_in_ns = (*pulseIter)->GetClockTickInNs();
 	      double block_time = time_stamp * clock_tick_in_ns;
 
-	      DQ_histograms_map[bankname]->Fill(block_time);
+	      DQ_muScTDiff_histograms_map[bankname]->Fill(block_time);
 	    }
 	  }
 	}
