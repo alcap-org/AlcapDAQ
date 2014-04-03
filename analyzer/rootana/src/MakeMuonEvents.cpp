@@ -2,6 +2,7 @@
 
 #include "MakeMuonEvents.h"
 #include <TMuonEvent.h>
+#include "ModulesOptions.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -27,8 +28,8 @@ static TH1 *bankHists[NCHAN];
 extern std::vector<TMuonEvent* > gMuonEvents;
 extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
-MakeMuonEvents::MakeMuonEvents(char *HistogramDirectoryName,TSetupData* setup) :
-  FillHistBase(HistogramDirectoryName,setup){
+MakeMuonEvents::MakeMuonEvents(char *HistogramDirectoryName,modules::options* opts,TSetupData* setup) :
+  FillHistBase(HistogramDirectoryName,opts,setup){
       // Get all detectors
       setup->GetAllDetectors(fDetectors);
       fDetectors.erase("muSc");
