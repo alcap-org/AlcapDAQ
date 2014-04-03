@@ -3,11 +3,10 @@
 Name:         MDQ_BlockTime
 Created by:   Andrew Edmonds
 
-Contents:     A low-level data quality module
-
-Histograms: hDQ_BlockTime_[DetName] -- plots the time stamp (in ns) for each TPulseIsland
-                                    -- check that time stamps go up to ~100 ms
-                                    -- if they don't, check the sampling frequency in the ODB
+Contents:     hDQ_BlockTime_[DetName] 
+               - Plots: the time stamp (in ns) for each TPulseIsland
+               - To Check: time stamps go up to ~100 ms
+               - Soln: if they don't, check the sampling frequency in the ODB
 
 \********************************************************************/
 
@@ -73,9 +72,7 @@ INT MDQ_BlockTime_init()
     gDirectory->Cd(dir_name.c_str());
   }
 
-  // This module creates the following histograms:
-  // hDQ_BlockTime_[DetName] -- distribution of time stamps (in ns) within a MIDAS event
-
+  // Create a histogram for each detector
   std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
   for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
       mapIter != bank_to_detector_map.end(); mapIter++) { 

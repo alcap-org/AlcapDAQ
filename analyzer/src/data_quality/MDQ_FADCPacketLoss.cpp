@@ -1,11 +1,14 @@
 /********************************************************************\
 
-  Name:         MDQ_FADCPacketLoss
-  Created by:   Andrew Edmonds
+Name:         MDQ_FADCPacketLoss
+Created by:   Andrew Edmonds
 
-  Contents:     A low-level data quality module
+Contents:     hDQ_FADCPacketLoss
+               - Plots: the fraction of MIDAS events that had a packet loss
+               - To Check: value is not too high(?)
+               - Soln: throw out whole run (?)
 
-  Histograms:
+
 
 \********************************************************************/
 
@@ -73,10 +76,7 @@ INT MDQ_FADCPacketLoss_init()
     gDirectory->Cd(dir_name.c_str());
   }
 
-  // This histogram has the bank names labeled on the X-axis, and the midas
-  // block number on the Y-axis.
-  // This uses the TH1::kCanRebin mechanism to expand automatically to the
-  // number of FADC banks.
+  // Create the histogram
   hDQ_FADCPacketLoss = new TH1F(
     "hDQ_FADCPacketLoss",
     "Fraction of MIDAS Events with FADC packet loss per board",
