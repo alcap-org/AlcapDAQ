@@ -4,6 +4,9 @@
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "TDirectory.h"
+namespace modules{
+class options;
+}
 
 #include <iostream>
 // This is an efficient way to switch on and off printing text for debugging
@@ -28,7 +31,7 @@ std::cout<<message;
 class FillHistBase
 {
  public:
-  FillHistBase(const char *HistogramDirectoryName, TSetupData* setup=NULL);
+  FillHistBase(const char *HistogramDirectoryName, modules::options* opts=NULL, TSetupData* setup=NULL);
   virtual ~FillHistBase();
 
   int ProcessGenericEntry(TGlobalData *gData, TSetupData *gSetup);
@@ -39,9 +42,11 @@ class FillHistBase
  protected:
   TDirectory *dir;
   TSetupData* fSetup;
+  bool Debug()const{return fDebug;};
 
  private:
    virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+   bool fDebug;
 };
 
 #endif
