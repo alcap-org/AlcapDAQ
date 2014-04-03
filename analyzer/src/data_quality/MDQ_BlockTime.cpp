@@ -44,7 +44,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-map <std::string, TH1F*> DQ_BlockTime_hsitograms_map;
+map <std::string, TH1F*> DQ_BlockTime_histograms_map;
 
 ANA_MODULE MDQ_BlockTime_module =
 {
@@ -86,7 +86,7 @@ INT MDQ_BlockTime_init()
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 1200, 0, 120e6);
     hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
     hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands");
-    DQ_BlockTime_hsitograms_map[bankname] = hDQ_Histogram;
+    DQ_BlockTime_histograms_map[bankname] = hDQ_Histogram;
   }
 
   gDirectory->Cd("/MidasHists/");
@@ -121,12 +121,12 @@ INT MDQ_BlockTime(EVENT_HEADER *pheader, void *pevent)
 	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
 
 	    // Make sure the histograms exist and then fill them
-	    if (DQ_BlockTime_hsitograms_map.find(bankname) != DQ_BlockTime_hsitograms_map.end()) {
+	    if (DQ_BlockTime_histograms_map.find(bankname) != DQ_BlockTime_histograms_map.end()) {
 	      int time_stamp = (*pulseIter)->GetTimeStamp();
 	      double clock_tick_in_ns = (*pulseIter)->GetClockTickInNs();
 	      double block_time = time_stamp * clock_tick_in_ns;
 
-	      DQ_BlockTime_hsitograms_map[bankname]->Fill(block_time);
+	      DQ_BlockTime_histograms_map[bankname]->Fill(block_time);
 	    }
 	  }
 	}
