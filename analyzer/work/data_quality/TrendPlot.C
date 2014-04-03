@@ -73,7 +73,11 @@ void TrendPlot(const char* data_dir, int first_run, const int n_runs) {
     TH2F* trend_plot = new TH2F(trendplotname.c_str(), trendplottitle.c_str(), n_runs, first_run, first_run+n_runs, hist->GetNbinsX(), hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
 
     trend_plot->GetYaxis()->SetTitle(hist->GetXaxis()->GetTitle());
+    trend_plot->GetYaxis()->SetLabelSize(0.03);
+
     trend_plot->GetXaxis()->SetTitle("Run Number");
+    trend_plot->GetXaxis()->SetLabelSize(0.03);
+
     trend_plot->GetZaxis()->SetTitle(hist->GetYaxis()->GetTitle());
     trend_plot->GetZaxis()->SetLabelSize(0.03);
     trend_plot->GetZaxis()->SetTitleOffset(0.85);
