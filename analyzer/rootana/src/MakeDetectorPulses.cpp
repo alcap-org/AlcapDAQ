@@ -80,7 +80,7 @@ std::string MakeDetectorPulses::GetOtherChannelName(std::string in_name,std::str
     return det_name+"-F";
 }
 
-int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData){
+int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, TSetupData* setup){
   std::string det_name_a, det_name_b,det_name;
   bool det_a_isFast, det_b_isSlow;
 

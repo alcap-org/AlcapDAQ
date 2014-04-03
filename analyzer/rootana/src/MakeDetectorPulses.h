@@ -32,8 +32,7 @@ class MakeDetectorPulses : public FillHistBase{
  private:
   TVDetectorPulseGenerator* MakeGenerator(const std::string& generatorType);
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
-  virtual int BeforeFirstEntry(TGlobalData* gData);
-  //virtual int AfterLastEntry(TGlobalData* gData){return 0;};
+  virtual int BeforeFirstEntry(TGlobalData* gData,TSetupData *setup);
   std::string GetOtherChannelName(std::string in_name,std::string det_name);
   std::string GetDetectorName(std::string in_name);
 
