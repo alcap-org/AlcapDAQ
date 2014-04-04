@@ -63,9 +63,9 @@ ANA_MODULE MDQ_PulseShapes_module =
 INT MDQ_PulseShapes_init()
 {
     // See if the DataQuality_LowLevel/ directory already exists
-  if (!gDirectory->Cd("DataQuality_LowLevel")) {
-    
-    std::string dir_name("DataQuality_LowLevel/");
+	std::string dir_name("DataQuality_LowLevel/");
+	dir_name += "PulseShapes";
+  if (!gDirectory->Cd(dir_name.c_str())) {
     gDirectory->mkdir(dir_name.c_str());
     gDirectory->Cd(dir_name.c_str());
   }
@@ -80,10 +80,10 @@ INT MDQ_PulseShapes_init()
 
     // hDQ_PulseShapes_[DetName]
     std::string histname = "hDQ_PulseShapes_" + detname;
-    std::string histtitle = "Distribution of time stamps in " + detname;
+    std::string histtitle = "Pulse shape of " + detname;
     TH2F* hDQ_Histogram = new TH2F(histname.c_str(), histtitle.c_str(), 
 				400, -0.5, 399.5,
-				4096, 0, 4096);
+				4096, 0, 4095);
     hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
     hDQ_Histogram->GetYaxis()->SetTitle("Pulse height [adc]");
     DQ_PulseShapes_histograms_map[bankname] = hDQ_Histogram;
@@ -111,17 +111,21 @@ INT MDQ_PulseShapes(EVENT_HEADER *pheader, void *pevent)
 		gData->fPulseIslandToChannelMap;
 
 	// Loop over the map and get each bankname, vector pair
-	for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) 
+	for (map_iterator mapIter = pulse_islands_map.begin(); 
+			mapIter != pulse_islands_map.end(); ++mapIter) 
 	{
 	  std::string bankname = mapIter->first;
 	  std::string detname = gSetup->GetDetectorName(bankname);
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
 			
 	  // Loop over the TPulseIslands and plot the histogram
-	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
+		for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
+				pulseIter != thePulses.end(); ++pulseIter) {
 
 	    // Make sure the histograms exist and then fill them
-	    if (DQ_PulseShapes_histograms_map.find(bankname) != DQ_PulseShapes_histograms_map.end()) {
+			if (DQ_PulseShapes_histograms_map.find(bankname) !=
+					DQ_PulseShapes_histograms_map.end()) 
+			{ 
 				std::vector<int> theSample = (*pulseIter)->GetSamples();
 				for (std::vector<int>::iterator sampleIter = theSample.begin(); 
 						sampleIter != theSample.end(); ++sampleIter)
