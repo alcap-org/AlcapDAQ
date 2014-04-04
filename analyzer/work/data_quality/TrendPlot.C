@@ -98,6 +98,24 @@ void TrendPlot(const char* data_dir, int first_run, const int n_runs) {
 	trend_plot->Fill(first_run + iRun, hist->GetBinCenter(iBin), hist->GetBinContent(iBin)); // (x = run #, y = time stamp, z = N_TPI)
       }
 
+      // Do any changes to specific types of histograms here
+      if (histname.find("hDQ_IslandCounter") != std::string::npos) {
+
+	// Currently, the trend plots for this module have a large range for some of the channels
+	// so find the last bin that has any content and shrink the trend plot to that
+	int max_bin = 0;
+
+	for (int jBin = trend_plot->GetNbinsY(); jBin > 0; --jBin) {
+	  
+	  if (trend_plot->GetBinContent(1, jBin) >= 1) {
+	    max_bin = jBin;
+	    break;
+	  }
+	}
+
+	trend_plot->GetYaxis()->SetRange(1, max_bin+5); // set the range based on bin number
+      }
+
     }
 
     trend_plot->Draw("COLZ");
