@@ -121,7 +121,7 @@ void TrendPlot(const char* data_dir, int first_run, const int n_runs) {
 	  }
 	}
 
-	trend_plot->GetYaxis()->SetRange(1, max_bin+5); // set the range based on bin number
+	trend_plot->GetYaxis()->SetRange(1, 2*max_bin); // set the range based on bin number
       }
 
     }
