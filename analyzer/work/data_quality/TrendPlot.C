@@ -107,9 +107,17 @@ void TrendPlot(const char* data_dir, int first_run, const int n_runs) {
 
 	for (int jBin = trend_plot->GetNbinsY(); jBin > 0; --jBin) {
 	  
-	  if (trend_plot->GetBinContent(1, jBin) >= 1) {
-	    max_bin = jBin;
-	    break;
+	  // Loop through the runs as well since the highest occupied y-bin might be in one of these
+	  for (int iBin = trend_plot->GetNbinsX(); iBin > 0; --iBin) {
+
+	    if (trend_plot->GetBinContent(iBin, jBin) >= 1) {
+	      
+	      // See if this y-bin is higher than the previous
+	      if (jBin > max_bin) {
+		max_bin = jBin;
+		break;
+	      }
+	    }
 	  }
 	}
 
