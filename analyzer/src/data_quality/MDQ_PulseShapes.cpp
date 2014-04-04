@@ -82,7 +82,7 @@ INT MDQ_PulseShapes_init()
     std::string histname = "hDQ_PulseShapes_" + detname;
     std::string histtitle = "Distribution of time stamps in " + detname;
     TH2F* hDQ_Histogram = new TH2F(histname.c_str(), histtitle.c_str(), 
-				100, -0.5, 99.5,
+				400, -0.5, 399.5,
 				4096, 0, 4096);
     hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
     hDQ_Histogram->GetYaxis()->SetTitle("Pulse height [adc]");
@@ -122,11 +122,15 @@ INT MDQ_PulseShapes(EVENT_HEADER *pheader, void *pevent)
 
 	    // Make sure the histograms exist and then fill them
 	    if (DQ_PulseShapes_histograms_map.find(bankname) != DQ_PulseShapes_histograms_map.end()) {
-				//int time_stamp = (*pulseIter)->GetTimeStamp();
-				//double clock_tick_in_ns = (*pulseIter)->GetClockTickInNs();
-				//double block_time = time_stamp * clock_tick_in_ns;
-
-				//DQ_PulseShapes_histograms_map[bankname]->Fill(block_time);
+				std::vector<int> theSample = (*pulseIter)->GetSamples();
+				for (std::vector<int>::iterator sampleIter = theSample.begin(); 
+						sampleIter != theSample.end(); ++sampleIter)
+				{
+					int sample_number = sampleIter - theSample.begin();
+					//int sample_number = 0;
+					int sample_value = *sampleIter;
+					DQ_PulseShapes_histograms_map[bankname]->Fill(sample_number,sample_value);
+				}
 	    }
 	  }
 	}
