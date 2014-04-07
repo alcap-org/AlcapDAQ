@@ -4,7 +4,7 @@ Name:         MDQ_PulseShapes
 Created by:   NT
 
 Contents:     hDQ_PulseShapes_[DetName] 
-							hDQ_PulseShapes_ProjectionY_[DetName]
+							hDQ_PulseShapesProjectionY_[DetName]
 \********************************************************************/
 
 /* Standard includes */
@@ -54,6 +54,7 @@ extern TApplication * manaApp;
 extern TROOT * gROOT;
 
 map <std::string, TH2F*> DQ_PulseShapes_histograms_map;
+map <std::string, TH1D*> DQ_PulseShapesProjectionY_histograms_map;
 
 ANA_MODULE MDQ_PulseShapes_module =
 {
@@ -80,6 +81,7 @@ INT MDQ_PulseShapes_init()
 	}
 	gDirectory->Cd(dir_name.c_str());
 
+	// PulseShapes
 	dir_name = "PulseShapes";
   if (!gDirectory->Cd(dir_name.c_str())) {
     gDirectory->mkdir(dir_name.c_str());
@@ -105,6 +107,34 @@ INT MDQ_PulseShapes_init()
     DQ_PulseShapes_histograms_map[bankname] = hDQ_Histogram;
   }
 
+	// ProjectionY
+	gDirectory->Cd("..");
+
+	dir_name = "PulseShapesProjectionY";
+  if (!gDirectory->Cd(dir_name.c_str())) {
+    gDirectory->mkdir(dir_name.c_str());
+  }
+	gDirectory->Cd(dir_name.c_str());
+
+  // Create a histogram for each detector
+  for(std::map<std::string, std::string>::iterator mapIter = Bank2DetMap.begin(); 
+      mapIter != Bank2DetMap.end(); mapIter++) { 
+
+    std::string bankname = mapIter->first;
+    std::string detname = gSetup->GetDetectorName(bankname);
+
+    // hDQ_PulseShapesProjectionY_[DetName]
+    std::string histname = "hDQ_PulseShapesProjectionY_" + detname;
+    std::string histtitle = "Pulse shape Y-projection of " + detname;
+    TH1D* hDQ_Histogram = new TH1D(histname.c_str(), histtitle.c_str(), 
+				4096, 0, 4095);
+    hDQ_Histogram->GetXaxis()->SetTitle("ADC");
+    hDQ_Histogram->GetYaxis()->SetTitle("Arbitary unit");
+    DQ_PulseShapesProjectionY_histograms_map[bankname] = hDQ_Histogram;
+  }
+
+
+	// Back to root directory
   gDirectory->Cd("/MidasHists/");
   return SUCCESS;
 }
@@ -157,10 +187,8 @@ INT MDQ_PulseShapes(EVENT_HEADER *pheader, void *pevent)
 	return SUCCESS;
 }
 
-INT MDQ_PulseShapes_eor(INT run_number)
+INT MDQ_PulseShapes_eor(INT run_number) // Make projection
 {
-
-	// Make projections
 	std::map<std::string, std::string> Bank2DetMap = gSetup->fBankToDetectorMap;
 
 	for(std::map<std::string, std::string>::iterator mapIter = Bank2DetMap.begin(); 
@@ -172,14 +200,12 @@ INT MDQ_PulseShapes_eor(INT run_number)
 		if (DQ_PulseShapes_histograms_map.find(bankname) !=
 				DQ_PulseShapes_histograms_map.end())
 		{
-			TH1D* hDQ_Histogram_projY = DQ_PulseShapes_histograms_map[bankname]->ProjectionY();
+			TH1D* hDQ_Histogram_projY = 
+				DQ_PulseShapes_histograms_map[bankname]->ProjectionY();
 
-			std::string histname = "hDQ_PulseShapes_ProjectionY_" + detname;
-			std::string histtitle = "PulseShape projection Y of " + detname;
-			hDQ_Histogram_projY->SetName(histname.c_str());
-			hDQ_Histogram_projY->SetTitle(histtitle.c_str());
-			hDQ_Histogram_projY->GetXaxis()->SetTitle("ADC");
-			hDQ_Histogram_projY->GetYaxis()->SetTitle("Arbitary unit");
+			DQ_PulseShapesProjectionY_histograms_map[bankname]->Add(
+					hDQ_Histogram_projY, 1);
+			hDQ_Histogram_projY->SetDirectory(0); // not save this in the output
 		}
 	}
 
