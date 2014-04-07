@@ -189,9 +189,10 @@ INT MDQ_PulseShapes(EVENT_HEADER *pheader, void *pevent)
 
 INT MDQ_PulseShapes_eor(INT run_number) // Make projection
 {
+	typedef std::map<std::string, std::string>::iterator String2StringMapIter;
 	std::map<std::string, std::string> Bank2DetMap = gSetup->fBankToDetectorMap;
 
-	for(std::map<std::string, std::string>::iterator mapIter = Bank2DetMap.begin(); 
+	for(String2StringMapIter mapIter = Bank2DetMap.begin(); 
 			mapIter != Bank2DetMap.end(); mapIter++) 
 	{ 
 		std::string bankname = mapIter->first;
