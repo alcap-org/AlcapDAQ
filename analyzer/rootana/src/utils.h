@@ -1,5 +1,5 @@
-#ifndef __UTILS__H
-#define __UTILS__H
+#ifndef UTILS_H
+#define UTILS_H
 
 #include <string.h>
 static char correction_file[300];
