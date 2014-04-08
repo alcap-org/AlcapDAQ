@@ -36,7 +36,6 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MDQ_Amplitude_init(void);
 INT  MDQ_Amplitude(EVENT_HEADER*, void*);
-INT  MDQ_Amplitude_eor(INT);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -61,7 +60,7 @@ ANA_MODULE MDQ_Amplitude_module =
 	"Nam Tran",              /* author                */
 	MDQ_Amplitude,                      /* event routine         */
 	NULL,                          /* BOR routine           */
-	MDQ_Amplitude_eor,                          /* EOR routine           */
+	NULL,                          /* EOR routine           */
 	MDQ_Amplitude_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
 	NULL,                          /* parameter structure   */
@@ -154,12 +153,5 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 	    }
 	  }
 	}
-	return SUCCESS;
-}
-
-INT MDQ_Amplitude_eor(INT run_number)
-{
-	// this should get pedestal from PulseShapesProjectionY, compares with that
-	// in ODB and correct the spectrum if necessary
 	return SUCCESS;
 }
