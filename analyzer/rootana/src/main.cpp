@@ -23,6 +23,8 @@
 
 #include "TAnalysedPulseMapWrapper.h"
 
+#include "EventNavigator.h"
+
 // Forward declaration of functions ======================
 Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments);
 void ClearGlobalData(TGlobalData*);
@@ -30,7 +32,6 @@ TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
 Int_t PrepareSingletonObjects(const ARGUMENTS&);
 
-static TGlobalData *g_event=NULL;
 static TFile *gInFile=NULL;
 
 TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
@@ -45,6 +46,7 @@ TGlobalData* TGlobalData::Instance()
   return g_event;
 }
 
+//======================================================================
 int main(int argc, char **argv){
 //load_config_file("MODULES.txt");
 
