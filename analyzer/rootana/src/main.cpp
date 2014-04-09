@@ -34,6 +34,8 @@
 
 #include "TAnalysedPulseMapWrapper.h"
 
+#include "EventNavigator.h"
+
 // Forward declaration of functions ======================
 Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments);
 void ClearGlobalData(TGlobalData*);
@@ -41,7 +43,6 @@ TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
 Int_t PrepareModules();
 
-static TGlobalData *g_event=NULL;
 static TFile *gInFile=NULL;
 
 TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
@@ -54,11 +55,7 @@ std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
 static int n_fillhist = 0;  // keeps track of the total number of modules
 static FillHistBase **fillhists;
 
-TGlobalData* TGlobalData::Instance()
-{
-  return g_event;
-}
-
+//======================================================================
 int main(int argc, char **argv){
   ARGUMENTS arguments;
   int ret = analyze_command_line (argc, argv,arguments);
