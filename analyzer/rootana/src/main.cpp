@@ -62,6 +62,12 @@ int main(int argc, char **argv){
   if(ret!=0) return ret;
   printf("Starting event");
   
+  EventNavigator& en = EventNavigator::Instance();
+  std::cout << "\n " << "###" << en.ConnectInput(arguments.infile) <<std::endl;
+  en.ConnectOutputFile("demo.root");
+  en.CopyTree();
+  return 0;
+
   gInFile = new TFile(arguments.infile);
   if(!gInFile->IsOpen()) {
     printf("Failed to open input file, '%s'.  Exiting.\n",arguments.infile);
