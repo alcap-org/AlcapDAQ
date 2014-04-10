@@ -28,9 +28,14 @@ class EventNavigator {
   /// Opens an input file and connects to the trees therein.  Returns
   /// true if file exists, is a ROOT file, and contains at least one EACH of 
   /// setup and event trees that we recognise. Else false.
-  Bool_t ConnectInputFile(const char* input_file_name, Bool_t read_only =1);
+  /// Request for read+write files (i.e. read_only=0) currently ignored.
+  Bool_t ConnectInput(const char* input_file_name, Bool_t read_only =true);
   
+  /// Opens an output file.  By default this overwrites the output file
+  /// Appending not yet implemented
+  Bool_t ConnectOutputFile(const char* output_file_name, Bool_t append =false);
 
+  void CopyTree();
 
  private: 
   EventNavigator();
