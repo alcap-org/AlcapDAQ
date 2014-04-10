@@ -87,7 +87,7 @@ void TrendPlot(const char* data_dir, int first_run, const int n_runs) {
     // Now go through all the runs and fill the trend plot
     for (int iRun = 0; iRun < n_runs; ++iRun) {
       
-      // Make sure this file exists (in our golden runs, there may be some missing)
+      // Make sure this file exists (there may be some missing in our golden run ranges)
       if (files[iRun]->IsZombie())
 	continue;
       
