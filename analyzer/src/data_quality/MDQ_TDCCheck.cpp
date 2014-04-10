@@ -47,7 +47,12 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-map <std::string, TH1F*> DQ_TDCCheck_histograms_map;
+TH1F* hDQ_TDCCheck_muSc;
+TH1F* hDQ_TDCCheck_muSc_time;
+TH1F* hDQ_TDCCheck_muScA;
+TH1F* hDQ_TDCCheck_muPC;
+TH1F* hDQ_TDCCheck_Unknown;
+
 
 ANA_MODULE MDQ_TDCCheck_module =
 {
@@ -75,23 +80,13 @@ INT MDQ_TDCCheck_init()
     gDirectory->Cd(dir_name.c_str());
   }
 
-  // Create a histogram for each detector
-  /*  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
-  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
-      mapIter != bank_to_detector_map.end(); mapIter++) { 
-
-    std::string bankname = mapIter->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
-
-    // hDQ_TDCCheck_[DetName]
-    std::string histname = "hDQ_TDCCheck_" + detname;
-    std::string histtitle = "Distribution of time stamps in " + detname;
-    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 1200, 0, 120e6);
-    hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
-    hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands");
-    DQ_TDCCheck_histograms_map[bankname] = hDQ_Histogram;
-  }
-  */
+  // Create some histograms
+  hDQ_TDCCheck_muSc = new TH1F("hDQ_TDCCheck_muSc", "Number of hits in muSc", 7000,0,7000);
+  hDQ_TDCCheck_muSc_time = new TH1F("hDQ_TDCCheck_muSc_time", "Time of TDC hits in muSc", 1200,0,120e6);
+  hDQ_TDCCheck_muScA = new TH1F("hDQ_TDCCheck_muScA", "Number of hits in muScA", 7000,0,7000);
+  hDQ_TDCCheck_muPC = new TH1F("hDQ_TDCCheck_muPC", "Number of hits in muPC", 7000,0,7000);
+  hDQ_TDCCheck_Unknown = new TH1F("hDQ_TDCCheck_Unknown", "Number of hits in Unknown", 7000,0,7000);
+  
   gDirectory->Cd("/MidasHists/");
   return SUCCESS;
 }
@@ -118,19 +113,24 @@ INT MDQ_TDCCheck(EVENT_HEADER *pheader, void *pevent)
 	channel_hit *hit_bank;
 	int hit_bank_size = bk_locate(pevent, "HITS", (DWORD *) &hit_bank);
 	hit_bank_size = hit_bank_size * sizeof(DWORD) / sizeof(channel_hit);
-        printf("Number of hits: %d\n", hit_bank_size);
 
 	// At the moment just loop through the hits and print the information
 	// Parameter values have been obtained from MMuSCAnalysisMQL.cpp and MMuPC1AnalysisMQL.cpp
 	for (int i = 0; i < hit_bank_size; ++i) {
-	  if (hit_bank[i].parameter == 6011)
-	    printf("muSC hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	  if (hit_bank[i].parameter == 6011) {
+	    //	    printf("muSC hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	    hDQ_TDCCheck_muSc->Fill(hit_bank[i].parameter);
+	    hDQ_TDCCheck_muSc_time->Fill(hit_bank[i].time);
+	  }
 	  else if (hit_bank[i].parameter == 6002)
-	    printf("muSCA hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	    //	    printf("muSCA hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	    hDQ_TDCCheck_muScA->Fill(hit_bank[i].parameter);
 	  else if (hit_bank[i].parameter >= 4001 && hit_bank[i].parameter <= 4074)
-	    printf("muPC hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	    //	    printf("muPC hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	    hDQ_TDCCheck_muPC->Fill(hit_bank[i].parameter);
 	  else
-	    printf("Unknown hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	    //	    printf("Unknown hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	    hDQ_TDCCheck_Unknown->Fill(hit_bank[i].parameter);
 	}
 
 	// Loop over the map and get each bankname, vector pair
