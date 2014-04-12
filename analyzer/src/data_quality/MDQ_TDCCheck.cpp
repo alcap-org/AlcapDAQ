@@ -3,10 +3,23 @@
 Name:         MDQ_TDCCheck
 Created by:   Andrew Edmonds
 
-Contents:     hDQ_TDCCheck_[DetName] 
-               - Plots: the time stamp (in ns) for each TPulseIsland
-               - To Check: time stamps go up to ~100 ms
-               - Soln: if they don't, check the sampling frequency in the ODB
+Contents:     hDQ_TDCCheck_muSc
+               - Plots: the number of muSc hits as seen in the TDC (parameter = 6011)
+
+              hDQ_TDCCheck_muScA
+               - Plots: the number of muScA hits as seen in the TDC (parameter = 6002)
+
+              hDQ_TDCCheck_muPC
+               - Plots: the number of muPC hits as seen in the TDC (4001 <= parameter <= 4074)
+
+              hDQ_TDCCheck_Unknown
+               - Plots: the number of hits in the TDC with any other parameter
+
+              hDQ_TDCCheck_muSc_time
+               - Plots: the time of the muSc hits as seen in the TDC
+
+              hDQ_TDCCheck_TDiff
+               - Plots: the time difference between muSc hits in the TDC and the BU CAEN
 
 \********************************************************************/
 
@@ -48,10 +61,12 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 TH1F* hDQ_TDCCheck_muSc;
-TH1F* hDQ_TDCCheck_muSc_time;
 TH1F* hDQ_TDCCheck_muScA;
 TH1F* hDQ_TDCCheck_muPC;
 TH1F* hDQ_TDCCheck_Unknown;
+
+TH1F* hDQ_TDCCheck_muSc_time;
+TH1F* hDQ_TDCCheck_TDiff;
 
 
 ANA_MODULE MDQ_TDCCheck_module =
@@ -82,11 +97,29 @@ INT MDQ_TDCCheck_init()
 
   // Create some histograms
   hDQ_TDCCheck_muSc = new TH1F("hDQ_TDCCheck_muSc", "Number of hits in muSc", 7000,0,7000);
-  hDQ_TDCCheck_muSc_time = new TH1F("hDQ_TDCCheck_muSc_time", "Time of TDC hits in muSc", 1200,0,120e6);
+  hDQ_TDCCheck_muSc->GetXaxis()->SetTitle("TDC Parameter");
+  hDQ_TDCCheck_muSc->GetYaxis()->SetTitle("Number of Hits");
+
   hDQ_TDCCheck_muScA = new TH1F("hDQ_TDCCheck_muScA", "Number of hits in muScA", 7000,0,7000);
+  hDQ_TDCCheck_muScA->GetXaxis()->SetTitle("TDC Parameter");
+  hDQ_TDCCheck_muScA->GetYaxis()->SetTitle("Number of Hits");
+
   hDQ_TDCCheck_muPC = new TH1F("hDQ_TDCCheck_muPC", "Number of hits in muPC", 7000,0,7000);
+  hDQ_TDCCheck_muPC->GetXaxis()->SetTitle("TDC Parameter");
+  hDQ_TDCCheck_muPC->GetYaxis()->SetTitle("Number of Hits");
+
   hDQ_TDCCheck_Unknown = new TH1F("hDQ_TDCCheck_Unknown", "Number of hits in Unknown", 7000,0,7000);
-  
+  hDQ_TDCCheck_Unknown->GetXaxis()->SetTitle("TDC Parameter");
+  hDQ_TDCCheck_Unknown->GetYaxis()->SetTitle("Number of Hits");
+
+  hDQ_TDCCheck_muSc_time = new TH1F("hDQ_TDCCheck_muSc_time", "Time of TDC hits in muSc", 1200,0,120e6);
+  hDQ_TDCCheck_muSc_time->GetXaxis()->SetTitle("Time of muSc Hit [ns]");
+  hDQ_TDCCheck_muSc_time->GetYaxis()->SetTitle("Number of Hits");
+
+  hDQ_TDCCheck_TDiff = new TH1F("hDQ_TDCCheck_TDiff", "Time difference between muSc hit in TDC and BU", 10000,-5000,5000);
+  hDQ_TDCCheck_TDiff->GetXaxis()->SetTitle("Time Difference of muSc Hits (BU CAEN - TDC)");
+  hDQ_TDCCheck_TDiff->GetYaxis()->SetTitle("Number of Hits");
+
   gDirectory->Cd("/MidasHists/");
   return SUCCESS;
 }
@@ -133,25 +166,25 @@ INT MDQ_TDCCheck(EVENT_HEADER *pheader, void *pevent)
 	    hDQ_TDCCheck_Unknown->Fill(hit_bank[i].parameter);
 	}
 
-	// Loop over the map and get each bankname, vector pair
-	/*	for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) 
-	{
-	  std::string bankname = mapIter->first;
-	  std::string detname = gSetup->GetDetectorName(bankname);
-	  std::vector<TPulseIsland*> thePulses = mapIter->second;
-			
-	  // Loop over the TPulseIslands and plot the histogram
-	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
+	// Get the muSc pulses and plot the time difference between them and the hits above
+	std::string detname = "muSc";
+	std::string bankname = gSetup->GetBankName(detname);
+	std::vector<TPulseIsland*> theMuScPulses = pulse_islands_map[bankname];
 
-	    // Make sure the histograms exist and then fill them
-	    if (DQ_TDCCheck_histograms_map.find(bankname) != DQ_TDCCheck_histograms_map.end()) {
-	      int time_stamp = (*pulseIter)->GetTimeStamp();
-	      double clock_tick_in_ns = (*pulseIter)->GetClockTickInNs();
-	      double block_time = time_stamp * clock_tick_in_ns;
+	// Loop over the TPulseIslands and plot the histogram
+	for (std::vector<TPulseIsland*>::iterator pulseIter = theMuScPulses.begin(); pulseIter != theMuScPulses.end(); ++pulseIter) {
 
-	      DQ_TDCCheck_histograms_map[bankname]->Fill(block_time);
+	  // Get the timestamp of the TPI in ns
+	  int time_stamp = (*pulseIter)->GetTimeStamp();
+	  double clock_tick_in_ns = (*pulseIter)->GetClockTickInNs();
+	  double block_time = time_stamp * clock_tick_in_ns;
+
+	  for (int i = 0; i < hit_bank_size; ++i) {
+	    if (hit_bank[i].parameter == 6011) {
+	      hDQ_TDCCheck_TDiff->Fill(block_time - hit_bank[i].time);
 	    }
 	  }
-	  }*/
+	}
+
 	return SUCCESS;
 }
