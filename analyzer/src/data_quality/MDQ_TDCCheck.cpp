@@ -154,36 +154,35 @@ INT MDQ_TDCCheck(EVENT_HEADER *pheader, void *pevent)
 	    //	    printf("muSC hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
 	    hDQ_TDCCheck_muSc->Fill(hit_bank[i].parameter);
 	    hDQ_TDCCheck_muSc_time->Fill(hit_bank[i].time);
-	  }
-	  else if (hit_bank[i].parameter == 6002)
-	    //	    printf("muSCA hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
-	    hDQ_TDCCheck_muScA->Fill(hit_bank[i].parameter);
-	  else if (hit_bank[i].parameter >= 4001 && hit_bank[i].parameter <= 4074)
-	    //	    printf("muPC hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
-	    hDQ_TDCCheck_muPC->Fill(hit_bank[i].parameter);
-	  else
-	    //	    printf("Unknown hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
-	    hDQ_TDCCheck_Unknown->Fill(hit_bank[i].parameter);
-	}
 
-	// Get the muSc pulses and plot the time difference between them and the hits above
-	std::string detname = "muSc";
-	std::string bankname = gSetup->GetBankName(detname);
-	std::vector<TPulseIsland*> theMuScPulses = pulse_islands_map[bankname];
+	    // Plot the time difference between the time as given by the TDC and as given by the BU CAEN
+	    std::string detname = "muSc";
+	    std::string bankname = gSetup->GetBankName(detname);
+	    std::vector<TPulseIsland*> theMuScPulses = pulse_islands_map[bankname];
 
-	// Loop over the TPulseIslands and plot the histogram
-	for (std::vector<TPulseIsland*>::iterator pulseIter = theMuScPulses.begin(); pulseIter != theMuScPulses.end(); ++pulseIter) {
+	    // Loop over the TPulseIslands and plot the histogram
+	    for (std::vector<TPulseIsland*>::iterator pulseIter = theMuScPulses.begin(); pulseIter != theMuScPulses.end(); ++pulseIter) {
 
-	  // Get the timestamp of the TPI in ns
-	  int time_stamp = (*pulseIter)->GetTimeStamp();
-	  double clock_tick_in_ns = (*pulseIter)->GetClockTickInNs();
-	  double block_time = time_stamp * clock_tick_in_ns;
+	      // Get the timestamp of the TPI in ns
+	      int time_stamp = (*pulseIter)->GetTimeStamp();
+	      double clock_tick_in_ns = (*pulseIter)->GetClockTickInNs();
+	      double block_time = time_stamp * clock_tick_in_ns;
 
-	  for (int i = 0; i < hit_bank_size; ++i) {
-	    if (hit_bank[i].parameter == 6011) {
 	      hDQ_TDCCheck_TDiff->Fill(block_time - hit_bank[i].time);
 	    }
 	  }
+
+	  else if (hit_bank[i].parameter == 6002)
+	    //	    printf("muSCA hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	    hDQ_TDCCheck_muScA->Fill(hit_bank[i].parameter);
+
+	  else if (hit_bank[i].parameter >= 4001 && hit_bank[i].parameter <= 4074)
+	    //	    printf("muPC hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	    hDQ_TDCCheck_muPC->Fill(hit_bank[i].parameter);
+
+	  else
+	    //	    printf("Unknown hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	    hDQ_TDCCheck_Unknown->Fill(hit_bank[i].parameter);
 	}
 
 	return SUCCESS;
