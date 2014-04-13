@@ -37,6 +37,7 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MDQ_IslandRate_init(void);
 INT  MDQ_IslandRate(EVENT_HEADER*, void*);
+INT  MDQ_IslandRate_eor(INT);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -50,7 +51,7 @@ ANA_MODULE MDQ_IslandRate_module =
 	"Andrew Edmonds",              /* author                */
 	MDQ_IslandRate,                      /* event routine         */
 	NULL,                          /* BOR routine           */
-	NULL,                          /* EOR routine           */
+	MDQ_IslandRate_eor,                          /* EOR routine           */
 	MDQ_IslandRate_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
 	NULL,                          /* parameter structure   */
@@ -80,6 +81,64 @@ INT MDQ_IslandRate_init()
 
 
   gDirectory->Cd("/MidasHists/");
+  return SUCCESS;
+}
+
+/** This method does any last minute things to the histograms at the end of the run
+ */
+INT MDQ_IslandRate_eor(INT run_number) {
+
+  // Get the run duration to scale the histogram
+  HNDLE hDB, hKey;
+  char keyName[200];
+
+  if(cm_get_experiment_database(&hDB, NULL) != CM_SUCCESS){
+    printf("Warning: Could not connect to ODB database!\n");
+    return false;
+  }
+
+  sprintf(keyName, "/Runinfo/Start time binary");
+  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return false;
+  }
+  KEY start_time_key;
+  if(db_get_key(hDB, hKey, &start_time_key) != DB_SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return false;
+  }
+  DWORD StartTimes[start_time_key.num_values];
+  int size = sizeof(StartTimes);
+  if(db_get_value(hDB, 0, keyName, StartTimes, &size, TID_DWORD, 0) != DB_SUCCESS){
+    printf("Warning: Could not retrieve values for key %s\n", keyName);
+    return false;
+  }
+
+  sprintf(keyName, "/Runinfo/Stop time binary");
+  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return false;
+  }
+  KEY stop_time_key;
+  if(db_get_key(hDB, hKey, &stop_time_key) != DB_SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return false;
+  }
+  DWORD StopTimes[stop_time_key.num_values];
+  size = sizeof(StopTimes);
+  if(db_get_value(hDB, 0, keyName, StopTimes, &size, TID_DWORD, 0) != DB_SUCCESS){
+    printf("Warning: Could not retrieve values for key %s\n", keyName);
+    return false;
+  }
+
+  printf("Start time: %d\n", StartTimes[0]);
+  printf("Stop time: %d\n", StopTimes[0]);
+  printf("Duration: %d\n", StopTimes[0] - StartTimes[0]);
+
+  int duration = StopTimes[0] - StartTimes[0]; // length of run in seconds (checked against run #2600)
+
+  hDQ_IslandRate->Scale(1.0/duration);
+
   return SUCCESS;
 }
 
