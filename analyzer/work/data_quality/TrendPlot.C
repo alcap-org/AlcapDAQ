@@ -124,6 +124,15 @@ void TrendPlot(const char* data_dir, int first_run, const int n_runs) {
 	trend_plot->GetYaxis()->SetRange(1, 2*max_bin); // set the range based on bin number
       }
 
+      else if (histname.find("hDQ_IslandRate") != std::string::npos) {
+
+	// With hDQ_IslandRate we want the bin labels transferred from the x-axis of the histogram to the y-axis of the trend plot
+	for (int jBin = 1; jBin < hist->GetNbinsX(); ++jBin) {
+
+	  trend_plot->GetYaxis()->SetBinLabel(jBin, hist->GetXaxis()->GetBinLabel(jBin));
+	}
+      }
+
     }
 
     trend_plot->Draw("COLZ");
