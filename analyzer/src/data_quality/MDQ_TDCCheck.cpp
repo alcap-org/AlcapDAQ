@@ -96,16 +96,16 @@ INT MDQ_TDCCheck_init()
   }
 
   // Create some histograms
-  hDQ_TDCCheck_muSc = new TH1F("hDQ_TDCCheck_muSc", "Number of hits in muSc", 7000,0,7000);
-  hDQ_TDCCheck_muSc->GetXaxis()->SetTitle("TDC Parameter");
+  hDQ_TDCCheck_muSc = new TH1F("hDQ_TDCCheck_muSc", "Number of hits in muSc", 3,0,3);
+  hDQ_TDCCheck_muSc->GetXaxis()->SetTitle("muSc");
   hDQ_TDCCheck_muSc->GetYaxis()->SetTitle("Number of Hits");
 
-  hDQ_TDCCheck_muScA = new TH1F("hDQ_TDCCheck_muScA", "Number of hits in muScA", 7000,0,7000);
-  hDQ_TDCCheck_muScA->GetXaxis()->SetTitle("TDC Parameter");
+  hDQ_TDCCheck_muScA = new TH1F("hDQ_TDCCheck_muScA", "Number of hits in muScA", 3,0,3);
+  hDQ_TDCCheck_muScA->GetXaxis()->SetTitle("muScA");
   hDQ_TDCCheck_muScA->GetYaxis()->SetTitle("Number of Hits");
 
-  hDQ_TDCCheck_muPC = new TH1F("hDQ_TDCCheck_muPC", "Number of hits in muPC", 7000,0,7000);
-  hDQ_TDCCheck_muPC->GetXaxis()->SetTitle("TDC Parameter");
+  hDQ_TDCCheck_muPC = new TH1F("hDQ_TDCCheck_muPC", "Number of hits in muPC", 3,0,3);
+  hDQ_TDCCheck_muPC->GetXaxis()->SetTitle("muPC");
   hDQ_TDCCheck_muPC->GetYaxis()->SetTitle("Number of Hits");
 
   hDQ_TDCCheck_Unknown = new TH1F("hDQ_TDCCheck_Unknown", "Number of hits in Unknown", 7000,0,7000);
@@ -152,7 +152,7 @@ INT MDQ_TDCCheck(EVENT_HEADER *pheader, void *pevent)
 	for (int i = 0; i < hit_bank_size; ++i) {
 	  if (hit_bank[i].parameter == 6011) {
 	    //	    printf("muSC hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
-	    hDQ_TDCCheck_muSc->Fill(hit_bank[i].parameter);
+	    hDQ_TDCCheck_muSc->Fill(1);
 	    hDQ_TDCCheck_muSc_time->Fill(hit_bank[i].time);
 
 	    // Plot the time difference between the time as given by the TDC and as given by the BU CAEN
@@ -174,12 +174,11 @@ INT MDQ_TDCCheck(EVENT_HEADER *pheader, void *pevent)
 
 	  else if (hit_bank[i].parameter == 6002)
 	    //	    printf("muSCA hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
-	    hDQ_TDCCheck_muScA->Fill(hit_bank[i].parameter);
+	    hDQ_TDCCheck_muScA->Fill(1);
 
 	  else if (hit_bank[i].parameter >= 4001 && hit_bank[i].parameter <= 4074)
 	    //	    printf("muPC hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
-	    hDQ_TDCCheck_muPC->Fill(hit_bank[i].parameter);
-
+	    hDQ_TDCCheck_muPC->Fill(1);
 	  else
 	    //	    printf("Unknown hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
 	    hDQ_TDCCheck_Unknown->Fill(hit_bank[i].parameter);

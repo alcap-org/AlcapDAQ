@@ -90,9 +90,9 @@ INT MDQ_muScHitRate_init()
   }
 
   // Create some histograms
-  hDQ_muScHitRate = new TH1F("hDQ_muScHitRate", "Number of hits in muSc", 7000,0,7000);
-  hDQ_muScHitRate->GetXaxis()->SetTitle("TDC Parameter");
-  hDQ_muScHitRate->GetYaxis()->SetTitle("Number of Hits");
+  hDQ_muScHitRate = new TH1F("hDQ_muScHitRate", "Number of hits in muSc", 3,0,3);
+  hDQ_muScHitRate->GetXaxis()->SetTitle("muSc");
+  hDQ_muScHitRate->GetYaxis()->SetTitle("Hit Rate [#mu s^{-1}]");
 
   gDirectory->Cd("/MidasHists/");
   return SUCCESS;
@@ -151,6 +151,8 @@ INT MDQ_muScHitRate_eor(INT run_number) {
 
   int duration = StopTimes[0] - StartTimes[0]; // length of run in seconds (checked against run #2600)
 
+  hDQ_muScHitRate->Scale(1.0/duration);
+
   return SUCCESS;
 }
 /** This method fills the histograms
@@ -179,7 +181,7 @@ INT MDQ_muScHitRate(EVENT_HEADER *pheader, void *pevent)
 	// Parameter values have been obtained from MMuSCAnalysisMQL.cpp and MMuPC1AnalysisMQL.cpp
 	for (int i = 0; i < hit_bank_size; ++i) {
 	  if (hit_bank[i].parameter == 6011) {
-	    hDQ_muScHitRate->Fill(hit_bank[i].parameter);
+	    hDQ_muScHitRate->Fill(1);
 	  }
 	}
 
