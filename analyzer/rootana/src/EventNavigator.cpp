@@ -89,6 +89,7 @@ Bool_t EventNavigator::ConnectOutputFile(const char* output_file_name,
 }
 
 
+extern void ClearGlobalData(TGlobalData* data);
 //----------------------------------------------------------------------
 void EventNavigator::CopyTree()
 {
@@ -101,13 +102,18 @@ void EventNavigator::CopyTree()
 
   fOutput->ls();
   TTree* out_tree = fEventTree->CloneTree(0);
+  Int_t something;
+  out_tree->Branch("demo",&something,"demo/I");
   for (Long64_t i=0; i < nentries; ++i){
     fEventTree->GetEntry(i);
+    something = i % 25;
     out_tree->Fill();
     if (i ==    1 || i ==    2 || i ==    5 ||
 	i ==   10 || i ==   20 || i ==   50 ||
 	i ==  100 || i ==  200 || i ==  500 ||
 	i == 1000 || i == 2000 || i == 5000 ) std::cout << "Event " << i << std::endl;
+    ClearGlobalData(event);
+    
   }
   std::cout << nentries << " ENTRIES" << std::endl;
 
