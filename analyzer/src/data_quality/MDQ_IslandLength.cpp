@@ -62,13 +62,11 @@ ANA_MODULE MDQ_IslandLength_module =
 */
 INT MDQ_IslandLength_init()
 {
-    // See if the DataQuality_LowLevel/ directory already exists
-	
-	std::string dir_name("DataQuality_LowLevel/");
-	dir_name += "IslandLength/";
+  // See if the DataQuality_LowLevel/ directory already exists
+  std::string dir_name("DataQuality_LowLevel/");
   if (!gDirectory->Cd(dir_name.c_str())) {
-		gDirectory->mkdir(dir_name.c_str());
-		gDirectory->Cd(dir_name.c_str());
+    gDirectory->mkdir(dir_name.c_str());
+    gDirectory->Cd(dir_name.c_str());
   }
 
 
@@ -82,9 +80,9 @@ INT MDQ_IslandLength_init()
 
     // hDQ_IslandLength_[DetName]
     std::string histname = "hDQ_IslandLength_" + detname;
-    std::string histtitle = "Pulse shape of " + detname;
+    std::string histtitle = "Length of each TPulseIsland in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
-				4096, -0.5, 4095.5);
+				700, 0, 700);
     hDQ_Histogram->GetXaxis()->SetTitle("Length [samples]");
     hDQ_Histogram->GetYaxis()->SetTitle("Number of islands");
     DQ_IslandLength_histograms_map[bankname] = hDQ_Histogram;

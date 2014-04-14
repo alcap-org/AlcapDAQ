@@ -131,10 +131,6 @@ INT MDQ_IslandRate_eor(INT run_number) {
     return false;
   }
 
-  printf("Start time: %d\n", StartTimes[0]);
-  printf("Stop time: %d\n", StopTimes[0]);
-  printf("Duration: %d\n", StopTimes[0] - StartTimes[0]);
-
   int duration = StopTimes[0] - StartTimes[0]; // length of run in seconds (checked against run #2600)
 
   hDQ_IslandRate->Scale(1.0/duration);

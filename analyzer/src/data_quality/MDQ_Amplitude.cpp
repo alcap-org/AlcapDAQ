@@ -72,35 +72,32 @@ ANA_MODULE MDQ_Amplitude_module =
 */
 INT MDQ_Amplitude_init()
 {
-	// See if the DataQuality_LowLevel/ directory already exists
-	std::string dir_name("DataQuality_LowLevel/");
-  if (!gDirectory->Cd(dir_name.c_str())) {
+  // See if the DataQuality_LowLevel/ directory already exists
+  if (!gDirectory->Cd("DataQuality_LowLevel")) {
+    
+    std::string dir_name("DataQuality_LowLevel/");
     gDirectory->mkdir(dir_name.c_str());
-	}
-	gDirectory->Cd(dir_name.c_str());
-
-	dir_name = "Amplitude";
-  if (!gDirectory->Cd(dir_name.c_str())) {
-    gDirectory->mkdir(dir_name.c_str());
+    gDirectory->Cd(dir_name.c_str());
   }
-	gDirectory->Cd(dir_name.c_str());
 
   // Create a histogram for each detector
   std::map<std::string, std::string> Bank2DetMap = gSetup->fBankToDetectorMap;
 
-	typedef std::map<std::string, std::string>::iterator String2StringMapIter;
+  typedef std::map<std::string, std::string>::iterator String2StringMapIter;
 
   for(String2StringMapIter mapIter = Bank2DetMap.begin(); 
       mapIter != Bank2DetMap.end(); mapIter++) { 
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
+    int n_bits = gSetup->GetNBits(bankname);
+    int max_adc_value = std::pow(2, n_bits);
 
     // hDQ_Amplitude_[DetName]
     std::string histname = "hDQ_Amplitude_" + detname;
-    std::string histtitle = "Pulse shape of " + detname;
+    std::string histtitle = "Amplitude of Pulses in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
-				4096, 0, 4095);
+				max_adc_value, 0, max_adc_value);
     hDQ_Histogram->GetXaxis()->SetTitle("Amplitude [adc]");
     hDQ_Histogram->GetYaxis()->SetTitle("Count");
     DQ_Amplitude_histograms_map[bankname] = hDQ_Histogram;

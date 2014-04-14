@@ -64,7 +64,7 @@ ANA_MODULE MDQ_BlockTime_module =
 */
 INT MDQ_BlockTime_init()
 {
-    // See if the DataQuality_LowLevel/ directory already exists
+  // See if the DataQuality_LowLevel/ directory already exists
   if (!gDirectory->Cd("DataQuality_LowLevel")) {
     
     std::string dir_name("DataQuality_LowLevel/");

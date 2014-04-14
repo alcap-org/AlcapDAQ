@@ -5,8 +5,16 @@ v1724/MV1724ProcessRaw
 dt5720/MDT5720ProcessRaw
 muSC_muPC/MCaenCompProcessRaw
 
+data_quality/MDQ_Amplitude
 data_quality/MDQ_BlockTime
 data_quality/MDQ_FADCPacketLoss
+data_quality/MDQ_IslandCounter
+data_quality/MDQ_IslandLength
+data_quality/MDQ_IslandRate
+data_quality/MDQ_muScHitRate
+data_quality/MDQ_muScTDiff
+data_quality/MDQ_PulseShapes
+data_quality/MDQ_TDCCheck
 
 vacuum/MVacuumHisto
 

@@ -74,19 +74,19 @@ ANA_MODULE MDQ_PulseShapes_module =
 */
 INT MDQ_PulseShapes_init()
 {
-	// See if the DataQuality_LowLevel/ directory already exists
-	std::string dir_name("DataQuality_LowLevel/");
-  if (!gDirectory->Cd(dir_name.c_str())) {
-    gDirectory->mkdir(dir_name.c_str());
-	}
-	gDirectory->Cd(dir_name.c_str());
-
-	// PulseShapes
-	dir_name = "PulseShapes";
+  // See if the DataQuality_LowLevel/ directory already exists
+  std::string dir_name("DataQuality_LowLevel/");
   if (!gDirectory->Cd(dir_name.c_str())) {
     gDirectory->mkdir(dir_name.c_str());
   }
-	gDirectory->Cd(dir_name.c_str());
+  gDirectory->Cd(dir_name.c_str());
+
+  // PulseShapes
+  dir_name = "PulseShapes";
+  if (!gDirectory->Cd(dir_name.c_str())) {
+    gDirectory->mkdir(dir_name.c_str());
+  }
+  gDirectory->Cd(dir_name.c_str());
 
   // Create a histogram for each detector
   std::map<std::string, std::string> Bank2DetMap = gSetup->fBankToDetectorMap;
