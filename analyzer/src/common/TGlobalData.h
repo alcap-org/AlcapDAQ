@@ -14,6 +14,8 @@ class TGlobalData : public TObject{
  public:
   static TGlobalData* Instance();
 
+  void Clear(const Option_t* = 0x0);
+
   // Map of bank names to vectors of islands.
   std::map<std::string, std::vector<TPulseIsland*> >
     fPulseIslandToChannelMap;
