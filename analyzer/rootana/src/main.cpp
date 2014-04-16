@@ -151,6 +151,13 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   else if((Long64_t)arguments.start < nentries && arguments.start > 0){
     stop = (Long64_t)arguments.start;
   }
+  
+  //preprocess first event
+  if (g_event){
+    g_event->Clear();//"C");
+    dataTree->SetBranchAddress("Event",&g_event);
+  }
+
   // wind the file on to the first event
   dataTree->GetEntry(start);
 
@@ -172,7 +179,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   //process entries
   for (Long64_t jentry=start; jentry<stop;jentry++) {
     if(g_event){
-      g_event->Clear("C");
+      g_event->Clear();//"C");
       ClearGlobalData(g_event);
       dataTree->SetBranchAddress("Event",&g_event);
     }
