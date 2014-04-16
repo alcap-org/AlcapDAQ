@@ -7,6 +7,8 @@ muSC_muPC/MCaenCompProcessRaw
 
 data_quality/MDQ_BlockTime
 data_quality/MDQ_FADCPacketLoss
+data_quality/MDQ_FADCBufferOverflow
+data_quality/MDQ_ADCSampleOverflow
 
 vacuum/MVacuumHisto
 
