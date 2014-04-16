@@ -1,10 +1,11 @@
 /********************************************************************\
 
 Name:         MDQ_FADCPacketLoss
-Created by:   Andrew Edmonds
+Created by:   Andrew Edmonds + Joe Grange
 
 Contents:     hDQ_FADCPacketLoss
-               - Plots: the fraction of MIDAS events that had a packet loss
+               - Plots: the fraction of MIDAS events that had a packet loss, the total number
+			of packet losses, and packet losses by board and midas block number
                - To Check: value is not too high(?)
                - Soln: throw out whole run (?)
 
@@ -24,6 +25,7 @@ Contents:     hDQ_FADCPacketLoss
 
 /* ROOT includes */
 #include <TH1.h>
+#include <TH2.h>
 #include <TDirectory.h>
 
 /* AlCap includes */
@@ -46,7 +48,9 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-static TH1* hDQ_FADCPacketLoss;
+static TH1* hDQ_FADCPacketLossTot;
+static TH1* hDQ_FADCPacketLossFrac;
+static TH2* hDQ_FADCPacketLossByEvent;
 static int n_total_midas_events;
 
 
@@ -76,14 +80,30 @@ INT MDQ_FADCPacketLoss_init()
     gDirectory->Cd(dir_name.c_str());
   }
 
-  // Create the histogram
-  hDQ_FADCPacketLoss = new TH1F(
-    "hDQ_FADCPacketLoss",
+  // Create the histograms
+  hDQ_FADCPacketLossTot = new TH1F(
+    "hDQ_FADCPacketLossTot",
+    "Total number of MIDAS Events with FADC packet loss per board",
+    4,128, 132);
+  hDQ_FADCPacketLossTot->SetBit(TH1::kCanRebin);
+  hDQ_FADCPacketLossTot->GetXaxis()->SetTitle("FADC Board Number");
+  hDQ_FADCPacketLossTot->GetYaxis()->SetTitle("Number of Events with lost packets");
+
+  hDQ_FADCPacketLossFrac = new TH1F(
+    "hDQ_FADCPacketLossFrac",
     "Fraction of MIDAS Events with FADC packet loss per board",
     4,128, 132);
-  hDQ_FADCPacketLoss->SetBit(TH1::kCanRebin);
-  hDQ_FADCPacketLoss->GetXaxis()->SetTitle("FADC Board Number");
-  hDQ_FADCPacketLoss->GetYaxis()->SetTitle("Fraction of Events with lost packets");
+  hDQ_FADCPacketLossFrac->SetBit(TH1::kCanRebin);
+  hDQ_FADCPacketLossFrac->GetXaxis()->SetTitle("FADC Board Number");
+  hDQ_FADCPacketLossFrac->GetYaxis()->SetTitle("Fraction of Events with lost packets");
+
+  hDQ_FADCPacketLossByEvent = new TH2F(
+    "hDQ_FADCPacketLossByEvent",
+    "FADC packet losses by board and event",
+    4,128, 132,100,0,100);
+  hDQ_FADCPacketLossByEvent->SetBit(TH2::kCanRebin);
+  hDQ_FADCPacketLossByEvent->GetXaxis()->SetTitle("FADC Board Number");
+  hDQ_FADCPacketLossByEvent->GetYaxis()->SetTitle("MIDAS event");
 
   gDirectory->Cd("/MidasHists/");
 
@@ -121,20 +141,26 @@ INT MDQ_FADCPacketLoss(EVENT_HEADER *pheader, void *pevent)
 
   for (int i = 0; i < bankSize; i+=2) {
     board_number = *(raw+i);
+
+    //printf(" event number %d i %d bank size %d board number %d\n",midas_event_number,i,bankSize,board_number);
+
     packet_lost = *(raw+i+1);
     
     if(*(raw+i) >= 0 && *(raw+i) < 255) Boards[i] = true;
 
     n_packets_lost++;
-    //    printf("Event #%d: Board %d lost packet #%d\n", midas_event_number, board_number, packet_lost);
+        //printf("Event #%d: Board %d lost packet #%d n packets lost %d\n", midas_event_number, board_number, packet_lost,n_packets_lost);
 
     // Fill Diagnostic histogram
-    hDQ_FADCPacketLoss->Fill(board_number, 1);   
+    hDQ_FADCPacketLossTot->Fill(board_number, 1);   
+    hDQ_FADCPacketLossFrac->Fill(board_number, 1);
+    hDQ_FADCPacketLossByEvent->Fill(board_number,midas_event_number, 1);
+
   }
 
   for(int i=0; i<256; ++i){
     if(Boards[i] == true){
-      hDQ_FADCPacketLoss->Scale(1.0 / n_total_midas_events);
+      hDQ_FADCPacketLossFrac->Scale(1.0 / n_total_midas_events);
     }
   }
   
