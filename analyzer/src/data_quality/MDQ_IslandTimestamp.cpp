@@ -1,9 +1,9 @@
 /********************************************************************\
 
-Name:         MDQ_BlockTime
+Name:         MDQ_IslandTimestamp
 Created by:   Andrew Edmonds
 
-Contents:     hDQ_BlockTime_[DetName] 
+Contents:     hDQ_IslandTimestamp_[DetName] 
                - Plots: the time stamp (in ns) for each TPulseIsland
                - To Check: time stamps go up to ~100 ms
                - Soln: if they don't, check the sampling frequency in the ODB
@@ -37,23 +37,23 @@ using std::vector;
 using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
-INT  MDQ_BlockTime_init(void);
-INT  MDQ_BlockTime(EVENT_HEADER*, void*);
+INT  MDQ_IslandTimestamp_init(void);
+INT  MDQ_IslandTimestamp(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-map <std::string, TH1F*> DQ_BlockTime_histograms_map;
+map <std::string, TH1F*> DQ_IslandTimestamp_histograms_map;
 
-ANA_MODULE MDQ_BlockTime_module =
+ANA_MODULE MDQ_IslandTimestamp_module =
 {
-	"MDQ_BlockTime",                    /* module name           */
+	"MDQ_IslandTimestamp",                    /* module name           */
 	"Andrew Edmonds",              /* author                */
-	MDQ_BlockTime,                      /* event routine         */
+	MDQ_IslandTimestamp,                      /* event routine         */
 	NULL,                          /* BOR routine           */
 	NULL,                          /* EOR routine           */
-	MDQ_BlockTime_init,                 /* init routine          */
+	MDQ_IslandTimestamp_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
 	NULL,                          /* parameter structure   */
 	0,                             /* structure size        */
@@ -62,7 +62,7 @@ ANA_MODULE MDQ_BlockTime_module =
 
 /** This method initializes histograms.
 */
-INT MDQ_BlockTime_init()
+INT MDQ_IslandTimestamp_init()
 {
   // See if the DataQuality_LowLevel/ directory already exists
   if (!gDirectory->Cd("DataQuality_LowLevel")) {
@@ -80,13 +80,13 @@ INT MDQ_BlockTime_init()
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
 
-    // hDQ_BlockTime_[DetName]
-    std::string histname = "hDQ_BlockTime_" + detname;
+    // hDQ_IslandTimestamp_[DetName]
+    std::string histname = "hDQ_IslandTimestamp_" + detname;
     std::string histtitle = "Distribution of time stamps in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 1200, 0, 120e6);
     hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
     hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands");
-    DQ_BlockTime_histograms_map[bankname] = hDQ_Histogram;
+    DQ_IslandTimestamp_histograms_map[bankname] = hDQ_Histogram;
   }
 
   gDirectory->Cd("/MidasHists/");
@@ -95,7 +95,7 @@ INT MDQ_BlockTime_init()
 
 /** This method fills the histograms
  */
-INT MDQ_BlockTime(EVENT_HEADER *pheader, void *pevent)
+INT MDQ_IslandTimestamp(EVENT_HEADER *pheader, void *pevent)
 {
 	// Get the event number
 	int midas_event_number = pheader->serial_number;
@@ -121,12 +121,12 @@ INT MDQ_BlockTime(EVENT_HEADER *pheader, void *pevent)
 	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
 
 	    // Make sure the histograms exist and then fill them
-	    if (DQ_BlockTime_histograms_map.find(bankname) != DQ_BlockTime_histograms_map.end()) {
+	    if (DQ_IslandTimestamp_histograms_map.find(bankname) != DQ_IslandTimestamp_histograms_map.end()) {
 	      int time_stamp = (*pulseIter)->GetTimeStamp();
 	      double clock_tick_in_ns = (*pulseIter)->GetClockTickInNs();
 	      double block_time = time_stamp * clock_tick_in_ns;
 
-	      DQ_BlockTime_histograms_map[bankname]->Fill(block_time);
+	      DQ_IslandTimestamp_histograms_map[bankname]->Fill(block_time);
 	    }
 	  }
 	}
