@@ -217,7 +217,7 @@ for (int i=1; i<=nBanksTotal; i++){
         nTotal = 0;
         nTotal = hDQ_DigitizerTotal->GetBinContent(i);
 
-    	printf("match! total label %s overflow label %s\n",hDQ_DigitizerTotal->GetXaxis()->GetBinLabel(i),hDQ_DigitizerOverflowFraction->GetXaxis()->GetBinLabel(j));
+    	//printf("match! total label %s overflow label %s\n",hDQ_DigitizerTotal->GetXaxis()->GetBinLabel(i),hDQ_DigitizerOverflowFraction->GetXaxis()->GetBinLabel(j));
         if (nTotal>0) hDQ_DigitizerOverflowFraction->SetBinContent(j,(double)nOverflow/nTotal);
         
         for (int k=1; k<nMidasEvents; k++){
@@ -227,7 +227,7 @@ for (int i=1; i<=nBanksTotal; i++){
           nTotal = hDQ_DigitizerTotalByEvent->GetBinContent(i,k);//i,k to match banks
           if (nTotal>0 && nOverflow>0){
             hDQ_DigitizerOverflowFractionByEvent->SetBinContent(j,k,(double)nOverflow/nTotal);
-            printf(" bankname %s midas event %d nOverflow is %d nTotal is %d ratio is %f\n",hDQ_DigitizerTotal->GetXaxis()->GetBinLabel(i),k,nOverflow,nTotal,(float)nOverflow/nTotal);
+            //printf(" bankname %s midas event %d nOverflow is %d nTotal is %d ratio is %f\n",hDQ_DigitizerTotal->GetXaxis()->GetBinLabel(i),k,nOverflow,nTotal,(float)nOverflow/nTotal);
           }  
       }
     }
