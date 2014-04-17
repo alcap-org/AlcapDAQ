@@ -42,6 +42,7 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MDQ_FADCPacketLoss_init(void);
 INT MDQ_FADCPacketLoss_BOR(INT run_number);
+INT MDQ_FADCPacketLoss_EOR(INT run_number);
 INT  MDQ_FADCPacketLoss(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
@@ -60,7 +61,7 @@ ANA_MODULE MDQ_FADCPacketLoss_module =
   "Andrew Edmonds",              /* author                */
   MDQ_FADCPacketLoss,          /* event routine         */
   MDQ_FADCPacketLoss_BOR,      /* BOR routine           */
-  NULL,                          /* EOR routine           */
+  MDQ_FADCPacketLoss_EOR,      /* EOR routine           */
   MDQ_FADCPacketLoss_init,     /* init routine          */
   NULL,                          /* exit routine          */
   NULL,                          /* parameter structure   */
@@ -158,13 +159,16 @@ INT MDQ_FADCPacketLoss(EVENT_HEADER *pheader, void *pevent)
 
   }
 
-  for(int i=0; i<256; ++i){
-    if(Boards[i] == true){
-      hDQ_FADCPacketLossFrac->Scale(1.0 / n_total_midas_events);
-    }
-  }
-  
   ++n_total_midas_events;
 
   return SUCCESS;
 }
+
+INT MDQ_FADCPacketLoss_EOR(INT run_number)
+{
+
+  hDQ_FADCPacketLossFrac->Scale(1.0 / n_total_midas_events);
+
+  return SUCCESS;
+}
+
