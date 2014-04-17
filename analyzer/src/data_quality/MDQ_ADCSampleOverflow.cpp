@@ -22,6 +22,7 @@ Contents:     hDQ_ADCSampleOverflow
 
 /* ROOT includes */
 #include <TH1.h>
+#include <TH2.h>
 #include <TDirectory.h>
 
 /* AlCap includes */
@@ -43,7 +44,9 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 map <std::string, TH1F*> DQ_ADCSampleOverflow_histograms_map;
-//static TH1* hDQ_Histogram;
+static TH2* hDQ_ADCSampleOverflowByEvent;
+static TH1* hDQ_ADCSampleOverflow;
+static TH1* hDQ_ADCSampleTotal;
 
 ANA_MODULE MDQ_ADCSampleOverflow_module =
 {
@@ -89,10 +92,20 @@ INT MDQ_ADCSampleOverflow_init()
     DQ_ADCSampleOverflow_histograms_map[bankname] = hDQ_Histogram;
   }
 
-//   TH2I* hDQ_Histogram = new TH2I("hDQ_FADCSampleOverflow", "Number of samples with FADC overflow value 8191",1,0,1, 10000,0,10000);
-//   hDQ_Histogram->GetXaxis()->SetTitle("FADC bank name");
-//   hDQ_Histogram->GetYaxis()->SetTitle("MIDAS event number");
-//   hDQ_Histogram->SetBit(TH1::kCanRebin);
+   hDQ_ADCSampleOverflow = new TH1D("hDQ_FADCSampleOverflow", "Number of FADC TPIs with at least one overflow sample value 8191",1,0,1);
+   hDQ_ADCSampleOverflow->SetBit(TH1::kCanRebin);
+   hDQ_ADCSampleOverflow->GetXaxis()->SetTitle("FADC bank name");
+   hDQ_ADCSampleOverflow->GetYaxis()->SetTitle("Number of TPIs with overflow samples");
+
+   hDQ_ADCSampleTotal = new TH1D("hDQ_FADCSampleTotal", "Total number of FADC TPIs (for normalization)",1,0,1);
+   hDQ_ADCSampleTotal->SetBit(TH1::kCanRebin);
+   hDQ_ADCSampleTotal->GetXaxis()->SetTitle("FADC bank name");
+   hDQ_ADCSampleTotal->GetYaxis()->SetTitle("Number of TPIs with overflow samples");
+
+   hDQ_ADCSampleOverflowByEvent = new TH2I("hDQ_FADCSampleOverflowByEvent", "Number of samples with FADC overflow value 8191",1,0,1, 1000,0,1000);
+   hDQ_ADCSampleOverflowByEvent->SetBit(TH1::kCanRebin);
+   hDQ_ADCSampleOverflowByEvent->GetXaxis()->SetTitle("FADC bank name");
+   hDQ_ADCSampleOverflowByEvent->GetYaxis()->SetTitle("MIDAS event number");
 
   gDirectory->Cd("/MidasHists/");
   return SUCCESS;
@@ -104,6 +117,8 @@ INT MDQ_ADCSampleOverflow(EVENT_HEADER *pheader, void *pevent)
 {
 	// Get the event number
 	int midas_event_number = pheader->serial_number;
+
+        bool pulse_overflow = 0;
 
 	// Some typedefs
 	typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
@@ -121,12 +136,14 @@ INT MDQ_ADCSampleOverflow(EVENT_HEADER *pheader, void *pevent)
 	  std::string bankname = mapIter->first;
 	  std::string detname = gSetup->GetDetectorName(bankname);
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
-			
+
 	  // Loop over the TPulseIslands and plot the histogram
 	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
 
 	    // Make sure the histograms exist and then fill them
 	    if (DQ_ADCSampleOverflow_histograms_map.find(bankname) != DQ_ADCSampleOverflow_histograms_map.end()) {
+
+              pulse_overflow = 0;
 
               //loop over samples, check for overflow value
               std::vector<int> theSamples = (*pulseIter)->GetSamples();
@@ -135,18 +152,26 @@ INT MDQ_ADCSampleOverflow(EVENT_HEADER *pheader, void *pevent)
                 int sample_value = *sampleIter;
                 //if (sample_value == 8191){
                 if ((sample_value == 8191)&&(TSetupData::IsFADC(bankname))){
-                  printf("fadc DQ: sample #%d value %d midas event #%d bankname %s\n",sample_number,sample_value,midas_event_number,bankname.c_str());
+                  printf("fadc DQ: sample #%d value %d midas event #%d bankname %s detname %s\n",sample_number,sample_value,midas_event_number,bankname.c_str(),detname.c_str());
                   DQ_ADCSampleOverflow_histograms_map[bankname]->Fill(midas_event_number,1);
-                }
-                //DQ__histograms_map[bankname]->Fill(sample_number,sample_value);
+                  hDQ_ADCSampleOverflowByEvent->Fill(bankname.c_str(),midas_event_number,1);
+                  pulse_overflow = 1;
 
-                //if (TSetupData::IsFADC(bankname)) printf("IsFADC. midas event #%d\n",midas_event_number);
+                }
                 
               }
 
-	      //DQ_ADCSampleOverflow_histograms_map[bankname]->Fill(block_time);
+            if (TSetupData::IsFADC(bankname)){
+            hDQ_ADCSampleTotal->Fill(bankname.c_str(),1);
+            if ((pulse_overflow)){
+              hDQ_ADCSampleOverflow->Fill(bankname.c_str(),1);
+              //printf(" total pulses %d integral %f\n",total_pulses,hDQ_ADCSampleOverflow->Integral());
+              }
+            }
+
 	    }
 	  }
 	}
+
 	return SUCCESS;
 }
