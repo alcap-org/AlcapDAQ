@@ -98,7 +98,7 @@ INT MDQ_DigitizerOverflow_init()
     DQ_DigitizerOverflow_histograms_map[bankname] = hDQ_Histogram;
   }
 
-   hDQ_DigitizerOverflowFraction = new TH1D("hDQ_DigitizerOverflowFraction", "Fraction of TPIs with at least one overflow sample value",1,0,1);
+   hDQ_DigitizerOverflowFraction = new TH1D("hDQ_DigitizerOverflowFraction","Fraction of TPIs with at least one overflow sample value",1,0,1);
    hDQ_DigitizerOverflowFraction->SetBit(TH1::kCanRebin);
    hDQ_DigitizerOverflowFraction->GetXaxis()->SetTitle("bank name");
    hDQ_DigitizerOverflowFraction->GetYaxis()->SetTitle("Fraction of TPIs with overflow samples");
@@ -233,6 +233,8 @@ for (int i=1; i<=nBanksTotal; i++){
     }
   }
 }
+
+return SUCCESS;
 
 }
 
