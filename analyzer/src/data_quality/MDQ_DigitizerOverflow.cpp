@@ -90,7 +90,7 @@ INT MDQ_DigitizerOverflow_init()
 
     // hDQ_DigitizerOverflowFraction_[DetName]
     std::string histname = "hDQ_DigitizerOverflow_" + detname;
-    std::string histtitle = "Number of samples with FADC overflow value 8191 in " + detname;
+    std::string histtitle = "Number of FADC samples > 4095 in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(),100,0,100);
     hDQ_Histogram->GetXaxis()->SetTitle("MIDAS event number");
     hDQ_Histogram->GetYaxis()->SetTitle("Number of overflow samples");
@@ -98,7 +98,7 @@ INT MDQ_DigitizerOverflow_init()
     DQ_DigitizerOverflow_histograms_map[bankname] = hDQ_Histogram;
   }
 
-   hDQ_DigitizerOverflowFraction = new TH1D("hDQ_DigitizerOverflowFraction", "Fraction of FADC TPIs with at least one overflow sample value 8191",1,0,1);
+   hDQ_DigitizerOverflowFraction = new TH1D("hDQ_DigitizerOverflowFraction", "Fraction of FADC TPIs with at least one overflow sample value > 4095",1,0,1);
    hDQ_DigitizerOverflowFraction->SetBit(TH1::kCanRebin);
    hDQ_DigitizerOverflowFraction->GetXaxis()->SetTitle("FADC bank name");
    hDQ_DigitizerOverflowFraction->GetYaxis()->SetTitle("Fraction of TPIs with overflow samples");
@@ -108,7 +108,7 @@ INT MDQ_DigitizerOverflow_init()
    hDQ_DigitizerTotal->GetXaxis()->SetTitle("FADC bank name");
    hDQ_DigitizerTotal->GetYaxis()->SetTitle("Number of TPIs with overflow samples");
 
-   hDQ_DigitizerOverflowFractionByEvent = new TH2D("hDQ_DigitizerOverflowFractionByEvent", "Fraction of samples with FADC overflow value 8191",1,0,1, 1000,0,1000);
+   hDQ_DigitizerOverflowFractionByEvent = new TH2D("hDQ_DigitizerOverflowFractionByEvent", "Fraction of samples with FADC overflow value > 4095",1,0,1, 1000,0,1000);
    hDQ_DigitizerOverflowFractionByEvent->SetBit(TH1::kCanRebin);
    hDQ_DigitizerOverflowFractionByEvent->GetXaxis()->SetTitle("FADC bank name");
    hDQ_DigitizerOverflowFractionByEvent->GetYaxis()->SetTitle("MIDAS event number");
@@ -162,7 +162,8 @@ INT MDQ_DigitizerOverflow(EVENT_HEADER *pheader, void *pevent)
                 int sample_number = sampleIter - theSamples.begin();
                 int sample_value = *sampleIter;
                 //if (sample_value == 8191){
-                if ((sample_value == 8191)&&(TSetupData::IsFADC(bankname))){
+                if ((sample_value > 4095)&&(TSetupData::IsFADC(bankname))){
+                //if ((sample_value == 8191)&&(TSetupData::IsFADC(bankname))){
                   //printf("fadc DQ: sample #%d value %d midas event #%d bankname %s detname %s\n",sample_number,sample_value,midas_event_number,bankname.c_str(),detname.c_str());
                   DQ_DigitizerOverflow_histograms_map[bankname]->Fill(midas_event_number,1);
                   pulse_overflow = 1;
