@@ -38,6 +38,7 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MDQ_FADCBufferOverflow_init(void);
 INT MDQ_FADCBufferOverflow_BOR(INT run_number);
+INT MDQ_FADCBufferOverflow_EOR(INT run_number);
 INT  MDQ_FADCBufferOverflow(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
@@ -56,7 +57,7 @@ ANA_MODULE MDQ_FADCBufferOverflow_module =
   "Andrew Edmonds",              /* author                */
   MDQ_FADCBufferOverflow,          /* event routine         */
   MDQ_FADCBufferOverflow_BOR,      /* BOR routine           */
-  NULL,                          /* EOR routine           */
+  MDQ_FADCBufferOverflow_EOR,      /* EOR routine           */
   MDQ_FADCBufferOverflow_init,     /* init routine          */
   NULL,                          /* exit routine          */
   NULL,                          /* parameter structure   */
@@ -97,7 +98,7 @@ INT MDQ_FADCBufferOverflow_init()
     "hDQ_FADCBufferOverflowByEvent",
     "FADC buffer overflows by board and event",
     4,128, 132,1000,0,1000);
-  hDQ_FADCBufferOverflowByEvent->SetBit(TH2::kCanRebin);
+  hDQ_FADCBufferOverflowByEvent->SetBit(TH1::kCanRebin);
   hDQ_FADCBufferOverflowByEvent->GetXaxis()->SetTitle("FADC Board Number");
   hDQ_FADCBufferOverflowByEvent->GetYaxis()->SetTitle("MIDAS event");
 
@@ -149,13 +150,27 @@ INT MDQ_FADCBufferOverflow(EVENT_HEADER *pheader, void *pevent)
 
   }
 
+  /*
   for(int i=0; i<256; ++i){
     if(Boards[i] == true){
       hDQ_FADCBufferOverflowFrac->Scale(1.0 / n_total_midas_events);
     }
   }
-  
+  */  
+
   ++n_total_midas_events;
+
+  return SUCCESS;
+}
+
+INT MDQ_FADCBufferOverflow_EOR(INT run_number)
+{
+
+  //for(int i=0; i<256; ++i){
+    //if(Boards[i] == true){
+      hDQ_FADCBufferOverflowFrac->Scale(1.0 / n_total_midas_events);
+    //}
+  //}
 
   return SUCCESS;
 }
