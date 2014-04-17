@@ -80,6 +80,13 @@ INT MDQ_DigitizerOverflow_init()
     gDirectory->Cd(dir_name.c_str());
   }
 
+  // Get run number
+  char key_name[80];
+  int size,run_number;
+  sprintf(key_name, "Runinfo/Run number");
+  size=sizeof(int);
+  db_get_value(hDB,0,key_name, &run_number, &size, TID_INT,1);
+
   // Create a histogram for each detector
   std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
   for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
@@ -98,7 +105,7 @@ INT MDQ_DigitizerOverflow_init()
     DQ_DigitizerOverflow_histograms_map[bankname] = hDQ_Histogram;
   }
 
-   hDQ_DigitizerOverflowFraction = new TH1D("hDQ_DigitizerOverflowFraction","Fraction of TPIs with at least one overflow sample value",1,0,1);
+   hDQ_DigitizerOverflowFraction = new TH1D("hDQ_DigitizerOverflowFraction",Form("Fraction of TPIs with at least one overflow sample value, run %d",run_number),1,0,1);
    hDQ_DigitizerOverflowFraction->SetBit(TH1::kCanRebin);
    hDQ_DigitizerOverflowFraction->GetXaxis()->SetTitle("bank name");
    hDQ_DigitizerOverflowFraction->GetYaxis()->SetTitle("Fraction of TPIs with overflow samples");
@@ -108,7 +115,7 @@ INT MDQ_DigitizerOverflow_init()
    hDQ_DigitizerTotal->GetXaxis()->SetTitle("bank name");
    hDQ_DigitizerTotal->GetYaxis()->SetTitle("Number of TPIs with overflow samples");
 
-   hDQ_DigitizerOverflowFractionByEvent = new TH2D("hDQ_DigitizerOverflowFractionByEvent", "Fraction of TPIs with at least one sample overflow value",1,0,1, 1000,0,1000);
+   hDQ_DigitizerOverflowFractionByEvent = new TH2D("hDQ_DigitizerOverflowFractionByEvent", Form("Fraction of TPIs with at least one sample overflow value, run %d",run_number),1,0,1, 1000,0,1000);
    hDQ_DigitizerOverflowFractionByEvent->SetBit(TH1::kCanRebin);
    hDQ_DigitizerOverflowFractionByEvent->GetXaxis()->SetTitle("bank name");
    hDQ_DigitizerOverflowFractionByEvent->GetYaxis()->SetTitle("MIDAS event number");

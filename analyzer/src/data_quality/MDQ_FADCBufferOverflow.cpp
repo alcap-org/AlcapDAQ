@@ -77,10 +77,17 @@ INT MDQ_FADCBufferOverflow_init()
     gDirectory->Cd(dir_name.c_str());
   }
 
+  // Get run number
+  char key_name[80];
+  int size,run_number;
+  sprintf(key_name, "Runinfo/Run number");
+  size=sizeof(int);
+  db_get_value(hDB,0,key_name, &run_number, &size, TID_INT,1);
+
   // Create the histograms
   hDQ_FADCBufferOverflowTot = new TH1F(
     "hDQ_FADCBufferOverflowTot",
-    "Total number of MIDAS Events with buffer overflows per board",
+    Form("Total number of MIDAS Events with buffer overflows per board, run %d",run_number),
     4,128, 132);
   hDQ_FADCBufferOverflowTot->SetBit(TH1::kCanRebin);
   hDQ_FADCBufferOverflowTot->GetXaxis()->SetTitle("FADC Board Number");
@@ -88,7 +95,7 @@ INT MDQ_FADCBufferOverflow_init()
 
   hDQ_FADCBufferOverflowFrac = new TH1F(
     "hDQ_FADCBufferOverflowFrac",
-    "Fraction of MIDAS Events with FADC buffer overflows by board",
+    Form("Fraction of MIDAS Events with FADC buffer overflows by board, run %d",run_number),
     4,128, 132);
   hDQ_FADCBufferOverflowFrac->SetBit(TH1::kCanRebin);
   hDQ_FADCBufferOverflowFrac->GetXaxis()->SetTitle("FADC Board Number");
@@ -96,7 +103,7 @@ INT MDQ_FADCBufferOverflow_init()
 
   hDQ_FADCBufferOverflowByEvent = new TH2F(
     "hDQ_FADCBufferOverflowByEvent",
-    "FADC buffer overflows by board and event",
+    Form("FADC buffer overflows by board and event, run %d",run_number),
     4,128, 132,1000,0,1000);
   hDQ_FADCBufferOverflowByEvent->SetBit(TH1::kCanRebin);
   hDQ_FADCBufferOverflowByEvent->GetXaxis()->SetTitle("FADC Board Number");
