@@ -3,9 +3,8 @@
 Name:         MDQ_muScTDiff
 Created by:   Andrew Edmonds
 
-Contents:     hDQ_muScTDiff_[DetName] 
-               - Plots: the time differences (in ns) between the pulses in the muSc and each detector
-               - To Check: the time shift for the ODB correction
+Contents:     hDQ_muScTDiff_[DetName]_[BankName]
+              - plots the time differences (in ns) between the pulses in the muSc and each detector
 
 \********************************************************************/
 
@@ -80,8 +79,8 @@ INT MDQ_muScTDiff_init()
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
 
-    // hDQ_muScTDiff_[DetName]
-    std::string histname = "hDQ_muScTDiff_" + detname;
+    // hDQ_muScTDiff_[DetName]_[BankName]
+    std::string histname = "hDQ_muScTDiff_" + detname + "_" + bankname;
     std::string histtitle = "Time differences between muSc and " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 10000, -axis_limit, axis_limit);
     std::string axislabel = "Time Difference (muSc - " + detname + ") [ns]";
