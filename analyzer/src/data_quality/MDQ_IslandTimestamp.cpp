@@ -3,10 +3,8 @@
 Name:         MDQ_IslandTimestamp
 Created by:   Andrew Edmonds
 
-Contents:     hDQ_IslandTimestamp_[DetName] 
-               - Plots: the time stamp (in ns) for each TPulseIsland
-               - To Check: time stamps go up to ~100 ms
-               - Soln: if they don't, check the sampling frequency in the ODB
+Contents:     hDQ_IslandTimestamp_[DetName]_[BankName]
+              - plots the time stamp (in ns) for each TPulseIsland
 
 \********************************************************************/
 
@@ -80,8 +78,8 @@ INT MDQ_IslandTimestamp_init()
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
 
-    // hDQ_IslandTimestamp_[DetName]
-    std::string histname = "hDQ_IslandTimestamp_" + detname;
+    // hDQ_IslandTimestamp_[DetName]_[BankName]
+    std::string histname = "hDQ_IslandTimestamp_" + detname + "_" bankname;
     std::string histtitle = "Distribution of time stamps in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 1200, 0, 120e6);
     hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
