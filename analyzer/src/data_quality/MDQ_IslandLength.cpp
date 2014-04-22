@@ -1,9 +1,10 @@
 /********************************************************************\
 
 Name:         MDQ_IslandLength
-Created by:   NT
+Created by:   Nam Tran
 
-Contents:     hDQ_IslandLength_[DetName] 
+Contents:     hDQ_IslandLength_[DetName]_[BankName]
+              - plots the lengths of the TPulseIslands in each event for each detector
 
 \********************************************************************/
 
@@ -78,8 +79,8 @@ INT MDQ_IslandLength_init()
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
 
-    // hDQ_IslandLength_[DetName]
-    std::string histname = "hDQ_IslandLength_" + detname;
+    // hDQ_IslandLength_[DetName]_[BankName]
+    std::string histname = "hDQ_IslandLength_" + detname + "_" + bankname;
     std::string histtitle = "Length of each TPulseIsland in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
 				700, 0, 700);
