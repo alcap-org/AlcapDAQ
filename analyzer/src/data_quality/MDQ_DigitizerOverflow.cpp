@@ -107,12 +107,12 @@ INT MDQ_DigitizerOverflow_init()
   hDQ_DigitizerOverflow_Total->GetXaxis()->SetTitle("Bank (Detector)");
   hDQ_DigitizerOverflow_Total->GetYaxis()->SetTitle("Number of TPIs with overflow samples");
 
-  hDQ_DigitizerOverflow_FractionByEvent = new TH2D("hDQ_DigitizerOverflow_FractionByEvent", Form("Fraction of TPIs with at least one sample overflow value, run %d",run_number),1,0,1, 1000,0,1000);
+  hDQ_DigitizerOverflow_FractionByEvent = new TH2D("hDQ_DigitizerOverflow_FractionByEvent", Form("Fraction of TPIs with at least one sample overflow value, run %d",run_number),1,0,1, 5000,0,5000);
   hDQ_DigitizerOverflow_FractionByEvent->SetBit(TH1::kCanRebin);
   hDQ_DigitizerOverflow_FractionByEvent->GetXaxis()->SetTitle("Bank (Detector)");
   hDQ_DigitizerOverflow_FractionByEvent->GetYaxis()->SetTitle("MIDAS event number");
 
-  hDQ_DigitizerOverflow_TotalByEvent = new TH2I("hDQ_DigitizerOverflow_TotalByEvent", "Total number of TPIs (for normalization)",1,0,1, 1000,0,1000);
+  hDQ_DigitizerOverflow_TotalByEvent = new TH2I("hDQ_DigitizerOverflow_TotalByEvent", "Total number of TPIs (for normalization)",1,0,1, 5000,0,5000);
   hDQ_DigitizerOverflow_TotalByEvent->SetBit(TH1::kCanRebin);
   hDQ_DigitizerOverflow_TotalByEvent->GetXaxis()->SetTitle("Bank (Detector)");
   hDQ_DigitizerOverflow_TotalByEvent->GetYaxis()->SetTitle("MIDAS event number");
