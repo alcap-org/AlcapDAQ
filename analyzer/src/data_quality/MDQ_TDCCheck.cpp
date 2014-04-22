@@ -55,6 +55,7 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MDQ_TDCCheck_init(void);
 INT  MDQ_TDCCheck(EVENT_HEADER*, void*);
+INT  MDQ_TDCCheck_eor(INT);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -66,6 +67,7 @@ TH1F* hDQ_TDCCheck_muPC;
 TH1F* hDQ_TDCCheck_Unknown;
 
 TH1F* hDQ_TDCCheck_muSc_time;
+TH1F* hDQ_TDCCheck_muSc_rate;
 TH1F* hDQ_TDCCheck_TDiff;
 
 
@@ -75,7 +77,7 @@ ANA_MODULE MDQ_TDCCheck_module =
 	"Andrew Edmonds",              /* author                */
 	MDQ_TDCCheck,                      /* event routine         */
 	NULL,                          /* BOR routine           */
-	NULL,                          /* EOR routine           */
+	MDQ_TDCCheck_eor,                          /* EOR routine           */
 	MDQ_TDCCheck_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
 	NULL,                          /* parameter structure   */
@@ -116,11 +118,69 @@ INT MDQ_TDCCheck_init()
   hDQ_TDCCheck_muSc_time->GetXaxis()->SetTitle("Time of muSc Hit [ns]");
   hDQ_TDCCheck_muSc_time->GetYaxis()->SetTitle("Number of Hits");
 
+  hDQ_TDCCheck_muSc_rate = new TH1F("hDQ_TDCCheck_muSc_rate", "Rate of TDC hits in muSc", 3,0,3);
+  hDQ_TDCCheck_muSc_rate->GetXaxis()->SetTitle("Rate of muSc Hit [ns]");
+  hDQ_TDCCheck_muSc_rate->GetYaxis()->SetTitle("Number of Hits");
+
   hDQ_TDCCheck_TDiff = new TH1F("hDQ_TDCCheck_TDiff", "Time difference between muSc hit in TDC and BU", 10000,-5000,5000);
   hDQ_TDCCheck_TDiff->GetXaxis()->SetTitle("Time Difference of muSc Hits (BU CAEN - TDC)");
   hDQ_TDCCheck_TDiff->GetYaxis()->SetTitle("Number of Hits");
 
   gDirectory->Cd("/MidasHists/");
+  return SUCCESS;
+}
+
+/** This method does any last minute things to the histograms at the end of the run
+ */
+INT MDQ_TDCCheck_eor(INT run_number) {
+
+  // Get the run duration to scale the histogram
+  HNDLE hDB, hKey;
+  char keyName[200];
+
+  if(cm_get_experiment_database(&hDB, NULL) != CM_SUCCESS){
+    printf("Warning: Could not connect to ODB database!\n");
+    return false;
+  }
+
+  sprintf(keyName, "/Runinfo/Start time binary");
+  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return false;
+  }
+  KEY start_time_key;
+  if(db_get_key(hDB, hKey, &start_time_key) != DB_SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return false;
+  }
+  DWORD StartTimes[start_time_key.num_values];
+  int size = sizeof(StartTimes);
+  if(db_get_value(hDB, 0, keyName, StartTimes, &size, TID_DWORD, 0) != DB_SUCCESS){
+    printf("Warning: Could not retrieve values for key %s\n", keyName);
+    return false;
+  }
+
+  sprintf(keyName, "/Runinfo/Stop time binary");
+  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return false;
+  }
+  KEY stop_time_key;
+  if(db_get_key(hDB, hKey, &stop_time_key) != DB_SUCCESS){
+    printf("Warning: Could not find key %s\n", keyName);
+    return false;
+  }
+  DWORD StopTimes[stop_time_key.num_values];
+  size = sizeof(StopTimes);
+  if(db_get_value(hDB, 0, keyName, StopTimes, &size, TID_DWORD, 0) != DB_SUCCESS){
+    printf("Warning: Could not retrieve values for key %s\n", keyName);
+    return false;
+  }
+
+  int duration = StopTimes[0] - StartTimes[0]; // length of run in seconds (checked against run #2600)
+  
+  hDQ_TDCCheck_muSc_rate->Scale(1.0/duration);
+
   return SUCCESS;
 }
 
@@ -154,6 +214,7 @@ INT MDQ_TDCCheck(EVENT_HEADER *pheader, void *pevent)
 	    //	    printf("muSC hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
 	    hDQ_TDCCheck_muSc->Fill(1);
 	    hDQ_TDCCheck_muSc_time->Fill(hit_bank[i].time);
+	    hDQ_TDCCheck_muSc_rate->Fill(1);
 
 	    // Plot the time difference between the time as given by the TDC and as given by the BU CAEN
 	    std::string detname = "muSc";
