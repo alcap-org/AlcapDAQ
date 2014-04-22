@@ -3,9 +3,8 @@
 Name:         MDQ_IslandCounter
 Created by:   Andrew Edmonds
 
-Contents:     hDQ_IslandCounter_[DetName] 
-               - Plots: the number of TPulseIslands in each event for each detector
-               - To Check: number stays fairly consistent
+Contents:     hDQ_IslandCounter_[DetName]_[BankName]
+              - plots the number of TPulseIslands in each event for each detector
 
 \********************************************************************/
 
@@ -79,8 +78,8 @@ INT MDQ_IslandCounter_init()
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
 
-    // hDQ_IslandCounter_[DetName]
-    std::string histname = "hDQ_IslandCounter_" + detname;
+    // hDQ_IslandCounter_[DetName]_[BankName]
+    std::string histname = "hDQ_IslandCounter_" + detname + "_" + bankname;
     std::string histtitle = "Distribution of the number of islands per event in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 3500, 0, 3500);
     hDQ_Histogram->GetXaxis()->SetTitle("Number of TPulseIslands");
