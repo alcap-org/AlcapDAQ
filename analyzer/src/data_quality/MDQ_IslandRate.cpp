@@ -4,7 +4,7 @@ Name:         MDQ_IslandRate
 Created by:   Andrew Edmonds
 
 Contents:     hDQ_IslandRate
-               - Plots: the total number of TPulseIslands per unit time in each detector
+              - plots the total number of TPulseIslands per unit time in each detector
 
 \********************************************************************/
 
