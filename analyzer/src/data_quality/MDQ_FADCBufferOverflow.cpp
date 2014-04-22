@@ -3,9 +3,17 @@
 Name:         MDQ_FADCBufferOverflow
 Created by:   Andrew Edmonds + Joe Grange
 
-Contents:     hDQ_FADCBufferOverflow
+Contents:     hDQ_FADCBufferOverflow_Total
+              - plots the total number of MIDAS events in which 
+                the FADC buffer overflowed for each board
 
+              hDQ_FADCBufferOverflow_Fraction
+              - plots the fraction of MIDAS events where
+                the FADC buffer overflowed for each board
 
+              hDQ_FADCBufferOverflow_TotalByEvent
+              - plots the total number of FADC buffer overflows
+                in each board on an event-by-event basis
 
 \********************************************************************/
 
@@ -45,9 +53,9 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-static TH1* hDQ_FADCBufferOverflowTot;
-static TH1* hDQ_FADCBufferOverflowFrac;
-static TH2* hDQ_FADCBufferOverflowByEvent;
+static TH1* hDQ_FADCBufferOverflow_Total;
+static TH1* hDQ_FADCBufferOverflow_Fraction;
+static TH2* hDQ_FADCBufferOverflow_TotalByEvent;
 static int n_total_midas_events;
 
 
@@ -85,29 +93,29 @@ INT MDQ_FADCBufferOverflow_init()
   db_get_value(hDB,0,key_name, &run_number, &size, TID_INT,1);
 
   // Create the histograms
-  hDQ_FADCBufferOverflowTot = new TH1F(
-    "hDQ_FADCBufferOverflowTot",
+  hDQ_FADCBufferOverflow_Total = new TH1F(
+    "hDQ_FADCBufferOverflow_Total",
     Form("Total number of MIDAS Events with buffer overflows per board, run %d",run_number),
     4,128, 132);
-  hDQ_FADCBufferOverflowTot->SetBit(TH1::kCanRebin);
-  hDQ_FADCBufferOverflowTot->GetXaxis()->SetTitle("FADC Board Number");
-  hDQ_FADCBufferOverflowTot->GetYaxis()->SetTitle("Number of events with buffer overflows");
+  hDQ_FADCBufferOverflow_Total->SetBit(TH1::kCanRebin);
+  hDQ_FADCBufferOverflow_Total->GetXaxis()->SetTitle("FADC Board Number");
+  hDQ_FADCBufferOverflow_Total->GetYaxis()->SetTitle("Number of events with buffer overflows");
 
-  hDQ_FADCBufferOverflowFrac = new TH1F(
-    "hDQ_FADCBufferOverflowFrac",
+  hDQ_FADCBufferOverflow_Fraction = new TH1F(
+    "hDQ_FADCBufferOverflow_Fraction",
     Form("Fraction of MIDAS Events with FADC buffer overflows by board, run %d",run_number),
     4,128, 132);
-  hDQ_FADCBufferOverflowFrac->SetBit(TH1::kCanRebin);
-  hDQ_FADCBufferOverflowFrac->GetXaxis()->SetTitle("FADC Board Number");
-  hDQ_FADCBufferOverflowFrac->GetYaxis()->SetTitle("Fraction of events with buffer overflows");
+  hDQ_FADCBufferOverflow_Fraction->SetBit(TH1::kCanRebin);
+  hDQ_FADCBufferOverflow_Fraction->GetXaxis()->SetTitle("FADC Board Number");
+  hDQ_FADCBufferOverflow_Fraction->GetYaxis()->SetTitle("Fraction of events with buffer overflows");
 
-  hDQ_FADCBufferOverflowByEvent = new TH2F(
-    "hDQ_FADCBufferOverflowByEvent",
+  hDQ_FADCBufferOverflow_TotalByEvent = new TH2F(
+    "hDQ_FADCBufferOverflow_TotalByEvent",
     Form("FADC buffer overflows by board and event, run %d",run_number),
-    4,128, 132,1000,0,1000);
-  hDQ_FADCBufferOverflowByEvent->SetBit(TH1::kCanRebin);
-  hDQ_FADCBufferOverflowByEvent->GetXaxis()->SetTitle("FADC Board Number");
-  hDQ_FADCBufferOverflowByEvent->GetYaxis()->SetTitle("MIDAS event");
+    4,128, 132,5000,0,5000);
+  hDQ_FADCBufferOverflow_TotalByEvent->SetBit(TH1::kCanRebin);
+  hDQ_FADCBufferOverflow_TotalByEvent->GetXaxis()->SetTitle("FADC Board Number");
+  hDQ_FADCBufferOverflow_TotalByEvent->GetYaxis()->SetTitle("MIDAS event");
 
   gDirectory->Cd("/MidasHists/");
 
@@ -148,19 +156,19 @@ INT MDQ_FADCBufferOverflow(EVENT_HEADER *pheader, void *pevent)
     if(*(raw+i) >= 0 && *(raw+i) < 255) Boards[i] = true;
 
     n_buffers_overflow++;
-        //printf("Event #%d: Board %d n buffers overflowed %d\n", midas_event_number, board_number,n_buffers_overflow);
+    //printf("Event #%d: Board %d n buffers overflowed %d\n", midas_event_number, board_number,n_buffers_overflow);
 
     // Fill Diagnostic histogram
-    hDQ_FADCBufferOverflowTot->Fill(board_number, 1);   
-    hDQ_FADCBufferOverflowFrac->Fill(board_number, 1);
-    hDQ_FADCBufferOverflowByEvent->Fill(board_number,midas_event_number, 1);
+    hDQ_FADCBufferOverflow_Total->Fill(board_number, 1);   
+    hDQ_FADCBufferOverflow_Fraction->Fill(board_number, 1);
+    hDQ_FADCBufferOverflow_TotalByEvent->Fill(board_number,midas_event_number, 1);
 
   }
 
   /*
   for(int i=0; i<256; ++i){
     if(Boards[i] == true){
-      hDQ_FADCBufferOverflowFrac->Scale(1.0 / n_total_midas_events);
+      hDQ_FADCBufferOverflow_Fraction->Scale(1.0 / n_total_midas_events);
     }
   }
   */  
@@ -175,7 +183,7 @@ INT MDQ_FADCBufferOverflow_EOR(INT run_number)
 
   //for(int i=0; i<256; ++i){
     //if(Boards[i] == true){
-      hDQ_FADCBufferOverflowFrac->Scale(1.0 / n_total_midas_events);
+      hDQ_FADCBufferOverflow_Fraction->Scale(1.0 / n_total_midas_events);
     //}
   //}
 
