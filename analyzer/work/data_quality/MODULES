@@ -6,17 +6,17 @@ dt5720/MDT5720ProcessRaw
 muSC_muPC/MCaenCompProcessRaw
 
 data_quality/MDQ_Amplitude
-data_quality/MDQ_IslandTimestamp
-data_quality/MDQ_FADCPacketLoss
+data_quality/MDQ_DigitizerOverflow
 data_quality/MDQ_FADCBufferOverflow
-data_quality/MDQ_ADCSampleOverflow
+data_quality/MDQ_FADCPacketLoss
 data_quality/MDQ_IslandCounter
 data_quality/MDQ_IslandLength
 data_quality/MDQ_IslandRate
-data_quality/MDQ_muScHitRate
-data_quality/MDQ_muScTDiff
+data_quality/MDQ_IslandTimestamp
 data_quality/MDQ_PulseShapes
+data_quality/MDQ_RunTime
 data_quality/MDQ_TDCCheck
+data_quality/MDQ_muScTDiff
 
 vacuum/MVacuumHisto
 
