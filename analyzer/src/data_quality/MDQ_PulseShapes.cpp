@@ -1,10 +1,15 @@
 /********************************************************************\
 
 Name:         MDQ_PulseShapes
-Created by:   NT
+Created by:   Nam Tran
 
-Contents:     hDQ_PulseShapes_[DetName] 
-							hDQ_PulseShapesProjectionY_[DetName]
+Contents:     hDQ_PulseShapes_[DetName]_[BankName]
+              - plots the persistency pulse plot
+
+	      hDQ_PulseShapes_ProjectionY_[DetName]_[BankName]
+              - plots the projection of the PusleShapes plot onto
+                the y-axis
+
 \********************************************************************/
 
 /* Standard includes */
@@ -81,13 +86,6 @@ INT MDQ_PulseShapes_init()
   }
   gDirectory->Cd(dir_name.c_str());
 
-  // PulseShapes
-  dir_name = "PulseShapes";
-  if (!gDirectory->Cd(dir_name.c_str())) {
-    gDirectory->mkdir(dir_name.c_str());
-  }
-  gDirectory->Cd(dir_name.c_str());
-
   // Create a histogram for each detector
   std::map<std::string, std::string> Bank2DetMap = gSetup->fBankToDetectorMap;
   for(std::map<std::string, std::string>::iterator mapIter = Bank2DetMap.begin(); 
@@ -96,25 +94,19 @@ INT MDQ_PulseShapes_init()
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
 
-    // hDQ_PulseShapes_[DetName]
-    std::string histname = "hDQ_PulseShapes_" + detname;
+    int n_bits = gSetup->GetNBits(bankname);
+    int max_adc_value = std::pow(2, n_bits);
+
+    // hDQ_PulseShapes_[DetName]_[BankName]
+    std::string histname = "hDQ_PulseShapes_" + detname + "_" + bankname;
     std::string histtitle = "Pulse shape of " + detname;
     TH2F* hDQ_Histogram = new TH2F(histname.c_str(), histtitle.c_str(), 
 				400, -0.5, 399.5,
-				4096, 0, 4095);
+				max_adc_value, 0, max_adc_value);
     hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
     hDQ_Histogram->GetYaxis()->SetTitle("Pulse height [adc]");
     DQ_PulseShapes_histograms_map[bankname] = hDQ_Histogram;
   }
-
-	// ProjectionY
-	gDirectory->Cd("..");
-
-	dir_name = "PulseShapesProjectionY";
-  if (!gDirectory->Cd(dir_name.c_str())) {
-    gDirectory->mkdir(dir_name.c_str());
-  }
-	gDirectory->Cd(dir_name.c_str());
 
   // Create a histogram for each detector
   for(std::map<std::string, std::string>::iterator mapIter = Bank2DetMap.begin(); 
@@ -123,18 +115,21 @@ INT MDQ_PulseShapes_init()
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
 
-    // hDQ_PulseShapesProjectionY_[DetName]
-    std::string histname = "hDQ_PulseShapesProjectionY_" + detname;
+    int n_bits = gSetup->GetNBits(bankname);
+    int max_adc_value = std::pow(2, n_bits);
+
+    // hDQ_PulseShapesProjectionY_[DetName]_[BankName]
+    std::string histname = "hDQ_PulseShapes_ProjectionY_" + detname + "_" + bankname;
     std::string histtitle = "Pulse shape Y-projection of " + detname;
     TH1D* hDQ_Histogram = new TH1D(histname.c_str(), histtitle.c_str(), 
-				4096, 0, 4095);
+				max_adc_value, 0, max_adc_value);
     hDQ_Histogram->GetXaxis()->SetTitle("ADC");
     hDQ_Histogram->GetYaxis()->SetTitle("Arbitary unit");
     DQ_PulseShapesProjectionY_histograms_map[bankname] = hDQ_Histogram;
   }
 
 
-	// Back to root directory
+  // Back to root directory
   gDirectory->Cd("/MidasHists/");
   return SUCCESS;
 }
