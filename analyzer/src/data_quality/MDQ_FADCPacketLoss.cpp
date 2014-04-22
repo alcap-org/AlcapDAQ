@@ -3,13 +3,17 @@
 Name:         MDQ_FADCPacketLoss
 Created by:   Andrew Edmonds + Joe Grange
 
-Contents:     hDQ_FADCPacketLoss
-               - Plots: the fraction of MIDAS events that had a packet loss, the total number
-			of packet losses, and packet losses by board and midas block number
-               - To Check: value is not too high(?)
-               - Soln: throw out whole run (?)
+Contents:     hDQ_FADCPacketLoss_Total
+              - plots the total number of MIDAS events that had a packet loss
+                per board
 
+              hDQ_FADCPacketLoss_Fraction
+              - plots the fraction of MIDAS events that had a packet loss
+                per board
 
+              hDQ_FADCPacketLoss_TotalByEvent
+              - plots the total number of packet losses per board
+                on an event-by-event basis
 
 \********************************************************************/
 
@@ -49,9 +53,9 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-static TH1* hDQ_FADCPacketLossTot;
-static TH1* hDQ_FADCPacketLossFrac;
-static TH2* hDQ_FADCPacketLossByEvent;
+static TH1* hDQ_FADCPacketLoss_Total;
+static TH1* hDQ_FADCPacketLoss_Fraction;
+static TH2* hDQ_FADCPacketLoss_ByEvent;
 static int n_total_midas_events;
 
 
@@ -89,29 +93,29 @@ INT MDQ_FADCPacketLoss_init()
   db_get_value(hDB,0,key_name, &run_number, &size, TID_INT,1);
 
   // Create the histograms
-  hDQ_FADCPacketLossTot = new TH1F(
-    "hDQ_FADCPacketLossTot",
+  hDQ_FADCPacketLoss_Total = new TH1F(
+    "hDQ_FADCPacketLoss_Total",
     Form("Total number of MIDAS Events with FADC packet loss per board, run %d",run_number),
     4,128, 132);
-  hDQ_FADCPacketLossTot->SetBit(TH1::kCanRebin);
-  hDQ_FADCPacketLossTot->GetXaxis()->SetTitle("FADC Board Number");
-  hDQ_FADCPacketLossTot->GetYaxis()->SetTitle("Number of Events with lost packets");
+  hDQ_FADCPacketLoss_Total->SetBit(TH1::kCanRebin);
+  hDQ_FADCPacketLoss_Total->GetXaxis()->SetTitle("FADC Board Number");
+  hDQ_FADCPacketLoss_Total->GetYaxis()->SetTitle("Number of Events with lost packets");
 
-  hDQ_FADCPacketLossFrac = new TH1F(
-    "hDQ_FADCPacketLossFrac",
+  hDQ_FADCPacketLoss_Fraction = new TH1F(
+    "hDQ_FADCPacketLoss_Fraction",
     Form("Fraction of MIDAS Events with FADC packet loss per board, run %d",run_number),
     4,128, 132);
-  hDQ_FADCPacketLossFrac->SetBit(TH1::kCanRebin);
-  hDQ_FADCPacketLossFrac->GetXaxis()->SetTitle("FADC Board Number");
-  hDQ_FADCPacketLossFrac->GetYaxis()->SetTitle("Fraction of Events with lost packets");
+  hDQ_FADCPacketLoss_Fraction->SetBit(TH1::kCanRebin);
+  hDQ_FADCPacketLoss_Fraction->GetXaxis()->SetTitle("FADC Board Number");
+  hDQ_FADCPacketLoss_Fraction->GetYaxis()->SetTitle("Fraction of Events with lost packets");
 
-  hDQ_FADCPacketLossByEvent = new TH2F(
-    "hDQ_FADCPacketLossByEvent",
+  hDQ_FADCPacketLoss_TotalByEvent = new TH2F(
+    "hDQ_FADCPacketLoss_TotalByEvent",
     Form("FADC packet losses by board and event, run %d",run_number),
-    4,128, 132,100,0,100);
-  hDQ_FADCPacketLossByEvent->SetBit(TH2::kCanRebin);
-  hDQ_FADCPacketLossByEvent->GetXaxis()->SetTitle("FADC Board Number");
-  hDQ_FADCPacketLossByEvent->GetYaxis()->SetTitle("MIDAS event");
+    4,128, 132,5000,0,5000);
+  hDQ_FADCPacketLoss_TotalByEvent->SetBit(TH2::kCanRebin);
+  hDQ_FADCPacketLoss_TotalByEvent->GetXaxis()->SetTitle("FADC Board Number");
+  hDQ_FADCPacketLoss_TotalByEvent->GetYaxis()->SetTitle("MIDAS event");
 
   gDirectory->Cd("/MidasHists/");
 
@@ -160,9 +164,9 @@ INT MDQ_FADCPacketLoss(EVENT_HEADER *pheader, void *pevent)
         //printf("Event #%d: Board %d lost packet #%d n packets lost %d\n", midas_event_number, board_number, packet_lost,n_packets_lost);
 
     // Fill Diagnostic histogram
-    hDQ_FADCPacketLossTot->Fill(board_number, 1);   
-    hDQ_FADCPacketLossFrac->Fill(board_number, 1);
-    hDQ_FADCPacketLossByEvent->Fill(board_number,midas_event_number, 1);
+    hDQ_FADCPacketLoss_Total->Fill(board_number, 1);   
+    hDQ_FADCPacketLoss_Fraction->Fill(board_number, 1);
+    hDQ_FADCPacketLoss_TotalByEvent->Fill(board_number,midas_event_number, 1);
 
   }
 
@@ -174,7 +178,7 @@ INT MDQ_FADCPacketLoss(EVENT_HEADER *pheader, void *pevent)
 INT MDQ_FADCPacketLoss_EOR(INT run_number)
 {
 
-  hDQ_FADCPacketLossFrac->Scale(1.0 / n_total_midas_events);
+  hDQ_FADCPacketLoss_Fraction->Scale(1.0 / n_total_midas_events);
 
   return SUCCESS;
 }
