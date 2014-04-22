@@ -79,7 +79,7 @@ INT MDQ_IslandTimestamp_init()
     std::string detname = gSetup->GetDetectorName(bankname);
 
     // hDQ_IslandTimestamp_[DetName]_[BankName]
-    std::string histname = "hDQ_IslandTimestamp_" + detname + "_" bankname;
+    std::string histname = "hDQ_IslandTimestamp_" + detname + "_" + bankname;
     std::string histtitle = "Distribution of time stamps in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 1200, 0, 120e6);
     hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
