@@ -1,9 +1,11 @@
 /********************************************************************\
 
 Name:         MDQ_Amplitude
-Created by:   NT
+Created by:   Nam Tran
 
-Contents:     hDQ_Amplitude_[DetName] 
+Contents:     hDQ_Amplitude_[DetName]_[BankName]
+               - plots the amplitude of the pulse as calculated by the TPulseIsland, 
+                 which is the height of the maximum bin above the pedestal
 \********************************************************************/
 
 /* Standard includes */
@@ -51,7 +53,6 @@ extern TFile * gManaOutputFile;
 extern TApplication * manaApp;
 extern TROOT * gROOT;
 
-extern map <std::string, TH2F*> DQ_PulseShapesProjectionY_histograms_map;
 map <std::string, TH1F*> DQ_Amplitude_histograms_map;
 
 ANA_MODULE MDQ_Amplitude_module =
@@ -93,8 +94,8 @@ INT MDQ_Amplitude_init()
     int n_bits = gSetup->GetNBits(bankname);
     int max_adc_value = std::pow(2, n_bits);
 
-    // hDQ_Amplitude_[DetName]
-    std::string histname = "hDQ_Amplitude_" + detname;
+    // hDQ_Amplitude_[DetName]_[BankName]
+    std::string histname = "hDQ_Amplitude_" + detname + "_" + bankname;
     std::string histtitle = "Amplitude of Pulses in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
 				max_adc_value, 0, max_adc_value);
@@ -134,7 +135,7 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 			if (DQ_Amplitude_histograms_map.find(bankname) !=
 					DQ_Amplitude_histograms_map.end()) 
 			{ 
-				bool underflow = false;
+			  /*				bool underflow = false;
 				std::vector<int> theSamples = (*pulseIter)->GetSamples();
 				for (std::vector<int>::iterator sampleIter = theSamples.begin(); 
 						sampleIter != theSamples.end(); ++sampleIter)
@@ -147,6 +148,10 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 					int amplitude = (*pulseIter)->GetPulseHeight();
 					DQ_Amplitude_histograms_map[bankname]->Fill(amplitude);
 				}
+			  */
+			  int amplitude = (*pulseIter)->GetPulseHeight();
+			  DQ_Amplitude_histograms_map[bankname]->Fill(amplitude);
+				
 	    }
 	  }
 	}
