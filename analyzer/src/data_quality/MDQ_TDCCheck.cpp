@@ -4,22 +4,22 @@ Name:         MDQ_TDCCheck
 Created by:   Andrew Edmonds
 
 Contents:     hDQ_TDCCheck_muSc
-               - Plots: the number of muSc hits as seen in the TDC (parameter = 6011)
+              - plots the number of muSc hits as seen in the TDC (parameter = 6011)
 
               hDQ_TDCCheck_muScA
-               - Plots: the number of muScA hits as seen in the TDC (parameter = 6002)
+              - plots the number of muScA hits as seen in the TDC (parameter = 6002)
 
               hDQ_TDCCheck_muPC
-               - Plots: the number of muPC hits as seen in the TDC (4001 <= parameter <= 4074)
+              - plots the number of muPC hits as seen in the TDC (4001 <= parameter <= 4074)
 
               hDQ_TDCCheck_Unknown
-               - Plots: the number of hits in the TDC with any other parameter
+              - plots the number of hits in the TDC with any other parameter
 
               hDQ_TDCCheck_muSc_time
-               - Plots: the time of the muSc hits as seen in the TDC
+              - plots the time of the muSc hits as seen in the TDC
 
               hDQ_TDCCheck_TDiff
-               - Plots: the time difference between muSc hits in the TDC and the BU CAEN
+              - plots the time difference between muSc hits in the TDC and the BU CAEN
 
 \********************************************************************/
 
