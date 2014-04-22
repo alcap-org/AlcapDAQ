@@ -55,7 +55,7 @@ extern TSetupData* gSetup;
 
 static TH1* hDQ_FADCPacketLoss_Total;
 static TH1* hDQ_FADCPacketLoss_Fraction;
-static TH2* hDQ_FADCPacketLoss_ByEvent;
+static TH2* hDQ_FADCPacketLoss_TotalByEvent;
 static int n_total_midas_events;
 
 
