@@ -23,4 +23,4 @@ make
 make install
 
 # And source the environment variables
-. $ROOTSYS/bin/thisroot.sh
+. ../root-install/bin/thisroot.sh
