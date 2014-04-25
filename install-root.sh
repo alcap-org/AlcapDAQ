@@ -16,7 +16,7 @@ mkdir root-build root-install
 
 # Use cmake to create the Makefiles for your system
 cd root-build
-cmake -DCMAKE_INSTALL_PREFIX= ../root/
+cmake -DCMAKE_INSTALL_PREFIX=../root-install ../root/
 
 # Now compile and install
 make
