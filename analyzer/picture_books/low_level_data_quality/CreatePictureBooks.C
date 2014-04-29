@@ -134,7 +134,10 @@ void CreatePictureBooks(const char* data_dir, int first_run, const int n_runs) {
     trend_plot->GetZaxis()->SetTitleSize(0.03);
     trend_plot->SetStats(false);
 
-
+    // Set the fraction trend plots to have a maximum of 1 so that red = bad
+    if (histname.find("Fraction") != std::string::npos) {
+      trend_plot->GetZaxis()->SetRangeUser(0,1);
+    }
 
     // Check to see if we want this histogram as an individual or a trend plot
     bool want_trend_plot = WantAsTrendPlot(histname);
