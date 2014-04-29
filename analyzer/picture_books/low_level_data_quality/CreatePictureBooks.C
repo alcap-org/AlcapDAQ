@@ -13,7 +13,9 @@ bool WantPlot(std::string histname);
 bool WantAsTrendPlot(std::string histname);
 bool WantLogZ(std::string histname);
 
-void ZoomAxes();
+void ZoomTrendPlot(TH2F* trend_plot);
+void ZoomIndividualPlot(TH1* individual_plot);
+void ZoomAxis(TAxis* axis, int max_bin);
 
 
 void CreatePictureBooks(const char* data_dir, int first_run, const int n_runs) {
@@ -165,6 +167,7 @@ void CreatePictureBooks(const char* data_dir, int first_run, const int n_runs) {
 
 	// Print the histogram out directly to the individual picture book
 	individual_canvases[iRun]->cd();
+	ZoomIndividualPlot(hist);
 	hist->Draw("COLZ");
 	individual_canvases[iRun]->SetLogz(WantLogZ(histname)); // change to a log-z scale if we want to
 	individual_canvases[iRun]->Update();
@@ -182,6 +185,7 @@ void CreatePictureBooks(const char* data_dir, int first_run, const int n_runs) {
     // Now export the trend plot to PDF (if applicable)
     if (want_trend_plot) {
       trend_canvas->cd();
+      ZoomTrendPlot(trend_plot);
       trend_plot->Draw("COLZ");
       trend_canvas->Print(trend_basepdfname.str().c_str());
     }
@@ -241,7 +245,56 @@ bool WantLogZ(std::string histname) {
   }
 }
 
+// void ZoomTrendPlot(TH2F* trend_plot)
+// -- Finds the range that we want on the y-axis for the trend plot
+void ZoomTrendPlot(TH2F* trend_plot) {
 
-void ZoomAxes() {
-  std::cout << "Implement Zooming Axes" << std::endl;
+  int max_bin = 0;
+
+  for (int jBin = trend_plot->GetNbinsY(); jBin > 0; --jBin) {
+	  
+    // Loop through the runs as well since the highest occupied y-bin might be in one of these
+    for (int iBin = trend_plot->GetNbinsX(); iBin > 0; --iBin) {
+
+      if (trend_plot->GetBinContent(iBin, jBin) >= 1) {
+	      
+	// See if this y-bin is higher than the previous
+	if (jBin > max_bin) {
+	  max_bin = jBin;
+	  break;
+	}
+      }
+    }
+  }
+
+  ZoomAxis(trend_plot->GetYaxis(), max_bin);
+}
+
+// void ZoomIndividualPlot(TH1* individual_plot)
+// -- Finds the range that we want on the x-axis for the individual plot
+void ZoomIndividualPlot(TH1* individual_plot) {
+
+  int max_bin = 0;
+
+  for (int iBin = individual_plot->GetNbinsX(); iBin > 0; --iBin) {
+	  
+    if (individual_plot->GetBinContent(iBin) >= 1) {
+	      
+      // See if this bin is higher than the previous
+      if (iBin > max_bin) {
+	max_bin = iBin;
+	break;
+      }
+    }
+  }
+
+  ZoomAxis(individual_plot->GetXaxis(), max_bin);
+}
+
+
+// int ZoomAxis(TAxis* axis, int max_bin)
+// -- Sets the range of the axis so that it is the smallest possible
+void ZoomAxis(TAxis* axis, int max_bin) {
+
+  axis->SetRange(1, max_bin); // set the range based on bin number
 }
