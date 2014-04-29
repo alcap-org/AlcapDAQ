@@ -98,29 +98,29 @@ INT MDQ_TDCCheck_init()
   }
 
   // Create some histograms
-  hDQ_TDCCheck_muSc = new TH1F("hDQ_TDCCheck_muSc", "Number of hits in muSc", 3,0,3);
+  hDQ_TDCCheck_muSc = new TH1F("hDQ_TDCCheck_muSc", "Number of Hits in TDC (muSc)", 3,0,3);
   hDQ_TDCCheck_muSc->GetXaxis()->SetTitle("muSc");
   hDQ_TDCCheck_muSc->GetYaxis()->SetTitle("Number of Hits");
 
-  hDQ_TDCCheck_muScA = new TH1F("hDQ_TDCCheck_muScA", "Number of hits in muScA", 3,0,3);
+  hDQ_TDCCheck_muScA = new TH1F("hDQ_TDCCheck_muScA", "Number of Hits in TDC (muScA)", 3,0,3);
   hDQ_TDCCheck_muScA->GetXaxis()->SetTitle("muScA");
   hDQ_TDCCheck_muScA->GetYaxis()->SetTitle("Number of Hits");
 
-  hDQ_TDCCheck_muPC = new TH1F("hDQ_TDCCheck_muPC", "Number of hits in muPC", 3,0,3);
+  hDQ_TDCCheck_muPC = new TH1F("hDQ_TDCCheck_muPC", "Number of Hits in TDC (muPC)", 3,0,3);
   hDQ_TDCCheck_muPC->GetXaxis()->SetTitle("muPC");
   hDQ_TDCCheck_muPC->GetYaxis()->SetTitle("Number of Hits");
 
-  hDQ_TDCCheck_Unknown = new TH1F("hDQ_TDCCheck_Unknown", "Number of hits in Unknown", 7000,0,7000);
+  hDQ_TDCCheck_Unknown = new TH1F("hDQ_TDCCheck_Unknown", "Number of Hits in TDC (Unknown)", 7000,0,7000);
   hDQ_TDCCheck_Unknown->GetXaxis()->SetTitle("TDC Parameter");
   hDQ_TDCCheck_Unknown->GetYaxis()->SetTitle("Number of Hits");
 
-  hDQ_TDCCheck_muSc_time = new TH1F("hDQ_TDCCheck_muSc_time", "Time of TDC hits in muSc", 1200,0,120e6);
+  hDQ_TDCCheck_muSc_time = new TH1F("hDQ_TDCCheck_muSc_time", "Time of TDC Hits in muSc", 1200,0,120e6);
   hDQ_TDCCheck_muSc_time->GetXaxis()->SetTitle("Time of muSc Hit [ns]");
   hDQ_TDCCheck_muSc_time->GetYaxis()->SetTitle("Number of Hits");
 
-  hDQ_TDCCheck_muSc_rate = new TH1F("hDQ_TDCCheck_muSc_rate", "Rate of TDC hits in muSc", 3,0,3);
-  hDQ_TDCCheck_muSc_rate->GetXaxis()->SetTitle("Rate of muSc Hit [ns]");
-  hDQ_TDCCheck_muSc_rate->GetYaxis()->SetTitle("Number of Hits");
+  hDQ_TDCCheck_muSc_rate = new TH1F("hDQ_TDCCheck_muSc_rate", "Rate of TDC Hits in muSc", 3,0,3);
+  hDQ_TDCCheck_muSc_rate->GetXaxis()->SetTitle("muSc");
+  hDQ_TDCCheck_muSc_rate->GetYaxis()->SetTitle("Rate of muSc Hit [s^-1]");
 
   hDQ_TDCCheck_TDiff = new TH1F("hDQ_TDCCheck_TDiff", "Time difference between muSc hit in TDC and BU", 10000,-5000,5000);
   hDQ_TDCCheck_TDiff->GetXaxis()->SetTitle("Time Difference of muSc Hits (BU CAEN - TDC)");
