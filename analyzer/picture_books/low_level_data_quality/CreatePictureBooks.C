@@ -138,6 +138,15 @@ void CreatePictureBooks(const char* data_dir, int first_run, const int n_runs) {
     if (histname.find("Fraction") != std::string::npos) {
       trend_plot->GetZaxis()->SetRangeUser(0,1);
     }
+    // Copy the axis labels so that they show the detector and channel names
+    else if (histname.find("hDQ_IslandRate") != std::string::npos) {
+      for (int jBin = 1; jBin < hist->GetNbinsX(); ++jBin) {
+	trend_plot->GetYaxis()->SetBinLabel(jBin, hist->GetXaxis()->GetBinLabel(jBin));
+      }
+      trend_plot->GetYaxis()->SetTitle(false);
+      trend_plot->GetYaxis()->SetLabelSize(0.02);
+      trend_plot->GetZaxis()->SetLabelSize(0.02);
+    }
 
     // Check to see if we want this histogram as an individual or a trend plot
     bool want_trend_plot = WantAsTrendPlot(histname);
