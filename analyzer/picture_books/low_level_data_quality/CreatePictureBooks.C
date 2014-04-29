@@ -22,8 +22,10 @@ void CreatePictureBooks(const char* data_dir, int first_run, const int n_runs) {
   gROOT->SetStyle("Plain");
   gStyle->SetCanvasBorderMode(0); // turn off canvas borders
 
+
+
   // Create the canvases
-  //  TCanvas* trend_canvas = new TCanvas("trend_canvas", "trend_canvas");
+  TCanvas* trend_canvas = new TCanvas("trend_canvas", "trend_canvas");
 
   TFile* files[n_runs];
   TCanvas* individual_canvases[n_runs];
@@ -55,6 +57,8 @@ void CreatePictureBooks(const char* data_dir, int first_run, const int n_runs) {
     individual_closepdfname[iRun] = individual_basepdfname[iRun].str() + "]";
     individual_canvases[iRun]->Print(individual_openpdfname[iRun].c_str());
   }
+
+
 
   // Get the names of all the histograms
   std::vector<std::string> histogram_names;
@@ -88,19 +92,52 @@ void CreatePictureBooks(const char* data_dir, int first_run, const int n_runs) {
     } // end if (class is TDirectoryFile)
   } // end while loop (through keys in file)
 
+  std::stringstream trend_basepdfname;
+  trend_basepdfname << "DQ_LowLevel_TrendPlots_Runs0" << first_run << "-" << first_run + n_runs << ".pdf";
+  std::string trend_openpdfname = trend_basepdfname.str() + "[";
+  std::string trend_closepdfname = trend_basepdfname.str() + "]";
+
+  trend_canvas->Print(trend_openpdfname.c_str());
+
+
 
   // Now we have the histogram names, so loop though them
   for (int iHist = 0; iHist < histogram_names.size(); ++iHist) {
 
     std::string histname = histogram_names.at(iHist);
+    std::string fullhistname = "DataQuality_LowLevel/" + histname;
 
     // Check to see if we actually want this plot
     if ( !WantPlot(histname)) {
       continue;
     }
 
-    // Check to see if we want this histogram as an individual plot or a trend plot
-    bool trend_plot = WantAsTrendPlot(histname);
+
+    // Create the trend plot
+    std::string trendplotname = histname + "_TrendPlot";
+    std::string trendplottitle = "Trend plot of " + histname;
+
+    // Get some useful information from the histogram in the first run file (for the y-axis range of the trend plot)
+    TH1F* hist = (TH1F*) files[0]->Get(fullhistname.c_str());
+
+    TH2F* trend_plot = new TH2F(trendplotname.c_str(), trendplottitle.c_str(), n_runs, first_run, first_run+n_runs, hist->GetNbinsX(), hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
+
+    trend_plot->GetYaxis()->SetTitle(hist->GetXaxis()->GetTitle());
+    trend_plot->GetYaxis()->SetLabelSize(0.03);
+
+    trend_plot->GetXaxis()->SetTitle("Run Number");
+    trend_plot->GetXaxis()->SetLabelSize(0.03);
+
+    trend_plot->GetZaxis()->SetTitle(hist->GetYaxis()->GetTitle());
+    trend_plot->GetZaxis()->SetLabelSize(0.03);
+    trend_plot->GetZaxis()->SetTitleOffset(0.85);
+    trend_plot->GetZaxis()->SetTitleSize(0.03);
+    trend_plot->SetStats(false);
+
+
+
+    // Check to see if we want this histogram as an individual or a trend plot
+    bool want_trend_plot = WantAsTrendPlot(histname);
 
     // Loop through the runs
     for (int iRun = 0; iRun < n_runs; ++iRun) {
@@ -110,10 +147,9 @@ void CreatePictureBooks(const char* data_dir, int first_run, const int n_runs) {
 	continue;
 
       // Get the histogram
-      std::string fullhistname = "DataQuality_LowLevel/" + histname;      
       TH1* hist = (TH1*) files[iRun]->Get(fullhistname.c_str());
       
-      if (trend_plot == false) {
+      if (want_trend_plot == false) {
 
 	// Print the histogram out directly to the individual picture book
 	individual_canvases[iRun]->cd();
@@ -125,7 +161,17 @@ void CreatePictureBooks(const char* data_dir, int first_run, const int n_runs) {
       }
       else {
 	// Fill this histogram into the trend plot
-      }
+	for (int iBin = 1; iBin <= hist->GetNbinsX(); ++iBin) {
+	  trend_plot->Fill(first_run + iRun, hist->GetBinCenter(iBin), hist->GetBinContent(iBin)); // (x = run #, y = time stamp, z = N_TPI)
+	} // end for loop (filling trend plot)
+      } // end if (trend plot)
+    } // end for loop (through runs)
+
+    // Now export the trend plot to PDF (if applicable)
+    if (want_trend_plot) {
+      trend_canvas->cd();
+      trend_plot->Draw("COLZ");
+      trend_canvas->Print(trend_basepdfname.str().c_str());
     }
   }
 
@@ -134,6 +180,7 @@ void CreatePictureBooks(const char* data_dir, int first_run, const int n_runs) {
   for (int iRun = 0; iRun < n_runs; ++iRun) {
     individual_canvases[iRun]->Print(individual_closepdfname[iRun].c_str());
   }
+  trend_canvas->Print(trend_closepdfname.c_str());
 }
 
 // bool WantPlot(std::string histname)
@@ -170,9 +217,9 @@ bool WantAsTrendPlot(std::string histname) {
   }
 }
 
-// bool WantLogZ()
+// bool WantLogZ(std::string histname)
 // -- returns true if this plot wants to have the z-axis as log
-bool WantLogZ() {
+bool WantLogZ(std::string histname) {
 
   if (histname.find("hDQ_PulseShapes") != std::string::npos) {
     return true;
