@@ -171,7 +171,7 @@ fi
 
 # Submit jobs
 FLAGS=""
-CMD="$DAQdir/analyzer/batch/scripts/batch_alcapana_prod-run-1.sge"
+CMD="$DAQdir/analyzer/batch/scripts/production-run-1/batch_alcapana_prod-run-1.sge"
 for IRUN in $RUNS; do
 
     OLOG="$LOGDIR/alcapana.run$(runcanon $IRUN).out"
