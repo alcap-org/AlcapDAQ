@@ -34,6 +34,7 @@ class TSetupData : public TObject{
   std::map<std::string, double> fBankToTimeShift;
   std::map<std::string, int> fBankToPolarityMap;
   std::map<std::string, int> fBankToPedestalMap;
+	std::map<std::string, bool> fBankToEnableBitMap;
 
   std::string GetBankName(std::string DetectorName);
 
@@ -55,6 +56,7 @@ class TSetupData : public TObject{
   double GetTimeShift(const std::string& BankName) const{ return GetValue(fBankToTimeShift,BankName); };
   int GetTriggerPolarity(const std::string& BankName)const{return GetValue(fBankToPolarityMap,BankName);};
   int GetPedestal(const std::string& BankName)const{return GetValue(fBankToPedestalMap,BankName);};
+	bool GetEnableBit(const std::string& BankName)const {return GetValue(fBankToEnableBitMap, BankName);};
 
   // Setters with check, return true if inserted
   bool SetDetectorName(std::string BankName, std::string value) {
@@ -72,6 +74,7 @@ class TSetupData : public TObject{
   void SetPedestal(std::string BankName, int value) { fBankToPedestalMap[BankName]=value; }
   void SetADCSlopeCalib(std::string BankName, double value) { fBankToADCSlopeCalibMap[BankName] = value; }
   void SetADCOffsetCalib(std::string BankName, double value) { fBankToADCOffsetCalibMap[BankName] = value; };
+	void SetEnableBit(std::string BankName, bool value){fBankToEnableBitMap[BankName] = value;};
 
   static bool IsFADC(const std::string& BankName) { return BankName[0] == 'N'; } // if the first letter is N then the bank name is for a FADC
   static bool IsHoustonCAEN(const std::string& BankName) { return BankName.substr(2,2) == "UH"; } // if the first letter is C then the bank name is for a CAEN
@@ -79,6 +82,7 @@ class TSetupData : public TObject{
   static bool IsSlow(const std::string& BankName) { return (*BankName.end() -1 ) == 'S'; } // if the last letter is S then the bank name is for a Slow pulse
   static bool IsFast(const std::string& BankName) { return (*(BankName.end() -1)  == 'F' || BankName.substr(0,2) == "Sc" ); } // if the last letter is F then the bank name is for a Fast pulse
 
+	bool IsEnable(const std::string& BankName){return GetEnableBit(BankName);}
 private:
   // A small helper function to save us copying this about the place all the time
   double GetValue(const std::map<std::string,double>& map,const std::string& BankName)const{
@@ -93,6 +97,14 @@ private:
           return 0;
   }
 
+	bool GetValue(const std::map<std::string,bool>& map,const std::string& BankName)const{
+		std::map<std::string, bool>::const_iterator it=map.find(BankName); 
+		if(it!=map.end()) 
+			return it->second;
+		else
+			return false;
+	}
   ClassDef(TSetupData, 2)
+
 };
 #endif

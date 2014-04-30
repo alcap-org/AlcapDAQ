@@ -1,3 +1,4 @@
 FADC/MOctalFADCProcessRaw
 v1724/MV1724ProcessRaw
 common/MTreeOutput
+vacuum/MVacuumHisto

@@ -1,9 +1,8 @@
 //#define USE_PRINT_OUT 
 
-#include <stdio.h>
+#include <cstdio>
 #include <string>
-#include <stdlib.h>
-#include <ctype.h>
+//#include <cctype>
 #include <map>
 
 #include "utils.h" // Provides analyze_command_line()

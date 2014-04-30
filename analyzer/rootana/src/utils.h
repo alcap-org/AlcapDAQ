@@ -1,7 +1,8 @@
-#ifndef __UTILS__H
-#define __UTILS__H
+#ifndef UTILS_H
+#define UTILS_H
 
-#include <string.h>
+#include <cstring>
+#include <cstdlib>
 static char correction_file[300];
 
 typedef struct {
@@ -27,19 +28,19 @@ void help_command_line(char *my_name){
 }
 
 bool isNumber(char *c){
-  for(size_t i=0; i<strlen(c); i++){
+  for(size_t i=0; i < strlen(c); i++){
     if(!isdigit(c[i])) return false;
   }
   return true;
 }
 
 int GetRunNumber(char* input_file){
-        std::string run_number=input_file;
-        //remove the extension
-        run_number=run_number.substr(0,run_number.find_last_of('.'));
-        //find the last numbers
-        run_number=run_number.substr(run_number.find_last_not_of("01234566789")+1);
-        return atoi(run_number.c_str());
+  std::string run_number=input_file;
+  //remove the extension
+  run_number=run_number.substr(0,run_number.find_last_of('.'));
+  //find the last numbers
+  run_number=run_number.substr(run_number.find_last_not_of("01234566789")+1);
+  return std::atoi(run_number.c_str());
 }
 
 int check_arguments(ARGUMENTS& arguments){
@@ -139,7 +140,7 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments){
    case 'n':
      if(i+1 < argc){
        if(isNumber(argv[i+1])){
-         arguments.start = atoi(argv[i+1]);
+         arguments.start = std::atoi(argv[i+1]);
          i+=2;
        }
        else{
@@ -148,7 +149,7 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments){
        }
        if(i < argc && argv[i][0]!='-'){
          if(isNumber(argv[i])){
-      arguments.stop = atoi(argv[i]);
+	   arguments.stop = std::atoi(argv[i]);
       i+=1;
          }
          else{
@@ -165,7 +166,7 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments){
    case 'r':
      if(i+1 < argc){
        if(isNumber(argv[i+1])){
-         arguments.run = atoi(argv[i+1]);
+         arguments.run = std::atoi(argv[i+1]);
          i+=2;
        }
        else{
