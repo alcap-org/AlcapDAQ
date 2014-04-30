@@ -94,6 +94,61 @@ void CreatePictureBooks(const char* data_dir, int first_run, const int n_runs) {
     } // end if (class is TDirectoryFile)
   } // end while loop (through keys in file)
 
+  // Reorder the histogram names so that channels from the same board are next to each other (might make it easier to print 4 plots on the same page)
+  std::vector<std::string> ordered_histogram_names;
+  ordered_histogram_names.resize(histogram_names.size());
+  int current_location = 0;
+
+  for (int iHist = 0; iHist < histogram_names.size(); ++iHist) {
+
+    std::string histname = histogram_names.at(iHist);
+    std::cout << histname << " " << current_location << std::endl;
+
+    if (histname.find("CaBU") != std::string::npos) {
+      ordered_histogram_names[current_location] = histname;
+      ++current_location;
+
+      // Get the base histogram name (without the channel and detector names)
+      histname.erase(histname.rfind("_"), histname.size());
+      histname.erase(histname.rfind("_"), histname.size());
+      std::cout << histname << std::endl;
+
+      // Search for the other three channels and add them in the elements after this one
+      for (int jHist = 0; jHist < histogram_names.size(); ++jHist) {
+	
+	std::string histname_b = histogram_names.at(jHist);
+	if (histname_b.find(histname) != std::string::npos) {
+	  if (histname_b.find("CbBU") != std::string::npos) {
+	    ordered_histogram_names[current_location] = histname_b;
+	    ++current_location;
+	  }
+	  else if (histname_b.find("CcBU") != std::string::npos) {
+	    ordered_histogram_names[current_location] = histname_b;
+	    ++current_location;
+	  }
+	  else if (histname_b.find("CdBU") != std::string::npos) {
+	    ordered_histogram_names[current_location] = histname_b;
+	    ++current_location;
+	  }
+	}
+      }
+    } // end if CaBU
+
+    // Don't want to print these twice
+    else if ( histname.find("CbBU") != std::string::npos ||
+              histname.find("CcBU") != std::string::npos ||
+              histname.find("CdBU") != std::string::npos) {
+      // Do nothing
+
+    }
+    else {
+      ordered_histogram_names[current_location] = histname;
+      ++current_location;
+    }
+  }
+  
+  //  return;
+
   std::stringstream trend_basepdfname;
   trend_basepdfname << "DQ_LowLevel_TrendPlots_Runs0" << first_run << "-" << first_run + n_runs << ".pdf";
   std::string trend_openpdfname = trend_basepdfname.str() + "[";
@@ -104,9 +159,9 @@ void CreatePictureBooks(const char* data_dir, int first_run, const int n_runs) {
 
 
   // Now we have the histogram names, so loop though them
-  for (int iHist = 0; iHist < histogram_names.size(); ++iHist) {
+  for (int iHist = 0; iHist < ordered_histogram_names.size(); ++iHist) {
 
-    std::string histname = histogram_names.at(iHist);
+    std::string histname = ordered_histogram_names.at(iHist);
     std::string fullhistname = "DataQuality_LowLevel/" + histname;
 
     // Check to see if we actually want this plot
