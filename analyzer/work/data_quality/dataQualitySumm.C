@@ -30,7 +30,7 @@ void latexHeader(FILE * pFile,const int n_run);
 void insertFig(FILE * pFile,TH1F *fig_name,const int n_run);
 void insertFig(FILE * pFile,TH2F *fig_name,const int n_run);
 void insertFig(FILE * pFile,TString imageFile);
-std::vector<std::string> getListOfPlots();
+std::vector<std::string> getListOfLines();
 void createSections();
 
 void dataQualitySumm(const char* data_dir, const int n_run) {
@@ -48,12 +48,13 @@ void dataQualitySumm(const char* data_dir, const int n_run) {
 
   createSections(); // create the sections
 
-  std::vector<std::string> list_of_plots = getListOfPlots();
+  std::vector<std::string> list_of_lines = getListOfLines();
   /*
   TH1F *hDQ_FADCPacketLoss_Fraction;
   file->GetObject("DataQuality_LowLevel/hDQ_FADCPacketLoss_Fraction",hDQ_FADCPacketLoss_Fraction);
   hDQ_FADCPacketLoss_Fraction->GetYaxis()->SetTitleOffset(1.3);
   */
+
    //begin latex file
    FILE * pFile;
 
@@ -66,7 +67,7 @@ void dataQualitySumm(const char* data_dir, const int n_run) {
    //   fprintf (pFile, "\\section{FADC-specific data quality issues}\n\n");
    //   fprintf (pFile, "\\subsection{Packet loss}\n\n");
 
-   for (std::vector<std::string>::iterator plotIter = list_of_plots.begin(); plotIter != list_of_plots.end(); ++plotIter) {
+   for (std::vector<std::string>::iterator plotIter = list_of_lines.begin(); plotIter != list_of_lines.end(); ++plotIter) {
      if ( (*plotIter).find("section") != std::string::npos) {
        std::cout << "Adding section heading: " << *plotIter << std::endl;
        fprintf (pFile, (*plotIter).c_str());
@@ -112,14 +113,14 @@ void createSections() {
   section_headings[1].section_name = "\\section{Digitizer overflows}\n\n";
 }
 
-std::vector<std::string> getListOfPlots() {
+std::vector<std::string> getListOfLines() {
 
   // Print the list of plots to a file
-  gROOT->ProcessLine(".! ls data_quality_figs/*.pdf > list_of_plots.txt");
+  gROOT->ProcessLine(".! ls data_quality_figs/*.pdf > list_of_lines.txt");
 
   // Open this file for reading
-  FILE * pListOfPlotsFile;
-  pListOfPlotsFile = fopen("list_of_plots.txt", "r");
+  FILE * pListOfLinesFile;
+  pListOfLinesFile = fopen("list_of_lines.txt", "r");
 
   // Get a vector of plot names ready
   std::vector<std::string> plot_names;
@@ -127,12 +128,12 @@ std::vector<std::string> getListOfPlots() {
   char plotname_cstr[max_char];
 
   // Read in the plot names
-  if (pListOfPlotsFile == NULL) perror ("Error opening list_of_plots.txt");
+  if (pListOfLinesFile == NULL) perror ("Error opening list_of_lines.txt");
   else
     {
-      while ( ! feof (pListOfPlotsFile) )
+      while ( ! feof (pListOfLinesFile) )
 	{
-	  if ( fgets (plotname_cstr , max_char , pListOfPlotsFile) == NULL ) break;
+	  if ( fgets (plotname_cstr , max_char , pListOfLinesFile) == NULL ) break;
 	  
 	  // strip off the final \n
 	  int length = strlen(plotname_cstr);
@@ -183,7 +184,7 @@ std::vector<std::string> getListOfPlots() {
 	  // Finally put the plot name in
 	  plot_names.push_back(plotname);
 	}
-      fclose (pListOfPlotsFile);
+      fclose (pListOfLinesFile);
     }
 
   return plot_names;
