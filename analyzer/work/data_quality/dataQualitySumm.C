@@ -48,18 +48,24 @@ void dataQualitySumm(const char* data_dir, const int n_run) {
    latexHeader(pFile,n_run);   
 
    fprintf (pFile, "\\newpage \n \\clearpage\n\n");
-   fprintf (pFile, "\\section{FADC-specific data quality issues}\n\n");
-   fprintf (pFile, "\\subsection{Packet loss}\n\n");
+   //   fprintf (pFile, "\\section{FADC-specific data quality issues}\n\n");
+   //   fprintf (pFile, "\\subsection{Packet loss}\n\n");
 
    for (std::vector<std::string>::iterator plotIter = list_of_plots.begin(); plotIter != list_of_plots.end(); ++plotIter) {
-     std::cout << *plotIter << std::endl;
-     insertFig(pFile,*plotIter);
+     if ( (*plotIter).find("section") != std::string::npos) {
+       std::cout << "Adding section heading: " << *plotIter << std::endl;
+       fprintf (pFile, (*plotIter).c_str());
+     }
+     else {
+       std::cout << "Inserting figure " << *plotIter << std::endl;
+       insertFig(pFile,*plotIter);
+     }
    }
 
-   fprintf (pFile, "\\subsection{Buffer overflow}\n\n");
+   //   fprintf (pFile, "\\subsection{Buffer overflow}\n\n");
 
    fprintf (pFile, "\\newpage \n \\clearpage\n\n");
-   fprintf (pFile, "\\section{Digitizer overflows}\n\n");
+   //   fprintf (pFile, "\\section{Digitizer overflows}\n\n");
 
 
    //close the latex file
@@ -70,26 +76,55 @@ void dataQualitySumm(const char* data_dir, const int n_run) {
 }
 
 std::vector<std::string> getListOfPlots() {
+
+  // Print the list of plots to a file
   gROOT->ProcessLine(".! ls data_quality_figs/*.pdf > list_of_plots.txt");
 
+  const int n_sections = 2; // FADC-specific, digitizer overflows
+  int n_subsections[n_sections] = {2, 0}; // {packet loss, buffer overflow}
+  bool section_started[n_sections] = {false, false};
+
+  // Open this file for reading
   FILE * pListOfPlotsFile;
   pListOfPlotsFile = fopen("list_of_plots.txt", "r");
 
+  // Get a vector of plot names ready
   std::vector<std::string> plot_names;
   const int max_char = 100;
-  char plotname[max_char];
+  char plotname_cstr[max_char];
+
+  // Read in the plot names
   if (pListOfPlotsFile == NULL) perror ("Error opening list_of_plots.txt");
   else
     {
       while ( ! feof (pListOfPlotsFile) )
 	{
-	  if ( fgets (plotname , max_char , pListOfPlotsFile) == NULL ) break;
+	  if ( fgets (plotname_cstr , max_char , pListOfPlotsFile) == NULL ) break;
 	  
 	  // strip off the final \n
-	  int length = strlen(plotname);
-	  if (plotname[length - 1] == '\n') 
-	    plotname[length - 1] = '\0';
+	  int length = strlen(plotname_cstr);
+	  if (plotname_cstr[length - 1] == '\n')
+	    plotname_cstr[length - 1] = '\0';
 
+	  std::string plotname = plotname_cstr; // convert to std::string so I can use find()
+
+	  // Work out which section this plot is for
+	  int section = -1;
+	  std::string sectionline;
+	  if (plotname.find("FADC") != std::string::npos) {
+	    section = 0;
+	    sectionline = "\\section{FADC-specific data quality issues}\n\n";
+	  }
+	  else if (plotname.find("Digitizer") != std::string::npos) {
+	    section = 1;
+	    sectionline = "\\section{DigitizerOverflows}\n\n";
+	  }
+
+	  if (section_started[section] == false) {
+	    plot_names.push_back(sectionline);
+	    section_started[section] = true;
+	  }
+	  
 	  plot_names.push_back(plotname);
 	}
       fclose (pListOfPlotsFile);
@@ -136,7 +171,7 @@ void insertFig(FILE * pFile,TString imageFile) {
   fprintf(pFile,"\\vspace{-5mm} \n");
   fprintf(pFile,"\\caption{} \n");
   fprintf(pFile,"\\end{figure} \n");
-  fprintf(pFile,"\\clearpage \n");
+  fprintf(pFile,"\\clearpage \n\n");
 }
 
 void latexHeader(FILE * pFile,const int n_run){
