@@ -19,6 +19,7 @@
 void latexHeader(FILE * pFile,const int n_run);
 void insertFig(FILE * pFile,TH1F *fig_name,const int n_run);
 void insertFig(FILE * pFile,TH2F *fig_name,const int n_run);
+std::vector<std::string> getListOfPlots();
 
 void dataQualitySumm(const char* data_dir, const int n_run) {
 
@@ -32,9 +33,15 @@ void dataQualitySumm(const char* data_dir, const int n_run) {
   filename << data_dir << "/hist/hist0" << n_run << ".root";
   file = new TFile(filename.str().c_str(), "READ");
 
-  TH1F *hDQ_FADCPacketLossFrac;
-  file->GetObject("DataQuality_LowLevel/hDQ_FADCPacketLossFrac",hDQ_FADCPacketLossFrac);
-  hDQ_FADCPacketLossFrac->GetYaxis()->SetTitleOffset(1.3);
+  std::vector<std::string> list_of_plots = getListOfPlots();
+
+  for (std::vector<std::string>::iterator plotIter = list_of_plots.begin(); plotIter != list_of_plots.end(); ++plotIter) {
+    std::cout << *plotIter;
+  }
+
+  TH1F *hDQ_FADCPacketLoss_Fraction;
+  file->GetObject("DataQuality_LowLevel/hDQ_FADCPacketLoss_Fraction",hDQ_FADCPacketLoss_Fraction);
+  hDQ_FADCPacketLoss_Fraction->GetYaxis()->SetTitleOffset(1.3);
    //begin latex file
    FILE * pFile;
 
@@ -46,7 +53,7 @@ void dataQualitySumm(const char* data_dir, const int n_run) {
    fprintf (pFile, "\\newpage \n \\clearpage\n\n");
    fprintf (pFile, "\\section{FADC-specific data quality issues}\n\n");
    fprintf (pFile, "\\subsection{Packet loss}\n\n");
-   insertFig(pFile,hDQ_FADCPacketLossFrac,n_run);
+   insertFig(pFile,hDQ_FADCPacketLoss_Fraction,n_run);
    fprintf (pFile, "\\subsection{Buffer overflow}\n\n");
 
    fprintf (pFile, "\\newpage \n \\clearpage\n\n");
@@ -60,12 +67,36 @@ void dataQualitySumm(const char* data_dir, const int n_run) {
 
 }
 
+std::vector<std::string> getListOfPlots() {
+  gROOT->ProcessLine(".! ls data_quality_figs/*.pdf > list_of_plots.txt");
+
+  FILE * pListOfPlotsFile;
+  pListOfPlotsFile = fopen("list_of_plots.txt", "r");
+
+  std::vector<std::string> plot_names;
+  const int max_char = 100;
+  char plotname[max_char];
+  if (pListOfPlotsFile == NULL) perror ("Error opening list_of_plots.txt");
+  else
+    {
+      while ( ! feof (pListOfPlotsFile) )
+	{
+	  if ( fgets (plotname , max_char , pListOfPlotsFile) == NULL ) break;
+	  plot_names.push_back(plotname);
+	}
+      fclose (pListOfPlotsFile);
+    }
+
+  return plot_names;
+}
+
 void insertFig(FILE * pFile,TH1F *hist,const int n_run){
 
   TString imageFile = "data_quality_figs/";
   imageFile += hist->GetName();
   imageFile += Form("_run%d",n_run);
   imageFile += ".pdf";
+
 
   //make the image file
   TCanvas *c1 = new TCanvas();
