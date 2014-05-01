@@ -16,11 +16,22 @@
 
 */
 
+const int n_sections = 2;
+const int n_max_subsections = 2;
+struct Section {
+  std::string section_name;
+  bool section_started;
+
+  std::string subsection_names[n_max_subsections];
+  bool subsection_started[n_max_subsections];
+} section_headings[n_sections];
+
 void latexHeader(FILE * pFile,const int n_run);
 void insertFig(FILE * pFile,TH1F *fig_name,const int n_run);
 void insertFig(FILE * pFile,TH2F *fig_name,const int n_run);
 void insertFig(FILE * pFile,TString imageFile);
 std::vector<std::string> getListOfPlots();
+void createSections();
 
 void dataQualitySumm(const char* data_dir, const int n_run) {
 
@@ -28,17 +39,21 @@ void dataQualitySumm(const char* data_dir, const int n_run) {
   gROOT->SetStyle("Plain");
   gStyle->SetCanvasBorderMode(0); // turn off canvas borders
 
-  TFile* file;
+  /*  TFile* file;
 
   std::stringstream filename;
   filename << data_dir << "/hist/hist0" << n_run << ".root";
   file = new TFile(filename.str().c_str(), "READ");
+  */
+
+  createSections(); // create the sections
 
   std::vector<std::string> list_of_plots = getListOfPlots();
-
+  /*
   TH1F *hDQ_FADCPacketLoss_Fraction;
   file->GetObject("DataQuality_LowLevel/hDQ_FADCPacketLoss_Fraction",hDQ_FADCPacketLoss_Fraction);
   hDQ_FADCPacketLoss_Fraction->GetYaxis()->SetTitleOffset(1.3);
+  */
    //begin latex file
    FILE * pFile;
 
@@ -75,14 +90,32 @@ void dataQualitySumm(const char* data_dir, const int n_run) {
 
 }
 
+void createSections() {
+
+  // Set defaults for section_started, subsection_names and subsection_started
+  for (int iSection = 0; iSection < n_sections; ++iSection) {
+
+      section_headings[iSection].section_started = false;
+
+      for (int iSubSection = 0; iSubSection < n_max_subsections; ++iSubSection) {
+
+	(section_headings[iSection]).subsection_names[iSubSection] = "";
+	(section_headings[iSection]).subsection_started[iSubSection] = false;
+      }
+  }
+
+  // Now do specifics
+  section_headings[0].section_name = "\\section{FADC-specific data quality issues}\n\n";
+  (section_headings[0]).subsection_names[0] = "\\subsection{Packet loss}\n\n";
+  (section_headings[0]).subsection_names[1] = "\\subsection{Buffer overflow}\n\n";
+
+  section_headings[1].section_name = "\\section{Digitizer overflows}\n\n";
+}
+
 std::vector<std::string> getListOfPlots() {
 
   // Print the list of plots to a file
   gROOT->ProcessLine(".! ls data_quality_figs/*.pdf > list_of_plots.txt");
-
-  const int n_sections = 2; // FADC-specific, digitizer overflows
-  int n_subsections[n_sections] = {2, 0}; // {packet loss, buffer overflow}
-  bool section_started[n_sections] = {false, false};
 
   // Open this file for reading
   FILE * pListOfPlotsFile;
@@ -108,23 +141,46 @@ std::vector<std::string> getListOfPlots() {
 
 	  std::string plotname = plotname_cstr; // convert to std::string so I can use find()
 
-	  // Work out which section this plot is for
+	  // Work out which section and subsection this plot is for
 	  int section = -1;
-	  std::string sectionline;
+	  int subsection = -1;
+
 	  if (plotname.find("FADC") != std::string::npos) {
 	    section = 0;
-	    sectionline = "\\section{FADC-specific data quality issues}\n\n";
+
+	    // Check for subsection
+	    if (plotname.find("PacketLoss") != std::string::npos) {
+	      subsection = 0;
+	    }
+	    else if (plotname.find("BufferOverflow") != std::string::npos) {
+	      subsection = 1;
+	    }
 	  }
 	  else if (plotname.find("Digitizer") != std::string::npos) {
 	    section = 1;
-	    sectionline = "\\section{DigitizerOverflows}\n\n";
 	  }
 
-	  if (section_started[section] == false) {
-	    plot_names.push_back(sectionline);
-	    section_started[section] = true;
+	  // If the section was found...
+	  if (section >= 0) {
+	    // ...add the section heading if it hasn't been started yet
+	    if (section_headings[section].section_started == false) {
+	      plot_names.push_back(section_headings[section].section_name);
+	      section_headings[section].section_started = true;
+	    }
+	  }
+
+	  // If the subsection was found...
+	  if (subsection >= 0 && section >= 0) {
+	    // ...add the subsection heading if it hasn't been started yet
+	    if (section_headings[section].subsection_started[subsection] == false &&
+		section_headings[section].subsection_names[subsection] != "" ) {
+
+	      plot_names.push_back(section_headings[section].subsection_names[subsection]);
+	      section_headings[section].subsection_started[subsection] = true;
+	    }
 	  }
 	  
+	  // Finally put the plot name in
 	  plot_names.push_back(plotname);
 	}
       fclose (pListOfPlotsFile);
