@@ -19,6 +19,7 @@
 void latexHeader(FILE * pFile,const int n_run);
 void insertFig(FILE * pFile,TH1F *fig_name,const int n_run);
 void insertFig(FILE * pFile,TH2F *fig_name,const int n_run);
+void insertFig(FILE * pFile,TString imageFile);
 std::vector<std::string> getListOfPlots();
 
 void dataQualitySumm(const char* data_dir, const int n_run) {
@@ -35,10 +36,6 @@ void dataQualitySumm(const char* data_dir, const int n_run) {
 
   std::vector<std::string> list_of_plots = getListOfPlots();
 
-  for (std::vector<std::string>::iterator plotIter = list_of_plots.begin(); plotIter != list_of_plots.end(); ++plotIter) {
-    std::cout << *plotIter;
-  }
-
   TH1F *hDQ_FADCPacketLoss_Fraction;
   file->GetObject("DataQuality_LowLevel/hDQ_FADCPacketLoss_Fraction",hDQ_FADCPacketLoss_Fraction);
   hDQ_FADCPacketLoss_Fraction->GetYaxis()->SetTitleOffset(1.3);
@@ -53,7 +50,12 @@ void dataQualitySumm(const char* data_dir, const int n_run) {
    fprintf (pFile, "\\newpage \n \\clearpage\n\n");
    fprintf (pFile, "\\section{FADC-specific data quality issues}\n\n");
    fprintf (pFile, "\\subsection{Packet loss}\n\n");
-   insertFig(pFile,hDQ_FADCPacketLoss_Fraction,n_run);
+
+   for (std::vector<std::string>::iterator plotIter = list_of_plots.begin(); plotIter != list_of_plots.end(); ++plotIter) {
+     std::cout << *plotIter << std::endl;
+     insertFig(pFile,*plotIter);
+   }
+
    fprintf (pFile, "\\subsection{Buffer overflow}\n\n");
 
    fprintf (pFile, "\\newpage \n \\clearpage\n\n");
@@ -82,6 +84,12 @@ std::vector<std::string> getListOfPlots() {
       while ( ! feof (pListOfPlotsFile) )
 	{
 	  if ( fgets (plotname , max_char , pListOfPlotsFile) == NULL ) break;
+	  
+	  // strip off the final \n
+	  int length = strlen(plotname);
+	  if (plotname[length - 1] == '\n') 
+	    plotname[length - 1] = '\0';
+
 	  plot_names.push_back(plotname);
 	}
       fclose (pListOfPlotsFile);
@@ -117,6 +125,18 @@ void insertFig(FILE * pFile,TH1F *hist,const int n_run){
 
 void insertFig(FILE * pFile,TH2F *hist,const int n_run){
 
+}
+
+void insertFig(FILE * pFile,TString imageFile) {
+
+  fprintf(pFile,"\\begin{figure}[h] \n");
+  fprintf(pFile,"\\begin{center} \n");
+  fprintf(pFile,"\\includegraphics[height=12cm, angle=0]{%s} \n",imageFile.Data());
+  fprintf(pFile,"\\end{center} \n");
+  fprintf(pFile,"\\vspace{-5mm} \n");
+  fprintf(pFile,"\\caption{} \n");
+  fprintf(pFile,"\\end{figure} \n");
+  fprintf(pFile,"\\clearpage \n");
 }
 
 void latexHeader(FILE * pFile,const int n_run){
