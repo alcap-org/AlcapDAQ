@@ -16,5 +16,5 @@ rm data_quality_figs/*.pdf
 echo "void RunPicBookMacros() { GenerateAllPlots(\"$data_dir\", $run_number); dataQualitySumm($run_number); }" > RunPicBookMacros.C
 
 root -l -b -q LoadPicBookMacros.C
-pdflatex Data_Quality_Run$run_number
-pdflatex Data_Quality_Run$run_number
+pdflatex Data_Quality_Run$run_number > output.txt
+pdflatex Data_Quality_Run$run_number > output.txt
