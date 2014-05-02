@@ -160,6 +160,49 @@ std::vector<std::string> getListOfLines() {
 	  else if (plotname.find("Digitizer") != std::string::npos) {
 	    section = 1;
 	  }
+	  else if (plotname.find("Island") != std::string::npos) {
+	    section = 2;
+
+	    // Check for subsection
+	    if (plotname.find("Counter") != std::string::npos) {
+	      subsection = 0;
+	    }
+	    else if (plotname.find("Length") != std::string::npos) {
+	      subsection = 1;
+	    }
+	    else if (plotname.find("Rate") != std::string::npos) {
+	      subsection = 2;
+	    }
+	    else if (plotname.find("Timestamp") != std::string::npos) {
+	      subsection = 3;
+	    }
+	    else if (plotname.find("Amplitude") != std::string::npos) {
+	      subsection = 4;
+	    }
+	  }
+	  else if (plotname.find("PulseShapes") != std::string::npos) {
+	    section = 3;
+	  }
+	  else if (plotname.find("TDCCheck") != std::string::npos) {
+	    section = 4;
+
+	    // Check for subsection
+	    if (plotname.find("muSc_rate") != std::string::npos) {
+	      subsection = 0;
+	    }
+	    else if (plotname.find("Unknown") != std::string::npos) {
+	      subsection = 1;
+	    }
+	    else if (plotname.find("TDiff") != std::string::npos) {
+	      subsection = 2;
+	    }
+	  }
+	  else if (plotname.find("muScTDiff") != std::string::npos) {
+	    section = 5;
+	  }
+	  else if (plotname.find("RunTime") != std::string::npos) {
+	    section = 6;
+	  }
 
 	  // If the section was found...
 	  if (section >= 0) {
