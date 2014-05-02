@@ -17,8 +17,6 @@ void GenerateAllPlots(const char* data_dir, const int n_run) {
   gStyle->SetCanvasBorderMode(0); // turn off canvas borders
 
 
-  TFile* file;
-
   std::stringstream filename;
   filename << data_dir << "/hist/hist0" << n_run << ".root";
   std::cout << "Filename: " << filename.str() << std::endl;
