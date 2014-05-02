@@ -23,4 +23,7 @@ void GenerateAllPlots(const char* data_dir, const int n_run) {
 
   std::string command = "GenerateFADCPlots(\"" + filename.str() + "\");";
   gROOT->ProcessLine(command.c_str());
+
+  command = "GenerateDigitizerOverflowPlots(\"" + filename.str() + "\");";
+  gROOT->ProcessLine(command.c_str());
 }
