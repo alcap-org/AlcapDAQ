@@ -16,8 +16,8 @@
 
 */
 
-const int n_sections = 2;
-const int n_max_subsections = 2;
+const int n_sections = 6;
+const int n_max_subsections = 5;
 struct Section {
   std::string section_name;
   bool section_started;
@@ -93,6 +93,24 @@ void createSections() {
   (section_headings[0]).subsection_names[1] = "\\subsection{Buffer overflow}\n\n";
 
   section_headings[1].section_name = "\\section{Digitizer overflows}\n\n";
+
+  section_headings[2].section_name = "\\section{TPulseIsland-specific data quality issues}\n\n";
+  (section_headings[2]).subsection_names[0] = "\\subsection{Total number of TPulseIslands}\n\n";
+  (section_headings[2]).subsection_names[1] = "\\subsection{Length of TPulseIslands}\n\n";
+  (section_headings[2]).subsection_names[2] = "\\subsection{Rate of TPulseIslands}\n\n";
+  (section_headings[2]).subsection_names[3] = "\\subsection{Timestamps of TPulseIslands}\n\n";
+  (section_headings[2]).subsection_names[3] = "\\subsection{Amplitudes of TPulseIslands}\n\n";
+
+  section_headings[3].section_name = "\\section{Pulse persistancy plots}\n\n";
+
+  section_headings[4].section_name = "\\section{TDC-specific data quality issues}\n\n";
+  (section_headings[4]).subsection_names[0] = "\\subsection{Rate of muSc hits}\n\n";
+  (section_headings[4]).subsection_names[1] = "\\subsection{Unknown TDC parameters}\n\n";
+  (section_headings[4]).subsection_names[2] = "\\subsection{Time difference between muSc hits in TDC and BU CAEN}\n\n";
+
+  section_headings[5].section_name = "\\section{Time differences between channels and muSc hit}\n\n";
+
+  section_headings[6].section_name = "\\section{Run time}\n\n";
 }
 
 std::vector<std::string> getListOfLines() {
