@@ -6,6 +6,8 @@ void LoadPicBookMacros() {
   // Load the functions individually first
   gROOT->ProcessLine(".L GenerateFADCPlots.C+");
   gROOT->ProcessLine(".L GenerateDigitizerOverflowPlots.C+");
+  gROOT->ProcessLine(".L GenerateRunTimePlot.C+");
+  gROOT->ProcessLine(".L GenerateTDCPlots.C+");
 
   // Load the master function
   gROOT->ProcessLine(".L GenerateAllPlots.C+");
