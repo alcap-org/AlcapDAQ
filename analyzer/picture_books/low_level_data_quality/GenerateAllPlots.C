@@ -35,4 +35,7 @@ void GenerateAllPlots(const char* data_dir, const int n_run) {
 
   command = "GenerateTPIPlots(\"" + filename.str() + "\");";
   gROOT->ProcessLine(command.c_str());
+
+  command = "GeneratePulseShapesPlots(\"" + filename.str() + "\");";
+  gROOT->ProcessLine(command.c_str());
 }
