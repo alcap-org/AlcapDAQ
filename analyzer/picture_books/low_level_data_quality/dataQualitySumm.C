@@ -26,46 +26,30 @@ struct Section {
   bool subsection_started[n_max_subsections];
 } section_headings[n_sections];
 
-void latexHeader(FILE * pFile,const int n_run);
-void insertFig(FILE * pFile,TH1F *fig_name,const int n_run);
-void insertFig(FILE * pFile,TH2F *fig_name,const int n_run);
+void latexHeader(FILE * pFile,const int run_number);
 void insertFig(FILE * pFile,TString imageFile);
 std::vector<std::string> getListOfLines();
 void createSections();
 
-void dataQualitySumm(const char* data_dir, const int n_run) {
+void dataQualitySumm(int run_number) {
 
   gROOT->Reset();
   gROOT->SetStyle("Plain");
   gStyle->SetCanvasBorderMode(0); // turn off canvas borders
 
-  /*  TFile* file;
-
-  std::stringstream filename;
-  filename << data_dir << "/hist/hist0" << n_run << ".root";
-  file = new TFile(filename.str().c_str(), "READ");
-  */
-
-  createSections(); // create the sections
-
+  // Define the sections and get the list of lines (i.e. plot PDF names and section headings)
+  createSections();
   std::vector<std::string> list_of_lines = getListOfLines();
-  /*
-  TH1F *hDQ_FADCPacketLoss_Fraction;
-  file->GetObject("DataQuality_LowLevel/hDQ_FADCPacketLoss_Fraction",hDQ_FADCPacketLoss_Fraction);
-  hDQ_FADCPacketLoss_Fraction->GetYaxis()->SetTitleOffset(1.3);
-  */
 
    //begin latex file
    FILE * pFile;
 
-   pFile = fopen (Form("Data_Quality_Run%d.tex",n_run),"w");
+   pFile = fopen (Form("Data_Quality_Run%d.tex",run_number),"w");
 
    //header
-   latexHeader(pFile,n_run);   
+   latexHeader(pFile,run_number);   
 
    fprintf (pFile, "\\newpage \n \\clearpage\n\n");
-   //   fprintf (pFile, "\\section{FADC-specific data quality issues}\n\n");
-   //   fprintf (pFile, "\\subsection{Packet loss}\n\n");
 
    for (std::vector<std::string>::iterator plotIter = list_of_lines.begin(); plotIter != list_of_lines.end(); ++plotIter) {
      if ( (*plotIter).find("section") != std::string::npos) {
@@ -78,10 +62,8 @@ void dataQualitySumm(const char* data_dir, const int n_run) {
      }
    }
 
-   //   fprintf (pFile, "\\subsection{Buffer overflow}\n\n");
 
    fprintf (pFile, "\\newpage \n \\clearpage\n\n");
-   //   fprintf (pFile, "\\section{Digitizer overflows}\n\n");
 
 
    //close the latex file
@@ -190,35 +172,6 @@ std::vector<std::string> getListOfLines() {
   return plot_names;
 }
 
-void insertFig(FILE * pFile,TH1F *hist,const int n_run){
-
-  TString imageFile = "data_quality_figs/";
-  imageFile += hist->GetName();
-  imageFile += Form("_run%d",n_run);
-  imageFile += ".pdf";
-
-
-  //make the image file
-  TCanvas *c1 = new TCanvas();
-  hist->Draw();
-  c1->Print(imageFile.Data());
-
-  fprintf(pFile,"\\begin{figure}[h] \n");
-  fprintf(pFile,"\\begin{center} \n");
-  fprintf(pFile,"\\includegraphics[height=12cm, angle=0]{%s} \n",imageFile.Data());
-  fprintf(pFile,"\\end{center} \n");
-  fprintf(pFile,"\\vspace{-5mm} \n");
-  fprintf(pFile,"\\caption{} \n");
-  fprintf(pFile,"\\end{figure} \n");
-  fprintf(pFile,"\\clearpage \n");
-  
-
-}
-
-void insertFig(FILE * pFile,TH2F *hist,const int n_run){
-
-}
-
 void insertFig(FILE * pFile,TString imageFile) {
 
   fprintf(pFile,"\\begin{figure}[h] \n");
@@ -231,10 +184,10 @@ void insertFig(FILE * pFile,TString imageFile) {
   fprintf(pFile,"\\clearpage \n\n");
 }
 
-void latexHeader(FILE * pFile,const int n_run){
+void latexHeader(FILE * pFile,const int run_number){
 
    char *target;
-   if (n_run==2) target = "SiR";
+   if (run_number==2) target = "SiR";
 
    fprintf (pFile, "\\documentclass[12pt,twoside,titlepage]{article}\n");
    fprintf (pFile, "\\usepackage{geometry}\n");
@@ -246,7 +199,7 @@ void latexHeader(FILE * pFile,const int n_run){
    fprintf (pFile, "\\usepackage{color}\n");
    fprintf (pFile, "\\usepackage[pdftex,bookmarks,colorlinks]{hyperref}\n\n\n");
    fprintf (pFile, "\\begin{document}\n");
-   fprintf (pFile, "\\title {Data Quality Summary for AlCap Run \\#%d (%s Target)}\n",n_run,target);
+   fprintf (pFile, "\\title {Data Quality Summary for AlCap Run \\#%d (%s Target)}\n",run_number,target);
    fprintf (pFile, "\\date{Produced \\today}\n\n");
    fprintf (pFile, "\\author{Macro by J. Grange, Argonne National Laboratory}\n\n");
    fprintf (pFile, "\\maketitle\n");
