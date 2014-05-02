@@ -9,6 +9,8 @@
 #include <iostream>
 #include <sstream>
 
+extern void ZoomAxis(TH1* hist);
+
 // This will generate the following PDFs:
 // -- hDQ_IslandCounter_[DetName]_[BankName].pdf
 // -- hDQ_IslandLength_[DetName]_[BankName].pdf
@@ -53,6 +55,7 @@ void GenerateTPIPlots(std::string filename) {
 	file->GetObject(histogram_location.c_str(),hDQ_IslandCounter);
 
 	hDQ_IslandCounter->GetYaxis()->SetTitleOffset(1.3);
+	ZoomAxis(hDQ_IslandCounter);
 	hDQ_IslandCounter->Draw();
 	c1->Print(pdfname.c_str());
       }
@@ -60,6 +63,7 @@ void GenerateTPIPlots(std::string filename) {
 	file->GetObject(histogram_location.c_str(),hDQ_IslandLength);
 
 	hDQ_IslandLength->GetYaxis()->SetTitleOffset(1.3);
+	ZoomAxis(hDQ_IslandLength);
 	hDQ_IslandLength->Draw();
 	c1->Print(pdfname.c_str());
       }
@@ -67,6 +71,7 @@ void GenerateTPIPlots(std::string filename) {
 	file->GetObject(histogram_location.c_str(),hDQ_IslandRate);
 
 	hDQ_IslandRate->GetYaxis()->SetTitleOffset(1.3);
+	ZoomAxis(hDQ_IslandRate);
 	hDQ_IslandRate->Draw();
 	c1->Print(pdfname.c_str());
       }
@@ -74,6 +79,7 @@ void GenerateTPIPlots(std::string filename) {
 	file->GetObject(histogram_location.c_str(),hDQ_IslandTimestamp);
 
 	hDQ_IslandTimestamp->GetYaxis()->SetTitleOffset(1.3);
+	ZoomAxis(hDQ_IslandTimestamp);
 	hDQ_IslandTimestamp->Draw();
 	c1->Print(pdfname.c_str());
       }
@@ -81,6 +87,7 @@ void GenerateTPIPlots(std::string filename) {
 	file->GetObject(histogram_location.c_str(),hDQ_Amplitude);
 
 	hDQ_Amplitude->GetYaxis()->SetTitleOffset(1.3);
+	ZoomAxis(hDQ_Amplitude);
 	hDQ_Amplitude->Draw();
 
 	// Change Amplitude --> IslandAmplitude so that the PDF appears alphabetically next to
