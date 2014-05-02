@@ -8,6 +8,8 @@ void LoadPicBookMacros() {
   gROOT->ProcessLine(".L GenerateDigitizerOverflowPlots.C+");
   gROOT->ProcessLine(".L GenerateRunTimePlot.C+");
   gROOT->ProcessLine(".L GenerateTDCPlots.C+");
+  gROOT->ProcessLine(".L GeneratePulseShapesPlots.C+");
+
   gROOT->ProcessLine(".L GenerateTPIPlots.C+");
 
   // Load the master function
