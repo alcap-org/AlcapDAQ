@@ -99,7 +99,7 @@ void createSections() {
   (section_headings[2]).subsection_names[1] = "\\subsection{Length of TPulseIslands}\n\n";
   (section_headings[2]).subsection_names[2] = "\\subsection{Rate of TPulseIslands}\n\n";
   (section_headings[2]).subsection_names[3] = "\\subsection{Timestamps of TPulseIslands}\n\n";
-  (section_headings[2]).subsection_names[3] = "\\subsection{Amplitudes of TPulseIslands}\n\n";
+  (section_headings[2]).subsection_names[4] = "\\subsection{Amplitudes of TPulseIslands}\n\n";
 
   section_headings[3].section_name = "\\section{Pulse persistancy plots}\n\n";
 

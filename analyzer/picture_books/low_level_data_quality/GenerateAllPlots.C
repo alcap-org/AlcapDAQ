@@ -32,4 +32,7 @@ void GenerateAllPlots(const char* data_dir, const int n_run) {
 
   command = "GenerateTDCPlots(\"" + filename.str() + "\");";
   gROOT->ProcessLine(command.c_str());
+
+  command = "GenerateTPIPlots(\"" + filename.str() + "\");";
+  gROOT->ProcessLine(command.c_str());
 }
