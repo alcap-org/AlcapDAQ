@@ -11,8 +11,9 @@ fi
 data_dir=$1
 run_number=$2
 
+mkdir data_quality_figs
 echo "void RunPicBookMacros() { GenerateAllPlots(\"$data_dir\", $run_number); dataQualitySumm($run_number); }" > RunPicBookMacros.C
 
-root -l -q LoadPicBookMacros.C
+root -l -b -q LoadPicBookMacros.C
 pdflatex Data_Quality_Run$run_number
 pdflatex Data_Quality_Run$run_number
