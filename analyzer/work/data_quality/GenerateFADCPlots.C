@@ -14,19 +14,18 @@
 // -- hDQ_FADCPacketLoss_TotalByEvent.pdf
 // -- hDQ_FADCBufferOverflow_Fraction.pdf
 // -- hDQ_FADCBufferOverflow_TotalByEvent.pdf
-void GenerateFADCPlots(const char* data_dir, const int n_run) {
+void GenerateFADCPlots(std::string filename) {
+
+  std::cout << "Generating FADC plots..." << std::endl;
 
   gROOT->Reset();
   gROOT->SetStyle("Plain");
   gStyle->SetCanvasBorderMode(0); // turn off canvas borders
 
-  TFile* file;
 
-  std::stringstream filename;
-  filename << data_dir << "/hist/hist0" << n_run << ".root";
-  file = new TFile(filename.str().c_str(), "READ");
+  TFile* file = new TFile(filename.c_str(), "READ");
 
-
+  // The histograms
   TH1F *hDQ_FADCPacketLoss_Fraction;
   TH2F *hDQ_FADCPacketLoss_TotalByEvent;
   TH1F *hDQ_FADCBufferOverflow_Fraction;
