@@ -39,6 +39,7 @@ void GenerateDigitizerOverflowPlots(std::string filename) {
   hDQ_DigitizerOverflow_Fraction->Draw();
   c1->Print("data_quality_figs/hDQ_DigitizerOverflow_Fraction.pdf");
 
+  hDQ_DigitizerOverflow_FractionByEvent->SetStats(false);
   hDQ_DigitizerOverflow_FractionByEvent->Draw("COLZ");
   c1->Print("data_quality_figs/hDQ_DigitizerOverflow_FractionByEvent.pdf");
 

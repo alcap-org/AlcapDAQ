@@ -47,12 +47,14 @@ void GenerateFADCPlots(std::string filename) {
   hDQ_FADCPacketLoss_Fraction->Draw();
   c1->Print("data_quality_figs/hDQ_FADCPacketLoss_Fraction.pdf");
 
+  hDQ_FADCPacketLoss_TotalByEvent->SetStats(false);
   hDQ_FADCPacketLoss_TotalByEvent->Draw("COLZ");
   c1->Print("data_quality_figs/hDQ_FADCPacketLoss_TotalByEvent.pdf");
 
   hDQ_FADCBufferOverflow_Fraction->Draw();
   c1->Print("data_quality_figs/hDQ_FADCBufferOverflow_Fraction.pdf");
 
+  hDQ_FADCBufferOverflow_TotalByEvent->SetStats(false);
   hDQ_FADCBufferOverflow_TotalByEvent->Draw("COLZ");
   c1->Print("data_quality_figs/hDQ_FADCBufferOverflow_TotalByEvent.pdf");
 }
