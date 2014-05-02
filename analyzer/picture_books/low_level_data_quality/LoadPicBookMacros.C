@@ -2,19 +2,18 @@
 
 // This will load all the picture book macros that you will need
 void LoadPicBookMacros() {
+
+  // Load the master function
+  gROOT->ProcessLine(".L GenerateAllPlots.C+");
   
-  // Load the functions individually first
+  // Load the functions individually
   gROOT->ProcessLine(".L GenerateFADCPlots.C+");
   gROOT->ProcessLine(".L GenerateDigitizerOverflowPlots.C+");
   gROOT->ProcessLine(".L GenerateRunTimePlot.C+");
   gROOT->ProcessLine(".L GenerateTDCPlots.C+");
   gROOT->ProcessLine(".L GeneratePulseShapesPlots.C+");
   gROOT->ProcessLine(".L GenerateTDiffPlots.C+");
-
   gROOT->ProcessLine(".L GenerateTPIPlots.C+");
-
-  // Load the master function
-  gROOT->ProcessLine(".L GenerateAllPlots.C+");
 
   // Load the latex macro
   gROOT->ProcessLine(".L dataQualitySumm.C+");
