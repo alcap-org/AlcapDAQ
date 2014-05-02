@@ -16,7 +16,7 @@
 
 */
 
-const int n_sections = 6;
+const int n_sections = 7;
 const int n_max_subsections = 5;
 struct Section {
   std::string section_name;
