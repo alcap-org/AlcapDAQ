@@ -46,6 +46,7 @@ void GeneratePulseShapesPlots(std::string filename) {
 
 	hDQ_PulseShapes->GetYaxis()->SetTitleOffset(1.3);
 	hDQ_PulseShapes->Draw("COLZ");
+	c1->SetLogz();
 	c1->Print(pdfname.c_str());
       }
     }
