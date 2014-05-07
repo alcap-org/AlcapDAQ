@@ -10,10 +10,10 @@
 #include <sstream>
 
 // This will generate the following PDFs:
-// -- hDQ_FADCPacketLoss_Fraction.pdf
-// -- hDQ_FADCPacketLoss_TotalByEvent.pdf
-// -- hDQ_FADCBufferOverflow_Fraction.pdf
-// -- hDQ_FADCBufferOverflow_TotalByEvent.pdf
+// -- hDQ_FADCPacketLoss_Fraction.png
+// -- hDQ_FADCPacketLoss_TotalByEvent.png
+// -- hDQ_FADCBufferOverflow_Fraction.png
+// -- hDQ_FADCBufferOverflow_TotalByEvent.png
 void GenerateFADCPlots(std::string filename) {
 
   std::cout << "Generating FADC plots..." << std::endl;
@@ -45,16 +45,16 @@ void GenerateFADCPlots(std::string filename) {
   TCanvas *c1 = new TCanvas();
 
   hDQ_FADCPacketLoss_Fraction->Draw();
-  c1->Print("data_quality_figs/hDQ_FADCPacketLoss_Fraction.pdf");
+  c1->Print("data_quality_figs/hDQ_FADCPacketLoss_Fraction.png");
 
   hDQ_FADCPacketLoss_TotalByEvent->SetStats(false);
   hDQ_FADCPacketLoss_TotalByEvent->Draw("COLZ");
-  c1->Print("data_quality_figs/hDQ_FADCPacketLoss_TotalByEvent.pdf");
+  c1->Print("data_quality_figs/hDQ_FADCPacketLoss_TotalByEvent.png");
 
   hDQ_FADCBufferOverflow_Fraction->Draw();
-  c1->Print("data_quality_figs/hDQ_FADCBufferOverflow_Fraction.pdf");
+  c1->Print("data_quality_figs/hDQ_FADCBufferOverflow_Fraction.png");
 
   hDQ_FADCBufferOverflow_TotalByEvent->SetStats(false);
   hDQ_FADCBufferOverflow_TotalByEvent->Draw("COLZ");
-  c1->Print("data_quality_figs/hDQ_FADCBufferOverflow_TotalByEvent.pdf");
+  c1->Print("data_quality_figs/hDQ_FADCBufferOverflow_TotalByEvent.png");
 }

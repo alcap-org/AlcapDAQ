@@ -10,7 +10,7 @@
 #include <sstream>
 
 // This will generate the following PDFs:
-// -- hDQ_RunTime.pdf
+// -- hDQ_RunTime.png
 void GenerateRunTimePlot(std::string filename) {
 
   std::cout << "Generating Run Time plot..." << std::endl;
@@ -33,5 +33,5 @@ void GenerateRunTimePlot(std::string filename) {
   TCanvas *c1 = new TCanvas();
 
   hDQ_RunTime->Draw();
-  c1->Print("data_quality_figs/hDQ_RunTime.pdf");
+  c1->Print("data_quality_figs/hDQ_RunTime.png");
 }
