@@ -11,7 +11,7 @@
 
 // This will generate the following PDFs:
 // -- hDQ_[RunHistogramName]_TrendPlot.png
-void GenerateTrendPlot(std::string data_dir, int first_run, int n_runs) {
+void GenerateTrendPlots(std::string data_dir, int first_run, int n_runs) {
 
   std::cout << "Generating trend plots..." << std::endl;
 
@@ -75,12 +75,18 @@ void GenerateTrendPlot(std::string data_dir, int first_run, int n_runs) {
 	newfilename << data_dir << "hist/hist0" << (first_run + iRun) << ".root";
 
 	TFile* newfile = new TFile(newfilename.str().c_str(), "READ");
+
+	if (newfile->IsZombie())
+	  continue; 
+
 	newfile->GetObject(histogram_location.c_str(),hDQ_RunPlot);
 
 	// Fill the trend plot
 	for (int iBin = 1; iBin <= hDQ_RunPlot->GetNbinsX(); ++iBin) {
 	  hDQ_TrendPlot->Fill(first_run + iRun, hDQ_RunPlot->GetBinCenter(iBin), hDQ_RunPlot->GetBinContent(iBin)); // (x = run #, y = time stamp, z = N_TPI)
 	}
+
+	newfile->Close();
       }
 
       hDQ_TrendPlot->Draw("COLZ");
