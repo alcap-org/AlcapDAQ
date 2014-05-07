@@ -13,7 +13,7 @@ run_number=$2
 
 mkdir -p data_quality_figs
 rm data_quality_figs/*.png
-echo "void RunPicBookMacros() { GenerateAllPlots(\"$data_dir\", $run_number); dataQualitySumm($run_number); }" > RunPicBookMacros.C
+echo "void RunPicBookMacros() { GenerateAllPlots(\"$data_dir\", $run_number); dataQualitySumm($run_number, true); }" > RunPicBookMacros.C
 
 root -l -b -q LoadPicBookMacros.C
 pdflatex Data_Quality_Run$run_number > output.txt

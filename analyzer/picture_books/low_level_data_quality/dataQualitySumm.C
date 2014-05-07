@@ -26,12 +26,12 @@ struct Section {
   bool subsection_started[n_max_subsections];
 } section_headings[n_sections];
 
-void latexHeader(FILE * pFile,const int run_number);
+void latexHeader(FILE * pFile,const int run_number, bool run_book);
 void insertFig(FILE * pFile,TString imageFile);
 std::vector<std::string> getListOfLines();
 void createSections();
 
-void dataQualitySumm(int run_number) {
+void dataQualitySumm(int run_number, bool run_book) {
 
   gROOT->Reset();
   gROOT->SetStyle("Plain");
@@ -47,7 +47,7 @@ void dataQualitySumm(int run_number) {
    pFile = fopen (Form("Data_Quality_Run%d.tex",run_number),"w");
 
    //header
-   latexHeader(pFile,run_number);   
+   latexHeader(pFile,run_number, run_book);   
 
    fprintf (pFile, "\\newpage \n \\clearpage\n\n");
    int n_figs = 0;
@@ -251,10 +251,17 @@ void insertFig(FILE * pFile,TString imageFile) {
   fprintf(pFile,"\\end{figure} \n");
 }
 
-void latexHeader(FILE * pFile,const int run_number){
+void latexHeader(FILE * pFile,const int run_number, bool run_book){
 
-   char *target;
-   if (run_number==2) target = "SiR";
+  char *target; int first_run=0; int last_run=0;
+   // Hard-code some info about the datsets and run numbers (probably a better way to do this)
+   if (run_number>=2091 && run_number <= 2172) { target = "SiR"; first_run=2091; last_run=2172; }
+   else if (run_number>=2808 && run_number <= 3012) { target = "Al100"; first_run=2808; last_run=3012; }
+   else if (run_number>=3101 && run_number <= 3456) { target = "Al50(a)"; first_run=3101; last_run=3456; }
+   else if (run_number>=3474 && run_number <= 3540) { target = "Si16P"; first_run=3474; last_run=3540; }
+   else if (run_number>=3563 && run_number <= 3721) { target = "Al50(b)"; first_run=3563; last_run=3721; }
+   else if (run_number>=3763 && run_number <= 3770) { target = "SiR2(3%)"; first_run=3763; last_run=3770; }
+   else if (run_number>=3771 && run_number <= 3779) { target = "SiR2(1%)"; first_run=3771; last_run=3779; }
 
    fprintf (pFile, "\\documentclass[12pt,twoside,titlepage]{article}\n");
    fprintf (pFile, "\\usepackage{geometry}\n");
@@ -266,7 +273,12 @@ void latexHeader(FILE * pFile,const int run_number){
    fprintf (pFile, "\\usepackage{color}\n");
    fprintf (pFile, "\\usepackage[pdftex,bookmarks,colorlinks]{hyperref}\n\n\n");
    fprintf (pFile, "\\begin{document}\n");
-   fprintf (pFile, "\\title {Data Quality Summary for AlCap Run \\#%d (%s Target)}\n",run_number,target);
+
+   if (run_book)
+     fprintf (pFile, "\\title {Data Quality Summary for AlCap Run \\#%d (%s Target)}\n",run_number,target);
+   else
+     fprintf (pFile, "\\title {Data Quality Summary for AlCap Dataset %s (Runs \\#%d - %d)}\n",target,first_run,last_run);
+
    fprintf (pFile, "\\date{Produced \\today}\n\n");
    fprintf (pFile, "\\author{Macro by J. Grange, Argonne National Laboratory}\n\n");
    fprintf (pFile, "\\maketitle\n");
