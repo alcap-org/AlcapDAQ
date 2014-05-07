@@ -81,6 +81,18 @@ void GenerateTrendPlots(std::string data_dir, int first_run, int n_runs) {
       hDQ_TrendPlot->GetZaxis()->SetTitleSize(0.03);
       hDQ_TrendPlot->SetStats(false);
 
+      // Want to copy the bin labels for this plot
+      if (histogram_name.find("IslandRate") != std::string::npos) {
+
+	// With hDQ_IslandRate we want the bin labels transferred from the x-axis of the histogram to the y-axis of the trend plot
+	for (int jBin = 1; jBin < hDQ_RunPlot->GetNbinsX(); ++jBin) {
+
+	  hDQ_TrendPlot->GetYaxis()->SetBinLabel(jBin, hDQ_RunPlot->GetXaxis()->GetBinLabel(jBin));
+	  hDQ_TrendPlot->GetYaxis()->SetTitle("");
+	}
+      }
+
+
 
       // Loop through the runs
       for (int iRun = 0; iRun < n_runs; ++iRun) {
