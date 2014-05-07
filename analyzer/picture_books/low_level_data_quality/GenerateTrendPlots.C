@@ -11,7 +11,7 @@
 
 // This will generate the following PDFs:
 // -- hDQ_[RunHistogramName]_TrendPlot.png
-void GenerateTrendPlots(std::string data_dir, int first_run, int n_runs) {
+void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 
   std::cout << "Generating trend plots..." << std::endl;
 
@@ -19,17 +19,22 @@ void GenerateTrendPlots(std::string data_dir, int first_run, int n_runs) {
   gROOT->SetStyle("Plain");
   gStyle->SetCanvasBorderMode(0); // turn off canvas borders
 
+  // Get all the files here first
+  TFile* files[n_runs];
 
-  std::stringstream filename;
-  filename << data_dir << "hist/hist0" << first_run << ".root";
-  TFile* first_file = new TFile(filename.str().c_str(), "READ");
+  for (int iRun = 0; iRun < n_runs; ++iRun) {
+
+    std::stringstream filename;
+    filename << data_dir << "hist/hist0" << first_run+iRun << ".root";
+    files[iRun] = new TFile(filename.str().c_str(), "READ");
+  }
 
   // The histograms
   TH2F* hDQ_TrendPlot;
   TH1F *hDQ_RunPlot;
 
   // Loop through the histograms in the first_file and get the island histograms (bank and channel names may differ between runs)
-  TDirectoryFile* dir = (TDirectoryFile*) first_file->Get("DataQuality_LowLevel");
+  TDirectoryFile* dir = (TDirectoryFile*) files[0]->Get("DataQuality_LowLevel");
   
   TIter nextDirKey(dir->GetListOfKeys()); // get the list of keys in the directory (all histograms should be in this folder)
   TKey *dirKey;
@@ -59,7 +64,7 @@ void GenerateTrendPlots(std::string data_dir, int first_run, int n_runs) {
 	pngname.insert(pngname.find("Amplitude"), "Island");
       }
 
-      first_file->GetObject(histogram_location.c_str(),hDQ_RunPlot);
+      files[0]->GetObject(histogram_location.c_str(),hDQ_RunPlot);
 
 
 
@@ -101,22 +106,16 @@ void GenerateTrendPlots(std::string data_dir, int first_run, int n_runs) {
       // Loop through the runs
       for (int iRun = 0; iRun < n_runs; ++iRun) {
 
-	std::stringstream newfilename;
-	newfilename << data_dir << "hist/hist0" << (first_run + iRun) << ".root";
-
-	TFile* newfile = new TFile(newfilename.str().c_str(), "READ");
-
-	if (newfile->IsZombie())
+       	if (files[iRun]->IsZombie())
 	  continue; 
 
-	newfile->GetObject(histogram_location.c_str(),hDQ_RunPlot);
+	files[iRun]->GetObject(histogram_location.c_str(),hDQ_RunPlot);
 
 	// Fill the trend plot
 	for (int iBin = 1; iBin <= hDQ_RunPlot->GetNbinsX(); ++iBin) {
 	  hDQ_TrendPlot->Fill(first_run + iRun, hDQ_RunPlot->GetBinCenter(iBin), hDQ_RunPlot->GetBinContent(iBin)); // (x = run #, y = time stamp, z = N_TPI)
 	}
 
-	newfile->Close();
       }
 
       hDQ_TrendPlot->Draw("COLZ");
