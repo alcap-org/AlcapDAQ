@@ -44,7 +44,12 @@ void GenerateTrendPlots(std::string data_dir, int first_run, int n_runs) {
 
       std::string histogram_name = dirKey->ReadObj()->GetName();
 
-      if (histogram_name.find("Total") != std::string::npos) { // don't need the "Total" plots, there are the "Fraction" ones which are more useful
+      // Don't want any of these plots as trends
+      if (histogram_name.find("Total") != std::string::npos || 
+	  histogram_name.find("TDCCheck_muSc") != std::string::npos || 
+	  histogram_name.find("TDCCheck_muScA") != std::string::npos || 
+	  histogram_name.find("TDCCheck_muPC") != std::string::npos || 
+	  histogram_name.find("TDCCheck_muSc_time") != std::string::npos) {
 	continue;
       }
 
