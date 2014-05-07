@@ -50,6 +50,7 @@ void dataQualitySumm(int run_number) {
    latexHeader(pFile,run_number);   
 
    fprintf (pFile, "\\newpage \n \\clearpage\n\n");
+   int n_figs = 0;
 
    for (std::vector<std::string>::iterator plotIter = list_of_lines.begin(); plotIter != list_of_lines.end(); ++plotIter) {
      if ( (*plotIter).find("section") != std::string::npos) {
@@ -59,6 +60,12 @@ void dataQualitySumm(int run_number) {
      else {
        std::cout << "Inserting figure " << *plotIter << std::endl;
        insertFig(pFile,*plotIter);
+       fprintf (pFile, "\\vspace{1.5cm}"); // add a bit of space between figures
+       ++n_figs;
+
+       if (n_figs%2 == 0) {
+	 fprintf(pFile,"\\clearpage \n\n");
+       }
      }
    }
 
@@ -237,12 +244,11 @@ void insertFig(FILE * pFile,TString imageFile) {
 
   fprintf(pFile,"\\begin{figure}[h] \n");
   fprintf(pFile,"\\begin{center} \n");
-  fprintf(pFile,"\\includegraphics[height=12cm, angle=0]{%s} \n",imageFile.Data());
+  fprintf(pFile,"\\includegraphics[height=0.33\\textheight, angle=0]{%s} \n",imageFile.Data());
   fprintf(pFile,"\\end{center} \n");
   fprintf(pFile,"\\vspace{-5mm} \n");
   fprintf(pFile,"\\caption{} \n");
   fprintf(pFile,"\\end{figure} \n");
-  fprintf(pFile,"\\clearpage \n\n");
 }
 
 void latexHeader(FILE * pFile,const int run_number){
