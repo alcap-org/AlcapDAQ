@@ -12,11 +12,11 @@
 extern void ZoomAxis(TH1* hist);
 
 // This will generate the following PDFs:
-// -- hDQ_IslandCounter_[DetName]_[BankName].pdf
-// -- hDQ_IslandLength_[DetName]_[BankName].pdf
-// -- hDQ_IslandRate_[DetName]_[BankName].pdf
-// -- hDQ_IslandTimestamp_[DetName]_[BankName].pdf
-// -- hDQ_Amplitude_[DetName]_[BankName].pdf
+// -- hDQ_IslandCounter_[DetName]_[BankName].png
+// -- hDQ_IslandLength_[DetName]_[BankName].png
+// -- hDQ_IslandRate_[DetName]_[BankName].png
+// -- hDQ_IslandTimestamp_[DetName]_[BankName].png
+// -- hDQ_Amplitude_[DetName]_[BankName].png
 void GenerateTPIPlots(std::string filename) {
 
   std::cout << "Generating TPI plots..." << std::endl;
@@ -49,7 +49,7 @@ void GenerateTPIPlots(std::string filename) {
 
       std::string histogram_name = dirKey->ReadObj()->GetName();
       std::string histogram_location = "DataQuality_LowLevel/" + histogram_name;
-      std::string pdfname = "data_quality_figs/" + histogram_name + ".pdf";
+      std::string pngname = "data_quality_figs/" + histogram_name + ".png";
 
       if (histogram_name.find("IslandCounter") != std::string::npos) {
 	file->GetObject(histogram_location.c_str(),hDQ_IslandCounter);
@@ -57,7 +57,7 @@ void GenerateTPIPlots(std::string filename) {
 	hDQ_IslandCounter->GetYaxis()->SetTitleOffset(1.3);
 	ZoomAxis(hDQ_IslandCounter);
 	hDQ_IslandCounter->Draw();
-	c1->Print(pdfname.c_str());
+	c1->Print(pngname.c_str());
       }
       else if (histogram_name.find("IslandLength") != std::string::npos) {
 	file->GetObject(histogram_location.c_str(),hDQ_IslandLength);
@@ -65,7 +65,7 @@ void GenerateTPIPlots(std::string filename) {
 	hDQ_IslandLength->GetYaxis()->SetTitleOffset(1.3);
 	ZoomAxis(hDQ_IslandLength);
 	hDQ_IslandLength->Draw();
-	c1->Print(pdfname.c_str());
+	c1->Print(pngname.c_str());
       }
       else if (histogram_name.find("IslandRate") != std::string::npos) {
 	file->GetObject(histogram_location.c_str(),hDQ_IslandRate);
@@ -73,7 +73,7 @@ void GenerateTPIPlots(std::string filename) {
 	hDQ_IslandRate->GetYaxis()->SetTitleOffset(1.3);
 	ZoomAxis(hDQ_IslandRate);
 	hDQ_IslandRate->Draw();
-	c1->Print(pdfname.c_str());
+	c1->Print(pngname.c_str());
       }
       else if (histogram_name.find("IslandTimestamp") != std::string::npos) {
 	file->GetObject(histogram_location.c_str(),hDQ_IslandTimestamp);
@@ -81,7 +81,7 @@ void GenerateTPIPlots(std::string filename) {
 	hDQ_IslandTimestamp->GetYaxis()->SetTitleOffset(1.3);
 	ZoomAxis(hDQ_IslandTimestamp);
 	hDQ_IslandTimestamp->Draw();
-	c1->Print(pdfname.c_str());
+	c1->Print(pngname.c_str());
       }
       else if (histogram_name.find("Amplitude") != std::string::npos) {
 	file->GetObject(histogram_location.c_str(),hDQ_Amplitude);
@@ -92,9 +92,9 @@ void GenerateTPIPlots(std::string filename) {
 
 	// Change Amplitude --> IslandAmplitude so that the PDF appears alphabetically next to
 	// the others
-	pdfname.insert(pdfname.find("Amplitude"), "Island");
-	std::cout << pdfname << std::endl;
-	c1->Print(pdfname.c_str());
+	pngname.insert(pngname.find("Amplitude"), "Island");
+	std::cout << pngname << std::endl;
+	c1->Print(pngname.c_str());
       }
     }
   }

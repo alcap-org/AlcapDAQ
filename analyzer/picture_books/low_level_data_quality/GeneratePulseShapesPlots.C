@@ -10,7 +10,7 @@
 #include <sstream>
 
 // This will generate the following PDFs:
-// -- hDQ_PulseShapes_[DetName]_[BankName].pdf
+// -- hDQ_PulseShapes_[DetName]_[BankName].png
 void GeneratePulseShapesPlots(std::string filename) {
 
   std::cout << "Generating pulse shape plots..." << std::endl;
@@ -39,7 +39,7 @@ void GeneratePulseShapesPlots(std::string filename) {
 
       std::string histogram_name = dirKey->ReadObj()->GetName();
       std::string histogram_location = "DataQuality_LowLevel/" + histogram_name;
-      std::string pdfname = "data_quality_figs/" + histogram_name + ".pdf";
+      std::string pngname = "data_quality_figs/" + histogram_name + ".png";
 
       if (histogram_name.find("PulseShapes") != std::string::npos) {
 	file->GetObject(histogram_location.c_str(),hDQ_PulseShapes);
@@ -47,7 +47,7 @@ void GeneratePulseShapesPlots(std::string filename) {
 	hDQ_PulseShapes->GetYaxis()->SetTitleOffset(1.3);
 	hDQ_PulseShapes->Draw("COLZ");
 	c1->SetLogz();
-	c1->Print(pdfname.c_str());
+	c1->Print(pngname.c_str());
       }
     }
   }

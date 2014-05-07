@@ -116,7 +116,7 @@ void createSections() {
 std::vector<std::string> getListOfLines() {
 
   // Print the list of plots to a file
-  gROOT->ProcessLine(".! ls data_quality_figs/*.pdf > list_of_lines.txt");
+  gROOT->ProcessLine(".! ls data_quality_figs/*.png > list_of_lines.txt");
 
   // Open this file for reading
   FILE * pListOfLinesFile;

@@ -10,9 +10,9 @@
 #include <sstream>
 
 // This will generate the following PDFs:
-// -- hDQ_TDCCheck_muSc_rate.pdf
-// -- hDQ_TDCCheck_Unknown.pdf
-// -- hDQ_TDCCheck_TDiff.pdf
+// -- hDQ_TDCCheck_muSc_rate.png
+// -- hDQ_TDCCheck_Unknown.png
+// -- hDQ_TDCCheck_TDiff.png
 void GenerateTDCPlots(std::string filename) {
 
   std::cout << "Generating TDC plots..." << std::endl;
@@ -41,11 +41,11 @@ void GenerateTDCPlots(std::string filename) {
   TCanvas *c1 = new TCanvas();
 
   hDQ_TDCCheck_muSc_rate->Draw();
-  c1->Print("data_quality_figs/hDQ_TDCCheck_muSc_rate.pdf");
+  c1->Print("data_quality_figs/hDQ_TDCCheck_muSc_rate.png");
 
   hDQ_TDCCheck_Unknown->Draw();
-  c1->Print("data_quality_figs/hDQ_TDCCheck_Unknown.pdf");
+  c1->Print("data_quality_figs/hDQ_TDCCheck_Unknown.png");
 
   hDQ_TDCCheck_TDiff->Draw();
-  c1->Print("data_quality_figs/hDQ_TDCCheck_TDiff.pdf");
+  c1->Print("data_quality_figs/hDQ_TDCCheck_TDiff.png");
 }

@@ -10,8 +10,8 @@
 #include <sstream>
 
 // This will generate the following PDFs:
-// -- hDQ_DigitizerOverflow_Fraction.pdf
-// -- hDQ_DigitizerOverflow_FractionByEvent.pdf
+// -- hDQ_DigitizerOverflow_Fraction.png
+// -- hDQ_DigitizerOverflow_FractionByEvent.png
 void GenerateDigitizerOverflowPlots(std::string filename) {
 
   std::cout << "Generating Digitizer Overflow plots..." << std::endl;
@@ -37,10 +37,10 @@ void GenerateDigitizerOverflowPlots(std::string filename) {
   TCanvas *c1 = new TCanvas();
 
   hDQ_DigitizerOverflow_Fraction->Draw();
-  c1->Print("data_quality_figs/hDQ_DigitizerOverflow_Fraction.pdf");
+  c1->Print("data_quality_figs/hDQ_DigitizerOverflow_Fraction.png");
 
   hDQ_DigitizerOverflow_FractionByEvent->SetStats(false);
   hDQ_DigitizerOverflow_FractionByEvent->Draw("COLZ");
-  c1->Print("data_quality_figs/hDQ_DigitizerOverflow_FractionByEvent.pdf");
+  c1->Print("data_quality_figs/hDQ_DigitizerOverflow_FractionByEvent.png");
 
 }
