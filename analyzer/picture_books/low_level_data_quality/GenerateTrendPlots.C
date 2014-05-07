@@ -46,7 +46,6 @@ void GenerateTrendPlots(std::string data_dir, int first_run, int n_runs) {
 
       // Don't want any of these plots as trends
       if (histogram_name.find("Total") != std::string::npos || 
-	  histogram_name.find("TDCCheck_muSc") != std::string::npos || 
 	  histogram_name.find("TDCCheck_muScA") != std::string::npos || 
 	  histogram_name.find("TDCCheck_muPC") != std::string::npos || 
 	  histogram_name.find("TDCCheck_muSc_time") != std::string::npos) {
