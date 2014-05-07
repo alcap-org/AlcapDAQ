@@ -43,6 +43,11 @@ void GenerateTrendPlots(std::string data_dir, int first_run, int n_runs) {
       TCanvas *c1 = new TCanvas();
 
       std::string histogram_name = dirKey->ReadObj()->GetName();
+
+      if (histogram_name.find("Total") != std::string::npos) { // don't need the "Total" plots, there are the "Fraction" ones which are more useful
+	continue;
+      }
+
       std::string histogram_location = "DataQuality_LowLevel/" + histogram_name;
       std::string pngname = "data_quality_figs/" + histogram_name + "_TrendPlot.png";
 
