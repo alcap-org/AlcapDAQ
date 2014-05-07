@@ -104,6 +104,17 @@ void GenerateTrendPlots(std::string data_dir, int first_run, int n_runs) {
       }
 
       hDQ_TrendPlot->Draw("COLZ");
+
+      // Set some plots to log-z
+      if (histogram_name.find("TDiff") != std::string::npos ||
+	  histogram_name.find("Amplitude") != std::string::npos ||
+	  histogram_name.find("IslandLength") != std::string::npos ||
+	  histogram_name.find("IslandRate") != std::string::npos) {
+	c1->SetLogz(1);
+      }
+      else {
+	c1->SetLogz(0);
+      }
       c1->Print(pngname.c_str());
     }
   }
