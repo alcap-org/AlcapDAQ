@@ -15,6 +15,8 @@ void LoadPicBookMacros() {
   gROOT->ProcessLine(".L GenerateTDiffPlots.C+");
   gROOT->ProcessLine(".L GenerateTPIPlots.C+");
 
+  gROOT->ProcessLine(".L GenerateTrendPlots.C+");
+
   // Load the latex macro
   gROOT->ProcessLine(".L dataQualitySumm.C+");
 
