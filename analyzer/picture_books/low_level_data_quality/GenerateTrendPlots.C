@@ -51,6 +51,10 @@ void GenerateTrendPlots(std::string data_dir, int first_run, int n_runs) {
       std::string histogram_location = "DataQuality_LowLevel/" + histogram_name;
       std::string pngname = "data_quality_figs/" + histogram_name + "_TrendPlot.png";
 
+      if (histogram_name.find("Amplitude") != std::string::npos) {
+	pngname.insert(pngname.find("Amplitude"), "Island");
+      }
+
       first_file->GetObject(histogram_location.c_str(),hDQ_RunPlot);
 
 
