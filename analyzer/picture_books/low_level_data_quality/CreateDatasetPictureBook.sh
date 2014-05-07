@@ -35,7 +35,7 @@ fi
 
 mkdir -p data_quality_figs
 rm data_quality_figs/*.png
-echo "void RunPicBookMacros() { GenerateTrendPlots(\"$data_dir\", $first_run, $n_runs); dataQualitySumm($first_run); }" > RunPicBookMacros.C
+echo "void RunPicBookMacros() { GenerateTrendPlots(\"$data_dir\", $first_run, $n_runs); dataQualitySumm($first_run, false); }" > RunPicBookMacros.C
 
 root -l -b -q LoadPicBookMacros.C
 pdflatex Data_Quality_Run$first_run > output.txt
