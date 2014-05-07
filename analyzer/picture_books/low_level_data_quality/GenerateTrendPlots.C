@@ -92,6 +92,11 @@ void GenerateTrendPlots(std::string data_dir, int first_run, int n_runs) {
 	}
       }
 
+      // Want the Fraction plots to go up to 1 so that red = bad
+      if (histogram_name.find("Fraction") != std::string::npos) {
+	hDQ_TrendPlot->GetZaxis()->SetRangeUser(0,1);
+      }
+
 
 
       // Loop through the runs
