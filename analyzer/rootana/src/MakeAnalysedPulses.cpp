@@ -130,8 +130,8 @@ TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& genera
     return generator;
 }
 
-MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::RemoveFalseTPIs(PulseIslandList_t theIslands) {
-  std::cout << "Test\n";
+MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::RemoveFalseTPIs(PulseIslandList_t& theIslands) {
+
   return theIslands;
 }
 
