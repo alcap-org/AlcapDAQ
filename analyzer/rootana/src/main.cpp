@@ -8,11 +8,13 @@
 #include "utils.h" // Provides analyze_command_line()
 
 // Modules list
+#include "ModulesReader.h"
+#include "ModulesManager.h"
 #include "FillHistBase.h"
 #include "AnalysePulseIsland.h"
 #include "CheckCoincidence.h"
 #include "MakeMuonEvents.h"
-#include "CreateDetectorPulse.h"
+#include "CreateDetectorPulses.h"
 #include "PlotAmplitude.h"
 #include "PlotTime.h"
 #include "CoincidenceCut.h"
@@ -38,7 +40,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments);
 void ClearGlobalData(TGlobalData*);
 TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
-Int_t PrepareModules();
+Int_t PrepareModules(const ARGUMENTS&);
 
 static TGlobalData *g_event=NULL;
 static TFile *gInFile=NULL;
@@ -59,6 +61,8 @@ TGlobalData* TGlobalData::Instance()
 }
 
 int main(int argc, char **argv){
+//load_config_file("MODULES.txt");
+
   ARGUMENTS arguments;
   int ret = analyze_command_line (argc, argv,arguments);
   if(ret!=0) return ret;
@@ -100,9 +104,9 @@ int main(int argc, char **argv){
   }
 
   // Now let's setup all the analysis modules we want
-  ret= PrepareModules();
+  ret= PrepareModules(arguments);
   if(ret!=0) {
-     printf("Problem setting up analysis modules.");
+     printf("Problem setting up analysis modules.\n");
      return ret;
   }
   
@@ -140,7 +144,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   else if((Long64_t)arguments.start < nentries && arguments.start > 0){
     stop = (Long64_t)arguments.start;
   }
-  
+
   //preprocess first event
   if (g_event){
     g_event->Clear("C");
@@ -150,7 +154,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   dataTree->GetEntry(start);
   int q = 0;
   for (int i=0; i < n_fillhist; i++) {
-    q |= fillhists[i]->BeforeFirstEntry(g_event);
+    q |= fillhists[i]->BeforeFirstEntry(g_event, TSetupData::Instance());
     //if (q) break;
     // q = fillhists[i]->ProcessGenericEntry(g_event);
     //if (q) break;
@@ -194,13 +198,14 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   //post-process on last entry
   q = 0;
   for(int i=0; i < n_fillhist; i++) {
-    q |= fillhists[i]->AfterLastEntry(g_event);
+    q |= fillhists[i]->AfterLastEntry(g_event,TSetupData::Instance());
   }
   if (q) {
      printf("Error during post-processing last entry (%lld)\n",(stop-1));
   return q;
   }
   
+  printf("Finished processing data normally\n");
   return 0;
 }
 
@@ -286,7 +291,8 @@ TSetupData* TSetupData::Instance()
 
   return s_data;
 }
-  void PrintSetupData(TSetupData* s_data){
+
+void PrintSetupData(TSetupData* s_data){
      if(!s_data) return;
   // print things out
   std::map<std::string, std::string>::iterator it_info;
@@ -325,29 +331,34 @@ Int_t PrepareAnalysedPulseMap(TFile* fileOut){
    return 0;
 }
 
-Int_t PrepareModules(){
+Int_t PrepareModules(const ARGUMENTS& arguments){
 
-  fillhists = new FillHistBase *[50]; // increase if more than 20 modules
-  n_fillhist = 0;  // number of modules (global variable)
-	// this is needed to save analysed tree
-  fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysedPulseIsland");
+  modules::reader modules_file;
+  modules_file.ReadFile(arguments.mod_file);
+  modules_file.PrintAllOptions();
 
-	//fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
-	//fillhists[n_fillhist++] = new PlotTime("PlotTime");
-	
-	// EvdE
-	//char foldername[256];
-	//double t0 = 1000;
-	//double t1 = 6000;
-	//sprintf(foldername,"%s_%d_%d","EvdE",int(t0),int(t1));
-	//fillhists[n_fillhist++] = new EvdE(foldername, t0,t1);
-	
+  modules::manager* mgr = modules::manager::Instance();
+  size_t num_modules=modules_file.GetNumModules();
+  if(num_modules==0){
+          printf("No modules were requested for use, so there's nothing to be done!\n");
+	  return 1;
+  }
+	  
+  std::string name;
+  modules::options* opts;
+  //modules::ModuleBase *mods[num_modules];
+  fillhists = new FillHistBase *[num_modules]; 
+  FillHistBase* mod=NULL;
+  for(unsigned i=0, count=0;i<num_modules;i++){
+          name = modules_file.GetModule(i);
+          opts =  modules_file.GetOptions(i);
+	  mod = mgr->createModule(name,opts);
+	  if(mod) 
+	    fillhists[count++] =mod;
+	  else
+	    return 1;
+  }
+  n_fillhist = num_modules;
 
-	// Amplitude, Xray
-  //fillhists[n_fillhist++] = new 
-		//CoincidenceCut("CoincidenceCut_MuSc-GeF_500ns", "muSc","Ge-F", -500,500);
-  //fillhists[n_fillhist++] = new 
-		//CoincidenceCut("CoincidenceCut_MuSc-GeS_500ns", "muSc","Ge-S", -500,500);
-  //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_500nsCut");
   return 0;
 }
