@@ -93,7 +93,6 @@ void GenerateTPIPlots(std::string filename) {
 	// Change Amplitude --> IslandAmplitude so that the PDF appears alphabetically next to
 	// the others
 	pngname.insert(pngname.find("Amplitude"), "Island");
-	std::cout << pngname << std::endl;
 	c1->Print(pngname.c_str());
       }
     }
