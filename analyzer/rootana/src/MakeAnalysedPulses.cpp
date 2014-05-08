@@ -4,6 +4,7 @@
 #include "MaxBinAPGenerator.h"
 #include <iostream>
 #include <utility>
+#include <cmath>
 #include "RegisterModule.inc"
 
 using std::cout;
@@ -132,7 +133,43 @@ TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& genera
 
 MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::RemoveFalseTPIs(PulseIslandList_t& theIslands) {
 
-  return theIslands;
+  // Get the output ready
+  PulseIslandList_t output;
+
+  // Loop through the TPIs
+  for (PulseIslandList_t::iterator pulseIter = theIslands.begin(); pulseIter != theIslands.end(); ++pulseIter) {
+
+    // Get the samples
+    std::vector<int> theSamples = (*pulseIter)->GetSamples();
+
+    // Get some useful TSetupData stuff
+    std::string bankname = (*pulseIter)->GetBankName();
+    int n_bits = TSetupData::Instance()->GetNBits(bankname);
+
+    // Calculate the maximum digitised value
+    int max_digitised_value = std::pow(2, n_bits) - 1;
+
+    // First, check if there are any overflow samples
+    bool overflow_sample = false;
+    for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+
+      if (*sampleIter >= max_digitised_value) {
+	overflow_sample = true;
+	break;
+      }
+    }
+
+    if (overflow_sample == true) {
+      continue;
+    }
+
+    // All OK, so allow this TPI to be passed back
+    output.push_back(*pulseIter);
+  }
+  std::cout << "# of TPI (before): " << theIslands.size() << std::endl;
+  std::cout << "# of TPI (after): " << output.size() << std::endl;
+
+  return output;
 }
 
 ALCAP_REGISTER_MODULE(MakeAnalysedPulses,slow_gen,fast_gen);
