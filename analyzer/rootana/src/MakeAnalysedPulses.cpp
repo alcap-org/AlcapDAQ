@@ -163,9 +163,33 @@ MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::RemoveFalseTPIs(PulseI
       continue;
     }
 
+
+    // Second, check that there is a sample that goes significantly above the pedestal
+    int pedestal = TSetupData::Instance()->GetPedestal(bankname);
+    int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+    int RMS = 10; // hard-coded for the time being
+    int n_sigma = 2; // to be optimised
+
+    bool significant_sample = false;
+
+    for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+
+      int test_value = trigger_polarity * ((*sampleIter) - pedestal);
+
+      if (test_value >= RMS*n_sigma) {
+	significant_sample = true;
+	break;
+      }
+    }
+
+    if (significant_sample == false) {
+      continue;
+    }
+    
     // All OK, so allow this TPI to be passed back
     output.push_back(*pulseIter);
   }
+
   std::cout << "# of TPI (before): " << theIslands.size() << std::endl;
   std::cout << "# of TPI (after): " << output.size() << std::endl;
 
