@@ -47,6 +47,7 @@ class MakeAnalysedPulses : public FillHistBase{
   std::vector<std::string> fChannelsToAnalyse;
   modules::options* fOptions;
 
+  PulseIslandList_t RemoveFalseTPIs(PulseIslandList_t theIslands);
 };
 
 #endif // MAKEANALYSEDPULSES_H__

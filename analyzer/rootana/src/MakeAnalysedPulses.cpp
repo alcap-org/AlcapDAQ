@@ -101,10 +101,13 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     thePulseIslands = it->second;
     if (thePulseIslands.size() == 0) continue; // no pulses here...
 
+    // Remove all the TPIs that are just noise (e.g. from channels with a common trigger)
+    PulseIslandList_t theTruePulseIslands = RemoveFalseTPIs(thePulseIslands);
+
     // clear the list of analyse_pulses from the last iteration
     theAnalysedPulses.clear();
     // generate the new list of analyse_pulses
-    gen->ProcessPulses( gSetup, thePulseIslands,theAnalysedPulses);
+    gen->ProcessPulses( gSetup, theTruePulseIslands,theAnalysedPulses);
     // add these into the map of analysed pulses
     gAnalysedPulseMap.insert(std::make_pair(detname,theAnalysedPulses));
   }
@@ -125,6 +128,11 @@ TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& genera
 	return NULL;
     }
     return generator;
+}
+
+MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::RemoveFalseTPIs(PulseIslandList_t theIslands) {
+  std::cout << "Test\n";
+  return theIslands;
 }
 
 ALCAP_REGISTER_MODULE(MakeAnalysedPulses,slow_gen,fast_gen);
