@@ -34,7 +34,7 @@ else
 endif
 
 # Generate the library flags (-L and -l) for the gcc argument
-ROOT_LIBS = $(shell $(ROOTSYS)/bin/root-config --libs) -lThread -lGui -lMinuit
+ROOT_LIBS = $(shell $(ROOTSYS)/bin/root-config --libs) -lThread -lGui -lMinuit -lMinuit2
 ALL_LIBS =  $(ROOT_LIBS)
 
 OPTFLAGS = -g -O3 -Wno-write-strings
