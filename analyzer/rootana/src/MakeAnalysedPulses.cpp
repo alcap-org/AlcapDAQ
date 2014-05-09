@@ -5,6 +5,7 @@
 #include <iostream>
 #include <utility>
 #include <cmath>
+#include <sstream>
 #include "RegisterModule.inc"
 
 using std::cout;
@@ -18,6 +19,7 @@ MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
 	fSlowGeneratorType=opts->GetString("default_slow_generator");
 	fFastGeneratorType=opts->GetString("default_fast_generator");
 	opts->GetVectorStrings("analyse_channels",fChannelsToAnalyse);
+	fPulseCounter = 0;
 	dir->cd("/");
 }
 
@@ -103,7 +105,8 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     if (thePulseIslands.size() == 0) continue; // no pulses here...
 
     // Remove all the TPIs that are just noise (e.g. from channels with a common trigger)
-    PulseIslandList_t theTruePulseIslands = RemoveFalseTPIs(thePulseIslands);
+    PulseIslandList_t theTruePulseIslands;
+    RemoveFalseTPIs(thePulseIslands, theTruePulseIslands);
 
     // clear the list of analyse_pulses from the last iteration
     theAnalysedPulses.clear();
@@ -131,22 +134,36 @@ TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& genera
     return generator;
 }
 
-MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::RemoveFalseTPIs(PulseIslandList_t& theIslands) {
-
-  // Get the output ready
-  PulseIslandList_t output;
+void MakeAnalysedPulses::RemoveFalseTPIs(const PulseIslandList_t& theInputIslands, PulseIslandList_t& theOutputIslands) {
 
   // Loop through the TPIs
-  for (PulseIslandList_t::iterator pulseIter = theIslands.begin(); pulseIter != theIslands.end(); ++pulseIter) {
+  for (PulseIslandList_t::const_iterator pulseIter = theInputIslands.begin(); pulseIter != theInputIslands.end(); ++pulseIter) {
 
     // Get the samples
     std::vector<int> theSamples = (*pulseIter)->GetSamples();
-
+    
     // Get some useful TSetupData stuff
     std::string bankname = (*pulseIter)->GetBankName();
-    int n_bits = TSetupData::Instance()->GetNBits(bankname);
+    std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
+
+    // Store plots
+    bool plot_pulses = true;
+    TH1F* hPulse = NULL;
+
+    if (plot_pulses) {
+      std::stringstream histname;
+      histname << "Pulse_" << bankname << "_" << detname << "_" << fPulseCounter;
+      ++fPulseCounter;
+      hPulse = new TH1F(histname.str().c_str(), histname.str().c_str(), theSamples.size(),0,theSamples.size());
+
+      for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+	hPulse->Fill(sampleIter - theSamples.begin(), *sampleIter);
+      }
+    }
+
 
     // Calculate the maximum digitised value
+    int n_bits = TSetupData::Instance()->GetNBits(bankname);
     int max_digitised_value = std::pow(2, n_bits) - 1;
 
     // First, check if there are any overflow samples
@@ -187,13 +204,14 @@ MakeAnalysedPulses::PulseIslandList_t MakeAnalysedPulses::RemoveFalseTPIs(PulseI
     }
     
     // All OK, so allow this TPI to be passed back
-    output.push_back(*pulseIter);
+    theOutputIslands.push_back(*pulseIter);
+    if (plot_pulses) {
+      hPulse->SetLineColor(kMagenta);
+    }
+    if (pulseIter == theInputIslands.end()-1 && theInputIslands.size() != theOutputIslands.size()) {
+      std::cout << detname << " (" << bankname << ") " << " no. of TPI: " << theInputIslands.size() << " --> " << theOutputIslands.size() << std::endl;
+    }
   }
-
-  std::cout << "# of TPI (before): " << theIslands.size() << std::endl;
-  std::cout << "# of TPI (after): " << output.size() << std::endl;
-
-  return output;
 }
 
 ALCAP_REGISTER_MODULE(MakeAnalysedPulses,slow_gen,fast_gen);
