@@ -24,9 +24,9 @@ elif [ $first_run -eq 3474 ] ; then
 elif [ $first_run -eq 3563 ] ; then
     dataset="Al50b"
 elif [ $first_run -eq 3763 ] ; then
-    dataset-"SiR2-3pct"
+    dataset="SiR2-3pct"
 elif [ $first_run -eq 3771 ] ; then
-    dataset-"SiR2-1pct"
+    dataset="SiR2-1pct"
 else
     echo "Invalid first_run for a dataset"
     exit
