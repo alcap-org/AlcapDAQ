@@ -11,8 +11,8 @@
 
 /*
 
- > root [0] .L dataQualitySumm.C++
- > root [1] dataQualitySumm(n_run)
+ > root [0] .L latexWrapper.C++
+ > root [1] latexWrapper(n_run)
 
 */
 
@@ -31,7 +31,7 @@ void insertFig(FILE * pFile,TString imageFile);
 std::vector<std::string> getListOfLines();
 void createSections();
 
-void dataQualitySumm(int run_number, bool run_book) {
+void latexWrapper(int run_number, bool run_book) {
 
   gROOT->Reset();
   gROOT->SetStyle("Plain");
