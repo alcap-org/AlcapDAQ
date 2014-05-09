@@ -4,7 +4,7 @@
 
 if [ $# -ne 3 ] ; then
 	echo "Incorrect Usage!"
-	echo "Correct usage: ./CreateDatasetPictureBook.sh first_run n_runs"
+	echo "Correct usage: ./CreateDatasetPictureBook.sh data_dir first_run n_runs"
 	exit;
 fi
 
