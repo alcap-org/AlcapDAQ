@@ -15,7 +15,7 @@ n_runs=$3
 dataset=""
 if [ $first_run -eq 2091 ] ; then
     dataset="SiR"
-elif [$first_run -eq 2808 ] ; then
+elif [ $first_run -eq 2808 ] ; then
     dataset="Al100"
 elif [ $first_run -eq 3101 ] ; then
     dataset="Al50a"
