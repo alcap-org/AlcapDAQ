@@ -35,7 +35,7 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 
   // Loop through the histograms in the first_file and get the island histograms (bank and channel names may differ between runs)
   TDirectoryFile* dir = (TDirectoryFile*) files[0]->Get("DataQuality_LowLevel");
-  
+
   TIter nextDirKey(dir->GetListOfKeys()); // get the list of keys in the directory (all histograms should be in this folder)
   TKey *dirKey;
   
@@ -110,6 +110,9 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 	  continue; 
 
 	files[iRun]->GetObject(histogram_location.c_str(),hDQ_RunPlot);
+
+	if (hDQ_RunPlot == NULL)
+	  continue; // possible that this plot might not exist
 
 	// Fill the trend plot
 	for (int iBin = 1; iBin <= hDQ_RunPlot->GetNbinsX(); ++iBin) {
