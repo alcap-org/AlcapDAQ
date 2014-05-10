@@ -36,6 +36,10 @@ class ExportPulse : public FillHistBase{
 
   int fPulseCounter;
   std::vector<int> fPulsesToPlot;
+
+ public:
+  void AddToExportList(int pulse_id);
+  static ExportPulse* Instance();
 };
 
 #endif // ExportPulse_H__

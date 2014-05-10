@@ -12,6 +12,8 @@ using std::endl;
 using std::string;
 
 extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+extern FillHistBase **fillhists;
+extern int n_fillhist;
 
 ExportPulse::ExportPulse(modules::options* opts):
    FillHistBase("ExportPulse",opts),fOptions(opts){
@@ -23,7 +25,6 @@ ExportPulse::~ExportPulse(){
 }
 
 int ExportPulse::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
-  fPulsesToPlot.push_back(3289);
     return 0;
 }
 
@@ -45,7 +46,10 @@ int ExportPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       for (std::vector<int>::iterator pulseIDIter = fPulsesToPlot.begin(); pulseIDIter != fPulsesToPlot.end(); ++pulseIDIter) {
 
 	if (fPulseCounter == *pulseIDIter) {
-
+	  
+	  if(Debug()) {
+	    std::cout << "Exporting pulse #" << fPulseCounter << std::endl;
+	  }
 	  // Export the pulse island as a histogram
 	  std::stringstream histname;
 	  histname << "Pulse_" << bankname << "_" << detname << "_" << fPulseCounter;
@@ -63,6 +67,21 @@ int ExportPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   }
 
   return 0;
+}
+
+void ExportPulse::AddToExportList(int pulse_id) {
+  fPulsesToPlot.push_back(pulse_id);
+}
+
+ExportPulse* ExportPulse::Instance() {
+
+  for (int iModule = 0; iModule < n_fillhist; ++iModule) {
+    if (strcmp(fillhists[iModule]->GetName(), "ExportPulse") == 0) {
+      return (ExportPulse*) fillhists[iModule];
+    }
+  }
+
+  return NULL;
 }
 
 ALCAP_REGISTER_MODULE(ExportPulse);

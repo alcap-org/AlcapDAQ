@@ -52,8 +52,8 @@ TBranch *gAnalysedPulseBranch = NULL;
 std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
 
-static int n_fillhist = 0;  // keeps track of the total number of modules
-static FillHistBase **fillhists;
+int n_fillhist = 0;  // keeps track of the total number of modules
+FillHistBase **fillhists;
 
 TGlobalData* TGlobalData::Instance()
 {
