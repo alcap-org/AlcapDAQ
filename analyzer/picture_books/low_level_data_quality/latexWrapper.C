@@ -280,7 +280,7 @@ void latexHeader(FILE * pFile,const int run_number, bool run_book){
      fprintf (pFile, "\\title {Data Quality Summary for AlCap Dataset %s (Runs \\#%d - %d)}\n",target,first_run,last_run);
 
    fprintf (pFile, "\\date{Produced \\today}\n\n");
-   fprintf (pFile, "\\author{Macro by J. Grange, Argonne National Laboratory}\n\n");
+   fprintf (pFile, "\\author{Macro by J. Grange and A. Edmonds, Argonne National Laboratory}\n\n");
    fprintf (pFile, "\\maketitle\n");
    fprintf (pFile, "\\newpage\n\n");
    fprintf (pFile, "\\tableofcontents\n\n");
