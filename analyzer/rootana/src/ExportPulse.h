@@ -34,6 +34,8 @@ class ExportPulse : public FillHistBase{
   BankAnalPulseList_t* fAnalysedPulseMap;
   modules::options* fOptions;
 
+  int fPulseCounter;
+  std::vector<int> fPulsesToPlot;
 };
 
 #endif // ExportPulse_H__
