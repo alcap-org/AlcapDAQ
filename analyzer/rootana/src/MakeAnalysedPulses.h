@@ -47,6 +47,7 @@ class MakeAnalysedPulses : public FillHistBase{
   std::vector<std::string> fChannelsToAnalyse;
   modules::options* fOptions;
 
+  int fPulseCounter;
 };
 
 #endif // MAKEANALYSEDPULSES_H__
