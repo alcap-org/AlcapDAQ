@@ -1,5 +1,6 @@
 #define USE_PRINT_OUT 1
 
+#include "ModulesOptions.h"
 #include "CheckCoincidence.h"
 #include <iostream>
 #include <stdio.h>
@@ -22,8 +23,8 @@ static TH1 *hSamples3 = 0;
 static TH2 *hBankSize = 0;
 static TH1 *bankHists[NCHAN];
 
-CheckCoincidence::CheckCoincidence(char *HistogramDirectoryName,TSetupData* setup) :
-  FillHistBase(HistogramDirectoryName,setup){
+CheckCoincidence::CheckCoincidence(char *HistogramDirectoryName,modules::options *opts,TSetupData* setup) :
+  FillHistBase(HistogramDirectoryName,opts, setup){
 
   fDetectors["muSc"]=true;
   fDetectors["Ge-S"]=true;

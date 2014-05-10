@@ -3,11 +3,13 @@
 
 #include "FillHistBase.h"
 #include "TGlobalData.h"
-
+namespace modules{
+class options;
+}
 
 class MakeMuonEvents : public FillHistBase{
  public:
-  MakeMuonEvents(char *HistogramDirectoryName,TSetupData* setup);
+  MakeMuonEvents(char *HistogramDirectoryName,modules::options* opts,TSetupData* setup) ;
   ~MakeMuonEvents();
 
  private:

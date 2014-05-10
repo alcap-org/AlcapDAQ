@@ -1,6 +1,13 @@
 #include "FillHistBase.h"
+#include "ModulesOptions.h"
+#include <iostream>
 
-FillHistBase::FillHistBase(char *HistogramDirectoryName,TSetupData* setup):fSetup(setup){
+FillHistBase::FillHistBase(const char *HistogramDirectoryName,modules::options* opts,TSetupData* setup):
+	fSetup(setup),fDebug(false){
+  if(opts){
+    fDebug=opts->HasOption("debug");
+    std::cout<<"Should we debug module: "<<HistogramDirectoryName<<": "<<(fDebug?"yes":"no")<<std::endl;
+  }
   dir = gDirectory->mkdir(HistogramDirectoryName);
   dir->cd();
 }

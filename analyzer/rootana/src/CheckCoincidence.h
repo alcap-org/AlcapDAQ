@@ -3,11 +3,14 @@
 
 #include "FillHistBase.h"
 #include "TGlobalData.h"
+namespace modules{
+	class options;
+}
 
 class CheckCoincidence : public FillHistBase{
         typedef std::map<std::string, bool> CoincidenceList;
  public:
-  CheckCoincidence(char *HistogramDirectoryName,TSetupData* setup);
+  CheckCoincidence(char *HistogramDirectoryName,modules::options *opts,TSetupData* setup);
   ~CheckCoincidence();
 
  private:

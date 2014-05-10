@@ -1,9 +1,12 @@
-all: rootana libAnalysis.so libAnalysis.rootmap
+all:  init libAnalysis.so rootana libAnalysis.rootmap
 
 .PHONY: clean print all
 
 # A list of directories with source files.
 SOURCE_DIRS = src
+
+#Where should we store all object and dependency files
+OBJ_DIR = obj
 
 # A list of directories with header files. Should be colon-separated. eg:
 #   inc:tree_files/inc:extra_stuff/inc
@@ -31,7 +34,7 @@ else
 endif
 
 # Generate the library flags (-L and -l) for the gcc argument
-ROOT_LIBS = $(shell $(ROOTSYS)/bin/root-config --libs) -lThread -lGui -lMinuit
+ROOT_LIBS = $(shell $(ROOTSYS)/bin/root-config --libs) -lThread -lGui -lMinuit -lMinuit2
 ALL_LIBS =  $(ROOT_LIBS)
 
 OPTFLAGS = -g -O3 -Wno-write-strings
@@ -44,31 +47,47 @@ include src/files.make
 # Determine the names of the object files by pattern substitution
 # from the source file names.
 OBJECTS := $(notdir $(patsubst %.C,%.o,$(SOURCES)))
-OBJECTS := $(notdir $(patsubst %.cpp,%.o,$(OBJECTS)))
+OBJECTS := $(patsubst %.cpp,%.o, $(OBJECTS))
+OBJECTS := $(addprefix $(OBJ_DIR)/, $(OBJECTS))
 
 LIB_DATACLASS := $(DAQdir)/analyzer/work/$(USER)/libDataClasses.so
 DATALINKDEF := $(DAQdir)/analyzer/src/common/DataLibraryLinkDef.h
-%.o: %.cpp
-	$(CXX) -c -Wall $(CXXFLAGS) $<
-	$(CXX) -MM $(CXXFLAGS) $< > $(notdir $(patsubst %.cpp,%.d,$<))
+${OBJECTS}: ${OBJ_DIR}/%.o: %.cpp
+	@echo -e "Making object: '"$@"' from '"$^"'"
+	@$(CXX) -c -Wall $(CXXFLAGS) -o $@  $<
+	@$(CXX) -MM $(CXXFLAGS) $< > $(patsubst %.o,%.d,$@)
 
 rootana: $(OBJECTS)
-#	$(CXX) $(ICCFLAGS) $(ROOT_LIBS) -o rootana $(OBJECTS) ../work/grange/libDataClasses.so
-	$(CXX) $(ICCFLAGS) -Wl,--no-as-needed -o rootana $(OBJECTS) $(ROOT_LIBS) $(LIB_DATACLASS)
+	@echo -e "Building Rootana" 
+	@$(CXX) $(ICCFLAGS) -Wl,--no-as-needed -o rootana $(OBJECTS) $(ROOT_LIBS) $(LIB_DATACLASS)
 
 libAnalysis.so: $(OBJECTS)
-	$(CXX) $(ICCLIBS) $(ROOT_LIBS) -shared -o libAnalysis.so \
+	@echo -e "Making shared library: '"$@"' from '"$^"'"
+	@$(CXX) $(ICCLIBS) $(ROOT_LIBS) -shared -o libAnalysis.so \
 		$(shell root-config --ldflags) -I$(ROOTSYS)/include $^ -lMinuit -lPhysics \
 		$(LIB_DATACLASS)
 
 libAnalysis.rootmap: libAnalysis.so $(DATALINKDEF)
-	rlibmap -f -o libAnalysis.rootmap -l libAnalysis.so -d libCore \
+	@rlibmap -f -o libAnalysis.rootmap -l libAnalysis.so -d libCore \
 		-c $(DATALINKDEF)
 
-clean: 
-	rm -f *.d *.o *Dict.cpp *Dict.h blank rootana
+init: | make_obj_dir
 
-blank:
-	touch blank
+make_obj_dir:
+	@mkdir -p $(OBJ_DIR) 
 
-include blank $(wildcard *.d)
+clean: clean_libraries clean_rootana clean_obj_dir
+
+clean_libraries:
+	@echo Removing libraries
+	@rm -f libAnalysis.*
+
+clean_rootana:
+	@echo Removing rootana
+	@rm -f rootana
+
+clean_obj_dir:
+	@echo Removing objects
+	@rm -rf $(OBJ_DIR)
+
+include $(wildcard *.d)

@@ -12,6 +12,7 @@
 
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
+#include "RegisterModule.inc"
 
 using std::string;
 using std::map;
@@ -20,10 +21,12 @@ using std::pair;
 
 extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
-std::map<std::string, TH1F*> time_plots;
-
 PlotTime::PlotTime(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){  
+  dir->cd("/");
+}
+
+PlotTime::PlotTime(modules::options* opts) : FillHistBase(opts->GetString("0").c_str()) {
   dir->cd("/");
 }
 
@@ -43,7 +46,7 @@ int PlotTime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
 
     // Create the histogram if it's not been created yet
-    if ( time_plots.find(detname) == time_plots.end() ) {
+    if ( fTimePlots.find(detname) == fTimePlots.end() ) {
 
       // hTimeCorrelation
       std::string histname = "h" + detname + "_" + GetName();
@@ -52,17 +55,19 @@ int PlotTime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       TH1F* hTimeCorrelation = new TH1F(histname.c_str(), histtitle.c_str(), 1e6,0,1e8);
       hTimeCorrelation->GetXaxis()->SetTitle("Time [ns]");
       hTimeCorrelation->GetYaxis()->SetTitle("Arbitrary Unit");
-      time_plots[detname] = hTimeCorrelation;
+      fTimePlots[detname] = hTimeCorrelation;
     }
 
     std::vector<TAnalysedPulse*> pulses = detIter->second;
 
     for (std::vector<TAnalysedPulse*>::iterator pulseIter = pulses.begin(); pulseIter != pulses.end(); ++pulseIter) {
       double time = (*pulseIter)->GetTime();
-      time_plots[detname]->Fill(time);
+      fTimePlots[detname]->Fill(time);
 	    
     } // end loop through pulses
 	  
   } // end loop through detectors
   return 0;
 }
+
+ALCAP_REGISTER_MODULE(PlotTime)
