@@ -136,15 +136,15 @@ TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& genera
 
 void MakeAnalysedPulses::RemoveFalseTPIs(const PulseIslandList_t& theInputIslands, PulseIslandList_t& theOutputIslands) {
 
+  // This function should be called for each detector separately
+  std::string bankname = (theInputIslands.at(0))->GetBankName();
+  std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
+
   // Loop through the TPIs
   for (PulseIslandList_t::const_iterator pulseIter = theInputIslands.begin(); pulseIter != theInputIslands.end(); ++pulseIter) {
 
     // Get the samples
     std::vector<int> theSamples = (*pulseIter)->GetSamples();
-    
-    // Get some useful TSetupData stuff
-    std::string bankname = (*pulseIter)->GetBankName();
-    std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
 
     // Store plots
     bool plot_pulses = true;
@@ -200,6 +200,7 @@ void MakeAnalysedPulses::RemoveFalseTPIs(const PulseIslandList_t& theInputIsland
     }
 
     if (significant_sample == false) {
+
       continue;
     }
     
@@ -208,10 +209,12 @@ void MakeAnalysedPulses::RemoveFalseTPIs(const PulseIslandList_t& theInputIsland
     if (plot_pulses) {
       hPulse->SetLineColor(kMagenta);
     }
-    if (pulseIter == theInputIslands.end()-1 && theInputIslands.size() != theOutputIslands.size()) {
-      std::cout << detname << " (" << bankname << ") " << " no. of TPI: " << theInputIslands.size() << " --> " << theOutputIslands.size() << std::endl;
-    }
   }
+
+  if (theInputIslands.size() != theOutputIslands.size()) {
+    std::cout << detname << " (" << bankname << ") " << " no. of TPI: " << theInputIslands.size() << " --> " << theOutputIslands.size() << " (" << ((float) theOutputIslands.size() / (float) theInputIslands.size())*100 << " %)" << std::endl;
+  }
+
 }
 
 ALCAP_REGISTER_MODULE(MakeAnalysedPulses,slow_gen,fast_gen);
