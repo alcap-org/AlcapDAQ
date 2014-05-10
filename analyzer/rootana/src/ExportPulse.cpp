@@ -30,12 +30,12 @@ int ExportPulse::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
 int ExportPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
   PulseIslandList_t thePulseIslands;
-  std::cout << "ExportPulse::ProcessEntry()" << std::endl;
+
   // Loop through the banks
   for (BankPulseList_t::const_iterator it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); it++){
     std::string bankname = it->first;
     std::string detname = gSetup->GetDetectorName(bankname);
-    std::cout << "In " << detname << " (" << bankname << ")\n";
+
     // Loop through the pulses
     thePulseIslands = it->second;
     for (PulseIslandList_t::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
@@ -45,7 +45,7 @@ int ExportPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       for (std::vector<int>::iterator pulseIDIter = fPulsesToPlot.begin(); pulseIDIter != fPulsesToPlot.end(); ++pulseIDIter) {
 
 	if (fPulseCounter == *pulseIDIter) {
-	  std::cout << "Exporting pulse #" << fPulseCounter << std::endl;
+
 	  // Export the pulse island as a histogram
 	  std::stringstream histname;
 	  histname << "Pulse_" << bankname << "_" << detname << "_" << fPulseCounter;
