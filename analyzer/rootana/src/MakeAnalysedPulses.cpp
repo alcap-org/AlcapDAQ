@@ -18,7 +18,6 @@ MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
 	fSlowGeneratorType=opts->GetString("default_slow_generator");
 	fFastGeneratorType=opts->GetString("default_fast_generator");
 	opts->GetVectorStrings("analyse_channels",fChannelsToAnalyse);
-	fPulseCounter = 0;
 	dir->cd("/");
 }
 
@@ -103,14 +102,6 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     thePulseIslands = it->second;
     if (thePulseIslands.size() == 0) continue; // no pulses here...
 
-    for (PulseIslandList_t::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
-      if (fPulseCounter%1000 == 0) {
-
-	// add pulse ID to list to be plotted
-	ExportPulse::Instance()->AddToExportList(fPulseCounter);
-      }
-      ++fPulseCounter;
-    }
     // clear the list of analyse_pulses from the last iteration
     theAnalysedPulses.clear();
     // generate the new list of analyse_pulses
