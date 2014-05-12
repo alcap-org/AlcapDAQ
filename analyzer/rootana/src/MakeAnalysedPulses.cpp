@@ -5,7 +5,6 @@
 #include <iostream>
 #include <utility>
 #include "RegisterModule.inc"
-#include "ExportPulse.h"
 
 using std::cout;
 using std::endl;
