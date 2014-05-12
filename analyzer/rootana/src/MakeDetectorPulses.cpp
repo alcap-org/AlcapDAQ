@@ -9,6 +9,7 @@ MakeDetectorPulses::MakeDetectorPulses(modules::options* opts):FillHistBase("Mak
     if(opts->HasOption("algorithm")){
       MakeGenerator(opts->GetString("algorithm"));
     }
+    dir->cd("/");
 }
 
 MakeDetectorPulses::~MakeDetectorPulses(){
