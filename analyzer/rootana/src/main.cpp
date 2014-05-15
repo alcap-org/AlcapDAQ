@@ -7,22 +7,9 @@
 
 #include "utils.h" // Provides analyze_command_line()
 
-// Modules list
 #include "ModulesReader.h"
 #include "ModulesManager.h"
 #include "FillHistBase.h"
-#include "AnalysePulseIsland.h"
-#include "CheckCoincidence.h"
-#include "MakeMuonEvents.h"
-#include "CreateDetectorPulses.h"
-#include "PlotAmplitude.h"
-#include "PlotTime.h"
-#include "CoincidenceCut.h"
-#include "EvdE.h"
-#include "PlotAmpVsTDiff.h"
-#include "Normalization.h"
-//#include "PlotShapes.h"
-#include "DeadTimeGe.h"
 
 #include "TTree.h"
 #include "TBranch.h"
