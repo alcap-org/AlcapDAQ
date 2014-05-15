@@ -40,6 +40,7 @@ default_slow_generator=MaxBin
 # If you want to request a specific type of generator for a channel then give
 # the channel name as the key and the generator as the value
 SiR2-S=MaxBin
+SiR2-S+=ConstantFractionDiscriminator
 
 # if a section is given but the name doesnt correspond to a module, then its
 # contents is ignored.  This means long modules lists can have modules
