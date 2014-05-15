@@ -56,5 +56,17 @@ void modules::options::AddArgument(const int& number, const std::string& option)
     // Get the name of this argument
     std::string name = modules::manager::Instance()->GetArgumentName(fModuleName,number);
     // Set the value of the corresponding option
-    modules::options::AddOption(name,option);
+    modules::options::SetOption(name,option);
+}
+
+bool AppendToOption(const std::string& name, const std::string& option){
+    // Get the option 
+    OptionsList_t::iterator it= fOptions.find(name);
+
+    // If no option exists return false
+    if(it==fOptions.end()) return false;
+
+    // Add the value to it
+    it->second+=" "+option;
+    return true;
 }
