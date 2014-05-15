@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef COMMANDLINE_H
+#define COMMANDLINE_H
 
 
 #include <string.h>
@@ -21,4 +21,4 @@ int check_arguments(ARGUMENTS& arguments);
 int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments);
 int load_config_file(const char* filename);
 
-#endif
+#endif //COMMANDLINE_H

@@ -5,7 +5,7 @@
 //#include <cctype>
 #include <map>
 
-#include "utils.h" // Provides analyze_command_line()
+#include "CommandLine.h" // Provides analyze_command_line()
 
 #include "ModulesReader.h"
 #include "ModulesManager.h"
