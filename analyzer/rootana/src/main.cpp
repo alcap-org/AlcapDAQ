@@ -18,7 +18,7 @@
 #include "TSetupData.h"
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
-#include "ProcessCorrectionFile.h" // Provides CheckSetupData()
+//#include "ProcessCorrectionFile.h" // Provides CheckSetupData()
 
 #include "TAnalysedPulseMapWrapper.h"
 
@@ -64,11 +64,12 @@ int main(int argc, char **argv){
 
   // Make sure the instance of TSetupData get's loaded 
   // (though in practice we can do this lazily)
-  TSetupData* s_data = TSetupData::Instance();
+  //TSetupData* s_data = TSetupData::Instance();
+  TSetupData::Instance();
 
   // Now that we've loaded the TSetupData for this run check if there are any
   // suggested replacements for the wiremap data
-  CheckSetupData(s_data, arguments.correction_file);
+  //CheckSetupData(s_data, arguments.correction_file);
 
   //Event Tree
   TTree* eventTree = GetTree(gInFile,"EventTree");
