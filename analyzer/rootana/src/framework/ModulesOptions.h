@@ -15,7 +15,8 @@ class modules::options{
 	options(const std::string& name):fModuleName(name){};
 	virtual ~options(){};
 
-	void AddOption(const std::string& name, const std::string& option);
+	void SetOption(const std::string& name, const std::string& option);
+	bool AppendToOption(const std::string& name, const std::string& option);
 	void AddArgument(const int& number, const std::string& option);
     public:
 	int GetInt(const std::string&)const;
@@ -42,7 +43,7 @@ class modules::options{
 
 };
 
-inline void modules::options::AddOption(const std::string& name, const std::string& option){
+inline void modules::options::SetOption(const std::string& name, const std::string& option){
     std::pair<OptionsList_t::iterator, bool> ret = fOptions.insert(make_pair(name,option));
     // if a new key was added, store an iterator in the order list
     if(ret.second) fOrder.push_back(ret.first);
