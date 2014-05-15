@@ -2,25 +2,30 @@ all:  init libAnalysis.so rootana libAnalysis.rootmap
 
 .PHONY: clean print all
 
-# A list of directories with source files.
-SOURCE_DIRS = src
+# Process the files.make file which lists the directories that contain source code
+include src/files.make
+
+EMPTY:=
+SPACE:=$(EMPTY) $(EMPTY)
+SOURCES:=$(foreach Dir,$(DIRS),$(wildcard $(Dir)/*.cpp))
+SOURCE_DIRS:= $(subst $(SPACE),:,$(DIRS))
 
 #Where should we store all object and dependency files
 OBJ_DIR = obj
 
 # A list of directories with header files. Should be colon-separated. eg:
 #   inc:tree_files/inc:extra_stuff/inc
-INCLUDE_DIRS = ../src/common:src
+INCLUDE_DIRS:= ../src/common:$(SOURCE_DIRS)
 
 # converts the colon-separated list to a list with -I flags. eg:
 #   -Iinc/ -Itree_files/inc/ -Iextra_stuff/inc/
-INCLUDE_CFLAGS = $(patsubst %,-I%,$(subst :, ,$(INCLUDE_DIRS)))
+INCLUDE_CFLAGS := $(patsubst %,-I%,$(subst :, ,$(INCLUDE_DIRS)))
 
 # Tell GNU where to find header and source files.
 vpath %.h : $(INCLUDE_DIRS)
 vpath %.cpp : $(SOURCE_DIRS)
 
-ROOT_CFLAGS = $(shell $(ROOTSYS)/bin/root-config --cflags)
+ROOT_CFLAGS:= $(shell $(ROOTSYS)/bin/root-config --cflags)
 
 # ROOT defines strlcpy(). This prevents a redefinition.
 ROOT_CFLAGS += -DHAS_STRLCPY
@@ -39,10 +44,9 @@ ALL_LIBS =  $(ROOT_LIBS)
 
 OPTFLAGS = -g -O3 -Wno-write-strings
 
-CXXFLAGS = $(OPTFLAGS) \
+CXXFLAGS := $(OPTFLAGS) \
            $(INCLUDE_CFLAGS) $(ROOT_CFLAGS) -fPIC
 
-include src/files.make
 
 # Determine the names of the object files by pattern substitution
 # from the source file names.
@@ -52,6 +56,11 @@ OBJECTS := $(addprefix $(OBJ_DIR)/, $(OBJECTS))
 
 LIB_DATACLASS := $(DAQdir)/analyzer/work/$(USER)/libDataClasses.so
 DATALINKDEF := $(DAQdir)/analyzer/src/common/DataLibraryLinkDef.h
+
+####################################################################
+# Define the various make targets
+####################################################################
+
 ${OBJECTS}: ${OBJ_DIR}/%.o: %.cpp
 	@echo -e "Making object: '"$@"' from '"$^"'"
 	@$(CXX) -c -Wall $(CXXFLAGS) -o $@  $<
@@ -90,4 +99,21 @@ clean_obj_dir:
 	@echo Removing objects
 	@rm -rf $(OBJ_DIR)
 
-include $(wildcard *.d)
+print:
+	@echo -e "ALL_LIBS = $(ALL_LIBS)             \n" 
+	@echo -e "CXXFLAGS = $(CXXFLAGS)             \n" 
+	@echo -e "DATALINKDEF = $(DATALINKDEF)       \n" 
+	@echo -e "DIRS = $(DIRS)                     \n" 
+	@echo -e "INCLUDE_CFLAGS = $(INCLUDE_CFLAGS) \n" 
+	@echo -e "INCLUDE_DIRS = $(INCLUDE_DIRS)     \n" 
+	@echo -e "LBITS = $(LBITS)                   \n" 
+	@echo -e "LIB_DATACLASS = $(LIB_DATACLASS)   \n" 
+	@echo -e "OBJECTS = $(OBJECTS)               \n" 
+	@echo -e "OBJ_DIR = $(OBJ_DIR)               \n" 
+	@echo -e "OPTFLAGS = $(OPTFLAGS)             \n" 
+	@echo -e "ROOT_CFLAGS = $(ROOT_CFLAGS)       \n" 
+	@echo -e "ROOT_LIBS = $(ROOT_LIBS)           \n" 
+	@echo -e "SOURCES = $(SOURCES)               \n" 
+	@echo -e "SOURCE_DIRS = $(SOURCE_DIRS)       \n" 
+
+include $(wildcard $(OBJ_DIR)/*.d)

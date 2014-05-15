@@ -1,23 +1,9 @@
-DIRS += src/
-
-SOURCES +=$(wildcard src/*.cpp)
-
-#SOURCES += ModulesReader.cpp\
-#ModulesOptions.cpp\
-#ModulesManager.cpp\
-#utils.cpp \
-#main.cpp \
-#MakeAnalysedPulses.cpp\
-#FillHistBase.cpp \
-#AnalysePulseIsland.cpp \
-#PlotAmplitude.cpp \
-#CreateDetectorPulses.cpp \
-#CheckCoincidence.cpp \
-#MakeMuonEvents.cpp \
-#PlotTime.cpp \
-#CoincidenceCut.cpp \
-#PlotAmpVsTDiff.cpp \
-#MaxBinAPGenerator.cpp \
-#ProcessCorrectionFile.cpp \
-#EvdE.cpp \
-#DeadTimeGe.cpp
+# A list of directories with source files.
+DIRS += src/\
+        src/TAP_generators/\
+        src/TDP_generators/\
+        src/TME_generators/\
+        src/examples/\
+        src/framework/\
+        src/physics/\
+        src/plotters/
