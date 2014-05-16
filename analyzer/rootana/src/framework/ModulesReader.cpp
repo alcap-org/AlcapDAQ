@@ -109,7 +109,7 @@ std::string modules::reader::findSectionName(std::stringstream& line){
     // sections are marked with [] either side of the name
     static std::string word;
     word="";
-    char start,stop;
+    char start=0,stop=0;
     line>>start>>word>>stop;
     //std::cout<<line.good()<<std::endl;
     //std::cout<<line.str()<<'\t'<< start <<'\t'<< word<<'\t'<<stop<<std::endl;
