@@ -199,7 +199,6 @@ modules::reader::Option_t modules::reader::SplitOption( const std::string& line)
 	opt.key=line.substr(0,equ_pos-1);
 	opt.value=line.substr(equ_pos+1);
 	opt.mode=kAppend;
-    }
     }else{
       // option is simple key value pair
 	opt.key=line.substr(0,equ_pos);
@@ -209,18 +208,20 @@ modules::reader::Option_t modules::reader::SplitOption( const std::string& line)
 }
 
 void modules::reader::AddOption(const std::string& module, const Option_t& opt){
+    bool exists;
     switch (opt.mode){
 	case kSet:
             fAllOptions[module]->SetOption(opt.key,opt.value);
 	    break;
 	case kAppend:
-            bool exists= fAllOptions[module]->AppendToOption(opt.key,opt.value);
+            exists= fAllOptions[module]->AppendToOption(opt.key,opt.value);
 	    if(!exists &&fShouldPrint){
 		    std::cout<<"Cannot append to '"<<opt.key<<"' as it doesn't already exist"<<std::endl;
 	    }
 	    break;
 	default: 
 	    std::cout<<"modules::reader::AddOption(): That's odd!  How did I end up here?"<<std::endl;
+	    break;
     }
 }
 
