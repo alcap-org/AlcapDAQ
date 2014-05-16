@@ -59,7 +59,7 @@ void modules::options::AddArgument(const int& number, const std::string& option)
     modules::options::SetOption(name,option);
 }
 
-bool AppendToOption(const std::string& name, const std::string& option){
+bool modules::options::AppendToOption(const std::string& name, const std::string& option){
     // Get the option 
     OptionsList_t::iterator it= fOptions.find(name);
 
