@@ -28,6 +28,7 @@ class TemplateAPGenerator:public TVAnalysedPulseGenerator {
 
  public:
    virtual void ProcessPulses(const TSetupData*, const PulseIslandList_t&,AnalysedPulseList_t&);
+   void AddToTemplate(const TPulseIsland* pulse);
 
  private:
    // Ideally we would have the TSetupData storing all this as a single struct so
