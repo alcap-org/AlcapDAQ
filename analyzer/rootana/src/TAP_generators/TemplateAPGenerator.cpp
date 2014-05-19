@@ -2,6 +2,12 @@
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
 #include <algorithm>
+#include <cmath>
+#include <iostream>
+
+#include "TH2.h"
+
+static TH2F* hTemplate = NULL;
 
 // IsTimeOrdered()
 // -- Returns tru of the first pulse is before the second
@@ -24,10 +30,32 @@ void TemplateAPGenerator::ProcessPulses(const TSetupData* eventSetup,
          time = 0;
          integral = 0;
          energy = 0.;
+	 
+	 AddToTemplate(*pulseIter);
 
          // Add the pulse into the list
          analysedList.push_back(new  TAnalysedPulse(amplitude, time, integral, energy, fDetName));
 
       }
       std::sort(analysedList.begin(), analysedList.end(), IsTimeOrdered);
+}
+
+
+// AddToTemplate()
+// -- adds the given pulse to the template
+// -- this is just rough for the time being and may be moved elsewhere
+void TemplateAPGenerator::AddToTemplate(const TPulseIsland* pulse) {
+
+  // Get the samples
+  std::vector<int> theSamples = pulse->GetSamples();
+
+  if (hTemplate == NULL) {
+    double max_adc_value = std::pow(2, fNBits);
+    hTemplate = new TH2F("Template", "Template", theSamples.size(),0,theSamples.size(), max_adc_value,0,max_adc_value);
+  }
+  
+  // Loop through the samples and add them to the template
+  for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+    hTemplate->Fill(sampleIter - theSamples.begin(), *sampleIter);
+  }
 }
