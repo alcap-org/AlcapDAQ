@@ -45,7 +45,6 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
     // Loop over every named detector channel in TSetupData
     std::vector<std::string> detectors;
     setup->GetAllDetectors(detectors);
-    std::cout<<"Will analyse "<<fChannelsToAnalyse.size()<<" of "<<detectors.size()<<" channels"<<std::endl;
 
     // do we analyse all channels?
     bool analyse_all=fChannelsToAnalyse.size()==0;
@@ -57,6 +56,10 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
 	     }
 	}
     }
+    std::cout<<"Will analyse ";
+    if(analyse_all) std::cout<<"all ";
+    else std::cout<<fChannelsToAnalyse.size()<<" of ";
+    std::cout<<detectors.size()<<" channels"<<std::endl;
 
     // For each channel:
     bool skip_detector=false;
@@ -86,10 +89,10 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
          // else use default value for this type of channel (fast or slow)
          if(TSetupData::IsFast(*det)){
             AddGenerator(*det,fFastGeneratorType);
-            if(Debug()) std::cout<<*det<<": default fast generator: "<<fFastGeneratorType<<std::endl;
+            if(Debug()) std::cout<<*det<<": default fast: "<<fFastGeneratorType<<std::endl;
 	 } else {
             AddGenerator(*det,fSlowGeneratorType);
-            if(Debug()) std::cout<<*det<<": default slow generator: "<<fSlowGeneratorType<<std::endl;
+            if(Debug()) std::cout<<*det<<": default slow: "<<fSlowGeneratorType<<std::endl;
 	 }
        }
     }
