@@ -20,6 +20,11 @@ class TVAnalysedPulseGenerator {
 
  public:
   virtual void ProcessPulses(const TSetupData*, const PulseIslandList_t&, AnalysedPulseList_t&)=0;
+  void SetDetector(const std::string& det){fDetector=det;};
+  const char* GetDetector(){return fDetector.c_str();};
+
+ private:
+  std::string fDetector;
 };
 
 #endif // TVANALYSEDPULSEGENERATOR_H__
