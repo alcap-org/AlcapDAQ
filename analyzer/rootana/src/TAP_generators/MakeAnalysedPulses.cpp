@@ -2,6 +2,7 @@
 #include "MakeAnalysedPulses.h"
 #include "TVAnalysedPulseGenerator.h"
 #include "MaxBinAPGenerator.h"
+#include "TemplateAPGenerator.h"
 #include <iostream>
 #include <utility>
 #include "RegisterModule.inc"
@@ -118,7 +119,8 @@ TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& genera
     // As we develop newer techniques we can add to the list here
     if (generatorType == "MaxBin"){
 	generator = new MaxBinAPGenerator();
-    } else if( generatorType == "PeakFitter") {
+    } else if( generatorType == "Template") {
+        generator = new TemplateAPGenerator();
     } else {
 	cout<<"Unknown generator requested: "<<generatorType<<endl;	
 	throw "Unknown generator requested";
