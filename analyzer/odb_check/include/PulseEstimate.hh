@@ -1,8 +1,16 @@
+/***********************************
+Class: PulseEstimate
+Author: John R. Quirk
+
+This class takes data quality histograms from an
+alcapana production and predicts what certain
+correct ODB values are.
+***********************************/
+
 #ifndef PULSEESTIMATE_H__
 #define PULSEESTIMATE_H__
 
 #include "TH1.h"
-#include "TH2.h"
 
 class PulseEstimate {
 
@@ -23,8 +31,7 @@ public:
     Offset:   Looks for peak in timing correlation
               between MuSC and this detector
   */
-  void Estimate(TH2* pulses);
-  void Estimate(TH1* timing);
+  void Estimate(TH1* pulses, TH1* timing);
   int GetPedestal() const;
   int GetPolarity() const;
   int GetOffset() const;

@@ -1,3 +1,13 @@
+/************************************
+Class: ODBCheck
+Author: John R. Quirk
+
+ODBCheck looks simply for inconsistencies between the alcapana
+data quality output histograms and the original ODB files,
+then outputs a corrected ODB file for the run to be loaded on the
+next alcapana production.
+************************************/
+
 #ifndef ODBCHECK_H__
 #define ODBCHECK_H__
 
@@ -6,7 +16,6 @@
 #include "PulseEstimate.hh"
 
 #include "TH1.h"
-#include "TH2.h"
 #include "TFile.h"
 
 #include <string>
@@ -22,12 +31,6 @@ private:
   bool fLoadODBFile;
   PulseEstimate fEstimate;
   std::ofstream fCorrectionsFile;
-
-  TFile* fMonitorPlotsFile;
-  // This might be too confusing but the idea is that we have 
-  // a map of a string to a second map (where the string here is the fieldname e.g. Pedestal, TimeShift)
-  // the second map is then a string to a histogram (where the string is the bank_name)
-  std::map<std::string, std::map<std::string, TH1F*> > fHistogramMap;
 
 public:
   ODBCheck();
@@ -45,17 +48,10 @@ public:
   void SetDirs();
 
 private:
-  // Load the values from either the ODB file (fLoadODBFile == true) or the raw data file (fLoadODBFile == false).
-  // Store in a WireMap object. Used to compare to estimates.
-  void LoadODBValues();
-  // Open a corrections file for this run and fill with header.
-  void InitiateCorrectionsFile();
   // Check if the estimates are different than the ODB values,
-  // and output the estimates to a correction file if so.
-  void OutputCorrectionsIfNeeded(unsigned int bank_index, TH2* shapes, TH1* timing, int run_number);
-  // Fill the appropriate monitoring histogram with the estimated value.
-  // This way we can keep track of trends in banks for the pedestal, polarity, and offset.
-  void FillMonitorPlots(std::string bank_name, std::string fieldname, int run_number, double value);
+  // and output the estimates to a correction file if so,
+  // or the original ODB values if not.
+  void OutputCorrections(WireMap corr);
 
 public:
   /*** The bulk ***/
