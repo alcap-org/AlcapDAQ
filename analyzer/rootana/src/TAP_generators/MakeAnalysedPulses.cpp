@@ -44,7 +44,8 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
     bool skip_detector=false;
     std::string des_gen;
     for(std::vector<std::string>::const_iterator det=detectors.begin();
-		    det!=detectors.end(); det++){
+		    det!=detectors.end();
+		    det++){
        // if we should not analyse det, leave generator as NULL
        skip_detector=false;
        if(! analyse_all ){
@@ -64,7 +65,8 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
        des_gen=fOptions->GetOption(*det);
        if(des_gen!=""){
          // If this channel is named explicitly, use that generator type
-         fGenerators[*det]=MakeGenerator(des_gen);
+         bool success=fGenerators[*det]=ParseGeneratorList(des_gen);
+	 if(! sucess) return 1;
          if(Debug()) std::cout<<*det<<": requested "<<des_gen<<std::endl;
        } else{
          // else use default value for this type of channel (fast or slow)
@@ -109,6 +111,38 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     gAnalysedPulseMap.insert(std::make_pair(detname,theAnalysedPulses));
   }
   return 0;
+}
+
+bool MakeAnalysedPulses::ParseGeneratorList(std::string generatorList){
+	// Creates a generator for each one in the list
+	// Returns true on success or false if there was a problem
+
+	//scan to next item in the list
+	size_t remaining_chars=generatorList.length();
+	size_t start_gen=0;
+	size_t end_gen=std::string::npos;
+	string generator;
+	modules::options* gen_opts;
+	while (remaining_chars>0){
+	    end_gen=generatorList.find(':',start_gen);
+
+	    if( Debug() ) std::cout<<"
+	    // decrement the number of chars we still need to consider by the
+	    // length of the current generators description
+	    remaining_chars -= end_gen - start_gen;
+	    // Move the start of the next description to the end of the current one
+	    start_gen=end_gen+1;
+	}
+
+//	char line[400];
+//	strcpy(line,generatorList.c_str());
+//	// Read until the first whitespace or close bracket
+//	char* word = strtok(line,"\t )");
+//	while(word != NULL){ 
+//	    vect.push_back(word);
+//            word = strtok(line,"\t )");
+//	}
+	return true;
 }
 
 TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& generatorType){

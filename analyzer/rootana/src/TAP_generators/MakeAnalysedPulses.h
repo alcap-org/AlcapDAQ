@@ -32,6 +32,7 @@ class MakeAnalysedPulses : public FillHistBase{
       fSlowGeneratorType=slowGen;
   }
   TVAnalysedPulseGenerator* MakeGenerator(const std::string& generatorType);
+  bool ParseGeneratorList(std::string generatorList);
 
   void SetAnalysedPulseMap(BankAnalPulseList_t& aMap){fAnalysedPulseMap=&aMap;}
  private:
