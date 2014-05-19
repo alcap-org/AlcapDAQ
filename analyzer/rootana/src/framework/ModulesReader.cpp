@@ -56,6 +56,7 @@ int modules::reader::ReadFile(const char* name){
 	// check if this line is a comment
 	if(isComment(line) ) continue;
 
+	// If this line contains a section name make sure we begin a new section
 	new_section=findSectionName(line);
 	if(new_section!="") {
 	    section=new_section;
@@ -67,16 +68,20 @@ int modules::reader::ReadFile(const char* name){
 	}
 
 	if(section=="MODULES") {
+	  //  In the MODULES secton each line specifies a module to use
 	    ret=AddModule(full_line);
 	    if(ret!=0) return ret;
 	}else{
-	    // options use key and values separated by '='
+	    // Parse the contents of this option
 	    current_opt=SplitOption(full_line);
+
+	    // Handle the option as required
 	    if(section==fGlobalModule) {
 	        ProcessGlobalOption(current_opt);
+	    } else{
+		AddOption(section,current_opt);
 	    }
 	    if(fShouldPrint) std::cout<<"Found option: "<<full_line<<std::endl;
-	    AddOption(section,current_opt);
 	}
     }
     return 0;
