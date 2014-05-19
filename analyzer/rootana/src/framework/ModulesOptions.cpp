@@ -67,6 +67,6 @@ bool modules::options::AppendToOption(const std::string& name, const std::string
     if(it==fOptions.end()) return false;
 
     // Add the value to it
-    it->second+=" "+option;
+    it->second+=" : "+option;
     return true;
 }
