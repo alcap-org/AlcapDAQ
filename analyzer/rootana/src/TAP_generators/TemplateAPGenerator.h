@@ -23,10 +23,12 @@ class TemplateAPGenerator:public TVAnalysedPulseGenerator {
       fClockTick = gSetup->GetClockTick(bankname);
       fTimeShift = gSetup->GetTimeShift(bankname);
       fDetName=gSetup->GetDetectorName(bankname);
+      fNBits = gSetup->GetNBits(bankname);
    }
 
  public:
    virtual void ProcessPulses(const TSetupData*, const PulseIslandList_t&,AnalysedPulseList_t&);
+   void AddToTemplate(const TPulseIsland* pulse);
 
  private:
    // Ideally we would have the TSetupData storing all this as a single struct so
@@ -39,6 +41,7 @@ class TemplateAPGenerator:public TVAnalysedPulseGenerator {
    double fECalibOffset;
    double fClockTick;
    double fTimeShift;
+   int fNBits;
 
 };
 
