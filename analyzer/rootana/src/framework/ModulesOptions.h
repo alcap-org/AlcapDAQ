@@ -12,7 +12,9 @@ namespace modules{
 class modules::options{
 
     public:
-	options(const std::string& name):fModuleName(name){};
+	options(const std::string& name):fModuleName(name){
+		fIdNumber=MakeIdNumber();
+	};
 	virtual ~options(){};
 
 	void SetOption(const std::string& name, const std::string& option);
@@ -23,7 +25,11 @@ class modules::options{
 	double GetDouble(const std::string&)const;
 	std::string GetString(const std::string&)const;
 	bool GetBool(const std::string&)const;
-	int GetVectorStrings(const std::string&, std::vector<std::string>& vect)const;
+	int GetVectorStringsByWhiteSpace(const std::string&, std::vector<std::string>& vect)const;
+	int GetVectorStringsByDelimiter(const std::string&, std::vector<std::string>& vect,const char* delim=":")const;
+	int GetVectorStrings(const std::string& name, std::vector<std::string>& vect)const {
+             return GetVectorStringsByWhiteSpace(name,vect);
+	};
 
 	bool HasOption(const std::string&)const;
 	bool GetNumOptions()const{return fOptions.size();};
@@ -33,11 +39,14 @@ class modules::options{
     private:
 	template <typename T>
 	    T GetOption(const std::string&)const;
+
+	static int MakeIdNumber();
     private:
 	typedef std::map<std::string,std::string> OptionsList_t;
 	typedef std::vector<OptionsList_t::iterator> OptionsOrder_t;
 	OptionsList_t fOptions;
 	OptionsOrder_t fOrder;
+	int fIdNumber;
 
 	std::string fModuleName;
 
