@@ -123,10 +123,23 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 	  }
 	  else {
 	    // loop through the bins again until we see the correct label
-	    for (int jBin = 0; jBin <= hDQ_TrendPlot->GetNbinsY(); ++jBin) {
+	    bool match_found = false;
+	    for (int jBin = 1; jBin <= hDQ_TrendPlot->GetNbinsY(); ++jBin) {
 	      if (strcmp(hDQ_TrendPlot->GetYaxis()->GetBinLabel(jBin), hDQ_RunPlot->GetXaxis()->GetBinLabel(iBin)) == 0) {
-		std::cout << "Match! " << jBin << ": " << hDQ_TrendPlot->GetYaxis()->GetBinLabel(jBin) << " " << hDQ_RunPlot->GetXaxis()->GetBinLabel(iBin) << std::endl;
 		hDQ_TrendPlot->Fill(first_run + iRun, hDQ_RunPlot->GetBinCenter(jBin), hDQ_RunPlot->GetBinContent(iBin)); // (x = run #, y = time stamp, z = N_TPI)
+		match_found = true;
+		break;
+	      }
+	    }
+
+	    if (match_found == false) {
+	      // Find the last emtpy y-axis bin, fill it and re-label it
+	      for (int jBin = 1; jBin <= hDQ_TrendPlot->GetNbinsY(); ++jBin) {
+		if (strcmp(hDQ_TrendPlot->GetYaxis()->GetBinLabel(jBin), "") == 0) {
+		  hDQ_TrendPlot->Fill(first_run + iRun, hDQ_RunPlot->GetBinCenter(jBin), hDQ_RunPlot->GetBinContent(iBin));
+		  hDQ_TrendPlot->GetYaxis()->SetBinLabel(jBin, hDQ_RunPlot->GetXaxis()->GetBinLabel(iBin));
+		  break;
+		}
 	      }
 	    }
 	  }
