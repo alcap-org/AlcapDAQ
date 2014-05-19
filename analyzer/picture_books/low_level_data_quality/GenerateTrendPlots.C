@@ -116,7 +116,20 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 
 	// Fill the trend plot
 	for (int iBin = 1; iBin <= hDQ_RunPlot->GetNbinsX(); ++iBin) {
-	  hDQ_TrendPlot->Fill(first_run + iRun, hDQ_RunPlot->GetBinCenter(iBin), hDQ_RunPlot->GetBinContent(iBin)); // (x = run #, y = time stamp, z = N_TPI)
+	  
+	  // Check that the bin labels match before filling the trend plot
+	  if (strcmp(hDQ_TrendPlot->GetYaxis()->GetBinLabel(iBin), hDQ_RunPlot->GetXaxis()->GetBinLabel(iBin)) == 0) {
+	    hDQ_TrendPlot->Fill(first_run + iRun, hDQ_RunPlot->GetBinCenter(iBin), hDQ_RunPlot->GetBinContent(iBin)); // (x = run #, y = time stamp, z = N_TPI)
+	  }
+	  else {
+	    // loop through the bins again until we see the correct label
+	    for (int jBin = 0; jBin <= hDQ_TrendPlot->GetNbinsY(); ++jBin) {
+	      if (strcmp(hDQ_TrendPlot->GetYaxis()->GetBinLabel(jBin), hDQ_RunPlot->GetXaxis()->GetBinLabel(iBin)) == 0) {
+		std::cout << "Match! " << jBin << ": " << hDQ_TrendPlot->GetYaxis()->GetBinLabel(jBin) << " " << hDQ_RunPlot->GetXaxis()->GetBinLabel(iBin) << std::endl;
+		hDQ_TrendPlot->Fill(first_run + iRun, hDQ_RunPlot->GetBinCenter(jBin), hDQ_RunPlot->GetBinContent(iBin)); // (x = run #, y = time stamp, z = N_TPI)
+	      }
+	    }
+	  }
 	}
 
       }
