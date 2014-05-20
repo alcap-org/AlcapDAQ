@@ -17,6 +17,8 @@ void TemplateAPGenerator::ProcessPulses(const TSetupData* eventSetup,
 
       SetBankInfo(eventSetup,pulseList[0]->GetBankName());
 
+      // Here we will get the template for this bank
+
       double amplitude, time, integral, energy;
 
       for (PulseIslandList_t::const_iterator pulseIter = pulseList.begin(); pulseIter != pulseList.end(); pulseIter++) {
@@ -24,6 +26,10 @@ void TemplateAPGenerator::ProcessPulses(const TSetupData* eventSetup,
          time = 0;
          integral = 0;
          energy = 0.;
+
+	 // Here we will fit the template to the TPulseIsland
+
+	 // Here we will extract the variables from the fit
 	 
          // Add the pulse into the list
          analysedList.push_back(new  TAnalysedPulse(amplitude, time, integral, energy, fDetName));
