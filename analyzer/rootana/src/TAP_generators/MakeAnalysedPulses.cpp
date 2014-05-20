@@ -88,11 +88,9 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
        } else{
          // else use default value for this type of channel (fast or slow)
          if(TSetupData::IsFast(*det)){
-            AddGenerator(*det,fFastGeneratorType);
-            if(Debug()) std::cout<<*det<<": default fast: "<<fFastGeneratorType<<std::endl;
+            AddGenerator(*det,"!FAST!");
 	 } else {
-            AddGenerator(*det,fSlowGeneratorType);
-            if(Debug()) std::cout<<*det<<": default slow: "<<fSlowGeneratorType<<std::endl;
+            AddGenerator(*det,"!SLOW!");
 	 }
        }
     }
@@ -140,7 +138,7 @@ bool MakeAnalysedPulses::ParseGeneratorList(std::string detector){
 	std::vector<std::string>::iterator gen;
 	std::stringstream sstream;
 	std::string arg,generator;
-	TAPOptions* opts;
+	TAPGeneratorOptions* opts;
 	bool still_good=true;
 	for(gen=generatorList.begin();gen!= generatorList.end();gen++){
 	    // check if we have options for this generator
@@ -150,7 +148,7 @@ bool MakeAnalysedPulses::ParseGeneratorList(std::string detector){
 	        // There are options for this generator
 	        end_br=gen->find(')');
 		sstream.str(gen->substr(start_br,end_br-start_br));
-		opts=new TAPOptions(detector+"::"+generator);
+		opts=new TAPGeneratorOptions(detector+"::"+generator);
 	        for(int count=0; std::getline(sstream, arg,','); count++){
 		    opts->AddArgument(count,arg);
 	        }
@@ -167,9 +165,19 @@ bool MakeAnalysedPulses::ParseGeneratorList(std::string detector){
 	return true;
 }
 
-bool MakeAnalysedPulses::AddGenerator(const string& detector,const string& generatorType,TAPOptions* opts){
+bool MakeAnalysedPulses::AddGenerator(const string& detector,string generatorType,TAPGeneratorOptions* opts){
+    // If generatorType is '!FAST!' or '!SLOW!' replace with default value
+    enum {kFast, kSlow, kArbitrary} requestType;
+    if(generatorType=="!FAST!") {
+        generatorType=fFastGeneratorType;
+	requestType=kFast;
+    }else if(generatorType=="!SLOW!"){
+        generatorType=fSlowGeneratorType;
+	requestType=kSlow;
+    }else requestType=kArbitrary;
+
     // Get the requested generator
-TVAnalysedPulseGenerator* generator=NULL;
+    TVAnalysedPulseGenerator* generator=NULL;
     try{
         generator=MakeGenerator(generatorType,opts);
     }catch(char const* error){
@@ -179,9 +187,13 @@ TVAnalysedPulseGenerator* generator=NULL;
 
     // print something
     if(Debug()) {
-	std::cout<<detector<<": using generator "<<generatorType ;
-	if(opts) std::cout<<" with options.";
-	std::cout<<std::endl;
+	cout<<detector<<": using ";
+	if (requestType ==kFast) cout<<"default fast: ";
+	else if (requestType ==kSlow) cout<<"default slow: ";
+	else cout<<"generator: ";
+	cout<<generatorType ;
+	if(opts) cout<<" with "<<opts->GetNumOptions()<<" option(s).";
+	cout<<endl;
     }
 
     // Add this generator to the list for the required detector
@@ -189,7 +201,7 @@ TVAnalysedPulseGenerator* generator=NULL;
     return true;
 }
 
-TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& generatorType, TAPOptions* opts){
+TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& generatorType, TAPGeneratorOptions* opts){
 
     // Select the generator type
     TVAnalysedPulseGenerator* generator=NULL;

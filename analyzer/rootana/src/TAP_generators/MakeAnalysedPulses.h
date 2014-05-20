@@ -9,11 +9,11 @@
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
+#include "TAPGeneratorOptions.h"
 
 class TVAnalysedPulseGenerator;
 class TPulseIsland;
 class TAnalysedPulse;
-typedef modules::options TAPOptions;
 
 class MakeAnalysedPulses : public FillHistBase{
   typedef std::vector<TPulseIsland*> PulseIslandList_t;
@@ -23,8 +23,7 @@ class MakeAnalysedPulses : public FillHistBase{
   typedef std::vector<TVAnalysedPulseGenerator*> ChannelGenerators_t;
 
  public:
-  MakeAnalysedPulses(char *HistogramDirectoryName, const char* fastGen="", const char* slowGen="");
-  MakeAnalysedPulses(TAPOptions* opts);
+  MakeAnalysedPulses(modules::options* opts);
   ~MakeAnalysedPulses();
 
 //  void SetGenerators(const std::string& fastGen, const std::string& slowGen=""){
@@ -32,8 +31,8 @@ class MakeAnalysedPulses : public FillHistBase{
 //      fSlowGeneratorType=slowGen;
 //  }
 
-  bool AddGenerator(const std::string& detector,const std::string& generatorType,TAPOptions* opts=NULL);
-  TVAnalysedPulseGenerator* MakeGenerator(const std::string& generatorType,TAPOptions* opts=NULL);
+  bool AddGenerator(const std::string& detector,std::string generatorType,TAPGeneratorOptions* opts=NULL);
+  TVAnalysedPulseGenerator* MakeGenerator(const std::string& generatorType,TAPGeneratorOptions* opts=NULL);
   bool ParseGeneratorList(std::string generatorList);
 
   void SetAnalysedPulseMap(BankAnalPulseList_t& aMap){fAnalysedPulseMap=&aMap;}
