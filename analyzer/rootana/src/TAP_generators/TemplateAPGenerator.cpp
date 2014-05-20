@@ -30,8 +30,11 @@ void TemplateAPGenerator::ProcessPulses(const TSetupData* eventSetup,
       TemplateArchive* archive = new TemplateArchive("templates.root");
       TH1F* hTemplate = archive->GetTemplate("template");
 
-      TH1F* hTemplate = new TH1F("template", "template", 100,0,100);
-      archive->SaveTemplate(hTemplate);
+      TH1F* hTemplate = archive->GetTemplate("template");
+
+      TemplateArchive* new_archive = new TemplateArchive("new_archive.root");
+      new_archive->SaveTemplate(hTemplate);
+      delete new_archive;
 
       double amplitude, time, integral, energy;
 
