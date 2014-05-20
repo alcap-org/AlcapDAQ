@@ -10,7 +10,7 @@ class FillHistBase;
 
 namespace modules{
     // In the future I plan to rename the FillHistBase class, so this will help
-   typedef FillHistBase ModuleBase;
+   typedef FillHistBase BaseModule;
     class factory;
 }
 
@@ -25,12 +25,12 @@ class modules::factory{
 
     public:
 	// typdef a function pointer for creating a module
-	typedef ModuleBase*(*maker)(options*);
+	typedef BaseModule*(*maker)(options*);
 	// Add a maker function to the list of makers
 	void registerModule(const std::string&, maker);
 	// get a pointer to the requested module
-	ModuleBase* createModule(const std::string&, modules::options*);
-	ModuleBase* createModule(const std::string& name);
+	BaseModule* createModule(const std::string&, modules::options*);
+	BaseModule* createModule(const std::string& name);
 	void addOptions(const std::string& name, modules::options *opts);
 	void addArguments(const std::string& all_args);
 	void addArgument(const std::string& module,const std::string& argument);
