@@ -30,6 +30,9 @@ void TemplateAPGenerator::ProcessPulses(const TSetupData* eventSetup,
       TemplateArchive* archive = new TemplateArchive("templates.root");
       TH1F* hTemplate = archive->GetTemplate("template");
 
+      TH1F* hTemplate = new TH1F("template", "template", 100,0,100);
+      archive->SaveTemplate(hTemplate);
+
       double amplitude, time, integral, energy;
 
       for (PulseIslandList_t::const_iterator pulseIter = pulseList.begin(); pulseIter != pulseList.end(); pulseIter++) {
