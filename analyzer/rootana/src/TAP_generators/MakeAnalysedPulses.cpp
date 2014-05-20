@@ -4,6 +4,7 @@
 #include "MaxBinAPGenerator.h"
 #include <iostream>
 #include <utility>
+#include <sstream>
 #include "RegisterModule.inc"
 
 using std::cout;
@@ -11,6 +12,23 @@ using std::endl;
 using std::string;
 
 extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+
+static std::string getOneWord(const std::string& in, size_t start=0, size_t stop=std::string::npos){
+	std::stringstream ss(in.substr(start,stop));
+	std::string word;
+	ss>>word;
+	return word;
+}
+
+static void getSeveralWords(const std::string& in, std::vector<std::string> &vect, size_t start=0, size_t stop=std::string::npos){
+	char line[400];
+	strcpy(line,in.substr(start,stop-start).c_str());
+	char* word = strtok(line,", ");
+	while(word != NULL){ 
+	    vect.push_back(word);
+	    word = strtok(NULL,", ");
+	}
+}
 
 MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
    FillHistBase("MakeAnalysedPulses",opts),fOptions(opts){
@@ -47,36 +65,32 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
     bool skip_detector=false;
     std::string des_gen;
     for(std::vector<std::string>::const_iterator det=detectors.begin();
-		    det!=detectors.end(); det++){
+		    det!=detectors.end();
+		    det++){
        // if we should not analyse det, leave generator as NULL
        skip_detector=false;
        if(! analyse_all ){
-        for(unsigned i=0; true;i++){
-         if(i>=fChannelsToAnalyse.size()){
-	   skip_detector=true;
-           break;
-         }
-         if(fChannelsToAnalyse[i]== (*det)) break;
-        }
+          std::vector<std::string>::const_iterator it_chan;
+          for(it_chan=fChannelsToAnalyse.begin(); it_chan!=fChannelsToAnalyse.end();it_chan++){
+             if((*it_chan)== (*det)) break;
+          }
+          if(it_chan== fChannelsToAnalyse.end() ) skip_detector=true;
        }
        if(skip_detector){
-        fGenerators[*det]=NULL;
-        continue;
+       // fGenerators[*det]=NULL;
+          continue;
        }
-       // else find the name of the desired generator
-       des_gen=fOptions->GetOption(*det);
-       if(des_gen!=""){
+       // else find the right generator to build
+       if(fOptions->HasOption(*det)){
          // If this channel is named explicitly, use that generator type
-         fGenerators[*det]=MakeGenerator(des_gen);
-         if(Debug()) std::cout<<*det<<": requested "<<des_gen<<std::endl;
+         bool success=ParseGeneratorList(*det);
+	 if(! success) return 1;
        } else{
          // else use default value for this type of channel (fast or slow)
          if(TSetupData::IsFast(*det)){
-            fGenerators[*det]=MakeGenerator(fFastGeneratorType);
-            if(Debug()) std::cout<<*det<<": default fast : "<<fFastGeneratorType<<std::endl;
+            AddGenerator(*det,"!FAST!");
 	 } else {
-            fGenerators[*det]=MakeGenerator(fSlowGeneratorType);
-            if(Debug()) std::cout<<*det<<": default slow : "<<fSlowGeneratorType<<std::endl;
+            AddGenerator(*det,"!SLOW!");
 	 }
        }
     }
@@ -84,37 +98,110 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
 }
 
 int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
-    // Generator just receives a bunch of TPIs and must return a list of TAPs
+  // Generator just receives a bunch of TPIs and must return a list of TAPs
 
-  // Loop over each detector
-  string bankname, detname;
+  // Loop over each generator
+  string detname,bankname;
   PulseIslandList_t thePulseIslands;
-  BankPulseList_t::const_iterator it;
+  ChannelGenerators_t::iterator generator;
   AnalysedPulseList_t theAnalysedPulses;
-  TVAnalysedPulseGenerator* gen;
-  for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); it++){
-    bankname = it->first;
-    detname = gSetup->GetDetectorName(bankname);
-
-    // Get this channels generator
-    gen=fGenerators.find(detname)->second;
-    if(! gen) continue; // no generator for this channel, we don't want to analyse it
+  for(generator = fGenerators.begin(); generator != fGenerators.end(); generator++){
+    // Get the bank name
+    detname = (*generator)->GetDetector();
+    bankname = gSetup->GetBankName(detname);
 
     // Get the TPIs
-    thePulseIslands = it->second;
-    if (thePulseIslands.size() == 0) continue; // no pulses here...
+    thePulseIslands=gData->fPulseIslandToChannelMap[bankname];
 
     // clear the list of analyse_pulses from the last iteration
     theAnalysedPulses.clear();
+
     // generate the new list of analyse_pulses
-    gen->ProcessPulses( gSetup, thePulseIslands,theAnalysedPulses);
+    (*generator)->ProcessPulses( gSetup, thePulseIslands,theAnalysedPulses);
+
     // add these into the map of analysed pulses
     gAnalysedPulseMap.insert(std::make_pair(detname,theAnalysedPulses));
   }
   return 0;
 }
 
-TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& generatorType){
+// Creates a generator for each one in the list
+// Returns true on success or false if there was a problem
+bool MakeAnalysedPulses::ParseGeneratorList(std::string detector){
+	// Get a vector for the generator(s) that we want to use for this detector
+	std::vector<std::string> generatorList;
+	fOptions->GetVectorStringsByDelimiter(detector,generatorList);
+
+	//scan to next item in the list
+	size_t start_br=0;
+	size_t end_br=std::string::npos;
+	std::vector<std::string>::iterator gen;
+	std::stringstream sstream;
+	std::string arg,generator;
+	TAPGeneratorOptions* opts;
+	bool still_good=true;
+	for(gen=generatorList.begin();gen!= generatorList.end();gen++){
+	    // check if we have options for this generator
+	    start_br=gen->find('(');
+	    generator=getOneWord(*gen,0,start_br);
+	    if(start_br!=std::string::npos){
+	        // There are options for this generator
+	        end_br=gen->find(')');
+		sstream.str(gen->substr(start_br,end_br-start_br));
+		opts=new TAPGeneratorOptions(detector+"::"+generator);
+	        for(int count=0; std::getline(sstream, arg,','); count++){
+		    opts->AddArgument(count,arg);
+	        }
+	    }
+	    still_good = AddGenerator(detector,generator,opts);
+	    // Is everything ok to continue?
+	    if (!still_good) {
+		return false;
+	    }
+	    // Get ready for next iteration
+	    opts=NULL;
+	}
+	// Everything went ok, return true
+	return true;
+}
+
+bool MakeAnalysedPulses::AddGenerator(const string& detector,string generatorType,TAPGeneratorOptions* opts){
+    // If generatorType is '!FAST!' or '!SLOW!' replace with default value
+    enum {kFast, kSlow, kArbitrary} requestType;
+    if(generatorType=="!FAST!") {
+        generatorType=fFastGeneratorType;
+	requestType=kFast;
+    }else if(generatorType=="!SLOW!"){
+        generatorType=fSlowGeneratorType;
+	requestType=kSlow;
+    }else requestType=kArbitrary;
+
+    // Get the requested generator
+    TVAnalysedPulseGenerator* generator=NULL;
+    try{
+        generator=MakeGenerator(generatorType,opts);
+    }catch(char const* error){
+        return false;
+    }
+    generator->SetDetector(detector);
+
+    // print something
+    if(Debug()) {
+	cout<<detector<<": using ";
+	if (requestType ==kFast) cout<<"default fast: ";
+	else if (requestType ==kSlow) cout<<"default slow: ";
+	else cout<<"generator: ";
+	cout<<generatorType ;
+	if(opts) cout<<" with "<<opts->GetNumOptions()<<" option(s).";
+	cout<<endl;
+    }
+
+    // Add this generator to the list for the required detector
+    fGenerators.push_back(generator);
+    return true;
+}
+
+TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& generatorType, TAPGeneratorOptions* opts){
 
     // Select the generator type
     TVAnalysedPulseGenerator* generator=NULL;
@@ -123,7 +210,7 @@ TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& genera
 	generator = new MaxBinAPGenerator();
     } else if( generatorType == "PeakFitter") {
     } else {
-	cout<<"Unknown generator requested: "<<generatorType<<endl;	
+	cout<<"Error: Unknown generator requested: "<<generatorType<<endl;	
 	throw "Unknown generator requested";
 	return NULL;
     }

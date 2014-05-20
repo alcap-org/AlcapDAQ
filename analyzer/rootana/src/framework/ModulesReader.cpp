@@ -56,6 +56,7 @@ int modules::reader::ReadFile(const char* name){
 	// check if this line is a comment
 	if(isComment(line) ) continue;
 
+	// If this line contains a section name make sure we begin a new section
 	new_section=findSectionName(line);
 	if(new_section!="") {
 	    section=new_section;
@@ -67,16 +68,20 @@ int modules::reader::ReadFile(const char* name){
 	}
 
 	if(section=="MODULES") {
+	  //  In the MODULES secton each line specifies a module to use
 	    ret=AddModule(full_line);
 	    if(ret!=0) return ret;
 	}else{
-	    // options use key and values separated by '='
+	    // Parse the contents of this option
 	    current_opt=SplitOption(full_line);
+
+	    // Handle the option as required
 	    if(section==fGlobalModule) {
 	        ProcessGlobalOption(current_opt);
+	    } else{
+		AddOption(section,current_opt);
 	    }
 	    if(fShouldPrint) std::cout<<"Found option: "<<full_line<<std::endl;
-	    AddOption(section,current_opt);
 	}
     }
     return 0;
@@ -109,7 +114,7 @@ std::string modules::reader::findSectionName(std::stringstream& line){
     // sections are marked with [] either side of the name
     static std::string word;
     word="";
-    char start,stop;
+    char start=0,stop=0;
     line>>start>>word>>stop;
     //std::cout<<line.good()<<std::endl;
     //std::cout<<line.str()<<'\t'<< start <<'\t'<< word<<'\t'<<stop<<std::endl;
@@ -186,13 +191,21 @@ int modules::reader::AddModule(std::string line){
 
 modules::reader::Option_t modules::reader::SplitOption( const std::string& line){
     Option_t opt;
+    opt.value="";
+    opt.mode=kSet;
 
     //split the line around any equals sign
     size_t equ_pos=line.find('=');
     if(equ_pos==std::string::npos) {
+      // no equal sign, treat option as bool flag
 	opt.key=line;
-	opt.value="";
+    }else if(line[equ_pos-1]=='+'){
+      // option should be appended to an existing one
+	opt.key=line.substr(0,equ_pos-1);
+	opt.value=line.substr(equ_pos+1);
+	opt.mode=kAppend;
     }else{
+      // option is simple key value pair
 	opt.key=line.substr(0,equ_pos);
 	opt.value=line.substr(equ_pos+1);
     }
@@ -200,10 +213,25 @@ modules::reader::Option_t modules::reader::SplitOption( const std::string& line)
 }
 
 void modules::reader::AddOption(const std::string& module, const Option_t& opt){
-    fAllOptions[module]->AddOption(opt.key,opt.value);
+    bool exists;
+    switch (opt.mode){
+	case kSet:
+            fAllOptions[module]->SetOption(opt.key,opt.value);
+	    break;
+	case kAppend:
+            exists= fAllOptions[module]->AppendToOption(opt.key,opt.value);
+	    if(!exists &&fShouldPrint){
+		    std::cout<<"Cannot append to '"<<opt.key<<"' as it doesn't already exist"<<std::endl;
+	    }
+	    break;
+	default: 
+	    std::cout<<"modules::reader::AddOption(): That's odd!  How did I end up here?"<<std::endl;
+	    break;
+    }
 }
+
 void modules::reader::AddOption(const std::string& module, const std::string& flag){
-    fAllOptions[module]->AddOption(flag,"");
+    fAllOptions[module]->SetOption(flag,"");
 }
 
 void modules::reader::PrintAllOptions()const{
@@ -253,11 +281,15 @@ void modules::reader::SetDebugAll(){
 void modules::reader::AddOptionAll(const std::string& key,const std::string& value){
     for(SectionsList::iterator it_sec=fAllOptions.begin(); it_sec != fAllOptions.end();it_sec++){
        if(it_sec->first==fGlobalModule) continue;
-       it_sec->second->AddOption(key,value);
+       it_sec->second->SetOption(key,value);
     }
 }
 
 void modules::reader::ProcessGlobalOption(Option_t opt){
+  if (opt.mode==kAppend) {
+     if(fShouldPrint) std::cout<<"Warning: over-writing '"<<opt.key<<"' with '"
+		     << opt.value<<"' despite append operator being used"<<std::endl;
+  }
   if (opt.key=="debug"){
      if (opt.value=="all"){
         SetDebugAll();

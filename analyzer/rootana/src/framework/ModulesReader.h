@@ -17,7 +17,12 @@ class modules::reader{
 	typedef std::vector<std::string> OptionsList;
 	typedef std::map<std::string,modules::options* > SectionsList;
 	typedef std::vector<std::pair<std::string, modules::options*> > ModuleList;
-	struct Option_t { std::string key; std::string value;};
+	enum OptionMode_t { kSet , kAppend };
+	struct Option_t {
+		OptionMode_t mode;
+		std::string key;
+		std::string value;
+	};
 
     public:
 	// default constructor

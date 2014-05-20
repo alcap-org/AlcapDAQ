@@ -12,17 +12,24 @@ namespace modules{
 class modules::options{
 
     public:
-	options(const std::string& name):fModuleName(name){};
+	options(const std::string& name):fModuleName(name){
+		fIdNumber=MakeIdNumber();
+	};
 	virtual ~options(){};
 
-	void AddOption(const std::string& name, const std::string& option);
+	void SetOption(const std::string& name, const std::string& option);
+	bool AppendToOption(const std::string& name, const std::string& option);
 	void AddArgument(const int& number, const std::string& option);
     public:
 	int GetInt(const std::string&)const;
 	double GetDouble(const std::string&)const;
 	std::string GetString(const std::string&)const;
 	bool GetBool(const std::string&)const;
-	int GetVectorStrings(const std::string&, std::vector<std::string>& vect)const;
+	int GetVectorStringsByWhiteSpace(const std::string&, std::vector<std::string>& vect)const;
+	int GetVectorStringsByDelimiter(const std::string&, std::vector<std::string>& vect,const char* delim=":")const;
+	int GetVectorStrings(const std::string& name, std::vector<std::string>& vect)const {
+             return GetVectorStringsByWhiteSpace(name,vect);
+	};
 
 	bool HasOption(const std::string&)const;
 	bool GetNumOptions()const{return fOptions.size();};
@@ -32,17 +39,20 @@ class modules::options{
     private:
 	template <typename T>
 	    T GetOption(const std::string&)const;
+
+	static int MakeIdNumber();
     private:
 	typedef std::map<std::string,std::string> OptionsList_t;
 	typedef std::vector<OptionsList_t::iterator> OptionsOrder_t;
 	OptionsList_t fOptions;
 	OptionsOrder_t fOrder;
+	int fIdNumber;
 
 	std::string fModuleName;
 
 };
 
-inline void modules::options::AddOption(const std::string& name, const std::string& option){
+inline void modules::options::SetOption(const std::string& name, const std::string& option){
     std::pair<OptionsList_t::iterator, bool> ret = fOptions.insert(make_pair(name,option));
     // if a new key was added, store an iterator in the order list
     if(ret.second) fOrder.push_back(ret.first);
