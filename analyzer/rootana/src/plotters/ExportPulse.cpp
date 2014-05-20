@@ -1,4 +1,5 @@
 #include "ModulesFactory.h"
+#include "ModulesNavigator.h"
 #include "ExportPulse.h"
 #include "TVAnalysedPulseGenerator.h"
 #include "MaxBinAPGenerator.h"
@@ -12,8 +13,6 @@ using std::endl;
 using std::string;
 
 extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
-extern FillHistBase **fillhists;
-extern int n_fillhist;
 
 ExportPulse::ExportPulse(modules::options* opts):
    FillHistBase("ExportPulse",opts),fOptions(opts){
@@ -74,14 +73,7 @@ void ExportPulse::AddToExportList(int pulse_id) {
 }
 
 ExportPulse* ExportPulse::Instance() {
-
-  for (int iModule = 0; iModule < n_fillhist; ++iModule) {
-    if (strcmp(fillhists[iModule]->GetName(), "ExportPulse") == 0) {
-      return (ExportPulse*) fillhists[iModule];
-    }
-  }
-
-  return NULL;
+  return modules::navigator::Instance()->GetModule<ExportPulse>("ExportPulse");
 }
 
 ALCAP_REGISTER_MODULE(ExportPulse);
