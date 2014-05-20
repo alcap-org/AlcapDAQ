@@ -1,6 +1,8 @@
 #include "TemplateAPGenerator.h"
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
+
+#include "TemplateArchive.h"
 #include <algorithm>
 
 // IsTimeOrdered()
@@ -18,6 +20,7 @@ void TemplateAPGenerator::ProcessPulses(const TSetupData* eventSetup,
       SetBankInfo(eventSetup,pulseList[0]->GetBankName());
 
       // Here we will get the template for this bank
+      TemplateArchive* archive = new TemplateArchive("templates.root");
 
       double amplitude, time, integral, energy;
 
@@ -36,4 +39,6 @@ void TemplateAPGenerator::ProcessPulses(const TSetupData* eventSetup,
 
       }
       std::sort(analysedList.begin(), analysedList.end(), IsTimeOrdered);
+
+      delete archive; // close the template archive
 }
