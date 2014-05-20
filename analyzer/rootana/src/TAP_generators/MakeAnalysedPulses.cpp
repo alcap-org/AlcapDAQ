@@ -33,7 +33,9 @@ static void getSeveralWords(const std::string& in, std::vector<std::string> &vec
 MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
    FillHistBase("MakeAnalysedPulses",opts),fOptions(opts){
 	fSlowGeneratorType=opts->GetString("default_slow_generator");
+	if(fSlowGeneratorType=="") fSlowGeneratorType="MaxBin";
 	fFastGeneratorType=opts->GetString("default_fast_generator");
+	if(fFastGeneratorType=="") fSlowGeneratorType="MaxBin";
 	opts->GetVectorStrings("analyse_channels",fChannelsToAnalyse);
 	dir->cd("/");
 }
