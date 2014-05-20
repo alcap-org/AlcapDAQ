@@ -1,8 +1,5 @@
 #include "ModulesManager.h"
 #include "TemplateCreator.h"
-#include "TVAnalysedPulseGenerator.h"
-#include "MaxBinAPGenerator.h"
-#include "TemplateAPGenerator.h"
 #include <iostream>
 #include <utility>
 #include "RegisterModule.inc"
