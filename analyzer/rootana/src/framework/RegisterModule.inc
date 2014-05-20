@@ -1,6 +1,6 @@
 #ifndef REGISTER_MODULE_INC
 #define REGISTER_MODULE_INC
-#include "ModulesManager.h"
+#include "ModulesFactory.h"
 
 #define ALCAP_REGISTER_STRING(CLASS, NAME, ...) \
 modules::ModuleBase* Make##CLASS(modules::options* opt) { return new CLASS(opt) ; } \
@@ -10,7 +10,7 @@ class proxy##CLASS \
   public: \
     proxy##CLASS() \
     { \
-      modules::manager *f = modules::manager::Instance(); \
+      modules::factory *f = modules::factory::Instance(); \
       f->registerModule( NAME , &Make##CLASS); \
       /* Add all the arguments to the manager */\
       f->addArguments( #__VA_ARGS__);\
