@@ -6,9 +6,9 @@
 using std::cout;
 using std::endl;
 
-modules::ModuleBase* modules::factory::createModule(const std::string& name, modules::options* opts){
+modules::BaseModule* modules::factory::createModule(const std::string& name, modules::options* opts){
     // get the maker for the requested module
-    modules::ModuleBase* module=NULL;
+    modules::BaseModule* module=NULL;
     MakersList::iterator it  = fModuleMakers.find(name);
     if(it != fModuleMakers.end() ){
 	// make the module
@@ -21,7 +21,7 @@ modules::ModuleBase* modules::factory::createModule(const std::string& name, mod
     return module;
 }
 
-modules::ModuleBase* modules::factory::createModule(const std::string& name){
+modules::BaseModule* modules::factory::createModule(const std::string& name){
     // get the options for this module
     OptionsList::iterator it_opt=fModuleOptions.find(name);
     modules::options* opts = NULL;

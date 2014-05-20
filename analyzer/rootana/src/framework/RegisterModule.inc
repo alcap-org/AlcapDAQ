@@ -3,7 +3,7 @@
 #include "ModulesFactory.h"
 
 #define ALCAP_REGISTER_STRING(CLASS, NAME, ...) \
-modules::ModuleBase* Make##CLASS(modules::options* opt) { return new CLASS(opt) ; } \
+modules::BaseModule* Make##CLASS(modules::options* opt) { return new CLASS(opt) ; } \
  \
 class proxy##CLASS \
 { \
