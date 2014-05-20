@@ -20,14 +20,9 @@ void TemplateAPGenerator::ProcessPulses(const TSetupData* eventSetup,
 
       SetBankInfo(eventSetup,pulseList[0]->GetBankName());
 
-      // Here we will get the template for this bank
+      // Get the template from the ROOT file
       TemplateArchive* archive = new TemplateArchive("templates.root");
-
       TH1F* hTemplate = archive->GetTemplate("template");
-
-      TemplateArchive* new_archive = new TemplateArchive("new_archive.root");
-      new_archive->SaveTemplate(hTemplate);
-      delete new_archive;
 
       double amplitude, time, integral, energy;
 
