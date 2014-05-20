@@ -9,6 +9,7 @@
 
 #include "ModulesReader.h"
 #include "ModulesFactory.h"
+#include "ModulesNavigator.h"
 #include "FillHistBase.h"
 
 #include "TTree.h"
@@ -27,7 +28,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments);
 void ClearGlobalData(TGlobalData*);
 TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
-Int_t PrepareModules(const ARGUMENTS&);
+Int_t PrepareSingletonObjects(const ARGUMENTS&);
 
 static TGlobalData *g_event=NULL;
 static TFile *gInFile=NULL;
@@ -39,9 +40,6 @@ TBranch *gAnalysedPulseBranch = NULL;
 std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
 
-int n_fillhist = 0;  // keeps track of the total number of modules
-FillHistBase **fillhists;
-
 TGlobalData* TGlobalData::Instance()
 {
   return g_event;
@@ -50,23 +48,34 @@ TGlobalData* TGlobalData::Instance()
 int main(int argc, char **argv){
 //load_config_file("MODULES.txt");
 
+  // Parse the command line
   ARGUMENTS arguments;
   int ret = analyze_command_line (argc, argv,arguments);
   if(ret!=0) return ret;
   printf("Starting event");
-  
+
+  // Open the input tree file
   gInFile = new TFile(arguments.infile);
   if(!gInFile->IsOpen()) {
     printf("Failed to open input file, '%s'.  Exiting.\n",arguments.infile);
     delete gInFile;
     return 1;
   }
+  
+  // Make an initial call to singleton objects that are very likely to be called at some point.
+  ret = PrepareSingletonObjects(arguments);
+  if(ret!=0) {
+     std::cout<<"Error: Problem creating a singleton object..."<<std::endl;
+     return ret;
+  }
 
-  // Make sure the instance of TSetupData get's loaded 
-  // (though in practice we can do this lazily)
-  //TSetupData* s_data = TSetupData::Instance();
-  TSetupData::Instance();
-
+  // Now let's setup all the analysis modules we want
+  ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file);
+  if(ret!=0) {
+     printf("Problem setting up analysis modules.\n");
+     return ret;
+  }
+  
   // Now that we've loaded the TSetupData for this run check if there are any
   // suggested replacements for the wiremap data
   //CheckSetupData(s_data, arguments.correction_file);
@@ -91,13 +100,6 @@ int main(int argc, char **argv){
      return ret;
   }
 
-  // Now let's setup all the analysis modules we want
-  ret= PrepareModules(arguments);
-  if(ret!=0) {
-     printf("Problem setting up analysis modules.\n");
-     return ret;
-  }
-  
   // Finally let's do the main loop
   fileOut->cd();
   Main_event_loop(eventTree,arguments);
@@ -120,9 +122,15 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   std::cout<<"Processing file, which may take a while. "
      "Have patience young padawan.."<<std::endl;
 
+  //set up the input data
+  if (g_event){
+    g_event->Clear("C");
+    dataTree->SetBranchAddress("Event",&g_event);
+  }
+
+  // How many entries should we loop over?
   Long64_t start = 0;
   Long64_t stop = nentries;
-
   if(arguments.stop>0){
     if(arguments.start>0)
       start = (Long64_t)(arguments.start-1);
@@ -132,20 +140,17 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   else if((Long64_t)arguments.start < nentries && arguments.start > 0){
     stop = (Long64_t)arguments.start;
   }
-
-  //preprocess first event
-  if (g_event){
-    g_event->Clear("C");
-    dataTree->SetBranchAddress("Event",&g_event);
-  }
-
+  // wind the file on to the first event
   dataTree->GetEntry(start);
+
+  // Get the first and last module to run with
+  modules::list::iterator first_module = modules::navigator::Instance()->Begin();
+  modules::list::iterator last_module = modules::navigator::Instance()->End();
+  modules::list::iterator it_mod;
+
   int q = 0;
-  for (int i=0; i < n_fillhist; i++) {
-    q |= fillhists[i]->BeforeFirstEntry(g_event, TSetupData::Instance());
-    //if (q) break;
-    // q = fillhists[i]->ProcessGenericEntry(g_event);
-    //if (q) break;
+  for (it_mod=first_module; it_mod != last_module; it_mod++) {
+    q |= it_mod->second->BeforeFirstEntry(g_event, TSetupData::Instance());
   }
   if(q) {
     printf("Error while preprocessing first entry (%d)\n",(Int_t)start);
@@ -167,10 +172,8 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
     // Let's get the next event
     dataTree->GetEntry(jentry);
 
-    for(int i=0; i < n_fillhist; i++) {
-      //printf("processing fillhists[%d]\n",i);      
-      PrintOut(i<<": Now processing "<<fillhists[i]->GetName()<<std::endl);
-      q |= fillhists[i]->ProcessGenericEntry(g_event,TSetupData::Instance());
+    for (it_mod=first_module; it_mod != last_module; it_mod++) {
+      q |= it_mod->second->ProcessGenericEntry(g_event,TSetupData::Instance());
       //if(q) break;
     }
     if(q){
@@ -185,12 +188,12 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
 
   //post-process on last entry
   q = 0;
-  for(int i=0; i < n_fillhist; i++) {
-    q |= fillhists[i]->AfterLastEntry(g_event,TSetupData::Instance());
+  for (it_mod=first_module; it_mod != last_module; it_mod++) {
+    q |= it_mod->second->AfterLastEntry(g_event,TSetupData::Instance());
   }
   if (q) {
      printf("Error during post-processing last entry (%lld)\n",(stop-1));
-  return q;
+      return q;
   }
   
   printf("Finished processing data normally\n");
@@ -319,34 +322,14 @@ Int_t PrepareAnalysedPulseMap(TFile* fileOut){
    return 0;
 }
 
-Int_t PrepareModules(const ARGUMENTS& arguments){
+Int_t PrepareSingletonObjects(const ARGUMENTS&){
+   // Set up the modules navigator
+   if(!modules::navigator::Instance()) return 1;
 
-  modules::reader modules_file;
-  modules_file.ReadFile(arguments.mod_file);
-  modules_file.PrintAllOptions();
+   // Make sure the instance of TSetupData get's loaded 
+   // (though in practice we can do this lazily)
+   //TSetupData* s_data = TSetupData::Instance();
+   if(!TSetupData::Instance()) return 2;
 
-  modules::factory* theFactory = modules::factory::Instance();
-  size_t num_modules=modules_file.GetNumModules();
-  if(num_modules==0){
-          printf("No modules were requested for use, so there's nothing to be done!\n");
-	  return 1;
-  }
-	  
-  std::string name;
-  modules::options* opts;
-  //modules::ModuleBase *mods[num_modules];
-  fillhists = new FillHistBase *[num_modules]; 
-  FillHistBase* mod=NULL;
-  for(unsigned i=0, count=0;i<num_modules;i++){
-          name = modules_file.GetModule(i);
-          opts =  modules_file.GetOptions(i);
-	  mod = theFactory->createModule(name,opts);
-	  if(mod) 
-	    fillhists[count++] =mod;
-	  else
-	    return 1;
-  }
-  n_fillhist = num_modules;
-
-  return 0;
+   return 0;
 }
