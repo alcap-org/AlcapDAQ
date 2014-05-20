@@ -46,7 +46,7 @@ int modules::options::GetVectorStringsByDelimiter(const std::string& name, std::
     strcpy(line,GetOption(name).c_str());
     char* word = strtok(line,delim);
     while(word != NULL){ 
-	    std::cout<<"ModulesOptions:GetVectorStringsByDelimiter() "<<word<<std::endl;
+	    //std::cout<<"ModulesOptions:GetVectorStringsByDelimiter() "<<word<<std::endl;
         vect.push_back(word);
         word = strtok(NULL,delim);
     }
