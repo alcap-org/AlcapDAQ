@@ -8,7 +8,7 @@
 #include "CommandLine.h" // Provides analyze_command_line()
 
 #include "ModulesReader.h"
-#include "ModulesManager.h"
+#include "ModulesFactory.h"
 #include "FillHistBase.h"
 
 #include "TTree.h"
@@ -325,7 +325,7 @@ Int_t PrepareModules(const ARGUMENTS& arguments){
   modules_file.ReadFile(arguments.mod_file);
   modules_file.PrintAllOptions();
 
-  modules::manager* mgr = modules::manager::Instance();
+  modules::factory* theFactory = modules::factory::Instance();
   size_t num_modules=modules_file.GetNumModules();
   if(num_modules==0){
           printf("No modules were requested for use, so there's nothing to be done!\n");
@@ -340,7 +340,7 @@ Int_t PrepareModules(const ARGUMENTS& arguments){
   for(unsigned i=0, count=0;i<num_modules;i++){
           name = modules_file.GetModule(i);
           opts =  modules_file.GetOptions(i);
-	  mod = mgr->createModule(name,opts);
+	  mod = theFactory->createModule(name,opts);
 	  if(mod) 
 	    fillhists[count++] =mod;
 	  else

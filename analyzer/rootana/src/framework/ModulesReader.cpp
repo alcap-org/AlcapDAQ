@@ -1,5 +1,5 @@
 #include "ModulesReader.h"
-#include "ModulesManager.h"
+#include "ModulesFactory.h"
 #include <iostream>
 #include <sstream>
 #include <string.h>
@@ -269,7 +269,7 @@ void modules::reader::PrintAllOptions()const{
 void modules::reader::SetDebug(){
     std::cout<<"Debug mode activated"<<std::endl;
     fShouldPrint=true;
-    modules::manager::Instance()->SetDebug();
+    modules::factory::Instance()->SetDebug();
 }
 
 void modules::reader::SetDebugAll(){
