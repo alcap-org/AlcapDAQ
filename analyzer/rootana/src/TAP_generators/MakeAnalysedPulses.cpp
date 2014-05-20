@@ -172,7 +172,7 @@ bool MakeAnalysedPulses::AddGenerator(const string& detector,const string& gener
 TVAnalysedPulseGenerator* generator=NULL;
     try{
         generator=MakeGenerator(generatorType,opts);
-    }catch(char* error){
+    }catch(char const* error){
         return false;
     }
     generator->SetDetector(detector);
@@ -198,7 +198,7 @@ TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& genera
 	generator = new MaxBinAPGenerator();
     } else if( generatorType == "PeakFitter") {
     } else {
-	cout<<"Unknown generator requested: "<<generatorType<<endl;	
+	cout<<"Error: Unknown generator requested: "<<generatorType<<endl;	
 	throw "Unknown generator requested";
 	return NULL;
     }
