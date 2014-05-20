@@ -3,6 +3,8 @@
 
 #include <map>
 #include <string>
+#include <iostream>
+#include <typeinfo>       // std::bad_cast
 #include "ModulesFactory.h"
 
 namespace modules{
@@ -33,6 +35,11 @@ class modules::navigator{
       // Get a named module.
       // Returns NULL if the module doesn't exist
       inline BaseModule* GetModule(const std::string& module)const;
+
+      // Get a named module and cast it to the correct type
+      // Returns NULL if the module doesn't exist
+      template <typename T>
+      inline T* GetModule(const std::string& module)const;
       
       // Return an iterator to the first module in the list
       modules::list::iterator Begin(){return fModules.begin();};
@@ -59,6 +66,23 @@ inline modules::BaseModule* modules::navigator::GetModule(const std::string& mod
     modules::list::const_iterator mod=fModules.find(module.c_str());
     if(mod==fModules.end()) return NULL;
     return mod->second;
+}
+
+template <typename T>
+inline T* modules::navigator::GetModule(const std::string& module)const{
+    BaseModule* base_mod=GetModule(module);
+    if(!base_mod) return NULL;
+    T* mod=NULL;
+    try
+    {
+        mod=dynamic_cast<T*>(base_mod);
+    }
+    catch (std::bad_cast& bc)
+    {
+        std::cerr << "ModulesNavigator::GetModule() bad_cast caught: " << bc.what() << std::endl;
+	return NULL;
+    }
+    return mod;
 }
 
 #endif //MODULESNAVIGATOR_H_
