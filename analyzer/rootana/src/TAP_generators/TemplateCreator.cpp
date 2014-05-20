@@ -4,6 +4,8 @@
 #include <utility>
 #include "RegisterModule.inc"
 
+#include "TemplateArchive.h"
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -23,12 +25,14 @@ int TemplateCreator::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
 }
 
 int TemplateCreator::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
-  // Generator just receives a bunch of TPIs and must return a list of TAPs
 
   // Loop over each detector
   string bankname, detname;
   PulseIslandList_t thePulseIslands;
   BankPulseList_t::const_iterator it;
+
+  // Open the template archive, ready for saving
+  TemplateArchive* archive = new TemplateArchive("templates.root");
 
   for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); it++){
     bankname = it->first;
@@ -39,6 +43,8 @@ int TemplateCreator::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     if (thePulseIslands.size() == 0) continue; // no pulses here...
 
   }
+
+  delete archive; // close the template archive file
   return 0;
 }
 
