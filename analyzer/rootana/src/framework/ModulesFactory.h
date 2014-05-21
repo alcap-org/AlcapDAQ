@@ -1,36 +1,35 @@
-#ifndef MODULESMANAGER__HH_
-#define MODULESMANAGER__HH_
+#ifndef MODULESFACTORY__HH_
+#define MODULESFACTORY__HH_
 #include <map>
 #include <string>
 #include <stdio.h>
 
-//#include "FillHistBase.h"
 #include "ModulesOptions.h"
 class FillHistBase;
 
 namespace modules{
     // In the future I plan to rename the FillHistBase class, so this will help
-   typedef FillHistBase ModuleBase;
-    class manager;
+   typedef FillHistBase BaseModule;
+    class factory;
 }
 
-class modules::manager{
+class modules::factory{
     private:
 	// Private constructor as this is a singleton class
-	manager(){};
-	~manager(){
+	factory(){};
+	~factory(){
 	    fModuleMakers.clear();
 	    fModuleOptions.clear();
 	}
 
     public:
 	// typdef a function pointer for creating a module
-	typedef ModuleBase*(*maker)(options*);
+	typedef BaseModule*(*maker)(options*);
 	// Add a maker function to the list of makers
 	void registerModule(const std::string&, maker);
 	// get a pointer to the requested module
-	ModuleBase* createModule(const std::string&, modules::options*);
-	ModuleBase* createModule(const std::string& name);
+	BaseModule* createModule(const std::string&, modules::options*);
+	BaseModule* createModule(const std::string& name);
 	void addOptions(const std::string& name, modules::options *opts);
 	void addArguments(const std::string& all_args);
 	void addArgument(const std::string& module,const std::string& argument);
@@ -38,9 +37,9 @@ class modules::manager{
 	std::string GetArgumentName(const std::string& module,const int& argument);
 
 	// Get the instance of this class
-	static manager* Instance();
+	static factory* Instance();
 
-	// Set the manager to output debugging commands
+	// Set the factory to output debugging commands
 	void SetDebug(bool debug=true){fDebug=debug;};
 
     private:
@@ -54,7 +53,7 @@ class modules::manager{
 
 	// the list of expected arguments for all modules
 	typedef std::vector<std::string> Arguments;
-	typedef std::map<std::string, modules::manager::Arguments> ArgsList; 
+	typedef std::map<std::string, modules::factory::Arguments> ArgsList; 
 	ArgsList fModuleArguments;
 
 	// the most recent module to have been registered
@@ -64,23 +63,23 @@ class modules::manager{
 	bool fDebug;
 };
 
-inline modules::manager* modules::manager::Instance(){
-    static modules::manager* instance=NULL;
+inline modules::factory* modules::factory::Instance(){
+    static modules::factory* instance=NULL;
     if(!instance) {
-	instance=new manager();
+	instance=new factory();
     }
     return instance;
 }
 
-inline void modules::manager::addArgument(const std::string& argument){
+inline void modules::factory::addArgument(const std::string& argument){
     addArgument(fMostRecentRegister,argument);
 }
 
-inline void modules::manager::addArgument(const std::string& module,const std::string& argument){
+inline void modules::factory::addArgument(const std::string& module,const std::string& argument){
     fModuleArguments[module].push_back(argument);
 }
 
-inline std::string modules::manager::GetArgumentName(const std::string& module,const int& argument){
+inline std::string modules::factory::GetArgumentName(const std::string& module,const int& argument){
     try{
        return fModuleArguments[module].at(argument);
     }catch(...){
@@ -90,4 +89,4 @@ inline std::string modules::manager::GetArgumentName(const std::string& module,c
     }
 }
 
-#endif // MODULESMANAGER__HH_
+#endif // MODULESFACTORY__HH_

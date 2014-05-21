@@ -1,6 +1,6 @@
 #include <string.h>
 #include "ModulesReader.h"
-#include "ModulesManager.h"
+#include "ModulesFactory.h"
 #include "CommandLine.h"
 #include <stdio.h>
 #include <string>
@@ -202,12 +202,12 @@ int load_config_file(const char* filename){
     modules_file.ReadFile(filename);
     modules_file.PrintAllOptions();
 
-    modules::manager* mgr = modules::manager::Instance();
+    modules::factory* mgr = modules::factory::Instance();
     size_t num_modules=modules_file.GetNumModules();
     std::cout<<"number of modules requested: "<<num_modules<<std::endl;
     std::string name;
     modules::options* opts;
-    modules::ModuleBase *mods[num_modules];
+    modules::BaseModule *mods[num_modules];
     for(unsigned i=0;i<num_modules;i++){
 	    name = modules_file.GetModule(i);
 	    opts =  modules_file.GetOptions(i);

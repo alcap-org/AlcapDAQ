@@ -1,4 +1,4 @@
-#include "ModulesManager.h"
+#include "ModulesFactory.h"
 #include "MakeAnalysedPulses.h"
 #include "TVAnalysedPulseGenerator.h"
 #include "MaxBinAPGenerator.h"

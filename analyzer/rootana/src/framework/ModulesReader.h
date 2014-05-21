@@ -46,8 +46,10 @@ class modules::reader{
 	bool AddSection(const std::string& name,const std::string& type="");
 	int AddModule(std::string line);
 	void ProcessGlobalOption(Option_t opt);
-	void AddOption(const std::string& module, const Option_t& opt);
-	void AddOption(const std::string& module, const std::string& flag);
+	void AddOption(const std::string& module, const Option_t& opt){ AddOption(fAllOptions[module],opt); }
+	void AddOption(const std::string& module, const std::string& flag){ AddOption(fAllOptions[module],flag); }
+	void AddOption(modules::options* module, const Option_t& opt);
+	void AddOption(modules::options* module, const std::string& flag);
         void AddOptionAll(const std::string& key,const std::string& value="");
         void AddOptionAll(const Option_t& opt);
 
@@ -68,7 +70,6 @@ class modules::reader{
 inline bool modules::reader::AddSection(const std::string& name,const std::string& type){
     if(!fAllOptions[name]){
 	fAllOptions[name] =new modules::options(type);
-	if(fDebugAll) AddOption(name,"debug");
 	return true;
     }
     return false;
