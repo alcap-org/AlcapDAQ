@@ -52,6 +52,8 @@ int TemplateCreator::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       // Then we will fit this pulse to the template
 
       // Then we will add the fitted pulse to the template
+
+      // When the fit has converged, we stop
     }
 
     // Save the template
