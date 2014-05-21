@@ -2,6 +2,7 @@
 #include "MakeAnalysedPulses.h"
 #include "TVAnalysedPulseGenerator.h"
 #include "MaxBinAPGenerator.h"
+#include "TemplateAPGenerator.h"
 #include <iostream>
 #include <utility>
 #include <sstream>
@@ -218,6 +219,8 @@ TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& genera
 	// Temporarily I'm putting this here so I can demo how the config file
 	// handles multiple generators.  Long term this will be removed
 	generator = new MaxBinAPGenerator();
+    } else if( generatorType == "Template") {
+        generator = new TemplateAPGenerator();
     } else {
 	cout<<"Error: Unknown generator requested: "<<generatorType<<endl;	
 	throw "Unknown generator requested";
