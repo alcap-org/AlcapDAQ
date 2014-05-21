@@ -72,8 +72,4 @@ void ExportPulse::AddToExportList(int pulse_id) {
   fPulsesToPlot.push_back(pulse_id);
 }
 
-ExportPulse* ExportPulse::Instance() {
-  return modules::navigator::Instance()->GetModule<ExportPulse>("ExportPulse");
-}
-
 ALCAP_REGISTER_MODULE(ExportPulse);

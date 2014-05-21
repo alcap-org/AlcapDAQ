@@ -42,4 +42,9 @@ class ExportPulse : public FillHistBase{
   static ExportPulse* Instance();
 };
 
+inline ExportPulse* ExportPulse::Instance() {
+  return modules::navigator::Instance()->GetModule<ExportPulse>("ExportPulse");
+}
+
+
 #endif // ExportPulse_H__
