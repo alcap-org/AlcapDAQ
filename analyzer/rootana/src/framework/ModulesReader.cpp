@@ -182,10 +182,17 @@ int modules::reader::AddModule(std::string line){
 	}
         opts=fAllOptions[name];
     }
+    // Add all arguments passed to this module to it's options
     for(unsigned i=0;i<args.size();i++) {
 	opts->AddArgument(i,args[i]);
     }
+
+    // Stick this module into the list of modules
     fModules.push_back(std::make_pair(type,opts));
+
+    // Apply current global options to new module
+    if(fDebugAll) AddOption(opts,"debug");
+
     return 0;
 }
 
@@ -212,14 +219,14 @@ modules::reader::Option_t modules::reader::SplitOption( const std::string& line)
     return opt;
 }
 
-void modules::reader::AddOption(const std::string& module, const Option_t& opt){
+void modules::reader::AddOption(modules::options* options, const Option_t& opt){
     bool exists;
     switch (opt.mode){
 	case kSet:
-            fAllOptions[module]->SetOption(opt.key,opt.value);
+            options->SetOption(opt.key,opt.value);
 	    break;
 	case kAppend:
-            exists= fAllOptions[module]->AppendToOption(opt.key,opt.value);
+            exists= options->AppendToOption(opt.key,opt.value);
 	    if(!exists &&fShouldPrint){
 		    std::cout<<"Cannot append to '"<<opt.key<<"' as it doesn't already exist"<<std::endl;
 	    }
@@ -230,8 +237,8 @@ void modules::reader::AddOption(const std::string& module, const Option_t& opt){
     }
 }
 
-void modules::reader::AddOption(const std::string& module, const std::string& flag){
-    fAllOptions[module]->SetOption(flag,"");
+void modules::reader::AddOption(modules::options* options, const std::string& flag){
+    options->SetOption(flag,"");
 }
 
 void modules::reader::PrintAllOptions()const{
