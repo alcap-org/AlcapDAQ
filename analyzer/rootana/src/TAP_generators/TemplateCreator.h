@@ -27,6 +27,8 @@ class TemplateCreator : public FillHistBase{
 
   modules::options* fOptions;
 
+ public:
+  void InitialParameterGuess(const TPulseIsland* pulse, double& amplitude, double& time);
 };
 
 #endif // TemplateCreator_H__
