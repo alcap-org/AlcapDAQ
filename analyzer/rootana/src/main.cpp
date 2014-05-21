@@ -78,13 +78,6 @@ int main(int argc, char **argv){
   if(!eventTree) return 1;
   eventTree->SetBranchAddress("Event",&g_event);
 
-  // Now let's setup all the analysis modules we want
-  ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file);
-  if(ret!=0) {
-     printf("Problem setting up analysis modules.\n");
-     return ret;
-  }
-  
   // Let's open the output file for analysis data, histograms and so on.
   TFile *fileOut = new TFile(arguments.outfile, "RECREATE");
   if(!fileOut->IsOpen()){
@@ -93,6 +86,15 @@ int main(int argc, char **argv){
   }
   fileOut->cd();
 
+  // Now let's setup all the analysis modules we want
+  // NOTE: This has to be done after the output file was opened else the
+  // modules wont have a directory to store things to.
+  ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file);
+  if(ret!=0) {
+     printf("Problem setting up analysis modules.\n");
+     return ret;
+  }
+  
   // Setup the analysed pulse map to store / read in the pulses
   ret = PrepareAnalysedPulseMap(fileOut);
   if(ret!=0) {
