@@ -16,24 +16,25 @@ TemplateFitter::TemplateFitter() {
 TemplateFitter::~TemplateFitter() {
 }
 
-void TemplateFitter::FitPulse(TH1F* hTemplate, const TPulseIsland* pulse) {
+void TemplateFitter::FitPulse(TH1D* hTemplate, const TPulseIsland* pulse) {
   // First make a histogram out of the pulse with the same bin width as the template,
   // Then pass to fitter.
   // Returns ped in units of ADC counts, amp in... scale units(?), and time in units
   // of bins since the beginning of pulse
   std::vector<int> samples = pulse->GetSamples();
-  int nel = samples.size();
-  TH1D* rebinned_pulse = new TH1D("pulse2fit", "pulse2fit", nel * fRefine, -0.5, nel - 0.5);
-  for (int i = 0; i < nel; ++i)
-    for (int j = 1; j <= fRefine; ++j)
-      rebinned_pulse->SetBinContent(i * fRefine + j, samples.at(i));
-  time *= fRefine;
+  int n_samples = samples.size();
+
+  TH1D* hPulse = new TH1D("hPulseToFit", "hPulseToFit", n_samples, -0.5, n_samples - 0.5);
+  for (int i = 0; i < n_samples; ++i) {
+    hPulse->SetBinContent(i, samples.at(i));
+  }
 
   // Prepare for minimizations
   fFitter->Clear();
   TemplateFitFCN* fcn = (TemplateFitFCN*)fFitter->GetMinuitFCN();
-  fcn->SetH1(fTemplate);
-  fcn->SetH2(rebinned_pulse);
+  fcn->SetH1(hTemplate);
+  fcn->SetH2(hPulse);
+  double ped, amp, time;
   fFitter->SetParameter(0, "Pedestal", ped, 0.1, 0, 0);
   fFitter->SetParameter(1, "Amplitude", amp, 0.1, 0, 0);
   fFitter->SetParameter(2, "Time", time, 1., 0, 0); // Timing should have step size no smaller than binning,

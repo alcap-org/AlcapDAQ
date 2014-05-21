@@ -1,6 +1,7 @@
 #ifndef TemplateFitter_h__
 #define TemplateFitter_h__
 
+#include "TPulseIsland.h"
 #include "TFitterMinuit.h"
 
 class TemplateFitter {
@@ -14,7 +15,7 @@ class TemplateFitter {
   TFitterMinuit* fFitter;   // MINUIT fitter to template
 
  public:
-  void FitPulse(TH1F* hTemplate, const TPulseIsland* pulse);
+  void FitPulse(TH1D* hTemplate, const TPulseIsland* pulse);
 };
 
 #endif
