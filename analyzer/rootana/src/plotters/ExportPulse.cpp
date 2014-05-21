@@ -15,7 +15,7 @@ using std::string;
 extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
 ExportPulse::ExportPulse(modules::options* opts):
-   FillHistBase("ExportPulse",opts),fOptions(opts){
+   FillHistBase("ExportPulse",opts){
         fPulseCounter = 0;
 	dir->cd("/");
 }
