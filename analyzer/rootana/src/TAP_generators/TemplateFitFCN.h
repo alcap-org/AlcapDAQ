@@ -1,20 +1,20 @@
-#ifndef HistogramFitFCN_h__
-#define HistogramFitFCN_h__
+#ifndef TemplateFitFCN_h__
+#define TemplateFitFCN_h__
 
 #include "Minuit2/FCNBase.h"
 #include "TH1D.h"
 
 #include <vector>
 
-class HistogramFitFCN : public ROOT::Minuit2::FCNBase {
+class TemplateFitFCN : public ROOT::Minuit2::FCNBase {
 
  private:
   TH1D* fH1; // The template
   TH1D* fH2; // The histogram to fit
 
  public:
-  HistogramFitFCN(TH1D* = NULL, TH1D* = NULL);
-  ~HistogramFitFCN();
+  TemplateFitFCN(TH1D* = NULL, TH1D* = NULL);
+  ~TemplateFitFCN();
 
   void SetH1(TH1D*);
   void SetH2(TH1D*);
