@@ -42,28 +42,16 @@ int TemplateCreator::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     thePulseIslands = it->second;
     if (thePulseIslands.size() == 0) continue; // no pulses here...
 
-    // Create the template for this bank and detector
-    std::string histname = "hTemplate_" + detname + "_" + bankname;
-    TH2F* hTemplate = NULL; 
+    // Here we will create the template histogram
 
     // Now loop through the TPIs and create the templates
     for (PulseIslandList_t::const_iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
       
-      // Get the samples
-      std::vector<int> theSamples = (*pulseIter)->GetSamples();
+      // Here we will make an initial guess at the parameters
 
-      // Create the template if it doesn't exist
-      if (hTemplate == NULL) {
-	int n_bits = gSetup->GetNBits(bankname);
-	int max_adc_value = std::pow(2, n_bits);
+      // Then we will fit this pulse to the template
 
-	hTemplate = new TH2F(histname.c_str(), histname.c_str(), theSamples.size(),0,theSamples.size(), max_adc_value,0,max_adc_value);
-      }
-
-      // Loop through the samples and add to the template
-      for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
-	hTemplate->Fill(sampleIter - theSamples.begin(), *sampleIter);
-      }
+      // Then we will add the fitted pulse to the template
     }
 
     // Save the template
