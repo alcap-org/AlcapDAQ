@@ -49,6 +49,10 @@ class TPulseIsland : public TObject {
   int GetPeakSample() const;
   double GetPedestal(int nPedSamples) const;
 
+ private:
+  TPulseIsland(const TPulseIsland& src);
+  TPulseIsland operator=(const TPulseIsland& rhs); 
+
   ClassDef(TPulseIsland, 1);
 };
 
