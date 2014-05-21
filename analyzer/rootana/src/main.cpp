@@ -69,13 +69,6 @@ int main(int argc, char **argv){
      return ret;
   }
 
-  // Now let's setup all the analysis modules we want
-  ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file);
-  if(ret!=0) {
-     printf("Problem setting up analysis modules.\n");
-     return ret;
-  }
-  
   // Now that we've loaded the TSetupData for this run check if there are any
   // suggested replacements for the wiremap data
   //CheckSetupData(s_data, arguments.correction_file);
@@ -85,6 +78,13 @@ int main(int argc, char **argv){
   if(!eventTree) return 1;
   eventTree->SetBranchAddress("Event",&g_event);
 
+  // Now let's setup all the analysis modules we want
+  ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file);
+  if(ret!=0) {
+     printf("Problem setting up analysis modules.\n");
+     return ret;
+  }
+  
   // Let's open the output file for analysis data, histograms and so on.
   TFile *fileOut = new TFile(arguments.outfile, "RECREATE");
   if(!fileOut->IsOpen()){
@@ -105,6 +105,7 @@ int main(int argc, char **argv){
   Main_event_loop(eventTree,arguments);
 
   // and finish up
+  fileOut->cd();
   gAnalysedPulseTree->Write();
   fileOut->Write();
   fileOut->Close();
