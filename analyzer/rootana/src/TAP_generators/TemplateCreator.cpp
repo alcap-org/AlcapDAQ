@@ -47,7 +47,12 @@ int TemplateCreator::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     // Now loop through the TPIs and create the templates
     for (PulseIslandList_t::const_iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
       
-      // Here we will make an initial guess at the parameters
+      // Make an initial guess at the parameters
+      double amplitude = 0;
+      double time = 0;
+      InitialParameterGuess(*pulseIter, amplitude, time);
+
+      //      std::cout << "Amplitude = " << amplitude << ", time = " << time << std::endl;
 
       // Then we will fit this pulse to the template
 
@@ -57,11 +62,21 @@ int TemplateCreator::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     }
 
     // Save the template
-    archive->SaveTemplate(hTemplate);
+    //    archive->SaveTemplate(hTemplate);
   }
 
   delete archive; // close the template archive file
   return 0;
 }
 
+
+// InitialParameterGuess
+// -- makes an initial guess at the parameters from the TPulseIsland
+void TemplateCreator::InitialParameterGuess(const TPulseIsland* pulse, double& amplitude, double& time) {
+
+  // Just use the TPI's methods for the time being
+  amplitude = pulse->GetAmplitude();
+  time = pulse->GetPulseTime();
+
+}
 ALCAP_REGISTER_MODULE(TemplateCreator);
