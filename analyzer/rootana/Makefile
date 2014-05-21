@@ -89,15 +89,15 @@ clean: clean_libraries clean_rootana clean_obj_dir
 
 clean_libraries:
 	@echo Removing libraries
-	@rm -f libAnalysis.*
+	rm -f libAnalysis.*
 
 clean_rootana:
 	@echo Removing rootana
-	@rm -f rootana
+	rm -f rootana
 
 clean_obj_dir:
 	@echo Removing objects
-	@rm -rf $(OBJ_DIR)
+	rm -rf $(OBJ_DIR)
 
 print:
 	@echo -e "ALL_LIBS = $(ALL_LIBS)             \n" 
