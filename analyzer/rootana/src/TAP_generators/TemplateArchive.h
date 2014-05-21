@@ -15,7 +15,7 @@ class TemplateArchive {
 
  public:
   TH1F* GetTemplate(const char* template_name);
-  void SaveTemplate(TH1F* hTemplate);
+  void SaveTemplate(TH1* hTemplate);
 
 };
 
