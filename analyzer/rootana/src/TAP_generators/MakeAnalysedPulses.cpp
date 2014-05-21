@@ -114,6 +114,10 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
     // Get the TPIs
     thePulseIslands=gData->fPulseIslandToChannelMap[bankname];
+    if(thePulseIslands.size()<=0){
+       cout<<"List of TPIs for '"<< detname<<"' was empty "<<endl;
+       continue;
+    }
 
     // clear the list of analyse_pulses from the last iteration
     theAnalysedPulses.clear();
