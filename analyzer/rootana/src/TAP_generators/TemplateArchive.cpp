@@ -19,7 +19,7 @@ TH1F* TemplateArchive::GetTemplate(const char* template_name) {
 
 // SaveTemplate()
 // -- saves a template to the template file
-void TemplateArchive::SaveTemplate(TH1F* hTemplate) {
+void TemplateArchive::SaveTemplate(TH1* hTemplate) {
 
   fTemplateFile->cd();
   hTemplate->Write();
