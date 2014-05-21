@@ -2,15 +2,15 @@
 #include "TemplateCreator.h"
 #include <iostream>
 #include <utility>
+#include <cmath>
 #include "RegisterModule.inc"
 
 #include "TemplateArchive.h"
+#include "TH2.h"
 
 using std::cout;
 using std::endl;
 using std::string;
-
-extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
 TemplateCreator::TemplateCreator(modules::options* opts):
    FillHistBase("TemplateCreator",opts),fOptions(opts){
@@ -42,6 +42,32 @@ int TemplateCreator::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     thePulseIslands = it->second;
     if (thePulseIslands.size() == 0) continue; // no pulses here...
 
+    // Create the template for this bank and detector
+    std::string histname = "hTemplate_" + detname + "_" + bankname;
+    TH2F* hTemplate = NULL; 
+
+    // Now loop through the TPIs and create the templates
+    for (PulseIslandList_t::const_iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
+      
+      // Get the samples
+      std::vector<int> theSamples = (*pulseIter)->GetSamples();
+
+      // Create the template if it doesn't exist
+      if (hTemplate == NULL) {
+	int n_bits = gSetup->GetNBits(bankname);
+	int max_adc_value = std::pow(2, n_bits);
+
+	hTemplate = new TH2F(histname.c_str(), histname.c_str(), theSamples.size(),0,theSamples.size(), max_adc_value,0,max_adc_value);
+      }
+
+      // Loop through the samples and add to the template
+      for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+	hTemplate->Fill(sampleIter - theSamples.begin(), *sampleIter);
+      }
+    }
+
+    // Save the template
+    archive->SaveTemplate(hTemplate);
   }
 
   delete archive; // close the template archive file
