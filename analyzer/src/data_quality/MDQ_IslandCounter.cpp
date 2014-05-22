@@ -37,10 +37,13 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MDQ_IslandCounter_init(void);
 INT  MDQ_IslandCounter(EVENT_HEADER*, void*);
+INT  MDQ_IslandCounter_eor(INT);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
+
+extern TH1F* hDQ_TDCCheck_muSc;
 
 map <std::string, TH1F*> DQ_IslandCounter_histograms_map;
 
@@ -50,7 +53,7 @@ ANA_MODULE MDQ_IslandCounter_module =
 	"Andrew Edmonds",              /* author                */
 	MDQ_IslandCounter,                      /* event routine         */
 	NULL,                          /* BOR routine           */
-	NULL,                          /* EOR routine           */
+	MDQ_IslandCounter_eor,                          /* EOR routine           */
 	MDQ_IslandCounter_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
 	NULL,                          /* parameter structure   */
@@ -80,16 +83,46 @@ INT MDQ_IslandCounter_init()
 
     // hDQ_IslandCounter_[DetName]_[BankName]
     std::string histname = "hDQ_IslandCounter_" + detname + "_" + bankname;
-    std::string histtitle = "Distribution of the number of islands per event in " + detname;
+    std::string histtitle = "Distribution of the number of islands per event per muSc TDC Hit in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 3500, 0, 3500);
     hDQ_Histogram->GetXaxis()->SetTitle("Number of TPulseIslands");
-    hDQ_Histogram->GetYaxis()->SetTitle("Number of Events");
+    hDQ_Histogram->GetYaxis()->SetTitle("Number of Events per muSc TDC Hit");
     DQ_IslandCounter_histograms_map[bankname] = hDQ_Histogram;
   }
 
   gDirectory->Cd("/MidasHists/");
   return SUCCESS;
 }
+
+/** This method does any last minute things to the histograms at the end of the run
+ */
+INT MDQ_IslandCounter_eor(INT run_number) {
+
+  // Some typedefs
+  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
+  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
+  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  
+  // Fetch a reference to the gData structure that stores a map
+  // of (bank_name, vector<TPulseIsland*>) pairs
+  TStringPulseIslandMap& pulse_islands_map =
+    gData->fPulseIslandToChannelMap;
+
+  // Loop over the map and get each bankname, vector pair
+  for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) {
+
+    std::string bankname = mapIter->first;
+    std::string detname = gSetup->GetDetectorName(bankname);
+      
+    // Make sure the histograms exist and then fill them
+    if (DQ_IslandCounter_histograms_map.find(bankname) != DQ_IslandCounter_histograms_map.end()) {
+      DQ_IslandCounter_histograms_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
+    }
+  }
+
+  return SUCCESS;
+}
+
 
 /** This method fills the histograms
  */
