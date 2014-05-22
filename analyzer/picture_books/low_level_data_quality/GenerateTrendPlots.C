@@ -9,6 +9,8 @@
 #include <iostream>
 #include <sstream>
 
+extern void ZoomAxis(TH2* hist);
+
 // This will generate the following PDFs:
 // -- hDQ_[RunHistogramName]_TrendPlot.png
 void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
@@ -146,6 +148,13 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 	}
 
       }
+
+      // Zoom in on some plots
+      if (histogram_name.find("IslandCounter") != std::string::npos) {
+	std::cout << "Here!\n";
+	ZoomAxis(hDQ_TrendPlot);
+      }
+
 
       hDQ_TrendPlot->Draw("COLZ");
 
