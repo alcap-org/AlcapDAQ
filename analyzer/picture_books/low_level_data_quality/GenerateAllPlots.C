@@ -10,6 +10,7 @@
 #include <sstream>
 
 void ZoomAxis(TH1* hist);
+void ZoomAxis(TH2* hist);
 
 // This will run all the plot generation macros
 void GenerateAllPlots(const char* data_dir, const int n_run) {
