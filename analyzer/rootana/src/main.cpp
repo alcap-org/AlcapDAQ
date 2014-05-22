@@ -33,6 +33,11 @@ Int_t PrepareSingletonObjects(const ARGUMENTS&);
 static TGlobalData *g_event=NULL;
 static TFile *gInFile=NULL;
 
+// Temporary botch to let ExportPulse module know what the current entry
+// number is.  I'm assuming Phill's Event Navigator will provide this
+// functionality, so I'll remove this at that point.
+Long64_t* gEntryNumber;
+
 TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
 static TTree *gAnalysedPulseTree = NULL;
 TBranch *gAnalysedPulseBranch = NULL;
@@ -162,7 +167,9 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
 
   q = 0;
   //process entries
-  for (Long64_t jentry=start; jentry<stop;jentry++) {
+  Long64_t jentry;
+  gEntryNumber=&jentry;
+  for ( jentry=start; jentry<stop;jentry++) {
     if(g_event){
       g_event->Clear("C");
       ClearGlobalData(g_event);
