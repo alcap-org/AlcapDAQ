@@ -1,22 +1,23 @@
 #include "EventNavigator.h"
 
-
 //C++/STL
 #include <iostream>
 #include <string>
+#include <cmath>
 
 //ROOT
 #include "TFile.h"
 #include "TTree.h"
+//#include "TSystem.h"
+//#include "TStopwatch.h"
 
 //Local
-
+#include "debug_tools.h"
 TGlobalData* TGlobalData::Instance()
 {
   return g_event;
 }
 
-#define DEBUG_PRINT std::cout << "At line " << __LINE__ << std::endl;
 
 //======================================================================
 EventNavigator* EventNavigator::fInstance = 0x0;
@@ -60,7 +61,6 @@ Bool_t EventNavigator::ConnectInput(const char* input_file_name,
   fInput->GetObject("SetupTree", setup_tree);
   if (!setup_tree || setup_tree->GetEntriesFast() == 0) return false;
 
-
   //Look for data tree
   TTree* event_tree = 0x0;
   fInput->GetObject("EventTree", event_tree);
@@ -93,32 +93,89 @@ extern void ClearGlobalData(TGlobalData* data);
 //----------------------------------------------------------------------
 void EventNavigator::CopyTree()
 {
-  DEBUG_PRINT
+  //DEBUG_PRINT
   Long64_t nentries = fEventTree->GetEntries();
-  nentries = 100;
-  TGlobalData* event = 0x0;
+  //nentries = 100;
+  TGlobalData* event = new TGlobalData();
   fEventTree->SetBranchAddress("Event", &event);
-  DEBUG_PRINT
+  fEventTree->GetDirectory()->Print();
+
+  //DEBUG_PRINT
 
   fOutput->ls();
-  TTree* out_tree = fEventTree->CloneTree(0);
-  Int_t something;
+  gFile->ls();
+  TTree* out_tree = new TTree("output_tree", "out");//fEventTree->CloneTree(0);
+  TTree* out_tree2 = new TTree("friend", "Friendly tree");
+  out_tree->SetName("ouput_event");
+  out_tree2->SetName("friendly_event");
+  Int_t something; Int_t something_else; Float_t ratio;
+  out_tree->Branch("Event", &event);
   out_tree->Branch("demo",&something,"demo/I");
-  for (Long64_t i=0; i < nentries; ++i){
+  out_tree->SetAutoSave(1000000);
+  out_tree->AddFriend(out_tree2);
+  out_tree2->Branch("mode",&something_else,"mode/I");
+  out_tree2->Branch("R",&ratio,"R/F");
+  out_tree2->SetAutoSave(1000000);
+  
+  Long64_t i;
+  DEBUG::check_clock();
+  for (/*Long64_t*/ i=0; i < nentries; ++i){
+    //std::cout << "on entry" << i << "/" << nentries << std::endl;
+    //fEventTree->GetEntry(20);
     fEventTree->GetEntry(i);
     something = i % 25;
+    something_else = i % 7;
+    ratio = (1. * something) / (1+something_else);
     out_tree->Fill();
-    if (i ==    1 || i ==    2 || i ==    5 ||
-	i ==   10 || i ==   20 || i ==   50 ||
-	i ==  100 || i ==  200 || i ==  500 ||
-	i == 1000 || i == 2000 || i == 5000 ) std::cout << "Event " << i << std::endl;
-    ClearGlobalData(event);
+    out_tree2->Fill();
+    //out_tree->AutoSave();
+    out_tree2->AutoSave();
     
+    if ( i ==    1 || i ==    2 || i ==    5 ||
+	 i ==   10 || i ==   20 || i ==   50 ||
+	 i ==  100 || i ==  200 || i ==  500 ||
+	 i % 1000 == 0 ) {
+      std::cout << "Event " << i  
+		<< ": \t" << DEBUG::check_clock().str
+		<< "\t" << DEBUG::check_mem().str 
+		<< std::endl;
+      
+    }
+    //std::cout << "map size: "<<event->fPulseIslandToChannelMap.size() << std::endl;
+    typedef std::vector<TPulseIsland*> PI_list_t;
+    typedef std::map<std::string, PI_list_t> PI2CM_t;
+    typedef PI2CM_t::iterator PI2C_iter_t;
+    int npi  =0; int npi2 = 0;
+    for (PI2C_iter_t it = event->fPulseIslandToChannelMap.begin();
+	 it != event->fPulseIslandToChannelMap.end(); ++it){
+      npi += it->second.size();
+      PI_list_t& bank = it->second;
+      for (int pui = 0; pui < bank.size() ; ++pui){
+	delete bank[pui];
+      }
+      bank.clear();
+      npi2 +=  it->second.size();
+      //typedef std::vector<int> PIdata_t; 
+      //PIdata_t samples = 
+      //for (int s =  
+      
+    }
+    //std::cout << "N islands: "<< npi << std::endl;
+    //std::cout << "After del: "<< npi2 << std::endl;
+    
+    
+    //event->Clear();
+    //ClearGlobalData(event);
+    fEventTree->Clear();
+    out_tree->Clear();
+    out_tree2->Clear();
   }
-  std::cout << nentries << " ENTRIES" << std::endl;
-
+  std::cout << nentries << " Entries" << std::endl;
+  delete event;
   out_tree->Print();
   out_tree->AutoSave();
+  out_tree2->Print();
+  out_tree2->AutoSave();
   fOutput->ls();
   fOutput->Close();
   DEBUG_PRINT

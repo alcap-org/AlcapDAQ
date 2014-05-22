@@ -46,6 +46,33 @@ TGlobalData* TGlobalData::Instance()
   return g_event;
 }
 
+//[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[
+//May be useful to track object type.  Only guarenteed across one
+//session, i.e. would need a prototype.
+//
+// #include<typeinfo>
+
+// class TypeId
+// {
+// public:
+//   inline virtual const std::type_info& GetTypeInfo();
+// };
+// const std::type_info& TypeId::GetTypeInfo(){return typeid(*this);};
+
+// class One : public TypeId
+// {};
+// class Three : public TypeId
+// {};
+
+//Example Usage
+//   One one;
+//   Three two;;
+//   std::cout << one.GetTypeInfo().name() 
+// 	    << " is not " 
+// 	    << two.GetTypeInfo().name() <<std::endl;
+
+//]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+
 //======================================================================
 int main(int argc, char **argv){
 //load_config_file("MODULES.txt");
@@ -55,7 +82,8 @@ int main(int argc, char **argv){
   int ret = analyze_command_line (argc, argv,arguments);
   if(ret!=0) return ret;
   printf("Starting event");
-  
+
+
   EventNavigator& en = EventNavigator::Instance();
   std::cout << "\n " << "###" << en.ConnectInput(arguments.infile) <<std::endl;
   en.ConnectOutputFile("demo.root");
