@@ -151,7 +151,6 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 
       // Zoom in on some plots
       if (histogram_name.find("IslandCounter") != std::string::npos) {
-	std::cout << "Here!\n";
 	ZoomAxis(hDQ_TrendPlot);
       }
 
