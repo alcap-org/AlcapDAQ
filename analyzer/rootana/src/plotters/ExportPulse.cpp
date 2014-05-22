@@ -4,15 +4,27 @@
 #include "TVAnalysedPulseGenerator.h"
 #include "MaxBinAPGenerator.h"
 #include <iostream>
-#include <utility>
+#include <algorithm> //replace_if
 #include <sstream>
 #include "RegisterModule.inc"
-
 using std::cout;
 using std::endl;
 using std::string;
 
 extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+extern Long64_t* gEntryNumber;
+
+static bool isNonCpp(char c){ 
+  bool retVal=false;
+  switch(c){
+  case '-': case '/':
+    retVal=true;
+    break;
+  default:
+    retVal=false;
+  }
+  return retVal;
+}
 
 ExportPulse::ExportPulse(modules::options* opts):
    FillHistBase("ExportPulse",opts){
@@ -24,52 +36,91 @@ ExportPulse::~ExportPulse(){
 }
 
 int ExportPulse::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
+   fSetup=TSetupData::Instance();
+   if(!fSetup){
+      cout<<"Error: TSetupData::Instance() is returning NULL..."<<endl;
+      return 1 ;
+   }
+
     return 0;
 }
 
 int ExportPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+  // To be removed once Phill finishes the event navigator
+  fGlobalData=gData; 
 
-  PulseIslandList_t thePulseIslands;
+  // Initialise variables that would be used in the loops
+  TPulseIsland* pulse;
+  const PulseIDList_t* requestedPulses;
+  PulseIslandList_t* pulseList;
 
-  // Loop through the banks
-  for (BankPulseList_t::const_iterator it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); it++){
-    std::string bankname = it->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
+  // Loop over channel that we've been requested to draw a pulse from
+  for(ChannelPulseIDs_t::const_iterator i_detector=fPulsesToPlot.begin();
+		  i_detector!=fPulsesToPlot.end();
+		  i_detector++){
+     SetCurrentDetectorName(i_detector->first);
 
-    // Loop through the pulses
-    thePulseIslands = it->second;
-    for (PulseIslandList_t::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
-      std::vector<int> theSamples = (*pulseIter)->GetSamples();
+     // Get the pulse list for this channel
+     requestedPulses=&(i_detector->second);
+     pulseList=GetPulsesFromDetector();
 
-      // Loop through the pulse IDs we want to plot
-      for (std::vector<int>::iterator pulseIDIter = fPulsesToPlot.begin(); pulseIDIter != fPulsesToPlot.end(); ++pulseIDIter) {
+     // Loop over every requested pulse for that channel
+     for(PulseIDList_t::const_iterator i_pulseID=requestedPulses->begin();
+		     i_pulseID!=requestedPulses->end();
+		     i_pulseID++){
+	     // Update the pulse info struct
+	     SetCurrentPulseID(*i_pulseID);
 
-	if (fPulseCounter == *pulseIDIter) {
-	  
-	  if(Debug()) {
-	    std::cout << "Exporting pulse #" << fPulseCounter << std::endl;
-	  }
-	  // Export the pulse island as a histogram
-	  std::stringstream histname;
-	  histname << "Pulse_" << bankname << "_" << detname << "_" << fPulseCounter;
-	  TH1F* hPulse = new TH1F(histname.str().c_str(), histname.str().c_str(), theSamples.size(),0,theSamples.size());
+        // Get the current requested TPI for this channel
+	pulse=pulseList->at(*i_pulseID);
 
-	  for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
-	    hPulse->Fill(sampleIter - theSamples.begin(), *sampleIter);
-	  }
-
-	  break;
+	// Print some stuff if wanted
+	if(Debug()){
+		cout<<"Plotting pulse: "<<*i_pulseID<<" for event "<<*gEntryNumber<<", detector: "<<GetCurrentDetectorName()<<endl;
 	}
-      } 
-      ++fPulseCounter;
-    }
+	
+	// Draw the pulse
+        MakePlot(pulse);
+     }
   }
+  return 0;
+}
+
+int ExportPulse::MakePlot(const TPulseIsland* pulse)const{
+   std::stringstream histname;
+   histname << "Pulse_" << GetCurrentBankName();
+   histname << "_" << GetCurrentDetectorName();
+   histname << "_" << *gEntryNumber;
+   histname << "_" << GetCurrentPulseID();
+   std::string hist=histname.str();
+   // replace all non c++ characters with underscore so we can use the
+   // histograms in root directly.
+   std::replace_if(hist.begin(),hist.end(), isNonCpp, '_');
+
+   std::stringstream title;
+   title << "Pulse " << GetCurrentPulseID();
+   title << " from event " << *gEntryNumber;
+   title << " on detector " << GetCurrentDetectorName();
+   title << " (" << GetCurrentBankName()<<")";
+   if(Debug()){
+	   cout <<"histname: "<<histname.str()<<endl;
+	   cout <<"Title: "<<title.str()<<endl;
+   }
+
+   size_t num_samples = pulse->GetPulseLength();
+   TH1F* hPulse = new TH1F(hist.c_str(), title.str().c_str(), num_samples,0,num_samples);
+   
+   for ( size_t i=0;i <num_samples; ++i) {
+     hPulse->SetBinContent(i+1, pulse->GetSamples().at(i));
+   }
+   hPulse->Write();
 
   return 0;
 }
 
-void ExportPulse::AddToExportList(int pulse_id) {
-  fPulsesToPlot.push_back(pulse_id);
+ExportPulse::PulseIslandList_t* ExportPulse::GetPulsesFromDetector(std::string bank){
+   if(bank=="") bank=this->GetCurrentBankName();
+   return &fGlobalData->fPulseIslandToChannelMap[bank];
 }
 
 ALCAP_REGISTER_MODULE(ExportPulse);
