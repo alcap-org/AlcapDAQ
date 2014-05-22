@@ -65,3 +65,29 @@ void ZoomAxis(TH1* hist) {
   
   hist->GetXaxis()->SetRange(1, max_bin); // set the range based on bin number
 }
+
+// void ZoomAxis(TH2* hist)
+// -- Find the range we want on the y-axis for the trend plots
+void ZoomAxis(TH2* hist) {
+
+  int max_bin = 0;
+
+  // Loop through the y-axis first and then see which run has the highest bin
+  for (int jBin = hist->GetNbinsY(); jBin > 0; --jBin) {
+
+    for (int iBin = hist->GetNbinsX(); iBin > 0; --iBin) {
+
+      if (hist->GetBinContent(iBin, jBin) >= 1) {
+	
+	// See if this bin is higher than the previous
+	if (jBin > max_bin) {
+	  max_bin = jBin;
+	  break;
+	}
+      }
+    }
+  }
+  
+  hist->GetYaxis()->SetRange(1, max_bin); // set the range based on bin number
+
+}
