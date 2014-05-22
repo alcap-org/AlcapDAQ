@@ -21,8 +21,10 @@ debug=all
 # it) or else give options in a section that starts with that modules alias
 # Using aliases means we can have multiple instance of a module
 [ MODULES ]
+# Format is alias = ModuleClass
 analyse_pulses = MakeAnalysedPulses 
 detector_pulses = MakeDetectorPulses
+ExportPulse
 #### end of modules list ######
 
 ####### begin of module specific options ######
