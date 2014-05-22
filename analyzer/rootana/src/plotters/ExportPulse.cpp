@@ -28,7 +28,6 @@ static bool isNonCpp(char c){
 
 ExportPulse::ExportPulse(modules::options* opts):
    FillHistBase("ExportPulse",opts){
-        fPulseCounter = 0;
 	dir->cd("/");
 }
 
