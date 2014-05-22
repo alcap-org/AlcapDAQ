@@ -45,8 +45,9 @@ int ExportPulse::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
 }
 
 int ExportPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
-  // To be removed once Phill finishes the event navigator
+  // To be corrected once Phill finishes the event navigator
   fGlobalData=gData; 
+  SetCurrentEventNumber(*gEntryNumber);
 
   // Initialise variables that would be used in the loops
   TPulseIsland* pulse;
@@ -75,7 +76,7 @@ int ExportPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
 	// Print some stuff if wanted
 	if(Debug()){
-		cout<<"Plotting pulse: "<<*i_pulseID<<" for event "<<*gEntryNumber<<", detector: "<<GetCurrentDetectorName()<<endl;
+		cout<<"Plotting pulse: "<<*i_pulseID<<" for event "<<GetCurrentEventNumber()<<", detector: "<<GetCurrentDetectorName()<<endl;
 	}
 	
 	// Draw the pulse
@@ -89,7 +90,7 @@ int ExportPulse::MakePlot(const TPulseIsland* pulse)const{
    std::stringstream histname;
    histname << "Pulse_" << GetCurrentBankName();
    histname << "_" << GetCurrentDetectorName();
-   histname << "_" << *gEntryNumber;
+   histname << "_" << GetCurrentEventNumber();
    histname << "_" << GetCurrentPulseID();
    std::string hist=histname.str();
    // replace all non c++ characters with underscore so we can use the
@@ -98,7 +99,7 @@ int ExportPulse::MakePlot(const TPulseIsland* pulse)const{
 
    std::stringstream title;
    title << "Pulse " << GetCurrentPulseID();
-   title << " from event " << *gEntryNumber;
+   title << " from event " << GetCurrentEventNumber();
    title << " on detector " << GetCurrentDetectorName();
    title << " (" << GetCurrentBankName()<<")";
    if(Debug()){
@@ -114,7 +115,7 @@ int ExportPulse::MakePlot(const TPulseIsland* pulse)const{
    }
    hPulse->Write();
 
-  return 0;
+   return 0;
 }
 
 ExportPulse::PulseIslandList_t* ExportPulse::GetPulsesFromDetector(std::string bank){

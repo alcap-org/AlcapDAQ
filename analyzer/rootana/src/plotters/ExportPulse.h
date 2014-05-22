@@ -44,14 +44,17 @@ class ExportPulse : public FillHistBase{
   PulseIslandList_t* GetPulsesFromDetector(std::string bank="");
 
   void SetCurrentPulseID(const PulseID_t& id){fPulseInfo.ID=id;};
+  void SetCurrentEventNumber(const Long64_t& num){fEventNumber=num;};
   void SetCurrentDetectorName(const std::string& detector);
 
   PulseID_t GetCurrentPulseID()const{return fPulseInfo.ID;};
+  Long64_t GetCurrentEventNumber()const{return fEventNumber;};
   std::string GetCurrentDetectorName()const{return fPulseInfo.detname;};
   std::string GetCurrentBankName()const{return fPulseInfo.bankname;};
 
  private:
 
+  Long64_t fEventNumber;
   ChannelPulseIDs_t fPulsesToPlot;
   PulseInfo_t fPulseInfo;
   TSetupData* fSetup;
