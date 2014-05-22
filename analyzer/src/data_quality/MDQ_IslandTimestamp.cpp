@@ -37,6 +37,7 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MDQ_IslandTimestamp_init(void);
 INT  MDQ_IslandTimestamp(EVENT_HEADER*, void*);
+INT  MDQ_IslandTimestamp_eor(INT);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -44,13 +45,15 @@ extern TSetupData* gSetup;
 
 map <std::string, TH1F*> DQ_IslandTimestamp_histograms_map;
 
+extern TH1F* hDQ_TDCCheck_muSc;
+
 ANA_MODULE MDQ_IslandTimestamp_module =
 {
 	"MDQ_IslandTimestamp",                    /* module name           */
 	"Andrew Edmonds",              /* author                */
 	MDQ_IslandTimestamp,                      /* event routine         */
 	NULL,                          /* BOR routine           */
-	NULL,                          /* EOR routine           */
+	MDQ_IslandTimestamp_eor,                          /* EOR routine           */
 	MDQ_IslandTimestamp_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
 	NULL,                          /* parameter structure   */
@@ -83,11 +86,41 @@ INT MDQ_IslandTimestamp_init()
     std::string histtitle = "Distribution of time stamps in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 1200, 0, 120e6);
     hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
-    hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands");
+    hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands per muSc TDC Hit");
     DQ_IslandTimestamp_histograms_map[bankname] = hDQ_Histogram;
   }
 
   gDirectory->Cd("/MidasHists/");
+  return SUCCESS;
+}
+
+
+/** This method does any last minute things to the histograms at the end of the run
+ */
+INT MDQ_IslandTimestamp_eor(INT run_number) {
+
+  // Some typedefs
+  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
+  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
+  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  
+  // Fetch a reference to the gData structure that stores a map
+  // of (bank_name, vector<TPulseIsland*>) pairs
+  TStringPulseIslandMap& pulse_islands_map =
+    gData->fPulseIslandToChannelMap;
+
+  // Loop over the map and get each bankname, vector pair
+  for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) {
+
+    std::string bankname = mapIter->first;
+    std::string detname = gSetup->GetDetectorName(bankname);
+      
+    // Make sure the histograms exist and then fill them
+    if (DQ_IslandTimestamp_histograms_map.find(bankname) != DQ_IslandTimestamp_histograms_map.end()) {
+      DQ_IslandTimestamp_histograms_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
+    }
+  }
+
   return SUCCESS;
 }
 
