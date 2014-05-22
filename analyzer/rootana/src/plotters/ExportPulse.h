@@ -56,7 +56,6 @@ class ExportPulse : public FillHistBase{
   PulseInfo_t fPulseInfo;
   TSetupData* fSetup;
 
-  int fPulseCounter; // to be removed
   TGlobalData* fGlobalData; // To be removed once Phill finishes the event navigator
 
 };
