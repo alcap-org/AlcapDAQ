@@ -37,6 +37,7 @@ static TFile *gInFile=NULL;
 // number is.  I'm assuming Phill's Event Navigator will provide this
 // functionality, so I'll remove this at that point.
 Long64_t* gEntryNumber;
+Long64_t* gTotalEntries;
 
 TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
 static TTree *gAnalysedPulseTree = NULL;
@@ -148,6 +149,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   else if((Long64_t)arguments.start < nentries && arguments.start > 0){
     stop = (Long64_t)arguments.start;
   }
+  gTotalEntries=&stop;
   // wind the file on to the first event
   dataTree->GetEntry(start);
 
