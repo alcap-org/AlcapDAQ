@@ -38,6 +38,7 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MDQ_Amplitude_init(void);
 INT  MDQ_Amplitude(EVENT_HEADER*, void*);
+INT  MDQ_Amplitude_eor(INT);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -55,13 +56,15 @@ extern TROOT * gROOT;
 
 map <std::string, TH1F*> DQ_Amplitude_histograms_map;
 
+extern TH1F* hDQ_TDCCheck_muSc;
+
 ANA_MODULE MDQ_Amplitude_module =
 {
 	"MDQ_Amplitude",                    /* module name           */
 	"Nam Tran",              /* author                */
 	MDQ_Amplitude,                      /* event routine         */
 	NULL,                          /* BOR routine           */
-	NULL,                          /* EOR routine           */
+	MDQ_Amplitude_eor,                          /* EOR routine           */
 	MDQ_Amplitude_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
 	NULL,                          /* parameter structure   */
@@ -100,11 +103,40 @@ INT MDQ_Amplitude_init()
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
 				max_adc_value, 0, max_adc_value);
     hDQ_Histogram->GetXaxis()->SetTitle("Amplitude [adc]");
-    hDQ_Histogram->GetYaxis()->SetTitle("Count");
+    hDQ_Histogram->GetYaxis()->SetTitle("Counts per muSc TDC Hit");
     DQ_Amplitude_histograms_map[bankname] = hDQ_Histogram;
   }
 
   gDirectory->Cd("/MidasHists/");
+  return SUCCESS;
+}
+
+/** This method does any last minute things to the histograms at the end of the run
+ */
+INT MDQ_Amplitude_eor(INT run_number) {
+
+  // Some typedefs
+  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
+  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
+  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  
+  // Fetch a reference to the gData structure that stores a map
+  // of (bank_name, vector<TPulseIsland*>) pairs
+  TStringPulseIslandMap& pulse_islands_map =
+    gData->fPulseIslandToChannelMap;
+
+  // Loop over the map and get each bankname, vector pair
+  for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) {
+
+    std::string bankname = mapIter->first;
+    std::string detname = gSetup->GetDetectorName(bankname);
+      
+    // Make sure the histograms exist and then fill them
+    if (DQ_Amplitude_histograms_map.find(bankname) != DQ_Amplitude_histograms_map.end()) {
+      DQ_Amplitude_histograms_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
+    }
+  }
+
   return SUCCESS;
 }
 

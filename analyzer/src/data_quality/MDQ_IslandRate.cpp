@@ -45,6 +45,8 @@ extern TSetupData* gSetup;
 
 TH1F* hDQ_IslandRate;
 
+extern TH1F* hDQ_TDCCheck_muSc;
+
 ANA_MODULE MDQ_IslandRate_module =
 {
 	"MDQ_IslandRate",                    /* module name           */
@@ -76,7 +78,7 @@ INT MDQ_IslandRate_init()
   std::string histtitle = "The total island rate in each channel";
   hDQ_IslandRate = new TH1F(histname.c_str(), histtitle.c_str(), 1,0,1);
   hDQ_IslandRate->GetXaxis()->SetTitle("Detector (Bank)");
-  hDQ_IslandRate->GetYaxis()->SetTitle("Island Rate [TPI s^{-1}]");
+  hDQ_IslandRate->GetYaxis()->SetTitle("Island Rate [TPI per second per muSc TDC Hit]");
   hDQ_IslandRate->SetBit(TH1::kCanRebin);
 
 
@@ -134,6 +136,8 @@ INT MDQ_IslandRate_eor(INT run_number) {
   int duration = StopTimes[0] - StartTimes[0]; // length of run in seconds (checked against run #2600)
 
   hDQ_IslandRate->Scale(1.0/duration);
+
+  hDQ_IslandRate->Scale(1.0/hDQ_TDCCheck_muSc->GetEntries()); // also normalise to the number of muSc hits in the TDC
 
   return SUCCESS;
 }
