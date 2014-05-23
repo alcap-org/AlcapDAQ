@@ -83,29 +83,31 @@ class TSetupData : public TObject{
   static bool IsSlow(const std::string& BankName) { return (*BankName.end() -1 ) == 'S'; } // if the last letter is S then the bank name is for a Slow pulse
   static bool IsFast(const std::string& BankName) { return (*(BankName.end() -1)  == 'F' || BankName.substr(0,2) == "Sc" ); } // if the last letter is F then the bank name is for a Fast pulse
 
-	bool IsEnable(const std::string& BankName){return GetEnableBit(BankName);}
+  bool IsEnable(const std::string& BankName){return GetEnableBit(BankName);}
 private:
-  // A small helper function to save us copying this about the place all the time
+  // A small helper function to save us copying this about the place
+  // all the time
   double GetValue(const std::map<std::string,double>& map,const std::string& BankName)const{
-          std::map<std::string, double>::const_iterator it=map.find(BankName); 
-          if(it!=map.end()) return it->second;
-          return 0.;
+    std::map<std::string, double>::const_iterator it=map.find(BankName); 
+    if(it!=map.end()) return it->second;
+    return 0.;
   }
 
   int GetValue(const std::map<std::string,int>& map,const std::string& BankName)const{
-          std::map<std::string, int>::const_iterator it=map.find(BankName); 
-          if(it!=map.end()) return it->second;
-          return 0;
+    std::map<std::string, int>::const_iterator it=map.find(BankName); 
+    if(it!=map.end()) return it->second;
+    return 0;
   }
 
-	bool GetValue(const std::map<std::string,bool>& map,const std::string& BankName)const{
-		std::map<std::string, bool>::const_iterator it=map.find(BankName); 
-		if(it!=map.end()) 
-			return it->second;
-		else
-			return false;
-	}
-  ClassDef(TSetupData, 2)
+  bool GetValue(const std::map<std::string,bool>& map,const std::string& BankName)const{
+    std::map<std::string, bool>::const_iterator it=map.find(BankName); 
+    if(it!=map.end()) 
+      return it->second;
+    else
+      return false;
+  }
+
+  ClassDef(TSetupData, 3)
 
 };
 #endif
