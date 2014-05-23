@@ -161,7 +161,8 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
       if (histogram_name.find("TDiff") != std::string::npos ||
 	  histogram_name.find("Amplitude") != std::string::npos ||
 	  histogram_name.find("IslandLength") != std::string::npos ||
-	  histogram_name.find("IslandRate") != std::string::npos) {
+	  histogram_name.find("IslandRate") != std::string::npos) ||
+	  histogram_name.find("IslandCounter") != std::string::npos) {
 	c1->SetLogz(1);
       }
       else {
