@@ -21,8 +21,10 @@ debug=all
 # it) or else give options in a section that starts with that modules alias
 # Using aliases means we can have multiple instance of a module
 [ MODULES ]
+# Format is alias = ModuleClass
 analyse_pulses = MakeAnalysedPulses 
 detector_pulses = MakeDetectorPulses
+draw_pulses = ExportPulse
 #### end of modules list ######
 
 ####### begin of module specific options ######
@@ -52,5 +54,11 @@ SiR2-F+=PeakFitter(0.5,0.3)
 [ignored_section]
 # options are formed by key-value pairs, separated by an equals sign.
 option3=8
+
+[draw_pulses]
+# The ExportPulse module can be told to draw a pulse by specifying a channel
+# and a list of pulses.  Each entry in the list should be separated by a
+# colon.  To specify Pulse 2 for Event 1 on the SiR2-S detector, do:
+SiR2-S=  1(2)
 
 ####### end of module specific options ######

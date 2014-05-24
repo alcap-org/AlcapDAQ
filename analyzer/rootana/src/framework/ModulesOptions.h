@@ -10,6 +10,9 @@ namespace modules{
 }
 
 class modules::options{
+    public:
+	typedef std::map<std::string,std::string> OptionsList_t;
+	typedef std::vector<OptionsList_t::iterator> OptionsOrder_t;
 
     public:
 	options(const std::string& name):fModuleName(name){
@@ -34,6 +37,10 @@ class modules::options{
 	bool HasOption(const std::string&)const;
 	bool GetNumOptions()const{return fOptions.size();};
 	std::string GetOption(const std::string&)const;
+	//OptionsList_t::iterator begin(){return fOptions.begin();};
+	OptionsList_t::const_iterator begin()const{return fOptions.begin();};
+	//OptionsList_t::iterator end(){return fOptions.end();};
+	OptionsList_t::const_iterator end()const{return fOptions.end();};
 
 	void DumpOptions(const std::string& prefix="     ")const;
     private:
@@ -42,8 +49,6 @@ class modules::options{
 
 	static int MakeIdNumber();
     private:
-	typedef std::map<std::string,std::string> OptionsList_t;
-	typedef std::vector<OptionsList_t::iterator> OptionsOrder_t;
 	OptionsList_t fOptions;
 	OptionsOrder_t fOrder;
 	int fIdNumber;
