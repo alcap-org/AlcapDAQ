@@ -24,7 +24,7 @@ debug=all
 # Format is alias = ModuleClass
 analyse_pulses = MakeAnalysedPulses 
 detector_pulses = MakeDetectorPulses
-ExportPulse
+draw_pulses = ExportPulse
 #### end of modules list ######
 
 ####### begin of module specific options ######
@@ -54,5 +54,9 @@ SiR2-F+=PeakFitter(0.5,0.3)
 [ignored_section]
 # options are formed by key-value pairs, separated by an equals sign.
 option3=8
+
+[draw_pulses]
+SiR2-S= 1 (0) : 1(2)
+# print_summary
 
 ####### end of module specific options ######
