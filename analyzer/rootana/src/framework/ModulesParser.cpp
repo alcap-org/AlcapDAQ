@@ -3,6 +3,9 @@
 #include <string.h>
 #include <algorithm>
 #include <stdio.h>
+#include <iostream>
+using std::cout;
+using std::endl;
 
 int modules::parser::TokeniseByWhiteSpace(const std::string& input, std::vector<std::string>& output){
     std::stringstream ss(input);
@@ -24,7 +27,7 @@ int modules::parser::TokeniseByDelimiter(const std::string& input, std::vector<s
 }
 
 std::string modules::parser::GetOneWord(const std::string& in, size_t start, size_t stop){
-	std::stringstream ss(in.substr(start,stop));
+	std::stringstream ss(in.substr(start,stop-start));
 	std::string word;
 	ss>>word;
 	return word;
@@ -47,7 +50,7 @@ std::pair<std::string,std::string> modules::parser::ParseConstructor(std::string
 
 size_t modules::parser::RemoveWhitespace(std::string& input){
 	std::string::iterator new_end=std::remove_if(input.begin(),input.end(),modules::parser::IsWhitespace);
-	input.erase(input.begin(),new_end);
+	input.erase(new_end,input.end());
 	return input.size();
 }
 
@@ -66,8 +69,8 @@ bool modules::parser::IsWhitespace(char in){
 bool modules::parser::IsDigit(char in){
 	bool retval=false;
 	switch(in){
-		case 0: case 1: case 2: case 3: case 4:
-		case 5: case 6: case 7: case 8: case 9:
+		case '0': case '1': case '2': case '3': case '4':
+		case '5': case '6': case '7': case '8': case '9':
 			retval=true;
 	}
 	return retval;
