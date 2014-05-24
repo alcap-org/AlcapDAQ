@@ -27,8 +27,8 @@ class ODBCheck {
 private:
   int fRun;
   WireMap fODB;
+  WireMap fCorrections;
   DataDir fDataDirs;
-  bool fLoadODBFile;
   PulseEstimate fEstimate;
   std::ofstream fCorrectionsFile;
 
@@ -37,21 +37,16 @@ public:
   ~ODBCheck();
 
   // Set the directories to look for the different files we might need. Store in DataDir object.
-  // First signature sets values according to arguments.
-  // Second signature prompts.
   // The directories are, in order:
   // Raw data directory (MIDAS files; input)
   // ODB data directory (ODB files; input)
   // Histograms directory (hist?????.root files; input)
   // Corrections directory (correction*.dat files for rootana; output)
   void SetDirs(const std::string& raw, const std::string& odb, const std::string& hist, const std::string& corr);
-  void SetDirs();
 
 private:
-  // Check if the estimates are different than the ODB values,
-  // and output the estimates to a correction file if so,
-  // or the original ODB values if not.
-  void OutputCorrections(WireMap corr);
+  // Output the estimates to a correction file (ODB format)
+  void OutputCorrections();
 
 public:
   /*** The bulk ***/
@@ -60,12 +55,6 @@ public:
   // estimates different from the ODB values and keep track of everything in a trends
   // file.
   void Check(int run);
-
-  // We can load the ODB values from either the ODB file or
-  // the raw data file (ODB is dumped in ASCII format in
-  // the header). This tells the ODBCheck which to do.
-  void LoadODBFromODBFile();
-  void LoadODBFromDataFile();
 };
 
 #endif

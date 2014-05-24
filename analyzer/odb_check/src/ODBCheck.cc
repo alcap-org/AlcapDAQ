@@ -8,8 +8,9 @@
 #include <iostream>
 #include <sstream>
 
-ODBCheck::ODBCheck() : fRun(0), fODB(), fDataDirs(),
-		       fLoadODBFile(true), fEstimate(), fCorrectionsFile(), fMonitorPlotsFile(NULL) {}
+ODBCheck::ODBCheck() : fRun(0), fODB(), fCorrections(), fDataDirs(),
+		       fEstimate(), fCorrectionsFile() {
+}
 
 ODBCheck::~ODBCheck() {
 }
@@ -21,115 +22,147 @@ void ODBCheck::SetDirs(const std::string& raw, const std::string& odb, const std
   fDataDirs.SetCorrDir(corr);
 }
 
-void ODBCheck::SetDirs() {
-  fDataDirs.SetRawDir();
-  fDataDirs.SetODBDir();
-  fDataDirs.SetHistDir();
-  fDataDirs.SetCorrDir();
-}
+void ODBCheck::OutputCorrections() {
+  // Some constants used in this function
+  static const std::string header("[/Analyzer/Wiremap]");
+  static const std::string pol_key("TriggerPolarity = INT");
+  static const std::string ped_key("Pedestal = INT");
+  static const std::string time_key("TimeShift = FLOAT");
 
-void ODBCheck::InitiateCorrectionsFile() {
+  static const std::string key_tail_sm("[48] :"); // < Run 2173
+  static const std::string key_tail_lg("[52] :"); // >= Run 2173
+  static std::string key_tail;
+  
+  // Open the file
   if (fCorrectionsFile.is_open()) {
-    std::cout << "ODBCheck WARNING: Corrections file already open!" << std:endl;
+    std::cout << "ODBCheck WARNING: Corrections file already open. Closing old file..." << std:endl;
     fCorrectionsFile.close();
-    fCorrectionsFile.open(fDataDirs.GetCorrFileName(fRun).c_str());
   }
-  if (!fCorrectionsFile.is_open())
+  fCorrectionsFile.open(fDataDirs.GetCorrFileName(fRun).c_str());
+  if (!fCorrectionsFile.is_open()) {
     std::cout <<
       "ODBCheck ERROR: Cannot open correction file (" <<
-      fDataDirs.GetCorrFileName(fRun) << ")!" << std::endl;
-}
-
-void ODBCheck::OutputCorrections(WireMap corr) {
-  if (fCorrectionsFile.is_open()) {
-    if (s && s->GetEntries()) {
-      if (i >= fODB.pedestal.size() || fODB.pedestal[i] != fEstimate.GetPedestal()) {
-	fCorrectionsFile << fODB.bankname[i] << "\tPedestal\t" << fEstimate.GetPedestal() << std::endl;
-	FillMonitorPlots(fODB.bankname[i], "Pedestal", run_number, fEstimate.GetPedestal());
-      }
-      else {
-	FillMonitorPlots(fODB.bankname[i], "Pedestal", run_number, fODB.pedestal[i]);
-      }
-
-      if (i >= fODB.pedestal.size() || fODB.polarity[i] != fEstimate.GetPolarity()) {
-	fCorrectionsFile << fODB.bankname[i] << "\tPolarity\t" << fEstimate.GetPolarity() << std::endl;
-	FillMonitorPlots(fODB.bankname[i], "Polarity", run_number, fEstimate.GetPolarity());
-      }
-      else {
-	FillMonitorPlots(fODB.bankname[i], "Polarity", run_number, fODB.polarity[i]);
-      }
-    }
-
-    if (t && t->GetEntries()) {
-      if (i >= fODB.offset.size() || fODB.offset[i] != fEstimate.GetOffset()) {
-	fCorrectionsFile << fODB.bankname[i] << "\tTimeShift\t" << fEstimate.GetOffset() << std::endl;
-	FillMonitorPlots(fODB.bankname[i], "TimeShift", run_number, fEstimate.GetOffset());
-      }
-      else {
-	FillMonitorPlots(fODB.bankname[i], "TimeShift", run_number, fODB.offset[i]);
-      }
-    }
+      fDataDirs.GetCorrFileName(fRun) << ")!" <<
+      std::endl <<
+      "                Corrections file not written!" <<
+      std::endl;
+    return;
   }
+  
+  // Resize corrected wiremap for consistency
+  fCorrections.ResizeToBanks();
+
+  // Sanity check
+  // If the number of detectors is 52, the run number must be greater than 2173
+  // If it is 48, the run must have been before then
+  // Otherwise, there's an error
+  int ndets = fCorrections.GetNDets();
+  if ((ndets == 48 && fCorrections.GetRun() >= 2173) ||
+      (ndets == 52 && fCorrections.GetRun() < 2173)) {
+    std::cout << "ODBCheck ERROR: Corrected wiremap has run (" << fCorrections.GetRun() <<
+      ") and number of detectors (" << ndets << ") that disagree with how the run went!" <<
+      std::endl << "                Not outputting corrections." << std::endl;
+    return;
+  }
+    
+  // The tail of the keys depends on the size
+  if (ndets == 48) {
+    key_tail = key_tail_sm;
+  } else if (ndets == 52) {
+    key_tail = key_tail_lg;
+  } else {
+    std::cout <<
+      "ODBCheck ERROR: Corrected WireMap has detector count not 48 or 52! (" <<
+      fCorrections.GetNDets() << ")" << std::endl;
+    return;
+  }
+
+  // Write the file
+  // The lines must be of the form
+  // [INDEX] VALUE
+  fCorrectionsFile << header << std::endl;
+  fCorrectionsFile << pol_kay << key_tail << std::endl;
+  for (int idet = 0; idet < ndets; ++idet)
+    fCorrectionsFile << "[" << idet << "]" << fCorrections.GetPolarities()[idet] << std::endl; 
+  fCorrectionsFile << ped_kay << key_tail << std::endl;
+  for (int idet = 0; idet < ndets; ++idet)
+    fCorrectionsFile << "[" << idet << "]" << fCorrections.GetPedestals()[idet] << std::endl; 
+  fCorrectionsFile << time_kay << key_tail << std::endl;
+  for (int idet = 0; idet < ndets; ++idet)
+    fCorrectionsFile << "[" << idet << "]" << fCorrections.GetOffsets()[idet] << std::endl; 
+  fCorrectionsFile << std::endl;
+
+  fCorrectionsFile.close();
 }
 
 void ODBCheck::Check(int run) {
   TFile hist_file(fDataDirs.GetHistFileName(run).c_str(), "READ");
 
-  if (!hist_file.IsOpen())
+  if (!hist_file.IsOpen()) {
+    std::cout <<
+      "ODBCheck ERROR: Cannot open histogram file! (" <<
+      fDataDirs.GetHistFileName(run).c_str() << ")" <<
+      std::endl;
     return;
-  if (fRun != run) {
-    fRun = run;
-    if (fLoadODBFile)
-      fODB.LoadFromFile(fDataDirs.GetODBFileName(fRun));
-    else
-      fODB.LoadFromFile(fDataDirs.GetRawFileName(fRun));
-    InitiateCorrectionsFile();
   }
+
+  if (fRun == run)
+    std::cout <<
+      "ODBCheck MESSAGE: It seems you've already checked this run (" <<
+      fRun << "). Checking again...";
+
+  std::vector<std::string> default_odbs;
+
+
+  fRun = run;
+  fODB.Load(fDataDirs.GetODBFileName(fRun));
 
   // The value we're looping over is the bank names in the ODB.
   // Some corresponding detector names are not real,
   // such as "blank". We hope these histograms do not exist so
   // that we don't process them unnecessarily.
-  for (unsigned int i = 0; i < fODB.n; ++i) {
+  for (unsigned int i = 0; i < fODB.GetNDets(); ++i) {
+    // We look for the shapes and timing histograms
     TH1* shapes;
     TH1* timing;
-    hist_file.GetObject(("h" + fODB.bankname[i] + "_Shapes").c_str(), shapes);
-    hist_file.GetObject(("MuSC_TimingCorrelations/hMuSC_" + fODB.detname[i] + "_Timediff").c_str(), timing);
-    if (shapes && shapes->GetEntries())
-      fEstimate.Estimate(shapes);
-    if (timing && timing->GetEntries())
-      fEstimate.Estimate(timing);
-    OutputCorrectionsIfNeeded(i, shapes, timing, run);
+    hist_file.GetObject(("DataQuality_LowLevel/hDQ_PulseShapes_ProjectionY_" + fODB.GetDets()[i] + "_" + fODB.GetBanks()[i]).c_str(), shapes);
+    hist_file.GetObject(("DataQuality_LowLevel/hDQ_muScTDiff_" + fODB.GetDets()[i] + "_" + fODB.GetBanks()[i]).c_str(), timing);
+
+    // Only if both histograms are present and filled are corrections estimated
+    if (!shapes) {
+      std::cout <<
+	"ODBCheck WARNING: Shapes histogram not found! Corrections not included for " <<
+	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
+	std::endl;
+      fCorr.Add(fODB, i);
+    } else if (!timing) {
+      std::cout <<
+	"ODBCheck WARNING: Timing histogram not found! Corrections not included for " <<
+	fODB.GetDets[i] << "_" << fODB.GetBanks()[i] << "..." <<
+	std::endl;
+      fCorr.Add(fODB, i);
+    } else if (!shapes->GetEntries()) {
+      std::cout <<
+	"ODBCheck WARNING: Shapes histogram empty! Corrections not included for " <<
+	fODB.GetDets()[i] << "_" << fODB.GetBanks[i] << "..." <<
+	std::endl;
+      fCorr.Add(fODB, i);
+    } else if (!timing->GetEntries()) {
+      std::cout <<
+	"ODBCheck WARNING: Timing histogram empty! Corrections not included for " <<
+	fODB.GetDets[i] << "_" << fODB.GetBanks[i] << "..." <<
+	std::endl;
+      fCorr.Add(fODB, i);
+    } else {
+      fEstimate.Estimate(shapes, timing);
+      fCorr.Add(fODB.GetBanks()[i], fODB.GetDets()[i], fEstimate.GetPedestal(), fEStimate.GetPolarity(), 0, fEstimate.GetOffset());
+    }
     delete shapes;
     delete timing;
     shapes = NULL;
     timing = NULL;
   }
   hist_file.Close();
-}
 
-void ODBCheck::LoadODBFromODBFile() {
-  fLoadODBFile = true;
-}
-
-void ODBCheck::LoadODBFromDataFile() {
-  fLoadODBFile = false;
-}
-
-void ODBCheck::FillMonitorPlots(std::string bank_name, std::string fieldname, int run_number, double value) {
-
-  std::string histname = bank_name + "_" + fieldname;
-  std::map<std::string, TH1F*>& bank_to_hist_map = fHistogramMap[fieldname]; // want a reference to the actual map so that all the runs are added to the same histogram
-
-  // Try and find the histogram for this bank and if it's not there, then create it
-  if (bank_to_hist_map.find(bank_name) == bank_to_hist_map.end()) {
-    fMonitorPlotsFile->cd();
-    bank_to_hist_map[bank_name] = new TH1F(histname.c_str(), histname.c_str(), 100, run_number, run_number+100);
-    bank_to_hist_map[bank_name]->SetBit(TH1::kCanRebin);
-    bank_to_hist_map[bank_name]->GetXaxis()->SetTitle("Run Number");
-    bank_to_hist_map[bank_name]->GetYaxis()->SetTitle(fieldname.c_str());
-  }
-
-  // Fill the histogram
-  bank_to_hist_map[bank_name]->Fill(run_number, value);
+  /*** OUTPUT CORRECTIONS ***/
 }
