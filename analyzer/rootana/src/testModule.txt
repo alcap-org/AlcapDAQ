@@ -56,7 +56,9 @@ SiR2-F+=PeakFitter(0.5,0.3)
 option3=8
 
 [draw_pulses]
-SiR2-S= 1 (0) : 1(2)
-# print_summary
+# The ExportPulse module can be told to draw a pulse by specifying a channel
+# and a list of pulses.  Each entry in the list should be separated by a
+# colon.  To specify Pulse 2 for Event 1 on the SiR2-S detector, do:
+SiR2-S=  1(2)
 
 ####### end of module specific options ######
