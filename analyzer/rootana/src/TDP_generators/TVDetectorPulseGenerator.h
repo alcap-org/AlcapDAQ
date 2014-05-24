@@ -2,11 +2,10 @@
 #define TVDETECTORPULSEGENERATOR_H__
 
 #include "TSetupData.h"
+#include "TAnalysedPulse.h"
+#include "TDetectorPulse.h"
 #include <vector>
 #include <string>
-
-class TPulseIsland;
-class TDetectorPulse;
 
 class TVDetectorPulseGenerator {
  protected:
