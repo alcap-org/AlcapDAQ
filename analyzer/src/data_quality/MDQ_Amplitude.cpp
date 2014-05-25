@@ -4,8 +4,7 @@ Name:         MDQ_Amplitude
 Created by:   Nam Tran
 
 Contents:     hDQ_Amplitude_[DetName]_[BankName]
-               - plots the amplitude of the pulse as calculated by the TPulseIsland, 
-                 which is the height of the maximum bin above the pedestal
+               - plots the ADC value of the peak sample
 \********************************************************************/
 
 /* Standard includes */
@@ -181,8 +180,9 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 					DQ_Amplitude_histograms_map[bankname]->Fill(amplitude);
 				}
 			  */
-			  int amplitude = (*pulseIter)->GetPulseHeight();
-			  DQ_Amplitude_histograms_map[bankname]->Fill(amplitude);
+			  const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
+			  int peak_sample = (*pulseIter)->GetPeakSample();
+			  DQ_Amplitude_histograms_map[bankname]->Fill(theSamples.at(peak_sample));
 				
 	    }
 	  }
