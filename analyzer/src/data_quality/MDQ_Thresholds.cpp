@@ -120,6 +120,7 @@ INT MDQ_Thresholds_eor(INT run_number) {
       int iChn = (int)(bankname[1] - 97);
       std::string iAddr = bankname.substr(2, 2);
 
+      // Get the lower threshold
       sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Channel %d/Lower threshold", iAddr.c_str(), iChn);
       if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
 	printf("Warning: Could not find key %s\n", keyName);
@@ -136,8 +137,29 @@ INT MDQ_Thresholds_eor(INT run_number) {
 	printf("Warning: Could not retrieve values for key %s\n", keyName);
 	return false;
       }
-      printf("%s lower threshold = %d\n", bankname.c_str(), LowerThresholds[0]);
 
+
+      // Upper threshold
+      sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Channel %d/Upper threshold", iAddr.c_str(), iChn);
+      if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      KEY upper_threshold_key;
+      if(db_get_key(hDB, hKey, &upper_threshold_key) != DB_SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      INT UpperThresholds[upper_threshold_key.num_values];
+      size = sizeof(UpperThresholds);
+      if(db_get_value(hDB, 0, keyName, UpperThresholds, &size, TID_INT, 0) != DB_SUCCESS){
+	printf("Warning: Could not retrieve values for key %s\n", keyName);
+	return false;
+      }
+
+      // Print the results
+      printf("%s lower threshold = %d\n", bankname.c_str(), LowerThresholds[0]);
+      printf("%s upper threshold = %d\n", bankname.c_str(), UpperThresholds[0]);
     }
     else if (TSetupData::Instance()->IsHoustonCAEN(bankname)) {
       // get teh IH CAEN threholds
