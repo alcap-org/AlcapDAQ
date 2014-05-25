@@ -4,7 +4,7 @@ Name:         MDQ_DAQLivetime
 Created by:   Andrew Edmonds
 
 Contents:     hDQ_DAQLivetime
-              - plots the duration of the run
+              - plots the livetime of the DAQ, calculated from the sum of event times by the total run time
 
 \********************************************************************/
 
@@ -73,10 +73,10 @@ INT MDQ_DAQLivetime_init()
 
   // hDQ_DAQLivetime
   std::string histname = "hDQ_DAQLivetime";
-  std::string histtitle = "The duration of the run";
+  std::string histtitle = "DAQ Livetime of the Run";
   hDQ_DAQLivetime = new TH1F(histname.c_str(), histtitle.c_str(), 3,0,3);
   hDQ_DAQLivetime->GetXaxis()->SetTitle("");
-  hDQ_DAQLivetime->GetYaxis()->SetTitle("Run Time [s]");
+  hDQ_DAQLivetime->GetYaxis()->SetTitle("DAQ Livetime");
 
 
   gDirectory->Cd("/MidasHists/");
