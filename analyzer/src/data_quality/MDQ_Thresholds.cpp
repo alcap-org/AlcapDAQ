@@ -106,43 +106,46 @@ INT MDQ_Thresholds_eor(INT run_number) {
     return false;
   }
 
-  sprintf(keyName, "/Runinfo/Start time binary");
-  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
-    printf("Warning: Could not find key %s\n", keyName);
-    return false;
-  }
-  KEY start_time_key;
-  if(db_get_key(hDB, hKey, &start_time_key) != DB_SUCCESS){
-    printf("Warning: Could not find key %s\n", keyName);
-    return false;
-  }
-  DWORD StartTimes[start_time_key.num_values];
-  int size = sizeof(StartTimes);
-  if(db_get_value(hDB, 0, keyName, StartTimes, &size, TID_DWORD, 0) != DB_SUCCESS){
-    printf("Warning: Could not retrieve values for key %s\n", keyName);
-    return false;
-  }
+  // Loop through the channels and get the thresholds
+  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
+      mapIter != bank_to_detector_map.end(); mapIter++) { 
 
-  sprintf(keyName, "/Runinfo/Stop time binary");
-  if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
-    printf("Warning: Could not find key %s\n", keyName);
-    return false;
-  }
-  KEY stop_time_key;
-  if(db_get_key(hDB, hKey, &stop_time_key) != DB_SUCCESS){
-    printf("Warning: Could not find key %s\n", keyName);
-    return false;
-  }
-  DWORD StopTimes[stop_time_key.num_values];
-  size = sizeof(StopTimes);
-  if(db_get_value(hDB, 0, keyName, StopTimes, &size, TID_DWORD, 0) != DB_SUCCESS){
-    printf("Warning: Could not retrieve values for key %s\n", keyName);
-    return false;
-  }
+    std::string bankname = mapIter->first;
 
-  int duration = StopTimes[0] - StartTimes[0]; // length of run in seconds (checked against run #2600)
+    if (TSetupData::Instance()->IsFADC(bankname)) {
+      // get the FADC thresholds (both upper and lower)
 
-  //  hDQ_Thresholds->Fill(1,duration);
+      // first get the channel and address from the bankname
+      int iChn = (int)(bankname[1] - 97);
+      std::string iAddr = bankname.substr(2, 2);
+
+      sprintf(keyName, "/Equipment/Crate 9/Settings/NFADC %s/Channel %d/Lower threshold", iAddr.c_str(), iChn);
+      if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      KEY lower_threshold_key;
+      if(db_get_key(hDB, hKey, &lower_threshold_key) != DB_SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      INT LowerThresholds[lower_threshold_key.num_values];
+      int size = sizeof(LowerThresholds);
+      if(db_get_value(hDB, 0, keyName, LowerThresholds, &size, TID_INT, 0) != DB_SUCCESS){
+	printf("Warning: Could not retrieve values for key %s\n", keyName);
+	return false;
+      }
+      printf("%s lower threshold = %d\n", bankname.c_str(), LowerThresholds[0]);
+
+    }
+    else if (TSetupData::Instance()->IsHoustonCAEN(bankname)) {
+      // get teh IH CAEN threholds
+    }
+    else if (TSetupData::Instance()->IsBostonCAEN(bankname)) {
+      // get the BU CAEN thresholds
+    }
+  }
 
   return SUCCESS;
 }
