@@ -162,7 +162,31 @@ INT MDQ_Thresholds_eor(INT run_number) {
       DQ_Thresholds_histograms_map[bankname]->Fill("upper threshold", UpperThresholds[0]);
     }
     else if (TSetupData::Instance()->IsHoustonCAEN(bankname)) {
-      // get teh IH CAEN threholds
+      // get the UH CAEN threholds
+
+      // first get the channel and address from the bankname
+      int iChn = (int)(bankname[1] - 97);
+
+      // Get the threshold
+      sprintf(keyName, "/Equipment/Crate 4/Settings/CAEN0/Ch%d/trigger threshhold", iChn);
+      if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      KEY threshold_key;
+      if(db_get_key(hDB, hKey, &threshold_key) != DB_SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      DWORD Thresholds[threshold_key.num_values];
+      int size = sizeof(Thresholds);
+      if(db_get_value(hDB, 0, keyName, Thresholds, &size, TID_DWORD, 0) != DB_SUCCESS){
+	printf("Warning: Could not retrieve values for key %s\n", keyName);
+	return false;
+      }
+      printf("%s threshold = %d\n", bankname.c_str(), Thresholds[0]);
+
+
     }
     else if (TSetupData::Instance()->IsBostonCAEN(bankname)) {
       // get the BU CAEN thresholds
