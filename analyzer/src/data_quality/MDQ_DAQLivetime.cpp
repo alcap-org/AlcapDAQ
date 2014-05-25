@@ -132,7 +132,7 @@ INT MDQ_DAQLivetime_eor(INT run_number) {
 
   int duration = StopTimes[0] - StartTimes[0]; // length of run in seconds (checked against run #2600)
 
-  hDQ_DAQLivetime->Fill(1,duration);
+  hDQ_DAQLivetime->Scale(1.0/duration);
 
   return SUCCESS;
 }
@@ -149,7 +149,9 @@ INT MDQ_DAQLivetime(EVENT_HEADER *pheader, void *pevent)
 	typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
 	typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
-	// Don't need anything here
-
+	// Add an event
+	double gate_length = 110; // ms
+	gate_length /= 1000; // convert to seconds since that is what the duration of the run will be calculated in
+	hDQ_DAQLivetime->Fill(1,gate_length);
 	return SUCCESS;
 }
