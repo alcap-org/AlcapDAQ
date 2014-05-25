@@ -6,7 +6,8 @@
 class MaxTimeDiffDPGenerator:public TVDetectorPulseGenerator{
 
  public:
-  MaxTimeDiffDPGenerator(){};
+  MaxTimeDiffDPGenerator(TVDetectorPulseGenerator::options* opts):
+	  TVDetectorPulseGenerator(opts){};
   virtual ~MaxTimeDiffDPGenerator(){};
 
  public:

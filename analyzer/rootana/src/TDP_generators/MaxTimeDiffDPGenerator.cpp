@@ -1,6 +1,7 @@
 #include "MaxTimeDiffDPGenerator.h"
 #include <iostream>
 #include <vector>
+#include <cmath>
 using std::cout;
 using std::endl;
 
@@ -30,7 +31,7 @@ void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup, const
 	  while (pulseIters.size() > 0) {
 
 	    // Find out which of the next fast or slow pulsees happened next
-	    for (int b = 0; b < pulseIters.size(); ++b) {
+	    for (unsigned int b = 0; b < pulseIters.size(); ++b) {
 	      pulse_time = (*pulseIters[b])->GetTime() * 1e-6; // convert to ms	      
 	      min_time = std::min(min_time, pulse_time);
 
@@ -40,24 +41,24 @@ void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup, const
 	    double time_difference = 0.1; // 0.1 ms
 	    TAnalysedPulse* fast_pulse = NULL;
 	    TAnalysedPulse* slow_pulse = NULL;
-	    for (int b = 0; b < pulseIters.size(); ++b) {
+	    for (unsigned int b = 0; b < pulseIters.size(); ++b) {
 
 	      TAnalysedPulse* pulse = *(pulseIters[b]);
 	      double pulse_time = pulse->GetTime() * 1e-6; // convert to ms
 
 	      if (std::fabs(pulse_time - min_time) < time_difference) {
 		if ( TSetupData::IsFast(pulse->GetDetName())) {
-		  if(Debug())"Fast? " << pulse->GetDetName() << std::endl;
+		  if(Debug()) cout<<"Fast? " << pulse->GetDetName() << std::endl;
 		  fast_pulse = pulse;
 		} else if ( TSetupData::IsSlow(pulse->GetDetName()))  {
-		  if(Debug()) "Slow? " << pulse->GetDetName() << std::endl;
+		  if(Debug()) cout<<"Slow? " << pulse->GetDetName() << std::endl;
 		  slow_pulse = pulse;
 		}
 
 		++(pulseIters[b]); // increment the iterator because we used the pulse
 	      }
 	    }
-	    TDetectorPulse* det_pulse = new TDetectorPulse(fast_pulse, slow_pulse, detname); // Create the TDetectorPulse
+	    TDetectorPulse* det_pulse = new TDetectorPulse(fast_pulse, slow_pulse, GetDetector()); // Create the TDetectorPulse
 	    detectorPulses.push_back(det_pulse);
 	    if(Debug()){
 	        cout<<"Created a TDetectorPulse with:\n";
