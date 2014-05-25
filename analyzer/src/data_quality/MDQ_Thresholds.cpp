@@ -162,7 +162,7 @@ INT MDQ_Thresholds_eor(INT run_number) {
       DQ_Thresholds_histograms_map[bankname]->Fill("upper threshold", UpperThresholds[0]);
     }
     else if (TSetupData::Instance()->IsHoustonCAEN(bankname)) {
-      // get the UH CAEN threholds
+      // get the UH CAEN thresholds
 
       // first get the channel and address from the bankname
       int iChn = (int)(bankname[1] - 97);
@@ -188,6 +188,28 @@ INT MDQ_Thresholds_eor(INT run_number) {
     }
     else if (TSetupData::Instance()->IsBostonCAEN(bankname)) {
       // get the BU CAEN thresholds
+
+      // first get the channel and address from the bankname
+      int iChn = (int)(bankname[1] - 97);
+
+      // Get the threshold
+      sprintf(keyName, "/Equipment/Crate 5/Settings/CAEN/Ch0%d/self_trigger_threshhold", iChn);
+      if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      KEY threshold_key;
+      if(db_get_key(hDB, hKey, &threshold_key) != DB_SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      float Thresholds[threshold_key.num_values];
+      int size = sizeof(Thresholds);
+      if(db_get_value(hDB, 0, keyName, Thresholds, &size, TID_FLOAT, 0) != DB_SUCCESS){
+	printf("Warning: Could not retrieve values for key %s\n", keyName);
+	return false;
+      }
+      printf("%s threshold = %f\n", bankname.c_str(), Thresholds[0]);
     }
   }
 
