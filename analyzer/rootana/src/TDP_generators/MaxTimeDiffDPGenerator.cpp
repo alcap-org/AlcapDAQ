@@ -4,10 +4,9 @@
 #include <cmath>
 using std::cout;
 using std::endl;
-
-void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup, const
-	  AnalysedPulseList_t* fast_pulses, const AnalysedPulseList_t* slow_pulses,
-	  DetectorPulseList_t& output){
+void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::string& detector, 
+		  const AnalysedPulseList_t* fast_pulses, const AnalysedPulseList_t* slow_pulses,
+		  DetectorPulseList_t& output){
 
 	  AnalysedPulseList_t::const_iterator fastPulseIter = fast_pulses->begin();
 	  AnalysedPulseList_t::const_iterator slowPulseIter = slow_pulses->begin();
@@ -58,7 +57,7 @@ void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup, const
 		++(pulseIters[b]); // increment the iterator because we used the pulse
 	      }
 	    }
-	    TDetectorPulse* det_pulse = new TDetectorPulse(fast_pulse, slow_pulse, GetDetector()); // Create the TDetectorPulse
+	    TDetectorPulse* det_pulse = new TDetectorPulse(fast_pulse, slow_pulse, detector); // Create the TDetectorPulse
 	    detectorPulses.push_back(det_pulse);
 	    if(Debug()){
 	        cout<<"Created a TDetectorPulse with:\n";

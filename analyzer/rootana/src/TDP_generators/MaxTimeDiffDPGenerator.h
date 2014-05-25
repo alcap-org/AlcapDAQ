@@ -6,13 +6,12 @@
 class MaxTimeDiffDPGenerator:public TVDetectorPulseGenerator{
 
  public:
-  MaxTimeDiffDPGenerator(TVDetectorPulseGenerator::options* opts):
-	  TVDetectorPulseGenerator(opts){};
+  MaxTimeDiffDPGenerator(): TVDetectorPulseGenerator(){};
   virtual ~MaxTimeDiffDPGenerator(){};
 
  public:
-  virtual void ProcessPulses(const TSetupData* setup, const
-		  AnalysedPulseList_t* fast, const AnalysedPulseList_t* slow,
+  virtual void ProcessPulses(const TSetupData* setup,const std::string& detector, 
+		  const AnalysedPulseList_t* fast, const AnalysedPulseList_t* slow,
 		  DetectorPulseList_t& output);
 
 };
