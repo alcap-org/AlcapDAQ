@@ -4,7 +4,7 @@ Name:         MDQ_Thresholds
 Created by:   Andrew Edmonds
 
 Contents:     hDQ_Thresholds
-              - plots the duration of the run
+              - plots the thresholds in each channel
 
 \********************************************************************/
 
@@ -43,7 +43,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-TH1F* hDQ_Thresholds;
+map <std::string, TH1F*> DQ_Thresholds_histograms_map;
 
 ANA_MODULE MDQ_Thresholds_module =
 {
@@ -71,13 +71,23 @@ INT MDQ_Thresholds_init()
     gDirectory->Cd(dir_name.c_str());
   }
 
-  // hDQ_Thresholds
-  std::string histname = "hDQ_Thresholds";
-  std::string histtitle = "The duration of the run";
-  hDQ_Thresholds = new TH1F(histname.c_str(), histtitle.c_str(), 3,0,3);
-  hDQ_Thresholds->GetXaxis()->SetTitle("");
-  hDQ_Thresholds->GetYaxis()->SetTitle("Run Time [s]");
+  // Create a histogram for each channel
+  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
+      mapIter != bank_to_detector_map.end(); mapIter++) { 
 
+    std::string bankname = mapIter->first;
+    std::string detname = gSetup->GetDetectorName(bankname);
+
+    // hDQ_Thresholds_[DetName]_[BankName]
+    std::string histname = "hDQ_Thresholds_" + detname + "_" + bankname;
+    std::string histtitle = "Length of each TPulseIsland in " + detname;
+    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
+				   700, 0, 700);
+    hDQ_Histogram->GetXaxis()->SetTitle("Length [samples]");
+    hDQ_Histogram->GetYaxis()->SetTitle("Number of Islands per muSc TDC Hit");
+    DQ_Thresholds_histograms_map[bankname] = hDQ_Histogram;
+  }
 
   gDirectory->Cd("/MidasHists/");
   return SUCCESS;
