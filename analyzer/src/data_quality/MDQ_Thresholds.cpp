@@ -184,9 +184,7 @@ INT MDQ_Thresholds_eor(INT run_number) {
 	printf("Warning: Could not retrieve values for key %s\n", keyName);
 	return false;
       }
-      printf("%s threshold = %d\n", bankname.c_str(), Thresholds[0]);
-
-
+      DQ_Thresholds_histograms_map[bankname]->Fill("trigger threshold", Thresholds[0]);
     }
     else if (TSetupData::Instance()->IsBostonCAEN(bankname)) {
       // get the BU CAEN thresholds
