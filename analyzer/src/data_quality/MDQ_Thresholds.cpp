@@ -209,7 +209,7 @@ INT MDQ_Thresholds_eor(INT run_number) {
 	printf("Warning: Could not retrieve values for key %s\n", keyName);
 	return false;
       }
-      printf("%s threshold = %f\n", bankname.c_str(), Thresholds[0]);
+      DQ_Thresholds_histograms_map[bankname]->Fill("self_trigger_threshold", Thresholds[0]);
     }
   }
 
