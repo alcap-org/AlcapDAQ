@@ -1,12 +1,10 @@
 #include "ODBCheck.hh"
 
 #include "TFile.h"
-#include "TH2.h"
+#include "TH1.h"
 
 #include <string>
-#include <fstream>
 #include <iostream>
-#include <sstream>
 
 ODBCheck::ODBCheck() : fRun(0), fODB(), fCorrections(), fDataDirs(),
 		       fEstimate(), fCorrectionsFile() {
@@ -35,7 +33,7 @@ void ODBCheck::OutputCorrections() {
   
   // Open the file
   if (fCorrectionsFile.is_open()) {
-    std::cout << "ODBCheck WARNING: Corrections file already open. Closing old file..." << std:endl;
+    std::cout << "ODBCheck WARNING: Corrections file already open. Closing old file..." << std::endl;
     fCorrectionsFile.close();
   }
   fCorrectionsFile.open(fDataDirs.GetCorrFileName(fRun).c_str());
@@ -50,7 +48,7 @@ void ODBCheck::OutputCorrections() {
   }
   
   // Resize corrected wiremap for consistency
-  fCorrections.ResizeToBanks();
+  //fCorrections.ResizeToBanks();
 
   // Sanity check
   // If the number of detectors is 52, the run number must be greater than 2173
@@ -81,15 +79,21 @@ void ODBCheck::OutputCorrections() {
   // The lines must be of the form
   // [INDEX] VALUE
   fCorrectionsFile << header << std::endl;
-  fCorrectionsFile << pol_kay << key_tail << std::endl;
+  fCorrectionsFile << pol_key << key_tail << std::endl;
   for (int idet = 0; idet < ndets; ++idet)
-    fCorrectionsFile << "[" << idet << "]" << fCorrections.GetPolarities()[idet] << std::endl; 
-  fCorrectionsFile << ped_kay << key_tail << std::endl;
+    fCorrectionsFile << "[" << idet << "]" <<
+      fCorrections.GetPolarities()[idet] <<
+      std::endl; 
+  fCorrectionsFile << ped_key << key_tail << std::endl;
   for (int idet = 0; idet < ndets; ++idet)
-    fCorrectionsFile << "[" << idet << "]" << fCorrections.GetPedestals()[idet] << std::endl; 
-  fCorrectionsFile << time_kay << key_tail << std::endl;
+    fCorrectionsFile << "[" << idet << "]" <<
+      fCorrections.GetPedestals()[idet] <<
+      std::endl; 
+  fCorrectionsFile << time_key << key_tail << std::endl;
   for (int idet = 0; idet < ndets; ++idet)
-    fCorrectionsFile << "[" << idet << "]" << fCorrections.GetOffsets()[idet] << std::endl; 
+    fCorrectionsFile << "[" << idet << "]" <<
+      fCorrections.GetOffsets()[idet] - fODB.GetOffsets()[idet] <<
+      std::endl; 
   fCorrectionsFile << std::endl;
 
   fCorrectionsFile.close();
@@ -111,17 +115,22 @@ void ODBCheck::Check(int run) {
       "ODBCheck MESSAGE: It seems you've already checked this run (" <<
       fRun << "). Checking again...";
 
-  std::vector<std::string> default_odbs;
-
-
   fRun = run;
-  fODB.Load(fDataDirs.GetODBFileName(fRun));
+  std::string fname(fDataDirs.GetODBFileName(fRun));
+  WireMap run_odb(fRun, fname);
+  fODB = WireMap::Default();
+  fODB.LoadOver(run_odb);
 
   // The value we're looping over is the bank names in the ODB.
   // Some corresponding detector names are not real,
   // such as "blank". We hope these histograms do not exist so
   // that we don't process them unnecessarily.
   for (unsigned int i = 0; i < fODB.GetNDets(); ++i) {
+    // Ignore certian things
+    if (fODB.GetBanks()[i] == "ZZZZ" || fODB.GetDets()[i] == "blank") {
+      fCorrections.Add(fODB, i);
+      continue;
+    }
     // We look for the shapes and timing histograms
     TH1* shapes;
     TH1* timing;
@@ -134,28 +143,28 @@ void ODBCheck::Check(int run) {
 	"ODBCheck WARNING: Shapes histogram not found! Corrections not included for " <<
 	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
 	std::endl;
-      fCorr.Add(fODB, i);
+      fCorrections.Add(fODB, i);
     } else if (!timing) {
       std::cout <<
 	"ODBCheck WARNING: Timing histogram not found! Corrections not included for " <<
-	fODB.GetDets[i] << "_" << fODB.GetBanks()[i] << "..." <<
+	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
 	std::endl;
-      fCorr.Add(fODB, i);
+      fCorrections.Add(fODB, i);
     } else if (!shapes->GetEntries()) {
       std::cout <<
 	"ODBCheck WARNING: Shapes histogram empty! Corrections not included for " <<
-	fODB.GetDets()[i] << "_" << fODB.GetBanks[i] << "..." <<
+	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
 	std::endl;
-      fCorr.Add(fODB, i);
+      fCorrections.Add(fODB, i);
     } else if (!timing->GetEntries()) {
       std::cout <<
 	"ODBCheck WARNING: Timing histogram empty! Corrections not included for " <<
-	fODB.GetDets[i] << "_" << fODB.GetBanks[i] << "..." <<
+	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
 	std::endl;
-      fCorr.Add(fODB, i);
+      fCorrections.Add(fODB, i);
     } else {
       fEstimate.Estimate(shapes, timing);
-      fCorr.Add(fODB.GetBanks()[i], fODB.GetDets()[i], fEstimate.GetPedestal(), fEStimate.GetPolarity(), 0, fEstimate.GetOffset());
+      fCorrections.Add(fODB.GetBanks()[i], fODB.GetDets()[i], fEstimate.GetPedestal(), fEstimate.GetPolarity(), 0, fEstimate.GetOffset());
     }
     delete shapes;
     delete timing;
@@ -164,5 +173,22 @@ void ODBCheck::Check(int run) {
   }
   hist_file.Close();
 
-  /*** OUTPUT CORRECTIONS ***/
+  std::cout << "Original:" << std::endl;
+  std::cout << "ODB File: \t" << fDataDirs.GetODBFileName(fRun) << std::endl;
+  std::cout << "fNDets:   \t" << fODB.GetNDets() << std::endl;
+  std::cout << "fBankName:\t" << fODB.GetBanks().size() << std::endl;
+  std::cout << "fDetName: \t" << fODB.GetDets().size() << std::endl;
+  std::cout << "fPedestal:\t" << fODB.GetPedestals().size() << std::endl;
+  std::cout << "fPolarity:\t" << fODB.GetPolarities().size() << std::endl;
+  std::cout << "fOffset:  \t" << fODB.GetOffsets().size() << std::endl;
+
+  std::cout << "Corrections:" << std::endl;
+  std::cout << "fNDets:   \t" << fCorrections.GetNDets() << std::endl;
+  std::cout << "fBankName:\t" << fCorrections.GetBanks().size() << std::endl;
+  std::cout << "fDetName: \t" << fCorrections.GetDets().size() << std::endl;
+  std::cout << "fPedestal:\t" << fCorrections.GetPedestals().size() << std::endl;
+  std::cout << "fPolarity:\t" << fCorrections.GetPolarities().size() << std::endl;
+  std::cout << "fOffset:  \t" << fCorrections.GetOffsets().size() << std::endl;
+
+  OutputCorrections();
 }

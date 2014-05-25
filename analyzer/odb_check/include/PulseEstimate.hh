@@ -10,8 +10,7 @@ correct ODB values are.
 #ifndef PULSEESTIMATE_H__
 #define PULSEESTIMATE_H__
 
-#include "WireMap.hh"
-#include "TH1.h"
+class TH1;
 
 class PulseEstimate {
 

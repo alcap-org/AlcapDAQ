@@ -34,31 +34,33 @@ public:
 
 public:
   // Getters
-  int GetRun() const;
-  int GetNDets() const;
-  std::vector<std::string>& GetBanks() const;
-  std::vector<std::string>& GetDets() const;
-  std::vector<int>& GetPedestals() const;
-  std::vector<int>& GetPolarities() const;
-  std::vector<int>& GetThresholds() const;
-  std::vector<int>& GetOffsets() const;
+  unsigned int GetRun() const;
+  unsigned int GetNDets() const;
+  std::vector<std::string>& GetBanks();
+  std::vector<std::string>& GetDets();
+  std::vector<int>& GetPedestals();
+  std::vector<int>& GetPolarities();
+  std::vector<int>& GetThresholds();
+  std::vector<int>& GetOffsets();
 
   // Add new value
+  void Add(const char bankname[], const char detname[], int ped, int pol, int thresh, int off);
   void Add(std::string& bankname, std::string& detname, int ped, int pol, int thresh, int off);
   // Copy value from another WireMap 
-  void Add(const WireMap& wm, int index);
+  void Add(WireMap& wm, int index);
   // Add individual elements
-  void AddBank(std::string&);
-  void AddDet(std::string&);
+  void AddBank(const std::string&); // Increments fNDets; other do not
+  void AddDet(const std::string&);
   void AddPedestal(int);
   void AddPolarity(int);
   void AddThreshold(int); /*** THRESHOLDS NOT IMPLEMENTED ***/
   void AddOffset(int);
 
   // Load the ODB values
-  void Load(int run, std::string& odb_file);
-  // Overwrite any values already here with those from another file
-  void LoadOver(std::string& odb_file);
+  void Load(int run, const std::string& odb_file);
+  // Overwrite any values already here with those
+  // from another WireMap
+  void LoadOver(WireMap&);
 
   // Clear
   void Clear();
@@ -76,16 +78,15 @@ public:
 private:
   // Checks extension for 'odb'
   // Any other format returns false.
-  // No check for compatible filetype is done
-  bool IsODBFile(std::string fname);
-  // Determines the number of channels in this ODB
-  // Assuming the line is of the form
+  static bool IsODBFile(const std::string& fname);
+  // Determines the number of elements in an ODB key's
+  // array; assumes the line is of the form
   // VARIABLE = TYPE [##] :
   // This method return ##
   // It must be passed only the part of the line
   // (including single leading space)
   //  = TYPE [##] :
-  int GetNDetsFromLine(char (&tmp)[256]);
+  static int GetArraySize(const char (&tmp)[256]);
 };
 
 #endif

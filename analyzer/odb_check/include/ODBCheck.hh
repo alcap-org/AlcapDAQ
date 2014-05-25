@@ -15,12 +15,8 @@ next alcapana production.
 #include "DataDir.hh"
 #include "PulseEstimate.hh"
 
-#include "TH1.h"
-#include "TFile.h"
-
 #include <string>
 #include <fstream>
-#include <map>
 
 
 class ODBCheck {

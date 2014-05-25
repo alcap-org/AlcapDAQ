@@ -1,6 +1,10 @@
 #include "WireMap.hh"
 
 #include <string>
+#include <vector>
+#include <sstream>
+#include <iostream>
+#include <fstream>
 
 WireMap::WireMap() {
 }
@@ -9,6 +13,12 @@ WireMap::WireMap(int run, std::string& odb_file) {
   Load(run, odb_file);
 }
 
+void WireMap::Add(const char bankname[], const char detname[], int ped, int pol, int thresh, int off) {
+  std::string bn(bankname);
+  std::string dn(detname);
+  Add(bn, dn, ped, pol, thresh, off);
+}
+ 
 void WireMap::Add(std::string& bankname, std::string& detname, int ped, int pol, int thresh, int off) {
   ++fNDets;
   fBankName.push_back(bankname);
@@ -19,22 +29,22 @@ void WireMap::Add(std::string& bankname, std::string& detname, int ped, int pol,
   fOffset.push_back(off);
 }
 
-void WireMap::Add(const WireMap& wm, int i) {
+void WireMap::Add(WireMap& wm, int i) {
   ++fNDets;
   fBankName.push_back(wm.GetBanks()[i]);
   fDetName.push_back(wm.GetDets()[i]);
   fPedestal.push_back(wm.GetPedestals()[i]);
   fPolarity.push_back(wm.GetPolarities()[i]);
   /*** THRESHOLD NOT IMPLEMENTED ***/
-  fOffset.push_back(wm.push_back()[i]);
+  fOffset.push_back(wm.GetOffsets()[i]);
 }
 
-void WireMap::AddBank(std::string& bank) {
+void WireMap::AddBank(const std::string& bank) {
   ++fNDets;
   fBankName.push_back(bank);
 }
 
-void WireMap::AddDet(std::string& det) {
+void WireMap::AddDet(const std::string& det) {
   fDetName.push_back(det);
 }
 
@@ -52,8 +62,8 @@ void WireMap::AddOffset(int off) {
   fOffset.push_back(off);
 }
 
-void WireMap::Load(int run_number, std::string& odb_file) {
-  static const std::string header("[/Analyzer/WireMap");
+void WireMap::Load(int run_number, const std::string& odb_file) {
+  static const std::string header("[/Analyzer/WireMap]");
   static const std::string bankname_key("BankName");
   static const std::string detname_key("DetectorName");
   static const std::string enabled_key("Enabled");
@@ -75,7 +85,6 @@ void WireMap::Load(int run_number, std::string& odb_file) {
   // Look through ODB file for appropriate banks
   std::ifstream f(odb_file.c_str());
   std::string str;
-  std::stringstream ss;
   int x;
   while (f.good()) {
     f >> str;
@@ -83,10 +92,11 @@ void WireMap::Load(int run_number, std::string& odb_file) {
       while (f.good()) {
 	f >> str;
 	f.getline(tmp, 256);
+	unsigned int n = 0; // Array size
 	if (str == bankname_key) {
-	  if (fNDets == 0)
-	    fNDets = GetNDetsFromLine(tmp);
-	  for (unsigned int i = 0; i < fNDets; ++i) {
+	  n = GetArraySize(tmp);
+	  fNDets = n; // Set number of detectors equal to number of banks
+	  for (unsigned int i = 0; i < n; ++i) {
 	    f >> str;
 	    if (f.read(tmp, 1).peek() == '\n') // Strings can be null, cause streaming problems
 	      str = "";
@@ -95,8 +105,7 @@ void WireMap::Load(int run_number, std::string& odb_file) {
 	    fBankName.push_back(str);
 	  }
 	} else if (str == detname_key) {
-	  if (fNDets == 0)
-	    fNDets = GetNDetsFromLine(tmp);
+	  n = GetArraySize(tmp);
 	  for (unsigned int i = 0; i < n; ++i) {
 	    f >> str;
 	    if (f.read(tmp, 1).peek() == '\n') // Strings can be null, cause streaming problems
@@ -106,30 +115,32 @@ void WireMap::Load(int run_number, std::string& odb_file) {
 	    fDetName.push_back(str);
 	  }
 	} else if (str == pedestal_key) {
-	  if (fNDets == 0)
-	    fNDets = GetNDetsFromLine(tmp);
+	  n = GetArraySize(tmp);
 	  for (unsigned int i = 0; i < n; ++i) {
 	    f >> str;
 	    f >> x;
 	    fPedestal.push_back(x);
 	  }
 	} else if (str == polarity_key) {
-	  if (fNDets == 0)
-	    fNDets = GetNDetsFromLine(tmp);
+       	  n = GetArraySize(tmp);
 	  for (unsigned int i = 0; i < n; ++i) {
 	    f >> str;
 	    f >> x;
 	    fPolarity.push_back(x);
 	  }
 	} else if (str == offset_key) {
-	  if (fNDets == 0)
-	    fNDets = GetNDetsFromLine(tmp);
+	  n = GetArraySize(tmp);
 	  for (unsigned int i = 0; i < n; ++i) {
 	    f >> str;
 	    f >> x;
 	    fOffset.push_back(x);
 	  }
 	}
+	// If for some reason haven't got the number of detectors
+	// from number of banks, then grab the first non-zero
+	// array sized key from ODB
+	if (fNDets == 0)
+	  fNDets = n;
 	// If everything is the right size
 	// That means everything is finished
 	/*** THRESHOLD NOT IMPLEMENTED YET ***/
@@ -143,16 +154,17 @@ void WireMap::Load(int run_number, std::string& odb_file) {
       }
     }
   }
-  // If we get to this point, things are not all equal in size
+  // If we get to this point, vectors are not all equal in size
   std::cout <<
     "WireMap WARNING: Didn't find everything in the ODB! (" <<
     odb_file << ")" << std::endl;
 
 }
 
-void WireMap::LoadOver(const WireMap& wm) {
+void WireMap::LoadOver(WireMap& wm) {
   // Load the new WireMap variables if they exist
   // This seems to be how the ODB operates
+  fRun = wm.GetRun();
   fNDets = wm.GetNDets();
   if (wm.GetBanks().size() > 0)
     fBankName = wm.GetBanks();
@@ -160,7 +172,7 @@ void WireMap::LoadOver(const WireMap& wm) {
     fDetName = wm.GetDets();
   if (wm.GetPedestals().size() > 0)
     fPedestal = wm.GetPedestals();
-  if (wm.Polarities().size() > 0)
+  if (wm.GetPolarities().size() > 0)
     fPolarity = wm.GetPolarities();
   /*** THRESHOLDS NOT IMPLEMENTED ***/
   if (wm.GetOffsets().size() > 0)
@@ -182,7 +194,6 @@ void WireMap::ResizeToBanks() {
   static const std::string default_det("blank");
   static const int default_ped = 0;
   static const int default_pol = 1;
-  static const int default_thresh = 0;
   static const int default_off = 0;
 
   fNDets = fBankName.size();
@@ -202,20 +213,24 @@ void WireMap::ResizeToBanks() {
   while (fPedestal.size() < fNDets)
     fPedestal.push_back(default_ped);
   while (fPolarity.size() < fNDets)
-    fPolarity.push_back(default_polarity);
+    fPolarity.push_back(default_pol);
   /*** THRESHOLD NOT IMPLEMENTED YET ***/
   while (fOffset.size() < fNDets)
     fOffset.push_back(default_off);
 }
 
-int WireMap::GetNDetsFromLine(char (&tmp)[256]) {
+bool WireMap::IsODBFile(const std::string& fname) {
+  return ".odb" == fname.substr(fname.size() - 4, std::string::npos);
+}
+
+int WireMap::GetArraySize(const char (&tmp)[256]) {
   // Get # of detectors from line in ODB of the form
   // VARIBALE = TYPE[#] :
-  std::string str;
-  int pos[2];
+  std::string str(tmp);
+  std::stringstream ss;
   int n;
+  int pos[2];
 
-  str = tmp;
   pos[0] = str.find('[') + 1;
   pos[1] = str.find(']');
   str = str.substr(pos[0], pos[1] - pos[0]);
@@ -225,35 +240,35 @@ int WireMap::GetNDetsFromLine(char (&tmp)[256]) {
   return n;
 }
 
-int WireMap::GetRun() const {
+unsigned int WireMap::GetRun() const {
   return fRun;
 }
 
-int WireMap::GetNDets() const {
+unsigned int WireMap::GetNDets() const {
   return fNDets;
 }
 
-std::vector<std::string>& WireMap::GetBanks() const {
-  return fBankName
+std::vector<std::string>& WireMap::GetBanks() {
+  return fBankName;
 }
 
-std::vector<std::string>& WireMap::GetDets() const {
+std::vector<std::string>& WireMap::GetDets() {
   return fDetName;
 }
 
-std::vector<int>& WireMap::GetPedestals() const {
+std::vector<int>& WireMap::GetPedestals() {
   return fPedestal;
 }
 
-std::vector<int>& WireMap::GetPolarities() const {
+std::vector<int>& WireMap::GetPolarities() {
   return fPolarity;
 }
 
-std::vector<int>& WireMap::GetThresholds() const {
+std::vector<int>& WireMap::GetThresholds() {
   return fThreshold;
 }
 
-std::vector<int>& WireMap::GetOffsets() const {
+std::vector<int>& WireMap::GetOffsets() {
   return fOffset;
 }
 
@@ -306,13 +321,13 @@ WireMap WireMap::Default() {
 
   wm.Add("CaBU","muSc",2071,1,0,0);
   wm.Add("CbBU","muScA",2122,1,0,12.7);
-  wm.Add("CcBU","muScA",1,1,0,);
-  wm.Add("CdBU","blank",1,1,0,);
+  wm.Add("CcBU","muScA",1,1,0,0);
+  wm.Add("CdBU","blank",1,1,0,0);
 
-  wm.Add("ZZZZ","blank",1,-1,0,);
-  wm.Add("ZZZZ","blank",1,-1,0,);
-  wm.Add("ZZZZ","blank",1,-1,0,);
-  wm.Add("ZZZZ","blank",1,-1,0,);
+  wm.Add("ZZZZ","blank",1,-1,0,0);
+  wm.Add("ZZZZ","blank",1,-1,0,0);
+  wm.Add("ZZZZ","blank",1,-1,0,0);
+  wm.Add("ZZZZ","blank",1,-1,0,0);
 
   wm.AddOffset(0);
   wm.AddOffset(0);

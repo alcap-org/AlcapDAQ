@@ -1,8 +1,6 @@
 #include "PulseEstimate.hh"
 
-#include "TH2.h"
-#include "TH1D.h"
-
+#include "TH1.h"
 
 PulseEstimate::PulseEstimate() : fPedestal(0), fPolarity(0) {}
 
