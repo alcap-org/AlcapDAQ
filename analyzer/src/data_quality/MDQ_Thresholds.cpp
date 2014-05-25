@@ -81,11 +81,11 @@ INT MDQ_Thresholds_init()
 
     // hDQ_Thresholds_[DetName]_[BankName]
     std::string histname = "hDQ_Thresholds_" + detname + "_" + bankname;
-    std::string histtitle = "Length of each TPulseIsland in " + detname;
+    std::string histtitle = "ODB Thresholds in " + bankname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
-				   700, 0, 700);
-    hDQ_Histogram->GetXaxis()->SetTitle("Length [samples]");
-    hDQ_Histogram->GetYaxis()->SetTitle("Number of Islands per muSc TDC Hit");
+				   4,0,4); // will want an upper and lower threshold for FADC channels
+    hDQ_Histogram->GetXaxis()->SetTitle("");
+    hDQ_Histogram->GetYaxis()->SetTitle("Threshold");
     DQ_Thresholds_histograms_map[bankname] = hDQ_Histogram;
   }
 
@@ -142,7 +142,7 @@ INT MDQ_Thresholds_eor(INT run_number) {
 
   int duration = StopTimes[0] - StartTimes[0]; // length of run in seconds (checked against run #2600)
 
-  hDQ_Thresholds->Fill(1,duration);
+  //  hDQ_Thresholds->Fill(1,duration);
 
   return SUCCESS;
 }
