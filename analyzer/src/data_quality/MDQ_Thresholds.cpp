@@ -158,8 +158,8 @@ INT MDQ_Thresholds_eor(INT run_number) {
       }
 
       // Print the results
-      printf("%s lower threshold = %d\n", bankname.c_str(), LowerThresholds[0]);
-      printf("%s upper threshold = %d\n", bankname.c_str(), UpperThresholds[0]);
+      DQ_Thresholds_histograms_map[bankname]->Fill("lower threshold", LowerThresholds[0]);
+      DQ_Thresholds_histograms_map[bankname]->Fill("upper threshold", UpperThresholds[0]);
     }
     else if (TSetupData::Instance()->IsHoustonCAEN(bankname)) {
       // get teh IH CAEN threholds
