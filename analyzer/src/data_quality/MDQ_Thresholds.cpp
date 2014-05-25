@@ -83,7 +83,7 @@ INT MDQ_Thresholds_init()
     std::string histname = "hDQ_Thresholds_" + detname + "_" + bankname;
     std::string histtitle = "ODB Thresholds in " + bankname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
-				   4,0,4); // will want an upper and lower threshold for FADC channels
+				   2,0,2); // will want an upper and lower threshold for FADC channels
     hDQ_Histogram->GetXaxis()->SetTitle("");
     hDQ_Histogram->GetYaxis()->SetTitle("Threshold");
     DQ_Thresholds_histograms_map[bankname] = hDQ_Histogram;
