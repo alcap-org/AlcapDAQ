@@ -17,31 +17,19 @@ class TVDetectorPulseGenerator {
   typedef std::map<std::string, AnalysedPulseList_t > BankPulseList_t;
 
  public:
-  TVDetectorPulseGenerator(TVDetectorPulseGenerator::options *opts);
+  TVDetectorPulseGenerator():fDebug(false){};
   virtual ~TVDetectorPulseGenerator(){};
 
  public:
-  virtual void ProcessPulses(const TSetupData* setup, const
-		  AnalysedPulseList_t* fast, const AnalysedPulseList_t* slow,
+  virtual void ProcessPulses(const TSetupData* setup,const std::string& detector, 
+		  const AnalysedPulseList_t* fast, const AnalysedPulseList_t* slow,
 		  DetectorPulseList_t& output)=0;
 
   void SetDebug(const bool& val=true){fDebug=val;};
   bool Debug(){return fDebug;};
 
-  void SetDetector(const std::string& val){fDetector=val;};
-  std::string GetDetector(){return fDetector;};
-
  private:
   bool fDebug;
-  std::string fDetector;
 };
-
-TVDetectorPulseGenerator::TVDetectorPulseGenerator(TVDetectorPulseGenerator::options *opts):
-	fDebug(false){
-		if(opts){
-			SetDebug(opts->HasOption("debug"));
-			SetDetector(opts->GetString("detector"));
-		}
-	}
 
 #endif // TVDETECTORPULSEGENERATOR_H__
