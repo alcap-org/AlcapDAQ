@@ -1,8 +1,5 @@
 TGlobalData
 TSetupData
 TPulseIsland
-TAnalysedPulse
-TDetectorPulse
 
 TVacuumData
-TAnalysedPulseMapWrapper
