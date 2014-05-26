@@ -24,6 +24,7 @@ class TVDetectorPulseGenerator {
   virtual void ProcessPulses(const TSetupData* setup,const std::string& detector, 
 		  const AnalysedPulseList_t* fast, const AnalysedPulseList_t* slow,
 		  DetectorPulseList_t& output)=0;
+  virtual bool ChecksForPileUp()const =0;
 
   void SetDebug(const bool& val=true){fDebug=val;};
   bool Debug(){return fDebug;};
