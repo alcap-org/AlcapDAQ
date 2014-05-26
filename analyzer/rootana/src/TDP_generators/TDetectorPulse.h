@@ -13,15 +13,10 @@
 //extern TSetupData* gSetup;
 
 class TDetectorPulse : public TObject {
-  private:
-  TAnalysedPulse* fFastPulse;
-  TAnalysedPulse* fSlowPulse;
-  std::string fDetName;
-
   public:
   TDetectorPulse();
   TDetectorPulse(TAnalysedPulse* fast_pulse, TAnalysedPulse* slow_pulse, std::string det_name);
-  virtual ~TDetectorPulse() {};
+  virtual ~TDetectorPulse();
 
   void Reset(Option_t* o = "");
 
@@ -35,6 +30,11 @@ class TDetectorPulse : public TObject {
   double GetSlowPulseIntegral() const { if (fSlowPulse) return fSlowPulse->GetIntegral(); else return -9999; }
 
   std::string GetDetName() const { return fDetName; }
+
+  private:
+  TAnalysedPulse* fFastPulse;
+  TAnalysedPulse* fSlowPulse;
+  std::string fDetName;
 
   ClassDef(TDetectorPulse, 1);
 };

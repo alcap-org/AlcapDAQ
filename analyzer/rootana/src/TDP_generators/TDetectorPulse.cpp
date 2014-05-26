@@ -9,6 +9,10 @@
 using std::vector;
 using std::string;
 
+ClassImp(TDetectorPulse);
+
+TDetectorPulse::~TDetectorPulse(){}
+
 TDetectorPulse::TDetectorPulse()
 {
   Reset();
