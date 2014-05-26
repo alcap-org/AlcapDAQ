@@ -22,13 +22,8 @@ class TMuonEvent{
                 TDetectorPulse* GetPulse(const std::string& detector)const;
                 void SetPulse(const std::string& detector, TDetectorPulse* pulse);
 
-                // Check if a pulse was registered in the named detector for
-                // this event. Use the second argument to specify whether the
-                // pulse should be a fast 'F' or slow pulse 'S' 
-                // any channel 'A', or both 'B'.
-                bool HasPulse(std::string detector,const char& type='A')const;
-
 	private:
+		void ResetDetectors();
 
 		// Add getters and setters and pulses for all detectors
 		PREP_DETECTOR( Ge )

@@ -4,40 +4,46 @@ using std::cout;
 using std::endl;
 
 TMuonEvent::TMuonEvent(){
+	ResetDetectors();
 }
 
 TMuonEvent::~TMuonEvent(){
-        fDetectorPulses.clear();
 }
 
-bool TMuonEvent::HasPulse(std::string detector,const char& type='A')const{
-       TEventList::const_iterator det=fDetectorPulses.find(detector);
-       if(det==fDetectorPulses.end()) return false;
-       switch (type){
-               case 'F': case 'f':
-                       return det->fast!=NULL;
-                       break;
-               case 'S': case 's':
-                       return det->slow!=NULL;
-                       break;
-               case 'A': case 'a':
-                       return true;
-                       break;
-               case 'B': case 'b':
-                       return det->slow!=NULL && det->fast != NULL;
-                       break;
-               default:
-                       cout<<"Unknown type of pulse requested"<<std::endl;
-                       cout<<"Must be either fast ('F'), slow ('S'), any ('A') or both ('B')"<<std::endl;
-       }
-       return false;
+#define RESET_DET(detector)\
+	Set##detector(NULL);
+
+void TMuonEvent::ResetDetectors(){
+	RESET_DET( Ge )
+	RESET_DET( LiquidSc )
+	RESET_DET( NDet )
+	RESET_DET( NDet2 )
+	RESET_DET( ScGe )
+	RESET_DET( ScL )
+	RESET_DET( ScR )
+	RESET_DET( ScVe )
+	RESET_DET( SiL1_1 )
+	RESET_DET( SiL1_2 )
+	RESET_DET( SiL1_3 )
+	RESET_DET( SiL1_4 )
+	RESET_DET( SiL2 )
+	RESET_DET( SiR1_1 )
+	RESET_DET( SiR1_2 )
+	RESET_DET( SiR1_3 )
+	RESET_DET( SiR1_4 )
+	RESET_DET( SiR1_sum )
+	RESET_DET( SiR2 )
+	RESET_DET( MuSc )
+	RESET_DET( MuScA )
 }
+
+#undef RESET_DET
 
 #define GET_DET_IF(var,detector)\
-	else if(var==##detector) return Get#detector();
+	else if(var==#detector) return Get##detector();
 
 
-TDetectorEvent* TMuonEvent::GetPulse(std::string detector)const{
+TDetectorPulse* TMuonEvent::GetPulse(const std::string& detector)const{
 	if(detector=="") return NULL;
 	GET_DET_IF(detector,Ge)
 	GET_DET_IF(detector,LiquidSc)
@@ -67,8 +73,9 @@ TDetectorEvent* TMuonEvent::GetPulse(std::string detector)const{
 #undef GET_DET_IF
 
 #define SET_DET_IF(var,detector,value)\
-	else if(var==##detector) Set#detector(pulse);
-void TMuonEvent::SetPulse(std::string detector,TDetectorPulse* pulse){
+	else if(var==#detector) Set##detector(pulse);
+
+void TMuonEvent::SetPulse(const std::string& detector,TDetectorPulse* pulse){
 	if(detector=="") return;
 	SET_DET_IF(detector , Ge       , pulse)
 	SET_DET_IF(detector , LiquidSc , pulse)
