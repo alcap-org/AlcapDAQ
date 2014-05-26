@@ -2,29 +2,19 @@
 
 #include <string>
 #include <iostream>
-#include <sstream>
+#include <cstdio>
 
-DataDir::DataDir() : fRawExt(".mid"), fODBExt(".odb"), fHistExt(".root"), fCorrExt(".dat"),
+DataDir::DataDir() : fRawExt(".mid"), fODBExt(".odb"), fHistExt(".root"), fCorrExt(".odb"),
 		     fRawDir(""), fODBDir(""), fHistDir(""), fCorrDir(""),
-		     fRawPre("run"), fODBPre("run"), fHistPre("hist"), fCorrPre("correct") {}
+		     fRawPre("run"), fODBPre("run"), fHistPre("hist"), fCorrPre("corr") {}
 
 std::string DataDir::GetCanonicalRun(int run) {
-  const std::string def("00000");
-  std::stringstream num;
-  num << run;
-  if (run < 0)
+  static const std::string def("00000");
+  char num[8];
+  if (run < 0 || run > 99999)
     return def;
-  else if (run < 10)
-    return std::string("0000") + num.str();
-  else if (run < 100)
-    return std::string("000") + num.str();
-  else if (run < 1000)
-    return std::string("00") + num.str();
-  else if (run < 10000)
-    return std::string("0") + num.str();
-  else if (run < 100000)
-    return num.str();
-  return def;
+  sprintf(num, "%05d", run);
+  return std::string(num);
 }
 
 void DataDir::SetRawDir(const std::string& raw_dir) {
@@ -75,8 +65,6 @@ std::string DataDir::GetHistFileName(int run) const {
 }
 
 std::string DataDir::GetCorrFileName(int run) const {
-  std::stringstream s;
-  s << run;
-  return fCorrDir + fCorrPre + s.str() + fCorrExt;
+  return fCorrDir + fCorrPre + GetCanonicalRun(run) + fCorrExt;
 }
 

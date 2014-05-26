@@ -19,13 +19,13 @@ void help() {
   cout <<
     "odb_check: Read in shapes histogram from alcapana output files," << endl <<
     "           estimate certain values, and then output to corrections file." << endl <<
-    "-d       : Followed by place where hist directory and corr directory are." << endl <<
-    "           The corrections files are saves to data_dir/corr/ if" << endl <<
+    " -d      : Followed by place where hist directory and corr directory are." << endl <<
+    "           The corrections files are saved to data_dir/corr/ if" << endl <<
     "           -c flag is no specified." << endl <<
     " -c      : The directory where the correction files are stored. If not specified," << endl <<
     "           data_dir/corr/ is assumed." << endl <<
-    "-r       : Followed by two numbers indicating a range of runs to process." << endl <<
-    "run1...  : Any arguments not associated with a flag are assumed to be run" << endl <<
+    " -r      : Followed by two numbers indicating a range of runs to process." << endl <<
+    " run1... : Any arguments not associated with a flag are assumed to be run" << endl <<
     "           numbers to process." << endl;
 }
 
@@ -132,7 +132,6 @@ int main(int argc, char* argv[]) {
   std::string odb_dir = data_dir + "odb/";
   std::string hist_dir = data_dir + "hist/";
   x.SetDirs(raw_dir, odb_dir, hist_dir, corr_dir);
-  x.LoadODBFromODBFile();
   for (int r = 0; r < (int)runs.size(); ++r) {
     std::cout << "Checking run " << runs[r] << "..." << std::endl;
     x.Check(runs[r]);
