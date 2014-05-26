@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "MaxTimeDiffMEGenerator.h"
+#include "RegisterModule.inc"
 
 using std::string;
 using std::map;
@@ -22,6 +23,7 @@ MakeMuonEvents::MakeMuonEvents(modules::options* opts):
       if(fOptions){
 	  fAlgorithm=fOptions->GetString("algorithm");
       }
+  dir->cd("/");
 }
 
 MakeMuonEvents::~MakeMuonEvents(){
@@ -41,10 +43,12 @@ int MakeMuonEvents::ProcessEntry(TGlobalData *aData, TSetupData* aSetup){
 
 TVMuonEventGenerator* MakeMuonEvents::MakeGenerator(const std::string& algorithm){
 	TVMuonEventGenerator* aGenerator=NULL;
-	if(algorithm=="MaxTimeDiffMEGenerator"){
+	if(algorithm=="MaxTimeDiff"){
 		aGenerator=new MaxTimeDiffMEGenerator(fOptions);
 	}else{
 		cout<<"Unknown TVMuonEventGenerator requested: '"<<algorithm<<"'"<<endl;
 	}
 	return aGenerator;
 }
+
+ALCAP_REGISTER_MODULE(MakeMuonEvents,algorithm);
