@@ -15,11 +15,19 @@ class TVMuonEventGenerator{
 		typedef modules::options options;
 
 	public:
-		TVMuonEventGenerator(TVMuonEventGenerator::options* opts){};
+		TVMuonEventGenerator(TVMuonEventGenerator::options* opts):fDebug(false){
+			if(opts->HasOption("debug")) fDebug=true;
+		};
 		virtual ~TVMuonEventGenerator(){};
 
 	public:
 		virtual int ProcessPulses(MuonCentredTree_t& muonEventsOut,const BankDetPulseList_t& detectorPulsesIn)=0;
+		virtual bool ChecksForPileUp()const =0;
+
+	protected:
+		bool Debug()const {return fDebug;};
+	private:
+		bool fDebug;
 };
 
 #endif //TVMUONEVENTGENERATOR_H_
