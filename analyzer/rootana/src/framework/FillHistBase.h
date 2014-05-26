@@ -31,7 +31,7 @@ std::cout<<message;
 class FillHistBase
 {
  public:
-  FillHistBase(const char *HistogramDirectoryName, modules::options* opts, TSetupData* setup=NULL);
+  FillHistBase(const char *HistogramDirectoryName, modules::options* opts=NULL, TSetupData* setup=NULL);
   virtual ~FillHistBase();
 
   int ProcessGenericEntry(TGlobalData *gData, TSetupData *gSetup);
