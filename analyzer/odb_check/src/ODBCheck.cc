@@ -121,6 +121,7 @@ void ODBCheck::Check(int run) {
   fODB = WireMap::Default();
   fODB.LoadOver(run_odb);
   fCorrections.Clear();
+  fCorrections.SetRun(fRun);
 
   // The value we're looping over is the bank names in the ODB.
   // Some corresponding detector names are not real,

@@ -13,6 +13,15 @@ WireMap::WireMap(int run, std::string& odb_file) {
   Load(run, odb_file);
 }
 
+void WireMap::SetRun(unsigned int run) {
+  if (run > 0 && run < 100000)
+    fRun = run;
+  else
+    std::cout <<
+      "WireMap WARNING: Run outside range! (" << run << ")" <<
+      std::endl;
+}
+
 void WireMap::Add(const char bankname[], const char detname[], int ped, int pol, int thresh, int off) {
   std::string bn(bankname);
   std::string dn(detname);
