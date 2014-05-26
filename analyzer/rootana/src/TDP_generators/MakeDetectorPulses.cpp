@@ -6,7 +6,7 @@
 extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 extern std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
 
-MakeDetectorPulses::MakeDetectorPulses(modules::options* opts):FillHistBase("MakeDetectorPulses"){
+MakeDetectorPulses::MakeDetectorPulses(modules::options* opts):FillHistBase("MakeDetectorPulses",opts){
     if(opts->HasOption("algorithm")){
       MakeGenerator(opts->GetString("algorithm"));
     }
