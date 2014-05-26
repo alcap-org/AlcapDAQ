@@ -8,6 +8,7 @@ class MaxTimeDiffDPGenerator:public TVDetectorPulseGenerator{
  public:
   MaxTimeDiffDPGenerator(): TVDetectorPulseGenerator(){};
   virtual ~MaxTimeDiffDPGenerator(){};
+  virtual bool ChecksForPileUp()const {return false;};
 
  public:
   virtual void ProcessPulses(const TSetupData* setup,const std::string& detector, 

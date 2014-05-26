@@ -7,3 +7,8 @@ DIRS += src/\
         src/framework/\
         src/physics/\
         src/plotters/
+
+# A list of classes that need dictionary generation by root
+# Make sure to add the relevant lines to the DataLibraryLinkDef.h file as well
+#ROOT_DICT_CLASSES:=TDetectorPulse
+ROOT_DICT_CLASSES:=TAnalysedPulseMapWrapper TDetectorPulse

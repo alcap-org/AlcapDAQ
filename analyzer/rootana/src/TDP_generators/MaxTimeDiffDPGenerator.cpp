@@ -21,8 +21,6 @@ void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::st
 	  finalIters.push_back(finalFastPulseIter);
 	  finalIters.push_back(finalSlowPulseIter);
 
-	  std::vector<TDetectorPulse*> detectorPulses;
-
 	  // Loop through both TAnalysedPulse vectors until they are both finished
 	  // NB with this alogirthm this can be extended to more than 2
           double min_time = 999999; // something large
@@ -58,7 +56,7 @@ void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::st
 	      }
 	    }
 	    TDetectorPulse* det_pulse = new TDetectorPulse(fast_pulse, slow_pulse, detector); // Create the TDetectorPulse
-	    detectorPulses.push_back(det_pulse);
+	    output.push_back(det_pulse);
 	    if(Debug()){
 	        cout<<"Created a TDetectorPulse with:\n";
 	        cout<<"Fast Pulse: " << det_pulse->GetFastPulseTime() * 1e-6 << std::endl;

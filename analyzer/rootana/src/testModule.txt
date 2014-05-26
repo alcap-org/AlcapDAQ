@@ -24,6 +24,7 @@ debug=all
 # Format is alias = ModuleClass
 analyse_pulses = MakeAnalysedPulses 
 detector_pulses = MakeDetectorPulses
+muon_events = MakeMuonEvents
 draw_pulses = ExportPulse
 #### end of modules list ######
 
@@ -47,6 +48,10 @@ SiR2-S=MaxBin
 # then put them in brackets and comma separated like a c-style constructor
 SiR2-F=MaxBin
 SiR2-F+=PeakFitter(0.5,0.3)
+
+[ detector_pulses] 
+[ muon_events ] 
+algorithm=MaxTimeDiff
 
 # if a section is given but the name doesnt correspond to a module, then its
 # contents is ignored.  This means long modules lists can have modules
