@@ -3,6 +3,9 @@
 using std::cout;
 using std::endl;
 
+// This is a static member so we need to define it here
+std::vector<std::string> TMuonEvent::fDetectorNames;
+
 TMuonEvent::TMuonEvent(){
 	// The first muon_event to be created will fill the vector of detector names
 	if(fDetectorNames.size() ==0){
