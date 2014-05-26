@@ -1,30 +1,22 @@
-#include "MaxTimeDiffDPGenerator.h"
+#include "MaxTimeDiffMEGenerator.h"
 #include <iostream>
 #include <vector>
 #include <cmath>
 using std::cout;
 using std::endl;
-void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::string& detector, 
-		  const AnalysedPulseList_t* fast_pulses, const AnalysedPulseList_t* slow_pulses,
-		  DetectorPulseList_t& output){
 
-	  AnalysedPulseList_t::const_iterator fastPulseIter = fast_pulses->begin();
-	  AnalysedPulseList_t::const_iterator slowPulseIter = slow_pulses->begin();
-	  AnalysedPulseList_t::const_iterator finalFastPulseIter = fast_pulses->end();
-	  AnalysedPulseList_t::const_iterator finalSlowPulseIter = slow_pulses->end();
+int MaxTimeDiffMEGenerator::ProcessPulses(MuonCentredTree_t& muonEventsOut,
+		const BankDetPulseList_t& detectorPulsesIn){
 
-	  std::vector<AnalysedPulseList_t::const_iterator> pulseIters;
-	  pulseIters.push_back(fastPulseIter);
-	  pulseIters.push_back(slowPulseIter);
-
-	  std::vector<AnalysedPulseList_t::const_iterator> finalIters;
-	  finalIters.push_back(finalFastPulseIter);
-	  finalIters.push_back(finalSlowPulseIter);
-
-	  std::vector<TDetectorPulse*> detectorPulses;
+	  std::vector<DetectorPulseList_t::const_iterator> pulseIters;
+	  std::vector<DetectorPulseList_t::const_iterator> finalIters;
+	  for(BankDetPulseList_t::const_iterator i_detector=detectorPulsesIn.begin();
+			  i_detector!=detectorPulsesIn.end(); i_detector++){
+			  pulseIters.push_back(i_detector->second.begin());
+			  finalIters.push_back(i_detector->second.end());
+	  }
 
 	  // Loop through both TAnalysedPulse vectors until they are both finished
-	  // NB with this alogirthm this can be extended to more than 2
           double min_time = 999999; // something large
           double pulse_time;
 	  while (pulseIters.size() > 0) {
@@ -38,31 +30,21 @@ void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::st
 
 	    // Now go through and find all the pulses that are within a certain time of this
 	    double time_difference = 0.1; // 0.1 ms
-	    TAnalysedPulse* fast_pulse = NULL;
-	    TAnalysedPulse* slow_pulse = NULL;
+	    TMuonEvent* muon_event=new TMuonEvent();
 	    for (unsigned int b = 0; b < pulseIters.size(); ++b) {
 
-	      TAnalysedPulse* pulse = *(pulseIters[b]);
+	      TDetectorPulse* pulse = *(pulseIters[b]);
 	      double pulse_time = pulse->GetTime() * 1e-6; // convert to ms
 
 	      if (std::fabs(pulse_time - min_time) < time_difference) {
-		if ( TSetupData::IsFast(pulse->GetDetName())) {
-		  if(Debug()) cout<<"Fast? " << pulse->GetDetName() << std::endl;
-		  fast_pulse = pulse;
-		} else if ( TSetupData::IsSlow(pulse->GetDetName()))  {
-		  if(Debug()) cout<<"Slow? " << pulse->GetDetName() << std::endl;
-		  slow_pulse = pulse;
-		}
-
+		 if(Debug()) cout<<"Using pulse from: " << pulse->GetDetName() << std::endl;
+		 muon_event->SetPulse(pulse->GetDetName(), pulse);
 		++(pulseIters[b]); // increment the iterator because we used the pulse
 	      }
 	    }
-	    TDetectorPulse* det_pulse = new TDetectorPulse(fast_pulse, slow_pulse, detector); // Create the TDetectorPulse
-	    detectorPulses.push_back(det_pulse);
+	    muonEventsOut.push_back(muon_event);
 	    if(Debug()){
-	        cout<<"Created a TDetectorPulse with:\n";
-	        cout<<"Fast Pulse: " << det_pulse->GetFastPulseTime() * 1e-6 << std::endl;
-	        cout<< "Slow Pulse: " << det_pulse->GetSlowPulseTime() * 1e-6 << std::endl;
+	        cout<<"Created a TMuonEvent with "<<muon_event->GetNumPulses();
 	        cout<< std::endl;
 	    }
 
@@ -75,4 +57,6 @@ void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::st
 	      }  
 	    } // for (int b -reversed)	      
 	  } // end for
+
+	  return 0;
 }

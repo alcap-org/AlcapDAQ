@@ -1,18 +1,16 @@
-#ifndef MAXTIMEDIFFDPGENERATOR_H_
-#define MAXTIMEDIFFDPGENERATOR_H_
+#ifndef MAXTIMEDIFFMEGENERATOR_H_
+#define MAXTIMEDIFFMEGENERATOR_H_
 
-#include "TVDetectorPulseGenerator.h"
+#include "TVMuonEventGenerator.h"
 
-class MaxTimeDiffDPGenerator:public TVDetectorPulseGenerator{
-
- public:
-  MaxTimeDiffDPGenerator(): TVDetectorPulseGenerator(){};
-  virtual ~MaxTimeDiffDPGenerator(){};
+class MaxTimeDiffMEGenerator:public TVMuonEventGenerator{
 
  public:
-  virtual void ProcessPulses(const TSetupData* setup,const std::string& detector, 
-		  const AnalysedPulseList_t* fast, const AnalysedPulseList_t* slow,
-		  DetectorPulseList_t& output);
+  MaxTimeDiffMEGenerator(TVMuonEventGenerator::options* opts): TVMuonEventGenerator(opts){};
+  virtual ~MaxTimeDiffMEGenerator(){};
+
+ public:
+  virtual int ProcessPulses(MuonCentredTree_t& muonEventsOut,const BankDetPulseList_t& detectorPulsesIn);
 
 };
-#endif //MAXTIMEDIFFDPGENERATOR_H_
+#endif //MAXTIMEDIFFMEGENERATOR_H_
