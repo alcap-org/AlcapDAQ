@@ -6,5 +6,6 @@
 #pragma link C++ class map<string, vector<TAnalysedPulse*> >+;
 #pragma link C++ class map<string, vector<TAnalysedPulse*> >::iterator;
 #pragma link C++ class pair<string,vector<TAnalysedPulse*> >+;
+#pragma link C++ class std::vector<std::string>+;
 
 #pragma link C++ class TAnalysedPulseMapWrapper+;

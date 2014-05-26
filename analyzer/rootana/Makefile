@@ -86,7 +86,6 @@ $(DATA_LIBRARY_SOURCE):
 
 $(ROOTANA_DATACLASSES):  $(DATA_LIBRARY_SOURCE) $(ROOT_DICT_SOURCES) 
 	@g++ -shared -o$@ $(ROOT_LIBS) $(CXXFLAGS) -I$(ROOTSYS)/include $(INCLUDE_CFLAGS) $^
-	#@rm $(DATA_LIBRARY_SOURCE) $(DATA_LIBRARY_HEADER)
 
 rootana: $(OBJECTS) $(ROOTANA_DATACLASSES)
 	@echo -e "Building Rootana" 
@@ -113,7 +112,7 @@ clean_libraries:
 	@echo Removing libraries
 	rm -f libAnalysis.*
 	rm -f $(ROOTANA_DATACLASSES)
-	rm -f $(DATA_LIBRARY_NAME)*
+	rm -f $(DATA_LIBRARY_SOURCE) $(DATA_LIBRARY_HEADER)
 
 clean_rootana:
 	@echo Removing rootana
