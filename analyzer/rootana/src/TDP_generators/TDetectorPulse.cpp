@@ -31,4 +31,6 @@ void TDetectorPulse::Reset(Option_t* o)
   fFastPulse = NULL;
   fSlowPulse = NULL;
   fDetName = "";
+  fCheckedForPileUp=false;
+  fPileUpSafe=false;
 }
