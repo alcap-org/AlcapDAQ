@@ -19,6 +19,7 @@
 #include "TSetupData.h"
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
+#include "TMuonEvent.h"
 //#include "ProcessCorrectionFile.h" // Provides CheckSetupData()
 
 #include "TAnalysedPulseMapWrapper.h"
@@ -45,6 +46,7 @@ TBranch *gAnalysedPulseBranch = NULL;
 
 std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
+std::vector<TMuonEvent*> gMuonEvents;
 
 TGlobalData* TGlobalData::Instance()
 {
