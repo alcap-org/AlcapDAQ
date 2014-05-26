@@ -4,44 +4,39 @@ using std::cout;
 using std::endl;
 
 TMuonEvent::TMuonEvent(){
+	// The first muon_event to be created will fill the vector of detector names
+	if(fDetectorNames.size() ==0){
+		const int num_det_names=21;
+		const char* det_names[num_det_names]={ 
+			"Ge", "LiquidSc", "NDet", "NDet2", "ScGe", "ScL", "ScR",
+			"ScVe", "SiL1_1", "SiL1_2", "SiL1_3", "SiL1_4", "SiL2", "SiR1_1",
+			"SiR1_2", "SiR1_3", "SiR1_4", "SiR1_sum", "SiR2", "MuSc", "MuScA" };
+		for(int i=0;i<num_det_names;i++) fDetectorNames.push_back(det_names[i]);
+	}
 	ResetDetectors();
 }
 
 TMuonEvent::~TMuonEvent(){
 }
 
-#define RESET_DET(detector)\
-	Set##detector(NULL);
-
 void TMuonEvent::ResetDetectors(){
-	RESET_DET( Ge )
-	RESET_DET( LiquidSc )
-	RESET_DET( NDet )
-	RESET_DET( NDet2 )
-	RESET_DET( ScGe )
-	RESET_DET( ScL )
-	RESET_DET( ScR )
-	RESET_DET( ScVe )
-	RESET_DET( SiL1_1 )
-	RESET_DET( SiL1_2 )
-	RESET_DET( SiL1_3 )
-	RESET_DET( SiL1_4 )
-	RESET_DET( SiL2 )
-	RESET_DET( SiR1_1 )
-	RESET_DET( SiR1_2 )
-	RESET_DET( SiR1_3 )
-	RESET_DET( SiR1_4 )
-	RESET_DET( SiR1_sum )
-	RESET_DET( SiR2 )
-	RESET_DET( MuSc )
-	RESET_DET( MuScA )
+   // For now just NULL the pointers, but we need to decide an ownership scheme
+   // in which case we may want to delete them as well
+   for(size_t i=0;i<fDetectorNames.size();i++){
+       SetPulse(fDetectorNames[i],NULL);
+   }
 }
 
-#undef RESET_DET
+int TMuonEvent::GetNumPulses()const{
+	int count=0;
+	for(size_t i=0;i<fDetectorNames.size();i++){
+		if(GetPulse(fDetectorNames[i])) count++;
+	}
+	return count;
+}
 
 #define GET_DET_IF(var,detector)\
 	else if(var==#detector) return Get##detector();
-
 
 TDetectorPulse* TMuonEvent::GetPulse(const std::string& detector)const{
 	if(detector=="") return NULL;

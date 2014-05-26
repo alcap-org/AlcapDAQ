@@ -13,14 +13,14 @@ void Set##detector(TDetectorPulse* p){f##detector=p;};\
 #include "TDetectorPulse.h"
 
 class TMuonEvent{
-//typdef TDetectorPulse*(*getter)()const;
-//typdef void(*setter)(TDetectorPulse*);
         public:
                 TMuonEvent();
                 ~TMuonEvent();
 
                 TDetectorPulse* GetPulse(const std::string& detector)const;
                 void SetPulse(const std::string& detector, TDetectorPulse* pulse);
+		
+		int GetNumPulses()const;
 
 	private:
 		void ResetDetectors();
@@ -48,6 +48,7 @@ class TMuonEvent{
 		PREP_DETECTOR( MuSc )
 		PREP_DETECTOR( MuScA )
 
+		static std::vector<std::string> fDetectorNames;
 };
 #undef PREP_DETECTOR
 #endif // TMuonEvent_hh_
