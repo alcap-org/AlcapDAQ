@@ -120,6 +120,7 @@ void ODBCheck::Check(int run) {
   WireMap run_odb(fRun, fname);
   fODB = WireMap::Default();
   fODB.LoadOver(run_odb);
+  fCorrections.Clear();
 
   // The value we're looping over is the bank names in the ODB.
   // Some corresponding detector names are not real,
@@ -172,23 +173,6 @@ void ODBCheck::Check(int run) {
     timing = NULL;
   }
   hist_file.Close();
-
-  std::cout << "Original:" << std::endl;
-  std::cout << "ODB File: \t" << fDataDirs.GetODBFileName(fRun) << std::endl;
-  std::cout << "fNDets:   \t" << fODB.GetNDets() << std::endl;
-  std::cout << "fBankName:\t" << fODB.GetBanks().size() << std::endl;
-  std::cout << "fDetName: \t" << fODB.GetDets().size() << std::endl;
-  std::cout << "fPedestal:\t" << fODB.GetPedestals().size() << std::endl;
-  std::cout << "fPolarity:\t" << fODB.GetPolarities().size() << std::endl;
-  std::cout << "fOffset:  \t" << fODB.GetOffsets().size() << std::endl;
-
-  std::cout << "Corrections:" << std::endl;
-  std::cout << "fNDets:   \t" << fCorrections.GetNDets() << std::endl;
-  std::cout << "fBankName:\t" << fCorrections.GetBanks().size() << std::endl;
-  std::cout << "fDetName: \t" << fCorrections.GetDets().size() << std::endl;
-  std::cout << "fPedestal:\t" << fCorrections.GetPedestals().size() << std::endl;
-  std::cout << "fPolarity:\t" << fCorrections.GetPolarities().size() << std::endl;
-  std::cout << "fOffset:  \t" << fCorrections.GetOffsets().size() << std::endl;
 
   OutputCorrections();
 }
