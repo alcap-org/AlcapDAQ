@@ -41,10 +41,10 @@ TBranch *gAnalysedPulseBranch = NULL;
 std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
 
-TGlobalData* TGlobalData::Instance()
-{
-  return g_event;
-}
+//TGlobalData* TGlobalData::Instance()
+//{
+  //  return g_event;
+//}
 
 //[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[
 //May be useful to track object type.  Only guarenteed across one
