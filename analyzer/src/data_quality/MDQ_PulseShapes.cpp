@@ -204,33 +204,34 @@ INT MDQ_PulseShapes_eor(INT run_number) // Make projection
 		if (DQ_PulseShapes_histograms_map.find(bankname) !=
 				DQ_PulseShapes_histograms_map.end())
 		{
-			TH1D* hDQ_Histogram_projY = 
-			  DQ_PulseShapes_histograms_map[bankname]->ProjectionY("_py", 1,GetLastPresampleBin(bankname));
+       		        TH2F* hPulseShapes = DQ_PulseShapes_histograms_map[bankname];
+			TH1D* hDQ_Histogram_projY = hPulseShapes->ProjectionY();
 
 			DQ_PulseShapesProjectionY_histograms_map[bankname]->Add(
 					hDQ_Histogram_projY, 1);
 			hDQ_Histogram_projY->SetDirectory(0); // not save this in the output
 
 			// Take pedestal and noise as mean and RMS of the projections
+			// but first set the range so that we don't get the massive bins at 0 or the max_adc_value
+			hDQ_Histogram_projY->GetXaxis()->SetRange(2, hDQ_Histogram_projY->GetNbinsX()-1);
+			int max_bin = hDQ_Histogram_projY->GetMaximumBin();
+
+			double pedestal = hDQ_Histogram_projY->GetBinCenter(max_bin);
+			double pedestal_value = hDQ_Histogram_projY->GetBinContent(max_bin);
+			double noise = 0;
+			for (int iBin = max_bin; iBin < hDQ_Histogram_projY->GetNbinsX(); ++iBin) {
+			  double value = hDQ_Histogram_projY->GetBinContent(iBin);
+			  if (value < 0.5*pedestal_value) {
+			    noise = hDQ_Histogram_projY->GetBinCenter(iBin) - pedestal;
+			    break;
+			  }
+			}
+
 			std::string binlabel = bankname + " (" + detname + ")";
-			hDQ_PulseShapes_Pedestals->Fill(binlabel.c_str(), hDQ_Histogram_projY->GetMean());
+			hDQ_PulseShapes_Pedestals->Fill(binlabel.c_str(), pedestal);
 			hDQ_PulseShapes_Noises->Fill(binlabel.c_str(), hDQ_Histogram_projY->GetRMS());
 		}
 	}
 
 	return SUCCESS;
-}
-
-int GetLastPresampleBin(std::string bankname) {
-
-  // return the last bin number depending on the digitizer
-  if (TSetupData::Instance()->IsFADC(bankname)) {
-    return 10;
-  }
-  else if (TSetupData::Instance()->IsBostonCAEN(bankname)) {
-    return 10;
-  }
-  else if (TSetupData::Instance()->IsHoustonCAEN(bankname)) {
-    return 25;
-  }
 }
