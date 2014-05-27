@@ -8,16 +8,20 @@
 //ROOT
 #include "TFile.h"
 #include "TTree.h"
-//#include "TSystem.h"
-//#include "TStopwatch.h"
 
 //Local
 #include "debug_tools.h"
+
+
 TGlobalData* TGlobalData::Instance()
 {
   return g_event;
 }
 
+<<<<<<< HEAD
+=======
+#define DEBUG_PRINT std::cout << "At line " << __LINE__ << std::endl;
+>>>>>>> bc89e7c5000dcd6a67ec8c62dee1fec719635511
 
 //======================================================================
 EventNavigator* EventNavigator::fInstance = 0x0;
@@ -61,6 +65,10 @@ Bool_t EventNavigator::ConnectInput(const char* input_file_name,
   fInput->GetObject("SetupTree", setup_tree);
   if (!setup_tree || setup_tree->GetEntriesFast() == 0) return false;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> bc89e7c5000dcd6a67ec8c62dee1fec719635511
   //Look for data tree
   TTree* event_tree = 0x0;
   fInput->GetObject("EventTree", event_tree);
@@ -93,6 +101,7 @@ extern void ClearGlobalData(TGlobalData* data);
 //----------------------------------------------------------------------
 void EventNavigator::CopyTree()
 {
+<<<<<<< HEAD
   //DEBUG_PRINT
   Long64_t nentries = fEventTree->GetEntries();
   //nentries = 100;
@@ -176,6 +185,34 @@ void EventNavigator::CopyTree()
   out_tree->AutoSave();
   out_tree2->Print();
   out_tree2->AutoSave();
+=======
+  DEBUG_PRINT
+  Long64_t nentries = fEventTree->GetEntries();
+  nentries = 100;
+  TGlobalData* event = 0x0;
+  fEventTree->SetBranchAddress("Event", &event);
+  DEBUG_PRINT
+
+  fOutput->ls();
+  TTree* out_tree = fEventTree->CloneTree(0);
+  Int_t something;
+  out_tree->Branch("demo",&something,"demo/I");
+  for (Long64_t i=0; i < nentries; ++i){
+    fEventTree->GetEntry(i);
+    something = i % 25;
+    out_tree->Fill();
+    if (i ==    1 || i ==    2 || i ==    5 ||
+	i ==   10 || i ==   20 || i ==   50 ||
+	i ==  100 || i ==  200 || i ==  500 ||
+	i == 1000 || i == 2000 || i == 5000 ) std::cout << "Event " << i << std::endl;
+    ClearGlobalData(event);
+    
+  }
+  std::cout << nentries << " ENTRIES" << std::endl;
+
+  out_tree->Print();
+  out_tree->AutoSave();
+>>>>>>> bc89e7c5000dcd6a67ec8c62dee1fec719635511
   fOutput->ls();
   fOutput->Close();
   DEBUG_PRINT

@@ -73,6 +73,7 @@ std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
 
 //]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
 
+
 //======================================================================
 int main(int argc, char **argv){
 //load_config_file("MODULES.txt");
@@ -91,12 +92,6 @@ int main(int argc, char **argv){
   return 0;
 
   // Open the input tree file
-  gInFile = new TFile(arguments.infile);
-  if(!gInFile->IsOpen()) {
-    printf("Failed to open input file, '%s'.  Exiting.\n",arguments.infile);
-    delete gInFile;
-    return 1;
-  }
   
   // Make an initial call to singleton objects that are very likely to be called at some point.
   ret = PrepareSingletonObjects(arguments);
