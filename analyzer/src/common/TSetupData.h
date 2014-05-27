@@ -105,7 +105,7 @@ private:
 		else
 			return false;
 	}
-  ClassDef(TSetupData, 2)
+  ClassDef(TSetupData, 3)
 
 };
 #endif
