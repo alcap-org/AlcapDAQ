@@ -33,6 +33,8 @@ public:
   WireMap(int run, std::string& odb_file);
 
 public:
+  // Setter
+  void SetRun(unsigned int);
   // Getters
   unsigned int GetRun() const;
   unsigned int GetNDets() const;

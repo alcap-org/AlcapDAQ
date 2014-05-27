@@ -30,6 +30,11 @@ void PulseEstimate::Estimate(TH1* pulses, TH1* timing) {
     fPolarity = -1;
 
   /* Get Timing */
+  // Rebin until we have plenty of samples at the peak
+  int nRebins = 0;
+  static int min_time_correlation_height = 10;
+  while (timing->GetBinContent(timing->GetMaximumBin()) < min_time_correlation_height && nRebins++ < 3)
+    timing->Rebin();
   fOffset = timing->GetBinCenter(timing->GetMaximumBin());
 }
 

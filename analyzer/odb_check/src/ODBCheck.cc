@@ -92,7 +92,7 @@ void ODBCheck::OutputCorrections() {
   fCorrectionsFile << time_key << key_tail << std::endl;
   for (int idet = 0; idet < ndets; ++idet)
     fCorrectionsFile << "[" << idet << "]" <<
-      fCorrections.GetOffsets()[idet] - fODB.GetOffsets()[idet] <<
+      fCorrections.GetOffsets()[idet] <<
       std::endl; 
   fCorrectionsFile << std::endl;
 
@@ -121,6 +121,7 @@ void ODBCheck::Check(int run) {
   fODB = WireMap::Default();
   fODB.LoadOver(run_odb);
   fCorrections.Clear();
+  fCorrections.SetRun(fRun);
 
   // The value we're looping over is the bank names in the ODB.
   // Some corresponding detector names are not real,
