@@ -92,7 +92,7 @@ void ODBCheck::OutputCorrections() {
   fCorrectionsFile << time_key << key_tail << std::endl;
   for (int idet = 0; idet < ndets; ++idet)
     fCorrectionsFile << "[" << idet << "]" <<
-      fCorrections.GetOffsets()[idet] - fODB.GetOffsets()[idet] <<
+      fCorrections.GetOffsets()[idet] <<
       std::endl; 
   fCorrectionsFile << std::endl;
 
