@@ -6,13 +6,20 @@ PulseEstimate::PulseEstimate() : fPedestal(0), fPolarity(0) {}
 
 void PulseEstimate::Estimate(TH1* pulses, TH1* timing) {
   /* Get pedestal */
+  // First reduce range slightly; specifically Ge preamp reset caused flatlining
+  static const int nBinsIgnore = 5; // This number is arbitrary. Logically it should be 1, maybe 2, but 5 can't hurt
+  int nbins = pulses->GetXaxis()->GetNbins();
+  pulses->GetXaxis()->SetRange(nBinsIgnore, nbins - nBinsIgnore);
+  // Get the pedestal
   fPedestal = (int)pulses->GetBinCenter(pulses->GetMaximumBin());
+  // Reset bin range
+  pulses->GetXaxis()->SetRange();
 
   /* Get polarity */
   int min = 0, max = 0;
   bool min_found = false, max_found = false;
-  int nbins = pulses->GetNbinsX();
-  for (int i = 1; i < nbins; ++i) {
+  // Again, ignore 5 bin on each side to get rid of flatlines
+  for (int i = nBinsIgnore; i <= nbins - nBinsIgnore; ++i) {
     if (!min_found && pulses->GetBinContent(i) > 0.) {
       min_found = true;
       min = i;
