@@ -99,17 +99,13 @@ void TemplateCreator::AddPulseToTemplate(TH1D* hTemplate, TPulseIsland* pulse, d
   double norm;
   double peak;
   double sigma;
-  double polarity;
-  double pedestal;
-  int n_samples;
-  std::vector<int> samples;
   std::vector<double> rectified_samples, reshaped_pulse;
 
-  polarity = (double)pulse->GetTriggerPolarity();
-  pedestal = pulse->GetPedestal(0);
-  samples = pulse->GetSamples();
+  double polarity = (double)pulse->GetTriggerPolarity();
+  double pedestal = pulse->GetPedestal(0);
+  std::vector<int> samples = pulse->GetSamples();
   pedestal = (double)(samples[0]+samples[1]+samples[2]+samples[3]) / 4.; /*** TEMPERARY PEDESTAL ***/
-  n_samples = samples.size();
+  int n_samples = samples.size();
   for (int i = 0; i < n_samples; ++i)
     rectified_samples.push_back(polarity*((double)samples[i]-pedestal));
   // Get peak value for normalization
