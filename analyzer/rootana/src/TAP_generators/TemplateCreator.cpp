@@ -103,7 +103,7 @@ void TemplateCreator::AddPulseToTemplate(TH1D* hTemplate, TPulseIsland* pulse, d
 
   double polarity = (double)pulse->GetTriggerPolarity();
   double pedestal = pulse->GetPedestal(0);
-  std::vector<int> samples = pulse->GetSamples();
+  const std::vector<int>& samples = pulse->GetSamples();
   pedestal = (double)(samples[0]+samples[1]+samples[2]+samples[3]) / 4.; /*** TEMPERARY PEDESTAL ***/
   int n_samples = samples.size();
   for (int i = 0; i < n_samples; ++i)
