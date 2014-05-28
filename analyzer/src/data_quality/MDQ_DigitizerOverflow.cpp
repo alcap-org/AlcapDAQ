@@ -174,7 +174,7 @@ INT MDQ_DigitizerOverflow(EVENT_HEADER *pheader, void *pevent)
 
 	    //loop over samples, check for overflow value
 	    const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
-	    for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter){
+	    for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter){
 	      int sample_number = sampleIter - theSamples.begin();
 	      int sample_value = *sampleIter;
 
