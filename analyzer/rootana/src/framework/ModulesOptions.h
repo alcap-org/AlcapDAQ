@@ -24,10 +24,11 @@ class modules::options{
 	bool AppendToOption(const std::string& name, const std::string& option);
 	void AddArgument(const int& number, const std::string& option);
     public:
-	int GetInt(const std::string&)const;
-	double GetDouble(const std::string&)const;
-	std::string GetString(const std::string&)const;
-	bool GetBool(const std::string&)const;
+	int GetInt(const std::string&,int defVal=-1)const;
+	double GetDouble(const std::string&,double defVal=1.)const;
+	std::string GetString(const std::string&,const std::string& defVal="")const;
+	bool GetBool(const std::string&,bool defVal=false)const;
+
 	int GetVectorStringsByWhiteSpace(const std::string&, std::vector<std::string>& vect)const;
 	int GetVectorStringsByDelimiter(const std::string&, std::vector<std::string>& vect,const char* delim=":")const;
 	int GetVectorStrings(const std::string& name, std::vector<std::string>& vect)const {
@@ -45,7 +46,7 @@ class modules::options{
 	void DumpOptions(const std::string& prefix="     ")const;
     private:
 	template <typename T>
-	    T GetOption(const std::string&)const;
+	    T GetOption(const std::string&,const T& defVal)const;
 
 	static int MakeIdNumber();
     private:

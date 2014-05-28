@@ -9,29 +9,28 @@ std::string modules::options::GetOption(const std::string& key)const{
     std::string value= it!=fOptions.end()? it->second : "";
     return value;
 }
-
 template <typename T>
-T modules::options::GetOption(const std::string& key)const{
+T modules::options::GetOption(const std::string& key,const T& defVal)const{
     std::stringstream ss(GetOption(key));
-    T val=T();
+    T val=defVal;
     ss>>val;
     return val;
 }
 
-int modules::options::GetInt(const std::string& name)const{
-    return GetOption<int>(name);
+int modules::options::GetInt(const std::string& name,int defVal)const{
+    return GetOption<int>(name,defVal);
 }
 
-double modules::options::GetDouble(const std::string& name)const{
-    return GetOption<double>(name);
+double modules::options::GetDouble(const std::string& name,double defVal)const{
+    return GetOption<double>(name,defVal);
 }
 
-std::string modules::options::GetString(const std::string& name)const{
-    return GetOption(name);
+std::string modules::options::GetString(const std::string& name,const std::string& defVal)const{
+    return GetOption<std::string>(name,defVal);
 }
 
-bool modules::options::GetBool(const std::string& name)const{
-    return GetOption<bool>(name);
+bool modules::options::GetBool(const std::string& name,bool defVal)const{
+    return GetOption<bool>(name,defVal);
 }
 
 int modules::options::GetVectorStringsByWhiteSpace(const std::string& name, std::vector<std::string>& vect)const{
@@ -52,7 +51,6 @@ int modules::options::GetVectorStringsByDelimiter(const std::string& name, std::
     }
     return vect.size();
 }
-
 
 void modules::options::DumpOptions(const std::string& prefix)const{
     //std::cout<<"key  "<<" = "<<" value "<<std::endl;
