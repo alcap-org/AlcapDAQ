@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
+#include "TDirectory.h"
 
 using std::cout;
 using std::endl;
@@ -14,6 +15,7 @@ modules::BaseModule* modules::factory::createModule(const std::string& name, mod
 	// make the module
 	maker make= it->second;
 	module=make(opts);
+	gDirectory->cd("/");
     }else{
 	cout<<"Unknown module requested: "<<name<<endl;
 	return NULL;
