@@ -229,7 +229,7 @@ INT MDQ_PulseShapes_eor(INT run_number) // Make projection
 
 			std::string binlabel = bankname + " (" + detname + ")";
 			hDQ_PulseShapes_Pedestals->Fill(binlabel.c_str(), pedestal);
-			hDQ_PulseShapes_Noises->Fill(binlabel.c_str(), hDQ_Histogram_projY->GetRMS());
+			hDQ_PulseShapes_Noises->Fill(binlabel.c_str(), noise);
 		}
 	}
 
