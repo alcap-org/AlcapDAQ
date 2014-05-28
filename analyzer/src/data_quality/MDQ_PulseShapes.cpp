@@ -229,7 +229,7 @@ INT MDQ_PulseShapes_eor(INT run_number) // Make projection
 
 			std::string binlabel = bankname + " (" + detname + ")";
 			hDQ_PulseShapes_Pedestals->Fill(binlabel.c_str(), pedestal);
-			hDQ_PulseShapes_Noises->Fill(binlabel.c_str(), noise);
+			hDQ_PulseShapes_Noises->Fill(binlabel.c_str(), 2*noise); // at the moment, noise is just from the peak to the half-way down on one side so multiply by 2
 		}
 	}
 
