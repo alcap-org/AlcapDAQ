@@ -17,7 +17,8 @@ help() {
     echo "-t    Amount of time in seconds between checks to see if more jobs can be submittied."
     echo "      Default is 30, there is no real motivation for this other than the concern"
     echo "      of using up Merlin login node resources."
-    echo "-p    FTP password to download raw data."
+    echo "-p    FTP password to download raw data. If not passed at command line,"
+    echo "      you will be prompted for it."
     echo
     echo "Example:"
     echo "\$ ./batch_alcapana.sh -r 1 6 9 -n 5 125 -r 367 369"
