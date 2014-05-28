@@ -5,7 +5,7 @@
 #include "TSetupData.h"
 #include "TDirectory.h"
 namespace modules{
-class options;
+   class options;
 }
 
 #include <iostream>
