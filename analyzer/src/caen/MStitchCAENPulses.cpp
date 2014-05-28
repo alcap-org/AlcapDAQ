@@ -67,7 +67,7 @@ INT module_init() {
   // Get UH CAEN info
   sprintf(key, "/Equipment/Crate 4/Settings/CAEN0/waveform length");
   size = sizeof(nUHSamples);
-  db_get_value(hDB, 0, key, &nBUSamples, &size, TID_DWORD, 1);
+  db_get_value(hDB, 0, key, &nUHSamples, &size, TID_DWORD, 1);
   post_trigger_percentage = 80;
   nUHPreSamples = (int) (0.01 * ((100 - post_trigger_percentage) * nUHSamples));
 
