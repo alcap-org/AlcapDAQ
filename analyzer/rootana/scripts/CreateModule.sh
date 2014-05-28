@@ -1,7 +1,9 @@
 #! /bin/bash
 
 ListOfSpecials=( module {TAP,TDP,TME}_generator )
-Unimplemented=( {TAP,TDP,TME}_generator )
+#Unimplemented=( {TAP,TDP,TME}_generator )
+ScriptDirectory="$(readlink -f `dirname $0`)"
+TemplateDirectory="$ScriptDirectory/templates"
 
 #Usage: CreateComponent.sh ModuleName [TargetDirectory]
 function Usage(){
@@ -65,8 +67,7 @@ if [ -n "$3" ];then
 else
         # Find the directory containing the templates. We assume it is ../src 
         # to the one that contains this script
-        TargetDirectory="`dirname $0`"
-        TargetDirectory="`readlink -f "$TargetDirectory"/../src`"
+        TargetDirectory="`readlink -f "$ScriptDirectory"/../src`"
 fi
 
 #Check TargetDirectory exists
@@ -79,14 +80,29 @@ fi
 MODULE_NAME="`tr 'a-z' 'A-Z' <<<${ModuleName}`"
 ModuleName=${MODULE_NAME:0:1}${ModuleName:1}
 
-FilenameReplace="Template$Specialisation"
+# If we have a generator, give it the standard suffix
+if [[ "$Specialisation" == *_generator ]];then
+      if [[ "$Specialisation" == tap* ]];then
+	      ModuleName="${ModuleName}AP"
+      elif [[ "$Specialisation" == tdp* ]];then
+	      ModuleName="${ModuleName}DP"
+      elif [[ "$Specialisation" == tme* ]];then
+	      ModuleName="${ModuleName}ME"
+      fi
+      ModuleName="${ModuleName}Generator"
+fi
+echo "ModuleName=$ModuleName"
+
+FilenameReplace="Template_${Specialisation}"
+ListOfFiles=( ${FilenameReplace}.{h,cpp} )
 for InFile in ${ListOfFiles[@]};do
-    InFile=${InFile/Spec/$Specialisation}
+    #InFile=${InFile/Spec/$Specialisation}
     OutFile=${InFile/"$FilenameReplace"/"$ModuleName"}
+    echo $InFile $OutFile
     #Check if OutFile exists
     if [ -e "$TargetDirectory/$OutFile" ] ;then
         echo "$OutFile already exists, so skip it..."
         continue;
     fi
-     sed -e 's!%component%!'$ModuleName'!g' -e 's!%COMPONENT%!'$COMPONENT_NAME'!g' "$TemplateDirectory/$InFile" >"$TargetDirectory/$OutFile"
+    sed -e 's!%module%!'$ModuleName'!g' -e 's!%MODULE%!'$MODULE_NAME'!g' "$TemplateDirectory/$InFile" >"$TargetDirectory/$OutFile"
 done
