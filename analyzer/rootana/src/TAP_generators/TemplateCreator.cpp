@@ -132,8 +132,8 @@ void TemplateCreator::AddPulseToTemplate(TPulseIsland* pulse, double shift) {
   }
   sigma = std::sqrt(std::abs(sigma)) / (double)nsamps;
 
-  // If this is the first pulse, setup some variables
-  if (fNPulses == 0) {
+  // If this is the first pulse (i.e. if the template doesn't exist yet), setup some variables
+  if (hTemplate == NULL) {
     fClockTick = pulse->GetClockTickInNs() / (double)fRefine;
     fNBins = (int)(2. * (double)fNSigma * sigma) * fRefine;
     std::cout << "Making histogram: " << fNBins << " " << fNSigma << " " << sigma << " " << nsamps << " " << ped << std::endl;
