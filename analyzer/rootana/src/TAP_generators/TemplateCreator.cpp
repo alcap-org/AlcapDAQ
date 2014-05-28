@@ -53,6 +53,7 @@ int TemplateCreator::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       // If this is the first pulse, just add it directly to the template
       if (pulseIter == thePulseIslands.begin()) {
 	AddPulseToTemplate(hTemplate, *pulseIter, 0); // want 0 as the time shift
+	continue;
       }
 
       // Make an initial guess at the parameters
