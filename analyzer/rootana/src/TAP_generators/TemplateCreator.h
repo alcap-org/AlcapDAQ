@@ -29,7 +29,7 @@ class TemplateCreator : public FillHistBase{
 
  private:
   void InitialParameterGuess(const TPulseIsland* pulse, double& amplitude, double& time);
-  void AddPulseToTemplate(TPulseIsland* pulse, double shift);
+  void AddPulseToTemplate(TH1D* hTemplate, TPulseIsland* pulse, double shift);
 };
 
 #endif // TemplateCreator_H__

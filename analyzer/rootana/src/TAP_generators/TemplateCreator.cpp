@@ -52,8 +52,9 @@ int TemplateCreator::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       
       // If this is the first pulse, just add it directly to the template
       if (pulseIter == thePulseIslands.begin()) {
-	AddPulseToTemplate(*pulseIter, 0); // want 0 as the time shift
+	AddPulseToTemplate(hTemplate, *pulseIter, 0); // want 0 as the time shift
       }
+
       // Make an initial guess at the parameters
       double amplitude = 0;
       double time = 0;
@@ -79,7 +80,7 @@ int TemplateCreator::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
 // InitialParameterGuess
 // -- makes an initial guess at the parameters from the TPulseIsland
-void TemplateCreator::InitialParameterGuess(const TPulseIsland* pulse, double& amplitude, double& time) {
+void TemplateCreator::InitialParameterGuess(TH1D* hTemplate, const TPulseIsland* pulse, double& amplitude, double& time) {
 
   // Just use the TPI's methods for the time being
   amplitude = pulse->GetAmplitude();
