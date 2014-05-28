@@ -12,7 +12,7 @@ class TemplateFitter {
 
  private:
   int fNumParameters;
-  TFitterMinuit* fFitter;   // MINUIT fitter to template
+  TFitterMinuit* fMinuitFitter;   // MINUIT fitter to template
 
  public:
   void FitPulse(TH1D* hTemplate, const TPulseIsland* pulse);

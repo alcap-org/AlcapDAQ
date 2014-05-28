@@ -9,8 +9,8 @@ TemplateFitter::TemplateFitter() {
 
   // Create the fitter
   TemplateFitFCN* fcn = new TemplateFitFCN();
-  fFitter = new TFitterMinuit(fNumParameters);
-  fFitter->SetMinuitFCN(fcn);
+  fMinuitFitter = new TFitterMinuit(fNumParameters);
+  fMinuitFitter->SetMinuitFCN(fcn);
 }
 
 TemplateFitter::~TemplateFitter() {
@@ -30,23 +30,23 @@ void TemplateFitter::FitPulse(TH1D* hTemplate, const TPulseIsland* pulse) {
   }
 
   // Prepare for minimizations
-  fFitter->Clear();
-  TemplateFitFCN* fcn = (TemplateFitFCN*)fFitter->GetMinuitFCN();
+  fMinuitFitter->Clear();
+  TemplateFitFCN* fcn = (TemplateFitFCN*)fMinuitFitter->GetMinuitFCN();
   fcn->SetH1(hTemplate);
   fcn->SetH2(hPulse);
   double ped, amp, time;
-  fFitter->SetParameter(0, "Pedestal", ped, 0.1, 0, 0);
-  fFitter->SetParameter(1, "Amplitude", amp, 0.1, 0, 0);
-  fFitter->SetParameter(2, "Time", time, 1., 0, 0); // Timing should have step size no smaller than binning,
+  fMinuitFitter->SetParameter(0, "Pedestal", ped, 0.1, 0, 0);
+  fMinuitFitter->SetParameter(1, "Amplitude", amp, 0.1, 0, 0);
+  fMinuitFitter->SetParameter(2, "Time", time, 1., 0, 0); // Timing should have step size no smaller than binning,
                                                     // *IF* the fourth argument is step size this is okay,
                                                     // or later implement some interpolation method, note
                                                     // *DERIVATIVES* at bounderies of interpolation may cause
                                                     // problems since MIGRAD (the default method) relies on
                                                     // these heavily.
-  fFitter->CreateMinimizer();
+  fMinuitFitter->CreateMinimizer();
 
   // Minimize and notify if there was a problem
-  int status = fFitter->Minimize();
+  int status = fMinuitFitter->Minimize();
   if (status != 0)
     std::cout << "ERROR: Problem with fit (" << status << ")!" << std::endl;
 }
