@@ -95,7 +95,6 @@ void TemplateCreator::InitialParameterGuess(const TPulseIsland* pulse, double& a
 // shift:     Bin shift (timing offset of peak)
 void TemplateCreator::AddPulseToTemplate(TH1D* hTemplate, TPulseIsland* pulse, double shift) {
 
-  TH1D* old_template;
   double norm;
   double peak;
   double sigma;
@@ -105,8 +104,6 @@ void TemplateCreator::AddPulseToTemplate(TH1D* hTemplate, TPulseIsland* pulse, d
   std::vector<int> samples;
   std::vector<double> rectified_samples, reshaped_pulse;
 
-  if (fNPulses > 0)
-    old_template = (TH1D*)fTemplate->Clone("old_histogram");
   pol = (double)pulse->GetTriggerPolarity();
   ped = pulse->GetPedestal(0);
   samples = pulse->GetSamples();
@@ -193,11 +190,11 @@ void TemplateCreator::AddPulseToTemplate(TH1D* hTemplate, TPulseIsland* pulse, d
   // That is the dot product of the last template with
   // the new one subtracted from 1.
   if (fNPulses > 0) {
-    double mag_old = old_template->Integral(1, fNBins);
+    double mag_old = hTemplate->Integral(1, fNBins);
     double mag_new = fTemplate->Integral(1,fNBins);
     double dot_product = 0.;
     for (int i = 1; i <= fNBins; ++i)
-      dot_product += old_template->GetBinContent(i) * fTemplate->GetBinContent(i);
+      dot_product += hTemplate->GetBinContent(i) * fTemplate->GetBinContent(i);
     double cos_similarity = dot_product / (mag_old * mag_new);
     fConvergence = ((double)(fNPulses - 1) * fConvergence + (1 - cos_similarity))/(double)fNPulses;
   }
