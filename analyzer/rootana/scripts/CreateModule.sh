@@ -91,14 +91,12 @@ if [[ "$Specialisation" == *_generator ]];then
       fi
       ModuleName="${ModuleName}Generator"
 fi
-echo "ModuleName=$ModuleName"
 
 FilenameReplace="Template_${Specialisation}"
 ListOfFiles=( ${FilenameReplace}.{h,cpp} )
 for InFile in ${ListOfFiles[@]};do
-    #InFile=${InFile/Spec/$Specialisation}
     OutFile=${InFile/"$FilenameReplace"/"$ModuleName"}
-    echo $InFile $OutFile
+    #echo $InFile $OutFile
     #Check if OutFile exists
     if [ -e "$TargetDirectory/$OutFile" ] ;then
         echo "$OutFile already exists, so skip it..."
