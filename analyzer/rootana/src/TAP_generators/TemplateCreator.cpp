@@ -80,7 +80,7 @@ int TemplateCreator::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
 // InitialParameterGuess
 // -- makes an initial guess at the parameters from the TPulseIsland
-void TemplateCreator::InitialParameterGuess(TH1D* hTemplate, const TPulseIsland* pulse, double& amplitude, double& time) {
+void TemplateCreator::InitialParameterGuess(const TPulseIsland* pulse, double& amplitude, double& time) {
 
   // Just use the TPI's methods for the time being
   amplitude = pulse->GetAmplitude();
@@ -88,11 +88,13 @@ void TemplateCreator::InitialParameterGuess(TH1D* hTemplate, const TPulseIsland*
 
 }
 
-void TemplateCreator::AddPulseToTemplate(TPulseIsland* pulse, double shift) {
-  // Function to average in pulse with template
-  // Input--
-  // pulse:     Pulse to average in
-  // shift:     Bin shift (timing offset of peak)
+// AddPulseToTemplate()
+// -- adds the given pulse to the given template with the given time shift
+// Input--
+// pulse:     Pulse to average in
+// shift:     Bin shift (timing offset of peak)
+void TemplateCreator::AddPulseToTemplate(TH1D* hTemplate, TPulseIsland* pulse, double shift) {
+
   TH1D* old_template;
   double norm;
   double peak;
