@@ -113,7 +113,11 @@ for IODB in $ODB_DEFAULTS; do
     yes n | odbedit -c "load $IODB" > /dev/null
 done
 yes n | odbedit -c "load $ODBDATAFILE" > /dev/null
-yes n | odbedit -c "load $ODBCORRFILE" > /dev/null
+if [ -f $ODBCORRFILE ]; then
+    yes n | odbedit -c "load $ODBCORRFILE" > /dev/null
+else
+    echo "Cannot find ODB corrections."
+fi
 odbedit -c "save $ODBDUMPFILE"
 
 ################
