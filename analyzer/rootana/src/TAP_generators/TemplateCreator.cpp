@@ -99,44 +99,44 @@ void TemplateCreator::AddPulseToTemplate(TH1D* hTemplate, TPulseIsland* pulse, d
   double norm;
   double peak;
   double sigma;
-  double pol;
-  double ped;
-  int nsamps;
+  double polarity;
+  double pedestal;
+  int n_samples;
   std::vector<int> samples;
   std::vector<double> rectified_samples, reshaped_pulse;
 
-  pol = (double)pulse->GetTriggerPolarity();
-  ped = pulse->GetPedestal(0);
+  polarity = (double)pulse->GetTriggerPolarity();
+  pedestal = pulse->GetPedestal(0);
   samples = pulse->GetSamples();
-  ped = (double)(samples[0]+samples[1]+samples[2]+samples[3]) / 4.; /*** TEMPERARY PEDESTAL ***/
-  nsamps = samples.size();
-  for (int i = 0; i < nsamps; ++i)
-    rectified_samples.push_back(pol*((double)samples[i]-ped));
+  pedestal = (double)(samples[0]+samples[1]+samples[2]+samples[3]) / 4.; /*** TEMPERARY PEDESTAL ***/
+  n_samples = samples.size();
+  for (int i = 0; i < n_samples; ++i)
+    rectified_samples.push_back(polarity*((double)samples[i]-pedestal));
   // Get peak value for normalization
   peak = 0.;
-  norm = pol * (double)samples[0];
-  for (int i = 1; i < nsamps; ++i) {
-    if ((double)samples[i] * pol > norm) {
+  norm = polarity * (double)samples[0];
+  for (int i = 1; i < n_samples; ++i) {
+    if ((double)samples[i] * polarity > norm) {
       peak = (double)i;
       norm = (double)samples[i];
     }
   }
-  norm *= pol;
+  norm *= polarity;
   // Get sigma for scaling
   sigma = 0.;
-  for (int i = 0; i < nsamps; ++i) {
+  for (int i = 0; i < n_samples; ++i) {
     std::cout << i << "\t" << sigma << "," << rectified_samples[i] << "\t";
     if (i % 10 == 0)
       std::cout << std::endl;
     sigma += rectified_samples[i] * std::pow(i - peak, 2.);
   }
-  sigma = std::sqrt(std::abs(sigma)) / (double)nsamps;
+  sigma = std::sqrt(std::abs(sigma)) / (double)n_samples;
 
   // If this is the first pulse (i.e. if the template doesn't exist yet), setup some variables
   if (hTemplate == NULL) {
     fClockTick = pulse->GetClockTickInNs() / (double)fRefine;
     fNBins = (int)(2. * (double)fNSigma * sigma) * fRefine;
-    std::cout << "Making histogram: " << fNBins << " " << fNSigma << " " << sigma << " " << nsamps << " " << ped << std::endl;
+    std::cout << "Making histogram: " << fNBins << " " << fNSigma << " " << sigma << " " << n_samples << " " << pedestal << std::endl;
     TString str = "template_";
     str += pulse->GetBankName();
     fTemplate = new TH1D(str, "Template", fNBins, -(double)fNSigma, (double)fNSigma);
