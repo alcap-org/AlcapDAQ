@@ -167,8 +167,8 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 					DQ_Amplitude_histograms_map.end()) 
 			{ 
 			  /*				bool underflow = false;
-				std::vector<int> theSamples = (*pulseIter)->GetSamples();
-				for (std::vector<int>::iterator sampleIter = theSamples.begin(); 
+				const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
+				for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); 
 						sampleIter != theSamples.end(); ++sampleIter)
 				{
 					if (*sampleIter == 4096)

@@ -175,8 +175,8 @@ INT MDQ_PulseShapes(EVENT_HEADER *pheader, void *pevent)
 			if (DQ_PulseShapes_histograms_map.find(bankname) !=
 					DQ_PulseShapes_histograms_map.end()) 
 			{ 
-				std::vector<int> theSamples = (*pulseIter)->GetSamples();
-				for (std::vector<int>::iterator sampleIter = theSamples.begin(); 
+				const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
+				for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); 
 						sampleIter != theSamples.end(); ++sampleIter)
 				{
 					int sample_number = sampleIter - theSamples.begin();

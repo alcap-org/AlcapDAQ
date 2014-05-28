@@ -159,7 +159,7 @@ INT MDQ_IslandLength(EVENT_HEADER *pheader, void *pevent)
 			if (DQ_IslandLength_histograms_map.find(bankname) !=
 					DQ_IslandLength_histograms_map.end()) 
 			{ 
-				std::vector<int> theSamples = (*pulseIter)->GetSamples();
+				const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
 				DQ_IslandLength_histograms_map[bankname]->Fill(theSamples.size());
 	    }
 	  }
