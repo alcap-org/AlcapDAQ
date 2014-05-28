@@ -26,7 +26,7 @@ void TemplateFitter::FitPulse(TH1D* hTemplate, const TPulseIsland* pulse) {
 
   TH1D* hPulse = new TH1D("hPulseToFit", "hPulseToFit", n_samples, -0.5, n_samples - 0.5);
   for (int i = 0; i < n_samples; ++i) {
-    hPulse->SetBinContent(i, samples.at(i));
+    hPulse->SetBinContent(i+1, samples.at(i));
   }
 
   // Prepare for minimizations
