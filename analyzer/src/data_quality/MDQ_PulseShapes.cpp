@@ -134,7 +134,7 @@ INT MDQ_PulseShapes_init()
   histtitle = "Noises";
   hDQ_PulseShapes_Noises = new TH1F(histname.c_str(), histtitle.c_str(),1,0,1);
   hDQ_PulseShapes_Noises->GetXaxis()->SetTitle("Bank (Detector)");
-  hDQ_PulseShapes_Noises->GetYaxis()->SetTitle("Noise [ADC]");
+  hDQ_PulseShapes_Noises->GetYaxis()->SetTitle("Noise (FWHM) [ADC]");
   hDQ_PulseShapes_Noises->SetBit(TH1::kCanRebin);
 
   // Back to root directory
