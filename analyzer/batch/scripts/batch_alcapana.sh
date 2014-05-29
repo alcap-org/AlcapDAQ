@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() {
-    echo "usage: batch_alcapana.sh [-h | --help] [--usage] [-n max_jobs] [-r run_low run_high] [-t loop_time_sec] [-p ftp_password] [runs...]"
+    echo "usage: batch_alcapana.sh [-h | --help] [--usage] [options] [runs...]"
 }
 
 help() {
@@ -9,6 +9,17 @@ help() {
     echo "At least one run must be specified by either a range (-r) of runs"
     echo "(inclusive) or in a space seperated list. Multiple ranges and"
     echo "runs can be specified."
+    echo
+    echo "Options:"
+    echo "-n    The maximum number of jobs to submit to the queue at a time."
+    echo "-r    Space separated range of runs to process. Multiple ranges can be specified,"
+    echo "      they must all be preceded by their own -r."
+    echo "-t    Amount of time in seconds between checks to see if more jobs can be submittied."
+    echo "      Default is 30, there is no real motivation for this other than the concern"
+    echo "      of using up Merlin login node resources."
+    echo "-p    FTP password to download raw data. If not passed at command line,"
+    echo "      you will be prompted for it."
+    echo
     echo "Example:"
     echo "\$ ./batch_alcapana.sh -r 1 6 9 -n 5 125 -r 367 369"
     echo "This will process runs 1-6, 9, 125, and 367-369, and up to 5"
