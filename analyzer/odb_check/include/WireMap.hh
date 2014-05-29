@@ -3,12 +3,8 @@ Class: WireMap
 Author: John R. Quirk
 
 The WireMap contains some rough information from the ODB wiremap.
-Specifically the run, banks/detectors, pedestals, polarities,
-thresholds, and offsets.
-
-CURRENTLY THRESHOLDS ARE NOT IMPLEMENTS
-The reason for this is that the thresholds aren't stored in
-the ODB wiremap.
+Specifically the run, banks/detectors/status, pedestals,
+polarities, and offsets.
 **************************************/
 
 #ifndef WIREMAP_H__
@@ -23,10 +19,15 @@ private:
   unsigned int fNDets;
   std::vector<std::string> fBankName;
   std::vector<std::string> fDetName;
+  std::vector<bool> fEnabled;
   std::vector<int> fPedestal;
   std::vector<int> fPolarity;
-  std::vector<int> fThreshold; /*** NOT IMPLEMENTED YET ***/
   std::vector<int> fOffset;
+
+public:
+  enum key_t { BANK, DETECTOR, ENABLED,
+	       PEDESTAL, POLARITY, TIMESHIFT,
+	       UNKNOWN };
 
 public:
   WireMap();
@@ -40,22 +41,22 @@ public:
   unsigned int GetNDets() const;
   std::vector<std::string>& GetBanks();
   std::vector<std::string>& GetDets();
+  std::vector<bool>& GetEnableds();
   std::vector<int>& GetPedestals();
   std::vector<int>& GetPolarities();
-  std::vector<int>& GetThresholds();
   std::vector<int>& GetOffsets();
 
   // Add new value
-  void Add(const char bankname[], const char detname[], int ped, int pol, int thresh, int off);
-  void Add(std::string& bankname, std::string& detname, int ped, int pol, int thresh, int off);
+  void Add(const char bankname[], const char detname[], bool en, int ped, int pol, int off);
+  void Add(std::string& bankname, std::string& detname, bool en, int ped, int pol, int off);
   // Copy value from another WireMap 
   void Add(WireMap& wm, int index);
   // Add individual elements
-  void AddBank(const std::string&); // Increments fNDets; other do not
+  void AddBank(const std::string&); // Increments fNDets; others do not
   void AddDet(const std::string&);
+  void AddEnabled(bool);
   void AddPedestal(int);
   void AddPolarity(int);
-  void AddThreshold(int); /*** THRESHOLDS NOT IMPLEMENTED ***/
   void AddOffset(int);
 
   // Load the ODB values
@@ -89,6 +90,8 @@ private:
   // (including single leading space)
   //  = TYPE [##] :
   static int GetArraySize(const char (&tmp)[256]);
+  // Get the key
+  static key_t GetKey(std::string&);
 };
 
 #endif

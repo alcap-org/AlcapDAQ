@@ -166,7 +166,7 @@ void ODBCheck::Check(int run) {
       fCorrections.Add(fODB, i);
     } else {
       fEstimate.Estimate(shapes, timing);
-      fCorrections.Add(fODB.GetBanks()[i], fODB.GetDets()[i], fEstimate.GetPedestal(), fEstimate.GetPolarity(), 0, fEstimate.GetOffset());
+      fCorrections.Add(fODB.GetBanks()[i], fODB.GetDets()[i], fODB.GetEnableds()[i], fEstimate.GetPedestal(), fEstimate.GetPolarity(), fEstimate.GetOffset());
     }
     delete shapes;
     delete timing;
