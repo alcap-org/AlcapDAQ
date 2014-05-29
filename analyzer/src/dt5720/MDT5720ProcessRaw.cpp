@@ -14,6 +14,7 @@
 #include <string>
 #include <map>
 #include <utility>
+#include <algorithm>
 
 /* MIDAS includes */
 #include "midas.h"
@@ -36,12 +37,16 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 static INT  module_init(void);
 static INT  module_event(EVENT_HEADER*, void*);
+/*-- Stitch and Sort functions -------------------------------------*/
+static bool pulse_islands_sort(TPulseIsland*,TPulseIsland*);
+static void pulse_islands_stitch(std::vector<TPulseIsland*>&);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 vector<string> caen_boston_bank_names;
+static unsigned int nSamples;
 static unsigned int nPreSamples;
 
 ANA_MODULE MDT5720ProcessRaw_module =
@@ -86,13 +91,9 @@ INT module_init()
   }
   
    /*** Get necessary data from ODB ***/
-  /* Below is the proper way to do this, however
-     it looks as if the post_trigger_size is
-     not accurate, and therefore we will just
-     hardcode it.
   char key[80];
   int size;
-  unsigned int post_trigger_percentage, nSamples;
+  unsigned int post_trigger_percentage;
 
   // Get Trigger Time Tag info
   // Timestamp will be shifted by number of presamples
@@ -103,9 +104,10 @@ INT module_init()
   sprintf(key, "/Equipment/Crate 5/Settings/CAEN/post_trigger_size");
   size = sizeof(post_trigger_percentage);
   db_get_value(hDB, 0, key, &post_trigger_percentage, &size, TID_BYTE, 1);
-  nPreSamples = (int) (0.01 * ((100 - post_trigger_percentage) * nSamples));
-  */
+  //nPreSamples = (int) (0.01 * ((100 - post_trigger_percentage) * nSamples));
   nPreSamples = 20; // From the Golden Data, it looks like there are 20 presamples.
+                    // The frontend does not seem to correctly load post_trigger_size
+                    // onto the CAEN.
   
   return SUCCESS;
 }
@@ -241,6 +243,14 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	  }
       }
 
+      // Sort and Stitch Islands
+      for (std::vector<std::string>::iterator bankNameIter = caen_boston_bank_names.begin();
+	   bankNameIter != caen_boston_bank_names.end(); bankNameIter++) {
+	vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
+	std::sort(pulse_islands.begin(), pulse_islands.end(), pulse_islands_sort);
+	pulse_islands_stitch(pulse_islands);
+      }
+
       // *** updated by VT: align data by 32bit 
       p32 += caen_event_size + (caen_event_size%2);
       //      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
@@ -261,85 +271,32 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
     }
   }
 
-  //  hNDT5720IslandsReadPerBlock->Fill(bank_name,midas_event_number,pulse_islands.size());
-  
-  /* fake data! just to show how to push to a tree: */
-
-  /*  vector<TPulseIsland*> pulse_islands[bank_names.size()];
-
-  TRandom3 *rndm = new TRandom3(0);
-
-  std::string bank_name2;
-
-  int whichChan = 0;
-
-  for (int j=0; j<bank_names.size(); j++){
-   
-    int adc = 0;
-    int tstamp = 0;
-    double clock_tick = 0;
-    
-    std::vector<int> sample_vector[5];
-   
-    for (int i=0; i<5; i++){
-      adc = rndm->Gaus(5+2*j,2);
-      sample_vector[0].push_back(adc);
-    }
-   
-    tstamp = 10;
-   
-    pulse_islands[j].push_back(new TPulseIsland(
-    tstamp, sample_vector[0],
-    clock_tick, bank_names[j]));
-   
-    for (int i=0; i<5; i++){
-      adc = rndm->Gaus(9+2*j,6);
-      sample_vector[1].push_back(adc);
-    }
-   
-    tstamp = 20;
-   
-    pulse_islands[j].push_back(new TPulseIsland(
-    tstamp, sample_vector[1],
-    clock_tick, bank_names[j]));
-   
-    for (int i=0; i<5; i++){
-      adc = rndm->Gaus(10+2*j,3);
-      sample_vector[2].push_back(adc);
-    }
-   
-    tstamp = 30;
-   
-    pulse_islands[j].push_back(new TPulseIsland(
-    tstamp, sample_vector[2],
-    clock_tick, bank_names[j]));
-
-    //print for testing
-    if(midas_event_number == 1) {
-
-      //for (int i=0; i<bank_names.size(); i++)  printf(" name for bank %d is %s \n",i,bank_names[i].data());
-
-      printf(" channel %d, sample vector 0 size %d, first element %d\n",j,(int)sample_vector[0].size(),sample_vector[0][0]);
-      printf(" channel %d, sample vector 0 size %d, first element %d\n",j,(int)sample_vector[1].size(),sample_vector[1][0]);
-      printf(" channel %d, sample vector 0 size %d, first element %d\n",j,(int)sample_vector[2].size(),sample_vector[2][0]);
-      //printf(" channel %d, sample vector 1 size %d\n",j,(int)sample_vector[1].size());
-      //printf(" channel %d, sample vector 2 size %d\n",j,(int)sample_vector[2].size());
-      printf(" channel %d, pulse_islands size %d\n",j,(int)pulse_islands[j].size());
-  
-    }
-    
-    bank_name2 = bank_names[j];
-    //sprintf(bank_name2.c_str,bank_names[j].data());
-    //scanf(" bankname2 is %s\n",bank_name2);
-
-    //if (j==5) 
-    pulse_islands_map.insert(TStringPulseIslandPair(bank_name2, pulse_islands[j]));
-
-  }
-  */
-  //printf("bank_names size %d\n",(int)bank_names.size());
-
-  /* --- */
-  
   return SUCCESS;
+}
+
+bool pulse_islands_sort(TPulseIsland *a, TPulseIsland *b) {
+  return (a->GetTimeStamp() < b->GetTimeStamp());
+}
+
+void pulse_islands_stitch(std::vector<TPulseIsland*>& v) {
+  unsigned int nPulses = v.size();
+  std::vector<int> next_samples, current_samples;
+  TPulseIsland* temp_pulse;
+  for (unsigned int iPulse = 0; iPulse < nPulses - 1; ++iPulse) {
+    next_samples = v[iPulse + 1]->GetSamples();
+    // If the next pulse is less than the set number of samples,
+    // it's a continuation of this pulse
+    while (next_samples.size() < nSamples) {
+      current_samples = v[iPulse]->GetSamples();
+      for (unsigned int i = 0; i < next_samples.size(); ++i)
+	current_samples.push_back(next_samples[i]);
+      temp_pulse = v[iPulse];
+      v[iPulse] = new TPulseIsland(temp_pulse->GetTimeStamp(), current_samples, temp_pulse->GetBankName());
+      delete temp_pulse;
+      delete v[iPulse + 1];
+      v.erase(v.begin() + iPulse + 1);
+      if (!(iPulse < --nPulses - 1)) break;
+      next_samples = v[iPulse + 1]->GetSamples();
+    }
+  }
 }
