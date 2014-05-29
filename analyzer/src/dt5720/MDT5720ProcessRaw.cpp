@@ -36,24 +36,13 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 static INT  module_init(void);
 static INT  module_event(EVENT_HEADER*, void*);
-//double GetClockTickForChannel(string bank_name);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 vector<string> caen_boston_bank_names;
-//static vector<TDT5720BankReader*> caen_bank_readers;
-
-struct caen_event_t
-{
-  uint32_t time;
-  uint16_t samples[4096];
-};
-
-//caen_event_t xxx;//JG: should be implemented in event routine?
-
-extern HNDLE hDB;
+static unsigned int nPreSamples;
 
 ANA_MODULE MDT5720ProcessRaw_module =
 {
@@ -96,9 +85,27 @@ INT module_init()
       caen_boston_bank_names.push_back(bankname);
   }
   
-  //  printf("caen init!\n");
-  
-  //for (int i=0; i<bank_names.size(); i++)  printf(" name for bank %d is %s \n",i,bank_names[i].data());
+   /*** Get necessary data from ODB ***/
+  /* Below is the proper way to do this, however
+     it looks as if the post_trigger_size is
+     not accurate, and therefore we will just
+     hardcode it.
+  char key[80];
+  int size;
+  unsigned int post_trigger_percentage, nSamples;
+
+  // Get Trigger Time Tag info
+  // Timestamp will be shifted by number of presamples
+
+  sprintf(key, "/Equipment/Crate 5/Settings/CAEN/waveform length");
+  size = sizeof(nSamples);
+  db_get_value(hDB, 0, key, &nSamples, &size, TID_DWORD, 1);
+  sprintf(key, "/Equipment/Crate 5/Settings/CAEN/post_trigger_size");
+  size = sizeof(post_trigger_percentage);
+  db_get_value(hDB, 0, key, &post_trigger_percentage, &size, TID_BYTE, 1);
+  nPreSamples = (int) (0.01 * ((100 - post_trigger_percentage) * nSamples));
+  */
+  nPreSamples = 20; // From the Golden Data, it looks like there are 20 presamples.
   
   return SUCCESS;
 }
@@ -230,8 +237,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 		  }
 	      }
               
-	    
-	    pulse_islands.push_back(new TPulseIsland(caen_trigger_time, sample_vector, *bankNameIter));
+	    pulse_islands.push_back(new TPulseIsland(caen_trigger_time - nPreSamples, sample_vector, *bankNameIter));
 	  }
       }
 

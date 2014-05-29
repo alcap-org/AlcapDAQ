@@ -43,17 +43,7 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 vector<string> caen_houston_bank_names;
-//static vector<TV1724BankReader*> caen_bank_readers;
-
-struct caen_event_t
-{
-  uint32_t time;
-  uint16_t samples[4096];
-};
-
-caen_event_t xxx;//JG: should be implemented in event routine?
-
-extern HNDLE hDB;
+static unsigned int nPreSamples;
 
 ANA_MODULE MV1724ProcessRaw_module =
 {
@@ -96,9 +86,18 @@ INT module_init()
       caen_houston_bank_names.push_back(bankname);
   }
   
-  //  printf("caen init!\n");
-  
-  //for (int i=0; i<bank_names.size(); i++)  printf(" name for bank %d is %s \n",i,bank_names[i].data());
+   /*** Get necessary data from ODB ***/
+  char key[80];
+  int size;
+  unsigned int post_trigger_percentage, nSamples;
+
+  // Get Trigger Time Tag info
+  // Timestamp will be shifted by number of presamples
+  sprintf(key, "/Equipment/Crate 4/Settings/CAEN0/waveform length");
+  size = sizeof(nSamples);
+  db_get_value(hDB, 0, key, &nSamples, &size, TID_DWORD, 1);
+  post_trigger_percentage = 80; // This is hardcoded in the frontend
+  nPreSamples = (int) (0.01 * ((100 - post_trigger_percentage) * nSamples));
   
   return SUCCESS;
 }
@@ -144,15 +143,6 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
   char bank_name[8];
   sprintf(bank_name,"CDG%i",0); // one MIDAS bank per board
   unsigned int bank_len = bk_locate(pevent, bank_name, &pdata);
-
-  //printf("MIDAS bank [%s] size %d ----------------------------------------\n",bank_name,bank_len);
-
-  /* uncomment when have real data
-  if ( bank_len == 0 )
-    {
-      return SUCCESS;
-    }
-  */
   
 
   uint32_t *p32 = (uint32_t*)pdata;
@@ -180,7 +170,6 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	{
 	  if ( caen_channel_mask & (1<<ichannel) ) nchannels++; 
 	}
-      //      printf("caen channel mask: 0x%08x (%i)\n",caen_channel_mask,nchannels);
       
       uint32_t caen_event_counter = p32[2] & 0x00FFFFFF;
       //      printf("caen event counter: %i\n",caen_event_counter);
@@ -231,8 +220,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 		  }
 	      }
               
-	    
-	    pulse_islands.push_back(new TPulseIsland(caen_trigger_time, sample_vector, *bankNameIter));
+	    pulse_islands.push_back(new TPulseIsland(caen_trigger_time - nPreSamples, sample_vector, *bankNameIter));
 	  }
       }
       

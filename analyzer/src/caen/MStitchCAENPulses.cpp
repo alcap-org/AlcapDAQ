@@ -1,7 +1,7 @@
 /********************************************************************\
 
-Name:         MPulseIslandSort
-Created by:   Vladimir Tishchenko
+Name:         MStitchCAENPulses
+Created by:   John R Quirk
 
 Contents:     A module to sort PulseIslands in time
 
@@ -20,8 +20,6 @@ Contents:     A module to sort PulseIslands in time
 /* MIDAS includes */
 #include "midas.h"
 
-/* ROOT includes */
-
 /* AlCap includes */
 #include "TGlobalData.h"
 #include "TSetupData.h"
@@ -36,15 +34,13 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-static unsigned int nUHPreSamples;
-static unsigned int nBUPreSamples;
 static unsigned int nUHSamples;
 static unsigned int nBUSamples;
 
 ANA_MODULE MStitchCAENPulses_module =
 {
 	"MPulseIslandSort",            /* module name           */
-	"Vladimir Tishchenko",         /* author                */
+	"John R Quirk",                /* author                */
 	module_event,                  /* event routine         */
 	NULL,                          /* BOR routine           */
 	NULL,                          /* EOR routine           */
@@ -54,8 +50,6 @@ ANA_MODULE MStitchCAENPulses_module =
 	0,                             /* structure size        */
 	NULL,                          /* initial parameters    */
 };
-
-static bool  pulse_islands_t_comp(TPulseIsland *a, TPulseIsland *b);
 
 INT module_init() {
 
@@ -68,21 +62,11 @@ INT module_init() {
   sprintf(key, "/Equipment/Crate 4/Settings/CAEN0/waveform length");
   size = sizeof(nUHSamples);
   db_get_value(hDB, 0, key, &nUHSamples, &size, TID_DWORD, 1);
-  post_trigger_percentage = 80;
-  nUHPreSamples = (int) (0.01 * ((100 - post_trigger_percentage) * nUHSamples));
 
   // Get BU info
   sprintf(key, "/Equipment/Crate 5/Settings/CAEN/waveform length");
   size = sizeof(nBUSamples);
   db_get_value(hDB, 0, key, &nBUSamples, &size, TID_DWORD, 1);
-  sprintf(key, "/Equipment/Crate 5/Settings/CAEN/post_trigger_size");
-  size = sizeof(post_trigger_percentage);
-  //db_get_value(hDB, 0, key, &post_trigger_percentage, &size, TID_BYTE, 1);
-  //nBUPreSamples = (int) (0.01 * ((100 - post_trigger_percentage) * nBUSamples));
-  nBUPreSamples = 20; // From the Golden Data, it looks like there are 20 presamples.
-
-  // Let's make sure we got it right
-  printf("nUHSamples: %d\n nBUSamples: %d\n", nUHSamples, nBUSamples);
 
   return SUCCESS;
 }
@@ -98,6 +82,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 
   for (std::map<std::string, std::vector<TPulseIsland*> >::iterator it=pulse_islands_map.begin(); it!=pulse_islands_map.end(); ++it)
     {
+      // Only consider CAEN channels
       unsigned int nsamples = 0;
       if (TSetupData::IsHoustonCAEN(it->first))
 	nsamples = nUHSamples;
@@ -109,7 +94,9 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	std::vector<int> next_samples, current_samples;
 	TPulseIsland* temp_pulse;
 	for (unsigned int ipulse = 0; ipulse < npulses - 1; ++ipulse) {
-	  next_samples = pulses[ipulse + 1]->GetSamples(); 
+	  next_samples = pulses[ipulse + 1]->GetSamples();
+	  // If the next pulse is less than the set number of samples,
+	  // it's a continuation of this pulse.
 	  while (next_samples.size() < nsamples) {
 	    current_samples = pulses[ipulse]->GetSamples();
 	    for (int i = 0; i < next_samples.size(); ++i)
