@@ -5,8 +5,14 @@ USERS="quirk_j hungerford_e hoai_n krikler_b litchfield_p edmonds_a grange_j mil
 DATADIR="data"
 TREEDIR="$DATADIR/tree"
 HISTDIR="$DATADIR/hist"
+CORRDIR="$DATADIR/corr"
 UTREEDIR="$HOME/$TREEDIR"
 UHISTDIR="$HOME/$HISTDIR"
+UCORRDIR="$HOME/$CORRDIR"
+
+mkdir -p $UTREEDIR
+mkdir -p $UHISTDIR
+mkdir -p $UCORRDIR
 
 # CLean up old links
 TREES="$(ls $UTREEDIR)"
@@ -23,6 +29,14 @@ for IHIST in $HISTS; do
     if [ -L $IHISTFILE -a ! -f $IHISTFILE ]; then
 	echo "Removing broken link ($IHISTFILE)"
 	rm $IHISTFILE
+    fi
+done
+CORRS="$(ls $CORRDIR)"
+for ICORR in $CORRS; do
+    ICORRFILE="$UCORRDIR/$ICORR"
+    if [ -L $ICORRFILE -a ! -f $ICORRFILE ]; then
+	echo "Removing broken link ($ICORRFILE)"
+	rm $ICORRFILE
     fi
 done
 
@@ -69,6 +83,27 @@ for IUSER in $USERS; do
 		else
 		    echo "Making link to $IUSER's $IHIST"
 		    ln -s $IHISTFILE $UHISTFILE
+		fi
+	    fi
+	done
+	# Link to all ODB corrections
+	ICORRDIR="$IHOME/$CORRDIR"
+	if [ -d $ICORRDIR ]; then
+	    CORRS="$(ls $ICORRDIR)"
+	else
+	    CORRS=""
+	fi
+	for ICORR in $CORRS; do
+	    ICORRFILE="$ICORRDIR/$ICORR"
+	    UCORRFILE="$UCORRDIR/$ICORR"
+	    if [ -f "$ICORRFILE" -a ! -L "$ICORRFILE" ]; then
+		if [ -f "$UCORRFILE" ]; then
+		    if [ ! -L "$UCORRFILE" ]; then
+			echo "Warning: $ICORR exists in $IUSER's data directory and yours."
+		    fi
+		else
+		    echo "Making link to $IUSER's $ICORR"
+		    ln -s $ICORRFILE $UCORRFILE
 		fi
 	    fi
 	done
