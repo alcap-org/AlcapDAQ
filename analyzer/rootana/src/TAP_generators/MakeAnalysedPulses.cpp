@@ -11,7 +11,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+extern StringAnalPulseMap gAnalysedPulseMap;
 
 static std::string getOneWord(const std::string& in, size_t start=0, size_t stop=std::string::npos){
 	std::stringstream ss(in.substr(start,stop));
