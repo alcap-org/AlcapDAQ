@@ -44,6 +44,7 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 map <std::string, TH1F*> DQ_muScTDiff_histograms_map;
+map <std::string, TH1F*> DQ_muScTDiff_histograms_normalised_map;
 float axis_limit = 50000;
 
 extern TH1F* hDQ_TDCCheck_muSc;
@@ -90,6 +91,14 @@ INT MDQ_muScTDiff_init()
     hDQ_Histogram->GetXaxis()->SetTitle(axislabel.c_str());
     hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands");
     DQ_muScTDiff_histograms_map[bankname] = hDQ_Histogram;
+
+    // The normalised histogram
+    histname += "_normalised";
+    histtitle += " (normalised)";
+    TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), 20000, -axis_limit, axis_limit);
+    hDQ_Histogram_Normalised->GetXaxis()->SetTitle(axislabel.c_str());
+    hDQ_Histogram_Normalised->GetYaxis()->SetTitle("Number of TPulseIslands per TDC muSc Hit");
+    DQ_muScTDiff_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
   }
 
   gDirectory->Cd("/MidasHists/");
@@ -116,23 +125,10 @@ INT MDQ_muScTDiff_eor(INT run_number) {
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
       
-    if (DQ_muScTDiff_histograms_map.find(bankname) != DQ_muScTDiff_histograms_map.end()) {
-
-      // Create a clone of the histogram
-      std::string normalised_hist_name = DQ_muScTDiff_histograms_map[bankname]->GetName();
-      normalised_hist_name += "_normalised";
-      TH1F* normalised_hist = (TH1F*) DQ_muScTDiff_histograms_map[bankname]->Clone(normalised_hist_name.c_str());
+    if (DQ_muScTDiff_histograms_normalised_map.find(bankname) != DQ_muScTDiff_histograms_normalised_map.end()) {
 
       // Normalise to the muSc hits
-      normalised_hist->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
-
-      // Change some titles
-      std::string normalised_hist_title = DQ_muScTDiff_histograms_map[bankname]->GetTitle();
-      normalised_hist_title += " (normalised)";
-      std::string normalised_y_axis_title = DQ_muScTDiff_histograms_map[bankname]->GetYaxis()->GetTitle();
-      normalised_y_axis_title += " per muSc hit";
-      normalised_hist->SetTitle(normalised_hist_title.c_str());
-      normalised_hist->GetYaxis()->SetTitle(normalised_y_axis_title.c_str());
+      DQ_muScTDiff_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
     }
   }
 
@@ -192,6 +188,7 @@ INT MDQ_muScTDiff(EVENT_HEADER *pheader, void *pevent)
 
 		  // Fill the histogram
 		  DQ_muScTDiff_histograms_map[bankname]->Fill(tdiff);
+		  DQ_muScTDiff_histograms_normalised_map[bankname]->Fill(tdiff);
 		}
 	      }
 	    }
