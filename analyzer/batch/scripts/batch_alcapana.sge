@@ -1,7 +1,7 @@
 #!/bin/bash
 # batch_alcapana.sge 
 # Define run time. 
-#$ -l s_rt=00:30:00,h_rt=00:30:30
+#$ -l s_rt=01:00:00,h_rt=01:04:00
 ###################################################
 # Fix the SGE environment-handling bug (bash):
 source /usr/share/Modules/init/sh
