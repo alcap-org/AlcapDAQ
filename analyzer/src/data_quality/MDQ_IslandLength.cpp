@@ -95,7 +95,7 @@ INT MDQ_IslandLength_init()
     // The normalised histogram
     histname += "_normalised";
     histtitle += " (normalised)";
-    TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), 700,0,700);
+    TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), 10000,0,10000);
     hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Length [samples]");
     std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
     yaxislabel += " per TDC muSc Hit";
