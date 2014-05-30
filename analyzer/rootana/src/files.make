@@ -1,18 +1,14 @@
-DIRS += src/
+# A list of directories with source files.
+DIRS += src/\
+        src/TAP_generators/\
+        src/TDP_generators/\
+        src/TME_generators/\
+        src/examples/\
+        src/framework/\
+        src/physics/\
+        src/plotters/
 
-SOURCES += \
-main.cpp \
-MakeAnalysedPulses.cpp\
-FillHistBase.cpp \
-AnalysePulseIsland.cpp \
-PlotAmplitude.cpp \
-CreateDetectorPulse.cpp \
-CheckCoincidence.cpp \
-MakeMuonEvents.cpp \
-PlotTime.cpp \
-CoincidenceCut.cpp \
-PlotAmpVsTDiff.cpp \
-MaxBinAPGenerator.cpp \
-ProcessCorrectionFile.cpp \
-EvdE.cpp \
-DeadTimeGe.cpp
+# A list of classes that need dictionary generation by root
+# Make sure to add the relevant lines to the DataLibraryLinkDef.h file as well
+#ROOT_DICT_CLASSES:=TDetectorPulse
+ROOT_DICT_CLASSES:=TAnalysedPulseMapWrapper TDetectorPulse

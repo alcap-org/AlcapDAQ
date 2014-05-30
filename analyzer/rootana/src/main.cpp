@@ -5,22 +5,12 @@
 //#include <cctype>
 #include <map>
 
-#include "utils.h" // Provides analyze_command_line()
+#include "CommandLine.h" // Provides analyze_command_line()
 
-// Modules list
+#include "ModulesReader.h"
+#include "ModulesFactory.h"
+#include "ModulesNavigator.h"
 #include "FillHistBase.h"
-#include "AnalysePulseIsland.h"
-#include "CheckCoincidence.h"
-#include "MakeMuonEvents.h"
-#include "CreateDetectorPulse.h"
-#include "PlotAmplitude.h"
-#include "PlotTime.h"
-#include "CoincidenceCut.h"
-#include "EvdE.h"
-#include "PlotAmpVsTDiff.h"
-#include "Normalization.h"
-//#include "PlotShapes.h"
-#include "DeadTimeGe.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -29,7 +19,8 @@
 #include "TSetupData.h"
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
-#include "ProcessCorrectionFile.h" // Provides CheckSetupData()
+#include "TMuonEvent.h"
+//#include "ProcessCorrectionFile.h" // Provides CheckSetupData()
 
 #include "TAnalysedPulseMapWrapper.h"
 
@@ -38,10 +29,16 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments);
 void ClearGlobalData(TGlobalData*);
 TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
-Int_t PrepareModules();
+Int_t PrepareSingletonObjects(const ARGUMENTS&);
 
 static TGlobalData *g_event=NULL;
 static TFile *gInFile=NULL;
+
+// Temporary botch to let ExportPulse module know what the current entry
+// number is.  I'm assuming Phill's Event Navigator will provide this
+// functionality, so I'll remove this at that point.
+Long64_t* gEntryNumber;
+Long64_t* gTotalEntries;
 
 TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
 static TTree *gAnalysedPulseTree = NULL;
@@ -49,9 +46,7 @@ TBranch *gAnalysedPulseBranch = NULL;
 
 std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
-
-static int n_fillhist = 0;  // keeps track of the total number of modules
-static FillHistBase **fillhists;
+std::vector<TMuonEvent*> gMuonEvents;
 
 TGlobalData* TGlobalData::Instance()
 {
@@ -59,25 +54,32 @@ TGlobalData* TGlobalData::Instance()
 }
 
 int main(int argc, char **argv){
+//load_config_file("MODULES.txt");
+
+  // Parse the command line
   ARGUMENTS arguments;
   int ret = analyze_command_line (argc, argv,arguments);
   if(ret!=0) return ret;
   printf("Starting event");
-  
+
+  // Open the input tree file
   gInFile = new TFile(arguments.infile);
   if(!gInFile->IsOpen()) {
     printf("Failed to open input file, '%s'.  Exiting.\n",arguments.infile);
     delete gInFile;
     return 1;
   }
-
-  // Make sure the instance of TSetupData get's loaded 
-  // (though in practice we can do this lazily)
-  TSetupData* s_data = TSetupData::Instance();
+  
+  // Make an initial call to singleton objects that are very likely to be called at some point.
+  ret = PrepareSingletonObjects(arguments);
+  if(ret!=0) {
+     std::cout<<"Error: Problem creating a singleton object..."<<std::endl;
+     return ret;
+  }
 
   // Now that we've loaded the TSetupData for this run check if there are any
   // suggested replacements for the wiremap data
-  CheckSetupData(s_data, arguments.correction_file);
+  //CheckSetupData(s_data, arguments.correction_file);
 
   //Event Tree
   TTree* eventTree = GetTree(gInFile,"EventTree");
@@ -92,6 +94,15 @@ int main(int argc, char **argv){
   }
   fileOut->cd();
 
+  // Now let's setup all the analysis modules we want
+  // NOTE: This has to be done after the output file was opened else the
+  // modules wont have a directory to store things to.
+  ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file);
+  if(ret!=0) {
+     printf("Problem setting up analysis modules.\n");
+     return ret;
+  }
+  
   // Setup the analysed pulse map to store / read in the pulses
   ret = PrepareAnalysedPulseMap(fileOut);
   if(ret!=0) {
@@ -99,18 +110,12 @@ int main(int argc, char **argv){
      return ret;
   }
 
-  // Now let's setup all the analysis modules we want
-  ret= PrepareModules();
-  if(ret!=0) {
-     printf("Problem setting up analysis modules.");
-     return ret;
-  }
-  
   // Finally let's do the main loop
   fileOut->cd();
   Main_event_loop(eventTree,arguments);
 
   // and finish up
+  fileOut->cd();
   gAnalysedPulseTree->Write();
   fileOut->Write();
   fileOut->Close();
@@ -128,9 +133,15 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   std::cout<<"Processing file, which may take a while. "
      "Have patience young padawan.."<<std::endl;
 
+  //set up the input data
+  if (g_event){
+    g_event->Clear("C");
+    dataTree->SetBranchAddress("Event",&g_event);
+  }
+
+  // How many entries should we loop over?
   Long64_t start = 0;
   Long64_t stop = nentries;
-
   if(arguments.stop>0){
     if(arguments.start>0)
       start = (Long64_t)(arguments.start-1);
@@ -140,20 +151,18 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   else if((Long64_t)arguments.start < nentries && arguments.start > 0){
     stop = (Long64_t)arguments.start;
   }
-  
-  //preprocess first event
-  if (g_event){
-    g_event->Clear("C");
-    dataTree->SetBranchAddress("Event",&g_event);
-  }
-
+  gTotalEntries=&stop;
+  // wind the file on to the first event
   dataTree->GetEntry(start);
+
+  // Get the first and last module to run with
+  modules::list::iterator first_module = modules::navigator::Instance()->Begin();
+  modules::list::iterator last_module = modules::navigator::Instance()->End();
+  modules::list::iterator it_mod;
+
   int q = 0;
-  for (int i=0; i < n_fillhist; i++) {
-    q |= fillhists[i]->BeforeFirstEntry(g_event);
-    //if (q) break;
-    // q = fillhists[i]->ProcessGenericEntry(g_event);
-    //if (q) break;
+  for (it_mod=first_module; it_mod != last_module; it_mod++) {
+    q |= it_mod->second->BeforeFirstEntry(g_event, TSetupData::Instance());
   }
   if(q) {
     printf("Error while preprocessing first entry (%d)\n",(Int_t)start);
@@ -162,7 +171,9 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
 
   q = 0;
   //process entries
-  for (Long64_t jentry=start; jentry<stop;jentry++) {
+  Long64_t jentry;
+  gEntryNumber=&jentry;
+  for ( jentry=start; jentry<stop;jentry++) {
     if(g_event){
       g_event->Clear("C");
       ClearGlobalData(g_event);
@@ -175,10 +186,8 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
     // Let's get the next event
     dataTree->GetEntry(jentry);
 
-    for(int i=0; i < n_fillhist; i++) {
-      //printf("processing fillhists[%d]\n",i);      
-      PrintOut(i<<": Now processing "<<fillhists[i]->GetName()<<std::endl);
-      q |= fillhists[i]->ProcessGenericEntry(g_event,TSetupData::Instance());
+    for (it_mod=first_module; it_mod != last_module; it_mod++) {
+      q |= it_mod->second->ProcessGenericEntry(g_event,TSetupData::Instance());
       //if(q) break;
     }
     if(q){
@@ -193,14 +202,15 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
 
   //post-process on last entry
   q = 0;
-  for(int i=0; i < n_fillhist; i++) {
-    q |= fillhists[i]->AfterLastEntry(g_event);
+  for (it_mod=first_module; it_mod != last_module; it_mod++) {
+    q |= it_mod->second->AfterLastEntry(g_event,TSetupData::Instance());
   }
   if (q) {
      printf("Error during post-processing last entry (%lld)\n",(stop-1));
-  return q;
+      return q;
   }
   
+  printf("Finished processing data normally\n");
   return 0;
 }
 
@@ -286,7 +296,8 @@ TSetupData* TSetupData::Instance()
 
   return s_data;
 }
-  void PrintSetupData(TSetupData* s_data){
+
+void PrintSetupData(TSetupData* s_data){
      if(!s_data) return;
   // print things out
   std::map<std::string, std::string>::iterator it_info;
@@ -325,29 +336,14 @@ Int_t PrepareAnalysedPulseMap(TFile* fileOut){
    return 0;
 }
 
-Int_t PrepareModules(){
+Int_t PrepareSingletonObjects(const ARGUMENTS&){
+   // Set up the modules navigator
+   if(!modules::navigator::Instance()) return 1;
 
-  fillhists = new FillHistBase *[50]; // increase if more than 20 modules
-  n_fillhist = 0;  // number of modules (global variable)
-	// this is needed to save analysed tree
-  fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysedPulseIsland");
+   // Make sure the instance of TSetupData get's loaded 
+   // (though in practice we can do this lazily)
+   //TSetupData* s_data = TSetupData::Instance();
+   if(!TSetupData::Instance()) return 2;
 
-	//fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
-	//fillhists[n_fillhist++] = new PlotTime("PlotTime");
-	
-	// EvdE
-	//char foldername[256];
-	//double t0 = 1000;
-	//double t1 = 6000;
-	//sprintf(foldername,"%s_%d_%d","EvdE",int(t0),int(t1));
-	//fillhists[n_fillhist++] = new EvdE(foldername, t0,t1);
-	
-
-	// Amplitude, Xray
-  //fillhists[n_fillhist++] = new 
-		//CoincidenceCut("CoincidenceCut_MuSc-GeF_500ns", "muSc","Ge-F", -500,500);
-  //fillhists[n_fillhist++] = new 
-		//CoincidenceCut("CoincidenceCut_MuSc-GeS_500ns", "muSc","Ge-S", -500,500);
-  //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_500nsCut");
-  return 0;
+   return 0;
 }

@@ -144,6 +144,7 @@ void view_pulses(std::string fname) {
       pulse.GetYaxis()->SetRangeUser(0, max);
 
       std::cout << "Time per Tick: " << gSetup->GetClockTick(bank) << std::endl;
+      std::cout << "Timestamp: " << pulses.at(iPulse)->GetTimeStamp() << std::endl;
       std::cout << "Block (Pulse): " << iBlock + 1 << "/" << nBlocks << " (" << iPulse + 1 << "/" << nPulses << ")" << std::endl;
       for (int iSample = 0; iSample < (int)samps.size(); iSample++)
 	pulse.SetBinContent(iSample + 1, samps[iSample]);

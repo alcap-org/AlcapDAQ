@@ -9,7 +9,7 @@ CCFLAGS += -Iinclude
 CCFLAGS += $(shell $(ROOTSYS)/bin/root-config --cflags)
 LDLIBS += $(shell $(ROOTSYS)/bin/root-config --libs)
 
-DEP = PulseEstimate DataDir ODBCheck
+DEP = DataDir WireMap PulseEstimate ODBCheck
 SRC = $(patsubst %,%.cc,$(DEP))
 INC = $(SRC:.cc=.hh)
 OBJ = $(SRC:.cc=.o)

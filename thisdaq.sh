@@ -2,7 +2,11 @@
 
 DAQdir=$(dirname ${BASH_SOURCE[0]} | xargs readlink -e)
 
-. $DAQdir/root-install/bin/thisroot.sh
+if [ -f $DAQdir/root-install/bin/thisroot.sh ] ;then
+	. $DAQdir/root-install/bin/thisroot.sh
+else
+	echo "Check you've got root set up properly on this machine"
+fi
 
 uname=`uname -m`
 arch=''
@@ -14,7 +18,7 @@ export DAQdir
 export MIDASSYS=$DAQdir/midas
 export MIDAS_HOME=$MIDASSYS
 export PATH=$MIDASSYS/linux$arch/bin:$DAQdir/online-display:$PATH
-export LD_LIBRARY_PATH=$MIDASSYS/linux$arch/lib:$DAQdir/compress:$LD_LIBRARY_PATH:$DAQdir/CAEN/lib
+export LD_LIBRARY_PATH=$MIDASSYS/linux$arch/lib:$DAQdir/compress:$LD_LIBRARY_PATH:$DAQdir/CAEN/lib:$DAQdir/analyzer/rootana
 
 if [ "$USER" == "daq" ]; then
     export LD_LIBRARY_PATH=$DAQdir/CAEN/lib:$LD_LIBRARY_PATH

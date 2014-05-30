@@ -47,6 +47,7 @@ class TSetupData : public TObject{
 
   // Fill a map of all detectors that were used to their banks
   void GetAllDetectors(std::map<std::string,std::string>& detectors)const;
+  void GetAllDetectors(std::vector<std::string>& detectors)const;
 
   // Getters
   double GetClockTick(const std::string& BankName) const{ return GetValue(fBankToClockTickMap,BankName);}
@@ -104,7 +105,7 @@ private:
 		else
 			return false;
 	}
-  ClassDef(TSetupData, 2)
+  ClassDef(TSetupData, 3)
 
 };
 #endif
