@@ -4,15 +4,13 @@
 #include "TSetupData.h"
 #include <vector>
 #include <string>
+#include "definitions.h"
 
 class TPulseIsland;
 class TAnalysedPulse;
 
 class TVAnalysedPulseGenerator {
  protected:
-  typedef std::vector<TPulseIsland*> PulseIslandList;
-  typedef std::vector<TAnalysedPulse*> AnalysedPulseList;
-  typedef std::map<std::string, PulseIslandList > StringAnalPulseMap;
 
  public:
   TVAnalysedPulseGenerator(){};

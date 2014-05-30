@@ -6,12 +6,10 @@
 #include "TDetectorPulse.h"
 #include "TMuonEvent.h"
 #include "ModulesOptions.h"
+#include "definitions.h"
 
 class TVMuonEventGenerator{
 	protected:
-		typedef std::vector<TDetectorPulse*> DetectorPulseList;
-		typedef std::map<std::string, DetectorPulseList > StringDetPulseMap;
-		typedef std::vector<TMuonEvent*> MuonEventList;
 		typedef modules::options options;
 
 	public:

@@ -7,14 +7,11 @@
 #include "ModulesOptions.h"
 #include <vector>
 #include <string>
+#include "definitions.h"
 
 class TVDetectorPulseGenerator {
  public:
   typedef modules::options options;
- protected:
-  typedef std::vector<TAnalysedPulse*> AnalysedPulseList;
-  typedef std::vector<TDetectorPulse*> DetectorPulseList;
-  typedef std::map<std::string, AnalysedPulseList > StringAnalPulseMap;
 
  public:
   TVDetectorPulseGenerator():fDebug(false){};
