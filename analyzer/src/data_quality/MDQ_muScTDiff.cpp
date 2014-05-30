@@ -85,7 +85,7 @@ INT MDQ_muScTDiff_init()
     // hDQ_muScTDiff_[DetName]_[BankName]
     std::string histname = "hDQ_muScTDiff_" + detname + "_" + bankname;
     std::string histtitle = "Time differences between muSc and " + detname;
-    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 10000, -axis_limit, axis_limit);
+    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 20000, -axis_limit, axis_limit);
     std::string axislabel = "Time Difference (muSc - " + detname + ") [ns]";
     hDQ_Histogram->GetXaxis()->SetTitle(axislabel.c_str());
     hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands per muSc TDC Hit");
