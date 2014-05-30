@@ -44,6 +44,7 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 TH1F* hDQ_IslandRate;
+TH1F* hDQ_IslandRate_normalised;
 
 extern TH1F* hDQ_TDCCheck_muSc;
 
@@ -78,8 +79,17 @@ INT MDQ_IslandRate_init()
   std::string histtitle = "The total island rate in each channel";
   hDQ_IslandRate = new TH1F(histname.c_str(), histtitle.c_str(), 1,0,1);
   hDQ_IslandRate->GetXaxis()->SetTitle("Detector (Bank)");
-  hDQ_IslandRate->GetYaxis()->SetTitle("Island Rate [TPI per second per muSc TDC Hit]");
+  hDQ_IslandRate->GetYaxis()->SetTitle("Island Rate [TPI per second]");
   hDQ_IslandRate->SetBit(TH1::kCanRebin);
+
+  // The normalised histogram
+  histname += "_normalised";
+  histtitle += " (normalised)";
+  hDQ_IslandRate_normalised = new TH1F(histname.c_str(), histtitle.c_str(), 1,0,1);
+  hDQ_IslandRate_normalised->GetXaxis()->SetTitle("Detector (Bank)");
+  std::string yaxislabel = hDQ_IslandRate->GetYaxis()->GetTitle();
+  yaxislabel += " per TDC muSc Hit";
+  hDQ_IslandRate_normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
 
 
   gDirectory->Cd("/MidasHists/");
@@ -136,8 +146,9 @@ INT MDQ_IslandRate_eor(INT run_number) {
   int duration = StopTimes[0] - StartTimes[0]; // length of run in seconds (checked against run #2600)
 
   hDQ_IslandRate->Scale(1.0/duration);
+  hDQ_IslandRate_normalised->Scale(1.0/duration);
 
-  hDQ_IslandRate->Scale(1.0/hDQ_TDCCheck_muSc->GetEntries()); // also normalise to the number of muSc hits in the TDC
+  hDQ_IslandRate_normalised->Scale(1.0/hDQ_TDCCheck_muSc->GetEntries()); // also normalise to the number of muSc hits in the TDC
 
   return SUCCESS;
 }
@@ -169,6 +180,7 @@ INT MDQ_IslandRate(EVENT_HEADER *pheader, void *pevent)
 	  std::string binname = detname + "(" + bankname + ")";
 
 	  hDQ_IslandRate->Fill(binname.c_str(), thePulses.size()); // keep a count of the total number of TPIs
+	  hDQ_IslandRate_normalised->Fill(binname.c_str(), thePulses.size()); // keep a count of the total number of TPIs
 	}
 	return SUCCESS;
 }
