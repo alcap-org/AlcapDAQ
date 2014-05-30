@@ -54,6 +54,7 @@ extern TApplication * manaApp;
 extern TROOT * gROOT;
 
 map <std::string, TH1F*> DQ_Amplitude_histograms_map;
+map <std::string, TH1F*> DQ_Amplitude_histograms_normalised_map;
 
 extern TH1F* hDQ_TDCCheck_muSc;
 
@@ -102,8 +103,18 @@ INT MDQ_Amplitude_init()
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
 				max_adc_value, 0, max_adc_value);
     hDQ_Histogram->GetXaxis()->SetTitle("Amplitude [adc]");
-    hDQ_Histogram->GetYaxis()->SetTitle("Counts per muSc TDC Hit");
+    hDQ_Histogram->GetYaxis()->SetTitle("Counts");
     DQ_Amplitude_histograms_map[bankname] = hDQ_Histogram;
+
+    // The normalised histogram
+    histname += "_normalised";
+    histtitle += " (normalised)";
+    TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value,0,max_adc_value);
+    hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Amplitude [adc]");
+    std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
+    yaxislabel += " per TDC muSc Hit";
+    hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
+    DQ_Amplitude_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
   }
 
   gDirectory->Cd("/MidasHists/");
@@ -131,8 +142,8 @@ INT MDQ_Amplitude_eor(INT run_number) {
     std::string detname = gSetup->GetDetectorName(bankname);
       
     // Make sure the histograms exist and then fill them
-    if (DQ_Amplitude_histograms_map.find(bankname) != DQ_Amplitude_histograms_map.end()) {
-      DQ_Amplitude_histograms_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
+    if (DQ_Amplitude_histograms_normalised_map.find(bankname) != DQ_Amplitude_histograms_normalised_map.end()) {
+      DQ_Amplitude_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
     }
   }
 
@@ -183,6 +194,7 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 			  const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
 			  int peak_sample = (*pulseIter)->GetPeakSample();
 			  DQ_Amplitude_histograms_map[bankname]->Fill(theSamples.at(peak_sample));
+			  DQ_Amplitude_histograms_normalised_map[bankname]->Fill(theSamples.at(peak_sample));
 				
 	    }
 	  }

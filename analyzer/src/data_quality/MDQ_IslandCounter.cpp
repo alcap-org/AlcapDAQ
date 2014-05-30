@@ -46,6 +46,7 @@ extern TSetupData* gSetup;
 extern TH1F* hDQ_TDCCheck_muSc;
 
 map <std::string, TH1F*> DQ_IslandCounter_histograms_map;
+map <std::string, TH1F*> DQ_IslandCounter_histograms_normalised_map;
 
 ANA_MODULE MDQ_IslandCounter_module =
 {
@@ -83,11 +84,21 @@ INT MDQ_IslandCounter_init()
 
     // hDQ_IslandCounter_[DetName]_[BankName]
     std::string histname = "hDQ_IslandCounter_" + detname + "_" + bankname;
-    std::string histtitle = "Distribution of the number of islands per event per muSc TDC Hit in " + detname;
+    std::string histtitle = "Distribution of the number of islands per event in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 3500, 0, 3500);
     hDQ_Histogram->GetXaxis()->SetTitle("Number of TPulseIslands");
-    hDQ_Histogram->GetYaxis()->SetTitle("Number of Events per muSc TDC Hit");
+    hDQ_Histogram->GetYaxis()->SetTitle("Number of Events");
     DQ_IslandCounter_histograms_map[bankname] = hDQ_Histogram;
+
+    // The normalised histogram
+    histname += "_normalised";
+    histtitle += " (normalised)";
+    TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), 3500,0,3500);
+    hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Number of TPulseIslands");
+    std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
+    yaxislabel += " per TDC muSc Hit";
+    hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
+    DQ_IslandCounter_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
   }
 
   gDirectory->Cd("/MidasHists/");
@@ -115,8 +126,8 @@ INT MDQ_IslandCounter_eor(INT run_number) {
     std::string detname = gSetup->GetDetectorName(bankname);
       
     // Make sure the histograms exist and then fill them
-    if (DQ_IslandCounter_histograms_map.find(bankname) != DQ_IslandCounter_histograms_map.end()) {
-      DQ_IslandCounter_histograms_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
+    if (DQ_IslandCounter_histograms_normalised_map.find(bankname) != DQ_IslandCounter_histograms_normalised_map.end()) {
+      DQ_IslandCounter_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
     }
   }
 
@@ -153,6 +164,7 @@ INT MDQ_IslandCounter(EVENT_HEADER *pheader, void *pevent)
 	    int n_pulse_islands = thePulses.size();
 	    
 	    DQ_IslandCounter_histograms_map[bankname]->Fill(n_pulse_islands);
+	    DQ_IslandCounter_histograms_normalised_map[bankname]->Fill(n_pulse_islands);
 	  }
 	}
 	return SUCCESS;
