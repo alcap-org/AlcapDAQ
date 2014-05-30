@@ -88,7 +88,7 @@ INT MDQ_muScTDiff_init()
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 20000, -axis_limit, axis_limit);
     std::string axislabel = "Time Difference (muSc - " + detname + ") [ns]";
     hDQ_Histogram->GetXaxis()->SetTitle(axislabel.c_str());
-    hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands per muSc TDC Hit");
+    hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands");
     DQ_muScTDiff_histograms_map[bankname] = hDQ_Histogram;
   }
 
@@ -116,9 +116,23 @@ INT MDQ_muScTDiff_eor(INT run_number) {
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
       
-    // Make sure the histograms exist and then fill them
     if (DQ_muScTDiff_histograms_map.find(bankname) != DQ_muScTDiff_histograms_map.end()) {
-      DQ_muScTDiff_histograms_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
+
+      // Create a clone of the histogram
+      std::string normalised_hist_name = DQ_muScTDiff_histograms_map[bankname]->GetName();
+      normalised_hist_name += "_normalised";
+      TH1F* normalised_hist = (TH1F*) DQ_muScTDiff_histograms_map[bankname]->Clone(normalised_hist_name.c_str());
+
+      // Normalise to the muSc hits
+      normalised_hist->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
+
+      // Change some titles
+      std::string normalised_hist_title = DQ_muScTDiff_histograms_map[bankname]->GetTitle();
+      normalised_hist_title += " (normalised)";
+      std::string normalised_y_axis_title = DQ_muScTDiff_histograms_map[bankname]->GetYaxis()->GetTitle();
+      normalised_y_axis_title += " per muSc hit";
+      normalised_hist->SetTitle(normalised_hist_title.c_str());
+      normalised_hist->GetYaxis()->SetTitle(normalised_y_axis_title.c_str());
     }
   }
 
