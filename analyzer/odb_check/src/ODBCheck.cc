@@ -128,8 +128,11 @@ void ODBCheck::Check(int run) {
   // such as "blank". We hope these histograms do not exist so
   // that we don't process them unnecessarily.
   for (unsigned int i = 0; i < fODB.GetNDets(); ++i) {
-    // Ignore certian things
-    if (fODB.GetBanks()[i] == "ZZZZ" || fODB.GetDets()[i] == "blank") {
+    // If channel isn't enabled or channel is
+    // de-facto disabled (blank, ZZZZ),
+    // simply copy values from file ODB.
+    if (!fODB.GetEnableds()[i] ||
+	fODB.GetBanks()[i] == "ZZZZ" || fODB.GetDets()[i] == "blank") {
       fCorrections.Add(fODB, i);
       continue;
     }
@@ -159,10 +162,14 @@ void ODBCheck::Check(int run) {
 	std::endl;
       fCorrections.Add(fODB, i);
     } else if (!timing->GetEntries()) {
-      std::cout <<
-	"ODBCheck WARNING: Timing histogram empty! Corrections not included for " <<
-	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
-	std::endl;
+      // Only output a warning if timing histogram for anything other
+      // than the muSc is empty. The muSc does not have an
+      // autocorrelation plot.
+      if (fODB.GetBanks()[i] != std::string("muSc"))
+	std::cout <<
+	  "ODBCheck WARNING: Timing histogram empty! Corrections not included for " <<
+	  fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
+	  std::endl;
       fCorrections.Add(fODB, i);
     } else {
       fEstimate.Estimate(shapes, timing);
