@@ -34,7 +34,7 @@ public:
   WireMap(int run, std::string& odb_file);
 
 public:
-  // Setter
+  // Setters
   void SetRun(unsigned int);
   // Getters
   unsigned int GetRun() const;
@@ -50,7 +50,7 @@ public:
   void Add(const char bankname[], const char detname[], bool en, int ped, int pol, int off);
   void Add(std::string& bankname, std::string& detname, bool en, int ped, int pol, int off);
   // Copy value from another WireMap 
-  void Add(WireMap& wm, int index);
+  void Add(WireMap& wm, int index, int enable = false);
   // Add individual elements
   void AddBank(const std::string&); // Increments fNDets; others do not
   void AddDet(const std::string&);
@@ -59,17 +59,14 @@ public:
   void AddPolarity(int);
   void AddOffset(int);
 
-  // Load the ODB values
+  // Load the ODB values, or load over with
+  // another WireMap in the same way that
+  // ODBEdit does
   void Load(int run, const std::string& odb_file);
-  // Overwrite any values already here with those
-  // from another WireMap
   void LoadOver(WireMap&);
-
-  // Clear
   void Clear();
 
-  // Resize all vectors to size of banks
-  // fNDets is set to this size
+  // Resize all vectors to size of banks by trimming
   void ResizeToBanks();
 
   // Return default WireMap

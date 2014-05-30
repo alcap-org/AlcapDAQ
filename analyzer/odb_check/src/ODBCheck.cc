@@ -110,11 +110,6 @@ void ODBCheck::Check(int run) {
     return;
   }
 
-  if (fRun == run)
-    std::cout <<
-      "ODBCheck MESSAGE: It seems you've already checked this run (" <<
-      fRun << "). Checking again...";
-
   fRun = run;
   std::string fname(fDataDirs.GetODBFileName(fRun));
   WireMap run_odb(fRun, fname);
@@ -128,12 +123,11 @@ void ODBCheck::Check(int run) {
   // such as "blank". We hope these histograms do not exist so
   // that we don't process them unnecessarily.
   for (unsigned int i = 0; i < fODB.GetNDets(); ++i) {
-    // If channel isn't enabled or channel is
-    // de-facto disabled (blank, ZZZZ),
+    // If channel is implicitly disabled (named blank or ZZZZ),
     // simply copy values from file ODB.
-    if (!fODB.GetEnableds()[i] ||
-	fODB.GetBanks()[i] == "ZZZZ" || fODB.GetDets()[i] == "blank") {
+    if (fODB.GetBanks()[i] == "ZZZZ" || fODB.GetDets()[i] == "blank") {
       fCorrections.Add(fODB, i);
+      std::cout << "Skipped!" << std::endl;
       continue;
     }
     // We look for the shapes and timing histograms
