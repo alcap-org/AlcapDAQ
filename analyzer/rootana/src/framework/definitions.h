@@ -14,7 +14,7 @@ typedef std::map<std::string, PulseIslandList*> StringPulseIslandMap;
 class TAnalysedPulse;
 typedef std::vector<TAnalysedPulse*> AnalysedPulseList;
 typedef std::map<SourceID, AnalysedPulseList*> ChannelAnalPulseMap;
-typedef std::map<std::string, AnalysedPulseList*> StringPulseMap;
+typedef std::map<std::string, AnalysedPulseList*> StringAnalPulseMap;
 
 // Typedefs for TDetectorPulse	
 class TDetectorPulse;
