@@ -36,10 +36,7 @@ using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
 static INT  module_init(void);
-static INT  module_event(EVENT_HEADER*, void*);
-/*-- Stitch and Sort functions -------------------------------------*/
-static bool pulse_islands_sort(TPulseIsland*,TPulseIsland*);
-static void pulse_islands_stitch(std::vector<TPulseIsland*>&);
+static INT  module_event_caen(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -53,7 +50,7 @@ ANA_MODULE MDT5720ProcessRaw_module =
 {
   "MDT5720ProcessRaw",            /* module name           */
   "Vladimir Tishchenko",         /* author                */
-  module_event,                  /* event routine         */
+  module_event_caen,                  /* event routine         */
   NULL,                          /* BOR routine           */
   NULL,                          /* EOR routine           */
   module_init,                   /* init routine          */
@@ -113,7 +110,7 @@ INT module_init()
 }
 
 /*-- module event routine -----------------------------------------*/
-INT module_event(EVENT_HEADER *pheader, void *pevent)
+INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
 {
   // Some typedefs
   
@@ -243,14 +240,6 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	  }
       }
 
-      // Sort and Stitch Islands
-      for (std::vector<std::string>::iterator bankNameIter = caen_boston_bank_names.begin();
-	   bankNameIter != caen_boston_bank_names.end(); bankNameIter++) {
-	vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
-	std::sort(pulse_islands.begin(), pulse_islands.end(), pulse_islands_sort);
-	pulse_islands_stitch(pulse_islands);
-      }
-
       // *** updated by VT: align data by 32bit 
       p32 += caen_event_size + (caen_event_size%2);
       //      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
@@ -274,29 +263,3 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
   return SUCCESS;
 }
 
-bool pulse_islands_sort(TPulseIsland *a, TPulseIsland *b) {
-  return (a->GetTimeStamp() < b->GetTimeStamp());
-}
-
-void pulse_islands_stitch(std::vector<TPulseIsland*>& v) {
-  unsigned int nPulses = v.size();
-  std::vector<int> next_samples, current_samples;
-  TPulseIsland* temp_pulse;
-  for (unsigned int iPulse = 0; iPulse < nPulses - 1; ++iPulse) {
-    next_samples = v[iPulse + 1]->GetSamples();
-    // If the next pulse is less than the set number of samples,
-    // it's a continuation of this pulse
-    while (next_samples.size() < nSamples) {
-      current_samples = v[iPulse]->GetSamples();
-      for (unsigned int i = 0; i < next_samples.size(); ++i)
-	current_samples.push_back(next_samples[i]);
-      temp_pulse = v[iPulse];
-      v[iPulse] = new TPulseIsland(temp_pulse->GetTimeStamp(), current_samples, temp_pulse->GetBankName());
-      delete temp_pulse;
-      delete v[iPulse + 1];
-      v.erase(v.begin() + iPulse + 1);
-      if (!(iPulse < --nPulses - 1)) break;
-      next_samples = v[iPulse + 1]->GetSamples();
-    }
-  }
-}
