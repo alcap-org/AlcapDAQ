@@ -5,7 +5,7 @@
 #include <string>
 #include <map>
 #include <utility>
-
+#include "definitions.h"
 #include "TH2.h"
 
 using std::string;
@@ -49,9 +49,7 @@ MyModule::~MyModule(){
 }
 
 int MyModule::ProcessEntry(TGlobalData *gData){
-  typedef map<string, vector<TPulseIsland*> > StringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  typedef StringPulseIslandMap::iterator map_iterator;
 
   //printf(" bank size %d\n ",banks.size());
   
