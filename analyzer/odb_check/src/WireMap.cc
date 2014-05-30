@@ -22,6 +22,26 @@ void WireMap::SetRun(unsigned int run) {
       std::endl;
 }
 
+void Enable() {
+  fEnabled.back() = true;
+}
+
+bool Enable(unsigned int i) {
+  if (i < fEnabled.size())
+    return (fEnabled[i] = true);
+  return false;
+}
+
+void Disable() {
+  fEnabled.back() = false;
+}
+
+bool Disable(unsigned int i) {
+  if (i < fEnabled.size())
+    return (!fEnabled[i] = false);
+  return false;
+}
+
 void WireMap::Add(const char bankname[], const char detname[], bool en, int ped, int pol, int off) {
   std::string bn(bankname);
   std::string dn(detname);

@@ -23,6 +23,7 @@ void ODBCheck::SetDirs(const std::string& raw, const std::string& odb, const std
 void ODBCheck::OutputCorrections() {
   // Some constants used in this function
   static const std::string header("[/Analyzer/Wiremap]");
+  static const std::string en_key("Enabled = BOOL");
   static const std::string pol_key("TriggerPolarity = INT");
   static const std::string ped_key("Pedestal = INT");
   static const std::string time_key("TimeShift = FLOAT");
@@ -79,6 +80,11 @@ void ODBCheck::OutputCorrections() {
   // The lines must be of the form
   // [INDEX] VALUE
   fCorrectionsFile << header << std::endl;
+  fCorrectionsFile << en_key << key_tail << std::endl;
+  for (int idet = 0; idet < ndets; ++idet)
+    fCorrectionsFile << "[" << idet << "]" <<
+      fCorrections.GetEnableds()[idet] <<
+      std::endl;
   fCorrectionsFile << pol_key << key_tail << std::endl;
   for (int idet = 0; idet < ndets; ++idet)
     fCorrectionsFile << "[" << idet << "]" <<
@@ -124,10 +130,10 @@ void ODBCheck::Check(int run) {
   // that we don't process them unnecessarily.
   for (unsigned int i = 0; i < fODB.GetNDets(); ++i) {
     // If channel is implicitly disabled (named blank or ZZZZ),
-    // simply copy values from file ODB.
+    // simply copy values from file ODB and disable.
     if (fODB.GetBanks()[i] == "ZZZZ" || fODB.GetDets()[i] == "blank") {
       fCorrections.Add(fODB, i);
-      std::cout << "Skipped!" << std::endl;
+      fCorrections.Disable();
       continue;
     }
     // We look for the shapes and timing histograms
@@ -137,38 +143,46 @@ void ODBCheck::Check(int run) {
     hist_file.GetObject(("DataQuality_LowLevel/hDQ_muScTDiff_" + fODB.GetDets()[i] + "_" + fODB.GetBanks()[i]).c_str(), timing);
 
     // Only if both histograms are present and filled are corrections estimated
+    // Mark all other channels as disabled.
     if (!shapes) {
+      fCorrections.Add(fODB, i);
       std::cout <<
 	"ODBCheck WARNING: Shapes histogram not found! Corrections not included for " <<
 	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
 	std::endl;
-      fCorrections.Add(fODB, i);
+      fCorrections.Disable();
     } else if (!timing) {
+      fCorrections.Add(fODB, i);
       std::cout <<
 	"ODBCheck WARNING: Timing histogram not found! Corrections not included for " <<
 	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
 	std::endl;
-      fCorrections.Add(fODB, i);
+      fCorrections.Disable();
     } else if (!shapes->GetEntries()) {
+      fCorrections.Add(fODB, i);
       std::cout <<
 	"ODBCheck WARNING: Shapes histogram empty! Corrections not included for " <<
 	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
 	std::endl;
-      fCorrections.Add(fODB, i);
+      fCorrections.Disable();
     } else if (!timing->GetEntries()) {
-      // Only output a warning if timing histogram for anything other
+      fCorrections.Add(fODB, i);
+      // Only output a warning and disable
+      // if timing histogram for anything other
       // than the muSc is empty. The muSc does not have an
       // autocorrelation plot.
-      if (fODB.GetBanks()[i] != std::string("muSc"))
+      if (fODB.GetBanks()[i] != std::string("muSc")) {
 	std::cout <<
 	  "ODBCheck WARNING: Timing histogram empty! Corrections not included for " <<
 	  fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
 	  std::endl;
-      fCorrections.Add(fODB, i);
+	fCorrections.Disable();
+      }
     } else {
       fEstimate.Estimate(shapes, timing);
-      fCorrections.Add(fODB.GetBanks()[i], fODB.GetDets()[i], fODB.GetEnableds()[i], fEstimate.GetPedestal(), fEstimate.GetPolarity(), fEstimate.GetOffset());
+      fCorrections.Add(fODB.GetBanks()[i], fODB.GetDets()[i], true, fEstimate.GetPedestal(), fEstimate.GetPolarity(), fEstimate.GetOffset());
     }
+
     delete shapes;
     delete timing;
     shapes = NULL;

@@ -36,6 +36,10 @@ public:
 public:
   // Setters
   void SetRun(unsigned int);
+  void Enable(); // Enable last channel added
+  bool Enable(unsigned int); // Return true if succesful
+  void Disable(); // Disable last channel added
+  bool Disable(unsigned int); // Return true if succesful
   // Getters
   unsigned int GetRun() const;
   unsigned int GetNDets() const;
@@ -49,8 +53,8 @@ public:
   // Add new value
   void Add(const char bankname[], const char detname[], bool en, int ped, int pol, int off);
   void Add(std::string& bankname, std::string& detname, bool en, int ped, int pol, int off);
-  // Copy value from another WireMap 
-  void Add(WireMap& wm, int index, int enable = false);
+
+private:
   // Add individual elements
   void AddBank(const std::string&); // Increments fNDets; others do not
   void AddDet(const std::string&);
@@ -59,6 +63,7 @@ public:
   void AddPolarity(int);
   void AddOffset(int);
 
+public:
   // Load the ODB values, or load over with
   // another WireMap in the same way that
   // ODBEdit does
@@ -67,6 +72,7 @@ public:
   void Clear();
 
   // Resize all vectors to size of banks by trimming
+  // and/or bloating. This should never be necessary.
   void ResizeToBanks();
 
   // Return default WireMap
