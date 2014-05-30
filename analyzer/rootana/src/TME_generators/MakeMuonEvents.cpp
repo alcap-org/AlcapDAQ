@@ -1,6 +1,7 @@
 #include "MakeMuonEvents.h"
 #include <TMuonEvent.h>
 #include "ModulesOptions.h"
+#include "definitions.h"
 
 #include <iostream>
 #include <string>
@@ -15,8 +16,8 @@ using std::map;
 using std::cout;
 using std::endl;
 
-extern std::vector<TMuonEvent* > gMuonEvents;
-extern std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
+extern MuonEventList gMuonEvents;
+extern StringDetPulseMap gDetectorPulseMap;
 
 MakeMuonEvents::MakeMuonEvents(modules::options* opts):
   FillHistBase("MakeMuonEvents",opts),fOptions(opts){
