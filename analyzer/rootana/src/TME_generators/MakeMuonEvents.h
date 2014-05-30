@@ -10,9 +10,6 @@ namespace modules{
 }
 
 class MakeMuonEvents : public FillHistBase{
- typedef std::vector<TDetectorPulse*> DetectorPulseList_t;
- typedef std::map<std::string, DetectorPulseList_t > BankDetPulseList_t;
- typedef std::vector<TMuonEvent*> MuonCentredTree_t;
 
  public:
   MakeMuonEvents(modules::options* opts);

@@ -6,6 +6,7 @@
 #include <map>
 #include <iostream>
 
+#include "definitions.h"
 #include "FillHistBase.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
@@ -17,8 +18,6 @@ class TPulseIsland;
 class TAnalysedPulse;
 
 class ExportPulse : public FillHistBase{
-  typedef std::vector<TPulseIsland*> PulseIslandList_t;
-  typedef std::map<std::string, PulseIslandList_t > BankPulseList_t;
   typedef int PulseID_t;
   typedef int EventID_t;
   typedef std::set<PulseID_t> PulseIDList_t;
@@ -45,7 +44,7 @@ class ExportPulse : public FillHistBase{
   //virtual int AfterLastEntry(TGlobalData* gData){return 0;};
 
   int MakePlot(const TPulseIsland* pulse)const;
-  PulseIslandList_t* GetPulsesFromDetector(std::string bank="");
+  PulseIslandList* GetPulsesFromDetector(std::string bank="");
 
   void SetCurrentPulseID(const PulseID_t& id){fPulseInfo.ID=id;};
   void SetCurrentEventNumber(const Long64_t& num){fEventNumber=num;};
@@ -85,7 +84,6 @@ inline ExportPulse* ExportPulse::Instance() {
 }
 
 inline void ExportPulse::AddToExportList(const std::string& detector,PulseID_t pulse_id) {
-	std::cout<<"Adding pulse for detector '"<<detector<<"' pulse no. '"<<pulse_id<<"'"<<std::endl;
   fPulsesToPlot[detector].insert(pulse_id);
 }
 

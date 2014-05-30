@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <utility>
+#include "definitions.h"
 
 #include "TH2.h"
 
@@ -51,9 +52,7 @@ SimpleHistograms::~SimpleHistograms(){
 }
 
 int SimpleHistograms::ProcessEntry(TGlobalData *gData){
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  typedef StringPulseIslandMap::iterator map_iterator;
 
   vector<TPulseIsland*> islands[banks.size()];
   for(unsigned int b1 = 0; b1 < banks.size(); ++b1){
@@ -67,7 +66,7 @@ int SimpleHistograms::ProcessEntry(TGlobalData *gData){
     hBankSize->Fill(islands[b1].size(), b1+1);
   }
 
-  vector<TPulseIsland*> islands1, islands2;
+  PulseIslandList islands1, islands2;
 
   int count  = 1;
 

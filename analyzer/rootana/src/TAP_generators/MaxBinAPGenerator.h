@@ -26,7 +26,7 @@ class MaxBinAPGenerator:public TVAnalysedPulseGenerator {
    }
 
  public:
-   virtual void ProcessPulses(const TSetupData*, const PulseIslandList_t&,AnalysedPulseList_t&);
+   virtual void ProcessPulses(const TSetupData*, const PulseIslandList&,AnalysedPulseList&);
    void GetAllParameters_MaxBin(const TPulseIsland* pulse, double& amplitude,
          double& time, double& integral, double& energy) ;
 

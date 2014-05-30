@@ -44,9 +44,9 @@ TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
 static TTree *gAnalysedPulseTree = NULL;
 TBranch *gAnalysedPulseBranch = NULL;
 
-std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
-std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
-std::vector<TMuonEvent*> gMuonEvents;
+StringAnalPulseMap gAnalysedPulseMap;
+StringDetPulseMap gDetectorPulseMap;
+MuonEventList gMuonEvents;
 
 TGlobalData* TGlobalData::Instance()
 {
@@ -222,10 +222,8 @@ void ClearGlobalData(TGlobalData* data)
   // own the pulses, they would be deleted later. A solution is to
   // be sure that TGlobalData isn't called in alcapana, or ensure
   // that g_event owns the pulse islands at that level.
-  typedef std::map<std::string, std::vector<TPulseIsland*> > PulseMap;
-  typedef PulseMap::iterator PulseMapIt;
-  PulseMapIt mapIter;
-  PulseMapIt mapEnd = data->fPulseIslandToChannelMap.end();
+  StringPulseIslandMap::iterator mapIter;
+  StringPulseIslandMap::iterator mapEnd = data->fPulseIslandToChannelMap.end();
   for(mapIter = data->fPulseIslandToChannelMap.begin(); mapIter != mapEnd; mapIter++) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
     std::vector<TPulseIsland*> pulse_vector= mapIter->second;
@@ -237,12 +235,11 @@ void ClearGlobalData(TGlobalData* data)
   }
 
 
-  for(std::map<std::string,
-     std::vector<TAnalysedPulse*> >::iterator mapIter=gAnalysedPulseMap.begin();
+  for(StringAnalPulseMap::iterator mapIter=gAnalysedPulseMap.begin();
      mapIter != gAnalysedPulseMap.end(); mapIter++) {
 
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
-    std::vector<TAnalysedPulse*> pulse_vector= mapIter->second;
+    AnalysedPulseList pulse_vector= mapIter->second;
     for(size_t i=0; i<pulse_vector.size(); i++){
       delete pulse_vector[i];
       pulse_vector[i] = NULL;
@@ -251,7 +248,7 @@ void ClearGlobalData(TGlobalData* data)
   }
   gAnalysedPulseMap.clear();
 
-  for(std::map<std::string, std::vector<TDetectorPulse*> >::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
+  for(StringDetPulseMap::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
     std::vector<TDetectorPulse*> pulse_vector= mapIter->second;
     for(size_t i=0; i<pulse_vector.size(); i++){

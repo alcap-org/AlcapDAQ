@@ -11,7 +11,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+extern StringAnalPulseMap gAnalysedPulseMap;
 
 static std::string getOneWord(const std::string& in, size_t start=0, size_t stop=std::string::npos){
 	std::stringstream ss(in.substr(start,stop));
@@ -104,9 +104,9 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
   // Loop over each generator
   string detname,bankname;
-  PulseIslandList_t thePulseIslands;
+  PulseIslandList thePulseIslands;
   ChannelGenerators_t::iterator generator;
-  AnalysedPulseList_t theAnalysedPulses;
+  AnalysedPulseList theAnalysedPulses;
   for(generator = fGenerators.begin(); generator != fGenerators.end(); generator++){
     // Get the bank name
     detname = (*generator)->GetDetector();

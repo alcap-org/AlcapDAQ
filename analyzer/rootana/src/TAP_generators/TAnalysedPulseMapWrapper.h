@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 
+#include "definitions.h"
 #include "TObject.h"
 #include "TAnalysedPulse.h"
 
@@ -16,21 +17,21 @@ class TAnalysedPulseMapWrapper : public TObject
 {
 	public:
 		TAnalysedPulseMapWrapper();
-		TAnalysedPulseMapWrapper (map<string, vector<TAnalysedPulse *> > aMap);
+		TAnalysedPulseMapWrapper (StringAnalPulseMap aMap);
 		~TAnalysedPulseMapWrapper();
 
 	private:
-		map<string, vector<TAnalysedPulse *> > fChn2PulseMap;
+		StringAnalPulseMap fChn2PulseMap;
 
 	public:
 		void ShowInfo();
 		void Reset();
-		map<string, vector<TAnalysedPulse *> > GetMap()
+		StringAnalPulseMap GetMap()
 		{
 			return fChn2PulseMap;
 		}
 
-		void SetMap(map<string, vector<TAnalysedPulse *> > aMap)
+		void SetMap(StringAnalPulseMap aMap)
 		{
 			fChn2PulseMap = aMap;
 		}

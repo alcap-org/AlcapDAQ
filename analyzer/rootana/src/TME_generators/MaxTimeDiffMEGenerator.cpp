@@ -5,12 +5,12 @@
 using std::cout;
 using std::endl;
 
-int MaxTimeDiffMEGenerator::ProcessPulses(MuonCentredTree_t& muonEventsOut,
-		const BankDetPulseList_t& detectorPulsesIn){
+int MaxTimeDiffMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
+		const StringDetPulseMap& detectorPulsesIn){
 
-	  std::vector<DetectorPulseList_t::const_iterator> pulseIters;
-	  std::vector<DetectorPulseList_t::const_iterator> finalIters;
-	  for(BankDetPulseList_t::const_iterator i_detector=detectorPulsesIn.begin();
+	  std::vector<DetectorPulseList::const_iterator> pulseIters;
+	  std::vector<DetectorPulseList::const_iterator> finalIters;
+	  for(StringDetPulseMap::const_iterator i_detector=detectorPulsesIn.begin();
 			  i_detector!=detectorPulsesIn.end(); i_detector++){
 			  pulseIters.push_back(i_detector->second.begin());
 			  finalIters.push_back(i_detector->second.end());
