@@ -17,8 +17,8 @@ class TPulseIsland;
 class TAnalysedPulse;
 
 class ExportPulse : public FillHistBase{
-  typedef std::vector<TPulseIsland*> PulseIslandList_t;
-  typedef std::map<std::string, PulseIslandList_t > BankPulseList_t;
+  typedef std::vector<TPulseIsland*> PulseIslandList;
+  typedef std::map<std::string, PulseIslandList > StringAnalPulseMap;
   typedef int PulseID_t;
   typedef int EventID_t;
   typedef std::set<PulseID_t> PulseIDList_t;
@@ -45,7 +45,7 @@ class ExportPulse : public FillHistBase{
   //virtual int AfterLastEntry(TGlobalData* gData){return 0;};
 
   int MakePlot(const TPulseIsland* pulse)const;
-  PulseIslandList_t* GetPulsesFromDetector(std::string bank="");
+  PulseIslandList* GetPulsesFromDetector(std::string bank="");
 
   void SetCurrentPulseID(const PulseID_t& id){fPulseInfo.ID=id;};
   void SetCurrentEventNumber(const Long64_t& num){fEventNumber=num;};

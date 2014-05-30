@@ -9,9 +9,9 @@
 
 class TVMuonEventGenerator{
 	protected:
-		typedef std::vector<TDetectorPulse*> DetectorPulseList_t;
-		typedef std::map<std::string, DetectorPulseList_t > BankDetPulseList_t;
-		typedef std::vector<TMuonEvent*> MuonCentredTree_t;
+		typedef std::vector<TDetectorPulse*> DetectorPulseList;
+		typedef std::map<std::string, DetectorPulseList > StringDetPulseMap;
+		typedef std::vector<TMuonEvent*> MuonEventList;
 		typedef modules::options options;
 
 	public:
@@ -21,7 +21,7 @@ class TVMuonEventGenerator{
 		virtual ~TVMuonEventGenerator(){};
 
 	public:
-		virtual int ProcessPulses(MuonCentredTree_t& muonEventsOut,const BankDetPulseList_t& detectorPulsesIn)=0;
+		virtual int ProcessPulses(MuonEventList& muonEventsOut,const StringDetPulseMap& detectorPulsesIn)=0;
 		virtual bool ChecksForPileUp()const =0;
 
 	protected:

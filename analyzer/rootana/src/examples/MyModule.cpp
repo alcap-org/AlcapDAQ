@@ -49,7 +49,7 @@ MyModule::~MyModule(){
 }
 
 int MyModule::ProcessEntry(TGlobalData *gData){
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
+  typedef map<string, vector<TPulseIsland*> > StringPulseIslandMap;
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 

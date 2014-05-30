@@ -12,8 +12,8 @@ class MaxTimeDiffDPGenerator:public TVDetectorPulseGenerator{
 
  public:
   virtual void ProcessPulses(const TSetupData* setup,const std::string& detector, 
-		  const AnalysedPulseList_t* fast, const AnalysedPulseList_t* slow,
-		  DetectorPulseList_t& output);
+		  const AnalysedPulseList* fast, const AnalysedPulseList* slow,
+		  DetectorPulseList& output);
 
 };
 #endif //MAXTIMEDIFFDPGENERATOR_H_

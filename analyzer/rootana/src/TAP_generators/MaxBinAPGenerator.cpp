@@ -13,13 +13,13 @@ static bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b) {
 }
 
 void MaxBinAPGenerator::ProcessPulses(const TSetupData* eventSetup,
-      const PulseIslandList_t& pulseList, AnalysedPulseList_t& analysedList){
+      const PulseIslandList& pulseList, AnalysedPulseList& analysedList){
 
       SetBankInfo(eventSetup,pulseList[0]->GetBankName());
 
       double amplitude, time, integral, energy;
 
-      for (PulseIslandList_t::const_iterator pulseIter = pulseList.begin(); pulseIter != pulseList.end(); pulseIter++) {
+      for (PulseIslandList::const_iterator pulseIter = pulseList.begin(); pulseIter != pulseList.end(); pulseIter++) {
          amplitude = 0;
          time = 0;
          integral = 0;

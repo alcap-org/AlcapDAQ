@@ -115,7 +115,7 @@ int ExportPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   // Initialise variables that would be used in the loops
   TPulseIsland* pulse;
   const PulseIDList_t* requestedPulses;
-  PulseIslandList_t* pulseList;
+  PulseIslandList* pulseList;
 
   // Loop over channel that we've been requested to draw a pulse from
   for(ChannelPulseIDs_t::const_iterator i_detector=fPulsesToPlot.begin();
@@ -185,7 +185,7 @@ int ExportPulse::MakePlot(const TPulseIsland* pulse)const{
    return 0;
 }
 
-ExportPulse::PulseIslandList_t* ExportPulse::GetPulsesFromDetector(std::string bank){
+ExportPulse::PulseIslandList* ExportPulse::GetPulsesFromDetector(std::string bank){
    if(bank=="") bank=this->GetCurrentBankName();
    return &fGlobalData->fPulseIslandToChannelMap[bank];
 }

@@ -10,7 +10,7 @@ class MaxTimeDiffMEGenerator:public TVMuonEventGenerator{
   virtual ~MaxTimeDiffMEGenerator(){};
 
  public:
-  virtual int ProcessPulses(MuonCentredTree_t& muonEventsOut,const BankDetPulseList_t& detectorPulsesIn);
+  virtual int ProcessPulses(MuonEventList& muonEventsOut,const StringDetPulseMap& detectorPulsesIn);
   virtual bool ChecksForPileUp()const {return false;};
 };
 #endif //MAXTIMEDIFFMEGENERATOR_H_

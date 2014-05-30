@@ -104,9 +104,9 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
   // Loop over each generator
   string detname,bankname;
-  PulseIslandList_t thePulseIslands;
+  PulseIslandList thePulseIslands;
   ChannelGenerators_t::iterator generator;
-  AnalysedPulseList_t theAnalysedPulses;
+  AnalysedPulseList theAnalysedPulses;
   for(generator = fGenerators.begin(); generator != fGenerators.end(); generator++){
     // Get the bank name
     detname = (*generator)->GetDetector();

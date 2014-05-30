@@ -32,7 +32,7 @@ DeadTimeGe::~DeadTimeGe(){
 }
 
 int DeadTimeGe::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
+  typedef map<string, vector<TPulseIsland*> > StringPulseIslandMap;
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
