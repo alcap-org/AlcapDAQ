@@ -13,13 +13,14 @@
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
 #include "RegisterModule.inc"
+#include "definitions.h"
 
 using std::string;
 using std::map;
 using std::vector;
 using std::pair;
 
-extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+extern StringAnalPulseMap gAnalysedPulseMap;
 
 PlotAmplitude::PlotAmplitude(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName){  
@@ -34,13 +35,10 @@ PlotAmplitude::~PlotAmplitude(){
 }
 
 int PlotAmplitude::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
-  typedef map<string, vector<TPulseIsland*> > StringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
   // Loop through and find a fast channel
   //  std::cout << "Size of gAnalysedPulseMap " << gAnalysedPulseMap.size() << std::endl;
-  for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator detIter = gAnalysedPulseMap.begin(); detIter != gAnalysedPulseMap.end(); detIter++) {
+  for (StringAnalPulseMap::iterator detIter = gAnalysedPulseMap.begin(); detIter != gAnalysedPulseMap.end(); detIter++) {
 
     std::string detname = detIter->first;
     std::string keyname = detIter->first + GetName();
@@ -59,9 +57,9 @@ int PlotAmplitude::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       fAmplitudePlots[keyname] = hAmplitude;
     }
 
-    std::vector<TAnalysedPulse*> pulses = detIter->second;
+    AnalysedPulseList pulses = detIter->second;
 
-    for (std::vector<TAnalysedPulse*>::iterator pulseIter = pulses.begin(); pulseIter != pulses.end(); ++pulseIter) {
+    for (AnalysedPulseList::iterator pulseIter = pulses.begin(); pulseIter != pulses.end(); ++pulseIter) {
       double amplitude = (*pulseIter)->GetAmplitude();
       fAmplitudePlots[keyname]->Fill(amplitude);
 	    

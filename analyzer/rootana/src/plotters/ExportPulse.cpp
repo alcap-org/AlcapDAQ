@@ -15,7 +15,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+extern StringAnalPulseMap gAnalysedPulseMap;
 extern Long64_t* gEntryNumber;
 extern Long64_t* gTotalEntries;
 
@@ -185,7 +185,7 @@ int ExportPulse::MakePlot(const TPulseIsland* pulse)const{
    return 0;
 }
 
-ExportPulse::PulseIslandList* ExportPulse::GetPulsesFromDetector(std::string bank){
+PulseIslandList* ExportPulse::GetPulsesFromDetector(std::string bank){
    if(bank=="") bank=this->GetCurrentBankName();
    return &fGlobalData->fPulseIslandToChannelMap[bank];
 }
