@@ -97,7 +97,9 @@ INT MDQ_muScTDiff_init()
     histtitle += " (normalised)";
     TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), 20000, -axis_limit, axis_limit);
     hDQ_Histogram_Normalised->GetXaxis()->SetTitle(axislabel.c_str());
-    hDQ_Histogram_Normalised->GetYaxis()->SetTitle("Number of TPulseIslands per TDC muSc Hit");
+    std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
+    yaxislabel += " per TDC muSc Hit";
+    hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
     DQ_muScTDiff_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
   }
 
