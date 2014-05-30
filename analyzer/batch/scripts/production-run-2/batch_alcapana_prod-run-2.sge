@@ -66,7 +66,7 @@ FLAGFILE="$FLGDIR/alcapana.run$RUN.flag"
 
 ################
 # Command to run
-CMD="$DAQdir/analyzer/work/$USER/alcapana"
+CMD="$DAQdir/analyzer/work/data_quality/alcapana"
 ARGS="-i $RAWFILE -o $HISTFILE -T $TREEFILE"
 
 ############################
