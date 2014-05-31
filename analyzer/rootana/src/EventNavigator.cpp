@@ -10,6 +10,10 @@
 #include "TTree.h"
 
 //Local
+#include "TPulseIsland.h"
+#include "TAnalysedPulse.h"
+#include "TDetectorPulse.h"
+#include "TMuonEvent.h"
 #include "debug_tools.h"
 
 
