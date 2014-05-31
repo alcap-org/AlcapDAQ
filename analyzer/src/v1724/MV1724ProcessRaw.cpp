@@ -14,6 +14,7 @@
 #include <string>
 #include <map>
 #include <utility>
+#include <algorithm>
 
 /* MIDAS includes */
 #include "midas.h"
@@ -35,31 +36,21 @@ using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
 static INT  module_init(void);
-static INT  module_event(EVENT_HEADER*, void*);
-//double GetClockTickForChannel(string bank_name);
+static INT  module_event_caen(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 vector<string> caen_houston_bank_names;
-//static vector<TV1724BankReader*> caen_bank_readers;
-
-struct caen_event_t
-{
-  uint32_t time;
-  uint16_t samples[4096];
-};
-
-caen_event_t xxx;//JG: should be implemented in event routine?
-
-extern HNDLE hDB;
+static unsigned int nSamples;    // For stitching
+static unsigned int nPreSamples; // For time adjustment
 
 ANA_MODULE MV1724ProcessRaw_module =
 {
   "MV1724ProcessRaw",            /* module name           */
   "Vladimir Tishchenko",         /* author                */
-  module_event,                  /* event routine         */
+  module_event_caen,                  /* event routine         */
   NULL,                          /* BOR routine           */
   NULL,                          /* EOR routine           */
   module_init,                   /* init routine          */
@@ -96,15 +87,24 @@ INT module_init()
       caen_houston_bank_names.push_back(bankname);
   }
   
-  //  printf("caen init!\n");
-  
-  //for (int i=0; i<bank_names.size(); i++)  printf(" name for bank %d is %s \n",i,bank_names[i].data());
+   /*** Get necessary data from ODB ***/
+  char key[80];
+  int size;
+  unsigned int post_trigger_percentage;
+
+  // Get Trigger Time Tag info
+  // Timestamp will be shifted by number of presamples
+  sprintf(key, "/Equipment/Crate 4/Settings/CAEN0/waveform length");
+  size = sizeof(nSamples);
+  db_get_value(hDB, 0, key, &nSamples, &size, TID_DWORD, 1);
+  post_trigger_percentage = 80; // This is hardcoded in the frontend
+  nPreSamples = (int) (0.01 * ((100 - post_trigger_percentage) * nSamples));
   
   return SUCCESS;
 }
 
 /*-- module event routine -----------------------------------------*/
-INT module_event(EVENT_HEADER *pheader, void *pevent)
+INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
 {
   // Some typedefs
   
@@ -144,15 +144,6 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
   char bank_name[8];
   sprintf(bank_name,"CDG%i",0); // one MIDAS bank per board
   unsigned int bank_len = bk_locate(pevent, bank_name, &pdata);
-
-  //printf("MIDAS bank [%s] size %d ----------------------------------------\n",bank_name,bank_len);
-
-  /* uncomment when have real data
-  if ( bank_len == 0 )
-    {
-      return SUCCESS;
-    }
-  */
   
 
   uint32_t *p32 = (uint32_t*)pdata;
@@ -180,7 +171,6 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	{
 	  if ( caen_channel_mask & (1<<ichannel) ) nchannels++; 
 	}
-      //      printf("caen channel mask: 0x%08x (%i)\n",caen_channel_mask,nchannels);
       
       uint32_t caen_event_counter = p32[2] & 0x00FFFFFF;
       //      printf("caen event counter: %i\n",caen_event_counter);
@@ -231,11 +221,10 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 		  }
 	      }
               
-	    
-	    pulse_islands.push_back(new TPulseIsland(caen_trigger_time, sample_vector, *bankNameIter));
+	    pulse_islands.push_back(new TPulseIsland(caen_trigger_time - nPreSamples, sample_vector, *bankNameIter));
 	  }
       }
-      
+    
       // align the event by two bytes.
       p32 += caen_event_size + (caen_event_size%2);
       //      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
@@ -255,86 +244,6 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	     midas_event_number);
     }
   }
-
-  //  hNV1724IslandsReadPerBlock->Fill(bank_name,midas_event_number,pulse_islands.size());
-  
-  /* fake data! just to show how to push to a tree: */
-
-  /*  vector<TPulseIsland*> pulse_islands[bank_names.size()];
-
-  TRandom3 *rndm = new TRandom3(0);
-
-  std::string bank_name2;
-
-  int whichChan = 0;
-
-  for (int j=0; j<bank_names.size(); j++){
-   
-    int adc = 0;
-    int tstamp = 0;
-    double clock_tick = 0;
-    
-    std::vector<int> sample_vector[5];
-   
-    for (int i=0; i<5; i++){
-      adc = rndm->Gaus(5+2*j,2);
-      sample_vector[0].push_back(adc);
-    }
-   
-    tstamp = 10;
-   
-    pulse_islands[j].push_back(new TPulseIsland(
-    tstamp, sample_vector[0],
-    clock_tick, bank_names[j]));
-   
-    for (int i=0; i<5; i++){
-      adc = rndm->Gaus(9+2*j,6);
-      sample_vector[1].push_back(adc);
-    }
-   
-    tstamp = 20;
-   
-    pulse_islands[j].push_back(new TPulseIsland(
-    tstamp, sample_vector[1],
-    clock_tick, bank_names[j]));
-   
-    for (int i=0; i<5; i++){
-      adc = rndm->Gaus(10+2*j,3);
-      sample_vector[2].push_back(adc);
-    }
-   
-    tstamp = 30;
-   
-    pulse_islands[j].push_back(new TPulseIsland(
-    tstamp, sample_vector[2],
-    clock_tick, bank_names[j]));
-
-    //print for testing
-    if(midas_event_number == 1) {
-
-      //for (int i=0; i<bank_names.size(); i++)  printf(" name for bank %d is %s \n",i,bank_names[i].data());
-
-      printf(" channel %d, sample vector 0 size %d, first element %d\n",j,(int)sample_vector[0].size(),sample_vector[0][0]);
-      printf(" channel %d, sample vector 0 size %d, first element %d\n",j,(int)sample_vector[1].size(),sample_vector[1][0]);
-      printf(" channel %d, sample vector 0 size %d, first element %d\n",j,(int)sample_vector[2].size(),sample_vector[2][0]);
-      //printf(" channel %d, sample vector 1 size %d\n",j,(int)sample_vector[1].size());
-      //printf(" channel %d, sample vector 2 size %d\n",j,(int)sample_vector[2].size());
-      printf(" channel %d, pulse_islands size %d\n",j,(int)pulse_islands[j].size());
-  
-    }
-    
-    bank_name2 = bank_names[j];
-    //sprintf(bank_name2.c_str,bank_names[j].data());
-    //scanf(" bankname2 is %s\n",bank_name2);
-
-    //if (j==5) 
-    pulse_islands_map.insert(TStringPulseIslandPair(bank_name2, pulse_islands[j]));
-
-  }
-  */
-  //printf("bank_names size %d\n",(int)bank_names.size());
-
-  /* --- */
   
   return SUCCESS;
 }

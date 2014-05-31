@@ -57,7 +57,7 @@ class TSetupData : public TObject{
   double GetTimeShift(const std::string& BankName) const{ return GetValue(fBankToTimeShift,BankName); };
   int GetTriggerPolarity(const std::string& BankName)const{return GetValue(fBankToPolarityMap,BankName);};
   int GetPedestal(const std::string& BankName)const{return GetValue(fBankToPedestalMap,BankName);};
-	bool GetEnableBit(const std::string& BankName)const {return GetValue(fBankToEnableBitMap, BankName);};
+  bool GetEnableBit(const std::string& BankName)const {return GetValue(fBankToEnableBitMap, BankName);};
 
   // Setters with check, return true if inserted
   bool SetDetectorName(std::string BankName, std::string value) {
@@ -99,14 +99,15 @@ private:
     return 0;
   }
 
-  bool GetValue(const std::map<std::string,bool>& map,const std::string& BankName)const{
+  bool GetValue(const std::map<std::string,bool>& map,
+		const std::string& BankName)const{
     std::map<std::string, bool>::const_iterator it=map.find(BankName); 
     if(it!=map.end()) 
       return it->second;
     else
       return false;
   }
-
+  
   ClassDef(TSetupData, 3)
 
 };

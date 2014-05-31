@@ -1,0 +1,143 @@
+#!/bin/bash
+# batch_alcapana.sge 
+# Define run time. 
+#$ -l s_rt=01:00:00,h_rt=01:04:00
+###################################################
+# Fix the SGE environment-handling bug (bash):
+source /usr/share/Modules/init/sh
+export -n -f module
+
+#########################
+# Canonicalize run number
+runcanon() {
+    x=$1;
+    ((x=x))
+    if [ $x -lt 10 ]; then
+	echo 0000$x
+    elif [ $x -lt 100 ]; then
+	echo 000$x
+    elif [ $x -lt 1000 ]; then
+	echo 00$x
+    elif [ $x -lt 10000 ]; then
+	echo 0$x
+    fi
+}
+
+##################################################
+# Check input variable and an environment variable
+if [ $# -ne 1 ]; then
+    echo "ERROR: Require run number as input and only input"
+    exit 1
+elif [ -z "$DAQdir" ]; then
+    echo "ERROR: DAQdir not set!"
+    exit 2
+fi
+
+##############################
+# Get the canonical run number
+# (with appropriate number of
+# zeros)
+RUN=$(runcanon $1)
+
+###################
+# Setup environment
+. $DAQdir/thisdaq.sh
+DATADIR="$HOME/data"
+RAWDATADIR="$DATADIR/raw"
+ODBDATADIR="$DATADIR/odb"
+ODBDUMPDIR="$ODBDATADIR/dump"
+ODBCORRDIR="/gpfs/home/quirk_j/data/corr"
+HISTDATADIR="$DATADIR/hist"
+TREEDATADIR="$DATADIR/tree"
+ODBDIR="$DAQdir/analyzer/odb"
+TMPDIR="$DAQdir/analyzer/batch/tmp"
+FLGDIR="$TMPDIR/flag"
+MIDAS_DIR="$TMPDIR/odb/run$RUN"
+
+#######################
+# The files we will use
+RAWFILE="$RAWDATADIR/run$RUN.mid"
+HISTFILE="$HISTDATADIR/hist$RUN.root"
+TREEFILE="$TREEDATADIR/tree$RUN.root"
+ODBDATAFILE="$ODBDATADIR/run$RUN.odb"
+ODBCORRFILE="$ODBCORRDIR/corr$RUN.odb"
+ODBDUMPFILE="$ODBDUMPDIR/dump$RUN.odb"
+FLAGFILE="$FLGDIR/alcapana.run$RUN.flag"
+
+################
+# Command to run
+CMD="$DAQdir/analyzer/work/data_quality/alcapana"
+ARGS="-i $RAWFILE -o $HISTFILE -T $TREEFILE"
+
+############################
+# Make necessary directories
+# and ensure files exist
+if [ ! -f $RAWFILE ]; then
+    echo "ERROR: Raw file does not exist ($RAWFILE)!"
+    rm -f $FLAGFILE
+    exit 3
+elif [ -f $HISTFILE ]; then
+    echo "ERROR: Histogram file exists ($HISTFILE)! Delete to rerun."
+    rm -f $FLAGFILE
+    exit 4
+elif [ -f $TREEFILE ]; then
+    echo "ERROR: Tree file exists ($TREEFILE)! Delete to rerun."
+    rm -f $FLAGFILE
+    exit 5
+elif [ ! -x $CMD ]; then
+    echo "ERROR: alcapana does not seem to be compiled ($CMD)."
+    rm -f $FLAGFILE
+    exit 6
+elif [ ! -f $ODBDATAFILE ]; then
+    echo "ERROR: ODB file not found ($ODBDATAFILE)."
+    rm -f $FLAGFILE
+    exit 7
+elif [ ! -f $FLAGFILE ]; then
+    echo "WARNING: Flag file did not exist. This file exists to count"
+    echo "         how many jobs you have running on the grid."
+    echo "         Creating it now..."
+    mkdir -p $FLGDIR
+    touch $FLAGFILE
+fi
+
+mkdir -p $HISTDATADIR
+mkdir -p $TREEDATADIR
+mkdir -p $ODBDUMPDIR
+mkdir -p $TMPDIR
+mkdir -p $MIDAS_DIR
+
+###########
+# Setup ODB and dump for later reference
+ODB_DEFAULTS="$(ls $ODBDIR/*.odb)"
+for IODB in $ODB_DEFAULTS; do
+    yes n | odbedit -c "load $IODB" > /dev/null
+done
+yes n | odbedit -c "load $ODBDATAFILE" > /dev/null
+if [ -f $ODBCORRFILE ]; then
+    yes n | odbedit -c "load $ODBCORRFILE" > /dev/null
+else
+    echo "Cannot find ODB corrections."
+fi
+odbedit -c "save $ODBDUMPFILE"
+
+################
+# BEGIN DEBUG
+# Check that the libraries are available (on the master host):  
+echo "ldd $CMD"
+ldd $CMD 
+echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+# Check path variables
+env
+# END DEBUG
+################
+
+echo "Command to run:"
+echo "$CMD $ARGS"
+echo
+$CMD $ARGS
+
+##########
+# Clean up
+rm -rf $FLAGFILE $MIDAS_DIR
+
+################################################################################

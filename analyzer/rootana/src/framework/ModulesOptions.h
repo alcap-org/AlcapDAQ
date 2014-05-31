@@ -10,6 +10,9 @@ namespace modules{
 }
 
 class modules::options{
+    public:
+	typedef std::map<std::string,std::string> OptionsList_t;
+	typedef std::vector<OptionsList_t::iterator> OptionsOrder_t;
 
     public:
 	options(const std::string& name):fModuleName(name){
@@ -21,10 +24,11 @@ class modules::options{
 	bool AppendToOption(const std::string& name, const std::string& option);
 	void AddArgument(const int& number, const std::string& option);
     public:
-	int GetInt(const std::string&)const;
-	double GetDouble(const std::string&)const;
-	std::string GetString(const std::string&)const;
-	bool GetBool(const std::string&)const;
+	int GetInt(const std::string&,int defVal=-1)const;
+	double GetDouble(const std::string&,double defVal=1.)const;
+	std::string GetString(const std::string&,const std::string& defVal="")const;
+	bool GetBool(const std::string&,bool defVal=false)const;
+
 	int GetVectorStringsByWhiteSpace(const std::string&, std::vector<std::string>& vect)const;
 	int GetVectorStringsByDelimiter(const std::string&, std::vector<std::string>& vect,const char* delim=":")const;
 	int GetVectorStrings(const std::string& name, std::vector<std::string>& vect)const {
@@ -34,16 +38,18 @@ class modules::options{
 	bool HasOption(const std::string&)const;
 	bool GetNumOptions()const{return fOptions.size();};
 	std::string GetOption(const std::string&)const;
+	//OptionsList_t::iterator begin(){return fOptions.begin();};
+	OptionsList_t::const_iterator begin()const{return fOptions.begin();};
+	//OptionsList_t::iterator end(){return fOptions.end();};
+	OptionsList_t::const_iterator end()const{return fOptions.end();};
 
 	void DumpOptions(const std::string& prefix="     ")const;
     private:
 	template <typename T>
-	    T GetOption(const std::string&)const;
+	    T GetOption(const std::string&,const T& defVal)const;
 
 	static int MakeIdNumber();
     private:
-	typedef std::map<std::string,std::string> OptionsList_t;
-	typedef std::vector<OptionsList_t::iterator> OptionsOrder_t;
 	OptionsList_t fOptions;
 	OptionsOrder_t fOrder;
 	int fIdNumber;

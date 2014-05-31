@@ -1,41 +1,47 @@
 #include "PulseEstimate.hh"
 
-#include "TH2.h"
-#include "TH1D.h"
-
+#include "TH1.h"
 
 PulseEstimate::PulseEstimate() : fPedestal(0), fPolarity(0) {}
 
-void PulseEstimate::Estimate(TH2* pulses) {
+void PulseEstimate::Estimate(TH1* pulses, TH1* timing) {
   /* Get pedestal */
-  TH1D* proj_y = pulses->ProjectionY("_py",1);
-  fPedestal = (int)proj_y->GetBinCenter(proj_y->GetMaximumBin());
+  // First reduce range slightly; specifically Ge preamp reset caused flatlining
+  static const int nBinsIgnore = 5; // This number is arbitrary. Logically it should be 1, maybe 2, but 5 can't hurt
+  int nbins = pulses->GetXaxis()->GetNbins();
+  pulses->GetXaxis()->SetRange(nBinsIgnore, nbins - nBinsIgnore);
+  // Get the pedestal
+  fPedestal = (int)pulses->GetBinCenter(pulses->GetMaximumBin());
+  // Reset bin range
+  pulses->GetXaxis()->SetRange();
 
   /* Get polarity */
   int min = 0, max = 0;
   bool min_found = false, max_found = false;
-  int nbins = proj_y->GetNbinsX();
-  for (int i = 1; i < nbins; ++i) {
-    if (!min_found && proj_y->GetBinContent(i) > 0.) {
+  // Again, ignore 5 bin on each side to get rid of flatlines
+  for (int i = nBinsIgnore; i <= nbins - nBinsIgnore; ++i) {
+    if (!min_found && pulses->GetBinContent(i) > 0.) {
       min_found = true;
       min = i;
     }
-    if (!max_found && proj_y->GetBinContent(nbins - i) > 0.) {
+    if (!max_found && pulses->GetBinContent(nbins - i) > 0.) {
       max_found = true;
       max = nbins - i;
     }
     if (min_found && max_found)
       break;
   }
-
   if (max - fPedestal > fPedestal - min)
     fPolarity = 1;
   else
     fPolarity = -1;
-}
 
-void PulseEstimate::Estimate(TH1* timing) {
-  /* Get time offset */
+  /* Get Timing */
+  // Rebin until we have plenty of samples at the peak
+  int nRebins = 0;
+  static int min_time_correlation_height = 10;
+  while (timing->GetBinContent(timing->GetMaximumBin()) < min_time_correlation_height && nRebins++ < 3)
+    timing->Rebin();
   fOffset = timing->GetBinCenter(timing->GetMaximumBin());
 }
 

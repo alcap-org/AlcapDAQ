@@ -1,22 +1,28 @@
-#ifndef MakeMuonEvents_h__
-#define MakeMuonEvents_h__
+#ifndef MAKEMUONEVENTS_H__
+#define MAKEMUONEVENTS_H__
 
+#include "TVMuonEventGenerator.h"
 #include "FillHistBase.h"
 #include "TGlobalData.h"
+
 namespace modules{
-class options;
+  class options;
 }
 
 class MakeMuonEvents : public FillHistBase{
+
  public:
-  MakeMuonEvents(char *HistogramDirectoryName,modules::options* opts,TSetupData* setup) ;
+  MakeMuonEvents(modules::options* opts);
   ~MakeMuonEvents();
 
  private:
-  virtual int ProcessEntry(TGlobalData *gData);
+  TVMuonEventGenerator* MakeGenerator(const std::string& algorithm);
+  virtual int BeforeFirstEntry(TGlobalData *gData, TSetupData* aSetup);
+  virtual int ProcessEntry(TGlobalData *gData, TSetupData* aSetup);
 
-  std::map<std::string,std::string > fDetectors;
+  std::string fAlgorithm;
+  TVMuonEventGenerator* fGenerator;
+  modules::options* fOptions;
 };
 
-#endif
-
+#endif // MAKEMUONEVENTS_H__

@@ -19,6 +19,7 @@
 #include "TSetupData.h"
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
+#include "TMuonEvent.h"
 //#include "ProcessCorrectionFile.h" // Provides CheckSetupData()
 
 #include "TAnalysedPulseMapWrapper.h"
@@ -34,12 +35,19 @@ Int_t PrepareSingletonObjects(const ARGUMENTS&);
 
 static TFile *gInFile=NULL;
 
+// Temporary botch to let ExportPulse module know what the current entry
+// number is.  I'm assuming Phill's Event Navigator will provide this
+// functionality, so I'll remove this at that point.
+Long64_t* gEntryNumber;
+Long64_t* gTotalEntries;
+
 TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
 static TTree *gAnalysedPulseTree = NULL;
 TBranch *gAnalysedPulseBranch = NULL;
 
-std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
-std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
+StringAnalPulseMap gAnalysedPulseMap;
+StringDetPulseMap gDetectorPulseMap;
+MuonEventList gMuonEvents;
 
 //TGlobalData* TGlobalData::Instance()
 //{
@@ -200,7 +208,9 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
 
   q = 0;
   //process entries
-  for (Long64_t jentry=start; jentry<stop;jentry++) {
+  Long64_t jentry;
+  gEntryNumber=&jentry;
+  for ( jentry=start; jentry<stop;jentry++) {
     if(g_event){
       g_event->Clear();//"C");
       ClearGlobalData(g_event);
@@ -249,10 +259,8 @@ void ClearGlobalData(TGlobalData* data)
   // own the pulses, they would be deleted later. A solution is to
   // be sure that TGlobalData isn't called in alcapana, or ensure
   // that g_event owns the pulse islands at that level.
-  typedef std::map<std::string, std::vector<TPulseIsland*> > PulseMap;
-  typedef PulseMap::iterator PulseMapIt;
-  PulseMapIt mapIter;
-  PulseMapIt mapEnd = data->fPulseIslandToChannelMap.end();
+  StringPulseIslandMap::iterator mapIter;
+  StringPulseIslandMap::iterator mapEnd = data->fPulseIslandToChannelMap.end();
   for(mapIter = data->fPulseIslandToChannelMap.begin(); mapIter != mapEnd; mapIter++) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
     std::vector<TPulseIsland*> pulse_vector= mapIter->second;
@@ -264,12 +272,11 @@ void ClearGlobalData(TGlobalData* data)
   }
 
 
-  for(std::map<std::string,
-     std::vector<TAnalysedPulse*> >::iterator mapIter=gAnalysedPulseMap.begin();
+  for(StringAnalPulseMap::iterator mapIter=gAnalysedPulseMap.begin();
      mapIter != gAnalysedPulseMap.end(); mapIter++) {
 
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
-    std::vector<TAnalysedPulse*> pulse_vector= mapIter->second;
+    AnalysedPulseList pulse_vector= mapIter->second;
     for(size_t i=0; i<pulse_vector.size(); i++){
       delete pulse_vector[i];
       pulse_vector[i] = NULL;
@@ -278,7 +285,7 @@ void ClearGlobalData(TGlobalData* data)
   }
   gAnalysedPulseMap.clear();
 
-  for(std::map<std::string, std::vector<TDetectorPulse*> >::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
+  for(StringDetPulseMap::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
     std::vector<TDetectorPulse*> pulse_vector= mapIter->second;
     for(size_t i=0; i<pulse_vector.size(); i++){

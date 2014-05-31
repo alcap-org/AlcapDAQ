@@ -4,8 +4,7 @@ Name:         MDQ_Amplitude
 Created by:   Nam Tran
 
 Contents:     hDQ_Amplitude_[DetName]_[BankName]
-               - plots the amplitude of the pulse as calculated by the TPulseIsland, 
-                 which is the height of the maximum bin above the pedestal
+               - plots the ADC value of the peak sample
 \********************************************************************/
 
 /* Standard includes */
@@ -38,6 +37,7 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 INT  MDQ_Amplitude_init(void);
 INT  MDQ_Amplitude(EVENT_HEADER*, void*);
+INT  MDQ_Amplitude_eor(INT);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -54,6 +54,9 @@ extern TApplication * manaApp;
 extern TROOT * gROOT;
 
 map <std::string, TH1F*> DQ_Amplitude_histograms_map;
+map <std::string, TH1F*> DQ_Amplitude_histograms_normalised_map;
+
+extern TH1F* hDQ_TDCCheck_muSc;
 
 ANA_MODULE MDQ_Amplitude_module =
 {
@@ -61,7 +64,7 @@ ANA_MODULE MDQ_Amplitude_module =
 	"Nam Tran",              /* author                */
 	MDQ_Amplitude,                      /* event routine         */
 	NULL,                          /* BOR routine           */
-	NULL,                          /* EOR routine           */
+	MDQ_Amplitude_eor,                          /* EOR routine           */
 	MDQ_Amplitude_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
 	NULL,                          /* parameter structure   */
@@ -100,11 +103,50 @@ INT MDQ_Amplitude_init()
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
 				max_adc_value, 0, max_adc_value);
     hDQ_Histogram->GetXaxis()->SetTitle("Amplitude [adc]");
-    hDQ_Histogram->GetYaxis()->SetTitle("Count");
+    hDQ_Histogram->GetYaxis()->SetTitle("Counts");
     DQ_Amplitude_histograms_map[bankname] = hDQ_Histogram;
+
+    // The normalised histogram
+    histname += "_normalised";
+    histtitle += " (normalised)";
+    TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value,0,max_adc_value);
+    hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Amplitude [adc]");
+    std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
+    yaxislabel += " per TDC muSc Hit";
+    hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
+    DQ_Amplitude_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
   }
 
   gDirectory->Cd("/MidasHists/");
+  return SUCCESS;
+}
+
+/** This method does any last minute things to the histograms at the end of the run
+ */
+INT MDQ_Amplitude_eor(INT run_number) {
+
+  // Some typedefs
+  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
+  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
+  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  
+  // Fetch a reference to the gData structure that stores a map
+  // of (bank_name, vector<TPulseIsland*>) pairs
+  TStringPulseIslandMap& pulse_islands_map =
+    gData->fPulseIslandToChannelMap;
+
+  // Loop over the map and get each bankname, vector pair
+  for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) {
+
+    std::string bankname = mapIter->first;
+    std::string detname = gSetup->GetDetectorName(bankname);
+      
+    // Make sure the histograms exist and then fill them
+    if (DQ_Amplitude_histograms_normalised_map.find(bankname) != DQ_Amplitude_histograms_normalised_map.end()) {
+      DQ_Amplitude_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
+    }
+  }
+
   return SUCCESS;
 }
 
@@ -136,8 +178,8 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 					DQ_Amplitude_histograms_map.end()) 
 			{ 
 			  /*				bool underflow = false;
-				std::vector<int> theSamples = (*pulseIter)->GetSamples();
-				for (std::vector<int>::iterator sampleIter = theSamples.begin(); 
+				const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
+				for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); 
 						sampleIter != theSamples.end(); ++sampleIter)
 				{
 					if (*sampleIter == 4096)
@@ -149,8 +191,10 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 					DQ_Amplitude_histograms_map[bankname]->Fill(amplitude);
 				}
 			  */
-			  int amplitude = (*pulseIter)->GetPulseHeight();
-			  DQ_Amplitude_histograms_map[bankname]->Fill(amplitude);
+			  const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
+			  int peak_sample = (*pulseIter)->GetPeakSample();
+			  DQ_Amplitude_histograms_map[bankname]->Fill(theSamples.at(peak_sample));
+			  DQ_Amplitude_histograms_normalised_map[bankname]->Fill(theSamples.at(peak_sample));
 				
 	    }
 	  }
