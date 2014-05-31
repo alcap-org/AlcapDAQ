@@ -2,6 +2,8 @@
 #define DEFINITIONS_H_
 
 #include <vector>
+#include <map>
+#include <string>
 class SourceID;
 
 // Typedefs for TPulseIslands	
