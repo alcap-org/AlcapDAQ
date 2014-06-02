@@ -1,5 +1,5 @@
-#ifndef TemplateCreator_H__
-#define TemplateCreator_H__
+#ifndef TemplateCreatorModule_H__
+#define TemplateCreatorModule_H__
 
 #include <string>
 #include <vector>
@@ -12,13 +12,13 @@
 
 class TPulseIsland;
 
-class TemplateCreator : public FillHistBase{
+class TemplateCreatorModule : public FillHistBase{
   typedef std::vector<TPulseIsland*> PulseIslandList_t;
   typedef std::map<std::string, PulseIslandList_t > BankPulseList_t;
 
  public:
-  TemplateCreator(modules::options* opts);
-  ~TemplateCreator();
+  TemplateCreatorModule(modules::options* opts);
+  ~TemplateCreatorModule();
 
  private:
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
@@ -32,4 +32,4 @@ class TemplateCreator : public FillHistBase{
   void AddPulseToTemplate(TH1D* hTemplate, TPulseIsland* pulse, double shift);
 };
 
-#endif // TemplateCreator_H__
+#endif // TemplateCreatorModule_H__

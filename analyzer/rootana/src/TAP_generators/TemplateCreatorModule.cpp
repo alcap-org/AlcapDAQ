@@ -1,5 +1,5 @@
 #include "ModulesManager.h"
-#include "TemplateCreator.h"
+#include "TemplateCreatorModule.h"
 #include "TemplateFitter.h"
 #include <iostream>
 #include <utility>
@@ -13,19 +13,19 @@ using std::cout;
 using std::endl;
 using std::string;
 
-TemplateCreator::TemplateCreator(modules::options* opts):
-   FillHistBase("TemplateCreator",opts),fOptions(opts){
+TemplateCreatorModule::TemplateCreatorModule(modules::options* opts):
+   FillHistBase("TemplateCreatorModule",opts),fOptions(opts){
 	dir->cd("/");
 }
 
-TemplateCreator::~TemplateCreator(){
+TemplateCreatorModule::~TemplateCreatorModule(){
 }
 
-int TemplateCreator::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
+int TemplateCreatorModule::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
     return 0;
 }
 
-int TemplateCreator::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int TemplateCreatorModule::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
   // Loop over each detector
   string bankname, detname;
@@ -81,7 +81,7 @@ int TemplateCreator::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
 // InitialParameterGuess
 // -- makes an initial guess at the parameters from the TPulseIsland
-void TemplateCreator::InitialParameterGuess(const TPulseIsland* pulse, double& amplitude, double& time) {
+void TemplateCreatorModule::InitialParameterGuess(const TPulseIsland* pulse, double& amplitude, double& time) {
 
   // Just use the TPI's methods for the time being
   amplitude = pulse->GetAmplitude();
@@ -94,7 +94,7 @@ void TemplateCreator::InitialParameterGuess(const TPulseIsland* pulse, double& a
 // Input--
 // pulse:     Pulse to average in
 // shift:     Bin shift (timing offset of peak)
-void TemplateCreator::AddPulseToTemplate(TH1D* hTemplate, TPulseIsland* pulse, double shift) {
+void TemplateCreatorModule::AddPulseToTemplate(TH1D* hTemplate, TPulseIsland* pulse, double shift) {
 
   double norm;
   double peak;
@@ -211,4 +211,4 @@ void TemplateCreator::AddPulseToTemplate(TH1D* hTemplate, TPulseIsland* pulse, d
   ++fNPulses;
 }
 
-ALCAP_REGISTER_MODULE(TemplateCreator);
+ALCAP_REGISTER_MODULE(TemplateCreatorModule);
