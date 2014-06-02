@@ -6,7 +6,7 @@ PulseEstimate::PulseEstimate() : fPedestal(0), fPolarity(0) {}
 
 void PulseEstimate::Estimate(TH1* pulses, TH1* timing) {
   /* Get pedestal */
-  if (pulses) {
+  if (pulses && pulses->GetEntries()) {
     // First reduce range slightly; specifically Ge preamp reset caused flatlining
     static const int nBinsIgnore = 5; // This number is arbitrary. Logically it should be 1, maybe 2, but 5 can't hurt
     int nbins = pulses->GetXaxis()->GetNbins();
@@ -44,7 +44,7 @@ void PulseEstimate::Estimate(TH1* pulses, TH1* timing) {
 
   /* Get Timing */
   // Rebin until we have plenty of samples at the peak
-  if (timing) {
+  if (timing && timing->GetEntries()) {
     int nRebins = 0;
     static int min_time_correlation_height = 10;
     while (timing->GetBinContent(timing->GetMaximumBin()) < min_time_correlation_height && nRebins++ < 3)

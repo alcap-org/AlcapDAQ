@@ -23,6 +23,7 @@ void ODBCheck::SetDirs(const std::string& raw, const std::string& odb, const std
 void ODBCheck::OutputCorrections() {
   // Some constants used in this function
   static const std::string header("[/Analyzer/Wiremap]");
+  static const std::string det_key("DetectorName = STRING");
   static const std::string en_key("Enabled = BOOL");
   static const std::string pol_key("TriggerPolarity = INT");
   static const std::string ped_key("Pedestal = INT");
@@ -75,37 +76,38 @@ void ODBCheck::OutputCorrections() {
   } else {
     std::cout <<
       "ODBCheck ERROR: Corrected WireMap has detector count not 48 or 52! (" <<
-      fCorrections.GetNDets() << ")" << std::endl;
+      fCorrections.GetNDets() << ")" << std::endl <<
+      "                Corrected ODB not written." << std::endl;
     return;
   }
 
-  // Print WireMaps
-  std::cout << "ORIGINAL" << std::endl;
-  fODB.Print();
-  std::cout << "CORRECTED" << std::endl;
-  fCorrections.Print();
   // Write the file
   // The lines must be of the form
   // [INDEX] VALUE
   fCorrectionsFile << header << std::endl;
+  fCorrectionsFile << det_key << key_tail << std::endl;
+  for (int idet = 0; idet < ndets; ++idet)
+    fCorrectionsFile << "[80] " <<
+      fCorrections.GetDets()[idet] <<
+      std::endl;
   fCorrectionsFile << en_key << key_tail << std::endl;
   for (int idet = 0; idet < ndets; ++idet)
-    fCorrectionsFile << "[" << idet << "]" <<
+    fCorrectionsFile << "[" << idet << "] " <<
       (fCorrections.GetEnableds()[idet] ? 'y' : 'n') << // Print y if enabled, n if disabled
       std::endl;
   fCorrectionsFile << pol_key << key_tail << std::endl;
   for (int idet = 0; idet < ndets; ++idet)
-    fCorrectionsFile << "[" << idet << "]" <<
+    fCorrectionsFile << "[" << idet << "] " <<
       fCorrections.GetPolarities()[idet] <<
       std::endl; 
   fCorrectionsFile << ped_key << key_tail << std::endl;
   for (int idet = 0; idet < ndets; ++idet)
-    fCorrectionsFile << "[" << idet << "]" <<
+    fCorrectionsFile << "[" << idet << "] " <<
       fCorrections.GetPedestals()[idet] <<
       std::endl; 
   fCorrectionsFile << time_key << key_tail << std::endl;
   for (int idet = 0; idet < ndets; ++idet)
-    fCorrectionsFile << "[" << idet << "]" <<
+    fCorrectionsFile << "[" << idet << "] " <<
       -fCorrections.GetOffsets()[idet] <<
       std::endl; 
   fCorrectionsFile << std::endl;
@@ -193,6 +195,8 @@ void ODBCheck::Check(int run) {
     timing = NULL;
   }
   hist_file.Close();
+
+  fCorrections.ClearDisabledDuplicateDetectors();
 
   OutputCorrections();
 }

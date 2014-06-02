@@ -219,6 +219,7 @@ void WireMap::Clear() {
   fNDets = 0;
   fBankName.clear();
   fDetName.clear();
+  fEnabled.clear();
   fPedestal.clear();
   fPolarity.clear();
   fOffset.clear();
@@ -226,6 +227,7 @@ void WireMap::Clear() {
 
 void WireMap::ResizeToBanks() {
   static const std::string default_det("blank");
+  static const bool default_en = false;
   static const int default_ped = 0;
   static const int default_pol = 1;
   static const int default_off = 0;
@@ -234,6 +236,8 @@ void WireMap::ResizeToBanks() {
   // Trim down
   while (fDetName.size() > fNDets)
     fDetName.pop_back();
+  while (fEnabled.size() > fNDets)
+    fEnabled.pop_back();
   while (fPedestal.size() > fNDets)
     fPedestal.pop_back();
   while (fPolarity.size() > fNDets)
@@ -243,6 +247,8 @@ void WireMap::ResizeToBanks() {
   // Bulk up
   while (fDetName.size() < fNDets)
     fDetName.push_back(default_det);
+  while (fEnabled.size() < fNDets)
+    fEnabled.push_back(default_en);
   while (fPedestal.size() < fNDets)
     fPedestal.push_back(default_ped);
   while (fPolarity.size() < fNDets)
@@ -275,7 +281,21 @@ bool WireMap::AreThereDuplicates() {
 }
 
 void WireMap::ClearDisabledDuplicateDetectors() {
-  /*** To be implemented ***/
+  static const std::string default_det("blank");
+  for (unsigned int i = 0; i < fDetName.size(); ++i) {
+    for (unsigned int j = i + 1; j < fDetName.size(); ++j) {
+      if (fDetName[i] == fDetName[j]) {
+	if (j < fEnabled.size() && !fEnabled[j]) {
+	  fDetName[j] = default_det;
+	} else if (i < fEnabled.size() && !fEnabled[i]) {
+	  fDetName[i] = default_det;
+	} else {
+	  std::cout << "WireMap ERROR: Couldn't determine which detector " << fDetName[i] <<
+	    " to remove in run " << fRun << "!" << std::endl;
+	}
+      }
+    }
+  }
 }
 
 bool WireMap::IsODBFile(const std::string& fname) {
@@ -437,22 +457,30 @@ void WireMap::Print() {
   cout << left;
   cout << setw(24) << "Run Number:" << fRun << endl;
   cout << setw(24) << "Number of detectors:" << fNDets << endl;
-  ss << "Enabled (" << fEnabled.size() << ")    ";
-  cout << ss.rdbuf();
-  ss.str(string());
-  ss << "Pedestal (" << fPedestal.size() << ")    ";
-  cout << ss.rdbuf();
-  ss.str(string());
-  ss << "Polarity (" << fPolarity.size() << ")    ";
-  cout << ss.rdbuf();
-  ss.str(string());
-  ss << "TimeShift (" << fOffset.size() << ")    ";
-  cout << ss.rdbuf();
-  ss.str(string());
+  
+  ss << "Bank (" << fBankName.size() << ")";
+  cout << setw(13) << ss.str(); ss.str(string());
+  ss << "Detector (" << fDetName.size() << ")";
+  cout << setw(17) << ss.str(); ss.str(string());
+  ss << "Enabled (" << fEnabled.size() << ")";
+  cout << setw(16) << ss.str(); ss.str(string());
+  ss << "Pedestal (" << fPedestal.size() << ")";
+  cout << setw(17) << ss.str(); ss.str(string());
+  ss << "Polarity (" << fPolarity.size() << ")";
+  cout << setw(17) << ss.str(); ss.str(string());
+  ss << "TimeShift (" << fOffset.size() << ")";
+  cout << setw(18) << ss.str(); ss.str(string());
+
   cout << endl;
-  cout << setfill('-') << setw(68) << '-' << setfill(' ') << endl;
+  cout << setfill('-') << setw(98) << '-' << setfill(' ') << endl;
   cout << setfill(' ') << right;
   for (unsigned int i = 0; i < n; ++i) {
+    cout << setw(13);
+    if (i < fBankName.size()) cout << fBankName[i];
+    else cout << ' ';
+    cout << setw(17);
+    if (i < fDetName.size()) cout << fDetName[i];
+    else cout << ' ';
     cout << setw(15);
     if (i < fEnabled.size()) cout << (fEnabled[i] ? 'y' : 'n');
     else cout << ' ';
