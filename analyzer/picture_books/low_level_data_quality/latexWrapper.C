@@ -16,7 +16,7 @@
 
 */
 
-const int n_sections = 7;
+const int n_sections = 8;
 const int n_max_subsections = 5;
 struct Section {
   std::string section_name;
@@ -118,6 +118,13 @@ void createSections() {
   section_headings[5].section_name = "\\section{Time differences between channels and muSc hit}\n\n";
 
   section_headings[6].section_name = "\\section{Run time}\n\n";
+
+  section_headings[7].section_name = "\\section{DAQ-specific data quality issues}\n\n";
+  (section_headings[7]).subsection_names[0] = "\\subsection{DAQ Livetime}\n\n";
+  (section_headings[7]).subsection_names[1] = "\\subsection{Pedestal}\n\n";
+  (section_headings[7]).subsection_names[2] = "\\subsection{Noise}\n\n";
+  (section_headings[7]).subsection_names[3] = "\\subsection{Thresholds}\n\n";
+
 }
 
 std::vector<std::string> getListOfLines() {
@@ -187,9 +194,6 @@ std::vector<std::string> getListOfLines() {
 	      subsection = 4;
 	    }
 	  }
-	  else if (plotname.find("PulseShapes") != std::string::npos) {
-	    section = 3;
-	  }
 	  else if (plotname.find("TDCCheck") != std::string::npos) {
 	    section = 4;
 
@@ -210,6 +214,26 @@ std::vector<std::string> getListOfLines() {
 	  else if (plotname.find("RunTime") != std::string::npos) {
 	    section = 6;
 	  }
+	  else if (plotname.find("DAQ") != std::string::npos) {
+	    section = 7;
+	    // Check for subsection
+	    if (plotname.find("Livetime") != std::string::npos) {
+	      subsection = 0;
+	    }
+	    else if (plotname.find("Pedestal") != std::string::npos) {
+	      subsection = 1;
+	    }
+	    else if (plotname.find("Noise") != std::string::npos) {
+	      subsection = 2;
+	    }
+	    else if (plotname.find("Thresholds") != std::string::npos) {
+	      subsection = 3;
+	    }
+	  }
+	  else if (plotname.find("PulseShapes") != std::string::npos) { // want the Pedestal and Noise plots to be put into a separate section even though they are created in this module
+	    section = 3;
+	  }
+
 
 	  // If the section was found...
 	  if (section >= 0) {
