@@ -21,7 +21,9 @@ if [ $first_run -eq 2091 ] ; then
 elif [ $first_run -eq 2808 ] ; then
     dataset="Al100"
 elif [ $first_run -eq 3101 ] ; then
-    dataset="Al50a"
+    dataset="Al50a_without-NDet2"
+elif [ $first_run -eq 3442 ] ; then
+    dataset="Al50a_with-NDet2"
 elif [ $first_run -eq 3474 ] ; then
     dataset="Si16P"
 elif [ $first_run -eq 3563 ] ; then
