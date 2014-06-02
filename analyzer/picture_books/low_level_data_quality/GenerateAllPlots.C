@@ -89,6 +89,6 @@ void ZoomAxis(TH2* hist) {
     }
   }
   
-  hist->GetYaxis()->SetRange(1, max_bin); // set the range based on bin number
+  hist->GetYaxis()->SetRange(1, max_bin + 5); // set the range based on bin number
 
 }
