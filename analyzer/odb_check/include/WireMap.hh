@@ -53,6 +53,7 @@ public:
   // Add new value
   void Add(const char bankname[], const char detname[], bool en, int ped, int pol, int off);
   void Add(std::string& bankname, std::string& detname, bool en, int ped, int pol, int off);
+  void Add(WireMap&, int index);
 
 private:
   // Add individual elements
@@ -74,6 +75,10 @@ public:
   // Resize all vectors to size of banks by trimming
   // and/or bloating. This should never be necessary.
   void ResizeToBanks();
+  // Check for duplicates that are both enabled
+  // and remove the duplicates that are disabled
+  bool AreThereDuplicates();
+  void ClearDisabledDuplicateDetectors();
 
   // Return default WireMap
   // This is what the first run of alcapana saw as a default
@@ -95,6 +100,9 @@ private:
   static int GetArraySize(const char (&tmp)[256]);
   // Get the key
   static key_t GetKey(std::string&);
+
+public:
+  void Print();
 };
 
 #endif

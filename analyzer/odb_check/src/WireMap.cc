@@ -4,6 +4,7 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 
 WireMap::WireMap() {
@@ -22,23 +23,23 @@ void WireMap::SetRun(unsigned int run) {
       std::endl;
 }
 
-void Enable() {
+void WireMap::Enable() {
   fEnabled.back() = true;
 }
 
-bool Enable(unsigned int i) {
+bool WireMap::Enable(unsigned int i) {
   if (i < fEnabled.size())
     return (fEnabled[i] = true);
   return false;
 }
 
-void Disable() {
+void WireMap::Disable() {
   fEnabled.back() = false;
 }
 
-bool Disable(unsigned int i) {
+bool WireMap::Disable(unsigned int i) {
   if (i < fEnabled.size())
-    return (!fEnabled[i] = false);
+    return !(fEnabled[i] = false);
   return false;
 }
 
@@ -203,6 +204,8 @@ void WireMap::LoadOver(WireMap& wm) {
     fBankName = wm.GetBanks();
   if (wm.GetDets().size() > 0)
     fDetName = wm.GetDets();
+  if (wm.GetEnableds().size() > 0)
+    fEnabled = wm.GetEnableds();
   if (wm.GetPedestals().size() > 0)
     fPedestal = wm.GetPedestals();
   if (wm.GetPolarities().size() > 0)
@@ -246,6 +249,33 @@ void WireMap::ResizeToBanks() {
     fPolarity.push_back(default_pol);
   while (fOffset.size() < fNDets)
     fOffset.push_back(default_off);
+}
+
+bool WireMap::AreThereDuplicates() {
+  unsigned int n = 0;
+  if (fEnabled.size() < fDetName.size()) {
+    std::cout << "WireMap WARNING: Array of enabled information is smaller than " <<
+      "                 array of detector name information." << std::endl;
+    n = fEnabled.size();
+  } else if (fEnabled.size() > fDetName.size()) {
+    std::cout << "WireMap WARNING: Array of enabled information is larger than " <<
+      "array of detector name information." << std::endl;
+    n = fDetName.size();
+  }
+
+  // If two channels are both the same detector and
+  // both enabled, return true because there is a problem.
+  for (unsigned int i = 0; i < n; ++i)
+    for (unsigned int j = i + 1; j < n; ++j)
+      if (fDetName[i] == fDetName[j] &&
+	  fEnabled[i] == fEnabled[j])
+	return true;
+
+  return false;
+}
+
+void WireMap::ClearDisabledDuplicateDetectors() {
+  /*** To be implemented ***/
 }
 
 bool WireMap::IsODBFile(const std::string& fname) {
@@ -386,4 +416,55 @@ WireMap WireMap::Default() {
   wm.AddOffset(0);
 
   return wm;
+}
+
+void WireMap::Print() {
+  using namespace std;
+  stringstream ss;
+  std::vector<unsigned int> sizes;
+  sizes.push_back(fBankName.size());
+  sizes.push_back(fDetName.size());
+  sizes.push_back(fEnabled.size());
+  sizes.push_back(fPedestal.size());
+  sizes.push_back(fPolarity.size());
+  sizes.push_back(fOffset.size());
+
+  unsigned int n = sizes[0];
+  for (unsigned int i = 1; i < sizes.size(); ++i)
+    if (sizes[i] > n)
+      n = sizes[i];
+
+  cout << left;
+  cout << setw(24) << "Run Number:" << fRun << endl;
+  cout << setw(24) << "Number of detectors:" << fNDets << endl;
+  ss << "Enabled (" << fEnabled.size() << ")    ";
+  cout << ss.rdbuf();
+  ss.str(string());
+  ss << "Pedestal (" << fPedestal.size() << ")    ";
+  cout << ss.rdbuf();
+  ss.str(string());
+  ss << "Polarity (" << fPolarity.size() << ")    ";
+  cout << ss.rdbuf();
+  ss.str(string());
+  ss << "TimeShift (" << fOffset.size() << ")    ";
+  cout << ss.rdbuf();
+  ss.str(string());
+  cout << endl;
+  cout << setfill('-') << setw(68) << '-' << setfill(' ') << endl;
+  cout << setfill(' ') << right;
+  for (unsigned int i = 0; i < n; ++i) {
+    cout << setw(15);
+    if (i < fEnabled.size()) cout << (fEnabled[i] ? 'y' : 'n');
+    else cout << ' ';
+    cout << setw(16);
+    if (i < fPedestal.size()) cout << fPedestal[i];
+    else cout << ' ';
+    cout << setw(16);
+    if (i < fPolarity.size()) cout << (fPolarity[i] == -1 ? '-' : '+');
+    else cout << ' ';
+    cout << setw(17);
+    if (i < fOffset.size()) cout << -fOffset[i];
+    else cout << ' ';
+    cout << endl;
+  }
 }
