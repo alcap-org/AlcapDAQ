@@ -49,8 +49,11 @@ else
     scp -r $MERLIN_USER@merlinl01.psi.ch:~/AlcapDAQ/analyzer/picture_books/low_level_data_quality/data_quality_figs .
     scp -r $MERLIN_USER@merlinl01.psi.ch:~/AlcapDAQ/analyzer/picture_books/low_level_data_quality/*.tex .
     
-    pdflatex Data_Quality_Run$first_run
-    pdflatex Data_Quality_Run$first_run
+    echo "First passthrough with pdflatex..."
+    pdflatex Data_Quality_Run$first_run > output.txt
+    echo "Second passthrough with pdflatex..."
+    pdflatex Data_Quality_Run$first_run > output.txt
+    echo "Done"
 
     mv Data_Quality_Run$first_run.pdf Data_Quality_Dataset-$dataset.pdf
 fi
