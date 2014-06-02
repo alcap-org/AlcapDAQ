@@ -62,9 +62,20 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
       std::string histogram_location = "DataQuality_LowLevel/" + histogram_name;
       std::string pngname = "data_quality_figs/" + histogram_name + "_TrendPlot.png";
 
+      // Modify some names so that they go in the correct sections
       if (histogram_name.find("Amplitude") != std::string::npos) {
 	pngname.insert(pngname.find("Amplitude"), "Island");
       }
+      if (histogram_name.find("Threshold") != std::string::npos) {
+	pngname.insert(pngname.find("Threshold"), "DAQ");
+      }
+      if (histogram_name.find("PulseShapes_Pedestal") != std::string::npos) {
+	pngname.insert(pngname.find("PulseShapes"), "DAQ");
+      }
+      if (histogram_name.find("PulseShapes_Noise") != std::string::npos) {
+	pngname.insert(pngname.find("PulseShapes"), "DAQ");
+      }
+
 
       files[0]->GetObject(histogram_location.c_str(),hDQ_RunPlot);
 
