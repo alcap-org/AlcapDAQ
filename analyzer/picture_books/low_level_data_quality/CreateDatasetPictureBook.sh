@@ -2,11 +2,14 @@
 # CreateDatasetPictureBook.sh
 # Usage: ./CreateDatasetPictureBook.sh data_dir first_run n_runs
 
+MERLIN_USER=edmonds_a
+
 if [ $# -ne 3 ] ; then
 	echo "Incorrect Usage!"
 	echo "Correct usage: ./CreateDatasetPictureBook.sh data_dir first_run n_runs"
 	exit;
 fi
+
 
 data_dir=$1
 first_run=$2
@@ -32,13 +35,21 @@ else
     exit
 fi
 
+# If we're on Merlin then generate the figures
+if [ $HOSTNAME -eq "merlinl01" ] ; then
+    mkdir -p data_quality_figs
+    rm data_quality_figs/*.png
+    echo "void RunPicBookMacros() { GenerateTrendPlots(\"$data_dir\", $first_run, $n_runs); latexWrapper($first_run, false); }" > RunPicBookMacros.C
 
-mkdir -p data_quality_figs
-rm data_quality_figs/*.png
-echo "void RunPicBookMacros() { GenerateTrendPlots(\"$data_dir\", $first_run, $n_runs); latexWrapper($first_run, false); }" > RunPicBookMacros.C
+    root -l -b -q LoadPicBookMacros.C
 
-root -l -b -q LoadPicBookMacros.C
-pdflatex Data_Quality_Run$first_run > output.txt
-pdflatex Data_Quality_Run$first_run > output.txt
+# Merlin doesn't have pdflatex so what we need to do is go over there, re-run this script and then come back
+else
+    ssh -XY $MERLIN_USER@merlinl01.psi.ch "cd AlcapDAQ && . thisdaq.sh && cd analyzer/picture_books/low_level_data_quality && ./CreateDatasetPictureBook.sh ~/data/ $first_run $n_runs"
+    scp -r $MERLIN_USER@merlinl01.psi.ch:~/AlcapDAQ/analyzer/picture_books/low_level_data_quality/data_quality_figs .
+    
+    pdflatex Data_Quality_Run$first_run > output.txt
+    pdflatex Data_Quality_Run$first_run > output.txt
 
-mv Data_Quality_Run$first_run.pdf Data_Quality_Dataset-$dataset.pdf
+    mv Data_Quality_Run$first_run.pdf Data_Quality_Dataset-$dataset.pdf
+fi
