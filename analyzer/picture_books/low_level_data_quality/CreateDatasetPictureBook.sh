@@ -36,7 +36,7 @@ else
 fi
 
 # If we're on Merlin then generate the figures
-if [ $HOSTNAME -eq "merlinl01" ] ; then
+if [ "$HOSTNAME" = "merlinl01" ] ; then
     mkdir -p data_quality_figs
     rm data_quality_figs/*.png
     echo "void RunPicBookMacros() { GenerateTrendPlots(\"$data_dir\", $first_run, $n_runs); latexWrapper($first_run, false); }" > RunPicBookMacros.C
@@ -47,9 +47,10 @@ if [ $HOSTNAME -eq "merlinl01" ] ; then
 else
     ssh -XY $MERLIN_USER@merlinl01.psi.ch "cd AlcapDAQ && . thisdaq.sh && cd analyzer/picture_books/low_level_data_quality && ./CreateDatasetPictureBook.sh ~/data/ $first_run $n_runs"
     scp -r $MERLIN_USER@merlinl01.psi.ch:~/AlcapDAQ/analyzer/picture_books/low_level_data_quality/data_quality_figs .
+    scp -r $MERLIN_USER@merlinl01.psi.ch:~/AlcapDAQ/analyzer/picture_books/low_level_data_quality/*.tex .
     
-    pdflatex Data_Quality_Run$first_run > output.txt
-    pdflatex Data_Quality_Run$first_run > output.txt
+    pdflatex Data_Quality_Run$first_run
+    pdflatex Data_Quality_Run$first_run
 
     mv Data_Quality_Run$first_run.pdf Data_Quality_Dataset-$dataset.pdf
 fi
