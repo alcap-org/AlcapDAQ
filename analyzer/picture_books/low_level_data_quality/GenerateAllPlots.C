@@ -78,7 +78,7 @@ void ZoomAxis(TH2* hist) {
 
     for (int iBin = hist->GetNbinsX(); iBin > 0; --iBin) {
 
-      if (hist->GetBinContent(iBin, jBin) >= 1) {
+      if (hist->GetBinContent(iBin, jBin) > 0) {
 	
 	// See if this bin is higher than the previous
 	if (jBin > max_bin) {
