@@ -281,9 +281,10 @@ void latexHeader(FILE * pFile,const int run_number, bool run_book){
    // Hard-code some info about the datsets and run numbers (probably a better way to do this)
    if (run_number>=2091 && run_number <= 2172) { target = "SiR"; first_run=2091; last_run=2172; }
    else if (run_number>=2808 && run_number <= 3012) { target = "Al100"; first_run=2808; last_run=3012; }
-   else if (run_number>=3101 && run_number <= 3456) { target = "Al50(a)"; first_run=3101; last_run=3456; }
+   else if (run_number>=3101 && run_number <= 3329) { target = "Al50(a) (without NDet2)"; first_run=3101; last_run=3329; }
+   else if (run_number>=3442 && run_number <= 3456) { target = "Al50(a) (with NDet2)"; first_run=3442; last_run=3456; }
    else if (run_number>=3474 && run_number <= 3540) { target = "Si16P"; first_run=3474; last_run=3540; }
-   else if (run_number>=3563 && run_number <= 3721) { target = "Al50(b)"; first_run=3563; last_run=3721; }
+   else if (run_number>=3563 && run_number <= 3740) { target = "Al50(b)"; first_run=3563; last_run=3740; }
    else if (run_number>=3763 && run_number <= 3770) { target = "SiR2(3\\%)"; first_run=3763; last_run=3770; }
    else if (run_number>=3771 && run_number <= 3779) { target = "SiR2(1\\%)"; first_run=3771; last_run=3779; }
 
