@@ -23,11 +23,12 @@ private:
   std::vector<int> fPedestal;
   std::vector<int> fPolarity;
   std::vector<int> fOffset;
+  std::vector<double> fFrequency;
 
 public:
   enum key_t { BANK, DETECTOR, ENABLED,
 	       PEDESTAL, POLARITY, TIMESHIFT,
-	       UNKNOWN };
+	       FREQUENCY, UNKNOWN };
 
 public:
   WireMap();
@@ -49,11 +50,16 @@ public:
   std::vector<int>& GetPedestals();
   std::vector<int>& GetPolarities();
   std::vector<int>& GetOffsets();
+  std::vector<double>& GetFrequencies();
 
   // Add new value
-  void Add(const char bankname[], const char detname[], bool en, int ped, int pol, int off);
-  void Add(std::string& bankname, std::string& detname, bool en, int ped, int pol, int off);
+  void Add(const char bankname[], const char detname[], bool en, int ped, int pol, int off, double freq);
+  void Add(std::string& bankname, std::string& detname, bool en, int ped, int pol, int off, double freq);
   void Add(WireMap&, int index);
+
+  // Unique fixes for certain runs
+  // Hardcoded for now
+  void UniqueFixes();
 
 private:
   // Add individual elements
@@ -63,6 +69,7 @@ private:
   void AddPedestal(int);
   void AddPolarity(int);
   void AddOffset(int);
+  void AddFrequency(double);
 
 public:
   // Load the ODB values, or load over with

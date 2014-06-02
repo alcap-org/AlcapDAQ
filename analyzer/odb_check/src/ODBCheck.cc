@@ -28,14 +28,12 @@ void ODBCheck::OutputCorrections() {
   static const std::string pol_key("TriggerPolarity = INT");
   static const std::string ped_key("Pedestal = INT");
   static const std::string time_key("TimeShift = FLOAT");
+  static const std::string freq_key("SamplingFrequency = FLOAT");
 
   static const std::string key_tail_sm("[48] :"); // < Run 2173
   static const std::string key_tail_lg("[52] :"); // >= Run 2173
   static std::string key_tail;
 
-  if (fODB.AreThereDuplicates())
-    std::cout << "THERE ARE DUPLICATES!" << std::endl;
-  
   // Open the file
   if (fCorrectionsFile.is_open()) {
     std::cout << "ODBCheck WARNING: Corrections file already open. Closing old file..." << std::endl;
@@ -59,7 +57,7 @@ void ODBCheck::OutputCorrections() {
   // If the number of detectors is 52, the run number must be greater than 2173
   // If it is 48, the run must have been before then
   // Otherwise, there's an error
-  int ndets = fCorrections.GetNDets();
+  unsigned int ndets = fCorrections.GetNDets();
   if ((ndets == 48 && fCorrections.GetRun() >= 2173) ||
       (ndets == 52 && fCorrections.GetRun() < 2173)) {
     std::cout << "ODBCheck ERROR: Corrected wiremap has run (" << fCorrections.GetRun() <<
@@ -86,30 +84,35 @@ void ODBCheck::OutputCorrections() {
   // [INDEX] VALUE
   fCorrectionsFile << header << std::endl;
   fCorrectionsFile << det_key << key_tail << std::endl;
-  for (int idet = 0; idet < ndets; ++idet)
+  for (unsigned int idet = 0; idet < ndets; ++idet)
     fCorrectionsFile << "[80] " <<
       fCorrections.GetDets()[idet] <<
       std::endl;
   fCorrectionsFile << en_key << key_tail << std::endl;
-  for (int idet = 0; idet < ndets; ++idet)
+  for (unsigned int idet = 0; idet < ndets; ++idet)
     fCorrectionsFile << "[" << idet << "] " <<
       (fCorrections.GetEnableds()[idet] ? 'y' : 'n') << // Print y if enabled, n if disabled
       std::endl;
   fCorrectionsFile << pol_key << key_tail << std::endl;
-  for (int idet = 0; idet < ndets; ++idet)
+  for (unsigned int idet = 0; idet < ndets; ++idet)
     fCorrectionsFile << "[" << idet << "] " <<
       fCorrections.GetPolarities()[idet] <<
       std::endl; 
   fCorrectionsFile << ped_key << key_tail << std::endl;
-  for (int idet = 0; idet < ndets; ++idet)
+  for (unsigned int idet = 0; idet < ndets; ++idet)
     fCorrectionsFile << "[" << idet << "] " <<
       fCorrections.GetPedestals()[idet] <<
       std::endl; 
   fCorrectionsFile << time_key << key_tail << std::endl;
-  for (int idet = 0; idet < ndets; ++idet)
+  for (unsigned int idet = 0; idet < ndets; ++idet)
     fCorrectionsFile << "[" << idet << "] " <<
       -fCorrections.GetOffsets()[idet] <<
-      std::endl; 
+      std::endl;
+  fCorrectionsFile << freq_key << key_tail << std::endl;
+  for (unsigned int idet = 0; idet < ndets; ++idet)
+    fCorrectionsFile << "[" << idet << "] " <<
+      fCorrections.GetFrequencies()[idet] <<
+      std::endl;
   fCorrectionsFile << std::endl;
 
   fCorrectionsFile.close();
@@ -186,7 +189,10 @@ void ODBCheck::Check(int run) {
 	fCorrections.Disable();
     } else {
       fEstimate.Estimate(shapes, timing);
-      fCorrections.Add(fODB.GetBanks()[i], fODB.GetDets()[i], true, fEstimate.GetPedestal(), fEstimate.GetPolarity(), fEstimate.GetOffset());
+      fCorrections.Add(fODB.GetBanks()[i], fODB.GetDets()[i],
+		       true, fEstimate.GetPedestal(),
+		       fEstimate.GetPolarity(), fEstimate.GetOffset(),
+		       fODB.GetFrequencies()[i]);
     }
 
     delete shapes;
@@ -197,6 +203,7 @@ void ODBCheck::Check(int run) {
   hist_file.Close();
 
   fCorrections.ClearDisabledDuplicateDetectors();
+  fCorrections.UniqueFixes();
 
   OutputCorrections();
 }
