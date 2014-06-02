@@ -1,7 +1,6 @@
 #ifndef EVENTNAVIGATOR_H
 #define EVENTNAVIGATOR_H
 
-#include "TGlobalData.h"
 
 //C++/STL
 
@@ -11,9 +10,10 @@ class TTree;
 
 //Local
 #include "definitions.h"
+#include "TGlobalData.h"
+#include "BankIter.h"
 
 static TGlobalData *g_event=NULL;
-
 
 /// The EventNavigator class provides acess to all the collections in
 /// the (MIDAS) Event, which corresponds to a single ROOT branch  
@@ -39,22 +39,26 @@ class EventNavigator {
   /// Adoption: take ownership of a container of reconstruction
   /// objects. The calling code should lose ownership so the object is
   /// frozen at adoption.  Implemetaion could use a swaped body. 
-  void Adopt(AnalysedPulseList_t apl, DetId_t did, GeneratorId_t gid);
-  void Adopt(DetectorPulseList_t dpl, DetId_t did, GeneratorId_t gid);
-  void Adopt(MuonEventList_t mel, DetIt_t did, GeneratorId_t gid );
+  void Adopt(AnalysedPulseList apl, SourceID did, GeneratorID gid);
+  void Adopt(DetectorPulseList dpl, SourceID did, GeneratorID gid);
+  //void Adopt(MuonEventList mel, SourceID did, GeneratorID gid );
   
 
-  /// Read-only getters.  Need to work out how to deal with read-mode and write-mode trees
-  const AnalysedPulseList_t& GetAnalysedBank(DetId_t did, 
-					     GeneratorId_t gid = "",
-					     int count = 0);
+  /// Read-only getters for an individual bank.  
+  /// Need to work out how to deal with read-mode and write-mode trees
+  const AnalysedPulseList& GetAnalysedBank(SourceID did, 
+					   GeneratorID gid = "",
+					   int count = 0) const;
 
-  const DetectorPulseList_t& GetDetectorBank(DetIt_t did,
-					     GeneratorId_t gid = "",
-					     int count = 0);
+  const DetectorPulseList& GetDetectorBank(SourceID did,
+					   GeneratorID gid = "",
+					   int count = 0) const;
 
-  const MuonEventList_t& GetMuonEventList(GeneratorId_t gid = "",
-					  int count = 0);
+  //const MuonEventList& GetMuonEventList(GeneratorID gid = "",
+  //                                      int count = 0) const;
+
+  ///Iterable getters for a list of banks
+  
 
   ///A test
   void CopyTree();

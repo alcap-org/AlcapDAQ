@@ -6,6 +6,8 @@
 #include <string>
 class SourceID;
 
+typedef std::string GeneratorID;
+
 // Typedefs for TPulseIslands	
 class TPulseIsland;
 typedef std::vector<TPulseIsland*> PulseIslandList;
