@@ -1,5 +1,6 @@
 #pragma link C++ class IDs::channel+;
 #pragma link C++ class IDs::generator+;
+#pragma link C++ class IDs::source+;
 #pragma link C++ enum IDs::Detector_t+;
 #pragma link C++ class std::map<std::string,IDs::Detector_t>+;
 #pragma link C++ class std::map<IDs::Detector_t,std::string>+;
