@@ -26,7 +26,7 @@ class IDs::channel{
    public:
 	channel(Detector_t det=kAnyDetector, SlowFast_t type=kAnySlowFast);
 	channel(const std::string& detector , const std::string& type="");
-	~channel(){if(--sNumInstances<0) ClearNames();};
+	virtual ~channel(){if(--sNumInstances<0) ClearNames();};
 
 public:
 	Detector_t Detector()const{return fDetector;};
