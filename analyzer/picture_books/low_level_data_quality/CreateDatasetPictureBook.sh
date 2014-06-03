@@ -58,4 +58,6 @@ else
     echo "Done"
 
     mv Data_Quality_Run$first_run.pdf Data_Quality_Dataset-$dataset.pdf
+    mv data_quality_figs/ data_quality_figs_$dataset/
+    tar -czf data_quality_figs_$dataset.tar.gz data_quality_figs_$dataset/
 fi
