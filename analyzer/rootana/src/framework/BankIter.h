@@ -60,6 +60,11 @@ private:
   /// Whether the match criteria are defined.
   bool fDefined; 
 };
+
+typedef BankIter<PulseIslandList> PulseIslandBankIter;
+typedef BankIter<AnalysedPulseList> AnalysedPulseBankIter;
+typedef BankIter<DetectorPulseList> DetectorPulseBankIter;
+
 #endif  //BANKITER_H
 
 // emacs metadata

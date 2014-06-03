@@ -5,8 +5,10 @@
 #include <map>
 #include <string>
 class SourceID;
+class ChannelID;
 
 typedef std::string GeneratorID;
+typedef std::string GeneratorConfig;
 
 // Typedefs for TPulseIslands	
 class TPulseIsland;
