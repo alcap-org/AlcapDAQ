@@ -77,9 +77,10 @@ OBJECTS := $(addprefix $(OBJ_DIR)/, $(OBJECTS))
 ####################################################################
 
 ${OBJECTS}: ${OBJ_DIR}/%.o: %.cpp
-	@echo -e "Making object: '"$@"' from '"$^"'"
+	@echo -e "Making object: '"$@"'"
+	@#echo "   from '"$^"'"
 	@$(CXX) -c -Wall $(CXXFLAGS) -o $@  $<
-	@$(CXX) -MM $(CXXFLAGS) $< > $(patsubst %.o,%.d,$@)
+	@$(CXX) -MP -MM -MT $@ $(CXXFLAGS) $< > $(patsubst %.o,%.d,$@)
 
 $(DATA_LIBRARY_SOURCE):
 	@$(ROOTSYS)/bin/rootcint -f $@ -c $(UIUC_CFLAGS) -p $(INCLUDE_CFLAGS) ${ROOT_DICT_HEADERS} $(ROOTANA_DATALINKDEF)
@@ -140,5 +141,6 @@ print:
 	@echo -e "ROOT_DICT_HEADERS = $(ROOT_DICT_HEADERS)           \n" 
 	@echo -e "SOURCES = $(SOURCES)               \n" 
 	@echo -e "SOURCE_DIRS = $(SOURCE_DIRS)       \n" 
+	@echo $(wildcard $(OBJ_DIR)/*.d)
 
-#include $(wildcard $(OBJ_DIR)/*.d)
+include $(wildcard $(OBJ_DIR)/*.d)
