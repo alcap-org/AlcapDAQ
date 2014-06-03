@@ -7,17 +7,23 @@
 
 namespace IDs{
 	class generator;
-	typedef std::string Type_t;
+	typedef std::string Generator_t;
 	typedef std::string Config_t;
+
+	// String to use to represent any type or config
+	const Generator_t kAnyGenerator="*";
+	const Config_t kAnyConfig="*";
+
 }
 
-class IDs::generator{
+class IDs::generator:public TObject{
 	public:
-	generator(Type_t t , Config_t c):fType(t),fConfig(c){};
-	~generator(){};
+	generator(Generator_t t , Config_t c):fType(t),fConfig(c){};
+	generator():fType(kAnyGenerator),fConfig(kAnyConfig){};
+	virtual ~generator(){};
 
 	public:
-	Type_t Type()const{return fType;};
+	Generator_t Type()const{return fType;};
 	Config_t Config()const{return fConfig;};
 
 	bool operator==(const generator& rhs)const;
@@ -32,17 +38,15 @@ class IDs::generator{
 	std::string str()const;
 
 	private:
-	Type_t fType;
+	Generator_t fType;
 	Config_t fConfig;
-	static const Type_t fAnyType;
-	static const Config_t fAnyConfig;
 
 	ClassDef(IDs::generator,1);
 };
 
 inline bool IDs::generator::operator==(const IDs::generator& rhs)const{
-	return (fType==fAnyType || rhs.fType==fAnyType || fType==rhs.fType) 
-		&& (fConfig==fAnyConfig || rhs.fConfig==fAnyConfig || fConfig==rhs.fConfig) ;
+	return (fType==kAnyGenerator || rhs.fType==kAnyGenerator || fType==rhs.fType) 
+		&& (fConfig==kAnyConfig || rhs.fConfig==kAnyConfig || fConfig==rhs.fConfig) ;
 }
 
 inline bool IDs::generator::operator>(const IDs::generator& rhs)const{
