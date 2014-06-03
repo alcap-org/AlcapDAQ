@@ -5,17 +5,6 @@
 #include <map>
 #include <string>
 
-#define ALL_DETECTORS \
-
-#define NUM_ALL_DETECTORS 21
-#define COMMA ,
-#define COLON ;
-#define QUOTE 
-#define BLANK
-
-#define ALL_DETECTORS_COMMA ALL_DETECTORS(COMMA)
-#define ALL_DETECTORS_STRINGS ALL_DETECTORS(QUOTE COMMA QUOTE)
-
 namespace IDs{
 	class channel;
 	enum Detector_t { 
@@ -24,6 +13,8 @@ namespace IDs{
 		kScVe, kSiL1_1, kSiL1_2, kSiL1_3, kSiL1_4, kSiL2, 
 		kSiR1_1, kSiR1_2, kSiR1_3, kSiR1_4, kSiR1_sum, kSiR2, 
 		kMuSc, kMuScA };
+	const short num_detector_enums=22;
+
 	enum SlowFast_t{
 		kAnySlowFast=0,
 		kFast=1,
@@ -35,7 +26,7 @@ class IDs::channel{
    public:
 	channel(Detector_t det=kAnyDetector, SlowFast_t type=kAnySlowFast);
 	channel(const std::string& detector , const std::string& type="");
-	~channel(){};
+	~channel(){if(--sNumInstances<0) ClearNames();};
 
 public:
 	Detector_t Detector()const{return fDetector;};
@@ -58,6 +49,7 @@ public:
 
 	private:
 	static void InitialiseNames();
+	static void ClearNames();
 	static void NameDetector(const std::string& name,Detector_t val);
 
 	private:
@@ -66,6 +58,7 @@ public:
 
 	static std::map<std::string, Detector_t> fStringToDetector; //!
 	static std::map<Detector_t, std::string> fDetectorToStrings; //!
+	static int sNumInstances; //!
 
 	ClassDef(IDs::channel,1);
 };
@@ -84,6 +77,7 @@ inline bool IDs::channel::operator<(const IDs::channel& rhs)const{
 }
 
 inline IDs::channel::channel(Detector_t det, SlowFast_t type):fDetector(det),fSlowFast(type){
+	sNumInstances++;
 	if(fStringToDetector.empty()) InitialiseNames();
 }
 
@@ -93,6 +87,7 @@ inline IDs::channel::channel(const std::string& detector , const std::string& ty
 	if(type=="_S"|| type=="slow") fSlowFast=kSlow;
 	else if(type=="_F"|| type=="fast") fSlowFast=kFast;
 	else if(type=="*"|| type=="any") fSlowFast=kAnySlowFast;
+	sNumInstances++;
 }
 
 

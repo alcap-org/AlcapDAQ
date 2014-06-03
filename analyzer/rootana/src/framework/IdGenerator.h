@@ -12,11 +12,11 @@ namespace IDs{
 }
 
 class IDs::generator{
-   public:
+	public:
 	generator(Type_t t , Config_t c):fType(t),fConfig(c){};
 	~generator(){};
 
-public:
+	public:
 	Type_t Type()const{return fType;};
 	Config_t Config()const{return fConfig;};
 
