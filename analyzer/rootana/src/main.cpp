@@ -23,6 +23,8 @@
 //#include "ProcessCorrectionFile.h" // Provides CheckSetupData()
 
 #include "TAnalysedPulseMapWrapper.h"
+#include "IdChannel.h"
+#include "IdGenerator.h"
 
 // Forward declaration of functions ======================
 Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments);
@@ -55,6 +57,9 @@ TGlobalData* TGlobalData::Instance()
 
 int main(int argc, char **argv){
 //load_config_file("MODULES.txt");
+  IDs::channel ch1(IDs::kSiR1_sum,IDs::kAnySlowFast);
+  IDs::generator gen1("MaxBin","");
+  std::cout<<ch1.str()<<" | "<<gen1.str()<<std::endl;
 
   // Parse the command line
   ARGUMENTS arguments;
