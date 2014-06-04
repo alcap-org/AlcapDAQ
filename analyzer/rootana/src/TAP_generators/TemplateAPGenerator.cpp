@@ -33,7 +33,7 @@ void TemplateAPGenerator::ProcessPulses(const TSetupData* eventSetup,
          time = 0;
          integral = 0;
          energy = 0.;
-	 
+
 	 // Here we will fit the template to the TPulseIsland
 
 	 // Here we will extract the variables from the fit

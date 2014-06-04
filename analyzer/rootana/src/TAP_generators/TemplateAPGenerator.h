@@ -4,6 +4,7 @@
 #include "TSetupData.h"
 #include "TVAnalysedPulseGenerator.h"
 #include "definitions.h"
+
 #include <vector>
 #include <string>
 
@@ -29,7 +30,7 @@ class TemplateAPGenerator:public TVAnalysedPulseGenerator {
 
  public:
    virtual void ProcessPulses(const TSetupData*, const PulseIslandList&,AnalysedPulseList&);
-   void AddToTemplate(const TPulseIsland* pulse);
+
 
  private:
    // Ideally we would have the TSetupData storing all this as a single struct so
