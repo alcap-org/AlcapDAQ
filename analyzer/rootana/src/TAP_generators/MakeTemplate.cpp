@@ -1,5 +1,5 @@
 #include "MakeTemplate.h"
-#include "TemplateFitFCN.h"
+#include "HistogramFitFCN.h"
 #include "PulseTemplate.h"
 #include "PrePulse.h"
 
