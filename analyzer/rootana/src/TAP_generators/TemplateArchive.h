@@ -10,7 +10,7 @@ class TemplateArchive {
   TFile* fTemplateFile;
 
  public:
-  TemplateArchive(const char* filename);
+  TemplateArchive(const char* filename, const char* option);
   ~TemplateArchive();
 
  public:
