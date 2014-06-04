@@ -23,8 +23,8 @@ inline TAPGeneratorFactory* TAPGeneratorFactory::Instance(){
     return instance;
 }
 
-#define ALCAP_TAP_GENERATOR( CLASS , ... ) \
-RegistryProxy<CLASS,TVAnalysedPulseGenerator,TAPGeneratorOptions,TAPGeneratorFactory> p_##CLASS(#CLASS, #__VA_ARGS__);
+#define ALCAP_TAP_GENERATOR( NAME , ... ) \
+RegistryProxy<NAME##APGenerator,TVAnalysedPulseGenerator,TAPGeneratorOptions,TAPGeneratorFactory> p_##NAME(#NAME, #__VA_ARGS__);
 
 
 #endif // TAPGENERATORFACTORY__HH_

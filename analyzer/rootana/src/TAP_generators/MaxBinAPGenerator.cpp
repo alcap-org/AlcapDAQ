@@ -60,4 +60,4 @@ void MaxBinAPGenerator::GetAllParameters_MaxBin(const TPulseIsland* pulse,
   energy = fECalibSlope * amplitude + fECalibOffset;
 }
 
-ALCAP_TAP_GENERATOR(MaxBinAPGenerator);
+ALCAP_TAP_GENERATOR(MaxBin);
