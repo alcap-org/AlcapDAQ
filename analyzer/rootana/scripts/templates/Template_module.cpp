@@ -3,6 +3,7 @@
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
+#include "definitions.h"
 
 #include <iostream>
 using std::cout;
