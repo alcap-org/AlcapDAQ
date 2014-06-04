@@ -1,6 +1,6 @@
 #include "TemplateFitter.h"
 
-#include "TemplateFitFCN.h"
+#include "HistogramFitFCN.h"
 
 TemplateFitter::TemplateFitter() {
 
@@ -8,7 +8,7 @@ TemplateFitter::TemplateFitter() {
   fNumParameters = 3;
 
   // Create the fitter
-  TemplateFitFCN* fcn = new TemplateFitFCN();
+  HistogramFitFCN* fcn = new HistogramFitFCN();
   fMinuitFitter = new TFitterMinuit(fNumParameters);
   fMinuitFitter->SetMinuitFCN(fcn);
 }
@@ -31,7 +31,7 @@ void TemplateFitter::FitPulse(TH1D* hTemplate, const TPulseIsland* pulse) {
 
   // Prepare for minimizations
   fMinuitFitter->Clear();
-  TemplateFitFCN* fcn = (TemplateFitFCN*)fMinuitFitter->GetMinuitFCN();
+  HistogramFitFCN* fcn = (HistogramFitFCN*)fMinuitFitter->GetMinuitFCN();
   fcn->SetH1(hTemplate);
   fcn->SetH2(hPulse);
   double ped, amp, time;

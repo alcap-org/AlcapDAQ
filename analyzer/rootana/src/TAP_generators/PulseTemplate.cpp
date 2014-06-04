@@ -1,5 +1,5 @@
 #include "PulseTemplate.h"
-#include "TemplateFitFCN.h"
+#include "HistogramFitFCN.h"
 #include "TPulseIsland.h"
 
 #include "TH1.h"
@@ -16,7 +16,7 @@ PulseTemplate::PulseTemplate(int nSigma, int refine, double convergence) : fTemp
 									   fNSigma(nSigma), fRefine(refine), fNBins(0),
 									   fClockTick(0.), fSumX(0.), fSumX2(0.),
 									   fSum2X(0.), fConvergence(0.), fConvergenceLimit(convergence) {
-  TemplateFitFCN* fcn = new TemplateFitFCN();
+  HistogramFitFCN* fcn = new HistogramFitFCN();
   fFitter = new TFitterMinuit(3); //  Three (3) parameters to modify (amplitude, time, pedestal)
   fFitter->SetMinuitFCN(fcn);
 }
@@ -24,7 +24,7 @@ PulseTemplate::PulseTemplate(int nSigma, int refine, double convergence) : fTemp
 
 PulseTemplate::~PulseTemplate() {
   delete fTemplate;
-  delete fFitter; // Fitter should own TemplateFitFCN and destroy it according to documentation
+  delete fFitter; // Fitter should own HistogramFitFCN and destroy it according to documentation
 }
 
 void PulseTemplate::AddPulse(TPulseIsland* pulse, double shift) {
@@ -179,7 +179,7 @@ double PulseTemplate::Chi2Fit(TPulseIsland* pulse, double& ped, double& amp, dou
 
   // Prepare for minimizations
   fFitter->Clear();
-  TemplateFitFCN* fcn = (TemplateFitFCN*)fFitter->GetMinuitFCN();
+  HistogramFitFCN* fcn = (HistogramFitFCN*)fFitter->GetMinuitFCN();
   fcn->SetH1(fTemplate);
   fcn->SetH2(rebinned_pulse);
   fFitter->SetParameter(0, "Pedestal", ped, 0.1, 0, 0);
@@ -201,7 +201,7 @@ double PulseTemplate::Chi2Fit(TPulseIsland* pulse, double& ped, double& amp, dou
   ped  = fFitter->GetParameter(0);
   amp = fFitter->GetParameter(1);
   time = fFitter->GetParameter(2) / (double)fRefine;
-  fcn = (TemplateFitFCN*)fFitter->GetMinuitFCN();
+  fcn = (HistogramFitFCN*)fFitter->GetMinuitFCN();
   std::vector<double> params;
   params.push_back(ped);
   params.push_back(amp);

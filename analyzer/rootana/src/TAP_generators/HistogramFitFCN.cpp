@@ -1,27 +1,27 @@
-#include "TemplateFitFCN.h"
+#include "HistogramFitFCN.h"
 
 #include <cmath>
 #include <iostream>
 
-TemplateFitFCN::TemplateFitFCN(TH1D* h1, TH1D* h2) : fH1(h1), fH2(h2) {
+HistogramFitFCN::HistogramFitFCN(TH1D* h1, TH1D* h2) : fH1(h1), fH2(h2) {
 }
 
-TemplateFitFCN::~TemplateFitFCN() {
+HistogramFitFCN::~HistogramFitFCN() {
 }
 
-void TemplateFitFCN::SetH1(TH1D* h1) {
+void HistogramFitFCN::SetH1(TH1D* h1) {
   if (fH1 && fH1 != h1)
     delete fH1;
   fH1 = h1;
 }
 
-void TemplateFitFCN::SetH2(TH1D* h2) {
+void HistogramFitFCN::SetH2(TH1D* h2) {
   if (fH2 && fH2 != h2)
     delete fH2;
   fH2 = h2;
 }
 
-double TemplateFitFCN::operator() (const std::vector<double>& par) const {
+double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   // Chi2 fit with pedestal P, amplitude A, and timing T
   // Warning: The time is truncated to an int, so if there's
   // so if the step size in MINUIT is smalled than 1,
@@ -62,6 +62,6 @@ double TemplateFitFCN::operator() (const std::vector<double>& par) const {
   return chi2;
 }
 
-double TemplateFitFCN::Up() const {
+double HistogramFitFCN::Up() const {
   return 1.;
 }
