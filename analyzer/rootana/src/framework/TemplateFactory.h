@@ -62,4 +62,25 @@ class TemplateFactory{
 
 #include "TemplateFactory.tpl"
 
+
+template <typename ConcreteClass,
+	 typename BaseClass,
+	 typename Options>
+ BaseClass* RegistryProxyMaker(Options* opts){return new ConcreteClass(opts);};
+
+template <typename ConcreteClass,
+	 typename BaseClass,
+	 typename Options,
+	 typename Factory> 
+class RegistryProxy{
+  public: 
+    RegistryProxy(const char* Name, const char* ArgumentNames) 
+    { 
+      Factory *f = Factory::Instance(); 
+      f->registerModule( Name , &RegistryProxyMaker<ConcreteClass,BaseClass,Options>); 
+      /* Add all the arguments to the manager */
+      f->addArguments( ArgumentNames);
+    }
+};
+
 #endif //TEMPLATEFACTORY_H_
