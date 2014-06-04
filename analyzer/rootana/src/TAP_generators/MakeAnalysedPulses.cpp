@@ -115,7 +115,7 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
     // Get the TPIs
     thePulseIslands=gData->fPulseIslandToChannelMap[bankname];
-    if(thePulseIslands.size()<=0){
+    if(thePulseIslands.empty() && Debug()){
        cout<<"List of TPIs for '"<< detname<<"' was empty "<<endl;
        continue;
     }
@@ -184,12 +184,9 @@ bool MakeAnalysedPulses::AddGenerator(const string& detector,string generatorTyp
     }else requestType=kArbitrary;
 
     // Get the requested generator
-    TVAnalysedPulseGenerator* generator=NULL;
-    try{
-        generator=TAPGeneratorFactory::Instance()->createModule(generatorType,opts);
-    }catch(char const* error){
-        return false;
-    }
+    TVAnalysedPulseGenerator* generator=
+	    TAPGeneratorFactory::Instance()->createModule(generatorType,opts);
+    if(!generator) return false;
     generator->SetDetector(detector);
 
     // print something
