@@ -18,7 +18,7 @@ namespace IDs{
 
 class IDs::generator:public TObject{
 	public:
-	generator(Generator_t t , Config_t c):fType(t),fConfig(c){};
+	generator(Generator_t t , Config_t c="");
 	generator():fType(kAnyGenerator),fConfig(kAnyConfig){};
 	virtual ~generator(){};
 
@@ -57,5 +57,9 @@ inline bool IDs::generator::operator>(const IDs::generator& rhs)const{
 inline bool IDs::generator::operator<(const IDs::generator& rhs)const{
 	int type_cmp=fType.compare(rhs.fType);
 	return  type_cmp<0 || (type_cmp==0 && fConfig.compare(rhs.fConfig)<0);
+}
+inline IDs::generator::generator(Generator_t t , Config_t c):
+	fType(t),fConfig(c){
+		if(fConfig=="") fConfig=kAnyConfig;
 }
 #endif //IDGENERATOR_H_

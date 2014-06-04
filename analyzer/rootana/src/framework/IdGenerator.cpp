@@ -3,6 +3,6 @@
 ClassImp(IDs::generator);
 
 std::string IDs::generator::str()const{
-  if(fConfig.empty()) return fType;
+  if( fConfig==kAnyConfig) return fType;
   return fType+"::"+fConfig;
 }

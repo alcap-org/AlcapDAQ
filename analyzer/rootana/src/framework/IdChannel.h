@@ -26,7 +26,7 @@ class IDs::channel{
    public:
 	channel(Detector_t det=kAnyDetector, SlowFast_t type=kAnySlowFast);
 	channel(const std::string& detector , const std::string& type="");
-	virtual ~channel(){if(--sNumInstances<0) ClearNames();};
+	virtual ~channel(){};
 
 public:
 	Detector_t Detector()const{return fDetector;};
@@ -43,22 +43,19 @@ public:
 	// Get this ID as a string
 	std::string str()const;
 
-	// Get the Detector_t for a given string returns -1 if there was a problem
-	static std::string GetDetectorName(Detector_t det);
+	static std::string GetDetectorString(Detector_t det);
+	/// Get the Detector_t for a given string returns kAnyDetector if the
+	/// named detector is not known
 	static Detector_t GetDetectorEnum(const std::string& det);
 
-	private:
-	static void InitialiseNames();
-	static void ClearNames();
-	static void NameDetector(const std::string& name,Detector_t val);
+	static std::string GetSlowFastString(SlowFast_t sf);
+	/// Get the Detector_t for a given string returns kAnyDetector if the
+	/// named detector is not known
+	static SlowFast_t GetSlowFastEnum(const std::string& sf);
 
 	private:
 	Detector_t fDetector;
 	SlowFast_t fSlowFast;
-
-	static std::map<std::string, Detector_t> fStringToDetector; //!
-	static std::map<Detector_t, std::string> fDetectorToStrings; //!
-	static int sNumInstances; //!
 
 	ClassDef(IDs::channel,1);
 };
@@ -77,30 +74,11 @@ inline bool IDs::channel::operator<(const IDs::channel& rhs)const{
 }
 
 inline IDs::channel::channel(Detector_t det, SlowFast_t type):fDetector(det),fSlowFast(type){
-	sNumInstances++;
-	if(fStringToDetector.empty()) InitialiseNames();
 }
 
 inline IDs::channel::channel(const std::string& detector , const std::string& type):fDetector(),fSlowFast(kAnySlowFast){
-	if(fStringToDetector.empty()) InitialiseNames();
 	fDetector=GetDetectorEnum(detector);
-	if(type=="_S"|| type=="slow") fSlowFast=kSlow;
-	else if(type=="_F"|| type=="fast") fSlowFast=kFast;
-	else if(type=="*"|| type=="any") fSlowFast=kAnySlowFast;
-	sNumInstances++;
-}
-
-
-inline  IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
-	if(fStringToDetector.empty()) InitialiseNames();
-	std::map<std::string ,Detector_t>::iterator it=fStringToDetector.find(det);
-	if(it==fStringToDetector.end()) return kAnyDetector;
-	return it->second;
-}
-
-inline void IDs::channel::NameDetector(const std::string& name,Detector_t val){
-	fDetectorToStrings[val]=name;
-	fStringToDetector[name]=val;
+	fSlowFast=GetSlowFastEnum(type);
 }
 
 #endif //IDCHANNEL_H_
