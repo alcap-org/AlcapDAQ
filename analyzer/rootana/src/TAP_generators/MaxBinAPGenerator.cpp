@@ -1,3 +1,4 @@
+#include "TAPGeneratorFactory.h"
 #include "MaxBinAPGenerator.h"
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
@@ -58,3 +59,5 @@ void MaxBinAPGenerator::GetAllParameters_MaxBin(const TPulseIsland* pulse,
   integral = 0;
   energy = fECalibSlope * amplitude + fECalibOffset;
 }
+
+ALCAP_TAP_GENERATOR(MaxBinAPGenerator);

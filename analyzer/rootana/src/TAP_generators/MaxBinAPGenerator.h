@@ -12,7 +12,7 @@ class TAnalysedPulse;
 class MaxBinAPGenerator:public TVAnalysedPulseGenerator {
 
  public:
-  MaxBinAPGenerator():TVAnalysedPulseGenerator(){};
+  MaxBinAPGenerator(TAPGeneratorOptions* opts):TVAnalysedPulseGenerator(opts){};
   virtual ~MaxBinAPGenerator(){};
   void SetBankInfo(const TSetupData* gSetup,std::string bankname){
       fBankname=bankname;
