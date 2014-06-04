@@ -27,7 +27,7 @@ void TemplateAPGenerator::ProcessPulses(const TSetupData* eventSetup,
       SetBankInfo(eventSetup,pulseList[0]->GetBankName());
 
       // Get the template from the ROOT file
-      TemplateArchive* archive = new TemplateArchive("templates.root");
+      TemplateArchive* archive = new TemplateArchive("templates.root", "READ");
       TH1F* hTemplate = archive->GetTemplate("template");
 
       TH1F* hTemplate = archive->GetTemplate("template");

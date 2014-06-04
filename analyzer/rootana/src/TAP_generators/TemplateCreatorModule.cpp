@@ -33,7 +33,7 @@ int TemplateCreatorModule::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   BankPulseList_t::const_iterator it;
 
   // Open the template archive, ready for saving
-  TemplateArchive* archive = new TemplateArchive("templates.root");
+  TemplateArchive* archive = new TemplateArchive("templates.root", "RECREATE");
 
   for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); it++){
     bankname = it->first;
