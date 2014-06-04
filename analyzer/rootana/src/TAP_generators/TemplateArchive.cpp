@@ -1,8 +1,9 @@
 #include "TemplateArchive.h"
 
-TemplateArchive::TemplateArchive(const char* filename) {
+// option is standard ROOT file options
+TemplateArchive::TemplateArchive(const char* filename, const char* option) {
 
-  fTemplateFile = new TFile(filename, "UPDATE");
+  fTemplateFile = new TFile(filename, option.c_str());
 
 }
 
