@@ -8,11 +8,12 @@ namespace modules{
     // In the future I plan to rename the FillHistBase class, so this will help
    typedef FillHistBase BaseModule;
     class factory;
+    class options;
 }
 
-class modules::factory:public TemplateFactory<BaseModule>{
+class modules::factory:public TemplateFactory<BaseModule,modules::options>{
 	private:
-		factory():TemplateFactory<BaseModule>(){};
+		factory():TemplateFactory<BaseModule,modules::options>(){};
 		~factory(){};
 	 public:
 		// Get the single instance of this class

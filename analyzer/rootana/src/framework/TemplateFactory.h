@@ -9,9 +9,8 @@
 
 #include "ModulesOptions.h"
 
-template <typename BaseModule>
+template <typename BaseModule, typename OptionsType>
 class TemplateFactory{
-	typedef modules::options options;
     protected:
 	/// protected constructor only callable by derived class 
 	/// as this shoule be a singleton class
@@ -23,14 +22,14 @@ class TemplateFactory{
 
     public:
 	// typdef a function pointer for creating a module
-	typedef BaseModule*(*maker)(options*);
+	typedef BaseModule*(*maker)(OptionsType*);
 	/// Add a maker function to the list of makers
 	void registerModule(const std::string&, maker);
 	/// Create a module with options
-	BaseModule* createModule(const std::string&, options*);
+	BaseModule* createModule(const std::string&, OptionsType*);
 	/// Create a module and look up its options from the internal list
 	BaseModule* createModule(const std::string& name);
-	void addOptions(const std::string& name, options *opts);
+	void addOptions(const std::string& name, OptionsType *opts);
 	void addArguments(const std::string& all_args);
 	void addArgument(const std::string& module,const std::string& argument);
 	void addArgument(const std::string& argument);
@@ -45,7 +44,7 @@ class TemplateFactory{
 	MakersList fModuleMakers;
 
 	// the list of given options for all modules
-	typedef std::map<std::string, options*> OptionsList; 
+	typedef std::map<std::string, OptionsType*> OptionsList; 
 	OptionsList fModuleOptions;
 
 	// the list of expected arguments for all modules
