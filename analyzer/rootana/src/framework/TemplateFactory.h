@@ -14,7 +14,7 @@ class TemplateFactory{
 	typedef modules::options options;
     protected:
 	/// protected constructor only callable by derived class 
-	/./ as this shoule be a singleton class
+	/// as this shoule be a singleton class
 	TemplateFactory(){};
 	~TemplateFactory(){
 	    fModuleMakers.clear();
