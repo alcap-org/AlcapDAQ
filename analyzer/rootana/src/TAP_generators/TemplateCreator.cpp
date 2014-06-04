@@ -30,6 +30,9 @@ int TemplateCreator::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
      cout<<"-----I'm debugging TemplateCreator::BeforeFirstEntry() "<<endl;
   }
 
+  // Prepare the template archive
+  fTemplateArchive = new TemplateArchive("templates.root", "RECREATE");
+
   return 0;
 }
 
@@ -77,6 +80,9 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
   if(Debug()){
      cout<<"-----I'm debugging TemplateCreator::AfterLastEntry()"<<endl;
   }
+
+  // Clean up the template archive
+  delete fTemplateArchive;
 
   return 0;
 }
