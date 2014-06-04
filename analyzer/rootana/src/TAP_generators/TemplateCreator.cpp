@@ -34,6 +34,21 @@ int TemplateCreator::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
 int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
+
+  // Here we will get the TPulseIslands and loop through them
+  /*
+  for ( ) {
+
+    // First we will see how many candidate pulses there are on the TPI
+    // if there is more than one, we skip to the next TPI
+
+    // if there is only one, we continue
+       // we will add the first pulse directly to the template (although we may try and choose a random pulse to start with)
+       // all the other pulses will be fitted to the template and then added to it
+       // we keep on adding pulses until adding pulses has no effect on the template
+       // then we save the template to the file
+  }
+  */
   return 0;
 }
 
