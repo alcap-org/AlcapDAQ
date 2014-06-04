@@ -6,8 +6,6 @@ class gTGlobalData;
 class gTSetupData;
 class gModulesOptions;
 
-#include "TemplateArchive.h"
-
 class TemplateCreator : public FillHistBase{
 
  public:
@@ -19,7 +17,7 @@ class TemplateCreator : public FillHistBase{
   virtual int BeforeFirstEntry(TGlobalData* gData, TSetupData *setup);
   virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
 
-  TemplateArchive* fTemplateArchive;
+  int fXMax;
 };
 
 #endif //TEMPLATECREATOR_H_
