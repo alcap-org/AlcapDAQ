@@ -2,9 +2,6 @@
 #define TAPGENERATORFACTORY__HH_
 #include "TemplateFactory.h"
 
-//#include "TVAnalysedPulseGenerator.h"
-//#include "TAPGeneratorOptions.h"
-
 class TVAnalysedPulseGenerator;
 class TAPGeneratorOptions;
 
