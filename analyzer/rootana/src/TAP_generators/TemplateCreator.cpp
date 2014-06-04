@@ -4,6 +4,8 @@
 #include "TSetupData.h"
 #include "ModulesOptions.h"
 
+#include "definitions.h"
+
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -35,9 +37,23 @@ int TemplateCreator::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
 // Return non-zero to indicate a problem and terminate the event loop
 int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 
-  // Here we will get the TPulseIslands and loop through them
-  /*
-  for ( ) {
+  // Prepare a few variables
+  std::string bankname, detname;
+  PulseIslandList thePulseIslands;
+  StringPulseIslandMap::const_iterator it;
+
+  // Loop over each detector
+  for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
+    
+    // Get the bank and detector names for this detector
+    bankname = it->first;
+    detname = setup->GetDetectorName(bankname);
+
+    // Get the TPIs
+    thePulseIslands = it->second;
+    if (thePulseIslands.size() == 0) continue; // no pulses here..
+
+    std::cout << bankname << " " << detname << std::endl;
 
     // First we will see how many candidate pulses there are on the TPI
     // if there is more than one, we skip to the next TPI
@@ -48,7 +64,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
        // we keep on adding pulses until adding pulses has no effect on the template
        // then we save the template to the file
   }
-  */
+
   return 0;
 }
 
