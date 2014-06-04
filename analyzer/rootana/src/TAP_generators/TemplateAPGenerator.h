@@ -3,6 +3,7 @@
 
 #include "TSetupData.h"
 #include "TVAnalysedPulseGenerator.h"
+#include "definitions.h"
 #include <vector>
 #include <string>
 
@@ -27,7 +28,7 @@ class TemplateAPGenerator:public TVAnalysedPulseGenerator {
    }
 
  public:
-   virtual void ProcessPulses(const TSetupData*, const PulseIslandList_t&,AnalysedPulseList_t&);
+   virtual void ProcessPulses(const TSetupData*, const PulseIslandList&,AnalysedPulseList&);
    void AddToTemplate(const TPulseIsland* pulse);
 
  private:

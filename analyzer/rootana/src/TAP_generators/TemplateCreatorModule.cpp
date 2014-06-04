@@ -1,4 +1,3 @@
-#include "ModulesManager.h"
 #include "TemplateCreatorModule.h"
 #include "TemplateFitter.h"
 #include <iostream>
