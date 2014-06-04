@@ -35,8 +35,8 @@ draw_pulses = ExportPulse
 # specify the channels to analyse as a whitespace separated list.  If the word
 # 'all' appears in the list, the list is left blank or the option not given
 # at all then all channels are analysed.
-#analyse_channels=SiR2-S SiR2-F all
-analyse_channels=SiR2-S SiR2-F
+analyse_channels=SiR2-S SiR2-F all
+#analyse_channels=SiR2-S SiR2-F
 # You can provide a default generator to use for fast and slow channels
 default_fast_generator=MaxBin
 default_slow_generator=MaxBin
@@ -47,7 +47,7 @@ SiR2-S=MaxBin
 # list for that channel with the += operator.  If a generator needs options
 # then put them in brackets and comma separated like a c-style constructor
 SiR2-F=MaxBin
-SiR2-F+=PeakFitter(0.5,0.3)
+#SiR2-F+=PeakFitter(0.5,0.3)
 
 [ detector_pulses] 
 [ muon_events ] 
