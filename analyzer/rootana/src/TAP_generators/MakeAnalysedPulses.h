@@ -23,13 +23,7 @@ class MakeAnalysedPulses : public FillHistBase{
   MakeAnalysedPulses(modules::options* opts);
   ~MakeAnalysedPulses();
 
-//  void SetGenerators(const std::string& fastGen, const std::string& slowGen=""){
-//      fFastGeneratorType=fastGen;
-//      fSlowGeneratorType=slowGen;
-//  }
-
   bool AddGenerator(const std::string& detector,std::string generatorType,TAPGeneratorOptions* opts=NULL);
-  TVAnalysedPulseGenerator* MakeGenerator(const std::string& generatorType,TAPGeneratorOptions* opts=NULL);
   bool ParseGeneratorList(std::string generatorList);
 
   void SetAnalysedPulseMap(StringAnalPulseMap& aMap){fAnalysedPulseMap=&aMap;}
