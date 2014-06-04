@@ -3,7 +3,7 @@
 // option is standard ROOT file options
 TemplateArchive::TemplateArchive(const char* filename, const char* option) {
 
-  fTemplateFile = new TFile(filename, option.c_str());
+  fTemplateFile = new TFile(filename, option);
 
 }
 
