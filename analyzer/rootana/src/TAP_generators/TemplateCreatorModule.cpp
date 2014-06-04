@@ -49,12 +49,10 @@ int TemplateCreatorModule::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
     // Now loop through the TPIs and create the templates
     for (PulseIslandList_t::const_iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
+
+      // See if there is more than one pulse on the TPI and only continue if there is one
       
-      // If this is the first pulse, just add it directly to the template
-      if (pulseIter == thePulseIslands.begin()) {
-	AddPulseToTemplate(hTemplate, *pulseIter, 0); // want 0 as the time shift
-	continue;
-      }
+      // If this is the first pulse, just add it directly to the template (we may want to randomly choose an initial pulse)
 
       // Make an initial guess at the parameters
       double amplitude = 0;
@@ -89,126 +87,5 @@ void TemplateCreatorModule::InitialParameterGuess(const TPulseIsland* pulse, dou
 
 }
 
-// AddPulseToTemplate()
-// -- adds the given pulse to the given template with the given time shift
-// Input--
-// pulse:     Pulse to average in
-// shift:     Bin shift (timing offset of peak)
-void TemplateCreatorModule::AddPulseToTemplate(TH1D* hTemplate, TPulseIsland* pulse, double shift) {
-
-  double norm;
-  double peak;
-  double sigma;
-  std::vector<double> rectified_samples, reshaped_pulse;
-
-  double polarity = (double)pulse->GetTriggerPolarity();
-  double pedestal = pulse->GetPedestal(0);
-  const std::vector<int>& samples = pulse->GetSamples();
-  pedestal = (double)(samples[0]+samples[1]+samples[2]+samples[3]) / 4.; /*** TEMPERARY PEDESTAL ***/
-  int n_samples = samples.size();
-  for (int i = 0; i < n_samples; ++i)
-    rectified_samples.push_back(polarity*((double)samples[i]-pedestal));
-  // Get peak value for normalization
-  peak = 0.;
-  norm = polarity * (double)samples[0];
-  for (int i = 1; i < n_samples; ++i) {
-    if ((double)samples[i] * polarity > norm) {
-      peak = (double)i;
-      norm = (double)samples[i];
-    }
-  }
-  norm *= polarity;
-  // Get sigma for scaling
-  sigma = 0.;
-  for (int i = 0; i < n_samples; ++i) {
-    std::cout << i << "\t" << sigma << "," << rectified_samples[i] << "\t";
-    if (i % 10 == 0)
-      std::cout << std::endl;
-    sigma += rectified_samples[i] * std::pow(i - peak, 2.);
-  }
-  sigma = std::sqrt(std::abs(sigma)) / (double)n_samples;
-
-  // If this is the first pulse (i.e. if the template doesn't exist yet), setup some variables
-  if (hTemplate == NULL) {
-    fClockTick = pulse->GetClockTickInNs() / (double)fRefine;
-    fNBins = (int)(2. * (double)fNSigma * sigma) * fRefine;
-    std::cout << "Making histogram: " << fNBins << " " << fNSigma << " " << sigma << " " << n_samples << " " << pedestal << std::endl;
-    TString str = "template_";
-    str += pulse->GetBankName();
-    fTemplate = new TH1D(str, "Template", fNBins, -(double)fNSigma, (double)fNSigma);
-  }
-
-  // Reshape pulse
-  // To go from course binning somehwere in the pulse
-  // to fine binning in the template, just use
-  // a linear f(x)=mx+b
-  int pulse_index;
-  double m = 2. * (double)fNSigma * sigma / (double)fNBins;
-  double b = (peak + shift) - (double)fNSigma * sigma;
-  for (int i = 0; i < fNBins; ++i) {
-    pulse_index = (int)((double)i * m + b + 0.5); // The half shift is for bin-centering since int floors the double
-    reshaped_pulse.push_back((double)samples[pulse_index] / norm);
-  }
-
-  // If this is the first pulse added to the template, smooth it.
-  // In C++11, we'll have direct access to the reshaped pulse's
-  // data array with vector.data(), but now we have to use
-  // a somewhat circuitous route. TH1::SmoothArray takes an array
-  // of doubles to smooth as an argument.
-  if (fNPulses == 0) {
-    unsigned int l = reshaped_pulse.size();
-    double *reshaped_pulse_array = new double[l];
-    for (unsigned int i = 0; i < l; ++i)
-      reshaped_pulse_array[i] = reshaped_pulse[i];
-    TH1::SmoothArray(reshaped_pulse.size(), reshaped_pulse_array, 1);
-    for (unsigned int i = 0; i < l; ++i)
-      reshaped_pulse.at(i) = reshaped_pulse_array[i];
-    delete [] reshaped_pulse_array;
-  }
-
-  // Add in pulse to template
-  // Histogram indexing is off by one (index 0 is the underflow bin)
-  // Hence the (i+1), which really corresponds to the ith element
-  // in the reshaped_pulse array.
-  double x, x_old;
-  double e, e_old;
-  for (int i = 0; i < fNBins; ++i) {
-    x_old = fTemplate->GetBinContent(i+1);
-    e_old = fTemplate->GetBinError(i+1);
-    x = (double)fNPulses * x_old + reshaped_pulse[i];
-    x /= (double)(fNPulses + 1);
-    e = (double)(fNPulses - 1) * std::pow(e_old, 2.) + ((double)reshaped_pulse[i] - x_old) * ((double)reshaped_pulse[i] - x);
-    e = std::sqrt(e / fNPulses);
-    fTemplate->SetBinContent(i+1, x);
-    fTemplate->SetBinError(i+1, e);
-  }
-
-  // Find the change and average it with previous changes.
-  // That is the dot product of the last template with
-  // the new one subtracted from 1.
-  if (fNPulses > 0) {
-    double mag_old = hTemplate->Integral(1, fNBins);
-    double mag_new = fTemplate->Integral(1,fNBins);
-    double dot_product = 0.;
-    for (int i = 1; i <= fNBins; ++i)
-      dot_product += hTemplate->GetBinContent(i) * fTemplate->GetBinContent(i);
-    double cos_similarity = dot_product / (mag_old * mag_new);
-    fConvergence = ((double)(fNPulses - 1) * fConvergence + (1 - cos_similarity))/(double)fNPulses;
-  }
-
-  // Recalculate values for correlation coefficient
-  fSumX = 0.;
-  fSumX2 = 0.;
-  int c = 0;
-  for (int i = 1; i <= fNBins; ++i) {
-    c = fTemplate->GetBinContent(i);
-    fSumX += c;
-    fSumX2 += std::pow(c, 2.);
-  }
-  fSum2X = std::pow(fSumX, 2.);
-
-  // Keep track of the number of pulses
-  ++fNPulses;
-}
 
 ALCAP_REGISTER_MODULE(TemplateCreatorModule);
