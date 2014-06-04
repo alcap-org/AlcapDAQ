@@ -14,8 +14,6 @@ TemplateCreator::TemplateCreator(modules::options* opts):
   // Do something with opts here.  Has the user specified any
   // particular configuration that you want to know?
   // For example, perhaps this module wants an axis range:
-  fXMax=opts->GetDouble("x_max",100); 
-  
 }
 
 TemplateCreator::~TemplateCreator(){
