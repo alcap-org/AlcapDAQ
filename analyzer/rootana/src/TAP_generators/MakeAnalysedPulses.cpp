@@ -73,7 +73,9 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
        skip_detector=false;
        if(! analyse_all ){
           std::vector<std::string>::const_iterator it_chan;
-          for(it_chan=fChannelsToAnalyse.begin(); it_chan!=fChannelsToAnalyse.end();it_chan++){
+          for(it_chan=fChannelsToAnalyse.begin();
+			  it_chan!=fChannelsToAnalyse.end();
+			  it_chan++){
              if((*it_chan)== (*det)) break;
           }
           if(it_chan== fChannelsToAnalyse.end() ) skip_detector=true;
