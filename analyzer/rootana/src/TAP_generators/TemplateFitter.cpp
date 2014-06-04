@@ -50,3 +50,5 @@ void TemplateFitter::FitPulse(TH1D* hTemplate, const TPulseIsland* pulse) {
   if (status != 0)
     std::cout << "ERROR: Problem with fit (" << status << ")!" << std::endl;
 }
+
+// Want getters to get the parameters from the fit (if it's been successful)
