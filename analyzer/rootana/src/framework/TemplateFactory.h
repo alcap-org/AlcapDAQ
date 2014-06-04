@@ -22,7 +22,7 @@ class TemplateFactory{
 	}
 
     public:
-	/./ typdef a function pointer for creating a module
+	// typdef a function pointer for creating a module
 	typedef BaseModule*(*maker)(options*);
 	/// Add a maker function to the list of makers
 	void registerModule(const std::string&, maker);
