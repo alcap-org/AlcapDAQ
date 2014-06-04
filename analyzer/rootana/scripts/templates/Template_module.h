@@ -2,9 +2,9 @@
 #define %MODULE%_H_
 
 #include "FillHistBase.h"
-class gTGlobalData;
-class gTSetupData;
-class gModulesOptions;
+class TGlobalData;
+class TSetupData;
+namespace modules {class options;}
 
 class %module% : public FillHistBase{
 
