@@ -6,7 +6,6 @@
 #include <string>
 #include "IdChannel.h"
 #include "IdGenerator.h"
-#include "IdSource.h"
 
 namespace IDs{
 	class source;
