@@ -16,8 +16,6 @@ class TemplateCreator : public FillHistBase{
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
   virtual int BeforeFirstEntry(TGlobalData* gData, TSetupData *setup);
   virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
-
-  int fXMax;
 };
 
 #endif //TEMPLATECREATOR_H_
