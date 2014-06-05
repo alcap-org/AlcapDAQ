@@ -24,7 +24,7 @@ inline TDPGeneratorFactory* TDPGeneratorFactory::Instance(){
 }
 
 #define ALCAP_TDP_GENERATOR( NAME , ... ) \
-RegistryProxy<NAME##DPGenerator,TVDetectorPulseGenerator,TDPGeneratorOptions,TDPGeneratorFactory> p_##NAME(#NAME, #__VA_ARGS__);
+RegistryProxy<NAME##DPGenerator,TVDetectorPulseGenerator,TDPGeneratorOptions,TDPGeneratorFactory> p_DP##NAME(#NAME, #__VA_ARGS__);
 
 
 #endif // TDPGENERATORFACTORY__HH_
