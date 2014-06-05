@@ -12,21 +12,24 @@ class TAnalysedPulse;
 class MaxBinAPGenerator:public TVAnalysedPulseGenerator {
 
  public:
-  MaxBinAPGenerator(TAPGeneratorOptions* opts):TVAnalysedPulseGenerator(opts){};
+  MaxBinAPGenerator(TAPGeneratorOptions* opts):
+	  TVAnalysedPulseGenerator(opts),fSetup(TSetupData::Instance()){};
   virtual ~MaxBinAPGenerator(){};
-  void SetBankInfo(const TSetupData* gSetup,std::string bankname){
+  void SetBankInfo(std::string bankname){
       fBankname=bankname;
-      fPedestal = gSetup->GetPedestal(bankname);
-      fTriggerPolarity = gSetup->GetTriggerPolarity(bankname);
-      fECalibSlope = gSetup->GetADCSlopeCalib(bankname);
-      fECalibOffset = gSetup->GetADCOffsetCalib(bankname);
-      fClockTick = gSetup->GetClockTick(bankname);
-      fTimeShift = gSetup->GetTimeShift(bankname);
-      fDetName=gSetup->GetDetectorName(bankname);
+      fPedestal = fSetup->GetPedestal(bankname);
+      fTriggerPolarity = fSetup->GetTriggerPolarity(bankname);
+      fECalibSlope = fSetup->GetADCSlopeCalib(bankname);
+      fECalibOffset = fSetup->GetADCOffsetCalib(bankname);
+      fClockTick = fSetup->GetClockTick(bankname);
+      fTimeShift = fSetup->GetTimeShift(bankname);
+      fDetName=fSetup->GetDetectorName(bankname);
    }
 
  public:
-   virtual void ProcessPulses(const TSetupData*, const PulseIslandList&,AnalysedPulseList&);
+   virtual int ProcessPulses(const PulseIslandList&,AnalysedPulseList&);
+   virtual bool MayDivideTPIs(){return false;};
+
    void GetAllParameters_MaxBin(const TPulseIsland* pulse, double& amplitude,
          double& time, double& integral, double& energy) ;
 
@@ -41,6 +44,7 @@ class MaxBinAPGenerator:public TVAnalysedPulseGenerator {
    double fECalibOffset;
    double fClockTick;
    double fTimeShift;
+   TSetupData* fSetup;
 
 };
 
