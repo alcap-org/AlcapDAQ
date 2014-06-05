@@ -190,6 +190,11 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 	ZoomAxis(hDQ_TrendPlot);
       }
 
+      // Set a lower limit on the z-axis for sum plots
+      if (histogram_name.find("normalised") != std::string::npos) {
+	hDQ_TrendPlot->SetMinimum(1e-7);
+      }
+
 
       hDQ_TrendPlot->Draw("COLZ");
 
