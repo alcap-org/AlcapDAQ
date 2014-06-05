@@ -97,7 +97,7 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
       hDQ_TrendPlot->GetZaxis()->SetTitleOffset(0.85);
       hDQ_TrendPlot->GetZaxis()->SetTitleSize(0.03);
 
-      gStyle->SetOptStat("ne");
+      gStyle->SetOptStat("e");
       hDQ_TrendPlot->SetStats(true);
 
       // Want to copy the bin labels for this plot
