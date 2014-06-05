@@ -1,4 +1,5 @@
 #include "MaxTimeDiffMEGenerator.h"
+#include "TMEGeneratorFactory.h"
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -60,3 +61,5 @@ int MaxTimeDiffMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
 
 	  return 0;
 }
+
+ALCAP_TME_GENERATOR(MaxTimeDiff);
