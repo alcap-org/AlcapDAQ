@@ -35,6 +35,26 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
   TH2F* hDQ_TrendPlot;
   TH1F *hDQ_RunPlot;
 
+  // Work out what the dataset is
+  std::string dataset = "NULL";
+  if (first_run == 2091)
+    dataset = "SiR";
+  else if (first_run == 2808)
+    dataset = "Al100";
+  else if (first_run == 3101)
+    dataset = "Al50(a)_without-NDet2";
+  else if (first_run == 3442)
+    dataset = "Al50(a)_with-NDet2";
+  else if (first_run == 3474)
+    dataset = "Si16P";
+  else if (first_run == 3563)
+    dataset = "Al50(b)";
+  else if (first_run == 3763)
+    dataset = "SiR2(3%)";
+  else if (first_run == 3771)
+    dataset = "SiR2(1%)";
+
+
   // Loop through the histograms in the first_file and get the island histograms (bank and channel names may differ between runs)
   TDirectoryFile* dir = (TDirectoryFile*) files[0]->Get("DataQuality_LowLevel");
 
@@ -82,7 +102,7 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 
 
       std::string trendplotname = histogram_name + "_TrendPlot";
-      std::string trendplottitle = "Trend Plot of " + histogram_name;
+      std::string trendplottitle = "Trend Plot of " + histogram_name + " (" + dataset + ")";
 
       hDQ_TrendPlot = new TH2F(trendplotname.c_str(), trendplottitle.c_str(), n_runs, first_run, first_run+n_runs, hDQ_RunPlot->GetNbinsX(), hDQ_RunPlot->GetXaxis()->GetXmin(), hDQ_RunPlot->GetXaxis()->GetXmax());
 
