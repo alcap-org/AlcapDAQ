@@ -11,7 +11,7 @@ cat <<EOF
 Usage: $0 Name [Type] [TargetDirectory]
       Script to create a set of skeleton files to implement a new module or generator
       ModuleName   = The name of the new component.
-      Type (optional) = Make a special type of component.  
+      Type (optional) = Make a special type of module.  
                         Must be one of: ${ListOfSpecials[@]}
                         Default is '${ListOfSpecials[0]}'.
       TargetDirectory = Specify a target directory to place the new files.
