@@ -29,7 +29,7 @@ int %module%::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
   // Print extra info if we're debugging this module:
   if(Debug()){
      cout<<"-----%module%::BeforeFirstEntry(): I'm debugging!"<<endl;
-     cout<<"-----%module%::BeforeFirstEntry(): fXMax is: "<<fXMax<<endl;
+     cout<<"-----%module%::BeforeFirstEntry(): x_max is: "<<fXMax<<endl;
   }
 
   return 0;
@@ -57,6 +57,5 @@ int %module%::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
 // The following macro registers this module to be useable in the config file.
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
-// within the modules file.
-//ALCAP_REGISTER_MODULE(%module% ,slow_gen,fast_gen);
-ALCAP_REGISTER_MODULE(%module%);
+// within the modules file.  See the github wiki for more.
+ALCAP_REGISTER_MODULE(%module%,x_max);
