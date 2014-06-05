@@ -112,7 +112,9 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
       }
 
       // Want the Fraction plots to go up to 1 so that red = bad
-      if (histogram_name.find("Fraction") != std::string::npos) {
+      // also do the same for the DAQ livetime plot
+      if (histogram_name.find("Fraction") != std::string::npos ||
+	  histogram_name.find("DAQLivetime") != std::string::npos) {
 	hDQ_TrendPlot->GetZaxis()->SetRangeUser(0,1);
       }
 
