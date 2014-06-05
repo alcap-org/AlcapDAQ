@@ -1,9 +1,11 @@
+#include "TDPGeneratorFactory.h"
 #include "MaxTimeDiffDPGenerator.h"
 #include <iostream>
 #include <vector>
 #include <cmath>
 using std::cout;
 using std::endl;
+
 void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::string& detector, 
 		  const AnalysedPulseList* fast_pulses, const AnalysedPulseList* slow_pulses,
 		  DetectorPulseList& output){
@@ -74,3 +76,5 @@ void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::st
 	    } // for (int b -reversed)	      
 	  } // end for
 }
+
+ALCAP_TDP_GENERATOR(MaxTimeDiff);
