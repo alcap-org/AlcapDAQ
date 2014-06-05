@@ -28,7 +28,8 @@ using std::endl;
 int %module%::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
   // Print extra info if we're debugging this module:
   if(Debug()){
-     cout<<"-----I'm debugging %module%::BeforeFirstEntry() "<<endl;
+     cout<<"-----%module%::BeforeFirstEntry(): I'm debugging!"<<endl;
+     cout<<"-----%module%::BeforeFirstEntry(): fXMax is: "<<fXMax<<endl;
   }
 
   return 0;
@@ -47,7 +48,7 @@ int %module%::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
 
   // Print extra info if we're debugging this module:
   if(Debug()){
-     cout<<"-----I'm debugging %module%::AfterLastEntry()"<<endl;
+     cout<<"-----%module%::AfterLastEntry(): I'm debugging!"<<endl;
   }
 
   return 0;
