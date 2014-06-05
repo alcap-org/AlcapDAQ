@@ -2,15 +2,16 @@
 #include "MakeDetectorPulses.h"
 #include "TVDetectorPulseGenerator.h"
 #include "MaxTimeDiffDPGenerator.h"
+#include "TDPGeneratorFactory.h"
 
 extern StringAnalPulseMap gAnalysedPulseMap;
 extern StringDetPulseMap gDetectorPulseMap;
 
-MakeDetectorPulses::MakeDetectorPulses(modules::options* opts):FillHistBase("MakeDetectorPulses",opts){
-    if(opts->HasOption("algorithm")){
-      MakeGenerator(opts->GetString("algorithm"));
-    }
-    dir->cd("/");
+MakeDetectorPulses::MakeDetectorPulses(modules::options* opts):
+	FillHistBase("MakeDetectorPulses",opts),fOptions(opts){
+    // Get the algorithm option from the modules file
+    // If nothing was set, use MaxTimeDiff by default
+    fAlgorithm=opts->GetString("algorithm","MaxTimeDiff");
 }
 
 MakeDetectorPulses::~MakeDetectorPulses(){
@@ -75,6 +76,11 @@ std::string MakeDetectorPulses::GetOtherChannelName(std::string in_name,std::str
 }
 
 int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, TSetupData* setup){
+  // Set up the generator
+  fGenerator=MakeGenerator(fAlgorithm);
+  if(!fGenerator) return 1;
+
+  // Now pair up all channels
   std::string det_name_a, det_name_b,det_name;
   bool det_a_isFast;
   //bool det_b_isSlow;
@@ -107,13 +113,9 @@ int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, TSetupData* setup){
 
 TVDetectorPulseGenerator* MakeDetectorPulses::MakeGenerator(const std::string& generatorType){
     // Select the generator type
-    TVDetectorPulseGenerator* generator=NULL;
+    TVDetectorPulseGenerator* generator=TDPGeneratorFactory::Instance()->createModule(generatorType);
     // As we develop newer techniques we can add to the list here
-    if (generatorType == "MaxTimeDiff"){
-	generator = new MaxTimeDiffDPGenerator();
-    } else {
-    std::cout<<"Error: Unknown generator requested: "<<generatorType<<std::endl;	
-	throw "Unknown generator requested";
+    if (!generator){
 	return NULL;
     }
     // setup some options on the generator

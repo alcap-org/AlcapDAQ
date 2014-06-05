@@ -5,16 +5,13 @@
 #include <map>
 #include "TDetectorPulse.h"
 #include "TMuonEvent.h"
-#include "ModulesOptions.h"
+#include "TMEGeneratorOptions.h"
 #include "definitions.h"
 
 class TVMuonEventGenerator{
-	protected:
-		typedef modules::options options;
-
 	public:
-		TVMuonEventGenerator(TVMuonEventGenerator::options* opts):fDebug(false){
-			if(opts->HasOption("debug")) fDebug=true;
+		TVMuonEventGenerator(TMEGeneratorOptions* opts):fDebug(false){
+			if(opts && opts->HasOption("debug")) fDebug=true;
 		};
 		virtual ~TVMuonEventGenerator(){};
 

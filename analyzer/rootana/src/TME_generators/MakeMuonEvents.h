@@ -16,7 +16,6 @@ class MakeMuonEvents : public FillHistBase{
   ~MakeMuonEvents();
 
  private:
-  TVMuonEventGenerator* MakeGenerator(const std::string& algorithm);
   virtual int BeforeFirstEntry(TGlobalData *gData, TSetupData* aSetup);
   virtual int ProcessEntry(TGlobalData *gData, TSetupData* aSetup);
 

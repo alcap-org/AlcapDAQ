@@ -36,6 +36,7 @@ class MakeDetectorPulses : public FillHistBase{
   StringDetPulseMap* fDetectorPulseMap;
   typedef std::map<std::string,std::pair<std::string,std::string> > ChannelPairing_t;
   ChannelPairing_t fFastSlowPairs;
+  modules::options* fOptions;
   std::string fAlgorithm;
 
 };
