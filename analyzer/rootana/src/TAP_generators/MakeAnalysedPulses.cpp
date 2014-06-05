@@ -108,9 +108,10 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   PulseIslandList thePulseIslands;
   ChannelGenerators_t::iterator generator;
   AnalysedPulseList theAnalysedPulses;
+  int retVal=0;
   for(generator = fGenerators.begin(); generator != fGenerators.end(); generator++){
     // Get the bank name
-    detname = (*generator)->GetDetector();
+    detname = (*generator)->GetChannel();
     bankname = gSetup->GetBankName(detname);
 
     // Get the TPIs
@@ -124,7 +125,8 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     theAnalysedPulses.clear();
 
     // generate the new list of analyse_pulses
-    (*generator)->ProcessPulses( gSetup, thePulseIslands,theAnalysedPulses);
+    retVal=(*generator)->ProcessPulses( thePulseIslands,theAnalysedPulses);
+    if(retVal!=0) return retVal;
 
     // add these into the map of analysed pulses
     gAnalysedPulseMap.insert(std::make_pair(detname,theAnalysedPulses));
@@ -187,7 +189,7 @@ bool MakeAnalysedPulses::AddGenerator(const string& detector,string generatorTyp
     TVAnalysedPulseGenerator* generator=
 	    TAPGeneratorFactory::Instance()->createModule(generatorType,opts);
     if(!generator) return false;
-    generator->SetDetector(detector);
+    generator->SetChannel(detector);
 
     // print something
     if(Debug()) {
