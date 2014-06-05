@@ -190,9 +190,15 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 	ZoomAxis(hDQ_TrendPlot);
       }
 
-      // Set a lower limit on the z-axis for sum plots
+      // Set a lower limit on the z-axis for the normalised plots
       if (histogram_name.find("normalised") != std::string::npos) {
 	hDQ_TrendPlot->SetMinimum(1e-7);
+      }
+
+      // For the FADC threshold plots, set the limit 
+      if (histogram_name.find("Threshold") != std::string::npos && 
+	  histogram_name.find("BU") == std::string::npos && histogram_name.find("UH") == std::string::npos) {
+	  hDQ_TrendPlot->SetMinimum(1000); // I don't think there were any thresholds below 1000
       }
 
 
