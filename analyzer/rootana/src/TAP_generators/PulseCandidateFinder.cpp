@@ -3,21 +3,39 @@
 #include <iostream>
 
 /// PulseCandidateFinder()
-/// -- Pass it a TPulseIsland* and a rise and fall parameter to find the locations of the candidate pulses
+/// Passed a TPulseIsland* and will look through it for samples that increase by as much as "rise"
+/// and then fall
 PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse, int rise, int fall): fPulseIsland(pulse) {
 
+  const std::vector<int>& samples = fPulseIsland->GetSamples();
+  unsigned int n_samples = samples.size();
+  int pedestal = fPulseIsland->GetPedestal(0);
+  int polarity = fPulseIsland->GetTriggerPolarity();
+
+  int s1, s2, ds; // this sample value, the previous sample value and the change in the sample value
+  int start, stop; // the start and stop location
+  bool found = false;
   Location location;
-  location.start = 0;
-  location.stop = 1;
-
-  Location location2;
-  location2.start = 2;
-  location2.stop = 3;
-
-
-  fPulseCandidateLocations.push_back(location);
-  fPulseCandidateLocations.push_back(location2);
-
+  
+  // Loop through the samples
+  for (unsigned int i = 1; i < n_samples; ++i) {
+    s1 = polarity * (samples[i-1] - pedestal);
+    s2 = polarity * (samples[i] - pedestal);
+    ds = s2 - s1;
+    if (found) {
+      if (-ds > fall) {
+	location.stop = (int)i;
+	start = stop = 0;
+	fPulseCandidateLocations.push_back(location);
+	found = false;
+      }
+    } else {
+      if (ds > rise) {
+	found = true;
+	location.start = (int)(i - 1);
+      }
+    }
+  }
 }
 
 PulseCandidateFinder::~PulseCandidateFinder() {
