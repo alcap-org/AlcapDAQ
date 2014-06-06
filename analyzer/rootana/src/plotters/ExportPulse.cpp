@@ -180,7 +180,6 @@ int ExportPulse::MakePlot(const TPulseIsland* pulse)const{
    for ( size_t i=0;i <num_samples; ++i) {
      hPulse->SetBinContent(i+1, pulse->GetSamples().at(i));
    }
-   hPulse->Write();
 
    return 0;
 }
