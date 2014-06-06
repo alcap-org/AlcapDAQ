@@ -11,26 +11,53 @@ files for the ODBChecker.
 
 #include <string>
 
+///////////////////////////////////////////////////////////
+/// \brief Keeps track of the directories related to processing
+/// files for ODBCheck.
+///
+/// The raw data, ODB files, histogram files, and correction files
+/// are all (possible) required at some point. Once those
+/// directories have been set here, with just a run number
+/// the methods of %DataDir allow one to get a string that
+/// represents the path to any of these files.
+///////////////////////////////////////////////////////////
 class DataDir {
 
 private:
-  // The header and footer of file names are *Pre and *Ext respectively
-  // We keep track of the raw dat, the ODB files, the histogram files,
-  // And the correction files (which will also be ODB files)
+
+  /// \name Extensions
+  /// The extensions associated with each of the file types.
+  //@{
   std::string fRawExt, fODBExt, fHistExt, fCorrExt;
+  //@}
+  /// \name Directories
+  /// The directories where the files are located.
+  //@{
   std::string fRawDir, fODBDir, fHistDir, fCorrDir;
+  //@}
+  /// \name Prepensions
+  /// Each file type has certain naming conventions.
+  /// These are the first few characters of a file name.
+  //@{
   std::string fRawPre, fODBPre, fHistPre, fCorrPre;
+  //@}
 
 public:
   DataDir();
 
 private:
-  // Returns string representing the run number (5 characters)
+  /// Takes run number and returns in a format that can be
+  /// included in a file name.
+  ///
+  /// @param[in] run Run number
+  /// @return String representing the run number (5 characters)
   static std::string GetCanonicalRun(int run);
   
 public:
-  // The methods with arguments silently set
-  // Those without arguments prompt
+  /// \name Setters
+  /// Set the directory locations. Either pass the path for the directory
+  /// or the user will be prompted.
+  //@{
   void SetRawDir(const std::string& raw_dir);
   void SetRawDir();
   void SetODBDir(const std::string& odb_dir);
@@ -39,11 +66,17 @@ public:
   void SetHistDir();
   void SetCorrDir(const std::string& corr_dir);
   void SetCorrDir();
+  //@}
   
+  /// \name Getters
+  /// Get path to files corresponding to run number.
+  /// @param[in] run Run number
+  //@{
   std::string GetRawFileName(int run) const;
   std::string GetODBFileName(int run) const;
   std::string GetHistFileName(int run) const;
   std::string GetCorrFileName(int run) const;
+  //@}
 };
 
 #endif

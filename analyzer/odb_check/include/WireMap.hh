@@ -1,114 +1,184 @@
-/**************************************
-Class: WireMap
-Author: John R. Quirk
-
-The WireMap contains some rough information from the ODB wiremap.
-Specifically the run, banks/detectors/status, pedestals,
-polarities, and offsets.
-**************************************/
-
 #ifndef WIREMAP_H__
 #define WIREMAP_H__
 
 #include <vector>
 #include <string>
 
+////////////////////////////////////////////////////////////
+/// \brief C++ Class containing certain ODB keys in a usable form.
+///
+/// The WireMap contains some information from the ODB wiremap.
+/// Specifically the run, banks names, detector names,
+/// enabled/disabled status, pedestals, polarities, and
+/// offsets. Can be given the path to an ODB file to construct
+/// from or built up with the Add method.
+////////////////////////////////////////////////////////////
+
 class WireMap {
 private:
-  unsigned int fRun;
-  unsigned int fNDets;
-  std::vector<std::string> fBankName;
-  std::vector<std::string> fDetName;
-  std::vector<bool> fEnabled;
-  std::vector<int> fPedestal;
-  std::vector<int> fPolarity;
-  std::vector<int> fOffset;
-  std::vector<double> fFrequency;
+  unsigned int fRun; ///< Run number
+  unsigned int fNDets; ///< Number of detectors.
+  std::vector<std::string> fBankName; ///< Name of each channel.
+  std::vector<std::string> fDetName; ///< Detector attached to each channel.
+  std::vector<bool> fEnabled; ///< Enabled status for each channel.
+  std::vector<int> fPedestal; ///< Pedestals for each channel.
+  std::vector<int> fPolarity; ///< Polarity of each channel.
+  std::vector<int> fOffset; ///< Timing offset (TimeShift) for each channel.
+  std::vector<double> fFrequency; ///< Sampling frequency of each channel.
 
 public:
+  /**
+   * Each member corresponds to an ODB key used in WireMap.
+   * The method GetKey takes a string and if it matches
+   * an ODB key used by WireMap, returns the corresponding
+   * one (or UNKNOWN if not found.
+   */
   enum key_t { BANK, DETECTOR, ENABLED,
 	       PEDESTAL, POLARITY, TIMESHIFT,
 	       FREQUENCY, UNKNOWN };
 
 public:
+  /// This constructs an empty %WireMap.
   WireMap();
+  /// Construct a %WireMap from an ODB file.
+  ///
+  /// @param[in] run The run number needs to be specified since,
+  /// as of yet, it isn't got from the ODB file.
+  /// @param[in] odb_file Path to the ODB files to use to construct a %WireMap.
   WireMap(int run, std::string& odb_file);
 
 public:
   // Setters
-  void SetRun(unsigned int);
-  void Enable(); // Enable last channel added
-  bool Enable(unsigned int); // Return true if succesful
-  void Disable(); // Disable last channel added
-  bool Disable(unsigned int); // Return true if succesful
+  void SetRun(unsigned int); ///< Set the run number
+  void Enable(); ///< Enable the last channel added.
+  bool Enable(unsigned int); ///< Enable a channel. @return True if succesful.
+  void Disable(); ///< Disable last channel added.
+  bool Disable(unsigned int); ///< Disable a channel. @return True if succesful.
   // Getters
-  unsigned int GetRun() const;
-  unsigned int GetNDets() const;
-  std::vector<std::string>& GetBanks();
-  std::vector<std::string>& GetDets();
-  std::vector<bool>& GetEnableds();
-  std::vector<int>& GetPedestals();
-  std::vector<int>& GetPolarities();
-  std::vector<int>& GetOffsets();
-  std::vector<double>& GetFrequencies();
+  unsigned int GetRun() const; ///< @return Run number.
+  unsigned int GetNDets() const; ///< @return Number of detectors.
+  std::vector<std::string>& GetBanks(); ///< @return Reference to vector of bank names.
+  std::vector<std::string>& GetDets(); ///< @return Reference to vector of detector names.
+  std::vector<bool>& GetEnableds(); ///< @return Reference to vector of channel's enabled status.
+  std::vector<int>& GetPedestals(); ///< @return Reference to vector of pedestals.
+  std::vector<int>& GetPolarities(); ///< @return Reference to vector of polarities (+/- 1).
+  std::vector<int>& GetOffsets(); ///< @return Reference to vector of timing offsets (TimeShift).
+  std::vector<double>& GetFrequencies(); ///< @return Reference to vector of sampling frequencies.
 
-  // Add new value
+  /// \brief Add new value to %WireMap.
+  ///
+  /// @param[in] bankname Channel name
+  /// @param[in] detname Detector name
+  /// @param[in] en Enabled status
+  /// @param[in] ped Pedestal
+  /// @param[in] pol Polarity
+  /// @param[in] off Timing offset (TimeShift)
+  /// @param[in] freq Sampling frequency
   void Add(const char bankname[], const char detname[], bool en, int ped, int pol, int off, double freq);
+  /// Add new value to %WireMap. See Add(const char[], const char[], bool, int, int, int, double).
   void Add(std::string& bankname, std::string& detname, bool en, int ped, int pol, int off, double freq);
-  void Add(WireMap&, int index);
+  /// Add new value to %WireMap from another %WireMap
+  ///
+  /// @param[in] wm %WireMap that has element we wish to copy to this %WireMap.
+  /// @param[in] index Which element of this %WireMap to copy.
+  void Add(WireMap& wm, int index);
 
-  // Unique fixes for certain runs
-  // Hardcoded for now
+  /// Unique fixes for certain runs
+  ///
+  /// 1. For runs 2091-2103, correct the sampling frequency
   void UniqueFixes();
 
 private:
-  // Add individual elements
-  void AddBank(const std::string&); // Increments fNDets; others do not
-  void AddDet(const std::string&);
-  void AddEnabled(bool);
-  void AddPedestal(int);
-  void AddPolarity(int);
-  void AddOffset(int);
-  void AddFrequency(double);
+  
+  void AddBank(const std::string&); ///< Add only bank name. This is the only method that adds a single element AND iIncrements fNDets
+  void AddDet(const std::string&); ///< Add only detector name.
+  void AddEnabled(bool); ///< Add only enabled status.
+  void AddPedestal(int); ///< Add only pedestal.
+  void AddPolarity(int); ///< Add only polarity.
+  void AddOffset(int); ///< Add only timing offset (TimeShift).
+  void AddFrequency(double); ///< Add only frequency/
 
 public:
-  // Load the ODB values, or load over with
-  // another WireMap in the same way that
-  // ODBEdit does
+  /// Load ODB values into %WireMap from an ODB file.
+  ///
+  /// Parses an ODB file, finds keys indicating what the %WireMap
+  /// can hold, and loads those.
+  ///
+  /// @param[in] run Run number.
+  /// Needs to be included here because it's not parsed from the ODB file yet.
+  /// @param[in] odb_file Path to ODB file to load.
   void Load(int run, const std::string& odb_file);
+  /// Load another %WireMap over this one in the same manner ODB Edit loads one ODb over another.
   void LoadOver(WireMap&);
+  /// Reset this %WireMap to a state similar to what it would be if called with the default constructor.
   void Clear();
 
-  // Resize all vectors to size of banks by trimming
-  // and/or bloating. This should never be necessary.
+  /// Resize all vectors to size of banks.
+  ///
+  /// It's possible that upond loading an ODB file not all
+  /// of the data vectors (bank name, detector names, enabled status, ...)
+  /// are equal in size. This poses a problem because the index
+  /// of these vectors are what correspond the data to one another.
+  ///
+  /// This resizes all vectors to the same size as the bank name vector
+  /// by trimming them down or bloating them up. The trimming is done by
+  /// removing the last element of the data vectors until they're
+  /// short enough, or by appending default values until long enough.
+  /// Ideally, this would never be necessary; however it was
+  /// needed during development of odb_check.cc and is being kept in case
+  /// it is needed again.
   void ResizeToBanks();
-  // Check for duplicates that are both enabled
-  // and remove the duplicates that are disabled
+  /// Check for duplicate detectors that are both enabled.
+  ///
+  /// @return True if there exist two detectors with the
+  /// same name that are both enabled.
   bool AreThereDuplicates();
+  /// Removes duplicate detectors as long as only one is enabled.
+  ///
+  /// If there are multiple detectors with the same name,
+  /// this sets the name of all of them to "blank" as long as
+  /// only a single one of the duplicates is enabled.
   void ClearDisabledDuplicateDetectors();
 
-  // Return default WireMap
-  // This is what the first run of alcapana saw as a default
-  // Got from loading the ODB files in analyzer/odb/ in
-  // alphabeticla order
+  /// Return default WireMap
+  ///
+  /// The batch scripts cause a number of ODB files to be loaded
+  /// in analyzer/odb/ that can confuse issues. The WireMap
+  /// that would result from loading all of these defaults has
+  /// been hardcoded here.
+  ///
+  /// @return The default WireMap.
   static WireMap Default();
 
 private:
-  // Checks extension for 'odb'
-  // Any other format returns false.
+  /// Checks extension for 'odb'
+  ///
+  /// This is called internally before trying to load an ODB file.
+  /// @param[in] fname Path to ODB file.
+  /// @return True if the extension indicates the path points to an ODB file..
   static bool IsODBFile(const std::string& fname);
-  // Determines the number of elements in an ODB key's
-  // array; assumes the line is of the form
-  // VARIABLE = TYPE [##] :
-  // This method return ##
-  // It must be passed only the part of the line
-  // (including single leading space)
-  //  = TYPE [##] :
+  /// Determines the number of elements in an ODB key's array
+  ///
+  /// The ODB records how many elements are in an key that is an array.
+  /// The key declaration in the ODB file is of the form
+  ///
+  /// VARIABLE = TYPE [##] :
+  ///
+  /// @param tmp The part of the key declaration of the form " = TYPE [##] :"
+  /// @return The number of elemented in the array.
   static int GetArraySize(const char (&tmp)[256]);
-  // Get the key
-  static key_t GetKey(std::string&);
+  /// Get the ODB key from its declaration in the ODB file.
+  ///
+  /// Keys in an ODB file are declared akin to
+  ///
+  /// KEYNAME = KEYTYPE
+  ///
+  /// @param[in] key The string in the ODB file that declares the key. Just the stirng KEYNAME
+  /// @return The key type.
+  static key_t GetKey(std::string& key);
 
 public:
+  /// Print for debugging.
   void Print();
 };
 
