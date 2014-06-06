@@ -62,6 +62,10 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 
     // First we will see how many candidate pulses there are on the TPI
     PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(thePulseIslands[0], 100, 200);
+    int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
+    if (Debug()) {
+      std::cout << "TemplateCreator::ProcessEntry: There are " << n_pulse_candidates << " pulse candidates on this TPI" << std::endl;
+    }
     // if there is more than one, we skip to the next TPI
 
     // if there is only one, we continue
