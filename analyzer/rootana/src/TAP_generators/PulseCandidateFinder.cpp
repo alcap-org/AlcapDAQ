@@ -10,7 +10,13 @@ PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse, int rise, int fa
   location.start = 0;
   location.stop = 1;
 
+  Location location2;
+  location2.start = 2;
+  location2.stop = 3;
+
+
   fPulseCandidateLocations.push_back(location);
+  fPulseCandidateLocations.push_back(location2);
 
 }
 
