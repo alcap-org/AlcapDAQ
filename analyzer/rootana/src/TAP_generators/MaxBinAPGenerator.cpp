@@ -4,6 +4,8 @@
 #include "TAnalysedPulse.h"
 #include <algorithm>
 
+#include "ExportPulse.h"
+
 // IsTimeOrdered()
 // -- Returns tru of the first pulse is before the second
 // Static so that only this file sees it
@@ -34,6 +36,9 @@ int MaxBinAPGenerator::ProcessPulses(
 
       }
       std::sort(analysedList.begin(), analysedList.end(), IsTimeOrdered);
+      if(ExportPulse::Instance()){
+	ExportPulse::Instance()->AddToExportList(GetChannel(),1);
+      }
       return 0;
 }
 
