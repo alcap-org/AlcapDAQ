@@ -156,9 +156,9 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   dataTree->GetEntry(start);
 
   // Get the first and last module to run with
-  modules::list::iterator first_module = modules::navigator::Instance()->Begin();
-  modules::list::iterator last_module = modules::navigator::Instance()->End();
-  modules::list::iterator it_mod;
+  modules::iterator first_module = modules::navigator::Instance()->Begin();
+  modules::iterator last_module = modules::navigator::Instance()->End();
+  modules::iterator it_mod;
 
   int q = 0;
   for (it_mod=first_module; it_mod != last_module; it_mod++) {

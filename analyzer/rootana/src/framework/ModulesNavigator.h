@@ -10,7 +10,10 @@
 namespace modules{
 	class navigator;
 	// helper typedefs
-	typedef std::map<std::string,modules::BaseModule*> list;
+	typedef std::vector<std::pair<std::string,modules::BaseModule*> > ordered_list;
+	typedef std::multimap<std::string,BaseModule*> list;
+	typedef ordered_list::iterator iterator;
+	typedef ordered_list::const_iterator const_iterator;
 }
 
 /// Singleton class tasked with:
@@ -35,6 +38,7 @@ class modules::navigator{
       // Get a named module.
       // Returns NULL if the module doesn't exist
       inline BaseModule* GetModule(const std::string& module)const;
+      inline BaseModule* GetModule(const int& i)const;
 
       // Get a named module and cast it to the correct type
       // Returns NULL if the module doesn't exist
@@ -42,19 +46,25 @@ class modules::navigator{
       inline T* GetModule(const std::string& module)const;
       
       // Return an iterator to the first module in the list
-      modules::list::iterator Begin(){return fModules.begin();};
+      modules::iterator Begin(){return fModules.begin();};
       // Return a const iterator to the first module in the list
-      modules::list::const_iterator Begin()const{return fModules.begin();};
+      modules::const_iterator Begin()const{return fModules.begin();};
       // Return an iterator to the last module in the list
-      modules::list::iterator End(){return fModules.end();};
+      modules::iterator End(){return fModules.end();};
       // Return a const iterator to the last module in the list
-      modules::list::const_iterator End()const{return fModules.end();};
+      modules::const_iterator End()const{return fModules.end();};
       // Return the number of modules in the list
       unsigned int Size()const{return fModules.size();};
+      // Return the number of modules in the list
+      unsigned int GetNumModules()const{return fModules.size();};
       
   private:
+      void AddModule(const std::string&, BaseModule*);
+
+  private:
       bool fModulesLoaded;
-      modules::list fModules;
+      modules::ordered_list fModules;
+      modules::list fModulesSearch;
 };
 
 inline modules::navigator* modules::navigator::Instance(){
@@ -63,8 +73,8 @@ inline modules::navigator* modules::navigator::Instance(){
 }
 
 inline modules::BaseModule* modules::navigator::GetModule(const std::string& module)const{
-    modules::list::const_iterator mod=fModules.find(module.c_str());
-    if(mod==fModules.end()) return NULL;
+    modules::list::const_iterator mod=fModulesSearch.find(module.c_str());
+    if(mod==fModulesSearch.end()) return NULL;
     return mod->second;
 }
 
@@ -84,5 +94,10 @@ inline T* modules::navigator::GetModule(const std::string& module)const{
     }
     return mod;
 }
+
+inline modules::BaseModule* modules::navigator::GetModule(const int& i)const{
+	return fModules[i].second;
+}
+
 
 #endif //MODULESNAVIGATOR_H_

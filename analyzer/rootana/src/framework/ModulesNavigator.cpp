@@ -28,7 +28,7 @@ int modules::navigator::LoadConfigFile(const char* filename){
     modules::factory* mgr = modules::factory::Instance();
     std::string name;
     modules::options* opts;
-    FillHistBase* mod=NULL;
+    BaseModule* mod=NULL;
     for(unsigned i=0;i<num_modules;i++){
 	    name = modules_file.GetModule(i);
 	    opts =  modules_file.GetOptions(i);
@@ -36,11 +36,16 @@ int modules::navigator::LoadConfigFile(const char* filename){
 	    cout<<"With options:"<<endl;
 	    opts->DumpOptions("  ");
 	    mod = mgr->createModule(name,opts);
-	    if(mod) fModules[name]=mod;
+	    if(mod) AddModule(name, mod);
 	    else return 3;
     }
 
     // Everything finished ok
     fModulesLoaded=true;
     return 0;
+}
+
+void modules::navigator::AddModule(const std::string& name, BaseModule* mod){
+    fModules.push_back(std::make_pair(name,mod));
+    fModulesSearch.insert(std::make_pair(name,mod));
 }
