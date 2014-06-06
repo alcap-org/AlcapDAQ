@@ -19,6 +19,8 @@ class PulseCandidateFinder {
  private:
   std::vector<Location> fPulseCandidateLocations;
 
+ public:
+  int GetNPulseCandidates() { return fPulseCandidateLocations.size(); }
 };
 
 #endif
