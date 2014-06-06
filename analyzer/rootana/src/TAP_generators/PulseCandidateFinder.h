@@ -17,10 +17,12 @@ class PulseCandidateFinder {
   ~PulseCandidateFinder();
 
  private:
+  TPulseIsland* fPulseIsland;
   std::vector<Location> fPulseCandidateLocations;
 
  public:
   int GetNPulseCandidates() { return fPulseCandidateLocations.size(); }
+  std::vector<TPulseIsland*> GetPulseCandidates();
 };
 
 #endif
