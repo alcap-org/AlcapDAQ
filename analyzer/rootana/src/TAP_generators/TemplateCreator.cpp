@@ -58,13 +58,16 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     thePulseIslands = it->second;
     if (thePulseIslands.size() == 0) continue; // no pulses here..
 
-    std::cout << bankname << " " << detname << std::endl;
-
     // First we will see how many candidate pulses there are on the TPI
     PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(thePulseIslands[0], 100, 200);
     int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
+
+    std::vector<TPulseIsland*> pulse_candidates = pulse_candidate_finder->GetPulseCandidates();
     if (Debug()) {
       std::cout << "TemplateCreator::ProcessEntry: There are " << n_pulse_candidates << " pulse candidates on this TPI" << std::endl;
+      for (std::vector<TPulseIsland*>::const_iterator candidateIter = pulse_candidates.begin(); candidateIter != pulse_candidates.end(); ++candidateIter) {
+	std::cout << "Candidate #" << candidateIter - pulse_candidates.begin() << ": timestamp = " << (*candidateIter)->GetTimeStamp() << std::endl;
+      }
     }
     // if there is more than one, we skip to the next TPI
 
