@@ -47,9 +47,10 @@ SiR2-S=MaxBin
 # list for that channel with the += operator.  If a generator needs options
 # then put them in brackets and comma separated like a c-style constructor
 SiR2-F=MaxBin
-SiR2-F+=PeakFitter(0.5,0.3)
+#SiR2-F+=PeakFitter(0.5,0.3)
 
 [ detector_pulses] 
+
 [ muon_events ] 
 algorithm=MaxTimeDiff
 

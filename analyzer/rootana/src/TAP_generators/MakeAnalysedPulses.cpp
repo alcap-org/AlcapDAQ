@@ -1,7 +1,6 @@
-#include "ModulesFactory.h"
 #include "MakeAnalysedPulses.h"
 #include "TVAnalysedPulseGenerator.h"
-#include "MaxBinAPGenerator.h"
+#include "TAPGeneratorFactory.h"
 #include <iostream>
 #include <utility>
 #include <sstream>
@@ -73,7 +72,9 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
        skip_detector=false;
        if(! analyse_all ){
           std::vector<std::string>::const_iterator it_chan;
-          for(it_chan=fChannelsToAnalyse.begin(); it_chan!=fChannelsToAnalyse.end();it_chan++){
+          for(it_chan=fChannelsToAnalyse.begin();
+			  it_chan!=fChannelsToAnalyse.end();
+			  it_chan++){
              if((*it_chan)== (*det)) break;
           }
           if(it_chan== fChannelsToAnalyse.end() ) skip_detector=true;
@@ -107,14 +108,15 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   PulseIslandList thePulseIslands;
   ChannelGenerators_t::iterator generator;
   AnalysedPulseList theAnalysedPulses;
+  int retVal=0;
   for(generator = fGenerators.begin(); generator != fGenerators.end(); generator++){
     // Get the bank name
-    detname = (*generator)->GetDetector();
+    detname = (*generator)->GetChannel();
     bankname = gSetup->GetBankName(detname);
 
     // Get the TPIs
     thePulseIslands=gData->fPulseIslandToChannelMap[bankname];
-    if(thePulseIslands.size()<=0){
+    if(thePulseIslands.empty() && Debug()){
        cout<<"List of TPIs for '"<< detname<<"' was empty "<<endl;
        continue;
     }
@@ -123,7 +125,8 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     theAnalysedPulses.clear();
 
     // generate the new list of analyse_pulses
-    (*generator)->ProcessPulses( gSetup, thePulseIslands,theAnalysedPulses);
+    retVal=(*generator)->ProcessPulses( thePulseIslands,theAnalysedPulses);
+    if(retVal!=0) return retVal;
 
     // add these into the map of analysed pulses
     gAnalysedPulseMap.insert(std::make_pair(detname,theAnalysedPulses));
@@ -183,13 +186,10 @@ bool MakeAnalysedPulses::AddGenerator(const string& detector,string generatorTyp
     }else requestType=kArbitrary;
 
     // Get the requested generator
-    TVAnalysedPulseGenerator* generator=NULL;
-    try{
-        generator=MakeGenerator(generatorType,opts);
-    }catch(char const* error){
-        return false;
-    }
-    generator->SetDetector(detector);
+    TVAnalysedPulseGenerator* generator=
+	    TAPGeneratorFactory::Instance()->createModule(generatorType,opts);
+    if(!generator) return false;
+    generator->SetChannel(detector);
 
     // print something
     if(Debug()) {
@@ -205,25 +205,6 @@ bool MakeAnalysedPulses::AddGenerator(const string& detector,string generatorTyp
     // Add this generator to the list for the required detector
     fGenerators.push_back(generator);
     return true;
-}
-
-TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& generatorType, TAPGeneratorOptions* opts){
-
-    // Select the generator type
-    TVAnalysedPulseGenerator* generator=NULL;
-    // As we develop newer techniques we can add to the list here
-    if (generatorType == "MaxBin"){
-	generator = new MaxBinAPGenerator();
-    } else if( generatorType == "PeakFitter") {
-	// Temporarily I'm putting this here so I can demo how the config file
-	// handles multiple generators.  Long term this will be removed
-	generator = new MaxBinAPGenerator();
-    } else {
-	cout<<"Error: Unknown generator requested: "<<generatorType<<endl;	
-	throw "Unknown generator requested";
-	return NULL;
-    }
-    return generator;
 }
 
 ALCAP_REGISTER_MODULE(MakeAnalysedPulses,slow_gen,fast_gen);

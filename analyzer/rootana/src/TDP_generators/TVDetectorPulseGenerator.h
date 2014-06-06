@@ -4,17 +4,14 @@
 #include "TSetupData.h"
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
-#include "ModulesOptions.h"
-#include <vector>
-#include <string>
+#include "TDPGeneratorOptions.h"
 #include "definitions.h"
 
 class TVDetectorPulseGenerator {
  public:
-  typedef modules::options options;
 
  public:
-  TVDetectorPulseGenerator():fDebug(false){};
+  TVDetectorPulseGenerator(TDPGeneratorOptions* opts):fDebug(false){};
   virtual ~TVDetectorPulseGenerator(){};
 
  public:
