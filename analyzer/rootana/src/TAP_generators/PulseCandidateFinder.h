@@ -13,21 +13,12 @@ class PulseCandidateFinder {
   };
 
  public:
-  PulseCandidateFinder(TPulseIsland* pulse);
+  PulseCandidateFinder(TPulseIsland* pulse, int rise, int fall);
   ~PulseCandidateFinder();
 
  private:
-  TPulseIsland* fPulseIsland;
   std::vector<Location> fPulseCandidateLocations;
 
-
- public:
-  int GetNPulseCandidates() { return fPulseCandidateLocations.size(); }
-  std::vector<TPulseIsland*> GetPulseCandidates();
-
-  // Our algorithms for finding pulse candidates
-  void FindPulseCandidates_Fast(int rise);
-  void FindPulseCandidates_Slow(int threshold);
 };
 
 #endif
