@@ -63,12 +63,15 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
       // First we will see how many candidate pulses there are on the TPI
-      PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(*pulseIter, 10, 10); // TODO: what values do we need for these parameters?
+      PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(*pulseIter, 100, 100); // TODO: what values do we need for these parameters?
       int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
 
       std::vector<TPulseIsland*> pulse_candidates = pulse_candidate_finder->GetPulseCandidates();
 
-      ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+      if (n_pulse_candidates != 1) {
+	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+      }
+
       if (Debug() && n_pulse_candidates > 0) {
 	std::cout << "TemplateCreator::ProcessEntry: There are " << n_pulse_candidates << " pulse candidates on this TPI" << std::endl;
 	for (std::vector<TPulseIsland*>::const_iterator candidateIter = pulse_candidates.begin(); candidateIter != pulse_candidates.end(); ++candidateIter) {
