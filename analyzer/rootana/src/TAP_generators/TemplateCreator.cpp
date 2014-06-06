@@ -58,24 +58,28 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     thePulseIslands = it->second;
     if (thePulseIslands.size() == 0) continue; // no pulses here..
 
-    // First we will see how many candidate pulses there are on the TPI
-    PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(thePulseIslands[0], 100, 200);
-    int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
+    // Loop through all the pulses
+    for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
-    std::vector<TPulseIsland*> pulse_candidates = pulse_candidate_finder->GetPulseCandidates();
-    if (Debug()) {
-      std::cout << "TemplateCreator::ProcessEntry: There are " << n_pulse_candidates << " pulse candidates on this TPI" << std::endl;
-      for (std::vector<TPulseIsland*>::const_iterator candidateIter = pulse_candidates.begin(); candidateIter != pulse_candidates.end(); ++candidateIter) {
-	std::cout << "Candidate #" << candidateIter - pulse_candidates.begin() << ": timestamp = " << (*candidateIter)->GetTimeStamp() << std::endl;
+      // First we will see how many candidate pulses there are on the TPI
+      PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(*pulseIter, 100, 200);
+      int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
+
+      std::vector<TPulseIsland*> pulse_candidates = pulse_candidate_finder->GetPulseCandidates();
+      if (Debug()) {
+	std::cout << "TemplateCreator::ProcessEntry: There are " << n_pulse_candidates << " pulse candidates on this TPI" << std::endl;
+	for (std::vector<TPulseIsland*>::const_iterator candidateIter = pulse_candidates.begin(); candidateIter != pulse_candidates.end(); ++candidateIter) {
+	  std::cout << "Candidate #" << candidateIter - pulse_candidates.begin() << ": timestamp = " << (*candidateIter)->GetTimeStamp() << std::endl;
+	}
       }
-    }
-    // if there is more than one, we skip to the next TPI
+      // if there is more than one, we skip to the next TPI
 
-    // if there is only one, we continue
-       // we will add the first pulse directly to the template (although we may try and choose a random pulse to start with)
-       // all the other pulses will be fitted to the template and then added to it
-       // we keep on adding pulses until adding pulses has no effect on the template
-       // then we save the template to the file
+      // if there is only one, we continue
+        // we will add the first pulse directly to the template (although we may try and choose a random pulse to start with)
+        // all the other pulses will be fitted to the template and then added to it
+        // we keep on adding pulses until adding pulses has no effect on the template
+        // then we save the template to the file
+    }
   }
 
   return 0;
