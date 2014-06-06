@@ -6,6 +6,8 @@
 
 #include "definitions.h"
 
+#include "PulseCandidateFinder.h"
+
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -59,6 +61,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     std::cout << bankname << " " << detname << std::endl;
 
     // First we will see how many candidate pulses there are on the TPI
+    PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(thePulseIslands[0], 100, 200);
     // if there is more than one, we skip to the next TPI
 
     // if there is only one, we continue
