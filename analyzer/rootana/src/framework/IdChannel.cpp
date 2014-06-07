@@ -11,6 +11,7 @@ std::string IDs::channel::str()const{
 std::string IDs::channel::GetDetectorString(Detector_t det){
 	std::string output;
 	switch(det){
+            case kErrorDetector : output="Unknown"; break ; 
             case kAnyDetector : output="*"        ; break ; 
             case kGe          : output="Ge"       ; break ; 
             case kLiquidSc    : output="LiquidSc" ; break ; 
@@ -46,17 +47,33 @@ IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
      for (int i=0;i<IDs::num_detector_enums;i++){
         if(det==names[i]) return (Detector_t)i;
      } 
-     return kAnyDetector;
+     return kErrorDetector;
 }
 
+IDs::channel& IDs::channel::operator=(const std::string& rhs){
+   // Search for a fast slow string at the end of the end of the string
+   const char* fast_slow_strs[3]={"-*","-S","-F"};
+   size_t match=std::string::npos;
+   for(int i=0;i<3 && match==std::string::npos; i++){
+   	match=rhs.rfind(fast_slow_strs[i]);
+   }
+   // Have we found a map
+   if(match!=std::string::npos){
+	   fSlowFast=GetSlowFastEnum(rhs.substr(match));
+   }
+   // Use what's left to make the channel part
+   fDetector=GetDetectorEnum(rhs.substr(0,match));
+
+   return *this;
+}
 
 std::string IDs::channel::GetSlowFastString(SlowFast_t sf){
  std::string output;
  switch(sf){
    case kAnySlowFast   : output+="-*" ; break ; 
-   case kNotApplicable : break        ; 
    case kSlow          : output+="-S" ; break ; 
    case kFast          : output+="-F" ; break ; 
+   case kNotApplicable : case kErrorSlowFast: break ; 
  }
  return output;
 }

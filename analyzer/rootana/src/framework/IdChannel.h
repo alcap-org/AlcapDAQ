@@ -8,6 +8,7 @@
 namespace IDs{
 	class channel;
 	enum Detector_t { 
+		kErrorDetector=-1,
 		kAnyDetector=0,
 		kGe, kLiquidSc, kNDet, kNDet2, kScGe, kScL, kScR, 
 		kScVe, kSiL1_1, kSiL1_2, kSiL1_3, kSiL1_4, kSiL2, 
@@ -16,6 +17,7 @@ namespace IDs{
 	const short num_detector_enums=22;
 
 	enum SlowFast_t{
+		kErrorSlowFast=-1,
 		kAnySlowFast=0,
 		kFast=1,
 		kSlow=2,
@@ -32,6 +34,8 @@ public:
 	Detector_t Detector()const{return fDetector;};
 	SlowFast_t SlowFast()const{return fSlowFast;};
 
+	channel& operator=(const std::string& rhs);
+
 	bool operator==(const channel& rhs)const;
 	bool operator!=(const channel& rhs)const{return !(this->operator==(rhs));};
 	
@@ -42,6 +46,8 @@ public:
 
 	// Get this ID as a string
 	std::string str()const;
+
+	bool isValid(){return (fDetector!=kErrorDetector) && (fSlowFast != kErrorSlowFast);};
 
 	static std::string GetDetectorString(Detector_t det);
 	/// Get the Detector_t for a given string returns kAnyDetector if the
