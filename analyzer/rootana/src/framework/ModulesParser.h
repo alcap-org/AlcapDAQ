@@ -65,6 +65,7 @@ namespace modules{
         bool IsNotFloatChar(char in);
         bool IsNumber(const std::string& input);
         int GetNumber(const std::string& input);
+	double GetDouble(const std::string& input, size_t start=0, size_t stop=std::string::npos);
     }
 }
 

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <stdio.h>
 #include <iostream>
+#include <TString.h>
 using std::cout;
 using std::endl;
 
@@ -120,4 +121,10 @@ int modules::parser::GetNumber(const std::string& input){
 	int val;
 	sscanf ( input.c_str(), "%d", &val );
 	return val;
+}
+
+double modules::parser::GetDouble(const std::string& input, size_t start, size_t stop){
+	TString tstr=input.substr(start,stop-start);
+	double value=tstr.Atof();
+	return value;
 }
