@@ -36,7 +36,7 @@ class ExportPulse : public FillHistBase{
   ~ExportPulse();
 
   void AddToExportList(const std::string& detector,PulseID_t pulse_id);
-  void AddToExportList(const std::string& detector,const TAnalysedPulse&){};
+  void AddToExportList(const std::string& detector,const TAnalysedPulse&);
   static ExportPulse* Instance();
 
  private:
@@ -86,6 +86,10 @@ inline ExportPulse* ExportPulse::Instance() {
 
 inline void ExportPulse::AddToExportList(const std::string& detector,PulseID_t pulse_id) {
   fPulsesToPlot[detector].insert(pulse_id);
+}
+
+inline void ExportPulse::AddToExportList(const std::string& detector,const TAnalysedPulse&){
+	std::cout<<"ExportPulse: Asked to draw a TAP for "<<detector<<std::endl;
 }
 
 inline void ExportPulse::AddToConfigRequestList(EventID_t event_id, const std::string& detector,PulseID_t pulse_id) {
