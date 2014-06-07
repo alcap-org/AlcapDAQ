@@ -36,6 +36,7 @@ class ExportPulse : public FillHistBase{
   ~ExportPulse();
 
   void AddToExportList(const std::string& detector,PulseID_t pulse_id);
+  void AddToExportList(const std::string& detector,const TAnalysedPulse&){};
   static ExportPulse* Instance();
 
  private:
