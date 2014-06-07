@@ -3,11 +3,15 @@
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
-#include "definitions.h"
+#include "ExportPulse.h"
+#include "TAnalysedPulse.h"
+#include "ModulesParser.h"
 
 #include <iostream>
 using std::cout;
 using std::endl;
+using modules::parser::GetOneWord;
+using modules::parser::GetDouble;
 
 extern StringAnalPulseMap gAnalysedPulseMap;
 
@@ -22,10 +26,72 @@ TriggerPlotter::~TriggerPlotter(){
 }
 
 int TriggerPlotter::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
-	// Check we're also running with the ExportPulse module
-	// Check the channel is valid
-	// Parse the trigger string
-  return 0;
+   // Check we're also running with the ExportPulse module
+   if(!ExportPulse::Instance()) return 1;
+   
+   // Check the channel is valid
+   if(!fChannel.isValid()) return 2;
+   
+   // Parse the trigger string
+   return ParseTriggerString();
+}
+
+int TriggerPlotter::ParseTriggerString(){
+	// Look for something like 'amplitude > 3'
+	size_t equality_start=fTriggerCondition.find_first_of("<>=");
+	if(equality_start==std::string::npos) {
+		cout<<"Error: trigger '"<<fTriggerCondition<<"'' doesn't contain an equality (==,>,<,<=,>=)"<<endl;
+		return 1;
+	}
+	// Check the type of equality given
+	int retVal=0;
+	retVal=SetTriggerType(fTriggerCondition.substr(equality_start,2));
+	if(retVal!=0) return retVal;
+
+	// Check the parameter to compare
+	retVal=SetTriggerParameter(GetOneWord(fTriggerCondition,0,equality_start));
+	if(retVal!=0) return retVal;
+
+	// Get the value to compare to
+	retVal=SetTriggerValue(fTriggerCondition.substr(equality_start+2));
+	return retVal;
+}
+
+int TriggerPlotter::SetTriggerType(const std::string& equality){
+	if(equality[1]=='='){
+		switch(equality[0]){
+			case '<': fTriggerType=kLE; break;
+			case '>': fTriggerType=kGE; break;
+			case '=': fTriggerType=kE; break;
+		}
+	} else{
+		switch(equality[0]){
+			case '<': fTriggerType=kL; break;
+			case '>': fTriggerType=kG; break;
+			case '=': 
+				  cout<<"Error: Unknown equality passed to TriggerPlotter"<<endl;
+				  return 2;
+				  break;
+		}
+	}
+	return 0;
+}
+
+int TriggerPlotter::SetTriggerParameter(const std::string& parameter){
+	if(parameter=="amplitude") fTriggerParameter=kAmplitude;
+	else if(parameter=="time") fTriggerParameter=kTime;
+	else if(parameter=="TPI_length") fTriggerParameter=kTPILength;
+	//else if(parameter=="integral") fTriggerParameter=kIntegral;
+	else{
+		cout<<"Error: Unknown parameter requested: '"<<parameter<<"'"<<endl;
+		return 1;
+	}
+	return 0;
+}
+
+int TriggerPlotter::SetTriggerValue(const std::string& parameter){
+	fTriggerValue=GetDouble(parameter);
+	return 0;
 }
 
 int TriggerPlotter::ProcessEntry(TGlobalData* gData,TSetupData *setup){
@@ -36,7 +102,7 @@ int TriggerPlotter::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     if(!fAPList){
        cout<<"Problem getting TAP list for "<<GetChannel()<<endl;
 	    return 1;
-    }else if(fAPList.empty() ){
+    }else if(fAPList->empty() ){
        cout<<"List of TAPS for '"<< GetChannel()<<"' was empty "<<endl;
        return 0;
     }
@@ -46,7 +112,7 @@ int TriggerPlotter::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     for(AnalysedPulseList::iterator i_pulse=fAPList->begin();
 		i_pulse!=fAPList->end() && retVal==0;
 		i_pulse++){
-	    retVal=ShouldDraw(i);
+	    retVal=ShouldDraw(*i_pulse);
     }
     if(retVal!=0) return retVal;
 
@@ -57,51 +123,52 @@ double TriggerPlotter::GetParameterValue(const TAnalysedPulse& pulse){
 	double retVal=0;
 	switch (fTriggerParameter){
   	case kAmplitude:
-		pulse.GetAmplitude();
+		retVal=pulse.GetAmplitude();
 		break;
   	case kTime:
-		pulse.GetTime();
+		retVal=pulse.GetTime();
 		break;
   	case kIntegral:
-		pulse.GetIntegral();
+		retVal=pulse.GetIntegral();
 		break;
   	case kTPILength:
-		//pulse.GetTPILength();
+		//retVal=pulse.GetTPILength();
 		break;
 	}
+	return retVal;
 }
 
 bool TriggerPlotter::ValuePassesTrigger(const double& value){
 	bool retVal=false;
   switch (fTriggerType){
 	  case kE:
-		  retVal==(value==fTriggerValue);
+		  retVal=(value==fTriggerValue);
 		  break;
 	  case kG:
-		  retVal==(value>fTriggerValue);
+		  retVal=(value>fTriggerValue);
 		  break;
 	  case kL:
-		  retVal==(value<fTriggerValue);
+		  retVal=(value<fTriggerValue);
 		  break;
 	  case kGE:
-		  retVal==(value>=fTriggerValue);
+		  retVal=(value>=fTriggerValue);
 		  break;
 	  case kLE:
-		  retVal==(value<=fTriggerValue);
+		  retVal=(value<=fTriggerValue);
 		  break;
   }
   return retVal;
 }
 
-int TriggerPlotter::ShouldDraw(i_pulse){
+int TriggerPlotter::ShouldDraw(const TAnalysedPulse* pulse){
 	// Check pulse passes trigger condition
-	double value=GetParameterValue(i_pulse);
+	double value=GetParameterValue(*pulse);
 	if(!ValuePassesTrigger(value)) return 0;
 
 	// If it does, ask ExportPulse to draw it
 	// We're safe to assume Instance will return becuase we test it's
 	// existence in BeforeFirstEntry
-	ExportPulse::Instance()->AddToExportList(GetChannel(),pulse);
+	ExportPulse::Instance()->AddToExportList(GetChannel(),*pulse);
 	return 0;
 }
 
