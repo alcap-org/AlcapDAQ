@@ -9,6 +9,7 @@ using std::endl;
 using std::cout;
 
 #define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
+#define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<endl;
 
 const char* modules::reader::fGlobalModule="global";
 
@@ -118,6 +119,7 @@ int modules::reader::AddModule(std::string line){
 	    PrintProblem()<<"No module requested"<<std::endl;
 	    return 2;
     }
+    RemoveWhitespace(type);
 
     // Get arguments to the module if they're provided
     std::vector<std::string> args;
