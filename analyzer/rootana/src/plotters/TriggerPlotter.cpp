@@ -17,7 +17,8 @@ extern StringAnalPulseMap gAnalysedPulseMap;
 
 TriggerPlotter::TriggerPlotter(modules::options* opts):
    FillHistBase("TriggerPlotter",opts),fAPList(NULL){
-  fChannel=opts->GetString("channel"); 
+  fRequestedChannel=opts->GetString("channel"); 
+  fChannel=fRequestedChannel;
   fTriggerCondition=opts->GetString("trigger"); 
   
 }
@@ -27,10 +28,16 @@ TriggerPlotter::~TriggerPlotter(){
 
 int TriggerPlotter::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
    // Check we're also running with the ExportPulse module
-   if(!ExportPulse::Instance()) return 1;
+   if(!ExportPulse::Instance()){
+	   cout<<"TriggerPlotter: Error: You need to run with ExportPulse to use TriggerPlotter module"<<std::endl;
+	   return 1;
+   }
    
    // Check the channel is valid
-   if(!fChannel.isValid()) return 2;
+   if(!fChannel.isValid()){
+	   cout<<"TriggerPlotter: Error: No detector called '"<<fRequestedChannel<<"' exists"<<endl;
+	   return 2;
+   }
    
    // Parse the trigger string
    return ParseTriggerString();
@@ -64,6 +71,7 @@ int TriggerPlotter::SetTriggerType(const std::string& equality){
 			case '>': fTriggerType=kGE; break;
 			case '=': fTriggerType=kE; break;
 		}
+		fTypeString=equality;
 	} else{
 		switch(equality[0]){
 			case '<': fTriggerType=kL; break;
@@ -73,6 +81,7 @@ int TriggerPlotter::SetTriggerType(const std::string& equality){
 				  return 2;
 				  break;
 		}
+		fTypeString=equality[0];
 	}
 	return 0;
 }
@@ -86,6 +95,7 @@ int TriggerPlotter::SetTriggerParameter(const std::string& parameter){
 		cout<<"Error: Unknown parameter requested: '"<<parameter<<"'"<<endl;
 		return 1;
 	}
+	fParameterString=parameter;
 	return 0;
 }
 
@@ -164,6 +174,9 @@ int TriggerPlotter::ShouldDraw(const TAnalysedPulse* pulse){
 	// Check pulse passes trigger condition
 	double value=GetParameterValue(*pulse);
 	if(!ValuePassesTrigger(value)) return 0;
+	if(Debug()){
+		cout<<fParameterString<<" = "<<value<<" which is "<<fTypeString<<" " <<fTriggerValue<<endl; 
+	}
 
 	// If it does, ask ExportPulse to draw it
 	// We're safe to assume Instance will return becuase we test it's

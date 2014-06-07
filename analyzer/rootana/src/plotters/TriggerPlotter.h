@@ -39,9 +39,12 @@ class TriggerPlotter : public FillHistBase{
  AnalysedPulseList* fAPList;
   IDs::channel fChannel;
   std::string fTriggerCondition;
+  std::string fRequestedChannel;
   double fTriggerValue;
   TriggerType fTriggerType;
   ParameterType fTriggerParameter;
+  std::string fParameterString;
+  std::string fTypeString;
 };
 
 #endif //TRIGGERPLOTTER_H_
