@@ -7,7 +7,6 @@
 
 #include "CommandLine.h" // Provides analyze_command_line()
 
-#include "ModulesReader.h"
 #include "ModulesFactory.h"
 #include "ModulesNavigator.h"
 #include "FillHistBase.h"
