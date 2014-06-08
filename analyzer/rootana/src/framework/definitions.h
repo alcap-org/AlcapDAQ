@@ -7,8 +7,10 @@
 // Typedefs for TPulseIslands	
 class TPulseIsland;
 typedef std::vector<TPulseIsland*> PulseIslandList;
+typedef std::vector<const TPulseIsland*> ConstPulseIslandList;
 typedef std::map<IDs::channel, PulseIslandList> ChannelPulseIslandMap;
 typedef std::map<std::string, PulseIslandList> StringPulseIslandMap;
+typedef std::map<std::string, ConstPulseIslandList> StringConstPulseIslandMap;
 
 // Typedefs for TAnalysedPulses	
 class TAnalysedPulse;
