@@ -1,8 +1,12 @@
 #include "ModulesOptions.h"
+#include "ModulesParser.h"
 #include "ModulesFactory.h"
 #include <sstream>
 #include <iostream>
 #include <string.h>
+
+#define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
+#define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<std::endl;
 
 std::string modules::options::GetOption(const std::string& key)const{
     OptionsList_t::const_iterator it = fOptions.find(key);
@@ -26,7 +30,10 @@ double modules::options::GetDouble(const std::string& name,double defVal)const{
 }
 
 std::string modules::options::GetString(const std::string& name,const std::string& defVal)const{
-    return GetOption<std::string>(name,defVal);
+	std::string ret_val=GetOption(name);
+        modules::parser::TrimWhiteSpaceBeforeAfter(ret_val);
+	if(ret_val=="") ret_val=defVal;
+     return ret_val;
 }
 
 bool modules::options::GetBool(const std::string& name,bool defVal)const{

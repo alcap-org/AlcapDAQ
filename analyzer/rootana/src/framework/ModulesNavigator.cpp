@@ -12,7 +12,8 @@ int modules::navigator::LoadConfigFile(const char* filename){
     }
     // Read in the file and dump the processed options
     modules::reader modules_file;
-    modules_file.ReadFile(filename);
+    int retVal=modules_file.ReadFile(filename);
+    if(retVal!=0) return retVal;
     modules_file.PrintAllOptions();
 
     // Check the file contained at least one module

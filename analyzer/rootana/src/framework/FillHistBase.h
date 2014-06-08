@@ -38,6 +38,9 @@ class FillHistBase
   virtual int BeforeFirstEntry(TGlobalData* gData, TSetupData *setup){return 0;};
   virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup){return 0;};
   const char* GetName()const{return dir->GetName();};
+	  
+  void SetAlias(const std::string& alias){fAlias=alias;};
+  std::string GetAlias()const{return fAlias;};
  
  protected:
   TDirectory *dir;
@@ -47,6 +50,7 @@ class FillHistBase
  private:
    virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
    bool fDebug;
+   std::string fAlias;
 };
 
 #endif

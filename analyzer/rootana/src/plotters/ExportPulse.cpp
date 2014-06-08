@@ -58,7 +58,7 @@ int ExportPulse::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
        std::vector<std::string> currentList;
        std::vector<EventID_t> event_list;
        std::vector<PulseID_t> pulse_list;
-       std::pair<std::string,std::string> event_pulse_request;
+       modules::parser::Constructor_t event_pulse_request;
        std::string error_type;
        // Loop over all options
        for(modules::options::OptionsList_t::const_iterator i_opt = fOptions->begin();
@@ -78,13 +78,13 @@ int ExportPulse::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
 		  i_request++){
 	      event_pulse_request=modules::parser::ParseConstructor(*i_request,'(',')');
 	      // Check things look healthy
-	      if(event_pulse_request.first=="" )error_type="event";
-	      else if( event_pulse_request.second=="")error_type="pulse";
-	      else if( !ParseEventRequest(event_pulse_request.first, event_list)) error_type="event";
-	      else if( !ParsePulseRequest(event_pulse_request.second,pulse_list)) error_type="pulse";
+	      if(event_pulse_request.before=="" )error_type="event";
+	      else if( event_pulse_request.inside=="")error_type="pulse";
+	      else if( !ParseEventRequest(event_pulse_request.before, event_list)) error_type="event";
+	      else if( !ParsePulseRequest(event_pulse_request.inside,pulse_list)) error_type="pulse";
 	      if(error_type != ""){
 	          cout<<"Skipping badly formatted "<<error_type<<" specification: "<<*i_request<<endl;
-		  cout<<"event="<<event_pulse_request.first<<", pulse="<<event_pulse_request.second<<endl;
+		  cout<<"event="<<event_pulse_request.before<<", pulse="<<event_pulse_request.inside<<endl;
 		  ShowGuidance();
 		  continue;
 	      }

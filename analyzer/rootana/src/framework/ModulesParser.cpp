@@ -7,6 +7,8 @@
 using std::cout;
 using std::endl;
 
+#define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
+
 int modules::parser::TokeniseByWhiteSpace(const std::string& input, std::vector<std::string>& output){
     std::stringstream ss(input);
     std::string val;
@@ -33,25 +35,47 @@ std::string modules::parser::GetOneWord(const std::string& in, size_t start, siz
 	return word;
 }
 
-std::pair<std::string,std::string> modules::parser::ParseConstructor(std::string input, char open, char close)
+
+modules::parser::Constructor_t modules::parser::ParseConstructor(const std::string& input, char open, char close)
 		throw(modules::parser::errors::unmatched_parenthesis){
     size_t end_br=std::string::npos;
     size_t start_br=input.find(open);
-    std::string first=GetOneWord(input,0,start_br);
+    Constructor_t retVal;
+    // cut out the string before the first open character
+    retVal.before=input.substr(0,start_br);
+    // trim whitespace from the start and end of retVal.before string
+    TrimWhiteSpaceBeforeAfter(retVal.before);
+    // Look for the requested brackets
     if(start_br!=std::string::npos){
-       end_br=input.find(close,start_br+1);
+       end_br=input.rfind(close);
        if(end_br==std::string::npos){
+	       // No matching close, although there was an open
 	       throw modules::parser::errors::unmatched_parenthesis(open,close);
        }
+       retVal.inside=input.substr(start_br+1,end_br-start_br-1);
+       TrimWhiteSpaceBeforeAfter(retVal.inside);
     }
-    std::string second=GetOneWord(input,start_br+1,end_br);
-    return std::make_pair(first,second);
+    return retVal;
 }
 
 size_t modules::parser::RemoveWhitespace(std::string& input){
-	std::string::iterator new_end=std::remove_if(input.begin(),input.end(),modules::parser::IsWhitespace);
-	input.erase(new_end,input.end());
+	return RemoveWhitespace(input, input.begin(),input.end());
+}
+
+size_t modules::parser::RemoveWhitespace(std::string& input, std::string::iterator start,std::string::iterator end){
+	std::string::iterator new_end=std::remove_if(start,end,modules::parser::IsWhitespace);
+	input.erase(new_end,end);
 	return input.size();
+}
+
+void modules::parser::TrimWhiteSpaceBeforeAfter(std::string& line){
+	size_t not_white=line.find_first_not_of(" \t");
+	if(not_white!=std::string::npos)
+	   RemoveWhitespace(line, line.begin(),line.begin()+not_white+1);
+
+	not_white=line.find_last_not_of(" \t");
+	if(not_white!=std::string::npos)
+	   RemoveWhitespace(line, line.begin()+not_white+1,line.end());
 }
 
 bool modules::parser::IsWhitespace(char in){

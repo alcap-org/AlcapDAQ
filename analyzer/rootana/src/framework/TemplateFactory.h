@@ -15,7 +15,7 @@ class TemplateFactory{
 	/// protected constructor only callable by derived class 
 	/// as this shoule be a singleton class
 	TemplateFactory(){};
-	~TemplateFactory(){
+	virtual ~TemplateFactory(){
 	    fModuleMakers.clear();
 	    fModuleOptions.clear();
 	}
@@ -26,7 +26,7 @@ class TemplateFactory{
 	/// Add a maker function to the list of makers
 	void registerModule(const std::string&, maker);
 	/// Create a module with options
-	BaseModule* createModule(const std::string&, OptionsType*);
+	virtual BaseModule* createModule(const std::string&, OptionsType*);
 	/// Create a module and look up its options from the internal list
 	BaseModule* createModule(const std::string& name);
 	void addOptions(const std::string& name, OptionsType *opts);

@@ -9,8 +9,12 @@ namespace modules{
      namespace parser{
 	namespace errors{
 	// Parsing Errors
-	class unmatched_parenthesis;
+	   class unmatched_parenthesis;
 	}
+	struct Constructor_t{
+		std::string before;
+		std::string inside;
+	};
      }
 }
 
@@ -47,10 +51,12 @@ namespace modules{
      		   size_t start=0,
      		   size_t stop=std::string::npos);
 
-	std::pair<std::string,std::string> ParseConstructor(std::string input, char open='(', char close=')') 
+	Constructor_t ParseConstructor(const std::string& input, char open='(', char close=')') 
 		throw(modules::parser::errors::unmatched_parenthesis);
 
 	size_t RemoveWhitespace(std::string& input);
+	size_t RemoveWhitespace(std::string& input, std::string::iterator start,std::string::iterator end);
+	void TrimWhiteSpaceBeforeAfter(std::string& input);
 
 	bool IsWhitespace(char in);
         bool IsDigit(char in);

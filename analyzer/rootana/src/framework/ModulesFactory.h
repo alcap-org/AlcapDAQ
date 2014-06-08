@@ -11,13 +11,15 @@ namespace modules{
     class options;
 }
 
-class modules::factory:public TemplateFactory<BaseModule,modules::options>{
+class modules::factory:public TemplateFactory<modules::BaseModule,modules::options>{
 	private:
-		factory():TemplateFactory<BaseModule,modules::options>(){};
+		factory():TemplateFactory<modules::BaseModule,modules::options>(){};
 		~factory(){};
 	 public:
 		// Get the single instance of this class
 		static factory* Instance();
+		virtual modules::BaseModule* createModule(const std::string& name, modules::options* opts);
+
 };
 
 inline modules::factory* modules::factory::Instance(){

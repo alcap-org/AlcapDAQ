@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <iostream>
 
 //#include "FillHistBase.h"
 #include "ModulesOptions.h"
@@ -56,7 +57,8 @@ class modules::reader{
 	Option_t SplitOption(const std::string& line);
 	int MakeModules(const SectionsList&);
 	bool isComment( std::stringstream& line);
-	std::string findSectionName( std::stringstream& line);
+	std::string findSectionName(const std::string& line);
+	std::ostream& PrintProblem();
 
     private:
 	SectionsList fAllOptions;
@@ -68,7 +70,7 @@ class modules::reader{
 };
 
 inline bool modules::reader::AddSection(const std::string& name,const std::string& type){
-    if(!fAllOptions[name]){
+    if(fAllOptions.find(name)==fAllOptions.end()){
 	fAllOptions[name] =new modules::options(type);
 	return true;
     }
