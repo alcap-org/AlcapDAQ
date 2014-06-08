@@ -1,4 +1,5 @@
 #include "MakeAnalysedPulses.h"
+#include "ModulesParser.h"
 #include "TVAnalysedPulseGenerator.h"
 #include "TAPGeneratorFactory.h"
 #include <iostream>
@@ -6,35 +7,20 @@
 #include <sstream>
 #include "RegisterModule.inc"
 
+#define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
+#define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<endl;
+
+using modules::parser::GetOneWord;
 using std::cout;
 using std::endl;
 using std::string;
 
 extern StringAnalPulseMap gAnalysedPulseMap;
 
-static std::string getOneWord(const std::string& in, size_t start=0, size_t stop=std::string::npos){
-	std::stringstream ss(in.substr(start,stop));
-	std::string word;
-	ss>>word;
-	return word;
-}
-
-static void getSeveralWords(const std::string& in, std::vector<std::string> &vect, size_t start=0, size_t stop=std::string::npos){
-	char line[400];
-	strcpy(line,in.substr(start,stop-start).c_str());
-	char* word = strtok(line,", ");
-	while(word != NULL){ 
-	    vect.push_back(word);
-	    word = strtok(NULL,", ");
-	}
-}
-
 MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
    FillHistBase("MakeAnalysedPulses",opts),fOptions(opts){
-	fSlowGeneratorType=opts->GetString("default_slow_generator");
-	if(fSlowGeneratorType=="") fSlowGeneratorType="MaxBin";
-	fFastGeneratorType=opts->GetString("default_fast_generator");
-	if(fFastGeneratorType=="") fSlowGeneratorType="MaxBin";
+	fSlowGeneratorType=opts->GetString("default_slow_generator","MaxBin");
+	fFastGeneratorType=opts->GetString("default_fast_generator","MaxBin");
 	opts->GetVectorStrings("analyse_channels",fChannelsToAnalyse);
 	dir->cd("/");
 }
@@ -48,7 +34,7 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
     setup->GetAllDetectors(detectors);
 
     // do we analyse all channels?
-    bool analyse_all=fChannelsToAnalyse.size()==0;
+    bool analyse_all=fChannelsToAnalyse.empty();
     if(!analyse_all){
         for(unsigned i=0;i<fChannelsToAnalyse.size();i++){
 	     if (fChannelsToAnalyse[i]=="all"){
@@ -91,9 +77,11 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
        } else{
          // else use default value for this type of channel (fast or slow)
          if(TSetupData::IsFast(*det)){
-            AddGenerator(*det,"!FAST!");
+            if(!AddGenerator(*det,"!FAST!"))
+		    return 1;
 	 } else {
-            AddGenerator(*det,"!SLOW!");
+            if(!AddGenerator(*det,"!SLOW!"))
+		    return 1;
 	 }
        }
     }
@@ -152,7 +140,7 @@ bool MakeAnalysedPulses::ParseGeneratorList(std::string detector){
 	for(gen=generatorList.begin();gen!= generatorList.end();gen++){
 	    // check if we have options for this generator
 	    start_br=gen->find('(');
-	    generator=getOneWord(*gen,0,start_br);
+	    generator=GetOneWord(*gen,0,start_br);
 	    if(start_br!=std::string::npos){
 	        // There are options for this generator
 	        end_br=gen->find(')');
