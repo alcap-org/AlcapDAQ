@@ -52,7 +52,7 @@ modules::parser::Constructor_t modules::parser::ParseConstructor(const std::stri
 	       // No matching close, although there was an open
 	       throw modules::parser::errors::unmatched_parenthesis(open,close);
        }
-       retVal.inside=input.substr(start_br+1,end_br-1);
+       retVal.inside=input.substr(start_br+1,end_br-start_br-1);
        TrimWhiteSpaceBeforeAfter(retVal.inside);
     }
     return retVal;
