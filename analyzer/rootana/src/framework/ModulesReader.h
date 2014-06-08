@@ -70,7 +70,7 @@ class modules::reader{
 };
 
 inline bool modules::reader::AddSection(const std::string& name,const std::string& type){
-    if(!fAllOptions[name]){
+    if(fAllOptions.find(name)==fAllOptions.end()){
 	fAllOptions[name] =new modules::options(type);
 	return true;
     }

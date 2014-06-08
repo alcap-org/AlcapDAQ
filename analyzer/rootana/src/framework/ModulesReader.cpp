@@ -41,7 +41,7 @@ int modules::reader::ReadFile(const char* name){
 	new_section=findSectionName(full_line);
 	if(new_section!="") {
 	    section=new_section;
-	    if(fShouldPrint) std::cout<<"Found new section: "<<section<<std::endl;
+	    if(fShouldPrint) std::cout<<"Found new section: '"<<section<<"'"<<std::endl;
 	    if(section!="MODULES") {
 		AddSection(section);
 	    }
@@ -114,12 +114,13 @@ int modules::reader::AddModule(std::string line){
     }else if(name_alias.size()==2) {
 	    alias=name_alias[0];
 	    type=name_alias[1];
+	    TrimWhiteSpaceBeforeAfter(alias);
     }else if(name_alias.size()==1) type=name_alias[0];
     else {
 	    PrintProblem()<<"No module requested"<<std::endl;
 	    return 2;
     }
-    RemoveWhitespace(type);
+    TrimWhiteSpaceBeforeAfter(type);
 
     // Get arguments to the module if they're provided
     std::vector<std::string> args;
@@ -145,6 +146,7 @@ int modules::reader::AddModule(std::string line){
 	    return 1;
 	}
         opts=fAllOptions[alias];
+	opts->SetAlias(alias);
     }
     // Add all arguments passed to this module to it's options
     for(unsigned i=0;i<args.size();i++) {
