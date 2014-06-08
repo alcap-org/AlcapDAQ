@@ -193,7 +193,7 @@ int TriggerPlotter::ShouldDraw(const TAnalysedPulse* pulse){
 	// If it does, ask ExportPulse to draw it
 	// We're safe to assume Instance will return becuase we test it's
 	// existence in BeforeFirstEntry
-	ExportPulse::Instance()->AddToExportList(GetChannel(),*pulse);
+	ExportPulse::Instance()->AddToExportList(GetChannel(),pulse);
 	return 0;
 }
 

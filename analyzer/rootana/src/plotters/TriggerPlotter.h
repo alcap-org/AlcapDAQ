@@ -35,6 +35,7 @@ class TriggerPlotter : public FillHistBase{
   int SetTriggerType(const std::string& equality);
   int SetTriggerParameter(const std::string& parameter);
   int SetTriggerValue(const std::string& parameter);
+
  private:
  AnalysedPulseList* fAPList;
   IDs::channel fChannel;
