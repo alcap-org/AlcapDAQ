@@ -44,6 +44,10 @@ class modules::options{
 	OptionsList_t::const_iterator end()const{return fOptions.end();};
 
 	void DumpOptions(const std::string& prefix="     ")const;
+
+        void SetAlias(const std::string& alias){SetOption("alias",alias);};
+        std::string GetAlias()const{return GetString("alias");};
+ 
     private:
 	template <typename T>
 	    T GetOption(const std::string&,const T& defVal)const;
