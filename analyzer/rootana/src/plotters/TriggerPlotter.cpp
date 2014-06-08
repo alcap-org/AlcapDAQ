@@ -13,6 +13,9 @@ using std::endl;
 using modules::parser::GetOneWord;
 using modules::parser::GetDouble;
 
+#define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
+#define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<std::endl;
+
 extern StringAnalPulseMap gAnalysedPulseMap;
 
 TriggerPlotter::TriggerPlotter(modules::options* opts):
@@ -45,10 +48,10 @@ int TriggerPlotter::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
 
 int TriggerPlotter::ParseTriggerString(){
 	// Look for something like 'amplitude > 3'
-	cout<<"TriggerPlotter::ParseTriggerString() fTriggerCondition: "<<fTriggerCondition<<endl;
+	PrintValue(fTriggerCondition);
 	size_t equality_start=fTriggerCondition.find_first_of("<>=");
-	cout<<"TriggerPlotter::ParseTriggerString() fTriggerCondition: "<<std::string(' ',equality_start)+'^'<<endl;
-	cout<<"TriggerPlotter::ParseTriggerString() equality_start= "<<equality_start<<endl;
+	PrintHelp<<" fTriggerCondition: "<<std::string(' ',equality_start)+'^'<<endl;
+	PrintHelp<<" equality_start= "<<equality_start<<endl;
 	if(equality_start==std::string::npos) {
 		cout<<"Error: trigger '"<<fTriggerCondition<<"'' doesn't contain an equality (==,>,<,<=,>=)"<<endl;
 		return 1;
@@ -63,28 +66,34 @@ int TriggerPlotter::ParseTriggerString(){
 	if(retVal!=0) return retVal;
 
 	// Get the value to compare to
-	retVal=SetTriggerValue(fTriggerCondition.substr(equality_start+2));
+	retVal=SetTriggerValue(fTriggerCondition.substr(equality_start+fTypeString.size()));
 	return retVal;
 }
 
 int TriggerPlotter::SetTriggerType(const std::string& equality){
+	bool problem=false;
 	if(equality[1]=='='){
 		switch(equality[0]){
 			case '<': fTriggerType=kLE; break;
 			case '>': fTriggerType=kGE; break;
 			case '=': fTriggerType=kE; break;
+			default:
+				  problem=true;
 		}
-		fTypeString=equality;
+		if(!problem)fTypeString=equality.substr(0,2);
 	} else{
 		switch(equality[0]){
 			case '<': fTriggerType=kL; break;
 			case '>': fTriggerType=kG; break;
 			case '=': 
-				  cout<<"Error: Unknown equality passed to TriggerPlotter"<<endl;
-				  return 2;
-				  break;
+			default:
+				  problem=true;
 		}
-		fTypeString=equality[0];
+		if(!problem)fTypeString=equality[0];
+	}
+	if(problem){
+	  cout<<"Error: Unknown equality-type passed to TriggerPlotter: '"<<equality<<"'"<<endl;
+	  return 2;
 	}
 	return 0;
 }
