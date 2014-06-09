@@ -26,9 +26,11 @@ class ExportPulse : public FillHistBase{
   typedef std::map<std::string,EventPulseIDList_t> EventChannelPulseIDs_t;
 
   struct PulseInfo_t{
-	  int ID;
-	  std::string bankname;
-	  std::string detname;
+	int pulseID;
+	Long64_t event;
+	std::string bankname;
+	std::string detname;
+	std::string MakeTPIName()const;
   };
 
  public:
@@ -51,18 +53,17 @@ class ExportPulse : public FillHistBase{
   int PlotTAP(const TAnalysedPulse* pulse)const;
   PulseIslandList* GetTPIsFromDetector(std::string bank="");
 
-  void SetCurrentPulseID(const TPulseIslandID& id){fPulseInfo.ID=id;};
-  void SetCurrentEventNumber(const Long64_t& num){fEventNumber=num;};
+  void SetCurrentPulseID(const TPulseIslandID& id){fPulseInfo.pulseID=id;};
+  void SetCurrentEventNumber(const Long64_t& num){fPulseInfo.event=num;};
   void SetCurrentDetectorName(const std::string& detector);
 
-  TPulseIslandID GetCurrentPulseID()const{return fPulseInfo.ID;};
-  Long64_t GetCurrentEventNumber()const{return fEventNumber;};
+  TPulseIslandID GetCurrentPulseID()const{return fPulseInfo.pulseID;};
+  Long64_t GetCurrentEventNumber()const{return fPulseInfo.event;};
   std::string GetCurrentDetectorName()const{return fPulseInfo.detname;};
   std::string GetCurrentBankName()const{return fPulseInfo.bankname;};
+  std::string GetTPIPlotName()const{return fPulseInfo.MakeTPIName();};
   Long64_t GetTotalNumberOfEvents()const{return fTotalEvents;};
   void ClearPulsesToExport();
-
-  std::string MakeTPIName(const std::string& bank, const std::string& det, int event, int pulse)const;
 
   void AddToConfigRequestList( EventID_t event_id, const std::string& detector,TPulseIslandID pulse_id);
   bool ParseEventRequest(std::string input, std::vector<EventID_t>& event_list);
@@ -75,7 +76,7 @@ class ExportPulse : public FillHistBase{
  private:
 
   bool fGuidanceShown;
-  Long64_t fEventNumber,fTotalEvents;
+  Long64_t fTotalEvents;
   ChannelPulseIDs_t fTPIsToPlot;
   StringConstAnalPulseMap fTAPsToPlot;
   EventChannelPulseIDs_t fRequestedByConfig;
@@ -108,6 +109,8 @@ inline void ExportPulse::AddToConfigRequestList(EventID_t event_id, const std::s
 inline void ExportPulse::SetCurrentDetectorName(const std::string& detector){
 	fPulseInfo.detname=detector;
         fPulseInfo.bankname=fSetup->GetBankName(detector);
+      //fClockTick = fSetup->GetClockTick(bankname);
+      //fTimeShift = fSetup->GetTimeShift(bankname);
 }
 
 #endif // ExportPulse_H__

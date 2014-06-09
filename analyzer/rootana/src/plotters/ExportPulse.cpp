@@ -35,10 +35,11 @@ static bool isNonCpp(char c){
 
 ExportPulse::ExportPulse(modules::options* opts):
    FillHistBase("ExportPulse",opts),fGuidanceShown(false),
-	fEventNumber(-1), fSetup(NULL),fOptions(opts)
+	fSetup(NULL),fOptions(opts)
 	{
   dir->cd("/");
-  fPulseInfo.ID=-1;
+  fPulseInfo.pulseID=-1;
+  fPulseInfo.event=-1;
   fPulseInfo.bankname="";
   fPulseInfo.detname="";
 }
@@ -126,7 +127,6 @@ int ExportPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
 int ExportPulse::DrawTAPs(){
   // Initialise variables that would be used in the loops
-  TAnalysedPulse* pulse;
   const ConstAnalysedPulseList* requestedPulses;
 
   // Loop over channel that we've been requested to draw a pulse from
@@ -191,12 +191,12 @@ int ExportPulse::DrawTPIs(){
   return 0;
 }
 
-std::string ExportPulse::MakeTPIName(const std::string& bank, const std::string& det, int event, int pulse)const{
+std::string ExportPulse::PulseInfo_t::MakeTPIName()const{
    std::stringstream histname;
-   histname << "Pulse_" << bank;
-   histname << "_" << det;
+   histname << "Pulse_" << bankname;
+   histname << "_" << detname;
    histname << "_" << event;
-   histname << "_" << pulse;
+   histname << "_" << pulseID;
    std::string hist=histname.str();
    // replace all non c++ characters with underscore so we can use the
    // histograms in root directly.
@@ -206,12 +206,7 @@ std::string ExportPulse::MakeTPIName(const std::string& bank, const std::string&
 
 int ExportPulse::PlotTPI(const TPulseIsland* pulse)const{
    
-   std::string hist=MakeTPIName(
-             GetCurrentBankName(),
-             GetCurrentDetectorName(),
-             GetCurrentEventNumber(),
-             GetCurrentPulseID()
-	    );
+   std::string hist=GetTPIPlotName();
 	
    std::stringstream title;
    title << "Pulse " << GetCurrentPulseID();
@@ -236,12 +231,7 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse)const{
 }
 
 int ExportPulse::PlotTAP(const TAnalysedPulse* pulse)const{
-  std::string hist=MakeTPIName(
-             GetCurrentBankName(),
-             GetCurrentDetectorName(),
-             GetCurrentEventNumber(),
-             GetCurrentPulseID()
-	    );
+  std::string hist=GetTPIPlotName();
   TH1F* tpi_hist=NULL;
   gDirectory->GetObject(hist.c_str(),tpi_hist);
   pulse->Draw(tpi_hist);
