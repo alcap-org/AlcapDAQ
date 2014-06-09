@@ -16,7 +16,7 @@ static bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b) {
 int MaxBinAPGenerator::ProcessPulses(
       const PulseIslandList& pulseList, AnalysedPulseList& analysedList){
 
-      SetBankInfo(pulseList[0]->GetBankName());
+      SetBankInfo(pulseList.at(0)->GetBankName());
 
       double amplitude, time, integral, energy;
 
