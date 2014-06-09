@@ -206,8 +206,4 @@ int TriggerPlotter::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
   return 0;
 }
 
-// The following macro registers this module to be useable in the config file.
-// The first argument is compulsory and gives the name of this module
-// All subsequent arguments will be used as names for arguments given directly 
-// within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(TriggerPlotter,channel,trigger);
+ALCAP_REGISTER_MODULE(TriggerPlotter,channel,trigger,pulse_type);
