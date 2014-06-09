@@ -41,7 +41,7 @@ class TAnalysedPulse : public TObject {
   std::string GetAlgorithmStamp() const { return fAlgo; }
   TPulseIslandID GetPulseIslandID()const{return fParentTPI;};
   void SetPulseIslandID(const TPulseIslandID& id){ fParentTPI=id;};
-  virtual void Draw(TH1F* tpi_pulse)const{};
+  virtual void Draw(const TH1F* tpi_pulse)const;
 
   ClassDef(TAnalysedPulse, 3);
 };
