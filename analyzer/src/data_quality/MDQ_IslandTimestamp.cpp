@@ -85,7 +85,7 @@ INT MDQ_IslandTimestamp_init()
     double bin_width = gSetup->GetClockTick(bankname) * 1000;
     double bin_max = 120e6;
     int n_bins = bin_max / bin_width;
-    printf("bin_width = %f, bin_max = %f, n_bins = %d\n", bin_width, bin_max, n_bins);
+
     // hDQ_IslandTimestamp_[DetName]_[BankName]
     std::string histname = "hDQ_IslandTimestamp_" + detname + "_" + bankname;
     std::string histtitle = "Distribution of time stamps in " + detname;
