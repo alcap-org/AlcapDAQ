@@ -63,9 +63,10 @@ class modules::options{
 };
 
 inline void modules::options::SetOption(const std::string& name, const std::string& option){
-    std::pair<OptionsList_t::iterator, bool> ret = fOptions.insert(make_pair(name,option));
     // if a new key was added, store an iterator in the order list
-    if(ret.second) fOrder.push_back(ret.first);
+    OptionsList_t::iterator it = fOptions.find(name);
+    fOptions[name]=option;
+    if(it==fOptions.end()) fOrder.push_back(fOptions.find(name));
 }
 
 inline bool modules::options::HasOption(const std::string& name)const{
