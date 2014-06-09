@@ -99,7 +99,7 @@ inline void ExportPulse::AddToExportList(const std::string& detector,TPulseIslan
 }
 
 inline void ExportPulse::AddToExportList(const std::string& detector,const TAnalysedPulse* pulse){
-	std::cout<<"ExportPulse: Asked to draw a TAP for "<<detector<<std::endl;
+	if(Debug()) std::cout<<"ExportPulse: Asked to draw a TAP for "<<detector<<std::endl;
 	fTAPsToPlot[detector].push_back(pulse);
 	AddToExportList(detector,pulse->GetPulseIslandID());
 }

@@ -48,10 +48,7 @@ int TriggerPlotter::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
 
 int TriggerPlotter::ParseTriggerString(){
 	// Look for something like 'amplitude > 3'
-	PrintValue(fTriggerCondition);
 	size_t equality_start=fTriggerCondition.find_first_of("<>=");
-	PrintHelp<<" fTriggerCondition: "<<std::string(' ',equality_start)+'^'<<endl;
-	PrintHelp<<" equality_start= "<<equality_start<<endl;
 	if(equality_start==std::string::npos) {
 		cout<<"Error: trigger '"<<fTriggerCondition<<"'' doesn't contain an equality (==,>,<,<=,>=)"<<endl;
 		return 1;
