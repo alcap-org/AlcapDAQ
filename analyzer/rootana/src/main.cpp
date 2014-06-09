@@ -91,12 +91,12 @@ int main(int argc, char **argv){
   if(ret!=0) return ret;
   printf("Starting event");
 
-
-  EventNavigator& en = EventNavigator::Instance();
-  std::cout << "\n " << "###" << en.ConnectInput(arguments.infile) <<std::endl;
-  en.ConnectOutputFile("demo.root");
-  en.CopyTree();
-  return 0;
+  
+  //EventNavigator& en = EventNavigator::Instance();
+  //std::cout << "\n " << "###" << en.ConnectInput(arguments.infile) <<std::endl;
+  //en.ConnectOutputFile("demo.root");
+  //en.CopyTree();
+  //return 0;
 
   // Open the input tree file
   
