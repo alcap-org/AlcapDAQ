@@ -3,6 +3,8 @@
 
 
 #include "definitions.h"
+class SourceID; //DELETE ME!
+
 template <typename BANK> class BankIter {
   /// This class provides sequential access to various banks stored by
   /// the EventNavigator.  As far as we are concerned here a bank is
