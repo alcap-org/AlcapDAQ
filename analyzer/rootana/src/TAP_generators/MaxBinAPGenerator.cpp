@@ -30,6 +30,7 @@ int MaxBinAPGenerator::ProcessPulses(
 
          // Add the pulse into the list
          analysedList.push_back(new  TAnalysedPulse(amplitude, time, integral, energy, fDetName));
+	 analysedList.back()->SetPulseIslandID(pulseIter-pulseList.begin());
 
       }
       std::sort(analysedList.begin(), analysedList.end(), IsTimeOrdered);
