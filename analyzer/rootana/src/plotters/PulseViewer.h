@@ -1,5 +1,5 @@
-#ifndef TRIGGERPLOTTER_H_
-#define TRIGGERPLOTTER_H_
+#ifndef PULSEVIEWER_H_
+#define PULSEVIEWER_H_
 
 #include "definitions.h"
 #include "FillHistBase.h"
@@ -7,7 +7,7 @@ class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
 
-class TriggerPlotter : public FillHistBase{
+class PulseViewer : public FillHistBase{
   enum  TriggerType {kE, kG, kL, kGE, kLE};
 
   enum  ParameterType {
@@ -18,8 +18,8 @@ class TriggerPlotter : public FillHistBase{
   	};
 
  public:
-  TriggerPlotter(modules::options* opts);
-  ~TriggerPlotter();
+  PulseViewer(modules::options* opts);
+  ~PulseViewer();
 
  private:
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
@@ -48,4 +48,4 @@ class TriggerPlotter : public FillHistBase{
   std::string fTypeString;
 };
 
-#endif //TRIGGERPLOTTER_H_
+#endif //PULSEVIEWER_H_

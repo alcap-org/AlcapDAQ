@@ -1,4 +1,4 @@
-#include "TriggerPlotter.h"
+#include "PulseViewer.h"
 #include "RegisterModule.inc"
 #include "TGlobalData.h"
 #include "TSetupData.h"
@@ -18,27 +18,27 @@ using modules::parser::GetDouble;
 
 extern StringAnalPulseMap gAnalysedPulseMap;
 
-TriggerPlotter::TriggerPlotter(modules::options* opts):
-   FillHistBase("TriggerPlotter",opts),fAPList(NULL){
+PulseViewer::PulseViewer(modules::options* opts):
+   FillHistBase("PulseViewer",opts),fAPList(NULL){
   fRequestedChannel=opts->GetString("channel"); 
   fChannel=fRequestedChannel;
   fTriggerCondition=opts->GetString("trigger"); 
   
 }
 
-TriggerPlotter::~TriggerPlotter(){
+PulseViewer::~PulseViewer(){
 }
 
-int TriggerPlotter::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
+int PulseViewer::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
    // Check we're also running with the ExportPulse module
    if(!ExportPulse::Instance()){
-	   cout<<"TriggerPlotter: Error: You need to run with ExportPulse to use TriggerPlotter module"<<std::endl;
+	   cout<<"PulseViewer: Error: You need to run with ExportPulse to use PulseViewer module"<<std::endl;
 	   return 1;
    }
    
    // Check the channel is valid
    if(!fChannel.isValid()){
-	   cout<<"TriggerPlotter: Error: No detector called '"<<fRequestedChannel<<"' exists"<<endl;
+	   cout<<"PulseViewer: Error: No detector called '"<<fRequestedChannel<<"' exists"<<endl;
 	   return 2;
    }
    
@@ -46,7 +46,7 @@ int TriggerPlotter::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
    return ParseTriggerString();
 }
 
-int TriggerPlotter::ParseTriggerString(){
+int PulseViewer::ParseTriggerString(){
 	// Look for something like 'amplitude > 3'
 	size_t equality_start=fTriggerCondition.find_first_of("<>=");
 	if(equality_start==std::string::npos) {
@@ -67,7 +67,7 @@ int TriggerPlotter::ParseTriggerString(){
 	return retVal;
 }
 
-int TriggerPlotter::SetTriggerType(const std::string& equality){
+int PulseViewer::SetTriggerType(const std::string& equality){
 	bool problem=false;
 	if(equality[1]=='='){
 		switch(equality[0]){
@@ -89,13 +89,13 @@ int TriggerPlotter::SetTriggerType(const std::string& equality){
 		if(!problem)fTypeString=equality[0];
 	}
 	if(problem){
-	  cout<<"Error: Unknown equality-type passed to TriggerPlotter: '"<<equality<<"'"<<endl;
+	  cout<<"Error: Unknown equality-type passed to PulseViewer: '"<<equality<<"'"<<endl;
 	  return 2;
 	}
 	return 0;
 }
 
-int TriggerPlotter::SetTriggerParameter(const std::string& parameter){
+int PulseViewer::SetTriggerParameter(const std::string& parameter){
 	if(parameter=="amplitude") fTriggerParameter=kAmplitude;
 	else if(parameter=="time") fTriggerParameter=kTime;
 	else if(parameter=="TPI_length") fTriggerParameter=kTPILength;
@@ -108,12 +108,12 @@ int TriggerPlotter::SetTriggerParameter(const std::string& parameter){
 	return 0;
 }
 
-int TriggerPlotter::SetTriggerValue(const std::string& parameter){
+int PulseViewer::SetTriggerValue(const std::string& parameter){
 	fTriggerValue=GetDouble(parameter);
 	return 0;
 }
 
-int TriggerPlotter::ProcessEntry(TGlobalData* gData,TSetupData *setup){
+int PulseViewer::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 
     // Get the TAPs for this channel
     fAPList=&gAnalysedPulseMap[GetChannel()];
@@ -138,7 +138,7 @@ int TriggerPlotter::ProcessEntry(TGlobalData* gData,TSetupData *setup){
   return 0;
 }
 
-double TriggerPlotter::GetParameterValue(const TAnalysedPulse& pulse){
+double PulseViewer::GetParameterValue(const TAnalysedPulse& pulse){
 	double retVal=0;
 	switch (fTriggerParameter){
   	case kAmplitude:
@@ -157,7 +157,7 @@ double TriggerPlotter::GetParameterValue(const TAnalysedPulse& pulse){
 	return retVal;
 }
 
-bool TriggerPlotter::ValuePassesTrigger(const double& value){
+bool PulseViewer::ValuePassesTrigger(const double& value){
 	bool retVal=false;
   switch (fTriggerType){
 	  case kE:
@@ -179,7 +179,7 @@ bool TriggerPlotter::ValuePassesTrigger(const double& value){
   return retVal;
 }
 
-int TriggerPlotter::ShouldDraw(const TAnalysedPulse* pulse){
+int PulseViewer::ShouldDraw(const TAnalysedPulse* pulse){
 	// Check pulse passes trigger condition
 	double value=GetParameterValue(*pulse);
 	if(!ValuePassesTrigger(value)) return 0;
@@ -194,7 +194,7 @@ int TriggerPlotter::ShouldDraw(const TAnalysedPulse* pulse){
 	return 0;
 }
 
-int TriggerPlotter::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
+int PulseViewer::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
 
   // Print extra info if we're debugging this module:
   if(Debug()){
@@ -203,4 +203,4 @@ int TriggerPlotter::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(TriggerPlotter,channel,trigger,pulse_type);
+ALCAP_REGISTER_MODULE(PulseViewer,channel,trigger,pulse_type);
