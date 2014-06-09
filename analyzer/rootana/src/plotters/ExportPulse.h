@@ -77,6 +77,8 @@ class ExportPulse : public FillHistBase{
 
   bool fGuidanceShown;
   Long64_t fTotalEvents;
+  double fClockTick;
+  double fTimeShift;
   ChannelPulseIDs_t fTPIsToPlot;
   StringConstAnalPulseMap fTAPsToPlot;
   EventChannelPulseIDs_t fRequestedByConfig;
@@ -107,10 +109,10 @@ inline void ExportPulse::AddToConfigRequestList(EventID_t event_id, const std::s
 }
 
 inline void ExportPulse::SetCurrentDetectorName(const std::string& detector){
-	fPulseInfo.detname=detector;
-        fPulseInfo.bankname=fSetup->GetBankName(detector);
-      //fClockTick = fSetup->GetClockTick(bankname);
-      //fTimeShift = fSetup->GetTimeShift(bankname);
+  fPulseInfo.detname=detector;
+  fPulseInfo.bankname=fSetup->GetBankName(detector);
+  fClockTick = TSetupData::Instance()->GetClockTick(fPulseInfo.bankname);
+  fTimeShift = TSetupData::Instance()->GetTimeShift(fPulseInfo.bankname);
 }
 
 #endif // ExportPulse_H__

@@ -13,6 +13,9 @@
 
 #include <TH1F.h>
 
+#define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
+#define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<std::endl;
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -221,7 +224,9 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse)const{
    }
 
    size_t num_samples = pulse->GetPulseLength();
-   TH1F* hPulse = new TH1F(hist.c_str(), title.str().c_str(), num_samples,0,num_samples);
+   double max= ((pulse->GetTimeStamp() + num_samples) * fClockTick) - fTimeShift;
+   double min= -fTimeShift;
+   TH1F* hPulse = new TH1F(hist.c_str(), title.str().c_str(), num_samples,min,max);
    
    for ( size_t i=0;i <num_samples; ++i) {
      hPulse->SetBinContent(i+1, pulse->GetSamples().at(i));
