@@ -87,7 +87,7 @@ INT MDQ_IslandLength_init()
     std::string histname = "hDQ_IslandLength_" + detname + "_" + bankname;
     std::string histtitle = "Length of each TPulseIsland in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
-				700, 0, 700);
+				10000, 0, 10000);
     hDQ_Histogram->GetXaxis()->SetTitle("Length [samples]");
     hDQ_Histogram->GetYaxis()->SetTitle("Number of Islands");
     DQ_IslandLength_histograms_map[bankname] = hDQ_Histogram;
