@@ -25,6 +25,7 @@ debug=all
 analyse_pulses = MakeAnalysedPulses 
 detector_pulses = MakeDetectorPulses
 muon_events = MakeMuonEvents
+TriggerPlotter(SiR2-S , amplitude> 100)
 draw_pulses = ExportPulse
 #### end of modules list ######
 

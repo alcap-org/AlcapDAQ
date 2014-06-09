@@ -16,7 +16,7 @@ static bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b) {
 int MaxBinAPGenerator::ProcessPulses(
       const PulseIslandList& pulseList, AnalysedPulseList& analysedList){
 
-      SetBankInfo(pulseList[0]->GetBankName());
+      SetBankInfo(pulseList.at(0)->GetBankName());
 
       double amplitude, time, integral, energy;
 
@@ -30,6 +30,7 @@ int MaxBinAPGenerator::ProcessPulses(
 
          // Add the pulse into the list
          analysedList.push_back(new  TAnalysedPulse(amplitude, time, integral, energy, fDetName));
+	 analysedList.back()->SetPulseIslandID(pulseIter-pulseList.begin());
 
       }
       std::sort(analysedList.begin(), analysedList.end(), IsTimeOrdered);
