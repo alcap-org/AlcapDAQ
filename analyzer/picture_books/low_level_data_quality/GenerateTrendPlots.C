@@ -201,6 +201,36 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 	  hDQ_TrendPlot->SetMinimum(1000); // I don't think there were any thresholds below 1000
       }
 
+      // For the pedestals, change all bin contents so that they are the difference from the mean for that channel
+      if (histogram_name.find("Pedestal") != std::string::npos) {
+	
+	// Loop through the y-axis (channels)
+	for (int yBin = 0; yBin < hDQ_TrendPlot->GetNbinsY(); ++yBin) {
+	  
+	  // Get the mean for this row
+	  double mean = 0;
+	  int n_runs = 0;
+	  for (int xBin = 0; xBin < hDQ_TrendPlot->GetNbinsX(); ++xBin) {
+	    double bin_content = hDQ_TrendPlot->GetBinContent(xBin, yBin);
+	    if (bin_content != 0) {
+	      mean += bin_content;
+	      ++n_runs;
+	    }
+	  }
+	  mean /= n_runs;
+
+	  // Now go through and change the contents of the histogram
+	  for (int xBin = 0; xBin < hDQ_TrendPlot->GetNbinsX(); ++xBin) {
+	    double bin_content = hDQ_TrendPlot->GetBinContent(xBin, yBin);
+	    if (bin_content != 0) {
+	      bin_content = (bin_content - mean);
+	      hDQ_TrendPlot->SetBinContent(xBin, yBin, bin_content);
+	    }
+	  }
+	}
+
+	hDQ_TrendPlot->GetZaxis()->SetTitle("Pedestal - Mean of Pedestal [ADC]");
+      }
 
       hDQ_TrendPlot->Draw("COLZ");
 
