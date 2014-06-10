@@ -1,5 +1,5 @@
 #include "ModulesFactory.h"
-#include "FillHistBase.h"
+#include "BaseModule.h"
 
 modules::BaseModule* modules::factory::createModule(const std::string& name, modules::options* opts){
 	BaseModule* module=TemplateFactory<BaseModule,modules::options>::createModule(name,opts);

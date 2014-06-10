@@ -20,7 +20,7 @@ static TH2 *hBankSize = 0;
 static vector<string> banks;
 
 SimpleHistograms::SimpleHistograms(const char *HistogramDirectoryName) :
-  FillHistBase(HistogramDirectoryName){
+  BaseModule(HistogramDirectoryName){
 
   // The following are the banks we want to compare in this example
   banks.push_back("Nec0");

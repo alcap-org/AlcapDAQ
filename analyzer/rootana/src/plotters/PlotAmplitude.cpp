@@ -23,11 +23,11 @@ using std::pair;
 extern StringAnalPulseMap gAnalysedPulseMap;
 
 PlotAmplitude::PlotAmplitude(char *HistogramDirectoryName) :
-  FillHistBase(HistogramDirectoryName){  
+  BaseModule(HistogramDirectoryName){  
   dir->cd("/");
 }
 
-PlotAmplitude::PlotAmplitude(modules::options* opts) : FillHistBase(opts->GetString("0").c_str()) {
+PlotAmplitude::PlotAmplitude(modules::options* opts) : BaseModule(opts->GetString("0").c_str()) {
   dir->cd("/");
 }
 

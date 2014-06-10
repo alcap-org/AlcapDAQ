@@ -25,7 +25,7 @@ extern StringAnalPulseMap gAnalysedPulseMap;
 std::map<std::string, TH1F*> timediff_plots;
 
 DeadTimeGe::DeadTimeGe(char *HistogramDirectoryName) :
-  FillHistBase(HistogramDirectoryName){  
+  BaseModule(HistogramDirectoryName){  
   dir->cd("/");
 }
 

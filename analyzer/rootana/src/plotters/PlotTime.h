@@ -1,12 +1,12 @@
 #ifndef PlotTime_h__
 #define PlotTime_h__
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
 
-class PlotTime : public FillHistBase{
+class PlotTime : public BaseModule{
  public:
   PlotTime(char *HistogramDirectoryName);
   PlotTime(modules::options* opts);

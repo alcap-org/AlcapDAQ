@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include "definitions.h"
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
@@ -19,7 +19,7 @@ class TPulseIsland;
 
 /// Class to handle drawing of a given pulse.
 /// @see https://github.com/alcap-org/AlcapDAQ/wiki/rootana_module_ExportPulses
-class ExportPulse : public FillHistBase{
+class ExportPulse : public BaseModule{
   typedef int TPulseIslandID;
   typedef int EventID_t;
   typedef std::set<TPulseIslandID> PulseIDList_t;

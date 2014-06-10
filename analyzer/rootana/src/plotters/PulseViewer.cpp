@@ -19,7 +19,7 @@ using modules::parser::GetDouble;
 extern StringAnalPulseMap gAnalysedPulseMap;
 
 PulseViewer::PulseViewer(modules::options* opts):
-   FillHistBase("PulseViewer",opts){
+   BaseModule("PulseViewer",opts){
   fRequestedChannel=opts->GetString("channel"); 
   fChannel=fRequestedChannel;
   fTriggerCondition=opts->GetString("trigger"); 

@@ -19,7 +19,7 @@ static std::vector<std::string> sTitles;  // Histogram titles
 static std::vector<TH1I*> hLifetime;      // Histograms
 
 Lifetime::Lifetime(char *HistogramDirectoryName) :
-  FillHistBase(HistogramDirectoryName) {
+  BaseModule(HistogramDirectoryName) {
 
   // Time in ns
   tCut[0] = 800.;

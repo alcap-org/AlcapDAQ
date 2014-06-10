@@ -23,7 +23,7 @@ static TH1 *bankHists[NCHAN];
 static vector<string> banks;
 
 MyModule::MyModule(const char *HistogramDirectoryName) :
-  FillHistBase(HistogramDirectoryName){
+  BaseModule(HistogramDirectoryName){
 
   // The following are the banks we want to compare in this example
   banks.push_back("CDG0");

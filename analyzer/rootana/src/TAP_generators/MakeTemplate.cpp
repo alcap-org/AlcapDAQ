@@ -13,7 +13,7 @@
 #include "TFile.h"
 
 MakeTemplate::MakeTemplate(char *HistogramDirectoryName) :
-	FillHistBase(HistogramDirectoryName) 
+	BaseModule(HistogramDirectoryName) 
 {
   fTemplateFile = new TFile("template.root", "RECREATE");
   gDirectory->cd("/");

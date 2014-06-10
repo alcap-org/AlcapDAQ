@@ -1,10 +1,10 @@
 #ifndef MyModule_h__
 #define MyModule_h__
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 
-class MyModule : public FillHistBase{
+class MyModule : public BaseModule{
  public:
   MyModule(const char *HistogramDirectoryName);
   ~MyModule();

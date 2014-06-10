@@ -2,14 +2,14 @@
 #define MAKEMUONEVENTS_H__
 
 #include "TVMuonEventGenerator.h"
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 
 namespace modules{
   class options;
 }
 
-class MakeMuonEvents : public FillHistBase{
+class MakeMuonEvents : public BaseModule{
 
  public:
   MakeMuonEvents(modules::options* opts);
