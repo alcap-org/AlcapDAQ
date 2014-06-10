@@ -52,8 +52,14 @@ class IDs::channel:public TObject{
 	/// @brief Constructs a channel ID using a pair of strings for the detector and filtering type
 	///
 	/// @param det The detector's name
-	/// @param type The type of timing filter, if omitted defaults to match all
-	channel(const std::string& detector , const std::string& type="*");
+	/// @param type The type of timing filter
+	channel(const std::string& detector , const std::string& type);
+
+	/// @brief Constructs a channel ID using a string containing both detector
+  /// name and the timing filter type
+  /// @details This is treated in the same way as operator=(const std::string&)
+	/// @param channel The channel represented as a string
+	channel(const std::string& channel );
 	virtual ~channel(){};
 
 public:
@@ -67,6 +73,12 @@ public:
 	/// Like the inverse opteration to .str()
 	/// Sets kErrorDetector or kErrorSlowFast if there is a problem decoding the string
 	channel& operator=(const std::string& rhs);
+
+	/// Set the value of this channel ID using just a single string.
+	/// The string can be a complete channel specification, including the SlowFast type
+	/// Like the inverse opteration to .str()
+	/// Sets kErrorDetector or kErrorSlowFast if there is a problem decoding the string
+	channel& operator=(const char* rhs){ return (*this=std::string(rhs));};
 
 	/// Returns true if this channel is the same as another or has it's fields set to 'any'.
 	bool operator==(const channel& rhs)const;
@@ -126,6 +138,10 @@ inline IDs::channel::channel(Detector_t det, SlowFast_t type):fDetector(det),fSl
 inline IDs::channel::channel(const std::string& detector , const std::string& type):fDetector(),fSlowFast(kAnySlowFast){
 	fDetector=GetDetectorEnum(detector);
 	fSlowFast=GetSlowFastEnum(type);
+}
+
+inline IDs::channel::channel(const std::string& channel ):fDetector(),fSlowFast(kAnySlowFast){
+  *this=channel;
 }
 
 #endif //IDCHANNEL_H_
