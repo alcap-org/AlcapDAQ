@@ -11,7 +11,8 @@ include src/files.make
 TUT_ROOT = src/unit_test
 
 # Directories that contain source code
-EMPTY:=SPACE:=$(EMPTY) $(EMPTY)
+EMPTY:=
+SPACE:=$(EMPTY) $(EMPTY)
 SOURCES:=$(foreach Dir,$(DIRS),$(wildcard $(Dir)/*.cpp))
 SOURCE_DIRS:= $(subst $(SPACE),:,$(DIRS))
 TUT_SOURCES = $(filter-out $(TUT_ROOT)/tut_main.cpp, $(wildcard $(TUT_ROOT)/*.cpp))
