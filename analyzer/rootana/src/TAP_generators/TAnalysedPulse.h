@@ -18,7 +18,7 @@ class TAnalysedPulse : public TObject {
 
   virtual void Draw(const TH1F* tpi_pulse)const;
 
-  TPulselandID GetParentTPI()const{return fParentTPI;};
+  TPulseIslandID GetParentTPI()const{return fParentTPI;};
   int GetTPILength()const{return fTPILength;};
   double GetAmplitude()const{return fAmplitude;};
   double GetTime()const{return fTime;};
@@ -39,14 +39,14 @@ class TAnalysedPulse : public TObject {
                               const int& length, const double& trigger);
 
   public:
-  bool IsParentTPISet()const{return fParentTPI!=defaultValue;};
-  bool IsTPILengthSet()const{return fTPILength!=defaultValue;};
-  bool IsAmplitudeSet()const{return fAmplitude!=defaultValue;};
-  bool IsTimeSet()const{return fTime!=defaultValue;};
-  bool IsIntegralSet()const{return fIntegral!=defaultValue;};
-  bool IsEnergySet()const{return fEnergy!=defaultValue;};
-  bool IsPedestalSet()const{return fPedestal!=defaultValue;};
-  bool IsTriggerTimeSet()const{return fTriggerTime!=defaultValue;};
+  bool IsParentTPISet()const{return fParentTPI!=fDefaultValue;};
+  bool IsTPILengthSet()const{return fTPILength!=fDefaultValue;};
+  bool IsAmplitudeSet()const{return fAmplitude!=fDefaultValue;};
+  bool IsTimeSet()const{return fTime!=fDefaultValue;};
+  bool IsIntegralSet()const{return fIntegral!=fDefaultValue;};
+  bool IsEnergySet()const{return fEnergy!=fDefaultValue;};
+  bool IsPedestalSet()const{return fPedestal!=fDefaultValue;};
+  bool IsTriggerTimeSet()const{return fTriggerTime!=fDefaultValue;};
 
   private:
   TPulseIslandID fParentTPI;
