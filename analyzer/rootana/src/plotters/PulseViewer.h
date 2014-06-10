@@ -7,6 +7,8 @@ class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
 
+/// @brief Module to plot pulses meeting a certain criteria
+/// @see https://github.com/alcap-org/AlcapDAQ/wiki/rootana-module-PulseViewer
 class PulseViewer : public FillHistBase{
   enum  TriggerType {kE, kG, kL, kGE, kLE};
 
@@ -29,21 +31,32 @@ class PulseViewer : public FillHistBase{
   /* ------------ Methods called by ProcessEntry ---------*/
   /// Get the channel as a string
   std::string GetChannel()const{return fChannel.str();};
+
   /// Ask ExportPulse to draw this pulse if it matches the trigger criteria
+  /// @return 0 on success, non-zero otherwise
   int ConsiderDrawing(const TAnalysedPulse* i_pulse);
+
   /// Check if value passes the trigger condition
   bool ValuePassesTrigger(const double& value);
+
   /// Get the value of interest from pulse
   double GetParameterValue(const TAnalysedPulse& pulse);
 
   /* ------------ Methods to configure this module ---------*/
   /// Parse a trigger condition and set up the values needed to handle it
+  /// @return 0 on success, non-zero otherwise
   int ParseTriggerString(const std::string& trigger_condition);
+
   /// Set the equality test used in the trigger
+  /// @return 0 on success, non-zero otherwise
   int SetTriggerType(const std::string& equality);
+
   /// Set the parameter to trigger against 
+  /// @return 0 on success, non-zero otherwise
   int SetTriggerParameter(const std::string& parameter);
+
   /// Set the value to use as the trigger
+  /// @return 0 on success, non-zero otherwise
   int SetTriggerValue(const std::string& parameter);
 
  private:
