@@ -23,8 +23,6 @@
 
 #include "TAnalysedPulseMapWrapper.h"
 
-#include "EventNavigator.h"
-
 // Forward declaration of functions ======================
 Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments);
 void ClearGlobalData(TGlobalData*);
@@ -32,6 +30,7 @@ TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
 Int_t PrepareSingletonObjects(const ARGUMENTS&);
 
+static TGlobalData *g_event=NULL;
 static TFile *gInFile=NULL;
 
 // Temporary botch to let ExportPulse module know what the current entry
@@ -50,38 +49,9 @@ MuonEventList gMuonEvents;
 
 //TGlobalData* TGlobalData::Instance()
 //{
-  //  return g_event;
+//  return g_event;
 //}
 
-//[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[
-//May be useful to track object type.  Only guarenteed across one
-//session, i.e. would need a prototype.
-//
-// #include<typeinfo>
-
-// class TypeId
-// {
-// public:
-//   inline virtual const std::type_info& GetTypeInfo();
-// };
-// const std::type_info& TypeId::GetTypeInfo(){return typeid(*this);};
-
-// class One : public TypeId
-// {};
-// class Three : public TypeId
-// {};
-
-//Example Usage
-//   One one;
-//   Three two;;
-//   std::cout << one.GetTypeInfo().name() 
-// 	    << " is not " 
-// 	    << two.GetTypeInfo().name() <<std::endl;
-
-//]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
-
-
-//======================================================================
 int main(int argc, char **argv){
 //load_config_file("MODULES.txt");
 
@@ -91,14 +61,13 @@ int main(int argc, char **argv){
   if(ret!=0) return ret;
   printf("Starting event");
 
-  
-  //EventNavigator& en = EventNavigator::Instance();
-  //std::cout << "\n " << "###" << en.ConnectInput(arguments.infile) <<std::endl;
-  //en.ConnectOutputFile("demo.root");
-  //en.CopyTree();
-  //return 0;
-
   // Open the input tree file
+  gInFile = new TFile(arguments.infile);
+  if(!gInFile->IsOpen()) {
+    printf("Failed to open input file, '%s'.  Exiting.\n",arguments.infile);
+    delete gInFile;
+    return 1;
+  }
   
   // Make an initial call to singleton objects that are very likely to be called at some point.
   ret = PrepareSingletonObjects(arguments);
@@ -181,13 +150,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   else if((Long64_t)arguments.start < nentries && arguments.start > 0){
     stop = (Long64_t)arguments.start;
   }
-  
-  //preprocess first event
-  if (g_event){
-    g_event->Clear();//"C");
-    dataTree->SetBranchAddress("Event",&g_event);
-  }
-
+  gTotalEntries=&stop;
   // wind the file on to the first event
   dataTree->GetEntry(start);
 
@@ -211,7 +174,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   gEntryNumber=&jentry;
   for ( jentry=start; jentry<stop;jentry++) {
     if(g_event){
-      g_event->Clear();//"C");
+      g_event->Clear("C");
       ClearGlobalData(g_event);
       dataTree->SetBranchAddress("Event",&g_event);
     }
