@@ -6,6 +6,11 @@
 #include "IdSource.h"
 #include <string>
 
+namespace IDs{
+  const channel Fast(kAnyDetector,kFast);
+  const channel Slow(kAnyDetector,kSlow);
+}
+
 class ChannelID;
 
 typedef std::string GeneratorID;
