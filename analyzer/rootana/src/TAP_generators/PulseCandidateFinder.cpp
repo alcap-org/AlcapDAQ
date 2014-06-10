@@ -4,8 +4,7 @@
 
 /// PulseCandidateFinder()
 /// Passed a TPulseIsland* and will look through it for samples that increase by as much as "rise"
-/// and then fall by as much as "fall"
-PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse, int rise, int fall): fPulseIsland(pulse) {
+PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse, int rise): fPulseIsland(pulse) {
 
   const std::vector<int>& samples = fPulseIsland->GetSamples();
   unsigned int n_samples = samples.size();
@@ -24,7 +23,7 @@ PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse, int rise, int fa
     ds = s2 - s1;
 
     if (found) {
-      if (-ds > fall) {
+      if (s2 < pedestal) { // stop if the sample goes below pedestal
 	location.stop = (int)i;
 	start = stop = 0;
 	fPulseCandidateLocations.push_back(location);

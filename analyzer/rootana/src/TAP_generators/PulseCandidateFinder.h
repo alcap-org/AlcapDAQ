@@ -13,7 +13,7 @@ class PulseCandidateFinder {
   };
 
  public:
-  PulseCandidateFinder(TPulseIsland* pulse, int rise, int fall);
+  PulseCandidateFinder(TPulseIsland* pulse, int rise);
   PulseCandidateFinder(TPulseIsland* pulse) : fPulseIsland(pulse) {};
   ~PulseCandidateFinder();
 
