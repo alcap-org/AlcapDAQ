@@ -17,7 +17,8 @@ class PulseCandidateFinder_InvestigateParameters : public FillHistBase{
   virtual int BeforeFirstEntry(TGlobalData* gData, TSetupData *setup);
   virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
 
-  int fXMax;
+ private:
+  TH1D* fSampleDifferences;
 };
 
 #endif //PULSECANDIDATEFINDER_INVESTIGATEPARAMETERS_H_
