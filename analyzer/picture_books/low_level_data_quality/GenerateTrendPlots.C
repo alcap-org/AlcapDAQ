@@ -5,6 +5,7 @@
 #include <TH2.h>
 #include <TFile.h>
 #include <TKey.h>
+#include <TLegend.h>
 
 #include <iostream>
 #include <sstream>
@@ -232,6 +233,11 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 	hDQ_TrendPlot->GetZaxis()->SetTitle("Pedestal - Mean of Pedestal [ADC]");
       }
 
+      // Get a legend ready here
+      TLegend* legend = new TLegend(0.3, 0.85, 0.6, 0.75, "");
+      legend->SetBorderSize(0);
+      legend->SetTextSize(0.04);
+      legend->SetFillColor(kWhite);
 
       // For these plots we want a TH1F* rather than a TH2
       if (histogram_name.find("DAQLivetime") != std::string::npos || // DAQ livetime
@@ -259,14 +265,42 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 	  hDQ_TrendPlot_1D_LowerThresh->Draw();
 	  hDQ_TrendPlot_1D_UpperThresh->Draw("SAME");
 
-	  legend = new TLegend(0.3, 0.85, 0.6, 0.75, "");
-	  legend->SetBorderSize(0);
-	  legend->SetTextSize(0.04);
-	  legend->SetFillColor(kWhite);
 	  legend->AddEntry(hDQ_TrendPlot_1D_LowerThresh, "Lower Threshold", "l");
 	  legend->AddEntry(hDQ_TrendPlot_1D_UpperThresh, "Upper Threshold", "l");
 	  legend->Draw();
 	}
+      }
+      else if (histogram_name.find("FADC") != std::string::npos) {
+	
+	TH1D* hDQ_TrendPlot_1D_0x80 = hDQ_TrendPlot->ProjectionX("_px_0x80", 1,1);
+	hDQ_TrendPlot_1D_0x80->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
+	TH1D* hDQ_TrendPlot_1D_0x81 = hDQ_TrendPlot->ProjectionX("_px_0x81", 2,2);
+	hDQ_TrendPlot_1D_0x81->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
+	TH1D* hDQ_TrendPlot_1D_0x82 = hDQ_TrendPlot->ProjectionX("_px_0x82", 3,3);
+	hDQ_TrendPlot_1D_0x82->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
+	TH1D* hDQ_TrendPlot_1D_0x83 = hDQ_TrendPlot->ProjectionX("_px_0x83", 4,4);
+	hDQ_TrendPlot_1D_0x83->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
+
+	hDQ_TrendPlot_1D_0x81->SetLineColor(kRed);
+	hDQ_TrendPlot_1D_0x82->SetLineColor(kBlue);
+	hDQ_TrendPlot_1D_0x83->SetLineColor(kMagenta);
+
+	hDQ_TrendPlot_1D_0x80->GetYaxis()->SetRangeUser(0,1);
+	hDQ_TrendPlot_1D_0x81->GetYaxis()->SetRangeUser(0,1);
+	hDQ_TrendPlot_1D_0x82->GetYaxis()->SetRangeUser(0,1);
+	hDQ_TrendPlot_1D_0x83->GetYaxis()->SetRangeUser(0,1);
+
+
+	hDQ_TrendPlot_1D_0x80->Draw();
+	hDQ_TrendPlot_1D_0x81->Draw("SAME");
+	hDQ_TrendPlot_1D_0x82->Draw("SAME");
+	hDQ_TrendPlot_1D_0x83->Draw("SAME");
+
+	legend->AddEntry(hDQ_TrendPlot_1D_0x80, "0x80", "l");
+	legend->AddEntry(hDQ_TrendPlot_1D_0x81, "0x81", "l");
+	legend->AddEntry(hDQ_TrendPlot_1D_0x82, "0x82", "l");
+	legend->AddEntry(hDQ_TrendPlot_1D_0x83, "0x83", "l");
+	legend->Draw();
       }
       else {
 	hDQ_TrendPlot->Draw("COLZ");
