@@ -43,20 +43,24 @@ bool modules::options::GetBool(const std::string& name,bool defVal)const{
 int modules::options::GetVectorStringsByWhiteSpace(const std::string& name, std::vector<std::string>& vect)const{
     std::stringstream ss(GetOption(name));
     std::string val;
-    while(ss>>val) vect.push_back(val);
-    return vect.size();
+    int num_tokens=0;
+    for(;ss>>val; num_tokens++) {
+      vect.push_back(val);
+    }
+    return num_tokens;
 }
 
 int modules::options::GetVectorStringsByDelimiter(const std::string& name, std::vector<std::string>& vect, const char* delim)const{
     char line[2048];
     strcpy(line,GetOption(name).c_str());
     char* word = strtok(line,delim);
-    while(word != NULL){ 
+    int num_tokens=0;
+    for(;word != NULL; num_tokens++) {
 	    //std::cout<<"ModulesOptions:GetVectorStringsByDelimiter() "<<word<<std::endl;
         vect.push_back(word);
         word = strtok(NULL,delim);
     }
-    return vect.size();
+    return num_tokens;
 }
 
 void modules::options::DumpOptions(const std::string& prefix)const{
