@@ -3,11 +3,12 @@
 
 #include "TGlobalData.h"
 #include "TSetupData.h"
+#include "TDirectory.h"
 class TDirectory;
+
 namespace modules{
    class options;
 }
-
 
 /// Base class for a generic analysis module.  
 /// Provides several virtual methods for the derived class to overload.

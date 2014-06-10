@@ -3,7 +3,7 @@
 #include "TDirectory.h"
 #include <iostream>
 
-BaseModule::FillHistBase(const char *HistogramDirectoryName,modules::options* opts,TSetupData* setup):
+BaseModule::BaseModule(const char *HistogramDirectoryName,modules::options* opts,TSetupData* setup):
 	fSetup(setup),fDebug(false){
   if(opts){
     fDebug=(opts->HasOption("debug") && (opts->GetOption("debug").empty() || opts->GetBool("debug")));
@@ -13,7 +13,7 @@ BaseModule::FillHistBase(const char *HistogramDirectoryName,modules::options* op
   dir->cd();
 }
 
-BaseModule::~FillHistBase()
+BaseModule::~BaseModule()
 {
 }
 
