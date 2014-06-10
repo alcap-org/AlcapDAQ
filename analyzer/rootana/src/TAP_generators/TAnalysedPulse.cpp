@@ -12,42 +12,16 @@ using std::string;
 #define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
 #define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<std::endl;
 
-TAnalysedPulse::TAnalysedPulse()
-{
-  Reset();
-}
-
-TAnalysedPulse::TAnalysedPulse(double amplitude, double time, double integral, double energy, std::string det_name)
-{
-  Reset();
-  fAmplitude = amplitude;
-  fTime = time;
-  fIntegral = integral;
-  fEnergy = energy;
-  fDetName = det_name;
-  fAlgo = "";
-}
-
-TAnalysedPulse::TAnalysedPulse(double amplitude, double time, double integral, 
-		double energy, std::string det_name, std::string algo)
-{
-  Reset();
-  fAmplitude = amplitude;
-  fTime = time;
-  fIntegral = integral;
-  fEnergy = energy;
-  fDetName = det_name;
-  fAlgo = algo;
-}
-
 void TAnalysedPulse::Reset(Option_t* o)
 {
-  fAmplitude = 0;
-  fTime = 0;
-  fIntegral = 0;
-  fEnergy = 0.;
-  fDetName = "";
-  fAlgo = "";
+  fParentTPI=fDefaultValue;
+  fTPILength=fDefaultValue;
+  fAmplitude=fDefaultValue;
+  fTime=fDefaultValue;
+  fIntegral=fDefaultValue;
+  fEnergy=fDefaultValue;
+  fPedestal=fDefaultValue;
+  fTriggerTime=fDefaultValue;
 }
 
 void TAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
@@ -60,6 +34,4 @@ void TAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
 	  int bin=tap_pulse->FindBin(fTime);
 	  tap_pulse->SetBinContent(bin,fAmplitude);
 	}
-	//name+="_Ana
-	//TH1F* tap_pulse=new TH1F(tpi
 }
