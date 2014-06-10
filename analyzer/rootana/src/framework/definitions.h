@@ -5,6 +5,7 @@
 #include <map>
 #include "IdSource.h"
 #include <string>
+
 class ChannelID;
 
 typedef std::string GeneratorID;
