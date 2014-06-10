@@ -20,9 +20,12 @@ class PulseCandidateFinder {
   TPulseIsland* fPulseIsland;
   std::vector<Location> fPulseCandidateLocations;
 
+
  public:
   int GetNPulseCandidates() { return fPulseCandidateLocations.size(); }
   std::vector<TPulseIsland*> GetPulseCandidates();
+
+  void FillSampleDifferencesHistogram(TH1D* h_sample_differences);
 };
 
 #endif
