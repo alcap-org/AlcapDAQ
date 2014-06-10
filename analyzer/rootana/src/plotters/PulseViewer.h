@@ -2,14 +2,14 @@
 #define PULSEVIEWER_H_
 
 #include "definitions.h"
-#include "FillHistBase.h"
+#include "BaseModule.h"
 class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
 
 /// @brief Module to plot pulses meeting a certain criteria
 /// @see https://github.com/alcap-org/AlcapDAQ/wiki/rootana-module-PulseViewer
-class PulseViewer : public FillHistBase{
+class PulseViewer : public BaseModule{
   enum  TriggerType {kE, kG, kL, kGE, kLE};
 
   enum  ParameterType {

@@ -24,7 +24,7 @@ static TH2 *hBankSize = 0;
 static TH1 *bankHists[NCHAN];
 
 CheckCoincidence::CheckCoincidence(char *HistogramDirectoryName,modules::options *opts,TSetupData* setup) :
-  FillHistBase(HistogramDirectoryName,opts, setup){
+  BaseModule(HistogramDirectoryName,opts, setup){
 
   fDetectors["muSc"]=true;
   fDetectors["Ge-S"]=true;

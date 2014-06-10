@@ -1,12 +1,12 @@
 #ifndef Lifetime_h__
 #define Lifetime_h__
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 
 class TGlobalData;
 class TSetupData;
 
-class Lifetime : public FillHistBase{
+class Lifetime : public BaseModule{
  public:
   Lifetime(char *HistogramDirectoryName);
   ~Lifetime();

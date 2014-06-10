@@ -1,11 +1,11 @@
 #ifndef CreateDetectorPulses_h__
 #define CreateDetectorPulses_h__
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 
-class CreateDetectorPulse : public FillHistBase{
+class CreateDetectorPulse : public BaseModule{
  public:
   CreateDetectorPulse(char *HistogramDirectoryName);
   ~CreateDetectorPulse();

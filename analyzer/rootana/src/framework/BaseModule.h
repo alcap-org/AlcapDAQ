@@ -1,20 +1,20 @@
-#ifndef FillHistBase_h__
-#define FillHistBase_h__ 1
+#ifndef BASEMODULE_H_
+#define BASEMODULE_H_
 
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "TDirectory.h"
+class TDirectory;
+
 namespace modules{
    class options;
 }
-
-#include <iostream>
 
 /// Base class for a generic analysis module.  
 /// Provides several virtual methods for the derived class to overload.
 /// Also sets up a directory where all histograms and other ROOT objects created
 /// by the module will be saved in the output root file.
-class FillHistBase
+class BaseModule
 {
  public:
    /// @brief Constructor of a module class. Provides several virtual methods
@@ -25,8 +25,8 @@ class FillHistBase
    /// @param module_name The name of the module
    /// @param opts Options given to the module from the modules file
    /// @param setup [To be removed soon]
-  FillHistBase(const char* module_name, modules::options* opts=NULL, TSetupData* setup=NULL);
-  virtual ~FillHistBase();
+  BaseModule(const char* module_name, modules::options* opts=NULL, TSetupData* setup=NULL);
+  virtual ~BaseModule();
 
   /// Method called by the main event loop for each entry in the input root tree.
   /// Does some simple work, then hooks into the derived class through ProcessEntry.
@@ -78,4 +78,4 @@ class FillHistBase
    std::string fAlias;
 };
 
-#endif
+#endif // BASEMODULE_H_

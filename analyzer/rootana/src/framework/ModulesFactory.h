@@ -2,11 +2,11 @@
 #define MODULESFACTORY__HH_
 #include "TemplateFactory.h"
 
-class FillHistBase;
+class BaseModule;
 
 namespace modules{
-    // In the future I plan to rename the FillHistBase class, so this will help
-   typedef FillHistBase BaseModule;
+    // In the future I plan to rename the BaseModule class, so this will help
+   typedef BaseModule BaseModule;
     class factory;
     class options;
 }

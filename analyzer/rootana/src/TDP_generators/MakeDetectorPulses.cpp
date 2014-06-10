@@ -8,7 +8,7 @@ extern StringAnalPulseMap gAnalysedPulseMap;
 extern StringDetPulseMap gDetectorPulseMap;
 
 MakeDetectorPulses::MakeDetectorPulses(modules::options* opts):
-	FillHistBase("MakeDetectorPulses",opts),fOptions(opts){
+	BaseModule("MakeDetectorPulses",opts),fOptions(opts){
     // Get the algorithm option from the modules file
     // If nothing was set, use MaxTimeDiff by default
     fAlgorithm=opts->GetString("algorithm","MaxTimeDiff");

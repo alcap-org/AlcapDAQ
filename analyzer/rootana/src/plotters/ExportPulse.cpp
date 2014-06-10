@@ -34,7 +34,7 @@ static bool isNonCpp(char c){
 }
 
 ExportPulse::ExportPulse(modules::options* opts):
-   FillHistBase("ExportPulse",opts),fGuidanceShown(false),
+   BaseModule("ExportPulse",opts),fGuidanceShown(false),
 	fSetup(NULL),fOptions(opts)
 	{
   dir->cd("/");

@@ -1,13 +1,13 @@
 #ifndef AnalysePulseIsland_h__
 #define AnalysePulseIsland_h__
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 
 #include "TAnalysedPulse.h"
 
-class AnalysePulseIsland : public FillHistBase{
+class AnalysePulseIsland : public BaseModule{
  public:
   AnalysePulseIsland(char *HistogramDirectoryName);
   ~AnalysePulseIsland();

@@ -9,7 +9,7 @@
 
 #include "ModulesFactory.h"
 #include "ModulesNavigator.h"
-#include "FillHistBase.h"
+#include "BaseModule.h"
 
 #include "TTree.h"
 #include "TBranch.h"

@@ -18,7 +18,7 @@ using std::string;
 extern StringAnalPulseMap gAnalysedPulseMap;
 
 MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
-   FillHistBase("MakeAnalysedPulses",opts),fOptions(opts){
+   BaseModule("MakeAnalysedPulses",opts),fOptions(opts){
 	fSlowGeneratorType=opts->GetString("default_slow_generator","MaxBin");
 	fFastGeneratorType=opts->GetString("default_fast_generator","MaxBin");
 	opts->GetVectorStringsByWhiteSpace("analyse_channels",fChannelsToAnalyse);
