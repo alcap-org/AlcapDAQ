@@ -47,6 +47,7 @@ extern TH1F* hDQ_TDCCheck_muSc;
 
 map <std::string, TH1F*> DQ_IslandCounter_histograms_map;
 map <std::string, TH1F*> DQ_IslandCounter_histograms_normalised_map;
+map <std::string, TH1F*> DQ_IslandCounter_histograms_both_axes_normalised_map;
 
 ANA_MODULE MDQ_IslandCounter_module =
 {
@@ -99,6 +100,15 @@ INT MDQ_IslandCounter_init()
     yaxislabel += " per TDC muSc Hit";
     hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
     DQ_IslandCounter_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
+
+    histname += "_both_axes_normalised";
+    histtitle += " (both axes normalised)";
+    TH1F* hDQ_Histogram_Both_Axes_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), 3500,0,0.0035);
+    hDQ_Histogram_Both_Axes_Normalised->GetXaxis()->SetTitle("Number of TPulseIslands per muSc TDC Hit");
+    yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
+    yaxislabel += " per TDC muSc Hit";
+    hDQ_Histogram_Both_Axes_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
+    DQ_IslandCounter_histograms_both_axes_normalised_map[bankname] = hDQ_Histogram_Both_Axes_Normalised;
   }
 
   gDirectory->Cd("/MidasHists/");
@@ -127,7 +137,17 @@ INT MDQ_IslandCounter_eor(INT run_number) {
       
     // Make sure the histograms exist and then fill them
     if (DQ_IslandCounter_histograms_normalised_map.find(bankname) != DQ_IslandCounter_histograms_normalised_map.end()) {
-      DQ_IslandCounter_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
+
+      TH1F* normalised_histogram = DQ_IslandCounter_histograms_normalised_map[bankname];
+      normalised_histogram->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
+
+      // to get the normalised x-axis we need to go through and fill a second histogram
+      TH1F* both_axes_normalised_histogram = DQ_IslandCounter_histograms_both_axes_normalised_map[bankname];
+      for (int iBin = 1; iBin < normalised_histogram->GetNbinsX(); ++iBin) {
+	double normalised_histogram_bin_content = normalised_histogram->GetBinContent(iBin);
+	double normalised_histogram_bin_center = normalised_histogram->GetBinCenter(iBin);
+	both_axes_normalised_histogram->Fill(normalised_histogram_bin_center / hDQ_TDCCheck_muSc->GetEntries(), normalised_histogram_bin_content);
+      }
     }
   }
 
