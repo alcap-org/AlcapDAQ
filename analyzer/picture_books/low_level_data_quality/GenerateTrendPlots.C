@@ -235,21 +235,38 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 
       // For these plots we want a TH1F* rather than a TH2
       if (histogram_name.find("DAQLivetime") != std::string::npos || // DAQ livetime
-	 (histogram_name.find("Threshold") != std::string::npos && (histogram_name.find("BU") != std::string::npos || histogram_name.find("UH") != std::string::npos)) || // CAEN thresholds (FADC thresholds have two y bins) 
 	  histogram_name.find("RunTime") != std::string::npos ||
 	  histogram_name.find("TDCCheck_muSc") != std::string::npos ) {
 	
-	TH1D* hDQ_TrendPlot_1D;
-	
-	if (histogram_name.find("Threshold") != std::string::npos) {
-	  hDQ_TrendPlot_1D = hDQ_TrendPlot->ProjectionX("_px", 1, 1);
-	}
-	else {
-	  hDQ_TrendPlot_1D = hDQ_TrendPlot->ProjectionX("_px", 2, 2);
-	}
-
+	TH1D* hDQ_TrendPlot_1D = hDQ_TrendPlot->ProjectionX("_px", 2, 2);
 	hDQ_TrendPlot_1D->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
 	hDQ_TrendPlot_1D->Draw();
+      }
+      else if (histogram_name.find("Threshold") != std::string::npos) {
+
+	if (histogram_name.find("BU") != std::string::npos || histogram_name.find("UH") != std::string::npos) { // CAEN thresholds (FADC thresholds have two y bins) 
+	  TH1D* hDQ_TrendPlot_1D = hDQ_TrendPlot->ProjectionX("_px", 1, 1);
+	  hDQ_TrendPlot_1D->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
+	  hDQ_TrendPlot_1D->Draw();	  
+	}
+	else { // FADC thresholds
+	  TH1D* hDQ_TrendPlot_1D_UpperThresh = hDQ_TrendPlot->ProjectionX("_px_upper", 1,1);
+	  hDQ_TrendPlot_1D_UpperThresh->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
+	  TH1D* hDQ_TrendPlot_1D_LowerThresh = hDQ_TrendPlot->ProjectionX("_px_lower", 2,2);
+	  hDQ_TrendPlot_1D_LowerThresh->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
+	  hDQ_TrendPlot_1D_LowerThresh->SetLineColor(kRed);
+
+	  hDQ_TrendPlot_1D_LowerThresh->Draw();
+	  hDQ_TrendPlot_1D_UpperThresh->Draw("SAME");
+
+	  legend = new TLegend(0.3, 0.85, 0.6, 0.75, "");
+	  legend->SetBorderSize(0);
+	  legend->SetTextSize(0.04);
+	  legend->SetFillColor(kWhite);
+	  legend->AddEntry(hDQ_TrendPlot_1D_LowerThresh, "Lower Threshold", "l");
+	  legend->AddEntry(hDQ_TrendPlot_1D_UpperThresh, "Upper Threshold", "l");
+	  legend->Draw();
+	}
       }
       else {
 	hDQ_TrendPlot->Draw("COLZ");
