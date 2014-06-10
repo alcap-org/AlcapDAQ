@@ -1,12 +1,11 @@
 #include "PulseCandidateFinder.h"
 
 #include <iostream>
-#include <cmath>
 
 /// PulseCandidateFinder()
 /// Passed a TPulseIsland* and will look through it for samples that increase by as much as "rise"
 /// and then fall by as much as "fall"
-PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse, int rise, int fall): fPulseIsland(pulse), fSampleDifferences(NULL) {
+PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse, int rise, int fall): fPulseIsland(pulse) {
 
   const std::vector<int>& samples = fPulseIsland->GetSamples();
   unsigned int n_samples = samples.size();
