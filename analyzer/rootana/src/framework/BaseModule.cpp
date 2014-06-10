@@ -3,7 +3,7 @@
 #include "TDirectory.h"
 #include <iostream>
 
-modules::BaseModule::FillHistBase(const char *HistogramDirectoryName,modules::options* opts,TSetupData* setup):
+BaseModule::FillHistBase(const char *HistogramDirectoryName,modules::options* opts,TSetupData* setup):
 	fSetup(setup),fDebug(false){
   if(opts){
     fDebug=(opts->HasOption("debug") && (opts->GetOption("debug").empty() || opts->GetBool("debug")));
@@ -13,16 +13,16 @@ modules::BaseModule::FillHistBase(const char *HistogramDirectoryName,modules::op
   dir->cd();
 }
 
-modules::BaseModule::~FillHistBase()
+BaseModule::~FillHistBase()
 {
 }
 
-int modules::BaseModule::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int BaseModule::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   // This is a virtual function and should be overwritten by the deriving analysis module!
   return 0;
 }
 
-int modules::BaseModule::ProcessGenericEntry(TGlobalData *gData, TSetupData *gSetup){
+int BaseModule::ProcessGenericEntry(TGlobalData *gData, TSetupData *gSetup){
   // This is called by our main routine and would allow later to split into different 
   // process routines if we have more than one Tree and hence different tpyes of data input.
 

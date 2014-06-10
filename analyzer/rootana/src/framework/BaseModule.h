@@ -1,12 +1,11 @@
-#ifndef MODULESBASE_H_
-#define MODULESBASE_H_
+#ifndef BASEMODULE_H_
+#define BASEMODULE_H_
 
 #include "TGlobalData.h"
 #include "TSetupData.h"
 class TDirectory;
 namespace modules{
    class options;
-   class BaseModule;
 }
 
 
@@ -14,7 +13,7 @@ namespace modules{
 /// Provides several virtual methods for the derived class to overload.
 /// Also sets up a directory where all histograms and other ROOT objects created
 /// by the module will be saved in the output root file.
-class modules::BaseModule
+class BaseModule
 {
  public:
    /// @brief Constructor of a module class. Provides several virtual methods
@@ -78,4 +77,4 @@ class modules::BaseModule
    std::string fAlias;
 };
 
-#endif // MODULESBASE_H_
+#endif // BASEMODULE_H_
