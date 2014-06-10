@@ -232,7 +232,28 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 	hDQ_TrendPlot->GetZaxis()->SetTitle("Pedestal - Mean of Pedestal [ADC]");
       }
 
-      hDQ_TrendPlot->Draw("COLZ");
+
+      // For these plots we want a TH1F* rather than a TH2
+      if (histogram_name.find("DAQLivetime") != std::string::npos || // DAQ livetime
+	 (histogram_name.find("Threshold") != std::string::npos && (histogram_name.find("BU") != std::string::npos || histogram_name.find("UH") != std::string::npos)) || // CAEN thresholds (FADC thresholds have two y bins) 
+	  histogram_name.find("RunTime") != std::string::npos ||
+	  histogram_name.find("TDCCheck_muSc") != std::string::npos ) {
+	
+	TH1D* hDQ_TrendPlot_1D;
+	
+	if (histogram_name.find("Threshold") != std::string::npos) {
+	  hDQ_TrendPlot_1D = hDQ_TrendPlot->ProjectionX("_px", 1, 1);
+	}
+	else {
+	  hDQ_TrendPlot_1D = hDQ_TrendPlot->ProjectionX("_px", 2, 2);
+	}
+
+	hDQ_TrendPlot_1D->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
+	hDQ_TrendPlot_1D->Draw();
+      }
+      else {
+	hDQ_TrendPlot->Draw("COLZ");
+      }
 
       // Set some plots to log-z
       if (histogram_name.find("TDiff") != std::string::npos ||
