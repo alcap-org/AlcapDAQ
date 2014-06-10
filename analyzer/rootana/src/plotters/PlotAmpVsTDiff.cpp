@@ -105,7 +105,7 @@ int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   for (AnalysedPulseList::iterator detBPulseIter = detB_pulses.begin(); detBPulseIter != detB_pulses.end(); ++detBPulseIter) {
 
     // Loop through the detA pulses
-    bool coinc_found = false;
+    //bool coinc_found = false;
     for (AnalysedPulseList::iterator detAPulseIter = currentDetAPulse; detAPulseIter != detA_pulses.end(); ++detAPulseIter) {
 
       double detB_time = (*detBPulseIter)->GetTime();

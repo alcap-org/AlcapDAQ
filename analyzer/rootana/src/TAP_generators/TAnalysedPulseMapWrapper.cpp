@@ -26,7 +26,7 @@ TAnalysedPulseMapWrapper::~TAnalysedPulseMapWrapper()
 
 void TAnalysedPulseMapWrapper::ShowInfo()
 {
-	printf("map size: %d\n", fChn2PulseMap.size());
+	printf("map size: %lu\n", fChn2PulseMap.size());
 	StringAnalPulseMap::iterator mapIter;
 	
 	for (mapIter = fChn2PulseMap.begin(); 

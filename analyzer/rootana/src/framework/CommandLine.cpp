@@ -207,7 +207,7 @@ int load_config_file(const char* filename){
     std::cout<<"number of modules requested: "<<num_modules<<std::endl;
     std::string name;
     modules::options* opts;
-    modules::BaseModule *mods[num_modules];
+    modules::BaseModule **mods=NULL;
     for(unsigned i=0;i<num_modules;i++){
 	    name = modules_file.GetModule(i);
 	    opts =  modules_file.GetOptions(i);

@@ -35,27 +35,31 @@ class modules::navigator{
       int LoadConfigFile(const char* filename);
       
   public:
-      // Get a named module.
-      // Returns NULL if the module doesn't exist
+      /// Get a named module.
+      // @return NULL if the module doesn't exist
       inline BaseModule* GetModule(const std::string& module)const;
+
+      /// Get a module by its position in the modules list as specified by the
+      /// MODULES file.
+      /// @return NULL if the module doesn't exist
       inline BaseModule* GetModule(const int& i)const;
 
       // Get a named module and cast it to the correct type
-      // Returns NULL if the module doesn't exist
+      /// @return NULL if the module doesn't exist
       template <typename T>
       inline T* GetModule(const std::string& module)const;
       
-      // Return an iterator to the first module in the list
+      /// Return an iterator to the first module in the list
       modules::iterator Begin(){return fModules.begin();};
-      // Return a const iterator to the first module in the list
+      /// Return a const iterator to the first module in the list
       modules::const_iterator Begin()const{return fModules.begin();};
-      // Return an iterator to the last module in the list
+      /// Return an iterator to the last module in the list
       modules::iterator End(){return fModules.end();};
-      // Return a const iterator to the last module in the list
+      /// Return a const iterator to the last module in the list
       modules::const_iterator End()const{return fModules.end();};
-      // Return the number of modules in the list
+      /// Return the number of modules in the list
       unsigned int Size()const{return fModules.size();};
-      // Return the number of modules in the list
+      /// Return the number of modules in the list
       unsigned int GetNumModules()const{return fModules.size();};
       
   private:
@@ -90,7 +94,7 @@ inline T* modules::navigator::GetModule(const std::string& module)const{
     catch (std::bad_cast& bc)
     {
         std::cerr << "ModulesNavigator::GetModule() bad_cast caught: " << bc.what() << std::endl;
-	return NULL;
+	      return NULL;
     }
     return mod;
 }
