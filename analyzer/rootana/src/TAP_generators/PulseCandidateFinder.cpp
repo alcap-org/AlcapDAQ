@@ -1,5 +1,7 @@
 #include "PulseCandidateFinder.h"
 
+#include "definitions.h"
+
 #include <iostream>
 
 /// PulseCandidateFinder()
@@ -76,7 +78,7 @@ void PulseCandidateFinder::FindPulseCandidates_Fast(int rise) {
 
   const std::vector<int>& samples = fPulseIsland->GetSamples();
   unsigned int n_samples = samples.size();
-  int pedestal = fPulseIsland->GetPedestal();
+  int pedestal = fPulseIsland->GetPedestal(0);
   int polarity = fPulseIsland->GetTriggerPolarity();
 
   int s1, s2, ds; // this sample value, the previous sample value and the change in the sample value
@@ -104,4 +106,39 @@ void PulseCandidateFinder::FindPulseCandidates_Fast(int rise) {
       }
     }
   }
+}
+
+/// FindPulseCandidates_Slow
+/// Finds pulse candidates on slow pulse islands by seeing if a sample goes above a threshold
+void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
+
+  const std::vector<int>& samples = fPulseIsland->GetSamples();
+  unsigned int n_samples = samples.size();
+  int pedestal = fPulseIsland->GetPedestal(0);
+  int polarity = fPulseIsland->GetTriggerPolarity();
+
+  int sample_height; // the sample's height above pedestal
+  int start, stop; // the start and stop location
+  bool found = false;
+  Location location;
+
+  // Loop through the samples
+  for (unsigned int i = 0; i < n_samples; ++i) {
+    sample_height = polarity * (samples[i] - pedestal);
+
+    if (found) {
+      if (sample_height < 0) { // stop if the sample goes below pedestal
+	location.stop = (int)i;
+	start = stop = 0;
+	fPulseCandidateLocations.push_back(location);
+	found = false;
+      }
+    } else {
+      if (sample_height > threshold) {
+	found = true;
+	location.start = (int)(i);
+      }
+    }
+  }
+
 }
