@@ -262,6 +262,9 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 	  hDQ_TrendPlot_1D_LowerThresh->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
 	  hDQ_TrendPlot_1D_LowerThresh->SetLineColor(kRed);
 
+	  hDQ_TrendPlot_1D_LowerThresh->SetLineWidth(2);
+	  hDQ_TrendPlot_1D_UpperThresh->SetLineWidth(2);
+
 	  hDQ_TrendPlot_1D_LowerThresh->Draw();
 	  hDQ_TrendPlot_1D_UpperThresh->Draw("SAME");
 
@@ -281,9 +284,18 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 	TH1D* hDQ_TrendPlot_1D_0x83 = hDQ_TrendPlot->ProjectionX("_px_0x83", 4,4);
 	hDQ_TrendPlot_1D_0x83->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
 
+	hDQ_TrendPlot_1D_0x80->SetLineWidth(2);
+	hDQ_TrendPlot_1D_0x81->SetLineWidth(2);
+	hDQ_TrendPlot_1D_0x82->SetLineWidth(2);
+	hDQ_TrendPlot_1D_0x83->SetLineWidth(2);
+
 	hDQ_TrendPlot_1D_0x81->SetLineColor(kRed);
 	hDQ_TrendPlot_1D_0x82->SetLineColor(kBlue);
-	hDQ_TrendPlot_1D_0x83->SetLineColor(kMagenta);
+	hDQ_TrendPlot_1D_0x83->SetLineColor(kSpring);
+
+	hDQ_TrendPlot_1D_0x81->SetLineStyle(kDashed);
+	hDQ_TrendPlot_1D_0x82->SetLineStyle(kDotted);
+	hDQ_TrendPlot_1D_0x83->SetLineStyle(kDashDotted);
 
 	hDQ_TrendPlot_1D_0x80->GetYaxis()->SetRangeUser(0,1);
 	hDQ_TrendPlot_1D_0x81->GetYaxis()->SetRangeUser(0,1);
