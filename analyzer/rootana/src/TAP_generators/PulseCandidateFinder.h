@@ -13,8 +13,7 @@ class PulseCandidateFinder {
   };
 
  public:
-  PulseCandidateFinder(TPulseIsland* pulse, int rise);
-  PulseCandidateFinder(TPulseIsland* pulse) : fPulseIsland(pulse) {};
+  PulseCandidateFinder(TPulseIsland* pulse);
   ~PulseCandidateFinder();
 
  private:
@@ -26,7 +25,9 @@ class PulseCandidateFinder {
   int GetNPulseCandidates() { return fPulseCandidateLocations.size(); }
   std::vector<TPulseIsland*> GetPulseCandidates();
 
-  void FillSampleDifferencesHistogram(TH1D* h_sample_differences);
+  // Our algorithms for finding pulse candidates
+  void FindPulseCandidates_Fast();
+  void FindPulseCandidates_Slow();
 };
 
 #endif
