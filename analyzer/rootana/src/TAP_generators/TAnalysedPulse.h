@@ -14,7 +14,7 @@ class TAnalysedPulse : public TObject {
   TAnalysedPulse();
 
   public:
-  TAnalysedPulse(const TPulseIslandID& parentID, const TPulseIslandID* parentTPI);
+  TAnalysedPulse(const TPulseIslandID& parentID, const TPulseIsland* parentTPI);
   virtual ~TAnalysedPulse() {};
 
   void Reset(Option_t* o = "");
