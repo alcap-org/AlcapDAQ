@@ -284,23 +284,24 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 	TH1D* hDQ_TrendPlot_1D_0x83 = hDQ_TrendPlot->ProjectionX("_px_0x83", 4,4);
 	hDQ_TrendPlot_1D_0x83->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
 
-	hDQ_TrendPlot_1D_0x80->SetLineWidth(2);
-	hDQ_TrendPlot_1D_0x81->SetLineWidth(2);
-	hDQ_TrendPlot_1D_0x82->SetLineWidth(2);
-	hDQ_TrendPlot_1D_0x83->SetLineWidth(2);
+	hDQ_TrendPlot_1D_0x80->SetFillColor(kRed);
+	hDQ_TrendPlot_1D_0x81->SetFillColor(8);
+	hDQ_TrendPlot_1D_0x82->SetFillColor(9);
+	hDQ_TrendPlot_1D_0x83->SetFillColor(kBlack);
 
-	hDQ_TrendPlot_1D_0x81->SetLineColor(kRed);
-	hDQ_TrendPlot_1D_0x82->SetLineColor(kBlue);
-	hDQ_TrendPlot_1D_0x83->SetLineColor(kSpring);
+	hDQ_TrendPlot_1D_0x81->SetFillStyle(3002);
+	hDQ_TrendPlot_1D_0x82->SetFillStyle(3004);
+	hDQ_TrendPlot_1D_0x83->SetFillStyle(3005);
 
-	hDQ_TrendPlot_1D_0x81->SetLineStyle(kDashed);
-	hDQ_TrendPlot_1D_0x82->SetLineStyle(kDotted);
-	hDQ_TrendPlot_1D_0x83->SetLineStyle(kDashDotted);
+	hDQ_TrendPlot_1D_0x80->SetLineColor(kRed);
+	hDQ_TrendPlot_1D_0x81->SetLineColor(8);
+	hDQ_TrendPlot_1D_0x82->SetLineColor(9);
+	hDQ_TrendPlot_1D_0x83->SetLineColor(kBlack);
 
-	hDQ_TrendPlot_1D_0x80->GetYaxis()->SetRangeUser(0,1);
-	hDQ_TrendPlot_1D_0x81->GetYaxis()->SetRangeUser(0,1);
-	hDQ_TrendPlot_1D_0x82->GetYaxis()->SetRangeUser(0,1);
-	hDQ_TrendPlot_1D_0x83->GetYaxis()->SetRangeUser(0,1);
+	hDQ_TrendPlot_1D_0x80->GetYaxis()->SetRangeUser(0,1.1);
+	hDQ_TrendPlot_1D_0x81->GetYaxis()->SetRangeUser(0,1.1);
+	hDQ_TrendPlot_1D_0x82->GetYaxis()->SetRangeUser(0,1.1);
+	hDQ_TrendPlot_1D_0x83->GetYaxis()->SetRangeUser(0,1.1);
 
 
 	hDQ_TrendPlot_1D_0x80->Draw();
@@ -308,10 +309,10 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 	hDQ_TrendPlot_1D_0x82->Draw("SAME");
 	hDQ_TrendPlot_1D_0x83->Draw("SAME");
 
-	legend->AddEntry(hDQ_TrendPlot_1D_0x80, "0x80", "l");
-	legend->AddEntry(hDQ_TrendPlot_1D_0x81, "0x81", "l");
-	legend->AddEntry(hDQ_TrendPlot_1D_0x82, "0x82", "l");
-	legend->AddEntry(hDQ_TrendPlot_1D_0x83, "0x83", "l");
+	legend->AddEntry(hDQ_TrendPlot_1D_0x80, "0x80", "f");
+	legend->AddEntry(hDQ_TrendPlot_1D_0x81, "0x81", "f");
+	legend->AddEntry(hDQ_TrendPlot_1D_0x82, "0x82", "f");
+	legend->AddEntry(hDQ_TrendPlot_1D_0x83, "0x83", "f");
 	legend->Draw();
       }
       else {
