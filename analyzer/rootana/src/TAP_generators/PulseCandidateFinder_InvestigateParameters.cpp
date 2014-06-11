@@ -73,7 +73,7 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
       // Create the pulse candidate finder and histogram to store the sample differences in
       PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(*pulseIter);
 
-      pulse_candidate_finder->FillSampleDifferencesHistogram(difference_histogram);
+      //      pulse_candidate_finder->FillSampleDifferencesHistogram(difference_histogram);
     }
   }
 
