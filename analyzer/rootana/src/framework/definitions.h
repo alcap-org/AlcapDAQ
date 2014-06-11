@@ -13,6 +13,7 @@ namespace IDs{
 
 class ChannelID;
 
+typedef int TPulseIslandID;
 typedef std::string GeneratorID;
 typedef std::string GeneratorConfig;
 
