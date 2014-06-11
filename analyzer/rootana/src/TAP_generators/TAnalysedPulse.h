@@ -3,22 +3,25 @@
 
 #include <TObject.h>
 #include "TSetupData.h"
+#include "definitions.h"
 
 class TH1F;
+class TPulseIsland;
 
 class TAnalysedPulse : public TObject {
-  typedef int TPulseIslandID;
 
-  public:
+  private:
   TAnalysedPulse();
 
+  public:
+  TAnalysedPulse(const TPulseIslandID& parentID, const TPulseIslandID* parentTPI);
   virtual ~TAnalysedPulse() {};
 
   void Reset(Option_t* o = "");
 
   virtual void Draw(const TH1F* tpi_pulse)const;
 
-  TPulseIslandID GetParentTPI()const{return fParentTPI;};
+  TPulseIslandID GetParentID()const{return fParentID;};
   int GetTPILength()const{return fTPILength;};
   double GetAmplitude()const{return fAmplitude;};
   double GetTime()const{return fTime;};
@@ -27,7 +30,7 @@ class TAnalysedPulse : public TObject {
   double GetPedestal()const{return fPedestal;};
   double GetTriggerTime()const{return fTriggerTime;};
 
-  void SetParentTPI(const TPulseIslandID& val){ fParentTPI=val;};
+  void SetParentID(const TPulseIslandID& val){ fParentID=val;};
   void SetTPILength(const int& val){ fTPILength=val;};
   void SetAmplitude(const double& val){ fAmplitude=val;};
   void SetTime(const double& val){ fTime=val;};
@@ -36,10 +39,10 @@ class TAnalysedPulse : public TObject {
   void SetPedestal(const double& val){ fPedestal=val;};
   void SetTriggerTime(const double& val){ fTriggerTime=val;};
   void SetParentTPIProperties(const TPulseIslandID& id, 
-                              const int& length, const double& trigger);
+                              const TPulseIsland* parent);
 
   public:
-  bool IsParentTPISet()const{return fParentTPI!=fDefaultValue;};
+  bool IsParentIDSet()const{return fParentID!=fDefaultValue;};
   bool IsTPILengthSet()const{return fTPILength!=fDefaultValue;};
   bool IsAmplitudeSet()const{return fAmplitude!=fDefaultValue;};
   bool IsTimeSet()const{return fTime!=fDefaultValue;};
@@ -49,7 +52,7 @@ class TAnalysedPulse : public TObject {
   bool IsTriggerTimeSet()const{return fTriggerTime!=fDefaultValue;};
 
   private:
-  TPulseIslandID fParentTPI;
+  TPulseIslandID fParentID;
   int fTPILength;
   double fAmplitude;
   double fTime;
@@ -58,21 +61,9 @@ class TAnalysedPulse : public TObject {
   double fPedestal;
   double fTriggerTime;
 
-  static const int fDefaultValue=-999;
+  static const int fDefaultValue=-99999;
 
   ClassDef(TAnalysedPulse, 4);
 };
-
-inline TAnalysedPulse::TAnalysedPulse():
-  fParentTPI(fDefaultValue),
-  fTPILength(fDefaultValue),
-  fAmplitude(fDefaultValue),
-  fTime(fDefaultValue),
-  fIntegral(fDefaultValue),
-  fEnergy(fDefaultValue),
-  fPedestal(fDefaultValue),
-  fTriggerTime(fDefaultValue){
-    Reset();
-}
 
 #endif
