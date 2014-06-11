@@ -14,24 +14,24 @@ PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse): fPulseIsland(pu
   if (theChannel == IDs::Fast) {
 
     int rise = 0; // the parameter for this algorithm
-    switch(theChannel.GetDetectorEnum()) {
-    case kGe:
+    switch(theChannel.Detector()) {
+    case IDs::kGe:
       rise = 100;
       break;
     }
 
-    FindPulseCandidates_Fast(rise);
+    FindCandidatePulses_Fast(rise);
   }
   else if (theChannel == IDs::Slow) {
 
     int threshold = 0; // the parameter for this algorithm
-    switch(theChannel.GetDetectorEnum()) {
-    case kGe:
+    switch(theChannel.Detector()) {
+    case IDs::kGe:
       threshold = 0;
       break;
     }
 
-    FindPulseCandidates_Slow(threshold);
+    FindCandidatePulses_Slow(threshold);
   }
 }
 
@@ -72,9 +72,9 @@ std::vector<TPulseIsland*> PulseCandidateFinder::GetPulseCandidates() {
   return pulse_candidates;
 }
 
-/// FindPulseCandidates_Fast
+/// FindCandidatePulses_Fast
 /// Finds pulse candidates on fast pulse islands by looking for a sudden rise between consecutive samples
-void PulseCandidateFinder::FindPulseCandidates_Fast(int rise) {
+void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
 
   const std::vector<int>& samples = fPulseIsland->GetSamples();
   unsigned int n_samples = samples.size();
@@ -108,7 +108,7 @@ void PulseCandidateFinder::FindPulseCandidates_Fast(int rise) {
   }
 }
 
-/// FindPulseCandidates_Slow
+/// FindCandidatePulses_Slow
 /// Finds pulse candidates on slow pulse islands by seeing if a sample goes above a threshold
 void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
 

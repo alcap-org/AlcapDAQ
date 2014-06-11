@@ -1,14 +1,14 @@
 #ifndef TEMPLATECREATOR_H_
 #define TEMPLATECREATOR_H_
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 class gTGlobalData;
 class gTSetupData;
 class gModulesOptions;
 
 #include "TemplateArchive.h"
 
-class TemplateCreator : public FillHistBase{
+class TemplateCreator : public BaseModule{
 
  public:
   TemplateCreator(modules::options* opts);

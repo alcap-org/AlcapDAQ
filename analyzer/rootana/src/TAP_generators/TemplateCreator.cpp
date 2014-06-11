@@ -14,7 +14,7 @@ using std::cout;
 using std::endl;
 
 TemplateCreator::TemplateCreator(modules::options* opts):
-   FillHistBase("TemplateCreator",opts){
+   BaseModule("TemplateCreator",opts){
 
   // Do something with opts here.  Has the user specified any
   // particular configuration that you want to know?
