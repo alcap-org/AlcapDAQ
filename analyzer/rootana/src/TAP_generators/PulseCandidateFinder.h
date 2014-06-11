@@ -26,8 +26,8 @@ class PulseCandidateFinder {
   std::vector<TPulseIsland*> GetPulseCandidates();
 
   // Our algorithms for finding pulse candidates
-  void FindPulseCandidates_Fast();
-  void FindPulseCandidates_Slow();
+  void FindPulseCandidates_Fast(int rise);
+  void FindPulseCandidates_Slow(int threshold);
 };
 
 #endif

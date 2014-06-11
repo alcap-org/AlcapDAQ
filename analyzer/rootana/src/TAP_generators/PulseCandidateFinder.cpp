@@ -11,25 +11,25 @@ PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse): fPulseIsland(pu
   // We have a different algorithm for fast and slow pulses
   if (theChannel == IDs::Fast) {
 
-    double parameter; // the parameter for this algorithm
+    int rise = 0; // the parameter for this algorithm
     switch(theChannel.GetDetectorEnum()) {
     case kGe:
-      parameter = 0;
+      rise = 100;
       break;
     }
 
-    FindPulseCandidates_Fast(parameter);
+    FindPulseCandidates_Fast(rise);
   }
   else if (theChannel == IDs::Slow) {
 
-    double parameter; // the parameter for this algorithm
+    int threshold = 0; // the parameter for this algorithm
     switch(theChannel.GetDetectorEnum()) {
     case kGe:
-      parameter = 0;
+      threshold = 0;
       break;
     }
 
-    FindPulseCandidates_Slow(parameter);
+    FindPulseCandidates_Slow(threshold);
   }
 }
 
@@ -68,4 +68,40 @@ std::vector<TPulseIsland*> PulseCandidateFinder::GetPulseCandidates() {
   }
 
   return pulse_candidates;
+}
+
+/// FindPulseCandidates_Fast
+/// Finds pulse candidates on fast pulse islands by looking for a sudden rise between consecutive samples
+void PulseCandidateFinder::FindPulseCandidates_Fast(int rise) {
+
+  const std::vector<int>& samples = fPulseIsland->GetSamples();
+  unsigned int n_samples = samples.size();
+  int pedestal = fPulseIsland->GetPedestal();
+  int polarity = fPulseIsland->GetTriggerPolarity();
+
+  int s1, s2, ds; // this sample value, the previous sample value and the change in the sample value
+  int start, stop; // the start and stop location
+  bool found = false;
+  Location location;
+
+  // Loop through the samples
+  for (unsigned int i = 1; i < n_samples; ++i) {
+    s1 = polarity * (samples[i-1] - pedestal);
+    s2 = polarity * (samples[i] - pedestal);
+    ds = s2 - s1;
+
+    if (found) {
+      if (s2 < 0) { // stop if the sample goes below pedestal
+	location.stop = (int)i;
+	start = stop = 0;
+	fPulseCandidateLocations.push_back(location);
+	found = false;
+      }
+    } else {
+      if (ds > rise) {
+	found = true;
+	location.start = (int)(i - 1);
+      }
+    }
+  }
 }
