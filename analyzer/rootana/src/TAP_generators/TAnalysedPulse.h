@@ -4,17 +4,23 @@
 #include <TObject.h>
 #include "TSetupData.h"
 #include "definitions.h"
+#include "IdSource.h"
+#include <map>
+#include <vector>
 
 class TH1F;
 class TPulseIsland;
 
 class TAnalysedPulse : public TObject {
+  typedef int SourceProxy_t;
+  typedef std::vector<IDs::source> ProxyToSourceMap;
+  typedef std::map<IDs::source,SourceProxy_t> SourceToProxyMap;
 
   private:
   TAnalysedPulse();
 
   public:
-  TAnalysedPulse(const TPulseIslandID& parentID, const TPulseIsland* parentTPI);
+  TAnalysedPulse(const IDs::source& sourceID,const TPulseIslandID& parentID, const TPulseIsland* parentTPI);
   virtual ~TAnalysedPulse() {};
 
   void Reset(Option_t* o = "");
@@ -29,6 +35,7 @@ class TAnalysedPulse : public TObject {
   double GetEnergy()const{return fEnergy;};
   double GetPedestal()const{return fPedestal;};
   double GetTriggerTime()const{return fTriggerTime;};
+  const IDs::source& GetSource()const{return sProxyToSources.at(fSource);};
 
   void SetParentID(const TPulseIslandID& val){ fParentID=val;};
   void SetTPILength(const int& val){ fTPILength=val;};
@@ -52,7 +59,11 @@ class TAnalysedPulse : public TObject {
   bool IsTriggerTimeSet()const{return fTriggerTime!=fDefaultValue;};
 
   private:
+   void SetSource(const IDs::source& sourceID);
+
+  private:
   TPulseIslandID fParentID;
+  SourceProxy_t fSource;
   int fTPILength;
   double fAmplitude;
   double fTime;
@@ -62,6 +73,8 @@ class TAnalysedPulse : public TObject {
   double fTriggerTime;
 
   static const int fDefaultValue=-99999;
+  static ProxyToSourceMap sProxyToSources;
+  static SourceToProxyMap sSourceToProxies;
 
   ClassDef(TAnalysedPulse, 4);
 };
