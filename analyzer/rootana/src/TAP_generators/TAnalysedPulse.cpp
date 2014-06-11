@@ -13,9 +13,13 @@ using std::string;
 #define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
 #define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<std::endl;
 
-TAnalysedPulse::TAnalysedPulse(const TPulseIslandID& parentID, const TPulseIsland* parentTPI):
-  TObject(),
+TAnalysedPulse::ProxyToSourceMap TAnalysedPulse::sProxyToSources;
+TAnalysedPulse::SourceToProxyMap TAnalysedPulse::sSourceToProxies;
+
+TAnalysedPulse::TAnalysedPulse(const IDs::source& sourceID,
+             const TPulseIslandID& parentID, const TPulseIsland* parentTPI):
   fParentID(fDefaultValue),
+  fSource(fDefaultValue),
   fTPILength(fDefaultValue),
   fAmplitude(fDefaultValue),
   fTime(fDefaultValue),
@@ -23,11 +27,13 @@ TAnalysedPulse::TAnalysedPulse(const TPulseIslandID& parentID, const TPulseIslan
   fEnergy(fDefaultValue),
   fPedestal(fDefaultValue),
   fTriggerTime(fDefaultValue){
+    SetSource(sourceID);
     SetParentTPIProperties(parentID, parentTPI);
 }
 
 TAnalysedPulse::TAnalysedPulse():
   fParentID(fDefaultValue),
+  fSource(fDefaultValue),
   fTPILength(fDefaultValue),
   fAmplitude(fDefaultValue),
   fTime(fDefaultValue),
@@ -38,9 +44,7 @@ TAnalysedPulse::TAnalysedPulse():
     //Reset();
 }
 
-
-void TAnalysedPulse::Reset(Option_t* o)
-{
+void TAnalysedPulse::Reset(Option_t* o) {
   fParentID=fDefaultValue;
   fTPILength=fDefaultValue;
   fAmplitude=fDefaultValue;
@@ -57,7 +61,7 @@ void TAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
 	  int n_bins=tpi_pulse->GetXaxis()->GetNbins();
 	  double x_max=tpi_pulse->GetXaxis()->GetXmax();
 	  double x_min=tpi_pulse->GetXaxis()->GetXmin();
-	  TH1F* tap_pulse=new TH1F((name+"_AP").c_str(),("MaxBin TAP for "+name).c_str(),n_bins,x_min,x_max);
+	  TH1F* tap_pulse=new TH1F((name+"_AP").c_str(),("TAP for "+name).c_str(),n_bins,x_min,x_max);
 	  int bin=tap_pulse->FindBin(fTime);
 	  tap_pulse->SetBinContent(bin,fAmplitude);
 	}
@@ -72,4 +76,17 @@ void TAnalysedPulse::SetParentTPIProperties(const TPulseIslandID& id,
   }
   SetTPILength(pulse->GetPulseLength());
   SetTriggerTime(pulse->GetTimeStamp()*pulse->GetClockTickInNs());
+}
+
+void TAnalysedPulse::SetSource(const IDs::source& sourceID){
+    // Is this proxy already contained in the maps
+    SourceToProxyMap::const_iterator it=sSourceToProxies.find(sourceID);
+    if(it!=sSourceToProxies.end()){
+      fSource=it->second;
+    } else {
+      // if it's a new kind, add the source to the hash table
+      fSource=sSourceToProxies.size();
+      sSourceToProxies[sourceID]=fSource;
+      sProxyToSources.push_back(sourceID);
+    }
 }
