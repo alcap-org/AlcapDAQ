@@ -1,12 +1,12 @@
 #ifndef PULSECANDIDATEFINDER_INVESTIGATEPARAMETERS_H_
 #define PULSECANDIDATEFINDER_INVESTIGATEPARAMETERS_H_
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
 
-class PulseCandidateFinder_InvestigateParameters : public FillHistBase{
+class PulseCandidateFinder_InvestigateParameters : public BaseModule{
 
  public:
   PulseCandidateFinder_InvestigateParameters(modules::options* opts);

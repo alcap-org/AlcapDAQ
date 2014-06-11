@@ -14,7 +14,7 @@ using std::endl;
 #include "PulseCandidateFinder.h"
 
 PulseCandidateFinder_InvestigateParameters::PulseCandidateFinder_InvestigateParameters(modules::options* opts):
-   FillHistBase("PulseCandidateFinder_InvestigateParameters",opts){
+   BaseModule("PulseCandidateFinder_InvestigateParameters",opts){
   
 }
 
