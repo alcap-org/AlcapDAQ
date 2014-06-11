@@ -1,4 +1,5 @@
 #include "TAnalysedPulse.h"
+#include "TPulseIsland.h"
 
 #include <TH1F.h>
 #include <cmath>
@@ -12,9 +13,35 @@ using std::string;
 #define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
 #define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<std::endl;
 
+TAnalysedPulse::TAnalysedPulse(const TPulseIslandID& parentID, const TPulseIsland* parentTPI):
+  TObject(),
+  fParentID(fDefaultValue),
+  fTPILength(fDefaultValue),
+  fAmplitude(fDefaultValue),
+  fTime(fDefaultValue),
+  fIntegral(fDefaultValue),
+  fEnergy(fDefaultValue),
+  fPedestal(fDefaultValue),
+  fTriggerTime(fDefaultValue){
+    SetParentTPIProperties(parentID, parentTPI);
+}
+
+TAnalysedPulse::TAnalysedPulse():
+  fParentID(fDefaultValue),
+  fTPILength(fDefaultValue),
+  fAmplitude(fDefaultValue),
+  fTime(fDefaultValue),
+  fIntegral(fDefaultValue),
+  fEnergy(fDefaultValue),
+  fPedestal(fDefaultValue),
+  fTriggerTime(fDefaultValue){
+    //Reset();
+}
+
+
 void TAnalysedPulse::Reset(Option_t* o)
 {
-  fParentTPI=fDefaultValue;
+  fParentID=fDefaultValue;
   fTPILength=fDefaultValue;
   fAmplitude=fDefaultValue;
   fTime=fDefaultValue;
@@ -34,4 +61,15 @@ void TAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
 	  int bin=tap_pulse->FindBin(fTime);
 	  tap_pulse->SetBinContent(bin,fAmplitude);
 	}
+}
+
+void TAnalysedPulse::SetParentTPIProperties(const TPulseIslandID& id,
+                                            const TPulseIsland* pulse){
+  SetParentID(id);
+  if(!pulse) {
+    std::cerr<<"NULL pointer to TPulseIsland passed as parent for TAnalysedPulse."<<std::endl;
+    return;
+  }
+  SetTPILength(pulse->GetPulseLength());
+  SetTriggerTime(pulse->GetTimeStamp()*pulse->GetClockTickInNs());
 }
