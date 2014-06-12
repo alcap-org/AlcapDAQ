@@ -16,7 +16,7 @@ class TAnalysedPulse : public TObject {
   typedef std::vector<IDs::source> ProxyToSourceMap;
   typedef std::map<IDs::source,SourceProxy_t> SourceToProxyMap;
 
-  private:
+  public:
   TAnalysedPulse();
 
   public:
