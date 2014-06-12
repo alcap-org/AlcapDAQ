@@ -29,7 +29,7 @@ int MaxBinAPGenerator::ProcessPulses(
          GetAllParameters_MaxBin(*pulseIter,amplitude,time,integral,energy);
 
          // Make the TAnalysedPulse pulse
-         outPulse=new  TAnalysedPulse(pulseIter-pulseList.begin(), *pulseIter);
+         outPulse=MakeNewTAP(pulseIter-pulseList.begin());
          outPulse->SetAmplitude(amplitude);
          outPulse->SetTime(time);
          outPulse->SetEnergy(energy);
