@@ -3,12 +3,14 @@
 #include "definitions.h"
 
 #include <iostream>
+#include <sstream>
 
 /// PulseCandidateFinder()
 /// This passes the TPulseIsland to the relevant pulse candidate finder
 PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse): fPulseIsland(pulse) {
 
-  IDs::channel theChannel = fPulseIsland->GetBankName();
+  std::string detname = TSetupData::Instance()->GetDetectorName(fPulseIsland->GetBankName());
+  IDs::channel theChannel = detname;
 
   // We have a different algorithm for fast and slow pulses
   if (theChannel == IDs::Fast) {
@@ -140,5 +142,70 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
       }
     }
   }
+}
 
+
+/// FillParameterHistogram
+/// Fills the given histogram with the relevant parameter based on the channel
+void PulseCandidateFinder::FillParameterHistogram(TH1D* histogram) {
+
+  std::string detname = TSetupData::Instance()->GetDetectorName(fPulseIsland->GetBankName());
+  IDs::channel theChannel = detname;
+
+  std::string parameter_name = "Unknown";
+
+  // We have a different algorithm for fast and slow pulses
+  if (theChannel == IDs::Fast) {
+    parameter_name = "SampleDifference";
+    FillSampleDifferencesHistogram(histogram);
+  }
+  else if (theChannel == IDs::Slow) {
+    parameter_name = "SampleHeight";
+    FillSampleHeightsHistogram(histogram);
+  }
+
+  std::string histtitle = "Plot of " + parameter_name + " for " + detname + " for Run 2808";
+  histogram->SetTitle(histtitle.c_str());
+  histogram->GetYaxis()->SetTitle("");
+  histogram->GetXaxis()->SetTitle(parameter_name.c_str());
+}
+
+/// FillSampleDifferencesHistogram
+/// Fills the given histogram with the differences between consecutive samples
+void PulseCandidateFinder::FillSampleDifferencesHistogram(TH1D* histogram) {
+
+  const std::vector<int>& samples = fPulseIsland->GetSamples();
+  unsigned int n_samples = samples.size();
+  int pedestal = fPulseIsland->GetPedestal(0);
+  int polarity = fPulseIsland->GetTriggerPolarity();
+
+  int s1, s2, ds; // this sample value, the previous sample value and the change in the sample value
+
+  // Loop through the samples
+  for (unsigned int i = 1; i < n_samples; ++i) {
+    s1 = polarity * (samples[i-1] - pedestal);
+    s2 = polarity * (samples[i] - pedestal);
+    ds = s2 - s1;
+
+    histogram->Fill(ds);
+  }
+}
+
+/// FillSampleHeightsHistogram
+/// Fills the given histogram with the heights between consecutive samples
+void PulseCandidateFinder::FillSampleHeightsHistogram(TH1D* histogram) {
+
+  const std::vector<int>& samples = fPulseIsland->GetSamples();
+  unsigned int n_samples = samples.size();
+  int pedestal = fPulseIsland->GetPedestal(0);
+  int polarity = fPulseIsland->GetTriggerPolarity();
+
+  int sample_height; // the height of this sample above pedestal
+
+  // Loop through the samples
+  for (unsigned int i = 0; i < n_samples; ++i) {
+    sample_height = polarity * (samples[i] - pedestal);
+
+    histogram->Fill(sample_height);
+  }
 }

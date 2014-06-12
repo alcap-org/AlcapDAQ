@@ -18,7 +18,7 @@ class PulseCandidateFinder_InvestigateParameters : public BaseModule{
   virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
 
  private:
-  std::map<std::string, TH1D*> fSampleDifferenceHistograms;
+  std::map<std::string, TH1D*> fParameterHistograms;
 };
 
 #endif //PULSECANDIDATEFINDER_INVESTIGATEPARAMETERS_H_

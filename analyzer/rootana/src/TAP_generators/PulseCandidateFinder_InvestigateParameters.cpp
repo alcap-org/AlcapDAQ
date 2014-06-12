@@ -53,27 +53,22 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
     thePulseIslands = it->second;
     if (thePulseIslands.size() == 0) continue; // no pulses here..
 
-    // Create the histogram that will store all the sample differences that we will look at to determine the best values for
-    // the "rise" and "fall" parameters (if it doesn't exist)
-    if (fSampleDifferenceHistograms.find(detname) == fSampleDifferenceHistograms.end()) {
+    // Create the histogram that will store all the parameter values that we will look at to determine the best values
+    if (fParameterHistograms.find(detname) == fParameterHistograms.end()) {
       int max_value = 10000;
-      std::string histname = "fSampleDifferenceHistograms_" + detname;
-      std::stringstream histtitle;
-      histtitle << "Plot of the Sample Differences for " << detname << " for Run " << 2808;
-      TH1D* histogram = new TH1D(histname.c_str(), histtitle.str().c_str(), max_value, 0, max_value);
-      histogram->GetYaxis()->SetTitle("");
-      histogram->GetXaxis()->SetTitle("Difference Between Consecutive Samples [ADC]"); 
-      fSampleDifferenceHistograms[detname] = histogram;
+      std::string histname = "fParameterHistogram_" + detname;
+      TH1D* histogram = new TH1D(histname.c_str(), histname.c_str(), max_value, 0, max_value);
+      fParameterHistograms[detname] = histogram;
     }
 
     // Loop through all the pulses
-    TH1D* difference_histogram = fSampleDifferenceHistograms[detname];
+    TH1D* parameter_histogram = fParameterHistograms[detname];
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
-      // Create the pulse candidate finder and histogram to store the sample differences in
+      // Create the pulse candidate finder and histogram to store the parameters in
       PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(*pulseIter);
 
-      //      pulse_candidate_finder->FillSampleDifferencesHistogram(difference_histogram);
+      pulse_candidate_finder->FillParameterHistogram(parameter_histogram);
     }
   }
 

@@ -30,6 +30,13 @@ class PulseCandidateFinder {
   void FindCandidatePulses_Fast(int rise);
   void FindCandidatePulses_Slow(int threshold);
 
+ public:
+  void FillParameterHistogram(TH1D* histogram);
+
+ private:
+  // Fill a histogram with either the sample differences or the 
+  void FillSampleDifferencesHistogram(TH1D* histogram);
+  void FillSampleHeightsHistogram(TH1D* histogram);
 };
 
 #endif
