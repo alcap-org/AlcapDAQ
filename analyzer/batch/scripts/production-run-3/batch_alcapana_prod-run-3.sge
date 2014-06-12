@@ -60,13 +60,13 @@ RAWFILE="$RAWDATADIR/run$RUN.mid"
 HISTFILE="$HISTDATADIR/hist$RUN.root"
 TREEFILE="$TREEDATADIR/tree$RUN.root"
 ODBDATAFILE="$ODBDATADIR/run$RUN.odb"
-ODBCORRFILE="$ODBCORRDIR/corr$RUN.odb"
+ODBCORRFILE="/gpfs/home/quirk_j/data/corr$RUN.odb"
 ODBDUMPFILE="$ODBDUMPDIR/dump$RUN.odb"
 FLAGFILE="$FLGDIR/alcapana.run$RUN.flag"
 
 ################
 # Command to run
-CMD="$DAQdir/analyzer/work/$USER/alcapana"
+CMD="$DAQdir/analyzer/work/data_quality/alcapana"
 ARGS="-i $RAWFILE -o $HISTFILE -T $TREEFILE"
 
 ############################
