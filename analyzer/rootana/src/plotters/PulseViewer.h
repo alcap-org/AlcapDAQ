@@ -16,7 +16,10 @@ class PulseViewer : public BaseModule{
     kAmplitude,
     kTime,
     kIntegral,
-    kTPILength
+    kTPILength,
+    kEnergy,
+    kPedestal,
+    kTriggerTime
   };
 
  public:
