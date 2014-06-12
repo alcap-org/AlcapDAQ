@@ -23,11 +23,11 @@ using std::pair;
 extern StringAnalPulseMap gAnalysedPulseMap;
 
 PlotTime::PlotTime(char *HistogramDirectoryName) :
-  FillHistBase(HistogramDirectoryName){  
+  BaseModule(HistogramDirectoryName){  
   dir->cd("/");
 }
 
-PlotTime::PlotTime(modules::options* opts) : FillHistBase(opts->GetString("0").c_str()) {
+PlotTime::PlotTime(modules::options* opts) : BaseModule(opts->GetString("0").c_str()) {
   dir->cd("/");
 }
 

@@ -166,7 +166,10 @@ INT MDQ_PulseShapes(EVENT_HEADER *pheader, void *pevent)
 	  std::string bankname = mapIter->first;
 	  std::string detname = gSetup->GetDetectorName(bankname);
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
-			
+	  
+	  // Get the histograms before looping through the pulses
+	  TH2F* hDQ_PulseShapes = DQ_PulseShapes_histograms_map[bankname];
+
 	  // Loop over the TPulseIslands and plot the histogram
 		for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
 				pulseIter != thePulses.end(); ++pulseIter) {
@@ -182,7 +185,7 @@ INT MDQ_PulseShapes(EVENT_HEADER *pheader, void *pevent)
 					int sample_number = sampleIter - theSamples.begin();
 					//int sample_number = 0;
 					int sample_value = *sampleIter;
-					DQ_PulseShapes_histograms_map[bankname]->Fill(sample_number,sample_value);
+					hDQ_PulseShapes->Fill(sample_number,sample_value);
 				}
 	    }
 	  }

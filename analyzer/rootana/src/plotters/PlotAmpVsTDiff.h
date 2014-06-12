@@ -1,14 +1,14 @@
 #ifndef PlotAmpVsTDiff_h__
 #define PlotAmpVsTDiff_h__
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
 
 #include "TH2.h"
 
-class PlotAmpVsTDiff : public FillHistBase{
+class PlotAmpVsTDiff : public BaseModule{
  public:
   PlotAmpVsTDiff(char *HistogramDirectoryName, std::string det_name_a, std::string det_name_b);
   PlotAmpVsTDiff(modules::options* opts);

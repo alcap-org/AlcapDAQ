@@ -1,7 +1,7 @@
 #ifndef SiR2Target_h__
 #define SiR2Target_h__
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 
 #include <vector>
 
@@ -9,7 +9,7 @@ class TGlobalData;
 class TSetupData;
 class TH1I;
 
-class SiR2Target : public FillHistBase{
+class SiR2Target : public BaseModule{
  public:
   SiR2Target(char *HistogramDirectoryName);
   ~SiR2Target();

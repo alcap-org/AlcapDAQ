@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "definitions.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
@@ -15,7 +15,7 @@
 
 class TVDetectorPulseGenerator;
 
-class MakeDetectorPulses : public FillHistBase{
+class MakeDetectorPulses : public BaseModule{
 
  public:
   MakeDetectorPulses(modules::options* opts);

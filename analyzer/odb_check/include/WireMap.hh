@@ -99,7 +99,7 @@ private:
   void AddPedestal(int); ///< Add only pedestal.
   void AddPolarity(int); ///< Add only polarity.
   void AddOffset(int); ///< Add only timing offset (TimeShift).
-  void AddFrequency(double); ///< Add only frequency/
+  void AddFrequency(double); ///< Add only frequency.
 
 public:
   /// Load ODB values into %WireMap from an ODB file.

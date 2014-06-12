@@ -1,10 +1,10 @@
 #ifndef SimpleHistorgram_h__
 #define SimpleHistorgram_h__
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 
-class SimpleHistograms : public FillHistBase{
+class SimpleHistograms : public BaseModule{
  public:
   SimpleHistograms(const char *HistogramDirectoryName);
   ~SimpleHistograms();

@@ -21,7 +21,7 @@ extern MuonEventList gMuonEvents;
 extern StringDetPulseMap gDetectorPulseMap;
 
 MakeMuonEvents::MakeMuonEvents(modules::options* opts):
-  FillHistBase("MakeMuonEvents",opts),fOptions(opts){
+  BaseModule("MakeMuonEvents",opts),fOptions(opts){
       if(fOptions){
 	  fAlgorithm=fOptions->GetString("algorithm","MaxTimeDiff");
       }

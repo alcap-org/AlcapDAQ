@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
@@ -16,7 +16,7 @@ class TVAnalysedPulseGenerator;
 class TPulseIsland;
 class TAnalysedPulse;
 
-class MakeAnalysedPulses : public FillHistBase{
+class MakeAnalysedPulses : public BaseModule{
   typedef std::vector<TVAnalysedPulseGenerator*> ChannelGenerators_t;
 
  public:

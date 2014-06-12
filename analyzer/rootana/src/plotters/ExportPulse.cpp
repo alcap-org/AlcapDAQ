@@ -13,9 +13,6 @@
 
 #include <TH1F.h>
 
-#define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
-#define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<std::endl;
-
 using std::cout;
 using std::endl;
 using std::string;
@@ -37,7 +34,7 @@ static bool isNonCpp(char c){
 }
 
 ExportPulse::ExportPulse(modules::options* opts):
-   FillHistBase("ExportPulse",opts),fGuidanceShown(false),
+   BaseModule("ExportPulse",opts),fGuidanceShown(false),
 	fSetup(NULL),fOptions(opts)
 	{
   dir->cd("/");
@@ -90,22 +87,21 @@ int ExportPulse::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
 	      else if( !ParsePulseRequest(event_pulse_request.inside,pulse_list)) error_type="pulse";
 	      if(error_type != ""){
 	          cout<<"Skipping badly formatted "<<error_type<<" specification: "<<*i_request<<endl;
-		  cout<<"event="<<event_pulse_request.before<<", pulse="<<event_pulse_request.inside<<endl;
-		  ShowGuidance();
-		  continue;
+	          cout<<"event="<<event_pulse_request.before<<", pulse="<<event_pulse_request.inside<<endl;
+	          ShowGuidance();
+	          continue;
 	      }
 	      // Everything is ok so add this request to the list
 	      for(std::vector<EventID_t>::const_iterator i_event=event_list.begin();
 		      i_event!=event_list.end();
 		      i_event++){
-		 for(std::vector<TPulseIslandID>::const_iterator i_pulse=pulse_list.begin();
-		        i_pulse!=pulse_list.end(); i_pulse++){
-		    AddToConfigRequestList(*i_event,i_opt->first,*i_pulse);
-		 }
-	      }
-	  }
-
-       }
+		        for(std::vector<TPulseIslandID>::const_iterator i_pulse=pulse_list.begin();
+		              i_pulse!=pulse_list.end(); i_pulse++){
+		            AddToConfigRequestList(*i_event,i_opt->first,*i_pulse);
+             }
+        }
+     }
+    }
    }
    return 0;
 }
@@ -146,9 +142,9 @@ int ExportPulse::DrawTAPs(){
 		     i_pulse!=requestedPulses->end();
 		     i_pulse++){
 
-        SetCurrentPulseID((*i_pulse)->GetPulseIslandID());
+        SetCurrentPulseID((*i_pulse)->GetParentID());
 	// Draw the pulse
-        PlotTAP(*i_pulse);
+        PlotTAP(*i_pulse,fPulseInfo);
 
      }
   }
@@ -188,7 +184,7 @@ int ExportPulse::DrawTPIs(){
 	}
 
 	// Draw the pulse
-        PlotTPI(pulse);
+        PlotTPI(pulse,fPulseInfo);
      }
   }
   return 0;
@@ -207,20 +203,19 @@ std::string ExportPulse::PulseInfo_t::MakeTPIName()const{
    return hist;
 }
 
-int ExportPulse::PlotTPI(const TPulseIsland* pulse)const{
+int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info)const{
    
-   std::string hist=GetTPIPlotName();
+   std::string hist=info.MakeTPIName();
 	
    std::stringstream title;
-   title << "Pulse " << GetCurrentPulseID();
-   title << " from event " << GetCurrentEventNumber();
-   title << " on detector " << GetCurrentDetectorName();
-   title << " (" << GetCurrentBankName()<<")";
+   title << "Pulse " << info.pulseID;
+   title << " from event " << info.event;
+   title << " on detector " << info.detname;
+   title << " (" << info.bankname<<")";
 
    // Print some stuff if wanted
    if(Debug()){
-   	cout<<"Plotting pulse "<<GetCurrentPulseID()<<" for event "<<GetCurrentEventNumber();
-   	cout<<", detector '"<<GetCurrentDetectorName()<<"' ["<<hist<<"]"<<endl;
+   	 cout<<"Plotting "<<title.str()<<"' ["<<hist<<"]"<<endl;
    }
 
    size_t num_samples = pulse->GetPulseLength();
@@ -235,8 +230,8 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse)const{
    return 0;
 }
 
-int ExportPulse::PlotTAP(const TAnalysedPulse* pulse)const{
-  std::string hist=GetTPIPlotName();
+int ExportPulse::PlotTAP(const TAnalysedPulse* pulse, const PulseInfo_t& info)const{
+  std::string hist=info.MakeTPIName();
   TH1F* tpi_hist=NULL;
   gDirectory->GetObject(hist.c_str(),tpi_hist);
   pulse->Draw(tpi_hist);

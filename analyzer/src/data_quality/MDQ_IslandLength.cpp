@@ -161,18 +161,21 @@ INT MDQ_IslandLength(EVENT_HEADER *pheader, void *pevent)
 	  std::string bankname = mapIter->first;
 	  std::string detname = gSetup->GetDetectorName(bankname);
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
-			
+	  
+	  // Get the histograms before looping through the pulses
+	  TH1F* hDQ_IslandLength = DQ_IslandLength_histograms_map[bankname];
+	  TH1F* hDQ_IslandLength_Norm = DQ_IslandLength_histograms_normalised_map[bankname];
+	  
 	  // Loop over the TPulseIslands and plot the histogram
-		for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
+	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
 				pulseIter != thePulses.end(); ++pulseIter) {
 
 	    // Make sure the histograms exist and then fill them
-			if (DQ_IslandLength_histograms_map.find(bankname) !=
-					DQ_IslandLength_histograms_map.end()) 
-			{ 
-				const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
-				DQ_IslandLength_histograms_map[bankname]->Fill(theSamples.size());
-				DQ_IslandLength_histograms_normalised_map[bankname]->Fill(theSamples.size());
+	    if (DQ_IslandLength_histograms_map.find(bankname) != DQ_IslandLength_histograms_map.end()) 
+	      { 
+		const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
+		hDQ_IslandLength->Fill(theSamples.size());
+		hDQ_IslandLength_Norm->Fill(theSamples.size());
 	    }
 	  }
 	}

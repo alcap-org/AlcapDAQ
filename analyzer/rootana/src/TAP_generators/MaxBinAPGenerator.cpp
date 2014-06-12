@@ -19,7 +19,7 @@ int MaxBinAPGenerator::ProcessPulses(
       SetBankInfo(pulseList.at(0)->GetBankName());
 
       double amplitude, time, integral, energy;
-
+      TAnalysedPulse* outPulse;
       for (PulseIslandList::const_iterator pulseIter = pulseList.begin(); pulseIter != pulseList.end(); pulseIter++) {
          amplitude = 0;
          time = 0;
@@ -28,9 +28,13 @@ int MaxBinAPGenerator::ProcessPulses(
          // Assume one TAnalysedPulse per TPulseIsland
          GetAllParameters_MaxBin(*pulseIter,amplitude,time,integral,energy);
 
+         // Make the TAnalysedPulse pulse
+         outPulse=MakeNewTAP(pulseIter-pulseList.begin());
+         outPulse->SetAmplitude(amplitude);
+         outPulse->SetTime(time);
+         outPulse->SetEnergy(energy);
          // Add the pulse into the list
-         analysedList.push_back(new  TAnalysedPulse(amplitude, time, integral, energy, fDetName));
-	 analysedList.back()->SetPulseIslandID(pulseIter-pulseList.begin());
+         analysedList.push_back(outPulse);
 
       }
       std::sort(analysedList.begin(), analysedList.end(), IsTimeOrdered);

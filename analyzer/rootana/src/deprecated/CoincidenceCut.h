@@ -1,11 +1,11 @@
 #ifndef CoincidenceCut_h__
 #define CoincidenceCut_h__
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 
-class CoincidenceCut : public FillHistBase{
+class CoincidenceCut : public BaseModule{
  public:
   CoincidenceCut(char *HistogramDirectoryName, std::string det_name_a, std::string det_name_b, double start_window, double stop_window);
   ~CoincidenceCut();

@@ -21,7 +21,7 @@ using std::pair;
 extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
 CoincidenceCut::CoincidenceCut(char *HistogramDirectoryName, std::string det_name_a, std::string det_name_b, double start_window, double stop_window) :
-  FillHistBase(HistogramDirectoryName){ 
+  BaseModule(HistogramDirectoryName){ 
 
   fDetNameA = det_name_a;
   fDetNameB = det_name_b;

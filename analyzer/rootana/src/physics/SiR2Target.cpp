@@ -15,7 +15,7 @@
 extern std::map< std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
 SiR2Target::SiR2Target(char *HistogramDirectoryName) :
-  FillHistBase(HistogramDirectoryName) {
+  BaseModule(HistogramDirectoryName) {
 
   ftCoincidence = 2000.;
   fhSpectrum = new TH1I("hSiR2Spectrum","Spectrum of Silicon Target", 26000, 0., 26000.);

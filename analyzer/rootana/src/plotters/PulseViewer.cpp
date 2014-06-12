@@ -19,7 +19,7 @@ using modules::parser::GetDouble;
 extern StringAnalPulseMap gAnalysedPulseMap;
 
 PulseViewer::PulseViewer(modules::options* opts):
-   FillHistBase("PulseViewer",opts),fAPList(NULL){
+   BaseModule("PulseViewer",opts){
   fRequestedChannel=opts->GetString("channel"); 
   fChannel=fRequestedChannel;
   fTriggerCondition=opts->GetString("trigger"); 
@@ -43,27 +43,27 @@ int PulseViewer::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
    }
    
    // Parse the trigger string
-   return ParseTriggerString();
+   return ParseTriggerString(fTriggerCondition);
 }
 
-int PulseViewer::ParseTriggerString(){
+int PulseViewer::ParseTriggerString(const std::string& trigger_condition){
 	// Look for something like 'amplitude > 3'
-	size_t equality_start=fTriggerCondition.find_first_of("<>=");
+	size_t equality_start=trigger_condition.find_first_of("<>=");
 	if(equality_start==std::string::npos) {
-		cout<<"Error: trigger '"<<fTriggerCondition<<"'' doesn't contain an equality (==,>,<,<=,>=)"<<endl;
+		cout<<"Error: trigger '"<<trigger_condition<<"'' doesn't contain an equality (==,>,<,<=,>=)"<<endl;
 		return 1;
 	}
 	// Check the type of equality given
 	int retVal=0;
-	retVal=SetTriggerType(fTriggerCondition.substr(equality_start,2));
+	retVal=SetTriggerType(trigger_condition.substr(equality_start,2));
 	if(retVal!=0) return retVal;
 
 	// Check the parameter to compare
-	retVal=SetTriggerParameter(GetOneWord(fTriggerCondition,0,equality_start));
+	retVal=SetTriggerParameter(GetOneWord(trigger_condition,0,equality_start));
 	if(retVal!=0) return retVal;
 
 	// Get the value to compare to
-	retVal=SetTriggerValue(fTriggerCondition.substr(equality_start+fTypeString.size()));
+	retVal=SetTriggerValue(trigger_condition.substr(equality_start+fTypeString.size()));
 	return retVal;
 }
 
@@ -96,12 +96,26 @@ int PulseViewer::SetTriggerType(const std::string& equality){
 }
 
 int PulseViewer::SetTriggerParameter(const std::string& parameter){
-	if(parameter=="amplitude") fTriggerParameter=kAmplitude;
-	else if(parameter=="time") fTriggerParameter=kTime;
-	else if(parameter=="TPI_length") fTriggerParameter=kTPILength;
-	//else if(parameter=="integral") fTriggerParameter=kIntegral;
-	else{
+  typedef std::map<std::string,ParameterType> ParameterKeys;
+  static ParameterKeys available_params;
+  if(available_params.empty()){
+     available_params["amplitude"]=kAmplitude;
+     available_params["time"]=kTime;
+     available_params["TPI_length"]=kTPILength;
+     available_params["integral"]=kIntegral;
+     available_params["energy"]=kEnergy;
+     available_params["pedestal"]=kPedestal;
+     available_params["trigger_time"]=kTriggerTime;
+  }
+  ParameterKeys::iterator it=available_params.find(parameter);
+	if(it!=available_params.end()){
+    fTriggerParameter=it->second;
+  }else{
 		cout<<"Error: Unknown parameter requested: '"<<parameter<<"'"<<endl;
+		cout<<"   Possible values are:"<<endl;
+    for(it=available_params.begin();it!=available_params.end();it++){
+		     cout<<"    |-"<<it->first<<endl;
+    }
 		return 1;
 	}
 	fParameterString=parameter;
@@ -116,22 +130,22 @@ int PulseViewer::SetTriggerValue(const std::string& parameter){
 int PulseViewer::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 
     // Get the TAPs for this channel
-    fAPList=&gAnalysedPulseMap[GetChannel()];
+  AnalysedPulseList* allTAPs=&gAnalysedPulseMap[GetChannel()];
 
-    if(!fAPList){
+    if(!allTAPs){
        cout<<"Problem getting TAP list for "<<GetChannel()<<endl;
 	    return 1;
-    }else if(fAPList->empty() ){
-       cout<<"List of TAPS for '"<< GetChannel()<<"' was empty "<<endl;
+    }else if(allTAPs->empty() ){
+       if(Debug()) cout<<"List of TAPS for '"<< GetChannel()<<"' was empty "<<endl;
        return 0;
     }
 
     // Check each TAP against trigger
     int retVal=0;
-    for(AnalysedPulseList::iterator i_pulse=fAPList->begin();
-		i_pulse!=fAPList->end() && retVal==0;
+    for(AnalysedPulseList::iterator i_pulse=allTAPs->begin();
+		i_pulse!=allTAPs->end() && retVal==0;
 		i_pulse++){
-	    retVal=ShouldDraw(*i_pulse);
+	    retVal=ConsiderDrawing(*i_pulse);
     }
     if(retVal!=0) return retVal;
 
@@ -151,7 +165,16 @@ double PulseViewer::GetParameterValue(const TAnalysedPulse& pulse){
 		retVal=pulse.GetIntegral();
 		break;
   	case kTPILength:
-		//retVal=pulse.GetTPILength();
+		retVal=pulse.GetTPILength();
+    break;
+    case kEnergy:
+    retVal=pulse.GetEnergy();
+    break;
+    case kPedestal:
+    retVal=pulse.GetPedestal();
+    break;
+    case kTriggerTime:
+    retVal=pulse.GetTriggerTime();
 		break;
 	}
 	return retVal;
@@ -179,7 +202,7 @@ bool PulseViewer::ValuePassesTrigger(const double& value){
   return retVal;
 }
 
-int PulseViewer::ShouldDraw(const TAnalysedPulse* pulse){
+int PulseViewer::ConsiderDrawing(const TAnalysedPulse* pulse){
 	// Check pulse passes trigger condition
 	double value=GetParameterValue(*pulse);
 	if(!ValuePassesTrigger(value)) return 0;
@@ -190,7 +213,7 @@ int PulseViewer::ShouldDraw(const TAnalysedPulse* pulse){
 	// If it does, ask ExportPulse to draw it
 	// We're safe to assume Instance will return becuase we test it's
 	// existence in BeforeFirstEntry
-	ExportPulse::Instance()->AddToExportList(GetChannel(),pulse);
+	ExportPulse::Instance()->AddToExportList(pulse);
 	return 0;
 }
 

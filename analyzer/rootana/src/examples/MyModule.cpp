@@ -14,16 +14,16 @@ using std::vector;
 using std::pair;
 
 const int NCHAN = 8;
-static bool verbose = true;
+//static bool verbose = true;
 static TH1 *hSamples1 = 0;
 static TH1 *hSamples2 = 0;
 static TH1 *hSamples3 = 0;
-static TH2 *hBankSize = 0;
+//static TH2 *hBankSize = 0;
 static TH1 *bankHists[NCHAN];
 static vector<string> banks;
 
 MyModule::MyModule(const char *HistogramDirectoryName) :
-  FillHistBase(HistogramDirectoryName){
+  BaseModule(HistogramDirectoryName){
 
   // The following are the banks we want to compare in this example
   banks.push_back("CDG0");
@@ -72,8 +72,8 @@ int MyModule::ProcessEntry(TGlobalData *gData){
 
   vector<int> samples[banks.size()][maxTPIsize];
 
-  for (int b1=0; b1<banks.size(); b1++){
-    for (int i=0; i<islands[b1].size(); i++){
+  for (unsigned int b1=0; b1<banks.size(); b1++){
+    for (unsigned int i=0; i<islands[b1].size(); i++){
       samples[b1][i] = islands[b1][i]->GetSamples();
     }
   }
@@ -86,7 +86,7 @@ int MyModule::ProcessEntry(TGlobalData *gData){
   
     for(unsigned int i = 0; i < islands[b1].size(); ++i){
       //printf(" bank %d, island %d timestamp %d clock tick %d\n",b1,i,islands[b1][i]->GetTimeStamp(),islands[b1][i]->GetClockTickInNs());
-      for (int j=0; j<samples[b1][i].size(); j++){
+      for (unsigned int j=0; j<samples[b1][i].size(); j++){
         bankHists[b1]->Fill(samples[b1][i][j]);
         if (i==0) hSamples1->Fill(samples[b1][i][j]);
         if (i==1) hSamples2->Fill(samples[b1][i][j]);

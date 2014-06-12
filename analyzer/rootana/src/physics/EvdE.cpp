@@ -18,11 +18,11 @@ static TH1D* hEvdE_log[2];
 static TH1D* hEprotons[2];
 static TH2D* hEvdEprotons[2];
 
-EvdE::EvdE(char *HistogramDirectoryName):FillHistBase(HistogramDirectoryName) 
+EvdE::EvdE(char *HistogramDirectoryName):BaseModule(HistogramDirectoryName) 
 {;}
 
 EvdE::EvdE(char *HistogramDirectoryName, double t0, double t1) :
-	FillHistBase(HistogramDirectoryName) 
+	BaseModule(HistogramDirectoryName) 
 {
 	// Thin silicon is in quadrants
 	nSec = 4;

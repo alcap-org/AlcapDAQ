@@ -18,10 +18,10 @@ using std::string;
 extern StringAnalPulseMap gAnalysedPulseMap;
 
 MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
-   FillHistBase("MakeAnalysedPulses",opts),fOptions(opts){
+   BaseModule("MakeAnalysedPulses",opts),fOptions(opts){
 	fSlowGeneratorType=opts->GetString("default_slow_generator","MaxBin");
 	fFastGeneratorType=opts->GetString("default_fast_generator","MaxBin");
-	opts->GetVectorStrings("analyse_channels",fChannelsToAnalyse);
+	opts->GetVectorStringsByWhiteSpace("analyse_channels",fChannelsToAnalyse);
 	dir->cd("/");
 }
 
@@ -36,12 +36,12 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
     // do we analyse all channels?
     bool analyse_all=fChannelsToAnalyse.empty();
     if(!analyse_all){
-        for(unsigned i=0;i<fChannelsToAnalyse.size();i++){
-	     if (fChannelsToAnalyse[i]=="all"){
-		analyse_all=true;
-		break;
-	     }
-	}
+      for(unsigned i=0;i<fChannelsToAnalyse.size();i++){
+        if (fChannelsToAnalyse[i]=="all"){
+          analyse_all=true;
+          break;
+        }
+      }
     }
     std::cout<<"Will analyse ";
     if(analyse_all) std::cout<<"all ";
@@ -93,18 +93,18 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
   // Loop over each generator
   string detname,bankname;
-  PulseIslandList thePulseIslands;
+  PulseIslandList* thePulseIslands;
   ChannelGenerators_t::iterator generator;
   AnalysedPulseList theAnalysedPulses;
   int retVal=0;
   for(generator = fGenerators.begin(); generator != fGenerators.end(); generator++){
     // Get the bank name
-    detname = (*generator)->GetChannel();
+    detname = (*generator)->GetChannel().str();
     bankname = gSetup->GetBankName(detname);
 
     // Get the TPIs
-    thePulseIslands=gData->fPulseIslandToChannelMap[bankname];
-    if(thePulseIslands.empty() ){
+    thePulseIslands=&gData->fPulseIslandToChannelMap[bankname];
+    if(thePulseIslands->empty() ){
        if( Debug()) cout<<"List of TPIs for '"<< detname<<"' was empty "<<endl;
        continue;
     }
@@ -113,7 +113,8 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     theAnalysedPulses.clear();
 
     // generate the new list of analyse_pulses
-    retVal=(*generator)->ProcessPulses( thePulseIslands,theAnalysedPulses);
+    (*generator)->SetPulseList(thePulseIslands);
+    retVal=(*generator)->ProcessPulses( *thePulseIslands,theAnalysedPulses);
     if(retVal!=0) return retVal;
 
     // add these into the map of analysed pulses

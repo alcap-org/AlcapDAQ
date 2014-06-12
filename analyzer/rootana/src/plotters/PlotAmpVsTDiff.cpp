@@ -23,7 +23,7 @@ using std::pair;
 extern StringAnalPulseMap gAnalysedPulseMap;
 
 PlotAmpVsTDiff::PlotAmpVsTDiff(char *HistogramDirectoryName, std::string det_name_a, std::string det_name_b) :
-  FillHistBase(HistogramDirectoryName){ 
+  BaseModule(HistogramDirectoryName){ 
 
   fDetNameA = det_name_a;
   fDetNameB = det_name_b;
@@ -49,7 +49,7 @@ PlotAmpVsTDiff::PlotAmpVsTDiff(char *HistogramDirectoryName, std::string det_nam
   dir->cd("/");
 }
 
-PlotAmpVsTDiff::PlotAmpVsTDiff(modules::options* opts) : FillHistBase( (opts->GetString("0")).c_str() ) {
+PlotAmpVsTDiff::PlotAmpVsTDiff(modules::options* opts) : BaseModule( (opts->GetString("0")).c_str() ) {
 
   fDetNameA = opts->GetString("1");
   fDetNameB = opts->GetString("2");
@@ -105,7 +105,7 @@ int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   for (AnalysedPulseList::iterator detBPulseIter = detB_pulses.begin(); detBPulseIter != detB_pulses.end(); ++detBPulseIter) {
 
     // Loop through the detA pulses
-    bool coinc_found = false;
+    //bool coinc_found = false;
     for (AnalysedPulseList::iterator detAPulseIter = currentDetAPulse; detAPulseIter != detA_pulses.end(); ++detAPulseIter) {
 
       double detB_time = (*detBPulseIter)->GetTime();

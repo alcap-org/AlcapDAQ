@@ -20,7 +20,7 @@ using std::pair;
 extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
 AnalysePulseIsland::AnalysePulseIsland(char *HistogramDirectoryName) :
-  FillHistBase(HistogramDirectoryName){  
+  BaseModule(HistogramDirectoryName){  
   dir->cd("/");
 }
 
