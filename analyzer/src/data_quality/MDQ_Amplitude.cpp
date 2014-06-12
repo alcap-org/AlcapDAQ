@@ -55,6 +55,7 @@ extern TROOT * gROOT;
 
 map <std::string, TH1F*> DQ_Amplitude_histograms_map;
 map <std::string, TH1F*> DQ_Amplitude_histograms_normalised_map;
+map <std::string, TH1F*> DQ_Amplitude_histograms_ped_sub_map;
 
 extern TH1F* hDQ_TDCCheck_muSc;
 
@@ -107,14 +108,22 @@ INT MDQ_Amplitude_init()
     DQ_Amplitude_histograms_map[bankname] = hDQ_Histogram;
 
     // The normalised histogram
-    histname += "_normalised";
-    histtitle += " (normalised)";
-    TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value,0,max_adc_value);
+    std::string normhistname = histname + "_normalised";
+    std::string normhisttitle = histtitle + " (normalised)";
+    TH1F* hDQ_Histogram_Normalised = new TH1F(normhistname.c_str(), normhisttitle.c_str(), max_adc_value,0,max_adc_value);
     hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Amplitude [adc]");
     std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
     yaxislabel += " per TDC muSc Hit";
     hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
     DQ_Amplitude_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
+
+    // The pedestal subtracted histogram
+    std::string pedsubhistname = histname + "_ped_sub";
+    std::string pedsubhisttitle = histtitle + " (pedestal subtracted)";
+    TH1F* hDQ_Histogram_PedSub = new TH1F(pedsubhistname.c_str(), pedsubhisttitle.c_str(), 2*max_adc_value,-max_adc_value,max_adc_value); // make sure we see any negative amplitudes
+    hDQ_Histogram_PedSub->GetXaxis()->SetTitle("Amplitude [adc]");
+    hDQ_Histogram_PedSub->GetYaxis()->SetTitle("Counts");
+    DQ_Amplitude_histograms_ped_sub_map[bankname] = hDQ_Histogram_PedSub;
   }
 
   gDirectory->Cd("/MidasHists/");
@@ -170,8 +179,13 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 	  std::string bankname = mapIter->first;
 	  std::string detname = gSetup->GetDetectorName(bankname);
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
+
+	  // Get the histograms first
+	  TH1F* hDQ_Amplitude = DQ_Amplitude_histograms_map[bankname];
+	  TH1F* hDQ_Amplitude_Norm = DQ_Amplitude_histograms_normalised_map[bankname];
+	  TH1F* hDQ_Amplitude_PedSub = DQ_Amplitude_histograms_ped_sub_map[bankname];
 	  // Loop over the TPulseIslands and plot the histogram
-		for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
+	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
 				pulseIter != thePulses.end(); ++pulseIter) {
 	    // Make sure the histograms exist and then fill them
 			if (DQ_Amplitude_histograms_map.find(bankname) !=
@@ -193,8 +207,11 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 			  */
 			  const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
 			  int peak_sample = (*pulseIter)->GetPeakSample();
-			  DQ_Amplitude_histograms_map[bankname]->Fill(theSamples.at(peak_sample));
-			  DQ_Amplitude_histograms_normalised_map[bankname]->Fill(theSamples.at(peak_sample));
+			  hDQ_Amplitude->Fill(theSamples.at(peak_sample));
+			  hDQ_Amplitude_Norm->Fill(theSamples.at(peak_sample));
+			  
+			  int amplitude = (*pulseIter)->GetPulseHeight();
+			  hDQ_Amplitude_PedSub->Fill(amplitude);
 				
 	    }
 	  }
