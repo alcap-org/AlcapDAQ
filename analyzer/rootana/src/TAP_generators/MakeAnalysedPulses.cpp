@@ -93,18 +93,18 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
   // Loop over each generator
   string detname,bankname;
-  PulseIslandList thePulseIslands;
+  PulseIslandList* thePulseIslands;
   ChannelGenerators_t::iterator generator;
   AnalysedPulseList theAnalysedPulses;
   int retVal=0;
   for(generator = fGenerators.begin(); generator != fGenerators.end(); generator++){
     // Get the bank name
-    detname = (*generator)->GetChannel();
+    detname = (*generator)->GetChannel().str();
     bankname = gSetup->GetBankName(detname);
 
     // Get the TPIs
-    thePulseIslands=gData->fPulseIslandToChannelMap[bankname];
-    if(thePulseIslands.empty() ){
+    thePulseIslands=&gData->fPulseIslandToChannelMap[bankname];
+    if(thePulseIslands->empty() ){
        if( Debug()) cout<<"List of TPIs for '"<< detname<<"' was empty "<<endl;
        continue;
     }
@@ -113,7 +113,8 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     theAnalysedPulses.clear();
 
     // generate the new list of analyse_pulses
-    retVal=(*generator)->ProcessPulses( thePulseIslands,theAnalysedPulses);
+    (*generator)->SetPulseList(thePulseIslands);
+    retVal=(*generator)->ProcessPulses( *thePulseIslands,theAnalysedPulses);
     if(retVal!=0) return retVal;
 
     // add these into the map of analysed pulses
