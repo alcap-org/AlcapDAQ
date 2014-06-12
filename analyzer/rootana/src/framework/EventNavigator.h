@@ -19,6 +19,13 @@ static TGlobalData *g_event=NULL;
 /// the (MIDAS) Event, which corresponds to a single ROOT branch  
 
 class EventNavigator {
+  typedef IDs::channel ChannelID;
+  typedef IDs::generator GeneratorID;
+  typedef IDs::source sourceID;
+  typedef IDs::Generator_t GeneratorStr;
+  typedef IDs::Config_t Config;
+  
+
  public:
   /// The user accessor. Not sure yet if it can be used without
   /// providing initalisation info.
@@ -55,54 +62,74 @@ class EventNavigator {
   /// Adoption: take ownership of a container of reconstruction
   /// objects. The calling code should lose ownership so the object is
   /// frozen at adoption.  Implemetaion could use a swaped body. 
-  void Adopt(PulseIslandList pil, ChannelID cid, GeneratorID gid,
-	     GeneratorConfig cfg);
-  void Adopt(AnalysedPulseList apl, ChannelID cid, GeneratorID gid,
-	     GeneratorConfig cfg);
-  void Adopt(DetectorPulseList dpl, ChannelID cid, GeneratorID gid,
-	     GeneratorConfig cfg);
-  //void Adopt(MuonEventList mel, ChannelID cid, GeneratorID gid,
-  //           GeneratorConfig cfg);
+  void Adopt(PulseIslandList& pil, const SourceID& sid);
+  void Adopt(AnalysedPulseList& apl, const SourceID& sid);
+  void Adopt(DetectorPulseList& dpl, const SourceID& sid);
+  //void Adopt(MuonEventList& mel, const SourceID& sid);
+  ///This will probably become protected, for copying TAPs
+  void Adopt(PulseIslandList& pil, const ChannelID& cid);
   
 
   /// Adoption of temporaries: As Adopt(), but the adopted objects
   /// expire and are deleted at the end of the current event.
-  void AdoptTemporary(PulseIslandList pil, ChannelID cid, GeneratorID gid,
-	     GeneratorConfig cfg);
-  void AdoptTemporary(AnalysedPulseList apl, ChannelID cid, GeneratorID gid,
-	     GeneratorConfig cfg);
-  void AdoptTemporary(DetectorPulseList dpl, ChannelID cid, GeneratorID gid,
-	     GeneratorConfig cfg);
-  //void Adopt(MuonEventList mel, ChannelID cid, GeneratorID gid,
-  //           GeneratorConfig cfg);
-  
+  void AdoptTemporary(PulseIslandList& pil, const SourceID& sid);
+  void AdoptTemporary(AnalysedPulseList& apl, const SourceID& sid);
+  void AdoptTemporary(DetectorPulseList& dpl, const SourceID& sid); 
+  //void AdoptTemporary(MuonEventList& mel, const SourceID& sid);
+  ///This will probably become protected, for copying TAPs
+  void AdoptTemporary(PulseIslandList& pil, const ChannelID& cid); 
 
   /// Read-only getters for an individual bank.  
   /// Need to work out how to deal with read-mode and write-mode trees
-  const PulseIslandList& FindIslandBank(ChannelID cid,
-					GeneratorID gid = "",
-					GeneratorConfig cfg ="") const;
-				       
-  const AnalysedPulseList& FindAnalysedBank(ChannelID cid, 
-					    GeneratorID gid = "",
-					    GeneratorConfig cfg ="") const;
+  const PulseIslandList& FindIslandBank(const SourceID& sid) const;
+  const PulseIslandList& FindAnalysedBank(const SourceID& sid) const;
+  const PulseIslandList& FindDetectorBank(const SourceID& sid) const;
+
+
+  //TODO 
+  // What shortcuts alowing strings/enums are sensible & useful? 
+  // If any?
+  /*
+  const PulseIslandList& FindIslandBank(ChannelID& cid,
+					GeneratorID& gid = "*");
   
+
+					GeneratorStr gid = "*");
+					Config cfg ="*") const;
+				       
+  const PulseIslandList& FindIslandBank(const ChannelID& cid,
+					const GeneratorID& gid);
+
+  const AnalysedPulseList& FindAnalysedBank(ChannelID cid, 
+					    GeneratorStr gid = "*",
+					    Config cfg ="*") const;
+  
+  const PulseIslandList& FindIslandBank(const ChannelID& cid,
+					const GeneratorID& gid);
+
   const DetectorPulseList& FindDetectorBank(ChannelID cid,
-					    GeneratorID gid = "",
-					    GeneratorConfig cfg ="" ) const;
+					    GeneratorStr gid = "*",
+					    Config cfg ="*" ) const;
   
   //const MuonEventList& GetMuonEventList(GeneratorID gid = "",
   //                                      int count = 0) const;
+  */
+
+
 
   ///Iterable getters for a list of banks
-  PulseIslandBankIter MatchIslandBanks(ChannelID cid,
-				       GeneratorID gid ="") const;
+  PulseIslandBankIter MatchIslandBanks(const SourceID& sid) const;
+  PulseIslandBankIter MatchAnalysedBanks(const SourceID& sid) const;
+  PulseIslandBankIter MatchDetectorBanks(const SourceID& sid) const;
 
-  AnalysedPulseBankIter MatchAnalysedBanks(ChannelID cid,
-					   GeneratorID gid ="") const;
+  PulseIslandBankIter MatchIslandBanks(const ChannelID& cid,
+				       GeneratorStr gid ="") const;
+
+  AnalysedPulseBankIter MatchAnalysedBanks(const ChannelID& cid,
+					   GeneratorStr gid ="") const;
   
-  AnalysedPulseBankIter MatchDetectorBanks(ChannelID cid,
-					   GeneratorID gid ="") const;
+  AnalysedPulseBankIter MatchDetectorBanks(const ChannelID& cid,
+					   GeneratorStr gid ="") const;
 
   
   
@@ -132,3 +159,8 @@ class EventNavigator {
 
 
 #endif //EVENTNAVIGATOR_H
+
+// emacs metadata
+// Local Variables:
+// mode: c++
+// End:

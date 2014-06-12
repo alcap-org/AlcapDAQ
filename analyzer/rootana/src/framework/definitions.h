@@ -11,10 +11,7 @@ namespace IDs{
   const channel Slow(kAnyDetector,kSlow);
 }
 
-class ChannelID;
 
-typedef std::string GeneratorID;
-typedef std::string GeneratorConfig;
 
 // Typedefs for TPulseIslands	
 class TPulseIsland;

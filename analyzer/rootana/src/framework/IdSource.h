@@ -18,13 +18,13 @@ namespace IDs{
 /// This then defines where each pulse at every stage of the reconstruction chain has come from.
 /// Implemented by containing both a channelID and a generatorID.
 class IDs::source:public TObject{
-	public:
+ public:
   /// Default constructor which just invokes default constructors for the
   /// Channel and generator.
-	source():fChannel(),fGenerator(){};
+  source():fChannel(),fGenerator(){};
 
   /// Construct using a given channel and generator ID
-	source(const IDs::channel& ch,const IDs::generator& gen):fChannel(ch),fGenerator(gen){};
+  source(const IDs::channel& ch,const IDs::generator& gen):fChannel(ch),fGenerator(gen){};
 
   /// Construct using strings for each argument of the contained generator and
   /// channel IDs.
@@ -44,7 +44,7 @@ class IDs::source:public TObject{
   /// @param type The type of timing filter (Slow / Fast) used in this source
   /// @param gen The type of generator used to analyse the channel
   /// @param cfg The generator's configuration
-	source(Detector_t det, SlowFast_t type,const Generator_t& t ,const Config_t& c):
+      source(Detector_t det, SlowFast_t type,const Generator_t& t ,const Config_t& c):
 		fChannel(det,type),fGenerator(t,c){};
 	virtual ~source(){};
 
@@ -92,3 +92,8 @@ inline bool IDs::source::operator<(const source& rhs)const{
 }
 
 #endif // IDSOURCE_H_
+
+// emacs metadata
+// Local Variables:
+// mode: c++
+// End:
