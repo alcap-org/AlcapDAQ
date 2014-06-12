@@ -1,12 +1,12 @@
 #ifndef EvdE_h__
 #define EvdE_h__
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 
 class TGlobalData;
 class TSetupData;
 
-class EvdE : public FillHistBase{
+class EvdE : public BaseModule{
  public:
   EvdE(char *HistogramDirectoryName);
   EvdE(char *HistogramDirectoryName, double t0, double t1);

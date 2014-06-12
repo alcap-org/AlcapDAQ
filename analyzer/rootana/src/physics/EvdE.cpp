@@ -1,5 +1,6 @@
 #include "EvdE.h"
 #include "TAnalysedPulse.h"
+#include "definitions.h"
 
 #include <iostream>
 #include <cmath>
@@ -10,18 +11,18 @@
 #include "TH1D.h"
 #include "TH2D.h"
 
-extern std::map< std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+extern StringAnalPulseMap gAnalysedPulseMap;
 static int nSec;            // Number of sections in the silicon thin detectors
 static TH2D* hEvdE[2];      // Histograms (right, left)
 static TH1D* hEvdE_log[2];
 static TH1D* hEprotons[2];
 static TH2D* hEvdEprotons[2];
 
-EvdE::EvdE(char *HistogramDirectoryName):FillHistBase(HistogramDirectoryName) 
+EvdE::EvdE(char *HistogramDirectoryName):BaseModule(HistogramDirectoryName) 
 {;}
 
 EvdE::EvdE(char *HistogramDirectoryName, double t0, double t1) :
-	FillHistBase(HistogramDirectoryName) 
+	BaseModule(HistogramDirectoryName) 
 {
 	// Thin silicon is in quadrants
 	nSec = 4;
@@ -93,9 +94,9 @@ EvdE::~EvdE(){
 int EvdE::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
 
 	// Look for muSc and at least one arm
-	static std::vector<TAnalysedPulse*> *musc;
-	static std::vector<TAnalysedPulse*> *sirThin[4], *silThin[4];
-	static std::vector<TAnalysedPulse*> *sirThick, *silThick;
+	static AnalysedPulseList *musc;
+	static AnalysedPulseList *sirThin[4], *silThin[4];
+	static AnalysedPulseList *sirThick, *silThick;
 	if (gAnalysedPulseMap.count("muSc")) musc = &gAnalysedPulseMap.at("muSc");
 	else return 0;
 
@@ -131,9 +132,9 @@ int EvdE::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
 
 	// Iterators through aforementioned vectors
 	static int iSec;
-	static std::vector<TAnalysedPulse*>::iterator cMusc;
-	static std::vector<TAnalysedPulse*>::iterator cSiRThick, cSiLThick;
-	static std::vector<TAnalysedPulse*>::iterator cSiRThin[4], cSiLThin[4];
+	static AnalysedPulseList::iterator cMusc;
+	static AnalysedPulseList::iterator cSiRThick, cSiLThick;
+	static AnalysedPulseList::iterator cSiRThin[4], cSiLThin[4];
 	cMusc = musc->begin();
 	if (sirThick)
 		cSiRThick = sirThick->begin();

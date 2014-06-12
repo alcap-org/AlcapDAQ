@@ -2,21 +2,14 @@
 #define REGISTER_MODULE_INC
 #include "ModulesFactory.h"
 
-#define ALCAP_REGISTER_STRING(CLASS, NAME, ...) \
-modules::BaseModule* Make##CLASS(modules::options* opt) { return new CLASS(opt) ; } \
- \
-class proxy##CLASS \
-{ \
-  public: \
-    proxy##CLASS() \
-    { \
-      modules::factory *f = modules::factory::Instance(); \
-      f->registerModule( NAME , &Make##CLASS); \
-      /* Add all the arguments to the manager */\
-      f->addArguments( #__VA_ARGS__);\
-    } \
-} p_##CLASS;
-
-#define ALCAP_REGISTER_MODULE( CLASS , ... ) ALCAP_REGISTER_STRING(CLASS, #CLASS, ##__VA_ARGS__ )
+/// @brief Macro to register a module with the modules::factory.  
+/// It needs the name of the class to be added.  Every subsequent argument is
+/// treated as the name of the corresponding argument that could be given in
+/// the modules list using the constructor approach (see the github wiki for more)
+///
+/// @param CLASS Name of the module to be registered (don't quote!)
+/// @param ... List of all argument names 
+#define ALCAP_REGISTER_MODULE( CLASS , ... ) \
+RegistryProxy<CLASS,modules::BaseModule,modules::options,modules::factory> p_##CLASS(#CLASS, #__VA_ARGS__);
 
 #endif // REGISTER_MODULE_INC

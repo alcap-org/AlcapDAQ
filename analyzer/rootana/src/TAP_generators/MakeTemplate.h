@@ -1,7 +1,7 @@
 #ifndef MakeTemplate_h__
 #define MakeTemplate_h__
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "PulseTemplate.h"
@@ -11,7 +11,7 @@
 #include <map>
 #include <string>
 
-class MakeTemplate : public FillHistBase {
+class MakeTemplate : public BaseModule {
 
  private:
   TFile* fTemplateFile;

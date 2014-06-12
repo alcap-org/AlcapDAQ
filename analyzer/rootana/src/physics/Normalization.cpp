@@ -10,7 +10,7 @@
 static TH1F* hNumberOfMuons;
 
 Normalization::Normalization(char *HistogramDirectoryName, int threshold = 350) :
-  FillHistBase(HistogramDirectoryName), fNMuons(0), fThreshold(threshold) {
+  BaseModule(HistogramDirectoryName), fNMuons(0), fThreshold(threshold) {
 
   N_MU = 0;
 

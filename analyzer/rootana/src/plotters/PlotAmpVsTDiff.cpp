@@ -9,6 +9,7 @@
 #include <utility>
 #include <algorithm>
 #include <cmath>
+#include "definitions.h"
 
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
@@ -19,10 +20,10 @@ using std::map;
 using std::vector;
 using std::pair;
 
-extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+extern StringAnalPulseMap gAnalysedPulseMap;
 
 PlotAmpVsTDiff::PlotAmpVsTDiff(char *HistogramDirectoryName, std::string det_name_a, std::string det_name_b) :
-  FillHistBase(HistogramDirectoryName){ 
+  BaseModule(HistogramDirectoryName){ 
 
   fDetNameA = det_name_a;
   fDetNameB = det_name_b;
@@ -48,7 +49,7 @@ PlotAmpVsTDiff::PlotAmpVsTDiff(char *HistogramDirectoryName, std::string det_nam
   dir->cd("/");
 }
 
-PlotAmpVsTDiff::PlotAmpVsTDiff(modules::options* opts) : FillHistBase( (opts->GetString("0")).c_str() ) {
+PlotAmpVsTDiff::PlotAmpVsTDiff(modules::options* opts) : BaseModule( (opts->GetString("0")).c_str() ) {
 
   fDetNameA = opts->GetString("1");
   fDetNameB = opts->GetString("2");
@@ -78,13 +79,10 @@ PlotAmpVsTDiff::~PlotAmpVsTDiff(){
 }
 
 int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
   // Get the detA and detB pulses ready but make sure they exist first
-  std::vector<TAnalysedPulse*> detA_pulses;
-  std::vector<TAnalysedPulse*> detB_pulses;
+  AnalysedPulseList detA_pulses;
+  AnalysedPulseList detB_pulses;
 
   if (gAnalysedPulseMap.find(fDetNameA) == gAnalysedPulseMap.end()) {
     std::cout << fDetNameA << " pulses not found" << std::endl;
@@ -101,14 +99,14 @@ int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   }
   
 
-  std::vector<TAnalysedPulse*>::iterator currentDetAPulse = detA_pulses.begin(); // want to keep track of how far we are through the detA pulses
+  AnalysedPulseList::iterator currentDetAPulse = detA_pulses.begin(); // want to keep track of how far we are through the detA pulses
 
   // Loop through the detB pulses
-  for (std::vector<TAnalysedPulse*>::iterator detBPulseIter = detB_pulses.begin(); detBPulseIter != detB_pulses.end(); ++detBPulseIter) {
+  for (AnalysedPulseList::iterator detBPulseIter = detB_pulses.begin(); detBPulseIter != detB_pulses.end(); ++detBPulseIter) {
 
     // Loop through the detA pulses
-    bool coinc_found = false;
-    for (std::vector<TAnalysedPulse*>::iterator detAPulseIter = currentDetAPulse; detAPulseIter != detA_pulses.end(); ++detAPulseIter) {
+    //bool coinc_found = false;
+    for (AnalysedPulseList::iterator detAPulseIter = currentDetAPulse; detAPulseIter != detA_pulses.end(); ++detAPulseIter) {
 
       double detB_time = (*detBPulseIter)->GetTime();
       double detA_time = (*detAPulseIter)->GetTime();

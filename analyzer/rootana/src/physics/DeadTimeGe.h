@@ -1,11 +1,11 @@
 #ifndef DEADTIMEGE_H_DUEVBG4Q
 #define DEADTIMEGE_H_DUEVBG4Q
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 
-class DeadTimeGe : public FillHistBase 
+class DeadTimeGe : public BaseModule 
 {
 	public:
 		DeadTimeGe(char * HistogramDirectoryName);

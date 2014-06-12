@@ -1,36 +1,17 @@
 #include "ModulesReader.h"
 #include "ModulesFactory.h"
-#include <iostream>
+#include "ModulesParser.h"
 #include <sstream>
 #include <string.h>
 #include <stdio.h>
+using namespace modules::parser;
+using std::endl;
+using std::cout;
+
+#define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
+#define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<endl;
 
 const char* modules::reader::fGlobalModule="global";
-
-static std::string getOneWord(const std::string& in, size_t start=0, size_t stop=std::string::npos){
-	//int begin=in.find_first_not_of(' ',start);
-	//int end=in.find_last_not_of(' ',stop);
-	//int begin=start, end=stop;
-	//std::cout<<"trim: "<<in<<'\t'<<in[begin]<<'\t'<<in[end]<<std::endl;
-	std::stringstream ss(in.substr(start,stop));
-	std::string word;
-	ss>>word;
-	return word;
-}
-
-static void getSeveralWords(const std::string& in, std::vector<std::string> &vect, size_t start=0, size_t stop=std::string::npos){
-	//int begin=in.find_first_not_of(' ',start);
-	//int end=in.find_last_not_of(' ',stop);
-	//int begin=start, end=stop;
-	//std::cout<<"trim: "<<in<<'\t'<<in[begin]<<'\t'<<in[end]<<std::endl;
-	char line[400];
-	strcpy(line,in.substr(start,stop-start).c_str());
-	char* word = strtok(line,", ");
-	while(word != NULL){ 
-	    vect.push_back(word);
-	    word = strtok(NULL,", ");
-	}
-}
 
 int modules::reader::ReadFile(const char* name){
 
@@ -57,10 +38,10 @@ int modules::reader::ReadFile(const char* name){
 	if(isComment(line) ) continue;
 
 	// If this line contains a section name make sure we begin a new section
-	new_section=findSectionName(line);
+	new_section=findSectionName(full_line);
 	if(new_section!="") {
 	    section=new_section;
-	    if(fShouldPrint) std::cout<<"Found new section: "<<section<<std::endl;
+	    if(fShouldPrint) std::cout<<"Found new section: '"<<section<<"'"<<std::endl;
 	    if(section!="MODULES") {
 		AddSection(section);
 	    }
@@ -110,60 +91,44 @@ bool modules::reader::isComment( std::stringstream& line){
     return false;
 }
 
-std::string modules::reader::findSectionName(std::stringstream& line){
+std::string modules::reader::findSectionName(const std::string& line){
     // sections are marked with [] either side of the name
-    static std::string word;
-    word="";
-    char start=0,stop=0;
-    line>>start>>word>>stop;
-    //std::cout<<line.good()<<std::endl;
-    //std::cout<<line.str()<<'\t'<< start <<'\t'<< word<<'\t'<<stop<<std::endl;
-    if(start=='['){
-	if( stop != ']') {// occurs if no whitespace between closing brace and word
-	    stop = word[word.size()-1];
-	    if(stop == ']') word.resize(word.size()-1);
-	}
-	if(stop == ']') return word;
-    }
-    return "";
+	Constructor_t section= modules::parser::ParseConstructor(line,'[',']');
+    return section.inside;
 }
 
 int modules::reader::AddModule(std::string line){
-    std::string name, type;
+    std::string alias, type;
 
     // How is this module specified ? 
-    // If  the line contains an equals sign, assume we have a name and a type
+    // If  the line contains an equals sign, assume we have a alias and a type
     // (and possibly arguments), if not, assume it's just a type (and possibly
     // arguments)
-    size_t equ_pos=line.find('=');
-    if(equ_pos==std::string::npos) {
-	// module is not named
-	name="";
-    }else{
-	// module is named
-	name=getOneWord(line,0,equ_pos);
-	line=line.substr(equ_pos+1);
-    }
+    Constructor_t constructor=ParseConstructor(line,'(',')');
 
-    // Get the type of the module to be used
-    size_t br_pos=line.find('(');
-    type=getOneWord(line,0,br_pos);
+    std::vector<std::string> name_alias;
+    TokeniseByDelimiter(constructor.before, name_alias,"=");
+    if(name_alias.size()>2) {
+	    PrintProblem()<<"Multiple equals signs (=) in line gives an ambiguous alias / alias."<<std::endl;
+	    return 1;
+    }else if(name_alias.size()==2) {
+	    alias=name_alias[0];
+	    type=name_alias[1];
+	    TrimWhiteSpaceBeforeAfter(alias);
+    }else if(name_alias.size()==1) type=name_alias[0];
+    else {
+	    PrintProblem()<<"No module requested"<<std::endl;
+	    return 2;
+    }
+    TrimWhiteSpaceBeforeAfter(type);
 
     // Get arguments to the module if they're provided
     std::vector<std::string> args;
-    if(br_pos!=std::string::npos) {
-	size_t br_close_pos=line.rfind(')');
-	if(br_close_pos ==std::string::npos) {
-	    std::cout<<"Error on line "<<fLineNumber<<": no closing parenthesis for arguments of '"<<type<<"'"<<std::endl;
-	    return 2;
-	} else {
-	    getSeveralWords(line,args,br_pos+1, br_close_pos);
-	}
-    }
+    TokeniseByDelimiter(constructor.inside,args,",");
 
     if(fShouldPrint){
 	std::cout<<"Adding module: '"<<type<<"'"<<std::endl;
-	std::cout<<"   with name: '"<<name<<"'"<<std::endl;
+	std::cout<<"   with alias: '"<<alias<<"'"<<std::endl;
 	std::cout<<"   and "<<args.size()<<" arguments:"<<std::endl;
 	for(unsigned i=0;i<args.size() ;i++)
 		std::cout<<"     "<<i<<'\t'<<args[i]<<std::endl;
@@ -171,16 +136,17 @@ int modules::reader::AddModule(std::string line){
 
     //Add the module to the list of modules
     modules::options* opts;
-    if(name==""){
+    if(alias==""){
         opts=new modules::options(type);
     }else{
 	// since the module has been named, create a section to store other
 	// options that may be provided subsequently
-	if(!AddSection(name,type)){
-	    std::cout<<"Error on line "<<fLineNumber<<": module name is being reused"<<std::endl;
+	if(!AddSection(alias,type)){
+	    PrintProblem()<<" module alias is being reused"<<std::endl;
 	    return 1;
 	}
-        opts=fAllOptions[name];
+        opts=fAllOptions[alias];
+	opts->SetAlias(alias);
     }
     // Add all arguments passed to this module to it's options
     for(unsigned i=0;i<args.size();i++) {
@@ -307,4 +273,8 @@ void modules::reader::ProcessGlobalOption(Option_t opt){
      if(fShouldPrint) std::cout<<"Warning: Unknown global option given, '"<<opt.key<<"'"<<std::endl;
      return;
   }
+}
+
+std::ostream& modules::reader::PrintProblem(){
+	return std::cout<<"Problem on line "<<fLineNumber<<": ";
 }

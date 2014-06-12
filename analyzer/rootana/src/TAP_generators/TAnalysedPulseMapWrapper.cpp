@@ -8,7 +8,7 @@ TAnalysedPulseMapWrapper::TAnalysedPulseMapWrapper()
 }
 
 TAnalysedPulseMapWrapper::TAnalysedPulseMapWrapper 
-(map<string, vector<TAnalysedPulse *> > aMap)
+(StringAnalPulseMap aMap)
 {
 	Reset();
 	fChn2PulseMap = aMap;
@@ -26,15 +26,15 @@ TAnalysedPulseMapWrapper::~TAnalysedPulseMapWrapper()
 
 void TAnalysedPulseMapWrapper::ShowInfo()
 {
-	printf("map size: %d\n", fChn2PulseMap.size());
-	map<string, vector<TAnalysedPulse *> >::iterator mapIter;
+	printf("map size: %lu\n", fChn2PulseMap.size());
+	StringAnalPulseMap::iterator mapIter;
 	
 	for (mapIter = fChn2PulseMap.begin(); 
 			mapIter != fChn2PulseMap.end(); ++mapIter)
 	{
 		printf("%s\n", mapIter->first.c_str());
-		vector<TAnalysedPulse *> pulseVector = mapIter->second;
-		vector<TAnalysedPulse *>::iterator pulseIter;
+		AnalysedPulseList pulseVector = mapIter->second;
+		AnalysedPulseList::iterator pulseIter;
 		for (pulseIter = pulseVector.begin(); 
 				pulseIter != pulseVector.end(); ++pulseIter)
 		{

@@ -6,7 +6,8 @@
 #include <map>
 #include <iostream>
 
-#include "FillHistBase.h"
+#include "definitions.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
@@ -14,63 +15,108 @@
 
 class TVAnalysedPulseGenerator;
 class TPulseIsland;
-class TAnalysedPulse;
+#include "TAnalysedPulse.h"
 
-class ExportPulse : public FillHistBase{
-  typedef std::vector<TPulseIsland*> PulseIslandList_t;
-  typedef std::map<std::string, PulseIslandList_t > BankPulseList_t;
-  typedef int PulseID_t;
+/// Class to handle drawing of a given pulse.
+/// @see https://github.com/alcap-org/AlcapDAQ/wiki/rootana_module_ExportPulses
+class ExportPulse : public BaseModule{
+  typedef int TPulseIslandID;
   typedef int EventID_t;
-  typedef std::set<PulseID_t> PulseIDList_t;
+  typedef std::set<TPulseIslandID> PulseIDList_t;
   typedef std::map<std::string,PulseIDList_t> ChannelPulseIDs_t;
   typedef std::map<EventID_t,PulseIDList_t> EventPulseIDList_t;
   typedef std::map<std::string,EventPulseIDList_t> EventChannelPulseIDs_t;
 
+  /// Information needed to make one plot.
+  /// In future this may be moved elsewhere to be used by other modules
   struct PulseInfo_t{
-	  int ID;
-	  std::string bankname;
-	  std::string detname;
+    int pulseID;
+    Long64_t event;
+    std::string bankname;
+    std::string detname;
+    /// Function to convert the details in this struct
+    /// into a string used for naming plots
+    std::string MakeTPIName()const;
   };
 
  public:
   ExportPulse(modules::options* opts);
   ~ExportPulse();
 
-  void AddToExportList(const std::string& detector,PulseID_t pulse_id);
+  /// @brief Log a request to draw a given TPI
+  ///
+  /// @param channel Name of channel to draw TPI from
+  /// @param pulse_id TPI location in list
+  void AddToExportList(const std::string& channel,TPulseIslandID pulse_id);
+
+  /// @brief Add TAP to draw.  Also draws the TAPs parent TPI.
+  ///
+  /// @param channel Name of channel that produced this pulse
+  /// @param pulse Pulse to be drawn
+  void AddToExportList(const std::string& channel,const TAnalysedPulse* pulse);
+
+  /// Static method to get the instance of ExportPulse. 
+  /// @warning This method returns NULL if the ExportPulse module is not
+  /// requested by the user through the modules file.  Always check the returned
+  /// pointer is not NULL before using it:
+  /// @code
+  /// if(ExportPulse::Instance()){
+  ///    // now we know it's safe, you can do something with this module
+  //     ExportPulse::Instance()->AddToExportList(channel,0);
+  /// }
+  /// @endcode
+  /// @return NULL if the module was not requested in the modules file
   static ExportPulse* Instance();
 
  private:
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+  /// ExportPulse uses this method to process the config 
+  /// file for any specifically requested pulses
   virtual int BeforeFirstEntry(TGlobalData* gData,TSetupData *setup);
+
+  /// @brief Plot all pulses that we were asked to draw for this event.
+  /// @details First loads pulses requested by the config file, then draws all
+  /// TPIs, then draw all TAPs.
+  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
   //virtual int AfterLastEntry(TGlobalData* gData){return 0;};
 
-  int MakePlot(const TPulseIsland* pulse)const;
-  PulseIslandList_t* GetPulsesFromDetector(std::string bank="");
+  /// Draw all TPIs requested for this event
+  int DrawTPIs();
 
-  void SetCurrentPulseID(const PulseID_t& id){fPulseInfo.ID=id;};
-  void SetCurrentEventNumber(const Long64_t& num){fEventNumber=num;};
+  /// Draw all TAPs requested for this event
+  int DrawTAPs();
+
+  /// Plot a single TPI
+  int PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info)const;
+  /// Plot a single TAP
+  int PlotTAP(const TAnalysedPulse* pulse, const PulseInfo_t& info)const;
+  /// Get a pointer to the list of TPIs for a given detector
+  PulseIslandList* GetTPIsFromDetector(std::string bank="");
+
+  void SetCurrentPulseID(const TPulseIslandID& id){fPulseInfo.pulseID=id;};
+  void SetCurrentEventNumber(const Long64_t& num){fPulseInfo.event=num;};
   void SetCurrentDetectorName(const std::string& detector);
 
-  PulseID_t GetCurrentPulseID()const{return fPulseInfo.ID;};
-  Long64_t GetCurrentEventNumber()const{return fEventNumber;};
-  std::string GetCurrentDetectorName()const{return fPulseInfo.detname;};
+  Long64_t GetCurrentEventNumber()const{return fPulseInfo.event;};
   std::string GetCurrentBankName()const{return fPulseInfo.bankname;};
   Long64_t GetTotalNumberOfEvents()const{return fTotalEvents;};
   void ClearPulsesToExport();
 
-  void AddToConfigRequestList( EventID_t event_id, const std::string& detector,PulseID_t pulse_id);
+  void AddToConfigRequestList( EventID_t event_id, const std::string& detector,TPulseIslandID pulse_id);
   bool ParseEventRequest(std::string input, std::vector<EventID_t>& event_list);
   void ShowGuidance();
   bool ParsePulseRequest(std::string input, std::vector<EventID_t>& list);
   bool ParseRequest(std::string input, std::vector<EventID_t>& list,
-		  const std::string& type, Long64_t lower_limit, Long64_t upper_limit);
+  const std::string& type, Long64_t lower_limit, Long64_t upper_limit);
   void LoadPulsesRequestedByConfig();
 
  private:
 
   bool fGuidanceShown;
-  Long64_t fEventNumber,fTotalEvents;
-  ChannelPulseIDs_t fPulsesToPlot;
+  Long64_t fTotalEvents;
+  double fClockTick;
+  double fTimeShift;
+  ChannelPulseIDs_t fTPIsToPlot;
+  StringConstAnalPulseMap fTAPsToPlot;
   EventChannelPulseIDs_t fRequestedByConfig;
   PulseInfo_t fPulseInfo;
   TSetupData* fSetup;
@@ -84,18 +130,25 @@ inline ExportPulse* ExportPulse::Instance() {
   return modules::navigator::Instance()->GetModule<ExportPulse>("ExportPulse");
 }
 
-inline void ExportPulse::AddToExportList(const std::string& detector,PulseID_t pulse_id) {
-	std::cout<<"Adding pulse for detector '"<<detector<<"' pulse no. '"<<pulse_id<<"'"<<std::endl;
-  fPulsesToPlot[detector].insert(pulse_id);
+inline void ExportPulse::AddToExportList(const std::string& detector,TPulseIslandID pulse_id) {
+  fTPIsToPlot[detector].insert(pulse_id);
 }
 
-inline void ExportPulse::AddToConfigRequestList(EventID_t event_id, const std::string& detector,PulseID_t pulse_id) {
+inline void ExportPulse::AddToExportList(const std::string& detector,const TAnalysedPulse* pulse){
+  if(Debug()) std::cout<<"ExportPulse: Asked to draw a TAP for "<<detector<<std::endl;
+  fTAPsToPlot[detector].push_back(pulse);
+  AddToExportList(detector,pulse->GetPulseIslandID());
+}
+
+inline void ExportPulse::AddToConfigRequestList(EventID_t event_id, const std::string& detector,TPulseIslandID pulse_id) {
   fRequestedByConfig[detector][event_id].insert(pulse_id);
 }
 
 inline void ExportPulse::SetCurrentDetectorName(const std::string& detector){
-	fPulseInfo.detname=detector;
-        fPulseInfo.bankname=fSetup->GetBankName(detector);
+  fPulseInfo.detname=detector;
+  fPulseInfo.bankname=fSetup->GetBankName(detector);
+  fClockTick = TSetupData::Instance()->GetClockTick(fPulseInfo.bankname);
+  fTimeShift = TSetupData::Instance()->GetTimeShift(fPulseInfo.bankname);
 }
 
 #endif // ExportPulse_H__

@@ -22,7 +22,7 @@ extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 extern std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
 
 CreateDetectorPulse::CreateDetectorPulse(char *HistogramDirectoryName) :
-  FillHistBase(HistogramDirectoryName){ 
+  BaseModule(HistogramDirectoryName){ 
   dir->cd("/");
 }
 

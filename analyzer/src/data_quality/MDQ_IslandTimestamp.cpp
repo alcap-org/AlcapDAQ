@@ -82,10 +82,14 @@ INT MDQ_IslandTimestamp_init()
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
 
+    double bin_width = gSetup->GetClockTick(bankname) * 1000;
+    double bin_max = 120e6;
+    int n_bins = bin_max / bin_width;
+
     // hDQ_IslandTimestamp_[DetName]_[BankName]
     std::string histname = "hDQ_IslandTimestamp_" + detname + "_" + bankname;
     std::string histtitle = "Distribution of time stamps in " + detname;
-    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 1200, 0, 120e6);
+    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), n_bins, 0, bin_max);
     hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
     hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands");
     DQ_IslandTimestamp_histograms_map[bankname] = hDQ_Histogram;
@@ -93,7 +97,7 @@ INT MDQ_IslandTimestamp_init()
     // The normalised histogram
     histname += "_normalised";
     histtitle += " (normalised)";
-    TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), 1200,0,120e6);
+    TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), n_bins,0,bin_max);
     hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Time Stamp [ns]");
     std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
     yaxislabel += " per TDC muSc Hit";
@@ -158,6 +162,10 @@ INT MDQ_IslandTimestamp(EVENT_HEADER *pheader, void *pevent)
 	  std::string bankname = mapIter->first;
 	  std::string detname = gSetup->GetDetectorName(bankname);
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
+
+	  // Get the histograms before looping through the pulses
+	  TH1F* hDQ_IslandTimestamp = DQ_IslandTimestamp_histograms_map[bankname];
+	  TH1F* hDQ_IslandTimestamp_Norm = DQ_IslandTimestamp_histograms_normalised_map[bankname];
 			
 	  // Loop over the TPulseIslands and plot the histogram
 	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
@@ -168,8 +176,8 @@ INT MDQ_IslandTimestamp(EVENT_HEADER *pheader, void *pevent)
 	      double clock_tick_in_ns = (*pulseIter)->GetClockTickInNs();
 	      double block_time = time_stamp * clock_tick_in_ns;
 
-	      DQ_IslandTimestamp_histograms_map[bankname]->Fill(block_time);
-	      DQ_IslandTimestamp_histograms_normalised_map[bankname]->Fill(block_time);
+	      hDQ_IslandTimestamp->Fill(block_time);
+	      hDQ_IslandTimestamp_Norm->Fill(block_time);
 	    }
 	  }
 	}

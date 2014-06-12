@@ -1,12 +1,12 @@
 #ifndef PlotAmplitude_h__
 #define PlotAmplitude_h__
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
 
-class PlotAmplitude : public FillHistBase{
+class PlotAmplitude : public BaseModule{
  public:
   PlotAmplitude(char *HistogramDirectoryName);
   PlotAmplitude(modules::options* opts);

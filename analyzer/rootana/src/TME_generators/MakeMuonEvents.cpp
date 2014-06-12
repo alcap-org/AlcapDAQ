@@ -1,6 +1,7 @@
 #include "MakeMuonEvents.h"
 #include <TMuonEvent.h>
 #include "ModulesOptions.h"
+#include "definitions.h"
 
 #include <iostream>
 #include <string>
@@ -9,19 +10,20 @@
 
 #include "MaxTimeDiffMEGenerator.h"
 #include "RegisterModule.inc"
+#include "TMEGeneratorFactory.h"
 
 using std::string;
 using std::map;
 using std::cout;
 using std::endl;
 
-extern std::vector<TMuonEvent* > gMuonEvents;
-extern std::map<std::string, std::vector<TDetectorPulse*> > gDetectorPulseMap;
+extern MuonEventList gMuonEvents;
+extern StringDetPulseMap gDetectorPulseMap;
 
 MakeMuonEvents::MakeMuonEvents(modules::options* opts):
-  FillHistBase("MakeMuonEvents",opts),fOptions(opts){
+  BaseModule("MakeMuonEvents",opts),fOptions(opts){
       if(fOptions){
-	  fAlgorithm=fOptions->GetString("algorithm");
+	  fAlgorithm=fOptions->GetString("algorithm","MaxTimeDiff");
       }
   dir->cd("/");
 }
@@ -30,8 +32,14 @@ MakeMuonEvents::~MakeMuonEvents(){
 }
 
 int MakeMuonEvents::BeforeFirstEntry(TGlobalData *aData, TSetupData* aSetup){
-    fGenerator=MakeGenerator(fAlgorithm);
-    if(!fGenerator) return 1;
+    if(fAlgorithm.empty()) return 1;
+    TMEGeneratorOptions* opts=NULL;
+    if(Debug()){
+       opts = new TMEGeneratorOptions(fAlgorithm);
+       opts->SetOption("debug","");
+    }
+    fGenerator=TMEGeneratorFactory::Instance()->createModule(fAlgorithm,opts);
+    if(!fGenerator) return 2;
     return 0;
 }
 
@@ -41,14 +49,5 @@ int MakeMuonEvents::ProcessEntry(TGlobalData *aData, TSetupData* aSetup){
   return retVal;
 }
 
-TVMuonEventGenerator* MakeMuonEvents::MakeGenerator(const std::string& algorithm){
-	TVMuonEventGenerator* aGenerator=NULL;
-	if(algorithm=="MaxTimeDiff"){
-		aGenerator=new MaxTimeDiffMEGenerator(fOptions);
-	}else{
-		cout<<"Unknown TVMuonEventGenerator requested: '"<<algorithm<<"'"<<endl;
-	}
-	return aGenerator;
-}
 
 ALCAP_REGISTER_MODULE(MakeMuonEvents,algorithm);

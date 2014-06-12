@@ -1,8 +1,12 @@
 #include "ModulesOptions.h"
+#include "ModulesParser.h"
 #include "ModulesFactory.h"
 #include <sstream>
 #include <iostream>
 #include <string.h>
+
+#define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
+#define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<std::endl;
 
 std::string modules::options::GetOption(const std::string& key)const{
     OptionsList_t::const_iterator it = fOptions.find(key);
@@ -26,7 +30,10 @@ double modules::options::GetDouble(const std::string& name,double defVal)const{
 }
 
 std::string modules::options::GetString(const std::string& name,const std::string& defVal)const{
-    return GetOption<std::string>(name,defVal);
+	std::string ret_val=GetOption(name);
+        modules::parser::TrimWhiteSpaceBeforeAfter(ret_val);
+	if(ret_val=="") ret_val=defVal;
+     return ret_val;
 }
 
 bool modules::options::GetBool(const std::string& name,bool defVal)const{
@@ -36,20 +43,24 @@ bool modules::options::GetBool(const std::string& name,bool defVal)const{
 int modules::options::GetVectorStringsByWhiteSpace(const std::string& name, std::vector<std::string>& vect)const{
     std::stringstream ss(GetOption(name));
     std::string val;
-    while(ss>>val) vect.push_back(val);
-    return vect.size();
+    int num_tokens=0;
+    for(;ss>>val; num_tokens++) {
+      vect.push_back(val);
+    }
+    return num_tokens;
 }
 
 int modules::options::GetVectorStringsByDelimiter(const std::string& name, std::vector<std::string>& vect, const char* delim)const{
     char line[2048];
     strcpy(line,GetOption(name).c_str());
     char* word = strtok(line,delim);
-    while(word != NULL){ 
+    int num_tokens=0;
+    for(;word != NULL; num_tokens++) {
 	    //std::cout<<"ModulesOptions:GetVectorStringsByDelimiter() "<<word<<std::endl;
         vect.push_back(word);
         word = strtok(NULL,delim);
     }
-    return vect.size();
+    return num_tokens;
 }
 
 void modules::options::DumpOptions(const std::string& prefix)const{

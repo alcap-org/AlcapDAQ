@@ -1,27 +1,28 @@
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "ModulesOptions.h"
+#include "TDirectory.h"
 #include <iostream>
 
-FillHistBase::FillHistBase(const char *HistogramDirectoryName,modules::options* opts,TSetupData* setup):
+BaseModule::BaseModule(const char *HistogramDirectoryName,modules::options* opts,TSetupData* setup):
 	fSetup(setup),fDebug(false){
   if(opts){
-    fDebug=opts->HasOption("debug");
+    fDebug=(opts->HasOption("debug") && (opts->GetOption("debug").empty() || opts->GetBool("debug")));
     //std::cout<<"Should we debug module: "<<HistogramDirectoryName<<": "<<(fDebug?"yes":"no")<<std::endl;
   }
   dir = gDirectory->mkdir(HistogramDirectoryName);
   dir->cd();
 }
 
-FillHistBase::~FillHistBase()
+BaseModule::~BaseModule()
 {
 }
 
-int FillHistBase::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int BaseModule::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   // This is a virtual function and should be overwritten by the deriving analysis module!
   return 0;
 }
 
-int FillHistBase::ProcessGenericEntry(TGlobalData *gData, TSetupData *gSetup){
+int BaseModule::ProcessGenericEntry(TGlobalData *gData, TSetupData *gSetup){
   // This is called by our main routine and would allow later to split into different 
   // process routines if we have more than one Tree and hence different tpyes of data input.
 

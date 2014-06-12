@@ -1,5 +1,6 @@
 #include "Lifetime.h"
 #include "TAnalysedPulse.h"
+#include "definitions.h"
 
 #include <iostream>
 #include <string>
@@ -8,7 +9,7 @@
 
 #include "TH1I.h"
 
-extern std::map< std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
+extern StringAnalPulseMap gAnalysedPulseMap;
 static unsigned int nECut;                // Number of histograms to make (each with different energy cut for final "capture" event)
 static double tCut[2];                    // Two time cuts in nanosecond (minimum time before looking for decay, maximum time)
 static double tPileUp;                    // Pileup window time (no two muons allowed within this window of each other)
@@ -18,7 +19,7 @@ static std::vector<std::string> sTitles;  // Histogram titles
 static std::vector<TH1I*> hLifetime;      // Histograms
 
 Lifetime::Lifetime(char *HistogramDirectoryName) :
-  FillHistBase(HistogramDirectoryName) {
+  BaseModule(HistogramDirectoryName) {
 
   // Time in ns
   tCut[0] = 800.;
@@ -88,8 +89,8 @@ Lifetime::~Lifetime(){
 int Lifetime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
 
   // Look for muSc and at least one arm
-  std::vector<TAnalysedPulse*> *musc;
-  std::vector<TAnalysedPulse*> *sir, *sil;
+  AnalysedPulseList *musc;
+  AnalysedPulseList *sir, *sil;
   if (gAnalysedPulseMap.count("muSc")) musc = &gAnalysedPulseMap.at("muSc");
   else return 0;
 
@@ -103,8 +104,8 @@ int Lifetime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
   if (sil == NULL && sir == NULL) return 0;
 
   // Iterators through aforementioned vectors
-  std::vector<TAnalysedPulse*>::iterator cMusc;
-  std::vector<TAnalysedPulse*>::iterator cSiR, cSiL;
+  AnalysedPulseList::iterator cMusc;
+  AnalysedPulseList::iterator cSiR, cSiL;
   cMusc = musc->begin();
   if (sir)
     cSiR = sir->begin();

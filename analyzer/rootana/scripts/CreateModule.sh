@@ -1,7 +1,7 @@
 #! /bin/bash
 
 ListOfSpecials=( module {TAP,TDP,TME}_generator )
-#Unimplemented=( {TAP,TDP,TME}_generator )
+Unimplemented=( {TDP,TME}_generator )
 ScriptDirectory="$(readlink -f `dirname $0`)"
 TemplateDirectory="$ScriptDirectory/templates"
 
@@ -11,7 +11,7 @@ cat <<EOF
 Usage: $0 Name [Type] [TargetDirectory]
       Script to create a set of skeleton files to implement a new module or generator
       ModuleName   = The name of the new component.
-      Type (optional) = Make a special type of component.  
+      Type (optional) = Make a special type of module.  
                         Must be one of: ${ListOfSpecials[@]}
                         Default is '${ListOfSpecials[0]}'.
       TargetDirectory = Specify a target directory to place the new files.
@@ -36,6 +36,7 @@ if [[ -n $2 ]];then
     done
     if [ -z "$Specialisation" ];then
         echo "ERROR: Requested specialisation, '$RequestedSpecial' is not one of: ${ListOfSpecials[@]}"
+	echo
         Usage
         exit 2
     fi
@@ -68,6 +69,13 @@ else
         # Find the directory containing the templates. We assume it is ../src 
         # to the one that contains this script
         TargetDirectory="`readlink -f "$ScriptDirectory"/../src`"
+       if [[ "$Specialisation" == tap* ]];then
+	       TargetDirectory="$TargetDirectory/TAP_generators"
+       elif [[ "$Specialisation" == tdp* ]];then
+	       TargetDirectory="$TargetDirectory/TDP_generators"
+       elif [[ "$Specialisation" == tme* ]];then
+	       TargetDirectory="$TargetDirectory/TME_generators"
+       fi
 fi
 
 #Check TargetDirectory exists
@@ -80,23 +88,25 @@ fi
 MODULE_NAME="`tr 'a-z' 'A-Z' <<<${ModuleName}`"
 ModuleName=${MODULE_NAME:0:1}${ModuleName:1}
 
-# If we have a generator, give it the standard suffix
+# Setup the Output file name
+OutFilename="${ModuleName}"
 if [[ "$Specialisation" == *_generator ]];then
       if [[ "$Specialisation" == tap* ]];then
-	      ModuleName="${ModuleName}AP"
+	      OutFilename="${OutFilename}AP"
       elif [[ "$Specialisation" == tdp* ]];then
-	      ModuleName="${ModuleName}DP"
+	      OutFilename="${OutFilename}DP"
       elif [[ "$Specialisation" == tme* ]];then
-	      ModuleName="${ModuleName}ME"
+	      OutFilename="${OutFilename}ME"
       fi
-      ModuleName="${ModuleName}Generator"
+      OutFilename="${OutFilename}Generator"
 fi
 
-FilenameReplace="Template_${Specialisation}"
-ListOfFiles=( ${FilenameReplace}.{h,cpp} )
-for InFile in ${ListOfFiles[@]};do
-    OutFile=${InFile/"$FilenameReplace"/"$ModuleName"}
-    #echo $InFile $OutFile
+InFilename="Template_${Specialisation}"
+ListOfExtensions=( .{h,cpp} )
+for Extension in ${ListOfExtensions[@]};do
+    InFile=${InFilename}${Extension}
+    OutFile=${OutFilename}${Extension}
+    echo $InFile $OutFile
     #Check if OutFile exists
     if [ -e "$TargetDirectory/$OutFile" ] ;then
         echo "$OutFile already exists, so skip it..."

@@ -1,14 +1,14 @@
 #ifndef Normalization_h__
 #define Normalization_h__
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 
 #include <vector>
 
 class TGlobalData;
 class TSetupData;
 
-class Normalization : public FillHistBase{
+class Normalization : public BaseModule{
  public:
   Normalization(char *HistogramDirectoryName, int threshold);
   ~Normalization();

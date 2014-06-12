@@ -1,23 +1,25 @@
+#include "TDPGeneratorFactory.h"
 #include "MaxTimeDiffDPGenerator.h"
 #include <iostream>
 #include <vector>
 #include <cmath>
 using std::cout;
 using std::endl;
+
 void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::string& detector, 
-		  const AnalysedPulseList_t* fast_pulses, const AnalysedPulseList_t* slow_pulses,
-		  DetectorPulseList_t& output){
+		  const AnalysedPulseList* fast_pulses, const AnalysedPulseList* slow_pulses,
+		  DetectorPulseList& output){
 
-	  AnalysedPulseList_t::const_iterator fastPulseIter = fast_pulses->begin();
-	  AnalysedPulseList_t::const_iterator slowPulseIter = slow_pulses->begin();
-	  AnalysedPulseList_t::const_iterator finalFastPulseIter = fast_pulses->end();
-	  AnalysedPulseList_t::const_iterator finalSlowPulseIter = slow_pulses->end();
+	  AnalysedPulseList::const_iterator fastPulseIter = fast_pulses->begin();
+	  AnalysedPulseList::const_iterator slowPulseIter = slow_pulses->begin();
+	  AnalysedPulseList::const_iterator finalFastPulseIter = fast_pulses->end();
+	  AnalysedPulseList::const_iterator finalSlowPulseIter = slow_pulses->end();
 
-	  std::vector<AnalysedPulseList_t::const_iterator> pulseIters;
+	  std::vector<AnalysedPulseList::const_iterator> pulseIters;
 	  pulseIters.push_back(fastPulseIter);
 	  pulseIters.push_back(slowPulseIter);
 
-	  std::vector<AnalysedPulseList_t::const_iterator> finalIters;
+	  std::vector<AnalysedPulseList::const_iterator> finalIters;
 	  finalIters.push_back(finalFastPulseIter);
 	  finalIters.push_back(finalSlowPulseIter);
 
@@ -74,3 +76,5 @@ void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::st
 	    } // for (int b -reversed)	      
 	  } // end for
 }
+
+ALCAP_TDP_GENERATOR(MaxTimeDiff);
