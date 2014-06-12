@@ -143,9 +143,13 @@ void WireMap::Load(int run_number, const std::string& odb_file) {
     if (str == header) {
       while (f.good()) {
 	f >> str;
+	// Quit out if a new key has started,
+	// indicated in the ODB by a [
+	if (str[0] == '[')
+	  break;
 	key = GetKey(str);
 	f.getline(tmp, 256);
-	unsigned int n = 0; // Array size
+	unsigned int n = 0; // Array size in ODB
 	if (key == BANK) {
 	  n = GetArraySize(tmp);
 	  fBankName.reserve(n);

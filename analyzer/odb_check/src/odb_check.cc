@@ -1,3 +1,6 @@
+/**
+ * \file
+ */
 #include "ODBCheck.hh"
 
 #include <iostream>
@@ -8,11 +11,14 @@
 
 extern TROOT* gROOT;
 
+/// Prints the usage message.
 void usage() {
   using namespace std;
   cout << "usage: odb_check [-h | --help] [--usage] -d data_dir [-c corr_dir] [-r first_run last_run] [run1 [run2...]]" << endl;
 }
 
+/// Prints the usage message and some information
+/// on the arguments.
 void help() {
   using namespace std;
   usage();
@@ -29,6 +35,7 @@ void help() {
     "           numbers to process." << endl;
 }
 
+/// Homemade argument parser.
 bool parse_args(int argc, char* argv[], std::vector<int>& runs, std::string& data_dir, std::string& corr_dir) {
   if (argc == 1) {
     help();
@@ -114,6 +121,17 @@ bool parse_args(int argc, char* argv[], std::vector<int>& runs, std::string& dat
   return true;
 }
 
+/// \brief The program loops through all runs passed to it and produces correction
+/// filees and saves them to a target directory.
+///
+/// odb_check looks at histograms produced by alcapana and
+/// the ODB files saved during the run and finds inconsistencies
+/// and attempts to correct them. See the WireMap for
+/// and indication of what gets read in from the ODB.
+/// See the DataDir for an idea of what files are read
+/// in and produced. See PulseEstimate to see what
+/// how the estimates are made. And finally see ODBCheck
+/// to get a feel for how this all comes together.
 int main(int argc, char* argv[]) {
   // First and foremost, check that we can read in files
   if(gROOT->GetPluginManager()->FindHandler("TVirtualStreamerInfo") == NULL)
