@@ -96,12 +96,26 @@ int PulseViewer::SetTriggerType(const std::string& equality){
 }
 
 int PulseViewer::SetTriggerParameter(const std::string& parameter){
-	if(parameter=="amplitude") fTriggerParameter=kAmplitude;
-	else if(parameter=="time") fTriggerParameter=kTime;
-	else if(parameter=="TPI_length") fTriggerParameter=kTPILength;
-	//else if(parameter=="integral") fTriggerParameter=kIntegral;
-	else{
+  typedef std::map<std::string,ParameterType> ParameterKeys;
+  static ParameterKeys available_params;
+  if(available_params.empty()){
+     available_params["amplitude"]=kAmplitude;
+     available_params["time"]=kTime;
+     available_params["TPI_length"]=kTPILength;
+     available_params["integral"]=kIntegral;
+     available_params["energy"]=kEnergy;
+     available_params["pedestal"]=kPedestal;
+     available_params["trigger_time"]=kTriggerTime;
+  }
+  ParameterKeys::iterator it=available_params.find(parameter);
+	if(it!=available_params.end()){
+    fTriggerParameter=it->second;
+  }else{
 		cout<<"Error: Unknown parameter requested: '"<<parameter<<"'"<<endl;
+		cout<<"   Possible values are:"<<endl;
+    for(it=available_params.begin();it!=available_params.end();it++){
+		     cout<<"    |-"<<it->first<<endl;
+    }
 		return 1;
 	}
 	fParameterString=parameter;
@@ -151,7 +165,16 @@ double PulseViewer::GetParameterValue(const TAnalysedPulse& pulse){
 		retVal=pulse.GetIntegral();
 		break;
   	case kTPILength:
-		//retVal=pulse.GetTPILength();
+		retVal=pulse.GetTPILength();
+    break;
+    case kEnergy:
+    retVal=pulse.GetEnergy();
+    break;
+    case kPedestal:
+    retVal=pulse.GetPedestal();
+    break;
+    case kTriggerTime:
+    retVal=pulse.GetTriggerTime();
 		break;
 	}
 	return retVal;
@@ -190,7 +213,7 @@ int PulseViewer::ConsiderDrawing(const TAnalysedPulse* pulse){
 	// If it does, ask ExportPulse to draw it
 	// We're safe to assume Instance will return becuase we test it's
 	// existence in BeforeFirstEntry
-	ExportPulse::Instance()->AddToExportList(GetChannel(),pulse);
+	ExportPulse::Instance()->AddToExportList(pulse);
 	return 0;
 }
 
