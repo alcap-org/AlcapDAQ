@@ -78,14 +78,15 @@ OBJECTS := $(patsubst %.cpp,%.o, $(OBJECTS))
 OBJECTS := $(addprefix $(OBJ_DIR)/, $(OBJECTS))
 
 TUT_USE_OBJECTS := $(filter-out obj/main.o, $(OBJECTS))
-
+TUT_OBJECTS := $(notdir $(patsubst %.cpp,%.o, $(TUT_SOURCES)))
+TUT_OBJECTS := $(addprefix $(TUT_ROOT)/, $(TUT_OBJECTS)) 
 ####################################################################
 # Define the various make targets
 ####################################################################
 
 ${OBJECTS}: ${OBJ_DIR}/%.o: %.cpp
 	@echo -e "Making object: '"$@"'"
-	@#echo "   from '"$^"'"
+	@echo "   from '"$^"'"
 	@$(CXX) -c -Wall $(CXXFLAGS) -o $@  $<
 	@$(CXX) -MP -MM -MT $@ $(CXXFLAGS) $< > $(patsubst %.o,%.d,$@)
 
@@ -116,13 +117,16 @@ make_obj_dir:
 
 tut: init libAnalysis.so libAnalysis.rootmap unit_test
 
-#libTUT.so: $TUT_OBJECTS)
-unit_test: $(TUT_USE_OBJECTS) $(ROOTANA_DATACLASSES) $(TUT_SOURCES)
+$(TUT_ROOT)/%.o: $(TUT_ROOT)/%.cpp
+#	echo ">> Make $@\n   from $^" 
+	@$(CXX) -c -Wall $(CXXFLAGS) -I$(TUT_INCLUDE_DIRS) -o $@ $^   
+
+unit_test: $(TUT_USE_OBJECTS) $(ROOTANA_DATACLASSES) $(TUT_SOURCES) $(TUT_OBJECTS) $(TUT_ROOT)/tut_main.o
 	@echo -e "Building unit_tests"
-	@$(CXX) -c -Wall $(CXXFLAGS) -I$(TUT_INCLUDE_DIRS) -o $(TUT_ROOT)/tut_main.o $(TUT_ROOT)/tut_main.cpp   
-#	@(CXX) $
+	@$(CXX) -c -Wall $(CXXFLAGS) -I$(TUT_INCLUDE_DIRS) -o $(TUT_ROOT)/tut_main.o $(TUT_ROOT)/tut_main.cpp
 #	@$(CXX) $(ICCFLAGS) -Wl,--no-as-needed -o unit_test $(TUT_USE_OBJECTS) $(ROOT_LIBS) -L$(PWD) $(ALCAPANA_DATACLASSES) $(ROOTANA_DATACLASSES) -I$(TUT_INCLUDE_DIRS) $(TUT_SOURCES)
-	@$(CXX) $(ICCFLAGS) -Wl,--no-as-needed -o unit_test $(TUT_USE_OBJECTS) $(ROOT_LIBS) -L$(PWD) $(ALCAPANA_DATACLASSES) $(ROOTANA_DATACLASSES) -I$(TUT_INCLUDE_DIRS) $(TUT_ROOT)/tut_main.o $(TUT_ROOT)/example_test.cpp
+	@$(CXX) $(ICCFLAGS) -Wl,--no-as-needed -o unit_test $(TUT_USE_OBJECTS) $(ROOT_LIBS) -L$(PWD) $(ALCAPANA_DATACLASSES) $(ROOTANA_DATACLASSES) -I$(TUT_INCLUDE_DIRS) $(TUT_OBJECTS) $(TUT_ROOT)/tut_main.o
+#	@$(CXX) $(ICCFLAGS) -Wl,--no-as-needed -o unit_test $(TUT_USE_OBJECTS) $(ROOT_LIBS) -L$(PWD) $(ALCAPANA_DATACLASSES) $(ROOTANA_DATACLASSES) -I$(TUT_INCLUDE_DIRS) $(TUT_ROOT)/tut_main.o $(TUT_ROOT)/example_test.cpp
 #	@$(CXX) -c -Wall $(CXXFLAGS) -o $(TUT_ROOT)/tut_main.cpp  
 #	@$(CXX) -MP -MM -MT obj/tut.so $(CXXFLAGS) $TUT_SOURCES > $(patsubst %.o,%.d,obj/tut.so)
 #	#@
@@ -146,7 +150,7 @@ clean_obj_dir:
 clean_tut:
 	@echo Removing unit tests
 	rm -f unit_test
-	rm -f $(TUT_ROOT)/tut_main.o 
+	rm -f $(TUT_ROOT)/*.o 
 
 print:
 	@echo -e "ALL_LIBS = $(ALL_LIBS)             \n" 
@@ -168,6 +172,7 @@ print:
 	@echo -e "SOURCE_DIRS = $(SOURCE_DIRS)       \n" 
 	@echo -e "TUT_ROOT = $(TUT_ROOT)       \n"
 	@echo -e "TUT_SOURCES = $(TUT_SOURCES)       \n"
+	@echo -e "TUT_OBJECTS = $(TUT_OBJECTS)       \n"
 	@echo -e "TUT_USE_OBJECTS = $(TUT_USE_OBJECTS)       \n"
 	@echo -e "TUT_INCLUDE_DIRS = $(TUT_INCLUDE_DIRS)  \n"
 	@echo $(wildcard $(OBJ_DIR)/*.d)
