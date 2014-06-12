@@ -1,12 +1,6 @@
-/***********************************
-Class: PulseEstimate
-Author: John R. Quirk
-
-This class takes data quality histograms from an
-alcapana production and predicts what certain
-correct ODB values are.
-***********************************/
-
+/** \addtogroup odbcheck
+ * @{
+ */
 #ifndef PULSEESTIMATE_H__
 #define PULSEESTIMATE_H__
 
@@ -51,3 +45,4 @@ public:
 };
 
 #endif
+/** @}*/

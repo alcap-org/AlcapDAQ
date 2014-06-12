@@ -1,3 +1,6 @@
+/** \addtogroup odbcheck
+ * @{
+ */
 #ifndef WIREMAP_H__
 #define WIREMAP_H__
 
@@ -183,3 +186,4 @@ public:
 };
 
 #endif
+/** @}*/

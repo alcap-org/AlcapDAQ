@@ -1,3 +1,7 @@
+/** \addtogroup odbcheck
+ * @{
+ */
+
 #ifndef ODBCHECK_H__
 #define ODBCHECK_H__
 
@@ -61,3 +65,4 @@ public:
 };
 
 #endif
+/** @}*/

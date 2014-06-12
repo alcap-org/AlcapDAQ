@@ -1,3 +1,7 @@
+/** \addtogroup odbcheck
+ * @{
+ */
+
 /****************************************
 Class: DataDir
 Author: John R. Quirk
@@ -80,3 +84,4 @@ public:
 };
 
 #endif
+/** @}*/
