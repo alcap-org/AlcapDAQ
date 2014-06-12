@@ -142,7 +142,7 @@ int ExportPulse::DrawTAPs(){
 		     i_pulse!=requestedPulses->end();
 		     i_pulse++){
 
-        SetCurrentPulseID((*i_pulse)->GetPulseIslandID());
+        SetCurrentPulseID((*i_pulse)->GetParentID());
 	// Draw the pulse
         PlotTAP(*i_pulse,fPulseInfo);
 

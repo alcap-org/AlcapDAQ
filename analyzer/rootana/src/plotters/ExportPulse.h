@@ -137,7 +137,7 @@ inline void ExportPulse::AddToExportList(const std::string& detector,TPulseIslan
 inline void ExportPulse::AddToExportList(const std::string& detector,const TAnalysedPulse* pulse){
   if(Debug()) std::cout<<"ExportPulse: Asked to draw a TAP for "<<detector<<std::endl;
   fTAPsToPlot[detector].push_back(pulse);
-  AddToExportList(detector,pulse->GetPulseIslandID());
+  AddToExportList(detector,pulse->GetParentID());
 }
 
 inline void ExportPulse::AddToConfigRequestList(EventID_t event_id, const std::string& detector,TPulseIslandID pulse_id) {
