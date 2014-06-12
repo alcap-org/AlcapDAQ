@@ -45,6 +45,7 @@ extern TSetupData* gSetup;
 
 map <std::string, TH1F*> DQ_muScTDiff_histograms_map;
 map <std::string, TH1F*> DQ_muScTDiff_histograms_normalised_map;
+map <std::string, TH1F*> DQ_muScTDiff_histograms_with_time_shift_map;
 float axis_limit = 50000;
 
 extern TH1F* hDQ_TDCCheck_muSc;
@@ -93,14 +94,23 @@ INT MDQ_muScTDiff_init()
     DQ_muScTDiff_histograms_map[bankname] = hDQ_Histogram;
 
     // The normalised histogram
-    histname += "_normalised";
-    histtitle += " (normalised)";
-    TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), 20000, -axis_limit, axis_limit);
+    std::string normhistname = histname + "_normalised";
+    std::string normhisttitle = histtitle + " (normalised)";
+    TH1F* hDQ_Histogram_Normalised = new TH1F(normhistname.c_str(), normhisttitle.c_str(), 20000, -axis_limit, axis_limit);
     hDQ_Histogram_Normalised->GetXaxis()->SetTitle(axislabel.c_str());
     std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
     yaxislabel += " per TDC muSc Hit";
     hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
     DQ_muScTDiff_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
+
+    // The histogram with the time shifts
+    std::string timeshift_histname = histname + "_with-time-shift";
+    std::string timeshift_histtitle = histtitle + " (with time shift)";
+    TH1F* hDQ_Histogram_TimeShift = new TH1F(timeshift_histname.c_str(), timeshift_histtitle.c_str(), 20000, -axis_limit, axis_limit);
+    hDQ_Histogram_TimeShift->GetXaxis()->SetTitle(axislabel.c_str());
+    yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
+    hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
+    DQ_muScTDiff_histograms_with_time_shift_map[bankname] = hDQ_Histogram_TimeShift;
   }
 
   gDirectory->Cd("/MidasHists/");
@@ -172,6 +182,12 @@ INT MDQ_muScTDiff(EVENT_HEADER *pheader, void *pevent)
 			
 	    // Make sure the histograms exist (put here so that it find() only called once per detector)
 	    if (DQ_muScTDiff_histograms_map.find(bankname) != DQ_muScTDiff_histograms_map.end()) {
+	      
+	      // Get the histograms before looping through all the pulses
+	      TH1F* hDQ_muScTDiff = DQ_muScTDiff_histograms_map[bankname];
+	      TH1F* hDQ_muScTDiff_Norm = DQ_muScTDiff_histograms_normalised_map[bankname];
+	      TH1F* hDQ_muScTDiff_TimeShift = DQ_muScTDiff_histograms_with_time_shift_map[bankname];
+	      double time_shift = TSetupData::Instance()->GetTimeShift(bankname);
 
 	      // Loop over the muSc pulses
 	      for (std::vector<TPulseIsland*>::iterator muScPulseIter = theMuScPulses.begin(); muScPulseIter != theMuScPulses.end(); ++muScPulseIter) {
@@ -185,12 +201,13 @@ INT MDQ_muScTDiff(EVENT_HEADER *pheader, void *pevent)
 		  double tdiff = muSc_time - det_time;
 
 		  // The pulses should be time-ordered so if the tdiff goes outside of the axis range, then we can just skip to the next muSc pulse
-		  if (std::fabs(tdiff) > axis_limit)
+		  if (std::fabs(tdiff) > 2*axis_limit)
 		    break;
 
 		  // Fill the histogram
-		  DQ_muScTDiff_histograms_map[bankname]->Fill(tdiff);
-		  DQ_muScTDiff_histograms_normalised_map[bankname]->Fill(tdiff);
+		  hDQ_muScTDiff->Fill(tdiff);
+		  hDQ_muScTDiff_Norm->Fill(tdiff);
+		  hDQ_muScTDiff_TimeShift->Fill(tdiff+time_shift);
 		}
 	      }
 	    }
