@@ -2,6 +2,7 @@
 
 #include "TFile.h"
 #include "TH1.h"
+#include "TH2.h"
 
 #include <string>
 #include <iostream>
@@ -150,9 +151,9 @@ void ODBCheck::Check(int run) {
       continue;
     }
     // We look for the shapes and timing histograms
-    TH1* shapes;
+    TH2* shapes;
     TH1* timing;
-    hist_file.GetObject(("DataQuality_LowLevel/hDQ_PulseShapes_ProjectionY_" + fODB.GetDets()[i] + "_" + fODB.GetBanks()[i]).c_str(), shapes);
+    hist_file.GetObject(("DataQuality_LowLevel/hDQ_PulseShapes_" + fODB.GetDets()[i] + "_" + fODB.GetBanks()[i]).c_str(), shapes);
     hist_file.GetObject(("DataQuality_LowLevel/hDQ_muScTDiff_" + fODB.GetDets()[i] + "_" + fODB.GetBanks()[i]).c_str(), timing);
 
     // Only if both histograms are present and filled are corrections estimated
@@ -163,28 +164,28 @@ void ODBCheck::Check(int run) {
       fCorrections.Add(fODB, i);
       std::cout <<
 	"ODBCheck WARNING: Shapes histogram not found! Corrections not included for " <<
-	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
+	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << " and the channel has been marked as disabled..." <<
 	std::endl;
       fCorrections.Disable();
     } else if (!timing) {
       fCorrections.Add(fODB, i);
       std::cout <<
 	"ODBCheck WARNING: Timing histogram not found! Corrections not included for " <<
-	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
+	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << " and the channel has been marked as disabled..." <<
 	std::endl;
       fCorrections.Disable();
     } else if (!shapes->GetEntries()) {
       fCorrections.Add(fODB, i);
       std::cout <<
 	"ODBCheck WARNING: Shapes histogram empty! Corrections not included for " <<
-	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
+	fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << " and the channel has been marked as disabled..." <<
 	std::endl;
       fCorrections.Disable();
     } else if (!timing->GetEntries() && fODB.GetDets()[i] != std::string("muSc")) { // muSc has empty timing histogram, but still good
       fCorrections.Add(fODB, i);
 	std::cout <<
 	  "ODBCheck WARNING: Timing histogram empty! Corrections not included for " <<
-	  fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << "..." <<
+	  fODB.GetDets()[i] << "_" << fODB.GetBanks()[i] << " and the channel has been marked as disabled..." <<
 	  std::endl;
 	fCorrections.Disable();
     } else {
