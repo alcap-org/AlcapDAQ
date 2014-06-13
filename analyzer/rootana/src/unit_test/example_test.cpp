@@ -2,6 +2,9 @@
 
 #include <vector>
 
+#undef DO_EXAMPLE_TESTS 
+#ifdef DO_EXAMPLE_TESTS
+
 namespace tut
 {
   struct data //(1)
@@ -62,7 +65,7 @@ namespace tut
   }
 
   //It (mostly) works with anything that can accept equality and
-  //ostreamoperators too!
+  //ostream operators too!
   //[[[[[[
   class partial_order 
   {
@@ -108,3 +111,6 @@ namespace tut
   }
 
 };
+
+
+#endif // DO_EXAMPLE_TESTS
