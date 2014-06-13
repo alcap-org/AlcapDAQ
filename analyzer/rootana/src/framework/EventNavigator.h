@@ -21,7 +21,7 @@ static TGlobalData *g_event=NULL;
 class EventNavigator {
   typedef IDs::channel ChannelID;
   typedef IDs::generator GeneratorID;
-  typedef IDs::source sourceID;
+  typedef IDs::source SourceID;
   typedef IDs::Generator_t GeneratorStr;
   typedef IDs::Config_t Config;
   
@@ -44,6 +44,9 @@ class EventNavigator {
 
   /// Returns the current event number
   Long64_t EntryNo();
+
+  /// Returns the number of entries in the input file.
+  Long64_t GetInputNEntries();
 
   /// Load the next entry in the input tree. Returns the number of
   /// bytes if sucessful, 0 if reached the end, and -1 for an I/O error
