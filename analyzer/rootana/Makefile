@@ -117,6 +117,8 @@ make_obj_dir:
 	@mkdir -p $(OBJ_DIR) 
 
 tut: init libAnalysis.so libAnalysis.rootmap unit_test
+	@echo -e "Running tests."
+	@./unit_test
 
 $(TUT_ROOT)/%.o: $(TUT_ROOT)/%.cpp
 	@$(CXX) -c -Wall $(CXXFLAGS) -I$(TUT_INCLUDE_DIRS) -o $@ $^   
