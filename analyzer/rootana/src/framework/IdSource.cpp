@@ -1,4 +1,5 @@
 #include "IdSource.h"
+#include <ostream>
 
 ClassImp(IDs::source);
 

@@ -1,4 +1,5 @@
 #include "IdChannel.h"
+#include <ostream>
 
 ClassImp(IDs::channel);
 

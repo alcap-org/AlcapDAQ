@@ -1,4 +1,6 @@
 #include "IdGenerator.h"
+#include <ostream>
+
 
 ClassImp(IDs::generator);
 
