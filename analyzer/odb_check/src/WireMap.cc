@@ -88,35 +88,6 @@ void WireMap::UniqueFixes() {
   }
 }
 
-void WireMap::AddBank(const std::string& bank) {
-  ++fNDets;
-  fBankName.push_back(bank);
-}
-
-void WireMap::AddDet(const std::string& det) {
-  fDetName.push_back(det);
-}
-
-void WireMap::AddEnabled(bool en) {
-  fEnabled.push_back(en);
-}
-
-void WireMap::AddPedestal(int ped) {
-  fPedestal.push_back(ped);
-}
-
-void WireMap::AddPolarity(int pol) {
-  fPolarity.push_back(pol);
-}
-
-void WireMap::AddOffset(int off) {
-  fOffset.push_back(off);
-}
-
-void WireMap::AddFrequency(double freq) {
-  fFrequency.push_back(freq);
-}
-
 void WireMap::Load(int run_number, const std::string& odb_file) {
   static const std::string header("[/Analyzer/WireMap]");
   static char tmp[256];
@@ -333,15 +304,25 @@ bool WireMap::AreThereDuplicates() {
 void WireMap::ClearDisabledDuplicateDetectors() {
   static const std::string default_det("blank");
   for (unsigned int i = 0; i < fDetName.size(); ++i) {
+    if (fDetName[i] == default_det) continue;
     for (unsigned int j = i + 1; j < fDetName.size(); ++j) {
+      if (fDetName[j] == default_det) continue;
       if (fDetName[i] == fDetName[j]) {
 	if (j < fEnabled.size() && !fEnabled[j]) {
+	  std::cout <<
+	    "Removing duplicate detector " << fDetName[j] << " from channel" <<
+	    fBankName[j] << " as it is disabled..." << std::endl;
 	  fDetName[j] = default_det;
 	} else if (i < fEnabled.size() && !fEnabled[i]) {
+	  std::cout <<
+	    "Removing duplicate detector " << fDetName[i] << " from channel" <<
+	    fBankName[i] << " as it is disabled..." << std::endl;
 	  fDetName[i] = default_det;
 	} else {
-	  std::cout << "WireMap ERROR: Couldn't determine which detector " << fDetName[i] <<
-	    " to remove in run " << fRun << "!" << std::endl;
+	  std::cout <<
+	    "WireMap ERROR: Couldn't determine which detector " << fDetName[i] <<
+	    " to remove in run " << fRun << "!" <<
+	    "(" << fBankName[i] << " and " << fBankName[j] << ")!" << std::endl;
 	}
       }
     }
@@ -431,74 +412,85 @@ WireMap::key_t WireMap::GetKey(std::string& key) {
   return UNKNOWN;
 }
 
+// Construct this if we need to.
+// If constructed, it remains around for
+// the duration of the program.
+WireMap* WireMap::DefaultODB = NULL;
+
 WireMap WireMap::Default() {
-  WireMap wm;
-  wm.Add("Na80", "SiL2-S", true, 2745, -1, 4000, 1.7e+07);
-  wm.Add("Nb80", "SiR2-S", true, 2730, -1, 4000, 1.7e+07);
-  wm.Add("Nc80", "blank", true, 1000, -1, 0, 8.5e+06);
-  wm.Add("Nd80", "blank", false, 1, -1, 0, 1.7e+07);
-  wm.Add("Ne80", "blank", false, 1, -1, 0, 1.7e+08);
-  wm.Add("Nf80", "blank", false, 1, -1, 0, 1.7e+08);
-  wm.Add("Ng80", "blank", false, 1, -1, 0, 1.7e+08);
-  wm.Add("Nh80", "blank", false, 1, -1, 0, 1.7e+08);
+  // Construct the default WireMap if it doesn't exist yet
+  if (!WireMap::DefaultODB) {
+    WireMap::DefaultODB = new WireMap();
 
-  wm.Add("Na81", "SiL2-F", true, 1415, 1, 407, 1.7e+08);
-  wm.Add("Nb81", "SiR2-F", true, 1210, 1, 444, 1.7e+08);
-  wm.Add("Nc81", "SiL1-1-F", true, 1292, 1, 146.7, 1.7e+08);
-  wm.Add("Nd81", "SiL1-2-F", true, 1300, 1, 150, 1.7e+08);
-  wm.Add("Ne81", "SiL1-3-F", true, 1280, 1, 149, 1.7e+08);
-  wm.Add("Nf81", "SiL1-4-F", true, 1290, 1, 149.4, 1.7e+08);
-  wm.Add("Ng81", "SiR1-sum-F", true, 1, 1, 0, 1.7e+08);
-  wm.Add("Nh81", "Ge-F", true, 1390, 1, 81.1, 1.7e+08);
+    WireMap::DefaultODB->Add("Na80", "SiL2-S", true, 2745, -1, 4000, 1.7e+07);
+    WireMap::DefaultODB->Add("Nb80", "SiR2-S", true, 2730, -1, 4000, 1.7e+07);
+    WireMap::DefaultODB->Add("Nc80", "blank", true, 1000, -1, 0, 8.5e+06);
+    WireMap::DefaultODB->Add("Nd80", "blank", false, 1, -1, 0, 1.7e+07);
+    WireMap::DefaultODB->Add("Ne80", "blank", false, 1, -1, 0, 1.7e+08);
+    WireMap::DefaultODB->Add("Nf80", "blank", false, 1, -1, 0, 1.7e+08);
+    WireMap::DefaultODB->Add("Ng80", "blank", false, 1, -1, 0, 1.7e+08);
+    WireMap::DefaultODB->Add("Nh80", "blank", false, 1, -1, 0, 1.7e+08);
+    
+    WireMap::DefaultODB->Add("Na81", "SiL2-F", true, 1415, 1, 407, 1.7e+08);
+    WireMap::DefaultODB->Add("Nb81", "SiR2-F", true, 1210, 1, 444, 1.7e+08);
+    WireMap::DefaultODB->Add("Nc81", "SiL1-1-F", true, 1292, 1, 146.7, 1.7e+08);
+    WireMap::DefaultODB->Add("Nd81", "SiL1-2-F", true, 1300, 1, 150, 1.7e+08);
+    WireMap::DefaultODB->Add("Ne81", "SiL1-3-F", true, 1280, 1, 149, 1.7e+08);
+    WireMap::DefaultODB->Add("Nf81", "SiL1-4-F", true, 1290, 1, 149.4, 1.7e+08);
+    WireMap::DefaultODB->Add("Ng81", "SiR1-sum-F", true, 1, 1, 0, 1.7e+08);
+    WireMap::DefaultODB->Add("Nh81", "Ge-F", true, 1390, 1, 81.1, 1.7e+08);
+    
+    WireMap::DefaultODB->Add("Na82", "SiL1-1-S", true, 2760, -1, 2431, 1.7e+07);
+    WireMap::DefaultODB->Add("Nb82", "SiL1-2-S", true, 2820, -1, 2427, 1.7e+07);
+    WireMap::DefaultODB->Add("Nc82", "SiL1-3-S", true, 2740, -1, 2431, 1.7e+07);
+    WireMap::DefaultODB->Add("Nd82", "SiL1-4-S", true, 2740, -1, 2429, 1.7e+07);
+    WireMap::DefaultODB->Add("Ne82", "SiR1-1-S", true, 2750, -1, 2600, 1.7e+07);
+    WireMap::DefaultODB->Add("Nf82", "SiR1-2-S", true, 2750, -1, 2600, 1.7e+07);
+    WireMap::DefaultODB->Add("Ng82", "SiR1-3-S", true, 2740, -1, 2600, 1.7e+07);
+    WireMap::DefaultODB->Add("Nh82", "SiR1-4-S", true, 2740, -1, 2600, 1.7e+07);
+    
+    WireMap::DefaultODB->Add("Na83", "ScL", true, 1, 1, 69.7, 1.7e+07);
+    WireMap::DefaultODB->Add("Nb83", "ScR", false, 1, 1, 69.2, 3.4e+07);
+    WireMap::DefaultODB->Add("Nc83", "ScGe", true, 1185, -1, 81.1, 1.7e+08);
+    WireMap::DefaultODB->Add("Nd83", "ScVe", false, 1, 1, 71.9, 3.4e+07);
+    WireMap::DefaultODB->Add("Ne83", "blank", false, 1, 1, 146.7, 3.4e+07);
+    WireMap::DefaultODB->Add("Nf83", "blank", false, 1, 1, 150, 3.4e+07);
+    WireMap::DefaultODB->Add("Ng83", "LiquidSc", false, 1, 1, 149, 3.4e+07);
+    WireMap::DefaultODB->Add("Nh83", "blank", false, 1, 1, 149, 3.4e+07);
 
-  wm.Add("Na82", "SiL1-1-S", true, 2760, -1, 2431, 1.7e+07);
-  wm.Add("Nb82", "SiL1-2-S", true, 2820, -1, 2427, 1.7e+07);
-  wm.Add("Nc82", "SiL1-3-S", true, 2740, -1, 2431, 1.7e+07);
-  wm.Add("Nd82", "SiL1-4-S", true, 2740, -1, 2429, 1.7e+07);
-  wm.Add("Ne82", "SiR1-1-S", true, 2750, -1, 2600, 1.7e+07);
-  wm.Add("Nf82", "SiR1-2-S", true, 2750, -1, 2600, 1.7e+07);
-  wm.Add("Ng82", "SiR1-3-S", true, 2740, -1, 2600, 1.7e+07);
-  wm.Add("Nh82", "SiR1-4-S", true, 2740, -1, 2600, 1.7e+07);
+    WireMap::DefaultODB->Add("CaUH","Ge-S", true, 1140,-1, 42000, 1e+08);
+    WireMap::DefaultODB->Add("CbUH","blank", false, 1, -1, 37000, 1e+08);
+    WireMap::DefaultODB->Add("CcUH","blank", false, 1, -1, 0, 1e+08);
+    WireMap::DefaultODB->Add("CdUH","blank", false, 1, -1, 0, 1e+08);
+    WireMap::DefaultODB->Add("CeUH","blank", false, 1, -1, 0, 1e+08);
+    WireMap::DefaultODB->Add("CfUH","blank", false, 1, -1, 0, 1e+08);
+    WireMap::DefaultODB->Add("CgUH","blank", false, 1, -1, 0, 1e+08);
+    WireMap::DefaultODB->Add("ChUH","blank", false, 1, -1, 0, 1e+08);
 
-  wm.Add("Na83", "ScL", true, 1, 1, 69.7, 1.7e+07);
-  wm.Add("Nb83", "ScR", false, 1, 1, 69.2, 3.4e+07);
-  wm.Add("Nc83", "ScGe", true, 1185, -1, 81.1, 1.7e+08);
-  wm.Add("Nd83", "ScVe", false, 1, 1, 71.9, 3.4e+07);
-  wm.Add("Ne83", "blank", false, 1, 1, 146.7, 3.4e+07);
-  wm.Add("Nf83", "blank", false, 1, 1, 150, 3.4e+07);
-  wm.Add("Ng83", "LiquidSc", false, 1, 1, 149, 3.4e+07);
-  wm.Add("Nh83", "blank", false, 1, 1, 149, 3.4e+07);
+    WireMap::DefaultODB->Add("CaBU","muSc", false, 2071, 1, 0, 2.5e+08);
+    WireMap::DefaultODB->Add("CbBU","muScA", false, 2122, 1, 12.7, 2.5e+08);
+    WireMap::DefaultODB->Add("CcBU","muScA", false, 1, 1, 0, 2.5e+08);
+    WireMap::DefaultODB->Add("CdBU","blank", false, 1, 1, 0, 2.5e+08);
 
-  wm.Add("CaUH","Ge-S", true, 1140,-1, 42000, 1e+08);
-  wm.Add("CbUH","blank", false, 1, -1, 37000, 1e+08);
-  wm.Add("CcUH","blank", false, 1, -1, 0, 1e+08);
-  wm.Add("CdUH","blank", false, 1, -1, 0, 1e+08);
-  wm.Add("CeUH","blank", false, 1, -1, 0, 1e+08);
-  wm.Add("CfUH","blank", false, 1, -1, 0, 1e+08);
-  wm.Add("CgUH","blank", false, 1, -1, 0, 1e+08);
-  wm.Add("ChUH","blank", false, 1, -1, 0, 1e+08);
+    WireMap::DefaultODB->Add("ZZZZ","blank", false, 1, -1, 0, 0.);
+    WireMap::DefaultODB->Add("ZZZZ","blank", false, 1, -1, 0, 0.);
+    WireMap::DefaultODB->Add("ZZZZ","blank", false, 1, -1, 0, 0.);
+    WireMap::DefaultODB->Add("ZZZZ","blank", false, 1, -1, 0, 0.);
 
-  wm.Add("CaBU","muSc", false, 2071, 1, 0, 2.5e+08);
-  wm.Add("CbBU","muScA", false, 2122, 1, 12.7, 2.5e+08);
-  wm.Add("CcBU","muScA", false, 1, 1, 0, 2.5e+08);
-  wm.Add("CdBU","blank", false, 1, 1, 0, 2.5e+08);
+    // The default ODB has 4 extra offset entries in the
+    // offset key
+    for (unsigned int i = 0; i < 4; ++i)
+      WireMap::DefaultODB->fOffset.push_back(0);
+  }
 
-  wm.Add("ZZZZ","blank", false, 1, -1, 0, 0.);
-  wm.Add("ZZZZ","blank", false, 1, -1, 0, 0.);
-  wm.Add("ZZZZ","blank", false, 1, -1, 0, 0.);
-  wm.Add("ZZZZ","blank", false, 1, -1, 0, 0.);
-
-  wm.AddOffset(0);
-  wm.AddOffset(0);
-  wm.AddOffset(0);
-  wm.AddOffset(0);
-
-  return wm;
+  return *WireMap::DefaultODB;
 }
 
 void WireMap::Print() {
   using namespace std;
   stringstream ss;
+
+  // Determine which field is biggest for looping
   std::vector<unsigned int> sizes;
   sizes.push_back(fBankName.size());
   sizes.push_back(fDetName.size());
@@ -507,16 +499,17 @@ void WireMap::Print() {
   sizes.push_back(fPolarity.size());
   sizes.push_back(fOffset.size());
   sizes.push_back(fFrequency.size());
-
   unsigned int n = sizes[0];
   for (unsigned int i = 1; i < sizes.size(); ++i)
     if (sizes[i] > n)
       n = sizes[i];
 
+  // General
   cout << left;
   cout << setw(24) << "Run Number:" << fRun << endl;
   cout << setw(24) << "Number of detectors:" << fNDets << endl;
   
+  // Header
   ss << "Bank (" << fBankName.size() << ")";
   cout << setw(11) << ss.str(); ss.str(string());
   ss << "Detector (" << fDetName.size() << ")";
@@ -532,9 +525,12 @@ void WireMap::Print() {
   ss << "Frequency (" << fFrequency.size() << ")";
   cout << setw(16) << ss.str(); ss.str(string());
 
+  // Separator
   cout << endl;
   cout << setfill('-') << setw(98) << '-' << setfill(' ') << endl;
   cout << setfill(' ') << right;
+
+  // The WireMap
   for (unsigned int i = 0; i < n; ++i) {
     cout << setw(11);
     if (i < fBankName.size()) cout << fBankName[i];
