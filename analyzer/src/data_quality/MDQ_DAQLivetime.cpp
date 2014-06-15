@@ -1,12 +1,22 @@
-/********************************************************************\
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDQ_DAQLivetime
+/// \ingroup lldq
+/// \author Andrew Edmonds
+///
+/// \brief
+/// Stores fraction of run time that data was being taken.
+/// Creates hDQ_DAQLivetime.
+/// \details
+/// Assumes every events is 110ms. Multiplies 110 ms by number of
+/// MIDAS events, then divides by run time according to ODB.
+/// Creates ::hDQ_DAQLivetime.
+/// @{
 
-Name:         MDQ_DAQLivetime
-Created by:   Andrew Edmonds
-
-Contents:     hDQ_DAQLivetime
-              - plots the livetime of the DAQ, calculated from the sum of event times by the total run time
-
-\********************************************************************/
+/// \var hDQ_DAQLivetime
+/// \brief
+/// Plots the livetime of the DAQ, calculated from the sum
+/// of event times by the total run time
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -155,3 +165,5 @@ INT MDQ_DAQLivetime(EVENT_HEADER *pheader, void *pevent)
 	hDQ_DAQLivetime->Fill(1,gate_length);
 	return SUCCESS;
 }
+
+/// @}

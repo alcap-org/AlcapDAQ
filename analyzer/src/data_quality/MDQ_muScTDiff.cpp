@@ -1,12 +1,32 @@
-/********************************************************************\
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDQ_muScTDiff
+/// \ingroup lldq
+/// \author Andrew Edmonds
+///
+/// \brief
+/// Correlations of TPI timestamps with timestamps in muSc.
+///
+/// \details
+/// Creates a number of histograms. The muSc histogram exists but remains
+/// unfilled.
+/// @{
 
-Name:         MDQ_muScTDiff
-Created by:   Andrew Edmonds
+/// \var DQ_muScTDiff_histograms_map;
+/// \brief
+/// Map of bank name to time stamp correlation with muSc TPI time stamps.
+/// The muSc histogram exists but is empty.
 
-Contents:     hDQ_muScTDiff_[DetName]_[BankName]
-              - plots the time differences (in ns) between the pulses in the muSc and each detector
+/// \var DQ_muScTDiff_histograms_normalised_map
+/// \brief
+/// Same as ::DQ_muScTDiff_histograms_map, but normalized to number of
+/// muon hits according to TDC.
 
-\********************************************************************/
+/// \var DQ_muScTDiff_histograms_with_time_shift_map
+/// \brief
+/// Same as ::DQ_muScTDiff_histograms_map, except each TPI's time stamp has had
+/// the expected timing correlation peak subtracted off. If correct, the peak
+/// should be at zero in these plots.
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -214,3 +234,5 @@ INT MDQ_muScTDiff(EVENT_HEADER *pheader, void *pevent)
 	  }
 	return SUCCESS;
 }
+
+/// @}

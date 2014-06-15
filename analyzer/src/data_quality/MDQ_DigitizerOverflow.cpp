@@ -1,26 +1,39 @@
-/********************************************************************\
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDQ_DigitizerOverflow
+/// \ingroup lldq
+/// \author Joe Grange
+///
+/// \brief
+/// Plots information related to FADC sample overflow, as in
+/// samples that went off scale.
+/// 
+/// \details
+/// Creates ::hDQ_DigitizerOverflow_Fraction, ::hDQ_DigitizerOverflow_FractionByEvent,
+/// ::hDQ_DigitizerOverflow_Total, ::hDQ_DigitizerOverFlow_TotalByEvent.
+/// @{
 
-Name:         MDQ_DigitizerOverflow
-Created by:   Joe Grange
+/// \var hDQ_DigitizerOverflow_FractionByEvent
+/// \brief
+/// Plots the fraction of TPIs with any sample above the 
+/// largest possible ADC value for each channel on an
+/// event-by-event basis
 
-Contents:     hDQ_DigitizerOverflow_Fraction
-              - plots the fraction of TPIs with any sample above the 
-                largest possible ADC value for each channel
+/// \var hDQ_DigitizerOverflow_TotalByEvent;
+/// \brief
+/// Plots total number of TPulseIslands in each channel on
+/// an event-by-event basis (for normalisation
+/// hDQ_DigitizerOverflow_FractionByEvent)
 
-              hDQ_DigitizerOverflow_FractionByEvent
-              - plots the fraction of TPIs with any sample above the 
-                largest possible ADC value for each channel on an
-                event-by-event basis
+/// \var hDQ_DigitizerOverflow_Fraction
+/// \brief
+/// Plots the fraction of TPIs with any sample above
+/// the largest possible ADC value for each channel
 
-              hDQ_DigitizerOverflow_Total
-              - plots the total number of TPulseIslands in each channel
-                (for normalisation of hDQ_DigitizerOverflow_Fraction)
-
-              hDQ_DigitizerOverFlow_TotalByEvent
-              - plots total number of TPulseIslands in each channel on
-                an event-by-event basis (for normalisation hDQ_DigitizerOverflow_FractionByEvent)
-
-\********************************************************************/
+/// \var hDQ_DigitizerOverflow_Total
+/// \brief
+/// Plots the total number of TPulseIslands in each channel
+/// (for normalisation of hDQ_DigitizerOverflow_Fraction)
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -244,3 +257,4 @@ return SUCCESS;
 
 }
 
+/// @}

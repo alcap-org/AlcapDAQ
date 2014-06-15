@@ -1,11 +1,30 @@
-/********************************************************************\
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDQ_Amplitude
+/// \ingroup lldq
+/// \author Nam Tran
+///
+/// \brief
+/// Histograms the TPI amplitudes for each detector.
+/// Creates a number of amplitude plots, where the amplitude
+/// is in units of ADC counts.
+/// @{
 
-Name:         MDQ_Amplitude
-Created by:   Nam Tran
+/// \var DQ_Amplitude_histograms_map
+/// \brief
+/// Map of bank name to histogram of amplitudes for
+/// the TPIs of a given MIDAS event.
 
-Contents:     hDQ_Amplitude_[DetName]_[BankName]
-               - plots the ADC value of the peak sample
-\********************************************************************/
+/// \var DQ_Amplitude_histograms_normalised_map
+/// \brief
+/// Same as ::DQ_Amplitude_histograms_map but normalized
+/// to number of muons according to TDC.
+
+/// \var DQ_Amplitude_histograms_ped_sub_map
+/// \brief
+/// Same as ::DQ_Amplitude_histograms_map but the
+/// amplitudes have the pedestal (according to ODB)
+/// subtracted off.
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -218,3 +237,5 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 	}
 	return SUCCESS;
 }
+
+/// @}

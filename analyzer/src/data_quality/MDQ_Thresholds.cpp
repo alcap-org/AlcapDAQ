@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDQ_Thresholds
+/// \ingroup lldq
+/// \author Andrew Edmonds
+///
+/// \brief
+/// Record thresholds from the ODB.
+///
+/// \details
+/// Record thresholds from ODB as entries in a histogram per bank.
+/// @{
+
+/// \var DQ_Thresholds_histograms_map
+/// \brief
+/// Map of bank name to histogram. FADC histograms have 2 entries,
+/// one each for an upper and lower trigger threshold. CAENs have single entry.
+////////////////////////////////////////////////////////////////////////////////
 /********************************************************************\
 
 Name:         MDQ_Thresholds
@@ -232,3 +249,5 @@ INT MDQ_Thresholds(EVENT_HEADER *pheader, void *pevent)
 
 	return SUCCESS;
 }
+
+/// @}

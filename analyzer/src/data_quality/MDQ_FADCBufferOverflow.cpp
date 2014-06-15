@@ -1,21 +1,34 @@
-/********************************************************************\
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDQ_FADCBufferOverflow
+/// \ingroup lldq
+/// \author Andrew Edmonds
+/// \author Joe Grange
+///
+/// \brief
+/// Plots information related to FADC buffer overflow, as in
+/// when the data buffer is full and no more data can be
+/// taken.
+///
+/// \details
+/// Creates ::hDQ_FADCBufferOverflow_Total, ::hDQ_FADCBufferOverflow_Fraction,
+/// and ::hDQ_FADCBufferOverflow_TotalByEvent.
+/// @{
 
-Name:         MDQ_FADCBufferOverflow
-Created by:   Andrew Edmonds + Joe Grange
+/// \var hDQ_FADCBufferOverflow_Total
+/// \brief
+/// Plots the total number of MIDAS events in which 
+/// the FADC buffer overflowed for each board
 
-Contents:     hDQ_FADCBufferOverflow_Total
-              - plots the total number of MIDAS events in which 
-                the FADC buffer overflowed for each board
+/// \var hDQ_FADCBufferOverflow_Fraction
+/// \brief
+/// Plots the fraction of MIDAS events where
+/// the FADC buffer overflowed for each board
 
-              hDQ_FADCBufferOverflow_Fraction
-              - plots the fraction of MIDAS events where
-                the FADC buffer overflowed for each board
-
-              hDQ_FADCBufferOverflow_TotalByEvent
-              - plots the total number of FADC buffer overflows
-                in each board on an event-by-event basis
-
-\********************************************************************/
+/// \var hDQ_FADCBufferOverflow_TotalByEvent
+/// \brief
+/// Plots the total number of FADC buffer overflows
+/// in each board on an event-by-event basis
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -189,3 +202,5 @@ INT MDQ_FADCBufferOverflow_EOR(INT run_number)
 
   return SUCCESS;
 }
+
+/// @}

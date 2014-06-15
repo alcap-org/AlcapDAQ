@@ -1,16 +1,40 @@
-/********************************************************************\
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDQ_PulseShapes
+/// \ingroup lldq
+/// \author Nam Tran
+///
+/// \brief
+/// Plots the persistance plots and Y projections of these, along
+/// with pedestal and pedestal noise of each bank averaged over
+/// the run.
+///
+/// \details
+/// Creates a number of histograms.
+/// @{
 
-Name:         MDQ_PulseShapes
-Created by:   Nam Tran
+/// \var DQ_PulseShapes_histograms_map
+/// \brief
+/// Map of bank names to 2D histograms that represent the persitance
+/// oscilliscope plots of TPIs.
 
-Contents:     hDQ_PulseShapes_[DetName]_[BankName]
-              - plots the persistency pulse plot
+/// \var DQ_PulseShapesProjectionY_histograms_map
+/// \brief
+/// Map of bank names to Y projections of full histograms
+/// in ::DQ_PulseShapes_histograms_map.
 
-	      hDQ_PulseShapes_ProjectionY_[DetName]_[BankName]
-              - plots the projection of the PusleShapes plot onto
-                the y-axis
+/// \var hDQ_PulseShapes_Pedestals
+/// \brief
+/// Histogram with bank name on horizontal axis and and pedestal
+/// on vertical. The pedestal is the bin with the peak
+/// in ::DQ_PulseShapesProjectionY_histograms_map
 
-\********************************************************************/
+/// \var hDQ_PulseShapes_Noises
+/// \brief
+/// Histogram with bank name on horizontal axis and noise on vertical.
+/// The noise is twice the the first bin
+/// in ::DQ_PulseShapesProjectionY_histograms_map at half the value
+/// in ::hDQ_PulseShapes_Pedestals.
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -238,3 +262,5 @@ INT MDQ_PulseShapes_eor(INT run_number) // Make projection
 
 	return SUCCESS;
 }
+
+/// @}

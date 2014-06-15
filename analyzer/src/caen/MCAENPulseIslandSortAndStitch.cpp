@@ -1,13 +1,17 @@
-/********************************************************************\
-
-Name:         MPulseIslandSort(AndStitch)
-Created by:   Vladimir Tishchenko
-Modified by:  John R Quirk
-
-Contents:     A module to sort PulseIslands in time
-              and then stitch them together.
-
-\********************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MCAENPulseIslandSortAndStitch
+/// \ingroup process_raw
+/// \author John R Quirk
+///
+/// \brief
+/// Sort and stitches the TPIs
+///
+/// \details
+/// First sorts pulses based on time stamp (which is the timing that should be
+/// used). Then, if of two consecutive pulses the second is shorter than
+/// expected, stitch it to the first.
+/// @{
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -38,10 +42,21 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-static unsigned int nSamples;
+/// \brief
+/// Number of samples we expect a UH CAEN pulse to be no shorter than
+/// (from ODB).
 static unsigned int nUHSamples;
+/// \brief
+/// Number of samples we expect a BU CAEN pulse to be no shorter than
+/// (from ODB).
 static unsigned int nBUSamples;
+/// \brief
+/// Number of samples saved before a trigger on UH CAEN
+/// (from ODB).
 static unsigned int nUHPreSamples;
+/// \brief
+/// Number of samples saved before a trigger on BU CAEN
+/// (from ODB).
 static unsigned int nBUPreSamples;
 
 ANA_MODULE MCAENPulseIslandSortAndStitch_module =
@@ -59,7 +74,7 @@ ANA_MODULE MCAENPulseIslandSortAndStitch_module =
 };
 
 static bool pulse_islands_t_comp(TPulseIsland *a, TPulseIsland *b);
-static void pulse_islands_stitch(std::vector<TPulseIsland*>& v);
+static void pulse_islands_stitch(std::vector<TPulseIsland*>& v, unsigned int nSamples);
 
 
 INT module_init_sort_and_stitch() {
@@ -79,7 +94,7 @@ INT module_init_sort_and_stitch() {
 
   sprintf(key, "/Equipment/Crate 5/Settings/CAEN/waveform length");
   size = sizeof(nBUSamples);
-  db_get_value(hDB, 0, key, &nSamples, &size, TID_DWORD, 1);
+  db_get_value(hDB, 0, key, &nBUSamples, &size, TID_DWORD, 1);
   sprintf(key, "/Equipment/Crate 5/Settings/CAEN/post_trigger_size");
   size = sizeof(post_trigger_percentage);
   db_get_value(hDB, 0, key, &post_trigger_percentage, &size, TID_BYTE, 1);
@@ -91,9 +106,8 @@ INT module_init_sort_and_stitch() {
   return SUCCESS;
 }
 
-/** This method sorts pulses in time
-    and then stitches them together
- */
+/// \brief
+/// This method sorts pulses in time and then stitches them together.
 INT module_event_sort_and_stitch(EVENT_HEADER *pheader, void *pevent)
 {
   // Some typedefs
@@ -105,7 +119,7 @@ INT module_event_sort_and_stitch(EVENT_HEADER *pheader, void *pevent)
 
   for (std::map<std::string, std::vector<TPulseIsland*> >::iterator it=pulse_islands_map.begin(); it!=pulse_islands_map.end(); ++it)
     {
-      nSamples = 0;
+      unsigned int nSamples = 0;
       if (TSetupData::IsBostonCAEN(it->first))
 	nSamples = nBUSamples;
       else if (TSetupData::IsHoustonCAEN(it->first))
@@ -113,7 +127,7 @@ INT module_event_sort_and_stitch(EVENT_HEADER *pheader, void *pevent)
       if (nSamples != 0) {
 	std::vector<TPulseIsland*> &v = it->second;
 	std::sort(v.begin(), v.end(), pulse_islands_t_comp);
-	pulse_islands_stitch(v);
+	pulse_islands_stitch(v, nSamples);
       }
     }
 
@@ -121,18 +135,31 @@ INT module_event_sort_and_stitch(EVENT_HEADER *pheader, void *pevent)
 }
 
 
-/**
- *   Ordering of pulse islands in time
- */
+/// \brief
+/// Ordering of pulse islands in time base on timestamp.
 bool pulse_islands_t_comp(TPulseIsland *a, TPulseIsland *b) 
 { 
   return (a->GetTimeStamp() < b->GetTimeStamp()); 
 }
 
-/**
- * Stitch islands together
- */
-void pulse_islands_stitch(std::vector<TPulseIsland*>& pulses) {
+/// \brief
+/// Stitch islands together if second of two that are time ordered
+/// is less than expected.
+///
+/// \details
+/// If a pulse form the CAEN is less than expected, where what's expected is
+/// set in the ODB before a run, that \e usually means that this second
+/// pulse was cause by trigger pile-up of the first, and should be stitched
+/// onto the end.
+///
+/// \param[in] pulses Vector of TPIs contained time-sorted CANE pulses to stitch
+/// if necessary
+/// \param[in] nSamples Number of samples we expect a pulse to be no shorter
+/// than; if shorter than this, a pulse is stitched to the end of the
+/// preceding pulse.
+///
+/// \todo Instead stitch together if the timestamps line up appropriately.
+void pulse_islands_stitch(std::vector<TPulseIsland*>& pulses, unsigned int nSamples) {
   unsigned int nPulses = pulses.size();
   std::vector<int> next_samples, current_samples;
   TPulseIsland* temp_pulse;
@@ -154,3 +181,5 @@ void pulse_islands_stitch(std::vector<TPulseIsland*>& pulses) {
     }
   }
 }
+
+/// @}

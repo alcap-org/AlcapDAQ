@@ -1,12 +1,24 @@
-/********************************************************************\
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDQ_IslandTimestamp
+/// \ingroup lldq
+/// \author Andrew Edmonds
+///
+/// \brief
+/// Histograms the timestamps from each MIDAS event for each detector.
+///
+/// \details
+/// Creates a number of histograms.
+/// @{
 
-Name:         MDQ_IslandTimestamp
-Created by:   Andrew Edmonds
+/// \var DQ_IslandTimestamp_histograms_map
+/// \brief
+/// Map of bank name to histogram of time stamps within a MIDAS event. 
 
-Contents:     hDQ_IslandTimestamp_[DetName]_[BankName]
-              - plots the time stamp (in ns) for each TPulseIsland
-
-\********************************************************************/
+/// \var DQ_IslandTimestamp_histograms_normalised_map
+/// \brief
+/// Same as ::DQ_IslandTimestamp_histograms_map, but vertical axis is normalised
+/// to number of muon hits according to TDC.
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -183,3 +195,5 @@ INT MDQ_IslandTimestamp(EVENT_HEADER *pheader, void *pevent)
 	}
 	return SUCCESS;
 }
+
+/// @}

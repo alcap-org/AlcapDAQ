@@ -1,11 +1,13 @@
-/********************************************************************\
-
-  Name:         MDT5720ProcessRaw
-  Created by:   V.Tishchenko, J.Grange hoping to extend it
-
-  Contents:     Module to decode CAN v1724 digitizer data.
-
-\********************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDT5720ProcessRaw
+/// \ingroup process_raw
+/// \author Volodya Tishchenko
+/// \author Joe Grange
+///
+/// \brief
+/// Produces TPIs from raw data read in from BU CAEN.
+/// @{
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -42,9 +44,22 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-vector<string> caen_boston_bank_names;
-static unsigned int nSamples;
+/// \brief
+/// List of BU CAEN bank names for the event loop.
+static vector<string> caen_boston_bank_names;
+/// \brief
+/// Number of samples to record before a trigger.
+/// \details
+/// At the moment this is \b hard \b coded into the ::module_init function
+/// instead of grabbed from the ODB. The way the CAEN should work is that
+/// a percentage of the total sampling window is set to be the "after trigger".
+/// However, it does \e not seem like this was set correctly in the front end.
+/// \todo
+/// Find out the problem and characterize.
 static unsigned int nPreSamples;
+/// \brief
+/// Number of channels in DT5720.
+static const int NCHAN = 4;
 
 ANA_MODULE MDT5720ProcessRaw_module =
 {
@@ -60,21 +75,9 @@ ANA_MODULE MDT5720ProcessRaw_module =
   NULL,                          /* initial parameters    */
 };
 
-/*-- Number of channels in DT5720 -----------------------------------*/
-static const int NCHAN = 4;
-
-/*-- Histogram declaration -----------------------------------------*/
-static TH2* hNDT5720IslandsReadPerBlock;
-
 /*--module init routine --------------------------------------------*/
 INT module_init()
 {
-
-  hNDT5720IslandsReadPerBlock = new TH2I(
-    "hNDT5720IslandsReadPerBlock",
-    "Number of CAEN Islands read by block",
-    1,0,1, 3000,0,3000);
-  hNDT5720IslandsReadPerBlock->SetBit(TH1::kCanRebin);
 
   std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
   for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
@@ -87,10 +90,11 @@ INT module_init()
       caen_boston_bank_names.push_back(bankname);
   }
   
-   /*** Get necessary data from ODB ***/
+  /*** Get necessary data from ODB ***/
   char key[80];
   int size;
-  unsigned int post_trigger_percentage;
+  unsigned int post_trigger_percentage, nSamples;
+
 
   // Get Trigger Time Tag info
   // Timestamp will be shifted by number of presamples
@@ -263,3 +267,4 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
   return SUCCESS;
 }
 
+/// @}

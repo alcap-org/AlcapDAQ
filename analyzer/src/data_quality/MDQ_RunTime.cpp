@@ -1,12 +1,19 @@
-/********************************************************************\
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDQ_RunTime
+/// \ingroup lldq
+/// \author Andrew Edmonds
+///
+/// \brief
+/// Records run time according to the ODB.
+///
+/// \details
+/// Records run time in ::hDQ_RunTime.
+/// @{
 
-Name:         MDQ_RunTime
-Created by:   Andrew Edmonds
-
-Contents:     hDQ_RunTime
-              - plots the duration of the run
-
-\********************************************************************/
+/// \var hDQ_RunTime
+/// \brief
+/// Simply a single value representing run time according to ODB.
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -153,3 +160,5 @@ INT MDQ_RunTime(EVENT_HEADER *pheader, void *pevent)
 
 	return SUCCESS;
 }
+
+/// @}
