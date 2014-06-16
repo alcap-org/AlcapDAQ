@@ -13,15 +13,17 @@ TemplateArchive::~TemplateArchive() {
 
 // GetTemplate()
 // -- gets a template from the template file
-TH1F* TemplateArchive::GetTemplate(const char* template_name) {
+TH1D* TemplateArchive::GetTemplate(const char* template_name) {
 
-  TH1F* hTemplate = (TH1F*) fTemplateFile->Get(template_name);
+  TH1D* hTemplate = (TH1D*) fTemplateFile->Get(template_name);
 }
 
 // SaveTemplate()
 // -- saves a template to the template file
 void TemplateArchive::SaveTemplate(TH1* hTemplate) {
 
-  fTemplateFile->cd();
-  hTemplate->Write();
+  if (hTemplate) {
+    fTemplateFile->cd();
+    hTemplate->Write();
+  }
 }
