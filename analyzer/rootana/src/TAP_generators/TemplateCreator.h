@@ -20,6 +20,8 @@ class TemplateCreator : public BaseModule{
   virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
 
   TemplateArchive* fTemplateArchive;
+
+  void AddPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse);
 };
 
 #endif //TEMPLATECREATOR_H_
