@@ -8,8 +8,19 @@
 #include <TObject.h>
 #include "TPulseIsland.h"
 
-/** This class holds all of the data created by analysis modules.
-  */
+
+////////////////////////////////////////////////////////////////////////////////
+/// \brief
+/// This class holds all of the data created by alcapana analysis modules.
+/// \ingroup alcapana
+/// \ingroup rootana
+///
+/// \details
+/// During analysis in alcapana, a pointer to a structure of %TGlobalData (TGD)
+/// type is instantiated to hold all of the TPIs of a given MIDAS event. During
+/// rootana production, the data is loaded back into a TGD to be passed on to
+/// the next stage of analysis.
+////////////////////////////////////////////////////////////////////////////////
 class TGlobalData : public TObject{
  public:
   static TGlobalData* Instance();
@@ -21,7 +32,7 @@ class TGlobalData : public TObject{
   /// result in double-frees if used there.
   void Clear(const Option_t* = 0x0);
 
-  // Map of bank names to vectors of islands.
+  /// Map of bank names to vectors of TPIs.
   std::map<std::string, std::vector<TPulseIsland*> >
     fPulseIslandToChannelMap;
 

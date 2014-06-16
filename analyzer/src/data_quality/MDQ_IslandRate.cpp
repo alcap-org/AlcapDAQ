@@ -1,12 +1,25 @@
-/********************************************************************\
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDQ_IslandRate
+/// \ingroup lldq
+/// \author Andrew Edmonds
+///
+/// \brief
+/// Plots TPI rate in each bank per MIDAS event.
+///
+/// \details
+/// Creates ::hDQ_IslandRate, which records rates of TPI in each
+/// enabled bank averaged over the run.
+/// @{
 
-Name:         MDQ_IslandRate
-Created by:   Andrew Edmonds
+/// \var hDQ_IslandRate
+/// \brief
+/// The rate of each bank averaged over the run.
 
-Contents:     hDQ_IslandRate
-              - plots the total number of TPulseIslands per unit time in each detector
-
-\********************************************************************/
+/// \var hDQ_IslandRate_normalised
+/// \brief
+/// Same as ::hDQ_IslandRate, but vertical axis is scaled to number of muon
+/// hits according to TDC.
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -184,3 +197,5 @@ INT MDQ_IslandRate(EVENT_HEADER *pheader, void *pevent)
 	}
 	return SUCCESS;
 }
+
+/// @}

@@ -7,7 +7,7 @@ using std::cout;
 using std::endl;
 
 %module%APGenerator::%module%APGenerator(TAPGeneratorOptions* opts):
-	TVAnalysedPulseGenerator(opts){
+	TVAnalysedPulseGenerator("%module%",opts){
 	// Do things to set up the generator here. 
 }
 
@@ -19,9 +19,10 @@ int %module%APGenerator::ProcessPulses(
 	
 	// Generators have a Debug method similar to modules
 	if(Debug()){
-		// The also have a GetChannel method to get a c-string with the
-		// channel name
-		cout<<"Looking for TAPs on channel: "<<GetChannel()<<'\n';
+    // They also have a unique ID, retrievable by GetSource and
+		// a GetChannel method to get the ID of just the channel
+    cout<<"Now running source: "<<GetSource().str()<<" which looks for TAPs on "
+        "channel: "<<GetChannel().str()<<'\n';
 	}
 
 	// returning 0 tells the caller that we were successful, return non-zero if not

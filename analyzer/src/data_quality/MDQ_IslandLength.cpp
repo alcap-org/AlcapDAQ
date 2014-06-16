@@ -1,12 +1,25 @@
-/********************************************************************\
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDQ_IslandLength
+/// \ingroup lldq
+/// \author Nam Tran
+///
+/// \brief
+/// Plots information related to length of TPIs in each bank
+/// per MIDAS event.
+///
+/// \details
+/// Creates several histograms.
+/// @{
 
-Name:         MDQ_IslandLength
-Created by:   Nam Tran
+/// \var DQ_IslandLength_histograms_map
+/// \brief
+/// Map of bank name to histogram of TPI lengths per event.
 
-Contents:     hDQ_IslandLength_[DetName]_[BankName]
-              - plots the lengths of the TPulseIslands in each event for each detector
-
-\********************************************************************/
+/// \var DQ_IslandLength_histograms_normalised_map
+/// \brief
+/// Same as ::DQ_IslandLength_histograms_map but normalized
+/// to number of muons according to TDC.
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -181,3 +194,5 @@ INT MDQ_IslandLength(EVENT_HEADER *pheader, void *pevent)
 	}
 	return SUCCESS;
 }
+
+/// @}

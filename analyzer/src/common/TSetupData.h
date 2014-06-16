@@ -8,58 +8,88 @@
 
 #include <TObject.h>
 
-/** This class holds all of the setup data for each run.
-  */
+////////////////////////////////////////////////////////////////////////////////
+/// \brief
+/// Holds data relevent to each run.
+/// \ingroup alcapana
+/// \ingroup rootana
+///
+/// \details
+/// %TSetupData (TSD) holds information about each run. This consists mainly
+/// of data from the ODB WireMap, most importantly a mapping between each
+/// digitizer channel and the physical detector it had plugged in.
+/// Other hardware information such as the bit precision of each digitizer
+/// channel, is also contained here.
+////////////////////////////////////////////////////////////////////////////////
 class TSetupData : public TObject{
  private:
-  /*         struct DetectorInfo{
-                 int polarity;
-                 int pedestal;
-	   double adcSlopeCalib;
-	   double adcOffsetCalib;
-	   bool isFast; // true if this is a fast pulse
-         };
-  std::map<std::string, DetectorInfo> fBankToDetectorConfigs;
-  */
  public:
-  //(Quasi-)Singleton interface
+  /// (Quasi-)Singleton interface
   static TSetupData* Instance();
 
-  // Map of bank names to detector names
+  /// \name Maps
+  /// All maps have, as their keys the MIDAS bank (digitizer channel) name.
+  /// These are all from the ODB.
+  //@{
+  /// The physical detector name.
   std::map<std::string, std::string> fBankToDetectorMap;
+  /// The length, in nanoseconds, of each sample clock tick.
   std::map<std::string, double> fBankToClockTickMap;
+  /// The number of bits (precision) each ADC sample has.
   std::map<std::string, int> fBankToBitMap;
+  /// Deprecated
   std::map<std::string, double> fBankToADCSlopeCalibMap;
+  /// Deprecated
   std::map<std::string, double> fBankToADCOffsetCalibMap;
+  /// The timing offset from the muSc.
   std::map<std::string, double> fBankToTimeShift;
+  /// The pulse polarity (positive = 1, negative = -1).
   std::map<std::string, int> fBankToPolarityMap;
+  /// The voltage offet in units of ADC.
   std::map<std::string, int> fBankToPedestalMap;
-	std::map<std::string, bool> fBankToEnableBitMap;
+  /// Whether or not the channel was enabled.
+  std::map<std::string, bool> fBankToEnableBitMap;
+  //@}
 
+  /// @return Which bank this detector was hooked up to, or "" if not hooked up.
   std::string GetBankName(std::string DetectorName);
-
-  std::string GetDetectorName(std::string BankName)const { 
-    if (fBankToDetectorMap.find(BankName)->second!= "blank")
-      return fBankToDetectorMap.find(BankName)->second; 
+  /// @return Which detector was hooked up to this bank, or "blank" if passed the bank "blank".
+  /// Undefined behavior if passed a bank other than "blank" or what was used.
+  std::string GetDetectorName(std::string BankName) const { 
+    if (fBankToDetectorMap.find(BankName)->second !=  "blank")
+      return fBankToDetectorMap.find(BankName)->second;
     else
       return BankName;
   };
 
-  // Fill a map of all detectors that were used to their banks
+  /// @param[out] detectors Map with detectors as keys and banks as the mapped value, omitting detectors name "blank".
   void GetAllDetectors(std::map<std::string,std::string>& detectors)const;
+  /// @param[out] detectors Vector of all detectors, omitting detectors named "blank".
   void GetAllDetectors(std::vector<std::string>& detectors)const;
 
-  // Getters
+  /// \name Getters
+  /// @param[in] BankName Name of the MIDAS bank we're querying about.
+  //@{
+  /// @return Length of sample clock ticks in nanoseconds.
   double GetClockTick(const std::string& BankName) const{ return GetValue(fBankToClockTickMap,BankName);}
   int GetNBits(const std::string& BankName) const{ return GetValue(fBankToBitMap,BankName);}
+  /// Deprecated
   double GetADCSlopeCalib(const std::string& BankName) const{ return GetValue(fBankToADCSlopeCalibMap,BankName); };
+  /// Deprecated
   double GetADCOffsetCalib(const std::string& BankName) const{ return GetValue(fBankToADCOffsetCalibMap,BankName); };
+  /// Timing offset of bank from muSc.
   double GetTimeShift(const std::string& BankName) const{ return GetValue(fBankToTimeShift,BankName); };
+  /// Pulse polarity
   int GetTriggerPolarity(const std::string& BankName)const{return GetValue(fBankToPolarityMap,BankName);};
   int GetPedestal(const std::string& BankName)const{return GetValue(fBankToPedestalMap,BankName);};
   bool GetEnableBit(const std::string& BankName)const {return GetValue(fBankToEnableBitMap, BankName);};
+  //@}
 
+  /// \name Setters
+  /// @param[in] BankName Name of bank information is being set about.
+  /// @param[out] value The value to saved.
   // Setters with check, return true if inserted
+  //@{
   bool SetDetectorName(std::string BankName, std::string value) {
     std::map< std::string, std::string >::iterator it;
     for (it = fBankToDetectorMap.begin(); it != fBankToDetectorMap.end(); ++it)
@@ -75,7 +105,8 @@ class TSetupData : public TObject{
   void SetPedestal(std::string BankName, int value) { fBankToPedestalMap[BankName]=value; }
   void SetADCSlopeCalib(std::string BankName, double value) { fBankToADCSlopeCalibMap[BankName] = value; }
   void SetADCOffsetCalib(std::string BankName, double value) { fBankToADCOffsetCalibMap[BankName] = value; };
-	void SetEnableBit(std::string BankName, bool value){fBankToEnableBitMap[BankName] = value;};
+  void SetEnableBit(std::string BankName, bool value){fBankToEnableBitMap[BankName] = value;};
+  //@}
 
   static bool IsFADC(const std::string& BankName) { return BankName[0] == 'N'; } // if the first letter is N then the bank name is for a FADC
   static bool IsHoustonCAEN(const std::string& BankName) { return BankName.substr(2,2) == "UH"; } // if the first letter is C then the bank name is for a CAEN

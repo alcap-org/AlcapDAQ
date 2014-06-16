@@ -1,11 +1,33 @@
-/********************************************************************\
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup alcapana alcapana
+/// \brief
+/// Program for first stage of data analysis.
 
-Name:         analyzer.c
-Created by:   Stefan Ritt
+/// \defgroup dq Data Quality
+/// \brief
+/// Quality checks
 
-Contents:     System part of Analyzer code for sample experiment
+/// \defgroup lldq Low Level Data Quality Checks
+/// \ingroup dq
+/// \ingroup alcapana
+/// \brief
+/// Low level data quality checks.
 
-\********************************************************************/
+/// \defgroup process_raw Raw Data Process
+/// \ingroup alcapana
+/// \brief
+/// Modules that are used in production of TPIs from MIDAS banks
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup alcapana_main
+/// \ingroup alcapana
+/// \author Stefan Ritt
+///
+/// \brief
+/// System part of the Analyzer code.
+/// @{
+////////////////////////////////////////////////////////////////////////////////
 
 /* standard includes */
 #include <stdio.h>
@@ -48,11 +70,16 @@ INT  analyzer_loop_period = 0;
 /* default ODB size */
 INT  odb_size = DEFAULT_ODB_SIZE;
 
-/* Global repository for data produced by modules to be used by
- * downstream modules
- */
+/// \brief
+/// Object to hold data used and produced by modules throughout alcapana stage
+/// of analysis.
 TGlobalData* gData;
+/// \brief
+/// Hardware information about digitizers and detectors to be used during
+/// alcapana stage of analysis.
 TSetupData* gSetup;
+/// \brief
+/// Vacuum data slow control.
 TVacuumData* gVacuum;
 
 TSetupData* TSetupData::Instance()
@@ -591,3 +618,5 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
 
 	return ret;
 }
+
+/// @}

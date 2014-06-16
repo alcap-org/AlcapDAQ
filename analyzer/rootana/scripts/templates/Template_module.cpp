@@ -10,7 +10,7 @@ using std::cout;
 using std::endl;
 
 %module%::%module%(modules::options* opts):
-   FillHistBase("%module%",opts){
+   BaseModule("%module%",opts){
 
   // Do something with opts here.  Has the user specified any
   // particular configuration that you want to know?

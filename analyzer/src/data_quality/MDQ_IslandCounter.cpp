@@ -1,12 +1,30 @@
-/********************************************************************\
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDQ_IslandCounter
+/// \ingroup lldq
+/// \author Andrew Edmonds
+///
+/// \brief
+/// Plots number of TPIs in each detector per MIDAS event with
+/// different normalizations.
+///
+/// \details
+/// Creates several plots.
+/// @{
 
-Name:         MDQ_IslandCounter
-Created by:   Andrew Edmonds
+/// \var DQ_IslandCounter_histograms_map
+/// \brief
+/// Maps bank name to histogram of number of TPIs in MIDAS event
 
-Contents:     hDQ_IslandCounter_[DetName]_[BankName]
-              - plots the number of TPulseIslands in each event for each detector
+/// \var DQ_IslandCounter_histograms_normalised_map
+/// \brief
+/// Same as ::DQ_IslandCounter_histograms_map, but normalized
+/// vertical axis to muon count according to TDC.
 
-\********************************************************************/
+/// \var DQ_IslandCounter_histograms_both_axes_normalised_map
+/// \brief
+/// Same as ::DQ_IslandCounter_histograms_normalised_map, but
+/// additionally horizontal axis is normalized in the same way.
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -189,3 +207,5 @@ INT MDQ_IslandCounter(EVENT_HEADER *pheader, void *pevent)
 	}
 	return SUCCESS;
 }
+
+/// @}

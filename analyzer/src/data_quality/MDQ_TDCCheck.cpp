@@ -1,27 +1,47 @@
-/********************************************************************\
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDQ_TDCCheck
+/// \ingroup lldq
+/// \author Andrew Edmonds
+///
+/// \brief
+/// Plots information from the TDC, most importantly muSc, muScA, and muPC data.
+///
+/// \details
+/// A number of TDC plots are created. There is a count of muSc, muScA, and muPC
+/// hits. The muSc time is also plotted (this is in addition to the timing we
+/// get from the digitizer the muSc is plugged into). A timing correlation
+/// plot is made between the timing of the digitizer and the TDC. And finally
+/// all unknown parameters from the TDC are counted up.
+/// @{
 
-Name:         MDQ_TDCCheck
-Created by:   Andrew Edmonds
+/// \var hDQ_TDCCheck_muSc
+/// \brief
+/// Coount of number of muSc hits in a run in the TDC.
 
-Contents:     hDQ_TDCCheck_muSc
-              - plots the number of muSc hits as seen in the TDC (parameter = 6011)
+/// \var hDQ_TDCCheck_muScA
+/// \brief
+/// Count of number of muScA hits in a run in the TDC.
 
-              hDQ_TDCCheck_muScA
-              - plots the number of muScA hits as seen in the TDC (parameter = 6002)
+/// \var hDQ_TDCCheck_muPC
+/// \brief
+/// Count of muPC hits during the run.
 
-              hDQ_TDCCheck_muPC
-              - plots the number of muPC hits as seen in the TDC (4001 <= parameter <= 4074)
+/// \var hDQ_TDCCheck_Unknown
+/// \brief
+/// Count of unknown TDC parameters during a run.
 
-              hDQ_TDCCheck_Unknown
-              - plots the number of hits in the TDC with any other parameter
+/// \var hDQ_TDCCheck_muSc_time
+/// \brief
+/// Time distribution of muon hits in TDC.
 
-              hDQ_TDCCheck_muSc_time
-              - plots the time of the muSc hits as seen in the TDC
+/// \var hDQ_TDCCheck_muSc_rate
+/// \brief
+/// Rate of muSc hits in TDC averaged over the run.
 
-              hDQ_TDCCheck_TDiff
-              - plots the time difference between muSc hits in the TDC and the BU CAEN
-
-\********************************************************************/
+/// \var hDQ_TDCCheck_TDiff
+/// \brief
+/// Timing correlation between muSc hits in digitizer in ns and muon hits in TDC (units?)
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -247,3 +267,5 @@ INT MDQ_TDCCheck(EVENT_HEADER *pheader, void *pevent)
 
 	return SUCCESS;
 }
+
+/// @}

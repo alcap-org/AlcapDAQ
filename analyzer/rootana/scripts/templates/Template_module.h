@@ -1,12 +1,12 @@
 #ifndef %MODULE%_H_
 #define %MODULE%_H_
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
 
-class %module% : public FillHistBase{
+class %module% : public BaseModule{
 
  public:
   %module%(modules::options* opts);

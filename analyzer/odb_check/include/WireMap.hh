@@ -1,3 +1,6 @@
+/** \addtogroup odbcheck
+ * @{
+ */
 #ifndef WIREMAP_H__
 #define WIREMAP_H__
 
@@ -16,15 +19,29 @@
 
 class WireMap {
 private:
+  /// WireMap corresponding to default ODB.
+  ///
+  /// Constructed if needed.
+  static WireMap* DefaultODB;
+
+  /// Run Number
   unsigned int fRun; ///< Run number
-  unsigned int fNDets; ///< Number of detectors.
-  std::vector<std::string> fBankName; ///< Name of each channel.
-  std::vector<std::string> fDetName; ///< Detector attached to each channel.
-  std::vector<bool> fEnabled; ///< Enabled status for each channel.
-  std::vector<int> fPedestal; ///< Pedestals for each channel.
-  std::vector<int> fPolarity; ///< Polarity of each channel.
-  std::vector<int> fOffset; ///< Timing offset (TimeShift) for each channel.
-  std::vector<double> fFrequency; ///< Sampling frequency of each channel.
+  /// Number of detectors
+  unsigned int fNDets;
+  /// Name of each channel.
+  std::vector<std::string> fBankName;
+  /// Detector attached to each channel.
+  std::vector<std::string> fDetName;
+  /// Enabled status for each channel.
+  std::vector<bool> fEnabled;
+  /// Pedestals for each channel.
+  std::vector<int> fPedestal;
+  /// Polarity of each channel.
+  std::vector<int> fPolarity;
+  /// Timing offset (TimeShift) for each channel.
+  std::vector<int> fOffset;
+  /// Sampling frequency of each channel.
+  std::vector<double> fFrequency;
 
 public:
   /**
@@ -48,23 +65,38 @@ public:
   WireMap(int run, std::string& odb_file);
 
 public:
-  // Setters
+  /// \name Setters
+  //@{
   void SetRun(unsigned int); ///< Set the run number
   void Enable(); ///< Enable the last channel added.
   bool Enable(unsigned int); ///< Enable a channel. @return True if succesful.
   void Disable(); ///< Disable last channel added.
   bool Disable(unsigned int); ///< Disable a channel. @return True if succesful.
-  // Getters
-  unsigned int GetRun() const; ///< @return Run number.
-  unsigned int GetNDets() const; ///< @return Number of detectors.
-  std::vector<std::string>& GetBanks(); ///< @return Reference to vector of bank names.
-  std::vector<std::string>& GetDets(); ///< @return Reference to vector of detector names.
-  std::vector<bool>& GetEnableds(); ///< @return Reference to vector of channel's enabled status.
-  std::vector<int>& GetPedestals(); ///< @return Reference to vector of pedestals.
-  std::vector<int>& GetPolarities(); ///< @return Reference to vector of polarities (+/- 1).
-  std::vector<int>& GetOffsets(); ///< @return Reference to vector of timing offsets (TimeShift).
-  std::vector<double>& GetFrequencies(); ///< @return Reference to vector of sampling frequencies.
+  //@}
+  /// \name Getters
+  //@{
+  /// @return Run number.
+  unsigned int GetRun() const;
+  /// @return Number of detectors.
+  unsigned int GetNDets() const;
+  /// @return Reference to vector of bank names.
+  std::vector<std::string>& GetBanks();
+  /// @return Reference to vector of detector names.
+  std::vector<std::string>& GetDets();
+  /// @return Reference to vector of channel's enabled status.
+  std::vector<bool>& GetEnableds();
+  /// @return Reference to vector of pedestals.
+  std::vector<int>& GetPedestals();
+  /// @return Reference to vector of polarities (+/- 1).
+  std::vector<int>& GetPolarities();
+  /// @return Reference to vector of timing offsets (TimeShift).
+  std::vector<int>& GetOffsets();
+  /// @return Reference to vector of sampling frequencies.
+  std::vector<double>& GetFrequencies();
+  //@}
 
+  /// \name Adders
+  //@{
   /// \brief Add new value to %WireMap.
   ///
   /// @param[in] bankname Channel name
@@ -82,23 +114,16 @@ public:
   /// @param[in] wm %WireMap that has element we wish to copy to this %WireMap.
   /// @param[in] index Which element of this %WireMap to copy.
   void Add(WireMap& wm, int index);
+  //@}
 
   /// Unique fixes for certain runs
   ///
   /// 1. For runs 2091-2103, correct the sampling frequency
   void UniqueFixes();
 
-private:
-  
-  void AddBank(const std::string&); ///< Add only bank name. This is the only method that adds a single element AND iIncrements fNDets
-  void AddDet(const std::string&); ///< Add only detector name.
-  void AddEnabled(bool); ///< Add only enabled status.
-  void AddPedestal(int); ///< Add only pedestal.
-  void AddPolarity(int); ///< Add only polarity.
-  void AddOffset(int); ///< Add only timing offset (TimeShift).
-  void AddFrequency(double); ///< Add only frequency.
-
 public:
+  /// \name Loaders
+  //@{
   /// Load ODB values into %WireMap from an ODB file.
   ///
   /// Parses an ODB file, finds keys indicating what the %WireMap
@@ -110,6 +135,7 @@ public:
   void Load(int run, const std::string& odb_file);
   /// Load another %WireMap over this one in the same manner ODB Edit loads one ODb over another.
   void LoadOver(WireMap&);
+  //@}
   /// Reset this %WireMap to a state similar to what it would be if called with the default constructor.
   void Clear();
 
@@ -183,3 +209,4 @@ public:
 };
 
 #endif
+/** @}*/

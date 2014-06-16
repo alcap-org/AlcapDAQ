@@ -1,4 +1,5 @@
 #include "IdChannel.h"
+#include <ostream>
 
 ClassImp(IDs::channel);
 
@@ -85,3 +86,7 @@ IDs::SlowFast_t IDs::channel::GetSlowFastEnum(const std::string& type){
 	return kNotApplicable;
 }
 
+ostream& operator<< (ostream& os , IDs::channel& id){
+  os<<id.str();
+  return os;
+}

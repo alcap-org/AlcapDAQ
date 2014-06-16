@@ -1,11 +1,13 @@
-/********************************************************************\
-
-  Name:         MV1724ProcessRaw
-  Created by:   V.Tishchenko, J.Grange hoping to extend it
-
-  Contents:     Module to decode CAEN v1724 digitizer data.
-
-\********************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MV1724ProcessRaw
+/// \ingroup process_raw
+/// \author Volodya Tishchenko
+/// \author Joe Grange
+///
+/// \brief
+/// Produces TPIs from raw data read in from UH CAEN.
+/// @{
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -42,9 +44,20 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-vector<string> caen_houston_bank_names;
-static unsigned int nSamples;    // For stitching
-static unsigned int nPreSamples; // For time adjustment
+/// \brief
+/// List of UH CAEN bank names for the event loop.
+static vector<string> caen_houston_bank_names;
+/// \brief
+/// Number of samples to record before a trigger.
+/// \details
+/// Number of samples and fraction of sampling window to set
+/// aside for after trigger are stored in  ODB; this is calculated
+/// from those.
+static unsigned int nPreSamples;
+/// \brief
+/// Number of channels in V1724.
+static const int NCHAN = 8;
+
 
 ANA_MODULE MV1724ProcessRaw_module =
 {
@@ -60,21 +73,9 @@ ANA_MODULE MV1724ProcessRaw_module =
   NULL,                          /* initial parameters    */
 };
 
-/*-- Number of channels in V1724 -----------------------------------*/
-static const int NCHAN = 8;
-
-/*-- Histogram declaration -----------------------------------------*/
-static TH2* hNV1724IslandsReadPerBlock;
-
 /*--module init routine --------------------------------------------*/
 INT module_init()
 {
-
-  hNV1724IslandsReadPerBlock = new TH2I(
-    "hNV1724IslandsReadPerBlock",
-    "Number of CAEN Islands read by block",
-    1,0,1, 3000,0,3000);
-  hNV1724IslandsReadPerBlock->SetBit(TH1::kCanRebin);
 
   std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
   for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
@@ -87,10 +88,10 @@ INT module_init()
       caen_houston_bank_names.push_back(bankname);
   }
   
-   /*** Get necessary data from ODB ***/
+  /*** Get necessary data from ODB ***/
   char key[80];
   int size;
-  unsigned int post_trigger_percentage;
+  unsigned int post_trigger_percentage, nSamples;
 
   // Get Trigger Time Tag info
   // Timestamp will be shifted by number of presamples
@@ -247,3 +248,5 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
   
   return SUCCESS;
 }
+
+/// @}

@@ -19,7 +19,7 @@ int MaxBinAPGenerator::ProcessPulses(
       SetBankInfo(pulseList.at(0)->GetBankName());
 
       double amplitude, time, integral, energy;
-
+      TAnalysedPulse* outPulse;
       for (PulseIslandList::const_iterator pulseIter = pulseList.begin(); pulseIter != pulseList.end(); pulseIter++) {
          amplitude = 0;
          time = 0;
@@ -28,9 +28,13 @@ int MaxBinAPGenerator::ProcessPulses(
          // Assume one TAnalysedPulse per TPulseIsland
          GetAllParameters_MaxBin(*pulseIter,amplitude,time,integral,energy);
 
+         // Make the TAnalysedPulse pulse
+         outPulse=MakeNewTAP(pulseIter-pulseList.begin());
+         outPulse->SetAmplitude(amplitude);
+         outPulse->SetTime(time);
+         outPulse->SetEnergy(energy);
          // Add the pulse into the list
-         analysedList.push_back(new  TAnalysedPulse(amplitude, time, integral, energy, fDetName));
-	 analysedList.back()->SetPulseIslandID(pulseIter-pulseList.begin());
+         analysedList.push_back(outPulse);
 
       }
       std::sort(analysedList.begin(), analysedList.end(), IsTimeOrdered);
@@ -42,22 +46,16 @@ void MaxBinAPGenerator::GetAllParameters_MaxBin(const TPulseIsland* pulse,
 
 
   // First find the position of the peak
-  std::vector<int> pulseSamples = pulse->GetSamples();
-  int peak_sample_value = 0;
-  int peak_sample_pos = 0;
-  int this_height =0;
-  for (std::vector<int>::const_iterator sampleIter = pulseSamples.begin(); sampleIter != pulseSamples.end(); sampleIter++) {
-    
-    this_height = fTriggerPolarity*(*(sampleIter) - fPedestal);
-    if ( this_height > peak_sample_value ) {
-      peak_sample_value = this_height;
-      peak_sample_pos = sampleIter - pulseSamples.begin();
-    }
-  }
+  std::vector<int> pulseSamples = pulse->GetSamples();  
+  std::vector<int>::iterator peak_sample_pos;
+  if (fTriggerPolarity == 1)
+    peak_sample_pos = std::max_element(pulseSamples.begin(), pulseSamples.end());
+  else
+    peak_sample_pos = std::min_element(pulseSamples.begin(), pulseSamples.end());
 
   // Now assign the parameters
-  amplitude = peak_sample_value;
-  time = ((pulse->GetTimeStamp() + peak_sample_pos) * fClockTick) - fTimeShift;
+  amplitude = fTriggerPolarity*(*peak_sample_pos - fPedestal);
+  time = ((pulse->GetTimeStamp() + (peak_sample_pos - pulseSamples.begin())) * fClockTick) - fTimeShift;
   integral = 0;
   energy = fECalibSlope * amplitude + fECalibOffset;
 }

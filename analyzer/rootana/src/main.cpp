@@ -1,3 +1,14 @@
+/// \defgroup rootana rootana
+/// \brief
+/// Second stage of analysis in the AlCap framework.
+
+////////////////////////////////////////////////////////////////////////////////
+/// \degroup rootana_main
+/// \ingroup rootana
+///
+/// @{
+////////////////////////////////////////////////////////////////////////////////
+
 //#define USE_PRINT_OUT 
 
 #include <cstdio>
@@ -343,3 +354,5 @@ Int_t PrepareSingletonObjects(const ARGUMENTS&){
 
    return 0;
 }
+
+/// @}

@@ -1,21 +1,33 @@
-/********************************************************************\
+////////////////////////////////////////////////////////////////////////////////
+/// \defgroup MDQ_FADCPacketLoss
+/// \ingroup lldq
+/// \author Andrew Edmonds
+/// \author Joe Grange
+///
+/// \brief
+/// Plots information related to loss of FADC packets
+/// over the network.
+///
+/// \details
+/// Creates ::hDQ_FADCPacketLoss_Total, ::hDQ_FADCPacketLoss_Fraction,
+/// and ::hDQ_FADCPacketLoss_TotalByEvent.
+/// @{
 
-Name:         MDQ_FADCPacketLoss
-Created by:   Andrew Edmonds + Joe Grange
+/// \var hDQ_FADCPacketLoss_Total
+/// \brief
+/// Plots the total number of MIDAS events that had a packet loss
+/// per board
 
-Contents:     hDQ_FADCPacketLoss_Total
-              - plots the total number of MIDAS events that had a packet loss
-                per board
+/// \var hDQ_FADCPacketLoss_Fraction
+/// \brief
+/// Plots the fraction of MIDAS events that had a packet loss
+/// per board
 
-              hDQ_FADCPacketLoss_Fraction
-              - plots the fraction of MIDAS events that had a packet loss
-                per board
-
-              hDQ_FADCPacketLoss_TotalByEvent
-              - plots the total number of packet losses per board
-                on an event-by-event basis
-
-\********************************************************************/
+/// \var hDQ_FADCPacketLoss_Fraction
+/// \brief
+/// Plots the total number of packet losses per board
+/// on an event-by-event basis
+////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
 #include <stdio.h>
@@ -183,3 +195,4 @@ INT MDQ_FADCPacketLoss_EOR(INT run_number)
   return SUCCESS;
 }
 
+/// @}

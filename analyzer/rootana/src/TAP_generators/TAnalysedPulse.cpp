@@ -1,4 +1,5 @@
 #include "TAnalysedPulse.h"
+#include "TPulseIsland.h"
 
 #include <TH1F.h>
 #include <cmath>
@@ -12,42 +13,46 @@ using std::string;
 #define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
 #define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<std::endl;
 
-TAnalysedPulse::TAnalysedPulse()
-{
-  Reset();
+TAnalysedPulse::ProxyToSourceMap TAnalysedPulse::sProxyToSources;
+TAnalysedPulse::SourceToProxyMap TAnalysedPulse::sSourceToProxies;
+
+TAnalysedPulse::TAnalysedPulse(const IDs::source& sourceID,
+             const TPulseIslandID& parentID, const TPulseIsland* parentTPI):
+  fParentID(fDefaultValue),
+  fSource(fDefaultValue),
+  fTPILength(fDefaultValue),
+  fAmplitude(fDefaultValue),
+  fTime(fDefaultValue),
+  fIntegral(fDefaultValue),
+  fEnergy(fDefaultValue),
+  fPedestal(fDefaultValue),
+  fTriggerTime(fDefaultValue){
+    SetSource(sourceID);
+    SetParentTPIProperties(parentID, parentTPI);
 }
 
-TAnalysedPulse::TAnalysedPulse(double amplitude, double time, double integral, double energy, std::string det_name)
-{
-  Reset();
-  fAmplitude = amplitude;
-  fTime = time;
-  fIntegral = integral;
-  fEnergy = energy;
-  fDetName = det_name;
-  fAlgo = "";
+TAnalysedPulse::TAnalysedPulse():
+  fParentID(fDefaultValue),
+  fSource(fDefaultValue),
+  fTPILength(fDefaultValue),
+  fAmplitude(fDefaultValue),
+  fTime(fDefaultValue),
+  fIntegral(fDefaultValue),
+  fEnergy(fDefaultValue),
+  fPedestal(fDefaultValue),
+  fTriggerTime(fDefaultValue){
+    //Reset();
 }
 
-TAnalysedPulse::TAnalysedPulse(double amplitude, double time, double integral, 
-		double energy, std::string det_name, std::string algo)
-{
-  Reset();
-  fAmplitude = amplitude;
-  fTime = time;
-  fIntegral = integral;
-  fEnergy = energy;
-  fDetName = det_name;
-  fAlgo = algo;
-}
-
-void TAnalysedPulse::Reset(Option_t* o)
-{
-  fAmplitude = 0;
-  fTime = 0;
-  fIntegral = 0;
-  fEnergy = 0.;
-  fDetName = "";
-  fAlgo = "";
+void TAnalysedPulse::Reset(Option_t* o) {
+  fParentID=fDefaultValue;
+  fTPILength=fDefaultValue;
+  fAmplitude=fDefaultValue;
+  fTime=fDefaultValue;
+  fIntegral=fDefaultValue;
+  fEnergy=fDefaultValue;
+  fPedestal=fDefaultValue;
+  fTriggerTime=fDefaultValue;
 }
 
 void TAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
@@ -56,10 +61,32 @@ void TAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
 	  int n_bins=tpi_pulse->GetXaxis()->GetNbins();
 	  double x_max=tpi_pulse->GetXaxis()->GetXmax();
 	  double x_min=tpi_pulse->GetXaxis()->GetXmin();
-	  TH1F* tap_pulse=new TH1F((name+"_AP").c_str(),("MaxBin TAP for "+name).c_str(),n_bins,x_min,x_max);
+	  TH1F* tap_pulse=new TH1F((name+"_AP").c_str(),("TAP for "+name).c_str(),n_bins,x_min,x_max);
 	  int bin=tap_pulse->FindBin(fTime);
 	  tap_pulse->SetBinContent(bin,fAmplitude);
 	}
-	//name+="_Ana
-	//TH1F* tap_pulse=new TH1F(tpi
+}
+
+void TAnalysedPulse::SetParentTPIProperties(const TPulseIslandID& id,
+                                            const TPulseIsland* pulse){
+  SetParentID(id);
+  if(!pulse) {
+    std::cerr<<"NULL pointer to TPulseIsland passed as parent for TAnalysedPulse."<<std::endl;
+    return;
+  }
+  SetTPILength(pulse->GetPulseLength());
+  SetTriggerTime(pulse->GetTimeStamp()*pulse->GetClockTickInNs());
+}
+
+void TAnalysedPulse::SetSource(const IDs::source& sourceID){
+    // Is this proxy already contained in the maps
+    SourceToProxyMap::const_iterator it=sSourceToProxies.find(sourceID);
+    if(it!=sSourceToProxies.end()){
+      fSource=it->second;
+    } else {
+      // if it's a new kind, add the source to the hash table
+      fSource=sSourceToProxies.size();
+      sSourceToProxies[sourceID]=fSource;
+      sProxyToSources.push_back(sourceID);
+    }
 }
