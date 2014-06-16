@@ -84,7 +84,6 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
   int polarity = fPulseIsland->GetTriggerPolarity();
 
   int s1, s2, ds; // this sample value, the previous sample value and the change in the sample value
-  int start, stop; // the start and stop location
   bool found = false;
   Location location;
 
@@ -97,7 +96,6 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
     if (found) {
       if (s2 < 0) { // stop if the sample goes below pedestal
 	location.stop = (int)i;
-	start = stop = 0;
 	fPulseCandidateLocations.push_back(location);
 	found = false;
       }
