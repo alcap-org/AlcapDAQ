@@ -2,6 +2,8 @@
 #define TemplateFitter_h_
 
 #include "TFitterMinuit.h"
+#include "TPulseIsland.h"
+#include "TH1D.h"
 
 class TemplateFitter {
  public:
