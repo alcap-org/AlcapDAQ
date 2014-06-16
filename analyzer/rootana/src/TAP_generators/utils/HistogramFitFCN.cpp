@@ -10,14 +10,10 @@ HistogramFitFCN::~HistogramFitFCN() {
 }
 
 void HistogramFitFCN::SetH1(TH1D* h1) {
-  if (fH1 && fH1 != h1)
-    delete fH1;
   fH1 = h1;
 }
 
 void HistogramFitFCN::SetH2(TH1D* h2) {
-  if (fH2 && fH2 != h2)
-    delete fH2;
   fH2 = h2;
 }
 
@@ -49,7 +45,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
     chi2 += std::pow((fH1->GetBinContent(i) - f) / fH1->GetBinError(i), 2.);
   }
 
-  static bool print_dbg = true;
+  static bool print_dbg = false;
   if (print_dbg) {
     std::cout << "Fit:\tChi2 " << chi2 << "\tP "
 	      << P << "(" << par[0] << ")\tA " << A << "(" << par[1] << ")\tT " << T_i << " " << T_f << "(" << par[2] << ")" << " " << 0.02345

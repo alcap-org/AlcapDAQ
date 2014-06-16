@@ -11,7 +11,7 @@
 using std::cout;
 using std::endl;
 
-#include "PulseCandidateFinder.h"
+#include "utils/PulseCandidateFinder.h"
 
 PulseCandidateFinder_InvestigateParameters::PulseCandidateFinder_InvestigateParameters(modules::options* opts):
    BaseModule("PulseCandidateFinder_InvestigateParameters",opts){
