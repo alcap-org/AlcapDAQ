@@ -7,6 +7,7 @@ TemplateFitter::TemplateFitter() {
   HistogramFitFCN* fcn = new HistogramFitFCN();
   fMinuitFitter = new TFitterMinuit(3); //  Three (3) parameters to modify (amplitude, time, pedestal)
   fMinuitFitter->SetMinuitFCN(fcn);
+  fMinuitFitter->SetPrintLevel(-1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
 }
 
 TemplateFitter::~TemplateFitter() {
@@ -45,14 +46,17 @@ void TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pul
   int status = fMinuitFitter->Minimize();
   if (status != 0)
     std::cout << "ERROR: Problem with fit (" << status << ")!" << std::endl;
-}
 
-double TemplateFitter::GetChi2() {
+  // Set all the variables and then we can delete hPulse and top getting those warnings
+  fPedestal = fMinuitFitter->GetParameter(0);
+  fAmplitude = fMinuitFitter->GetParameter(1);
+  fTime = fMinuitFitter->GetParameter(2);
+
   std::vector<double> params; 
-  params.push_back(GetPedestal()); 
-  params.push_back(GetAmplitude()); 
-  params.push_back(GetTime()); 
+  params.push_back(fPedestal); 
+  params.push_back(fAmplitude); 
+  params.push_back(fTime); 
+  fChi2 = (*fcn)(params);
 
-  HistogramFitFCN* fcn = (HistogramFitFCN*)fMinuitFitter->GetMinuitFCN();
-  return (*fcn)(params);
+  delete hPulse;
 }

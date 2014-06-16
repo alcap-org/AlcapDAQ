@@ -15,10 +15,16 @@ class TemplateFitter {
 
  public:
   void FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse);
-  double GetPedestal() { return fMinuitFitter->GetParameter(0); }
-  double GetAmplitude() { return fMinuitFitter->GetParameter(1); }
-  double GetTime() { return fMinuitFitter->GetParameter(2); }
-  double GetChi2();
+  double GetPedestal() { return fPedestal; }
+  double GetAmplitude() { return fAmplitude; }
+  double GetTime() { return fTime; }
+  double GetChi2() { return fChi2; }
+
+ private:
+  double fPedestal;
+  double fAmplitude;
+  double fTime;
+  double fChi2;
 };
 
 #endif
