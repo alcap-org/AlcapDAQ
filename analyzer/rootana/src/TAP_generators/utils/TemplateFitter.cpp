@@ -55,3 +55,15 @@ void TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pul
 
   delete hPulse;
 }
+
+/*
+double PulseTemplate::Correlation(TPulseIsland* pulse, double& ped, double& amp, double& time) {
+  // Fits by finding the maximum correlation coefficient of template with pulse
+  // Input--
+  // pulse:    Pulse to fit
+  // Output--
+  // ped:      Pedestal of fit
+  // amp:      Amplitude of fit
+  return 0.;
+}
+*/
