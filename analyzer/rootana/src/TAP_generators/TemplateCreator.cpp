@@ -76,13 +76,10 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
       }
 
-      if (Debug() && n_pulse_candidates > 0) {
-	std::cout << "TemplateCreator::ProcessEntry: There are " << n_pulse_candidates << " pulse candidates on this TPI" << std::endl;
-	for (std::vector<TPulseIsland*>::const_iterator candidateIter = pulse_candidates.begin(); candidateIter != pulse_candidates.end(); ++candidateIter) {
-	  std::cout << "Candidate #" << candidateIter - pulse_candidates.begin() << ": timestamp = " << (*candidateIter)->GetTimeStamp() << std::endl;
-	}
-      }
       // if there is more than one, we skip to the next TPI
+      if (n_pulse_candidates > 1) {
+	continue;
+      }
 
       // if there is only one, we continue
         // we will add the first pulse directly to the template (although we may try and choose a random pulse to start with)
