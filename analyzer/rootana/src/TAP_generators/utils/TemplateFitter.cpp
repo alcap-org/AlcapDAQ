@@ -31,10 +31,9 @@ void TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pul
   HistogramFitFCN* fcn = (HistogramFitFCN*)fMinuitFitter->GetMinuitFCN();
   fcn->SetH1(hTemplate);
   fcn->SetH2(hPulse);
-  double ped, amp, time;
-  fMinuitFitter->SetParameter(0, "Pedestal", ped, 0.1, 0, 0);
-  fMinuitFitter->SetParameter(1, "Amplitude", amp, 0.1, 0, 0);
-  fMinuitFitter->SetParameter(2, "Time", time, 1., 0, 0); // Timing should have step size no smaller than binning,
+  fMinuitFitter->SetParameter(0, "Pedestal", fPedestal, 0.1, 0, 0);
+  fMinuitFitter->SetParameter(1, "Amplitude", fAmplitude, 0.1, 0, 0);
+  fMinuitFitter->SetParameter(2, "Time", fTime, 1., 0, 0); // Timing should have step size no smaller than binning,
                                                     // *IF* the fourth argument is step size this is okay,
                                                     // or later implement some interpolation method, note
                                                     // *DERIVATIVES* at bounderies of interpolation may cause
@@ -47,11 +46,7 @@ void TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pul
   if (status != 0)
     std::cout << "ERROR: Problem with fit (" << status << ")!" << std::endl;
 
-  // Set all the variables and then we can delete hPulse and top getting those warnings
-  fPedestal = fMinuitFitter->GetParameter(0);
-  fAmplitude = fMinuitFitter->GetParameter(1);
-  fTime = fMinuitFitter->GetParameter(2);
-
+  // Store the Chi2, and then we can delete the pulse
   std::vector<double> params; 
   params.push_back(fPedestal); 
   params.push_back(fAmplitude); 
