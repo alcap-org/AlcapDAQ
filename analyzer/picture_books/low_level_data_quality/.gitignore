@@ -1,0 +1,9 @@
+*.pdf
+*.toc
+*.tex
+*.aux
+*.log
+*.out
+data_quality_figs/
+*.txt
+RunPicBookMacros.C
