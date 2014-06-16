@@ -46,3 +46,13 @@ void TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pul
   if (status != 0)
     std::cout << "ERROR: Problem with fit (" << status << ")!" << std::endl;
 }
+
+void TemplateFitter::GetChi2() {
+  std::vector<double> params; 
+  params.push_back(GetPedestal()); 
+  params.push_back(GetAmplitude()); 
+  params.push_back(GetTime()); 
+
+  HistogramFitFCN* fcn = fMinuitFitter->GetMinuitFCN();
+  return (*fcn)(params);
+}
