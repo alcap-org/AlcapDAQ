@@ -17,8 +17,8 @@ PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse): fPulseIsland(pu
 
     int rise = 0; // the parameter for this algorithm
     switch(theChannel.Detector()) {
-    case IDs::kGe:
-      rise = 100;
+    default:
+      rise = 100; // TODO: pick a better default and hopefully parameters for all channels
       break;
     }
 
@@ -28,8 +28,8 @@ PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse): fPulseIsland(pu
 
     int threshold = 0; // the parameter for this algorithm
     switch(theChannel.Detector()) {
-    case IDs::kGe:
-      threshold = 0;
+    default:
+      threshold = 0; // TODO: pick a better default and hopefully parameters for all channels
       break;
     }
 
