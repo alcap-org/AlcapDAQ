@@ -63,8 +63,9 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     thePulseIslands = it->second;
     if (thePulseIslands.size() == 0) continue; // no pulses here..
 
-    // Get the template histogram ready
-    TH1D* hTemplate = NULL;
+    // Try and get the template (it may have been created in a previous event)
+    std::string template_name = "hTemplate_" + detname;
+    TH1D* hTemplate = fTemplateArchive->GetTemplate(template_name.c_str());
 
     // Loop through all the pulses
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
@@ -76,22 +77,18 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
       std::vector<TPulseIsland*> pulse_candidates = pulse_candidate_finder->GetPulseCandidates();
 
       if (Debug() && n_pulse_candidates == 0) {
-	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+	//	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
       }
 
       // we only continue if there is more than one pulse candidate on the TPI
       if (n_pulse_candidates == 1) {
 
         // Add the first pulse directly to the template (although we may try and choose a random pulse to start with)
-	if (pulseIter == thePulseIslands.begin()) {
-	  AddPulseToTemplate(hTemplate, *pulseIter);
-	}
+	AddPulseToTemplate(hTemplate, *pulseIter);
 
-	else {
-	  // all the other pulses will be fitted to the template and then added to it
-	  //	  template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
-	  // we keep on adding pulses until adding pulses has no effect on the template
-	}
+	// all the other pulses will be fitted to the template and then added to it
+	//	  template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
+	// we keep on adding pulses until adding pulses has no effect on the template
       }
     }
     // Save the template to the file
@@ -119,7 +116,7 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
 
 /// AddPulseToTemplate()
 /// Adds the given pulse to the template
-void TemplateCreator::AddPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse) {
+void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* pulse) {
 
   // Get the samples so that we can add them to the template
   const std::vector<int>& theSamples = pulse->GetSamples();
@@ -131,7 +128,7 @@ void TemplateCreator::AddPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pu
     // Names for the histograms
     std::string bankname = pulse->GetBankName();
     std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
-    std::string histname = "h" + detname + "Template";
+    std::string histname = "hTemplate_" + detname;
     std::string histtitle = "Template Histogram for the " + detname + " channel";
     hTemplate = new TH1D(histname.c_str(), histtitle.c_str(), n_samples, 0, n_samples);
   }

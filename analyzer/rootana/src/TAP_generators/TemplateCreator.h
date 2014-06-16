@@ -21,7 +21,7 @@ class TemplateCreator : public BaseModule{
 
   TemplateArchive* fTemplateArchive;
 
-  void AddPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse);
+  void AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* pulse);
 };
 
 #endif //TEMPLATECREATOR_H_
