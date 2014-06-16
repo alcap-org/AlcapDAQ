@@ -7,6 +7,7 @@
 #include "definitions.h"
 
 #include "utils/PulseCandidateFinder.h"
+#include "utils/TemplateFitter.h"
 #include "ExportPulse.h"
 
 #include <iostream>
@@ -47,6 +48,9 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
   std::string bankname, detname;
   PulseIslandList thePulseIslands;
   StringPulseIslandMap::const_iterator it;
+
+  // Create the TemplateFitter that we will use
+  TemplateFitter* template_fitter = new TemplateFitter();
 
   // Loop over each detector
   for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
