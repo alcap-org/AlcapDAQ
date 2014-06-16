@@ -10,6 +10,9 @@ class TemplateFitter {
 
  private:
   TFitterMinuit* fMinuitFitter;
+
+ public:
+  void FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse);
 };
 
 #endif
