@@ -1,6 +1,7 @@
 # A list of directories with source files.
 DIRS += src/\
         src/TAP_generators/\
+        src/TAP_generators/utils/\
         src/TDP_generators/\
         src/TME_generators/\
         src/examples/\

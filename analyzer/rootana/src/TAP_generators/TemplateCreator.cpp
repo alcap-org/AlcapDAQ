@@ -6,7 +6,7 @@
 
 #include "definitions.h"
 
-#include "PulseCandidateFinder.h"
+#include "utils/PulseCandidateFinder.h"
 #include "ExportPulse.h"
 
 #include <iostream>

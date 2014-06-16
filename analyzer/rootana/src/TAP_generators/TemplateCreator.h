@@ -6,7 +6,7 @@ class gTGlobalData;
 class gTSetupData;
 class gModulesOptions;
 
-#include "TemplateArchive.h"
+#include "utils/TemplateArchive.h"
 
 class TemplateCreator : public BaseModule{
 
