@@ -80,6 +80,9 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
       if (n_pulse_candidates == 1) {
 
         // we will add the first pulse directly to the template (although we may try and choose a random pulse to start with)
+	if (pulseIter == thePulseIslands.begin()) {
+	      // AddPulseToTemplate(*pulseIter)
+	}
         // all the other pulses will be fitted to the template and then added to it
         // we keep on adding pulses until adding pulses has no effect on the template
         // then we save the template to the file
