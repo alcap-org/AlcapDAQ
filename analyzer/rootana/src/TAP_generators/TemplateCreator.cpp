@@ -84,10 +84,17 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
       if (n_pulse_candidates == 1) {
 
         // Add the first pulse directly to the template (although we may try and choose a random pulse to start with)
-	AddPulseToTemplate(hTemplate, *pulseIter);
+	if (Debug() && hTemplate == NULL) { // for debugging, just print add one pulse to the template
+	  AddPulseToTemplate(hTemplate, *pulseIter);
+	}
 
 	// all the other pulses will be fitted to the template and then added to it
-	//	  template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
+	template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
+	if (Debug()) {
+	  std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << ": "
+	            << "Fitted Parameters: Ped = " << template_fitter->GetPedestal() << ", Amp = " << template_fitter->GetAmplitude()
+	            << ", Time = " << template_fitter->GetTime() << ", Chi2 = " << template_fitter->GetChi2() << std::endl;
+	}
 	// we keep on adding pulses until adding pulses has no effect on the template
       }
     }
