@@ -14,7 +14,7 @@ ClassImp(TGlobalData)
   PulseMapIt mapEnd = this->fPulseIslandToChannelMap.end();
   for(mapIter = this->fPulseIslandToChannelMap.begin(); mapIter != mapEnd; mapIter++) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
-    std::vector<TPulseIsland*> pulse_vector= mapIter->second;
+    std::vector<TPulseIsland*>& pulse_vector= mapIter->second;
     for(size_t i=0; i<pulse_vector.size(); i++){
       delete pulse_vector[i];
       pulse_vector[i] = NULL;
