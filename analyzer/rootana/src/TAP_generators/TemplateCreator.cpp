@@ -76,12 +76,17 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 
       std::vector<TPulseIsland*> pulse_candidates = pulse_candidate_finder->GetPulseCandidates();
 
-      if (Debug() && n_pulse_candidates == 0) {
-	//	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+      if (Debug()) {
+	if (n_pulse_candidates > 0) {
+	  ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+	  if (n_pulse_candidates > 1) {
+	    std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << " has " << n_pulse_candidates << " pulse candidates\n"; 
+	  }
+	}
       }
 
       // we only continue if there is more than one pulse candidate on the TPI
-      if (n_pulse_candidates == 1) {
+      /*      if (n_pulse_candidates == 1) {
 
         // Add the first pulse directly to the template (although we may try and choose a random pulse to start with)
 	if (Debug() && hTemplate == NULL) { // for debugging, just print add one pulse to the template
@@ -96,7 +101,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	            << ", Time = " << template_fitter->GetTime() << ", Chi2 = " << template_fitter->GetChi2() << std::endl;
 	}
 	// we keep on adding pulses until adding pulses has no effect on the template
-      }
+	}*/
     }
     // Save the template to the file
     fTemplateArchive->SaveTemplate(hTemplate);
