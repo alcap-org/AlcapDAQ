@@ -4,7 +4,7 @@
 
 #include <string.h>
 
-typedef struct {
+struct ARGUMENTS {
   char *infile;
   char *outfile;
   char *correction_file;
@@ -12,12 +12,12 @@ typedef struct {
   int start;
   int stop;
   int run;
-} ARGUMENTS;
+};// ARGUMENTS;
 
-void help_command_line(char *my_name);
+void help_command_line(const char* my_name);
 void print_arguments(const ARGUMENTS& args);
-bool isNumber(char *c);
-int GetRunNumber(char* input_file);
+bool isNumber(const char* c);
+int GetRunNumber(const char* input_file);
 int check_arguments(ARGUMENTS& arguments);
 int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments);
 int load_config_file(const char* filename);
