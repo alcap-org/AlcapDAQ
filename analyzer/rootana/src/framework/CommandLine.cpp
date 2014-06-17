@@ -61,7 +61,8 @@ int check_arguments(ARGUMENTS& arguments){
     arguments.run=GetRunNumber(arguments.infile);
   }
   if(strcmp(arguments.mod_file,"")==0){
-    sprintf(mod_file,"MODULES");
+    //sprintf(mod_file,"MODULES");
+    sprintf(mod_file,"testModule.txt");
     arguments.mod_file=mod_file;
   }
   if(strcmp(arguments.correction_file,"")==0){
@@ -218,4 +219,17 @@ int load_config_file(const char* filename){
     }
 
     return 0;
+}
+
+
+void print_arguments(const ARGUMENTS& args){
+  std::cout << "ARGUMENTS struct:"
+            << "\n    infile:" << args.infile
+            << "\n    outfile:" << args.outfile
+            << "\n    correction file:" << args.correction_file
+            << "\n    mod file:" << args.mod_file
+            << "\n    start run:" << args.start
+            << "\n    stop run:" << args.stop
+            << "\n    run:" << args.run
+            << std::endl;
 }

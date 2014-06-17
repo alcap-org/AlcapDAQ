@@ -15,6 +15,7 @@ typedef struct {
 } ARGUMENTS;
 
 void help_command_line(char *my_name);
+void print_arguments(const ARGUMENTS& args);
 bool isNumber(char *c);
 int GetRunNumber(char* input_file);
 int check_arguments(ARGUMENTS& arguments);
