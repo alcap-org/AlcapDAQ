@@ -73,9 +73,10 @@ int main(int argc, char **argv){
   printf("Starting event");
 
   // Open the input tree file
-  gInFile = new TFile(arguments.infile);
+  gInFile = new TFile(arguments.infile.c_str());
   if(!gInFile->IsOpen()) {
-    printf("Failed to open input file, '%s'.  Exiting.\n",arguments.infile);
+    std::cout << "Failed to open input file '"
+              << arguments.infile <<"'.  Exiting." << std::endl;
     delete gInFile;
     return 1;
   }
@@ -97,9 +98,10 @@ int main(int argc, char **argv){
   eventTree->SetBranchAddress("Event",&g_event);
 
   // Let's open the output file for analysis data, histograms and so on.
-  TFile *fileOut = new TFile(arguments.outfile, "RECREATE");
+  TFile *fileOut = new TFile(arguments.outfile.c_str(), "RECREATE");
   if(!fileOut->IsOpen()){
-    printf("Could not open ROOT output file %s\n", arguments.outfile);
+    std::cout << "Could not open ROOT output file " 
+              << arguments.outfile << std::endl;
     return 1;
   }
   fileOut->cd();
@@ -107,7 +109,7 @@ int main(int argc, char **argv){
   // Now let's setup all the analysis modules we want
   // NOTE: This has to be done after the output file was opened else the
   // modules wont have a directory to store things to.
-  ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file);
+  ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file.c_str());
   if(ret!=0) {
      printf("Problem setting up analysis modules.\n");
      return ret;
