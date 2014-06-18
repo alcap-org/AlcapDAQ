@@ -38,6 +38,8 @@ class TemplateFactory{
 	// Set the factory to output debugging commands
 	void SetDebug(bool debug=true){fDebug=debug;};
 
+  void PrintPossibleModules()const;
+
     private:
 	// the list of makers for all modules
 	typedef std::map<std::string, maker> MakersList; 
