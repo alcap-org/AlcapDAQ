@@ -269,6 +269,8 @@ void modules::reader::ProcessGlobalOption(Option_t opt){
      } else{
         SetDebug();
      }
+  }else if(opt.key=="list_modules"){
+    modules::factory::Instance()->PrintPossibleModules();
   }else {
      if(fShouldPrint) std::cout<<"Warning: Unknown global option given, '"<<opt.key<<"'"<<std::endl;
      return;

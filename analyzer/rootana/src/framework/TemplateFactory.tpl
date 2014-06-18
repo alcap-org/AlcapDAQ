@@ -76,3 +76,12 @@ void TemplateFactory<BaseModule,OptionsType>::addArguments(const std::string& al
         arg = strtok(NULL,", ");
     }
 }
+
+template <typename BaseModule, typename OptionsType>
+void TemplateFactory<BaseModule,OptionsType>::PrintPossibleModules()const{
+  std::cout<<"Available modules are:"<<std::endl;
+  for(typename MakersList::const_iterator it=fModuleMakers.begin();
+				 it!=fModuleMakers.end(); it++){
+				 std::cout<<"  "<<it->first<<std::endl;
+ }
+}
