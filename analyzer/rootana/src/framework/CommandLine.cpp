@@ -4,8 +4,10 @@
 #include "CommandLine.h"
 #include <stdio.h>
 #include <string>
-#include <stdlib.h>
+#include <sstream>
+#include <cstdlib>
 #include <iostream>
+#include <stdexcept>
 
 void help_command_line(const char* my_name)
 {
@@ -36,7 +38,7 @@ bool isNumber(const char* c)
 }
 
 //----------------------------------------------------------------------
-int GetRunNumber(const char* input_file)
+int GetRunNumber(const std::string& file_name)
 {
   ///Assumes the file name is of the format aaaaaaSnnnnnn.xxx
   /// where 'a' is any character
@@ -44,17 +46,24 @@ int GetRunNumber(const char* input_file)
   ///       'n' is the run number (includes '+' '-' '.')
   ///       'x' is any character excluding '.' 
 
-  std::string run_number=input_file;
   //remove the extension
-  run_number=run_number.substr(0,run_number.find_last_of('.'));
+  std::string name = file_name.substr(0,file_name.find_last_of('.'));
+
   //find the last numbers
-  run_number=run_number.substr(run_number.find_last_not_of("01234566789")+1);
-  return atoi(run_number.c_str());
+  name = name.substr(name.find_last_not_of("01234566789")+1);
+
+  //Convert the rest
+  int number (-1);
+  std::stringstream(name) >> number;
+  if (number == -1) {
+    std::cerr << "Unable to deduce run number from \"" << name 
+              << "\" in \"" << file_name << "\"" << std::endl;
+    throw std::invalid_argument("not a valid int");
+  }
+  return number;
 }
 
 //----------------------------------------------------------------------
-static char correction_file[300];
-static char mod_file[300];
 int check_arguments(ARGUMENTS& arguments){
   if(arguments.stop > 0){
     if (arguments.stop <= arguments.start){
@@ -66,13 +75,13 @@ int check_arguments(ARGUMENTS& arguments){
     }
   }
   
-  if(std::string(arguments.infile).size() == 0){
+  if(arguments.infile.size() == 0){
     std::cerr << "ERROR: Empty input file name."
               <<"  Did you specify the -i option?"  << std::endl;
     return 2;
   }
   
-  if(std::string(arguments.outfile).size() == 0){
+  if(arguments.outfile.size() == 0){
     std::cerr << "ERROR: Empty output file name."
               << "  Did you specify the -o option?\n" << std::endl;
     return 3;
@@ -83,14 +92,14 @@ int check_arguments(ARGUMENTS& arguments){
     arguments.run = GetRunNumber(arguments.infile);
   }
 
-  if(std::string(arguments.mod_file).size() == 0){
-    //sprintf(mod_file,"MODULES");
-    sprintf(mod_file,"testModule.txt");
-    arguments.mod_file=mod_file;
+  if(arguments.mod_file.size() == 0){
+    arguments.mod_file = "testModule.txt";
   }
-  if(std::string(arguments.correction_file).size() == 0){
-    sprintf(correction_file,"wiremap_corrections/correct%d.dat",arguments.run);
-    arguments.correction_file=correction_file;
+
+  if(arguments.correction_file.size() == 0){
+    std::stringstream buff("");
+    buff << "wiremap_corrections/correct" << arguments.run << ".dat";
+    arguments.correction_file=buff.str();
   }
   return 0; //success
 }
