@@ -1,6 +1,7 @@
 #ifndef PulseCandidateFinder_h_
 #define PulseCandidateFinder_h_
 
+#include "ModulesOptions.h"
 #include "TPulseIsland.h"
 #include "definitions.h"
 
@@ -14,7 +15,7 @@ class PulseCandidateFinder {
   };
 
  public:
-  PulseCandidateFinder();
+  PulseCandidateFinder(modules::options* opts);
   ~PulseCandidateFinder();
 
  private:

@@ -7,7 +7,10 @@
 
 /// PulseCandidateFinder()
 /// The constructor just sets all the parameter values
-PulseCandidateFinder::PulseCandidateFinder() {
+PulseCandidateFinder::PulseCandidateFinder(modules::options* opts) {
+
+  fRiseValues[IDs::kMuSc] = opts->GetInt("muSc", 300);
+  std::cout << "muSc Rise Value = " << fRiseValues[IDs::kMuSc] << std::endl;
 }
 
 /// FindPulseCandidates()
