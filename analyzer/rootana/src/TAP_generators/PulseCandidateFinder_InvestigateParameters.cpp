@@ -12,6 +12,7 @@ using std::cout;
 using std::endl;
 
 #include "utils/PulseCandidateFinder.h"
+#include "ExportPulse.h"
 
 PulseCandidateFinder_InvestigateParameters::PulseCandidateFinder_InvestigateParameters(modules::options* opts):
    BaseModule("PulseCandidateFinder_InvestigateParameters",opts){
@@ -69,6 +70,18 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
       PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(*pulseIter);
 
       pulse_candidate_finder->FillParameterHistogram(parameter_histogram);
+
+      // Use to export pulses (NB you will only want to run rootana on a few events to stop the output being large)
+      int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
+      if (Debug()) {
+	if (n_pulse_candidates == 1 && detname.find("Si") != std::string::npos) {
+	  ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+	  if (n_pulse_candidates > 1) {
+	    std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << " has " << n_pulse_candidates << " pulse candidates\n"; 
+	  }
+	}
+      }
+
     }
   }
 

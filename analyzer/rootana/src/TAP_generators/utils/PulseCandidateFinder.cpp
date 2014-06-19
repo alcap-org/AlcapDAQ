@@ -17,8 +17,80 @@ PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse): fPulseIsland(pu
 
     int rise = 0; // the parameter for this algorithm
     switch(theChannel.Detector()) {
+    case IDs::kMuSc:
+      rise = 300;
+      break;
+
+    case IDs::kMuScA:
+      rise = 100;
+      break;
+
+    case IDs::kNDet:
+      rise = 100;
+      break;
+
+    case IDs::kGe:
+      rise = 40;
+      break;
+
+    case IDs::kScL:
+      rise = 20;
+      break;
+
+    case IDs::kScR:
+      rise = 20;
+      break;
+
+    case IDs::kScGe:
+      rise = 20;
+      break;
+
+    case IDs::kScVe:
+      rise = 40;
+      break;
+
+    case IDs::kSiL2:
+      rise = 80;
+      break;
+
+    case IDs::kSiL1_1:
+      rise = 40;
+      break;
+
+    case IDs::kSiL1_2:
+      rise = 20;
+      break;
+
+    case IDs::kSiL1_3:
+      rise = 20;
+      break;
+
+    case IDs::kSiL1_4:
+      rise = 80;
+      break;
+
+    case IDs::kSiR2:
+      rise = 20;
+      break;
+
+    case IDs::kSiR1_1:
+      rise = 40;
+      break;
+
+    case IDs::kSiR1_2:
+      rise = 60;
+      break;
+
+    case IDs::kSiR1_3:
+      rise = 60;
+      break;
+
+    case IDs::kSiR1_4:
+      rise = 40;
+      break;
+
     default:
-      rise = 100; // TODO: pick a better default and hopefully parameters for all channels
+      std::cout << "Error: PulseCandidateFinder currently does not have a rise parameter for " << detname << std::endl;
       break;
     }
 
@@ -28,8 +100,52 @@ PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse): fPulseIsland(pu
 
     int threshold = 0; // the parameter for this algorithm
     switch(theChannel.Detector()) {
+    case IDs::kGe:
+      threshold = 500;
+      break;
+
+    case IDs::kSiL2:
+      threshold = 20;
+      break;
+
+    case IDs::kSiL1_1:
+      threshold = 20;
+      break;
+
+    case IDs::kSiL1_2:
+      threshold = 150;
+      break;
+
+    case IDs::kSiL1_3:
+      threshold = 20;
+      break;
+
+    case IDs::kSiL1_4:
+      threshold = 40;
+      break;
+
+    case IDs::kSiR2:
+      threshold = 50;
+      break;
+
+    case IDs::kSiR1_1:
+      threshold = 50;
+      break;
+
+    case IDs::kSiR1_2:
+      threshold = 30;
+      break;
+
+    case IDs::kSiR1_3:
+      threshold = 40;
+      break;
+
+    case IDs::kSiR1_4:
+      threshold = 40;
+      break;
+
     default:
-      threshold = 0; // TODO: pick a better default and hopefully parameters for all channels
+      std::cout << "Error: PulseCandidateFinder currently does not have a threshold parameter for " << detname << std::endl;
       break;
     }
 
