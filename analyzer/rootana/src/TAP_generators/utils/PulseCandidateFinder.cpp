@@ -7,10 +7,10 @@
 
 /// PulseCandidateFinder()
 /// The constructor just sets all the parameter values
-PulseCandidateFinder::PulseCandidateFinder(modules::options* opts) {
+PulseCandidateFinder::PulseCandidateFinder(std::string detname, modules::options* opts): fDetName(detname) {
 
   // Set all the rise parameter values
-  fRiseValues[IDs::kMuSc] = opts->GetInt("muSc", 300);
+  /*  fRiseValues[IDs::kMuSc] = opts->GetInt("muSc", 300);
   fRiseValues[IDs::kMuScA] = opts->GetInt("muScA", 100);
   fRiseValues[IDs::kNDet] = opts->GetInt("NDet", 100);
 
@@ -56,6 +56,7 @@ PulseCandidateFinder::PulseCandidateFinder(modules::options* opts) {
       std::cout << "\tRise = " << fRiseValues[iDet] << std::endl;
     }
   }
+  */
 }
 
 /// FindPulseCandidates()
@@ -72,7 +73,7 @@ void PulseCandidateFinder::FindPulseCandidates(TPulseIsland* pulse) {
   // We have a different algorithm for fast and slow pulses
   if (theChannel == IDs::Fast) {
 
-    int rise = fRiseValues[theChannel.Detector()]; // the parameter for this algorithm
+    int rise = 0;//fRiseValues[theChannel.Detector()]; // the parameter for this algorithm
     if (rise == 0) {
       std::cout << "Error: PulseCandidateFinder currently does not have a rise parameter for " << detname << std::endl;
     }
@@ -82,7 +83,7 @@ void PulseCandidateFinder::FindPulseCandidates(TPulseIsland* pulse) {
   }
   else if (theChannel == IDs::Slow) {
 
-    int threshold = fThresholdValues[theChannel.Detector()]; // the parameter for this algorithm
+    int threshold = 0;//fThresholdValues[theChannel.Detector()]; // the parameter for this algorithm
     if (threshold == 0) {
       std::cout << "Error: PulseCandidateFinder currently does not have a threshold parameter for " << detname << std::endl;
     }
