@@ -79,6 +79,9 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
     TH1D* parameter_histogram = fParameterHistograms[detname];
     TH1D* rms_noise_histogram = fRMSNoiseHistograms[detname];
 
+    // Keep track of the sum of RMS noises from each pulse in this channel
+    double total_rms_noise = 0;
+
     // Loop through all the pulses
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
@@ -98,8 +101,12 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
       }
 
       // Get the RMS noise and then we will print out what this would correspond to as a 3 or 5 sigma threshold
-      double rms_noise = GetRMSNoise(*pulseIter, 5);
+      total_rms_noise += GetRMSNoise(*pulseIter, 5);
     }
+    double average_rms_noise = total_rms_noise / thePulseIslands.size();
+    if (Debug()) {
+      std::cout << detname << " (" << bankname << "): average RMS noise = " << average_rms_noise << std::endl;
+    }    
   }
 
   return 0;
