@@ -11,12 +11,13 @@
 using std::cout;
 using std::endl;
 
-#include "utils/PulseCandidateFinder.h"
 #include "ExportPulse.h"
 
 PulseCandidateFinder_InvestigateParameters::PulseCandidateFinder_InvestigateParameters(modules::options* opts):
    BaseModule("PulseCandidateFinder_InvestigateParameters",opts){
   
+  // Create the pulse candidate finder here and pass it the options so that it can configure the parameter values
+  fPulseCandidateFinder = new PulseCandidateFinder(opts);  
 }
 
 PulseCandidateFinder_InvestigateParameters::~PulseCandidateFinder_InvestigateParameters(){
@@ -62,19 +63,19 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
       fParameterHistograms[detname] = histogram;
     }
 
-    // Loop through all the pulses
+    // Create the histogram to store the parameters in
     TH1D* parameter_histogram = fParameterHistograms[detname];
+
+    // Loop through all the pulses
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
-      // Create the pulse candidate finder and histogram to store the parameters in
-      PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(*pulseIter);
-
-      pulse_candidate_finder->FillParameterHistogram(parameter_histogram);
+      fPulseCandidateFinder->FindPulseCandidates(*pulseIter);
+      fPulseCandidateFinder->FillParameterHistogram(parameter_histogram);
 
       // Use to export pulses (NB you will only want to run rootana on a few events to stop the output being large)
-      int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
+      int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
       if (Debug()) {
-	if (n_pulse_candidates == 1 && detname.find("Si") != std::string::npos) {
+	if (n_pulse_candidates > 0) {
 	  ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
 	  if (n_pulse_candidates > 1) {
 	    std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << " has " << n_pulse_candidates << " pulse candidates\n"; 

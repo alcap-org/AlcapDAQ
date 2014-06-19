@@ -6,6 +6,8 @@ class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
 
+#include "utils/PulseCandidateFinder.h"
+
 class PulseCandidateFinder_InvestigateParameters : public BaseModule{
 
  public:
@@ -18,6 +20,7 @@ class PulseCandidateFinder_InvestigateParameters : public BaseModule{
   virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
 
  private:
+  PulseCandidateFinder* fPulseCandidateFinder;
   std::map<std::string, TH1D*> fParameterHistograms;
 };
 
