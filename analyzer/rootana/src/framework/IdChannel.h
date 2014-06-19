@@ -41,12 +41,12 @@ namespace IDs{
 /// change.
 class IDs::channel:public TObject{
    public:
-	   /// @brief Construct using a Detector_t and SlowFast_t enum.  Also
-	   /// acts as a default constructor, which produces a channel ID that
-	   /// matches all other channel IDs.
-	   ///
-	   /// @param det The detector's name
-	   /// @param type The type of timing filter
+        /// @brief Construct using a Detector_t and SlowFast_t enum.  Also
+        /// acts as a default constructor, which produces a channel ID that
+        /// matches all other channel IDs.
+        ///
+        /// @param det The detector's name
+        /// @param type The type of timing filter
 	channel(Detector_t det=kAnyDetector, SlowFast_t type=kAnySlowFast);
 
 	/// @brief Constructs a channel ID using a pair of strings for the detector and filtering type
@@ -65,6 +65,7 @@ class IDs::channel:public TObject{
 public:
 	/// Get the detector enum for this channel
 	Detector_t Detector()const{return fDetector;};
+
 	/// Get the SlowFast enum for this channel
 	SlowFast_t SlowFast()const{return fSlowFast;};
 
@@ -95,6 +96,18 @@ public:
 
 	/// Check there there have been no errors creating this channel ID
 	bool isValid(){return (fDetector!=kErrorDetector) && (fSlowFast != kErrorSlowFast);};
+
+        /// Check if the Detector_t is a wildcard
+        bool isWildCardDetector() const {return fDetector == kAnyDetector;}
+
+        /// Check if the SlowFast_t is a wildcard
+        bool isWildCardSlowFast() const {return fSlowFast == kAnySlowFast;}
+
+        /// Check if this channel ID is a wildcard (either Detector_t
+        /// or SlowFast_t is kAny...). User must interrogate further
+        /// to find out which.
+        bool isWildCard() const 
+        {return isWildCardDetector() || isWildCardSlowFast();}
 
 	/// Convert a Detector_t enum into the corresponding string
 	static std::string GetDetectorString(Detector_t det);
