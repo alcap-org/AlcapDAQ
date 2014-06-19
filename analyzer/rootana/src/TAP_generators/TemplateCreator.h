@@ -7,6 +7,7 @@ class gTSetupData;
 class gModulesOptions;
 
 #include "utils/TemplateArchive.h"
+#include "utils/PulseCandidateFinder.h"
 
 class TemplateCreator : public BaseModule{
 
@@ -20,6 +21,7 @@ class TemplateCreator : public BaseModule{
   virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
 
   TemplateArchive* fTemplateArchive;
+  PulseCandidateFinder* fPulseCandidateFinder;
 
   void AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* pulse);
 };

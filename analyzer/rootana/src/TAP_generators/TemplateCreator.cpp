@@ -6,7 +6,6 @@
 
 #include "definitions.h"
 
-#include "utils/PulseCandidateFinder.h"
 #include "utils/TemplateFitter.h"
 #include "ExportPulse.h"
 
@@ -20,6 +19,8 @@ TemplateCreator::TemplateCreator(modules::options* opts):
   // Do something with opts here.  Has the user specified any
   // particular configuration that you want to know?
   // For example, perhaps this module wants an axis range:
+
+  fPulseCandidateFinder = new PulseCandidateFinder(opts);
 }
 
 TemplateCreator::~TemplateCreator(){
@@ -49,9 +50,8 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
   PulseIslandList thePulseIslands;
   StringPulseIslandMap::const_iterator it;
 
-  // Create the TemplateFitter and PulseCandidateFinder that we will use
+  // Create the TemplateFitter that we will use
   TemplateFitter* template_fitter = new TemplateFitter();
-  PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder();
 
   // Loop over each detector
   for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
@@ -72,10 +72,10 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
       // First we will see how many candidate pulses there are on the TPI
-      pulse_candidate_finder->FindPulseCandidates(*pulseIter);
-      int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
+      fPulseCandidateFinder->FindPulseCandidates(*pulseIter);
+      int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
 
-      std::vector<TPulseIsland*> pulse_candidates = pulse_candidate_finder->GetPulseCandidates();
+      std::vector<TPulseIsland*> pulse_candidates = fPulseCandidateFinder->GetPulseCandidates();
 
       // we only continue if there is more than one pulse candidate on the TPI
       /*      if (n_pulse_candidates == 1) {
