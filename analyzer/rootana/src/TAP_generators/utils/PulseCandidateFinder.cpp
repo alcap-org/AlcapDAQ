@@ -14,7 +14,7 @@ PulseCandidateFinder::PulseCandidateFinder(modules::options* opts) {
   fRiseValues[IDs::kMuScA] = opts->GetInt("muScA", 100);
   fRiseValues[IDs::kNDet] = opts->GetInt("NDet", 100);
 
-  fRiseValues[IDs::kGe] = opts->GetInt("Ge-F", 40);
+  //  fRiseValues[IDs::kGe] = opts->GetInt("Ge-F", 40);
 
   fRiseValues[IDs::kScL] = opts->GetInt("ScL", 20);
   fRiseValues[IDs::kScR] = opts->GetInt("ScR", 20);
