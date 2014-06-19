@@ -50,11 +50,11 @@ PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse): fPulseIsland(pu
       break;
 
     case IDs::kSiL2:
-      rise = 20;
+      rise = 80;
       break;
 
     case IDs::kSiL1_1:
-      rise = 20;
+      rise = 40;
       break;
 
     case IDs::kSiL1_2:
@@ -66,7 +66,7 @@ PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse): fPulseIsland(pu
       break;
 
     case IDs::kSiL1_4:
-      rise = 20;
+      rise = 80;
       break;
 
     case IDs::kSiR2:
