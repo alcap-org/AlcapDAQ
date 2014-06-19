@@ -20,8 +20,10 @@ class TemplateCreator : public BaseModule{
   virtual int BeforeFirstEntry(TGlobalData* gData, TSetupData *setup);
   virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
 
+  /// Store the options for use in ProcessEntry
+  modules::options* fOpts;
+
   TemplateArchive* fTemplateArchive;
-  PulseCandidateFinder* fPulseCandidateFinder;
 
   void AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* pulse);
 };

@@ -14,13 +14,11 @@ using std::cout;
 using std::endl;
 
 TemplateCreator::TemplateCreator(modules::options* opts):
-   BaseModule("TemplateCreator",opts){
+  BaseModule("TemplateCreator",opts), fOpts(opts){
 
   // Do something with opts here.  Has the user specified any
   // particular configuration that you want to know?
   // For example, perhaps this module wants an axis range:
-
-  fPulseCandidateFinder = new PulseCandidateFinder(opts);
 }
 
 TemplateCreator::~TemplateCreator(){
@@ -60,6 +58,9 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     bankname = it->first;
     detname = setup->GetDetectorName(bankname);
 
+    // Create the pulse candidate finder for this detector
+    PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(detname, fOpts);
+
     // Get the TPIs
     thePulseIslands = it->second;
     if (thePulseIslands.size() == 0) continue; // no pulses here..
@@ -72,10 +73,10 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
       // First we will see how many candidate pulses there are on the TPI
-      fPulseCandidateFinder->FindPulseCandidates(*pulseIter);
-      int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
+      pulse_candidate_finder->FindPulseCandidates(*pulseIter);
+      int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
 
-      std::vector<TPulseIsland*> pulse_candidates = fPulseCandidateFinder->GetPulseCandidates();
+      std::vector<TPulseIsland*> pulse_candidates = pulse_candidate_finder->GetPulseCandidates();
 
       // we only continue if there is more than one pulse candidate on the TPI
       /*      if (n_pulse_candidates == 1) {
