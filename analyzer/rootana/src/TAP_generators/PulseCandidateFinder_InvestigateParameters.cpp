@@ -116,6 +116,17 @@ int PulseCandidateFinder_InvestigateParameters::AfterLastEntry(TGlobalData* gDat
      cout<<"-----PulseCandidateFinder_InvestigateParameters::AfterLastEntry(): I'm debugging!"<<endl;
   }
 
+  // Print the 1*sigma, 3*sigma and 5*sigma of the RMS noise
+  std::cout << "RMS Noises in each channel (may be useful for setting thresholds):\n";
+  for (std::map<std::string, TH1D*>::iterator noiseHistIter = fRMSNoiseHistograms.begin(); noiseHistIter != fRMSNoiseHistograms.end(); ++noiseHistIter) {
+    std::string detname = noiseHistIter->first;
+    std::string bankname = setup->GetBankName(detname);
+    TH1D* rms_noise_histogram = noiseHistIter->second;
+
+    double sigma = rms_noise_histogram->GetMean(); // NB that the histogram is a plot of the RMSs already
+    std::cout << detname << " (" << bankname << "): 1-sigma = " << sigma << ", 3-sigma = " << 3*sigma << " and 5-sigma = " << 5*sigma << std::endl;
+  }
+
   return 0;
 }
 
