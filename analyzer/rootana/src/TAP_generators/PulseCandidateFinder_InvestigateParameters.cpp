@@ -14,10 +14,8 @@ using std::endl;
 #include "ExportPulse.h"
 
 PulseCandidateFinder_InvestigateParameters::PulseCandidateFinder_InvestigateParameters(modules::options* opts):
-   BaseModule("PulseCandidateFinder_InvestigateParameters",opts){
+  BaseModule("PulseCandidateFinder_InvestigateParameters",opts), fOpts(opts){
   
-  // Create the pulse candidate finder here and pass it the options so that it can configure the parameter values
-  fPulseCandidateFinder = new PulseCandidateFinder(opts);  
 }
 
 PulseCandidateFinder_InvestigateParameters::~PulseCandidateFinder_InvestigateParameters(){
@@ -51,6 +49,9 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
     bankname = it->first;
     detname = setup->GetDetectorName(bankname);
 
+    // Create the pulse candidate finder for this detector
+    PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(detname, fOpts);  
+
     // Get the TPIs
     thePulseIslands = it->second;
     if (thePulseIslands.size() == 0) continue; // no pulses here..
@@ -69,11 +70,11 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
     // Loop through all the pulses
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
-      fPulseCandidateFinder->FindPulseCandidates(*pulseIter);
-      fPulseCandidateFinder->FillParameterHistogram(parameter_histogram);
+      pulse_candidate_finder->FindPulseCandidates(*pulseIter);
+      pulse_candidate_finder->FillParameterHistogram(parameter_histogram);
 
       // Use to export pulses (NB you will only want to run rootana on a few events to stop the output being large)
-      int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
+      int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
       if (Debug()) {
 	if (n_pulse_candidates > 0) {
 	  ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
