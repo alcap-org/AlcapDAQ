@@ -14,7 +14,7 @@ PulseCandidateFinder::PulseCandidateFinder(modules::options* opts) {
   fRiseValues[IDs::kMuScA] = opts->GetInt("muScA", 100);
   fRiseValues[IDs::kNDet] = opts->GetInt("NDet", 100);
 
-  //  fRiseValues[IDs::kGe] = opts->GetInt("Ge-F", 40);
+  fRiseValues[IDs::kGe] = opts->GetInt("Ge-F", 40);
 
   fRiseValues[IDs::kScL] = opts->GetInt("ScL", 20);
   fRiseValues[IDs::kScR] = opts->GetInt("ScR", 20);
@@ -48,7 +48,14 @@ PulseCandidateFinder::PulseCandidateFinder(modules::options* opts) {
   fThresholdValues[IDs::kSiR1_3] = opts->GetInt("SiR1-3-S", 40);
   fThresholdValues[IDs::kSiR1_4] = opts->GetInt("SiR1-4-S", 40);
 
-  std::cout << "muSc Rise Value = " << fRiseValues[IDs::kMuSc] << std::endl;
+  if (opts->HasOption("debug") && (opts->GetOption("debug").empty() || opts->GetBool("debug"))) {
+    std::cout << "Parameter Values for PulseCandidateFinder" << std::endl; // would be nice to know which module this is for
+    for (int iDet = IDs::kGe; iDet != IDs::kMuScA; ++iDet) {
+      std::cout << IDs::channel::GetDetectorString(static_cast<IDs::Detector_t>(iDet)) << std::endl;
+      std::cout << "\tThreshold = " << fThresholdValues[iDet] << std::endl;
+      std::cout << "\tRise = " << fRiseValues[iDet] << std::endl;
+    }
+  }
 }
 
 /// FindPulseCandidates()
