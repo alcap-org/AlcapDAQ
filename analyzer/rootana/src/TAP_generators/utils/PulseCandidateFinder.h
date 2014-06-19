@@ -13,15 +13,17 @@ class PulseCandidateFinder {
   };
 
  public:
-  PulseCandidateFinder(TPulseIsland* pulse);
+  PulseCandidateFinder();
   ~PulseCandidateFinder();
 
  private:
+  /// Store the TPulseIsland and pulse candidate locations for one pulse at a time
   TPulseIsland* fPulseIsland;
   std::vector<Location> fPulseCandidateLocations;
 
 
  public:
+  void FindPulseCandidates(TPulseIsland* pulse);
   int GetNPulseCandidates() { return fPulseCandidateLocations.size(); }
   std::vector<TPulseIsland*> GetPulseCandidates();
 
@@ -37,6 +39,14 @@ class PulseCandidateFinder {
   // Fill a histogram with either the sample differences or the 
   void FillSampleDifferencesHistogram(TH1D* histogram);
   void FillSampleHeightsHistogram(TH1D* histogram);
+
+ private:
+  /// The parameter values for each channel
+  int fThresholdValues[IDs::num_detector_enums];
+  int fRiseValues[IDs::num_detector_enums];
+
+ public:
+  
 };
 
 #endif

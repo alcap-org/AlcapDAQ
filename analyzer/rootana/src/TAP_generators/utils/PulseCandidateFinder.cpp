@@ -6,9 +6,15 @@
 #include <sstream>
 
 /// PulseCandidateFinder()
-/// This passes the TPulseIsland to the relevant pulse candidate finder
-PulseCandidateFinder::PulseCandidateFinder(TPulseIsland* pulse): fPulseIsland(pulse) {
+/// The constructor just sets all the parameter values
+PulseCandidateFinder::PulseCandidateFinder() {
+}
 
+/// FindPulseCandidates()
+/// Finds the pulse candidates on the given TPulseIsland
+void PulseCandidateFinder::FindPulseCandidates(TPulseIsland* pulse) {
+
+  fPulseIsland = pulse;
   std::string detname = TSetupData::Instance()->GetDetectorName(fPulseIsland->GetBankName());
   IDs::channel theChannel = detname;
 
