@@ -63,12 +63,16 @@ PlotAmpVsTDiff::PlotAmpVsTDiff(modules::options* opts) : BaseModule( (opts->GetS
   std::string x_axis_title = "Time Difference (" + fDetNameB + " - " + fDetNameA + ") [ns]";
   std::string y_axis_title = "Amplitude of " + fDetNameB + " [ADC Value]";
 
-  amp_vs_tdiff_plot_coarse = new TH2F(histname.c_str(), histtitle.c_str(), 100,-50000,50000, max_adc_value,0,max_adc_value);
+  amp_vs_tdiff_plot_coarse = new TH2F(histname.c_str(), histtitle.c_str(), 
+      128,-50000,50000, 
+      max_adc_value,0,max_adc_value);
   amp_vs_tdiff_plot_coarse->GetXaxis()->SetTitle(x_axis_title.c_str());
   amp_vs_tdiff_plot_coarse->GetYaxis()->SetTitle(y_axis_title.c_str());
 
   histname = "h" + fDetNameA + "-" + fDetNameB + "_AmpVsTDiff_Fine";
-  amp_vs_tdiff_plot_fine = new TH2F(histname.c_str(), histtitle.c_str(), 5000,-5000,20000, max_adc_value,0,max_adc_value);
+  amp_vs_tdiff_plot_fine = new TH2F(histname.c_str(), histtitle.c_str(), 
+      4096,-1000,20000, 
+      max_adc_value,0,max_adc_value);
   amp_vs_tdiff_plot_fine->GetXaxis()->SetTitle(x_axis_title.c_str());
   amp_vs_tdiff_plot_fine->GetYaxis()->SetTitle(y_axis_title.c_str());
 
@@ -98,27 +102,74 @@ int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       detB_pulses = gAnalysedPulseMap[fDetNameB];
   }
   
+  // want to keep track of how far we are through the detA pulses
+  AnalysedPulseList::iterator currentDetAPulse = detA_pulses.begin(); 
+  AnalysedPulseList::iterator currentDetBPulse = detB_pulses.begin(); 
 
-  AnalysedPulseList::iterator currentDetAPulse = detA_pulses.begin(); // want to keep track of how far we are through the detA pulses
+  double threshold_muSc = 240;
+  double time_margin = 1000; 
+  // Loop through the detA pulses
+  //bool coinc_found = false;
+  for (AnalysedPulseList::iterator detAPulseIter = currentDetAPulse; detAPulseIter != detA_pulses.end(); ++detAPulseIter) {
 
-  // Loop through the detB pulses
-  for (AnalysedPulseList::iterator detBPulseIter = detB_pulses.begin(); detBPulseIter != detB_pulses.end(); ++detBPulseIter) {
-
-    // Loop through the detA pulses
-    //bool coinc_found = false;
-    for (AnalysedPulseList::iterator detAPulseIter = currentDetAPulse; detAPulseIter != detA_pulses.end(); ++detAPulseIter) {
-
-      double detB_time = (*detBPulseIter)->GetTime();
+    if ((*detAPulseIter)->GetAmplitude()>=threshold_muSc)
+    {
       double detA_time = (*detAPulseIter)->GetTime();
-      double t_diff = detB_time - detA_time;
-      double detB_amplitude = (*detBPulseIter)->GetAmplitude();
+      // Skip detB pulses until detA_time
+      while ((currentDetBPulse != detB_pulses.end()) 
+          &&((*currentDetBPulse)->GetTime() < (detA_time - time_margin)))
+        currentDetBPulse++;
 
-      amp_vs_tdiff_plot_coarse->Fill(t_diff, detB_amplitude);
-      amp_vs_tdiff_plot_fine->Fill(t_diff, detB_amplitude);
+      // Loop through the detB pulses
+      AnalysedPulseList::iterator detBPulseIter = currentDetBPulse;
+      // if this is the last detA pulse, don't check for upper bound
+      if (detAPulseIter == detA_pulses.end()-1)
+      {
+        while (detBPulseIter != detB_pulses.end())
+        {
+          //std::cout<<", iA: "<<detAPulseIter - currentDetAPulse;
+          //std::cout<<", iB: "<<detBPulseIter - detB_pulses.begin()<<std::endl;
+          double detB_time = (*detBPulseIter)->GetTime();
+          double t_diff = detB_time - detA_time;
+          double detB_amplitude = (*detBPulseIter)->GetAmplitude();
 
-    } // end loop through detA pulses
-  } // end loop through detB pulses
+          amp_vs_tdiff_plot_coarse->Fill(t_diff, detB_amplitude);
+          amp_vs_tdiff_plot_fine->Fill(t_diff, detB_amplitude);
+          detBPulseIter++;
+        }
+      }
+      else
+      {
+        double detA_time_next = (*(detAPulseIter + 1))->GetTime();
+        while ((detBPulseIter != detB_pulses.end()) &&
+            ((*detBPulseIter)->GetTime()<(detA_time_next - time_margin)))
+        {
+          //std::cout<<", iA: "<<detAPulseIter - currentDetAPulse;
+          //std::cout<<", iB: "<<detBPulseIter - detB_pulses.begin()<<std::endl;
+          double detB_time = (*detBPulseIter)->GetTime();
+          double t_diff = detB_time - detA_time;
+          double detB_amplitude = (*detBPulseIter)->GetAmplitude();
 
+          amp_vs_tdiff_plot_coarse->Fill(t_diff, detB_amplitude);
+          amp_vs_tdiff_plot_fine->Fill(t_diff, detB_amplitude);
+          detBPulseIter++;
+        }
+      }
+      //std::cout<<"-----------------------"<<std::endl;
+      //for (AnalysedPulseList::iterator detBPulseIter = currentDetBPulse; detBPulseIter != detB_pulses.end(); ++detBPulseIter) {
+      //std::cout<<", iA: "<<detAPulseIter - currentDetAPulse;
+      //std::cout<<", iB: "<<detBPulseIter - detB_pulses.begin()<<std::endl;
+      //double detB_time = (*detBPulseIter)->GetTime();
+      //double t_diff = detB_time - detA_time;
+      //double detB_amplitude = (*detBPulseIter)->GetAmplitude();
+
+      //amp_vs_tdiff_plot_coarse->Fill(t_diff, detB_amplitude);
+      //amp_vs_tdiff_plot_fine->Fill(t_diff, detB_amplitude);
+
+      //} // end loop through detA pulses
+    } // end loop through detB pulses
+
+  }
   return 0;
 }
 
