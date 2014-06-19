@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <TString.h>
+#include <ctype.h>
 using std::cout;
 using std::endl;
 
@@ -127,4 +128,14 @@ double modules::parser::GetDouble(const std::string& input, size_t start, size_t
 	TString tstr=input.substr(start,stop-start);
 	double value=tstr.Atof();
 	return value;
+}
+
+bool modules::parser::iequals(const std::string& a, const std::string& b){
+  unsigned int sz = a.size();
+  if (b.size() != sz) return false;
+  for (unsigned int i = 0; i < sz; ++i){
+    if ( (a[i]=='_' && b[i]=='-' )|| ( a[i]=='-' && b[i]=='_') ) continue;
+    if (tolower(a[i]) != tolower(b[i])) return false;
+  }
+  return true;
 }
