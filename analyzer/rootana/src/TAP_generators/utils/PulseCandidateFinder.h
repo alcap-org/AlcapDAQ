@@ -2,6 +2,7 @@
 #define PulseCandidateFinder_h_
 
 #include "TPulseIsland.h"
+#include "definitions.h"
 
 class PulseCandidateFinder {
 
