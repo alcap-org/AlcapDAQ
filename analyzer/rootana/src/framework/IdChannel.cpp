@@ -1,3 +1,4 @@
+#include "ModulesParser.h"
 #include "IdChannel.h"
 #include <ostream>
 
@@ -46,7 +47,7 @@ IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
 		"SiR1_1", "SiR1_2", "SiR1_3", "SiR1_4", "SiR1_sum", "SiR2", 
 		"MuSc", "MuScA" };
      for (int i=0;i<IDs::num_detector_enums;i++){
-        if(det==names[i]) return (Detector_t)i;
+        if(modules::parser::iequals(det,names[i])) return (Detector_t)i;
      } 
      return kErrorDetector;
 }
@@ -74,7 +75,8 @@ std::string IDs::channel::GetSlowFastString(SlowFast_t sf){
    case kAnySlowFast   : output+="-*" ; break ; 
    case kSlow          : output+="-S" ; break ; 
    case kFast          : output+="-F" ; break ; 
-   case kNotApplicable : case kErrorSlowFast: break ; 
+   case kNotApplicable : break;
+   case kErrorSlowFast: output+="-Unknown" ;break ; 
  }
  return output;
 }
