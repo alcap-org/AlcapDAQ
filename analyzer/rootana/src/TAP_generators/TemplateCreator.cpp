@@ -49,8 +49,9 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
   PulseIslandList thePulseIslands;
   StringPulseIslandMap::const_iterator it;
 
-  // Create the TemplateFitter that we will use
+  // Create the TemplateFitter and PulseCandidateFinder that we will use
   TemplateFitter* template_fitter = new TemplateFitter();
+  PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder();
 
   // Loop over each detector
   for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
@@ -71,7 +72,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
       // First we will see how many candidate pulses there are on the TPI
-      PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(*pulseIter);
+      pulse_candidate_finder->FindPulseCandidates(*pulseIter);
       int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
 
       std::vector<TPulseIsland*> pulse_candidates = pulse_candidate_finder->GetPulseCandidates();
