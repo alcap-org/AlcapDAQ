@@ -82,6 +82,19 @@ class IDs::source:public TObject{
   /// Returns the source as a string
   std::string str()const;
 
+  /// Check if the Channel is a wildcard
+  bool isWildCardChannel() const {return Channel().isWildCard();}
+
+  /// Check if the Generator is a wildcard
+  bool isWildCardGenerator() const {return Generator().isWildCard();}
+
+  /// Check if this source ID is a wildcard (either Generator
+  /// or Channel is a wildcard). User must interrogate further
+  /// to find out which.
+  bool isWildCard() const 
+  {return isWildCardChannel() || isWildCardGenerator();}
+
+
  private:
   channel fChannel;
   generator fGenerator;
