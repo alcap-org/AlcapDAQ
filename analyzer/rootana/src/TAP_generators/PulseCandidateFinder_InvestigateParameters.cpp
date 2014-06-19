@@ -99,7 +99,6 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
 
       // Get the RMS noise and then we will print out what this would correspond to as a 3 or 5 sigma threshold
       double rms_noise = GetRMSNoise(*pulseIter, 5);
-      rms_noise_histogram->Fill(rms_noise);
     }
   }
 
