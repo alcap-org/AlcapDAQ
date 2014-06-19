@@ -2,6 +2,21 @@
 /// \brief
 /// Second stage of analysis in the AlCap framework.
 
+/// \defgroup rootana_modules Modules
+/// \ingroup rootana
+/// \brief
+/// Analysis modules for rootana.
+
+/// \defgroup tap_gen Analyzed Pulse Generators
+/// \ingroup rootana
+/// \brief
+/// TAnalysedPulse generators used by rootana.
+
+/// \defgroup tdp_gen Detector Pulse Generators
+/// \ingroup rootana
+/// \brief
+/// TDetectorPulse generators used by rootana
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \degroup rootana_main
 /// \ingroup rootana
