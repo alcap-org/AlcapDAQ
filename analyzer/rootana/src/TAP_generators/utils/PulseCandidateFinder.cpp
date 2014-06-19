@@ -14,6 +14,9 @@ PulseCandidateFinder::PulseCandidateFinder() {
 /// Finds the pulse candidates on the given TPulseIsland
 void PulseCandidateFinder::FindPulseCandidates(TPulseIsland* pulse) {
 
+  // Clear the vector of pulse candidate locations first since it will still contain them from previous pulses
+  fPulseCandidateLocations.clear();
+
   fPulseIsland = pulse;
   std::string detname = TSetupData::Instance()->GetDetectorName(fPulseIsland->GetBankName());
   IDs::channel theChannel = detname;
