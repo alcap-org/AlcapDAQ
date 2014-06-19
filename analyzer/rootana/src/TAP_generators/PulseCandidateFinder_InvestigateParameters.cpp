@@ -77,12 +77,15 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
       int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
       if (Debug()) {
 	if (n_pulse_candidates > 0) {
-	  ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+	  //	  ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
 	  if (n_pulse_candidates > 1) {
 	    std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << " has " << n_pulse_candidates << " pulse candidates\n"; 
 	  }
 	}
       }
+
+      // Get the RMS noise and then we will print out what this would correspond to as a 3 or 5 sigma threshold
+      double rms_noise = GetRMSNoise(*pulseIter, 5);
 
     }
   }
@@ -101,6 +104,32 @@ int PulseCandidateFinder_InvestigateParameters::AfterLastEntry(TGlobalData* gDat
   }
 
   return 0;
+}
+
+/// GetRMSNoise()
+/// Just returns the RMS of the first n_samples in the given TPulseIsland
+/// NB This may be mofed elsewhere in future
+double PulseCandidateFinder_InvestigateParameters::GetRMSNoise(TPulseIsland* pulse, int n_samples) {
+
+  const std::vector<int>& theSamples = pulse->GetSamples();
+
+  double sum = 0;
+  for (int iSample = 0; iSample < n_samples; ++iSample) {
+    sum += theSamples.at(iSample);
+  }
+  double mean = sum / n_samples;
+
+  double sum_of_deviations_squared = 0;
+  for (int iSample = 0; iSample < n_samples; ++iSample) {
+    sum_of_deviations_squared += (theSamples.at(iSample) - mean)*(theSamples.at(iSample) - mean);
+  }
+  double RMS = std::sqrt(sum_of_deviations_squared);
+
+  if (Debug()) {
+    std::cout << "mean = " << mean << ", RMS = " << RMS << std::endl;
+  }
+
+  return RMS;
 }
 
 // The following macro registers this module to be useable in the config file.
