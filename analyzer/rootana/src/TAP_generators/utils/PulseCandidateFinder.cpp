@@ -13,18 +13,15 @@ PulseCandidateFinder::PulseCandidateFinder(std::string detname, modules::options
     SetDefaultParameterValues();
   }
 
+  if (fDefaultParameterValues[fChannel] == 0) {
+      std::cout << "Error: PulseCandidateFinder currently does not have a parameter value for " << fChannel << std::endl;
+  }
+
   fParameterValue = opts->GetInt(detname, fDefaultParameterValues[fChannel]); // set the parameter value for this channel
 
-  // TODO: Sort this out
-  /*  if (opts->HasOption("debug") && (opts->GetOption("debug").empty() || opts->GetBool("debug"))) {
-    std::cout << "Parameter Values for PulseCandidateFinder" << std::endl; // would be nice to know which module this is for
-    for (int iDet = IDs::kGe; iDet != IDs::kMuScA; ++iDet) {
-      std::cout << IDs::channel::GetDetectorString(static_cast<IDs::Detector_t>(iDet)) << std::endl;
-      std::cout << "\tThreshold = " << fThresholdValues[iDet] << std::endl;
-      std::cout << "\tRise = " << fRiseValues[iDet] << std::endl;
-    }
+  if (opts->HasOption("debug") && (opts->GetOption("debug").empty() || opts->GetBool("debug"))) {
+    std::cout << "Parameter Value for " << fChannel << " PulseCandidateFinder is " << fParameterValue << std::endl; // would be nice to know which module this is for
   }
-  */
 }
 
 /// FindPulseCandidates()
@@ -37,25 +34,11 @@ void PulseCandidateFinder::FindPulseCandidates(TPulseIsland* pulse) {
   fPulseIsland = pulse;
 
   // We have a different algorithm for fast and slow pulses
-  if (theChannel == IDs::Fast) {
-
-    int rise = fParameterValue[fChannel]; // the parameter for this algorithm
-    if (rise == 0) {
-      std::cout << "Error: PulseCandidateFinder currently does not have a rise parameter for " << detname << std::endl;
-    }
-    else {
-      FindCandidatePulses_Fast(rise);
-    }
+  if (fChannel == IDs::Fast) {
+    FindCandidatePulses_Fast(fParameterValue);
   }
-  else if (theChannel == IDs::Slow) {
-
-    int threshold = fParamaterValue[fChannel]; // the parameter for this algorithm
-    if (threshold == 0) {
-      std::cout << "Error: PulseCandidateFinder currently does not have a threshold parameter for " << detname << std::endl;
-    }
-    else {
-      FindCandidatePulses_Slow(threshold);
-    }
+  else if (fChannel == IDs::Slow) {
+    FindCandidatePulses_Slow(fParameterValue);
   }
 }
 
