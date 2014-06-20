@@ -6,21 +6,24 @@ class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
 
+#include <TH2.h>
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
 /// \author Andrew Edmonds
 ///
 /// \brief
-/// Plots the RMS noise of each TPulseIsland and writes the mean value to a text file
+/// Plots the pedestal and noise of each TPulseIsland and writes these to a text file
+/// (this may become a database in the future)
 ///
 /// \details
-/// This module loops over TPulseIsland and plots the RMS of the first n_samples into a
-/// 1D histogram.
-/// At the end of the run, it writes the mean value of this histogram to a text file along
+/// This module loops over TPulseIsland and plots the mean and RMS of the first n_samples into a
+/// 2D histogram.
+/// At the end of the run, it writes the mean values of each axis to a text file along
 /// with the channel and bank names. This text file can then be used by PulseCandidateFinder to 
 /// set parameter values based on a certain number of sigma.
 ////////////////////////////////////////////////////////////////////////////////
-class PlotRMSNoise : public BaseModule {
+class PlotPedestalAndNoise : public BaseModule {
 
  public:
   /// \brief
@@ -30,10 +33,10 @@ class PlotRMSNoise : public BaseModule {
   /// The constructor looks in the opts for "n_samples" and sets the fNSamples variable (default = 5).
   ///
   /// \param[in] opts Describe the options this module takes.
-  PlotRMSNoise(modules::options* opts);
+  PlotPedestalAndNoise(modules::options* opts);
   /// \brief
   /// Empty destructor
-  ~PlotRMSNoise();
+  ~PlotPedestalAndNoise();
 
  private:
   /// \brief
@@ -64,8 +67,8 @@ class PlotRMSNoise : public BaseModule {
   virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
 
   /// \brief
-  /// The map that we store the RMS noise histograms for each channel in
-  std::map<std::string, TH1D*> fRMSNoiseHistograms;
+  /// The map that we store the pedestal vs. noise histograms for each channel
+  std::map<std::string, TH2D*> fPedestalVsNoiseHistograms;
 
   /// \brief
   /// The number of samples we will look at in the TPulseIsland
