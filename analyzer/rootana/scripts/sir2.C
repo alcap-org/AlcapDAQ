@@ -1,15 +1,20 @@
 {
   gROOT->ProcessLine(".L libAnalysis.so");
+  gStyle->SetPalette(55);
 
   TString data_path = "/home/nam/work/RunPSI2013/data/root/dq3_rootanahist/";
-  int runNo = 3763;
+  int firstRun = 2091;
+  int lastRun = 2172;
+  int runNo = firstRun;
   TString data_file = data_path + Form("ranahist%.5d.root", runNo);
 
   TFile *rinf;
   TString histS_dir, histF_dir;
-  histS_dir = "muSc_SiR2-S";
-  histF_dir = "muSc_SiR2-F";
-  TH2F *h2_SiR2S, *h2_SiR2F;
+  histS_dir = "Tdiff_muSc_SiR2S";
+  histF_dir = "Tdiff_muSc_SiR2F";
+  histSF_dir = "Tdiff_SiR2F_SiR2S";
+
+  TH2F *h2_SiR2S, *h2_SiR2F, *h2_SiR2FS;
 
   rinf = TFile::Open(data_file);
   rinf->cd(histS_dir);
@@ -19,19 +24,37 @@
   rinf->cd(histF_dir);
   h2_SiR2F = (TH2F*)gDirectory->Get("hmuSc-SiR2-F_AmpVsTDiff_Fine");
 
-  for (runNo = 3764; runNo <= 3770; ++runNo)
+  rinf->cd();
+  rinf->cd(histSF_dir);
+  h2_SiR2FS = (TH2F*)gDirectory->Get("hSiR2-F-SiR2-S_AmpVsTDiff_Fine");
+
+  for (runNo = firstRun + 1; runNo <= lastRun; ++runNo)
   {
     data_file = data_path + Form("ranahist%.5d.root", runNo);
-    rinf = TFile::Open(data_file);
-    rinf->cd(histS_dir);
-    h2_SiR2S->Add((TH2F*)gDirectory->Get("hmuSc-SiR2-S_AmpVsTDiff_Fine"));
 
-    rinf->cd();
-    rinf->cd(histF_dir);
-    h2_SiR2F->Add((TH2F*)gDirectory->Get("hmuSc-SiR2-F_AmpVsTDiff_Fine"));
+    if (!gSystem->AccessPathName(data_file))
+    {
+      rinf = TFile::Open(data_file);
+      std::cout<<"Processing run "<< runNo <<std::endl;
+      rinf->cd(histS_dir);
+      h2_SiR2S->Add((TH2F*)gDirectory->Get("hmuSc-SiR2-S_AmpVsTDiff_Fine"));
+
+      rinf->cd();
+      rinf->cd(histF_dir);
+      h2_SiR2F->Add((TH2F*)gDirectory->Get("hmuSc-SiR2-F_AmpVsTDiff_Fine"));
+
+      rinf->cd();
+      rinf->cd(histSF_dir);
+      h2_SiR2FS->Add((TH2F*)gDirectory->Get("hSiR2-F-SiR2-S_AmpVsTDiff_Fine"));
+    }
+    else
+    {
+      std::cout<<"Zombie file, skipped run "<<runNo<<" ..."<<std::endl;
+    }
   }
 
-  //TCanvas * c =new TCanvas();
+  TCanvas * c =new TCanvas();
+  c->SetLogz();
   //c->Divide(2,1);
   //c->cd(1);
   //h2_SiR2S->Draw("colz");
@@ -53,7 +76,10 @@
     nhit[i] = h2_SiR2F->Integral(xlow, xhigh, 1, 2500);
   }
 
-  //TGraph *gr = new TGraph(npoints-1, t, nhit);
+  TCanvas * c2 = new TCanvas();
+  c2->SetLogz();
+  TGraph *gr = new TGraph(npoints-1, t, nhit);
   //gr->Draw();
 
+  h2_SiR2FS->Draw("colz");
 }
