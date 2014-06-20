@@ -25,7 +25,7 @@ extern StringAnalPulseMap gAnalysedPulseMap;
 SiR2MuEvt::SiR2MuEvt(char *HistogramDirectoryName): 
   BaseModule(HistogramDirectoryName)
 { 
-  mutree = new TTree("mutree", "mutree", 640000, 640000, 1);
+  mutree = new TTree("mutree", "mutree");
   mutree->Branch("E_muSc", &fE_muSc);
   mutree->Branch("t_muSc", &ft_muSc);
   mutree->Branch("E_SiR2_S", &fE_SiR2_S);
