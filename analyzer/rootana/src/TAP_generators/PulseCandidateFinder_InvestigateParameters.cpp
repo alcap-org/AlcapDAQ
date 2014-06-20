@@ -63,21 +63,9 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
       TH1D* histogram = new TH1D(histname.c_str(), histname.c_str(), max_value, 0, max_value);
       fParameterHistograms[detname] = histogram;
     }
-    // Create the histogram that will store all the average RMS noises from each event
-    if (fRMSNoiseHistograms.find(detname) == fRMSNoiseHistograms.end()) {
-      int max_value = 200;
-      int n_bins = max_value*10;
-      std::string histname = "fRMSNoiseHistogram_" + detname;
-      std::string histtitle = "Average RMS Noises of each Event in " + detname;
-      TH1D* histogram = new TH1D(histname.c_str(), histtitle.c_str(), n_bins, 0, max_value);
-      histogram->GetXaxis()->SetTitle("Average RMS Noise of Event [ADC]");
-      histogram->GetYaxis()->SetTitle("Number of Events");
-      fRMSNoiseHistograms[detname] = histogram;
-    }
 
     // Get the parameter histogram for this detector
     TH1D* parameter_histogram = fParameterHistograms[detname];
-    TH1D* rms_noise_histogram = fRMSNoiseHistograms[detname];
 
     // Loop through all the pulses
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
@@ -94,13 +82,9 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
 	    std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << " has " << n_pulse_candidates << " pulse candidates\n"; 
 	  }
 	}
-      }
-
-      // Get the RMS noise and then we will print out what this would correspond to as a 3 or 5 sigma threshold
-      double rms_noise = GetRMSNoise(*pulseIter, 5);
-      rms_noise_histogram->Fill(rms_noise);
-    }
-  }
+      } // end if Debug
+    } // end loop through pulses
+  } //  end loop through detectors
 
   return 0;
 }
@@ -114,41 +98,7 @@ int PulseCandidateFinder_InvestigateParameters::AfterLastEntry(TGlobalData* gDat
   if(Debug()){
      cout<<"-----PulseCandidateFinder_InvestigateParameters::AfterLastEntry(): I'm debugging!"<<endl;
   }
-
-  // Print the 1*sigma, 3*sigma and 5*sigma of the RMS noise
-  std::cout << "RMS Noises in each channel (may be useful for setting thresholds):\n";
-  for (std::map<std::string, TH1D*>::iterator noiseHistIter = fRMSNoiseHistograms.begin(); noiseHistIter != fRMSNoiseHistograms.end(); ++noiseHistIter) {
-    std::string detname = noiseHistIter->first;
-    std::string bankname = setup->GetBankName(detname);
-    TH1D* rms_noise_histogram = noiseHistIter->second;
-
-    double sigma = rms_noise_histogram->GetMean(); // NB that the histogram is a plot of the RMSs already
-    std::cout << detname << " (" << bankname << "): 1-sigma = " << sigma << ", 3-sigma = " << 3*sigma << " and 5-sigma = " << 5*sigma << std::endl;
-  }
-
   return 0;
-}
-
-/// GetRMSNoise()
-/// Just returns the RMS of the first n_samples in the given TPulseIsland
-/// NB This may be mofed elsewhere in future
-double PulseCandidateFinder_InvestigateParameters::GetRMSNoise(TPulseIsland* pulse, int n_samples) {
-
-  const std::vector<int>& theSamples = pulse->GetSamples();
-
-  double sum = 0;
-  for (int iSample = 0; iSample < n_samples; ++iSample) {
-    sum += theSamples.at(iSample);
-  }
-  double mean = sum / n_samples;
-
-  double sum_of_deviations_squared = 0;
-  for (int iSample = 0; iSample < n_samples; ++iSample) {
-    sum_of_deviations_squared += (theSamples.at(iSample) - mean)*(theSamples.at(iSample) - mean);
-  }
-  double RMS = std::sqrt(sum_of_deviations_squared);
-
-  return RMS;
 }
 
 // The following macro registers this module to be useable in the config file.

@@ -24,13 +24,6 @@ class PulseCandidateFinder_InvestigateParameters : public BaseModule{
   modules::options* fOpts;
 
   std::map<std::string, TH1D*> fParameterHistograms;
-
-  /// Get the RMS noise of the pulse
-  /// (Is the a function that should be elsewhere?)
-  double GetRMSNoise(TPulseIsland* pulse, int n_samples);
-
-  /// Where we will store the RMS noise histograms for each channel
-  std::map<std::string, TH1D*> fRMSNoiseHistograms;
 };
 
 #endif //PULSECANDIDATEFINDER_INVESTIGATEPARAMETERS_H_
