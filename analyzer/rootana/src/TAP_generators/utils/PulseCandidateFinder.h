@@ -43,10 +43,12 @@ class PulseCandidateFinder {
   void FillSampleHeightsHistogram(TH1D* histogram);
 
  private:
-  /// The detector name and parameter value to use
-  std::string fDetName;
+  /// The channel and parameter value to use
+  IDs::channel fChannel;
   int fParameterValue;
 
+  static std::map<IDs::channel, int> fDefaultParameterValues;
+  void SetDefaultParameterValues();
 };
 
 #endif
