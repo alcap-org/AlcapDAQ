@@ -16,6 +16,7 @@ PlotRMSNoise::PlotRMSNoise(modules::options* opts):
   // Do something with opts here.  Has the user specified any
   // particular configuration that you want to know?
   // For example, perhaps this module wants an axis range:
+  fNSamples = opts->GetInt("n_samples", 5);
 }
 
 PlotRMSNoise::~PlotRMSNoise(){
@@ -73,14 +74,13 @@ int PlotRMSNoise::ProcessEntry(TGlobalData* gData,TSetupData *setup){
       const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
 
       double sum = 0;
-      int n_samples = 5;
-      for (int iSample = 0; iSample < n_samples; ++iSample) {
+      for (int iSample = 0; iSample < fNSamples; ++iSample) {
 	sum += theSamples.at(iSample);
       }
-      double mean = sum / n_samples;
+      double mean = sum / fNSamples;
       
       double sum_of_deviations_squared = 0;
-      for (int iSample = 0; iSample < n_samples; ++iSample) {
+      for (int iSample = 0; iSample < fNSamples; ++iSample) {
 	sum_of_deviations_squared += (theSamples.at(iSample) - mean)*(theSamples.at(iSample) - mean);
       }
       double RMS = std::sqrt(sum_of_deviations_squared);
