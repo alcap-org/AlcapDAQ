@@ -13,6 +13,12 @@ using std::map;
 using std::string;
 using std::vector;
 
+////////////////////////////////////////////////////////////////////////////////
+/// \ingroup rootana
+/// \deprecated
+/// This was used to save TAPs to a file, which will be taken care of by the
+/// EventNavigator in the future.
+////////////////////////////////////////////////////////////////////////////////
 class TAnalysedPulseMapWrapper : public TObject 
 {
 	public:

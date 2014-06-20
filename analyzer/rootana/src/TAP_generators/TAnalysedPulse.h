@@ -28,15 +28,27 @@ class TPulseIsland;
 /// multiple TAPs coming from a single TPI. 
 ////////////////////////////////////////////////////////////////////////////////
 class TAnalysedPulse : public TObject {
-  /// \todo
-  /// Document SourceProxy_t
+  /// \name SourceProxy
+  ///
+  /// \brief
+  /// A flyweight for identifying which source was used to make
+  /// the TAP without copying the entire source.
+  ///
+  /// \details
+  /// Because many TAPs will be using the same source, and we don't want to
+  /// waste the space storing copies of them or the time making them, we
+  /// instead store a single copy in a vector of each source used throughout
+  /// the invocation of this program in the making of TAPs.
+  /// If a TAP generator uses a source, that source is searched for in
+  /// ProxyToSourceMap and the index identifying where it is is saved
+  /// with this TAP. If the source does not exists, it is created and
+  /// appended to the end.
+  ///
+  //@{
   typedef int SourceProxy_t;
-  /// \todo
-  /// Document ProxyToSourceMap. Presumably a "map" because the index is an
-  /// int, as is SourceProxy_t.
   typedef std::vector<IDs::source> ProxyToSourceMap;
-  /// \todo Document SourceToProxyMap
   typedef std::map<IDs::source,SourceProxy_t> SourceToProxyMap;
+  //@}
 
   public:
   /// \brief
@@ -46,12 +58,17 @@ class TAnalysedPulse : public TObject {
 
   public:
   /// \brief
-  /// The constructor one should use.
+  /// The constructor one should use if we need use one.
   ///
-  /// \todo Check all of this
+  /// \details
+  /// This constructor, which is the only constructor the user should use,
+  /// takes all the information neessary to identify the genesis of this TAP.
+  /// Generally a user would not use this constructor, but would instead call
+  /// TVAnalysedPulseGenerator::MakeNewTAP which determines the source and
+  /// TPI from the TPulseIslandID and where in the code it's being called.
   ///
-  /// \param[in] sourceID The source identifying the TPI and
-  /// what processed it.
+  /// \param[in] sourceID The source identifying the detector the TPI is from
+  /// and what generator processed it.
   /// \param[in] parentID The position in the TGD vector of the TPI
   /// used to make this TAP.
   /// \param[in] parentTPI The pulse that was used to produce this TAP.
@@ -59,7 +76,7 @@ class TAnalysedPulse : public TObject {
   virtual ~TAnalysedPulse() {};
 
   /// \brief
-  /// Clear the TAP.
+  /// Clear the TAP. This will probably not be used.
   void Reset(Option_t* o = "");
 
   /// \brief
@@ -72,7 +89,9 @@ class TAnalysedPulse : public TObject {
   /// representation of the TPI, Draw makes a new histogram
   /// with the same histogram dimensions and a single bin
   /// at the determined time weighted with the determined amplitude.
-  /// \todo Check this. Is it drawn out?
+  /// 
+  /// \todo
+  /// Clean this up
   ///
   /// \param[in] tpi_pulse A histogram representation of the parent pulse
   virtual void Draw(const TH1F* tpi_pulse)const;
@@ -91,6 +110,13 @@ class TAnalysedPulse : public TObject {
   //@}
 
   /// \name Setters
+  ///
+  /// \details
+  /// The TAP generators will set whatever TAP values it must
+  /// through these methods. Not all need be set; the default
+  /// values are obviously unphysical and several Sanity
+  /// methods are provided to check \em if a value was set
+  /// later in the analysis.
   //@{
   void SetParentID(const TPulseIslandID& val){ fParentID=val;};
   void SetTPILength(const int& val){ fTPILength=val;};
@@ -136,9 +162,13 @@ class TAnalysedPulse : public TObject {
   /// To enable sanity checks, we have an unphysical value that all
   /// fields are set to.
   static const int fDefaultValue=-99999;
-  /// \todo Document this
+  /// \brief
+  /// See description of SourceProxy. This is the single instance
+  /// of that map needed.
   static ProxyToSourceMap sProxyToSources;
-  /// \todo Document this
+  /// \brief
+  /// See description of SourceProxy. This is the single instance
+  /// of the map needed.
   static SourceToProxyMap sSourceToProxies;
 
   ClassDef(TAnalysedPulse, 4);
