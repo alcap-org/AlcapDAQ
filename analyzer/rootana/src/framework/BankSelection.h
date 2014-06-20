@@ -4,7 +4,10 @@
 #include "definitions.h"
 
 /// This class represents a wildcard-like selection of Source IDs.  It
-/// can be modified by appending SourceIDs.
+/// can be modified by appending SourceIDs.  The class is templated on
+/// the type of bank (e.g. PulseIslandList) desired. This is only for
+/// type information; the classes can't know if the SourceIDs
+/// specified are valid for the current (or any) event.
 /// 
 /// @detail Assume that the most common reason for using wild cards
 /// (or not) is to match multiple detector channels.  In contrast
