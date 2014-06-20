@@ -15,7 +15,7 @@ class PulseCandidateFinder {
   };
 
  public:
-  PulseCandidateFinder(modules::options* opts);
+  PulseCandidateFinder(std::string detname, modules::options* opts);
   ~PulseCandidateFinder();
 
  private:
@@ -43,12 +43,12 @@ class PulseCandidateFinder {
   void FillSampleHeightsHistogram(TH1D* histogram);
 
  private:
-  /// The parameter values for each channel
-  int fThresholdValues[IDs::num_detector_enums];
-  int fRiseValues[IDs::num_detector_enums];
+  /// The channel and parameter value to use
+  IDs::channel fChannel;
+  int fParameterValue;
 
- public:
-  
+  static std::map<IDs::channel, int> fDefaultParameterValues;
+  void SetDefaultParameterValues();
 };
 
 #endif
