@@ -55,6 +55,18 @@ class IDs::generator:public TObject{
 	/// Get this ID as a string
 	std::string str()const;
 
+        /// Check if the Generator_t part of the ID is a wildcard
+        bool isWildCardType() const
+        { return fType == kAnyGenerator; }
+
+        /// Check if the Config_t part of the ID is a wildcard
+        bool isWildCardConfig() const
+        { return fConfig == kAnyConfig; }
+
+        /// Check if any part of the ID is a wildcard
+        bool isWildCard() const
+        { return isWildCardConfig() || isWildCardType(); }
+
 	private:
 	/// Stores the type of this generator
 	Generator_t fType;
@@ -86,3 +98,8 @@ inline IDs::generator::generator(Generator_t t , Config_t c):
 ostream& operator<< (ostream& os , IDs::generator& id) ;
 
 #endif //IDGENERATOR_H_
+
+// emacs metadata
+// Local Variables:
+// mode: c++
+// End:

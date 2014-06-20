@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HOMES="/gpfs/home"
-USERS="quirk_j hungerford_e hoai_n krikler_b litchfield_p edmonds_a grange_j miller_j"
+USERS="quirk_j hungerford_e hoai_n krikler_b litchfield_p edmonds_a grange_j miller_j alexander_d daniel_a"
 DATADIR="data"
 TREEDIR="$DATADIR/tree"
 HISTDIR="$DATADIR/hist"

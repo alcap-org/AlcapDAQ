@@ -18,14 +18,16 @@ namespace IDs{
 /// This then defines where each pulse at every stage of the reconstruction chain has come from.
 /// Implemented by containing both a channelID and a generatorID.
 class IDs::source:public TObject{
-	public:
+ public:
   /// Default constructor which just invokes default constructors for the
   /// Channel and generator.
-	source():fChannel(),fGenerator(){};
-
+  source()
+    : fChannel(),fGenerator() {};
+    
   /// Construct using a given channel and generator ID
-	source(const IDs::channel& ch,const IDs::generator& gen):fChannel(ch),fGenerator(gen){};
-
+  source(const IDs::channel& ch,const IDs::generator& gen)
+    : fChannel(ch),fGenerator(gen){};
+      
   /// Construct using strings for each argument of the contained generator and
   /// channel IDs.
   ///
@@ -34,8 +36,8 @@ class IDs::source:public TObject{
   /// @param gen The type of generator used to analyse the channel
   /// @param cfg The generator's configuration
   source(const std::string& det, const std::string& type,
-         const std::string& gen, const std::string& cfg=IDs::kAnyConfig):
-      fChannel(det,type),fGenerator(gen,cfg){};
+         const std::string& gen, const std::string& cfg=IDs::kAnyConfig)
+    : fChannel(det,type), fGenerator(gen,cfg) {};
 
   /// Construct using enums for each argument of the contained generator and
   /// channel IDs.
@@ -44,53 +46,83 @@ class IDs::source:public TObject{
   /// @param type The type of timing filter (Slow / Fast) used in this source
   /// @param gen The type of generator used to analyse the channel
   /// @param cfg The generator's configuration
-	source(Detector_t det, SlowFast_t type,const Generator_t& t ,const Config_t& c):
-		fChannel(det,type),fGenerator(t,c){};
-	virtual ~source(){};
+  source(Detector_t det, SlowFast_t type,const Generator_t& t ,const Config_t& c)
+  :  fChannel(det,type),fGenerator(t,c){};
+  
+  virtual ~source(){};
 
   /// Returns true if this source matches another
-	bool operator==(const source& rhs)const;
-  /// Returns true if the generator part of this source matches another generator
-	bool operator==(const generator& rhs)const{return fGenerator==rhs;};
+  bool operator==(const source& rhs)const;
+  
+  /// Returns true if the generator part of this source matches
+  /// another generator
+  bool operator==(const generator& rhs)const{return fGenerator==rhs;};
+  
   /// Returns true if the channel part of this source matches another channel
-	bool operator==(const channel& rhs)const{return fChannel==rhs;};
+  bool operator==(const channel& rhs)const{return fChannel==rhs;};
 
-	/// Not intuitively meaningful but maybe useful for sorting
-	bool operator>(const source& rhs)const;
-	/// Not intuitively meaningful but maybe useful for sorting
-	bool operator<(const source& rhs)const;
+  /// Not intuitively meaningful but maybe useful for sorting
+  bool operator>(const source& rhs)const;
+  
+  /// Not intuitively meaningful but maybe useful for sorting
+  bool operator<(const source& rhs)const;
 
   /// Get a reference to the generator ID in this source
-	generator& Generator(){return fGenerator;};
+  generator& Generator(){return fGenerator;};
+  
   /// Get a reference to the channel ID in this source
-	channel& Channel(){return fChannel;};
+  channel& Channel(){return fChannel;};
+  
   /// Get a const reference to the generator ID in this source
-	const generator& Generator()const{return fGenerator;};
+  const generator& Generator()const{return fGenerator;};
+  
   /// Get a const reference to the channel ID in this source
-	const channel& Channel()const{return fChannel;};
+  const channel& Channel()const{return fChannel;};
 
   /// Returns the source as a string
-	std::string str()const;
+  std::string str()const;
 
-	private:
-	channel fChannel;
-	generator fGenerator;
+  /// Check if the Channel is a wildcard
+  bool isWildCardChannel() const {return Channel().isWildCard();}
 
-	ClassDef(IDs::source,1);
+  /// Check if the Generator is a wildcard
+  bool isWildCardGenerator() const {return Generator().isWildCard();}
+
+  /// Check if this source ID is a wildcard (either Generator
+  /// or Channel is a wildcard). User must interrogate further
+  /// to find out which.
+  bool isWildCard() const 
+  {return isWildCardChannel() || isWildCardGenerator();}
+
+
+ private:
+  channel fChannel;
+  generator fGenerator;
+
+  ClassDef(IDs::source,1);
 };
 
-inline bool IDs::source::operator==(const source& rhs)const{
-	return rhs.Generator()==fGenerator && rhs.Channel()==fChannel;
+inline bool IDs::source::operator==(const source& rhs)const
+{
+  return rhs.Generator()==fGenerator && rhs.Channel()==fChannel;
 }
 
-inline bool IDs::source::operator>(const source& rhs)const{
-	return fChannel>rhs.Channel() || (fChannel==rhs.Channel() && fGenerator > rhs.Generator());
+inline bool IDs::source::operator>(const source& rhs)const
+{
+  return fChannel>rhs.Channel() || (fChannel==rhs.Channel() && fGenerator > rhs.Generator());
 }
 
-inline bool IDs::source::operator<(const source& rhs)const{
-	return fChannel<rhs.Channel() || (fChannel==rhs.Channel() && fGenerator < rhs.Generator());
+inline bool IDs::source::operator<(const source& rhs)const
+{
+  return fChannel<rhs.Channel() || (fChannel==rhs.Channel() && fGenerator < rhs.Generator());
 }
 
-ostream& operator<< (ostream& os , IDs::source& id) ;
+ostream& operator<< (ostream& os , IDs::source& id);
 
 #endif // IDSOURCE_H_
+
+// emacs metadata
+// Local Variables:
+// mode: c++
+// End:
+
