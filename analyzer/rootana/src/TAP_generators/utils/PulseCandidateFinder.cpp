@@ -35,13 +35,11 @@ void PulseCandidateFinder::FindPulseCandidates(TPulseIsland* pulse) {
   fPulseCandidateLocations.clear();
 
   fPulseIsland = pulse;
-  std::string detname = TSetupData::Instance()->GetDetectorName(fPulseIsland->GetBankName());
-  IDs::channel theChannel = detname;
 
   // We have a different algorithm for fast and slow pulses
   if (theChannel == IDs::Fast) {
 
-    int rise = 0;//fRiseValues[theChannel.Detector()]; // the parameter for this algorithm
+    int rise = fParameterValue[fChannel]; // the parameter for this algorithm
     if (rise == 0) {
       std::cout << "Error: PulseCandidateFinder currently does not have a rise parameter for " << detname << std::endl;
     }
@@ -51,7 +49,7 @@ void PulseCandidateFinder::FindPulseCandidates(TPulseIsland* pulse) {
   }
   else if (theChannel == IDs::Slow) {
 
-    int threshold = 0;//fThresholdValues[theChannel.Detector()]; // the parameter for this algorithm
+    int threshold = fParamaterValue[fChannel]; // the parameter for this algorithm
     if (threshold == 0) {
       std::cout << "Error: PulseCandidateFinder currently does not have a threshold parameter for " << detname << std::endl;
     }
