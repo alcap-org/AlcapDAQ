@@ -4,7 +4,7 @@
 
   TString data_path = "/home/nam/work/RunPSI2013/data/root/dq3_rootanahist/";
   int firstRun = 2091;
-  int lastRun = 2172;
+  int lastRun = 2102;
   int runNo = firstRun;
   TString data_file = data_path + Form("ranahist%.5d.root", runNo);
 
@@ -52,6 +52,8 @@
       std::cout<<"Zombie file, skipped run "<<runNo<<" ..."<<std::endl;
     }
   }
+  h2_SiR2S->SetName("Tdiff_muSc_SiR2S");
+  h2_SiR2F->SetName("Tdiff_muSc_SiR2F");
 
   TCanvas * c =new TCanvas();
   c->SetLogz();
@@ -79,7 +81,13 @@
   TCanvas * c2 = new TCanvas();
   c2->SetLogz();
   TGraph *gr = new TGraph(npoints-1, t, nhit);
-  //gr->Draw();
+  gr->Draw();
 
-  h2_SiR2FS->Draw("colz");
+  TCanvas * c3 = new TCanvas();
+  h2_SiR2S->Draw("colz");
+
+  TFile *of = new TFile("sir2.root", "recreate");
+  h2_SiR2F->Write();
+  h2_SiR2S->Write();
+  h2_SiR2FS->Write();
 }

@@ -25,6 +25,10 @@ extern StringAnalPulseMap gAnalysedPulseMap;
 SiR2MuEvt::SiR2MuEvt(char *HistogramDirectoryName): 
   BaseModule(HistogramDirectoryName)
 { 
+  fThreshold_muSc = 240;
+  fTimeMargin = 3e3; 
+  fPileupProtectionTWindow = 15e3;
+
   mutree = new TTree("mutree", "mutree");
   mutree->Branch("E_muSc", &fE_muSc);
   mutree->Branch("t_muSc", &ft_muSc);
@@ -38,6 +42,10 @@ SiR2MuEvt::SiR2MuEvt(char *HistogramDirectoryName):
 SiR2MuEvt::SiR2MuEvt(modules::options* opts) : 
   BaseModule( (opts->GetString("0")).c_str() ) 
 {
+  fThreshold_muSc = 240;
+  fTimeMargin = 4e3; 
+  fPileupProtectionTWindow = 15e3;
+
   mutree = new TTree("mutree", "mutree");
   mutree->Branch("E_muSc", &fE_muSc);
   mutree->Branch("t_muSc", &ft_muSc);
@@ -88,19 +96,17 @@ int SiR2MuEvt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   AnalysedPulseList::iterator currentDetBPulse = detB_pulses.begin(); 
   AnalysedPulseList::iterator currentDetCPulse = detC_pulses.begin(); 
 
-  double threshold_muSc = 240;
-  double time_margin = 2000; 
   // Loop through the muSc pulses
   for (AnalysedPulseList::iterator detAPulseIter = currentDetAPulse; 
       detAPulseIter != detA_pulses.end(); ++detAPulseIter) 
   {
-    if ((*detAPulseIter)->GetAmplitude()>=threshold_muSc)
+    if ((*detAPulseIter)->GetAmplitude()>=fThreshold_muSc)
     {
       ft_muSc = (*detAPulseIter)->GetTime();
       fE_muSc = (*detAPulseIter)->GetAmplitude();
       // Skip detB pulses until ft_muSc
       while ((currentDetBPulse != detB_pulses.end()) 
-          &&((*currentDetBPulse)->GetTime() < (ft_muSc - time_margin)))
+          &&((*currentDetBPulse)->GetTime() < (ft_muSc - fTimeMargin)))
         currentDetBPulse++;
 
       // Loop through the detB pulses
@@ -127,25 +133,30 @@ int SiR2MuEvt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
         }
       }
       else
+       // not the last pulse, check the next
       {
         double ft_muSc_next = (*(detAPulseIter + 1))->GetTime();
-        while ((detBPulseIter != detB_pulses.end()) &&
-            ((*detBPulseIter)->GetTime()<(ft_muSc_next - time_margin)))
+        // check that the next pulse is not in to pile up protection window
+        if (ft_muSc_next - ft_muSc > fPileupProtectionTWindow)
         {
-          double detB_time = (*detBPulseIter)->GetTime();
-          double detB_amplitude = (*detBPulseIter)->GetAmplitude();
-          fE_SiR2_S.push_back(detB_amplitude);
-          ft_SiR2_S.push_back(detB_time);
-          detBPulseIter++;
-        }
-        while ((detCPulseIter != detC_pulses.end()) &&
-            ((*detCPulseIter)->GetTime()<(ft_muSc_next - time_margin)))
-        {
-          double detC_time = (*detCPulseIter)->GetTime();
-          double detC_amplitude = (*detCPulseIter)->GetAmplitude();
-          fE_SiR2_F.push_back(detC_amplitude);
-          ft_SiR2_F.push_back(detC_time);
-          detCPulseIter++;
+          while ((detBPulseIter != detB_pulses.end()) &&
+              ((*detBPulseIter)->GetTime()<(ft_muSc_next - fTimeMargin)))
+          {
+            double detB_time = (*detBPulseIter)->GetTime();
+            double detB_amplitude = (*detBPulseIter)->GetAmplitude();
+            fE_SiR2_S.push_back(detB_amplitude);
+            ft_SiR2_S.push_back(detB_time);
+            detBPulseIter++;
+          }
+          while ((detCPulseIter != detC_pulses.end()) &&
+              ((*detCPulseIter)->GetTime()<(ft_muSc_next - fTimeMargin)))
+          {
+            double detC_time = (*detCPulseIter)->GetTime();
+            double detC_amplitude = (*detCPulseIter)->GetAmplitude();
+            fE_SiR2_F.push_back(detC_amplitude);
+            ft_SiR2_F.push_back(detC_time);
+            detCPulseIter++;
+          }
         }
       }
 

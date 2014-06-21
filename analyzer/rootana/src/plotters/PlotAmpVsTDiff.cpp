@@ -141,6 +141,8 @@ int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       else
       {
         double detA_time_next = (*(detAPulseIter + 1))->GetTime();
+        if (detA_time_next - detA_time > 15000)
+        {
         while ((detBPulseIter != detB_pulses.end()) &&
             ((*detBPulseIter)->GetTime()<(detA_time_next - time_margin)))
         {
@@ -153,6 +155,8 @@ int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
           amp_vs_tdiff_plot_coarse->Fill(t_diff, detB_amplitude);
           amp_vs_tdiff_plot_fine->Fill(t_diff, detB_amplitude);
           detBPulseIter++;
+        }
+          /* code */
         }
       }
       //std::cout<<"-----------------------"<<std::endl;

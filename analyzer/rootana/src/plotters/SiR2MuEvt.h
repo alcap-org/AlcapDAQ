@@ -29,7 +29,9 @@ class SiR2MuEvt : public BaseModule{
 
   bool IsMuonHit(TAnalysedPulse * muScPulse);
   double fCoinWindow;
-  double fPileupProtection;
+  double fPileupProtectionTWindow;
+  double fThreshold_muSc;
+  double fTimeMargin;
 };
 
 #endif
