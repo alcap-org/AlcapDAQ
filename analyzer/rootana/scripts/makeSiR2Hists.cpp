@@ -1,0 +1,96 @@
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TStyle.h"
+#include "TString.h"
+#include "TChain.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TH2F.h"
+
+#include <vector>
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
+int main(int argc, char *argv[])
+{
+  //gROOT->ProcessLine(".L libAnalysis.so");
+  gStyle->SetPalette(55);
+
+  TString data_path = "/home/nam/work/RunPSI2013/data/root/dq3_rootanahist/";
+  int firstRun = 2091;
+  int lastRun = 2172;
+  int runNo = firstRun;
+
+  TChain *chain = new TChain("MuEvt/mutree");
+  for (runNo = firstRun; runNo <= lastRun; ++runNo)
+  {
+    TString data_file = data_path + Form("ranahist%.5d.root", runNo);
+    if (gSystem->AccessPathName(data_file))
+      continue;
+
+    std::cout<<"Add run "<<runNo<< " into the chain ..."<<std::endl;
+    chain->Add(data_file);
+  }
+
+  //chain->Draw("E_SiR2_S:(t_SiR2_S - t_muSc)>>h2(1024, -2000, 12000, 512, 0, 2500)",
+     //"", "colz");
+  //chain->Draw("E_SiR2_F:(t_SiR2_F - t_muSc)>>h2(1024, -2000, 12000, 512, 0, 2500)",
+     //"", "colz");
+
+  if (!chain)
+  {
+    std::cout<<"Zombie chain ...\n";
+    return -1;
+  }
+
+  chain->SetMakeClass(1);
+  double E_muSc, t_muSc;
+  std::vector<double> *E_SiR2_S = NULL;
+  std::vector<double> *t_SiR2_S = NULL;
+  std::vector<double> *E_SiR2_F = NULL;
+  std::vector<double> *t_SiR2_F = NULL;
+  chain->SetBranchAddress("E_muSc", &E_muSc);
+  chain->SetBranchAddress("t_muSc", &t_muSc);
+  chain->SetBranchAddress("E_SiR2_S", &E_SiR2_S);
+  chain->SetBranchAddress("t_SiR2_S", &t_SiR2_S);
+  chain->SetBranchAddress("E_SiR2_F", &E_SiR2_F);
+  chain->SetBranchAddress("t_SiR2_F", &t_SiR2_F);
+
+  int ntbins = 2048;
+  int nebins = 512;
+  int tlow = -4.e3;
+  int thigh = ntbins*8 + tlow;
+  TH2F * hSiR2S_muSc = new TH2F("hSiR2S_muSc", "hSiR2S_muSc", 
+      ntbins, tlow, thigh,
+      512, 0, 2500);
+  TH2F * hSiR2F_muSc = new TH2F("hSiR2F_muSc", "hSiR2F_muSc", 
+      ntbins, tlow, thigh,
+      512, 0, 2500);
+
+  long int nentries = chain->GetEntries();
+  for (int i = 0; i < nentries; ++i)
+  {
+    if (i%(int)1e7 == 1)
+    {
+      printf("%4.2f %: ", 100*(float)i/nentries);
+      std::cout<<i<<" events out of "<<nentries<<std::endl;
+    }
+
+    chain->GetEntry(i);
+    for (unsigned int j = 0; j < E_SiR2_S->size(); ++j)
+      hSiR2S_muSc->Fill(t_SiR2_S->at(j) - t_muSc, E_SiR2_S->at(j));
+
+    for (unsigned int j = 0; j < E_SiR2_F->size(); ++j)
+      hSiR2F_muSc->Fill(t_SiR2_F->at(j) - t_muSc, E_SiR2_F->at(j));
+  }
+
+  TFile *of = new TFile("of.root", "recreate");
+  hSiR2S_muSc->Write();
+  hSiR2F_muSc->Write();
+  of->Write();
+  of->Close();
+
+  return 0;
+}
