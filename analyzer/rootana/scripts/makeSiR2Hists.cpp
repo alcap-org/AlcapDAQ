@@ -13,6 +13,11 @@
 using std::cout;
 using std::endl;
 
+double Adc2keV(double adc, double slope = 7.49, double constant = 29.04)
+{
+  return slope*adc + constant;
+}
+
 int main(int argc, char *argv[])
 {
   //gROOT->ProcessLine(".L libAnalysis.so");
@@ -64,10 +69,14 @@ int main(int argc, char *argv[])
   int thigh = ntbins*8 + tlow;
   TH2F * hSiR2S_muSc = new TH2F("hSiR2S_muSc", "hSiR2S_muSc", 
       ntbins, tlow, thigh,
-      512, 0, 2500);
+      512, 0, 18000);
   TH2F * hSiR2F_muSc = new TH2F("hSiR2F_muSc", "hSiR2F_muSc", 
       ntbins, tlow, thigh,
       512, 0, 2500);
+  TH1F * hSiR2F_selfTdiff = new TH1F("hSiR2F_selfTdiff", "hSiR2F_selfTdiff",
+      ntbins, 0, 14e3);
+  TH1F * hSiR2S_selfTdiff = new TH1F("hSiR2S_selfTdiff", "hSiR2S_selfTdiff",
+      ntbins, 0, 14e3);
 
   long int nentries = chain->GetEntries();
   for (int i = 0; i < nentries; ++i)
@@ -80,15 +89,25 @@ int main(int argc, char *argv[])
 
     chain->GetEntry(i);
     for (unsigned int j = 0; j < E_SiR2_S->size(); ++j)
-      hSiR2S_muSc->Fill(t_SiR2_S->at(j) - t_muSc, E_SiR2_S->at(j));
+      hSiR2S_muSc->Fill(t_SiR2_S->at(j) - t_muSc, Adc2keV(E_SiR2_S->at(j)));
 
     for (unsigned int j = 0; j < E_SiR2_F->size(); ++j)
       hSiR2F_muSc->Fill(t_SiR2_F->at(j) - t_muSc, E_SiR2_F->at(j));
+
+    if (t_SiR2_S->size()>1)
+      for (unsigned int j = 1; j < t_SiR2_S->size(); ++j)
+        hSiR2S_selfTdiff->Fill(t_SiR2_S->at(j) - t_SiR2_S->at(0));
+
+    if (t_SiR2_F->size()>1)
+      for (unsigned int j = 1; j < t_SiR2_F->size(); ++j)
+        hSiR2F_selfTdiff->Fill(t_SiR2_F->at(j) - t_SiR2_F->at(0));
   }
 
   TFile *of = new TFile("of.root", "recreate");
   hSiR2S_muSc->Write();
   hSiR2F_muSc->Write();
+  hSiR2S_selfTdiff->Write();
+  hSiR2F_selfTdiff->Write();
   of->Write();
   of->Close();
 

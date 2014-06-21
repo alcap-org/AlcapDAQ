@@ -4,7 +4,7 @@
 
   TString data_path = "/home/nam/work/RunPSI2013/data/root/dq3_rootanahist/";
   int firstRun = 2091;
-  int lastRun = 2091;
+  int lastRun = 2095;
   int runNo = firstRun;
 
   TChain *chain = new TChain("MuEvt/mutree");

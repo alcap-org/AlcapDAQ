@@ -3,8 +3,8 @@
   gStyle->SetPalette(55);
 
   TString data_path = "/home/nam/work/RunPSI2013/data/root/dq3_rootanahist/";
-  int firstRun = 2091;
-  int lastRun = 2102;
+  int firstRun = 3763;
+  int lastRun = 3770;
   int runNo = firstRun;
   TString data_file = data_path + Form("ranahist%.5d.root", runNo);
 
