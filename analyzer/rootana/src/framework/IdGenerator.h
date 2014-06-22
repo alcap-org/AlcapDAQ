@@ -14,6 +14,9 @@ namespace IDs{
 	const Generator_t kAnyGenerator="*";
 	/// Standardize the value to use to represent any configuration
 	const Config_t kAnyConfig="*";
+	/// Standardize the value to use to represent the default configuration of a
+    /// module
+	const Config_t kDefaultConfig="default";
 
 }
 
@@ -25,10 +28,10 @@ class IDs::generator:public TObject{
 	/// @param g The type of the generator
 	/// @param c The configuration of the generator
 
-	generator(Generator_t g , Config_t c=kAnyConfig);
+	generator(Generator_t g , Config_t c=kDefaultConfig);
 	/// @brief Default constructor for a generator ID.
 	/// Will match true against all generator IDs
-	generator():fType(kAnyGenerator),fConfig(kAnyConfig){};
+	generator():fType(kAnyGenerator),fConfig(kDefaultConfig){};
 
 	virtual ~generator(){};
 
