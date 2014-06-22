@@ -81,7 +81,7 @@ inline bool IDs::generator::operator==(const IDs::generator& rhs)const{
 	return (fType==rhs.fType) && (fConfig==rhs.fConfig) ;
 }
 
-bool IDs::generator::matches(const generator& rhs)const{
+inline bool IDs::generator::matches(const generator& rhs)const{
 	return (fType==kAnyGenerator || rhs.fType==kAnyGenerator || fType==rhs.fType) 
 		&& (fConfig==kAnyConfig || rhs.fConfig==kAnyConfig || fConfig==rhs.fConfig) ;
 }
