@@ -23,9 +23,10 @@ int main(int argc, char *argv[])
   //gROOT->ProcessLine(".L libAnalysis.so");
   gStyle->SetPalette(55);
 
-  TString data_path = "/home/nam/work/RunPSI2013/data/root/dq3_rootanahist/";
+  //TString data_path = "/home/nam/work/RunPSI2013/data/root/dq3_rootanahist/";
+  TString data_path = "/home/nam/work/localRunPSI2013/data/root/dq3_rootanahist/";
   int firstRun = 2091;
-  int lastRun = 2129;
+  int lastRun = 2172;
   int runNo = firstRun;
 
   TChain *chain = new TChain("MuEvt/mutree");
@@ -102,12 +103,18 @@ int main(int argc, char *argv[])
             Adc2keV(E_SiR2_S->at(j)));
 
     if (t_SiR2_F->size()>1)
-      if (E_SiR2_F->at(0)>450 && E_SiR2_F->at(0)<900)
+    {
+      double E_1st_hit = E_SiR2_F->at(0);
+      double t_1st_hist = t_SiR2_F->at(0);
+
+      if (E_1st_hit>450 && E_1st_hit<900
+          && (t_1st_hist - t_muSc)<-70 && (t_1st_hist - t_muSc)>-250)
       {
         for (unsigned int j = 1; j < t_SiR2_F->size(); ++j)
           hSiR2F_selfTdiff->Fill(t_SiR2_F->at(j) - t_SiR2_F->at(0), 
               E_SiR2_F->at(j));
       }
+    }
   }
 
   TFile *of = new TFile("of.root", "recreate");
