@@ -100,6 +100,11 @@ class IDs::source:public TObject{
   bool isWildCard() const 
   {return isWildCardChannel() || isWildCardGenerator();}
 
+  /// Check if the Channel is fast
+  bool isFast() const {return Channel().isFast();};
+
+  /// Check if the Channel is slow
+  bool isSlow() const {return Channel().isSlow();};
 
  private:
   channel fChannel;
