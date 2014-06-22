@@ -18,20 +18,22 @@ namespace IDs{
     /// module
 	const Config_t kDefaultConfig="default";
 
+    const std::string field_separator="#";
 }
 
-/// Streamable identifier for a generator
+/// Streamable identifier for an instance of a generator
 class IDs::generator:public TObject{
 	public:
-	/// @brief Constructor taking two strings for the Generator type and its configuration.
+    /// @brief Constructor taking two strings for the Generator type and its
+    /// configuration.
 	/// 
 	/// @param g The type of the generator
 	/// @param c The configuration of the generator
+	generator(Generator_t g , Config_t c=kAnyConfig);
 
-	generator(Generator_t g , Config_t c=kDefaultConfig);
 	/// @brief Default constructor for a generator ID.
 	/// Will match true against all generator IDs
-	generator():fType(kAnyGenerator),fConfig(kDefaultConfig){};
+	generator():fType(kAnyGenerator),fConfig(kAnyConfig){};
 
 	virtual ~generator(){};
 
@@ -59,17 +61,14 @@ class IDs::generator:public TObject{
 	/// Get this ID as a string
 	std::string str()const;
 
-        /// Check if the Generator_t part of the ID is a wildcard
-        bool isWildCardType() const
-        { return fType == kAnyGenerator; }
+    /// Check if the Generator_t part of the ID is a wildcard
+    bool isWildCardType() const { return fType == kAnyGenerator; }
 
-        /// Check if the Config_t part of the ID is a wildcard
-        bool isWildCardConfig() const
-        { return fConfig == kAnyConfig; }
+    /// Check if the Config_t part of the ID is a wildcard
+    bool isWildCardConfig() const { return fConfig == kAnyConfig; }
 
-        /// Check if any part of the ID is a wildcard
-        bool isWildCard() const
-        { return isWildCardConfig() || isWildCardType(); }
+    /// Check if any part of the ID is a wildcard
+    bool isWildCard() const { return isWildCardConfig() || isWildCardType(); }
 
 	private:
 	/// Stores the type of this generator
@@ -77,7 +76,7 @@ class IDs::generator:public TObject{
 	/// Stores the configuration of this generator
 	Config_t fConfig;
 
-	ClassDef(IDs::generator,1);
+	ClassDef(generator,1);
 };
 
 inline bool IDs::generator::operator==(const IDs::generator& rhs)const{
@@ -85,8 +84,8 @@ inline bool IDs::generator::operator==(const IDs::generator& rhs)const{
 }
 
 inline bool IDs::generator::matches(const generator& rhs)const{
-	return (fType==kAnyGenerator || rhs.fType==kAnyGenerator || fType==rhs.fType) 
-		&& (fConfig==kAnyConfig || rhs.fConfig==kAnyConfig || fConfig==rhs.fConfig) ;
+	return (isWildCardType() || rhs.isWildCardType() || fType==rhs.fType) 
+		&& (isWildCardConfig() || rhs.isWildCardConfig() || fConfig==rhs.fConfig) ;
 }
 
 inline bool IDs::generator::operator>(const IDs::generator& rhs)const{
