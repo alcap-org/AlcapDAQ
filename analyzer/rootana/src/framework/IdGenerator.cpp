@@ -5,7 +5,7 @@
 ClassImp(IDs::generator);
 
 std::string IDs::generator::str()const{
-  return fType+"::"+fConfig;
+  return fType+IDs::field_separator+fConfig;
 }
 
 ostream& operator<< (ostream& os , IDs::generator& id) {
