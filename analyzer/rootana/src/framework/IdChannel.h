@@ -102,17 +102,16 @@ public:
 	/// Check there there have been no errors creating this channel ID
 	bool isValid(){return (fDetector!=kErrorDetector) && (fSlowFast != kErrorSlowFast);};
 
-        /// Check if the Detector_t is a wildcard
-        bool isWildCardDetector() const {return fDetector == kAnyDetector;}
+    /// Check if the Detector_t is a wildcard
+    bool isWildCardDetector() const {return fDetector == kAnyDetector;}
 
-        /// Check if the SlowFast_t is a wildcard
-        bool isWildCardSlowFast() const {return fSlowFast == kAnySlowFast;}
+    /// Check if the SlowFast_t is a wildcard
+    bool isWildCardSlowFast() const {return fSlowFast == kAnySlowFast;}
 
-        /// Check if this channel ID is a wildcard (either Detector_t
-        /// or SlowFast_t is kAny...). User must interrogate further
-        /// to find out which.
-        bool isWildCard() const 
-        {return isWildCardDetector() || isWildCardSlowFast();}
+    /// Check if this channel ID is a wildcard (either Detector_t
+    /// or SlowFast_t is kAny...). User must interrogate further
+    /// to find out which.
+    bool isWildCard() const {return isWildCardDetector() || isWildCardSlowFast();}
 
 	/// Convert a Detector_t enum into the corresponding string
 	static std::string GetDetectorString(Detector_t det);
