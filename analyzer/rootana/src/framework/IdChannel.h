@@ -113,6 +113,11 @@ public:
     /// to find out which.
     bool isWildCard() const {return isWildCardDetector() || isWildCardSlowFast();}
 
+    /// Check if this channel ID is for a fast channel
+    bool isFast() const {return fSlowFast==kFast;};
+    /// Check if this channel ID is for a slow channel
+    bool isSlow() const {return fSlowFast==kSlow;};
+
 	/// Convert a Detector_t enum into the corresponding string
 	static std::string GetDetectorString(Detector_t det);
 
@@ -165,6 +170,6 @@ inline IDs::channel::channel(const std::string& channel ):fDetector(),fSlowFast(
   *this=channel;
 }
 
-ostream& operator<< (ostream& os , IDs::channel& id);
+std::ostream& operator<< (ostream& os ,const IDs::channel& id);
 
 #endif //IDCHANNEL_H_
