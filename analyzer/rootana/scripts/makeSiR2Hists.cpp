@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 
   TString data_path = "/home/nam/work/RunPSI2013/data/root/dq3_rootanahist/";
   int firstRun = 2091;
-  int lastRun = 2125;
+  int lastRun = 2129;
   int runNo = firstRun;
 
   TChain *chain = new TChain("MuEvt/mutree");
@@ -64,21 +64,21 @@ int main(int argc, char *argv[])
   chain->SetBranchAddress("t_SiR2_F", &t_SiR2_F);
 
   int ntbins = 2048;
-  int nebins = 512;
+  int nebins = 1024;
   int tlow = -4.e3;
   int thigh = ntbins*8 + tlow;
   TH2F * hSiR2S_muSc = new TH2F("hSiR2S_muSc", "hSiR2S_muSc", 
       ntbins, tlow, thigh,
-      512, 0, 18000);
-  TH2F * hSiR2F_muSc = new TH2F("hSiR2F_muSc", "hSiR2F_muSc", 
-      ntbins, tlow, thigh,
-      512, 0, 2500);
-  TH2F * hSiR2F_selfTdiff = new TH2F("hSiR2F_selfTdiff", "hSiR2F_selfTdiff",
-      ntbins, 0, 14e3,
-      512, 0, 2500);
+      nebins, 0, 25.6e3);
   TH2F * hSiR2S_selfTdiff = new TH2F("hSiR2S_selfTdiff", "hSiR2S_selfTdiff",
       ntbins, 0, 14e3,
-      512, 0, 18e3);
+      nebins, 0, 25.6e3);
+  TH2F * hSiR2F_muSc = new TH2F("hSiR2F_muSc", "hSiR2F_muSc", 
+      ntbins, tlow, thigh,
+      nebins, 0, 2500);
+  TH2F * hSiR2F_selfTdiff = new TH2F("hSiR2F_selfTdiff", "hSiR2F_selfTdiff",
+      ntbins, 0, 5.12e3,
+      nebins, 0, 2500);
 
   long int nentries = chain->GetEntries();
   for (int i = 0; i < nentries; ++i)
@@ -102,9 +102,12 @@ int main(int argc, char *argv[])
             Adc2keV(E_SiR2_S->at(j)));
 
     if (t_SiR2_F->size()>1)
-      for (unsigned int j = 1; j < t_SiR2_F->size(); ++j)
-        hSiR2F_selfTdiff->Fill(t_SiR2_F->at(j) - t_SiR2_F->at(0), 
-            E_SiR2_F->at(j));
+      if (E_SiR2_F->at(0)>450 && E_SiR2_F->at(0)<900)
+      {
+        for (unsigned int j = 1; j < t_SiR2_F->size(); ++j)
+          hSiR2F_selfTdiff->Fill(t_SiR2_F->at(j) - t_SiR2_F->at(0), 
+              E_SiR2_F->at(j));
+      }
   }
 
   TFile *of = new TFile("of.root", "recreate");
