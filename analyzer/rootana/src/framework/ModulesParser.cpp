@@ -130,12 +130,17 @@ double modules::parser::GetDouble(const std::string& input, size_t start, size_t
 	return value;
 }
 
+bool modules::parser::iequals(const char a, const char b){
+    return ( a=='_' && b=='-' ) ||
+           ( a=='-' && b=='_' ) ||
+           ( tolower(a) == tolower(b));
+}
+
 bool modules::parser::iequals(const std::string& a, const std::string& b){
   unsigned int sz = a.size();
   if (b.size() != sz) return false;
   for (unsigned int i = 0; i < sz; ++i){
-    if ( (a[i]=='_' && b[i]=='-' )|| ( a[i]=='-' && b[i]=='_') ) continue;
-    if (tolower(a[i]) != tolower(b[i])) return false;
+      if (! iequals(a[i],b[i])) return false;
   }
   return true;
 }

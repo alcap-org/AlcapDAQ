@@ -67,6 +67,7 @@ namespace modules{
         int GetNumber(const std::string& input);
 	double GetDouble(const std::string& input, size_t start=0, size_t stop=std::string::npos);
   bool iequals(const std::string& a, const std::string& b);
+  bool iequals(const char a, const char b);
     }
     
 }
