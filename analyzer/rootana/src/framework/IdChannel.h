@@ -141,8 +141,8 @@ inline bool IDs::channel::operator==(const IDs::channel& rhs)const{
 }
 
 inline bool IDs::channel::matches(const channel& rhs)const{
-	return (fDetector==kAnyDetector || rhs.fDetector==kAnyDetector || fDetector==rhs.fDetector) 
-	&& (fSlowFast==kAnySlowFast || rhs.fSlowFast==kAnySlowFast || fSlowFast==rhs.fSlowFast) ;
+	return (isWildCardDetector() || rhs.isWildCardDetector() || fDetector==rhs.fDetector) 
+	&& (isWildCardSlowFast() || rhs.isWildCardSlowFast() || fSlowFast==rhs.fSlowFast) ;
 }
 
 inline bool IDs::channel::operator>(const IDs::channel& rhs)const{
