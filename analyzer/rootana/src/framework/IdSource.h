@@ -105,7 +105,7 @@ class IDs::source:public TObject{
   channel fChannel;
   generator fGenerator;
 
-  ClassDef(IDs::source,1);
+  ClassDef(source,1);
 };
 
 inline bool IDs::source::operator==(const source& rhs)const

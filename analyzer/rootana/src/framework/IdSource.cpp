@@ -4,7 +4,7 @@
 ClassImp(IDs::source);
 
 std::string IDs::source::str()const{
-	return fChannel.str() + "::" +fGenerator.str();
+	return fChannel.str() + IDs::field_separator +fGenerator.str();
 }
 
 ostream& operator<< (ostream& os , IDs::source& id) {
