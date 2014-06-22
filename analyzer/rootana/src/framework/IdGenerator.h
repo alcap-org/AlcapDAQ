@@ -42,6 +42,7 @@ class IDs::generator:public TObject{
 	/// Is this generator the same as another, or is this or the other id
 	/// have fields set to kAny
 	bool operator==(const generator& rhs)const;
+	bool matches(const generator& rhs)const;
 
 	/// Is this generator the different to another, and do both this and
 	/// the other id have fields not set to kAny
@@ -77,6 +78,10 @@ class IDs::generator:public TObject{
 };
 
 inline bool IDs::generator::operator==(const IDs::generator& rhs)const{
+	return (fType==rhs.fType) && (fConfig==rhs.fConfig) ;
+}
+
+bool IDs::generator::matches(const generator& rhs)const{
 	return (fType==kAnyGenerator || rhs.fType==kAnyGenerator || fType==rhs.fType) 
 		&& (fConfig==kAnyConfig || rhs.fConfig==kAnyConfig || fConfig==rhs.fConfig) ;
 }

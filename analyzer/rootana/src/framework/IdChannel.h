@@ -81,10 +81,15 @@ public:
 	/// Sets kErrorDetector or kErrorSlowFast if there is a problem decoding the string
 	channel& operator=(const char* rhs){ return (*this=std::string(rhs));};
 
-	/// Returns true if this channel is the same as another or has it's fields set to 'any'.
+	/// Returns true if this channel is the same as another 
 	bool operator==(const channel& rhs)const;
-	/// Returns true if this channel is not the same as another and it's fields are not set to 'any'.
+	/// Returns true if this channel is not the same as another 
 	bool operator!=(const channel& rhs)const{return !(this->operator==(rhs));};
+    /// @brief Check if this channel is the same as another or has it's fields set to 'any'.
+    /// @details Return true if for both the Detector and SlowFast parts, either
+    /// the rhs is the same as this one, or if either this or rhs has a
+    /// corresponding Any flag set
+    bool matches(const channel& rhs)const;
 	
 	/// not intuitively meaningful but maybe useful for sorting
 	bool operator<(const channel& rhs)const;
@@ -133,6 +138,10 @@ public:
 };
 
 inline bool IDs::channel::operator==(const IDs::channel& rhs)const{
+    return (fDetector == rhs.fDetector) && (fSlowFast== rhs.fSlowFast);
+}
+
+inline bool IDs::channel::matches(const channel& rhs)const{
 	return (fDetector==kAnyDetector || rhs.fDetector==kAnyDetector || fDetector==rhs.fDetector) 
 	&& (fSlowFast==kAnySlowFast || rhs.fSlowFast==kAnySlowFast || fSlowFast==rhs.fSlowFast) ;
 }

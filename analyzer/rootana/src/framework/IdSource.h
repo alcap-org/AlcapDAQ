@@ -61,11 +61,17 @@ class IDs::source:public TObject{
   /// Returns true if the channel part of this source matches another channel
   bool operator==(const channel& rhs)const{return fChannel==rhs;};
 
-  /// Not intuitively meaningful but maybe useful for sorting
-  bool operator>(const source& rhs)const;
-  
-  /// Not intuitively meaningful but maybe useful for sorting
-  bool operator<(const source& rhs)const;
+  /// Returns true if this source matches another
+	bool matches(const source& rhs)const;
+  /// Returns true if the generator part of this source matches another generator
+	bool matches(const generator& rhs)const{return fGenerator.matches(rhs);};
+  /// Returns true if the channel part of this source matches another channel
+	bool matches(const channel& rhs)const{return fChannel.matches(rhs);};
+
+	/// Not intuitively meaningful but maybe useful for sorting
+	bool operator>(const source& rhs)const;
+	/// Not intuitively meaningful but maybe useful for sorting
+	bool operator<(const source& rhs)const;
 
   /// Get a reference to the generator ID in this source
   generator& Generator(){return fGenerator;};
@@ -105,6 +111,9 @@ class IDs::source:public TObject{
 inline bool IDs::source::operator==(const source& rhs)const
 {
   return rhs.Generator()==fGenerator && rhs.Channel()==fChannel;
+}
+inline bool IDs::source::matches(const source& rhs)const{
+	return fGenerator.matches(rhs.fGenerator) && fChannel.matches(rhs.fChannel);
 }
 
 inline bool IDs::source::operator>(const source& rhs)const
