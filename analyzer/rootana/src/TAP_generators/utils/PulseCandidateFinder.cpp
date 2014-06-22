@@ -14,7 +14,6 @@ PulseCandidateFinder::PulseCandidateFinder(std::string detname, modules::options
   }
 
   if (fDefaultParameterValues[fChannel] == 0) {
-      std::cout << "Error: PulseCandidateFinder currently does not have a parameter value for " << fChannel << std::endl;
   }
 
   fParameterValue = opts->GetInt(detname, fDefaultParameterValues[fChannel]); // set the parameter value for this channel
@@ -34,10 +33,10 @@ void PulseCandidateFinder::FindPulseCandidates(TPulseIsland* pulse) {
   fPulseIsland = pulse;
 
   // We have a different algorithm for fast and slow pulses
-  if (fChannel == IDs::Fast) {
+  if (fChannel.isFast()) {
     FindCandidatePulses_Fast(fParameterValue);
   }
-  else if (fChannel == IDs::Slow) {
+  else if (fChannel.isSlow()) {
     FindCandidatePulses_Slow(fParameterValue);
   }
 }
@@ -158,11 +157,11 @@ void PulseCandidateFinder::FillParameterHistogram(TH1D* histogram) {
   std::string parameter_name = "Unknown";
 
   // We have a different algorithm for fast and slow pulses
-  if (theChannel == IDs::Fast) {
+  if (theChannel.isFast()) {
     parameter_name = "SampleDifference";
     FillSampleDifferencesHistogram(histogram);
   }
-  else if (theChannel == IDs::Slow) {
+  else if (theChannel.isSlow()) {
     parameter_name = "SampleHeight";
     FillSampleHeightsHistogram(histogram);
   }
