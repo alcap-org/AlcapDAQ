@@ -25,8 +25,8 @@ int main(int argc, char *argv[])
 
   //TString data_path = "/home/nam/work/RunPSI2013/data/root/dq3_rootanahist/";
   TString data_path = "/home/nam/work/localRunPSI2013/data/root/dq3_rootanahist/";
-  int firstRun = 2091;
-  int lastRun = 2172;
+  int firstRun =3763;
+  int lastRun = 3770;
   int runNo = firstRun;
 
   TChain *chain = new TChain("MuEvt/mutree");
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
       ntbins, tlow, thigh,
       nebins, 0, 2500);
   TH2F * hSiR2F_selfTdiff = new TH2F("hSiR2F_selfTdiff", "hSiR2F_selfTdiff",
-      ntbins, 0, 5.12e3,
+      ntbins, 0, 10.24e3,
       nebins, 0, 2500);
 
   long int nentries = chain->GetEntries();
@@ -107,8 +107,8 @@ int main(int argc, char *argv[])
       double E_1st_hit = E_SiR2_F->at(0);
       double t_1st_hist = t_SiR2_F->at(0);
 
-      if (E_1st_hit>450 && E_1st_hit<900
-          && (t_1st_hist - t_muSc)<-70 && (t_1st_hist - t_muSc)>-250)
+      if (E_1st_hit>300 && E_1st_hit<600
+          && (t_1st_hist - t_muSc)<170 && (t_1st_hist - t_muSc)>50)
       {
         for (unsigned int j = 1; j < t_SiR2_F->size(); ++j)
           hSiR2F_selfTdiff->Fill(t_SiR2_F->at(j) - t_SiR2_F->at(0), 
