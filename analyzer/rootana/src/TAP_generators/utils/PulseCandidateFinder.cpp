@@ -27,7 +27,7 @@ PulseCandidateFinder::PulseCandidateFinder(std::string detname, modules::options
     if (fOneSigmaValues.empty()) {
       SetOneSigmaValues();
     }
-    //    SetNSigmaThreshold();
+    fParameterValue = fNSigma * fOneSigmaValues[IDs::channel(detname)];
   }
 
   if (opts->HasOption("debug") && (opts->GetOption("debug").empty() || opts->GetBool("debug"))) {
