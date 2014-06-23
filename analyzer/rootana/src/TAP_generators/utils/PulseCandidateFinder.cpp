@@ -16,6 +16,7 @@ PulseCandidateFinder::PulseCandidateFinder(std::string detname, modules::options
   }
 
   if (fDefaultParameterValues[fChannel] == 0) {
+    std::cout << "Error: PulseCandidateFinder currently does not have a parameter value for " << fChannel << std::endl;
   }
 
   fNSigma = opts->GetInt("n_sigma", 0);

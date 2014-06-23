@@ -71,8 +71,8 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
       // Find the pulse candidates on this TPulseIsland and then fill the parameter histogram
-      fPulseCandidateFinder->FindPulseCandidates(*pulseIter);
-      fPulseCandidateFinder->FillParameterHistogram(parameter_histogram);
+      pulse_candidate_finder->FindPulseCandidates(*pulseIter);
+      pulse_candidate_finder->FillParameterHistogram(parameter_histogram);
 
       // Use to export pulses (NB you will only want to run rootana on a few events to stop the output being large)
       int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
