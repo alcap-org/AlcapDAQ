@@ -47,8 +47,15 @@ class PulseCandidateFinder {
   IDs::channel fChannel;
   int fParameterValue;
 
+  /// The map that stores the default parameter values in case there isn't one specified in the modules file
   static std::map<IDs::channel, int> fDefaultParameterValues;
   void SetDefaultParameterValues();
+
+  /// The number of sigma (i.e. noise) that we want the threshold to be set to
+  /// and the map that stores the one sigma values that we get from the text file
+  int fNSigma;
+  static std::map<IDs::channel, double> fOneSigmaValues;
+  void SetOneSigmaValues();
 };
 
 #endif

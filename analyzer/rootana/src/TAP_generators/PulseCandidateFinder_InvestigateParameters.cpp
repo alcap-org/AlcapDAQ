@@ -64,12 +64,13 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
       fParameterHistograms[detname] = histogram;
     }
 
-    // Create the histogram to store the parameters in
+    // Get the parameter histogram for this detector
     TH1D* parameter_histogram = fParameterHistograms[detname];
 
     // Loop through all the pulses
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
+      // Find the pulse candidates on this TPulseIsland and then fill the parameter histogram
       pulse_candidate_finder->FindPulseCandidates(*pulseIter);
       pulse_candidate_finder->FillParameterHistogram(parameter_histogram);
 
@@ -77,15 +78,14 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
       int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
       if (Debug()) {
 	if (n_pulse_candidates > 0) {
-	  ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+	  //	  ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
 	  if (n_pulse_candidates > 1) {
 	    std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << " has " << n_pulse_candidates << " pulse candidates\n"; 
 	  }
 	}
-      }
-
-    }
-  }
+      } // end if Debug
+    } // end loop through pulses
+  } //  end loop through detectors
 
   return 0;
 }
@@ -99,7 +99,6 @@ int PulseCandidateFinder_InvestigateParameters::AfterLastEntry(TGlobalData* gDat
   if(Debug()){
      cout<<"-----PulseCandidateFinder_InvestigateParameters::AfterLastEntry(): I'm debugging!"<<endl;
   }
-
   return 0;
 }
 

@@ -20,10 +20,11 @@ class PulseCandidateFinder_InvestigateParameters : public BaseModule{
   virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
 
  private:
-  /// Store the module options for use in ProcessEntry
-  modules::options* fOpts;
-
+  /// Where we will store the parameter histograms for each channel
   std::map<std::string, TH1D*> fParameterHistograms;
+
+  /// Store the module options so that they can be used in ProcessEntry
+  modules::options* fOpts;
 };
 
 #endif //PULSECANDIDATEFINDER_INVESTIGATEPARAMETERS_H_
