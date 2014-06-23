@@ -4,6 +4,8 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <cstdlib>
 
 /// PulseCandidateFinder()
 /// The constructor just sets all the parameter values
@@ -16,7 +18,16 @@ PulseCandidateFinder::PulseCandidateFinder(std::string detname, modules::options
   if (fDefaultParameterValues[fChannel] == 0) {
   }
 
-  fParameterValue = opts->GetInt(detname, fDefaultParameterValues[fChannel]); // set the parameter value for this channel
+  fNSigma = opts->GetInt("n_sigma", 0);
+  if (fNSigma == 0) {
+    fParameterValue = opts->GetInt(detname, fDefaultParameterValues[fChannel]); // set the parameter value for this channel
+  }
+  else {
+    if (fOneSigmaValues.empty()) {
+      SetOneSigmaValues();
+    }
+    //    SetNSigmaThreshold();
+  }
 
   if (opts->HasOption("debug") && (opts->GetOption("debug").empty() || opts->GetBool("debug"))) {
     std::cout << "Parameter Value for " << fChannel << " PulseCandidateFinder is " << fParameterValue << std::endl; // would be nice to know which module this is for
@@ -257,4 +268,36 @@ void PulseCandidateFinder::SetDefaultParameterValues() {
   fDefaultParameterValues[IDs::channel("SiR1-2-S")] = 30;
   fDefaultParameterValues[IDs::channel("SiR1-3-S")] = 40;
   fDefaultParameterValues[IDs::channel("SiR1-4-S")] = 40;
+}
+
+/// Need to declare this outside of any method
+std::map<IDs::channel, double> PulseCandidateFinder::fOneSigmaValues;
+
+/// SetOneSigmaValues()
+/// Sets the one sigma values that we get from the text file
+void PulseCandidateFinder::SetOneSigmaValues() {
+
+  // Open the text file
+  std::ifstream file_in("pedestal-and-noise.txt", std::ifstream::in);
+
+  // The values that we will read in
+  std::string detname, bankname;
+  std::string pedestal, noise;
+
+  if (file_in.is_open()) {
+
+    if (file_in.fail()) {
+      file_in.clear();
+    }
+    while (file_in.good()) {
+	file_in >> detname >> bankname >> pedestal >> noise;
+	//	std::cout << detname << " " << bankname << " " << pedestal << " " << noise << std::endl;
+
+	fOneSigmaValues[IDs::channel(detname)] = atof(noise.c_str());
+	//	std::cout << fOneSigmaValues[IDs::channel(detname)] << std::endl;
+    }
+  }
+  else {
+    std::cout << "Problem opening pedestal-and-noise.txt" << std::endl;
+  }
 }
