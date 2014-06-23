@@ -1,9 +1,29 @@
-#include "BankSelection.tpl"
-#include "definitions.h"
+#include "BankSelection.h"
+#include <iostream>
 
-template class BankSelection<PulseIslandList>;
-template class BankSelection<AnalysedPulseList>;
-template class BankSelection<DetectorPulseList>;
+//----------------------------------------------------------------------
+BankSelection::BankSelection(bool match_all)
+  :  fWildCards(match_all ? 1 : 0)
+{}
 
-// probably won't ever need this
-//template class BankSelection<MuonEventList>;
+//----------------------------------------------------------------------
+BankSelection::~BankSelection()
+{}
+
+//----------------------------------------------------------------------
+bool BankSelection::WildCardMatch(const SourceID& sid)
+{
+  return true;
+}
+//----------------------------------------------------------------------
+bool BankSelection::ExactMatch(const SourceID& sid)
+{
+  return true;
+}
+
+
+//----------------------------------------------------------------------
+// emacs metadata
+// Local Variables:
+// mode: c++
+// End:
