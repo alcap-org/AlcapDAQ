@@ -50,14 +50,14 @@ public:
 
   /// Check if the provided SourceID is in the selection, either due
   /// to wildcards or exact matches
-  bool Includes(const SourceID& sid)
-  {return WildCardMatch(sid) || ExactMatch(sid);}
+  bool Includes(const SourceID& sid) const
+  {return HasWildCardMatch(sid) || HasExactMatch(sid);}
 
   /// Check if the provided SourceID would be selected by the (channel) wildcards
-  bool WildCardMatch(const SourceID& sid);
+  bool HasWildCardMatch(const SourceID& sid) const;
 
   /// Check if the provided SourceID is on the list of exact (channel) matches
-  bool ExactMatch(const SourceID& sid);
+  bool HasExactMatch(const SourceID& sid) const;
 
   /// Reset match criteria - accept everything. 
   /// Note that once the Selection is Lock()ed the criteria cannot be
@@ -103,8 +103,8 @@ private:
   typedef SourceList_t::iterator iter; 
   typedef SourceList_t::const_iterator citer; 
 
-  citer cBegin(SourceList_t& list) 
-  { return const_cast<const SourceList_t&>(list).begin(); }
+  //citer cBegin(SourceList_t& list) const
+  //{ return const_cast<const SourceList_t&>(list).begin(); }
 
   /// The list of Source IDs that match several Channels
   SourceList_t fWildCards;
