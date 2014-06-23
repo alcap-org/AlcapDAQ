@@ -1,12 +1,18 @@
 #include "tut.h"
 #include "BankIter.h"
+#include "BankIter.tpl"
+
+template class ::BankIter<void*>;
+typedef BankIter<void*> DummyBankIter;
+
 namespace tut
 {
+
   struct BANKITER
   {};
 
   typedef test_group<BANKITER> BANKITER_group;
-  BANKITER_group pet("BankIter<> tests");
+  BANKITER_group BANKITER_pet("BankIter<> tests");
 
   typedef BANKITER_group::object tester;
 
@@ -17,30 +23,34 @@ namespace tut
   //41~50 : for BankIters<TDetectorPulse> specific-tests
 
   //Check the iterator is in malleable 'undefined' state on creation
+  // and  locked after acessing an element
   template<> template<>
   void tester::test<11>()
   {
     typedef BankIter<void*> DummyBankIter;
 
-    //PulseIslandBankIter pibi;
     DummyBankIter dummy;
-    ensure("Starts undefined", !dummy.IsDefined());
-    ensure_equals("Define() returns self", &(dummy.Define()), &dummy);
-    ensure("Is locked after Define()", dummy.IsDefined());
+    ensure("Starts Locked", !dummy.IsLocked());
+    ensure_equals("Lock() returns self", &(dummy.Lock()), &dummy);
+    ensure("Is locked after Lock()", dummy.IsLocked());
 
     DummyBankIter dummy2;
-    //dummy2.Next();
-    //ensure("Is locked after Next()", dummy2.IsDefined());
+    dummy2.Next();
+    ensure("Is locked after Next()", dummy2.IsLocked());
     
-    PulseIslandBankIter dummy3;
-    //ensure_equals("Rewind() returns self", &(dummy3.Rewind()),&dummy3());
-    //ensure("Is locked after Rewind()", dummy3.IsDefined());
+    DummyBankIter dummy3;
+    ensure_equals("Rewind() returns self", &(dummy3.Rewind()),&dummy3);
+    ensure("Is locked after Rewind()", dummy3.IsLocked());
   }
 
+  //Check that a Lock()ed Iter cannot be modified 
   template<> template<>
   void tester::test<12>()
   {
-    PulseIslandBankIter pibi;
-    //ensure_equals("Starts undefined", pibi.Rewind().IsDefined(), 0);
+    typedef BankIter<void*> DummyBankIter;
+
+    DummyBankIter dummy;
+    dummy.Lock();
+
   }
 };

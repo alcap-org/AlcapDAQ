@@ -13,35 +13,35 @@ private:
 public:
 
   /// C'tors /D'tors
-  BankIter(){fDefined =0;};
+  BankIter() : fLocked(0) {};
   virtual ~BankIter(){};
 
   /// Returns true if the Iterator match criteria have been fixed. 
-  bool IsDefined() const {return fDefined;}
+  bool IsLocked() const {return fLocked;}
 
   /// Return the number of matching banks according to the current
   /// criteria. This is not necessarily cheap.
   int Count() const;
 
   /// Fix the match criteria of banks this Iterator will return.
-  BankIter& Define() {fDefined =1; return *this;}
+  BankIter& Lock() {fLocked =1; return *this;}
 
   /// Get the next Bank that fufills out filter criteria
-  /// Side Effects: Define()s this Iterator.
+  /// Side Effects: Lock()s this Iterator.
   const BANK* Next();
   
   /// Go back to start, and return self. So to get the first element do 
   /// someBankIter.Rewind().Next(). 
-  /// Side Effects: Define()s this Iterator.
+  /// Side Effects: Lock()s this Iterator.
   BankIter& Rewind();
 
   /// Reset match criteria - accept everything. 
-  /// Note that once the Iter is Define()ed the criteria cannot be
+  /// Note that once the Iter is Lock()ed the criteria cannot be
   /// changed.
   BankIter& MatchAll();
 
   /// Reset match criteria - reject everything.
-  /// Note that once the Iter is Define()ed the criteria cannot be
+  /// Note that once the Iter is Lock()ed the criteria cannot be
   /// changed.
   BankIter& MatchNone();
 
@@ -60,7 +60,7 @@ protected:
 
 private:
   /// Whether the match criteria are defined.
-  bool fDefined; 
+  bool fLocked; 
 };
 
 typedef BankIter<PulseIslandList> PulseIslandBankIter;
