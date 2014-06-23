@@ -29,17 +29,17 @@ template <typename BANK> class BankSelection
 {
 public:
   typedef IDs::source SourceID;
-  typedef std::vector<const SourceID> SourceList_t;
+  typedef std::vector<SourceID> SourceList_t;
 
   /// The default-constructed selection matches all banks of the correct pulse type
   /// \param match_all [in] if optionally passed \c false or \c 0 it will match none.
   BankSelection(bool match_all = true);
 
   /// Constuct matching the the list given
-  BankSelection(const SourceList_t& list)
+  BankSelection(const SourceList_t& list);
 
-  /// Destructior. We may inherit from this class
-  virtual ~BankSelection();
+  /// Destructior. You cannot have viWe may inherit from this class
+  ~BankSelection();
 
   // Returns true if the Iterator match criteria have been fixed. 
   //bool IsLocked() const {return fLocked;}
@@ -50,6 +50,17 @@ public:
   // /// Return the number of matching banks according to the current
   // /// criteria. This is not necessarily cheap.
   //int Size() const;
+
+  /// Check if the provided SourceID is in the selection, either due
+  /// to wildcards or exact matches
+  bool Includes(const SourceID& sid)
+  {return WildCardMatch(sid) || ExactMatch(sid) ;}
+
+  /// Check if the provided SourceID would be selected by the wildcards
+  bool WildCardMatch(const SourceID& sid);
+
+  /// Check if the provided SourceID is on the list of exact matches
+  bool ExactMatch(const SourceID& sid);
 
   /// Reset match criteria - accept everything. 
   /// Note that once the Selection is Lock()ed the criteria cannot be
@@ -99,6 +110,11 @@ private:
   SourceList_t fMatches;
 
 };
+
+typedef BankSelection<PulseIslandList> PulseIslandSelection;
+typedef BankSelection<AnalysedPulseList> AnalysedPulseSelection;
+typedef BankSelection<DetectorPulseList> DetectorPulseSelection;
+
 #endif //BANKSELECTION_H
 
 
