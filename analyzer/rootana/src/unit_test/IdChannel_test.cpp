@@ -52,6 +52,15 @@ namespace tut
     ensure_equals("IDs::channel(\"Ge-F\").str() should give Ge-F", ch0.str(),string_ch0);    
     ensure_equals("IDs::channel(\"ge-f\").str() should give Ge-F", ch1.str(),string_ch0);    
     ensure_equals("IDs::channel(\"ge_f\").str() should give Ge-F", ch2.str(),string_ch0);    
+
+    IDs::channel muSc_string("muSc");
+    IDs::channel SiR1_S_string("SiR1-S");
+    ensure("Ge-F should be fast", ch0.isFast());    
+    ensure_equals("muSc should be neither fast or slow", muSc_string.SlowFast(),IDs::kNotApplicable);    
+    ensure("SiR1-S should be slow", SiR1_S_string.isSlow());    
+
+    IDs::channel rubbish("ohsbfpsihbf-f");
+    ensure("ohsbfpsihbf-f should be invalid", !rubbish.isValid());    
   }
 }
 
