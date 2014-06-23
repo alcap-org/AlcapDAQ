@@ -40,24 +40,13 @@ BankSelection::~BankSelection()
 
 
 //----------------------------------------------------------------------
-bool BankSelection::HasWildCardMatch(const SourceID& sid) const
+bool BankSelection::ListMatch(const SourceID& sid, 
+                              const SourceList_t& list) const
 {
-  citer end = fWildCards.end();
   functor_match match(sid);
-  if ( find_if(fWildCards.begin(), end, match) != end ) return true;
+  if (find_if(list.begin(), list.end(), match) != list.end()) return true;
   return false;
-}
-
-
-
-//----------------------------------------------------------------------
-bool BankSelection::HasExactMatch(const SourceID& sid) const
-{
-  citer end = fMatches.end();
-  functor_match match(sid);
-  if ( find_if(fMatches.begin(), end, match) != end ) return true;
-  return false;
-}
+}  
 
 
 

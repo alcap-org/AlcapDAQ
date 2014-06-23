@@ -50,14 +50,16 @@ public:
 
   /// Check if the provided SourceID is in the selection, either due
   /// to wildcards or exact matches
-  bool Includes(const SourceID& sid) const
+  inline bool Includes(const SourceID& sid) const
   {return HasWildCardMatch(sid) || HasExactMatch(sid);}
 
   /// Check if the provided SourceID would be selected by the (channel) wildcards
-  bool HasWildCardMatch(const SourceID& sid) const;
+  inline bool HasWildCardMatch(const SourceID& sid) const
+  {return ListMatch(sid, fWildCards);}
 
   /// Check if the provided SourceID is on the list of exact (channel) matches
-  bool HasExactMatch(const SourceID& sid) const;
+  inline bool HasExactMatch(const SourceID& sid) const
+  {return ListMatch(sid, fMatches);}
 
   /// Reset match criteria - accept everything. 
   /// Note that once the Selection is Lock()ed the criteria cannot be
@@ -102,6 +104,10 @@ public:
 private:
   typedef SourceList_t::iterator iter; 
   typedef SourceList_t::const_iterator citer; 
+
+  ///Convenience function that checks if a given Source ID matches any
+  ///from a list
+  bool ListMatch(const SourceID& sid, const SourceList_t& list) const;
 
   //citer cBegin(SourceList_t& list) const
   //{ return const_cast<const SourceList_t&>(list).begin(); }
