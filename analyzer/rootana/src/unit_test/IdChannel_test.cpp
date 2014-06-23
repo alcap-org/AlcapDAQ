@@ -38,6 +38,20 @@ namespace tut
     ensure("Doublely wild is wild", all_wild.isWildCard());    
     ensure("Doublely wild is wild det", all_wild.isWildCardDetector());    
     ensure("Doublely wild is wild S/F", all_wild.isWildCardSlowFast());    
+
+    std::string string_ch0("Ge-F");
+    std::string string_ch1("ge-f");
+    std::string string_ch2("ge_f");
+    IDs::channel ch0(string_ch0);
+    IDs::channel ch1(string_ch1);
+    IDs::channel ch2(string_ch2);
+    ensure_equals("Ge-F == ge-f", ch0,ch1);    
+    ensure_equals("Ge-F == ge_f", ch0,ch2);    
+    ensure_equals("ge_f == ge-f", ch2,ch1);    
+
+    ensure_equals("IDs::channel(\"Ge-F\").str() should give Ge-F", ch0.str(),string_ch0);    
+    ensure_equals("IDs::channel(\"ge-f\").str() should give Ge-F", ch1.str(),string_ch0);    
+    ensure_equals("IDs::channel(\"ge_f\").str() should give Ge-F", ch2.str(),string_ch0);    
   }
 }
 

@@ -1,5 +1,8 @@
+#include "ModulesParser.h"
 #include "IdChannel.h"
+#include <iostream>
 #include <ostream>
+#include <algorithm>
 
 ClassImp(IDs::channel);
 
@@ -46,24 +49,36 @@ IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
 		"SiR1_1", "SiR1_2", "SiR1_3", "SiR1_4", "SiR1_sum", "SiR2", 
 		"MuSc", "MuScA" };
      for (int i=0;i<IDs::num_detector_enums;i++){
-        if(det==names[i]) return (Detector_t)i;
+        if(modules::parser::iequals(det,names[i])) return (Detector_t)i;
      } 
      return kErrorDetector;
 }
 
 IDs::channel& IDs::channel::operator=(const std::string& rhs){
    // Search for a fast slow string at the end of the end of the string
-   const char* fast_slow_strs[3]={"-*","-S","-F"};
-   size_t match=std::string::npos;
-   for(int i=0;i<3 && match==std::string::npos; i++){
-   	match=rhs.rfind(fast_slow_strs[i]);
+   static const int num_strs=3;
+   static const std::string fast_slow_strs[num_strs]={"-*","-S","-F"};
+   int i=0;
+   std::string::const_iterator match;
+   // Create a functino pointer to the iequals method
+   bool (*compare) (const char a, const char b);
+   compare = modules::parser::iequals;
+   for(i=0;i<num_strs ; i++){
+   	match=std::find_end(rhs.begin(),rhs.end(),
+            fast_slow_strs[i].begin(),fast_slow_strs[i].end(),
+            compare);
+    if (match!=rhs.end()) break;
    }
    // Have we found a map
-   if(match!=std::string::npos){
-	   fSlowFast=GetSlowFastEnum(rhs.substr(match));
-   }
+   size_t boundary=std::string::npos;
+   if(i<= num_strs){
+       boundary=match - rhs.begin();
+   std::string fs=rhs.substr(boundary);
+	   fSlowFast=GetSlowFastEnum(fs);
+   }else fSlowFast=kNotApplicable;
+
    // Use what's left to make the channel part
-   fDetector=GetDetectorEnum(rhs.substr(0,match));
+   fDetector=GetDetectorEnum(rhs.substr(0,boundary));
 
    return *this;
 }
@@ -74,19 +89,20 @@ std::string IDs::channel::GetSlowFastString(SlowFast_t sf){
    case kAnySlowFast   : output+="-*" ; break ; 
    case kSlow          : output+="-S" ; break ; 
    case kFast          : output+="-F" ; break ; 
-   case kNotApplicable : case kErrorSlowFast: break ; 
+   case kNotApplicable : break;
+   case kErrorSlowFast: output+="-Unknown" ;break ; 
  }
  return output;
 }
 
 IDs::SlowFast_t IDs::channel::GetSlowFastEnum(const std::string& type){
-	if(type=="-S"|| type=="slow") return kSlow;
-	else if(type=="-F"|| type=="fast") return kFast;
+	if(modules::parser::iequals(type,"-S") || type=="slow") return kSlow;
+	else if(modules::parser::iequals(type,"-F")|| type=="fast") return kFast;
 	else if(type=="*"|| type=="any") return kAnySlowFast;
 	return kNotApplicable;
 }
 
-ostream& operator<< (ostream& os , IDs::channel& id){
+std::ostream& operator<< (ostream& os ,const IDs::channel& id){
   os<<id.str();
   return os;
 }
