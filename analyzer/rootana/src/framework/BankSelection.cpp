@@ -27,8 +27,7 @@ BankSelection::~BankSelection()
 bool BankSelection::WildCardMatch(const SourceID& sid)
 {
   for (citer it = cBegin(fWildCards); it != fWildCards.end() ; ++it) {
-    //if (sid.Matches(*it)) return true;
-    if (sid == (*it)) return true;
+    if (sid.matches(*it)) return true;
 }
 
  return false;
@@ -38,8 +37,7 @@ bool BankSelection::WildCardMatch(const SourceID& sid)
 bool BankSelection::ExactMatch(const SourceID& sid)
 {
   for (citer it = cBegin(fMatches); it != fMatches.end() ; ++it) {
-    //if (sid.Matches(*it)) return true;
-    if (sid == (*it)) return true;
+    if (sid.matches(*it)) return true;
   }
   return false;
 }
