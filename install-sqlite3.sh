@@ -22,8 +22,8 @@ mkdir -p sqlite-install
 
 # Use cmake to create the Makefiles for your system
 cd sqlite-autoconf-3080500
-./configure --prefix=$PWD../sqlite-install 2>&1 |tee install_log.txt
+./configure --prefix=$PWD/../sqlite-install 2>&1 |tee install_log.txt
 
 # Now compile and install
-#make 2>&1 |tee -a install_log.txt
-#make install 2>&1 |tee -a install_log.txt
+make 2>&1 |tee -a install_log.txt
+make install 2>&1 |tee -a install_log.txt
