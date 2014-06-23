@@ -3,11 +3,8 @@
 
 #include "definitions.h"
 
-/// This class represents a wildcard-like selection of Source IDs.  It
-/// can be modified by appending SourceIDs.  The class is templated on
-/// the type of bank (e.g. PulseIslandList) desired. This is only for
-/// type information; the classes can't know if the SourceIDs
-/// specified are valid for the current (or any) event.
+/// This class represents a (possibly wildcard-like) selection of
+/// Source IDs.  It can be modified by appending SourceIDs.
 /// 
 /// @detail Assume that the most common reason for using wild cards
 /// (or not) is to match multiple detector channels.  In contrast
@@ -25,7 +22,7 @@
 /// matching a wildcard, so a logical "anything except xyz" would
 /// require additional lists of negated channels This may be
 /// revisited if there is a clear need.
-template <typename BANK> class BankSelection 
+class BankSelection 
 {
 public:
   typedef IDs::source SourceID;
@@ -56,10 +53,10 @@ public:
   bool Includes(const SourceID& sid)
   {return WildCardMatch(sid) || ExactMatch(sid) ;}
 
-  /// Check if the provided SourceID would be selected by the wildcards
+  /// Check if the provided SourceID would be selected by the (channel) wildcards
   bool WildCardMatch(const SourceID& sid);
 
-  /// Check if the provided SourceID is on the list of exact matches
+  /// Check if the provided SourceID is on the list of exact (channel) matches
   bool ExactMatch(const SourceID& sid);
 
   /// Reset match criteria - accept everything. 
@@ -110,10 +107,6 @@ private:
   SourceList_t fMatches;
 
 };
-
-typedef BankSelection<PulseIslandList> PulseIslandSelection;
-typedef BankSelection<AnalysedPulseList> AnalysedPulseSelection;
-typedef BankSelection<DetectorPulseList> DetectorPulseSelection;
 
 #endif //BANKSELECTION_H
 
