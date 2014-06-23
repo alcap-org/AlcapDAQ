@@ -35,8 +35,8 @@ public:
   /// Constuct matching the the list given
   BankSelection(const SourceList_t& list);
 
-  /// Destructior. You cannot have viWe may inherit from this class
-  ~BankSelection();
+  /// Destructior. We may inherit from this class
+  virtual ~BankSelection();
 
   // Returns true if the Iterator match criteria have been fixed. 
   //bool IsLocked() const {return fLocked;}
@@ -51,7 +51,7 @@ public:
   /// Check if the provided SourceID is in the selection, either due
   /// to wildcards or exact matches
   bool Includes(const SourceID& sid)
-  {return WildCardMatch(sid) || ExactMatch(sid) ;}
+  {return WildCardMatch(sid) || ExactMatch(sid);}
 
   /// Check if the provided SourceID would be selected by the (channel) wildcards
   bool WildCardMatch(const SourceID& sid);
