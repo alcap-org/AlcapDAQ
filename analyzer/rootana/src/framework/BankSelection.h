@@ -100,6 +100,12 @@ public:
   BankSelection& Remove(const SourceList_t& list, SourceList_t& removed);
   
 private:
+  typedef SourceList_t::iterator iter; 
+  typedef SourceList_t::const_iterator citer; 
+
+  citer cBegin(SourceList_t& list) 
+  { return const_cast<const SourceList_t&>(list).begin(); }
+
   /// The list of Source IDs that match several Channels
   SourceList_t fWildCards;
 
