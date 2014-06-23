@@ -13,41 +13,26 @@
 
 namespace tut
 {
+    typedef IDs::source SourceID;
+    typedef IDs::channel ChannelID;
+    typedef IDs::generator GeneratorID;
 
   struct SELECTION
   {};
 
   typedef test_group<SELECTION> SELECTION_group;
-  SELECTION_group SELECTION_pet("BankSelection<> tests");
+  SELECTION_group SELECTION_pet("BankSelection tests");
 
   typedef SELECTION_group::object tester;
 
-  //01~10 : Checks template instantiations
-  //11~40 : Check generic behavior
-
-  //======================================================================
-  /*
-  template<> template<>
-  void tester::test<1>()
-  {
-    PulseIslandSelection pis;
-    AnalysedPulseSelection aps;
-    DetectorPulseSelection dps;
-    
-    ensure("Orthogonal types Island-Analysed", typeid(pis) != typeid(aps));
-    ensure("Orthogonal types Analysed-Detector", typeid(aps) != typeid(dps));
-    ensure("Orthogonal types Detector-Island", typeid(dps) != typeid(pis));
-  }
-  */
   //======================================================================
   //Test constructors
   template<> template<>
   void tester::test<11>()
   {
-    typedef IDs::channel ChannelID;
-    typedef IDs::generator GeneratorID;
-    const int Ndet =22;
     BankSelection::SourceList_t list;
+
+    const int Ndet =22;
     list.reserve(Ndet*4*2);
     for (int d = 0; d < Ndet; ++d){
       for (int f = 0; f < 4; ++f){
@@ -59,9 +44,18 @@ namespace tut
     }
 
     BankSelection m_none(0);
+    BankSelection m_all;
         
-    ensure("Default matches",1);
-
+    std::string msg("Empty set does not Include() ");
+    for (size_t i = 0 ; i < list.size(); ++i){
+      //ensure(msg + list[i].str(),m_all.Includes(list[i]));
+      ensure(msg + list[i].str(),!m_none.Includes(list[i]));
+    }
+    msg= "Wildcard set does not Include() ";
+    for (size_t i = 0 ; i < list.size(); ++i){
+      ensure(msg + list[i].str(),m_all.Includes(list[i]));
+      //ensure(msg + list[i].str(),!m_none.Includes(list[i]));
+    }
       //DummyBankSelection m_none(0);
     /*
     ensure("Starts Locked", !dummy.IsLocked());

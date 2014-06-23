@@ -13,12 +13,21 @@ BankSelection::~BankSelection()
 //----------------------------------------------------------------------
 bool BankSelection::WildCardMatch(const SourceID& sid)
 {
-  return true;
+  for (citer it = cBegin(fWildCards); it != fWildCards.end() ; ++it) {
+    //if (sid.Matches(*it)) return true;
+    if (sid == (*it)) return true;
+}
+
+ return false;
 }
 //----------------------------------------------------------------------
 bool BankSelection::ExactMatch(const SourceID& sid)
 {
-  return true;
+  for (citer it = cBegin(fMatches); it != fMatches.end() ; ++it) {
+    //if (sid.Matches(*it)) return true;
+    if (sid == (*it)) return true;
+  }
+  return false;
 }
 
 
