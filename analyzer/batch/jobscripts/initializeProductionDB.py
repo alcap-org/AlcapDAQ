@@ -1,4 +1,5 @@
 import sqlite3
+import datetime
 
 irange = lambda start, end: range(start, end + 1)
 
@@ -43,3 +44,14 @@ for i in sir23pct:
     db.execute("INSERT INTO datasets VALUES (?, ?, ?)", (i, "SiR23pct", "gold"))
 db.commit()
 
+db.execute("CREATE TABLE productions(type TEXT, version INTEGER, start TIMESTAMP, stop TIMESTAMP, base INTEGER)")
+start = datetime.datetime(2014, 4, 30, 0, 0, 0, 0)
+stop = datetime.datetime(2014, 5, 5, 0, 0, 0, 0) 
+db.execute("INSERT INTO productions VALUES ('alcapana', 1, ?, ?, 0)", (start, stop))
+start = datetime.datetime(2014, 5, 29, 0, 0, 0, 0)
+stop = datetime.datetime(2014, 6, 2, 0, 0, 0, 0)
+db.execute("INSERT INTO productions VALUES ('alcapana', 2, ?, ?, 1)", (start, stop))
+start = datetime.datetime(2014, 6, 16, 0, 0, 0, 0)
+stop = datetime.datetime(2014, 6, 20, 0, 0, 0, 0)
+db.execute("INSERT INTO productions VALUES ('alcapana', 3, ?, ?, 2)", (start, stop))
+db.commit()

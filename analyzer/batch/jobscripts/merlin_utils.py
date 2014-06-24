@@ -10,7 +10,7 @@ class AlCapException(Exception):
 
 if "DAQdir" not in os.environ.keys():
     print "Job submission error: DAQdir not set! Source thisdaq.sh!"
-    raise AlCapException
+    raise AlCapException("DAQdir not set")
 
 DAQdir = os.environ["DAQdir"]
 DATAdir = os.environ["HOME"] + "/data"
