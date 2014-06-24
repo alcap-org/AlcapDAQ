@@ -35,6 +35,7 @@
 
 #include "ModulesFactory.h"
 #include "ModulesNavigator.h"
+#include "SetupNavigator.h"
 #include "BaseModule.h"
 
 #include "TTree.h"
@@ -47,6 +48,7 @@
 #include "TMuonEvent.h"
 //#include "ProcessCorrectionFile.h" // Provides CheckSetupData()
 
+#include "debug_tools.h"
 #include "TAnalysedPulseMapWrapper.h"
 
 // Forward declaration of functions ======================
@@ -85,6 +87,7 @@ int main(int argc, char **argv){
   ARGUMENTS arguments;
   int ret = analyze_command_line (argc, argv,arguments);
   if(ret!=0) return ret;
+  SetupNavigator::Instance()->SetCommandLineArgs(arguments);
 
   ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file.c_str());
   if(ret!=0) {
