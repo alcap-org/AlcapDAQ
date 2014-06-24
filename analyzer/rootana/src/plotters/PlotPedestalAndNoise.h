@@ -13,14 +13,13 @@ namespace modules {class options;}
 /// \author Andrew Edmonds
 ///
 /// \brief
-/// Plots the pedestal and noise of each TPulseIsland and writes these to a text file
-/// (this may become a database in the future)
+/// Plots the pedestal and noise of each TPulseIsland and writes these to an SQLite database
 ///
 /// \details
 /// This module loops over TPulseIsland and plots the mean and RMS of the first n_samples into a
 /// 2D histogram.
-/// At the end of the run, it writes the mean values of each axis to a text file along
-/// with the channel and bank names. This text file can then be used by PulseCandidateFinder to 
+/// At the end of the run, it writes the mean values of each axis to an SQLite database along
+/// with the channel and bank names. This SQLite database can then be used by PulseCandidateFinder to 
 /// set parameter values based on a certain number of sigma.
 ////////////////////////////////////////////////////////////////////////////////
 class PlotPedestalAndNoise : public BaseModule {
@@ -59,7 +58,7 @@ class PlotPedestalAndNoise : public BaseModule {
 
   /// \brief
   /// After each run, we write the mean and RMS of the first fNSamples to 
-  /// a text file
+  /// an SQLite database
   ///
   /// \param[in] gData See BaseModule::AfterLastEntry
   /// \param[in] setup See BaseModule::AfterLastEntry
@@ -74,6 +73,11 @@ class PlotPedestalAndNoise : public BaseModule {
   /// The number of samples we will look at in the TPulseIsland
   /// to calculate the mean and RMS (opt = "n_samples", default = 5)
   int fNSamples;
+
+  /// \brief
+  /// A bool to decide whether we export the pedestal and noise to the SQLite database
+  /// (opt = "export_sql", default = false)
+  bool fExportSQL;
 };
 
 #endif //PLOTRMSNOISE_H_
