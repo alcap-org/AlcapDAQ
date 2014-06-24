@@ -1,6 +1,6 @@
 all:  init libAnalysis.so rootana libAnalysis.rootmap
 
-.PHONY: clean print all
+.PHONY: clean print all unit_test doxygen
 
 ###################################################################################
 # Process the files.make file which lists the directories that contain source code
@@ -110,6 +110,9 @@ libAnalysis.so: $(OBJECTS) $(ROOTANA_DATACLASSES)
 libAnalysis.rootmap: libAnalysis.so $(ALCAPANA_DATALINKDEF) $(ROOTANA_DATALINKDEF)
 	@rlibmap -f -o libAnalysis.rootmap -l libAnalysis.so -d libCore \
 		-c $(ALCAPANA_DATALINKDEF) $(ROOTANA_DATALINKDEF)
+
+doxygen: $(SOURCES)
+	@(cat doxygen/doxyconfig; echo INPUT=$(DIRS) )| doxygen -
 
 init: | make_obj_dir
 
