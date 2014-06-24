@@ -5,7 +5,6 @@
 #include <string>
 #include <stdio.h>
 #include <iostream>
-#include <TDirectory.h>
 
 #include "ModulesOptions.h"
 
@@ -27,6 +26,8 @@ class TemplateFactory{
 	void registerModule(const std::string&, maker);
 	/// Create a module with options
 	virtual BaseModule* createModule(const std::string&, OptionsType*);
+    /// Check if a module with this name has been registered
+	bool canCreate(const std::string& name)const{return (bool) fModuleMakers.count(name);};
 	/// Create a module and look up its options from the internal list
 	BaseModule* createModule(const std::string& name);
 	void addOptions(const std::string& name, OptionsType *opts);

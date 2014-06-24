@@ -1,4 +1,5 @@
 // Should not be included directly, but only through the TemplateFactory.h file
+// vim: set syn=cpp:
 
 template <typename BaseModule, typename OptionsType>
 inline void TemplateFactory<BaseModule,OptionsType>::addArgument(
@@ -34,10 +35,9 @@ BaseModule* TemplateFactory<BaseModule,OptionsType>::createModule(
 	// make the module
 	maker make= it->second;
 	module=make(opts);
-	gDirectory->cd("/");
     }else{
-	std::cout<<"Unknown module requested: "<<name<<std::endl;
-	return NULL;
+        std::cout<<"Unknown module requested: "<<name<<std::endl;
+        return NULL;
     }
     return module;
 }
