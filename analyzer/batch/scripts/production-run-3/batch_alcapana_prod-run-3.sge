@@ -60,7 +60,7 @@ RAWFILE="$RAWDATADIR/run$RUN.mid"
 HISTFILE="$HISTDATADIR/hist$RUN.root"
 TREEFILE="$TREEDATADIR/tree$RUN.root"
 ODBDATAFILE="$ODBDATADIR/run$RUN.odb"
-ODBCORRFILE="/gpfs/home/quirk_j/data/corr$RUN.odb"
+ODBCORRFILE="/gpfs/home/quirk_j/data/corr/corr$RUN.odb"
 ODBDUMPFILE="$ODBDUMPDIR/dump$RUN.odb"
 FLAGFILE="$FLGDIR/alcapana.run$RUN.flag"
 
