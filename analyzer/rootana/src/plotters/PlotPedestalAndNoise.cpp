@@ -118,7 +118,7 @@ int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
   }
 
   // Get the SQLite database file
-  TSQLiteServer* server = new TSQLiteServer("sqlite://test.sqlite");
+  TSQLiteServer* server = new TSQLiteServer("sqlite://pedestals-and-noises.sqlite");
 
   std::stringstream query; 
   std::string tablename = "pedestals_and_noises";
