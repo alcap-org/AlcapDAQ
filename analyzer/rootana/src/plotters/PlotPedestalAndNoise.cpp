@@ -13,6 +13,8 @@ using std::cout;
 using std::endl;
 
 #include <TSQLiteServer.h>
+#include <TSQLiteResult.h>
+#include <TSQLiteRow.h>
 
 PlotPedestalAndNoise::PlotPedestalAndNoise(modules::options* opts):
    BaseModule("PlotPedestalAndNoise",opts){
@@ -128,9 +130,20 @@ int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
     out_file << detname << "\t" << bankname << "\t" << pedestal << "\t" << noise << std::endl;
   }
 
-  // Try playing with SQLite
-  TSQLiteServer* server = new TSQLiteServer("sqlite://test.sqlite");
-  std::cout << "server? " << server << std::endl;
+  // Get the SQLite database file
+  TSQLiteServer* server = new TSQLiteServer("sqlite://test2.sqlite");
+
+  std::stringstream query; 
+  std::string tablename = "pedestal_and_noises";
+  if (server) {
+    // Create the pedestals_and_noises table if it doesn't already exist
+    query << "CREATE TABLE IF NOT EXISTS pedestals_and_noises (channel STRING, bank STRING, pedestal FLOAT, noise FLOAT)";
+    server->Exec(query.str().c_str());
+  }
+  else {
+    std::cout << "Error: Couldn't connect to SQLite database" << std::endl;
+  }
+    
   return 0;
 }
 
