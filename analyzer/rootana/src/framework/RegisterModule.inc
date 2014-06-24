@@ -13,3 +13,4 @@
 RegistryProxy<CLASS,modules::BaseModule,modules::options,modules::factory> p_##CLASS(#CLASS, #__VA_ARGS__);
 
 #endif // REGISTER_MODULE_INC
+// vim: set syn=cpp:
