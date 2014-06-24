@@ -117,19 +117,6 @@ int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
      cout<<"-----PlotPedestalAndNoise::AfterLastEntry(): I'm debugging!"<<endl;
   }
 
-  // Print the channel, bank and mean and RMS of first fNSamples to a text file
-  std::ofstream out_file("pedestal-and-noise.txt", std::ofstream::out);
-  out_file << "Channel\tBank\tPedestal\tNoise" << std::endl;
-  for (std::map<std::string, TH2D*>::iterator histIter = fPedestalVsNoiseHistograms.begin(); histIter != fPedestalVsNoiseHistograms.end(); ++histIter) {
-    std::string detname = histIter->first;
-    std::string bankname = setup->GetBankName(detname);
-    TH2D* pedestal_vs_noise_histogram = histIter->second;
-
-    double pedestal = pedestal_vs_noise_histogram->GetMean(1);
-    double noise = pedestal_vs_noise_histogram->GetMean(2);
-    out_file << detname << "\t" << bankname << "\t" << pedestal << "\t" << noise << std::endl;
-  }
-
   // Get the SQLite database file
   TSQLiteServer* server = new TSQLiteServer("sqlite://test.sqlite");
 
