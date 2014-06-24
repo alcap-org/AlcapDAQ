@@ -170,6 +170,10 @@ int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
 	server->Exec(query.str().c_str());
 	query.str(""); // clear the stringstream after use
       }
+
+      // Need to delete the TSQLiteResult and TSQLiteRow like the ROOT documentation says so
+      delete result;
+      delete row;
     }
   }
   else {
