@@ -137,7 +137,7 @@ int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
   std::string tablename = "pedestals_and_noises";
   if (server) {
     // Create the pedestals_and_noises table if it doesn't already exist
-    query << "CREATE TABLE IF NOT EXISTS " << tablename << " (channel STRING, bank STRING, pedestal FLOAT, noise FLOAT)";
+    query << "CREATE TABLE IF NOT EXISTS " << tablename << " (channel STRING PRIMARY KEY, bank STRING, pedestal FLOAT, noise FLOAT)";
     server->Exec(query.str().c_str());
     query.str(""); // clear the stringstream after use
 
@@ -149,9 +149,27 @@ int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
       
       double pedestal = pedestal_vs_noise_histogram->GetMean(1);
       double noise = pedestal_vs_noise_histogram->GetMean(2);
-      query << "INSERT INTO " << tablename << " VALUES (\"" << detname << "\", \"" << bankname << "\", " << pedestal << ", " << noise << ")";
-      server->Exec(query.str().c_str());
+
+      // See if this row already exists (result will equal 1 if it does)
+      query << "SELECT COUNT(*) FROM " << tablename << " WHERE channel=\'" << detname << "\'";
+      TSQLiteResult* result = (TSQLiteResult*) server->Query(query.str().c_str());  // get the result of this query
+      TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
       query.str(""); // clear the stringstream after use
+      
+      std::string n_table_entries = row->GetField(0);
+
+      if (n_table_entries == "0") {
+	// insert a new set of values
+	query << "INSERT INTO " << tablename << " VALUES (\"" << detname << "\", \"" << bankname << "\", " << pedestal << ", " << noise << ");"; // insert the values
+	server->Exec(query.str().c_str());
+	query.str(""); // clear the stringstream after use
+      }
+      else if (n_table_entries == "1") {
+	// just update the values that are already there
+	query << "UPDATE " << tablename << " SET bank=\'" << bankname << "\', pedestal=" << pedestal << ", noise=" << noise << " WHERE channel=\'" << detname << "\';";
+	server->Exec(query.str().c_str());
+	query.str(""); // clear the stringstream after use
+      }
     }
   }
   else {
