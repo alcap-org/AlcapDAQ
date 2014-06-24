@@ -106,7 +106,7 @@ class PulseCandidateFinder {
   IDs::channel fChannel;
   /// \brief
   /// The value of the parameter to start a candidate pulse
-  int fParameterValue;
+  double fParameterValue;
 
   /// \brief
   /// The map that stores the default parameter values in case there isn't one specified in the modules file
