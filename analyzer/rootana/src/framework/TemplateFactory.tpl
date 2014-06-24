@@ -68,12 +68,10 @@ void TemplateFactory<BaseModule,OptionsType>::addOptions(
 
 template <typename BaseModule, typename OptionsType>
 void TemplateFactory<BaseModule,OptionsType>::addArguments(const std::string& all_args){
-    char line[1000];
-    strcpy(line,all_args.c_str());
-    char* arg = strtok(line,", ");
-    while(arg != NULL){ 
-        addArgument(arg);
-        arg = strtok(NULL,", ");
+    std::vector<std::string> args;
+    modules::parser::TokeniseByDelimiter(all_args,args,", ");
+    for(unsigned i=0;i<args.size();i++){
+        addArgument(args[i]);
     }
 }
 

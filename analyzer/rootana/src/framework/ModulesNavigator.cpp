@@ -7,9 +7,9 @@ using std::endl;
 
 modules::navigator::navigator():fModulesLoaded(false),fOutFile(NULL){};
 
-int modules::navigator::Initialise(const char* filename,TFile* outFile){
+int modules::navigator::LoadConfigFile(const char* filename){
     // Check we've been given a valid output file
-    if(!outfile || outfile->IsWriteable()){
+    if(!fOutFile || fOutFile->IsWritable()){
 	    cout<<"Error: Output file is not useable"<<endl;
 	    return 1;
     }
@@ -50,6 +50,7 @@ int modules::navigator::MakeModules(){
     modules::options* opts;
     BaseModule* mod=NULL;
     size_t num_modules=fModulesFile.GetNumModules();
+    TDirectory* dir;
     for(unsigned i=0;i<num_modules;i++){
 	    name = modules_file.GetModule(i);
 	    opts =  modules_file.GetOptions(i);

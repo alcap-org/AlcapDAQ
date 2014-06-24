@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "ModulesOptions.h"
+#include "ModulesParser.h"
 
 template <typename BaseModule, typename OptionsType>
 class TemplateFactory{

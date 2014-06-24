@@ -69,9 +69,11 @@ class modules::navigator{
       /// Return the number of modules in the list
       unsigned int GetNumModules()const{return fModules.size();};
       
-
       void SetDebug(bool d=true){fDebug=d;}
       bool Debug()const{return fDebug;}
+
+      /// @brief Tell the navigator which output file to be used
+      void SetOutFile(TFile* file){fOutFile=file;}
 
   private:
       void AddModule(const std::string&, BaseModule*);
