@@ -131,19 +131,33 @@ int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
   }
 
   // Get the SQLite database file
-  TSQLiteServer* server = new TSQLiteServer("sqlite://test2.sqlite");
+  TSQLiteServer* server = new TSQLiteServer("sqlite://test.sqlite");
 
   std::stringstream query; 
-  std::string tablename = "pedestal_and_noises";
+  std::string tablename = "pedestals_and_noises";
   if (server) {
     // Create the pedestals_and_noises table if it doesn't already exist
-    query << "CREATE TABLE IF NOT EXISTS pedestals_and_noises (channel STRING, bank STRING, pedestal FLOAT, noise FLOAT)";
+    query << "CREATE TABLE IF NOT EXISTS " << tablename << " (channel STRING, bank STRING, pedestal FLOAT, noise FLOAT)";
     server->Exec(query.str().c_str());
+    query.str(""); // clear the stringstream after use
+
+    // Now loop through the histograms and record the channel, bank and mean and RMS of first fNSamples to the SQLite table
+    for (std::map<std::string, TH2D*>::iterator histIter = fPedestalVsNoiseHistograms.begin(); histIter != fPedestalVsNoiseHistograms.end(); ++histIter) {
+      std::string detname = histIter->first;
+      std::string bankname = setup->GetBankName(detname);
+      TH2D* pedestal_vs_noise_histogram = histIter->second;
+      
+      double pedestal = pedestal_vs_noise_histogram->GetMean(1);
+      double noise = pedestal_vs_noise_histogram->GetMean(2);
+      query << "INSERT INTO " << tablename << " VALUES (\"" << detname << "\", \"" << bankname << "\", " << pedestal << ", " << noise << ")";
+      server->Exec(query.str().c_str());
+      query.str(""); // clear the stringstream after use
+    }
   }
   else {
     std::cout << "Error: Couldn't connect to SQLite database" << std::endl;
   }
-    
+  
   return 0;
 }
 
