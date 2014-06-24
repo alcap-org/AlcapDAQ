@@ -12,6 +12,8 @@
 using std::cout;
 using std::endl;
 
+#include <TSQLiteServer.h>
+
 PlotPedestalAndNoise::PlotPedestalAndNoise(modules::options* opts):
    BaseModule("PlotPedestalAndNoise",opts){
 
@@ -126,6 +128,9 @@ int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
     out_file << detname << "\t" << bankname << "\t" << pedestal << "\t" << noise << std::endl;
   }
 
+  // Try playing with SQLite
+  TSQLiteServer* server = new TSQLiteServer("sqlite://test.sqlite");
+  std::cout << "server? " << server << std::endl;
   return 0;
 }
 
