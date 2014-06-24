@@ -6,11 +6,13 @@ LDLIBS += -Wall,-rpath,$(shell $(ROOTSYS)/bin/root-config --libdir)
 ROOTANALIBS = ../libAnalysis.so ../libRootanaDataClasses.so
 
 CPPFLAGS += -g -O3
+SRC = makeSiR2Hists.cpp
+OBJ = $(patsubst %.cpp, %.o, $(SRC))
 target = r
 
 all: $(target)
 
-$(target): makeSiR2Hists.o
+$(target): $(OBJ) 
 	$(CXX) $(CPPFLAGS) $^ -o $@ $(LDLIBS) $(ROOTANALIBS)
 
 clean:
