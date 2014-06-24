@@ -130,6 +130,7 @@ int main(int argc, char **argv){
     return 1;
   }
   fileOut->cd();
+  ret= modules::navigator::Instance()->SetOutFile(fileOut);
 
   // Now let's setup all the analysis modules we want
   // NOTE: This has to be done after the output file was opened else the
