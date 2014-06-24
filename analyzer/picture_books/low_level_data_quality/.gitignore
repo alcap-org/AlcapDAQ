@@ -4,6 +4,6 @@
 *.aux
 *.log
 *.out
-data_quality_figs/
+data_quality_figs*
 *.txt
 RunPicBookMacros.C
