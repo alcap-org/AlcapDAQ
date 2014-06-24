@@ -7,10 +7,8 @@ BaseModule::BaseModule(const char *HistogramDirectoryName,modules::options* opts
 	fSetup(setup),fDebug(false){
   if(opts){
     fDebug=(opts->HasOption("debug") && (opts->GetOption("debug").empty() || opts->GetBool("debug")));
-    //std::cout<<"Should we debug module: "<<HistogramDirectoryName<<": "<<(fDebug?"yes":"no")<<std::endl;
+    SetAlias(opts->GetAlias());
   }
-  dir = gDirectory->mkdir(HistogramDirectoryName);
-  dir->cd();
 }
 
 BaseModule::~BaseModule()
