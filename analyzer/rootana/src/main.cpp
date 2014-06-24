@@ -87,8 +87,10 @@ int main(int argc, char **argv){
   ARGUMENTS arguments;
   int ret = analyze_command_line (argc, argv,arguments);
   if(ret!=0) return ret;
+  // Give the command line arguments to the navigator
   SetupNavigator::Instance()->SetCommandLineArgs(arguments);
 
+  // Read in the configurations file
   ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file.c_str());
   if(ret!=0) {
      std::cout<<"Error: Problem loading MODULES file"<<std::endl;
