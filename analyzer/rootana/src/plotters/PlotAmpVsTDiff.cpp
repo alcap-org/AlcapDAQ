@@ -89,14 +89,16 @@ int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   AnalysedPulseList detB_pulses;
 
   if (gAnalysedPulseMap.find(fDetNameA) == gAnalysedPulseMap.end()) {
-    std::cout << fDetNameA << " pulses not found" << std::endl;
+    if (Debug())
+      std::cout << fDetNameA << " pulses not found" << std::endl;
   }
   else {
       detA_pulses = gAnalysedPulseMap[fDetNameA];
   }
 
   if (gAnalysedPulseMap.find(fDetNameB) == gAnalysedPulseMap.end()) {
-    std::cout << fDetNameB << " pulses not found" << std::endl;
+    if (Debug())
+      std::cout << fDetNameB << " pulses not found" << std::endl;
   }
   else {
       detB_pulses = gAnalysedPulseMap[fDetNameB];
