@@ -6,9 +6,11 @@
 #include <iostream>
 #include <typeinfo>       // std::bad_cast
 #include "ModulesFactory.h"
+#include "ModulesReader.h"
 
 namespace modules{
 	class navigator;
+	class reader;
 	// helper typedefs
 	typedef std::vector<std::pair<std::string,modules::BaseModule*> > ordered_list;
 	typedef std::multimap<std::string,BaseModule*> list;
@@ -22,7 +24,7 @@ namespace modules{
 ///  - Providing an iterable list of modules for the main event loop
 class modules::navigator{
 
-      navigator():fModulesLoaded(false){};
+      navigator():fModulesLoaded(false),fDebug(false){};
       ~navigator(){};
       
   public:
@@ -33,6 +35,10 @@ class modules::navigator{
       /// read in a modules file, constructing each module and adding it to the list
       /// returns 0 on success and non-zero on failure
       int LoadConfigFile(const char* filename);
+
+      /// Make all modules that were requested through the modules file
+      /// Requires that LoadConfigFile has already been called successfully
+      int MakeModules();
       
   public:
       /// Get a named module.
@@ -62,13 +68,19 @@ class modules::navigator{
       /// Return the number of modules in the list
       unsigned int GetNumModules()const{return fModules.size();};
       
+
+      void SetDebug(bool d=true){fDebug=d;}
+      bool Debug()const{return fDebug;}
+
   private:
       void AddModule(const std::string&, BaseModule*);
 
   private:
       bool fModulesLoaded;
+      bool fDebug;
       modules::ordered_list fModules;
       modules::list fModulesSearch;
+      modules::reader fModulesFile;
 };
 
 inline modules::navigator* modules::navigator::Instance(){

@@ -27,7 +27,7 @@ class modules::reader{
 
     public:
 	// default constructor
-	reader():fShouldPrint(false),fDebugAll(false){};
+	reader():fShouldPrint(false),fDebugAll(false),fDumpContents(false){};
 	// destructor.  Virtual in case someone ever decides to overload this
 	// class
 	virtual ~reader(){};
@@ -67,6 +67,7 @@ class modules::reader{
 	int fLineNumber;
 	bool fShouldPrint;
 	bool fDebugAll;
+	bool fDumpContents;
 };
 
 inline bool modules::reader::AddSection(const std::string& name,const std::string& type){
