@@ -1,9 +1,19 @@
 #include "ModulesNavigator.h"
 #include <iostream>
+#include <TDirectory.h>
+#include <TFile.h>
 using std::cout;
 using std::endl;
 
-int modules::navigator::LoadConfigFile(const char* filename){
+modules::navigator::navigator():fModulesLoaded(false),fOutFile(NULL){};
+
+int modules::navigator::Initialise(const char* filename,TFile* outFile){
+    // Check we've been given a valid output file
+    if(!outfile || outfile->IsWriteable()){
+	    cout<<"Error: Output file is not useable"<<endl;
+	    return 1;
+    }
+
     // Check we haven't already opened a modules file
     if(fModulesLoaded ) {
 	    cout<<"Error: Loading a new modules file, when one was already loaded"<<endl;
@@ -41,16 +51,23 @@ int modules::navigator::MakeModules(){
     BaseModule* mod=NULL;
     size_t num_modules=fModulesFile.GetNumModules();
     for(unsigned i=0;i<num_modules;i++){
-	    name = fModulesFile.GetModule(i);
-	    opts =  fModulesFile.GetOptions(i);
-      if(Debug()){
-	      cout<<"Creating module: "<<name<<endl;
-	      cout<<"With options:"<<endl;
-	      opts->DumpOptions("  ");
-      }
-	    mod = mgr->createModule(name,opts);
-	    if(mod) AddModule(name, mod);
-	    else return 3;
+	    name = modules_file.GetModule(i);
+	    opts =  modules_file.GetOptions(i);
+        if(mgr->canCreate(name)){
+            if(Debug()){
+                cout<<"Creating module: "<<name<<endl;
+                cout<<"With options:"<<endl;
+                opts->DumpOptions("  ");
+            }
+            dir = gDirectory->mkdir(name);
+            dir->cd();
+            mod = mgr->createModule(name,opts);
+            if(mod) AddModule(name, mod);
+            else return 3;
+        }else {
+            std::cout<<"Unknown module requested: "<<name<<std::endl;
+            return 4;
+        }
     }
 
     // Everything finished ok

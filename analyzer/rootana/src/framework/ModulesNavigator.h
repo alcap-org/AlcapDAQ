@@ -7,6 +7,7 @@
 #include <typeinfo>       // std::bad_cast
 #include "ModulesFactory.h"
 #include "ModulesReader.h"
+class TFile;
 
 namespace modules{
 	class navigator;
@@ -24,7 +25,7 @@ namespace modules{
 ///  - Providing an iterable list of modules for the main event loop
 class modules::navigator{
 
-      navigator():fModulesLoaded(false),fDebug(false){};
+      navigator();
       ~navigator(){};
       
   public:
@@ -81,6 +82,7 @@ class modules::navigator{
       modules::ordered_list fModules;
       modules::list fModulesSearch;
       modules::reader fModulesFile;
+      TFile* fOutFile;
 };
 
 inline modules::navigator* modules::navigator::Instance(){
