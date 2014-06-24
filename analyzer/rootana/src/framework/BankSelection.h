@@ -83,31 +83,55 @@ public:
   // /// @return *this
   // BankSelection& Intersect(SourceList_t list);
 
-  /// Add Sources from  the provided list of Source IDs
-  /// Logical: SELF = SELF | LIST
+  /// Add Sources from the provided list of Source IDs 
+  /// Logicaly this looks like SELF = SELF | LIST 
+  /// Note however, that this will add a Source ID even if
+  /// an exact equal exists.  Thus (for example)
+  /// @c myBankSelection.Add(listA).Add(listA); will append @c listA twice
+  /// To eliminate the duplicates, use BankSelection::Compact()
   /// @return *this
   BankSelection& Add(const SourceList_t& list);
+
+  /// Remove any exact duplicates from the selection.  This should not
+  /// change the logic, but may speed up searches if many duplicates
+  /// have been added.
+  BankSelection& Compact();
 
   /// Remove Sources if they are on the provided list of Source IDs
   /// \warning This removes IDs based on exact equality of IDs, not
   /// logical negation. Thus it cannot be used to exclude a group of
   /// channels from a wildcard match.  
-  /// @return *this
+  /// Note: It also causes Compact() to be called, in order to eliminate
+  /// duplicates
+  ///@return *this
   BankSelection& Remove(const SourceList_t& list);
 
   /// \overload BankSelection& Remove(const SourceList_t& list) 
+
   /// \param removed [out] is an optional parameter that lists all the
-  /// IDs Removed() from the selection e.g. if all parameters were
-  /// removed, \p removed.size() = \p list.size()
+  /// IDs Removed() from the selection, If all parameters in list are
+  /// unique, and all were removed then @p removed.size() = @p list.size()
   BankSelection& Remove(const SourceList_t& list, SourceList_t& removed);
   
+
 private:
   typedef SourceList_t::iterator iter; 
   typedef SourceList_t::const_iterator citer; 
 
+  struct iter_pair { iter wildcard; iter match; };
+
   ///Convenience function that checks if a given Source ID matches any
   ///from a list
   bool ListMatch(const SourceID& sid, const SourceList_t& list) const;
+
+  ///Convenience function that removes duplicate SourceIDs from a list
+  void SortUnique(SourceList_t& list);
+  
+  ///Convenience function to remove a list and return the new ends
+  /// first is wildcards second is exacts
+  ///Must call erase after!
+  //const std::pair<iter, iter> 
+  iter_pair ImpRemove(const SourceList_t& list);
 
   //citer cBegin(SourceList_t& list) const
   //{ return const_cast<const SourceList_t&>(list).begin(); }
