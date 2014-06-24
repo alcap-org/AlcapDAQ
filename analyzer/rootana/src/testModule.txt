@@ -8,7 +8,10 @@
 
 # the 'debug' option makes the modules parser output extra info. 
 # if 'debug=all' is given then every module is passed the 'debug' option 
-debug=all
+#debug=all
+
+# The list_modules option dumps all available modules
+list_modules
 #### end of global options ######
 
 #### start of modules list ######
@@ -69,3 +72,4 @@ option3=8
 SiR2-S=  1(2)
 
 ####### end of module specific options ######
+# vim: set syn=cfg:
