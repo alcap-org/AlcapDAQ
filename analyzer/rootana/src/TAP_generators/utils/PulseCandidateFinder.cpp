@@ -7,6 +7,10 @@
 #include <fstream>
 #include <cstdlib>
 
+#include <TSQLiteServer.h>
+#include <TSQLiteResult.h>
+#include <TSQLiteRow.h>
+
 /// PulseCandidateFinder()
 /// The constructor just sets all the parameter values
 PulseCandidateFinder::PulseCandidateFinder(std::string detname, modules::options* opts): fChannel(detname) {
@@ -281,20 +285,33 @@ void PulseCandidateFinder::SetOneSigmaValues() {
   std::string detname, bankname;
   std::string pedestal, noise;
 
-  if (file_in.is_open()) {
+  // Get the SQLite database file
+  TSQLiteServer* server = new TSQLiteServer("sqlite://test.sqlite");
 
-    if (file_in.fail()) {
-      file_in.clear();
-    }
-    while (file_in.good()) {
-	file_in >> detname >> bankname >> pedestal >> noise;
-	//	std::cout << detname << " " << bankname << " " << pedestal << " " << noise << std::endl;
+  std::stringstream query; 
+  std::string tablename = "pedestals_and_noises";
+  if (server) {
 
-	fOneSigmaValues[IDs::channel(detname)] = atof(noise.c_str());
-	//	std::cout << fOneSigmaValues[IDs::channel(detname)] << std::endl;
+    query << "SELECT * FROM " << tablename << ";"; // get all the pedestals and noises
+    TSQLiteResult* result = (TSQLiteResult*) server->Query(query.str().c_str());  // get the result of this query
+    query.str(""); // clear the stringstream after use
+
+    TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
+    while (row != NULL) {
+      //      std::cout << row->GetField(0) << " " << row->GetField(1) << " " << row->GetField(2) << " " << row->GetField(3) << std::endl;
+      detname = row->GetField(0);
+      bankname = row->GetField(1);
+      pedestal = row->GetField(2);
+      noise = row->GetField(3);
+
+      fOneSigmaValues[IDs::channel(detname)] = atof(noise.c_str());
+      
+      delete row;
+      row = (TSQLiteRow*) result->Next(); // get the next row
     }
+    delete result; // user has to delete the result
   }
   else {
-    std::cout << "Problem opening pedestal-and-noise.txt" << std::endl;
+    std::cout << "Error: Couldn't connect to SQLite database" << std::endl;
   }
 }
