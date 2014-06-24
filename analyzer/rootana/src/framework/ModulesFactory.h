@@ -18,7 +18,6 @@ class modules::factory:public TemplateFactory<modules::BaseModule,modules::optio
 	 public:
 		// Get the single instance of this class
 		static factory* Instance();
-		virtual modules::BaseModule* createModule(const std::string& name, modules::options* opts);
 
 };
 
