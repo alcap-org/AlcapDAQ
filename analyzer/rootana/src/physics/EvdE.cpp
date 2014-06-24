@@ -11,12 +11,18 @@
 #include "TH1D.h"
 #include "TH2D.h"
 
+#include "RegisterModule.inc"
+#include "ModulesParser.h"
+
 extern StringAnalPulseMap gAnalysedPulseMap;
 static int nSec;            // Number of sections in the silicon thin detectors
 static TH2D* hEvdE[2];      // Histograms (right, left)
 static TH1D* hEvdE_log[2];
 static TH1D* hEprotons[2];
 static TH2D* hEvdEprotons[2];
+
+using modules::parser::GetOneWord;
+using modules::parser::GetDouble;
 
 EvdE::EvdE(char *HistogramDirectoryName):BaseModule(HistogramDirectoryName) 
 {;}
@@ -31,6 +37,72 @@ EvdE::EvdE(char *HistogramDirectoryName, double t0, double t1) :
 	tPP = 10000.;
 	tStart = t0;
 	tStop = t1;
+	// Energy cuts in ADC
+	adcCutThick[0] = 80.;
+	adcCutThick[1] = 80.;
+	adcCutThin[0] = 160.;
+	adcCutThin[1] = 160.;
+	eCutThin[0] = adcCutThin[0] * 2.6;
+	eCutThin[1] = adcCutThin[1] * 2.6;
+
+	slopeThick[0] = 8.06;
+	offsetThick[0] = -192.70;
+	slopeThick[1] = 7.93;
+	offsetThick[1] = -116.33;
+
+	slopeThin[0][0] = 2.57;
+	offsetThin[0][0] = -87.96;
+	slopeThin[0][1] = 2.72;
+	offsetThin[0][1] = -292.15;
+	slopeThin[0][2] = 2.52;
+	offsetThin[0][2] = -30.19;
+	slopeThin[0][3] = 2.57;
+	offsetThin[0][3] = -103.67;
+
+	slopeThin[1][0] = 2.66;
+	offsetThin[1][0] = -117.34;
+	slopeThin[1][1] = 2.56;
+	offsetThin[1][1] = -44.45;
+	slopeThin[1][2] = 2.68;
+	offsetThin[1][2] = -129.73;
+	slopeThin[1][3] = 2.58;
+	offsetThin[1][3] = -85.48;
+
+	// Prepare histograms
+	hEvdE[0] = new TH2D("hEvdE_Right", "dEdx vs E (Right);E + dE (keV);dE (keV)",
+			1000, 0., 14000.,
+			500, 0., 7000.);
+	hEvdE[1] = new TH2D("hEvdE_Left", "dEdx vs E (Left);E + dE (keV);dE (keV)",
+			1000, 0., 14000.,
+			500, 0., 7000.);
+
+	hEvdE_log[0] = new TH1D("hEvdE_Right_log", "logdE +logE (Right)", 100, 10., 30.);
+	hEvdE_log[1] = new TH1D("hEvdE_Left_log", "logdE +logE (Left)", 100, 10., 30.);
+
+	hEprotons[1] = new TH1D("hEp_Left", 
+			"Energy of protons (Left)", 1000, 0., 14000.);
+	hEprotons[0] = new TH1D("hEp_Right", 
+			"Energy of protons (Right)", 1000, 0., 14000.);
+
+	hEvdEprotons[0] = new TH2D("hEvdE_Proton_Right", "dEdx vs E (Right);E + dE (keV);dE (keV)",
+			1000, 0., 14000.,
+			500, 0., 7000.);
+	hEvdEprotons[1] = new TH2D("hEvdE_Proton_Left", "dEdx vs E (Left);E + dE (keV);dE (keV)",
+			1000, 0., 14000.,
+			500, 0., 7000.);
+
+	gDirectory->cd("/");
+}
+
+EvdE::EvdE(modules::options *opts): BaseModule(opts->GetString("0").c_str()) 
+{
+  tStart = GetDouble(opts->GetString("1"));
+  tStop = GetDouble(opts->GetString("2"));
+	// Thin silicon is in quadrants
+	nSec = 4;
+	// Time in ns
+	tCoincidence = 1000.;
+	tPP = 10000.;
 	// Energy cuts in ADC
 	adcCutThick[0] = 80.;
 	adcCutThick[1] = 80.;
@@ -295,3 +367,5 @@ int EvdE::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
 	}
 	return 0;
 }
+
+ALCAP_REGISTER_MODULE(EvdE)
