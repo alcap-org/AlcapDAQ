@@ -71,6 +71,7 @@ int SiR2MuEvt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   AnalysedPulseList detC_pulses;
 
   if (gAnalysedPulseMap.find(fDetNameA) == gAnalysedPulseMap.end()) {
+    if (Debug())
     std::cout << fDetNameA << " pulses not found" << std::endl;
   }
   else {
@@ -78,6 +79,7 @@ int SiR2MuEvt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   }
 
   if (gAnalysedPulseMap.find(fDetNameB) == gAnalysedPulseMap.end()) {
+    if (Debug())
     std::cout << fDetNameB << " pulses not found" << std::endl;
   }
   else {
@@ -85,6 +87,7 @@ int SiR2MuEvt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   }
 
   if (gAnalysedPulseMap.find(fDetNameC) == gAnalysedPulseMap.end()) {
+    if (Debug())
     std::cout << fDetNameC << " pulses not found" << std::endl;
   }
   else {
