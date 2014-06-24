@@ -2,14 +2,15 @@
 #define EvdE_h__
 
 #include "BaseModule.h"
-
-class TGlobalData;
-class TSetupData;
+#include "TGlobalData.h"
+#include "TSetupData.h"
+#include "ModulesOptions.h"
 
 class EvdE : public BaseModule{
  public:
   EvdE(char *HistogramDirectoryName);
   EvdE(char *HistogramDirectoryName, double t0, double t1);
+  EvdE(modules::options* opt);
   ~EvdE();
 
  private:
