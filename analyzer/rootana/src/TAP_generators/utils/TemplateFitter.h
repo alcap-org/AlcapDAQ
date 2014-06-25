@@ -5,7 +5,7 @@
 #include "TPulseIsland.h"
 #include "TH1D.h"
 
-#include "definitions.h"
+#include "defintiions.h"
 
 class TemplateFitter {
  public:
@@ -24,9 +24,9 @@ class TemplateFitter {
 
  private:
   IDs::channel fChannel;
-  double fPedestalOffset;
-  double fAmplitudeScaleFactor;
-  double fTimeOffset;
+  double fPedestal;
+  double fAmplitude;
+  double fTime;
   double fChi2;
 
  public:
