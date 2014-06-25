@@ -3,7 +3,7 @@
 
 #include "definitions.h"
 
-/// This class represents a (possibly wildcard-like) selection of
+/// @brief This class represents a (possibly wildcard-like) selection of
 /// Source IDs.  It can be modified by appending SourceIDs.
 /// 
 /// @detail Assume that the most common reason for using wild cards
@@ -28,8 +28,9 @@ public:
   typedef IDs::source SourceID;
   typedef std::vector<SourceID> SourceList_t;
 
-  /// The default-constructed selection matches all banks of the correct pulse type
-  /// \param match_all [in] if optionally passed \c false or \c 0 it will match none.
+  /// @brief The default-constructed selection matches all banks of
+  /// the correct pulse type \param match_all [in] if optionally
+  /// passed \c false or \c 0 it will match none.
   BankSelection(bool match_all = true);
 
   /// Constuct matching the the list given
@@ -38,42 +39,30 @@ public:
   /// Destructior. We may inherit from this class
   virtual ~BankSelection();
 
-  // Returns true if the Iterator match criteria have been fixed. 
-  //bool IsLocked() const {return fLocked;}
-  
-  // Fix the match criteria of banks this Iterator will return.
-  //BankSelection& Lock() {fLocked =1; return *this;}
-
-  // /// Return the number of matching banks according to the current
-  // /// criteria. This is not necessarily cheap.
-  //int Size() const;
-
-  /// Check if the provided SourceID is in the selection, either due
+  /// @brief Check if the provided SourceID is in the selection, either due
   /// to wildcards or exact matches
   inline bool Includes(const SourceID& sid) const
   {return HasWildCardMatch(sid) || HasExactMatch(sid);}
 
-  /// Check if the provided SourceID would be selected by the (channel) wildcards
+  /// @brief Check if the provided SourceID would be selected by the
+  /// (channel) wildcards
   inline bool HasWildCardMatch(const SourceID& sid) const
   {return ListMatch(sid, fWildCards);}
 
-  /// Check if the provided SourceID is on the list of exact (channel) matches
+  /// @briefCheck if the provided SourceID is on the list of exact
+  /// (channel) matches
   inline bool HasExactMatch(const SourceID& sid) const
   {return ListMatch(sid, fMatches);}
 
   /// Reset match criteria - accept everything. 
-  /// Note that once the Selection is Lock()ed the criteria cannot be
-  /// changed.
-  /// @return *this
+  /// @return (*this)
   BankSelection& MatchAll();
 
   /// Reset match criteria - reject everything.
-  /// Note that once the Selection is Lock()ed the criteria cannot be
-  /// changed.
-  /// @return *this
+  /// @return (*this)
   BankSelection& MatchNone();
 
-  /// Set the match criteria to the provided list, overwriting the
+  /// @brief Set the match criteria to the provided list, overwriting the
   /// previous criteria
   /// @return *this
   BankSelection& MatchOnly(const SourceList_t& list);
