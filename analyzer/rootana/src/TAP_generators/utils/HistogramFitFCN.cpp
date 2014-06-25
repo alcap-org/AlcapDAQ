@@ -39,7 +39,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   bounds[0] = std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1);
   bounds[1] = std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX());
   if (print_dbg) {
-    std::cout << "NBinsX: HTEMPLATE = " << fTemplateHist->GetNbinsX() << ", HPULSE = " << fPulseHist->GetNbinsX() << std::endl;
+    std::cout << "NBinsX: hTemplate = " << fTemplateHist->GetNbinsX() << ", hPulse = " << fPulseHist->GetNbinsX() << std::endl;
     std::cout << "Bound Defns: " << std::endl;
     std::cout << "\tbounds[0] = std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1) = " << bounds[0] << std::endl;
     std::cout << "\tbounds[1] = std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX()) = " << bounds[1] << std::endl;
@@ -54,13 +54,14 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
     f = fTemplateHist->GetBinContent(i - T_int) + (fTemplateHist->GetBinContent(i - T_int + 1) - fTemplateHist->GetBinContent(i - T_int)) * T_flt;
     f = A * f + P;
 
-    double dev = fPulseHist->GetBinContent(i) - f;
+    double delta = fPulseHist->GetBinContent(i) - f;
     double hTemplate_bin_error = fTemplateHist->GetBinError(i);
     double hPulse_bin_error = fPulseHist->GetBinError(i);
-    chi2 += dev*dev / ((hTemplate_bin_error*hTemplate_bin_error) + (hPulse_bin_error)*(hPulse_bin_error));
+    chi2 += delta*delta / ((hTemplate_bin_error*hTemplate_bin_error) + (hPulse_bin_error)*(hPulse_bin_error));
     
-    std::cout << "hTemplate_bin_content = " << fTemplateHist->GetBinContent(i - T_int) << ", hPulse_bin_content = " << fPulseHist->GetBinContent(i) << ", f = " << f << std::endl;
-    std::cout << "dev = " << dev << ", hTemplate_bin_error = " << hTemplate_bin_error << ", hPulse_bin_error = " << hPulse_bin_error << ", chi2 = " << chi2 << std::endl;
+    std::cout << "hTemplate_bin_content(i - T_int) = " << fTemplateHist->GetBinContent(i - T_int) << ", hTemplate_bin_content(i - T_int + 1) = " << fTemplateHist->GetBinContent(i - T_int + 1) << std::endl;
+    std::cout << "hPulse_bin_content = " << fPulseHist->GetBinContent(i) << ", f = " << f << std::endl;
+    std::cout << "delta = " << delta << ", hTemplate_bin_error = " << hTemplate_bin_error << ", hPulse_bin_error = " << hPulse_bin_error << ", chi2 = " << chi2 << std::endl;
   }
 
   if (print_dbg) {
