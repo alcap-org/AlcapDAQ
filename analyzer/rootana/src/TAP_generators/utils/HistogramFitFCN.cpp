@@ -29,15 +29,21 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   int T_int = (int)par[2];            // Integral part of time shift
   double T_flt = par[2] - (double)T_int; // Floating point offset for linear interpolation
 
-  static bool print_dbg = false;
-  if (print_dbg) { 
-    std::cout << "HistogramFitFCN::operator() (start):" << std::endl;
+  static bool print_dbg = true;
+  if (print_dbg) {
+    std::cout << "At start of HistogramFitFCN::operator()" << std::endl;
     std::cout << "\tpedestal = " << P << ", amplitude = " << A << ", time (integer part) = " << T_int << " and time (float part) = " << T_flt << std::endl;
   }
- 
+
   int bounds[2];
-  bounds[0] = std::max(T_int - fH1->GetNbinsX() / 2, 1);
-  bounds[1] = std::min(T_int + fH1->GetNbinsX() / 2 - 1, fH2->GetNbinsX());
+  bounds[0] = std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1);
+  bounds[1] = std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX());
+  if (print_dbg) {
+    std::cout << "NBinsX: HTEMPLATE = " << fTemplateHist->GetNbinsX() << ", HPULSE = " << fPulseHist->GetNbinsX() << std::endl;
+    std::cout << "Bound Defns: " << std::endl;
+    std::cout << "\tbounds[0] = std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1) = " << bounds[0] << std::endl;
+    std::cout << "\tbounds[1] = std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX()) = " << bounds[1] << std::endl;
+  }
 
   // Chi2 will be zero if shift is too high
   if (bounds[1] <= bounds[0])
@@ -45,23 +51,22 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
 
   double f;
   for (int i = bounds[0]; i <= bounds[1]; ++i) {
-    f = fH1->GetBinContent(i - T_int) + (fH1->GetBinContent(i - T_int + 1) - fH1->GetBinContent(i - T_int)) * T_flt;
+    f = fTemplateHist->GetBinContent(i - T_int) + (fTemplateHist->GetBinContent(i - T_int + 1) - fTemplateHist->GetBinContent(i - T_int)) * T_flt;
     f = A * f + P;
 
-    double delta = fPulseHist->GetBinContent(i) - f;
+    double dev = fPulseHist->GetBinContent(i) - f;
     double hTemplate_bin_error = fTemplateHist->GetBinError(i);
     double hPulse_bin_error = fPulseHist->GetBinError(i);
-    chi2 += delta*delta / ((hTemplate_bin_error*hTemplate_bin_error) + (hPulse_bin_error)*(hPulse_bin_error));
+    chi2 += dev*dev / ((hTemplate_bin_error*hTemplate_bin_error) + (hPulse_bin_error)*(hPulse_bin_error));
+    
+    std::cout << "hTemplate_bin_content = " << fTemplateHist->GetBinContent(i - T_int) << ", hPulse_bin_content = " << fPulseHist->GetBinContent(i) << ", f = " << f << std::endl;
+    std::cout << "dev = " << dev << ", hTemplate_bin_error = " << hTemplate_bin_error << ", hPulse_bin_error = " << hPulse_bin_error << ", chi2 = " << chi2 << std::endl;
   }
 
   if (print_dbg) {
     std::cout << "Fit:\tChi2 " << chi2 << "\tP "
 	      << P << "(" << par[0] << ")\tA " << A << "(" << par[1] << ")\tT " << T_int << " " << T_flt << "(" << par[2] << ")" << " " << 0.02345
 	      << std::endl;
-    std::cout << "Bounds " << bounds[0] << "-" << bounds[1]
-	      << "\tH1NX " << fH1->GetNbinsX()
-	      << "\tH2NX " << fH2->GetNbinsX()
-	      << std::endl; 
   }
   return chi2;
 }
