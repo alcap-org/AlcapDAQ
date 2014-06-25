@@ -78,23 +78,25 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 
       std::vector<TPulseIsland*> pulse_candidates = pulse_candidate_finder->GetPulseCandidates();
 
-      // we only continue if there is more than one pulse candidate on the TPI
-      /*      if (n_pulse_candidates == 1) {
+      // only continue if there is one pulse candidate on the TPI
+      if (n_pulse_candidates == 1) {
 
         // Add the first pulse directly to the template (although we may try and choose a random pulse to start with)
 	if (Debug() && hTemplate == NULL) { // for debugging, just print add one pulse to the template
 	  AddPulseToTemplate(hTemplate, *pulseIter);
+	  //	  continue;
 	}
 
 	// all the other pulses will be fitted to the template and then added to it
-	template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
-	if (Debug()) {
-	  std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << ": "
-	            << "Fitted Parameters: Ped = " << template_fitter->GetPedestal() << ", Amp = " << template_fitter->GetAmplitude()
-	            << ", Time = " << template_fitter->GetTime() << ", Chi2 = " << template_fitter->GetChi2() << std::endl;
-	}
+	//	template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
+	//	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+	//	if (Debug()) {
+	//	  std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << ": "
+	//	            << "Fitted Parameters: Ped = " << template_fitter->GetPedestal() << ", Amp = " << template_fitter->GetAmplitude()
+	//	            << ", Time = " << template_fitter->GetTime() << ", Chi2 = " << template_fitter->GetChi2() << std::endl << std::endl;
+	//	}
 	// we keep on adding pulses until adding pulses has no effect on the template
-	}*/
+      }
     }
     // Save the template to the file
     fTemplateArchive->SaveTemplate(hTemplate);
@@ -127,6 +129,9 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
   const std::vector<int>& theSamples = pulse->GetSamples();
   int n_samples = theSamples.size();
 
+  // Wnat to increase the bin resolution (this may become a module option at some point)
+  int refine_factor = 5;
+
   // If the template histogram is NULL, then create it
   if (hTemplate == NULL) {
 
@@ -135,12 +140,31 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
     std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
     std::string histname = "hTemplate_" + detname;
     std::string histtitle = "Template Histogram for the " + detname + " channel";
-    hTemplate = new TH1D(histname.c_str(), histtitle.c_str(), n_samples, 0, n_samples);
+
+    hTemplate = new TH1D(histname.c_str(), histtitle.c_str(), refine_factor*n_samples, 0, n_samples);
   }
 
   // Now loop through the samples and add to the template
-  for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
-    hTemplate->Fill(sampleIter - theSamples.begin(), *sampleIter);
+  for (int iBin = 0; iBin < refine_factor*n_samples; ++iBin) {
+
+    int sample_element = iBin / refine_factor;
+    double value_to_fill = 0;
+
+    if (sample_element != theSamples.size()-1) { // if this element is not going to be outside of the samples vector
+      int iSubBin = iBin % refine_factor;
+      
+      int this_sample = theSamples.at(sample_element);
+      int next_sample = theSamples.at(sample_element+1);
+      double sample_difference = next_sample - this_sample;
+      
+      double interpolated_value = this_sample + iSubBin*(sample_difference / refine_factor);
+      value_to_fill = interpolated_value;
+    }
+    else {
+      value_to_fill = theSamples.at(sample_element);
+    }
+    //    std::cout << "Bin#" << iBin << ": " << value_to_fill << std::endl;
+    hTemplate->SetBinContent( iBin, value_to_fill);
   }
 }
 
