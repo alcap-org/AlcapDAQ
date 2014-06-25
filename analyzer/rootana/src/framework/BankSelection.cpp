@@ -25,12 +25,10 @@ namespace {
 };
 
 
-
 //----------------------------------------------------------------------
 BankSelection::BankSelection(bool match_all)
   :  fWildCards(match_all ? 1 : 0)
 {}
-
 
 
 //----------------------------------------------------------------------
@@ -40,11 +38,9 @@ BankSelection::BankSelection(const SourceList_t& list)
 }
 
 
-
 //----------------------------------------------------------------------
 BankSelection::~BankSelection()
 {}
-
 
 
 //----------------------------------------------------------------------
@@ -57,7 +53,6 @@ bool BankSelection::ListMatch(const SourceID& sid,
 }  
 
 
-
 //----------------------------------------------------------------------
 BankSelection& BankSelection::MatchAll()
 {
@@ -66,7 +61,6 @@ BankSelection& BankSelection::MatchAll()
   fWildCards.swap(tmp);
   return *this;
 }
-
 
 
 //----------------------------------------------------------------------
@@ -97,7 +91,6 @@ BankSelection& BankSelection::MatchOnly(const SourceList_t& list)
 }
 
 
-
 //----------------------------------------------------------------------
 BankSelection& BankSelection::Add(const SourceList_t& list)
 {
@@ -112,7 +105,6 @@ BankSelection& BankSelection::Add(const SourceList_t& list)
 }
 
 
-
 //----------------------------------------------------------------------
 void BankSelection::SortUnique(SourceList_t& list)
 {
@@ -120,7 +112,6 @@ void BankSelection::SortUnique(SourceList_t& list)
   iter dupes = std::unique(list.begin(), list.end());  
   list.erase(dupes, list.end()); 
 }
-
 
 
 //----------------------------------------------------------------------
@@ -132,7 +123,6 @@ BankSelection& BankSelection::Compact()
   //SourceList_t::size_t diff = fWildCards.size() + fMatches.size() - before;
   return *this;
 } 
-
 
 
 //----------------------------------------------------------------------
@@ -153,15 +143,14 @@ BankSelection::iter_pair BankSelection::ImpRemove(const SourceList_t& list)
 }
 
 
-
 //----------------------------------------------------------------------
 BankSelection& BankSelection::Remove(const SourceList_t& list, 
                                      SourceList_t& removed)
 {
-  //use swap/temporary in case some loon passes the same object as
-  //both arguments
   const iter_pair back = ImpRemove(list);
 
+  //use swap/temporary in case some loon passes the same object as
+  //both arguments
   SourceList_t tmp; 
   std::copy(back.wildcard, fWildCards.end(), tmp.end()); 
   std::copy(back.match, fMatches.end(), tmp.end());
@@ -171,6 +160,7 @@ BankSelection& BankSelection::Remove(const SourceList_t& list,
   fMatches.erase(back.match, fMatches.end());
   return *this;
 }
+
 
 //----------------------------------------------------------------------
 BankSelection& BankSelection::Remove(const SourceList_t& list)

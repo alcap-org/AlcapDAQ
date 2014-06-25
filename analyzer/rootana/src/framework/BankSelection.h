@@ -49,22 +49,22 @@ public:
   inline bool HasWildCardMatch(const SourceID& sid) const
   {return ListMatch(sid, fWildCards);}
 
-  /// @briefCheck if the provided SourceID is on the list of exact
+  /// @brief Check if the provided SourceID is on the list of exact
   /// (channel) matches
   inline bool HasExactMatch(const SourceID& sid) const
   {return ListMatch(sid, fMatches);}
 
-  /// Reset match criteria - accept everything. 
+  /// @brief Reset match criteria - accept everything. 
   /// @return (*this)
   BankSelection& MatchAll();
 
-  /// Reset match criteria - reject everything.
+  /// @brief Reset match criteria - reject everything.
   /// @return (*this)
   BankSelection& MatchNone();
 
   /// @brief Set the match criteria to the provided list, overwriting the
   /// previous criteria
-  /// @return *this
+  /// @return (*this)
   BankSelection& MatchOnly(const SourceList_t& list);
 
   // /// Only match Sources that are also on the provided list of Source IDs
@@ -72,8 +72,8 @@ public:
   // /// @return *this
   // BankSelection& Intersect(SourceList_t list);
 
-  /// Add Sources from the provided list of Source IDs 
-  /// Logicaly this looks like SELF = SELF | LIST 
+  /// @brief Add Sources from the provided list of Source IDs 
+  /// @detail Logicaly this looks like SELF = SELF | LIST 
   /// Note however, that this will add a Source ID even if
   /// an exact equal exists.  Thus (for example)
   /// @c myBankSelection.Add(listA).Add(listA); will append @c listA twice
