@@ -2,12 +2,12 @@
 
 #include "HistogramFitFCN.h"
 
-TemplateFitter::TemplateFitter() {
+TemplateFitter::TemplateFitter(std::string detname): fChannel(detname) {
 
   HistogramFitFCN* fcn = new HistogramFitFCN();
   fMinuitFitter = new TFitterMinuit(3); //  Three (3) parameters to modify (amplitude, time, pedestal)
   fMinuitFitter->SetMinuitFCN(fcn);
-  fMinuitFitter->SetPrintLevel(-1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
+  fMinuitFitter->SetPrintLevel(1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
 }
 
 TemplateFitter::~TemplateFitter() {
@@ -15,7 +15,7 @@ TemplateFitter::~TemplateFitter() {
 
 void TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse) {
   // First make a histogram out of the pulse with the same bin width as the template,
-  // Then pass to fitter.
+  // Then pass to the Minuit fitter.
   // Returns ped in units of ADC counts, amp in... scale units(?), and time in units
   // of bins since the beginning of pulse
   std::vector<int> samples = pulse->GetSamples();
