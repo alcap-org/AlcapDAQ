@@ -5,7 +5,7 @@
 #include "TPulseIsland.h"
 #include "TH1D.h"
 
-#include "defintiions.h"
+#include "definitions.h"
 
 class TemplateFitter {
  public:
@@ -28,6 +28,11 @@ class TemplateFitter {
   double fAmplitude;
   double fTime;
   double fChi2;
+
+ public:
+  /// \brief
+  /// Sets the intial estimates for the template fitter
+  void SetInitialParameterEstimates(double pedestal, double amplitude, double time);
 };
 
 #endif
