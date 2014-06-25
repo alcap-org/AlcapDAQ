@@ -5,9 +5,11 @@
 #include "TPulseIsland.h"
 #include "TH1D.h"
 
+#include "defintiions.h"
+
 class TemplateFitter {
  public:
-  TemplateFitter();
+  TemplateFitter(std::string detname);
   ~TemplateFitter();
 
  private:
@@ -21,6 +23,7 @@ class TemplateFitter {
   double GetChi2() { return fChi2; }
 
  private:
+  IDs::channel fChannel;
   double fPedestal;
   double fAmplitude;
   double fTime;
