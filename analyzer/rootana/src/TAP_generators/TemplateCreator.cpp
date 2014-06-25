@@ -84,17 +84,17 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
         // Add the first pulse directly to the template (although we may try and choose a random pulse to start with)
 	if (Debug() && hTemplate == NULL) { // for debugging, just print add one pulse to the template
 	  AddPulseToTemplate(hTemplate, *pulseIter);
-	  //	  continue;
+	  continue;
 	}
 
 	// all the other pulses will be fitted to the template and then added to it
-	//	template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
-	//	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
-	//	if (Debug()) {
-	//	  std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << ": "
-	//	            << "Fitted Parameters: Ped = " << template_fitter->GetPedestal() << ", Amp = " << template_fitter->GetAmplitude()
-	//	            << ", Time = " << template_fitter->GetTime() << ", Chi2 = " << template_fitter->GetChi2() << std::endl << std::endl;
-	//	}
+	template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
+	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+	if (Debug()) {
+	  std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << ": "
+	            << "Fitted Parameters: Ped = " << template_fitter->GetPedestal() << ", Amp = " << template_fitter->GetAmplitude()
+	            << ", Time = " << template_fitter->GetTime() << ", Chi2 = " << template_fitter->GetChi2() << std::endl << std::endl;
+	}
 	// we keep on adding pulses until adding pulses has no effect on the template
       }
     }
@@ -141,11 +141,11 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
     std::string histname = "hTemplate_" + detname;
     std::string histtitle = "Template Histogram for the " + detname + " channel";
 
-    hTemplate = new TH1D(histname.c_str(), histtitle.c_str(), refine_factor*n_samples, 0, n_samples);
+    hTemplate = new TH1D(histname.c_str(), histtitle.c_str(), n_samples, 0, n_samples);
   }
 
   // Now loop through the samples and add to the template
-  for (int iBin = 0; iBin < refine_factor*n_samples; ++iBin) {
+  /*  for (int iBin = 0; iBin < refine_factor*n_samples; ++iBin) {
 
     int sample_element = iBin / refine_factor;
     double value_to_fill = 0;
@@ -165,6 +165,11 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
     }
     //    std::cout << "Bin#" << iBin << ": " << value_to_fill << std::endl;
     hTemplate->SetBinContent( iBin, value_to_fill);
+  }
+  */
+
+  for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+    hTemplate->Fill( sampleIter - theSamples.begin(), *sampleIter);
   }
 }
 
