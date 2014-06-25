@@ -9,15 +9,15 @@
 class HistogramFitFCN : public ROOT::Minuit2::FCNBase {
 
  private:
-  TH1D* fH1; // The template
-  TH1D* fH2; // The histogram to fit
+  TH1D* fTemplateHist; // The template
+  TH1D* fPulseHist; // The histogram to fit
 
  public:
   HistogramFitFCN(TH1D* = NULL, TH1D* = NULL);
   ~HistogramFitFCN();
 
-  void SetH1(TH1D*);
-  void SetH2(TH1D*);
+  void SetTemplateHist(TH1D*);
+  void SetPulseHist(TH1D*);
 
   // Used for calls with parameters
   // The return value is the chi squared
