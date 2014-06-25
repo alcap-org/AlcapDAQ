@@ -33,8 +33,8 @@ EvdE::EvdE(char *HistogramDirectoryName, double t0, double t1) :
 	// Thin silicon is in quadrants
 	nSec = 4;
 	// Time in ns
-	tCoincidence = 1000.;
-	tPP = 10000.;
+	tCoincidence = 2500.;
+	tPP = 15000.;
 	tStart = t0;
 	tStop = t1;
 	// Energy cuts in ADC
@@ -101,8 +101,8 @@ EvdE::EvdE(modules::options *opts): BaseModule(opts->GetString("0").c_str())
 	// Thin silicon is in quadrants
 	nSec = 4;
 	// Time in ns
-	tCoincidence = 1000.;
-	tPP = 10000.;
+	tCoincidence = 3000.;
+	tPP = 15000.;
 	// Energy cuts in ADC
 	adcCutThick[0] = 80.;
 	adcCutThick[1] = 80.;
