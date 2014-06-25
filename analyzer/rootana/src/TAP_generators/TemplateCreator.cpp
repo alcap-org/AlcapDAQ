@@ -48,9 +48,6 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
   PulseIslandList thePulseIslands;
   StringPulseIslandMap::const_iterator it;
 
-  // Create the TemplateFitter that we will use
-  TemplateFitter* template_fitter = new TemplateFitter();
-
   // Loop over each detector
   for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
     
@@ -60,6 +57,9 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 
     // Create the pulse candidate finder for this detector
     PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(detname, fOpts);
+
+    // Create the TemplateFitter that we will use for this channel
+    TemplateFitter* template_fitter = new TemplateFitter(detname);
 
     // Get the TPIs
     thePulseIslands = it->second;
@@ -88,6 +88,13 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	}
 
 	// all the other pulses will be fitted to the template and then added to it
+	// Get some initial estimates for the fitter
+	double pedestal_estimate = TSetupData::Instance()->GetPedestal(bankname);
+	double amplitude_estimate = (*pulseIter)->GetAmplitude();
+	double time_estimate = (*pulseIter)->GetPeakSample();
+	std::cout << "Estimates: pedestal = " << pedestal_estimate << ", amplitude = " << amplitude_estimate << ", time = " << time_estimate << std::endl;
+	template_fitter->SetInitialParameterEstimates(pedestal_estimate, amplitude_estimate, time_estimate);
+
 	template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
 	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
 	if (Debug()) {
