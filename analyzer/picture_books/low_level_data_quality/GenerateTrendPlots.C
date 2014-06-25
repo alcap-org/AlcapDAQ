@@ -334,4 +334,9 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
       c1->Print(pngname.c_str());
     }
   }
+
+  // Loop through the runs and delete the files
+  for (int iRun = 0; iRun < n_runs; ++iRun) {
+    delete files[iRun];
+  }
 }
