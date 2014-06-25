@@ -36,15 +36,8 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   }
  
   int bounds[2];
-  bounds[0] = std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1);
-  bounds[1] = std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX());
-
-  if (print_dbg) {
-    std::cout << "NBinsX: hTemplate = " << fTemplateHist->GetNbinsX() << ", hPulse = " << fPulseHist->GetNbinsX() << std::endl;
-    std::cout << "Bound Defns: " << std::endl;
-    std::cout << "\tbounds[0] = std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1) = " << bounds[0] << std::endl;
-    std::cout << "\tbounds[1] = std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX()) = " << bounds[1] << std::endl;
-  }
+  bounds[0] = std::max(T_int - fH1->GetNbinsX() / 2, 1);
+  bounds[1] = std::min(T_int + fH1->GetNbinsX() / 2 - 1, fH2->GetNbinsX());
 
   // Chi2 will be zero if shift is too high
   if (bounds[1] <= bounds[0])
@@ -52,9 +45,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
 
   double f;
   for (int i = bounds[0]; i <= bounds[1]; ++i) {
-    // We shift and scale the template so that it matches the pulse.
-    // This is because, when we have a normalised template, we will get the actual amplitude, pedestal and time from the fit and not just offsets
-    f = fTemplateHist->GetBinContent(i - T_int) + T_flt*(fTemplateHist->GetBinContent(i - T_int + 1) - fTemplateHist->GetBinContent(i - T_int)); // linear interpolation between the i'th and the (i+1)'th bin
+    f = fH1->GetBinContent(i - T_int) + (fH1->GetBinContent(i - T_int + 1) - fH1->GetBinContent(i - T_int)) * T_flt;
     f = A * f + P;
 
     double delta = fPulseHist->GetBinContent(i) - f;
@@ -64,10 +55,13 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   }
 
   if (print_dbg) {
-    std::cout << "HistogramFitFCN::operator() (end): " << std::endl;
-    std::cout << "\tFit:\tChi2 " << chi2 << "\tP "
+    std::cout << "Fit:\tChi2 " << chi2 << "\tP "
 	      << P << "(" << par[0] << ")\tA " << A << "(" << par[1] << ")\tT " << T_int << " " << T_flt << "(" << par[2] << ")" << " " << 0.02345
-	      << std::endl << std::endl;
+	      << std::endl;
+    std::cout << "Bounds " << bounds[0] << "-" << bounds[1]
+	      << "\tH1NX " << fH1->GetNbinsX()
+	      << "\tH2NX " << fH2->GetNbinsX()
+	      << std::endl; 
   }
   return chi2;
 }
