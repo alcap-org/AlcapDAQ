@@ -29,8 +29,8 @@ void TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pul
   // Prepare for minimizations
   fMinuitFitter->Clear();
   HistogramFitFCN* fcn = (HistogramFitFCN*)fMinuitFitter->GetMinuitFCN();
-  fcn->SetH1(hTemplate);
-  fcn->SetH2(hPulse);
+  fcn->SetTemplateHist(hTemplate);
+  fcn->SetPulseHist(hPulse);
   fMinuitFitter->SetParameter(0, "Pedestal", fPedestal, 0.1, 0, 0);
   fMinuitFitter->SetParameter(1, "Amplitude", fAmplitude, 0.1, 0, 0);
   fMinuitFitter->SetParameter(2, "Time", fTime, 1., 0, 0); // Timing should have step size no smaller than binning,
@@ -67,3 +67,9 @@ double PulseTemplate::Correlation(TPulseIsland* pulse, double& ped, double& amp,
   return 0.;
 }
 */
+
+void TemplateFitter::SetInitialParameterEstimates(double pedestal, double amplitude, double time) {
+  fPedestal = pedestal;
+  fAmplitude = amplitude;
+  fTime = time;
+}
