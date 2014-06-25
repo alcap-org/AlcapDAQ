@@ -5,7 +5,7 @@
 #include "TPulseIsland.h"
 #include "TH1D.h"
 
-#include "defintiions.h"
+#include "definitions.h"
 
 class TemplateFitter {
  public:
