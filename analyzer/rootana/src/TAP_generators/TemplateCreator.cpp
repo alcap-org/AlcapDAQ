@@ -85,59 +85,17 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
         // Add the first pulse directly to the template (although we may try and choose a random pulse to start with)
 	if (hTemplate == NULL) { // for debugging, just print add one pulse to the template
 	  AddPulseToTemplate(hTemplate, *pulseIter);
-
-	  if (Debug()) {
-	    std::cout << "TemplateCreator: Adding " << detname << " Pulse #" << pulseIter - thePulseIslands.begin() << " directly to the template" << std::endl;
-	  }
-	  continue;
+	  //	  continue;
 	}
 
 	// all the other pulses will be fitted to the template and then added to it
-	// Get some initial estimates for the fitter
-	double pedestal_estimate = (*pulseIter)->GetSamples().at(0) - hTemplate->GetBinContent(1);
-	double amplitude_estimate;
-	double time_estimate;
-	if (TSetupData::Instance()->GetTriggerPolarity(bankname) == 1) { 
-	  amplitude_estimate = (*pulseIter)->GetAmplitude() / hTemplate->GetMaximum(); // estimated scale factor
-	  time_estimate = (*pulseIter)->GetPeakSample() - hTemplate->GetMaximumBin();
-	}
-	else if (TSetupData::Instance()->GetTriggerPolarity(bankname) == -1) {
-	  amplitude_estimate = (*pulseIter)->GetAmplitude() / hTemplate->GetMinimum(); // estimated scale factor
-	  time_estimate = (*pulseIter)->GetPeakSample() - hTemplate->GetMinimumBin();
-	}
-
-	template_fitter->SetInitialParameterEstimates(pedestal_estimate, amplitude_estimate, time_estimate);
-	
-	if (Debug()) {
-	  std::cout << "TemplateCreator: " << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << ": " << std::endl
-		    << "TemplateCreator: Initial Estimates: pedestal = " << pedestal_estimate << ", amplitude = " << amplitude_estimate << ", time = " << time_estimate << std::endl;
-	}
-
-	template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
-	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
-
-	if (Debug()) {
-	  std::cout << "Template Creator: Fitted Parameters: PedOffset = " << template_fitter->GetPedestalOffset() << ", AmpScaleFactor = " << template_fitter->GetAmplitudeScaleFactor()
-	            << ", TimeOffset = " << template_fitter->GetTimeOffset() << ", Chi2 = " << template_fitter->GetChi2() << std::endl << std::endl;
-	}
-
-	// Create the corrected pulse
-	const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
-	std::stringstream histname;
-	histname << template_name << "_Pulse" << pulseIter - thePulseIslands.begin();
-	TH1D* hUncorrectedPulse = new TH1D(histname.str().c_str(), histname.str().c_str(), theSamples.size(), 0, theSamples.size());
-	histname << "_Corrected";
-	TH1D* hCorrectedPulse = new TH1D(histname.str().c_str(), histname.str().c_str(), theSamples.size(), 0, theSamples.size());
-
-	for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
-
-	  double uncorrected_value = (*sampleIter);
-	  double corrected_value = uncorrected_value - template_fitter->GetPedestalOffset();
-	  corrected_value /= template_fitter->GetAmplitudeScaleFactor();
-
-	  hUncorrectedPulse->Fill(sampleIter - theSamples.begin(), uncorrected_value);
-	  hCorrectedPulse->Fill(sampleIter - theSamples.begin() - template_fitter->GetTimeOffset(), corrected_value);
-	}
+	//	template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
+	//	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+	//	if (Debug()) {
+	//	  std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << ": "
+	//	            << "Fitted Parameters: Ped = " << template_fitter->GetPedestal() << ", Amp = " << template_fitter->GetAmplitude()
+	//	            << ", Time = " << template_fitter->GetTime() << ", Chi2 = " << template_fitter->GetChi2() << std::endl << std::endl;
+	//	}
 	// we keep on adding pulses until adding pulses has no effect on the template
       }
     }
@@ -185,11 +143,11 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
     std::string histname = "hTemplate_" + detname;
     std::string histtitle = "Template Histogram for the " + detname + " channel";
 
-    hTemplate = new TH1D(histname.c_str(), histtitle.c_str(), n_samples, 0, n_samples);
+    hTemplate = new TH1D(histname.c_str(), histtitle.c_str(), refine_factor*n_samples, 0, n_samples);
   }
 
   // Now loop through the samples and add to the template
-  /*  for (int iBin = 0; iBin < refine_factor*n_samples; ++iBin) {
+  for (int iBin = 0; iBin < refine_factor*n_samples; ++iBin) {
 
     int sample_element = iBin / refine_factor;
     double value_to_fill = 0;
@@ -209,11 +167,6 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
     }
     //    std::cout << "Bin#" << iBin << ": " << value_to_fill << std::endl;
     hTemplate->SetBinContent( iBin, value_to_fill);
-  }
-  */
-
-  for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
-    hTemplate->Fill( sampleIter - theSamples.begin(), *sampleIter);
   }
 }
 
