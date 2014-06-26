@@ -168,10 +168,12 @@ DATADIR="$HOME/data"
 RAWDIR="$DATADIR/raw"
 TREEDIR="$DATADIR/tree"
 HISTDIR="$DATADIR/hist"
+DUMPDIR="$DATADIR/dump"
 
 mkdir -p $LOGDIR
 mkdir -p $FLGDIR
 mkdir -p $RAWDIR
+mkdir -p $DUMPDIR
 
 # Check other instances of this aren't running
 if [ $(flagcount $FLGDIR) -ne 0 ]; then
