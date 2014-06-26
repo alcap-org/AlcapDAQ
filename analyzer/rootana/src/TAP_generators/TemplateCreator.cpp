@@ -90,18 +90,40 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
 	// all the other pulses will be fitted to the template and then added to it
 	// Get some initial estimates for the fitter
-	/*	double pedestal_estimate = TSetupData::Instance()->GetPedestal(bankname);
-	double amplitude_estimate = (*pulseIter)->GetAmplitude();
-	double time_estimate = (*pulseIter)->GetPeakSample();
+	double pedestal_estimate = 0;
+	double amplitude_estimate = 0;
+	double time_estimate = (*pulseIter)->GetPeakSample() - hTemplate->GetMaximumBin();
 	std::cout << "Estimates: pedestal = " << pedestal_estimate << ", amplitude = " << amplitude_estimate << ", time = " << time_estimate << std::endl;
 	template_fitter->SetInitialParameterEstimates(pedestal_estimate, amplitude_estimate, time_estimate);
-	*/
+	
 	template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
-	//	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
 	if (Debug()) {
 	  std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << ": "
-	            << "Fitted Parameters: Ped = " << template_fitter->GetPedestal() << ", Amp = " << template_fitter->GetAmplitude()
-	            << ", Time = " << template_fitter->GetTime() << ", Chi2 = " << template_fitter->GetChi2() << std::endl << std::endl;
+	            << "Fitted Parameters: PedOffset = " << template_fitter->GetPedestalOffset() << ", AmpScaleFactor = " << template_fitter->GetAmplitudeScaleFactor()
+	            << ", TimeOffset = " << template_fitter->GetTimeOffset() << ", Chi2 = " << template_fitter->GetChi2() << std::endl << std::endl;
+	}
+
+	// Create the corrected pulse
+	const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
+	std::stringstream histname;
+	histname << template_name << "_Pulse" << pulseIter - thePulseIslands.begin();
+	TH1D* hUncorrectedPulse = new TH1D(histname.str().c_str(), histname.str().c_str(), theSamples.size(), 0, theSamples.size());
+	histname << "_Corrected";
+	TH1D* hCorrectedPulse = new TH1D(histname.str().c_str(), histname.str().c_str(), theSamples.size(), 0, theSamples.size());
+
+	for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+
+	  double uncorrected_value = (*sampleIter);
+	  std::cout << "Uncorrected value = " << uncorrected_value << std::endl;
+	  double corrected_value = uncorrected_value * template_fitter->GetAmplitudeScaleFactor();
+	  std::cout << " x " << template_fitter->GetAmplitudeScaleFactor() << " = " << corrected_value << std::endl;
+	  corrected_value += template_fitter->GetPedestalOffset();
+	  std::cout << " + " << template_fitter->GetPedestalOffset() << " = " << corrected_value << std::endl;
+
+	  hUncorrectedPulse->Fill(sampleIter - theSamples.begin(), uncorrected_value);
+	  hCorrectedPulse->Fill(sampleIter - theSamples.begin() + template_fitter->GetTimeOffset(), corrected_value);
+	  //	  std::cout << "Uncorrected Value = " << (*sampleIter) << ", Corrected Value = " << (*sampleIter)*template_fitter->GetAmplitudeScaleFactor() + template_fitter->GetPedestalOffset() << std::endl;
 	}
 	// we keep on adding pulses until adding pulses has no effect on the template
       }
