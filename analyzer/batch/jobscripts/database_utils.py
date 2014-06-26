@@ -3,20 +3,12 @@ import merlin_utils
 import datetime
 import os
 
-form = "%Y-%m-%d %H:%M:%S.%f"
 
 db_fname = merlin_utils.DATAdir + "/production.db"
 if not os.path.isfile(db_fname):
     print "Database not found! Populate first!"
     raise merlin_utils.AlCapException("Database not found")
 db = sqlite3.connect(db_fname)
-
-
-def raise_if_not_valid_production(prod):
-    if prod != "alcapana" and prod != "rootana":
-        print "Job submission error: '" + prod + "' not a valid production type!"
-        raise merlin_utils.AlCapException("Invalid production type")
-
 
 def get_any_available_run_number(prod, ver):
     cmd = "SELECT run FROM " + production_table_name(prod, ver) + " WHERE status='N' LIMIT 1"
@@ -73,7 +65,7 @@ def start_production(prod, qual="gold"):
     start = datetime.datetime.now()
     cmd = "INSERT INTO productions VALUES ('alcapana', ?, ?, ?, ?)"
     db.execute(cmd, (ver, start, None, ver - 1))
-    cmd = "CREATE TABLE " + production_table_name(prod, ver) + "(run INTEGER, status TEXT, user TEXT, start TIMESTAMP, stop TIMESTAMP, location TEXT)"
+    cmd = "CREATE TABLE " + production_table_name(prod, ver) + "(run INTEGER, status TEXT, user TEXT, start TIMESTAMP, stop TIMESTAMP, tree TEXT, hist TEXT, dump TEXT)"
     db.execute(cmd)
     cmd = "SELECT run FROM datasets WHERE quality=?"
     cur = db.execute(cmd, (qual,))
@@ -83,24 +75,43 @@ def start_production(prod, qual="gold"):
     db.commit()
     return ver
 
+def start_test_production():
+    cmd = "CREATE TABLE alcapana_v4(run INTEGER, status TEXT, user TEXT, start TIMESTAMP, stop TIMESTAMP, tree TEXT, hist TEXT, dump TEXT)"
+    db.execute(cmd)
+    db.execute("INSERT INTO alcapana_v4(run, status) VALUES (3200, 'N')")
+    db.execute("INSERT INTO alcapana_v4(run, status) VALUES (3201, 'N')")
+    db.execute("INSERT INTO alcapana_v4(run, status) VALUES (3202, 'N')")
+    db.execute("INSERT INTO alcapana_v4(run, status) VALUES (3203, 'N')")
+    db.commit()
 
 def finish_production(prod, ver):
     stop = datetime.datetime.now()
-    cmd = "UPDATE " + production_table_name(prod, ver) + " SET stop=? WHERE type=? AND version=?"
+    cmd = "UPDATE productions SET stop=? WHERE type=? AND version=?"
     db.execute(cmd, (stop, prod, ver))
+    db.commit()
 
 
 def is_production_finished(prod, ver):
-    cmd = "SELECT * FROM " + production_table_name(prod, ver) + " WHERE staus='N' OR status='R' OR status='C'"
+    cmd = "SELECT * FROM " + production_table_name(prod, ver) + " WHERE status='N' OR status='R' OR status='C'"
     cur = db.execute(cmd);
-    if not cur.fetchone():
-        return True
-    return False
+    return not cur.fetchone()
 
 
-def register_file_location(prod, ver, run, loc):
-    cmd = "UPDATE " + production_table_name(prod, ver) + " SET location=? WHERE run=?"
+def register_file_location(prod, ver, run, loc, filetype=None):
+    cmd = "UPDATE " + production_table_name(prod, ver) + " SET "
+    if prod == "alcapana":
+        if filetype in ["tree", "hist", "dump"]:
+            cmd = cmd + filetype + "=? WHERE run=?"
+        else:
+            print "Unknown alcapana file type:", filetype
+            raise merlin_utils.AlCapException("Unknown alcpana file type: " + str(filetype))
+    elif prod == "rootana":
+        cmd = cmd + "out=? WHERE run=?"
+    else:
+        print "Unknown production type:", prod
+        raise merlin_utils.AlCapException
     db.execute(cmd, (loc, run))
+    db.commit()
 
 
 def production_table_name(prod, ver):
