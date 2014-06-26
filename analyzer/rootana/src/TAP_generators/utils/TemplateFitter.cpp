@@ -31,9 +31,9 @@ void TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pul
   HistogramFitFCN* fcn = (HistogramFitFCN*)fMinuitFitter->GetMinuitFCN();
   fcn->SetTemplateHist(hTemplate);
   fcn->SetPulseHist(hPulse);
-  fMinuitFitter->SetParameter(0, "Pedestal", fPedestal, 0.1, 0, 0);
-  fMinuitFitter->SetParameter(1, "Amplitude", fAmplitude, 0.1, 0, 0);
-  fMinuitFitter->SetParameter(2, "Time", fTime, 1., 0, 0); // Timing should have step size no smaller than binning,
+  fMinuitFitter->SetParameter(0, "PedestalOffset", fPedestalOffset, 0.1, 0, 0);
+  fMinuitFitter->SetParameter(1, "AmplitudeScaleFactor", fAmplitudeScaleFactor, 0.1, 0, 0);
+  fMinuitFitter->SetParameter(2, "TimeOffset", fTimeOffset, 1., 0, 0); // Timing should have step size no smaller than binning,
                                                     // *IF* the fourth argument is step size this is okay,
                                                     // or later implement some interpolation method, note
                                                     // *DERIVATIVES* at bounderies of interpolation may cause
@@ -47,19 +47,19 @@ void TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pul
     std::cout << "ERROR: Problem with fit (" << status << ")!" << std::endl;
 
   // Get the fitted values
-  fPedestal = fMinuitFitter->GetParameter(0);
-  fAmplitude = fMinuitFitter->GetParameter(1);
-  fTime = fMinuitFitter->GetParameter(2);
+  fPedestalOffset = fMinuitFitter->GetParameter(0);
+  fAmplitudeScaleFactor = fMinuitFitter->GetParameter(1);
+  fTimeOffset = fMinuitFitter->GetParameter(2);
 
   // Store the Chi2, and then we can delete the pulse
   std::vector<double> params; 
-  params.push_back(fPedestal); 
-  params.push_back(fAmplitude); 
-  params.push_back(fTime); 
+  params.push_back(fPedestalOffset); 
+  params.push_back(fAmplitudeScaleFactor); 
+  params.push_back(fTimeOffset); 
   fChi2 = (*fcn)(params);
 
-  std::cout << "TemplateFitter::FitPulseToTempalte(): Fit:\tChi2 " << fChi2 << "\tP "
-	    << fPedestal << "(" << params.at(0) << ")\tA " << fAmplitude << "(" << params.at(1) << ")\tT " << fTime << "(" << params.at(2) << ")" << std::endl;
+  std::cout << "TemplateFitter::FitPulseToTemplate(): Fit:\tChi2 " << fChi2 << "\tP "
+	    << fPedestalOffset << "(" << params.at(0) << ")\tA " << fAmplitudeScaleFactor << "(" << params.at(1) << ")\tT " << fTimeOffset << "(" << params.at(2) << ")" << std::endl;
 
   delete hPulse;
 }
@@ -77,7 +77,7 @@ double PulseTemplate::Correlation(TPulseIsland* pulse, double& ped, double& amp,
 */
 
 void TemplateFitter::SetInitialParameterEstimates(double pedestal, double amplitude, double time) {
-  fPedestal = pedestal;
-  fAmplitude = amplitude;
-  fTime = time;
+  fPedestalOffset = pedestal;
+  fAmplitudeScaleFactor = amplitude;
+  fTimeOffset = time;
 }
