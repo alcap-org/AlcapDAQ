@@ -47,14 +47,11 @@ void TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pul
     std::cout << "ERROR: Problem with fit (" << status << ")!" << std::endl;
 
   // Get the fitted values
-  fPedestalOffset = fMinuitFitter->GetParameter(0);
-  fAmplitudeScaleFactor = fMinuitFitter->GetParameter(1);
-  fTimeOffset = fMinuitFitter->GetParameter(2);
-
-  // Store the Chi2, and then we can delete the pulse
   fPedestal = fMinuitFitter->GetParameter(0);
   fAmplitude = fMinuitFitter->GetParameter(1);
   fTime = fMinuitFitter->GetParameter(2);
+
+  // Store the Chi2, and then we can delete the pulse
   std::vector<double> params; 
   params.push_back(fPedestalOffset); 
   params.push_back(fAmplitudeScaleFactor); 
