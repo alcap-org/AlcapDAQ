@@ -71,7 +71,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   }
 
   if (print_dbg) {
-    std::cout << "Fit:\tChi2 " << chi2 << "\tP "
+    std::cout << "HistogramFitFCN::operator(): Fit:\tChi2 " << chi2 << "\tP "
 	      << P << "(" << par[0] << ")\tA " << A << "(" << par[1] << ")\tT " << T_int << " " << T_flt << "(" << par[2] << ")" << " " << 0.02345
 	      << std::endl;
   }
