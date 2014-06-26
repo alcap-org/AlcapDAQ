@@ -96,7 +96,14 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	// Get some initial estimates for the fitter
 	double pedestal_estimate = 0;//(*pulseIter)->GetSamples().at(0) - hTemplate->GetBinContent(1);
 	double amplitude_estimate = 0;//(*pulseIter)->GetAmplitude() / hTemplate->GetMaximum(); // estimated scale factor
-	double time_estimate = 0;
+	double time_estimate;
+	if (TSetupData::Instance()->GetTriggerPolarity(bankname) == 1) { 
+	  time_estimate = (*pulseIter)->GetPeakSample() - hTemplate->GetMaximumBin();
+	}
+	else if (TSetupData::Instance()->GetTriggerPolarity(bankname) == -1) {
+	  time_estimate = (*pulseIter)->GetPeakSample() - hTemplate->GetMinimumBin();
+	}
+
 	template_fitter->SetInitialParameterEstimates(pedestal_estimate, amplitude_estimate, time_estimate);
 	
 	if (Debug()) {
