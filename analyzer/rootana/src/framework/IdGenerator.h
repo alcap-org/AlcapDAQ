@@ -29,7 +29,7 @@ class IDs::generator:public TObject{
 	/// 
 	/// @param g The type of the generator
 	/// @param c The configuration of the generator
-	generator(Generator_t g , Config_t c=kAnyConfig);
+	generator(Generator_t g , Config_t c=kDefaultConfig);
 
 	/// @brief Default constructor for a generator ID.
 	/// Will match true against all generator IDs

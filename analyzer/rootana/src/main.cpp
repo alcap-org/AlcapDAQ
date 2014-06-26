@@ -35,6 +35,7 @@
 
 #include "ModulesFactory.h"
 #include "ModulesNavigator.h"
+#include "SetupNavigator.h"
 #include "BaseModule.h"
 
 #include "TTree.h"
@@ -47,6 +48,7 @@
 #include "TMuonEvent.h"
 //#include "ProcessCorrectionFile.h" // Provides CheckSetupData()
 
+#include "debug_tools.h"
 #include "TAnalysedPulseMapWrapper.h"
 
 // Forward declaration of functions ======================
@@ -85,7 +87,15 @@ int main(int argc, char **argv){
   ARGUMENTS arguments;
   int ret = analyze_command_line (argc, argv,arguments);
   if(ret!=0) return ret;
-  printf("Starting event");
+  // Give the command line arguments to the navigator
+  SetupNavigator::Instance()->SetCommandLineArgs(arguments);
+
+  // Read in the configurations file
+  ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file.c_str());
+  if(ret!=0) {
+     std::cout<<"Error: Problem loading MODULES file"<<std::endl;
+     return ret;
+  }
 
   // Open the input tree file
   gInFile = new TFile(arguments.infile.c_str());
@@ -124,9 +134,9 @@ int main(int argc, char **argv){
   // Now let's setup all the analysis modules we want
   // NOTE: This has to be done after the output file was opened else the
   // modules wont have a directory to store things to.
-  ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file.c_str());
+  ret= modules::navigator::Instance()->MakeModules();
   if(ret!=0) {
-     printf("Problem setting up analysis modules.\n");
+     printf("Problem creating analysis modules.\n");
      return ret;
   }
   
@@ -294,7 +304,7 @@ TTree* GetTree(TFile* inFile, const char* t_name)
       printf("Unable to find TTree '%s' in %s.\n",t_name,inFile->GetName());
       return NULL;
    }
-   InfoTree->Print();
+   //InfoTree->Print();
 
    return InfoTree;
 }
