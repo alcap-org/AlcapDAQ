@@ -20,7 +20,7 @@ generator
   Type (optional) = Make a special type of module.  
                     Must be one of: ${Indent}${PrintedSpecials}
                     Default is '${ListOfSpecials[0]}'.
-  TargetDirectory = Specify a target directory (relative to rootana) to place 
+  TargetDirectory = Specify a target directory (relative to rootana/) to place 
   (optional)        the new files.  Default is src or one of the *_generators 
                     directories if 'type==*generator'
 EOF
