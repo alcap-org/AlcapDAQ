@@ -85,22 +85,30 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
         // Add the first pulse directly to the template (although we may try and choose a random pulse to start with)
 	if (hTemplate == NULL) { // for debugging, just print add one pulse to the template
 	  AddPulseToTemplate(hTemplate, *pulseIter);
+
+	  if (Debug()) {
+	    std::cout << "TemplateCreator: Adding " << detname << " Pulse #" << pulseIter - thePulseIslands.begin() << " directly to the template" << std::endl;
+	  }
 	  continue;
 	}
 
 	// all the other pulses will be fitted to the template and then added to it
 	// Get some initial estimates for the fitter
-	double pedestal_estimate = 0;
-	double amplitude_estimate = 0;
-	double time_estimate = (*pulseIter)->GetPeakSample() - hTemplate->GetMaximumBin();
+	double pedestal_estimate = 0;//(*pulseIter)->GetSamples().at(0) - hTemplate->GetBinContent(1);
+	double amplitude_estimate = 0;//(*pulseIter)->GetAmplitude() / hTemplate->GetMaximum(); // estimated scale factor
+	double time_estimate = 0;
 	template_fitter->SetInitialParameterEstimates(pedestal_estimate, amplitude_estimate, time_estimate);
 	
+	if (Debug()) {
+	  std::cout << "TemplateCreator: " << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << ": " << std::endl
+		    << "TemplateCreator: Initial Estimates: pedestal = " << pedestal_estimate << ", amplitude = " << amplitude_estimate << ", time = " << time_estimate << std::endl;
+	}
+
 	template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
 	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+
 	if (Debug()) {
-	  std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << ": " << std::endl
-		    << "Estimates: pedestal = " << pedestal_estimate << ", amplitude = " << amplitude_estimate << ", time = " << time_estimate << std::endl
-	            << "Fitted Parameters: PedOffset = " << template_fitter->GetPedestalOffset() << ", AmpScaleFactor = " << template_fitter->GetAmplitudeScaleFactor()
+	  std::cout << "Template Creator: Fitted Parameters: PedOffset = " << template_fitter->GetPedestalOffset() << ", AmpScaleFactor = " << template_fitter->GetAmplitudeScaleFactor()
 	            << ", TimeOffset = " << template_fitter->GetTimeOffset() << ", Chi2 = " << template_fitter->GetChi2() << std::endl << std::endl;
 	}
 
