@@ -122,6 +122,7 @@ make_obj_dir:
 tut: init libAnalysis.so libAnalysis.rootmap unit_test
 
 $(TUT_ROOT)/%.o: $(TUT_ROOT)/%.cpp
+	@echo -e "Making object: '"$@"'"
 	@$(CXX) -c -Wall $(CXXFLAGS) -I$(TUT_INCLUDE_DIRS) -o $@ $^   
 
 unit_test: $(TUT_USE_OBJECTS) $(ROOTANA_DATACLASSES) $(TUT_SOURCES) $(TUT_OBJECTS) $(TUT_ROOT)/tut_main.o
