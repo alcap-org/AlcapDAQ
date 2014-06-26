@@ -58,9 +58,10 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
 
     // Create the histogram that will store all the parameter values that we will look at to determine the best values
     if (fParameterHistograms.find(detname) == fParameterHistograms.end()) {
-      int max_value = 10000;
+      int num_bins = 10000;
+      int max_value = 7500;
       std::string histname = "fParameterHistogram_" + detname;
-      TH1D* histogram = new TH1D(histname.c_str(), histname.c_str(), max_value, 0, max_value);
+      TH1D* histogram = new TH1D(histname.c_str(), histname.c_str(), num_bins, max_value-num_bins, max_value);
       fParameterHistograms[detname] = histogram;
     }
 
