@@ -52,10 +52,10 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
 
   double f;
   for (int i = bounds[0]; i <= bounds[1]; ++i) {
-    if (i - T_int < 1) {
+    /*    if (i - T_int < 1) {
       continue;
     }
-
+    */
     f = fTemplateHist->GetBinContent(i - T_int) + (fTemplateHist->GetBinContent(i - T_int + 1) - fTemplateHist->GetBinContent(i - T_int)) * T_flt;
     f = A * f + P;
 
