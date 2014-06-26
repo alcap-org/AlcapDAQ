@@ -54,7 +54,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   for (int i = bounds[0]; i <= bounds[1]; ++i) {
     // We shift and scale the template so that it matches the pulse.
     // This is because, when we have a normalised template, we will get the actual amplitude, pedestal and time from the fit and not just offsets
-    f = fTemplateHist->GetBinContent(i - T_int) + (fTemplateHist->GetBinContent(i - T_int + 1) - fTemplateHist->GetBinContent(i - T_int)) * T_flt;
+    f = fTemplateHist->GetBinContent(i - T_int) + T_flt*(fTemplateHist->GetBinContent(i - T_int + 1) - fTemplateHist->GetBinContent(i - T_int)); // linear interpolation between the i'th and the (i+1)'th bin
     f = A * f + P;
 
     double delta = fPulseHist->GetBinContent(i) - f;
