@@ -7,7 +7,7 @@ TemplateFitter::TemplateFitter(std::string detname): fChannel(detname) {
   HistogramFitFCN* fcn = new HistogramFitFCN();
   fMinuitFitter = new TFitterMinuit(3); //  Three (3) parameters to modify (amplitude, time, pedestal)
   fMinuitFitter->SetMinuitFCN(fcn);
-  fMinuitFitter->SetPrintLevel(1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
+  fMinuitFitter->SetPrintLevel(-1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
 }
 
 TemplateFitter::~TemplateFitter() {
@@ -58,8 +58,11 @@ void TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pul
   params.push_back(fTimeOffset); 
   fChi2 = (*fcn)(params);
 
-  std::cout << "TemplateFitter::FitPulseToTemplate(): Fit:\tChi2 " << fChi2 << "\tP "
-	    << fPedestalOffset << "(" << params.at(0) << ")\tA " << fAmplitudeScaleFactor << "(" << params.at(1) << ")\tT " << fTimeOffset << "(" << params.at(2) << ")" << std::endl;
+  static int print_dbg = false;
+  if (print_dbg) {
+    std::cout << "TemplateFitter::FitPulseToTemplate(): Fit:\tChi2 " << fChi2 << "\tP "
+	      << fPedestalOffset << "(" << params.at(0) << ")\tA " << fAmplitudeScaleFactor << "(" << params.at(1) << ")\tT " << fTimeOffset << "(" << params.at(2) << ")" << std::endl;
+  }
 
   delete hPulse;
 }
