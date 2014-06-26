@@ -17,16 +17,16 @@ class TemplateFitter {
 
  public:
   void FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse);
-  double GetPedestal() { return fPedestal; }
-  double GetAmplitude() { return fAmplitude; }
-  double GetTime() { return fTime; }
+  double GetPedestalOffset() { return fPedestalOffset; }
+  double GetAmplitudeScaleFactor() { return fAmplitudeScaleFactor; }
+  double GetTimeOffset() { return fTimeOffset; }
   double GetChi2() { return fChi2; }
 
  private:
   IDs::channel fChannel;
-  double fPedestal;
-  double fAmplitude;
-  double fTime;
+  double fPedestalOffset;
+  double fAmplitudeScaleFactor;
+  double fTimeOffset;
   double fChi2;
 
  public:
