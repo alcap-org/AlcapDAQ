@@ -24,9 +24,9 @@ class TemplateFitter {
 
  private:
   IDs::channel fChannel;
-  double fPedestal;
-  double fAmplitude;
-  double fTime;
+  double fPedestalOffset;
+  double fAmplitudeScaleFactor;
+  double fTimeOffset;
   double fChi2;
 
  public:
