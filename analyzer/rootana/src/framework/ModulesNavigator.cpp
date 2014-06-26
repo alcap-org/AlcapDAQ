@@ -8,12 +8,6 @@ using std::endl;
 modules::navigator::navigator():fModulesLoaded(false),fOutFile(NULL){};
 
 int modules::navigator::LoadConfigFile(const char* filename){
-    // Check we've been given a valid output file
-    if(!fOutFile || fOutFile->IsWritable()){
-	    cout<<"Error: Output file is not useable"<<endl;
-	    return 1;
-    }
-
     // Check we haven't already opened a modules file
     if(fModulesLoaded ) {
 	    cout<<"Error: Loading a new modules file, when one was already loaded"<<endl;
@@ -37,6 +31,12 @@ int modules::navigator::LoadConfigFile(const char* filename){
 }
 
 int modules::navigator::MakeModules(){
+    // Check we've been given a valid output file
+    if(! (fOutFile && fOutFile->IsWritable()) ){
+	    cout<<"Error: Output file is not useable"<<endl;
+	    return 1;
+    }
+
     // Check that we've already opened a modules file
     if(!fModulesLoaded) {
 	    cout<<"Error: MakeModules(): Cannot make modules until you load a Modules file."<<endl;
@@ -50,20 +50,21 @@ int modules::navigator::MakeModules(){
     modules::options* opts;
     BaseModule* mod=NULL;
     size_t num_modules=fModulesFile.GetNumModules();
-    TDirectory* dir;
     for(unsigned i=0;i<num_modules;i++){
-	    name = modules_file.GetModule(i);
-	    opts =  modules_file.GetOptions(i);
+	    name = fModulesFile.GetModule(i);
+	    opts =  fModulesFile.GetOptions(i);
         if(mgr->canCreate(name)){
             if(Debug()){
                 cout<<"Creating module: "<<name<<endl;
                 cout<<"With options:"<<endl;
                 opts->DumpOptions("  ");
             }
-            dir = gDirectory->mkdir(name);
-            dir->cd();
+            gDirectory->cd("/");
             mod = mgr->createModule(name,opts);
-            if(mod) AddModule(name, mod);
+            gDirectory->cd("/");
+            if(mod){
+                AddModule(name, mod);
+            }
             else return 3;
         }else {
             std::cout<<"Unknown module requested: "<<name<<std::endl;

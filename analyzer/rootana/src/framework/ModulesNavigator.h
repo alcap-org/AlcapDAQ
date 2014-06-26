@@ -55,6 +55,9 @@ class modules::navigator{
       /// @return NULL if the module doesn't exist
       template <typename T>
       inline T* GetModule(const std::string& module)const;
+
+      /// Get the number of instances that the named module has been requested
+      int HowMany(const std::string& name)const{return fModulesSearch.count(name);}
       
       /// Return an iterator to the first module in the list
       modules::iterator Begin(){return fModules.begin();};
