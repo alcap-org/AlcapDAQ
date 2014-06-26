@@ -116,13 +116,14 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
 	  double uncorrected_value = (*sampleIter);
 	  std::cout << "Uncorrected value = " << uncorrected_value << std::endl;
-	  double corrected_value = uncorrected_value * template_fitter->GetAmplitudeScaleFactor();
-	  std::cout << " x " << template_fitter->GetAmplitudeScaleFactor() << " = " << corrected_value << std::endl;
-	  corrected_value += template_fitter->GetPedestalOffset();
-	  std::cout << " + " << template_fitter->GetPedestalOffset() << " = " << corrected_value << std::endl;
+	  double corrected_value = uncorrected_value - template_fitter->GetPedestalOffset();
+	  corrected_value /= template_fitter->GetAmplitudeScaleFactor();
+	  std::cout << " / " << template_fitter->GetAmplitudeScaleFactor() << " = " << corrected_value << std::endl;
+	  //	  corrected_value += template_fitter->GetPedestalOffset();
+	  std::cout << " - " << template_fitter->GetPedestalOffset() << " = " << corrected_value << std::endl;
 
 	  hUncorrectedPulse->Fill(sampleIter - theSamples.begin(), uncorrected_value);
-	  hCorrectedPulse->Fill(sampleIter - theSamples.begin() + template_fitter->GetTimeOffset(), corrected_value);
+	  hCorrectedPulse->Fill(sampleIter - theSamples.begin() - template_fitter->GetTimeOffset(), corrected_value);
 	  //	  std::cout << "Uncorrected Value = " << (*sampleIter) << ", Corrected Value = " << (*sampleIter)*template_fitter->GetAmplitudeScaleFactor() + template_fitter->GetPedestalOffset() << std::endl;
 	}
 	// we keep on adding pulses until adding pulses has no effect on the template
