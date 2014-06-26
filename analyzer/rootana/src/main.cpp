@@ -213,7 +213,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   for ( jentry=start; jentry<stop;jentry++) {
     if(g_event){
       g_event->Clear("C");
-      ClearGlobalData(g_event);
+      //ClearGlobalData(g_event);
       dataTree->SetBranchAddress("Event",&g_event);
     }
     
