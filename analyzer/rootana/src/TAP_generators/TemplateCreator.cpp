@@ -97,7 +97,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	template_fitter->SetInitialParameterEstimates(pedestal_estimate, amplitude_estimate, time_estimate);
 	*/
 	template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
-	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+	//	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
 	if (Debug()) {
 	  std::cout << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << ": "
 	            << "Fitted Parameters: Ped = " << template_fitter->GetPedestal() << ", Amp = " << template_fitter->GetAmplitude()
