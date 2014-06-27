@@ -8,25 +8,14 @@ using std::endl;
 
 LETimeAPGenerator::LETimeAPGenerator(TAPGeneratorOptions* opts):
 	TVAnalysedPulseGenerator("LETime",opts){
-	// Do things to set up the generator here. 
+  //fLeadingEdge = opts->GetDouble("lead_edge", 0.2);
+  fLeadingEdge = 0.2;
 }
 
-int LETimeAPGenerator::ProcessPulses( 
-		const PulseIslandList& pulseList,
-		AnalysedPulseList& analysedList){
-	// Do something here that takes the TPIs in the PulseIslandList and
-	// fills the list of TAPS
-	
-	// Generators have a Debug method similar to modules
-	if(Debug()){
-    // They also have a unique ID, retrievable by GetSource and
-		// a GetChannel method to get the ID of just the channel
-    cout<<"Now running source: "<<GetSource().str()<<" which looks for TAPs on "
-        "channel: "<<GetChannel().str()<<'\n';
-	}
-
-	// returning 0 tells the caller that we were successful, return non-zero if not
-	return 0;
+int LETimeAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
+				     AnalysedPulseList& analysedList){
+  
+  return 0;
 }
 
 // Similar to the modules, this macro registers the generator with
