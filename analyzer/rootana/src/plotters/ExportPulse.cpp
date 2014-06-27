@@ -126,10 +126,10 @@ int ExportPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
 int ExportPulse::DrawTAPs(){
   // Initialise variables that would be used in the loops
-  const ConstAnalysedPulseList* requestedPulses;
+  const TAPList_t* requestedPulses;
 
   // Loop over channel that we've been requested to draw a pulse from
-  for(StringConstAnalPulseMap::const_iterator i_detector=fTAPsToPlot.begin();
+  for(ChannelTAPs_t::const_iterator i_detector=fTAPsToPlot.begin();
 		  i_detector!=fTAPsToPlot.end();
 		  i_detector++){
      SetCurrentDetectorName(i_detector->first);
@@ -138,7 +138,7 @@ int ExportPulse::DrawTAPs(){
      requestedPulses=&(i_detector->second);
 
      // Loop over every requested pulse for that channel
-     for(ConstAnalysedPulseList::const_iterator i_pulse=requestedPulses->begin();
+     for(TAPList_t::const_iterator i_pulse=requestedPulses->begin();
 		     i_pulse!=requestedPulses->end();
 		     i_pulse++){
 
