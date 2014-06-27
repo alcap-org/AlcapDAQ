@@ -37,7 +37,9 @@ std::string modules::options::GetString(const std::string& name,const std::strin
 }
 
 bool modules::options::GetBool(const std::string& name,bool defVal)const{
-    return GetOption<bool>(name,defVal);
+    if(!HasOption(name)) return defVal;
+    std::string val=GetString(name);
+    return  (val=="true")|| (val=="TRUE")|| (val=="YES")|| (val=="yes")|| (val=="on")|| (val=="ON")|| (val=="1");
 }
 
 int modules::options::GetVectorStringsByWhiteSpace(const std::string& name, std::vector<std::string>& vect)const{

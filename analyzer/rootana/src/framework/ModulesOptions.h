@@ -100,6 +100,13 @@ class modules::options{
         /// @return true if option was set, false if not
         bool HasOption(const std::string& name)const;
 
+        /// @brief Check if a flag option has been set
+        /// @details If the option is present with no value return true, else
+        /// return true if the value gives boolean true
+        /// @param name Name of option to use
+        /// @return true if option was set, false if not
+        bool GetFlag(const std::string& name)const;
+
         /// Get the number of options managed by this options list
         bool GetNumOptions()const{return fOptions.size();};
 
@@ -155,6 +162,10 @@ inline void modules::options::SetOption(const std::string& name, const std::stri
 
 inline bool modules::options::HasOption(const std::string& name)const{
     return fOptions.find(name)!=fOptions.end();
+}
+
+inline bool modules::options::GetFlag(const std::string& name)const{
+    return (HasOption(name) && (GetOption(name).empty() || GetBool(name)));
 }
 
 #endif  //MODULESOPTIONS__HH_
