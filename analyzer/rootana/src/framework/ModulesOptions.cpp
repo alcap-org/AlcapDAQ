@@ -98,3 +98,21 @@ int modules::options::MakeIdNumber(){
 	static int count=0;
 	return count++;
 }
+
+std::string modules::options::StringDescription()const{
+    const char* key_val_sep="=";
+    const char* start_key_val="{";
+    const char* stop_key_val="}";
+    OptionsOrder_t::const_iterator it;
+    std::string description;
+    for(it=fOrder.begin();it!=fOrder.end();it++){
+        description+=start_key_val;
+        description+=(*it)->first;
+        if((*it)->second!=""){
+            description+=key_val_sep;
+            description+=(*it)->second;
+        }
+        description+=stop_key_val;
+    }
+    return description;
+}
