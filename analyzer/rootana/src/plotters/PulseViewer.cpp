@@ -6,23 +6,30 @@
 #include "ExportPulse.h"
 #include "TAnalysedPulse.h"
 #include "ModulesParser.h"
+#include <debug_tools.h>
 
 #include <iostream>
+#include <iomanip>
 using std::cout;
 using std::endl;
 using modules::parser::GetOneWord;
 using modules::parser::GetDouble;
 
-#define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
-#define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<std::endl;
-
 extern StringAnalPulseMap gAnalysedPulseMap;
+extern Long64_t* gEntryNumber;
+extern Long64_t* gTotalEntries;
+
+namespace{
+    Long64_t GetCurrentEvent(){return *gEntryNumber;}
+    Long64_t GetTotalNumberOfEvents(){return *gTotalEntries;}
+}
 
 PulseViewer::PulseViewer(modules::options* opts):
-   BaseModule("PulseViewer",opts){
+   BaseModule("PulseViewer",opts),fTotalPlotted(0),fSummarize(false){
   fRequestedChannel=opts->GetString("channel"); 
   fChannel=fRequestedChannel;
   fTriggerCondition=opts->GetString("trigger"); 
+  fSummarize=opts->GetBool("summarize"); 
   
 }
 
@@ -145,7 +152,7 @@ int PulseViewer::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     for(AnalysedPulseList::iterator i_pulse=allTAPs->begin();
 		i_pulse!=allTAPs->end() && retVal==0;
 		i_pulse++){
-	    retVal=ConsiderDrawing(*i_pulse);
+	    retVal=ConsiderDrawing(i_pulse-allTAPs->begin() ,*i_pulse);
     }
     if(retVal!=0) return retVal;
 
@@ -202,7 +209,7 @@ bool PulseViewer::ValuePassesTrigger(const double& value){
   return retVal;
 }
 
-int PulseViewer::ConsiderDrawing(const TAnalysedPulse* pulse){
+int PulseViewer::ConsiderDrawing(const TAnalysedPulseID& id, const TAnalysedPulse* pulse){
 	// Check pulse passes trigger condition
 	double value=GetParameterValue(*pulse);
 	if(!ValuePassesTrigger(value)) return 0;
@@ -214,16 +221,36 @@ int PulseViewer::ConsiderDrawing(const TAnalysedPulse* pulse){
 	// We're safe to assume Instance will return becuase we test it's
 	// existence in BeforeFirstEntry
 	ExportPulse::Instance()->AddToExportList(pulse);
+    fTotalPlotted++;
+    fPulsesPlotted[GetCurrentEvent()].insert(id);
 	return 0;
 }
 
 int PulseViewer::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
 
-  // Print extra info if we're debugging this module:
-  if(Debug()){
+  // Print extra info if we're requested to summarize the found pulses
+  if(SummarisePlots()){
+      const std::string prefix="     ";
+      cout<<"Summary for pulse criteria: ("<<fTriggerCondition <<") on channel "<<fChannel<<endl;
+      if(!fPulsesPlotted.empty()){
+          cout<<prefix<<" Event | Pulses drawn "<<endl;
+          cout<<prefix<<" ----- | ------------ "<<endl;
+          for(EventPulseIDList_t::const_iterator i_event=fPulsesPlotted.begin();
+                  i_event!=fPulsesPlotted.end();i_event++){
+              cout<<prefix<<std::setw(6)<< i_event->first<<" | ";
+              for(PulseIDList_t::const_iterator i_pulse=i_event->second.begin();
+                      i_pulse!=i_event->second.end();i_pulse++){
+                  cout<<std::setw(2)<< *i_pulse<<", ";
+              }
+              cout<<endl;
+          }
+          cout<<prefix<<" ----- | ------------ "<<endl;
+      }
+      cout<<prefix<<"Total pulses plotted = "<<fTotalPlotted<<endl;
+
   }
 
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(PulseViewer,channel,trigger,pulse_type);
+ALCAP_REGISTER_MODULE(PulseViewer,channel,trigger,pulse_type,summarize);

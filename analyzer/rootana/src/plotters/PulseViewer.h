@@ -10,6 +10,12 @@ namespace modules {class options;}
 /// @brief Module to plot pulses meeting a certain criteria
 /// @see https://github.com/alcap-org/AlcapDAQ/wiki/rootana-module-PulseViewer
 class PulseViewer : public BaseModule{
+  typedef int TPulseIslandID;
+  typedef int TAnalysedPulseID;
+  typedef int EventID_t;
+  typedef std::set<TPulseIslandID> PulseIDList_t;
+  typedef std::map<EventID_t,PulseIDList_t> EventPulseIDList_t;
+
   enum  TriggerType {kE, kG, kL, kGE, kLE};
 
   enum  ParameterType {
@@ -37,7 +43,7 @@ class PulseViewer : public BaseModule{
 
   /// Ask ExportPulse to draw this pulse if it matches the trigger criteria
   /// @return 0 on success, non-zero otherwise
-  int ConsiderDrawing(const TAnalysedPulse* i_pulse);
+  int ConsiderDrawing(const TAnalysedPulseID& id, const TAnalysedPulse* i_pulse);
 
   /// Check if value passes the trigger condition
   bool ValuePassesTrigger(const double& value);
@@ -62,6 +68,7 @@ class PulseViewer : public BaseModule{
   /// @return 0 on success, non-zero otherwise
   int SetTriggerValue(const std::string& parameter);
 
+  bool SummarisePlots(){return fSummarize;};
  private:
   IDs::channel fChannel;
   std::string fTriggerCondition;
@@ -71,6 +78,9 @@ class PulseViewer : public BaseModule{
   ParameterType fTriggerParameter;
   std::string fParameterString;
   std::string fTypeString;
+  long int fTotalPlotted;
+  bool fSummarize;
+  EventPulseIDList_t fPulsesPlotted;
 };
 
 #endif //PULSEVIEWER_H_
