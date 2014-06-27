@@ -34,7 +34,8 @@
 analyse_pulses = MakeAnalysedPulses 
 detector_pulses = MakeDetectorPulses
 muon_events = MakeMuonEvents
-PulseViewer(SiR2-S , amplitude> 100)
+pv_one=PulseViewer(SiR2-S , amplitude> 100 , true)
+pv_two=PulseViewer(SiR2-F , TPI_length> 155 , true)
 draw_pulses = ExportPulse
 #### end of modules list ######
 
