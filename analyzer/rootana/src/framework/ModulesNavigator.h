@@ -57,7 +57,7 @@ class modules::navigator{
       inline T* GetModule(const std::string& module)const;
 
       /// Get the number of instances that the named module has been requested
-      int HowMany(const std::string& name)const{return fModulesSearch.count(name);}
+      int HowMany(const std::string& name)const;
       
       /// Return an iterator to the first module in the list
       modules::iterator Begin(){return fModules.begin();};
@@ -83,6 +83,7 @@ class modules::navigator{
 
   private:
       bool fModulesLoaded;
+      bool fModulesMade;
       bool fDebug;
       modules::ordered_list fModules;
       modules::list fModulesSearch;

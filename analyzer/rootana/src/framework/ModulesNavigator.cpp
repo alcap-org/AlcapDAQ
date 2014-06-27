@@ -5,7 +5,7 @@
 using std::cout;
 using std::endl;
 
-modules::navigator::navigator():fModulesLoaded(false),fOutFile(NULL){};
+modules::navigator::navigator():fModulesLoaded(false),fModulesMade(false),fDebug(false),fOutFile(NULL){};
 
 int modules::navigator::LoadConfigFile(const char* filename){
     // Check we haven't already opened a modules file
@@ -43,6 +43,12 @@ int modules::navigator::MakeModules(){
 	    return 1;
     }
 
+    // Check that we've not already called this method
+    if(fModulesMade) {
+	    cout<<"Error: MakeModules(): You've already called MakeModules."<<endl;
+	    return 1;
+    }
+
     // Loop over each requested module and build it
     // If we have any problems making a module then stop running
     modules::factory* mgr = modules::factory::Instance();
@@ -73,10 +79,16 @@ int modules::navigator::MakeModules(){
     }
 
     // Everything finished ok
+    fModulesMade=true;
     return 0;
 }
 
 void modules::navigator::AddModule(const std::string& name, BaseModule* mod){
     fModules.push_back(std::make_pair(name,mod));
     fModulesSearch.insert(std::make_pair(name,mod));
+}
+
+int modules::navigator::HowMany(const std::string& name)const{
+    if(fModulesMade) return fModulesSearch.count(name);
+    return fModulesFile.HowMany(name);
 }
