@@ -2,16 +2,12 @@ import os
 import subprocess
 import ftplib
 import netrc
-
-class AlCapException(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.valiue)
+from AlCapExceptions import *
 
 if "DAQdir" not in os.environ.keys():
     print "Job submission error: DAQdir not set! Source thisdaq.sh!"
     raise AlCapException("DAQdir not set")
+
 
 DAQdir = os.environ["DAQdir"]
 DATAdir = os.environ["HOME"] + "/data"
@@ -34,41 +30,32 @@ if not os.path.exists(DUMPdir):
     os.makedirs(DUMPdir)
 
 if not os.path.exists(ODBdir):
-    print "Job submission error: ODB dir (" + ODBdir + ") does not exist!"
-    raise AlCapException
+    msg = "Job submission error: ODB dir (" + ODBdir + ") does not exist!"
+    print msg
+    raise AlCapException(msg)
 
 ftpurl = "archivftp.psi.ch"
 ftpdir = "mu2e/run2013"
 ftpinfo = netrc.netrc(os.environ["HOME"] + "/.netrc").authenticators(ftpurl)
 if not ftpinfo:
-    print "Could not find correct FTP info in netrc file!"
-    raise AlCapException("Could not find correct FTP info in netrc file!")
+    msg = "Could not find correct FTP info in netrc file!"
+    print msg
+    raise AlCapException(msg)
 
-
-class SGEJob:
-    WAITING = "qw"
-    RUNNING = "r"
-    TRANSFERRING = "t"
-    ALCAPANA = "batch_alca"
-    ROOTANA = "batch_root"
-    def __init__(self, job_id, status, prog):
-        self.job_id = job_id
-        self.status = status
-        self.prog = prog
-
-    def __eq__(self, rhs):
-        if isinstance(rhs, self.__class__):
-            return self.job_id == rhs.job_id
-        else:
-            return False
-
-
+## \brief
+#  Determines the fractional usage of allowed disk space on
+#  Merlin using the /usr/lpp/mmfs/bin/mmlsquota command.
+#
+#  \return The fraction of space you've used (between 0 and 1 hopefully).
 def fraction_of_quota_used():
     cmd = "/usr/lpp/mmfs/bin/mmlsquota"
     arg = "merliny"
     proc = subprocess.Popen([cmd, arg], stdout=subprocess.PIPE)
     [out, err] = proc.communicate()
 
+    # The third and fourth tokens (numbers/words) of the third line
+    # of the output of the quota command contain the information in
+    # units of KB.
     quota_line = 2
     use_loc = 2
     quota_loc = 3
@@ -76,12 +63,22 @@ def fraction_of_quota_used():
     
     return float(use)/float(quota)
 
-
+## \brief
+#  Determine what jobs the user has submitted to the queue.
+#
+#  \details
+#  This is accomplished by parsing the output of the qstat command.
+#
+#  \return A list of SGEJobs representing the running jobs.
 def submitted_jobs():
     cmd = "qstat"
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     [out, err] = proc.communicate()
 
+    # The first 2 lines of the qstat output are header lines.
+    # On each subsequent line, the job id is the first token,
+    # the program name the third, and the current job status
+    # the fifth.
     out_lines = out.split("\n")
     header_size = 2
     id_loc = 0
@@ -94,7 +91,13 @@ def submitted_jobs():
 
     return jobs
 
-
+## \brief
+#  Submit either an alcapana or rootana production job
+#  on a run.
+#
+#  \param[in] run The run number (integer).
+#  \param[in] prog The name of the program to run; either alcapana or rootana (string).
+#  \return An SGEJob representing the submitted job.
 def submit_job(run, prog):
     if prog not in ["alcapana", "rootana"]:
         msg = "Job submission error: Program not understood! (" + prog + ")"
@@ -113,12 +116,14 @@ def submit_job(run, prog):
            DAQdir + "/analyzer/batch/scripts/batch_alcapana.sge", str(run)]
     con = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     [out, err] = con.communicate()
+    # The third word of the print out after submission is the job ID.
     job_id = int(out.split()[2])
 
     if prog == "alcapana":
         prog = "batch_alca"
     elif prog == "rootana":
         prog = "batch_root"
+    # Assume the initial job status is waiting in the queue (qw).
     job = SGEJob(job_id, "qw", prog)
 
     return job
@@ -160,6 +165,20 @@ def get_files(runs):
 def get_file(run):
     return get_files([run])
 
+## \brief
+#  Stage some files then download others from the tape archive.
+#
+#  \details
+#  Staging files to be loaded from the archive's tapes onto their
+#  hardrives for later can help speed up downloading the files, as
+#  one is being downloaded another can be staged. This is in contrast
+#  to downloading without staging, where the majority of the wait
+#  during a download was waiting for this implicit staging
+#  to happen.
+#
+#  \param[in] stages A list of run numbers to request have their run files staged.
+#  \param[in] gets A list of run numbers to request download of their runfiles.
+#  \return 0 on success, 1 if there was a problem connecting to the FTP server.
 def stage_files_and_get_others(stages, gets):
     target_dir = RAWdir + "/"
     stagenames = ["run%05d.mid" % run for run in stages]
