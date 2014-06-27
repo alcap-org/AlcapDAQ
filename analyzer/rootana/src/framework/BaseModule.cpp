@@ -2,9 +2,11 @@
 #include "ModulesOptions.h"
 #include "ModulesNavigator.h"
 #include <iostream>
+#include "TObjString.h"
 
 BaseModule::BaseModule(const char *name,modules::options* opts,bool with_directory):
 	fSetup(TSetupData::Instance()),fDebug(false),fName(name),fDirectory(NULL){
+  // Pass common options
   if(opts){
     fDebug=(opts->HasOption("debug") && (opts->GetOption("debug").empty() || opts->GetBool("debug")));
     SetAlias(opts->GetAlias());
@@ -21,6 +23,10 @@ BaseModule::BaseModule(const char *name,modules::options* opts,bool with_directo
         fDirectory=fDirectory->mkdir(GetAlias().c_str());
     }
     fDirectory->SetTitle(opts->StringDescription().c_str());
+    fDirectory->cd();
+    // write the config into the file as a string
+    TObjString *title=new TObjString(opts->StringDescription().c_str());
+    title->Write();
   } else {
       // Set this module to use the top-level directory of the file
       fDirectory=gDirectory->GetDirectory("/");
