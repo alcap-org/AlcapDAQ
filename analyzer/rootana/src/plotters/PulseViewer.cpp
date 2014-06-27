@@ -253,4 +253,4 @@ int PulseViewer::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(PulseViewer,channel,trigger,pulse_type,summarize);
+ALCAP_REGISTER_MODULE(PulseViewer,channel,trigger,summarize);
