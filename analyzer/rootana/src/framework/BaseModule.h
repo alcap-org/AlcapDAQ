@@ -4,7 +4,6 @@
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "TDirectory.h"
-class TDirectory;
 
 namespace modules{
    class options;
@@ -25,7 +24,7 @@ class BaseModule
    /// @param module_name The name of the module
    /// @param opts Options given to the module from the modules file
    /// @param setup [To be removed soon]
-  BaseModule(const char* module_name, modules::options* opts=NULL, TSetupData* setup=NULL);
+  BaseModule(const char* module_name, modules::options* opts=NULL , bool with_directory=true);
   virtual ~BaseModule();
 
   /// Method called by the main event loop for each entry in the input root tree.
@@ -52,12 +51,15 @@ class BaseModule
   std::string GetAlias()const{return fAlias;};
 
   /// Get the name of this module as given to the constructor of the base class
-  const char* GetName()const{return dir->GetName();};
+  const char* GetName()const{return fName.c_str();};
  
  protected:
   /// Check whether this module was asked to print extra debug information
   /// @returns true if 'debug' was given in the modules file, false if not
   bool Debug()const{return fDebug;};
+
+  /// Get the TDirectory for this module
+  TDirectory* GetDirectory()const {return fDirectory;}
 
  private:
    /// @brief The big kahuna.  Overload this in the derived class and it will be
@@ -69,13 +71,18 @@ class BaseModule
    /// @return 0 on success and non-zero on failure
    virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
 
- protected:
-  TDirectory *dir;
-  TSetupData* fSetup;
-
  private:
+   TSetupData* fSetup;
    bool fDebug;
+   std::string fName;
+   TDirectory *fDirectory;
    std::string fAlias;
+
+ protected:
+  /// Many modules use 'dir' still which was the old protected pointer to the
+  /// modules directory.  To prevent things being broken so soon, we keep this
+  /// pointer available, but be warned that it will be removed shortly...
+  TDirectory *dir;
 };
 
 #endif // BASEMODULE_H_

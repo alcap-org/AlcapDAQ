@@ -129,7 +129,7 @@ int main(int argc, char **argv){
               << arguments.outfile << std::endl;
     return 1;
   }
-  fileOut->cd();
+  modules::navigator::Instance()->SetOutFile(fileOut);
 
   // Now let's setup all the analysis modules we want
   // NOTE: This has to be done after the output file was opened else the

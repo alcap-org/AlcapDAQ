@@ -1,7 +1,11 @@
 #include "ModulesNavigator.h"
 #include <iostream>
+#include <TDirectory.h>
+#include <TFile.h>
 using std::cout;
 using std::endl;
+
+modules::navigator::navigator():fModulesLoaded(false),fModulesMade(false),fDebug(false),fOutFile(NULL){};
 
 int modules::navigator::LoadConfigFile(const char* filename){
     // Check we haven't already opened a modules file
@@ -27,9 +31,21 @@ int modules::navigator::LoadConfigFile(const char* filename){
 }
 
 int modules::navigator::MakeModules(){
+    // Check we've been given a valid output file
+    if(! (fOutFile && fOutFile->IsWritable()) ){
+	    cout<<"Error: Output file is not useable"<<endl;
+	    return 1;
+    }
+
     // Check that we've already opened a modules file
     if(!fModulesLoaded) {
 	    cout<<"Error: MakeModules(): Cannot make modules until you load a Modules file."<<endl;
+	    return 1;
+    }
+
+    // Check that we've not already called this method
+    if(fModulesMade) {
+	    cout<<"Error: MakeModules(): You've already called MakeModules."<<endl;
 	    return 1;
     }
 
@@ -43,21 +59,36 @@ int modules::navigator::MakeModules(){
     for(unsigned i=0;i<num_modules;i++){
 	    name = fModulesFile.GetModule(i);
 	    opts =  fModulesFile.GetOptions(i);
-      if(Debug()){
-	      cout<<"Creating module: "<<name<<endl;
-	      cout<<"With options:"<<endl;
-	      opts->DumpOptions("  ");
-      }
-	    mod = mgr->createModule(name,opts);
-	    if(mod) AddModule(name, mod);
-	    else return 3;
+        if(mgr->canCreate(name)){
+            if(Debug()){
+                cout<<"Creating module: "<<name<<endl;
+                cout<<"With options:"<<endl;
+                opts->DumpOptions("  ");
+            }
+            gDirectory->cd("/");
+            mod = mgr->createModule(name,opts);
+            gDirectory->cd("/");
+            if(mod){
+                AddModule(name, mod);
+            }
+            else return 3;
+        }else {
+            std::cout<<"Unknown module requested: "<<name<<std::endl;
+            return 4;
+        }
     }
 
     // Everything finished ok
+    fModulesMade=true;
     return 0;
 }
 
 void modules::navigator::AddModule(const std::string& name, BaseModule* mod){
     fModules.push_back(std::make_pair(name,mod));
     fModulesSearch.insert(std::make_pair(name,mod));
+}
+
+int modules::navigator::HowMany(const std::string& name)const{
+    if(fModulesMade) return fModulesSearch.count(name);
+    return fModulesFile.HowMany(name);
 }

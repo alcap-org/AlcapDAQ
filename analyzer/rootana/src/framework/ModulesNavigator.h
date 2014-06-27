@@ -7,6 +7,7 @@
 #include <typeinfo>       // std::bad_cast
 #include "ModulesFactory.h"
 #include "ModulesReader.h"
+class TFile;
 
 namespace modules{
 	class navigator;
@@ -24,7 +25,7 @@ namespace modules{
 ///  - Providing an iterable list of modules for the main event loop
 class modules::navigator{
 
-      navigator():fModulesLoaded(false),fDebug(false){};
+      navigator();
       ~navigator(){};
       
   public:
@@ -54,6 +55,9 @@ class modules::navigator{
       /// @return NULL if the module doesn't exist
       template <typename T>
       inline T* GetModule(const std::string& module)const;
+
+      /// Get the number of instances that the named module has been requested
+      int HowMany(const std::string& name)const;
       
       /// Return an iterator to the first module in the list
       modules::iterator Begin(){return fModules.begin();};
@@ -68,19 +72,23 @@ class modules::navigator{
       /// Return the number of modules in the list
       unsigned int GetNumModules()const{return fModules.size();};
       
-
       void SetDebug(bool d=true){fDebug=d;}
       bool Debug()const{return fDebug;}
+
+      /// @brief Tell the navigator which output file to be used
+      void SetOutFile(TFile* file){fOutFile=file;}
 
   private:
       void AddModule(const std::string&, BaseModule*);
 
   private:
       bool fModulesLoaded;
+      bool fModulesMade;
       bool fDebug;
       modules::ordered_list fModules;
       modules::list fModulesSearch;
       modules::reader fModulesFile;
+      TFile* fOutFile;
 };
 
 inline modules::navigator* modules::navigator::Instance(){

@@ -158,6 +158,7 @@ int modules::reader::AddModule(std::string line){
 
     // Stick this module into the list of modules
     fModules.push_back(std::make_pair(type,opts));
+    fModulesCounts[type]++;
 
     // Apply current global options to new module
     if(fDebugAll) AddOption(opts,"debug");
@@ -291,3 +292,10 @@ void modules::reader::ProcessGlobalOption(Option_t opt){
 std::ostream& modules::reader::PrintProblem(){
 	return std::cout<<"Problem on line "<<fLineNumber<<": ";
 }
+
+int modules::reader::HowMany(const std::string& name)const{
+    ModuleCounts::const_iterator it=fModulesCounts.find(name);
+    if(it!=fModulesCounts.end()) return it->second;
+    return 0;
+}
+
