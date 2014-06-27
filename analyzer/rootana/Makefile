@@ -37,6 +37,7 @@ TUT_INCLUDE_DIRS = $(TUT_ROOT)
 # converts the colon-separated list to a list with -I flags. eg:
 #   -Iinc/ -Itree_files/inc/ -Iextra_stuff/inc/
 INCLUDE_CFLAGS := $(patsubst %,-I%,$(subst :, ,$(INCLUDE_DIRS)))
+INCLUDE_CFLAGS += -I$(DAQdir)/sqlite-install/include
 
 # Tell GNU where to find header and source files.
 vpath %.h : $(INCLUDE_DIRS)
@@ -95,7 +96,7 @@ $(DATA_LIBRARY_SOURCE):
 	@$(ROOTSYS)/bin/rootcint -f $@ -c $(UIUC_CFLAGS) -p $(INCLUDE_CFLAGS) ${ROOT_DICT_HEADERS} $(ROOTANA_DATALINKDEF)
 
 $(ROOTANA_DATACLASSES):  $(DATA_LIBRARY_SOURCE) $(ROOT_DICT_SOURCES) 
-	@g++ -shared -o$@ $(ROOT_LIBS) $(CXXFLAGS) -I$(ROOTSYS)/include $(INCLUDE_CFLAGS) $^
+	@g++ -shared -o$@ $(ROOT_LIBS) $(CXXFLAGS) -I$(ROOTSYS)/include  $^
 
 rootana: $(OBJECTS) $(ROOTANA_DATACLASSES)
 	@echo -e "Building Rootana" 
