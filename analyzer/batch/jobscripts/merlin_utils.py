@@ -88,7 +88,7 @@ def submitted_jobs():
     status_loc = 4
     prog_name_loc = 2
     jobs = []
-    for line in out_lines[header_size:]:
+    for line in out_lines[header_size:-1]:
         tokens = line.split()
         jobs.append(SGEJob(int(tokens[id_loc]), tokens[status_loc], tokens[prog_name_loc]))
 
@@ -125,7 +125,6 @@ def submit_job(run, prog):
 
 
 def stage_files(runs):
-    return 0
     fnames = ["run%05d.mid" % run for run in runs]
     ftp = ftplib.FTP(ftpurl)
     try:
@@ -162,13 +161,12 @@ def get_file(run):
     return get_files([run])
 
 def stage_files_and_get_others(stages, gets):
-    return 0
-    target_dir = RAWDIR + "/"
+    target_dir = RAWdir + "/"
     stagenames = ["run%05d.mid" % run for run in stages]
     getnames = ["run%05d.mid" % run for run in gets]
 
-    if not os.path.exists(local_location):
-        os.makedirs(local_location)
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
 
     ftp = ftplib.FTP(ftpurl)
     try:
@@ -194,6 +192,5 @@ def cleanup(run):
 
 
 def remove_midas_file(run):
-    return 0
     fname = RAWdir + ("/run%05d.mid" % run)
     os.remove(fname)
