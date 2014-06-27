@@ -15,12 +15,13 @@ namespace IDs{
 	enum Detector_t { 
 		kErrorDetector=-1,
 		kAnyDetector=0,
-		kGe, kLiquidSc, kNDet, kNDet2, kScGe, kScL, kScR, 
-		kScVe, kSiL1_1, kSiL1_2, kSiL1_3, kSiL1_4, kSiL2, 
-		kSiR1_1, kSiR1_2, kSiR1_3, kSiR1_4, kSiR1_sum, kSiR2, 
-		kMuSc, kMuScA };
+		kGe       , kLiquidSc , kNDet     , kNDet2  , kScGe   , // 1-5
+		kScL      , kScR      , kScVe     , kSiL1_1 , kSiL1_2 , // 6-10
+		kSiL1_3   , kSiL1_4   , kSiL2     , kSiR1_1 , kSiR1_2 , // 11-15
+		kSiR1_3   , kSiR1_4   , kSiR1_sum , kSiR2   , kMuSc   , // 16-20
+		kMuScA };                                               // 21
 	/// Used by some algorithms to loop over all Detector_t enum values
-	const short num_detector_enums=22;
+	const short num_detector_enums=21;
 
 	/// Enum for timing filter types applied to a channel
 	/// As for Detector_t, kErrorSlowFast is used to mark an error identifying the type,

@@ -43,12 +43,14 @@ std::string IDs::channel::GetDetectorString(Detector_t det){
 }
 
 IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
-     const char* names[IDs::num_detector_enums]={ 
-	     "*", "Ge", "LiquidSc", "NDet", "NDet2", "ScGe", "ScL", "ScR", 
-		"ScVe", "SiL1_1", "SiL1_2", "SiL1_3", "SiL1_4", "SiL2", 
-		"SiR1_1", "SiR1_2", "SiR1_3", "SiR1_4", "SiR1_sum", "SiR2", 
-		"MuSc", "MuScA" };
-     for (int i=0;i<IDs::num_detector_enums;i++){
+     const char* names[1+IDs::num_detector_enums]={ 
+	     "*"        ,                                                // 0
+	     "Ge"       , "LiquidSc" , "NDet"     , "NDet2"  , "ScGe"   ,// 1-5   
+	     "ScL"      , "ScR"      , "ScVe"     , "SiL1_1" , "SiL1_2" ,// 6-10  
+	     "SiL1_3"   , "SiL1_4"   , "SiL2"     , "SiR1_1" , "SiR1_2" ,// 11-15 
+	     "SiR1_3"   , "SiR1_4"   , "SiR1_sum" , "SiR2"   , "MuSc"   ,// 16-20 
+	     "MuScA" };                                                  // 21
+     for (int i=0;i<=IDs::num_detector_enums;i++){
         if(modules::parser::iequals(det,names[i])) return (Detector_t)i;
      } 
      return kErrorDetector;
