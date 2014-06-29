@@ -55,7 +55,7 @@ class DBManager:
     ## \brief
     #  Register a run as claimed in the database.
     def ClaimRun(self, run):
-        cmd = "UPDATE " + self.production_table + " SET status='C', user='?' WHERE run=?"
+        cmd = "UPDATE " + self.production_table + " SET status='C', user=? WHERE run=?"
         self.db.execute(cmd, (os.environ["USER"], run))
         self.db.commit()
 
