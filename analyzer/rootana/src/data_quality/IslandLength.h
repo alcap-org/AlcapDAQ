@@ -66,25 +66,33 @@ private:
   typedef PulseIslandList::iterator PIL_iter;
   
 
-  /// @brief Copy C'tor is diallowed becasue i dont know what it might do
+  /// Copy C'tor is diallowed becasue i dont know what it might do
   IslandLength(const IslandLength& src);
 
-  /// @brief Copy assignment is disallowed becasue i dont know what it
-  /// might do
+  /// Copy assignment is disallowed becasue i dont know what it might
+  /// do
   IslandLength& operator() (const IslandLength& rhs);
 
-  /// @brief Book histograms and similar
+  /// Book histograms and similar
   virtual void Book(TGlobalData* data, TSetupData* setup);
 
-  /// @brief The directory where the histograms will reside
+  /// The directory where the histograms will reside
   std::string fDirName;
 
-  /// @brief Map of histograms, keyed by bank_name;
+  /// The directory where histograms arre stored
+  TDirectory* fHistDir;
+
+  /// Map of histograms, keyed by bank_name;
   mapSH_t fHistos;
 
-  /// @brief Map of normalised histograms, keyed by bank_name;
+  /// Map of normalised histograms, keyed by bank_name;
   mapSH_t fHistosNorm;
 
+  /// The histogram that we use for normalising to;
+  TH1* fNormHist; 
+
+  //Counter for the number of entries we have processed;
+  int fNProcessed;
 };
 
 #endif //ISLANDLENGTH_H_
