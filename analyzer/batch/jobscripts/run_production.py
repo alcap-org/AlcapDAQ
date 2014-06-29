@@ -3,40 +3,112 @@ import DBManager
 import RunManager
 import merlin_utils as mu
 
-import optparse
+import getopt
 import time
 
+def usage():
+    print "Usage: ./run_production --production=PROD_TYPE [optional arguments...]"
+    print "--------------------------------------------------------------------------------"
+    print "This program checks the production database located at"
+    print "$HOME/data/production.db and takes care of downloading, submitting,"
+    print "and cleanup, and updates the database accordingly so multiple people can process"
+    print "at the same time."
+    print "--------------------------------------------------------------------------------"
+    print "Required:"
+    print "    --production=PROD_TYPE"
+    print "                   The production type (alcapana or rootana)."
+    print "Optional:"
+    print "    -h, --help     Print this help then exit."
+    print "    --usage        Print this help then exit."
+    print "    --version=#    Version number to produce. Default is highest"
+    print "                   production version number in production table."
+    print "    --new          Start a new production, incrememted once from the"
+    print "                   highest number present in productions table."
+    print "    --pause=#      Wait # seconds between the event loop, which"
+    print "                   checks for finished jobs and runs to download."
+    print "                   (Default: 10)"
+    print "    --nproc=#      Maximum number of processes to submit"
+    print "                   to the grid simultaneously."
+    print "                   (Default: 10)"
+    print "    --nprep==#     Maximum number of MOIDAS files to have downloaded"
+    print "                   in addition to the one running on the grid. This"
+    print "                   means have, at most, NPROC + NPREP MIDAS files at"
+    print "                   once."
+    print "                   (Default: 5)"
 
-#parser = argparse.ArgumentParser(description="Manages production of AlCap run data among many users.")
-#parser.add_argument("--production", type=str, choices=["alcapana","rootana"], help="Production type; either alcapana or rootana", required=True)
-#parser.add_argument("--version", type=int, help="The version number to run production on. If not given, assume the most recent production.")
-#parser.add_argument("--new", type=str, choices=["alcapana","rootana"], help="Start a new production of a given type. Either alcapana or rootana. Version argument ignored if this is given.", action="store_true")
-#parser.add_argument("--pause", type=int, help="Time (in seconds) to wait before checking if there's more to be done.", default=10)
-#parser.add_argument("--nproc", type=int, help="Maximum number of jobs to have on the grid at any time.", default=10)
-#parser.add_argument("--nprep", type=int, help="Number of files to try and download so that they're ready to be submitted when the number of running jobs falls below NPROC.", default=5)
-#args = parser.parse_args()
 
-#prod = args.production
-#ver = args.version
-#nproc = args.nproc
-#nprep = args.nprep
-#wait = args.pause
+################################################################################
+# Argument parsing #############################################################
+################################################################################
+short_args = "h"
+long_args = ["usage", "help", "production=", "version=", "new", "pause=", "nproc=", "nprep="]
+opts, unrecognized = getopt.getopt(sys.argv[1:], short_args, long_args)
+
+# Default arguments
+production = None
+version = None
+new = False
+wait = 10
+nproc = 10
+nprep = 5
+
+# Parse arguments
+for opt, val in opts:
+    if opt == "h" or opt == "--help" or opt == "--usage":
+        usage()
+        exit(0)
+    elif opt == "--production":
+        production = val
+    elif opt == "--version":
+        version = int(val)
+    elif opt == "--new":
+        new = True
+    elif opt == "--pause":
+        wait = int(val)
+    elif opt == "--nproc":
+        nproc = int(val)
+    elif opt == "--nprep":
+        nprep = int(val)
 
 
-#if args.new:
-#    dbm = DBManager.DBManager(prod, ver)
-#    dbm.StartProduction()
-#    ver = ver + 1
-#ver = None
+# Argument checking
+if len(unrecognized) > 0:
+    msg = "Unrecognized arguments: " + unrecognized
+    raise ArgumentError(msg)
+if new and version:
+    msg = "Version argument given and new production requested."
+    raise ArgumentError(msg)
+if version and (version < 0 or version > 100):
+    msg = "Version argument less than zero or geater than 100."
+    raise ArgumentError(msg)
+if production not in ["alcapana", "rootana"]:
+    msg = "Unknown production type: " + str(production)
+    raise ArgumentError(msg)
+# Remove this when rootana implemented
+if production == "rootana":
+    msg = "Rootana not implemented yet."
+    raise ArgumentError(msg)
+if wait <= 0 or wait > 60:
+    msg = "Requested pause less than or equal to 0 or greater than a minute."
+    raise ArgumentError(msg)
+if nproc < 1 or nproc > 100:
+    msg = "Number of processes shouldn't be less than 1 and maybe shouldn't be more than 100."
+    raise ArgumentError(msg)
+if nprep < 1 or nprep > 100:
+    msg = "Number of preparations shouldn't be less than 1 and maybe shouldn't be more than 100."
+    raise ArgumentError(msg)
+################################################################################
 
-prod = "alcapana"
-ver = 4
-nproc = 2
-nprep = 0
-wait = 2
-runman = RunManager.RunManager(prod, ver)
+
+if new:
+    dbm = DBManager.DBManager(production, version)
+    version = dbm.StartNewProduction()
+elif not version:
+    dbm = DBManager.DBManager(production, version)
+    version = dbm.GetRecentProductionVersionNumber()
 
 
+runman = RunManager.RunManager(production, version)
 jobs = {}
 try:
     while True:

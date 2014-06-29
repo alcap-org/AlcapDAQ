@@ -227,5 +227,7 @@ class DBManager:
         return
 
 
+## \brief
+#  The canonical production table names are PRODUCTIONTYPE_vVERSIONNUMBER
 def production_table_name(prod, ver):
     return prod + "_v" + str(ver)

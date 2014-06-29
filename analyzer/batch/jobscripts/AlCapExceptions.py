@@ -8,6 +8,9 @@ class AlCapError(Exception):
         self.value = value
     def __str__(self):
         return "AlCap Error: " + repr(self.value) + "!"
+
+class ArgumentError(AlCapError):
+    pass
     
 class GridError(AlCapError):
     pass
