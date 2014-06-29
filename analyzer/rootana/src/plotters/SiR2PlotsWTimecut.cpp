@@ -1,6 +1,6 @@
 //#define USE_PRINT_OUT 
 
-#include "PlotWTimingcut.h"
+#include "SiR2PlotsWTimecut.h"
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,45 +14,25 @@
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
 #include "RegisterModule.inc"
+#include "ModulesParser.h"
 
 using std::string;
 using std::map;
 using std::vector;
 using std::pair;
+using modules::parser::GetDouble;
 
 extern StringAnalPulseMap gAnalysedPulseMap;
 
-PlotWTimingcut::PlotWTimingcut(char *HistogramDirectoryName, std::string det_name_a, std::string det_name_b) :
-  BaseModule(HistogramDirectoryName){ 
-
-  fDetNameA = det_name_a;
-  fDetNameB = det_name_b;
-
-  // hAmpVsTDiff
-  std::string histname = "h" + fDetNameA + "-" + fDetNameB + "_AmpVsTDiff_Coarse";
-  std::string histtitle = "Plot of the amplitude vs time difference for the " + fDetNameA + " and " + fDetNameB + " detector";
-  int n_bits = TSetupData::Instance()->GetNBits(TSetupData::Instance()->GetBankName(fDetNameB));
-  double max_adc_value = std::pow(2, n_bits);
-
-  std::string x_axis_title = "Time Difference (" + fDetNameB + " - " + fDetNameA + ") [ns]";
-  std::string y_axis_title = "Amplitude of " + fDetNameB + " [ADC Value]";
-
-  amp_vs_tdiff_plot_coarse = new TH2F(histname.c_str(), histtitle.c_str(), 100,-50000,50000, max_adc_value,0,max_adc_value);
-  amp_vs_tdiff_plot_coarse->GetXaxis()->SetTitle(x_axis_title.c_str());
-  amp_vs_tdiff_plot_coarse->GetYaxis()->SetTitle(y_axis_title.c_str());
-
-  histname = "h" + fDetNameA + "-" + fDetNameB + "_AmpVsTDiff_Fine";
-  amp_vs_tdiff_plot_fine = new TH2F(histname.c_str(), histtitle.c_str(), 5000,-5000,20000, max_adc_value,0,max_adc_value);
-  amp_vs_tdiff_plot_fine->GetXaxis()->SetTitle(x_axis_title.c_str());
-  amp_vs_tdiff_plot_fine->GetYaxis()->SetTitle(y_axis_title.c_str());
-
-  dir->cd("/");
-}
-
-PlotWTimingcut::PlotWTimingcut(modules::options* opts) : BaseModule( (opts->GetString("0")).c_str() ) {
+SiR2PlotsWTimecut::SiR2PlotsWTimecut(modules::options* opts) : BaseModule( (opts->GetString("0")).c_str() ) {
 
   fDetNameA = opts->GetString("1");
   fDetNameB = opts->GetString("2");
+  fTimeMargin = modules::parser::GetDouble(opts->GetString("3"));
+  if (opts->GetString("4") != "")
+    fTimeShiftCorrection = GetDouble(opts->GetString("4"));
+  else
+    fTimeShiftCorrection = 0.;
 
   // hAmpVsTDiff
   std::string histname = "h" + fDetNameA + "-" + fDetNameB + "_AmpVsTDiff_Coarse";
@@ -71,7 +51,7 @@ PlotWTimingcut::PlotWTimingcut(modules::options* opts) : BaseModule( (opts->GetS
 
   histname = "h" + fDetNameA + "-" + fDetNameB + "_AmpVsTDiff_Fine";
   amp_vs_tdiff_plot_fine = new TH2F(histname.c_str(), histtitle.c_str(), 
-      4096,-1000,20000, 
+      4096,-fTimeMargin - 2e3, fTimeMargin + 2e3, 
       max_adc_value,0,max_adc_value);
   amp_vs_tdiff_plot_fine->GetXaxis()->SetTitle(x_axis_title.c_str());
   amp_vs_tdiff_plot_fine->GetYaxis()->SetTitle(y_axis_title.c_str());
@@ -79,10 +59,17 @@ PlotWTimingcut::PlotWTimingcut(modules::options* opts) : BaseModule( (opts->GetS
   dir->cd("/");
 }
 
-PlotWTimingcut::~PlotWTimingcut(){  
+SiR2PlotsWTimecut::~SiR2PlotsWTimecut(){  
 }
 
-int PlotWTimingcut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int SiR2PlotsWTimecut::BeforeFirstEntry(TGlobalData *gData, TSetupData
+    *gSetup)
+{
+  return 0;
+}
+
+
+int SiR2PlotsWTimecut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
   // Get the detA and detB pulses ready but make sure they exist first
   AnalysedPulseList detA_pulses;
@@ -179,4 +166,4 @@ int PlotWTimingcut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(PlotWTimingcut)
+ALCAP_REGISTER_MODULE(SiR2PlotsWTimecut)
