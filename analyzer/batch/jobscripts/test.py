@@ -1,17 +1,16 @@
-import ftplib
+import os
+import time
+import datetime
+import merlin_utils
+import DBManager
+import RunManager
+import subprocess
+import make_test_table
 
-user = "mucap"
-passwd = "84mfQhhU]"
-loc = "mu2e/run2013"
-url = "archivftp.psi.ch"
-cmd = "RETR"
-fname = "run01998.mid"
 
-con = ftplib.FTP(url)
+merlin_utils.remove_all_files(3200, "alcapana")
+merlin_utils.remove_all_files(3201, "alcapana")
+merlin_utils.remove_all_files(3202, "alcapana")
+merlin_utils.remove_all_files(3203, "alcapana")
 
-s = con.login(user, passwd)
-print s
-s = con.cwd(loc)
-print s
-s = con.retrbinary(cmd + " " + fname, open(fname, "wb").write)
-print s
+import run_production

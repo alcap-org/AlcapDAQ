@@ -55,8 +55,8 @@ class DBManager:
     ## \brief
     #  Register a run as claimed in the database.
     def ClaimRun(self, run):
-        cmd = "UPDATE " + self.production_table + " SET status='C' WHERE run=?"
-        self.db.execute(cmd, (run,))
+        cmd = "UPDATE " + self.production_table + " SET status='C', user='?' WHERE run=?"
+        self.db.execute(cmd, (os.environ["USER"], run))
         self.db.commit()
 
     ## \brief
@@ -82,8 +82,8 @@ class DBManager:
     #  \param[in] run The run number of the run to register as processing.
     def RegisterRunStart(self, run):
         now = datetime.datetime.now()
-        cmd = "UPDATE " + self.production_table + " SET status='R',start=?,user=? WHERE run=?"
-        self.db.execute(cmd, (now, os.environ["USER"], run))
+        cmd = "UPDATE " + self.production_table + " SET status='R',start=? WHERE run=?"
+        self.db.execute(cmd, (now, run))
         self.db.commit()
         return
         
