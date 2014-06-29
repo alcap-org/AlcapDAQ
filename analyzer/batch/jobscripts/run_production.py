@@ -103,9 +103,11 @@ if nprep < 1 or nprep > 100:
 if new:
     dbm = DBManager.DBManager(production, version)
     version = dbm.StartNewProduction()
+    print "Starting new production, version " + str(version) + "..."
 elif not version:
     dbm = DBManager.DBManager(production, version)
     version = dbm.GetRecentProductionVersionNumber()
+    print "Most recent production version " + str(version) + "..."
 
 
 runman = RunManager.RunManager(production, version)
