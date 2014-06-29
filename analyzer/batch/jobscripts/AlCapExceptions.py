@@ -15,7 +15,7 @@ class GridError(AlCapError):
 class DataBaseError(AlCapError):
     pass
 
-class UnknowProductionError(AlCapError):
+class UnknownProductionError(AlCapError):
     def __init__(self, value):
         self.value = "Unknown production type! (" + repr(value) + ")"
 

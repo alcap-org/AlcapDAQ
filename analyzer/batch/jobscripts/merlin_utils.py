@@ -2,11 +2,11 @@ import os
 import subprocess
 import ftplib
 import netrc
+import SGEJob
 from AlCapExceptions import *
 
 if "DAQdir" not in os.environ.keys():
-    print "Job submission error: DAQdir not set! Source thisdaq.sh!"
-    raise AlCapException("DAQdir not set")
+    raise AlCapError("DAQdir not set")
 
 
 DAQdir = os.environ["DAQdir"]
@@ -17,6 +17,7 @@ HISTdir = DATAdir + "/hist"
 ODBdir = DATAdir + "/odb"
 CORRdir = DATAdir + "/corr"
 DUMPdir = DATAdir + "/dump"
+LOGdir = DAQdir + "/analyzer/batch/log"
 
 if not os.path.exists(DATAdir):
     os.makedirs(DATAdir)
@@ -30,17 +31,13 @@ if not os.path.exists(DUMPdir):
     os.makedirs(DUMPdir)
 
 if not os.path.exists(ODBdir):
-    msg = "Job submission error: ODB dir (" + ODBdir + ") does not exist!"
-    print msg
-    raise AlCapException(msg)
+    raise AlCapError("ODB dir (" + ODBdir + ") does not exist!")
 
 ftpurl = "archivftp.psi.ch"
 ftpdir = "mu2e/run2013"
 ftpinfo = netrc.netrc(os.environ["HOME"] + "/.netrc").authenticators(ftpurl)
 if not ftpinfo:
-    msg = "Could not find correct FTP info in netrc file!"
-    print msg
-    raise AlCapException(msg)
+    raise AlCapError("Could not find correct FTP info in netrc file!")
 
 ## \brief
 #  Determines the fractional usage of allowed disk space on
@@ -87,7 +84,7 @@ def submitted_jobs():
     jobs = []
     for line in out_lines[header_size:-1]:
         tokens = line.split()
-        jobs.append(SGEJob(int(tokens[id_loc]), tokens[status_loc], tokens[prog_name_loc]))
+        jobs.append(SGEJob.SGEJob(int(tokens[id_loc]), tokens[status_loc], tokens[prog_name_loc]))
 
     return jobs
 
@@ -100,15 +97,12 @@ def submitted_jobs():
 #  \return An SGEJob representing the submitted job.
 def submit_job(run, prog):
     if prog not in ["alcapana", "rootana"]:
-        msg = "Job submission error: Program not understood! (" + prog + ")"
-        print msg
-        raise AlCapException(msg)
+        raise UnknownProductionError(prog)
     elif prog == "rootana":
-        msg = "Rootana not implemented yet."
-        print msg
-        raise AlCapException(msg)
+        print "Rootana not implemented yet."
+        raise UnknownProductionError(prog)
     
-    log = DAQdir + "/analyzer/batch/log/" + prog + ".run" + ("%05d" % run) + "."
+    log = LOGdir + "/" + prog + ".run" + ("%05d" % run) + "."
     olog = log + "out"
     elog = log + "err"
 
@@ -116,6 +110,7 @@ def submit_job(run, prog):
            DAQdir + "/analyzer/batch/scripts/batch_alcapana.sge", str(run)]
     con = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     [out, err] = con.communicate()
+
     # The third word of the print out after submission is the job ID.
     job_id = int(out.split()[2])
 
@@ -124,7 +119,7 @@ def submit_job(run, prog):
     elif prog == "rootana":
         prog = "batch_root"
     # Assume the initial job status is waiting in the queue (qw).
-    job = SGEJob(job_id, "qw", prog)
+    job = SGEJob.SGEJob(job_id, "qw", prog)
 
     return job
 
@@ -147,7 +142,6 @@ def stage_file(run):
     return stage_files([run])
 
 def get_files(runs):
-    return 0
     target_dir = RAWdir + "/"
     fnames = ["run%05d.mid" % run for run in runs]
     ftp = ftplib.FTP(ftpurl)
@@ -212,4 +206,64 @@ def cleanup(run):
 
 def remove_midas_file(run):
     fname = RAWdir + ("/run%05d.mid" % run)
-    os.remove(fname)
+    if os.path.exists(fname):
+        os.remove(fname)
+    return
+
+def remove_tree_file(run):
+    fname = TREEdir + ("/tree%05d.root" % run)
+    if os.path.exists(fname):
+        os.remove(fname)
+    return
+
+def remove_hist_file(run):
+    fname = HISTdir + ("/hist%05d.root" % run)
+    if os.path.exists(fname):
+        os.remove(fname)
+    return
+
+def remove_log_files(run, prod):
+    fnames = [LOGdir + "/" + prod + ".run%05d.out", LOGdir + "/" + prod + ".run%05d.err"]
+    for fname in fnames:
+        fname = fname % run
+        if os.path.exists(fname):
+            os.remove(fname)
+    return
+
+def remove_odb_dump(run):
+    fname = DUMPdir + ("/dump%05d.odb" % run)
+    if os.path.exists(fname):
+        os.remove(fname)
+    return
+
+## \brief
+#  Remove all files associated with a run during some production.
+#
+#  \param[in] run The run number for which all associated files
+#  created during production should be removed.
+#  \param[in] prod The production type, either "rootana" or "alcapana".
+def remove_all_files(run, prod):
+    if prod == "alcapana":
+        remove_odb_dump(run)
+        remove_midas_file(run)
+        remove_tree_file(run)
+        remove_hist_file(run)
+    elif prod == "rootana":
+        print "Rootana not implemented yet."
+        raise UnknownProductionError(prod)
+    else:
+        raise UnknownProductionError(prod)
+    remove_log_files(run, prod)
+    return
+
+## \brief
+#  Request all jobs in the queue be stopped.
+#
+#  \param[in] jobs A list of SGEJobs to be stopped.
+def abort_jobs(jobs):
+    cmd = "qdel"
+    for job in jobs:
+        print "Cancelling job", job.job_id
+        arg = str(job.job_id)
+        subprocess.Popen([cmd, arg], stdout=subprocess.PIPE)
+    return

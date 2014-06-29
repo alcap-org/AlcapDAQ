@@ -36,13 +36,13 @@ class SGEJob:
     #@}
 
     _STATUSES = [_WAITING, _RUNNING, _RESTARTED, _TRANSFERING,
-                 _THRESHOLDSUSPENDED, _REQUESTEDSUSPENDED,
-                 _NODESUSPENDED, _DELETING, _ERROR, _HOLDING]
+                 _THRESHOLDSUSPEND, _REQUESTEDSUSPEND,
+                 _NODESUSPEND, _DELETING, _ERROR, _HOLDING]
     _PROGRAMS = [_ALCAPANA, _ROOTANA]
 
     def __init__(self, job_id, status, prog):
         self.job_id = job_id
-        if prog not in _PROGRAMS:
+        if prog not in SGEJob._PROGRAMS:
             msg = prog + "not a valid program (expect batch_alca or batch_root)!"
             print msg
             raise GridError(msg)
@@ -60,9 +60,9 @@ class SGEJob:
     #  a grid job can be in.
     #
     #  \todo Check that conflicting statuses are not mutually set.
-    def SetStaus(self, state):
+    def SetStatus(self, state):
         self.status = []
-        for status in _STATUSES:
+        for status in SGEJob._STATUSES:
             if status in state:
                 self.status.append(status)
                 state = state.replace(status, "")
