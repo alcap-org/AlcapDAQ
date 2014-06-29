@@ -43,7 +43,7 @@ SiR2MuEvt::SiR2MuEvt(modules::options* opts) :
   BaseModule( (opts->GetString("0")).c_str() ) 
 {
   fThreshold_muSc = 240;
-  fTimeMargin = 4e3; 
+  fTimeMargin = 10e3; 
   fPileupProtectionTWindow = 15e3;
 
   mutree = new TTree("mutree", "mutree");

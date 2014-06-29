@@ -1,5 +1,5 @@
-#ifndef PlotAmpVsTDiff_h__
-#define PlotAmpVsTDiff_h__
+#ifndef PlotWTimingcut_h__
+#define PlotWTimingcut_h__
 
 #include "BaseModule.h"
 #include "TGlobalData.h"
@@ -8,11 +8,11 @@
 
 #include "TH2.h"
 
-class PlotAmpVsTDiff : public BaseModule{
+class PlotWTimingcut : public BaseModule{
  public:
-  PlotAmpVsTDiff(char *HistogramDirectoryName, std::string det_name_a, std::string det_name_b);
-  PlotAmpVsTDiff(modules::options* opts);
-  ~PlotAmpVsTDiff();
+  PlotWTimingcut(char *HistogramDirectoryName, std::string det_name_a, std::string det_name_b);
+  PlotWTimingcut(modules::options* opts);
+  ~PlotWTimingcut();
 
  private:
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);

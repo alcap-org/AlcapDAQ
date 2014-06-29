@@ -1,6 +1,6 @@
 //#define USE_PRINT_OUT 
 
-#include "PlotAmpVsTDiff.h"
+#include "PlotWTimingcut.h"
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +22,7 @@ using std::pair;
 
 extern StringAnalPulseMap gAnalysedPulseMap;
 
-PlotAmpVsTDiff::PlotAmpVsTDiff(char *HistogramDirectoryName, std::string det_name_a, std::string det_name_b) :
+PlotWTimingcut::PlotWTimingcut(char *HistogramDirectoryName, std::string det_name_a, std::string det_name_b) :
   BaseModule(HistogramDirectoryName){ 
 
   fDetNameA = det_name_a;
@@ -49,7 +49,7 @@ PlotAmpVsTDiff::PlotAmpVsTDiff(char *HistogramDirectoryName, std::string det_nam
   dir->cd("/");
 }
 
-PlotAmpVsTDiff::PlotAmpVsTDiff(modules::options* opts) : BaseModule( (opts->GetString("0")).c_str() ) {
+PlotWTimingcut::PlotWTimingcut(modules::options* opts) : BaseModule( (opts->GetString("0")).c_str() ) {
 
   fDetNameA = opts->GetString("1");
   fDetNameB = opts->GetString("2");
@@ -79,10 +79,10 @@ PlotAmpVsTDiff::PlotAmpVsTDiff(modules::options* opts) : BaseModule( (opts->GetS
   dir->cd("/");
 }
 
-PlotAmpVsTDiff::~PlotAmpVsTDiff(){  
+PlotWTimingcut::~PlotWTimingcut(){  
 }
 
-int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int PlotWTimingcut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
   // Get the detA and detB pulses ready but make sure they exist first
   AnalysedPulseList detA_pulses;
@@ -179,4 +179,4 @@ int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(PlotAmpVsTDiff)
+ALCAP_REGISTER_MODULE(PlotWTimingcut)
