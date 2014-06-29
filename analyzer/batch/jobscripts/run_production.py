@@ -5,6 +5,7 @@ import merlin_utils as mu
 
 import getopt
 import time
+import sys
 
 def usage():
     print "Usage: ./run_production --production=PROD_TYPE [optional arguments...]"
