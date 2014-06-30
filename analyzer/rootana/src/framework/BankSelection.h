@@ -33,7 +33,10 @@ public:
   /// passed \c false or \c 0 it will match none.
   BankSelection(bool match_all = true);
 
-  /// Constuct matching the the list given
+  /// Construct matching a single Source ID (can be wild card)
+  BankSelection(const SourceID& sid);
+
+  /// Construct matching the the list given
   BankSelection(const SourceList_t& list);
 
   /// Destructior. We may inherit from this class
@@ -67,6 +70,11 @@ public:
   /// @return (*this)
   BankSelection& MatchOnly(const SourceList_t& list);
 
+  /// @brief Set the match criteria to the provided ID, overwriting the
+  /// previous criteria
+  /// @return (*this)
+  BankSelection& MatchOnly(const SourceID& sid);
+
   // /// Only match Sources that are also on the provided list of Source IDs
   // /// Logical: SELF = SELF & LIST
   // /// @return *this
@@ -81,9 +89,19 @@ public:
   /// @return *this
   BankSelection& Add(const SourceList_t& list);
 
+  /// @brief Add the provided Source ID 
+  /// @detail Logicaly this looks like SELF = SELF | LIST 
+  /// Note however, that this will add a Source ID even if
+  /// an exact equal exists.  Thus (for example)
+  /// @c myBankSelection.Add(A).Add(A); will append @c A twice
+  /// To eliminate the duplicates, use BankSelection::Compact()
+  /// @return *this
+  BankSelection& Add(const SourceID& sid);
+
   /// Remove any exact duplicates from the selection.  This should not
   /// change the logic, but may speed up searches if many duplicates
   /// have been added.
+  /// @return *this
   BankSelection& Compact();
 
   /// Remove Sources if they are on the provided list of Source IDs
@@ -92,16 +110,25 @@ public:
   /// channels from a wildcard match.  
   /// Note: It also causes Compact() to be called, in order to eliminate
   /// duplicates
-  ///@return *this
+  /// @return *this
   BankSelection& Remove(const SourceList_t& list);
 
-  /// \overload BankSelection& Remove(const SourceList_t& list) 
-
+  /// Remove Sources if they are on the provided list of Source IDs
+  /// \warning This removes IDs based on exact equality of IDs, not
+  /// logical negation. Thus it cannot be used to exclude a group of
+  /// channels from a wildcard match.  
+  /// Note: It also causes Compact() to be called, in order to eliminate
+  /// duplicates
   /// \param removed [out] is an optional parameter that lists all the
   /// IDs Removed() from the selection, If all parameters in list are
   /// unique, and all were removed then @p removed.size() = @p list.size()
   BankSelection& Remove(const SourceList_t& list, SourceList_t& removed);
   
+
+  /// Remove the given Source IDs. This overload of @overload
+  /// BankSelection& Remove(const SourceList_t& list) has all the same
+  /// caveats.
+  BankSelection& Remove(const SourceID& sid);
 
 private:
   typedef SourceList_t::iterator iter; 

@@ -37,6 +37,12 @@ BankSelection::BankSelection(const SourceList_t& list)
   this->MatchOnly(list);
 }
 
+//----------------------------------------------------------------------
+BankSelection::BankSelection(const SourceID& sid)
+{
+  this->MatchOnly(sid);
+}
+
 
 //----------------------------------------------------------------------
 BankSelection::~BankSelection()
@@ -75,32 +81,40 @@ BankSelection& BankSelection::MatchNone()
 //----------------------------------------------------------------------
 BankSelection& BankSelection::MatchOnly(const SourceList_t& list)
 {
-  fMatches.clear();
-  fWildCards.clear();
   int n_wc = std::count_if(list.begin(), list.end(), unary_iwcc);
   fWildCards.reserve(n_wc);
   fMatches.reserve(list.size() - n_wc);
+
+  return this->MatchNone().Add(list);
+
+}
+
+
+//----------------------------------------------------------------------
+BankSelection& BankSelection::MatchOnly(const SourceID& sid)
+{
+  return this->MatchNone().Add(sid);
+}
+
+//----------------------------------------------------------------------
+BankSelection& BankSelection::Add(const SourceList_t& list)
+{
   for (citer it = list.begin(); it != list.end(); ++it){
-    if ( unary_iwcc(*it) ) {
-      fWildCards.push_back(*it);
-    } else {
-      fMatches.push_back(*it); 
-    }
+    this->Add(*it);
   }
   return *this;
 }
 
 
 //----------------------------------------------------------------------
-BankSelection& BankSelection::Add(const SourceList_t& list)
+BankSelection& BankSelection::Add(const SourceID& sid)
 {
-  for (citer it = list.begin(); it != list.end(); ++it){
-    if ( unary_iwcc(*it) ){
-      fWildCards.push_back(*it);
-    } else {
-      fMatches.push_back(*it);
-    }
+  if (unary_iwcc(sid)){
+    fWildCards.push_back(sid);
+  } else {
+    fMatches.push_back(sid);
   }
+
   return *this;
 }
 
@@ -117,10 +131,8 @@ void BankSelection::SortUnique(SourceList_t& list)
 //----------------------------------------------------------------------
 BankSelection& BankSelection::Compact()
 {
-  //SourceList_t::size_t before = fWildCards.size() + fMatches.size();
   SortUnique(fWildCards);
   SortUnique(fMatches);
-  //SourceList_t::size_t diff = fWildCards.size() + fMatches.size() - before;
   return *this;
 } 
 
@@ -128,7 +140,9 @@ BankSelection& BankSelection::Compact()
 //----------------------------------------------------------------------
 BankSelection::iter_pair BankSelection::ImpRemove(const SourceList_t& list)
 {
-  Compact();
+  // REM. This only removes the elements, it does not erase them!
+
+  this->Compact();
   iter_pair back;
   back.wildcard = fWildCards.end();
   back.match = fMatches.end();
@@ -165,12 +179,14 @@ BankSelection& BankSelection::Remove(const SourceList_t& list,
 //----------------------------------------------------------------------
 BankSelection& BankSelection::Remove(const SourceList_t& list)
 {
-  //  const std::pair<SourceList_t::iterator, 
-  //SourceList_t::iterator> 
-    iter_pair back = ImpRemove(list);
-
+  iter_pair back = ImpRemove(list);
   fWildCards.erase(back.wildcard, fWildCards.end());
   fMatches.erase(back.match, fMatches.end());
   return *this;
-  
+}
+
+//----------------------------------------------------------------------
+BankSelection& BankSelection::Remove(const SourceID& sid)
+{
+  return this->Remove(SourceList_t(1, sid));
 }
