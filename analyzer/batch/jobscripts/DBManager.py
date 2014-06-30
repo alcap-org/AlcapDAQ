@@ -123,19 +123,23 @@ class DBManager:
     #  This functions performs two actions. One is register a
     #  started production with the productions table, the other
     #  is creating a new table for this production.
-    def StartNewProduction(self, qual="gold"):
+    #
+    #  \param[in] tag The software tag used for this production. (String)
+    #  \param[in] qual The quality of data to use. Default is "gold" and
+    #  is currently the only choice we have. (String)
+    def StartNewProduction(self, tag, qual="gold"):
         with self.db:
             self.ver = self.GetRecentProductionVersionNumber() + 1
             self.production_table = production_table_name(self.prog, self.ver)
             start = datetime.datetime.now()
-            cmd = "INSERT INTO productions(type, version, start) VALUES (?, ?, ?)"
-            self.db.execute(cmd, (self.prog, self.ver, start))
+            cmd = "INSERT INTO productions(type, version, software, start) VALUES (?, ?, ?, ?)"
+            self.db.execute(cmd, (self.prog, self.ver, tag, start))
             if self.prog == DBManager._ALCAPANA:
                 cmd = ("CREATE TABLE " + self.production_table +
-                       "(run INTEGER, status TEXT, user TEXT, start TIMESTAMP, stop TIMESTAMP, tree TEXT, hist TEXT, odb TEXT, modules TEXT)")
+                       "(run INTEGER, status TEXT, user TEXT, start TIMESTAMP, stop TIMESTAMP, tree TEXT, hist TEXT, odb TEXT, olog TEXT, elog TEXT, modules TEXT)")
             elif self.prog == DBManager._ROOTANA:
                 cmd = ("CREATE TABLE " + self.production_table +
-                       "(run INTEGER, status TEXT, user TEXT, start TIMESTAMP, stop TIMESTAMP, out TEXT, modules TEXT)")
+                       "(run INTEGER, status TEXT, user TEXT, start TIMESTAMP, stop TIMESTAMP, out TEXT, olog TEXT, elog TEXT, modules TEXT)")
             self.db.execute(cmd)
             cmd = "SELECT run FROM datasets WHERE quality=?"
             cur = self.db.execute(cmd, (qual,))
@@ -174,9 +178,8 @@ class DBManager:
     #  \details
     #  This command can only be used to register the location of files
     #  the database understands. For alcapana production, these are
-    #  the tree and hist, files. For rootana, this is
-    #  the out file. For the ODB dump from an alcapana production,
-    #  and the MODULES files from each production type, the entirety
+    #  the tree, hist, and ODB files. For rootana, this is
+    #  the out file. For the MODULES files from each production type, the entirety
     #  of the text is stored in the database.
     #
     #  \param[in] run The run number of the run the file is associated
@@ -188,18 +191,18 @@ class DBManager:
     #  appropriate column can be filled in in the production database.
     def RegisterFile(self, run, loc, filetype=None):
         cmd = "UPDATE " + self.production_table + " SET " + filetype + "=? WHERE run=?"
-        if self.prog == "alcapana":
-            if filetype in ["tree", "hist"]:
+        if self.prog == DBManager._ALCAPANA:
+            if filetype in ["tree", "hist", "odb", "olog", "elog"]:
                 values = (loc, run)
-            elif filetype in ["odb", "modules"]:
+            elif filetype in ["modules"]:
                 data = open(loc, "r").read()
                 values = (data, run)
             else:
                 raise UnknownAlcapanaFiletypeError(filetype)
-        elif self.prog == "rootana":
-            if filetype == "out":
+        elif self.prog == DBManager._ROOTANA:
+            if filetype in ["out", "olog", "elog"]:
                 values = (loc, run)
-            elif filetype == "modules":
+            elif filetype in ["modules"]:
                 data = open(loc, "r").read()
                 values = (data, run)
             else:
@@ -214,16 +217,16 @@ class DBManager:
     #
     #  \param[in] run The run number to re-register as unclaimed.
     def RollbackRun(self, run):
-        with self.db:
-            cmd = "UPDATE " + self.production_table + " SET status='N', user=?, start=?, "
-            if self.prog == DBManager._ALCAPANA:
-                cmd = cmd + "tree=?, hist=?, modules=?, odb=? "
-                values = (None, None, None, None, None, None, run)
-            elif self.prog == DBManager._ROOTANA:
-                cmd = cmd + "out=?, modules=? "
-                values = (None, None, None, None, run)
-            cmd = cmd + "WHERE run=?"
-            self.db.execute(cmd, values)
+        cmd = "UPDATE " + self.production_table + " SET status='N', user=?, start=?, modules=?, "
+        if self.prog == DBManager._ALCAPANA:
+            cmd = cmd + "tree=?, hist=?, odb=? "
+            values = (None, None, None, None, None, None, run)
+        elif self.prog == DBManager._ROOTANA:
+            cmd = cmd + "out=? "
+            values = (None, None, None, None, run)
+        cmd = cmd + "WHERE run=?"
+        self.db.execute(cmd, values)
+        self.db.commit()
         return
 
 

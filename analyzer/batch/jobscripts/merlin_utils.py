@@ -17,7 +17,7 @@ HISTdir = DATAdir + "/hist"
 ODBdir = DATAdir + "/odb"
 CORRdir = DATAdir + "/corr"
 DUMPdir = DATAdir + "/dump"
-LOGdir = DAQdir + "/analyzer/batch/log"
+LOGdir = DATAdir + "/log"
 
 if not os.path.exists(DATAdir):
     os.makedirs(DATAdir)
@@ -29,6 +29,8 @@ if not os.path.exists(HISTdir):
     os.makedirs(HISTdir)
 if not os.path.exists(DUMPdir):
     os.makedirs(DUMPdir)
+if not os.path.exists(LOGdir):
+    os.makedirs(LOGdir)
 
 if not os.path.exists(ODBdir):
     raise AlCapError("ODB dir (" + ODBdir + ") does not exist!")
@@ -37,7 +39,7 @@ ftpurl = "archivftp.psi.ch"
 ftpdir = "mu2e/run2013"
 ftpinfo = netrc.netrc(os.environ["HOME"] + "/.netrc").authenticators(ftpurl)
 if not ftpinfo:
-    raise AlCapError("Could not find correct FTP info in netrc file!")
+    raise AlCapError("Could not find FTP info in netrc file!")
 
 ## \brief
 #  Determines the fractional usage of allowed disk space on
@@ -223,11 +225,12 @@ def remove_hist_file(run):
     return
 
 def remove_log_files(run, prod):
-    fnames = [LOGdir + "/" + prod + ".run%05d.out", LOGdir + "/" + prod + ".run%05d.err"]
-    for fname in fnames:
-        fname = fname % run
-        if os.path.exists(fname):
-            os.remove(fname)
+    ofname = LOGdir + "/" + prod + (".run%05d.out" % run) 
+    efname = LOGdir + "/" + prod + (".run%05d.err" % run)
+    if os.path.exists(ofname):
+        os.remove(ofname)
+    if os.path.exists(efname):
+        os.remove(efname)
     return
 
 def remove_odb_dump(run):
@@ -257,7 +260,7 @@ def remove_all_files(run, prod):
     return
 
 ## \brief
-#  Request all jobs in the queue be stopped.
+#  Request list of jobs in the queue be stopped.
 #
 #  \param[in] jobs A list of SGEJobs to be stopped.
 def abort_jobs(jobs):

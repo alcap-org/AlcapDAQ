@@ -17,41 +17,46 @@ def usage():
     print "--------------------------------------------------------------------------------"
     print "Required:"
     print "    --production=PROD_TYPE"
-    print "                   The production type (alcapana or rootana)."
+    print "                    The production type (alcapana or rootana)."
     print "Optional:"
-    print "    -h, --help     Print this help then exit."
-    print "    --usage        Print this help then exit."
-    print "    --version=#    Version number to produce. Default is highest"
-    print "                   production version number in production table."
-    print "    --new          Start a new production, incrememted once from the"
-    print "                   highest number present in productions table."
-    print "    --pause=#      Wait # seconds between the event loop, which"
-    print "                   checks for finished jobs and runs to download."
-    print "                   (Default: 10)"
-    print "    --nproc=#      Maximum number of processes to submit"
-    print "                   to the grid simultaneously."
-    print "                   (Default: 10)"
-    print "    --nprep==#     Maximum number of MOIDAS files to have downloaded"
-    print "                   in addition to the one running on the grid. This"
-    print "                   means have, at most, NPROC + NPREP MIDAS files at"
-    print "                   once."
-    print "                   (Default: 5)"
+    print "    -h, --help      Print this help then exit."
+    print "    --usage         Print this help then exit."
+    print "    --version=#     Version number to produce. Default is highest production"
+    print "                    version number in production table."
+    print "    --new=TAG       Start a new production, incrememted once from the highest"
+    print "                    number present in productions table. The software tag in"
+    print "                    GitHub must be provided for bookkeeping."
+    print "    --pause=#       Wait # seconds between the event loop, which checks for"
+    print "                    finished jobs and runs to download."
+    print "                    (Default: 5)"
+    print "    --nproc=#       Maximum number of processes to submit to the grid"
+    print "                    simultaneously."
+    print "                    (Default: 10)"
+    print "    --nprep==#      Maximum number of MOIDAS files to have downloaded in"
+    print "                    addition to the one running on the grid. This means have,"
+    print "                    at most, NPROC + NPREP MIDAS files at once."
+    print "                    (Default: 5)"
+    print "    --spacelim=#    The maximum percentage of available space to use up"
+    print "                    (as returned from the mmlsquota command)."
+    print "                    (Default: 90)"
 
 
 ################################################################################
 # Argument parsing #############################################################
 ################################################################################
 short_args = "h"
-long_args = ["usage", "help", "production=", "version=", "new", "pause=", "nproc=", "nprep="]
+long_args = ["usage", "help", "production=", "version=", "new=", "pause=", "nproc=", "nprep=", "spacelim="]
 opts, unrecognized = getopt.getopt(sys.argv[1:], short_args, long_args)
 
 # Default arguments
 production = None
 version = None
 new = False
-wait = 10
+tag = None
+wait = 5
 nproc = 10
 nprep = 5
+space_limit = 0.9
 
 # Parse arguments
 for opt, val in opts:
@@ -64,18 +69,24 @@ for opt, val in opts:
         version = int(val)
     elif opt == "--new":
         new = True
+        tag = str(val)
     elif opt == "--pause":
         wait = int(val)
     elif opt == "--nproc":
         nproc = int(val)
     elif opt == "--nprep":
         nprep = int(val)
+    elif opt == "--spacelim":
+        space_limit = float(val)
 
 
 # Argument checking
 if len(unrecognized) > 0:
     msg = "Unrecognized arguments: " + unrecognized
     raise ArgumentError(msg)
+elif len(opts) == 0:
+    usage()
+    exit(0)
 if new and version:
     msg = "Version argument given and new production requested."
     raise ArgumentError(msg)
@@ -98,55 +109,90 @@ if nproc < 1 or nproc > 100:
 if nprep < 1 or nprep > 100:
     msg = "Number of preparations shouldn't be less than 1 and maybe shouldn't be more than 100."
     raise ArgumentError(msg)
+if space_limit <= 0. or space_limit > 0.95:
+    msg = "Space limit cannot be less than or equal to 0 and maybe shouldn't be greater than 95%."
+    raise ArgumentError(msg)
 ################################################################################
 
 
+dbman = DBManager.DBManager(production, version)
 if new:
-    dbm = DBManager.DBManager(production, version)
-    version = dbm.StartNewProduction()
-    print "Starting new production, version " + str(version) + "..."
+    version = dbman.StartNewProduction(tag)
+    print "INFO: Starting new production, version " + str(version)
 elif not version:
-    dbm = DBManager.DBManager(production, version)
-    version = dbm.GetRecentProductionVersionNumber()
-    print "Most recent production version " + str(version) + "..."
-
-
+    version = dbman.GetRecentProductionVersionNumber()
+    print "INFO: Most recent production version " + str(version)
 runman = RunManager.RunManager(production, version)
 jobs = {}
 try:
-    while True:
-        # If we don't have enough space, just finish what we have
-        if mu.fraction_of_quota_used() < 0.9:
+    no_disk_space_error_printed = False
+    runman.ClaimRuns(nproc + nprep)
+    while runman.Busy():
+        # Claim runs and download one if we have space. If we don't,
+        # print a warning and abort the runs we haven't downloaded yet.
+        # If space opens up later, we will continue.
+        if mu.fraction_of_quota_used() < space_limit:
+            if no_disk_space_error_printed:
+                print "INFO: Disk space has become available."
+                no_disk_space_error_printed = False
             runman.ClaimRuns(nproc + nprep)
             runman.DownloadOne()
+        elif not no_disk_space_error_printed:
+            print "INFO: There is not enough space. Downloaded runs will continue being processed,"
+            print "      however no further runs will be fetched and all undownloaded claimed runs"
+            print "      will be aborted."
+            print "      This state will be reverted if space opens up as files are deleted"
+            print "      during the processing process as they are done processing."
+            no_disk_space_error_printed = True
+            runman.Abort(runman.to_stage + runman.to_download)
 
+        # Submit a job if we can and add the job to the job list
+        # to keep track of.
         while len(mu.submitted_jobs()) < nproc:
             sub = runman.SubmitOne()
             if not sub:
                 break
             jobs[sub[0]] = sub[1]
 
+        # Update list of run/jobs according to queue status
+        # Cancel a job if qstat says it is in error state
+        # ("E" is in the status field).
+        ## \todo Output the error.
+        #  This doesn't happen often though.
         s_jobs = mu.submitted_jobs()
         to_delete = []
+        to_abort = {}
         for run, job in jobs.iteritems():
             if job not in s_jobs:
                 to_delete.append(run)
                 runman.Finish(run)
-        for run in to_delete:
+            else:
+                jobs[run] = s_jobs[s_jobs.index(job)]
+                if jobs[run].HasError():
+                    to_abort[run] = jobs[run]
+        if len(to_abort.keys()) > 0:
+            print "INFO: There were errors with some runs, so the following runs will be aborted:"
+            print to_abort.keys()
+            mu.abort_jobs(to_abort.values())
+            runman.Abort(to_abort.keys())
+        for run in to_delete + to_abort.keys():
             del jobs[run]
-
-        if len(runman.to_finish + runman.to_submit) == 0:
-            print "Nothing for run manager to do. Exiting."
-            break
 
         time.sleep(wait)
 
-
-    if runman.dbm.IsProductionFinished():
-        print "Finishing production", runman.dbm.production_table
-        runman.dbm.FinishProduction()
-
-
 except KeyboardInterrupt:
-    runman.Abort()
+    print "User cancelling jobs..."
     mu.abort_jobs(jobs.values())
+    runman.Abort()
+
+except:
+    print "ERROR: There was an uncaught exception. Aborting..."
+    mu.abort_jobs(jobs.values())
+    runman.Abort()
+    raise
+
+
+
+if runman.dbm.IsProductionFinished():
+    print "INFO: Finishing production", dbman.production_table
+    dbman.FinishProduction()

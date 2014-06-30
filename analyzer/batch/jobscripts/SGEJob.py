@@ -70,3 +70,10 @@ class SGEJob:
             msg = "There is an unknown state: " + state
             print msg
             raise GridError(msg)
+
+    ## \brief
+    #  Check if there is an error in the job.
+    def HasError(self):
+        if SGEJob._ERROR in self.status:
+            return True
+        return False
