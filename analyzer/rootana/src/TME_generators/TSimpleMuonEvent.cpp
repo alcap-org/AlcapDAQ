@@ -148,6 +148,8 @@ int TSimpleMuonEvent::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
     double delta_t = (*(muIter + 1))->GetTime() - (*muIter)->GetTime();
     if (delta_t > fPileupProtectionWindow)
       muHits.push_back(*muIter);
+    else
+      muIter ++; // skip the next event, too
   }
 
   // Keep track of pulse iterators
