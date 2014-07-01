@@ -52,16 +52,15 @@ using hash_utils::MurmurHash3;
 //Add more data to the hash
 void MurmurHash3::Add(MsgPtr_t msg_ptr, Length_t len)
 {
-  std::cout << "Add >> " << fHash << " at " << (int)*msg_ptr << std::endl;;
   fSize += len;
   
   while(len >= 4) {
     UInt_t k = *(reinterpret_cast<const UInt_t*>(msg_ptr));
     mmix(fHash, k);
-      msg_ptr += 4;
-      len -= 4;
+    msg_ptr += 4;
+    len -= 4;
   }
-    
+  
   MixTail(msg_ptr,len);
 }
 
@@ -73,7 +72,6 @@ MurmurHash3::Hash_t MurmurHash3::End()
 {
   if (fTail) mmix(fHash, fTail);
   fHash ^= fSize;
-  
   final_mix(fHash);
   return fHash;
 }
