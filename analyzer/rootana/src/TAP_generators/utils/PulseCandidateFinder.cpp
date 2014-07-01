@@ -287,9 +287,6 @@ std::map<IDs::channel, double> PulseCandidateFinder::fOneSigmaValues;
 /// Sets the one sigma values that we get from the text file
 void PulseCandidateFinder::SetOneSigmaValues() {
 
-  // Open the text file
-  std::ifstream file_in("pedestal-and-noise.txt", std::ifstream::in);
-
   // The values that we will read in
   std::string detname, bankname;
   std::string pedestal, noise;
