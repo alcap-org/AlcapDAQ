@@ -81,7 +81,8 @@ public:
   // BankSelection& Intersect(SourceList_t list);
 
   /// @brief Add Sources from the provided list of Source IDs 
-  /// @detail Logicaly this looks like SELF = SELF | LIST 
+  ///
+  /// @detail Logically this looks like SELF = SELF | LIST 
   /// Note however, that this will add a Source ID even if
   /// an exact equal exists.  Thus (for example)
   /// @c myBankSelection.Add(listA).Add(listA); will append @c listA twice
@@ -90,7 +91,7 @@ public:
   BankSelection& Add(const SourceList_t& list);
 
   /// @brief Add the provided Source ID 
-  /// @detail Logicaly this looks like SELF = SELF | LIST 
+  /// @detail Logically this looks like SELF = SELF | LIST 
   /// Note however, that this will add a Source ID even if
   /// an exact equal exists.  Thus (for example)
   /// @c myBankSelection.Add(A).Add(A); will append @c A twice
@@ -98,59 +99,57 @@ public:
   /// @return *this
   BankSelection& Add(const SourceID& sid);
 
-  /// Remove any exact duplicates from the selection.  This should not
+  /// @brief Remove any exact duplicates from the selection.  This should not
   /// change the logic, but may speed up searches if many duplicates
   /// have been added.
   /// @return *this
   BankSelection& Compact();
 
-  /// Remove Sources if they are on the provided list of Source IDs
-  /// \warning This removes IDs based on exact equality of IDs, not
+  /// @brief Remove Sources if they are on the provided list of Source IDs
+  /// @warning This removes IDs based on exact equality of IDs, not
   /// logical negation. Thus it cannot be used to exclude a group of
   /// channels from a wildcard match.  
-  /// Note: It also causes Compact() to be called, in order to eliminate
-  /// duplicates
+  /// @detail Note: It also causes Compact() to be called, in order to
+  /// eliminate duplicates
   /// @return *this
   BankSelection& Remove(const SourceList_t& list);
 
-  /// Remove Sources if they are on the provided list of Source IDs
-  /// \warning This removes IDs based on exact equality of IDs, not
+  /// @brief Remove Sources if they are on the provided list of Source IDs
+  /// @warning This removes IDs based on exact equality of IDs, not
   /// logical negation. Thus it cannot be used to exclude a group of
   /// channels from a wildcard match.  
-  /// Note: It also causes Compact() to be called, in order to eliminate
-  /// duplicates
-  /// \param removed [out] is an optional parameter that lists all the
+  /// @detail Note: It also causes Compact() to be called, in order to
+  /// eliminate duplicates
+  /// @param removed [out] is an optional parameter that lists all the
   /// IDs Removed() from the selection, If all parameters in list are
   /// unique, and all were removed then @p removed.size() = @p list.size()
   BankSelection& Remove(const SourceList_t& list, SourceList_t& removed);
   
 
-  /// Remove the given Source IDs. This overload of @overload
+  /// @brief Remove the given Source IDs. This overload of @overload
   /// BankSelection& Remove(const SourceList_t& list) has all the same
   /// caveats.
   BankSelection& Remove(const SourceID& sid);
 
-private:
+protected:
   typedef SourceList_t::iterator iter; 
   typedef SourceList_t::const_iterator citer; 
 
   struct iter_pair { iter wildcard; iter match; };
 
-  ///Convenience function that checks if a given Source ID matches any
-  ///from a list
+  /// Implementation function that checks if a given Source ID matches
+  /// any from a list
   bool ListMatch(const SourceID& sid, const SourceList_t& list) const;
 
-  ///Convenience function that removes duplicate SourceIDs from a list
+  /// Implementation function that removes duplicate SourceIDs from a list
   void SortUnique(SourceList_t& list);
   
-  ///Convenience function to remove a list and return the new ends
-  /// first is wildcards second is exacts
-  ///Must call erase after!
-  //const std::pair<iter, iter> 
+  /// Implementation function to remove a list and return the new
+  /// end()s first is wildcards second is exact matchess 
+  /// @warning Must call erase after!
   iter_pair ImpRemove(const SourceList_t& list);
 
-  //citer cBegin(SourceList_t& list) const
-  //{ return const_cast<const SourceList_t&>(list).begin(); }
+private:
 
   /// The list of Source IDs that match several Channels
   SourceList_t fWildCards;
