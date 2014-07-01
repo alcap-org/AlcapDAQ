@@ -19,18 +19,19 @@ namespace hash_utils{
     return pet(key, length);
   }
   
-  class MurmurHash2;
+  class MurmurHash3;
 
 
 };
 
-class hash_utils::MurmurHash2{
+class hash_utils::MurmurHash3{
 public:
   typedef const Byte_t* MsgPtr_t;
   typedef UInt_t Hash_t;
   typedef Int_t Length_t;
+  typedef Byte_t Rot_t; 
 
-  MurmurHash2(unsigned int seed = 0xe086c5ff)
+  MurmurHash3(unsigned int seed = 0xe086c5ff)
     : fHash(seed), fTail(0), fCount(0), fSize(0)
   {}
     
@@ -39,14 +40,32 @@ public:
 
 private:
   void MixTail (MsgPtr_t& data, Length_t& len);
-  inline void mmix(Hash_t& h, UInt_t& a) 
+
+  inline UInt_t rot32(UInt_t bits, Rot_t r)
+  {
+    return (bits << r) | (bits >> (32 - r));
+  }
+  
+  inline void mmix(Hash_t& h, UInt_t& bits)
   { 
-    a *= gkMply;  a ^= a >> gkRot;  a *= gkMply; 
-    h *= gkMply;  h ^= a;
+    bits *= kMply1;   bits = rot32(bits, 15);   bits *= kMply2;
+    h ^= bits;   h = rot32(h, 13) * 5 + 0xe6546b64;
   }
 
-  static const UInt_t gkMply = 0x5bd1e995;
-  static const Int_t gkRot = 24;
+  inline void final_mix(Hash_t& h)
+  {
+    h ^= h >> 16;   h *= 0x85ebca6b;
+    h ^= h >> 13;   h *= 0xc2b2ae35;
+    h ^= h >> 16;
+  }
+
+  static const UInt_t kMply1 = 0xcc9e2d51;
+  static const UInt_t kMply2 = 0x1b873593;
+  //static const UShort_t kRot1 = 15;
+  //static const UShort_t kRot2 = 13;
+  //static const UInt_t kFinalM = 5;
+  //static const UInt_t kFinalN = 0xe6546b64;
+
 
   Hash_t fHash;
   UInt_t fTail;

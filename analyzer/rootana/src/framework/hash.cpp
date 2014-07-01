@@ -47,14 +47,13 @@ UInt_t hash_utils::murmurhash2::operator() (const void * key, int len) const
 }
 
 
-using hash_utils::MurmurHash2;
+using hash_utils::MurmurHash3;
 //----------------------------------------------------------------------
 //Add more data to the hash
-void MurmurHash2::Add(MsgPtr_t msg_ptr, Length_t len)
+void MurmurHash3::Add(MsgPtr_t msg_ptr, Length_t len)
 {
   std::cout << "Add >> " << fHash << " at " << (int)*msg_ptr << std::endl;;
   fSize += len;
-  MixTail(msg_ptr,len);
   
   while(len >= 4) {
     UInt_t k = *(reinterpret_cast<const UInt_t*>(msg_ptr));
@@ -69,23 +68,19 @@ void MurmurHash2::Add(MsgPtr_t msg_ptr, Length_t len)
 
 //----------------------------------------------------------------------  
 //Before returning add the message length and mush up the bits a bit more
-MurmurHash2::Hash_t MurmurHash2::End()
+MurmurHash3::Hash_t MurmurHash3::End()
 {
-  std::cout << "end >> " << fHash << std::endl;;
-  mmix(fHash,fTail);
-  mmix(fHash,fSize);
-  
-  fHash ^= fHash >> 13;
-  fHash *= gkMply;
-  fHash ^= fHash >> 15;
-  
+  fHash ^= fSize;
+  final_mix(fHash);
   return fHash;
 }
 
 //----------------------------------------------------------------------
 //Mixes in tailing chunks of up to 3 bytes
-void MurmurHash2::MixTail(MsgPtr_t& data, Length_t& len)
+void MurmurHash3::MixTail(MsgPtr_t& data, Length_t& len)
 {
+  //MMR  3409101255
+  //MMR2 3294016608
   while( len && ((len<4) || fCount) ) {
     fTail |= (*data++) << (fCount * 8);
     
@@ -99,14 +94,6 @@ void MurmurHash2::MixTail(MsgPtr_t& data, Length_t& len)
     }
   }
 }
-
-/* // The magical mix operation.
-   inline void mmix(Hash_t& h, UInt_t& a) 
-   { 
-   a *= gkMply;  a ^= a >> gkRot;  a *= gkMply; 
-   h *= gkMply;  h ^= a;
-   }
-*/
 
 
 
