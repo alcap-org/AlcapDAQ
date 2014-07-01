@@ -67,23 +67,25 @@ void MurmurHash3::Add(MsgPtr_t msg_ptr, Length_t len)
 
 
 //----------------------------------------------------------------------  
-//Before returning add the message length and mush up the bits a bit more
+//Before returning add any remaining tail, the message length 
+//and mush up the bits a bit more
 MurmurHash3::Hash_t MurmurHash3::End()
 {
+  if (fTail) mmix(fHash, fTail);
   fHash ^= fSize;
+  
   final_mix(fHash);
   return fHash;
 }
 
 //----------------------------------------------------------------------
-//Mixes in tailing chunks of up to 3 bytes
+//Mixes in tailing chunks of up to 3 bytes. It accumulates chunks
+//untill it has > 4 then mixes the completed set of 4 bytes into the
+//hash.
 void MurmurHash3::MixTail(MsgPtr_t& data, Length_t& len)
 {
-  //MMR  3409101255
-  //MMR2 3294016608
-  while( len && ((len<4) || fCount) ) {
+  while( len && ((len<4) || fCount)) {
     fTail |= (*data++) << (fCount * 8);
-    
     fCount++;
     len--;
     
