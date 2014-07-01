@@ -51,6 +51,10 @@ void PulseCandidateFinder::FindPulseCandidates(TPulseIsland* pulse) {
   else if (fChannel.isSlow()) {
     FindCandidatePulses_Slow(fParameterValue);
   }
+  else {
+    // this is a scintillator so do the fast pulse analysis
+    FindCandidatePulses_Fast(fParameterValue);
+  }
 }
 
 PulseCandidateFinder::~PulseCandidateFinder() {
@@ -176,6 +180,11 @@ void PulseCandidateFinder::FillParameterHistogram(TH1D* histogram) {
   else if (theChannel.isSlow()) {
     parameter_name = "SampleHeight";
     FillSampleHeightsHistogram(histogram);
+  }
+  else {
+    // it's a scintillator so plot the fast parameters
+    parameter_name = "SampleDifference";
+    FillSampleDifferencesHistogram(histogram);
   }
 
   std::string histtitle = "Plot of " + parameter_name + " for " + detname + " for Run 2808";
