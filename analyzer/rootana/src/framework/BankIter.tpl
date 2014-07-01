@@ -6,7 +6,6 @@
 template<typename BANK> 
 const BANK* BankIter<BANK>::Next()
 {
-  this->Lock();
   return new BANK;
 }
 
@@ -15,7 +14,6 @@ const BANK* BankIter<BANK>::Next()
 template<typename BANK>
 BankIter<BANK>& BankIter<BANK>::Rewind()
 {
-  this->Lock();
   return *this;
 }
 
