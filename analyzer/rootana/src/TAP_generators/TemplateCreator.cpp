@@ -6,6 +6,7 @@
 
 #include "definitions.h"
 
+#include "SetupNavigator.h"
 #include "utils/TemplateFitter.h"
 #include "ExportPulse.h"
 
@@ -114,7 +115,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	}
 
 	template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
-	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
+	//	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
 
 	if (Debug()) {
 	  std::cout << "Template Creator: Fitted Parameters: PedOffset = " << template_fitter->GetPedestalOffset() << ", AmpScaleFactor = " << template_fitter->GetAmplitudeScaleFactor()
@@ -129,14 +130,17 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	histname << "_Corrected";
 	TH1D* hCorrectedPulse = new TH1D(histname.str().c_str(), histname.str().c_str(), theSamples.size(), 0, theSamples.size());
 
+	double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
 	for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
 
 	  double uncorrected_value = (*sampleIter);
 	  double corrected_value = uncorrected_value - template_fitter->GetPedestalOffset();
 	  corrected_value /= template_fitter->GetAmplitudeScaleFactor();
 
-	  hUncorrectedPulse->Fill(sampleIter - theSamples.begin(), uncorrected_value);
-	  hCorrectedPulse->Fill(sampleIter - theSamples.begin() - template_fitter->GetTimeOffset(), corrected_value);
+	  hUncorrectedPulse->SetBinContent(sampleIter - theSamples.begin(), uncorrected_value);
+	  hUncorrectedPulse->SetBinError(sampleIter - theSamples.begin(), pedestal_error);
+	  hCorrectedPulse->SetBinContent(sampleIter - theSamples.begin() - template_fitter->GetTimeOffset(), corrected_value);
+	  hCorrectedPulse->SetBinError(sampleIter - theSamples.begin(), pedestal_error);
 	}
 	// we keep on adding pulses until adding pulses has no effect on the template
       }
@@ -186,6 +190,13 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
     std::string histtitle = "Template Histogram for the " + detname + " channel";
 
     hTemplate = new TH1D(histname.c_str(), histtitle.c_str(), n_samples, 0, n_samples);
+
+    // Add the first pulse and the correct initial errors
+    double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
+    for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+      hTemplate->SetBinContent( sampleIter - theSamples.begin(), *sampleIter);
+      hTemplate->SetBinError( sampleIter - theSamples.begin(), pedestal_error);
+    }
   }
 
   // Now loop through the samples and add to the template
@@ -211,10 +222,6 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
     hTemplate->SetBinContent( iBin, value_to_fill);
   }
   */
-
-  for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
-    hTemplate->Fill( sampleIter - theSamples.begin(), *sampleIter);
-  }
 }
 
 // The following macro registers this module to be useable in the config file.
