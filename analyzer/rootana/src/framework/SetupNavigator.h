@@ -13,6 +13,10 @@ class SetupNavigator{
 
   int GetRunNumber(){return fCommandLineArgs.run;};
 
+  /// \brief
+  /// Gets the error on the pedestal from the SQLite database
+  double GetPedestalError(std::string bankname);
+
  private:
   static SetupNavigator* fThis;
   ARGUMENTS fCommandLineArgs;
