@@ -114,7 +114,10 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 		    << "TemplateCreator: Initial Estimates: pedestal = " << pedestal_estimate << ", amplitude = " << amplitude_estimate << ", time = " << time_estimate << std::endl;
 	}
 
-	template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
+	int fit_status = template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
+	if (fit_status != 0) {
+	  continue;
+	}
 	//	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
 
 	if (Debug()) {
@@ -194,8 +197,8 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
     // Add the first pulse and the correct initial errors
     double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
     for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
-      hTemplate->SetBinContent( sampleIter - theSamples.begin(), *sampleIter);
-      hTemplate->SetBinError( sampleIter - theSamples.begin(), pedestal_error);
+      hTemplate->SetBinContent( sampleIter - theSamples.begin()+1, *sampleIter); // +1 because ROOT numbers bins from 1
+      hTemplate->SetBinError( sampleIter - theSamples.begin()+1, pedestal_error);
     }
   }
 
