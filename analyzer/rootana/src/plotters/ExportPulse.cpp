@@ -13,6 +13,8 @@
 
 #include <TH1F.h>
 
+#include "SetupNavigator.h"
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -222,9 +224,11 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info)cons
    double max= ((pulse->GetTimeStamp() + num_samples) * fClockTick) - fTimeShift;
    double min= -fTimeShift;
    TH1F* hPulse = new TH1F(hist.c_str(), title.str().c_str(), num_samples,min,max);
-   
+   std::string bankname = pulse->GetBankName();
+   double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname); // should probably move to TSetupData or whatever
    for ( size_t i=0;i <num_samples; ++i) {
      hPulse->SetBinContent(i+1, pulse->GetSamples().at(i));
+     hPulse->SetBinError(i+1, pedestal_error);
    }
 
    return 0;
