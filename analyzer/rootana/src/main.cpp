@@ -185,7 +185,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   gEntryNumber=&jentry;
   for ( jentry=start; jentry<stop;jentry++) {
     if(g_event){
-      g_event->Clear("C");
+      //g_event->Clear("C");
       ClearGlobalData(g_event);
       dataTree->SetBranchAddress("Event",&g_event);
     }
@@ -236,10 +236,12 @@ void ClearGlobalData(TGlobalData* data)
   StringPulseIslandMap::iterator mapEnd = data->fPulseIslandToChannelMap.end();
   for(mapIter = data->fPulseIslandToChannelMap.begin(); mapIter != mapEnd; mapIter++) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
-    std::vector<TPulseIsland*> pulse_vector= mapIter->second;
+    std::vector<TPulseIsland*>& pulse_vector = mapIter->second;
     for(size_t i=0; i<pulse_vector.size(); i++){
-      delete pulse_vector[i];
-      pulse_vector[i] = NULL;
+      if (pulse_vector[i]) {
+	delete pulse_vector[i];
+	pulse_vector[i] = NULL;
+      }
     }
     pulse_vector.clear();
   }
@@ -249,10 +251,12 @@ void ClearGlobalData(TGlobalData* data)
      mapIter != gAnalysedPulseMap.end(); mapIter++) {
 
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
-    AnalysedPulseList pulse_vector= mapIter->second;
+    AnalysedPulseList &pulse_vector = mapIter->second;
     for(size_t i=0; i<pulse_vector.size(); i++){
-      delete pulse_vector[i];
-      pulse_vector[i] = NULL;
+      if (pulse_vector[i]) {
+	delete pulse_vector[i];
+	pulse_vector[i] = NULL;
+      }
     }
     pulse_vector.clear();
   }
@@ -260,7 +264,7 @@ void ClearGlobalData(TGlobalData* data)
 
   for(StringDetPulseMap::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
-    std::vector<TDetectorPulse*> pulse_vector= mapIter->second;
+    std::vector<TDetectorPulse*>& pulse_vector = mapIter->second;
     for(size_t i=0; i<pulse_vector.size(); i++){
       delete pulse_vector[i];
       pulse_vector[i] = NULL;
