@@ -14,7 +14,7 @@ TemplateFitter::TemplateFitter(std::string detname): fChannel(detname) {
 TemplateFitter::~TemplateFitter() {
 }
 
-void TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse) {
+int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse) {
   // First make a histogram out of the pulse with the same bin width as the template,
   // Then pass to the Minuit fitter.
   // Returns ped in units of ADC counts, amp in... scale units(?), and time in units
@@ -69,6 +69,8 @@ void TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pul
   }
 
   delete hPulse;
+
+  return status; // return status for the calling module to look at
 }
 
 /*

@@ -16,7 +16,7 @@ class TemplateFitter {
   TFitterMinuit* fMinuitFitter;
 
  public:
-  void FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse);
+  int FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse);
   double GetPedestalOffset() { return fPedestalOffset; }
   double GetAmplitudeScaleFactor() { return fAmplitudeScaleFactor; }
   double GetTimeOffset() { return fTimeOffset; }
