@@ -33,10 +33,6 @@ class TemplateFitter {
   /// \brief
   /// Sets the intial estimates for the template fitter
   void SetInitialParameterEstimates(double pedestal, double amplitude, double time);
-
-  /// \brief
-  /// Gets the error on the pedestal from the SQLite database
-  double GetPedestalError(std::string bankname);
 };
 
 #endif

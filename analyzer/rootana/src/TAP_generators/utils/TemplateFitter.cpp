@@ -1,12 +1,7 @@
 #include "TemplateFitter.h"
 
 #include "HistogramFitFCN.h"
-
-#include <TSQLiteServer.h>
-#include <TSQLiteResult.h>
-#include <TSQLiteRow.h>
-
-#include <sstream>
+#include "SetupNavigator.h"
 
 TemplateFitter::TemplateFitter(std::string detname): fChannel(detname) {
 
@@ -29,7 +24,7 @@ void TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pul
 
   TH1D* hPulse = new TH1D("hPulseToFit", "hPulseToFit", n_samples, -0.5, n_samples - 0.5);
   std::string bankname = pulse->GetBankName();
-  double pedestal_error = GetPedestalError(bankname); // should probably move to TSetupData or whatever
+  double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname); // should probably move to TSetupData or whatever
   for (int i = 0; i < n_samples; ++i) {
     hPulse->SetBinContent(i+1, samples.at(i));
     hPulse->SetBinError(i+1, pedestal_error);
@@ -92,37 +87,4 @@ void TemplateFitter::SetInitialParameterEstimates(double pedestal, double amplit
   fPedestalOffset = pedestal;
   fAmplitudeScaleFactor = amplitude;
   fTimeOffset = time;
-}
-
-
-double TemplateFitter::GetPedestalError(std::string bankname) {
-
-  // The values that we will read in
-  double noise;
-
-  // Get the SQLite database file
-  TSQLiteServer* server = new TSQLiteServer("sqlite://pedestals-and-noises.sqlite");
-
-  std::stringstream query; 
-  std::string tablename = "pedestals_and_noises";
-  if (server) {
-
-    query << "SELECT * FROM " << tablename << " WHERE bank=\'" << bankname << "\';"; // get all the pedestals and noises
-    TSQLiteResult* result = (TSQLiteResult*) server->Query(query.str().c_str());  // get the result of this query
-    query.str(""); // clear the stringstream after use
-
-    TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
-    while (row != NULL) {
-      noise = atof(row->GetField(3));
-      
-      delete row;
-      row = (TSQLiteRow*) result->Next(); // get the next row
-    }
-    delete result; // user has to delete the result
-  }
-  else {
-    std::cout << "Error: Couldn't connect to SQLite database" << std::endl;
-  }
-  server->Close();
-  return noise;
 }
