@@ -219,8 +219,8 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info)cons
    }
 
    size_t num_samples = pulse->GetPulseLength();
-   double max= ((pulse->GetTimeStamp() + num_samples) * fClockTick) - fTimeShift;
-   double min= -fTimeShift;
+   double min= (pulse->GetTimeStamp() * fClockTick) - fTimeShift;
+   double max= min + num_samples * fClockTick;
    TH1F* hPulse = new TH1F(hist.c_str(), title.str().c_str(), num_samples,min,max);
    
    for ( size_t i=0;i <num_samples; ++i) {
