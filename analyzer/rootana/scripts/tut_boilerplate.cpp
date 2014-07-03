@@ -13,10 +13,10 @@ namespace tut
   };
 
   typedef test_group<GROUP_NAME> GROUP_NAME_group;
-  GROUP_NAME_group pet("TEST_DESCRIPTION");
+  GROUP_NAME_group GROUP_NAME_pet("TEST_DESCRIPTION");
 
   namespace {
-    //C We use the unnamed namespace here to that the typename "tester"
+    //C We use the unnamed namespace here so that the typename "tester"
     //C can be reused by every test.
     typedef GROUP_NAME_group::object tester;
   }
