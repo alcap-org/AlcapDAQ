@@ -37,7 +37,7 @@ GaussFitAPGenerator::GaussFitAPGenerator(TAPGeneratorOptions* opts):
         fPedestal=opts->GetDouble("pedestal",0);
         fGradient=opts->GetDouble("gradient",0);
 
-        fFitFunc=new TF1(fFitName,gauss_lin,0,1000);
+        fFitFunc=new TF1(fFitName,gauss_lin,0,1000,5);
         fFitFunc->SetParName(kPedestal,"pedestal");
         fFitFunc->SetParName(kAmplitude,"amplitude");
         fFitFunc->SetParName(kWidth,"width");
@@ -93,7 +93,7 @@ void GaussFitAPGenerator::FitPulse(const TPulseIsland* tpi,const int& id,FittedV
     fFitFunc->SetRange(0,tpi->GetPulseLength());
 
     // Perform the fit
-    TFitResultPtr result=hPulse->Fit(fFitName,"R");
+    TFitResultPtr result=hPulse->Fit(fFitFunc,"S R");
 
     // Get the values from the fit 
     tap.value[kAmplitude] = fFitFunc->GetParameter(kAmplitude);
