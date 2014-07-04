@@ -21,7 +21,7 @@ class HistogramFitFCN : public ROOT::Minuit2::FCNBase {
 
   // Used for calls with parameters
   // The return value is the chi squared
-  // weighted by errors in fH1
+  // weighted by errors in fTemplateHist
   // Parameters:
   // 1. Pedestal
   // 2. Amplitude
@@ -29,6 +29,12 @@ class HistogramFitFCN : public ROOT::Minuit2::FCNBase {
   double operator() (const std::vector<double>& par) const;
   // Used for error... somehow?
   double Up() const;
+
+ private:
+  mutable int fNDoF; // record this for TemplateFitter to retrieve later (NB mutable so that it can be set in operator(), which is const)
+  
+ public:
+  int GetNDoF() { return fNDoF; }
 };
 
 #endif
