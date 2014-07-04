@@ -95,23 +95,25 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 
 	// all the other pulses will be fitted to the template and then added to it
 	// Get some initial estimates for the fitter
-	double pedestal_estimate = (*pulseIter)->GetSamples().at(0) - hTemplate->GetBinContent(1);
-	double amplitude_estimate;
-	double time_estimate;
+	double template_pedestal = hTemplate->GetBinContent(1);
+	double pedestal_offset_estimate = (*pulseIter)->GetSamples().at(0) - template_pedestal;
+	double amplitude_scale_factor_estimate;
+	double time_offset_estimate;
 	if (TSetupData::Instance()->GetTriggerPolarity(bankname) == 1) { 
-	  amplitude_estimate = (*pulseIter)->GetAmplitude() / hTemplate->GetMaximum(); // estimated scale factor
-	  time_estimate = (*pulseIter)->GetPeakSample() - hTemplate->GetMaximumBin();
+	  amplitude_scale_factor_estimate = (*pulseIter)->GetAmplitude() / (hTemplate->GetMaximum() - template_pedestal); // estimated scale factor
+	  time_offset_estimate = (*pulseIter)->GetPeakSample() - hTemplate->GetMaximumBin();
 	}
 	else if (TSetupData::Instance()->GetTriggerPolarity(bankname) == -1) {
-	  amplitude_estimate = (*pulseIter)->GetAmplitude() / hTemplate->GetMinimum(); // estimated scale factor
-	  time_estimate = (*pulseIter)->GetPeakSample() - hTemplate->GetMinimumBin();
+	  amplitude_scale_factor_estimate = (*pulseIter)->GetAmplitude() / (template_pedestal - hTemplate->GetMinimum()); // estimated scale factor
+	  time_offset_estimate = (*pulseIter)->GetPeakSample() - hTemplate->GetMinimumBin();
 	}
 
-	template_fitter->SetInitialParameterEstimates(pedestal_estimate, amplitude_estimate, time_estimate);
+	template_fitter->SetInitialParameterEstimates(pedestal_offset_estimate, amplitude_scale_factor_estimate, time_offset_estimate);
 	
 	if (Debug()) {
 	  std::cout << "TemplateCreator: " << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << ": " << std::endl
-		    << "TemplateCreator: Initial Estimates: pedestal = " << pedestal_estimate << ", amplitude = " << amplitude_estimate << ", time = " << time_estimate << std::endl;
+		    << "TemplateCreator: Initial Estimates: pedestal = " << pedestal_offset_estimate << ", amplitude = " << amplitude_scale_factor_estimate 
+		    << ", time = " << time_offset_estimate << std::endl;
 	}
 
 	int fit_status = template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
