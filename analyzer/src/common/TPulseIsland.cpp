@@ -71,7 +71,7 @@ double TPulseIsland::GetPulseTime() const {
 // -- Fills a histogram with all the samples and returns it
 TH1I* TPulseIsland::GetPulseWaveform(std::string histname, std::string histtitle) const {
 
-  TH1I* hWaveform = new TH1I(histname.c_str(), histtitle.c_str(), 200,0,200);
+  TH1I* hWaveform = new TH1I(histname.c_str(), histtitle.c_str(), fSamples.size(),0,fSamples.size());
 
   // Loop over the samples and fill the histogram
   for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {

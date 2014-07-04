@@ -15,6 +15,7 @@ DIRS += src/\
 #ROOT_DICT_CLASSES:=TDetectorPulse
 ROOT_DICT_CLASSES:=TAnalysedPulseMapWrapper\
 	TDetectorPulse\
+	TGaussFitAnalysedPulse\
 	IdChannel\
 	IdGenerator\
 	IdSource

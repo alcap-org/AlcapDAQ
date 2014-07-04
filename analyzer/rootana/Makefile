@@ -19,7 +19,8 @@ TUT_SOURCES = $(filter-out $(TUT_ROOT)/tut_main.cpp, $(wildcard $(TUT_ROOT)/*.cp
 
 # Classes that need a root dictionary
 ROOT_DICT_HEADERS:=$(ROOT_DICT_CLASSES:%=%.h)
-ROOT_DICT_SOURCES:=$(ROOT_DICT_CLASSES:%=%.cpp)
+# only want to depend on files that exist
+ROOT_DICT_SOURCES:=$(foreach class, $(ROOT_DICT_CLASSES),$(filter %/$(class).cpp, $(SOURCES)))
 
 #### End of files.make processing #################################################
 # Where should we store all object and dependency files
@@ -167,6 +168,7 @@ print:
 	@echo -e "ROOT_CFLAGS = $(ROOT_CFLAGS)       \n" 
 	@echo -e "ROOT_LIBS = $(ROOT_LIBS)           \n" 
 	@echo -e "ROOT_DICT_CLASSES = $(ROOT_DICT_CLASSES)           \n" 
+	@echo -e "ROOT_DICT_SOURCES = $(ROOT_DICT_SOURCES)           \n" 
 	@echo -e "ROOT_DICT_HEADERS = $(ROOT_DICT_HEADERS)           \n" 
 	@echo -e "SOURCES = $(SOURCES)               \n" 
 	@echo -e "SOURCE_DIRS = $(SOURCE_DIRS)       \n" 
