@@ -3,6 +3,8 @@
 #include "HistogramFitFCN.h"
 #include "SetupNavigator.h"
 
+#include "TMath.h"
+
 TemplateFitter::TemplateFitter(std::string detname): fChannel(detname) {
 
   HistogramFitFCN* fcn = new HistogramFitFCN();
@@ -62,10 +64,13 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   params.push_back(fTimeOffset); 
   fChi2 = (*fcn)(params);
 
+  fNDoF = fcn->GetNDoF();
+
   static int print_dbg = false;
   if (print_dbg) {
     std::cout << "TemplateFitter::FitPulseToTemplate(): Fit:\tChi2 " << fChi2 << "\tP "
-	      << fPedestalOffset << "(" << params.at(0) << ")\tA " << fAmplitudeScaleFactor << "(" << params.at(1) << ")\tT " << fTimeOffset << "(" << params.at(2) << ")" << std::endl;
+	      << fPedestalOffset << "(" << params.at(0) << ")\tA " << fAmplitudeScaleFactor << "(" << params.at(1) << ")\tT " << fTimeOffset << "(" << params.at(2) << ")" 
+	      << ", ndof = " << fNDoF << ", prob = " << TMath::Prob(fChi2, fNDoF) << std::endl;
   }
 
   delete hPulse;

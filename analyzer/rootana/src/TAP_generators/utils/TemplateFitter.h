@@ -21,6 +21,7 @@ class TemplateFitter {
   double GetAmplitudeScaleFactor() { return fAmplitudeScaleFactor; }
   double GetTimeOffset() { return fTimeOffset; }
   double GetChi2() { return fChi2; }
+  double GetNDoF() { return fNDoF; }
 
  private:
   IDs::channel fChannel;
@@ -28,6 +29,7 @@ class TemplateFitter {
   double fAmplitudeScaleFactor;
   double fTimeOffset;
   double fChi2;
+  int fNDoF; // number of degress of freedom in fit
 
  public:
   /// \brief
