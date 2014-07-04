@@ -51,7 +51,22 @@ namespace tut
   template<> template<>
   void tester::test<2>()
   {
-    
+    /*
+        int foo[7] = {12, 54, 7, 38, 9, 432924803, 90201203};
+    std::cout << "\n";
+    std::cout << "mmr  " << hash_utils::void_to_int(foo, 7*sizeof(int)) <<std::endl;
+    //std::cout << "32   " << hash_utils::hash32(foo, 7*sizeof(int)) <<std::endl;
+    hash_utils::MurmurHash3 mmr;
+    for (int i =0 ; i < 7; ++i ){
+      //Byte_t* bar = (Byte_t*) foo;
+      mmr.Add(i+((Byte_t*)foo),sizeof(char));
+      //mmr.Add((Byte_t*)&foo[i], sizeof(char));
+    }
+    hash_utils::MurmurHash3 mmr2;
+    mmr2.Add((Byte_t*)foo, 7 * sizeof(char));
+    std::cout << "MMR  " << mmr.End() << std::endl;
+    std::cout << "MMR2 " << mmr2.End() << std::endl;
+    */
   }
 
 

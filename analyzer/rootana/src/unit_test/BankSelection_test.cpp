@@ -79,17 +79,19 @@ namespace tut
 
   typedef test_group<SELECTION> SELECTION_group;
   SELECTION_group SELECTION_pet("BankSelection tests");
-
-  typedef SELECTION_group::object tester;
+  
+  namespace {
+    typedef SELECTION_group::object tester;
+  }
 
   //======================================================================
   // Preconditions / test data sanity checks
   template<> template<>
   void tester::test<1>()
   {
-    ensure_greaterthan("List size sanity check 1", foobar_list.size(), 0);    
-    ensure_greaterthan ("List size sanity check 2", wild_list.size(), 0);
-    ensure_greaterthan ("List size sanity check 3", mixed_list.size(), 0);    
+    ensure_greaterthan("List size sanity check 1", foobar_list.size(), 0u);    
+    ensure_greaterthan("List size sanity check 2", wild_list.size(), 0u);
+    ensure_greaterthan("List size sanity check 3", mixed_list.size(), 0u);    
   }
 
   //----------------------------------------------------------------------
@@ -187,8 +189,7 @@ namespace tut
     ensure_equals("Has repeats before Compact()",
                   repeat1.fMatches.size(), repeat_list.size());   
     repeat1.Compact();
-    ensure_equals("Fully Compact()s",  repeat1.fMatches.size(), 1);        
-
+    ensure_equals("Fully Compact()s",  repeat1.fMatches.size(), 1u);
 
     for (int i = 0; i < 8; i+=4){
       repeat_list[i] = SourceID(ID::kMuSc,ID::kNotApplicable,"G","D");
@@ -201,7 +202,7 @@ namespace tut
     ensure_equals("Has repeats before Compact() 2",
                   repeat2.fMatches.size(), repeat_list.size());   
     repeat2.Compact();
-    ensure_equals("Fully Compacts() 2",  repeat2.fMatches.size(), 3);       
+    ensure_equals("Fully Compacts() 2",  repeat2.fMatches.size(), 3u);       
 
 
     repeat_list[3] = SourceID(ID::kAnyDetector,ID::kAnySlowFast,"G","D");
@@ -218,21 +219,21 @@ namespace tut
     repeat3.Compact();
     
     ensure_equals("Fully Compacts() with w/c 1",  
-                  repeat3.fMatches.size(), 3);
+                  repeat3.fMatches.size(), 3u);
 
     ensure_equals("Fully Compacts() with w/c 2",  
-                  repeat3.fWildCards.size(), 2);
+                  repeat3.fWildCards.size(), 2u);
     
     //repeated compaction test
     repeat1.Compact();
-    ensure_equals("Repeat Compact()",  repeat1.fMatches.size(), 1);       
+    ensure_equals("Repeat Compact()",  repeat1.fMatches.size(), 1u);       
     
     repeat2.Compact().Compact();
-    ensure_equals("Repeat Compact()",  repeat2.fMatches.size(), 3);       
+    ensure_equals("Repeat Compact()",  repeat2.fMatches.size(), 3u);       
     
     repeat3.Compact().Compact().Compact();
     ensure_equals("Repeat Compact()",  
-                  repeat3.fMatches.size() + repeat3.fWildCards.size(), 5);       
+                  repeat3.fMatches.size() + repeat3.fWildCards.size(), 5u);       
     
   }
 };
