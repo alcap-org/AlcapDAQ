@@ -48,6 +48,9 @@ class TGaussFitAnalysedPulse:public TAnalysedPulse{
         void SetFitStatus(const double& val){fStatus=val;}
         /// @}
 
+        /// @@brief overload the TAnalysedPulse::Draw method
+        virtual void Draw(const TH1F* tpi_pulse)const;
+
     private:
         int fStatus;
         double fChi2, fWidth,fGradient;
