@@ -38,6 +38,7 @@ class MakeAnalysedPulses : public BaseModule{
   std::string fFastGeneratorType;
   std::vector<std::string> fChannelsToAnalyse;
   modules::options* fOptions;
+  TAPGeneratorOptions* fDefaultOpts;
 
 };
 
