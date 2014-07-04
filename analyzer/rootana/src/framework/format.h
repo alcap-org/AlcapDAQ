@@ -9,6 +9,17 @@ namespace AlCapFormat {
     const char* DataTreeName = "EventTree";
     const char* DataBranchName = "fPulseIslandToChannelMap";
   };
+
+  namespace Setup {
+    // TODO find out if these names are remotely appropriate
+    //fBankToDetectorMap
+    //fBankToClockTickMap
+    //fBankToBitMap
+    //fBankToADCSlopeCalibMap
+    //fBankToADCOffsetCalibMap
+    //fBankToEnableBitMap
+
+  };
 };
 
 #endif //FORMAT_H_

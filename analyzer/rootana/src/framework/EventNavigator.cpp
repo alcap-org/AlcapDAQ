@@ -59,8 +59,9 @@ Bool_t EventNavigator::ConnectInput(const char* input_name)
     //Read event data
     //success = ?
   }
-  
-  //Assing pointers if successful
+  //if (TODO: lok contians other trees)
+
+  //Assign pointers if successful
   return success;
 }
 
