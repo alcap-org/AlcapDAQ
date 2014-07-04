@@ -39,7 +39,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   bounds[0] = std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1);
   bounds[1] = std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX());
 
-  fNDoF = bounds[1] - bounds[0] - par.size();
+  fNDoF = bounds[1] - bounds[0] + 1 - par.size(); // +1 because we include both ends of the bounds when we loop through
 
   if (print_dbg) {
     std::cout << "NBinsX: hTemplate = " << fTemplateHist->GetNbinsX() << ", hPulse = " << fPulseHist->GetNbinsX() << std::endl;
