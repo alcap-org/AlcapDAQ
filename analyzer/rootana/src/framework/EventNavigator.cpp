@@ -10,12 +10,15 @@
 #include "TTree.h"
 
 //Local
+#include "format.h"
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
 #include "TMuonEvent.h"
 #include "debug_tools.h"
 
+
+namespace Format = AlCapFormat; 
 
 TGlobalData* TGlobalData::Instance()
 {
@@ -38,9 +41,50 @@ EventNavigator::EventNavigator()
   //no-op
 }
 
+
+//----------------------------------------------------------------------
+Bool_t EventNavigator::ConnectInput(const char* input_name)
+{
+  TFile* ifile = TFile::Open(input_name, "READ");
+  if (!ifile) return false;
+  
+  TList* lok = ifile->GetListOfKeys();
+  bool success =1;
+  if (lok->Contains(Format::Raw::SetupTreeName) ) {
+    //Read setup data
+    //success = ?
+  }
+  if (lok->Contains(Format::Raw::DataTreeName) ) {
+    ConnectRawData(ifile);
+    //Read event data
+    //success = ?
+  }
+  
+  //Assing pointers if successful
+  return success;
+}
+
+//----------------------------------------------------------------------
+TTree* EventNavigator::ConnectRawData(TFile* raw_file)
+{
+  TTree* raw_tree = 0x0;
+  raw_file->GetObject(Format::Raw::DataTreeName, raw_tree);
+  if ( VerifyRawData(raw_tree) ) return 0x0;
+}
+
+//----------------------------------------------------------------------
+Bool_t EventNavigator::VerifyRawData(TTree* raw_tree)
+{
+  if ( !raw_tree ) return false;
+  if ( raw_tree->GetEntriesFast() == 0) return false;
+  if ( !raw_tree->GetBranch(Format::Raw::DataBranchName) ) return false;
+
+  return true;
+}
+
 //----------------------------------------------------------------------
 Bool_t EventNavigator::ConnectInput(const char* input_file_name,
-					Bool_t read_only)
+                                    Bool_t read_only)
 {
   //For now we  dont support identical output files
   if (read_only == false){
@@ -55,18 +99,17 @@ Bool_t EventNavigator::ConnectInput(const char* input_file_name,
   //abort shortly afterward.  Revisit if that is not true.
 
   //Open the file
-  fInput = TFile::Open(input_file_name, (read_only ? "READ" : "UPDATE"));
-  if (!fInput || fInput->IsZombie())  return false;
-  //if (!read_only && !fOutput) fOutput = fInput;
+  fRawInput = TFile::Open(input_file_name, (read_only ? "READ" : "UPDATE"));
+  if (!fRawInput || fRawInput->IsZombie())  return false;
 
   //Look for setup tree
   TTree* setup_tree = 0x0;
-  fInput->GetObject("SetupTree", setup_tree);
+  fRawInput->GetObject("SetupTree", setup_tree);
   if (!setup_tree || setup_tree->GetEntriesFast() == 0) return false;
 
   //Look for data tree
   TTree* event_tree = 0x0;
-  fInput->GetObject("EventTree", event_tree);
+  fRawInput->GetObject("EventTree", event_tree);
   if (!event_tree || event_tree->GetEntriesFast() == 0) return false;
 
   //All set

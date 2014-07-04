@@ -36,8 +36,14 @@ class EventNavigator {
   /// true if file exists, is a ROOT file, and contains at least one EACH of 
   /// setup and event trees that we recognise. Else false.
   /// Request for read+write files (i.e. read_only=0) currently ignored.
-  Bool_t ConnectInput(const char* input_file_name, Bool_t read_only =true);
+  Bool_t ConnectInput(const char* input_file_name, Bool_t read_only );
   
+  Bool_t ConnectInput(const char* input_name);
+
+  TTree* ConnectRawData(TFile* raw_file);
+
+  Bool_t VerifyRawData(TTree* raw_tree);
+
   /// Opens an output file.  By default this overwrites the output file
   /// Appending not yet implemented
   Bool_t ConnectOutputFile(const char* output_file_name, Bool_t append =false);
@@ -146,8 +152,8 @@ class EventNavigator {
 
   static EventNavigator* fInstance; 
 
-  ///Input ROOT file
-  TFile* fInput;
+  ///Input ROOT file, raw format
+  TFile* fRawInput;
 
   ///Output ROOT file (may be same as input file)
   TFile* fOutput;
@@ -157,6 +163,9 @@ class EventNavigator {
 
   ///Input Data (Event) Tree
   TTree* fEventTree;
+
+  ///Our record of data banks
+  
 };
 
 
