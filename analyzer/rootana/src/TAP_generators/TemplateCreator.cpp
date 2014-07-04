@@ -96,22 +96,37 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	// all the other pulses will be fitted to the template and then added to it
 	// Get some initial estimates for the fitter
 	double template_pedestal = hTemplate->GetBinContent(1);
-	double pedestal_offset_estimate = (*pulseIter)->GetSamples().at(0) - template_pedestal;
+	double template_amplitude;
+	double template_time;
+
+	double pulse_pedestal = (*pulseIter)->GetSamples().at(0);
+	double pulse_amplitude = (*pulseIter)->GetAmplitude();
+	double pulse_time = (*pulseIter)->GetPeakSample();
+
+	double pedestal_offset_estimate = pulse_pedestal - template_pedestal;
 	double amplitude_scale_factor_estimate;
 	double time_offset_estimate;
 	if (TSetupData::Instance()->GetTriggerPolarity(bankname) == 1) { 
-	  amplitude_scale_factor_estimate = (*pulseIter)->GetAmplitude() / (hTemplate->GetMaximum() - template_pedestal); // estimated scale factor
-	  time_offset_estimate = (*pulseIter)->GetPeakSample() - hTemplate->GetMaximumBin();
+	  template_amplitude = (hTemplate->GetMaximum() - template_pedestal);
+	  template_time = hTemplate->GetMaximumBin();
+
+	  amplitude_scale_factor_estimate = pulse_amplitude / template_amplitude;  // estimated scale factor
+	  time_offset_estimate = pulse_time - template_time;
 	}
 	else if (TSetupData::Instance()->GetTriggerPolarity(bankname) == -1) {
-	  amplitude_scale_factor_estimate = (*pulseIter)->GetAmplitude() / (template_pedestal - hTemplate->GetMinimum()); // estimated scale factor
-	  time_offset_estimate = (*pulseIter)->GetPeakSample() - hTemplate->GetMinimumBin();
+	  template_amplitude = (template_pedestal - hTemplate->GetMinimum());
+	  template_time = hTemplate->GetMinimumBin();
+
+	  amplitude_scale_factor_estimate = pulse_amplitude / template_amplitude;  // estimated scale factor
+	  time_offset_estimate = pulse_time - template_time;
 	}
 
 	template_fitter->SetInitialParameterEstimates(pedestal_offset_estimate, amplitude_scale_factor_estimate, time_offset_estimate);
 	
 	if (Debug()) {
 	  std::cout << "TemplateCreator: " << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << ": " << std::endl
+		    << "TemplateCreator: Template: pedestal = " << template_pedestal << ", amplitude = " << template_amplitude << ", time = " << template_time << std::endl
+		    << "TemplateCreator: Pulse: pedestal = " << pulse_pedestal << ", amplitude = " << pulse_amplitude << ", time = " << pulse_time << std::endl
 		    << "TemplateCreator: Initial Estimates: pedestal = " << pedestal_offset_estimate << ", amplitude = " << amplitude_scale_factor_estimate 
 		    << ", time = " << time_offset_estimate << std::endl;
 	}
@@ -142,10 +157,10 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	  double corrected_value = uncorrected_value - template_fitter->GetPedestalOffset();
 	  corrected_value /= template_fitter->GetAmplitudeScaleFactor();
 
-	  hUncorrectedPulse->SetBinContent(sampleIter - theSamples.begin(), uncorrected_value);
-	  hUncorrectedPulse->SetBinError(sampleIter - theSamples.begin(), pedestal_error);
-	  hCorrectedPulse->SetBinContent(sampleIter - theSamples.begin() - template_fitter->GetTimeOffset(), corrected_value);
-	  hCorrectedPulse->SetBinError(sampleIter - theSamples.begin(), pedestal_error);
+	  hUncorrectedPulse->SetBinContent(sampleIter - theSamples.begin()+1, uncorrected_value); // +1 because bins start at 1
+	  hUncorrectedPulse->SetBinError(sampleIter - theSamples.begin()+1, pedestal_error);
+	  hCorrectedPulse->SetBinContent(sampleIter - theSamples.begin()+1 - template_fitter->GetTimeOffset(), corrected_value); 
+	  hCorrectedPulse->SetBinError(sampleIter - theSamples.begin() - template_fitter->GetTimeOffset()+1, pedestal_error);
 	}
 	// we keep on adding pulses until adding pulses has no effect on the template
       }
