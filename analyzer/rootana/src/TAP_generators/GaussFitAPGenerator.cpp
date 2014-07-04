@@ -2,6 +2,8 @@
 #include "GaussFitAPGenerator.h"
 #include "TPulseIsland.h"
 #include "TGaussFitAnalysedPulse.h"
+#include "ExportPulse.h"
+#include "Functions.h"
 #include <iostream>
 #include <sstream>
 #include <TF1.h>
@@ -12,22 +14,6 @@ using std::endl;
 
 const char* GaussFitAPGenerator::fFitName="GausLinear";
 
-namespace{
-    Double_t gauss_lin(Double_t *x, Double_t *par)
-    {
-        // parameters:
-        // 0: constant (pedestal)
-        // 1: gradient
-        // 2: Gauss amplitude
-        // 3: Gauss mean
-        // 4: Gauss width
-        Double_t arg=(x[0]-par[3])/par[4];
-        Double_t gauss1=par[2]*TMath::Exp(-0.5*arg*arg)/(2.5066283*par[4]);
-        // function=gauss+constant background
-        return gauss1+par[0] + par[1]*x[0];
-    }
-}
-
 GaussFitAPGenerator::GaussFitAPGenerator(TAPGeneratorOptions* opts):
     TVAnalysedPulseGenerator("GaussFit",opts){
         // Do things to set up the generator here. 
@@ -37,7 +23,7 @@ GaussFitAPGenerator::GaussFitAPGenerator(TAPGeneratorOptions* opts):
         fPedestal=opts->GetDouble("pedestal",0);
         fGradient=opts->GetDouble("gradient",0);
 
-        fFitFunc=new TF1(fFitName,gauss_lin,0,1000,5);
+        fFitFunc=new TF1(fFitName,functions::gauss_lin,0,1000,5);
         fFitFunc->SetParName(kPedestal,"pedestal");
         fFitFunc->SetParName(kAmplitude,"amplitude");
         fFitFunc->SetParName(kWidth,"width");
@@ -73,6 +59,10 @@ int GaussFitAPGenerator::ProcessPulses(
         tap->SetChi2      ( tap_data.chi2   );
         tap->SetFitStatus ( tap_data.status );
 
+        if(ExportPulse::Instance() && tap_data.status!=0){
+            ExportPulse::Instance()->AddToExportList(tap);
+        }
+
         // Finally add the new TAP to the output list
         analysedList.push_back(tap);
     }
@@ -93,7 +83,9 @@ void GaussFitAPGenerator::FitPulse(const TPulseIsland* tpi,const int& id,FittedV
     fFitFunc->SetRange(0,tpi->GetPulseLength());
 
     // Perform the fit
-    TFitResultPtr result=hPulse->Fit(fFitFunc,"S R");
+    std::string options ="S R";
+    if(!Debug()) options+=" Q";
+    TFitResultPtr result=hPulse->Fit(fFitFunc,options.c_str());
 
     // Get the values from the fit 
     tap.value[kAmplitude] = fFitFunc->GetParameter(kAmplitude);
