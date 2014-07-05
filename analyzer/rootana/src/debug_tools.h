@@ -4,13 +4,16 @@
 #include "TSystem.h"
 #include "TStopwatch.h"
 #include <cstdio>
+#include <ios>
 
 //This file contains a bunch of handy snippets for debugging, mostly
 //runtime checks like memory usage and stopwatches.
 
 #define DEBUG_PREFIX std::cout << "@ " << __FILE__ << ":" << __LINE__
 #define DEBUG_PRINT DEBUG_PREFIX << std::endl;
-#define DEBUG_VALUE(value) DEBUG_PREFIX <<std::boolalpha<<" " #value "= |"<<value<<"|"<<std::endl;
+#define DEBUG_VALUE(value) DEBUG_PREFIX << ":\n" << std::boolalpha      \
+                                        <<"  "#value"= [" << (value)    \
+                                        <<"]" << std::endl;
 
 namespace DEBUG {
   //--------------------------------------------------------------------
