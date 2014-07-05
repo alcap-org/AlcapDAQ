@@ -10,6 +10,8 @@
 #include "utils/TemplateFitter.h"
 #include "ExportPulse.h"
 
+#include "TMath.h"
+
 #include <iostream>
 #include <sstream>
 using std::cout;
@@ -101,21 +103,21 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
 	double pulse_pedestal = (*pulseIter)->GetSamples().at(0);
 	double pulse_amplitude = (*pulseIter)->GetAmplitude();
-	double pulse_time = (*pulseIter)->GetPeakSample();
+	double pulse_time = (*pulseIter)->GetPeakSample(); // between 0 and n_samples-1
 
-	double pedestal_offset_estimate = pulse_pedestal - template_pedestal;
+	double pedestal_offset_estimate = template_pedestal - pulse_pedestal;
 	double amplitude_scale_factor_estimate;
 	double time_offset_estimate;
 	if (TSetupData::Instance()->GetTriggerPolarity(bankname) == 1) { 
 	  template_amplitude = (hTemplate->GetMaximum() - template_pedestal);
-	  template_time = hTemplate->GetMaximumBin();
+	  template_time = hTemplate->GetMaximumBin() - 1; // go from bin numbering (1, n_samples) to clock ticks (0, n_samples-1)
 
 	  amplitude_scale_factor_estimate = pulse_amplitude / template_amplitude;  // estimated scale factor
 	  time_offset_estimate = pulse_time - template_time;
 	}
 	else if (TSetupData::Instance()->GetTriggerPolarity(bankname) == -1) {
 	  template_amplitude = (template_pedestal - hTemplate->GetMinimum());
-	  template_time = hTemplate->GetMinimumBin();
+	  template_time = hTemplate->GetMinimumBin() - 1; // go from bin numbering (1, n_samples) to clock ticks (0, n_samples-1)
 
 	  amplitude_scale_factor_estimate = pulse_amplitude / template_amplitude;  // estimated scale factor
 	  time_offset_estimate = pulse_time - template_time;
@@ -139,7 +141,8 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
 	if (Debug()) {
 	  std::cout << "Template Creator: Fitted Parameters: PedOffset = " << template_fitter->GetPedestalOffset() << ", AmpScaleFactor = " << template_fitter->GetAmplitudeScaleFactor()
-	            << ", TimeOffset = " << template_fitter->GetTimeOffset() << ", Chi2 = " << template_fitter->GetChi2() << std::endl << std::endl;
+	            << ", TimeOffset = " << template_fitter->GetTimeOffset() << ", Chi2 = " << template_fitter->GetChi2() << ", NDoF = " << template_fitter->GetNDoF() 
+		    << ", Prob = " << TMath::Prob(template_fitter->GetChi2(), template_fitter->GetNDoF()) << std::endl << std::endl;
 	}
 
 	// Create the corrected pulse
