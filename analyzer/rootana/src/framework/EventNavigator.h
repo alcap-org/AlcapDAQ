@@ -3,6 +3,7 @@
 
 
 //C++/STL
+#include <exception>
 
 //ROOT
 class TFile;
@@ -15,9 +16,19 @@ class TTree;
 
 static TGlobalData *g_event=NULL; 
 
+
+///This shoud get a proper home and some more flexability
+class io_error /*: public std::runtime_error*/ {
+public:
+  io_error() 
+  //    : std::runtime_error("I/O failed")  
+  {}
+};
+
+
+
 /// The EventNavigator class provides acess to all the collections in
 /// the (MIDAS) Event, which corresponds to a single ROOT branch  
-
 class EventNavigator {
   typedef IDs::channel ChannelID;
   typedef IDs::generator GeneratorID;
@@ -40,7 +51,7 @@ class EventNavigator {
   
   Bool_t ConnectInput(const char* input_name);
 
-  TTree* ConnectRawData(TFile* raw_file);
+  TGlobalData* ConnectRawData(TFile* raw_file);
 
   Bool_t VerifyRawData(TTree* raw_tree);
 
@@ -55,7 +66,8 @@ class EventNavigator {
   Long64_t GetInputNEntries();
 
   /// Load the next entry in the input tree. Returns the number of
-  /// bytes if sucessful, 0 if reached the end, and -1 for an I/O error
+  /// bytes if sucessful, 0 if reached the end or there is no input tree.
+  /// Throws an exception for an underlying I/O error
   /// [Return values are from TTree::GetEntry()]
   Int_t NextEntry();
   
@@ -158,12 +170,22 @@ class EventNavigator {
   ///Output ROOT file (may be same as input file)
   TFile* fOutput;
 
+
+  ///trees are owned by the directorty that holds them
   ///Input Setup Tree
   TTree* fSetupTree;
 
-  ///Input Data (Event) Tree
+  ///The current entry number
+  Int_t fEntryNo;
+
+  ///Input Raw Data (Event) Tree
+  TTree* fRawTree;
+
+  ///
   TTree* fEventTree;
 
+  TGlobalData* fRawData;
+  
   ///Our record of data banks
   
 };

@@ -7,7 +7,7 @@ namespace AlCapFormat {
   namespace Raw {
     const char* SetupTreeName = "SetupTree";
     const char* DataTreeName = "EventTree";
-    const char* DataBranchName = "fPulseIslandToChannelMap";
+    const char* DataBranchName = "Event";
   };
 
   namespace Setup {

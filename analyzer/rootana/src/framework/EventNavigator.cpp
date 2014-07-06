@@ -45,43 +45,67 @@ EventNavigator::EventNavigator()
 //----------------------------------------------------------------------
 Bool_t EventNavigator::ConnectInput(const char* input_name)
 {
+
   TFile* ifile = TFile::Open(input_name, "READ");
   if (!ifile) return false;
   
   TList* lok = ifile->GetListOfKeys();
-  bool success =1;
+  bool success = false;
+  fSetupTree = 0x0;
   if (lok->Contains(Format::Raw::SetupTreeName) ) {
     //Read setup data
     //success = ?
   }
+  TTree* raw_tree = 0x0;
   if (lok->Contains(Format::Raw::DataTreeName) ) {
-    ConnectRawData(ifile);
+    TGlobalData* raw_data = ConnectRawData(ifile);
     //Read event data
     //success = ?
   }
   //if (TODO: lok contians other trees)
 
-  //Assign pointers if successful
+  fEntryNo = 0;
   return success;
 }
 
+
 //----------------------------------------------------------------------
-TTree* EventNavigator::ConnectRawData(TFile* raw_file)
+TGlobalData* EventNavigator::ConnectRawData(TFile* raw_file)
 {
-  TTree* raw_tree = 0x0;
-  raw_file->GetObject(Format::Raw::DataTreeName, raw_tree);
-  if ( VerifyRawData(raw_tree) ) return 0x0;
+  raw_file->GetObject(Format::Raw::DataTreeName, fRawTree);
+  if ( !VerifyRawData(fRawTree) ){
+    raw_file->Delete(Format::Raw::DataTreeName);
+    fRawTree = 0x0;
+    fRawData = 0x0;
+    return 0x0;
+  }
+
+  //Allocate memory locations to hold branches
+  //TGlobalData* raw_data(0x0);
+  fRawData = new TGlobalData;
+  int status = fRawTree->SetBranchAddress(Format::Raw::DataBranchName,
+                                          &fRawData);
+  if (status!=0){
+    fRawTree = 0x0;
+    fRawData = 0x0;
+    return 0x0;
+  }
+  
+  return fRawData;
 }
+
 
 //----------------------------------------------------------------------
 Bool_t EventNavigator::VerifyRawData(TTree* raw_tree)
 {
   if ( !raw_tree ) return false;
   if ( raw_tree->GetEntriesFast() == 0) return false;
-  if ( !raw_tree->GetBranch(Format::Raw::DataBranchName) ) return false;
-
+  TObjArray* lob = raw_tree->GetListOfBranches(); 
+  if ( !lob->Contains(Format::Raw::DataBranchName ) ) return false;
+  
   return true;
 }
+
 
 //----------------------------------------------------------------------
 Bool_t EventNavigator::ConnectInput(const char* input_file_name,
@@ -135,6 +159,26 @@ Bool_t EventNavigator::ConnectOutputFile(const char* output_file_name,
   return true;
 }
 
+
+//----------------------------------------------------------------------
+Int_t EventNavigator::NextEntry()
+{
+  Int_t nBytes = 0;
+  if (fRawTree){
+    //static short called =0;
+    //if (called++)
+      fRawData->Clear();
+    nBytes = fRawTree->GetEntry(++fEntryNo);
+  } 
+  else if (fEventTree) {
+    nBytes = fEventTree->GetEntry(++fEntryNo);
+  }
+  if (nBytes < 0) throw io_error();
+  if (fEntryNo % 100 != 0) return nBytes;
+  std::cout << fEntryNo << "/" << fRawTree->GetEntriesFast() << ":  " << nBytes << std::endl;
+  //std::cout << DEBUG::check_mem().str << std::endl;;  
+  return nBytes;
+}
 
 extern void ClearGlobalData(TGlobalData* data);
 //----------------------------------------------------------------------
