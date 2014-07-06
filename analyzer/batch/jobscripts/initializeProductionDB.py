@@ -43,16 +43,16 @@ for i in sir21pct:
 for i in sir23pct:
     db.execute("INSERT INTO datasets VALUES (?, ?, ?)", (i, "SiR23pct", "gold"))
 
-db.execute("CREATE TABLE productions(type TEXT, version INTEGER, software TEXT, start TIMESTAMP, stop TIMESTAMP)")
+db.execute("CREATE TABLE productions(type TEXT, version INTEGER, software TEXT, start TIMESTAMP, stop TIMESTAMP, base INTEGER)")
 
 
 start = datetime.datetime(2014, 4, 30, 0, 0, 0, 0)
 stop = datetime.datetime(2014, 5, 5, 0, 0, 0, 0) 
-db.execute("INSERT INTO productions VALUES ('alcapana', 1, 'alcapana_v1', ?, ?)", (start, stop))
+db.execute("INSERT INTO productions VALUES ('alcapana', 1, 'alcapana_v1', ?, ?, ?)", (start, stop, None))
 start = datetime.datetime(2014, 5, 29, 0, 0, 0, 0)
 stop = datetime.datetime(2014, 6, 2, 0, 0, 0, 0)
-db.execute("INSERT INTO productions VALUES ('alcapana', 2, 'alcapana_v2', ?, ?)", (start, stop))
+db.execute("INSERT INTO productions VALUES ('alcapana', 2, 'alcapana_v2', ?, ?, ?)", (start, stop, None))
 start = datetime.datetime(2014, 6, 16, 0, 0, 0, 0)
 stop = datetime.datetime(2014, 6, 20, 0, 0, 0, 0)
-db.execute("INSERT INTO productions VALUES ('alcapana', 3, 'alcapana_v3', ?, ?)", (start, stop))
+db.execute("INSERT INTO productions VALUES ('alcapana', 3, 'alcapana_v3', ?, ?, ?)", (start, stop, None))
 db.commit()

@@ -7,6 +7,10 @@ import getopt
 import time
 import sys
 
+_ALCAPANA = "alcapana"
+_ROOTANA  = "rootana"
+_PROGRAMS = [_ALCAPANA, _ROOTANA]
+
 def usage():
     print "Usage: ./run_production --production=PROD_TYPE [optional arguments...]"
     print "--------------------------------------------------------------------------------"
@@ -22,7 +26,10 @@ def usage():
     print "    -h, --help      Print this help then exit."
     print "    --usage         Print this help then exit."
     print "    --version=#     Version number to produce. Default is highest production"
-    print "                    version number in production table."
+    print "                    version number in production table. If issued with"
+    print "                    --new and --production=rootana, this flag tells us which"
+    print "                    alcapana version to produce from. If issued with --new and"
+    print "                    --production=alcapana, an exception is thrown."
     print "    --new=TAG       Start a new production, incrememted once from the highest"
     print "                    number present in productions table. The software tag in"
     print "                    GitHub must be provided for bookkeeping."
@@ -84,21 +91,20 @@ for opt, val in opts:
 if len(unrecognized) > 0:
     msg = "Unrecognized arguments: " + unrecognized
     raise ArgumentError(msg)
-elif len(opts) == 0:
+if len(opts) == 0:
     usage()
     exit(0)
-if new and version:
-    msg = "Version argument given and new production requested."
+if new and version and production == _ALCAPANA:
+    msg = "Version argument given and new alcapana production requested."
+    raise ArgumentError(msg)
+if new and not version and production == _ROOTANA:
+    msg = "Version argument not given and new rootana production requested."
     raise ArgumentError(msg)
 if version and (version < 0 or version > 100):
     msg = "Version argument less than zero or geater than 100."
     raise ArgumentError(msg)
-if production not in ["alcapana", "rootana"]:
+if production not in _PROGRAMS:
     msg = "Unknown production type: " + str(production)
-    raise ArgumentError(msg)
-# Remove this when rootana implemented
-if production == "rootana":
-    msg = "Rootana not implemented yet."
     raise ArgumentError(msg)
 if wait <= 0 or wait > 60:
     msg = "Requested pause less than or equal to 0 or greater than a minute."
@@ -112,12 +118,17 @@ if nprep < 1 or nprep > 100:
 if space_limit <= 0. or space_limit > 0.95:
     msg = "Space limit cannot be less than or equal to 0 and maybe shouldn't be greater than 95%."
     raise ArgumentError(msg)
+
+# Nothing to prepare for rootana
+if production == _ROOTANA:
+    nprep = 0
 ################################################################################
+
 
 
 dbman = DBManager.DBManager(production, version)
 if new:
-    version = dbman.StartNewProduction(tag)
+    version = dbman.StartNewProduction(tag, "gold", version)
     print "INFO: Starting new production, version " + str(version)
 elif not version:
     version = dbman.GetRecentProductionVersionNumber()
@@ -138,13 +149,19 @@ try:
             runman.ClaimRuns(nproc + nprep)
             runman.DownloadOne()
         elif not no_disk_space_error_printed:
-            print "INFO: There is not enough space. Downloaded runs will continue being processed,"
-            print "      however no further runs will be fetched and all undownloaded claimed runs"
-            print "      will be aborted."
-            print "      This state will be reverted if space opens up as files are deleted"
-            print "      during the processing process as they are done processing."
-            no_disk_space_error_printed = True
-            runman.Abort(runman.to_stage + runman.to_download)
+            if production == _ALCAPANA:
+                print "INFO: There is not enough space. Downloaded runs will continue being processed,"
+                print "      however no further runs will be fetched and all undownloaded claimed runs"
+                print "      will be aborted."
+                print "      This state will be reverted if space opens up as files are deleted"
+                print "      during the processing process as they are done processing."
+                no_disk_space_error_printed = True
+                runman.Abort(runman.to_stage + runman.to_download)
+            elif production == _ROOTANA:
+                print "ERROR: There is not enough space to do production. Please make space."
+                mu.abort_jobs(jobs.values())
+                runman.Abort()
+                break
 
         # Submit a job if we can and add the job to the job list
         # to keep track of.
@@ -193,6 +210,6 @@ except:
 
 
 
-if runman.dbm.IsProductionFinished():
+if dbman.IsProductionFinished():
     print "INFO: Finishing production", dbman.production_table
     dbman.FinishProduction()

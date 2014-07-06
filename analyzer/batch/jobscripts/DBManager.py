@@ -1,5 +1,5 @@
 import sqlite3
-import merlin_utils
+import merlin_utils as mu
 import datetime
 import os
 from AlCapExceptions import *
@@ -10,7 +10,7 @@ class DBManager:
     _ROOTANA = "rootana"
     _PROGRAMS = [_ALCAPANA, _ROOTANA]
 
-    _DBFILE = merlin_utils.DATAdir + "/production.db"
+    _DBFILE = mu.DATAdir + "/production.db"
 
     ## \brief
     #  Produces a database manager for a certain production type (alcapana or rootana)
@@ -21,9 +21,6 @@ class DBManager:
     #  Essentially what production table in the database to look up info in.
     def __init__(self, prog, ver):
         if prog not in DBManager._PROGRAMS:
-            raise UnknownProductionError(prog)
-        if prog == DBManager._ROOTANA:
-            print "rootana not implement yet...raising unknown production type error"
             raise UnknownProductionError(prog)
         self.prog = prog
         self.ver = ver
@@ -125,15 +122,21 @@ class DBManager:
     #  is creating a new table for this production.
     #
     #  \param[in] tag The software tag used for this production. (String)
-    #  \param[in] qual The quality of data to use. Default is "gold" and
-    #  is currently the only choice we have. (String)
-    def StartNewProduction(self, tag, qual="gold"):
+    #  \param[in] qual The quality of data to use.
+    #  \param[in] base The alcapana version base for rootana production.
+    #  Ignored for alcapana production.
+    def StartNewProduction(self, tag, qual, base):
+        if self.prog == DBManager._ALCAPANA:
+            base = None
+        elif base == None:
+            msg = "Rootana production must have alcapana base version!"
+            raise AlCapError(msg)
         with self.db:
             self.ver = self.GetRecentProductionVersionNumber() + 1
             self.production_table = production_table_name(self.prog, self.ver)
             start = datetime.datetime.now()
-            cmd = "INSERT INTO productions(type, version, software, start) VALUES (?, ?, ?, ?)"
-            self.db.execute(cmd, (self.prog, self.ver, tag, start))
+            cmd = "INSERT INTO productions(type, version, software, start, base) VALUES (?, ?, ?, ?, ?)"
+            self.db.execute(cmd, (self.prog, self.ver, tag, start, base))
             if self.prog == DBManager._ALCAPANA:
                 cmd = ("CREATE TABLE " + self.production_table +
                        "(run INTEGER, status TEXT, user TEXT, start TIMESTAMP, stop TIMESTAMP, tree TEXT, hist TEXT, odb TEXT, olog TEXT, elog TEXT, modules TEXT)")
@@ -211,6 +214,7 @@ class DBManager:
         self.db.commit()
         return
 
+
     ## \brief
     #  If an error occurs, this can be called to register
     #  a run as if it was never claimed.
@@ -228,6 +232,29 @@ class DBManager:
         self.db.execute(cmd, values)
         self.db.commit()
         return
+
+
+    ## \brief
+    #  Get the output tree file name from alcapana for input
+    #  into rootana.
+    #
+    #  \details
+    #  The correct file to use as input is from the "base"
+    #  alcapana production.
+    #
+    #  \param[in] run Run number to find the right file for.
+    #  \return The absolute path to the correct file.
+    def GetRootanaInputFile(self, run):
+        fname = None
+        cmd = "SELECT base FROM productions WHERE type=? AND version=?"
+        for irow in self.db.execute(cmd, (DBManager._ROOTANA, self.ver)):
+            base = int(irow[0])
+            cmd = "SELECT tree FROM " + production_table_name(_ALCAPANA, base) + " WHERE run=?,ver=?"
+            for jrow in self.db.execute(cmd, (run, base)):
+                fname = jrow[0]
+        if fname and os.path.exists(fname):
+            return fname
+        return None
 
 
 ## \brief

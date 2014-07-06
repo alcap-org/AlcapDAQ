@@ -1,13 +1,18 @@
+import SGEJob
+from AlCapExceptions import *
+
 import os
+import shutil
 import subprocess
 import ftplib
 import netrc
-import SGEJob
-from AlCapExceptions import *
 
 if "DAQdir" not in os.environ.keys():
     raise AlCapError("DAQdir not set")
 
+_ALCAPANA = "alcapana"
+_ROOTANA  = "rootana"
+_PROGRAMS = [_ALCAPANA, _ROOTANA]
 
 DAQdir = os.environ["DAQdir"]
 DATAdir = os.environ["HOME"] + "/data"
@@ -18,6 +23,8 @@ ODBdir = DATAdir + "/odb"
 CORRdir = DATAdir + "/corr"
 DUMPdir = DATAdir + "/dump"
 LOGdir = DATAdir + "/log"
+OUTdir = DATAdir + "/out"
+TMPdir = DAQdir + "/analyzer/batch/tmp/odb"
 
 if not os.path.exists(DATAdir):
     os.makedirs(DATAdir)
@@ -31,6 +38,10 @@ if not os.path.exists(DUMPdir):
     os.makedirs(DUMPdir)
 if not os.path.exists(LOGdir):
     os.makedirs(LOGdir)
+if not os.path.exists(OUTdir):
+    os.makedirs(OUTdir)
+if not os.path.exists(TMPdir):
+    os.makedirs(TMPdir)
 
 if not os.path.exists(ODBdir):
     raise AlCapError("ODB dir (" + ODBdir + ") does not exist!")
@@ -95,31 +106,33 @@ def submitted_jobs():
 #  on a run.
 #
 #  \param[in] run The run number (integer).
-#  \param[in] prog The name of the program to run; either alcapana or rootana (string).
+#  \param[in] prog The name of the program to run; either alcapana or
+#  rootana.
+#  \param[in] infile The absolute path of the input file for rootana. Ignored
+#  for alcapana.
 #  \return An SGEJob representing the submitted job.
-def submit_job(run, prog):
-    if prog not in ["alcapana", "rootana"]:
-        raise UnknownProductionError(prog)
-    elif prog == "rootana":
-        print "Rootana not implemented yet."
+def submit_job(run, prog, infile):
+    if prog not in _PROGRAMS:
         raise UnknownProductionError(prog)
     
     log = LOGdir + "/" + prog + ".run" + ("%05d" % run) + "."
     olog = log + "out"
     elog = log + "err"
 
-    cmd = ["qsub", "-v", "DAQdir=" + DAQdir, "-e", elog, "-o", olog,
-           DAQdir + "/analyzer/batch/scripts/batch_alcapana.sge", str(run)]
+    cmd = ["qsub", "-v", "DAQdir=" + DAQdir, "-e", elog, "-o", olog, "-N", prog,
+           DAQdir + "/analyzer/batch/scripts/batch_" + prog + ".sge"]
+    if prog == _ALCAPANA:
+        cmd.append(str(run))
+    elif prog == _ROOTANA:
+        cmd.append(infile)
+        cmd.append(OUTdir + "/out%05d.root" % run)
+        cmd.append(DAQdir + "/analyzer/rootana/production.MODULES")
     con = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     [out, err] = con.communicate()
 
     # The third word of the print out after submission is the job ID.
     job_id = int(out.split()[2])
 
-    if prog == "alcapana":
-        prog = "batch_alca"
-    elif prog == "rootana":
-        prog = "batch_root"
     # Assume the initial job status is waiting in the queue (qw).
     job = SGEJob.SGEJob(job_id, "qw", prog)
 
@@ -197,46 +210,28 @@ def stage_files_and_get_others(stages, gets):
     ftp.close()
     return 0
 
-
+## \brief
+#  When space is short, this deleted older files.
+#
+#  \todo Make this
 def make_space():
     pass
 
-
+## \brief
+#  Delete temporary files needed during alcapana production;
+#
+#  \details
+#  The MIDAS files and ODB SHared Memory (*.SHM) files are not needed
+#  afterwards.
+#
+#  \param[in] run Run number of run the temporary files are associated with.
 def cleanup(run):
-    pass
-
-
-def remove_midas_file(run):
-    fname = RAWdir + ("/run%05d.mid" % run)
+    fname = RAWdir + "/run%05d.mid" % run
     if os.path.exists(fname):
         os.remove(fname)
-    return
-
-def remove_tree_file(run):
-    fname = TREEdir + ("/tree%05d.root" % run)
+    dname = TMPdir + "/run%05d" % run
     if os.path.exists(fname):
-        os.remove(fname)
-    return
-
-def remove_hist_file(run):
-    fname = HISTdir + ("/hist%05d.root" % run)
-    if os.path.exists(fname):
-        os.remove(fname)
-    return
-
-def remove_log_files(run, prod):
-    ofname = LOGdir + "/" + prod + (".run%05d.out" % run) 
-    efname = LOGdir + "/" + prod + (".run%05d.err" % run)
-    if os.path.exists(ofname):
-        os.remove(ofname)
-    if os.path.exists(efname):
-        os.remove(efname)
-    return
-
-def remove_odb_dump(run):
-    fname = DUMPdir + ("/dump%05d.odb" % run)
-    if os.path.exists(fname):
-        os.remove(fname)
+        shutil.rmtree(dname)
     return
 
 ## \brief
@@ -246,17 +241,20 @@ def remove_odb_dump(run):
 #  created during production should be removed.
 #  \param[in] prod The production type, either "rootana" or "alcapana".
 def remove_all_files(run, prod):
-    if prod == "alcapana":
-        remove_odb_dump(run)
-        remove_midas_file(run)
-        remove_tree_file(run)
-        remove_hist_file(run)
-    elif prod == "rootana":
-        print "Rootana not implemented yet."
-        raise UnknownProductionError(prod)
+    if prod == _ALCAPANA:
+        cleanup(run)
+        files = [TREEdir + "/tree%05d.root" % run,
+                 HISTdir + "/hist%05d.root" % run,
+                 DUMPdir + "/dump%05d.odb" % run]
+    elif prod == _ROOTANA:
+        files = [OUTdir + "/out%05d.root" % run]
     else:
         raise UnknownProductionError(prod)
-    remove_log_files(run, prod)
+    files.append(LOGdir + "/" + prod + ".run%05d.out" % run)
+    files.append(LOGdir + "/" + prod + ".run%05d.err" % run)
+    for f in files:
+        if os.path.exists(f):
+            os.remove(f)
     return
 
 ## \brief

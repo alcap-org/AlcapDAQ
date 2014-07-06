@@ -10,11 +10,13 @@ curses.cbreak()
 screen.keypad(1)
 
 jobs = {}
-jobs[3100] = SGEJob.SGEJob(1234567, "r", "batch_alca")
-jobs[3101] = SGEJob.SGEJob(1234568, "E", "batch_alca")
-jobs[3102] = SGEJob.SGEJob(1234569, "qw", "batch_alca")
-jobs[3103] = SGEJob.SGEJob(1234570, "qw", "batch_alca")
+jobs[3100] = SGEJob.SGEJob(1234567, "r", "alcapana")
+jobs[3101] = SGEJob.SGEJob(1234568, "E", "alcapana")
+jobs[3102] = SGEJob.SGEJob(1234569, "qw", "alcapana")
+jobs[3103] = SGEJob.SGEJob(1234570, "qw", "alcapana")
 
+
+fields = (1, 12, 21, 41)
 
 def Title():
     screen.move(0,0)
@@ -22,13 +24,18 @@ def Title():
     screen.move(1,0)
     screen.addstr("--------------------------------------------------")
 
-def draw_runs(j):
-    screen.move(3,0)
+def DrawRuns(j):
+    y = 2
     for run, job in j.iteritems():
-        pass
+        y = y + 1
+        screen.move(y, fields[0])
+        screen.addstr(str(run))
+        screen.move(y, fields[1])
+        screen.addstr(job.status[0])
 
 Title()
+DrawRuns(jobs)
 screen.refresh()
-time.sleep(1)
+time.sleep(2)
 
 os.system("reset")

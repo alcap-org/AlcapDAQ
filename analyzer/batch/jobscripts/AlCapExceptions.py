@@ -25,3 +25,7 @@ class UnknownProductionError(AlCapError):
 class UnknownAlcapanaFiletypeError(AlCapError):
     def __init__(self, value):
         self.value = "Unknown alcapana filetype! (" + repr(value) + ")"
+
+class UnknownRootanaFiletypeError(AlCapError):
+    def __init__(self, value):
+        self.value = "Unknown rootana filetype! (" + repr(value) + ")"

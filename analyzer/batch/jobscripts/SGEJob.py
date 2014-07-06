@@ -31,8 +31,8 @@ class SGEJob:
     #  values corresponding to their representation
     #  in the qstat output).
     #@{
-    _ALCAPANA = "batch_alca"
-    _ROOTANA = "batch_root"
+    _ALCAPANA = "alcapana"
+    _ROOTANA = "rootana"
     #@}
 
     _STATUSES = [_WAITING, _RUNNING, _RESTARTED, _TRANSFERING,
@@ -43,17 +43,14 @@ class SGEJob:
     def __init__(self, job_id, status, prog):
         self.job_id = job_id
         if prog not in SGEJob._PROGRAMS:
-            msg = prog + "not a valid program (expect batch_alca or batch_root)!"
-            print msg
-            raise GridError(msg)
+            raise UnknownProductionError(prog)
         self.program = prog
         self.SetStatus(status)
 
     def __eq__(self, rhs):
         if isinstance(rhs, self.__class__):
             return self.job_id == rhs.job_id
-        else:
-            return False
+        return False
 
     ## \brief
     #  Set the status of this job to one of the understood states
@@ -68,8 +65,8 @@ class SGEJob:
                 state = state.replace(status, "")
         if len(state) != 0:
             msg = "There is an unknown state: " + state
-            print msg
             raise GridError(msg)
+        return
 
     ## \brief
     #  Check if there is an error in the job.
