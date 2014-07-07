@@ -31,9 +31,10 @@ double SetupNavigator::GetPedestalError(std::string bankname) {
 
   std::stringstream query; 
   std::string tablename = "pedestals_and_noises";
+  int run_number = GetRunNumber(); // get this run number (Note that if we don't have a catalogue of pedestals and noises for each run then we will want to change this)
   if (server) {
 
-    query << "SELECT * FROM " << tablename << " WHERE bank=\'" << bankname << "\';"; // get all the pedestals and noises
+    query << "SELECT * FROM " << tablename << " WHERE bank=\'" << bankname << "\' AND run=" << run_number << ";"; // get all the pedestals and noises
     TSQLiteResult* result = (TSQLiteResult*) server->Query(query.str().c_str());  // get the result of this query
     query.str(""); // clear the stringstream after use
 
