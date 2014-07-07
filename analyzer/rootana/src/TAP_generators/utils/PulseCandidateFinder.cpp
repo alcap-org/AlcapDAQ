@@ -1,5 +1,7 @@
 #include "PulseCandidateFinder.h"
 
+#include "SetupNavigator.h"
+
 #include "definitions.h"
 
 #include <iostream>
@@ -187,8 +189,9 @@ void PulseCandidateFinder::FillParameterHistogram(TH1D* histogram) {
     FillSampleDifferencesHistogram(histogram);
   }
 
-  std::string histtitle = "Plot of " + parameter_name + " for " + detname + " for Run 2808";
-  histogram->SetTitle(histtitle.c_str());
+  std::stringstream histtitle;
+  histtitle << "Plot of " << parameter_name << " for " << detname << " for Run " << SetupNavigator::Instance()->GetRunNumber();
+  histogram->SetTitle(histtitle.str().c_str());
   histogram->GetYaxis()->SetTitle("");
   histogram->GetXaxis()->SetTitle(parameter_name.c_str());
 }
