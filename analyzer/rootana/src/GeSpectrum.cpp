@@ -26,8 +26,10 @@ GeSpectrum::GeSpectrum(modules::options* opts): BaseModule("GeSpectrum",opts) {
   const static double max = std::pow(2.,14);
   TDirectory* cwd = TDirectory::CurrentDirectory();
   dir->cd();
-  fHist_Energy     = new TH1I("hEnergy",     "Energy of Gammas",                                    (int)max, 0., max);
-  fHist_TimeEnergy = new TH2I("hTimeEnergy", "Energy of Gammas within Mu Window", 100, -200., 200., (int)max, 0., max);
+  fHist_Energy     = new TH1I("hEnergy", "Energy of Gammas", (int)max, 0., max);
+  fHist_Time       = new TH1I("hTime", "Time of Gammas withing Energy Window", 1000, -10000., 10000.);
+  fHist_EnergyOOT  = new TH1I("hEnergyOOT", "Energy of Gammas outside of Time Window", (int)max, 0., max);
+  fHist_TimeEnergy = new TH2I("hTimeEnergy", "Energy of Gammas within Time Window", 100, -200., 200., (int)max, 0., max);
   cwd->cd();
 }
 
@@ -56,7 +58,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData,TSetupData *setup){
   static const std::string bank_SiRS(setup->GetBankName(name_SiRS));
   static const std::string bank_SiRF(setup->GetBankName(name_SiRF));
 
-  static double time_window = 200.; // ns
+  static const double time_window = 200.; // ns
 
   std::map< std::string, std::vector<TPulseIsland*> >& TPIMap = gData->fPulseIslandToChannelMap;
   if (!(TPIMap.count(bank_muSc) and TPIMap.count(bank_GeS) and TPIMap.count(bank_GeF))) {
@@ -82,23 +84,27 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData,TSetupData *setup){
   std::vector<TPulseIsland*>::iterator end_musc = TPIMap[bank_muSc].end();
   std::vector<TPulseIsland*>::iterator end_ges  = TPIMap[bank_GeS].end();
   std::vector<TPulseIsland*>::iterator end_gef  = TPIMap[bank_GeF].end();
-  std::vector<TPulseIsland*>::iterator musc = beg_musc;
-  std::vector<TPulseIsland*>::iterator ges = beg_ges;
-  std::vector<TPulseIsland*>::iterator gef = beg_gef;
+  std::vector<TPulseIsland*>::iterator musc;
+  std::vector<TPulseIsland*>::iterator ges;
+  std::vector<TPulseIsland*>::iterator gef;
 
+  musc = beg_musc;
+  ges = beg_ges;
+  gef = beg_gef;
   bool done = false;
   while (musc != end_musc) {
     double time_mu;
     double time_diff;
-    while ( (time_mu = GetMuScTime(*musc)) < GetGeTime(*ges, *gef) ) {
+    while ( (time_mu = GetMuScTime(*musc)) < GetGeTime(*ges, *gef) - time_window) {
       ++musc;
       if (musc == end_musc) {
 	done = true;
 	break;
       }
     }
-    while ( (GetGeTime(*ges, *gef)) - time_mu < -time_window ) {
+    while ( GetGeTime(*ges, *gef) < time_mu - time_window ) {
       fHist_Energy->Fill(GetGeEnergy(*ges));
+      fHist_EnergyOOT->Fill(GetGeEnergy(*ges));
       ++gef;
       ++ges;
       if ( ges == end_ges && gef == end_gef ) {
@@ -115,6 +121,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     while ( (time_diff = GetGeTime(*ges, *gef) - time_mu) < time_window ) {
       if (IsMuScHit(*musc) && IsGeHit(*ges, *gef))
 	fHist_TimeEnergy->Fill(time_diff, GetGeEnergy(*ges));
+      fHist_Energy->Fill(GetGeEnergy(*ges));
       ++gef;
       ++ges;
       if ( ges == end_ges && gef == end_gef ) {
@@ -129,6 +136,21 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     if (done)
       break;
   }
+
+  musc = beg_musc;
+  ges = beg_ges - 1;
+  gef = beg_gef - 1;
+  while (++ges != end_ges && ++gef != end_gef) {
+    double energy_ge = GetGeEnergy(*ges);
+    if (energy_ge < 3260 || energy_ge > 3290) continue;
+    double time_musc;
+    double time_ge;
+    while (musc != end_musc && (time_ge = GetGeTime(*ges, *gef)) > (time_musc = GetMuScTime(*musc))) ++musc;
+    if (musc == end_musc) break;
+    fHist_Time->Fill(time_ge - time_musc);
+    if (musc != beg_musc) fHist_Time->Fill(time_ge - GetMuScTime(*(musc - 1)));
+  }
+
   return 0;
 }
 
@@ -163,9 +185,19 @@ double GetTime(const TPulseIsland* tpi, const int pol) {
   const unsigned int amp = *m;
   const unsigned int cf = pol > 0 ? (unsigned int)(cf_frac*(double)(amp-ped)) + ped : (unsigned int)((double)(ped-amp)*(1.-cf_frac) + amp);
   std::vector<int>::const_iterator c = m;
-  while ((pol > 0 ? *--m > (int)cf : *--m < (int)cf) && m != b);
-  return (double)((int)cf - *m)/(double)(*(m+1) - *m) + (double)(m-b) +
-    (tpi->GetTimeStamp() - TSetupData::Instance()->GetTimeShift(tpi->GetBankName())) * tpi->GetClockTickInNs();
+  unsigned int x = 0;
+  while (m != b && (pol > 0 ? *--m > (int)cf : *--m < (int)cf)) {
+    if (++x > 100000) {
+      std::cout << "ERROR: ";
+      for (unsigned int i = 0; i < samps.size(); ++i)
+	std::cout << samps[i] << " ";
+      std::cout << std::endl;
+    }
+  }
+  double dx = (double)(m-b);
+  if (*(m+1) != *m)
+    dx += (double)((int)cf - *m)/(double)(*(m+1) - *m);
+  return (dx + (double)tpi->GetTimeStamp()) * tpi->GetClockTickInNs() - TSetupData::Instance()->GetTimeShift(tpi->GetBankName());
 }
 
 double GetGeEnergy(const TPulseIsland* tpi) {
