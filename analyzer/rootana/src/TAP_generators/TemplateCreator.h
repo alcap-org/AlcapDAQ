@@ -26,6 +26,9 @@ class TemplateCreator : public BaseModule{
   TemplateArchive* fTemplateArchive;
 
   void AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* pulse);
+
+  std::map<std::string, int> fNFitAttempts;
+  std::map<std::string, int> fNSuccessfulFits;
 };
 
 #endif //TEMPLATECREATOR_H_

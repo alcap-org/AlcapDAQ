@@ -54,7 +54,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 
   // Loop over each detector
   for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
-    
+
     // Get the bank and detector names for this detector
     bankname = it->first;
     detname = setup->GetDetectorName(bankname);
@@ -72,6 +72,10 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     // Try and get the template (it may have been created in a previous event)
     std::string template_name = "hTemplate_" + detname;
     TH1D* hTemplate = fTemplateArchive->GetTemplate(template_name.c_str());
+
+    // Store a couple of numbers to get an idea of how many successful fits there are
+    int& n_fit_attempts = fNFitAttempts[detname]; // number of pulses we try to fit to
+    int& n_successful_fits = fNSuccessfulFits[detname];
 
     // Loop through all the pulses
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
@@ -134,9 +138,11 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	}
 
 	int fit_status = template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
+	++n_fit_attempts;
 	if (fit_status != 0) {
 	  continue;
 	}
+	++n_successful_fits;
 	//	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
 
 	if (Debug()) {
@@ -145,7 +151,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 		    << ", Prob = " << TMath::Prob(template_fitter->GetChi2(), template_fitter->GetNDoF()) << std::endl << std::endl;
 	}
 
-	// Create the corrected pulse
+	/*	// Create the corrected pulse
 	const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
 	std::stringstream histname;
 	histname << template_name << "_Pulse" << pulseIter - thePulseIslands.begin();
@@ -165,6 +171,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	  hCorrectedPulse->SetBinContent(sampleIter - theSamples.begin()+1 - template_fitter->GetTimeOffset(), corrected_value); 
 	  hCorrectedPulse->SetBinError(sampleIter - theSamples.begin() - template_fitter->GetTimeOffset()+1, pedestal_error);
 	}
+	*/
 	// we keep on adding pulses until adding pulses has no effect on the template
       }
     }
@@ -184,6 +191,18 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
   // Print extra info if we're debugging this module:
   if(Debug()){
      cout<<"-----I'm debugging TemplateCreator::AfterLastEntry()"<<endl;
+  }
+
+  StringPulseIslandMap::const_iterator it;
+
+  // Loop over each detector
+  for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
+    std::string bankname = it->first;
+    std::string detname = setup->GetDetectorName(bankname);
+
+    int& n_fit_attempts = fNFitAttempts[detname]; // number of pulses we try to fit to
+    int& n_successful_fits = fNSuccessfulFits[detname];
+    std::cout << "TemplateCreator: " << detname << ": " << n_fit_attempts << " fits attempted with " << n_successful_fits << " successful (" << ((double)n_successful_fits/(double)n_fit_attempts)*100 << "%)" << std::endl;
   }
 
   // Clean up the template archive
