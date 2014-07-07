@@ -10,7 +10,7 @@ TemplateFitter::TemplateFitter(std::string detname): fChannel(detname) {
   HistogramFitFCN* fcn = new HistogramFitFCN();
   fMinuitFitter = new TFitterMinuit(3); //  Three (3) parameters to modify (amplitude, time, pedestal)
   fMinuitFitter->SetMinuitFCN(fcn);
-  fMinuitFitter->SetPrintLevel(1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
+  fMinuitFitter->SetPrintLevel(-1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
 }
 
 TemplateFitter::~TemplateFitter() {
@@ -49,8 +49,12 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
 
   // Minimize and notify if there was a problem
   int status = fMinuitFitter->Minimize();
-  if (status != 0)
-    std::cout << "ERROR: Problem with fit (" << status << ")!" << std::endl;
+
+  static int print_dbg = false;
+  if (print_dbg) {
+    if (status != 0)
+      std::cout << "ERROR: Problem with fit (" << status << ")!" << std::endl;
+  }
 
   // Get the fitted values
   fPedestalOffset = fMinuitFitter->GetParameter(0);
@@ -66,7 +70,6 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
 
   fNDoF = fcn->GetNDoF();
 
-  static int print_dbg = false;
   if (print_dbg) {
     std::cout << "TemplateFitter::FitPulseToTemplate(): Fit:\tChi2 " << fChi2 << "\tP "
 	      << fPedestalOffset << "(" << params.at(0) << ")\tA " << fAmplitudeScaleFactor << "(" << params.at(1) << ")\tT " << fTimeOffset << "(" << params.at(2) << ")" 

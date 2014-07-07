@@ -49,8 +49,10 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   }
 
   // Chi2 will be zero if shift is too high
-  if (bounds[1] <= bounds[0])
-    std::cout << "ERROR: Fit of two histograms involves shifting one out-of-bounds (no overlap)!" << std::endl;
+  if (print_dbg) {
+    if (bounds[1] <= bounds[0])
+      std::cout << "ERROR: Fit of two histograms involves shifting one out-of-bounds (no overlap)!" << std::endl;
+  }
 
   double f;
   for (int i = bounds[0]; i <= bounds[1]; ++i) {
