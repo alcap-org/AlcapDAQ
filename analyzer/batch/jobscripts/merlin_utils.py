@@ -52,6 +52,7 @@ ftpinfo = netrc.netrc(os.environ["HOME"] + "/.netrc").authenticators(ftpurl)
 if not ftpinfo:
     raise AlCapError("Could not find FTP info in netrc file!")
 
+
 ## \brief
 #  Determines the fractional usage of allowed disk space on
 #  Merlin using the /usr/lpp/mmfs/bin/mmlsquota command.
@@ -188,7 +189,7 @@ def get_file(run):
 #  \param[in] stages A list of run numbers to request have their run files staged.
 #  \param[in] gets A list of run numbers to request download of their runfiles.
 #  \return 0 on success, 1 if there was a problem connecting to the FTP server.
-def stage_files_and_get_others(stages, gets):
+def stage_files_and_get_others(stages, gets, screen=None):
     target_dir = RAWdir + "/"
     stagenames = ["run%05d.mid" % run for run in stages]
     getnames = ["run%05d.mid" % run for run in gets]
@@ -206,7 +207,20 @@ def stage_files_and_get_others(stages, gets):
     for run in stagenames:
         ftp.sendcmd("STAGE " + run)
     for run in getnames:
-        ftp.retrbinary("RETR " + run, open(target_dir + run, "wb").write)
+        with open(target_dir + run, "wb") as dlfile:
+            def download_noprogress(block):
+                dlfile.write(block)
+            def download_progress(block):
+                screen.UpdateProgress(len(block))
+                dlfile.write(block)
+            if not screen:
+                download = download_noprogress
+            elif screen:
+                screen.StartProgress(int(run[3:8]), ftp.size(run))
+                download = download_progress
+            fpt.retrbinary("RETR " + run, download)
+            if screen:
+                screen.FinishProgress(int(run[3:8]))
     ftp.close()
     return 0
 

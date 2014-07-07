@@ -36,6 +36,7 @@ def DrawRuns(j):
 Title()
 DrawRuns(jobs)
 screen.refresh()
+print "test"
 time.sleep(2)
 
 os.system("reset")
