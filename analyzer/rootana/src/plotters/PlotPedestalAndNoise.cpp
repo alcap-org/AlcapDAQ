@@ -5,6 +5,8 @@
 #include "ModulesOptions.h"
 #include "definitions.h"
 
+#include "SetupNavigator.h"
+
 #include <iostream>
 #include <cmath>
 #include <sstream>
@@ -126,11 +128,13 @@ int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
     std::string tablename = "pedestals_and_noises";
     if (server) {
       // Create the pedestals_and_noises table if it doesn't already exist
-      query << "CREATE TABLE IF NOT EXISTS " << tablename << " (channel STRING PRIMARY KEY, bank STRING, pedestal FLOAT, noise FLOAT)";
+      query << "CREATE TABLE IF NOT EXISTS " << tablename << " (run INT, channel STRING, bank STRING, pedestal FLOAT, noise FLOAT)";
       server->Exec(query.str().c_str());
       query.str(""); // clear the stringstream after use
 
-      // Now loop through the histograms and record the channel, bank and mean and RMS of first fNSamples to the SQLite table
+      int run_number = SetupNavigator::Instance()->GetRunNumber();
+      
+      // Now loop through the histograms and record the run_numberm channel, bank and mean and RMS of first fNSamples to the SQLite table
       for (std::map<std::string, TH2D*>::iterator histIter = fPedestalVsNoiseHistograms.begin(); histIter != fPedestalVsNoiseHistograms.end(); ++histIter) {
 	std::string detname = histIter->first;
 	std::string bankname = setup->GetBankName(detname);
@@ -149,13 +153,13 @@ int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
 
 	if (n_table_entries == "0") {
 	  // insert a new set of values
-	  query << "INSERT INTO " << tablename << " VALUES (\"" << detname << "\", \"" << bankname << "\", " << pedestal << ", " << noise << ");"; // insert the values
+	  query << "INSERT INTO " << tablename << " VALUES (" << run_number << ", \"" << detname << "\", \"" << bankname << "\", " << pedestal << ", " << noise << ");"; // insert the values
 	  server->Exec(query.str().c_str());
 	  query.str(""); // clear the stringstream after use
 	}
 	else if (n_table_entries == "1") {
 	  // just update the values that are already there
-	  query << "UPDATE " << tablename << " SET bank=\'" << bankname << "\', pedestal=" << pedestal << ", noise=" << noise << " WHERE channel=\'" << detname << "\';";
+	  query << "UPDATE " << tablename << " SET run=" << run_number << ", bank=\'" << bankname << "\', pedestal=" << pedestal << ", noise=" << noise << " WHERE channel=\'" << detname << "\';";
 	  server->Exec(query.str().c_str());
 	  query.str(""); // clear the stringstream after use
 	}
