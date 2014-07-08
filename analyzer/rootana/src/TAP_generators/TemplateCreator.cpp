@@ -7,7 +7,6 @@
 #include "definitions.h"
 
 #include "SetupNavigator.h"
-#include "utils/TemplateFitter.h"
 #include "ExportPulse.h"
 
 #include "TMath.h"
@@ -63,7 +62,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(detname, fOpts);
 
     // Create the TemplateFitter that we will use for this channel
-    TemplateFitter* template_fitter = new TemplateFitter(detname);
+    fTemplateFitter = new TemplateFitter(detname);
 
     // Get the TPIs
     thePulseIslands = it->second;
@@ -129,7 +128,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	  time_offset_estimate = pulse_time - template_time;
 	}
 
-	template_fitter->SetInitialParameterEstimates(pedestal_offset_estimate, amplitude_scale_factor_estimate, time_offset_estimate);
+	fTemplateFitter->SetInitialParameterEstimates(pedestal_offset_estimate, amplitude_scale_factor_estimate, time_offset_estimate);
 	
 	if (Debug()) {
 	  std::cout << "TemplateCreator: " << detname << "(" << bankname << "): Pulse #" << pulseIter - thePulseIslands.begin() << ": " << std::endl
@@ -139,21 +138,32 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 		    << ", time = " << time_offset_estimate << std::endl;
 	}
 
-	int fit_status = template_fitter->FitPulseToTemplate(hTemplate, *pulseIter);
+	int fit_status = fTemplateFitter->FitPulseToTemplate(hTemplate, *pulseIter);
 	++n_fit_attempts;
 	if (fit_status != 0) {
+	  if (Debug()) {
+	    std::cout << "TemplateCreator: Problem with fit (status = " << fit_status << ")" << std::endl;
+	  }
 	  continue;
 	}
 	++n_successful_fits;
 	//	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
 
 	if (Debug()) {
-	  std::cout << "Template Creator: Fitted Parameters: PedOffset = " << template_fitter->GetPedestalOffset() << ", AmpScaleFactor = " << template_fitter->GetAmplitudeScaleFactor()
-	            << ", TimeOffset = " << template_fitter->GetTimeOffset() << ", Chi2 = " << template_fitter->GetChi2() << ", NDoF = " << template_fitter->GetNDoF() 
-		    << ", Prob = " << TMath::Prob(template_fitter->GetChi2(), template_fitter->GetNDoF()) << std::endl << std::endl;
+	  std::cout << "Template Creator: Fitted Parameters: PedOffset = " << fTemplateFitter->GetPedestalOffset() << ", AmpScaleFactor = " << fTemplateFitter->GetAmplitudeScaleFactor()
+	            << ", TimeOffset = " << fTemplateFitter->GetTimeOffset() << ", Chi2 = " << fTemplateFitter->GetChi2() << ", NDoF = " << fTemplateFitter->GetNDoF() 
+		    << ", Prob = " << TMath::Prob(fTemplateFitter->GetChi2(), fTemplateFitter->GetNDoF()) << std::endl << std::endl;
 	}
 
 	// Now add the fitted pulse to the template
+	if (n_pulses_in_template <= 40 || 
+	    (n_pulses_in_template <= 100 && n_pulses_in_template%10 == 0) ) {
+	  std::stringstream newhistname;
+	  newhistname << "hTemplate_" << n_pulses_in_template << "Pulses_" << detname;
+	  TH1D* new_template = (TH1D*) hTemplate->Clone(newhistname.str().c_str());
+	}
+
+	// Add the pulse to the template (we'll do the correcting there)
 	AddPulseToTemplate(hTemplate, *pulseIter);
 	++n_pulses_in_template;
 	double error_of_max_bin;
@@ -164,7 +174,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	  error_of_max_bin = hTemplate->GetBinError(hTemplate->GetMinimumBin());
 	}
 	fErrorVsPulseAddedHistograms.at(detname)->Fill(n_pulses_in_template, error_of_max_bin);
-	double prob = TMath::Prob(template_fitter->GetChi2(), template_fitter->GetNDoF());
+	double prob = TMath::Prob(fTemplateFitter->GetChi2(), fTemplateFitter->GetNDoF());
 	if (prob != 0) {
 	  fProbVsPulseAddedHistograms.at(detname)->Fill(n_pulses_in_template, -(TMath::Log(prob)));
 	}
@@ -181,13 +191,13 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
 
 	  double uncorrected_value = (*sampleIter);
-	  double corrected_value = uncorrected_value - template_fitter->GetPedestalOffset();
-	  corrected_value /= template_fitter->GetAmplitudeScaleFactor();
+	  double corrected_value = uncorrected_value - fTemplateFitter->GetPedestalOffset();
+	  corrected_value /= fTemplateFitter->GetAmplitudeScaleFactor();
 
 	  hUncorrectedPulse->SetBinContent(sampleIter - theSamples.begin()+1, uncorrected_value); // +1 because bins start at 1
 	  hUncorrectedPulse->SetBinError(sampleIter - theSamples.begin()+1, pedestal_error);
-	  hCorrectedPulse->SetBinContent(sampleIter - theSamples.begin()+1 - template_fitter->GetTimeOffset(), corrected_value); 
-	  hCorrectedPulse->SetBinError(sampleIter - theSamples.begin() - template_fitter->GetTimeOffset()+1, pedestal_error);
+	  hCorrectedPulse->SetBinContent(sampleIter - theSamples.begin()+1 +0.5 - fTemplateFitter->GetTimeOffset(), corrected_value); 
+	  hCorrectedPulse->SetBinError(sampleIter - theSamples.begin()+1 +0.5 - fTemplateFitter->GetTimeOffset(), pedestal_error);
 	}
 
 	// we keep on adding pulses until adding pulses has no effect on the template
@@ -256,7 +266,7 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
     double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
     for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
       hTemplate->SetBinContent( sampleIter - theSamples.begin()+1, *sampleIter); // +1 because ROOT numbers bins from 1
-      hTemplate->SetBinError( sampleIter - theSamples.begin()+1, 5*pedestal_error);
+      hTemplate->SetBinError( sampleIter - theSamples.begin()+1, pedestal_error);
     }
 
     std::string error_histname = "hErrorVsPulseAdded_" + detname;
@@ -290,20 +300,29 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
     if (Debug()) {
       std::cout << "AddPulseToTemplate(): n_pulses = " << n_pulses << std::endl;
     }
+
+    // Loop through the pulse samples
     for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
 
-      int bin_number = sampleIter - theSamples.begin() + 1; // +1 because ROOT numbers bins from 1
+      double corrected_value = CorrectSampleValue(*sampleIter);
+
+      int bin_number = sampleIter - theSamples.begin() + 1 + 0.5 - fTemplateFitter->GetTimeOffset(); // +1 because ROOT numbers bins from 1, +0.5 to round to the nearest integer and subtract time offset because this value might not want to go direct into the template
+
+      if (bin_number < 1 || bin_number > hTemplate->GetNbinsX()) {
+	continue;
+      }
       double old_bin_content = hTemplate->GetBinContent(bin_number);
       double old_bin_error = hTemplate->GetBinError(bin_number);
 
-      double new_bin_content = n_pulses * old_bin_content + *sampleIter;
+      double new_bin_content = n_pulses * old_bin_content + corrected_value;
       new_bin_content /= (n_pulses + 1);
 
-      double new_bin_error = ((n_pulses - 1)*old_bin_error*old_bin_error) + (*sampleIter - old_bin_content)*(*sampleIter - new_bin_content);
+      double new_bin_error = ((n_pulses - 1)*old_bin_error*old_bin_error) + (corrected_value - old_bin_content)*(corrected_value - new_bin_content);
       new_bin_error = std::sqrt(new_bin_error / n_pulses);
 
       if (Debug()) {
-	std::cout << "TemplateCreator::AddPulseToTemplate(): Bin #" << bin_number << ": Old Value (Error) = " << old_bin_content << "(" << old_bin_error << ")" << std::endl
+	std::cout << "TemplateCreator::AddPulseToTemplate(): Bin #" << bin_number << ": Corrected Sample Value = " << corrected_value << std::endl
+		  << "\t\t\tOld Value (Error) = " << old_bin_content << "(" << old_bin_error << ")" << std::endl
 		  << "\t\t\tNew Value (Error) = " << new_bin_content << "(" << new_bin_error << ")" << std::endl;
       }
 
@@ -335,6 +354,14 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
     hTemplate->SetBinContent( iBin, value_to_fill);
   }
   */
+}
+
+double TemplateCreator::CorrectSampleValue(double old_value) {
+
+  double new_value = old_value - fTemplateFitter->GetPedestalOffset();
+  new_value /= fTemplateFitter->GetAmplitudeScaleFactor();
+
+  return new_value;
 }
 
 // The following macro registers this module to be useable in the config file.
