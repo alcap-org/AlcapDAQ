@@ -27,21 +27,30 @@ public:
 
 
 
-/// The EventNavigator class provides acess to all the collections in
-/// the (MIDAS) Event, which corresponds to a single ROOT branch  
+/// @brief The EventNavigator class provides acess to all the collections in
+/// the (MIDAS) Event, which corresponds to a single ROOT branch
+///
+/// @section Object Ownership
+///
+/// The general principle is that the event navigator owns all objects
+/// that are read or written to disk. Thus....
+
 class EventNavigator {
   typedef IDs::channel ChannelID;
   typedef IDs::generator GeneratorID;
   typedef IDs::source SourceID;
   typedef IDs::Generator_t GeneratorStr;
   typedef IDs::Config_t Config;
-  
+
 
  public:
+  enum OutputMode {kNew = 0, kOverwrite, }; //kAppend};
+
   /// The user accessor. Not sure yet if it can be used without
   /// providing initalisation info.
   static EventNavigator& Instance();
-  ~EventNavigator();
+  ~EventNavigator(){
+  }
   
   /// Opens an input file and connects to the trees therein.  Returns
   /// true if file exists, is a ROOT file, and contains at least one EACH of 
@@ -55,12 +64,17 @@ class EventNavigator {
 
   Bool_t VerifyRawData(TTree* raw_tree);
 
+  Bool_t MirrorRawInputFormat();
+
+  Bool_t ConnectOutput(const char* output_name, OutputMode mode = kOverwrite);
+
+
   /// Opens an output file.  By default this overwrites the output file
   /// Appending not yet implemented
   Bool_t ConnectOutputFile(const char* output_file_name, Bool_t append =false);
 
   /// Returns the current event number
-  Long64_t EntryNo();
+  Long64_t EntryNo() const {return fEntryNo;}
 
   /// Returns the number of entries in the input file.
   Long64_t GetInputNEntries();
@@ -68,13 +82,20 @@ class EventNavigator {
   /// Load the next entry in the input tree. Returns the number of
   /// bytes if sucessful, 0 if reached the end or there is no input tree.
   /// Throws an exception for an underlying I/O error
-  /// [Return values are from TTree::GetEntry()]
-  Int_t NextEntry();
-  
+  /// [Return values are fr  fOutputTreeTPI->Write();  
+  inline Int_t NextEntry() {
+    WriteCurrentEntry();   return LoadEntry(fEntryNo + 1);
+  }
   /// Load the branches for a particular entry from the input
   /// file. Will probably only make sense if output is not being written.
   /// Return values are same as for NextEntry()
-  Int_t GetEntry(Long64_t entry);
+  inline Int_t GetEntry(Long64_t entry){
+    WriteCurrentEntry();   return LoadEntry(entry);
+  }
+
+  Int_t LoadEntry(Long64_t entry);
+
+  Int_t WriteCurrentEntry();
 
   /// Save (or not) TPulseIslands in output file. By default they are
   /// not saved, call this method to enable saving.
@@ -164,6 +185,8 @@ class EventNavigator {
 
   static EventNavigator* fInstance; 
 
+  Bool_t fCopyRaw;
+
   ///Input ROOT file, raw format
   TFile* fRawInput;
 
@@ -184,13 +207,23 @@ class EventNavigator {
   ///
   TTree* fEventTree;
 
+  TTree* fOutputTreeTPI;
+
   TGlobalData* fRawData;
   
-  ///Our record of data banks
+  PulseIslandList** fBufferTPI;
+
+  //typedef PulseIslandList** PulseIslandList_ptr;
+  typedef std::map<std::string, PulseIslandList*> RecordTPI_t;
+
+  ///Our record of raw data banks
+  RecordTPI_t fRecordTPI;
   
+
 };
 
 
+//inline Int_t EventNavigator::NextEntry() {return LoadEntry(fEntryNo + 1);}
 
 #endif //EVENTNAVIGATOR_H
 

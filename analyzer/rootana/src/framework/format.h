@@ -14,7 +14,7 @@
 /// Changes to these constants are unlikely to backward-compatible
 namespace AlCapFormat {
   namespace Raw {
-    extern const char* SetupTreeName WITH_VALUE("Setup Tree");
+    extern const char* SetupTreeName WITH_VALUE("SetupTree");
     extern const char* DataTreeName WITH_VALUE("EventTree");
     extern const char* DataBranchName WITH_VALUE("Event");
   };

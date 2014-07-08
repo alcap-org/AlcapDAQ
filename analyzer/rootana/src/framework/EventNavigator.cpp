@@ -32,6 +32,7 @@ EventNavigator* EventNavigator::fInstance = 0x0;
 EventNavigator& EventNavigator::Instance()
 {
   if (!fInstance) fInstance = new EventNavigator();
+  fInstance->fCopyRaw = true;
   return *fInstance;
 }
 
@@ -48,24 +49,24 @@ Bool_t EventNavigator::ConnectInput(const char* input_name)
 
   TFile* ifile = TFile::Open(input_name, "READ");
   if (!ifile) return false;
-  
   TList* lok = ifile->GetListOfKeys();
-  bool success = false;
+  bool success_data = false;
+  bool success_meta = false;
   fSetupTree = 0x0;
   if (lok->Contains(Format::Raw::SetupTreeName) ) {
     //Read setup data
-    //success = ?
+    success_meta = true;
   }
   TTree* raw_tree = 0x0;
   if (lok->Contains(Format::Raw::DataTreeName) ) {
     TGlobalData* raw_data = ConnectRawData(ifile);
     //Read event data
-    //success = ?
+    success_data = true;
   }
   //if (TODO: lok contians other trees)
 
   fEntryNo = 0;
-  return success;
+  return success_data && success_meta;
 }
 
 
@@ -91,6 +92,8 @@ TGlobalData* EventNavigator::ConnectRawData(TFile* raw_file)
     return 0x0;
   }
   
+  this->GetEntry(1);
+  
   return fRawData;
 }
 
@@ -108,10 +111,60 @@ Bool_t EventNavigator::VerifyRawData(TTree* raw_tree)
 
 
 //----------------------------------------------------------------------
+Bool_t EventNavigator::ConnectOutput(const char* output_name, OutputMode mode)
+{
+  static const char* output_mode[3] = {"NEW", "RECREATE", "UPDATE"};
+  TFile* ofile = TFile::Open(output_name, output_mode[mode]);
+  if (!ofile) return false;
+  
+  fOutput = ofile;
+  if (fRawTree && fRawData && fCopyRaw) MirrorRawInputFormat();
+  fOutputTreeTPI->SetAutoSave(3000000);
+
+  return true;
+}
+
+
+//----------------------------------------------------------------------
+Bool_t EventNavigator::MirrorRawInputFormat()
+{
+  int prev_entry_no = fEntryNo;
+  //loop untill we find an entry in which the object is filled (should
+  //be the first one)
+  int nBytes = 0;
+  while (( nBytes = NextEntry() )){
+    if (fRawData->fPulseIslandToChannelMap.size() > 0) break;
+  }
+  if (nBytes <= 0) return false;
+ 
+  fOutputTreeTPI = new TTree("TPI","TPulseIslands");
+
+  typedef StringPulseIslandMap::const_iterator raw_map_iter;
+  StringPulseIslandMap& rawBanks = fRawData->fPulseIslandToChannelMap; 
+  fBufferTPI = new PulseIslandList*[rawBanks.size()];
+
+  //raw_map_iter b_it = fRawData->fPulseIslandToChannelMap.begin();
+  Int_t element =0;
+  for (raw_map_iter b_it = rawBanks.begin(); b_it != rawBanks.end(); ++b_it) {
+    std::string bank_name = b_it->first;
+    fBufferTPI[element] = new PulseIslandList;
+    fRecordTPI.insert(make_pair(bank_name, fBufferTPI[element]));
+    //fRecordTPI[bank_Name] = fBufferTPI[element]
+    fOutputTreeTPI->Branch(bank_name.c_str(), &fBufferTPI[element]);
+    ++element;
+  }
+
+  fOutputTreeTPI->Print();
+  
+  GetEntry(prev_entry_no);
+}
+
+
+//----------------------------------------------------------------------
 Bool_t EventNavigator::ConnectInput(const char* input_file_name,
                                     Bool_t read_only)
 {
-  //For now we  dont support identical output files
+  /*  //For now we  dont support identical output files
   if (read_only == false){
     std::cout << "WARN:  " << "re-writable files not supported!"
 	      << std::endl;
@@ -140,7 +193,9 @@ Bool_t EventNavigator::ConnectInput(const char* input_file_name,
   //All set
   fSetupTree = setup_tree;
   fEventTree = event_tree;
+  */
   return true;
+  
 }
 
 
@@ -159,25 +214,38 @@ Bool_t EventNavigator::ConnectOutputFile(const char* output_file_name,
   return true;
 }
 
+//----------------------------------------------------------------------
+//Int_t EventNavigator::NextEntry()
+//{
+//  //  return LoadEntry(fEntryNo + 1);
+//}
+
 
 //----------------------------------------------------------------------
-Int_t EventNavigator::NextEntry()
+Int_t EventNavigator::LoadEntry(Long64_t entry)
 {
   Int_t nBytes = 0;
   if (fRawTree){
-    //static short called =0;
-    //if (called++)
-      fRawData->Clear();
-    nBytes = fRawTree->GetEntry(++fEntryNo);
+    fRawData->Clear();
+    nBytes = fRawTree->GetEntry(entry);
   } 
   else if (fEventTree) {
-    nBytes = fEventTree->GetEntry(++fEntryNo);
+    nBytes = fEventTree->GetEntry(entry);
   }
+  else return 0;
   if (nBytes < 0) throw io_error();
-  if (fEntryNo % 100 != 0) return nBytes;
-  std::cout << fEntryNo << "/" << fRawTree->GetEntriesFast() << ":  " << nBytes << std::endl;
+  fEntryNo = entry;
+  if (fEntryNo % 100 != 10) return nBytes;
+  std::cout << fEntryNo << "/" << fRawTree->GetEntriesFast() 
+            << ":  " << fRawData->fPulseIslandToChannelMap.size() << std::endl;
   //std::cout << DEBUG::check_mem().str << std::endl;;  
   return nBytes;
+}
+
+//----------------------------------------------------------------------
+Int_t EventNavigator::WriteCurrentEntry()
+{
+  fOutputTreeTPI->Fill();
 }
 
 extern void ClearGlobalData(TGlobalData* data);
