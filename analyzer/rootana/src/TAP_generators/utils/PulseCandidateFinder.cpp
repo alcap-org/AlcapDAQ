@@ -291,6 +291,7 @@ std::map<IDs::channel, double> PulseCandidateFinder::fOneSigmaValues;
 void PulseCandidateFinder::SetOneSigmaValues() {
 
   // The values that we will read in
+  std::string run_number;
   std::string detname, bankname;
   std::string pedestal, noise;
 
@@ -307,11 +308,12 @@ void PulseCandidateFinder::SetOneSigmaValues() {
 
     TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
     while (row != NULL) {
-      //      std::cout << row->GetField(0) << " " << row->GetField(1) << " " << row->GetField(2) << " " << row->GetField(3) << std::endl;
-      detname = row->GetField(0);
-      bankname = row->GetField(1);
-      pedestal = row->GetField(2);
-      noise = row->GetField(3);
+      //      std::cout << row->GetField(0) << " " << row->GetField(1) << " " << row->GetField(2) << " " << row->GetField(3) << " " << row->GetField(4) << std::endl;
+      run_number = row->GetField(0);
+      detname = row->GetField(1);
+      bankname = row->GetField(2);
+      pedestal = row->GetField(3);
+      noise = row->GetField(4);
 
       fOneSigmaValues[IDs::channel(detname)] = atof(noise.c_str());
       

@@ -40,7 +40,7 @@ double SetupNavigator::GetPedestalError(std::string bankname) {
 
     TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
     while (row != NULL) {
-      noise = atof(row->GetField(3));
+      noise = atof(row->GetField(4));
       
       delete row;
       row = (TSQLiteRow*) result->Next(); // get the next row
