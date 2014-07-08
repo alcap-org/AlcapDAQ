@@ -27,8 +27,20 @@ class TemplateCreator : public BaseModule{
 
   void AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* pulse);
 
+  /// \brief 
+  /// A map of the number of fit attempts on each detector
   std::map<std::string, int> fNFitAttempts;
+
+  /// \brief 
+  /// A map of the number of successful fits on each detector
   std::map<std::string, int> fNSuccessfulFits;
+
+  /// \brief 
+  /// A map of the number of pulses in the template
+  std::map<std::string, int> fNPulsesInTemplate;
+
+  std::map<std::string, TH1D*> fErrorVsPulseAddedHistograms;
+  std::map<std::string, TH1D*> fProbVsPulseAddedHistograms;
 };
 
 #endif //TEMPLATECREATOR_H_
