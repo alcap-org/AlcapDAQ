@@ -8,6 +8,7 @@ class gModulesOptions;
 
 #include "utils/TemplateArchive.h"
 #include "utils/PulseCandidateFinder.h"
+#include "utils/TemplateFitter.h"
 
 class TemplateCreator : public BaseModule{
 
@@ -41,6 +42,12 @@ class TemplateCreator : public BaseModule{
 
   std::map<std::string, TH1D*> fErrorVsPulseAddedHistograms;
   std::map<std::string, TH1D*> fProbVsPulseAddedHistograms;
+
+  /// \brief
+  /// Corrects a given sample value
+  double CorrectSampleValue(double old_value);
+
+  TemplateFitter* fTemplateFitter;
 };
 
 #endif //TEMPLATECREATOR_H_
