@@ -35,9 +35,10 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
     std::cout << "\tpedestal = " << P << ", amplitude = " << A << ", time (integer part) = " << T_int << " and time (float part) = " << T_flt << std::endl;
   }
  
+  int half_range = 10;
   int bounds[2];
-  bounds[0] = 1;//std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1);
-  bounds[1] = fTemplateHist->GetNbinsX(); //std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX());
+  bounds[0] = half_range+1;//std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1);
+  bounds[1] = std::min(fTemplateHist->GetNbinsX(), fPulseHist->GetNbinsX()) - half_range-1; //std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX());
 
   fNDoF = bounds[1] - bounds[0] + 1 - par.size(); // +1 because we include both ends of the bounds when we loop through
 
@@ -62,7 +63,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
     f = A * f + P; // apply the transformation to this bin
 
     double delta = fPulseHist->GetBinContent(i) - f;
-    double hTemplate_bin_error = fTemplateHist->GetBinError(i);
+    double hTemplate_bin_error = fTemplateHist->GetBinError(i - T_int);
     double hPulse_bin_error = fPulseHist->GetBinError(i);
     chi2 += delta*delta / ((hTemplate_bin_error*hTemplate_bin_error) + (hPulse_bin_error)*(hPulse_bin_error));
     //    std::cout << "Histogram Errors: Template = " << hTemplate_bin_error << ", Pulse = " << hPulse_bin_error << std::endl;
