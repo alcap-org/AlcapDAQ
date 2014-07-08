@@ -36,8 +36,8 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   }
  
   int bounds[2];
-  bounds[0] = std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1);
-  bounds[1] = std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX());
+  bounds[0] = 1;//std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1);
+  bounds[1] = fTemplateHist->GetNbinsX(); //std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX());
 
   fNDoF = bounds[1] - bounds[0] + 1 - par.size(); // +1 because we include both ends of the bounds when we loop through
 
@@ -59,7 +59,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
     // We shift and scale the template so that it matches the pulse.
     // This is because, when we have a normalised template, we will get the actual amplitude, pedestal and time from the fit and not just offsets
     f = fTemplateHist->GetBinContent(i - T_int) + T_flt*(fTemplateHist->GetBinContent(i - T_int + 1) - fTemplateHist->GetBinContent(i - T_int)); // linear interpolation between the i'th and the (i+1)'th bin
-    f = A * f + P;
+    f = A * f + P; // apply the transformation to this bin
 
     double delta = fPulseHist->GetBinContent(i) - f;
     double hTemplate_bin_error = fTemplateHist->GetBinError(i);
