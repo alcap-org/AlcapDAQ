@@ -308,6 +308,7 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
 
       int bin_number = sampleIter - theSamples.begin() + 1 + 0.5 - fTemplateFitter->GetTimeOffset(); // +1 because ROOT numbers bins from 1, +0.5 to round to the nearest integer and subtract time offset because this value might not want to go direct into the template
 
+      // Only change the bin contents of bins within the range of the template histogram
       if (bin_number < 1 || bin_number > hTemplate->GetNbinsX()) {
 	continue;
       }
