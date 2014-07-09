@@ -93,7 +93,7 @@ TGlobalData* EventNavigator::ConnectRawData(TFile* raw_file)
     return 0x0;
   }
   
-  this->GetEntry(1);
+  this->LoadEntry(1);
   
   return fRawData;
 }
@@ -125,7 +125,7 @@ Bool_t EventNavigator::ConnectOutput(const char* output_name, OutputMode mode)
   return true;
 }
 
-
+TObjArray* obj_arr;
 //----------------------------------------------------------------------
 Bool_t EventNavigator::MirrorRawInputFormat()
 {
@@ -133,7 +133,8 @@ Bool_t EventNavigator::MirrorRawInputFormat()
   //loop untill we find an entry in which the object is filled (should
   //be the first one)
   int nBytes = 0;
-  while (( nBytes = NextEntry() )){
+  int entry = fEntryNo;
+  while (( nBytes = LoadEntry(++entry) )){
     if (fRawData->fPulseIslandToChannelMap.size() > 0) break;
   }
   if (nBytes <= 0) return false;
@@ -144,7 +145,8 @@ Bool_t EventNavigator::MirrorRawInputFormat()
   StringPulseIslandMap& rawBanks = fRawData->fPulseIslandToChannelMap; 
   //fBufferTPI = new PulseIslandList*[rawBanks.size()];
 
-  TObjArray* obj_arr = new TObjArray(rawBanks.size());
+  //TObjArray* obj_arr = new TObjArray(rawBanks.size());
+  obj_arr = new TObjArray(rawBanks.size());
   //raw_map_iter b_it = fRawData->fPulseIslandToChannelMap.begin();
   Int_t element =0;
   for (raw_map_iter b_it = rawBanks.begin(); b_it != rawBanks.end(); ++b_it) {
@@ -156,7 +158,8 @@ Bool_t EventNavigator::MirrorRawInputFormat()
     ++element;
     
     //TNamed* foo = new TNamed((bank_name + "_name").c_str(), (bank_name + "_title").c_str());
-    BankBranch<PulseIslandList>* foo = new BankBranch<PulseIslandList>(bank_name.c_str());
+    BankBranch<PulseIslandList>* foo = 
+      new BankBranch<PulseIslandList>(IDs::generator(bank_name));
     obj_arr->Add(foo);
   }
   fOutputTreeTPI->Branch(obj_arr);
@@ -164,7 +167,7 @@ Bool_t EventNavigator::MirrorRawInputFormat()
   fOutputTreeTPI->Print();
  
   fOutputTreeTPI->Write();
-  //GetEntry(prev_entry_no);
+  GetEntry(prev_entry_no);
 }
 
 
@@ -253,7 +256,7 @@ Int_t EventNavigator::LoadEntry(Long64_t entry)
 //----------------------------------------------------------------------
 Int_t EventNavigator::WriteCurrentEntry()
 {
-  //fOutputTreeTPI->Fill();
+  fOutputTreeTPI->Fill();
 }
 
 extern void ClearGlobalData(TGlobalData* data);
