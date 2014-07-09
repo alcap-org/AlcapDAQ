@@ -37,9 +37,13 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   HistogramFitFCN* fcn = (HistogramFitFCN*)fMinuitFitter->GetMinuitFCN();
   fcn->SetTemplateHist(hTemplate);
   fcn->SetPulseHist(hPulse);
-  fMinuitFitter->SetParameter(0, "PedestalOffset", fPedestalOffset, 0.1, 0, 0);
-  fMinuitFitter->SetParameter(1, "AmplitudeScaleFactor", fAmplitudeScaleFactor, 0.1, 0, 0);
-  fMinuitFitter->SetParameter(2, "TimeOffset", fTimeOffset, 1., 0, 0); // Timing should have step size no smaller than binning,
+
+  int n_bits = TSetupData::Instance()->GetNBits(bankname);
+  double max_adc_value = std::pow(2, n_bits);
+
+  fMinuitFitter->SetParameter(0, "PedestalOffset", fPedestalOffset, 0.1, 0, max_adc_value);
+  fMinuitFitter->SetParameter(1, "AmplitudeScaleFactor", fAmplitudeScaleFactor, 0.1*fAmplitudeScaleFactor, 0, 10);
+  fMinuitFitter->SetParameter(2, "TimeOffset", fTimeOffset, 1., -10, 10); // Timing should have step size no smaller than binning,
                                                     // *IF* the fourth argument is step size this is okay,
                                                     // or later implement some interpolation method, note
                                                     // *DERIVATIVES* at bounderies of interpolation may cause
