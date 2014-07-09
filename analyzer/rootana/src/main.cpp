@@ -37,6 +37,7 @@
 #include "ModulesNavigator.h"
 #include "SetupNavigator.h"
 #include "BaseModule.h"
+#include "definitions.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -71,7 +72,7 @@ TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
 static TTree *gAnalysedPulseTree = NULL;
 TBranch *gAnalysedPulseBranch = NULL;
 
-StringAnalPulseMap gAnalysedPulseMap;
+SourceAnalPulseMap gAnalysedPulseMap;
 StringDetPulseMap gDetectorPulseMap;
 MuonEventList gMuonEvents;
 
@@ -272,7 +273,7 @@ void ClearGlobalData(TGlobalData* data)
   }
 
 
-  for(StringAnalPulseMap::iterator mapIter=gAnalysedPulseMap.begin();
+  for(SourceAnalPulseMap::iterator mapIter=gAnalysedPulseMap.begin();
      mapIter != gAnalysedPulseMap.end(); mapIter++) {
 
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
