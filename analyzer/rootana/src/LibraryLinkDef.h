@@ -15,4 +15,12 @@
 #pragma link C++ class pair<string,vector<TAnalysedPulse*> >+;
 #pragma link C++ class std::vector<std::string>+;
 
+
+
+//#pragma link C++ class vector<TPulseIsland*>+;
+#pragma link C++ class BankBranch<vector<TPulseIsland*> >+;
+#pragma link C++ class BankBranch<vector<TAnalysedPulse*> >+;
+#pragma link C++ class BankBranch<vector<TDetectorPulse*> >+;
+#pragma link C++ class BankBranch<vector<TMuonEvent*> >+;
+
 #pragma link C++ class TAnalysedPulseMapWrapper+;

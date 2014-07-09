@@ -16,4 +16,5 @@ ROOT_DICT_CLASSES:=TAnalysedPulseMapWrapper\
 	TDetectorPulse\
 	IdChannel\
 	IdGenerator\
-	IdSource
+	IdSource\
+        BankBranch\
