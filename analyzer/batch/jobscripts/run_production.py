@@ -2,6 +2,7 @@
 import DBManager
 import RunManager
 import merlin_utils as mu
+import ScreenManager
 
 import getopt
 import time
@@ -46,13 +47,14 @@ def usage():
     print "    --spacelim=#    The maximum percentage of available space to use up"
     print "                    (as returned from the mmlsquota command)."
     print "                    (Default: 90)"
+    print "    --display       Use a ncurses display."
 
 
 ################################################################################
 # Argument parsing #############################################################
 ################################################################################
 short_args = "h"
-long_args = ["usage", "help", "production=", "version=", "new=", "pause=", "nproc=", "nprep=", "spacelim="]
+long_args = ["usage", "help", "production=", "version=", "new=", "pause=", "nproc=", "nprep=", "spacelim=", "display"]
 opts, unrecognized = getopt.getopt(sys.argv[1:], short_args, long_args)
 
 # Default arguments
@@ -64,6 +66,7 @@ wait = 5
 nproc = 10
 nprep = 5
 space_limit = 0.9
+display = False
 
 # Parse arguments
 for opt, val in opts:
@@ -85,6 +88,8 @@ for opt, val in opts:
         nprep = int(val)
     elif opt == "--spacelim":
         space_limit = float(val)
+    elif opt == "--display":
+        display = True
 
 
 # Argument checking
@@ -125,17 +130,20 @@ if production == _ROOTANA:
 ################################################################################
 
 
-
-dbman = DBManager.DBManager(production, version)
+screenman = ScreenManager.Dummy()
+if display:
+    screenman = ScreenManager.ScreenManager()
+dbman = DBManager.DBManager(production, version, screenman)
 if new:
     version = dbman.StartNewProduction(tag, "gold", version)
-    print "INFO: Starting new production, version " + str(version)
+    screenman.Message("INFO: Starting new production, version " + str(version))
 elif not version:
     version = dbman.GetRecentProductionVersionNumber()
-    print "INFO: Most recent production version " + str(version)
-runman = RunManager.RunManager(production, version)
-#screen = Screen()
-#screen.SetProgram(production)
+    screenman.Message("INFO: Most recent production version " + str(version))
+runman = RunManager.RunManager(production, version, screenman)
+
+
+screenman.SetProgram(production)
 jobs = {}
 try:
     no_disk_space_error_printed = False
@@ -147,21 +155,21 @@ try:
         space = mu.fraction_of_quota_used()
         if space < space_limit:
             if no_disk_space_error_printed:
-                print "INFO: Disk space has become available."
+                screenman.Message("INFO: Disk space has become available.")
                 no_disk_space_error_printed = False
             runman.ClaimRuns(nproc + nprep)
             runman.DownloadOne()
         elif not no_disk_space_error_printed:
             if production == _ALCAPANA:
-                print "INFO: There is not enough space. Downloaded runs will continue being processed,"
-                print "      however no further runs will be fetched and all undownloaded claimed runs"
-                print "      will be aborted."
-                print "      This state will be reverted if space opens up as files are deleted"
-                print "      during the processing process as they are done processing."
+                screenman.Message("INFO: There is not enough space. Downloaded runs will continue being processed,")
+                screenman.Message("      however no further runs will be fetched and all undownloaded claimed runs")
+                screenman.Message("      will be aborted.")
+                screenman.Message("      This state will be reverted if space opens up as files are deleted")
+                screenman.Message("      during the processing process as they are done processing.")
                 no_disk_space_error_printed = True
                 runman.Abort(runman.to_stage + runman.to_download)
             elif production == _ROOTANA:
-                print "ERROR: There is not enough space to do production. Please make space."
+                screenman.Message("ERROR: There is not enough space to do production. Please make space.")
                 mu.abort_jobs(jobs.values())
                 runman.Abort()
                 break
@@ -191,8 +199,8 @@ try:
                 if jobs[run].HasError():
                     to_abort[run] = jobs[run]
         if len(to_abort.keys()) > 0:
-            print "INFO: There were errors with some runs, so the following runs will be aborted:"
-            print to_abort.keys()
+            screenman.Message("INFO: There were errors with some runs, so the following runs will be aborted:")
+            screenman.Message(to_abort.keys())
             mu.abort_jobs(to_abort.values())
             runman.Abort(to_abort.keys())
         for run in to_delete + to_abort.keys():
@@ -201,18 +209,21 @@ try:
         time.sleep(wait)
 
 except KeyboardInterrupt:
-    print "User cancelling jobs..."
+    screenman.Message("User cancelling jobs...")
     mu.abort_jobs(jobs.values())
     runman.Abort()
 
 except:
-    print "ERROR: There was an uncaught exception. Aborting..."
+    screenman.Message("ERROR: There was an uncaught exception. Aborting...")
     mu.abort_jobs(jobs.values())
     runman.Abort()
+    screenman.Close()
     raise
 
 
 
 if dbman.IsProductionFinished():
-    print "INFO: Finishing production", dbman.production_table
+    screenman.Message("INFO: Finishing production " + str(dbman.production_table))
     dbman.FinishProduction()
+
+screenman.Close()

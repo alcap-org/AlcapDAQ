@@ -4,8 +4,10 @@ import AlCapExceptions
 import datetime
 import curses
 
-class Screen:
+class ScreenManager:
 
+    ## \name Constants
+    #\{
     _HEADER_LINES   = 4
     _MAX_RUNS       = 20
     _RUN_WIDTH      = 9
@@ -15,18 +17,30 @@ class Screen:
 
     _TIMEOUT        = 5
     _MAXMESSAGES    = 1000
+    #\}
 
-    _CLAIMED        = "Claimed"
-    _SUBMITTED      = "Submitted"
+    ## \name Statuses
+    #\{
     _RUNNING        = "Running"
-    _FINISHED       = "Finished"
+    _SUBMITTED      = "Submitted"
+    _CLAIMED        = "Claimed"
     _ERROR          = "Error"
-    _STATUSES       = [_CLAIMED, _SUBMITTED, _RUNNING, _FINISHED, _ERROR]
+    _FINISHED       = "Finished"
+    ## \brief
+    #  The order of the status constants list ir orders according
+    #  to what should display highest on the list.
+    _STATUSES       = [_RUNNING, _SUBMITTED, _CLAIMED, _ERROR, _FINISHED]
+    #\}
 
+    ## \name Programs
+    #\{
     _ALCAPANA       = "alcapana"
     _ROOTANA        = "rootana"
     _PROGRAMS       = [_ALCAPANA, _ROOTANA]
+    #\}
 
+    ## \brief
+    #  Initializes the curses enviroment.
     def __init__(self):
         self.screen = curses.initscr()
         curses.noecho()
@@ -46,25 +60,39 @@ class Screen:
         self.print_msg   = -1
         return
 
+    ## \brief
+    #  Sets the program to be printed in upper-left corner.
+    #  Raises if the program isn't recognized.
+    #
+    #  \param[in] prog Program this screen is for. Either "alcapana"
+    #  or "rootana".
     def SetProgram(self, prog):
-        if prog == "alcapana":
+        if prog == ScreenManager._ALCAPANA:
             self.header[0] = self.header[0].replace(self.header[0][0:8], "ALCAPANA")
-        elif prog == "rootana":
+        elif prog == ScreenManager._ROOTANA:
             self.header[0] = self.header[0].replace(self.header[0][0:8], "ROOTANA")
         else:
-            raise UnknownProgramError(prog)
+            raise UnknownProductionError(prog)
         self.Draw()
         return
 
+    ## \brief
+    #  Start a run on the display
+    #
+    #  \param[in] run The run number to display.
     def AddRun(self, run):
         self.runs.append(run)
         self.start[run] = None
         self.stop[run] = None
-        self.status[run] = "Claimed"
+        self.status[run] = ScreenManager._CLAIMED
         self.progress[run] = [None, None, ""]
         self.Draw()
         return
 
+    ## \brief
+    #  Remove a run from being displayed.
+    #
+    #  \param[in] eun The run number to remove from the display.
     def RemoveRun(self, run):
         del self.runs[self.runs.index(run)]
         del self.start[run]
@@ -73,22 +101,29 @@ class Screen:
         del self.progress[run]
         return
 
+    ## \brief
+    #  Mark a run as completed and reduce its display priority.
     def FinishRun(self, run):
-        self.status[run] = "Finished"
+        self.status[run] = ScreenManager._FINISHED
         self.stop[run] = datetime.datetime.now()
         self.Draw()
         return
 
+    ## \brief
+    #  Update the displayed job status of jobs that have been
+    #  submitted to the grid.
+    #
+    #  \param[in] jobs A dictionary of run numbers to SGEJobs.
     def UpdateStatus(self, jobs):
         for run, job in jobs.iteritems():
             if job.HasError():
-                self.status[run] = "Error"
+                self.status[run] = ScreenManager._ERROR
             elif job.IsRunning():
-                if self.status[run] != "Running":
+                if self.status[run] != ScreenManager._RUNNING:
                     self.start[run] = datetime.datetime.now()
-                self.status[run] = "Running"
+                self.status[run] = ScreenManager._RUNNING
             elif job.IsWaiting():
-                self.status[run] = "Submitted"
+                self.status[run] = ScreenManager._SUBMITTED
         return
 
     def StartProgress(self, run, size):
@@ -124,6 +159,7 @@ class Screen:
     def Draw(self):
         y = 0
         now = datetime.datetime.now()
+        self.SortByStatus()
         for line in self.header:
             self.screen.move(y,0)
             self.screen.addstr(line)
@@ -132,7 +168,7 @@ class Screen:
             if self.start[run]:
                 if self.stop[run]:
                     dt = (self.stop[run] - self.start[run]).seconds
-                    if (datetime.datetime.now() - self.stop[run]).seconds > Screen._TIMEOUT:
+                    if (now - self.stop[run]).seconds > Screen._TIMEOUT:
                         self.RemoveRun(run)
                         self.Draw()
                         return
@@ -163,3 +199,48 @@ class Screen:
         if len(self.messages) > Screen._MAXMESSAGES:
             self.messages.pop(0)
         return
+
+    def SortByStatus(self):
+        self.runs.sort(key=lambda run: ScreenManager._STATUSES.index(self.status[run]))
+        return
+
+    def Close(self):
+        curses.nocbreak()
+        self.screen(0)
+        curses.echo()
+        curses.endwin()
+        for msg in self.messages:
+            print msg
+        return
+
+
+class Dummy():
+    def __init__(self):
+        pass
+    def SetProgram(self, prog):
+        pass
+    def AddRun(self, run):
+        pass
+    def RemoveRun(self, run):
+        pass
+    def FinishRun(self, run):
+        pass
+    def UpdateStatus(self, jobs):
+        pass
+    def StartProgress(self, run, size):
+        pass
+    def UpdateProgress(self, size):
+        pass
+    def FinishProgress(self):
+        pass
+    def UpdateQuota(self, q):
+        pass
+    def Draw(self):
+        pass
+    def Message(self, msg):
+        print msg
+        pass
+    def SortByStatus(self):
+        pass
+    def Close(self):
+        pass
