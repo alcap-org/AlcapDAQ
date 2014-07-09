@@ -74,3 +74,13 @@ class SGEJob:
         if SGEJob._ERROR in self.status:
             return True
         return False
+
+    def IsRunning(self):
+        if SGEJob._RUNNING in self.status:
+            return True
+        return False
+
+    def IsWaiting(self):
+        if SGEJob._WAITING in self.status:
+            return True
+        return False

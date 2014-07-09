@@ -107,9 +107,11 @@ class RunManager:
         if self.prod == _ROOTANA:
             return
         if len(self.to_download) > 0:
-            dl = self.to_download.pop(0)
+            staged = True
+            dl = self.to_download[0]
         elif len(self.to_stage) > 0:
-            dl = self.to_stage.pop(0)
+            staged = False
+            dl = self.to_stage[0]
         else:
             return
         if self.to_stage:
@@ -117,6 +119,10 @@ class RunManager:
         print "Downloading run:", dl
         print "...",
         if mu.stage_files_and_get_others([dl] + self.to_stage, [dl]) == 0:
+            if staged:
+                del self.to_download[self.to_download.index(dl)]
+            else:
+                del self.to_stage[self.to_stage.index(dl)]
             self.to_submit.append(dl)
             self.to_download = self.to_download + self.to_stage
             self.to_stage = []
@@ -138,7 +144,10 @@ class RunManager:
         # are no runs to be submitted.
         for run in self.to_submit[0:1]:
             print "Submitting run:", run
-            job = mu.submit_job(run, self.prod, self.dbm.GetRootanaInputFile(run))
+            infile = None
+            if self.prod == _ROOTANA:
+                infile = self.dbm.GetRootanaInputFile(run)
+            job = mu.submit_job(run, self.prod, infile)
             self.to_finish.append(self.to_submit.pop(0))
             self.dbm.RegisterRunStart(run)
             return [run, job]
@@ -171,11 +180,11 @@ class RunManager:
             new_paths = {"tree":tree, "hist":hist, "odb":dump, "olog":olog, "elog":elog}
             self.dbm.RegisterFile(run, mu.DAQdir + "/analyzer/work/production/MODULES", "modules")
         elif self.prod == _ROOTANA:
-            out = mu.OUTdir + "/v%d/tree%05d.root" % (self.ver, run)
+            out = mu.OUTdir + "/v%d/out%05d.root" % (self.ver, run)
             olog = mu.LOGdir + "/v%d/rootana.run%05d.out" % (self.ver, run)
             elog = mu.LOGdir + "/v%d/rootana.run%05d.err" % (self.ver, run)
             new_paths = {"out":out, "olog":olog, "elog":elog}
-            self.dbm.RegisterFile(run, mu.DAQdir + "/analyzer/rootana/production.MODULES", "modules")
+            self.dbm.RegisterFile(run, mu.DAQdir + "/analyzer/rootana/production.cfg", "modules")
         old_paths = dict((ftype, path.replace("/v%d" % self.ver, "")) for ftype, path in new_paths.iteritems())
         for ftype in old_paths.keys():
             new_dir = os.path.dirname(new_paths[ftype])

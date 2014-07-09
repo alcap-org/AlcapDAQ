@@ -23,7 +23,6 @@ class DBManager:
         if prog not in DBManager._PROGRAMS:
             raise UnknownProductionError(prog)
         self.prog = prog
-        self.ver = ver
         if not os.path.isfile(DBManager._DBFILE):
             msg = "Database not found!"
             print msg
@@ -33,7 +32,11 @@ class DBManager:
             print msg
             raise DataBaseError(msg)
         self.db = sqlite3.connect(DBManager._DBFILE)
-        self.production_table = production_table_name(prog, ver)
+        if not ver:
+            self.ver = self.GetRecentProductionVersionNumber()
+        else:
+            self.ver = ver
+        self.production_table = production_table_name(self.prog, self.ver)
 
     ## \brief
     #  Get the run number of an avaliable run from a certian production.
@@ -245,12 +248,13 @@ class DBManager:
     #  \param[in] run Run number to find the right file for.
     #  \return The absolute path to the correct file.
     def GetRootanaInputFile(self, run):
+        print run
         fname = None
         cmd = "SELECT base FROM productions WHERE type=? AND version=?"
         for irow in self.db.execute(cmd, (DBManager._ROOTANA, self.ver)):
             base = int(irow[0])
-            cmd = "SELECT tree FROM " + production_table_name(_ALCAPANA, base) + " WHERE run=?,ver=?"
-            for jrow in self.db.execute(cmd, (run, base)):
+            cmd = "SELECT tree FROM " + production_table_name(DBManager._ALCAPANA, base) + " WHERE run=?"
+            for jrow in self.db.execute(cmd, (run,)):
                 fname = jrow[0]
         if fname and os.path.exists(fname):
             return fname
