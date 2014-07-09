@@ -23,9 +23,8 @@ CFTimeAPGenerator::CFTimeAPGenerator(TAPGeneratorOptions* opts):
     throw OptionsError();
 }
 
-int CFTimeAPGenerator::ProcessPulses( 
-				     const PulseIslandList& pulseList,
-				     AnalysedPulseList& analysedList){
+int CFTimeAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
+				     AnalysedPulseList& analysedList) {
   static const double th_frac = 0.25;
 
   TSetupData* setup = TSetupData::Instance();
@@ -43,11 +42,14 @@ int CFTimeAPGenerator::ProcessPulses(
     unsigned int cf = pol > 0 ? (unsigned int)(fConstantFraction*(double)(amp-ped)) + ped : (unsigned int)((double)(ped-amp)*(1.-fConstantFraction) + amp);
     if ((pol > 0 ? amp > thresh : amp < thresh) && (pol > 0 ? amp < max : amp > 0)) {
       std::vector<int>::iterator c = m;
-      while ((pol > 0 ? *--m > (int)cf : *--m < (int)cf) && m != b) {
-      }
-      double t = (double)((int)cf - *m)/(double)(*(m+1) - *m) + (double)(m-b);
+      while ((pol > 0 ? *--m > (int)cf : *--m < (int)cf) && m != b);
+      double t;
+      if (*(m+1) == *m)
+	t = (double)(m-b);
+      else
+      t = (double)((int)cf - *m)/(double)(*(m+1) - *m) + (double)(m-b);
       TAnalysedPulse* tap = MakeNewTAP(iTPI);
-      tap->SetTime(t + tpi->GetClockTickInNs()*(double)tpi->GetTimeStamp());
+      tap->SetTime(tpi->GetClockTickInNs() * (t + (double)tpi->GetTimeStamp()) - TSetupData::Instance()->GetTimeShift(tpi->GetBankName()));
       analysedList.push_back(tap);
     }
   }
