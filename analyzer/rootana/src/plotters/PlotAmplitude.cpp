@@ -20,7 +20,7 @@ using std::map;
 using std::vector;
 using std::pair;
 
-extern StringAnalPulseMap gAnalysedPulseMap;
+extern SourceAnalPulseMap gAnalysedPulseMap;
 
 PlotAmplitude::PlotAmplitude(modules::options* opts) : 
     BaseModule("PlotAmplitude",opts) {
@@ -36,12 +36,12 @@ int PlotAmplitude::BeforeFirstEntry(TGlobalData *gData, TSetupData *gSetup){
 int PlotAmplitude::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
     // Loop over each TAP list
-    for (StringAnalPulseMap::const_iterator i_det = gAnalysedPulseMap.begin();
+    for (SourceAnalPulseMap::const_iterator i_det = gAnalysedPulseMap.begin();
             i_det != gAnalysedPulseMap.end();
             i_det++) {
 
-        const std::string& detname = i_det->first;
-        std::string keyname = i_det->first + GetName();
+        const std::string& detname = i_det->first.str();
+        std::string keyname = i_det->first.str() + GetName();
 
         // Create the histogram if it's not been created yet
         if ( fAmplitudePlots.find(keyname) == fAmplitudePlots.end() ) {
@@ -49,9 +49,9 @@ int PlotAmplitude::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
             // hAmplitude
             std::string histname = "h" + detname + "_Amplitude";
             std::stringstream histtitle;
-            histtitle<<"Plot of the amplitude of pulses in the " << detname;
-            histtitle<<" detector for run "<<SetupNavigator::Instance()->GetRunNumber();
-            int n_bits = gSetup->GetNBits(gSetup->GetBankName(detname));
+            histtitle<<"Amplitude of pulses from source " << i_det->first;
+            histtitle<<" for run "<<SetupNavigator::Instance()->GetRunNumber();
+            int n_bits = gSetup->GetNBits(gSetup->GetBankName(i_det->first.Channel().str()));
             double max_adc_value = std::pow(2, n_bits);
             TH1F* hAmplitude = new TH1F(histname.c_str(), histtitle.str().c_str(), max_adc_value,0,max_adc_value);
             hAmplitude->GetXaxis()->SetTitle("Amplitude (ADC value)");
