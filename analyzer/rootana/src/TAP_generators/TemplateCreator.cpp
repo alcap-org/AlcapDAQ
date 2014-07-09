@@ -89,10 +89,26 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
       // only continue if there is one pulse candidate on the TPI
       if (n_pulse_candidates == 1) {
 
+	std::vector<TPulseIsland*> pulse_candidates = pulse_candidate_finder->GetPulseCandidates();
+	TPulseIsland* pulse = pulse_candidates.at(0);
         // Add the first pulse directly to the template (although we may try and choose a random pulse to start with)
 	if (hTemplate == NULL) {
-	  AddPulseToTemplate(hTemplate, *pulseIter);
+	  AddPulseToTemplate(hTemplate, pulse);
 	  ++n_pulses_in_template;
+
+	  const std::vector<int>& theSamples = (pulse)->GetSamples();
+	  std::stringstream histname;
+	  histname << template_name << "_Pulse" << pulseIter - thePulseIslands.begin();
+	  TH1D* hUncorrectedPulse = new TH1D(histname.str().c_str(), histname.str().c_str(), theSamples.size(), 0, theSamples.size());
+
+	  double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
+	  for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+
+	    double uncorrected_value = (*sampleIter);
+	    
+	    hUncorrectedPulse->SetBinContent(sampleIter - theSamples.begin()+1, uncorrected_value); // +1 because bins start at 1
+	    hUncorrectedPulse->SetBinError(sampleIter - theSamples.begin()+1, pedestal_error);
+	  }
 
 	  if (Debug()) {
 	    std::cout << "TemplateCreator: Adding " << detname << " Pulse #" << pulseIter - thePulseIslands.begin() << " directly to the template" << std::endl;
@@ -106,9 +122,9 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	double template_amplitude;
 	double template_time;
 
-	double pulse_pedestal = (*pulseIter)->GetSamples().at(0);
-	double pulse_amplitude = (*pulseIter)->GetAmplitude();
-	double pulse_time = (*pulseIter)->GetPeakSample(); // between 0 and n_samples-1
+	double pulse_pedestal = (pulse)->GetSamples().at(0);
+	double pulse_amplitude = (pulse)->GetAmplitude();
+	double pulse_time = (pulse)->GetPeakSample(); // between 0 and n_samples-1
 
 	double pedestal_offset_estimate = template_pedestal - pulse_pedestal;
 	double amplitude_scale_factor_estimate;
@@ -138,7 +154,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 		    << ", time = " << time_offset_estimate << std::endl;
 	}
 
-	int fit_status = fTemplateFitter->FitPulseToTemplate(hTemplate, *pulseIter);
+	int fit_status = fTemplateFitter->FitPulseToTemplate(hTemplate, pulse);
 	++n_fit_attempts;
 	if (fit_status != 0) {
 	  if (Debug()) {
@@ -156,7 +172,8 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	}
 
 	// Now add the fitted pulse to the template
-	if (n_pulses_in_template <= 40 || 
+
+	if (n_pulses_in_template <= 10 || 
 	    (n_pulses_in_template <= 100 && n_pulses_in_template%10 == 0) ) {
 	  std::stringstream newhistname;
 	  newhistname << "hTemplate_" << n_pulses_in_template << "Pulses_" << detname;
@@ -164,7 +181,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	}
 
 	// Add the pulse to the template (we'll do the correcting there)
-	AddPulseToTemplate(hTemplate, *pulseIter);
+	AddPulseToTemplate(hTemplate, pulse);
 	++n_pulses_in_template;
 	double error_of_max_bin;
 	if (TSetupData::Instance()->GetTriggerPolarity(bankname) == 1) {
@@ -178,9 +195,9 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	if (prob != 0) {
 	  fProbVsPulseAddedHistograms.at(detname)->Fill(n_pulses_in_template, -(TMath::Log(prob)));
 	}
-
+	
 	// Create the corrected pulse
-	const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
+	const std::vector<int>& theSamples = (pulse)->GetSamples();
 	std::stringstream histname;
 	histname << template_name << "_Pulse" << pulseIter - thePulseIslands.begin();
 	TH1D* hUncorrectedPulse = new TH1D(histname.str().c_str(), histname.str().c_str(), theSamples.size(), 0, theSamples.size());
@@ -191,15 +208,13 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
 
 	  double uncorrected_value = (*sampleIter);
-	  double corrected_value = uncorrected_value - fTemplateFitter->GetPedestalOffset();
-	  corrected_value /= fTemplateFitter->GetAmplitudeScaleFactor();
+	  double corrected_value = CorrectSampleValue(uncorrected_value);
 
 	  hUncorrectedPulse->SetBinContent(sampleIter - theSamples.begin()+1, uncorrected_value); // +1 because bins start at 1
 	  hUncorrectedPulse->SetBinError(sampleIter - theSamples.begin()+1, pedestal_error);
 	  hCorrectedPulse->SetBinContent(sampleIter - theSamples.begin()+1 +0.5 - fTemplateFitter->GetTimeOffset(), corrected_value); 
 	  hCorrectedPulse->SetBinError(sampleIter - theSamples.begin()+1 +0.5 - fTemplateFitter->GetTimeOffset(), pedestal_error);
 	}
-
 	// we keep on adding pulses until adding pulses has no effect on the template
       }
     }
@@ -359,8 +374,8 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
 
 double TemplateCreator::CorrectSampleValue(double old_value) {
 
-  double new_value = old_value - fTemplateFitter->GetPedestalOffset();
-  new_value /= fTemplateFitter->GetAmplitudeScaleFactor();
+  double new_value = old_value / fTemplateFitter->GetAmplitudeScaleFactor();
+  new_value -= fTemplateFitter->GetPedestalOffset();
 
   return new_value;
 }
