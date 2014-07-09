@@ -34,7 +34,7 @@ class MakeDetectorPulses : public BaseModule{
  private:
   TVDetectorPulseGenerator* fGenerator; 
   StringDetPulseMap* fDetectorPulseMap;
-  typedef std::map<std::string,std::pair<std::string,std::string> > ChannelPairing_t;
+  typedef std::vector<std::pair<IDs::source,IDs::source> > ChannelPairing_t;
   ChannelPairing_t fFastSlowPairs;
   modules::options* fOptions;
   std::string fAlgorithm;
