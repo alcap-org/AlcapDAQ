@@ -134,6 +134,8 @@ elif not version:
     version = dbman.GetRecentProductionVersionNumber()
     print "INFO: Most recent production version " + str(version)
 runman = RunManager.RunManager(production, version)
+#screen = Screen()
+#screen.SetProgram(production)
 jobs = {}
 try:
     no_disk_space_error_printed = False
@@ -142,7 +144,8 @@ try:
         # Claim runs and download one if we have space. If we don't,
         # print a warning and abort the runs we haven't downloaded yet.
         # If space opens up later, we will continue.
-        if mu.fraction_of_quota_used() < space_limit:
+        space = mu.fraction_of_quota_used()
+        if space < space_limit:
             if no_disk_space_error_printed:
                 print "INFO: Disk space has become available."
                 no_disk_space_error_printed = False

@@ -127,7 +127,7 @@ def submit_job(run, prog, infile):
     elif prog == _ROOTANA:
         cmd.append(infile)
         cmd.append(OUTdir + "/out%05d.root" % run)
-        cmd.append(DAQdir + "/analyzer/rootana/production.MODULES")
+        cmd.append(DAQdir + "/analyzer/rootana/production.cfg")
     con = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     [out, err] = con.communicate()
 
@@ -218,7 +218,7 @@ def stage_files_and_get_others(stages, gets, screen=None):
             elif screen:
                 screen.StartProgress(int(run[3:8]), ftp.size(run))
                 download = download_progress
-            fpt.retrbinary("RETR " + run, download)
+            ftp.retrbinary("RETR " + run, download)
             if screen:
                 screen.FinishProgress(int(run[3:8]))
     ftp.close()

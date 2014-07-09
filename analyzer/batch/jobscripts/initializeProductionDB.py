@@ -56,3 +56,75 @@ start = datetime.datetime(2014, 6, 16, 0, 0, 0, 0)
 stop = datetime.datetime(2014, 6, 20, 0, 0, 0, 0)
 db.execute("INSERT INTO productions VALUES ('alcapana', 3, 'alcapana_v3', ?, ?, ?)", (start, stop, None))
 db.commit()
+
+
+db.execute("CREATE TABLE alcapana_v3(run INTEGER, status TEXT, user TEXT, start TIMESTAMP, stop TIMESTAMP, tree TEXT, hist TEXT, odb TEXT, olog TEXT, elog TEXT, modules TEXT)")
+
+# -- A script that will send alcapana to run over the Al100-pt1 runs on Merlin
+home = "/gpfs/home/"
+for run in irange(2808, 2813) + irange(2826, 2873) +  irange(2889, 2894):
+    user = "litchfield_p"
+    tree = home+user+"/data/tree/tree%05d.root" % run
+    hist = home+user+"/data/hist/hist%05d.root" % run
+    dump = home+user+"/data/dump/dump%05d.odb" % run
+    cmd = "INSERT INTO alcapana_v3(run, status, user, tree, hist, odb) VALUES (?, ?, ?, ?, ?, ?)"
+    val = (run, "F", user, tree, hist, dump)
+    db.execute(cmd, val)
+for run in irange(2897, 2905) + irange(2934, 2944) + irange(2963, 2992) + irange(2994, 2995) + irange(2997, 2999) + [3012] + irange(3101, 3104) + irange(3110, 3117) + irange(3141, 3144) + irange(3146, 3149) + irange(3153, 3156)+ irange(3160, 3167) + irange(3183, 3226):
+    user = "quirk_j"
+    tree = home+user+"/data/tree/tree%05d.root" % run
+    hist = home+user+"/data/hist/hist%05d.root" % run
+    dump = home+user+"/data/dump/dump%05d.odb" % run
+    cmd = "INSERT INTO alcapana_v3(run, status, user, tree, hist, odb) VALUES (?, ?, ?, ?, ?, ?)"
+    val = (run, "F", user, tree, hist, dump)
+    db.execute(cmd, val)
+for run in irange(3442, 3456) + irange(3773, 3779) + irange(3763, 3770):
+    user = "grange_j"
+    tree = home+user+"/data/tree/tree%05d.root" % run
+    hist = home+user+"/data/hist/hist%05d.root" % run
+    dump = home+user+"/data/dump/dump%05d.odb" % run
+    cmd = "INSERT INTO alcapana_v3(run, status, user, tree, hist, odb) VALUES (?, ?, ?, ?, ?, ?)"
+    val = (run, "F", user, tree, hist, dump)
+    db.execute(cmd, val)
+for run in irange(3238, 3257) + irange(3263, 3295) + irange(3322, 3324) + irange(3326, 3329):
+    user = "hoai_n"
+    tree = home+user+"/data/tree/tree%05d.root" % run
+    hist = home+user+"/data/hist/hist%05d.root" % run
+    dump = home+user+"/data/dump/dump%05d.odb" % run
+    cmd = "INSERT INTO alcapana_v3(run, status, user, tree, hist, odb) VALUES (?, ?, ?, ?, ?, ?)"
+    val = (run, "F", user, tree, hist, dump)
+    db.execute(cmd, val)
+for run in irange(3563, 3646):
+    user = "alexander_d"
+    tree = home+user+"/data/tree/tree%05d.root" % run
+    hist = home+user+"/data/hist/hist%05d.root" % run
+    dump = home+user+"/data/dump/dump%05d.odb" % run
+    cmd = "INSERT INTO alcapana_v3(run, status, user, tree, hist, odb) VALUES (?, ?, ?, ?, ?, ?)"
+    val = (run, "F", user, tree, hist, dump)
+    db.execute(cmd, val)
+for run in [3650] + irange(3667, 3740):
+    user = "daniel_a"
+    tree = home+user+"/data/tree/tree%05d.root" % run
+    hist = home+user+"/data/hist/hist%05d.root" % run
+    dump = home+user+"/data/dump/dump%05d.odb" % run
+    cmd = "INSERT INTO alcapana_v3(run, status, user, tree, hist, odb) VALUES (?, ?, ?, ?, ?, ?)"
+    val = (run, "F", user, tree, hist, dump)
+    db.execute(cmd, val)
+for run in irange(3474, 3489) + irange(3491, 3540):
+    user = "krikler_b"
+    tree = home+user+"/data/tree/tree%05d.root" % run
+    hist = home+user+"/data/hist/hist%05d.root" % run
+    dump = home+user+"/data/dump/dump%05d.odb" % run
+    cmd = "INSERT INTO alcapana_v3(run, status, user, tree, hist, odb) VALUES (?, ?, ?, ?, ?, ?)"
+    val = (run, "F", user, tree, hist, dump)
+    db.execute(cmd, val)
+for run in irange(2091, 2103) + irange(2119, 2172):
+    user = "edmonds_a"
+    tree = home+user+"/data/tree/tree%05d.root" % run
+    hist = home+user+"/data/hist/hist%05d.root" % run
+    dump = home+user+"/data/dump/dump%05d.odb" % run
+    cmd = "INSERT INTO alcapana_v3(run, status, user, tree, hist, odb) VALUES (?, ?, ?, ?, ?, ?)"
+    val = (run, "F", user, tree, hist, dump)
+    db.execute(cmd, val)
+
+db.commit()
