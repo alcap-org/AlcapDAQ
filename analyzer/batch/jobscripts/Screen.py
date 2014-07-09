@@ -16,6 +16,17 @@ class Screen:
     _TIMEOUT        = 5
     _MAXMESSAGES    = 1000
 
+    _CLAIMED        = "Claimed"
+    _SUBMITTED      = "Submitted"
+    _RUNNING        = "Running"
+    _FINISHED       = "Finished"
+    _ERROR          = "Error"
+    _STATUSES       = [_CLAIMED, _SUBMITTED, _RUNNING, _FINISHED, _ERROR]
+
+    _ALCAPANA       = "alcapana"
+    _ROOTANA        = "rootana"
+    _PROGRAMS       = [_ALCAPANA, _ROOTANA]
+
     def __init__(self):
         self.screen = curses.initscr()
         curses.noecho()
