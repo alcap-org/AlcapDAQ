@@ -104,10 +104,10 @@ IDs::SlowFast_t IDs::channel::GetSlowFastEnum(const std::string& type){
 	return kNotApplicable;
 }
 
-channel IDs::channel::GetCorrespondingFastSlow()const{
+IDs::channel IDs::channel::GetCorrespondingFastSlow()const{
     switch(fSlowFast){
-        case kFast: return IDs::channel(fDetector,kSlow) break;
-        case kSlow: return IDs::channel(fDetector,kFast) break;
+        case kFast: return IDs::channel(fDetector,kSlow); break;
+        case kSlow: return IDs::channel(fDetector,kFast); break;
         case kNotApplicable: 
         case kErrorSlowFast:return *this; break;
     }
