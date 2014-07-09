@@ -20,7 +20,7 @@ using std::map;
 using std::vector;
 using std::pair;
 
-extern StringAnalPulseMap gAnalysedPulseMap;
+extern SourceAnalPulseMap gAnalysedPulseMap;
 
 PlotTime::PlotTime(modules::options* opts) :
     BaseModule("PlotTime",opts) {
@@ -32,12 +32,13 @@ PlotTime::~PlotTime(){
 int PlotTime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
     // Loop over each TAP list
-    for (StringAnalPulseMap::const_iterator i_det = gAnalysedPulseMap.begin();
+    for (SourceAnalPulseMap::const_iterator i_det = gAnalysedPulseMap.begin();
             i_det != gAnalysedPulseMap.end();
             i_det++) {
 
-        const std::string& detname = i_det->first;
-        std::string keyname = i_det->first + GetName();
+
+        const std::string& detname = i_det->first.str();
+        std::string keyname = i_det->first.str() + GetName();
 
         // Create the histogram if it's not been created yet
         if ( fTimePlots.find(keyname) == fTimePlots.end() ) {
@@ -45,7 +46,7 @@ int PlotTime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
             // hTime
             std::string histname = "h" + detname + "_Time";
             std::stringstream histtitle;
-            histtitle<<"Time of pulses in " << detname;
+            histtitle<<"Time of pulses from source " << i_det->first;
             histtitle<<" for run "<<SetupNavigator::Instance()->GetRunNumber();
             TH1F* hTime = new TH1F(histname.c_str(), histtitle.str().c_str(), 1e6,0,1e8);
             hTime->GetXaxis()->SetTitle("Time (ns)");
