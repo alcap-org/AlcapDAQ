@@ -6,9 +6,9 @@ DIRS += src/\
         src/TME_generators/\
         src/examples/\
         src/framework/\
-        src/physics/\
         src/plotters/\
         src/data_quality/
+        #src/physics/\  removed because they are very old modules need upgrading
 
 # A list of classes that need dictionary generation by root
 # Make sure to add the relevant lines to the LibraryLinkDef.h file as well
