@@ -145,20 +145,29 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
   Location location;
 
   // Loop through the samples
+  int n_border_samples = 20; // take some samples before and after the candidate officially stops
   for (unsigned int i = 0; i < n_samples; ++i) {
     sample_height = polarity * (samples[i] - pedestal);
 
     if (found) {
       if (sample_height < 0) { // stop if the sample goes below pedestal
-	location.stop = (int)i;
+	location.stop = (int)i + n_border_samples;
+	if (location.stop >= samples.size()) {
+	  location.stop = samples.size() - 1;
+	}
+
 	start = stop = 0;
+	std::cout << "Location: start = " << location.start << ", stop = " << location.stop << std::endl;
 	fPulseCandidateLocations.push_back(location);
 	found = false;
       }
     } else {
       if (sample_height > threshold) {
 	found = true;
-	location.start = (int)(i);
+	location.start = (int)(i) - n_border_samples;
+	if (location.start < 0) {
+	  location.start = 0;
+	}
       }
     }
   }
