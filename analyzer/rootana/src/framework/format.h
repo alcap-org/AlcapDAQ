@@ -3,7 +3,9 @@
 
 #ifdef FORMAT_CPP_
 ///@brief This marco is just a trick to save us from needing to write
-///values in a seperate definition file. 
+///values in a separate definition file. 
+///@detail There are other ways to do this, unnamed namespace but this
+///makes all includes of format.h refer to the same constants
 #define WITH_VALUE(value) = value
 #else
 #define WITH_VALUE(value) 
