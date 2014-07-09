@@ -211,13 +211,13 @@ class EventNavigator {
 
   TGlobalData* fRawData;
   
-  PulseIslandList** fBufferTPI;
+  //PulseIslandList** fBufferTPI;
 
   //typedef PulseIslandList** PulseIslandList_ptr;
-  typedef std::map<std::string, PulseIslandList*> RecordTPI_t;
+  //typedef std::map<std::string, PulseIslandList*> RecordTPI_t;
 
   ///Our record of raw data banks
-  RecordTPI_t fRecordTPI;
+  //RecordTPI_t fRecordTPI;
   
 
 };

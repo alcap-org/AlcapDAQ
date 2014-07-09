@@ -11,6 +11,7 @@
 
 //Local
 #include "format.h"
+#include "BankBranch.h"
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
@@ -141,22 +142,29 @@ Bool_t EventNavigator::MirrorRawInputFormat()
 
   typedef StringPulseIslandMap::const_iterator raw_map_iter;
   StringPulseIslandMap& rawBanks = fRawData->fPulseIslandToChannelMap; 
-  fBufferTPI = new PulseIslandList*[rawBanks.size()];
+  //fBufferTPI = new PulseIslandList*[rawBanks.size()];
 
+  TObjArray* obj_arr = new TObjArray(rawBanks.size());
   //raw_map_iter b_it = fRawData->fPulseIslandToChannelMap.begin();
   Int_t element =0;
   for (raw_map_iter b_it = rawBanks.begin(); b_it != rawBanks.end(); ++b_it) {
     std::string bank_name = b_it->first;
-    fBufferTPI[element] = new PulseIslandList;
-    fRecordTPI.insert(make_pair(bank_name, fBufferTPI[element]));
+    //fBufferTPI[element] = new PulseIslandList;
+    //fRecordTPI.insert(make_pair(bank_name, fBufferTPI[element]));
     //fRecordTPI[bank_Name] = fBufferTPI[element]
-    fOutputTreeTPI->Branch(bank_name.c_str(), &fBufferTPI[element]);
+    //fOutputTreeTPI->Branch(bank_name.c_str(), &fBufferTPI[element]);
     ++element;
+    
+    //TNamed* foo = new TNamed((bank_name + "_name").c_str(), (bank_name + "_title").c_str());
+    BankBranch<PulseIslandList>* foo = new BankBranch<PulseIslandList>(bank_name.c_str());
+    obj_arr->Add(foo);
   }
+  fOutputTreeTPI->Branch(obj_arr);
 
   fOutputTreeTPI->Print();
-  
-  GetEntry(prev_entry_no);
+ 
+  fOutputTreeTPI->Write();
+  //GetEntry(prev_entry_no);
 }
 
 
@@ -245,7 +253,7 @@ Int_t EventNavigator::LoadEntry(Long64_t entry)
 //----------------------------------------------------------------------
 Int_t EventNavigator::WriteCurrentEntry()
 {
-  fOutputTreeTPI->Fill();
+  //fOutputTreeTPI->Fill();
 }
 
 extern void ClearGlobalData(TGlobalData* data);
