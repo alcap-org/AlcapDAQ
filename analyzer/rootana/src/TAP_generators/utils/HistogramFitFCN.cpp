@@ -29,7 +29,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   int T_int = (int)par[2];            // Integral part of time shift
   double T_flt = par[2] - (double)T_int; // Floating point offset for linear interpolation
 
-  static bool print_dbg = false;
+  static bool print_dbg = true;
   if (print_dbg) { 
     std::cout << "HistogramFitFCN::operator() (start):" << std::endl;
     std::cout << "\tpedestal = " << P << ", amplitude = " << A << ", time (integer part) = " << T_int << " and time (float part) = " << T_flt << std::endl;
@@ -45,8 +45,8 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   if (print_dbg) {
     std::cout << "NBinsX: hTemplate = " << fTemplateHist->GetNbinsX() << ", hPulse = " << fPulseHist->GetNbinsX() << std::endl;
     std::cout << "Bound Defns: " << std::endl;
-    std::cout << "\tbounds[0] = std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1) = " << bounds[0] << std::endl;
-    std::cout << "\tbounds[1] = std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX()) = " << bounds[1] << std::endl;
+    std::cout << "\tbounds[0] = " << bounds[0] << std::endl;
+    std::cout << "\tbounds[1] = " << bounds[1] << std::endl;
   }
 
   // Chi2 will be zero if shift is too high
@@ -60,7 +60,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
     // We shift and scale the template so that it matches the pulse.
     // This is because, when we have a normalised template, we will get the actual amplitude, pedestal and time from the fit and not just offsets
     f = fTemplateHist->GetBinContent(i - T_int) + T_flt*(fTemplateHist->GetBinContent(i - T_int + 1) - fTemplateHist->GetBinContent(i - T_int)); // linear interpolation between the i'th and the (i+1)'th bin
-    f = A * f + P; // apply the transformation to this bin
+    f = A * (f + P); // apply the transformation to this bin
 
     double delta = fPulseHist->GetBinContent(i) - f;
     double hTemplate_bin_error = fTemplateHist->GetBinError(i - T_int);
