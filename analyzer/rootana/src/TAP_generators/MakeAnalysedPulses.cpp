@@ -15,7 +15,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-extern StringAnalPulseMap gAnalysedPulseMap;
+extern SourceAnalPulseMap gAnalysedPulseMap;
 
 MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
    BaseModule("MakeAnalysedPulses",opts,false),fOptions(opts){
@@ -119,7 +119,7 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     if(retVal!=0) return retVal;
 
     // add these into the map of analysed pulses
-    gAnalysedPulseMap.insert(std::make_pair(detname,theAnalysedPulses));
+    gAnalysedPulseMap.insert(std::make_pair((*generator)->GetSource(),theAnalysedPulses));
   }
   return 0;
 }
