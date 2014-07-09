@@ -2,6 +2,21 @@
 /// \brief
 /// Second stage of analysis in the AlCap framework.
 
+/// \defgroup rootana_modules Modules
+/// \ingroup rootana
+/// \brief
+/// Analysis modules for rootana.
+
+/// \defgroup tap_gen Analyzed Pulse Generators
+/// \ingroup rootana
+/// \brief
+/// TAnalysedPulse generators used by rootana.
+
+/// \defgroup tdp_gen Detector Pulse Generators
+/// \ingroup rootana
+/// \brief
+/// TDetectorPulse generators used by rootana
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \degroup rootana_main
 /// \ingroup rootana
@@ -20,6 +35,7 @@
 
 #include "ModulesFactory.h"
 #include "ModulesNavigator.h"
+#include "SetupNavigator.h"
 #include "BaseModule.h"
 
 #include "TTree.h"
@@ -32,6 +48,7 @@
 #include "TMuonEvent.h"
 //#include "ProcessCorrectionFile.h" // Provides CheckSetupData()
 
+#include "debug_tools.h"
 #include "TAnalysedPulseMapWrapper.h"
 
 // Forward declaration of functions ======================
@@ -70,12 +87,21 @@ int main(int argc, char **argv){
   ARGUMENTS arguments;
   int ret = analyze_command_line (argc, argv,arguments);
   if(ret!=0) return ret;
-  printf("Starting event");
+  // Give the command line arguments to the navigator
+  SetupNavigator::Instance()->SetCommandLineArgs(arguments);
+
+  // Read in the configurations file
+  ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file.c_str());
+  if(ret!=0) {
+     std::cout<<"Error: Problem loading MODULES file"<<std::endl;
+     return ret;
+  }
 
   // Open the input tree file
-  gInFile = new TFile(arguments.infile);
+  gInFile = new TFile(arguments.infile.c_str());
   if(!gInFile->IsOpen()) {
-    printf("Failed to open input file, '%s'.  Exiting.\n",arguments.infile);
+    std::cout << "Failed to open input file '"
+              << arguments.infile <<"'.  Exiting." << std::endl;
     delete gInFile;
     return 1;
   }
@@ -97,19 +123,20 @@ int main(int argc, char **argv){
   eventTree->SetBranchAddress("Event",&g_event);
 
   // Let's open the output file for analysis data, histograms and so on.
-  TFile *fileOut = new TFile(arguments.outfile, "RECREATE");
+  TFile *fileOut = new TFile(arguments.outfile.c_str(), "RECREATE");
   if(!fileOut->IsOpen()){
-    printf("Could not open ROOT output file %s\n", arguments.outfile);
+    std::cout << "Could not open ROOT output file " 
+              << arguments.outfile << std::endl;
     return 1;
   }
-  fileOut->cd();
+  modules::navigator::Instance()->SetOutFile(fileOut);
 
   // Now let's setup all the analysis modules we want
   // NOTE: This has to be done after the output file was opened else the
   // modules wont have a directory to store things to.
-  ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file);
+  ret= modules::navigator::Instance()->MakeModules();
   if(ret!=0) {
-     printf("Problem setting up analysis modules.\n");
+     printf("Problem creating analysis modules.\n");
      return ret;
   }
   
@@ -186,7 +213,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   for ( jentry=start; jentry<stop;jentry++) {
     if(g_event){
       g_event->Clear("C");
-      ClearGlobalData(g_event);
+      //ClearGlobalData(g_event);
       dataTree->SetBranchAddress("Event",&g_event);
     }
     
@@ -236,7 +263,7 @@ void ClearGlobalData(TGlobalData* data)
   StringPulseIslandMap::iterator mapEnd = data->fPulseIslandToChannelMap.end();
   for(mapIter = data->fPulseIslandToChannelMap.begin(); mapIter != mapEnd; mapIter++) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
-    std::vector<TPulseIsland*> pulse_vector= mapIter->second;
+    std::vector<TPulseIsland*>& pulse_vector= mapIter->second;
     for(size_t i=0; i<pulse_vector.size(); i++){
       delete pulse_vector[i];
       pulse_vector[i] = NULL;
@@ -249,7 +276,7 @@ void ClearGlobalData(TGlobalData* data)
      mapIter != gAnalysedPulseMap.end(); mapIter++) {
 
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
-    AnalysedPulseList pulse_vector= mapIter->second;
+    AnalysedPulseList& pulse_vector= mapIter->second;
     for(size_t i=0; i<pulse_vector.size(); i++){
       delete pulse_vector[i];
       pulse_vector[i] = NULL;
@@ -260,7 +287,7 @@ void ClearGlobalData(TGlobalData* data)
 
   for(StringDetPulseMap::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
-    std::vector<TDetectorPulse*> pulse_vector= mapIter->second;
+    std::vector<TDetectorPulse*>& pulse_vector= mapIter->second;
     for(size_t i=0; i<pulse_vector.size(); i++){
       delete pulse_vector[i];
       pulse_vector[i] = NULL;
@@ -277,7 +304,7 @@ TTree* GetTree(TFile* inFile, const char* t_name)
       printf("Unable to find TTree '%s' in %s.\n",t_name,inFile->GetName());
       return NULL;
    }
-   InfoTree->Print();
+   //InfoTree->Print();
 
    return InfoTree;
 }

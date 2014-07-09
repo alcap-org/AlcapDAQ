@@ -26,6 +26,8 @@ class ExportPulse : public BaseModule{
   typedef std::map<std::string,PulseIDList_t> ChannelPulseIDs_t;
   typedef std::map<EventID_t,PulseIDList_t> EventPulseIDList_t;
   typedef std::map<std::string,EventPulseIDList_t> EventChannelPulseIDs_t;
+  typedef std::set<const TAnalysedPulse*> TAPList_t;
+  typedef std::map<std::string,TAPList_t> ChannelTAPs_t;
 
   /// Information needed to make one plot.
   /// In future this may be moved elsewhere to be used by other modules
@@ -116,7 +118,7 @@ class ExportPulse : public BaseModule{
   double fClockTick;
   double fTimeShift;
   ChannelPulseIDs_t fTPIsToPlot;
-  StringConstAnalPulseMap fTAPsToPlot;
+  ChannelTAPs_t fTAPsToPlot;
   EventChannelPulseIDs_t fRequestedByConfig;
   PulseInfo_t fPulseInfo;
   TSetupData* fSetup;
@@ -137,7 +139,7 @@ inline void ExportPulse::AddToExportList(const std::string& detector,TPulseIslan
 inline void ExportPulse::AddToExportList(const TAnalysedPulse* pulse){
   std::string channel=pulse->GetSource().Channel().str();
   if(Debug()) std::cout<<"ExportPulse: Asked to draw a TAP for "<<channel<<std::endl;
-  fTAPsToPlot[channel].push_back(pulse);
+  fTAPsToPlot[channel].insert(pulse);
   AddToExportList(channel,pulse->GetParentID());
 }
 

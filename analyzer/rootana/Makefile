@@ -1,6 +1,6 @@
 all:  init libAnalysis.so rootana libAnalysis.rootmap
 
-.PHONY: clean print all
+.PHONY: clean print all unit_test doxygen
 
 ###################################################################################
 # Process the files.make file which lists the directories that contain source code
@@ -19,7 +19,8 @@ TUT_SOURCES = $(filter-out $(TUT_ROOT)/tut_main.cpp, $(wildcard $(TUT_ROOT)/*.cp
 
 # Classes that need a root dictionary
 ROOT_DICT_HEADERS:=$(ROOT_DICT_CLASSES:%=%.h)
-ROOT_DICT_SOURCES:=$(ROOT_DICT_CLASSES:%=%.cpp)
+# only want to depend on files that exist
+ROOT_DICT_SOURCES:=$(foreach class, $(ROOT_DICT_CLASSES),$(filter %/$(class).cpp, $(SOURCES)))
 
 #### End of files.make processing #################################################
 # Where should we store all object and dependency files
@@ -37,6 +38,7 @@ TUT_INCLUDE_DIRS = $(TUT_ROOT)
 # converts the colon-separated list to a list with -I flags. eg:
 #   -Iinc/ -Itree_files/inc/ -Iextra_stuff/inc/
 INCLUDE_CFLAGS := $(patsubst %,-I%,$(subst :, ,$(INCLUDE_DIRS)))
+INCLUDE_CFLAGS += -I$(DAQdir)/sqlite-install/include
 
 # Tell GNU where to find header and source files.
 vpath %.h : $(INCLUDE_DIRS)
@@ -56,7 +58,7 @@ else
 endif
 
 # Generate the library flags (-L and -l) for the gcc argument
-ROOT_LIBS = $(shell $(ROOTSYS)/bin/root-config --libs) -lThread -lGui -lMinuit -lMinuit2
+ROOT_LIBS = $(shell $(ROOTSYS)/bin/root-config --libs) -lThread -lGui -lMinuit -lMinuit2 -lRSQLite
 ALL_LIBS =  $(ROOT_LIBS)
 
 OPTFLAGS = -g -O3 -Wno-write-strings
@@ -95,7 +97,7 @@ $(DATA_LIBRARY_SOURCE):
 	@$(ROOTSYS)/bin/rootcint -f $@ -c $(UIUC_CFLAGS) -p $(INCLUDE_CFLAGS) ${ROOT_DICT_HEADERS} $(ROOTANA_DATALINKDEF)
 
 $(ROOTANA_DATACLASSES):  $(DATA_LIBRARY_SOURCE) $(ROOT_DICT_SOURCES) 
-	@g++ -shared -o$@ $(ROOT_LIBS) $(CXXFLAGS) -I$(ROOTSYS)/include $(INCLUDE_CFLAGS) $^
+	@g++ -shared -o$@ $(ROOT_LIBS) $(CXXFLAGS) -I$(ROOTSYS)/include  $^
 
 rootana: $(OBJECTS) $(ROOTANA_DATACLASSES)
 	@echo -e "Building Rootana" 
@@ -111,6 +113,9 @@ libAnalysis.rootmap: libAnalysis.so $(ALCAPANA_DATALINKDEF) $(ROOTANA_DATALINKDE
 	@rlibmap -f -o libAnalysis.rootmap -l libAnalysis.so -d libCore \
 		-c $(ALCAPANA_DATALINKDEF) $(ROOTANA_DATALINKDEF)
 
+doxygen: $(SOURCES)
+	@(cat doxygen/doxyconfig; echo INPUT=$(DIRS) )| doxygen -
+
 init: | make_obj_dir
 
 make_obj_dir:
@@ -119,6 +124,7 @@ make_obj_dir:
 tut: init libAnalysis.so libAnalysis.rootmap unit_test
 
 $(TUT_ROOT)/%.o: $(TUT_ROOT)/%.cpp
+	@echo -e "Making object: '"$@"'"
 	@$(CXX) -c -Wall $(CXXFLAGS) -I$(TUT_INCLUDE_DIRS) -o $@ $^   
 
 unit_test: $(TUT_USE_OBJECTS) $(ROOTANA_DATACLASSES) $(TUT_SOURCES) $(TUT_OBJECTS) $(TUT_ROOT)/tut_main.o
@@ -162,6 +168,7 @@ print:
 	@echo -e "ROOT_CFLAGS = $(ROOT_CFLAGS)       \n" 
 	@echo -e "ROOT_LIBS = $(ROOT_LIBS)           \n" 
 	@echo -e "ROOT_DICT_CLASSES = $(ROOT_DICT_CLASSES)           \n" 
+	@echo -e "ROOT_DICT_SOURCES = $(ROOT_DICT_SOURCES)           \n" 
 	@echo -e "ROOT_DICT_HEADERS = $(ROOT_DICT_HEADERS)           \n" 
 	@echo -e "SOURCES = $(SOURCES)               \n" 
 	@echo -e "SOURCE_DIRS = $(SOURCE_DIRS)       \n" 

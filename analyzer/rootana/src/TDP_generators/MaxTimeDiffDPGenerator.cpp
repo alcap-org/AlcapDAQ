@@ -46,10 +46,10 @@ void MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::st
 	      double pulse_time = pulse->GetTime() * 1e-6; // convert to ms
 
 	      if (std::fabs(pulse_time - min_time) < time_difference) {
-		if ( pulse->GetSource()==IDs::Fast) {
+		if ( pulse->GetSource().isFast()) {
 		  if(Debug()) cout<<"Fast? " << pulse->GetSource().str() << std::endl;
 		  fast_pulse = pulse;
-		} else if ( pulse->GetSource()==IDs::Slow) {
+		} else if ( pulse->GetSource().isSlow()) {
 		  if(Debug()) cout<<"Slow? " << pulse->GetSource().str() << std::endl;
 		  slow_pulse = pulse;
 		}

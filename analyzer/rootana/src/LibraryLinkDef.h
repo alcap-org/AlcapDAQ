@@ -6,6 +6,7 @@
 #pragma link C++ class std::map<IDs::Detector_t,std::string>+;
 
 #pragma link C++ class TAnalysedPulse+;
+#pragma link C++ class TGaussFitAnalysedPulse+;
 #pragma link C++ class TDetectorPulse+;
 #pragma link C++ class vector<TAnalysedPulse*>+;
 #pragma link C++ class vector<TAnalysedPulse*>::iterator;

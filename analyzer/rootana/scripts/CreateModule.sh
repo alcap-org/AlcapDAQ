@@ -6,16 +6,23 @@ ScriptDirectory="$(readlink -f `dirname $0`)"
 TemplateDirectory="$ScriptDirectory/templates"
 
 #Usage: CreateComponent.sh ModuleName [TargetDirectory]
+Indent=`printf "\n\t\t\t"`
+PrintedSpecials=`printf "%s${Indent}"  "${ListOfSpecials[@]} "`
 function Usage(){
+#-----------------------------------------------------------------------------80
 cat <<EOF
+
 Usage: $0 Name [Type] [TargetDirectory]
-      Script to create a set of skeleton files to implement a new module or generator
-      ModuleName   = The name of the new component.
-      Type (optional) = Make a special type of module.  
-                        Must be one of: ${ListOfSpecials[@]}
-                        Default is '${ListOfSpecials[0]}'.
-      TargetDirectory = Specify a target directory to place the new files.
-      (optional)        Default is src or one of the *_generators directories if 'type==*generator'
+  Script to create a set of skeleton files to implement a new module or 
+generator
+
+  ModuleName      = The name of the new component.
+  Type (optional) = Make a special type of module.  
+                    Must be one of: ${Indent}${PrintedSpecials}
+                    Default is '${ListOfSpecials[0]}'.
+  TargetDirectory = Specify a target directory (relative to rootana/) to place 
+  (optional)        the new files.  Default is src or one of the *_generators 
+                    directories if 'type==*generator'
 EOF
 }
 

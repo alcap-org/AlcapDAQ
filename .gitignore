@@ -16,3 +16,5 @@ www/html/trend/*
 *~
 #*
 exptab
+/sqlite*/
+*.pyc

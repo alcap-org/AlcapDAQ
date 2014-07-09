@@ -1,4 +1,5 @@
 // Should not be included directly, but only through the TemplateFactory.h file
+// vim: set syn=cpp:
 
 template <typename BaseModule, typename OptionsType>
 inline void TemplateFactory<BaseModule,OptionsType>::addArgument(
@@ -34,10 +35,9 @@ BaseModule* TemplateFactory<BaseModule,OptionsType>::createModule(
 	// make the module
 	maker make= it->second;
 	module=make(opts);
-	gDirectory->cd("/");
     }else{
-	std::cout<<"Unknown module requested: "<<name<<std::endl;
-	return NULL;
+        std::cout<<"Unknown module requested: "<<name<<std::endl;
+        return NULL;
     }
     return module;
 }
@@ -68,11 +68,18 @@ void TemplateFactory<BaseModule,OptionsType>::addOptions(
 
 template <typename BaseModule, typename OptionsType>
 void TemplateFactory<BaseModule,OptionsType>::addArguments(const std::string& all_args){
-    char line[1000];
-    strcpy(line,all_args.c_str());
-    char* arg = strtok(line,", ");
-    while(arg != NULL){ 
-        addArgument(arg);
-        arg = strtok(NULL,", ");
+    std::vector<std::string> args;
+    modules::parser::TokeniseByDelimiter(all_args,args,", ");
+    for(unsigned i=0;i<args.size();i++){
+        addArgument(args[i]);
     }
+}
+
+template <typename BaseModule, typename OptionsType>
+void TemplateFactory<BaseModule,OptionsType>::PrintPossibleModules()const{
+  std::cout<<"Available modules are:"<<std::endl;
+  for(typename MakersList::const_iterator it=fModuleMakers.begin();
+				 it!=fModuleMakers.end(); it++){
+				 std::cout<<"  "<<it->first<<std::endl;
+ }
 }

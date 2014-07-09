@@ -18,6 +18,7 @@ class modules::reader{
 	typedef std::vector<std::string> OptionsList;
 	typedef std::map<std::string,modules::options* > SectionsList;
 	typedef std::vector<std::pair<std::string, modules::options*> > ModuleList;
+	typedef std::map<std::string,int > ModuleCounts;
 	enum OptionMode_t { kSet , kAppend };
 	struct Option_t {
 		OptionMode_t mode;
@@ -27,7 +28,7 @@ class modules::reader{
 
     public:
 	// default constructor
-	reader():fShouldPrint(false),fDebugAll(false){};
+	reader():fShouldPrint(false),fDebugAll(false),fDumpContents(false){};
 	// destructor.  Virtual in case someone ever decides to overload this
 	// class
 	virtual ~reader(){};
@@ -35,6 +36,7 @@ class modules::reader{
     public:
 	int ReadFile(const char* name);
 	void PrintAllOptions()const;
+    int HowMany(const std::string& name)const;
 
 	size_t GetNumModules()const{return fModules.size();};
 	std::string GetModule(unsigned int i)const{return fModules[i].first;};
@@ -63,10 +65,12 @@ class modules::reader{
     private:
 	SectionsList fAllOptions;
 	ModuleList fModules;
+	ModuleCounts fModulesCounts;
 	static const char* fGlobalModule;
 	int fLineNumber;
 	bool fShouldPrint;
 	bool fDebugAll;
+	bool fDumpContents;
 };
 
 inline bool modules::reader::AddSection(const std::string& name,const std::string& type){

@@ -8,7 +8,16 @@
 
 # the 'debug' option makes the modules parser output extra info. 
 # if 'debug=all' is given then every module is passed the 'debug' option 
-debug=all
+#debug=all
+#debug=modules_reader
+#debug=modules_navigator 
+
+# The list_modules option dumps all available modules
+#list_modules
+
+# Dump the contents of the module file once it has been processed 
+#dump_contents
+
 #### end of global options ######
 
 #### start of modules list ######
@@ -25,7 +34,8 @@ debug=all
 analyse_pulses = MakeAnalysedPulses 
 detector_pulses = MakeDetectorPulses
 muon_events = MakeMuonEvents
-PulseViewer(SiR2-S , amplitude> 100)
+pv_one=PulseViewer(SiR2-S , amplitude> 100 , true)
+pv_two=PulseViewer(SiR2-F , TPI_length> 155 , true)
 draw_pulses = ExportPulse
 #### end of modules list ######
 
@@ -69,3 +79,4 @@ option3=8
 SiR2-S=  1(2)
 
 ####### end of module specific options ######
+# vim: set syn=cfg:

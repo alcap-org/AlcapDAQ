@@ -1,5 +1,6 @@
 #include "ModulesReader.h"
 #include "ModulesFactory.h"
+#include "ModulesNavigator.h"
 #include "ModulesParser.h"
 #include <sstream>
 #include <string.h>
@@ -8,8 +9,7 @@ using namespace modules::parser;
 using std::endl;
 using std::cout;
 
-#define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
-#define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<endl;
+#include "debug_tools.h"
 
 const char* modules::reader::fGlobalModule="global";
 
@@ -29,42 +29,45 @@ int modules::reader::ReadFile(const char* name){
     Option_t current_opt;
     fLineNumber=0;
     while(std::getline(infile,full_line)){
-	fLineNumber++;
+      fLineNumber++;
 
-	// tokenize the line straight away
-	std::stringstream line(full_line);
+      // tokenize the line straight away
+      std::stringstream line(full_line);
 
-	// check if this line is a comment
-	if(isComment(line) ) continue;
+      // check if this line is a comment
+      if(isComment(line) ) continue;
 
-	// If this line contains a section name make sure we begin a new section
-	new_section=findSectionName(full_line);
-	if(new_section!="") {
-	    section=new_section;
-	    if(fShouldPrint) std::cout<<"Found new section: '"<<section<<"'"<<std::endl;
-	    if(section!="MODULES") {
-		AddSection(section);
-	    }
-	    continue;
-	}
+      // If this line contains a section name make sure we begin a new section
+      new_section=findSectionName(full_line);
+      if(new_section!="") {
+          section=new_section;
+          if(fShouldPrint) std::cout<<"Found new section: '"<<section<<"'"<<std::endl;
+          if(section!="MODULES") {
+            AddSection(section);
+          }
+          continue;
+      }
 
-	if(section=="MODULES") {
-	  //  In the MODULES secton each line specifies a module to use
-	    ret=AddModule(full_line);
-	    if(ret!=0) return ret;
-	}else{
-	    // Parse the contents of this option
-	    current_opt=SplitOption(full_line);
+      if(section=="MODULES") {
+        //  In the MODULES secton each line specifies a module to use
+          ret=AddModule(full_line);
+          if(ret!=0) return ret;
+      }else{
+          // Parse the contents of this option
+          current_opt=SplitOption(full_line);
 
-	    // Handle the option as required
-	    if(section==fGlobalModule) {
-	        ProcessGlobalOption(current_opt);
-	    } else{
-		AddOption(section,current_opt);
-	    }
-	    if(fShouldPrint) std::cout<<"Found option: "<<full_line<<std::endl;
-	}
+          // Handle the option as required
+          if(section==fGlobalModule) {
+            ProcessGlobalOption(current_opt);
+          } else{
+            AddOption(section,current_opt);
+          }
+          if(fShouldPrint) std::cout<<"Found option: "<<full_line<<std::endl;
+      }
     }
+
+    // were we asked to dump everything that's been processed?
+    if(fDumpContents) PrintAllOptions();
     return 0;
 }
 
@@ -155,6 +158,7 @@ int modules::reader::AddModule(std::string line){
 
     // Stick this module into the list of modules
     fModules.push_back(std::make_pair(type,opts));
+    fModulesCounts[type]++;
 
     // Apply current global options to new module
     if(fDebugAll) AddOption(opts,"debug");
@@ -211,13 +215,13 @@ void modules::reader::PrintAllOptions()const{
     // Global options that were set
     SectionsList::const_iterator it_sec=fAllOptions.find(fGlobalModule);
     if(it_sec!=fAllOptions.end() && it_sec->second->GetNumOptions()>0){
-       std::cout<<"__ Global otions __"<<std::endl;
+       std::cout<<"== Global otions =="<<std::endl;
        it_sec->second->DumpOptions();
        std::cout<<std::endl;
     }
 
     // Modules that were requested
-    std::cout<<"__ All modules __"<<std::endl;
+    std::cout<<"== All modules =="<<std::endl;
     ModuleList::const_iterator it_mod;
     for(it_mod=fModules.begin(); it_mod != fModules.end();it_mod++){
 	std::cout<<"Module: "<<it_mod->first<<std::endl;
@@ -226,7 +230,7 @@ void modules::reader::PrintAllOptions()const{
     }
     
     // Sections that were added, but don't correspond to a module
-    std::cout<<"__ Unused sections __"<<std::endl;
+    std::cout<<"== Unused sections =="<<std::endl;
     for(it_sec=fAllOptions.begin(); it_sec != fAllOptions.end();it_sec++){
 	if(it_sec->first==fGlobalModule) continue;
 	for(it_mod=fModules.begin(); it_mod != fModules.end();it_mod++){
@@ -246,7 +250,7 @@ void modules::reader::SetDebug(){
 }
 
 void modules::reader::SetDebugAll(){
-    SetDebug();
+    //SetDebug();
     fDebugAll=true;
     AddOptionAll("debug");
 }
@@ -264,11 +268,21 @@ void modules::reader::ProcessGlobalOption(Option_t opt){
 		     << opt.value<<"' despite append operator being used"<<std::endl;
   }
   if (opt.key=="debug"){
-     if (opt.value=="all"){
-        SetDebugAll();
-     } else{
-        SetDebug();
+     std::vector<std::string> args;
+     modules::parser::TokeniseByWhiteSpace(opt.value,args );
+     for(unsigned i=0;i<args.size();i++){
+       if (args[i]=="all"){
+          SetDebugAll();
+       }else if (args[i]=="modules_navigator"){
+       modules::navigator::Instance()->SetDebug();
+       }else if (args[i]=="modules_reader"){
+          SetDebug();
+       }
      }
+  }else if(opt.key=="list_modules"){
+    modules::factory::Instance()->PrintPossibleModules();
+  }else if(opt.key=="dump_contents"){
+    fDumpContents=true;
   }else {
      if(fShouldPrint) std::cout<<"Warning: Unknown global option given, '"<<opt.key<<"'"<<std::endl;
      return;
@@ -278,3 +292,10 @@ void modules::reader::ProcessGlobalOption(Option_t opt){
 std::ostream& modules::reader::PrintProblem(){
 	return std::cout<<"Problem on line "<<fLineNumber<<": ";
 }
+
+int modules::reader::HowMany(const std::string& name)const{
+    ModuleCounts::const_iterator it=fModulesCounts.find(name);
+    if(it!=fModulesCounts.end()) return it->second;
+    return 0;
+}
+

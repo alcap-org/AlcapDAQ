@@ -14,8 +14,26 @@ using std::endl;
 int %module%APGenerator::ProcessPulses( 
 		const PulseIslandList& pulseList,
 		AnalysedPulseList& analysedList){
-	// Do something here that takes the TPIs in the PulseIslandList and
-	// fills the list of TAPS
+    // Do something here that takes the TPIs in the PulseIslandList and
+    // fills the list of TAPS
+
+  // Loop over all the TPIs given to us
+  double amplitude;
+  TAnalysedPulse* tap;
+  for (PulseIslandList::const_iterator tpi=pulseList.begin();
+       tpi!=pulseList.end(); tpi++){
+
+    // Analyse each TPI
+    amplitude=(*tpi)->GetPulseHeight();
+
+    // Now that we've found the information we were looking for make a TAP to
+    // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
+    // the index of the parent TPI in the container as an argument
+    tap = MakeNewTAP(tpi-pulseList.begin());
+    tap->SetAmplitude(amplitude);
+    // Finally add the new TAP to the output list
+    analysedList.push_back(tap);
+   }
 	
 	// Generators have a Debug method similar to modules
 	if(Debug()){

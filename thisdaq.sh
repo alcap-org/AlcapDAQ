@@ -25,3 +25,7 @@ if [ "$USER" == "daq" ]; then
 else
     export MIDAS_DIR=$DAQdir/analyzer/work/$USER
 fi 
+
+# Set the environment variables for SQLite
+export PATH=$DAQdir/sqlite-install/bin:$PATH
+export LD_LIBRARY_PATH=$DAQdir/sqlite-install/lib:$LD_LIBRARY_PATH

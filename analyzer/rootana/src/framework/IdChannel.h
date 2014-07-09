@@ -15,12 +15,13 @@ namespace IDs{
 	enum Detector_t { 
 		kErrorDetector=-1,
 		kAnyDetector=0,
-		kGe, kLiquidSc, kNDet, kNDet2, kScGe, kScL, kScR, 
-		kScVe, kSiL1_1, kSiL1_2, kSiL1_3, kSiL1_4, kSiL2, 
-		kSiR1_1, kSiR1_2, kSiR1_3, kSiR1_4, kSiR1_sum, kSiR2, 
-		kMuSc, kMuScA };
+		kGe       , kLiquidSc , kNDet     , kNDet2  , kScGe   , // 1-5
+		kScL      , kScR      , kScVe     , kSiL1_1 , kSiL1_2 , // 6-10
+		kSiL1_3   , kSiL1_4   , kSiL2     , kSiR1_1 , kSiR1_2 , // 11-15
+		kSiR1_3   , kSiR1_4   , kSiR1_sum , kSiR2   , kMuSc   , // 16-20
+		kMuScA };                                               // 21
 	/// Used by some algorithms to loop over all Detector_t enum values
-	const short num_detector_enums=22;
+	const short num_detector_enums=21;
 
 	/// Enum for timing filter types applied to a channel
 	/// As for Detector_t, kErrorSlowFast is used to mark an error identifying the type,
@@ -41,12 +42,12 @@ namespace IDs{
 /// change.
 class IDs::channel:public TObject{
    public:
-	   /// @brief Construct using a Detector_t and SlowFast_t enum.  Also
-	   /// acts as a default constructor, which produces a channel ID that
-	   /// matches all other channel IDs.
-	   ///
-	   /// @param det The detector's name
-	   /// @param type The type of timing filter
+        /// @brief Construct using a Detector_t and SlowFast_t enum.  Also
+        /// acts as a default constructor, which produces a channel ID that
+        /// matches all other channel IDs.
+        ///
+        /// @param det The detector's name
+        /// @param type The type of timing filter
 	channel(Detector_t det=kAnyDetector, SlowFast_t type=kAnySlowFast);
 
 	/// @brief Constructs a channel ID using a pair of strings for the detector and filtering type
@@ -65,6 +66,7 @@ class IDs::channel:public TObject{
 public:
 	/// Get the detector enum for this channel
 	Detector_t Detector()const{return fDetector;};
+
 	/// Get the SlowFast enum for this channel
 	SlowFast_t SlowFast()const{return fSlowFast;};
 
@@ -80,10 +82,15 @@ public:
 	/// Sets kErrorDetector or kErrorSlowFast if there is a problem decoding the string
 	channel& operator=(const char* rhs){ return (*this=std::string(rhs));};
 
-	/// Returns true if this channel is the same as another or has it's fields set to 'any'.
+	/// Returns true if this channel is the same as another 
 	bool operator==(const channel& rhs)const;
-	/// Returns true if this channel is not the same as another and it's fields are not set to 'any'.
+	/// Returns true if this channel is not the same as another 
 	bool operator!=(const channel& rhs)const{return !(this->operator==(rhs));};
+    /// @brief Check if this channel is the same as another or has it's fields set to 'any'.
+    /// @details Return true if for both the Detector and SlowFast parts, either
+    /// the rhs is the same as this one, or if either this or rhs has a
+    /// corresponding Any flag set
+    bool matches(const channel& rhs)const;
 	
 	/// not intuitively meaningful but maybe useful for sorting
 	bool operator<(const channel& rhs)const;
@@ -95,6 +102,22 @@ public:
 
 	/// Check there there have been no errors creating this channel ID
 	bool isValid(){return (fDetector!=kErrorDetector) && (fSlowFast != kErrorSlowFast);};
+
+    /// Check if the Detector_t is a wildcard
+    bool isWildCardDetector() const {return fDetector == kAnyDetector;}
+
+    /// Check if the SlowFast_t is a wildcard
+    bool isWildCardSlowFast() const {return fSlowFast == kAnySlowFast;}
+
+    /// Check if this channel ID is a wildcard (either Detector_t
+    /// or SlowFast_t is kAny...). User must interrogate further
+    /// to find out which.
+    bool isWildCard() const {return isWildCardDetector() || isWildCardSlowFast();}
+
+    /// Check if this channel ID is for a fast channel
+    bool isFast() const {return fSlowFast==kFast;};
+    /// Check if this channel ID is for a slow channel
+    bool isSlow() const {return fSlowFast==kSlow;};
 
 	/// Convert a Detector_t enum into the corresponding string
 	static std::string GetDetectorString(Detector_t det);
@@ -120,8 +143,12 @@ public:
 };
 
 inline bool IDs::channel::operator==(const IDs::channel& rhs)const{
-	return (fDetector==kAnyDetector || rhs.fDetector==kAnyDetector || fDetector==rhs.fDetector) 
-	&& (fSlowFast==kAnySlowFast || rhs.fSlowFast==kAnySlowFast || fSlowFast==rhs.fSlowFast) ;
+    return (fDetector == rhs.fDetector) && (fSlowFast== rhs.fSlowFast);
+}
+
+inline bool IDs::channel::matches(const channel& rhs)const{
+	return (isWildCardDetector() || rhs.isWildCardDetector() || fDetector==rhs.fDetector) 
+	&& (isWildCardSlowFast() || rhs.isWildCardSlowFast() || fSlowFast==rhs.fSlowFast) ;
 }
 
 inline bool IDs::channel::operator>(const IDs::channel& rhs)const{
@@ -144,6 +171,6 @@ inline IDs::channel::channel(const std::string& channel ):fDetector(),fSlowFast(
   *this=channel;
 }
 
-ostream& operator<< (ostream& os , IDs::channel& id);
+std::ostream& operator<< (ostream& os ,const IDs::channel& id);
 
 #endif //IDCHANNEL_H_

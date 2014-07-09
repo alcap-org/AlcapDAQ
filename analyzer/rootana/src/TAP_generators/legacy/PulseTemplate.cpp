@@ -1,5 +1,5 @@
 #include "PulseTemplate.h"
-#include "HistogramFitFCN.h"
+#include "utils/HistogramFitFCN.h"
 #include "TPulseIsland.h"
 
 #include "TH1.h"

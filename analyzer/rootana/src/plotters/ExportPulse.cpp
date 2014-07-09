@@ -126,10 +126,10 @@ int ExportPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
 int ExportPulse::DrawTAPs(){
   // Initialise variables that would be used in the loops
-  const ConstAnalysedPulseList* requestedPulses;
+  const TAPList_t* requestedPulses;
 
   // Loop over channel that we've been requested to draw a pulse from
-  for(StringConstAnalPulseMap::const_iterator i_detector=fTAPsToPlot.begin();
+  for(ChannelTAPs_t::const_iterator i_detector=fTAPsToPlot.begin();
 		  i_detector!=fTAPsToPlot.end();
 		  i_detector++){
      SetCurrentDetectorName(i_detector->first);
@@ -138,7 +138,7 @@ int ExportPulse::DrawTAPs(){
      requestedPulses=&(i_detector->second);
 
      // Loop over every requested pulse for that channel
-     for(ConstAnalysedPulseList::const_iterator i_pulse=requestedPulses->begin();
+     for(TAPList_t::const_iterator i_pulse=requestedPulses->begin();
 		     i_pulse!=requestedPulses->end();
 		     i_pulse++){
 
@@ -219,8 +219,8 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info)cons
    }
 
    size_t num_samples = pulse->GetPulseLength();
-   double max= ((pulse->GetTimeStamp() + num_samples) * fClockTick) - fTimeShift;
-   double min= -fTimeShift;
+   double min= (pulse->GetTimeStamp() * fClockTick) - fTimeShift;
+   double max= min + num_samples * fClockTick;
    TH1F* hPulse = new TH1F(hist.c_str(), title.str().c_str(), num_samples,min,max);
    
    for ( size_t i=0;i <num_samples; ++i) {

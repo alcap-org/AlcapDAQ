@@ -37,7 +37,9 @@ std::string modules::options::GetString(const std::string& name,const std::strin
 }
 
 bool modules::options::GetBool(const std::string& name,bool defVal)const{
-    return GetOption<bool>(name,defVal);
+    if(!HasOption(name)) return defVal;
+    std::string val=GetString(name);
+    return  (val=="true")|| (val=="TRUE")|| (val=="YES")|| (val=="yes")|| (val=="on")|| (val=="ON")|| (val=="1");
 }
 
 int modules::options::GetVectorStringsByWhiteSpace(const std::string& name, std::vector<std::string>& vect)const{
@@ -97,4 +99,22 @@ bool modules::options::AppendToOption(const std::string& name, const std::string
 int modules::options::MakeIdNumber(){
 	static int count=0;
 	return count++;
+}
+
+std::string modules::options::StringDescription()const{
+    const char* key_val_sep="=";
+    const char* start_key_val="{";
+    const char* stop_key_val="}";
+    OptionsOrder_t::const_iterator it;
+    std::string description;
+    for(it=fOrder.begin();it!=fOrder.end();it++){
+        description+=start_key_val;
+        description+=(*it)->first;
+        if((*it)->second!=""){
+            description+=key_val_sep;
+            description+=(*it)->second;
+        }
+        description+=stop_key_val;
+    }
+    return description;
 }

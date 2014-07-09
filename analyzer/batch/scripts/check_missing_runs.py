@@ -9,10 +9,11 @@ import os;
 USER="edmonds_a"
 
 # Get the list of production scripts
-production_dir="production-run-2"
+production_run_number="run-3"
+production_dir="production-"+production_run_number
 for PRODUCTION_SCRIPT in os.listdir(production_dir):
     # Make sure it's the production script
-    if (PRODUCTION_SCRIPT.find("alcapana-prod-run-2") == -1):
+    if (PRODUCTION_SCRIPT.find("alcapana-prod-"+production_run_number) == -1):
         continue;
 
     f=open(production_dir + "/" + PRODUCTION_SCRIPT, 'r');

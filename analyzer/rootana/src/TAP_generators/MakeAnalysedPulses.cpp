@@ -18,11 +18,12 @@ using std::string;
 extern StringAnalPulseMap gAnalysedPulseMap;
 
 MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
-   BaseModule("MakeAnalysedPulses",opts),fOptions(opts){
+   BaseModule("MakeAnalysedPulses",opts,false),fOptions(opts){
 	fSlowGeneratorType=opts->GetString("default_slow_generator","MaxBin");
 	fFastGeneratorType=opts->GetString("default_fast_generator","MaxBin");
 	opts->GetVectorStringsByWhiteSpace("analyse_channels",fChannelsToAnalyse);
-	dir->cd("/");
+    fDefaultOpts=new TAPGeneratorOptions("default generator options");
+    if(Debug()) fDefaultOpts->SetOption("debug","true");
 }
 
 MakeAnalysedPulses::~MakeAnalysedPulses(){
@@ -145,22 +146,22 @@ bool MakeAnalysedPulses::ParseGeneratorList(std::string detector){
 	    if(start_br!=std::string::npos){
 	        // There are options for this generator
 	        end_br=gen->find(')');
-		sstream.str(gen->substr(start_br,end_br-start_br));
-		opts=new TAPGeneratorOptions(detector+"::"+generator);
-	        for(int count=0; std::getline(sstream, arg,','); count++){
-		    opts->AddArgument(count,arg);
-	        }
-	    }
-	    still_good = AddGenerator(detector,generator,opts);
-	    // Is everything ok to continue?
-	    if (!still_good) {
-		return false;
-	    }
-	    // Get ready for next iteration
-	    opts=NULL;
-	}
-	// Everything went ok, return true
-	return true;
+            sstream.str(gen->substr(start_br,end_br-start_br));
+            opts=new TAPGeneratorOptions(detector+"::"+generator);
+            for(int count=0; std::getline(sstream, arg,','); count++){
+                opts->AddArgument(count,arg);
+            }
+        }
+        still_good = AddGenerator(detector,generator,opts);
+        // Is everything ok to continue?
+        if (!still_good) {
+            return false;
+        }
+        // Get ready for next iteration
+        opts=NULL;
+    }
+    // Everything went ok, return true
+    return true;
 }
 
 bool MakeAnalysedPulses::AddGenerator(const string& detector,string generatorType,TAPGeneratorOptions* opts){
@@ -174,6 +175,9 @@ bool MakeAnalysedPulses::AddGenerator(const string& detector,string generatorTyp
 	requestType=kSlow;
     }else requestType=kArbitrary;
 
+    // Make sure opts is not null
+    if(!opts) opts=new TAPGeneratorOptions(*fDefaultOpts);
+
     // Get the requested generator
     TVAnalysedPulseGenerator* generator=
 	    TAPGeneratorFactory::Instance()->createModule(generatorType,opts);
@@ -182,13 +186,13 @@ bool MakeAnalysedPulses::AddGenerator(const string& detector,string generatorTyp
 
     // print something
     if(Debug()) {
-	cout<<detector<<": using ";
-	if (requestType ==kFast) cout<<"default fast: ";
-	else if (requestType ==kSlow) cout<<"default slow: ";
-	else cout<<"generator: ";
-	cout<<generatorType ;
-	if(opts) cout<<" with "<<opts->GetNumOptions()<<" option(s).";
-	cout<<endl;
+        cout<<detector<<": using ";
+        if (requestType ==kFast) cout<<"default fast: ";
+        else if (requestType ==kSlow) cout<<"default slow: ";
+        else cout<<"generator: ";
+        cout<<generatorType ;
+        if(opts) cout<<" with "<<opts->GetNumOptions()<<" option(s).";
+        cout<<endl;
     }
 
     // Add this generator to the list for the required detector

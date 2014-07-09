@@ -5,9 +5,9 @@
 #include <string>
 #include <stdio.h>
 #include <iostream>
-#include <TDirectory.h>
 
 #include "ModulesOptions.h"
+#include "ModulesParser.h"
 
 template <typename BaseModule, typename OptionsType>
 class TemplateFactory{
@@ -27,6 +27,8 @@ class TemplateFactory{
 	void registerModule(const std::string&, maker);
 	/// Create a module with options
 	virtual BaseModule* createModule(const std::string&, OptionsType*);
+    /// Check if a module with this name has been registered
+	bool canCreate(const std::string& name)const{return (bool) fModuleMakers.count(name);};
 	/// Create a module and look up its options from the internal list
 	BaseModule* createModule(const std::string& name);
 	void addOptions(const std::string& name, OptionsType *opts);
@@ -37,6 +39,8 @@ class TemplateFactory{
 
 	// Set the factory to output debugging commands
 	void SetDebug(bool debug=true){fDebug=debug;};
+
+  void PrintPossibleModules()const;
 
     private:
 	// the list of makers for all modules

@@ -1,0 +1,73 @@
+#!/bin/bash
+# batch_rootana.sge 
+# Define run time. 
+#$ -l s_rt=01:00:00,h_rt=01:04:00
+###################################################
+# Fix the SGE environment-handling bug (bash):
+source /usr/share/Modules/init/sh
+export -n -f module
+
+##################################################
+# Check input variable and an environment variable
+if [ $# -ne 3 ]; then
+    echo "ERROR: Require input file, output file, and modules file as inputs and only inputs!"
+    exit 1
+elif [ -z "$DAQdir" ]; then
+    echo "ERROR: DAQdir not set!"
+    exit 2
+fi
+
+###################
+# Setup environment
+. $DAQdir/thisdaq.sh
+
+#######################
+# The files we will use
+TREEFILE=$1
+OUTFILE=$2
+MODFILE=$3
+
+#############################
+# The directories we will use
+OUTDIR=$(dirname $OUTFILE)
+
+################
+# Command to run
+CMD="$DAQdir/analyzer/rootana/rootana"
+ARGS="-i $TREEFILE -o $OUTFILE -m $MODFILE"
+
+############################
+# Make necessary directories
+# and ensure files exist
+if [ ! -f $TREEFILE ]; then
+    echo "ERROR: Tree file ($TREEFILE) does not exist!"
+    exit 3
+elif [ -f $OUTFILE ]; then
+    echo "ERROR: Out file exists ($OUTFILE)! Delete to rerun."
+    exit 4
+elif [ ! -f $MODFILE ]; then
+    echo "ERROR: Modules file ($MODFILE) does not exist!"
+    exit 5
+elif [ ! -x $CMD ]; then
+    echo "ERROR: rootana does not seem to be compiled ($CMD)."
+    exit 6
+fi
+mkdir -p $OUTDIR
+
+################
+# BEGIN DEBUG
+# Check that the libraries are available (on the master host):  
+echo "ldd $CMD"
+ldd $CMD 
+echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+# Check path variables
+env
+# END DEBUG
+################
+
+echo "Command to run:"
+echo "$CMD $ARGS"
+echo
+$CMD $ARGS
+
+################################################################################
