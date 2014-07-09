@@ -8,7 +8,6 @@
 
 class PlotAmplitude : public BaseModule{
  public:
-  PlotAmplitude(char *HistogramDirectoryName);
   PlotAmplitude(modules::options* opts);
   ~PlotAmplitude();
 

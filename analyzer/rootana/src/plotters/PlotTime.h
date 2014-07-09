@@ -8,7 +8,6 @@
 
 class PlotTime : public BaseModule{
  public:
-  PlotTime(char *HistogramDirectoryName);
   PlotTime(modules::options* opts);
   ~PlotTime();
 
