@@ -58,7 +58,7 @@ int PlotTime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
         for (AnalysedPulseList::const_iterator pulseIter = pulses->begin(); pulseIter != pulses->end(); ++pulseIter) {
             double time = (*pulseIter)->GetTime();
-            fTimePlots[detname]->Fill(time);
+            fTimePlots[keyname]->Fill(time);
 
         } // end loop through pulses
 
