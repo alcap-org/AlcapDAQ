@@ -8,11 +8,11 @@
 
 class PlotAmplitude : public BaseModule{
  public:
-  PlotAmplitude(char *HistogramDirectoryName);
   PlotAmplitude(modules::options* opts);
   ~PlotAmplitude();
 
  private:
+  virtual int BeforeFirstEntry(TGlobalData *gData, TSetupData *gSetup);
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
 
   std::map<std::string, TH1F*> fAmplitudePlots;

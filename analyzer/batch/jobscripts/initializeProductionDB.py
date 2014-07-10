@@ -78,7 +78,7 @@ for run in irange(2897, 2905) + irange(2934, 2944) + irange(2963, 2992) + irange
     cmd = "INSERT INTO alcapana_v3(run, status, user, tree, hist, odb) VALUES (?, ?, ?, ?, ?, ?)"
     val = (run, "F", user, tree, hist, dump)
     db.execute(cmd, val)
-for run in irange(3442, 3456) + irange(3773, 3779) + irange(3763, 3770):
+for run in irange(3442, 3449) + irange(3773, 3779) + irange(3763, 3769):
     user = "grange_j"
     tree = home+user+"/data/tree/tree%05d.root" % run
     hist = home+user+"/data/hist/hist%05d.root" % run
@@ -102,7 +102,7 @@ for run in irange(3563, 3646):
     cmd = "INSERT INTO alcapana_v3(run, status, user, tree, hist, odb) VALUES (?, ?, ?, ?, ?, ?)"
     val = (run, "F", user, tree, hist, dump)
     db.execute(cmd, val)
-for run in [3650] + irange(3667, 3740):
+for run in [3650] + irange(3667, 3730) + irange(3732, 3740):
     user = "daniel_a"
     tree = home+user+"/data/tree/tree%05d.root" % run
     hist = home+user+"/data/hist/hist%05d.root" % run
@@ -118,7 +118,7 @@ for run in irange(3474, 3489) + irange(3491, 3540):
     cmd = "INSERT INTO alcapana_v3(run, status, user, tree, hist, odb) VALUES (?, ?, ?, ?, ?, ?)"
     val = (run, "F", user, tree, hist, dump)
     db.execute(cmd, val)
-for run in irange(2091, 2103) + irange(2119, 2172):
+for run in irange(2091, 2103) + irange(2119, 2172) + irange(3770, 3771) + irange(3450, 3456):
     user = "edmonds_a"
     tree = home+user+"/data/tree/tree%05d.root" % run
     hist = home+user+"/data/hist/hist%05d.root" % run

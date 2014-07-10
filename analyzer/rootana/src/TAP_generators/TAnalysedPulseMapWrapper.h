@@ -23,26 +23,26 @@ class TAnalysedPulseMapWrapper : public TObject
 {
 	public:
 		TAnalysedPulseMapWrapper();
-		TAnalysedPulseMapWrapper (StringAnalPulseMap aMap);
+		TAnalysedPulseMapWrapper (const SourceAnalPulseMap& aMap);
 		~TAnalysedPulseMapWrapper();
 
 	private:
-		StringAnalPulseMap fChn2PulseMap;
+		SourceAnalPulseMap fChn2PulseMap;
 
 	public:
 		void ShowInfo();
 		void Reset();
-		StringAnalPulseMap GetMap()
+		SourceAnalPulseMap GetMap()
 		{
 			return fChn2PulseMap;
 		}
 
-		void SetMap(StringAnalPulseMap aMap)
+		void SetMap(const SourceAnalPulseMap& aMap)
 		{
 			fChn2PulseMap = aMap;
 		}
 
-		ClassDef(TAnalysedPulseMapWrapper, 1);
+		ClassDef(TAnalysedPulseMapWrapper, 2);
 
 }; // end of class declaration TAnalysedPulseMapWrapper 
 

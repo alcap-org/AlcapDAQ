@@ -2,6 +2,7 @@
 #define SETUPNAVIGATOR_H_
 
 #include "CommandLine.h"
+#include "IdSource.h"
 
 class SetupNavigator{
   SetupNavigator(){};
@@ -11,7 +12,8 @@ class SetupNavigator{
 
   void SetCommandLineArgs(const ARGUMENTS& args){fCommandLineArgs=args;}
 
-  int GetRunNumber(){return fCommandLineArgs.run;};
+  int GetRunNumber()const{return fCommandLineArgs.run;};
+  std::string GetBank(const IDs::channel&)const;
 
  private:
   static SetupNavigator* fThis;

@@ -24,7 +24,7 @@ class MakeAnalysedPulses : public BaseModule{
   ~MakeAnalysedPulses();
 
   bool AddGenerator(const std::string& detector,std::string generatorType,TAPGeneratorOptions* opts=NULL);
-  bool ParseGeneratorList(std::string generatorList);
+  bool ParseGeneratorList(std::string generatorList, const std::vector<std::string>&);
 
   void SetAnalysedPulseMap(StringAnalPulseMap& aMap){fAnalysedPulseMap=&aMap;}
  private:
