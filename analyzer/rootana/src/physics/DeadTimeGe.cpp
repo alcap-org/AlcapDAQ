@@ -20,7 +20,7 @@ using std::map;
 using std::vector;
 using std::pair;
 
-extern StringAnalPulseMap gAnalysedPulseMap;
+extern SourceAnalPulseMap gAnalysedPulseMap;
 
 std::map<std::string, TH1F*> timediff_plots;
 
@@ -34,7 +34,7 @@ DeadTimeGe::~DeadTimeGe(){
 
 int DeadTimeGe::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   std::string detname = "Ge-S";
-  AnalysedPulseList detA_pulses = gAnalysedPulseMap[detname];
+  AnalysedPulseList detA_pulses = gAnalysedPulseMap[IDs::source(IDs::channel(detname),IDs::generator("*","*"))];
   AnalysedPulseList::iterator currentDetAPulse = detA_pulses.begin(); 
 
   if (timediff_plots.find(detname) == timediff_plots.end())

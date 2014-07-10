@@ -15,7 +15,7 @@ class TVDetectorPulseGenerator {
   virtual ~TVDetectorPulseGenerator(){};
 
  public:
-  virtual void ProcessPulses(const TSetupData* setup,const std::string& detector, 
+  virtual int ProcessPulses(const TSetupData* setup,const std::string& detector, 
 		  const AnalysedPulseList* fast, const AnalysedPulseList* slow,
 		  DetectorPulseList& output)=0;
   virtual bool ChecksForPileUp()const =0;

@@ -5,7 +5,7 @@
 #include "definitions.h"
 //class StringAnalPulseMap;
 
-StringAnalPulseMap gAnalysedPulseMap;
+SourceAnalPulseMap gAnalysedPulseMap;
 StringDetPulseMap gDetectorPulseMap;
 MuonEventList gMuonEvents;
 Long64_t* gTotalEntries;
