@@ -13,7 +13,7 @@ class MaxBinAPGenerator:public TVAnalysedPulseGenerator {
 
  public:
   MaxBinAPGenerator(TAPGeneratorOptions* opts):
-	  TVAnalysedPulseGenerator("MaxBinAPGenerator", opts),fSetup(TSetupData::Instance()){};
+	  TVAnalysedPulseGenerator("MaxBin", opts),fSetup(TSetupData::Instance()){};
 
   virtual ~MaxBinAPGenerator(){};
   void SetBankInfo(std::string bankname){
