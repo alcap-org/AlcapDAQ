@@ -11,7 +11,6 @@ TemplateFitter::TemplateFitter(std::string detname): fChannel(detname) {
   fMinuitFitter = new TFitterMinuit(3); //  Three (3) parameters to modify (amplitude, time, pedestal)
   fMinuitFitter->SetMinuitFCN(fcn);
   fMinuitFitter->SetPrintLevel(-1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
-  fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
 }
 
 TemplateFitter::~TemplateFitter() {
@@ -50,7 +49,7 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
                                                     // *DERIVATIVES* at bounderies of interpolation may cause
                                                     // problems since MIGRAD (the default method) relies on
                                                     // these heavily.
-  fMinuitFitter->CreateMinimizer();
+  fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
 
   // Minimize and notify if there was a problem
   int status = fMinuitFitter->Minimize();
