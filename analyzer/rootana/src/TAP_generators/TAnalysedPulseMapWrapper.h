@@ -37,7 +37,7 @@ class TAnalysedPulseMapWrapper : public TObject
 			return fChn2PulseMap;
 		}
 
-		void SetMap(SourceAnalPulseMap aMap)
+		void SetMap(const SourceAnalPulseMap& aMap)
 		{
 			fChn2PulseMap = aMap;
 		}
