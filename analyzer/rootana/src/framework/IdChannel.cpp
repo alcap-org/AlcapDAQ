@@ -109,8 +109,10 @@ IDs::channel IDs::channel::GetCorrespondingFastSlow()const{
         case kFast: return IDs::channel(fDetector,kSlow); break;
         case kSlow: return IDs::channel(fDetector,kFast); break;
         case kNotApplicable: 
+        case kAnySlowFast: 
         case kErrorSlowFast:return *this; break;
     }
+    return *this;
 }
 
 std::ostream& operator<< (ostream& os ,const IDs::channel& id){
