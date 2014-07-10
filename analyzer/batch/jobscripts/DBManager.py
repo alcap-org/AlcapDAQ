@@ -12,7 +12,7 @@ class DBManager:
     _ROOTANA = "rootana"
     _PROGRAMS = [_ALCAPANA, _ROOTANA]
 
-    _DBFILE = mu.DATAdir + "/test_production.db"
+    _DBFILE = mu.DATAdir + "/production.db"
 
     ## \brief
     #  Produces a database manager for a certain production type (alcapana or rootana)
