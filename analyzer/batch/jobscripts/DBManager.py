@@ -1,8 +1,10 @@
-import sqlite3
 import merlin_utils as mu
+from AlCapExceptions import *
+import ScreenManager
+
+import sqlite3
 import datetime
 import os
-from AlCapExceptions import *
 
 class DBManager:
 
@@ -10,7 +12,7 @@ class DBManager:
     _ROOTANA = "rootana"
     _PROGRAMS = [_ALCAPANA, _ROOTANA]
 
-    _DBFILE = mu.DATAdir + "/production.db"
+    _DBFILE = mu.DATAdir + "/test_production.db"
 
     ## \brief
     #  Produces a database manager for a certain production type (alcapana or rootana)
@@ -19,24 +21,21 @@ class DBManager:
     #  \param[in] prog The production type; rootana or alcapana.
     #  \param[in] ver The version number this %DBManager should be associated with.
     #  Essentially what production table in the database to look up info in.
-    def __init__(self, prog, ver):
+    def __init__(self, prog, ver, screenman):
         if prog not in DBManager._PROGRAMS:
             raise UnknownProductionError(prog)
         self.prog = prog
         if not os.path.isfile(DBManager._DBFILE):
-            msg = "Database not found!"
-            print msg
-            raise DataBaseError(msg)
+            raise DataBaseError("Database not found!")
         elif not os.access(DBManager._DBFILE, os.W_OK):
-            msg = "Database not writable!"
-            print msg
-            raise DataBaseError(msg)
+            raise DataBaseError("Database not writable!")
         self.db = sqlite3.connect(DBManager._DBFILE)
         if not ver:
             self.ver = self.GetRecentProductionVersionNumber()
         else:
             self.ver = ver
         self.production_table = production_table_name(self.prog, self.ver)
+        self.screenman = screenman
 
     ## \brief
     #  Get the run number of an avaliable run from a certian production.
@@ -248,7 +247,6 @@ class DBManager:
     #  \param[in] run Run number to find the right file for.
     #  \return The absolute path to the correct file.
     def GetRootanaInputFile(self, run):
-        print run
         fname = None
         cmd = "SELECT base FROM productions WHERE type=? AND version=?"
         for irow in self.db.execute(cmd, (DBManager._ROOTANA, self.ver)):

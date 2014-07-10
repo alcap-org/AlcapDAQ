@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import ftplib
 import netrc
+import datetime
 
 if "DAQdir" not in os.environ.keys():
     raise AlCapError("DAQdir not set")
@@ -91,14 +92,18 @@ def submitted_jobs():
     # the program name the third, and the current job status
     # the fifth.
     out_lines = out.split("\n")
-    header_size = 2
-    id_loc = 0
-    status_loc = 4
+    header_size    = 2
+    id_loc        = 0
+    status_loc    = 4
     prog_name_loc = 2
+    date_loc      = 5
+    time_loc      = 6
     jobs = []
     for line in out_lines[header_size:-1]:
         tokens = line.split()
-        jobs.append(SGEJob.SGEJob(int(tokens[id_loc]), tokens[status_loc], tokens[prog_name_loc]))
+        jobs.append(SGEJob.SGEJob(int(tokens[id_loc]), tokens[status_loc],
+                                  tokens[prog_name_loc], tokens[date_loc],
+                                  tokens[time_loc]))
 
     return jobs
 
@@ -189,7 +194,7 @@ def get_file(run):
 #  \param[in] stages A list of run numbers to request have their run files staged.
 #  \param[in] gets A list of run numbers to request download of their runfiles.
 #  \return 0 on success, 1 if there was a problem connecting to the FTP server.
-def stage_files_and_get_others(stages, gets, screen=None):
+def stage_files_and_get_others(stages, gets, screenman=None):
     target_dir = RAWdir + "/"
     stagenames = ["run%05d.mid" % run for run in stages]
     getnames = ["run%05d.mid" % run for run in gets]
@@ -201,7 +206,11 @@ def stage_files_and_get_others(stages, gets, screen=None):
     try:
         ftp.login(ftpinfo[0], ftpinfo[2])
     except ftplib.error_perm:
-        print "Job submission error: Problem connecting to FTP server!"
+        msg = "Job submission error: Problem connecting to FTP server!"
+        if screenman:
+            screenman.Message(msg)
+        else:
+            print msg
         return 1
     ftp.cwd(ftpdir)
     for run in stagenames:
@@ -211,16 +220,16 @@ def stage_files_and_get_others(stages, gets, screen=None):
             def download_noprogress(block):
                 dlfile.write(block)
             def download_progress(block):
-                screen.UpdateProgress(len(block))
+                screenman.UpdateProgress(len(block))
                 dlfile.write(block)
-            if not screen:
+            if not screenman:
                 download = download_noprogress
-            elif screen:
-                screen.StartProgress(int(run[3:8]), ftp.size(run))
+            elif screenman:
+                screenman.StartProgress(int(run[3:8]), ftp.size(run))
                 download = download_progress
             ftp.retrbinary("RETR " + run, download)
-            if screen:
-                screen.FinishProgress(int(run[3:8]))
+            if screenman:
+                screenman.FinishProgress()
     ftp.close()
     return 0
 
@@ -275,10 +284,14 @@ def remove_all_files(run, prod):
 #  Request list of jobs in the queue be stopped.
 #
 #  \param[in] jobs A list of SGEJobs to be stopped.
-def abort_jobs(jobs):
+def abort_jobs(jobs, screenman=None):
     cmd = "qdel"
     for job in jobs:
-        print "Cancelling job", job.job_id
+        msg = "Cancelling job " + str(job.job_id)
+        if screenman:
+            screenman.Message(msg)
+        else:
+            print msg
         arg = str(job.job_id)
         subprocess.Popen([cmd, arg], stdout=subprocess.PIPE)
     return

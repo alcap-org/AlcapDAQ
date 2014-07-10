@@ -1,5 +1,7 @@
 from AlCapExceptions import *
 
+import datetime
+
 ## \ingroup jobscripts
 #  \author John R Quirk
 #
@@ -40,12 +42,13 @@ class SGEJob:
                  _NODESUSPEND, _DELETING, _ERROR, _HOLDING]
     _PROGRAMS = [_ALCAPANA, _ROOTANA]
 
-    def __init__(self, job_id, status, prog):
+    def __init__(self, job_id, status, prog, date=None, time=None):
         self.job_id = job_id
         if prog not in SGEJob._PROGRAMS:
             raise UnknownProductionError(prog)
         self.program = prog
         self.SetStatus(status)
+        self.SetTime(date, time)
 
     def __eq__(self, rhs):
         if isinstance(rhs, self.__class__):
@@ -69,17 +72,34 @@ class SGEJob:
         return
 
     ## \brief
+    #  Set the submit or start time
+    #
+    #  \param[in] date In MM/DD/YYYY format
+    #  \param[in] time In HH:MM:SS format (24 hour)
+    def SetTime(self, date, time):
+        fmt = "%m/%d/%Y %H:%M:%S"
+        if date == None or time == None:
+            self.start = datetime.datetime.now()
+        else:
+            self.start = datetime.datetime.strptime(date + " " + time, fmt)
+        return
+
+    ## \brief
     #  Check if there is an error in the job.
     def HasError(self):
         if SGEJob._ERROR in self.status:
             return True
         return False
 
+    ## \brief
+    #  \Check if it's running on the grid yet.
     def IsRunning(self):
         if SGEJob._RUNNING in self.status:
             return True
         return False
 
+    ## \brief
+    #  Check if it's waiting on the grid.
     def IsWaiting(self):
         if SGEJob._WAITING in self.status:
             return True

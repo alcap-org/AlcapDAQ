@@ -1,6 +1,7 @@
 import merlin_utils as mu
 import DBManager
 import SGEJob
+import ScreenManager
 from AlCapExceptions import *
 
 import os
@@ -45,12 +46,13 @@ class RunManager:
     #  \param[in] prog A string indicating the production type
     #  ("alcapana" or "rootana").
     #  \param[in] ver An integer representing the version number.
-    def __init__(self, prod, ver):
+    def __init__(self, prod, ver, screenman):
+        self.screenman = screenman
         if prod not in _PROGRAMS:
             raise UnknownProductionError(prod)
         self.prod = prod
         self.ver = ver
-        self.dbm = DBManager.DBManager(prod, ver)
+        self.dbm = DBManager.DBManager(prod, ver, screenman)
         self.n_runs = 0
         self.n_downloaded = 0
         self.to_stage = []
@@ -70,6 +72,7 @@ class RunManager:
             if not run:
                 return
             self.n_runs = self.n_runs + 1
+            self.screenman.AddRun(run)
             if self.prod == _ALCAPANA:
                 tree = mu.TREEdir + "/tree%05d.root" % run
                 hist = mu.HISTdir + "/hist%05d.root" % run
@@ -90,7 +93,7 @@ class RunManager:
                         msg = "Old file exists: " + str(out)
                         raise AlCapError(msg)
                 self.to_submit.append(run)
-            print "Claimed run:", run
+            self.screenman.Message("Claimed run: " + str(run))
         return
 
     ## \brief
@@ -115,10 +118,9 @@ class RunManager:
         else:
             return
         if self.to_stage:
-            print "Staging runs:", self.to_stage
-        print "Downloading run:", dl
-        print "...",
-        if mu.stage_files_and_get_others([dl] + self.to_stage, [dl]) == 0:
+            self.screenman.Message("Staging runs:" + str(self.to_stage))
+        self.screenman.Message("Downloading run: " + str(dl))
+        if mu.stage_files_and_get_others([dl] + self.to_stage, [dl], self.screenman) == 0:
             if staged:
                 del self.to_download[self.to_download.index(dl)]
             else:
@@ -127,9 +129,9 @@ class RunManager:
             self.to_download = self.to_download + self.to_stage
             self.to_stage = []
             self.n_downloaded = self.n_downloaded + 1
-            print "Success!"
+            self.screenman.Message("Success!")
         else:
-            print "Failed. Will try again later."
+            self.screenman.Message("Failed. Will try again later.")
         return
 
     ## \brief
@@ -143,7 +145,7 @@ class RunManager:
         # We use a for loop in case there
         # are no runs to be submitted.
         for run in self.to_submit[0:1]:
-            print "Submitting run:", run
+            self.screenman.Message("Submitting run:" + str(run))
             infile = None
             if self.prod == _ROOTANA:
                 infile = self.dbm.GetRootanaInputFile(run)
@@ -193,7 +195,7 @@ class RunManager:
             os.rename(old_paths[ftype], new_paths[ftype])
             os.symlink(new_paths[ftype], old_paths[ftype])
             self.dbm.RegisterFile(run, new_paths[ftype], ftype)
-        print "Finished run:", run
+        self.screenman.Message("Finished run: " + str(run))
         self.to_finish.remove(run)
         return
 
@@ -225,7 +227,7 @@ class RunManager:
             self.n_runs = 0
             self.n_downloaded = 0
             self.to_stage = self.to_download = self.to_submit = self.to_finish = []
-        print "Aborting runs:", runs
+        self.screenman.Message("Aborting runs: " + str(runs))
         for run in runs:
             self.dbm.RollbackRun(run)
             mu.remove_all_files(run, self.prod)
