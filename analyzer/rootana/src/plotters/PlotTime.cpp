@@ -14,6 +14,7 @@
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
 #include "RegisterModule.inc"
+//#include "debug_tools.h"
 
 using std::string;
 using std::map;
@@ -55,6 +56,7 @@ int PlotTime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
         }
 
         const AnalysedPulseList *pulses =& i_det->second;
+        //if(Debug() && pulses->empty()) DEBUG_PREFIX<<" no pulses to fill for "<<i_det->first<<std::endl;
 
         for (AnalysedPulseList::const_iterator pulseIter = pulses->begin(); pulseIter != pulses->end(); ++pulseIter) {
             double time = (*pulseIter)->GetTime();

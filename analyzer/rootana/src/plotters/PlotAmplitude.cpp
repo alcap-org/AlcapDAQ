@@ -14,6 +14,7 @@
 #include "RegisterModule.inc"
 #include "definitions.h"
 #include "SetupNavigator.h"
+//#include "debug_tools.h"
 
 using std::string;
 using std::map;
@@ -60,6 +61,7 @@ int PlotAmplitude::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
         }
 
         const AnalysedPulseList *pulses = &i_det->second;
+        //if(Debug() && pulses->empty()) DEBUG_PREFIX<<" no pulses to fill for "<<i_det->first<<std::endl;
 
         for (AnalysedPulseList::const_iterator pulseIter = pulses->begin(); pulseIter != pulses->end(); ++pulseIter) {
             double amplitude = (*pulseIter)->GetAmplitude();
