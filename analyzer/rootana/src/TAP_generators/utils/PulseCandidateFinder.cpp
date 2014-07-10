@@ -110,6 +110,7 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
   Location location;
 
   // Loop through the samples
+  int n_border_samples = 10; // take some samples before and after the candidate officially stops
   for (unsigned int i = 1; i < n_samples; ++i) {
     s1 = polarity * (samples[i-1] - pedestal);
     s2 = polarity * (samples[i] - pedestal);
@@ -117,14 +118,22 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
 
     if (found) {
       if (s2 < 0) { // stop if the sample goes below pedestal
-	location.stop = (int)i;
+	location.stop = (int)i + n_border_samples;
+	if (location.stop >= samples.size()) {
+	  location.stop = samples.size() - 1;
+	}
+
 	fPulseCandidateLocations.push_back(location);
 	found = false;
       }
     } else {
       if (ds > rise) {
 	found = true;
-	location.start = (int)(i - 1);
+	location.start = (int)(i - 1) - n_border_samples;
+
+	if (location.start < 0) {
+	  location.start = 0;
+	}
       }
     }
   }
@@ -145,7 +154,7 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
   Location location;
 
   // Loop through the samples
-  int n_border_samples = 20; // take some samples before and after the candidate officially stops
+  int n_border_samples = 10; // take some samples before and after the candidate officially stops
   for (unsigned int i = 0; i < n_samples; ++i) {
     sample_height = polarity * (samples[i] - pedestal);
 
