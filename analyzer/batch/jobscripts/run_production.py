@@ -130,9 +130,10 @@ if production == _ROOTANA:
 ################################################################################
 
 
-screenman = ScreenManager.Dummy()
 if display:
     screenman = ScreenManager.ScreenManager()
+else:
+    screenman = ScreenManager.Dummy()    
 dbman = DBManager.DBManager(production, version, screenman)
 if new:
     version = dbman.StartNewProduction(tag, "gold", version)

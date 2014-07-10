@@ -185,7 +185,8 @@ class ScreenManager:
             self.screen.addstr("%80s" % "")
             y += 1
         self.screen.move(y,0)
-        self.screen.addstr("%-80s" % self.messages[self.print_msg])
+        if len(self.messages) > 0:
+            self.screen.addstr("%-80s" % self.messages[self.print_msg])
         self.screen.refresh()
         return
 
@@ -197,10 +198,6 @@ class ScreenManager:
         return
 
     def SortByStatus(self):
-#        def sort(x):
-#            self.Message(self.status[x])
-#            return ScreenManager._STATUSES.index(self.status[x])
-#        self.runs.sort(key=sort)
         self.runs.sort(key=lambda run: ScreenManager._STATUSES.index(self.status[run]))
         return
 
