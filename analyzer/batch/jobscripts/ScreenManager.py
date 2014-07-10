@@ -9,6 +9,7 @@ class ScreenManager:
     ## \name Constants
     #\{
     _HEADER_LINES   = 4
+    _MAXLINES       = 24
     _MAX_RUNS       = 20
     _RUN_WIDTH      = 9
     _STATUS_WIDTH   = 14
@@ -128,7 +129,6 @@ class ScreenManager:
 
     def StartProgress(self, run, size):
         self.downloading = run
-        self.status[run] = "Downloading"
         self.progress[run] = [0, size, "[                    ]   0%      "]
         self.Draw()
         return
@@ -164,14 +164,10 @@ class ScreenManager:
             self.screen.move(y,0)
             self.screen.addstr(line)
             y += 1
-        for run in self.runs:
+        for run in self.runs[:19]:
             if self.start[run]:
                 if self.stop[run]:
                     dt = (self.stop[run] - self.start[run]).seconds
-                    if (now - self.stop[run]).seconds > Screen._TIMEOUT:
-                        self.RemoveRun(run)
-                        self.Draw()
-                        return
                 else:
                     dt = (now - self.start[run]).seconds
                 m, s = dt/60, dt % 60
@@ -184,36 +180,42 @@ class ScreenManager:
             self.screen.addstr(" %-33s |" % self.progress[run][2])
             self.screen.addstr(" %9dm %2ds " % (m, s))
             y += 1
-        for i in range(Screen._MAXLINES - 1 - len(self.header) - len(self.runs)):
+        for i in range(ScreenManager._MAXLINES - 1 - len(self.header) - len(self.runs)):
             self.screen.move(y,0)
             self.screen.addstr("%80s" % "")
             y += 1
-        self.move.screen(y,0)
-        self.screen.addstr(self.messages[self.print_msg])
+        self.screen.move(y,0)
+        self.screen.addstr("%-80s" % self.messages[self.print_msg])
         self.screen.refresh()
         return
 
     def Message(self, msg):
         self.print_msg = -1
         self.messages.append(str(datetime.datetime.now())[:19] + ": " + msg)
-        if len(self.messages) > Screen._MAXMESSAGES:
+        if len(self.messages) > ScreenManager._MAXMESSAGES:
             self.messages.pop(0)
         return
 
     def SortByStatus(self):
+#        def sort(x):
+#            self.Message(self.status[x])
+#            return ScreenManager._STATUSES.index(self.status[x])
+#        self.runs.sort(key=sort)
         self.runs.sort(key=lambda run: ScreenManager._STATUSES.index(self.status[run]))
         return
 
     def Close(self):
         curses.nocbreak()
-        self.screen(0)
+        self.screen.keypad(0)
         curses.echo()
         curses.endwin()
         for msg in self.messages:
             print msg
         return
 
-
+## \brief
+#  A dummy class so all calls to ScreenManager will work, but do nothing
+#  (except print for Message call).
 class Dummy():
     def __init__(self):
         pass

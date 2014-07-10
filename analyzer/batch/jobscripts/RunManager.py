@@ -46,12 +46,13 @@ class RunManager:
     #  \param[in] prog A string indicating the production type
     #  ("alcapana" or "rootana").
     #  \param[in] ver An integer representing the version number.
-    def __init__(self, prod, ver):
+    def __init__(self, prod, ver, screenman):
+        self.screenman = screenman
         if prod not in _PROGRAMS:
             raise UnknownProductionError(prod)
         self.prod = prod
         self.ver = ver
-        self.dbm = DBManager.DBManager(prod, ver)
+        self.dbm = DBManager.DBManager(prod, ver, screenman)
         self.n_runs = 0
         self.n_downloaded = 0
         self.to_stage = []
@@ -71,6 +72,7 @@ class RunManager:
             if not run:
                 return
             self.n_runs = self.n_runs + 1
+            self.screenman.AddRun(run)
             if self.prod == _ALCAPANA:
                 tree = mu.TREEdir + "/tree%05d.root" % run
                 hist = mu.HISTdir + "/hist%05d.root" % run
@@ -118,7 +120,7 @@ class RunManager:
         if self.to_stage:
             self.screenman.Message("Staging runs:" + str(self.to_stage))
         self.screenman.Message("Downloading run: " + str(dl))
-        if mu.stage_files_and_get_others([dl] + self.to_stage, [dl]) == 0:
+        if mu.stage_files_and_get_others([dl] + self.to_stage, [dl], self.screenman) == 0:
             if staged:
                 del self.to_download[self.to_download.index(dl)]
             else:

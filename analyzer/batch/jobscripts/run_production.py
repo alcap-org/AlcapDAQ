@@ -153,6 +153,7 @@ try:
         # print a warning and abort the runs we haven't downloaded yet.
         # If space opens up later, we will continue.
         space = mu.fraction_of_quota_used()
+        screenman.UpdateQuota(space)
         if space < space_limit:
             if no_disk_space_error_printed:
                 screenman.Message("INFO: Disk space has become available.")
@@ -194,28 +195,30 @@ try:
             if job not in s_jobs:
                 to_delete.append(run)
                 runman.Finish(run)
+                screenman.FinishRun(run)
             else:
                 jobs[run] = s_jobs[s_jobs.index(job)]
                 if jobs[run].HasError():
                     to_abort[run] = jobs[run]
         if len(to_abort.keys()) > 0:
             screenman.Message("INFO: There were errors with some runs, so the following runs will be aborted:")
-            screenman.Message(to_abort.keys())
+            screenman.Message(str(to_abort.keys()))
             mu.abort_jobs(to_abort.values())
             runman.Abort(to_abort.keys())
         for run in to_delete + to_abort.keys():
             del jobs[run]
+        screenman.UpdateStatus(jobs)
 
         time.sleep(wait)
 
 except KeyboardInterrupt:
     screenman.Message("User cancelling jobs...")
-    mu.abort_jobs(jobs.values())
+    mu.abort_jobs(jobs.values(), screenman)
     runman.Abort()
 
 except:
     screenman.Message("ERROR: There was an uncaught exception. Aborting...")
-    mu.abort_jobs(jobs.values())
+    mu.abort_jobs(jobs.values(), screenman)
     runman.Abort()
     screenman.Close()
     raise
