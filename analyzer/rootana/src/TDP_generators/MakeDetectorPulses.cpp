@@ -3,6 +3,8 @@
 #include "TVDetectorPulseGenerator.h"
 #include "MaxTimeDiffDPGenerator.h"
 #include "TDPGeneratorFactory.h"
+using std::endl;
+using std::cout;
 
 extern SourceAnalPulseMap gAnalysedPulseMap;
 extern StringDetPulseMap gDetectorPulseMap;
@@ -33,9 +35,17 @@ int MakeDetectorPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
         current=gAnalysedPulseMap.find(i_detector->first);
         if(current==gAnalysedPulseMap.end()){
             std::cout<<"Unable to find source for fast channel: "<<i_detector->first<<std::endl;
+            std::cout<<"gAnalysedPulseMap contains:"<<std::endl;
+            DumpgAnalysedPulseMap(gAnalysedPulseMap);
             return 1;
         }
         fast_pulses=&(current->second);
+
+        // check if the fast_pulses is empty
+        if(fast_pulses->empty()) {
+            cout<< "List of TAPs for "<<i_detector->first<<" is empty."<<endl;
+            continue;
+        }
 
         // if the fast and slow sources are the same then pass the slow channel
         // as NULL
@@ -44,9 +54,16 @@ int MakeDetectorPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
             current=gAnalysedPulseMap.find(i_detector->second);
             if(current==gAnalysedPulseMap.end()){
                 std::cout<<"Unable to find source for slow channel: "<<i_detector->second<<std::endl;
+                std::cout<<"gAnalysedPulseMap contains:"<<std::endl;
+                DumpgAnalysedPulseMap(gAnalysedPulseMap);
                 return 1;
             }
             slow_pulses=&(current->second);
+            // check if the fast_pulses is empty
+            if(slow_pulses->empty()) {
+                cout<< "List of TAPs for "<<i_detector->second<<" is empty."<<endl;
+                continue;
+            }
         }
 
         fGenerator->ProcessPulses(gSetup,detector.str(),fast_pulses,slow_pulses,gDetectorPulseMap[detector.str()]);
@@ -61,27 +78,30 @@ int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, TSetupData* setup){
 
     const IDs::channel* ch;
     const IDs::generator* gen;
+    IDs::source partner;
     // Find all fast detectors
     for (SourceAnalPulseMap::const_iterator i_source = gAnalysedPulseMap.begin();
             i_source != gAnalysedPulseMap.end(); i_source++) {
         ch=&i_source->first.Channel();
         gen=&i_source->first.Generator();
+        partner=IDs::source(ch->GetCorrespondingFastSlow(),*gen);
+        if(gAnalysedPulseMap.count(partner)==0) partner=i_source->first;
 
         if(ch->isFast()) {
             // fast channels go first
-            fFastSlowPairs.push_back(std::make_pair(i_source->first,IDs::source(ch->GetCorrespondingFastSlow(),*gen)));
+            fFastSlowPairs.insert(std::make_pair(i_source->first,partner));
         }else{ 
             // slow channels go second
             // if both fast and slow are the same then later there will be
             // nothing to do.
-            fFastSlowPairs.push_back(std::make_pair(IDs::source(ch->GetCorrespondingFastSlow(),*gen),i_source->first));
+            fFastSlowPairs.insert(std::make_pair(partner,i_source->first));
         }
 
     }
 
     if(Debug()){
         for( ChannelPairing_t::iterator i=fFastSlowPairs.begin();i!=fFastSlowPairs.end();i++){
-            std::cout<<i->first<<'\t'<<i->second<<std::endl;
+            std::cout<<"Paired: "<<i->first<<" with "<<i->second<<std::endl;
         }
     }
     return 0;
@@ -98,4 +118,11 @@ TVDetectorPulseGenerator* MakeDetectorPulses::MakeGenerator(const std::string& g
     return generator;
 }
 
+void MakeDetectorPulses::DumpgAnalysedPulseMap(const SourceAnalPulseMap& aMap){
+    for(SourceAnalPulseMap::const_iterator it=aMap.begin();
+            it!=aMap.end(); it++){
+        cout<<it->first<<" contains "<<it->second.size()<<" TAPs"<<endl;
+    }
+
+}
 ALCAP_REGISTER_MODULE(MakeDetectorPulses,algorithm);

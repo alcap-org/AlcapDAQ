@@ -2,8 +2,7 @@
 #define MAKEDETECTORPULSES_H__
 
 #include <string>
-#include <vector>
-#include <map>
+#include <set>
 
 #include "BaseModule.h"
 #include "definitions.h"
@@ -28,13 +27,13 @@ class MakeDetectorPulses : public BaseModule{
   TVDetectorPulseGenerator* MakeGenerator(const std::string& generatorType);
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
   virtual int BeforeFirstEntry(TGlobalData* gData,TSetupData *setup);
-  std::string GetOtherChannelName(std::string in_name,std::string det_name);
-  std::string GetDetectorName(std::string in_name);
+
+void DumpgAnalysedPulseMap(const SourceAnalPulseMap& aMap);
 
  private:
   TVDetectorPulseGenerator* fGenerator; 
   StringDetPulseMap* fDetectorPulseMap;
-  typedef std::vector<std::pair<IDs::source,IDs::source> > ChannelPairing_t;
+  typedef std::set<std::pair<IDs::source,IDs::source> > ChannelPairing_t;
   ChannelPairing_t fFastSlowPairs;
   modules::options* fOptions;
   std::string fAlgorithm;
