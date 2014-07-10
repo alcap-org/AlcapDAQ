@@ -200,11 +200,11 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
 
   int q = 0;
   for (it_mod=first_module; it_mod != last_module; it_mod++) {
-    q |= it_mod->second->BeforeFirstEntry(g_event, TSetupData::Instance());
-  }
-  if(q) {
-    printf("Error while preprocessing first entry (%d)\n",(Int_t)start);
-    return q;
+      q |= it_mod->second->BeforeFirstEntry(g_event, TSetupData::Instance());
+      if(q){
+          printf("Error during pre-processing for module %s\n",it_mod->first.c_str());
+          return q;
+      }
   }
 
   q = 0;
@@ -225,12 +225,11 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
     dataTree->GetEntry(jentry);
 
     for (it_mod=first_module; it_mod != last_module; it_mod++) {
-      q |= it_mod->second->ProcessGenericEntry(g_event,TSetupData::Instance());
-      //if(q) break;
-    }
-    if(q){
-      printf("q was non-zero when jentry was %lld\n",jentry);
-      break;
+        q |= it_mod->second->ProcessGenericEntry(g_event,TSetupData::Instance());
+        if(q){
+            printf("q was non-zero for module %s when jentry was %lld\n",it_mod->first.c_str(), jentry);
+            return q;
+        }
     }
 
     gAnalysedPulseMapWrapper->SetMap(gAnalysedPulseMap);
@@ -242,6 +241,10 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   q = 0;
   for (it_mod=first_module; it_mod != last_module; it_mod++) {
     q |= it_mod->second->AfterLastEntry(g_event,TSetupData::Instance());
+        if(q){
+            printf("Error during post-processing for module %s\n",it_mod->first.c_str());
+            return q;
+        }
   }
   if (q) {
      printf("Error during post-processing last entry (%lld)\n",(stop-1));
