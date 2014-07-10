@@ -89,8 +89,8 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
       // only continue if there is one pulse candidate on the TPI
       if (n_pulse_candidates == 1) {
 
-	std::vector<TPulseIsland*> pulse_candidates = pulse_candidate_finder->GetPulseCandidates();
-	TPulseIsland* pulse = pulse_candidates.at(0);
+	TPulseIsland* pulse = *pulseIter;
+
         // Add the first pulse directly to the template (although we may try and choose a random pulse to start with)
 	if (hTemplate == NULL) {
 	  AddPulseToTemplate(hTemplate, pulse);
