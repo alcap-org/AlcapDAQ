@@ -11,9 +11,21 @@
 #pragma link C++ class vector<TAnalysedPulse*>+;
 #pragma link C++ class vector<TAnalysedPulse*>::iterator;
 #pragma link C++ function operator!= (vector<TAnalysedPulse*>::iterator, vector<TAnalysedPulse*>::iterator);
+//#pragma link C++ class map<IDs::source, vector<TAnalysedPulse*> >+;
+//#pragma link C++ class map<IDs::source, vector<TAnalysedPulse*> >::iterator+;
+//#pragma link C++ class map<IDs::source, vector<TAnalysedPulse*> >::const_iterator+;
+//#pragma link C++ class map<IDs::source, vector<TDetectorPulse*> >+;
+//#pragma link C++ class map<IDs::source, vector<TDetectorPulse*> >::iterator+;
+//#pragma link C++ class map<IDs::source, vector<TDetectorPulse*> >::const_iterator+;
+//#pragma link C++ class map<IDs::source, vector<TMuonEvent*> >+;
+//#pragma link C++ class map<IDs::source, vector<TMuonEvent*> >::iterator+;
+//#pragma link C++ class map<IDs::source, vector<TMuonEvent*> >::const_iterator+;
 #pragma link C++ class map<string, vector<TAnalysedPulse*> >+;
 #pragma link C++ class map<string, vector<TAnalysedPulse*> >::iterator;
 #pragma link C++ class pair<string,vector<TAnalysedPulse*> >+;
+//#pragma link C++ class pair<IDs::source,vector<TAnalysedPulse*> >+;
+//#pragma link C++ class pair<IDs::source,vector<TDetectorPulse*> >+;
+//#pragma link C++ class pair<IDs::source,vector<TMuonEvent*> >+;
 #pragma link C++ class std::vector<std::string>+;
 
 #pragma link C++ class TAnalysedPulseMapWrapper+;

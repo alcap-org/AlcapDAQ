@@ -17,7 +17,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-extern StringAnalPulseMap gAnalysedPulseMap;
+//extern SourceAnalPulseMap gAnalysedPulseMap;
 extern Long64_t* gEntryNumber;
 extern Long64_t* gTotalEntries;
 

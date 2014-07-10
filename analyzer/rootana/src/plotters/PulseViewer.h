@@ -39,7 +39,7 @@ class PulseViewer : public BaseModule{
 
   /* ------------ Methods called by ProcessEntry ---------*/
   /// Get the channel as a string
-  std::string GetChannel()const{return fChannel.str();};
+  IDs::source GetSource()const{return fSource;};
 
   /// Ask ExportPulse to draw this pulse if it matches the trigger criteria
   /// @return 0 on success, non-zero otherwise
@@ -70,9 +70,9 @@ class PulseViewer : public BaseModule{
 
   bool SummarisePlots(){return fSummarize;};
  private:
-  IDs::channel fChannel;
+  IDs::source fSource;
   std::string fTriggerCondition;
-  std::string fRequestedChannel;
+  std::string fRequestedSource;
   double fTriggerValue;
   TriggerType fTriggerType;
   ParameterType fTriggerParameter;

@@ -84,8 +84,10 @@ public:
 
 	/// Returns true if this channel is the same as another 
 	bool operator==(const channel& rhs)const;
+
 	/// Returns true if this channel is not the same as another 
 	bool operator!=(const channel& rhs)const{return !(this->operator==(rhs));};
+
     /// @brief Check if this channel is the same as another or has it's fields set to 'any'.
     /// @details Return true if for both the Detector and SlowFast parts, either
     /// the rhs is the same as this one, or if either this or rhs has a
@@ -118,6 +120,11 @@ public:
     bool isFast() const {return fSlowFast==kFast;};
     /// Check if this channel ID is for a slow channel
     bool isSlow() const {return fSlowFast==kSlow;};
+
+    /// If this is a fast channel return the corresponding slow one
+    /// else if it's a slow channel return the corresponding fast one
+    /// else return the same ID
+    channel GetCorrespondingFastSlow()const;
 
 	/// Convert a Detector_t enum into the corresponding string
 	static std::string GetDetectorString(Detector_t det);

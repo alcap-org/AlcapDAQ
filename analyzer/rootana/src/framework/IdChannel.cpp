@@ -104,7 +104,19 @@ IDs::SlowFast_t IDs::channel::GetSlowFastEnum(const std::string& type){
 	return kNotApplicable;
 }
 
+IDs::channel IDs::channel::GetCorrespondingFastSlow()const{
+    switch(fSlowFast){
+        case kFast: return IDs::channel(fDetector,kSlow); break;
+        case kSlow: return IDs::channel(fDetector,kFast); break;
+        case kNotApplicable: 
+        case kAnySlowFast: 
+        case kErrorSlowFast:return *this; break;
+    }
+    return *this;
+}
+
 std::ostream& operator<< (ostream& os ,const IDs::channel& id){
   os<<id.str();
   return os;
 }
+

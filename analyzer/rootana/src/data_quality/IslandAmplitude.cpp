@@ -12,7 +12,7 @@
 using std::cout;
 using std::endl;
 
-extern StringAnalPulseMap gAnalysedPulseMap;
+//extern SourceAnalPulseMap gAnalysedPulseMap;
 
 
 ////////////////////////////////////////////////////////////
