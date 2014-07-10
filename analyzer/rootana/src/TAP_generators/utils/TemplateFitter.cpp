@@ -11,6 +11,7 @@ TemplateFitter::TemplateFitter(std::string detname): fChannel(detname) {
   fMinuitFitter = new TFitterMinuit(3); //  Three (3) parameters to modify (amplitude, time, pedestal)
   fMinuitFitter->SetMinuitFCN(fcn);
   fMinuitFitter->SetPrintLevel(-1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
+  fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
 }
 
 TemplateFitter::~TemplateFitter() {
