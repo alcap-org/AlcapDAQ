@@ -35,7 +35,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
     std::cout << "\tpedestal = " << P << ", amplitude = " << A << ", time (integer part) = " << T_int << " and time (float part) = " << T_flt << std::endl;
   }
  
-  int half_range = 10;
+  int half_range = 10; // remove a few bins from the fit
   int bounds[2];
   bounds[0] = half_range+1;//std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1);
   bounds[1] = std::min(fTemplateHist->GetNbinsX(), fPulseHist->GetNbinsX()) - half_range-1; //std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX());
