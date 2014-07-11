@@ -45,7 +45,7 @@ class TemplateCreator : public BaseModule{
 
   /// \brief
   /// Corrects a given sample value
-  double CorrectSampleValue(double old_value);
+  double CorrectSampleValue(double old_value, double template_pedestal);
 
   TemplateFitter* fTemplateFitter;
 };
