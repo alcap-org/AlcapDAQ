@@ -35,6 +35,12 @@ class HistogramFitFCN : public ROOT::Minuit2::FCNBase {
   
  public:
   int GetNDoF() { return fNDoF; }
+
+ private:
+  double fTimeOffset; // the time offset to use
+
+ public:
+  void SetTimeOffset(double time_offset);
 };
 
 #endif
