@@ -8,9 +8,9 @@
 TemplateFitter::TemplateFitter(std::string detname): fChannel(detname) {
 
   HistogramFitFCN* fcn = new HistogramFitFCN();
-  fMinuitFitter = new TFitterMinuit(3); //  Three (3) parameters to modify (amplitude, time, pedestal)
+  fMinuitFitter = new TFitterMinuit(2); //  Two (2) parameters to modify (amplitude, pedestal). We will try and do the time one ourselves
   fMinuitFitter->SetMinuitFCN(fcn);
-  fMinuitFitter->SetPrintLevel(-1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
+  fMinuitFitter->SetPrintLevel(1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
 }
 
 TemplateFitter::~TemplateFitter() {
@@ -42,8 +42,8 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   double max_adc_value = std::pow(2, n_bits);
 
   fMinuitFitter->SetParameter(0, "PedestalOffset", fPedestalOffset, 0.1, 0, max_adc_value);
-  fMinuitFitter->SetParameter(1, "AmplitudeScaleFactor", fAmplitudeScaleFactor, 0.1*fAmplitudeScaleFactor, 0, 100);
-  fMinuitFitter->SetParameter(2, "TimeOffset", fTimeOffset, 1., -10, 10); // Timing should have step size no smaller than binning,
+  fMinuitFitter->SetParameter(1, "AmplitudeScaleFactor", fAmplitudeScaleFactor, 0.1, 0, 100);
+  //  fMinuitFitter->SetParameter(2, "TimeOffset", fTimeOffset, 1., -10, 10); // Timing should have step size no smaller than binning,
                                                     // *IF* the fourth argument is step size this is okay,
                                                     // or later implement some interpolation method, note
                                                     // *DERIVATIVES* at bounderies of interpolation may cause
@@ -51,34 +51,55 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
                                                     // these heavily.
   fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
 
-  // Minimize and notify if there was a problem
-  int status = fMinuitFitter->Minimize();
+  int status; // the status of the minimisation
 
-  static int print_dbg = false;
-  if (print_dbg) {
-    if (status != 0)
-      std::cout << "ERROR: Problem with fit (" << status << ")!" << std::endl;
+  // Loop through some time offsets ourselved
+  double max_time_offset = 1; // maximum distance to go from the initial estimate
+  double best_time_offset = 0;
+  double best_chi2 = 99999999999;
+
+  for (double time_offset = fTimeOffset - max_time_offset; time_offset <= fTimeOffset + max_time_offset; ++time_offset) {
+    std::cout << "TemplateFitter: Checking time_offset = " << time_offset << std::endl;
+    fcn->SetTimeOffset(time_offset);
+
+    // Minimize and notify if there was a problem
+    status = fMinuitFitter->Minimize();
+
+    static int print_dbg = false;
+    if (print_dbg) {
+      if (status != 0)
+	std::cout << "ERROR: Problem with fit (" << status << ")!" << std::endl;
+    }
+
+    // Get the fitted values
+    fPedestalOffset = fMinuitFitter->GetParameter(0);
+    fAmplitudeScaleFactor = fMinuitFitter->GetParameter(1);
+    //    fTimeOffset = fMinuitFitter->GetParameter(2);
+
+    // Store the Chi2, and then we can delete the pulse
+    std::vector<double> params; 
+    params.push_back(fPedestalOffset); 
+    params.push_back(fAmplitudeScaleFactor); 
+    //    params.push_back(fTimeOffset); 
+    fChi2 = (*fcn)(params);
+
+    fNDoF = fcn->GetNDoF();
+
+    if (status == 0 && fChi2 < best_chi2) {
+      best_time_offset = time_offset;
+      best_chi2 = fChi2;
+    }
+
+    if (print_dbg) {
+      std::cout << "TemplateFitter::FitPulseToTemplate(): Fit:\tChi2 " << fChi2 << "\tP "
+		<< fPedestalOffset << "(" << params.at(0) << ")\tA " << fAmplitudeScaleFactor << "(" << params.at(1) << ")\tT " << fTimeOffset << "(" << params.at(2) << ")" 
+		<< ", ndof = " << fNDoF << ", prob = " << TMath::Prob(fChi2, fNDoF) << std::endl;
+    }
   }
 
-  // Get the fitted values
-  fPedestalOffset = fMinuitFitter->GetParameter(0);
-  fAmplitudeScaleFactor = fMinuitFitter->GetParameter(1);
-  fTimeOffset = fMinuitFitter->GetParameter(2);
-
-  // Store the Chi2, and then we can delete the pulse
-  std::vector<double> params; 
-  params.push_back(fPedestalOffset); 
-  params.push_back(fAmplitudeScaleFactor); 
-  params.push_back(fTimeOffset); 
-  fChi2 = (*fcn)(params);
-
-  fNDoF = fcn->GetNDoF();
-
-  if (print_dbg) {
-    std::cout << "TemplateFitter::FitPulseToTemplate(): Fit:\tChi2 " << fChi2 << "\tP "
-	      << fPedestalOffset << "(" << params.at(0) << ")\tA " << fAmplitudeScaleFactor << "(" << params.at(1) << ")\tT " << fTimeOffset << "(" << params.at(2) << ")" 
-	      << ", ndof = " << fNDoF << ", prob = " << TMath::Prob(fChi2, fNDoF) << std::endl;
-  }
+  // Store the final best values
+  fChi2 = best_chi2;
+  fTimeOffset = best_time_offset;
 
   delete hPulse;
 
