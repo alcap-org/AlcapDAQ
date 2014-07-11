@@ -174,7 +174,8 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	// Now add the fitted pulse to the template
 
 	if (n_pulses_in_template <= 10 || 
-	    (n_pulses_in_template <= 100 && n_pulses_in_template%10 == 0) ) {
+	    (n_pulses_in_template <= 100 && n_pulses_in_template%10 == 0) ||
+	    (n_pulses_in_template <= 1000 && n_pulses_in_template%100 == 0) ) {
 	  std::stringstream newhistname;
 	  newhistname << "hTemplate_" << n_pulses_in_template << "Pulses_" << detname;
 	  TH1D* new_template = (TH1D*) hTemplate->Clone(newhistname.str().c_str());
@@ -208,7 +209,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
 
 	  double uncorrected_value = (*sampleIter);
-	  double corrected_value = CorrectSampleValue(uncorrected_value);
+	  double corrected_value = CorrectSampleValue(uncorrected_value, template_pedestal);
 
 	  hUncorrectedPulse->SetBinContent(sampleIter - theSamples.begin()+1, uncorrected_value); // +1 because bins start at 1
 	  hUncorrectedPulse->SetBinError(sampleIter - theSamples.begin()+1, pedestal_error);
@@ -317,9 +318,10 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
     }
 
     // Loop through the pulse samples
+    double template_pedestal = hTemplate->GetBinContent(1);
     for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
 
-      double corrected_value = CorrectSampleValue(*sampleIter);
+      double corrected_value = CorrectSampleValue(*sampleIter, template_pedestal);
 
       int bin_number = sampleIter - theSamples.begin() + 1 + 0.5 - fTemplateFitter->GetTimeOffset(); // +1 because ROOT numbers bins from 1, +0.5 to round to the nearest integer and subtract time offset because this value might not want to go direct into the template
 
@@ -372,10 +374,11 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
   */
 }
 
-double TemplateCreator::CorrectSampleValue(double old_value) {
+double TemplateCreator::CorrectSampleValue(double old_value, double template_pedestal) {
 
   double new_value = old_value / fTemplateFitter->GetAmplitudeScaleFactor();
   new_value -= fTemplateFitter->GetPedestalOffset();
+  new_value += template_pedestal;
 
   return new_value;
 }

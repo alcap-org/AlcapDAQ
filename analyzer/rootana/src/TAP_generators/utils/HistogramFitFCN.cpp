@@ -17,6 +17,10 @@ void HistogramFitFCN::SetPulseHist(TH1D* hPulse) {
   fPulseHist = hPulse;
 }
 
+void HistogramFitFCN::SetTimeOffset(double time_offset) {
+  fTimeOffset = time_offset;
+}
+
 double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   // Chi2 fit with pedestal P, amplitude A, and timing T
   // Warning: The time is truncated to an int, so if there's
@@ -26,8 +30,8 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   double chi2 = 0.;
   double P = par[0];
   double A = par[1];
-  int T_int = (int)par[2];            // Integral part of time shift
-  double T_flt = par[2] - (double)T_int; // Floating point offset for linear interpolation
+  int T_int = (int)fTimeOffset;            // Integral part of time shift
+  double T_flt = fTimeOffset - (double)T_int; // Floating point offset for linear interpolation
 
   static bool print_dbg = true;
   if (print_dbg) { 
@@ -56,11 +60,12 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   }
 
   double f;
+  double template_pedestal = fTemplateHist->GetBinContent(1);
   for (int i = bounds[0]; i <= bounds[1]; ++i) {
     // We shift and scale the template so that it matches the pulse.
     // This is because, when we have a normalised template, we will get the actual amplitude, pedestal and time from the fit and not just offsets
     f = fTemplateHist->GetBinContent(i - T_int) + T_flt*(fTemplateHist->GetBinContent(i - T_int + 1) - fTemplateHist->GetBinContent(i - T_int)); // linear interpolation between the i'th and the (i+1)'th bin
-    f = A * (f + P); // apply the transformation to this bin
+    f = A * (f + P - template_pedestal); // apply the transformation to this bin
 
     double delta = fPulseHist->GetBinContent(i) - f;
     double hTemplate_bin_error = fTemplateHist->GetBinError(i - T_int);
