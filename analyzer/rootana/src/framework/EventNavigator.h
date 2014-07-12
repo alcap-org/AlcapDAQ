@@ -84,13 +84,13 @@ class EventNavigator {
   /// Throws an exception for an underlying I/O error
   /// [Return values are fr  fOutputTreeTPI->Write();  
   inline Int_t NextEntry() {
-    WriteCurrentEntry();   return LoadEntry(fEntryNo + 1);
+    return LoadEntry(fEntryNo + 1);
   }
   /// Load the branches for a particular entry from the input
   /// file. Will probably only make sense if output is not being written.
   /// Return values are same as for NextEntry()
   inline Int_t GetEntry(Long64_t entry){
-    WriteCurrentEntry();   return LoadEntry(entry);
+    return LoadEntry(entry);
   }
 
   Int_t LoadEntry(Long64_t entry);
