@@ -17,6 +17,10 @@ class SetupNavigator{
   /// Gets the error on the pedestal from the SQLite database
   double GetPedestalError(std::string bankname);
 
+  /// \brief
+  /// Gets the pedestal from the SQLite database
+  double GetPedestal(std::string bankname);
+
  private:
   static SetupNavigator* fThis;
   ARGUMENTS fCommandLineArgs;
