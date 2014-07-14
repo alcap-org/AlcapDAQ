@@ -31,9 +31,23 @@ class TemplateFitter {
   double fChi2;
   int fNDoF; // number of degress of freedom in fit
 
+  /// \brief
+  /// Store the initial estimates for the parameters
   double fPedestalOffset_estimate;
   double fAmplitudeScaleFactor_estimate;
   double fTimeOffset_estimate;
+
+  /// \brief
+  /// Store the minimum parameter bounds
+  double fPedestalOffset_minimum;
+  double fAmplitudeScaleFactor_minimum;
+  double fTimeOffset_minimum;
+
+  /// \brief
+  /// Store the maximum parameter bounds
+  double fPedestalOffset_maximum;
+  double fAmplitudeScaleFactor_maximum;
+  double fTimeOffset_maximum;
 
  public:
   /// \brief

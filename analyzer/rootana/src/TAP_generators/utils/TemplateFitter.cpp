@@ -38,9 +38,6 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   fcn->SetTemplateHist(hTemplate);
   fcn->SetPulseHist(hPulse);
 
-  int n_bits = TSetupData::Instance()->GetNBits(bankname);
-  double max_adc_value = std::pow(2, n_bits);
-
   //  fMinuitFitter->SetParameter(2, "TimeOffset", fTimeOffset, 1., -10, 10); // Timing should have step size no smaller than binning,
                                                     // *IF* the fourth argument is step size this is okay,
                                                     // or later implement some interpolation method, note
@@ -56,15 +53,27 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   double best_amplitude_scale_factor = 0;
   double best_chi2 = 99999999999;
 
-  for (double time_offset = fTimeOffset_estimate - max_time_offset; time_offset <= fTimeOffset_estimate + max_time_offset; ++time_offset) {
+  // Calculate the bounds of the parameters
+  fTimeOffset_minimum = fTimeOffset_estimate - max_time_offset;
+  fTimeOffset_maximum = fTimeOffset_estimate + max_time_offset;
+
+  int n_bits = TSetupData::Instance()->GetNBits(bankname);
+  double max_adc_value = std::pow(2, n_bits);
+  fPedestalOffset_minimum = -10*max_adc_value;
+  fPedestalOffset_maximum = 10*max_adc_value;
+
+  fAmplitudeScaleFactor_minimum = 0;
+  fAmplitudeScaleFactor_maximum = 100;
+
+  for (double time_offset = fTimeOffset_minimum; time_offset <= fTimeOffset_maximum; ++time_offset) {
     std::cout << "TemplateFitter: Checking time_offset = " << time_offset << std::endl;
     fcn->SetTimeOffset(time_offset);
 
     // Reset the estimates
     fPedestalOffset = fPedestalOffset_estimate;
     fAmplitudeScaleFactor = fAmplitudeScaleFactor_estimate;
-    fMinuitFitter->SetParameter(0, "PedestalOffset", fPedestalOffset, 0.1, -10*max_adc_value, 10*max_adc_value);
-    fMinuitFitter->SetParameter(1, "AmplitudeScaleFactor", fAmplitudeScaleFactor, 0.1, 0, 100);
+    fMinuitFitter->SetParameter(0, "PedestalOffset", fPedestalOffset, 0.1, fPedestalOffset_minimum, fPedestalOffset_maximum);
+    fMinuitFitter->SetParameter(1, "AmplitudeScaleFactor", fAmplitudeScaleFactor, 0.1, fAmplitudeScaleFactor_minimum, fAmplitudeScaleFactor_maximum);
     fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
 
 
