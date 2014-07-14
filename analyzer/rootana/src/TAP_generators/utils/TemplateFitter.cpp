@@ -41,16 +41,12 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   int n_bits = TSetupData::Instance()->GetNBits(bankname);
   double max_adc_value = std::pow(2, n_bits);
 
-  fMinuitFitter->SetParameter(0, "PedestalOffset", fPedestalOffset, 0.1, -10*max_adc_value, 10*max_adc_value);
-  fMinuitFitter->SetParameter(1, "AmplitudeScaleFactor", fAmplitudeScaleFactor, 0.1, 0, 100);
   //  fMinuitFitter->SetParameter(2, "TimeOffset", fTimeOffset, 1., -10, 10); // Timing should have step size no smaller than binning,
                                                     // *IF* the fourth argument is step size this is okay,
                                                     // or later implement some interpolation method, note
                                                     // *DERIVATIVES* at bounderies of interpolation may cause
                                                     // problems since MIGRAD (the default method) relies on
                                                     // these heavily.
-  fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
-
   int status; // the status of the minimisation
 
   // Loop through some time offsets ourselved
@@ -60,12 +56,21 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   double best_amplitude_scale_factor = 0;
   double best_chi2 = 99999999999;
 
-  for (double time_offset = fTimeOffset - max_time_offset; time_offset <= fTimeOffset + max_time_offset; ++time_offset) {
+  for (double time_offset = fTimeOffset_estimate - max_time_offset; time_offset <= fTimeOffset_estimate + max_time_offset; ++time_offset) {
     std::cout << "TemplateFitter: Checking time_offset = " << time_offset << std::endl;
     fcn->SetTimeOffset(time_offset);
 
+    // Reset the estimates
+    fPedestalOffset = fPedestalOffset_estimate;
+    fAmplitudeScaleFactor = fAmplitudeScaleFactor_estimate;
+    fMinuitFitter->SetParameter(0, "PedestalOffset", fPedestalOffset, 0.1, -10*max_adc_value, 10*max_adc_value);
+    fMinuitFitter->SetParameter(1, "AmplitudeScaleFactor", fAmplitudeScaleFactor, 0.1, 0, 100);
+    fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
+
+
+
     // Minimize and notify if there was a problem
-    status = fMinuitFitter->Minimize();
+    status = fMinuitFitter->Minimize(1000); // set limit of 1000 calls to FCN
 
     static int print_dbg = false;
     if (print_dbg) {
@@ -125,7 +130,7 @@ double PulseTemplate::Correlation(TPulseIsland* pulse, double& ped, double& amp,
 */
 
 void TemplateFitter::SetInitialParameterEstimates(double pedestal, double amplitude, double time) {
-  fPedestalOffset = pedestal;
-  fAmplitudeScaleFactor = amplitude;
-  fTimeOffset = time;
+  fPedestalOffset_estimate = pedestal;
+  fAmplitudeScaleFactor_estimate = amplitude;
+  fTimeOffset_estimate = time;
 }

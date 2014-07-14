@@ -31,6 +31,10 @@ class TemplateFitter {
   double fChi2;
   int fNDoF; // number of degress of freedom in fit
 
+  double fPedestalOffset_estimate;
+  double fAmplitudeScaleFactor_estimate;
+  double fTimeOffset_estimate;
+
  public:
   /// \brief
   /// Sets the intial estimates for the template fitter
