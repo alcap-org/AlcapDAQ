@@ -16,6 +16,8 @@
 using std::cout;
 using std::endl;
 
+extern Long64_t* gEntryNumber;
+
 TemplateCreator::TemplateCreator(modules::options* opts):
   BaseModule("TemplateCreator",opts), fOpts(opts){
 
@@ -98,7 +100,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
 	  const std::vector<int>& theSamples = (pulse)->GetSamples();
 	  std::stringstream histname;
-	  histname << template_name << "_Pulse" << pulseIter - thePulseIslands.begin();
+	  histname << template_name << "_Event" << *gEntryNumber << "_Pulse" << pulseIter - thePulseIslands.begin();
 	  TH1D* hUncorrectedPulse = new TH1D(histname.str().c_str(), histname.str().c_str(), theSamples.size(), 0, theSamples.size());
 
 	  double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
@@ -175,7 +177,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
 	if (n_pulses_in_template <= 10 || 
 	    (n_pulses_in_template <= 100 && n_pulses_in_template%10 == 0) ||
-	    (n_pulses_in_template <= 1000 && n_pulses_in_template%100 == 0) ) {
+	    (n_pulses_in_template%100 == 0) ) {
 	  std::stringstream newhistname;
 	  newhistname << "hTemplate_" << n_pulses_in_template << "Pulses_" << detname;
 	  TH1D* new_template = (TH1D*) hTemplate->Clone(newhistname.str().c_str());
@@ -200,7 +202,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	// Create the corrected pulse
 	const std::vector<int>& theSamples = (pulse)->GetSamples();
 	std::stringstream histname;
-	histname << template_name << "_Pulse" << pulseIter - thePulseIslands.begin();
+	histname << template_name << "_Event" << *gEntryNumber << "_Pulse" << pulseIter - thePulseIslands.begin();
 	TH1D* hUncorrectedPulse = new TH1D(histname.str().c_str(), histname.str().c_str(), theSamples.size(), 0, theSamples.size());
 	histname << "_Corrected";
 	TH1D* hCorrectedPulse = new TH1D(histname.str().c_str(), histname.str().c_str(), theSamples.size(), 0, theSamples.size());
@@ -376,9 +378,13 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
 
 double TemplateCreator::CorrectSampleValue(double old_value, double template_pedestal) {
 
+  //  std::cout << "TemplateCreator::CorrectSampleValue():\nold value = " << old_value << std::endl;
   double new_value = old_value / fTemplateFitter->GetAmplitudeScaleFactor();
+  //  std::cout << "/ AmpSF:  / " << fTemplateFitter->GetAmplitudeScaleFactor() << " = " << new_value << std::endl;
   new_value -= fTemplateFitter->GetPedestalOffset();
+  //  std::cout << "- PedOffset: - " << fTemplateFitter->GetPedestalOffset() << " = " << new_value << std::endl;
   new_value += template_pedestal;
+  //  std::cout << "+ TemplatePed: + " << template_pedestal << " = " << new_value << std::endl;
 
   return new_value;
 }
