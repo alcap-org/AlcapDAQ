@@ -41,7 +41,7 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   int n_bits = TSetupData::Instance()->GetNBits(bankname);
   double max_adc_value = std::pow(2, n_bits);
 
-  fMinuitFitter->SetParameter(0, "PedestalOffset", fPedestalOffset, 0.1, 0, max_adc_value);
+  fMinuitFitter->SetParameter(0, "PedestalOffset", fPedestalOffset, 0.1, -10*max_adc_value, 10*max_adc_value);
   fMinuitFitter->SetParameter(1, "AmplitudeScaleFactor", fAmplitudeScaleFactor, 0.1, 0, 100);
   //  fMinuitFitter->SetParameter(2, "TimeOffset", fTimeOffset, 1., -10, 10); // Timing should have step size no smaller than binning,
                                                     // *IF* the fourth argument is step size this is okay,
@@ -56,6 +56,8 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   // Loop through some time offsets ourselved
   double max_time_offset = 1; // maximum distance to go from the initial estimate
   double best_time_offset = 0;
+  double best_pedestal_offset = 0;
+  double best_amplitude_scale_factor = 0;
   double best_chi2 = 99999999999;
 
   for (double time_offset = fTimeOffset - max_time_offset; time_offset <= fTimeOffset + max_time_offset; ++time_offset) {
@@ -87,6 +89,8 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
 
     if (status == 0 && fChi2 < best_chi2) {
       best_time_offset = time_offset;
+      best_pedestal_offset = fPedestalOffset;
+      best_amplitude_scale_factor = fAmplitudeScaleFactor;
       best_chi2 = fChi2;
     }
 
@@ -100,6 +104,8 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   // Store the final best values
   fChi2 = best_chi2;
   fTimeOffset = best_time_offset;
+  fPedestalOffset = best_pedestal_offset;
+  fAmplitudeScaleFactor = best_amplitude_scale_factor;
 
   delete hPulse;
 
