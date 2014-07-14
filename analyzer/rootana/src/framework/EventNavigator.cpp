@@ -1,5 +1,7 @@
 #include "EventNavigator.h"
 
+#undef DEFER
+
 //C++/STL
 #include <iostream>
 #include <string>
@@ -11,6 +13,7 @@
 
 //Local
 #include "format.h"
+#include "SetupRecord.h"
 #include "BankBranch.h"
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
@@ -55,7 +58,7 @@ Bool_t EventNavigator::ConnectInput(const char* input_name)
   bool success_meta = false;
   fSetupTree = 0x0;
   if (lok->Contains(Format::Raw::SetupTreeName) ) {
-    //Read setup data
+    TSetupData* setup_data = ConnectSetupData(ifile);
     success_meta = true;
   }
   TTree* raw_tree = 0x0;
@@ -93,7 +96,7 @@ TGlobalData* EventNavigator::ConnectRawData(TFile* raw_file)
     return 0x0;
   }
   
-  this->LoadEntry(1);
+  this->LoadEntry(0);
   
   return fRawData;
 }
@@ -102,11 +105,91 @@ TGlobalData* EventNavigator::ConnectRawData(TFile* raw_file)
 //----------------------------------------------------------------------
 Bool_t EventNavigator::VerifyRawData(TTree* raw_tree)
 {
-  if ( !raw_tree ) return false;
-  if ( raw_tree->GetEntriesFast() == 0) return false;
+  if ( !raw_tree ){
+    std::cerr << "No raw data tree in file" << std::endl;
+    return false;
+  }
+  if ( raw_tree->GetEntriesFast() == 0 ){
+    std::cerr << "Tree " << raw_tree->GetName() << " is empty!" 
+              << std::endl;
+    return false;
+  }
   TObjArray* lob = raw_tree->GetListOfBranches(); 
-  if ( !lob->Contains(Format::Raw::DataBranchName ) ) return false;
-  
+  if ( !lob->Contains(Format::Raw::DataBranchName ) ){
+    std::cerr << "Tree " << raw_tree->GetName()
+              << " has no branch " << Format::Raw::SetupBranchName
+              << "!" << std::endl;    
+    return false;
+  }
+  return true;
+}
+
+template<typename T, unsigned int& I> T ADV(T t) {
+  if (I == 0) return t;
+  return ADV<T,I-1>(++t);
+};
+
+
+
+
+//template <typename T> T ADV2(T t, int i){
+//  if (i==0) return T;
+//  else return ADV(t,i-1); 
+//};
+
+//----------------------------------------------------------------------
+TSetupData* EventNavigator::ConnectSetupData(TFile* raw_file)
+{
+  raw_file->GetObject(Format::Raw::SetupTreeName, fSetupTree);
+  if ( !VerifySetupData(fSetupTree) ){
+    raw_file->Delete(Format::Raw::SetupTreeName);
+    fSetupData = 0x0;
+    fSetupTree = 0x0;
+    return 0x0;
+  }
+  //Allocate memory locations to hold branches
+  fSetupData = new TSetupData;
+  int status = fSetupTree->SetBranchAddress(Format::Raw::SetupBranchName,
+                                            &fSetupData);
+  if (status!=0){
+    fSetupTree = 0x0;
+    fSetupData = 0x0;
+    return 0x0;
+  }
+
+  fSetupTree->GetEntry(0);
+  SetupRecord pet(fSetupData);
+
+  for (int i =0; i < pet.fInfoLookup.size(); ++i) {
+    pet.fInfoLookup[i].Print();
+  }
+
+
+
+
+  return fSetupData;
+}
+
+
+//----------------------------------------------------------------------
+Bool_t EventNavigator::VerifySetupData(TTree* setup_tree)
+{
+  if ( !setup_tree ){
+    std::cerr << "No 'Setup' tree in file" << std::endl;
+    return false;
+  }
+  if ( setup_tree->GetEntriesFast() == 0 ){
+    std::cerr << "Tree " << setup_tree->GetName() << " is empty!" 
+              << std::endl;
+    return false;
+  }
+  TObjArray* lob = setup_tree->GetListOfBranches();
+  if ( !lob->Contains(Format::Raw::SetupBranchName ) ){
+    std::cerr << "Tree " << setup_tree->GetName() 
+              << " has no branch " << Format::Raw::SetupBranchName
+              << "!" << std::endl;
+    return false;
+  }
   return true;
 }
 
@@ -119,8 +202,9 @@ Bool_t EventNavigator::ConnectOutput(const char* output_name, OutputMode mode)
   if (!ofile) return false;
   
   fOutput = ofile;
+#ifdef DEFER
   if (fRawTree && fRawData && fCopyRaw) MirrorRawInputFormat();
-  fOutputTreeTPI->SetAutoSave(3000000);
+#endif
 
   return true;
 }
@@ -140,6 +224,7 @@ Bool_t EventNavigator::MirrorRawInputFormat()
   if (nBytes <= 0) return false;
  
   fOutputTreeTPI = new TTree("TPI","TPulseIslands");
+  fOutputTreeTPI->SetAutoSave(3000000);
 
   typedef StringPulseIslandMap::const_iterator raw_map_iter;
   StringPulseIslandMap& rawBanks = fRawData->fPulseIslandToChannelMap; 
@@ -168,8 +253,15 @@ Bool_t EventNavigator::MirrorRawInputFormat()
  
   fOutputTreeTPI->Write();
   GetEntry(prev_entry_no);
+  return true;
 }
 
+
+//----------------------------------------------------------------------
+const PulseIslandList& EventNavigator::FindIslandBank(const SourceID& sid) const{
+  if (sid.isWildCard() ) return PulseIslandList(0);
+  else return PulseIslandList(0);
+}
 
 //----------------------------------------------------------------------
 Bool_t EventNavigator::ConnectInput(const char* input_file_name,
@@ -226,13 +318,6 @@ Bool_t EventNavigator::ConnectOutputFile(const char* output_file_name,
 }
 
 //----------------------------------------------------------------------
-//Int_t EventNavigator::NextEntry()
-//{
-//  //  return LoadEntry(fEntryNo + 1);
-//}
-
-
-//----------------------------------------------------------------------
 Int_t EventNavigator::LoadEntry(Long64_t entry)
 {
   Int_t nBytes = 0;
@@ -246,9 +331,9 @@ Int_t EventNavigator::LoadEntry(Long64_t entry)
   else return 0;
   if (nBytes < 0) throw io_error();
   fEntryNo = entry;
-  if (fEntryNo % 100 != 10) return nBytes;
-  std::cout << fEntryNo << "/" << fRawTree->GetEntriesFast() 
-            << ":  " << fRawData->fPulseIslandToChannelMap.size() << std::endl;
+  //if (fEntryNo % 100 != 10) return nBytes;
+  //std::cout << fEntryNo << "/" << fRawTree->GetEntriesFast() 
+  //          << ":  " << fRawData->fPulseIslandToChannelMap.size() << std::endl;
   //std::cout << DEBUG::check_mem().str << std::endl;;  
   return nBytes;
 }

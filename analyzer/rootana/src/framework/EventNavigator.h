@@ -3,7 +3,7 @@
 
 
 //C++/STL
-#include <exception>
+#include <stdexcept>
 
 //ROOT
 class TFile;
@@ -12,16 +12,17 @@ class TTree;
 //Local
 #include "definitions.h"
 #include "TGlobalData.h"
+#include "TAnalysedPulseMapWrapper.h"
 #include "BankIter.h"
 
 static TGlobalData *g_event=NULL; 
 
 
 ///This shoud get a proper home and some more flexability
-class io_error /*: public std::runtime_error*/ {
+class io_error : public std::runtime_error {
 public:
   io_error() 
-  //    : std::runtime_error("I/O failed")  
+    : std::runtime_error("I/O failed")  
   {}
 };
 
@@ -64,10 +65,13 @@ class EventNavigator {
 
   Bool_t VerifyRawData(TTree* raw_tree);
 
+  TSetupData* ConnectSetupData(TFile* raw_file);
+
+  Bool_t VerifySetupData(TTree* setup_tree);
+
   Bool_t MirrorRawInputFormat();
 
   Bool_t ConnectOutput(const char* output_name, OutputMode mode = kOverwrite);
-
 
   /// Opens an output file.  By default this overwrites the output file
   /// Appending not yet implemented
@@ -195,14 +199,16 @@ class EventNavigator {
 
 
   ///trees are owned by the directorty that holds them
-  ///Input Setup Tree
-  TTree* fSetupTree;
+
 
   ///The current entry number
   Int_t fEntryNo;
 
   ///Input Raw Data (Event) Tree
   TTree* fRawTree;
+
+  ///Input Setup Tree
+  TTree* fSetupTree;
 
   ///
   TTree* fEventTree;
@@ -211,6 +217,10 @@ class EventNavigator {
 
   TGlobalData* fRawData;
   
+  TSetupData* fSetupData;
+
+  TAnalysedPulseMapWrapper* fAPWrapper;
+  
   //PulseIslandList** fBufferTPI;
 
   //typedef PulseIslandList** PulseIslandList_ptr;
@@ -218,6 +228,8 @@ class EventNavigator {
 
   ///Our record of raw data banks
   //RecordTPI_t fRecordTPI;
+  
+
   
 
 };
