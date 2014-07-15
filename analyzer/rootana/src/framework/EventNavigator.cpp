@@ -58,14 +58,13 @@ Bool_t EventNavigator::ConnectInput(const char* input_name)
   bool success_meta = false;
   fSetupTree = 0x0;
   if (lok->Contains(Format::Raw::SetupTreeName) ) {
-    TSetupData* setup_data = ConnectSetupData(ifile);
-    success_meta = true;
+    if ( ConnectSetupData(ifile) != 0x0)
+      success_meta = true;
   }
-  TTree* raw_tree = 0x0;
+  //TTree* raw_tree = 0x0;
   if (lok->Contains(Format::Raw::DataTreeName) ) {
-    TGlobalData* raw_data = ConnectRawData(ifile);
-    //Read event data
-    success_data = true;
+    if ( ConnectRawData(ifile) != 0x0)
+      success_data = true;
   }
   //if (TODO: lok contians other trees)
 
@@ -158,11 +157,11 @@ TSetupData* EventNavigator::ConnectSetupData(TFile* raw_file)
   }
 
   fSetupTree->GetEntry(0);
-  SetupRecord pet(fSetupData);
+  fSetupRecord = new SetupRecord(fSetupData);
 
-  for (int i =0; i < pet.fInfoLookup.size(); ++i) {
-    pet.fInfoLookup[i].Print();
-  }
+  //for (int i =0; i < GetSetupRecord().fInfoLookup.size(); ++i) {
+  //  GetSetupRecord().fInfoLookup[i].Print();
+  //}
 
 
 
@@ -209,7 +208,7 @@ Bool_t EventNavigator::ConnectOutput(const char* output_name, OutputMode mode)
   return true;
 }
 
-TObjArray* obj_arr;
+
 //----------------------------------------------------------------------
 Bool_t EventNavigator::MirrorRawInputFormat()
 {
@@ -230,8 +229,8 @@ Bool_t EventNavigator::MirrorRawInputFormat()
   StringPulseIslandMap& rawBanks = fRawData->fPulseIslandToChannelMap; 
   //fBufferTPI = new PulseIslandList*[rawBanks.size()];
 
-  //TObjArray* obj_arr = new TObjArray(rawBanks.size());
-  obj_arr = new TObjArray(rawBanks.size());
+  TObjArray* obj_arr = new TObjArray(rawBanks.size());
+  //obj_arr = new TObjArray(rawBanks.size());
   //raw_map_iter b_it = fRawData->fPulseIslandToChannelMap.begin();
   Int_t element =0;
   for (raw_map_iter b_it = rawBanks.begin(); b_it != rawBanks.end(); ++b_it) {
@@ -258,10 +257,12 @@ Bool_t EventNavigator::MirrorRawInputFormat()
 
 
 //----------------------------------------------------------------------
+#ifdef DEFER
 const PulseIslandList& EventNavigator::FindIslandBank(const SourceID& sid) const{
   if (sid.isWildCard() ) return PulseIslandList(0);
   else return PulseIslandList(0);
 }
+#endif
 
 //----------------------------------------------------------------------
 Bool_t EventNavigator::ConnectInput(const char* input_file_name,
@@ -314,6 +315,7 @@ Bool_t EventNavigator::ConnectOutputFile(const char* output_file_name,
   fOutput = TFile::Open(output_file_name, (append ? "UPDATE" : "RECREATE"));
   if (!fOutput || fOutput->IsZombie()) return false; 
   
+  prev_output->cd();
   return true;
 }
 
@@ -342,6 +344,7 @@ Int_t EventNavigator::LoadEntry(Long64_t entry)
 Int_t EventNavigator::WriteCurrentEntry()
 {
   fOutputTreeTPI->Fill();
+  return 0;
 }
 
 extern void ClearGlobalData(TGlobalData* data);
@@ -405,7 +408,7 @@ void EventNavigator::CopyTree()
 	 it != event->fPulseIslandToChannelMap.end(); ++it){
       npi += it->second.size();
       PI_list_t& bank = it->second;
-      for (int pui = 0; pui < bank.size() ; ++pui){
+      for (size_t pui = 0; pui < bank.size() ; ++pui){
 	delete bank[pui];
       }
       bank.clear();

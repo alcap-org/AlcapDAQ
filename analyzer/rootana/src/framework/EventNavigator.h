@@ -4,7 +4,7 @@
 
 //C++/STL
 #include <stdexcept>
-
+#undef DEFER
 //ROOT
 class TFile;
 class TTree;
@@ -14,6 +14,7 @@ class TTree;
 #include "TGlobalData.h"
 #include "TAnalysedPulseMapWrapper.h"
 #include "BankIter.h"
+#include "SetupRecord.h"
 
 static TGlobalData *g_event=NULL; 
 
@@ -50,9 +51,16 @@ class EventNavigator {
   /// The user accessor. Not sure yet if it can be used without
   /// providing initalisation info.
   static EventNavigator& Instance();
-  ~EventNavigator(){
-  }
+  ~EventNavigator(){}
   
+  /// Transitional function to replace gSetup.  
+  /// Users should use the GetSetupRecord interface. 
+  const TSetupData* const GetSetupData() {return fSetupData;}
+
+  /// Gives access to the run meta-data, including all information
+  /// stored in the TSetupData struct
+  const SetupRecord& GetSetupRecord() {return *fSetupRecord;}
+
   /// Opens an input file and connects to the trees therein.  Returns
   /// true if file exists, is a ROOT file, and contains at least one EACH of 
   /// setup and event trees that we recognise. Else false.
@@ -125,12 +133,13 @@ class EventNavigator {
   ///This will probably become protected, for copying TAPs
   void AdoptTemporary(PulseIslandList& pil, const ChannelID& cid); 
 
+#ifdef DEFER
   /// Read-only getters for an individual bank.  
   /// Need to work out how to deal with read-mode and write-mode trees
   const PulseIslandList& FindIslandBank(const SourceID& sid) const;
   const PulseIslandList& FindAnalysedBank(const SourceID& sid) const;
   const PulseIslandList& FindDetectorBank(const SourceID& sid) const;
-
+#endif 
 
   //TODO 
   // What shortcuts alowing strings/enums are sensible & useful? 
@@ -218,6 +227,8 @@ class EventNavigator {
   TGlobalData* fRawData;
   
   TSetupData* fSetupData;
+
+  SetupRecord* fSetupRecord;
 
   TAnalysedPulseMapWrapper* fAPWrapper;
   
