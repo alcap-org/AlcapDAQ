@@ -24,10 +24,10 @@
 
 namespace Format = AlCapFormat; 
 
-TGlobalData* TGlobalData::Instance()
-{
-  return g_event;
-}
+//TGlobalData* TGlobalData::Instance()
+//{
+//  return g_event;
+//}
 
 //======================================================================
 EventNavigator* EventNavigator::fInstance = 0x0;
@@ -43,6 +43,8 @@ EventNavigator& EventNavigator::Instance()
 //----------------------------------------------------------------------
 EventNavigator::EventNavigator()
 {
+  fRawInput = 0x0;
+  fOutput = 0x0;
   //no-op
 }
 
@@ -346,6 +348,14 @@ Int_t EventNavigator::WriteCurrentEntry()
   fOutputTreeTPI->Fill();
   return 0;
 }
+
+//----------------------------------------------------------------------
+void EventNavigator::Close()
+{
+  if (fRawInput) fRawInput->Close();
+  if (fOutput) fOutput->Close();
+}
+
 
 extern void ClearGlobalData(TGlobalData* data);
 //----------------------------------------------------------------------

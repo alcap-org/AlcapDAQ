@@ -16,7 +16,7 @@ class TTree;
 #include "BankIter.h"
 #include "SetupRecord.h"
 
-static TGlobalData *g_event=NULL; 
+//static TGlobalData *g_event=NULL; 
 
 
 ///This shoud get a proper home and some more flexability
@@ -186,8 +186,10 @@ class EventNavigator {
   AnalysedPulseBankIter MatchDetectorBanks(const ChannelID& cid,
 					   GeneratorStr gid ="") const;
 
-  
-  
+  void Close();
+
+  TGlobalData* GetRawData() {return fRawData;}
+  TTree* GetRawTree() {return fRawTree;}
   ///A test
   void CopyTree();
 

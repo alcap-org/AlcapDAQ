@@ -26,28 +26,31 @@
 
 //#define USE_PRINT_OUT 
 
+// C++/STL
 #include <cstdio>
 #include <string>
 //#include <cctype>
 #include <map>
 
-#include "CommandLine.h" // Provides analyze_command_line()
 
-#include "ModulesFactory.h"
-#include "ModulesNavigator.h"
-#include "BaseModule.h"
-
+// ROOT
 #include "TTree.h"
 #include "TBranch.h"
 #include "TFile.h"
+
+// Local
+#include "CommandLine.h" // Provides analyze_command_line()
+#include "ModulesFactory.h"
+#include "ModulesNavigator.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
 #include "TMuonEvent.h"
 //#include "ProcessCorrectionFile.h" // Provides CheckSetupData()
-
 #include "TAnalysedPulseMapWrapper.h"
+#include "EventNavigator.h"
 
 // Forward declaration of functions ======================
 Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments);
@@ -57,7 +60,6 @@ Int_t PrepareAnalysedPulseMap(TFile* fileOut);
 Int_t PrepareSingletonObjects(const ARGUMENTS&);
 
 static TGlobalData *g_event=NULL;
-static TFile *gInFile=NULL;
 
 // Temporary botch to let ExportPulse module know what the current entry
 // number is.  I'm assuming Phill's Event Navigator will provide this
@@ -73,10 +75,6 @@ StringAnalPulseMap gAnalysedPulseMap;
 StringDetPulseMap gDetectorPulseMap;
 MuonEventList gMuonEvents;
 
-//TGlobalData* TGlobalData::Instance()
-//{
-//  return g_event;
-//}
 
 int main(int argc, char **argv){
 //load_config_file("MODULES.txt");
@@ -88,14 +86,13 @@ int main(int argc, char **argv){
   printf("Starting event");
 
   // Open the input tree file
-  gInFile = new TFile(arguments.infile.c_str());
-  if(!gInFile->IsOpen()) {
+  EventNavigator& navi = EventNavigator::Instance();
+  if ( ! navi.ConnectInput(arguments.infile.c_str()) ){
     std::cout << "Failed to open input file '"
               << arguments.infile <<"'.  Exiting." << std::endl;
-    delete gInFile;
     return 1;
   }
-  
+    
   // Make an initial call to singleton objects that are very likely to be called at some point.
   ret = PrepareSingletonObjects(arguments);
   if(ret!=0) {
@@ -108,9 +105,8 @@ int main(int argc, char **argv){
   //CheckSetupData(s_data, arguments.correction_file);
 
   //Event Tree
-  TTree* eventTree = GetTree(gInFile,"EventTree");
-  if(!eventTree) return 1;
-  eventTree->SetBranchAddress("Event",&g_event);
+  TTree* eventTree = navi.GetRawTree(); 
+  g_event = navi.GetRawData();
 
   // Let's open the output file for analysis data, histograms and so on.
   TFile *fileOut = new TFile(arguments.outfile.c_str(), "RECREATE");
@@ -146,8 +142,7 @@ int main(int argc, char **argv){
   gAnalysedPulseTree->Write();
   fileOut->Write();
   fileOut->Close();
-  gInFile->Close();
-
+  navi.Close();
   return 0;
 }
 
@@ -287,37 +282,10 @@ void ClearGlobalData(TGlobalData* data)
   gDetectorPulseMap.clear();
 }
 
-TTree* GetTree(TFile* inFile, const char* t_name)
-{
-   TTree* InfoTree = (TTree *)inFile->Get(t_name);
-   if(!InfoTree) {
-      printf("Unable to find TTree '%s' in %s.\n",t_name,inFile->GetName());
-      return NULL;
-   }
-   InfoTree->Print();
-
-   return InfoTree;
-}
-
+//----------------------------------------------------------------------
 TSetupData* TSetupData::Instance()
 {
-  static TSetupData *s_data=NULL;
-
-  // if s_data is already setup then we can just return it immediately
-  if(s_data) return s_data;
-
-  // Check we have a valid tree for the setup data
-  TTree* setupTree= GetTree(gInFile, "SetupTree");
-  if(!setupTree) return NULL;
-
-  // Hook up the branch in the file to s_data and load in the data
-  setupTree->SetBranchAddress("Setup",&s_data);
-  if(!s_data) {
-     printf("Unable to find TSetupData branch 'Setup' in the file");
-     return NULL;
-  }
-  setupTree->GetEntry(0);
-
+  static TSetupData *s_data=const_cast<TSetupData*>(EventNavigator::Instance().GetSetupData());
   return s_data;
 }
 
