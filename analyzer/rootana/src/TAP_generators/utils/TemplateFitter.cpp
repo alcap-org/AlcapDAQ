@@ -47,11 +47,12 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   int status; // the status of the minimisation
 
   // Loop through some time offsets ourselved
-  double max_time_offset = 1; // maximum distance to go from the initial estimate
+  double max_time_offset = 4; // maximum distance to go from the initial estimate
   double best_time_offset = 0;
   double best_pedestal_offset = 0;
   double best_amplitude_scale_factor = 0;
   double best_chi2 = 99999999999;
+  int best_status = -10000;
 
   // Calculate the bounds of the parameters
   fTimeOffset_minimum = fTimeOffset_estimate - max_time_offset;
@@ -90,6 +91,22 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
     // Get the fitted values
     fPedestalOffset = fMinuitFitter->GetParameter(0);
     fAmplitudeScaleFactor = fMinuitFitter->GetParameter(1);
+
+    double delta_ped_offset_error = 1; // if the given parameter is within this much of the boundaries, then we will ignore it
+    double delta_amp_sf_error = 0.001;
+    if ( (fPedestalOffset < fPedestalOffset_minimum + delta_ped_offset_error && fPedestalOffset > fPedestalOffset_minimum - delta_ped_offset_error) ||
+	 (fPedestalOffset < fPedestalOffset_maximum + delta_ped_offset_error && fPedestalOffset > fPedestalOffset_maximum - delta_ped_offset_error) ) {
+
+      std::cout << "ERROR: PedestalOffset has hit a boundary (" << fPedestalOffset << ")" << std::endl;
+      status = -9999;
+    }
+    else if ( (fAmplitudeScaleFactor < fAmplitudeScaleFactor_minimum + delta_amp_sf_error && fAmplitudeScaleFactor > fAmplitudeScaleFactor_minimum - delta_amp_sf_error) ||
+	      (fAmplitudeScaleFactor < fAmplitudeScaleFactor_maximum + delta_amp_sf_error && fAmplitudeScaleFactor > fAmplitudeScaleFactor_maximum - delta_amp_sf_error) ) {
+
+      std::cout << "ERROR: AmplitudeScaleFactor has hit a boundary (" << fAmplitudeScaleFactor << ")" << std::endl;
+      status = -9999;
+    }
+
     //    fTimeOffset = fMinuitFitter->GetParameter(2);
 
     // Store the Chi2, and then we can delete the pulse
@@ -106,6 +123,7 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
       best_pedestal_offset = fPedestalOffset;
       best_amplitude_scale_factor = fAmplitudeScaleFactor;
       best_chi2 = fChi2;
+      best_status = status;
     }
 
     if (print_dbg) {
@@ -123,7 +141,7 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
 
   delete hPulse;
 
-  return status; // return status for the calling module to look at
+  return best_status; // return status for the calling module to look at
 }
 
 /*
