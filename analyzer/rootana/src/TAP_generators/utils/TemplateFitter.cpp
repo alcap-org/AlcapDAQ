@@ -152,6 +152,14 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   fPedestalOffset = best_pedestal_offset;
   fAmplitudeScaleFactor = best_amplitude_scale_factor;
 
+  double delta_time_offset_error = 1;
+  if ( (fTimeOffset < fTimeOffset_minimum + delta_time_offset_error && fTimeOffset > fTimeOffset_minimum - delta_time_offset_error) ||
+       (fTimeOffset < fTimeOffset_maximum + delta_time_offset_error && fTimeOffset > fTimeOffset_maximum - delta_time_offset_error) ) {
+
+      std::cout << "ERROR: TimeOffset has hit a boundary (" << fTimeOffset << ")" << std::endl;
+      best_status = -9999;
+  }
+
   delete hPulse;
 
   return best_status; // return status for the calling module to look at
