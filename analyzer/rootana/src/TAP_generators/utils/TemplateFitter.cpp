@@ -17,6 +17,9 @@ TemplateFitter::~TemplateFitter() {
 }
 
 int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse) {
+
+  int status; // the status of the minimisation
+
   // First make a histogram out of the pulse with the same bin width as the template,
   // Then pass to the Minuit fitter.
   // Returns ped in units of ADC counts, amp in... scale units(?), and time in units
@@ -26,10 +29,23 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
 
   TH1D* hPulse = new TH1D("hPulseToFit", "hPulseToFit", n_samples, -0.5, n_samples - 0.5);
   std::string bankname = pulse->GetBankName();
+
+  // Calculate the max ADC value
+  int n_bits = TSetupData::Instance()->GetNBits(bankname);
+  double max_adc_value = std::pow(2, n_bits);
+
   double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname); // should probably move to TSetupData or whatever
   for (int i = 0; i < n_samples; ++i) {
+    if (samples.at(i) >= max_adc_value-1 && samples.at(i) <= max_adc_value+1) {
+      status = max_adc_value;
+    }
+
     hPulse->SetBinContent(i+1, samples.at(i));
     hPulse->SetBinError(i+1, pedestal_error);
+  }
+  if (status == max_adc_value) {
+    std::cout << "ERROR: Pulse has overflowed the digitizer" << std::endl;
+    return status;
   }
 
   // Prepare for minimizations
@@ -44,7 +60,6 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
                                                     // *DERIVATIVES* at bounderies of interpolation may cause
                                                     // problems since MIGRAD (the default method) relies on
                                                     // these heavily.
-  int status; // the status of the minimisation
 
   // Loop through some time offsets ourselved
   double max_time_offset = 4; // maximum distance to go from the initial estimate
@@ -58,8 +73,6 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   fTimeOffset_minimum = fTimeOffset_estimate - max_time_offset;
   fTimeOffset_maximum = fTimeOffset_estimate + max_time_offset;
 
-  int n_bits = TSetupData::Instance()->GetNBits(bankname);
-  double max_adc_value = std::pow(2, n_bits);
   fPedestalOffset_minimum = -10*max_adc_value;
   fPedestalOffset_maximum = 10*max_adc_value;
 
