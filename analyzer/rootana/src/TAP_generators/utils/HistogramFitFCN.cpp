@@ -33,13 +33,13 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   int T_int = (int)fTimeOffset;            // Integral part of time shift
   double T_flt = fTimeOffset - (double)T_int; // Floating point offset for linear interpolation
 
-  static bool print_dbg = false;
+  static bool print_dbg = true;
   if (print_dbg) { 
     std::cout << "HistogramFitFCN::operator() (start):" << std::endl;
     std::cout << "\tpedestal = " << P << ", amplitude = " << A << ", time (integer part) = " << T_int << " and time (float part) = " << T_flt << std::endl;
   }
  
-  int half_range = 10; // remove a few bins from the fit
+  int half_range = 10*5; // remove a few bins from the fit
   int bounds[2];
   bounds[0] = half_range+1;//std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1);
   bounds[1] = std::min(fTemplateHist->GetNbinsX(), fPulseHist->GetNbinsX()) - half_range-1; //std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX());
