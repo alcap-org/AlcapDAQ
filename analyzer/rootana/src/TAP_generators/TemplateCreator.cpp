@@ -220,22 +220,21 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	// Create the corrected pulse
 	std::stringstream histname;
 	histname << template_name << "_Event" << *gEntryNumber << "_Pulse" << pulseIter - thePulseIslands.begin();
-	TH1D* hUncorrectedPulse = new TH1D(histname.str().c_str(), histname.str().c_str(), theSamples.size(), 0, theSamples.size());
+	TH1D* hUncorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
 	histname << "_Corrected";
-	TH1D* hCorrectedPulse = new TH1D(histname.str().c_str(), histname.str().c_str(), theSamples.size(), 0, theSamples.size());
+	TH1D* hCorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
 
 	double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
-	for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+	for (int iPulseBin = 1; iPulseBin <= hPulseToFit->GetNbinsX(); ++iPulseBin) {
+	  //std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
 
-	  double uncorrected_value = (*sampleIter);
+	  double uncorrected_value = hPulseToFit->GetBinContent(iPulseBin);
 	  double corrected_value = CorrectSampleValue(uncorrected_value, template_pedestal);
 
-	  hUncorrectedPulse->SetBinContent(sampleIter - theSamples.begin()+1, uncorrected_value); // +1 because bins start at 1
-	  hUncorrectedPulse->SetBinError(sampleIter - theSamples.begin()+1, pedestal_error);
-	  hCorrectedPulse->SetBinContent(sampleIter - theSamples.begin()+1 +0.5 - fTemplateFitter->GetTimeOffset(), corrected_value); 
-	  hCorrectedPulse->SetBinError(sampleIter - theSamples.begin()+1 +0.5 - fTemplateFitter->GetTimeOffset(), pedestal_error);
+	  hCorrectedPulse->SetBinContent(iPulseBin +0.5 - fTemplateFitter->GetTimeOffset(), corrected_value); 
+	  hCorrectedPulse->SetBinError(iPulseBin +0.5 - fTemplateFitter->GetTimeOffset(), pedestal_error);
 	}
-
+	delete hPulseToFit;
 	// we keep on adding pulses until adding pulses has no effect on the template
       }
     }
