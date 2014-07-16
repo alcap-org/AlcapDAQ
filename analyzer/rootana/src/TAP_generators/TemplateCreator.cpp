@@ -341,13 +341,9 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, TH1D* & hPulse, std:
 
 double TemplateCreator::CorrectSampleValue(double old_value, double template_pedestal) {
 
-  //  std::cout << "TemplateCreator::CorrectSampleValue():\nold value = " << old_value << std::endl;
-  double new_value = old_value / fTemplateFitter->GetAmplitudeScaleFactor();
-  //  std::cout << "/ AmpSF:  / " << fTemplateFitter->GetAmplitudeScaleFactor() << " = " << new_value << std::endl;
-  new_value -= fTemplateFitter->GetPedestalOffset();
-  //  std::cout << "- PedOffset: - " << fTemplateFitter->GetPedestalOffset() << " = " << new_value << std::endl;
+  double new_value = old_value - fTemplateFitter->GetPedestalOffset();
+  new_value /= fTemplateFitter->GetAmplitudeScaleFactor();
   new_value += template_pedestal;
-  //  std::cout << "+ TemplatePed: + " << template_pedestal << " = " << new_value << std::endl;
 
   return new_value;
 }
