@@ -26,7 +26,7 @@ class TemplateCreator : public BaseModule{
 
   TemplateArchive* fTemplateArchive;
 
-  void AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* pulse);
+  void AddPulseToTemplate(TH1D* & hTemplate, TH1D* & hPulse, std::string bankname);
 
   /// \brief 
   /// A map of the number of fit attempts on each detector
