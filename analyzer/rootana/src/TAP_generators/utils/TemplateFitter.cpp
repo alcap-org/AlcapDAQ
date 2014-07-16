@@ -16,42 +16,16 @@ TemplateFitter::TemplateFitter(std::string detname): fChannel(detname) {
 TemplateFitter::~TemplateFitter() {
 }
 
-int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse) {
+int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, TH1D* hPulse, std::string bankname) {
 
   int status; // the status of the minimisation
   static int print_dbg = false;
 
 
-  // First make a histogram out of the pulse with the same bin width as the template,
-  // Then pass to the Minuit fitter.
-  // Returns ped in units of ADC counts, amp in... scale units(?), and time in units
-  // of bins since the beginning of pulse
-  std::vector<int> samples = pulse->GetSamples();
-  int n_samples = samples.size();
-
-  TH1D* hPulse = new TH1D("hPulseToFit", "hPulseToFit", n_samples, -0.5, n_samples - 0.5);
-  std::string bankname = pulse->GetBankName();
-
   // Calculate the max ADC value
   int n_bits = TSetupData::Instance()->GetNBits(bankname);
   double max_adc_value = std::pow(2, n_bits);
 
-  double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname); // should probably move to TSetupData or whatever
-  for (int i = 0; i < n_samples; ++i) {
-    if (samples.at(i) >= max_adc_value-1 && samples.at(i) <= max_adc_value+1) {
-      status = max_adc_value;
-    }
-
-    hPulse->SetBinContent(i+1, samples.at(i));
-    hPulse->SetBinError(i+1, pedestal_error);
-  }
-  if (status == max_adc_value) {
-    if (print_dbg) {
-      std::cout << "ERROR: Pulse has overflowed the digitizer" << std::endl;
-    }
-    delete hPulse;
-    return status;
-  }
 
   // Prepare for minimizations
   fMinuitFitter->Clear();
@@ -171,8 +145,6 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
       }
       best_status = -9999;
   }
-
-  delete hPulse;
 
   return best_status; // return status for the calling module to look at
 }
