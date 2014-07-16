@@ -166,7 +166,6 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
 	}
 
 	start = stop = 0;
-	std::cout << "Location: start = " << location.start << ", stop = " << location.stop << std::endl;
 	fPulseCandidateLocations.push_back(location);
 	found = false;
       }

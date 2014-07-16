@@ -10,7 +10,7 @@ TemplateFitter::TemplateFitter(std::string detname): fChannel(detname) {
   HistogramFitFCN* fcn = new HistogramFitFCN();
   fMinuitFitter = new TFitterMinuit(2); //  Two (2) parameters to modify (amplitude, pedestal). We will try and do the time one ourselves
   fMinuitFitter->SetMinuitFCN(fcn);
-  fMinuitFitter->SetPrintLevel(1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
+  fMinuitFitter->SetPrintLevel(-1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
 }
 
 TemplateFitter::~TemplateFitter() {
@@ -19,6 +19,8 @@ TemplateFitter::~TemplateFitter() {
 int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse) {
 
   int status; // the status of the minimisation
+  static int print_dbg = false;
+
 
   // First make a histogram out of the pulse with the same bin width as the template,
   // Then pass to the Minuit fitter.
@@ -44,7 +46,10 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
     hPulse->SetBinError(i+1, pedestal_error);
   }
   if (status == max_adc_value) {
-    std::cout << "ERROR: Pulse has overflowed the digitizer" << std::endl;
+    if (print_dbg) {
+      std::cout << "ERROR: Pulse has overflowed the digitizer" << std::endl;
+    }
+    delete hPulse;
     return status;
   }
 
@@ -80,7 +85,9 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   fAmplitudeScaleFactor_maximum = 100;
 
   for (double time_offset = fTimeOffset_minimum; time_offset <= fTimeOffset_maximum; ++time_offset) {
-    std::cout << "TemplateFitter: Checking time_offset = " << time_offset << std::endl;
+    if (print_dbg) {
+      std::cout << "TemplateFitter: Checking time_offset = " << time_offset << std::endl;
+    }
     fcn->SetTimeOffset(time_offset);
 
     // Reset the estimates
@@ -95,7 +102,6 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
     // Minimize and notify if there was a problem
     status = fMinuitFitter->Minimize(1000); // set limit of 1000 calls to FCN
 
-    static int print_dbg = false;
     if (print_dbg) {
       if (status != 0)
 	std::cout << "ERROR: Problem with fit (" << status << ")!" << std::endl;
@@ -110,13 +116,17 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
     if ( (fPedestalOffset < fPedestalOffset_minimum + delta_ped_offset_error && fPedestalOffset > fPedestalOffset_minimum - delta_ped_offset_error) ||
 	 (fPedestalOffset < fPedestalOffset_maximum + delta_ped_offset_error && fPedestalOffset > fPedestalOffset_maximum - delta_ped_offset_error) ) {
 
-      std::cout << "ERROR: PedestalOffset has hit a boundary (" << fPedestalOffset << ")" << std::endl;
+      if (print_dbg) {
+	std::cout << "ERROR: PedestalOffset has hit a boundary (" << fPedestalOffset << ")" << std::endl;
+      }
       status = -9999;
     }
     else if ( (fAmplitudeScaleFactor < fAmplitudeScaleFactor_minimum + delta_amp_sf_error && fAmplitudeScaleFactor > fAmplitudeScaleFactor_minimum - delta_amp_sf_error) ||
 	      (fAmplitudeScaleFactor < fAmplitudeScaleFactor_maximum + delta_amp_sf_error && fAmplitudeScaleFactor > fAmplitudeScaleFactor_maximum - delta_amp_sf_error) ) {
 
-      std::cout << "ERROR: AmplitudeScaleFactor has hit a boundary (" << fAmplitudeScaleFactor << ")" << std::endl;
+      if (print_dbg) {
+	std::cout << "ERROR: AmplitudeScaleFactor has hit a boundary (" << fAmplitudeScaleFactor << ")" << std::endl;
+      }
       status = -9999;
     }
 
@@ -156,7 +166,9 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* puls
   if ( (fTimeOffset < fTimeOffset_minimum + delta_time_offset_error && fTimeOffset > fTimeOffset_minimum - delta_time_offset_error) ||
        (fTimeOffset < fTimeOffset_maximum + delta_time_offset_error && fTimeOffset > fTimeOffset_maximum - delta_time_offset_error) ) {
 
-      std::cout << "ERROR: TimeOffset has hit a boundary (" << fTimeOffset << ")" << std::endl;
+      if (print_dbg) {
+	std::cout << "ERROR: TimeOffset has hit a boundary (" << fTimeOffset << ")" << std::endl;
+      }
       best_status = -9999;
   }
 
