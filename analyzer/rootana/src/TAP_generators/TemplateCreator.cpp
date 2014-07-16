@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 using std::cout;
 using std::endl;
 
@@ -287,7 +288,15 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
     for (int i = 0; i < n_bins; ++i) {
       int bin = i+1; // bins go from 1 to n rather than 0 to n-1
       int sample_number = i / refine_factor;
-      double sample_value = theSamples.at(sample_number);
+      double remainder = i % refine_factor;
+      double sample_value;
+      try {
+	sample_value = theSamples.at(sample_number) + (remainder / refine_factor)*(theSamples.at(sample_number+1) - theSamples.at(sample_number));
+      }
+      catch (const std::out_of_range& oor) { // if we'll be going out of range of the samples vector
+	sample_value = theSamples.at(sample_number);
+      }
+
       std::cout << "i: " << i << ", Bin: " << bin << ", Sample Number: " << sample_number << ", Sample Value: " << sample_value << std::endl;
       hTemplate->SetBinContent( bin, sample_value);
       hTemplate->SetBinError( bin, pedestal_error);
