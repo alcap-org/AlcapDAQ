@@ -98,7 +98,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	  AddPulseToTemplate(hTemplate, pulse);
 	  ++n_pulses_in_template;
 
-	  const std::vector<int>& theSamples = (pulse)->GetSamples();
+/*	  const std::vector<int>& theSamples = (pulse)->GetSamples();
 	  std::stringstream histname;
 	  histname << template_name << "_Event" << *gEntryNumber << "_Pulse" << pulseIter - thePulseIslands.begin();
 	  TH1D* hUncorrectedPulse = new TH1D(histname.str().c_str(), histname.str().c_str(), theSamples.size(), 0, theSamples.size());
@@ -111,7 +111,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	    hUncorrectedPulse->SetBinContent(sampleIter - theSamples.begin()+1, uncorrected_value); // +1 because bins start at 1
 	    hUncorrectedPulse->SetBinError(sampleIter - theSamples.begin()+1, pedestal_error);
 	  }
-
+*/
 	  if (Debug()) {
 	    std::cout << "TemplateCreator: Adding " << detname << " Pulse #" << pulseIter - thePulseIslands.begin() << " directly to the template" << std::endl;
 	  }
@@ -174,7 +174,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	}
 
 	// Now add the fitted pulse to the template
-
+/*
 	if (n_pulses_in_template <= 10 || 
 	    (n_pulses_in_template <= 100 && n_pulses_in_template%10 == 0) ||
 	    (n_pulses_in_template%100 == 0) ) {
@@ -182,7 +182,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	  newhistname << "hTemplate_" << n_pulses_in_template << "Pulses_" << detname;
 	  TH1D* new_template = (TH1D*) hTemplate->Clone(newhistname.str().c_str());
 	}
-
+*/
 	// Add the pulse to the template (we'll do the correcting there)
 	AddPulseToTemplate(hTemplate, pulse);
 	++n_pulses_in_template;
@@ -198,7 +198,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	if (prob != 0) {
 	  fProbVsPulseAddedHistograms.at(detname)->Fill(n_pulses_in_template, -(TMath::Log(prob)));
 	}
-	
+/*	
 	// Create the corrected pulse
 	const std::vector<int>& theSamples = (pulse)->GetSamples();
 	std::stringstream histname;
@@ -218,6 +218,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	  hCorrectedPulse->SetBinContent(sampleIter - theSamples.begin()+1 +0.5 - fTemplateFitter->GetTimeOffset(), corrected_value); 
 	  hCorrectedPulse->SetBinError(sampleIter - theSamples.begin()+1 +0.5 - fTemplateFitter->GetTimeOffset(), pedestal_error);
 	}
+*/
 	// we keep on adding pulses until adding pulses has no effect on the template
       }
     }

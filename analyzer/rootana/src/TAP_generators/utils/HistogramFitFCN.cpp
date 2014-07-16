@@ -33,7 +33,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   int T_int = (int)fTimeOffset;            // Integral part of time shift
   double T_flt = fTimeOffset - (double)T_int; // Floating point offset for linear interpolation
 
-  static bool print_dbg = true;
+  static bool print_dbg = false;
   if (print_dbg) { 
     std::cout << "HistogramFitFCN::operator() (start):" << std::endl;
     std::cout << "\tpedestal = " << P << ", amplitude = " << A << ", time (integer part) = " << T_int << " and time (float part) = " << T_flt << std::endl;
