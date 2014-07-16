@@ -41,7 +41,7 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, TH1D* hPulse, std::strin
                                                     // these heavily.
 
   // Loop through some time offsets ourselved
-  double max_time_offset = 4; // maximum distance to go from the initial estimate
+  double max_time_offset = 4*5; // maximum distance to go from the initial estimate
   double best_time_offset = 0;
   double best_pedestal_offset = 0;
   double best_amplitude_scale_factor = 0;
