@@ -47,6 +47,10 @@ class TemplateCreator : public BaseModule{
   /// Corrects a given sample value
   double CorrectSampleValue(double old_value, double template_pedestal);
 
+  /// \brief
+  /// Creates a refined histogram for a given TPulseIsland
+  TH1D* CreateRefinedPulseHistogram(const TPulseIsland* pulse, std::string histname, std::string histtitle, int refine_factor);
+
   TemplateFitter* fTemplateFitter;
 };
 

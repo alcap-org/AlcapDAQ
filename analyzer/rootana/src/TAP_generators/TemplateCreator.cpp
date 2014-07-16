@@ -184,8 +184,8 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	  TH1D* new_template = (TH1D*) hTemplate->Clone(newhistname.str().c_str());
 	}
 */
-	// Add the pulse to the template (we'll do the correcting there)
-	/*	AddPulseToTemplate(hTemplate, pulse);
+/*	// Add the pulse to the template (we'll do the correcting there)
+	AddPulseToTemplate(hTemplate, pulse);
 	++n_pulses_in_template;
 	double error_of_max_bin;
 	if (TSetupData::Instance()->GetTriggerPolarity(bankname) == 1) {
@@ -198,7 +198,8 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	double prob = TMath::Prob(fTemplateFitter->GetChi2(), fTemplateFitter->GetNDoF());
 	if (prob != 0) {
 	  fProbVsPulseAddedHistograms.at(detname)->Fill(n_pulses_in_template, -(TMath::Log(prob)));
-	  }*/
+	}
+*/
 /*	
 	// Create the corrected pulse
 	const std::vector<int>& theSamples = (pulse)->GetSamples();
@@ -272,7 +273,6 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
 
   // Wnat to increase the bin resolution (this may become a module option at some point)
   int refine_factor = 5;
-  int n_bins = refine_factor*n_samples; // number of bins in the template
 
   // If the template histogram is NULL, then create it
   if (hTemplate == NULL) {
@@ -281,31 +281,16 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
     std::string histname = "hTemplate_" + detname;
     std::string histtitle = "Template Histogram for the " + detname + " channel";
 
-    hTemplate = new TH1D(histname.c_str(), histtitle.c_str(), n_bins, 0, n_samples);
+    // Create a refined pulse histogram from the first pulse we are given
+    hTemplate = CreateRefinedPulseHistogram(pulse, histname.c_str(), histtitle.c_str(), refine_factor);
 
-    // Add the first pulse and the correct initial errors
-    double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
-    for (int i = 0; i < n_bins; ++i) {
-      int bin = i+1; // bins go from 1 to n rather than 0 to n-1
-      int sample_number = i / refine_factor;
-      double remainder = i % refine_factor;
-      double sample_value;
-      try {
-	sample_value = theSamples.at(sample_number) + (remainder / refine_factor)*(theSamples.at(sample_number+1) - theSamples.at(sample_number));
-      }
-      catch (const std::out_of_range& oor) { // if we'll be going out of range of the samples vector
-	sample_value = theSamples.at(sample_number);
-      }
-
-      std::cout << "i: " << i << ", Bin: " << bin << ", Sample Number: " << sample_number << ", Sample Value: " << sample_value << std::endl;
-      hTemplate->SetBinContent( bin, sample_value);
-      hTemplate->SetBinError( bin, pedestal_error);
-    }
-
+    // Create some histograms that monitor the progression of the template
     std::string error_histname = "hErrorVsPulseAdded_" + detname;
     std::string error_histtitle = "Plot of the Error as each new Pulse is added to the template for the " + detname + " channel";
     int n_bins = 1000000;
     TH1D* error_hist = new TH1D(error_histname.c_str(), error_histtitle.c_str(), n_bins,0,n_bins);
+
+    double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
     error_hist->Fill(1, pedestal_error);
     fErrorVsPulseAddedHistograms[detname] = error_hist;
 
@@ -316,19 +301,6 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
   }
 
   else { // add subsequent pulses
-    /*    double x, x_old;
-    double e, e_old;
-    for (int i = 0; i < fNBins; ++i) {
-      x_old = fTemplate->GetBinContent(i+1);
-      e_old = fTemplate->GetBinError(i+1);
-      x = (double)fNPulses * x_old + reshaped_pulse[i];
-      x /= (double)(fNPulses + 1);
-      e = (double)(fNPulses - 1) * std::pow(e_old, 2.) + ((double)reshaped_pulse[i] - x_old) * ((double)reshaped_pulse[i] - x);
-      e = std::sqrt(e / fNPulses);
-      fTemplate->SetBinContent(i+1, x);
-      fTemplate->SetBinError(i+1, e);
-    }
-    */
     int n_pulses = fNPulsesInTemplate.at(detname);
     if (Debug()) {
       std::cout << "AddPulseToTemplate(): n_pulses = " << n_pulses << std::endl;
@@ -365,30 +337,6 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* 
       hTemplate->SetBinError(bin_number, new_bin_error);
     }
   }
-
-  // Now loop through the samples and add to the template
-  /*  for (int iBin = 0; iBin < refine_factor*n_samples; ++iBin) {
-
-    int sample_element = iBin / refine_factor;
-    double value_to_fill = 0;
-
-    if (sample_element != theSamples.size()-1) { // if this element is not going to be outside of the samples vector
-      int iSubBin = iBin % refine_factor;
-      
-      int this_sample = theSamples.at(sample_element);
-      int next_sample = theSamples.at(sample_element+1);
-      double sample_difference = next_sample - this_sample;
-      
-      double interpolated_value = this_sample + iSubBin*(sample_difference / refine_factor);
-      value_to_fill = interpolated_value;
-    }
-    else {
-      value_to_fill = theSamples.at(sample_element);
-    }
-    //    std::cout << "Bin#" << iBin << ": " << value_to_fill << std::endl;
-    hTemplate->SetBinContent( iBin, value_to_fill);
-  }
-  */
 }
 
 double TemplateCreator::CorrectSampleValue(double old_value, double template_pedestal) {
@@ -404,6 +352,36 @@ double TemplateCreator::CorrectSampleValue(double old_value, double template_ped
   return new_value;
 }
 
+// Creates a histogram with sub-bin resolution
+TH1D* TemplateCreator::CreateRefinedPulseHistogram(const TPulseIsland* pulse, std::string histname, std::string histtitle, int refine_factor) {
+
+  std::string bankname = pulse->GetBankName();
+  const std::vector<int>& theSamples = pulse->GetSamples();
+  int n_samples = theSamples.size();
+  int n_bins = refine_factor*n_samples; // number of bins in the template
+
+  TH1D* hist = new TH1D(histname.c_str(), histtitle.c_str(), n_bins, 0, n_samples);
+
+  double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
+  for (int i = 0; i < n_bins; ++i) {
+    int bin = i+1; // bins go from 1 to n rather than 0 to n-1
+    int sample_number = i / refine_factor;
+    double remainder = i % refine_factor;
+    double sample_value;
+    try {
+      sample_value = theSamples.at(sample_number) + (remainder / refine_factor)*(theSamples.at(sample_number+1) - theSamples.at(sample_number));
+    }
+    catch (const std::out_of_range& oor) { // if we'll be going out of range of the samples vector
+      sample_value = theSamples.at(sample_number);
+    }
+    
+    std::cout << "i: " << i << ", Bin: " << bin << ", Sample Number: " << sample_number << ", Sample Value: " << sample_value << std::endl;
+    hist->SetBinContent( bin, sample_value);
+    hist->SetBinError( bin, pedestal_error);
+  }
+
+  return hist;
+}
 // The following macro registers this module to be useable in the config file.
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
