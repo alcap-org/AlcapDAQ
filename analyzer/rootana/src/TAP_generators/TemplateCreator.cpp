@@ -253,17 +253,14 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData, const TSetupData* setup)
 
   StringPulseIslandMap::const_iterator it;
 
-  if (Debug()) {
-
-    // Print to stdout the percentage of successful fit for each channel
-    for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
-      std::string bankname = it->first;
-      std::string detname = setup->GetDetectorName(bankname);
-
-      int& n_fit_attempts = fNFitAttempts[detname]; // number of pulses we try to fit to
-      int& n_successful_fits = fNSuccessfulFits[detname];
-      std::cout << "TemplateCreator: " << detname << ": " << n_fit_attempts << " fits attempted with " << n_successful_fits << " successful (" << ((double)n_successful_fits/(double)n_fit_attempts)*100 << "%)" << std::endl;
-    }
+  // Print to stdout the percentage of successful fit for each channel
+  for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
+    std::string bankname = it->first;
+    std::string detname = setup->GetDetectorName(bankname);
+    
+    int& n_fit_attempts = fNFitAttempts[detname]; // number of pulses we try to fit to
+    int& n_successful_fits = fNSuccessfulFits[detname];
+    std::cout << "TemplateCreator: " << detname << ": " << n_fit_attempts << " fits attempted with " << n_successful_fits << " successful (" << ((double)n_successful_fits/(double)n_fit_attempts)*100 << "%)" << std::endl;
   }
 
   // Clean up the template archive
@@ -277,23 +274,6 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData, const TSetupData* setup)
 void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, TH1D* & hPulse, std::string bankname) {
 
   std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
-
-  /*
-    // Create some histograms that monitor the progression of the template
-    std::string error_histname = "hErrorVsPulseAdded_" + detname;
-    std::string error_histtitle = "Plot of the Error as each new Pulse is added to the template for the " + detname + " channel";
-    int n_bins = 1000000;
-    TH1D* error_hist = new TH1D(error_histname.c_str(), error_histtitle.c_str(), n_bins,0,n_bins);
-
-    double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
-    error_hist->Fill(1, pedestal_error);
-    fErrorVsPulseAddedHistograms[detname] = error_hist;
-
-    std::string prob_histname = "hProbVsPulseAdded_" + detname;
-    std::string prob_histtitle = "Plot of the Prob as each new Pulse is added to the template for the " + detname + " channel";
-    TH1D* prob_hist = new TH1D(prob_histname.c_str(), prob_histtitle.c_str(), n_bins,0,n_bins);
-    fProbVsPulseAddedHistograms[detname] = prob_hist;
-  */
 
   int n_pulses = fNPulsesInTemplate.at(detname);
   if (Debug()) {
