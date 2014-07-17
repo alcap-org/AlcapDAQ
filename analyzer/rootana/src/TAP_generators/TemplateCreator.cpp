@@ -25,6 +25,7 @@ TemplateCreator::TemplateCreator(modules::options* opts):
   // Do something with opts here.  Has the user specified any
   // particular configuration that you want to know?
   // For example, perhaps this module wants an axis range:
+  fRefineFactor = opts->GetInt("refine_factor", 5);
 }
 
 TemplateCreator::~TemplateCreator(){
@@ -65,7 +66,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(detname, fOpts);
 
     // Create the TemplateFitter that we will use for this channel
-    fTemplateFitter = new TemplateFitter(detname);
+    fTemplateFitter = new TemplateFitter(detname, fRefineFactor);
 
     // Get the TPIs
     thePulseIslands = it->second;
@@ -96,11 +97,10 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 
         // Add the first pulse directly to the template (although we may try and choose a random pulse to start with)
 	if (hTemplate == NULL) {
-	  int refine_factor = 5;
 	  std::string histname = "hTemplate_" + detname;
 	  std::string histtitle = "Template Histogram for the " + detname + " channel";
 
-	  hTemplate = CreateRefinedPulseHistogram(pulse, histname.c_str(), histtitle.c_str(), refine_factor, true);
+	  hTemplate = CreateRefinedPulseHistogram(pulse, histname.c_str(), histtitle.c_str(), true);
 	  ++n_pulses_in_template;
 
 	  if (Debug()) {
@@ -128,7 +128,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	}
 
 	// Create the refined pulse waveform
-	TH1D* hPulseToFit = CreateRefinedPulseHistogram(pulse, "hPulseToFit", "hPulseToFit", 5, false);
+	TH1D* hPulseToFit = CreateRefinedPulseHistogram(pulse, "hPulseToFit", "hPulseToFit", false);
 
 	// all the other pulses will be fitted to the template and then added to it
 	// Get some initial estimates for the fitter
@@ -281,9 +281,6 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, TH1D* & hPulse, std:
 
   std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
 
-  // Wnat to increase the bin resolution (this may become a module option at some point)
-  int refine_factor = 5;
-
   /*
     // Create some histograms that monitor the progression of the template
     std::string error_histname = "hErrorVsPulseAdded_" + detname;
@@ -350,25 +347,25 @@ double TemplateCreator::CorrectSampleValue(double old_value, double template_ped
 }
 
 // Creates a histogram with sub-bin resolution
-TH1D* TemplateCreator::CreateRefinedPulseHistogram(const TPulseIsland* pulse, std::string histname, std::string histtitle, int refine_factor, bool interpolate) {
+TH1D* TemplateCreator::CreateRefinedPulseHistogram(const TPulseIsland* pulse, std::string histname, std::string histtitle, bool interpolate) {
 
   std::string bankname = pulse->GetBankName();
   const std::vector<int>& theSamples = pulse->GetSamples();
   int n_samples = theSamples.size();
-  int n_bins = refine_factor*n_samples; // number of bins in the template
+  int n_bins = fRefineFactor*n_samples; // number of bins in the template
 
   TH1D* hist = new TH1D(histname.c_str(), histtitle.c_str(), n_bins, 0, n_samples);
 
   double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
   for (int i = 0; i < n_bins; ++i) {
     int bin = i+1; // bins go from 1 to n rather than 0 to n-1
-    int sample_number = i / refine_factor;
-    double remainder = i % refine_factor;
+    int sample_number = i / fRefineFactor;
+    double remainder = i % fRefineFactor;
     double sample_value;
 
     if (interpolate) {
       try {
-	sample_value = theSamples.at(sample_number) + (remainder / refine_factor)*(theSamples.at(sample_number+1) - theSamples.at(sample_number));
+	sample_value = theSamples.at(sample_number) + (remainder / fRefineFactor)*(theSamples.at(sample_number+1) - theSamples.at(sample_number));
       }
       catch (const std::out_of_range& oor) { // if we'll be going out of range of the samples vector
 	sample_value = theSamples.at(sample_number);

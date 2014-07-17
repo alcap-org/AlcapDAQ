@@ -5,12 +5,13 @@
 
 #include "TMath.h"
 
-TemplateFitter::TemplateFitter(std::string detname): fChannel(detname) {
+TemplateFitter::TemplateFitter(std::string detname, int refine_factor): fChannel(detname), fRefineFactor(refine_factor) {
 
   HistogramFitFCN* fcn = new HistogramFitFCN();
   fMinuitFitter = new TFitterMinuit(2); //  Two (2) parameters to modify (amplitude, pedestal). We will try and do the time one ourselves
   fMinuitFitter->SetMinuitFCN(fcn);
   fMinuitFitter->SetPrintLevel(-1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
+  fcn->SetRefineFactor(fRefineFactor);
 }
 
 TemplateFitter::~TemplateFitter() {
@@ -41,7 +42,7 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, TH1D* hPulse, std::strin
                                                     // these heavily.
 
   // Loop through some time offsets ourselved
-  double max_time_offset = 4*5; // maximum distance to go from the initial estimate
+  double max_time_offset = 4*fRefineFactor; // maximum distance to go from the initial estimate
   double best_time_offset = 0;
   double best_pedestal_offset = 0;
   double best_amplitude_scale_factor = 0;
