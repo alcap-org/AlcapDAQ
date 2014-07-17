@@ -22,10 +22,8 @@ extern Long64_t* gEntryNumber;
 TemplateCreator::TemplateCreator(modules::options* opts):
   BaseModule("TemplateCreator",opts), fOpts(opts){
 
-  // Do something with opts here.  Has the user specified any
-  // particular configuration that you want to know?
-  // For example, perhaps this module wants an axis range:
   fRefineFactor = opts->GetInt("refine_factor", 5);
+  fPulseDebug = opts->GetBool("pulse_debug", false);
 }
 
 TemplateCreator::~TemplateCreator(){
@@ -183,7 +181,6 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	  continue;
 	}
 	++n_successful_fits;
-	//	ExportPulse::Instance()->AddToExportList(detname, pulseIter - thePulseIslands.begin());
 
 	if (Debug()) {
 	  std::cout << "Template Creator: Fitted Parameters: PedOffset = " << fTemplateFitter->GetPedestalOffset() << ", AmpScaleFactor = " << fTemplateFitter->GetAmplitudeScaleFactor()
@@ -191,51 +188,48 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 		    << ", Prob = " << TMath::Prob(fTemplateFitter->GetChi2(), fTemplateFitter->GetNDoF()) << std::endl << std::endl;
 	}
 
-	// Now add the fitted pulse to the template
-	if (n_pulses_in_template <= 10 || 
-	    (n_pulses_in_template <= 100 && n_pulses_in_template%10 == 0) ||
-	    (n_pulses_in_template%100 == 0) ) {
-	  std::stringstream newhistname;
-	  newhistname << "hTemplate_" << n_pulses_in_template << "Pulses_" << detname;
-	  TH1D* new_template = (TH1D*) hTemplate->Clone(newhistname.str().c_str());
+	if (fPulseDebug) {
+	  // Print out some templates as we go along
+	  if (n_pulses_in_template <= 10 || 
+	      (n_pulses_in_template <= 100 && n_pulses_in_template%10 == 0) ||
+	      (n_pulses_in_template%100 == 0) ) {
+	    std::stringstream newhistname;
+	    newhistname << "hTemplate_" << n_pulses_in_template << "Pulses_" << detname;
+	    TH1D* new_template = (TH1D*) hTemplate->Clone(newhistname.str().c_str());
+	  }
 	}
 
-	// Add the pulse to the template (we'll do the correcting there)
+	// Add the pulse to the template (we'll do correct the sample values there)
 	AddPulseToTemplate(hTemplate, hPulseToFit, bankname);
 	++n_pulses_in_template;
-	/*	double error_of_max_bin;
-	if (TSetupData::Instance()->GetTriggerPolarity(bankname) == 1) {
-	  error_of_max_bin = hTemplate->GetBinError(hTemplate->GetMaximumBin());
-	}
-	else if (TSetupData::Instance()->GetTriggerPolarity(bankname) == -1) {
-	  error_of_max_bin = hTemplate->GetBinError(hTemplate->GetMinimumBin());
-	}
-	fErrorVsPulseAddedHistograms.at(detname)->Fill(n_pulses_in_template, error_of_max_bin);
-	double prob = TMath::Prob(fTemplateFitter->GetChi2(), fTemplateFitter->GetNDoF());
-	if (prob != 0) {
-	  fProbVsPulseAddedHistograms.at(detname)->Fill(n_pulses_in_template, -(TMath::Log(prob)));
-	}
-	*/
 	
-	// Create the corrected pulse
-	std::stringstream histname;
-	histname << template_name << "_Event" << *gEntryNumber << "_Pulse" << pulseIter - thePulseIslands.begin();
-	TH1D* hUncorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
-	histname << "_Corrected";
-	TH1D* hCorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
-	hCorrectedPulse->SetEntries(0); // set entries back to 0
 
-	double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
-	for (int iPulseBin = 1; iPulseBin <= hPulseToFit->GetNbinsX(); ++iPulseBin) {
-	  //std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
+	if (fPulseDebug) {
+	  // Print out the uncorrected and corrected pulse that has been added to the template
 
-	  double uncorrected_value = hPulseToFit->GetBinContent(iPulseBin);
-	  double corrected_value = CorrectSampleValue(uncorrected_value, template_pedestal);
+	  // Create the histograms that we will use to plot the corrected and uncorrected pulses
+	  std::stringstream histname;
+	  histname << template_name << "_Event" << *gEntryNumber << "_Pulse" << pulseIter - thePulseIslands.begin();
+	  TH1D* hUncorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
+	  histname << "_Corrected";
+	  TH1D* hCorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
+	  hCorrectedPulse->SetEntries(0); // set entries back to 0
+	  
+	  double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
 
-	  hCorrectedPulse->SetBinContent(iPulseBin +0.5 - fTemplateFitter->GetTimeOffset(), corrected_value); 
-	  hCorrectedPulse->SetBinError(iPulseBin +0.5 - fTemplateFitter->GetTimeOffset(), pedestal_error);
+	  // Loop through the bins of the uncorrected pulse and set the values in the corrected pulse histogram
+	  for (int iPulseBin = 1; iPulseBin <= hPulseToFit->GetNbinsX(); ++iPulseBin) {
+	    
+	    double uncorrected_value = hPulseToFit->GetBinContent(iPulseBin);
+	    double corrected_value = CorrectSampleValue(uncorrected_value, template_pedestal);
+	    
+	    hCorrectedPulse->SetBinContent(iPulseBin +0.5 - fTemplateFitter->GetTimeOffset(), corrected_value); 
+	    hCorrectedPulse->SetBinError(iPulseBin +0.5 - fTemplateFitter->GetTimeOffset(), pedestal_error);
+	  }
 	}
+
 	delete hPulseToFit;
+
 	// we keep on adding pulses until adding pulses has no effect on the template
       }
     }
@@ -259,14 +253,17 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData, const TSetupData* setup)
 
   StringPulseIslandMap::const_iterator it;
 
-  // Loop over each detector
-  for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
-    std::string bankname = it->first;
-    std::string detname = setup->GetDetectorName(bankname);
+  if (Debug()) {
 
-    int& n_fit_attempts = fNFitAttempts[detname]; // number of pulses we try to fit to
-    int& n_successful_fits = fNSuccessfulFits[detname];
-    std::cout << "TemplateCreator: " << detname << ": " << n_fit_attempts << " fits attempted with " << n_successful_fits << " successful (" << ((double)n_successful_fits/(double)n_fit_attempts)*100 << "%)" << std::endl;
+    // Print to stdout the percentage of successful fit for each channel
+    for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
+      std::string bankname = it->first;
+      std::string detname = setup->GetDetectorName(bankname);
+
+      int& n_fit_attempts = fNFitAttempts[detname]; // number of pulses we try to fit to
+      int& n_successful_fits = fNSuccessfulFits[detname];
+      std::cout << "TemplateCreator: " << detname << ": " << n_fit_attempts << " fits attempted with " << n_successful_fits << " successful (" << ((double)n_successful_fits/(double)n_fit_attempts)*100 << "%)" << std::endl;
+    }
   }
 
   // Clean up the template archive
@@ -303,26 +300,32 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, TH1D* & hPulse, std:
     std::cout << "AddPulseToTemplate(): n_pulses = " << n_pulses << std::endl;
   }
 
-  // Loop through the pulse histogram
   double template_pedestal = hTemplate->GetBinContent(1);
-  for (int iPulseBin = 1; iPulseBin < hPulse->GetNbinsX(); ++iPulseBin) {
-    //    for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); ++sampleIter) {
 
+  // Loop through the pulse histogram
+  for (int iPulseBin = 1; iPulseBin < hPulse->GetNbinsX(); ++iPulseBin) {
+
+    // First, get the corrected sample value based on the fitted parameters
     double uncorrected_value = hPulse->GetBinContent(iPulseBin);
     double corrected_value = CorrectSampleValue(uncorrected_value, template_pedestal);
 
+    // Get the corrected bin number based on the fitted time offset
     int bin_number = iPulseBin + 0.5 - fTemplateFitter->GetTimeOffset(); // +0.5 so that we round to the nearest integer and subtract time offset because this value might not want to go direct into the template
 
     // Only change the bin contents of bins within the range of the template histogram
     if (bin_number < 1 || bin_number > hTemplate->GetNbinsX()) {
       continue;
     }
+
+    // Store the old bin content and error for later
     double old_bin_content = hTemplate->GetBinContent(bin_number);
     double old_bin_error = hTemplate->GetBinError(bin_number);
 
+    // Calculate the new bin content...
     double new_bin_content = n_pulses * old_bin_content + corrected_value;
     new_bin_content /= (n_pulses + 1);
 
+    /// ...and new bin error
     double new_bin_error = ((n_pulses - 1)*old_bin_error*old_bin_error) + (corrected_value - old_bin_content)*(corrected_value - new_bin_content);
     new_bin_error = std::sqrt(new_bin_error / n_pulses);
 
@@ -332,6 +335,7 @@ void TemplateCreator::AddPulseToTemplate(TH1D* & hTemplate, TH1D* & hPulse, std:
 		<< "\t\t\tNew Value (Error) = " << new_bin_content << "(" << new_bin_error << ")" << std::endl;
     }
 
+    // Set the new bin content and error of the template
     hTemplate->SetBinContent(bin_number, new_bin_content);
     hTemplate->SetBinError(bin_number, new_bin_error);
   }
@@ -349,20 +353,26 @@ double TemplateCreator::CorrectSampleValue(double old_value, double template_ped
 // Creates a histogram with sub-bin resolution
 TH1D* TemplateCreator::CreateRefinedPulseHistogram(const TPulseIsland* pulse, std::string histname, std::string histtitle, bool interpolate) {
 
+  // Get a few things first
   std::string bankname = pulse->GetBankName();
   const std::vector<int>& theSamples = pulse->GetSamples();
   int n_samples = theSamples.size();
   int n_bins = fRefineFactor*n_samples; // number of bins in the template
 
+  // Create the higher resolution histogram
   TH1D* hist = new TH1D(histname.c_str(), histtitle.c_str(), n_bins, 0, n_samples);
 
   double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
+
+  // Go through the bins in the high-resolution histogram
+  // NB sample numbers go grom 0 to n-1 and bins go from 1 to n
   for (int i = 0; i < n_bins; ++i) {
     int bin = i+1; // bins go from 1 to n rather than 0 to n-1
     int sample_number = i / fRefineFactor;
     double remainder = i % fRefineFactor;
     double sample_value;
 
+    // We may want to interpolate between the samples in the samples vector
     if (interpolate) {
       try {
 	sample_value = theSamples.at(sample_number) + (remainder / fRefineFactor)*(theSamples.at(sample_number+1) - theSamples.at(sample_number));
@@ -374,6 +384,8 @@ TH1D* TemplateCreator::CreateRefinedPulseHistogram(const TPulseIsland* pulse, st
     else {
       sample_value = theSamples.at(sample_number);
     }
+
+    // Set the bin contents and bin error
     hist->SetBinContent( bin, sample_value);
     hist->SetBinError( bin, pedestal_error);
   }
