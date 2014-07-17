@@ -27,7 +27,7 @@
 //#define USE_PRINT_OUT 
 
 // C++/STL
-#include <cstdio>
+#include <iostream>
 #include <string>
 //#include <cctype>
 #include <map>
@@ -53,7 +53,7 @@
 #include "EventNavigator.h"
 
 // Forward declaration of functions ======================
-Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments);
+Int_t Main_event_loop(TTree* dataTree, ARGUMENTS& arguments);
 void ClearGlobalData(TGlobalData*);
 TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
@@ -76,14 +76,15 @@ StringDetPulseMap gDetectorPulseMap;
 MuonEventList gMuonEvents;
 
 
-int main(int argc, char **argv){
+int main(int argc, char **argv)
+{
 //load_config_file("MODULES.txt");
 
   // Parse the command line
   ARGUMENTS arguments;
   int ret = analyze_command_line (argc, argv,arguments);
   if(ret!=0) return ret;
-  printf("Starting event");
+  std::cout << "Starting event" << std::endl;
 
   // Open the input tree file
   EventNavigator& navi = EventNavigator::Instance();
@@ -102,7 +103,7 @@ int main(int argc, char **argv){
 
   // Now that we've loaded the TSetupData for this run check if there are any
   // suggested replacements for the wiremap data
-  //CheckSetupData(s_data, arguments.correction_file);
+  //CheckSetupData(navi.GetSetupData(), arguments.correction_file);
 
   //Event Tree
   TTree* eventTree = navi.GetRawTree(); 
@@ -122,15 +123,15 @@ int main(int argc, char **argv){
   // modules wont have a directory to store things to.
   ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file.c_str());
   if(ret!=0) {
-     printf("Problem setting up analysis modules.\n");
-     return ret;
+    std::cout << "Problem setting up analysis modules." << std::endl;
+    return ret;
   }
   
   // Setup the analysed pulse map to store / read in the pulses
   ret = PrepareAnalysedPulseMap(fileOut);
   if(ret!=0) {
-     printf("Problem preparing analysed pulse map.");
-     return ret;
+    std::cout << "Problem preparing analysed pulse map." << std::endl;
+    return ret;
   }
 
   // Finally let's do the main loop
@@ -151,34 +152,33 @@ int main(int argc, char **argv){
 Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
 {
   //Loop over tree entries and call histogramming modules.
-  Long64_t nentries = dataTree->GetEntriesFast();
-  printf("There are %d entries\n",(int)nentries);
-  std::cout<<"Processing file, which may take a while. "
-     "Have patience young padawan.."<<std::endl;
-  
   EventNavigator& enav = EventNavigator::Instance();
+  Long64_t nEntries = enav.GetInputNEntries();
+  std::cout << "Raw data tree contains " << nEntries 
+            << " entries." << std::endl
+            << "Processing file, which may take a while..."
+            << std::endl;
 
   //set up the input data
   if (g_event){
     g_event->Clear("C");
     dataTree->SetBranchAddress("Event",&g_event);
   }
-
+  
   // How many entries should we loop over?
   Long64_t start = 0;
-  Long64_t stop = nentries;
+  Long64_t stop = nEntries;
+  // TODO: make this legible.
   if(arguments.stop>0){
-    if(arguments.start>0)
-      start = (Long64_t)(arguments.start-1);
-    if((Long64_t)arguments.stop < nentries)
-      stop = (Long64_t)arguments.stop;
+    if(arguments.start>0) start = (Long64_t)(arguments.start-1);
+    if((Long64_t)arguments.stop < nEntries) stop = (Long64_t)arguments.stop;
   }
-  else if((Long64_t)arguments.start < nentries && arguments.start > 0){
+  else if((Long64_t)arguments.start < nEntries && arguments.start > 0){
     stop = (Long64_t)arguments.start;
   }
   gTotalEntries=&stop;
   // wind the file on to the first event
-  dataTree->GetEntry(start);
+  enav.GetEntry(start);
 
   // Get the first and last module to run with
   modules::iterator first_module = modules::navigator::Instance()->Begin();
@@ -190,7 +190,8 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
     q |= it_mod->second->BeforeFirstEntry(g_event, enav.GetSetupData());
   }
   if(q) {
-    printf("Error while preprocessing first entry (%d)\n",(Int_t)start);
+    std::cout << "Error while preprocessing first entry (" 
+              << start << ")" << std::endl;
     return q;
   }
 
@@ -205,18 +206,19 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
       dataTree->SetBranchAddress("Event",&g_event);
     }
     
-    if (jentry%100 == 0) {
-      printf("Completed %lld events out of %lld\n", jentry, stop);
+    if ((jentry-start)%100 == 0) {
+      std::cout << "Completed " << (jentry-start) 
+                << " events out of " << (stop-start) << std::endl;
     }
     // Let's get the next event
-    dataTree->GetEntry(jentry);
+    enav.GetEntry(jentry);
 
     for (it_mod=first_module; it_mod != last_module; it_mod++) {
       q |= it_mod->second->ProcessGenericEntry(g_event,enav.GetSetupData());
       //if(q) break;
     }
     if(q){
-      printf("q was non-zero when jentry was %lld\n",jentry);
+      std::cout << "q was non-zero when jentry was " << jentry << std::endl;
       break;
     }
 
@@ -231,11 +233,12 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
     q |= it_mod->second->AfterLastEntry(g_event,enav.GetSetupData());
   }
   if (q) {
-     printf("Error during post-processing last entry (%lld)\n",(stop-1));
-      return q;
+    std::cout << "Error during post-processing last entry " << (stop-1)
+              << std::endl;
+     return q;
   }
   
-  printf("Finished processing data normally\n");
+  std::cout << "Finished processing data normally" << std::cout;
   return 0;
 }
 
@@ -289,64 +292,66 @@ void ClearGlobalData(TGlobalData* data)
 
 
 //----------------------------------------------------------------------
-//TSetupData* TSetupData::Instance()
-//{
-//  static TSetupData *s_data=const_cast<TSetupData*>(EventNavigator::Instance().GetSetupData());
-//  return s_data;
-//}
-
-//----------------------------------------------------------------------
-void PrintSetupData(TSetupData* s_data){
-     if(!s_data) return;
+void PrintSetupData(TSetupData* s_data)
+{
+  if(!s_data) return;
   // print things out
   std::map<std::string, std::string>::iterator it_info;
-  printf("### TSetupData ###\n");
-  printf("Bank  Detector Name  Clock Tick (ns)  Pedestal (ADC)  Trigger Polarity  Time Shift (ns)  No. of Bits\n");
-  printf("----  -------------  ---------------  --------------  ----------------  ---------------  -----------\n");
-  for (it_info=s_data->fBankToDetectorMap.begin();it_info!=s_data->fBankToDetectorMap.end();++it_info){
-		 std::string bankname = it_info->first;
-		 std::string detname = s_data->GetDetectorName(bankname);
-		 float clockTick = s_data->GetClockTick(bankname);
-		 int pedestal = s_data->GetPedestal(bankname);
-		 int trig_pol = s_data->GetTriggerPolarity(bankname);
-		 double time_shift = s_data->GetTimeShift(bankname);
-		 int n_bits = s_data->GetNBits(bankname);
-		 printf("%s  %s\t\t%f\t%d\t\t%d\t\t%f\t\t%d\n",bankname.c_str(), detname.c_str(), clockTick, pedestal, trig_pol, time_shift,n_bits);
+  std::cout << "### TSetupData ###\n"
+            << "Bank  Detector Name  Clock Tick (ns)  Pedestal (ADC)"
+            << "  Trigger Polarity  Time Shift (ns)  No. of Bits\n"
+            << "----  -------------  ---------------  --------------"
+            << "  ----------------  ---------------  -----------" 
+            << std::endl;
+
+  for (it_info=s_data->fBankToDetectorMap.begin(); 
+       it_info!=s_data->fBankToDetectorMap.end(); ++it_info){
+    const std::string& bankname = it_info->first;
+    std::cout << bankname << "  " 
+              << s_data->GetDetectorName(bankname) << "\t\t" 
+              << s_data->GetClockTick(bankname) << "\t" 
+              << s_data->GetPedestal(bankname) << "\t\t" 
+              << s_data->GetTriggerPolarity(bankname) << "\t\t" 
+              << s_data->GetTimeShift(bankname) << "\t\t" 
+              << s_data->GetNBits(bankname)
+              << std::endl;
   }
 }
 
 //----------------------------------------------------------------------
-Int_t PrepareAnalysedPulseMap(TFile* fileOut){
+Int_t PrepareAnalysedPulseMap(TFile* fileOut)
+{
   // TAnalysedMapWrapper
-   gAnalysedPulseMapWrapper = new TAnalysedPulseMapWrapper(gAnalysedPulseMap);
-
-   int split = 1;
-   int bufsize = 64000;
-   Int_t branchstyle = 1;
-
-   if (split < 0) {branchstyle = 0; split = -1-split;}
-   TTree::SetBranchStyle(branchstyle);
-
-   gAnalysedPulseTree = new TTree("AnalysedPulseTree", "AnalysedPulseTree");
-   gAnalysedPulseTree->SetAutoSave(100000000);
-   gAnalysedPulseTree->SetMaxVirtualSize(100000000);
-   gAnalysedPulseBranch = gAnalysedPulseTree->Branch("AnalysedPulseMapWrapper", 
-                                                     "TAnalysedPulseMapWrapper", &gAnalysedPulseMapWrapper, bufsize, split);
-   gAnalysedPulseBranch->SetAutoDelete(kFALSE);
-   return 0;
+  gAnalysedPulseMapWrapper = new TAnalysedPulseMapWrapper(gAnalysedPulseMap);
+  
+  int split = 1;
+  int bufsize = 64000;
+  Int_t branchstyle = 1;
+  
+  if (split < 0) {branchstyle = 0; split = -1-split;}
+  TTree::SetBranchStyle(branchstyle);
+  
+  gAnalysedPulseTree = new TTree("AnalysedPulseTree", "AnalysedPulseTree");
+  gAnalysedPulseTree->SetAutoSave(100000000);
+  gAnalysedPulseTree->SetMaxVirtualSize(100000000);
+  gAnalysedPulseBranch = gAnalysedPulseTree->Branch("AnalysedPulseMapWrapper", 
+                                                    "TAnalysedPulseMapWrapper",
+                                                    &gAnalysedPulseMapWrapper,
+                                                    bufsize, split);
+  gAnalysedPulseBranch->SetAutoDelete(kFALSE);
+  return 0;
 }
 
 //----------------------------------------------------------------------
 Int_t PrepareSingletonObjects(const ARGUMENTS&){
-   // Set up the modules navigator
-   if(!modules::navigator::Instance()) return 1;
-
-   // Make sure the instance of TSetupData get's loaded 
-   // (though in practice we can do this lazily)
-   //TSetupData* s_data = TSetupData::Instance();
-   if( !EventNavigator::Instance().GetSetupData() ) return 2;
-
-   return 0;
+  // Set up the modules navigator
+  if(!modules::navigator::Instance()) return 1;
+  
+  // Make sure the instance of TSetupData get's loaded 
+  // (though in practice we can do this lazily)
+  if( !EventNavigator::Instance().GetSetupData() ) return 2;
+  
+  return 0;
 }
 
 /// @}
