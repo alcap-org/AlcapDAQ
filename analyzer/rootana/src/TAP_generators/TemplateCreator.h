@@ -40,9 +40,6 @@ class TemplateCreator : public BaseModule{
   /// A map of the number of pulses in the template
   std::map<std::string, int> fNPulsesInTemplate;
 
-  std::map<std::string, TH1D*> fErrorVsPulseAddedHistograms;
-  std::map<std::string, TH1D*> fProbVsPulseAddedHistograms;
-
   /// \brief
   /// Corrects a given sample value
   double CorrectSampleValue(double old_value, double template_pedestal);
@@ -56,6 +53,11 @@ class TemplateCreator : public BaseModule{
   int fRefineFactor;
 
   TemplateFitter* fTemplateFitter;
+
+  /// \brief
+  /// If true, then print out all pulses that get added to the templates and also
+  /// print out certain templates as we go along
+  bool fPulseDebug;
 };
 
 #endif //TEMPLATECREATOR_H_
