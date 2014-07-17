@@ -100,7 +100,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	  std::string histname = "hTemplate_" + detname;
 	  std::string histtitle = "Template Histogram for the " + detname + " channel";
 
-	  hTemplate = CreateRefinedPulseHistogram(pulse, histname.c_str(), histtitle.c_str(), refine_factor);
+	  hTemplate = CreateRefinedPulseHistogram(pulse, histname.c_str(), histtitle.c_str(), refine_factor, true);
 	  ++n_pulses_in_template;
 
 	  if (Debug()) {
@@ -128,7 +128,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	}
 
 	// Create the refined pulse waveform
-	TH1D* hPulseToFit = CreateRefinedPulseHistogram(pulse, "hPulseToFit", "hPulseToFit", 5);
+	TH1D* hPulseToFit = CreateRefinedPulseHistogram(pulse, "hPulseToFit", "hPulseToFit", 5, false);
 
 	// all the other pulses will be fitted to the template and then added to it
 	// Get some initial estimates for the fitter
@@ -223,6 +223,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	TH1D* hUncorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
 	histname << "_Corrected";
 	TH1D* hCorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
+	hCorrectedPulse->SetEntries(0); // set entries back to 0
 
 	double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
 	for (int iPulseBin = 1; iPulseBin <= hPulseToFit->GetNbinsX(); ++iPulseBin) {
@@ -349,7 +350,7 @@ double TemplateCreator::CorrectSampleValue(double old_value, double template_ped
 }
 
 // Creates a histogram with sub-bin resolution
-TH1D* TemplateCreator::CreateRefinedPulseHistogram(const TPulseIsland* pulse, std::string histname, std::string histtitle, int refine_factor) {
+TH1D* TemplateCreator::CreateRefinedPulseHistogram(const TPulseIsland* pulse, std::string histname, std::string histtitle, int refine_factor, bool interpolate) {
 
   std::string bankname = pulse->GetBankName();
   const std::vector<int>& theSamples = pulse->GetSamples();
@@ -364,13 +365,18 @@ TH1D* TemplateCreator::CreateRefinedPulseHistogram(const TPulseIsland* pulse, st
     int sample_number = i / refine_factor;
     double remainder = i % refine_factor;
     double sample_value;
-    try {
-      sample_value = theSamples.at(sample_number) + (remainder / refine_factor)*(theSamples.at(sample_number+1) - theSamples.at(sample_number));
+
+    if (interpolate) {
+      try {
+	sample_value = theSamples.at(sample_number) + (remainder / refine_factor)*(theSamples.at(sample_number+1) - theSamples.at(sample_number));
+      }
+      catch (const std::out_of_range& oor) { // if we'll be going out of range of the samples vector
+	sample_value = theSamples.at(sample_number);
+      }
     }
-    catch (const std::out_of_range& oor) { // if we'll be going out of range of the samples vector
+    else {
       sample_value = theSamples.at(sample_number);
     }
-    
     hist->SetBinContent( bin, sample_value);
     hist->SetBinError( bin, pedestal_error);
   }
