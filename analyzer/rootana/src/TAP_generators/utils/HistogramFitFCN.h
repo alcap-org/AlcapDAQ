@@ -41,6 +41,12 @@ class HistogramFitFCN : public ROOT::Minuit2::FCNBase {
 
  public:
   void SetTimeOffset(double time_offset);
+
+ private:
+  int fRefineFactor;
+
+ public:
+  void SetRefineFactor(int refine_factor) {fRefineFactor = refine_factor;}
 };
 
 #endif

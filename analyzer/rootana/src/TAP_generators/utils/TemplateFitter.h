@@ -9,7 +9,7 @@
 
 class TemplateFitter {
  public:
-  TemplateFitter(std::string detname);
+  TemplateFitter(std::string detname, int refine_factor);
   ~TemplateFitter();
 
  private:
@@ -53,6 +53,9 @@ class TemplateFitter {
   /// \brief
   /// Sets the intial estimates for the template fitter
   void SetInitialParameterEstimates(double pedestal, double amplitude, double time);
+
+ private:
+  int fRefineFactor;
 };
 
 #endif

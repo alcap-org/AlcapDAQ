@@ -39,12 +39,12 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
     std::cout << "\tpedestal = " << P << ", amplitude = " << A << ", time (integer part) = " << T_int << " and time (float part) = " << T_flt << std::endl;
   }
  
-  int half_range = 10*5; // remove a few bins from the fit
+  int half_range = 10*fRefineFactor; // remove a few bins from the fit
   int bounds[2];
   bounds[0] = half_range+1;//std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1);
   bounds[1] = std::min(fTemplateHist->GetNbinsX(), fPulseHist->GetNbinsX()) - half_range-1; //std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX());
 
-  fNDoF = bounds[1] - bounds[0] + 1 - par.size(); // +1 because we include both ends of the bounds when we loop through
+  fNDoF = ((bounds[1] - bounds[0] + 1)/fRefineFactor) - par.size(); // +1 because we include both ends of the bounds when we loop through
 
   if (print_dbg) {
     std::cout << "NBinsX: hTemplate = " << fTemplateHist->GetNbinsX() << ", hPulse = " << fPulseHist->GetNbinsX() << std::endl;
@@ -61,7 +61,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
 
   double f;
   double template_pedestal = fTemplateHist->GetBinContent(1);
-  for (int i = bounds[0]; i <= bounds[1]; ++i) {
+  for (int i = bounds[0]+(fRefineFactor/2.0); i <= bounds[1]-(fRefineFactor/2.0); i += fRefineFactor) { // calculate the chi^2 based on the centre of the 5 bins to avoid getting abonus from mathcing all 5
     // We shift and scale the template so that it matches the pulse.
     // This is because, when we have a normalised template, we will get the actual amplitude, pedestal and time from the fit and not just offsets
     f = fTemplateHist->GetBinContent(i - T_int) + T_flt*(fTemplateHist->GetBinContent(i - T_int + 1) - fTemplateHist->GetBinContent(i - T_int)); // linear interpolation between the i'th and the (i+1)'th bin
