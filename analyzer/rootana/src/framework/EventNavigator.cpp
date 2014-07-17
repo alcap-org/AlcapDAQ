@@ -450,3 +450,15 @@ void EventNavigator::CopyTree()
   //DEBUG_PRINT
 
 }
+
+
+//======================================================================
+
+/// @deprecated This method currently needs to exist for the benefit
+/// of online classes that expect to be able to get a non-const
+/// pointer this way, but it may be removed in the future.  Offline
+/// code should use EventNavigator::Instance().GetSetupData()
+/// directly.
+TSetupData* TSetupData::Instance(){
+  return const_cast<TSetupData*>(EventNavigator::Instance().GetSetupData());
+}

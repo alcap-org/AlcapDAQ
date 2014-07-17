@@ -150,7 +150,7 @@ int main(int argc, char **argv){
 //----------------------------------------------------------------------
 Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
 {
-  //Loop over tree entries and call histogramming modules.                  |
+  //Loop over tree entries and call histogramming modules.
   Long64_t nentries = dataTree->GetEntriesFast();
   printf("There are %d entries\n",(int)nentries);
   std::cout<<"Processing file, which may take a while. "
@@ -289,11 +289,11 @@ void ClearGlobalData(TGlobalData* data)
 
 
 //----------------------------------------------------------------------
-TSetupData* TSetupData::Instance()
-{
-  static TSetupData *s_data=const_cast<TSetupData*>(EventNavigator::Instance().GetSetupData());
-  return s_data;
-}
+//TSetupData* TSetupData::Instance()
+//{
+//  static TSetupData *s_data=const_cast<TSetupData*>(EventNavigator::Instance().GetSetupData());
+//  return s_data;
+//}
 
 //----------------------------------------------------------------------
 void PrintSetupData(TSetupData* s_data){
@@ -317,7 +317,7 @@ void PrintSetupData(TSetupData* s_data){
 
 //----------------------------------------------------------------------
 Int_t PrepareAnalysedPulseMap(TFile* fileOut){
-	// TAnalysedMapWrapper
+  // TAnalysedMapWrapper
    gAnalysedPulseMapWrapper = new TAnalysedPulseMapWrapper(gAnalysedPulseMap);
 
    int split = 1;
