@@ -128,6 +128,15 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	// Create the refined pulse waveform
 	TH1D* hPulseToFit = CreateRefinedPulseHistogram(pulse, "hPulseToFit", "hPulseToFit", false);
 
+	// Create some histograms that monitor the progression of the template
+	if (fErrorVsPulseAddedHistograms.find(detname) == fErrorVsPulseAddedHistograms.end()) {
+	  std::string error_histname = "hErrorVsPulseAdded_" + detname;
+	  std::string error_histtitle = "Plot of the Error as each new Pulse is added to the template for the " + detname + " channel";
+	  int n_bins = 10000;
+	  TH1D* error_hist = new TH1D(error_histname.c_str(), error_histtitle.c_str(), n_bins,0,n_bins);
+	  fErrorVsPulseAddedHistograms[detname] = error_hist;
+	}
+
 	// all the other pulses will be fitted to the template and then added to it
 	// Get some initial estimates for the fitter
 	double template_pedestal = hTemplate->GetBinContent(1);
@@ -178,6 +187,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	  if (Debug()) {
 	    std::cout << "TemplateCreator: Problem with fit (status = " << fit_status << ")" << std::endl;
 	  }
+	  delete hPulseToFit; // delete this here since it is no longer needed
 	  continue;
 	}
 	++n_successful_fits;
@@ -209,7 +219,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 
 	  // Create the histograms that we will use to plot the corrected and uncorrected pulses
 	  std::stringstream histname;
-	  histname << template_name << "_Event" << *gEntryNumber << "_Pulse" << pulseIter - thePulseIslands.begin();
+	  histname << template_name << "_Event" << *gEntryNumber << "_Pulse" << pulseIter - thePulseIslands.begin() << "_" << n_pulses_in_template << "Added";
 	  TH1D* hUncorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
 	  histname << "_Corrected";
 	  TH1D* hCorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
@@ -231,6 +241,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	delete hPulseToFit;
 
 	// we keep on adding pulses until adding pulses has no effect on the template
+	bool converged = CheckConvergence(hTemplate, bankname);
       }
     }
     // We will want to normalise to template to have pedestal=0 and amplitude=1
@@ -371,6 +382,24 @@ TH1D* TemplateCreator::CreateRefinedPulseHistogram(const TPulseIsland* pulse, st
   }
 
   return hist;
+}
+
+
+bool TemplateCreator::CheckConvergence(TH1D* hTemplate, std::string bankname) {
+
+  std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
+  int n_pulses_in_template = fNPulsesInTemplate[detname];
+  int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+  double error = 0;
+  if (trigger_polarity == -1) {
+    error = hTemplate->GetBinError(hTemplate->GetMinimumBin());
+  }
+  else if (trigger_polarity == 1) {
+    error = hTemplate->GetBinError(hTemplate->GetMaximumBin());
+  }
+  fErrorVsPulseAddedHistograms[detname]->Fill(n_pulses_in_template, error);
+  std::cout << detname << ": #" << n_pulses_in_template << ", Error = " << error << std::endl;
+
 }
 // The following macro registers this module to be useable in the config file.
 // The first argument is compulsory and gives the name of this module

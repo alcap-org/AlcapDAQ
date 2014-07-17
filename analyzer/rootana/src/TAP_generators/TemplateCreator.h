@@ -58,6 +58,12 @@ class TemplateCreator : public BaseModule{
   /// If true, then print out all pulses that get added to the templates and also
   /// print out certain templates as we go along
   bool fPulseDebug;
+
+  /// \brief
+  /// Checks if the template has converged and that adding a new pulse has not effect on the template
+  /// Returns: true if converged
+  bool CheckConvergence(TH1D* hTemplate, std::string bankname);
+  std::map<std::string, TH1D*> fErrorVsPulseAddedHistograms;
 };
 
 #endif //TEMPLATECREATOR_H_
