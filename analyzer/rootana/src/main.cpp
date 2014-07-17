@@ -146,14 +146,17 @@ int main(int argc, char **argv){
   return 0;
 }
 
-Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
-/*************************************************************************\
-| Loop over tree entries and call histogramming modules.                  |
-\*************************************************************************/
+
+//----------------------------------------------------------------------
+Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
+{
+  //Loop over tree entries and call histogramming modules.                  |
   Long64_t nentries = dataTree->GetEntriesFast();
   printf("There are %d entries\n",(int)nentries);
   std::cout<<"Processing file, which may take a while. "
      "Have patience young padawan.."<<std::endl;
+  
+  EventNavigator& enav = EventNavigator::Instance();
 
   //set up the input data
   if (g_event){
@@ -181,10 +184,10 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   modules::iterator first_module = modules::navigator::Instance()->Begin();
   modules::iterator last_module = modules::navigator::Instance()->End();
   modules::iterator it_mod;
-
+  
   int q = 0;
   for (it_mod=first_module; it_mod != last_module; it_mod++) {
-    q |= it_mod->second->BeforeFirstEntry(g_event, TSetupData::Instance());
+    q |= it_mod->second->BeforeFirstEntry(g_event, enav.GetSetupData());
   }
   if(q) {
     printf("Error while preprocessing first entry (%d)\n",(Int_t)start);
@@ -209,7 +212,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
     dataTree->GetEntry(jentry);
 
     for (it_mod=first_module; it_mod != last_module; it_mod++) {
-      q |= it_mod->second->ProcessGenericEntry(g_event,TSetupData::Instance());
+      q |= it_mod->second->ProcessGenericEntry(g_event,enav.GetSetupData());
       //if(q) break;
     }
     if(q){
@@ -225,7 +228,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   //post-process on last entry
   q = 0;
   for (it_mod=first_module; it_mod != last_module; it_mod++) {
-    q |= it_mod->second->AfterLastEntry(g_event,TSetupData::Instance());
+    q |= it_mod->second->AfterLastEntry(g_event,enav.GetSetupData());
   }
   if (q) {
      printf("Error during post-processing last entry (%lld)\n",(stop-1));
@@ -236,6 +239,8 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments){
   return 0;
 }
 
+
+//----------------------------------------------------------------------
 void ClearGlobalData(TGlobalData* data)
 {
   // We could put this into TGlobalData::Clear(), but we need
@@ -282,6 +287,7 @@ void ClearGlobalData(TGlobalData* data)
   gDetectorPulseMap.clear();
 }
 
+
 //----------------------------------------------------------------------
 TSetupData* TSetupData::Instance()
 {
@@ -289,6 +295,7 @@ TSetupData* TSetupData::Instance()
   return s_data;
 }
 
+//----------------------------------------------------------------------
 void PrintSetupData(TSetupData* s_data){
      if(!s_data) return;
   // print things out
@@ -308,6 +315,7 @@ void PrintSetupData(TSetupData* s_data){
   }
 }
 
+//----------------------------------------------------------------------
 Int_t PrepareAnalysedPulseMap(TFile* fileOut){
 	// TAnalysedMapWrapper
    gAnalysedPulseMapWrapper = new TAnalysedPulseMapWrapper(gAnalysedPulseMap);
@@ -328,6 +336,7 @@ Int_t PrepareAnalysedPulseMap(TFile* fileOut){
    return 0;
 }
 
+//----------------------------------------------------------------------
 Int_t PrepareSingletonObjects(const ARGUMENTS&){
    // Set up the modules navigator
    if(!modules::navigator::Instance()) return 1;
@@ -335,7 +344,7 @@ Int_t PrepareSingletonObjects(const ARGUMENTS&){
    // Make sure the instance of TSetupData get's loaded 
    // (though in practice we can do this lazily)
    //TSetupData* s_data = TSetupData::Instance();
-   if(!TSetupData::Instance()) return 2;
+   if( !EventNavigator::Instance().GetSetupData() ) return 2;
 
    return 0;
 }

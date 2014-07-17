@@ -71,12 +71,12 @@ class ExportPulse : public BaseModule{
  private:
   /// ExportPulse uses this method to process the config 
   /// file for any specifically requested pulses
-  virtual int BeforeFirstEntry(TGlobalData* gData,TSetupData *setup);
+  virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup);
 
   /// @brief Plot all pulses that we were asked to draw for this event.
   /// @details First loads pulses requested by the config file, then draws all
   /// TPIs, then draw all TAPs.
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+  virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
   //virtual int AfterLastEntry(TGlobalData* gData){return 0;};
 
   /// Draw all TPIs requested for this event
@@ -119,7 +119,7 @@ class ExportPulse : public BaseModule{
   StringConstAnalPulseMap fTAPsToPlot;
   EventChannelPulseIDs_t fRequestedByConfig;
   PulseInfo_t fPulseInfo;
-  TSetupData* fSetup;
+  const TSetupData* fSetup;
   modules::options* fOptions;
 
   TGlobalData* fGlobalData; // To be removed once Phill finishes the event navigator

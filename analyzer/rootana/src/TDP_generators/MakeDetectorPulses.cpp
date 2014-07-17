@@ -17,7 +17,7 @@ MakeDetectorPulses::MakeDetectorPulses(modules::options* opts):
 MakeDetectorPulses::~MakeDetectorPulses(){
 }
 
-int MakeDetectorPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int MakeDetectorPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
   std::string fast_det_name;
   std::string slow_det_name;
   AnalysedPulseList *slow_pulses;
@@ -75,7 +75,7 @@ std::string MakeDetectorPulses::GetOtherChannelName(std::string in_name,std::str
     return det_name+"-F";
 }
 
-int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, TSetupData* setup){
+int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
   // Set up the generator
   fGenerator=MakeGenerator(fAlgorithm);
   if(!fGenerator) return 1;

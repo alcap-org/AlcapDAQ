@@ -24,7 +24,7 @@ PulseCandidateFinder_InvestigateParameters::~PulseCandidateFinder_InvestigatePar
 // Called before the main event loop
 // Can be used to set things up, like histograms etc
 // Return non-zero to indicate a problem
-int PulseCandidateFinder_InvestigateParameters::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
+int PulseCandidateFinder_InvestigateParameters::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
   // Print extra info if we're debugging this module:
   if(Debug()){
      cout<<"-----PulseCandidateFinder_InvestigateParameters::BeforeFirstEntry(): I'm debugging!"<<endl;
@@ -35,7 +35,7 @@ int PulseCandidateFinder_InvestigateParameters::BeforeFirstEntry(TGlobalData* gD
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
-int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,TSetupData *setup){
+int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
   // Prepare a few variables
   std::string bankname, detname;
@@ -93,7 +93,7 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
 // Called just after the main event loop
 // Can be used to write things out, dump a summary etc
 // Return non-zero to indicate a problem
-int PulseCandidateFinder_InvestigateParameters::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
+int PulseCandidateFinder_InvestigateParameters::AfterLastEntry(TGlobalData* gData, const TSetupData* setup){
 
   // Print extra info if we're debugging this module:
   if(Debug()){

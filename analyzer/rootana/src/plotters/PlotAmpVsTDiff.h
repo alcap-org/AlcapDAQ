@@ -15,7 +15,7 @@ class PlotAmpVsTDiff : public BaseModule{
   ~PlotAmpVsTDiff();
 
  private:
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+  virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
 
   TH2F* amp_vs_tdiff_plot_coarse;
   TH2F* amp_vs_tdiff_plot_fine;

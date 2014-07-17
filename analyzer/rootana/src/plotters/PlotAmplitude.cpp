@@ -34,7 +34,7 @@ PlotAmplitude::PlotAmplitude(modules::options* opts) : BaseModule(opts->GetStrin
 PlotAmplitude::~PlotAmplitude(){  
 }
 
-int PlotAmplitude::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int PlotAmplitude::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
 
   // Loop through and find a fast channel
   //  std::cout << "Size of gAnalysedPulseMap " << gAnalysedPulseMap.size() << std::endl;

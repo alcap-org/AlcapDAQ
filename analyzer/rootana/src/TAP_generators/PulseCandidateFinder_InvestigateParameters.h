@@ -15,9 +15,9 @@ class PulseCandidateFinder_InvestigateParameters : public BaseModule{
   ~PulseCandidateFinder_InvestigateParameters();
 
  private:
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
-  virtual int BeforeFirstEntry(TGlobalData* gData, TSetupData *setup);
-  virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
+  virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
+  virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup);
+  virtual int AfterLastEntry(TGlobalData* gData, const TSetupData* setup);
 
  private:
   /// Store the module options for use in ProcessEntry

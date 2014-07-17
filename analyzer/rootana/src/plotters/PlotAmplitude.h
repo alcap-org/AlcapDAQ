@@ -13,7 +13,7 @@ class PlotAmplitude : public BaseModule{
   ~PlotAmplitude();
 
  private:
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+  virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
 
   std::map<std::string, TH1F*> fAmplitudePlots;
 };

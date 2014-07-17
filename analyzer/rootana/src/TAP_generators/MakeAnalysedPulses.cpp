@@ -28,7 +28,7 @@ MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
 MakeAnalysedPulses::~MakeAnalysedPulses(){
 }
 
-int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
+int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
     // Loop over every named detector channel in TSetupData
     std::vector<std::string> detectors;
     setup->GetAllDetectors(detectors);
@@ -88,7 +88,7 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
     return 0;
 }
 
-int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
   // Generator just receives a bunch of TPIs and must return a list of TAPs
 
   // Loop over each generator

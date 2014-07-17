@@ -22,7 +22,7 @@ class MakeTemplate : public BaseModule {
   ~MakeTemplate();
 
  private:
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+  virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
 };
 
 #endif

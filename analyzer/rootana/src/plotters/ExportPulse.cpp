@@ -47,7 +47,7 @@ ExportPulse::ExportPulse(modules::options* opts):
 ExportPulse::~ExportPulse(){
 }
 
-int ExportPulse::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
+int ExportPulse::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
    fSetup=setup;
    if(!fSetup){
       cout<<"Error: TSetupData passed to ExportPulse is NULL..."<<endl;
@@ -106,7 +106,7 @@ int ExportPulse::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
    return 0;
 }
 
-int ExportPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int ExportPulse::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
   // To be corrected once Phill finishes the event navigator
   fGlobalData=gData; 
   SetCurrentEventNumber(*gEntryNumber);
