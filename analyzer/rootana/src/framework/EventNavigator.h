@@ -89,7 +89,8 @@ class EventNavigator {
   Long64_t EntryNo() const {return fEntryNo;}
 
   /// Returns the number of entries in the input file.
-  Long64_t GetInputNEntries();
+  /// TODO revisit this with multiple inputs??
+  Long64_t GetInputNEntries() {return fRawTree->GetEntriesFast();}
 
   /// Load the next entry in the input tree. Returns the number of
   /// bytes if sucessful, 0 if reached the end or there is no input tree.
