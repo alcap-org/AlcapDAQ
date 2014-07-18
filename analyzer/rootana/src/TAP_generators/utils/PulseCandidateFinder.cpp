@@ -102,7 +102,10 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
 
   const std::vector<int>& samples = fPulseIsland->GetSamples();
   unsigned int n_samples = samples.size();
-  int pedestal = fPulseIsland->GetPedestal(0);
+
+  std::string bankname = fPulseIsland->GetBankName();
+  double pedestal = SetupNavigator::Instance()->GetPedestal(bankname);
+  double noise = SetupNavigator::Instance()->GetPedestalError(bankname);
   int polarity = fPulseIsland->GetTriggerPolarity();
 
   int s1, s2, ds; // this sample value, the previous sample value and the change in the sample value
@@ -117,11 +120,20 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
     ds = s2 - s1;
 
     if (found) {
-      if (s2 < 0) { // stop if the sample goes below pedestal
+
+      if (s2 < noise) { // stop if the sample goes below pedestal
 	location.stop = (int)i + n_border_samples;
 	if (location.stop >= samples.size()) {
 	  location.stop = samples.size() - 1;
 	}
+
+	fPulseCandidateLocations.push_back(location);
+	found = false;
+      }
+      
+      // Also stop if we are at the last sample
+      if (i == n_samples-1) {
+	location.stop = (int) i;
 
 	fPulseCandidateLocations.push_back(location);
 	found = false;
@@ -145,7 +157,10 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
 
   const std::vector<int>& samples = fPulseIsland->GetSamples();
   unsigned int n_samples = samples.size();
-  int pedestal = fPulseIsland->GetPedestal(0);
+
+  std::string bankname = fPulseIsland->GetBankName();
+  double pedestal = SetupNavigator::Instance()->GetPedestal(bankname);
+  double noise = SetupNavigator::Instance()->GetPedestalError(bankname);
   int polarity = fPulseIsland->GetTriggerPolarity();
 
   int sample_height; // the sample's height above pedestal
@@ -159,7 +174,7 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
     sample_height = polarity * (samples[i] - pedestal);
 
     if (found) {
-      if (sample_height < 0) { // stop if the sample goes below pedestal
+      if (sample_height < noise) { // stop if the sample goes below pedestal
 	location.stop = (int)i + n_border_samples;
 	if (location.stop >= samples.size()) {
 	  location.stop = samples.size() - 1;
