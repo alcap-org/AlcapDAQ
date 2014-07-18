@@ -86,8 +86,6 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
       pulse_candidate_finder->FindPulseCandidates(*pulseIter);
       int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
 
-      std::vector<TPulseIsland*> pulse_candidates = pulse_candidate_finder->GetPulseCandidates();
-
       // only continue if there is one pulse candidate on the TPI
       if (n_pulse_candidates == 1) {
 
@@ -116,13 +114,18 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	double max_adc_value = std::pow(2, n_bits);
 
 	// Loop through the samples and check for digitizer overflow
+	bool overflowed = false;
 	for (int i = 0; i < n_samples; ++i) {
 	  if (theSamples.at(i) >= max_adc_value-1 && theSamples.at(i) <= max_adc_value+1) {
 	    if (Debug()) {
 	      std::cout << "TemplateCreator: Pulse #" << pulseIter - thePulseIslands.begin() << " has overflowed the digitizer and won't be added to the template" << std::endl;
 	    }
-	    continue;
+	    overflowed = true;
+	    break;
 	  }
+	}
+	if (overflowed) {
+	  continue; // skip this pulse
 	}
 
 	// Create the refined pulse waveform
