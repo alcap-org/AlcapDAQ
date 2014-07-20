@@ -52,14 +52,14 @@
 #include "TAnalysedPulseMapWrapper.h"
 #include "EventNavigator.h"
 
+#include "debug_tools.h"
+
 // Forward declaration of functions ======================
 Int_t Main_event_loop(TTree* dataTree, ARGUMENTS& arguments);
 void ClearGlobalData(TGlobalData*);
 TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
 Int_t PrepareSingletonObjects(const ARGUMENTS&);
-
-static TGlobalData *g_event=NULL;
 
 // Temporary botch to let ExportPulse module know what the current entry
 // number is.  I'm assuming Phill's Event Navigator will provide this
@@ -107,7 +107,6 @@ int main(int argc, char **argv)
 
   //Event Tree
   TTree* eventTree = navi.GetRawTree(); 
-  g_event = navi.GetRawData();
 
   // Let's open the output file for analysis data, histograms and so on.
   TFile *fileOut = new TFile(arguments.outfile.c_str(), "RECREATE");
@@ -151,6 +150,8 @@ int main(int argc, char **argv)
 //----------------------------------------------------------------------
 Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
 {
+  static std::vector<std::string> mlog; mlog.reserve(1000);
+
   //Loop over tree entries and call histogramming modules.
   EventNavigator& enav = EventNavigator::Instance();
   Long64_t nEntries = enav.GetInputNEntries();
@@ -160,9 +161,10 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
             << std::endl;
 
   //set up the input data
-  if (g_event){
-    g_event->Clear("C");
-    dataTree->SetBranchAddress("Event",&g_event);
+  TGlobalData*& raw_data = enav.GetRawData();
+  if ( raw_data ){
+    raw_data->Clear("C");
+    dataTree->SetBranchAddress("Event",&raw_data);
   }
   
   // How many entries should we loop over?
@@ -187,7 +189,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
   
   int q = 0;
   for (it_mod=first_module; it_mod != last_module; it_mod++) {
-    q |= it_mod->second->BeforeFirstEntry(g_event, enav.GetSetupData());
+    q |= it_mod->second->BeforeFirstEntry(raw_data, enav.GetSetupData());
   }
   if(q) {
     std::cout << "Error while preprocessing first entry (" 
@@ -200,10 +202,10 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
   Long64_t jentry;
   gEntryNumber=&jentry;
   for ( jentry=start; jentry<stop;jentry++) {
-    if(g_event){
-      g_event->Clear("C");
-      ClearGlobalData(g_event);
-      dataTree->SetBranchAddress("Event",&g_event);
+    if(raw_data){
+      raw_data->Clear("C");
+      ClearGlobalData(raw_data);
+      dataTree->SetBranchAddress("Event",&raw_data);
     }
     
     if ((jentry-start)%100 == 0) {
@@ -212,9 +214,9 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
     }
     // Let's get the next event
     enav.GetEntry(jentry);
-
+    mlog.push_back(DEBUG::check_mem().str);
     for (it_mod=first_module; it_mod != last_module; it_mod++) {
-      q |= it_mod->second->ProcessGenericEntry(g_event,enav.GetSetupData());
+      q |= it_mod->second->ProcessGenericEntry(raw_data,enav.GetSetupData());
       //if(q) break;
     }
     if(q){
@@ -229,8 +231,10 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
 
   //post-process on last entry
   q = 0;
+  for (int i = 0; i < mlog.size(); i+=(mlog.size()/20)) 
+    std::cout << "Event " << i << ":\t" << mlog[i] << std::endl;
   for (it_mod=first_module; it_mod != last_module; it_mod++) {
-    q |= it_mod->second->AfterLastEntry(g_event,enav.GetSetupData());
+    q |= it_mod->second->AfterLastEntry(raw_data,enav.GetSetupData());
   }
   if (q) {
     std::cout << "Error during post-processing last entry " << (stop-1)
@@ -246,12 +250,13 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
 //----------------------------------------------------------------------
 void ClearGlobalData(TGlobalData* data)
 {
+  // TODO: this comment is now gibberish.
   // We could put this into TGlobalData::Clear(), but we need
   // to be sure that's okay at the alcapana level. That is, if
   // Clear() deletes the TPulseIsland objects, but g_event doesn't
   // own the pulses, they would be deleted later. A solution is to
   // be sure that TGlobalData isn't called in alcapana, or ensure
-  // that g_event owns the pulse islands at that level.
+  // that g_event owns the pulse islands at that level.  
   StringPulseIslandMap::iterator mapIter;
   StringPulseIslandMap::iterator mapEnd = data->fPulseIslandToChannelMap.end();
   for(mapIter = data->fPulseIslandToChannelMap.begin(); mapIter != mapEnd; mapIter++) {
