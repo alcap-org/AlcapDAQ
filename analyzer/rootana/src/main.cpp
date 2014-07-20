@@ -61,10 +61,6 @@ TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
 Int_t PrepareSingletonObjects(const ARGUMENTS&);
 
-// Temporary botch to let ExportPulse module know what the current entry
-// number is.  I'm assuming Phill's Event Navigator will provide this
-// functionality, so I'll remove this at that point.
-Long64_t* gEntryNumber;
 Long64_t* gTotalEntries;
 
 TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
@@ -74,6 +70,41 @@ TBranch *gAnalysedPulseBranch = NULL;
 StringAnalPulseMap gAnalysedPulseMap;
 StringDetPulseMap gDetectorPulseMap;
 MuonEventList gMuonEvents;
+
+
+
+///This shoud get a proper home and some more flexability, perhaps a
+///nicer name. Also consider splittin into muiltiple classes.
+class module_error : public std::runtime_error {
+public:
+  module_error(int evt) 
+    : std::runtime_error("")
+    , fEvent(evt)
+  {}
+  int fEvent;
+};
+
+class preprocess_error : public module_error {
+public:
+  preprocess_error(int evt)
+    : module_error(evt)
+  {}
+};
+
+class process_error : public module_error {
+public:
+  process_error(int evt)
+    : module_error(evt)
+  {}
+};
+
+class postprocess_error : public module_error {
+public:
+  postprocess_error(int evt)
+    : module_error(evt)
+  {}
+};
+
 
 
 int main(int argc, char **argv)
@@ -135,8 +166,25 @@ int main(int argc, char **argv)
 
   // Finally let's do the main loop
   fileOut->cd();
-  Main_event_loop(eventTree,arguments);
-
+  try {
+    Main_event_loop(eventTree,arguments);
+  }
+  catch (module_error& e) {
+    if (dynamic_cast<preprocess_error*>(&e)){
+      std::cout << "\nError while preprocessing first entry (" << e.fEvent << ")";
+    }
+    else if (dynamic_cast<process_error*>(&e)){
+      std::cout << "\nA module returned non-zero on entry " << e.fEvent;
+    }
+    else if (dynamic_cast<postprocess_error*>(&e)){
+      std::cout << "\nError during post-processing last entry " << e.fEvent;
+    }
+    else {
+      std::cout << "\nUnknown module error on event "<< e.fEvent;
+    }
+    std::cout << std::endl;    
+  }
+  
   // and finish up
   fileOut->cd();
   gAnalysedPulseTree->Write();
@@ -150,7 +198,7 @@ int main(int argc, char **argv)
 //----------------------------------------------------------------------
 Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
 {
-  static std::vector<std::string> mlog; mlog.reserve(1000);
+  std::vector<std::string> mlog; mlog.reserve(1000);
 
   //Loop over tree entries and call histogramming modules.
   EventNavigator& enav = EventNavigator::Instance();
@@ -173,6 +221,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
   Long64_t stop = (has_stop) ? arguments.stop : nEntries;
   
   gTotalEntries=&stop;
+
   // wind the file on to the first event
   enav.GetEntry(start);
 
@@ -181,21 +230,14 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
   modules::iterator last_module = modules::navigator::Instance()->End();
   modules::iterator it_mod;
   
-  int q = 0;
+  int err_code = 0;
   for (it_mod=first_module; it_mod != last_module; it_mod++) {
-    q |= it_mod->second->BeforeFirstEntry(raw_data, enav.GetSetupData());
+    err_code |= it_mod->second->BeforeFirstEntry(raw_data, enav.GetSetupData());
   }
-  if(q) {
-    std::cout << "Error while preprocessing first entry (" 
-              << start << ")" << std::endl;
-    return q;
-  }
+  if(err_code) throw preprocess_error(start);
 
-  q = 0;
   //process entries
-  Long64_t jentry;
-  gEntryNumber=&jentry;
-  for ( jentry=start; jentry<stop;jentry++) {
+  for ( Long64_t jentry=start; jentry<stop;jentry++) {
     if(raw_data){
       raw_data->Clear("C");
       ClearGlobalData(raw_data);
@@ -209,13 +251,9 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
     enav.GetEntry(jentry);
     mlog.push_back(DEBUG::check_mem().str);
     for (it_mod=first_module; it_mod != last_module; it_mod++) {
-      q |= it_mod->second->ProcessGenericEntry(raw_data,enav.GetSetupData());
-      //if(q) break;
+      err_code |= it_mod->second->ProcessGenericEntry(raw_data,enav.GetSetupData());
     }
-    if(q){
-      std::cout << "q was non-zero when jentry was " << jentry << std::endl;
-      break;
-    }
+    if(err_code) throw process_error(enav.EntryNo());
 
     gAnalysedPulseMapWrapper->SetMap(gAnalysedPulseMap);
     //gAnalysedPulseMapWrapper->ShowInfo();
@@ -223,17 +261,13 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
   }
 
   //post-process on last entry
-  q = 0;
   for (int i = 0; i < mlog.size(); i+=TMath::Max(mlog.size()/20,1lu)) 
     std::cout << "Event " << i << ":\t" << mlog[i] << std::endl;
+  
   for (it_mod=first_module; it_mod != last_module; it_mod++) {
-    q |= it_mod->second->AfterLastEntry(raw_data,enav.GetSetupData());
+    err_code |= it_mod->second->AfterLastEntry(raw_data,enav.GetSetupData());
   }
-  if (q) {
-    std::cout << "Error during post-processing last entry " << (stop-1)
-              << std::endl;
-     return q;
-  }
+  if (err_code) throw postprocess_error(stop-1);
   
   std::cout << "Finished processing data normally" << std::cout;
   return 0;
