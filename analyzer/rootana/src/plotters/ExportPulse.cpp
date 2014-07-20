@@ -1,24 +1,30 @@
-#include "ModulesFactory.h"
-#include "ModulesParser.h"
-#include "ModulesNavigator.h"
 #include "ExportPulse.h"
-#include "TVAnalysedPulseGenerator.h"
-#include "MaxBinAPGenerator.h"
+
+//C++/STL
 #include <iostream>
 #include <algorithm> //std::replace_if
 #include <utility> //std::pair
 #include <sstream>
-#include "RegisterModule.inc"
 #include <stdexcept>
 
+//ROOT
 #include <TH1F.h>
+
+//Local
+#include "ModulesFactory.h"
+#include "ModulesParser.h"
+#include "ModulesNavigator.h"
+#include "TVAnalysedPulseGenerator.h"
+#include "MaxBinAPGenerator.h"
+#include "RegisterModule.inc"
+#include "EventNavigator.h"
+
 
 using std::cout;
 using std::endl;
 using std::string;
 
 extern StringAnalPulseMap gAnalysedPulseMap;
-extern Long64_t* gEntryNumber;
 extern Long64_t* gTotalEntries;
 
 static bool isNonCpp(char c){ 
@@ -109,7 +115,7 @@ int ExportPulse::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
 int ExportPulse::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
   // To be corrected once Phill finishes the event navigator
   fGlobalData=gData; 
-  SetCurrentEventNumber(*gEntryNumber);
+  SetCurrentEventNumber(EventNavigator::Instance().EntryNo());
 
   // Check if we have any pulses to draw that were requested through the MODULEs file
   LoadPulsesRequestedByConfig();
