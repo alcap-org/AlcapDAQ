@@ -189,7 +189,7 @@ class EventNavigator {
 
   void Close();
 
-  TGlobalData* GetRawData() {return fRawData;}
+  TGlobalData*& GetRawData() {return fRawData;}
   TTree* GetRawTree() {return fRawTree;}
   ///A test
   void CopyTree();
