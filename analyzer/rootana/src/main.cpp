@@ -161,10 +161,9 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
             << std::endl;
 
   //set up the input data
-  TGlobalData*& raw_data = enav.GetRawData();
+  TGlobalData* raw_data = enav.GetRawData();
   if ( raw_data ){
     raw_data->Clear("C");
-    dataTree->SetBranchAddress("Event",&raw_data);
   }
   
   // How many entries should we loop over?
@@ -205,7 +204,6 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
     if(raw_data){
       raw_data->Clear("C");
       ClearGlobalData(raw_data);
-      dataTree->SetBranchAddress("Event",&raw_data);
     }
     
     if ((jentry-start)%100 == 0) {
