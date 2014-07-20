@@ -229,7 +229,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
 
   //post-process on last entry
   q = 0;
-  for (int i = 0; i < mlog.size(); i+=(mlog.size()/20)) 
+  for (int i = 0; i < mlog.size(); i+=TMath::Max(mlog.size()/20,1lu)) 
     std::cout << "Event " << i << ":\t" << mlog[i] << std::endl;
   for (it_mod=first_module; it_mod != last_module; it_mod++) {
     q |= it_mod->second->AfterLastEntry(raw_data,enav.GetSetupData());
