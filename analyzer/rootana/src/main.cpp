@@ -167,16 +167,11 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
   }
   
   // How many entries should we loop over?
-  Long64_t start = 0;
-  Long64_t stop = nEntries;
-  // TODO: make this legible.
-  if(arguments.stop>0){
-    if(arguments.start>0) start = (Long64_t)(arguments.start-1);
-    if((Long64_t)arguments.stop < nEntries) stop = (Long64_t)arguments.stop;
-  }
-  else if((Long64_t)arguments.start < nEntries && arguments.start > 0){
-    stop = (Long64_t)arguments.start;
-  }
+  bool has_start = (arguments.start > 0) && (arguments.start < nEntries);
+  Long64_t start = (has_start) ? arguments.start : 0;
+  bool has_stop = (arguments.stop > 0) && (arguments.stop < nEntries);
+  Long64_t stop = (has_stop) ? arguments.stop : nEntries;
+  
   gTotalEntries=&stop;
   // wind the file on to the first event
   enav.GetEntry(start);
