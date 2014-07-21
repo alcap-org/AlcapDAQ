@@ -123,9 +123,17 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	// Loop through the samples and check for digitizer overflow
 	bool overflowed = false;
 	for (int i = 0; i < n_samples; ++i) {
-	  if (theSamples.at(i) >= max_adc_value-1 && theSamples.at(i) <= max_adc_value+1) {
+	  int sample_value = theSamples.at(i);
+	  if (sample_value >= max_adc_value-1 && sample_value <= max_adc_value+1) {
 	    if (Debug()) {
 	      std::cout << "TemplateCreator: Pulse #" << pulseIter - thePulseIslands.begin() << " has overflowed the digitizer and won't be added to the template" << std::endl;
+	    }
+	    overflowed = true;
+	    break;
+	  }
+	  else if (sample_value == 0) {
+	    if (Debug()) {
+	      std::cout << "TemplateCreator: Pulse #" << pulseIter - thePulseIslands.begin() << " has underflowed the digitizer and won't be added to the template" << std::endl;
 	    }
 	    overflowed = true;
 	    break;
@@ -157,7 +165,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	double pulse_amplitude;
 	double pulse_time;
 
-	double pedestal_offset_estimate = template_pedestal - pulse_pedestal;
+	double pedestal_offset_estimate = pulse_pedestal; // now we're dealing with actual pulses since we subtract the template_pedestal in the transformation
 	double amplitude_scale_factor_estimate;
 	double time_offset_estimate;
 	if (TSetupData::Instance()->GetTriggerPolarity(bankname) == 1) { 
@@ -408,7 +416,7 @@ bool TemplateCreator::CheckConvergence(TH1D* hTemplate, std::string bankname) {
     error = hTemplate->GetBinError(hTemplate->GetMaximumBin());
   }
   fErrorVsPulseAddedHistograms[detname]->Fill(n_pulses_in_template, error);
-  std::cout << detname << ": #" << n_pulses_in_template << ", Error = " << error << std::endl;
+  //  std::cout << detname << ": #" << n_pulses_in_template << ", Error = " << error << std::endl;
 
 }
 // The following macro registers this module to be useable in the config file.
