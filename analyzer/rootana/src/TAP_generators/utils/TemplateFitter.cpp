@@ -53,10 +53,10 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, TH1D* hPulse, std::strin
   fTimeOffset_minimum = fTimeOffset_estimate - max_time_offset;
   fTimeOffset_maximum = fTimeOffset_estimate + max_time_offset;
 
-  fPedestalOffset_minimum = -10*max_adc_value;
-  fPedestalOffset_maximum = 10*max_adc_value;
+  fPedestalOffset_minimum = 0;
+  fPedestalOffset_maximum = max_adc_value;
 
-  fAmplitudeScaleFactor_minimum = 0;
+  fAmplitudeScaleFactor_minimum = 0.1;
   fAmplitudeScaleFactor_maximum = 100;
 
   for (double time_offset = fTimeOffset_minimum; time_offset <= fTimeOffset_maximum; ++time_offset) {
@@ -71,7 +71,6 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, TH1D* hPulse, std::strin
     fMinuitFitter->SetParameter(0, "PedestalOffset", fPedestalOffset, 0.1, fPedestalOffset_minimum, fPedestalOffset_maximum);
     fMinuitFitter->SetParameter(1, "AmplitudeScaleFactor", fAmplitudeScaleFactor, 0.1, fAmplitudeScaleFactor_minimum, fAmplitudeScaleFactor_maximum);
     fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
-
 
 
     // Minimize and notify if there was a problem
