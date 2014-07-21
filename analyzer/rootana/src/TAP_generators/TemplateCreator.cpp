@@ -72,7 +72,10 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
     // Try and get the template (it may have been created in a previous event)
     std::string template_name = "hTemplate_" + detname;
-    TH1D* hTemplate = fTemplateArchive->GetTemplate(template_name.c_str());
+    TH1D* hTemplate = NULL;
+    if (fTemplates.find(detname) != fTemplates.end()) {
+      hTemplate = fTemplates[detname];
+    }
 
     // Store a couple of numbers to get an idea of how many successful fits there are
     int& n_fit_attempts = fNFitAttempts[detname]; // number of pulses we try to fit to
@@ -109,6 +112,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	  if (Debug()) {
 	    std::cout << "TemplateCreator: Adding " << detname << " Pulse #" << pulseIter - thePulseIslands.begin() << " directly to the template" << std::endl;
 	  }
+	  fTemplates[detname] = hTemplate;
 	  continue;
 	}
 
@@ -263,8 +267,6 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
       }
     }
     // We will want to normalise to template to have pedestal=0 and amplitude=1
-    // Save the template to the file
-    fTemplateArchive->SaveTemplate(hTemplate);
   }
 
   return 0;
@@ -290,6 +292,9 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData, const TSetupData* setup)
     int& n_fit_attempts = fNFitAttempts[detname]; // number of pulses we try to fit to
     int& n_successful_fits = fNSuccessfulFits[detname];
     std::cout << "TemplateCreator: " << detname << ": " << n_fit_attempts << " fits attempted with " << n_successful_fits << " successful (" << ((double)n_successful_fits/(double)n_fit_attempts)*100 << "%)" << std::endl;
+
+    // Save the template to the file
+    fTemplateArchive->SaveTemplate(fTemplates[detname]);
   }
 
   // Clean up the template archive

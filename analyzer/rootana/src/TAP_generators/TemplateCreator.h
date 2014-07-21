@@ -41,6 +41,10 @@ class TemplateCreator : public BaseModule{
   std::map<std::string, int> fNPulsesInTemplate;
 
   /// \brief
+  /// A map of the template histograms
+  std::map<std::string, TH1D*> fTemplates;
+
+  /// \brief
   /// Corrects a given sample value
   double CorrectSampleValue(double old_value, double template_pedestal);
 
