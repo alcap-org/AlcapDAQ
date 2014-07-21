@@ -70,7 +70,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
     double delta = fPulseHist->GetBinContent(i) - f;
     double hTemplate_bin_error = fTemplateHist->GetBinError(i - T_int);
     double hPulse_bin_error = fPulseHist->GetBinError(i);
-    chi2 += delta*delta / ((hTemplate_bin_error*hTemplate_bin_error) + (hPulse_bin_error)*(hPulse_bin_error));
+    chi2 += delta*delta / (hTemplate_bin_error*hTemplate_bin_error);
     //    std::cout << "Histogram Errors: Template = " << hTemplate_bin_error << ", Pulse = " << hPulse_bin_error << std::endl;
   }
 
