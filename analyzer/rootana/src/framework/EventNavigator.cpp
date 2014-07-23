@@ -83,7 +83,7 @@ const LoopSequence& EventNavigator::GetLoopSequence() const
 }
 
 //----------------------------------------------------------------------
-const LoopSequence& EventNavigator::GetLoopSequence(const ARGUMENTS& args)
+const LoopSequence& EventNavigator::MakeLoopSequence(const ARGUMENTS& args)
 {
   //Not sure if allowing this to be replaced is safe. Lets err on the
   //side of caution and make it a runtime error for now.
@@ -188,13 +188,6 @@ template<typename T, unsigned int& I> T ADV(T t) {
 };
 
 
-
-
-//template <typename T> T ADV2(T t, int i){
-//  if (i==0) return T;
-//  else return ADV(t,i-1); 
-//};
-
 //----------------------------------------------------------------------
 TSetupData* EventNavigator::ConnectSetupData(TFile* raw_file)
 {
@@ -217,15 +210,8 @@ TSetupData* EventNavigator::ConnectSetupData(TFile* raw_file)
 
   fSetupTree->GetEntry(0);
   fSetupRecord = new SetupRecord(fSetupData);
-
-  //for (int i =0; i < GetSetupRecord().fInfoLookup.size(); ++i) {
-  //  GetSetupRecord().fInfoLookup[i].Print();
-  //}
-
-
-
-
   return fSetupData;
+
 }
 
 
@@ -324,45 +310,6 @@ const PulseIslandList& EventNavigator::FindIslandBank(const SourceID& sid) const
 #endif
 
 //----------------------------------------------------------------------
-Bool_t EventNavigator::ConnectInput(const char* input_file_name,
-                                    Bool_t read_only)
-{
-  /*  //For now we  dont support identical output files
-  if (read_only == false){
-    std::cout << "WARN:  " << "re-writable files not supported!"
-	      << std::endl;
-    read_only = true;
-  }
-
-
-  //Not very careful about tidying up after failures or repeat attempts
-  //here.  Probably doesen't matter since the program is likely to
-  //abort shortly afterward.  Revisit if that is not true.
-
-  //Open the file
-  fRawInput = TFile::Open(input_file_name, (read_only ? "READ" : "UPDATE"));
-  if (!fRawInput || fRawInput->IsZombie())  return false;
-
-  //Look for setup tree
-  TTree* setup_tree = 0x0;
-  fRawInput->GetObject("SetupTree", setup_tree);
-  if (!setup_tree || setup_tree->GetEntriesFast() == 0) return false;
-
-  //Look for data tree
-  TTree* event_tree = 0x0;
-  fRawInput->GetObject("EventTree", event_tree);
-  if (!event_tree || event_tree->GetEntriesFast() == 0) return false;
-
-  //All set
-  fSetupTree = setup_tree;
-  fEventTree = event_tree;
-  */
-  return true;
-  
-}
-
-
-//----------------------------------------------------------------------
 Bool_t EventNavigator::ConnectOutputFile(const char* output_file_name,
 					 Bool_t append)
 {
@@ -392,10 +339,6 @@ Int_t EventNavigator::LoadEntry(Long64_t entry)
   else return 0;
   if (nBytes < 0) throw io_error();
   fEntryNo = entry;
-  //if (fEntryNo % 100 != 10) return nBytes;
-  //std::cout << fEntryNo << "/" << fRawTree->GetEntriesFast() 
-  //          << ":  " << fRawData->fPulseIslandToChannelMap.size() << std::endl;
-  //std::cout << DEBUG::check_mem().str << std::endl;;  
   return nBytes;
 }
 
@@ -413,100 +356,8 @@ void EventNavigator::Close()
   if (fOutput) fOutput->Close();
 }
 
-
+//======================================================================
 extern void ClearGlobalData(TGlobalData* data);
-//----------------------------------------------------------------------
-void EventNavigator::CopyTree()
-{
-  //DEBUG_PRINT
-  Long64_t nentries = fEventTree->GetEntries();
-  //nentries = 100;
-  TGlobalData* event = new TGlobalData();
-  fEventTree->SetBranchAddress("Event", &event);
-  fEventTree->GetDirectory()->Print();
-
-  //DEBUG_PRINT
-
-  fOutput->ls();
-  gFile->ls();
-  TTree* out_tree = new TTree("output_tree", "out");//fEventTree->CloneTree(0);
-  TTree* out_tree2 = new TTree("friend", "Friendly tree");
-  out_tree->SetName("ouput_event");
-  out_tree2->SetName("friendly_event");
-  Int_t something; Int_t something_else; Float_t ratio;
-  out_tree->Branch("Event", &event);
-  out_tree->Branch("demo",&something,"demo/I");
-  out_tree->SetAutoSave(1000000);
-  out_tree->AddFriend(out_tree2);
-  out_tree2->Branch("mode",&something_else,"mode/I");
-  out_tree2->Branch("R",&ratio,"R/F");
-  out_tree2->SetAutoSave(1000000);
-  
-  Long64_t i;
-  DEBUG::check_clock();
-  for (/*Long64_t*/ i=0; i < nentries; ++i){
-    //std::cout << "on entry" << i << "/" << nentries << std::endl;
-    //fEventTree->GetEntry(20);
-    fEventTree->GetEntry(i);
-    something = i % 25;
-    something_else = i % 7;
-    ratio = (1. * something) / (1+something_else);
-    out_tree->Fill();
-    out_tree2->Fill();
-    //out_tree->AutoSave();
-    out_tree2->AutoSave();
-    
-    if ( i ==    1 || i ==    2 || i ==    5 ||
-	 i ==   10 || i ==   20 || i ==   50 ||
-	 i ==  100 || i ==  200 || i ==  500 ||
-	 i % 1000 == 0 ) {
-      std::cout << "Event " << i  
-		<< ": \t" << DEBUG::check_clock().str
-		<< "\t" << DEBUG::check_mem().str 
-		<< std::endl;
-      
-    }
-    //std::cout << "map size: "<<event->fPulseIslandToChannelMap.size() << std::endl;
-    typedef std::vector<TPulseIsland*> PI_list_t;
-    typedef std::map<std::string, PI_list_t> PI2CM_t;
-    typedef PI2CM_t::iterator PI2C_iter_t;
-    int npi  =0; int npi2 = 0;
-    for (PI2C_iter_t it = event->fPulseIslandToChannelMap.begin();
-	 it != event->fPulseIslandToChannelMap.end(); ++it){
-      npi += it->second.size();
-      PI_list_t& bank = it->second;
-      for (size_t pui = 0; pui < bank.size() ; ++pui){
-	delete bank[pui];
-      }
-      bank.clear();
-      npi2 +=  it->second.size();
-      //typedef std::vector<int> PIdata_t; 
-      //PIdata_t samples = 
-      //for (int s =  
-      
-    }
-    //std::cout << "N islands: "<< npi << std::endl;
-    //std::cout << "After del: "<< npi2 << std::endl;
-    
-    
-    //event->Clear();
-    //ClearGlobalData(event);
-    fEventTree->Clear();
-    out_tree->Clear();
-    out_tree2->Clear();
-  }
-  std::cout << nentries << " Entries" << std::endl;
-  delete event;
-  out_tree->Print();
-  out_tree->AutoSave();
-  out_tree2->Print();
-  out_tree2->AutoSave();
-  
-  fOutput->ls();
-  fOutput->Close();
-  //DEBUG_PRINT
-
-}
 
 
 //======================================================================

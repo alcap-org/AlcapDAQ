@@ -61,8 +61,6 @@ TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
 Int_t PrepareSingletonObjects(const ARGUMENTS&);
 
-Long64_t* gTotalEntries;
-
 TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
 TTree *gAnalysedPulseTree = NULL;
 TBranch *gAnalysedPulseBranch = NULL;
@@ -73,7 +71,7 @@ MuonEventList gMuonEvents;
 
 int main(int argc, char **argv)
 {
-//load_config_file("MODULES.txt");
+  //load_config_file("MODULES.txt");
 
   // Parse the command line
   ARGUMENTS arguments;
@@ -133,23 +131,13 @@ int main(int argc, char **argv)
   try {
     Main_event_loop(eventTree,arguments);
   }
-  catch (...){}
-  /*catch (module_error& e) {
-    if (dynamic_cast<preprocess_error*>(&e)){
-      std::cout << "\nError while preprocessing first entry (" << e.fEvent << ")";
-    }
-    else if (dynamic_cast<process_error*>(&e)){
-      std::cout << "\nA module returned non-zero on entry " << e.fEvent;
-    }
-    else if (dynamic_cast<postprocess_error*>(&e)){
-      std::cout << "\nError during post-processing last entry " << e.fEvent;
-    }
-    else {
-      std::cout << "\nUnknown module error on event "<< e.fEvent;
-    }
-    std::cout << std::endl;    
+  catch (std::exception& e){
+    std::cout << "Terminating due to unexpected exception:\n" 
+              << e.what() << std::endl; 
   }
-  */
+  catch (...){
+    std::cout << "Terminating due to unknown exception" << std::endl;
+  }
   
   // and finish up
   fileOut->cd();
@@ -164,8 +152,6 @@ int main(int argc, char **argv)
 //----------------------------------------------------------------------
 Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
 {
-  std::vector<std::string> mlog; mlog.reserve(1000);
-
   //Loop over tree entries and call histogramming modules.
   EventNavigator& enav = EventNavigator::Instance();
   Long64_t nEntries = enav.GetInputNEntries();
@@ -180,62 +166,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
     raw_data->Clear("C");
   }
   
-  // How many entries should we loop over?
-  //bool has_start = (arguments.start > 0) && (arguments.start < nEntries);
-  //Long64_t start = (has_start) ? arguments.start : 0;
-  //bool has_stop = (arguments.stop > 0) && (arguments.stop < nEntries);
-  //Long64_t stop = (has_stop) ? arguments.stop : nEntries;
-  
-  //gTotalEntries=&stop;
-
-  // wind the file on to the first event
-  //enav.GetEntry(start);
-
-  enav.GetLoopSequence(arguments).Run();
-  // Get the first and last module to run with
-  //modules::iterator first_module = modules::navigator::Instance()->Begin();
-  //modules::iterator last_module = modules::navigator::Instance()->End();
-  //modules::iterator it_mod;
-  
-  //int err_code = 0;
-  //for (it_mod=first_module; it_mod != last_module; it_mod++) {
-  //  err_code |= it_mod->second->BeforeFirstEntry(raw_data, enav.GetSetupData());
-  //}
-  //if(err_code) throw start;//preprocess_error(start);
-
-  //process entries
-  //for ( Long64_t jentry=start; jentry<stop;jentry++) {
-  //  if(raw_data){
-  //    raw_data->Clear("C");
-  //    ClearGlobalData(raw_data);
-  //  }
-    
-  //  if ((jentry-start)%100 == 0) {
-  //    std::cout << "Completed " << (jentry-start) 
-  //              << " events out of " << (stop-start) << std::endl;
-  // }
-    // Let's get the next event
-  //  enav.GetEntry(jentry);
-  //  mlog.push_back(DEBUG::check_mem().str);
-  //  for (it_mod=first_module; it_mod != last_module; it_mod++) {
-  //    err_code |= it_mod->second->ProcessGenericEntry(raw_data,enav.GetSetupData());
-  //  }
-  //  if(err_code) throw enav.EntryNo();//process_error(enav.EntryNo());
-
-  //  gAnalysedPulseMapWrapper->SetMap(gAnalysedPulseMap);
-  //  //gAnalysedPulseMapWrapper->ShowInfo();
-  //  gAnalysedPulseTree->Fill();
-  //}
-
-  //post-process on last entry
-  //for (int i = 0; i < mlog.size(); i+=TMath::Max(mlog.size()/20,1lu)) 
-  //  std::cout << "Event " << i << ":\t" << mlog[i] << std::endl;
-  //
-  //for (it_mod=first_module; it_mod != last_module; it_mod++) {
-  //  err_code |= it_mod->second->AfterLastEntry(raw_data,enav.GetSetupData());
-  //}
-  //if (err_code) throw stop-1;//postprocess_error(stop-1);
-  
+  enav.MakeLoopSequence(arguments).Run();
   std::cout << "Finished processing data normally" << std::endl;
   return 0;
 }

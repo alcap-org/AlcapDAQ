@@ -14,13 +14,12 @@ class TGlobalData;
 class LoopSequence {
   friend class EventNavigator;
 public:
-  void Init();
   void Run() const;
-  //int Finish();
 
-  LoopSequence(const LoopSequence& src);
   Long64_t StartEntry() const {return fStart;}
   Long64_t StopEntry() const {return fStop;}
+
+  const ARGUMENTS& GetCommandLineArgs() {return fArgs;}
 
 protected:
   //LoopSequence();
@@ -29,8 +28,10 @@ protected:
   {
     Init();
   }
+  LoopSequence(const LoopSequence& src);
   LoopSequence& operator=(const LoopSequence& rhs);
 
+  void Init();
   void Preprocess() const;
   void Process() const;
   void Postprocess() const;

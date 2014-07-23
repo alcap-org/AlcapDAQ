@@ -16,7 +16,6 @@ class TTree;
 #include "BankIter.h"
 #include "SetupRecord.h"
 #include "LoopSequence.h"
-//static TGlobalData *g_event=NULL; 
 
 
 ///This shoud get a proper home and some more flexability
@@ -67,30 +66,24 @@ class EventNavigator {
   /// stored in the TSetupData struct
   const SetupRecord& GetSetupRecord() {return *fSetupRecord;}
 
-
+  /// Gives read access to the LoopSequence, which must first be
+  /// initailised with MakeLoopSequence() in main()
   const LoopSequence& GetLoopSequence() const;
   
-  ///
-  const LoopSequence& GetLoopSequence(const ARGUMENTS& args);
+  /// Initialises the LoopSequence this must be called once beforit is
+  /// used.  Calling it a second time is undefined behavior (currently
+  /// forces an exception)
+  const LoopSequence& MakeLoopSequence(const ARGUMENTS& args);
 
   /// Opens an input file and connects to the trees therein.  Returns
   /// true if file exists, is a ROOT file, and contains at least one EACH of 
   /// setup and event trees that we recognise. Else false.
-  /// Request for read+write files (i.e. read_only=0) currently ignored.
-  Bool_t ConnectInput(const char* input_file_name, Bool_t read_only );
-  
   Bool_t ConnectInput(const char* input_name);
 
-  TGlobalData* ConnectRawData(TFile* raw_file);
-
-  Bool_t VerifyRawData(TTree* raw_tree);
-
-  TSetupData* ConnectSetupData(TFile* raw_file);
-
-  Bool_t VerifySetupData(TTree* setup_tree);
-
-  Bool_t MirrorRawInputFormat();
-
+  
+  /// Opens an output file to put trees and histograms in.  By default
+  /// this overites any existing file with the same name but we can
+  /// change it to fail instead.
   Bool_t ConnectOutput(const char* output_name, OutputMode mode = kOverwrite);
 
   /// Opens an output file.  By default this overwrites the output file
@@ -104,11 +97,14 @@ class EventNavigator {
   /// TODO revisit this with multiple inputs??
   Long64_t GetInputNEntries() const {return fRawTree->GetEntriesFast();}
 
-  
+  /// Returns the entry processing starts from. 
   Long64_t GetStartEntry() const;
   
+  /// Returns the past-the-end entry processing stops at. 
   Long64_t GetStopEntry() const;
 
+  /// Returns the total number of entries selected for processing,
+  /// assuming no errors
   Long64_t GetLoopNEntries() const
   { return GetStopEntry() - GetStartEntry(); }
   
@@ -116,24 +112,23 @@ class EventNavigator {
   /// Load the next entry in the input tree. Returns the number of
   /// bytes if sucessful, 0 if reached the end or there is no input tree.
   /// Throws an exception for an underlying I/O error
-  /// [Return values are fr  fOutputTreeTPI->Write();  
   inline Int_t NextEntry() {
     return LoadEntry(fEntryNo + 1);
   }
+
   /// Load the branches for a particular entry from the input
-  /// file. Will probably only make sense if output is not being written.
-  /// Return values are same as for NextEntry()
+  /// file. Random access probably only make sense if it output is not
+  /// being written.  Return values are same as for NextEntry()
   inline Int_t GetEntry(Long64_t entry){
     return LoadEntry(entry);
   }
 
-  Int_t LoadEntry(Long64_t entry);
-
+  
   Int_t WriteCurrentEntry();
 
   /// Save (or not) TPulseIslands in output file. By default they are
   /// not saved, call this method to enable saving.
-  void SetSavePulseIslands(bool save = 1);
+  void SetSavePulseIslands(bool save = 1){fCopyRaw =save;};
 
   /// Adoption: take ownership of a container of reconstruction
   /// objects. The calling code should lose ownership so the object is
@@ -201,11 +196,32 @@ class EventNavigator {
 
   TGlobalData* GetRawData() {return fRawData;}
   TTree* GetRawTree() {return fRawTree;}
-  ///A test
-  void CopyTree();
 
 protected:
-  //ARGUMENTS& CommandLine() {return *fCommandLine;}
+  ///Attach a raw data tree (found in raw_file). If sucessful will
+  ///load the zeroth entry return a non-null pointer
+  TGlobalData* ConnectRawData(TFile* raw_file);
+
+  ///Verifies that the raw data tree found conforms to the expected
+  ///format.
+  Bool_t VerifyRawData(TTree* raw_tree);
+
+  ///Attach a setup data tree (found in raw_file). If sucessful will
+  ///load the SetupDAta into memory, which can be accesed via
+  ///fSetupData (depricated) or fSetupRecord (preferred)
+  TSetupData* ConnectSetupData(TFile* raw_file);
+
+  ///Verifies that the setup data tree found conforms to the expected
+  ///format.
+  Bool_t VerifySetupData(TTree* setup_tree);
+
+
+  ///Copy the input raw data tree (TGlobalData) to the output file
+  Bool_t MirrorRawInputFormat();
+
+  ///Implementation for loading an entry
+  Int_t LoadEntry(Long64_t entry);
+
 
 private: 
   EventNavigator();
@@ -222,10 +238,6 @@ private:
 
   ///Output ROOT file (may be same as input file)
   TFile* fOutput;
-
-
-  ///trees are owned by the directorty that holds them
-
 
   ///The current entry number
   Int_t fEntryNo;
@@ -251,18 +263,6 @@ private:
   
   LoopSequence* fLoopSequence;
 
-  //ARGUMENTS* fCommandLine;
-
-  //PulseIslandList** fBufferTPI;
-
-  //typedef PulseIslandList** PulseIslandList_ptr;
-  //typedef std::map<std::string, PulseIslandList*> RecordTPI_t;
-
-  ///Our record of raw data banks
-  //RecordTPI_t fRecordTPI;
-  
-
-  
 
 };
 

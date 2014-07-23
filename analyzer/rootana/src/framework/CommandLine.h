@@ -1,8 +1,6 @@
 #ifndef COMMANDLINE_H
 #define COMMANDLINE_H
 
-
-//#include <string.h>
 #include <string>
 
 struct ARGUMENTS {
