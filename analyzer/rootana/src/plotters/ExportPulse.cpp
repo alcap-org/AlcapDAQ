@@ -66,7 +66,7 @@ int ExportPulse::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
     cout<<"Error: TSetupData passed to ExportPulse is NULL..."<<endl;
     return 1 ;
   }
-  fTotalEvents=*gTotalEntries;
+  fTotalEvents = EventNavigator::Instance().GetInputNEntries();
   
   ///// Check if we have a request to draw a specific set of events
   if(fOptions){
