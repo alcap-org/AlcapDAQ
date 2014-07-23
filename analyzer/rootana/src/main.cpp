@@ -64,48 +64,12 @@ Int_t PrepareSingletonObjects(const ARGUMENTS&);
 Long64_t* gTotalEntries;
 
 TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
-static TTree *gAnalysedPulseTree = NULL;
+TTree *gAnalysedPulseTree = NULL;
 TBranch *gAnalysedPulseBranch = NULL;
 
 StringAnalPulseMap gAnalysedPulseMap;
 StringDetPulseMap gDetectorPulseMap;
 MuonEventList gMuonEvents;
-
-
-
-///This shoud get a proper home and some more flexability, perhaps a
-///nicer name. Also consider splittin into muiltiple classes.
-class module_error : public std::runtime_error {
-public:
-  module_error(int evt) 
-    : std::runtime_error("")
-    , fEvent(evt)
-  {}
-  int fEvent;
-};
-
-class preprocess_error : public module_error {
-public:
-  preprocess_error(int evt)
-    : module_error(evt)
-  {}
-};
-
-class process_error : public module_error {
-public:
-  process_error(int evt)
-    : module_error(evt)
-  {}
-};
-
-class postprocess_error : public module_error {
-public:
-  postprocess_error(int evt)
-    : module_error(evt)
-  {}
-};
-
-
 
 int main(int argc, char **argv)
 {
@@ -169,7 +133,8 @@ int main(int argc, char **argv)
   try {
     Main_event_loop(eventTree,arguments);
   }
-  catch (module_error& e) {
+  catch (...){}
+  /*catch (module_error& e) {
     if (dynamic_cast<preprocess_error*>(&e)){
       std::cout << "\nError while preprocessing first entry (" << e.fEvent << ")";
     }
@@ -184,6 +149,7 @@ int main(int argc, char **argv)
     }
     std::cout << std::endl;    
   }
+  */
   
   // and finish up
   fileOut->cd();
@@ -215,61 +181,62 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
   }
   
   // How many entries should we loop over?
-  bool has_start = (arguments.start > 0) && (arguments.start < nEntries);
-  Long64_t start = (has_start) ? arguments.start : 0;
-  bool has_stop = (arguments.stop > 0) && (arguments.stop < nEntries);
-  Long64_t stop = (has_stop) ? arguments.stop : nEntries;
+  //bool has_start = (arguments.start > 0) && (arguments.start < nEntries);
+  //Long64_t start = (has_start) ? arguments.start : 0;
+  //bool has_stop = (arguments.stop > 0) && (arguments.stop < nEntries);
+  //Long64_t stop = (has_stop) ? arguments.stop : nEntries;
   
-  gTotalEntries=&stop;
+  //gTotalEntries=&stop;
 
   // wind the file on to the first event
-  enav.GetEntry(start);
+  //enav.GetEntry(start);
 
+  enav.GetLoopSequence(arguments).Run();
   // Get the first and last module to run with
-  modules::iterator first_module = modules::navigator::Instance()->Begin();
-  modules::iterator last_module = modules::navigator::Instance()->End();
-  modules::iterator it_mod;
+  //modules::iterator first_module = modules::navigator::Instance()->Begin();
+  //modules::iterator last_module = modules::navigator::Instance()->End();
+  //modules::iterator it_mod;
   
-  int err_code = 0;
-  for (it_mod=first_module; it_mod != last_module; it_mod++) {
-    err_code |= it_mod->second->BeforeFirstEntry(raw_data, enav.GetSetupData());
-  }
-  if(err_code) throw preprocess_error(start);
+  //int err_code = 0;
+  //for (it_mod=first_module; it_mod != last_module; it_mod++) {
+  //  err_code |= it_mod->second->BeforeFirstEntry(raw_data, enav.GetSetupData());
+  //}
+  //if(err_code) throw start;//preprocess_error(start);
 
   //process entries
-  for ( Long64_t jentry=start; jentry<stop;jentry++) {
-    if(raw_data){
-      raw_data->Clear("C");
-      ClearGlobalData(raw_data);
-    }
+  //for ( Long64_t jentry=start; jentry<stop;jentry++) {
+  //  if(raw_data){
+  //    raw_data->Clear("C");
+  //    ClearGlobalData(raw_data);
+  //  }
     
-    if ((jentry-start)%100 == 0) {
-      std::cout << "Completed " << (jentry-start) 
-                << " events out of " << (stop-start) << std::endl;
-    }
+  //  if ((jentry-start)%100 == 0) {
+  //    std::cout << "Completed " << (jentry-start) 
+  //              << " events out of " << (stop-start) << std::endl;
+  // }
     // Let's get the next event
-    enav.GetEntry(jentry);
-    mlog.push_back(DEBUG::check_mem().str);
-    for (it_mod=first_module; it_mod != last_module; it_mod++) {
-      err_code |= it_mod->second->ProcessGenericEntry(raw_data,enav.GetSetupData());
-    }
-    if(err_code) throw process_error(enav.EntryNo());
+  //  enav.GetEntry(jentry);
+  //  mlog.push_back(DEBUG::check_mem().str);
+  //  for (it_mod=first_module; it_mod != last_module; it_mod++) {
+  //    err_code |= it_mod->second->ProcessGenericEntry(raw_data,enav.GetSetupData());
+  //  }
+  //  if(err_code) throw enav.EntryNo();//process_error(enav.EntryNo());
 
-    gAnalysedPulseMapWrapper->SetMap(gAnalysedPulseMap);
-    //gAnalysedPulseMapWrapper->ShowInfo();
-    gAnalysedPulseTree->Fill();
-  }
+  //  gAnalysedPulseMapWrapper->SetMap(gAnalysedPulseMap);
+  //  //gAnalysedPulseMapWrapper->ShowInfo();
+  //  gAnalysedPulseTree->Fill();
+  //}
 
   //post-process on last entry
-  for (int i = 0; i < mlog.size(); i+=TMath::Max(mlog.size()/20,1lu)) 
-    std::cout << "Event " << i << ":\t" << mlog[i] << std::endl;
+  //for (int i = 0; i < mlog.size(); i+=TMath::Max(mlog.size()/20,1lu)) 
+  //  std::cout << "Event " << i << ":\t" << mlog[i] << std::endl;
+  //
+  //for (it_mod=first_module; it_mod != last_module; it_mod++) {
+  //  err_code |= it_mod->second->AfterLastEntry(raw_data,enav.GetSetupData());
+  //}
+  //if (err_code) throw stop-1;//postprocess_error(stop-1);
   
-  for (it_mod=first_module; it_mod != last_module; it_mod++) {
-    err_code |= it_mod->second->AfterLastEntry(raw_data,enav.GetSetupData());
-  }
-  if (err_code) throw postprocess_error(stop-1);
-  
-  std::cout << "Finished processing data normally" << std::cout;
+  std::cout << "Finished processing data normally" << std::endl;
   return 0;
 }
 

@@ -20,7 +20,7 @@
 #include "TDetectorPulse.h"
 #include "TMuonEvent.h"
 #include "debug_tools.h"
-
+#include "CommandLine.h"
 
 namespace Format = AlCapFormat; 
 
@@ -33,19 +33,76 @@ namespace Format = AlCapFormat;
 EventNavigator* EventNavigator::fInstance = 0x0;
 
 //----------------------------------------------------------------------
+EventNavigator& EventNavigator::InitInstance(const ARGUMENTS& command_line)
+{
+  if (fInstance) {
+    std::cout << "WARNING: "
+              << "Instance has already been created and will not be altered"
+              << std::endl;
+  }
+  else {
+    fInstance = new EventNavigator(command_line);
+    //fInstance->fCopyRaw = true;
+  }
+  return *fInstance;
+}
+//----------------------------------------------------------------------
 EventNavigator& EventNavigator::Instance()
 {
-  if (!fInstance) fInstance = new EventNavigator();
-  fInstance->fCopyRaw = true;
+  if (!fInstance){
+    fInstance = new EventNavigator();
+  }
   return *fInstance;
 }
 
 //----------------------------------------------------------------------
 EventNavigator::EventNavigator()
+  : fLoopSequence(0x0)
+  , fCopyRaw(true)
 {
   fRawInput = 0x0;
   fOutput = 0x0;
   //no-op
+}
+
+//----------------------------------------------------------------------
+EventNavigator::EventNavigator(const ARGUMENTS& args)
+  : fLoopSequence(new LoopSequence(args))
+  , fCopyRaw(true)
+  , fRawInput(0x0)
+  , fOutput(0x0)
+{
+}
+
+
+//----------------------------------------------------------------------
+const LoopSequence& EventNavigator::GetLoopSequence() const
+{
+  if (!fLoopSequence) throw std::runtime_error("No LoopSequence");
+  return *fLoopSequence;
+}
+
+//----------------------------------------------------------------------
+const LoopSequence& EventNavigator::GetLoopSequence(const ARGUMENTS& args)
+{
+  //Not sure if allowing this to be replaced is safe. Lets err on the
+  //side of caution and make it a runtime error for now.
+  if (fLoopSequence) throw std::runtime_error("Redfined LoopSequence");
+  fLoopSequence = new LoopSequence(args);
+  return GetLoopSequence();
+}
+
+//----------------------------------------------------------------------
+Long64_t EventNavigator::GetStartEntry() const
+{
+  return GetLoopSequence().StartEntry();
+}  
+
+
+//----------------------------------------------------------------------
+Long64_t EventNavigator::GetStopEntry() const
+{
+  return GetLoopSequence().StopEntry();
 }
 
 

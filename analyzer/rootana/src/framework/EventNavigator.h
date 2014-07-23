@@ -15,7 +15,7 @@ class TTree;
 #include "TAnalysedPulseMapWrapper.h"
 #include "BankIter.h"
 #include "SetupRecord.h"
-
+#include "LoopSequence.h"
 //static TGlobalData *g_event=NULL; 
 
 
@@ -27,6 +27,8 @@ public:
   {}
 };
 
+
+class ARGUMENTS;
 
 
 /// @brief The EventNavigator class provides acess to all the collections in
@@ -46,11 +48,15 @@ class EventNavigator {
 
 
  public:
-  enum OutputMode {kNew = 0, kOverwrite, }; //kAppend};
+  enum OutputMode {kNew = 0, kOverwrite }; //, kAppend};
+
+  //The initial 
+  static EventNavigator& InitInstance(const ARGUMENTS& command_line);
 
   /// The user accessor. Not sure yet if it can be used without
   /// providing initalisation info.
   static EventNavigator& Instance();
+
   ~EventNavigator(){}
   
   /// Transitional function to replace gSetup.  
@@ -60,6 +66,12 @@ class EventNavigator {
   /// Gives access to the run meta-data, including all information
   /// stored in the TSetupData struct
   const SetupRecord& GetSetupRecord() {return *fSetupRecord;}
+
+
+  const LoopSequence& GetLoopSequence() const;
+  
+  ///
+  const LoopSequence& GetLoopSequence(const ARGUMENTS& args);
 
   /// Opens an input file and connects to the trees therein.  Returns
   /// true if file exists, is a ROOT file, and contains at least one EACH of 
@@ -90,7 +102,16 @@ class EventNavigator {
 
   /// Returns the number of entries in the input file.
   /// TODO revisit this with multiple inputs??
-  Long64_t GetInputNEntries() {return fRawTree->GetEntriesFast();}
+  Long64_t GetInputNEntries() const {return fRawTree->GetEntriesFast();}
+
+  
+  Long64_t GetStartEntry() const;
+  
+  Long64_t GetStopEntry() const;
+
+  Long64_t GetLoopNEntries() const
+  { return GetStopEntry() - GetStartEntry(); }
+  
 
   /// Load the next entry in the input tree. Returns the number of
   /// bytes if sucessful, 0 if reached the end or there is no input tree.
@@ -148,30 +169,19 @@ class EventNavigator {
   /*
   const PulseIslandList& FindIslandBank(ChannelID& cid,
 					GeneratorID& gid = "*");
-  
-
-					GeneratorStr gid = "*");
-					Config cfg ="*") const;
-				       
   const PulseIslandList& FindIslandBank(const ChannelID& cid,
 					const GeneratorID& gid);
-
   const AnalysedPulseList& FindAnalysedBank(ChannelID cid, 
 					    GeneratorStr gid = "*",
 					    Config cfg ="*") const;
-  
   const PulseIslandList& FindIslandBank(const ChannelID& cid,
 					const GeneratorID& gid);
-
   const DetectorPulseList& FindDetectorBank(ChannelID cid,
 					    GeneratorStr gid = "*",
-					    Config cfg ="*" ) const;
-  
+					    Config cfg ="*" ) const;  
   //const MuonEventList& GetMuonEventList(GeneratorID gid = "",
   //                                      int count = 0) const;
   */
-
-
 
   ///Iterable getters for a list of banks
   PulseIslandBankIter MatchIslandBanks(const SourceID& sid) const;
@@ -194,8 +204,12 @@ class EventNavigator {
   ///A test
   void CopyTree();
 
- private: 
+protected:
+  //ARGUMENTS& CommandLine() {return *fCommandLine;}
+
+private: 
   EventNavigator();
+  EventNavigator(const ARGUMENTS& command_line);
   EventNavigator(const EventNavigator& src){};
   EventNavigator& operator=(const EventNavigator& rhs){return *this;}
 
@@ -235,6 +249,10 @@ class EventNavigator {
 
   TAnalysedPulseMapWrapper* fAPWrapper;
   
+  LoopSequence* fLoopSequence;
+
+  //ARGUMENTS* fCommandLine;
+
   //PulseIslandList** fBufferTPI;
 
   //typedef PulseIslandList** PulseIslandList_ptr;
