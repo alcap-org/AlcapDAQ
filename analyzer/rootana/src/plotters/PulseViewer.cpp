@@ -37,7 +37,7 @@ PulseViewer::PulseViewer(modules::options* opts):
 PulseViewer::~PulseViewer(){
 }
 
-int PulseViewer::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
+int PulseViewer::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
    // Check we're also running with the ExportPulse module
    if(!ExportPulse::Instance()){
 	   cout<<"PulseViewer: Error: You need to run with ExportPulse to use PulseViewer module"<<std::endl;
@@ -135,7 +135,7 @@ int PulseViewer::SetTriggerValue(const std::string& parameter){
 	return 0;
 }
 
-int PulseViewer::ProcessEntry(TGlobalData* gData,TSetupData *setup){
+int PulseViewer::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
     // Get the TAPs for this channel
   AnalysedPulseList* allTAPs=&gAnalysedPulseMap[GetSource()];
@@ -227,7 +227,7 @@ int PulseViewer::ConsiderDrawing(const TAnalysedPulseID& id, const TAnalysedPuls
 	return 0;
 }
 
-int PulseViewer::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
+int PulseViewer::AfterLastEntry(TGlobalData* gData, const TSetupData* setup){
 
   // Print extra info if we're requested to summarize the found pulses
   if(SummarisePlots()){

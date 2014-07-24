@@ -34,7 +34,7 @@ int PlotAmplitude::BeforeFirstEntry(TGlobalData *gData, TSetupData *gSetup){
     return 0;
 }
 
-int PlotAmplitude::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int PlotAmplitude::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
 
     // Loop over each TAP list
     for (SourceAnalPulseMap::const_iterator i_det = gAnalysedPulseMap.begin();

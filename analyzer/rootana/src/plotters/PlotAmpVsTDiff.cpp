@@ -78,7 +78,7 @@ PlotAmpVsTDiff::PlotAmpVsTDiff(modules::options* opts) : BaseModule( (opts->GetS
 PlotAmpVsTDiff::~PlotAmpVsTDiff(){  
 }
 
-int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
 
   // Get the detA and detB pulses ready but make sure they exist first
   AnalysedPulseList detA_pulses;

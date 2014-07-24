@@ -19,7 +19,7 @@ MakeDetectorPulses::MakeDetectorPulses(modules::options* opts):
 MakeDetectorPulses::~MakeDetectorPulses(){
 }
 
-int MakeDetectorPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int MakeDetectorPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
     IDs::channel detector(IDs::kAnyDetector,IDs::kNotApplicable);
     const AnalysedPulseList *slow_pulses;
     const AnalysedPulseList *fast_pulses;
@@ -71,7 +71,7 @@ int MakeDetectorPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     return 0;
 }
 
-int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, TSetupData* setup){
+int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
     // Set up the generator
     fGenerator=MakeGenerator(fAlgorithm);
     if(!fGenerator) return 1;

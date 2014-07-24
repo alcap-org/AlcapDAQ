@@ -30,7 +30,7 @@ PlotTime::PlotTime(modules::options* opts) :
 PlotTime::~PlotTime(){  
 }
 
-int PlotTime::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int PlotTime::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
 
     // Loop over each TAP list
     for (SourceAnalPulseMap::const_iterator i_det = gAnalysedPulseMap.begin();

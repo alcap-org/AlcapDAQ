@@ -28,8 +28,8 @@ class MakeAnalysedPulses : public BaseModule{
 
   void SetAnalysedPulseMap(StringAnalPulseMap& aMap){fAnalysedPulseMap=&aMap;}
  private:
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
-  virtual int BeforeFirstEntry(TGlobalData* gData,TSetupData *setup);
+  virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
+  virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup);
   //virtual int AfterLastEntry(TGlobalData* gData){return 0;};
 
   ChannelGenerators_t fGenerators;

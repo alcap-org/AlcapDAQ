@@ -1,6 +1,6 @@
-#include "BankIter.h"
+//#include "BankIter.h"
+#include "BankIter.tpl"
 #include "definitions.h"
-
 
 template class BankIter<PulseIslandList>;
 template class BankIter<AnalysedPulseList>;

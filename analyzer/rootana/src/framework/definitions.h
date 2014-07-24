@@ -6,11 +6,8 @@
 #include "IdSource.h"
 #include <string>
 
-class ChannelID;
 
 typedef int TPulseIslandID;
-typedef std::string GeneratorID;
-typedef std::string GeneratorConfig;
 
 // Typedefs for TPulseIslands	
 class TPulseIsland;
