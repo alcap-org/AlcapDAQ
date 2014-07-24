@@ -160,9 +160,6 @@ int main(int argc, char **argv)
   return 0;
 }
 
-  }
-        }
-
 //----------------------------------------------------------------------
 Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
 {
@@ -178,10 +175,6 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
   TGlobalData* raw_data = enav.GetRawData();
   if ( raw_data ){
     raw_data->Clear("C");
-        if(q){
-            printf("Error during post-processing for module %s\n",it_mod->first.c_str());
-            return q;
-        }
   }
   
   enav.MakeLoopSequence(arguments).Run();
