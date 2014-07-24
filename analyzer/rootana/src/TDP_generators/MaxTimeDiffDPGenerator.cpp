@@ -30,7 +30,8 @@ int MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::str
     double pulse_time;
     int count=0;
     while (pulseIters.size() > 0) {
-        DEBUG_VALUE(count++);
+      min_time = 999999e9;
+      //DEBUG_VALUE(count++);
 
         // Find out which of the next fast or slow pulsees happened next
         for (unsigned int b = 0; b < pulseIters.size(); ++b) {
@@ -72,7 +73,7 @@ int MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::str
         //Delete the iterators to finished banks. Go through in reverse to
         //avoid invalidation problems
         for (int b = pulseIters.size()-1; b >= 0; --b) {
-            DEBUG_VALUE((*pulseIters[b].first)->GetParentID());
+          //DEBUG_VALUE((*pulseIters[b].first)->GetParentID());
             if (pulseIters[b].first == pulseIters[b].second){
                 pulseIters.erase(pulseIters.begin() + b);
             }  
