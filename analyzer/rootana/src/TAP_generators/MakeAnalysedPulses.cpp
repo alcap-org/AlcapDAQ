@@ -7,7 +7,7 @@
 #include <utility>
 #include <sstream>
 #include "RegisterModule.inc"
-
+#include "EventNavigator.h"
 #include "debug_tools.h"
 
 using modules::parser::GetOneWord;
@@ -120,8 +120,11 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetu
         // Get the TPIs
         thePulseIslands=&gData->fPulseIslandToChannelMap[bankname];
         if(thePulseIslands->empty() ){
-            if( Debug()) cout<<"Event No: "<<*gEntryNumber <<": List of TPIs for '"<< detector<<"' was empty "<<endl;
-            continue;
+          if( Debug()) cout << "Event No: " 
+                            << EventNavigator::Instance().EntryNo() 
+                            <<": List of TPIs for '"<< detector 
+                            <<"' was empty "<< endl;
+          continue;
         }
 
         // clear the list of analyse_pulses from the last iteration
@@ -136,7 +139,9 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetu
         SourceAnalPulseMap::iterator it=gAnalysedPulseMap.find((*generator)->GetSource());
         if(it==gAnalysedPulseMap.end()){
             // source doesn't seem to exist in gAnalysedPulseMap
-            cout<<"Error: New TAP source seems to have been created during processing of pulses."<<endl;
+          cout <<"Error: New TAP source \"" << (*generator)->GetSource() 
+               <<"\" seems to have been created during processing of pulses."
+               <<endl;
             return 1;
         }
         // add the pulses into the map
