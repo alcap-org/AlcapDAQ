@@ -14,7 +14,7 @@
 #include "TAnalysedPulseMapWrapper.h"
 
 extern TAnalysedPulseMapWrapper* gAnalysedPulseMapWrapper;
-extern StringAnalPulseMap gAnalysedPulseMap;
+extern SourceAnalPulseMap gAnalysedPulseMap;
 extern TTree* gAnalysedPulseTree;
 //extern StringDetPulseMap gDetectorPulseMap;
 
@@ -95,7 +95,7 @@ void LoopSequence::Process() const
     TGlobalData* raw_data = enav.GetRawData();
     if (raw_data){
       raw_data->Clear("C");
-      ClearGlobalData(raw_data);
+      //ClearGlobalData(raw_data);
     }
     
     Checkpoint(jentry);
