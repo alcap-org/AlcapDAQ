@@ -8,6 +8,7 @@
 #include "ModulesParser.h"
 #include <debug_tools.h>
 #include "IdSource.h"
+#include "EventNavigator.h"
 
 #include <iostream>
 #include <iomanip>
@@ -211,20 +212,21 @@ bool PulseViewer::ValuePassesTrigger(const double& value){
 }
 
 int PulseViewer::ConsiderDrawing(const TAnalysedPulseID& id, const TAnalysedPulse* pulse){
-	// Check pulse passes trigger condition
-	double value=GetParameterValue(*pulse);
-	if(!ValuePassesTrigger(value)) return 0;
-	if(Debug()){
-		cout<<fParameterString<<" = "<<value<<" which is "<<fTypeString<<" " <<fTriggerValue<<endl; 
-	}
-
-	// If it does, ask ExportPulse to draw it
-	// We're safe to assume Instance will return becuase we test it's
-	// existence in BeforeFirstEntry
-	ExportPulse::Instance()->AddToExportList(pulse);
-    fTotalPlotted++;
-    fPulsesPlotted[GetCurrentEvent()].insert(id);
-	return 0;
+  // Check pulse passes trigger condition
+  double value=GetParameterValue(*pulse);
+  if(!ValuePassesTrigger(value)) return 0;
+  if(Debug()){
+    cout << fParameterString << " = " << value 
+         << " which is " << fTypeString << " " << fTriggerValue << endl; 
+  }
+  
+  // If it does, ask ExportPulse to draw it
+  // We're safe to assume Instance will return becuase we test it's
+  // existence in BeforeFirstEntry
+  ExportPulse::Instance()->AddToExportList(pulse);
+  fTotalPlotted++;
+  fPulsesPlotted[EventNavigator::Instance().EntryNo()].insert(id);
+  return 0;
 }
 
 int PulseViewer::AfterLastEntry(TGlobalData* gData, const TSetupData* setup){

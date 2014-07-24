@@ -30,7 +30,7 @@ PlotAmplitude::PlotAmplitude(modules::options* opts) :
 PlotAmplitude::~PlotAmplitude(){  
 }
 
-int PlotAmplitude::BeforeFirstEntry(TGlobalData *gData, TSetupData *gSetup){
+int PlotAmplitude::BeforeFirstEntry(TGlobalData *gData, const TSetupData *gSetup){
     return 0;
 }
 
