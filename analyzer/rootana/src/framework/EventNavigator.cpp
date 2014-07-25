@@ -57,8 +57,8 @@ EventNavigator& EventNavigator::Instance()
 
 //----------------------------------------------------------------------
 EventNavigator::EventNavigator()
-  : fLoopSequence(0x0)
-  , fCopyRaw(true)
+  : fCopyRaw(true)
+  , fLoopSequence(0x0)
 {
   fRawInput = 0x0;
   fOutput = 0x0;
@@ -67,8 +67,8 @@ EventNavigator::EventNavigator()
 
 //----------------------------------------------------------------------
 EventNavigator::EventNavigator(const ARGUMENTS& args)
-  : fLoopSequence(new LoopSequence(args))
-  , fCopyRaw(true)
+  : fCopyRaw(true)
+  , fLoopSequence(new LoopSequence(args))
   , fRawInput(0x0)
   , fOutput(0x0)
 {
