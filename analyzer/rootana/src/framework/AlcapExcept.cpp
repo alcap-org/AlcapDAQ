@@ -2,7 +2,7 @@
 #include <cstdlib>
 
 #include "AlcapExcept.h"
-#include "Demangle.h"
+//#include "demangle.h"
 
 #ifdef _GNU_SOURCE
 #include <execinfo.h>
@@ -11,6 +11,7 @@
 unsigned int Except::Base::gBacktraceSymbols = 5;
 
 Except::Base::Base() {
+  fTrace[0] = 0;
   fWhat[0] = 0;
 #ifdef _GNU_SOURCE
   if (gBacktraceSymbols>0) {
@@ -23,7 +24,7 @@ Except::Base::Base() {
     char **symbols = backtrace_symbols(buffer,nFrames);
     if (symbols != NULL) {
       unsigned int len = 0;
-      std::strcat(fWhat,"Backtrace:\n");
+      std::strcat(fTrace,"Backtrace:\n");
       for (int i = 0; i<nFrames; ++i) {
         std::string sym(symbols[i]);
         std::string lib;
@@ -39,20 +40,20 @@ Except::Base::Base() {
         if (lib.empty() && sym.empty()) continue;
         len += lib.length();
         len += sym.length() + 6;
-        if (2*len>sizeof(fWhat)) break;
-        std::strcat(fWhat," --> ");
-        if (!lib.empty()) std::strcat(fWhat,lib.c_str());
+        if (2*len>sizeof(fTrace)) break;
+        std::strcat(fTrace," --> ");
+        if (!lib.empty()) std::strcat(fTrace,lib.c_str());
         if (!sym.empty()) {
-          std::strcat(fWhat,": ");
-          std::strcat(fWhat,sym.c_str());
+          std::strcat(fTrace,": ");
+          std::strcat(fTrace,sym.c_str());
         }
-        std::strcat(fWhat,"\n");
+        std::strcat(fTrace,"\n");
       }
       std::free(symbols);
     }
   }
 #endif
-  std::strcat(fWhat,"Exception:  Base");
+  std::strcat(fWhat,"Except::Base");
 }
 
 void Except::Base::AppendWhat(const char* child) {
@@ -63,3 +64,29 @@ void Except::Base::AppendWhat(const char* child) {
     std::strcat(fWhat,child);
   }
 }
+
+void Except::Base::AppendWhat(const char* child, const char* message) {
+  AppendWhat(child);
+  unsigned int wLen = std::strlen(fWhat);
+  unsigned int mLen = std::strlen(message);
+  if (wLen+mLen < sizeof(fWhat)-9) {
+    std::strcat(fWhat,"  \"");
+    std::strcat(fWhat,message);
+    std::strcat(fWhat,"\"");
+  }
+}
+
+void Except::Base::AppendWhat(const char* child, const char* file, int line) {
+  AppendWhat (child);
+  unsigned int wLen = std::strlen(fWhat);
+  unsigned int fLen = std::strlen(file);
+  if (fLen+wLen < sizeof(fWhat)-16) {
+    char buf[16];
+    buf[0]=0;
+    snprintf(buf,16,":%d)", line);
+    std::strcat(fWhat," (");
+    std::strcat(fWhat,file);
+    std::strcat(fWhat,buf);
+  }
+}
+

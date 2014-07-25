@@ -46,9 +46,25 @@ namespace Except {
 /// backtrace frames to be shown is controlled with the
 /// Except::Base::gBacktraceSymbols static variable.
 /// 
+/// In addition ther are two variant ways to construct an exception
+/// \code
+/// // Throw an exception with a debugging message 
+/// try {
+///   throw Except::Child("your message here");
+/// }
+///  
+///  // Throw an exception with the source code location
+///  try {
+///    throw Except::Child(LOCATION)
+///  }
+///  \endcode
+/// LOCATION is an auxillary macro that evaluates as  `__FILE__ , __LINE__`
+/// this form is not usually needed, as it is usually obvious from the backtrace  
 class Except::Base: public std::exception {
+  /// The backtrace when the exception was thrown;
+  char fTrace[2048];
   /// What exception generated this object.
-  char fWhat[2048];
+  char fWhat[256];
   
 public:
   /// The number of backtrace symbols to add to the "what" string.
@@ -64,7 +80,19 @@ public:
   /// Used in constructors of classes which inherit from Except::Base
   /// to add text to the What() string.
   void AppendWhat(const char* child);
+
+  /// Used in constructors of classes which inherit from Except::Base
+  /// to add message text to the What() string.
+  void AppendWhat(const char* child, const char* message);
+
+  /// Used in conjunction with the LOCATION macro, see documentation
+  /// of \ref Except::Base
+  void AppendWhat(const char* child, const char* file, int line);
 };
+
+#define STRINGIFY_1(x) #x
+#define STRINGIFY_2(x) STRINGIFY_1(x)
+#define LOCATION __FILE__ ":" STRINGIFY_2(__LINE__)
 
 /// A macro to build an exception class __name that is derived from __parent.
 /// The __parent class must be derived from Except::Base which provides the
@@ -80,12 +108,14 @@ public:
 /// }
 /// \endverbatim
 #ifndef MAKE_EXCEPTION
-#define MAKE_EXCEPTION(NAME, PARENT)               \
-  namespace Except {                               \
-    class NAME : public PARENT {                   \
-    public:                                        \
-      NAME() {AppendWhat(#NAME);}                  \
-    };                                             \
-  };                                               
+#define MAKE_EXCEPTION(NAME, PARENT)                          \
+  namespace Except {                                          \
+    class NAME : public PARENT {                              \
+    public:                                                   \
+      NAME() {AppendWhat(#NAME);}                             \
+      NAME(const char* message) {AppendWhat(#NAME, message);} \
+      NAME(const char* file, int line) {AppendWhat(#NAME, file, line);}     \
+    };                                                        \
+  }                                             
 #endif //MAKE_EXCEPTION
 #endif //ALCAPEXCEPT_H_
