@@ -3,6 +3,7 @@
 
 //C++/STL
 #include <cmath>
+#include <iomanip>
 
 //ROOT
 #include "Rtypes.h"
@@ -160,12 +161,13 @@ void LoopSequence::Run() const
 void LoopSequence::Checkpoint(Long64_t entry) const
 {
   Long64_t n = entry-fStart;
-  Long64_t nTot = fStop-fStart; 
-  //bool printout = false
-  if ( n  < 10 || (n == nTot/10) ){
-    std::cout << "Processed\t " << n << " / " << nTot
-              << "\t(" << std::floor(1.*n / nTot + 0.5) << "%)"
-              << std::endl;  
+  static Long64_t nTot = fStop-fStart;
+  static int nDig = 1+std::floor(std::log10(nTot));
+  if ( n  < 10 || n %(nTot/10)==0 ) {
+    std::cout << "Processed  " << std::setw(nDig) << n 
+              << "/" << std::setw(nDig) << nTot
+              << "  (" <<std::setw(2)<< std::floor((100.*n) / nTot) 
+              << "%)" << std::endl;  
   }
   return;
 }
