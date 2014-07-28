@@ -33,7 +33,11 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   int T_int = (int)fTimeOffset;            // Integral part of time shift
   double T_flt = fTimeOffset - (double)T_int; // Floating point offset for linear interpolation
 
-  static bool print_dbg = false;
+  bool print_dbg = false;
+  if (strcmp(fTemplateHist->GetName(), "hTemplate_ScL") == 0) {
+    print_dbg = false;
+  }
+
   if (print_dbg) { 
     std::cout << "HistogramFitFCN::operator() (start):" << std::endl;
     std::cout << "\tpedestal = " << P << ", amplitude = " << A << ", time (integer part) = " << T_int << " and time (float part) = " << T_flt << std::endl;
@@ -65,19 +69,32 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
     // We shift and scale the template so that it matches the pulse.
     // This is because, when we have a normalised template, we will get the actual amplitude, pedestal and time from the fit and not just offsets
     f = fTemplateHist->GetBinContent(i - T_int) + T_flt*(fTemplateHist->GetBinContent(i - T_int + 1) - fTemplateHist->GetBinContent(i - T_int)); // linear interpolation between the i'th and the (i+1)'th bin
+    if (print_dbg) {
+      std::cout << "i = " << i << ", i - T_int = " << i-T_int << std::endl;
+      std::cout << "f (before) = " << f << std::endl;
+    }
     f = A * (f - template_pedestal) + P; // apply the transformation to this bin
+    if (print_dbg) {
+      std::cout << "f (after) = " << f << std::endl;
+    }
+
 
     double delta = fPulseHist->GetBinContent(i) - f;
+    if (print_dbg) {
+      std::cout << "Pulse Value = " << fPulseHist->GetBinContent(i) << ", delta = " << delta << std::endl;
+    }
     double hTemplate_bin_error = fTemplateHist->GetBinError(i - T_int);
     double hPulse_bin_error = fPulseHist->GetBinError(i);
     chi2 += delta*delta / (hTemplate_bin_error*hTemplate_bin_error);
-    //    std::cout << "Histogram Errors: Template = " << hTemplate_bin_error << ", Pulse = " << hPulse_bin_error << std::endl;
+    if (print_dbg) {
+      std::cout << "Template Error = " << hTemplate_bin_error << ", chi2 (added) = " << delta*delta/(hTemplate_bin_error*hTemplate_bin_error) << ", chi2 (total) = " << chi2 << std::endl;
+    }
   }
 
   if (print_dbg) {
     std::cout << "HistogramFitFCN::operator() (end): " << std::endl;
     std::cout << "\tFit:\tChi2 " << chi2 << "\tP "
-	      << P << "(" << par[0] << ")\tA " << A << "(" << par[1] << ")\tT " << T_int << " " << T_flt << "(" << par[2] << ")" << " " << 0.02345
+	      << P << "(" << par[0] << ")\tA " << A << "(" << par[1] << ")\tT " << T_int
 	      << std::endl << std::endl;
   }
   return chi2;
