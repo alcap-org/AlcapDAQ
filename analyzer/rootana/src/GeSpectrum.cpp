@@ -15,13 +15,11 @@
 #include <algorithm>
 #include <numeric>
 
-static bool MuScLess(TPulseIsland*, TPulseIsland*)
+static bool MuScLess(const TPulseIsland*, const TPulseIsland*);
 static double GetTime(const TPulseIsland*, const int);
 static double GetGeTime(const TPulseIsland* slow, const TPulseIsland* fast);
 static double GetMuScTime(const TPulseIsland*);
 static double GetGeEnergy(const TPulseIsland*);
-static bool IsMuScHit(const TPulseIsland*);
-static bool IsGeHit(const TPulseIsland* slow, const TPulseIsland* fast);
 
 GeSpectrum::GeSpectrum(modules::options* opts): BaseModule("GeSpectrum",opts) {
   const static double max = std::pow(2.,14);
@@ -59,7 +57,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData,TSetupData *setup){
   static const std::string bank_SiRS(setup->GetBankName(name_SiRS));
   static const std::string bank_SiRF(setup->GetBankName(name_SiRF));
 
-  static const double time_window = 200.; // ns
+  static const double time_window_small = 200.; // ns
   static const double time_window_big = 2000.; // ns
 
   std::map< std::string, std::vector<TPulseIsland*> >& TPIMap = gData->fPulseIslandToChannelMap;
@@ -92,31 +90,33 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData,TSetupData *setup){
   std::vector<TPulseIsland*>::iterator next = end_musc;
   std::vector<TPulseIsland*>::iterator prev = beg_musc;
 
-  ges = beg_ges - 1;
-  gef = beg_gef - 1;
-  while (++ges != end_ges && ++gef != end_gef) {
-    double ge_time = GetGeTime(ges, gef);
-    double ge_energy = GetGeEnergy(ges);
+
+  ges = beg_ges;
+  gef = beg_gef;
+  while (ges != end_ges && gef != end_gef) {
+    double ge_time = GetGeTime(*ges, *gef);
+    double ge_energy = GetGeEnergy(*ges);
     double dt;
 
     // Find the time difference with the most recent muon
     // in any direction.
-    next = std::upper_bound(prev, end_musc, gef, MuScLess);
+    next = std::upper_bound(prev, end_musc, *gef, MuScLess);
     prev = next - 1;
     if (next == end_musc)
       // If we've reached the end of the muSc hits,
       // the last Ge hit happened after the last muSc
       // hit.
-      dt = GetGeTime(ges, gef) - GetMuScTime(prev);
-    else if (next == beg_musc)
+      dt = ge_time - GetMuScTime(*prev);
+    else if (next == beg_musc) {
       // If we're at the beginning, then the first
       // Ge hit happened before the first muSc hit.
-      dt = GetGeTime(ges, gef) - GetMuScTime(next);
-    else {
+      dt = ge_time - GetMuScTime(*next);
+      prev = next;
+    } else {
       // Here there is a muSc hit before and after
       // this Ge hit; we look at the closest muon.
-      double dt_prev = ge_time - GetMuScTime(prev);
-      double dt_next = ge_time - GetMuScTime(next);
+      double dt_prev = ge_time - GetMuScTime(*prev);
+      double dt_next = ge_time - GetMuScTime(*next);
       dt = std::abs(dt_next) < std::abs(dt_prev) ? dt_next : dt_prev;
     }
 
@@ -199,6 +199,7 @@ double GetGeEnergy(const TPulseIsland* tpi) {
 }
 
 bool MuScLess(const TPulseIsland* tpi1, const TPulseIsland* tpi2) {
+  static const int pol = -1;
   return GetMuScTime(tpi1) < GetMuScTime(tpi2);
 }
 
