@@ -30,6 +30,7 @@ class GeSpectrum : public BaseModule {
   TH1I* fHist_Energy;
   TH1I* fHist_Time;
   TH1I* fHist_EnergyOOT;
+  TH1I* fHist_EnergyFarOOT;
   TH2I* fHist_TimeEnergy;
 
  public:

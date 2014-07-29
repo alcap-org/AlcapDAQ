@@ -26,10 +26,11 @@ GeSpectrum::GeSpectrum(modules::options* opts): BaseModule("GeSpectrum",opts) {
   const static double max = std::pow(2.,14);
   TDirectory* cwd = TDirectory::CurrentDirectory();
   dir->cd();
-  fHist_Energy     = new TH1I("hEnergy", "Energy of Gammas", (int)max, 0., max);
-  fHist_Time       = new TH1I("hTime", "Time of Gammas withing Energy Window", 1000, -10000., 10000.);
-  fHist_EnergyOOT  = new TH1I("hEnergyOOT", "Energy of Gammas outside of Time Window", (int)max, 0., max);
-  fHist_TimeEnergy = new TH2I("hTimeEnergy", "Energy of Gammas within Time Window", 100, -200., 200., (int)max, 0., max);
+  fHist_Energy       = new TH1I("hEnergy", "Energy of Gammas", (int)max, 0., max);
+  fHist_Time         = new TH1I("hTime", "Time of Gammas withing Energy Window", 1000, -10000., 10000.);
+  fHist_EnergyOOT    = new TH1I("hEnergyOOT", "Energy of Gammas outside of Time Window", (int)max, 0., max);
+  fHist_EnergyFarOOT = new TH1I("hEnergyFarOOT", "Energy of Gammas far from Muons", (int)max, 0., max);
+  fHist_TimeEnergy   = new TH2I("hTimeEnergy", "Energy of Gammas within Time Window", 100, -200., 200., (int)max, 0., max);
   cwd->cd();
 }
 
@@ -59,6 +60,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData,TSetupData *setup){
   static const std::string bank_SiRF(setup->GetBankName(name_SiRF));
 
   static const double time_window = 200.; // ns
+  static const double time_window_big = 2000.; // ns
 
   std::map< std::string, std::vector<TPulseIsland*> >& TPIMap = gData->fPulseIslandToChannelMap;
   if (!(TPIMap.count(bank_muSc) and TPIMap.count(bank_GeS) and TPIMap.count(bank_GeF))) {
@@ -94,17 +96,23 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData,TSetupData *setup){
   bool done = false;
   while (musc != end_musc) {
     double time_mu;
+    double time_ge;
     double time_diff;
-    while ( (time_mu = GetMuScTime(*musc)) < GetGeTime(*ges, *gef) - time_window) {
+    time_mu = GetMuScTime(*musc);
+    time_ge = GetGeTime(*ges, *gef);
+    while ( time_mu < time_ge - time_window) {
       ++musc;
       if (musc == end_musc) {
 	done = true;
 	break;
       }
+      time_mu = GetMuScTime(*musc);
     }
-    while ( GetGeTime(*ges, *gef) < time_mu - time_window ) {
+    while (time_ge < time_mu - time_window) {
       fHist_Energy->Fill(GetGeEnergy(*ges));
       fHist_EnergyOOT->Fill(GetGeEnergy(*ges));
+      if (time_ge < time_mu - time_window_big)
+	fHist_EnergyFarOOT->Fill(GetGeEnergy(*ges));
       ++gef;
       ++ges;
       if ( ges == end_ges && gef == end_gef ) {
@@ -115,6 +123,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 	std::cout << "Only at end of a single Germanium pulse list!" << std::endl;
 	return 1;
       }
+      time_ge = GetGeTime(*ges, *gef);
     }
     if (done)
       break;
@@ -142,7 +151,10 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData,TSetupData *setup){
   gef = beg_gef - 1;
   while (++ges != end_ges && ++gef != end_gef) {
     double energy_ge = GetGeEnergy(*ges);
-    if (energy_ge < 3260 || energy_ge > 3290) continue;
+    // Silicon XRay
+    //if (energy_ge < 3260 || energy_ge > 3290) continue;
+    // Aluminium XRay
+    if (energy_ge < 2813 || energy_ge > 2853) continue;
     double time_musc;
     double time_ge;
     while (musc != end_musc && (time_ge = GetGeTime(*ges, *gef)) > (time_musc = GetMuScTime(*musc))) ++musc;
