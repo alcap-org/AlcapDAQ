@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <numeric>
 
+static bool MuScLess(TPulseIsland*, TPulseIsland*)
 static double GetTime(const TPulseIsland*, const int);
 static double GetGeTime(const TPulseIsland* slow, const TPulseIsland* fast);
 static double GetMuScTime(const TPulseIsland*);
@@ -40,8 +41,7 @@ GeSpectrum::~GeSpectrum(){
 // Called before the main event loop
 // Can be used to set things up, like histograms etc
 // Return non-zero to indicate a problem
-int GeSpectrum::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
-
+int GeSpectrum::BeforeFirstEntry(TGlobalData* gData, TSetupData *setup){
   return 0;
 }
 
@@ -89,78 +89,56 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData,TSetupData *setup){
   std::vector<TPulseIsland*>::iterator musc;
   std::vector<TPulseIsland*>::iterator ges;
   std::vector<TPulseIsland*>::iterator gef;
+  std::vector<TPulseIsland*>::iterator next = end_musc;
+  std::vector<TPulseIsland*>::iterator prev = beg_musc;
 
-  musc = beg_musc;
-  ges = beg_ges;
-  gef = beg_gef;
-  bool done = false;
-  while (musc != end_musc) {
-    double time_mu;
-    double time_ge;
-    double time_diff;
-    time_mu = GetMuScTime(*musc);
-    time_ge = GetGeTime(*ges, *gef);
-    while ( time_mu < time_ge - time_window) {
-      ++musc;
-      if (musc == end_musc) {
-	done = true;
-	break;
-      }
-      time_mu = GetMuScTime(*musc);
-    }
-    while (time_ge < time_mu - time_window) {
-      fHist_Energy->Fill(GetGeEnergy(*ges));
-      fHist_EnergyOOT->Fill(GetGeEnergy(*ges));
-      if (time_ge < time_mu - time_window_big)
-	fHist_EnergyFarOOT->Fill(GetGeEnergy(*ges));
-      ++gef;
-      ++ges;
-      if ( ges == end_ges && gef == end_gef ) {
-	done = true;
-	break;
-      } else if ( ges == end_ges || gef == end_gef ) {
-	// Sanity check for GeS/GeF
-	std::cout << "Only at end of a single Germanium pulse list!" << std::endl;
-	return 1;
-      }
-      time_ge = GetGeTime(*ges, *gef);
-    }
-    if (done)
-      break;
-    while ( (time_diff = GetGeTime(*ges, *gef) - time_mu) < time_window ) {
-      if (IsMuScHit(*musc) && IsGeHit(*ges, *gef))
-	fHist_TimeEnergy->Fill(time_diff, GetGeEnergy(*ges));
-      fHist_Energy->Fill(GetGeEnergy(*ges));
-      ++gef;
-      ++ges;
-      if ( ges == end_ges && gef == end_gef ) {
-	done = true;
-	break;
-      } else if ( ges == end_ges || gef == end_gef ) {
-	// Sanity check for GeS/GeF
-	std::cout << "Only at end of a single Germanium pulse list!" << std::endl;
-	return 1;
-      }
-    }
-    if (done)
-      break;
-  }
-
-  musc = beg_musc;
   ges = beg_ges - 1;
   gef = beg_gef - 1;
   while (++ges != end_ges && ++gef != end_gef) {
-    double energy_ge = GetGeEnergy(*ges);
+    double ge_time = GetGeTime(ges, gef);
+    double ge_energy = GetGeEnergy(ges);
+    double dt;
+
+    // Find the time difference with the most recent muon
+    // in any direction.
+    next = std::upper_bound(prev, end_musc, gef, MuScLess);
+    prev = next - 1;
+    if (next == end_musc)
+      // If we've reached the end of the muSc hits,
+      // the last Ge hit happened after the last muSc
+      // hit.
+      dt = GetGeTime(ges, gef) - GetMuScTime(prev);
+    else if (next == beg_musc)
+      // If we're at the beginning, then the first
+      // Ge hit happened before the first muSc hit.
+      dt = GetGeTime(ges, gef) - GetMuScTime(next);
+    else {
+      // Here there is a muSc hit before and after
+      // this Ge hit; we look at the closest muon.
+      double dt_prev = ge_time - GetMuScTime(prev);
+      double dt_next = ge_time - GetMuScTime(next);
+      dt = std::abs(dt_next) < std::abs(dt_prev) ? dt_next : dt_prev;
+    }
+
+    if (std::abs(dt) > time_window_big)
+      fHist_EnergyFarOOT->Fill(ge_energy);
+    else if (std::abs(dt) > time_window_small)
+      fHist_EnergyOOT->Fill(ge_energy);
+    else
+      fHist_TimeEnergy->Fill(dt, ge_energy);
+    fHist_Energy->Fill(ge_energy);
     // Silicon XRay
-    //if (energy_ge < 3260 || energy_ge > 3290) continue;
+    //if (ge_energy >= 3260 && energy_ge <= 3290)
     // Aluminium XRay
-    if (energy_ge < 2813 || energy_ge > 2853) continue;
-    double time_musc;
-    double time_ge;
-    while (musc != end_musc && (time_ge = GetGeTime(*ges, *gef)) > (time_musc = GetMuScTime(*musc))) ++musc;
-    if (musc == end_musc) break;
-    fHist_Time->Fill(time_ge - time_musc);
-    if (musc != beg_musc) fHist_Time->Fill(time_ge - GetMuScTime(*(musc - 1)));
+    if (ge_energy >= 2813 && ge_energy <= 2853)
+      fHist_Time->Fill(dt);
+
+    ++ges; ++gef;
+    // Sanity check
+    if ( (ges == end_ges) != (gef == end_gef) ) {
+      static const std::string msg("Fast and slow timestamps don't match up when getting time");
+      throw std::logic_error(msg);
+    }
   }
 
   return 0;
@@ -220,31 +198,8 @@ double GetGeEnergy(const TPulseIsland* tpi) {
   return (double)(max - ped);
 }
 
-bool IsMuScHit(const TPulseIsland* tpi) {
-  // Put peds in later
-  static const int min = 0;
-  static const int max = 4095;
-  const std::vector<int>& samps = tpi->GetSamples();
-  const std::vector<int>::const_iterator b = samps.begin(), e = samps.end();
-  return tpi && *std::max_element(b, e) < max && *std::min_element(b, e) > min;
-}
-
-bool IsGeHit(const TPulseIsland* slow, const TPulseIsland* fast) {
-  // Put peds in later
-  static const int min = 0;
-  static const int max = 16383;
-  const std::vector<int>& samps_slow = slow->GetSamples();
-  const std::vector<int>& samps_fast = fast->GetSamples();
-  const std::vector<int>::const_iterator beg_slow = samps_slow.begin();
-  const std::vector<int>::const_iterator end_slow = samps_slow.end();
-  const std::vector<int>::const_iterator beg_fast = samps_fast.begin();
-  const std::vector<int>::const_iterator end_fast = samps_fast.end();
-  return
-    fast && slow &&
-    *std::max_element(beg_slow, end_slow) < max &&
-    *std::max_element(beg_fast, end_fast) < max &&
-    *std::min_element(beg_slow, end_slow) > min &&
-    *std::min_element(beg_fast, end_fast) > min;
+bool MuScLess(const TPulseIsland* tpi1, const TPulseIsland* tpi2) {
+  return GetMuScTime(tpi1) < GetMuScTime(tpi2);
 }
 
 // The following macro registers this module to be useable in the config file.
