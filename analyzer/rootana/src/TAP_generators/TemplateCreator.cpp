@@ -284,7 +284,6 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	}
       } // end if only one pulse candidate
     } //end for loop through channels
-    // We will want to normalise to template to have pedestal=0 and amplitude=1
   }
 
   return 0;
@@ -305,13 +304,42 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData, const TSetupData* setup)
   for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
     std::string bankname = it->first;
     std::string detname = setup->GetDetectorName(bankname);
+
+    TH1D* hTemplate = fTemplates[detname];
+    
+    if (!hTemplate) { // if there's no template been created for this channel
+      continue;
+    }
     
     int& n_fit_attempts = fNFitAttempts[detname]; // number of pulses we try to fit to
     int& n_successful_fits = fNSuccessfulFits[detname];
     std::cout << "TemplateCreator: " << detname << ": " << n_fit_attempts << " fits attempted with " << n_successful_fits << " successful (" << ((double)n_successful_fits/(double)n_fit_attempts)*100 << "%)" << std::endl;
 
+    // Normalise the template so that it has pedestal=0 and amplitude=1
+    // Work out the pedestal of the template from the first 5 bins
+    int n_bins_for_template_pedestal = 5;
+    double total = 0;
+    for (int iBin = 1; iBin <= n_bins_for_template_pedestal; ++iBin) {
+      total += hTemplate->GetBinContent(iBin);
+    }
+    double template_pedestal = total / n_bins_for_template_pedestal;
+    //    std::cout << detname << ": Template Pedestal = " << template_pedestal << std::endl;
+   
+    // Subtract off the pedesal
+    for (int iBin = 1; iBin <= hTemplate->GetNbinsX(); ++iBin) {
+      double old_value = hTemplate->GetBinContent(iBin);
+      double new_value = old_value - template_pedestal;
+
+      hTemplate->SetBinContent(iBin, new_value);
+    }
+
+    // Integrate over the histogram and scale to give an area of 1
+    double integral = std::fabs(hTemplate->Integral()); // want the absolute value for the integral because of the negative polarity pulses
+    hTemplate->Scale(1.0/integral);
+    integral = std::fabs(hTemplate->Integral());
+
     // Save the template to the file
-    fTemplateArchive->SaveTemplate(fTemplates[detname]);
+    fTemplateArchive->SaveTemplate(hTemplate);
   }
 
   // Clean up the template archive
