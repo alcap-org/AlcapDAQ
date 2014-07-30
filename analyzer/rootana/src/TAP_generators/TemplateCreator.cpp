@@ -41,6 +41,14 @@ int TemplateCreator::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setu
   // Prepare the template archive
   fTemplateArchive = new TemplateArchive("templates.root", "RECREATE");
 
+  // Set all the converged statuses to false
+  StringPulseIslandMap::const_iterator it;
+  for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
+    std::string bankname = it->first;
+    std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
+
+    fConvergedStatuses[detname] = false;
+  }
   return 0;
 }
 
@@ -59,6 +67,11 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
     // Get the bank and detector names for this detector
     bankname = it->first;
     detname = setup->GetDetectorName(bankname);
+
+    // See if we already have a converged template for this detector
+    if (fConvergedStatuses[detname] == true) {
+      continue;
+    }
 
     // Create the pulse candidate finder for this detector
     PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(detname, fOpts);
@@ -264,8 +277,13 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
 	// we keep on adding pulses until adding pulses has no effect on the template
 	bool converged = CheckConvergence(hTemplate, bankname);
-      }
-    }
+	if (converged) {
+	  fConvergedStatuses[detname] = true;
+	  std::cout << "TemplateCreator: " << detname << " template terminated at iteration " << n_pulses_in_template << std::endl;
+	  break; // break from the for loop
+	}
+      } // end if only one pulse candidate
+    } //end for loop through channels
     // We will want to normalise to template to have pedestal=0 and amplitude=1
   }
 
@@ -282,9 +300,8 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData, const TSetupData* setup)
      cout<<"-----I'm debugging TemplateCreator::AfterLastEntry()"<<endl;
   }
 
-  StringPulseIslandMap::const_iterator it;
-
   // Print to stdout the percentage of successful fit for each channel
+  StringPulseIslandMap::const_iterator it;
   for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
     std::string bankname = it->first;
     std::string detname = setup->GetDetectorName(bankname);
@@ -413,6 +430,8 @@ bool TemplateCreator::CheckConvergence(TH1D* hTemplate, std::string bankname) {
   std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
   int n_pulses_in_template = fNPulsesInTemplate[detname];
   int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+
+  TH1D* error_histogram = fErrorVsPulseAddedHistograms[detname];
   double error = 0;
   if (trigger_polarity == -1) {
     error = hTemplate->GetBinError(hTemplate->GetMinimumBin());
@@ -420,8 +439,26 @@ bool TemplateCreator::CheckConvergence(TH1D* hTemplate, std::string bankname) {
   else if (trigger_polarity == 1) {
     error = hTemplate->GetBinError(hTemplate->GetMaximumBin());
   }
-  fErrorVsPulseAddedHistograms[detname]->Fill(n_pulses_in_template, error);
-  //  std::cout << detname << ": #" << n_pulses_in_template << ", Error = " << error << std::endl;
+  error_histogram->Fill(n_pulses_in_template, error);
+
+  // Check the difference between this iteration and previous ones and, if it's small, the template has converged
+  int n_bins_to_check = 5;
+  double convergence_limit = 0.001;
+  bool converged = false;
+  for (int iPrevBin = 0; iPrevBin < n_bins_to_check; ++iPrevBin) {
+    double previous_error = error_histogram->GetBinContent(n_pulses_in_template-iPrevBin); // we have just added error to bin number n_pulses_in_template+1
+
+    if ( std::fabs(previous_error - error) < convergence_limit) {
+      converged = true;
+    }
+    else {
+      converged = false;
+      break;
+    }
+  }
+
+  return converged;
+  //  std::cout << detname << ": #" << n_pulses_in_template << ", Error (Inserted) = " << error << ", Error (Retrieved) = " << error_histogram->GetBinContent(n_pulses_in_template+1) << std::endl;
 
 }
 // The following macro registers this module to be useable in the config file.

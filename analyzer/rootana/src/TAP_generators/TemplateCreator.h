@@ -68,6 +68,7 @@ class TemplateCreator : public BaseModule{
   /// Returns: true if converged
   bool CheckConvergence(TH1D* hTemplate, std::string bankname);
   std::map<std::string, TH1D*> fErrorVsPulseAddedHistograms;
+  std::map<std::string, bool> fConvergedStatuses;
 };
 
 #endif //TEMPLATECREATOR_H_
