@@ -442,8 +442,8 @@ bool TemplateCreator::CheckConvergence(TH1D* hTemplate, std::string bankname) {
   error_histogram->Fill(n_pulses_in_template, error);
 
   // Check the difference between this iteration and previous ones and, if it's small, the template has converged
-  int n_bins_to_check = 5;
-  double convergence_limit = 0.001;
+  int n_bins_to_check = 10;
+  double convergence_limit = 0.1;
   bool converged = false;
   for (int iPrevBin = 0; iPrevBin < n_bins_to_check; ++iPrevBin) {
     double previous_error = error_histogram->GetBinContent(n_pulses_in_template-iPrevBin); // we have just added error to bin number n_pulses_in_template+1
