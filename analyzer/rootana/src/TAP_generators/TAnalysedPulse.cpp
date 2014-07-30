@@ -13,13 +13,9 @@ using std::string;
 #define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
 #define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<std::endl;
 
-TAnalysedPulse::ProxyToSourceMap TAnalysedPulse::sProxyToSources;
-TAnalysedPulse::SourceToProxyMap TAnalysedPulse::sSourceToProxies;
-
 TAnalysedPulse::TAnalysedPulse(const IDs::source& sourceID,
              const TPulseIslandID& parentID, const TPulseIsland* parentTPI):
   fParentID(fDefaultValue),
-  fSource(fDefaultValue),
   fTPILength(fDefaultValue),
   fAmplitude(fDefaultValue),
   fTime(fDefaultValue),
@@ -33,7 +29,6 @@ TAnalysedPulse::TAnalysedPulse(const IDs::source& sourceID,
 
 TAnalysedPulse::TAnalysedPulse():
   fParentID(fDefaultValue),
-  fSource(fDefaultValue),
   fTPILength(fDefaultValue),
   fAmplitude(fDefaultValue),
   fTime(fDefaultValue),
@@ -76,17 +71,4 @@ void TAnalysedPulse::SetParentTPIProperties(const TPulseIslandID& id,
   }
   SetTPILength(pulse->GetPulseLength());
   SetTriggerTime(pulse->GetTimeStamp()*pulse->GetClockTickInNs());
-}
-
-void TAnalysedPulse::SetSource(const IDs::source& sourceID){
-    // Is this proxy already contained in the maps
-    SourceToProxyMap::const_iterator it=sSourceToProxies.find(sourceID);
-    if(it!=sSourceToProxies.end()){
-      fSource=it->second;
-    } else {
-      // if it's a new kind, add the source to the hash table
-      fSource=sSourceToProxies.size();
-      sSourceToProxies[sourceID]=fSource;
-      sProxyToSources.push_back(sourceID);
-    }
 }
