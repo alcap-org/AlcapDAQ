@@ -10,6 +10,14 @@
 #include <iostream>
 #include <sstream>
 
+#include <TSQLiteServer.h>
+#include <TSQLiteResult.h>
+#include <TSQLiteRow.h>
+
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
+
 SetupNavigator* SetupNavigator::fThis=NULL;
 
 std::string SetupNavigator::GetBank(const IDs::channel& src)const{
