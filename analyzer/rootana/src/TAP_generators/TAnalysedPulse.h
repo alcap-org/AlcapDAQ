@@ -144,7 +144,9 @@ class TAnalysedPulse : public TObject {
   //@}
 
   private:
-  /// \todo Why is this private?
+  /// @brief Set the source of this TAP
+  /// @details Private as this should not be set by anything but the constructor
+  /// of this class
   void SetSource(const IDs::source& sourceID);
 
   private:
