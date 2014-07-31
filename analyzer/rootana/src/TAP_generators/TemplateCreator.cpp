@@ -6,6 +6,7 @@
 
 #include "definitions.h"
 
+#include "EventNavigator.h"
 #include "SetupNavigator.h"
 #include "ExportPulse.h"
 
@@ -17,7 +18,6 @@
 using std::cout;
 using std::endl;
 
-extern Long64_t* gEntryNumber;
 
 TemplateCreator::TemplateCreator(modules::options* opts):
   BaseModule("TemplateCreator",opts), fOpts(opts){
@@ -254,7 +254,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
 	  // Create the histograms that we will use to plot the corrected and uncorrected pulses
 	  std::stringstream histname;
-	  histname << template_name << "_Event" << *gEntryNumber << "_Pulse" << pulseIter - thePulseIslands.begin() << "_" << n_pulses_in_template << "Added";
+	  histname << template_name << "_Event" << EventNavigator::Instance().EntryNo() << "_Pulse" << pulseIter - thePulseIslands.begin() << "_" << n_pulses_in_template << "Added";
 	  TH1D* hUncorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
 	  histname << "_Corrected";
 	  TH1D* hCorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
