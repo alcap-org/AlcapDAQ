@@ -28,6 +28,7 @@ std::string SetupNavigator::GetBank(const IDs::channel& src)const{
         if(modules::parser::iequals(it->second , src.str())) return it->first;
     }
     return "invalid-det-bank";
+}
 
 double SetupNavigator::GetPedestalError(std::string bankname) {
 
