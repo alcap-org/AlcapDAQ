@@ -5,26 +5,57 @@
 #include "TPulseIsland.h"
 #include "TH1D.h"
 
+#include "definitions.h"
+
 class TemplateFitter {
  public:
-  TemplateFitter();
+  TemplateFitter(std::string detname, int refine_factor);
   ~TemplateFitter();
 
  private:
   TFitterMinuit* fMinuitFitter;
 
  public:
-  void FitPulseToTemplate(TH1D* hTemplate, const TPulseIsland* pulse);
-  double GetPedestal() { return fPedestal; }
-  double GetAmplitude() { return fAmplitude; }
-  double GetTime() { return fTime; }
+  int FitPulseToTemplate(TH1D* hTemplate, TH1D* hPulse, std::string bankname);
+  double GetPedestalOffset() { return fPedestalOffset; }
+  double GetAmplitudeScaleFactor() { return fAmplitudeScaleFactor; }
+  double GetTimeOffset() { return fTimeOffset; }
   double GetChi2() { return fChi2; }
+  double GetNDoF() { return fNDoF; }
 
  private:
-  double fPedestal;
-  double fAmplitude;
-  double fTime;
+  IDs::channel fChannel;
+  double fPedestalOffset;
+  double fAmplitudeScaleFactor;
+  double fTimeOffset;
   double fChi2;
+  int fNDoF; // number of degress of freedom in fit
+
+  /// \brief
+  /// Store the initial estimates for the parameters
+  double fPedestalOffset_estimate;
+  double fAmplitudeScaleFactor_estimate;
+  double fTimeOffset_estimate;
+
+  /// \brief
+  /// Store the minimum parameter bounds
+  double fPedestalOffset_minimum;
+  double fAmplitudeScaleFactor_minimum;
+  double fTimeOffset_minimum;
+
+  /// \brief
+  /// Store the maximum parameter bounds
+  double fPedestalOffset_maximum;
+  double fAmplitudeScaleFactor_maximum;
+  double fTimeOffset_maximum;
+
+ public:
+  /// \brief
+  /// Sets the intial estimates for the template fitter
+  void SetInitialParameterEstimates(double pedestal, double amplitude, double time);
+
+ private:
+  int fRefineFactor;
 };
 
 #endif

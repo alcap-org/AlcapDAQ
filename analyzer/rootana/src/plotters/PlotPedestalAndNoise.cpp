@@ -101,7 +101,7 @@ int PlotPedestalAndNoise::ProcessEntry(TGlobalData* gData,TSetupData *setup){
       for (int iSample = 0; iSample < fNSamples; ++iSample) {
 	sum_of_deviations_squared += (theSamples.at(iSample) - mean)*(theSamples.at(iSample) - mean);
       }
-      double RMS = std::sqrt(sum_of_deviations_squared);
+      double RMS = std::sqrt(sum_of_deviations_squared / fNSamples);
 
       pedestal_vs_noise_histogram->Fill(mean, RMS);
     } // end loop through pulses
