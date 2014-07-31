@@ -1,31 +1,43 @@
-#ifndef FLYWHEEL_H
-#define FLYWHEEL_H
+#ifndef FLYWEIGHT_H
+#define FLYWEIGHT_H
+
+#include <map>
+#include <vector>
+#include <iostream>
 
 /// \name SourceProxy
 ///
 /// \brief
-/// A flyweight for identifying which source was used to make
-/// the TAP without copying the entire source.
+/// A generic flyweight to store relatively bulky objects that are massively
+/// re-used, such as the source IDs in each TAP / TDP.
 ///
 /// \details
-/// Because many TAPs will be using the same source, and we don't want to
-/// waste the space storing copies of them or the time making them, we
-/// instead store a single copy in a vector of each source used throughout
-/// the invocation of this program in the making of TAPs.
-/// If a TAP generator uses a source, that source is searched for in
-/// ProxyToSourceMap and the index identifying where it is is saved
-/// with this TAP. If the source does not exists, it is created and
-/// appended to the end.
+/// Objects such as TAPs and TDPs often contain largely repeated data such as
+/// the source ID for all pulses coming from the same algorithm applied to the
+/// same detector channel.
+/// To reduce the redundancy and therefore save memory and some processing time,
+/// this class implements a simple version of the flyweight pattern, which
+/// replaces each different value with an int, but provides a similar interface
+/// to the object that it wraps.
+/// When we want to store a new value, it is searched for in the ProxyToValueMap
+/// and the index identifying where it is is saved is used instead. If the value
+/// has not been used already, it is added to the list of values
+/// @tparam ValueType The type of value this flyweight contains
+/// @tparam UniqueTag An optional template parameter to make sure the flyweight
+/// is unique, such as to separate the flyweight for TAPs from TDPs, even though
+/// the ValueType is the same
 template <typename ValueType, typename UniqueTag=int>
-class FlyWheel{
+class FlyWeight{
     public:
         typedef int Proxy_t;
         typedef std::map<ValueType,Proxy_t> ValueToProxyMap;
         typedef std::vector<ValueType> ProxyToValueMap;
 
-        ValueType& operator=(const ValueType& v){
+        FlyWeight():fProxy(-1){}
+        void Reset(){fProxy=-1;}
+
+        void operator=(const ValueType& v){
             SetValue(v);
-            return v;
         }
         void SetValue(const ValueType&);
         const ValueType& GetValue()const;
@@ -37,12 +49,14 @@ class FlyWheel{
 };
 
 template <typename ValueType, typename UniqueTag>
-inline const ValueType& FlyWheel<ValueType,UniqueTag>::GetValue()const{
+inline const ValueType& FlyWeight<ValueType,UniqueTag>::GetValue()const{
+    if(fProxy<0) std::cerr<<"Trying to get a value "
+        "from an unitialized flyweight"<<std::endl;
     return sProxyToVals.at(fProxy);
 }
 
 template <typename ValueType, typename UniqueTag>
-inline void FlyWheel<ValueType,UniqueTag>::SetValue(const ValueType& v){
+inline void FlyWeight<ValueType,UniqueTag>::SetValue(const ValueType& v){
     // Is this proxy already contained in the maps
     typename ValueToProxyMap::const_iterator it=sValsToProxies.find(v);
     if(it!=sValsToProxies.end()){
@@ -56,9 +70,11 @@ inline void FlyWheel<ValueType,UniqueTag>::SetValue(const ValueType& v){
 }
 
 template <typename ValueType, typename UniqueTag>
-typename FlyWheel<ValueType,UniqueTag>::ProxyToValueMap FlyWheel<ValueType,UniqueTag>::sProxyToVals;
+  typename FlyWeight<ValueType,UniqueTag>::ProxyToValueMap 
+  FlyWeight<ValueType,UniqueTag>::sProxyToVals;
 
 template <typename ValueType, typename UniqueTag>
-typename FlyWheel<ValueType,UniqueTag>::ValueToProxyMap FlyWheel<ValueType,UniqueTag>::sValsToProxies;
+  typename FlyWeight<ValueType,UniqueTag>::ValueToProxyMap 
+  FlyWeight<ValueType,UniqueTag>::sValsToProxies;
 
-#endif //FLYWHEEL_H
+#endif //FLYWEIGHT_H
