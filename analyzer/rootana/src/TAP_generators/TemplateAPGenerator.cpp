@@ -9,6 +9,8 @@ using std::endl;
 TemplateAPGenerator::TemplateAPGenerator(TAPGeneratorOptions* opts):
 	TVAnalysedPulseGenerator("Template",opts){
 	// Do things to set up the generator here. 
+
+  fTemplateArchive = new TemplateArchive("templates.root", "READ");
 }
 
 int TemplateAPGenerator::ProcessPulses( 
@@ -24,7 +26,12 @@ int TemplateAPGenerator::ProcessPulses(
        tpi!=pulseList.end(); tpi++){
 
     // Analyse each TPI
+
     // Here we need to get the template from the template file
+    std::string channel = GetChannel().str();
+    std::string templatename = "hTemplate_" + channel;
+    TH1D* hTemplate = fTemplateArchive->GetTemplate(templatename.c_str());
+    std::cout << "TemplateAPGenerator: " << channel << " template exists? " << hTemplate << std::endl;
     // Then we try and fit this TPI to the template
     // If successful, we then have the amplitude and time (offset?) of the pulse
     
