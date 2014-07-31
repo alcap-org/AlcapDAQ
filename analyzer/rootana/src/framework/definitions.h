@@ -37,4 +37,10 @@ typedef std::map<std::string, ConstDetectorPulseList> StringConstDetPulseMap;
 class TMuonEvent;
 typedef std::vector<TMuonEvent*> MuonEventList;
 
+namespace definitions{
+    /// default value used by TAPs, TDPs and other algorithms to signify an empty
+    /// field
+    enum { DefaultValue=-99999 };
+}
+
 #endif // DEFINITIONS_H_
