@@ -25,19 +25,19 @@ std::string IDs::channel::GetDetectorString(Detector_t det){
             case kScL         : output="ScL"      ; break ; 
             case kScR         : output="ScR"      ; break ; 
             case kScVe        : output="ScVe"     ; break ; 
-            case kSiL1_1      : output="SiL1_1"   ; break ; 
-            case kSiL1_2      : output="SiL1_2"   ; break ; 
-            case kSiL1_3      : output="SiL1_3"   ; break ; 
-            case kSiL1_4      : output="SiL1_4"   ; break ; 
+            case kSiL1_1      : output="SiL1-1"   ; break ; 
+            case kSiL1_2      : output="SiL1-2"   ; break ; 
+            case kSiL1_3      : output="SiL1-3"   ; break ; 
+            case kSiL1_4      : output="SiL1-4"   ; break ; 
             case kSiL2        : output="SiL2"     ; break ; 
-            case kSiR1_1      : output="SiR1_1"   ; break ; 
-            case kSiR1_2      : output="SiR1_2"   ; break ; 
-            case kSiR1_3      : output="SiR1_3"   ; break ; 
-            case kSiR1_4      : output="SiR1_4"   ; break ; 
-            case kSiR1_sum    : output="SiR1_sum" ; break ; 
+            case kSiR1_1      : output="SiR1-1"   ; break ; 
+            case kSiR1_2      : output="SiR1-2"   ; break ; 
+            case kSiR1_3      : output="SiR1-3"   ; break ; 
+            case kSiR1_4      : output="SiR1-4"   ; break ; 
+            case kSiR1_sum    : output="SiR1-sum" ; break ; 
             case kSiR2        : output="SiR2"     ; break ; 
-            case kMuSc        : output="MuSc"     ; break ; 
-            case kMuScA       : output="MuScA"    ; break ; 
+            case kMuSc        : output="muSc"     ; break ; 
+            case kMuScA       : output="muScA"    ; break ; 
 	}
      return output;
 }
@@ -46,10 +46,10 @@ IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
      const char* names[1+IDs::num_detector_enums]={ 
 	     "*"        ,                                                // 0
 	     "Ge"       , "LiquidSc" , "NDet"     , "NDet2"  , "ScGe"   ,// 1-5   
-	     "ScL"      , "ScR"      , "ScVe"     , "SiL1_1" , "SiL1_2" ,// 6-10  
-	     "SiL1_3"   , "SiL1_4"   , "SiL2"     , "SiR1_1" , "SiR1_2" ,// 11-15 
-	     "SiR1_3"   , "SiR1_4"   , "SiR1_sum" , "SiR2"   , "MuSc"   ,// 16-20 
-	     "MuScA" };                                                  // 21
+	     "ScL"      , "ScR"      , "ScVe"     , "SiL1-1" , "SiL1-2" ,// 6-10  
+	     "SiL1-3"   , "SiL1-4"   , "SiL2"     , "SiR1-1" , "SiR1-2" ,// 11-15 
+	     "SiR1-3"   , "SiR1-4"   , "SiR1-sum" , "SiR2"   , "muSc"   ,// 16-20 
+	     "muScA" };                                                  // 21
      for (int i=0;i<=IDs::num_detector_enums;i++){
         if(modules::parser::iequals(det,names[i])) return (Detector_t)i;
      } 

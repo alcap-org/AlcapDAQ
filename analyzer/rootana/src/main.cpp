@@ -217,7 +217,7 @@ void ClearGlobalData(TGlobalData* data)
     }
     pulse_vector.clear();
   }
-  gAnalysedPulseMap.clear();
+  //  gAnalysedPulseMap.clear();
 
   for(StringDetPulseMap::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
