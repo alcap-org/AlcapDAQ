@@ -69,9 +69,11 @@ public:
 public:
   /// Get the detector enum for this channel
   Detector_t Detector()const{return fDetector;};
+  void Detector(const Detector_t& d){ fDetector=d;};
 
   /// Get the SlowFast enum for this channel
   SlowFast_t SlowFast()const{return fSlowFast;};
+  void SlowFast(const SlowFast_t& d){ fSlowFast=d;};
 
   /// Set the value of this channel ID using just a single string.
   /// The string can be a complete channel specification, including
