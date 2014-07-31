@@ -7,7 +7,7 @@
 #include "IdSource.h"
 #include <map>
 #include <vector>
-#include "FlyWheel.h"
+#include "FlyWeight.h"
 class TH1F;
 class TPulseIsland;
 
@@ -28,6 +28,8 @@ class TPulseIsland;
 /// multiple TAPs coming from a single TPI. 
 ////////////////////////////////////////////////////////////////////////////////
 class TAnalysedPulse : public TObject {
+  public:
+  struct Tag{};
 
   public:
   /// \brief
@@ -123,10 +125,7 @@ class TAnalysedPulse : public TObject {
   //@}
 
   private:
-  /// @brief Set the source of this TAP
-  /// @details Private as this should not be set by anything but the constructor
-  /// of this class
-  void SetSource(const IDs::source& sourceID){fSource.SetValue(sourceID);};
+  
 
   private:
   TPulseIslandID fParentID;
@@ -137,12 +136,12 @@ class TAnalysedPulse : public TObject {
   double fEnergy;
   double fPedestal;
   double fTriggerTime;
-  FlyWheel<IDs::source> fSource;
+  FlyWeight<IDs::source,Tag> fSource;
 
   /// \brief
   /// To enable sanity checks, we have an unphysical value that all
   /// fields are set to.
-  static const int fDefaultValue=-99999;
+  static const int fDefaultValue = definitions::DefaultValue;
 
   ClassDef(TAnalysedPulse, 5);
 };
