@@ -1,5 +1,6 @@
 #include <cstring>
 #include <cstdlib>
+#include <cstdio>
 
 #include "AlcapExcept.h"
 //#include "demangle.h"
