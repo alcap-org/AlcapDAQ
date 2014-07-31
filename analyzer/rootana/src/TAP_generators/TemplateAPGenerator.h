@@ -5,6 +5,8 @@
 #include "TVAnalysedPulseGenerator.h"
 #include "definitions.h"
 
+#include "utils/TemplateArchive.h"
+
 class TemplateAPGenerator:public TVAnalysedPulseGenerator {
 
  public:
@@ -18,6 +20,8 @@ class TemplateAPGenerator:public TVAnalysedPulseGenerator {
    // into more than one TAP
    virtual bool MayDivideTPIs(){return true;};
 
+ private:
+   TemplateArchive* fTemplateArchive;
 };
 
 #endif //TEMPLATE_H__
