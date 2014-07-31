@@ -62,7 +62,7 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
             for(it_chan=fChannelsToAnalyse.begin();
                     it_chan!=fChannelsToAnalyse.end();
                     it_chan++){
-                if((*it_chan)== (*det)) break;
+                if(modules::parser::iequals((*it_chan), (*det)) )break;
             }
             if(it_chan== fChannelsToAnalyse.end() ) skip_detector=true;
         }
