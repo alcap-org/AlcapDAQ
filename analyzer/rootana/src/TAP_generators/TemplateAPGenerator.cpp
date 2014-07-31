@@ -24,13 +24,20 @@ int TemplateAPGenerator::ProcessPulses(
        tpi!=pulseList.end(); tpi++){
 
     // Analyse each TPI
-    amplitude=(*tpi)->GetPulseHeight();
+    // Here we need to get the template from the template file
+    // Then we try and fit this TPI to the template
+    // If successful, we then have the amplitude and time (offset?) of the pulse
+    
 
     // Now that we've found the information we were looking for make a TAP to
     // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
     // the index of the parent TPI in the container as an argument
     tap = MakeNewTAP(tpi-pulseList.begin());
-    tap->SetAmplitude(amplitude);
+
+    // Get the amplitude and time of the TAP
+    //tap->SetAmplitude(amplitude);
+    //tap->SetTime(time);
+
     // Finally add the new TAP to the output list
     analysedList.push_back(tap);
    }
