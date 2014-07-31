@@ -6,7 +6,7 @@
 class MaxTimeDiffDPGenerator:public TVDetectorPulseGenerator{
 
     public:
-        MaxTimeDiffDPGenerator(TDPGeneratorOptions* opts): TVDetectorPulseGenerator(opts){};
+        MaxTimeDiffDPGenerator(TDPGeneratorOptions* opts);
         virtual ~MaxTimeDiffDPGenerator(){};
         virtual bool ChecksForPileUp()const {return false;};
 

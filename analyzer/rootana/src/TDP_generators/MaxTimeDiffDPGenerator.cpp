@@ -7,6 +7,10 @@
 using std::cout;
 using std::endl;
 
+MaxTimeDiffDPGenerator::MaxTimeDiffDPGenerator(TDPGeneratorOptions* opts):
+    TVDetectorPulseGenerator("MaxTimeDiff",opts){
+    }
+
 int MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::string& detector, 
         const AnalysedPulseList* fast_pulses, const AnalysedPulseList* slow_pulses,
         DetectorPulseList& output){
@@ -28,10 +32,11 @@ int MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::str
     // NB with this alogirthm this can be extended to more than 2
     double min_time = 999999; // something large
     double pulse_time;
-    int count=0;
+    //int count=0;
+    AnalysedPulseList::const_iterator fast_pulse, slow_pulse;
     while (pulseIters.size() > 0) {
-      min_time = 999999e9;
-      //DEBUG_VALUE(count++);
+        min_time = 999999e9;
+        //DEBUG_VALUE(count++);
 
         // Find out which of the next fast or slow pulsees happened next
         for (unsigned int b = 0; b < pulseIters.size(); ++b) {
@@ -42,8 +47,6 @@ int MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::str
 
         // Now go through and find all the pulses that are within a certain time of this
         double time_difference = 0.1; // 0.1 ms
-        TAnalysedPulse* fast_pulse = NULL;
-        TAnalysedPulse* slow_pulse = NULL;
         for (unsigned int b = 0; b < pulseIters.size(); ++b) {
 
             TAnalysedPulse* pulse = *(pulseIters[b].first);
@@ -52,28 +55,30 @@ int MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::str
             if (std::fabs(pulse_time - min_time) < time_difference) {
                 if ( pulse->GetSource().isFast()) {
                     if(Debug()) cout<<"Fast? " << pulse->GetSource().str() << std::endl;
-                    fast_pulse = pulse;
+                    fast_pulse = pulseIters[b].first;
                 } else if ( pulse->GetSource().isSlow()) {
                     if(Debug()) cout<<"Slow? " << pulse->GetSource().str() << std::endl;
-                    slow_pulse = pulse;
+                    slow_pulse = pulseIters[b].first;
                 }
 
                 ++(pulseIters[b].first); // increment the iterator because we used the pulse
             }
         }
-        TDetectorPulse* det_pulse = new TDetectorPulse(fast_pulse, slow_pulse, detector); // Create the TDetectorPulse
+        TDetectorPulse* det_pulse = MakeTDP(
+                fast_pulse- fast_pulses->begin(),
+                slow_pulse - slow_pulses->begin()); // Create the TDetectorPulse
         output.push_back(det_pulse);
         if(Debug()){
             cout<<"Created a TDetectorPulse with:\n";
-            cout<<"Fast Pulse: " << det_pulse->GetFastPulseTime() * 1e-6 << std::endl;
-            cout<< "Slow Pulse: " << det_pulse->GetSlowPulseTime() * 1e-6 << std::endl;
+            cout<<"Fast Pulse: " << det_pulse->GetTime(TDetectorPulse::kFast) * 1e-6 << std::endl;
+            cout<< "Slow Pulse: " << det_pulse->GetTime(TDetectorPulse::kSlow) * 1e-6 << std::endl;
             cout<< std::endl;
         }
 
         //Delete the iterators to finished banks. Go through in reverse to
         //avoid invalidation problems
         for (int b = pulseIters.size()-1; b >= 0; --b) {
-          //DEBUG_VALUE((*pulseIters[b].first)->GetParentID());
+            //DEBUG_VALUE((*pulseIters[b].first)->GetParentID());
             if (pulseIters[b].first == pulseIters[b].second){
                 pulseIters.erase(pulseIters.begin() + b);
             }  
@@ -92,7 +97,7 @@ int MaxTimeDiffDPGenerator::CopyAnalToDet(
     for(AnalysedPulseList::const_iterator i_pulse=fast_pulses->begin();
             i_pulse!=fast_pulses->end(); i_pulse++){
 
-        TDetectorPulse* det_pulse = new TDetectorPulse(*i_pulse, NULL, detector); // Create the TDetectorPulse
+        TDetectorPulse* det_pulse = MakeTDP(i_pulse-fast_pulses->begin(), -1); // Create the TDetectorPulse
         output.push_back(det_pulse);
     }
     return 0;
