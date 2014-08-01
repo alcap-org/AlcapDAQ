@@ -107,28 +107,6 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
 	TPulseIsland* pulse = *pulseIter;
 
-        // Add the first pulse directly to the template (although we may try and choose a random pulse to start with)
-	if (hTemplate == NULL) {
-	  std::string histname = "hTemplate_" + detname;
-	  std::string histtitle = "Template Histogram for the " + detname + " channel";
-
-	  int pulse_length = pulse->GetSamples().size();
-	  if (pulse->GetPeakSample() >= pulse_length - pulse_length/5.0) {
-	    if (Debug()) {
-	      std::cout << "TemplateCreator: Pulse #" << pulseIter - thePulseIslands.begin() << " is too close to one end of the island and so won't be used as the first pulse in the template." << std::endl;
-	    }
-	    continue;
-	  }
-	  hTemplate = CreateRefinedPulseHistogram(pulse, histname.c_str(), histtitle.c_str(), true);
-	  ++n_pulses_in_template;
-
-	  if (Debug()) {
-	    std::cout << "TemplateCreator: Adding " << detname << " Pulse #" << pulseIter - thePulseIslands.begin() << " directly to the template" << std::endl;
-	  }
-	  fTemplates[detname] = hTemplate;
-	  continue;
-	}
-
 	// Get the samples so we can check for digitiser overflow
 	const std::vector<int>& theSamples = (pulse)->GetSamples();
 	int n_samples = theSamples.size();
@@ -158,6 +136,29 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	}
 	if (overflowed) {
 	  continue; // skip this pulse
+	}
+
+
+        // Add the first pulse directly to the template (although we may try and choose a random pulse to start with)
+	if (hTemplate == NULL) {
+	  std::string histname = "hTemplate_" + detname;
+	  std::string histtitle = "Template Histogram for the " + detname + " channel";
+
+	  int pulse_length = pulse->GetSamples().size();
+	  if (pulse->GetPeakSample() >= pulse_length - pulse_length/5.0) {
+	    if (Debug()) {
+	      std::cout << "TemplateCreator: Pulse #" << pulseIter - thePulseIslands.begin() << " is too close to one end of the island and so won't be used as the first pulse in the template." << std::endl;
+	    }
+	    continue;
+	  }
+	  hTemplate = CreateRefinedPulseHistogram(pulse, histname.c_str(), histtitle.c_str(), true);
+	  ++n_pulses_in_template;
+
+	  if (Debug()) {
+	    std::cout << "TemplateCreator: Adding " << detname << " Pulse #" << pulseIter - thePulseIslands.begin() << " directly to the template" << std::endl;
+	  }
+	  fTemplates[detname] = hTemplate;
+	  continue;
 	}
 
 	// Create the refined pulse waveform
