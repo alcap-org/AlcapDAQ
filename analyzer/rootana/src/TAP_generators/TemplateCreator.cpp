@@ -151,7 +151,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	    }
 	    continue;
 	  }
-	  hTemplate = CreateRefinedPulseHistogram(pulse, histname.c_str(), histtitle.c_str(), true);
+	  hTemplate = fTemplateFitter->CreateRefinedPulseHistogram(pulse, histname.c_str(), histtitle.c_str(), true);
 	  ++n_pulses_in_template;
 
 	  if (Debug()) {
@@ -162,7 +162,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	}
 
 	// Create the refined pulse waveform
-	TH1D* hPulseToFit = CreateRefinedPulseHistogram(pulse, "hPulseToFit", "hPulseToFit", false);
+	TH1D* hPulseToFit = fTemplateFitter->CreateRefinedPulseHistogram(pulse, "hPulseToFit", "hPulseToFit", false);
 
 	// Create some histograms that monitor the progression of the template
 	if (fErrorVsPulseAddedHistograms.find(detname) == fErrorVsPulseAddedHistograms.end()) {
@@ -409,50 +409,6 @@ double TemplateCreator::CorrectSampleValue(double old_value, double template_ped
 
   return new_value;
 }
-
-// Creates a histogram with sub-bin resolution
-TH1D* TemplateCreator::CreateRefinedPulseHistogram(const TPulseIsland* pulse, std::string histname, std::string histtitle, bool interpolate) {
-
-  // Get a few things first
-  std::string bankname = pulse->GetBankName();
-  const std::vector<int>& theSamples = pulse->GetSamples();
-  int n_samples = theSamples.size();
-  int n_bins = fRefineFactor*n_samples; // number of bins in the template
-
-  // Create the higher resolution histogram
-  TH1D* hist = new TH1D(histname.c_str(), histtitle.c_str(), n_bins, 0, n_samples);
-
-  double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
-
-  // Go through the bins in the high-resolution histogram
-  // NB sample numbers go grom 0 to n-1 and bins go from 1 to n
-  for (int i = 0; i < n_bins; ++i) {
-    int bin = i+1; // bins go from 1 to n rather than 0 to n-1
-    int sample_number = i / fRefineFactor;
-    double remainder = i % fRefineFactor;
-    double sample_value;
-
-    // We may want to interpolate between the samples in the samples vector
-    if (interpolate) {
-      try {
-	sample_value = theSamples.at(sample_number) + (remainder / fRefineFactor)*(theSamples.at(sample_number+1) - theSamples.at(sample_number));
-      }
-      catch (const std::out_of_range& oor) { // if we'll be going out of range of the samples vector
-	sample_value = theSamples.at(sample_number);
-      }
-    }
-    else {
-      sample_value = theSamples.at(sample_number);
-    }
-
-    // Set the bin contents and bin error
-    hist->SetBinContent( bin, sample_value);
-    hist->SetBinError( bin, pedestal_error);
-  }
-
-  return hist;
-}
-
 
 bool TemplateCreator::CheckConvergence(TH1D* hTemplate, std::string bankname) {
 

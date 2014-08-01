@@ -54,6 +54,10 @@ class TemplateFitter {
   /// Sets the intial estimates for the template fitter
   void SetInitialParameterEstimates(double pedestal, double amplitude, double time);
 
+  /// \brief
+  /// Creates a refined histogram for a given TPulseIsland
+  TH1D* CreateRefinedPulseHistogram(const TPulseIsland* pulse, std::string histname, std::string histtitle, bool interpolate);
+
  private:
   int fRefineFactor;
 };

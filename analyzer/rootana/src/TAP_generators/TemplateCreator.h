@@ -49,10 +49,6 @@ class TemplateCreator : public BaseModule{
   double CorrectSampleValue(double old_value, double template_pedestal);
 
   /// \brief
-  /// Creates a refined histogram for a given TPulseIsland
-  TH1D* CreateRefinedPulseHistogram(const TPulseIsland* pulse, std::string histname, std::string histtitle, bool interpolate);
-
-  /// \brief
   /// The factor that we scale the number of bins in the template histogram by
   int fRefineFactor;
 
