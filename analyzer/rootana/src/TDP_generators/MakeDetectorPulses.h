@@ -44,6 +44,7 @@ class MakeDetectorPulses : public BaseModule{
 void DumpgAnalysedPulseMap(const SourceAnalPulseMap& aMap);
 
  private:
+  TVDetectorPulseGenerator* fPassThruGenerator; 
   TVDetectorPulseGenerator* fGenerator; 
   StringDetPulseMap* fDetectorPulseMap;
   typedef std::set<Detector_t > ChannelPairing_t;
