@@ -14,7 +14,13 @@ MaxTimeDiffDPGenerator::MaxTimeDiffDPGenerator(TDPGeneratorOptions* opts):
 
 int MaxTimeDiffDPGenerator::ProcessPulses( DetectorPulseList& output){
 
-    if(!SlowPulseList()) return CopyAnalToDet(FastPulseList(),output);
+    if(!SlowPulseList()) {
+        cout<<"Error: No pulse list for slow channel, "<<GetFastSource()<<" with MaxTimeDiffDPGenerator"<<endl;
+        return 1;
+    } else if(!FastPulseList()) {
+        cout<<"Error: No pulse list for fast channel, "<<GetSlowSource()<<" with MaxTimeDiffDPGenerator"<<endl;
+        return 2;
+    }
 
     AnalysedPulseList::const_iterator fastPulseIter = FastPulseList()->begin();
     AnalysedPulseList::const_iterator slowPulseIter = SlowPulseList()->begin();
@@ -82,21 +88,6 @@ int MaxTimeDiffDPGenerator::ProcessPulses( DetectorPulseList& output){
             }  
         } // for (int b -reversed)	      
     } // end for
-    return 0;
-}
-
-int MaxTimeDiffDPGenerator::CopyAnalToDet(
-        const AnalysedPulseList* pulse_list, DetectorPulseList& output){
-    if(!pulse_list){
-        cout<<"NULL TAP list passed to MaxTimeDiffDPGenerator for both fast and slow pulses"<<endl;
-        return 1;
-    }
-    for(AnalysedPulseList::const_iterator i_pulse=pulse_list->begin();
-            i_pulse!=pulse_list->end(); i_pulse++){
-
-        TDetectorPulse* det_pulse = MakeTDP(i_pulse-pulse_list->begin(), -1); // Create the TDetectorPulse
-        output.push_back(det_pulse);
-    }
     return 0;
 }
 

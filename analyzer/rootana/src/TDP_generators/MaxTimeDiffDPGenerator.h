@@ -12,7 +12,6 @@ class MaxTimeDiffDPGenerator:public TVDetectorPulseGenerator{
 
     public:
         virtual int ProcessPulses( DetectorPulseList& output);
-        int CopyAnalToDet(const AnalysedPulseList* ,DetectorPulseList& output);
 
     private:
         double fTimeDifference;
