@@ -5,6 +5,8 @@
 
 #include "utils/TemplateFitter.h"
 
+#include "TMath.h" 
+
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -80,9 +82,28 @@ int TemplateAPGenerator::ProcessPulses(
 
     template_fitter->SetInitialParameterEstimates(pedestal_offset_estimate, amplitude_scale_factor_estimate, time_offset_estimate);
 
-
-    // If successful, we then have the amplitude and time (offset?) of the pulse
+    if (Debug()) {
+      std::cout << "TemplateAPGenerator: " << channel << "(" << bankname << "): Pulse #" << tpi - pulseList.begin() << ": " << std::endl
+		<< "TemplateAPGenerator: Template: pedestal = " << template_pedestal << ", amplitude = " << template_amplitude << ", time = " << template_time << std::endl
+		<< "TemplateAPGenerator: Pulse: pedestal = " << pulse_pedestal << ", amplitude = " << pulse_amplitude << ", time = " << pulse_time << std::endl
+		<< "TemplateAPGenerator: Initial Estimates: pedestal = " << pedestal_offset_estimate << ", amplitude = " << amplitude_scale_factor_estimate 
+		<< ", time = " << time_offset_estimate << std::endl;
+    }
     
+    int fit_status = template_fitter->FitPulseToTemplate(hTemplate, hPulseToFit, bankname);
+    if (fit_status != 0) {
+      if (Debug()) {
+	std::cout << "TemplateAPGenerator: Problem with fit (status = " << fit_status << ")" << std::endl;
+      }
+      delete hPulseToFit; // delete this here since it is no longer needed
+      continue;
+    }
+
+    if (Debug()) {
+      std::cout << "TemplateAPGenerator: Fitted Parameters: PedOffset = " << template_fitter->GetPedestalOffset() << ", AmpScaleFactor = " << template_fitter->GetAmplitudeScaleFactor()
+		<< ", TimeOffset = " << template_fitter->GetTimeOffset() << ", Chi2 = " << template_fitter->GetChi2() << ", NDoF = " << template_fitter->GetNDoF() 
+		<< ", Prob = " << TMath::Prob(template_fitter->GetChi2(), template_fitter->GetNDoF()) << std::endl << std::endl;
+    }
 
     // Now that we've found the information we were looking for make a TAP to
     // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
