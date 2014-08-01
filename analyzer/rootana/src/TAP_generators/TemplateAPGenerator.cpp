@@ -111,7 +111,7 @@ int TemplateAPGenerator::ProcessPulses(
     tap = MakeNewTAP(tpi-pulseList.begin());
 
     // Get the amplitude and time of the TAP
-    //tap->SetAmplitude(amplitude);
+    tap->SetAmplitude(template_fitter->GetAmplitudeScaleFactor());
     //tap->SetTime(time);
 
     // Finally add the new TAP to the output list
