@@ -33,6 +33,8 @@ PlotTDPs::~PlotTDPs(){
 }
 
 int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
+    // Change into this modules directory
+    GetDirectory()->cd();
 
     // Make sure we've got MakeDetectorPulses being used
     MakeDetectorPulses* makeTDPs=modules::navigator::Instance()->GetModule<MakeDetectorPulses>("MakeDetectorPulses");
@@ -67,15 +69,29 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         // make the name and title for the histogram
         name='h'+i_source->first.str();
         modules::parser::ToCppValid(name);
-        title=" of TDPs coming from ";
+        title=" coming from ";
         title+=i_source->first.str();
         if(Debug()) {
             cout<<"Made histogram called "<<name<<" with title "<< title<<endl;
         }
 
         // Make a histogram of the relative amplitudes
-        tmp.amplitudes=new TH2F((name+"_amp").c_str(),("Amplitudes "+title).c_str(), 100,0,1000,100,0,1000);
+        tmp.amplitudes=new TH2F((name+"_amp").c_str(),("Amplitudes of TDPs "+title).c_str(), 100,0,1000,100,0,1000);
         tmp.amplitudes->SetBit(TH1::kCanRebin);
+        tmp.amplitudes->SetXTitle("Amplitude in Fast channel");
+        tmp.amplitudes->SetYTitle("Amplitude in Slow channel");
+
+        // Histogram amplitudes for pulses not in either channel
+        tmp.fast_only_amps=new TH1F((name+"_fast_only_amp").c_str(),
+                ("Amplitudes of hits with no corresponding slow pulse "+title).c_str(), 200,0,1000);
+        tmp.fast_only_amps->SetBit(TH1::kCanRebin);
+        tmp.fast_only_amps->SetXTitle("Amplitude in Fast channel");
+
+        // Histogram amplitudes for pulses not in either channel
+        tmp.slow_only_amps=new TH1F((name+"_slow_only_amp").c_str(),
+                ("Amplitudes of hits with no corresponding fast pulse "+title).c_str(), 200,0,1000);
+        tmp.slow_only_amps->SetBit(TH1::kCanRebin);
+        tmp.slow_only_amps->SetXTitle("Amplitude in Slow channel");
 
         // Make a histogram of the time difference between pulses
         tmp.time_diff=NULL;
@@ -84,6 +100,8 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         fPlotsList[i_source->first]=tmp;
     }
 
+    // Change back to the top level directory
+    GetDirectory()->cd("/");
   return 0;
 }
 
@@ -92,6 +110,7 @@ int PlotTDPs::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
     // For each TDP source of interest (defined in BeforeFirstEntry)
     const DetectorPulseList* pulseList;
     SourceDetPulseMap::const_iterator i_pulse_list;
+    double fast_amp, slow_amp;
     for(PlotsList_t::iterator i_source=fPlotsList.begin();
             i_source!=fPlotsList.end(); ++i_source){
         // Get the desired pulse list
@@ -106,11 +125,20 @@ int PlotTDPs::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
         for(DetectorPulseList::const_iterator i_pulse=pulseList->begin();
                 i_pulse!=pulseList->end(); ++i_pulse){
 
-            // Fill histogram of the relative amplitudes
-            i_source->second.amplitudes->Fill(
-                    (*i_pulse)->GetAmplitude(TDetectorPulse::kFast),
-                    (*i_pulse)->GetAmplitude(TDetectorPulse::kSlow)
-                    );
+            // get the amplitudes for each pulse
+            fast_amp=(*i_pulse)->GetAmplitude(TDetectorPulse::kFast);
+            slow_amp=(*i_pulse)->GetAmplitude(TDetectorPulse::kSlow);
+
+            // If one of the channels is the default value then fill the
+            // histogram for channels that weren't matched
+            if(fast_amp==definitions::DefaultValue){
+                i_source->second.slow_only_amps->Fill(slow_amp);
+            }else if(slow_amp==definitions::DefaultValue){
+                i_source->second.fast_only_amps->Fill(fast_amp);
+            }else {
+                // Both channels saw hits, fill the 2d plot
+                i_source->second.amplitudes->Fill(fast_amp ,slow_amp);
+            }
 
             // Fill histogram of the time difference between pulses
         }
@@ -124,6 +152,8 @@ int PlotTDPs::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
     for(PlotsList_t::iterator i_source=fPlotsList.begin();
             i_source!=fPlotsList.end(); ++i_source){
         i_source->second.amplitudes->Draw();
+        i_source->second.slow_only_amps->Draw();
+        i_source->second.fast_only_amps->Draw();
     }
 
   return 0;
