@@ -53,6 +53,7 @@ IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
      for (int i=0;i<=IDs::num_detector_enums;i++){
         if(modules::parser::iequals(det,names[i])) return (Detector_t)i;
      } 
+     std::cout<<"Unknown detector name given to IDs::channel: '"<<det<<"'"<<std::endl;
      return kErrorDetector;
 }
 
@@ -71,7 +72,7 @@ IDs::channel& IDs::channel::operator=(const std::string& rhs){
    }
    // Have we found a map
    size_t boundary=std::string::npos;
-   if(i<= num_strs){
+   if(i< num_strs){
        boundary=sz-2;
    std::string fs=rhs.substr(boundary);
 	   fSlowFast=GetSlowFastEnum(fs);
