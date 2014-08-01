@@ -8,7 +8,7 @@ using std::endl;
 using std::cout;
 
 extern SourceAnalPulseMap gAnalysedPulseMap;
-extern StringDetPulseMap gDetectorPulseMap;
+extern SourceDetPulseMap gDetectorPulseMap;
 
 MakeDetectorPulses::MakeDetectorPulses(modules::options* opts):
     BaseModule("MakeDetectorPulses",opts,false),fOptions(opts){
@@ -67,6 +67,7 @@ int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
 
 int MakeDetectorPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
     IDs::channel detector(IDs::kAnyDetector,IDs::kNotApplicable);
+    IDs::source source;
     const AnalysedPulseList *slow_pulses;
     const AnalysedPulseList *fast_pulses;
     SourceAnalPulseMap::const_iterator current;
@@ -116,7 +117,8 @@ int MakeDetectorPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetu
         // Set the pulse lists
         i_detector->generator->SetPulseLists(fast_pulses,slow_pulses);
         // Process the pulses
-        i_detector->generator->ProcessPulses(gDetectorPulseMap[detector.str()]);
+        source=i_detector->generator->GetSource();
+        i_detector->generator->ProcessPulses(gDetectorPulseMap[source]);
     }
     return 0;
 }

@@ -69,7 +69,7 @@ TTree *gAnalysedPulseTree = NULL;
 TBranch *gAnalysedPulseBranch = NULL;
 
 SourceAnalPulseMap gAnalysedPulseMap;
-StringDetPulseMap gDetectorPulseMap;
+SourceDetPulseMap gDetectorPulseMap;
 MuonEventList gMuonEvents;
 
 int main(int argc, char **argv)
@@ -219,9 +219,9 @@ void ClearGlobalData(TGlobalData* data)
   }
   //  gAnalysedPulseMap.clear();
 
-  for(StringDetPulseMap::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
+  for(SourceDetPulseMap::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
-    std::vector<TDetectorPulse*>& pulse_vector= mapIter->second;
+    DetectorPulseList& pulse_vector= mapIter->second;
     for(size_t i=0; i<pulse_vector.size(); i++){
       delete pulse_vector[i];
       pulse_vector[i] = NULL;
