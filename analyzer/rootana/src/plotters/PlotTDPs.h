@@ -26,8 +26,8 @@ class PlotTDPs : public BaseModule {
     public:     
         struct Detector_t {
             TH2F* amplitudes;
-            TH1F* fast_only_amps;
-            TH1F* slow_only_amps;
+            TH1F* fast_only_amps, *slow_only_amps;
+            TH1F* fast_amps_slow_cut, *slow_amps_fast_cut;
             TH1F* time_diff;
         };
         typedef std::map<IDs::source,Detector_t> PlotsList_t;
@@ -70,6 +70,7 @@ class PlotTDPs : public BaseModule {
 
     private:
         PlotsList_t fPlotsList;
+        double fFastCut, fSlowCut;
 };
 
 #endif //PLOTTDPS_H_
