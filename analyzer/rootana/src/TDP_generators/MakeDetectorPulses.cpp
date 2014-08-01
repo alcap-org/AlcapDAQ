@@ -15,6 +15,7 @@ MakeDetectorPulses::MakeDetectorPulses(modules::options* opts):
         // Get the algorithm option from the modules file
         // If nothing was set, use MaxTimeDiff by default
         fAlgorithm=opts->GetString("default_algorithm","MaxTimeDiff");
+        fPassThruName=opts->GetString("pass_through_algorithm","PassThrough");
     }
 
 MakeDetectorPulses::~MakeDetectorPulses(){
@@ -24,7 +25,7 @@ int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
     // Set up the generator
     TDPGeneratorOptions gen_opts("gen opts",fOptions);
     fGenerator=MakeGenerator(fAlgorithm,&gen_opts);
-    fPassThruGenerator=MakeGenerator("PassThrough",&gen_opts);
+    fPassThruGenerator=MakeGenerator(fPassThruName,&gen_opts);
     if(!fGenerator) return 1;
 
     const IDs::channel* ch;
