@@ -30,7 +30,7 @@ IslandLength::~IslandLength()
 
 
 //----------------------------------------------------------------------
-int IslandLength::BeforeFirstEntry(TGlobalData* data,TSetupData *setup)
+int IslandLength::BeforeFirstEntry(TGlobalData* data,const TSetupData *setup)
 {
   // Called before the main event loop
   // Can be used to set things up, like histograms etc
@@ -49,7 +49,7 @@ int IslandLength::BeforeFirstEntry(TGlobalData* data,TSetupData *setup)
 
 
 //----------------------------------------------------------------------
-int IslandLength::ProcessEntry(TGlobalData* data,TSetupData* setup)
+int IslandLength::ProcessEntry(TGlobalData* data,const TSetupData* setup)
 {
   ++fNProcessed;
 
@@ -84,7 +84,7 @@ int IslandLength::ProcessEntry(TGlobalData* data,TSetupData* setup)
 
 
 //----------------------------------------------------------------------
-int IslandLength::AfterLastEntry(TGlobalData* gData,TSetupData *setup)
+int IslandLength::AfterLastEntry(TGlobalData* gData,const TSetupData *setup)
 {
   // Return non-zero to indicate a problem
   if(Debug()){
@@ -112,7 +112,7 @@ int IslandLength::AfterLastEntry(TGlobalData* gData,TSetupData *setup)
 }
 
 //----------------------------------------------------------------------
-void IslandLength::Book(TGlobalData* data, TSetupData* setup)
+void IslandLength::Book(TGlobalData* data,const TSetupData* setup)
 {
   if (!TDirectory::CurrentDirectory()->cd(fDirName.c_str())){
     // this will blow up if the file is not writable.  Good!

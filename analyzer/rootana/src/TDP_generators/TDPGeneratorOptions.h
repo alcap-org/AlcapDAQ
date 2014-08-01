@@ -11,6 +11,16 @@ class TDPGeneratorOptions:public modules::options{
 	TDPGeneratorOptions(const std::string& name):
 		modules::options(name){};
 	~TDPGeneratorOptions(){};
+
+    TDPGeneratorOptions(const std::string& name,const modules::options* opts):
+        modules::options(name){
+            modules::options::operator=(*opts);
+        }
+
+    TDPGeneratorOptions& operator=(const modules::options& rhs){
+        modules::options::operator=(rhs);
+        return *this;
+    }
 };
 
 #endif // TDPGENERATOROPTIONS_H_

@@ -34,7 +34,7 @@ PlotPedestalAndNoise::~PlotPedestalAndNoise(){
 // Called before the main event loop
 // Can be used to set things up, like histograms etc
 // Return non-zero to indicate a problem
-int PlotPedestalAndNoise::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
+int PlotPedestalAndNoise::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   // Print extra info if we're debugging this module:
   if(Debug()){
      cout<<"-----PlotPedestalAndNoise::BeforeFirstEntry(): I'm debugging!"<<endl;
@@ -45,7 +45,7 @@ int PlotPedestalAndNoise::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup)
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
-int PlotPedestalAndNoise::ProcessEntry(TGlobalData* gData,TSetupData *setup){
+int PlotPedestalAndNoise::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
   // Prepare a few variables
   std::string bankname, detname;
@@ -113,7 +113,7 @@ int PlotPedestalAndNoise::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 // Called just after the main event loop
 // Can be used to write things out, dump a summary etc
 // Return non-zero to indicate a problem
-int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
+int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 
   // Print extra info if we're debugging this module:
   if(Debug()){

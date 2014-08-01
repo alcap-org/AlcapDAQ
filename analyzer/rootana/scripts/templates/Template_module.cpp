@@ -25,7 +25,7 @@ using std::endl;
 // Called before the main event loop
 // Can be used to set things up, like histograms etc
 // Return non-zero to indicate a problem
-int %module%::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
+int %module%::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   // Print extra info if we're debugging this module:
   if(Debug()){
      cout<<"-----%module%::BeforeFirstEntry(): I'm debugging!"<<endl;
@@ -37,14 +37,14 @@ int %module%::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
-int %module%::ProcessEntry(TGlobalData* gData,TSetupData *setup){
+int %module%::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
   return 0;
 }
 
 // Called just after the main event loop
 // Can be used to write things out, dump a summary etc
 // Return non-zero to indicate a problem
-int %module%::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
+int %module%::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 
   // Print extra info if we're debugging this module:
   if(Debug()){

@@ -17,6 +17,7 @@ class MakeMuonEvents : public BaseModule{
 
  private:
   virtual int BeforeFirstEntry(TGlobalData *gData, const TSetupData* aSetup);
+  virtual int AfterLastEntry(TGlobalData* gData,const TSetupData* setup){return 0;};
   virtual int ProcessEntry(TGlobalData *gData, const TSetupData* aSetup);
 
   std::string fAlgorithm;

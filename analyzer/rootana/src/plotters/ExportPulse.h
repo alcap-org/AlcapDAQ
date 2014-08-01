@@ -79,7 +79,7 @@ class ExportPulse : public BaseModule{
   /// @details First loads pulses requested by the config file, then draws all
   /// TPIs, then draw all TAPs.
   virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
-  //virtual int AfterLastEntry(TGlobalData* gData){return 0;};
+  virtual int AfterLastEntry(TGlobalData* gData,const TSetupData* setup){return 0;};
 
   /// Draw all TPIs requested for this event
   int DrawTPIs();

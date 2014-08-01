@@ -1,5 +1,7 @@
 #include "ModulesNavigator.h"
 #include <iostream>
+#include <iterator>
+#include <algorithm>
 #include <TDirectory.h>
 #include <TFile.h>
 using std::cout;
@@ -91,4 +93,30 @@ void modules::navigator::AddModule(const std::string& name, BaseModule* mod){
 int modules::navigator::HowMany(const std::string& name)const{
     if(fModulesMade) return fModulesSearch.count(name);
     return fModulesFile.HowMany(name);
+}
+
+namespace{
+    struct first_in_pair_equals{
+    bool operator()(const modules::ordered_element& element){
+        return element.first==comp;
+    }
+    std::string comp;
+    first_in_pair_equals(const std::string& c):comp(c){};
+    };
+}
+
+bool modules::navigator::Before(const std::string& first, const std::string& second)const{
+
+    modules::const_iterator i_first= std::find_if(fModules.begin(),fModules.end(),first_in_pair_equals(first));
+    if(i_first==fModules.end()){
+        cout<<"Error: Unable to find module "<<first<<endl;
+        return false;
+    } 
+    modules::const_iterator i_second= std::find_if(fModules.begin(),fModules.end(),first_in_pair_equals(second));
+    if(i_second==fModules.end()){
+        cout<<"Error: Unable to find module "<<second<<endl;
+        return false;
+    }
+    int dist=std::distance(i_first,i_second);
+    return dist>0;
 }

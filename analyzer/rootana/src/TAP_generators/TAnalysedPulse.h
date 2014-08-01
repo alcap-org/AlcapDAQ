@@ -7,7 +7,7 @@
 #include "IdSource.h"
 #include <map>
 #include <vector>
-
+#include "FlyWeight.h"
 class TH1F;
 class TPulseIsland;
 
@@ -28,27 +28,8 @@ class TPulseIsland;
 /// multiple TAPs coming from a single TPI. 
 ////////////////////////////////////////////////////////////////////////////////
 class TAnalysedPulse : public TObject {
-  /// \name SourceProxy
-  ///
-  /// \brief
-  /// A flyweight for identifying which source was used to make
-  /// the TAP without copying the entire source.
-  ///
-  /// \details
-  /// Because many TAPs will be using the same source, and we don't want to
-  /// waste the space storing copies of them or the time making them, we
-  /// instead store a single copy in a vector of each source used throughout
-  /// the invocation of this program in the making of TAPs.
-  /// If a TAP generator uses a source, that source is searched for in
-  /// ProxyToSourceMap and the index identifying where it is is saved
-  /// with this TAP. If the source does not exists, it is created and
-  /// appended to the end.
-  ///
-  //@{
-  typedef int SourceProxy_t;
-  typedef std::vector<IDs::source> ProxyToSourceMap;
-  typedef std::map<IDs::source,SourceProxy_t> SourceToProxyMap;
-  //@}
+  public:
+  struct Tag{};
 
   public:
   /// \brief
@@ -106,7 +87,7 @@ class TAnalysedPulse : public TObject {
   double GetEnergy()const{return fEnergy;};
   double GetPedestal()const{return fPedestal;};
   double GetTriggerTime()const{return fTriggerTime;};
-  const IDs::source& GetSource()const{return sProxyToSources.at(fSource);};
+  const IDs::source& GetSource()const{return fSource.GetValue();};
   //@}
 
   /// \name Setters
@@ -144,12 +125,10 @@ class TAnalysedPulse : public TObject {
   //@}
 
   private:
-  /// \todo Why is this private?
-  void SetSource(const IDs::source& sourceID);
+  
 
   private:
   TPulseIslandID fParentID;
-  SourceProxy_t fSource;
   int fTPILength;
   double fAmplitude;
   double fTime;
@@ -157,21 +136,14 @@ class TAnalysedPulse : public TObject {
   double fEnergy;
   double fPedestal;
   double fTriggerTime;
+  FlyWeight<IDs::source,Tag> fSource;
 
   /// \brief
   /// To enable sanity checks, we have an unphysical value that all
   /// fields are set to.
-  static const int fDefaultValue=-99999;
-  /// \brief
-  /// See description of SourceProxy. This is the single instance
-  /// of that map needed.
-  static ProxyToSourceMap sProxyToSources;
-  /// \brief
-  /// See description of SourceProxy. This is the single instance
-  /// of the map needed.
-  static SourceToProxyMap sSourceToProxies;
+  static const int fDefaultValue = definitions::DefaultValue;
 
-  ClassDef(TAnalysedPulse, 4);
+  ClassDef(TAnalysedPulse, 5);
 };
 
 #endif

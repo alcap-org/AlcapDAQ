@@ -119,10 +119,8 @@ class TVAnalysedPulseGenerator {
 template <typename TypeOfTAP>
 inline TypeOfTAP* TVAnalysedPulseGenerator::MakeNewTAP(int parent_index)const{
     TypeOfTAP* pulse=NULL;
-    try{
-        TPulseIsland* parent = fPulseList->at(parent_index);
-        pulse=new TypeOfTAP(GetSource(),parent_index,parent);
-    } catch (std::out_of_range){}
+    TPulseIsland* parent = fPulseList->at(parent_index);
+    pulse=new TypeOfTAP(GetSource(),parent_index,parent);
     return pulse;
 }
 

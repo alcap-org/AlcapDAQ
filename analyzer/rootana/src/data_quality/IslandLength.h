@@ -40,7 +40,7 @@ class IslandLength : public BaseModule {
   /// \param[in] gData See BaseModule::ProcessEntry
   /// \param[in] gSetup See BaseModule::ProcessEntry
   /// \return Non-zero to indicate a problem.
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+  virtual int ProcessEntry(TGlobalData *gData,const  TSetupData *gSetup);
   /// \brief
   /// What needes to be done before each run?
   /// Don't hesitate to repeat what was said in the class description.
@@ -48,7 +48,7 @@ class IslandLength : public BaseModule {
   /// \param[in] gData See BaseModule::BeforeFirstEntry
   /// \param[in] setup See BaseModule::BeforeFirstEntry
   /// \return Non-zero to indicate a problem.
-  virtual int BeforeFirstEntry(TGlobalData* gData, TSetupData *setup);
+  virtual int BeforeFirstEntry(TGlobalData* gData,const  TSetupData *setup);
   /// \brief
   /// What needs to be done after each run?
   /// Don't hesitate to repeat what was said in the class description.
@@ -56,7 +56,7 @@ class IslandLength : public BaseModule {
   /// \param[in] gData See BaseModule::AfterLastEntry
   /// \param[in] setup See BaseModule::AfterLastEntry
   /// \return Non-zero to indicate a problem.
-  virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
+  virtual int AfterLastEntry(TGlobalData* gData,const  TSetupData *setup);
 
 private:
   typedef const std::map<std::string, std::string> mapSS_t;
@@ -74,7 +74,7 @@ private:
   IslandLength& operator() (const IslandLength& rhs);
 
   /// Book histograms and similar
-  virtual void Book(TGlobalData* data, TSetupData* setup);
+  virtual void Book(TGlobalData* data,const TSetupData* setup);
 
   /// The directory where the histograms will reside
   std::string fDirName;

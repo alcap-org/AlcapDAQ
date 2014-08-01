@@ -49,7 +49,7 @@ int PlotTime::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
             std::stringstream histtitle;
             histtitle<<"Time of pulses from source " << i_det->first;
             histtitle<<" for run "<<SetupNavigator::Instance()->GetRunNumber();
-            TH1F* hTime = new TH1F(histname.c_str(), histtitle.str().c_str(), 1e6,0,1e8);
+            TH1F* hTime = new TH1F(histname.c_str(), histtitle.str().c_str(), 1e3,0,1e8);
             hTime->GetXaxis()->SetTitle("Time (ns)");
             hTime->GetYaxis()->SetTitle("Arbitrary Units");
             fTimePlots[keyname] = hTime;

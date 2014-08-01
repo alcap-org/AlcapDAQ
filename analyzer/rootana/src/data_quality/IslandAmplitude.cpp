@@ -34,7 +34,7 @@ IslandAmplitude::~IslandAmplitude() { }
 // Called before the main event loop
 // Return non-zero to indicate a problem
 
-int IslandAmplitude::BeforeFirstEntry(TGlobalData* data,TSetupData *setup)
+int IslandAmplitude::BeforeFirstEntry(TGlobalData* data,const TSetupData *setup)
   {
   // Print extra info if we're debugging this module:
   if(Debug()){
@@ -86,7 +86,7 @@ int IslandAmplitude::BeforeFirstEntry(TGlobalData* data,TSetupData *setup)
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
-int IslandAmplitude::ProcessEntry(TGlobalData* data,TSetupData *setup)
+int IslandAmplitude::ProcessEntry(TGlobalData* data,const TSetupData *setup)
 {
   ++fNProcessed;
 
@@ -144,7 +144,7 @@ int IslandAmplitude::ProcessEntry(TGlobalData* data,TSetupData *setup)
 // Called just after the main event loop
 // Can be used to write things out, dump a summary etc
 // Return non-zero to indicate a problem
-int IslandAmplitude::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
+int IslandAmplitude::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 
   // Print extra info if we're debugging this module:
   if(Debug()){

@@ -1,6 +1,7 @@
 #include "SetupNavigator.h"
 #include "ModulesParser.h"
 #include "TSetupData.h"
+#include "definitions.h"
 
 #include <TSQLiteServer.h>
 #include <TSQLiteResult.h>
@@ -33,7 +34,7 @@ std::string SetupNavigator::GetBank(const IDs::channel& src)const{
 double SetupNavigator::GetPedestalError(std::string bankname) {
 
   // The values that we will read in
-  double noise;
+  double noise=definitions::DefaultValue;
 
   // Get the SQLite database file
   TSQLiteServer* server = new TSQLiteServer("sqlite://pedestals-and-noises.sqlite");
@@ -66,7 +67,7 @@ double SetupNavigator::GetPedestalError(std::string bankname) {
 double SetupNavigator::GetPedestal(std::string bankname) {
 
   // The values that we will read in
-  double pedestal;
+  double pedestal=definitions::DefaultValue;
 
   // Get the SQLite database file
   TSQLiteServer* server = new TSQLiteServer("sqlite://pedestals-and-noises.sqlite");
