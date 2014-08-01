@@ -40,7 +40,45 @@ int TemplateAPGenerator::ProcessPulses(
     TemplateFitter* template_fitter = new TemplateFitter(channel, 5);
 
     // Create the histogram of the pulse
-    TH1D* hPulseToFit = template_fitter->CreateRefinedPulseHistogram(tpi, "hPulseToFit", "hPulseToFit", false);
+    TH1D* hPulseToFit = template_fitter->CreateRefinedPulseHistogram(*tpi, "hPulseToFit", "hPulseToFit", false);
+
+
+    // Get some initial estimates for the fitter
+    std::string bankname = (*tpi)->GetBankName();
+
+    double template_pedestal = hTemplate->GetBinContent(1);
+    double template_amplitude;
+    double template_time;
+
+    double pulse_pedestal = hPulseToFit->GetBinContent(1);
+    double pulse_amplitude;
+    double pulse_time;
+
+    double pedestal_offset_estimate = pulse_pedestal; // now we're dealing with actual pulses since we subtract the template_pedestal in the transformation
+    double amplitude_scale_factor_estimate;
+    double time_offset_estimate;
+    if (TSetupData::Instance()->GetTriggerPolarity(bankname) == 1) { 
+      template_amplitude = (hTemplate->GetMaximum() - template_pedestal);
+      template_time = hTemplate->GetMaximumBin() - 1; // go from bin numbering (1, n_samples) to clock ticks (0, n_samples-1)
+
+      pulse_amplitude = (hPulseToFit->GetMaximum() - pulse_pedestal);
+      pulse_time = hPulseToFit->GetMaximumBin() - 1;
+
+      amplitude_scale_factor_estimate = pulse_amplitude / template_amplitude;  // estimated scale factor
+      time_offset_estimate = pulse_time - template_time;
+    }
+    else if (TSetupData::Instance()->GetTriggerPolarity(bankname) == -1) {
+      template_amplitude = (template_pedestal - hTemplate->GetMinimum());
+      template_time = hTemplate->GetMinimumBin() - 1; // go from bin numbering (1, n_samples) to clock ticks (0, n_samples-1)
+
+      pulse_amplitude = (pulse_pedestal - hPulseToFit->GetMinimum());
+      pulse_time = hPulseToFit->GetMinimumBin() - 1; // go from bin numbering (1, n_samples) to clock ticks (0, n_samples-1)
+
+      amplitude_scale_factor_estimate = pulse_amplitude / template_amplitude;  // estimated scale factor
+      time_offset_estimate = pulse_time - template_time;
+    }
+
+    template_fitter->SetInitialParameterEstimates(pedestal_offset_estimate, amplitude_scale_factor_estimate, time_offset_estimate);
 
 
     // If successful, we then have the amplitude and time (offset?) of the pulse
@@ -57,6 +95,8 @@ int TemplateAPGenerator::ProcessPulses(
 
     // Finally add the new TAP to the output list
     analysedList.push_back(tap);
+
+    delete hPulseToFit;
    }
 	
   // Generators have a Debug method similar to modules
