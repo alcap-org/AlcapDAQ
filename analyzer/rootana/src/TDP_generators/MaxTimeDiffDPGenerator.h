@@ -16,5 +16,7 @@ class MaxTimeDiffDPGenerator:public TVDetectorPulseGenerator{
                 DetectorPulseList& output);
         int CopyAnalToDet(const AnalysedPulseList* fast_pulses,const std::string&, DetectorPulseList& output);
 
+    private:
+        double fTimeDifference;
 };
 #endif //MAXTIMEDIFFDPGENERATOR_H_

@@ -9,6 +9,7 @@ using std::endl;
 
 MaxTimeDiffDPGenerator::MaxTimeDiffDPGenerator(TDPGeneratorOptions* opts):
     TVDetectorPulseGenerator("MaxTimeDiff",opts){
+        fTimeDifference=opts->GetDouble("time_difference",0.1);
     }
 
 int MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::string& detector, 
@@ -33,12 +34,13 @@ int MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::str
     double min_time = 999999; // something large
     double pulse_time;
     //int count=0;
-    AnalysedPulseList::const_iterator fast_pulse, slow_pulse;
+    int fast_pulse, slow_pulse;
     while (pulseIters.size() > 0) {
+        fast_pulse=-1.;
+        slow_pulse=-1.;
         min_time = 999999e9;
-        //DEBUG_VALUE(count++);
 
-        // Find out which of the next fast or slow pulsees happened next
+        // Find out which of the next fast or slow pulses happened next
         for (unsigned int b = 0; b < pulseIters.size(); ++b) {
             pulse_time = (*pulseIters.at(b).first)->GetTime() * 1e-6; // convert to ms	      
             min_time = std::min(min_time, pulse_time);
@@ -46,39 +48,37 @@ int MaxTimeDiffDPGenerator::ProcessPulses(const TSetupData* setup,const std::str
         }
 
         // Now go through and find all the pulses that are within a certain time of this
-        double time_difference = 0.1; // 0.1 ms
         for (unsigned int b = 0; b < pulseIters.size(); ++b) {
 
             TAnalysedPulse* pulse = *(pulseIters[b].first);
             double pulse_time = pulse->GetTime() * 1e-6; // convert to ms
 
-            if (std::fabs(pulse_time - min_time) < time_difference) {
+            if (std::fabs(pulse_time - min_time) < fTimeDifference) {
                 if ( pulse->GetSource().isFast()) {
                     if(Debug()) cout<<"Fast? " << pulse->GetSource().str() << std::endl;
-                    fast_pulse = pulseIters[b].first;
+                    fast_pulse = pulseIters[b].first - fast_pulses->begin();
                 } else if ( pulse->GetSource().isSlow()) {
                     if(Debug()) cout<<"Slow? " << pulse->GetSource().str() << std::endl;
-                    slow_pulse = pulseIters[b].first;
+                    slow_pulse = pulseIters[b].first - slow_pulses->begin();
                 }
 
                 ++(pulseIters[b].first); // increment the iterator because we used the pulse
             }
         }
-        TDetectorPulse* det_pulse = MakeTDP(
-                fast_pulse- fast_pulses->begin(),
-                slow_pulse - slow_pulses->begin()); // Create the TDetectorPulse
-        output.push_back(det_pulse);
-        if(Debug()){
-            cout<<"Created a TDetectorPulse with:\n";
-            cout<<"Fast Pulse: " << det_pulse->GetTime(TDetectorPulse::kFast) * 1e-6 << std::endl;
-            cout<< "Slow Pulse: " << det_pulse->GetTime(TDetectorPulse::kSlow) * 1e-6 << std::endl;
-            cout<< std::endl;
+        TDetectorPulse* det_pulse = MakeTDP( fast_pulse, slow_pulse); // Create the TDetectorPulse
+        if(det_pulse){
+            output.push_back(det_pulse);
+            if(Debug()){
+                cout<<"Created a TDetectorPulse with:\n";
+                cout<<"Fast Pulse: " << det_pulse->GetTime(TDetectorPulse::kFast) * 1e-6 << std::endl;
+                cout<< "Slow Pulse: " << det_pulse->GetTime(TDetectorPulse::kSlow) * 1e-6 << std::endl;
+                cout<< std::endl;
+            }
         }
 
         //Delete the iterators to finished banks. Go through in reverse to
         //avoid invalidation problems
         for (int b = pulseIters.size()-1; b >= 0; --b) {
-            //DEBUG_VALUE((*pulseIters[b].first)->GetParentID());
             if (pulseIters[b].first == pulseIters[b].second){
                 pulseIters.erase(pulseIters.begin() + b);
             }  
@@ -103,4 +103,4 @@ int MaxTimeDiffDPGenerator::CopyAnalToDet(
     return 0;
 }
 
-ALCAP_TDP_GENERATOR(MaxTimeDiff);
+ALCAP_TDP_GENERATOR(MaxTimeDiff,time_difference);
