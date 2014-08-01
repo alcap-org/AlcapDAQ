@@ -59,22 +59,20 @@ IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
 IDs::channel& IDs::channel::operator=(const std::string& rhs){
    // Search for a fast slow string at the end of the end of the string
    static const int num_strs=3;
-   static const std::string fast_slow_strs[num_strs]={"-*","-S","-F"};
+   static const char fast_slow_strs[num_strs]={'*','F','S'};
    int i=0;
-   std::string::const_iterator match;
-   // Create a functino pointer to the iequals method
-   bool (*compare) (const char a, const char b);
-   compare = modules::parser::iequals;
+   size_t sz = rhs.size();
    for(i=0;i<num_strs ; i++){
-   	match=std::find_end(rhs.begin(),rhs.end(),
-            fast_slow_strs[i].begin(),fast_slow_strs[i].end(),
-            compare);
-    if (match!=rhs.end()) break;
+       if(modules::parser::iequals(rhs[sz-1],fast_slow_strs[i])){
+           if(modules::parser::iequals(rhs[sz-2],'-')){
+               break;
+           }
+       }
    }
    // Have we found a map
    size_t boundary=std::string::npos;
    if(i<= num_strs){
-       boundary=match - rhs.begin();
+       boundary=sz-2;
    std::string fs=rhs.substr(boundary);
 	   fSlowFast=GetSlowFastEnum(fs);
    }else fSlowFast=kNotApplicable;

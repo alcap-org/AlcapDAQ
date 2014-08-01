@@ -1,6 +1,6 @@
 #include "tut.h"
 #include "IdChannel.h"
-
+#include "debug_tools.h"
 
 namespace tut 
 {
@@ -61,6 +61,9 @@ namespace tut
 
     IDs::channel rubbish("ohsbfpsihbf-f");
     ensure("ohsbfpsihbf-f should be invalid", !rubbish.isValid());    
+
+    IDs::channel sum_f("SiR1-sum-F");
+    ensure("SiR1-sum-F should be valid", sum_f.isValid());    
   }
 }
 
