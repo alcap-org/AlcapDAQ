@@ -46,7 +46,7 @@ class PlotPedestalAndNoise : public BaseModule {
   /// \param[in] gData See BaseModule::ProcessEntry
   /// \param[in] gSetup See BaseModule::ProcessEntry
   /// \return Non-zero to indicate a problem.
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+  virtual int ProcessEntry(TGlobalData *gData,const TSetupData *gSetup);
 
   /// \brief
   /// Nothing is done before each run

@@ -45,7 +45,7 @@ int PlotPedestalAndNoise::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup)
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
-int PlotPedestalAndNoise::ProcessEntry(TGlobalData* gData,TSetupData *setup){
+int PlotPedestalAndNoise::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
   // Prepare a few variables
   std::string bankname, detname;

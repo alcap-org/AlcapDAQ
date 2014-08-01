@@ -49,7 +49,7 @@ int IslandLength::BeforeFirstEntry(TGlobalData* data,TSetupData *setup)
 
 
 //----------------------------------------------------------------------
-int IslandLength::ProcessEntry(TGlobalData* data,TSetupData* setup)
+int IslandLength::ProcessEntry(TGlobalData* data,const TSetupData* setup)
 {
   ++fNProcessed;
 

@@ -42,7 +42,7 @@ class PlotAmpVsMuScTDiff : public BaseModule {
     /// \param[in] gData See BaseModule::ProcessEntry
     /// \param[in] gSetup See BaseModule::ProcessEntry
     /// \return Non-zero to indicate a problem.
-    virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+    virtual int ProcessEntry(TGlobalData *gData,const TSetupData *gSetup);
     /// \brief
     /// What needes to be done before each run?
     /// Don't hesitate to repeat what was said in the class description.

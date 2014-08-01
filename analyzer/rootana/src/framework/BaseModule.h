@@ -69,7 +69,7 @@ class BaseModule
    /// @param gSetup Pointer to TSetupData for this run [ WILL CHANGE SHORTLY ]
    ///
    /// @return 0 on success and non-zero on failure
-   virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
+   virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup)=0;
 
  private:
    TSetupData* fSetup;

@@ -42,7 +42,7 @@ int PlotAmpVsMuScTDiff::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
     return 0;
 }
 
-int PlotAmpVsMuScTDiff::ProcessEntry(TGlobalData* gData,TSetupData *setup){
+int PlotAmpVsMuScTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
     Plots plots;
     AnalysedPulseList* not_muSc_pulses, *muSc_pulses;
 

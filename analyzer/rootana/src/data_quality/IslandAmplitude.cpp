@@ -86,7 +86,7 @@ int IslandAmplitude::BeforeFirstEntry(TGlobalData* data,TSetupData *setup)
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
-int IslandAmplitude::ProcessEntry(TGlobalData* data,TSetupData *setup)
+int IslandAmplitude::ProcessEntry(TGlobalData* data,const TSetupData *setup)
 {
   ++fNProcessed;
 
