@@ -30,7 +30,7 @@ class MakeAnalysedPulses : public BaseModule{
  private:
   virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
   virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup);
-  //virtual int AfterLastEntry(TGlobalData* gData){return 0;};
+  virtual int AfterLastEntry(TGlobalData* gData,const TSetupData* setup){return 0;};
 
   ChannelGenerators_t fGenerators;
   StringAnalPulseMap* fAnalysedPulseMap;

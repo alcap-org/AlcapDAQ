@@ -26,7 +26,7 @@ PlotAmpVsMuScTDiff::PlotAmpVsMuScTDiff(modules::options* opts):
 PlotAmpVsMuScTDiff::~PlotAmpVsMuScTDiff(){
 }
 
-int PlotAmpVsMuScTDiff::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
+int PlotAmpVsMuScTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     // Find the first muSc source ID
     IDs::source muSc(IDs::kMuSc,IDs::kAnySlowFast, "*", IDs::kAnyConfig);
     for (SourceAnalPulseMap::const_iterator i_source=gAnalysedPulseMap.begin();
@@ -89,7 +89,7 @@ int PlotAmpVsMuScTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
     return 0;
 }
 
-int PlotAmpVsMuScTDiff::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
+int PlotAmpVsMuScTDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
     return 0;
 }
 

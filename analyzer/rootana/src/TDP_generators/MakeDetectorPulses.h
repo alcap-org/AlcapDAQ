@@ -44,6 +44,7 @@ class MakeDetectorPulses : public BaseModule{
     TVDetectorPulseGenerator* MakeGenerator(const std::string& generatorType,TDPGeneratorOptions* opts);
     virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
     virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup);
+    virtual int AfterLastEntry(TGlobalData* gData, const TSetupData* setup){return 0;}
 
     void DumpgAnalysedPulseMap(const SourceAnalPulseMap& aMap);
 

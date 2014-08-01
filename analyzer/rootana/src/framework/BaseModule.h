@@ -35,12 +35,12 @@ class BaseModule
   /// Optional method which is called once before the main event loop
   /// Can be used to parse options and setup histograms.
   /// @return 0 on sucess and non-zero if a problem occurred
-  virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){return 0;};
+  virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup)=0;
 
   /// Optional method which is called once after the main event loop
   /// Can be used to dump a summary or finalise a histogram
   /// @return 0 on sucess and non-zero if a problem occurred
-  virtual int AfterLastEntry(TGlobalData* gData, const TSetupData* setup){return 0;};
+  virtual int AfterLastEntry(TGlobalData* gData, const TSetupData* setup)=0;
 	  
   /// Sets the alias for this module, which should be provided in the modules
   /// file
