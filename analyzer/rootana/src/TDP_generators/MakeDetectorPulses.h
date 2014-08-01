@@ -17,16 +17,18 @@ class TDPGeneratorOptions;
 
 class MakeDetectorPulses : public BaseModule{
     struct Detector_t{
+        IDs::source source;
         IDs::source fast;
         IDs::source slow;
         TVDetectorPulseGenerator* generator;
         bool operator<(const Detector_t& rhs)const{
             return fast<rhs.fast || (fast==rhs.fast && slow<rhs.slow);
         }
-        Detector_t(const IDs::source& f,
+        Detector_t(const IDs::source& so,
+                const IDs::source& f,
                 const IDs::source& s,
                 TVDetectorPulseGenerator* g):
-            fast(f),slow(s),generator(g){}
+            source(so),fast(f),slow(s),generator(g){}
     };
 
     public:

@@ -31,6 +31,7 @@ int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
     const IDs::channel* ch;
     const IDs::generator* gen;
     IDs::source partner;
+    IDs::source tdp_source;
     // Find all fast detectors
     TVDetectorPulseGenerator* generator;
     for (SourceAnalPulseMap::const_iterator i_source = gAnalysedPulseMap.begin();
@@ -40,25 +41,34 @@ int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
         partner=IDs::source(ch->GetCorrespondingFastSlow(),*gen);
         if(gAnalysedPulseMap.count(partner)==0) partner=i_source->first;
 
+        // if there is no corresponding fast / slow channel then use the pass
+        // through generator
         if(partner==i_source->first) {
             generator=fPassThruGenerator;
         } else {
             generator=fGenerator;
         }
 
+        // Prepare the source ID for the TDP generator
+        tdp_source=i_source->first;
+        tdp_source.Channel().SlowFast(IDs::kNotApplicable);
+        tdp_source.Generator()=generator->GetGeneratorID();
+
         if(ch->isFast()) {
             // fast channels go first
-            fFastSlowPairs.insert(Detector_t(i_source->first,partner,generator));
+            fFastSlowPairs.insert(Detector_t(tdp_source, i_source->first,partner,generator));
         }else{ 
             // slow channels go second
             // if both fast and slow are the same then later there will be
             // nothing to do.
-            fFastSlowPairs.insert(Detector_t(partner,i_source->first,generator));
+            fFastSlowPairs.insert(Detector_t(tdp_source, partner,i_source->first,generator));
         }
     }
 
-    if(Debug()){
-        for( ChannelPairing_t::iterator i=fFastSlowPairs.begin();i!=fFastSlowPairs.end();i++){
+    // setup gDetectorPulseMap to contain all pulse lists for each TDP source
+    for( ChannelPairing_t::iterator i=fFastSlowPairs.begin();i!=fFastSlowPairs.end();i++){
+        gDetectorPulseMap[i->source];
+        if(Debug()){
             std::cout<<"Paired: "<<i->fast<<" with "<<i->slow<<" processed by: "<<i->generator->GetGeneratorID()<<std::endl;
         }
     }
@@ -77,7 +87,6 @@ int MakeDetectorPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetu
     for (ChannelPairing_t::const_iterator i_detector = fFastSlowPairs.begin();
             i_detector != fFastSlowPairs.end(); i_detector++) {
         detector=i_detector->fast.Channel();
-        detector.SlowFast(IDs::kNotApplicable);
 
         // find the list of analyzed pulses for the fast channel
         current=gAnalysedPulseMap.find(i_detector->fast);
@@ -117,8 +126,8 @@ int MakeDetectorPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetu
         // Set the pulse lists
         i_detector->generator->SetPulseLists(fast_pulses,slow_pulses);
         // Process the pulses
-        source=i_detector->generator->GetSource();
-        i_detector->generator->ProcessPulses(gDetectorPulseMap[source]);
+        source=i_detector->source;
+        i_detector->generator->ProcessPulses(gDetectorPulseMap.at(source));
     }
     return 0;
 }
