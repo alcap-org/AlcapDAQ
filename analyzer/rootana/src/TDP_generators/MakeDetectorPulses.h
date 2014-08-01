@@ -12,7 +12,7 @@
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
 
-class TVDetectorPulseGenerator;
+#include "TVDetectorPulseGenerator.h"
 class TDPGeneratorOptions;
 
 class MakeDetectorPulses : public BaseModule{
@@ -34,8 +34,12 @@ class MakeDetectorPulses : public BaseModule{
     ~MakeDetectorPulses();
 
     void SetAlgorithm(const TString& algorithm){fAlgorithm=algorithm;};
-
     void SetDetectorPulseMap(StringDetPulseMap& aMap){fDetectorPulseMap=&aMap;}
+
+    IDs::generator GetPassThruGeneratorID()const {
+        return fPassThruGenerator?fPassThruGenerator->GetSource().Generator():IDs::generator();
+    }
+
     private:
     TVDetectorPulseGenerator* MakeGenerator(const std::string& generatorType,TDPGeneratorOptions* opts);
     virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
