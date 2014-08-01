@@ -37,8 +37,10 @@ class TVDetectorPulseGenerator {
 
   TDetectorPulse* MakeTDP(int fast_parent, int slow_parent)const{
       TDetectorPulse* pulse=NULL;
-      const TAnalysedPulse* fast=fFastPulses?fFastPulses->at(fast_parent):NULL;
-      const TAnalysedPulse* slow=fSlowPulses?fSlowPulses->at(slow_parent):NULL;
+      const TAnalysedPulse* fast=NULL;
+      if(fFastPulses && fast_parent>=0) fast=fFastPulses->at(fast_parent);
+      const TAnalysedPulse* slow=NULL;
+      if(fSlowPulses && slow_parent>=0) slow=fSlowPulses->at(slow_parent);
       if(fast || slow) {
           pulse=new TDetectorPulse(GetSource(),fast_parent,fast,slow_parent,slow);
       }
@@ -46,6 +48,7 @@ class TVDetectorPulseGenerator {
   }
   IDs::source GetSource()const {return fSource;};
   void SetChannel(const IDs::channel& ch){fSource.Channel()=ch;};
+  IDs::generator GetGeneratorID()const{return fSource.Generator();}
 
  private:
   bool fDebug;
