@@ -1,5 +1,5 @@
-#ifndef GESPECTRUM_H_
-#define GESPECTRUM_H_
+#ifndef GESPECTRUMWITHTFIX_H_
+#define GESPECTRUMWITHTFIX_H_
 
 #include "BaseModule.h"
 class TGlobalData;
@@ -24,24 +24,26 @@ class TH2I;
 /// You can add this to other groups instead of rootana_modules or in addition
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
-class GeSpectrum : public BaseModule {
+class GeSpectrumWithTFix : public BaseModule {
 
  private:
   TH1I* fHist_Energy;
   TH1I* fHist_Time;
+  TH1I* fHist_MoreTime;
   TH1I* fHist_EnergyOOT;
   TH1I* fHist_EnergyFarOOT;
   TH2I* fHist_TimeEnergy;
+  TH1I* fHist_MeanTOffset;
 
  public:
   /// \brief
   /// Constructor description. If necessary, add a details tag like above.
   ///
   /// \param[in] opts Describe the options this module takes.
-  GeSpectrum(modules::options* opts);
+  GeSpectrumWithTFix(modules::options* opts);
   /// \brief
   /// Is anything done in the destructor?
-  ~GeSpectrum();
+  ~GeSpectrumWithTFix();
 
  private:
   /// \brief
@@ -69,11 +71,6 @@ class GeSpectrum : public BaseModule {
   /// \return Non-zero to indicate a problem.
   virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
 
-  /// \brief
-  /// Don't forget to forget descirptions for each field...
-  ///
-  /// \details
-  /// ...and don't hesitate to include details.
 };
 
-#endif //GESPECTRUM_H_
+#endif //GESPECTRUMWITHTFIX_H_
