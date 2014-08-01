@@ -2,6 +2,9 @@
 #include "TemplateAPGenerator.h"
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
+
+#include "utils/TemplateFitter.h"
+
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -22,17 +25,24 @@ int TemplateAPGenerator::ProcessPulses(
   // Loop over all the TPIs given to us
   double amplitude;
   TAnalysedPulse* tap;
+
+  // Analyse each TPI
   for (PulseIslandList::const_iterator tpi=pulseList.begin();
        tpi!=pulseList.end(); tpi++){
 
-    // Analyse each TPI
 
-    // Here we need to get the template from the template file
+    // Get the template from the archive
     std::string channel = GetChannel().str();
     std::string templatename = "hTemplate_" + channel;
     TH1D* hTemplate = fTemplateArchive->GetTemplate(templatename.c_str());
-    std::cout << "TemplateAPGenerator: " << channel << " template exists? " << hTemplate << std::endl;
+
     // Then we try and fit this TPI to the template
+    TemplateFitter* template_fitter = new TemplateFitter(channel, 5);
+
+    // Create the histogram of the pulse
+    TH1D* hPulseToFit = template_fitter->CreateRefinedPulseHistogram(tpi, "hPulseToFit", "hPulseToFit", false);
+
+
     // If successful, we then have the amplitude and time (offset?) of the pulse
     
 
