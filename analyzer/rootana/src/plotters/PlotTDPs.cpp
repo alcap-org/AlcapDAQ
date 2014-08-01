@@ -2,6 +2,7 @@
 #include "RegisterModule.inc"
 #include "TGlobalData.h"
 #include "TSetupData.h"
+#include "TDetectorPulse.h"
 #include "ModulesOptions.h"
 #include "ModulesNavigator.h"
 #include "ModulesParser.h"
@@ -21,7 +22,7 @@ using std::endl;
 
 using namespace std::rel_ops;
 
-extern SourceAnalPulseMap gDetectorPulseMap;
+extern SourceDetPulseMap gDetectorPulseMap;
 
 PlotTDPs::PlotTDPs(modules::options* opts):
    BaseModule("PlotTDPs",opts){
@@ -50,7 +51,7 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
     std::string title;
 
     // Loop over all TDP sources
-    for(SourceAnalPulseMap::const_iterator i_source=gDetectorPulseMap.begin();
+    for(SourceDetPulseMap::const_iterator i_source=gDetectorPulseMap.begin();
             i_source!= gDetectorPulseMap.end(); ++i_source){
 
         // Ignore TDP sources that use the pass-through generator (so only have
@@ -80,11 +81,29 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
 }
 
 int PlotTDPs::ProcessEntry(TGlobalData* gData,TSetupData *setup){
-    // For each TDP source of interest (defined in BeforeFirstEntry)
-        // Fill histogram of the relative amplitudes
-        // Fill histogram of the time difference between pulses
 
-  return 0;
+    // For each TDP source of interest (defined in BeforeFirstEntry)
+    const DetectorPulseList* pulseList;
+    for(PlotsList_t::iterator i_source=fPlotsList.begin();
+            i_source!=fPlotsList.end(); ++i_source){
+        // Get the desired pulse list
+        pulseList=&gDetectorPulseMap.find(i_source->first)->second;
+
+        // Loop over the pulse list
+        for(DetectorPulseList::const_iterator i_pulse=pulseList->begin();
+                i_pulse!=pulseList->end(); ++i_pulse){
+
+            // Fill histogram of the relative amplitudes
+            i_source->second.amplitudes->Fill(
+                    (*i_pulse)->GetAmplitude(TDetectorPulse::kFast),
+                    (*i_pulse)->GetAmplitude(TDetectorPulse::kSlow)
+                    );
+
+            // Fill histogram of the time difference between pulses
+        }
+    }
+
+    return 0;
 }
 
 int PlotTDPs::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
