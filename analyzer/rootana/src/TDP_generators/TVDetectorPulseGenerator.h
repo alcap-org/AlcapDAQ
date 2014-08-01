@@ -18,9 +18,7 @@ class TVDetectorPulseGenerator {
   virtual ~TVDetectorPulseGenerator(){}
 
  public:
-  virtual int ProcessPulses(const TSetupData* setup,const std::string& detector, 
-		  const AnalysedPulseList* fast, const AnalysedPulseList* slow,
-		  DetectorPulseList& output)=0;
+  virtual int ProcessPulses( DetectorPulseList& output)=0;
   virtual bool ChecksForPileUp()const =0;
 
   void SetPulseSources(const IDs::source& fast, const IDs::source& slow){
@@ -49,6 +47,9 @@ class TVDetectorPulseGenerator {
   IDs::source GetSource()const {return fSource;};
   void SetChannel(const IDs::channel& ch){fSource.Channel()=ch;};
   IDs::generator GetGeneratorID()const{return fSource.Generator();}
+
+  const AnalysedPulseList* FastPulseList()const{return fFastPulses;}
+  const AnalysedPulseList* SlowPulseList()const{return fSlowPulses;}
 
  private:
   bool fDebug;

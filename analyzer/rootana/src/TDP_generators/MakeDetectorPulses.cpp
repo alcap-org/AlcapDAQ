@@ -107,7 +107,7 @@ int MakeDetectorPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetu
         // Set the pulse lists
         i_detector->generator->SetPulseLists(fast_pulses,slow_pulses);
         // Process the pulses
-        i_detector->generator->ProcessPulses(gSetup,detector.str(),fast_pulses,slow_pulses,gDetectorPulseMap[detector.str()]);
+        i_detector->generator->ProcessPulses(gDetectorPulseMap[detector.str()]);
     }
     return 0;
 }

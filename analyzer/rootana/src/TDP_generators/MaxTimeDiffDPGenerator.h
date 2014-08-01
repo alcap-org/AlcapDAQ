@@ -11,10 +11,8 @@ class MaxTimeDiffDPGenerator:public TVDetectorPulseGenerator{
         virtual bool ChecksForPileUp()const {return false;};
 
     public:
-        virtual int ProcessPulses(const TSetupData* setup,const std::string& detector, 
-                const AnalysedPulseList* fast, const AnalysedPulseList* slow,
-                DetectorPulseList& output);
-        int CopyAnalToDet(const AnalysedPulseList* fast_pulses,const std::string&, DetectorPulseList& output);
+        virtual int ProcessPulses( DetectorPulseList& output);
+        int CopyAnalToDet(const AnalysedPulseList* ,DetectorPulseList& output);
 
     private:
         double fTimeDifference;
