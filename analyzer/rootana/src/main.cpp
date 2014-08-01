@@ -228,7 +228,7 @@ void ClearGlobalData(TGlobalData* data)
     }
     pulse_vector.clear();
   }
-  gDetectorPulseMap.clear();
+  //gDetectorPulseMap.clear();
 }
 
 
