@@ -2,6 +2,7 @@
 #include <sstream>
 #include <string.h>
 #include <algorithm>
+#include <functional>
 #include <stdio.h>
 #include <iostream>
 #include <TString.h>
@@ -68,6 +69,18 @@ size_t modules::parser::RemoveWhitespace(std::string& input, std::string::iterat
 	std::string::iterator new_end=std::remove_if(start,end,modules::parser::IsWhitespace);
 	input.erase(new_end,end);
 	return input.size();
+}
+
+void modules::parser::ToCppValid(std::string& input){
+    ReplaceAll(input,":#*()-=+$%^&!.,/?",'_' );
+}
+
+void modules::parser::ReplaceAll(std::string& input, const std::string& search, char replace ){
+    for(std::string::iterator i_char=input.begin(); i_char!=input.end();++i_char){
+        if(std::find(search.begin(),search.end(), *i_char)!=search.end()){
+            *i_char=replace;
+        }
+    }
 }
 
 void modules::parser::TrimWhiteSpaceBeforeAfter(std::string& line){
