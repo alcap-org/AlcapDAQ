@@ -45,6 +45,8 @@ class TVDetectorPulseGenerator {
       return pulse;
   }
   IDs::source GetSource()const {return fSource;};
+  IDs::source GetFastSource()const {return fFastSource;};
+  IDs::source GetSlowSource()const {return fSlowSource;};
   void SetChannel(const IDs::channel& ch){fSource.Channel()=ch;};
   IDs::generator GetGeneratorID()const{return fSource.Generator();}
 
