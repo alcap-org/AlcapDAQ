@@ -9,6 +9,7 @@
 #include "definitions.h"
 #include "IdSource.h"
 #include "MakeDetectorPulses.h"
+#include "debug_tools.h"
 
 #include "TH2F.h"
 #include "TH1F.h"
@@ -31,7 +32,8 @@ PlotTDPs::PlotTDPs(modules::options* opts):
 PlotTDPs::~PlotTDPs(){
 }
 
-int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
+int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
+
     // Make sure we've got MakeDetectorPulses being used
     MakeDetectorPulses* makeTDPs=modules::navigator::Instance()->GetModule<MakeDetectorPulses>("MakeDetectorPulses");
     if(!makeTDPs){
@@ -50,6 +52,7 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
     std::string name;
     std::string title;
 
+
     // Loop over all TDP sources
     for(SourceDetPulseMap::const_iterator i_source=gDetectorPulseMap.begin();
             i_source!= gDetectorPulseMap.end(); ++i_source){
@@ -66,9 +69,13 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
         modules::parser::ToCppValid(name);
         title=" of TDPs coming from ";
         title+=i_source->first.str();
+        if(Debug()) {
+            cout<<"Made histogram called "<<name<<" with title "<< title<<endl;
+        }
 
         // Make a histogram of the relative amplitudes
-        tmp.amplitudes=new TH2F((name+"_amp").c_str(),("Amplitudes "+title).c_str(), 100,0,0,100,0,0);
+        tmp.amplitudes=new TH2F((name+"_amp").c_str(),("Amplitudes "+title).c_str(), 100,0,1000,100,0,1000);
+        tmp.amplitudes->SetBit(TH1::kCanRebin);
 
         // Make a histogram of the time difference between pulses
         tmp.time_diff=NULL;
@@ -80,14 +87,20 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
   return 0;
 }
 
-int PlotTDPs::ProcessEntry(TGlobalData* gData,TSetupData *setup){
+int PlotTDPs::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
     // For each TDP source of interest (defined in BeforeFirstEntry)
     const DetectorPulseList* pulseList;
+    SourceDetPulseMap::const_iterator i_pulse_list;
     for(PlotsList_t::iterator i_source=fPlotsList.begin();
             i_source!=fPlotsList.end(); ++i_source){
         // Get the desired pulse list
-        pulseList=&gDetectorPulseMap.find(i_source->first)->second;
+        i_pulse_list=gDetectorPulseMap.find(i_source->first);
+        if(i_pulse_list== gDetectorPulseMap.end()){
+            cout<<"Unable to find TDP list for source, "<<i_source->first<<endl;
+            return 1;
+        }
+        pulseList=&i_pulse_list->second;
 
         // Loop over the pulse list
         for(DetectorPulseList::const_iterator i_pulse=pulseList->begin();
@@ -106,8 +119,12 @@ int PlotTDPs::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     return 0;
 }
 
-int PlotTDPs::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
+int PlotTDPs::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
     // Draw and save all histograms
+    for(PlotsList_t::iterator i_source=fPlotsList.begin();
+            i_source!=fPlotsList.end(); ++i_source){
+        i_source->second.amplitudes->Draw();
+    }
 
   return 0;
 }
