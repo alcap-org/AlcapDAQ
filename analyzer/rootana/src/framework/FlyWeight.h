@@ -5,6 +5,8 @@
 #include <vector>
 #include <iostream>
 
+#include <TObject.h>
+
 /// \name SourceProxy
 ///
 /// \brief
@@ -27,7 +29,7 @@
 /// is unique, such as to separate the flyweight for TAPs from TDPs, even though
 /// the ValueType is the same
 template <typename ValueType, typename UniqueTag=int>
-class FlyWeight{
+class FlyWeight:public TObject{
     public:
         typedef int Proxy_t;
         typedef std::map<ValueType,Proxy_t> ValueToProxyMap;
@@ -46,6 +48,8 @@ class FlyWeight{
         Proxy_t fProxy;
         static ProxyToValueMap sProxyToVals;
         static ValueToProxyMap sValsToProxies;
+
+        ClassDef(FlyWeight,1);
 };
 
 template <typename ValueType, typename UniqueTag>
