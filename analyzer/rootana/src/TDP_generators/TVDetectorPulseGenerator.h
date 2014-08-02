@@ -13,7 +13,7 @@ class TVDetectorPulseGenerator {
  public:
   TVDetectorPulseGenerator(const char* name, TDPGeneratorOptions* opts):
       fDebug(false),fFastPulses(NULL),fSlowPulses(NULL){
-            fSource.Generator()=IDs::generator(name);//,opts->ToOneString());
+            fSource.Generator()=IDs::generator(name,opts->StringDescription());
       }
   virtual ~TVDetectorPulseGenerator(){}
 

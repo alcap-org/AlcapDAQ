@@ -29,7 +29,7 @@ class TVAnalysedPulseGenerator {
             if(opts){
                 fDebug=opts->HasOption("debug");
             }
-            fSource.Generator()=IDs::generator(name);//,opts->ToOneString());
+            fSource.Generator()=IDs::generator(name,opts->StringDescription());
         };
         virtual ~TVAnalysedPulseGenerator(){};
 
