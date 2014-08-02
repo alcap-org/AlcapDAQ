@@ -20,3 +20,4 @@ ROOT_DICT_CLASSES:=TAnalysedPulseMapWrapper\
 	IdGenerator\
 	IdSource\
         BankBranch\
+        FlyWeight\
