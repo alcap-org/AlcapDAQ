@@ -28,7 +28,8 @@
 //#pragma link C++ class pair<IDs::source,vector<TMuonEvent*> >+;
 #pragma link C++ class std::vector<std::string>+;
 
-
+#pragma link C++ class FlyWeight<IDs::source, TAnalysedPulse::Tag>+;
+#pragma link C++ class FlyWeight<IDs::source, TDetectorPulse::Tag>+;
 
 //#pragma link C++ class vector<TPulseIsland*>+;
 #pragma link C++ class BankBranch<vector<TPulseIsland*> >+;
