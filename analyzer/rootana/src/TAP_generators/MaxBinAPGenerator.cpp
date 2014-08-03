@@ -48,7 +48,7 @@ int MaxBinAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
     
     // Make the TAnalysedPulse pulse
     outPulse=MakeNewTAP(pulseIter-pulseList.begin());
-    outPulse->SetAmplitude(amplitude);
+    outPulse->SetAmplitude(fMaxBinAmplitude(*pulseIter));
     outPulse->SetTime(time);
     outPulse->SetEnergy(energy);
     // Add the pulse into the list

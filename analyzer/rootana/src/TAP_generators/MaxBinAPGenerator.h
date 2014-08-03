@@ -2,6 +2,7 @@
 #define MAXBINAPGENERATOR_H__
 
 #include "TVAnalysedPulseGenerator.h"
+#include "utils/TAPAlgorithms.h"
 #include <vector>
 #include <string>
 
@@ -36,6 +37,8 @@ private:
   double fECalibOffset;
   double fClockTick;
   double fTimeShift; 
+
+  Algorithm::MaxBinAmplitude fMaxBinAmplitude;
 };
 
 #endif // MAXBINAPGENERATOR_H__

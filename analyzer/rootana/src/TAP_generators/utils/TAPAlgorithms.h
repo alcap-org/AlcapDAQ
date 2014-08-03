@@ -1,6 +1,8 @@
 #ifndef TAPAlgorithms_h_
 #define TAPAlgorithms_h_
 
+#include "TPulseIsland.h"
+
 // We will keep all the algorthims in their own namespace
 namespace Algorithm {
 
@@ -9,6 +11,11 @@ namespace Algorithm {
   struct MaxBinTime;
   struct ConstantFractionTime;
   struct SimpleIntegral;
+};
+
+struct Algorithm::MaxBinAmplitude {
+  public:
+  double operator() (const TPulseIsland* tpi);
 };
 
 #endif
