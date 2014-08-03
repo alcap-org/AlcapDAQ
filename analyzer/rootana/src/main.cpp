@@ -193,17 +193,19 @@ void ClearGlobalData(TGlobalData* data)
   // own the pulses, they would be deleted later. A solution is to
   // be sure that TGlobalData isn't called in alcapana, or ensure
   // that g_event owns the pulse islands at that level.  
-  StringPulseIslandMap::iterator mapIter;
-  StringPulseIslandMap::iterator mapEnd = data->fPulseIslandToChannelMap.end();
-  for(mapIter = data->fPulseIslandToChannelMap.begin(); mapIter != mapEnd; mapIter++) {
-    // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
-    std::vector<TPulseIsland*>& pulse_vector= mapIter->second;
-    for(size_t i=0; i<pulse_vector.size(); i++){
-      delete pulse_vector[i];
-      pulse_vector[i] = NULL;
-    }
-    pulse_vector.clear();
-  }
+//
+//---  LoopSequence::Process now takes care of this part by invoking TGlobalData::Clear
+//  StringPulseIslandMap::iterator mapIter;
+//  StringPulseIslandMap::iterator mapEnd = data->fPulseIslandToChannelMap.end();
+//  for(mapIter = data->fPulseIslandToChannelMap.begin(); mapIter != mapEnd; mapIter++) {
+//    // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
+//    std::vector<TPulseIsland*>& pulse_vector= mapIter->second;
+//    for(size_t i=0; i<pulse_vector.size(); i++){
+//      delete pulse_vector[i];
+//      pulse_vector[i] = NULL;
+//    }
+//    pulse_vector.clear();
+//  }
 
 
   for(SourceAnalPulseMap::iterator mapIter=gAnalysedPulseMap.begin();
