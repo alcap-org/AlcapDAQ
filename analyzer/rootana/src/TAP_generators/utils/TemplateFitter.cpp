@@ -59,7 +59,7 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, TH1D* hPulse, std::strin
   fPedestalOffset_maximum = max_adc_value;
 
   fAmplitudeScaleFactor_minimum = 0.1;
-  fAmplitudeScaleFactor_maximum = 100;
+  fAmplitudeScaleFactor_maximum = max_adc_value; // this was 100 for TemplateCreator TODO: find a way so that we can have both
 
   for (double time_offset = fTimeOffset_minimum; time_offset <= fTimeOffset_maximum; ++time_offset) {
     if (print_dbg) {
