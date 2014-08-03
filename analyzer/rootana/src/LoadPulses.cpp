@@ -73,10 +73,15 @@ int LoadPulses::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
     // Get the first entry to read from
     fCurrentEntry=EventNavigator::Instance().GetStartEntry();
+    fNumEntries=fInTree->GetEntries();
   return 0;
 }
 
 int LoadPulses::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+    if(fCurrentEntry>fNumEntries){
+        cout<<"LoadPulses: Error: input file contains no more entries so I'm stopping the run"<<endl;
+        return 1;
+    }
 
     fInTree->GetEntry(fCurrentEntry);
     int n_entries=0;

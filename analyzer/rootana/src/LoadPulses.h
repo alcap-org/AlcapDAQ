@@ -58,6 +58,7 @@ class LoadPulses : public BaseModule {
   std::string fTreeName;
   TTree* fInTree;
   Long64_t fCurrentEntry;
+  Long64_t fNumEntries;
   typedef std::map<IDs::source,TClonesArray*> SourceToClonesArrayMap;
   SourceToClonesArrayMap fArrays;
   typedef std::vector<std::pair<IDs::source, TBranch*> > BranchList;
