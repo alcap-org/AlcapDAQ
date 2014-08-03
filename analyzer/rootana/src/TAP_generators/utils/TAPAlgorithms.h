@@ -44,4 +44,13 @@ struct Algorithm::ConstantFractionTime {
   double th_frac;
 };
 
+
+struct Algorithm::SimpleIntegral {
+  public:
+  double operator() (const TPulseIsland* tpi);
+
+  double pedestal;
+  int trigger_polarity;
+};
+
 #endif

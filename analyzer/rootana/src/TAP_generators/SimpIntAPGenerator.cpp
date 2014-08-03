@@ -2,6 +2,7 @@
 #include "SimpIntAPGenerator.h"
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
+#include "SetupNavigator.h"
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -11,38 +12,29 @@ int SimpIntAPGenerator::ProcessPulses(
 	  const PulseIslandList& pulseList, AnalysedPulseList& analysedList)
 {
 
-  SetBankInfo(pulseList.at(0)->GetBankName());
-
-  double integral, energy;
   TAnalysedPulse* outPulse;
 
+  // Get the relevant variables from TSetupData/SetupNavigator that this generator wants
+  std::string bankname = pulseList[0]->GetBankName();
+  fSimpleIntegral.pedestal = SetupNavigator::Instance()->GetPedestal(bankname);
+  fSimpleIntegral.trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+
   for(PulseIslandList::const_iterator pIt = pulseList.begin(); pIt != pulseList.end(); pIt++)
-    {
-      integral = 0;
-      energy = 0;
-      std::vector<int> samples = (*pIt)->GetSamples();
-
-      double length = samples.size();
-      double tempint = 0;
-      for(std::vector<int>::iterator sIt = samples.begin(); sIt != samples.end(); sIt++)
-	  tempint += *sIt;
-
-      integral = fTriggerPolarity * (tempint - (fPedestal * length));
-    
-
+    {    
       // We will need new calibration parameters from integral method
-      energy = fECalibSlope* integral + fECalibOffset;
-  
+      //      energy = fECalibSlope* integral + fECalibOffset;
+      double integral = fSimpleIntegral(*pIt);
+
       outPulse=MakeNewTAP(pIt-pulseList.begin());
       outPulse->SetIntegral(integral);
-      outPulse->SetEnergy(energy);
+      //      outPulse->SetEnergy(energy);
       // Add the pulse to the TAP list
       analysedList.push_back(outPulse);
     }
 
 
-	// returning 0 tells the caller that we were successful, return non-zero if not
-	return 0;
+  // returning 0 tells the caller that we were successful, return non-zero if not
+  return 0;
 }
 
 // Similar to the modules, this macro registers the generator with

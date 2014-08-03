@@ -66,3 +66,16 @@ double Algorithm::ConstantFractionTime::operator() (const TPulseIsland* tpi) {
 
   return time;
 }
+
+double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi) {
+  std::vector<int> samples = tpi->GetSamples();
+  
+  double length = samples.size();
+  double tempint = 0;
+  for(std::vector<int>::iterator sIt = samples.begin(); sIt != samples.end(); sIt++)
+    tempint += *sIt;
+  
+  double integral = trigger_polarity * (tempint - (pedestal * length));
+
+  return integral;
+}
