@@ -6,6 +6,7 @@
 #include "definitions.h"
 
 #include "utils/TemplateArchive.h"
+#include "utils/TemplateFitter.h"
 
 class TemplateAPGenerator:public TVAnalysedPulseGenerator {
 
@@ -22,6 +23,11 @@ class TemplateAPGenerator:public TVAnalysedPulseGenerator {
 
  private:
    TemplateArchive* fTemplateArchive;
+   TemplateFitter* fTemplateFitter;
+
+   double CorrectSampleValue(double old_value);
+
+   TAPGeneratorOptions* fOpts;
 };
 
 #endif //TEMPLATE_H__

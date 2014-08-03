@@ -3,16 +3,19 @@
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
 
-#include "utils/TemplateFitter.h"
+#include "EventNavigator.h"
+#include "SetupNavigator.h"
+#include "utils/PulseCandidateFinder.h"
 
 #include "TMath.h" 
 
 #include <iostream>
+#include <sstream>
 using std::cout;
 using std::endl;
 
 TemplateAPGenerator::TemplateAPGenerator(TAPGeneratorOptions* opts):
-	TVAnalysedPulseGenerator("Template",opts){
+  TVAnalysedPulseGenerator("Template",opts), fOpts(opts){
 	// Do things to set up the generator here. 
 
   fTemplateArchive = new TemplateArchive("templates.root", "READ");
@@ -24,26 +27,38 @@ int TemplateAPGenerator::ProcessPulses(
   // Do something here that takes the TPIs in the PulseIslandList and
   // fills the list of TAPS
 
+  std::string channel = GetChannel().str();
+
   // Loop over all the TPIs given to us
   double amplitude;
   TAnalysedPulse* tap;
+
+  // Create the template fitter for this channel
+  fTemplateFitter = new TemplateFitter(channel, 5);
+
+  // Create the pulse candidate finder for this detector
+  PulseCandidateFinder* pulse_candidate_finder = new PulseCandidateFinder(channel, fOpts);
+
+
+  // Get the template from the archive
+  std::string templatename = "hTemplate_" + channel;
+  TH1D* hTemplate = fTemplateArchive->GetTemplate(templatename.c_str());
 
   // Analyse each TPI
   for (PulseIslandList::const_iterator tpi=pulseList.begin();
        tpi!=pulseList.end(); tpi++){
 
-
-    // Get the template from the archive
-    std::string channel = GetChannel().str();
-    std::string templatename = "hTemplate_" + channel;
-    TH1D* hTemplate = fTemplateArchive->GetTemplate(templatename.c_str());
-
-    // Then we try and fit this TPI to the template
-    TemplateFitter* template_fitter = new TemplateFitter(channel, 5);
+    // First we will see how many candidate pulses there are on the TPI
+    pulse_candidate_finder->FindPulseCandidates(*tpi);
+    int n_pulse_candidates = pulse_candidate_finder->GetNPulseCandidates();
+    
+    // only continue if there is one pulse candidate on the TPI
+    if (n_pulse_candidates != 1) {
+      continue;
+    }
 
     // Create the histogram of the pulse
-    TH1D* hPulseToFit = template_fitter->CreateRefinedPulseHistogram(*tpi, "hPulseToFit", "hPulseToFit", false);
-
+    TH1D* hPulseToFit = fTemplateFitter->CreateRefinedPulseHistogram(*tpi, "hPulseToFit", "hPulseToFit", false);
 
     // Get some initial estimates for the fitter
     std::string bankname = (*tpi)->GetBankName();
@@ -80,7 +95,7 @@ int TemplateAPGenerator::ProcessPulses(
       time_offset_estimate = pulse_time - template_time;
     }
 
-    template_fitter->SetInitialParameterEstimates(pedestal_offset_estimate, amplitude_scale_factor_estimate, time_offset_estimate);
+    fTemplateFitter->SetInitialParameterEstimates(pedestal_offset_estimate, amplitude_scale_factor_estimate, time_offset_estimate);
 
     if (Debug()) {
       std::cout << "TemplateAPGenerator: " << channel << "(" << bankname << "): Pulse #" << tpi - pulseList.begin() << ": " << std::endl
@@ -90,7 +105,7 @@ int TemplateAPGenerator::ProcessPulses(
 		<< ", time = " << time_offset_estimate << std::endl;
     }
     
-    int fit_status = template_fitter->FitPulseToTemplate(hTemplate, hPulseToFit, bankname);
+    int fit_status = fTemplateFitter->FitPulseToTemplate(hTemplate, hPulseToFit, bankname);
     if (fit_status != 0) {
       if (Debug()) {
 	std::cout << "TemplateAPGenerator: Problem with fit (status = " << fit_status << ")" << std::endl;
@@ -100,9 +115,9 @@ int TemplateAPGenerator::ProcessPulses(
     }
 
     if (Debug()) {
-      std::cout << "TemplateAPGenerator: Fitted Parameters: PedOffset = " << template_fitter->GetPedestalOffset() << ", AmpScaleFactor = " << template_fitter->GetAmplitudeScaleFactor()
-		<< ", TimeOffset = " << template_fitter->GetTimeOffset() << ", Chi2 = " << template_fitter->GetChi2() << ", NDoF = " << template_fitter->GetNDoF() 
-		<< ", Prob = " << TMath::Prob(template_fitter->GetChi2(), template_fitter->GetNDoF()) << std::endl << std::endl;
+      std::cout << "TemplateAPGenerator: Fitted Parameters: PedOffset = " << fTemplateFitter->GetPedestalOffset() << ", AmpScaleFactor = " << fTemplateFitter->GetAmplitudeScaleFactor()
+		<< ", TimeOffset = " << fTemplateFitter->GetTimeOffset() << ", Chi2 = " << fTemplateFitter->GetChi2() << ", NDoF = " << fTemplateFitter->GetNDoF() 
+		<< ", Prob = " << TMath::Prob(fTemplateFitter->GetChi2(), fTemplateFitter->GetNDoF()) << std::endl << std::endl;
     }
 
     // Now that we've found the information we were looking for make a TAP to
@@ -111,11 +126,37 @@ int TemplateAPGenerator::ProcessPulses(
     tap = MakeNewTAP(tpi-pulseList.begin());
 
     // Get the amplitude and time of the TAP
-    tap->SetAmplitude(template_fitter->GetAmplitudeScaleFactor());
+    tap->SetAmplitude(fTemplateFitter->GetAmplitudeScaleFactor());
     //tap->SetTime(time);
 
     // Finally add the new TAP to the output list
     analysedList.push_back(tap);
+
+    bool fPulseDebug = true;
+    if (fPulseDebug) {
+      // Print out the pulse and the corrected template
+
+      // Create the histograms that we will use to plot the corrected and uncorrected pulses
+      std::stringstream histname;
+      histname << templatename << "_Event" << EventNavigator::Instance().EntryNo() << "_Pulse" << tpi - pulseList.begin();
+      TH1D* hPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
+      histname << "_Corrected";
+      TH1D* hCorrectedTemplate = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
+      hCorrectedTemplate->SetEntries(0); // set entries back to 0
+	  
+      double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
+
+      // Loop through the bins of the uncorrected pulse and set the values in the corrected pulse histogram
+      for (int iTemplateBin = 1; iTemplateBin <= hTemplate->GetNbinsX(); ++iTemplateBin) {
+	    
+	double uncorrected_value = hTemplate->GetBinContent(iTemplateBin);
+	double corrected_value = CorrectSampleValue(uncorrected_value);
+	    
+	hCorrectedTemplate->SetBinContent(iTemplateBin +0.5 - fTemplateFitter->GetTimeOffset(), corrected_value); 
+	hCorrectedTemplate->SetBinError(iTemplateBin +0.5 - fTemplateFitter->GetTimeOffset(), pedestal_error);
+      }
+    }
+
 
     delete hPulseToFit;
    }
@@ -131,6 +172,15 @@ int TemplateAPGenerator::ProcessPulses(
   // returning 0 tells the caller that we were successful, return non-zero if not
   return 0;
 }
+
+double TemplateAPGenerator::CorrectSampleValue(double old_value) {
+
+  double new_value = old_value * fTemplateFitter->GetAmplitudeScaleFactor();
+  new_value += fTemplateFitter->GetPedestalOffset();
+
+  return new_value;
+}
+
 
 // Similar to the modules, this macro registers the generator with
 // MakeAnalysedPulses. The first argument is compulsory and gives the name of
