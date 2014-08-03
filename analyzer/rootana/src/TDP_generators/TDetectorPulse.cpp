@@ -26,14 +26,14 @@ TDetectorPulse::TDetectorPulse(const IDs::source& sourceID,
   if(f_parent) fParentSource[kFast]= f_parent->GetSource();
   fParentID[kSlow]=s_parentID;
   fParentID[kFast]=f_parentID;
-  fSource.SetValue(sourceID);
+  fSource=sourceID;
 }
 
 void TDetectorPulse::Reset(Option_t* o) {
     for(int i=0;i<kNumParents;++i){
         fParentPulse[i] = NULL;
         fParentID[i]=-1;
-        fParentSource[i].Reset();
+        //fParentSource[i].Reset();
     }
     fCheckedForPileUp=false;
     fPileUpSafe=false;
