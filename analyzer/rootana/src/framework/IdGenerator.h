@@ -11,9 +11,9 @@ namespace IDs{
 	typedef std::string Config_t;
 
 	/// Standardize the value to use to represent any generator 
-	const Generator_t kAnyGenerator="*";
+	const Generator_t kAnyGenerator="any";
 	/// Standardize the value to use to represent any configuration
-	const Config_t kAnyConfig="*";
+	const Config_t kAnyConfig="any";
 	/// Standardize the value to use to represent the default configuration of a
     /// module
 	const Config_t kDefaultConfig="default";
