@@ -4,6 +4,7 @@
 #include "TSetupData.h"
 #include "ModulesOptions.h"
 #include "ModulesNavigator.h"
+#include "ModulesParser.h"
 #include "definitions.h"
 #include "IdSource.h"
 #include "TAnalysedPulse.h"
@@ -35,11 +36,14 @@ int SavePulses::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
     // Loop over gAnalysedPulseMap and add a branch for each source
     TClonesArray* array;
+    std::string name;
     for (SourceAnalPulseMap::const_iterator i_source = gAnalysedPulseMap.begin();
             i_source != gAnalysedPulseMap.end(); ++i_source) {
         array=new TClonesArray(TAnalysedPulse::Class());
         fArrays[i_source->first]=array;
-        fTree->Branch(i_source->first.str().c_str(), array);
+        name=i_source->first.str();
+        modules::parser::ReplaceAll(name,"-",'_');
+        fTree->Branch(name.c_str(), array);
     }
 
   return 0;
@@ -68,6 +72,7 @@ int SavePulses::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 }
 
 int SavePulses::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
+    FlyWeight<IDs::source,TAnalysedPulse::Tag>::SaveProxyList(GetDirectory(),"TAP_sources");
   return 0;
 }
 
