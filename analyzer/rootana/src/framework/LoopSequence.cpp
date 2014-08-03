@@ -79,7 +79,7 @@ void LoopSequence::Preprocess() const
   enav.GetEntry(fStart);
   int err_code =0;
   modules::navigator& mn = *modules::navigator::Instance();
-  for (modules::iterator it = mn.Begin(); it != mn.End(); ++it) {
+  for (modules::iterator it = mn.Begin(); it != mn.End() && !err_code; ++it) {
     BaseModule* mod = it->second;
     err_code |= mod->Preprocess(enav.GetRawData(), enav.GetSetupData());
   }
@@ -104,7 +104,7 @@ void LoopSequence::Process() const
     enav.GetEntry(jentry);
     int err_code = 0;
     modules::navigator& mn = *modules::navigator::Instance();
-    for (modules::iterator it = mn.Begin(); it != mn.End(); ++it) {
+    for (modules::iterator it = mn.Begin(); it != mn.End() && ! err_code; ++it) {
       BaseModule* mod = it->second;
       err_code |= mod->ProcessGenericEntry(raw_data,enav.GetSetupData());
     }
@@ -124,7 +124,7 @@ void LoopSequence::Postprocess() const
   EventNavigator& enav = EventNavigator::Instance();
   int err_code =0;
   modules::navigator& mn = *modules::navigator::Instance();
-  for (modules::iterator it = mn.Begin(); it != mn.End(); ++it) {
+  for (modules::iterator it = mn.Begin(); it != mn.End() && !err_code; ++it) {
     BaseModule* mod = it->second;
     err_code |= mod->Postprocess(enav.GetRawData(), enav.GetSetupData());
   }
