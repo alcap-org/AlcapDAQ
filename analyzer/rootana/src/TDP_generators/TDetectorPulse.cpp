@@ -33,7 +33,7 @@ void TDetectorPulse::Reset(Option_t* o) {
     for(int i=0;i<kNumParents;++i){
         fParentPulse[i] = NULL;
         fParentID[i]=-1;
-        //fParentSource[i].Reset();
+        fParentSource[i].Reset();
     }
     fCheckedForPileUp=false;
     fPileUpSafe=false;

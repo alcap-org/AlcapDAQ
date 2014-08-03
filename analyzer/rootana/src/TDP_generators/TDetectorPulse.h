@@ -41,7 +41,7 @@ class TDetectorPulse : public TObject {
             TDP_GetField(ch,Pedestal); }
         const TAnalysedPulse* GetTAP(ParentChannel_t ch)const {return fParentPulse[ch];}
 
-        const IDs::source& GetSource() const { return fSource; }
+        const IDs::source& GetSource() const { return fSource.GetValue(); }
 
         bool IsPileUpSafe()const{return fPileUpSafe&&fCheckedForPileUp;};
         void SetPileUpSafe(const bool& val=true){fPileUpSafe=val;fCheckedForPileUp=true;};
@@ -54,10 +54,10 @@ class TDetectorPulse : public TObject {
 
         const TAnalysedPulse* fParentPulse[kNumParents];
         int fParentID[kNumParents];
-        IDs::source fParentSource[kNumParents];
-        IDs::source fSource;
-        //FlyWeight<IDs::source,TAnalysedPulse::Tag> fParentSource[kNumParents];
-        //FlyWeight<IDs::source,Tag> fSource;
+        //IDs::source fParentSource[kNumParents];
+        //IDs::source fSource;
+        FlyWeight<IDs::source,TAnalysedPulse::Tag> fParentSource[kNumParents];
+        FlyWeight<IDs::source,Tag> fSource;
 
         ClassDef(TDetectorPulse, 2);
 };
