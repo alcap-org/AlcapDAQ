@@ -3,6 +3,7 @@
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
 #include "EventNavigator.h"
+#include "SetupNavigator.h"
 #include <algorithm>
 
 // IsTimeOrdered()
@@ -23,6 +24,18 @@ int MaxBinAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 {
   double amplitude, time;
   TAnalysedPulse* outPulse;
+
+  // Get the various variables we need from TSetupData/SetupNavigator
+  std::string bankname = pulseList[0]->GetBankName();
+  fMaxBinAmplitude.pedestal = SetupNavigator::Instance()->GetPedestal(bankname);
+
+  fMaxBinAmplitude.trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+  fMaxBinTime.trigger_polarity = fMaxBinAmplitude.trigger_polarity;
+
+  fMaxBinTime.clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
+  fMaxBinTime.time_shift = TSetupData::Instance()->GetTimeShift(bankname);
+
+
   for (PulseIslandList::const_iterator pulseIter = pulseList.begin(); pulseIter != pulseList.end(); pulseIter++) {
     amplitude = fMaxBinAmplitude(*pulseIter);
     time = fMaxBinTime(*pulseIter);

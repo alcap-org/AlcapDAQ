@@ -2,6 +2,7 @@
 #include "CFTimeAPGenerator.h"
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
+#include "SetupNavigator.h"
 
 #include <numeric>
 #include <algorithm>
@@ -28,6 +29,15 @@ int CFTimeAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
   fConstantFractionTime.th_frac = 0.25;
 
   TSetupData* setup = TSetupData::Instance();
+
+  // Get the variables we want from TSetupData/SetupNavigator
+  std::string bankname = pulseList[0]->GetBankName();
+  fConstantFractionTime.pedestal = SetupNavigator::Instance()->GetPedestal(bankname);
+  fConstantFractionTime.trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+  fConstantFractionTime.max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
+  fConstantFractionTime.clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
+  fConstantFractionTime.time_shift = TSetupData::Instance()->GetTimeShift(bankname);
+
 
   for (unsigned int iTPI = 0; iTPI < pulseList.size(); ++iTPI) {
     TPulseIsland* tpi = pulseList.at(iTPI);
