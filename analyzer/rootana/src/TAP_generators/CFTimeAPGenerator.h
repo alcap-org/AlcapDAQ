@@ -5,11 +5,9 @@
 #include "TVAnalysedPulseGenerator.h"
 #include "definitions.h"
 #include "TFile.h"
+#include "utils/TAPAlgorithms.h"
 
 class CFTimeAPGenerator:public TVAnalysedPulseGenerator {
-
- private:
-  double fConstantFraction;
 
  public:
   CFTimeAPGenerator(TAPGeneratorOptions* opts);
@@ -22,6 +20,10 @@ class CFTimeAPGenerator:public TVAnalysedPulseGenerator {
    // into more than one TAP
    virtual bool MayDivideTPIs(){return true;};
 
+ private:
+   /// \brief
+   /// The algorithms that will be used by this generator
+   Algorithm::ConstantFractionTime fConstantFractionTime;
 };
 
 #endif //CFTIME_H__

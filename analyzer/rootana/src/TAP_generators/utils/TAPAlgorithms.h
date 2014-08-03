@@ -23,4 +23,11 @@ struct Algorithm::MaxBinTime {
   double operator() (const TPulseIsland* tpi);
 };
 
+struct Algorithm::ConstantFractionTime {
+  public:
+  double operator() (const TPulseIsland* tpi);
+  double constant_fraction;
+  double th_frac;
+};
+
 #endif

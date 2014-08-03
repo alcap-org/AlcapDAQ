@@ -18,40 +18,25 @@ class OptionsError : public std::exception {
 CFTimeAPGenerator::CFTimeAPGenerator(TAPGeneratorOptions* opts):
 	TVAnalysedPulseGenerator("CFTime",opts){
   //fConstantFraction = opts->GetDouble("constfrac", 0.1);
-  fConstantFraction = 0.2;
-  if (fConstantFraction <= 0. || fConstantFraction >=100.)
+  fConstantFractionTime.constant_fraction = 0.2;
+  if (fConstantFractionTime.constant_fraction <= 0. || fConstantFractionTime.constant_fraction >=100.)
     throw OptionsError();
 }
 
 int CFTimeAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 				     AnalysedPulseList& analysedList) {
-  static const double th_frac = 0.25;
+  fConstantFractionTime.th_frac = 0.25;
 
   TSetupData* setup = TSetupData::Instance();
-  unsigned int max = std::pow(2, setup->GetNBits(pulseList[0]->GetBankName())) - 1;
 
-  int pol = pulseList[0]->GetTriggerPolarity();
   for (unsigned int iTPI = 0; iTPI < pulseList.size(); ++iTPI) {
     TPulseIsland* tpi = pulseList.at(iTPI);
-    std::vector<int> samps = tpi->GetSamples();
-    std::vector<int>::iterator b = samps.begin(), e = samps.end();
-    unsigned int ped = std::accumulate(b, b + 5, 0)/5.;
-    std::vector<int>::iterator m = pol > 0 ? std::max_element(b, e) : std::min_element(b, e);
-    unsigned int amp = *m;
-    unsigned int thresh = pol > 0 ? (unsigned int)(th_frac*(double)(max - ped) + ped) : (unsigned int)((1.-th_frac)*ped);
-    unsigned int cf = pol > 0 ? (unsigned int)(fConstantFraction*(double)(amp-ped)) + ped : (unsigned int)((double)(ped-amp)*(1.-fConstantFraction) + amp);
-    if ((pol > 0 ? amp > thresh : amp < thresh) && (pol > 0 ? amp < max : amp > 0)) {
-      std::vector<int>::iterator c = m;
-      while ((pol > 0 ? *--m > (int)cf : *--m < (int)cf) && m != b);
-      double t;
-      if (*(m+1) == *m)
-	t = (double)(m-b);
-      else
-      t = (double)((int)cf - *m)/(double)(*(m+1) - *m) + (double)(m-b);
-      TAnalysedPulse* tap = MakeNewTAP(iTPI);
-      tap->SetTime(tpi->GetClockTickInNs() * (t + (double)tpi->GetTimeStamp()) - TSetupData::Instance()->GetTimeShift(tpi->GetBankName()));
-      analysedList.push_back(tap);
-    }
+
+    double time = fConstantFractionTime(tpi);
+
+    TAnalysedPulse* tap = MakeNewTAP(iTPI);
+    tap->SetTime(time);
+    analysedList.push_back(tap);
   }
 
   return 0;
