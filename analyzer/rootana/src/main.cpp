@@ -178,7 +178,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
   }
   
   enav.MakeLoopSequence(arguments).Run();
-  std::cout << "Finished processing data normally" << std::endl;
+  std::cout << "Finished processing data" << std::endl;
   return 0;
 }
 
