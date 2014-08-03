@@ -1,5 +1,6 @@
 #include "TAPAlgorithms.h"
 #include "TSetupData.h"
+#include "SetupNavigator.h"
 
 #include <iostream>
 #include <algorithm>
@@ -23,7 +24,7 @@ double Algorithm::MaxBinAmplitude::operator() (const TPulseIsland* tpi) {
     std::cout << "Algorithm::MaxBinAmplitude: Trigger Polarity for channel " << bankname << " is not +- 1!" << std::endl;
 
   // Now calculate the amplitude
-  double pedestal = TSetupData::Instance()->GetPedestal(bankname);
+  double pedestal = SetupNavigator::Instance()->GetPedestal(bankname);
   double amplitude = trigger_polarity*(*peak_sample_pos - pedestal);
 
   return amplitude;
