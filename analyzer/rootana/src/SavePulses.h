@@ -3,7 +3,6 @@
 
 #include "BaseModule.h"
 class TTree;
-class TBranch;
 class TClonesArray;
 
 class TGlobalData;
