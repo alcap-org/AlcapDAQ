@@ -18,4 +18,9 @@ struct Algorithm::MaxBinAmplitude {
   double operator() (const TPulseIsland* tpi);
 };
 
+struct Algorithm::MaxBinTime {
+  public:
+  double operator() (const TPulseIsland* tpi);
+};
+
 #endif

@@ -17,28 +17,17 @@ class MaxBinAPGenerator:public TVAnalysedPulseGenerator {
   {};
 
   virtual ~MaxBinAPGenerator(){};
-  void SetBankInfo(std::string bankname);
   
 public:
   virtual int ProcessPulses(const PulseIslandList&,AnalysedPulseList&);
   virtual bool MayDivideTPIs(){return false;};
 
-  void GetAllParameters_MaxBin(const TPulseIsland* pulse, double& amplitude,
-                               double& time, double& integral, double& energy) ;
-  
 private:
-  // Ideally we would have the TSetupData storing all this as a single struct so
-  // we wouldn't need the following fields
-  std::string fBankname;
-  std::string fDetName;
-  double fPedestal;
-  int fTriggerPolarity;
-  double fECalibSlope;
-  double fECalibOffset;
-  double fClockTick;
-  double fTimeShift; 
 
+  /// \brief
+  /// The algorithms that this generator uses
   Algorithm::MaxBinAmplitude fMaxBinAmplitude;
+  Algorithm::MaxBinTime fMaxBinTime;
 };
 
 #endif // MAXBINAPGENERATOR_H__
