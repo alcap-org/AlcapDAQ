@@ -334,10 +334,15 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData, const TSetupData* setup)
       hTemplate->SetBinContent(iBin, new_value);
     }
 
-    // Integrate over the histogram and scale to give an area of 1
-    double integral = std::fabs(hTemplate->Integral()); // want the absolute value for the integral because of the negative polarity pulses
-    hTemplate->Scale(1.0/integral);
-    integral = std::fabs(hTemplate->Integral());
+    // Integrate over the histogram and scale to give an amplitude of 1
+    double template_amplitude; 
+    if (TSetupData::Instance()->GetTriggerPolarity(bankname) == 1) { 
+      template_amplitude = (hTemplate->GetMaximum() - template_pedestal);
+    }
+    else if (TSetupData::Instance()->GetTriggerPolarity(bankname) == -1) {
+      template_amplitude = (template_pedestal - hTemplate->GetMinimum());
+    }
+    hTemplate->Scale(1.0/template_amplitude);
 
     // Save the template to the file
     fTemplateArchive->SaveTemplate(hTemplate);
