@@ -1,3 +1,9 @@
+#ifdef __CINT__
+#pragma link off all globals;
+#pragma link off all classes;
+#pragma link off all functions;
+#pragma link C++ nestedclasses;
+
 #pragma link C++ class IDs::channel+;
 #pragma link C++ class IDs::generator+;
 #pragma link C++ class IDs::source+;
@@ -28,8 +34,10 @@
 //#pragma link C++ class pair<IDs::source,vector<TMuonEvent*> >+;
 #pragma link C++ class std::vector<std::string>+;
 
-#pragma link C++ class FlyWeight<IDs::source, TAnalysedPulse::Tag>+;
-#pragma link C++ class FlyWeight<IDs::source, TDetectorPulse::Tag>+;
+#pragma link C++ class std::map<IDs::source, int>+;
+#pragma link C++ class std::vector<IDs::source>+;
+#pragma link C++ class FlyWeight<IDs::source, TAnalysedPulse::Tag>;
+#pragma link C++ class FlyWeight<IDs::source, TDetectorPulse::Tag>;
 
 //#pragma link C++ class vector<TPulseIsland*>+;
 #pragma link C++ class BankBranch<vector<TPulseIsland*> >+;
@@ -38,3 +46,4 @@
 #pragma link C++ class BankBranch<vector<TMuonEvent*> >+;
 
 #pragma link C++ class TAnalysedPulseMapWrapper+;
+#endif    /* __CINT__ */
