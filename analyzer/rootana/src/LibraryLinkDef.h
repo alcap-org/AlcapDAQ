@@ -35,9 +35,12 @@
 #pragma link C++ class std::vector<std::string>+;
 
 #pragma link C++ class std::map<IDs::source, int>+;
+#pragma link C++ class std::pair<IDs::source, int> +;
 #pragma link C++ class std::vector<IDs::source>+;
-#pragma link C++ class FlyWeight<IDs::source, TAnalysedPulse::Tag>;
-#pragma link C++ class FlyWeight<IDs::source, TDetectorPulse::Tag>;
+#pragma link C++ class FlyWeightLists<IDs::source, TAnalysedPulse::Tag>+;
+#pragma link C++ class FlyWeightLists<IDs::source, TDetectorPulse::Tag>+;
+#pragma link C++ class FlyWeight<IDs::source, TAnalysedPulse::Tag>+;
+#pragma link C++ class FlyWeight<IDs::source, TDetectorPulse::Tag>+;
 
 //#pragma link C++ class vector<TPulseIsland*>+;
 #pragma link C++ class BankBranch<vector<TPulseIsland*> >+;
