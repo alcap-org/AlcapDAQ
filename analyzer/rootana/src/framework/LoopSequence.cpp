@@ -96,7 +96,7 @@ void LoopSequence::Process() const
     TGlobalData* raw_data = enav.GetRawData();
     if (raw_data){
       raw_data->Clear("C");
-      //ClearGlobalData(raw_data);
+      ClearGlobalData(raw_data);
     }
     
     Checkpoint(jentry);
