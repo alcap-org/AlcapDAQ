@@ -5,6 +5,7 @@
 #include "definitions.h"
 
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
@@ -64,36 +65,37 @@ PulseCandidateFinder::~PulseCandidateFinder() {
 
 /// GetPulseCandidates()
 /// Fills a vector of the TPulseIslands of the pulse candidates that have been found
-std::vector<TPulseIsland*> PulseCandidateFinder::GetPulseCandidates() {
-
-  // Get the output ready
-  std::vector<TPulseIsland*> pulse_candidates;
+void PulseCandidateFinder::GetPulseCandidates(std::vector<TPulseIsland*>& pulse_candidates)const {
 
   // Loop through the pulse candidate locations
-  for (std::vector<Location>::iterator locationIter = fPulseCandidateLocations.begin(); locationIter != fPulseCandidateLocations.end(); ++locationIter) {
+  std::vector<int>::const_iterator start_new, stop_new;
+  for (std::vector<Location>::const_iterator locationIter = fPulseCandidateLocations.begin();
+          locationIter != fPulseCandidateLocations.end(); ++locationIter) {
     
-    // Get the start and stop locations
-    int start_location = (*locationIter).start;
-    int stop_location = (*locationIter).stop;
+    // Get iterator to the start locations
+    start_new=fPulseIsland->GetSamples().begin();
+    std::advance(start_new,locationIter->start);
+
+    // Get iterator to the stop locations
+    stop_new=fPulseIsland->GetSamples().begin();
+    std::advance(stop_new,locationIter->stop);
 
     // Get the bank name and work out what the new timestamp will be
     std::string bankname = fPulseIsland->GetBankName();
-    int new_timestamp = fPulseIsland->GetTimeStamp() + start_location;
+    int new_timestamp = fPulseIsland->GetTimeStamp() + locationIter->start;
 
-    // Get the samples from the original TPI and have a new one ready for the pulse candidate
-    const std::vector<int>& theSamples = fPulseIsland->GetSamples();
-    std::vector<int> theNewSamples;
-
-    // Loop through the samples between the start and stop locations and add them to the new samples vector
-    for (int iSample = start_location; iSample <= stop_location; ++iSample) {
-      theNewSamples.push_back(theSamples.at(iSample));
+    // Make the new TPI
+    int index=locationIter-fPulseCandidateLocations.begin();
+    if((int)pulse_candidates.size() < index || !pulse_candidates.at(index)){
+        TPulseIsland* pulse_island = new TPulseIsland(new_timestamp, start_new, stop_new, bankname);
+        pulse_candidates.push_back(pulse_island);
+    }else{
+        TPulseIsland* pulse_island=pulse_candidates.at(index);
+        pulse_island->SetSamples(start_new,stop_new);
+        pulse_island->SetTimeStamp(new_timestamp);
+        pulse_island->SetBankName(bankname);
     }
-
-    TPulseIsland* pulse_island = new TPulseIsland(new_timestamp, theNewSamples, bankname);
-    pulse_candidates.push_back(pulse_island);
   }
-
-  return pulse_candidates;
 }
 
 /// FindCandidatePulses_Fast
@@ -123,7 +125,7 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
 
       if (s2 < noise) { // stop if the sample goes below pedestal
 	location.stop = (int)i;
-	if (location.stop >= samples.size()) {
+	if (location.stop >= (int)samples.size()) {
 	  location.stop = samples.size() - 1;
 	}
 
@@ -173,7 +175,7 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
     if (found) {
       if (sample_height < noise) { // stop if the sample goes below pedestal
 	location.stop = (int)i;
-	if (location.stop >= samples.size()) {
+	if (location.stop >=(int) samples.size()) {
 	  location.stop = samples.size() - 1;
 	}
 	std::cout << "Stop: location = " << location.stop << ", sample_height = " << sample_height << std::endl;

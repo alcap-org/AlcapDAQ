@@ -66,7 +66,9 @@ class PulseCandidateFinder {
   int GetNPulseCandidates() { return fPulseCandidateLocations.size(); }
   /// \brief
   /// Returns the actual TPulseIsland of each candidate
-  std::vector<TPulseIsland*> GetPulseCandidates();
+  //std::vector<TPulseIsland*> GetPulseCandidates();
+
+  void GetPulseCandidates(std::vector<TPulseIsland*>&)const;
 
  private:
   /// \brief
