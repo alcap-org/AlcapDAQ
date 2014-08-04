@@ -3,16 +3,19 @@
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
 #include "SetupNavigator.h"
+#include "ExportPulse.h"
 
 #include <iostream>
 #include <cmath>
+#include <sstream>
 
 using std::cout;
 using std::endl;
 
 FirstCompleteAPGenerator::FirstCompleteAPGenerator(TAPGeneratorOptions* opts):
-	TVAnalysedPulseGenerator("FirstComplete",opts){
+  TVAnalysedPulseGenerator("FirstComplete",opts), fOpts(opts){
 	// Do things to set up the generator here. 
+
 }
 
 int FirstCompleteAPGenerator::ProcessPulses( 
@@ -20,6 +23,9 @@ int FirstCompleteAPGenerator::ProcessPulses(
 		AnalysedPulseList& analysedList){
     // Do something here that takes the TPIs in the PulseIslandList and
     // fills the list of TAPS
+
+  // Create a PulseCandidateFinder
+  fPulseCandidateFinder = new PulseCandidateFinder(GetChannel().str(), fOpts);
 
   // The variables that this generator will be filling
   double amplitude, time, integral;
@@ -37,6 +43,36 @@ int FirstCompleteAPGenerator::ProcessPulses(
   // Loop over all the TPIs given to us
   for (PulseIslandList::const_iterator tpi=pulseList.begin();
        tpi!=pulseList.end(); tpi++){
+
+    // Look for more than one pulse on the TPI
+    fPulseCandidateFinder->FindPulseCandidates(*tpi);
+    int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
+    std::cout << "FirstCompleteAPGenerator: " << GetChannel().str() << ": n_pulse_candidates = " << n_pulse_candidates  << std::endl;
+
+    const std::vector<int>& pulse_samples = (*tpi)->GetSamples();
+    int n_pulse_samples = pulse_samples.size();
+    int pulse_timestamp = (*tpi)->GetTimeStamp();
+
+    if (Debug() && n_pulse_candidates > 1 ) {
+      ExportPulse::Instance()->AddToExportList(GetChannel().str(), tpi-pulseList.begin());
+
+      const std::vector<TPulseIsland*>& sub_pulses = fPulseCandidateFinder->GetPulseCandidates();
+      for (std::vector<TPulseIsland*>::const_iterator subPulseIter = sub_pulses.begin(); subPulseIter != sub_pulses.end(); ++subPulseIter) {
+	std::stringstream histname;
+	histname << "hSubPulse_ " << GetChannel().str() << "_Pulse" << tpi-pulseList.begin() << "_SubPulse" << subPulseIter - sub_pulses.begin();
+
+	const std::vector<int>& sub_pulse_samples = (*subPulseIter)->GetSamples();
+	int n_sub_pulse_samples = sub_pulse_samples.size();
+
+	TH1D* hPulse = new TH1D(histname.str().c_str(), histname.str().c_str(), n_pulse_samples,0,n_pulse_samples);
+	hPulse->SetLineColor(kMagenta);
+
+	int delay = (*subPulseIter)->GetTimeStamp() - pulse_timestamp;
+	for (std::vector<int>::const_iterator subPulseSampleIter = sub_pulse_samples.begin(); subPulseSampleIter != sub_pulse_samples.end(); ++subPulseSampleIter) {
+	  hPulse->Fill( (subPulseSampleIter - sub_pulse_samples.begin()) + delay, (*subPulseSampleIter) );
+	}
+      }
+    }
 
     // Analyse each TPI
     amplitude=fMaxBinAmplitude(*tpi);

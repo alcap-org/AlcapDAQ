@@ -6,6 +6,7 @@
 #include "definitions.h"
 
 #include "TAPAlgorithms.h"
+#include "PulseCandidateFinder.h"
 
 class FirstCompleteAPGenerator:public TVAnalysedPulseGenerator {
 
@@ -25,6 +26,12 @@ class FirstCompleteAPGenerator:public TVAnalysedPulseGenerator {
    Algorithm::MaxBinAmplitude fMaxBinAmplitude;
    Algorithm::ConstantFractionTime fConstantFractionTime;
    Algorithm::SimpleIntegral fSimpleIntegral;
+
+   // The pulse candidate finder that we will use
+   PulseCandidateFinder* fPulseCandidateFinder;
+
+   // The module options
+   TAPGeneratorOptions* fOpts;
 };
 
 #endif //FIRSTCOMPLETE_H__
