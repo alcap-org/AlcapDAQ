@@ -113,6 +113,7 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
   Location location;
 
   // Loop through the samples
+  int n_before_start_samples = 2; // take a few samples from before the official start
   for (unsigned int i = 1; i < n_samples; ++i) {
     s1 = polarity * (samples[i-1] - pedestal);
     s2 = polarity * (samples[i] - pedestal);
@@ -138,7 +139,7 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
     } else {
       if (ds > rise) {
 	found = true;
-	location.start = (int)(i - 1);
+	location.start = (int)(i - 1) - n_before_start_samples;
 
 	if (location.start < 0) {
 	  location.start = 0;
