@@ -1,17 +1,17 @@
-#ifndef CFTIME_H__
-#define CFTIME_H__
+#ifndef FIRSTCOMPLETE_H__
+#define FIRSTCOMPLETE_H__
 
 #include "TSetupData.h"
 #include "TVAnalysedPulseGenerator.h"
 #include "definitions.h"
-#include "TFile.h"
+
 #include "utils/TAPAlgorithms.h"
 
-class CFTimeAPGenerator:public TVAnalysedPulseGenerator {
+class FirstCompleteAPGenerator:public TVAnalysedPulseGenerator {
 
  public:
-  CFTimeAPGenerator(TAPGeneratorOptions* opts);
-  virtual ~CFTimeAPGenerator(){};
+  FirstCompleteAPGenerator(TAPGeneratorOptions* opts);
+  virtual ~FirstCompleteAPGenerator(){};
 
  public:
    virtual int ProcessPulses( const PulseIslandList&,AnalysedPulseList&);
@@ -21,9 +21,10 @@ class CFTimeAPGenerator:public TVAnalysedPulseGenerator {
    virtual bool MayDivideTPIs(){return true;};
 
  private:
-   /// \brief
-   /// The algorithms that will be used by this generator
+   // The algorithms that this generator will use
+   Algorithm::MaxBinAmplitude fMaxBinAmplitude;
    Algorithm::ConstantFractionTime fConstantFractionTime;
+   Algorithm::SimpleIntegral fSimpleIntegral;
 };
 
-#endif //CFTIME_H__
+#endif //FIRSTCOMPLETE_H__
