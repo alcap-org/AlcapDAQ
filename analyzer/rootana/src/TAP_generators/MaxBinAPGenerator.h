@@ -2,7 +2,7 @@
 #define MAXBINAPGENERATOR_H__
 
 #include "TVAnalysedPulseGenerator.h"
-#include "utils/TAPAlgorithms.h"
+#include "TAPAlgorithms.h"
 #include <vector>
 #include <string>
 

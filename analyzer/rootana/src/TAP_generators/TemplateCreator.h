@@ -6,9 +6,9 @@ class gTGlobalData;
 class gTSetupData;
 class gModulesOptions;
 
-#include "utils/TemplateArchive.h"
-#include "utils/PulseCandidateFinder.h"
-#include "utils/TemplateFitter.h"
+#include "TemplateArchive.h"
+#include "PulseCandidateFinder.h"
+#include "TemplateFitter.h"
 
 class TemplateCreator : public BaseModule{
 

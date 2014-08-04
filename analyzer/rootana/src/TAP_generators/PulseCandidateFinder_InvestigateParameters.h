@@ -6,7 +6,7 @@ class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
 
-#include "utils/PulseCandidateFinder.h"
+#include "PulseCandidateFinder.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules

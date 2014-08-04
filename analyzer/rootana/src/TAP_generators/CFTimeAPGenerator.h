@@ -5,7 +5,7 @@
 #include "TVAnalysedPulseGenerator.h"
 #include "definitions.h"
 #include "TFile.h"
-#include "utils/TAPAlgorithms.h"
+#include "TAPAlgorithms.h"
 
 class CFTimeAPGenerator:public TVAnalysedPulseGenerator {
 

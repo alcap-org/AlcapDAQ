@@ -5,7 +5,7 @@
 #include "TVAnalysedPulseGenerator.h"
 #include "definitions.h"
 
-#include "utils/TAPAlgorithms.h"
+#include "TAPAlgorithms.h"
 
 class SimpIntAPGenerator:public TVAnalysedPulseGenerator {
 
