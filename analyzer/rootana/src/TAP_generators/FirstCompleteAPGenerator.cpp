@@ -59,7 +59,7 @@ int FirstCompleteAPGenerator::ProcessPulses(
       const std::vector<TPulseIsland*>& sub_pulses = fPulseCandidateFinder->GetPulseCandidates();
       for (std::vector<TPulseIsland*>::const_iterator subPulseIter = sub_pulses.begin(); subPulseIter != sub_pulses.end(); ++subPulseIter) {
 	std::stringstream histname;
-	histname << "hSubPulse_ " << GetChannel().str() << "_Pulse" << tpi-pulseList.begin() << "_SubPulse" << subPulseIter - sub_pulses.begin();
+	histname << "hSubPulse_" << GetChannel().str() << "_Pulse" << tpi-pulseList.begin() << "_SubPulse" << subPulseIter - sub_pulses.begin();
 
 	const std::vector<int>& sub_pulse_samples = (*subPulseIter)->GetSamples();
 	int n_sub_pulse_samples = sub_pulse_samples.size();
