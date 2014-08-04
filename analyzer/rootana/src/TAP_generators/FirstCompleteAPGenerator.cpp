@@ -3,6 +3,7 @@
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
 #include "SetupNavigator.h"
+#include "EventNavigator.h"
 #include "ExportPulse.h"
 
 #include <iostream>
@@ -53,13 +54,13 @@ int FirstCompleteAPGenerator::ProcessPulses(
     int n_pulse_samples = pulse_samples.size();
     int pulse_timestamp = (*tpi)->GetTimeStamp();
 
-    if (Debug() && n_pulse_candidates > 1 ) {
+    if (Debug() && n_pulse_candidates == 1 ) {
       ExportPulse::Instance()->AddToExportList(GetChannel().str(), tpi-pulseList.begin());
 
       const std::vector<TPulseIsland*>& sub_pulses = fPulseCandidateFinder->GetPulseCandidates();
       for (std::vector<TPulseIsland*>::const_iterator subPulseIter = sub_pulses.begin(); subPulseIter != sub_pulses.end(); ++subPulseIter) {
 	std::stringstream histname;
-	histname << "hSubPulse_" << GetChannel().str() << "_Pulse" << tpi-pulseList.begin() << "_SubPulse" << subPulseIter - sub_pulses.begin();
+	histname << "hSubPulse_" << GetChannel().str() << "_Event" << EventNavigator::Instance().EntryNo() <<"_Pulse" << tpi-pulseList.begin() << "_SubPulse" << subPulseIter - sub_pulses.begin();
 
 	const std::vector<int>& sub_pulse_samples = (*subPulseIter)->GetSamples();
 	int n_sub_pulse_samples = sub_pulse_samples.size();
