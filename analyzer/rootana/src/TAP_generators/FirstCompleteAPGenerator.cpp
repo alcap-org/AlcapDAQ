@@ -54,7 +54,8 @@ int FirstCompleteAPGenerator::ProcessPulses(
     int n_pulse_samples = pulse_samples.size();
     int pulse_timestamp = (*tpi)->GetTimeStamp();
 
-    if (Debug() && n_pulse_candidates == 1 ) {
+    if (Debug() && n_pulse_candidates > 1 && GetChannel().str() != "muSc" && GetChannel().str() != "muScA" && GetChannel().str() != "ScL"
+	&& GetChannel().str() != "ScR" && GetChannel().str() != "ScGe" && GetChannel().str() != "ScVe") {
       ExportPulse::Instance()->AddToExportList(GetChannel().str(), tpi-pulseList.begin());
 
       const std::vector<TPulseIsland*>& sub_pulses = fPulseCandidateFinder->GetPulseCandidates();
