@@ -145,6 +145,15 @@ void LoopSequence::Run() const
               << e.fEvent << ")";
   }
   catch (process_error& e){
+    try{
+        // try to let each module finish to save plots etc
+        this->Postprocess();
+    } catch(...) {
+        // if postprocess throws an error assume it's related to the process
+        // error
+        std::cout << "\nA module returned non-zero on entry " << e.fEvent;
+        throw;
+    }
     std::cout << "\nA module returned non-zero on entry " << e.fEvent;
   }
   catch (postprocess_error& e){
