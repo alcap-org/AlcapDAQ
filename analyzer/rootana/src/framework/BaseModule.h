@@ -32,6 +32,18 @@ class BaseModule
   /// @return 0 on sucess and non-zero if a problem occurred
   int ProcessGenericEntry(TGlobalData *gData, const TSetupData* gSetup);
 
+  /// @brief Method called by the main pre-process loop.
+  /// @details Does some simple work, then hooks into the derived class through
+  /// BeforeFirstEntry.
+  /// @return 0 on sucess and non-zero if a problem occurred
+  int Preprocess(TGlobalData *gData, const TSetupData* gSetup);
+
+  /// @brief Method called by the main pre-process loop.
+  /// @details Does some simple work, then hooks into the derived class through
+  /// AfterLastEntry.
+  /// @return 0 on sucess and non-zero if a problem occurred
+  int Postprocess(TGlobalData *gData, const TSetupData* gSetup);
+
   /// Optional method which is called once before the main event loop
   /// Can be used to parse options and setup histograms.
   /// @return 0 on sucess and non-zero if a problem occurred

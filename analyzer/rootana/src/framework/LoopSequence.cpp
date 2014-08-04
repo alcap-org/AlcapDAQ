@@ -81,7 +81,7 @@ void LoopSequence::Preprocess() const
   modules::navigator& mn = *modules::navigator::Instance();
   for (modules::iterator it = mn.Begin(); it != mn.End(); ++it) {
     BaseModule* mod = it->second;
-    err_code |= mod->BeforeFirstEntry(enav.GetRawData(), enav.GetSetupData());
+    err_code |= mod->Preprocess(enav.GetRawData(), enav.GetSetupData());
   }
   if (err_code) throw preprocess_error(fStart);
 }
@@ -126,7 +126,7 @@ void LoopSequence::Postprocess() const
   modules::navigator& mn = *modules::navigator::Instance();
   for (modules::iterator it = mn.Begin(); it != mn.End(); ++it) {
     BaseModule* mod = it->second;
-    err_code |= mod->AfterLastEntry(enav.GetRawData(), enav.GetSetupData());
+    err_code |= mod->Postprocess(enav.GetRawData(), enav.GetSetupData());
   }
   if ( err_code ) throw postprocess_error(fStop-1);
 }
