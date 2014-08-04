@@ -169,31 +169,42 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
   // Loop through the samples
   for (unsigned int i = 0; i < n_samples; ++i) {
     sample_height = polarity * (samples[i] - pedestal);
-
+    std::cout << "i = " << i << ", sample_height = " << sample_height << std::endl;
     if (found) {
       if (sample_height < noise) { // stop if the sample goes below pedestal
 	location.stop = (int)i;
 	if (location.stop >= samples.size()) {
 	  location.stop = samples.size() - 1;
 	}
-
+	std::cout << "Stop: location = " << location.stop << ", sample_height = " << sample_height << std::endl;
 	start = stop = 0;
 	fPulseCandidateLocations.push_back(location);
 	found = false;
       }
       else if (i == n_samples-1) { // Also stop if we are at the last sample (only do this check if we failed the above one)
 	location.stop = (int) i;
-
+	std::cout << "Stop: location = " << location.stop << ", sample_height = " << sample_height << std::endl;
 	fPulseCandidateLocations.push_back(location);
 	found = false;
       }
     } else {
       if (sample_height > threshold) {
 	found = true;
+
+	// Track back until we get to the pedestal again so that we get the whole pulse (Ge-S pulses were being cut-off at the start)
 	location.start = (int)(i);
+	for (int j = i; j > 0; --j) {
+	  std::cout << "j = " << j << std::endl;
+	  sample_height = polarity * (samples[j] - pedestal);
+	  if (sample_height <= 0) {
+	    location.start = (int)(j);
+	    break;
+	  }
+	}
 	if (location.start < 0) {
 	  location.start = 0;
 	}
+	std::cout << "Start: location = " << location.start << ", sample_height = " << sample_height << std::endl;
       }
     }
   }
