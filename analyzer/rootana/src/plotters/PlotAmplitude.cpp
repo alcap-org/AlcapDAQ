@@ -10,7 +10,7 @@
 #include <cmath>
 
 #include "TAnalysedPulse.h"
-#include "TDetectorPulse.h"
+//#include "TDetectorPulse.h"
 #include "RegisterModule.inc"
 #include "definitions.h"
 #include "SetupNavigator.h"
