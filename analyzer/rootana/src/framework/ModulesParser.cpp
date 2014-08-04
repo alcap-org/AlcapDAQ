@@ -71,16 +71,29 @@ size_t modules::parser::RemoveWhitespace(std::string& input, std::string::iterat
 	return input.size();
 }
 
-void modules::parser::ToCppValid(std::string& input){
-    ReplaceAll(input," :#*()-=+$%^&!.,/?",'_' );
+const std::string& modules::parser::ToCppValid(const std::string& input){
+    return ReplaceAll(input," :#*()-=+$%^&!.,/?","_" );
 }
 
-void modules::parser::ReplaceAll(std::string& input, const std::string& search, char replace ){
-    for(std::string::iterator i_char=input.begin(); i_char!=input.end();++i_char){
+void modules::parser::ToCppValid(std::string& input){
+    ReplaceAll(input," :#*()-=+$%^&!.,/?","_" );
+}
+
+const std::string& modules::parser::ReplaceAll(const std::string& input, const std::string& search,const std::string& replace ){
+    static std::string output;
+    output.clear();
+    for(std::string::const_iterator i_char=input.begin(); i_char!=input.end();++i_char){
         if(std::find(search.begin(),search.end(), *i_char)!=search.end()){
-            *i_char=replace;
+            output+=replace;
+        } else{
+            output+=*i_char;
         }
     }
+    return output;
+}
+
+void modules::parser::ReplaceAll(std::string& input, const std::string& search, const std::string& replace ){
+    input=ReplaceAll(const_cast<const std::string&>(input),search,replace);
 }
 
 void modules::parser::TrimWhiteSpaceBeforeAfter(std::string& line){
