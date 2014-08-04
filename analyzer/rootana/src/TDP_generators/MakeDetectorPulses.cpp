@@ -116,6 +116,7 @@ int MakeDetectorPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetu
             slow_pulses=&(current->second);
             // check if the fast_pulses is empty
             if(slow_pulses->empty()) {
+                if(Debug())
                 cout<< "List of TAPs for "<<i_detector->slow<<" is empty."<<endl;
                 continue;
             }
