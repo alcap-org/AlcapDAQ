@@ -26,7 +26,8 @@ using namespace std::rel_ops;
 extern SourceDetPulseMap gDetectorPulseMap;
 
 PlotTDPs::PlotTDPs(modules::options* opts):
-   BaseModule("PlotTDPs",opts){
+   BaseModule("PlotTDPs",opts),fCutHists(false){
+       fCutHists=!opts->GetFlag("no_cut_histos");
        fFastCut=opts->GetDouble("fast_ch_cut",0);
        fSlowCut=opts->GetDouble("slow_ch_cut",0);
 }
@@ -95,24 +96,6 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         tmp.slow_only_amps->SetBit(TH1::kCanRebin);
         tmp.slow_only_amps->SetXTitle("Amplitude in Slow channel");
 
-        // Histogram amplitudes for fast pulses with a slow pulse cut
-        full_title.str("");
-        full_title<<"Amplitudes of fast pulses for slow pulses with amplitudes above ";
-        full_title<<fFastCut<<title;
-        tmp.slow_amps_fast_cut=new TH1F((name+"_slow_amp_fast_cut").c_str(),
-                full_title.str().c_str(), 200,0,-1);
-        tmp.slow_amps_fast_cut->SetBit(TH1::kCanRebin);
-        tmp.slow_amps_fast_cut->SetXTitle("Amplitude in Slow channel");
-
-        // Histogram amplitudes for slow pulses with a fast pulse cut
-        full_title.str("");
-        full_title<<"Amplitudes of slow pulses for fast pulses with amplitudes above ";
-        full_title<<fSlowCut<<title;
-        tmp.fast_amps_slow_cut=new TH1F((name+"_fast_amps_slow_cut").c_str(),
-                full_title.str().c_str(), 200,0,-1);
-        tmp.fast_amps_slow_cut->SetBit(TH1::kCanRebin);
-        tmp.fast_amps_slow_cut->SetXTitle("Amplitude in Fast channel");
-
         // Make a histogram of the time difference between pulses
         full_title.str("Time difference vs. fast amplitude for pulses ");
         full_title<<title;
@@ -128,6 +111,28 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         tmp.time_diff_slow->SetXTitle("t_{Fast} - t_{Slow}");
         tmp.time_diff_slow->SetYTitle("Amplitude in Slow channel");
 
+        if(fCutHists){
+            // Histogram amplitudes for fast pulses with a slow pulse cut
+            full_title.str("");
+            full_title<<"Amplitudes of fast pulses for slow pulses with amplitudes above ";
+            full_title<<fFastCut<<title;
+            tmp.slow_amps_fast_cut=new TH1F((name+"_slow_amp_fast_cut").c_str(),
+                    full_title.str().c_str(), 200,0,-1);
+            tmp.slow_amps_fast_cut->SetBit(TH1::kCanRebin);
+            tmp.slow_amps_fast_cut->SetXTitle("Amplitude in Slow channel");
+
+            // Histogram amplitudes for slow pulses with a fast pulse cut
+            full_title.str("");
+            full_title<<"Amplitudes of slow pulses for fast pulses with amplitudes above ";
+            full_title<<fSlowCut<<title;
+            tmp.fast_amps_slow_cut=new TH1F((name+"_fast_amps_slow_cut").c_str(),
+                    full_title.str().c_str(), 200,0,-1);
+            tmp.fast_amps_slow_cut->SetBit(TH1::kCanRebin);
+            tmp.fast_amps_slow_cut->SetXTitle("Amplitude in Fast channel");
+        } else{
+            tmp.fast_amps_slow_cut=NULL;
+            tmp.slow_amps_fast_cut=NULL;
+        }
 
         // Add tmp to the list of TDPs to draw
         fPlotsList[i_source->first]=tmp;
@@ -179,6 +184,7 @@ int PlotTDPs::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
                 plots.time_diff_slow->Fill(slow_amp ,slow_time - fast_time);
             }
 
+            if(!fCutHists) continue;
             // Fill the cut histograms
             if(fast_amp> fFastCut && slow_amp!=definitions::DefaultValue){
                 plots.slow_amps_fast_cut->Fill(slow_amp);
@@ -187,7 +193,6 @@ int PlotTDPs::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
                 plots.fast_amps_slow_cut->Fill(fast_amp);
             }
 
-            // Fill histogram of the time difference between pulses
         }
     }
 

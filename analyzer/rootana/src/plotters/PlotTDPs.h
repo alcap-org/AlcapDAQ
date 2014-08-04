@@ -71,6 +71,7 @@ class PlotTDPs : public BaseModule {
     private:
         PlotsList_t fPlotsList;
         double fFastCut, fSlowCut;
+        bool fCutHists;
 };
 
 #endif //PLOTTDPS_H_
