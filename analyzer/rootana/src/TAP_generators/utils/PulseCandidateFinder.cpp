@@ -129,9 +129,7 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
 	fPulseCandidateLocations.push_back(location);
 	found = false;
       }
-      
-      // Also stop if we are at the last sample
-      if (i == n_samples-1) {
+      else if (i == n_samples-1) { // Also stop if we are at the last sample (only do this check if we failed the above one)
 	location.stop = (int) i;
 
 	fPulseCandidateLocations.push_back(location);
@@ -179,6 +177,12 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
 	}
 
 	start = stop = 0;
+	fPulseCandidateLocations.push_back(location);
+	found = false;
+      }
+      else if (i == n_samples-1) { // Also stop if we are at the last sample (only do this check if we failed the above one)
+	location.stop = (int) i;
+
 	fPulseCandidateLocations.push_back(location);
 	found = false;
       }
