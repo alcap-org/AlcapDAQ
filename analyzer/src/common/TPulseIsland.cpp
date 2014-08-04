@@ -13,6 +13,11 @@ using std::string;
 TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fBankName("") {
 }
 
+TPulseIsland::TPulseIsland(int timestamp, const vector<int>::const_iterator& first,
+        const vector<int>::const_iterator& last, string bank_name) :
+  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name) {
+}
+
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name) :
   fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name) {
 }
