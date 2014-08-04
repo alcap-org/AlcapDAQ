@@ -285,7 +285,7 @@ void PulseCandidateFinder::SetDefaultParameterValues() {
 
   fDefaultParameterValues[IDs::channel("Ge-F")] = 40;
 
-  fDefaultParameterValues[IDs::channel("ScL")] = 20;
+  fDefaultParameterValues[IDs::channel("ScL")] = 15;
   fDefaultParameterValues[IDs::channel("ScR")] = 20;
   fDefaultParameterValues[IDs::channel("ScGe")] = 20;
   fDefaultParameterValues[IDs::channel("ScVe")] = 30;
