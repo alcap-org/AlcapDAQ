@@ -99,7 +99,7 @@ class TVAnalysedPulseGenerator {
         /// 
         /// \details Called by MakeAnalysedPulses to tell this generator what channel
         /// it is looking at.  
-        void SetChannel(const std::string& det){fSource.Channel()=det;};
+        virtual void SetChannel(const std::string& det){fSource.Channel()=det;};
 
 
     private:
