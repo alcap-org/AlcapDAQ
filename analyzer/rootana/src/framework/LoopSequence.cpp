@@ -13,6 +13,7 @@
 #include "ModulesNavigator.h"
 #include "BaseModule.h"
 
+
 extern SourceAnalPulseMap gAnalysedPulseMap;
 //extern StringDetPulseMap gDetectorPulseMap;
 
@@ -23,34 +24,35 @@ extern void ClearGlobalData(TGlobalData* data);
 ///nicer name. Also consider splittin into muiltiple classes.
 class module_error : public std::runtime_error {
 public:
-  module_error(int evt) 
+  module_error(int evt,BaseModule* mod) 
     : std::runtime_error("")
-    , fEvent(evt)
+    , fEvent(evt), fModule(mod)
   {}
   int fEvent;
+  BaseModule* fModule;
 };
 
 //----------------------------------------------------------------------
 class preprocess_error : public module_error {
 public:
-  preprocess_error(int evt)
-    : module_error(evt)
+  preprocess_error(int evt,BaseModule* mod)
+    : module_error(evt,mod)
   {}
 };
 
 //----------------------------------------------------------------------
 class process_error : public module_error {
 public:
-  process_error(int evt)
-    : module_error(evt)
+  process_error(int evt,BaseModule* mod)
+    : module_error(evt,mod)
   {}
 };
 
 //----------------------------------------------------------------------
 class postprocess_error : public module_error {
 public:
-  postprocess_error(int evt)
-    : module_error(evt)
+  postprocess_error(int evt,BaseModule* mod)
+    : module_error(evt,mod)
   {}
 };
 
@@ -76,11 +78,12 @@ void LoopSequence::Preprocess() const
   enav.GetEntry(fStart);
   int err_code =0;
   modules::navigator& mn = *modules::navigator::Instance();
+  BaseModule* mod =NULL;
   for (modules::iterator it = mn.Begin(); it != mn.End() && !err_code; ++it) {
-    BaseModule* mod = it->second;
+    mod = it->second;
     err_code |= mod->Preprocess(enav.GetRawData(), enav.GetSetupData());
   }
-  if (err_code) throw preprocess_error(fStart);
+  if (err_code) throw preprocess_error(fStart,mod);
 }
 
 
@@ -88,6 +91,7 @@ void LoopSequence::Preprocess() const
 void LoopSequence::Process() const
 {
   EventNavigator& enav = EventNavigator::Instance();
+  BaseModule* mod =NULL;
   for (Long64_t jentry = fStart; jentry < fStop; ++jentry){
     //This to move unrder event navigator
     TGlobalData* raw_data = enav.GetRawData();
@@ -102,10 +106,10 @@ void LoopSequence::Process() const
     int err_code = 0;
     modules::navigator& mn = *modules::navigator::Instance();
     for (modules::iterator it = mn.Begin(); it != mn.End() && ! err_code; ++it) {
-      BaseModule* mod = it->second;
+      mod = it->second;
       err_code |= mod->ProcessGenericEntry(raw_data,enav.GetSetupData());
     }
-    if (err_code) throw process_error(jentry);
+    if (err_code) throw process_error(jentry,mod);
   
   }
   return;
@@ -118,11 +122,12 @@ void LoopSequence::Postprocess() const
   EventNavigator& enav = EventNavigator::Instance();
   int err_code =0;
   modules::navigator& mn = *modules::navigator::Instance();
+  BaseModule* mod =NULL;
   for (modules::iterator it = mn.Begin(); it != mn.End() && !err_code; ++it) {
-    BaseModule* mod = it->second;
+    mod = it->second;
     err_code |= mod->Postprocess(enav.GetRawData(), enav.GetSetupData());
   }
-  if ( err_code ) throw postprocess_error(fStop-1);
+  if ( err_code ) throw postprocess_error(fStop-1,mod);
 }
 
 
@@ -137,6 +142,7 @@ void LoopSequence::Run() const
   catch (preprocess_error& e){
     std::cout << "\nError while preprocessing first entry (" 
               << e.fEvent << ")";
+    if(e.fModule) std::cout<<" for module "<<e.fModule->GetName();
   }
   catch (process_error& e){
     try{
@@ -145,16 +151,24 @@ void LoopSequence::Run() const
     } catch(...) {
         // if postprocess throws an error assume it's related to the process
         // error
-        std::cout << "\nA module returned non-zero on entry " << e.fEvent;
+        if(e.fModule) std::cout<<"\nModule "<<e.fModule->GetName();
+        else std::cout << "\nA module";
+        std::cout<<" returned non-zero on entry " << e.fEvent;
         throw;
     }
-    std::cout << "\nA module returned non-zero on entry " << e.fEvent;
+    if(e.fModule) std::cout<<"\nModule "<<e.fModule->GetName();
+    else std::cout << "\nA module";
+    std::cout<<" returned non-zero on entry " << e.fEvent;
   }
   catch (postprocess_error& e){
-    std::cout << "\nError during post-processing last entry " << e.fEvent;
+    if(e.fModule) std::cout<<"\nModule "<<e.fModule->GetName();
+    else std::cout << "\nA module";
+    std::cout<<" returned non-zero on during post-processing last entry " << e.fEvent;
   }
   catch (module_error& e){
-    std::cout << "\nUnknown module error on event "<< e.fEvent;
+    if(e.fModule) std::cout<<"\nModule "<<e.fModule->GetName();
+    else std::cout << "\nA module";
+    std::cout<<" returned non-zero on during pre-processing first entry " << e.fEvent;
   }
   std::cout << std::endl;
 }  
