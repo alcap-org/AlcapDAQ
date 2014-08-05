@@ -20,7 +20,7 @@ FirstCompleteAPGenerator::FirstCompleteAPGenerator(TAPGeneratorOptions* opts):
         // Do things to set up the generator here. 
 
     // Create a PulseCandidateFinder
-    fPulseCandidateFinder = new PulseCandidateFinder(GetChannel().str(), fOpts);
+  //    fPulseCandidateFinder = new PulseCandidateFinder(GetChannel().str(), fOpts);
 
     }
 
@@ -85,7 +85,7 @@ int FirstCompleteAPGenerator::ProcessPulses(
             // Analyse each TPI
             amplitude=fMaxBinAmplitude(*i_tpi);
             time=fConstantFractionTime(*i_tpi);
-            //integral=fSimpleIntegral(*i_tpi);
+            integral=fSimpleIntegral(*i_tpi);
 
             // Now that we've found the information we were looking for make a TAP to
             // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
