@@ -64,9 +64,9 @@ TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
 Int_t PrepareSingletonObjects(const ARGUMENTS&);
 
-TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
-TTree *gAnalysedPulseTree = NULL;
-TBranch *gAnalysedPulseBranch = NULL;
+//TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
+//TTree *gAnalysedPulseTree = NULL;
+//TBranch *gAnalysedPulseBranch = NULL;
 
 SourceAnalPulseMap gAnalysedPulseMap;
 SourceDetPulseMap gDetectorPulseMap;
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
   
   // and finish up
   fileOut->cd();
-  gAnalysedPulseTree->Write();
+  //gAnalysedPulseTree->Write();
   fileOut->Write();
   fileOut->Close();
   navi.Close();
@@ -265,7 +265,7 @@ void PrintSetupData(TSetupData* s_data)
 Int_t PrepareAnalysedPulseMap(TFile* fileOut)
 {
   // TAnalysedMapWrapper
-  gAnalysedPulseMapWrapper = new TAnalysedPulseMapWrapper(gAnalysedPulseMap);
+  //gAnalysedPulseMapWrapper = new TAnalysedPulseMapWrapper(gAnalysedPulseMap);
   
   int split = 1;
   int bufsize = 64000;
@@ -274,14 +274,14 @@ Int_t PrepareAnalysedPulseMap(TFile* fileOut)
   if (split < 0) {branchstyle = 0; split = -1-split;}
   TTree::SetBranchStyle(branchstyle);
   
-  gAnalysedPulseTree = new TTree("AnalysedPulseTree", "AnalysedPulseTree");
-  gAnalysedPulseTree->SetAutoSave(100000000);
-  gAnalysedPulseTree->SetMaxVirtualSize(100000000);
-  gAnalysedPulseBranch = gAnalysedPulseTree->Branch("AnalysedPulseMapWrapper", 
-                                                    "TAnalysedPulseMapWrapper",
-                                                    &gAnalysedPulseMapWrapper,
-                                                    bufsize, split);
-  gAnalysedPulseBranch->SetAutoDelete(kFALSE);
+  //gAnalysedPulseTree = new TTree("AnalysedPulseTree", "AnalysedPulseTree");
+  //gAnalysedPulseTree->SetAutoSave(100000000);
+  //gAnalysedPulseTree->SetMaxVirtualSize(100000000);
+  //gAnalysedPulseBranch = gAnalysedPulseTree->Branch("AnalysedPulseMapWrapper", 
+  //                                                  "TAnalysedPulseMapWrapper",
+  //                                                  &gAnalysedPulseMapWrapper,
+  //                                                  bufsize, split);
+  //gAnalysedPulseBranch->SetAutoDelete(kFALSE);
   return 0;
 }
 

@@ -12,11 +12,8 @@
 #include "EventNavigator.h"
 #include "ModulesNavigator.h"
 #include "BaseModule.h"
-#include "TAnalysedPulseMapWrapper.h"
 
-//extern TAnalysedPulseMapWrapper* gAnalysedPulseMapWrapper;
 extern SourceAnalPulseMap gAnalysedPulseMap;
-extern TTree* gAnalysedPulseTree;
 //extern StringDetPulseMap gDetectorPulseMap;
 
 extern void ClearGlobalData(TGlobalData* data);
@@ -109,9 +106,6 @@ void LoopSequence::Process() const
       err_code |= mod->ProcessGenericEntry(raw_data,enav.GetSetupData());
     }
     if (err_code) throw process_error(jentry);
-  
-    //gAnalysedPulseMapWrapper->SetMap(gAnalysedPulseMap);
-    //gAnalysedPulseTree->Fill();
   
   }
   return;
