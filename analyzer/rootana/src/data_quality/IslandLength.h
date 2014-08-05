@@ -76,12 +76,6 @@ private:
   /// Book histograms and similar
   virtual void Book(TGlobalData* data,const TSetupData* setup);
 
-  /// The directory where the histograms will reside
-  std::string fDirName;
-
-  /// The directory where histograms arre stored
-  TDirectory* fHistDir;
-
   /// Map of histograms, keyed by bank_name;
   mapSH_t fHistos;
 

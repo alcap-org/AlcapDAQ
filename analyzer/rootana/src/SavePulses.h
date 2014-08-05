@@ -1,11 +1,14 @@
-#ifndef ISLANDAMPLITUDE_H_
-#define ISLANDAMPLITUDE_H_
+#ifndef SAVEPULSES_H_
+#define SAVEPULSES_H_
 
-#include "definitions.h"
 #include "BaseModule.h"
+class TTree;
+class TClonesArray;
+
 class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
+namespace IDs {class source;}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
@@ -20,65 +23,43 @@ namespace modules {class options;}
 /// You can add this to other groups instead of rootana_modules or in addition
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
-class IslandAmplitude : public BaseModule {
+class SavePulses : public BaseModule {
+
+    typedef std::map<IDs::source,TClonesArray*> SourceToClonesArrayMap;
 
  public:
   /// \brief
   /// Constructor description. If necessary, add a details tag like above.
   ///
   /// \param[in] opts Describe the options this module takes.
-  IslandAmplitude(modules::options* opts);
+  SavePulses(modules::options* opts);
   /// \brief
   /// Is anything done in the destructor?
-  ~IslandAmplitude();
+  ~SavePulses();
 
  private:
-
-  typedef const std::map<std::string, std::string> mapSS_t;
-  typedef mapSS_t::const_iterator mapSS_iter;
-  typedef std::map<std::string, TH1F*> mapSH_t;
-  typedef PulseIslandList::iterator PIL_iter;
-  
-
   /// \brief
   /// What's calculated for every entry?
   /// Don't hesitate to repeat what was said in the class description.
   /// 
-  /// \param[in] gData See BaseModule::ProcessEntry
-  /// \param[in] gSetup See BaseModule::ProcessEntry
   /// \return Non-zero to indicate a problem.
-  virtual int ProcessEntry(TGlobalData *gData,const  TSetupData *gSetup);
+  virtual int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);
   /// \brief
   /// What needes to be done before each run?
   /// Don't hesitate to repeat what was said in the class description.
   ///
-  /// \param[in] gData See BaseModule::BeforeFirstEntry
-  /// \param[in] setup See BaseModule::BeforeFirstEntry
   /// \return Non-zero to indicate a problem.
-  virtual int BeforeFirstEntry(TGlobalData* gData,const  TSetupData *setup);
+  virtual int BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup);
   /// \brief
   /// What needs to be done after each run?
   /// Don't hesitate to repeat what was said in the class description.
   ///
-  /// \param[in] gData See BaseModule::AfterLastEntry
-  /// \param[in] setup See BaseModule::AfterLastEntry
   /// \return Non-zero to indicate a problem.
-  virtual int AfterLastEntry(TGlobalData* gData,const  TSetupData *setup);
+  virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
 
-  /// \brief
-  /// Don't forget to forget descirptions for each field...
-  ///
-  /// \details
-  /// ...and don't hesitate to include details.
-
-  mapSH_t fAmpHist;
-  mapSH_t fAmpHistNorm;
-
-  TH1* fAmpNorm;
-
-  int fNProcessed;
-
-
+ private:
+  TTree* fTree;
+  SourceToClonesArrayMap fArrays;
 };
 
-#endif //ISLANDAMPLITUDE_H_
+#endif //SAVEPULSES_H_

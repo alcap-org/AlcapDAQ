@@ -72,11 +72,11 @@ size_t modules::parser::RemoveWhitespace(std::string& input, std::string::iterat
 }
 
 const std::string& modules::parser::ToCppValid(const std::string& input){
-    return ReplaceAll(input," :#*()-=+$%^&!.,/?","_" );
+    return ReplaceAll(input," :{}#*()-=+$%^&!.,/?","_" );
 }
 
 void modules::parser::ToCppValid(std::string& input){
-    ReplaceAll(input," :#*()-=+$%^&!.,/?","_" );
+    ReplaceAll(input," :{}#*()-=+$%^&!.,/?","_" );
 }
 
 const std::string& modules::parser::ReplaceAll(const std::string& input, const std::string& search,const std::string& replace ){

@@ -22,8 +22,8 @@ TAnalysedPulse::TAnalysedPulse(const IDs::source& sourceID,
   fIntegral(fDefaultValue),
   fEnergy(fDefaultValue),
   fPedestal(fDefaultValue),
-  fTriggerTime(fDefaultValue){
-    fSource.SetValue(sourceID);
+  fTriggerTime(fDefaultValue),
+  fSource(sourceID){
     SetParentTPIProperties(parentID, parentTPI);
 }
 

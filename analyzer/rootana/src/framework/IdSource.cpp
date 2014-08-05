@@ -1,5 +1,5 @@
 #include "IdSource.h"
-#include <ostream>
+#include <iostream>
 
 ClassImp(IDs::source);
 
@@ -10,4 +10,17 @@ std::string IDs::source::str()const{
 ostream& operator<< (ostream& os ,const IDs::source& id) {
   os<<id.str();
   return os;
+}
+
+IDs::source& IDs::source::operator=(const std::string& rhs){
+    // Find the first delimiter
+    size_t delim=rhs.find(IDs::field_separator.c_str());
+    if(delim==std::string::npos){
+        std::cout<<"Warning: Strange looking string given to IDs::source: "<<rhs<<std::endl;
+        Channel()=rhs;
+    } else{
+        Channel()=rhs.substr(0,delim);
+        Generator()=rhs.substr(delim+1);
+    }
+    return *this;
 }

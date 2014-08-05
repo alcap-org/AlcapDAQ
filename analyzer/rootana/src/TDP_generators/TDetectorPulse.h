@@ -54,8 +54,9 @@ class TDetectorPulse : public TObject {
 
         const TAnalysedPulse* fParentPulse[kNumParents];
         int fParentID[kNumParents];
+        //IDs::source fParentSource[kNumParents];
+        //IDs::source fSource;
         FlyWeight<IDs::source,TAnalysedPulse::Tag> fParentSource[kNumParents];
-
         FlyWeight<IDs::source,Tag> fSource;
 
         ClassDef(TDetectorPulse, 2);

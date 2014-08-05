@@ -136,6 +136,7 @@ class TAnalysedPulse : public TObject {
   double fEnergy;
   double fPedestal;
   double fTriggerTime;
+  //IDs::source fSource;
   FlyWeight<IDs::source,Tag> fSource;
 
   /// \brief

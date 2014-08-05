@@ -64,9 +64,9 @@ TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
 Int_t PrepareSingletonObjects(const ARGUMENTS&);
 
-TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
-TTree *gAnalysedPulseTree = NULL;
-TBranch *gAnalysedPulseBranch = NULL;
+//TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
+//TTree *gAnalysedPulseTree = NULL;
+//TBranch *gAnalysedPulseBranch = NULL;
 
 SourceAnalPulseMap gAnalysedPulseMap;
 SourceDetPulseMap gDetectorPulseMap;
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
   
   // and finish up
   fileOut->cd();
-  gAnalysedPulseTree->Write();
+  //gAnalysedPulseTree->Write();
   fileOut->Write();
   fileOut->Close();
   navi.Close();
@@ -178,7 +178,7 @@ Int_t Main_event_loop(TTree* dataTree,ARGUMENTS& arguments)
   }
   
   enav.MakeLoopSequence(arguments).Run();
-  std::cout << "Finished processing data normally" << std::endl;
+  std::cout << "Finished processing data" << std::endl;
   return 0;
 }
 
@@ -193,17 +193,19 @@ void ClearGlobalData(TGlobalData* data)
   // own the pulses, they would be deleted later. A solution is to
   // be sure that TGlobalData isn't called in alcapana, or ensure
   // that g_event owns the pulse islands at that level.  
-  StringPulseIslandMap::iterator mapIter;
-  StringPulseIslandMap::iterator mapEnd = data->fPulseIslandToChannelMap.end();
-  for(mapIter = data->fPulseIslandToChannelMap.begin(); mapIter != mapEnd; mapIter++) {
-    // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
-    std::vector<TPulseIsland*>& pulse_vector= mapIter->second;
-    for(size_t i=0; i<pulse_vector.size(); i++){
-      delete pulse_vector[i];
-      pulse_vector[i] = NULL;
-    }
-    pulse_vector.clear();
-  }
+//
+//---  LoopSequence::Process now takes care of this part by invoking TGlobalData::Clear
+//  StringPulseIslandMap::iterator mapIter;
+//  StringPulseIslandMap::iterator mapEnd = data->fPulseIslandToChannelMap.end();
+//  for(mapIter = data->fPulseIslandToChannelMap.begin(); mapIter != mapEnd; mapIter++) {
+//    // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
+//    std::vector<TPulseIsland*>& pulse_vector= mapIter->second;
+//    for(size_t i=0; i<pulse_vector.size(); i++){
+//      delete pulse_vector[i];
+//      pulse_vector[i] = NULL;
+//    }
+//    pulse_vector.clear();
+//  }
 
 
   for(SourceAnalPulseMap::iterator mapIter=gAnalysedPulseMap.begin();
@@ -263,7 +265,7 @@ void PrintSetupData(TSetupData* s_data)
 Int_t PrepareAnalysedPulseMap(TFile* fileOut)
 {
   // TAnalysedMapWrapper
-  gAnalysedPulseMapWrapper = new TAnalysedPulseMapWrapper(gAnalysedPulseMap);
+  //gAnalysedPulseMapWrapper = new TAnalysedPulseMapWrapper(gAnalysedPulseMap);
   
   int split = 1;
   int bufsize = 64000;
@@ -272,14 +274,14 @@ Int_t PrepareAnalysedPulseMap(TFile* fileOut)
   if (split < 0) {branchstyle = 0; split = -1-split;}
   TTree::SetBranchStyle(branchstyle);
   
-  gAnalysedPulseTree = new TTree("AnalysedPulseTree", "AnalysedPulseTree");
-  gAnalysedPulseTree->SetAutoSave(100000000);
-  gAnalysedPulseTree->SetMaxVirtualSize(100000000);
-  gAnalysedPulseBranch = gAnalysedPulseTree->Branch("AnalysedPulseMapWrapper", 
-                                                    "TAnalysedPulseMapWrapper",
-                                                    &gAnalysedPulseMapWrapper,
-                                                    bufsize, split);
-  gAnalysedPulseBranch->SetAutoDelete(kFALSE);
+  //gAnalysedPulseTree = new TTree("AnalysedPulseTree", "AnalysedPulseTree");
+  //gAnalysedPulseTree->SetAutoSave(100000000);
+  //gAnalysedPulseTree->SetMaxVirtualSize(100000000);
+  //gAnalysedPulseBranch = gAnalysedPulseTree->Branch("AnalysedPulseMapWrapper", 
+  //                                                  "TAnalysedPulseMapWrapper",
+  //                                                  &gAnalysedPulseMapWrapper,
+  //                                                  bufsize, split);
+  //gAnalysedPulseBranch->SetAutoDelete(kFALSE);
   return 0;
 }
 

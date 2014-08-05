@@ -26,7 +26,7 @@ TDetectorPulse::TDetectorPulse(const IDs::source& sourceID,
   if(f_parent) fParentSource[kFast]= f_parent->GetSource();
   fParentID[kSlow]=s_parentID;
   fParentID[kFast]=f_parentID;
-  fSource.SetValue(sourceID);
+  fSource=sourceID;
 }
 
 void TDetectorPulse::Reset(Option_t* o) {

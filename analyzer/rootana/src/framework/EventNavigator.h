@@ -12,7 +12,6 @@ class TTree;
 //Local
 #include "definitions.h"
 #include "TGlobalData.h"
-#include "TAnalysedPulseMapWrapper.h"
 #include "BankIter.h"
 #include "SetupRecord.h"
 #include "LoopSequence.h"
@@ -259,8 +258,6 @@ private:
 
   SetupRecord* fSetupRecord;
 
-  TAnalysedPulseMapWrapper* fAPWrapper;
-  
   LoopSequence* fLoopSequence;
 
 
