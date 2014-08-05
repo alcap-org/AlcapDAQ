@@ -109,6 +109,12 @@ class PulseCandidateFinder {
   /// \brief
   /// The value of the parameter to start a candidate pulse
   double fParameterValue;
+  /// \brief
+  /// The noise value for this channel
+  double fNoise;
+  /// \brief
+  /// The pedestal value for this channel
+  double fPedestal;
 
   /// \brief
   /// The map that stores the default parameter values in case there isn't one specified in the modules file
@@ -126,6 +132,14 @@ class PulseCandidateFinder {
   /// \brief
   /// Called if "n_sigma" is specified as an option in the modules file and if fOneSigmaValues is empty
   void SetOneSigmaValues();
+
+  /// \brief
+  /// The map that stores the pedestal values that we get from the SQLite database
+  static std::map<IDs::channel, double> fPedestalValues;
+  /// \brief
+  /// Called to set the pedestal values
+  void SetPedestalValues();
+
 };
 
 #endif

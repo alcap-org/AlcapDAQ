@@ -20,6 +20,7 @@ class FirstCompleteAPGenerator:public TVAnalysedPulseGenerator {
    // This function should return true if this generator could break up a TPI
    // into more than one TAP
    virtual bool MayDivideTPIs(){return true;};
+   virtual void SetChannel(const std::string& det);
 
  private:
    void DrawPulse(int original, int pulse_timestamp, int n_pulse_samples);
