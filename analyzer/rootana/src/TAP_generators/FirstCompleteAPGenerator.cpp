@@ -19,10 +19,7 @@ FirstCompleteAPGenerator::FirstCompleteAPGenerator(TAPGeneratorOptions* opts):
     TVAnalysedPulseGenerator("FirstComplete",opts), fOpts(opts){
         // Do things to set up the generator here. 
 
-    // Create a PulseCandidateFinder
-  //    fPulseCandidateFinder = new PulseCandidateFinder(GetChannel().str(), fOpts);
-
-    }
+}
 
 FirstCompleteAPGenerator::~FirstCompleteAPGenerator(){
     // delete all sub-pulses
@@ -37,7 +34,6 @@ int FirstCompleteAPGenerator::ProcessPulses(
 
     // The variables that this generator will be filling
     double amplitude, time, integral;
-
 
     // Get the relevant TSetupData/SetupNavigator variables for the algorithms
     std::string bankname = pulseList[0]->GetBankName();
@@ -55,31 +51,32 @@ int FirstCompleteAPGenerator::ProcessPulses(
     fConstantFractionTime.time_shift = TSetupData::Instance()->GetTimeShift(bankname);
 
     TAnalysedPulse* tap;
-     // Loop over all the TPIs given to us
+    // Loop over all the TPIs given to us
     for (PulseIslandList::const_iterator original_tpi=pulseList.begin();
             original_tpi!=pulseList.end(); original_tpi++){
 
-//        // Look for more than one pulse on the TPI
-//        fPulseCandidateFinder->FindPulseCandidates(*original_tpi);
-//        int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
-//        fPulseCandidateFinder->GetPulseCandidates(fSubPulses);
-//
-//        //if(Debug())
-//        //std::cout << "FirstCompleteAPGenerator: " << GetChannel().str() 
-//        //    << ": n_pulse_candidates = " << n_pulse_candidates  << std::endl;
-//
-//        if (Debug() && n_pulse_candidates > 10
-//                && GetChannel().str() != "muSc" && GetChannel().str() != "muScA"
-//                && GetChannel().str() != "ScL" && GetChannel().str() != "ScR"
-//                && GetChannel().str() != "ScGe" && GetChannel().str() != "ScVe") {
-//            DrawPulse(original_tpi-pulseList.begin(),
-//                    (*original_tpi)->GetTimeStamp(),
-//                    (*original_tpi)->GetPulseLength());
-//        }
-//
-//        for(PulseIslandList::const_iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){
+      // Look for more than one pulse on the TPI
+        fPulseCandidateFinder->FindPulseCandidates(*original_tpi);
+        int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
+        fPulseCandidateFinder->GetPulseCandidates(fSubPulses);
+
+	if(Debug()) {
+	  std::cout << "FirstCompleteAPGenerator: " << GetChannel().str() 
+		    << ": n_pulse_candidates = " << n_pulse_candidates  << std::endl;
+	}
+
+        if (Debug() && n_pulse_candidates > 10
+                && GetChannel().str() != "muSc" && GetChannel().str() != "muScA"
+                && GetChannel().str() != "ScL" && GetChannel().str() != "ScR"
+                && GetChannel().str() != "ScGe" && GetChannel().str() != "ScVe") {
+            DrawPulse(original_tpi-pulseList.begin(),
+                    (*original_tpi)->GetTimeStamp(),
+                    (*original_tpi)->GetPulseLength());
+        }
+
+        for(PulseIslandList::const_iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){
             // Skip small pulses.  This must be at least 1 to skip empty pulses
-            PulseIslandList::const_iterator i_tpi=original_tpi;
+	  //            PulseIslandList::const_iterator i_tpi=original_tpi;
             if((*i_tpi)->GetPulseLength() < 14) continue;
 
             // Analyse each TPI
@@ -98,7 +95,8 @@ int FirstCompleteAPGenerator::ProcessPulses(
             // Finally add the new TAP to the output list
             analysedList.push_back(tap);
 
-//        } // loop over all sub-pulses
+        } // loop over all sub-pulses
+
 
     } // loop over all original TPIs
 
