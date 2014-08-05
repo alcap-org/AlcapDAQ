@@ -1,7 +1,5 @@
 #include "PulseCandidateFinder.h"
-
 #include "SetupNavigator.h"
-
 #include "definitions.h"
 
 #include <iostream>
@@ -86,7 +84,7 @@ void PulseCandidateFinder::GetPulseCandidates(std::vector<TPulseIsland*>& pulse_
 
     // Make the new TPI
     int index=locationIter-fPulseCandidateLocations.begin();
-    if((int)pulse_candidates.size() < index || !pulse_candidates.at(index)){
+    if((int)pulse_candidates.size() <= index || !pulse_candidates.at(index)){
         TPulseIsland* pulse_island = new TPulseIsland(new_timestamp, start_new, stop_new, bankname);
         pulse_candidates.push_back(pulse_island);
     }else{
