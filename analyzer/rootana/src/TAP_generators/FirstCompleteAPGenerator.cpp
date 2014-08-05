@@ -59,31 +59,33 @@ int FirstCompleteAPGenerator::ProcessPulses(
     for (PulseIslandList::const_iterator original_tpi=pulseList.begin();
             original_tpi!=pulseList.end(); original_tpi++){
 
-        // Look for more than one pulse on the TPI
-        fPulseCandidateFinder->FindPulseCandidates(*original_tpi);
-        int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
-        fPulseCandidateFinder->GetPulseCandidates(fSubPulses);
-
-        //if(Debug())
-        //std::cout << "FirstCompleteAPGenerator: " << GetChannel().str() 
-        //    << ": n_pulse_candidates = " << n_pulse_candidates  << std::endl;
-
-        if (Debug() && n_pulse_candidates > 10
-                && GetChannel().str() != "muSc" && GetChannel().str() != "muScA"
-                && GetChannel().str() != "ScL" && GetChannel().str() != "ScR"
-                && GetChannel().str() != "ScGe" && GetChannel().str() != "ScVe") {
-            DrawPulse(original_tpi-pulseList.begin(),
-                    (*original_tpi)->GetTimeStamp(),
-                    (*original_tpi)->GetPulseLength());
-        }
-
-        for(PulseIslandList::const_iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){
-            if((*i_tpi)->GetSamples().empty()) continue;
+//        // Look for more than one pulse on the TPI
+//        fPulseCandidateFinder->FindPulseCandidates(*original_tpi);
+//        int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
+//        fPulseCandidateFinder->GetPulseCandidates(fSubPulses);
+//
+//        //if(Debug())
+//        //std::cout << "FirstCompleteAPGenerator: " << GetChannel().str() 
+//        //    << ": n_pulse_candidates = " << n_pulse_candidates  << std::endl;
+//
+//        if (Debug() && n_pulse_candidates > 10
+//                && GetChannel().str() != "muSc" && GetChannel().str() != "muScA"
+//                && GetChannel().str() != "ScL" && GetChannel().str() != "ScR"
+//                && GetChannel().str() != "ScGe" && GetChannel().str() != "ScVe") {
+//            DrawPulse(original_tpi-pulseList.begin(),
+//                    (*original_tpi)->GetTimeStamp(),
+//                    (*original_tpi)->GetPulseLength());
+//        }
+//
+//        for(PulseIslandList::const_iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){
+            // Skip small pulses.  This must be at least 1 to skip empty pulses
+            PulseIslandList::const_iterator i_tpi=original_tpi;
+            if((*i_tpi)->GetPulseLength() < 14) continue;
 
             // Analyse each TPI
             amplitude=fMaxBinAmplitude(*i_tpi);
             time=fConstantFractionTime(*i_tpi);
-            integral=fSimpleIntegral(*i_tpi);
+            //integral=fSimpleIntegral(*i_tpi);
 
             // Now that we've found the information we were looking for make a TAP to
             // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
@@ -96,7 +98,7 @@ int FirstCompleteAPGenerator::ProcessPulses(
             // Finally add the new TAP to the output list
             analysedList.push_back(tap);
 
-        } // loop over all sub-pulses
+//        } // loop over all sub-pulses
 
     } // loop over all original TPIs
 
