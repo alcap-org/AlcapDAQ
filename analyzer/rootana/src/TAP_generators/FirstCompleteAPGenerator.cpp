@@ -18,7 +18,6 @@ using std::endl;
 FirstCompleteAPGenerator::FirstCompleteAPGenerator(TAPGeneratorOptions* opts):
     TVAnalysedPulseGenerator("FirstComplete",opts), fOpts(opts){
         // Do things to set up the generator here. 
-
 }
 
 FirstCompleteAPGenerator::~FirstCompleteAPGenerator(){
@@ -26,6 +25,12 @@ FirstCompleteAPGenerator::~FirstCompleteAPGenerator(){
     for(PulseIslandList::iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){ 
         delete *i_tpi;
     }
+}
+
+void FirstCompleteAPGenerator::SetChannel(const std::string& det){
+    //fPulseCandidateFinder = new PulseCandidateFinder(det, fOpts);
+    TVAnalysedPulseGenerator::SetChannel(det);
+
 }
 
 int FirstCompleteAPGenerator::ProcessPulses( 
