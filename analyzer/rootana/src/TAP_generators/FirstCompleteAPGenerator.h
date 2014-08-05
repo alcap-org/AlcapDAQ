@@ -33,10 +33,6 @@ class FirstCompleteAPGenerator:public TVAnalysedPulseGenerator {
    // The pulse candidate finder that we will use
    PulseCandidateFinder* fPulseCandidateFinder;
 
-   /// \brief
-   /// We need to overload the SetChannel function in TVAnalysedPulseGenerator so that the PCF can be created once, when the channel is known
-   virtual void SetChannel(const std::string& det){ TVAnalysedPulseGenerator::SetChannel(det); fPulseCandidateFinder =  new PulseCandidateFinder(GetChannel.str(), fOpts); }
-
    // The module options
    TAPGeneratorOptions* fOpts;
 

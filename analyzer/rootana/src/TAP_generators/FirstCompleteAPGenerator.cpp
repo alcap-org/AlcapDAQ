@@ -28,8 +28,8 @@ FirstCompleteAPGenerator::~FirstCompleteAPGenerator(){
 }
 
 void FirstCompleteAPGenerator::SetChannel(const std::string& det){
-    //fPulseCandidateFinder = new PulseCandidateFinder(det, fOpts);
-    TVAnalysedPulseGenerator::SetChannel(det);
+  fPulseCandidateFinder = new PulseCandidateFinder(det, fOpts);
+  TVAnalysedPulseGenerator::SetChannel(det);
 
 }
 
