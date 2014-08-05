@@ -42,7 +42,7 @@ int SavePulses::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         array=new TClonesArray(TAnalysedPulse::Class());
         fArrays[i_source->first]=array;
         name=i_source->first.str();
-        modules::parser::ReplaceAll(name,"-",'_');
+        modules::parser::ReplaceAll(name,"-","_");
         fTree->Branch(name.c_str(), array);
     }
 
