@@ -91,7 +91,7 @@ class TVAnalysedPulseGenerator {
         /// comparing this value to that stored in the TAP itself.
         IDs::source GetSource()const {return fSource;};
 
-    private:
+    protected:
         friend class MakeAnalysedPulses;
 
         /// \brief Set the channel for this generator. Should NOT be called by user
