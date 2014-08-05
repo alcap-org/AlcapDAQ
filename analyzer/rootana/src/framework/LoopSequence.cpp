@@ -13,7 +13,6 @@
 #include "ModulesNavigator.h"
 #include "BaseModule.h"
 
-
 extern SourceAnalPulseMap gAnalysedPulseMap;
 //extern StringDetPulseMap gDetectorPulseMap;
 
