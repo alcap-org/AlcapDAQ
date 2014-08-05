@@ -19,8 +19,6 @@ using std::endl;
 
 IslandAmplitude::IslandAmplitude(modules::options* opts)
   : BaseModule("IslandAmplitude",opts)
-  , fDirName("IslandAmplitude")
-
 {
   // Do something with opts here.
 }
@@ -43,11 +41,6 @@ int IslandAmplitude::BeforeFirstEntry(TGlobalData* data,const TSetupData *setup)
   }
 
   fNProcessed = 0;
-
-  if(!TDirectory::CurrentDirectory()->cd(fDirName.c_str()))
-     TDirectory::CurrentDirectory()->mkdir(fDirName.c_str())->cd();
-
-  fHistDir = TDirectory::CurrentDirectory();
 
   StringPulseIslandMap& islands = data->fPulseIslandToChannelMap;
 
@@ -151,9 +144,6 @@ int IslandAmplitude::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
      cout<<"-----IslandAmplitude::AfterLastEntry(): I'm debugging!"<<endl;
   }
 
-  TDirectory*pwd = TDirectory::CurrentDirectory();
-  fHistDir->cd();
-
   double run_norm = fAmpNorm->Integral(0,-1);
   for(mapSH_t::iterator it = fAmpHist.begin(); it != fAmpHist.end(); ++it)
     {
@@ -166,8 +156,6 @@ int IslandAmplitude::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 
   for(mapSH_t::iterator it = fAmpHistNorm.begin(); it != fAmpHistNorm.end(); ++it)
     it->second->Scale(1.0/fNProcessed);
-
-  pwd->cd();
 
   return 0;
 }

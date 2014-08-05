@@ -71,10 +71,6 @@ class IslandAmplitude : public BaseModule {
   /// \details
   /// ...and don't hesitate to include details.
 
-  std::string fDirName;
-
-  TDirectory* fHistDir;
-
   mapSH_t fAmpHist;
   mapSH_t fAmpHistNorm;
 
