@@ -11,9 +11,9 @@ namespace IDs{
 	typedef std::string Config_t;
 
 	/// Standardize the value to use to represent any generator 
-	const Generator_t kAnyGenerator="*";
+	const Generator_t kAnyGenerator="any";
 	/// Standardize the value to use to represent any configuration
-	const Config_t kAnyConfig="*";
+	const Config_t kAnyConfig="any";
 	/// Standardize the value to use to represent the default configuration of a
     /// module
 	const Config_t kDefaultConfig="default";
@@ -29,11 +29,19 @@ class IDs::generator:public TObject{
 	/// 
 	/// @param g The type of the generator
 	/// @param c The configuration of the generator
-	generator(Generator_t g , Config_t c=kDefaultConfig);
+	generator(Generator_t g , Config_t c);
 
 	/// @brief Default constructor for a generator ID.
 	/// Will match true against all generator IDs
 	generator():fType(kAnyGenerator),fConfig(kAnyConfig){};
+
+    /// @brief Construct a source ID from a single string
+    /// @details Equivalent to calling the defualt constructor following by
+    /// operator=(std::string)
+    generator(const std::string& s)
+        : fType(kAnyGenerator),fConfig(kAnyConfig) {
+            operator=(s);
+        };
 
 	virtual ~generator(){};
 
@@ -41,8 +49,14 @@ class IDs::generator:public TObject{
 	/// Returns the type of generator that this ID represents
 	Generator_t Type()const{return fType;};
 
+    /// Set the type of generator that this ID represents
+	void Type(const Generator_t& g){ fType=g;};
+
 	/// Returns the configuration of the generator that this ID represents
 	Config_t Config()const{return fConfig;};
+
+    /// Set the configuration of the generator that this ID represents
+	void Config(const Config_t& c){fConfig=c;};
 
 	/// Is this generator the same as another, or is this or the other id
 	/// have fields set to kAny
@@ -60,6 +74,8 @@ class IDs::generator:public TObject{
 
 	/// Get this ID as a string
 	std::string str()const;
+
+    IDs::generator& operator=(const std::string& rhs);
 
     /// Check if the Generator_t part of the ID is a wildcard
     bool isWildCardType() const { return fType == kAnyGenerator; }
@@ -102,7 +118,7 @@ inline IDs::generator::generator(Generator_t t , Config_t c):
 		if(fConfig=="") fConfig=kAnyConfig;
 }
 
-ostream& operator<< (ostream& os , IDs::generator& id) ;
+ostream& operator<< (ostream& os ,const IDs::generator& id) ;
 
 #endif //IDGENERATOR_H_
 

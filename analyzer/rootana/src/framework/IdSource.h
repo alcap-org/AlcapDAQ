@@ -23,6 +23,14 @@ class IDs::source:public TObject{
   /// Channel and generator.
   source()
     : fChannel(),fGenerator() {};
+
+  /// @brief Construct a source ID from a single string
+  /// @details Equivalent to calling the defualt constructor following by
+  /// operator=(std::string)
+  source(const std::string& s)
+    : fChannel(),fGenerator() {
+        operator=(s);
+    };
     
   /// Construct using a given channel and generator ID
   source(const IDs::channel& ch,const IDs::generator& gen)
@@ -87,6 +95,8 @@ class IDs::source:public TObject{
 
   /// Returns the source as a string
   std::string str()const;
+
+  IDs::source& operator=(const std::string& rhs);
 
   /// Check if the Channel is a wildcard
   bool isWildCardChannel() const {return Channel().isWildCard();}

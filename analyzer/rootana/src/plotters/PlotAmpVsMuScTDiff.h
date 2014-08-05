@@ -42,7 +42,7 @@ class PlotAmpVsMuScTDiff : public BaseModule {
     /// \param[in] gData See BaseModule::ProcessEntry
     /// \param[in] gSetup See BaseModule::ProcessEntry
     /// \return Non-zero to indicate a problem.
-    virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+    virtual int ProcessEntry(TGlobalData *gData,const TSetupData *gSetup);
     /// \brief
     /// What needes to be done before each run?
     /// Don't hesitate to repeat what was said in the class description.
@@ -50,7 +50,7 @@ class PlotAmpVsMuScTDiff : public BaseModule {
     /// \param[in] gData See BaseModule::BeforeFirstEntry
     /// \param[in] setup See BaseModule::BeforeFirstEntry
     /// \return Non-zero to indicate a problem.
-    virtual int BeforeFirstEntry(TGlobalData* gData, TSetupData *setup);
+    virtual int BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup);
     /// \brief
     /// What needs to be done after each run?
     /// Don't hesitate to repeat what was said in the class description.
@@ -58,7 +58,7 @@ class PlotAmpVsMuScTDiff : public BaseModule {
     /// \param[in] gData See BaseModule::AfterLastEntry
     /// \param[in] setup See BaseModule::AfterLastEntry
     /// \return Non-zero to indicate a problem.
-    virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
+    virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
 
     private:
     struct Plots{

@@ -18,6 +18,7 @@ using std::endl;
 #include <TSQLiteResult.h>
 #include <TSQLiteRow.h>
 
+
 PlotPedestalAndNoise::PlotPedestalAndNoise(modules::options* opts):
    BaseModule("PlotPedestalAndNoise",opts){
 
@@ -34,7 +35,7 @@ PlotPedestalAndNoise::~PlotPedestalAndNoise(){
 // Called before the main event loop
 // Can be used to set things up, like histograms etc
 // Return non-zero to indicate a problem
-int PlotPedestalAndNoise::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
+int PlotPedestalAndNoise::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   // Print extra info if we're debugging this module:
   if(Debug()){
      cout<<"-----PlotPedestalAndNoise::BeforeFirstEntry(): I'm debugging!"<<endl;
@@ -45,12 +46,13 @@ int PlotPedestalAndNoise::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup)
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
-int PlotPedestalAndNoise::ProcessEntry(TGlobalData* gData,TSetupData *setup){
+int PlotPedestalAndNoise::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
   // Prepare a few variables
   std::string bankname, detname;
   PulseIslandList thePulseIslands;
   StringPulseIslandMap::const_iterator it;
+
 
   // Loop over each detector
   for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
@@ -68,11 +70,11 @@ int PlotPedestalAndNoise::ProcessEntry(TGlobalData* gData,TSetupData *setup){
       int n_bits = TSetupData::Instance()->GetNBits(bankname);
       int x_min = 0;
       int x_max = std::pow(2, n_bits);
-      int n_bins_x = (x_max - x_min)/10;
+      int n_bins_x = 100;
 
       int y_min = 0;
       int y_max = 200;
-      int n_bins_y = (y_max - y_min)*10;
+      int n_bins_y = (y_max - y_min)*5;
 
       std::string histname = "fPedestalVsNoiseHistogram_" + detname;
       std::stringstream histtitle;
@@ -84,24 +86,28 @@ int PlotPedestalAndNoise::ProcessEntry(TGlobalData* gData,TSetupData *setup){
       fPedestalVsNoiseHistograms[detname] = histogram;
     }
 
+
+
     TH2D* pedestal_vs_noise_histogram = fPedestalVsNoiseHistograms[detname];
 
     // Loop through all the pulses
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
       const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
+      int limit=fNSamples;
+      if((int)theSamples.size() < fNSamples) limit=theSamples.size();
 
       double sum = 0;
-      for (int iSample = 0; iSample < fNSamples; ++iSample) {
-	sum += theSamples.at(iSample);
+      for (int iSample = 0; iSample < limit; ++iSample) {
+          sum += theSamples.at(iSample);
       }
-      double mean = sum / fNSamples;
+      double mean = sum / limit;
       
       double sum_of_deviations_squared = 0;
-      for (int iSample = 0; iSample < fNSamples; ++iSample) {
-	sum_of_deviations_squared += (theSamples.at(iSample) - mean)*(theSamples.at(iSample) - mean);
+      for (int iSample = 0; iSample < limit; ++iSample) {
+          sum_of_deviations_squared += (theSamples.at(iSample) - mean)*(theSamples.at(iSample) - mean);
       }
-      double RMS = std::sqrt(sum_of_deviations_squared);
+      double RMS = std::sqrt(sum_of_deviations_squared / limit);
 
       pedestal_vs_noise_histogram->Fill(mean, RMS);
     } // end loop through pulses
@@ -113,7 +119,7 @@ int PlotPedestalAndNoise::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 // Called just after the main event loop
 // Can be used to write things out, dump a summary etc
 // Return non-zero to indicate a problem
-int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
+int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 
   // Print extra info if we're debugging this module:
   if(Debug()){

@@ -12,7 +12,6 @@
 //----------------------------------------------------------------------
 IslandLength::IslandLength(modules::options* opts)
   : BaseModule("IslandLength",opts)
-  , fDirName("IslandLength")
 {
 
   // Do something with opts here.  Has the user specified any
@@ -30,7 +29,7 @@ IslandLength::~IslandLength()
 
 
 //----------------------------------------------------------------------
-int IslandLength::BeforeFirstEntry(TGlobalData* data,TSetupData *setup)
+int IslandLength::BeforeFirstEntry(TGlobalData* data,const TSetupData *setup)
 {
   // Called before the main event loop
   // Can be used to set things up, like histograms etc
@@ -49,7 +48,7 @@ int IslandLength::BeforeFirstEntry(TGlobalData* data,TSetupData *setup)
 
 
 //----------------------------------------------------------------------
-int IslandLength::ProcessEntry(TGlobalData* data,TSetupData* setup)
+int IslandLength::ProcessEntry(TGlobalData* data,const TSetupData* setup)
 {
   ++fNProcessed;
 
@@ -84,7 +83,7 @@ int IslandLength::ProcessEntry(TGlobalData* data,TSetupData* setup)
 
 
 //----------------------------------------------------------------------
-int IslandLength::AfterLastEntry(TGlobalData* gData,TSetupData *setup)
+int IslandLength::AfterLastEntry(TGlobalData* gData,const TSetupData *setup)
 {
   // Return non-zero to indicate a problem
   if(Debug()){
@@ -92,9 +91,6 @@ int IslandLength::AfterLastEntry(TGlobalData* gData,TSetupData *setup)
               << std::endl;    
   }
 
-  TDirectory* pwd = TDirectory::CurrentDirectory();
-  fHistDir->cd();
-  
   double run_norm = fNormHist->Integral(0,-1);
   for (mapSH_t::iterator it = fHistos.begin(); it != fHistos.end(); ++it){
     TH1F* h = it->second;
@@ -106,20 +102,13 @@ int IslandLength::AfterLastEntry(TGlobalData* gData,TSetupData *setup)
   for (mapSH_t::iterator it = fHistosNorm.begin(); it != fHistosNorm.end(); ++it){
     it->second->Scale(1./fNProcessed);
   }
-  pwd->cd();
 
   return 0;
 }
 
 //----------------------------------------------------------------------
-void IslandLength::Book(TGlobalData* data, TSetupData* setup)
+void IslandLength::Book(TGlobalData* data,const TSetupData* setup)
 {
-  if (!TDirectory::CurrentDirectory()->cd(fDirName.c_str())){
-    // this will blow up if the file is not writable.  Good!
-    TDirectory::CurrentDirectory()->mkdir(fDirName.c_str())->cd();
-  }
-  fHistDir = TDirectory::CurrentDirectory();
-
   //Change: Use the same map as when processing entries. This should
   //guarentee that all histograms we try to fill also exist 
   StringPulseIslandMap& islands = data->fPulseIslandToChannelMap;
@@ -141,7 +130,6 @@ void IslandLength::Book(TGlobalData* data, TSetupData* setup)
                      500, 0, 2000);
     fHistosNorm[bank_name] = histo;
   }
-  TDirectory::CurrentDirectory()->cd("../");
 }
 
 //----------------------------------------------------------------------

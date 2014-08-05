@@ -19,8 +19,6 @@ using std::endl;
 
 IslandAmplitude::IslandAmplitude(modules::options* opts)
   : BaseModule("IslandAmplitude",opts)
-  , fDirName("IslandAmplitude")
-
 {
   // Do something with opts here.
 }
@@ -34,7 +32,7 @@ IslandAmplitude::~IslandAmplitude() { }
 // Called before the main event loop
 // Return non-zero to indicate a problem
 
-int IslandAmplitude::BeforeFirstEntry(TGlobalData* data,TSetupData *setup)
+int IslandAmplitude::BeforeFirstEntry(TGlobalData* data,const TSetupData *setup)
   {
   // Print extra info if we're debugging this module:
   if(Debug()){
@@ -43,11 +41,6 @@ int IslandAmplitude::BeforeFirstEntry(TGlobalData* data,TSetupData *setup)
   }
 
   fNProcessed = 0;
-
-  if(!TDirectory::CurrentDirectory()->cd(fDirName.c_str()))
-     TDirectory::CurrentDirectory()->mkdir(fDirName.c_str())->cd();
-
-  fHistDir = TDirectory::CurrentDirectory();
 
   StringPulseIslandMap& islands = data->fPulseIslandToChannelMap;
 
@@ -86,7 +79,7 @@ int IslandAmplitude::BeforeFirstEntry(TGlobalData* data,TSetupData *setup)
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
-int IslandAmplitude::ProcessEntry(TGlobalData* data,TSetupData *setup)
+int IslandAmplitude::ProcessEntry(TGlobalData* data,const TSetupData *setup)
 {
   ++fNProcessed;
 
@@ -144,15 +137,12 @@ int IslandAmplitude::ProcessEntry(TGlobalData* data,TSetupData *setup)
 // Called just after the main event loop
 // Can be used to write things out, dump a summary etc
 // Return non-zero to indicate a problem
-int IslandAmplitude::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
+int IslandAmplitude::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 
   // Print extra info if we're debugging this module:
   if(Debug()){
      cout<<"-----IslandAmplitude::AfterLastEntry(): I'm debugging!"<<endl;
   }
-
-  TDirectory*pwd = TDirectory::CurrentDirectory();
-  fHistDir->cd();
 
   double run_norm = fAmpNorm->Integral(0,-1);
   for(mapSH_t::iterator it = fAmpHist.begin(); it != fAmpHist.end(); ++it)
@@ -166,8 +156,6 @@ int IslandAmplitude::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
 
   for(mapSH_t::iterator it = fAmpHistNorm.begin(); it != fAmpHistNorm.end(); ++it)
     it->second->Scale(1.0/fNProcessed);
-
-  pwd->cd();
 
   return 0;
 }

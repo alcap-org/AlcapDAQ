@@ -41,17 +41,34 @@ BaseModule::~BaseModule()
 {
 }
 
-int BaseModule::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
-  // This is a virtual function and should be overwritten by the deriving analysis module!
-  return 0;
-}
-
-int BaseModule::ProcessGenericEntry(TGlobalData *gData, TSetupData *gSetup){
+int BaseModule::ProcessGenericEntry(TGlobalData *gData, const TSetupData *gSetup){
   // This is called by our main routine and would allow later to split into different 
   // process routines if we have more than one Tree and hence different tpyes of data input.
 
   if(fDirectory) fDirectory->cd();
   int ret = ProcessEntry(gData, gSetup);
+  gDirectory->cd("/");
+
+  return ret;
+}
+
+int BaseModule::Preprocess(TGlobalData *gData, const TSetupData *gSetup){
+  // This is called by our main routine and would allow later to split into different 
+  // process routines if we have more than one Tree and hence different tpyes of data input.
+
+  if(fDirectory) fDirectory->cd();
+  int ret = BeforeFirstEntry(gData, gSetup);
+  gDirectory->cd("/");
+
+  return ret;
+}
+
+int BaseModule::Postprocess(TGlobalData *gData, const TSetupData *gSetup){
+  // This is called by our main routine and would allow later to split into different 
+  // process routines if we have more than one Tree and hence different tpyes of data input.
+
+  if(fDirectory) fDirectory->cd();
+  int ret = AfterLastEntry(gData, gSetup);
   gDirectory->cd("/");
 
   return ret;

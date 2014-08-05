@@ -8,7 +8,9 @@
 #include "ModulesParser.h"
 #include <debug_tools.h>
 #include "IdSource.h"
+#include "EventNavigator.h"
 
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 using std::cout;
@@ -37,7 +39,7 @@ PulseViewer::PulseViewer(modules::options* opts):
 PulseViewer::~PulseViewer(){
 }
 
-int PulseViewer::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
+int PulseViewer::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
    // Check we're also running with the ExportPulse module
    if(!ExportPulse::Instance()){
 	   cout<<"PulseViewer: Error: You need to run with ExportPulse to use PulseViewer module"<<std::endl;
@@ -135,10 +137,17 @@ int PulseViewer::SetTriggerValue(const std::string& parameter){
 	return 0;
 }
 
-int PulseViewer::ProcessEntry(TGlobalData* gData,TSetupData *setup){
+int PulseViewer::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
     // Get the TAPs for this channel
-  AnalysedPulseList* allTAPs=&gAnalysedPulseMap[GetSource()];
+    AnalysedPulseList* allTAPs=NULL;
+    for(SourceAnalPulseMap::iterator i_source=gAnalysedPulseMap.begin();
+            i_source!=gAnalysedPulseMap.end(); ++i_source){
+        if(i_source->first.matches(GetSource())){
+            allTAPs=&i_source->second;
+            break;
+        }
+    }
 
     if(!allTAPs){
        cout<<"Problem getting TAP list for "<<GetSource()<<endl;
@@ -211,23 +220,24 @@ bool PulseViewer::ValuePassesTrigger(const double& value){
 }
 
 int PulseViewer::ConsiderDrawing(const TAnalysedPulseID& id, const TAnalysedPulse* pulse){
-	// Check pulse passes trigger condition
-	double value=GetParameterValue(*pulse);
-	if(!ValuePassesTrigger(value)) return 0;
-	if(Debug()){
-		cout<<fParameterString<<" = "<<value<<" which is "<<fTypeString<<" " <<fTriggerValue<<endl; 
-	}
-
-	// If it does, ask ExportPulse to draw it
-	// We're safe to assume Instance will return becuase we test it's
-	// existence in BeforeFirstEntry
-	ExportPulse::Instance()->AddToExportList(pulse);
-    fTotalPlotted++;
-    fPulsesPlotted[GetCurrentEvent()].insert(id);
-	return 0;
+  // Check pulse passes trigger condition
+  double value=GetParameterValue(*pulse);
+  if(!ValuePassesTrigger(value)) return 0;
+  if(Debug()){
+    cout << fParameterString << " = " << value 
+         << " which is " << fTypeString << " " << fTriggerValue << endl; 
+  }
+  
+  // If it does, ask ExportPulse to draw it
+  // We're safe to assume Instance will return becuase we test it's
+  // existence in BeforeFirstEntry
+  ExportPulse::Instance()->AddToExportList(pulse);
+  fTotalPlotted++;
+  fPulsesPlotted[EventNavigator::Instance().EntryNo()].insert(id);
+  return 0;
 }
 
-int PulseViewer::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
+int PulseViewer::AfterLastEntry(TGlobalData* gData, const TSetupData* setup){
 
   // Print extra info if we're requested to summarize the found pulses
   if(SummarisePlots()){

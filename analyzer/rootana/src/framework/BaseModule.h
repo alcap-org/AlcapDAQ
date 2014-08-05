@@ -30,17 +30,29 @@ class BaseModule
   /// Method called by the main event loop for each entry in the input root tree.
   /// Does some simple work, then hooks into the derived class through ProcessEntry.
   /// @return 0 on sucess and non-zero if a problem occurred
-  int ProcessGenericEntry(TGlobalData *gData, TSetupData *gSetup);
+  int ProcessGenericEntry(TGlobalData *gData, const TSetupData* gSetup);
+
+  /// @brief Method called by the main pre-process loop.
+  /// @details Does some simple work, then hooks into the derived class through
+  /// BeforeFirstEntry.
+  /// @return 0 on sucess and non-zero if a problem occurred
+  int Preprocess(TGlobalData *gData, const TSetupData* gSetup);
+
+  /// @brief Method called by the main pre-process loop.
+  /// @details Does some simple work, then hooks into the derived class through
+  /// AfterLastEntry.
+  /// @return 0 on sucess and non-zero if a problem occurred
+  int Postprocess(TGlobalData *gData, const TSetupData* gSetup);
 
   /// Optional method which is called once before the main event loop
   /// Can be used to parse options and setup histograms.
   /// @return 0 on sucess and non-zero if a problem occurred
-  virtual int BeforeFirstEntry(TGlobalData* gData, TSetupData *setup){return 0;};
+  virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup)=0;
 
   /// Optional method which is called once after the main event loop
   /// Can be used to dump a summary or finalise a histogram
   /// @return 0 on sucess and non-zero if a problem occurred
-  virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup){return 0;};
+  virtual int AfterLastEntry(TGlobalData* gData, const TSetupData* setup)=0;
 	  
   /// Sets the alias for this module, which should be provided in the modules
   /// file
@@ -69,7 +81,7 @@ class BaseModule
    /// @param gSetup Pointer to TSetupData for this run [ WILL CHANGE SHORTLY ]
    ///
    /// @return 0 on success and non-zero on failure
-   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+   virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup)=0;
 
  private:
    TSetupData* fSetup;

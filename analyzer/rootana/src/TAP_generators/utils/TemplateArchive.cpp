@@ -22,8 +22,10 @@ TH1D* TemplateArchive::GetTemplate(const char* template_name) {
 // -- saves a template to the template file
 void TemplateArchive::SaveTemplate(TH1* hTemplate) {
 
+  TDirectory* oldDir = TDirectory::CurrentDirectory(); // should be the directory we were already in
   if (hTemplate) {
     fTemplateFile->cd();
     hTemplate->Write();
   }
+  oldDir->cd(); // go back to the old directory
 }

@@ -1,8 +1,10 @@
 #include "PulseCandidateFinder.h"
-
+#include "SetupNavigator.h"
 #include "definitions.h"
+#include "debug_tools.h"
 
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
@@ -18,17 +20,25 @@ PulseCandidateFinder::PulseCandidateFinder(std::string detname, modules::options
   if (fDefaultParameterValues.empty()) {
     SetDefaultParameterValues();
   }
+  
+  if (fOneSigmaValues.empty()) {
+    SetOneSigmaValues();
+  }
+
+  if (fPedestalValues.empty()) {
+    SetPedestalValues();
+  }
 
   fNSigma = opts->GetInt("n_sigma", 0);
   if (fNSigma == 0) {
     fParameterValue = opts->GetInt(detname, fDefaultParameterValues[fChannel]); // set the parameter value for this channel
   }
   else {
-    if (fOneSigmaValues.empty()) {
-      SetOneSigmaValues();
-    }
     fParameterValue = fNSigma * fOneSigmaValues[IDs::channel(detname)];
   }
+
+  fNoise = fOneSigmaValues[IDs::channel(fChannel)];
+  fPedestal = fPedestalValues[IDs::channel(fChannel)];
 
   if (opts->HasOption("debug") && (opts->GetOption("debug").empty() || opts->GetBool("debug"))) {
     std::cout << "Parameter Value for " << fChannel << " PulseCandidateFinder is " << fParameterValue << std::endl; // would be nice to know which module this is for
@@ -62,36 +72,40 @@ PulseCandidateFinder::~PulseCandidateFinder() {
 
 /// GetPulseCandidates()
 /// Fills a vector of the TPulseIslands of the pulse candidates that have been found
-std::vector<TPulseIsland*> PulseCandidateFinder::GetPulseCandidates() {
-
-  // Get the output ready
-  std::vector<TPulseIsland*> pulse_candidates;
+void PulseCandidateFinder::GetPulseCandidates(std::vector<TPulseIsland*>& pulse_candidates)const {
 
   // Loop through the pulse candidate locations
-  for (std::vector<Location>::iterator locationIter = fPulseCandidateLocations.begin(); locationIter != fPulseCandidateLocations.end(); ++locationIter) {
+  std::vector<int>::const_iterator start_new, stop_new;
+  for (std::vector<Location>::const_iterator locationIter = fPulseCandidateLocations.begin();
+          locationIter != fPulseCandidateLocations.end(); ++locationIter) {
     
-    // Get the start and stop locations
-    int start_location = (*locationIter).start;
-    int stop_location = (*locationIter).stop;
+    // Get iterator to the start locations
+    start_new=fPulseIsland->GetSamples().begin();
+    std::advance(start_new,locationIter->start);
+
+    // Get iterator to the stop locations
+    stop_new=fPulseIsland->GetSamples().begin();
+    std::advance(stop_new,locationIter->stop);
 
     // Get the bank name and work out what the new timestamp will be
     std::string bankname = fPulseIsland->GetBankName();
-    int new_timestamp = fPulseIsland->GetTimeStamp() + start_location;
+    int new_timestamp = fPulseIsland->GetTimeStamp() + locationIter->start;
 
-    // Get the samples from the original TPI and have a new one ready for the pulse candidate
-    const std::vector<int>& theSamples = fPulseIsland->GetSamples();
-    std::vector<int> theNewSamples;
-
-    // Loop through the samples between the start and stop locations and add them to the new samples vector
-    for (int iSample = start_location; iSample <= stop_location; ++iSample) {
-      theNewSamples.push_back(theSamples.at(iSample));
+    // Make the new TPI
+    int index=locationIter-fPulseCandidateLocations.begin();
+    if((int)pulse_candidates.size() <= index || !pulse_candidates.at(index)){
+        TPulseIsland* pulse_island = new TPulseIsland(new_timestamp, start_new, stop_new, bankname);
+        pulse_candidates.push_back(pulse_island);
+    }else{
+        TPulseIsland* pulse_island=pulse_candidates.at(index);
+        pulse_island->SetSamples(start_new,stop_new);
+        pulse_island->SetTimeStamp(new_timestamp);
+        pulse_island->SetBankName(bankname);
     }
-
-    TPulseIsland* pulse_island = new TPulseIsland(new_timestamp, theNewSamples, bankname);
-    pulse_candidates.push_back(pulse_island);
   }
-
-  return pulse_candidates;
+  for(unsigned int i=fPulseCandidateLocations.size();i< pulse_candidates.size();++i){
+      pulse_candidates.at(i)->Reset();
+  }
 }
 
 /// FindCandidatePulses_Fast
@@ -100,7 +114,8 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
 
   const std::vector<int>& samples = fPulseIsland->GetSamples();
   unsigned int n_samples = samples.size();
-  int pedestal = fPulseIsland->GetPedestal(0);
+
+  std::string bankname = fPulseIsland->GetBankName();
   int polarity = fPulseIsland->GetTriggerPolarity();
 
   int s1, s2, ds; // this sample value, the previous sample value and the change in the sample value
@@ -108,21 +123,37 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
   Location location;
 
   // Loop through the samples
+  int n_before_start_samples = 2; // take a few samples from before the official start
   for (unsigned int i = 1; i < n_samples; ++i) {
-    s1 = polarity * (samples[i-1] - pedestal);
-    s2 = polarity * (samples[i] - pedestal);
+    s1 = polarity * (samples[i-1] - fPedestal);
+    s2 = polarity * (samples[i] - fPedestal);
     ds = s2 - s1;
 
     if (found) {
-      if (s2 < 0) { // stop if the sample goes below pedestal
+
+      if (s2 < fNoise) { // stop if the sample goes below pedestal
 	location.stop = (int)i;
+	if (location.stop >= (int)samples.size()) {
+	  location.stop = samples.size() - 1;
+	}
+
+	fPulseCandidateLocations.push_back(location);
+	found = false;
+      }
+      else if (i == n_samples-1) { // Also stop if we are at the last sample (only do this check if we failed the above one)
+	location.stop = (int) i;
+
 	fPulseCandidateLocations.push_back(location);
 	found = false;
       }
     } else {
       if (ds > rise) {
 	found = true;
-	location.start = (int)(i - 1);
+	location.start = (int)(i - 1) - n_before_start_samples;
+
+	if (location.start < 0) {
+	  location.start = 0;
+	}
       }
     }
   }
@@ -134,7 +165,8 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
 
   const std::vector<int>& samples = fPulseIsland->GetSamples();
   unsigned int n_samples = samples.size();
-  int pedestal = fPulseIsland->GetPedestal(0);
+
+  std::string bankname = fPulseIsland->GetBankName();
   int polarity = fPulseIsland->GetTriggerPolarity();
 
   int sample_height; // the sample's height above pedestal
@@ -144,19 +176,42 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
 
   // Loop through the samples
   for (unsigned int i = 0; i < n_samples; ++i) {
-    sample_height = polarity * (samples[i] - pedestal);
+    sample_height = polarity * (samples[i] - fPedestal);
 
     if (found) {
-      if (sample_height < 0) { // stop if the sample goes below pedestal
+      if (sample_height < fNoise) { // stop if the sample goes below pedestal
 	location.stop = (int)i;
+	if (location.stop >=(int) samples.size()) {
+	  location.stop = samples.size() - 1;
+	}
+
 	start = stop = 0;
+	fPulseCandidateLocations.push_back(location);
+	found = false;
+      }
+      else if (i == n_samples-1) { // Also stop if we are at the last sample (only do this check if we failed the above one)
+	location.stop = (int) i;
+
 	fPulseCandidateLocations.push_back(location);
 	found = false;
       }
     } else {
       if (sample_height > threshold) {
 	found = true;
+
+	// Track back until we get to the pedestal again so that we get the whole pulse (Ge-S pulses were being cut-off at the start)
 	location.start = (int)(i);
+	for (int j = i; j > 0; --j) {
+
+	  sample_height = polarity * (samples[j] - fPedestal);
+	  if (sample_height <= 0) {
+	    location.start = (int)(j);
+	    break;
+	  }
+	}
+	if (location.start < 0) {
+	  location.start = 0;
+	}
       }
     }
   }
@@ -187,8 +242,9 @@ void PulseCandidateFinder::FillParameterHistogram(TH1D* histogram) {
     FillSampleDifferencesHistogram(histogram);
   }
 
-  std::string histtitle = "Plot of " + parameter_name + " for " + detname + " for Run 2808";
-  histogram->SetTitle(histtitle.c_str());
+  std::stringstream histtitle;
+  histtitle << "Plot of " << parameter_name << " for " << detname << " for Run " << SetupNavigator::Instance()->GetRunNumber();
+  histogram->SetTitle(histtitle.str().c_str());
   histogram->GetYaxis()->SetTitle("");
   histogram->GetXaxis()->SetTitle(parameter_name.c_str());
 }
@@ -199,15 +255,14 @@ void PulseCandidateFinder::FillSampleDifferencesHistogram(TH1D* histogram) {
 
   const std::vector<int>& samples = fPulseIsland->GetSamples();
   unsigned int n_samples = samples.size();
-  int pedestal = fPulseIsland->GetPedestal(0);
   int polarity = fPulseIsland->GetTriggerPolarity();
 
   int s1, s2, ds; // this sample value, the previous sample value and the change in the sample value
 
   // Loop through the samples
   for (unsigned int i = 1; i < n_samples; ++i) {
-    s1 = polarity * (samples[i-1] - pedestal);
-    s2 = polarity * (samples[i] - pedestal);
+    s1 = polarity * (samples[i-1] - fPedestal);
+    s2 = polarity * (samples[i] - fPedestal);
     ds = s2 - s1;
 
     histogram->Fill(ds);
@@ -220,14 +275,13 @@ void PulseCandidateFinder::FillSampleHeightsHistogram(TH1D* histogram) {
 
   const std::vector<int>& samples = fPulseIsland->GetSamples();
   unsigned int n_samples = samples.size();
-  int pedestal = fPulseIsland->GetPedestal(0);
   int polarity = fPulseIsland->GetTriggerPolarity();
 
   int sample_height; // the height of this sample above pedestal
 
   // Loop through the samples
   for (unsigned int i = 0; i < n_samples; ++i) {
-    sample_height = polarity * (samples[i] - pedestal);
+    sample_height = polarity * (samples[i] - fPedestal);
 
     histogram->Fill(sample_height);
   }
@@ -247,10 +301,10 @@ void PulseCandidateFinder::SetDefaultParameterValues() {
 
   fDefaultParameterValues[IDs::channel("Ge-F")] = 40;
 
-  fDefaultParameterValues[IDs::channel("ScL")] = 20;
+  fDefaultParameterValues[IDs::channel("ScL")] = 15;
   fDefaultParameterValues[IDs::channel("ScR")] = 20;
   fDefaultParameterValues[IDs::channel("ScGe")] = 20;
-  fDefaultParameterValues[IDs::channel("ScVe")] = 40;
+  fDefaultParameterValues[IDs::channel("ScVe")] = 30;
 
   fDefaultParameterValues[IDs::channel("SiL2-F")] = 80;
   fDefaultParameterValues[IDs::channel("SiL1-1-F")] = 40;
@@ -285,12 +339,11 @@ std::map<IDs::channel, double> PulseCandidateFinder::fOneSigmaValues;
 
 /// SetOneSigmaValues()
 /// Sets the one sigma values that we get from the text file
+/// TODO: use SetupNavigator::GetPedestalError instead of doing it ourselves
 void PulseCandidateFinder::SetOneSigmaValues() {
 
-  // Open the text file
-  std::ifstream file_in("pedestal-and-noise.txt", std::ifstream::in);
-
   // The values that we will read in
+  std::string run_number;
   std::string detname, bankname;
   std::string pedestal, noise;
 
@@ -307,13 +360,59 @@ void PulseCandidateFinder::SetOneSigmaValues() {
 
     TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
     while (row != NULL) {
-      //      std::cout << row->GetField(0) << " " << row->GetField(1) << " " << row->GetField(2) << " " << row->GetField(3) << std::endl;
-      detname = row->GetField(0);
-      bankname = row->GetField(1);
-      pedestal = row->GetField(2);
-      noise = row->GetField(3);
+      //      std::cout << row->GetField(0) << " " << row->GetField(1) << " " << row->GetField(2) << " " << row->GetField(3) << " " << row->GetField(4) << std::endl;
+      run_number = row->GetField(0);
+      detname = row->GetField(1);
+      bankname = row->GetField(2);
+      pedestal = row->GetField(3);
+      noise = row->GetField(4);
 
       fOneSigmaValues[IDs::channel(detname)] = atof(noise.c_str());
+      
+      delete row;
+      row = (TSQLiteRow*) result->Next(); // get the next row
+    }
+    delete result; // user has to delete the result
+  }
+  else {
+    std::cout << "Error: Couldn't connect to SQLite database" << std::endl;
+  }
+}
+
+/// Need to declare this outside of any method
+std::map<IDs::channel, double> PulseCandidateFinder::fPedestalValues;
+
+/// SetPedestalValues()
+/// Sets the one sigma values that we get from the text file
+/// TODO: use SetupNavigator::GetPedestal instead of doing it ourselves
+void PulseCandidateFinder::SetPedestalValues() {
+
+  // The values that we will read in
+  std::string run_number;
+  std::string detname, bankname;
+  std::string pedestal, noise;
+
+  // Get the SQLite database file
+  TSQLiteServer* server = new TSQLiteServer("sqlite://pedestals-and-noises.sqlite");
+
+  std::stringstream query; 
+  std::string tablename = "pedestals_and_noises";
+  if (server) {
+
+    query << "SELECT * FROM " << tablename << ";"; // get all the pedestals and noises
+    TSQLiteResult* result = (TSQLiteResult*) server->Query(query.str().c_str());  // get the result of this query
+    query.str(""); // clear the stringstream after use
+
+    TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
+    while (row != NULL) {
+      //      std::cout << row->GetField(0) << " " << row->GetField(1) << " " << row->GetField(2) << " " << row->GetField(3) << " " << row->GetField(4) << std::endl;
+      run_number = row->GetField(0);
+      detname = row->GetField(1);
+      bankname = row->GetField(2);
+      pedestal = row->GetField(3);
+      noise = row->GetField(4);
+
+      fPedestalValues[IDs::channel(detname)] = atof(pedestal.c_str());
       
       delete row;
       row = (TSQLiteRow*) result->Next(); // get the next row

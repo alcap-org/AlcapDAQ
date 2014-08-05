@@ -46,7 +46,7 @@ class PlotPedestalAndNoise : public BaseModule {
   /// \param[in] gData See BaseModule::ProcessEntry
   /// \param[in] gSetup See BaseModule::ProcessEntry
   /// \return Non-zero to indicate a problem.
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+  virtual int ProcessEntry(TGlobalData *gData,const TSetupData *gSetup);
 
   /// \brief
   /// Nothing is done before each run
@@ -54,7 +54,7 @@ class PlotPedestalAndNoise : public BaseModule {
   /// \param[in] gData See BaseModule::BeforeFirstEntry
   /// \param[in] setup See BaseModule::BeforeFirstEntry
   /// \return Non-zero to indicate a problem.
-  virtual int BeforeFirstEntry(TGlobalData* gData, TSetupData *setup);
+  virtual int BeforeFirstEntry(TGlobalData* gData,const  TSetupData *setup);
 
   /// \brief
   /// After each run, we write the mean and RMS of the first fNSamples to 
@@ -63,7 +63,7 @@ class PlotPedestalAndNoise : public BaseModule {
   /// \param[in] gData See BaseModule::AfterLastEntry
   /// \param[in] setup See BaseModule::AfterLastEntry
   /// \return Non-zero to indicate a problem.
-  virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
+  virtual int AfterLastEntry(TGlobalData* gData,const  TSetupData *setup);
 
   /// \brief
   /// The map that we store the pedestal vs. noise histograms for each channel

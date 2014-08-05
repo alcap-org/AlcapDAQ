@@ -38,8 +38,8 @@ int MaxTimeDiffMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
 	      double pulse_time = pulse->GetTime() * 1e-6; // convert to ms
 
 	      if (std::fabs(pulse_time - min_time) < time_difference) {
-		 if(Debug()) cout<<"Using pulse from: " << pulse->GetDetName() << std::endl;
-		 muon_event->SetPulse(pulse->GetDetName(), pulse);
+		 if(Debug()) cout<<"Using pulse from: " << pulse->GetSource() << std::endl;
+		 muon_event->SetPulse(pulse->GetSource().str(), pulse);
 		++(pulseIters[b]); // increment the iterator because we used the pulse
 	      }
 	    }

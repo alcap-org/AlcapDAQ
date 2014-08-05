@@ -195,35 +195,25 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
      break;
 
      //----------
-   case 'n':
-     if(i+1 < argc){
-       if(isNumber(argv[i+1])){
-         arguments.start = atoi(argv[i+1]);
-         i+=2;
+   case 'n': 
+     {
+       //detemine how many integer arguments are associated with the -n
+       int nArgs = 0;
+       for (int j = 1; j < argc-i; ++j) {
+         if ( !isNumber(argv[i+j]) ) break;
+         ++nArgs;
        }
-       else {
-         std::cerr << "ERROR: Argument " << argv[i+1]
-                   << " for option -n is not a number\n";
-         help_command_line(argv[0]);   return 1;
+       if ( nArgs > 2 || nArgs < 1) {
+         std::cerr << "ERROR: " << nArgs 
+                   << " non-negative integer  arguments passed to"
+                   << " -n option , which accepts only one or two";
+         help_command_line(argv[0]);   return 1;        
        }
-       if(i < argc && argv[i][0] != '-'){
-         if(isNumber(argv[i])){
-           arguments.stop = atoi(argv[i]);
-           i+=1;
-         }
-         else{
-           std::cerr << "ERROR: Argument " << argv[i+1]
-                     << " for option -n is not a number\n";
-           help_command_line(argv[0]);   return 1;
-         }
-       }
-     }
-     else{
-       std::cerr << "ERROR: No argument for number of processed events specified\n";
-       help_command_line(argv[0]);   return 1;
+       arguments.start = (nArgs==2) ? atoi(argv[i+1]) : 0; 
+       arguments.stop = (nArgs==2) ? atoi(argv[i+2]) : atoi(argv[i+1]);
+       i += (nArgs+1);
      }
      break;
-
      //----------
    case 'r':
      if(i+1 < argc){

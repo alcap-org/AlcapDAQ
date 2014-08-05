@@ -9,19 +9,19 @@
 class HistogramFitFCN : public ROOT::Minuit2::FCNBase {
 
  private:
-  TH1D* fH1; // The template
-  TH1D* fH2; // The histogram to fit
+  TH1D* fTemplateHist; // The template
+  TH1D* fPulseHist; // The histogram to fit
 
  public:
   HistogramFitFCN(TH1D* = NULL, TH1D* = NULL);
   ~HistogramFitFCN();
 
-  void SetH1(TH1D*);
-  void SetH2(TH1D*);
+  void SetTemplateHist(TH1D*);
+  void SetPulseHist(TH1D*);
 
   // Used for calls with parameters
   // The return value is the chi squared
-  // weighted by errors in fH1
+  // weighted by errors in fTemplateHist
   // Parameters:
   // 1. Pedestal
   // 2. Amplitude
@@ -29,6 +29,24 @@ class HistogramFitFCN : public ROOT::Minuit2::FCNBase {
   double operator() (const std::vector<double>& par) const;
   // Used for error... somehow?
   double Up() const;
+
+ private:
+  mutable int fNDoF; // record this for TemplateFitter to retrieve later (NB mutable so that it can be set in operator(), which is const)
+  
+ public:
+  int GetNDoF() { return fNDoF; }
+
+ private:
+  double fTimeOffset; // the time offset to use
+
+ public:
+  void SetTimeOffset(double time_offset);
+
+ private:
+  int fRefineFactor;
+
+ public:
+  void SetRefineFactor(int refine_factor) {fRefineFactor = refine_factor;}
 };
 
 #endif

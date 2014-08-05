@@ -21,29 +21,29 @@ using std::vector;
 ////////////////////////////////////////////////////////////////////////////////
 class TAnalysedPulseMapWrapper : public TObject 
 {
-	public:
-		TAnalysedPulseMapWrapper();
-		TAnalysedPulseMapWrapper (const SourceAnalPulseMap& aMap);
-		~TAnalysedPulseMapWrapper();
-
-	private:
-		SourceAnalPulseMap fChn2PulseMap;
-
-	public:
-		void ShowInfo();
-		void Reset();
-		SourceAnalPulseMap GetMap()
-		{
-			return fChn2PulseMap;
-		}
-
-		void SetMap(const SourceAnalPulseMap& aMap)
-		{
-			fChn2PulseMap = aMap;
-		}
-
-		ClassDef(TAnalysedPulseMapWrapper, 2);
-
+public:
+  TAnalysedPulseMapWrapper();
+  TAnalysedPulseMapWrapper (const SourceAnalPulseMap& aMap);
+  ~TAnalysedPulseMapWrapper();
+  
+private:
+  SourceAnalPulseMap fChn2PulseMap;
+  
+public:
+  void ShowInfo();
+  void Reset();
+  SourceAnalPulseMap GetMap()
+  {
+    return fChn2PulseMap;
+  }
+  
+  void SetMap(const SourceAnalPulseMap& aMap)
+  {
+    fChn2PulseMap = aMap;
+  }
+  
+  ClassDef(TAnalysedPulseMapWrapper, 2);
+  
 }; // end of class declaration TAnalysedPulseMapWrapper 
 
 #endif /* end of include guard: TANALYSEDPULSEMAPWRAPPER_H_CKBU0TFP */

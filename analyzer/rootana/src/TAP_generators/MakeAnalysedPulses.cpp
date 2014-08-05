@@ -7,7 +7,7 @@
 #include <utility>
 #include <sstream>
 #include "RegisterModule.inc"
-
+#include "EventNavigator.h"
 #include "debug_tools.h"
 
 using modules::parser::GetOneWord;
@@ -30,7 +30,7 @@ MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
 MakeAnalysedPulses::~MakeAnalysedPulses(){
 }
 
-int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
+int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
     // Loop over every named detector channel in TSetupData
     std::vector<std::string> detectors;
     setup->GetAllDetectors(detectors);
@@ -62,7 +62,7 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
             for(it_chan=fChannelsToAnalyse.begin();
                     it_chan!=fChannelsToAnalyse.end();
                     it_chan++){
-                if((*it_chan)== (*det)) break;
+                if(modules::parser::iequals((*it_chan), (*det)) )break;
             }
             if(it_chan== fChannelsToAnalyse.end() ) skip_detector=true;
         }
@@ -102,7 +102,7 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
     return 0;
 }
 
-int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
     // Generator just receives a bunch of TPIs and must return a list of TAPs
 
     // Loop over each generator
@@ -120,8 +120,11 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
         // Get the TPIs
         thePulseIslands=&gData->fPulseIslandToChannelMap[bankname];
         if(thePulseIslands->empty() ){
-            if( Debug()) cout<<"Event No: "<<*gEntryNumber <<": List of TPIs for '"<< detector<<"' was empty "<<endl;
-            continue;
+          if( Debug()) cout << "Event No: " 
+                            << EventNavigator::Instance().EntryNo() 
+                            <<": List of TPIs for '"<< detector 
+                            <<"' was empty "<< endl;
+          continue;
         }
 
         // clear the list of analyse_pulses from the last iteration
@@ -136,7 +139,9 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
         SourceAnalPulseMap::iterator it=gAnalysedPulseMap.find((*generator)->GetSource());
         if(it==gAnalysedPulseMap.end()){
             // source doesn't seem to exist in gAnalysedPulseMap
-            cout<<"Error: New TAP source seems to have been created during processing of pulses."<<endl;
+          cout <<"Error: New TAP source \"" << (*generator)->GetSource() 
+               <<"\" seems to have been created during processing of pulses."
+               <<endl;
             return 1;
         }
         // add the pulses into the map

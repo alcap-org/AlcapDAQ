@@ -6,8 +6,9 @@ class gTGlobalData;
 class gTSetupData;
 class gModulesOptions;
 
-#include "utils/TemplateArchive.h"
-#include "utils/PulseCandidateFinder.h"
+#include "TemplateArchive.h"
+#include "PulseCandidateFinder.h"
+#include "TemplateFitter.h"
 
 class TemplateCreator : public BaseModule{
 
@@ -16,16 +17,58 @@ class TemplateCreator : public BaseModule{
   ~TemplateCreator();
 
  private:
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
-  virtual int BeforeFirstEntry(TGlobalData* gData, TSetupData *setup);
-  virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
+  virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
+  virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup);
+  virtual int AfterLastEntry(TGlobalData* gData, const TSetupData* setup);
 
   /// Store the options for use in ProcessEntry
   modules::options* fOpts;
 
   TemplateArchive* fTemplateArchive;
 
-  void AddPulseToTemplate(TH1D* & hTemplate, const TPulseIsland* pulse);
+  void AddPulseToTemplate(TH1D* & hTemplate, TH1D* & hPulse, std::string bankname);
+
+  /// \brief 
+  /// A map of the number of fit attempts on each detector
+  std::map<std::string, int> fNFitAttempts;
+
+  /// \brief 
+  /// A map of the number of successful fits on each detector
+  std::map<std::string, int> fNSuccessfulFits;
+
+  /// \brief 
+  /// A map of the number of pulses in the template
+  std::map<std::string, int> fNPulsesInTemplate;
+
+  /// \brief
+  /// A map of the template histograms
+  std::map<std::string, TH1D*> fTemplates;
+
+  /// \brief
+  /// Corrects a given sample value
+  double CorrectSampleValue(double old_value, double template_pedestal);
+
+  /// \brief
+  /// Creates a refined histogram for a given TPulseIsland
+  TH1D* CreateRefinedPulseHistogram(const TPulseIsland* pulse, std::string histname, std::string histtitle, bool interpolate);
+
+  /// \brief
+  /// The factor that we scale the number of bins in the template histogram by
+  int fRefineFactor;
+
+  TemplateFitter* fTemplateFitter;
+
+  /// \brief
+  /// If true, then print out all pulses that get added to the templates and also
+  /// print out certain templates as we go along
+  bool fPulseDebug;
+
+  /// \brief
+  /// Checks if the template has converged and that adding a new pulse has not effect on the template
+  /// Returns: true if converged
+  bool CheckConvergence(TH1D* hTemplate, std::string bankname);
+  std::map<std::string, TH1D*> fErrorVsPulseAddedHistograms;
+  std::map<std::string, bool> fConvergedStatuses;
 };
 
 #endif //TEMPLATECREATOR_H_

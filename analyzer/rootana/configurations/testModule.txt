@@ -31,12 +31,14 @@
 # Using aliases means we can have multiple instance of a module
 [ MODULES ]
 # Format is alias = ModuleClass
+#load_pulses = LoadPulses
 analyse_pulses = MakeAnalysedPulses 
 detector_pulses = MakeDetectorPulses
 muon_events = MakeMuonEvents
 pv_one=PulseViewer(SiR2-S , amplitude> 100 , true)
 pv_two=PulseViewer(SiR2-F , TPI_length> 155 , true)
 draw_pulses = ExportPulse
+save_pulses=SavePulses
 #### end of modules list ######
 
 ####### begin of module specific options ######
@@ -59,6 +61,17 @@ SiR2-S=MaxBin
 # then put them in brackets and comma separated like a c-style constructor
 SiR2-F=MaxBin
 #SiR2-F+=PeakFitter(0.5,0.3)
+
+[ save_pulses ]
+# This module takes no options.  It creates a tree with all TAPs contained in
+# it which can later be read back in with the LoadPulses module
+
+[ load_pulses ]
+# Loads in TAPs from a file created previously with SavePulses.  Specify the
+# file with the file_name option.
+# This modules should not be used at the same time as MakeAnalysedPulses and
+# should be one of the first modules in the list
+file_name= input.root
 
 [ detector_pulses] 
 

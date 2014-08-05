@@ -29,7 +29,7 @@ class TVAnalysedPulseGenerator {
             if(opts){
                 fDebug=opts->HasOption("debug");
             }
-            fSource.Generator()=IDs::generator(name);//,opts->ToOneString());
+            fSource.Generator()=IDs::generator(name,opts->StringDescription());
         };
         virtual ~TVAnalysedPulseGenerator(){};
 
@@ -91,7 +91,7 @@ class TVAnalysedPulseGenerator {
         /// comparing this value to that stored in the TAP itself.
         IDs::source GetSource()const {return fSource;};
 
-    private:
+    protected:
         friend class MakeAnalysedPulses;
 
         /// \brief Set the channel for this generator. Should NOT be called by user
@@ -99,7 +99,7 @@ class TVAnalysedPulseGenerator {
         /// 
         /// \details Called by MakeAnalysedPulses to tell this generator what channel
         /// it is looking at.  
-        void SetChannel(const std::string& det){fSource.Channel()=det;};
+        virtual void SetChannel(const std::string& det){fSource.Channel()=det;};
 
 
     private:
@@ -119,10 +119,8 @@ class TVAnalysedPulseGenerator {
 template <typename TypeOfTAP>
 inline TypeOfTAP* TVAnalysedPulseGenerator::MakeNewTAP(int parent_index)const{
     TypeOfTAP* pulse=NULL;
-    try{
-        TPulseIsland* parent = fPulseList->at(parent_index);
-        pulse=new TypeOfTAP(GetSource(),parent_index,parent);
-    } catch (std::out_of_range){}
+    TPulseIsland* parent = fPulseList->at(parent_index);
+    pulse=new TypeOfTAP(GetSource(),parent_index,parent);
     return pulse;
 }
 

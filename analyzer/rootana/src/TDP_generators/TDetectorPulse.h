@@ -10,43 +10,57 @@
 #include "TAnalysedPulse.h"
 #include "TSetupData.h"
 
-//extern TSetupData* gSetup;
+
+#define TDP_GetField(ch, field)\
+    return fParentPulse[ch]? \
+    fParentPulse[ch]->Get##field():\
+    definitions::DefaultValue
 
 class TDetectorPulse : public TObject {
-  public:
-  TDetectorPulse();
-  TDetectorPulse(TAnalysedPulse* fast_pulse, TAnalysedPulse* slow_pulse, std::string det_name);
-  virtual ~TDetectorPulse();
+    public:
+        enum ParentChannel_t { kSlow,kFast, kNumParents};
+        struct Tag{};
 
-  void Reset(Option_t* o = "");
+    public:
+        TDetectorPulse();
+        TDetectorPulse(const IDs::source& sourceID,
+                int s_parentID, const TAnalysedPulse* s_parent,
+                int f_parentID, const TAnalysedPulse* f_parent
+                );
+        virtual ~TDetectorPulse();
 
-  double GetFastPulseAmplitude() const { if (fFastPulse) return fFastPulse->GetAmplitude(); else return -9999; }
-  double GetSlowPulseAmplitude() const { if (fSlowPulse) return fSlowPulse->GetAmplitude(); else return -9999; }
+        void Reset(Option_t* o = "");
 
-  double GetFastPulseTime() const { if (fFastPulse) return fFastPulse->GetTime(); else return -9999; }
-  double GetSlowPulseTime() const { if (fSlowPulse) return fSlowPulse->GetTime(); else return -9999; }
+        double GetTime(ParentChannel_t ch=kFast)const{ 
+            TDP_GetField(ch,Time); }
+        double GetAmplitude(ParentChannel_t ch=kFast)const{ 
+            TDP_GetField(ch,Amplitude); }
+        double GetIntegral(ParentChannel_t ch=kFast)const{ 
+            TDP_GetField(ch,Integral); }
+        double GetPedestal(ParentChannel_t ch=kFast)const{ 
+            TDP_GetField(ch,Pedestal); }
+        const TAnalysedPulse* GetTAP(ParentChannel_t ch)const {return fParentPulse[ch];}
 
-  double GetFastPulseIntegral() const { if (fFastPulse) return fFastPulse->GetIntegral(); else return -9999; }
-  double GetSlowPulseIntegral() const { if (fSlowPulse) return fSlowPulse->GetIntegral(); else return -9999; }
+        const IDs::source& GetSource() const { return fSource.GetValue(); }
 
-  double GetTime()const{return fFastPulse?GetFastPulseTime():GetSlowPulseTime();};
-  double GetAmplitude()const{return fSlowPulse?GetSlowPulseAmplitude():GetFastPulseAmplitude();};
+        bool IsPileUpSafe()const{return fPileUpSafe&&fCheckedForPileUp;};
+        void SetPileUpSafe(const bool& val=true){fPileUpSafe=val;fCheckedForPileUp=true;};
+        bool WasPileUpChecked()const{return fCheckedForPileUp;};
+        void SetPileUpChecked(const bool& val=true){ fCheckedForPileUp=val;};
 
-  std::string GetDetName() const { return fDetName; }
+    private:
+        bool fCheckedForPileUp;
+        bool fPileUpSafe;
 
-  bool IsPileUpSafe()const{return fPileUpSafe&&fCheckedForPileUp;};
-  void SetPileUpSafe(const bool& val=true){fPileUpSafe=val;fCheckedForPileUp=true;};
-  bool WasPileUpChecked()const{return fCheckedForPileUp;};
-  void SetPileUpChecked(const bool& val=true){ fCheckedForPileUp=val;};
+        const TAnalysedPulse* fParentPulse[kNumParents];
+        int fParentID[kNumParents];
+        //IDs::source fParentSource[kNumParents];
+        //IDs::source fSource;
+        FlyWeight<IDs::source,TAnalysedPulse::Tag> fParentSource[kNumParents];
+        FlyWeight<IDs::source,Tag> fSource;
 
-  private:
-  TAnalysedPulse* fFastPulse;
-  TAnalysedPulse* fSlowPulse;
-  std::string fDetName;
-  bool fCheckedForPileUp;
-  bool fPileUpSafe;
-
-  ClassDef(TDetectorPulse, 1);
+        ClassDef(TDetectorPulse, 2);
 };
 
+#undef TDP_GetField
 #endif

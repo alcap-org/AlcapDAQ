@@ -93,7 +93,7 @@ ${OBJECTS}: ${OBJ_DIR}/%.o: %.cpp
 	@$(CXX) -c -Wall $(CXXFLAGS) -o $@  $<
 	@$(CXX) -MP -MM -MT $@ $(CXXFLAGS) $< > $(patsubst %.o,%.d,$@)
 
-$(DATA_LIBRARY_SOURCE):
+$(DATA_LIBRARY_SOURCE): $(ROOTANA_DATALINKDEF) ${ROOT_DICT_HEADERS}
 	@$(ROOTSYS)/bin/rootcint -f $@ -c $(UIUC_CFLAGS) -p $(INCLUDE_CFLAGS) ${ROOT_DICT_HEADERS} $(ROOTANA_DATALINKDEF)
 
 $(ROOTANA_DATACLASSES):  $(DATA_LIBRARY_SOURCE) $(ROOT_DICT_SOURCES) 
@@ -122,6 +122,8 @@ make_obj_dir:
 	@mkdir -p $(OBJ_DIR) 
 
 tut: init libAnalysis.so libAnalysis.rootmap unit_test
+	@echo -e "Running tests."
+	@./unit_test
 
 $(TUT_ROOT)/%.o: $(TUT_ROOT)/%.cpp
 	@echo -e "Making object: '"$@"'"

@@ -5,22 +5,14 @@
 #include "TVAnalysedPulseGenerator.h"
 #include "definitions.h"
 
+#include "TAPAlgorithms.h"
+
 class SimpIntAPGenerator:public TVAnalysedPulseGenerator {
 
  public:
   SimpIntAPGenerator(TAPGeneratorOptions* opts):
-  TVAnalysedPulseGenerator("SimpInt", opts),fSetup(TSetupData::Instance()){};
+  TVAnalysedPulseGenerator("SimpInt", opts){};
   virtual ~SimpIntAPGenerator(){};
-
-  void SetBankInfo(std::string bankname)
-  {
-    fBankname= bankname;
-    fDetname = fSetup->GetDetectorName(bankname);
-    fPedestal = fSetup->GetPedestal(bankname);
-    fTriggerPolarity = fSetup->GetTriggerPolarity(bankname);
-    fECalibSlope = fSetup->GetADCSlopeCalib(bankname);
-    fECalibOffset = fSetup->GetADCOffsetCalib(bankname);
-  }
 
 
  public:
@@ -29,13 +21,8 @@ class SimpIntAPGenerator:public TVAnalysedPulseGenerator {
 
 
  private:
-   // This will likely be unnecessary
-
-   std::string fBankname;
-   std::string fDetname;
-   double fPedestal, fECalibSlope, fECalibOffset;
-   int fTriggerPolarity;
-   TSetupData* fSetup;
+   // The algorithms that this generator will use
+   Algorithm::SimpleIntegral fSimpleIntegral;
 };
 
 #endif //SIMPLEINTEGRATOR_H__

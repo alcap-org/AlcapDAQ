@@ -2,6 +2,7 @@
 #include <sstream>
 #include <string.h>
 #include <algorithm>
+#include <functional>
 #include <stdio.h>
 #include <iostream>
 #include <TString.h>
@@ -68,6 +69,31 @@ size_t modules::parser::RemoveWhitespace(std::string& input, std::string::iterat
 	std::string::iterator new_end=std::remove_if(start,end,modules::parser::IsWhitespace);
 	input.erase(new_end,end);
 	return input.size();
+}
+
+const std::string& modules::parser::ToCppValid(const std::string& input){
+    return ReplaceAll(input," :{}#*()-=+$%^&!.,/?","_" );
+}
+
+void modules::parser::ToCppValid(std::string& input){
+    ReplaceAll(input," :{}#*()-=+$%^&!.,/?","_" );
+}
+
+const std::string& modules::parser::ReplaceAll(const std::string& input, const std::string& search,const std::string& replace ){
+    static std::string output;
+    output.clear();
+    for(std::string::const_iterator i_char=input.begin(); i_char!=input.end();++i_char){
+        if(std::find(search.begin(),search.end(), *i_char)!=search.end()){
+            output+=replace;
+        } else{
+            output+=*i_char;
+        }
+    }
+    return output;
+}
+
+void modules::parser::ReplaceAll(std::string& input, const std::string& search, const std::string& replace ){
+    input=ReplaceAll(const_cast<const std::string&>(input),search,replace);
 }
 
 void modules::parser::TrimWhiteSpaceBeforeAfter(std::string& line){

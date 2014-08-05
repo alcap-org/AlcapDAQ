@@ -18,4 +18,6 @@ ROOT_DICT_CLASSES:=TAnalysedPulseMapWrapper\
 	TGaussFitAnalysedPulse\
 	IdChannel\
 	IdGenerator\
-	IdSource
+	IdSource\
+        BankBranch\
+        FlyWeight\

@@ -13,7 +13,8 @@ namespace modules{
 	class navigator;
 	class reader;
 	// helper typedefs
-	typedef std::vector<std::pair<std::string,modules::BaseModule*> > ordered_list;
+    typedef std::pair<std::string,modules::BaseModule*> ordered_element;
+	typedef std::vector<ordered_element > ordered_list;
 	typedef std::multimap<std::string,BaseModule*> list;
 	typedef ordered_list::iterator iterator;
 	typedef ordered_list::const_iterator const_iterator;
@@ -58,6 +59,10 @@ class modules::navigator{
 
       /// Get the number of instances that the named module has been requested
       int HowMany(const std::string& name)const;
+
+      /// Returns true if module 'first' is before module 'second' in the
+      /// modules list
+      bool Before(const std::string& first, const std::string& second)const;
       
       /// Return an iterator to the first module in the list
       modules::iterator Begin(){return fModules.begin();};

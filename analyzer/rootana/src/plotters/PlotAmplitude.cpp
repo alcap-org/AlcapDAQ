@@ -10,7 +10,7 @@
 #include <cmath>
 
 #include "TAnalysedPulse.h"
-#include "TDetectorPulse.h"
+//#include "TDetectorPulse.h"
 #include "RegisterModule.inc"
 #include "definitions.h"
 #include "SetupNavigator.h"
@@ -30,11 +30,11 @@ PlotAmplitude::PlotAmplitude(modules::options* opts) :
 PlotAmplitude::~PlotAmplitude(){  
 }
 
-int PlotAmplitude::BeforeFirstEntry(TGlobalData *gData, TSetupData *gSetup){
+int PlotAmplitude::BeforeFirstEntry(TGlobalData *gData, const TSetupData *gSetup){
     return 0;
 }
 
-int PlotAmplitude::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int PlotAmplitude::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
 
     // Loop over each TAP list
     for (SourceAnalPulseMap::const_iterator i_det = gAnalysedPulseMap.begin();
