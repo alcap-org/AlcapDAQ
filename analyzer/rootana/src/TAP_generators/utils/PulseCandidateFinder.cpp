@@ -1,10 +1,10 @@
 #include "PulseCandidateFinder.h"
-
 #include "SetupNavigator.h"
-
 #include "definitions.h"
+#include "debug_tools.h"
 
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
@@ -64,36 +64,40 @@ PulseCandidateFinder::~PulseCandidateFinder() {
 
 /// GetPulseCandidates()
 /// Fills a vector of the TPulseIslands of the pulse candidates that have been found
-std::vector<TPulseIsland*> PulseCandidateFinder::GetPulseCandidates() {
-
-  // Get the output ready
-  std::vector<TPulseIsland*> pulse_candidates;
+void PulseCandidateFinder::GetPulseCandidates(std::vector<TPulseIsland*>& pulse_candidates)const {
 
   // Loop through the pulse candidate locations
-  for (std::vector<Location>::iterator locationIter = fPulseCandidateLocations.begin(); locationIter != fPulseCandidateLocations.end(); ++locationIter) {
+  std::vector<int>::const_iterator start_new, stop_new;
+  for (std::vector<Location>::const_iterator locationIter = fPulseCandidateLocations.begin();
+          locationIter != fPulseCandidateLocations.end(); ++locationIter) {
     
-    // Get the start and stop locations
-    int start_location = (*locationIter).start;
-    int stop_location = (*locationIter).stop;
+    // Get iterator to the start locations
+    start_new=fPulseIsland->GetSamples().begin();
+    std::advance(start_new,locationIter->start);
+
+    // Get iterator to the stop locations
+    stop_new=fPulseIsland->GetSamples().begin();
+    std::advance(stop_new,locationIter->stop);
 
     // Get the bank name and work out what the new timestamp will be
     std::string bankname = fPulseIsland->GetBankName();
-    int new_timestamp = fPulseIsland->GetTimeStamp() + start_location;
+    int new_timestamp = fPulseIsland->GetTimeStamp() + locationIter->start;
 
-    // Get the samples from the original TPI and have a new one ready for the pulse candidate
-    const std::vector<int>& theSamples = fPulseIsland->GetSamples();
-    std::vector<int> theNewSamples;
-
-    // Loop through the samples between the start and stop locations and add them to the new samples vector
-    for (int iSample = start_location; iSample <= stop_location; ++iSample) {
-      theNewSamples.push_back(theSamples.at(iSample));
+    // Make the new TPI
+    int index=locationIter-fPulseCandidateLocations.begin();
+    if((int)pulse_candidates.size() <= index || !pulse_candidates.at(index)){
+        TPulseIsland* pulse_island = new TPulseIsland(new_timestamp, start_new, stop_new, bankname);
+        pulse_candidates.push_back(pulse_island);
+    }else{
+        TPulseIsland* pulse_island=pulse_candidates.at(index);
+        pulse_island->SetSamples(start_new,stop_new);
+        pulse_island->SetTimeStamp(new_timestamp);
+        pulse_island->SetBankName(bankname);
     }
-
-    TPulseIsland* pulse_island = new TPulseIsland(new_timestamp, theNewSamples, bankname);
-    pulse_candidates.push_back(pulse_island);
   }
-
-  return pulse_candidates;
+  for(unsigned int i=fPulseCandidateLocations.size();i< pulse_candidates.size();++i){
+      pulse_candidates.at(i)->Reset();
+  }
 }
 
 /// FindCandidatePulses_Fast
@@ -113,7 +117,7 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
   Location location;
 
   // Loop through the samples
-  int n_border_samples = 10; // take some samples before and after the candidate officially stops
+  int n_before_start_samples = 2; // take a few samples from before the official start
   for (unsigned int i = 1; i < n_samples; ++i) {
     s1 = polarity * (samples[i-1] - pedestal);
     s2 = polarity * (samples[i] - pedestal);
@@ -122,17 +126,15 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
     if (found) {
 
       if (s2 < noise) { // stop if the sample goes below pedestal
-	location.stop = (int)i + n_border_samples;
-	if (location.stop >= samples.size()) {
+	location.stop = (int)i;
+	if (location.stop >= (int)samples.size()) {
 	  location.stop = samples.size() - 1;
 	}
 
 	fPulseCandidateLocations.push_back(location);
 	found = false;
       }
-      
-      // Also stop if we are at the last sample
-      if (i == n_samples-1) {
+      else if (i == n_samples-1) { // Also stop if we are at the last sample (only do this check if we failed the above one)
 	location.stop = (int) i;
 
 	fPulseCandidateLocations.push_back(location);
@@ -141,7 +143,7 @@ void PulseCandidateFinder::FindCandidatePulses_Fast(int rise) {
     } else {
       if (ds > rise) {
 	found = true;
-	location.start = (int)(i - 1) - n_border_samples;
+	location.start = (int)(i - 1) - n_before_start_samples;
 
 	if (location.start < 0) {
 	  location.start = 0;
@@ -169,28 +171,44 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
   Location location;
 
   // Loop through the samples
-  int n_border_samples = 10; // take some samples before and after the candidate officially stops
   for (unsigned int i = 0; i < n_samples; ++i) {
     sample_height = polarity * (samples[i] - pedestal);
-
+    std::cout << "i = " << i << ", sample_height = " << sample_height << std::endl;
     if (found) {
       if (sample_height < noise) { // stop if the sample goes below pedestal
-	location.stop = (int)i + n_border_samples;
-	if (location.stop >= samples.size()) {
+	location.stop = (int)i;
+	if (location.stop >=(int) samples.size()) {
 	  location.stop = samples.size() - 1;
 	}
-
+	std::cout << "Stop: location = " << location.stop << ", sample_height = " << sample_height << std::endl;
 	start = stop = 0;
+	fPulseCandidateLocations.push_back(location);
+	found = false;
+      }
+      else if (i == n_samples-1) { // Also stop if we are at the last sample (only do this check if we failed the above one)
+	location.stop = (int) i;
+	std::cout << "Stop: location = " << location.stop << ", sample_height = " << sample_height << std::endl;
 	fPulseCandidateLocations.push_back(location);
 	found = false;
       }
     } else {
       if (sample_height > threshold) {
 	found = true;
-	location.start = (int)(i) - n_border_samples;
+
+	// Track back until we get to the pedestal again so that we get the whole pulse (Ge-S pulses were being cut-off at the start)
+	location.start = (int)(i);
+	for (int j = i; j > 0; --j) {
+	  std::cout << "j = " << j << std::endl;
+	  sample_height = polarity * (samples[j] - pedestal);
+	  if (sample_height <= 0) {
+	    location.start = (int)(j);
+	    break;
+	  }
+	}
 	if (location.start < 0) {
 	  location.start = 0;
 	}
+	std::cout << "Start: location = " << location.start << ", sample_height = " << sample_height << std::endl;
       }
     }
   }
@@ -282,7 +300,7 @@ void PulseCandidateFinder::SetDefaultParameterValues() {
 
   fDefaultParameterValues[IDs::channel("Ge-F")] = 40;
 
-  fDefaultParameterValues[IDs::channel("ScL")] = 20;
+  fDefaultParameterValues[IDs::channel("ScL")] = 15;
   fDefaultParameterValues[IDs::channel("ScR")] = 20;
   fDefaultParameterValues[IDs::channel("ScGe")] = 20;
   fDefaultParameterValues[IDs::channel("ScVe")] = 30;

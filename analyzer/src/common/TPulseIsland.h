@@ -41,13 +41,24 @@ class TPulseIsland : public TObject {
   TPulseIsland(int timestamp, const std::vector<int>& samples_vector, 
                std::string bank_name);
 
+  /// @brief Construct a TPI from a sub-range of an existing vector of ints
+  /// @details Copies all samples in the range [first,last[
+  ///
+  /// @param[in] timestamp The time in units of clock ticks of the first sample in the pulse
+  /// @param[in] first Iterator to the first sample of the input waveform
+  /// @param[in] first Iterator to the last sample of the input waveform
+  /// @param[in] bank_name The (4 character long) name identifying the digitizer channel
+  /// the pulse originated.
+  TPulseIsland(int timestamp, const std::vector<int>::const_iterator& first,
+          const std::vector<int>::const_iterator& last, std::string bank_name);
+
   /// The TPI goes to the state the default constructor would set it to. Not generally used.
   void Reset(Option_t* o = "");
 
   /// \name Getters
   /// Return copies of all fields in the TPI and TSD.
   //@{
-  std::vector<int> GetSamples() const { return fSamples; }
+  const std::vector<int>& GetSamples() const { return fSamples; }
   int GetTimeStamp() const { return fTimeStamp; }
   std::string GetBankName() const { return fBankName; }
 
@@ -76,13 +87,18 @@ class TPulseIsland : public TObject {
   double GetPedestal(int nPedSamples) const;
   //@}
 
+  void SetBankName(const std::string& name ){fBankName=name;}
+  void SetTimeStamp(int t ){fTimeStamp=t;}
+  void SetSamples( const std::vector<int>::const_iterator& first,
+          const std::vector<int>::const_iterator& last){fSamples.assign(first,last);}
+
  private:
   /// Copying is made explicitly private since we do not need it yet.
   TPulseIsland(const TPulseIsland& src);
   /// Assignment is made explicitly private since we do not need it yet.
   TPulseIsland operator=(const TPulseIsland& rhs); 
 
-  ClassDef(TPulseIsland, 1);
+  ClassDef(TPulseIsland, 2);
 };
 
 #endif
