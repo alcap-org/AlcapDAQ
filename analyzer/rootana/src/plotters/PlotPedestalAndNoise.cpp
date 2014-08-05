@@ -150,7 +150,7 @@ int PlotPedestalAndNoise::AfterLastEntry(TGlobalData* gData,const TSetupData *se
 	double noise = pedestal_vs_noise_histogram->GetMean(2);
 
 	// See if this row already exists (result will equal 1 if it does)
-	query << "SELECT COUNT(*) FROM " << tablename << " WHERE channel=\'" << detname << "\'";
+	query << "SELECT COUNT(*) FROM " << tablename << " WHERE run=" << run_number << " AND channel=\'" << detname << "\'";
 	TSQLiteResult* result = (TSQLiteResult*) server->Query(query.str().c_str());  // get the result of this query
 	TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
 	query.str(""); // clear the stringstream after use
