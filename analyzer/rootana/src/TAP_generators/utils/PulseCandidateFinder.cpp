@@ -1,6 +1,7 @@
 #include "PulseCandidateFinder.h"
 #include "SetupNavigator.h"
 #include "definitions.h"
+#include "debug_tools.h"
 
 #include <iostream>
 #include <iterator>
@@ -93,6 +94,9 @@ void PulseCandidateFinder::GetPulseCandidates(std::vector<TPulseIsland*>& pulse_
         pulse_island->SetTimeStamp(new_timestamp);
         pulse_island->SetBankName(bankname);
     }
+  }
+  for(unsigned int i=fPulseCandidateLocations.size();i< pulse_candidates.size();++i){
+      pulse_candidates.at(i)->Reset();
   }
 }
 
