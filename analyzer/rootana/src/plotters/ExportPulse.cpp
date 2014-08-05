@@ -28,20 +28,6 @@ using std::string;
 extern Long64_t* gTotalEntries;
 
 //----------------------------------------------------------------------
-static bool isNonCpp(char c){ 
-  bool retVal=false;
-  switch(c){
-  case '-': case '/':
-    retVal=true;
-    break;
-  default:
-    retVal=false;
-  }
-  return retVal;
-}
-
-
-//----------------------------------------------------------------------
 ExportPulse::ExportPulse(modules::options* opts)
   : BaseModule("ExportPulse",opts),fGuidanceShown(false)
   , fSetup(NULL), fOptions(opts)
@@ -212,14 +198,13 @@ int ExportPulse::DrawTPIs(){
 //----------------------------------------------------------------------
 std::string ExportPulse::PulseInfo_t::MakeTPIName()const{
   std::stringstream histname;
-  histname << "Pulse_" << bankname;
-  histname << "_" << detname;
+  histname << "Pulse_" << detname;
   histname << "_" << event;
   histname << "_" << pulseID;
   std::string hist=histname.str();
   // replace all non c++ characters with underscore so we can use the
   // histograms in root directly.
-  std::replace_if(hist.begin(),hist.end(), isNonCpp, '_');
+  modules::parser::ToCppValid(hist);
   return hist;
 }
 

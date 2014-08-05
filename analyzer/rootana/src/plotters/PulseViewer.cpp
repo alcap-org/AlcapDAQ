@@ -10,6 +10,7 @@
 #include "IdSource.h"
 #include "EventNavigator.h"
 
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 using std::cout;
@@ -139,7 +140,14 @@ int PulseViewer::SetTriggerValue(const std::string& parameter){
 int PulseViewer::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
     // Get the TAPs for this channel
-  AnalysedPulseList* allTAPs=&gAnalysedPulseMap[GetSource()];
+    AnalysedPulseList* allTAPs=NULL;
+    for(SourceAnalPulseMap::iterator i_source=gAnalysedPulseMap.begin();
+            i_source!=gAnalysedPulseMap.end(); ++i_source){
+        if(i_source->first.matches(GetSource())){
+            allTAPs=&i_source->second;
+            break;
+        }
+    }
 
     if(!allTAPs){
        cout<<"Problem getting TAP list for "<<GetSource()<<endl;
