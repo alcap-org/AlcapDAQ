@@ -44,13 +44,7 @@ int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     cout<<"-----PlotTDiff::BeforeFirstEntry(): I'm debugging!"<<endl;
   }
 
-  //call my source finders and build histogram for each source with
-  //a time component.
-
-  //should I continue to work on just two? or should I have this loop 
-  //through all pairs
-
-  for(SourceAnalPulseMap::const_iterator sourceIt = gAnalysedPulseMap.begin();
+    for(SourceAnalPulseMap::const_iterator sourceIt = gAnalysedPulseMap.begin();
       sourceIt != gAnalysedPulseMap.end(); sourceIt++)
     {
       //std::string fBankNameB = setup->GetBank(fDetNameB);
@@ -59,13 +53,6 @@ int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 	  cout << sourceIt->first.Channel() << "   " << fDetNameA << endl;
 	  continue;   //check for detector A
 	}
-
-      
-      //I need to check that this source generates a time
-      AnalysedPulseList pulses = sourceIt->second;
-
-      
-
 
 
       for(SourceAnalPulseMap::const_iterator sourceIt2 = gAnalysedPulseMap.begin(); sourceIt2 != gAnalysedPulseMap.end(); sourceIt2++)
@@ -80,7 +67,6 @@ int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 	  //I should make a vector of the sources for detA and detB
 	  fDetASources.push_back(sourceIt->first);
 	  fDetBSources.push_back(sourceIt2->first);
-
 
 
 	}
@@ -148,7 +134,7 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	  TH2F* IAplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpA, 0, 10*maxAmpA);
 	  IAplots->GetXaxis()->SetTitle("Time Difference (ns)");
 	  IAplots->GetYaxis()->SetTitle("Count");
-	  intB_plots[keyname] = IAplots;
+	  intA_plots[keyname] = IAplots;
 
 	  //intB plots
 	  histname = "h" + fDetNameB + "_" + keyname + " TDiff_IntB";
@@ -158,6 +144,7 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	  IBplots->GetYaxis()->SetTitle("Count");
 	  intB_plots[keyname] = IBplots;
 	}
+
 
 
       for(AnalysedPulseList::const_iterator pulseIt = detAPulses.begin(); pulseIt != detAPulses.end(); pulseIt++)
@@ -173,18 +160,19 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	      double intA = (*pulseIt)->GetIntegral(), intB = (*pulseIt2)->GetIntegral();
 
 
+
 	      if(ampA != definitions::DefaultValue)
 		{
 		  ampA_plots[keyname]->Fill(tDiff, ampA);
 		  ampB_plots[keyname]->Fill(-tDiff, ampB);
 		}
-	      /*
+	      
 	      if(intA != definitions::DefaultValue)
 		{
 		  intA_plots[keyname]->Fill(tDiff, intA);
 		  intB_plots[keyname]->Fill(-tDiff, intB);
 		}
-	      */
+
 
 	    }//end detBPulse loop
 	}//end detAPulse loop
