@@ -60,14 +60,17 @@ int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 	  continue;   //check for detector A
 	}
 
-      /*
+      
       //I need to check that this source generates a time
       AnalysedPulseList pulses = sourceIt->second;
       AnalysedPulseList::iterator pulseIt = pulses.begin();
       pulseIt++;
-      if((*pulseIt)->GetAmplitude() != definitions::DefaultValue)
-	continue;
-      */ //this is not working with my current develop.  check after merge.
+      //if((*pulseIt)->GetAmplitude() != definitions::DefaultValue)
+      //if(!(*pulseIt)->GetTime())      
+      //continue;
+      
+
+
 
       for(SourceAnalPulseMap::const_iterator sourceIt2 = gAnalysedPulseMap.begin(); sourceIt2 != gAnalysedPulseMap.end(); sourceIt2++)
 	{
@@ -93,7 +96,7 @@ int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 	  int maxAmpA = std::pow(2, nBits);
 	  std::string histname = "h" + fDetNameB + "_" + keyname + "TDiff_AmpA";
 	  std::string histtitle = "Amplitude of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + sourceIt->first.Generator().str() + " generator";
-	  TH2F* AAplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -5000, 20000, maxAmpA, 0, maxAmpA);
+	  TH2F* AAplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpA, 0, maxAmpA);
 	  AAplots->GetXaxis()->SetTitle("Time Difference (ns)");
 	  AAplots->GetYaxis()->SetTitle("Count");
 	  ampA_plots[keyname] = AAplots;
@@ -104,7 +107,7 @@ int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 	  int maxAmpB = std::pow(2, nBits);
 	  histname = "h" + fDetNameB + "_" + keyname + " TDiff_AmpB";
 	  histtitle = "Amplitude of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + sourceIt->first.Generator().str() + " generator";
-	  TH2F* ABplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -5000, 20000, maxAmpB, 0, maxAmpB);
+	  TH2F* ABplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpB, 0, maxAmpB);
 	  ABplots->GetXaxis()->SetTitle("Time Difference (ns)");
 	  ABplots->GetYaxis()->SetTitle("Count");
 	  ampB_plots[keyname] = ABplots;
@@ -112,7 +115,7 @@ int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 	  //intA plots
 	  histname = "h" + fDetNameB + "_" + keyname + " TDiff_IntA";
 	  histtitle = "Integral of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + sourceIt->first.Generator().str() + " generator";
-	  TH2F* IAplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -5000, 20000, maxAmpA, 0, 10*maxAmpA);
+	  TH2F* IAplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpA, 0, 10*maxAmpA);
 	  IAplots->GetXaxis()->SetTitle("Time Difference (ns)");
 	  IAplots->GetYaxis()->SetTitle("Count");
 	  intB_plots[keyname] = IAplots;
@@ -120,7 +123,7 @@ int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 	  //intB plots
 	  histname = "h" + fDetNameB + "_" + keyname + " TDiff_IntB";
 	  histtitle = "Integral of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + sourceIt->first.Generator().str() + " generator";
-	  TH2F* IBplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -5000, 20000, maxAmpB, 0, 10*maxAmpB);
+	  TH2F* IBplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpB, 0, 10*maxAmpB);
 	  IBplots->GetXaxis()->SetTitle("Time Difference (ns)");
 	  IBplots->GetYaxis()->SetTitle("Count");
 	  intB_plots[keyname] = IBplots;
@@ -159,12 +162,12 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	      if(ampA >= 0)
 		ampA_plots[keyname]->Fill(tDiff, ampA);
 	      if(ampB >= 0)
-		ampB_plots[keyname]->Fill(tDiff, ampB);
+		ampB_plots[keyname]->Fill(-tDiff, ampB);
 
 	      if(intA >= 0)
 		intA_plots[keyname]->Fill(tDiff, intA);
 	      if(intB >= 0)
-		intB_plots[keyname]->Fill(tDiff, intB);
+		intB_plots[keyname]->Fill(-tDiff, intB);
 
 
 	    }//end detBPulse loop
