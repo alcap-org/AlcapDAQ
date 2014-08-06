@@ -63,11 +63,7 @@ int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
       
       //I need to check that this source generates a time
       AnalysedPulseList pulses = sourceIt->second;
-      AnalysedPulseList::iterator pulseIt = pulses.begin();
-      pulseIt++;
-      //if((*pulseIt)->GetAmplitude() != definitions::DefaultValue)
-      //if(!(*pulseIt)->GetTime())      
-      //continue;
+
       
 
 
@@ -85,48 +81,7 @@ int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 	  fDetASources.push_back(sourceIt->first);
 	  fDetBSources.push_back(sourceIt2->first);
 
-	  //now I should build my histograms, need some keyname(source1?)
-	  std::string keyname = sourceIt->first.str();
 
-	  cout << "check" << endl;
-
-          //ampA plots
-	  //need to get max amplitude for this detector
-	  int nBits = setup->GetNBits(setup->GetBankName(fDetNameA));
-	  int maxAmpA = std::pow(2, nBits);
-	  std::string histname = "h" + fDetNameB + "_" + keyname + "TDiff_AmpA";
-	  std::string histtitle = "Amplitude of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + sourceIt->first.Generator().str() + " generator";
-	  TH2F* AAplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpA, 0, maxAmpA);
-	  AAplots->GetXaxis()->SetTitle("Time Difference (ns)");
-	  AAplots->GetYaxis()->SetTitle("Count");
-	  ampA_plots[keyname] = AAplots;
-
-	  //ampB plots
-	  //need to get max amplitude for this detector
-	  nBits = setup->GetNBits(setup->GetBankName(fDetNameB));
-	  int maxAmpB = std::pow(2, nBits);
-	  histname = "h" + fDetNameB + "_" + keyname + " TDiff_AmpB";
-	  histtitle = "Amplitude of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + sourceIt->first.Generator().str() + " generator";
-	  TH2F* ABplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpB, 0, maxAmpB);
-	  ABplots->GetXaxis()->SetTitle("Time Difference (ns)");
-	  ABplots->GetYaxis()->SetTitle("Count");
-	  ampB_plots[keyname] = ABplots;
-
-	  //intA plots
-	  histname = "h" + fDetNameB + "_" + keyname + " TDiff_IntA";
-	  histtitle = "Integral of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + sourceIt->first.Generator().str() + " generator";
-	  TH2F* IAplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpA, 0, 10*maxAmpA);
-	  IAplots->GetXaxis()->SetTitle("Time Difference (ns)");
-	  IAplots->GetYaxis()->SetTitle("Count");
-	  intB_plots[keyname] = IAplots;
-
-	  //intB plots
-	  histname = "h" + fDetNameB + "_" + keyname + " TDiff_IntB";
-	  histtitle = "Integral of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + sourceIt->first.Generator().str() + " generator";
-	  TH2F* IBplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpB, 0, 10*maxAmpB);
-	  IBplots->GetXaxis()->SetTitle("Time Difference (ns)");
-	  IBplots->GetYaxis()->SetTitle("Count");
-	  intB_plots[keyname] = IBplots;
 
 	}
     }
@@ -141,10 +96,69 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
     {
       AnalysedPulseList detAPulses = gAnalysedPulseMap[*sourceIt], detBPulses;
 
+      //check for GetTime.
+      AnalysedPulseList::iterator pulseIt = detAPulses.begin() + 1;
+      if((*pulseIt)->GetTime() == definitions::DefaultValue)      
+	continue;
+
+
       //Get DetB pulses for the same Generator
       for(SourceVector::const_iterator sourceIt2 = fDetBSources.begin(); sourceIt2 != fDetBSources.end(); sourceIt2++)
 	if((*sourceIt2).Generator() == (*sourceIt).Generator())
 	  detBPulses = gAnalysedPulseMap[*sourceIt2];
+
+
+      //now I should build my histograms, need some keyname(source1?)
+      //std::string keyname = sourceIt;
+      std::string keyname =  sourceIt->str();
+
+      int nBits = setup->GetNBits(setup->GetBankName(fDetNameA));
+      int maxAmpA = std::pow(2, nBits);
+
+      nBits = setup->GetNBits(setup->GetBankName(fDetNameB));
+      int maxAmpB = std::pow(2, nBits);
+
+      //if histogram does not exist, make histograms (amp and/or int, or 1D)
+      if((ampA_plots.find(keyname) == ampA_plots.end()) && ((*pulseIt)->GetAmplitude() != definitions::DefaultValue))
+	{
+          //ampA plots
+	  std::string histname = "h" + fDetNameB + "_" + keyname + "TDiff_AmpA";
+	  std::string histtitle = "Amplitude of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + (*sourceIt).Generator().str() + " generator";
+	  TH2F* AAplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpA, 0, maxAmpA);
+	  AAplots->GetXaxis()->SetTitle("Time Difference (ns)");
+	  AAplots->GetYaxis()->SetTitle("Count");
+	  ampA_plots[keyname] = AAplots;
+	    
+
+	  //ampB plots
+	  histname = "h" + fDetNameB + "_" + keyname + " TDiff_AmpB";
+	  histtitle = "Amplitude of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + (*sourceIt).Generator().str() + " generator";
+	  TH2F* ABplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpB, 0, maxAmpB);
+	  ABplots->GetXaxis()->SetTitle("Time Difference (ns)");
+	  ABplots->GetYaxis()->SetTitle("Count");
+	  ampB_plots[keyname] = ABplots;
+
+	}
+
+ if((intA_plots.find(keyname) == intA_plots.end()) && ((*pulseIt)->GetIntegral() != definitions::DefaultValue))
+	{
+	  //intA plots
+	  std::string histname = "h" + fDetNameB + "_" + keyname + " TDiff_IntA";
+	  std::string histtitle = "Integral of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + (*sourceIt).Generator().str() + " generator";
+	  TH2F* IAplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpA, 0, 10*maxAmpA);
+	  IAplots->GetXaxis()->SetTitle("Time Difference (ns)");
+	  IAplots->GetYaxis()->SetTitle("Count");
+	  intB_plots[keyname] = IAplots;
+
+	  //intB plots
+	  histname = "h" + fDetNameB + "_" + keyname + " TDiff_IntB";
+	  histtitle = "Integral of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + (*sourceIt).Generator().str() + " generator";
+	  TH2F* IBplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpB, 0, 10*maxAmpB);
+	  IBplots->GetXaxis()->SetTitle("Time Difference (ns)");
+	  IBplots->GetYaxis()->SetTitle("Count");
+	  intB_plots[keyname] = IBplots;
+	}
+
 
       for(AnalysedPulseList::const_iterator pulseIt = detAPulses.begin(); pulseIt != detAPulses.end(); pulseIt++)
 	{
@@ -158,17 +172,19 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
 	      double intA = (*pulseIt)->GetIntegral(), intB = (*pulseIt2)->GetIntegral();
 
-	      std::string keyname =  sourceIt->str();
-	      if(ampA >= 0)
-		ampA_plots[keyname]->Fill(tDiff, ampA);
-	      if(ampB >= 0)
-		ampB_plots[keyname]->Fill(-tDiff, ampB);
 
-	      if(intA >= 0)
-		intA_plots[keyname]->Fill(tDiff, intA);
-	      if(intB >= 0)
-		intB_plots[keyname]->Fill(-tDiff, intB);
-
+	      if(ampA != definitions::DefaultValue)
+		{
+		  ampA_plots[keyname]->Fill(tDiff, ampA);
+		  ampB_plots[keyname]->Fill(-tDiff, ampB);
+		}
+	      /*
+	      if(intA != definitions::DefaultValue)
+		{
+		  intA_plots[keyname]->Fill(tDiff, intA);
+		  intB_plots[keyname]->Fill(-tDiff, intB);
+		}
+	      */
 
 	    }//end detBPulse loop
 	}//end detAPulse loop
