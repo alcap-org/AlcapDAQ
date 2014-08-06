@@ -114,7 +114,7 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         if(fCutHists){
             // Histogram amplitudes for fast pulses with a slow pulse cut
             full_title.str("");
-            full_title<<"Amplitudes of fast pulses for slow pulses with amplitudes above ";
+            full_title<<"Amplitudes in slow channel if paired to a fast pulse with amplitude above ";
             full_title<<fFastCut<<title;
             tmp.slow_amps_fast_cut=new TH1F((name+"_slow_amp_fast_cut").c_str(),
                     full_title.str().c_str(), 200,0,-1);
@@ -123,7 +123,7 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
             // Histogram amplitudes for slow pulses with a fast pulse cut
             full_title.str("");
-            full_title<<"Amplitudes of slow pulses for fast pulses with amplitudes above ";
+            full_title<<"Amplitudes in fast channel if paired to a slow pulse with amplitude above ";
             full_title<<fSlowCut<<title;
             tmp.fast_amps_slow_cut=new TH1F((name+"_fast_amps_slow_cut").c_str(),
                     full_title.str().c_str(), 200,0,-1);
