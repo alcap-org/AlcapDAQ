@@ -71,6 +71,7 @@ class PlotTDiff : public BaseModule {
 
   std::map<std::string, TH2F*> intA_plots, intB_plots, ampA_plots, ampB_plots, fine_plots;
 
+  std::map<std::string, TH1F*> oned_plots;
   SourceVector fDetASources, fDetBSources;
 };
 
