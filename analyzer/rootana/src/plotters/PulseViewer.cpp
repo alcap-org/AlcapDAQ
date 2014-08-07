@@ -72,7 +72,6 @@ int PulseViewer::ParseTriggerString(const std::string& trigger_condition){
             i_key!=fAvailableParams.end();i_key++){
         modules::parser::ReplaceWords(expression,i_key->first,Form("[%d]",i_key->second));
     }
-    DEBUG_VALUE(expression);
 
     fFormula=new TFormula("PulseViewerTrigger",expression.c_str());
     int ret= fFormula->Compile();
