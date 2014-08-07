@@ -1,3 +1,4 @@
+#include "debug_tools.h"
 #include "ModulesParser.h"
 #include <sstream>
 #include <string.h>
@@ -9,8 +10,6 @@
 #include <ctype.h>
 using std::cout;
 using std::endl;
-
-#define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
 
 int modules::parser::TokeniseByWhiteSpace(const std::string& input, std::vector<std::string>& output){
     std::stringstream ss(input);
@@ -94,6 +93,15 @@ const std::string& modules::parser::ReplaceAll(const std::string& input, const s
 
 void modules::parser::ReplaceAll(std::string& input, const std::string& search, const std::string& replace ){
     input=ReplaceAll(const_cast<const std::string&>(input),search,replace);
+}
+
+void modules::parser::ReplaceWords(std::string& input, const std::string& search, const std::string& replace){
+    size_t match_start;
+    for( match_start=input.find(search);
+         match_start!=std::string::npos;
+         match_start=input.find(search)){
+        input=input.substr(0,match_start) + replace + input.substr(match_start+search.length());
+    }
 }
 
 void modules::parser::TrimWhiteSpaceBeforeAfter(std::string& line){
