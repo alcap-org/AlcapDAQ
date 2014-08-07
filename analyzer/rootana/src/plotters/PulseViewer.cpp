@@ -164,7 +164,8 @@ int PulseViewer::ConsiderDrawing(const TAnalysedPulseID& id, const TAnalysedPuls
             i_key!=fAvailableParams.end();++i_key){
         vals[i_key->second]=GetParameterValue(*pulse,i_key->second);
     }
-    double value=fFormula->EvalPar(vals);
+    fFormula->SetParameters(vals);
+    double value=fFormula->Eval(0);
   if(!value) return 0;
   if(Debug()){
     cout<<"PulseViewer: Event: "<<EventNavigator::Instance().EntryNo()

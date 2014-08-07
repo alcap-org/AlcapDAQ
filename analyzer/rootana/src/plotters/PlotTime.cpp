@@ -32,6 +32,9 @@ PlotTime::~PlotTime(){
 
 int PlotTime::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
 
+  double min_time = 0;
+  double max_time = 110e6; // ms
+  double n_bins = 1e3;
     // Loop over each TAP list
     for (SourceAnalPulseMap::const_iterator i_det = gAnalysedPulseMap.begin();
             i_det != gAnalysedPulseMap.end();
@@ -49,7 +52,7 @@ int PlotTime::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
             std::stringstream histtitle;
             histtitle<<"Time of pulses from source " << i_det->first;
             histtitle<<" for run "<<SetupNavigator::Instance()->GetRunNumber();
-            TH1F* hTime = new TH1F(histname.c_str(), histtitle.str().c_str(), 1e3,0,1e8);
+            TH1F* hTime = new TH1F(histname.c_str(), histtitle.str().c_str(), n_bins,min_time,max_time);
             hTime->GetXaxis()->SetTitle("Time (ns)");
             hTime->GetYaxis()->SetTitle("Arbitrary Units");
             fTimePlots[keyname] = hTime;
