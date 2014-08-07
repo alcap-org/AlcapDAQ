@@ -39,10 +39,6 @@ PlotTDiff::~PlotTDiff(){
 ////////////////////////////////////////////////
 
 int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
-  // Print extra info if we're debugging this module:
-  if(Debug()){
-    cout<<"-----PlotTDiff::BeforeFirstEntry(): I'm debugging!"<<endl;
-  }
 
   //call my source finders and build histogram for each source with
   //a time component.
@@ -213,12 +209,6 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 // Can be used to write things out, dump a summary etc
 // Return non-zero to indicate a problem
 int PlotTDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
-
-  // Print extra info if we're debugging this module:
-  if(Debug()){
-     cout<<"-----PlotTDiff::AfterLastEntry(): I'm debugging!"<<endl;
-  }
-
   return 0;
 }
 
@@ -226,4 +216,4 @@ int PlotTDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(PlotTDiff,x_max);
+ALCAP_REGISTER_MODULE(PlotTDiff,det1,det2);
