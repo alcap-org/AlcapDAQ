@@ -298,6 +298,7 @@ void PulseCandidateFinder::SetDefaultParameterValues() {
   fDefaultParameterValues[IDs::channel("muSc")] = 300;
   fDefaultParameterValues[IDs::channel("muScA")] = 100;
   fDefaultParameterValues[IDs::channel("NDet")] = 100;
+  fDefaultParameterValues[IDs::channel("NDet2")] = 100;
 
   fDefaultParameterValues[IDs::channel("Ge-F")] = 40;
 

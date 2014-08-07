@@ -9,15 +9,15 @@
 #include "definitions.h"
 #include "IdSource.h"
 #include "MakeDetectorPulses.h"
-#include "debug_tools.h"
+#include "SetupNavigator.h"
 
 #include "TH2F.h"
 #include "TH1F.h"
 
+#include <cmath>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <utility> // std::rel_ops
 using std::cout;
 using std::endl;
 
@@ -57,6 +57,11 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     std::string name;
     std::string title;
     std::stringstream full_title;
+    IDs::channel fast_id;
+    IDs::channel slow_id;
+    int n_bits;
+    double fast_amp_max, slow_amp_max;
+    double fast_amp_min=0, slow_amp_min=0;
 
     // Loop over all TDP sources
     for(SourceDetPulseMap::const_iterator i_source=gDetectorPulseMap.begin();
@@ -78,56 +83,63 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
             cout<<"Made histogram called "<<name<<" with title "<< title<<endl;
         }
 
+        // Setup the Axis limits
+        fast_id=i_source->first.Channel();
+        fast_id.SlowFast(IDs::kFast);
+        slow_id=fast_id.GetCorrespondingFastSlow();
+        n_bits = setup->GetNBits(SetupNavigator::Instance()->GetBank(fast_id));
+        fast_amp_max = std::pow(2, n_bits);
+        n_bits = setup->GetNBits(SetupNavigator::Instance()->GetBank(slow_id));
+        slow_amp_max = std::pow(2, n_bits);
+
         // Make a histogram of the relative amplitudes
-        tmp.amplitudes=new TH2F((name+"_amp").c_str(),("Amplitudes of TDPs "+title).c_str(), 100,0,1000,100,0,1000);
-        tmp.amplitudes->SetBit(TH1::kCanRebin);
+        tmp.amplitudes=new TH2F((name+"_amp").c_str(),("Amplitudes of TDPs "+title).c_str(),
+                150,fast_amp_min,fast_amp_max,150,slow_amp_min,slow_amp_max);
         tmp.amplitudes->SetXTitle("Amplitude in Fast channel");
         tmp.amplitudes->SetYTitle("Amplitude in Slow channel");
 
         // Histogram amplitudes for pulses not in either channel
         tmp.fast_only_amps=new TH1F((name+"_fast_only_amp").c_str(),
-                ("Amplitudes of hits with no corresponding slow pulse "+title).c_str(), 200,0,-1);
-        tmp.fast_only_amps->SetBit(TH1::kCanRebin);
+                ("Amplitudes of hits with no corresponding slow pulse "+title).c_str(), 
+                200,fast_amp_min,fast_amp_max);
         tmp.fast_only_amps->SetXTitle("Amplitude in Fast channel");
 
         // Histogram amplitudes for pulses not in either channel
         tmp.slow_only_amps=new TH1F((name+"_slow_only_amp").c_str(),
-                ("Amplitudes of hits with no corresponding fast pulse "+title).c_str(), 200,0,-1);
-        tmp.slow_only_amps->SetBit(TH1::kCanRebin);
+                ("Amplitudes of hits with no corresponding fast pulse "+title).c_str(), 
+                200,slow_amp_min,slow_amp_max);
         tmp.slow_only_amps->SetXTitle("Amplitude in Slow channel");
 
         // Make a histogram of the time difference between pulses
         full_title.str("Time difference vs. fast amplitude for pulses ");
         full_title<<title;
-        tmp.time_diff_fast=new TH2F((name+"_fast_amp_tdiff").c_str(),full_title.str().c_str(),200,0,-1,200,0,-1);
-        tmp.time_diff_fast->SetBit(TH1::kCanRebin);
+        tmp.time_diff_fast=new TH2F((name+"_fast_amp_tdiff").c_str(),full_title.str().c_str(),
+                200,0,-1,200,fast_amp_min,fast_amp_max);
         tmp.time_diff_fast->SetXTitle("t_{Fast} - t_{Slow}");
         tmp.time_diff_fast->SetYTitle("Amplitude in Fast channel");
 
         full_title.str("Time difference vs. slow amplitude for pulses ");
         full_title<<title;
-        tmp.time_diff_slow=new TH2F((name+"_slow_amp_tdiff").c_str(),full_title.str().c_str(),200,0,-1,200,0,-1);
-        tmp.time_diff_slow->SetBit(TH1::kCanRebin);
+        tmp.time_diff_slow=new TH2F((name+"_slow_amp_tdiff").c_str(),full_title.str().c_str(),
+                200,0,-1,200,slow_amp_min,slow_amp_max);
         tmp.time_diff_slow->SetXTitle("t_{Fast} - t_{Slow}");
         tmp.time_diff_slow->SetYTitle("Amplitude in Slow channel");
 
         if(fCutHists){
             // Histogram amplitudes for fast pulses with a slow pulse cut
             full_title.str("");
-            full_title<<"Amplitudes of fast pulses for slow pulses with amplitudes above ";
+            full_title<<"Amplitudes in slow channel if paired to a fast pulse with amplitude above ";
             full_title<<fFastCut<<title;
             tmp.slow_amps_fast_cut=new TH1F((name+"_slow_amp_fast_cut").c_str(),
-                    full_title.str().c_str(), 200,0,-1);
-            tmp.slow_amps_fast_cut->SetBit(TH1::kCanRebin);
+                    full_title.str().c_str(), 200,slow_amp_min,slow_amp_max);
             tmp.slow_amps_fast_cut->SetXTitle("Amplitude in Slow channel");
 
             // Histogram amplitudes for slow pulses with a fast pulse cut
             full_title.str("");
-            full_title<<"Amplitudes of slow pulses for fast pulses with amplitudes above ";
+            full_title<<"Amplitudes in fast channel if paired to a slow pulse with amplitude above ";
             full_title<<fSlowCut<<title;
             tmp.fast_amps_slow_cut=new TH1F((name+"_fast_amps_slow_cut").c_str(),
-                    full_title.str().c_str(), 200,0,-1);
-            tmp.fast_amps_slow_cut->SetBit(TH1::kCanRebin);
+                    full_title.str().c_str(), 200,fast_amp_min,fast_amp_max);
             tmp.fast_amps_slow_cut->SetXTitle("Amplitude in Fast channel");
         } else{
             tmp.fast_amps_slow_cut=NULL;
@@ -179,9 +191,9 @@ int PlotTDPs::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
                 plots.fast_only_amps->Fill(fast_amp);
             }else {
                 // Both channels saw hits, fill the 2d plot
-                plots.amplitudes->Fill(fast_amp ,slow_amp);
-                plots.time_diff_fast->Fill(fast_amp ,slow_time - fast_time);
-                plots.time_diff_slow->Fill(slow_amp ,slow_time - fast_time);
+                plots.amplitudes->Fill(slow_amp,fast_amp);
+                plots.time_diff_fast->Fill(slow_time - fast_time ,fast_amp);
+                plots.time_diff_slow->Fill(slow_time - fast_time ,slow_amp);
             }
 
             if(!fCutHists) continue;
@@ -206,10 +218,12 @@ int PlotTDPs::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
         i_source->second.amplitudes->Draw();
         i_source->second.slow_only_amps->Draw();
         i_source->second.fast_only_amps->Draw();
-        i_source->second.fast_amps_slow_cut->Draw();
-        i_source->second.slow_amps_fast_cut->Draw();
         i_source->second.time_diff_fast->Draw();
         i_source->second.time_diff_slow->Draw();
+        if(fCutHists){
+            i_source->second.fast_amps_slow_cut->Draw();
+            i_source->second.slow_amps_fast_cut->Draw();
+        }
     }
 
   return 0;
