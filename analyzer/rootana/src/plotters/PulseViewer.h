@@ -6,6 +6,7 @@
 class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
+class TFormula;
 
 /// @brief Module to plot pulses meeting a certain criteria
 /// @see https://github.com/alcap-org/AlcapDAQ/wiki/rootana-module-PulseViewer
@@ -13,7 +14,7 @@ class PulseViewer : public BaseModule{
   typedef int TPulseIslandID;
   typedef int TAnalysedPulseID;
   typedef int EventID_t;
-  typedef std::set<TPulseIslandID> PulseIDList_t;
+  typedef std::map<TPulseIslandID,int> PulseIDList_t;
   typedef std::map<EventID_t,PulseIDList_t> EventPulseIDList_t;
 
   enum  TriggerType {kE, kG, kL, kGE, kLE};
@@ -49,7 +50,7 @@ class PulseViewer : public BaseModule{
   bool ValuePassesTrigger(const double& value);
 
   /// Get the value of interest from pulse
-  double GetParameterValue(const TAnalysedPulse& pulse);
+  double GetParameterValue(const TAnalysedPulse& pulse,const ParameterType& parameter);
 
   /* ------------ Methods to configure this module ---------*/
   /// Parse a trigger condition and set up the values needed to handle it
@@ -82,6 +83,10 @@ class PulseViewer : public BaseModule{
   long int fMaxToPlot;
   bool fSummarize, fStopAtMax;
   EventPulseIDList_t fPulsesPlotted;
+  TFormula* fFormula;
+
+  typedef std::map<std::string,ParameterType> ParameterKeys;
+  static ParameterKeys fAvailableParams;
 };
 
 #endif //PULSEVIEWER_H_
