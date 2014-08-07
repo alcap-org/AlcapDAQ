@@ -38,7 +38,6 @@ class PulseViewer : public BaseModule{
   virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup);
   virtual int AfterLastEntry(TGlobalData* gData, const TSetupData* setup);
 
-  /* ------------ Methods called by ProcessEntry ---------*/
   /// Get the channel as a string
   IDs::source GetSource()const{return fSource;};
 
@@ -46,39 +45,20 @@ class PulseViewer : public BaseModule{
   /// @return 0 on success, non-zero otherwise
   int ConsiderDrawing(const TAnalysedPulseID& id, const TAnalysedPulse* i_pulse);
 
-  /// Check if value passes the trigger condition
-  bool ValuePassesTrigger(const double& value);
-
   /// Get the value of interest from pulse
   double GetParameterValue(const TAnalysedPulse& pulse,const ParameterType& parameter);
 
-  /* ------------ Methods to configure this module ---------*/
   /// Parse a trigger condition and set up the values needed to handle it
   /// @return 0 on success, non-zero otherwise
   int ParseTriggerString(const std::string& trigger_condition);
 
-  /// Set the equality test used in the trigger
-  /// @return 0 on success, non-zero otherwise
-  int SetTriggerType(const std::string& equality);
-
-  /// Set the parameter to trigger against 
-  /// @return 0 on success, non-zero otherwise
-  int SetTriggerParameter(const std::string& parameter);
-
-  /// Set the value to use as the trigger
-  /// @return 0 on success, non-zero otherwise
-  int SetTriggerValue(const std::string& parameter);
-
+  /// Dump a summary of what was done
   bool SummarisePlots(){return fSummarize;};
+
  private:
   IDs::source fSource;
   std::string fTriggerCondition;
   std::string fRequestedSource;
-  double fTriggerValue;
-  TriggerType fTriggerType;
-  ParameterType fTriggerParameter;
-  std::string fParameterString;
-  std::string fTypeString;
   long int fTotalPlotted;
   long int fMaxToPlot;
   bool fSummarize, fStopAtMax;

@@ -86,85 +86,6 @@ int PulseViewer::ParseTriggerString(const std::string& trigger_condition){
         }
     }
     return ret;
-
-	//// Look for something like 'amplitude > 3'
-	//size_t equality_start=trigger_condition.find_first_of("<>=");
-	//if(equality_start==std::string::npos) {
-	//	cout<<"Error: trigger '"<<trigger_condition<<"'' doesn't contain an equality (==,>,<,<=,>=)"<<endl;
-	//	return 1;
-	//}
-	//// Check the type of equality given
-	//int retVal=0;
-	//retVal=SetTriggerType(trigger_condition.substr(equality_start,2));
-	//if(retVal!=0) return retVal;
-
-	//// Check the parameter to compare
-	//retVal=SetTriggerParameter(GetOneWord(trigger_condition,0,equality_start));
-	//if(retVal!=0) return retVal;
-
-	//// Get the value to compare to
-	//retVal=SetTriggerValue(trigger_condition.substr(equality_start+fTypeString.size()));
-	//return retVal;
-}
-
-int PulseViewer::SetTriggerType(const std::string& equality){
-	bool problem=false;
-	if(equality[1]=='='){
-		switch(equality[0]){
-			case '<': fTriggerType=kLE; break;
-			case '>': fTriggerType=kGE; break;
-			case '=': fTriggerType=kE; break;
-			default:
-				  problem=true;
-		}
-		if(!problem)fTypeString=equality.substr(0,2);
-	} else{
-		switch(equality[0]){
-			case '<': fTriggerType=kL; break;
-			case '>': fTriggerType=kG; break;
-			case '=': 
-			default:
-				  problem=true;
-		}
-		if(!problem)fTypeString=equality[0];
-	}
-	if(problem){
-	  cout<<"Error: Unknown equality-type passed to PulseViewer: '"<<equality<<"'"<<endl;
-	  return 2;
-	}
-	return 0;
-}
-
-int PulseViewer::SetTriggerParameter(const std::string& parameter){
-  typedef std::map<std::string,ParameterType> ParameterKeys;
-  static ParameterKeys available_params;
-  if(available_params.empty()){
-     available_params["amplitude"]=kAmplitude;
-     available_params["time"]=kTime;
-     available_params["TPI_length"]=kTPILength;
-     available_params["integral"]=kIntegral;
-     available_params["energy"]=kEnergy;
-     available_params["pedestal"]=kPedestal;
-     available_params["trigger_time"]=kTriggerTime;
-  }
-  ParameterKeys::iterator it=available_params.find(parameter);
-	if(it!=available_params.end()){
-    fTriggerParameter=it->second;
-  }else{
-		cout<<"Error: Unknown parameter requested: '"<<parameter<<"'"<<endl;
-		cout<<"   Possible values are:"<<endl;
-    for(it=available_params.begin();it!=available_params.end();it++){
-		     cout<<"    |-"<<it->first<<endl;
-    }
-		return 1;
-	}
-	fParameterString=parameter;
-	return 0;
-}
-
-int PulseViewer::SetTriggerValue(const std::string& parameter){
-	fTriggerValue=GetDouble(parameter);
-	return 0;
 }
 
 int PulseViewer::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
@@ -235,28 +156,6 @@ double PulseViewer::GetParameterValue(const TAnalysedPulse& pulse,const Paramete
         break;
     }
     return retVal;
-}
-
-bool PulseViewer::ValuePassesTrigger(const double& value){
-	bool retVal=false;
-  switch (fTriggerType){
-	  case kE:
-		  retVal=(value==fTriggerValue);
-		  break;
-	  case kG:
-		  retVal=(value>fTriggerValue);
-		  break;
-	  case kL:
-		  retVal=(value<fTriggerValue);
-		  break;
-	  case kGE:
-		  retVal=(value>=fTriggerValue);
-		  break;
-	  case kLE:
-		  retVal=(value<=fTriggerValue);
-		  break;
-  }
-  return retVal;
 }
 
 int PulseViewer::ConsiderDrawing(const TAnalysedPulseID& id, const TAnalysedPulse* pulse){
