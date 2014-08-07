@@ -57,6 +57,7 @@ namespace modules{
         void ToCppValid(std::string& input);
         const std::string& ToCppValid(const std::string& input);
         void ReplaceAll(std::string& input, const std::string& search, const std::string& replace);
+        void ReplaceWords(std::string& input, const std::string& search, const std::string& replace);
         const std::string& ReplaceAll(const std::string& input, const std::string& search, const std::string& replace);
         size_t RemoveWhitespace(std::string& input);
         size_t RemoveWhitespace(std::string& input, std::string::iterator start,std::string::iterator end);
