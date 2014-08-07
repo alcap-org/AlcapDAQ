@@ -79,7 +79,8 @@ class PulseViewer : public BaseModule{
   std::string fParameterString;
   std::string fTypeString;
   long int fTotalPlotted;
-  bool fSummarize;
+  long int fMaxToPlot;
+  bool fSummarize, fStopAtMax;
   EventPulseIDList_t fPulsesPlotted;
 };
 

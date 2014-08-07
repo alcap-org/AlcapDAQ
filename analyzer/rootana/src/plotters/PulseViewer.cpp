@@ -19,27 +19,22 @@ using modules::parser::GetOneWord;
 using modules::parser::GetDouble;
 
 extern SourceAnalPulseMap gAnalysedPulseMap;
-extern Long64_t* gEntryNumber;
-extern Long64_t* gTotalEntries;
-
-namespace{
-    Long64_t GetCurrentEvent(){return *gEntryNumber;}
-    Long64_t GetTotalNumberOfEvents(){return *gTotalEntries;}
-}
 
 PulseViewer::PulseViewer(modules::options* opts):
-   BaseModule("PulseViewer",opts),fTotalPlotted(0),fSummarize(false){
-  fRequestedSource=opts->GetString("source"); 
-  fSource.Channel()=fRequestedSource;
-  fTriggerCondition=opts->GetString("trigger"); 
-  fSummarize=opts->GetBool("summarize"); 
-  
-}
+    BaseModule("PulseViewer",opts),fTotalPlotted(0){
+        fRequestedSource=opts->GetString("source"); 
+        fSource.Channel()=fRequestedSource;
+        fTriggerCondition=opts->GetString("trigger"); 
+        fSummarize=opts->GetBool("summarize"); 
+        fMaxToPlot=opts->GetInt("max_plots",-1);
+        fStopAtMax=opts->GetBool("stop_at_max_plots",true);
+    }
 
 PulseViewer::~PulseViewer(){
 }
 
 int PulseViewer::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
+
    // Check we're also running with the ExportPulse module
    if(!ExportPulse::Instance()){
 	   cout<<"PulseViewer: Error: You need to run with ExportPulse to use PulseViewer module"<<std::endl;
@@ -138,6 +133,16 @@ int PulseViewer::SetTriggerValue(const std::string& parameter){
 }
 
 int PulseViewer::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
+    // Have we drawn the number of pulses we were meant to?
+    if(fMaxToPlot<0 || fTotalPlotted>=fMaxToPlot){
+        if(fStopAtMax){
+            cout<<"PulseViewer::ProcessEntry: "<<fTotalPlotted<<" pulses have already been drawn which "
+                <<"is greater than the limit of "<<fMaxToPlot<<" so I'm stopping execution.\n";
+            cout<<"You can probably ignore any of the immediate errors that follow this."<<endl;
+            return 1;
+        }
+        return 0;
+    }
 
     // Get the TAPs for this channel
     AnalysedPulseList* allTAPs=NULL;
