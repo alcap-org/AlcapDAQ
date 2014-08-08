@@ -31,7 +31,8 @@ PulseCandidateFinder::PulseCandidateFinder(std::string detname, modules::options
 
   fNSigma = opts->GetInt("n_sigma", 0);
   if (fNSigma == 0) {
-    fParameterValue = opts->GetInt(detname, fDefaultParameterValues[fChannel]); // set the parameter value for this channel
+    std::string option = detname + "_param";
+    fParameterValue = opts->GetInt(option, fDefaultParameterValues[fChannel]); // set the parameter value for this channel
   }
   else {
     fParameterValue = fNSigma * fOneSigmaValues[IDs::channel(detname)];
@@ -302,10 +303,10 @@ void PulseCandidateFinder::SetDefaultParameterValues() {
 
   fDefaultParameterValues[IDs::channel("Ge-F")] = 40;
 
-  fDefaultParameterValues[IDs::channel("ScL")] = 15;
-  fDefaultParameterValues[IDs::channel("ScR")] = 20;
+  fDefaultParameterValues[IDs::channel("ScL")] = 100;
+  fDefaultParameterValues[IDs::channel("ScR")] = 100;
   fDefaultParameterValues[IDs::channel("ScGe")] = 20;
-  fDefaultParameterValues[IDs::channel("ScVe")] = 30;
+  fDefaultParameterValues[IDs::channel("ScVe")] = 100;
 
   fDefaultParameterValues[IDs::channel("SiL2-F")] = 80;
   fDefaultParameterValues[IDs::channel("SiL1-1-F")] = 40;
