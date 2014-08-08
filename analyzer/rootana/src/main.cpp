@@ -268,7 +268,7 @@ Int_t PrepareAnalysedPulseMap(TFile* fileOut)
   //gAnalysedPulseMapWrapper = new TAnalysedPulseMapWrapper(gAnalysedPulseMap);
   
   int split = 1;
-  int bufsize = 64000;
+  //int bufsize = 64000;
   Int_t branchstyle = 1;
   
   if (split < 0) {branchstyle = 0; split = -1-split;}
