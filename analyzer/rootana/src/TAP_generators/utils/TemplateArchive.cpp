@@ -16,6 +16,7 @@ TemplateArchive::~TemplateArchive() {
 TH1D* TemplateArchive::GetTemplate(const char* template_name) {
 
   TH1D* hTemplate = (TH1D*) fTemplateFile->Get(template_name);
+  return hTemplate;
 }
 
 // SaveTemplate()
