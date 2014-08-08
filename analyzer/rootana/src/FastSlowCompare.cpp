@@ -59,7 +59,7 @@ FastSlowCompare::~FastSlowCompare(){
 // Called before the main event loop
 // Can be used to set things up, like histograms etc
 // Return non-zero to indicate a problem
-int FastSlowCompare::BeforeFirstEntry(TGlobalData* gData, TSetupData *setup){
+int FastSlowCompare::BeforeFirstEntry(TGlobalData* gData, const TSetupData *setup){
   return 0;
 }
 
@@ -102,7 +102,7 @@ int FastSlowCompare::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
 // Called just after the main event loop
 // Can be used to write things out, dump a summary etc
 // Return non-zero to indicate a problem
-int FastSlowCompare::AfterLastEntry(TGlobalData* gData,TSetupData *setup) {
+int FastSlowCompare::AfterLastEntry(TGlobalData* gData, const TSetupData *setup) {
   return 0;
 }
 
@@ -146,8 +146,8 @@ std::vector<double> TPI2Times(const std::vector<TPulseIsland*>& vec) {
   static std::vector<TPulseIsland*>::const_iterator tpi;
   std::vector<double> times;
   for (tpi = vec.begin(); tpi < vec.end(); ++tpi)
-    if (isValid(*tpi))
-      times.push_back(GetTime(*tpi, (*tpi)->GetTriggerPolarity()));
+    //   if (isValid(*tpi))
+    times.push_back(GetTime(*tpi, (*tpi)->GetTriggerPolarity()));
   return times;
 }
 
