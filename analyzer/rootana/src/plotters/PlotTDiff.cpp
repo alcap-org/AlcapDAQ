@@ -106,7 +106,7 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
                 std::string histtitle = "Amplitude of " + fDetNameA
                     + " vs time difference with " + fDetNameB + " detectors with the " 
                     + (*sourceIt).Generator().str() + " generator";
-                TH2F* AAplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpA, 0, maxAmpA);
+                TH2F* AAplots = new TH2F(histname.c_str(), histtitle.c_str(), 200, -10000, 10000, 200, 0, maxAmpA);
                 AAplots->GetXaxis()->SetTitle("Time Difference (ns)");
                 AAplots->GetYaxis()->SetTitle("Amplitude (ADC counts)");
                 ampA_plots[keyname] = AAplots;
@@ -117,7 +117,7 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
                 histtitle = "Amplitude of " + fDetNameB
                     + " vs time difference with " + fDetNameA + " detectors with the " 
                     + (*sourceIt).Generator().str() + " generator";
-                TH2F* ABplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpB, 0, maxAmpB);
+                TH2F* ABplots = new TH2F(histname.c_str(), histtitle.c_str(), 200, -10000, 10000, 200, 0, maxAmpB);
                 ABplots->GetXaxis()->SetTitle("Time Difference (ns)");
                 ABplots->GetYaxis()->SetTitle("Amplitude (ADC counts)");
                 ampB_plots[keyname] = ABplots;
@@ -128,7 +128,7 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
                 //intA plots
                 std::string histname = "h" + fDetNameB + "_" + keyname + " TDiff_IntA";
                 std::string histtitle = "Integral of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + (*sourceIt).Generator().str() + " generator";
-                TH2F* IAplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpA, 0, 5*maxAmpA);
+                TH2F* IAplots = new TH2F(histname.c_str(), histtitle.c_str(), 200, -10000, 10000, 200, 0, 5*maxAmpA);
                 IAplots->GetXaxis()->SetTitle("Time Difference (ns)");
                 IAplots->GetYaxis()->SetTitle("Integral (ADC counts)");
                 intA_plots[keyname] = IAplots;
@@ -136,7 +136,7 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
                 //intB plots
                 histname = "h" + fDetNameB + "_" + keyname + " TDiff_IntB";
                 histtitle = "Integral of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + (*sourceIt).Generator().str() + " generator";
-                TH2F* IBplots = new TH2F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000, maxAmpB, 0, 5*maxAmpB);
+                TH2F* IBplots = new TH2F(histname.c_str(), histtitle.c_str(), 200, -10000, 10000, 200, 0, 5*maxAmpB);
                 IBplots->GetXaxis()->SetTitle("Time Difference (ns)");
                 IBplots->GetYaxis()->SetTitle("Integral (ADC counts)");
                 intB_plots[keyname] = IBplots;
@@ -145,7 +145,7 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
             if(oned_plots.find(keyname) == oned_plots.end()) {
                 std::string histname = "h" + fDetNameB + "_" + keyname + "TDiff_1D";
                 std::string histtitle = "Time difference between  " + fDetNameA + " and " + fDetNameB + " detectors with the " + (*sourceIt).Generator().str() + " generator";
-                TH1F* dplots = new TH1F(histname.c_str(), histtitle.c_str(), 1000, -10000, 10000);
+                TH1F* dplots = new TH1F(histname.c_str(), histtitle.c_str(), 500, -10000, 10000);
                 dplots->GetXaxis()->SetTitle("Time Difference (ns)");
                 dplots->GetYaxis()->SetTitle("Count");
                 oned_plots[keyname] = dplots;
