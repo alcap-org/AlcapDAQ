@@ -28,8 +28,6 @@ int CFTimeAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 				     AnalysedPulseList& analysedList) {
   fConstantFractionTime.th_frac = 0.25;
 
-  TSetupData* setup = TSetupData::Instance();
-
   // Get the variables we want from TSetupData/SetupNavigator
   std::string bankname = pulseList[0]->GetBankName();
   fConstantFractionTime.pedestal = SetupNavigator::Instance()->GetPedestal(bankname);
