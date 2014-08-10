@@ -10,7 +10,8 @@ class AlCapError(Exception):
         return "AlCap Error: " + repr(self.value) + "!"
 
 class ArgumentError(AlCapError):
-    pass
+    def __init__(self, value):
+        self.value = "Argument error! " + repr(value)
     
 class GridError(AlCapError):
     pass

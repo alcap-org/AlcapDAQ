@@ -3,14 +3,18 @@ import DBManager
 import RunManager
 import merlin_utils as mu
 import ScreenManager
+from AlCapExceptions import *
 
 import getopt
 import time
 import sys
+import os
 
 _ALCAPANA = "alcapana"
 _ROOTANA  = "rootana"
 _PROGRAMS = [_ALCAPANA, _ROOTANA]
+_DATASETS = ["Al100", "Al50awithoutNDet2", "Al50awithNDet2", "Al50b", "SiR2",
+             "SiR21pct", "SiR23pct", "Si16P"]
 
 def usage():
     print "Usage: ./run_production --production=PROD_TYPE [optional arguments...]"
@@ -24,37 +28,48 @@ def usage():
     print "    --production=PROD_TYPE"
     print "                    The production type (alcapana or rootana)."
     print "Optional:"
-    print "    -h, --help      Print this help then exit."
-    print "    --usage         Print this help then exit."
-    print "    --version=#     Version number to produce. Default is highest production"
-    print "                    version number in production table. If issued with"
-    print "                    --new and --production=rootana, this flag tells us which"
-    print "                    alcapana version to produce from. If issued with --new and"
-    print "                    --production=alcapana, an exception is thrown."
-    print "    --new=TAG       Start a new production, incrememted once from the highest"
-    print "                    number present in productions table. The software tag in"
-    print "                    GitHub must be provided for bookkeeping."
-    print "    --pause=#       Wait # seconds between the event loop, which checks for"
-    print "                    finished jobs and runs to download."
-    print "                    (Default: 5)"
-    print "    --nproc=#       Maximum number of processes to submit to the grid"
-    print "                    simultaneously."
-    print "                    (Default: 10)"
-    print "    --nprep==#      Maximum number of MOIDAS files to have downloaded in"
-    print "                    addition to the one running on the grid. This means have,"
-    print "                    at most, NPROC + NPREP MIDAS files at once."
-    print "                    (Default: 5)"
-    print "    --spacelim=#    The maximum percentage of available space to use up"
-    print "                    (as returned from the mmlsquota command)."
-    print "                    (Default: 90)"
-    print "    --display       Use a ncurses display."
+    print "    -h, --help        Print this help then exit."
+    print "    --usage           Print this help then exit."
+    print "    --version=#       Version number to produce. Default is highest production"
+    print "                      version number in production table. If issued with"
+    print "                      --new and --production=rootana, this flag tells us which"
+    print "                      alcapana version to produce from. If issued with --new and"
+    print "                      --production=alcapana, an exception is thrown."
+    print "    --new=TAG         Start a new production, incrememted once from the highest"
+    print "                      number present in productions table. The software tag in"
+    print "                      GitHub must be provided for bookkeeping."
+    print "    --pause=#         Wait # seconds between the event loop, which checks for"
+    print "                      finished jobs and runs to download."
+    print "                      (Default: 5)"
+    print "    --nproc=#         Maximum number of processes to submit to the grid"
+    print "                      simultaneously."
+    print "                      (Default: 10)"
+    print "    --nprep==#        Maximum number of MOIDAS files to have downloaded in"
+    print "                      addition to the one running on the grid. This means have,"
+    print "                      at most, NPROC + NPREP MIDAS files at once."
+    print "                      (Default: 5)"
+    print "    --spacelim=#      The maximum percentage of available space to use up"
+    print "                      (as returned from the mmlsquota command)."
+    print "                      (Default: 90)"
+    print "    --display         Use a ncurses display."
+    print "    --modules=FILE    Use modules file FILE for rootana production."
+    print "                      For alcapana still uses hardcoded MODULES file."
+    print "                      (Default: production.cfg)"
+    print "    --dataset=SET     Only process files from dataset SET. Valid values are"
+    print "                      Al100, Al50awithoutNDet2, Al50awithNDet2, Al50b, SiR2,"
+    print "                      SiR21pct, SiR23pct, Si16P, and Common. Multiple can be"
+    print "                      specified with multiple --dataset=SET."
+    print "                      (Default: All datasets.)"
+    print "    --database=DB     SQLite3 database to use for production. If it doesn't"
+    print "                      exist, it will not be created."
+    print "                      (Default: ~/data/production.db)"
 
 
 ################################################################################
 # Argument parsing #############################################################
 ################################################################################
 short_args = "h"
-long_args = ["usage", "help", "production=", "version=", "new=", "pause=", "nproc=", "nprep=", "spacelim=", "display"]
+long_args = ["usage", "help", "production=", "version=", "new=", "pause=", "nproc=", "nprep=", "spacelim=", "display", "modules=", "dataset=", "database="]
 opts, unrecognized = getopt.getopt(sys.argv[1:], short_args, long_args)
 
 # Default arguments
@@ -67,6 +82,9 @@ nproc = 10
 nprep = 5
 space_limit = 0.9
 display = False
+modules = mu.CFGdir + "/production.cfg"
+datasets = []
+database = mu.DATAdir + "/production.db"
 
 # Parse arguments
 for opt, val in opts:
@@ -90,6 +108,12 @@ for opt, val in opts:
         space_limit = float(val)
     elif opt == "--display":
         display = True
+    elif opt == "--modules":
+        modules = val
+    elif opt == "--dataset":
+        datasets.append(val)
+    elif opt == "--database":
+        database = val
 
 
 # Argument checking
@@ -123,25 +147,32 @@ if nprep < 1 or nprep > 100:
 if space_limit <= 0. or space_limit > 0.95:
     msg = "Space limit cannot be less than or equal to 0 and maybe shouldn't be greater than 95%."
     raise ArgumentError(msg)
+for ds in datasets:
+    if not ds in _DATASETS:
+        msg = "Dataset not recognized: " + str(ds)
+        raise ArgumentError(msg)
+if not (os.path.isfile(modules) and os.access(modules, os.R_OK)):
+    msg = "Modules file does not exist or is not readable (" + str(modules) + ")"
+    raise ArgumentError(msg)
+
 
 # Nothing to prepare for rootana
 if production == _ROOTANA:
     nprep = 0
 ################################################################################
 
-
 if display:
     screenman = ScreenManager.ScreenManager()
 else:
-    screenman = ScreenManager.Dummy()    
-dbman = DBManager.DBManager(production, version, screenman)
+    screenman = ScreenManager.Dummy()
+dbman = DBManager.DBManager(production, version, screenman, database)
 if new:
     version = dbman.StartNewProduction(tag, "gold", version)
     screenman.Message("INFO: Starting new production, version " + str(version))
 elif not version:
     version = dbman.GetRecentProductionVersionNumber()
     screenman.Message("INFO: Most recent production version " + str(version))
-runman = RunManager.RunManager(production, version, screenman)
+runman = RunManager.RunManager(production, version, screenman, modules, database, datasets)
 
 
 screenman.SetProgram(production)
@@ -195,19 +226,27 @@ try:
         for run, job in jobs.iteritems():
             if job not in s_jobs:
                 to_delete.append(run)
-                runman.Finish(run)
-                screenman.FinishRun(run)
+                if mu.exit_status(job.job_id) == 0:
+                    runman.Finish(run)
+                    screenman.FinishRun(run)
+                else:
+                    to_abort[run] = job
+                    screenman.ErrorFinishRun(run)
+                    screenman.Message("INFO: There was a non-zero exit status from the following run: " + str(run))
             else:
                 jobs[run] = s_jobs[s_jobs.index(job)]
                 if jobs[run].HasError():
                     to_abort[run] = jobs[run]
         if len(to_abort.keys()) > 0:
             screenman.Message("INFO: There were errors with some runs, so the following runs will be aborted:")
-            screenman.Message(str(to_abort.keys()))
+            screenman.Message("Error: " + str(to_abort.keys()))
             mu.abort_jobs(to_abort.values())
             runman.Abort(to_abort.keys())
         for run in to_delete + to_abort.keys():
-            del jobs[run]
+            # Sometimes we'll try a double delete because runs
+            # to be deleted are also set up to be aborted.
+            if run in jobs:
+                del jobs[run]
         screenman.UpdateStatus(jobs)
 
         time.sleep(wait)
