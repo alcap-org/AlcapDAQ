@@ -4,9 +4,11 @@
 #include "CommandLine.h"
 #include "IdSource.h"
 
+#include <TSQLiteServer.h>
+
 class SetupNavigator{
-  SetupNavigator(){};
-  ~SetupNavigator(){ if (fThis) delete fThis;};
+  SetupNavigator();
+  ~SetupNavigator();
  public:
   static SetupNavigator* Instance();
 
@@ -26,6 +28,11 @@ class SetupNavigator{
  private:
   static SetupNavigator* fThis;
   ARGUMENTS fCommandLineArgs;
+
+  /// \brief
+  /// The SQLite filename and server
+  std::string fSQLiteFilename;
+  TSQLiteServer* fServer;
 };
 
 inline SetupNavigator* SetupNavigator::Instance(){
