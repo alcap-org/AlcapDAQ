@@ -42,11 +42,13 @@ int FirstCompleteAPGenerator::ProcessPulses(
 
     // Get the relevant TSetupData/SetupNavigator variables for the algorithms
     std::string bankname = pulseList[0]->GetBankName();
+    std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
+    IDs::channel channel(detname);
 
     fMaxBinAmplitude.pedestal 
         = fConstantFractionTime.pedestal 
         = fSimpleIntegral.pedestal 
-        = SetupNavigator::Instance()->GetPedestal(bankname);
+        = SetupNavigator::Instance()->GetPedestal(channel);
     fMaxBinAmplitude.trigger_polarity 
         = fConstantFractionTime.trigger_polarity 
         = fSimpleIntegral.trigger_polarity 

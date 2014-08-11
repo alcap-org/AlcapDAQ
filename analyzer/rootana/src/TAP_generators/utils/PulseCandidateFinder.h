@@ -126,20 +126,6 @@ class PulseCandidateFinder {
   /// \brief
   /// The number of sigma (i.e. noise) that we want the threshold to be set to
   int fNSigma;
-  /// \brief
-  /// The map that stores the one sigma values that we get from the SQLite database
-  static std::map<IDs::channel, double> fOneSigmaValues;
-  /// \brief
-  /// Called if "n_sigma" is specified as an option in the modules file and if fOneSigmaValues is empty
-  void SetOneSigmaValues();
-
-  /// \brief
-  /// The map that stores the pedestal values that we get from the SQLite database
-  static std::map<IDs::channel, double> fPedestalValues;
-  /// \brief
-  /// Called to set the pedestal values
-  void SetPedestalValues();
-
 };
 
 #endif

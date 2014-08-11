@@ -11,7 +11,6 @@
 #include <iostream>
 #include <sstream>
 
-#include <TSQLiteServer.h>
 #include <TSQLiteResult.h>
 #include <TSQLiteRow.h>
 
@@ -19,7 +18,34 @@
 #include <iostream>
 #include <sstream>
 
+#include "AlcapExcept.h"
+
+MAKE_EXCEPTION(NoCalibDB, Base);
+
 SetupNavigator* SetupNavigator::fThis=NULL;
+
+// Declare all our caches
+std::map<IDs::channel, double> SetupNavigator::fPedestalValues;
+std::map<IDs::channel, double> SetupNavigator::fNoiseValues;
+
+SetupNavigator::SetupNavigator() {
+
+  fSQLiteFilename="sqlite://pedestals-and-noises.sqlite";
+  fServer = new TSQLiteServer(fSQLiteFilename.c_str());
+
+  if (fServer->IsZombie()) {
+    std::cout << "SetupNavigator: ERROR: Couldn't connect to SQLite database." << std::endl;
+    throw Except::NoCalibDB();
+  }
+}
+
+SetupNavigator::~SetupNavigator() {
+
+  fServer->Close();
+
+  if (fThis) 
+    delete fThis;
+}
 
 std::string SetupNavigator::GetBank(const IDs::channel& src)const{
     TSetupData* setup=TSetupData::Instance();
@@ -31,68 +57,44 @@ std::string SetupNavigator::GetBank(const IDs::channel& src)const{
     return "invalid-det-bank";
 }
 
-double SetupNavigator::GetPedestalError(std::string bankname) {
-
-  // The values that we will read in
-  double noise=definitions::DefaultValue;
-
-  // Get the SQLite database file
-  TSQLiteServer* server = new TSQLiteServer("sqlite://pedestals-and-noises.sqlite");
-
-  std::stringstream query; 
-  std::string tablename = "pedestals_and_noises";
-  int run_number = GetRunNumber(); // get this run number (Note that if we don't have a catalogue of pedestals and noises for each run then we will want to change this)
-  if (server) {
-
-    query << "SELECT * FROM " << tablename << " WHERE bank=\'" << bankname << "\' AND run=" << run_number << ";"; // get all the pedestals and noises
-    TSQLiteResult* result = (TSQLiteResult*) server->Query(query.str().c_str());  // get the result of this query
-    query.str(""); // clear the stringstream after use
-
-    TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
-    while (row != NULL) {
-      noise = atof(row->GetField(4));
-      
-      delete row;
-      row = (TSQLiteRow*) result->Next(); // get the next row
-    }
-    delete result; // user has to delete the result
+void SetupNavigator::CacheCalibDB() {
+  // Cache all the variables we have in the database
+  // First the pedestals and noises
+  fTableName = "pedestals_and_noises";
+  if (!fServer->HasTable(fTableName.c_str())) { // check it exists
+    std::cout << "SetupNavigator: ERROR: Table " << fTableName << " does not exist." << std::endl;
   }
   else {
-    std::cout << "Error: Couldn't connect to SQLite database" << std::endl;
+    if (fPedestalValues.empty() && fNoiseValues.empty()) {
+      ReadPedestalAndNoiseValues();
+    }
   }
-  server->Close();
-  return noise;
 }
 
-double SetupNavigator::GetPedestal(std::string bankname) {
-
+void SetupNavigator::ReadPedestalAndNoiseValues() {
   // The values that we will read in
   double pedestal=definitions::DefaultValue;
-
-  // Get the SQLite database file
-  TSQLiteServer* server = new TSQLiteServer("sqlite://pedestals-and-noises.sqlite");
-
-  std::stringstream query; 
-  std::string tablename = "pedestals_and_noises";
+  double noise=definitions::DefaultValue;
+  std::string channelname;
+ 
+  std::stringstream query;
   int run_number = GetRunNumber(); // get this run number (Note that if we don't have a catalogue of pedestals and noises for each run then we will want to change this)
-  if (server) {
 
-    query << "SELECT * FROM " << tablename << " WHERE bank=\'" << bankname << "\' AND run=" << run_number << ";"; // get all the pedestals and noises
-    TSQLiteResult* result = (TSQLiteResult*) server->Query(query.str().c_str());  // get the result of this query
-    query.str(""); // clear the stringstream after use
+  query << "SELECT * FROM " << fTableName << " WHERE run=" << run_number << ";"; // get all the pedestals and noises
+  TSQLiteResult* result = (TSQLiteResult*) fServer->Query(query.str().c_str());  // get the result of this query
+  query.str(""); // clear the stringstream after use
+  
+  TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
+  while (row != NULL) {
+    channelname = row->GetField(1);
+    pedestal = atof(row->GetField(3));
+    noise = atof(row->GetField(4));
+    
+    fPedestalValues[channelname] = pedestal;
+    fNoiseValues[channelname] = noise;
+    delete row;
+    row = (TSQLiteRow*) result->Next(); // get the next row
+  }
+  delete result; // user has to delete the result
 
-    TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
-    while (row != NULL) {
-      pedestal = atof(row->GetField(3));
-      
-      delete row;
-      row = (TSQLiteRow*) result->Next(); // get the next row
-    }
-    delete result; // user has to delete the result
-  }
-  else {
-    std::cout << "Error: Couldn't connect to SQLite database" << std::endl;
-  }
-  server->Close();
-  return pedestal;
 }

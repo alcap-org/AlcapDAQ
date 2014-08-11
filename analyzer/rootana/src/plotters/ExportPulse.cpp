@@ -231,7 +231,7 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info)cons
   //double max= min + num_samples * fClockTick;
   TH1F* hPulse = new TH1F(hist.c_str(), title.str().c_str(), num_samples,min,max);
   
-  double pedestal_error = SetupNavigator::Instance()->GetPedestalError(info.bankname);
+  double pedestal_error = SetupNavigator::Instance()->GetNoise(info.bankname);
   for ( size_t i=0;i <num_samples; ++i) {
     hPulse->SetBinContent(i+1, pulse->GetSamples().at(i));
     hPulse->SetBinError(i+1, pedestal_error);

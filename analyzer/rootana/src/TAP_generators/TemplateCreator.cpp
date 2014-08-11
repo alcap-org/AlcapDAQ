@@ -260,7 +260,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	  TH1D* hCorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
 	  hCorrectedPulse->SetEntries(0); // set entries back to 0
 	  
-	  double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
+	  double pedestal_error = SetupNavigator::Instance()->GetNoise(bankname);
 
 	  // Loop through the bins of the uncorrected pulse and set the values in the corrected pulse histogram
 	  for (int iPulseBin = 1; iPulseBin <= hPulseToFit->GetNbinsX(); ++iPulseBin) {
@@ -421,7 +421,7 @@ TH1D* TemplateCreator::CreateRefinedPulseHistogram(const TPulseIsland* pulse, st
   // Create the higher resolution histogram
   TH1D* hist = new TH1D(histname.c_str(), histtitle.c_str(), n_bins, 0, n_samples);
 
-  double pedestal_error = SetupNavigator::Instance()->GetPedestalError(bankname);
+  double pedestal_error = SetupNavigator::Instance()->GetNoise(bankname);
 
   // Go through the bins in the high-resolution histogram
   // NB sample numbers go grom 0 to n-1 and bins go from 1 to n
