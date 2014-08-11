@@ -83,6 +83,7 @@ int main(int argc, char **argv)
   std::cout << "Starting event" << std::endl;
   // Give the command line arguments to the navigator
   SetupNavigator::Instance()->SetCommandLineArgs(arguments);
+  SetupNavigator::Instance()->CacheCalibDB();
 
   // Read in the configurations file
   ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file.c_str());

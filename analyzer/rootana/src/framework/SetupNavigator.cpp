@@ -24,7 +24,12 @@ MAKE_EXCEPTION(NoCalibDB, Base);
 
 SetupNavigator* SetupNavigator::fThis=NULL;
 
+// Declare all our caches
+std::map<IDs::channel, double> SetupNavigator::fPedestalValues;
+std::map<IDs::channel, double> SetupNavigator::fNoiseValues;
+
 SetupNavigator::SetupNavigator() {
+
   fSQLiteFilename="sqlite://pedestals-and-noises.sqlite";
   fServer = new TSQLiteServer(fSQLiteFilename.c_str());
 
@@ -52,52 +57,44 @@ std::string SetupNavigator::GetBank(const IDs::channel& src)const{
     return "invalid-det-bank";
 }
 
-double SetupNavigator::GetPedestalError(std::string bankname) {
-
-  // The values that we will read in
-  double noise=definitions::DefaultValue;
-
-  std::stringstream query; 
-  std::string tablename = "pedestals_and_noises";
-  int run_number = GetRunNumber(); // get this run number (Note that if we don't have a catalogue of pedestals and noises for each run then we will want to change this)
-
-  query << "SELECT * FROM " << tablename << " WHERE bank=\'" << bankname << "\' AND run=" << run_number << ";"; // get all the pedestals and noises
-  TSQLiteResult* result = (TSQLiteResult*) fServer->Query(query.str().c_str());  // get the result of this query
-  query.str(""); // clear the stringstream after use
-  
-  TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
-  while (row != NULL) {
-    noise = atof(row->GetField(4));
-    
-    delete row;
-    row = (TSQLiteRow*) result->Next(); // get the next row
+void SetupNavigator::CacheCalibDB() {
+  // Cache all the variables we have in the database
+  // First the pedestals and noises
+  fTableName = "pedestals_and_noises";
+  if (!fServer->HasTable(fTableName.c_str())) { // check it exists
+    std::cout << "SetupNavigator: ERROR: Table " << fTableName << " does not exist." << std::endl;
   }
-  delete result; // user has to delete the result
-
-  return noise;
+  else {
+    if (fPedestalValues.empty() && fNoiseValues.empty()) {
+      ReadPedestalAndNoiseValues();
+    }
+  }
 }
 
-double SetupNavigator::GetPedestal(std::string bankname) {
-
+void SetupNavigator::ReadPedestalAndNoiseValues() {
   // The values that we will read in
   double pedestal=definitions::DefaultValue;
-
-  std::stringstream query; 
-  std::string tablename = "pedestals_and_noises";
+  double noise=definitions::DefaultValue;
+  std::string channelname;
+ 
+  std::stringstream query;
   int run_number = GetRunNumber(); // get this run number (Note that if we don't have a catalogue of pedestals and noises for each run then we will want to change this)
 
-  query << "SELECT * FROM " << tablename << " WHERE bank=\'" << bankname << "\' AND run=" << run_number << ";"; // get all the pedestals and noises
+  query << "SELECT * FROM " << fTableName << " WHERE run=" << run_number << ";"; // get all the pedestals and noises
   TSQLiteResult* result = (TSQLiteResult*) fServer->Query(query.str().c_str());  // get the result of this query
   query.str(""); // clear the stringstream after use
   
   TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
   while (row != NULL) {
+    channelname = row->GetField(1);
     pedestal = atof(row->GetField(3));
+    noise = atof(row->GetField(4));
     
+    fPedestalValues[channelname] = pedestal;
+    fNoiseValues[channelname] = noise;
     delete row;
     row = (TSQLiteRow*) result->Next(); // get the next row
   }
   delete result; // user has to delete the result
 
-  return pedestal;
 }
