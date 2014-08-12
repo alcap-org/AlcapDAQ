@@ -213,71 +213,32 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
 
 /// FillParameterHistogram
 /// Fills the given histogram with the relevant parameter based on the channel
-void PulseCandidateFinder::FillParameterHistogram(TH1D* histogram) {
+void PulseCandidateFinder::FillParameterHistogram(TH2D* histogram) {
 
   std::string detname = TSetupData::Instance()->GetDetectorName(fPulseIsland->GetBankName());
   IDs::channel theChannel = detname;
 
-  std::string parameter_name = "Unknown";
-
-  // We have a different algorithm for fast and slow pulses
-  if (theChannel.isFast()) {
-    parameter_name = "SampleDifference";
-    FillSampleDifferencesHistogram(histogram);
-  }
-  else if (theChannel.isSlow()) {
-    parameter_name = "SampleHeight";
-    FillSampleHeightsHistogram(histogram);
-  }
-  else {
-    // it's a scintillator so plot the fast parameters
-    parameter_name = "SampleDifference";
-    FillSampleDifferencesHistogram(histogram);
-  }
-
-  std::stringstream histtitle;
-  histtitle << "Plot of " << parameter_name << " for " << detname << " for Run " << SetupNavigator::Instance()->GetRunNumber();
-  histogram->SetTitle(histtitle.str().c_str());
-  histogram->GetYaxis()->SetTitle("");
-  histogram->GetXaxis()->SetTitle(parameter_name.c_str());
-}
-
-/// FillSampleDifferencesHistogram
-/// Fills the given histogram with the differences between consecutive samples
-void PulseCandidateFinder::FillSampleDifferencesHistogram(TH1D* histogram) {
-
+  // Get some information from the TPI
   const std::vector<int>& samples = fPulseIsland->GetSamples();
   unsigned int n_samples = samples.size();
   int polarity = fPulseIsland->GetTriggerPolarity();
 
   int s1, s2, ds; // this sample value, the previous sample value and the change in the sample value
 
-  // Loop through the samples
+  // Loop through the samples and plot the 2D plot
   for (unsigned int i = 1; i < n_samples; ++i) {
     s1 = polarity * (samples[i-1] - fPedestal);
     s2 = polarity * (samples[i] - fPedestal);
     ds = s2 - s1;
 
-    histogram->Fill(ds);
+    histogram->Fill(ds, s1);
   }
-}
 
-/// FillSampleHeightsHistogram
-/// Fills the given histogram with the heights between consecutive samples
-void PulseCandidateFinder::FillSampleHeightsHistogram(TH1D* histogram) {
-
-  const std::vector<int>& samples = fPulseIsland->GetSamples();
-  unsigned int n_samples = samples.size();
-  int polarity = fPulseIsland->GetTriggerPolarity();
-
-  int sample_height; // the height of this sample above pedestal
-
-  // Loop through the samples
-  for (unsigned int i = 0; i < n_samples; ++i) {
-    sample_height = polarity * (samples[i] - fPedestal);
-
-    histogram->Fill(sample_height);
-  }
+  std::stringstream histtitle;
+  histtitle << "Plot of sample differences vs sample heights for " << detname << " for Run " << SetupNavigator::Instance()->GetRunNumber();
+  histogram->SetTitle(histtitle.str().c_str());
+  histogram->GetYaxis()->SetTitle("Sample Heights");
+  histogram->GetXaxis()->SetTitle("Sample Differences");
 }
 
 /// Need to declare this outside of any method
@@ -315,15 +276,15 @@ void PulseCandidateFinder::SetDefaultParameterValues() {
   // Set all the default values for the slow parameters
   fDefaultParameterValues[IDs::channel("Ge-S")] = 500;
 
-  fDefaultParameterValues[IDs::channel("SiL2-S")] = 20;
-  fDefaultParameterValues[IDs::channel("SiL1-1-S")] = 20;
-  fDefaultParameterValues[IDs::channel("SiL1-2-S")] = 150;
-  fDefaultParameterValues[IDs::channel("SiL1-3-S")] = 20;
-  fDefaultParameterValues[IDs::channel("SiL1-4-S")] = 40;
+  fDefaultParameterValues[IDs::channel("SiL2-S")] = 30;
+  fDefaultParameterValues[IDs::channel("SiL1-1-S")] = 45;
+  fDefaultParameterValues[IDs::channel("SiL1-2-S")] = 80;
+  fDefaultParameterValues[IDs::channel("SiL1-3-S")] = 100;
+  fDefaultParameterValues[IDs::channel("SiL1-4-S")] = 80;
 
-  fDefaultParameterValues[IDs::channel("SiR2-S")] = 50;
-  fDefaultParameterValues[IDs::channel("SiR1-1-S")] = 50;
-  fDefaultParameterValues[IDs::channel("SiR1-2-S")] = 30;
+  fDefaultParameterValues[IDs::channel("SiR2-S")] = 30;
+  fDefaultParameterValues[IDs::channel("SiR1-1-S")] = 40;
+  fDefaultParameterValues[IDs::channel("SiR1-2-S")] = 60;
   fDefaultParameterValues[IDs::channel("SiR1-3-S")] = 40;
   fDefaultParameterValues[IDs::channel("SiR1-4-S")] = 40;
 }
