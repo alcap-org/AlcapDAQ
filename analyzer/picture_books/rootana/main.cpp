@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
 	  hPlot->Draw();
 	  
 	  // Save the plot as a PNG
-	  std::string pngname = histogram_name + ".png";
+	  std::string pngname = "plots/" + histogram_name + ".png";
 	  std::replace(pngname.begin(), pngname.end(), '#', '_'); // need to replace # so that latex works
 	  c1->SaveAs(pngname.c_str());
 
