@@ -18,8 +18,8 @@ void help_command_line(const char* my_name)
   std::cerr << "\nUsage: " << my_name << "  [options]\n"
             << "    Positional arguments: None\n\n"
             << "Valid options are:\n"
-            << "  -d <filename>\t\t Location of the input root files with histograms.\n"
-            << "  -o <filename>\t\t Output PDF name.\n"
+            << "  -d <directory>\t\t Location of the input root files with histograms.\n"
+            << "  -o <filename>\t\t Output .tex name.\n"
             << "  -r <first> <last>\t\t Only analyze run numbers between <first> and <last>.\n"
             << "  -m <modules file>\t Name of the format file to be used.\n"
             << std::endl;
