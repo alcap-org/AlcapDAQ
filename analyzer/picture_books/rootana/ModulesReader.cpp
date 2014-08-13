@@ -42,14 +42,14 @@ int modules::reader::ReadFile(const char* name){
       if(new_section!="") {
           section=new_section;
           if(fShouldPrint) std::cout<<"Found new section: '"<<section<<"'"<<std::endl;
-          if(section!="MODULES") {
+          if(section!="CHAPTERS") {
             AddSection(section);
           }
           continue;
       }
 
-      if(section=="MODULES") {
-        //  In the MODULES secton each line specifies a module to use
+      if(section=="CHAPTERS") {
+        //  In the CHAPTERS secton each line specifies a module to use
           ret=AddModule(full_line);
           if(ret!=0) return ret;
       }else{
