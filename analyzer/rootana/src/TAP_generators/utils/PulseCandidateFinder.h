@@ -5,6 +5,8 @@
 #include "TPulseIsland.h"
 #include "definitions.h"
 
+#include "TH2.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
 /// \author Andrew Edmonds
@@ -90,17 +92,9 @@ class PulseCandidateFinder {
 
  public:
   /// \brief
-  /// Takes a histogram and fills it with the parameters (either sample height above pedestals 
-  /// or sample differences between consecutive samples)
-  void FillParameterHistogram(TH1D* histogram);
-
- private:
-  /// \brief
-  /// Fills the given histogram with the sample differences between consecutive pulses
-  void FillSampleDifferencesHistogram(TH1D* histogram);
-  /// \brief
-  /// Fills the given histogram with the sample's height above pedestal
-  void FillSampleHeightsHistogram(TH1D* histogram);
+  /// Takes a histogram and fills it with the parameters (both sample height above pedestals 
+  /// and sample differences between consecutive samples)
+  void FillParameterHistogram(TH2D* histogram);
 
  private:
   /// \brief

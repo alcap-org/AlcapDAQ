@@ -66,7 +66,7 @@ class PulseCandidateFinder_InvestigateParameters : public BaseModule{
  private:
   /// \brief
   /// The map that we store the parameter histograms for each channel
-  std::map<std::string, TH1D*> fParameterHistograms;
+  std::map<std::string, TH2D*> fParameterHistograms;
 
   /// \brief
   /// Store the module options so that they can be passed to the PulseCandidateFinder

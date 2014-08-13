@@ -67,15 +67,13 @@ int FirstCompleteAPGenerator::ProcessPulses(
         int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
         fPulseCandidateFinder->GetPulseCandidates(fSubPulses);
 
-	if(Debug()) {
+        if (Debug() && n_pulse_candidates > 0
+	    && (GetChannel().str() == "ScL")
+	   ) {
+	  
 	  std::cout << "FirstCompleteAPGenerator: " << GetChannel().str() 
 		    << ": n_pulse_candidates = " << n_pulse_candidates  << std::endl;
-	}
 
-        if (Debug() && n_pulse_candidates > 10
-                && GetChannel().str() != "muSc" && GetChannel().str() != "muScA"
-                && GetChannel().str() != "ScL" && GetChannel().str() != "ScR"
-                && GetChannel().str() != "ScGe" && GetChannel().str() != "ScVe") {
             DrawPulse(original_tpi-pulseList.begin(),
                     (*original_tpi)->GetTimeStamp(),
                     (*original_tpi)->GetPulseLength());
@@ -112,10 +110,10 @@ int FirstCompleteAPGenerator::ProcessPulses(
 
 void FirstCompleteAPGenerator::DrawPulse(int original, int pulse_timestamp, int n_pulse_samples){
 
-    if( ExportPulse::Instance())
+  /*    if( ExportPulse::Instance())
         ExportPulse::Instance()->AddToExportList(GetChannel().str(), original);
     else return;
-
+  */
     for (std::vector<TPulseIsland*>::const_iterator subPulseIter = fSubPulses.begin();
             subPulseIter != fSubPulses.end(); ++subPulseIter) {
         std::stringstream histname;
