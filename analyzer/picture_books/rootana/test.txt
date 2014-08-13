@@ -1,9 +1,10 @@
-debug
-
 [CHAPTERS]
 Amplitudes
+Times
 
 [Amplitudes]
 module=PlotAmplitude
 plot_type=Amplitude
 logX=true
+
+[Times]

@@ -29,6 +29,14 @@ int main(int argc, char **argv) {
   for (std::vector<BaseChapter*>::const_iterator chapterIter = gChapters.begin(); chapterIter != gChapters.end(); ++chapterIter) {
     std::string chapter_name = (*chapterIter)->GetChapterName();
     pic_book->StartNewSection(chapter_name);
+
+    std::string module_name = (*chapterIter)->GetModuleName();
+    if (module_name == "0") {
+      std::cout << "Problem with the module name for chapter " << chapter_name << ". Aborting..." << std::endl;
+      return 0;
+    }
+
+    std::cout << "\nModule Name = " << module_name << std::endl;
   }
 
   std::stringstream filename;
