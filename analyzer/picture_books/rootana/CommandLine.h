@@ -4,13 +4,11 @@
 #include <string>
 
 struct ARGUMENTS {
-  std::string infile;
+  std::string infilelocation;
   std::string outfile;
-  std::string correction_file;
   std::string mod_file;
   int start;
   int stop;
-  int run;
 };// ARGUMENTS;
 
 void help_command_line(const char* my_name);

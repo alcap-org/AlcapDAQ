@@ -1,6 +1,6 @@
 #include <string.h>
-#include "ModulesReader.h"
-#include "ModulesFactory.h"
+//#include "ModulesReader.h"
+//#include "ModulesFactory.h"
 #include "CommandLine.h"
 #include <stdio.h>
 #include <string>
@@ -14,14 +14,10 @@ void help_command_line(const char* my_name)
   std::cerr << "\nUsage: " << my_name << "  [options]\n"
             << "    Positional arguments: None\n\n"
             << "Valid options are:\n"
-            << "  -i <filename>\t\t Input root tree file.\n"
-            << "  -o <filename>\t\t Output root tree file.\n"
-            << "  -n <count>\t\t Analyze only <count> events.\n"
-            << "  -n <first> <last>\t Analyze only events from "
-            << "<first> to <last>.\n"
-            << "  -r <PSI run number>\t Run number specification for the shrubs.\n"
-            << "  -s <correction file>\t Name of the correction file to be used.\n"
-            << "  -m <modules file>\t Name of the MODULES file to be used.\n"
+            << "  -d <filename>\t\t Location of the input root files with histograms.\n"
+            << "  -o <filename>\t\t Output PDF name.\n"
+            << "  -r <first> <last>\t\t Only analyze run numbers between <first> and <last>.\n"
+            << "  -m <modules file>\t Name of the format file to be used.\n"
             << std::endl;
   return;
 }
@@ -75,8 +71,8 @@ int check_arguments(ARGUMENTS& arguments){
     }
   }
   
-  if(arguments.infile.size() == 0){
-    std::cerr << "ERROR: Empty input file name."
+  if(arguments.infilelocation.size() == 0){
+    std::cerr << "ERROR: Empty input file location name."
               <<"  Did you specify the -i option?"  << std::endl;
     return 2;
   }
@@ -87,20 +83,10 @@ int check_arguments(ARGUMENTS& arguments){
     return 3;
   }  
 
-  if(arguments.run == -1){
-    // No run number has been set, obtain it from the filename
-    arguments.run = GetRunNumber(arguments.infile);
-  }
-
   if(arguments.mod_file.size() == 0){
     arguments.mod_file = "testModule.txt";
   }
 
-  if(arguments.correction_file.size() == 0){
-    std::stringstream buff("");
-    buff << "wiremap_corrections/correct" << arguments.run << ".dat";
-    arguments.correction_file=buff.str();
-  }
   return 0; //success
 }
 
@@ -114,12 +100,10 @@ void PrintLocation()
 int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
 {
   // Inialise the arguments to be consistently meaningless
-  arguments.infile="";
+  arguments.infilelocation="";
   arguments.outfile="";
-  arguments.correction_file="";
   arguments.start=0;
   arguments.stop=0;
-  arguments.run=-1;
 
   // Now loop over all the arguments 
   if(argc==1) {
@@ -159,13 +143,13 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
      break;
 
      //----------
-   case 'i':
+   case 'd':
      if(i+1 < argc){
-       arguments.infile = argv[i+1];
+       arguments.infilelocation = argv[i+1];
        i+=2;
      }
      else{
-       std::cerr << "ERROR: No argument for input file specified\n";
+       std::cerr << "ERROR: No argument for input file location specified\n";
        help_command_line(argv[0]);   return 1;
      }
      break;
@@ -177,25 +161,13 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
        i+=2;
      }
      else{
-       std::cerr << "ERROR: No argument for input file specified\n";
+       std::cerr << "ERROR: No argument for output file specified\n";
        help_command_line(argv[0]);   return 1;
      }
      break;
 
      //----------
-   case 's':
-     if(i+1 < argc){
-       arguments.correction_file = argv[i+1];
-       i+=2;
-     }
-     else{
-       std::cerr << "ERROR: No argument for TSetupData correction file specified\n";
-       help_command_line(argv[0]);   return 1;
-     }
-     break;
-
-     //----------
-   case 'n': 
+   case 'r': 
      {
        //detemine how many integer arguments are associated with the -n
        int nArgs = 0;
@@ -215,21 +187,6 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
      }
      break;
      //----------
-   case 'r':
-     if(i+1 < argc){
-       if(isNumber(argv[i+1])){
-         arguments.run = atoi(argv[i+1]);
-         i+=2;
-       }
-       else{
-         std::cerr << "ERROR: Argument " << argv[i+1]
-                   << " for option -r is not a number\n";
-         help_command_line(argv[0]);   return 1;
-       }
-     }
-     break;
-
-     //----------
    default:
      std::cerr << "ERROR: Argument " << argv[i] << " not recognized\n";
      help_command_line(argv[0]);   return 1;
@@ -241,7 +198,7 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
 }
 
 //----------------------------------------------------------------------
-int load_config_file(const char* filename){
+/*int load_config_file(const char* filename){
   modules::reader modules_file;
   modules_file.ReadFile(filename);
   modules_file.PrintAllOptions();
@@ -263,16 +220,14 @@ int load_config_file(const char* filename){
   
   return 0;
 }
-
+*/
 //----------------------------------------------------------------------
 void print_arguments(const ARGUMENTS& args){
   std::cout << "ARGUMENTS struct:"
-            << "\n    infile:\t\t" << args.infile
+            << "\n    infilelocation:\t\t" << args.infilelocation
             << "\n    outfile:\t\t" << args.outfile
-            << "\n    correction file:\t" << args.correction_file
             << "\n    mod file:\t\t" << args.mod_file
-            << "\n    start event:\t" << args.start
-            << "\n    stop event:\t\t" << args.stop
-            << "\n    run number:\t\t" << args.run
+            << "\n    start run:\t" << args.start
+            << "\n    stop run:\t\t" << args.stop
             << std::endl;
 }
