@@ -6,7 +6,7 @@ export ROOTGLIBS    := $(shell root-config --glibs)
 export ROOTINC=${ROOTSYS}/include
 
 all:
-	g++ ${ROOTLIBS} ${ROOTCFLAGS} -o picture_book.exe main.cpp CommandLine.cpp
+	g++ ${ROOTLIBS} ${ROOTCFLAGS} -o picture_book.exe main.cpp CommandLine.cpp PictureBook.cpp
 
 clean: 
 	rm *.o *.exe
