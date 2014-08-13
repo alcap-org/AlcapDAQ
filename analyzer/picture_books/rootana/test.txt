@@ -1,1 +1,7 @@
-PlotAmplitude,Amplitude logX
+[CHAPTERS]
+Amplitudes=Amplitudes
+
+[Amplitudes]
+module=PlotAmplitude
+plot_type=Amplitude
+logX=true
