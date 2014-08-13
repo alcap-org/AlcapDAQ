@@ -28,16 +28,18 @@ int CFTimeNoShiftAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 				     AnalysedPulseList& analysedList) {
   fConstantFractionTime.th_frac = 0.25;
 
+
   // Get the variables we want from TSetupData/SetupNavigator
   std::string bankname = pulseList[0]->GetBankName();
-  fConstantFractionTime.pedestal = SetupNavigator::Instance()->GetPedestal(bankname);
+  fConstantFractionTime.pedestal = SetupNavigator::Instance()->GetPedestal(TSetupData::Instance()->GetDetectorName(bankname));
   fConstantFractionTime.trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
   fConstantFractionTime.max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
   fConstantFractionTime.clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
   fConstantFractionTime.time_shift = 0;
 
-  fMaxBinAmplitude.pedestal = SetupNavigator::Instance()->GetPedestal(bankname);
+  fMaxBinAmplitude.pedestal = SetupNavigator::Instance()->GetPedestal(TSetupData::Instance()->GetDetectorName(bankname));
   fMaxBinAmplitude.trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+
 
   for (unsigned int iTPI = 0; iTPI < pulseList.size(); ++iTPI) {
     TPulseIsland* tpi = pulseList.at(iTPI);

@@ -23,10 +23,12 @@ class SetupNavigator{
 
   /// \brief
   /// Gets the pedestal from the SQLite database
-  double GetPedestal(IDs::channel channel) { return fPedestalValues[channel]; };
+  double GetPedestal(const IDs::channel& channel) { return fPedestalValues[channel]; }
   /// \brief
   /// Gets the error on the pedestal from the SQLite database
-  double GetNoise(IDs::channel channel) { return fNoiseValues[channel]; };
+  double GetNoise(const IDs::channel& channel) { return fNoiseValues[channel]; }
+  double GetGrossTimeOffset(const IDs::source& src) { return fGrossTimeOffset.at(source); }
+  void SetGrossTimeOffset(const IDs::source& src, double dt);
 
  private:
   static SetupNavigator* fThis;
@@ -44,10 +46,20 @@ class SetupNavigator{
   /// \brief
   /// The map that stores the pedestal error values (i.e. noise) that we get from the SQLite database
   static std::map<IDs::channel, double> fNoiseValues;
+  /// \brief
+  /// The map that stores the gross time offset values from SQLite database.
+  static std::map<IDs::source, double> fGrossTimeOffset;
 
   /// \brief
   /// Reads the pedestal and pedestal error values
   void ReadPedestalAndNoiseValues();
+  /// \brief
+  /// Reads the gross time offset values
+  void ReadGrossTimeOffsetValues();
+  /// \brief
+  /// Read in gross time offset columns determining what TAP generators we're ready for
+  std::vector<std::string> GetGrossTimeOffsetColumns();
+
 };
 
 inline SetupNavigator* SetupNavigator::Instance(){

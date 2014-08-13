@@ -27,7 +27,7 @@ int MaxBinNoShiftAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 
   // Get the various variables we need from TSetupData/SetupNavigator
   std::string bankname = pulseList[0]->GetBankName();
-  fMaxBinAmplitude.pedestal = SetupNavigator::Instance()->GetPedestal(bankname);
+  fMaxBinAmplitude.pedestal = SetupNavigator::Instance()->GetPedestal(TSetupData::Instance()->GetDetectorName(bankname));
 
   fMaxBinAmplitude.trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
   fMaxBinTime.trigger_polarity = fMaxBinAmplitude.trigger_polarity;

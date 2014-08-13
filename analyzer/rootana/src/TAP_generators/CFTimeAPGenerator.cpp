@@ -32,25 +32,11 @@ int CFTimeAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 
 
   std::string bankname = pulseList[0]->GetBankName();
-
-
-  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! //
-  // GETPEDESTAL TAKES CHANNEL (OR DETECTOR NAME), NOT BANK NAME //
-  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! //
-  fConstantFractionTime.pedestal = SetupNavigator::Instance()->GetPedestal(bankname);
-
-
+  fConstantFractionTime.pedestal = SetupNavigator::Instance()->GetPedestal(TSetupData::Instance()->GetDetectorName(bankname));
   fConstantFractionTime.trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
-
-
   fConstantFractionTime.max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
-
-
   fConstantFractionTime.clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
-
-
   fConstantFractionTime.time_shift = TSetupData::Instance()->GetTimeShift(bankname);
-
 
   for (unsigned int iTPI = 0; iTPI < pulseList.size(); ++iTPI) {
     TPulseIsland* tpi = pulseList.at(iTPI);

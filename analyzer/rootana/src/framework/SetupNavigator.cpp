@@ -63,10 +63,12 @@ void SetupNavigator::CacheCalibDB() {
   fTableName = "pedestals_and_noises";
   if (!fServer->HasTable(fTableName.c_str())) { // check it exists
     std::cout << "SetupNavigator: ERROR: Table " << fTableName << " does not exist." << std::endl;
-  }
-  else {
+  } else if (!fServer->HasTable("GrossTimeOffset")) {
+    std::cout << "SetupNavigator: ERROR: Table " << "GrossTimeOffset" << " does not exist." << std::endl;
+  } else {
     if (fPedestalValues.empty() && fNoiseValues.empty()) {
       ReadPedestalAndNoiseValues();
+      ReadGrossTimeOffsetValues();
     }
   }
 }
@@ -97,4 +99,87 @@ void SetupNavigator::ReadPedestalAndNoiseValues() {
   }
   delete result; // user has to delete the result
 
+}
+
+
+void SetupNavigator::ReadGrossTimeOffsetValues() {
+  // The values that we will read in
+  const std::vector<std::string> table = GetGrossTimeOffsetGeneratorColumns();
+
+  std::stringstream query;
+  query << "SELECT channel";
+  for (unsigned int i = 0; i < table.size(); ++i)
+    query << ',' << table[i];
+  query << " FROM " << "GrossTimeOffset" << " WHERE run==" << GetRunNumber();
+  TSQResult* res = fServer->Query(query.str().c_str());
+
+  TSQLRow* row;
+  while (row = res->Next()) {
+    for (unsigned int i = 0; i < table.size(); ++i) {
+      std::stringstream srcstr;
+      srcstr << row->GetField(0) << IDs::field_separator << table[i] << IDs::field_separator << IDs::kAnyConfig;
+      fGrossTimeOffset[IDs::source(srcstr.str())] = row->GetField(1 + i);
+    }
+    delete row;
+  }
+  delete result;
+}
+
+std::vector<std::string> SetupNavigator::GetGrossTimeOffsetColumns() {
+  std::vector<std::string> tables;
+  TSQLResult* res = fServer->Query("PRAGMA table_info(" << "GrossTimeOffset" << ")");
+  TSQLRow* row;
+  while (row = res->Next()) {
+    if (row->GetField(1) != "run" && row->GetField(1) != "channel")
+      tables.push_back(std::string(row->GetField(1)));
+    delete row;
+  }
+  delete res;
+  return tables;
+}
+
+void SetupNavigator::SetGrossTimeOffset(const IDs::source& src, double dt) {
+  std::stringstream cmd;
+
+  // Create table and columns if they don't exist
+  server->Exec("CREATE TABLE IF NOT EXIST " << "GrossTimeOffset" << "(run INT, channel TEXT)");
+  CreateColumnIfNotExist("GrossTimeOffset", src.Generator().Type(), "TEXT");
+
+  cmd << "SELECT * FROM " << "GrossTimeOffset" << " WHERE run==" << GetRunNumber() << " AND channel=='" << src.Channel().str();
+  TSQLResult* res = server->Query(cmd.str().c_str());
+
+  cmd.str("");
+  if (res->GetRowCount())
+    cmd <<
+      "UPDATE " << "GrossTimeOffset" << " SET " << src.Generator().Type() << "=" << dt <<
+      " WHERE run==" << GetRunNumber() << " AND channel==" <<
+      src.Channel().str();
+  else
+    cmd <<
+      "INSERT INTO " << "GrossTimeOffset" << "(run,channel," << src.Generator().Type() <<
+      ") VALUE (" << GetRunNumber() << "," << src.Channel().str() << "," <<
+      dt << ")";
+  server->Exec(cmd.str().c_str());
+  server->Commit();
+
+  delete res;
+}
+
+void SetupNavigator::CreateColumnIfNotExist(const std::string& tab, const std::string& col, const std::string& type) {
+  std::stringstream cmd;
+  cmd << "PRAGMA table_info(" << tab << ")";
+  TSQLResult* res = fServer->Query(cmd.str().c_str());
+  TSQLRow* row;
+  while (row = res->Next()) {
+    if (col == row->GetField(1)) {
+      delete row, res;
+      return;
+    }
+    delete row;
+  }
+  delete res;
+
+  cmd.str("");
+  cmd << "ALTER TABLE " << tab << " ADD COLUMN " << col << " " << type;
+  fServer->Exec(cmd.str().c_str());
 }
