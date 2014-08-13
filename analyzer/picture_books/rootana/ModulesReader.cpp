@@ -220,11 +220,11 @@ void modules::reader::PrintAllOptions()const{
        std::cout<<std::endl;
     }
 
-    // Modules that were requested
-    std::cout<<"== All modules =="<<std::endl;
+    // Chapters that were requested
+    std::cout<<"== All chapters =="<<std::endl;
     ModuleList::const_iterator it_mod;
     for(it_mod=fModules.begin(); it_mod != fModules.end();it_mod++){
-	std::cout<<"Module: "<<it_mod->first<<std::endl;
+	std::cout<<"Chapter: "<<it_mod->first<<std::endl;
 	it_mod->second->DumpOptions();
         std::cout<<std::endl;
     }
