@@ -47,16 +47,26 @@ void PulseCandidateFinder::FindPulseCandidates(TPulseIsland* pulse) {
 
   fPulseIsland = pulse;
 
-  // We have a different algorithm for fast and slow pulses
-  if (fChannel.isFast()) {
-    FindCandidatePulses_Fast(fParameterValue);
-  }
-  else if (fChannel.isSlow()) {
+  // If we are using the "n_sigma" option, then all channels should use the slow pulse algorithm
+  if (fNSigma != 0) {
     FindCandidatePulses_Slow(fParameterValue);
   }
-  else {
-    // this is a scintillator so do the fast pulse analysis
-    FindCandidatePulses_Fast(fParameterValue);
+  else { // We have a different algorithm for fast and slow pulses
+    if (fChannel.isFast()) {
+      if (fChannel.Detector() != IDs::kGe) {
+	FindCandidatePulses_Slow(fParameterValue); // use the slow algorithm for the fast silicon pulses because of the noisy pedestal
+      }
+      else {
+	FindCandidatePulses_Fast(fParameterValue);
+      }
+    }
+    else if (fChannel.isSlow()) {
+      FindCandidatePulses_Slow(fParameterValue);
+    }
+    else {
+      // this is a scintillator so do the fast pulse analysis
+      FindCandidatePulses_Fast(fParameterValue);
+    }
   }
 }
 
@@ -201,6 +211,9 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
 	    location.start = (int)(j);
 	    break;
 	  }
+	  else if (j == 1) { // if we are at the last iteration
+	    location.start = 0; // set the location to the start since we haven't gone below pedestal again
+	  }
 	}
 	if (location.start < 0) {
 	  location.start = 0;
@@ -261,30 +274,30 @@ void PulseCandidateFinder::SetDefaultParameterValues() {
   fDefaultParameterValues[IDs::channel("ScGe")] = 20;
   fDefaultParameterValues[IDs::channel("ScVe")] = 100;
 
-  fDefaultParameterValues[IDs::channel("SiL2-F")] = 80;
-  fDefaultParameterValues[IDs::channel("SiL1-1-F")] = 40;
-  fDefaultParameterValues[IDs::channel("SiL1-2-F")] = 20;
-  fDefaultParameterValues[IDs::channel("SiL1-3-F")] = 20;
-  fDefaultParameterValues[IDs::channel("SiL1-4-F")] = 80;
+  fDefaultParameterValues[IDs::channel("SiL2-F")] = 300;
+  fDefaultParameterValues[IDs::channel("SiL1-1-F")] = 130;
+  fDefaultParameterValues[IDs::channel("SiL1-2-F")] = 500;
+  fDefaultParameterValues[IDs::channel("SiL1-3-F")] = 135;
+  fDefaultParameterValues[IDs::channel("SiL1-4-F")] = 140;
 
-  fDefaultParameterValues[IDs::channel("SiR2-F")] = 20;
-  fDefaultParameterValues[IDs::channel("SiR1-1-F")] = 40;
-  fDefaultParameterValues[IDs::channel("SiR1-2-F")] = 60;
-  fDefaultParameterValues[IDs::channel("SiR1-3-F")] = 80;
-  fDefaultParameterValues[IDs::channel("SiR1-4-F")] = 40;
+  fDefaultParameterValues[IDs::channel("SiR2-F")] = 300;
+  fDefaultParameterValues[IDs::channel("SiR1-1-F")] = 135;
+  fDefaultParameterValues[IDs::channel("SiR1-2-F")] = 140;
+  fDefaultParameterValues[IDs::channel("SiR1-3-F")] = 140;
+  fDefaultParameterValues[IDs::channel("SiR1-4-F")] = 150;
 
   // Set all the default values for the slow parameters
   fDefaultParameterValues[IDs::channel("Ge-S")] = 500;
 
-  fDefaultParameterValues[IDs::channel("SiL2-S")] = 30;
-  fDefaultParameterValues[IDs::channel("SiL1-1-S")] = 45;
+  fDefaultParameterValues[IDs::channel("SiL2-S")] = 100;
+  fDefaultParameterValues[IDs::channel("SiL1-1-S")] = 50;
   fDefaultParameterValues[IDs::channel("SiL1-2-S")] = 80;
-  fDefaultParameterValues[IDs::channel("SiL1-3-S")] = 100;
+  fDefaultParameterValues[IDs::channel("SiL1-3-S")] = 120;
   fDefaultParameterValues[IDs::channel("SiL1-4-S")] = 80;
 
-  fDefaultParameterValues[IDs::channel("SiR2-S")] = 30;
-  fDefaultParameterValues[IDs::channel("SiR1-1-S")] = 40;
-  fDefaultParameterValues[IDs::channel("SiR1-2-S")] = 60;
-  fDefaultParameterValues[IDs::channel("SiR1-3-S")] = 40;
-  fDefaultParameterValues[IDs::channel("SiR1-4-S")] = 40;
+  fDefaultParameterValues[IDs::channel("SiR2-S")] = 100;
+  fDefaultParameterValues[IDs::channel("SiR1-1-S")] = 50;
+  fDefaultParameterValues[IDs::channel("SiR1-2-S")] = 65;
+  fDefaultParameterValues[IDs::channel("SiR1-3-S")] = 65;
+  fDefaultParameterValues[IDs::channel("SiR1-4-S")] = 62;
 }
