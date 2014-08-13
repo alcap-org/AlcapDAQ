@@ -10,6 +10,9 @@ class PictureBook {
 
  private:
   std::ofstream fLatexFile;
+
+  void WritePreamble();
+  void WriteEnd();
 };
 
 #endif
