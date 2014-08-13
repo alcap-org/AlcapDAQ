@@ -169,13 +169,13 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
                     if(ampA != definitions::DefaultValue)
                     {
                         ampA_plots[keyname]->Fill(tDiff, ampA);
-                        ampB_plots[keyname]->Fill(-tDiff, ampB);
+                        ampB_plots[keyname]->Fill(tDiff, ampB);
                     }
 
                     if(intA != definitions::DefaultValue)
                     {
                         intA_plots[keyname]->Fill(tDiff, intA);
-                        intB_plots[keyname]->Fill(-tDiff, intB);
+                        intB_plots[keyname]->Fill(tDiff, intB);
                     }
 
 
