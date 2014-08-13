@@ -62,8 +62,8 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
       int n_bits = TSetupData::Instance()->GetNBits(bankname);
       int max_adc_value = std::pow(2, n_bits);
       int min_value = 0;
-      int max_value = 100;//max_adc_value;
-      int bin_width = 1;
+      int max_value = max_adc_value;
+      int bin_width = 10;
       int num_bins = (max_value - min_value) / bin_width;
       std::string histname = "fParameterHistogram_" + detname;
       TH2D* histogram = new TH2D(histname.c_str(), histname.c_str(), num_bins,min_value,max_value, num_bins,min_value,max_value);
