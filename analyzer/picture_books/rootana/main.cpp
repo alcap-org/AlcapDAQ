@@ -2,6 +2,9 @@
 #include <sstream>
 
 #include "TFile.h"
+#include "TKey.h"
+#include "TCanvas.h"
+#include "TH1.h"
 
 #include "CommandLine.h"
 #include "PictureBook.h"
@@ -43,7 +46,28 @@ int main(int argc, char **argv) {
       filename << arguments.infilelocation << "out0" << i_run << ".root";
       
       TFile* file = new TFile(filename.str().c_str(), "READ");
-      file->ls();
+
+      // Get the module directory
+      TDirectoryFile* dir = (TDirectoryFile*) file->Get(module_name.c_str());
+
+      TIter nextDirKey(dir->GetListOfKeys()); // get the list of keys in the directory (should include the histograms)
+      TKey *dirKey;
+  
+      while ( (dirKey = (TKey*)nextDirKey()) ) {
+	// At the moment, get all the histograms
+	if (strcmp(dirKey->ReadObj()->ClassName(), "TH1F") == 0) {
+
+	  // Set up the canvas
+	  TCanvas *c1 = new TCanvas();
+
+	  std::string histogram_name = dirKey->ReadObj()->GetName();
+	  std::cout << histogram_name << std::endl;
+
+	  TH1F* hPlot = (TH1F*) dirKey->ReadObj();
+	  hPlot->Draw();
+	  delete c1;
+	}
+      }
     }
   }
 
