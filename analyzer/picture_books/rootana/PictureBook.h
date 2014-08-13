@@ -9,6 +9,7 @@ class PictureBook {
   ~PictureBook();
 
   void StartNewSection(std::string section_name);
+  void InsertFigure(std::string image_file);
 
  private:
   std::ofstream fLatexFile;

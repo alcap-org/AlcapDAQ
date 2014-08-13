@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 #include "TFile.h"
 #include "TKey.h"
@@ -66,15 +67,19 @@ int main(int argc, char **argv) {
 	  TCanvas *c1 = new TCanvas();
 
 	  std::string histogram_name = dirKey->ReadObj()->GetName();
-	  std::cout << histogram_name << std::endl;
 
 	  TH1F* hPlot = (TH1F*) dirKey->ReadObj();
 	  hPlot->Draw();
 	  
+	  // Save the plot as a PNG
 	  std::string pngname = histogram_name + ".png";
+	  std::replace(pngname.begin(), pngname.end(), '#', '_'); // need to replace # so that latex works
 	  c1->SaveAs(pngname.c_str());
 
 	  delete c1;
+
+	  // Add the figure to the latex document
+	  pic_book->InsertFigure(pngname);
 	}
       }
     }

@@ -42,3 +42,15 @@ void PictureBook::WriteEnd() {
 void PictureBook::StartNewSection(std::string section_name) {
   fLatexFile << "\\section{" << section_name << "}\n";
 }
+
+void PictureBook::InsertFigure(std::string image_file) {
+
+  fLatexFile << "\\begin{figure}[h] \n";
+  fLatexFile << "\\begin{center} \n";
+  fLatexFile << "\\includegraphics[height=0.33\\textheight, angle=0]{" << image_file << "}\n" << std::endl;
+  fLatexFile << "\\end{center} \n";
+  fLatexFile << "\\vspace{-5mm} \n";
+  fLatexFile << "\\caption{} \n";
+  fLatexFile << "\\end{figure} \n";
+  fLatexFile << "\\newpage \n";
+}
