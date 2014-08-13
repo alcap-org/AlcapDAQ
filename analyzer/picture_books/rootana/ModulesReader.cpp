@@ -104,9 +104,7 @@ int modules::reader::AddModule(std::string line){
     std::string alias, type;
 
     // How is this module specified ? 
-    // If  the line contains an equals sign, assume we have a alias and a type
-    // (and possibly arguments), if not, assume it's just a type (and possibly
-    // arguments)
+    // For the picture book assume it is just an alias and that BaseChapter knows what to do with all the options
     Constructor_t constructor=ParseConstructor(line,'(',')');
 
     std::vector<std::string> name_alias;
@@ -118,7 +116,7 @@ int modules::reader::AddModule(std::string line){
 	    alias=name_alias[0];
 	    type=name_alias[1];
 	    TrimWhiteSpaceBeforeAfter(alias);
-    }else if(name_alias.size()==1) type=name_alias[0];
+    }else if(name_alias.size()==1) type=alias=name_alias[0];
     else {
 	    PrintProblem()<<"No module requested"<<std::endl;
 	    return 2;
