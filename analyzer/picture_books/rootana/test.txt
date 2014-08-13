@@ -8,3 +8,4 @@ plot_type=Amplitude
 logX=true
 
 [Times]
+module=PlotTime
