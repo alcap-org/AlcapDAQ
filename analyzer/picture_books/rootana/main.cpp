@@ -65,6 +65,10 @@ int main(int argc, char **argv) {
 
 	  TH1F* hPlot = (TH1F*) dirKey->ReadObj();
 	  hPlot->Draw();
+	  
+	  std::string pngname = histogram_name + ".png";
+	  c1->SaveAs(pngname.c_str());
+
 	  delete c1;
 	}
       }
