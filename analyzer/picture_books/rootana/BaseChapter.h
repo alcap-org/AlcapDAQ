@@ -7,6 +7,8 @@ class BaseChapter {
  public:
   BaseChapter(std::string chapter_name, modules::options* opts);
   ~BaseChapter() {};
+  
+  std::string GetChapterName() { return fChapterName; }
 
  private:
   std::string fChapterName;
