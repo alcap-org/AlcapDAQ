@@ -8,6 +8,8 @@ class PictureBook {
   PictureBook(std::string filename);
   ~PictureBook();
 
+  void StartNewSection(std::string section_name);
+
  private:
   std::ofstream fLatexFile;
 

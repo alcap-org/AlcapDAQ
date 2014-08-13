@@ -22,13 +22,14 @@ int main(int argc, char **argv) {
   ret = load_config_file(arguments.mod_file.c_str());
   if(ret!=0) return ret;
 
-  // Loop through the chapters
-  for (std::vector<BaseChapter*>::const_iterator chapterIter = gChapters.begin(); chapterIter != gChapters.end(); ++chapterIter) {
-    std::cout << "Chapter Name = " << (*chapterIter)->GetChapterName() << std::endl;
-  }
-
   // Create the picture book
   PictureBook* pic_book = new PictureBook(arguments.outfile);
+
+  // Loop through the chapters
+  for (std::vector<BaseChapter*>::const_iterator chapterIter = gChapters.begin(); chapterIter != gChapters.end(); ++chapterIter) {
+    std::string chapter_name = (*chapterIter)->GetChapterName();
+    pic_book->StartNewSection(chapter_name);
+  }
 
   std::stringstream filename;
   filename << arguments.infilelocation << "/out0" << arguments.start << ".root";

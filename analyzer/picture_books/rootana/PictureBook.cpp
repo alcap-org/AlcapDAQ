@@ -38,3 +38,7 @@ void PictureBook::WriteEnd() {
 
    fLatexFile << "\\end{document}\n";
 }
+
+void PictureBook::StartNewSection(std::string section_name) {
+  fLatexFile << "\\section{" << section_name << "}\n";
+}
