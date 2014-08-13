@@ -50,6 +50,11 @@ int main(int argc, char **argv) {
       // Get the module directory
       TDirectoryFile* dir = (TDirectoryFile*) file->Get(module_name.c_str());
 
+      if (!dir) {
+	std::cout << "The directory " << module_name << " doesn't seem to exist in the input file. Aborting..." << std::endl;
+	return 0;
+      }
+
       TIter nextDirKey(dir->GetListOfKeys()); // get the list of keys in the directory (should include the histograms)
       TKey *dirKey;
   
