@@ -5,6 +5,9 @@
 
 #include "CommandLine.h"
 #include "PictureBook.h"
+#include "BaseChapter.h"
+
+std::vector<BaseChapter*> gChapters; // a global container for the chapters (sorry, Ben)
 
 int main(int argc, char **argv) {
 

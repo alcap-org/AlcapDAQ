@@ -9,6 +9,10 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "BaseChapter.h"
+
+extern std::vector<BaseChapter*> gChapters;
+
 void help_command_line(const char* my_name)
 {
   std::cerr << "\nUsage: " << my_name << "  [options]\n"
@@ -204,18 +208,18 @@ int load_config_file(const char* filename){
   modules_file.PrintAllOptions();
 
   //  modules::factory* mgr = modules::factory::Instance();
-  size_t num_modules = modules_file.GetNumModules();
-  std::cout << "number of modules requested: " << num_modules << std::endl;
+  size_t num_chapters = modules_file.GetNumModules();
+  std::cout << "number of chapters requested: " << num_chapters << std::endl;
   std::string name;
   modules::options* opts;
-  //  modules::BaseModule** mods=NULL;
-  for(unsigned i = 0; i < num_modules; i++){
+  for(unsigned i = 0; i < num_chapters; i++){
     name = modules_file.GetModule(i);
     opts = modules_file.GetOptions(i);
-    std::cout << "Creating module: " << name
+    std::cout << "Creating chapter: " << name
               << "\nWith options:" << std::endl;
     opts->DumpOptions("  ");
-    //    mods[i] = mgr->createModule(name,opts);
+    BaseChapter* chapter = new BaseChapter(name,opts);
+    gChapters.push_back(chapter);
   }
   
   return 0;
