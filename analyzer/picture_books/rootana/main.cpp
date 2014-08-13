@@ -16,6 +16,9 @@ int main(int argc, char **argv) {
 
   print_arguments(arguments);
 
+  ret = load_config_file(arguments.mod_file.c_str());
+  if(ret!=0) return ret;
+
   // Create the picture book
   PictureBook* pic_book = new PictureBook(arguments.outfile);
 

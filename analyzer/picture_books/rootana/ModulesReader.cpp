@@ -1,6 +1,6 @@
 #include "ModulesReader.h"
-#include "ModulesFactory.h"
-#include "ModulesNavigator.h"
+//#include "ModulesFactory.h"
+//#include "ModulesNavigator.h"
 #include "ModulesParser.h"
 #include <sstream>
 #include <string.h>
@@ -9,7 +9,7 @@ using namespace modules::parser;
 using std::endl;
 using std::cout;
 
-#include "debug_tools.h"
+//#include "debug_tools.h"
 
 const char* modules::reader::fGlobalModule="global";
 
@@ -246,7 +246,7 @@ void modules::reader::PrintAllOptions()const{
 void modules::reader::SetDebug(){
     std::cout<<"Debug mode activated"<<std::endl;
     fShouldPrint=true;
-    modules::factory::Instance()->SetDebug();
+    //    modules::factory::Instance()->SetDebug();
 }
 
 void modules::reader::SetDebugAll(){
@@ -274,13 +274,13 @@ void modules::reader::ProcessGlobalOption(Option_t opt){
        if (args[i]=="all"){
           SetDebugAll();
        }else if (args[i]=="modules_navigator"){
-       modules::navigator::Instance()->SetDebug();
+	 //       modules::navigator::Instance()->SetDebug();
        }else if (args[i]=="modules_reader"){
           SetDebug();
        }
      }
   }else if(opt.key=="list_modules"){
-    modules::factory::Instance()->PrintPossibleModules();
+    //    modules::factory::Instance()->PrintPossibleModules();
   }else if(opt.key=="dump_contents"){
     fDumpContents=true;
   }else {

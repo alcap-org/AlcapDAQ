@@ -1,5 +1,5 @@
 #include <string.h>
-//#include "ModulesReader.h"
+#include "ModulesReader.h"
 //#include "ModulesFactory.h"
 #include "CommandLine.h"
 #include <stdio.h>
@@ -198,29 +198,29 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
 }
 
 //----------------------------------------------------------------------
-/*int load_config_file(const char* filename){
+int load_config_file(const char* filename){
   modules::reader modules_file;
   modules_file.ReadFile(filename);
   modules_file.PrintAllOptions();
 
-  modules::factory* mgr = modules::factory::Instance();
+  //  modules::factory* mgr = modules::factory::Instance();
   size_t num_modules = modules_file.GetNumModules();
   std::cout << "number of modules requested: " << num_modules << std::endl;
   std::string name;
   modules::options* opts;
-  modules::BaseModule** mods=NULL;
+  //  modules::BaseModule** mods=NULL;
   for(unsigned i = 0; i < num_modules; i++){
     name = modules_file.GetModule(i);
     opts = modules_file.GetOptions(i);
     std::cout << "Creating module: " << name
               << "\nWith options:" << std::endl;
     opts->DumpOptions("  ");
-    mods[i] = mgr->createModule(name,opts);
+    //    mods[i] = mgr->createModule(name,opts);
   }
   
   return 0;
 }
-*/
+
 //----------------------------------------------------------------------
 void print_arguments(const ARGUMENTS& args){
   std::cout << "ARGUMENTS struct:"
