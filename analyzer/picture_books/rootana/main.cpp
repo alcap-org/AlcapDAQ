@@ -36,14 +36,16 @@ int main(int argc, char **argv) {
       return 0;
     }
 
-    std::cout << "\nModule Name = " << module_name << std::endl;
+    // Now loop through the runs we want to run over
+    for (int i_run = arguments.start; i_run < arguments.stop; ++i_run) {
+
+      std::stringstream filename;
+      filename << arguments.infilelocation << "out0" << i_run << ".root";
+      
+      TFile* file = new TFile(filename.str().c_str(), "READ");
+      file->ls();
+    }
   }
-
-  std::stringstream filename;
-  filename << arguments.infilelocation << "/out0" << arguments.start << ".root";
-
-  TFile* file = new TFile(filename.str().c_str(), "READ");
-  file->ls();
 
   delete pic_book;
   return 0;
