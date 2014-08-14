@@ -47,6 +47,9 @@ int main(int argc, char **argv) {
 
     bool stats_box = (*chapterIter)->GetStatsBox();
 
+    const int n_axes = 3;
+    int low_limits[n_axes] = { (*chapterIter)->GetXLow(), (*chapterIter)->GetYLow(), (*chapterIter)->GetZLow() };
+    int high_limits[n_axes] = { (*chapterIter)->GetXHigh(), (*chapterIter)->GetYHigh(), (*chapterIter)->GetZHigh() };
 
     // Start the new chapter
     pic_book->StartNewSection(chapter_name);
@@ -95,11 +98,47 @@ int main(int argc, char **argv) {
 	TH1* hPlot = (TH1*) dirKey->ReadObj();
 
 	// Draw the plot as we want it
-	hPlot->Draw(draw_option.c_str());
 	c1->SetLogx(log_x);
 	c1->SetLogy(log_y);
 	c1->SetLogz(log_z);
+
 	hPlot->SetStats(stats_box);
+
+	// Set the limits on each axis
+	// First, get the current limits on the plot so we can provide warnings if the user asks for a range outside of these
+	int current_low_limits[n_axes] = { hPlot->GetXaxis()->GetXmin(), hPlot->GetYaxis()->GetXmin(), hPlot->GetZaxis()->GetXmin() };
+	int current_high_limits[n_axes] = { hPlot->GetXaxis()->GetXmax(), hPlot->GetYaxis()->GetXmax(), hPlot->GetZaxis()->GetXmax() };
+	TAxis* axis[n_axes] = { hPlot->GetXaxis(), hPlot->GetYaxis(), hPlot->GetZaxis() };
+	// Now loop through the axes and set the limits
+	for (int i_axis = 0; i_axis < n_axes; ++i_axis) {
+	  
+	  // Give a warning if the user has specified an out of range limit
+	  if (low_limits[i_axis] != -999999 && low_limits[i_axis] < current_low_limits[i_axis]) {
+	    std::cout << "Warning: Limit on axis " << i_axis << " specified by the user (" << low_limits[i_axis] 
+		      << ") is outside of the current range of the plots (" << current_low_limits[i_axis] 
+		      << ") and so won't have any effect." << std::endl;
+	  }
+	  if (high_limits[i_axis] != -999999 && high_limits[i_axis] > current_high_limits[i_axis]) {
+	    std::cout << "Warning: Limit on axis " << i_axis << " specified by the user (" << high_limits[i_axis] 
+		      << ") is outside of the current range of the plots (" << current_high_limits[i_axis] 
+		      << ") and so won't have any effect." << std::endl;
+	  }
+
+	  // Now set the axis limits
+	  if (low_limits[i_axis] != -999999 && high_limits[i_axis] != -999999) {
+	    axis[i_axis]->SetRangeUser(low_limits[i_axis], high_limits[i_axis]);
+	  }
+	  else if (low_limits[i_axis] == -999999 && high_limits[i_axis] != -999999) {
+	    axis[i_axis]->SetRangeUser(current_low_limits[i_axis], high_limits[i_axis]);
+	  }
+	  else if (low_limits[i_axis] != -999999 && high_limits[i_axis] == -999999) {
+	    axis[i_axis]->SetRangeUser(low_limits[i_axis], current_high_limits[i_axis]);
+	  }
+	}
+
+	hPlot->Draw(draw_option.c_str());
+	c1->Update();
+	  
 	
 	// Save the plot as a PNG
 	std::string pngname = "plots/" + histogram_name + ".png";

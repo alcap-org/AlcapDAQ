@@ -32,6 +32,12 @@ class BaseChapter {
   /// Returns whether or not we want a stats box
   bool GetStatsBox() { return fStatsBox; }
 
+  /// \brief 
+  /// Returns the axis range 
+  int GetXLow() { return fXLow; } int GetXHigh() { return fXHigh; }
+  int GetYLow() { return fYLow; } int GetYHigh() { return fYHigh; }
+  int GetZLow() { return fZLow; } int GetZHigh() { return fZHigh; }
+
  private:
   std::string fChapterName;
   modules::options* fOpts;
@@ -49,6 +55,12 @@ class BaseChapter {
   /// \brief
   /// Do we want a stats box?
   bool fStatsBox;
+
+  /// \brief
+  /// The axis ranges for each axis
+  int fXLow, fXHigh;
+  int fYLow, fYHigh;
+  int fZLow, fZHigh;
 };
 
 #endif
