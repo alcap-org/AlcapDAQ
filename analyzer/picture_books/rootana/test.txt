@@ -1,6 +1,8 @@
 [CHAPTERS]
 Amplitudes
 Times
+TDP TDiffs
+TDP Amplitudes
 
 [Amplitudes]
 module=PlotAmplitude
@@ -9,3 +11,12 @@ logX=true
 
 [Times]
 module=PlotTime
+plot_type=Times
+
+[TDP TDiffs]
+module=PlotTDPs
+plot_type=_tdiff
+
+[TDP Amplitudes]
+module=PlotTDPs
+plot_type=__amp
