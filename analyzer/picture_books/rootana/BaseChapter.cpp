@@ -11,6 +11,8 @@ BaseChapter::BaseChapter(std::string chapter_name, modules::options* opts): fCha
   fLogX = opts->GetBool("logX", false);
   fLogY = opts->GetBool("logY", false);
   fLogZ = opts->GetBool("logZ", false);
+
+  fStatsBox = opts->GetBool("stats_box", false);
 }
 
 std::string BaseChapter::GetModuleName() {
