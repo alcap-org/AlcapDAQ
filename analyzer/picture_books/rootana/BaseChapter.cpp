@@ -5,6 +5,7 @@
 BaseChapter::BaseChapter(std::string chapter_name, modules::options* opts): fChapterName(chapter_name), fOpts(opts) {
 
   fModuleName = opts->GetString("module", "Not specified");
+  fPlotType = opts->GetString("plot_type", "all");
 }
 
 std::string BaseChapter::GetModuleName() {

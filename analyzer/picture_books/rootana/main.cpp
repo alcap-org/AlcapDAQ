@@ -34,11 +34,15 @@ int main(int argc, char **argv) {
     std::string chapter_name = (*chapterIter)->GetChapterName();
     pic_book->StartNewSection(chapter_name);
 
+    // Get the name of the rootana module that we will want to get the histograms from
     std::string module_name = (*chapterIter)->GetModuleName();
     if (module_name == "0") {
       std::cout << "Problem with the module name for chapter " << chapter_name << ". Aborting..." << std::endl;
       return 0;
     }
+
+    // Get the plot type (a string that should be in the histogram name) for the plots we want from this module
+    std::string plot_type = (*chapterIter)->GetPlotType();
 
     // Now loop through the runs we want to run over
     for (int i_run = arguments.start; i_run < arguments.stop; ++i_run) {
@@ -60,27 +64,34 @@ int main(int argc, char **argv) {
       TKey *dirKey;
   
       while ( (dirKey = (TKey*)nextDirKey()) ) {
-	// At the moment, get all the histograms
-	if (strcmp(dirKey->ReadObj()->ClassName(), "TH1F") == 0) {
 
-	  // Set up the canvas
-	  TCanvas *c1 = new TCanvas();
-
+	// If we have been told that we want a specific plot type for this chapter,
+	// check that this is one of the plots we want
+	if (plot_type != "all") {
 	  std::string histogram_name = dirKey->ReadObj()->GetName();
 
-	  TH1F* hPlot = (TH1F*) dirKey->ReadObj();
-	  hPlot->Draw();
-	  
-	  // Save the plot as a PNG
-	  std::string pngname = "plots/" + histogram_name + ".png";
-	  std::replace(pngname.begin(), pngname.end(), '#', '_'); // need to replace # so that latex works
-	  c1->SaveAs(pngname.c_str());
-
-	  delete c1;
-
-	  // Add the figure to the latex document
-	  pic_book->InsertFigure(pngname);
+	  if (histogram_name.find(plot_type) == std::string::npos) { // if it isn't
+	    continue;
+	  }
 	}
+
+	// Set up the canvas
+	TCanvas *c1 = new TCanvas();
+	
+	std::string histogram_name = dirKey->ReadObj()->GetName();
+	
+	TH1F* hPlot = (TH1F*) dirKey->ReadObj();
+	hPlot->Draw();
+	
+	// Save the plot as a PNG
+	std::string pngname = "plots/" + histogram_name + ".png";
+	std::replace(pngname.begin(), pngname.end(), '#', '_'); // need to replace # so that latex works
+	c1->SaveAs(pngname.c_str());
+	
+	delete c1;
+	
+	// Add the figure to the latex document
+	pic_book->InsertFigure(pngname);
       }
     }
   }
