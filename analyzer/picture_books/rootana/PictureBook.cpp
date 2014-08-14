@@ -32,6 +32,7 @@ void PictureBook::WritePreamble() {
    fLatexFile << "\\maketitle\n";
    fLatexFile << "\\newpage\n\n";
    fLatexFile << "\\tableofcontents\n\n";
+   fLatexFile << "\\newpage\n\n";
 }
 
 void PictureBook::WriteEnd() {
@@ -52,5 +53,4 @@ void PictureBook::InsertFigure(std::string image_file) {
   fLatexFile << "\\vspace{-5mm} \n";
   fLatexFile << "\\caption{} \n";
   fLatexFile << "\\end{figure} \n";
-  fLatexFile << "\\newpage \n";
 }
