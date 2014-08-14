@@ -11,7 +11,8 @@ logX=true
 
 [Times]
 module=PlotTime
-plot_type=Times
+plot_type=Time
+logY=true
 
 [TDP TDiffs]
 module=PlotTDPs
@@ -22,3 +23,4 @@ draw_option=COLZ
 module=PlotTDPs
 plot_type=__amp
 draw_option=COLZ
+logZ=true
