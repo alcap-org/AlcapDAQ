@@ -8,16 +8,23 @@ TDP Amplitudes
 module=PlotAmplitude
 plot_type=Amplitude
 logX=true
+x_low=100
+x_high=1000
 
 [Times]
 module=PlotTime
 plot_type=Time
 logY=true
+y_low=100
+y_high=1000
 
 [TDP TDiffs]
 module=PlotTDPs
 plot_type=_tdiff
 draw_option=COLZ
+logZ=true
+z_low=100
+z_high=1000
 
 [TDP Amplitudes]
 module=PlotTDPs
@@ -25,7 +32,10 @@ plot_type=__amp
 draw_option=COLZ
 logZ=true
 stats_box=true
+y_high=3000
+x_low=1000
 
 # Compulsory Options: module
 # Optional Options: plot_type, draw_option, (string)
 #		    logX, logY, logZ, stats_box (bool)
+#		    x_low, x_high, y_low, y_high, z_low, z_high (int)
