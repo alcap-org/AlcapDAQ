@@ -16,7 +16,9 @@ plot_type=Times
 [TDP TDiffs]
 module=PlotTDPs
 plot_type=_tdiff
+draw_option=COLZ
 
 [TDP Amplitudes]
 module=PlotTDPs
 plot_type=__amp
+draw_option=COLZ
