@@ -65,10 +65,11 @@ int main(int argc, char **argv) {
   
       while ( (dirKey = (TKey*)nextDirKey()) ) {
 
+	std::string histogram_name = dirKey->ReadObj()->GetName();
+
 	// If we have been told that we want a specific plot type for this chapter,
 	// check that this is one of the plots we want
 	if (plot_type != "all") {
-	  std::string histogram_name = dirKey->ReadObj()->GetName();
 
 	  if (histogram_name.find(plot_type) == std::string::npos) { // if it isn't
 	    continue;
@@ -78,9 +79,7 @@ int main(int argc, char **argv) {
 	// Set up the canvas
 	TCanvas *c1 = new TCanvas();
 	
-	std::string histogram_name = dirKey->ReadObj()->GetName();
-	
-	TH1F* hPlot = (TH1F*) dirKey->ReadObj();
+	TH1* hPlot = (TH1*) dirKey->ReadObj();
 	hPlot->Draw();
 	
 	// Save the plot as a PNG
