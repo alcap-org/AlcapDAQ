@@ -1,13 +1,12 @@
-#ifndef PLOTTDIFF_H_
-#define PLOTTDIFF_H_
+#ifndef CALCCOARSETIMEOFFSET_H_
+#define CALCCOARSETIMEOFFSET_H_
 
-#include <iostream>
-#include "TH2F.h"
-#include "TH1F.h"
 #include "BaseModule.h"
 #include "IdSource.h"
+class TH1F;
 class TGlobalData;
 class TSetupData;
+
 namespace modules {class options;}
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +22,7 @@ namespace modules {class options;}
 /// You can add this to other groups instead of rootana_modules or in addition
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
-class PlotTDiff : public BaseModule {
+class CalcCoarseTimeOffset : public BaseModule {
   typedef std::vector<IDs::source> SourceVector;
 
  public:
@@ -31,10 +30,10 @@ class PlotTDiff : public BaseModule {
   /// Constructor description. If necessary, add a details tag like above.
   ///
   /// \param[in] opts Describe the options this module takes.
-  PlotTDiff(modules::options* opts);
+  CalcCoarseTimeOffset(modules::options* opts);
   /// \brief
   /// Is anything done in the destructor?
-  ~PlotTDiff();
+  ~CalcCoarseTimeOffset();
 
  private:
   /// \brief
@@ -62,6 +61,8 @@ class PlotTDiff : public BaseModule {
   /// \return Non-zero to indicate a problem.
   virtual int AfterLastEntry(TGlobalData* gData, const TSetupData *setup);
 
+  void CreateHistogramsIfDontExist(const std::string& source, const std::string& generator);
+
   /// \brief
   /// Don't forget to forget descirptions for each field...
   ///
@@ -69,10 +70,8 @@ class PlotTDiff : public BaseModule {
   /// ...and don't hesitate to include details.
   std::string fDetNameA, fDetNameB;
 
-  std::map<std::string, TH2F*> intA_plots, intB_plots, ampA_plots, ampB_plots, fine_plots;
-
   std::map<std::string, TH1F*> oned_plots;
   SourceVector fDetASources, fDetBSources;
 };
 
-#endif //PLOTTDIFF_H_
+#endif //CALCCOARSETIMEOFFSET_H_

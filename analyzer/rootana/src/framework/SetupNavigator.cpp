@@ -27,6 +27,7 @@ SetupNavigator* SetupNavigator::fThis=NULL;
 // Declare all our caches
 std::map<IDs::channel, double> SetupNavigator::fPedestalValues;
 std::map<IDs::channel, double> SetupNavigator::fNoiseValues;
+std::map<IDs::source, double> SetupNavigator::fCoarseTimeOffset;
 
 SetupNavigator::SetupNavigator() {
 
@@ -63,12 +64,12 @@ void SetupNavigator::CacheCalibDB() {
   fTableName = "pedestals_and_noises";
   if (!fServer->HasTable(fTableName.c_str())) { // check it exists
     std::cout << "SetupNavigator: ERROR: Table " << fTableName << " does not exist." << std::endl;
-  } else if (!fServer->HasTable("GrossTimeOffset")) {
-    std::cout << "SetupNavigator: ERROR: Table " << "GrossTimeOffset" << " does not exist." << std::endl;
+   // } else if (!fServer->HasTable("CoarseTimeOffset")) {
+   //  std::cout << "SetupNavigator: ERROR: Table " << "CoarseTimeOffset" << " does not exist." << std::endl;
   } else {
     if (fPedestalValues.empty() && fNoiseValues.empty()) {
       ReadPedestalAndNoiseValues();
-      ReadGrossTimeOffsetValues();
+      // ReadCoarseTimeOffsetValues();
     }
   }
 }
@@ -102,35 +103,37 @@ void SetupNavigator::ReadPedestalAndNoiseValues() {
 }
 
 
-void SetupNavigator::ReadGrossTimeOffsetValues() {
+void SetupNavigator::ReadCoarseTimeOffsetValues() {
   // The values that we will read in
-  const std::vector<std::string> table = GetGrossTimeOffsetGeneratorColumns();
+  const std::vector<std::string> table = GetCoarseTimeOffsetColumns();
 
   std::stringstream query;
   query << "SELECT channel";
   for (unsigned int i = 0; i < table.size(); ++i)
     query << ',' << table[i];
-  query << " FROM " << "GrossTimeOffset" << " WHERE run==" << GetRunNumber();
-  TSQResult* res = fServer->Query(query.str().c_str());
+  query << " FROM " << "CoarseTimeOffset" << " WHERE run==" << GetRunNumber();
+  TSQLResult* res = fServer->Query(query.str().c_str());
 
   TSQLRow* row;
-  while (row = res->Next()) {
+  while ((row = res->Next())) {
     for (unsigned int i = 0; i < table.size(); ++i) {
       std::stringstream srcstr;
       srcstr << row->GetField(0) << IDs::field_separator << table[i] << IDs::field_separator << IDs::kAnyConfig;
-      fGrossTimeOffset[IDs::source(srcstr.str())] = row->GetField(1 + i);
+      fCoarseTimeOffset[IDs::source(srcstr.str())] = atof(row->GetField(1 + i));
     }
     delete row;
   }
-  delete result;
+  delete res;
 }
 
-std::vector<std::string> SetupNavigator::GetGrossTimeOffsetColumns() {
+std::vector<std::string> SetupNavigator::GetCoarseTimeOffsetColumns() {
   std::vector<std::string> tables;
-  TSQLResult* res = fServer->Query("PRAGMA table_info(" << "GrossTimeOffset" << ")");
+  std::stringstream cmd;
+  cmd << "PRAGMA table_info(" << "CoarseTimeOffset" << ")";
+  TSQLResult* res = fServer->Query(cmd.str().c_str());
   TSQLRow* row;
-  while (row = res->Next()) {
-    if (row->GetField(1) != "run" && row->GetField(1) != "channel")
+  while ((row = res->Next())) {
+    if (row->GetField(1) != std::string("run") && row->GetField(1) != std::string("channel"))
       tables.push_back(std::string(row->GetField(1)));
     delete row;
   }
@@ -138,29 +141,31 @@ std::vector<std::string> SetupNavigator::GetGrossTimeOffsetColumns() {
   return tables;
 }
 
-void SetupNavigator::SetGrossTimeOffset(const IDs::source& src, double dt) {
+void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double dt) {
   std::stringstream cmd;
 
   // Create table and columns if they don't exist
-  server->Exec("CREATE TABLE IF NOT EXIST " << "GrossTimeOffset" << "(run INT, channel TEXT)");
-  CreateColumnIfNotExist("GrossTimeOffset", src.Generator().Type(), "TEXT");
+  cmd << "CREATE TABLE IF NOT EXIST " << "CoarseTimeOffset" << "(run INT, channel TEXT)";
+  fServer->Exec(cmd.str().c_str());
+  CreateColumnIfNotExist("CoarseTimeOffset", src.Generator().Type(), "TEXT");
 
-  cmd << "SELECT * FROM " << "GrossTimeOffset" << " WHERE run==" << GetRunNumber() << " AND channel=='" << src.Channel().str();
-  TSQLResult* res = server->Query(cmd.str().c_str());
+  cmd.str("");
+  cmd << "SELECT * FROM " << "CoarseTimeOffset" << " WHERE run==" << GetRunNumber() << " AND channel=='" << src.Channel().str();
+  TSQLResult* res = fServer->Query(cmd.str().c_str());
 
   cmd.str("");
   if (res->GetRowCount())
     cmd <<
-      "UPDATE " << "GrossTimeOffset" << " SET " << src.Generator().Type() << "=" << dt <<
+      "UPDATE " << "CoarseTimeOffset" << " SET " << src.Generator().Type() << "=" << dt <<
       " WHERE run==" << GetRunNumber() << " AND channel==" <<
       src.Channel().str();
   else
     cmd <<
-      "INSERT INTO " << "GrossTimeOffset" << "(run,channel," << src.Generator().Type() <<
+      "INSERT INTO " << "CoarseTimeOffset" << "(run,channel," << src.Generator().Type() <<
       ") VALUE (" << GetRunNumber() << "," << src.Channel().str() << "," <<
       dt << ")";
-  server->Exec(cmd.str().c_str());
-  server->Commit();
+  fServer->Exec(cmd.str().c_str());
+  fServer->Commit();
 
   delete res;
 }
@@ -170,9 +175,10 @@ void SetupNavigator::CreateColumnIfNotExist(const std::string& tab, const std::s
   cmd << "PRAGMA table_info(" << tab << ")";
   TSQLResult* res = fServer->Query(cmd.str().c_str());
   TSQLRow* row;
-  while (row = res->Next()) {
+  while ((row = res->Next())) {
     if (col == row->GetField(1)) {
-      delete row, res;
+      delete row;
+      delete res;
       return;
     }
     delete row;

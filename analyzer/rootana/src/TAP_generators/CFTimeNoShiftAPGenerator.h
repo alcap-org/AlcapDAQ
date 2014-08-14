@@ -25,6 +25,8 @@ class CFTimeNoShiftAPGenerator:public TVAnalysedPulseGenerator {
   /// The algorithms that will be used by this generator
   Algorithm::ConstantFractionTime fConstantFractionTime;
   Algorithm::MaxBinAmplitude fMaxBinAmplitude;
+
+  double fThresholdPercent;
 };
 
 #endif //CFTIMENOSHIFT_H__

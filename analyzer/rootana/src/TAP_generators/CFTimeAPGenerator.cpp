@@ -17,7 +17,7 @@ class OptionsError : public std::exception {
 };
 
 CFTimeAPGenerator::CFTimeAPGenerator(TAPGeneratorOptions* opts):
-	TVAnalysedPulseGenerator("CFTime",opts){
+	TVAnalysedPulseGenerator("CFTimeAPGenerator",opts){
   //fConstantFraction = opts->GetDouble("constfrac", 0.1);
   fConstantFractionTime.constant_fraction = 0.2;
   if (fConstantFractionTime.constant_fraction <= 0. || fConstantFractionTime.constant_fraction >=100.)
@@ -26,8 +26,6 @@ CFTimeAPGenerator::CFTimeAPGenerator(TAPGeneratorOptions* opts):
 
 int CFTimeAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 				     AnalysedPulseList& analysedList) {
-  fConstantFractionTime.th_frac = 0.25;
-
   // Get the variables we want from TSetupData/SetupNavigator
 
 

@@ -41,7 +41,6 @@ struct Algorithm::ConstantFractionTime {
   double time_shift;
 
   double constant_fraction;
-  double th_frac;
 };
 
 

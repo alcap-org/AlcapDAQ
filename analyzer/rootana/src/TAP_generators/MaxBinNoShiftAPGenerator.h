@@ -4,7 +4,6 @@
 #include "TVAnalysedPulseGenerator.h"
 #include "TAPAlgorithms.h"
 #include <vector>
-#include <string>
 
 class TPulseIsland;
 class TAnalysedPulse;
@@ -14,7 +13,7 @@ class MaxBinNoShiftAPGenerator:public TVAnalysedPulseGenerator {
  public:
   MaxBinNoShiftAPGenerator(TAPGeneratorOptions* opts)
     : TVAnalysedPulseGenerator("MaxBinNoShiftAPGenerator", opts)
-  {};
+    {fThresholdPercent=opts->GetDouble("threshold_percent_of_range", 0.05);};
 
   virtual ~MaxBinNoShiftAPGenerator(){};
   
@@ -28,6 +27,8 @@ private:
   /// The algorithms that this generator uses
   Algorithm::MaxBinAmplitude fMaxBinAmplitude;
   Algorithm::MaxBinTime fMaxBinTime;
+
+  double fThresholdPercent;
 };
 
 #endif // MAXBINNOSHIFTAPGENERATOR_H__

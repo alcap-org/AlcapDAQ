@@ -17,16 +17,29 @@ class OptionsError : public std::exception {
 };
 
 CFTimeNoShiftAPGenerator::CFTimeNoShiftAPGenerator(TAPGeneratorOptions* opts):
-	TVAnalysedPulseGenerator("CFTimeNoShift",opts){
-  //fConstantFraction = opts->GetDouble("constfrac", 0.1);
-  fConstantFractionTime.constant_fraction = 0.2;
-  if (fConstantFractionTime.constant_fraction <= 0. || fConstantFractionTime.constant_fraction >=100.)
+	TVAnalysedPulseGenerator("CFTimeNoShiftAPGenerator",opts){
+  fConstantFractionTime.constant_fraction = opts->GetDouble("constant_fraction", 0.10);
+  fThresholdPercent = opts->GetDouble("threshold_percent_of_range", 0.05);
+  std::cout << "Using CF " << fConstantFractionTime.constant_fraction << "." << std::endl
+	    << "Using CF cut percent " << fThresholdPercent << "." << std::endl;
+  if (fConstantFractionTime.constant_fraction <= 0.00 || fConstantFractionTime.constant_fraction >=1.00)
     throw OptionsError();
+  else if (fThresholdPercent <= 0.00 || fThresholdPercent >= 1.00)
+    throw OptionsError();
+}
+
+  static bool OverThreshold(const TPulseIsland* tpi, const double thr_pct) {
+  const std::vector<int>::const_iterator beg = tpi->GetSamples().begin();
+  const std::vector<int>::const_iterator end = tpi->GetSamples().end();
+  const int max = (int)std::pow(2.,TSetupData::Instance()->GetNBits(tpi->GetBankName())) - 1;
+  const int pol = TSetupData::Instance()->GetTriggerPolarity(tpi->GetBankName());
+  const int ped = SetupNavigator::Instance()->GetPedestal(TSetupData::Instance()->GetDetectorName(tpi->GetBankName()));
+  const int thr = pol > 0 ? thr_pct * (max - ped) + (double)ped : (1. - thr_pct) * ped;
+  return pol > 0 ? *std::max_element(beg, end) > thr : *std::min_element(beg, end) < thr;
 }
 
 int CFTimeNoShiftAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 				     AnalysedPulseList& analysedList) {
-  fConstantFractionTime.th_frac = 0.25;
 
 
   // Get the variables we want from TSetupData/SetupNavigator
@@ -37,11 +50,13 @@ int CFTimeNoShiftAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
   fConstantFractionTime.clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
   fConstantFractionTime.time_shift = 0;
 
-  fMaxBinAmplitude.pedestal = SetupNavigator::Instance()->GetPedestal(TSetupData::Instance()->GetDetectorName(bankname));
-  fMaxBinAmplitude.trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+  fMaxBinAmplitude.pedestal = fConstantFractionTime.pedestal;
+  fMaxBinAmplitude.trigger_polarity = fConstantFractionTime.trigger_polarity;
 
 
   for (unsigned int iTPI = 0; iTPI < pulseList.size(); ++iTPI) {
+    if (!OverThreshold(pulseList.at(iTPI), fThresholdPercent))
+      continue;
     TPulseIsland* tpi = pulseList.at(iTPI);
 
     double time = fConstantFractionTime(tpi);
@@ -62,4 +77,4 @@ int CFTimeNoShiftAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 // given directly within the modules file.  See the github wiki for more.
 //
 // NOTE: for TAP generators OMIT the APGenerator part of the class' name
-ALCAP_TAP_GENERATOR(CFTimeNoShift);
+ALCAP_TAP_GENERATOR(CFTimeNoShift,threshold_percent_of_range,constant_fraction);
