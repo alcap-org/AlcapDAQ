@@ -10,6 +10,7 @@ class PictureBook {
 
   void StartNewSection(std::string section_name);
   void InsertFigure(std::string image_file);
+  void StartNewPage() { fLatexFile << "\\newpage \n"; }
 
  private:
   std::ofstream fLatexFile;

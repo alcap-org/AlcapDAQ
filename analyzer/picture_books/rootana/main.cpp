@@ -29,6 +29,10 @@ int main(int argc, char **argv) {
   // Create the picture book
   PictureBook* pic_book = new PictureBook(arguments.outfile);
 
+  // Keep track of the number of plots so that we can insert new pages when we want
+  int n_plots = 0;
+  const int n_plots_per_page = 2;
+
   // Loop through the chapters
   for (std::vector<BaseChapter*>::const_iterator chapterIter = gChapters.begin(); chapterIter != gChapters.end(); ++chapterIter) {
     
@@ -96,6 +100,11 @@ int main(int argc, char **argv) {
 	
 	// Add the figure to the latex document
 	pic_book->InsertFigure(pngname);
+	++n_plots;
+
+	if (n_plots % n_plots_per_page == 0) {
+	  pic_book->StartNewPage();
+	}
       }
     }
   }
