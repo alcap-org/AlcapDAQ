@@ -33,6 +33,16 @@ int main(int argc, char **argv) {
   int n_plots = 0;
   const int n_plots_per_page = 2;
 
+  // Open all the TFiles that we will want
+  std::vector<TFile*> run_files;
+  for (int i_run = arguments.start; i_run < arguments.stop; ++i_run) {
+    std::stringstream filename;
+    filename << arguments.infilelocation << "out0" << i_run << ".root";
+    
+    TFile* file = new TFile(filename.str().c_str(), "READ");
+    run_files.push_back(file);
+  }
+
   // Loop through the chapters
   for (std::vector<BaseChapter*>::const_iterator chapterIter = gChapters.begin(); chapterIter != gChapters.end(); ++chapterIter) {
     
@@ -62,15 +72,10 @@ int main(int argc, char **argv) {
     }
 
     // Now loop through the runs we want to run over
-    for (int i_run = arguments.start; i_run < arguments.stop; ++i_run) {
-
-      std::stringstream filename;
-      filename << arguments.infilelocation << "out0" << i_run << ".root";
-      
-      TFile* file = new TFile(filename.str().c_str(), "READ");
+    for (std::vector<TFile*>::const_iterator runIter = run_files.begin(); runIter != run_files.end(); ++runIter) {
 
       // Get the module directory
-      TDirectoryFile* dir = (TDirectoryFile*) file->Get(module_name.c_str());
+      TDirectoryFile* dir = (TDirectoryFile*) (*runIter)->Get(module_name.c_str());
 
       if (!dir) {
 	std::cout << "The directory " << module_name << " doesn't seem to exist in the input file. Aborting..." << std::endl;
@@ -154,9 +159,9 @@ int main(int argc, char **argv) {
 	if (n_plots % n_plots_per_page == 0) {
 	  pic_book->StartNewPage();
 	}
-      }
-    }
-  }
+      } // end loop through keys
+    } // end loop through runs
+  } // end loop through chapters
 
   delete pic_book;
   return 0;
