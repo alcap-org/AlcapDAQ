@@ -78,7 +78,6 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
   for(SourceVector::const_iterator sourceIt = fDetASources.begin(); sourceIt != fDetASources.end(); sourceIt++)
     {
       const AnalysedPulseList& detAPulses = gAnalysedPulseMap[*sourceIt];
-      cout << *sourceIt << " " << fDetBSources.at(sourceIt - fDetASources.begin()) << endl;
       const AnalysedPulseList& detBPulses = gAnalysedPulseMap[fDetBSources.at(sourceIt - fDetASources.begin())];
 
       //now I should build my histograms, need some keyname(source1?)

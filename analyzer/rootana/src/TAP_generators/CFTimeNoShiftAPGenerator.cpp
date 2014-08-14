@@ -16,19 +16,21 @@ class OptionsError : public std::exception {
   }
 };
 
-CFTimeNoShiftAPGenerator::CFTimeNoShiftAPGenerator(TAPGeneratorOptions* opts):
-	TVAnalysedPulseGenerator("CFTimeNoShiftAPGenerator",opts){
-  fConstantFractionTime.constant_fraction = opts->GetDouble("constant_fraction", 0.10);
-  fThresholdPercent = opts->GetDouble("threshold_percent_of_range", 0.05);
-  std::cout << "Using CF " << fConstantFractionTime.constant_fraction << "." << std::endl
+CFTimeNoShiftAPGenerator::CFTimeNoShiftAPGenerator(TAPGeneratorOptions* opts) :
+	TVAnalysedPulseGenerator("CFTimeNoShiftAPGenerator",opts) {
+  fConstantFractionTime.constant_fraction = opts->GetDouble("1", 0.10);
+  fThresholdPercent = opts->GetDouble("0", 0.05);
+  std::cout << "Using CF fraction " << fConstantFractionTime.constant_fraction << "." << std::endl
 	    << "Using CF cut percent " << fThresholdPercent << "." << std::endl;
   if (fConstantFractionTime.constant_fraction <= 0.00 || fConstantFractionTime.constant_fraction >=1.00)
     throw OptionsError();
-  else if (fThresholdPercent <= 0.00 || fThresholdPercent >= 1.00)
+  else if (fThresholdPercent < 0.00 || fThresholdPercent >= 1.00)
     throw OptionsError();
 }
 
-  static bool OverThreshold(const TPulseIsland* tpi, const double thr_pct) {
+static bool OverThreshold(const TPulseIsland* tpi, const double thr_pct) {
+  if (thr_pct == 0.00)
+    return true;
   const std::vector<int>::const_iterator beg = tpi->GetSamples().begin();
   const std::vector<int>::const_iterator end = tpi->GetSamples().end();
   const int max = (int)std::pow(2.,TSetupData::Instance()->GetNBits(tpi->GetBankName())) - 1;

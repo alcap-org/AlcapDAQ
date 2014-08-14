@@ -11,10 +11,7 @@ class TAnalysedPulse;
 class MaxBinNoShiftAPGenerator:public TVAnalysedPulseGenerator {
 
  public:
-  MaxBinNoShiftAPGenerator(TAPGeneratorOptions* opts)
-    : TVAnalysedPulseGenerator("MaxBinNoShiftAPGenerator", opts)
-    {fThresholdPercent=opts->GetDouble("threshold_percent_of_range", 0.05);};
-
+  MaxBinNoShiftAPGenerator(TAPGeneratorOptions* opts);
   virtual ~MaxBinNoShiftAPGenerator(){};
   
 public:

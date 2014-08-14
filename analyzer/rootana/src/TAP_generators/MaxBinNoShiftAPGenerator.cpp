@@ -17,9 +17,21 @@ static bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b) {
   return ( a->GetTime() < b->GetTime() );
 }
 
+MaxBinNoShiftAPGenerator::MaxBinNoShiftAPGenerator(TAPGeneratorOptions* opts) :
+  TVAnalysedPulseGenerator("MaxBinNoShiftAPGenerator", opts) {
+  fThresholdPercent=opts->GetDouble("threshold_percent_of_range", 0.05);
+  if (fThresholdPercent < 0.00 || fThresholdPercent >= 1.00)
+    throw std::exception();
+}
+
+
+
+
 //======================================================================
 
 static bool OverThreshold(const TPulseIsland* tpi, double thr_pct) {
+  if (thr_pct == 0.00)
+    return true;
   const std::vector<int>::const_iterator beg = tpi->GetSamples().begin();
   const std::vector<int>::const_iterator end = tpi->GetSamples().end();
   const int max = (int)std::pow(2.,TSetupData::Instance()->GetNBits(tpi->GetBankName())) - 1;

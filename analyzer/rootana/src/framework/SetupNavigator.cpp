@@ -21,6 +21,7 @@
 #include "AlcapExcept.h"
 
 MAKE_EXCEPTION(NoCalibDB, Base);
+MAKE_EXCEPTION(InvalidDetector, Base);
 
 SetupNavigator* SetupNavigator::fThis=NULL;
 
@@ -55,7 +56,8 @@ std::string SetupNavigator::GetBank(const IDs::channel& src)const{
             it != bankDetNameMap->end(); ++it){
         if(modules::parser::iequals(it->second , src.str())) return it->first;
     }
-    return "invalid-det-bank";
+    std::cout << "Invalid detector name: " << src.str() << std::endl;
+    throw Except::InvalidDetector();
 }
 
 void SetupNavigator::CacheCalibDB() {

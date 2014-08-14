@@ -56,9 +56,6 @@ double Algorithm::ConstantFractionTime::operator() (const TPulseIsland* tpi) {
   double dx = (double)(m-b);
   if (*(m+1) != *m)
     dx += (double)((int)cf - *m)/(double)(*(m+1) - *m);
-  else
-    std::cout << "beginning" << std::endl;
-
 
   return (dx + (double)tpi->GetTimeStamp()) * clock_tick_in_ns - time_shift;
 }
