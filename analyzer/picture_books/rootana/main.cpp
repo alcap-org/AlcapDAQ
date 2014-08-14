@@ -40,6 +40,12 @@ int main(int argc, char **argv) {
     filename << arguments.infilelocation << "out0" << i_run << ".root";
     
     TFile* file = new TFile(filename.str().c_str(), "READ");
+
+    if ( file->IsZombie() ) {
+      std::cout << "Problems opening file " << filename.str() << " ignoring it." << std::endl;
+      continue;
+    }
+
     run_files.push_back(file);
   }
 
@@ -146,14 +152,16 @@ int main(int argc, char **argv) {
 	  
 	
 	// Save the plot as a PNG
-	std::string pngname = "plots/" + histogram_name + ".png";
-	std::replace(pngname.begin(), pngname.end(), '#', '_'); // need to replace # so that latex works
-	c1->SaveAs(pngname.c_str());
+	std::stringstream pngname;
+	pngname << "plots/" << histogram_name << "_" << runIter-run_files.begin() << ".png";
+	std::string pngname_str = pngname.str();
+	std::replace(pngname_str.begin(), pngname_str.end(), '#', '_'); // need to replace # so that latex works
+	c1->SaveAs(pngname_str.c_str());
 	
 	delete c1;
 	
 	// Add the figure to the latex document
-	pic_book->InsertFigure(pngname);
+	pic_book->InsertFigure(pngname_str);
 	++n_plots;
 
 	if (n_plots % n_plots_per_page == 0) {
