@@ -6,10 +6,12 @@
 #include "TKey.h"
 #include "TCanvas.h"
 #include "TH1.h"
+#include "TH2.h"
 
 #include "CommandLine.h"
 #include "PictureBook.h"
 #include "BaseChapter.h"
+#include "TrendPlot.h"
 
 std::vector<BaseChapter*> gChapters; // a global container for the chapters (sorry, Ben)
 
@@ -40,12 +42,6 @@ int main(int argc, char **argv) {
     filename << arguments.infilelocation << "out0" << i_run << ".root";
     
     TFile* file = new TFile(filename.str().c_str(), "READ");
-
-    if ( file->IsZombie() ) {
-      std::cout << "Problems opening file " << filename.str() << " ignoring it." << std::endl;
-      continue;
-    }
-
     run_files.push_back(file);
   }
 
@@ -63,10 +59,12 @@ int main(int argc, char **argv) {
     bool log_z = (*chapterIter)->GetLogZ();
 
     bool stats_box = (*chapterIter)->GetStatsBox();
+    bool is_trend_plot = (*chapterIter)->GetIsTrendPlot();
 
     const int n_axes = 3;
     int low_limits[n_axes] = { (*chapterIter)->GetXLow(), (*chapterIter)->GetYLow(), (*chapterIter)->GetZLow() };
     int high_limits[n_axes] = { (*chapterIter)->GetXHigh(), (*chapterIter)->GetYHigh(), (*chapterIter)->GetZHigh() };
+
 
     // Start the new chapter
     pic_book->StartNewSection(chapter_name);
@@ -77,12 +75,24 @@ int main(int argc, char **argv) {
       std::cout << "Problem with the module name for chapter " << chapter_name << ". Aborting..." << std::endl;
       return 0;
     }
+    
+    // Create the trend plot outside of the loop through the runs
+    std::map<std::string, TrendPlot*> trend_plots;
 
     // Now loop through the runs we want to run over
-    for (std::vector<TFile*>::const_iterator runIter = run_files.begin(); runIter != run_files.end(); ++runIter) {
+    const int first_run = arguments.start;
+    const int n_runs = arguments.stop - arguments.start;
+    for (int i_run = 0; i_run < n_runs; ++i_run) {
+
+      TFile* file = run_files.at(i_run);
+
+      if ( file->IsZombie() ) {
+	//	std::cout << "Problems opening file for run " << first_run+i_run << ", ignoring it." << std::endl;
+	continue;
+      }
 
       // Get the module directory
-      TDirectoryFile* dir = (TDirectoryFile*) (*runIter)->Get(module_name.c_str());
+      TDirectoryFile* dir = (TDirectoryFile*) file->Get(module_name.c_str());
 
       if (!dir) {
 	std::cout << "The directory " << module_name << " doesn't seem to exist in the input file. Aborting..." << std::endl;
@@ -113,7 +123,37 @@ int main(int argc, char **argv) {
 
 	// Set up the canvas and get the histogram
 	TCanvas *c1 = new TCanvas();
-	TH1* hPlot = (TH1*) dirKey->ReadObj();
+	TH1* hRunPlot = (TH1*) dirKey->ReadObj();
+	TrendPlot* trend_plot = NULL;
+
+	// Create the trend plot if we want (but only for plots that are initially one-dimensional)
+	if (is_trend_plot) {
+
+	  if (trend_plots.find(histogram_name) == trend_plots.end()) {
+	    if (strcmp(hRunPlot->ClassName(), "TH1F") == 0) {
+	      // Create the trend plot and add it to the map
+	      trend_plot = new TrendPlot(histogram_name, hRunPlot, arguments);
+	      trend_plots[histogram_name] = trend_plot;
+	    }
+	    else {
+	      std::cout << "Error: Currently trend plots are only available for 1D-dimensional histograms. Skipping this histogram..." << std::endl;
+	      continue;
+	    }
+	  }
+	  else {
+	    trend_plot = trend_plots.find(histogram_name)->second;
+	  }
+	  trend_plot->FillTrendPlot(hRunPlot, arguments, i_run);
+	}
+
+	// Specify which plot wants to be printed out
+	TH1* hPlot = NULL;
+	if (is_trend_plot && trend_plot != NULL) {
+	  hPlot = trend_plot->GetTrendPlot();
+	}
+	else {
+	  hPlot = hRunPlot;
+	}
 
 	// Draw the plot as we want it
 	c1->SetLogx(log_x);
@@ -158,18 +198,24 @@ int main(int argc, char **argv) {
 	c1->Update();
 	  
 	
-	// Save the plot as a PNG
-	std::stringstream pngname;
-	pngname << "plots/" << histogram_name << "_" << runIter-run_files.begin() << ".png";
-	std::string pngname_str = pngname.str();
-	std::replace(pngname_str.begin(), pngname_str.end(), '#', '_'); // need to replace # so that latex works
-	c1->SaveAs(pngname_str.c_str());
+	// Save the plot as a PNG (if it's a run plot or it's a trend plot and we are at the last run)
+	if (!is_trend_plot || (is_trend_plot && i_run == n_runs-1)) {
+	  std::stringstream pngname;
+	  pngname << "plots/";
+	  if (is_trend_plot) {
+	    pngname << "TrendPlot_";
+	  }
+	  pngname << histogram_name << "_" << i_run << ".png";
+
+	  std::string pngname_str = pngname.str();
+	  std::replace(pngname_str.begin(), pngname_str.end(), '#', '_'); // need to replace # so that latex works
+	  c1->SaveAs(pngname_str.c_str());
+	  delete c1;
 	
-	delete c1;
-	
-	// Add the figure to the latex document
-	pic_book->InsertFigure(pngname_str);
-	++n_plots;
+	  // Add the figure to the latex document
+	  pic_book->InsertFigure(pngname_str);
+	  ++n_plots;
+	}
 
 	if (n_plots % n_plots_per_page == 0) {
 	  pic_book->StartNewPage();
