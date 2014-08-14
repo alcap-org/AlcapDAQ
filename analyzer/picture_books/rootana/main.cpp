@@ -41,6 +41,10 @@ int main(int argc, char **argv) {
     std::string plot_type = (*chapterIter)->GetPlotType();
     std::string draw_option = (*chapterIter)->GetDrawOption();
 
+    bool log_x = (*chapterIter)->GetLogX();
+    bool log_y = (*chapterIter)->GetLogY();
+    bool log_z = (*chapterIter)->GetLogZ();
+
 
     // Start the new chapter
     pic_book->StartNewSection(chapter_name);
@@ -90,6 +94,9 @@ int main(int argc, char **argv) {
 
 	// Draw the plot as we want it
 	hPlot->Draw(draw_option.c_str());
+	c1->SetLogx(log_x);
+	c1->SetLogy(log_y);
+	c1->SetLogz(log_z);
 	
 	// Save the plot as a PNG
 	std::string pngname = "plots/" + histogram_name + ".png";

@@ -22,6 +22,12 @@ class BaseChapter {
   /// Gets the draw option that we want ROOT to use
   std::string GetDrawOption() { return fDrawOption; }
 
+  /// \brief
+  /// Returns whether or not we want one of the axes scaled on the plots for this chapter
+  bool GetLogX() { return fLogX; }
+  bool GetLogY() { return fLogY; }
+  bool GetLogZ() { return fLogZ; }
+
  private:
   std::string fChapterName;
   modules::options* fOpts;
@@ -29,6 +35,12 @@ class BaseChapter {
   std::string fModuleName; // the name of the rootana module that produced this plot
   std::string fPlotType; // the string that indicates the type of plot that wants to be used for this chapter
   std::string fDrawOption; // the ROOT draw option that we will pass to TH1::Draw() in main.cpp
+
+  /// \brief
+  /// Do we want to draw one of the axes with a log scale?
+  bool fLogX;
+  bool fLogY;
+  bool fLogZ;
 };
 
 #endif

@@ -7,6 +7,10 @@ BaseChapter::BaseChapter(std::string chapter_name, modules::options* opts): fCha
   fModuleName = opts->GetString("module", "Not specified");
   fPlotType = opts->GetString("plot_type", "all");
   fDrawOption = opts->GetString("draw_option", "");
+
+  fLogX = opts->GetBool("logX", false);
+  fLogY = opts->GetBool("logY", false);
+  fLogZ = opts->GetBool("logZ", false);
 }
 
 std::string BaseChapter::GetModuleName() {
