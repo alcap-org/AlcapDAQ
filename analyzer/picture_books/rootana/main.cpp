@@ -56,6 +56,7 @@ int main(int argc, char **argv) {
     std::string chapter_name = (*chapterIter)->GetChapterName();
     std::string plot_type = (*chapterIter)->GetPlotType();
     std::string draw_option = (*chapterIter)->GetDrawOption();
+    std::string sub_plot_type = (*chapterIter)->GetSubPlotType();
 
     bool log_x = (*chapterIter)->GetLogX();
     bool log_y = (*chapterIter)->GetLogY();
@@ -101,6 +102,12 @@ int main(int argc, char **argv) {
 
 	  if (histogram_name.find(plot_type) == std::string::npos) { // if it isn't
 	    continue;
+	  }
+	  // Check for the next string
+	  if (sub_plot_type != "all") {
+	    if (histogram_name.find(sub_plot_type) == std::string::npos) { // if it isn't
+	      continue;
+	    }
 	  }
 	}
 

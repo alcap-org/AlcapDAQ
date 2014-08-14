@@ -23,6 +23,10 @@ class BaseChapter {
   std::string GetDrawOption() { return fDrawOption; }
 
   /// \brief
+  /// Gets the string that indicates the sub plot type that should be used for this chapter
+  std::string GetSubPlotType() { return fSubPlotType; }
+
+  /// \brief
   /// Returns whether or not we want one of the axes scaled on the plots for this chapter
   bool GetLogX() { return fLogX; }
   bool GetLogY() { return fLogY; }
@@ -45,6 +49,7 @@ class BaseChapter {
   std::string fModuleName; // the name of the rootana module that produced this plot
   std::string fPlotType; // the string that indicates the type of plot that wants to be used for this chapter
   std::string fDrawOption; // the ROOT draw option that we will pass to TH1::Draw() in main.cpp
+  std::string fSubPlotType; // a string that will be searched for in the histogram name
 
   /// \brief
   /// Do we want to draw one of the axes with a log scale?

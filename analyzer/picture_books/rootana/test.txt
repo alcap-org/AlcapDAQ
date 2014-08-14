@@ -1,12 +1,13 @@
 [CHAPTERS]
 Amplitudes
-Times
-TDP TDiffs
-TDP Amplitudes
+#Times
+#TDP TDiffs
+#TDP Amplitudes
 
 [Amplitudes]
 module=PlotAmplitude
 plot_type=Amplitude
+sub_plot_type=Ge
 logX=true
 x_low=100
 x_high=1000
@@ -36,6 +37,6 @@ y_high=3000
 x_low=1000
 
 # Compulsory Options: module
-# Optional Options: plot_type, draw_option, (string)
+# Optional Options: plot_type, draw_option, sub_plot_type (string)
 #		    logX, logY, logZ, stats_box (bool)
 #		    x_low, x_high, y_low, y_high, z_low, z_high (int)
