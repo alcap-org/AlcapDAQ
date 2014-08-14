@@ -45,6 +45,8 @@ int main(int argc, char **argv) {
     bool log_y = (*chapterIter)->GetLogY();
     bool log_z = (*chapterIter)->GetLogZ();
 
+    bool stats_box = (*chapterIter)->GetStatsBox();
+
 
     // Start the new chapter
     pic_book->StartNewSection(chapter_name);
@@ -97,6 +99,7 @@ int main(int argc, char **argv) {
 	c1->SetLogx(log_x);
 	c1->SetLogy(log_y);
 	c1->SetLogz(log_z);
+	hPlot->SetStats(stats_box);
 	
 	// Save the plot as a PNG
 	std::string pngname = "plots/" + histogram_name + ".png";

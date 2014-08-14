@@ -24,3 +24,8 @@ module=PlotTDPs
 plot_type=__amp
 draw_option=COLZ
 logZ=true
+stats_box=true
+
+# Compulsory Options: module
+# Optional Options: plot_type, draw_option, (string)
+#		    logX, logY, logZ, stats_box (bool)

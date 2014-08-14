@@ -28,6 +28,10 @@ class BaseChapter {
   bool GetLogY() { return fLogY; }
   bool GetLogZ() { return fLogZ; }
 
+  /// \brief
+  /// Returns whether or not we want a stats box
+  bool GetStatsBox() { return fStatsBox; }
+
  private:
   std::string fChapterName;
   modules::options* fOpts;
@@ -41,6 +45,10 @@ class BaseChapter {
   bool fLogX;
   bool fLogY;
   bool fLogZ;
+
+  /// \brief
+  /// Do we want a stats box?
+  bool fStatsBox;
 };
 
 #endif
