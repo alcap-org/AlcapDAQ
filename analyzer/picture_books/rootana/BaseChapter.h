@@ -36,6 +36,10 @@ class BaseChapter {
   /// Returns whether or not we want a stats box
   bool GetStatsBox() { return fStatsBox; }
 
+  /// \brief
+  /// Returns whether or not these are supposed to be trend plots
+  bool GetIsTrendPlot() { return fIsTrendPlot; }
+
   /// \brief 
   /// Returns the axis range 
   int GetXLow() { return fXLow; } int GetXHigh() { return fXHigh; }
@@ -60,6 +64,10 @@ class BaseChapter {
   /// \brief
   /// Do we want a stats box?
   bool fStatsBox;
+
+  /// \brief
+  /// Is this a chapter of trend plots?
+  bool fIsTrendPlot;
 
   /// \brief
   /// The axis ranges for each axis

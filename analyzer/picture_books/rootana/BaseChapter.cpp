@@ -14,6 +14,7 @@ BaseChapter::BaseChapter(std::string chapter_name, modules::options* opts): fCha
   fLogZ = opts->GetBool("logZ", false);
 
   fStatsBox = opts->GetBool("stats_box", false);
+  fIsTrendPlot = opts->GetBool("trend_plot", false);
 
   fXLow = opts->GetInt("x_low", -999999); fXHigh = opts->GetInt("x_high", -999999);
   fYLow = opts->GetInt("y_low", -999999); fYHigh = opts->GetInt("y_high", -999999);
