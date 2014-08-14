@@ -159,31 +159,31 @@ bool MakeAnalysedPulses::ParseGeneratorList(std::string detector,
     size_t start_br=0;
     size_t end_br=std::string::npos;
     std::vector<std::string>::const_iterator gen;
-    std::stringstream sstream;
     std::string arg,generator;
     TAPGeneratorOptions* opts;
     bool still_good=true;
     for(gen=generatorList.begin();gen!= generatorList.end();gen++){
-        // check if we have options for this generator
-        start_br=gen->find('(');
-        generator=GetOneWord(*gen,0,start_br);
-        if(start_br!=std::string::npos){
-            // There are options for this generator
-	    ++start_br; // Move to first character after '('
-            end_br=gen->find(')');
-            sstream.str(gen->substr(start_br,end_br-start_br));
-            opts=new TAPGeneratorOptions(detector+"::"+generator);
-            for(int count=0; std::getline(sstream, arg,','); count++){
-                opts->AddArgument(count,arg);
-            }
-        }
-        still_good = AddGenerator(detector,generator,opts);
-        // Is everything ok to continue?
-        if (!still_good) {
-            return false;
-        }
-        // Get ready for next iteration
-        opts=NULL;
+      // check if we have options for this generator
+      start_br=gen->find('(');
+      generator=GetOneWord(*gen,0,start_br);
+      if(start_br!=std::string::npos){
+	std::stringstream sstream;
+	// There are options for this generator
+	++start_br; // Move to first character after '('
+	end_br=gen->find(')');
+	sstream.str(gen->substr(start_br,end_br-start_br));
+	opts=new TAPGeneratorOptions(detector+"::"+generator);
+	for(int count=0; std::getline(sstream, arg,','); count++){
+	  opts->AddArgument(count,arg);
+	}
+      }
+      still_good = AddGenerator(detector,generator,opts);
+      // Is everything ok to continue?
+      if (!still_good) {
+	return false;
+      }
+      // Get ready for next iteration
+      opts=NULL;
     }
     // Everything went ok, return true
     return true;

@@ -20,6 +20,7 @@ static bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b) {
 MaxBinNoShiftAPGenerator::MaxBinNoShiftAPGenerator(TAPGeneratorOptions* opts) :
   TVAnalysedPulseGenerator("MaxBinNoShiftAPGenerator", opts) {
   fThresholdPercent=opts->GetDouble("threshold_percent_of_range", 0.05);
+  std::cout << "MaxBin threshold: " << fThresholdPercent << std::endl;
   if (fThresholdPercent < 0.00 || fThresholdPercent >= 1.00)
     throw std::exception();
 }
