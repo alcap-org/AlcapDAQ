@@ -31,7 +31,14 @@ int main(int argc, char **argv) {
 
   // Loop through the chapters
   for (std::vector<BaseChapter*>::const_iterator chapterIter = gChapters.begin(); chapterIter != gChapters.end(); ++chapterIter) {
+    
+    // Get everything we could possibly want from the BaseChapter
     std::string chapter_name = (*chapterIter)->GetChapterName();
+    std::string plot_type = (*chapterIter)->GetPlotType();
+    std::string draw_option = (*chapterIter)->GetDrawOption();
+
+
+    // Start the new chapter
     pic_book->StartNewSection(chapter_name);
 
     // Get the name of the rootana module that we will want to get the histograms from
@@ -40,9 +47,6 @@ int main(int argc, char **argv) {
       std::cout << "Problem with the module name for chapter " << chapter_name << ". Aborting..." << std::endl;
       return 0;
     }
-
-    // Get the plot type (a string that should be in the histogram name) for the plots we want from this module
-    std::string plot_type = (*chapterIter)->GetPlotType();
 
     // Now loop through the runs we want to run over
     for (int i_run = arguments.start; i_run < arguments.stop; ++i_run) {
@@ -76,11 +80,12 @@ int main(int argc, char **argv) {
 	  }
 	}
 
-	// Set up the canvas
+	// Set up the canvas and get the histogram
 	TCanvas *c1 = new TCanvas();
-	
 	TH1* hPlot = (TH1*) dirKey->ReadObj();
-	hPlot->Draw();
+
+	// Draw the plot as we want it
+	hPlot->Draw(draw_option.c_str());
 	
 	// Save the plot as a PNG
 	std::string pngname = "plots/" + histogram_name + ".png";
