@@ -7,6 +7,7 @@
 #include "TCanvas.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TStyle.h"
 
 #include "CommandLine.h"
 #include "PictureBook.h"
@@ -14,6 +15,8 @@
 #include "TrendPlot.h"
 
 std::vector<BaseChapter*> gChapters; // a global container for the chapters (sorry, Ben)
+
+extern TStyle* gStyle;
 
 int main(int argc, char **argv) {
 
@@ -160,6 +163,7 @@ int main(int argc, char **argv) {
 	c1->SetLogy(log_y);
 	c1->SetLogz(log_z);
 
+	gStyle->SetOptStat(111111);
 	hPlot->SetStats(stats_box);
 
 	// Set the limits on each axis
