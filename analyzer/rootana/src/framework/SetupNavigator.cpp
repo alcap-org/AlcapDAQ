@@ -64,15 +64,19 @@ void SetupNavigator::CacheCalibDB() {
   // Cache all the variables we have in the database
   // First the pedestals and noises
   fTableName = "pedestals_and_noises";
-  if (!fServer->HasTable(fTableName.c_str())) { // check it exists
+  if (!fServer->HasTable(fTableName.c_str())) {// check it exists
     std::cout << "SetupNavigator: ERROR: Table " << fTableName << " does not exist." << std::endl;
-   // } else if (!fServer->HasTable("CoarseTimeOffset")) {
-   //  std::cout << "SetupNavigator: ERROR: Table " << "CoarseTimeOffset" << " does not exist." << std::endl;
+    if (!fCommandLineArgs.calib)
+      throw Except::NoCalibDB();
   } else {
-    if (fPedestalValues.empty() && fNoiseValues.empty()) {
-      ReadPedestalAndNoiseValues();
-      // ReadCoarseTimeOffsetValues();
-    }
+    ReadPedestalAndNoiseValues();
+  }
+  if (!fServer->HasTable("CoarseTimeOffset")) {
+    std::cout << "SetupNavigator: ERROR: Table " << "CoarseTimeOffset" << " does not exist." << std::endl;
+    if (!fCommandLineArgs.calib)
+      throw Except::NoCalibDB();
+  } else {
+    ReadCoarseTimeOffsetValues();
   }
 }
 
@@ -112,7 +116,7 @@ void SetupNavigator::ReadCoarseTimeOffsetValues() {
   std::stringstream query;
   query << "SELECT channel";
   for (unsigned int i = 0; i < table.size(); ++i)
-    query << ',' << table[i];
+    query << ",\"" << table[i] << '"';
   query << " FROM " << "CoarseTimeOffset" << " WHERE run==" << GetRunNumber();
   TSQLResult* res = fServer->Query(query.str().c_str());
 
@@ -120,7 +124,7 @@ void SetupNavigator::ReadCoarseTimeOffsetValues() {
   while ((row = res->Next())) {
     for (unsigned int i = 0; i < table.size(); ++i) {
       std::stringstream srcstr;
-      srcstr << row->GetField(0) << IDs::field_separator << table[i] << IDs::field_separator << IDs::kAnyConfig;
+      srcstr << row->GetField(0) << IDs::field_separator << table[i];
       fCoarseTimeOffset[IDs::source(srcstr.str())] = atof(row->GetField(1 + i));
     }
     delete row;
@@ -129,43 +133,42 @@ void SetupNavigator::ReadCoarseTimeOffsetValues() {
 }
 
 std::vector<std::string> SetupNavigator::GetCoarseTimeOffsetColumns() {
-  std::vector<std::string> tables;
+  std::vector<std::string> cols;
   std::stringstream cmd;
   cmd << "PRAGMA table_info(" << "CoarseTimeOffset" << ")";
   TSQLResult* res = fServer->Query(cmd.str().c_str());
   TSQLRow* row;
   while ((row = res->Next())) {
     if (row->GetField(1) != std::string("run") && row->GetField(1) != std::string("channel"))
-      tables.push_back(std::string(row->GetField(1)));
+      cols.push_back(std::string(row->GetField(1)));
     delete row;
   }
   delete res;
-  return tables;
+  return cols;
 }
 
-void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double dt) {
+void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, const double dt) {
   std::stringstream cmd;
-
+  fServer->StartTransaction();
   // Create table and columns if they don't exist
-  cmd << "CREATE TABLE IF NOT EXIST " << "CoarseTimeOffset" << "(run INT, channel TEXT)";
+  cmd << "CREATE TABLE IF NOT EXISTS " << "CoarseTimeOffset" << "(run INT, channel TEXT)";
   fServer->Exec(cmd.str().c_str());
-  CreateColumnIfNotExist("CoarseTimeOffset", src.Generator().Type(), "TEXT");
+  CreateColumnIfNotExist("CoarseTimeOffset", src.Generator().str(), "REAL");
 
   cmd.str("");
-  cmd << "SELECT * FROM " << "CoarseTimeOffset" << " WHERE run==" << GetRunNumber() << " AND channel=='" << src.Channel().str();
+  cmd << "SELECT * FROM " << "CoarseTimeOffset" << " WHERE run==" << GetRunNumber() << " AND channel=='" << src.Channel().str() << "'";
   TSQLResult* res = fServer->Query(cmd.str().c_str());
 
   cmd.str("");
-  if (res->GetRowCount())
+  if (res->Next())
     cmd <<
-      "UPDATE " << "CoarseTimeOffset" << " SET " << src.Generator().Type() << "=" << dt <<
-      " WHERE run==" << GetRunNumber() << " AND channel==" <<
-      src.Channel().str();
+      "UPDATE " << "CoarseTimeOffset" << " SET \"" << src.Generator().str() << "\"=" << dt <<
+      " WHERE run==" << GetRunNumber() << " AND channel=='" << src.Channel().str() << "'";
   else
     cmd <<
-      "INSERT INTO " << "CoarseTimeOffset" << "(run,channel," << src.Generator().Type() <<
-      ") VALUE (" << GetRunNumber() << "," << src.Channel().str() << "," <<
-      dt << ")";
+      "INSERT INTO " << "CoarseTimeOffset" << "(run,channel,\"" << src.Generator().str() <<
+      "\") VALUES (" << GetRunNumber() << ",'" << src.Channel().str() << "'," << dt << ")";
+  std::cout << "Executing SQL command: " << cmd.str() << std::endl;
   fServer->Exec(cmd.str().c_str());
   fServer->Commit();
 
@@ -188,6 +191,8 @@ void SetupNavigator::CreateColumnIfNotExist(const std::string& tab, const std::s
   delete res;
 
   cmd.str("");
-  cmd << "ALTER TABLE " << tab << " ADD COLUMN " << col << " " << type;
+  // Since the table name is the source string, which inclueds the character #,
+  // the table name in the SQLite database must be surrounded by double quotes.
+  cmd << "ALTER TABLE " << tab << " ADD COLUMN \"" << col << "\" " << type;
   fServer->Exec(cmd.str().c_str());
 }

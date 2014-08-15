@@ -101,13 +101,11 @@ int CalcCoarseTimeOffset::ProcessEntry(TGlobalData* gData,const TSetupData *setu
 // Can be used to write things out, dump a summary etc
 // Return non-zero to indicate a problem
 int CalcCoarseTimeOffset::AfterLastEntry(TGlobalData* gData, const TSetupData *setup){
-  /*
   for (unsigned int i = 0; i < fDetASources.size(); ++i) {
     const std::string keyname = fDetASources[i].str();
     const double dt = oned_plots[keyname]->GetBinCenter(oned_plots[keyname]->GetMaximumBin());
-    SetupNavigator::Instance()->SetGrossTimeOffset(fDetASources, dt);
+    SetupNavigator::Instance()->SetCoarseTimeOffset(fDetASources[i], dt);
   }
-  //*/
   return 0;
 }
 
