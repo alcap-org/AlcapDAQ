@@ -24,8 +24,6 @@ private:
   /// The algorithms that this generator uses
   Algorithm::MaxBinAmplitude fMaxBinAmplitude;
   Algorithm::MaxBinTime fMaxBinTime;
-
-  double fThresholdPercent;
 };
 
 #endif // MAXBINNOSHIFTAPGENERATOR_H__

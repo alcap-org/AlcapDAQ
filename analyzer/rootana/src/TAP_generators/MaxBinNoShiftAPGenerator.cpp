@@ -19,29 +19,7 @@ static bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b) {
 
 MaxBinNoShiftAPGenerator::MaxBinNoShiftAPGenerator(TAPGeneratorOptions* opts) :
   TVAnalysedPulseGenerator("MaxBinNoShiftAPGenerator", opts) {
-  fThresholdPercent=opts->GetDouble("0", 0.05);
-  std::cout << "MaxBin threshold: " << fThresholdPercent << std::endl;
-  if (fThresholdPercent < 0.00 || fThresholdPercent >= 1.00)
-    throw std::exception();
 }
-
-
-
-
-//======================================================================
-
-static bool OverThreshold(const TPulseIsland* tpi, double thr_pct) {
-  if (thr_pct == 0.00)
-    return true;
-  const std::vector<int>::const_iterator beg = tpi->GetSamples().begin();
-  const std::vector<int>::const_iterator end = tpi->GetSamples().end();
-  const int max = (int)std::pow(2.,TSetupData::Instance()->GetNBits(tpi->GetBankName())) - 1;
-  const int pol = TSetupData::Instance()->GetTriggerPolarity(tpi->GetBankName());
-  const int ped = SetupNavigator::Instance()->GetPedestal(TSetupData::Instance()->GetDetectorName(tpi->GetBankName()));
-  const int thr = pol > 0 ? thr_pct * (max - ped) + (double)ped : (1. - thr_pct) * ped;
-  return pol > 0 ? *std::max_element(beg, end) > thr : *std::min_element(beg, end) < thr;
-}
-
 
 //----------------------------------------------------------------------
 int MaxBinNoShiftAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
@@ -62,8 +40,6 @@ int MaxBinNoShiftAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 
 
   for (PulseIslandList::const_iterator pulseIter = pulseList.begin(); pulseIter != pulseList.end(); pulseIter++) {
-    if(!OverThreshold(*pulseIter, fThresholdPercent))
-      continue;
     amplitude = fMaxBinAmplitude(*pulseIter);
     time = fMaxBinTime(*pulseIter);
     
@@ -79,4 +55,4 @@ int MaxBinNoShiftAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
   std::sort(analysedList.begin(), analysedList.end(), IsTimeOrdered);
   return 0;
 }
-ALCAP_TAP_GENERATOR(MaxBinNoShift,threshold_percent_of_range);
+ALCAP_TAP_GENERATOR(MaxBinNoShift);

@@ -172,7 +172,7 @@ bool MakeAnalysedPulses::ParseGeneratorList(std::string detector,
 	++start_br; // Move to first character after '('
 	end_br=gen->find(')');
 	sstream.str(gen->substr(start_br,end_br-start_br));
-	opts=new TAPGeneratorOptions(detector+"::"+generator);
+	opts=new TAPGeneratorOptions(generator);
 	for(int count=0; std::getline(sstream, arg,','); count++){
 	  opts->AddArgument(count,arg);
 	}

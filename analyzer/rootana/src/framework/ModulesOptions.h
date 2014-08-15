@@ -149,6 +149,7 @@ class modules::options{
         OptionsOrder_t fOrder;
         int fIdNumber;
 
+    protected:
         std::string fModuleName;
 
 };

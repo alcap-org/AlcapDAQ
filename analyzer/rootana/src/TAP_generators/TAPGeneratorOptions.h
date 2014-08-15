@@ -11,6 +11,8 @@ class TAPGeneratorOptions:public modules::options{
 	TAPGeneratorOptions(const std::string& name):
 		modules::options(name){};
 	~TAPGeneratorOptions(){};
+
+	void AddArgument(const int& number, const std::string& option);
 };
 
 #endif // TAPGENERATOROPTIONS_H_
