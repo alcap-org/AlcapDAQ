@@ -8,6 +8,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TStyle.h"
+#include "TError.h"
 
 #include "CommandLine.h"
 #include "PictureBook.h"
@@ -17,8 +18,12 @@
 std::vector<BaseChapter*> gChapters; // a global container for the chapters (sorry, Ben)
 
 extern TStyle* gStyle;
+extern Int_t gErrorIgnoreLevel;
 
 int main(int argc, char **argv) {
+
+  // Don't want ROOT to print out a line for every plot it saves
+  gErrorIgnoreLevel = kFatal;
 
   // Read in the command line arguments to find out where the input files are,
   // where the output should go, which runs to analyze and which format file to use
@@ -63,6 +68,7 @@ int main(int argc, char **argv) {
 
     bool stats_box = (*chapterIter)->GetStatsBox();
     bool is_trend_plot = (*chapterIter)->GetIsTrendPlot();
+    bool auto_zoom = (*chapterIter)->GetAutoZoom();
 
     const int n_axes = 3;
     int low_limits[n_axes] = { (*chapterIter)->GetXLow(), (*chapterIter)->GetYLow(), (*chapterIter)->GetZLow() };
@@ -123,6 +129,12 @@ int main(int argc, char **argv) {
 	    }
 	  }
 	}
+	else {
+	  // Check that it's not the TString that we store in each directory
+	  if (strcmp(dirKey->ReadObj()->ClassName(), "TObjString") == 0) {
+	    continue;
+	  }
+	}
 
 	// Set up the canvas and get the histogram
 	TCanvas *c1 = new TCanvas();
@@ -139,7 +151,7 @@ int main(int argc, char **argv) {
 	      trend_plots[histogram_name] = trend_plot;
 	    }
 	    else {
-	      std::cout << "Error: Currently trend plots are only available for 1D-dimensional histograms. Skipping this histogram..." << std::endl;
+	      std::cout << "Error: Currently trend plots are only available for 1D-dimensional histograms. Skipping this histogram... (" << chapter_name << ")" << std::endl;
 	      continue;
 	    }
 	  }
@@ -167,34 +179,89 @@ int main(int argc, char **argv) {
 	hPlot->SetStats(stats_box);
 
 	// Set the limits on each axis
-	// First, get the current limits on the plot so we can provide warnings if the user asks for a range outside of these
-	int current_low_limits[n_axes] = { hPlot->GetXaxis()->GetXmin(), hPlot->GetYaxis()->GetXmin(), hPlot->GetZaxis()->GetXmin() };
-	int current_high_limits[n_axes] = { hPlot->GetXaxis()->GetXmax(), hPlot->GetYaxis()->GetXmax(), hPlot->GetZaxis()->GetXmax() };
-	TAxis* axis[n_axes] = { hPlot->GetXaxis(), hPlot->GetYaxis(), hPlot->GetZaxis() };
-	// Now loop through the axes and set the limits
-	for (int i_axis = 0; i_axis < n_axes; ++i_axis) {
-	  
-	  // Give a warning if the user has specified an out of range limit
-	  if (low_limits[i_axis] != -999999 && low_limits[i_axis] < current_low_limits[i_axis]) {
-	    std::cout << "Warning: Limit on axis " << i_axis << " specified by the user (" << low_limits[i_axis] 
-		      << ") is outside of the current range of the plots (" << current_low_limits[i_axis] 
-		      << ") and so won't have any effect." << std::endl;
-	  }
-	  if (high_limits[i_axis] != -999999 && high_limits[i_axis] > current_high_limits[i_axis]) {
-	    std::cout << "Warning: Limit on axis " << i_axis << " specified by the user (" << high_limits[i_axis] 
-		      << ") is outside of the current range of the plots (" << current_high_limits[i_axis] 
-		      << ") and so won't have any effect." << std::endl;
-	  }
+	if (auto_zoom) {
+	  // Auto zoom the axes here
 
-	  // Now set the axis limits
-	  if (low_limits[i_axis] != -999999 && high_limits[i_axis] != -999999) {
-	    axis[i_axis]->SetRangeUser(low_limits[i_axis], high_limits[i_axis]);
+	  // If it's a trend plot then we want to zoom on both axes
+	  if (is_trend_plot) {
+	    // Zoom on both
+	    int max_bin = 0;
+	    
+	    // Loop through the y-axis first and then see which run has the highest bin
+	    for (int j_bin = hPlot->GetNbinsY(); j_bin > 0; --j_bin) {
+	      
+	      for (int i_bin = hPlot->GetNbinsX(); i_bin > 0; --i_bin) {
+		
+		if (hPlot->GetBinContent(i_bin, j_bin) > 0) {
+		  
+		  // See if this bin is higher than the previous
+		  if (j_bin > max_bin) {
+		    max_bin = j_bin;
+		    break;
+		  }
+		}
+	      }
+	    }
+	    
+	    hPlot->GetYaxis()->SetRange(1, max_bin + 5); // set the range based on bin number
 	  }
-	  else if (low_limits[i_axis] == -999999 && high_limits[i_axis] != -999999) {
-	    axis[i_axis]->SetRangeUser(current_low_limits[i_axis], high_limits[i_axis]);
+	  else {
+	    // Zoom on x-axis only
+	    int min_bin = 1;
+	    int max_bin = 1;
+	    
+	    for (int i_bin = 1; i_bin <= hPlot->GetNbinsX(); ++i_bin) {
+	      if (hPlot->GetBinContent(i_bin) >= 1) {
+		if (i_bin > min_bin) {
+		  min_bin = i_bin;
+		  break;
+		}
+	      }
+	    }
+
+	    for (int i_bin = hPlot->GetNbinsX(); i_bin > 0; --i_bin) {
+	      if (hPlot->GetBinContent(i_bin) >= 1) {
+		// See if this bin is higher than the previous
+		if (i_bin > max_bin) {
+		  max_bin = i_bin;
+		  break;
+		}
+	      }
+	    }
+	    
+	    hPlot->GetXaxis()->SetRange(min_bin, max_bin); // set the range based on bin number
 	  }
-	  else if (low_limits[i_axis] != -999999 && high_limits[i_axis] == -999999) {
-	    axis[i_axis]->SetRangeUser(low_limits[i_axis], current_high_limits[i_axis]);
+	}
+	else { // try and use the limits
+	  // First, get the current limits on the plot so we can provide warnings if the user asks for a range outside of these
+	  int current_low_limits[n_axes] = { hPlot->GetXaxis()->GetXmin(), hPlot->GetYaxis()->GetXmin(), hPlot->GetZaxis()->GetXmin() };
+	  int current_high_limits[n_axes] = { hPlot->GetXaxis()->GetXmax(), hPlot->GetYaxis()->GetXmax(), hPlot->GetZaxis()->GetXmax() };
+	  TAxis* axis[n_axes] = { hPlot->GetXaxis(), hPlot->GetYaxis(), hPlot->GetZaxis() };
+	  // Now loop through the axes and set the limits
+	  for (int i_axis = 0; i_axis < n_axes; ++i_axis) {
+	    
+	    // Give a warning if the user has specified an out of range limit
+	    if (low_limits[i_axis] != -999999 && low_limits[i_axis] < current_low_limits[i_axis]) {
+	      std::cout << "Warning: Lower limit on axis " << i_axis << " specified by the user (" << low_limits[i_axis] 
+			<< ") is outside of the current range of the plots (" << current_low_limits[i_axis] 
+			<< ") and so won't have any effect. (" << chapter_name << ")" << std::endl;
+	    }
+	    if (high_limits[i_axis] != -999999 && high_limits[i_axis] > current_high_limits[i_axis]) {
+	      std::cout << "Warning: Upper limit on axis " << i_axis << " specified by the user (" << high_limits[i_axis] 
+			<< ") is outside of the current range of the plots (" << current_high_limits[i_axis] 
+			<< ") and so won't have any effect. (" << chapter_name << ")" << std::endl;
+	    }
+	    
+	    // Now set the axis limits
+	    if (low_limits[i_axis] != -999999 && high_limits[i_axis] != -999999) {
+	      axis[i_axis]->SetRangeUser(low_limits[i_axis], high_limits[i_axis]);
+	    }
+	    else if (low_limits[i_axis] == -999999 && high_limits[i_axis] != -999999) {
+	      axis[i_axis]->SetRangeUser(current_low_limits[i_axis], high_limits[i_axis]);
+	    }
+	    else if (low_limits[i_axis] != -999999 && high_limits[i_axis] == -999999) {
+	      axis[i_axis]->SetRangeUser(low_limits[i_axis], current_high_limits[i_axis]);
+	    }
 	  }
 	}
 

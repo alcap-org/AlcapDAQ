@@ -1,9 +1,10 @@
 [CHAPTERS]
 Germanium Amplitudes
 Trend Amplitudes
-#Times
-#TDP TDiffs
-#TDP Amplitudes
+Times
+Integrals
+TDP TDiffs
+TDP Amplitudes
 
 [Germanium Amplitudes]
 module=PlotAmplitude
@@ -25,7 +26,11 @@ module=PlotTime
 plot_type=Time
 logY=true
 y_low=100
-y_high=1000
+#y_high=1000
+
+[Integrals]
+module=PlotIntegral
+auto_zoom=true
 
 [TDP TDiffs]
 module=PlotTDPs
@@ -46,5 +51,5 @@ x_low=1000
 
 # Compulsory Options: module
 # Optional Options: plot_type, draw_option, sub_plot_type (string)
-#		    logX, logY, logZ, stats_box, trend_plot (bool)
+#		    logX, logY, logZ, stats_box, trend_plot, auto_zoom (bool)
 #		    x_low, x_high, y_low, y_high, z_low, z_high (int)
