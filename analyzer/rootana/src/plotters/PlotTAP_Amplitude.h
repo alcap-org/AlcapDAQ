@@ -1,15 +1,15 @@
-#ifndef PlotTAPAmplitude_h__
-#define PlotTAPAmplitude_h__
+#ifndef PlotTAP_Amplitude_h__
+#define PlotTAP_Amplitude_h__
 
 #include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
 
-class PlotTAPAmplitude : public BaseModule{
+class PlotTAP_Amplitude : public BaseModule{
  public:
-  PlotTAPAmplitude(modules::options* opts);
-  ~PlotTAPAmplitude();
+  PlotTAP_Amplitude(modules::options* opts);
+  ~PlotTAP_Amplitude();
 
  private:
   virtual int BeforeFirstEntry(TGlobalData *gData, const TSetupData *gSetup);
