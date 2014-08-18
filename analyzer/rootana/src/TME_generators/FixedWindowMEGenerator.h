@@ -43,7 +43,7 @@ class FixedWindowMEGenerator:public TVMuonEventGenerator {
                 const DetectorPulseList::const_iterator& end);
 
     private:
-        double fMuonWindow, fEventWindow;
+        double fEventWindow;
         Detector_t fMuSc;
         SourceList fDetectors;
 

@@ -8,7 +8,6 @@ using std::endl;
 
 FixedWindowMEGenerator::FixedWindowMEGenerator(TMEGeneratorOptions* opts):
 	TVMuonEventGenerator("FixedWindow",opts){
-        fMuonWindow=opts->GetDouble("muon_window",10);
         fEventWindow=opts->GetDouble("event_window",10);
 }
 
@@ -79,4 +78,4 @@ void FixedWindowMEGenerator::PulsesInWindow(double central_time, double window,
     while(   stop!=end &&      (*stop)->GetTime()<central_time+window ) ++stop;
 }
 
-ALCAP_TME_GENERATOR(FixedWindow, muon_window, event_window);
+ALCAP_TME_GENERATOR(FixedWindow, event_window);
