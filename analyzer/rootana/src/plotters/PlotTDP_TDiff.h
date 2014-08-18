@@ -41,7 +41,8 @@ class PlotTDP_TDiff : public BaseModule {
   /// \return Non-zero to indicate a problem.
   virtual int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);
   /// \brief
-  /// Before each run, the histograms are created.
+  /// Before each run, the DetectorPulseLists for the necessary detectors are stored
+  /// and the histograms are created.
   ///
   /// \return Non-zero to indicate a problem.
   virtual int BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup);
@@ -50,6 +51,13 @@ class PlotTDP_TDiff : public BaseModule {
   ///
   /// \return Non-zero to indicate a problem.
   virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
+
+  /// \brief
+  /// The detector names that are requested
+  std::string fDetNameA, fDetNameB;
+  /// \brief
+  /// The pulse lists for the detector pulses that we want
+  DetectorPulseList fDetPulsesA, fDetPulsesB;
 };
 
 #endif //PLOTTDP_TDIFF_H_
