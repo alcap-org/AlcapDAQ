@@ -1,6 +1,6 @@
 //#define USE_PRINT_OUT 
 
-#include "PlotTime.h"
+#include "PlotTAPTime.h"
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -23,14 +23,14 @@ using std::pair;
 
 extern SourceAnalPulseMap gAnalysedPulseMap;
 
-PlotTime::PlotTime(modules::options* opts) :
-    BaseModule("PlotTime",opts) {
+PlotTAPTime::PlotTAPTime(modules::options* opts) :
+    BaseModule("PlotTAPTime",opts) {
     }
 
-PlotTime::~PlotTime(){  
+PlotTAPTime::~PlotTAPTime(){  
 }
 
-int PlotTime::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
+int PlotTAPTime::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
 
   double min_time = 0;
   double max_time = 110e6; // ms
@@ -71,4 +71,4 @@ int PlotTime::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
     return 0;
 }
 
-ALCAP_REGISTER_MODULE(PlotTime)
+ALCAP_REGISTER_MODULE(PlotTAPTime)

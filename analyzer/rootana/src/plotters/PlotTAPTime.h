@@ -1,15 +1,15 @@
-#ifndef PlotTime_h__
-#define PlotTime_h__
+#ifndef PlotTAPTime_h__
+#define PlotTAPTime_h__
 
 #include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
 
-class PlotTime : public BaseModule{
+class PlotTAPTime : public BaseModule{
  public:
-  PlotTime(modules::options* opts);
-  ~PlotTime();
+  PlotTAPTime(modules::options* opts);
+  ~PlotTAPTime();
 
  private:
   virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
