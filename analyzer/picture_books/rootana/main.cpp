@@ -129,6 +129,12 @@ int main(int argc, char **argv) {
 	    }
 	  }
 	}
+	else {
+	  // Check that it's not the TString that we store in each directory
+	  if (strcmp(dirKey->ReadObj()->ClassName(), "TObjString") == 0) {
+	    continue;
+	  }
+	}
 
 	// Set up the canvas and get the histogram
 	TCanvas *c1 = new TCanvas();
@@ -215,7 +221,6 @@ int main(int argc, char **argv) {
 	      }
 	    }
 	    
-	    std::cout << "AE: " << histogram_name << ", " << max_bin << std::endl;
 	    hPlot->GetXaxis()->SetRange(1, max_bin); // set the range based on bin number
 	  }
 	}
