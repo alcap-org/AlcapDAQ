@@ -10,62 +10,43 @@ namespace modules {class options;}
 namespace IDs {class source;}
 
 ////////////////////////////////////////////////////////////////////////////////
+/// \ingroup rootana_plotters
 /// \ingroup rootana_modules
-/// \author AuthorName
+/// \author Ben Krikler
 ///
-/// \brief
-/// A one line description of what your module does.
+/// \brief Profile TDetectorPulse s
 ///
 /// \details
-/// A longer, more descriptive block of text.
-/// Specifics like members and methods will be described later.
-/// You can add this to other groups instead of rootana_modules or in addition
-/// to rootana_modules by adding more of the ingroup tags.
+/// Plot the relative amplitudes, efficiencies and times of paired pulses
+/// (TDetectorPulses, TDPs).
 ////////////////////////////////////////////////////////////////////////////////
 class PlotTDPs : public BaseModule {
     public:     
         struct Detector_t {
+            //amplitudes
             TH2F *amplitudes;
             TH1F *fast_only_amps, *slow_only_amps;
+            TH1F *scale_factor;
+            // efficiencies
             TH1F *fast_amps_slow_cut, *slow_amps_fast_cut;
+            //times
             TH2F *time_diff_fast, *time_diff_slow;
+            TH2F *times;
         };
         typedef std::map<IDs::source,Detector_t> PlotsList_t;
 
     public:
-        /// \brief
-        /// Constructor description. If necessary, add a details tag like above.
-        ///
-        /// \param[in] opts Describe the options this module takes.
+        /// \brief Constructor 
         PlotTDPs(modules::options* opts);
-        /// \brief
-        /// Is anything done in the destructor?
+        /// \brief Destructor
         ~PlotTDPs();
 
     private:
-        /// \brief
-        /// What's calculated for every entry?
-        /// Don't hesitate to repeat what was said in the class description.
-        /// 
-        /// \param[in] gData See BaseModule::ProcessEntry
-        /// \param[in] gSetup See BaseModule::ProcessEntry
-        /// \return Non-zero to indicate a problem.
+        /// \brief Fill all histograms
         virtual int ProcessEntry(TGlobalData *gData,const  TSetupData *gSetup);
-        /// \brief
-        /// What needes to be done before each run?
-        /// Don't hesitate to repeat what was said in the class description.
-        ///
-        /// \param[in] gData See BaseModule::BeforeFirstEntry
-        /// \param[in] setup See BaseModule::BeforeFirstEntry
-        /// \return Non-zero to indicate a problem.
+        /// \brief Setup all histograms
         virtual int BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup);
-        /// \brief
-        /// What needs to be done after each run?
-        /// Don't hesitate to repeat what was said in the class description.
-        ///
-        /// \param[in] gData See BaseModule::AfterLastEntry
-        /// \param[in] setup See BaseModule::AfterLastEntry
-        /// \return Non-zero to indicate a problem.
+        /// \brief Draw and fit all desired histograms
         virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
 
     private:
