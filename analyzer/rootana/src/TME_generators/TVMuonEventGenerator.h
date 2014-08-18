@@ -18,7 +18,7 @@ class TVMuonEventGenerator{
 		virtual ~TVMuonEventGenerator(){};
 
 	public:
-		virtual int ProcessPulses(MuonEventList& muonEventsOut,const StringDetPulseMap& detectorPulsesIn)=0;
+		virtual int ProcessPulses(MuonEventList& muonEventsOut,const SourceDetPulseMap& detectorPulsesIn)=0;
         const IDs::generator& GetGenerator()const{return fGenerator;}
 
 	protected:

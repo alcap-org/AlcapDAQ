@@ -12,7 +12,7 @@ using std::endl;
 }
 
 int %module%MEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
-        const StringDetPulseMap& detectorPulsesIn){
+        const SourceDetPulseMap& detectorPulsesIn){
 
 	// returning 0 tells the caller that we were successful, return non-zero if not
 	return 0;
