@@ -5,6 +5,8 @@
 #include "ModulesOptions.h"
 #include "definitions.h"
 
+#include "TDetectorPulse.h"
+
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -34,6 +36,13 @@ int PlotTDP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
      cout<<"-----PlotTDP_TDiff::BeforeFirstEntry(): I'm debugging!"<<endl;
   }
 
+  return 0;
+}
+
+// Called once for each event in the main event loop
+// Return non-zero to indicate a problem and terminate the event loop
+int PlotTDP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+
   // Loop over all TDP sources
   for(SourceDetPulseMap::const_iterator i_source=gDetectorPulseMap.begin();
       i_source!= gDetectorPulseMap.end(); ++i_source){
@@ -43,24 +52,26 @@ int PlotTDP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     if (i_detname == fDetNameA) {
       fDetPulsesA = i_source->second;
       if (Debug()) {
-	std::cout << "PlotTDP_TDiff: " << fDetNameA << " pulses found." << std::endl;;
+	std::cout << "PlotTDP_TDiff: " << fDetNameA << " pulses found. (" << fDetPulsesA.size() << " pulses)" << std::endl;;
       }
     }
     else if (i_detname == fDetNameB) {
       fDetPulsesB = i_source->second;
       if (Debug()) {
-	std::cout << "PlotTDP_TDiff: " << fDetNameB << " pulses found." << std::endl;
+	std::cout << "PlotTDP_TDiff: " << fDetNameB << " pulses found. (" << fDetPulsesB.size() << " pulses)" << std::endl;
       }
     }
   }
 
-  return 0;
-}
+  // Loop through the TDPs in both channels
+  std::cout << "AE: " << fDetPulsesA.size() << ", " << fDetPulsesB.size() << std::endl;
+  for (DetectorPulseList::const_iterator i_det_pulse_a = fDetPulsesA.begin(); i_det_pulse_a != fDetPulsesA.end(); ++i_det_pulse_a) {
+    for (DetectorPulseList::const_iterator i_det_pulse_b = fDetPulsesB.begin(); i_det_pulse_b != fDetPulsesB.end(); ++i_det_pulse_b) {
 
-// Called once for each event in the main event loop
-// Return non-zero to indicate a problem and terminate the event loop
-int PlotTDP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+      std::cout << (*i_det_pulse_a)->GetTime() << ", " << (*i_det_pulse_b)->GetTime() << std::endl;
 
+    }
+  }
   return 0;
 }
 
