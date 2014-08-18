@@ -2,6 +2,7 @@
 #define PLOTTDP_TDIFF_H_
 
 #include "BaseModule.h"
+#include "definitions.h"
 class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
@@ -54,7 +55,7 @@ class PlotTDP_TDiff : public BaseModule {
 
   /// \brief
   /// The detector names that are requested
-  std::string fDetNameA, fDetNameB;
+  IDs::channel fDetNameA, fDetNameB;
   /// \brief
   /// The pulse lists for the detector pulses that we want
   DetectorPulseList fDetPulsesA, fDetPulsesB;
