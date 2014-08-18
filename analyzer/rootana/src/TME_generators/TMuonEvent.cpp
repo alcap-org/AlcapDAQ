@@ -19,6 +19,12 @@ void TMuonEvent::AddPulse(const IDs::source& source, TDetectorPulse* pulse){
     fPulseLists[source].push_back(pulse);
 }
 
+void TMuonEvent::AddPulses(const IDs::source& source,
+        DetectorPulseList::const_iterator start,
+        DetectorPulseList::const_iterator stop){
+    fPulseLists[source].insert(fPulseLists[source].end(),start,stop);
+}
+
 const IDs::source& TMuonEvent::GetSource(int n)const{
     if(n>(int)fPulseLists.size() || n<0) throw Except::OutOfRange();
     SourceDetPulseMap::const_iterator i_source=fPulseLists.begin();
