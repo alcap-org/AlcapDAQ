@@ -50,7 +50,7 @@ int PlotTAP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
             sourceIt != gAnalysedPulseMap.end(); sourceIt++) {
         //std::string fBankNameB = setup->GetBank(fDetNameB);
         if( sourceIt->first.Channel() != fDetNameA) {
-            cout << sourceIt->first.Channel() << "   " << fDetNameA << endl;
+	  //            cout << sourceIt->first.Channel() << "   " << fDetNameA << endl;
             continue;   //check for detector A
         }
 
