@@ -151,23 +151,25 @@ void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, const double dt
   std::stringstream cmd;
   fServer->StartTransaction();
   // Create table and columns if they don't exist
-  cmd << "CREATE TABLE IF NOT EXISTS " << "CoarseTimeOffset" << "(run INT, channel TEXT)";
+  cmd << "CREATE TABLE IF NOT EXISTS " << "CoarseTimeOffset"
+      << "(run INT, channel TEXT)";
   fServer->Exec(cmd.str().c_str());
   CreateColumnIfNotExist("CoarseTimeOffset", src.Generator().str(), "REAL");
 
   cmd.str("");
-  cmd << "SELECT * FROM " << "CoarseTimeOffset" << " WHERE run==" << GetRunNumber() << " AND channel=='" << src.Channel().str() << "'";
+  cmd << "SELECT * FROM " << "CoarseTimeOffset" << " WHERE run=="
+      << GetRunNumber() << " AND channel=='" << src.Channel().str() << "'";
   TSQLResult* res = fServer->Query(cmd.str().c_str());
 
   cmd.str("");
   if (res->Next())
-    cmd <<
-      "UPDATE " << "CoarseTimeOffset" << " SET \"" << src.Generator().str() << "\"=" << dt <<
-      " WHERE run==" << GetRunNumber() << " AND channel=='" << src.Channel().str() << "'";
+    cmd << "UPDATE " << "CoarseTimeOffset" << " SET \"" << src.Generator().str()
+	<< "\"=" << dt << " WHERE run==" << GetRunNumber() << " AND channel=='"
+	<< src.Channel().str() << "'";
   else
-    cmd <<
-      "INSERT INTO " << "CoarseTimeOffset" << "(run,channel,\"" << src.Generator().str() <<
-      "\") VALUES (" << GetRunNumber() << ",'" << src.Channel().str() << "'," << dt << ")";
+    cmd << "INSERT INTO " << "CoarseTimeOffset" << "(run,channel,\""
+	<< src.Generator().str() << "\") VALUES (" << GetRunNumber() << ",'"
+	<< src.Channel().str() << "'," << dt << ")";
   std::cout << "Executing SQL command: " << cmd.str() << std::endl;
   fServer->Exec(cmd.str().c_str());
   fServer->Commit();

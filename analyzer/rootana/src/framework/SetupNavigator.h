@@ -27,7 +27,7 @@ class SetupNavigator{
   /// \brief
   /// Gets the error on the pedestal from the SQLite database
   double GetNoise(const IDs::channel& channel) { return fNoiseValues.at(channel); }
-  double GetCoarseTimeOffset(const IDs::source& src) { return 0.; }//return fCoarseTimeOffset.at(src); }
+  double GetCoarseTimeOffset(const IDs::source& src) { return fCoarseTimeOffset.at(src); }
   void SetCoarseTimeOffset(const IDs::source& src, double dt);
 
  private:
