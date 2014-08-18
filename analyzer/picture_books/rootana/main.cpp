@@ -8,6 +8,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TStyle.h"
+#include "TError.h"
 
 #include "CommandLine.h"
 #include "PictureBook.h"
@@ -17,8 +18,12 @@
 std::vector<BaseChapter*> gChapters; // a global container for the chapters (sorry, Ben)
 
 extern TStyle* gStyle;
+extern Int_t gErrorIgnoreLevel;
 
 int main(int argc, char **argv) {
+
+  // Don't want ROOT to print out a line for every plot it saves
+  gErrorIgnoreLevel = kFatal;
 
   // Read in the command line arguments to find out where the input files are,
   // where the output should go, which runs to analyze and which format file to use
@@ -139,7 +144,7 @@ int main(int argc, char **argv) {
 	      trend_plots[histogram_name] = trend_plot;
 	    }
 	    else {
-	      std::cout << "Error: Currently trend plots are only available for 1D-dimensional histograms. Skipping this histogram..." << std::endl;
+	      std::cout << "Error: Currently trend plots are only available for 1D-dimensional histograms. Skipping this histogram... (" << chapter_name << ")" << std::endl;
 	      continue;
 	    }
 	  }
@@ -178,12 +183,12 @@ int main(int argc, char **argv) {
 	  if (low_limits[i_axis] != -999999 && low_limits[i_axis] < current_low_limits[i_axis]) {
 	    std::cout << "Warning: Limit on axis " << i_axis << " specified by the user (" << low_limits[i_axis] 
 		      << ") is outside of the current range of the plots (" << current_low_limits[i_axis] 
-		      << ") and so won't have any effect." << std::endl;
+		      << ") and so won't have any effect. (" << chapter_name << ")" << std::endl;
 	  }
 	  if (high_limits[i_axis] != -999999 && high_limits[i_axis] > current_high_limits[i_axis]) {
 	    std::cout << "Warning: Limit on axis " << i_axis << " specified by the user (" << high_limits[i_axis] 
 		      << ") is outside of the current range of the plots (" << current_high_limits[i_axis] 
-		      << ") and so won't have any effect." << std::endl;
+		      << ") and so won't have any effect. (" << chapter_name << ")" << std::endl;
 	  }
 
 	  // Now set the axis limits
