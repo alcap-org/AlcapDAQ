@@ -32,6 +32,9 @@ class PlotTDPs : public BaseModule {
             //times
             TH2F *time_diff_fast, *time_diff_slow;
             TH2F *times;
+
+            int amp_status;
+            double amp_inter, amp_grad;
         };
         typedef std::map<IDs::source,Detector_t> PlotsList_t;
 

@@ -14,6 +14,7 @@
 #include "TH2F.h"
 #include "TH1F.h"
 #include "TProfile.h"
+#include "TFitResult.h"
 
 #include <cmath>
 #include <iostream>
@@ -159,6 +160,8 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
             tmp.slow_amps_fast_cut=NULL;
         }
 
+        tmp.amp_status=tmp.amp_inter=tmp.amp_grad=0;
+
         // Add tmp to the list of TDPs to draw
         fPlotsList[i_source->first]=tmp;
     }
@@ -230,7 +233,7 @@ int PlotTDPs::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
     // Draw and save all histograms
     for(PlotsList_t::iterator i_source=fPlotsList.begin();
             i_source!=fPlotsList.end(); ++i_source){
-        const Detector_t& plots=i_source->second;
+        Detector_t& plots=i_source->second;
         //plots.amplitudes->Draw();
         //plots.slow_only_amps->Draw();
         //plots.fast_only_amps->Draw();
@@ -241,12 +244,29 @@ int PlotTDPs::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
         //    plots.slow_amps_fast_cut->Draw();
         //}
         TProfile* profile=plots.amplitudes->ProfileX(Form("%s_fit",plots.amplitudes->GetName()));
-        int fit_stat=profile->Fit("pol1","Q");
-        if(fit_stat){
+        TFitResultPtr fit=profile->Fit("pol1","QS");
+        if(((int)fit)!=0){
             cout<<"PlotTDPs: Warning: fitting to 2D amplitude plots failed with status: "
-                << fit_stat <<" for "<<i_source->first<<endl;
+                << (int)fit <<" for "<<i_source->first<<endl;
+        } else {
+            plots.amp_inter=fit->Parameter(0);
+            plots.amp_grad=fit->Parameter(1);
+        }
+        plots.amp_status=fit;
+    }
+
+    if(Debug()){
+        cout<<"PlotTDPs: Fitted amplitude gradients:"<<endl;
+        cout<<"   intercept\t| gradient\t| source"<<endl;
+        cout<<"   ---------\t| --------\t| ------"<<endl;
+        for(PlotsList_t::const_iterator i_source=fPlotsList.begin();
+                i_source!=fPlotsList.end(); ++i_source){
+            const Detector_t& plots=i_source->second;
+            if(!plots.amp_status)
+                cout<< "  "<<plots.amp_inter<<"\t| "<<  plots.amp_grad<<"\t| "<<i_source->first<<endl;
         }
     }
+
 
   return 0;
 }
