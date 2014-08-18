@@ -207,12 +207,20 @@ int main(int argc, char **argv) {
 	  }
 	  else {
 	    // Zoom on x-axis only
+	    int min_bin = 1;
 	    int max_bin = 1;
 	    
-	    for (int i_bin = hPlot->GetNbinsX(); i_bin > 0; --i_bin) {
-	      
+	    for (int i_bin = 1; i_bin <= hPlot->GetNbinsX(); ++i_bin) {
 	      if (hPlot->GetBinContent(i_bin) >= 1) {
-		
+		if (i_bin > min_bin) {
+		  min_bin = i_bin;
+		  break;
+		}
+	      }
+	    }
+
+	    for (int i_bin = hPlot->GetNbinsX(); i_bin > 0; --i_bin) {
+	      if (hPlot->GetBinContent(i_bin) >= 1) {
 		// See if this bin is higher than the previous
 		if (i_bin > max_bin) {
 		  max_bin = i_bin;
@@ -221,7 +229,7 @@ int main(int argc, char **argv) {
 	      }
 	    }
 	    
-	    hPlot->GetXaxis()->SetRange(1, max_bin); // set the range based on bin number
+	    hPlot->GetXaxis()->SetRange(min_bin, max_bin); // set the range based on bin number
 	  }
 	}
 	else { // try and use the limits
