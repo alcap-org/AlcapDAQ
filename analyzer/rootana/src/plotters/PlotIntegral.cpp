@@ -37,7 +37,11 @@ int PlotIntegral::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         title="Integral of pulses coming from "+source->str();
 
         // make a histogram
-        hist=new TH1F(name.c_str(),title.c_str(),300,0,-1);
+	int x_min = -100000;
+	int x_max = 5000000;
+	int bin_width = 100;
+	int n_bins = (x_max - x_min) / bin_width;
+        hist=new TH1F(name.c_str(),title.c_str(),n_bins,x_min,x_max);
         hist->SetXTitle("Integral of each pulse (arb. units)");
 
         // register histogram with list
@@ -75,10 +79,11 @@ int PlotIntegral::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 }
 
 int PlotIntegral::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
-    for(PlotList_t::iterator i_plot=fPlots.begin();
+  /*    for(PlotList_t::iterator i_plot=fPlots.begin();
             i_plot!=fPlots.end(); ++i_plot){
         i_plot->second->Draw();
     }
+  */
   return 0;
 }
 
