@@ -7,9 +7,16 @@
 namespace Algorithm {
 
   // The list of algorthims we have
+
+  // Amplitudes
   struct MaxBinAmplitude;
+
+  // Times
   struct MaxBinTime;
   struct ConstantFractionTime;
+  struct NoShiftTime;
+
+  // Integrals
   struct SimpleIntegral;
 };
 
@@ -44,6 +51,12 @@ struct Algorithm::ConstantFractionTime {
   double th_frac;
 };
 
+struct Algorithm::NoShiftTime {
+  public:
+  double operator() (const TPulseIsland* tpi);
+
+  double clock_tick_in_ns;
+};
 
 struct Algorithm::SimpleIntegral {
   public:
