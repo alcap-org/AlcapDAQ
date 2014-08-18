@@ -208,16 +208,20 @@ void ClearGlobalData(TGlobalData* data)
 //    pulse_vector.clear();
 //  }
 
+    // we should not clear TAPs if we're loading them in from a previously made
+    // TAP tree (which uses a TClonesArray that is responsible for deleting them )
+    static bool should_delete_TAPS=!modules::navigator::Instance()->GetModule("LoadPulses");
+    for(SourceAnalPulseMap::iterator mapIter=gAnalysedPulseMap.begin();
+            mapIter != gAnalysedPulseMap.end(); mapIter++) {
 
-  for(SourceAnalPulseMap::iterator mapIter=gAnalysedPulseMap.begin();
-     mapIter != gAnalysedPulseMap.end(); mapIter++) {
-
-    // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
-    AnalysedPulseList& pulse_vector= mapIter->second;
-    for(size_t i=0; i<pulse_vector.size(); i++){
-      delete pulse_vector[i];
-      pulse_vector[i] = NULL;
-    }
+        // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
+        AnalysedPulseList& pulse_vector= mapIter->second;
+        if(should_delete_TAPS){
+            for(size_t i=0; i<pulse_vector.size(); i++){
+                delete pulse_vector[i];
+                pulse_vector[i] = NULL;
+            }
+        }
     pulse_vector.clear();
   }
   //  gAnalysedPulseMap.clear();
