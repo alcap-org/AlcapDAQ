@@ -59,6 +59,10 @@ class PlotTDP_TDiff : public BaseModule {
   /// \brief
   /// The pulse lists for the detector pulses that we want
   DetectorPulseList fDetPulsesA, fDetPulsesB;
+
+  /// \brief
+  /// The histogram we fill
+  TH1F* fTDiffPlot;
 };
 
 #endif //PLOTTDP_TDIFF_H_
