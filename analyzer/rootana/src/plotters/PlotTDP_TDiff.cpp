@@ -9,12 +9,17 @@
 using std::cout;
 using std::endl;
 
+extern SourceDetPulseMap gDetectorPulseMap;
+
 PlotTDP_TDiff::PlotTDP_TDiff(modules::options* opts):
    BaseModule("PlotTDP_TDiff",opts){
 
   // Do something with opts here.  Has the user specified any
   // particular configuration that you want to know?
   // For example, perhaps this module wants an axis range:  
+
+  fDetNameA = "muSc";
+  fDetNameB = "Ge";
 }
 
 PlotTDP_TDiff::~PlotTDP_TDiff(){
@@ -29,12 +34,21 @@ int PlotTDP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
      cout<<"-----PlotTDP_TDiff::BeforeFirstEntry(): I'm debugging!"<<endl;
   }
 
+  DetectorPulseList detA_pulses, detB_pulses;
+  // Loop over all TDP sources
+  for(SourceDetPulseMap::const_iterator i_source=gDetectorPulseMap.begin();
+      i_source!= gDetectorPulseMap.end(); ++i_source){
+    
+    std::cout << (i_source->first).Channel() << std::endl;
+  }
+
   return 0;
 }
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
 int PlotTDP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+
   return 0;
 }
 
