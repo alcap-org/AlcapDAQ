@@ -1,4 +1,4 @@
-#include "PlotTPIPedestalAndNoise.h"
+#include "PlotTPI_PedestalAndNoise.h"
 #include "RegisterModule.inc"
 #include "TGlobalData.h"
 #include "TSetupData.h"
@@ -19,8 +19,8 @@ using std::endl;
 #include <TSQLiteRow.h>
 
 
-PlotTPIPedestalAndNoise::PlotTPIPedestalAndNoise(modules::options* opts):
-   BaseModule("PlotTPIPedestalAndNoise",opts){
+PlotTPI_PedestalAndNoise::PlotTPI_PedestalAndNoise(modules::options* opts):
+   BaseModule("PlotTPI_PedestalAndNoise",opts){
 
   // Do something with opts here.  Has the user specified any
   // particular configuration that you want to know?
@@ -29,16 +29,16 @@ PlotTPIPedestalAndNoise::PlotTPIPedestalAndNoise(modules::options* opts):
   fExportSQL = opts->GetBool("export_sql", false);
 }
 
-PlotTPIPedestalAndNoise::~PlotTPIPedestalAndNoise(){
+PlotTPI_PedestalAndNoise::~PlotTPI_PedestalAndNoise(){
 }
 
 // Called before the main event loop
 // Can be used to set things up, like histograms etc
 // Return non-zero to indicate a problem
-int PlotTPIPedestalAndNoise::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTPI_PedestalAndNoise::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   // Print extra info if we're debugging this module:
   if(Debug()){
-     cout<<"-----PlotTPIPedestalAndNoise::BeforeFirstEntry(): I'm debugging!"<<endl;
+     cout<<"-----PlotTPI_PedestalAndNoise::BeforeFirstEntry(): I'm debugging!"<<endl;
   }
 
   return 0;
@@ -46,7 +46,7 @@ int PlotTPIPedestalAndNoise::BeforeFirstEntry(TGlobalData* gData,const TSetupDat
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
-int PlotTPIPedestalAndNoise::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTPI_PedestalAndNoise::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
   // Prepare a few variables
   std::string bankname, detname;
@@ -119,11 +119,11 @@ int PlotTPIPedestalAndNoise::ProcessEntry(TGlobalData* gData,const TSetupData *s
 // Called just after the main event loop
 // Can be used to write things out, dump a summary etc
 // Return non-zero to indicate a problem
-int PlotTPIPedestalAndNoise::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTPI_PedestalAndNoise::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 
   // Print extra info if we're debugging this module:
   if(Debug()){
-     cout<<"-----PlotTPIPedestalAndNoise::AfterLastEntry(): I'm debugging!"<<endl;
+     cout<<"-----PlotTPI_PedestalAndNoise::AfterLastEntry(): I'm debugging!"<<endl;
   }
 
   if (fExportSQL) {
@@ -187,4 +187,4 @@ int PlotTPIPedestalAndNoise::AfterLastEntry(TGlobalData* gData,const TSetupData 
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(PlotTPIPedestalAndNoise,x_max);
+ALCAP_REGISTER_MODULE(PlotTPI_PedestalAndNoise,x_max);
