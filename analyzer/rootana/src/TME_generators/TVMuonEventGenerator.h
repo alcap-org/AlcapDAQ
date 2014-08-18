@@ -11,13 +11,12 @@
 class TVMuonEventGenerator{
 	public:
 		TVMuonEventGenerator(TMEGeneratorOptions* opts):fDebug(false){
-			if(opts && opts->HasOption("debug")) fDebug=true;
+			if(opts && opts->GetFlag("debug")) fDebug=true;
 		};
 		virtual ~TVMuonEventGenerator(){};
 
 	public:
 		virtual int ProcessPulses(MuonEventList& muonEventsOut,const StringDetPulseMap& detectorPulsesIn)=0;
-		virtual bool ChecksForPileUp()const =0;
 
 	protected:
 		bool Debug()const {return fDebug;};
