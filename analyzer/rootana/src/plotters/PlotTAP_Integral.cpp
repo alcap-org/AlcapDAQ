@@ -1,4 +1,4 @@
-#include "PlotTAPIntegral.h"
+#include "PlotTAP_Integral.h"
 #include "RegisterModule.inc"
 #include "TGlobalData.h"
 #include "TSetupData.h"
@@ -16,14 +16,14 @@ using std::endl;
 
 extern SourceAnalPulseMap gAnalysedPulseMap;
 
-PlotTAPIntegral::PlotTAPIntegral(modules::options* opts):
-   BaseModule("PlotTAPIntegral",opts){
+PlotTAP_Integral::PlotTAP_Integral(modules::options* opts):
+   BaseModule("PlotTAP_Integral",opts){
 }
 
-PlotTAPIntegral::~PlotTAPIntegral(){
+PlotTAP_Integral::~PlotTAP_Integral(){
 }
 
-int PlotTAPIntegral::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTAP_Integral::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     // For each source,
     TH1F* hist=NULL;
     std::string name, title;
@@ -50,7 +50,7 @@ int PlotTAPIntegral::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup
   return 0;
 }
 
-int PlotTAPIntegral::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTAP_Integral::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
     PlotList_t::iterator i_plot;
     const AnalysedPulseList* pulseList;
@@ -63,7 +63,7 @@ int PlotTAPIntegral::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
         // Find the corresponding histogram
         i_plot=fPlots.find(*source);
         if(i_plot==fPlots.end()){
-            cout<<"PlotTAPIntegral: Error: Unable to find plot for source '"<<*source<<"'"<<endl;
+            cout<<"PlotTAP_Integral: Error: Unable to find plot for source '"<<*source<<"'"<<endl;
             return 1;
         }
 
@@ -78,7 +78,7 @@ int PlotTAPIntegral::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
   return 0;
 }
 
-int PlotTAPIntegral::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTAP_Integral::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
   /*    for(PlotList_t::iterator i_plot=fPlots.begin();
             i_plot!=fPlots.end(); ++i_plot){
         i_plot->second->Draw();
@@ -87,4 +87,4 @@ int PlotTAPIntegral::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(PlotTAPIntegral);
+ALCAP_REGISTER_MODULE(PlotTAP_Integral);
