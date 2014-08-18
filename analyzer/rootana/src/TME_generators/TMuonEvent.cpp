@@ -2,6 +2,7 @@
 #include "AlcapExcept.h"
 #include <iostream>
 #include <iterator>
+#include "debug_tools.h"
 using std::cout;
 using std::endl;
 
@@ -57,10 +58,21 @@ int TMuonEvent::NumPulses(const IDs::source& source)const{
 }
 
 bool TMuonEvent::HasMuonHit()const{
+    DEBUG_PRINT("TMuonEvent::HasMuonHit is not yet implemented");
     return true;
 }
 
 bool TMuonEvent::HasMuonPileup()const{
+    DEBUG_PRINT("TMuonEvent::HasMuonPileup is not yet implemented");
     return true;
 }
 
+bool TMuonEvent::WasEarlyInEvent()const{
+    DEBUG_PRINT("TMuonEvent::WasEarlyInEvent is not yet implemented");
+    return true;
+}
+
+bool TMuonEvent::WasLateInEvent(double event_length, double event_uncertainty)const{
+    DEBUG_PRINT("TMuonEvent::WasLateInEvent is not yet implemented");
+    return true;
+}

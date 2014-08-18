@@ -3,6 +3,8 @@
 
 #include "definitions.h"
 #include "TDetectorPulse.h"
+#include <set>
+#include <vector>
 
 /// @brief Single event in the muon centred tree
 /// @author Ben Krikler
@@ -11,6 +13,9 @@
 /// @note The early and late event flags are initialised to true.  This should
 /// be easier to detect if a TME_generator doesn't fill these fields than if
 /// they're defaulted to false.
+///
+/// @TODO Implement muon pile-up and hit flags
+/// @TODO Implement early / late TME flags
 ///
 /// @see www.github.com/alcap-org/AlcapDAQ/issues/110
 class TMuonEvent{
@@ -27,7 +32,10 @@ class TMuonEvent{
         ~TMuonEvent(){}
 
         /// @brief Reset a TME's list of pulses
-        void Reset(){ fPulseLists.clear();}
+        void Reset(){ 
+            fPulseLists.clear();
+            fExhaustedChannels.clear();
+        }
 
         /// @brief Retrieve a pulse from the specified source and position in the pulse
         /// list
@@ -61,14 +69,17 @@ class TMuonEvent{
         bool HasMuonPileup()const;
 
         /// @brief Get whether or not this TME is flagged as early in an event
-        bool WasEarlyInEvent()const{return fEarlyInEvent;}
-        /// @brief Set whether or not this TME is flagged as early in an event
-        void WasEarlyInEvent(bool v){fEarlyInEvent=v;};
-
+        bool WasEarlyInEvent()const;
         /// @brief Get whether or not this TME is flagged as late in an event
-        bool WasLateInEvent()const{return fLateInEvent;};
-        /// @brief Set whether or not this TME is flagged as late in an event
-        void WasLateInEvent(bool v){fLateInEvent=v;};
+        bool WasLateInEvent(double event_length, double event_uncertainty)const;
+
+        /// @brief Set whether all pulses for a certain channel were used up
+        void AllPulsesUsed(const IDs::source& so){fExhaustedChannels.insert(so);};
+        /// @brief Get whether all pulses for ANY channel were used up
+        bool WereNoPulsesLeft()const{return fExhaustedChannels.size()!=0;};
+        /// @brief Get whether all pulses for a specific channel were used up
+        bool WereNoPulsesLeft(const IDs::source& so)const{
+            return fExhaustedChannels.find(so)!=fExhaustedChannels.end();};
 
         /// Get the time of this TME defined as the arrival time of the central muon
         double GetTime()const {return fCentralMuon->GetTime();}
@@ -78,5 +89,7 @@ class TMuonEvent{
             const TDetectorPulse* fCentralMuon;
             bool fEarlyInEvent;
             bool fLateInEvent;
+            typedef std::set<IDs::source> SourceSet;
+            SourceSet fExhaustedChannels;
 };
 #endif // TMuonEvent_hh_
