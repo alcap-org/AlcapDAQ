@@ -36,6 +36,18 @@ int PlotTDP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
      cout<<"-----PlotTDP_TDiff::BeforeFirstEntry(): I'm debugging!"<<endl;
   }
 
+  // Create the histogram
+  std::string histogram_name = "h" + fDetNameA.str() + "_" + fDetNameB.str() + "_TDiff";
+  std::string histogram_title = "Time Difference between TDP channel " + fDetNameA.str() + "_" + fDetNameB.str();
+  int x_max = 1000000;
+  int x_min = -1000000;
+  int bin_width = 10;
+  int n_bins = (x_max - x_min) / bin_width;
+  fTDiffPlot = new TH1F(histogram_name.c_str(), histogram_title.c_str(), n_bins, x_min, x_max);
+
+  std::string axis_title = "t_{" + fDetNameA.str() + "} - t_{" + fDetNameB.str() + "} [ns]";
+  fTDiffPlot->GetXaxis()->SetTitle(axis_title.c_str());
+
   return 0;
 }
 
@@ -64,12 +76,14 @@ int PlotTDP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
   }
 
   // Loop through the TDPs in both channels
-  std::cout << "AE: " << fDetPulsesA.size() << ", " << fDetPulsesB.size() << std::endl;
   for (DetectorPulseList::const_iterator i_det_pulse_a = fDetPulsesA.begin(); i_det_pulse_a != fDetPulsesA.end(); ++i_det_pulse_a) {
     for (DetectorPulseList::const_iterator i_det_pulse_b = fDetPulsesB.begin(); i_det_pulse_b != fDetPulsesB.end(); ++i_det_pulse_b) {
 
-      std::cout << (*i_det_pulse_a)->GetTime() << ", " << (*i_det_pulse_b)->GetTime() << std::endl;
+      double time_det_pulse_a = (*i_det_pulse_a)->GetTime();
+      double time_det_pulse_b = (*i_det_pulse_b)->GetTime();
+      double time_difference = time_det_pulse_a - time_det_pulse_b; // this is the same way as specified in PlotTAP_TDiff to maintain consistency
 
+      fTDiffPlot->Fill(time_difference);
     }
   }
   return 0;
