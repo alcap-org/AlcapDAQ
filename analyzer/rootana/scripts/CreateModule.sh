@@ -1,7 +1,7 @@
 #! /bin/bash
 
 ListOfSpecials=( module {TAP,TDP,TME}_generator )
-Unimplemented=( TME_generator )
+Unimplemented=(  )
 ScriptDirectory="$(readlink -f `dirname $0`)"
 TemplateDirectory="$ScriptDirectory/templates"
 
