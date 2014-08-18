@@ -8,10 +8,11 @@ namespace modules {class options;}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
-/// \author AuthorName
+/// \author Andrew Edmonds
 ///
 /// \brief
-/// A one line description of what your module does.
+/// This module plots the time difference between TDetectorPulses (TDPs) in 
+/// two given detectors
 ///
 /// \details
 /// A longer, more descriptive block of text.
@@ -23,7 +24,7 @@ class PlotTDP_TDiff : public BaseModule {
 
  public:
   /// \brief
-  /// Constructor description. If necessary, add a details tag like above.
+  /// Constructor.
   ///
   /// \param[in] opts Describe the options this module takes.
   PlotTDP_TDiff(modules::options* opts);
@@ -33,30 +34,22 @@ class PlotTDP_TDiff : public BaseModule {
 
  private:
   /// \brief
-  /// What's calculated for every entry?
-  /// Don't hesitate to repeat what was said in the class description.
+  /// In every entry the time difference between all the TDPs in one detector
+  /// and all the TDPs in the other detector is calculated and plotted
+  /// into a histogram
   /// 
   /// \return Non-zero to indicate a problem.
   virtual int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);
   /// \brief
-  /// What needes to be done before each run?
-  /// Don't hesitate to repeat what was said in the class description.
+  /// Before each run, the histograms are created.
   ///
   /// \return Non-zero to indicate a problem.
   virtual int BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup);
   /// \brief
-  /// What needs to be done after each run?
-  /// Don't hesitate to repeat what was said in the class description.
+  /// Nothing needs to be done after each run
   ///
   /// \return Non-zero to indicate a problem.
   virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
-
-  // Don't forget to add descriptions for each field...
-  /// \brief maximum x-value
-  ///
-  /// \details used for doing something very intelligent and clever
-  // ...and don't hesitate to include details.
-  int fXMax;
 };
 
 #endif //PLOTTDP_TDIFF_H_
