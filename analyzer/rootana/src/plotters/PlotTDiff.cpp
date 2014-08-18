@@ -10,7 +10,8 @@
 #include "RegisterModule.inc"
 #include "definitions.h"
 #include "SetupNavigator.h"
-//#include "ModulesOptions.h"
+#include "ModulesOptions.h"
+#include "AlCapExceptions.h"
 
 
 #include <cmath>
@@ -25,151 +26,71 @@ using std::string;
 
 extern SourceAnalPulseMap gAnalysedPulseMap;
 
-PlotTDiff::PlotTDiff(modules::options* opts):
-    BaseModule("PlotTDiff",opts){    
-        fDetNameA = opts->GetString("det1");
-        fDetNameB = opts->GetString("det2");
-    }
+PlotTDiff::PlotTDiff(modules::options* opts) :
+  BaseModule("PlotTDiff",opts),
+  fDetNameA(opts->GetString("det1")), fDetNameB(opts->GetString("det2")),
+  fTimeLow(opts->GetDouble("time_low",-1.e5)), fTimeHigh(opts->GetDouble("time_high",1.e5)),
+  fExportSQL(opts->GetBool("export_sql", false)) {
+  if (fDetNameA == std::string("") || fDetNameB == std::string("") || fDetNameA == fDetNameB)
+    throw Except::ModulesOptionError();
+}
 
 
 
-PlotTDiff::~PlotTDiff(){
+PlotTDiff::~PlotTDiff() {
 }
 
 ////////////////////////////////////////////////
 
 int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
-  //call my source finders and build histogram for each source with
-  //a time component.
-
-  //should I continue to work on just two? or should I have this loop 
-  //through all pairs
-
   for(SourceAnalPulseMap::const_iterator sourceIt = gAnalysedPulseMap.begin();
       sourceIt != gAnalysedPulseMap.end(); sourceIt++) {
-    //std::string fBankNameB = setup->GetBank(fDetNameB);
-    if( sourceIt->first.Channel() != fDetNameA) {
+
+    if( sourceIt->first.Channel() != fDetNameA)
       continue;   //check for detector A
-    }
+    
+    for(SourceAnalPulseMap::const_iterator sourceIt2 = gAnalysedPulseMap.begin(); sourceIt2 != gAnalysedPulseMap.end(); ++sourceIt2)
+      {
+	if(sourceIt2->first.Channel() != fDetNameB)
+	  continue;  //check for detector B
+	if(sourceIt2->first.Generator() != sourceIt->first.Generator())
+	  continue;  //make sure they have the same generator
 
-        //I need to check that this source generates a time
-        AnalysedPulseList pulses = sourceIt->second;
-
-        for(SourceAnalPulseMap::const_iterator sourceIt2 = gAnalysedPulseMap.begin(); sourceIt2 != gAnalysedPulseMap.end(); sourceIt2++)
-        {
-            if(sourceIt2->first.Channel() != fDetNameB)
-                continue;  //check for detector B
-            if(sourceIt2->first.Generator() != sourceIt->first.Generator())
-                continue;  //make sure they have the same generator
-
-            //I should make a vector of the sources for detA and detB
-            fDetASources.push_back(sourceIt->first);
-            fDetBSources.push_back(sourceIt2->first);
-        }
-    }
-    return 0;
+	//I should make a vector of the sources for detA and detB
+	fDetASources.push_back(sourceIt->first);
+	fDetBSources.push_back(sourceIt2->first);
+	break;
+      }
+  }
+  BookHistograms();
+  return 0;
 }
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
-int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
 
-  for(SourceVector::const_iterator sourceIt = fDetASources.begin(); sourceIt != fDetASources.end(); sourceIt++)
-    {
-      const AnalysedPulseList& detAPulses = gAnalysedPulseMap[*sourceIt];
-      const AnalysedPulseList& detBPulses = gAnalysedPulseMap[fDetBSources.at(sourceIt - fDetASources.begin())];
-
-      //now I should build my histograms, need some keyname(source1?)
-      //std::string keyname = sourceIt;
-      std::string keyname =  sourceIt->str();
-
-      const static int maxAmpA = std::pow(2, setup->GetNBits(setup->GetBankName(fDetNameA)));
-      const static int maxAmpB = std::pow(2, setup->GetNBits(setup->GetBankName(fDetNameB)));
-
-      //if histogram does not exist, make histograms (amp and/or int, or 1D)
-      if((ampA_plots.find(keyname) == ampA_plots.end()) ) {
-	//ampA plots
-	std::string histname = "h" + fDetNameB + "_" + keyname + "TDiff_AmpA";
-	std::string histtitle = "Amplitude of " + fDetNameA
-	  + " vs time difference with " + fDetNameB + " detectors with the " 
-	  + (*sourceIt).Generator().str() + " generator";
-	TH2F* AAplots = new TH2F(histname.c_str(), histtitle.c_str(), 200, -10000, 10000, 200, 0, maxAmpA);
-	AAplots->GetXaxis()->SetTitle("Time Difference (ns)");
-	AAplots->GetYaxis()->SetTitle("Amplitude (ADC counts)");
-	ampA_plots[keyname] = AAplots;
-
-
-	//ampB plots
-	histname = "h" + fDetNameB + "_" + keyname + " TDiff_AmpB";
-	histtitle = "Amplitude of " + fDetNameB
-	  + " vs time difference with " + fDetNameA + " detectors with the " 
-	  + (*sourceIt).Generator().str() + " generator";
-	TH2F* ABplots = new TH2F(histname.c_str(), histtitle.c_str(), 200, -10000, 10000, 200, 0, maxAmpB);
-	ABplots->GetXaxis()->SetTitle("Time Difference (ns)");
-	ABplots->GetYaxis()->SetTitle("Amplitude (ADC counts)");
-	ampB_plots[keyname] = ABplots;
-      }
+  for(unsigned int i = 0; i < fDetASources.size(); ++i) {
+    const AnalysedPulseList& detAPulses = gAnalysedPulseMap[fDetASources[i]];
+    const AnalysedPulseList& detBPulses = gAnalysedPulseMap[fDetBSources[i]];
+    const std::string& key = fDetASources[i].str();
+    
+    for(AnalysedPulseList::const_iterator pulseIt = detAPulses.begin();
+	pulseIt != detAPulses.end(); ++pulseIt) {
       
-      if(intA_plots.find(keyname) == intA_plots.end() ) {
-	//intA plots
-	std::string histname = "h" + fDetNameB + "_" + keyname + " TDiff_IntA";
-	std::string histtitle = "Integral of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + (*sourceIt).Generator().str() + " generator";
-	TH2F* IAplots = new TH2F(histname.c_str(), histtitle.c_str(), 200, -10000, 10000, 200, 0, 5*maxAmpA);
-	IAplots->GetXaxis()->SetTitle("Time Difference (ns)");
-	IAplots->GetYaxis()->SetTitle("Integral (ADC counts)");
-	intA_plots[keyname] = IAplots;
+      for(AnalysedPulseList::const_iterator pulseIt2 = detBPulses.begin();
+	  pulseIt2 != detBPulses.end(); ++pulseIt2) {
+	double tDiff = (*pulseIt)->GetTime() - (*pulseIt2)->GetTime();
 	
-	//intB plots
-	histname = "h" + fDetNameB + "_" + keyname + " TDiff_IntB";
-	histtitle = "Integral of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + (*sourceIt).Generator().str() + " generator";
-	TH2F* IBplots = new TH2F(histname.c_str(), histtitle.c_str(), 200, -10000, 10000, 200, 0, 5*maxAmpB);
-	IBplots->GetXaxis()->SetTitle("Time Difference (ns)");
-	IBplots->GetYaxis()->SetTitle("Integral (ADC counts)");
-	intB_plots[keyname] = IBplots;
-      }
-
-      if(oned_plots.find(keyname) == oned_plots.end()) {
-	std::string histname = "h" + fDetNameB + "_" + keyname + "TDiff_1D";
-	std::string histtitle = "Time difference between  " + fDetNameA + " and " + fDetNameB + " detectors with the " + (*sourceIt).Generator().str() + " generator";
-	TH1F* dplots = new TH1F(histname.c_str(), histtitle.c_str(), 500, -10000, 10000);
-	dplots->GetXaxis()->SetTitle("Time Difference (ns)");
-	dplots->GetYaxis()->SetTitle("Count");
-	oned_plots[keyname] = dplots;
-      }
-
-
-      for(AnalysedPulseList::const_iterator pulseIt = detAPulses.begin();
-	  pulseIt != detAPulses.end(); ++pulseIt) {
-
-	for(AnalysedPulseList::const_iterator pulseIt2 = detBPulses.begin();
-	    pulseIt2 != detBPulses.end(); ++pulseIt2) {
-
-	  double timeA = (*pulseIt)->GetTime(), timeB = (*pulseIt2)->GetTime();
-	  double tDiff = timeA - timeB;
-
-	  double ampA = (*pulseIt)->GetAmplitude(), ampB = (*pulseIt2)->GetAmplitude();
-
-	  double intA = (*pulseIt)->GetIntegral(), intB = (*pulseIt2)->GetIntegral();
-
-	  if(ampA != definitions::DefaultValue)
-	    {
-	      ampA_plots[keyname]->Fill(tDiff, ampA);
-	      ampB_plots[keyname]->Fill(-tDiff, ampB);
-	    }
-
-	  if(intA != definitions::DefaultValue)
-	    {
-	      intA_plots[keyname]->Fill(tDiff, intA);
-	      intB_plots[keyname]->Fill(-tDiff, intB);
-	    }
-
-	  if((intA == definitions::DefaultValue) && (ampA ==definitions::DefaultValue))
-	    oned_plots[keyname]->Fill(tDiff);
-
-	}//end detBPulse loop
-      }//end detAPulse loop
-    }//end sourceIt loop
+	ampA_plots[key]->Fill(tDiff, (*pulseIt)->GetAmplitude());
+	ampB_plots[key]->Fill(tDiff, (*pulseIt2)->GetAmplitude());
+	intA_plots[key]->Fill(tDiff, (*pulseIt)->GetIntegral());
+	intB_plots[key]->Fill(tDiff, (*pulseIt2)->GetIntegral());
+	
+      }//end detBPulse loop
+    }//end detAPulse loop
+  }//end sources loop
 
   return 0;
 }
@@ -178,7 +99,45 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 // Can be used to write things out, dump a summary etc
 // Return non-zero to indicate a problem
 int PlotTDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
-    return 0;
+  if (fExportSQL) {
+    for (unsigned int i = 0; i < fDetASources.size(); ++i) {
+      const std::string& keyname = fDetASources[i].str();
+      const double dt = oned_plots[fDetASources[i].str()]->ProjectionX()->GetBinCenter(oned_plots[fDetASources[i].str()]->GetMaximumBin());
+      SetupNavigator::Instance()->SetCoarseTimeOffset(fDetASources[i], dt);
+    }
+  }
+  return 0;
+}
+
+void PlotTDiff::BookHistograms() {
+  for (unsigned int i = 0; i < fDetASources.size(); ++i) {
+    const std::string key = fDetASources.at(i).str();
+    const std::string gen = fDetASources.at(i).Generator().str();
+    const int maxAmpA = std::pow(2, setup->GetNBits(setup->GetBankName(fDetNameA)));
+    const int maxAmpB = std::pow(2, setup->GetNBits(setup->GetBankName(fDetNameB)));
+
+    //ampA plots
+    std::string histname("h" + fDetNameB + "_" + key + "TDiff_AmpA");
+    std::string histtitle("Amplitude of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + gen + " generator;Time Difference (ns);Amplitude (ADC counts)");
+    ampA_plots[key] = new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, maxAmpA);
+
+
+    //ampB plots
+    histname = "h" + fDetNameB + "_" + key + " TDiff_AmpB";
+    histtitle = "Amplitude of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + gen + " generator;Time Difference (ns);Amplitude (ADC counts)";
+    ampB_plots[key] = new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, maxAmpB);
+ 
+    //intA plots
+    histname = "h" + fDetNameB + "_" + key + " TDiff_IntA";
+    histtitle = "Integral of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + gen + " generator;Time Difference (ns);Integral (ADC counts)";
+    intA_plots[key] = new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, 5*maxAmpA);
+      
+    //intB plots
+    histname = "h" + fDetNameB + "_" + key + " TDiff_IntB";
+    histtitle = "Integral of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + gen + " generator;Time Difference (ns);Integral (ADC counts)";
+    intB_plots[key] = new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, 5*maxAmpB);
+    
+  }
 }
 
 // The following macro registers this module to be useable in the config file.

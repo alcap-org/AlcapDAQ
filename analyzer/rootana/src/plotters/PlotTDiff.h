@@ -24,7 +24,6 @@ namespace modules {class options;}
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
 class PlotTDiff : public BaseModule {
-  typedef std::vector<IDs::source> SourceVector;
 
  public:
   /// \brief
@@ -68,11 +67,12 @@ class PlotTDiff : public BaseModule {
   /// \details
   /// ...and don't hesitate to include details.
   std::string fDetNameA, fDetNameB;
+  double fTimeLow, fTimeHigh;
+  bool fExportSQL;
 
-  std::map<std::string, TH2F*> intA_plots, intB_plots, ampA_plots, ampB_plots, fine_plots;
+  std::map<std::string, TH2F*> intA_plots, intB_plots, ampA_plots, ampB_plots;
 
-  std::map<std::string, TH1F*> oned_plots;
-  SourceVector fDetASources, fDetBSources;
+  std::vector<IDs::source> fDetASources, fDetBSources;
 };
 
 #endif //PLOTTDIFF_H_
