@@ -14,9 +14,7 @@ PlotTDP_TDiff::PlotTDP_TDiff(modules::options* opts):
 
   // Do something with opts here.  Has the user specified any
   // particular configuration that you want to know?
-  // For example, perhaps this module wants an axis range:
-  fXMax=opts->GetDouble("x_max",100); 
-  
+  // For example, perhaps this module wants an axis range:  
 }
 
 PlotTDP_TDiff::~PlotTDP_TDiff(){
@@ -29,7 +27,6 @@ int PlotTDP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   // Print extra info if we're debugging this module:
   if(Debug()){
      cout<<"-----PlotTDP_TDiff::BeforeFirstEntry(): I'm debugging!"<<endl;
-     cout<<"-----PlotTDP_TDiff::BeforeFirstEntry(): x_max is: "<<fXMax<<endl;
   }
 
   return 0;
