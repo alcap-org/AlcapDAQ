@@ -1,6 +1,6 @@
 //#define USE_PRINT_OUT 
 
-#include "PlotTAPAmplitude.h"
+#include "PlotTAP_Amplitude.h"
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -23,18 +23,18 @@ using std::pair;
 
 extern SourceAnalPulseMap gAnalysedPulseMap;
 
-PlotTAPAmplitude::PlotTAPAmplitude(modules::options* opts) : 
-    BaseModule("PlotTAPAmplitude",opts) {
+PlotTAP_Amplitude::PlotTAP_Amplitude(modules::options* opts) : 
+    BaseModule("PlotTAP_Amplitude",opts) {
     }
 
-PlotTAPAmplitude::~PlotTAPAmplitude(){  
+PlotTAP_Amplitude::~PlotTAP_Amplitude(){  
 }
 
-int PlotTAPAmplitude::BeforeFirstEntry(TGlobalData *gData, const TSetupData *gSetup){
+int PlotTAP_Amplitude::BeforeFirstEntry(TGlobalData *gData, const TSetupData *gSetup){
     return 0;
 }
 
-int PlotTAPAmplitude::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
+int PlotTAP_Amplitude::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
 
     // Loop over each TAP list
     for (SourceAnalPulseMap::const_iterator i_det = gAnalysedPulseMap.begin();
@@ -73,4 +73,4 @@ int PlotTAPAmplitude::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup)
     return 0;
 }
 
-ALCAP_REGISTER_MODULE(PlotTAPAmplitude)
+ALCAP_REGISTER_MODULE(PlotTAP_Amplitude)
