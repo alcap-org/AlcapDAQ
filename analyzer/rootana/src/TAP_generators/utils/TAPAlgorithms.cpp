@@ -67,6 +67,14 @@ double Algorithm::ConstantFractionTime::operator() (const TPulseIsland* tpi) {
   return time;
 }
 
+double Algorithm::NoShiftTime::operator() (const TPulseIsland* tpi) {
+
+  // Now calculate the time
+  double time = (tpi->GetTimeStamp() * clock_tick_in_ns);
+
+  return time;
+}
+
 double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi) {
   const std::vector<int>& samples = tpi->GetSamples();
   
