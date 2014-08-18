@@ -22,7 +22,7 @@ namespace modules {class options;}
 /// with the channel and bank names. This SQLite database can then be used by PulseCandidateFinder to 
 /// set parameter values based on a certain number of sigma.
 ////////////////////////////////////////////////////////////////////////////////
-class PlotTPIPedestalAndNoise : public BaseModule {
+class PlotTPI_PedestalAndNoise : public BaseModule {
 
  public:
   /// \brief
@@ -32,10 +32,10 @@ class PlotTPIPedestalAndNoise : public BaseModule {
   /// The constructor looks in the opts for "n_samples" and sets the fNSamples variable (default = 5).
   ///
   /// \param[in] opts Describe the options this module takes.
-  PlotTPIPedestalAndNoise(modules::options* opts);
+  PlotTPI_PedestalAndNoise(modules::options* opts);
   /// \brief
   /// Empty destructor
-  ~PlotTPIPedestalAndNoise();
+  ~PlotTPI_PedestalAndNoise();
 
  private:
   /// \brief
