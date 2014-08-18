@@ -40,6 +40,10 @@ class BaseChapter {
   /// Returns whether or not these are supposed to be trend plots
   bool GetIsTrendPlot() { return fIsTrendPlot; }
 
+  /// \brief
+  /// Returns whether or not we want to zoom in on the axes
+  bool GetAutoZoom() { return fAutoZoom; }
+
   /// \brief 
   /// Returns the axis range 
   int GetXLow() { return fXLow; } int GetXHigh() { return fXHigh; }
@@ -68,6 +72,10 @@ class BaseChapter {
   /// \brief
   /// Is this a chapter of trend plots?
   bool fIsTrendPlot;
+
+  /// \brief
+  /// Do we want to zoom in on the axes?
+  bool fAutoZoom;
 
   /// \brief
   /// The axis ranges for each axis
