@@ -20,8 +20,8 @@ PlotTDP_TDiff::PlotTDP_TDiff(modules::options* opts):
   // particular configuration that you want to know?
   // For example, perhaps this module wants an axis range:  
 
-  fDetNameA = IDs::channel("muSc");
-  fDetNameB = IDs::channel("Ge");
+  fDetNameA = IDs::channel(opts->GetString("det_a"));
+  fDetNameB = IDs::channel(opts->GetString("det_b"));
 }
 
 PlotTDP_TDiff::~PlotTDP_TDiff(){
@@ -41,7 +41,7 @@ int PlotTDP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   std::string histogram_title = "Time Difference between TDP channel " + fDetNameA.str() + "_" + fDetNameB.str();
   int x_max = 1000000;
   int x_min = -1000000;
-  int bin_width = 10;
+  int bin_width = 100;
   int n_bins = (x_max - x_min) / bin_width;
   fTDiffPlot = new TH1F(histogram_name.c_str(), histogram_title.c_str(), n_bins, x_min, x_max);
 
@@ -106,4 +106,4 @@ int PlotTDP_TDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(PlotTDP_TDiff,x_max);
+ALCAP_REGISTER_MODULE(PlotTDP_TDiff,det_a,det_b);
