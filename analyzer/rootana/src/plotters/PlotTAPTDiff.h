@@ -23,17 +23,17 @@ namespace modules {class options;}
 /// You can add this to other groups instead of rootana_modules or in addition
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
-class PlotTDiff : public BaseModule {
+class PlotTAPTDiff : public BaseModule {
 
  public:
   /// \brief
   /// Constructor description. If necessary, add a details tag like above.
   ///
   /// \param[in] opts Describe the options this module takes.
-  PlotTDiff(modules::options* opts);
+  PlotTAPTDiff(modules::options* opts);
   /// \brief
   /// Is anything done in the destructor?
-  ~PlotTDiff();
+  ~PlotTAPTDiff();
 
  private:
   /// \brief
