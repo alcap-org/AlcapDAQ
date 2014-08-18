@@ -1,4 +1,4 @@
-#include "PlotTAPTDiff.h"
+#include "PlotTAP_TDiff.h"
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -25,20 +25,20 @@ using std::string;
 
 extern SourceAnalPulseMap gAnalysedPulseMap;
 
-PlotTAPTDiff::PlotTAPTDiff(modules::options* opts):
-    BaseModule("PlotTAPTDiff",opts){    
+PlotTAP_TDiff::PlotTAP_TDiff(modules::options* opts):
+    BaseModule("PlotTAP_TDiff",opts){    
         fDetNameA = opts->GetString("det1");
         fDetNameB = opts->GetString("det2");
     }
 
 
 
-PlotTAPTDiff::~PlotTAPTDiff(){
+PlotTAP_TDiff::~PlotTAP_TDiff(){
 }
 
 ////////////////////////////////////////////////
 
-int PlotTAPTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTAP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
     //call my source finders and build histogram for each source with
     //a time component.
@@ -74,7 +74,7 @@ int PlotTAPTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
-int PlotTAPTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTAP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
     for(SourceVector::const_iterator sourceIt = fDetASources.begin(); sourceIt != fDetASources.end(); sourceIt++)
     {
@@ -193,7 +193,7 @@ int PlotTAPTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 // Called just after the main event loop
 // Can be used to write things out, dump a summary etc
 // Return non-zero to indicate a problem
-int PlotTAPTDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTAP_TDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
     return 0;
 }
 
@@ -201,4 +201,4 @@ int PlotTAPTDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(PlotTAPTDiff,det1,det2);
+ALCAP_REGISTER_MODULE(PlotTAP_TDiff,det1,det2);
