@@ -4,19 +4,26 @@
 #include "definitions.h"
 #include "TDetectorPulse.h"
 
-// X-macro to save writing detector names over and over
-#define DETECTOR_LIST \
-        X( Ge     ) X( LiquidSc ) X( NDet     ) X( NDet2  ) X( ScGe   ) \
-        X( ScL    ) X( ScR      ) X( ScVe     ) X( SiL1_1 ) X( SiL1_2 ) \
-        X( SiL1_3 ) X( SiL1_4   ) X( SiL2     ) X( SiR1_1 ) X( SiR1_2 ) \
-        X( SiR1_3 ) X( SiR1_4   ) X( SiR1_sum ) X( SiR2   ) X( MuSc   ) \
-        X( MuScA  ) 
-
+/// @brief Single event in the muon centred tree
+/// @author Ben Krikler
+///
+/// @details
+/// @note The early and late event flags are initialised to true.  This should
+/// be easier to detect if a TME_generator doesn't fill these fields than if
+/// they're defaulted to false.
+///
+/// @see www.github.com/alcap-org/AlcapDAQ/issues/110
 class TMuonEvent{
     public:
-        /// @brief Construct a TMuonEvent
+        /// @brief Construct a TMuonEvent with a known central muon
         TMuonEvent(const TDetectorPulse* central_mu):
-            fCentralMuon(central_mu){};
+            fCentralMuon(central_mu),fEarlyInEvent(true),fLateInEvent(true){};
+        /// @brief Default constructor for a TMuonEvent 
+        TMuonEvent():
+            fCentralMuon(NULL),fEarlyInEvent(true),fLateInEvent(true){};
+
+        /// @brief  Destructor
+        /// @details empty since TMuonEvent doesn't own the pulses it contains
         ~TMuonEvent(){}
 
         /// @brief Reset a TME's list of pulses
@@ -48,15 +55,19 @@ class TMuonEvent{
         /// source
         int NumPulses(const IDs::source& source)const;
 
-        /// Does this TME pass the muon hit criteria
+        /// @brief Does this TME pass the muon hit criteria
         bool HasMuonHit()const;
-        /// Does this TME pass the muon pile-up criteria
+        /// @brief Does this TME pass the muon pile-up criteria
         bool HasMuonPileup()const;
 
+        /// @brief Get whether or not this TME is flagged as early in an event
         bool WasEarlyInEvent()const{return fEarlyInEvent;}
+        /// @brief Set whether or not this TME is flagged as early in an event
         void WasEarlyInEvent(bool v){fEarlyInEvent=v;};
 
+        /// @brief Get whether or not this TME is flagged as late in an event
         bool WasLateInEvent()const{return fLateInEvent;};
+        /// @brief Set whether or not this TME is flagged as late in an event
         void WasLateInEvent(bool v){fLateInEvent=v;};
 
         /// Get the time of this TME defined as the arrival time of the central muon
