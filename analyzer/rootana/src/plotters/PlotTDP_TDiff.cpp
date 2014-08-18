@@ -18,8 +18,8 @@ PlotTDP_TDiff::PlotTDP_TDiff(modules::options* opts):
   // particular configuration that you want to know?
   // For example, perhaps this module wants an axis range:  
 
-  fDetNameA = "muSc";
-  fDetNameB = "Ge";
+  fDetNameA = IDs::channel("muSc");
+  fDetNameB = IDs::channel("Ge");
 }
 
 PlotTDP_TDiff::~PlotTDP_TDiff(){
@@ -34,12 +34,24 @@ int PlotTDP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
      cout<<"-----PlotTDP_TDiff::BeforeFirstEntry(): I'm debugging!"<<endl;
   }
 
-  DetectorPulseList detA_pulses, detB_pulses;
   // Loop over all TDP sources
   for(SourceDetPulseMap::const_iterator i_source=gDetectorPulseMap.begin();
       i_source!= gDetectorPulseMap.end(); ++i_source){
     
-    std::cout << (i_source->first).Channel() << std::endl;
+    IDs::channel i_detname = (i_source->first).Channel();
+
+    if (i_detname == fDetNameA) {
+      fDetPulsesA = i_source->second;
+      if (Debug()) {
+	std::cout << "PlotTDP_TDiff: " << fDetNameA << " pulses found." << std::endl;;
+      }
+    }
+    else if (i_detname == fDetNameB) {
+      fDetPulsesB = i_source->second;
+      if (Debug()) {
+	std::cout << "PlotTDP_TDiff: " << fDetNameB << " pulses found." << std::endl;
+      }
+    }
   }
 
   return 0;
