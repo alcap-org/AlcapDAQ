@@ -6,7 +6,7 @@
 class MaxTimeDiffMEGenerator:public TVMuonEventGenerator{
 
  public:
-  MaxTimeDiffMEGenerator(TMEGeneratorOptions* opts): TVMuonEventGenerator(opts){};
+  MaxTimeDiffMEGenerator(TMEGeneratorOptions* opts): TVMuonEventGenerator("MaxTimeDiff",opts){};
   virtual ~MaxTimeDiffMEGenerator(){};
 
  public:
