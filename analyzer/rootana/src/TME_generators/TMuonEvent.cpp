@@ -6,6 +6,11 @@
 using std::cout;
 using std::endl;
 
+namespace {
+    IDs::channel MuSc(IDs::kMuSc,IDs::kNotApplicable);
+    IDs::channel MuScA(IDs::kMuScA,IDs::kNotApplicable);
+}
+
 MAKE_EXCEPTION(TMuonEvent,Base)
 MAKE_EXCEPTION(OutOfRange,TMuonEvent)
 
@@ -58,13 +63,11 @@ int TMuonEvent::NumPulses(const IDs::source& source)const{
 }
 
 bool TMuonEvent::HasMuonHit()const{
-    DEBUG_PRINT("TMuonEvent::HasMuonHit is not yet implemented");
-    return true;
+    return NumPulses(MuSc); // && NumPulses(MuPCX) && NumPulses(MuPCY);
 }
 
 bool TMuonEvent::HasMuonPileup()const{
-    DEBUG_PRINT("TMuonEvent::HasMuonPileup is not yet implemented");
-    return true;
+    return NumPulses(MuSc)>1 || NumPulses(MuScA);
 }
 
 bool TMuonEvent::WasEarlyInEvent()const{
