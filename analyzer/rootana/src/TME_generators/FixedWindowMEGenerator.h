@@ -32,15 +32,14 @@ class FixedWindowMEGenerator:public TVMuonEventGenerator {
         FixedWindowMEGenerator(TMEGeneratorOptions* opts);
         virtual ~FixedWindowMEGenerator(){};
 
-        virtual int ProcessPulses(MuonEventList& muonEventsOut,const SourceDetPulseMap& detectorPulsesIn);
+        virtual int ProcessPulses(MuonEventList& muonEventsOut,
+                const SourceDetPulseMap& detectorPulsesIn);
 
     private:
         int Init(const SourceDetPulseMap&);
         void Reset();
-        void PulsesInWindow(double central_time, double window,
-                DetectorPulseList::const_iterator& start,
-                DetectorPulseList::const_iterator& stop,
-                const DetectorPulseList::const_iterator& end);
+        void AddPulsesInWindow(TMuonEvent* tme,
+                double window, Detector_t& detector);
 
     private:
         double fEventWindow;

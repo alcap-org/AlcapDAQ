@@ -48,34 +48,43 @@ int FixedWindowMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
         Reset();
     }
 
+    // Loop over all muons
     for(DetectorPulseList::const_iterator i_muSc=fMuSc.pulses->begin();
             i_muSc!=fMuSc.pulses->end(); ++i_muSc){
         // Make a TME centred on this muon
         TMuonEvent* tme=new TMuonEvent(*i_muSc);
-        double central_time=(*i_muSc)->GetTime();
 
         // Add all muon pulses in the event window to this TME
-        PulsesInWindow(central_time,fEventWindow,
-                fMuSc.start_window,fMuSc.end_window, fMuSc.pulses->end());
-        tme->AddPulses(*fMuSc.source,fMuSc.start_window,fMuSc.end_window);
+        AddPulsesInWindow(tme,fEventWindow,fMuSc);
 
         for(SourceList::iterator i_det=fDetectors.begin();
                 i_det!=fDetectors.end(); ++i_det){
             // Add all pulses in the event window to this TME
-            PulsesInWindow(central_time,fEventWindow,
-                    i_det->start_window,i_det->end_window, i_det->pulses->end());
-            tme->AddPulses(*i_det->source,i_det->start_window,i_det->end_window);
+            AddPulsesInWindow(tme,fEventWindow,*i_det);
         }
     }
     return 0;
 }
 
-void FixedWindowMEGenerator::PulsesInWindow(double central_time, double window,
-        DetectorPulseList::const_iterator& start,
-        DetectorPulseList::const_iterator& stop,
-        const DetectorPulseList::const_iterator& end){
+void FixedWindowMEGenerator::AddPulsesInWindow(
+        TMuonEvent* tme, double window, Detector_t& detector){
+    // Get the central time for this event
+    double central_time=tme->GetTime();
+
+    // advance the start and stop iterators that define the range of pulses
+    // contained in the window
+    DetectorPulseList::const_iterator& start=detector.start_window;
+    DetectorPulseList::const_iterator& stop=detector.end_window;
+    const DetectorPulseList::const_iterator& end=detector.pulses->end();
+
     while(start+1!=end && (*(start+1))->GetTime()<central_time-window ) ++start;
     while(   stop!=end &&      (*stop)->GetTime()<central_time+window ) ++stop;
+
+    // Add all pulses in the current window to the tme
+    tme->AddPulses(*detector.source,start,stop);
+
+    // Flag if we've used all of a channels pulses
+    if(stop==detector.pulses->end()) tme->AllPulsesUsed(*detector.source);
 }
 
 ALCAP_TME_GENERATOR(FixedWindow, event_window);
