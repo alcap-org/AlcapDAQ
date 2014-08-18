@@ -18,7 +18,7 @@ using std::cout;
 using std::endl;
 
 extern MuonEventList gMuonEvents;
-extern StringDetPulseMap gDetectorPulseMap;
+extern SourceDetPulseMap gDetectorPulseMap;
 
 MakeMuonEvents::MakeMuonEvents(modules::options* opts):
   BaseModule("MakeMuonEvents",opts,false),fOptions(opts){

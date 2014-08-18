@@ -12,7 +12,7 @@ class %module%MEGenerator:public TVMuonEventGenerator {
         virtual ~%module%MEGenerator(){};
 
     public:
-        virtual int ProcessPulses(MuonEventList& muonEventsOut,const StringDetPulseMap& detectorPulsesIn);
+        virtual int ProcessPulses(MuonEventList& muonEventsOut,const SourceDetPulseMap& detectorPulsesIn);
 
 };
 

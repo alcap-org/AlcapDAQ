@@ -7,11 +7,11 @@ using std::cout;
 using std::endl;
 
 int MaxTimeDiffMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
-		const StringDetPulseMap& detectorPulsesIn){
+		const SourceDetPulseMap& detectorPulsesIn){
 
 	  std::vector<DetectorPulseList::const_iterator> pulseIters;
 	  std::vector<DetectorPulseList::const_iterator> finalIters;
-	  for(StringDetPulseMap::const_iterator i_detector=detectorPulsesIn.begin();
+	  for(SourceDetPulseMap::const_iterator i_detector=detectorPulsesIn.begin();
 			  i_detector!=detectorPulsesIn.end(); i_detector++){
 			  pulseIters.push_back(i_detector->second.begin());
 			  finalIters.push_back(i_detector->second.end());
