@@ -64,6 +64,7 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     int n_bits;
     double fast_amp_max, slow_amp_max;
     double fast_amp_min=0, slow_amp_min=0;
+    double tdiff_min=-1e6, tdiff_max=1e6;
 
     // Loop over all TDP sources
     for(SourceDetPulseMap::const_iterator i_source=gDetectorPulseMap.begin();
@@ -123,14 +124,14 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         full_title.str("Time difference vs. fast amplitude for pulses ");
         full_title<<title;
         tmp.time_diff_fast=new TH2F((name+"_fast_amp_tdiff").c_str(),full_title.str().c_str(),
-                200,0,-1,200,fast_amp_min,fast_amp_max);
+				    200,tdiff_min,tdiff_max,200,fast_amp_min,fast_amp_max);
         tmp.time_diff_fast->SetXTitle("t_{Fast} - t_{Slow}");
         tmp.time_diff_fast->SetYTitle("Amplitude in Fast channel");
 
         full_title.str("Time difference vs. slow amplitude for pulses ");
         full_title<<title;
         tmp.time_diff_slow=new TH2F((name+"_slow_amp_tdiff").c_str(),full_title.str().c_str(),
-                200,0,-1,200,slow_amp_min,slow_amp_max);
+                200,tdiff_min,tdiff_max,200,slow_amp_min,slow_amp_max);
         tmp.time_diff_slow->SetXTitle("t_{Fast} - t_{Slow}");
         tmp.time_diff_slow->SetYTitle("Amplitude in Slow channel");
 
