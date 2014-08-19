@@ -212,7 +212,7 @@ void ClearGlobalData(TGlobalData* data)
     // TAP tree (which uses a TClonesArray that is responsible for deleting them )
     static bool should_delete_TAPS=!modules::navigator::Instance()->GetModule("LoadPulses");
     for(SourceAnalPulseMap::iterator mapIter=gAnalysedPulseMap.begin();
-            mapIter != gAnalysedPulseMap.end(); mapIter++) {
+            mapIter != gAnalysedPulseMap.end(); ++mapIter) {
 
         // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
         AnalysedPulseList& pulse_vector= mapIter->second;
@@ -226,7 +226,8 @@ void ClearGlobalData(TGlobalData* data)
   }
   //  gAnalysedPulseMap.clear();
 
-  for(SourceDetPulseMap::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
+  for(SourceDetPulseMap::iterator mapIter = gDetectorPulseMap.begin();
+          mapIter != gDetectorPulseMap.end(); ++mapIter) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
     DetectorPulseList& pulse_vector= mapIter->second;
     for(size_t i=0; i<pulse_vector.size(); i++){
@@ -236,6 +237,12 @@ void ClearGlobalData(TGlobalData* data)
     pulse_vector.clear();
   }
   //gDetectorPulseMap.clear();
+
+  for(MuonEventList::iterator muonEvent = gMuonEvents.begin();
+          muonEvent != gMuonEvents.end(); ++muonEvent) {
+      delete *muonEvent;
+  }
+  gMuonEvents.clear();
 }
 
 
