@@ -2,7 +2,7 @@
 #include "FixedWindowMEGenerator.h"
 #include "TDetectorPulse.h"
 #include "TMuonEvent.h"
-#define ALCAP_NO_DEBUG
+//#define ALCAP_NO_DEBUG
 #include "debug_tools.h"
 
 #include <iostream>
@@ -76,7 +76,6 @@ int FixedWindowMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
 }
 void FixedWindowMEGenerator::AddPulsesInWindow(
         TMuonEvent* tme, double window, Detector_t& detector){
-    DEBUG_VALUE(*detector.source);
     // Get the central time for this event;
     double central_time=tme->GetTime();
     double early_edge=central_time-window;
@@ -87,18 +86,16 @@ void FixedWindowMEGenerator::AddPulsesInWindow(
     DetectorPulseList::const_iterator& start=detector.start_window;
     DetectorPulseList::const_iterator& stop=detector.end_window;
     const DetectorPulseList::const_iterator& end=detector.pulses->end();
-    const DetectorPulseList::const_iterator& begin=detector.pulses->begin();
+    //const DetectorPulseList::const_iterator& begin=detector.pulses->begin();
 
     // skip empty lists
     if(start==end) return;
 
-    DEBUG_VALUE(start-begin,stop-begin,end-begin);
 
     // Move the iteator for the start of the window
     int look_ahead=1;
     while((start+look_ahead!=end) && (start!=end) ){
         double time = (*(start+look_ahead))->GetTime();
-        DEBUG_VALUE(time, early_edge, time>early_edge);
         if(time==definitions::DefaultValue){
             // If time is DefaultValue then we're looking at an unpaired
             // detector which we should ignore
@@ -113,11 +110,9 @@ void FixedWindowMEGenerator::AddPulsesInWindow(
     stop=start;
     while( stop!=end ){  
         double time = (*stop)->GetTime();
-        DEBUG_VALUE(time, late_edge, time>late_edge);
         if(time>late_edge) break;
         ++stop;
     }
-    DEBUG_VALUE(start-begin,stop-begin,end-begin);
 
     // Add all pulses in the current window to the tme
     tme->AddPulses(*detector.source,start,stop);
