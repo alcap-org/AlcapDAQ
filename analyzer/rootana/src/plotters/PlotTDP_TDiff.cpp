@@ -20,13 +20,8 @@ PlotTDP_TDiff::PlotTDP_TDiff(modules::options* opts):
   // particular configuration that you want to know?
   // For example, perhaps this module wants an axis range:  
 
-  IDs::channel channel_a = IDs::channel(opts->GetString("det_a"));
-  IDs::channel channel_b = IDs::channel(opts->GetString("det_b"));
-  IDs::generator generator_a = IDs::generator(opts->GetString("gen_a", "any"), opts->GetString("config_a", "any"));
-  IDs::generator generator_b = IDs::generator(opts->GetString("gen_b", "any"), opts->GetString("config_a", "any"));
-
-  fSourceA = IDs::source(channel_a, generator_a);
-  fSourceB = IDs::source(channel_b, generator_b);
+  fSourceA = IDs::source(opts->GetString("source_a"));
+  fSourceB = IDs::source(opts->GetString("source_b"));
 }
 
 PlotTDP_TDiff::~PlotTDP_TDiff(){
@@ -113,4 +108,4 @@ int PlotTDP_TDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(PlotTDP_TDiff,det_a,det_b,gen_a,gen_b,config_a,config_b);
+ALCAP_REGISTER_MODULE(PlotTDP_TDiff,source_a,source_b);
