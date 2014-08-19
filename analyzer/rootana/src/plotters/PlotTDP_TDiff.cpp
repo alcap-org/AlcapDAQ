@@ -20,8 +20,14 @@ PlotTDP_TDiff::PlotTDP_TDiff(modules::options* opts):
   // particular configuration that you want to know?
   // For example, perhaps this module wants an axis range:  
 
-  fDetNameA = IDs::channel(opts->GetString("det_a"));
-  fDetNameB = IDs::channel(opts->GetString("det_b"));
+  IDs::channel channel_a = IDs::channel(opts->GetString("det_a"));
+  IDs::channel channel_b = IDs::channel(opts->GetString("det_b"));
+  IDs::generator generator_a = IDs::generator(opts->GetString("gen_a", "any"), opts->GetString("config_a", "any"));
+  IDs::generator generator_b = IDs::generator(opts->GetString("gen_b", "any"), opts->GetString("config_a", "any"));
+
+  fSourceA = IDs::source(channel_a, generator_a);
+  fSourceB = IDs::source(channel_b, generator_b);
+  std::cout << "AE: " << fSourceA << ", " << fSourceB << std::endl;
 }
 
 PlotTDP_TDiff::~PlotTDP_TDiff(){
@@ -37,7 +43,7 @@ int PlotTDP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   }
 
   // Create the histogram
-  std::string histogram_name = "h" + fDetNameA.str() + "_" + fDetNameB.str() + "_TDiff";
+  /*  std::string histogram_name = "h" + fDetNameA.str() + "_" + fDetNameB.str() + "_TDiff";
   std::string histogram_title = "Time Difference between TDP channel " + fDetNameA.str() + "_" + fDetNameB.str();
   int x_max = 1000000;
   int x_min = -1000000;
@@ -47,7 +53,7 @@ int PlotTDP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
   std::string axis_title = "t_{" + fDetNameA.str() + "} - t_{" + fDetNameB.str() + "} [ns]";
   fTDiffPlot->GetXaxis()->SetTitle(axis_title.c_str());
-
+  */
   return 0;
 }
 
@@ -61,7 +67,7 @@ int PlotTDP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
     
     IDs::channel i_detname = (i_source->first).Channel();
 
-    if (i_detname == fDetNameA) {
+    /*    if (i_detname == fDetNameA) {
       fDetPulsesA = i_source->second;
       if (Debug()) {
 	std::cout << "PlotTDP_TDiff: " << fDetNameA << " pulses found. (" << fDetPulsesA.size() << " pulses)" << std::endl;;
@@ -72,7 +78,7 @@ int PlotTDP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
       if (Debug()) {
 	std::cout << "PlotTDP_TDiff: " << fDetNameB << " pulses found. (" << fDetPulsesB.size() << " pulses)" << std::endl;
       }
-    }
+      }*/
   }
 
   // Loop through the TDPs in both channels

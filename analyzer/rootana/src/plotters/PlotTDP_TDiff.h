@@ -54,8 +54,8 @@ class PlotTDP_TDiff : public BaseModule {
   virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
 
   /// \brief
-  /// The detector names that are requested
-  IDs::channel fDetNameA, fDetNameB;
+  /// The sources that are requested
+  IDs::source fSourceA, fSourceB;
   /// \brief
   /// The pulse lists for the detector pulses that we want
   DetectorPulseList fDetPulsesA, fDetPulsesB;
