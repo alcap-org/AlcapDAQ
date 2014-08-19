@@ -64,6 +64,11 @@ int FixedWindowMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
             // Add all pulses in the event window to this TME
             AddPulsesInWindow(tme,fEventWindow,*i_det);
         }
+        //if(Debug()) cout<<"FixedWindowMEGenerator::ProcessPulses:"
+        //    " Created TME with "<<tme->TotalNumPulses()<<" pulses" <<endl;
+
+        // Add TME to list of event
+        muonEventsOut.push_back(tme);
     }
     return 0;
 }
