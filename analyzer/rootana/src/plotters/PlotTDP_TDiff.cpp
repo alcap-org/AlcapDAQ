@@ -27,7 +27,6 @@ PlotTDP_TDiff::PlotTDP_TDiff(modules::options* opts):
 
   fSourceA = IDs::source(channel_a, generator_a);
   fSourceB = IDs::source(channel_b, generator_b);
-  std::cout << "AE: " << fSourceA << ", " << fSourceB << std::endl;
 }
 
 PlotTDP_TDiff::~PlotTDP_TDiff(){
@@ -43,17 +42,20 @@ int PlotTDP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   }
 
   // Create the histogram
-  /*  std::string histogram_name = "h" + fDetNameA.str() + "_" + fDetNameB.str() + "_TDiff";
-  std::string histogram_title = "Time Difference between TDP channel " + fDetNameA.str() + "_" + fDetNameB.str();
+  std::string detname_a = fSourceA.Channel().str();
+  std::string detname_b = fSourceB.Channel().str();
+
+  std::string histogram_name = "h" + fSourceA.str() + "_" + fSourceB.str() + "_TDiff";
+  std::string histogram_title = "Time Difference between TDP source " + fSourceA.str() + "_" + fSourceB.str();
   int x_max = 1000000;
   int x_min = -1000000;
   int bin_width = 100;
   int n_bins = (x_max - x_min) / bin_width;
   fTDiffPlot = new TH1F(histogram_name.c_str(), histogram_title.c_str(), n_bins, x_min, x_max);
 
-  std::string axis_title = "t_{" + fDetNameA.str() + "} - t_{" + fDetNameB.str() + "} [ns]";
+  std::string axis_title = "t_{" + detname_a + "} - t_{" + detname_b + "} [ns]";
   fTDiffPlot->GetXaxis()->SetTitle(axis_title.c_str());
-  */
+
   return 0;
 }
 
@@ -65,20 +67,19 @@ int PlotTDP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
   for(SourceDetPulseMap::const_iterator i_source=gDetectorPulseMap.begin();
       i_source!= gDetectorPulseMap.end(); ++i_source){
     
-    IDs::channel i_detname = (i_source->first).Channel();
-
-    /*    if (i_detname == fDetNameA) {
+    //    std::cout << i_source->first << ", " << fSourceA << std::endl;
+    if ( (i_source->first).matches(fSourceA)) {
       fDetPulsesA = i_source->second;
       if (Debug()) {
-	std::cout << "PlotTDP_TDiff: " << fDetNameA << " pulses found. (" << fDetPulsesA.size() << " pulses)" << std::endl;;
+	std::cout << "PlotTDP_TDiff: " << fSourceA << " pulses found. (" << fDetPulsesA.size() << " pulses)" << std::endl;;
       }
     }
-    else if (i_detname == fDetNameB) {
+    else if ((i_source->first).matches(fSourceB)) {
       fDetPulsesB = i_source->second;
       if (Debug()) {
-	std::cout << "PlotTDP_TDiff: " << fDetNameB << " pulses found. (" << fDetPulsesB.size() << " pulses)" << std::endl;
+	std::cout << "PlotTDP_TDiff: " << fSourceB << " pulses found. (" << fDetPulsesB.size() << " pulses)" << std::endl;
       }
-      }*/
+    }
   }
 
   // Loop through the TDPs in both channels
@@ -112,4 +113,4 @@ int PlotTDP_TDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(PlotTDP_TDiff,det_a,det_b);
+ALCAP_REGISTER_MODULE(PlotTDP_TDiff,det_a,det_b,gen_a,gen_b,config_a,config_b);
