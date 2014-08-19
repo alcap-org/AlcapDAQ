@@ -14,14 +14,18 @@ void help_command_line(const char* my_name)
   std::cerr << "\nUsage: " << my_name << "  [options]\n"
             << "    Positional arguments: None\n\n"
             << "Valid options are:\n"
-            << "  -i <filename>\t\t Input root tree file.\n"
-            << "  -o <filename>\t\t Output root tree file.\n"
-            << "  -n <count>\t\t Analyze only <count> events.\n"
-            << "  -n <first> <last>\t Analyze only events from "
+            << "  -i <filename>          Input root tree file.\n"
+            << "  -o <filename>          Output root tree file.\n"
+            << "  -n <count>             Analyze only <count> events.\n"
+            << "  -n <first> <last>      Analyze only events from "
             << "<first> to <last>.\n"
-            << "  -r <PSI run number>\t Run number specification for the shrubs.\n"
-            << "  -s <correction file>\t Name of the correction file to be used.\n"
-            << "  -m <modules file>\t Name of the MODULES file to be used.\n"
+            << "  -r <PSI run number>    Run number specification for the shrubs.\n"
+            << "  -s <correction file>   Name of the correction file to be used.\n"
+            << "  -m <modules file>      Name of the MODULES file to be used.\n"
+	    << "  -c                     Tell the setup navigator that this is a calibration\n"
+	    << "                         run, and it might not find all of the tables it needs\n"
+	    << "                         in the calibration database\nbut to continue all the\n"
+	    << "                         same."
             << std::endl;
   return;
 }
@@ -120,13 +124,13 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
   arguments.start=0;
   arguments.stop=0;
   arguments.run=-1;
+  arguments.calib=false;
 
-  // Now loop over all the arguments 
-  if(argc==1) {
-    help_command_line(argv[0]);
-    return 1;
-  }
-  if(std::string(argv[1]) == "--help" ){
+  // Now loop over all the arguments
+  // There are a minimum of seven arguments:
+  // -i, -m, -o, and corresponding files, and
+  // program name.
+  if(argc < 7 || std::string(argv[1]) == "--help") {
     help_command_line(argv[0]);
     return 1;
   }
@@ -205,8 +209,8 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
        }
        if ( nArgs > 2 || nArgs < 1) {
          std::cerr << "ERROR: " << nArgs 
-                   << " non-negative integer  arguments passed to"
-                   << " -n option , which accepts only one or two";
+                   << " non-negative integer arguments passed to"
+                   << " -n option, which accepts only one or two";
          help_command_line(argv[0]);   return 1;        
        }
        arguments.start = (nArgs==2) ? atoi(argv[i+1]) : 0; 
@@ -228,7 +232,10 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
        }
      }
      break;
-
+   case 'c':
+     arguments.calib = true;
+     i+=1;
+     break;
      //----------
    default:
      std::cerr << "ERROR: Argument " << argv[i] << " not recognized\n";
@@ -274,5 +281,6 @@ void print_arguments(const ARGUMENTS& args){
             << "\n    start event:\t" << args.start
             << "\n    stop event:\t\t" << args.stop
             << "\n    run number:\t\t" << args.run
+	    << "\n    calibration:\t " << args.calib
             << std::endl;
 }

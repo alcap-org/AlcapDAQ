@@ -16,13 +16,7 @@ inline void TemplateFactory<BaseModule,OptionsType>::addArgument(
 template <typename BaseModule, typename OptionsType>
 inline std::string TemplateFactory<BaseModule,OptionsType>::GetArgumentName(
 	const std::string& module,const int& argument){
-    try{
-       return fModuleArguments[module].at(argument);
-    }catch(...){
-       char num[5];
-       sprintf(num,"%d",argument);
-       return std::string(num);
-    }
+        return fModuleArguments.at(module).at(argument);
 }
 
 template <typename BaseModule, typename OptionsType>

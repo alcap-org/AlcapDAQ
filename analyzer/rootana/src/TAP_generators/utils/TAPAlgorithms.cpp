@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include <iostream>
+
 double Algorithm::MaxBinAmplitude::operator() (const TPulseIsland* tpi) {
 
   // Get the samples and get an iterator ready to find the peak sample
@@ -48,23 +50,14 @@ double Algorithm::ConstantFractionTime::operator() (const TPulseIsland* tpi) {
   std::vector<int>::const_iterator b = samps.begin(), e = samps.end();
 
   std::vector<int>::const_iterator m = trigger_polarity > 0 ? std::max_element(b, e) : std::min_element(b, e);
-  int amp = *m;
-  int thresh = trigger_polarity > 0 ? (unsigned int)(th_frac*(double)(max_adc_value - pedestal) + pedestal) : (unsigned int)((1.-th_frac)*pedestal);
-  unsigned int cf = trigger_polarity > 0 ? (unsigned int)(constant_fraction*(double)(amp-pedestal)) + pedestal : (unsigned int)((double)(pedestal-amp)*(1.-constant_fraction) + amp);
+  const int amp = *m;
+  const unsigned int cf = trigger_polarity > 0 ? (unsigned int)(constant_fraction*(double)(amp-pedestal)) + pedestal : (unsigned int)((double)(pedestal-amp)*(1.-constant_fraction) + amp);
+  while (m != b && (trigger_polarity > 0 ? *--m > (int)cf : *--m < (int)cf));
+  double dx = (double)(m-b);
+  if (*(m+1) != *m)
+    dx += (double)((int)cf - *m)/(double)(*(m+1) - *m);
 
-  double t=0;
-  if ((trigger_polarity > 0 ? amp > thresh : amp < thresh) && (trigger_polarity > 0 ? amp < max_adc_value : amp > 0)) {
-    std::vector<int>::const_iterator c = m;
-    while ((trigger_polarity > 0 ? *--m > (int)cf : *--m < (int)cf) && m != b);
-    if (*(m+1) == *m)
-      t = (double)(m-b);
-    else
-      t = (double)((int)cf - *m)/(double)(*(m+1) - *m) + (double)(m-b);
-  }
-
-  double time = clock_tick_in_ns * (t + (double)tpi->GetTimeStamp() - time_shift);
-
-  return time;
+  return (dx + (double)tpi->GetTimeStamp()) * clock_tick_in_ns - time_shift;
 }
 
 double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi) {

@@ -1,10 +1,12 @@
 #include "TAPGeneratorFactory.h"
-#include "MaxBinAPGenerator.h"
+#include "MaxBinNoShiftAPGenerator.h"
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
 #include "EventNavigator.h"
 #include "SetupNavigator.h"
+
 #include <algorithm>
+#include <cmath>
 
 // IsTimeOrdered()
 // -- Returns true of the first pulse is before the second
@@ -15,11 +17,12 @@ static bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b) {
   return ( a->GetTime() < b->GetTime() );
 }
 
-//======================================================================
-
+MaxBinNoShiftAPGenerator::MaxBinNoShiftAPGenerator(TAPGeneratorOptions* opts) :
+  TVAnalysedPulseGenerator("MaxBinNoShiftAPGenerator", opts) {
+}
 
 //----------------------------------------------------------------------
-int MaxBinAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
+int MaxBinNoShiftAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
                                      AnalysedPulseList& analysedList)
 {
   double amplitude, time;
@@ -33,7 +36,7 @@ int MaxBinAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
   fMaxBinTime.trigger_polarity = fMaxBinAmplitude.trigger_polarity;
 
   fMaxBinTime.clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
-  fMaxBinTime.time_shift = TSetupData::Instance()->GetTimeShift(bankname);
+  fMaxBinTime.time_shift = 0.;
 
 
   for (PulseIslandList::const_iterator pulseIter = pulseList.begin(); pulseIter != pulseList.end(); pulseIter++) {
@@ -52,4 +55,4 @@ int MaxBinAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
   std::sort(analysedList.begin(), analysedList.end(), IsTimeOrdered);
   return 0;
 }
-ALCAP_TAP_GENERATOR(MaxBin);
+ALCAP_TAP_GENERATOR(MaxBinNoShift);

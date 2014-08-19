@@ -19,13 +19,12 @@ extern SourceAnalPulseMap gAnalysedPulseMap;
 extern Long64_t* gEntryNumber;
 
 MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
-    BaseModule("MakeAnalysedPulses",opts,false),fOptions(opts){
-        fSlowGeneratorType=opts->GetString("default_slow_generator","MaxBin");
-        fFastGeneratorType=opts->GetString("default_fast_generator","MaxBin");
-        opts->GetVectorStringsByWhiteSpace("analyse_channels",fChannelsToAnalyse);
-        fDefaultOpts=new TAPGeneratorOptions("default generator options");
-        if(Debug()) fDefaultOpts->SetOption("debug","true");
-    }
+  BaseModule("MakeAnalysedPulses",opts,false),
+  fSlowGeneratorType(opts->GetString("default_slow_generator","MaxBin")), fFastGeneratorType(opts->GetString("default_fast_generator","MaxBin")),
+  fChannelsToAnalyse(), fOptions(opts), fDefaultOpts(new TAPGeneratorOptions("default generator options")) {
+  opts->GetVectorStringsByWhiteSpace("analyse_channels",fChannelsToAnalyse);
+  if(Debug()) fDefaultOpts->SetOption("debug","true");
+}
 
 MakeAnalysedPulses::~MakeAnalysedPulses(){
 }
@@ -66,10 +65,8 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
             }
             if(it_chan== fChannelsToAnalyse.end() ) skip_detector=true;
         }
-        if(skip_detector){
-            // fGenerators[*det]=NULL;
-            continue;
-        }
+        if(skip_detector)
+	  continue;
         // else find the right generator to build
         if(fOptions->HasOption(*det)){
             // If this channel is named explicitly, use that generator type
@@ -159,30 +156,31 @@ bool MakeAnalysedPulses::ParseGeneratorList(std::string detector,
     size_t start_br=0;
     size_t end_br=std::string::npos;
     std::vector<std::string>::const_iterator gen;
-    std::stringstream sstream;
     std::string arg,generator;
     TAPGeneratorOptions* opts;
     bool still_good=true;
     for(gen=generatorList.begin();gen!= generatorList.end();gen++){
-        // check if we have options for this generator
-        start_br=gen->find('(');
-        generator=GetOneWord(*gen,0,start_br);
-        if(start_br!=std::string::npos){
-            // There are options for this generator
-            end_br=gen->find(')');
-            sstream.str(gen->substr(start_br,end_br-start_br));
-            opts=new TAPGeneratorOptions(detector+"::"+generator);
-            for(int count=0; std::getline(sstream, arg,','); count++){
-                opts->AddArgument(count,arg);
-            }
-        }
-        still_good = AddGenerator(detector,generator,opts);
-        // Is everything ok to continue?
-        if (!still_good) {
-            return false;
-        }
-        // Get ready for next iteration
-        opts=NULL;
+      // check if we have options for this generator
+      start_br=gen->find('(');
+      generator=GetOneWord(*gen,0,start_br);
+      if(start_br!=std::string::npos){
+	std::stringstream sstream;
+	// There are options for this generator
+	++start_br; // Move to first character after '('
+	end_br=gen->find(')');
+	sstream.str(gen->substr(start_br,end_br-start_br));
+	opts=new TAPGeneratorOptions(generator);
+	for(int count=0; std::getline(sstream, arg,','); count++){
+	  opts->AddArgument(count,arg);
+	}
+      }
+      still_good = AddGenerator(detector,generator,opts);
+      // Is everything ok to continue?
+      if (!still_good) {
+	return false;
+      }
+      // Get ready for next iteration
+      opts=NULL;
     }
     // Everything went ok, return true
     return true;
