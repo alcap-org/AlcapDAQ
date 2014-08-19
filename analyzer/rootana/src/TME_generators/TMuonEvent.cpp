@@ -13,6 +13,7 @@ namespace {
 
 MAKE_EXCEPTION(TMuonEvent,Base)
 MAKE_EXCEPTION(OutOfRange,TMuonEvent)
+MAKE_EXCEPTION(EndOfWindowBeforeStart,TMuonEvent)
 
 const TDetectorPulse* TMuonEvent::GetPulse(const IDs::source& source, int index)const{
     SourceDetPulseMap::const_iterator i_source=fPulseLists.find(source);
@@ -28,6 +29,7 @@ void TMuonEvent::AddPulse(const IDs::source& source, TDetectorPulse* pulse){
 void TMuonEvent::AddPulses(const IDs::source& source,
         DetectorPulseList::const_iterator start,
         DetectorPulseList::const_iterator stop){
+    if(stop-start <0)  throw Except::EndOfWindowBeforeStart();
     fPulseLists[source].insert(fPulseLists[source].end(),start,stop);
 }
 
