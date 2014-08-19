@@ -91,6 +91,7 @@ void FixedWindowMEGenerator::AddPulsesInWindow(
 
     int look_ahead=1;
     while((start+look_ahead!=end) && (start!=end) ){
+        DEBUG_VALUE(start+look_ahead-begin);
         double time = (*(start+look_ahead))->GetTime();
         DEBUG_VALUE(time, early_edge, time>early_edge);
         if(time==definitions::DefaultValue){
@@ -99,6 +100,7 @@ void FixedWindowMEGenerator::AddPulsesInWindow(
             ++look_ahead;
             continue;
         }
+        look_ahead=1;
         if(time>early_edge) break;
         start+=look_ahead;
     }
