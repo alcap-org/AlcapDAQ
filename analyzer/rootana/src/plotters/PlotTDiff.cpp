@@ -11,7 +11,7 @@
 #include "definitions.h"
 #include "SetupNavigator.h"
 #include "ModulesOptions.h"
-#include "AlCapExceptions.h"
+#include "AlcapExcept.h"
 
 
 #include <cmath>
@@ -19,10 +19,7 @@
 #include <TH2F.h>
 //#include <debug_tools.h>
 
-
-using modules::parser::GetOneWord;
-using namespace std;
-using std::string;
+MAKE_EXCEPTION(ModulesOptionError, Base)
 
 extern SourceAnalPulseMap gAnalysedPulseMap;
 
@@ -31,8 +28,12 @@ PlotTDiff::PlotTDiff(modules::options* opts) :
   fDetNameA(opts->GetString("det1")), fDetNameB(opts->GetString("det2")),
   fTimeLow(opts->GetDouble("time_low",-1.e5)), fTimeHigh(opts->GetDouble("time_high",1.e5)),
   fExportSQL(opts->GetBool("export_sql", false)) {
-  if (fDetNameA == std::string("") || fDetNameB == std::string("") || fDetNameA == fDetNameB)
-    throw Except::ModulesOptionError();
+  if (fDetNameA == std::string("") || fDetNameB == std::string(""))
+    throw Except::ModulesOptionError("Two detectors must be provided");
+  else if (fDetNameA == fDetNameB)
+    throw Except::ModulesOptionError((fDetNameA + "==" + fDetNameB).c_str());
+  else if (fExportSQL && fDetNameB != "muSc")
+    throw Except::ModulesOptionError("If exporting to calibration DB, second detector must be muSc");
 }
 
 
@@ -63,7 +64,7 @@ int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 	break;
       }
   }
-  BookHistograms();
+  BookHistograms(setup);
   return 0;
 }
 
@@ -101,15 +102,14 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
 int PlotTDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
   if (fExportSQL) {
     for (unsigned int i = 0; i < fDetASources.size(); ++i) {
-      const std::string& keyname = fDetASources[i].str();
-      const double dt = oned_plots[fDetASources[i].str()]->ProjectionX()->GetBinCenter(oned_plots[fDetASources[i].str()]->GetMaximumBin());
-      SetupNavigator::Instance()->SetCoarseTimeOffset(fDetASources[i], dt);
+      TH1D* h = ampA_plots[fDetASources[i].str()]->ProjectionX();
+      SetupNavigator::Instance()->SetCoarseTimeOffset(fDetASources[i], h->GetBinCenter(h->GetMaximumBin()));
     }
   }
   return 0;
 }
 
-void PlotTDiff::BookHistograms() {
+void PlotTDiff::BookHistograms(const TSetupData* setup) {
   for (unsigned int i = 0; i < fDetASources.size(); ++i) {
     const std::string key = fDetASources.at(i).str();
     const std::string gen = fDetASources.at(i).Generator().str();
@@ -144,4 +144,4 @@ void PlotTDiff::BookHistograms() {
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(PlotTDiff,det1,det2);
+ALCAP_REGISTER_MODULE(PlotTDiff,det1,det2,time_low,time_high,export_sql);

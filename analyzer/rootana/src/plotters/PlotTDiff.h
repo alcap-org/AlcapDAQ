@@ -60,6 +60,8 @@ class PlotTDiff : public BaseModule {
   /// \param[in] setup See BaseModule::AfterLastEntry
   /// \return Non-zero to indicate a problem.
   virtual int AfterLastEntry(TGlobalData* gData, const TSetupData *setup);
+  /// \brief Prepare histograms.
+  void BookHistograms(const TSetupData*);
 
   /// \brief
   /// Don't forget to forget descirptions for each field...

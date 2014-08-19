@@ -19,13 +19,12 @@ extern SourceAnalPulseMap gAnalysedPulseMap;
 extern Long64_t* gEntryNumber;
 
 MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
-    BaseModule("MakeAnalysedPulses",opts,false),fOptions(opts){
-        fSlowGeneratorType=opts->GetString("default_slow_generator","MaxBin");
-        fFastGeneratorType=opts->GetString("default_fast_generator","MaxBin");
-        opts->GetVectorStringsByWhiteSpace("analyse_channels",fChannelsToAnalyse);
-        fDefaultOpts=new TAPGeneratorOptions("default generator options");
-        if(Debug()) fDefaultOpts->SetOption("debug","true");
-    }
+  BaseModule("MakeAnalysedPulses",opts,false),
+  fSlowGeneratorType(opts->GetString("default_slow_generator","MaxBin")), fFastGeneratorType(opts->GetString("default_fast_generator","MaxBin")),
+  fChannelsToAnalyse(), fOptions(opts), fDefaultOpts(new TAPGeneratorOptions("default generator options")) {
+  opts->GetVectorStringsByWhiteSpace("analyse_channels",fChannelsToAnalyse);
+  if(Debug()) fDefaultOpts->SetOption("debug","true");
+}
 
 MakeAnalysedPulses::~MakeAnalysedPulses(){
 }
@@ -66,10 +65,8 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
             }
             if(it_chan== fChannelsToAnalyse.end() ) skip_detector=true;
         }
-        if(skip_detector){
-            // fGenerators[*det]=NULL;
-            continue;
-        }
+        if(skip_detector)
+	  continue;
         // else find the right generator to build
         if(fOptions->HasOption(*det)){
             // If this channel is named explicitly, use that generator type
