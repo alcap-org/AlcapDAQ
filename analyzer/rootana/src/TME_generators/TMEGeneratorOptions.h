@@ -11,6 +11,16 @@ class TMEGeneratorOptions:public modules::options{
 	TMEGeneratorOptions(const std::string& name):
 		modules::options(name){};
 	~TMEGeneratorOptions(){};
+
+    TMEGeneratorOptions(const std::string& name,const modules::options* opts):
+        modules::options(name){
+            modules::options::operator=(*opts);
+        }
+
+    TMEGeneratorOptions& operator=(const modules::options& rhs){
+        modules::options::operator=(rhs);
+        return *this;
+    }
 };
 
 #endif // TMEGENERATOROPTIONS_H_
