@@ -35,8 +35,8 @@ class SetupNavigator{
   double GetNoise(const IDs::channel& channel) { return fNoiseValues.at(channel); }
   double GetCoarseTimeOffset(const IDs::source& src) { return fCoarseTimeOffset.at(src); }
 
-  void SetPedestalAndNoise(const IDs::channel& chn, double ped, double nse) {fPedestalValues[chn] = ped; fNoiseValues[chn] = nse;}
-  void SetCoarseTimeOffset(const IDs::source& src, double dt){fCoarseTimeOffset[src] = dt;}
+  void SetPedestalAndNoise(const IDs::channel& channel, double pedestal, double noise);
+  void SetCoarseTimeOffset(const IDs::source& src, double dt);
 
  private:
   static SetupNavigator* fThis;

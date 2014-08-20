@@ -202,3 +202,20 @@ void SetupNavigator::OutputCalibCSV() {
     fTO << std::endl;
   }
 }
+
+void SetupNavigator::SetPedestalAndNoise(const IDs::channel& chn, double ped, double nse) {
+  if (!fCommandLineArgs.calib) {
+    std::cout << "SetupNavigator: Warning: Request to edit pedestals and noises when not flagged as calibration. Not setting." << std::endl;
+    return;
+  }
+  fPedestalValues[chn] = ped;
+  fNoiseValues[chn] = nse;
+}
+
+void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double dt) {
+  if (!fCommandLineArgs.calib) {
+    std::cout << "SetupNavigator: Warning: Request to edit coarse time offsets when not flagged as calibration. Not setting." << std::endl;
+    return;
+  }  
+  fCoarseTimeOffset[src] = dt;
+}
