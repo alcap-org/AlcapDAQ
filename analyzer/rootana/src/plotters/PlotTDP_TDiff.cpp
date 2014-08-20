@@ -36,6 +36,11 @@ int PlotTDP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
      cout<<"-----PlotTDP_TDiff::BeforeFirstEntry(): I'm debugging!"<<endl;
   }
 
+  if(!modules::navigator::Instance()->Before("MakeDetectorPulses",GetName())){
+    cout<<"MakeDetectorPulses must be used before PlotTDP_TDiff"<<endl;
+    return 1;
+  }
+
   // Create the histogram
   std::string detname_a = modules::parser::ToCppValid(fSourceA.Channel().str());
   std::string detname_b = modules::parser::ToCppValid(fSourceB.Channel().str());
