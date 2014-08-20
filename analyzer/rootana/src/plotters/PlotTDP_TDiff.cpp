@@ -42,11 +42,11 @@ int PlotTDP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   }
 
   // Create the histogram
-  std::string detname_a = modules::parser::ToCppValid(fSourceA.Channel().str());
-  std::string detname_b = modules::parser::ToCppValid(fSourceB.Channel().str());
+  std::string detname_a = fSourceA.Channel().str();
+  std::string detname_b = fSourceB.Channel().str();
 
-  std::string histogram_name = "h" + fSourceA.str() + "_" + fSourceB.str() + "_TDiff";
-  std::string histogram_title = "Time Difference between TDP source " + fSourceA.str() + "_" + fSourceB.str();
+  std::string histogram_name = modules::parser::ToCppValid("h" + fSourceA.str() + "_" + fSourceB.str() + "_TDiff");
+  std::string histogram_title = "Time Difference between TDP source " + fSourceA.str() + "_" + fSourceB.str()y;
   int x_max = 1000000;
   int x_min = -1000000;
   int bin_width = 100;
