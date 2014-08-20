@@ -3,6 +3,7 @@
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
+#include "ModulesNavigator.h"
 #include "definitions.h"
 
 #include "TDetectorPulse.h"
@@ -46,7 +47,7 @@ int PlotTDP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   std::string detname_b = fSourceB.Channel().str();
 
   std::string histogram_name = modules::parser::ToCppValid("h" + fSourceA.str() + "_" + fSourceB.str() + "_TDiff");
-  std::string histogram_title = "Time Difference between TDP source " + fSourceA.str() + "_" + fSourceB.str()y;
+  std::string histogram_title = "Time Difference between TDP source " + fSourceA.str() + "_" + fSourceB.str();
   int x_max = 1000000;
   int x_min = -1000000;
   int bin_width = 100;
