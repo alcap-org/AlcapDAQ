@@ -56,7 +56,7 @@ int FixedWindowMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
     for(DetectorPulseList::const_iterator i_muSc=fMuSc.pulses->begin();
             i_muSc!=fMuSc.pulses->end(); ++i_muSc){
         // Make a TME centred on this muon
-        TMuonEvent* tme=new TMuonEvent(*i_muSc);
+        TMuonEvent* tme=new TMuonEvent(*i_muSc, fEventWindow);
 
         // Add all muon pulses in the event window to this TME
         AddPulsesInWindow(tme,fEventWindow,fMuSc);
