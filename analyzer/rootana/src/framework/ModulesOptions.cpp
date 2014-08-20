@@ -4,42 +4,80 @@
 #include <sstream>
 #include <iostream>
 #include <string.h>
+#include <TFormula.h>
 
-#define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
-#define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<std::endl;
-
-std::string modules::options::GetOption(const std::string& key)const{
+std::string modules::options::GetOption(const std::string& key, bool complain)const{
     OptionsList_t::const_iterator it = fOptions.find(key);
-    std::string value= it!=fOptions.end()? it->second : "";
-    return value;
+    if(it==fOptions.end()){
+        if(complain){
+            throw missing_option(fModuleName,key);
+        }
+        return "";
+    }
+    return it->second;
 }
+
+modules::bad_value::bad_value(const char* module, const char* name, const char* range, double val):
+    std::out_of_range(Form("For '%s', option '%s' has value %f,"
+                " which is out of range %s", module,name,val,range)){
+    }
+
 template <typename T>
-T modules::options::GetOption(const std::string& key,const T& defVal)const{
-    std::stringstream ss(GetOption(key));
+T modules::options::GetOption(const std::string& key,const T& defVal,bool complain)const{
+    std::stringstream ss(GetOption(key,complain));
     T val=defVal;
     ss>>val;
     return val;
 }
 
-int modules::options::GetInt(const std::string& name,int defVal)const{
-    return GetOption<int>(name,defVal);
+void modules::options::CheckValid(const std::string& name,
+        const char* expression, double value)const{
+    std::string expr(expression);
+    modules::parser::ReplaceWords(expr,name,"x");
+    TFormula formula((name+"_validity").c_str(), expr.c_str());
+    formula.Compile();
+    if(formula.Eval(value)==1){
+        throw bad_value(fModuleName.c_str(),name.c_str(),expression,value);
+    }
 }
 
-double modules::options::GetDouble(const std::string& name,double defVal)const{
-    return GetOption<double>(name,defVal);
+int modules::options::GetInt(const std::string& name, const std::string& range)const{
+    int val= GetOption<int>(name,0,true);
+    if(!range.empty())CheckValid(name,range.c_str(),val);
+    return val;
+}
+int modules::options::GetInt(const std::string& name, int defVal)const{
+    return GetOption<int>(name,defVal,false);
+}
+
+double modules::options::GetDouble(const std::string& name, const std::string& range)const{
+    double val= GetOption<double>(name,0,true);
+    if(!range.empty())CheckValid(name,range.c_str(),val);
+    return val;
+}
+double modules::options::GetDouble(const std::string& name, double defVal)const{
+    return GetOption<double>(name,defVal,false);
+}
+
+std::string modules::options::GetString(const std::string& name)const{
+    std::string ret_val=GetOption(name,true);
+    modules::parser::TrimWhiteSpaceBeforeAfter(ret_val);
+    return ret_val;
 }
 
 std::string modules::options::GetString(const std::string& name,const std::string& defVal)const{
-	std::string ret_val=GetOption(name);
-        modules::parser::TrimWhiteSpaceBeforeAfter(ret_val);
-	if(ret_val=="") ret_val=defVal;
-     return ret_val;
+    std::string ret_val=GetOption(name,false);
+    modules::parser::TrimWhiteSpaceBeforeAfter(ret_val);
+    if(ret_val=="") ret_val=defVal;
+    return ret_val;
+}
+
+bool modules::options::GetBool(const std::string& name)const{
+    return modules::parser::IsTrue(GetString(name));
 }
 
 bool modules::options::GetBool(const std::string& name,bool defVal)const{
-    if(!HasOption(name)) return defVal;
-    std::string val=GetString(name);
-    return  (val=="true")|| (val=="TRUE")|| (val=="YES")|| (val=="yes")|| (val=="on")|| (val=="ON")|| (val=="1");
+    return modules::parser::IsTrue(GetString(name,Form("%d",defVal)));
 }
 
 int modules::options::GetVectorStringsByWhiteSpace(const std::string& name, std::vector<std::string>& vect)const{
