@@ -21,11 +21,11 @@
 class TMuonEvent{
     public:
         /// @brief Construct a TMuonEvent with a known central muon
-        TMuonEvent(const TDetectorPulse* central_mu):
-            fCentralMuon(central_mu),fEarlyInEvent(true),fLateInEvent(true){};
+        TMuonEvent(const TDetectorPulse* central_mu, double window):
+            fCentralMuon(central_mu),fWindowWidth(window) {};
         /// @brief Default constructor for a TMuonEvent 
         TMuonEvent():
-            fCentralMuon(NULL),fEarlyInEvent(true),fLateInEvent(true){};
+            fCentralMuon(NULL),fWindowWidth(0){};
 
         /// @brief  Destructor
         /// @details empty since TMuonEvent doesn't own the pulses it contains
@@ -87,8 +87,7 @@ class TMuonEvent{
     private:
             SourceDetPulseMap fPulseLists;
             const TDetectorPulse* fCentralMuon;
-            bool fEarlyInEvent;
-            bool fLateInEvent;
+            double fWindowWidth;
             typedef std::set<IDs::source> SourceSet;
             SourceSet fExhaustedChannels;
 };
