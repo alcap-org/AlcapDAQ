@@ -4,10 +4,23 @@
 #include <vector>
 #include <string>
 #include <utility>
+#include <stdexcept>
 
 namespace modules{
     class options;
+    class missing_option;
+    class bad_value;
 }
+
+struct modules::missing_option:public std::runtime_error{
+    missing_option(const std::string& name, const std::string& opt):
+        std::runtime_error(("Missing option for '"+name+"': '"+opt+"'" ).c_str()){};
+};
+
+
+struct modules::bad_value:public std::out_of_range{
+    bad_value(const char* module, const char* name, const char* range, double val);
+};
 
 /// @brief Class to handle options given through the MODULES file
 class modules::options{
@@ -58,25 +71,78 @@ class modules::options{
         /// @group \retrieve_values
         /// @{
         /// @brief Get the named option as an int
+        ///
+        /// @details Use the range string to specify a validity range.  Behind
+        /// the scenes this uses ROOTs TFormula so any boolean operation is
+        /// valid. Within the expression, either use the option's name as
+        /// specified by the first argument to this method, or use "x".  If the
+        /// value fails the validity check, the modules::bad_value exception is
+        /// thrown
         /// @param name Name of the option to get
         /// @param defVal Value to use if not found
-        int GetInt(const std::string& name,int defVal=-1)const;
+        /// @param range Optional range for acceptable values
+        int GetInt(const std::string& name,int defVal, const std::string& range="")const;
 
         /// @brief Get the named option as a double
+        ///
+        /// @details Use the range string to specify a validity range.  Behind
+        /// the scenes this uses ROOTs TFormula so any boolean operation is
+        /// valid. Within the expression, either use the option's name as
+        /// specified by the first argument to this method, or use "x".  If the
+        /// value fails the validity check, the modules::bad_value exception is
+        /// thrown
         /// @param name Name of the option to get
         /// @param defVal Value to use if not found
-        double GetDouble(const std::string& name,double defVal=1.)const;
+        /// @param range Optional range for acceptable values
+        double GetDouble(const std::string& name,double defVal, const std::string& range="")const;
 
         /// @brief Get the named option as a string.
-        /// @details Trims whitespace from the front and back of the option
+        /// @details Trims whitespace from the front and back of the option (but
+        /// not for the default value if the modules file didn't specify
+        /// anything)
         /// @param name Name of the option to get
         /// @param defVal Value to use if not found
-        std::string GetString(const std::string& name,const std::string& defVal="")const;
+        std::string GetString(const std::string& name,const std::string& defVal)const;
 
         /// @brief Get the named option as a bool
         /// @param name Name of the option to get
         /// @param defVal Value to use if not found
-        bool GetBool(const std::string& name,bool defVal=false)const;
+        bool GetBool(const std::string& name, bool defVal)const;
+
+        /// @brief Get the named option as an int, which MUST exist
+        /// @details Throws module::missing_option if the named option doesn't
+        /// exist.  
+        ///
+        /// Use the range string to specify a validity range.  Behind the scenes
+        /// this uses ROOTs TFormula so any boolean operation is valid. Within
+        /// the expression, either use the option's name as specified by the
+        /// first argument to this method, or use "x".  If the value fails the
+        /// validity check, the modules::bad_value exception is thrown
+        /// @param name Name of the option to get
+        /// @param range Optional range for acceptable values
+        int GetInt(const std::string& name, const std::string& range="")const;
+
+        /// @brief Get the named option as a double, which MUST exist
+        /// @details Throws module::missing_option if the named option doesn't
+        /// exist.  
+        ///
+        /// Use the range string to specify a validity range.  Behind the scenes
+        /// this uses ROOTs TFormula so any boolean operation is valid. Within
+        /// the expression, either use the option's name as specified by the
+        /// first argument to this method, or use "x".  If the value fails the
+        /// validity check, the modules::bad_value exception is thrown
+        /// @param name Name of the option to get
+        /// @param range Optional range for acceptable values
+        double GetDouble(const std::string& name, const std::string& range="")const;
+
+        /// @brief Get the named option as a string.
+        /// @details Trims whitespace from the front and back of the option
+        /// @param name Name of the option to get
+        std::string GetString(const std::string& name)const;
+
+        /// @brief Get the named option as a bool
+        /// @param name Name of the option to get
+        bool GetBool(const std::string& name)const;
 
         /// @brief Fill a vector of strings with whitespace delimited tokens found
         /// in the named option
@@ -112,7 +178,7 @@ class modules::options{
 
         /// @brief Returns the unprocessed value assigned to name
         /// @param name Name of the option to get
-        std::string GetOption(const std::string& name)const;
+        std::string GetOption(const std::string& name, bool complain=false)const;
 
         /// Get a const iterator to the first key-value pair (sorted alphabetically by
         OptionsList_t::const_iterator begin()const{return fOptions.begin();};
@@ -138,11 +204,20 @@ class modules::options{
         /// @tparam T return type
         /// @param name Name of option to get
         /// @param defVal value to use if no option exists
+        /// @param complain If true, throw an exception if named option doesn't
+        /// exist
+        /// @param range Expression to check for validity of option value
         template <typename T>
-            T GetOption(const std::string& name,const T& defVal)const;
+            T GetOption(const std::string& name,const T& defVal, bool complain,const std::string& range="")const;
 
         /// Create a unique ID number used for each option
         static int MakeIdNumber();
+
+        /// @brief Check the validity of an option's value
+        /// @param name Option's name, used in reporting validity
+        /// @param expression Expression to define range.  
+        /// @param value The value of the option to check
+        void CheckValid(const std::string& name, const char* expression, double value)const;
 
     private:
         OptionsList_t fOptions;
