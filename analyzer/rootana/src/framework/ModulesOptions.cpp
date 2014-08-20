@@ -24,10 +24,11 @@ std::string modules::options::GetOption(const std::string& key, bool complain)co
 }
 
 template <typename T>
-T modules::options::GetOption(const std::string& key,const T& defVal,bool complain)const{
+T modules::options::GetOption(const std::string& key,const T& defVal,bool complain, const std::string& range)const{
     std::stringstream ss(GetOption(key,complain));
     T val=defVal;
     ss>>val;
+    if(!range.empty()) CheckValid(key,range.c_str(),val);
     return val;
 }
 
@@ -44,21 +45,17 @@ void modules::options::CheckValid(const std::string& name,
 }
 
 int modules::options::GetInt(const std::string& name, const std::string& range)const{
-    int val= GetOption<int>(name,0,true);
-    if(!range.empty())CheckValid(name,range.c_str(),val);
-    return val;
+    return GetOption<int>(name,0,true,range);
 }
-int modules::options::GetInt(const std::string& name, int defVal)const{
-    return GetOption<int>(name,defVal,false);
+int modules::options::GetInt(const std::string& name, int defVal, const std::string& range)const{
+    return GetOption<int>(name,defVal,false,range);
 }
 
 double modules::options::GetDouble(const std::string& name, const std::string& range)const{
-    double val= GetOption<double>(name,0,true);
-    if(!range.empty())CheckValid(name,range.c_str(),val);
-    return val;
+    return GetOption<double>(name,0,true,range);
 }
-double modules::options::GetDouble(const std::string& name, double defVal)const{
-    return GetOption<double>(name,defVal,false);
+double modules::options::GetDouble(const std::string& name, double defVal, const std::string& range)const{
+    return GetOption<double>(name,defVal,false,range);
 }
 
 std::string modules::options::GetString(const std::string& name)const{
