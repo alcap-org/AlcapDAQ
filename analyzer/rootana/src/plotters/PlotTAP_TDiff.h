@@ -24,6 +24,7 @@ namespace modules {class options;}
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
 class PlotTAP_TDiff : public BaseModule {
+  typedef std::vector<IDs::source> SourceVector;
 
  public:
   /// \brief
