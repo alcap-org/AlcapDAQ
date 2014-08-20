@@ -5,6 +5,12 @@
 #include <iostream>
 #include <string.h>
 #include <TFormula.h>
+#include "debug_tools.h"
+
+modules::bad_value::bad_value(const char* module, const char* name, const char* range, double val):
+    std::out_of_range(Form("For '%s', option '%s' has value %f,"
+                " which fails '%s'", module,name,val,range)){
+    }
 
 std::string modules::options::GetOption(const std::string& key, bool complain)const{
     OptionsList_t::const_iterator it = fOptions.find(key);
@@ -16,11 +22,6 @@ std::string modules::options::GetOption(const std::string& key, bool complain)co
     }
     return it->second;
 }
-
-modules::bad_value::bad_value(const char* module, const char* name, const char* range, double val):
-    std::out_of_range(Form("For '%s', option '%s' has value %f,"
-                " which is out of range %s", module,name,val,range)){
-    }
 
 template <typename T>
 T modules::options::GetOption(const std::string& key,const T& defVal,bool complain)const{
@@ -36,7 +37,8 @@ void modules::options::CheckValid(const std::string& name,
     modules::parser::ReplaceWords(expr,name,"x");
     TFormula formula((name+"_validity").c_str(), expr.c_str());
     formula.Compile();
-    if(formula.Eval(value)==1){
+    double eval=formula.Eval(value);
+    if(eval!=1){
         throw bad_value(fModuleName.c_str(),name.c_str(),expression,value);
     }
 }
