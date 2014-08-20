@@ -8,11 +8,17 @@
 
 class SetupNavigator{
   SetupNavigator();
+  /// \brief
+  /// Closes the database if open or saves 
   ~SetupNavigator();
  public:
   static SetupNavigator* Instance();
 
-  void SetCommandLineArgs(const ARGUMENTS& args){fCommandLineArgs=args;}
+  void Close();
+
+  /// \brief
+  /// Closes the database if this is a calibration run.
+  void SetCommandLineArgs(const ARGUMENTS& args){fCommandLineArgs = args;}
 
   int GetRunNumber()const{return fCommandLineArgs.run;};
   std::string GetBank(const IDs::channel&)const;
@@ -28,7 +34,9 @@ class SetupNavigator{
   /// Gets the error on the pedestal from the SQLite database
   double GetNoise(const IDs::channel& channel) { return fNoiseValues.at(channel); }
   double GetCoarseTimeOffset(const IDs::source& src) { return fCoarseTimeOffset.at(src); }
-  void SetCoarseTimeOffset(const IDs::source& src, double dt);
+
+  void SetPedestalAndNoise(const IDs::channel& chn, double ped, double nse) {fPedestalValues[chn] = ped; fNoiseValues[chn] = nse;}
+  void SetCoarseTimeOffset(const IDs::source& src, double dt){fCoarseTimeOffset[src] = dt;}
 
  private:
   static SetupNavigator* fThis;
@@ -38,7 +46,8 @@ class SetupNavigator{
   /// The SQLite filename, the SQLite server object and the current table name
   std::string fSQLiteFilename;
   TSQLiteServer* fServer;
-  std::string fTableName;
+  std::string fPedestalNoiseTableName;
+  std::string fCoarseTimeOffsetTableName;
 
   /// \brief
   /// The map that stores the pedestal values that we get from the SQLite database
@@ -59,7 +68,8 @@ class SetupNavigator{
   /// \brief
   /// Read in gross time offset columns determining what TAP generators we're ready for
   std::vector<std::string> GetCoarseTimeOffsetColumns();
-  void CreateColumnIfNotExist(const std::string& table, const std::string& column, const std::string& data_type);
+
+  void OutputCalibCSV();
 
 };
 
