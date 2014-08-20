@@ -178,3 +178,7 @@ bool modules::parser::iequals(const std::string& a, const std::string& b){
   }
   return true;
 }
+
+bool modules::parser::IsTrue(const std::string& val){
+    return  (val=="true")|| (val=="TRUE")|| (val=="YES")|| (val=="yes")|| (val=="on")|| (val=="ON")|| (val=="1");
+}
