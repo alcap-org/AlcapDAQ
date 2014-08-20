@@ -10,69 +10,91 @@
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <string>
 
 #include <TSQLiteResult.h>
 #include <TSQLiteRow.h>
 
-#include <cstdlib>
-#include <iostream>
-#include <sstream>
-
 #include "AlcapExcept.h"
 
-MAKE_EXCEPTION(NoCalibDB, Base);
-MAKE_EXCEPTION(InvalidDetector, Base);
+MAKE_EXCEPTION(NoCalibDB, Base)
+MAKE_EXCEPTION(InvalidDetector, Base)
 
 SetupNavigator* SetupNavigator::fThis=NULL;
+
+static std::string StripTimeShiftConfigFromString(std::string con) {
+  const char* strs[2] = {"{no_time_shift=true}", "{no_time_shift=false}"};
+  for (unsigned int i = 0; i < 2; ++i) {
+    std::size_t pos = con.find(strs[i]);
+    if (pos != std::string::npos)
+      con.replace(pos, std::char_traits<char>::length(strs[i]),"");
+  }
+  return con;
+}
+
+
+template<typename T>
+bool in(T x, std::vector<T> v) {
+  for (unsigned int i = 0; i < v.size(); ++i)
+    if (x == v[i])
+      return true;
+  return false;
+}
+
 
 // Declare all our caches
 std::map<IDs::channel, double> SetupNavigator::fPedestalValues;
 std::map<IDs::channel, double> SetupNavigator::fNoiseValues;
 std::map<IDs::source, double> SetupNavigator::fCoarseTimeOffset;
 
-SetupNavigator::SetupNavigator() {
-
-  fSQLiteFilename="sqlite://pedestals-and-noises.sqlite";
-  fServer = new TSQLiteServer(fSQLiteFilename.c_str());
-
+SetupNavigator::SetupNavigator() :
+  fCommandLineArgs(),
+  fSQLiteFilename("sqlite://pedestals-and-noises.sqlite"), fServer(new TSQLiteServer(fSQLiteFilename.c_str())),
+  fPedestalNoiseTableName("pedestals_and_noises"), fCoarseTimeOffsetTableName("CoarseTimeOffset") {
   if (fServer->IsZombie()) {
     std::cout << "SetupNavigator: ERROR: Couldn't connect to SQLite database." << std::endl;
     throw Except::NoCalibDB();
   }
 }
 
+
 SetupNavigator::~SetupNavigator() {
-
-  fServer->Close();
-
-  if (fThis) 
-    delete fThis;
 }
 
+
+void SetupNavigator::Close() {
+  if (fCommandLineArgs.calib)
+    OutputCalibCSV();
+  fServer->Close();
+  if (fThis)
+    delete fThis;
+  fThis = NULL;
+}
+
+
 std::string SetupNavigator::GetBank(const IDs::channel& src)const{
-    TSetupData* setup=TSetupData::Instance();
-    std::map<std::string, std::string>* bankDetNameMap=&setup->fBankToDetectorMap;
-    for(std::map<std::string, std::string>::iterator it = bankDetNameMap->begin();
-            it != bankDetNameMap->end(); ++it){
-        if(modules::parser::iequals(it->second , src.str())) return it->first;
-    }
-    std::cout << "Invalid detector name: " << src.str() << std::endl;
-    throw Except::InvalidDetector();
+  std::map<std::string, std::string>* bankDetNameMap=&TSetupData::Instance()->fBankToDetectorMap;
+  for(std::map<std::string, std::string>::iterator it = bankDetNameMap->begin();
+      it != bankDetNameMap->end(); ++it){
+    if(modules::parser::iequals(it->second , src.str())) return it->first;
+  }
+  std::cout << "Invalid detector name: " << src.str() << std::endl;
+  throw Except::InvalidDetector();
 }
 
 void SetupNavigator::CacheCalibDB() {
   // Cache all the variables we have in the database
   // First the pedestals and noises
-  fTableName = "pedestals_and_noises";
-  if (!fServer->HasTable(fTableName.c_str())) {// check it exists
-    std::cout << "SetupNavigator: ERROR: Table " << fTableName << " does not exist." << std::endl;
+  if (!fServer->HasTable(fPedestalNoiseTableName.c_str())) {// check it exists
+    std::cout << "SetupNavigator: ERROR: Table " << fPedestalNoiseTableName << " does not exist." << std::endl;
     if (!fCommandLineArgs.calib)
       throw Except::NoCalibDB();
   } else {
     ReadPedestalAndNoiseValues();
   }
-  if (!fServer->HasTable("CoarseTimeOffset")) {
-    std::cout << "SetupNavigator: ERROR: Table " << "CoarseTimeOffset" << " does not exist." << std::endl;
+  if (!fServer->HasTable(fCoarseTimeOffsetTableName.c_str())) {
+    std::cout << "SetupNavigator: ERROR: Table " << fCoarseTimeOffsetTableName << " does not exist." << std::endl;
     if (!fCommandLineArgs.calib)
       throw Except::NoCalibDB();
   } else {
@@ -89,7 +111,7 @@ void SetupNavigator::ReadPedestalAndNoiseValues() {
   std::stringstream query;
   int run_number = GetRunNumber(); // get this run number (Note that if we don't have a catalogue of pedestals and noises for each run then we will want to change this)
 
-  query << "SELECT * FROM " << fTableName << " WHERE run=" << run_number << ";"; // get all the pedestals and noises
+  query << "SELECT * FROM " << fPedestalNoiseTableName << " WHERE run=" << run_number << ";"; // get all the pedestals and noises
   TSQLiteResult* result = (TSQLiteResult*) fServer->Query(query.str().c_str());  // get the result of this query
   query.str(""); // clear the stringstream after use
   
@@ -117,7 +139,7 @@ void SetupNavigator::ReadCoarseTimeOffsetValues() {
   query << "SELECT channel";
   for (unsigned int i = 0; i < table.size(); ++i)
     query << ",\"" << table[i] << '"';
-  query << " FROM " << "CoarseTimeOffset" << " WHERE run==" << GetRunNumber();
+  query << " FROM " << fCoarseTimeOffsetTableName << " WHERE run==" << GetRunNumber();
   TSQLResult* res = fServer->Query(query.str().c_str());
 
   TSQLRow* row;
@@ -135,7 +157,7 @@ void SetupNavigator::ReadCoarseTimeOffsetValues() {
 std::vector<std::string> SetupNavigator::GetCoarseTimeOffsetColumns() {
   std::vector<std::string> cols;
   std::stringstream cmd;
-  cmd << "PRAGMA table_info(" << "CoarseTimeOffset" << ")";
+  cmd << "PRAGMA table_info(" << fCoarseTimeOffsetTableName << ")";
   TSQLResult* res = fServer->Query(cmd.str().c_str());
   TSQLRow* row;
   while ((row = res->Next())) {
@@ -147,54 +169,36 @@ std::vector<std::string> SetupNavigator::GetCoarseTimeOffsetColumns() {
   return cols;
 }
 
-void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, const double dt) {
-  std::stringstream cmd;
-  fServer->StartTransaction();
-  // Create table and columns if they don't exist
-  cmd << "CREATE TABLE IF NOT EXISTS " << "CoarseTimeOffset"
-      << "(run INT, channel TEXT)";
-  fServer->Exec(cmd.str().c_str());
-  CreateColumnIfNotExist("CoarseTimeOffset", src.Generator().str(), "REAL");
 
-  cmd.str("");
-  cmd << "SELECT * FROM " << "CoarseTimeOffset" << " WHERE run=="
-      << GetRunNumber() << " AND channel=='" << src.Channel().str() << "'";
-  TSQLResult* res = fServer->Query(cmd.str().c_str());
+void SetupNavigator::OutputCalibCSV() {
+  char r[6];
+  sprintf(r, "%05d", GetRunNumber());
 
-  cmd.str("");
-  if (res->Next())
-    cmd << "UPDATE " << "CoarseTimeOffset" << " SET \"" << src.Generator().str()
-	<< "\"=" << dt << " WHERE run==" << GetRunNumber() << " AND channel=='"
-	<< src.Channel().str() << "'";
-  else
-    cmd << "INSERT INTO " << "CoarseTimeOffset" << "(run,channel,\""
-	<< src.Generator().str() << "\") VALUES (" << GetRunNumber() << ",'"
-	<< src.Channel().str() << "'," << dt << ")";
-  std::cout << "Executing SQL command: " << cmd.str() << std::endl;
-  fServer->Exec(cmd.str().c_str());
-  fServer->Commit();
+  std::ofstream fPN((std::string("calib.run") + r + "." + fPedestalNoiseTableName + ".csv").c_str());
+  fPN << "run, channel, bank, pedestal, noise" << std::endl;
+  for (std::map<IDs::channel, double>::const_iterator i = fPedestalValues.begin(); i != fPedestalValues.end(); ++i)
+    fPN << GetRunNumber() << ", " << i->first.str() << ", "
+	<< GetBank(i->first) << ", " << i->second << ", "
+	<< fNoiseValues.at(i->first) << std::endl;
 
-  delete res;
-}
-
-void SetupNavigator::CreateColumnIfNotExist(const std::string& tab, const std::string& col, const std::string& type) {
-  std::stringstream cmd;
-  cmd << "PRAGMA table_info(" << tab << ")";
-  TSQLResult* res = fServer->Query(cmd.str().c_str());
-  TSQLRow* row;
-  while ((row = res->Next())) {
-    if (col == row->GetField(1)) {
-      delete row;
-      delete res;
-      return;
-    }
-    delete row;
+  std::ofstream fTO((std::string("calib.run") + r + "." + fCoarseTimeOffsetTableName + ".csv").c_str());
+  std::set<IDs::generator> gens;
+  std::set<IDs::channel> chns;
+  for (std::map<IDs::source, double>::const_iterator i = fCoarseTimeOffset.begin(); i != fCoarseTimeOffset.end(); ++i) {
+    gens.insert(i->first.Generator());
+    chns.insert(i->first.Channel());
   }
-  delete res;
-
-  cmd.str("");
-  // Since the table name is the source string, which inclueds the character #,
-  // the table name in the SQLite database must be surrounded by double quotes.
-  cmd << "ALTER TABLE " << tab << " ADD COLUMN \"" << col << "\" " << type;
-  fServer->Exec(cmd.str().c_str());
+  fTO << "run, channel";
+  for (std::set<IDs::generator>::const_iterator i = gens.begin(); i != gens.end(); ++i)
+    fTO << ", " << StripTimeShiftConfigFromString(i->str());
+  fTO << std::endl;
+  for (std::set<IDs::channel>::const_iterator i = chns.begin(); i != chns.end(); ++i) {
+    fTO << GetRunNumber() << ", " << i->str();
+    for (std::set<IDs::generator>::const_iterator j = gens.begin(); j != gens.end(); ++j) {
+      fTO << ", ";
+      if (fCoarseTimeOffset.count(IDs::source(*i, *j)))
+	fTO << fCoarseTimeOffset.at(IDs::source(*i, *j));
+    }
+    fTO << std::endl;
+  }
 }

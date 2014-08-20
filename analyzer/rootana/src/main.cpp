@@ -158,6 +158,7 @@ int main(int argc, char **argv)
   fileOut->Write();
   fileOut->Close();
   navi.Close();
+  SetupNavigator::Instance()->Close();
   return 0;
 }
 
