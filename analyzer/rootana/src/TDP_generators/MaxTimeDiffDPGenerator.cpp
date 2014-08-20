@@ -8,8 +8,8 @@ using std::cout;
 using std::endl;
 
 MaxTimeDiffDPGenerator::MaxTimeDiffDPGenerator(TDPGeneratorOptions* opts):
-    TVDetectorPulseGenerator("MaxTimeDiff",opts){
-        fTimeDifference=opts->GetDouble("time_difference",0.1);
+    TVDetectorPulseGenerator("MaxTimeDiff",opts),fTimeDifference(0.1){
+        fTimeDifference=opts->GetDouble("time_difference",fTimeDifference);
     }
 
 int MaxTimeDiffDPGenerator::ProcessPulses( DetectorPulseList& output){

@@ -51,7 +51,9 @@ double Algorithm::ConstantFractionTime::operator() (const TPulseIsland* tpi) {
 
   std::vector<int>::const_iterator m = trigger_polarity > 0 ? std::max_element(b, e) : std::min_element(b, e);
   const int amp = *m;
-  const unsigned int cf = trigger_polarity > 0 ? (unsigned int)(constant_fraction*(double)(amp-pedestal)) + pedestal : (unsigned int)((double)(pedestal-amp)*(1.-constant_fraction) + amp);
+  const unsigned int cf = trigger_polarity > 0 ?
+      (unsigned int)(constant_fraction*(double)(amp-pedestal)) + pedestal :
+      (unsigned int)((double)(pedestal-amp)*(1.-constant_fraction) + amp);
   while (m != b && (trigger_polarity > 0 ? *--m > (int)cf : *--m < (int)cf));
   double dx = (double)(m-b);
   if (*(m+1) != *m)
