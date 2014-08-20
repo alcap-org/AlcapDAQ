@@ -1,4 +1,4 @@
-#include "PlotTDiff.h"
+#include "PlotTAP_TDiff.h"
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -23,8 +23,8 @@ MAKE_EXCEPTION(ModulesOptionError, Base)
 
 extern SourceAnalPulseMap gAnalysedPulseMap;
 
-PlotTDiff::PlotTDiff(modules::options* opts) :
-  BaseModule("PlotTDiff",opts),
+PlotTAP_TDiff::PlotTAP_TDiff(modules::options* opts) :
+  BaseModule("PlotTAP_TDiff",opts),
   fDetNameA(opts->GetString("det1")), fDetNameB(opts->GetString("det2")),
   fTimeLow(opts->GetDouble("time_low",-1.e5)), fTimeHigh(opts->GetDouble("time_high",1.e5)),
   fExportSQL(opts->GetBool("export_sql", false)) {
@@ -38,12 +38,12 @@ PlotTDiff::PlotTDiff(modules::options* opts) :
 
 
 
-PlotTDiff::~PlotTDiff() {
+PlotTAP_TDiff::~PlotTAP_TDiff() {
 }
 
 ////////////////////////////////////////////////
 
-int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTAP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
   for(SourceAnalPulseMap::const_iterator sourceIt = gAnalysedPulseMap.begin();
       sourceIt != gAnalysedPulseMap.end(); sourceIt++) {
@@ -70,7 +70,7 @@ int PlotTDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
-int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
+int PlotTAP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
 
   for(unsigned int i = 0; i < fDetASources.size(); ++i) {
     const AnalysedPulseList& detAPulses = gAnalysedPulseMap[fDetASources[i]];
@@ -99,7 +99,7 @@ int PlotTDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
 // Called just after the main event loop
 // Can be used to write things out, dump a summary etc
 // Return non-zero to indicate a problem
-int PlotTDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTAP_TDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
   if (fExportSQL) {
     for (unsigned int i = 0; i < fDetASources.size(); ++i) {
       TH1D* h = ampA_plots[fDetASources[i].str()]->ProjectionX();
@@ -109,7 +109,7 @@ int PlotTDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
   return 0;
 }
 
-void PlotTDiff::BookHistograms(const TSetupData* setup) {
+void PlotTAP_TDiff::BookHistograms(const TSetupData* setup) {
   for (unsigned int i = 0; i < fDetASources.size(); ++i) {
     const std::string key = fDetASources.at(i).str();
     const std::string gen = fDetASources.at(i).Generator().str();
@@ -144,4 +144,4 @@ void PlotTDiff::BookHistograms(const TSetupData* setup) {
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(PlotTDiff,det1,det2,time_low,time_high,export_sql);
+ALCAP_REGISTER_MODULE(PlotTAP_TDiff,det1,det2,time_low,time_high,export_sql);

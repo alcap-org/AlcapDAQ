@@ -22,17 +22,17 @@ namespace IDs {class source;}
 /// You can add this to other groups instead of rootana_modules or in addition
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
-class PlotIntegral : public BaseModule {
+class PlotTAP_Integral : public BaseModule {
 
     public:
         /// \brief
         /// Constructor description. If necessary, add a details tag like above.
         ///
         /// \param[in] opts Describe the options this module takes.
-        PlotIntegral(modules::options* opts);
+        PlotTAP_Integral(modules::options* opts);
         /// \brief
         /// Is anything done in the destructor?
-        ~PlotIntegral();
+        ~PlotTAP_Integral();
 
     private:
         /// \brief
