@@ -30,6 +30,7 @@ class TVAnalysedPulseGenerator {
                 fDebug=opts->HasOption("debug");
             }
             fSource.Generator()=IDs::generator(name,opts->StringDescription());
+            SetChannel(opts->GetChannel());
         };
         virtual ~TVAnalysedPulseGenerator(){};
 

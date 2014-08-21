@@ -199,12 +199,12 @@ bool MakeAnalysedPulses::AddGenerator(const string& detector,string generatorTyp
 
     // Make sure opts is not null
     if(!opts) opts=new TAPGeneratorOptions(*fDefaultOpts);
+    opts->SetChannel(detector);
 
     // Get the requested generator
     TVAnalysedPulseGenerator* generator=
         TAPGeneratorFactory::Instance()->createModule(generatorType,opts);
     if(!generator) return false;
-    generator->SetChannel(detector);
 
     // print something
     if(Debug()) {

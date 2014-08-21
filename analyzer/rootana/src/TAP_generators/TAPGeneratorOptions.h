@@ -13,6 +13,13 @@ class TAPGeneratorOptions:public modules::options{
 	~TAPGeneratorOptions(){};
 
 	void AddArgument(const int& number, const std::string& option);
+
+    std::string GetChannel()const {
+        return GetString("channel_name");
+    }
+    void SetChannel(const std::string& ch){ 
+        SetOption("channel_name",ch);
+    }
 };
 
 #endif // TAPGENERATOROPTIONS_H_
