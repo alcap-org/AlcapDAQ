@@ -9,6 +9,10 @@ def none_or_float(s):
         return None
     return float(s)
 
+if len(sys.argv) < 2:
+    print "Usage: ./merge_calibration_database.py DATABASE FILE1.csv FILE2.csv FILE3.csv..."
+    exit(0)
+
 db = sqlite3.connect(sys.argv[1])
 infiles = sys.argv[2:]
 
