@@ -19,27 +19,28 @@ class OptionsError : public std::exception {
 CFTimeAPGenerator::CFTimeAPGenerator(TAPGeneratorOptions* opts):
 	TVAnalysedPulseGenerator("CFTimeAPGenerator",opts){
   //fConstantFraction = opts->GetDouble("constfrac", 0.1);
-  fConstantFractionTime.constant_fraction = 0.2;
-  if (fConstantFractionTime.constant_fraction <= 0. || fConstantFractionTime.constant_fraction >=100.)
+  fConstantFraction = 0.2;
+  if (fConstantFraction <= 0. || fConstantFraction >=100.)
     throw OptionsError();
 }
 
 int CFTimeAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 				     AnalysedPulseList& analysedList) {
+
   // Get the variables we want from TSetupData/SetupNavigator
-
-
   std::string bankname = pulseList[0]->GetBankName();
-  fConstantFractionTime.pedestal = SetupNavigator::Instance()->GetPedestal(TSetupData::Instance()->GetDetectorName(bankname));
-  fConstantFractionTime.trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
-  fConstantFractionTime.max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
-  fConstantFractionTime.clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
-  fConstantFractionTime.time_shift = TSetupData::Instance()->GetTimeShift(bankname);
+  double pedestal = SetupNavigator::Instance()->GetPedestal(TSetupData::Instance()->GetDetectorName(bankname));
+  int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+  int max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
+  double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
+  double time_shift = TSetupData::Instance()->GetTimeShift(bankname);
+
+  fConstantFractionTime = new Algorithm::ConstantFractionTime(pedestal, trigger_polarity, max_adc_value, clock_tick_in_ns, time_shift, fConstantFraction);
 
   for (unsigned int iTPI = 0; iTPI < pulseList.size(); ++iTPI) {
     TPulseIsland* tpi = pulseList.at(iTPI);
 
-    double time = fConstantFractionTime(tpi);
+    double time = fConstantFractionTime->Process(tpi);
 
     TAnalysedPulse* tap = MakeNewTAP(iTPI);
     tap->SetTime(time);

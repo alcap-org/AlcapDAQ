@@ -23,7 +23,11 @@ class CFTimeAPGenerator:public TVAnalysedPulseGenerator {
  private:
    /// \brief
    /// The algorithms that will be used by this generator
-   Algorithm::ConstantFractionTime fConstantFractionTime;
+   Algorithm::ConstantFractionTime* fConstantFractionTime;
+
+   /// \brief
+   /// The actual fraction for the constant fraction algorithm
+   double fConstantFraction;
 };
 
 #endif //CFTIME_H__
