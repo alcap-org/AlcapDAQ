@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-double Algorithm::MaxBinAmplitude::Process(const TPulseIsland* tpi) {
+double Algorithm::MaxBinAmplitude::operator() (const TPulseIsland* tpi) {
 
   // Get the samples and get an iterator ready to find the peak sample
   std::vector<int> pulseSamples = tpi->GetSamples();  
@@ -26,7 +26,7 @@ double Algorithm::MaxBinAmplitude::Process(const TPulseIsland* tpi) {
   return amplitude;
 }
 
-double Algorithm::MaxBinTime::Process(const TPulseIsland* tpi) {
+double Algorithm::MaxBinTime::operator() (const TPulseIsland* tpi) {
 
   // Get the samples and get an iterator ready to find the peak sample
   std::vector<int> pulseSamples = tpi->GetSamples();  
@@ -44,7 +44,7 @@ double Algorithm::MaxBinTime::Process(const TPulseIsland* tpi) {
   return time;
 }
 
-double Algorithm::ConstantFractionTime::Process(const TPulseIsland* tpi) {
+double Algorithm::ConstantFractionTime::operator() (const TPulseIsland* tpi) {
 
   const std::vector<int>& samps = tpi->GetSamples();
   std::vector<int>::const_iterator b = samps.begin(), e = samps.end();
@@ -62,7 +62,7 @@ double Algorithm::ConstantFractionTime::Process(const TPulseIsland* tpi) {
   return (dx + (double)tpi->GetTimeStamp()) * clock_tick_in_ns - time_shift;
 }
 
-double Algorithm::SimpleIntegral::Process(const TPulseIsland* tpi) {
+double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi) {
   const std::vector<int>& samples = tpi->GetSamples();
   
   double length = samples.size();
