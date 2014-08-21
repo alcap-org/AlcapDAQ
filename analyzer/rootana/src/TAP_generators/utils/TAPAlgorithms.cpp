@@ -44,7 +44,7 @@ double Algorithm::MaxBinTime::operator() (const TPulseIsland* tpi) {
   return time;
 }
 
-double Algorithm::ConstantFractionTime::operator() (const TPulseIsland* tpi) {
+double Algorithm::ConstantFractionTime::Process(const TPulseIsland* tpi) {
 
   const std::vector<int>& samps = tpi->GetSamples();
   std::vector<int>::const_iterator b = samps.begin(), e = samps.end();
