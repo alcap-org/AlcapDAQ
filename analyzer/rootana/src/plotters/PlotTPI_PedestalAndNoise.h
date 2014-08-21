@@ -58,7 +58,7 @@ class PlotTPI_PedestalAndNoise : public BaseModule {
 
   /// \brief
   /// After each run, we write the mean and RMS of the first fNSamples to 
-  /// an SQLite database
+  /// an SQLite database via SetupNavigator
   ///
   /// \param[in] gData See BaseModule::AfterLastEntry
   /// \param[in] setup See BaseModule::AfterLastEntry
