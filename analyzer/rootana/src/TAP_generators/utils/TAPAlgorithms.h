@@ -15,7 +15,7 @@ namespace Algorithm {
 
 struct Algorithm::MaxBinAmplitude {
   public:
-  MaxBinAmplitude(int trig_pol, double ped)
+  MaxBinAmplitude(double ped, int trig_pol)
     :trigger_polarity(trig_pol), pedestal(ped){}
   double Process(const TPulseIsland* tpi);
 
@@ -52,7 +52,7 @@ struct Algorithm::ConstantFractionTime {
 
 struct Algorithm::SimpleIntegral {
   public:
-  SimpleIntegral(int trig_pol, double ped)
+  SimpleIntegral(double ped, int trig_pol)
     :trigger_polarity(trig_pol), pedestal(ped){}
   double Process(const TPulseIsland* tpi);
 
