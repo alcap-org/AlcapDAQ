@@ -63,6 +63,7 @@ void ClearGlobalData(TGlobalData*);
 TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
 Int_t PrepareSingletonObjects(const ARGUMENTS&);
+void Finish(TFile*);
 
 //TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
 //TTree *gAnalysedPulseTree = NULL;
@@ -145,21 +146,31 @@ int main(int argc, char **argv)
     Main_event_loop(eventTree,arguments);
   }
   catch (std::exception& e){
+    // Attempt to finish the run but ignore further exceptions
+    try{ Finish(fileOut); }catch(...){}
     std::cout << "Terminating due to unexpected exception:\n" 
               << e.what() << std::endl; 
+    throw;
   }
   catch (...){
+    // Attempt to finish the run but ignore further exceptions
+    try{ Finish(fileOut); }catch(...){}
     std::cout << "Terminating due to unknown exception" << std::endl;
+    throw;
   }
   
+  Finish(fileOut);
+  return 0;
+}
+
+void Finish(TFile* fileOut){
   // and finish up
   fileOut->cd();
   //gAnalysedPulseTree->Write();
   fileOut->Write();
   fileOut->Close();
-  navi.Close();
+  EventNavigator::Instance().Close();
   SetupNavigator::Instance()->Close();
-  return 0;
 }
 
 //----------------------------------------------------------------------
