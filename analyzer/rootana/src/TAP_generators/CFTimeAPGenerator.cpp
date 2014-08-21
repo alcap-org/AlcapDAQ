@@ -19,6 +19,17 @@ class OptionsError : public std::exception {
 CFTimeAPGenerator::CFTimeAPGenerator(TAPGeneratorOptions* opts):
 	TVAnalysedPulseGenerator("CFTimeAPGenerator",opts){
 
+  // Get the parameter values we want from the modules file
+  //fConstantFraction = opts->GetDouble("constfrac", 0.1);
+  fConstantFractionParam = 0.2;
+  if (fConstantFractionParam <= 0. || fConstantFractionParam >=100.)
+    throw OptionsError();
+
+}
+
+int CFTimeAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
+				     AnalysedPulseList& analysedList) {
+
   // Get the channel and bank name
   IDs::channel channel = GetChannel();
   std::string bankname = TSetupData::Instance()->GetBankName(channel.str());
@@ -30,18 +41,8 @@ CFTimeAPGenerator::CFTimeAPGenerator(TAPGeneratorOptions* opts):
   double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
   double time_shift = TSetupData::Instance()->GetTimeShift(bankname);
 
-  // Get the parameter values we want from the modules file
-  //fConstantFraction = opts->GetDouble("constfrac", 0.1);
-  double constant_fraction = 0.2;
-  if (fConstantFraction <= 0. || fConstantFraction >=100.)
-    throw OptionsError();
-
   // Set-up the algorithms
-  fConstantFractionTime = new Algorithm::ConstantFractionTime(pedestal, trigger_polarity, max_adc_value, clock_tick_in_ns, time_shift, constant_fraction);
-}
-
-int CFTimeAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
-				     AnalysedPulseList& analysedList) {
+  fConstantFractionTime = new Algorithm::ConstantFractionTime(pedestal, trigger_polarity, max_adc_value, clock_tick_in_ns, time_shift, fConstantFractionParam);
 
   for (unsigned int iTPI = 0; iTPI < pulseList.size(); ++iTPI) {
     TPulseIsland* tpi = pulseList.at(iTPI);

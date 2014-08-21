@@ -27,7 +27,7 @@ class CFTimeAPGenerator:public TVAnalysedPulseGenerator {
 
    /// \brief
    /// The actual fraction for the constant fraction algorithm
-   double fConstantFraction;
+   double fConstantFractionParam;
 };
 
 #endif //CFTIME_H__

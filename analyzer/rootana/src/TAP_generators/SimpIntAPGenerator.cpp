@@ -9,6 +9,11 @@ using std::endl;
 
 SimpIntAPGenerator::SimpIntAPGenerator(TAPGeneratorOptions* opts):
   TVAnalysedPulseGenerator("SimpInt", opts) {
+}
+
+int SimpIntAPGenerator::ProcessPulses( 
+	  const PulseIslandList& pulseList, AnalysedPulseList& analysedList)
+{
 
   // Get the channel and bankname
   IDs::channel channel = GetChannel();
@@ -20,11 +25,6 @@ SimpIntAPGenerator::SimpIntAPGenerator(TAPGeneratorOptions* opts):
 
   // Set-up the algorithms
   fSimpleIntegral = new Algorithm::SimpleIntegral(pedestal, trigger_polarity);
-}
-
-int SimpIntAPGenerator::ProcessPulses( 
-	  const PulseIslandList& pulseList, AnalysedPulseList& analysedList)
-{
 
   TAnalysedPulse* outPulse;
 
