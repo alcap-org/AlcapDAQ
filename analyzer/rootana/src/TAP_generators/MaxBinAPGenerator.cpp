@@ -18,6 +18,13 @@ static bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b) {
 //======================================================================
 MaxBinAPGenerator::MaxBinAPGenerator(TAPGeneratorOptions* opts)
   : TVAnalysedPulseGenerator("MaxBinAPGenerator", opts) {
+}
+
+
+//----------------------------------------------------------------------
+int MaxBinAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
+                                     AnalysedPulseList& analysedList)
+{
 
   // Get the channel and bankname
   IDs::channel channel = GetChannel();
@@ -32,13 +39,7 @@ MaxBinAPGenerator::MaxBinAPGenerator(TAPGeneratorOptions* opts)
   // Set-up the algorithms
   fMaxBinAmplitude = new Algorithm::MaxBinAmplitude(pedestal, trigger_polarity);
   fMaxBinTime = new Algorithm::MaxBinTime(trigger_polarity, clock_tick_in_ns, time_shift);
-}
 
-
-//----------------------------------------------------------------------
-int MaxBinAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
-                                     AnalysedPulseList& analysedList)
-{
   double amplitude, time;
   TAnalysedPulse* outPulse;
 

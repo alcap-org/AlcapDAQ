@@ -28,6 +28,10 @@ class CFTimeMBAmpAPGenerator:public TVAnalysedPulseGenerator {
   Algorithm::MaxBinAmplitude* fMaxBinAmplitude;
   //@}
 
+  /// \brief
+  /// The value for the constant fraction parameter
+  double fConstantFractionParam;
+  bool fDontShiftTime;
 };
 
 #endif //CFTIMEMBAMP_H__
