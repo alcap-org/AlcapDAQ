@@ -17,30 +17,30 @@ struct Algorithm::MaxBinAmplitude {
   public:
   double operator() (const TPulseIsland* tpi);
 
-  int trigger_polarity;
-  double pedestal;
+  const int trigger_polarity;
+  const double pedestal;
 };
 
 struct Algorithm::MaxBinTime {
   public:
   double operator() (const TPulseIsland* tpi);
 
-  int trigger_polarity;
-  double clock_tick_in_ns;
-  double time_shift;
+  const int trigger_polarity;
+  const double clock_tick_in_ns;
+  const double time_shift;
 };
 
 struct Algorithm::ConstantFractionTime {
   public:
   double operator() (const TPulseIsland* tpi);
 
-  double pedestal;
-  int trigger_polarity;
-  int max_adc_value;
-  double clock_tick_in_ns;
-  double time_shift;
+  const double pedestal;
+  const int trigger_polarity;
+  const int max_adc_value;
+  const double clock_tick_in_ns;
+  const double time_shift;
 
-  double constant_fraction;
+  const double constant_fraction;
 };
 
 
@@ -48,8 +48,8 @@ struct Algorithm::SimpleIntegral {
   public:
   double operator() (const TPulseIsland* tpi);
 
-  double pedestal;
-  int trigger_polarity;
+  const double pedestal;
+  const int trigger_polarity;
 };
 
 #endif
