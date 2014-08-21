@@ -24,11 +24,9 @@ class CFTimeMBAmpAPGenerator:public TVAnalysedPulseGenerator {
   /// \brief
   /// The algorithms that will be used by this generator
   //@{
-  Algorithm::ConstantFractionTime fConstantFractionTime;
-  Algorithm::MaxBinAmplitude fMaxBinAmplitude;
+  Algorithm::ConstantFractionTime* fConstantFractionTime;
+  Algorithm::MaxBinAmplitude* fMaxBinAmplitude;
   //@}
-  /// \brief The shift the time or not.
-  bool fDontShiftTime;
 
 };
 
