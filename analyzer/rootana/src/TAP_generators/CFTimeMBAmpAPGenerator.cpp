@@ -43,7 +43,7 @@ CFTimeMBAmpAPGenerator::CFTimeMBAmpAPGenerator(TAPGeneratorOptions* opts) :
 
   // Set-up the algorithms
   fConstantFractionTime = new Algorithm::ConstantFractionTime(pedestal, trigger_polarity, max_adc_value, clock_tick_in_ns, time_shift, constant_fraction);
-  fMaxBinAmplitude = new Algorithm::MaxBinAmplitude(trigger_polarity, pedestal);
+  fMaxBinAmplitude = new Algorithm::MaxBinAmplitude(pedestal, trigger_polarity);
 }
 
 int CFTimeMBAmpAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
