@@ -18,24 +18,30 @@ class OptionsError : public std::exception {
 
 CFTimeAPGenerator::CFTimeAPGenerator(TAPGeneratorOptions* opts):
 	TVAnalysedPulseGenerator("CFTimeAPGenerator",opts){
-  //fConstantFraction = opts->GetDouble("constfrac", 0.1);
-  fConstantFraction = 0.2;
-  if (fConstantFraction <= 0. || fConstantFraction >=100.)
-    throw OptionsError();
-}
 
-int CFTimeAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
-				     AnalysedPulseList& analysedList) {
+  // Get the channel and bank name
+  IDs::channel channel = GetChannel();
+  std::string bankname = TSetupData::Instance()->GetBankName(channel.str());
 
   // Get the variables we want from TSetupData/SetupNavigator
-  std::string bankname = pulseList[0]->GetBankName();
-  double pedestal = SetupNavigator::Instance()->GetPedestal(TSetupData::Instance()->GetDetectorName(bankname));
+  double pedestal = SetupNavigator::Instance()->GetPedestal(channel);
   int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
   int max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
   double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
   double time_shift = TSetupData::Instance()->GetTimeShift(bankname);
 
-  fConstantFractionTime = new Algorithm::ConstantFractionTime(pedestal, trigger_polarity, max_adc_value, clock_tick_in_ns, time_shift, fConstantFraction);
+  // Get the parameter values we want from the modules file
+  //fConstantFraction = opts->GetDouble("constfrac", 0.1);
+  double constant_fraction = 0.2;
+  if (fConstantFraction <= 0. || fConstantFraction >=100.)
+    throw OptionsError();
+
+  // Set-up the algorithms
+  fConstantFractionTime = new Algorithm::ConstantFractionTime(pedestal, trigger_polarity, max_adc_value, clock_tick_in_ns, time_shift, constant_fraction);
+}
+
+int CFTimeAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
+				     AnalysedPulseList& analysedList) {
 
   for (unsigned int iTPI = 0; iTPI < pulseList.size(); ++iTPI) {
     TPulseIsland* tpi = pulseList.at(iTPI);
