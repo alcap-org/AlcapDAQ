@@ -19,6 +19,19 @@ class OptionsError : public std::exception {
 CFTimeMBAmpAPGenerator::CFTimeMBAmpAPGenerator(TAPGeneratorOptions* opts) :
 	TVAnalysedPulseGenerator("CFTimeMBAmpAPGenerator",opts) {
 
+  // Get the parameters we want from the modules file
+  // This is required in the modules file by giving it an invalid default value.
+  fConstantFractionParam = opts->GetDouble("constant_fraction", -0.10);
+  if (fConstantFractionParam <= 0.00 || fConstantFractionParam >=1.00)
+    throw OptionsError();
+
+  fDontShiftTime = opts->GetBool("no_time_shift", false);
+}
+
+int CFTimeMBAmpAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
+				     AnalysedPulseList& analysedList) {
+
+
   // Get the channel and bankname
   IDs::channel channel = GetChannel();
   std::string bankname = TSetupData::Instance()->GetBankName(channel.str());
@@ -28,26 +41,15 @@ CFTimeMBAmpAPGenerator::CFTimeMBAmpAPGenerator(TAPGeneratorOptions* opts) :
   int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
   int max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
   double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
-  bool dont_shift_time = opts->GetBool("no_time_shift", false);
   double time_shift;
-  if (dont_shift_time)
+  if (fDontShiftTime)
     time_shift = 0;
   else
     time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(channel.str());
 
-  // Get the parameters we want from the modules file
-  // This is required in the modules file by giving it an invalid default value.
-  double constant_fraction = opts->GetDouble("constant_fraction", -0.10);
-  if (constant_fraction <= 0.00 || constant_fraction >=1.00)
-    throw OptionsError();
-
   // Set-up the algorithms
-  fConstantFractionTime = new Algorithm::ConstantFractionTime(pedestal, trigger_polarity, max_adc_value, clock_tick_in_ns, time_shift, constant_fraction);
+  fConstantFractionTime = new Algorithm::ConstantFractionTime(pedestal, trigger_polarity, max_adc_value, clock_tick_in_ns, time_shift, fConstantFractionParam);
   fMaxBinAmplitude = new Algorithm::MaxBinAmplitude(pedestal, trigger_polarity);
-}
-
-int CFTimeMBAmpAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
-				     AnalysedPulseList& analysedList) {
 
   for (unsigned int iTPI = 0; iTPI < pulseList.size(); ++iTPI) {
     TPulseIsland* tpi = pulseList.at(iTPI);
