@@ -21,16 +21,24 @@ inline std::string TemplateFactory<BaseModule,OptionsType>::GetArgumentName(
 
 template <typename BaseModule, typename OptionsType>
 BaseModule* TemplateFactory<BaseModule,OptionsType>::createModule(
-      const std::string& name, OptionsType* opts){
+        const std::string& name, OptionsType* opts){
     // get the maker for the requested module
     BaseModule* module=NULL;
     typename MakersList::iterator it  = fModuleMakers.find(name);
     if(it != fModuleMakers.end() ){
-	// make the module
-	maker make= it->second;
-	module=make(opts);
+        // make the module
+        maker make= it->second;
+        try{
+            module=make(opts);
+        }catch(modules::missing_option& e){
+            std::cout<<fName<<"::createModule: Error: "<<e.what()<<std::endl;
+            return NULL;
+        }catch(modules::bad_value& e){
+            std::cout<<fName<<"::createModule: Error: "<<e.what()<<std::endl;
+            return NULL;
+        }
     }else{
-        std::cout<<"Unknown module requested: "<<name<<std::endl;
+        std::cout<<fName<<"::createModule: Error: Unknown module requested: "<<name<<std::endl;
         return NULL;
     }
     return module;

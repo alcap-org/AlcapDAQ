@@ -13,7 +13,7 @@ namespace modules{
 
 class modules::factory:public TemplateFactory<modules::BaseModule,modules::options>{
 	private:
-		factory():TemplateFactory<modules::BaseModule,modules::options>(){};
+		factory():TemplateFactory<modules::BaseModule,modules::options>("modules::factory"){};
 		~factory(){};
 	 public:
 		// Get the single instance of this class

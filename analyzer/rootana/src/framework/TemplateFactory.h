@@ -14,7 +14,7 @@ class TemplateFactory{
     protected:
 	/// protected constructor only callable by derived class 
 	/// as this shoule be a singleton class
-	TemplateFactory(){};
+	TemplateFactory(const std::string& name):fName(name){};
 	virtual ~TemplateFactory(){
 	    fModuleMakers.clear();
 	    fModuleOptions.clear();
@@ -61,6 +61,7 @@ class TemplateFactory{
 
 	// flag to control verbosity
 	bool fDebug;
+    std::string fName;
 };
 
 #include "TemplateFactory.tpl"

@@ -128,7 +128,7 @@ int main(int argc, char **argv)
   // modules wont have a directory to store things to.
   ret= modules::navigator::Instance()->MakeModules();
   if(ret!=0) {
-    std::cout << "Problem creating up analysis modules." << std::endl;
+    std::cout << "Problem creating analysis modules." << std::endl;
     return ret;
   }
   

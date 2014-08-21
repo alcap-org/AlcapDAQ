@@ -8,7 +8,7 @@ class TAPGeneratorOptions;
 class TAPGeneratorFactory:public TemplateFactory<TVAnalysedPulseGenerator,TAPGeneratorOptions>{
 	private:
 		TAPGeneratorFactory():
-			TemplateFactory<TVAnalysedPulseGenerator,TAPGeneratorOptions>(){};
+			TemplateFactory<TVAnalysedPulseGenerator,TAPGeneratorOptions>("TAPGeneratorFactory"){};
 		~TAPGeneratorFactory(){};
 	 public:
 		// Get the single instance of this class
