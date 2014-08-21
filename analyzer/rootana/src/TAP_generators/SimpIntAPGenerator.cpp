@@ -7,6 +7,20 @@
 using std::cout;
 using std::endl;
 
+SimpIntAPGenerator::SimpIntAPGenerator(TAPGeneratorOptions* opts):
+  TVAnalysedPulseGenerator("SimpInt", opts) {
+
+  // Get the channel and bankname
+  IDs::channel channel = GetChannel();
+  std::string bankname = TSetupData::Instance()->GetBankName(channel.str());
+
+  // Get the relevant TSetupData/SetupNavigator variables for the algorithms
+  double pedestal = SetupNavigator::Instance()->GetPedestal(channel);
+  int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+
+  // Set-up the algorithms
+  fSimpleIntegral = new Algorithm::SimpleIntegral(pedestal, trigger_polarity);
+}
 
 int SimpIntAPGenerator::ProcessPulses( 
 	  const PulseIslandList& pulseList, AnalysedPulseList& analysedList)
@@ -14,16 +28,11 @@ int SimpIntAPGenerator::ProcessPulses(
 
   TAnalysedPulse* outPulse;
 
-  // Get the relevant variables from TSetupData/SetupNavigator that this generator wants
-  std::string bankname = pulseList[0]->GetBankName();
-  fSimpleIntegral.pedestal = SetupNavigator::Instance()->GetPedestal(bankname);
-  fSimpleIntegral.trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
-
   for(PulseIslandList::const_iterator pIt = pulseList.begin(); pIt != pulseList.end(); pIt++)
     {    
       // We will need new calibration parameters from integral method
       //      energy = fECalibSlope* integral + fECalibOffset;
-      double integral = fSimpleIntegral(*pIt);
+      double integral = fSimpleIntegral->Process(*pIt);
 
       outPulse=MakeNewTAP(pIt-pulseList.begin());
       outPulse->SetIntegral(integral);
