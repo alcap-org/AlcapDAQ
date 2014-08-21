@@ -18,37 +18,42 @@ class OptionsError : public std::exception {
 
 CFTimeMBAmpAPGenerator::CFTimeMBAmpAPGenerator(TAPGeneratorOptions* opts) :
 	TVAnalysedPulseGenerator("CFTimeMBAmpAPGenerator",opts) {
+
+  // Get the channel and bankname
+  IDs::channel channel = GetChannel();
+  std::string bankname = TSetupData::Instance()->GetBankName(channel.str());
+
+  // Get the variables we want from TSetupData/SetupNavigator
+  double pedestal = SetupNavigator::Instance()->GetPedestal(channel);
+  int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+  int max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
+  double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
+  bool dont_shift_time = opts->GetBool("no_time_shift", false);
+  double time_shift;
+  if (dont_shift_time)
+    time_shift = 0;
+  else
+    time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(channel.str());
+
+  // Get the parameters we want from the modules file
   // This is required in the modules file by giving it an invalid default value.
-  fConstantFractionTime.constant_fraction = opts->GetDouble("constant_fraction", -0.10);
-  fDontShiftTime = opts->GetBool("no_time_shift", false);
-  if (fConstantFractionTime.constant_fraction <= 0.00 || fConstantFractionTime.constant_fraction >=1.00)
+  double constant_fraction = opts->GetDouble("constant_fraction", -0.10);
+  if (constant_fraction <= 0.00 || constant_fraction >=1.00)
     throw OptionsError();
+
+  // Set-up the algorithms
+  fConstantFractionTime = new Algorithm::ConstantFractionTime(pedestal, trigger_polarity, max_adc_value, clock_tick_in_ns, time_shift, constant_fraction);
+  fMaxBinAmplitude = new Algorithm::MaxBinAmplitude(trigger_polarity, pedestal);
 }
 
 int CFTimeMBAmpAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 				     AnalysedPulseList& analysedList) {
 
-
-  // Get the variables we want from TSetupData/SetupNavigator
-  std::string bankname = pulseList[0]->GetBankName();
-  fConstantFractionTime.pedestal = SetupNavigator::Instance()->GetPedestal(TSetupData::Instance()->GetDetectorName(bankname));
-  fConstantFractionTime.trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
-  fConstantFractionTime.max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
-  fConstantFractionTime.clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
-  if (fDontShiftTime)
-    fConstantFractionTime.time_shift = 0;
-  else
-    fConstantFractionTime.time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(TSetupData::Instance()->GetDetectorName(bankname));
-
-  fMaxBinAmplitude.pedestal = fConstantFractionTime.pedestal;
-  fMaxBinAmplitude.trigger_polarity = fConstantFractionTime.trigger_polarity;
-
-
   for (unsigned int iTPI = 0; iTPI < pulseList.size(); ++iTPI) {
     TPulseIsland* tpi = pulseList.at(iTPI);
 
-    double time = fConstantFractionTime(tpi);
-    double amplitude  = fMaxBinAmplitude(tpi);
+    double time = fConstantFractionTime->Process(tpi);
+    double amplitude  = fMaxBinAmplitude->Process(tpi);
 
     TAnalysedPulse* tap = MakeNewTAP(iTPI);
     tap->SetTime(time);
