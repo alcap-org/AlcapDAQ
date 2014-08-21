@@ -18,24 +18,6 @@ using std::endl;
 FirstCompleteAPGenerator::FirstCompleteAPGenerator(TAPGeneratorOptions* opts):
     TVAnalysedPulseGenerator("FirstComplete",opts), fOpts(opts){
         // Do things to set up the generator here. 
-
-  // Get the channel and bankname
-  IDs::channel channel = GetChannel();
-  std::string bankname = TSetupData::Instance()->GetBankName(channel.str());
-  
-  // Get the relevant TSetupData/SetupNavigator variables for the algorithms
-  double pedestal = SetupNavigator::Instance()->GetPedestal(channel);
-  int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
-  int max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
-  double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
-  double time_shift = TSetupData::Instance()->GetTimeShift(bankname);
-
-  // Get any generator options
-  double constant_fraction = fOpts->GetDouble("constant_fraction", -0.1);
-
-  fMaxBinAmplitude = new Algorithm::MaxBinAmplitude(pedestal, trigger_polarity);
-  fConstantFractionTime = new Algorithm::ConstantFractionTime(pedestal, trigger_polarity, max_adc_value, clock_tick_in_ns, time_shift, constant_fraction);
-  fSimpleIntegral = new Algorithm::SimpleIntegral(pedestal, trigger_polarity);
 }
 
 FirstCompleteAPGenerator::~FirstCompleteAPGenerator(){
@@ -57,6 +39,24 @@ int FirstCompleteAPGenerator::ProcessPulses(
 
     // The variables that this generator will be filling
     double amplitude, time, integral;
+
+    // Get the channel and bankname
+    IDs::channel channel = GetChannel();
+    std::string bankname = TSetupData::Instance()->GetBankName(channel.str());
+  
+    // Get the relevant TSetupData/SetupNavigator variables for the algorithms
+    double pedestal = SetupNavigator::Instance()->GetPedestal(channel);
+    int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+    int max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
+    double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
+    double time_shift = TSetupData::Instance()->GetTimeShift(bankname);
+
+    // Get any generator options
+    double constant_fraction = fOpts->GetDouble("constant_fraction", -0.1);
+
+    fMaxBinAmplitude = new Algorithm::MaxBinAmplitude(pedestal, trigger_polarity);
+    fConstantFractionTime = new Algorithm::ConstantFractionTime(pedestal, trigger_polarity, max_adc_value, clock_tick_in_ns, time_shift, constant_fraction);
+    fSimpleIntegral = new Algorithm::SimpleIntegral(pedestal, trigger_polarity);
 
     TAnalysedPulse* tap;
     // Loop over all the TPIs given to us
