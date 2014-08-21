@@ -38,7 +38,7 @@ struct Algorithm::ConstantFractionTime {
   public:
   ConstantFractionTime(double ped, int trig_pol, int max_adc, double clk_tick, double t_shift, double const_frac)
     :pedestal(ped), trigger_polarity(trig_pol), max_adc_value(max_adc), clock_tick_in_ns(clk_tick), time_shift(t_shift), constant_fraction(const_frac){}
-  double operator() (const TPulseIsland* tpi);
+  double Process(const TPulseIsland* tpi);
 
   const double pedestal;
   const int trigger_polarity;
