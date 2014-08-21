@@ -12,9 +12,7 @@ class TAnalysedPulse;
 class MaxBinAPGenerator:public TVAnalysedPulseGenerator {
 
  public:
-  MaxBinAPGenerator(TAPGeneratorOptions* opts)
-    : TVAnalysedPulseGenerator("MaxBinAPGenerator", opts)
-  {};
+  MaxBinAPGenerator(TAPGeneratorOptions* opts);
 
   virtual ~MaxBinAPGenerator(){};
   
@@ -26,8 +24,8 @@ private:
 
   /// \brief
   /// The algorithms that this generator uses
-  Algorithm::MaxBinAmplitude fMaxBinAmplitude;
-  Algorithm::MaxBinTime fMaxBinTime;
+  Algorithm::MaxBinAmplitude* fMaxBinAmplitude;
+  Algorithm::MaxBinTime* fMaxBinTime;
 };
 
 #endif // MAXBINAPGENERATOR_H__
