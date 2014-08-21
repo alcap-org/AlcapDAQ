@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-double Algorithm::MaxBinAmplitude::operator() (const TPulseIsland* tpi) {
+double Algorithm::MaxBinAmplitude::Process(const TPulseIsland* tpi) {
 
   // Get the samples and get an iterator ready to find the peak sample
   std::vector<int> pulseSamples = tpi->GetSamples();  
@@ -26,7 +26,7 @@ double Algorithm::MaxBinAmplitude::operator() (const TPulseIsland* tpi) {
   return amplitude;
 }
 
-double Algorithm::MaxBinTime::operator() (const TPulseIsland* tpi) {
+double Algorithm::MaxBinTime::Process(const TPulseIsland* tpi) {
 
   // Get the samples and get an iterator ready to find the peak sample
   std::vector<int> pulseSamples = tpi->GetSamples();  
@@ -62,7 +62,7 @@ double Algorithm::ConstantFractionTime::Process(const TPulseIsland* tpi) {
   return (dx + (double)tpi->GetTimeStamp()) * clock_tick_in_ns - time_shift;
 }
 
-double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi) {
+double Algorithm::SimpleIntegral::Process(const TPulseIsland* tpi) {
   const std::vector<int>& samples = tpi->GetSamples();
   
   double length = samples.size();

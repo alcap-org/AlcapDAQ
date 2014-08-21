@@ -17,7 +17,7 @@ struct Algorithm::MaxBinAmplitude {
   public:
   MaxBinAmplitude(int trig_pol, double ped)
     :trigger_polarity(trig_pol), pedestal(ped){}
-  double operator() (const TPulseIsland* tpi);
+  double Process(const TPulseIsland* tpi);
 
   const int trigger_polarity;
   const double pedestal;
@@ -27,7 +27,7 @@ struct Algorithm::MaxBinTime {
   public:
   MaxBinTime(int trig_pol, double clk_tick, double t_shift)
     :trigger_polarity(trig_pol), clock_tick_in_ns(clk_tick), time_shift(t_shift){}
-  double operator() (const TPulseIsland* tpi);
+  double Process(const TPulseIsland* tpi);
 
   const int trigger_polarity;
   const double clock_tick_in_ns;
@@ -54,7 +54,7 @@ struct Algorithm::SimpleIntegral {
   public:
   SimpleIntegral(int trig_pol, double ped)
     :trigger_polarity(trig_pol), pedestal(ped){}
-  double operator() (const TPulseIsland* tpi);
+  double Process(const TPulseIsland* tpi);
 
   const int trigger_polarity;
   const double pedestal;
