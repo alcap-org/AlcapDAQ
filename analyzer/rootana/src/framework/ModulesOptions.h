@@ -195,7 +195,7 @@ class modules::options{
         /// Set the alias option for this module
         void SetAlias(const std::string& alias){SetOption("alias",alias);};
         /// Get the alias option for this module
-        std::string GetAlias()const{return GetString("alias");};
+        std::string GetAlias(const std::string& defVal="")const{return GetString("alias",defVal);};
 
         /// @}
 
