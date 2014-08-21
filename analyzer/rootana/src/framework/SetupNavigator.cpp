@@ -34,15 +34,6 @@ static std::string StripTimeShiftConfigFromString(std::string con) {
 }
 
 
-template<typename T>
-bool in(T x, std::vector<T> v) {
-  for (unsigned int i = 0; i < v.size(); ++i)
-    if (x == v[i])
-      return true;
-  return false;
-}
-
-
 // Declare all our caches
 std::map<IDs::channel, double> SetupNavigator::fPedestalValues;
 std::map<IDs::channel, double> SetupNavigator::fNoiseValues;
@@ -50,8 +41,8 @@ std::map<IDs::source, double> SetupNavigator::fCoarseTimeOffset;
 
 SetupNavigator::SetupNavigator() :
   fCommandLineArgs(),
-  fSQLiteFilename("sqlite://pedestals-and-noises.sqlite"), fServer(new TSQLiteServer(fSQLiteFilename.c_str())),
-  fPedestalNoiseTableName("pedestals_and_noises"), fCoarseTimeOffsetTableName("CoarseTimeOffset") {
+  fSQLiteFilename("sqlite://calibration.db"), fServer(new TSQLiteServer(fSQLiteFilename.c_str())),
+  fPedestalNoiseTableName("PedestalAndNoise"), fCoarseTimeOffsetTableName("CoarseTimeOffset") {
   if (fServer->IsZombie()) {
     std::cout << "SetupNavigator: ERROR: Couldn't connect to SQLite database." << std::endl;
     throw Except::NoCalibDB();
@@ -175,11 +166,10 @@ void SetupNavigator::OutputCalibCSV() {
   sprintf(r, "%05d", GetRunNumber());
 
   std::ofstream fPN((std::string("calib.run") + r + "." + fPedestalNoiseTableName + ".csv").c_str());
-  fPN << "run, channel, bank, pedestal, noise" << std::endl;
+  fPN << "run,channel,pedestal,noise" << std::endl;
   for (std::map<IDs::channel, double>::const_iterator i = fPedestalValues.begin(); i != fPedestalValues.end(); ++i)
-    fPN << GetRunNumber() << ", " << i->first.str() << ", "
-	<< GetBank(i->first) << ", " << i->second << ", "
-	<< fNoiseValues.at(i->first) << std::endl;
+    fPN << GetRunNumber() << "," << i->first.str() << ","
+	<< i->second << "," << fNoiseValues.at(i->first) << std::endl;
 
   std::ofstream fTO((std::string("calib.run") + r + "." + fCoarseTimeOffsetTableName + ".csv").c_str());
   std::set<IDs::generator> gens;
@@ -188,14 +178,14 @@ void SetupNavigator::OutputCalibCSV() {
     gens.insert(i->first.Generator());
     chns.insert(i->first.Channel());
   }
-  fTO << "run, channel";
+  fTO << "run,channel";
   for (std::set<IDs::generator>::const_iterator i = gens.begin(); i != gens.end(); ++i)
-    fTO << ", " << StripTimeShiftConfigFromString(i->str());
+    fTO << "," << StripTimeShiftConfigFromString(i->str());
   fTO << std::endl;
   for (std::set<IDs::channel>::const_iterator i = chns.begin(); i != chns.end(); ++i) {
-    fTO << GetRunNumber() << ", " << i->str();
+    fTO << GetRunNumber() << "," << i->str();
     for (std::set<IDs::generator>::const_iterator j = gens.begin(); j != gens.end(); ++j) {
-      fTO << ", ";
+      fTO << ",";
       if (fCoarseTimeOffset.count(IDs::source(*i, *j)))
 	fTO << fCoarseTimeOffset.at(IDs::source(*i, *j));
     }
