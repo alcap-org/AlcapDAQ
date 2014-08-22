@@ -10,8 +10,7 @@
 class SimpIntAPGenerator:public TVAnalysedPulseGenerator {
 
  public:
-  SimpIntAPGenerator(TAPGeneratorOptions* opts):
-  TVAnalysedPulseGenerator("SimpInt", opts){};
+  SimpIntAPGenerator(TAPGeneratorOptions* opts);
   virtual ~SimpIntAPGenerator(){};
 
 

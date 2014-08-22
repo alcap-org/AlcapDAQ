@@ -15,41 +15,49 @@ namespace Algorithm {
 
 struct Algorithm::MaxBinAmplitude {
   public:
+  MaxBinAmplitude(double ped, int trig_pol)
+    :trigger_polarity(trig_pol), pedestal(ped){}
   double operator() (const TPulseIsland* tpi);
 
-  int trigger_polarity;
-  double pedestal;
+  const int trigger_polarity;
+  const double pedestal;
 };
 
 struct Algorithm::MaxBinTime {
   public:
+  MaxBinTime(int trig_pol, double clk_tick, double t_shift)
+    :trigger_polarity(trig_pol), clock_tick_in_ns(clk_tick), time_shift(t_shift){}
   double operator() (const TPulseIsland* tpi);
 
-  int trigger_polarity;
-  double clock_tick_in_ns;
-  double time_shift;
+  const int trigger_polarity;
+  const double clock_tick_in_ns;
+  const double time_shift;
 };
 
 struct Algorithm::ConstantFractionTime {
   public:
+  ConstantFractionTime(double ped, int trig_pol, int max_adc, double clk_tick, double t_shift, double const_frac)
+    :pedestal(ped), trigger_polarity(trig_pol), max_adc_value(max_adc), clock_tick_in_ns(clk_tick), time_shift(t_shift), constant_fraction(const_frac){}
   double operator() (const TPulseIsland* tpi);
 
-  double pedestal;
-  int trigger_polarity;
-  int max_adc_value;
-  double clock_tick_in_ns;
-  double time_shift;
+  const double pedestal;
+  const int trigger_polarity;
+  const int max_adc_value;
+  const double clock_tick_in_ns;
+  const double time_shift;
 
-  double constant_fraction;
+  const double constant_fraction;
 };
 
 
 struct Algorithm::SimpleIntegral {
   public:
+  SimpleIntegral(double ped, int trig_pol)
+    :trigger_polarity(trig_pol), pedestal(ped){}
   double operator() (const TPulseIsland* tpi);
 
-  double pedestal;
-  int trigger_polarity;
+  const int trigger_polarity;
+  const double pedestal;
 };
 
 #endif

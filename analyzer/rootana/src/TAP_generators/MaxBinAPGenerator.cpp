@@ -16,25 +16,24 @@ static bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b) {
 }
 
 //======================================================================
+MaxBinAPGenerator::MaxBinAPGenerator(TAPGeneratorOptions* opts)
+  : TVAnalysedPulseGenerator("MaxBinAPGenerator", opts),
+    fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+		     TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
+    fMaxBinTime(TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
+		TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
+		opts->GetDouble("time_shift", TSetupData::Instance()->GetTimeShift(TSetupData::Instance()->GetBankName(GetChannel().str())))) {
+
+}
 
 
 //----------------------------------------------------------------------
 int MaxBinAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
                                      AnalysedPulseList& analysedList)
 {
+
   double amplitude, time;
   TAnalysedPulse* outPulse;
-
-  // Get the various variables we need from TSetupData/SetupNavigator
-  std::string bankname = pulseList[0]->GetBankName();
-  fMaxBinAmplitude.pedestal = SetupNavigator::Instance()->GetPedestal(TSetupData::Instance()->GetDetectorName(bankname));
-
-  fMaxBinAmplitude.trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
-  fMaxBinTime.trigger_polarity = fMaxBinAmplitude.trigger_polarity;
-
-  fMaxBinTime.clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
-  fMaxBinTime.time_shift = TSetupData::Instance()->GetTimeShift(bankname);
-
 
   for (PulseIslandList::const_iterator pulseIter = pulseList.begin(); pulseIter != pulseList.end(); pulseIter++) {
     amplitude = fMaxBinAmplitude(*pulseIter);

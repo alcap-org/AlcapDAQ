@@ -16,7 +16,19 @@ using std::cout;
 using std::endl;
 
 FirstCompleteAPGenerator::FirstCompleteAPGenerator(TAPGeneratorOptions* opts):
-    TVAnalysedPulseGenerator("FirstComplete",opts), fOpts(opts){
+  TVAnalysedPulseGenerator("FirstComplete",opts),
+  fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+		   TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
+  fConstantFractionTime(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+			TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
+			std::pow(2, TSetupData::Instance()->GetNBits(TSetupData::Instance()->GetBankName(GetChannel().str()))) - 1,
+			TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
+			opts->GetDouble("time_shift", TSetupData::Instance()->GetTimeShift(TSetupData::Instance()->GetBankName(GetChannel().str()))),
+			opts->GetDouble("constant_fraction", -0.10)), 
+  fSimpleIntegral(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+		  TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
+  fPulseCandidateFinder(new PulseCandidateFinder(GetChannel().str(), opts)) {
+
         // Do things to set up the generator here. 
 }
 
@@ -27,35 +39,12 @@ FirstCompleteAPGenerator::~FirstCompleteAPGenerator(){
     }
 }
 
-void FirstCompleteAPGenerator::SetChannel(const std::string& det){
-  fPulseCandidateFinder = new PulseCandidateFinder(det, fOpts);
-  TVAnalysedPulseGenerator::SetChannel(det);
-
-}
-
 int FirstCompleteAPGenerator::ProcessPulses( 
         const PulseIslandList& pulseList,
         AnalysedPulseList& analysedList){
 
     // The variables that this generator will be filling
     double amplitude, time, integral;
-
-    // Get the relevant TSetupData/SetupNavigator variables for the algorithms
-    std::string bankname = pulseList[0]->GetBankName();
-    std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
-    IDs::channel channel(detname);
-
-    fMaxBinAmplitude.pedestal 
-        = fConstantFractionTime.pedestal 
-        = fSimpleIntegral.pedestal 
-        = SetupNavigator::Instance()->GetPedestal(channel);
-    fMaxBinAmplitude.trigger_polarity 
-        = fConstantFractionTime.trigger_polarity 
-        = fSimpleIntegral.trigger_polarity 
-        = TSetupData::Instance()->GetTriggerPolarity(bankname);
-    fConstantFractionTime.max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
-    fConstantFractionTime.clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
-    fConstantFractionTime.time_shift = TSetupData::Instance()->GetTimeShift(bankname);
 
     TAnalysedPulse* tap;
     // Loop over all the TPIs given to us
