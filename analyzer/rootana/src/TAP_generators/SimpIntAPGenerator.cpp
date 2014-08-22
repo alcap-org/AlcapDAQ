@@ -8,31 +8,22 @@ using std::cout;
 using std::endl;
 
 SimpIntAPGenerator::SimpIntAPGenerator(TAPGeneratorOptions* opts):
-  TVAnalysedPulseGenerator("SimpInt", opts) {
+  TVAnalysedPulseGenerator("SimpInt", opts),
+  fSimpleIntegral(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+		  TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))) {
+
 }
 
 int SimpIntAPGenerator::ProcessPulses( 
 	  const PulseIslandList& pulseList, AnalysedPulseList& analysedList)
 {
-
-  // Get the channel and bankname
-  IDs::channel channel = GetChannel();
-  std::string bankname = TSetupData::Instance()->GetBankName(channel.str());
-
-  // Get the relevant TSetupData/SetupNavigator variables for the algorithms
-  double pedestal = SetupNavigator::Instance()->GetPedestal(channel);
-  int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
-
-  // Set-up the algorithms
-  fSimpleIntegral = new Algorithm::SimpleIntegral(pedestal, trigger_polarity);
-
   TAnalysedPulse* outPulse;
 
   for(PulseIslandList::const_iterator pIt = pulseList.begin(); pIt != pulseList.end(); pIt++)
     {    
       // We will need new calibration parameters from integral method
       //      energy = fECalibSlope* integral + fECalibOffset;
-      double integral = fSimpleIntegral->Process(*pIt);
+      double integral = fSimpleIntegral(*pIt);
 
       outPulse=MakeNewTAP(pIt-pulseList.begin());
       outPulse->SetIntegral(integral);

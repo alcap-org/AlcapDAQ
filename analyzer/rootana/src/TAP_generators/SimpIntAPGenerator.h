@@ -21,7 +21,7 @@ class SimpIntAPGenerator:public TVAnalysedPulseGenerator {
 
  private:
    // The algorithms that this generator will use
-   Algorithm::SimpleIntegral* fSimpleIntegral;
+   Algorithm::SimpleIntegral fSimpleIntegral;
 };
 
 #endif //SIMPLEINTEGRATOR_H__
