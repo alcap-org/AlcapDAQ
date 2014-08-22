@@ -22,7 +22,7 @@ CFTimeMBAmpAPGenerator::CFTimeMBAmpAPGenerator(TAPGeneratorOptions* opts) :
 			TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
 			std::pow(2, TSetupData::Instance()->GetNBits(TSetupData::Instance()->GetBankName(GetChannel().str()))) - 1,
 			TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
-			opts->GetDouble("time_shift", TSetupData::Instance()->GetTimeShift(TSetupData::Instance()->GetBankName(GetChannel().str()))),
+			opts->GetDouble("time_shift", SetupNavigator::Instance()->GetCoarseTimeOffset(GetSource())),
 			opts->GetDouble("constant_fraction", -0.10)), 
   fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
 		   TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))) {
