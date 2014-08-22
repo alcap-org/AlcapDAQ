@@ -17,37 +17,25 @@ class OptionsError : public std::exception {
 };
 
 CFTimeAPGenerator::CFTimeAPGenerator(TAPGeneratorOptions* opts):
-	TVAnalysedPulseGenerator("CFTimeAPGenerator",opts){
-
-  // Get the parameter values we want from the modules file
-  //fConstantFraction = opts->GetDouble("constfrac", 0.1);
-  fConstantFractionParam = 0.2;
-  if (fConstantFractionParam <= 0. || fConstantFractionParam >=100.)
-    throw OptionsError();
+  TVAnalysedPulseGenerator("CFTimeAPGenerator",opts),
+  // Set-up the algorithm in the generator list (it looks a bit messy)
+  fConstantFractionTime(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+			TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
+			std::pow(2, TSetupData::Instance()->GetNBits(TSetupData::Instance()->GetBankName(GetChannel().str()))) - 1,
+			TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
+			opts->GetDouble("time_shift", TSetupData::Instance()->GetTimeShift(TSetupData::Instance()->GetBankName(GetChannel().str()))),
+			opts->GetDouble("constant_fraction", -0.10)
+			) {
 
 }
 
 int CFTimeAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 				     AnalysedPulseList& analysedList) {
 
-  // Get the channel and bank name
-  IDs::channel channel = GetChannel();
-  std::string bankname = TSetupData::Instance()->GetBankName(channel.str());
-
-  // Get the variables we want from TSetupData/SetupNavigator
-  double pedestal = SetupNavigator::Instance()->GetPedestal(channel);
-  int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
-  int max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
-  double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
-  double time_shift = TSetupData::Instance()->GetTimeShift(bankname);
-
-  // Set-up the algorithms
-  fConstantFractionTime = new Algorithm::ConstantFractionTime(pedestal, trigger_polarity, max_adc_value, clock_tick_in_ns, time_shift, fConstantFractionParam);
-
   for (unsigned int iTPI = 0; iTPI < pulseList.size(); ++iTPI) {
     TPulseIsland* tpi = pulseList.at(iTPI);
 
-    double time = fConstantFractionTime->Process(tpi);
+    double time = fConstantFractionTime(tpi);
 
     TAnalysedPulse* tap = MakeNewTAP(iTPI);
     tap->SetTime(time);
