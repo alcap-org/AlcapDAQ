@@ -1,5 +1,5 @@
-#ifndef GESPECTRUMWITHTFIX_H_
-#define GESPECTRUMWITHTFIX_H_
+#ifndef GESPECTRUM_H_
+#define GESPECTRUM_H_
 
 #include "BaseModule.h"
 class TGlobalData;
@@ -24,7 +24,7 @@ class TH2I;
 /// You can add this to other groups instead of rootana_modules or in addition
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
-class GeSpectrumWithTFix : public BaseModule {
+class GeSpectrum : public BaseModule {
 
  private:
   TH1I* fHist_Energy;
@@ -40,10 +40,10 @@ class GeSpectrumWithTFix : public BaseModule {
   /// Constructor description. If necessary, add a details tag like above.
   ///
   /// \param[in] opts Describe the options this module takes.
-  GeSpectrumWithTFix(modules::options* opts);
+  GeSpectrum(modules::options* opts);
   /// \brief
   /// Is anything done in the destructor?
-  ~GeSpectrumWithTFix();
+  ~GeSpectrum();
 
  private:
   /// \brief
@@ -73,4 +73,4 @@ class GeSpectrumWithTFix : public BaseModule {
 
 };
 
-#endif //GESPECTRUMWITHTFIX_H_
+#endif //GESPECTRUM_H_

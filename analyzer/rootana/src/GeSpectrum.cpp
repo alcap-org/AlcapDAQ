@@ -1,4 +1,4 @@
-#include "GeSpectrumWithTFix.h"
+#include "GeSpectrum.h"
 #include "RegisterModule.inc"
 #include "TPulseIsland.h"
 #include "TGlobalData.h"
@@ -23,9 +23,10 @@ static double GetTime(const TPulseIsland*, const int);
 static double GetGeTime(const TPulseIsland* slow, const TPulseIsland* fast);
 static double GetMuScTime(const TPulseIsland*);
 static double GetGeEnergy(const TPulseIsland*);
+static double E(int adc);
 
-GeSpectrumWithTFix::GeSpectrumWithTFix(modules::options* opts): BaseModule("GeSpectrumWithTFix",opts) {
-  const static double max = std::pow(2.,14);
+GeSpectrum::GeSpectrum(modules::options* opts): BaseModule("GeSpectrum",opts) {
+  const static double max = E((int)std::pow(2.,14));
   TDirectory* cwd = TDirectory::CurrentDirectory();
   dir->cd();
   fHist_Energy       = new TH1I("hEnergy", "Energy of Gammas", (int)max, 0., max);
@@ -38,29 +39,24 @@ GeSpectrumWithTFix::GeSpectrumWithTFix(modules::options* opts): BaseModule("GeSp
   cwd->cd();
 }
 
-GeSpectrumWithTFix::~GeSpectrumWithTFix(){
+GeSpectrum::~GeSpectrum(){
 }
 
 // Called before the main event loop
 // Can be used to set things up, like histograms etc
 // Return non-zero to indicate a problem
-int GeSpectrumWithTFix::BeforeFirstEntry(TGlobalData* gData, TSetupData *setup){
+int GeSpectrum::BeforeFirstEntry(TGlobalData* gData, TSetupData *setup){
   return 0;
 }
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
-int GeSpectrumWithTFix::ProcessEntry(TGlobalData* gData,TSetupData *setup){
-  static const std::string name_muSc("muSc");
-  static const std::string name_GeS("Ge-S");
-  static const std::string name_GeF("Ge-F");
-  static const std::string name_SiRS("SiR1-S");
-  static const std::string name_SiRF("SiR1-F");
-  static const std::string bank_muSc(setup->GetBankName(name_muSc));
-  static const std::string bank_GeS(setup->GetBankName(name_GeS));
-  static const std::string bank_GeF(setup->GetBankName(name_GeF));
-  static const std::string bank_SiRS(setup->GetBankName(name_SiRS));
-  static const std::string bank_SiRF(setup->GetBankName(name_SiRF));
+int GeSpectrum::ProcessEntry(TGlobalData* gData,TSetupData *setup){
+  static const std::string bank_muSc(setup->GetBankName(std::string("muSc")));
+  static const std::string bank_GeS(setup->GetBankName(std::string("Ge-S")));
+  static const std::string bank_GeF(setup->GetBankName(std::string("Ge-F")));
+  static const std::string bank_SiRS(setup->GetBankName(std::string("SiR1-S")));
+  static const std::string bank_SiRF(setup->GetBankName(std::string("SiR1-F")));
 
   static const double time_window_small = 200.; // ns
   static const double time_window_big = 2000.; // ns
@@ -200,7 +196,7 @@ int GeSpectrumWithTFix::ProcessEntry(TGlobalData* gData,TSetupData *setup){
 // Called just after the main event loop
 // Can be used to write things out, dump a summary etc
 // Return non-zero to indicate a problem
-int GeSpectrumWithTFix::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
+int GeSpectrum::AfterLastEntry(TGlobalData* gData,TSetupData *setup){
   return 0;
 }
 
@@ -218,7 +214,9 @@ double GetGeTime(const TPulseIsland* slow, const TPulseIsland* fast) {
   }
   return GetTime(fast, pol);
 }
- 
+
+// Constant Fraction
+/*
 double GetTime(const TPulseIsland* tpi, const int pol) {
   const static double cf_frac = 0.2;
   const std::vector<int>& samps = tpi->GetSamples();
@@ -234,24 +232,32 @@ double GetTime(const TPulseIsland* tpi, const int pol) {
     dx += (double)((int)cf - *m)/(double)(*(m+1) - *m);
   return (dx + (double)tpi->GetTimeStamp()) * tpi->GetClockTickInNs() - TSetupData::Instance()->GetTimeShift(tpi->GetBankName());
 }
+//*/
 
-double GetPeakTime(const TPulseIsland* tpi, const int pol) {
+
+// Peak
+///*
+double GetTime(const TPulseIsland* tpi, const int pol) {
   const std::vector<int>& samps = tpi->GetSamples();
   const std::vector<int>::const_iterator b = samps.begin(), e = samps.end();
   const int p = pol > 0 ? std::max_element(b, e) - b : std::min_element(b, e) - b;
   return (double)(p + tpi->GetTimeStamp()) * tpi->GetClockTickInNs() - TSetupData::Instance()->GetTimeShift(tpi->GetBankName());
 }
 
-double GetStampTime(const TPulseIsland* tpi, const int pol) {
+// Stamp
+/*
+double GetTime(const TPulseIsland* tpi, const int pol) {
   return (double)tpi->GetTimeStamp() * tpi->GetClockTickInNs() - TSetupData::Instance()->GetTimeShift(tpi->GetBankName());
 }
+//*/
+
 
 double GetGeEnergy(const TPulseIsland* tpi) {
   const std::vector<int>& samps = tpi->GetSamples();
   const std::vector<int>::const_iterator b = samps.begin(), e = samps.end();
   const int ped = std::accumulate(b, b + 5, 0)/5.;
   const int max = *std::max_element(b, e);
-  return (double)(max - ped);
+  return E(max - ped);
 }
 
 bool TPITimeLess(const TPulseIsland* tpi1, const TPulseIsland* tpi2) {
@@ -260,8 +266,12 @@ bool TPITimeLess(const TPulseIsland* tpi1, const TPulseIsland* tpi2) {
 }
 
 
+double E(int adc) {
+  return 0.1221*(double)adc+0.7987;
+}
+
 // The following macro registers this module to be useable in the config file.
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(GeSpectrumWithTFix);
+ALCAP_REGISTER_MODULE(GeSpectrum);
