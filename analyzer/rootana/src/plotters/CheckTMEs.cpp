@@ -50,18 +50,18 @@ int CheckTMEs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
     // Plot the number of pulses per channel
     fPulsesPerDetector=new TH2F("hPulsesPerChannel", "Pulses per channel per TME", 
-            100, 0 ,100,fDetectors.size(),0,fDetectors.size());
+            50, 0 ,50,fDetectors.size(),0,fDetectors.size());
     fPulsesPerDetector->SetXTitle("Number of pulses");
-    fPulsesPerDetector->SetYTitle("Detector");
+    //fPulsesPerDetector->SetYTitle("Detector");
     for(DetectorList::const_iterator i_det=fDetectors.begin();
             i_det!=fDetectors.end(); ++i_det){
         fPulsesPerDetector->GetYaxis()->SetBinLabel(i_det-fDetectors.begin()+1, i_det->str().c_str());
     }
+    fPulsesPerDetector->SetDrawOption("colz");
 
     // Plot the number of TME flags
     fFlags=new TH1F("hFlags", "Number of flagged per TME", 5,0,5);
-    fFlags->SetXTitle("Number of pulses");
-    fFlags->SetYTitle("Detector");
+    fFlags->SetYTitle("Number of pulses");
     int count=0;
     fFlags->GetXaxis()->SetBinLabel(++count,"Healthy");
     fFlags->GetXaxis()->SetBinLabel(++count,"Late");
