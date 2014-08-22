@@ -60,6 +60,7 @@ class CheckTMEs : public BaseModule {
 
         TH1F *fTotalPulses;
         TH2F *fPulsesPerDetector;
+        TH1F *fFlags;
 };
 
 #endif //CHECKTMES_H_

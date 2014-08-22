@@ -58,6 +58,17 @@ int CheckTMEs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         fPulsesPerDetector->GetYaxis()->SetBinLabel(i_det-fDetectors.begin()+1, i_det->str().c_str());
     }
 
+    // Plot the number of TME flags
+    fFlags=new TH1F("hFlags", "Number of flagged per TME", 5,0,5);
+    fFlags->SetXTitle("Number of pulses");
+    fFlags->SetYTitle("Detector");
+    int count=0;
+    fFlags->GetXaxis()->SetBinLabel(++count,"Healthy");
+    fFlags->GetXaxis()->SetBinLabel(++count,"Late");
+    fFlags->GetXaxis()->SetBinLabel(++count,"Early");
+    fFlags->GetXaxis()->SetBinLabel(++count,"Muon Hit");
+    fFlags->GetXaxis()->SetBinLabel(++count,"Muon PileUp");
+
   return 0;
 }
 
@@ -72,6 +83,13 @@ int CheckTMEs::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
             // pulses per channel
             fPulsesPerDetector->Fill((*i_tme)->NumPulses(*i_det), i_det - fDetectors.begin());
         }
+        // fill flags hist
+        if((*i_tme)->HasMuonHit()) fFlags->Fill("Muon Hit",1.);
+        if((*i_tme)->HasMuonPileup()) fFlags->Fill("Muon PileUp",1.);
+        //if((*i_tme)->WasEarlyInEvent()) fFlags->Fill("Early",1.);
+        //else if((*i_tme)->WasLateInEvent()) fFlags->Fill("Late",1.);
+        //else  
+            fFlags->Fill("Healthy",1.);
     }
   return 0;
 }
