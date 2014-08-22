@@ -5,6 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
 
 #include <iostream>
 
@@ -67,10 +68,18 @@ double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi) {
   
   double length = samples.size();
   double tempint = 0;
-  for(std::vector<int>::const_iterator sIt = samples.begin(); sIt != samples.end(); sIt++)
-    tempint += *sIt;
-  
-  double integral = trigger_polarity * (tempint - (pedestal * length));
+  typedef std::vector<int> SampleVector;
+  SampleVector::const_iterator begin=samples.begin()+start;
+  if(start > length 
+          || ( stop>0 && stop<start ) 
+          || (stop<0 && length+stop <start) ){
+      throw std::out_of_range("Algorithm::SimpleIntegral::operator() bad integral range" );
+  }
+  SampleVector::const_iterator end=stop>0?samples.begin()+stop: samples.end()+stop;
+  for(SampleVector::const_iterator sIt = begin; sIt != end; ++sIt)
+      tempint += *sIt;
+
+  double integral = trigger_polarity * (tempint - (pedestal * (end-begin)));
 
   return integral;
 }

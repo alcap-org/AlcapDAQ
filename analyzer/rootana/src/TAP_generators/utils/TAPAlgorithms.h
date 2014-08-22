@@ -53,11 +53,18 @@ struct Algorithm::ConstantFractionTime {
 struct Algorithm::SimpleIntegral {
   public:
   SimpleIntegral(double ped, int trig_pol)
-    :trigger_polarity(trig_pol), pedestal(ped){}
+    :trigger_polarity(trig_pol), pedestal(ped),start(0),stop(0){}
+  /// @param first Start integral from "samples.begin()+first" sample
+  /// @param last End integral at "samples.begin()+last" if last>0 or
+  /// "samples.end()+last" if last<=0 
+  SimpleIntegral(double ped, int trig_pol, int first, int last)
+    :trigger_polarity(trig_pol), pedestal(ped),start(first),stop(last){}
   double operator() (const TPulseIsland* tpi);
 
   const int trigger_polarity;
   const double pedestal;
+  const int start;
+  const int stop;
 };
 
 #endif
