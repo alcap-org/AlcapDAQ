@@ -28,17 +28,16 @@ CFTimeMBAmpAPGenerator::CFTimeMBAmpAPGenerator(TAPGeneratorOptions* opts) :
 int CFTimeMBAmpAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 				     AnalysedPulseList& analysedList) {
 
-
   // Get the variables we want from TSetupData/SetupNavigator
   std::string bankname = pulseList[0]->GetBankName();
-  fConstantFractionTime.pedestal = SetupNavigator::Instance()->GetPedestal(TSetupData::Instance()->GetDetectorName(bankname));
+  fConstantFractionTime.pedestal = SetupNavigator::Instance()->GetPedestal(GetSource().Channel());
   fConstantFractionTime.trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
   fConstantFractionTime.max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
   fConstantFractionTime.clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
   if (fDontShiftTime)
     fConstantFractionTime.time_shift = 0;
   else
-    fConstantFractionTime.time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(TSetupData::Instance()->GetDetectorName(bankname));
+    fConstantFractionTime.time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(GetSource());
 
   fMaxBinAmplitude.pedestal = fConstantFractionTime.pedestal;
   fMaxBinAmplitude.trigger_polarity = fConstantFractionTime.trigger_polarity;

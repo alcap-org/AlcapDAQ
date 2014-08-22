@@ -90,7 +90,7 @@ class TVAnalysedPulseGenerator {
         /// above GetChannel method, but this could also be useful for checking that
         /// this generator is the one that made a given TAP in later analysis by
         /// comparing this value to that stored in the TAP itself.
-        IDs::source GetSource()const {return fSource;};
+        const IDs::source& GetSource()const {return fSource;};
 
     protected:
         friend class MakeAnalysedPulses;
