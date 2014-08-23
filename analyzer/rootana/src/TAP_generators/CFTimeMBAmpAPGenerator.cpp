@@ -20,18 +20,11 @@ CFTimeMBAmpAPGenerator::CFTimeMBAmpAPGenerator(TAPGeneratorOptions* opts) :
   TVAnalysedPulseGenerator("CFTimeMBAmpAPGenerator",opts),
   fConstantFractionTime(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
 			TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
-			std::pow(2, TSetupData::Instance()->GetNBits(TSetupData::Instance()->GetBankName(GetChannel().str()))) - 1,
 			TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
-			opts->GetDouble("time_shift", SetupNavigator::Instance()->GetCoarseTimeOffset(GetSource())),
+			opts->GetBool("no_time_shift") ? 0. : SetupNavigator::Instance()->GetCoarseTimeOffset(GetSource()),
 			opts->GetDouble("constant_fraction", -0.10)), 
   fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
 		   TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))) {
-
-  // Get the parameters we want from the modules file
-  // This is required in the modules file by giving it an invalid default value.
-  double constant_fraction_param = opts->GetDouble("constant_fraction", -0.10);
-  if (constant_fraction_param <= 0.00 || constant_fraction_param >=1.00)
-    throw OptionsError();
 }
 
 int CFTimeMBAmpAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
