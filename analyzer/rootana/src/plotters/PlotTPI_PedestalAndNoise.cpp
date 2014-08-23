@@ -20,13 +20,9 @@ using std::endl;
 
 
 PlotTPI_PedestalAndNoise::PlotTPI_PedestalAndNoise(modules::options* opts):
-   BaseModule("PlotTPI_PedestalAndNoise",opts){
-
-  // Do something with opts here.  Has the user specified any
-  // particular configuration that you want to know?
-  // For example, perhaps this module wants an axis range:
-  fNSamples = opts->GetInt("n_samples", 5);
-  fExportSQL = opts->GetBool("export_sql", false);
+  BaseModule("PlotTPI_PedestalAndNoise",opts), 
+  fNSamples(opts->GetInt("n_samples")),
+  fExportSQL(opts->GetBool("export_sql", false)) {
 }
 
 PlotTPI_PedestalAndNoise::~PlotTPI_PedestalAndNoise(){
@@ -107,9 +103,9 @@ int PlotTPI_PedestalAndNoise::ProcessEntry(TGlobalData* gData,const TSetupData *
       for (int iSample = 0; iSample < limit; ++iSample) {
           sum_of_deviations_squared += (theSamples.at(iSample) - mean)*(theSamples.at(iSample) - mean);
       }
-      double RMS = std::sqrt(sum_of_deviations_squared / limit);
+      double stdev = std::sqrt(sum_of_deviations_squared / limit);
 
-      pedestal_vs_noise_histogram->Fill(mean, RMS);
+      pedestal_vs_noise_histogram->Fill(mean, stdev);
     } // end loop through pulses
   } // end loop through detectors
 
@@ -149,4 +145,4 @@ int PlotTPI_PedestalAndNoise::AfterLastEntry(TGlobalData* gData,const TSetupData
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(PlotTPI_PedestalAndNoise,x_max);
+ALCAP_REGISTER_MODULE(PlotTPI_PedestalAndNoise,n_samples,export_sql);

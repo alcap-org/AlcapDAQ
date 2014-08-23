@@ -71,13 +71,13 @@ class PlotTPI_PedestalAndNoise : public BaseModule {
 
   /// \brief
   /// The number of samples we will look at in the TPulseIsland
-  /// to calculate the mean and RMS (opt = "n_samples", default = 5)
-  int fNSamples;
+  /// to calculate the mean and RMS (opt = "n_samples")
+  const int fNSamples;
 
   /// \brief
   /// A bool to decide whether we export the pedestal and noise to the SQLite database
   /// (opt = "export_sql", default = false)
-  bool fExportSQL;
+  const bool fExportSQL;
 };
 
 #endif //PLOTRMSNOISE_H_
