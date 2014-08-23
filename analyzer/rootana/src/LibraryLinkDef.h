@@ -11,27 +11,16 @@
 #pragma link C++ class std::map<std::string,IDs::Detector_t>+;
 #pragma link C++ class std::map<IDs::Detector_t,std::string>+;
 
-#pragma link C++ class TAnalysedPulse+;
+#pragma link C++ class TIntegralRatioAnalysedPulse+;
 #pragma link C++ class TGaussFitAnalysedPulse+;
+#pragma link C++ class TAnalysedPulse+;
 #pragma link C++ class TDetectorPulse+;
 #pragma link C++ class vector<TAnalysedPulse*>+;
 #pragma link C++ class vector<TAnalysedPulse*>::iterator;
 #pragma link C++ function operator!= (vector<TAnalysedPulse*>::iterator, vector<TAnalysedPulse*>::iterator);
-//#pragma link C++ class map<IDs::source, vector<TAnalysedPulse*> >+;
-//#pragma link C++ class map<IDs::source, vector<TAnalysedPulse*> >::iterator+;
-//#pragma link C++ class map<IDs::source, vector<TAnalysedPulse*> >::const_iterator+;
-//#pragma link C++ class map<IDs::source, vector<TDetectorPulse*> >+;
-//#pragma link C++ class map<IDs::source, vector<TDetectorPulse*> >::iterator+;
-//#pragma link C++ class map<IDs::source, vector<TDetectorPulse*> >::const_iterator+;
-//#pragma link C++ class map<IDs::source, vector<TMuonEvent*> >+;
-//#pragma link C++ class map<IDs::source, vector<TMuonEvent*> >::iterator+;
-//#pragma link C++ class map<IDs::source, vector<TMuonEvent*> >::const_iterator+;
 #pragma link C++ class map<string, vector<TAnalysedPulse*> >+;
 #pragma link C++ class map<string, vector<TAnalysedPulse*> >::iterator;
 #pragma link C++ class pair<string,vector<TAnalysedPulse*> >+;
-//#pragma link C++ class pair<IDs::source,vector<TAnalysedPulse*> >+;
-//#pragma link C++ class pair<IDs::source,vector<TDetectorPulse*> >+;
-//#pragma link C++ class pair<IDs::source,vector<TMuonEvent*> >+;
 #pragma link C++ class std::vector<std::string>+;
 
 #pragma link C++ class std::map<IDs::source, int>+;
@@ -42,7 +31,6 @@
 #pragma link C++ class FlyWeight<IDs::source, TAnalysedPulse::Tag>+;
 #pragma link C++ class FlyWeight<IDs::source, TDetectorPulse::Tag>+;
 
-//#pragma link C++ class vector<TPulseIsland*>+;
 #pragma link C++ class BankBranch<vector<TPulseIsland*> >+;
 #pragma link C++ class BankBranch<vector<TAnalysedPulse*> >+;
 #pragma link C++ class BankBranch<vector<TDetectorPulse*> >+;
