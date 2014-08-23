@@ -25,9 +25,9 @@ class FirstCompleteAPGenerator:public TVAnalysedPulseGenerator {
    void DrawPulse(int original, int pulse_timestamp, int n_pulse_samples);
 
    // The algorithms that this generator will use
-   Algorithm::MaxBinAmplitude fMaxBinAmplitude;
-   Algorithm::ConstantFractionTime fConstantFractionTime;
-   Algorithm::SimpleIntegral fSimpleIntegral;
+   const Algorithm::MaxBinAmplitude fMaxBinAmplitude;
+   const Algorithm::ConstantFractionTime fConstantFractionTime;
+   const Algorithm::SimpleIntegral fSimpleIntegral;
 
    // The pulse candidate finder that we will use
    PulseCandidateFinder* fPulseCandidateFinder;

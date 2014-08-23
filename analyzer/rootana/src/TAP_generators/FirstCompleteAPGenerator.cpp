@@ -12,24 +12,18 @@
 #include <cmath>
 #include <sstream>
 
-using std::cout;
-using std::endl;
-
 FirstCompleteAPGenerator::FirstCompleteAPGenerator(TAPGeneratorOptions* opts):
   TVAnalysedPulseGenerator("FirstComplete",opts),
   fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
 		   TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
   fConstantFractionTime(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
 			TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
-			std::pow(2, TSetupData::Instance()->GetNBits(TSetupData::Instance()->GetBankName(GetChannel().str()))) - 1,
 			TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
-			opts->GetDouble("time_shift", TSetupData::Instance()->GetTimeShift(TSetupData::Instance()->GetBankName(GetChannel().str()))),
-			opts->GetDouble("constant_fraction", -0.10)), 
+			opts->GetBool("no_time_shift", false) ? 0. : SetupNavigator::Instance()->GetCoarseTimeOffset(GetSource()),
+			opts->GetDouble("constant_fraction")), 
   fSimpleIntegral(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
 		  TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
   fPulseCandidateFinder(new PulseCandidateFinder(GetChannel().str(), opts)) {
-
-        // Do things to set up the generator here. 
 }
 
 FirstCompleteAPGenerator::~FirstCompleteAPGenerator(){
@@ -56,17 +50,6 @@ int FirstCompleteAPGenerator::ProcessPulses(
         int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
         fPulseCandidateFinder->GetPulseCandidates(fSubPulses);
 
-        if (Debug() && n_pulse_candidates > 0
-	    && (GetChannel().str() == "ScL")
-	   ) {
-	  
-	  std::cout << "FirstCompleteAPGenerator: " << GetChannel().str() 
-		    << ": n_pulse_candidates = " << n_pulse_candidates  << std::endl;
-
-            DrawPulse(original_tpi-pulseList.begin(),
-                    (*original_tpi)->GetTimeStamp(),
-                    (*original_tpi)->GetPulseLength());
-        }
 
         for(PulseIslandList::const_iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){
             // Skip small pulses.  This must be at least 1 to skip empty pulses
@@ -124,4 +107,4 @@ void FirstCompleteAPGenerator::DrawPulse(int original, int pulse_timestamp, int 
     }
 }
 
-ALCAP_TAP_GENERATOR(FirstComplete);
+ALCAP_TAP_GENERATOR(FirstComplete,constant_fraction,no_time_shift);

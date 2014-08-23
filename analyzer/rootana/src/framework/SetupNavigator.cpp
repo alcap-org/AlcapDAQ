@@ -98,7 +98,7 @@ void SetupNavigator::ReadPedestalAndNoiseValues() {
   double pedestal=definitions::DefaultValue;
   double noise=definitions::DefaultValue;
   std::string channelname;
- 
+
   std::stringstream query;
   int run_number = GetRunNumber(); // get this run number (Note that if we don't have a catalogue of pedestals and noises for each run then we will want to change this)
 
@@ -109,8 +109,8 @@ void SetupNavigator::ReadPedestalAndNoiseValues() {
   TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
   while (row != NULL) {
     channelname = row->GetField(1);
-    pedestal = atof(row->GetField(3));
-    noise = atof(row->GetField(4));
+    pedestal = atof(row->GetField(2));
+    noise = atof(row->GetField(3));
     
     fPedestalValues[channelname] = pedestal;
     fNoiseValues[channelname] = noise;
