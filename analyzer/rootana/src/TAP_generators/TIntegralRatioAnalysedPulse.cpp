@@ -4,5 +4,4 @@
 #include "Functions.h"
 
 void TIntegralRatioAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
-	}
 }

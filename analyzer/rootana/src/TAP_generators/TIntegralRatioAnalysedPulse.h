@@ -1,5 +1,5 @@
-#ifndef TGAUSSFITANALYSEDPULSE_H
-#define TGAUSSFITANALYSEDPULSE_H
+#ifndef TINTEGRALRATIOAUSSFITANALYSEDPULSE_H
+#define TINTEGRALRATIOAUSSFITANALYSEDPULSE_H
 
 #include "TAnalysedPulse.h"
 #include <TObject.h>
@@ -29,7 +29,7 @@ class TIntegralRatioAnalysedPulse:public TAnalysedPulse{
         /// Set both the value and error for each field
         /// @{
         void SetIntegralSmall(const double& val){fIntegralSmall=val;}
-        void SetIntegralRato(const double& val){fIntegralRatio=val;}
+        void SetIntegralRatio(const double& val){fIntegralRatio=val;}
         /// @}
 
         /// @@brief overload the TAnalysedPulse::Draw method
@@ -42,4 +42,4 @@ class TIntegralRatioAnalysedPulse:public TAnalysedPulse{
         ClassDef(TIntegralRatioAnalysedPulse,1);
 };
 
-#endif // TIntegralRatioAnalysedPulse.h
+#endif //TINTEGRALRATIOAUSSFITANALYSEDPULSE_H
