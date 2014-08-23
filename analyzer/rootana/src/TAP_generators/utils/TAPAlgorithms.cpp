@@ -5,14 +5,13 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 
-#include <iostream>
-
-double Algorithm::MaxBinAmplitude::operator() (const TPulseIsland* tpi) {
+double Algorithm::MaxBinAmplitude::operator() (const TPulseIsland* tpi) const {
 
   // Get the samples and get an iterator ready to find the peak sample
-  std::vector<int> pulseSamples = tpi->GetSamples();  
-  std::vector<int>::iterator peak_sample_pos;
+  const std::vector<int>& pulseSamples = tpi->GetSamples();  
+  std::vector<int>::const_iterator peak_sample_pos;
 
   // Find the position of the peak samples
   if (trigger_polarity == 1)
@@ -26,7 +25,7 @@ double Algorithm::MaxBinAmplitude::operator() (const TPulseIsland* tpi) {
   return amplitude;
 }
 
-double Algorithm::MaxBinTime::operator() (const TPulseIsland* tpi) {
+double Algorithm::MaxBinTime::operator() (const TPulseIsland* tpi) const {
 
   // Get the samples and get an iterator ready to find the peak sample
   std::vector<int> pulseSamples = tpi->GetSamples();  
@@ -44,10 +43,10 @@ double Algorithm::MaxBinTime::operator() (const TPulseIsland* tpi) {
   return time;
 }
 
-double Algorithm::ConstantFractionTime::operator() (const TPulseIsland* tpi) {
+double Algorithm::ConstantFractionTime::operator() (const TPulseIsland* tpi) const {
 
   const std::vector<int>& samps = tpi->GetSamples();
-  std::vector<int>::const_iterator b = samps.begin(), e = samps.end();
+  const std::vector<int>::const_iterator b = samps.begin(), e = samps.end();
 
   std::vector<int>::const_iterator m = trigger_polarity > 0 ? std::max_element(b, e) : std::min_element(b, e);
   const int amp = *m;
@@ -62,15 +61,8 @@ double Algorithm::ConstantFractionTime::operator() (const TPulseIsland* tpi) {
   return (dx + (double)tpi->GetTimeStamp()) * clock_tick_in_ns - time_shift;
 }
 
-double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi) {
-  const std::vector<int>& samples = tpi->GetSamples();
-  
-  double length = samples.size();
-  double tempint = 0;
-  for(std::vector<int>::const_iterator sIt = samples.begin(); sIt != samples.end(); sIt++)
-    tempint += *sIt;
-  
-  double integral = trigger_polarity * (tempint - (pedestal * length));
-
-  return integral;
+double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi) const {
+  const std::vector<int>& samples = tpi->GetSamples();  
+  return (double)trigger_polarity *
+    ((double)std::accumulate(samples.begin(), samples.end(), 0) - pedestal * (double)samples.size());
 }
