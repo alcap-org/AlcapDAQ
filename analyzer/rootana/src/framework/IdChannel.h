@@ -147,6 +147,9 @@ public:
   /// Returns kErrorSlowFast if the given string doesn't match any known value
   static SlowFast_t GetSlowFastEnum(const std::string& sf);
 
+  /// Print the individual components of the ID
+  void Debug()const;
+
 private:
   /// The detector that produced this channel
   Detector_t fDetector;
