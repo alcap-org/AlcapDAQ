@@ -8,13 +8,14 @@
 #include <stdexcept>
 using std::cout;
 using std::endl;
+#include "debug_tools.h"
 
 IntegralRatioAPGenerator::IntegralRatioAPGenerator(TAPGeneratorOptions* opts):
     TVAnalysedPulseGenerator("IntegralRatio",opts),
         fStartIntegral(opts->GetInt("start_int","x>=0")),
         fStopIntegral(opts->GetInt("stop_int","x>=0")),
         fStartTail(opts->GetInt("start_tail",Form("x>%g",fStartIntegral))),
-        fPedestal(GetChannel().isFast()?1213:2680),
+        fPedestal(GetChannel().isFast()?900:2728),
         fPolarity(GetChannel().isFast()?1:-1),
         fFullIntegrator( fPedestal, fPolarity, fStartIntegral, fStopIntegral),
         fTailIntegrator( fPedestal, fPolarity, fStartTail, fStopIntegral){
