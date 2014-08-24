@@ -1,6 +1,6 @@
 #include "IdSource.h"
 #include <iostream>
-
+#include "debug_tools.h"
 ClassImp(IDs::source);
 
 std::string IDs::source::str()const{
@@ -23,4 +23,9 @@ IDs::source& IDs::source::operator=(const std::string& rhs){
         Generator()=rhs.substr(delim+1);
     }
     return *this;
+}
+
+void IDs::source::Debug()const{
+    Channel().Debug();
+    Generator().Debug();
 }

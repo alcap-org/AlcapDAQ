@@ -26,3 +26,8 @@ IDs::generator& IDs::generator::operator=(const std::string& rhs){
     }
     return *this;
 }
+
+void IDs::generator::Debug()const{
+    std::cout<<"Generator: "<<Type()<<std::endl;
+    std::cout<<"Config: "<<Config()<<std::endl;
+}

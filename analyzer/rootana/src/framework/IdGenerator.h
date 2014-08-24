@@ -86,6 +86,9 @@ class IDs::generator:public TObject{
     /// Check if any part of the ID is a wildcard
     bool isWildCard() const { return isWildCardConfig() || isWildCardType(); }
 
+    /// Print the individual components of the ID
+    void Debug()const;
+
 	private:
 	/// Stores the type of this generator
 	Generator_t fType;

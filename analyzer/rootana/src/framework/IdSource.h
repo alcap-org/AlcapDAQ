@@ -44,7 +44,7 @@ class IDs::source:public TObject{
   /// @param gen The type of generator used to analyse the channel
   /// @param cfg The generator's configuration
   source(const std::string& det, const std::string& type,
-         const std::string& gen, const std::string& cfg=IDs::kAnyConfig)
+         const std::string& gen, const std::string& cfg=IDs::kDefaultConfig)
     : fChannel(det,type), fGenerator(gen,cfg) {};
 
   /// Construct using enums for each argument of the contained generator and
@@ -54,7 +54,7 @@ class IDs::source:public TObject{
   /// @param type The type of timing filter (Slow / Fast) used in this source
   /// @param gen The type of generator used to analyse the channel
   /// @param cfg The generator's configuration
-  source(Detector_t det, SlowFast_t type,const Generator_t& t ,const Config_t& c)
+  source(Detector_t det, SlowFast_t type,const Generator_t& t ,const Config_t& c=IDs::kDefaultConfig)
   :  fChannel(det,type),fGenerator(t,c){};
   
   virtual ~source(){};
@@ -115,6 +115,9 @@ class IDs::source:public TObject{
 
   /// Check if the Channel is slow
   bool isSlow() const {return Channel().isSlow();};
+
+  /// Print the individual components of the source
+  void Debug()const;
 
  private:
   channel fChannel;
