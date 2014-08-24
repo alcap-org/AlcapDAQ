@@ -4,7 +4,9 @@
 #include "IntegralRatioAPGenerator.h"
 #include "TPulseIsland.h"
 #include "TIntegralRatioAnalysedPulse.h"
+
 #include <iostream>
+#include <algorithm>
 #include <stdexcept>
 using std::cout;
 using std::endl;
@@ -27,10 +29,14 @@ int IntegralRatioAPGenerator::ProcessPulses(
         AnalysedPulseList& analysedList){
 
     // Loop over all the TPIs given to us
-    double integral, tail;
+    double integral, tail,pedestal;
     TIntegralRatioAnalysedPulse* tap;
     for (PulseIslandList::const_iterator tpi=pulseList.begin();
             tpi!=pulseList.end(); tpi++){
+
+        pedestal=*std::min_element((*tpi)->GetSamples().begin(), (*tpi)->GetSamples().end());
+        fFullIntegrator.pedestal=pedestal;
+        fTailIntegrator.pedestal=pedestal;
 
         // Analyse each TPI
         try{
