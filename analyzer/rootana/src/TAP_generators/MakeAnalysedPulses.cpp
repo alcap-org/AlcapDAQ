@@ -20,8 +20,11 @@ extern Long64_t* gEntryNumber;
 
 MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
   BaseModule("MakeAnalysedPulses",opts,false),
-  fSlowGeneratorType(opts->GetString("default_slow_generator","MaxBin")), fFastGeneratorType(opts->GetString("default_fast_generator","MaxBin")),
-  fChannelsToAnalyse(), fOptions(opts), fDefaultOpts(new TAPGeneratorOptions("default generator options")) {
+  fSlowGeneratorType(opts->GetString("default_slow_generator","MaxBin")),
+  fFastGeneratorType(opts->GetString("default_fast_generator","MaxBin")),
+  fChannelsToAnalyse(),
+  fOptions(opts),
+  fDefaultOpts(new TAPGeneratorOptions("default generator options")) {
   opts->GetVectorStringsByWhiteSpace("analyse_channels",fChannelsToAnalyse);
   if(Debug()) fDefaultOpts->SetOption("debug","true");
 }
