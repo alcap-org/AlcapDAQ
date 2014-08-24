@@ -25,8 +25,8 @@ namespace modules {class options;}
 class PlotIntegralRatios : public BaseModule {
     struct SourcePlots_t{
         IDs::source src;
-        TH1F* ratio;
-        TH2F* full_v_tail;
+        TH1F* ratio,*ratio_zoomed,*assymetry;
+        TH2F* full_v_tail,*assymetry2d;
     };
   typedef std::vector<SourcePlots_t> SourceList_t;
 
