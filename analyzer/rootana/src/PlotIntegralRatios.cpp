@@ -1,4 +1,3 @@
-#include "ExportPulse.h"
 #include "PlotIntegralRatios.h"
 #include "RegisterModule.inc"
 #include "TGlobalData.h"
@@ -6,6 +5,9 @@
 #include "ModulesOptions.h"
 #include "definitions.h"
 #include "TIntegralRatioAnalysedPulse.h"
+
+#include <TH1F.h>
+#include <TH2F.h>
 
 #include "debug_tools.h"
 
@@ -18,7 +20,6 @@ extern SourceAnalPulseMap gAnalysedPulseMap;
 PlotIntegralRatios::PlotIntegralRatios(modules::options* opts):
    BaseModule("PlotIntegralRatios",opts),
     fSource(opts->GetString("source","SiR2-*#IntegralRatio#any")){
-        fThresh=opts->GetDouble("threshold",0.9);
 }
 
 PlotIntegralRatios::~PlotIntegralRatios(){
@@ -34,8 +35,15 @@ int PlotIntegralRatios::BeforeFirstEntry(TGlobalData* gData,const TSetupData *se
             tmp.ratio=new TH1F(
                     modules::parser::ToCppValid("h"+tmp.src.str()+"_ratio").c_str(),
                     ("Ratio of integrals for "+tmp.src.str()).c_str(),
-                    100,0,10);
+                    100,0,1);
             tmp.ratio->SetXTitle("Ratio of total to tail integral");
+
+            tmp.full_v_tail=new TH2F(
+                    modules::parser::ToCppValid("h"+tmp.src.str()+"_2d").c_str(),
+                    ("Integrals for "+tmp.src.str()).c_str(),
+                    100,0,-1,100,0,-1);
+            tmp.full_v_tail->SetXTitle("tail integral");
+            tmp.full_v_tail->SetYTitle("full integral");
             fSourcesToPlot.push_back(tmp);
         }
     }
@@ -64,10 +72,10 @@ int PlotIntegralRatios::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
                 pulse=static_cast<TIntegralRatioAnalysedPulse*>(*i_pulse);
             }
             double ratio=pulse->GetIntegralRatio();
+            double full=pulse->GetIntegral();
+            double tail=pulse->GetIntegralSmall();
             i_source->ratio->Fill(ratio);
-            if(ratio > fThresh && ExportPulse::Instance()){
-                ExportPulse::Instance()->AddToExportList(pulse);
-            }
+            i_source->full_v_tail->Fill(full,tail);
         }
 
     }
@@ -78,4 +86,4 @@ int PlotIntegralRatios::AfterLastEntry(TGlobalData* gData,const TSetupData *setu
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(PlotIntegralRatios,source,threshold);
+ALCAP_REGISTER_MODULE(PlotIntegralRatios,source);

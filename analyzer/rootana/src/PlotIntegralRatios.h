@@ -4,6 +4,8 @@
 #include "BaseModule.h"
 class TGlobalData;
 class TSetupData;
+class TH1F;
+class TH2F;
 namespace modules {class options;}
 #include "IdSource.h"
 
@@ -24,6 +26,7 @@ class PlotIntegralRatios : public BaseModule {
     struct SourcePlots_t{
         IDs::source src;
         TH1F* ratio;
+        TH2F* full_v_tail;
     };
   typedef std::vector<SourcePlots_t> SourceList_t;
 
@@ -59,7 +62,6 @@ class PlotIntegralRatios : public BaseModule {
 
   SourceList_t fSourcesToPlot;
   IDs::source fSource;
-  double fThresh;
 };
 
 #endif //PLOTINTEGRALRATIOS_H_
