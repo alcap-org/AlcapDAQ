@@ -22,7 +22,7 @@ class TIntegralRatioAnalysedPulse:public TAnalysedPulse{
         /// @name Getters
         /// @{
         double GetIntegralSmall()const{return fIntegralSmall;}
-        double GetIntegralRato()const{return fIntegralRatio;}
+        double GetIntegralRatio()const{return fIntegralRatio;}
         /// @}
 
         /// @name Setters

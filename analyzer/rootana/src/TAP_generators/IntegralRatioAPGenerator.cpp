@@ -5,16 +5,17 @@
 #include "TPulseIsland.h"
 #include "TIntegralRatioAnalysedPulse.h"
 #include <iostream>
+#include <stdexcept>
 using std::cout;
 using std::endl;
 
 IntegralRatioAPGenerator::IntegralRatioAPGenerator(TAPGeneratorOptions* opts):
     TVAnalysedPulseGenerator("IntegralRatio",opts),
-        fStartIntegral(opts->GetInt("start_int","x>0")),
-        fStopIntegral(opts->GetInt("stop_int","x>0")),
-        fStartTail(opts->GetInt("start_tail",Form("x>%g && x<%g",fStartIntegral,fStopIntegral))),
-        fPedestal(SetupNavigator::Instance()->GetPedestal(GetChannel())),
-        fPolarity(TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
+        fStartIntegral(opts->GetInt("start_int","x>=0")),
+        fStopIntegral(opts->GetInt("stop_int","x>=0")),
+        fStartTail(opts->GetInt("start_tail",Form("x>%g",fStartIntegral))),
+        fPedestal(GetChannel().isFast()?1213:2680),
+        fPolarity(GetChannel().isFast()?1:-1),
         fFullIntegrator( fPedestal, fPolarity, fStartIntegral, fStopIntegral),
         fTailIntegrator( fPedestal, fPolarity, fStartTail, fStopIntegral){
     }
@@ -31,8 +32,12 @@ int IntegralRatioAPGenerator::ProcessPulses(
             tpi!=pulseList.end(); tpi++){
 
         // Analyse each TPI
-        integral=fFullIntegrator(*tpi);
-        tail=fTailIntegrator(*tpi);
+        try{
+            integral=fFullIntegrator(*tpi);
+            tail=fTailIntegrator(*tpi);
+        }catch(std::out_of_range& e){
+            continue;
+        }
 
         // Now that we've found the information we were looking for make a TAP to
         // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
