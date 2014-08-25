@@ -21,7 +21,6 @@ CFTimeAPGenerator::CFTimeAPGenerator(TAPGeneratorOptions* opts):
   // Set-up the algorithm in the generator list (it looks a bit messy)
   fConstantFractionTime(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
 			TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
-			std::pow(2, TSetupData::Instance()->GetNBits(TSetupData::Instance()->GetBankName(GetChannel().str()))) - 1,
 			TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
 			opts->GetDouble("time_shift", TSetupData::Instance()->GetTimeShift(TSetupData::Instance()->GetBankName(GetChannel().str()))),
 			opts->GetDouble("constant_fraction", -0.10)
