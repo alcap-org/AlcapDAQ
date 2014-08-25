@@ -26,7 +26,7 @@ class PlotIntegralRatios : public BaseModule {
     struct SourcePlots_t{
         IDs::source src;
         TH1F* ratio,*ratio_zoomed,*assymetry;
-        TH2F* full_v_tail,*assymetry2d;
+        TH2F* full_v_tail,*assymetry2d, *full_v_ratio, *diff_v_ratio;
     };
   typedef std::vector<SourcePlots_t> SourceList_t;
 
@@ -62,6 +62,7 @@ class PlotIntegralRatios : public BaseModule {
 
   SourceList_t fSourcesToPlot;
   IDs::source fSource;
+  double fShiftFull, fShiftDifference;
 };
 
 #endif //PLOTINTEGRALRATIOS_H_
