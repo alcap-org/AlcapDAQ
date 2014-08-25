@@ -138,7 +138,8 @@ void SetupNavigator::ReadCoarseTimeOffsetValues() {
     for (unsigned int i = 0; i < table.size(); ++i) {
       std::stringstream srcstr;
       srcstr << row->GetField(0) << IDs::field_separator << table[i];
-      fCoarseTimeOffset[IDs::source(srcstr.str())] = atof(row->GetField(1 + i));
+      if(row->GetFieldLength(1+i))
+	fCoarseTimeOffset[IDs::source(srcstr.str())] = atof(row->GetField(1 + i));
     }
     delete row;
   }
