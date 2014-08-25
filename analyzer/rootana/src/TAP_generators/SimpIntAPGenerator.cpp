@@ -7,17 +7,17 @@
 using std::cout;
 using std::endl;
 
+SimpIntAPGenerator::SimpIntAPGenerator(TAPGeneratorOptions* opts):
+  TVAnalysedPulseGenerator("SimpInt", opts),
+  fSimpleIntegral(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+		  TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))) {
+
+}
 
 int SimpIntAPGenerator::ProcessPulses( 
 	  const PulseIslandList& pulseList, AnalysedPulseList& analysedList)
 {
-
   TAnalysedPulse* outPulse;
-
-  // Get the relevant variables from TSetupData/SetupNavigator that this generator wants
-  std::string bankname = pulseList[0]->GetBankName();
-  fSimpleIntegral.pedestal = SetupNavigator::Instance()->GetPedestal(bankname);
-  fSimpleIntegral.trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
 
   for(PulseIslandList::const_iterator pIt = pulseList.begin(); pIt != pulseList.end(); pIt++)
     {    

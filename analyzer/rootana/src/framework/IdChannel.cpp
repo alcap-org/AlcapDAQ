@@ -1,8 +1,11 @@
+#include "AlcapExcept.h"
 #include "ModulesParser.h"
 #include "IdChannel.h"
 #include <iostream>
 #include <ostream>
 #include <algorithm>
+
+MAKE_EXCEPTION(InvalidDetector,Base)
 
 ClassImp(IDs::channel);
 
@@ -54,7 +57,7 @@ IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
         if(modules::parser::iequals(det,names[i])) return (Detector_t)i;
      } 
      std::cout<<"Unknown detector name given to IDs::channel: '"<<det<<"'"<<std::endl;
-     return kErrorDetector;
+     throw Except::InvalidDetector(det.c_str());
 }
 
 IDs::channel& IDs::channel::operator=(const std::string& rhs){

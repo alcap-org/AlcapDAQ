@@ -8,7 +8,7 @@ class TDPGeneratorOptions;
 class TDPGeneratorFactory:public TemplateFactory<TVDetectorPulseGenerator,TDPGeneratorOptions>{
 	private:
 		TDPGeneratorFactory():
-			TemplateFactory<TVDetectorPulseGenerator,TDPGeneratorOptions>(){};
+			TemplateFactory<TVDetectorPulseGenerator,TDPGeneratorOptions>("TDPGeneratorFactory"){};
 		~TDPGeneratorFactory(){};
 	 public:
 		// Get the single instance of this class

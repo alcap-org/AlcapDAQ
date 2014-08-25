@@ -1,4 +1,5 @@
 import SGEJob
+import ScreenManager
 from AlCapExceptions import *
 
 import os
@@ -7,6 +8,7 @@ import subprocess
 import ftplib
 import netrc
 import datetime
+import time
 
 if "DAQdir" not in os.environ.keys():
     raise AlCapError("DAQdir not set")
@@ -26,6 +28,7 @@ DUMPdir = DATAdir + "/dump"
 LOGdir = DATAdir + "/log"
 OUTdir = DATAdir + "/out"
 TMPdir = DAQdir + "/analyzer/batch/tmp/odb"
+CFGdir = DAQdir + "/analyzer/rootana/configurations"
 
 if not os.path.exists(DATAdir):
     os.makedirs(DATAdir)
@@ -117,7 +120,7 @@ def submitted_jobs():
 #  \param[in] infile The absolute path of the input file for rootana. Ignored
 #  for alcapana.
 #  \return An SGEJob representing the submitted job.
-def submit_job(run, prog, infile):
+def submit_job(run, prog, infile, mods=None, calib=False):
     if prog not in _PROGRAMS:
         raise UnknownProductionError(prog)
     
@@ -132,7 +135,9 @@ def submit_job(run, prog, infile):
     elif prog == _ROOTANA:
         cmd.append(infile)
         cmd.append(OUTdir + "/out%05d.root" % run)
-        cmd.append(DAQdir + "/analyzer/rootana/production.cfg")
+        cmd.append(os.path.abspath(mods))
+        if calib:
+            cmd.append("-c")
     con = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     [out, err] = con.communicate()
 
@@ -284,14 +289,33 @@ def remove_all_files(run, prod):
 #  Request list of jobs in the queue be stopped.
 #
 #  \param[in] jobs A list of SGEJobs to be stopped.
-def abort_jobs(jobs, screenman=None):
+def abort_jobs(jobs, screenman=ScreenManager.Dummy()):
     cmd = "qdel"
     for job in jobs:
         msg = "Cancelling job " + str(job.job_id)
-        if screenman:
-            screenman.Message(msg)
-        else:
-            print msg
+        screenman.Message(msg)
         arg = str(job.job_id)
         subprocess.Popen([cmd, arg], stdout=subprocess.PIPE)
     return
+
+## \brief
+#  Get exit status of job
+#
+#  \details
+#  Checks the exit status of a job using the qacct command.
+#  No checks are done, the job is assumed to have finished.
+#
+#  \param id Job id to check exit status of
+def exit_status(id):
+    cmd = ["qacct", "-j", str(id)]
+    ntrys = 0
+    while ntrys < 10:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        [out, err] = proc.communicate();
+        stats = dict(kv.split()[0:2] for kv in out.replace("=","").split("\n")[1:-1])
+        if "exit_status" in stats:
+            return int(stats["exit_status"])
+        ntrys = ntrys + 1
+        time.sleep(0.5)
+    raise AlCapException("Job ID not in queue account: " + str(id))
+    

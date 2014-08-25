@@ -7,11 +7,11 @@ using std::cout;
 using std::endl;
 
 int MaxTimeDiffMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
-		const StringDetPulseMap& detectorPulsesIn){
+		const SourceDetPulseMap& detectorPulsesIn){
 
 	  std::vector<DetectorPulseList::const_iterator> pulseIters;
 	  std::vector<DetectorPulseList::const_iterator> finalIters;
-	  for(StringDetPulseMap::const_iterator i_detector=detectorPulsesIn.begin();
+	  for(SourceDetPulseMap::const_iterator i_detector=detectorPulsesIn.begin();
 			  i_detector!=detectorPulsesIn.end(); i_detector++){
 			  pulseIters.push_back(i_detector->second.begin());
 			  finalIters.push_back(i_detector->second.end());
@@ -39,13 +39,13 @@ int MaxTimeDiffMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
 
 	      if (std::fabs(pulse_time - min_time) < time_difference) {
 		 if(Debug()) cout<<"Using pulse from: " << pulse->GetSource() << std::endl;
-		 muon_event->SetPulse(pulse->GetSource().str(), pulse);
+		 muon_event->AddPulse(pulse->GetSource(), pulse);
 		++(pulseIters[b]); // increment the iterator because we used the pulse
 	      }
 	    }
 	    muonEventsOut.push_back(muon_event);
 	    if(Debug()){
-	        cout<<"Created a TMuonEvent with "<<muon_event->GetNumPulses();
+	        cout<<"Created a TMuonEvent with "<<muon_event->TotalNumPulses();
 	        cout<< std::endl;
 	    }
 

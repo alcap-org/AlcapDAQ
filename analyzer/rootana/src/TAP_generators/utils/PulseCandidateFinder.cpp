@@ -21,24 +21,17 @@ PulseCandidateFinder::PulseCandidateFinder(std::string detname, modules::options
     SetDefaultParameterValues();
   }
   
-  if (fOneSigmaValues.empty()) {
-    SetOneSigmaValues();
-  }
-
-  if (fPedestalValues.empty()) {
-    SetPedestalValues();
-  }
-
   fNSigma = opts->GetInt("n_sigma", 0);
   if (fNSigma == 0) {
-    fParameterValue = opts->GetInt(detname, fDefaultParameterValues[fChannel]); // set the parameter value for this channel
+    std::string option = detname + "_param";
+    fParameterValue = opts->GetInt(option, fDefaultParameterValues[fChannel]); // set the parameter value for this channel
   }
   else {
-    fParameterValue = fNSigma * fOneSigmaValues[IDs::channel(detname)];
+    fParameterValue = fNSigma * SetupNavigator::Instance()->GetNoise(fChannel);
   }
 
-  fNoise = fOneSigmaValues[IDs::channel(fChannel)];
-  fPedestal = fPedestalValues[IDs::channel(fChannel)];
+  fNoise = SetupNavigator::Instance()->GetNoise(fChannel);
+  fPedestal = SetupNavigator::Instance()->GetPedestal(fChannel);
 
   if (opts->HasOption("debug") && (opts->GetOption("debug").empty() || opts->GetBool("debug"))) {
     std::cout << "Parameter Value for " << fChannel << " PulseCandidateFinder is " << fParameterValue << std::endl; // would be nice to know which module this is for
@@ -54,16 +47,26 @@ void PulseCandidateFinder::FindPulseCandidates(TPulseIsland* pulse) {
 
   fPulseIsland = pulse;
 
-  // We have a different algorithm for fast and slow pulses
-  if (fChannel.isFast()) {
-    FindCandidatePulses_Fast(fParameterValue);
-  }
-  else if (fChannel.isSlow()) {
+  // If we are using the "n_sigma" option, then all channels should use the slow pulse algorithm
+  if (fNSigma != 0) {
     FindCandidatePulses_Slow(fParameterValue);
   }
-  else {
-    // this is a scintillator so do the fast pulse analysis
-    FindCandidatePulses_Fast(fParameterValue);
+  else { // We have a different algorithm for fast and slow pulses
+    if (fChannel.isFast()) {
+      if (fChannel.Detector() != IDs::kGe) {
+	FindCandidatePulses_Slow(fParameterValue); // use the slow algorithm for the fast silicon pulses because of the noisy pedestal
+      }
+      else {
+	FindCandidatePulses_Fast(fParameterValue);
+      }
+    }
+    else if (fChannel.isSlow()) {
+      FindCandidatePulses_Slow(fParameterValue);
+    }
+    else {
+      // this is a scintillator so do the fast pulse analysis
+      FindCandidatePulses_Fast(fParameterValue);
+    }
   }
 }
 
@@ -208,6 +211,9 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
 	    location.start = (int)(j);
 	    break;
 	  }
+	  else if (j == 1) { // if we are at the last iteration
+	    location.start = 0; // set the location to the start since we haven't gone below pedestal again
+	  }
 	}
 	if (location.start < 0) {
 	  location.start = 0;
@@ -220,71 +226,32 @@ void PulseCandidateFinder::FindCandidatePulses_Slow(int threshold) {
 
 /// FillParameterHistogram
 /// Fills the given histogram with the relevant parameter based on the channel
-void PulseCandidateFinder::FillParameterHistogram(TH1D* histogram) {
+void PulseCandidateFinder::FillParameterHistogram(TH2D* histogram) {
 
   std::string detname = TSetupData::Instance()->GetDetectorName(fPulseIsland->GetBankName());
   IDs::channel theChannel = detname;
 
-  std::string parameter_name = "Unknown";
-
-  // We have a different algorithm for fast and slow pulses
-  if (theChannel.isFast()) {
-    parameter_name = "SampleDifference";
-    FillSampleDifferencesHistogram(histogram);
-  }
-  else if (theChannel.isSlow()) {
-    parameter_name = "SampleHeight";
-    FillSampleHeightsHistogram(histogram);
-  }
-  else {
-    // it's a scintillator so plot the fast parameters
-    parameter_name = "SampleDifference";
-    FillSampleDifferencesHistogram(histogram);
-  }
-
-  std::stringstream histtitle;
-  histtitle << "Plot of " << parameter_name << " for " << detname << " for Run " << SetupNavigator::Instance()->GetRunNumber();
-  histogram->SetTitle(histtitle.str().c_str());
-  histogram->GetYaxis()->SetTitle("");
-  histogram->GetXaxis()->SetTitle(parameter_name.c_str());
-}
-
-/// FillSampleDifferencesHistogram
-/// Fills the given histogram with the differences between consecutive samples
-void PulseCandidateFinder::FillSampleDifferencesHistogram(TH1D* histogram) {
-
+  // Get some information from the TPI
   const std::vector<int>& samples = fPulseIsland->GetSamples();
   unsigned int n_samples = samples.size();
   int polarity = fPulseIsland->GetTriggerPolarity();
 
   int s1, s2, ds; // this sample value, the previous sample value and the change in the sample value
 
-  // Loop through the samples
+  // Loop through the samples and plot the 2D plot
   for (unsigned int i = 1; i < n_samples; ++i) {
     s1 = polarity * (samples[i-1] - fPedestal);
     s2 = polarity * (samples[i] - fPedestal);
     ds = s2 - s1;
 
-    histogram->Fill(ds);
+    histogram->Fill(ds, s1);
   }
-}
 
-/// FillSampleHeightsHistogram
-/// Fills the given histogram with the heights between consecutive samples
-void PulseCandidateFinder::FillSampleHeightsHistogram(TH1D* histogram) {
-
-  const std::vector<int>& samples = fPulseIsland->GetSamples();
-  unsigned int n_samples = samples.size();
-  int polarity = fPulseIsland->GetTriggerPolarity();
-
-  int sample_height; // the height of this sample above pedestal
-
-  // Loop through the samples
-  for (unsigned int i = 0; i < n_samples; ++i) {
-    sample_height = polarity * (samples[i] - fPedestal);
-
-    histogram->Fill(sample_height);
-  }
+  std::stringstream histtitle;
+  histtitle << "Plot of sample differences vs sample heights for " << detname << " for Run " << SetupNavigator::Instance()->GetRunNumber();
+  histogram->SetTitle(histtitle.str().c_str());
+  histogram->GetYaxis()->SetTitle("Sample Heights");
+  histogram->GetXaxis()->SetTitle("Sample Differences");
 }
 
 /// Need to declare this outside of any method
@@ -302,125 +269,35 @@ void PulseCandidateFinder::SetDefaultParameterValues() {
 
   fDefaultParameterValues[IDs::channel("Ge-F")] = 40;
 
-  fDefaultParameterValues[IDs::channel("ScL")] = 15;
-  fDefaultParameterValues[IDs::channel("ScR")] = 20;
+  fDefaultParameterValues[IDs::channel("ScL")] = 100;
+  fDefaultParameterValues[IDs::channel("ScR")] = 100;
   fDefaultParameterValues[IDs::channel("ScGe")] = 20;
-  fDefaultParameterValues[IDs::channel("ScVe")] = 30;
+  fDefaultParameterValues[IDs::channel("ScVe")] = 100;
 
-  fDefaultParameterValues[IDs::channel("SiL2-F")] = 80;
-  fDefaultParameterValues[IDs::channel("SiL1-1-F")] = 40;
-  fDefaultParameterValues[IDs::channel("SiL1-2-F")] = 20;
-  fDefaultParameterValues[IDs::channel("SiL1-3-F")] = 20;
-  fDefaultParameterValues[IDs::channel("SiL1-4-F")] = 80;
+  fDefaultParameterValues[IDs::channel("SiL2-F")] = 300;
+  fDefaultParameterValues[IDs::channel("SiL1-1-F")] = 130;
+  fDefaultParameterValues[IDs::channel("SiL1-2-F")] = 500;
+  fDefaultParameterValues[IDs::channel("SiL1-3-F")] = 135;
+  fDefaultParameterValues[IDs::channel("SiL1-4-F")] = 140;
 
-  fDefaultParameterValues[IDs::channel("SiR2-F")] = 20;
-  fDefaultParameterValues[IDs::channel("SiR1-1-F")] = 40;
-  fDefaultParameterValues[IDs::channel("SiR1-2-F")] = 60;
-  fDefaultParameterValues[IDs::channel("SiR1-3-F")] = 80;
-  fDefaultParameterValues[IDs::channel("SiR1-4-F")] = 40;
+  fDefaultParameterValues[IDs::channel("SiR2-F")] = 300;
+  fDefaultParameterValues[IDs::channel("SiR1-1-F")] = 135;
+  fDefaultParameterValues[IDs::channel("SiR1-2-F")] = 140;
+  fDefaultParameterValues[IDs::channel("SiR1-3-F")] = 140;
+  fDefaultParameterValues[IDs::channel("SiR1-4-F")] = 150;
 
   // Set all the default values for the slow parameters
   fDefaultParameterValues[IDs::channel("Ge-S")] = 500;
 
-  fDefaultParameterValues[IDs::channel("SiL2-S")] = 20;
-  fDefaultParameterValues[IDs::channel("SiL1-1-S")] = 20;
-  fDefaultParameterValues[IDs::channel("SiL1-2-S")] = 150;
-  fDefaultParameterValues[IDs::channel("SiL1-3-S")] = 20;
-  fDefaultParameterValues[IDs::channel("SiL1-4-S")] = 40;
+  fDefaultParameterValues[IDs::channel("SiL2-S")] = 100;
+  fDefaultParameterValues[IDs::channel("SiL1-1-S")] = 50;
+  fDefaultParameterValues[IDs::channel("SiL1-2-S")] = 80;
+  fDefaultParameterValues[IDs::channel("SiL1-3-S")] = 120;
+  fDefaultParameterValues[IDs::channel("SiL1-4-S")] = 80;
 
-  fDefaultParameterValues[IDs::channel("SiR2-S")] = 50;
+  fDefaultParameterValues[IDs::channel("SiR2-S")] = 100;
   fDefaultParameterValues[IDs::channel("SiR1-1-S")] = 50;
-  fDefaultParameterValues[IDs::channel("SiR1-2-S")] = 30;
-  fDefaultParameterValues[IDs::channel("SiR1-3-S")] = 40;
-  fDefaultParameterValues[IDs::channel("SiR1-4-S")] = 40;
-}
-
-/// Need to declare this outside of any method
-std::map<IDs::channel, double> PulseCandidateFinder::fOneSigmaValues;
-
-/// SetOneSigmaValues()
-/// Sets the one sigma values that we get from the text file
-/// TODO: use SetupNavigator::GetPedestalError instead of doing it ourselves
-void PulseCandidateFinder::SetOneSigmaValues() {
-
-  // The values that we will read in
-  std::string run_number;
-  std::string detname, bankname;
-  std::string pedestal, noise;
-
-  // Get the SQLite database file
-  TSQLiteServer* server = new TSQLiteServer("sqlite://pedestals-and-noises.sqlite");
-
-  std::stringstream query; 
-  std::string tablename = "pedestals_and_noises";
-  if (server) {
-
-    query << "SELECT * FROM " << tablename << ";"; // get all the pedestals and noises
-    TSQLiteResult* result = (TSQLiteResult*) server->Query(query.str().c_str());  // get the result of this query
-    query.str(""); // clear the stringstream after use
-
-    TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
-    while (row != NULL) {
-      //      std::cout << row->GetField(0) << " " << row->GetField(1) << " " << row->GetField(2) << " " << row->GetField(3) << " " << row->GetField(4) << std::endl;
-      run_number = row->GetField(0);
-      detname = row->GetField(1);
-      bankname = row->GetField(2);
-      pedestal = row->GetField(3);
-      noise = row->GetField(4);
-
-      fOneSigmaValues[IDs::channel(detname)] = atof(noise.c_str());
-      
-      delete row;
-      row = (TSQLiteRow*) result->Next(); // get the next row
-    }
-    delete result; // user has to delete the result
-  }
-  else {
-    std::cout << "Error: Couldn't connect to SQLite database" << std::endl;
-  }
-}
-
-/// Need to declare this outside of any method
-std::map<IDs::channel, double> PulseCandidateFinder::fPedestalValues;
-
-/// SetPedestalValues()
-/// Sets the one sigma values that we get from the text file
-/// TODO: use SetupNavigator::GetPedestal instead of doing it ourselves
-void PulseCandidateFinder::SetPedestalValues() {
-
-  // The values that we will read in
-  std::string run_number;
-  std::string detname, bankname;
-  std::string pedestal, noise;
-
-  // Get the SQLite database file
-  TSQLiteServer* server = new TSQLiteServer("sqlite://pedestals-and-noises.sqlite");
-
-  std::stringstream query; 
-  std::string tablename = "pedestals_and_noises";
-  if (server) {
-
-    query << "SELECT * FROM " << tablename << ";"; // get all the pedestals and noises
-    TSQLiteResult* result = (TSQLiteResult*) server->Query(query.str().c_str());  // get the result of this query
-    query.str(""); // clear the stringstream after use
-
-    TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
-    while (row != NULL) {
-      //      std::cout << row->GetField(0) << " " << row->GetField(1) << " " << row->GetField(2) << " " << row->GetField(3) << " " << row->GetField(4) << std::endl;
-      run_number = row->GetField(0);
-      detname = row->GetField(1);
-      bankname = row->GetField(2);
-      pedestal = row->GetField(3);
-      noise = row->GetField(4);
-
-      fPedestalValues[IDs::channel(detname)] = atof(pedestal.c_str());
-      
-      delete row;
-      row = (TSQLiteRow*) result->Next(); // get the next row
-    }
-    delete result; // user has to delete the result
-  }
-  else {
-    std::cout << "Error: Couldn't connect to SQLite database" << std::endl;
-  }
+  fDefaultParameterValues[IDs::channel("SiR1-2-S")] = 65;
+  fDefaultParameterValues[IDs::channel("SiR1-3-S")] = 65;
+  fDefaultParameterValues[IDs::channel("SiR1-4-S")] = 62;
 }

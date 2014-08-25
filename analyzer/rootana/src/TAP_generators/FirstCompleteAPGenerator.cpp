@@ -12,12 +12,18 @@
 #include <cmath>
 #include <sstream>
 
-using std::cout;
-using std::endl;
-
 FirstCompleteAPGenerator::FirstCompleteAPGenerator(TAPGeneratorOptions* opts):
-    TVAnalysedPulseGenerator("FirstComplete",opts), fOpts(opts){
-        // Do things to set up the generator here. 
+  TVAnalysedPulseGenerator("FirstComplete",opts),
+  fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+		   TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
+  fConstantFractionTime(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+			TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
+			TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
+			opts->GetBool("no_time_shift", false) ? 0. : SetupNavigator::Instance()->GetCoarseTimeOffset(GetSource()),
+			opts->GetDouble("constant_fraction")), 
+  fSimpleIntegral(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+		  TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
+  fPulseCandidateFinder(new PulseCandidateFinder(GetChannel().str(), opts)) {
 }
 
 FirstCompleteAPGenerator::~FirstCompleteAPGenerator(){
@@ -27,33 +33,12 @@ FirstCompleteAPGenerator::~FirstCompleteAPGenerator(){
     }
 }
 
-void FirstCompleteAPGenerator::SetChannel(const std::string& det){
-  fPulseCandidateFinder = new PulseCandidateFinder(det, fOpts);
-  TVAnalysedPulseGenerator::SetChannel(det);
-
-}
-
 int FirstCompleteAPGenerator::ProcessPulses( 
         const PulseIslandList& pulseList,
         AnalysedPulseList& analysedList){
 
     // The variables that this generator will be filling
     double amplitude, time, integral;
-
-    // Get the relevant TSetupData/SetupNavigator variables for the algorithms
-    std::string bankname = pulseList[0]->GetBankName();
-
-    fMaxBinAmplitude.pedestal 
-        = fConstantFractionTime.pedestal 
-        = fSimpleIntegral.pedestal 
-        = SetupNavigator::Instance()->GetPedestal(bankname);
-    fMaxBinAmplitude.trigger_polarity 
-        = fConstantFractionTime.trigger_polarity 
-        = fSimpleIntegral.trigger_polarity 
-        = TSetupData::Instance()->GetTriggerPolarity(bankname);
-    fConstantFractionTime.max_adc_value = std::pow(2, TSetupData::Instance()->GetNBits(bankname)) - 1;
-    fConstantFractionTime.clock_tick_in_ns = TSetupData::Instance()->GetClockTick(bankname);
-    fConstantFractionTime.time_shift = TSetupData::Instance()->GetTimeShift(bankname);
 
     TAnalysedPulse* tap;
     // Loop over all the TPIs given to us
@@ -65,19 +50,6 @@ int FirstCompleteAPGenerator::ProcessPulses(
         int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
         fPulseCandidateFinder->GetPulseCandidates(fSubPulses);
 
-	if(Debug()) {
-	  std::cout << "FirstCompleteAPGenerator: " << GetChannel().str() 
-		    << ": n_pulse_candidates = " << n_pulse_candidates  << std::endl;
-	}
-
-        if (Debug() && n_pulse_candidates > 10
-                && GetChannel().str() != "muSc" && GetChannel().str() != "muScA"
-                && GetChannel().str() != "ScL" && GetChannel().str() != "ScR"
-                && GetChannel().str() != "ScGe" && GetChannel().str() != "ScVe") {
-            DrawPulse(original_tpi-pulseList.begin(),
-                    (*original_tpi)->GetTimeStamp(),
-                    (*original_tpi)->GetPulseLength());
-        }
 
         for(PulseIslandList::const_iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){
             // Skip small pulses.  This must be at least 1 to skip empty pulses
@@ -110,10 +82,10 @@ int FirstCompleteAPGenerator::ProcessPulses(
 
 void FirstCompleteAPGenerator::DrawPulse(int original, int pulse_timestamp, int n_pulse_samples){
 
-    if( ExportPulse::Instance())
+  /*    if( ExportPulse::Instance())
         ExportPulse::Instance()->AddToExportList(GetChannel().str(), original);
     else return;
-
+  */
     for (std::vector<TPulseIsland*>::const_iterator subPulseIter = fSubPulses.begin();
             subPulseIter != fSubPulses.end(); ++subPulseIter) {
         std::stringstream histname;
@@ -135,4 +107,4 @@ void FirstCompleteAPGenerator::DrawPulse(int original, int pulse_timestamp, int 
     }
 }
 
-ALCAP_TAP_GENERATOR(FirstComplete);
+ALCAP_TAP_GENERATOR(FirstComplete,constant_fraction,no_time_shift);

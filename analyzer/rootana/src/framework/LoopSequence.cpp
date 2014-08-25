@@ -12,6 +12,7 @@
 #include "EventNavigator.h"
 #include "ModulesNavigator.h"
 #include "BaseModule.h"
+#include "AlcapExcept.h"
 
 extern SourceAnalPulseMap gAnalysedPulseMap;
 //extern StringDetPulseMap gDetectorPulseMap;
@@ -168,6 +169,11 @@ void LoopSequence::Run() const
     if(e.fModule) std::cout<<"\nModule "<<e.fModule->GetName();
     else std::cout << "\nA module";
     std::cout<<" returned non-zero on during pre-processing first entry " << e.fEvent;
+  }
+  catch (Except::Base& e){
+      std::cout<<"Alcap exception was thrown: "<<std::endl;
+      std::cout<<e.what()<<std::endl;
+      std::cout<<e.bt()<<std::endl;
   }
   std::cout << std::endl;
 }  

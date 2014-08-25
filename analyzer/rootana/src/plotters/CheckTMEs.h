@@ -1,20 +1,21 @@
-#ifndef PLOTINTEGRALS_H_
-#define PLOTINTEGRALS_H_
+#ifndef CHECKTMES_H_
+#define CHECKTMES_H_
 
 #include "BaseModule.h"
-#include <map>
 class TGlobalData;
 class TSetupData;
-class TH1F;
 namespace modules {class options;}
-namespace IDs {class source;}
+namespace IDs {class channel;}
+class TH1F;
+class TH2F;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
-/// \author AuthorName
+/// \ingroup rootana_plotters
+/// \author Ben Krikler
 ///
 /// \brief
-/// A one line description of what your module does.
+/// Produce various plots that characterise the produced TMuonEvents
 ///
 /// \details
 /// A longer, more descriptive block of text.
@@ -22,17 +23,17 @@ namespace IDs {class source;}
 /// You can add this to other groups instead of rootana_modules or in addition
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
-class PlotIntegral : public BaseModule {
+class CheckTMEs : public BaseModule {
 
     public:
         /// \brief
         /// Constructor description. If necessary, add a details tag like above.
         ///
         /// \param[in] opts Describe the options this module takes.
-        PlotIntegral(modules::options* opts);
+        CheckTMEs(modules::options* opts);
         /// \brief
         /// Is anything done in the destructor?
-        ~PlotIntegral();
+        ~CheckTMEs();
 
     private:
         /// \brief
@@ -54,10 +55,12 @@ class PlotIntegral : public BaseModule {
         /// \return Non-zero to indicate a problem.
         virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
 
-    private:
-        typedef std::map<IDs::source,TH1F*> PlotList_t;
-        PlotList_t fPlots;
+        typedef std::vector<IDs::channel> DetectorList;
+        DetectorList fDetectors;
 
+        TH1F *fTotalPulses;
+        TH2F *fPulsesPerDetector;
+        TH1F *fFlags;
 };
 
-#endif //PLOTINTEGRALS_H_
+#endif //CHECKTMES_H_

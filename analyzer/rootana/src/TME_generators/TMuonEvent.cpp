@@ -1,103 +1,83 @@
 #include "TMuonEvent.h"
+#include "AlcapExcept.h"
 #include <iostream>
+#include <iterator>
+#include "debug_tools.h"
 using std::cout;
 using std::endl;
 
-// This is a static member so we need to define it here
-std::vector<std::string> TMuonEvent::fDetectorNames;
-
-TMuonEvent::TMuonEvent(){
-	// The first muon_event to be created will fill the vector of detector names
-	if(fDetectorNames.size() ==0){
-		const int num_det_names=21;
-		const char* det_names[num_det_names]={ 
-			"Ge", "LiquidSc", "NDet", "NDet2", "ScGe", "ScL", "ScR",
-			"ScVe", "SiL1_1", "SiL1_2", "SiL1_3", "SiL1_4", "SiL2", "SiR1_1",
-			"SiR1_2", "SiR1_3", "SiR1_4", "SiR1_sum", "SiR2", "MuSc", "MuScA" };
-		for(int i=0;i<num_det_names;i++) fDetectorNames.push_back(det_names[i]);
-	}
-	ResetDetectors();
+namespace {
+    IDs::channel MuSc(IDs::kMuSc,IDs::kNotApplicable);
+    IDs::channel MuScA(IDs::kMuScA,IDs::kNotApplicable);
 }
 
-TMuonEvent::~TMuonEvent(){
+MAKE_EXCEPTION(TMuonEvent,Base)
+MAKE_EXCEPTION(OutOfRange,TMuonEvent)
+MAKE_EXCEPTION(EndOfWindowBeforeStart,TMuonEvent)
+
+const TDetectorPulse* TMuonEvent::GetPulse(const IDs::source& source, int index)const{
+    SourceDetPulseMap::const_iterator i_source=fPulseLists.find(source);
+    if(i_source==fPulseLists.end()) return NULL;
+    if(index>(int)i_source->second.size() || index<0) throw Except::OutOfRange();
+    return *(i_source->second.begin()+index);
 }
 
-void TMuonEvent::ResetDetectors(){
-   // For now just NULL the pointers, but we need to decide an ownership scheme
-   // in which case we may want to delete them as well
-   for(size_t i=0;i<fDetectorNames.size();i++){
-       SetPulse(fDetectorNames[i],NULL);
-   }
+void TMuonEvent::AddPulse(const IDs::source& source, TDetectorPulse* pulse){
+    fPulseLists[source].push_back(pulse);
 }
 
-int TMuonEvent::GetNumPulses()const{
-	int count=0;
-	for(size_t i=0;i<fDetectorNames.size();i++){
-		if(GetPulse(fDetectorNames[i])) count++;
-	}
-	return count;
+void TMuonEvent::AddPulses(const IDs::source& source,
+        DetectorPulseList::const_iterator start,
+        DetectorPulseList::const_iterator stop){
+    if(stop-start <0)  throw Except::EndOfWindowBeforeStart();
+    fPulseLists[source].insert(fPulseLists[source].end(),start,stop);
 }
 
-#define GET_DET_IF(var,detector)\
-	else if(var==#detector) return Get##detector();
-
-TDetectorPulse* TMuonEvent::GetPulse(const std::string& detector)const{
-	if(detector=="") return NULL;
-	GET_DET_IF(detector,Ge)
-	GET_DET_IF(detector,LiquidSc)
-	GET_DET_IF(detector,NDet)
-	GET_DET_IF(detector,NDet2)
-	GET_DET_IF(detector,ScGe)
-	GET_DET_IF(detector,ScL)
-	GET_DET_IF(detector,ScR)
-	GET_DET_IF(detector,ScVe)
-	GET_DET_IF(detector,SiL1_1)
-	GET_DET_IF(detector,SiL1_2)
-	GET_DET_IF(detector,SiL1_3)
-	GET_DET_IF(detector,SiL1_4)
-	GET_DET_IF(detector,SiL2)
-	GET_DET_IF(detector,SiR1_1)
-	GET_DET_IF(detector,SiR1_2)
-	GET_DET_IF(detector,SiR1_3)
-	GET_DET_IF(detector,SiR1_4)
-	GET_DET_IF(detector,SiR1_sum)
-	GET_DET_IF(detector,SiR2)
-	GET_DET_IF(detector,MuSc)
-	GET_DET_IF(detector,MuScA)
-	// No detector exists with that name, complain and return NULL
-	cout<<"No detector called '"<<detector<<"' exists."<<endl;
-	return NULL;
+const IDs::source& TMuonEvent::GetSource(int n)const{
+    if(n>(int)fPulseLists.size() || n<0) throw Except::OutOfRange();
+    SourceDetPulseMap::const_iterator i_source=fPulseLists.begin();
+    std::advance(i_source,n);
+    return i_source->first;
 }
-#undef GET_DET_IF
 
-#define SET_DET_IF(var,detector,value)\
-	else if(var==#detector) Set##detector(pulse);
-
-void TMuonEvent::SetPulse(const std::string& detector,TDetectorPulse* pulse){
-	if(detector=="") return;
-	SET_DET_IF(detector , Ge       , pulse)
-	SET_DET_IF(detector , LiquidSc , pulse)
-	SET_DET_IF(detector , NDet     , pulse)
-	SET_DET_IF(detector , NDet2    , pulse)
-	SET_DET_IF(detector , ScGe     , pulse)
-	SET_DET_IF(detector , ScL      , pulse)
-	SET_DET_IF(detector , ScR      , pulse)
-	SET_DET_IF(detector , ScVe     , pulse)
-	SET_DET_IF(detector , SiL1_1   , pulse)
-	SET_DET_IF(detector , SiL1_2   , pulse)
-	SET_DET_IF(detector , SiL1_3   , pulse)
-	SET_DET_IF(detector , SiL1_4   , pulse)
-	SET_DET_IF(detector , SiL2     , pulse)
-	SET_DET_IF(detector , SiR1_1   , pulse)
-	SET_DET_IF(detector , SiR1_2   , pulse)
-	SET_DET_IF(detector , SiR1_3   , pulse)
-	SET_DET_IF(detector , SiR1_4   , pulse)
-	SET_DET_IF(detector , SiR1_sum , pulse)
-	SET_DET_IF(detector , SiR2     , pulse)
-	SET_DET_IF(detector , MuSc     , pulse)
-	SET_DET_IF(detector , MuScA    , pulse)
-	// No detector exists with that name, complain and return NULL
-	cout<<"No detector called '"<<detector<<"' exists."<<endl;
-	return;
+int TMuonEvent::TotalNumPulses()const{
+    int size=0;
+    for(SourceDetPulseMap::const_iterator i_source=fPulseLists.begin();
+            i_source!=fPulseLists.end(); ++i_source){
+        size+=i_source->second.size();
+    }
+    return size;
 }
-#undef SET_DET_IF
+
+int TMuonEvent::NumPulses(const IDs::channel& channel)const{
+    int size=0;
+    for(SourceDetPulseMap::const_iterator i_source=fPulseLists.begin();
+            i_source!=fPulseLists.end(); ++i_source){
+        if(i_source->first==channel) size+=i_source->second.size();
+    }
+    return size;
+}
+
+int TMuonEvent::NumPulses(const IDs::source& source)const{
+    SourceDetPulseMap::const_iterator i_source=fPulseLists.find(source);
+    if(i_source==fPulseLists.end()) return 0;
+    return i_source->second.size();
+}
+
+bool TMuonEvent::HasMuonHit()const{
+    return NumPulses(MuSc); // && NumPulses(MuPCX) && NumPulses(MuPCY);
+}
+
+bool TMuonEvent::HasMuonPileup()const{
+    return NumPulses(MuSc)>1 || NumPulses(MuScA);
+}
+
+bool TMuonEvent::WasEarlyInEvent()const{
+    DEBUG_PRINT("TMuonEvent::WasEarlyInEvent is not yet implemented");
+    return true;
+}
+
+bool TMuonEvent::WasLateInEvent(double event_length, double event_uncertainty)const{
+    DEBUG_PRINT("TMuonEvent::WasLateInEvent is not yet implemented");
+    return true;
+}

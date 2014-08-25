@@ -22,7 +22,7 @@ namespace modules {class options;}
 /// with the channel and bank names. This SQLite database can then be used by PulseCandidateFinder to 
 /// set parameter values based on a certain number of sigma.
 ////////////////////////////////////////////////////////////////////////////////
-class PlotPedestalAndNoise : public BaseModule {
+class PlotTPI_PedestalAndNoise : public BaseModule {
 
  public:
   /// \brief
@@ -32,10 +32,10 @@ class PlotPedestalAndNoise : public BaseModule {
   /// The constructor looks in the opts for "n_samples" and sets the fNSamples variable (default = 5).
   ///
   /// \param[in] opts Describe the options this module takes.
-  PlotPedestalAndNoise(modules::options* opts);
+  PlotTPI_PedestalAndNoise(modules::options* opts);
   /// \brief
   /// Empty destructor
-  ~PlotPedestalAndNoise();
+  ~PlotTPI_PedestalAndNoise();
 
  private:
   /// \brief
@@ -58,7 +58,7 @@ class PlotPedestalAndNoise : public BaseModule {
 
   /// \brief
   /// After each run, we write the mean and RMS of the first fNSamples to 
-  /// an SQLite database
+  /// an SQLite database via SetupNavigator
   ///
   /// \param[in] gData See BaseModule::AfterLastEntry
   /// \param[in] setup See BaseModule::AfterLastEntry
@@ -71,13 +71,13 @@ class PlotPedestalAndNoise : public BaseModule {
 
   /// \brief
   /// The number of samples we will look at in the TPulseIsland
-  /// to calculate the mean and RMS (opt = "n_samples", default = 5)
-  int fNSamples;
+  /// to calculate the mean and RMS (opt = "n_samples")
+  const int fNSamples;
 
   /// \brief
   /// A bool to decide whether we export the pedestal and noise to the SQLite database
   /// (opt = "export_sql", default = false)
-  bool fExportSQL;
+  const bool fExportSQL;
 };
 
 #endif //PLOTRMSNOISE_H_

@@ -46,13 +46,16 @@ class RunManager:
     #  \param[in] prog A string indicating the production type
     #  ("alcapana" or "rootana").
     #  \param[in] ver An integer representing the version number.
-    def __init__(self, prod, ver, screenman):
+    def __init__(self, prod, ver, screenman, modules, database, datasets, calib):
         self.screenman = screenman
         if prod not in _PROGRAMS:
             raise UnknownProductionError(prod)
         self.prod = prod
         self.ver = ver
-        self.dbm = DBManager.DBManager(prod, ver, screenman)
+        self.mods = modules
+        self.datasets = datasets
+        self.calib = calib
+        self.dbm = DBManager.DBManager(prod, ver, screenman, database)
         self.n_runs = 0
         self.n_downloaded = 0
         self.to_stage = []
@@ -68,7 +71,7 @@ class RunManager:
     #  manage at a time
     def ClaimRuns(self, max_num_runs):
         while self.n_runs < max_num_runs:
-            run = self.dbm.ClaimAnyAvailableRun()
+            run = self.dbm.ClaimAnyAvailableRun(self.datasets)
             if not run:
                 return
             self.n_runs = self.n_runs + 1
@@ -149,7 +152,7 @@ class RunManager:
             infile = None
             if self.prod == _ROOTANA:
                 infile = self.dbm.GetRootanaInputFile(run)
-            job = mu.submit_job(run, self.prod, infile)
+            job = mu.submit_job(run, self.prod, infile, self.mods, self.calib)
             self.to_finish.append(self.to_submit.pop(0))
             self.dbm.RegisterRunStart(run)
             return [run, job]
@@ -186,14 +189,13 @@ class RunManager:
             olog = mu.LOGdir + "/v%d/rootana.run%05d.out" % (self.ver, run)
             elog = mu.LOGdir + "/v%d/rootana.run%05d.err" % (self.ver, run)
             new_paths = {"out":out, "olog":olog, "elog":elog}
-            self.dbm.RegisterFile(run, mu.DAQdir + "/analyzer/rootana/production.cfg", "modules")
+            self.dbm.RegisterFile(run, self.mods, "modules")
         old_paths = dict((ftype, path.replace("/v%d" % self.ver, "")) for ftype, path in new_paths.iteritems())
         for ftype in old_paths.keys():
             new_dir = os.path.dirname(new_paths[ftype])
             if not os.path.exists(new_dir):
                 os.makedirs(new_dir)
             os.rename(old_paths[ftype], new_paths[ftype])
-            os.symlink(new_paths[ftype], old_paths[ftype])
             self.dbm.RegisterFile(run, new_paths[ftype], ftype)
         self.screenman.Message("Finished run: " + str(run))
         self.to_finish.remove(run)

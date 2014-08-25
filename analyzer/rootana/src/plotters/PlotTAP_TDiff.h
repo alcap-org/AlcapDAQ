@@ -23,18 +23,17 @@ namespace modules {class options;}
 /// You can add this to other groups instead of rootana_modules or in addition
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
-class PlotTDiff : public BaseModule {
-  typedef std::vector<IDs::source> SourceVector;
+class PlotTAP_TDiff : public BaseModule {
 
  public:
   /// \brief
   /// Constructor description. If necessary, add a details tag like above.
   ///
   /// \param[in] opts Describe the options this module takes.
-  PlotTDiff(modules::options* opts);
+  PlotTAP_TDiff(modules::options* opts);
   /// \brief
   /// Is anything done in the destructor?
-  ~PlotTDiff();
+  ~PlotTAP_TDiff();
 
  private:
   /// \brief
@@ -61,6 +60,8 @@ class PlotTDiff : public BaseModule {
   /// \param[in] setup See BaseModule::AfterLastEntry
   /// \return Non-zero to indicate a problem.
   virtual int AfterLastEntry(TGlobalData* gData, const TSetupData *setup);
+  /// \brief Prepare histograms.
+  void BookHistograms(const TSetupData*);
 
   /// \brief
   /// Don't forget to forget descirptions for each field...
@@ -68,11 +69,12 @@ class PlotTDiff : public BaseModule {
   /// \details
   /// ...and don't hesitate to include details.
   std::string fDetNameA, fDetNameB;
+  double fTimeLow, fTimeHigh;
+  bool fExportSQL;
 
-  std::map<std::string, TH2F*> intA_plots, intB_plots, ampA_plots, ampB_plots, fine_plots;
+  std::map<std::string, TH2F*> intA_plots, intB_plots, ampA_plots, ampB_plots;
 
-  std::map<std::string, TH1F*> oned_plots;
-  SourceVector fDetASources, fDetBSources;
+  std::vector<IDs::source> fDetASources, fDetBSources;
 };
 
 #endif //PLOTTDIFF_H_

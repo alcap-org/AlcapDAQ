@@ -48,6 +48,8 @@ class TDetectorPulse : public TObject {
         bool WasPileUpChecked()const{return fCheckedForPileUp;};
         void SetPileUpChecked(const bool& val=true){ fCheckedForPileUp=val;};
 
+        bool IsPairedPulse()const {return fParentPulse[kFast]&&fParentPulse[kSlow];}
+
     private:
         bool fCheckedForPileUp;
         bool fPileUpSafe;

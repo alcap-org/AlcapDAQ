@@ -13,6 +13,8 @@
 
 #include "TH2F.h"
 #include "TH1F.h"
+#include "TProfile.h"
+#include "TFitResult.h"
 
 #include <cmath>
 #include <iostream>
@@ -62,6 +64,7 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     int n_bits;
     double fast_amp_max, slow_amp_max;
     double fast_amp_min=0, slow_amp_min=0;
+    double tdiff_min=-1e6, tdiff_max=1e6;
 
     // Loop over all TDP sources
     for(SourceDetPulseMap::const_iterator i_source=gDetectorPulseMap.begin();
@@ -77,7 +80,7 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         // make the name and title for the histogram
         name='h'+i_source->first.str();
         modules::parser::ToCppValid(name);
-        title=" coming from ";
+        title=" from ";
         title+=i_source->first.str();
         if(Debug()) {
             cout<<"Made histogram called "<<name<<" with title "<< title<<endl;
@@ -110,20 +113,32 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
                 200,slow_amp_min,slow_amp_max);
         tmp.slow_only_amps->SetXTitle("Amplitude in Slow channel");
 
+        // Histogram of amplitude ratio to show the scale factor in paired
+        // channels
+        tmp.scale_factor=new  TH1F((name+"_scale_factor").c_str(),
+                ("Ratio of amplitudes "+title).c_str(), 
+                200,0,10);
+        tmp.scale_factor->SetXTitle("Ratio of amplitudes, A_{Slow} / A_{Fast}");
+
         // Make a histogram of the time difference between pulses
         full_title.str("Time difference vs. fast amplitude for pulses ");
         full_title<<title;
         tmp.time_diff_fast=new TH2F((name+"_fast_amp_tdiff").c_str(),full_title.str().c_str(),
-                200,0,-1,200,fast_amp_min,fast_amp_max);
+				    200,tdiff_min,tdiff_max,200,fast_amp_min,fast_amp_max);
         tmp.time_diff_fast->SetXTitle("t_{Fast} - t_{Slow}");
         tmp.time_diff_fast->SetYTitle("Amplitude in Fast channel");
 
         full_title.str("Time difference vs. slow amplitude for pulses ");
         full_title<<title;
         tmp.time_diff_slow=new TH2F((name+"_slow_amp_tdiff").c_str(),full_title.str().c_str(),
-                200,0,-1,200,slow_amp_min,slow_amp_max);
+                200,tdiff_min,tdiff_max,200,slow_amp_min,slow_amp_max);
         tmp.time_diff_slow->SetXTitle("t_{Fast} - t_{Slow}");
         tmp.time_diff_slow->SetYTitle("Amplitude in Slow channel");
+
+        tmp.times=new TH2F((name+"_times").c_str(),("Times of pulses "+title).c_str(),
+                200,0,-1,200,0,-1);
+        tmp.times->SetXTitle("Time in Fast channel");
+        tmp.times->SetYTitle("Time in Slow channel");
 
         if(fCutHists){
             // Histogram amplitudes for fast pulses with a slow pulse cut
@@ -145,6 +160,8 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
             tmp.fast_amps_slow_cut=NULL;
             tmp.slow_amps_fast_cut=NULL;
         }
+
+        tmp.amp_status=tmp.amp_inter=tmp.amp_grad=0;
 
         // Add tmp to the list of TDPs to draw
         fPlotsList[i_source->first]=tmp;
@@ -194,6 +211,8 @@ int PlotTDPs::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
                 plots.amplitudes->Fill(slow_amp,fast_amp);
                 plots.time_diff_fast->Fill(slow_time - fast_time ,fast_amp);
                 plots.time_diff_slow->Fill(slow_time - fast_time ,slow_amp);
+                plots.times->Fill(slow_time, fast_time);
+                plots.scale_factor->Fill(slow_amp/fast_amp);
             }
 
             if(!fCutHists) continue;
@@ -215,16 +234,40 @@ int PlotTDPs::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
     // Draw and save all histograms
     for(PlotsList_t::iterator i_source=fPlotsList.begin();
             i_source!=fPlotsList.end(); ++i_source){
-        i_source->second.amplitudes->Draw();
-        i_source->second.slow_only_amps->Draw();
-        i_source->second.fast_only_amps->Draw();
-        i_source->second.time_diff_fast->Draw();
-        i_source->second.time_diff_slow->Draw();
-        if(fCutHists){
-            i_source->second.fast_amps_slow_cut->Draw();
-            i_source->second.slow_amps_fast_cut->Draw();
+        Detector_t& plots=i_source->second;
+        //plots.amplitudes->Draw();
+        //plots.slow_only_amps->Draw();
+        //plots.fast_only_amps->Draw();
+        //plots.time_diff_fast->Draw();
+        //plots.time_diff_slow->Draw();
+        //if(fCutHists){
+        //    plots.fast_amps_slow_cut->Draw();
+        //    plots.slow_amps_fast_cut->Draw();
+        //}
+        TProfile* profile=plots.amplitudes->ProfileX(Form("%s_fit",plots.amplitudes->GetName()));
+        TFitResultPtr fit=profile->Fit("pol1","QS");
+        if(((int)fit)!=0){
+            cout<<"PlotTDPs: Warning: fitting to 2D amplitude plots failed with status: "
+                << (int)fit <<" for "<<i_source->first<<endl;
+        } else {
+            plots.amp_inter=fit->Parameter(0);
+            plots.amp_grad=fit->Parameter(1);
+        }
+        plots.amp_status=fit;
+    }
+
+    if(Debug()){
+        cout<<"PlotTDPs: Fitted amplitude gradients:"<<endl;
+        cout<<"   intercept\t| gradient\t| source"<<endl;
+        cout<<"   ---------\t| --------\t| ------"<<endl;
+        for(PlotsList_t::const_iterator i_source=fPlotsList.begin();
+                i_source!=fPlotsList.end(); ++i_source){
+            const Detector_t& plots=i_source->second;
+            if(!plots.amp_status)
+                cout<< "  "<<plots.amp_inter<<"\t| "<<  plots.amp_grad<<"\t| "<<i_source->first<<endl;
         }
     }
+
 
   return 0;
 }

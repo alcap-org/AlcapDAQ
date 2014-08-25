@@ -12,9 +12,7 @@ class TAnalysedPulse;
 class MaxBinAPGenerator:public TVAnalysedPulseGenerator {
 
  public:
-  MaxBinAPGenerator(TAPGeneratorOptions* opts)
-    : TVAnalysedPulseGenerator("MaxBinAPGenerator", opts)
-  {};
+  MaxBinAPGenerator(TAPGeneratorOptions* opts);
 
   virtual ~MaxBinAPGenerator(){};
   

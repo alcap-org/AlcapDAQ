@@ -63,6 +63,7 @@ void ClearGlobalData(TGlobalData*);
 TTree* GetTree(TFile* inFile, const char* t_name);
 Int_t PrepareAnalysedPulseMap(TFile* fileOut);
 Int_t PrepareSingletonObjects(const ARGUMENTS&);
+void Finish(TFile*);
 
 //TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
 //TTree *gAnalysedPulseTree = NULL;
@@ -83,6 +84,7 @@ int main(int argc, char **argv)
   std::cout << "Starting event" << std::endl;
   // Give the command line arguments to the navigator
   SetupNavigator::Instance()->SetCommandLineArgs(arguments);
+  SetupNavigator::Instance()->CacheCalibDB();
 
   // Read in the configurations file
   ret= modules::navigator::Instance()->LoadConfigFile(arguments.mod_file.c_str());
@@ -127,7 +129,7 @@ int main(int argc, char **argv)
   // modules wont have a directory to store things to.
   ret= modules::navigator::Instance()->MakeModules();
   if(ret!=0) {
-    std::cout << "Problem creating up analysis modules." << std::endl;
+    std::cout << "Problem creating analysis modules." << std::endl;
     return ret;
   }
   
@@ -144,20 +146,31 @@ int main(int argc, char **argv)
     Main_event_loop(eventTree,arguments);
   }
   catch (std::exception& e){
+    // Attempt to finish the run but ignore further exceptions
+    try{ Finish(fileOut); }catch(...){}
     std::cout << "Terminating due to unexpected exception:\n" 
               << e.what() << std::endl; 
+    throw;
   }
   catch (...){
+    // Attempt to finish the run but ignore further exceptions
+    try{ Finish(fileOut); }catch(...){}
     std::cout << "Terminating due to unknown exception" << std::endl;
+    throw;
   }
   
+  Finish(fileOut);
+  return 0;
+}
+
+void Finish(TFile* fileOut){
   // and finish up
   fileOut->cd();
   //gAnalysedPulseTree->Write();
   fileOut->Write();
   fileOut->Close();
-  navi.Close();
-  return 0;
+  EventNavigator::Instance().Close();
+  SetupNavigator::Instance()->Close();
 }
 
 //----------------------------------------------------------------------
@@ -207,21 +220,26 @@ void ClearGlobalData(TGlobalData* data)
 //    pulse_vector.clear();
 //  }
 
+    // we should not clear TAPs if we're loading them in from a previously made
+    // TAP tree (which uses a TClonesArray that is responsible for deleting them )
+    static bool should_delete_TAPS=!modules::navigator::Instance()->GetModule("LoadPulses");
+    for(SourceAnalPulseMap::iterator mapIter=gAnalysedPulseMap.begin();
+            mapIter != gAnalysedPulseMap.end(); ++mapIter) {
 
-  for(SourceAnalPulseMap::iterator mapIter=gAnalysedPulseMap.begin();
-     mapIter != gAnalysedPulseMap.end(); mapIter++) {
-
-    // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
-    AnalysedPulseList& pulse_vector= mapIter->second;
-    for(size_t i=0; i<pulse_vector.size(); i++){
-      delete pulse_vector[i];
-      pulse_vector[i] = NULL;
-    }
+        // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
+        AnalysedPulseList& pulse_vector= mapIter->second;
+        if(should_delete_TAPS){
+            for(size_t i=0; i<pulse_vector.size(); i++){
+                delete pulse_vector[i];
+                pulse_vector[i] = NULL;
+            }
+        }
     pulse_vector.clear();
   }
   //  gAnalysedPulseMap.clear();
 
-  for(SourceDetPulseMap::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
+  for(SourceDetPulseMap::iterator mapIter = gDetectorPulseMap.begin();
+          mapIter != gDetectorPulseMap.end(); ++mapIter) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
     DetectorPulseList& pulse_vector= mapIter->second;
     for(size_t i=0; i<pulse_vector.size(); i++){
@@ -231,6 +249,12 @@ void ClearGlobalData(TGlobalData* data)
     pulse_vector.clear();
   }
   //gDetectorPulseMap.clear();
+
+  for(MuonEventList::iterator muonEvent = gMuonEvents.begin();
+          muonEvent != gMuonEvents.end(); ++muonEvent) {
+      delete *muonEvent;
+  }
+  gMuonEvents.clear();
 }
 
 

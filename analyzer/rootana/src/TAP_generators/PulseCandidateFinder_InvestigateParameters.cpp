@@ -58,15 +58,20 @@ int PulseCandidateFinder_InvestigateParameters::ProcessEntry(TGlobalData* gData,
 
     // Create the histogram that will store all the parameter values that we will look at to determine the best values
     if (fParameterHistograms.find(detname) == fParameterHistograms.end()) {
-      int num_bins = 10000;
-      int max_value = 7500;
+
+      int n_bits = TSetupData::Instance()->GetNBits(bankname);
+      int max_adc_value = std::pow(2, n_bits);
+      int min_value = 0;
+      int max_value = max_adc_value;
+      int bin_width = 10;
+      int num_bins = (max_value - min_value) / bin_width;
       std::string histname = "fParameterHistogram_" + detname;
-      TH1D* histogram = new TH1D(histname.c_str(), histname.c_str(), num_bins, max_value-num_bins, max_value);
+      TH2D* histogram = new TH2D(histname.c_str(), histname.c_str(), num_bins,min_value,max_value, num_bins,min_value,max_value);
       fParameterHistograms[detname] = histogram;
     }
 
     // Get the parameter histogram for this detector
-    TH1D* parameter_histogram = fParameterHistograms[detname];
+    TH2D* parameter_histogram = fParameterHistograms[detname];
 
     // Loop through all the pulses
     for (PulseIslandList::iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {

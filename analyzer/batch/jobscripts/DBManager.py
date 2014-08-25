@@ -12,8 +12,6 @@ class DBManager:
     _ROOTANA = "rootana"
     _PROGRAMS = [_ALCAPANA, _ROOTANA]
 
-    _DBFILE = mu.DATAdir + "/production.db"
-
     ## \brief
     #  Produces a database manager for a certain production type (alcapana or rootana)
     #  and a certain production version.
@@ -21,15 +19,15 @@ class DBManager:
     #  \param[in] prog The production type; rootana or alcapana.
     #  \param[in] ver The version number this %DBManager should be associated with.
     #  Essentially what production table in the database to look up info in.
-    def __init__(self, prog, ver, screenman):
+    def __init__(self, prog, ver, screenman, dbfile):
         if prog not in DBManager._PROGRAMS:
             raise UnknownProductionError(prog)
         self.prog = prog
-        if not os.path.isfile(DBManager._DBFILE):
+        if not os.path.isfile(dbfile):
             raise DataBaseError("Database not found!")
-        elif not os.access(DBManager._DBFILE, os.W_OK):
+        if not os.access(dbfile, os.W_OK):
             raise DataBaseError("Database not writable!")
-        self.db = sqlite3.connect(DBManager._DBFILE)
+        self.db = sqlite3.connect(dbfile)
         if not ver:
             self.ver = self.GetRecentProductionVersionNumber()
         else:
@@ -43,13 +41,18 @@ class DBManager:
     #  \param[in] prod The production type of either alcapana or rootana (string)
     #  \param[in] ver The version of the production (int).
     #  \return A run number of a run not yet claimed (int).
-    def GetAnyAvailableRunNumber(self):
-        cmd = "SELECT run FROM " + self.production_table + " WHERE status='N' LIMIT 1"
+    def GetAnyAvailableRunNumber(self, datasets=[]):
+        cmd = "SELECT run FROM " + self.production_table + " WHERE status='N'"
         cur = self.db.execute(cmd)
-        row = cur.fetchone()
-        if not row:
-            return None
-        return row[0]
+        for row in cur:
+            if len(datasets) == 0:
+                return row[0]
+            cmd = "SELECT dataset FROM datasets WHERE run==?"
+            data = self.db.execute(cmd, (row[0],))
+            for datum in data:
+                if str(datum[0]) in datasets:
+                    return row[0]
+        return None
 
     ## \brief
     #  Register a run as claimed in the database.
@@ -65,11 +68,11 @@ class DBManager:
     #  \param[in] ver The version of the production (int); if none provided
     #  default to most recent version.
     #  \return The run number of the claimed run (int).
-    def ClaimAnyAvailableRun(self):
+    def ClaimAnyAvailableRun(self, datasets=[]):
     # We don't want someone to claim a run before we do, so we
     # lock the database in a context block before checking.
         with self.db:
-            run = self.GetAnyAvailableRunNumber()
+            run = self.GetAnyAvailableRunNumber(datasets)
             if not run:
                 return None
             self.ClaimRun(run)

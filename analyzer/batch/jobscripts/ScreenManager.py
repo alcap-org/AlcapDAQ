@@ -111,6 +111,14 @@ class ScreenManager:
         return
 
     ## \brief
+    #  Mark run as having an error
+    def ErrorFinishRun(self, run):
+        self.status[run] = ScreenManager._ERROR
+        self.stop[run] = datetime.datetime.now()
+        self.Draw()
+        return        
+
+    ## \brief
     #  Update the displayed job status of jobs that have been
     #  submitted to the grid.
     #
@@ -223,6 +231,8 @@ class Dummy():
     def RemoveRun(self, run):
         pass
     def FinishRun(self, run):
+        pass
+    def ErrorFinishRun(self, run):
         pass
     def UpdateStatus(self, jobs):
         pass

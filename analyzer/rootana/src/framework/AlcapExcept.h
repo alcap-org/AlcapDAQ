@@ -76,6 +76,10 @@ public:
   /// Inherited from exception to return the name of the exception as a null
   /// terminated string.
   const char* what(void) const throw() {return fWhat;}
+
+  /// Inherited from exception to return the name of the exception as a null
+  /// terminated string.
+  const char* bt(void) const throw() {return fTrace;}
   
   /// Used in constructors of classes which inherit from Except::Base
   /// to add text to the What() string.
