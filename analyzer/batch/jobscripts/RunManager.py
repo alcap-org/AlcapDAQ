@@ -46,7 +46,7 @@ class RunManager:
     #  \param[in] prog A string indicating the production type
     #  ("alcapana" or "rootana").
     #  \param[in] ver An integer representing the version number.
-    def __init__(self, prod, ver, screenman, modules, database, datasets):
+    def __init__(self, prod, ver, screenman, modules, database, datasets, calib):
         self.screenman = screenman
         if prod not in _PROGRAMS:
             raise UnknownProductionError(prod)
@@ -54,6 +54,7 @@ class RunManager:
         self.ver = ver
         self.mods = modules
         self.datasets = datasets
+        self.calib = calib
         self.dbm = DBManager.DBManager(prod, ver, screenman, database)
         self.n_runs = 0
         self.n_downloaded = 0
@@ -151,7 +152,7 @@ class RunManager:
             infile = None
             if self.prod == _ROOTANA:
                 infile = self.dbm.GetRootanaInputFile(run)
-            job = mu.submit_job(run, self.prod, infile, self.mods)
+            job = mu.submit_job(run, self.prod, infile, self.mods, self.calib)
             self.to_finish.append(self.to_submit.pop(0))
             self.dbm.RegisterRunStart(run)
             return [run, job]

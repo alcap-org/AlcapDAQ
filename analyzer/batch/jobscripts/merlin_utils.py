@@ -120,7 +120,7 @@ def submitted_jobs():
 #  \param[in] infile The absolute path of the input file for rootana. Ignored
 #  for alcapana.
 #  \return An SGEJob representing the submitted job.
-def submit_job(run, prog, infile, mods=None):
+def submit_job(run, prog, infile, mods=None, calib=False):
     if prog not in _PROGRAMS:
         raise UnknownProductionError(prog)
     
@@ -136,6 +136,8 @@ def submit_job(run, prog, infile, mods=None):
         cmd.append(infile)
         cmd.append(OUTdir + "/out%05d.root" % run)
         cmd.append(os.path.abspath(mods))
+        if calib:
+            cmd.append("-c")
     con = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     [out, err] = con.communicate()
 

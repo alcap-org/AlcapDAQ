@@ -63,13 +63,14 @@ def usage():
     print "    --database=DB     SQLite3 database to use for production. If it doesn't"
     print "                      exist, it will not be created."
     print "                      (Default: ~/data/production.db)"
+    print "    --calib           Passes the calibration argument to rootana."
 
 
 ################################################################################
 # Argument parsing #############################################################
 ################################################################################
 short_args = "h"
-long_args = ["usage", "help", "production=", "version=", "new=", "pause=", "nproc=", "nprep=", "spacelim=", "display", "modules=", "dataset=", "database="]
+long_args = ["usage", "help", "production=", "version=", "new=", "pause=", "nproc=", "nprep=", "spacelim=", "display", "modules=", "dataset=", "database=", "calib"]
 opts, unrecognized = getopt.getopt(sys.argv[1:], short_args, long_args)
 
 # Default arguments
@@ -85,6 +86,7 @@ display = False
 modules = mu.CFGdir + "/production.cfg"
 datasets = []
 database = mu.DATAdir + "/production.db"
+calib = False
 
 # Parse arguments
 for opt, val in opts:
@@ -114,7 +116,8 @@ for opt, val in opts:
         datasets.append(val)
     elif opt == "--database":
         database = val
-
+    elif opt == "--calib":
+        calib = True
 
 # Argument checking
 if len(unrecognized) > 0:
@@ -172,7 +175,7 @@ if new:
 elif not version:
     version = dbman.GetRecentProductionVersionNumber()
     screenman.Message("INFO: Most recent production version " + str(version))
-runman = RunManager.RunManager(production, version, screenman, modules, database, datasets)
+runman = RunManager.RunManager(production, version, screenman, modules, database, datasets, calib)
 
 
 screenman.SetProgram(production)
