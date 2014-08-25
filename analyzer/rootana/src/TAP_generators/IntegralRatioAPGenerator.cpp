@@ -16,10 +16,10 @@ IntegralRatioAPGenerator::IntegralRatioAPGenerator(TAPGeneratorOptions* opts):
     TVAnalysedPulseGenerator("IntegralRatio",opts),
         fStartIntegral(opts->GetInt("start_int","x>=0")),
         fStopIntegral(opts->GetInt("stop_int","x>=0")),
-        fStartTail(opts->GetInt("start_tail",Form("x>%g",fStartIntegral))),
+        fStartTail(opts->GetDouble("start_tail","x<1 && x>0")),//Form("x>%g",fStartIntegral))),
         fPedestal(GetChannel().isFast()?900:2728),
         fPolarity(GetChannel().isFast()?1:-1),
-        fFullIntegrator( fPedestal, fPolarity, fStartIntegral, fStopIntegral),
+        fFullIntegrator( fPedestal, fPolarity, fStartIntegral, fStartTail),
         fTailIntegrator( fPedestal, fPolarity, fStartTail, fStopIntegral){
     }
 IntegralRatioAPGenerator::~IntegralRatioAPGenerator(){}
@@ -29,7 +29,8 @@ int IntegralRatioAPGenerator::ProcessPulses(
         AnalysedPulseList& analysedList){
 
     // Loop over all the TPIs given to us
-    double integral, tail,pedestal;
+    double head, tail,pedestal;
+    int start_tail;
     TIntegralRatioAnalysedPulse* tap;
     for (PulseIslandList::const_iterator tpi=pulseList.begin();
             tpi!=pulseList.end(); tpi++){
@@ -38,9 +39,13 @@ int IntegralRatioAPGenerator::ProcessPulses(
         fFullIntegrator.pedestal=pedestal;
         fTailIntegrator.pedestal=pedestal;
 
+        start_tail=fStartTail*(*tpi)->GetPulseLength();
+        fFullIntegrator.stop=start_tail;
+        fTailIntegrator.start=start_tail;
+
         // Analyse each TPI
         try{
-            integral=fFullIntegrator(*tpi);
+            head=fFullIntegrator(*tpi);
             tail=fTailIntegrator(*tpi);
         }catch(std::out_of_range& e){
             continue;
@@ -50,9 +55,9 @@ int IntegralRatioAPGenerator::ProcessPulses(
         // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
         // the index of the parent TPI in the container as an argument
         tap = MakeNewTAP<TIntegralRatioAnalysedPulse>(tpi-pulseList.begin());
-        tap->SetIntegral(integral);
+        tap->SetIntegral(head+tail);
         tap->SetIntegralSmall(tail);
-        tap->SetIntegralRatio(tail/integral);
+        tap->SetIntegralRatio(tail/(head+tail));
         // Finally add the new TAP to the output list
         analysedList.push_back(tap);
     }

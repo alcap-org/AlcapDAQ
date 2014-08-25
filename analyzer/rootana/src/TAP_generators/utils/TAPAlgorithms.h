@@ -63,8 +63,8 @@ struct Algorithm::SimpleIntegral {
 
   const int trigger_polarity;
   double pedestal;
-  const int start;
-  const int stop;
+  int start;
+  int stop;
 };
 
 #endif
