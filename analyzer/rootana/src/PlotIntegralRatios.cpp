@@ -87,6 +87,42 @@ int PlotIntegralRatios::BeforeFirstEntry(TGlobalData* gData,const TSetupData *se
             tmp.diff_v_ratio->SetYTitle("differente of tail to full integrals");
             tmp.diff_v_ratio->SetDirectory(GetDirectory("miscs"));
 
+            tmp.mean_vs_min=new TH2F(
+                    modules::parser::ToCppValid("h"+tmp.src.str()+"_mean_vs_min").c_str(),
+                    ("mean vs min values for "+tmp.src.str()).c_str(),
+                    200,0,-1,200,0,-1);
+            tmp.mean_vs_min->SetXTitle("minimum value");
+            tmp.mean_vs_min->SetYTitle("mean value");
+            tmp.mean_vs_min->SetDirectory(GetDirectory("min_max_mean"));
+
+            tmp.mean_vs_max=new TH2F(
+                    modules::parser::ToCppValid("h"+tmp.src.str()+"_mean_vs_max").c_str(),
+                    ("mean vs max values for "+tmp.src.str()).c_str(),
+                    200,0,-1,200,0,-1);
+            tmp.mean_vs_max->SetXTitle("maximum value");
+            tmp.mean_vs_max->SetYTitle("mean value");
+            tmp.mean_vs_max->SetDirectory(GetDirectory("min_max_mean"));
+
+            tmp.mean=new TH1F(
+                    modules::parser::ToCppValid("h"+tmp.src.str()+"_mean").c_str(),
+                    ("mean value for "+tmp.src.str()).c_str(),
+                    400,0,-1);
+            tmp.mean->SetXTitle("mean value");
+            tmp.mean->SetDirectory(GetDirectory("min_max_mean"));
+
+            tmp.max=new TH1F(
+                    modules::parser::ToCppValid("h"+tmp.src.str()+"_max").c_str(),
+                    ("max value for "+tmp.src.str()).c_str(),
+                    400,0,-1);
+            tmp.max->SetXTitle("max value");
+            tmp.max->SetDirectory(GetDirectory("min_max_mean"));
+
+            tmp.min=new TH1F(
+                    modules::parser::ToCppValid("h"+tmp.src.str()+"_min").c_str(),
+                    ("min value for "+tmp.src.str()).c_str(),
+                    400,0,-1);
+            tmp.min->SetXTitle("min value");
+            tmp.min->SetDirectory(GetDirectory("min_max_mean"));
 
             fSourcesToPlot.push_back(tmp);
         }
@@ -126,6 +162,15 @@ int PlotIntegralRatios::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
             i_source->diff_v_ratio->Fill(ratio,diff);
             i_source->assymetry->Fill(diff/(full-fShiftFull));
             i_source->assymetry2d->Fill(full,(full-2*tail));
+
+            double mean=pulse->GetMean();
+            double min=pulse->GetMin();
+            double max=pulse->GetMax();
+            i_source->mean->Fill(mean);
+            i_source->max->Fill(max);
+            i_source->min->Fill(min);
+            i_source->mean_vs_min->Fill(min,mean);
+            i_source->mean_vs_max->Fill(max,mean);
         }
 
     }
