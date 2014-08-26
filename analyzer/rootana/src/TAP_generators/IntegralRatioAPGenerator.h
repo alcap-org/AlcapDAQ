@@ -19,6 +19,7 @@ class IntegralRatioAPGenerator:public TVAnalysedPulseGenerator {
    // into more than one TAP
    virtual bool MayDivideTPIs(){return false;};
  private:
+        bool fStartTailAsFraction;
         double fStartIntegral;
         double fStopIntegral;
         double fStartTail;
