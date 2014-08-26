@@ -38,8 +38,17 @@ int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
             i_source != gAnalysedPulseMap.end(); i_source++) {
         ch=&i_source->first.Channel();
         gen=&i_source->first.Generator();
-        partner=IDs::source(ch->GetCorrespondingFastSlow(),*gen);
-        if(gAnalysedPulseMap.count(partner)==0) partner=i_source->first;
+
+	// Find the correct source since the generator options could be different
+	for (SourceAnalPulseMap::const_iterator j_source = gAnalysedPulseMap.begin();
+	     j_source != gAnalysedPulseMap.end(); ++j_source) {
+	  
+	  if (j_source->first.Generator().Type() == gen->Type()
+	      && j_source->first.Channel() == ch->GetCorrespondingFastSlow()) {
+	    partner = j_source->first;
+	  }
+	}
+	if (gAnalysedPulseMap.count(partner)==0) partner=i_source->first;
 
         // if there is no corresponding fast / slow channel then use the pass
         // through generator
