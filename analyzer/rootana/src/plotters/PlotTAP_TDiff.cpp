@@ -55,8 +55,6 @@ int PlotTAP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
       {
 	if(sourceIt2->first.Channel() != fDetNameB)
 	  continue;  //check for detector B
-	if(sourceIt2->first.Generator() != sourceIt->first.Generator())
-	  continue;  //make sure they have the same generator
 
 	//I should make a vector of the sources for detA and detB
 	fDetASources.push_back(sourceIt->first);
