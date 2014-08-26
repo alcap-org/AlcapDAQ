@@ -13,6 +13,7 @@
 #include "CommandLine.h"
 #include "PictureBook.h"
 #include "BaseChapter.h"
+#include "BasePlot.h"
 #include "TrendPlot.h"
 
 std::vector<BaseChapter*> gChapters; // a global container for the chapters (sorry, Ben)
@@ -139,6 +140,7 @@ int main(int argc, char **argv) {
 	// Set up the canvas and get the histogram
 	TCanvas *c1 = new TCanvas();
 	TH1* hRunPlot = (TH1*) dirKey->ReadObj();
+	BasePlot* run_plot = new BasePlot(c1, hRunPlot);
 	TrendPlot* trend_plot = NULL;
 
 	// Create the trend plot if we want (but only for plots that are initially one-dimensional)
