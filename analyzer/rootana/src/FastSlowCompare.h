@@ -2,6 +2,8 @@
 #define FASTSLOWCOMPARE_H_
 
 #include "BaseModule.h"
+#include "IdChannel.h"
+#include "IdSource.h"
 
 #include <map>
 #include <string>
@@ -20,13 +22,8 @@ class TH2I;
 /// \author John R Quirk
 ///
 /// \brief
-/// A one line description of what your module does.
+/// Compares the timing of fast and slow pulses.
 ///
-/// \details
-/// A longer, more descriptive block of text.
-/// Specifics like members and methods will be described later.
-/// You can add this to other groups instead of rootana_modules or in addition
-/// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
 class FastSlowCompare : public BaseModule {
 
@@ -34,22 +31,16 @@ class FastSlowCompare : public BaseModule {
   double fTimeWindowWide;
   double fTimeWindowTight;
 
-  std::map<std::string, std::string> fPairs;
+  std::vector< std::pair<IDs::source, IDs::source> > fPairs;
 
-  std::map<std::string, TH1I*> fHist_Time;
-  std::map<std::string, TH1I*> fHist_MoreTime;
-  std::map<std::string, TH1I*> fHist_NPerSlowWide;
-  std::map<std::string, TH1I*> fHist_NPerSlowTight;
+  std::vector<TH1I*> fHist_Time;
+  std::vector<TH1I*> fHist_MoreTime;
+  std::vector<TH1I*> fHist_NPerSlowWide;
+  std::vector<TH1I*> fHist_NPerSlowTight;
 
  public:
-  /// \brief
-  /// Constructor description. If necessary, add a details tag like above.
-  ///
   /// \param[in] opts Describe the options this module takes.
   FastSlowCompare(modules::options* opts);
-  /// \brief
-  /// Is anything done in the destructor?
-  ~FastSlowCompare();
 
  private:
   /// \brief
@@ -76,6 +67,7 @@ class FastSlowCompare : public BaseModule {
   /// \param[in] setup See BaseModule::AfterLastEntry
   /// \return Non-zero to indicate a problem.
   virtual int AfterLastEntry(TGlobalData* gData, const TSetupData *setup);
+  void BookHistograms();
 
 };
 
