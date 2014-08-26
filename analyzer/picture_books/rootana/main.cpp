@@ -18,7 +18,6 @@
 
 std::vector<BaseChapter*> gChapters; // a global container for the chapters (sorry, Ben)
 
-extern TStyle* gStyle;
 extern Int_t gErrorIgnoreLevel;
 
 int main(int argc, char **argv) {
@@ -176,9 +175,7 @@ int main(int argc, char **argv) {
 
 	// Draw the plot as we want it
 	plot->SetLogScales(log_x, log_y, log_z);
-
-	gStyle->SetOptStat(111111);
-	hPlot->SetStats(stats_box);
+	plot->SetStats(stats_box);
 
 	// Set the limits on each axis
 	if (auto_zoom) {

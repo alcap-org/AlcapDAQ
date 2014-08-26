@@ -6,6 +6,8 @@
 
 #include "CommandLine.h"
 
+extern TStyle* gStyle;
+
 class BasePlot {
  public:
   BasePlot() {}; // empty constructor (for TrendPlot)
@@ -28,6 +30,10 @@ class BasePlot {
   /// \brief
   /// Save the plot
   void Save(std::string draw_option, std::string filename);
+
+  /// \brief
+  /// Set the stats box how we like
+  void SetStats(bool stats_vox) { gStyle->SetOptStat(111111);	fPlot->SetStats(stats_box); };
 
  private:
   /// \brief
