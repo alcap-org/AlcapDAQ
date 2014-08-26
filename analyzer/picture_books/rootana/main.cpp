@@ -164,18 +164,19 @@ int main(int argc, char **argv) {
 	}
 
 	// Specify which plot wants to be printed out
+	BasePlot* plot = NULL;
 	TH1* hPlot = NULL;
 	if (is_trend_plot && trend_plot != NULL) {
 	  hPlot = trend_plot->GetTrendPlot();
+	  plot = trend_plot;
 	}
 	else {
 	  hPlot = hRunPlot;
+	  plot = run_plot;
 	}
 
 	// Draw the plot as we want it
-	c1->SetLogx(log_x);
-	c1->SetLogy(log_y);
-	c1->SetLogz(log_z);
+	plot->SetLogScales(log_x, log_y, log_z);
 
 	gStyle->SetOptStat(111111);
 	hPlot->SetStats(stats_box);

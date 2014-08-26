@@ -16,6 +16,10 @@ class BasePlot {
 
   void SetCanvas(TCanvas* canvas) {fCanvas=canvas;}
 
+  /// \brief
+  /// Sets the log scale on each axis
+  void SetLogScales(bool log_x, bool log_y, bool log_z);
+
  private:
   /// \brief
   /// The actual plot
