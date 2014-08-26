@@ -24,7 +24,7 @@ class IntegralRatioAPGenerator:public TVAnalysedPulseGenerator {
         double fStartTail;
         double fPedestal;
         double fPolarity;
-        Algorithm::SimpleIntegral fFullIntegrator;
+        Algorithm::SimpleIntegral fHeadIntegrator;
         Algorithm::SimpleIntegral fTailIntegrator;
 
 };
