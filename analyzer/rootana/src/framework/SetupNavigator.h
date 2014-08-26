@@ -5,6 +5,7 @@
 #include "IdSource.h"
 
 #include <TSQLiteServer.h>
+#include <iostream>
 
 class SetupNavigator{
   SetupNavigator();
@@ -33,7 +34,7 @@ class SetupNavigator{
   /// \brief
   /// Gets the error on the pedestal from the SQLite database
   double GetNoise(const IDs::channel& channel) { return fNoiseValues.at(channel); }
-  double GetCoarseTimeOffset(const IDs::source& src) { return fCoarseTimeOffset.at(src); }
+  double GetCoarseTimeOffset(const IDs::source& src) { if (src.matches(IDs::channel("muSc"))) { return 0; } else { return fCoarseTimeOffset.at(src); }}
 
   void SetPedestalAndNoise(const IDs::channel& channel, double pedestal, double noise);
   void SetCoarseTimeOffset(const IDs::source& src, double dt);
