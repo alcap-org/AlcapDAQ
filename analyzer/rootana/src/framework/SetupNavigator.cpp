@@ -138,7 +138,7 @@ void SetupNavigator::ReadCoarseTimeOffsetValues() {
     for (unsigned int i = 0; i < table.size(); ++i) {
       std::stringstream srcstr;
       srcstr << row->GetField(0) << IDs::field_separator << table[i];
-      if(row->GetFieldLength(1+i))
+      if(row->GetField(1+i))
 	fCoarseTimeOffset[IDs::source(srcstr.str())] = atof(row->GetField(1 + i));
     }
     delete row;
@@ -181,7 +181,7 @@ void SetupNavigator::OutputCalibCSV() {
   }
   fTO << "run,channel";
   for (std::set<IDs::generator>::const_iterator i = gens.begin(); i != gens.end(); ++i)
-    fTO << "," << StripTimeShiftConfigFromString(i->str());
+    fTO << "," << i->str();
   fTO << std::endl;
   for (std::set<IDs::channel>::const_iterator i = chns.begin(); i != chns.end(); ++i) {
     fTO << GetRunNumber() << "," << i->str();
@@ -207,6 +207,7 @@ void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double dt) {
   if (!fCommandLineArgs.calib) {
     std::cout << "SetupNavigator: Warning: Request to edit coarse time offsets when not flagged as calibration. Not setting." << std::endl;
     return;
-  }  
-  fCoarseTimeOffset[src] = dt;
+  }
+  // The excess code here is to strip {no_time_shift=yes} from the generator config string
+  fCoarseTimeOffset[IDs::source(src.Channel(), IDs::generator(StripTimeShiftConfigFromString(src.Generator().str())))] = dt;
 }

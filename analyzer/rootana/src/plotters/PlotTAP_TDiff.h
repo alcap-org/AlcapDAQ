@@ -72,7 +72,7 @@ class PlotTAP_TDiff : public BaseModule {
   double fTimeLow, fTimeHigh;
   bool fExportSQL;
 
-  std::map<std::string, TH2F*> intA_plots, intB_plots, ampA_plots, ampB_plots;
+  std::map<std::string, std::vector<TH2F*> > fHists;
 
   std::vector<IDs::source> fDetASources, fDetBSources;
 };

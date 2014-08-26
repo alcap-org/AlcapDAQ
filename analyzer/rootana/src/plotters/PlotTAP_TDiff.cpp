@@ -73,7 +73,7 @@ int PlotTAP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
   for(unsigned int i = 0; i < fDetASources.size(); ++i) {
     const AnalysedPulseList& detAPulses = gAnalysedPulseMap[fDetASources[i]];
     const AnalysedPulseList& detBPulses = gAnalysedPulseMap[fDetBSources[i]];
-    const std::string& key = fDetASources[i].str();
+    const std::vector<TH2F*>& hists = fHists[fDetASources[i].str()];
     
     for(AnalysedPulseList::const_iterator pulseIt = detAPulses.begin();
 	pulseIt != detAPulses.end(); ++pulseIt) {
@@ -82,10 +82,10 @@ int PlotTAP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
 	  pulseIt2 != detBPulses.end(); ++pulseIt2) {
 	double tDiff = (*pulseIt)->GetTime() - (*pulseIt2)->GetTime();
 	
-	ampA_plots[key]->Fill(tDiff, (*pulseIt)->GetAmplitude());
-	ampB_plots[key]->Fill(tDiff, (*pulseIt2)->GetAmplitude());
-	intA_plots[key]->Fill(tDiff, (*pulseIt)->GetIntegral());
-	intB_plots[key]->Fill(tDiff, (*pulseIt2)->GetIntegral());
+	hists[0]->Fill(tDiff, (*pulseIt)->GetAmplitude());
+	hists[1]->Fill(tDiff, (*pulseIt2)->GetAmplitude());
+	hists[2]->Fill(tDiff, (*pulseIt)->GetIntegral());
+	hists[3]->Fill(tDiff, (*pulseIt2)->GetIntegral());
 	
       }//end detBPulse loop
     }//end detAPulse loop
@@ -100,7 +100,7 @@ int PlotTAP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
 int PlotTAP_TDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
   if (fExportSQL) {
     for (unsigned int i = 0; i < fDetASources.size(); ++i) {
-      TH1D* h = ampA_plots[fDetASources[i].str()]->ProjectionX();
+      TH1D* h = fHists[fDetASources[i].str()][0]->ProjectionX();
       SetupNavigator::Instance()->SetCoarseTimeOffset(fDetASources[i], h->GetBinCenter(h->GetMaximumBin()));
     }
   }
@@ -109,31 +109,30 @@ int PlotTAP_TDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 
 void PlotTAP_TDiff::BookHistograms(const TSetupData* setup) {
   for (unsigned int i = 0; i < fDetASources.size(); ++i) {
-    const std::string key = fDetASources.at(i).str();
     const std::string gen = fDetASources.at(i).Generator().str();
     const int maxAmpA = std::pow(2, setup->GetNBits(setup->GetBankName(fDetNameA)));
     const int maxAmpB = std::pow(2, setup->GetNBits(setup->GetBankName(fDetNameB)));
-
+    std::vector<TH2F*>& hists = fHists[fDetASources.at(i).str()];
+    
     //ampA plots
-    std::string histname("h" + fDetNameB + "_" + key + "TDiff_AmpA");
+    std::string histname("h" + fDetNameB + "_" + fDetASources.at(i).str() + "TDiff_AmpA");
     std::string histtitle("Amplitude of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + gen + " generator;Time Difference (ns);Amplitude (ADC counts)");
-    ampA_plots[key] = new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, maxAmpA);
-
+    hists.push_back(new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, maxAmpA));
 
     //ampB plots
-    histname = "h" + fDetNameB + "_" + key + " TDiff_AmpB";
+    histname = "h" + fDetNameB + "_" + fDetASources.at(i).str() + " TDiff_AmpB";
     histtitle = "Amplitude of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + gen + " generator;Time Difference (ns);Amplitude (ADC counts)";
-    ampB_plots[key] = new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, maxAmpB);
- 
+    hists.push_back(new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, maxAmpB));
+
     //intA plots
-    histname = "h" + fDetNameB + "_" + key + " TDiff_IntA";
+    histname = "h" + fDetNameB + "_" + fDetASources.at(i).str() + " TDiff_IntA";
     histtitle = "Integral of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + gen + " generator;Time Difference (ns);Integral (ADC counts)";
-    intA_plots[key] = new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, 5*maxAmpA);
-      
+    hists.push_back(new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, 5*maxAmpA));
+
     //intB plots
-    histname = "h" + fDetNameB + "_" + key + " TDiff_IntB";
+    histname = "h" + fDetNameB + "_" + fDetASources.at(i).str() + " TDiff_IntB";
     histtitle = "Integral of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + gen + " generator;Time Difference (ns);Integral (ADC counts)";
-    intB_plots[key] = new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, 5*maxAmpB);
+    hists.push_back(new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, 5*maxAmpB));
     
   }
 }
