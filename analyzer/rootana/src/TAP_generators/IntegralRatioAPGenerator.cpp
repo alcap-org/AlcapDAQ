@@ -14,9 +14,13 @@ using std::endl;
 
 IntegralRatioAPGenerator::IntegralRatioAPGenerator(TAPGeneratorOptions* opts):
     TVAnalysedPulseGenerator("IntegralRatio",opts),
+        fStartTailAsFraction(opts->GetBool("start_tail_as_fraction",false)),
         fStartIntegral(opts->GetInt("start_int","x>=0")),
         fStopIntegral(opts->GetInt("stop_int","x>=0")),
-        fStartTail(opts->GetDouble("start_tail","x<1 && x>0")),//Form("x>%g",fStartIntegral))),
+        fStartTail(opts->GetDouble("start_tail",
+                                  fStartTailAsFraction?
+                                  "x<1 && x>0":
+                                  Form("x>%g",fStartIntegral))),
         fPedestal(GetChannel().isFast()?900:2728),
         fPolarity(GetChannel().isFast()?1:-1),
         fHeadIntegrator( fPedestal, fPolarity, fStartIntegral, fStartTail),
@@ -40,9 +44,11 @@ int IntegralRatioAPGenerator::ProcessPulses(
         fHeadIntegrator.pedestal=min;
         fTailIntegrator.pedestal=min;
 
-        start_tail=fStartTail*(*tpi)->GetPulseLength();
-        fHeadIntegrator.stop=start_tail;
-        fTailIntegrator.start=start_tail;
+        if(fStartTailAsFraction){
+           start_tail=fStartTail*(*tpi)->GetPulseLength();
+           fHeadIntegrator.stop=start_tail;
+           fTailIntegrator.start=start_tail;
+        }
 
         // Analyse each TPI
         try{
@@ -80,4 +86,4 @@ int IntegralRatioAPGenerator::ProcessPulses(
     return 0;
 }
 
-ALCAP_TAP_GENERATOR(IntegralRatio,start_int,start_tail,stop_int);
+ALCAP_TAP_GENERATOR(IntegralRatio,start_int,start_tail,stop_int,start_tail_as_fraction);
