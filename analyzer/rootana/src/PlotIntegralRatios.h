@@ -27,6 +27,8 @@ class PlotIntegralRatios : public BaseModule {
         IDs::source src;
         TH1F* ratio,*ratio_zoomed,*assymetry;
         TH2F* full_v_tail,*assymetry2d, *full_v_ratio, *diff_v_ratio;
+        TH1F *min, *max, *mean;
+        TH2F *mean_vs_min, *mean_vs_max;
     };
   typedef std::vector<SourcePlots_t> SourceList_t;
 
