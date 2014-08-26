@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
 	  if (trend_plots.find(histogram_name) == trend_plots.end()) {
 	    if (strcmp(hRunPlot->ClassName(), "TH1F") == 0) {
 	      // Create the trend plot and add it to the map
-	      trend_plot = new TrendPlot(histogram_name, hRunPlot, arguments);
+	      trend_plot = new TrendPlot(histogram_name, c1, hRunPlot, arguments);
 	      trend_plots[histogram_name] = trend_plot;
 	    }
 	    else {

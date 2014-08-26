@@ -4,10 +4,11 @@
 #include "TH2.h"
 
 #include "CommandLine.h"
+#include "BasePlot.h"
 
-class TrendPlot {
+class TrendPlot : public BasePlot {
  public:
-  TrendPlot(std::string histogram_name, TH1* run_plot, ARGUMENTS arguments);
+  TrendPlot(std::string histogram_name, TCanvas* canvas, TH1* run_plot, ARGUMENTS arguments);
   ~TrendPlot() {};
 
   TH2F* GetTrendPlot() { return fTrendPlot; }

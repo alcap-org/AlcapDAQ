@@ -1,6 +1,6 @@
 #include "TrendPlot.h"
 
-TrendPlot::TrendPlot(std::string histogram_name, TH1* run_plot, ARGUMENTS arguments) {
+TrendPlot::TrendPlot(std::string histogram_name, TCanvas* canvas, TH1* run_plot, ARGUMENTS arguments) {
 
   std::string trendplotname = histogram_name + "_TrendPlot";
   std::string trendplottitle = "Trend Plot of " + histogram_name;
@@ -18,6 +18,8 @@ TrendPlot::TrendPlot(std::string histogram_name, TH1* run_plot, ARGUMENTS argume
   fTrendPlot->GetZaxis()->SetLabelSize(0.03);
   fTrendPlot->GetZaxis()->SetTitleOffset(0.85);
   fTrendPlot->GetZaxis()->SetTitleSize(0.03);
+
+  SetCanvas(canvas);
 }
 
 void TrendPlot::FillTrendPlot(TH1* run_plot, ARGUMENTS arguments, int i_run) {
