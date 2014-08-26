@@ -261,6 +261,7 @@ int PulseViewer::AfterLastEntry(TGlobalData* gData, const TSetupData* setup){
           cout<<prefix<<" ----- | ------------ "<<endl;
       }
       cout<<prefix<<"Total pulses plotted = "<<fTotalPlotted<<endl;
+      cout<<"Summary for pulse criteria: ("<<fTriggerCondition <<") on channel "<<fSource<<endl;
 
   }
 
