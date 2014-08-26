@@ -70,11 +70,9 @@ int main(int argc, char **argv) {
     bool is_trend_plot = (*chapterIter)->GetIsTrendPlot();
     bool auto_zoom = (*chapterIter)->GetAutoZoom();
 
-    const int n_axes = 3;
     std::vector<int> low_limits, high_limits;
     low_limits.push_back((*chapterIter)->GetXLow()); low_limits.push_back((*chapterIter)->GetYLow()); low_limits.push_back((*chapterIter)->GetZLow());
     high_limits.push_back((*chapterIter)->GetXHigh()); high_limits.push_back((*chapterIter)->GetYHigh()); high_limits.push_back((*chapterIter)->GetZHigh());
-
 
     // Start the new chapter
     pic_book->StartNewSection(chapter_name);
@@ -114,7 +112,8 @@ int main(int argc, char **argv) {
   
       while ( (dirKey = (TKey*)nextDirKey()) ) {
 
-	std::string histogram_name = dirKey->ReadObj()->GetName();
+	TObject* obj = dirKey->ReadObj();
+	std::string histogram_name = obj->GetName();
 
 	// If we have been told that we want a specific plot type for this chapter,
 	// check that this is one of the plots we want
@@ -132,23 +131,22 @@ int main(int argc, char **argv) {
 	}
 	else {
 	  // Check that it's not the TString that we store in each directory
-	  if (strcmp(dirKey->ReadObj()->ClassName(), "TObjString") == 0) {
+	  if (strcmp(obj->ClassName(), "TObjString") == 0) {
 	    continue;
 	  }
 	}
 
 	// Set up the canvas and get the histogram
-	TH1* hRunPlot = (TH1*) dirKey->ReadObj();
-	BasePlot* run_plot = new BasePlot(new TCanvas(), hRunPlot);
+	BasePlot* run_plot = new BasePlot(new TCanvas(), (TH1*) obj);
 	TrendPlot* trend_plot = NULL;
 
 	// Create the trend plot if we want (but only for plots that are initially one-dimensional)
 	if (is_trend_plot) {
 
 	  if (trend_plots.find(histogram_name) == trend_plots.end()) {
-	    if (strcmp(hRunPlot->ClassName(), "TH1F") == 0) {
+	    if (obj->IsA() == TH1F::Class()) {
 	      // Create the trend plot and add it to the map
-	      trend_plot = new TrendPlot(histogram_name, new TCanvas(), hRunPlot, arguments);
+	      trend_plot = new TrendPlot(histogram_name, new TCanvas(), run_plot->GetPlot(), arguments);
 	      trend_plots[histogram_name] = trend_plot;
 	    }
 	    else {
@@ -159,18 +157,15 @@ int main(int argc, char **argv) {
 	  else {
 	    trend_plot = trend_plots.find(histogram_name)->second;
 	  }
-	  trend_plot->FillTrendPlot(hRunPlot, arguments, i_run);
+	  trend_plot->FillTrendPlot(run_plot->GetPlot(), arguments, i_run);
 	}
 
 	// Specify which plot wants to be printed out
 	BasePlot* plot = NULL;
-	TH1* hPlot = NULL;
 	if (is_trend_plot && trend_plot != NULL) {
-	  hPlot = trend_plot->GetTrendPlot();
 	  plot = trend_plot;
 	}
 	else {
-	  hPlot = hRunPlot;
 	  plot = run_plot;
 	}
 
