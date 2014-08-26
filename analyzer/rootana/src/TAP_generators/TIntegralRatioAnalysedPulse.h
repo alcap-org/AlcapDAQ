@@ -32,12 +32,24 @@ class TIntegralRatioAnalysedPulse:public TAnalysedPulse{
         void SetIntegralRatio(const double& val){fIntegralRatio=val;}
         /// @}
 
+        double GetMean()const{return fMean;}
+        double GetMin ()const{return fMin;}
+        double GetMax ()const{return fMax;}
+
+        void SetMean(double v){fMean=v;}
+        void SetMin (double v){fMin =v;}
+        void SetMax (double v){fMax =v;}
+
         /// @@brief overload the TAnalysedPulse::Draw method
         virtual void Draw(const TH1F* tpi_pulse)const;
 
     private:
         double fIntegralSmall;
         double fIntegralRatio;
+
+        double fMean;
+        double fMin;
+        double fMax;
 
         ClassDef(TIntegralRatioAnalysedPulse,1);
 };

@@ -19,7 +19,7 @@ IntegralRatioAPGenerator::IntegralRatioAPGenerator(TAPGeneratorOptions* opts):
         fStartTail(opts->GetDouble("start_tail","x<1 && x>0")),//Form("x>%g",fStartIntegral))),
         fPedestal(GetChannel().isFast()?900:2728),
         fPolarity(GetChannel().isFast()?1:-1),
-        fFullIntegrator( fPedestal, fPolarity, fStartIntegral, fStartTail),
+        fHeadIntegrator( fPedestal, fPolarity, fStartIntegral, fStartTail),
         fTailIntegrator( fPedestal, fPolarity, fStartTail, fStopIntegral){
     }
 IntegralRatioAPGenerator::~IntegralRatioAPGenerator(){}
@@ -29,27 +29,29 @@ int IntegralRatioAPGenerator::ProcessPulses(
         AnalysedPulseList& analysedList){
 
     // Loop over all the TPIs given to us
-    double head, tail,pedestal;
+    double head, tail,min, max, mean;
     int start_tail;
     TIntegralRatioAnalysedPulse* tap;
     for (PulseIslandList::const_iterator tpi=pulseList.begin();
             tpi!=pulseList.end(); tpi++){
 
-        pedestal=*std::min_element((*tpi)->GetSamples().begin(), (*tpi)->GetSamples().end());
-        fFullIntegrator.pedestal=pedestal;
-        fTailIntegrator.pedestal=pedestal;
+        min=*std::min_element((*tpi)->GetSamples().begin(), (*tpi)->GetSamples().end());
+        max=*std::max_element((*tpi)->GetSamples().begin(), (*tpi)->GetSamples().end());
+        fHeadIntegrator.pedestal=min;
+        fTailIntegrator.pedestal=min;
 
         start_tail=fStartTail*(*tpi)->GetPulseLength();
-        fFullIntegrator.stop=start_tail;
+        fHeadIntegrator.stop=start_tail;
         fTailIntegrator.start=start_tail;
 
         // Analyse each TPI
         try{
-            head=fFullIntegrator(*tpi);
+            head=fHeadIntegrator(*tpi);
             tail=fTailIntegrator(*tpi);
         }catch(std::out_of_range& e){
             continue;
         }
+        mean=(head+tail)/(fStopIntegral - fStartIntegral);
 
         // Now that we've found the information we were looking for make a TAP to
         // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
@@ -58,6 +60,10 @@ int IntegralRatioAPGenerator::ProcessPulses(
         tap->SetIntegral(head+tail);
         tap->SetIntegralSmall(tail);
         tap->SetIntegralRatio(tail/(head+tail));
+        tap->SetMean(mean);
+        tap->SetMax(max);
+        tap->SetMin(min);
+
         // Finally add the new TAP to the output list
         analysedList.push_back(tap);
     }
