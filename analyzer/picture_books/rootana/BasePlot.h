@@ -40,6 +40,9 @@ class BasePlot {
   /// Auto zoom the axes in to make things a sensible range
   virtual void AutoZoom();
 
+  /// \brief
+  /// Try and set the limits to what the user wants
+  void SetLimits(std::vector<int> low_limts, std::vector<int> high_limits);
  private:
   /// \brief
   /// The actual plot
