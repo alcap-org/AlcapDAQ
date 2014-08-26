@@ -9,7 +9,7 @@ export -n -f module
 
 ##################################################
 # Check input variable and an environment variable
-if [ $# -ne 4 ]; then
+if [ $# -lt 3 ]; then
     echo "ERROR: Require at least positional arguments input file, output file, and modules file as inputs!"
     exit 1
 elif [ -z "$DAQdir" ]; then
