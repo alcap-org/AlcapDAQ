@@ -20,6 +20,7 @@ TrendPlot::TrendPlot(std::string histogram_name, TCanvas* canvas, TH1* run_plot,
   fTrendPlot->GetZaxis()->SetTitleSize(0.03);
 
   SetCanvas(canvas);
+  SetPlot(fTrendPlot);
 }
 
 void TrendPlot::FillTrendPlot(TH1* run_plot, ARGUMENTS arguments, int i_run) {

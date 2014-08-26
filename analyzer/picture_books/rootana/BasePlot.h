@@ -14,11 +14,20 @@ class BasePlot {
 
   TH1* GetPlot() { return fPlot; }
 
+ protected:
+  /// \brief
+  /// These are mainly for TrendPlot to use
   void SetCanvas(TCanvas* canvas) {fCanvas=canvas;}
+  void SetPlot(TH1* plot) {fPlot=plot;}
 
+ public:
   /// \brief
   /// Sets the log scale on each axis
   void SetLogScales(bool log_x, bool log_y, bool log_z);
+
+  /// \brief
+  /// Save the plot
+  void Save(std::string draw_option, std::string filename);
 
  private:
   /// \brief

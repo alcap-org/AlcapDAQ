@@ -138,9 +138,8 @@ int main(int argc, char **argv) {
 	}
 
 	// Set up the canvas and get the histogram
-	TCanvas *c1 = new TCanvas();
 	TH1* hRunPlot = (TH1*) dirKey->ReadObj();
-	BasePlot* run_plot = new BasePlot(c1, hRunPlot);
+	BasePlot* run_plot = new BasePlot(new TCanvas(), hRunPlot);
 	TrendPlot* trend_plot = NULL;
 
 	// Create the trend plot if we want (but only for plots that are initially one-dimensional)
@@ -149,7 +148,7 @@ int main(int argc, char **argv) {
 	  if (trend_plots.find(histogram_name) == trend_plots.end()) {
 	    if (strcmp(hRunPlot->ClassName(), "TH1F") == 0) {
 	      // Create the trend plot and add it to the map
-	      trend_plot = new TrendPlot(histogram_name, c1, hRunPlot, arguments);
+	      trend_plot = new TrendPlot(histogram_name, new TCanvas(), hRunPlot, arguments);
 	      trend_plots[histogram_name] = trend_plot;
 	    }
 	    else {
@@ -267,13 +266,10 @@ int main(int argc, char **argv) {
 	    }
 	  }
 	}
-
-	hPlot->Draw(draw_option.c_str());
-	c1->Update();
-	  
 	
 	// Save the plot as a PNG (if it's a run plot or it's a trend plot and we are at the last run)
 	if (!is_trend_plot || (is_trend_plot && i_run == n_runs-1)) {
+
 	  std::stringstream pngname;
 	  pngname << "plots/";
 	  if (is_trend_plot) {
@@ -283,8 +279,8 @@ int main(int argc, char **argv) {
 
 	  std::string pngname_str = pngname.str();
 	  std::replace(pngname_str.begin(), pngname_str.end(), '#', '_'); // need to replace # so that latex works
-	  c1->SaveAs(pngname_str.c_str());
-	  delete c1;
+
+	  plot->Save(draw_option, pngname_str);
 	
 	  // Add the figure to the latex document
 	  pic_book->InsertFigure(pngname_str);
