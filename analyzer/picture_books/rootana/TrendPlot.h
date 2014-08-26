@@ -14,6 +14,8 @@ class TrendPlot : public BasePlot {
   TH2F* GetTrendPlot() { return fTrendPlot; }
   void FillTrendPlot(TH1* run_plot, ARGUMENTS arguments, int i_run);
 
+  virtual void AutoZoom();
+
  private:
   /// \brief
   /// The actual trend plot

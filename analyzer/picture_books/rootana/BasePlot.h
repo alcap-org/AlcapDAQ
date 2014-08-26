@@ -3,6 +3,7 @@
 
 #include "TH1.h"
 #include "TCanvas.h"
+#include "TStyle.h"
 
 #include "CommandLine.h"
 
@@ -33,7 +34,11 @@ class BasePlot {
 
   /// \brief
   /// Set the stats box how we like
-  void SetStats(bool stats_vox) { gStyle->SetOptStat(111111);	fPlot->SetStats(stats_box); };
+  void SetStats(bool stats_box) { gStyle->SetOptStat(111111);	fPlot->SetStats(stats_box); };
+
+  /// \brief
+  /// Auto zoom the axes in to make things a sensible range
+  virtual void AutoZoom();
 
  private:
   /// \brief

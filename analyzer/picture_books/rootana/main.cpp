@@ -179,57 +179,7 @@ int main(int argc, char **argv) {
 
 	// Set the limits on each axis
 	if (auto_zoom) {
-	  // Auto zoom the axes here
-
-	  // If it's a trend plot then we want to zoom on both axes
-	  if (is_trend_plot) {
-	    // Zoom on both
-	    int max_bin = 0;
-	    
-	    // Loop through the y-axis first and then see which run has the highest bin
-	    for (int j_bin = hPlot->GetNbinsY(); j_bin > 0; --j_bin) {
-	      
-	      for (int i_bin = hPlot->GetNbinsX(); i_bin > 0; --i_bin) {
-		
-		if (hPlot->GetBinContent(i_bin, j_bin) > 0) {
-		  
-		  // See if this bin is higher than the previous
-		  if (j_bin > max_bin) {
-		    max_bin = j_bin;
-		    break;
-		  }
-		}
-	      }
-	    }
-	    
-	    hPlot->GetYaxis()->SetRange(1, max_bin + 5); // set the range based on bin number
-	  }
-	  else {
-	    // Zoom on x-axis only
-	    int min_bin = 1;
-	    int max_bin = 1;
-	    
-	    for (int i_bin = 1; i_bin <= hPlot->GetNbinsX(); ++i_bin) {
-	      if (hPlot->GetBinContent(i_bin) >= 1) {
-		if (i_bin > min_bin) {
-		  min_bin = i_bin;
-		  break;
-		}
-	      }
-	    }
-
-	    for (int i_bin = hPlot->GetNbinsX(); i_bin > 0; --i_bin) {
-	      if (hPlot->GetBinContent(i_bin) >= 1) {
-		// See if this bin is higher than the previous
-		if (i_bin > max_bin) {
-		  max_bin = i_bin;
-		  break;
-		}
-	      }
-	    }
-	    
-	    hPlot->GetXaxis()->SetRange(min_bin, max_bin); // set the range based on bin number
-	  }
+	  plot->AutoZoom();
 	}
 	else { // try and use the limits
 	  // First, get the current limits on the plot so we can provide warnings if the user asks for a range outside of these

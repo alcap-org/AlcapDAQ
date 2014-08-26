@@ -56,3 +56,25 @@ void TrendPlot::FillTrendPlot(TH1* run_plot, ARGUMENTS arguments, int i_run) {
   }
 }
 
+void TrendPlot::AutoZoom() {
+  // If it's a trend plot then we want to zoom on both axes
+  int max_bin = 0;
+	    
+  // Loop through the y-axis first and then see which run has the highest bin
+  for (int j_bin = fTrendPlot->GetNbinsY(); j_bin > 0; --j_bin) {
+    
+    for (int i_bin = fTrendPlot->GetNbinsX(); i_bin > 0; --i_bin) {
+      
+      if (fTrendPlot->GetBinContent(i_bin, j_bin) > 0) {
+	
+	// See if this bin is higher than the previous
+	if (j_bin > max_bin) {
+	  max_bin = j_bin;
+	  break;
+	}
+      }
+    }
+  }
+  
+  fTrendPlot->GetYaxis()->SetRange(1, max_bin + 5); // set the range based on bin number
+}
