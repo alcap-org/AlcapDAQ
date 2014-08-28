@@ -62,6 +62,16 @@ struct Algorithm::SimpleIntegral {
   double operator() (const TPulseIsland* tpi);
 
   const int trigger_polarity;
+
+  double GetPedestal()const{return pedestal;};
+  int GetStart()const{return start;};
+  int GetStop()const{return stop;};
+
+  void SetPedestal(double v){pedestal=v;};
+  void SetStart(int v){start=v;};
+  void SetStop(int v){stop=v;};
+
+private:
   double pedestal;
   int start;
   int stop;
