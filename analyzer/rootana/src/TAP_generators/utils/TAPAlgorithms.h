@@ -11,6 +11,7 @@ namespace Algorithm {
   struct MaxBinTime;
   struct ConstantFractionTime;
   struct SimpleIntegral;
+  struct IntegralRatio;
 };
 
 struct Algorithm::MaxBinAmplitude {
@@ -75,6 +76,32 @@ private:
   double pedestal;
   int start;
   int stop;
+};
+
+struct Algorithm::IntegralRatio{
+  IntegralRatio(int begin,int tail, int end, int trig_pol,double ped=0)
+    :fTailIntegrator(ped,trig_pol,tail,end)
+     ,fHeadIntegrator(ped,trig_pol,begin,tail){
+     }
+  double operator() (const TPulseIsland* tpi){
+     double head=fHeadIntegrator(tpi);
+     fTail=fTailIntegrator(tpi);
+     fTotal=head+fTail;
+     return GetRatio();
+  }
+
+  double GetRatio()const {return fTail/fTotal;}
+  double GetTotal()const{return fTotal;}
+  double GetTail()const{return fTail;}
+  
+  void SetTailStart(int v){ fTailIntegrator.SetStart(v); fHeadIntegrator.SetStop(v);}
+  void SetPedestal(double v){ fTailIntegrator.SetPedestal(v); fHeadIntegrator.SetPedestal(v);}
+
+private:
+  double fTail;
+  double fTotal;
+  Algorithm::SimpleIntegral fTailIntegrator;
+  Algorithm::SimpleIntegral fHeadIntegrator;
 };
 
 #endif
