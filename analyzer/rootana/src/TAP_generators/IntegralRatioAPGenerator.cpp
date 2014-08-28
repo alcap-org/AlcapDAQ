@@ -41,13 +41,13 @@ int IntegralRatioAPGenerator::ProcessPulses(
 
         min=*std::min_element((*tpi)->GetSamples().begin(), (*tpi)->GetSamples().end());
         max=*std::max_element((*tpi)->GetSamples().begin(), (*tpi)->GetSamples().end());
-        fHeadIntegrator.pedestal=min;
-        fTailIntegrator.pedestal=min;
+        fHeadIntegrator.SetPedestal(min);
+        fTailIntegrator.SetPedestal(min);
 
         if(fStartTailAsFraction){
            start_tail=fStartTail*(*tpi)->GetPulseLength();
-           fHeadIntegrator.stop=start_tail;
-           fTailIntegrator.start=start_tail;
+           fHeadIntegrator.SetStop(start_tail);
+           fTailIntegrator.SetStart(start_tail);
         }
 
         // Analyse each TPI
