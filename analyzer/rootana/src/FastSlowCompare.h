@@ -12,7 +12,6 @@ class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
 
-class TH1I;
 class TH2I;
 
 #include <cmath>
@@ -33,10 +32,10 @@ class FastSlowCompare : public BaseModule {
 
   std::vector< std::pair<IDs::source, IDs::source> > fPairs;
 
-  std::vector<TH1I*> fHist_Time;
-  std::vector<TH1I*> fHist_MoreTime;
-  std::vector<TH1I*> fHist_NPerSlowWide;
-  std::vector<TH1I*> fHist_NPerSlowTight;
+  std::vector<TH2I*> fHist_Time;
+  std::vector<TH2I*> fHist_MoreTime;
+  std::vector<TH2I*> fHist_NPerSlowWide;
+  std::vector<TH2I*> fHist_NPerSlowTight;
 
  public:
   /// \param[in] opts Describe the options this module takes.
