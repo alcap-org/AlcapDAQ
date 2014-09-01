@@ -23,9 +23,9 @@ IntegralRatioAPGenerator::IntegralRatioAPGenerator(TAPGeneratorOptions* opts):
                                   Form("x>%g",fStartIntegral))),
         fPedestal(GetChannel().isFast()?900:2728),
         fPolarity(GetChannel().isFast()?1:-1),
-        fHeadIntegrator( fPedestal, fPolarity, fStartIntegral, fStartTail),
-        fTailIntegrator( fPedestal, fPolarity, fStartTail, fStopIntegral){
+        fIntegralRatioAlgo( fStartIntegral, fStartTail, fStopIntegral,  fPolarity,fPedestal){
     }
+
 IntegralRatioAPGenerator::~IntegralRatioAPGenerator(){}
 
 int IntegralRatioAPGenerator::ProcessPulses( 
@@ -33,42 +33,30 @@ int IntegralRatioAPGenerator::ProcessPulses(
         AnalysedPulseList& analysedList){
 
     // Loop over all the TPIs given to us
-    double head, tail,min, max, mean;
     int start_tail;
     TIntegralRatioAnalysedPulse* tap;
     for (PulseIslandList::const_iterator tpi=pulseList.begin();
             tpi!=pulseList.end(); tpi++){
 
-        min=*std::min_element((*tpi)->GetSamples().begin(), (*tpi)->GetSamples().end());
-        max=*std::max_element((*tpi)->GetSamples().begin(), (*tpi)->GetSamples().end());
-        fHeadIntegrator.SetPedestal(min);
-        fTailIntegrator.SetPedestal(min);
-
         if(fStartTailAsFraction){
            start_tail=fStartTail*(*tpi)->GetPulseLength();
-           fHeadIntegrator.SetStop(start_tail);
-           fTailIntegrator.SetStart(start_tail);
+           fIntegralRatioAlgo.SetTailStart(start_tail);
         }
 
         // Analyse each TPI
         try{
-            head=fHeadIntegrator(*tpi);
-            tail=fTailIntegrator(*tpi);
+            fIntegralRatioAlgo(*tpi);
         }catch(std::out_of_range& e){
             continue;
         }
-        mean=(head+tail)/(fStopIntegral - fStartIntegral);
 
         // Now that we've found the information we were looking for make a TAP to
         // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
         // the index of the parent TPI in the container as an argument
         tap = MakeNewTAP<TIntegralRatioAnalysedPulse>(tpi-pulseList.begin());
-        tap->SetIntegral(head+tail);
-        tap->SetIntegralSmall(tail);
-        tap->SetIntegralRatio(tail/(head+tail));
-        tap->SetMean(mean);
-        tap->SetMax(max);
-        tap->SetMin(min);
+        tap->SetIntegral(fIntegralRatioAlgo.GetTotal());
+        tap->SetIntegralSmall(fIntegralRatioAlgo.GetTail());
+        tap->SetIntegralRatio(fIntegralRatioAlgo.GetRatio());
 
         // Finally add the new TAP to the output list
         analysedList.push_back(tap);
