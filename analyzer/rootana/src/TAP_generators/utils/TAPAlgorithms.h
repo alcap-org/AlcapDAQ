@@ -59,7 +59,7 @@ struct Algorithm::SimpleIntegral {
   /// "samples.end()+last" if last<=0 
   SimpleIntegral(double ped, int trig_pol, int first, int last)
     :trigger_polarity(trig_pol), pedestal(ped),start(first),stop(last){}
-  double operator() (const TPulseIsland* tpi);
+  double operator() (const TPulseIsland* tpi)const;
 
   const int trigger_polarity;
 

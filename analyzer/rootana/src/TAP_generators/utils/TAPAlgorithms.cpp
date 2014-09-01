@@ -63,7 +63,7 @@ double Algorithm::ConstantFractionTime::operator() (const TPulseIsland* tpi) con
   return (dx + (double)tpi->GetTimeStamp()) * clock_tick_in_ns - time_shift;
 }
 
-double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi) {
+double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi)const {
   const std::vector<int>& samples = tpi->GetSamples();
   
   double length = samples.size();
