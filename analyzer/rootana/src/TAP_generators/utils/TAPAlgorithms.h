@@ -82,15 +82,10 @@ struct Algorithm::IntegralRatio{
     :fTailIntegrator(ped,trig_pol,tail,end)
      ,fHeadIntegrator(ped,trig_pol,begin,tail){
      }
-  double operator() (const TPulseIsland* tpi){
-     double head=fHeadIntegrator(tpi);
-     fTail=fTailIntegrator(tpi);
-     fTotal=head+fTail;
-     return GetRatio();
-  }
+  double operator() (const TPulseIsland* tpi);
 
-  double GetRatio()const {return fTail/fTotal;}
-  double GetTotal()const{return fTotal;}
+  double GetRatio()const {return fTail/(fHead+fTail);}
+  double GetTotal()const{return fHead+fTail;}
   double GetTail()const{return fTail;}
   
   void SetTailStart(int v){ fTailIntegrator.SetStart(v); fHeadIntegrator.SetStop(v);}
@@ -98,7 +93,7 @@ struct Algorithm::IntegralRatio{
 
 private:
   double fTail;
-  double fTotal;
+  double fHead;
   Algorithm::SimpleIntegral fTailIntegrator;
   Algorithm::SimpleIntegral fHeadIntegrator;
 };
