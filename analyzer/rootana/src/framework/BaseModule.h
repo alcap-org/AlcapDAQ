@@ -72,6 +72,7 @@ class BaseModule
 
   /// Get the TDirectory for this module
   TDirectory* GetDirectory()const {return fDirectory;}
+  TDirectory* GetDirectory(const std::string& name="");
 
  private:
    /// @brief The big kahuna.  Overload this in the derived class and it will be

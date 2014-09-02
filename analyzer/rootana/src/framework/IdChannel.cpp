@@ -102,7 +102,7 @@ std::string IDs::channel::GetSlowFastString(SlowFast_t sf){
 IDs::SlowFast_t IDs::channel::GetSlowFastEnum(const std::string& type){
 	if(modules::parser::iequals(type,"-S") || type=="slow") return kSlow;
 	else if(modules::parser::iequals(type,"-F")|| type=="fast") return kFast;
-	else if(type=="*"|| type=="any") return kAnySlowFast;
+	else if(type=="-*"|| type=="any") return kAnySlowFast;
 	return kNotApplicable;
 }
 
@@ -122,3 +122,7 @@ std::ostream& operator<< (ostream& os ,const IDs::channel& id){
   return os;
 }
 
+void IDs::channel::Debug()const{
+    std::cout<<"Detector: "<<GetDetectorString(Detector())<<std::endl;
+    std::cout<<"Slow/fast: "<<GetSlowFastString(SlowFast())<<std::endl;
+}

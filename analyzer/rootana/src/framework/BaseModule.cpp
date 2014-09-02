@@ -73,3 +73,10 @@ int BaseModule::Postprocess(TGlobalData *gData, const TSetupData *gSetup){
 
   return ret;
 }
+
+TDirectory* BaseModule::GetDirectory(const std::string& name){
+  if(name.empty()) return fDirectory;
+  TDirectory* dir=fDirectory->GetDirectory(name.c_str());
+  if(dir) return dir;
+  return fDirectory->mkdir(name.c_str());
+}

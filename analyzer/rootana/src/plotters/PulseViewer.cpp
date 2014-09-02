@@ -9,6 +9,7 @@
 #include "debug_tools.h"
 #include "IdSource.h"
 #include "EventNavigator.h"
+#include "TIntegralRatioAnalysedPulse.h"
 
 #include <TFormula.h>
 
@@ -20,16 +21,26 @@ using std::endl;
 using modules::parser::GetOneWord;
 using modules::parser::GetDouble;
 
+#define GetVals(array,pulse)\
+            for(ParameterKeys::const_iterator i_key=fAvailableParams.begin(); \
+              i_key!=fAvailableParams.end();++i_key){\
+               array[i_key->second]=GetParameterValue(pulse,i_key->second);\
+            }
+
 extern SourceAnalPulseMap gAnalysedPulseMap;
+
 PulseViewer::ParameterKeys PulseViewer::fAvailableParams;
+PulseViewer::PulseKeys PulseViewer::fAvailablePulseTypes;
 
 PulseViewer::PulseViewer(modules::options* opts):
-    BaseModule("PulseViewer",opts),fTotalPlotted(0),fFormula(NULL){
+    BaseModule("PulseViewer",opts),fTotalPlotted(0),fFormula(NULL),fEvent(0){
         fRequestedSource=opts->GetString("source"); 
+        fRequestedPulseType=opts->GetString("pulse_type","TAnalysedPulse"); 
         fSource.Channel()=fRequestedSource;
         fTriggerCondition=opts->GetString("trigger"); 
-        fSummarize=opts->GetBool("summarize"); 
+        fSummarize=opts->GetFlag("summarize"); 
         fMaxToPlot=opts->GetInt("max_plots",-1);
+        fMaxToPlotPerEvent=opts->GetInt("max_plots_event",-1);
         fStopAtMax=opts->GetBool("stop_at_max_plots",true);
     }
 
@@ -60,10 +71,40 @@ int PulseViewer::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
      fAvailableParams["energy"]=kEnergy;
      fAvailableParams["pedestal"]=kPedestal;
      fAvailableParams["trigger_time"]=kTriggerTime;
+     fAvailableParams["event_no"]=kEventNo;
    }
+
+   if(fAvailablePulseTypes.empty()){
+     fAvailablePulseTypes["TAnalysedPulse"]=kTAP;
+     fAvailablePulseTypes["IntegralRatioAP"]=kIntegralRatioAP;
+   }
+
+   int ret_val= CheckPulseType(fRequestedPulseType);
+   if(ret_val) return ret_val;
 
    // Parse the trigger string
    return ParseTriggerString(fTriggerCondition);
+}
+
+int PulseViewer::CheckPulseType(const std::string& pulse_type){
+   PulseKeys::const_iterator i_type=fAvailablePulseTypes.find(pulse_type);
+   if(i_type==fAvailablePulseTypes.end()) {
+      cout<<"PulseViewer::CheckPulseType: Error: Bad pulse_type: "<<pulse_type<<endl;
+     for(PulseKeys::const_iterator it=fAvailablePulseTypes.begin();
+             it!=fAvailablePulseTypes.end(); it++){
+         cout<<"    |-"<<it->first<<endl;
+     }
+     return 1;
+   }
+   fPulseType=i_type->second;
+   switch(fPulseType){
+      case kTAP: break;
+      case kIntegralRatioAP:
+         fAvailableParams["Integral_ratio"]=kIntegralRatio;
+         fAvailableParams["Integral_tail"]=kIntegralTail;
+      break;
+   }
+   return 0;
 }
 
 int PulseViewer::ParseTriggerString(const std::string& trigger_condition){
@@ -122,37 +163,49 @@ int PulseViewer::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
     for(AnalysedPulseList::iterator i_pulse=allTAPs->begin();
 		i_pulse!=allTAPs->end() && retVal==0;
 		i_pulse++){
+            if(fEvent==0){
+                retVal=TestPulseType(*i_pulse);
+            }
 	    retVal=ConsiderDrawing((*i_pulse)->GetParentID() ,*i_pulse);
     }
     if(retVal!=0) return retVal;
 
+    fEvent++;
+
   return 0;
 }
 
-double PulseViewer::GetParameterValue(const TAnalysedPulse& pulse,const ParameterType& parameter){
-	double retVal=0;
-	switch (parameter){
-  	case kAmplitude:
-		retVal=pulse.GetAmplitude();
-		break;
-  	case kTime:
-		retVal=pulse.GetTime();
-		break;
-  	case kIntegral:
-		retVal=pulse.GetIntegral();
-		break;
-  	case kTPILength:
-        retVal=pulse.GetTPILength();
-        break;
-    case kEnergy:
-        retVal=pulse.GetEnergy();
-        break;
-    case kPedestal:
-        retVal=pulse.GetPedestal();
-        break;
-    case kTriggerTime:
-        retVal=pulse.GetTriggerTime();
-        break;
+bool PulseViewer::TestPulseType(const TAnalysedPulse* pulse){
+  switch(fPulseType){
+    case kTAP: return false;
+    case kIntegralRatioAP: return dynamic_cast<const TIntegralRatioAnalysedPulse*>(pulse);
+  }
+  return false;
+}
+
+double PulseViewer::GetParameterValue(const TAnalysedPulse* pulse,const ParameterType& parameter){
+   double retVal=0;
+   switch (parameter){
+       case kAmplitude: retVal=pulse->GetAmplitude(); break;
+       case kTime: retVal=pulse->GetTime(); break;
+       case kIntegral: retVal=pulse->GetIntegral(); break;
+       case kTPILength: retVal=pulse->GetTPILength(); break;
+       case kEnergy: retVal=pulse->GetEnergy(); break;
+       case kPedestal: retVal=pulse->GetPedestal(); break;
+       case kTriggerTime: retVal=pulse->GetTriggerTime(); break;
+       case kEventNo: retVal=fEvent; break;
+       default: retVal=definitions::DefaultValue;
+           cout<<"PulseViewer::GetParameterValue: Error: Cannot get param: "<<parameter<<" from a TAnalysedPulse"<<endl;
+    }
+    return retVal;
+}
+
+double PulseViewer::GetParameterValue(const TIntegralRatioAnalysedPulse* pulse,const ParameterType& parameter){
+   double retVal=0;
+   switch (parameter){
+       case kIntegralTail: retVal=pulse->GetIntegralSmall(); break;
+       case kIntegralRatio: retVal=pulse->GetIntegralRatio(); break;
+       default: retVal=GetParameterValue( static_cast<const TAnalysedPulse*>(pulse),parameter);
     }
     return retVal;
 }
@@ -160,9 +213,13 @@ double PulseViewer::GetParameterValue(const TAnalysedPulse& pulse,const Paramete
 int PulseViewer::ConsiderDrawing(const TAnalysedPulseID& id, const TAnalysedPulse* pulse){
   // Check pulse passes trigger condition
     double vals[fAvailableParams.size()];
-    for(ParameterKeys::const_iterator i_key=fAvailableParams.begin();
-            i_key!=fAvailableParams.end();++i_key){
-        vals[i_key->second]=GetParameterValue(*pulse,i_key->second);
+    switch (fPulseType){
+       case kTAP: GetVals(vals,pulse); break;
+       case kIntegralRatioAP: 
+            const TIntegralRatioAnalysedPulse* ir_pulse
+              =static_cast<const TIntegralRatioAnalysedPulse*>(pulse);
+            GetVals(vals,ir_pulse);
+            break;
     }
     fFormula->SetParameters(vals);
     double value=fFormula->Eval(0);
@@ -190,24 +247,25 @@ int PulseViewer::AfterLastEntry(TGlobalData* gData, const TSetupData* setup){
       const std::string prefix="     ";
       cout<<"Summary for pulse criteria: ("<<fTriggerCondition <<") on channel "<<fSource<<endl;
       if(!fPulsesPlotted.empty()){
-          cout<<prefix<<" Event | Pulses drawn (times requested)"<<endl;
+          cout<<prefix<<" Event | Pulse IDs drawn (sub_pulse ID)"<<endl;
           cout<<prefix<<" ----- | ------------ "<<endl;
           for(EventPulseIDList_t::const_iterator i_event=fPulsesPlotted.begin();
                   i_event!=fPulsesPlotted.end();i_event++){
               cout<<prefix<<std::setw(6)<< i_event->first<<" | ";
               for(PulseIDList_t::const_iterator i_pulse=i_event->second.begin();
                       i_pulse!=i_event->second.end();i_pulse++){
-                  cout<<std::setw(2)<< i_pulse->first<<"("<< i_pulse->second<<")"<<", ";
+                  cout<<std::setw(2)<< i_pulse->first <<"("<< i_pulse->second<<")" <<", ";
               }
               cout<<endl;
           }
           cout<<prefix<<" ----- | ------------ "<<endl;
       }
       cout<<prefix<<"Total pulses plotted = "<<fTotalPlotted<<endl;
+      cout<<"Summary for pulse criteria: ("<<fTriggerCondition <<") on channel "<<fSource<<endl;
 
   }
 
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(PulseViewer,source,trigger,summarize);
+ALCAP_REGISTER_MODULE(PulseViewer,source,trigger,pulse_type,summarize);

@@ -4,8 +4,10 @@
 
 #include <iostream>
 #include <algorithm>
+#include <numeric>
 #include <cmath>
 #include <numeric>
+#include <stdexcept>
 
 double Algorithm::MaxBinAmplitude::operator() (const TPulseIsland* tpi) const {
 
@@ -61,8 +63,29 @@ double Algorithm::ConstantFractionTime::operator() (const TPulseIsland* tpi) con
   return (dx + (double)tpi->GetTimeStamp()) * clock_tick_in_ns - time_shift;
 }
 
-double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi) const {
-  const std::vector<int>& samples = tpi->GetSamples();  
-  return (double)trigger_polarity *
-    ((double)std::accumulate(samples.begin(), samples.end(), 0) - pedestal * (double)samples.size());
+double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi)const {
+  const std::vector<int>& samples = tpi->GetSamples();
+  
+  double length = samples.size();
+  typedef std::vector<int> SampleVector;
+  SampleVector::const_iterator begin=samples.begin()+start;
+  if(start > length 
+          || ( stop>0 && stop<start ) 
+          || (stop<0 && length+stop <start) ){
+      throw std::out_of_range("Algorithm::SimpleIntegral::operator() bad integral range" );
+  }
+  SampleVector::const_iterator end=(stop>0?samples.begin():samples.end())+stop;
+  double tempint=std::accumulate(begin,end,0);
+
+  double integral = trigger_polarity * (tempint - (pedestal * (end-begin)));
+
+  return integral;
 }
+
+double Algorithm::IntegralRatio::operator() (const TPulseIsland* tpi){
+     SetPedestal(*std::min_element(tpi->GetSamples().begin(), tpi->GetSamples().end()));
+     fHead=fHeadIntegrator(tpi);
+     fTail=fTailIntegrator(tpi);
+     return GetRatio();
+  }
+

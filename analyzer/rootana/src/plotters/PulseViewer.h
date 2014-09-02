@@ -7,6 +7,7 @@ class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
 class TFormula;
+class TIntegralRatioAnalysedPulse;
 
 /// @brief Module to plot pulses meeting a certain criteria
 /// @see https://github.com/alcap-org/AlcapDAQ/wiki/rootana-module-PulseViewer
@@ -17,8 +18,6 @@ class PulseViewer : public BaseModule{
     typedef std::map<TPulseIslandID,int> PulseIDList_t;
     typedef std::map<EventID_t,PulseIDList_t> EventPulseIDList_t;
 
-    enum  TriggerType {kE, kG, kL, kGE, kLE};
-
     enum  ParameterType {
         kAmplitude,
         kTime,
@@ -26,7 +25,15 @@ class PulseViewer : public BaseModule{
         kTPILength,
         kEnergy,
         kPedestal,
-        kTriggerTime
+        kTriggerTime,
+        kEventNo,
+        kIntegralRatio,
+        kIntegralTail
+    };
+
+    enum PulseType{
+        kTAP,
+        kIntegralRatioAP
     };
 
     public:
@@ -46,27 +53,36 @@ class PulseViewer : public BaseModule{
     int ConsiderDrawing(const TAnalysedPulseID& id, const TAnalysedPulse* i_pulse);
 
     /// Get the value of interest from pulse
-    double GetParameterValue(const TAnalysedPulse& pulse,const ParameterType& parameter);
+    double GetParameterValue(const TAnalysedPulse* pulse,const ParameterType& parameter);
+    double GetParameterValue(const TIntegralRatioAnalysedPulse* pulse,const ParameterType& parameter);
 
     /// Parse a trigger condition and set up the values needed to handle it
     /// @return 0 on success, non-zero otherwise
     int ParseTriggerString(const std::string& trigger_condition);
+    int CheckPulseType(const std::string& pulse_type);
+    bool TestPulseType(const TAnalysedPulse* pulse_type);
 
     /// Dump a summary of what was done
     bool SummarisePlots(){return fSummarize;};
 
     private:
     IDs::source fSource;
-    std::string fTriggerCondition;
     std::string fRequestedSource;
+    std::string fTriggerCondition;
+    PulseType fPulseType;
+    std::string fRequestedPulseType;
     long int fTotalPlotted;
-    long int fMaxToPlot;
+    long int fMaxToPlot, fMaxToPlotPerEvent;
     bool fSummarize, fStopAtMax;
     EventPulseIDList_t fPulsesPlotted;
     TFormula* fFormula;
+    int fEvent;
 
     typedef std::map<std::string,ParameterType> ParameterKeys;
     static ParameterKeys fAvailableParams;
+
+    typedef std::map<std::string,PulseType> PulseKeys;
+    static PulseKeys fAvailablePulseTypes;
 };
 
 #endif //PULSEVIEWER_H_
