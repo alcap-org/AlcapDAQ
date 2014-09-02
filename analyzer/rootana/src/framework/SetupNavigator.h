@@ -30,10 +30,10 @@ class SetupNavigator{
 
   /// \brief
   /// Gets the pedestal from the SQLite database
-  double GetPedestal(const IDs::channel& channel) { return fPedestalValues.at(channel); }
+  double GetPedestal(const IDs::channel& channel)const;
   /// \brief
   /// Gets the error on the pedestal from the SQLite database
-  double GetNoise(const IDs::channel& channel) { return fNoiseValues.at(channel); }
+  double GetNoise(const IDs::channel& channel) const ;
   double GetCoarseTimeOffset(const IDs::source& src) { if (src.matches(IDs::channel("muSc"))) { return 0; } else { return fCoarseTimeOffset.at(src); }}
 
   void SetPedestalAndNoise(const IDs::channel& channel, double pedestal, double noise);
