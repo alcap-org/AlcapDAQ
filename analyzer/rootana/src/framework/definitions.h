@@ -48,11 +48,11 @@ namespace Except{
 }
 
 namespace alcap{
-   template < typename KeyType, typename ValueType>
-       ValueType at(const std::map<KeyType,ValueType>& map, const KeyType& key, const Except::Base& e){
+   template < typename ExceptType, typename KeyType, typename ValueType>
+       ValueType at(const std::map<KeyType,ValueType>& map, const KeyType& key, const char* msg=""){
            typedef std::map<KeyType,ValueType> MapType;
            typename MapType::const_iterator it=map.find(key);
-           if(it==map.end()) throw e;
+           if(it==map.end()) throw ExceptType(msg);
            return it->second;
        }
 }

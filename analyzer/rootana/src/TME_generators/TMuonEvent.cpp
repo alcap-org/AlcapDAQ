@@ -84,8 +84,8 @@ bool TMuonEvent::WasLateInEvent(double event_length, double event_uncertainty)co
 }
 
 DetectorPulseList::const_iterator TMuonEvent::BeginPulses(const IDs::source& detector)const{
-    return alcap::at(fPulseLists,detector,Except::InvalidSource()).begin();
+    return alcap::at<Except::InvalidSource>(fPulseLists,detector,detector.str().c_str()).begin();
 }
 DetectorPulseList::const_iterator TMuonEvent::EndPulses(const IDs::source& detector)const{
-    return alcap::at(fPulseLists,detector,Except::InvalidSource()).end();
+    return alcap::at<Except::InvalidSource>(fPulseLists,detector,detector.str().c_str()).end();
 }
