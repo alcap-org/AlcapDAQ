@@ -1,10 +1,28 @@
 #ifndef PLOTTME_EVDE_H_
 #define PLOTTME_EVDE_H_
 
+#include "IdSource.h"
 #include "BaseModule.h"
+#include <string>
+
+class TH2F;
+class TH1F;
 class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
+
+namespace{
+namespace LR{
+    enum Type{kLeft=0, kRight, kNum};
+    const char* str(Type,bool big=false);
+    const char* str(int e,bool big=false){return str((Type)e, big);}
+}
+namespace Ch{
+    enum Type{k1_1=0, k1_2, k1_3, k1_4, k2, kNum};
+    const char* str(Type);
+    const char* str(int e){return str((Type)e);}
+}
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
@@ -13,8 +31,13 @@ namespace modules {class options;}
 /// \brief
 /// Make the E vs dE plot using TMEs
 ///
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////1
 class PlotTME_EvdE : public BaseModule {
+
+    struct SourceSet{
+        TH2F *E_vs_dE_no_pileUp, *E_vs_dE_with_pileUp;
+        IDs::source sources[Ch::kNum];
+    };
 
     public:
         /// \brief
@@ -35,7 +58,11 @@ class PlotTME_EvdE : public BaseModule {
         /// \return Non-zero to indicate a problem.
         virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
 
+        /// @brief Get the source for a given channel in the list of TDP
+        const IDs::source& GetTDPSource(const std::string& ch );
+
     private:
+        SourceSet fSourceList[LR::kNum];
 };
 
 #endif //PLOTTME_EVDE_H_
