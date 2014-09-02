@@ -43,4 +43,18 @@ namespace definitions{
     enum { DefaultValue=-99999 };
 }
 
+namespace Except{
+    class Base;
+}
+
+namespace alcap{
+   template < typename KeyType, typename ValueType>
+       ValueType at(const std::map<KeyType,ValueType>& map, const KeyType& key, const Except::Base& e){
+           typedef std::map<KeyType,ValueType> MapType;
+           typename MapType::const_iterator it=map.find(key);
+           if(it==map.end()) throw e;
+           return it->second;
+       }
+}
+
 #endif // DEFINITIONS_H_
