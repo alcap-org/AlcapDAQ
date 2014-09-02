@@ -1,6 +1,7 @@
 #include "PlotTME_EvdE.h"
 #include "RegisterModule.inc"
 #include "TGlobalData.h"
+#include "TMuonEvent.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
 #include "definitions.h"
@@ -77,12 +78,49 @@ int PlotTME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 }
 
 int PlotTME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+    DetectorPulseList::const_iterator begin[Ch::kNum];
+    DetectorPulseList::const_iterator end[Ch::kNum];
+    DetectorPulseList::const_iterator i_thin[4];
+
+    // for each TME
     for(MuonEventList::const_iterator i_tme=gMuonEvents.begin();
             i_tme!=gMuonEvents.end(); ++i_tme){
-        // For each SiR2 hit
-        // Add all correlated SiR1 hits together
-        // Fill histograms
-    }
+        const TMuonEvent* tme=*i_tme;
+        // for each Si packet
+        for(int side=0;side<LR::kNum;++side){
+            // setup limits
+            for(int i_ch=0;i_ch<Ch::kNum;++i_ch){
+                begin[i_ch]=tme->BeginPulses(fSourceList[side].sources[i_ch]);
+                end[i_ch]=tme->EndPulses(fSourceList[side].sources[i_ch]);
+                if(i_ch<4) i_thin[i_ch]=begin[i_ch];
+            }
+
+            // For each SiR2 hit
+            for(DetectorPulseList::const_iterator i_Si2=begin[Ch::k2]; i_Si2!=end[Ch::k2]; ++i_Si2){
+                double time_start=(*i_Si2)->GetTime();
+                double time_stop=(i_Si2+1==end[Ch::k2])? 1e9:(*(i_Si2+1))->GetTime();
+                double E_thick=(*i_Si2)->GetAmplitude();
+
+                // Add all correlated thin hits together
+                double dE=0;
+                for(int i=0; i<4;++i){
+                    for(;i_thin[i]!=end[i] ; ++i_thin[i]){
+                        const TDetectorPulse* pulse=*i_thin[i];
+                        if(pulse->GetTime() > time_stop) break;
+                        if(pulse->GetTime() < time_start) continue;
+                        dE+=pulse->GetAmplitude();
+                    }
+                }
+
+                // Fill histograms
+                if(!tme->HasMuonPileup()){
+                    fSourceList[side].E_vs_dE_no_pileUp->Fill(E_thick+dE,dE);
+                }
+                fSourceList[side].E_vs_dE_with_pileUp->Fill(E_thick+dE,dE);
+
+            } // each SiR2 hit
+        } // each side
+    } // each TME
   return 0;
 }
 
