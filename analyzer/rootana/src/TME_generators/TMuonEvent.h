@@ -54,15 +54,10 @@ class TMuonEvent{
 
         /// @brief Get a const_iterator to the beginning of the pulse list for
         /// a given source
-        DetectorPulseList::const_iterator BeginPulses(const IDs::source& detector)const{
-            return fPulseLists.at(detector).begin();
-        }
+        DetectorPulseList::const_iterator BeginPulses(const IDs::source& detector)const;
         /// @brief Get a const_iterator to the end of the pulse list for a given
         /// source
-        DetectorPulseList::const_iterator EndPulses(const IDs::source& detector)const{
-            return fPulseLists.at(detector).end();
-        }
-
+        DetectorPulseList::const_iterator EndPulses(const IDs::source& detector)const;
 
         /// @brief Get the total number of pulses contained in this TME
         int TotalNumPulses()const;
