@@ -18,8 +18,9 @@
 
 #include "AlcapExcept.h"
 
-MAKE_EXCEPTION(NoCalibDB, Base)
-MAKE_EXCEPTION(InvalidDetector, Base)
+MAKE_EXCEPTION(SetupNavigator, Base)
+MAKE_EXCEPTION(NoCalibDB, SetupNavigator)
+MAKE_EXCEPTION(InvalidDetector, SetupNavigator)
 
 SetupNavigator* SetupNavigator::fThis=NULL;
 
@@ -210,4 +211,11 @@ void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double dt) {
   }
   // The excess code here is to strip {no_time_shift=yes} from the generator config string
   fCoarseTimeOffset[IDs::source(src.Channel(), IDs::generator(StripTimeShiftConfigFromString(src.Generator().str())))] = dt;
+}
+
+double SetupNavigator::GetNoise(const IDs::channel& channel) const{
+    return alcap::at(fNoiseValues,channel,Except::InvalidDetector());
+}
+double SetupNavigator::GetPedestal(const IDs::channel& channel)const { 
+    return alcap::at(fPedestalValues,channel,Except::InvalidDetector());
 }
