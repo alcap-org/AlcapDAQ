@@ -214,8 +214,8 @@ void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double dt) {
 }
 
 double SetupNavigator::GetNoise(const IDs::channel& channel) const{
-    return alcap::at(fNoiseValues,channel,Except::InvalidDetector());
+    return alcap::at(fNoiseValues,channel,Except::InvalidDetector(channel.str().c_str()));
 }
 double SetupNavigator::GetPedestal(const IDs::channel& channel)const { 
-    return alcap::at(fPedestalValues,channel,Except::InvalidDetector());
+    return alcap::at(fPedestalValues,channel,Except::InvalidDetector(channel.str().c_str()));
 }
