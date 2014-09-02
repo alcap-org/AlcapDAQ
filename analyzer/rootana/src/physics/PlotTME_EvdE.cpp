@@ -60,7 +60,7 @@ int PlotTME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         fSourceList[i].E_vs_dE_no_pileUp=new TH2F(
                 Form("hE_vs_dE_no_pileUp_%s",LR::str(i,1)),
                 Form("Pile-up protected E vs dE for Si%s",LR::str(i)),
-                400,0,-1,400,0,-1);
+                400,0,2500,400,0,8);
         fSourceList[i].E_vs_dE_no_pileUp->SetXTitle("Amplitude");
         fSourceList[i].E_vs_dE_no_pileUp->SetYTitle("Amplitude");
 
@@ -68,7 +68,7 @@ int PlotTME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         fSourceList[i].E_vs_dE_with_pileUp=new TH2F(
                 Form("hE_vs_dE_with_pileUp%s",LR::str(i,1)),
                 Form("E vs dE (without pile-up protection) for Si%s",LR::str(i)),
-                400,0,-1,400,0,-1);
+                400,0,2500,400,0,8);
         fSourceList[i].E_vs_dE_with_pileUp->SetXTitle("E + dE (KeV)");
         fSourceList[i].E_vs_dE_with_pileUp->SetYTitle("E (keV)");
     }
@@ -110,6 +110,7 @@ int PlotTME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
                 for(int i=0; i<4;++i){
                     for(;i_thin[i]!=end[i] ; ++i_thin[i]){
                         const TDetectorPulse* pulse=*i_thin[i];
+                        if(!pulse->IsPairedPulse())continue;
                         if(pulse->GetTime() > time_stop) break;
                         if(pulse->GetTime() < time_start) continue;
                         dE+=pulse->GetAmplitude();
