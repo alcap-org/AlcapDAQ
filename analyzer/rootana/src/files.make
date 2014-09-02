@@ -7,8 +7,8 @@ DIRS += src/\
         src/examples/\
         src/framework/\
         src/plotters/\
-        src/data_quality/
-        #src/physics/\  removed because they are very old modules need upgrading
+        src/data_quality/\
+        src/physics/
 
 # A list of classes that need dictionary generation by root
 # Make sure to add the relevant lines to the LibraryLinkDef.h file as well
