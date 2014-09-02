@@ -52,7 +52,6 @@ int PlotTME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     for(int i=0;i<LR::kNum;i++){
         // Get the source IDs for all necessary channels
         for(int ch=0;ch<Ch::kNum;ch++){
-            DEBUG_VALUE(ch);
             fSourceList[i].sources[ch]=GetTDPSource(Form("Si%s%s",LR::str(i),Ch::str(ch)));
         }
 
@@ -90,8 +89,13 @@ int PlotTME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
         for(int side=0;side<LR::kNum;++side){
             // setup limits
             for(int i_ch=0;i_ch<Ch::kNum;++i_ch){
-                begin[i_ch]=tme->BeginPulses(fSourceList[side].sources[i_ch]);
-                end[i_ch]=tme->EndPulses(fSourceList[side].sources[i_ch]);
+                if(tme->NumPulses(fSourceList[side].sources[i_ch])==0){
+                    begin[i_ch]=DetectorPulseList::const_iterator();
+                    end[i_ch]=DetectorPulseList::const_iterator();
+                } else{
+                    begin[i_ch]=tme->BeginPulses(fSourceList[side].sources[i_ch]);
+                    end[i_ch]=tme->EndPulses(fSourceList[side].sources[i_ch]);
+                }
                 if(i_ch<4) i_thin[i_ch]=begin[i_ch];
             }
 
@@ -130,7 +134,6 @@ int PlotTME_EvdE::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 
 const IDs::source& PlotTME_EvdE::GetTDPSource(const std::string& ch ){
     IDs::channel chan(ch);
-    DEBUG_VALUE(ch);
     SourceDetPulseMap::const_iterator i_so=gDetectorPulseMap.begin();
     while(i_so!=gDetectorPulseMap.end() && !(i_so->first==chan)) ++i_so;
     if(i_so==gDetectorPulseMap.end()){
