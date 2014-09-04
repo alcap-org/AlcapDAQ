@@ -43,10 +43,10 @@ private:
 
   /// \brief
   /// Reads the pedestal and pedestal error values
-  void ReadPedestalAndNoiseValues();
+  bool ReadPedestalAndNoiseValues();
   /// \brief
   /// Reads the gross time offset values
-  void ReadCoarseTimeOffsetValues();
+  bool ReadCoarseTimeOffsetValues();
   /// \brief
   /// Read in gross time offset columns determining what TAP generators we're ready for
   std::vector<std::string> GetCoarseTimeOffsetColumns();
