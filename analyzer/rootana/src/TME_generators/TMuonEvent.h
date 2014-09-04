@@ -37,9 +37,6 @@ class TMuonEvent{
             fExhaustedChannels.clear();
         }
 
-        /// @brief Retrieve a pulse from the specified source and position in the pulse
-        /// list
-        const TDetectorPulse* GetPulse(const IDs::source& detector, int index)const;
         /// @brief Add a pulse into the list of pulses
         void AddPulse(const IDs::source& source, TDetectorPulse* pulse);
         void AddPulses(const IDs::source& source,
@@ -50,6 +47,17 @@ class TMuonEvent{
         const IDs::source& GetSource(int n)const;
         /// @brief Get the number of sources with pulses in this TME
         int GetNumSources()const{return fPulseLists.size();};
+
+        /// @brief Retrieve a pulse from the specified source and position in the pulse
+        /// list
+        const TDetectorPulse* GetPulse(const IDs::source& detector, int index)const;
+
+        /// @brief Get a const_iterator to the beginning of the pulse list for
+        /// a given source
+        DetectorPulseList::const_iterator BeginPulses(const IDs::source& detector)const;
+        /// @brief Get a const_iterator to the end of the pulse list for a given
+        /// source
+        DetectorPulseList::const_iterator EndPulses(const IDs::source& detector)const;
 
         /// @brief Get the total number of pulses contained in this TME
         int TotalNumPulses()const;

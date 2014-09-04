@@ -14,6 +14,7 @@ namespace {
 MAKE_EXCEPTION(TMuonEvent,Base)
 MAKE_EXCEPTION(OutOfRange,TMuonEvent)
 MAKE_EXCEPTION(EndOfWindowBeforeStart,TMuonEvent)
+MAKE_EXCEPTION(InvalidSource,TMuonEvent)
 
 const TDetectorPulse* TMuonEvent::GetPulse(const IDs::source& source, int index)const{
     SourceDetPulseMap::const_iterator i_source=fPulseLists.find(source);
@@ -80,4 +81,11 @@ bool TMuonEvent::WasEarlyInEvent()const{
 bool TMuonEvent::WasLateInEvent(double event_length, double event_uncertainty)const{
     DEBUG_PRINT("TMuonEvent::WasLateInEvent is not yet implemented");
     return true;
+}
+
+DetectorPulseList::const_iterator TMuonEvent::BeginPulses(const IDs::source& detector)const{
+    return alcap::at<Except::InvalidSource>(fPulseLists,detector,detector.str().c_str()).begin();
+}
+DetectorPulseList::const_iterator TMuonEvent::EndPulses(const IDs::source& detector)const{
+    return alcap::at<Except::InvalidSource>(fPulseLists,detector,detector.str().c_str()).end();
 }
