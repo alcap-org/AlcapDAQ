@@ -3,12 +3,11 @@
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
-
 #include "definitions.h"
-
 #include "EventNavigator.h"
 #include "SetupNavigator.h"
 #include "ExportPulse.h"
+#include "debug_tools.h"
 
 #include "TMath.h"
 
@@ -20,11 +19,13 @@ using std::endl;
 
 
 TemplateCreator::TemplateCreator(modules::options* opts):
-  BaseModule("TemplateCreator",opts), fOpts(opts){
+  BaseModule("TemplateCreator",opts), fOpts(opts),
+  fPulseDebug(false), fAnalyseAllChannels(false){
 
   fRefineFactor = opts->GetInt("refine_factor", 5);
   fPulseDebug = opts->GetBool("pulse_debug", false);
   opts->GetVectorStringsByDelimiter("channels",fRequestedChannels);
+  if(fRequestedChannels.empty()) fAnalyseAllChannels=true;
 }
 
 TemplateCreator::~TemplateCreator(){
@@ -68,11 +69,12 @@ int TemplateCreator::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setu
   for(it = gData->fPulseIslandToChannelMap.begin(); it != gData->fPulseIslandToChannelMap.end(); ++it){
        const std::string bankname = it->first;
        const std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
+       DEBUG_VALUE(detname);
        if(!fAnalyseAllChannels &&
 	      std::find(fRequestedChannels.begin(), 
 		fRequestedChannels.end(),
-		detname) ==fRequestedChannels.end()) {
-	   continue;
+        detname) ==fRequestedChannels.end()) {
+       continue;
        }
        if(Debug()) cout<<"TemplateCreator::BeforeFirstEntry: Will make template for '"<<detname<<"'"<<endl;
 
@@ -110,7 +112,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
       int n_pulse_candidates = i_ch->pulse_finder->GetNPulseCandidates();
 
       // only continue if there is one pulse candidate on the TPI
-      if (n_pulse_candidates == 1) {
+      if (n_pulse_candidates != 1) continue;
 
 	TPulseIsland* pulse = *pulseIter;
 
@@ -268,7 +270,6 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	    hCorrectedPulse->SetBinContent(iPulseBin +0.5 - i_ch->fitter->GetTimeOffset(), corrected_value); 
 	    hCorrectedPulse->SetBinError(iPulseBin +0.5 - i_ch->fitter->GetTimeOffset(), pedestal_error);
 	  }
-	}
 
 	delete hPulseToFit;
 
