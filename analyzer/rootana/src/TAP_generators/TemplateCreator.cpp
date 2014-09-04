@@ -107,37 +107,21 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
     // Loop through all the pulses
     for (PulseIslandList::const_iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
-      // First we will see how many candidate pulses there are on the TPI
-      i_ch->pulse_finder->FindPulseCandidates(*pulseIter);
-      int n_pulse_candidates = i_ch->pulse_finder->GetNPulseCandidates();
+      if(i_ch->pulse_finder){
+         // First we will see how many candidate pulses there are on the TPI
+         i_ch->pulse_finder->FindPulseCandidates(*pulseIter);
+         int n_pulse_candidates = i_ch->pulse_finder->GetNPulseCandidates();
 
-      // only continue if there is one pulse candidate on the TPI
-      if (n_pulse_candidates != 1) continue;
+         // only continue if there is one pulse candidate on the TPI
+         if (n_pulse_candidates != 1) continue;
+      }
 
       TPulseIsland* pulse = *pulseIter;
 
       // Add the first pulse directly to the template (although we may try and choose a random pulse to start with)
       if (i_ch->template_pulse == NULL) {
-        std::string histname = "hTemplate_" + detname;
-        std::string histtitle = "Template Histogram for the " + detname + " channel";
-
-	    int pulse_length = pulse->GetSamples().size();
-	    if (pulse->GetPeakSample() >= pulse_length - pulse_length/5.0) {
-	      if (Debug()) {
-	        cout << "TemplateCreator: Pulse #" << pulseIter - thePulseIslands.begin() 
-                 << " is too close to one end of the island and so won't be used as "
-                    "the first pulse in the template." << endl;
-	      }
-	      continue;
-	    }
-	    i_ch->template_pulse = CreateRefinedPulseHistogram(pulse, histname.c_str(), histtitle.c_str(), true);
-	    ++i_ch->pulses_in_template;
-
-	    if (Debug()) {
-	      std::cout << "TemplateCreator: Adding " << detname 
-                        << " Pulse #" << pulseIter - thePulseIslands.begin()
-                        << " directly to the template" << std::endl;
-	    }
+        i_ch->template_pulse=StartTemplate(pulseIter- thePulseIslands.begin(), pulse,detname);
+        i_ch->pulses_in_template+=1;
 	    continue;
 	  }
 
@@ -503,6 +487,28 @@ int TemplateCreator::HasPulseOverflowed(const TPulseIsland* pulse, const std::st
 	}
     // no under or overflow
     return 0;
+}
+
+TH1D* TemplateCreator::StartTemplate(int pulseID,const TPulseIsland* pulse,const std::string& detname){
+  std::string histname = "hTemplate_" + detname;
+  std::string histtitle = "Template Histogram for the " + detname + " channel";
+
+  // check this pulse is safely within the waveform
+  int pulse_length = pulse->GetSamples().size();
+  if (pulse->GetPeakSample() >= pulse_length - pulse_length/5.0) {
+    if (Debug()) {
+      cout << "TemplateCreator: Pulse #" << pulseID
+           << " is too close to one end of the island and so won't be used as "
+              "the first pulse in the template." << endl;
+    }
+    return NULL;
+  }
+  if (Debug()) {
+    cout << "TemplateCreator: Adding " << detname << " Pulse #" 
+         << pulseID << " directly to the template" << endl;
+  }
+
+  return CreateRefinedPulseHistogram(pulse, histname.c_str(), histtitle.c_str(), true);
 }
 
 // The following macro registers this module to be useable in the config file.
