@@ -56,7 +56,7 @@ SetupNavigator::~SetupNavigator() {
 
 
 void SetupNavigator::Close() {
-  if (fCommandLineArgs.calib)
+  if(IsCalibRun()) 
     OutputCalibCSV();
   fServer->Close();
   if (fThis)
@@ -80,15 +80,13 @@ void SetupNavigator::CacheCalibDB() {
   // First the pedestals and noises
   if (!fServer->HasTable(fPedestalNoiseTableName.c_str())) {// check it exists
     std::cout << "SetupNavigator: ERROR: Table " << fPedestalNoiseTableName << " does not exist." << std::endl;
-    if (!fCommandLineArgs.calib)
-      throw Except::NoCalibDB();
+    if(!IsCalibRun()) throw Except::NoCalibDB();
   } else {
     ReadPedestalAndNoiseValues();
   }
   if (!fServer->HasTable(fCoarseTimeOffsetTableName.c_str())) {
     std::cout << "SetupNavigator: ERROR: Table " << fCoarseTimeOffsetTableName << " does not exist." << std::endl;
-    if (!fCommandLineArgs.calib)
-      throw Except::NoCalibDB();
+    if(!IsCalibRun()) throw Except::NoCalibDB();
   } else {
     ReadCoarseTimeOffsetValues();
   }
@@ -196,8 +194,9 @@ void SetupNavigator::OutputCalibCSV() {
 }
 
 void SetupNavigator::SetPedestalAndNoise(const IDs::channel& chn, double ped, double nse) {
-  if (!fCommandLineArgs.calib) {
-    std::cout << "SetupNavigator: Warning: Request to edit pedestals and noises when not flagged as calibration. Not setting." << std::endl;
+  if(!IsCalibRun()) {
+    std::cout << "SetupNavigator: Warning: Request to edit pedestals and "
+                 "noises when not flagged as calibration. Not setting." << std::endl;
     return;
   }
   fPedestalValues[chn] = ped;
@@ -205,8 +204,9 @@ void SetupNavigator::SetPedestalAndNoise(const IDs::channel& chn, double ped, do
 }
 
 void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double dt) {
-  if (!fCommandLineArgs.calib) {
-    std::cout << "SetupNavigator: Warning: Request to edit coarse time offsets when not flagged as calibration. Not setting." << std::endl;
+  if(IsCalibRun()) {
+    std::cout << "SetupNavigator: Warning: Request to edit coarse time offsets "
+                 "when not flagged as calibration. Not setting." << std::endl;
     return;
   }
   // The excess code here is to strip {no_time_shift=yes} from the generator config string
@@ -214,8 +214,10 @@ void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double dt) {
 }
 
 double SetupNavigator::GetNoise(const IDs::channel& channel) const{
-    return alcap::at<Except::InvalidDetector>(fNoiseValues,channel,channel.str().c_str());
+  if(IsCalibRun()) return 0;
+  return alcap::at<Except::InvalidDetector>(fNoiseValues,channel,channel.str().c_str());
 }
 double SetupNavigator::GetPedestal(const IDs::channel& channel)const { 
+  if(IsCalibRun()) return 0;
     return alcap::at<Except::InvalidDetector>(fPedestalValues,channel,channel.str().c_str());
 }

@@ -39,6 +39,22 @@ class SetupNavigator{
   void SetPedestalAndNoise(const IDs::channel& channel, double pedestal, double noise);
   void SetCoarseTimeOffset(const IDs::source& src, double dt);
 
+private:
+
+  /// \brief
+  /// Reads the pedestal and pedestal error values
+  void ReadPedestalAndNoiseValues();
+  /// \brief
+  /// Reads the gross time offset values
+  void ReadCoarseTimeOffsetValues();
+  /// \brief
+  /// Read in gross time offset columns determining what TAP generators we're ready for
+  std::vector<std::string> GetCoarseTimeOffsetColumns();
+
+  void OutputCalibCSV();
+  
+  bool IsCalibRun()const{return fCommandLineArgs.calib;}
+
  private:
   static SetupNavigator* fThis;
   ARGUMENTS fCommandLineArgs;
@@ -59,18 +75,6 @@ class SetupNavigator{
   /// \brief
   /// The map that stores the gross time offset values from SQLite database.
   static std::map<IDs::source, double> fCoarseTimeOffset;
-
-  /// \brief
-  /// Reads the pedestal and pedestal error values
-  void ReadPedestalAndNoiseValues();
-  /// \brief
-  /// Reads the gross time offset values
-  void ReadCoarseTimeOffsetValues();
-  /// \brief
-  /// Read in gross time offset columns determining what TAP generators we're ready for
-  std::vector<std::string> GetCoarseTimeOffsetColumns();
-
-  void OutputCalibCSV();
 
 };
 
