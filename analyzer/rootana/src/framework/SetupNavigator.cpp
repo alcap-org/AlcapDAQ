@@ -20,6 +20,8 @@
 
 MAKE_EXCEPTION(SetupNavigator, Base)
 MAKE_EXCEPTION(NoCalibDB, SetupNavigator)
+MAKE_EXCEPTION(MissingTable, SetupNavigator)
+MAKE_EXCEPTION(UncalibratedRun, SetupNavigator)
 MAKE_EXCEPTION(InvalidDetector, SetupNavigator)
 
 SetupNavigator* SetupNavigator::fThis=NULL;
@@ -80,19 +82,27 @@ void SetupNavigator::CacheCalibDB() {
   // First the pedestals and noises
   if (!fServer->HasTable(fPedestalNoiseTableName.c_str())) {// check it exists
     std::cout << "SetupNavigator: ERROR: Table " << fPedestalNoiseTableName << " does not exist." << std::endl;
-    if(!IsCalibRun()) throw Except::NoCalibDB();
+    if(!IsCalibRun()) throw Except::MissingTable(fPedestalNoiseTableName.c_str());
   } else {
-    ReadPedestalAndNoiseValues();
+    if(!ReadPedestalAndNoiseValues()){
+      std::cout << "SetupNavigator: ERROR: Table " << fPedestalNoiseTableName 
+                << " contains no calib data for this run" << std::endl;
+    if(!IsCalibRun()) throw Except::UncalibratedRun();
+    }
   }
   if (!fServer->HasTable(fCoarseTimeOffsetTableName.c_str())) {
     std::cout << "SetupNavigator: ERROR: Table " << fCoarseTimeOffsetTableName << " does not exist." << std::endl;
-    if(!IsCalibRun()) throw Except::NoCalibDB();
+    if(!IsCalibRun()) throw Except::MissingTable(fPedestalNoiseTableName.c_str());
   } else {
-    ReadCoarseTimeOffsetValues();
+    if(!ReadCoarseTimeOffsetValues()){
+      std::cout << "SetupNavigator: ERROR: Table " << fCoarseTimeOffsetTableName 
+                << " contains no calib data for this run" << std::endl;
+    if(!IsCalibRun()) throw Except::UncalibratedRun();
+    }
   }
 }
 
-void SetupNavigator::ReadPedestalAndNoiseValues() {
+bool SetupNavigator::ReadPedestalAndNoiseValues() {
   // The values that we will read in
   double pedestal=definitions::DefaultValue;
   double noise=definitions::DefaultValue;
@@ -118,10 +128,11 @@ void SetupNavigator::ReadPedestalAndNoiseValues() {
   }
   delete result; // user has to delete the result
 
+  return !fPedestalValues.empty();
 }
 
 
-void SetupNavigator::ReadCoarseTimeOffsetValues() {
+bool SetupNavigator::ReadCoarseTimeOffsetValues() {
   // The values that we will read in
   const std::vector<std::string> table = GetCoarseTimeOffsetColumns();
 
@@ -138,11 +149,12 @@ void SetupNavigator::ReadCoarseTimeOffsetValues() {
       std::stringstream srcstr;
       srcstr << row->GetField(0) << IDs::field_separator << table[i];
       if(row->GetField(1+i))
-	fCoarseTimeOffset[IDs::source(srcstr.str())] = atof(row->GetField(1 + i));
+	     fCoarseTimeOffset[IDs::source(srcstr.str())] = atof(row->GetField(1 + i));
     }
     delete row;
   }
   delete res;
+  return !fCoarseTimeOffsetTableName.empty();
 }
 
 std::vector<std::string> SetupNavigator::GetCoarseTimeOffsetColumns() {
@@ -204,7 +216,7 @@ void SetupNavigator::SetPedestalAndNoise(const IDs::channel& chn, double ped, do
 }
 
 void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double dt) {
-  if(IsCalibRun()) {
+  if(!IsCalibRun()) {
     std::cout << "SetupNavigator: Warning: Request to edit coarse time offsets "
                  "when not flagged as calibration. Not setting." << std::endl;
     return;
@@ -214,10 +226,8 @@ void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double dt) {
 }
 
 double SetupNavigator::GetNoise(const IDs::channel& channel) const{
-  if(IsCalibRun()) return 0;
   return alcap::at<Except::InvalidDetector>(fNoiseValues,channel,channel.str().c_str());
 }
 double SetupNavigator::GetPedestal(const IDs::channel& channel)const { 
-  if(IsCalibRun()) return 0;
-    return alcap::at<Except::InvalidDetector>(fPedestalValues,channel,channel.str().c_str());
+  return alcap::at<Except::InvalidDetector>(fPedestalValues,channel,channel.str().c_str());
 }
