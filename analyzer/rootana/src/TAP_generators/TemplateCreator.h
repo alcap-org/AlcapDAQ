@@ -55,6 +55,9 @@ class TemplateCreator : public BaseModule{
   ///  Check if any part of the pulse' waveform has ADC overflow
   int HasPulseOverflowed(const TPulseIsland* pulse, const std::string& bankname);
 
+  /// @brief Init the template using the first valid pulse
+  TH1D* StartTemplate(int pulseID, const TPulseIsland* pulse,const std::string& detname);
+
  private:
 
   /// \brief
