@@ -15,6 +15,8 @@ class IntegralRatioAPGenerator:public TVAnalysedPulseGenerator {
  public:
    virtual int ProcessPulses( const PulseIslandList&,AnalysedPulseList&);
 
+   static const char* TapType();
+
    // This function should return true if this generator could break up a TPI
    // into more than one TAP
    virtual bool MayDivideTPIs(){return false;};

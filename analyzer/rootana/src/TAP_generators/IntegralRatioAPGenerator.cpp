@@ -74,4 +74,8 @@ int IntegralRatioAPGenerator::ProcessPulses(
     return 0;
 }
 
+const char* IntegralRatioAPGenerator::TapType() {
+    return TIntegralRatioAnalysedPulse::Class()->GetName();
+}
+
 ALCAP_TAP_GENERATOR(IntegralRatio,start_int,start_tail,stop_int,start_tail_as_fraction);
