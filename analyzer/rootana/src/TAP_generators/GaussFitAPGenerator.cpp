@@ -109,6 +109,10 @@ void GaussFitAPGenerator::FitPulse(const TPulseIsland* tpi,const int& id,FittedV
 
 }
 
+const char* GaussFitAPGenerator::TapType(){
+    return TGaussFitAnalysedPulse::Class()->GetName();
+}
+
 // Similar to the modules, this macro registers the generator with
 // MakeAnalysedPulses. The first argument is compulsory and gives the name of
 // this generator. All subsequent arguments will be used as names for arguments
