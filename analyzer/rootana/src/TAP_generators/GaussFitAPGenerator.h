@@ -31,6 +31,8 @@ class GaussFitAPGenerator:public TVAnalysedPulseGenerator {
    virtual bool MayDivideTPIs(){return false;};
    void FitPulse(const TPulseIsland* tpi,const int& id,FittedVals& tap);
 
+   static const char* TapType();
+
  private:
     double fMean, fWidth, fAmplitude, fPedestal, fGradient; 
     TF1* fFitFunc;
