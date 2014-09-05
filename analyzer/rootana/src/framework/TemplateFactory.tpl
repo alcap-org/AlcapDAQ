@@ -24,42 +24,44 @@ BaseModule* TemplateFactory<BaseModule,OptionsType>::createModule(
         const std::string& name, OptionsType* opts){
     // get the maker for the requested module
     BaseModule* module=NULL;
-    typename ModuleList::iterator it  = fModules.find(name);
-    if(it != fModules.end() ){
-        // make the module
-        try{
-            module=it->second.maker(opts);
-        }catch(modules::missing_option& e){
-            std::cout<<fName<<"::createModule: Error: "<<e.what()<<std::endl;
-            return NULL;
-        }catch(modules::bad_value& e){
-            std::cout<<fName<<"::createModule: Error: "<<e.what()<<std::endl;
-            return NULL;
-        }
-    }else{
-        std::cout<<fName<<"::createModule: Error: Unknown module requested: "<<name<<std::endl;
+    const PerModule& details=GetModuleDetails(name);
+    // make the module
+    try{
+        module=details.maker(opts?opts:details.opts);
+    }catch(modules::missing_option& e){
+        std::cout<<fName<<"::createModule: Error: "<<e.what()<<std::endl;
+        return NULL;
+    }catch(modules::bad_value& e){
+        std::cout<<fName<<"::createModule: Error: "<<e.what()<<std::endl;
         return NULL;
     }
     return module;
 }
 
 template <typename BaseModule, typename OptionsType>
-BaseModule* TemplateFactory<BaseModule,OptionsType>::createModule(const std::string& name){
-    // get the options for this module
-    typename ModuleList::iterator it=fModules.find(name);
-    OptionsType* opts = NULL;
-    if(it != fModules.end()) opts=it->second.opts;
-
-    // make the module
-    return createModule(name,opts);
+void TemplateFactory<BaseModule,OptionsType>::registerModule(
+	 const std::string& name,
+     TemplateFactory<BaseModule,OptionsType>::ModuleMaker make,
+     const std::string& out){
+    fModules[name].maker=make;
+    fModules[name].product=out;
+    fMostRecentRegister=name;
 }
 
 template <typename BaseModule, typename OptionsType>
-void TemplateFactory<BaseModule,OptionsType>::registerModule(
-	 const std::string& name,
-     TemplateFactory<BaseModule,OptionsType>::ModuleMaker make){
-    fModules[name].maker=make;
-    fMostRecentRegister=name;
+std::string TemplateFactory<BaseModule,OptionsType>::GetProduct(const std::string& module){
+    return GetModuleDetails(module).product;
+}
+
+template <typename BaseModule, typename OptionsType>
+const typename TemplateFactory<BaseModule,OptionsType>::PerModule& TemplateFactory<BaseModule,OptionsType>::GetModuleDetails(
+     const std::string& name)const{
+    typename ModuleList::const_iterator it  = fModules.find(name);
+    if(it == fModules.end() ){
+        std::cout<<fName<<"::GetModuleDetails: Error: Unknown module requested: "<<name<<std::endl;
+        throw std::out_of_range(("unknown module "+name).c_str());
+    }
+    return it->second;
 }
 
 template <typename BaseModule, typename OptionsType>

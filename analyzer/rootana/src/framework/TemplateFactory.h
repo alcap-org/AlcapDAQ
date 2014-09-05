@@ -5,6 +5,7 @@
 #include <string>
 #include <stdio.h>
 #include <iostream>
+#include <stdexcept>
 
 #include "ModulesOptions.h"
 #include "ModulesParser.h"
@@ -21,6 +22,8 @@ class TemplateFactory{
         OptionsType* opts;
         ModuleMaker maker;
         ArgumentsVector arguments;
+        std::string product;
+        PerModule():opts(NULL),maker(NULL){}
     };
     typedef std::map<std::string, PerModule> ModuleList;
 
@@ -34,18 +37,17 @@ class TemplateFactory{
 
     public:
 	/// Add a ModuleMaker function to the list of makers
-	void registerModule(const std::string&, ModuleMaker);
+	void registerModule(const std::string&, ModuleMaker,const std::string& out="");
 	/// Create a module with options
-	virtual BaseModule* createModule(const std::string&, OptionsType*);
+	virtual BaseModule* createModule(const std::string&, OptionsType* opts=NULL);
     /// Check if a module with this name has been registered
 	bool canCreate(const std::string& name)const{return (bool) fModules.count(name);};
-	/// Create a module and look up its options from the internal list
-	BaseModule* createModule(const std::string& name);
 	void addOptions(const std::string& name, OptionsType *opts);
 	void addArguments(const std::string& all_args);
 	void addArgument(const std::string& module,const std::string& argument);
 	void addArgument(const std::string& argument);
 	std::string GetArgumentName(const std::string& module,const int& argument);
+	std::string GetProduct(const std::string& module);
 
 	// Set the factory to output debugging commands
 	void SetDebug(bool debug=true){fDebug=debug;};
@@ -53,6 +55,8 @@ class TemplateFactory{
     void PrintPossibleModules()const;
 
     private:
+    const PerModule& GetModuleDetails(const std::string&)const;
+
     // The list of all properties for each module
     ModuleList fModules;
 
@@ -66,7 +70,6 @@ class TemplateFactory{
 
 #include "TemplateFactory.tpl"
 
-
 template <typename ConcreteClass,
 	 typename BaseClass,
 	 typename Options>
@@ -78,11 +81,11 @@ template <typename ConcreteClass,
 	 typename Factory> 
 class RegistryProxy{
   public: 
-    RegistryProxy(const char* Name, const char* ArgumentNames) 
+    RegistryProxy(const char* Name, const char* ArgumentNames, const char* Product="") 
     { 
       Factory *f = Factory::Instance(); 
-      f->registerModule( Name , &RegistryProxyMaker<ConcreteClass,BaseClass,Options>); 
-      /* Add all the arguments to the manager */
+      f->registerModule( Name , &RegistryProxyMaker<ConcreteClass,BaseClass,Options>, Product); 
+      // Add all the arguments to the manager 
       f->addArguments( ArgumentNames);
     }
 };
