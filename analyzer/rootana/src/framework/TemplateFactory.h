@@ -11,24 +11,34 @@
 
 template <typename BaseModule, typename OptionsType>
 class TemplateFactory{
+    public:
+	// typdef a function pointer for creating a module
+	typedef BaseModule*(*ModuleMaker)(OptionsType*);
+	typedef std::vector<std::string> ArgumentsVector;
+
+    private:
+    struct PerModule{
+        OptionsType* opts;
+        ModuleMaker maker;
+        ArgumentsVector arguments;
+    };
+    typedef std::map<std::string, PerModule> ModuleList;
+
     protected:
 	/// protected constructor only callable by derived class 
 	/// as this shoule be a singleton class
 	TemplateFactory(const std::string& name):fName(name){};
 	virtual ~TemplateFactory(){
-	    fModuleMakers.clear();
-	    fModuleOptions.clear();
+	    fModules.clear();
 	}
 
     public:
-	// typdef a function pointer for creating a module
-	typedef BaseModule*(*maker)(OptionsType*);
-	/// Add a maker function to the list of makers
-	void registerModule(const std::string&, maker);
+	/// Add a ModuleMaker function to the list of makers
+	void registerModule(const std::string&, ModuleMaker);
 	/// Create a module with options
 	virtual BaseModule* createModule(const std::string&, OptionsType*);
     /// Check if a module with this name has been registered
-	bool canCreate(const std::string& name)const{return (bool) fModuleMakers.count(name);};
+	bool canCreate(const std::string& name)const{return (bool) fModules.count(name);};
 	/// Create a module and look up its options from the internal list
 	BaseModule* createModule(const std::string& name);
 	void addOptions(const std::string& name, OptionsType *opts);
@@ -40,21 +50,11 @@ class TemplateFactory{
 	// Set the factory to output debugging commands
 	void SetDebug(bool debug=true){fDebug=debug;};
 
-  void PrintPossibleModules()const;
+    void PrintPossibleModules()const;
 
     private:
-	// the list of makers for all modules
-	typedef std::map<std::string, maker> MakersList; 
-	MakersList fModuleMakers;
-
-	// the list of given options for all modules
-	typedef std::map<std::string, OptionsType*> OptionsList; 
-	OptionsList fModuleOptions;
-
-	// the list of expected arguments for all modules
-	typedef std::vector<std::string> ArgumentsVector;
-	typedef std::map<std::string, ArgumentsVector> ArgsList; 
-	ArgsList fModuleArguments;
+    // The list of all properties for each module
+    ModuleList fModules;
 
 	// the most recent module to have been registered
 	std::string fMostRecentRegister;
