@@ -8,6 +8,7 @@
 #include "definitions.h"
 #include "IdSource.h"
 #include "TAnalysedPulse.h"
+#include "TAPGeneratorFactory.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
@@ -39,7 +40,8 @@ int SavePulses::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     std::string name;
     for (SourceAnalPulseMap::const_iterator i_source = gAnalysedPulseMap.begin();
             i_source != gAnalysedPulseMap.end(); ++i_source) {
-        array=new TClonesArray(TAnalysedPulse::Class());
+        std::string tap_type=TAPGeneratorFactory::Instance()->GetTAPType(i_source->first);
+        array=new TClonesArray(tap_type.c_str());
         fArrays[i_source->first]=array;
         name=i_source->first.str();
         modules::parser::ToCppValid(name);
