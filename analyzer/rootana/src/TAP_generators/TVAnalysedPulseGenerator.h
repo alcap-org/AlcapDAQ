@@ -8,6 +8,8 @@
 #include "TAPGeneratorOptions.h"
 #include "TAnalysedPulse.h"
 
+#include <TClass.h>
+
 class TPulseIsland;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,6 +93,8 @@ class TVAnalysedPulseGenerator {
         /// this generator is the one that made a given TAP in later analysis by
         /// comparing this value to that stored in the TAP itself.
         const IDs::source& GetSource()const {return fSource;};
+
+        static const char* TapType(){return TAnalysedPulse::Class()->GetName();}
 
     protected:
         friend class MakeAnalysedPulses;
