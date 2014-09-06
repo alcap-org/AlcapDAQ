@@ -130,13 +130,15 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
       }
 
       if(fCutIntegralRatio){
-         (*i_ch->integralRatio)(pulse);
-     const double& integral=i_ch->integralRatio->GetTotal();
-     const double& ratio=i_ch->integralRatio->GetRatio();
-         if( fIntegralMax > integral || fIntegralMin < integral
-             || fIntegralRatioMax > ratio || fIntegralRatioMin < ratio) {
-             DEBUG_VALUE(fIntegralMax, fIntegralMin, fIntegralRatioMax, fIntegralRatioMin);
-             DEBUG_VALUE(integral, ratio,i_ch->pulses_in_template);
+         try{
+           (*i_ch->integralRatio)(pulse);
+         }catch(std::out_of_range& e){
+           continue;
+         }
+         const double& integral=i_ch->integralRatio->GetTotal();
+         const double& ratio=i_ch->integralRatio->GetRatio();
+         if( fIntegralMax < integral || fIntegralMin > integral
+             || fIntegralRatioMax < ratio || fIntegralRatioMin > ratio) {
              continue;
          }
       }
@@ -313,12 +315,10 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData, const TSetupData* setup)
       continue;
     }
     
-    if(Debug()){
-       cout << "TemplateCreator: " << i_ch->detname 
-            << ": " << i_ch->fit_attempts << " fits attempted with "
-            << i_ch->fit_successes << " successful (" 
-            << ((double)i_ch->fit_successes/(double)i_ch->fit_attempts)*100 << "%)" << endl;
-    }
+    cout << "TemplateCreator: " << i_ch->detname 
+         << ": " << i_ch->fit_attempts << " fits attempted with "
+         << i_ch->fit_successes << " successful (" 
+         << ((double)i_ch->fit_successes/(double)i_ch->fit_attempts)*100 << "%)" << endl;
 
     // Normalise the template so that it has pedestal=0 and amplitude=1
     // Work out the pedestal of the template from the first 5 bins
