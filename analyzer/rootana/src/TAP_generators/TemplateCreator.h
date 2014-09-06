@@ -6,6 +6,7 @@ class gTGlobalData;
 class gTSetupData;
 class gModulesOptions;
 
+#include "TAPAlgorithms.h"
 #include "TemplateArchive.h"
 #include "PulseCandidateFinder.h"
 #include "TemplateFitter.h"
@@ -21,6 +22,7 @@ class TemplateCreator : public BaseModule{
      TH1D *template_pulse;
      PulseCandidateFinder* pulse_finder;
      TemplateFitter* fitter;
+     Algorithm::IntegralRatio *integralRatio;
 
      // constructor takes a lot of the effort of initialising the above fields
      ChannelSet(const std::string& detname, const std::string& bankname, modules::options* opts,int refine );
@@ -77,6 +79,11 @@ class TemplateCreator : public BaseModule{
   bool fAnalyseAllChannels;
   ChannelList fChannels;
   std::vector<std::string> fRequestedChannels;
+
+  bool fCutIntegralRatio;
+  double fIntegralMax, fIntegralMin;
+  double fIntegralRatioMax, fIntegralRatioMin;
+  int fStartIntegral, fStopIntegral, fStartTail;
   
 };
 

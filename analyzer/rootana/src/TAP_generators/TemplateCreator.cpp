@@ -20,12 +20,20 @@ using std::endl;
 
 TemplateCreator::TemplateCreator(modules::options* opts):
   BaseModule("TemplateCreator",opts), fOpts(opts),
-  fPulseDebug(false), fAnalyseAllChannels(false){
-
+  fPulseDebug(false), fAnalyseAllChannels(false)
+{
   fRefineFactor = opts->GetInt("refine_factor", 5);
   fPulseDebug = opts->GetBool("pulse_debug", false);
   opts->GetVectorStringsByDelimiter("channels",fRequestedChannels);
   if(fRequestedChannels.empty()) fAnalyseAllChannels=true;
+  
+  fCutIntegralRatio=opts->GetBool("use_IR_cut",false);
+  if(fCutIntegralRatio){
+    fIntegralMax=opts->GetDouble("max_integral");
+    fIntegralMin=opts->GetDouble("min_integral");
+    fIntegralRatioMax=opts->GetDouble("max_ratio");
+    fIntegralRatioMin=opts->GetDouble("min_ratio");
+  }
 }
 
 TemplateCreator::~TemplateCreator(){
@@ -39,8 +47,13 @@ TemplateCreator::ChannelSet::ChannelSet(const std::string& det, const std::strin
     fit_successes(0),
     pulses_in_template(0),
     template_pulse(NULL),
-    pulse_finder(NULL){
-
+    pulse_finder(NULL),
+    integralRatio(new Algorithm::IntegralRatio(
+                          opts->GetInt("start_integral",10),
+                          opts->GetInt("start_tail",60),
+                          opts->GetInt("stop_integral",0),
+                          TSetupData::Instance()->GetTriggerPolarity(bank)))
+{
        // Create the pulse candidate finder for this detector
        if(!opts->GetFlag("no_PCF_check")){
           pulse_finder = new PulseCandidateFinder(detname, opts);
@@ -60,10 +73,6 @@ TemplateCreator::ChannelSet::ChannelSet(const std::string& det, const std::strin
 // Can be used to set things up, like histograms etc
 // Return non-zero to indicate a problem
 int TemplateCreator::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
-  // Print extra info if we're debugging this module:
-  if(Debug()){
-     cout<<"-----I'm debugging TemplateCreator::BeforeFirstEntry() "<<endl;
-  }
 
   // Prepare the template archive
   fTemplateArchive = new TemplateArchive("templates.root", "RECREATE");
@@ -74,10 +83,9 @@ int TemplateCreator::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setu
        const std::string bankname = it->first;
        const std::string detname = TSetupData::Instance()->GetDetectorName(bankname);
        if(!fAnalyseAllChannels &&
-	      std::find(fRequestedChannels.begin(), 
-		fRequestedChannels.end(),
-        detname) ==fRequestedChannels.end()) {
-       continue;
+          std::find(fRequestedChannels.begin(), fRequestedChannels.end(), detname)
+              ==fRequestedChannels.end()) {
+           continue;
        }
        if(Debug()) cout<<"TemplateCreator::BeforeFirstEntry: Will make template for '"<<detname<<"'"<<endl;
 
@@ -110,163 +118,175 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
     // Loop through all the pulses
     for (PulseIslandList::const_iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
+      TPulseIsland* pulse = *pulseIter;
+
       if(i_ch->pulse_finder){
          // First we will see how many candidate pulses there are on the TPI
-         i_ch->pulse_finder->FindPulseCandidates(*pulseIter);
+         i_ch->pulse_finder->FindPulseCandidates(pulse);
          int n_pulse_candidates = i_ch->pulse_finder->GetNPulseCandidates();
 
          // only continue if there is one pulse candidate on the TPI
          if (n_pulse_candidates != 1) continue;
       }
 
-      TPulseIsland* pulse = *pulseIter;
+      if(fCutIntegralRatio){
+         (*i_ch->integralRatio)(pulse);
+     const double& integral=i_ch->integralRatio->GetTotal();
+     const double& ratio=i_ch->integralRatio->GetRatio();
+         if( fIntegralMax > integral || fIntegralMin < integral
+             || fIntegralRatioMax > ratio || fIntegralRatioMin < ratio) {
+             DEBUG_VALUE(fIntegralMax, fIntegralMin, fIntegralRatioMax, fIntegralRatioMin);
+             DEBUG_VALUE(integral, ratio,i_ch->pulses_in_template);
+             continue;
+         }
+      }
 
       // Add the first pulse directly to the template (although we may try and choose a random pulse to start with)
       if (i_ch->template_pulse == NULL) {
         i_ch->template_pulse=StartTemplate(pulseIter- thePulseIslands.begin(), pulse,detname);
         i_ch->pulses_in_template+=1;
-	    continue;
-	  }
+        continue;
+      }
 
-	  // Loop through the samples and check for digitizer overflow
-	  int over_under_flow=HasPulseOverflowed(pulse,i_ch->bankname);
-	  if(over_under_flow!=0){
-	      if (Debug()) {
-	        cout << "TemplateCreator: Pulse #" << pulseIter - thePulseIslands.begin() << " has ";
+      // Loop through the samples and check for digitizer overflow
+      int over_under_flow=HasPulseOverflowed(pulse,i_ch->bankname);
+      if(over_under_flow!=0){
+          if (Debug()) {
+            cout << "TemplateCreator: Pulse #" << pulseIter - thePulseIslands.begin() << " has ";
             if(over_under_flow>0) cout << "overflowed";
             else cout<<"undeflowed";
             cout <<" the digitizer and won't be added to the template" << endl;
-	      }
-	    continue; // skip this pulse
-	  }
+          }
+        continue; // skip this pulse
+      }
 
-	  // Create the refined pulse waveform
-	  TH1D* hPulseToFit = CreateRefinedPulseHistogram(pulse, "hPulseToFit", "hPulseToFit", false);
+      // Create the refined pulse waveform
+      TH1D* hPulseToFit = CreateRefinedPulseHistogram(pulse, "hPulseToFit", "hPulseToFit", false);
 
-	  // all the other pulses will be fitted to the template and then added to it
-	  // Get some initial estimates for the fitter
-	  double template_pedestal = i_ch->template_pulse->GetBinContent(1);
-	  double template_amplitude = definitions::DefaultValue;
-	  double template_time = definitions::DefaultValue;
+      // all the other pulses will be fitted to the template and then added to it
+      // Get some initial estimates for the fitter
+      double template_pedestal = i_ch->template_pulse->GetBinContent(1);
+      double template_amplitude = definitions::DefaultValue;
+      double template_time = definitions::DefaultValue;
 
-	  double pulse_pedestal = hPulseToFit->GetBinContent(1);
-	  double pulse_amplitude = definitions::DefaultValue;
-	  double pulse_time = definitions::DefaultValue;
+      double pulse_pedestal = hPulseToFit->GetBinContent(1);
+      double pulse_amplitude = definitions::DefaultValue;
+      double pulse_time = definitions::DefaultValue;
 
       // now we're dealing with actual pulses since we subtract the template_pedestal in the transformation
-	  double pedestal_offset_estimate = pulse_pedestal; 
-	  double amplitude_scale_factor_estimate = definitions::DefaultValue;
-	  double time_offset_estimate = definitions::DefaultValue;
+      double pedestal_offset_estimate = pulse_pedestal; 
+      double amplitude_scale_factor_estimate = definitions::DefaultValue;
+      double time_offset_estimate = definitions::DefaultValue;
 
       // Define the values to scale and shift things by 
-	  if (TSetupData::Instance()->GetTriggerPolarity(bankname) == 1) { 
-	    template_amplitude = (i_ch->template_pulse->GetMaximum() - template_pedestal);
-	    template_time = i_ch->template_pulse->GetMaximumBin() - 1; 
+      if (TSetupData::Instance()->GetTriggerPolarity(bankname) == 1) { 
+        template_amplitude = (i_ch->template_pulse->GetMaximum() - template_pedestal);
+        template_time = i_ch->template_pulse->GetMaximumBin() - 1; 
 
-	    pulse_amplitude = (hPulseToFit->GetMaximum() - pulse_pedestal);
-	    pulse_time = hPulseToFit->GetMaximumBin() - 1;
+        pulse_amplitude = (hPulseToFit->GetMaximum() - pulse_pedestal);
+        pulse_time = hPulseToFit->GetMaximumBin() - 1;
 
-	    amplitude_scale_factor_estimate = pulse_amplitude / template_amplitude;  // estimated scale factor
-	    time_offset_estimate = pulse_time - template_time;
-	  }
-	  else if (TSetupData::Instance()->GetTriggerPolarity(bankname) == -1) {
-	    template_amplitude = (template_pedestal - i_ch->template_pulse->GetMinimum());
-	    template_time = i_ch->template_pulse->GetMinimumBin() - 1; // go from bin numbering (1, n_samples) to clock ticks (0, n_samples-1)
+        amplitude_scale_factor_estimate = pulse_amplitude / template_amplitude;  // estimated scale factor
+        time_offset_estimate = pulse_time - template_time;
+      }
+      else if (TSetupData::Instance()->GetTriggerPolarity(bankname) == -1) {
+        template_amplitude = (template_pedestal - i_ch->template_pulse->GetMinimum());
+        template_time = i_ch->template_pulse->GetMinimumBin() - 1; // go from bin numbering (1, n_samples) to clock ticks (0, n_samples-1)
 
-	    pulse_amplitude = (pulse_pedestal - hPulseToFit->GetMinimum());
-	    pulse_time = hPulseToFit->GetMinimumBin() - 1; // go from bin numbering (1, n_samples) to clock ticks (0, n_samples-1)
+        pulse_amplitude = (pulse_pedestal - hPulseToFit->GetMinimum());
+        pulse_time = hPulseToFit->GetMinimumBin() - 1; // go from bin numbering (1, n_samples) to clock ticks (0, n_samples-1)
 
-	    amplitude_scale_factor_estimate = pulse_amplitude / template_amplitude;  // estimated scale factor
-	    time_offset_estimate = pulse_time - template_time;
-	  }
+        amplitude_scale_factor_estimate = pulse_amplitude / template_amplitude;  // estimated scale factor
+        time_offset_estimate = pulse_time - template_time;
+      }
 
-	  i_ch->fitter->SetInitialParameterEstimates(pedestal_offset_estimate, amplitude_scale_factor_estimate, time_offset_estimate);
-	  
-	  if (Debug()) {
-	    cout << "TemplateCreator: " << detname << "(" << bankname << "): Pulse #" 
+      i_ch->fitter->SetInitialParameterEstimates(pedestal_offset_estimate, amplitude_scale_factor_estimate, time_offset_estimate);
+      
+      if (Debug()) {
+        cout << "TemplateCreator: " << detname << "(" << bankname << "): Pulse #" 
              << pulseIter - thePulseIslands.begin() << ": " << std::endl
-	  	     << "TemplateCreator: Template: pedestal = " << template_pedestal 
+      	     << "TemplateCreator: Template: pedestal = " << template_pedestal 
              << ", amplitude = " << template_amplitude << ", time = " << template_time << std::endl
-	  	     << "TemplateCreator: Pulse: pedestal = " << pulse_pedestal << ", amplitude = "
+      	     << "TemplateCreator: Pulse: pedestal = " << pulse_pedestal << ", amplitude = "
              << pulse_amplitude << ", time = " << pulse_time << std::endl
-	  	     << "TemplateCreator: Initial Estimates: pedestal = " << pedestal_offset_estimate
+      	     << "TemplateCreator: Initial Estimates: pedestal = " << pedestal_offset_estimate
              << ", amplitude = " << amplitude_scale_factor_estimate 
-	  	     << ", time = " << time_offset_estimate << std::endl;
-	  }
+      	     << ", time = " << time_offset_estimate << std::endl;
+      }
 
-	  int fit_status = i_ch->fitter->FitPulseToTemplate(i_ch->template_pulse, hPulseToFit, bankname);
-	  ++i_ch->fit_attempts;
-	  if (fit_status != 0) {
-	    if (Debug()) {
-	      std::cout << "TemplateCreator: Problem with fit (status = " << fit_status << ")" << std::endl;
-	    }
-	    delete hPulseToFit; // delete this here since it is no longer needed
-	    continue;
-	  }
-	  ++i_ch->fit_successes;
+      int fit_status = i_ch->fitter->FitPulseToTemplate(i_ch->template_pulse, hPulseToFit, bankname);
+      ++i_ch->fit_attempts;
+      if (fit_status != 0) {
+        if (Debug()) {
+          std::cout << "TemplateCreator: Problem with fit (status = " << fit_status << ")" << std::endl;
+        }
+        delete hPulseToFit; // delete this here since it is no longer needed
+        continue;
+      }
+      ++i_ch->fit_successes;
 
-	  if (Debug()) {
-	    cout << "Template Creator: Fitted Parameters: PedOffset = " 
+      if (Debug()) {
+        cout << "Template Creator: Fitted Parameters: PedOffset = " 
              << i_ch->fitter->GetPedestalOffset() << ", AmpScaleFactor = "
              << i_ch->fitter->GetAmplitudeScaleFactor() << ", TimeOffset = "
              << i_ch->fitter->GetTimeOffset() << ", Chi2 = "
              << i_ch->fitter->GetChi2() << ", NDoF = "
              << i_ch->fitter->GetNDoF() << ", Prob = "
              << TMath::Prob(i_ch->fitter->GetChi2(), i_ch->fitter->GetNDoF()) << std::endl << std::endl;
-	  }
+      }
 
-	  if (fPulseDebug) {
-	    // Print out some templates as we go along
-	    if (i_ch->pulses_in_template <= 10 || 
-	        (i_ch->pulses_in_template <= 100 && i_ch->pulses_in_template%10 == 0) ||
-	        (i_ch->pulses_in_template%100 == 0) ) {
-	      std::stringstream newhistname;
-	      newhistname << "hTemplate_" << i_ch->pulses_in_template << "Pulses_" << detname;
-	      i_ch->template_pulse->Clone(newhistname.str().c_str());
-	    }
-	  }
+      if (fPulseDebug) {
+        // Print out some templates as we go along
+        if (i_ch->pulses_in_template <= 10 || 
+            (i_ch->pulses_in_template <= 100 && i_ch->pulses_in_template%10 == 0) ||
+            (i_ch->pulses_in_template%100 == 0) ) {
+          std::stringstream newhistname;
+          newhistname << "hTemplate_" << i_ch->pulses_in_template << "Pulses_" << detname;
+          i_ch->template_pulse->Clone(newhistname.str().c_str());
+        }
+      }
 
-	  // Add the pulse to the template (we'll do correct the sample values there)
-	  AddPulseToTemplate(*i_ch, hPulseToFit);
-	  ++i_ch->pulses_in_template;
-	  
+      // Add the pulse to the template (we'll do correct the sample values there)
+      AddPulseToTemplate(*i_ch, hPulseToFit);
+      ++i_ch->pulses_in_template;
+      
 
-	  if (fPulseDebug) {
-	    // Print out the uncorrected and corrected pulse that has been added to the template
+      if (fPulseDebug) {
+        // Print out the uncorrected and corrected pulse that has been added to the template
 
-	    // Create the histograms that we will use to plot the corrected and uncorrected pulses
-	    std::stringstream histname;
-	    std::string template_name = "hTemplate_" + detname;
-	    histname << template_name << "_Event" 
+        // Create the histograms that we will use to plot the corrected and uncorrected pulses
+        std::stringstream histname;
+        std::string template_name = "hTemplate_" + detname;
+        histname << template_name << "_Event" 
                  << EventNavigator::Instance().EntryNo() << "_Pulse" 
                  << pulseIter - thePulseIslands.begin() << "_" 
                  << i_ch->pulses_in_template << "Added";
-	    /*TH1D* hUncorrectedPulse =*/ (TH1D*) hPulseToFit->Clone(histname.str().c_str());
-	    histname << "_Corrected";
-	    TH1D* hCorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
-	    hCorrectedPulse->SetEntries(0); // set entries back to 0
-	    
-	    double pedestal_error = SetupNavigator::Instance()->GetNoise(detname);
+        /*TH1D* hUncorrectedPulse =*/ (TH1D*) hPulseToFit->Clone(histname.str().c_str());
+        histname << "_Corrected";
+        TH1D* hCorrectedPulse = (TH1D*) hPulseToFit->Clone(histname.str().c_str());
+        hCorrectedPulse->SetEntries(0); // set entries back to 0
+        
+        double pedestal_error = SetupNavigator::Instance()->GetNoise(detname);
 
-	    // Loop through the bins of the uncorrected pulse and set the values in the corrected pulse histogram
-	    for (int iPulseBin = 1; iPulseBin <= hPulseToFit->GetNbinsX(); ++iPulseBin) {
-	      
-	      double uncorrected_value = hPulseToFit->GetBinContent(iPulseBin);
-	      double corrected_value = CorrectSampleValue(uncorrected_value, template_pedestal);
-	      
-	      hCorrectedPulse->SetBinContent(iPulseBin +0.5 - i_ch->fitter->GetTimeOffset(), corrected_value); 
-	      hCorrectedPulse->SetBinError(iPulseBin +0.5 - i_ch->fitter->GetTimeOffset(), pedestal_error);
-	    }
+        // Loop through the bins of the uncorrected pulse and set the values in the corrected pulse histogram
+        for (int iPulseBin = 1; iPulseBin <= hPulseToFit->GetNbinsX(); ++iPulseBin) {
+          
+          double uncorrected_value = hPulseToFit->GetBinContent(iPulseBin);
+          double corrected_value = CorrectSampleValue(uncorrected_value, template_pedestal);
+          
+          hCorrectedPulse->SetBinContent(iPulseBin +0.5 - i_ch->fitter->GetTimeOffset(), corrected_value); 
+          hCorrectedPulse->SetBinError(iPulseBin +0.5 - i_ch->fitter->GetTimeOffset(), pedestal_error);
+        }
 
-	  delete hPulseToFit;
+      delete hPulseToFit;
 
-	  // we keep on adding pulses until adding pulses has no effect on the template
-	  bool converged = CheckConvergence(*i_ch);
-	  if (converged) {
-	    i_ch->converged_status = true;
-	    std::cout << "TemplateCreator: " << detname << " template terminated at iteration " << i_ch->pulses_in_template << std::endl;
-	    break; // break from the for loop
-	  }
+      // we keep on adding pulses until adding pulses has no effect on the template
+      bool converged = CheckConvergence(*i_ch);
+      if (converged) {
+        i_ch->converged_status = true;
+        std::cout << "TemplateCreator: " << detname << " template terminated at iteration " << i_ch->pulses_in_template << std::endl;
+        break; // break from the for loop
+      }
       } // end if only one pulse candidate
     } //end for loop through channels
   }
@@ -376,8 +396,8 @@ void TemplateCreator::AddPulseToTemplate(ChannelSet& current, TH1D* & hPulse) {
     if (Debug()) {
       cout << "TemplateCreator::AddPulseToTemplate(): Bin #" << bin_number 
            << ": Corrected Sample Value = " << corrected_value << endl
-		   << "\t\t\tOld Value (Error) = " << old_bin_content << "(" << old_bin_error << ")" << endl
-		   << "\t\t\tNew Value (Error) = " << new_bin_content << "(" << new_bin_error << ")" << endl;
+    	   << "\t\t\tOld Value (Error) = " << old_bin_content << "(" << old_bin_error << ")" << endl
+    	   << "\t\t\tNew Value (Error) = " << new_bin_content << "(" << new_bin_error << ")" << endl;
     }
 
     // Set the new bin content and error of the template
@@ -423,12 +443,12 @@ TH1D* TemplateCreator::CreateRefinedPulseHistogram(
     // We may want to interpolate between the samples in the samples vector
     if (interpolate) {
       try {
-	sample_value = theSamples.at(sample_number) 
+    sample_value = theSamples.at(sample_number) 
                      + (remainder / fRefineFactor)*(theSamples.at(sample_number+1) 
                      - theSamples.at(sample_number));
       }
       catch (const std::out_of_range& oor) { // if we'll be going out of range of the samples vector
-	sample_value = theSamples.at(sample_number);
+    sample_value = theSamples.at(sample_number);
       }
     }
     else {
@@ -439,6 +459,7 @@ TH1D* TemplateCreator::CreateRefinedPulseHistogram(
     hist->SetBinContent( bin, sample_value);
     hist->SetBinError( bin, pedestal_error);
   }
+  hist->SetDirectory(0);
 
   return hist;
 }
@@ -476,23 +497,23 @@ bool TemplateCreator::CheckConvergence(ChannelSet& current) {
 }
 
 int TemplateCreator::HasPulseOverflowed(const TPulseIsland* pulse, const std::string& bankname){
-	// Get the samples so we can check for digitiser overflow
-	const std::vector<int>& theSamples = (pulse)->GetSamples();
-	int n_samples = theSamples.size();
+    // Get the samples so we can check for digitiser overflow
+    const std::vector<int>& theSamples = (pulse)->GetSamples();
+    int n_samples = theSamples.size();
 
-	// Calculate the maximum ADC value for this digitiser
-	int n_bits = TSetupData::Instance()->GetNBits(bankname);
-	double max_adc_value = std::pow(2, n_bits);
+    // Calculate the maximum ADC value for this digitiser
+    int n_bits = TSetupData::Instance()->GetNBits(bankname);
+    double max_adc_value = std::pow(2, n_bits);
 
-	for (int i = 0; i < n_samples; ++i) {
-	  int sample_value = theSamples.at(i);
-	  if (sample_value >= max_adc_value-1 && sample_value <= max_adc_value+1) {
+    for (int i = 0; i < n_samples; ++i) {
+      int sample_value = theSamples.at(i);
+      if (sample_value >= max_adc_value-1 && sample_value <= max_adc_value+1) {
          return 1;
-	  }
-	  else if (sample_value == 0) {
+      }
+      else if (sample_value == 0) {
          return -1;
-	  }
-	}
+      }
+    }
     // no under or overflow
     return 0;
 }
@@ -516,7 +537,9 @@ TH1D* TemplateCreator::StartTemplate(int pulseID,const TPulseIsland* pulse,const
          << pulseID << " directly to the template" << endl;
   }
 
-  return CreateRefinedPulseHistogram(pulse, histname.c_str(), histtitle.c_str(), true);
+  TH1D* tpl=CreateRefinedPulseHistogram(pulse, histname.c_str(), histtitle.c_str(), true);
+  tpl->SetDirectory(GetDirectory());
+  return tpl;
 }
 
 // The following macro registers this module to be useable in the config file.
