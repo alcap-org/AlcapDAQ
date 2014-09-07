@@ -12,7 +12,7 @@ class TTemplate:public TObject{
 
    public:
       TTemplate(const std::string& det,int refine,int trigger_polarity,bool debug);
-      virtual ~TTemplate(){};
+      virtual ~TTemplate();
       
       bool HasConverged()const{return fConverged;}
       bool CheckConverged();
