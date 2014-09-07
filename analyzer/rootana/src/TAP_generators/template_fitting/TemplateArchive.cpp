@@ -2,13 +2,16 @@
 
 // option is standard ROOT file options
 TemplateArchive::TemplateArchive(const char* filename, const char* option) {
-
   fTemplateFile = new TFile(filename, option);
+  fDirectory=TDirectory::CurrentDirectory();
+}
 
+TemplateArchive::TemplateArchive(TDirectory* dir):fTemplateFile(NULL){
+  fDirectory=dir;
 }
 
 TemplateArchive::~TemplateArchive() {
-  fTemplateFile->Close();
+  if(fTemplateFile) fTemplateFile->Close();
 }
 
 // GetTemplate()
@@ -16,7 +19,7 @@ TemplateArchive::~TemplateArchive() {
 const TTemplate* TemplateArchive::GetTemplate(const char* template_name) {
 
   TTemplate* hTemplate = NULL;
-  fTemplateFile->GetObject(template_name, hTemplate);
+  fDirectory->GetObject(template_name, hTemplate);
   return hTemplate;
 }
 
@@ -26,7 +29,7 @@ void TemplateArchive::SaveTemplate(const TTemplate* hTemplate) {
 
   TDirectory* oldDir = TDirectory::CurrentDirectory(); // should be the directory we were already in
   if (hTemplate) {
-    fTemplateFile->cd();
+    fDirectory->cd();
     hTemplate->Write();
   }
   oldDir->cd(); // go back to the old directory
