@@ -108,6 +108,32 @@ bool TTemplate::CheckConverged(){
   return fConverged;
 }
 
+void TTemplate::Normalise(){
+
+    // Normalise the template so that it has pedestal=0 and amplitude=1
+    // Work out the pedestal of the template from the first 5 bins
+    int n_bins_for_template_pedestal = 5;
+    double total = 0;
+    for (int iBin = 1; iBin <= n_bins_for_template_pedestal; ++iBin) {
+      total += fTemplatePulse->GetBinContent(iBin);
+    }
+    double template_pedestal = total / n_bins_for_template_pedestal;
+   
+    // Subtract off the pedesal
+    for (int iBin = 1; iBin <= fTemplatePulse->GetNbinsX(); ++iBin) {
+      double old_value = fTemplatePulse->GetBinContent(iBin);
+      double new_value = old_value - template_pedestal;
+
+      fTemplatePulse->SetBinContent(iBin, new_value);
+    }
+
+    // Integrate over the histogram and scale to give an area of 1
+    // Want the absolute value for the integral because of the negative
+    // polarity pulses
+    double integral = std::fabs(fTemplatePulse->Integral()); 
+    fTemplatePulse->Scale(1.0/integral);
+}
+
 double TTemplate::GetPedestal()const{
   return fTemplatePulse->GetBinContent(1);
 }
