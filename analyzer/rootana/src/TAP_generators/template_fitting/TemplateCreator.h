@@ -5,27 +5,29 @@
 class gTGlobalData;
 class gTSetupData;
 class gModulesOptions;
+class TH1D;
 
 #include "TAPAlgorithms.h"
 #include "TemplateArchive.h"
 #include "PulseCandidateFinder.h"
 #include "TemplateFitter.h"
+#include "TTemplate.h"
 
 class TemplateCreator : public BaseModule{
   struct ChannelSet{
-     bool converged_status; ///< have we converged or not?
      std::string detname, bankname;
-     int fit_attempts; ///< how many attempts were made to fit a pulse
-     int fit_successes; ///< How many fits were successful
-     int pulses_in_template; ///< How many pulses have been averaged to make the template
-     TH1D *error_v_pulse_hist;
-     TH1D *template_pulse;
-     PulseCandidateFinder* pulse_finder;
+
+     int fit_successes, fit_attempts;
+     int trigger_polarity;
+     TTemplate* template_pulse;
+
      TemplateFitter* fitter;
+     PulseCandidateFinder* pulse_finder;
      Algorithm::IntegralRatio *integralRatio;
 
      // constructor takes a lot of the effort of initialising the above fields
      ChannelSet(const std::string& detname, const std::string& bankname, modules::options* opts,int refine );
+     ~ChannelSet();
   };
   typedef std::vector<ChannelSet> ChannelList;
 
@@ -60,6 +62,7 @@ class TemplateCreator : public BaseModule{
   /// @brief Init the template using the first valid pulse
   TH1D* StartTemplate(int pulseID, const TPulseIsland* pulse,const std::string& detname);
 
+ 
  private:
 
   /// \brief
