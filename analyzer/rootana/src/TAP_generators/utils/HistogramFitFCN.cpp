@@ -3,17 +3,17 @@
 #include <cmath>
 #include <iostream>
 
-HistogramFitFCN::HistogramFitFCN(TH1D* hTemplate, TH1D* hPulse) : fTemplateHist(hTemplate), fPulseHist(hPulse) {
+HistogramFitFCN::HistogramFitFCN(const TH1D* hTemplate,const TH1D* hPulse) : fTemplateHist(hTemplate), fPulseHist(hPulse) {
 }
 
 HistogramFitFCN::~HistogramFitFCN() {
 }
 
-void HistogramFitFCN::SetTemplateHist(TH1D* hTemplate) {
+void HistogramFitFCN::SetTemplateHist(const TH1D* hTemplate) {
   fTemplateHist = hTemplate;
 }
 
-void HistogramFitFCN::SetPulseHist(TH1D* hPulse) {
+void HistogramFitFCN::SetPulseHist(const TH1D* hPulse) {
   fPulseHist = hPulse;
 }
 
@@ -84,7 +84,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
       std::cout << "Pulse Value = " << fPulseHist->GetBinContent(i) << ", delta = " << delta << std::endl;
     }
     double hTemplate_bin_error = fTemplateHist->GetBinError(i - T_int);
-    double hPulse_bin_error = fPulseHist->GetBinError(i);
+    //double hPulse_bin_error = fPulseHist->GetBinError(i);
     chi2 += delta*delta / (hTemplate_bin_error*hTemplate_bin_error);
     if (print_dbg) {
       std::cout << "Template Error = " << hTemplate_bin_error << ", chi2 (added) = " << delta*delta/(hTemplate_bin_error*hTemplate_bin_error) << ", chi2 (total) = " << chi2 << std::endl;
