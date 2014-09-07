@@ -26,8 +26,10 @@ TemplateCreator::TemplateCreator(modules::options* opts):
   fRefineFactor = opts->GetInt("refine_factor", 5);
   fPulseDebug = opts->GetBool("pulse_debug", false);
   opts->GetVectorStringsByDelimiter("channels",fRequestedChannels);
+  fArchiveName=opts->GetString("file_name","templates.root");
   if(fRequestedChannels.empty()) fAnalyseAllChannels=true;
-  
+
+  // Prepare integral ratio cuts
   fCutIntegralRatio=opts->GetBool("use_IR_cut",false);
   if(fCutIntegralRatio){
     fIntegralMax=opts->GetDouble("max_integral");
@@ -35,6 +37,7 @@ TemplateCreator::TemplateCreator(modules::options* opts):
     fIntegralRatioMax=opts->GetDouble("max_ratio");
     fIntegralRatioMin=opts->GetDouble("min_ratio");
   }
+
 }
 
 TemplateCreator::~TemplateCreator(){
@@ -66,10 +69,10 @@ TemplateCreator::ChannelSet::ChannelSet(const std::string& det, const std::strin
 }
 
 void TemplateCreator::ChannelSet::Clear(){
-delete fitter;
-delete template_pulse;
-if(pulse_finder) delete pulse_finder;
-if(integralRatio) delete integralRatio;
+  delete fitter;
+  delete template_pulse;
+  if(pulse_finder) delete pulse_finder;
+  if(integralRatio) delete integralRatio;
 }
 
 // Called before the main event loop
@@ -78,7 +81,11 @@ if(integralRatio) delete integralRatio;
 int TemplateCreator::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
 
   // Prepare the template archive
-  fTemplateArchive = new TemplateArchive("templates.root", "RECREATE");
+  if(fArchiveName==EventNavigator::Instance().GetOutputFileName()){
+    fTemplateArchive = new TemplateArchive(GetDirectory());
+  } else{
+    fTemplateArchive = new TemplateArchive(fArchiveName.c_str(), "RECREATE");
+  }
 
   // Set all the converged statuses to false
   StringPulseIslandMap::const_iterator it;
@@ -102,10 +109,12 @@ int TemplateCreator::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setu
 int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
   // Loop over each detector
+  unsigned no_converged=0;
   for(ChannelList::iterator i_ch=fChannels.begin(); i_ch!=fChannels.end(); ++i_ch){
 
     // See if we already have a converged template for this detector
     if (i_ch->template_pulse->HasConverged()) {
+      no_converged++;
       continue;
     }
 
@@ -247,6 +256,11 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
       }
     } // end for loop over TPIs
   } //end for loop through channels
+  
+  if(no_converged==fChannels.size()){
+  cout<<"All channels converged so end run"<<endl;
+  return -1;
+  }
 
   return 0;
 }
@@ -270,6 +284,7 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData, const TSetupData* setup)
 
     // Normalise the templates
     i_ch->template_pulse->Normalise();
+    i_ch->template_pulse->AddToDirectory(GetDirectory());
 
     // Save the template to the file
     fTemplateArchive->SaveTemplate(i_ch->template_pulse);

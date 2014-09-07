@@ -73,6 +73,7 @@ class TemplateCreator : public BaseModule{
 
   modules::options* fOpts; ///< Store the options for use in ProcessEntry
 
+  std::string fArchiveName;
   TemplateArchive* fTemplateArchive;
 
   /// \brief
