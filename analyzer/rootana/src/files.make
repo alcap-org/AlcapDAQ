@@ -2,6 +2,7 @@
 DIRS += src/\
         src/TAP_generators/\
         src/TAP_generators/utils/\
+        src/TAP_generators/template_fitting/\
         src/TDP_generators/\
         src/TME_generators/\
         src/examples/\
