@@ -20,6 +20,9 @@ TTemplate::TTemplate(const std::string& det,int refine,int trigger_polarity, boo
        fErrors = new TH1D(error_histname.c_str(), error_histtitle.c_str(), n_bins,0,n_bins);
 }
 
+TTemplate::~TTemplate(){
+}
+
 void TTemplate::Initialize(int pulseID, TH1D* pulse, TDirectory* dir){
   
   fTemplatePulse=pulse;
