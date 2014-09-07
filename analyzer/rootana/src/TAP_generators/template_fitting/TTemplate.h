@@ -12,7 +12,7 @@ class TTemplate:public TObject{
 
    public:
       TTemplate(const std::string& det,int refine,int trigger_polarity,bool debug);
-      ~TTemplate(){};
+      virtual ~TTemplate(){};
       
       bool HasConverged()const{return fConverged;}
       bool CheckConverged();
@@ -25,6 +25,7 @@ class TTemplate:public TObject{
         fTemplatePulse->SetDirectory(dir);
         fErrors->SetDirectory(dir);
       }
+      void Normalise();
 
       double GetPedestal()const;
       double GetTime()const;
