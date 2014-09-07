@@ -11,13 +11,14 @@
 class TTemplate:public TObject{
 
    public:
+      TTemplate();
       TTemplate(const std::string& det,int refine,int trigger_polarity,bool debug);
       virtual ~TTemplate();
       
       bool HasConverged()const{return fConverged;}
       bool CheckConverged();
       bool Empty()const{return fTotalPulses==0;}
-      bool PulsesMerged()const{return fTotalPulses;}
+      int PulsesMerged()const{return fTotalPulses;}
       void Initialize(int pulseID, TH1D* pulse, TDirectory* dir);
       void AddPulse(double x_offset, double y_scale, double y_offset,const TH1D*);
       void AddToDirectory(TDirectory* dir){

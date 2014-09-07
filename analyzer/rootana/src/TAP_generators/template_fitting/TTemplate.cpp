@@ -1,9 +1,21 @@
 #include "TTemplate.h"
+#include "debug_tools.h"
 
 #include <cmath>
 #include <iostream>
 using std::cout;
 using std::endl;
+
+TTemplate::TTemplate():
+  fDebug(false),
+  fConverged(false),
+  fTotalPulses(0),
+  fRefineFactor(0),
+  fTriggerPolarity(0),
+  fChannel(),
+  fErrors(NULL),
+  fTemplatePulse(NULL){
+}
 
 TTemplate::TTemplate(const std::string& det,int refine,int trigger_polarity, bool debug):
   fDebug(debug),
@@ -36,6 +48,7 @@ void TTemplate::AddPulse(double x_offset, double y_scale, double y_offset, const
   }
 
   double template_pedestal = fTemplatePulse->GetBinContent(1);
+  double total_error=0;
 
   // Loop through the pulse histogram
   for (int iPulseBin = 1; iPulseBin < hPulse->GetNbinsX(); ++iPulseBin) {
@@ -69,6 +82,9 @@ void TTemplate::AddPulse(double x_offset, double y_scale, double y_offset, const
                          + (corrected_value - old_bin_content)*(corrected_value - new_bin_content);
     new_bin_error = std::sqrt(new_bin_error / fTotalPulses);
 
+    // increment total error
+    total_error+=new_bin_error;
+
     if (fDebug) {
       cout << "TemplateCreator::AddPulseToTemplate(): Bin #" << bin_number 
            << ": Corrected Sample Value = " << corrected_value << endl
@@ -85,8 +101,7 @@ void TTemplate::AddPulse(double x_offset, double y_scale, double y_offset, const
   ++fTotalPulses;
 
   // fill the error histoo
-  int err_bin= fTriggerPolarity>0 ? fTemplatePulse->GetMaximumBin(): fTemplatePulse->GetMinimumBin();
-  fErrors->Fill(fTotalPulses, fTemplatePulse->GetBinError(err_bin));
+  fErrors->Fill(fTotalPulses, total_error/fTotalPulses);
 }
 
 bool TTemplate::CheckConverged(){
@@ -94,6 +109,7 @@ bool TTemplate::CheckConverged(){
 
   // Check the difference between this iteration and previous ones and, if it's small, the template has converged
   int n_bins_to_check = 10;
+  if (fTotalPulses<n_bins_to_check) return false;
   double convergence_limit = 0.1;
   int newest_bin=fErrors->FindBin(fTotalPulses);
   double error=fErrors->GetBinContent(newest_bin);
