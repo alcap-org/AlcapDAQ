@@ -93,6 +93,11 @@ const LoopSequence& EventNavigator::MakeLoopSequence(const ARGUMENTS& args)
 }
 
 //----------------------------------------------------------------------
+const char* EventNavigator::GetOutputFileName()const{
+  return fOutput? fOutput->GetName():"";
+}
+
+//----------------------------------------------------------------------
 Long64_t EventNavigator::GetStartEntry() const
 {
   return GetLoopSequence().StartEntry();
