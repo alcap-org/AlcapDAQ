@@ -26,7 +26,7 @@ TTemplate::~TTemplate(){
 void TTemplate::Initialize(int pulseID, TH1D* pulse, TDirectory* dir){
   
   fTemplatePulse=pulse;
-  AddToDirectory(dir);
+  ++fTotalPulses;
 }
 
 void TTemplate::AddPulse(double x_offset, double y_scale, double y_offset, const TH1D* hPulse){
@@ -112,6 +112,7 @@ bool TTemplate::CheckConverged(){
 }
 
 void TTemplate::Normalise(){
+    if(!fTemplatePulse) return;
 
     // Normalise the template so that it has pedestal=0 and amplitude=1
     // Work out the pedestal of the template from the first 5 bins

@@ -27,7 +27,7 @@ class TemplateCreator : public BaseModule{
 
      // constructor takes a lot of the effort of initialising the above fields
      ChannelSet(const std::string& detname, const std::string& bankname, modules::options* opts,int refine );
-     ~ChannelSet();
+     void Clear();
   };
   typedef std::vector<ChannelSet> ChannelList;
 

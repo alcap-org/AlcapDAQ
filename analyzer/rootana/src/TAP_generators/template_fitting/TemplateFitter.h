@@ -14,6 +14,7 @@ class TemplateFitter {
 
  private:
   TFitterMinuit* fMinuitFitter;
+  void operator=(const TemplateFitter&);
 
  public:
   int FitPulseToTemplate(const TTemplate* hTemplate, const TH1D* hPulse, const std::string& bankname);

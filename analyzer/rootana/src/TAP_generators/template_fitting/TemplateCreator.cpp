@@ -38,8 +38,8 @@ TemplateCreator::TemplateCreator(modules::options* opts):
 }
 
 TemplateCreator::~TemplateCreator(){
-  delete fTemplateArchive;
-  fChannels.clear();
+///  delete fTemplateArchive;
+///  fChannels.clear();
 }
 
 TemplateCreator::ChannelSet::ChannelSet(const std::string& det, const std::string& bank,
@@ -65,7 +65,7 @@ TemplateCreator::ChannelSet::ChannelSet(const std::string& det, const std::strin
        template_pulse=new TTemplate(detname,refine,trigger_polarity,opts->GetFlag("debug"));
 }
 
-TemplateCreator::ChannelSet::~ChannelSet(){
+void TemplateCreator::ChannelSet::Clear(){
 delete fitter;
 delete template_pulse;
 if(pulse_finder) delete pulse_finder;
@@ -273,6 +273,9 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData, const TSetupData* setup)
 
     // Save the template to the file
     fTemplateArchive->SaveTemplate(i_ch->template_pulse);
+    
+    // tidy up
+    i_ch->Clear();
   }
 
   return 0;

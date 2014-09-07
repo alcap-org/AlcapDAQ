@@ -2,6 +2,7 @@
 
 #include "HistogramFitFCN.h"
 #include "SetupNavigator.h"
+#include "debug_tools.h"
 
 #include "TMath.h"
 
