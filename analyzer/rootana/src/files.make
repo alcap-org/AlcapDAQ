@@ -23,3 +23,4 @@ ROOT_DICT_CLASSES:=TAnalysedPulseMapWrapper\
 	IdSource\
         BankBranch\
         FlyWeight\
+        TTemplate\
