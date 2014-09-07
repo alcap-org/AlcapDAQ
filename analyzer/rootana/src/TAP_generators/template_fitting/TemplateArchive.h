@@ -19,15 +19,20 @@ class TemplateArchive {
   /// \brief
   /// The ROOT file that contains the templates
   TFile* fTemplateFile;
+  TDirectory* fDirectory;
 
  public:
   /// \brief
-  /// The constructor
+  ///  constructor to make separate template files
   ///
   /// \detailed
   /// Given a file name and a standard ROOT TFile option (e.g. "READ", "RECREATE" etc.)
   /// and opens the ROOT file ready for reading and writing
   TemplateArchive(const char* filename, const char* option);
+
+  /// \brief
+  ///  constructor to use a directory in an existing file
+  TemplateArchive(TDirectory* dir);
 
   /// \brief
   /// Empty destructor
