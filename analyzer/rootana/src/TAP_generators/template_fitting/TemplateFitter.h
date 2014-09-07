@@ -3,7 +3,7 @@
 
 #include "TFitterMinuit.h"
 #include "TPulseIsland.h"
-#include "TH1D.h"
+#include "TTemplate.h"
 
 #include "definitions.h"
 
@@ -16,7 +16,7 @@ class TemplateFitter {
   TFitterMinuit* fMinuitFitter;
 
  public:
-  int FitPulseToTemplate(TH1D* hTemplate, TH1D* hPulse, std::string bankname);
+  int FitPulseToTemplate(const TTemplate* hTemplate, const TH1D* hPulse, const std::string& bankname);
   double GetPedestalOffset() { return fPedestalOffset; }
   double GetAmplitudeScaleFactor() { return fAmplitudeScaleFactor; }
   double GetTimeOffset() { return fTimeOffset; }
