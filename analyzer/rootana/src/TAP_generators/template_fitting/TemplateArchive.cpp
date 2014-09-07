@@ -13,15 +13,16 @@ TemplateArchive::~TemplateArchive() {
 
 // GetTemplate()
 // -- gets a template from the template file
-TH1D* TemplateArchive::GetTemplate(const char* template_name) {
+const TTemplate* TemplateArchive::GetTemplate(const char* template_name) {
 
-  TH1D* hTemplate = (TH1D*) fTemplateFile->Get(template_name);
+  TTemplate* hTemplate = NULL;
+  fTemplateFile->GetObject(template_name, hTemplate);
   return hTemplate;
 }
 
 // SaveTemplate()
 // -- saves a template to the template file
-void TemplateArchive::SaveTemplate(TH1* hTemplate) {
+void TemplateArchive::SaveTemplate(const TTemplate* hTemplate) {
 
   TDirectory* oldDir = TDirectory::CurrentDirectory(); // should be the directory we were already in
   if (hTemplate) {
