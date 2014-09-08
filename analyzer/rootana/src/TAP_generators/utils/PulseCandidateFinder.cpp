@@ -71,7 +71,7 @@ void PulseCandidateFinder::SetChannel(const std::string& detname){
 
 /// FindPulseCandidates()
 /// Finds the pulse candidates on the given TPulseIsland
-void PulseCandidateFinder::FindPulseCandidates(TPulseIsland* pulse) {
+void PulseCandidateFinder::FindPulseCandidates(const TPulseIsland* pulse) {
     if(!fChannel.isValid()){
         std::cout<<"Channel for PCF is not set, make sure to use "
                    "SetChannel() if you used the defualt constructor"<<std::endl;

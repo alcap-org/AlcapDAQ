@@ -61,7 +61,7 @@ class PulseCandidateFinder {
  private:
   /// \brief
   /// The TPulseIsland that we are looking for candidates on
-  TPulseIsland* fPulseIsland;
+  const TPulseIsland* fPulseIsland;
   /// \brief
   /// The vector that we store the pulse candidate locations in
   std::vector<Location> fPulseCandidateLocations;
@@ -70,7 +70,7 @@ class PulseCandidateFinder {
  public:
   /// \brief
   /// Find the pulse candidates on the given TPulseIsland
-  void FindPulseCandidates(TPulseIsland* pulse);
+  void FindPulseCandidates(const TPulseIsland* pulse);
   /// \brief
   /// Returns the number of pulse candidates that were found
   int GetNPulseCandidates() { return fPulseCandidateLocations.size(); }
