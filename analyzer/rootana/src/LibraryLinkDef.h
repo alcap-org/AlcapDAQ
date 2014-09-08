@@ -13,6 +13,7 @@
 
 #pragma link C++ class TIntegralRatioAnalysedPulse+;
 #pragma link C++ class TGaussFitAnalysedPulse+;
+#pragma link C++ class TTemplateFitAnalysedPulse+;
 #pragma link C++ class TAnalysedPulse+;
 #pragma link C++ class TDetectorPulse+;
 #pragma link C++ class vector<TAnalysedPulse*>+;
