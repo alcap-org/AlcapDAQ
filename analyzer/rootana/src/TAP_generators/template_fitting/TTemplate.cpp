@@ -101,7 +101,7 @@ void TTemplate::AddPulse(double x_offset, double y_scale, double y_offset, const
   ++fTotalPulses;
 
   // fill the error histoo
-  fErrors->Fill(fTotalPulses, total_error/fTotalPulses);
+  fErrors->Fill(fTotalPulses, total_error);
 }
 
 bool TTemplate::CheckConverged(){
@@ -112,9 +112,10 @@ bool TTemplate::CheckConverged(){
   if (fTotalPulses<n_bins_to_check) return false;
   double convergence_limit = 0.1;
   int newest_bin=fErrors->FindBin(fTotalPulses);
-  double error=fErrors->GetBinContent(newest_bin);
+  double error=fErrors->GetBinContent(newest_bin)/fTotalPulses;
   for (int iPrevBin = 0; iPrevBin < n_bins_to_check; ++iPrevBin) {
     double previous_error = fErrors->GetBinContent(newest_bin-iPrevBin);
+    previous_error /= fTotalPulses- iPrevBin;
 
     if ( std::fabs(previous_error - error) > convergence_limit) {
        fConverged=false;
