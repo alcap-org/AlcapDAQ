@@ -46,14 +46,22 @@ class PulseCandidateFinder {
   /// \param[in] opts Describe the options this module takes.
   PulseCandidateFinder(std::string detname, modules::options* opts);
 
+  /// \brief Default constructor, make sure to set the channel name with
+  /// SetChannel if you use this constructor
+  PulseCandidateFinder();
+
   /// \brief
   /// Empty destructor
   ~PulseCandidateFinder();
 
+  /// 
+  void SetChannel(const std::string& detname);
+  void SetSigma(double sigma);
+
  private:
   /// \brief
   /// The TPulseIsland that we are looking for candidates on
-  TPulseIsland* fPulseIsland;
+  const TPulseIsland* fPulseIsland;
   /// \brief
   /// The vector that we store the pulse candidate locations in
   std::vector<Location> fPulseCandidateLocations;
@@ -62,7 +70,7 @@ class PulseCandidateFinder {
  public:
   /// \brief
   /// Find the pulse candidates on the given TPulseIsland
-  void FindPulseCandidates(TPulseIsland* pulse);
+  void FindPulseCandidates(const TPulseIsland* pulse);
   /// \brief
   /// Returns the number of pulse candidates that were found
   int GetNPulseCandidates() { return fPulseCandidateLocations.size(); }
