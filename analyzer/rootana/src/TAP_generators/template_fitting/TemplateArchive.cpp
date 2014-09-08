@@ -14,9 +14,13 @@ TemplateArchive::~TemplateArchive() {
   if(fTemplateFile) fTemplateFile->Close();
 }
 
+TTemplate* TemplateArchive::GetTemplate(const IDs::channel& ch) {
+  return GetTemplate(TTemplate::MakeName(ch).c_str());
+}
+
 // GetTemplate()
 // -- gets a template from the template file
-const TTemplate* TemplateArchive::GetTemplate(const char* template_name) {
+TTemplate* TemplateArchive::GetTemplate(const char* template_name) {
 
   TTemplate* hTemplate = NULL;
   fDirectory->GetObject(template_name, hTemplate);
