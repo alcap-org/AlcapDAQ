@@ -58,8 +58,9 @@ const typename TemplateFactory<BaseModule,OptionsType>::PerModule& TemplateFacto
      const std::string& name)const{
     typename ModuleList::const_iterator it  = fModules.find(name);
     if(it == fModules.end() ){
-        std::cout<<fName<<"::GetModuleDetails: Error: Unknown module requested: "<<name<<std::endl;
-        throw std::out_of_range(("unknown module "+name).c_str());
+        std::cout<<fName<<"::GetModuleDetails: Error: I don't know how to make : "<<name<<std::endl;
+        PrintPossibleModules();
+        throw std::out_of_range(("unknown: "+name).c_str());
     }
     return it->second;
 }
