@@ -4,17 +4,19 @@
 #include "Functions.h"
 
 void TTemplateFitAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
-	if(tpi_pulse) {
-	  std::string name=tpi_pulse->GetName();
-	  TF1* tap_pulse=new TF1((name+"_AP").c_str(),functions::gauss_lin,0,1000,5);
-    // parameters:
-    // 0: constant (pedestal)
-    // 1: gradient
-    // 2: Gauss amplitude
-    // 3: Gauss mean
-    // 4: Gauss width
-      tap_pulse->SetParameters(GetPedestal(),fGradient,GetAmplitude(),GetTime(),fWidth);
-      tap_pulse->Draw();
+   if(tpi_pulse) {
+      std::string name=tpi_pulse->GetName();
+      name+="_templateAP";
+      const TH1* tpl = GetTemplate()->GetHisto();
+      TH1F* tap_pulse=(TH1F*) tpi_pulse->Clone(name.c_str());
+      for ( int i=0; i<tap_pulse->GetNbinsX(); i++){
+         // deduce right bin to look in
+         int tpl_bin=i+ GetTime();
+         // get bin sample
+         double sample=tpl->GetBinContent(tpl_bin);
+         // Set sample in histogram that's to be saved
+         tap_pulse->SetBinContent(i,sample*GetAmplitude() + GetPedestal());
+      }
       tap_pulse->Write();
-	}
+   }
 }

@@ -2,6 +2,8 @@
 #define TTEMPLATEFITANALYSEDPULSE_H
 
 #include "TAnalysedPulse.h"
+#include "TTemplate.h"
+#include <TRef.h>
 #include <TObject.h>
 
 class TTemplateFitAnalysedPulse:public TAnalysedPulse{
@@ -23,17 +25,15 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         /// @{
         int GetFitStatus()const{return fStatus;}
         double GetChi2()const{return fChi2;}
-        double GetGradient()const{return fGradient;}
-        double GetWidth()const{return fWidth;}
         /// @}
 
         /// @name Error_Getters
         /// @{
-        double GetGradientErr()const{return fGradientErr;}
-        double GetWidthErr()const{return fWidthErr;}
         double GetTimeErr()const{return fTimeErr;}
         double GetPedestalErr()const{return fPedestalErr;}
         double GetAmplitudeErr()const{return fAmplitudeErr;}
+        const TTemplate* GetTemplate()const{return (const TTemplate*) fTemplate.GetObject();}
+
         /// @}
 
         /// @name Setters
@@ -42,10 +42,9 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         void SetTime(const double& val, const double& err){TAnalysedPulse::SetTime(val); fTimeErr=err;}
         void SetAmplitude(const double& val, const double& err){TAnalysedPulse::SetAmplitude(val); fAmplitudeErr=err;}
         void SetPedestal(const double& val, const double& err){TAnalysedPulse::SetPedestal(val); fPedestalErr=err;}
-        void SetGradient(const double& val, const double& err){fGradient=val; fGradientErr=err;}
-        void SetWidth(const double& val, const double& err){fWidth=val; fWidthErr=err;}
         void SetChi2(const double& val){fChi2=val;}
         void SetFitStatus(const double& val){fStatus=val;}
+        void SetTemplate(TTemplate* val){fTemplate=val;}
         /// @}
 
         /// @@brief overload the TAnalysedPulse::Draw method
@@ -53,8 +52,9 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
 
     private:
         int fStatus;
-        double fChi2, fWidth,fGradient;
-        double fTimeErr, fWidthErr, fAmplitudeErr, fPedestalErr, fGradientErr; 
+        double fChi2;
+        double fTimeErr, fAmplitudeErr, fPedestalErr; 
+        TRef fTemplate;
 
         ClassDef(TTemplateFitAnalysedPulse,1);
 };
