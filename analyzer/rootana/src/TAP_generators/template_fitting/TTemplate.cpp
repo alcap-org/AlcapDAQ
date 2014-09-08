@@ -24,7 +24,9 @@ TTemplate::TTemplate(const std::string& det,int refine,int trigger_polarity, boo
   fRefineFactor(refine),
   fTriggerPolarity(trigger_polarity),
   fChannel(det),
+  fName(MakeName(fChannel)),
   fTemplatePulse(NULL){
+
        // Setup the error hist
        std::string error_histname = "hErrorVsPulseAdded_" + fChannel.str();
        std::string error_histtitle = "Plot of the Error as each new Pulse is added to the template for the " + fChannel.str() + " channel";
@@ -151,8 +153,8 @@ void TTemplate::Normalise(){
     // Integrate over the histogram and scale to give an area of 1
     // Want the absolute value for the integral because of the negative
     // polarity pulses
-    double integral = std::fabs(fTemplatePulse->Integral()); 
-    fTemplatePulse->Scale(1.0/integral);
+    double norm = std::fabs(fTemplatePulse->GetMaximum()); 
+    fTemplatePulse->Scale(1.0/norm);
 }
 
 double TTemplate::GetPedestal()const{

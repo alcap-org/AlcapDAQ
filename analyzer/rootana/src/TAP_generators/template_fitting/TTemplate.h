@@ -32,7 +32,12 @@ class TTemplate:public TObject{
       double GetTime()const;
       double GetAmplitude()const;
 
+      double GetRefineFactor()const{return fRefineFactor;}
+
       const TH1D* GetHisto()const{return fTemplatePulse;}
+
+      const char* GetName()const {return fName.c_str();}
+      static std::string MakeName(const IDs::channel& ch){return ch.str()+"_template";}
 
    private:
       bool fDebug;
@@ -41,6 +46,7 @@ class TTemplate:public TObject{
       int fRefineFactor;
       int fTriggerPolarity;
       IDs::channel fChannel;
+      std::string fName;
       TH1D *fErrors;
       TH1D *fTemplatePulse;
    
