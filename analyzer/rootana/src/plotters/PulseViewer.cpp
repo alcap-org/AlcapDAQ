@@ -130,7 +130,7 @@ int PulseViewer::ParseTriggerString(const std::string& trigger_condition){
 
 int PulseViewer::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
     // Have we drawn the number of pulses we were meant to?
-    if(fMaxToPlot<0 || fTotalPlotted>=fMaxToPlot){
+    if(fMaxToPlot>0 && fTotalPlotted>=fMaxToPlot){
         if(fStopAtMax){
             cout<<"PulseViewer::ProcessEntry: "<<fTotalPlotted<<" pulses have already been drawn which "
                 <<"is greater than the limit of "<<fMaxToPlot<<" so I'm stopping execution.\n";
