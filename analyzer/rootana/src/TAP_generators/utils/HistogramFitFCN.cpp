@@ -40,7 +40,10 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
 
   if (print_dbg) { 
     std::cout << "HistogramFitFCN::operator() (start):" << std::endl;
-    std::cout << "\tpedestal = " << P << ", amplitude = " << A << ", time (integer part) = " << T_int << " and time (float part) = " << T_flt << std::endl;
+    std::cout << "\tpedestal = " << P 
+              << ", amplitude = " << A 
+              << ", time (integer part) = " << T_int 
+              << " and time (float part) = " << T_flt << std::endl;
   }
  
   int half_range = 10*fRefineFactor; // remove a few bins from the fit
@@ -65,10 +68,14 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
 
   double f;
   double template_pedestal = fTemplateHist->GetBinContent(1);
-  for (int i = bounds[0]+(fRefineFactor/2.0); i <= bounds[1]-(fRefineFactor/2.0); i += fRefineFactor) { // calculate the chi^2 based on the centre of the 5 bins to avoid getting abonus from mathcing all 5
-    // We shift and scale the template so that it matches the pulse.
-    // This is because, when we have a normalised template, we will get the actual amplitude, pedestal and time from the fit and not just offsets
-    f = fTemplateHist->GetBinContent(i - T_int) + T_flt*(fTemplateHist->GetBinContent(i - T_int + 1) - fTemplateHist->GetBinContent(i - T_int)); // linear interpolation between the i'th and the (i+1)'th bin
+  for (int i = bounds[0]+(fRefineFactor/2.0); i <= bounds[1]-(fRefineFactor/2.0); i += fRefineFactor) { 
+    // calculate the chi^2 based on the centre of the 5 bins to avoid getting
+    // abonus from mathcing all 5.  We shift and scale the template so that it
+    // matches the pulse.  This is because, when we have a normalised template,
+    // we will get the actual amplitude, pedestal and time from the fit and not
+    // just offsets
+    f = fTemplateHist->GetBinContent(i - T_int) ;
+    f += T_flt*(fTemplateHist->GetBinContent(i - T_int + 1) - f); // linear interpolation between the i'th and the (i+1)'th bin
     if (print_dbg) {
       std::cout << "i = " << i << ", i - T_int = " << i-T_int << std::endl;
       std::cout << "f (before) = " << f << std::endl;
