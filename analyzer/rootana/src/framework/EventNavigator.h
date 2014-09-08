@@ -68,7 +68,9 @@ class EventNavigator {
   /// Gives read access to the LoopSequence, which must first be
   /// initailised with MakeLoopSequence() in main()
   const LoopSequence& GetLoopSequence() const;
-  
+
+  const char* GetOutputFileName()const;
+
   /// Initialises the LoopSequence this must be called once beforit is
   /// used.  Calling it a second time is undefined behavior (currently
   /// forces an exception)

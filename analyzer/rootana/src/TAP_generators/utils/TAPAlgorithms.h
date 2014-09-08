@@ -72,13 +72,14 @@ struct Algorithm::SimpleIntegral {
   void SetStop(int v){stop=v;};
 
 private:
+  void operator=(const SimpleIntegral& rhs){};
   double pedestal;
   int start;
   int stop;
 };
 
 struct Algorithm::IntegralRatio{
-  IntegralRatio(int begin,int tail, int end, int trig_pol,double ped=0)
+  IntegralRatio(int begin,int tail, int end, int trig_pol,double ped=0.)
     :fTailIntegrator(ped,trig_pol,tail,end)
      ,fHeadIntegrator(ped,trig_pol,begin,tail){
      }
@@ -92,10 +93,10 @@ struct Algorithm::IntegralRatio{
   void SetPedestal(double v){ fTailIntegrator.SetPedestal(v); fHeadIntegrator.SetPedestal(v);}
 
 private:
-  double fTail;
-  double fHead;
   Algorithm::SimpleIntegral fTailIntegrator;
   Algorithm::SimpleIntegral fHeadIntegrator;
+  double fTail;
+  double fHead;
 };
 
 #endif

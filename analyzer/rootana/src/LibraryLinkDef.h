@@ -36,5 +36,7 @@
 #pragma link C++ class BankBranch<vector<TDetectorPulse*> >+;
 #pragma link C++ class BankBranch<vector<TMuonEvent*> >+;
 
+#pragma link C++ class TTemplate+;
+
 #pragma link C++ class TAnalysedPulseMapWrapper+;
 #endif    /* __CINT__ */

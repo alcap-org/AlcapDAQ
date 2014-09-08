@@ -2,6 +2,7 @@
 
 #include "HistogramFitFCN.h"
 #include "SetupNavigator.h"
+#include "debug_tools.h"
 
 #include "TMath.h"
 
@@ -17,7 +18,7 @@ TemplateFitter::TemplateFitter(std::string detname, int refine_factor): fChannel
 TemplateFitter::~TemplateFitter() {
 }
 
-int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, TH1D* hPulse, std::string bankname) {
+int TemplateFitter::FitPulseToTemplate(const TTemplate* hTemplate, const TH1D* hPulse, const std::string& bankname){
 
   int status; // the status of the minimisation
   static int print_dbg = false;
@@ -31,7 +32,7 @@ int TemplateFitter::FitPulseToTemplate(TH1D* hTemplate, TH1D* hPulse, std::strin
   // Prepare for minimizations
   fMinuitFitter->Clear();
   HistogramFitFCN* fcn = (HistogramFitFCN*)fMinuitFitter->GetMinuitFCN();
-  fcn->SetTemplateHist(hTemplate);
+  fcn->SetTemplateHist(hTemplate->GetHisto());
   fcn->SetPulseHist(hPulse);
 
   //  fMinuitFitter->SetParameter(2, "TimeOffset", fTimeOffset, 1., -10, 10); // Timing should have step size no smaller than binning,
