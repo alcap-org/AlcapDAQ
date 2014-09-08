@@ -58,7 +58,7 @@ int TemplateFitter::FitPulseToTemplate(const TTemplate* hTemplate, const TH1D* h
   fPedestalOffset_maximum = max_adc_value;
 
   fAmplitudeScaleFactor_minimum = 0.1;
-  fAmplitudeScaleFactor_maximum = 100;
+  fAmplitudeScaleFactor_maximum = 1000;
 
   for (double time_offset = fTimeOffset_minimum; time_offset <= fTimeOffset_maximum; ++time_offset) {
     if (print_dbg) {
