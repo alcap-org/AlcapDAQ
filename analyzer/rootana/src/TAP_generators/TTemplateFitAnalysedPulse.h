@@ -43,16 +43,21 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         void SetAmplitude(const double& val, const double& err){TAnalysedPulse::SetAmplitude(val); fAmplitudeErr=err;}
         void SetPedestal(const double& val, const double& err){TAnalysedPulse::SetPedestal(val); fPedestalErr=err;}
         void SetChi2(const double& val){fChi2=val;}
+        void SetNDoF(const double& val){fNDoF=val;}
         void SetFitStatus(const double& val){fStatus=val;}
         void SetTemplate(TTemplate* val){fTemplate=val;}
         /// @}
+        
+        using TAnalysedPulse::SetAmplitude;
+        using TAnalysedPulse::SetPedestal;
+        using TAnalysedPulse::SetTime;
 
         /// @@brief overload the TAnalysedPulse::Draw method
         virtual void Draw(const TH1F* tpi_pulse)const;
 
     private:
         int fStatus;
-        double fChi2;
+        double fChi2, fNDoF;
         double fTimeErr, fAmplitudeErr, fPedestalErr; 
         TRef fTemplate;
 
