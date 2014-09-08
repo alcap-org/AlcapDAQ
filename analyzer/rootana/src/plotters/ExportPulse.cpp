@@ -9,6 +9,7 @@
 
 //ROOT
 #include <TH1F.h>
+#include <THStack.h>
 
 //Local
 #include "ModulesFactory.h"
@@ -30,13 +31,17 @@ extern Long64_t* gTotalEntries;
 //----------------------------------------------------------------------
 ExportPulse::ExportPulse(modules::options* opts)
   : BaseModule("ExportPulse",opts),fGuidanceShown(false)
-  , fSetup(NULL), fOptions(opts)
+  , fSetup(NULL), fOptions(opts), fPulseFinder(NULL)
 {
-  dir->cd("/");
   fPulseInfo.pulseID=-1;
   fPulseInfo.event=-1;
   fPulseInfo.bankname="";
   fPulseInfo.detname="";
+  
+  fUsePCF=opts->GetFlag("run_pulse_finder");
+  if(fUsePCF){
+      fPulseFinder=new PulseCandidateFinder();
+  }
 }
 
 
@@ -209,7 +214,7 @@ std::string ExportPulse::PulseInfo_t::MakeTPIName()const{
 }
 
 //----------------------------------------------------------------------
-int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info)const{
+int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info){
   
   std::string hist=info.MakeTPIName();
   
@@ -224,20 +229,46 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info)cons
     cout<<"Plotting "<<title.str()<<"' ["<<hist<<"]"<<endl;
   }
   
+  TH1F* fullPulse=MakeHistTPI(pulse,hist);
+  fullPulse->SetDirectory(GetDirectory());
+  fullPulse->SetTitle(title.str().c_str());
+
+  if(fUsePCF){
+      // make the stack
+      THStack* stack=new THStack((hist+"_pulse_candidates").c_str(),title.str().c_str());
+      stack->Add(fullPulse);
+
+      fPulseFinder->FindPulseCandidates(pulse);
+      fPulseFinder->GetPulseCandidates(fSubPulses);
+      for(PulseIslandList::const_iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){
+          if((*i_tpi)->GetPulseLength() < 14) continue;
+          TH1F* sub_pulse=MakeHistTPI(*i_tpi,"sub_pulse");
+          sub_pulse->SetLineColor(kMagenta);
+          stack->Add(sub_pulse);
+      }
+
+      // Save this stack
+      GetDirectory()->Add(stack);
+  }
+
+  return 0;
+}
+
+//----------------------------------------------------------------------
+TH1F* ExportPulse::MakeHistTPI(const TPulseIsland* pulse, const std::string& name)const{
+
   size_t num_samples = pulse->GetPulseLength();
   double min=0;
   double max= num_samples;
-  //double min= (pulse->GetTimeStamp() * fClockTick) - fTimeShift;
-  //double max= min + num_samples * fClockTick;
-  TH1F* hPulse = new TH1F(hist.c_str(), title.str().c_str(), num_samples,min,max);
-  
+  TH1F* hPulse = new TH1F(name.c_str(), name.c_str(), num_samples,min,max);
+  hPulse->SetDirectory(0);
+
   //double pedestal_error = SetupNavigator::Instance()->GetNoise(IDs::channel(info.detname));
   for ( size_t i=0;i <num_samples; ++i) {
     hPulse->SetBinContent(i+1, pulse->GetSamples().at(i));
     hPulse->SetBinError(i+1, 0);//pedestal_error);
   }
-  
-  return 0;
+  return hPulse;
 }
 
 
@@ -339,4 +370,4 @@ void ExportPulse::ClearPulsesToExport(){
   fTAPsToPlot.clear();
 }
 
-ALCAP_REGISTER_MODULE(ExportPulse);
+ALCAP_REGISTER_MODULE(ExportPulse,run_pulse_finder);

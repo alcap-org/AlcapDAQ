@@ -12,6 +12,7 @@
 #include "TSetupData.h"
 #include "ModulesOptions.h"
 #include "ModulesNavigator.h"
+#include "PulseCandidateFinder.h"
 
 class TVAnalysedPulseGenerator;
 class TPulseIsland;
@@ -88,7 +89,10 @@ class ExportPulse : public BaseModule{
   int DrawTAPs();
 
   /// Plot a single TPI
-  int PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info)const;
+  int PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info);
+
+  TH1F* MakeHistTPI(const TPulseIsland* pulse, const std::string& name)const;
+
   /// Plot a single TAP
   int PlotTAP(const TAnalysedPulse* pulse, const PulseInfo_t& info)const;
   /// Get a pointer to the list of TPIs for a given detector
@@ -123,6 +127,9 @@ class ExportPulse : public BaseModule{
   PulseInfo_t fPulseInfo;
   const TSetupData* fSetup;
   modules::options* fOptions;
+  bool fUsePCF;
+  PulseCandidateFinder* fPulseFinder;
+  PulseIslandList fSubPulses;
 
   TGlobalData* fGlobalData; // To be removed once Phill finishes the event navigator
 
@@ -152,6 +159,7 @@ inline void ExportPulse::SetCurrentDetectorName(const std::string& detector){
   fPulseInfo.bankname=fSetup->GetBankName(detector);
   fClockTick = TSetupData::Instance()->GetClockTick(fPulseInfo.bankname);
   fTimeShift = TSetupData::Instance()->GetTimeShift(fPulseInfo.bankname);
+  if(fPulseFinder) fPulseFinder->SetChannel(detector);
 }
 
 #endif // ExportPulse_H__
