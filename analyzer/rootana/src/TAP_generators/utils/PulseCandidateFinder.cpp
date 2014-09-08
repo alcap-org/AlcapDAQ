@@ -2,6 +2,7 @@
 #include "SetupNavigator.h"
 #include "definitions.h"
 #include "debug_tools.h"
+#include "AlcapExcept.h"
 
 #include <iostream>
 #include <iterator>
@@ -13,34 +14,69 @@
 #include <TSQLiteResult.h>
 #include <TSQLiteRow.h>
 
-/// PulseCandidateFinder()
-/// The constructor just sets all the parameter values
-PulseCandidateFinder::PulseCandidateFinder(std::string detname, modules::options* opts): fChannel(detname) {
+MAKE_EXCEPTION(PulseCandidateFinder, Base);
+MAKE_EXCEPTION(InvalidDetector,PulseCandidateFinder);
 
+/// The constructor just sets all the parameter values
+PulseCandidateFinder::PulseCandidateFinder():
+    fChannel(IDs::kErrorDetector),
+    fParameterValue(definitions::DefaultValue),
+    fNoise(definitions::DefaultValue),
+    fPedestal(definitions::DefaultValue),
+    fNSigma(definitions::DefaultValue){
+
+  // make sure we have default values
   if (fDefaultParameterValues.empty()) {
     SetDefaultParameterValues();
   }
-  
-  fNSigma = opts->GetInt("n_sigma", 0);
-  if (fNSigma == 0) {
-    std::string option = detname + "_param";
-    fParameterValue = opts->GetInt(option, fDefaultParameterValues[fChannel]); // set the parameter value for this channel
-  }
-  else {
-    fParameterValue = fNSigma * SetupNavigator::Instance()->GetNoise(fChannel);
+
+}
+
+/// The constructor just sets all the parameter values
+PulseCandidateFinder::PulseCandidateFinder(std::string detname, modules::options* opts) {
+
+  // make sure we have default values
+  if (fDefaultParameterValues.empty()) {
+    SetDefaultParameterValues();
   }
 
+  SetChannel(detname);
+
+  // Check options to set the values cut
+  if(opts->HasOption("n_sigma")){
+     SetSigma( opts->GetInt("n_sigma"));
+  } else if(opts->HasOption(detname+"_param")){
+    fParameterValue = opts->GetDouble(detname+"_param"); 
+  }
+  
+  // print debugging statements
+  if (opts->GetFlag("debug")){
+    std::cout << "Parameter Value for " << fChannel 
+              << " PulseCandidateFinder is " 
+              << fParameterValue << std::endl; // would be nice to know which module this is for
+  }
+}
+
+void PulseCandidateFinder::SetSigma( double sigma){
+    fNSigma=sigma;
+    fParameterValue=fNSigma*fNoise;
+}
+
+void PulseCandidateFinder::SetChannel(const std::string& detname){
+  fChannel=detname;
   fNoise = SetupNavigator::Instance()->GetNoise(fChannel);
   fPedestal = SetupNavigator::Instance()->GetPedestal(fChannel);
-
-  if (opts->HasOption("debug") && (opts->GetOption("debug").empty() || opts->GetBool("debug"))) {
-    std::cout << "Parameter Value for " << fChannel << " PulseCandidateFinder is " << fParameterValue << std::endl; // would be nice to know which module this is for
-  }
+  fParameterValue = fDefaultParameterValues[fChannel]; // set the parameter value for this channel
 }
 
 /// FindPulseCandidates()
 /// Finds the pulse candidates on the given TPulseIsland
 void PulseCandidateFinder::FindPulseCandidates(TPulseIsland* pulse) {
+    if(!fChannel.isValid()){
+        std::cout<<"Channel for PCF is not set, make sure to use "
+                   "SetChannel() if you used the defualt constructor"<<std::endl;
+        throw Except::InvalidDetector();
+    }
 
   // Clear the vector of pulse candidate locations first since it will still contain them from previous pulses
   fPulseCandidateLocations.clear();

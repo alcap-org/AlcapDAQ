@@ -46,9 +46,17 @@ class PulseCandidateFinder {
   /// \param[in] opts Describe the options this module takes.
   PulseCandidateFinder(std::string detname, modules::options* opts);
 
+  /// \brief Default constructor, make sure to set the channel name with
+  /// SetChannel if you use this constructor
+  PulseCandidateFinder();
+
   /// \brief
   /// Empty destructor
   ~PulseCandidateFinder();
+
+  /// 
+  void SetChannel(const std::string& detname);
+  void SetSigma(double sigma);
 
  private:
   /// \brief
