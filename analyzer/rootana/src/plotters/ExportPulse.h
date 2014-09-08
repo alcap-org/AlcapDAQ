@@ -91,7 +91,7 @@ class ExportPulse : public BaseModule{
   /// Plot a single TPI
   int PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info);
 
-  TH1F* MakeHistTPI(const TPulseIsland* pulse, const std::string& name)const;
+  TH1F* MakeHistTPI(const TPulseIsland* pulse, const std::string& name, int shift=0, int samples=0)const;
 
   /// Plot a single TAP
   int PlotTAP(const TAnalysedPulse* pulse, const PulseInfo_t& info)const;
