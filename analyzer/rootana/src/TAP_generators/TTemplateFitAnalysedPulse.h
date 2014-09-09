@@ -35,7 +35,7 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         const TH1F* GetHisto()const;
         const TH1F* GetResidual()const{return fResidual;}
         double GetResidualIntegral()const{return fResidualTotal;}
-
+        double GetIntegralRatio()const{return fIntegralRatio;}
         /// @}
 
         /// @name Setters
@@ -50,6 +50,7 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         void SetTemplate(TTemplate* val){fTemplate=val;}
         void SetResidual(const TH1F* val){fResidual=val;}
         void SetResidualIntegral(double val){fResidualTotal=val;}
+        void SetIntegralRatio(double val){fIntegralRatio=val;}
         /// @}
         
         using TAnalysedPulse::SetAmplitude;
@@ -62,6 +63,7 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
     private:
         int fStatus;
         double fChi2, fNDoF;
+        double fIntegralRatio;
         double fTimeErr, fAmplitudeErr, fPedestalErr; 
         TRef fTemplate;
         const TH1F* fResidual; //!
