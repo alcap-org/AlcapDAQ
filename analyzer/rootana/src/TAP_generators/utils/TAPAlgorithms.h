@@ -22,6 +22,7 @@ struct Algorithm::MaxBinAmplitude {
 
   const int trigger_polarity;
   const double pedestal;
+  mutable double time;
 };
 
 struct Algorithm::MaxBinTime {
