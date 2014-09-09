@@ -43,7 +43,7 @@ int TemplateFitter::FitPulseToTemplate(const TTemplate* hTemplate, const TH1D* h
                                                     // these heavily.
 
   // Loop through some time offsets ourselved
-  double max_time_offset = 8*fRefineFactor; // maximum distance to go from the initial estimate
+  double max_time_offset = 10*fRefineFactor; // maximum distance to go from the initial estimate
   double best_time_offset = 0;
   double best_pedestal_offset = 0;
   double best_amplitude_scale_factor = 0;
@@ -58,7 +58,7 @@ int TemplateFitter::FitPulseToTemplate(const TTemplate* hTemplate, const TH1D* h
   fPedestalOffset_maximum = max_adc_value;
 
   fAmplitudeScaleFactor_minimum = 0.1;
-  fAmplitudeScaleFactor_maximum = 1000;
+  fAmplitudeScaleFactor_maximum = 1500;
 
   for (double time_offset = fTimeOffset_minimum; time_offset <= fTimeOffset_maximum; ++time_offset) {
     if (print_dbg) {
