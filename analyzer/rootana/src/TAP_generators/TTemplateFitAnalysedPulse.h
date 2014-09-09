@@ -15,8 +15,7 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         /// @details Same signature as for TAnalysedPulse so that MakeNewTAP can
         /// create these specialised TAPs
         TTemplateFitAnalysedPulse(const IDs::source& sourceID,
-                const TPulseIslandID& parentID, const TPulseIsland* parentTPI):
-            TAnalysedPulse(sourceID,parentID,parentTPI){}
+                const TPulseIslandID& parentID, const TPulseIsland* parentTPI);
 
         // defined in .cpp file to force vtable to be built
         virtual ~TTemplateFitAnalysedPulse(){};
@@ -33,6 +32,9 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         double GetPedestalErr()const{return fPedestalErr;}
         double GetAmplitudeErr()const{return fAmplitudeErr;}
         const TTemplate* GetTemplate()const{return (const TTemplate*) fTemplate.GetObject();}
+        const TH1F* GetHisto()const;
+        const TH1F* GetResidual()const{return fResidual;}
+        double GetResidualIntegral()const{return fResidualTotal;}
 
         /// @}
 
@@ -46,6 +48,8 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         void SetNDoF(const double& val){fNDoF=val;}
         void SetFitStatus(const double& val){fStatus=val;}
         void SetTemplate(TTemplate* val){fTemplate=val;}
+        void SetResidual(const TH1F* val){fResidual=val;}
+        void SetResidualIntegral(double val){fResidualTotal=val;}
         /// @}
         
         using TAnalysedPulse::SetAmplitude;
@@ -60,6 +64,9 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         double fChi2, fNDoF;
         double fTimeErr, fAmplitudeErr, fPedestalErr; 
         TRef fTemplate;
+        const TH1F* fResidual; //!
+        mutable const TH1F* fHisto; //!
+        double fResidualTotal;
 
         ClassDef(TTemplateFitAnalysedPulse,1);
 };
