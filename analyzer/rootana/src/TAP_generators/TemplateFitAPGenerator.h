@@ -29,15 +29,18 @@ class TemplateFitAPGenerator:public TVAnalysedPulseGenerator {
     }
 
   private:
-    bool PassesIntegralRatio(const TPulseIsland* pulse)const;
+    bool PassesIntegralRatio(const TPulseIsland* pulse,double& integral, double& ratio)const;
 
   private:
     static TemplateArchive* fTemplateArchive;
+    double fIntegralMax, fIntegralMin;
+    double fIntegralRatioMax, fIntegralRatioMin;
+    double fTemplateAmp, fTemplatePed, fTemplateTime;
+    double fInitPedestal;
     TTemplate* fTemplate;
     TemplateFitter* fFitter;
     Algorithm::IntegralRatio* fIntegralRatio;
-    double fIntegralMax, fIntegralMin;
-    double fIntegralRatioMax, fIntegralRatioMin;
+    Algorithm::MaxBinAmplitude fMaxBin;
 
 };
 
