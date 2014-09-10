@@ -24,23 +24,27 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         /// @{
         int GetFitStatus()const{return fStatus;}
         double GetChi2()const{return fChi2;}
-        /// @}
-
-        /// @name Error_Getters
-        /// @{
+        double GetNDoF()const{return fNDoF;}
         double GetTimeErr()const{return fTimeErr;}
         double GetPedestalErr()const{return fPedestalErr;}
         double GetAmplitudeErr()const{return fAmplitudeErr;}
         const TTemplate* GetTemplate()const{return (const TTemplate*) fTemplate.GetObject();}
-        const TH1F* GetHisto()const;
-        const TH1F* GetResidual()const{return fResidual;}
         double GetResidualIntegral()const{return fResidualTotal;}
         double GetIntegralRatio()const{return fIntegralRatio;}
+        /// @}
+
+        /// @name Histogram_getters
+        /// @{
+        double GetBinContent(int i)const;
+        const TH1F* GetHisto()const;
+        const TH1F* GetResidual()const{return fResidual;}
         /// @}
 
         /// @name Setters
         /// Set both the value and error for each field
         /// @{
+        void SetTimeOffset(const double& val){TAnalysedPulse::SetTime(GetTemplate()->GetTime()-val);}
+        void SetAmplitudeScaleFactor(const double& val){TAnalysedPulse::SetTime(GetTemplate()->GetAmplitude()*val);}
         void SetTime(const double& val, const double& err){TAnalysedPulse::SetTime(val); fTimeErr=err;}
         void SetAmplitude(const double& val, const double& err){TAnalysedPulse::SetAmplitude(val); fAmplitudeErr=err;}
         void SetPedestal(const double& val, const double& err){TAnalysedPulse::SetPedestal(val); fPedestalErr=err;}

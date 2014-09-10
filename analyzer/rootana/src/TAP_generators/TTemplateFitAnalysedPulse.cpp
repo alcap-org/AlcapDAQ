@@ -15,9 +15,11 @@ void TTemplateFitAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
       name+="_templateAP";
       TH1F* tap_pulse=(TH1F*)GetHisto()->Clone(name.c_str());
 
-      TPaveText* text_b=new TPaveText(0.5,0.75,0.7,0.9,"NB NDC");
-      text_b->AddText(Form("#chi^2 = %g",GetChi2()));
+      TPaveText* text_b=new TPaveText(0.7,0.60,0.9,0.8,"NB NDC");
+      text_b->AddText(Form("#chi^2 = %3.2g",GetChi2()));
       text_b->AddText(Form("Status = %d",GetFitStatus()));
+      text_b->AddText(Form("Time = %g",GetTime()));
+      text_b->AddText(Form("NDoF = %d",GetNDoF()));
       text_b->SetFillColor(kWhite);
       text_b->SetBorderSize(1);
       tap_pulse->GetListOfFunctions()->Add(text_b);
@@ -42,19 +44,23 @@ const TH1F* TTemplateFitAnalysedPulse::GetHisto()const{
                                 GetSource().Channel().str().c_str(),
                                 EventNavigator::Instance().EntryNo(),
                                 GetParentID());
-      const TH1* tpl = GetTemplate()->GetHisto();
       int num_samples=GetTPILength()*GetTemplate()->GetRefineFactor();
       TH1F* tap_pulse=new TH1F(name.c_str(), name.c_str(),num_samples,0,GetTPILength());
       for ( int i=0; i<num_samples; i++){
-         // deduce right bin to look in
-         int tpl_bin=i+ GetTime();
-         // get bin sample
-         double sample=tpl->GetBinContent(tpl_bin);
-         // Set sample in histogram that's to be saved
-         tap_pulse->SetBinContent(i,sample*GetAmplitude() + GetPedestal());
+         double height=GetBinContent(i);
+         tap_pulse->SetBinContent(i,height);
       }
       tap_pulse->SetDirectory(0);
 
       fHisto=tap_pulse;
       return fHisto;
+}
+
+double TTemplateFitAnalysedPulse::GetBinContent(int bin)const{
+         // deduce right bin to look in
+         int tpl_bin=bin+ GetTime();
+         // get bin sample
+         double sample=GetTemplate()->GetHisto()->GetBinContent(tpl_bin);
+         // Set sample in histogram that's to be saved
+         return sample*GetAmplitude() + GetPedestal();
 }
