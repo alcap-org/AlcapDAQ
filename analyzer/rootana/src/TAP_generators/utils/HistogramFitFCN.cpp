@@ -9,8 +9,13 @@ HistogramFitFCN::HistogramFitFCN(const TH1D* hTemplate,const TH1D* hPulse) : fTe
 HistogramFitFCN::~HistogramFitFCN() {
 }
 
-void HistogramFitFCN::SetTemplateHist(const TH1D* hTemplate) {
+void HistogramFitFCN::SetTemplateHist(const TH1D* hTemplate, double pedestal) {
   fTemplateHist = hTemplate;
+  if(pedestal>0){
+    fTemplatePedestal = pedestal;
+  } else {
+    fTemplatePedestal = fTemplateHist->GetBinContent(1);
+  }
 }
 
 void HistogramFitFCN::SetPulseHist(const TH1D* hPulse) {
@@ -67,7 +72,6 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   }
 
   double f;
-  double template_pedestal = fTemplateHist->GetBinContent(1);
   for (int i = bounds[0]+(fRefineFactor/2.0); i <= bounds[1]-(fRefineFactor/2.0); i += fRefineFactor) { 
     // calculate the chi^2 based on the centre of the 5 bins to avoid getting
     // abonus from mathcing all 5.  We shift and scale the template so that it
@@ -80,7 +84,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
       std::cout << "i = " << i << ", i - T_int = " << i-T_int << std::endl;
       std::cout << "f (before) = " << f << std::endl;
     }
-    f = A * (f - template_pedestal) + P; // apply the transformation to this bin
+    f = A * (f - fTemplatePedestal) + P; // apply the transformation to this bin
     if (print_dbg) {
       std::cout << "f (after) = " << f << std::endl;
     }
@@ -92,7 +96,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
     }
     double hTemplate_bin_error = fTemplateHist->GetBinError(i - T_int);
     //double hPulse_bin_error = fPulseHist->GetBinError(i);
-    chi2 += delta*delta / (hTemplate_bin_error*hTemplate_bin_error);
+    chi2 += delta*delta / (A*hTemplate_bin_error*hTemplate_bin_error);
     if (print_dbg) {
       std::cout << "Template Error = " << hTemplate_bin_error << ", chi2 (added) = " << delta*delta/(hTemplate_bin_error*hTemplate_bin_error) << ", chi2 (total) = " << chi2 << std::endl;
     }

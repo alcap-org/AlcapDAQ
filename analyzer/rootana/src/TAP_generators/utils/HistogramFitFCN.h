@@ -12,7 +12,7 @@ class HistogramFitFCN : public ROOT::Minuit2::FCNBase {
   HistogramFitFCN(const TH1D* = NULL,const  TH1D* = NULL);
   ~HistogramFitFCN();
 
-  void SetTemplateHist(const TH1D*);
+  void SetTemplateHist(const TH1D*,double ped=-1);
   void SetPulseHist(const TH1D*);
 
   void SetRefineFactor(int refine_factor) {fRefineFactor = refine_factor;}
@@ -40,6 +40,7 @@ class HistogramFitFCN : public ROOT::Minuit2::FCNBase {
   
   /// the time offset to use
   double fTimeOffset;
+  double fTemplatePedestal;
 
   int fRefineFactor;
 
