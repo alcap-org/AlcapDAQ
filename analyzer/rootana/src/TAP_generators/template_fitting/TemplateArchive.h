@@ -41,6 +41,7 @@ class TemplateArchive {
   ~TemplateArchive();
 
  public:
+  const char* GetName()const{return fTemplateFile?fTemplateFile->GetName(): "";}
   /// \brief
   /// Gets the template histogram of the given name and returns it
   TTemplate* GetTemplate(const char* template_name);
