@@ -12,6 +12,7 @@
 #include "TSetupData.h"
 #include "ModulesOptions.h"
 #include "ModulesNavigator.h"
+#include "PulseCandidateFinder.h"
 
 class TVAnalysedPulseGenerator;
 class TPulseIsland;
@@ -73,13 +74,13 @@ class ExportPulse : public BaseModule{
  private:
   /// ExportPulse uses this method to process the config 
   /// file for any specifically requested pulses
-  virtual int BeforeFirstEntry(TGlobalData* gData,TSetupData *setup);
+  virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup);
 
   /// @brief Plot all pulses that we were asked to draw for this event.
   /// @details First loads pulses requested by the config file, then draws all
   /// TPIs, then draw all TAPs.
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
-  //virtual int AfterLastEntry(TGlobalData* gData){return 0;};
+  virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
+  virtual int AfterLastEntry(TGlobalData* gData,const TSetupData* setup){return 0;};
 
   /// Draw all TPIs requested for this event
   int DrawTPIs();
@@ -88,7 +89,10 @@ class ExportPulse : public BaseModule{
   int DrawTAPs();
 
   /// Plot a single TPI
-  int PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info)const;
+  int PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info);
+
+  TH1F* MakeHistTPI(const TPulseIsland* pulse, const std::string& name, int shift=0, int samples=0)const;
+
   /// Plot a single TAP
   int PlotTAP(const TAnalysedPulse* pulse, const PulseInfo_t& info)const;
   /// Get a pointer to the list of TPIs for a given detector
@@ -121,8 +125,11 @@ class ExportPulse : public BaseModule{
   ChannelTAPs_t fTAPsToPlot;
   EventChannelPulseIDs_t fRequestedByConfig;
   PulseInfo_t fPulseInfo;
-  TSetupData* fSetup;
+  const TSetupData* fSetup;
   modules::options* fOptions;
+  bool fUsePCF;
+  PulseCandidateFinder* fPulseFinder;
+  PulseIslandList fSubPulses;
 
   TGlobalData* fGlobalData; // To be removed once Phill finishes the event navigator
 
@@ -152,6 +159,7 @@ inline void ExportPulse::SetCurrentDetectorName(const std::string& detector){
   fPulseInfo.bankname=fSetup->GetBankName(detector);
   fClockTick = TSetupData::Instance()->GetClockTick(fPulseInfo.bankname);
   fTimeShift = TSetupData::Instance()->GetTimeShift(fPulseInfo.bankname);
+  if(fPulseFinder) fPulseFinder->SetChannel(detector);
 }
 
 #endif // ExportPulse_H__

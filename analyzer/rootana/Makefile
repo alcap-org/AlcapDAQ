@@ -19,7 +19,8 @@ TUT_SOURCES = $(filter-out $(TUT_ROOT)/tut_main.cpp, $(wildcard $(TUT_ROOT)/*.cp
 
 # Classes that need a root dictionary
 ROOT_DICT_HEADERS:=$(ROOT_DICT_CLASSES:%=%.h)
-ROOT_DICT_SOURCES:=$(ROOT_DICT_CLASSES:%=%.cpp)
+# only want to depend on files that exist
+ROOT_DICT_SOURCES:=$(foreach class, $(ROOT_DICT_CLASSES),$(filter %/$(class).cpp, $(SOURCES)))
 
 #### End of files.make processing #################################################
 # Where should we store all object and dependency files
@@ -92,7 +93,9 @@ ${OBJECTS}: ${OBJ_DIR}/%.o: %.cpp
 	@$(CXX) -c -Wall $(CXXFLAGS) -o $@  $<
 	@$(CXX) -MP -MM -MT $@ $(CXXFLAGS) $< > $(patsubst %.o,%.d,$@)
 
-$(DATA_LIBRARY_SOURCE):
+rootcint: $(DATA_LIBRARY_SOURCE)
+
+$(DATA_LIBRARY_SOURCE): $(ROOTANA_DATALINKDEF) ${ROOT_DICT_HEADERS}
 	@$(ROOTSYS)/bin/rootcint -f $@ -c $(UIUC_CFLAGS) -p $(INCLUDE_CFLAGS) ${ROOT_DICT_HEADERS} $(ROOTANA_DATALINKDEF)
 
 $(ROOTANA_DATACLASSES):  $(DATA_LIBRARY_SOURCE) $(ROOT_DICT_SOURCES) 
@@ -121,6 +124,8 @@ make_obj_dir:
 	@mkdir -p $(OBJ_DIR) 
 
 tut: init libAnalysis.so libAnalysis.rootmap unit_test
+	@echo -e "Running tests."
+	@./unit_test
 
 $(TUT_ROOT)/%.o: $(TUT_ROOT)/%.cpp
 	@echo -e "Making object: '"$@"'"
@@ -167,6 +172,7 @@ print:
 	@echo -e "ROOT_CFLAGS = $(ROOT_CFLAGS)       \n" 
 	@echo -e "ROOT_LIBS = $(ROOT_LIBS)           \n" 
 	@echo -e "ROOT_DICT_CLASSES = $(ROOT_DICT_CLASSES)           \n" 
+	@echo -e "ROOT_DICT_SOURCES = $(ROOT_DICT_SOURCES)           \n" 
 	@echo -e "ROOT_DICT_HEADERS = $(ROOT_DICT_HEADERS)           \n" 
 	@echo -e "SOURCES = $(SOURCES)               \n" 
 	@echo -e "SOURCE_DIRS = $(SOURCE_DIRS)       \n" 

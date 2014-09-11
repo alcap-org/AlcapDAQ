@@ -6,7 +6,7 @@ class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
 
-#include "utils/PulseCandidateFinder.h"
+#include "PulseCandidateFinder.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
@@ -45,7 +45,7 @@ class PulseCandidateFinder_InvestigateParameters : public BaseModule{
   /// \param[in] gData See BaseModule::ProcessEntry
   /// \param[in] gSetup See BaseModule::ProcessEntry
   /// \return Non-zero to indicate a problem.
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+  virtual int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);
 
   /// \brief
   /// Nothing is done before each run
@@ -53,7 +53,7 @@ class PulseCandidateFinder_InvestigateParameters : public BaseModule{
   /// \param[in] gData See BaseModule::BeforeFirstEntry
   /// \param[in] setup See BaseModule::BeforeFirstEntry
   /// \return Non-zero to indicate a problem.
-  virtual int BeforeFirstEntry(TGlobalData* gData, TSetupData *setup);
+  virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData *setup);
 
   /// \brief
   /// Nothing done at the end of each run
@@ -61,12 +61,12 @@ class PulseCandidateFinder_InvestigateParameters : public BaseModule{
   /// \param[in] gData See BaseModule::AfterLastEntry
   /// \param[in] setup See BaseModule::AfterLastEntry
   /// \return Non-zero to indicate a problem.
-  virtual int AfterLastEntry(TGlobalData* gData, TSetupData *setup);
+  virtual int AfterLastEntry(TGlobalData* gData, const TSetupData *setup);
 
  private:
   /// \brief
   /// The map that we store the parameter histograms for each channel
-  std::map<std::string, TH1D*> fParameterHistograms;
+  std::map<std::string, TH2D*> fParameterHistograms;
 
   /// \brief
   /// Store the module options so that they can be passed to the PulseCandidateFinder

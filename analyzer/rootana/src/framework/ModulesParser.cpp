@@ -1,15 +1,15 @@
+#include "debug_tools.h"
 #include "ModulesParser.h"
 #include <sstream>
 #include <string.h>
 #include <algorithm>
+#include <functional>
 #include <stdio.h>
 #include <iostream>
 #include <TString.h>
 #include <ctype.h>
 using std::cout;
 using std::endl;
-
-#define PrintHelp std::cout<<__FILE__<<":"<<__LINE__<<": "
 
 int modules::parser::TokeniseByWhiteSpace(const std::string& input, std::vector<std::string>& output){
     std::stringstream ss(input);
@@ -68,6 +68,40 @@ size_t modules::parser::RemoveWhitespace(std::string& input, std::string::iterat
 	std::string::iterator new_end=std::remove_if(start,end,modules::parser::IsWhitespace);
 	input.erase(new_end,end);
 	return input.size();
+}
+
+const std::string& modules::parser::ToCppValid(const std::string& input){
+    return ReplaceAll(input," :{}#*()-=+$%^&!.,/?","_" );
+}
+
+void modules::parser::ToCppValid(std::string& input){
+    ReplaceAll(input," :{}#*()-=+$%^&!.,/?","_" );
+}
+
+const std::string& modules::parser::ReplaceAll(const std::string& input, const std::string& search,const std::string& replace ){
+    static std::string output;
+    output.clear();
+    for(std::string::const_iterator i_char=input.begin(); i_char!=input.end();++i_char){
+        if(std::find(search.begin(),search.end(), *i_char)!=search.end()){
+            output+=replace;
+        } else{
+            output+=*i_char;
+        }
+    }
+    return output;
+}
+
+void modules::parser::ReplaceAll(std::string& input, const std::string& search, const std::string& replace ){
+    input=ReplaceAll(const_cast<const std::string&>(input),search,replace);
+}
+
+void modules::parser::ReplaceWords(std::string& input, const std::string& search, const std::string& replace){
+    size_t match_start;
+    for( match_start=input.find(search);
+         match_start!=std::string::npos;
+         match_start=input.find(search)){
+        input=input.substr(0,match_start) + replace + input.substr(match_start+search.length());
+    }
 }
 
 void modules::parser::TrimWhiteSpaceBeforeAfter(std::string& line){
@@ -143,4 +177,8 @@ bool modules::parser::iequals(const std::string& a, const std::string& b){
       if (! iequals(a[i],b[i])) return false;
   }
   return true;
+}
+
+bool modules::parser::IsTrue(const std::string& val){
+    return  (val=="true")|| (val=="TRUE")|| (val=="YES")|| (val=="yes")|| (val=="on")|| (val=="ON")|| (val=="1");
 }

@@ -8,7 +8,7 @@ class TMEGeneratorOptions;
 class TMEGeneratorFactory:public TemplateFactory<TVMuonEventGenerator,TMEGeneratorOptions>{
 	private:
 		TMEGeneratorFactory():
-			TemplateFactory<TVMuonEventGenerator,TMEGeneratorOptions>(){};
+			TemplateFactory<TVMuonEventGenerator,TMEGeneratorOptions>("TMEGeneratorFactory"){};
 		~TMEGeneratorFactory(){};
 	 public:
 		// Get the single instance of this class

@@ -1,8 +1,11 @@
+#include "AlcapExcept.h"
 #include "ModulesParser.h"
 #include "IdChannel.h"
 #include <iostream>
 #include <ostream>
 #include <algorithm>
+
+MAKE_EXCEPTION(InvalidDetector,Base)
 
 ClassImp(IDs::channel);
 
@@ -25,19 +28,19 @@ std::string IDs::channel::GetDetectorString(Detector_t det){
             case kScL         : output="ScL"      ; break ; 
             case kScR         : output="ScR"      ; break ; 
             case kScVe        : output="ScVe"     ; break ; 
-            case kSiL1_1      : output="SiL1_1"   ; break ; 
-            case kSiL1_2      : output="SiL1_2"   ; break ; 
-            case kSiL1_3      : output="SiL1_3"   ; break ; 
-            case kSiL1_4      : output="SiL1_4"   ; break ; 
+            case kSiL1_1      : output="SiL1-1"   ; break ; 
+            case kSiL1_2      : output="SiL1-2"   ; break ; 
+            case kSiL1_3      : output="SiL1-3"   ; break ; 
+            case kSiL1_4      : output="SiL1-4"   ; break ; 
             case kSiL2        : output="SiL2"     ; break ; 
-            case kSiR1_1      : output="SiR1_1"   ; break ; 
-            case kSiR1_2      : output="SiR1_2"   ; break ; 
-            case kSiR1_3      : output="SiR1_3"   ; break ; 
-            case kSiR1_4      : output="SiR1_4"   ; break ; 
-            case kSiR1_sum    : output="SiR1_sum" ; break ; 
+            case kSiR1_1      : output="SiR1-1"   ; break ; 
+            case kSiR1_2      : output="SiR1-2"   ; break ; 
+            case kSiR1_3      : output="SiR1-3"   ; break ; 
+            case kSiR1_4      : output="SiR1-4"   ; break ; 
+            case kSiR1_sum    : output="SiR1-sum" ; break ; 
             case kSiR2        : output="SiR2"     ; break ; 
-            case kMuSc        : output="MuSc"     ; break ; 
-            case kMuScA       : output="MuScA"    ; break ; 
+            case kMuSc        : output="muSc"     ; break ; 
+            case kMuScA       : output="muScA"    ; break ; 
 	}
      return output;
 }
@@ -46,35 +49,34 @@ IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
      const char* names[1+IDs::num_detector_enums]={ 
 	     "*"        ,                                                // 0
 	     "Ge"       , "LiquidSc" , "NDet"     , "NDet2"  , "ScGe"   ,// 1-5   
-	     "ScL"      , "ScR"      , "ScVe"     , "SiL1_1" , "SiL1_2" ,// 6-10  
-	     "SiL1_3"   , "SiL1_4"   , "SiL2"     , "SiR1_1" , "SiR1_2" ,// 11-15 
-	     "SiR1_3"   , "SiR1_4"   , "SiR1_sum" , "SiR2"   , "MuSc"   ,// 16-20 
-	     "MuScA" };                                                  // 21
+	     "ScL"      , "ScR"      , "ScVe"     , "SiL1-1" , "SiL1-2" ,// 6-10  
+	     "SiL1-3"   , "SiL1-4"   , "SiL2"     , "SiR1-1" , "SiR1-2" ,// 11-15 
+	     "SiR1-3"   , "SiR1-4"   , "SiR1-sum" , "SiR2"   , "muSc"   ,// 16-20 
+	     "muScA" };                                                  // 21
      for (int i=0;i<=IDs::num_detector_enums;i++){
         if(modules::parser::iequals(det,names[i])) return (Detector_t)i;
      } 
-     return kErrorDetector;
+     std::cout<<"Unknown detector name given to IDs::channel: '"<<det<<"'"<<std::endl;
+     throw Except::InvalidDetector(det.c_str());
 }
 
 IDs::channel& IDs::channel::operator=(const std::string& rhs){
    // Search for a fast slow string at the end of the end of the string
    static const int num_strs=3;
-   static const std::string fast_slow_strs[num_strs]={"-*","-S","-F"};
+   static const char fast_slow_strs[num_strs]={'*','F','S'};
    int i=0;
-   std::string::const_iterator match;
-   // Create a functino pointer to the iequals method
-   bool (*compare) (const char a, const char b);
-   compare = modules::parser::iequals;
+   size_t sz = rhs.size();
    for(i=0;i<num_strs ; i++){
-   	match=std::find_end(rhs.begin(),rhs.end(),
-            fast_slow_strs[i].begin(),fast_slow_strs[i].end(),
-            compare);
-    if (match!=rhs.end()) break;
+       if(modules::parser::iequals(rhs[sz-1],fast_slow_strs[i])){
+           if(modules::parser::iequals(rhs[sz-2],'-')){
+               break;
+           }
+       }
    }
    // Have we found a map
    size_t boundary=std::string::npos;
-   if(i<= num_strs){
-       boundary=match - rhs.begin();
+   if(i< num_strs){
+       boundary=sz-2;
    std::string fs=rhs.substr(boundary);
 	   fSlowFast=GetSlowFastEnum(fs);
    }else fSlowFast=kNotApplicable;
@@ -100,11 +102,27 @@ std::string IDs::channel::GetSlowFastString(SlowFast_t sf){
 IDs::SlowFast_t IDs::channel::GetSlowFastEnum(const std::string& type){
 	if(modules::parser::iequals(type,"-S") || type=="slow") return kSlow;
 	else if(modules::parser::iequals(type,"-F")|| type=="fast") return kFast;
-	else if(type=="*"|| type=="any") return kAnySlowFast;
+	else if(type=="-*"|| type=="any") return kAnySlowFast;
 	return kNotApplicable;
+}
+
+IDs::channel IDs::channel::GetCorrespondingFastSlow()const{
+    switch(fSlowFast){
+        case kFast: return IDs::channel(fDetector,kSlow); break;
+        case kSlow: return IDs::channel(fDetector,kFast); break;
+        case kNotApplicable: 
+        case kAnySlowFast: 
+        case kErrorSlowFast:return *this; break;
+    }
+    return *this;
 }
 
 std::ostream& operator<< (ostream& os ,const IDs::channel& id){
   os<<id.str();
   return os;
+}
+
+void IDs::channel::Debug()const{
+    std::cout<<"Detector: "<<GetDetectorString(Detector())<<std::endl;
+    std::cout<<"Slow/fast: "<<GetSlowFastString(SlowFast())<<std::endl;
 }

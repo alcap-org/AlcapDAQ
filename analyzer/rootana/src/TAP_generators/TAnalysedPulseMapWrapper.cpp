@@ -1,45 +1,45 @@
 #include "TAnalysedPulseMapWrapper.h"
+#include <iostream>
+using std::cout;
+using std::endl;
 
 ClassImp(TAnalysedPulseMapWrapper)
 
 TAnalysedPulseMapWrapper::TAnalysedPulseMapWrapper()
 {
-	Reset();
+    Reset();
 }
 
-TAnalysedPulseMapWrapper::TAnalysedPulseMapWrapper 
-(StringAnalPulseMap aMap)
+TAnalysedPulseMapWrapper::TAnalysedPulseMapWrapper(
+        const SourceAnalPulseMap& aMap):fChn2PulseMap(aMap)
 {
-	Reset();
-	fChn2PulseMap = aMap;
 }
 
 void TAnalysedPulseMapWrapper::Reset()
 {
-	fChn2PulseMap.clear();
+    fChn2PulseMap.clear();
 }
 
 TAnalysedPulseMapWrapper::~TAnalysedPulseMapWrapper()
 {
-	;
 }
 
 void TAnalysedPulseMapWrapper::ShowInfo()
 {
-	printf("map size: %lu\n", fChn2PulseMap.size());
-	StringAnalPulseMap::iterator mapIter;
-	
-	for (mapIter = fChn2PulseMap.begin(); 
-			mapIter != fChn2PulseMap.end(); ++mapIter)
-	{
-		printf("%s\n", mapIter->first.c_str());
-		AnalysedPulseList pulseVector = mapIter->second;
-		AnalysedPulseList::iterator pulseIter;
-		for (pulseIter = pulseVector.begin(); 
-				pulseIter != pulseVector.end(); ++pulseIter)
-		{
-			printf("height: %.2f\n", (*pulseIter)->GetAmplitude());
-		}
+    cout<<"map size: "<<fChn2PulseMap.size()<<endl;
+    SourceAnalPulseMap::iterator mapIter;
 
-	}
+    for (mapIter = fChn2PulseMap.begin(); 
+            mapIter != fChn2PulseMap.end(); ++mapIter)
+    {
+        cout<<"map size: "<<mapIter->second.size()<<endl;
+        AnalysedPulseList* pulseVector = &mapIter->second;
+        AnalysedPulseList::const_iterator pulseIter;
+        for (pulseIter = pulseVector->begin(); 
+                pulseIter != pulseVector->end(); ++pulseIter)
+        {
+            printf("height: %.2f\n", (*pulseIter)->GetAmplitude());
+        }
+
+    }
 }

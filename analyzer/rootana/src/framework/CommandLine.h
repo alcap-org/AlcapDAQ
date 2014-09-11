@@ -1,8 +1,6 @@
 #ifndef COMMANDLINE_H
 #define COMMANDLINE_H
 
-
-//#include <string.h>
 #include <string>
 
 struct ARGUMENTS {
@@ -13,6 +11,7 @@ struct ARGUMENTS {
   int start;
   int stop;
   int run;
+  bool calib;
 };// ARGUMENTS;
 
 void help_command_line(const char* my_name);

@@ -18,12 +18,12 @@ using std::cout;
 using std::endl;
 
 extern MuonEventList gMuonEvents;
-extern StringDetPulseMap gDetectorPulseMap;
+extern SourceDetPulseMap gDetectorPulseMap;
 
 MakeMuonEvents::MakeMuonEvents(modules::options* opts):
   BaseModule("MakeMuonEvents",opts,false),fOptions(opts){
       if(fOptions){
-	  fAlgorithm=fOptions->GetString("algorithm","MaxTimeDiff");
+          fAlgorithm=fOptions->GetString("algorithm","FixedWindow");
       }
   dir->cd("/");
 }
@@ -31,20 +31,16 @@ MakeMuonEvents::MakeMuonEvents(modules::options* opts):
 MakeMuonEvents::~MakeMuonEvents(){
 }
 
-int MakeMuonEvents::BeforeFirstEntry(TGlobalData *aData, TSetupData* aSetup){
+int MakeMuonEvents::BeforeFirstEntry(TGlobalData *aData, const TSetupData* aSetup){
     if(fAlgorithm.empty()) return 1;
-    TMEGeneratorOptions* opts=NULL;
-    if(Debug()){
-       opts = new TMEGeneratorOptions(fAlgorithm);
-       opts->SetOption("debug","");
-    }
-    fGenerator=TMEGeneratorFactory::Instance()->createModule(fAlgorithm,opts);
+    fGenerator=TMEGeneratorFactory::Instance()->createModule(
+            fAlgorithm,new TMEGeneratorOptions(fAlgorithm,fOptions));
     if(!fGenerator) return 2;
     return 0;
 }
 
-int MakeMuonEvents::ProcessEntry(TGlobalData *aData, TSetupData* aSetup){
-  gMuonEvents.clear();
+int MakeMuonEvents::ProcessEntry(TGlobalData *aData, const TSetupData* aSetup){
+  //gMuonEvents.clear();
   int retVal=fGenerator->ProcessPulses(gMuonEvents,gDetectorPulseMap);
   return retVal;
 }

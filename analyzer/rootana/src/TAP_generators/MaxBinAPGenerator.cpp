@@ -2,10 +2,12 @@
 #include "MaxBinAPGenerator.h"
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
+#include "EventNavigator.h"
+#include "SetupNavigator.h"
 #include <algorithm>
 
 // IsTimeOrdered()
-// -- Returns tru of the first pulse is before the second
+// -- Returns true of the first pulse is before the second
 // Static so that only this file sees it
 // Useful for sorting the pulses
 static bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b) {
@@ -13,51 +15,40 @@ static bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b) {
   return ( a->GetTime() < b->GetTime() );
 }
 
-int MaxBinAPGenerator::ProcessPulses(
-      const PulseIslandList& pulseList, AnalysedPulseList& analysedList){
+//======================================================================
+MaxBinAPGenerator::MaxBinAPGenerator(TAPGeneratorOptions* opts)
+  : TVAnalysedPulseGenerator("MaxBinAPGenerator", opts),
+    fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+		     TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
+    fMaxBinTime(TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
+		TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
+		opts->GetDouble("time_shift", TSetupData::Instance()->GetTimeShift(TSetupData::Instance()->GetBankName(GetChannel().str())))) {
 
-      SetBankInfo(pulseList.at(0)->GetBankName());
-
-      double amplitude, time, integral, energy;
-      TAnalysedPulse* outPulse;
-      for (PulseIslandList::const_iterator pulseIter = pulseList.begin(); pulseIter != pulseList.end(); pulseIter++) {
-         amplitude = 0;
-         time = 0;
-         integral = 0;
-         energy = 0.;
-         // Assume one TAnalysedPulse per TPulseIsland
-         GetAllParameters_MaxBin(*pulseIter,amplitude,time,integral,energy);
-
-         // Make the TAnalysedPulse pulse
-         outPulse=MakeNewTAP(pulseIter-pulseList.begin());
-         outPulse->SetAmplitude(amplitude);
-         outPulse->SetTime(time);
-         outPulse->SetEnergy(energy);
-         // Add the pulse into the list
-         analysedList.push_back(outPulse);
-
-      }
-      std::sort(analysedList.begin(), analysedList.end(), IsTimeOrdered);
-      return 0;
 }
 
-void MaxBinAPGenerator::GetAllParameters_MaxBin(const TPulseIsland* pulse,
-						 double& amplitude, double& time, double& integral, double& energy) {
 
+//----------------------------------------------------------------------
+int MaxBinAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
+                                     AnalysedPulseList& analysedList)
+{
 
-  // First find the position of the peak
-  std::vector<int> pulseSamples = pulse->GetSamples();  
-  std::vector<int>::iterator peak_sample_pos;
-  if (fTriggerPolarity == 1)
-    peak_sample_pos = std::max_element(pulseSamples.begin(), pulseSamples.end());
-  else
-    peak_sample_pos = std::min_element(pulseSamples.begin(), pulseSamples.end());
+  double amplitude, time;
+  TAnalysedPulse* outPulse;
 
-  // Now assign the parameters
-  amplitude = fTriggerPolarity*(*peak_sample_pos - fPedestal);
-  time = ((pulse->GetTimeStamp() + (peak_sample_pos - pulseSamples.begin())) * fClockTick) - fTimeShift;
-  integral = 0;
-  energy = fECalibSlope * amplitude + fECalibOffset;
+  for (PulseIslandList::const_iterator pulseIter = pulseList.begin(); pulseIter != pulseList.end(); pulseIter++) {
+    amplitude = fMaxBinAmplitude(*pulseIter);
+    time = fMaxBinTime(*pulseIter);
+    
+    // Make the TAnalysedPulse pulse
+    outPulse=MakeNewTAP(pulseIter-pulseList.begin());
+    outPulse->SetAmplitude(amplitude);
+    outPulse->SetTime(time);
+    //    outPulse->SetEnergy(energy); //AE (3rd Aug 2014): Commenting this out for the time being since we don't really know how we're doing calibration. The equation used before was:   energy = fECalibSlope * amplitude + fECalibOffset;
+    // Add the pulse into the list
+    analysedList.push_back(outPulse);
+    
+  }
+  std::sort(analysedList.begin(), analysedList.end(), IsTimeOrdered);
+  return 0;
 }
-
 ALCAP_TAP_GENERATOR(MaxBin);

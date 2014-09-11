@@ -13,6 +13,11 @@ using std::string;
 TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fBankName("") {
 }
 
+TPulseIsland::TPulseIsland(int timestamp, const vector<int>::const_iterator& first,
+        const vector<int>::const_iterator& last, string bank_name) :
+  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name) {
+}
+
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name) :
   fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name) {
 }
@@ -71,7 +76,7 @@ double TPulseIsland::GetPulseTime() const {
 // -- Fills a histogram with all the samples and returns it
 TH1I* TPulseIsland::GetPulseWaveform(std::string histname, std::string histtitle) const {
 
-  TH1I* hWaveform = new TH1I(histname.c_str(), histtitle.c_str(), 200,0,200);
+  TH1I* hWaveform = new TH1I(histname.c_str(), histtitle.c_str(), fSamples.size(),0,fSamples.size());
 
   // Loop over the samples and fill the histogram
   for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter != fSamples.end(); sampleIter++) {

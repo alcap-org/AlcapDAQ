@@ -3,13 +3,19 @@
 
 // define various extern symbols the way main.cpp does. <sigh>
 #include "definitions.h"
+#include "TAnalysedPulseMapWrapper.h"
+#include "TTree.h"
+class TGlobalData;
 //class StringAnalPulseMap;
 
-StringAnalPulseMap gAnalysedPulseMap;
+SourceAnalPulseMap gAnalysedPulseMap;
 StringDetPulseMap gDetectorPulseMap;
 MuonEventList gMuonEvents;
 Long64_t* gTotalEntries;
 Long64_t* gEntryNumber;
-//static TTree *gAnalysedPulseTree = NULL
+TTree *gAnalysedPulseTree = NULL;
+TAnalysedPulseMapWrapper *gAnalysedPulseMapWrapper=NULL;
+
+void ClearGlobalData(TGlobalData* data) { }
 
 #endif //TUT_EXTERNALS_H

@@ -33,7 +33,7 @@ MakeTemplate::~MakeTemplate(){ // Save and destroy templates
   delete fTemplateFile;
 }
 
-int MakeTemplate::ProcessEntry(TGlobalData *gData, TSetupData *gSetup) {
+int MakeTemplate::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup) {
   
   std::map< std::string, std::vector<TPulseIsland*> >& detPulses = gData->fPulseIslandToChannelMap;
   std::map< std::string, std::vector<TPulseIsland*> >::iterator iDetPulses;

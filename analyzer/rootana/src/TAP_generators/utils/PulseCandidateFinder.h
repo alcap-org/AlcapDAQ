@@ -5,6 +5,8 @@
 #include "TPulseIsland.h"
 #include "definitions.h"
 
+#include "TH2.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
 /// \author Andrew Edmonds
@@ -44,14 +46,22 @@ class PulseCandidateFinder {
   /// \param[in] opts Describe the options this module takes.
   PulseCandidateFinder(std::string detname, modules::options* opts);
 
+  /// \brief Default constructor, make sure to set the channel name with
+  /// SetChannel if you use this constructor
+  PulseCandidateFinder();
+
   /// \brief
   /// Empty destructor
   ~PulseCandidateFinder();
 
+  /// 
+  void SetChannel(const std::string& detname);
+  void SetSigma(double sigma);
+
  private:
   /// \brief
   /// The TPulseIsland that we are looking for candidates on
-  TPulseIsland* fPulseIsland;
+  const TPulseIsland* fPulseIsland;
   /// \brief
   /// The vector that we store the pulse candidate locations in
   std::vector<Location> fPulseCandidateLocations;
@@ -60,13 +70,15 @@ class PulseCandidateFinder {
  public:
   /// \brief
   /// Find the pulse candidates on the given TPulseIsland
-  void FindPulseCandidates(TPulseIsland* pulse);
+  void FindPulseCandidates(const TPulseIsland* pulse);
   /// \brief
   /// Returns the number of pulse candidates that were found
   int GetNPulseCandidates() { return fPulseCandidateLocations.size(); }
   /// \brief
   /// Returns the actual TPulseIsland of each candidate
-  std::vector<TPulseIsland*> GetPulseCandidates();
+  //std::vector<TPulseIsland*> GetPulseCandidates();
+
+  void GetPulseCandidates(std::vector<TPulseIsland*>&)const;
 
  private:
   /// \brief
@@ -88,17 +100,9 @@ class PulseCandidateFinder {
 
  public:
   /// \brief
-  /// Takes a histogram and fills it with the parameters (either sample height above pedestals 
-  /// or sample differences between consecutive samples)
-  void FillParameterHistogram(TH1D* histogram);
-
- private:
-  /// \brief
-  /// Fills the given histogram with the sample differences between consecutive pulses
-  void FillSampleDifferencesHistogram(TH1D* histogram);
-  /// \brief
-  /// Fills the given histogram with the sample's height above pedestal
-  void FillSampleHeightsHistogram(TH1D* histogram);
+  /// Takes a histogram and fills it with the parameters (both sample height above pedestals 
+  /// and sample differences between consecutive samples)
+  void FillParameterHistogram(TH2D* histogram);
 
  private:
   /// \brief
@@ -107,6 +111,12 @@ class PulseCandidateFinder {
   /// \brief
   /// The value of the parameter to start a candidate pulse
   double fParameterValue;
+  /// \brief
+  /// The noise value for this channel
+  double fNoise;
+  /// \brief
+  /// The pedestal value for this channel
+  double fPedestal;
 
   /// \brief
   /// The map that stores the default parameter values in case there isn't one specified in the modules file
@@ -118,12 +128,6 @@ class PulseCandidateFinder {
   /// \brief
   /// The number of sigma (i.e. noise) that we want the threshold to be set to
   int fNSigma;
-  /// \brief
-  /// The map that stores the one sigma values that we get from the SQLite database
-  static std::map<IDs::channel, double> fOneSigmaValues;
-  /// \brief
-  /// Called if "n_sigma" is specified as an option in the modules file and if fOneSigmaValues is empty
-  void SetOneSigmaValues();
 };
 
 #endif

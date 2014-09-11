@@ -6,11 +6,8 @@
 #include "IdSource.h"
 #include <string>
 
-class ChannelID;
 
 typedef int TPulseIslandID;
-typedef std::string GeneratorID;
-typedef std::string GeneratorConfig;
 
 // Typedefs for TPulseIslands	
 class TPulseIsland;
@@ -39,5 +36,25 @@ typedef std::map<std::string, ConstDetectorPulseList> StringConstDetPulseMap;
 // Typedefs for TMuonEvents	
 class TMuonEvent;
 typedef std::vector<TMuonEvent*> MuonEventList;
+
+namespace definitions{
+    /// default value used by TAPs, TDPs and other algorithms to signify an empty
+    /// field
+    enum { DefaultValue=-99999 };
+}
+
+namespace Except{
+    class Base;
+}
+
+namespace alcap{
+   template < typename ExceptType, typename KeyType, typename ValueType>
+       const ValueType& at(const std::map<KeyType,ValueType>& map, const KeyType& key, const char* msg=""){
+           typedef std::map<KeyType,ValueType> MapType;
+           typename MapType::const_iterator it=map.find(key);
+           if(it==map.end()) throw ExceptType(msg);
+           return it->second;
+       }
+}
 
 #endif // DEFINITIONS_H_

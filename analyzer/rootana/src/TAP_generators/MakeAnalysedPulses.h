@@ -24,13 +24,13 @@ class MakeAnalysedPulses : public BaseModule{
   ~MakeAnalysedPulses();
 
   bool AddGenerator(const std::string& detector,std::string generatorType,TAPGeneratorOptions* opts=NULL);
-  bool ParseGeneratorList(std::string generatorList);
+  bool ParseGeneratorList(std::string generatorList, const std::vector<std::string>&);
 
   void SetAnalysedPulseMap(StringAnalPulseMap& aMap){fAnalysedPulseMap=&aMap;}
  private:
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
-  virtual int BeforeFirstEntry(TGlobalData* gData,TSetupData *setup);
-  //virtual int AfterLastEntry(TGlobalData* gData){return 0;};
+  virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
+  virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup);
+  virtual int AfterLastEntry(TGlobalData* gData,const TSetupData* setup){return 0;};
 
   ChannelGenerators_t fGenerators;
   StringAnalPulseMap* fAnalysedPulseMap;
@@ -38,6 +38,7 @@ class MakeAnalysedPulses : public BaseModule{
   std::string fFastGeneratorType;
   std::vector<std::string> fChannelsToAnalyse;
   modules::options* fOptions;
+  TAPGeneratorOptions* fDefaultOpts;
 
 };
 
