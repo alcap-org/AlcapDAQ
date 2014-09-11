@@ -23,7 +23,7 @@ static double GetTime(const TPulseIsland*, const int);
 static double GetGeTime(const TPulseIsland* slow, const TPulseIsland* fast);
 static double GetMuScTime(const TPulseIsland*);
 static double GetGeEnergy(const TPulseIsland*);
-static double E(int adc);
+static double E(const int adc);
 
 GeSpectrum::GeSpectrum(modules::options* opts): BaseModule("GeSpectrum",opts) {
   const static double max = E((int)std::pow(2.,14));
@@ -126,10 +126,10 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     }
   }
   double tOff = 0.;
-  if (hTOff.Integral() > 1)
+  if (hTOff.Integral() > 1) {
     tOff = hTOff.GetMean();
-    
-  fHist_MeanTOffset->Fill(tOff);
+    fHist_MeanTOffset->Fill(tOff);
+  }
 
   //**************************//
   //***** Now make plots *****//
@@ -147,18 +147,14 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData,TSetupData *setup){
     // in any direction.
     next = std::upper_bound(prev, end_musc, *gef, TPITimeLess);
     prev = next - 1;
-    unsigned int l = 0;
     if (next == end_musc) {
       dt_prev = ge_time - GetMuScTime(*prev);
-      l = 1;
     } else if (next == beg_musc) {
       dt_next = ge_time - GetMuScTime(*next);
       prev = next;
-      l = 2;
     } else {
       dt_prev = ge_time - GetMuScTime(*prev);
       dt_next = ge_time - GetMuScTime(*next);
-      l = 3;
     }
 
 
@@ -243,6 +239,7 @@ double GetTime(const TPulseIsland* tpi, const int pol) {
   const int p = pol > 0 ? std::max_element(b, e) - b : std::min_element(b, e) - b;
   return (double)(p + tpi->GetTimeStamp()) * tpi->GetClockTickInNs() - TSetupData::Instance()->GetTimeShift(tpi->GetBankName());
 }
+//*/
 
 // Stamp
 /*
@@ -266,12 +263,8 @@ bool TPITimeLess(const TPulseIsland* tpi1, const TPulseIsland* tpi2) {
 }
 
 
-double E(int adc) {
+double E(const int adc) {
   return 0.1221*(double)adc+0.7987;
 }
 
-// The following macro registers this module to be useable in the config file.
-// The first argument is compulsory and gives the name of this module
-// All subsequent arguments will be used as names for arguments given directly 
-// within the modules file.  See the github wiki for more.
 ALCAP_REGISTER_MODULE(GeSpectrum);
