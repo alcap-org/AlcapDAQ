@@ -16,6 +16,7 @@ TemplateArchive* TemplateFitAPGenerator::fTemplateArchive2=NULL;
 TemplateFitAPGenerator::TemplateFitAPGenerator(TAPGeneratorOptions* opts):
    TVAnalysedPulseGenerator("TemplateFitAPGenerator",opts),
     fInitPedestal(EventNavigator::Instance().GetSetupRecord().GetPedestal(GetChannel())),
+    fTemplate2(NULL),
     fIntegralRatio(NULL),
     fMaxBin(fInitPedestal, EventNavigator::Instance().GetSetupRecord().GetPolarity(GetChannel()))
 {
@@ -23,22 +24,25 @@ TemplateFitAPGenerator::TemplateFitAPGenerator(TAPGeneratorOptions* opts):
    if(!fTemplateArchive){
      fTemplateArchive=new TemplateArchive(opts->GetString("template_archive").c_str(),"READ");
    }
-   if(opts->HasOption("template_archive_2") && opts->GetString("template_archive_2")!=fTemplateArchive->GetName()){
+   if(opts->HasOption("template_archive_2")){
      std::string template_2_src=opts->GetString("template_archive_2");
-     if(!fTemplateArchive2)
-     fTemplateArchive2=new TemplateArchive(opts->GetString("template_archive_2").c_str(),"READ");
-   } else if(!fTemplateArchive2){
-     fTemplateArchive2=fTemplateArchive;
+     if (template_2_src!=fTemplateArchive->GetName() && !fTemplateArchive2)
+        fTemplateArchive2=new TemplateArchive(opts->GetString("template_archive_2").c_str(),"READ");
+     else if(!fTemplateArchive2){
+        fTemplateArchive2=fTemplateArchive;
+     }
    }
    fTemplate=fTemplateArchive->GetTemplate(GetChannel());
-   fTemplate2=fTemplateArchive2->GetTemplate(GetChannel());
+   if(fTemplateArchive2) fTemplate2=fTemplateArchive2->GetTemplate(GetChannel());
 
    // make the fitters
    fFitter = new TemplateFitter(GetChannel().str(), fTemplate->GetRefineFactor());
-   fDoubleFitter = new TemplateMultiFitter(GetChannel().str());
-   fDoubleFitter->AddTemplate(fTemplate);
-   fDoubleFitter->AddTemplate(fTemplate2);
-   fDoubleFitter->Init();
+   if(fTemplate2){
+     fDoubleFitter = new TemplateMultiFitter(GetChannel().str());
+     fDoubleFitter->AddTemplate(fTemplate);
+     fDoubleFitter->AddTemplate(fTemplate2);
+     fDoubleFitter->Init();
+   }
 
    // prepare the integral ratio cuts
    if(opts->GetFlag("use_IR_cut")){
@@ -58,9 +62,11 @@ TemplateFitAPGenerator::TemplateFitAPGenerator(TAPGeneratorOptions* opts):
   fTemplateTime=fTemplate->GetTime();
   fTemplatePed=fTemplate->GetPedestal();
 
-  fTemplate2Amp=fTemplate2->GetAmplitude();
-  fTemplate2Time=fTemplate2->GetTime();
-  fTemplate2Ped=fTemplate2->GetPedestal();
+  if(fTemplate2){
+     fTemplate2Amp=fTemplate2->GetAmplitude();
+     fTemplate2Time=fTemplate2->GetTime();
+     fTemplate2Ped=fTemplate2->GetPedestal();
+  }
 
   // chi2 to determine when we refit with 2 pulses
   fChi2MinToRefit=opts->GetDouble("min_chi2_to_refit",2e8);
@@ -98,7 +104,7 @@ int TemplateFitAPGenerator::ProcessPulses(
     double init_time= fTemplateTime - fMaxBin.time * fTemplate->GetRefineFactor();
     fFitter->SetInitialParameterEstimates(fInitPedestal, init_amp, init_time);
 
-    // Analyse each TPI
+    // Make histo for TPI
     TH1D* hPulseToFit=InterpolatePulse(*tpi,"hPulseToFit","hPulseToFit",false,fTemplate->GetRefineFactor());
     
     int fit_status = fFitter->FitPulseToTemplate(fTemplate, hPulseToFit, (*tpi)->GetBankName());
@@ -110,14 +116,14 @@ int TemplateFitAPGenerator::ProcessPulses(
     tap->SetTemplate(fTemplate);
     tap->SetPedestal(fFitter->GetPedestalOffset());
     tap->SetAmplitudeScaleFactor(fFitter->GetAmplitudeScaleFactor());
-    tap->SetTimeOffset(fFitter->GetTimeOffset());
+    tap->SetTimeOffset(-fFitter->GetTimeOffset());
     tap->SetChi2(fFitter->GetChi2());
     tap->SetNDoF(fFitter->GetNDoF());
     tap->SetFitStatus(fit_status);
     tap->SetIntegral(integral);
     tap->SetIntegralRatio(ratio);
 
-    if(fFitter->GetChi2() > fChi2MinToRefit){
+    if(fTemplate2 && fFitter->GetChi2() > fChi2MinToRefit){
         TTemplateFitAnalysedPulse* second_tap=NULL;
         bool better_with_2 = RefitWithTwo(hPulseToFit, tap, second_tap);
         if(better_with_2){
@@ -190,8 +196,8 @@ bool TemplateFitAPGenerator::RefitWithTwo(TH1D* tpi, TTemplateFitAnalysedPulse*&
       tap_two = MakeNewTAP<TTemplateFitAnalysedPulse>(tap_one->GetParentID());
       tap_two->SetTemplate(fTemplate2);
       tap_two->SetPedestal(fDoubleFitter->GetPedestal());
-      tap_two->SetAmplitudeScaleFactor(fDoubleFitter->GetAmplitude(1));
-      tap_two->SetTimeOffset(fDoubleFitter->GetTime(1));
+      tap_two->SetAmplitude(fDoubleFitter->GetAmplitude(1));
+      tap_two->SetTime(fDoubleFitter->GetTime(1));
       tap_two->SetChi2(fDoubleFitter->GetChi2());
       tap_two->SetNDoF(fDoubleFitter->GetNDoF());
       tap_two->SetFitStatus(fit_status);
@@ -203,10 +209,4 @@ bool TemplateFitAPGenerator::RefitWithTwo(TH1D* tpi, TTemplateFitAnalysedPulse*&
   return false;
 }
 
-// Similar to the modules, this macro registers the generator with
-// MakeAnalysedPulses. The first argument is compulsory and gives the name of
-// this generator. All subsequent arguments will be used as names for arguments
-// given directly within the modules file.  See the github wiki for more.
-//
-// NOTE: for TAP generators OMIT the APGenerator part of the class' name
-ALCAP_TAP_GENERATOR(TemplateFit,template_archive,use_IR_cut, min_integral, max_integral, min_ratio, max_ratio);
+ALCAP_TAP_GENERATOR(TemplateFit,template_archive,use_IR_cut, min_integral, max_integral, min_ratio, max_ratio, template_archive_2);
