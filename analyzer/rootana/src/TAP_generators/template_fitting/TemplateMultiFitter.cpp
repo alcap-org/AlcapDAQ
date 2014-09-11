@@ -1,3 +1,4 @@
+#define ALCAP_NO_DEBUG
 #include "TemplateMultiFitter.h"
 #include "MultiHistogramFitFCN.h"
 #include "SetupNavigator.h"
@@ -14,7 +15,7 @@ TemplateMultiFitter::TemplateMultiFitter(const IDs::channel& ch):
    fMinuitFitter(NULL), fFitFCN(NULL), fChannel(ch),fPedestal(0), fRefineFactor(0) {
 
   // Calculate the max ADC value
-  fMinADC = EventNavigator::Instance().GetSetupRecord().GetMaxADC(fChannel);
+  fMinADC = 0;
   fMaxADC = EventNavigator::Instance().GetSetupRecord().GetMaxADC(fChannel);
 }
 
@@ -53,7 +54,7 @@ int TemplateMultiFitter::FitWithOneTimeFree(int index, const TH1D* hPulse){
   const double offset_range = 10*fRefineFactor; // maximum distance to go from the initial estimate
   double best_time_offset = 0;
   std::vector<double> best_parameters(1+fTemplates.size());
-  double best_chi2 = 1e11;
+  double best_chi2 = 1e34;
   int best_ndof = 0;
   int best_status = kInitialised;
   int status = kInitialised;
@@ -67,7 +68,7 @@ int TemplateMultiFitter::FitWithOneTimeFree(int index, const TH1D* hPulse){
     fFitFCN->SetTimeOffset(index, time_offset);
 
     // Reset the estimates
-    fMinuitFitter->SetParameter(0, "PedestalOffset", fPedestal, 0.1, fMinADC, fMaxADC);
+    fMinuitFitter->SetParameter(0, "PedestalOffset", fPedestal, 0.1, fPedestal-10, fPedestal+10);
     for(TemplateList::const_iterator i_tpl=fTemplates.begin(); i_tpl!=fTemplates.end(); ++i_tpl){
         int i=i_tpl-fTemplates.begin();
         fMinuitFitter->SetParameter(i+1, Form("AmplitudeScaleFactor_%d",i), i_tpl->fAmplitudeScaleFactor, 0.1, fMinADC, fMaxADC);
@@ -75,6 +76,7 @@ int TemplateMultiFitter::FitWithOneTimeFree(int index, const TH1D* hPulse){
 
     // Minimize and notify if there was a problem
     status = fMinuitFitter->Minimize(1000); // set limit of 1000 calls to FCN
+    DEBUG_VALUE(status);
     if(status!=0) continue;
 
     // Store the Chi2 and degrees of freedom
@@ -91,7 +93,8 @@ int TemplateMultiFitter::FitWithOneTimeFree(int index, const TH1D* hPulse){
       status = kPedestalOutOfBounds;
     } else {
        for(std::vector<double>::const_iterator i_par=parameters.begin()+1; i_par!=parameters.end(); ++i_par){
-          if (    ( *i_par > fMinADC + delta_amp_sf_error ) || ( *i_par < fMaxADC - delta_amp_sf_error ) ) {
+          if (    ( *i_par < fMinADC + delta_amp_sf_error ) || ( *i_par > fMaxADC - delta_amp_sf_error ) ) {
+                DEBUG_VALUE(*i_par, delta_amp_sf_error, fMinADC, fMaxADC);
                 status = kAmplitudeOutOfBounds;
                 break;
           }
@@ -101,6 +104,7 @@ int TemplateMultiFitter::FitWithOneTimeFree(int index, const TH1D* hPulse){
     // get the chi-2
     fChi2 = (*fFitFCN)(parameters);
     fNDoF = fFitFCN->GetNDoF();
+    DEBUG_VALUE(status,parameters[0],fChi2,fNDoF);
 
     if (status == 0 && fChi2 < best_chi2) {
       best_time_offset = time_offset;
