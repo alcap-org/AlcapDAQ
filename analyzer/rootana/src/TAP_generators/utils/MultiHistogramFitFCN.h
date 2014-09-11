@@ -15,7 +15,6 @@ class MultiHistogramFitFCN : public ROOT::Minuit2::FCNBase {
   double fTimeOffset, fAmplitudeScale;
   const TH1D* fTemplateHist; 
   int fNDoF;
-  bool fFixed;
   double GetHeight(double t)const;
   double GetError2(double t)const;
  };
@@ -25,16 +24,18 @@ class MultiHistogramFitFCN : public ROOT::Minuit2::FCNBase {
   MultiHistogramFitFCN(double refine_factor=1);
   ~MultiHistogramFitFCN();
 
-  void AddTemplate(const TH1D* hist, double time=0, bool fixed=false){
+  void AddTemplate(const TH1D* hist, double time=0){
      HistogramDetails_t tmp;
      tmp.fTemplateHist=hist;
      tmp.fTimeOffset=time;
      tmp.fNDoF=0;
-     tmp.fFixed=fixed;
      fTemplates.push_back(tmp);
   }
   void SetTemplateHist( int n , const TH1D* hist){
     fTemplates.at(n).fTemplateHist=hist;
+  }
+  void SetTimeOffset(int n, double offset){
+    fTemplates.at(n).fTimeOffset=offset;
   }
   void SetTime(int n, double time){
     fTemplates.at(n).fTimeOffset=time - fTemplates[n].fTemplateHist->GetMaximumBin();
@@ -46,19 +47,13 @@ class MultiHistogramFitFCN : public ROOT::Minuit2::FCNBase {
     SetTime(n, time_offset);
     SetAmplitude(n, amp);
   }
-  void FixTemplate(int n, bool fix=true){
-    fTemplates.at(n).fFixed=fix;
-  }
-  void FixAllTemplatesBut(int n, bool fix=true){
-    for(TemplateList::iterator i_hist=fTemplates.begin();
-        i_hist!=fTemplates.end(); ++i_hist){
-       if(i_hist- fTemplates.begin() == n) continue;
-       i_hist->fFixed=fix;
-    }
-  }
 
   void SetPulseHist(const TH1D* pulse){fPulseHist=pulse;}
   void SetRefineFactor(int refine_factor) {fRefineFactor = refine_factor;}
+  
+  double& GetAmplitudeScaleFactor(int i)const{return fTemplates.at(i).fAmplitudeScale;}
+  double& GetTimeOffset(int i)const{return fTemplates.at(i).fTimeOffset;}
+  int GetNTemplates()const{return fTemplates.size();}
 
   /// @brief Used to calculate the chi-2
   /// @details
