@@ -24,7 +24,7 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         /// @{
         int GetFitStatus()const{return fStatus;}
         double GetChi2()const{return fChi2;}
-        double GetNDoF()const{return fNDoF;}
+        int GetNDoF()const{return fNDoF;}
         double GetTimeErr()const{return fTimeErr;}
         double GetPedestalErr()const{return fPedestalErr;}
         double GetAmplitudeErr()const{return fAmplitudeErr;}
@@ -43,8 +43,8 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         /// @name Setters
         /// Set both the value and error for each field
         /// @{
-        void SetTimeOffset(const double& val){TAnalysedPulse::SetTime(GetTemplate()->GetTime()-val);}
-        void SetAmplitudeScaleFactor(const double& val){TAnalysedPulse::SetTime(GetTemplate()->GetAmplitude()*val);}
+        void SetTimeOffset(const double& val){TAnalysedPulse::SetTime(GetTemplate()->GetTime()/GetTemplate()->GetRefineFactor()+val);}
+        void SetAmplitudeScaleFactor(const double& val){TAnalysedPulse::SetAmplitude(GetTemplate()->GetAmplitude()*val);}
         void SetTime(const double& val, const double& err){TAnalysedPulse::SetTime(val); fTimeErr=err;}
         void SetAmplitude(const double& val, const double& err){TAnalysedPulse::SetAmplitude(val); fAmplitudeErr=err;}
         void SetPedestal(const double& val, const double& err){TAnalysedPulse::SetPedestal(val); fPedestalErr=err;}

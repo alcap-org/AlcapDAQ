@@ -1,6 +1,7 @@
 #include "EventNavigator.h"
 #include "TTemplateFitAnalysedPulse.h"
 #include "TPaveText.h"
+#include "TMarker.h"
 #include "TH1F.h"
 #include "Functions.h"
 #include "debug_tools.h"
@@ -23,6 +24,10 @@ void TTemplateFitAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
       text_b->SetFillColor(kWhite);
       text_b->SetBorderSize(1);
       tap_pulse->GetListOfFunctions()->Add(text_b);
+       
+      //TMarker* marker=new TMarker(GetTime(), GetAmplitude()+GetPedestal()+10, 23);
+      //marker->SetMarkerColor(kRed);
+      //tap_pulse->GetListOfFunctions()->Add(marker);
 
       tap_pulse->SetDirectory(TDirectory::CurrentDirectory());
       //tap_pulse->Write();
@@ -57,10 +62,10 @@ const TH1F* TTemplateFitAnalysedPulse::GetHisto()const{
 }
 
 double TTemplateFitAnalysedPulse::GetBinContent(int bin)const{
-         // deduce right bin to look in
-         int tpl_bin=bin+ GetTime();
-         // get bin sample
-         double sample=GetTemplate()->GetHisto()->GetBinContent(tpl_bin);
-         // Set sample in histogram that's to be saved
-         return sample*GetAmplitude() + GetPedestal();
+      // deduce right bin to look in
+      int tpl_bin=GetTime()-GetTemplate()->GetTime()/GetTemplate()->GetRefineFactor()+bin;
+      // get bin sample
+      double sample=GetTemplate()->GetHisto()->GetBinContent(tpl_bin);
+      // Set sample in histogram that's to be saved
+      return sample*GetAmplitude() + GetPedestal();
 }
