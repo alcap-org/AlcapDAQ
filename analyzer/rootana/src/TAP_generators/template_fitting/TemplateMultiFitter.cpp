@@ -26,7 +26,7 @@ void TemplateMultiFitter::Init(){
 
   fFitFCN=new MultiHistogramFitFCN(fRefineFactor);
   fFitFCN->SetRefineFactor(fRefineFactor);
-  for(TemplateList::const_iterator i_tpl=fTemplates.begin(); i_tpl!=fTemplates.end(); ++i_tpl){
+  for(TemplateList::iterator i_tpl=fTemplates.begin(); i_tpl!=fTemplates.end(); ++i_tpl){
      fFitFCN->AddTemplate(i_tpl->fTemplate->GetHisto());
   }
  
@@ -160,12 +160,8 @@ int TemplateMultiFitter::FitWithAllTimesFixed( const TH1D* hPulse){
 }
 
 void TemplateMultiFitter::AddTemplate(TTemplate* tpl){
-  fFitFCN->AddTemplate(tpl->GetHisto());
-  int i=fFitFCN->GetNTemplates();
   TemplateDetails_t tmp;
   tmp.fTemplate=tpl;
-  tmp.fAmplitudeScaleFactor=fFitFCN->GetAmplitudeScaleFactor(i);
-  tmp.fTimeOffset=fFitFCN->GetTimeOffset(i); 
   fTemplates.push_back(tmp);
   if(fRefineFactor==0) fRefineFactor=tpl->GetRefineFactor();
   else if(fRefineFactor!= tpl->GetRefineFactor()){
