@@ -105,6 +105,7 @@ int PulseViewer::CheckPulseType(const std::string& pulse_type){
          fAvailableParams["Chi2"]=kChi2;
          fAvailableParams["Status"]=kStatus;
          fAvailableParams["Integral_ratio"]=kIntegralRatio;
+         fAvailableParams["Double_fitted"]=kWasDouble;
          break;
       case kIntegralRatioAP:
          fAvailableParams["Integral_ratio"]=kIntegralRatio;
@@ -224,6 +225,7 @@ double PulseViewer::GetParameterValue(const TTemplateFitAnalysedPulse* pulse,con
        case kIntegralRatio: retVal=pulse->GetIntegralRatio(); break;
        case kChi2: retVal=pulse->GetChi2(); break;
        case kStatus: retVal=pulse->GetFitStatus(); break;
+       case kWasDouble: retVal=pulse->WasFirstOfDouble(); break;
        default: retVal=GetParameterValue( static_cast<const TAnalysedPulse*>(pulse),parameter);
     }
     return retVal;

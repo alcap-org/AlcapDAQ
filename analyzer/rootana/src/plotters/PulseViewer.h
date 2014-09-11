@@ -31,7 +31,8 @@ class PulseViewer : public BaseModule{
         kIntegralRatio,
         kIntegralTail,
         kChi2,
-        kStatus
+        kStatus,
+        kWasDouble
     };
 
     enum PulseType{
