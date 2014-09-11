@@ -5,6 +5,9 @@
 #include "TH1D.h"
 #include "AlcapExcept.h"
 
+#include "debug_tools.h"
+#include <iostream>
+
 #include <vector>
 
 MAKE_EXCEPTION(MultiHistogramFitFCN, Base);
@@ -114,8 +117,8 @@ inline void MultiHistogramFitFCN::UnpackParameters(const std::vector<double>& pa
     const std::vector<double>::const_iterator begin=par.begin();
     std::vector<double>::const_iterator i_par=begin;
     fPedestal=*i_par;
-    for( ; i_par!=par.end(); ++i_par){
-      int n= (i_par-begin+1) ;
+    for(++i_par ; i_par!=par.end(); ++i_par){
+      int n= (i_par-begin-1) ;
       fTemplates.at(n).fAmplitudeScale=*i_par;
     }
   }
