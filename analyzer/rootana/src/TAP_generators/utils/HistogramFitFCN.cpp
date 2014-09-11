@@ -72,6 +72,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
   }
 
   double f;
+  double temp_ped=fTemplateHist->GetBinContent(1);
   for (int i = bounds[0]+(fRefineFactor/2.0); i <= bounds[1]-(fRefineFactor/2.0); i += fRefineFactor) { 
     // calculate the chi^2 based on the centre of the 5 bins to avoid getting
     // abonus from mathcing all 5.  We shift and scale the template so that it
@@ -84,7 +85,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
       std::cout << "i = " << i << ", i - T_int = " << i-T_int << std::endl;
       std::cout << "f (before) = " << f << std::endl;
     }
-    f = A * (f - fTemplatePedestal) + P; // apply the transformation to this bin
+    f = A * (f - temp_ped) + P; // apply the transformation to this bin
     if (print_dbg) {
       std::cout << "f (after) = " << f << std::endl;
     }
