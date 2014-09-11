@@ -35,7 +35,10 @@ TemplateFitAPGenerator::TemplateFitAPGenerator(TAPGeneratorOptions* opts):
 
    // make the fitters
    fFitter = new TemplateFitter(GetChannel().str(), fTemplate->GetRefineFactor());
-   fDoubleFitter = new TemplateMultiFitter(GetChannel().str(), fTemplate->GetRefineFactor());
+   fDoubleFitter = new TemplateMultiFitter(GetChannel().str());
+   fDoubleFitter->AddTemplate(fTemplate);
+   fDoubleFitter->AddTemplate(fTemplate2);
+   fDoubleFitter->Init();
 
    // prepare the integral ratio cuts
    if(opts->GetFlag("use_IR_cut")){
@@ -65,6 +68,7 @@ TemplateFitAPGenerator::TemplateFitAPGenerator(TAPGeneratorOptions* opts):
 
 TemplateFitAPGenerator::~TemplateFitAPGenerator(){
   delete fFitter;
+    
   delete fDoubleFitter;
   if(fIntegralRatio) delete fIntegralRatio;
   if(fTemplateArchive) {
@@ -161,16 +165,13 @@ bool TemplateFitAPGenerator::RefitWithTwo(TH1D* tpi, TTemplateFitAnalysedPulse*&
   // fit the second template around the second peak
   fDoubleFitter->SetPulseEstimates( 0, tap_one->GetAmplitude(), tap_one->GetTime());
   fDoubleFitter->SetPulseEstimates( 1, second_scale, second_time);
-  fDoubleFitter->FixTimeForAllBut(1);
-  int fit_status = fDoubleFitter->FitToPulse(tpi);
+  int fit_status = fDoubleFitter->FitWithOneTimeFree(1, tpi);
 
   // fit the first pulse again
-  fDoubleFitter->FixTimeForAllBut(0);
-  fit_status = fDoubleFitter->FitToPulse(tpi);
+  fit_status = fDoubleFitter->FitWithOneTimeFree(0, tpi);
 
   // fit the second pulse again
-  fDoubleFitter->FixTimeForAll();
-  fit_status = fDoubleFitter->FitToPulse(tpi);
+  fit_status = fDoubleFitter->FitWithAllTimesFixed(tpi);
 
   if(fit_status==0){
     // Has the double fit improved the chi-2 per NDoF
@@ -178,7 +179,7 @@ bool TemplateFitAPGenerator::RefitWithTwo(TH1D* tpi, TTemplateFitAnalysedPulse*&
     double new_chi2=fDoubleFitter->GetChi2()/fDoubleFitter->GetNDoF();
     if( (old_chi2 - new_chi2) < 0){
       // refill tap_one's values
-      tap_one->SetPedestal(fDoubleFitter->GetPedestalOffset());
+      tap_one->SetPedestal(fDoubleFitter->GetPedestal());
       tap_one->SetAmplitude(fDoubleFitter->GetAmplitude(2));
       tap_one->SetTime(fDoubleFitter->GetTime(2));
       tap_one->SetChi2(fDoubleFitter->GetChi2());
@@ -188,9 +189,9 @@ bool TemplateFitAPGenerator::RefitWithTwo(TH1D* tpi, TTemplateFitAnalysedPulse*&
       // make the second tap
       tap_two = MakeNewTAP<TTemplateFitAnalysedPulse>(tap_one->GetParentID());
       tap_two->SetTemplate(fTemplate2);
-      tap_two->SetPedestal(fDoubleFitter->GetPedestalOffset());
-      tap_two->SetAmplitudeScaleFactor(fDoubleFitter->GetAmplitudeScaleFactor(1));
-      tap_two->SetTimeOffset(fDoubleFitter->GetTimeOffset());
+      tap_two->SetPedestal(fDoubleFitter->GetPedestal());
+      tap_two->SetAmplitudeScaleFactor(fDoubleFitter->GetAmplitude(1));
+      tap_two->SetTimeOffset(fDoubleFitter->GetTime(1));
       tap_two->SetChi2(fDoubleFitter->GetChi2());
       tap_two->SetNDoF(fDoubleFitter->GetNDoF());
       tap_two->SetFitStatus(fit_status);

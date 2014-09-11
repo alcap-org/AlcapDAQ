@@ -6,6 +6,7 @@
 #include "definitions.h"
 #include "TemplateArchive.h"
 #include "TemplateFitter.h"
+#include "TemplateMultiFitter.h"
 #include "TTemplate.h"
 #include "TTemplateFitAnalysedPulse.h"
 #include "TAPAlgorithms.h"
