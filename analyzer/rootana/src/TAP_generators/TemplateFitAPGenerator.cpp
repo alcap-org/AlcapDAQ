@@ -69,7 +69,7 @@ TemplateFitAPGenerator::TemplateFitAPGenerator(TAPGeneratorOptions* opts):
   }
 
   // chi2 to determine when we refit with 2 pulses
-  fChi2MinToRefit=opts->GetDouble("min_chi2_to_refit",2e8);
+  fChi2MinToRefit=opts->GetDouble("min_chi2_to_refit",2e5);
 }
 
 TemplateFitAPGenerator::~TemplateFitAPGenerator(){
@@ -201,6 +201,11 @@ bool TemplateFitAPGenerator::RefitWithTwo(TH1D* tpi, TTemplateFitAnalysedPulse*&
       tap_two->SetChi2(fDoubleFitter->GetChi2());
       tap_two->SetNDoF(fDoubleFitter->GetNDoF());
       tap_two->SetFitStatus(fit_status);
+
+      // link the two pulses together
+      tap_one->SetOtherPulse(tap_two);
+      tap_two->SetOtherPulse(tap_one);
+      tap_two->IsPileUpPulse();
 
       return true;
     }
