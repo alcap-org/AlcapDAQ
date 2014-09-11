@@ -77,9 +77,11 @@ int TemplateFitter::FitPulseToTemplate(const TTemplate* hTemplate, const TH1D* h
     // Minimize and notify if there was a problem
     status = fMinuitFitter->Minimize(1000); // set limit of 1000 calls to FCN
 
-    if (print_dbg) {
-      if (status != 0)
+    if (status != 0){
+      if (print_dbg){ 
 	std::cout << "ERROR: Problem with fit (" << status << ")!" << std::endl;
+      }
+      continue;
     }
 
     // Get the fitted values
