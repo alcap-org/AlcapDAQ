@@ -18,7 +18,7 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
                 const TPulseIslandID& parentID, const TPulseIsland* parentTPI);
 
         // defined in .cpp file to force vtable to be built
-        virtual ~TTemplateFitAnalysedPulse(){};
+        virtual ~TTemplateFitAnalysedPulse();
 
         /// @name Getters
         /// @{
@@ -31,6 +31,7 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         const TTemplate* GetTemplate()const{return (const TTemplate*) fTemplate.GetObject();}
         double GetResidualIntegral()const{return fResidualTotal;}
         double GetIntegralRatio()const{return fIntegralRatio;}
+        bool WasFirstOfDouble()const{return fOtherPulse && !fIsPileUpPulse;}
         /// @}
 
         /// @name Histogram_getters
@@ -57,6 +58,9 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         void SetIntegralRatio(double val){fIntegralRatio=val;}
         /// @}
         
+        void SetOtherPulse(TTemplateFitAnalysedPulse* pulse){fOtherPulse=pulse;}
+        void IsPileUpPulse(bool is=true){fIsPileUpPulse=is;}
+        
         using TAnalysedPulse::SetAmplitude;
         using TAnalysedPulse::SetPedestal;
         using TAnalysedPulse::SetTime;
@@ -73,6 +77,9 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         const TH1F* fResidual; //!
         mutable const TH1F* fHisto; //!
         double fResidualTotal;
+
+        bool fIsPileUpPulse;
+        TTemplateFitAnalysedPulse* fOtherPulse; //!
 
         ClassDef(TTemplateFitAnalysedPulse,1);
 };
