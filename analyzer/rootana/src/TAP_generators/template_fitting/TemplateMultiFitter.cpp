@@ -30,10 +30,10 @@ void TemplateMultiFitter::Init(){
      fFitFCN->AddTemplate(i_tpl->fTemplate->GetHisto());
   }
  
-  fMinuitFitter = new TFitterMinuit(fTemplates.size()+1); //  1 parameter per template (amplitude) + global pedestal.
+  int num_params=fTemplates.size()+1; //  1 parameter per template (amplitude) + global pedestal.
+  fMinuitFitter = new TFitterMinuit(num_params);
   fMinuitFitter->SetMinuitFCN(fFitFCN);
   fMinuitFitter->SetPrintLevel(-1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
-  fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
 }
 
 TemplateMultiFitter::~TemplateMultiFitter() {
@@ -47,6 +47,7 @@ int TemplateMultiFitter::FitWithOneTimeFree(int index, const TH1D* hPulse){
   // Prepare for minimizations
   fMinuitFitter->Clear();
   fFitFCN->SetPulseHist(hPulse);
+  fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
 
   // Loop through some time offsets ourselved
   const double offset_range = 10*fRefineFactor; // maximum distance to go from the initial estimate
@@ -79,7 +80,8 @@ int TemplateMultiFitter::FitWithOneTimeFree(int index, const TH1D* hPulse){
     // Store the Chi2 and degrees of freedom
     parameters[0]=fMinuitFitter->GetParameter(0); 
     for(std::vector<double>::iterator i_par=parameters.begin()+1; i_par!=parameters.end(); ++i_par){
-       *i_par= fMinuitFitter->GetParameter(i_par-parameters.begin()+1);
+       int n=i_par-parameters.begin();
+       *i_par= fMinuitFitter->GetParameter(n);
     }
 
     // Check the bounds
@@ -132,6 +134,7 @@ int TemplateMultiFitter::FitWithAllTimesFixed( const TH1D* hPulse){
   // Prepare for minimizations
   fMinuitFitter->Clear();
   fFitFCN->SetPulseHist(hPulse);
+  fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
 
   // initialise fit
   fMinuitFitter->SetParameter(0, "PedestalOffset", fPedestal, 0.1, fMinADC, fMaxADC);
