@@ -22,7 +22,7 @@ void TTemplateFitAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
       TH1F* tap_pulse=(TH1F*)GetHisto()->Clone(name.c_str());
       tap_pulse->SetDirectory(TDirectory::CurrentDirectory());
 
-      TPaveText* text_b=new TPaveText(0.7,0.60,0.9,0.8,"NB NDC");
+      TPaveText* text_b=new TPaveText(0.7,0.60,0.9,0.9,"NB NDC");
       text_b->AddText(Form("#chi^2 = %3.2g",GetChi2()));
       text_b->AddText(Form("Status = %d",GetFitStatus()));
       text_b->AddText(Form("Time = %g",GetTime()));
@@ -87,3 +87,4 @@ double TTemplateFitAnalysedPulse::GetBinContent(int bin)const{
       // Set sample in histogram that's to be saved
       return sample*GetAmplitude() + GetPedestal();
 }
+
