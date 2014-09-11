@@ -32,6 +32,8 @@ class TemplateFitAPGenerator:public TVAnalysedPulseGenerator {
   private:
     bool PassesIntegralRatio(const TPulseIsland* pulse,double& integral, double& ratio)const;
     bool RefitWithTwo( TH1D* tpi, TTemplateFitAnalysedPulse*& tap_one, TTemplateFitAnalysedPulse*& tap_two)const;
+    void InitializeSecondPulse( TH1D* tpi, const TTemplateFitAnalysedPulse* tap_one,
+          int& second_time, double& second_scale)const;
 
   private:
     static TemplateArchive* fTemplateArchive;

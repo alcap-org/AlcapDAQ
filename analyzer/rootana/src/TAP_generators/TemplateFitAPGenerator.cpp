@@ -162,13 +162,12 @@ bool TemplateFitAPGenerator::PassesIntegralRatio(const TPulseIsland* pulse, doub
 bool TemplateFitAPGenerator::RefitWithTwo(TH1D* tpi, TTemplateFitAnalysedPulse*& tap_one, TTemplateFitAnalysedPulse*& tap_two)const{
 
   // find the max bin after the current fitted tap
-  tpi->GetXaxis()->SetRange(tap_one->GetTime());
-  int second_time=tpi->GetMaximumBin();
-  tpi->GetXaxis()->UnZoom();
-  double second_scale=tpi->GetBinContent(second_time) - tap_one->GetBinContent(second_time);
-  second_scale /=fTemplate2->GetHisto()->GetMaximum();
+  int second_time=-9999999;
+  double second_scale=-9999999;
+  InitializeSecondPulse(tpi,tap_one,second_time,second_scale);
 
   // fit the second template around the second peak
+  fDoubleFitter->SetPedestal(tap_one->GetPedestal());
   fDoubleFitter->SetPulseEstimates( 0, tap_one->GetAmplitude(), tap_one->GetTime());
   fDoubleFitter->SetPulseEstimates( 1, second_scale, second_time);
   int fit_status = fDoubleFitter->FitWithOneTimeFree(1, tpi);
@@ -186,8 +185,8 @@ bool TemplateFitAPGenerator::RefitWithTwo(TH1D* tpi, TTemplateFitAnalysedPulse*&
     if( (old_chi2 - new_chi2) < 0){
       // refill tap_one's values
       tap_one->SetPedestal(fDoubleFitter->GetPedestal());
-      tap_one->SetAmplitude(fDoubleFitter->GetAmplitude(2));
-      tap_one->SetTime(fDoubleFitter->GetTime(2));
+      tap_one->SetAmplitude(fDoubleFitter->GetAmplitude(0));
+      tap_one->SetTime(fDoubleFitter->GetTime(0));
       tap_one->SetChi2(fDoubleFitter->GetChi2());
       tap_one->SetNDoF(fDoubleFitter->GetNDoF());
       tap_one->SetFitStatus(fit_status);
@@ -214,4 +213,24 @@ bool TemplateFitAPGenerator::RefitWithTwo(TH1D* tpi, TTemplateFitAnalysedPulse*&
   return false;
 }
 
-ALCAP_TAP_GENERATOR(TemplateFit,template_archive,use_IR_cut, min_integral, max_integral, min_ratio, max_ratio, template_archive_2);
+void TemplateFitAPGenerator::InitializeSecondPulse(
+          TH1D* tpi, const TTemplateFitAnalysedPulse* tap_one,
+          int& second_time, double& second_scale)const{
+    // scan from the time of the first tap and find the bin with the largest residual (within some window)
+    int limit = tpi->GetNbinsX();
+    int template_limit=tap_one->GetTime() - fTemplate->GetTime() + fTemplate->GetHisto()->GetNbinsX()-10;
+    if(template_limit <  limit ) limit= template_limit;
+    double residual, max_residual=-1e6;
+    int max_bin=0;
+    for( int bin=tap_one->GetTime(); bin < limit; ++bin){
+      residual=tpi->GetBinContent(bin) - tap_one->GetBinContent(bin);
+      if(residual>max_residual){
+        max_residual=residual;
+        max_bin=bin;
+      }
+    }
+    second_time=max_bin - fTemplate2->GetTime();
+    second_scale=max_residual / fTemplate2->GetAmplitude();
+}
+
+ALCAP_TAP_GENERATOR(TemplateFit,template_archive,use_IR_cut, min_integral, max_integral, min_ratio, max_ratio, template_archive_2,min_chi2_to_refit);
