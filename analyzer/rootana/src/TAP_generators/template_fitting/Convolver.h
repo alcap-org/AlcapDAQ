@@ -23,7 +23,8 @@ class Algorithm::Convolver{
         double ret_val=0;
         InputIterator i_in=start;
         for(WeightIterator i_weight=fBegin; i_weight!=fEnd; ++i_weight){
-           ret_val+= (*i_weight)*(*(i_in++));
+           ret_val+=(*i_weight)*(*i_in);
+           ++i_in;
         }
         return ret_val;
       }
@@ -32,7 +33,8 @@ class Algorithm::Convolver{
       OutputIterator operator()(const InputIterator& start, const InputIterator& stop, OutputIterator result){
         InputIterator end=stop-fNWeights;
         for(InputIterator i_in=start;i_in!=end;++i_in){
-           *(result++)=operator()(i_in);
+           *(result)=operator()(i_in);
+           ++result;
         }
         return result;
       }
