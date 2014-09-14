@@ -46,7 +46,7 @@ class TemplateFitAPGenerator:public TVAnalysedPulseGenerator {
     double fChi2MinToRefit;
     TTemplate* fTemplate;
     TTemplate* fTemplate2;
-    TemplateFitter* fFitter;
+    TemplateMultiFitter* fFitter;
     TemplateMultiFitter* fDoubleFitter;
     Algorithm::IntegralRatio* fIntegralRatio;
     Algorithm::MaxBinAmplitude fMaxBin;

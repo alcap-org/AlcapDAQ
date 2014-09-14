@@ -36,7 +36,9 @@ TemplateFitAPGenerator::TemplateFitAPGenerator(TAPGeneratorOptions* opts):
    if(fTemplateArchive2) fTemplate2=fTemplateArchive2->GetTemplate(GetChannel());
 
    // make the fitters
-   fFitter = new TemplateFitter(GetChannel().str(), fTemplate->GetRefineFactor());
+   fFitter = new TemplateMultiFitter(GetChannel().str());
+   fFitter->AddTemplate(fTemplate);
+   fFitter->Init();
    if(fTemplate2){
      fDoubleFitter = new TemplateMultiFitter(GetChannel().str());
      fDoubleFitter->AddTemplate(fTemplate);
@@ -101,22 +103,23 @@ int TemplateFitAPGenerator::ProcessPulses(
        continue;
     }
     double init_amp=fMaxBin(*tpi)/fTemplateAmp;
-    double init_time= fTemplateTime - fMaxBin.time * fTemplate->GetRefineFactor();
-    fFitter->SetInitialParameterEstimates(fInitPedestal, init_amp, init_time);
+    double init_time=  fMaxBin.time * fTemplate->GetRefineFactor()- fTemplateTime ;
+    fFitter->SetPedestal(fInitPedestal);
+    fFitter->SetPulseEstimates(0, init_amp, init_time);
 
     // Make histo for TPI
     TH1D* hPulseToFit=InterpolatePulse(*tpi,"hPulseToFit","hPulseToFit",false,fTemplate->GetRefineFactor());
     
-    int fit_status = fFitter->FitPulseToTemplate(fTemplate, hPulseToFit, (*tpi)->GetBankName());
+    int fit_status = fFitter->FitWithOneTimeFree(0, hPulseToFit);
 
     // Now that we've found the information we were looking for make a TAP to
     // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
     // the index of the parent TPI in the container as an argument
     tap = MakeNewTAP<TTemplateFitAnalysedPulse>(tpi-pulseList.begin());
     tap->SetTemplate(fTemplate);
-    tap->SetPedestal(fFitter->GetPedestalOffset());
-    tap->SetAmplitudeScaleFactor(fFitter->GetAmplitudeScaleFactor());
-    tap->SetTimeOffset(-fFitter->GetTimeOffset());
+    tap->SetPedestal(fFitter->GetPedestal());
+    tap->SetAmplitude(fFitter->GetAmplitude(0));
+    tap->SetTime(-fFitter->GetTime(0));
     tap->SetChi2(fFitter->GetChi2());
     tap->SetNDoF(fFitter->GetNDoF());
     tap->SetFitStatus(fit_status);
