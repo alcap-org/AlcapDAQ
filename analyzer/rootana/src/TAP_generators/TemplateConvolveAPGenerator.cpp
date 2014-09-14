@@ -95,4 +95,4 @@ bool TemplateConvolveAPGenerator::PassesIntegralRatio(const TPulseIsland* pulse,
 }
 
 
-ALCAP_TAP_GENERATOR(TemplateConvolve);
+ALCAP_TAP_GENERATOR(TemplateConvolve, template_archive, peak_cut, use_IR_cut, min_integral, max_integral, min_ratio, max_ratio );
