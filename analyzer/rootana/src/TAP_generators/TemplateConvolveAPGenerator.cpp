@@ -23,6 +23,7 @@ TemplateConvolveAPGenerator::TemplateConvolveAPGenerator(TAPGeneratorOptions* op
      fTemplateArchive=new TemplateArchive(opts->GetString("template_archive").c_str(),"READ");
    }
    fTemplate=fTemplateArchive->GetTemplate(GetChannel());
+   fTemplate->RebinToOriginalSampling();
 
    fConvolver=new TemplateConvolver(GetChannel(), fTemplate, opts->GetDouble("pulse_cut",1e6));
 
@@ -57,6 +58,10 @@ int TemplateConvolveAPGenerator::ProcessPulses(
 
     // convolve with the template
     int n_peaks= fConvolver->Convolve(*tpi);
+    if(n_peaks<0) {
+      cout<<"Waveform too small to analyze"<<endl;
+      continue;
+    }
 
     // Make a new TAP to store the data.  This method makes a TAP and sets the parent TPI info.  It needs
     // the index of the parent TPI in the container as an argument
