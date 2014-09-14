@@ -39,7 +39,7 @@ class TemplateConvolver{
 
     private:
       int FindPeaks();
-      void ResetVectors(int size);
+      bool ResetVectors(int size);
 
     private:
       IDs::channel fChannel;
@@ -47,7 +47,7 @@ class TemplateConvolver{
       int fTemplateLength;
       Algorithm::Convolver<Algorithm::TH1_c_iterator>* fEnergyConvolve;
       Algorithm::Convolver<const int*>* fTimeConvolve;
-      int fSafety;
+      int fLeftSafety, fRightSafety;
       double fFoundPeakCut;
       PeaksVector fPeaks;
       SamplesVector fEnergySamples;
