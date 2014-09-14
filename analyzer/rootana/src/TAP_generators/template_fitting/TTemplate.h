@@ -26,7 +26,8 @@ class TTemplate:public TObject{
         fTemplatePulse->SetDirectory(dir);
         fErrors->SetDirectory(dir);
       }
-      void Normalise();
+      void NormaliseToAmplitude();
+      void NormaliseToIntegral();
 
       double GetPedestal()const;
       double GetTime()const;
@@ -38,6 +39,8 @@ class TTemplate:public TObject{
 
       const char* GetName()const {return fName.c_str();}
       static std::string MakeName(const IDs::channel& ch){return ch.str()+"_template";}
+   private:
+      void SubtractPedestal();
 
    private:
       bool fDebug;

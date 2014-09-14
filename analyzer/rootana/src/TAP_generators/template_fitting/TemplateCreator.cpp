@@ -284,7 +284,7 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData, const TSetupData* setup)
          << ((double)i_ch->fit_successes/(double)i_ch->fit_attempts)*100 << "%)" << endl;
 
     // Normalise the templates
-    i_ch->template_pulse->Normalise();
+    //i_ch->template_pulse->NormaliseToAmplitude();
     i_ch->template_pulse->AddToDirectory(GetDirectory());
 
     // Save the template to the file

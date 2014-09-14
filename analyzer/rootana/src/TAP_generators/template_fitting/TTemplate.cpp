@@ -130,8 +130,23 @@ bool TTemplate::CheckConverged(){
   return fConverged;
 }
 
-void TTemplate::Normalise(){
+void TTemplate::NormaliseToAmplitude(){
     if(!fTemplatePulse) return;
+    SubtractPedestal();
+
+    double norm = std::fabs(fTemplatePulse->GetMaximum()); 
+    fTemplatePulse->Scale(1.0/norm);
+}
+
+void TTemplate::NormaliseToIntegral(){
+    if(!fTemplatePulse) return;
+    SubtractPedestal();
+
+    double norm = fTemplatePulse->Integral(); 
+    fTemplatePulse->Scale(1.0/norm);
+}
+    
+void TTemplate::SubtractPedestal(){
 
     // Normalise the template so that it has pedestal=0 and amplitude=1
     // Work out the pedestal of the template from the first 5 bins
@@ -149,12 +164,6 @@ void TTemplate::Normalise(){
 
       fTemplatePulse->SetBinContent(iBin, new_value);
     }
-
-    // Integrate over the histogram and scale to give an area of 1
-    // Want the absolute value for the integral because of the negative
-    // polarity pulses
-    double norm = std::fabs(fTemplatePulse->GetMaximum()); 
-    fTemplatePulse->Scale(1.0/norm);
 }
 
 double TTemplate::GetPedestal()const{
