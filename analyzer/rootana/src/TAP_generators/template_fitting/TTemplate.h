@@ -26,8 +26,10 @@ class TTemplate:public TObject{
         fTemplatePulse->SetDirectory(dir);
         fErrors->SetDirectory(dir);
       }
+
       void NormaliseToAmplitude();
       void NormaliseToIntegral();
+      TH1* RebinToOriginalSampling();
 
       double GetPedestal()const;
       double GetTime()const;

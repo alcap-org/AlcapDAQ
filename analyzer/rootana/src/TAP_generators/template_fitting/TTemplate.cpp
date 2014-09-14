@@ -40,6 +40,7 @@ TTemplate::~TTemplate(){
 void TTemplate::Initialize(int pulseID, TH1D* pulse, TDirectory* dir){
   
   fTemplatePulse=pulse;
+  fTemplatePulse->SetBit(TH1::kIsAverage);
   ++fTotalPulses;
 }
 
@@ -132,6 +133,7 @@ bool TTemplate::CheckConverged(){
 
 void TTemplate::NormaliseToAmplitude(){
     if(!fTemplatePulse) return;
+    fTemplatePulse->SetBit(TH1::kIsAverage);
     SubtractPedestal();
 
     double norm = std::fabs(fTemplatePulse->GetMaximum()); 
@@ -140,10 +142,15 @@ void TTemplate::NormaliseToAmplitude(){
 
 void TTemplate::NormaliseToIntegral(){
     if(!fTemplatePulse) return;
+    fTemplatePulse->SetBit(TH1::kIsAverage);
     SubtractPedestal();
 
     double norm = fTemplatePulse->Integral(); 
     fTemplatePulse->Scale(1.0/norm);
+}
+
+TH1* TTemplate::RebinToOriginalSampling(){
+   return fTemplatePulse->Rebin(fRefineFactor);
 }
     
 void TTemplate::SubtractPedestal(){
