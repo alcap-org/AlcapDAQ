@@ -1,7 +1,9 @@
 #ifndef TEMPLATE_FITTING_CONVOLVER_H
 #define TEMPLATE_FITTING_CONVOLVER_H
 
+#include "debug_tools.h"
 #include <TH1.h>
+#include <iostream>
 
 namespace Algorithm{
    class TH1_c_iterator;
@@ -13,7 +15,8 @@ namespace Algorithm{
 template < typename WeightIterator>
 class Algorithm::Convolver{
    public:
-      Convolver( WeightIterator begin, WeightIterator end):fNWeights(end-begin),fBegin(begin), fEnd(end){}
+      Convolver( WeightIterator begin, WeightIterator end):fNWeights(end-begin),fBegin(begin), fEnd(end){
+      }
       
       template <typename InputIterator >
       double operator()(const InputIterator& start){
@@ -99,7 +102,7 @@ class Algorithm::TH1_c_iterator:public std::iterator<std::random_access_iterator
 struct Algorithm::TH1_wrapper{
     TH1_wrapper(const TH1*  hist): fHisto(hist){};
     TH1_c_iterator begin(int skip=0)const{return TH1_c_iterator(fHisto,1+skip);}
-    TH1_c_iterator end(int skip=0)const{return TH1_c_iterator(fHisto,fHisto->GetNbinsX()+skip);}
+    TH1_c_iterator end(int skip=0)const{return TH1_c_iterator(fHisto,fHisto->GetNbinsX()-skip);}
 
     private:
     const TH1* fHisto;
