@@ -33,15 +33,18 @@ class TTemplateConvolveAnalysedPulse:public TAnalysedPulse{
       /// @{
       void SetNPeaks(double val){fNPeaks=val;}
       void SetIntegralRatio(double val){fIntegralRatio=val;}
-      void SetEnergyConvolve(const SamplesVector& r){fEnergyConvolve=r;};
-      void SetTimeConvolve(const SamplesVector& r){fTimeConvolve=r;};
+      void SetEnergyConvolve(const SamplesVector& r){fEnergySamples=r;};
+      void SetTimeConvolve(const SamplesVector& r){fTimeSamples=r;};
       /// @}
+
+      /// @@brief overload the TAnalysedPulse::Draw method
+      virtual void Draw(const TH1F* tpi_pulse)const;
 
     private:
       int fNPeaks;
       double fIntegralRatio;
-      SamplesVector fEnergyConvolve; //!
-      SamplesVector fTimeConvolve; //!
+      SamplesVector fEnergySamples; //!
+      SamplesVector fTimeSamples; //!
 
       ClassDef(TTemplateConvolveAnalysedPulse,1);
 };
