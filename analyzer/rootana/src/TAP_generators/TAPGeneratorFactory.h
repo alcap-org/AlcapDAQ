@@ -35,12 +35,12 @@ inline TAPGeneratorFactory* TAPGeneratorFactory::Instance(){
     return instance;
 }
 
-#define ALCAP_TAP_GENERATOR__( CLASS, ARGUMENTS) \
+#define ALCAP_TAP_GENERATOR__( NAME, CLASS, ARGUMENTS) \
 RegistryProxy<CLASS,TVAnalysedPulseGenerator,TAPGeneratorOptions,TAPGeneratorFactory> \
-   p_##CLASS(#CLASS, ARGUMENTS, CLASS::TapType() );
+   p_##CLASS(NAME, ARGUMENTS, CLASS::TapType() );
 
-#define ALCAP_TAP_GENERATOR( NAME , ... ) \
-    ALCAP_TAP_GENERATOR__( NAME##APGenerator, #__VA_ARGS__)
+#define ALCAP_TAP_GENERATOR( CLASS , ... ) \
+    ALCAP_TAP_GENERATOR__( #CLASS, CLASS##APGenerator, #__VA_ARGS__)
 
 
 #endif // TAPGENERATORFACTORY__HH_

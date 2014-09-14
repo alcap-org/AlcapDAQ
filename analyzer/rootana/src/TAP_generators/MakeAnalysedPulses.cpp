@@ -206,7 +206,7 @@ bool MakeAnalysedPulses::AddGenerator(const string& detector,string generatorTyp
 
     // Get the requested generator
     TVAnalysedPulseGenerator* generator=
-        TAPGeneratorFactory::Instance()->createModule(generatorType+"APGenerator",opts);
+        TAPGeneratorFactory::Instance()->createModule(generatorType,opts);
     if(!generator) return false;
 
     // print something
