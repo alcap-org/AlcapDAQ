@@ -24,6 +24,7 @@ TemplateConvolveAPGenerator::TemplateConvolveAPGenerator(TAPGeneratorOptions* op
    }
    fTemplate=fTemplateArchive->GetTemplate(GetChannel());
    fTemplate->RebinToOriginalSampling();
+   fTemplate->NormaliseToSumSquares();
 
    fConvolver=new TemplateConvolver(GetChannel(), fTemplate, opts->GetDouble("pulse_cut",1e6));
 
@@ -57,27 +58,35 @@ int TemplateConvolveAPGenerator::ProcessPulses(
     }
 
     // convolve with the template
-    int n_peaks= fConvolver->Convolve(*tpi);
+    int n_peaks= fConvolver->Convolve(*tpi , fPedestal);
     if(n_peaks<0) {
-      cout<<"Waveform too small to analyze"<<endl;
+      if(Debug())cout<<"Waveform too small to analyze"<<endl;
       continue;
     }
+    const TemplateConvolver::PeaksVector& peaks=fConvolver->GetPeaks();
+    int count=0;
+    for(TemplateConvolver::PeaksVector::const_iterator i_tap=peaks.begin();
+          i_tap!=peaks.end(); ++i_tap){
+    
+       // Make a new TAP to store the data.  This method makes a TAP and sets the parent TPI info.  It needs
+       // the index of the parent TPI in the container as an argument
+       tap = MakeNewTAP<TTemplateConvolveAnalysedPulse>(tpi-pulseList.begin());
+       if(fIntegralRatio){
+         tap->SetIntegral(integral);
+         tap->SetIntegralRatio(ratio);
+       }
+       tap->SetNPeaks(n_peaks);
+       tap->SetPeakRank(count);
+       tap->SetEnergyConvolve(fConvolver->GetEnergyConvolution());
+       tap->SetTimeConvolve(fConvolver->GetTimeConvolution());
+       tap->SetTime(i_tap->time);
+       tap->SetAmplitude(i_tap->amplitude);
 
-    // Make a new TAP to store the data.  This method makes a TAP and sets the parent TPI info.  It needs
-    // the index of the parent TPI in the container as an argument
-    tap = MakeNewTAP<TTemplateConvolveAnalysedPulse>(tpi-pulseList.begin());
-    if(fIntegralRatio){
-      tap->SetIntegral(integral);
-      tap->SetIntegralRatio(ratio);
+       // Finally add the new TAP to the output list
+       analysedList.push_back(tap);
+//if(count>1) DEBUG_VALUE(count);
+       ++count;
     }
-    tap->SetNPeaks(n_peaks);
-    tap->SetEnergyConvolve(fConvolver->GetEnergyConvolution());
-    tap->SetTimeConvolve(fConvolver->GetTimeConvolution());
-    tap->SetTime(fConvolver->GetTime());
-    tap->SetAmplitude(fConvolver->GetAmplitude());
-
-    // Finally add the new TAP to the output list
-    analysedList.push_back(tap);
   }
 
   return 0;

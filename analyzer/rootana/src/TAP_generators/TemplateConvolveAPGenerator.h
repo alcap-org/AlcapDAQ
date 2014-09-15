@@ -8,6 +8,7 @@
 #include "TemplateArchive.h"
 #include "TTemplateConvolveAnalysedPulse.h"
 #include "TAPAlgorithms.h"
+#include <vector>
 
 class TemplateConvolver;
 
