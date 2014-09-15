@@ -17,7 +17,7 @@ class TemplateConvolver{
          double amplitude;
          double second_diff;
          bool operator<(const FoundPeaks& rhs)const{
-           return second_diff<rhs.second_diff;
+           return amplitude>rhs.amplitude;
          }
       };
       typedef std::set<FoundPeaks> PeaksVector;
@@ -29,7 +29,7 @@ class TemplateConvolver{
       bool IsValid()const{return fTemplateLength>0;}
 
     public:
-      int Convolve(const TPulseIsland* tpi);
+      int Convolve(const TPulseIsland* tpi,double pedestal=0);
 
       const SamplesVector& GetEnergyConvolution()const{return fEnergySamples;};
       const SamplesVector& GetTimeConvolution()const{return fTimeSamples;};
@@ -46,12 +46,13 @@ class TemplateConvolver{
       TTemplate* fTemplate;
       int fTemplateLength;
       Algorithm::Convolver<Algorithm::TH1_c_iterator>* fEnergyConvolve;
-      Algorithm::Convolver<const int*>* fTimeConvolve;
+      Algorithm::Convolver<std::vector<int>::iterator>* fTimeConvolve;
       int fLeftSafety, fRightSafety;
       double fFoundPeakCut;
       PeaksVector fPeaks;
       SamplesVector fEnergySamples;
       SamplesVector fTimeSamples;
+    std::vector<int> fTimeWeights;
 
 };
 

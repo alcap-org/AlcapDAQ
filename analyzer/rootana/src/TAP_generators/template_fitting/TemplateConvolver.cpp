@@ -6,8 +6,20 @@
 
 using namespace Algorithm;
 
+typedef std::vector<int>::const_iterator IteratorType;
+namespace{
+  struct ped_subt_it:public IteratorType{
+     ped_subt_it(const IteratorType& it, double ped):IteratorType(it),fPedestal(ped){}
+     ped_subt_it(const IteratorType& it):IteratorType(it),fPedestal(0){}
+     double operator*()const{
+       return IteratorType::operator*() - fPedestal;
+     }
+     double fPedestal;
+  };
+}
+
 TemplateConvolver::TemplateConvolver(const IDs::channel ch, TTemplate* tpl, double peak_cut):
-     fChannel(ch), fTemplate(tpl),fLeftSafety(10),fRightSafety(30),fFoundPeakCut(peak_cut){
+     fChannel(ch), fTemplate(tpl),fLeftSafety(20),fRightSafety(60),fFoundPeakCut(peak_cut){
    fTemplateLength=fTemplate->GetHisto()->GetNbinsX() - fLeftSafety - fRightSafety;
    if(fTemplateLength <0) return;
 
@@ -16,7 +28,8 @@ TemplateConvolver::TemplateConvolver(const IDs::channel ch, TTemplate* tpl, doub
    
    const int num_weights=2;
    const int weights[num_weights]={-1,1};
-   fTimeConvolve=new Convolver<const int*>(weights,weights+num_weights);
+   fTimeWeights.assign(weights, weights+num_weights);
+   fTimeConvolve=new Convolver<std::vector<int>::iterator>(fTimeWeights.begin(),fTimeWeights.end());
 }
 
 TemplateConvolver::~TemplateConvolver(){
@@ -24,7 +37,7 @@ TemplateConvolver::~TemplateConvolver(){
   delete fEnergyConvolve;
 }
 
-int TemplateConvolver::Convolve(const TPulseIsland* tpi){
+int TemplateConvolver::Convolve(const TPulseIsland* tpi, double ped){
    // initialize for convolution
    const std::vector<int>& samples=tpi->GetSamples();
    if(!ResetVectors(samples.size())){
@@ -32,7 +45,7 @@ int TemplateConvolver::Convolve(const TPulseIsland* tpi){
    }
 
    // convole the waveform with the template
-   /*SamplesVector::iterator last=*/(*fEnergyConvolve)(samples.begin(),samples.end(),fEnergySamples.begin());
+   (*fEnergyConvolve)(ped_subt_it(samples.begin(),ped),ped_subt_it(samples.end(),ped),fEnergySamples.begin());
 
    // now run the timing filter (in the future this and the last step could be merged)
    (*fTimeConvolve)(fEnergySamples.begin(),fEnergySamples.end(),fTimeSamples.begin());
@@ -46,19 +59,22 @@ bool TemplateConvolver::ResetVectors(int size){
    size-=fTemplateLength;
    if( size < 1 ) return false;
    fEnergySamples.resize(size);
-   fTimeSamples.resize(size -2 );
+   fTimeSamples.resize(size - fTimeWeights.size() );
+   fPeaks.clear();
    return true;
 }
 
 int TemplateConvolver::FindPeaks(){
    FoundPeaks tmp;
-   for(SamplesVector::const_iterator i_sample=fTimeSamples.begin(); i_sample!=fTimeSamples.end(); ++i_sample){
-      if( fabs(*i_sample-fFoundPeakCut) <fFoundPeakCut){
+   bool last_was_positive=fTimeSamples.front() > 0;
+   for(SamplesVector::const_iterator i_sample=fTimeSamples.begin()+1; i_sample!=fTimeSamples.end(); ++i_sample){
+      if( last_was_positive && *i_sample<0){
         tmp.time=i_sample-fTimeSamples.begin();
         tmp.amplitude=fEnergySamples[tmp.time];
         tmp.second_diff=*i_sample;
         fPeaks.insert(tmp);
       }
+      last_was_positive = *i_sample >0;
    }
    return fPeaks.size();
 }
