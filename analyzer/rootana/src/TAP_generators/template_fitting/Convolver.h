@@ -40,7 +40,7 @@ class Algorithm::Convolver{
       }
 
    private:
-      ptrdiff_t fNWeights;
+      int fNWeights;
       WeightIterator fBegin;
       WeightIterator fEnd;
 };
@@ -92,7 +92,7 @@ class Algorithm::TH1_c_iterator:public std::iterator<std::random_access_iterator
      bool operator==(const TH1_c_iterator& rhs)const{
        return  fCurrentBin==rhs.fCurrentBin && fHist==rhs.fHist;
      }
-     ptrdiff_t operator-(const TH1_c_iterator& rhs)const{ 
+     int operator-(const TH1_c_iterator& rhs)const{ 
        return fCurrentBin-rhs.fCurrentBin;
      }
 
