@@ -5,6 +5,10 @@
 #include "TTemplate.h"
 #include <TRef.h>
 #include <TObject.h>
+#ifndef __CINT__
+#include "debug_tools.h"
+#include <iostream>
+#endif// __CINT__
 
 class TTemplateConvolveAnalysedPulse:public TAnalysedPulse{
 
@@ -31,7 +35,11 @@ class TTemplateConvolveAnalysedPulse:public TAnalysedPulse{
 
       /// @name Setters
       /// @{
-      void SetNPeaks(double val){fNPeaks=val;}
+      void SetNPeaks(int val){fNPeaks=val;}
+      void SetPeakRank(int val){
+fPeakRank=val;
+//if(val>1) DEBUG_VALUE(val,fPeakRank);
+}
       void SetIntegralRatio(double val){fIntegralRatio=val;}
       void SetEnergyConvolve(const SamplesVector& r){fEnergySamples=r;};
       void SetTimeConvolve(const SamplesVector& r){fTimeSamples=r;};
@@ -42,6 +50,7 @@ class TTemplateConvolveAnalysedPulse:public TAnalysedPulse{
 
     private:
       int fNPeaks;
+      int fPeakRank;
       double fIntegralRatio;
       SamplesVector fEnergySamples; //!
       SamplesVector fTimeSamples; //!
