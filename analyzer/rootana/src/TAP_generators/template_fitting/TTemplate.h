@@ -29,6 +29,7 @@ class TTemplate:public TObject{
 
       void NormaliseToAmplitude();
       void NormaliseToIntegral();
+      void NormaliseToSumSquares();
       TH1* RebinToOriginalSampling();
 
       double GetPedestal()const;

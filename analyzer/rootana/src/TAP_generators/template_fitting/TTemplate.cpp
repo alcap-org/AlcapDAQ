@@ -149,6 +149,18 @@ void TTemplate::NormaliseToIntegral(){
     fTemplatePulse->Scale(1.0/norm);
 }
 
+void TTemplate::NormaliseToSumSquares(){
+    if(!fTemplatePulse) return;
+    fTemplatePulse->SetBit(TH1::kIsAverage);
+    SubtractPedestal();
+
+    TH1* tmp = (TH1*) fTemplatePulse->Clone("tmp"); 
+    tmp->Multiply(tmp);
+    double norm = sqrt(tmp->Integral());
+    fTemplatePulse->Scale(1.0/norm);
+    delete tmp;
+}
+
 TH1* TTemplate::RebinToOriginalSampling(){
    return fTemplatePulse->Rebin(fRefineFactor);
 }
