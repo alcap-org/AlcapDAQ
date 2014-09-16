@@ -17,7 +17,7 @@ class TTemplateConvolveAnalysedPulse:public TAnalysedPulse{
 
     public:
       /// Needed by ROOT but not expected to be used
-      TTemplateConvolveAnalysedPulse():TAnalysedPulse(){};
+      TTemplateConvolveAnalysedPulse();
 
       /// @brief Construct a TTemplateConvolveAnalysedPulse.
       /// @details Same signature as for TAnalysedPulse so that MakeNewTAP can
@@ -31,6 +31,8 @@ class TTemplateConvolveAnalysedPulse:public TAnalysedPulse{
       /// @name Getters
       /// @{
       double GetIntegralRatio()const{return fIntegralRatio;}
+      int GetNPeaks()const{return fNPeaks;}
+      int GetPeakRank()const{return fPeakRank;}
       /// @}
 
       /// @name Setters

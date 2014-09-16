@@ -4,6 +4,9 @@
 #include <algorithm>
 #include "debug_tools.h"
 
+TTemplateConvolveAnalysedPulse::TTemplateConvolveAnalysedPulse():TAnalysedPulse(),
+      fNPeaks(0), fPeakRank(0), fIntegralRatio(0){}
+
 TTemplateConvolveAnalysedPulse::TTemplateConvolveAnalysedPulse(
        const IDs::source& sourceID, const TPulseIslandID& parentID, const TPulseIsland* parentTPI):
             TAnalysedPulse(sourceID,parentID,parentTPI),
