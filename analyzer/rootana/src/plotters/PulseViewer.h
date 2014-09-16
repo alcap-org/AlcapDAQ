@@ -9,6 +9,7 @@ namespace modules {class options;}
 class TFormula;
 class TIntegralRatioAnalysedPulse;
 class TTemplateFitAnalysedPulse;
+class TTemplateConvolveAnalysedPulse;
 
 /// @brief Module to plot pulses meeting a certain criteria
 /// @see https://github.com/alcap-org/AlcapDAQ/wiki/rootana-module-PulseViewer
@@ -32,13 +33,16 @@ class PulseViewer : public BaseModule{
         kIntegralTail,
         kChi2,
         kStatus,
-        kWasDouble
+        kWasDouble,
+        kNPeaks,
+        kPeakRank
     };
 
     enum PulseType{
         kTAP,
         kIntegralRatioAP,
-        kTemplateFitAP
+        kTemplateFitAP,
+        kTemplateConvolveAP
     };
 
     public:
@@ -61,6 +65,7 @@ class PulseViewer : public BaseModule{
     double GetParameterValue(const TAnalysedPulse* pulse,const ParameterType& parameter);
     double GetParameterValue(const TIntegralRatioAnalysedPulse* pulse,const ParameterType& parameter);
     double GetParameterValue(const TTemplateFitAnalysedPulse* pulse,const ParameterType& parameter);
+    double GetParameterValue(const TTemplateConvolveAnalysedPulse* pulse,const ParameterType& parameter);
 
     /// Parse a trigger condition and set up the values needed to handle it
     /// @return 0 on success, non-zero otherwise

@@ -11,6 +11,7 @@
 #include "EventNavigator.h"
 #include "TIntegralRatioAnalysedPulse.h"
 #include "TTemplateFitAnalysedPulse.h"
+#include "TTemplateConvolveAnalysedPulse.h"
 
 #include <TFormula.h>
 
@@ -79,6 +80,7 @@ int PulseViewer::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
      fAvailablePulseTypes["TAnalysedPulse"]=kTAP;
      fAvailablePulseTypes["IntegralRatioAP"]=kIntegralRatioAP;
      fAvailablePulseTypes["TemplateFitAP"]=kTemplateFitAP;
+     fAvailablePulseTypes["TemplateConvolveAP"]=kTemplateConvolveAP;
    }
 
    int ret_val= CheckPulseType(fRequestedPulseType);
@@ -101,6 +103,11 @@ int PulseViewer::CheckPulseType(const std::string& pulse_type){
    fPulseType=i_type->second;
    switch(fPulseType){
       case kTAP: break;
+      case kTemplateConvolveAP:
+         fAvailableParams["NPeaks"]=kNPeaks;
+         fAvailableParams["PeakRank"]=kPeakRank;
+         fAvailableParams["Integral_ratio"]=kIntegralRatio;
+         break;
       case kTemplateFitAP:
          fAvailableParams["Chi2"]=kChi2;
          fAvailableParams["Status"]=kStatus;
@@ -188,6 +195,7 @@ bool PulseViewer::TestPulseType(const TAnalysedPulse* pulse){
     case kTAP: return false;
     case kIntegralRatioAP: return dynamic_cast<const TIntegralRatioAnalysedPulse*>(pulse);
     case kTemplateFitAP: return dynamic_cast<const TTemplateFitAnalysedPulse*>(pulse);
+    case kTemplateConvolveAP: return dynamic_cast<const TTemplateConvolveAnalysedPulse*>(pulse);
   }
   return false;
 }
@@ -231,11 +239,26 @@ double PulseViewer::GetParameterValue(const TTemplateFitAnalysedPulse* pulse,con
     return retVal;
 }
 
+double PulseViewer::GetParameterValue(const TTemplateConvolveAnalysedPulse* pulse,const ParameterType& parameter){
+   double retVal=0;
+   switch (parameter){
+       case kIntegralRatio: retVal=pulse->GetIntegralRatio(); break;
+       case kNPeaks: retVal=pulse->GetNPeaks(); break;
+       case kPeakRank: retVal=pulse->GetPeakRank(); break;
+       default: retVal=GetParameterValue( static_cast<const TAnalysedPulse*>(pulse),parameter);
+    }
+    return retVal;
+}
+
 int PulseViewer::ConsiderDrawing(const TAnalysedPulseID& id, const TAnalysedPulse* pulse){
   // Check pulse passes trigger condition
     double vals[fAvailableParams.size()];
     switch (fPulseType){
        case kTAP: GetVals(vals,pulse); break;
+       case kTemplateConvolveAP: if(true){
+            const TTemplateConvolveAnalysedPulse* tc_pulse =static_cast<const TTemplateConvolveAnalysedPulse*>(pulse);
+            GetVals(vals,tc_pulse);
+            } break;
        case kTemplateFitAP: if(true){
             const TTemplateFitAnalysedPulse* tf_pulse =static_cast<const TTemplateFitAnalysedPulse*>(pulse);
             GetVals(vals,tf_pulse);
