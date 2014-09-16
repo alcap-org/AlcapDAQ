@@ -3,6 +3,7 @@
 #include "debug_tools.h"
 #include <iostream>
 #include <cmath>
+#include "InterpolatePulse.h"
 
 using namespace Algorithm;
 
@@ -30,6 +31,7 @@ TemplateConvolver::TemplateConvolver(const IDs::channel ch, TTemplate* tpl, doub
    const int weights[num_weights]={-1,1};
    fTimeWeights.assign(weights, weights+num_weights);
    fTimeConvolve=new Convolver<std::vector<int>::iterator>(fTimeWeights.begin(),fTimeWeights.end());
+   AutoCorrelateTemplate(fTemplate->GetHisto());
 }
 
 TemplateConvolver::~TemplateConvolver(){
@@ -77,4 +79,14 @@ int TemplateConvolver::FindPeaks(){
       last_was_positive = *i_sample >0;
    }
    return fPeaks.size();
+}
+
+void TemplateConvolver::AutoCorrelateTemplate(const TH1* histogram){
+   TH1_wrapper hist(histogram);
+   SamplesVector acf_out(histogram->GetNbinsX()- fTemplateLength);
+   SamplesVector time_out(acf_out.size()- fTimeWeights.size());
+  (*fEnergyConvolve)(hist.begin(), hist.end(), acf_out.begin());
+  (*fTimeConvolve)(acf_out.begin(), acf_out.end(), time_out.begin());
+  functions::VectorToHist(acf_out,"Template_ACF","Auto-correlation of template");
+  functions::VectorToHist(time_out,"Template_ACF_derivative","Derivative of auto-correlation of template");
 }

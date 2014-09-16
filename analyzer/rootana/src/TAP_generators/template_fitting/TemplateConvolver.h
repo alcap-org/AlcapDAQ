@@ -40,6 +40,7 @@ class TemplateConvolver{
     private:
       int FindPeaks();
       bool ResetVectors(int size);
+      void AutoCorrelateTemplate(const TH1* histogram);
 
     private:
       IDs::channel fChannel;
