@@ -1,16 +1,8 @@
 #include "TTemplateConvolveAnalysedPulse.h"
-#include "TMarker.h"
+#include "TLine.h"
 #include "InterpolatePulse.h"
 #include <algorithm>
 #include "debug_tools.h"
-
-namespace{
-  struct unique_n{
-    int operator() () { return ++current; }
-    int current;
-    unique_n():current(-1){}
-  };
-}
 
 TTemplateConvolveAnalysedPulse::TTemplateConvolveAnalysedPulse(
        const IDs::source& sourceID, const TPulseIslandID& parentID, const TPulseIsland* parentTPI):
@@ -22,31 +14,24 @@ TTemplateConvolveAnalysedPulse::~TTemplateConvolveAnalysedPulse(){
 }
 
 void TTemplateConvolveAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
+
+   // make sure theres a TPI
    if(!tpi_pulse) return;
 
-   // prepare labels for histoagrams
-   const int n_samples=fEnergySamples.size();
-   unique_n uniq;
-   double labels[n_samples];
-   std::generate_n(labels,n_samples, uniq);
-
    std::string name(tpi_pulse->GetName());
+
    /// make the energy (template convolution) waveform
-   TH1F* energy_hist=new TH1F((name+"_energy").c_str(),
-                               "Convolution with template",
-                               fEnergySamples.size(),0,fEnergySamples.size());
-   energy_hist->FillN(n_samples,labels,fEnergySamples.data());
+   TH1F* energy_hist=functions::VectorToHist(fEnergySamples,name+"_energy","Convolution with template");
 
    /// make the time (second derivative of the energy) waveform
-   TH1F* time_hist=new TH1F((name+"_time").c_str(),
-                               "Derivative of convolution with template",
-                               fTimeSamples.size(),0,fTimeSamples.size());
-   time_hist->FillN(fTimeSamples.size(),labels,fTimeSamples.data());
+   TH1F* time_hist=functions::VectorToHist(fTimeSamples,name+"_time","First derivative of convolution with template");
     
-   TMarker* marker=new TMarker(GetTime(), GetAmplitude()+10, 23);
-   marker->SetMarkerColor(kRed);
-   energy_hist->GetListOfFunctions()->Add(marker);
-   time_hist->GetListOfFunctions()->Add(marker->Clone());
+   //TMarker* marker=new TMarker(GetTime(), GetAmplitude()+10, 23);
+   TLine* line=new TLine(GetTime(), 0, GetTime(), GetAmplitude()+10);
+   line->SetLineColor(kRed);
+   energy_hist->GetListOfFunctions()->Add(line);
+   time_hist->GetListOfFunctions()->Add(line->Clone());
+   tpi_pulse->GetListOfFunctions()->Add(line->Clone());
 
    //tap_pulse->Write();
    

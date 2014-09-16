@@ -5,8 +5,9 @@
 #include "TPulseIsland.h"
 #include "TSetupData.h"
 #include "SetupNavigator.h"
+#include <algorithm> //std::generate_n
 
-TH1D* InterpolatePulse(
+TH1D* functions::InterpolatePulse(
     const TPulseIsland* pulse, std::string histname,
      std::string histtitle, bool interpolate, int refine) {
 
@@ -54,3 +55,16 @@ TH1D* InterpolatePulse(
   return hist;
 }
 
+namespace{
+  struct unique_n{
+    int operator() () { return current+=step; }
+    int current;
+    const int step;
+    unique_n(int b,int s):current(b),step(s){}
+  };
+}
+
+void functions::FillBinLabels(double* labels, int size, int start, int increment){
+   unique_n uniq(start,increment);
+   std::generate_n(labels,size, uniq);
+}
