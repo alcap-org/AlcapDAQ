@@ -9,6 +9,7 @@
 namespace IDs{ class channel;}
 class TTemplate;
 class TPulseIsland;
+class TDirectory;
 
 class TemplateConvolver{
     public:
@@ -30,6 +31,7 @@ class TemplateConvolver{
 
     public:
       int Convolve(const TPulseIsland* tpi,double pedestal=0);
+      void AutoCorrelateTemplate();
 
       const SamplesVector& GetEnergyConvolution()const{return fEnergySamples;};
       const SamplesVector& GetTimeConvolution()const{return fTimeSamples;};
@@ -40,7 +42,6 @@ class TemplateConvolver{
     private:
       int FindPeaks();
       bool ResetVectors(int size);
-      void AutoCorrelateTemplate(const TH1* histogram);
 
     private:
       IDs::channel fChannel;
