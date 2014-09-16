@@ -27,6 +27,7 @@ TemplateConvolveAPGenerator::TemplateConvolveAPGenerator(TAPGeneratorOptions* op
    fTemplate->NormaliseToSumSquares();
 
    fConvolver=new TemplateConvolver(GetChannel(), fTemplate, opts->GetDouble("pulse_cut",1e6));
+   fConvolver->AutoCorrelateTemplate();
 
    // prepare the integral ratio cuts
    if(opts->GetFlag("use_IR_cut")){
