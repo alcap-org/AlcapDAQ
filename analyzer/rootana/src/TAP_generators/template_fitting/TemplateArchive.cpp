@@ -2,8 +2,10 @@
 
 // option is standard ROOT file options
 TemplateArchive::TemplateArchive(const char* filename, const char* option) {
+  TDirectory* tmp=gDirectory;
   fTemplateFile = new TFile(filename, option);
   fDirectory=TDirectory::CurrentDirectory();
+  tmp->cd();
 }
 
 TemplateArchive::TemplateArchive(TDirectory* dir):fTemplateFile(NULL){
