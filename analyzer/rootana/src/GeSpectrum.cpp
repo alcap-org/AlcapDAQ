@@ -8,7 +8,7 @@
 #include "SetupNavigator.h"
 
 #include "TH1I.h"
-#include "TH2I.h"
+#include "TH2D.h"
 #include "TDirectory.h"
 
 #include <stdexcept>
@@ -51,7 +51,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fHist_EnergyOOT    = new TH1I("hEnergyOOT", "Energy of Gammas outside of Time Window", nbins, 0., max);
   fHist_EnergyFarOOT = new TH1I("hEnergyFarOOT", "Energy of Gammas far from Muons", nbins, 0., max);
   fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window", 100, -200., 200., nbins, 0., max);
-  fHist_MeanTOffset  = new TH1I("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 400, -200., 200.);
+  fHist_MeanTOffset  = new TH1I("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -20000., 20000.);
   cwd->cd();
   ThrowIfInputsInsane(opts);
 }
@@ -92,8 +92,8 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   //************************************//
   //***** First get average offset *****//
   //************************************//
-  TH1I hTOff("hTOff", "Time Offset", 400, -200., 200.);
-  for (std::vector<double>::const_iterator geT = geTimes.begin(), prev = geTimes.begin(), next;
+  TH1I hTOff("hTOff", "Time Offset", 4000, -20000., 20000.);
+  for (std::vector<double>::const_iterator geT = geTimes.begin(), prev = muScTimes.begin(), next;
        geT != geTimes.end();
        ++geT) {
     static const double unfound = 1e9;
@@ -101,9 +101,9 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
     next = std::upper_bound(prev, muScTimes.end(), *geT);
     prev = next - 1;
     if (next == muScTimes.end())
-      dt_prev = dt_next = *geT - *prev;
+      dt_prev = *geT - *prev;
     else if (next == muScTimes.begin()) {
-      dt_prev = dt_next = *geT - *next;
+      dt_next = *geT - *next;
       prev = next;
     } else {
       dt_prev = *geT - *prev;
@@ -111,7 +111,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
     }
     
     for (unsigned int it = 0; it < 2; ++it)
-      if (std::abs(dt[it]) < time_window_small)
+      if (std::abs(dt[it]) < 20000.)
 	hTOff.Fill(dt[it]);
 
   }
@@ -120,6 +120,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
     tOff = hTOff.GetMean();
     fHist_MeanTOffset->Fill(tOff);
   }
+
 
   //**************************//
   //***** Now make plots *****//
@@ -164,16 +165,18 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
     // Silicon XRay
     //if (ge_energy >= 3260 && energy_ge <= 3290)
     // Aluminium XRay
-    /*    if (ge_energy >= 2813 && ge_energy <= 2853) {
-	  if (dt_prev != unfound) {
-	  fHist_Time->Fill(dt_prev);
-	  fHist_MoreTime->Fill(dt_prev);
-	  }
-	  if (dt_next != unfound) {
-	  fHist_Time->Fill(dt_next);
-	  fHist_MoreTime->Fill(dt_next);
-	  }
-    */
+    //if (*geE >= 340 && *geE <= 350) {
+    // Mg27 Gamma
+    if (*geE >= 838 && *geE <= 848) {
+      if (dt_prev != unfound) {
+	fHist_Time->Fill(dt_prev);
+	fHist_MoreTime->Fill(dt_prev);
+      }
+      if (dt_next != unfound) {
+	fHist_Time->Fill(dt_next);
+	fHist_MoreTime->Fill(dt_next);
+      }
+    }
   }
   return 0;
 }
@@ -193,7 +196,7 @@ std::vector<double> GeSpectrum::CalculateTimes(const IDs::channel& ch, const std
       t.push_back(fCFTimeMuSc(tpis[i]));
   else if (ch == fGeF)
     for (unsigned int i = 0; i < tpis.size(); ++i)
-      t.push_back(fCFTimeMuSc(tpis[i]));
+      t.push_back(fCFTimeGe(tpis[i]));
   else
     throw std::logic_error("GeSpectrum: Invalid channel to calculate times for.");
   return t;
