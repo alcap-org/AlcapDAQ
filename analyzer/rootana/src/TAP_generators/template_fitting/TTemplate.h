@@ -44,6 +44,7 @@ class TTemplate:public TObject{
       static std::string MakeName(const IDs::channel& ch){return ch.str()+"_template";}
    private:
       void SubtractPedestal();
+      void ScaleHist(double factor);
 
    private:
       bool fDebug;

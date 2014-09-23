@@ -137,7 +137,7 @@ void TTemplate::NormaliseToAmplitude(){
     SubtractPedestal();
 
     double norm = std::fabs(fTemplatePulse->GetMaximum()); 
-    fTemplatePulse->Scale(1.0/norm);
+    ScaleHist(1./norm);
 }
 
 void TTemplate::NormaliseToIntegral(){
@@ -146,7 +146,7 @@ void TTemplate::NormaliseToIntegral(){
     SubtractPedestal();
 
     double norm = fTemplatePulse->Integral(); 
-    fTemplatePulse->Scale(1.0/norm);
+    ScaleHist(1./norm);
 }
 
 void TTemplate::NormaliseToSumSquares(){
@@ -154,11 +154,11 @@ void TTemplate::NormaliseToSumSquares(){
     fTemplatePulse->SetBit(TH1::kIsAverage);
     SubtractPedestal();
 
-    TH1* tmp = (TH1*) fTemplatePulse->Clone("tmp"); 
+    TH1D* tmp = (TH1D*) fTemplatePulse->Clone("tmp"); 
     tmp->Multiply(tmp);
     double norm = sqrt(tmp->Integral());
-    fTemplatePulse->Scale(1.0/norm);
     delete tmp;
+    ScaleHist(1./norm);
 }
 
 TH1* TTemplate::RebinToOriginalSampling(){
@@ -184,6 +184,18 @@ void TTemplate::SubtractPedestal(){
       fTemplatePulse->SetBinContent(iBin, new_value);
     }
 }
+
+void TTemplate::ScaleHist(double factor){
+
+    // Subtract off the pedesal
+    for (int iBin = 0; iBin <= fTemplatePulse->GetNbinsX(); ++iBin) {
+      double old_value = fTemplatePulse->GetBinContent(iBin);
+      double new_value = old_value * factor;
+
+      fTemplatePulse->SetBinContent(iBin, new_value);
+    }
+}
+
 
 double TTemplate::GetPedestal()const{
   return fTemplatePulse->GetBinContent(1);
