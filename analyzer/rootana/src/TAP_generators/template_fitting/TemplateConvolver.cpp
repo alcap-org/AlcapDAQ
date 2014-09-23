@@ -21,8 +21,9 @@ namespace{
 }
 
 TemplateConvolver::TemplateConvolver(const IDs::channel ch, TTemplate* tpl, double peak_cut):
-     fChannel(ch), fTemplate(tpl),fLeftSafety(20),fRightSafety(60),fFoundPeakCut(peak_cut){
-   fTemplateLength=fTemplate->GetHisto()->GetNbinsX() - fLeftSafety - fRightSafety;
+     fChannel(ch), fTemplate(tpl),fLeftSafety(20),fRightSafety(60), fFoundPeakCut(peak_cut),
+     fTemplateLength(fTemplate->GetHisto()->GetNbinsX() - fLeftSafety - fRightSafety),
+     fTemplateTime(fTemplate->GetTime()-fLeftSafety){
    if(fTemplateLength <0) return;
 
    TH1_wrapper hist(fTemplate->GetHisto());
@@ -68,15 +69,16 @@ bool TemplateConvolver::ResetVectors(int size){
 
 int TemplateConvolver::FindPeaks(){
    FoundPeaks tmp;
-   bool last_was_positive=fTimeSamples.front() > 0;
+   double last_sample=fTimeSamples.front();
    for(SamplesVector::const_iterator i_sample=fTimeSamples.begin()+1; i_sample!=fTimeSamples.end(); ++i_sample){
-      if( last_was_positive && *i_sample<0){
-        tmp.time=i_sample-fTimeSamples.begin();
+      if( last_sample>0 && *i_sample<0){
+        tmp.time=(i_sample-fTimeSamples.begin());
         tmp.amplitude=fEnergySamples[tmp.time];
-        tmp.second_diff=*i_sample;
+        tmp.time+=fTemplateTime;
+        tmp.second_diff=last_sample - *i_sample;
         fPeaks.insert(tmp);
       }
-      last_was_positive = *i_sample >0;
+      last_sample = *i_sample;
    }
    return fPeaks.size();
 }

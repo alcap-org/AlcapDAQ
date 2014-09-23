@@ -46,15 +46,16 @@ class TemplateConvolver{
     private:
       IDs::channel fChannel;
       TTemplate* fTemplate;
-      int fTemplateLength;
       Algorithm::Convolver<Algorithm::TH1_c_iterator>* fEnergyConvolve;
       Algorithm::Convolver<std::vector<int>::iterator>* fTimeConvolve;
-      int fLeftSafety, fRightSafety;
-      double fFoundPeakCut;
+      const int fLeftSafety, fRightSafety;
+      const double fFoundPeakCut;
+      const int fTemplateLength;
+      const double fTemplateTime;
       PeaksVector fPeaks;
       SamplesVector fEnergySamples;
       SamplesVector fTimeSamples;
-    std::vector<int> fTimeWeights;
+      std::vector<int> fTimeWeights;
 
 };
 
