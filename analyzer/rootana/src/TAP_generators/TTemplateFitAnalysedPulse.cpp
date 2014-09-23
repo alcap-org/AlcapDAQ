@@ -12,7 +12,7 @@ TTemplateFitAnalysedPulse::TTemplateFitAnalysedPulse(
              fResidual(NULL), fHisto(NULL),fIsPileUpPulse(false),fOtherPulse(NULL){}
 
 TTemplateFitAnalysedPulse::~TTemplateFitAnalysedPulse(){
-   if(fHisto) delete fHisto;
+   //if(fHisto) delete fHisto;
 }
 
 void TTemplateFitAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
