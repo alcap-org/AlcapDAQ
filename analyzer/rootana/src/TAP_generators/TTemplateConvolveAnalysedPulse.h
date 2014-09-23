@@ -28,6 +28,16 @@ class TTemplateConvolveAnalysedPulse:public TAnalysedPulse{
       // defined in .cpp file to force vtable to be built
       virtual ~TTemplateConvolveAnalysedPulse();
 
+      virtual void Copy(TObject& rhs)const{
+         TAnalysedPulse::Copy(rhs);
+         if(rhs.InheritsFrom(Class())){
+           TTemplateConvolveAnalysedPulse* tap=static_cast<TTemplateConvolveAnalysedPulse*>(&rhs);
+            tap->fNPeaks       =fNPeaks;
+            tap->fPeakRank     =fPeakRank;
+            tap->fIntegralRatio=fIntegralRatio;
+         }
+      }
+
       /// @name Getters
       /// @{
       double GetIntegralRatio()const{return fIntegralRatio;}
@@ -57,7 +67,7 @@ fPeakRank=val;
       SamplesVector fEnergySamples; //!
       SamplesVector fTimeSamples; //!
 
-      ClassDef(TTemplateConvolveAnalysedPulse,1);
+      ClassDef(TTemplateConvolveAnalysedPulse,2);
 };
 
 #endif // TTEMPLATECONVOLVEANALYSEDPULSE_H
