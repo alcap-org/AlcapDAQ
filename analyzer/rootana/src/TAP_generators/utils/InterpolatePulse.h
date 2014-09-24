@@ -12,6 +12,8 @@ TH1D* InterpolatePulse(
     const TPulseIsland* pulse, std::string histname,
      std::string histtitle, bool interpolate, int refine);
 
+void FillBinLabels(double* labels, int size, int start=-1, int increment=1);
+
 template<typename ValueType>
 TH1F* VectorToHist( const std::vector<ValueType>& vect, std::string name,
      std::string title){
@@ -23,7 +25,6 @@ TH1F* VectorToHist( const std::vector<ValueType>& vect, std::string name,
    return hist;
 }
 
-void FillBinLabels(double* labels, int size, int start=-1, int increment=1);
 }
 
 using functions::InterpolatePulse;
