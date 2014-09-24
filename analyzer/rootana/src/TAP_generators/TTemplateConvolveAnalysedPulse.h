@@ -35,6 +35,11 @@ class TTemplateConvolveAnalysedPulse:public TAnalysedPulse{
             tap->fNPeaks       =fNPeaks;
             tap->fPeakRank     =fPeakRank;
             tap->fIntegralRatio=fIntegralRatio;
+            tap->fQuad=fQuad;
+            tap->fLinear=fLinear;
+            tap->fConstant=fConstant;
+            tap->fTimeOffset=fTimeOffset;
+            tap->fAmplitudeScale=fAmplitudeScale;
          }
       }
 
@@ -43,18 +48,20 @@ class TTemplateConvolveAnalysedPulse:public TAnalysedPulse{
       double GetIntegralRatio()const{return fIntegralRatio;}
       int GetNPeaks()const{return fNPeaks;}
       int GetPeakRank()const{return fPeakRank;}
+      const TTemplate* GetTemplate()const{return (const TTemplate*) fTemplate.GetObject();}
       /// @}
 
       /// @name Setters
       /// @{
       void SetNPeaks(int val){fNPeaks=val;}
-      void SetPeakRank(int val){
-fPeakRank=val;
-//if(val>1) DEBUG_VALUE(val,fPeakRank);
-}
+      void SetPeakRank(int val){ fPeakRank=val; }
+      void SetTimeOffset(double val){ fTimeOffset=val; }
+      void SetAmplitudeScale(double val){ fAmplitudeScale=val; }
       void SetIntegralRatio(double val){fIntegralRatio=val;}
+      void SetQuadraticFit(double a, double b, double c){fQuad=a; fLinear=b; fConstant=c;};
       void SetEnergyConvolve(const SamplesVector& r){fEnergySamples=r;};
       void SetTimeConvolve(const SamplesVector& r){fTimeSamples=r;};
+      void SetTemplate(TTemplate* val){fTemplate=val;}
       /// @}
 
       /// @@brief overload the TAnalysedPulse::Draw method
@@ -64,6 +71,9 @@ fPeakRank=val;
       int fNPeaks;
       int fPeakRank;
       double fIntegralRatio;
+      double fQuad, fLinear, fConstant;
+      double fTimeOffset, fAmplitudeScale;
+        TRef fTemplate;//!
       SamplesVector fEnergySamples; //!
       SamplesVector fTimeSamples; //!
 

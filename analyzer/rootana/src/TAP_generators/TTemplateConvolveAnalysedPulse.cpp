@@ -3,6 +3,7 @@
 #include "InterpolatePulse.h"
 #include <algorithm>
 #include "debug_tools.h"
+#include <TF1.h>
 
 TTemplateConvolveAnalysedPulse::TTemplateConvolveAnalysedPulse():TAnalysedPulse(),
       fNPeaks(0), fPeakRank(0), fIntegralRatio(0){}
@@ -30,11 +31,24 @@ void TTemplateConvolveAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
    TH1F* time_hist=functions::VectorToHist(fTimeSamples,name+"_time","First derivative of convolution with template");
     
    //TMarker* marker=new TMarker(GetTime(), GetAmplitude()+10, 23);
-   TLine* line=new TLine(GetTime(), 0, GetTime(), GetAmplitude()+10);
+   TLine* line=new TLine(GetTime(), GetPedestal(), GetTime(), GetAmplitude()+GetPedestal());
    line->SetLineColor(kRed);
+   tpi_pulse->GetListOfFunctions()->Add(line->Clone());
+
+   line->SetX1(fTimeOffset);
+   line->SetX2(fTimeOffset);
+   line->SetY1(0);
+   line->SetY2(fAmplitudeScale);
+
    energy_hist->GetListOfFunctions()->Add(line);
    time_hist->GetListOfFunctions()->Add(line->Clone());
-   tpi_pulse->GetListOfFunctions()->Add(line->Clone());
+
+   TF1* fit=new TF1("Fit","[0]*(x-[3])**2+[1]*(x-[3])+[2]", 0 , energy_hist->GetNbinsX());
+   fit->SetParameter(0,fQuad);
+   fit->SetParameter(1,fLinear);
+   fit->SetParameter(2,fConstant);
+   fit->SetParameter(3,fTimeOffset );
+   energy_hist->GetListOfFunctions()->Add(fit);
 
    //tap_pulse->Write();
    
