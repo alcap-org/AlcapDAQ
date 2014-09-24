@@ -26,10 +26,10 @@ TemplateConvolveAPGenerator::TemplateConvolveAPGenerator(TAPGeneratorOptions* op
    fTemplate->RebinToOriginalSampling();
    fTemplate->NormaliseToSumSquares();
 
-   fConvolver=new TemplateConvolver(GetChannel(), fTemplate, opts->GetDouble("pulse_cut",1e6));
+   fConvolver=new TemplateConvolver(GetChannel(), fTemplate, opts->GetDouble("n_quad_fit",5));
    TH1* tpl=(TH1*)fTemplate->GetHisto()->Clone("Template");
    tpl->SetDirectory(gDirectory);
-   fConvolver->AutoCorrelateTemplate();
+   fConvolver->CharacteriseTemplate();
 
    // prepare the integral ratio cuts
    if(opts->GetFlag("use_IR_cut")){
@@ -82,12 +82,16 @@ int TemplateConvolveAPGenerator::ProcessPulses(
        tap->SetPeakRank(count);
        tap->SetEnergyConvolve(fConvolver->GetEnergyConvolution());
        tap->SetTimeConvolve(fConvolver->GetTimeConvolution());
-       tap->SetTime(i_tap->time);
-       tap->SetAmplitude(i_tap->amplitude);
+       tap->SetTimeOffset(i_tap->time);
+       tap->SetTime(i_tap->time + fConvolver->GetTimeShift());
+       tap->SetAmplitudeScale(i_tap->amplitude);
+       tap->SetAmplitude(i_tap->amplitude*fConvolver->GetAmplitudeScale());
+       tap->SetQuadraticFit(i_tap->quad,i_tap->linear, i_tap->constant);
+       tap->SetTemplate(fTemplate);
+       tap->SetPedestal(fPedestal);
 
        // Finally add the new TAP to the output list
        analysedList.push_back(tap);
-//if(count>1) DEBUG_VALUE(count);
        ++count;
     }
   }
@@ -112,4 +116,4 @@ bool TemplateConvolveAPGenerator::PassesIntegralRatio(const TPulseIsland* pulse,
 }
 
 
-ALCAP_TAP_GENERATOR(TemplateConvolve, template_archive, peak_cut, use_IR_cut, min_integral, max_integral, min_ratio, max_ratio );
+ALCAP_TAP_GENERATOR(TemplateConvolve, template_archive, n_quad_fit, use_IR_cut, min_integral, max_integral, min_ratio, max_ratio );
