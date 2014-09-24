@@ -5,11 +5,12 @@
 #include <iostream>
 #include <cmath>
 #include "InterpolatePulse.h"
+#include <TF1.h>
 
 using namespace Algorithm;
 
-typedef std::vector<int>::const_iterator IteratorType;
 namespace{
+  typedef std::vector<int>::const_iterator IteratorType;
   struct ped_subt_it:public IteratorType{
      ped_subt_it(const IteratorType& it, double ped):IteratorType(it),fPedestal(ped){}
      ped_subt_it(const IteratorType& it):IteratorType(it),fPedestal(0){}
@@ -20,8 +21,8 @@ namespace{
   };
 }
 
-TemplateConvolver::TemplateConvolver(const IDs::channel ch, TTemplate* tpl, double peak_cut):
-     fChannel(ch), fTemplate(tpl),fLeftSafety(20),fRightSafety(60), fFoundPeakCut(peak_cut),
+TemplateConvolver::TemplateConvolver(const IDs::channel ch, TTemplate* tpl, int peak_fit_samples):
+     fChannel(ch), fTemplate(tpl),fQuadFit(peak_fit_samples),fLeftSafety(20),fRightSafety(60), 
      fTemplateLength(fTemplate->GetHisto()->GetNbinsX() - fLeftSafety - fRightSafety),
      fTemplateTime(fTemplate->GetTime()-fLeftSafety){
    if(fTemplateLength <0) return;
@@ -54,7 +55,7 @@ int TemplateConvolver::Convolve(const TPulseIsland* tpi, double ped){
    (*fTimeConvolve)(fEnergySamples.begin(),fEnergySamples.end(),fTimeSamples.begin());
 
    // finaly get all peaks and return the total number found
-   return FindPeaks();
+   return FindPeaks(fEnergySamples, fTimeSamples);
 }
 
 bool TemplateConvolver::ResetVectors(int size){
@@ -67,30 +68,61 @@ bool TemplateConvolver::ResetVectors(int size){
    return true;
 }
 
-int TemplateConvolver::FindPeaks(){
-   FoundPeaks tmp;
-   double last_sample=fTimeSamples.front();
-   for(SamplesVector::const_iterator i_sample=fTimeSamples.begin()+1; i_sample!=fTimeSamples.end(); ++i_sample){
+int TemplateConvolver::FindPeaks(const SamplesVector& energy, const SamplesVector& time){
+   double last_sample=time.front();
+   for(SamplesVector::const_iterator i_sample=time.begin()+1; i_sample!=time.end(); ++i_sample){
       if( last_sample>0 && *i_sample<0){
-        tmp.time=(i_sample-fTimeSamples.begin());
-        tmp.amplitude=fEnergySamples[tmp.time];
-        tmp.time+=fTemplateTime;
-        tmp.second_diff=last_sample - *i_sample;
-        fPeaks.insert(tmp);
+        FitPeak(i_sample - time.begin(), energy, time);
       }
       last_sample = *i_sample;
    }
+
    return fPeaks.size();
 }
 
-void TemplateConvolver::AutoCorrelateTemplate(){
+void TemplateConvolver::FitPeak(int index, const SamplesVector& energy, const SamplesVector& time){
+   FoundPeaks tmp=FoundPeaks();
+   int peak=(fQuadFit.GetSize()-1)/2;
+   if( peak <index) peak=index;
+   fQuadFit.Fit(energy.begin() + peak, tmp.quad, tmp.linear, tmp.constant);
+
+   tmp.time=tmp.linear/2/tmp.quad + index;
+   tmp.amplitude=tmp.constant - tmp.linear*tmp.linear/4/tmp.quad;
+   fPeaks.insert(tmp);
+}
+
+void TemplateConvolver::CharacteriseTemplate(){
+   fPeaks.clear();
+
+   // prepare vectors / iterators
    TH1_wrapper hist(fTemplate->GetHisto());
-   SamplesVector acf_out(fTemplate->GetHisto()->GetNbinsX()- fTemplateLength);
-   SamplesVector time_out(acf_out.size()- fTimeWeights.size());
-  (*fEnergyConvolve)(hist.begin(), hist.end(), acf_out.begin());
-  (*fTimeConvolve)(acf_out.begin(), acf_out.end(), time_out.begin());
-  TH1* tmp=functions::VectorToHist(acf_out,"Template_ACF","Auto-correlation of template");
-  tmp->Write();
-  tmp=functions::VectorToHist(time_out,"Template_ACF_derivative","Derivative of auto-correlation of template");
-  tmp->Write();
+   fTemplateACF.assign(fTemplate->GetHisto()->GetNbinsX()- fTemplateLength,0);
+   fTemplateACFDerivative.assign(fTemplateACF.size()- fTimeWeights.size(),0);
+
+   // Run convolution
+   (*fEnergyConvolve)(hist.begin(), hist.end(), fTemplateACF.begin());
+   (*fTimeConvolve)(fTemplateACF.begin(), fTemplateACF.end(), fTemplateACFDerivative.begin());
+   FindPeaks(fTemplateACF, fTemplateACFDerivative);
+
+   // Prepare the quadratic coefficients of the template itself
+   fTemplateQuad=fPeaks.begin()->quad;
+   fTemplateLin=fPeaks.begin()->linear;
+   fTemplateConst=fPeaks.begin()->constant;
+   fTemplateScale=fTemplate->GetAmplitude();
+   fTemplateScale/=fPeaks.begin()->constant - fPeaks.begin()->linear*fPeaks.begin()->linear/4/fPeaks.begin()->quad;
+
+   // Convert to histograms
+   TH1* tmp=functions::VectorToHist(fTemplateACF,"Template_ACF","Auto-correlation of template");
+   TF1* fit=new TF1("Fit","[0]*(x-[3])**2+[1]*(x-[3])+[2]", 0 , tmp->GetNbinsX());
+   fit->SetParameter(0,fTemplateQuad);
+   fit->SetParameter(1,fTemplateLin);
+   fit->SetParameter(2,fTemplateConst);
+   fit->SetParameter(3,fPeaks.begin()->time - fTemplateTime );
+   tmp->GetListOfFunctions()->Add(fit);
+   tmp->Write();
+   tmp=functions::VectorToHist(fTemplateACFDerivative,"Template_ACF_derivative","Derivative of auto-correlation of template");
+   tmp->Write();
+
+   fPeaks.clear();
+
 }
