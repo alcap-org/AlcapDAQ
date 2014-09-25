@@ -8,6 +8,8 @@
   h2->SetStats(0);
   h3->SetStats(0);
   h4->SetStats(0);
+  h1->GetXaxis()->SetTitle("Energy (keV)");
+  h1->GetYaxis()->SetTitle("Counts");
   TLegend *leg = new TLegend(0.7,0.7,0.9,0.9);
   leg->AddEntry(h1, "All");
   leg->AddEntry(h2, "Out of time (> +/- 2 us)");
