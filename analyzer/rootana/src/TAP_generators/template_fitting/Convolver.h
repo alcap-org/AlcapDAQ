@@ -30,7 +30,7 @@ class Algorithm::Convolver{
       }
 
       template <typename InputIterator, typename OutputIterator >
-      OutputIterator operator()(const InputIterator& start, const InputIterator& stop, OutputIterator result){
+      OutputIterator Process(const InputIterator& start, const InputIterator& stop, OutputIterator result){
         InputIterator end=stop-fNWeights;
         for(InputIterator i_in=start;i_in!=end;++i_in){
            *(result)=operator()(i_in);

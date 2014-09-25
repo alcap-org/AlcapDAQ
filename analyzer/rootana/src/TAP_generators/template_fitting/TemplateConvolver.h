@@ -21,7 +21,8 @@ class TemplateConvolver{
          double linear;
          double constant;
          bool operator<(const FoundPeaks& rhs)const{
-           return amplitude>rhs.amplitude;
+           return time<rhs.time;
+           //return amplitude>rhs.amplitude;
          }
       };
       typedef std::set<FoundPeaks> PeaksVector;
