@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "debug_tools.h"
 #include <TF1.h>
+#include <TPaveText.h>
 
 TTemplateConvolveAnalysedPulse::TTemplateConvolveAnalysedPulse():TAnalysedPulse(),
       fNPeaks(0), fPeakRank(0), fIntegralRatio(0){}
@@ -42,6 +43,16 @@ void TTemplateConvolveAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
 
    energy_hist->GetListOfFunctions()->Add(line);
    time_hist->GetListOfFunctions()->Add(line->Clone());
+
+   TPaveText* text_b=new TPaveText(0.7,0.60,0.9,0.9,"NB NDC");
+   text_b->AddText(Form("A = %g",GetAmplitude()));
+   text_b->AddText(Form("t = %g",GetTime()));
+   text_b->AddText(Form("a = %g",fQuad));
+   text_b->AddText(Form("b = %g",fLinear));
+   text_b->AddText(Form("c = %g",fConstant));
+   text_b->SetFillColor(kWhite);
+   text_b->SetBorderSize(1);
+   energy_hist->GetListOfFunctions()->Add(text_b);
 
    TF1* fit=new TF1("Fit","[0]*(x-[3])**2+[1]*(x-[3])+[2]", 0 , energy_hist->GetNbinsX());
    fit->SetParameter(0,fQuad);
