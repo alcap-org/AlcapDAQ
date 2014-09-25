@@ -9,18 +9,6 @@
 
 using namespace Algorithm;
 
-namespace{
-  typedef std::vector<int>::const_iterator IteratorType;
-  struct ped_subt_it:public IteratorType{
-     ped_subt_it(const IteratorType& it, double ped):IteratorType(it),fPedestal(ped){}
-     ped_subt_it(const IteratorType& it):IteratorType(it),fPedestal(0){}
-     double operator*()const{
-       return IteratorType::operator*() - fPedestal;
-     }
-     double fPedestal;
-  };
-}
-
 TemplateConvolver::TemplateConvolver(const IDs::channel ch, TTemplate* tpl, int peak_fit_samples):
      fChannel(ch), fTemplate(tpl),fQuadFit(peak_fit_samples),fLeftSafety(20),fRightSafety(120), 
      fTemplateLength(fTemplate->GetHisto()->GetNbinsX() - fLeftSafety - fRightSafety),
@@ -43,13 +31,16 @@ TemplateConvolver::~TemplateConvolver(){
 
 int TemplateConvolver::Convolve(const TPulseIsland* tpi, double ped){
    // initialize for convolution
-   const std::vector<int>& samples=tpi->GetSamples();
+   typedef std::vector<int> AdcSamples;
+   const AdcSamples& samples=tpi->GetSamples();
    if(!ResetVectors(samples.size())){
      return -1;
    }
 
    // convole the waveform with the template
-   fEnergyConvolve->Process(ped_subt_it(samples.begin(),ped),ped_subt_it(samples.end(),ped),fEnergySamples.begin());
+   fEnergyConvolve->Process(Algorithm::Pedestal_iterator<AdcSamples::const_iterator>(samples.begin(),ped),
+                            Algorithm::Pedestal_iterator<AdcSamples::const_iterator>(samples.end(),ped),
+                            fEnergySamples.begin());
 
    // now run the timing filter (in the future this and the last step could be merged)
    fTimeConvolve->Process(fEnergySamples.begin(),fEnergySamples.end(),fTimeSamples.begin());
