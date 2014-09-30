@@ -2,19 +2,21 @@
 
 datasets="Al100 Al50b Si16P SiR23pct SiR21pct"
 
-if [ $# -ne 4 ]; then
-    echo "Usage: ./merge_group <GROUPSIZE> <PRODUCTIONDB> <ODBDIRECTORY> <ROOTFILEDIRECTORY>"
+if [ $# -ne 5 ]; then
+    echo "Usage: ./merge_group <GROUPSIZE> <PRODUCTIONDB> <CALIBRATIONDB> <ODBDIRECTORY> <ROOTFILEDIRECTORY>"
     exit 0
 fi
 group_size=$1
-db=$2
-odbdir=$3
-rootdir=$4
+proddb=$2
+calibdb=$3
+odbdir=$4
+rootdir=$5
 
-echo "File Time Runtime" > times.csv
+echo "File Time Runtime Pedestal Noise" > times.csv
 for d in $datasets; do
-    runs=$(sqlite3 $db "SELECT run FROM datasets WHERE dataset=='$d'")
-    files=""; m=1; starts=""; stops=""
+    rm -f $d"_"*.root
+    runs=$(sqlite3 $proddb "SELECT run FROM datasets WHERE dataset=='$d' ORDER BY run ASC")
+    files=""; m=1; starts=""; stops=""; peds=""; noises="";
     for r in $runs; do
 	ifile="$rootdir/out0$r.root"
 	odbfile="$odbdir/run0$r.odb"
@@ -46,4 +48,6 @@ for d in $datasets; do
 	t=$(python -c "import numpy; ts=[sum(it)/2. for it in zip([$starts], [$stops])]; ws=numpy.subtract([$stops], [$starts]); print numpy.average(ts,weights=ws), sum(ws);")
 	echo "$f $t" >> times.csv
     fi
+    # Make one big one
+    hadd -f -T $d.root $d"_"*.root
 done
