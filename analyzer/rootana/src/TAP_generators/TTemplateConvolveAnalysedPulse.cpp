@@ -60,6 +60,8 @@ void TTemplateConvolveAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
    fit->SetParameter(2,fConstant);
    fit->SetParameter(3,fTimeOffset );
    energy_hist->GetListOfFunctions()->Add(fit);
+   energy_hist->Write();
+   time_hist->Write();
 
    //tap_pulse->Write();
    

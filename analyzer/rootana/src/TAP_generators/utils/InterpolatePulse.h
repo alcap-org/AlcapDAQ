@@ -20,6 +20,7 @@ TH1F* VectorToHist( const std::vector<ValueType>& vect, std::string name,
    FillBinLabels(labels,size);
    TH1F* hist=new TH1F(name.c_str(),title.c_str(), size,0,size);
    hist->FillN(size,labels,vect.data());
+   hist->SetDirectory(0);
    return hist;
 }
 
