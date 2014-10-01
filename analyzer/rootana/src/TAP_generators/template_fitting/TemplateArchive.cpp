@@ -1,4 +1,8 @@
 #include "TemplateArchive.h"
+#include <iostream>
+
+using std::cout;
+using std::endl;
 
 // option is standard ROOT file options
 TemplateArchive::TemplateArchive(const char* filename, const char* option) {
@@ -26,6 +30,10 @@ TTemplate* TemplateArchive::GetTemplate(const char* template_name) {
 
   TTemplate* hTemplate = NULL;
   fDirectory->GetObject(template_name, hTemplate);
+  if(!hTemplate) {
+   cout<< "TemplateArchive::GetTemplate: ERROR: Unable to find a template called '"
+       <<template_name<<"' in file '"<<fTemplateFile->GetName()<<"'"<<endl;
+  }
   return hTemplate;
 }
 
