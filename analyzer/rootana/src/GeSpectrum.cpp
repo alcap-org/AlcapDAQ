@@ -6,6 +6,8 @@
 #include "ModulesOptions.h"
 #include "definitions.h"
 #include "SetupNavigator.h"
+#include "ExportPulse.h"
+#include "PulseCandidateFinder.h"
 
 #include "TH1I.h"
 #include "TH2D.h"
@@ -50,7 +52,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fHist_MoreTime     = new TH1I("hMoreTime", "Time of Gammas within Energy Window (Wide)", 1000, -100000., 100000.);
   fHist_EnergyOOT    = new TH1I("hEnergyOOT", "Energy of Gammas outside of Time Window", nbins, 0., max);
   fHist_EnergyFarOOT = new TH1I("hEnergyFarOOT", "Energy of Gammas far from Muons", nbins, 0., max);
-  fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window", 100, -200., 200., nbins, 0., max);
+  fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window", 100, -500., 500., nbins, 0., max);
   fHist_MeanTOffset  = new TH1I("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -20000., 20000.);
   cwd->cd();
   ThrowIfInputsInsane(opts);
@@ -70,8 +72,8 @@ int GeSpectrum::BeforeFirstEntry(TGlobalData* gData, const TSetupData *setup){
 // Return non-zero to indicate a problem and terminate the event loop
 int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
 
-  static const double time_window_small = 200.; // ns
-  static const double time_window_big = 2000.; // ns
+  static const double time_window_small = 500.; // ns
+  static const double time_window_big = 5000.; // ns
 
   static const std::string bank_musc = TSetupData::Instance()->GetBankName(fMuSc.str());
   static const std::string bank_ges  = TSetupData::Instance()->GetBankName(fGeS.str());
@@ -151,8 +153,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
       fHist_EnergyOOT->Fill(*geE);
     else {
       if ((dt_prev != unfound && dt_prev < time_window_small) && (dt_next != unfound && dt_next > -time_window_small)) {
-	fHist_TimeEnergy->Fill(dt_prev, *geE, 0.5);
-	fHist_TimeEnergy->Fill(dt_next, *geE, 0.5);
+	fHist_TimeEnergy->Fill(dt_prev, *geE);
       } else if (dt_next != unfound && dt_next > -time_window_small) {
 	fHist_TimeEnergy->Fill(dt_next, *geE);
       } else if (dt_prev != unfound && dt_prev < time_window_small) {
@@ -167,16 +168,16 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
     // Aluminium XRay
     //if (*geE >= 340 && *geE <= 350) {
     // Mg27 Gamma
-    if (*geE >= 838 && *geE <= 848) {
-      if (dt_prev != unfound) {
-	fHist_Time->Fill(dt_prev);
-	fHist_MoreTime->Fill(dt_prev);
-      }
-      if (dt_next != unfound) {
-	fHist_Time->Fill(dt_next);
-	fHist_MoreTime->Fill(dt_next);
-      }
-    }
+    // if (*geE >= 838 && *geE <= 848) {
+    //   if (dt_prev != unfound) {
+    // 	fHist_Time->Fill(dt_prev);
+    // 	fHist_MoreTime->Fill(dt_prev);
+    //   }
+    //   if (dt_next != unfound) {
+    // 	fHist_Time->Fill(dt_next);
+    // 	fHist_MoreTime->Fill(dt_next);
+    //   }
+    // }
   }
   return 0;
 }
