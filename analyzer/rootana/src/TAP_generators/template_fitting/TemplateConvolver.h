@@ -17,6 +17,7 @@ class TemplateConvolver{
       struct FoundPeaks{
          double time;
          double amplitude;
+         double pedestal;
          double quad;
          double linear;
          double constant;
@@ -34,18 +35,20 @@ class TemplateConvolver{
       bool IsValid()const{return fTemplateLength>0;}
 
     public:
-      int Convolve(const TPulseIsland* tpi,double pedestal=0);
+      int Convolve(const Algorithm::TpiMinusPedestal_iterator& begin,const Algorithm::TpiMinusPedestal_iterator& end);
       void CharacteriseTemplate();
 
       const SamplesVector& GetEnergyConvolution()const{return fEnergySamples;};
       const SamplesVector& GetTimeConvolution()const{return fTimeSamples;};
       const PeaksVector& GetPeaks()const{return fPeaks;};
       double GetTimeShift()const{return fTemplateTime;}
+      double GetLeftSafety()const{return fLeftSafety;}
       double GetAmplitudeScale()const{return fTemplateScale;}
+      TH1* GetTemplateACF()const {return fTemplateACFHist;}
 
     private:
-      int FindPeaks( const SamplesVector&, const SamplesVector&);
-      void FitPeak(int index, const SamplesVector&, const SamplesVector&);
+      int FindPeaks( const SamplesVector&, const SamplesVector&, const Algorithm::TpiMinusPedestal_iterator* pedestal);
+      void FitPeak(int index, const SamplesVector&, const SamplesVector&, double pedestal);
       bool ResetVectors(int size);
 
     private:
@@ -63,6 +66,7 @@ class TemplateConvolver{
       SamplesVector fTimeSamples;
       std::vector<int> fTimeWeights;
       SamplesVector fTemplateACF,fTemplateACFDerivative;
+      TH1 *fTemplateACFHist, *fTemplateACFDerivativeHist;
 
 };
 
