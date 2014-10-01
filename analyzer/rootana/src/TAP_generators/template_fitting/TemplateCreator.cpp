@@ -285,7 +285,7 @@ int TemplateCreator::AfterLastEntry(TGlobalData* gData, const TSetupData* setup)
 
     // Normalise the templates
     //i_ch->template_pulse->NormaliseToAmplitude();
-    i_ch->template_pulse->AddToDirectory(GetDirectory());
+    i_ch->template_pulse->AddToDirectory(GetDirectory("../"), GetDirectory());
 
     // Save the template to the file
     fTemplateArchive->SaveTemplate(i_ch->template_pulse);
