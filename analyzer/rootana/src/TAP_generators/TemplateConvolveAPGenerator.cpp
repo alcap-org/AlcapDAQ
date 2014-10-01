@@ -59,9 +59,11 @@ int TemplateConvolveAPGenerator::ProcessPulses(
     if(fIntegralRatio && !PassesIntegralRatio(*tpi, integral,ratio)){
        continue;
     }
+    Algorithm::TpiMinusPedestal_iterator waveform((*tpi)->GetSamples().begin(),fPedestal);
+    Algorithm::TpiMinusPedestal_iterator end((*tpi)->GetSamples().end());
 
     // convolve with the template
-    int n_peaks= fConvolver->Convolve(*tpi , fPedestal);
+    int n_peaks= fConvolver->Convolve(waveform,end );
     if(n_peaks<0) {
       if(Debug())cout<<"Waveform too small to analyze"<<endl;
       continue;
@@ -70,6 +72,9 @@ int TemplateConvolveAPGenerator::ProcessPulses(
     int count=0;
     for(TemplateConvolver::PeaksVector::const_iterator i_tap=peaks.begin();
           i_tap!=peaks.end(); ++i_tap){
+    //for(int i_peak=0; i_peak<3 || fConvolver->GetPeaks().size()==0 ; ++i_peak){
+    //   // get the first pulse to be found
+    //   const TemplateConvolver::FoundPeaks& i_tap=*fConvolver->GetPeaks().begin();
     
        // Make a new TAP to store the data.  This method makes a TAP and sets the parent TPI info.  It needs
        // the index of the parent TPI in the container as an argument
@@ -92,7 +97,12 @@ int TemplateConvolveAPGenerator::ProcessPulses(
 
        // Finally add the new TAP to the output list
        analysedList.push_back(tap);
-       ++count;
+
+       //// subtract template from first peak and convolve again
+       //waveform.AddHistogram(fConvolver->GetTemplateACF(), i_tap.amplitude, -i_tap.time+fConvolver->GetLeftSafety());
+       //n_peaks= fConvolver->Convolve(waveform,end );
+       //if(n_peaks==0) break;
+       count++;
     }
   }
 
