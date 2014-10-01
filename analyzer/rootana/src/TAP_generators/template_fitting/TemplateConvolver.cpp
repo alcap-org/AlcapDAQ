@@ -9,8 +9,8 @@
 
 using namespace Algorithm;
 
-TemplateConvolver::TemplateConvolver(const IDs::channel ch, TTemplate* tpl, int peak_fit_samples):
-     fChannel(ch), fTemplate(tpl),fQuadFit(peak_fit_samples),fLeftSafety(20),fRightSafety(120), 
+TemplateConvolver::TemplateConvolver(const IDs::channel ch, TTemplate* tpl, int peak_fit_samples, int left, int right):
+     fChannel(ch), fTemplate(tpl),fQuadFit(peak_fit_samples),fLeftSafety(left),fRightSafety(right), 
      fTemplateLength(fTemplate->GetHisto()->GetNbinsX() - fLeftSafety - fRightSafety),
      fTemplateTime(fTemplate->GetTime()-fLeftSafety){
    if(fTemplateLength <0) return;
@@ -58,11 +58,13 @@ bool TemplateConvolver::ResetVectors(int size){
 int TemplateConvolver::FindPeaks(const SamplesVector& energy,
       const SamplesVector& time, const Algorithm::TpiMinusPedestal_iterator* pedestal){
    double last_sample=time.front();
+   FoundPeaks tmp=FoundPeaks();
    for(SamplesVector::const_iterator i_sample=time.begin()+1; i_sample!=time.end(); ++i_sample){
       if( last_sample>0 && *i_sample<0){
         int peak=i_sample - time.begin();
-        if(pedestal) FitPeak(peak, energy, time,0);
-        else FitPeak(peak, energy, time, 0);
+        if(pedestal) FitPeak(tmp, peak, energy, time,0);
+        else FitPeak(tmp, peak, energy, time, 0);
+        fPeaks.insert(tmp);
       }
       last_sample = *i_sample;
    }
@@ -70,16 +72,14 @@ int TemplateConvolver::FindPeaks(const SamplesVector& energy,
    return fPeaks.size();
 }
 
-void TemplateConvolver::FitPeak(int index, const SamplesVector& energy, const SamplesVector& time, double pedestal){
-   FoundPeaks tmp=FoundPeaks();
+void TemplateConvolver::FitPeak(FoundPeaks& output, int index, const SamplesVector& energy, const SamplesVector& time, double pedestal){
    int peak=(fQuadFit.GetSize()-1)/2;
    if( peak <index) peak=index;
-   fQuadFit.Fit(energy.begin() + peak, tmp.quad, tmp.linear, tmp.constant);
+   fQuadFit.Fit(energy.begin() + peak, output.quad, output.linear, output.constant);
 
-   tmp.time=tmp.linear/2/tmp.quad + index;
-   tmp.pedestal=pedestal;
-   tmp.amplitude=tmp.constant - tmp.linear*tmp.linear/4/tmp.quad;
-   fPeaks.insert(tmp);
+   output.time=output.linear/2/output.quad + index;
+   output.pedestal=pedestal;
+   output.amplitude=output.constant - output.linear*output.linear/4/output.quad;
 }
 
 void TemplateConvolver::CharacteriseTemplate(){

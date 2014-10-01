@@ -30,7 +30,7 @@ class TemplateConvolver{
       typedef std::vector<double> SamplesVector;
 
     public:
-      TemplateConvolver(const IDs::channel ch, TTemplate*, int peak_fit_samples);
+      TemplateConvolver(const IDs::channel ch, TTemplate* tpl, int peak_fit_samples, int left, int right);
       ~TemplateConvolver();
       bool IsValid()const{return fTemplateLength>0;}
 
@@ -48,7 +48,7 @@ class TemplateConvolver{
 
     private:
       int FindPeaks( const SamplesVector&, const SamplesVector&, const Algorithm::TpiMinusPedestal_iterator* pedestal);
-      void FitPeak(int index, const SamplesVector&, const SamplesVector&, double pedestal);
+      void FitPeak(FoundPeaks& output, int index, const SamplesVector&, const SamplesVector&, double pedestal);
       bool ResetVectors(int size);
 
     private:
