@@ -22,9 +22,12 @@ class TTemplate:public TObject{
       void Initialize(int pulseID, TH1D* pulse, TDirectory* dir);
       void AddPulse(double x_offset, double y_scale, double y_offset,const TH1D*);
       void AddToDirectory(TDirectory* dir){
-        dir->Append(this,true);
+       TDirectory* curr=TDirectory::CurrentDirectory();
+        dir->cd();
+        TObject::Write();
         fTemplatePulse->SetDirectory(dir);
         fErrors->SetDirectory(dir);
+        curr->cd();
       }
 
       void NormaliseToAmplitude();
