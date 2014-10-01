@@ -26,7 +26,10 @@ TemplateConvolveAPGenerator::TemplateConvolveAPGenerator(TAPGeneratorOptions* op
    fTemplate->RebinToOriginalSampling();
    fTemplate->NormaliseToSumSquares();
 
-   fConvolver=new TemplateConvolver(GetChannel(), fTemplate, opts->GetDouble("n_quad_fit",5));
+   int fit_peak= opts->GetInt("n_quad_fit",5);
+   int left= opts->GetInt("left",20);
+   int right= opts->GetInt("right",120);
+   fConvolver=new TemplateConvolver(GetChannel(), fTemplate, fit_peak, left, right);
    TH1* tpl=(TH1*)fTemplate->GetHisto()->Clone("Template");
    tpl->SetDirectory(gDirectory);
    fConvolver->CharacteriseTemplate();
@@ -126,4 +129,4 @@ bool TemplateConvolveAPGenerator::PassesIntegralRatio(const TPulseIsland* pulse,
 }
 
 
-ALCAP_TAP_GENERATOR(TemplateConvolve, template_archive, n_quad_fit, use_IR_cut, min_integral, max_integral, min_ratio, max_ratio );
+ALCAP_TAP_GENERATOR(TemplateConvolve, template_archive, n_quad_fit, left, right, use_IR_cut, min_integral, max_integral, min_ratio, max_ratio );
