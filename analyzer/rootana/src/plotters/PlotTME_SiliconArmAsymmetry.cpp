@@ -1,4 +1,4 @@
-#include "PlotTME_Test.h"
+#include "PlotTME_SiliconArmAsymmetry.h"
 #include <TMuonEvent.h>
 #include "ModulesOptions.h"
 #include "definitions.h"
@@ -19,21 +19,21 @@ using std::endl;
 
 extern MuonEventList gMuonEvents;
 
-PlotTME_Test::PlotTME_Test(modules::options* opts):
-  BaseModule("PlotTME_Test",opts,false),fOptions(opts){
+PlotTME_SiliconArmAsymmetry::PlotTME_SiliconArmAsymmetry(modules::options* opts):
+  BaseModule("PlotTME_SiliconArmAsymmetry",opts,false),fOptions(opts){
 
   dir->cd("/");
 }
 
-PlotTME_Test::~PlotTME_Test(){
+PlotTME_SiliconArmAsymmetry::~PlotTME_SiliconArmAsymmetry(){
 }
 
-int PlotTME_Test::BeforeFirstEntry(TGlobalData *aData, const TSetupData* aSetup){
+int PlotTME_SiliconArmAsymmetry::BeforeFirstEntry(TGlobalData *aData, const TSetupData* aSetup){
   fRightCounter = fLeftCounter = 0;
     return 0;
 }
 
-int PlotTME_Test::ProcessEntry(TGlobalData *aData, const TSetupData* aSetup){
+int PlotTME_SiliconArmAsymmetry::ProcessEntry(TGlobalData *aData, const TSetupData* aSetup){
   //gMuonEvents.clear();
   for (MuonEventList::const_iterator i_muonEvent = gMuonEvents.begin(); i_muonEvent != gMuonEvents.end(); ++i_muonEvent) {
     int n_sources = (*i_muonEvent)->GetNumSources();
@@ -55,11 +55,11 @@ int PlotTME_Test::ProcessEntry(TGlobalData *aData, const TSetupData* aSetup){
   return 0;
 }
 
-int PlotTME_Test::AfterLastEntry(TGlobalData *aData, const TSetupData* aSetup){
+int PlotTME_SiliconArmAsymmetry::AfterLastEntry(TGlobalData *aData, const TSetupData* aSetup){
   std::cout << "Left : Right = " << fLeftCounter << " : " << fRightCounter << std::endl;
   std::cout << "L / R = " << (double)fLeftCounter / (double)fRightCounter << std::endl;
     return 0;
 }
 
 
-ALCAP_REGISTER_MODULE(PlotTME_Test);
+ALCAP_REGISTER_MODULE(PlotTME_SiliconArmAsymmetry);

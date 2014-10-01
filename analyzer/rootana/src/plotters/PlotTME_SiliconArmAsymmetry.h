@@ -1,5 +1,5 @@
-#ifndef PlotTME_Test_H__
-#define PlotTME_Test_H__
+#ifndef PlotTME_SiliconArmAsymmetry_H__
+#define PlotTME_SiliconArmAsymmetry_H__
 
 #include "TVMuonEventGenerator.h"
 #include "BaseModule.h"
@@ -9,11 +9,11 @@ namespace modules{
   class options;
 }
 
-class PlotTME_Test : public BaseModule{
+class PlotTME_SiliconArmAsymmetry : public BaseModule{
 
  public:
-  PlotTME_Test(modules::options* opts);
-  ~PlotTME_Test();
+  PlotTME_SiliconArmAsymmetry(modules::options* opts);
+  ~PlotTME_SiliconArmAsymmetry();
 
  private:
   virtual int BeforeFirstEntry(TGlobalData *gData, const TSetupData* aSetup);
