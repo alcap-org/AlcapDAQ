@@ -22,7 +22,7 @@ double Algorithm::MaxBinAmplitude::operator() (const TPulseIsland* tpi) const {
     peak_sample_pos = std::min_element(pulseSamples.begin(), pulseSamples.end());
 
   // Now calculate the amplitude
-  double amplitude = trigger_polarity*(*peak_sample_pos - pedestal);
+  amplitude = trigger_polarity*(*peak_sample_pos - pedestal);
   time = peak_sample_pos- pulseSamples.begin();
 
   return amplitude;
