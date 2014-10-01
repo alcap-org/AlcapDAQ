@@ -21,10 +21,14 @@ IntegralRatioAPGenerator::IntegralRatioAPGenerator(TAPGeneratorOptions* opts):
                                   fStartTailAsFraction?
                                   "x<1 && x>0":
                                   Form("x>%g",fStartIntegral))),
-        fPedestal(GetChannel().isFast()?900:2728),
-        fPolarity(GetChannel().isFast()?1:-1),
-        fIntegralRatioAlgo( fStartIntegral, fStartTail, fStopIntegral,  fPolarity,fPedestal){
-    }
+        //fPedestal(GetChannel().isFast()?900:2728),
+        fPedestal(SetupNavigator::Instance()->GetPedestal(GetChannel())),
+        //fPolarity(GetChannel().isFast()?1:-1),
+        fPolarity(TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
+        fIntegralRatioAlgo( fStartIntegral, fStartTail, fStopIntegral,  fPolarity,fPedestal),
+	fMaxBinAmplitude(fPedestal,fPolarity) 
+{
+}
 
 IntegralRatioAPGenerator::~IntegralRatioAPGenerator(){}
 
@@ -49,6 +53,7 @@ int IntegralRatioAPGenerator::ProcessPulses(
         }catch(std::out_of_range& e){
             continue;
         }
+        fMaxBinAmplitude(*tpi);
 
         // Now that we've found the information we were looking for make a TAP to
         // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
@@ -57,6 +62,8 @@ int IntegralRatioAPGenerator::ProcessPulses(
         tap->SetIntegral(fIntegralRatioAlgo.GetTotal());
         tap->SetIntegralSmall(fIntegralRatioAlgo.GetTail());
         tap->SetIntegralRatio(fIntegralRatioAlgo.GetRatio());
+        tap->SetAmplitude(fMaxBinAmplitude.amplitude);
+        tap->SetTime(fMaxBinAmplitude.time);
 
         // Finally add the new TAP to the output list
         analysedList.push_back(tap);
