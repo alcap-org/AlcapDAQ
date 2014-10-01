@@ -13,6 +13,7 @@ namespace Algorithm{
    class Convolver;
    template < typename InputIterator>
    class Pedestal_iterator;
+   typedef Pedestal_iterator<std::vector<int>::const_iterator> TpiMinusPedestal_iterator;
 }
 
 class Algorithm::TH1_c_iterator:public std::iterator<std::random_access_iterator_tag, double>{
@@ -39,7 +40,8 @@ class Algorithm::TH1_c_iterator:public std::iterator<std::random_access_iterator
        return tmp;
      }
      double operator*()const{ 
-       return fHist?fHist->GetBinContent(fCurrentBin)*fScale:0;
+       if(fHist ) return fHist->GetBinContent(fCurrentBin)*fScale;
+       return 0;
      }
      TH1_c_iterator operator+=(int n){
        fCurrentBin+=n;
@@ -89,11 +91,13 @@ typedef std::vector<HistIter> HistList;
      Pedestal_iterator(const InputIterator& it, double ped):InputIterator(it),fPedestal(ped){}
      Pedestal_iterator(const InputIterator& it):InputIterator(it),fPedestal(0){}
      double operator*()const{
-        ;
-        double val=InputIterator::operator*() - fPedestal;
-        for(HistList::const_iterator i_hist=fHistograms.begin(); i_hist!=fHistograms.end(); ++i_hist){
-           val-=*(i_hist->first);
-        }
+        return InputIterator::operator*() - GetPedestal();
+     }
+     double GetPedestal()const{
+        double val=fPedestal;
+        //for(HistList::const_iterator i_hist=fHistograms.begin(); i_hist!=fHistograms.end(); ++i_hist){
+        //   val+=*(i_hist->first);
+        //}
        return val;
      }
      void operator++(){
@@ -107,9 +111,9 @@ typedef std::vector<HistIter> HistList;
            ++i_hist;
 	}
      }
-     void AddHistogram(TH1* hist,double scale){
+     void AddHistogram(TH1* hist,double scale, int shift){
        TH1_wrapper wrap(hist, scale);
-       fHistograms.push_back(std::make_pair(wrap.begin(), wrap.end()));
+       fHistograms.push_back(std::make_pair(wrap.begin(shift), wrap.end()));
      }
 
      private:
@@ -143,6 +147,7 @@ class Algorithm::Convolver{
         }
         return result;
       }
+      int GetNWeights()const {return fNWeights;}
 
    private:
       int fNWeights;
