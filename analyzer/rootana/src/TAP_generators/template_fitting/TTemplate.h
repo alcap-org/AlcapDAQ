@@ -21,12 +21,14 @@ class TTemplate:public TObject{
       int PulsesMerged()const{return fTotalPulses;}
       void Initialize(int pulseID, TH1D* pulse, TDirectory* dir);
       void AddPulse(double x_offset, double y_scale, double y_offset,const TH1D*);
-      void AddToDirectory(TDirectory* dir){
+      void AddToDirectory(TDirectory* dir,TDirectory* hist_dir){
        TDirectory* curr=TDirectory::CurrentDirectory();
         dir->cd();
         TObject::Write();
-        fTemplatePulse->SetDirectory(dir);
-        fErrors->SetDirectory(dir);
+        if(hist_dir){
+          fTemplatePulse->SetDirectory(hist_dir);
+          fErrors->SetDirectory(hist_dir);
+        }
         curr->cd();
       }
 
@@ -53,7 +55,7 @@ class TTemplate:public TObject{
       bool fDebug;
       bool fConverged; ///< have we converged or not?
       int fTotalPulses; ///< How many pulses have been averaged to make the template
-      int fRefineFactor;
+      int fRefineFactor; ///< How many samples in the template correspond to 1 sample in an actual wavform
       int fTriggerPolarity;
       IDs::channel fChannel;
       std::string fName;
