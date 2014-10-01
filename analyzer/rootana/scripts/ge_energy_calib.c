@@ -1,7 +1,6 @@
 #include <vector>
 
-enum PhotonType { XRAY, GAMMA };
-enum EmitterType { NAT, NUCLCAP, ATOMCAPT };
+enum IsotopeSource { CAPTURE, BACKGROUND };
 
 struct Element {
   TString name;
@@ -10,18 +9,28 @@ struct Element {
 };
 
 struct Isotope : Element {
-  Element el;
   UInt_t a;
 };
 
 struct PhotonEmitter {
-  std::vector<Double_t> e;
-  std::vector<Double_t> i;
-  PhotonType type;
-  EmitterType src;
+  std::vector<Double_t> E;
+  std::vector<Double_t> I;
+};
+
+struct GammaSource : PhotonEmitter, Isotope {
+  IsotopeSource type;
   Double_t lt;
 };
 
-struct Chain {
-  std::vector<PhotonEmitter> em;
-  std::vector<
+struct XraySource : PhotonEmitter, Element {
+};
+
+struct DecayChain {
+  std::vector<GammaSource> products;
+  std::vector< std::vector<unsigned int> > parents;
+  std::vector< std::vector<unsigned int> > daughters;
+};
+
+void ge_energy_calib() {
+  return;
+}

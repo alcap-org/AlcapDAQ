@@ -1,0 +1,25 @@
+#Isotope	Halflife	Daughter	Branching	Decay
+232Th90		1.405e10 y	228Ra88		1.		a
+228Ra88		5.75 y		228Ac89		1.		b
+228Ac89		6.25 m		228Th90		1.		b
+228Th90		1.9116 y	224Ra88		1.		a
+224Ra88		3.6319 d	220Rn86		1.		a
+220Rn86		55.6 s		216Po84		1.		a
+216Po84		0.145 s		212Pb82		1.		a
+212Pb82		10.64 h		212Bi83		1.		b
+212Bi83		60.55 m 	212Po84		0.6406		b
+212Bi83		60.55 m		208Tl81		0.3594		a
+212Po84		299 ns		206Pb82		1.		a
+208Tl81		3.053 m		208Pb82		1.		b
+
+238U92		      		234Th90				a
+234Th90				234Pa91				b
+234Pa91				234U92				b
+230Th90				226Ra88				a
+226Ra88				222Rn86				a
+222Rn86				218Po84				a
+218Po84				214Pb82				a
+214Pb82				214Bi83				b
+218At85				214Bi83				a
+214Bi83				214Po84				b
+214Bi83				210Tl81				a
