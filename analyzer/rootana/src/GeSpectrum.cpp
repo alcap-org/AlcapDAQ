@@ -26,8 +26,6 @@ const IDs::channel GeSpectrum::fGeS(IDs::kGe, IDs::kSlow);
 const IDs::channel GeSpectrum::fGeF(IDs::kGe, IDs::kFast);
 const IDs::channel GeSpectrum::fMuSc(IDs::kMuSc, IDs::kNotApplicable);
 
-static double E(const int adc);
-
 GeSpectrum::GeSpectrum(modules::options* opts) :
   BaseModule("GeSpectrum",opts),
   fHist_Energy(NULL), fHist_Time(NULL), fHist_MoreTime(NULL),
@@ -44,15 +42,14 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
 	      0.,
 	      opts->GetDouble("musc_cf")) {
   const static int nbins = std::pow(2.,14);
-  const static double max = E(nbins);
   TDirectory* cwd = TDirectory::CurrentDirectory();
   dir->cd();
-  fHist_Energy       = new TH1I("hEnergy", "Energy of Gammas", nbins, 0., max);
+  fHist_Energy       = new TH1I("hEnergy", "Energy of Gammas", nbins, 0., nbins);
   fHist_Time         = new TH1I("hTime", "Time of Gammas within Energy Window", 1000, -10000., 10000.);
   fHist_MoreTime     = new TH1I("hMoreTime", "Time of Gammas within Energy Window (Wide)", 1000, -100000., 100000.);
-  fHist_EnergyOOT    = new TH1I("hEnergyOOT", "Energy of Gammas outside of Time Window", nbins, 0., max);
-  fHist_EnergyFarOOT = new TH1I("hEnergyFarOOT", "Energy of Gammas far from Muons", nbins, 0., max);
-  fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window", 100, -500., 500., nbins, 0., max);
+  fHist_EnergyOOT    = new TH1I("hEnergyOOT", "Energy of Gammas outside of Time Window", nbins, 0., nbins);
+  fHist_EnergyFarOOT = new TH1I("hEnergyFarOOT", "Energy of Gammas far from Muons", nbins, 0., nbins);
+  fHist_TimeEnergy   = new TH2I("hTimeEnergy", "Energy of Gammas within Time Window", 100, -500., 500., nbins, 0., nbins);
   fHist_MeanTOffset  = new TH1I("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -20000., 20000.);
   cwd->cd();
   ThrowIfInputsInsane(opts);
@@ -208,15 +205,10 @@ std::vector<double> GeSpectrum::CalculateEnergies(const IDs::channel& ch, const 
   std::vector<double> e;
   if (ch == fGeS)
     for (unsigned int i = 0; i < tpis.size(); ++i)
-      e.push_back(E(fMBAmpGe(tpis[i])));
+      e.push_back(fMBAmpGe(tpis[i]));
   else
     throw std::logic_error("GeSpectrum: Invalid channel to calculate energies for.");
   return e;
-}
-
-
-double E(const int adc) {
-  return 0.1221*(double)adc+0.7987;
 }
 
 
