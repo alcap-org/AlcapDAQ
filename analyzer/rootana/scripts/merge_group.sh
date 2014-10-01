@@ -1,6 +1,6 @@
 #!/bin/bash
 
-datasets="Al100 Al50b Si16P SiR23pct SiR21pct"
+datasets="Al100 Al50b Si16P SiR23pct SiR21pct Al50awithNDet2 Al50awithoutNDet2"
 
 if [ $# -ne 5 ]; then
     echo "Usage: ./merge_group <GROUPSIZE> <PRODUCTIONDB> <CALIBRATIONDB> <ODBDIRECTORY> <ROOTFILEDIRECTORY>"
@@ -39,6 +39,7 @@ for d in $datasets; do
 	fi
 	# If we have enough files, hadd their histograms and calculate time and weight
 	if (($(echo $files | wc -w)>=group_size)); then
+	    # Calculate average weighted time of run and the total runtime (weight)
 	    tw=$(python -c "import numpy; ts=[sum(it)/2. for it in zip([$starts], [$stops])]; ws=numpy.subtract([$stops], [$starts]); print numpy.average(ts,weights=ws), sum(ws);")
 	    rs=${rs:1}; f=$d"_"$m; t=$(echo $tw | cut -d' ' -f1); w=$(echo $tw | cut -d' ' -f2);
 	    hadd -f -T $f.root $files
