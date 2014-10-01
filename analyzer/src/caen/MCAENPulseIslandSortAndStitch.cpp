@@ -161,6 +161,7 @@ bool pulse_islands_t_comp(TPulseIsland *a, TPulseIsland *b)
 /// \todo Instead stitch together if the timestamps line up appropriately.
 void pulse_islands_stitch(std::vector<TPulseIsland*>& pulses, unsigned int nSamples) {
   unsigned int nPulses = pulses.size();
+  if (nPulses == 0) return;
   std::vector<int> next_samples, current_samples;
   TPulseIsland* temp_pulse;
   for (unsigned int iPulse = 0; iPulse < nPulses - 1; ++iPulse) {
