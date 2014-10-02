@@ -16,7 +16,7 @@ TemplateArchive* TemplateConvolveAPGenerator::fTemplateArchive=NULL;
 TemplateConvolveAPGenerator::TemplateConvolveAPGenerator(TAPGeneratorOptions* opts):
    TVAnalysedPulseGenerator("TemplateConvolve",opts),
     fPedestal(EventNavigator::Instance().GetSetupRecord().GetPedestal(GetChannel())),
-    fIntegralRatio(NULL)
+    fExpectPileUp(false), fIntegralRatio(NULL)
 {
    // get the templates from the archive
    if(!fTemplateArchive){
@@ -66,11 +66,13 @@ int TemplateConvolveAPGenerator::ProcessPulses(
     Algorithm::TpiMinusPedestal_iterator end((*tpi)->GetSamples().end());
 
     // convolve with the template
-    int n_peaks= fConvolver->Convolve(waveform,end );
+    int n_peaks=fConvolver->Convolve(waveform,end );
     if(n_peaks<0) {
       if(Debug())cout<<"Waveform too small to analyze"<<endl;
       continue;
     }
+    n_peaks= fConvolver->FindPeaks(fExpectPileUp , waveform);
+
     const TemplateConvolver::PeaksVector& peaks=fConvolver->GetPeaks();
     int count=0;
     for(TemplateConvolver::PeaksVector::const_iterator i_tap=peaks.begin();
@@ -91,12 +93,13 @@ int TemplateConvolveAPGenerator::ProcessPulses(
        tap->SetEnergyConvolve(fConvolver->GetEnergyConvolution());
        tap->SetTimeConvolve(fConvolver->GetTimeConvolution());
        tap->SetTimeOffset(i_tap->time);
-       tap->SetTime(i_tap->time + fConvolver->GetTimeShift());
+       tap->SetTime(i_tap->time + fConvolver->GetTimeShift() + 0.5);
        tap->SetAmplitudeScale(i_tap->amplitude);
        tap->SetAmplitude(i_tap->amplitude*fConvolver->GetAmplitudeScale());
        tap->SetQuadraticFit(i_tap->quad,i_tap->linear, i_tap->constant);
        tap->SetTemplate(fTemplate);
        tap->SetPedestal(fPedestal);
+       //DEBUG_VALUE(i_tap->amplitude, i_tap->time, i_tap->pedestal);
 
        // Finally add the new TAP to the output list
        analysedList.push_back(tap);

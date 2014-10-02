@@ -1,5 +1,5 @@
-#ifndef TEMPLATECONVOLVE_H__
-#define TEMPLATECONVOLVE_H__
+#ifndef TEMPLATECONVOLVEAPGENERATOR_H__
+#define TEMPLATECONVOLVEAPGENERATOR_H__
 
 #include "TSetupData.h"
 #include "TVAnalysedPulseGenerator.h"
@@ -39,9 +39,10 @@ class TemplateConvolveAPGenerator:public TVAnalysedPulseGenerator {
     double fIntegralRatioMax, fIntegralRatioMin;
     double fTemplateAmp, fTemplatePed, fTemplateTime;
     double fPedestal;
+    bool fExpectPileUp; // Do we expect this generator to have to deal with pile-up waveforms?
 
     Algorithm::IntegralRatio* fIntegralRatio;
 
 };
 
-#endif //TEMPLATECONVOLVE_H__
+#endif //TEMPLATECONVOLVEAPGENERATOR_H__
