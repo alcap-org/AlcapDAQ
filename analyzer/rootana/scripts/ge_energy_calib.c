@@ -2,6 +2,12 @@
 
 enum IsotopeSource { CAPTURE, BACKGROUND };
 
+struct AtomicLevel {
+  unsigned int n;
+  char l;
+  unsigned int j[2];
+};
+
 struct Element {
   TString name;
   TString symbol;
@@ -26,10 +32,12 @@ struct XraySource : PhotonEmitter, Element {
 };
 
 struct DecayChain {
-  std::vector<GammaSource> products;
-  std::vector< std::vector<unsigned int> > parents;
-  std::vector< std::vector<unsigned int> > daughters;
+  std::vector<GammaSource> stages;
+  std::vector< std::vector<double> > daughters;
 };
+
+std::vector<GammaSource> load_natural(const char* ifname) {
+  
 
 void ge_energy_calib() {
   return;
