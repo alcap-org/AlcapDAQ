@@ -25,6 +25,15 @@ class TemplateConvolver{
            return time<rhs.time;
            //return amplitude>rhs.amplitude;
          }
+         FoundPeaks& operator=(const FoundPeaks& rhs){
+           time=rhs.time;
+           amplitude=rhs.amplitude;
+           pedestal=rhs.pedestal;
+           quad=rhs.quad;
+           linear=rhs.linear;
+           constant=rhs.constant;
+           return *this;
+         }
       };
       typedef std::set<FoundPeaks> PeaksVector;
       typedef std::vector<double> SamplesVector;
@@ -46,9 +55,12 @@ class TemplateConvolver{
       double GetAmplitudeScale()const{return fTemplateScale;}
       TH1* GetTemplateACF()const {return fTemplateACFHist;}
 
+      int FindPeaks(bool expect_pile_up, const Algorithm::TpiMinusPedestal_iterator& waveform);
+
     private:
-      int FindPeaks( const SamplesVector&, const SamplesVector&, const Algorithm::TpiMinusPedestal_iterator* pedestal);
-      void FitPeak(FoundPeaks& output, int index, const SamplesVector&, const SamplesVector&, double pedestal);
+      int FindAllPeaks( const SamplesVector&, const SamplesVector&, const Algorithm::TpiMinusPedestal_iterator* pedestal);
+      int FindBestPeak( const SamplesVector&, const SamplesVector&, const Algorithm::TpiMinusPedestal_iterator* pedestal);
+      void FitPeak(FoundPeaks& output, int index, const SamplesVector& energy, const SamplesVector& time, double pedestal);
       bool ResetVectors(int size);
 
     private:
@@ -57,6 +69,7 @@ class TemplateConvolver{
       Algorithm::Convolver<Algorithm::TH1_c_iterator>* fEnergyConvolve;
       Algorithm::Convolver<std::vector<int>::iterator>* fTimeConvolve;
       functions::QuadraticFit fQuadFit;
+      const int fPolarity;
       const int fLeftSafety, fRightSafety;
       const int fTemplateLength;
       const double fTemplateTime;

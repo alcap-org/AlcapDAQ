@@ -6,11 +6,13 @@
 #include <cmath>
 #include "InterpolatePulse.h"
 #include <TF1.h>
+#include "EventNavigator.h"
 
 using namespace Algorithm;
 
 TemplateConvolver::TemplateConvolver(const IDs::channel ch, TTemplate* tpl, int peak_fit_samples, int left, int right):
-     fChannel(ch), fTemplate(tpl),fQuadFit(peak_fit_samples),fLeftSafety(left),fRightSafety(right), 
+     fChannel(ch), fTemplate(tpl),fQuadFit(peak_fit_samples), fPolarity(EventNavigator::GetSetupRecord().GetPolarity(ch)),
+     fLeftSafety(left),fRightSafety(right), 
      fTemplateLength(fTemplate->GetHisto()->GetNbinsX() - fLeftSafety - fRightSafety),
      fTemplateTime(fTemplate->GetTime()-fLeftSafety){
    if(fTemplateLength <0) return;
@@ -41,8 +43,7 @@ int TemplateConvolver::Convolve(const Algorithm::TpiMinusPedestal_iterator& begi
    // now run the timing filter (in the future this and the last step could be merged)
    fTimeConvolve->Process(fEnergySamples.begin(),fEnergySamples.end(),fTimeSamples.begin());
 
-   // finaly get all peaks and return the total number found
-   return FindPeaks(fEnergySamples, fTimeSamples,&begin);
+   return 0;
 }
 
 bool TemplateConvolver::ResetVectors(int size){
@@ -55,14 +56,21 @@ bool TemplateConvolver::ResetVectors(int size){
    return true;
 }
 
-int TemplateConvolver::FindPeaks(const SamplesVector& energy,
+int TemplateConvolver::FindPeaks(bool expect_pile_up, const Algorithm::TpiMinusPedestal_iterator& waveform){
+   if(expect_pile_up) return FindAllPeaks(fEnergySamples, fTimeSamples,&waveform);
+   return FindBestPeak(fEnergySamples, fTimeSamples,&waveform);
+}
+
+int TemplateConvolver::FindAllPeaks(const SamplesVector& energy,
       const SamplesVector& time, const Algorithm::TpiMinusPedestal_iterator* pedestal){
    double last_sample=time.front();
    FoundPeaks tmp=FoundPeaks();
    for(SamplesVector::const_iterator i_sample=time.begin()+1; i_sample!=time.end(); ++i_sample){
-      if( last_sample>0 && *i_sample<0){
+// check if we've crossed zero gradient ( signs will be different => product is less than zero)
+// and check we crossed in the right direction 
+      if( (last_sample * *i_sample)<0 && (*i_sample - last_sample ) <0 ){
         int peak=i_sample - time.begin();
-        if(pedestal) FitPeak(tmp, peak, energy, time,0);
+        if(pedestal) FitPeak(tmp, peak, energy, time,pedestal->GetPedestal());
         else FitPeak(tmp, peak, energy, time, 0);
         fPeaks.insert(tmp);
       }
@@ -72,12 +80,40 @@ int TemplateConvolver::FindPeaks(const SamplesVector& energy,
    return fPeaks.size();
 }
 
+int TemplateConvolver::FindBestPeak(const SamplesVector& energy,
+      const SamplesVector& time, const Algorithm::TpiMinusPedestal_iterator* pedestal){
+   double last_sample=time.front();
+   double best_amp=-1e9;
+   FoundPeaks tmp=FoundPeaks();
+   FoundPeaks best=FoundPeaks();
+   int peak_count=0;
+   for(SamplesVector::const_iterator i_sample=time.begin()+1; i_sample!=time.end(); ++i_sample){
+      if( last_sample>0 && *i_sample<0){
+        int peak=i_sample - time.begin();
+        if(pedestal) FitPeak(tmp, peak, energy, time,pedestal->GetPedestal());
+        else FitPeak(tmp, peak, energy, time, 0);
+        if( (tmp.amplitude > best_amp) ){
+            best=tmp;
+	    best_amp=tmp.amplitude;
+        }
+        ++peak_count;
+      }
+      last_sample = *i_sample;
+   }
+   fPeaks.insert(best);
+   return peak_count;
+}
+
+
 void TemplateConvolver::FitPeak(FoundPeaks& output, int index, const SamplesVector& energy, const SamplesVector& time, double pedestal){
+   // about where do need to fit?
    int peak=(fQuadFit.GetSize()-1)/2;
-   if( peak <index) peak=index;
+   // if the index we've been asked to fit to is greater than the minimum needed samples then use that
+   if( index > peak) peak=index-peak;
+   // run the fit calculation
    fQuadFit.Fit(energy.begin() + peak, output.quad, output.linear, output.constant);
 
-   output.time=output.linear/2/output.quad + index;
+   output.time= index + output.linear/2/output.quad;
    output.pedestal=pedestal;
    output.amplitude=output.constant - output.linear*output.linear/4/output.quad;
 }
@@ -93,14 +129,14 @@ void TemplateConvolver::CharacteriseTemplate(){
    // Run convolution
    fEnergyConvolve->Process(hist.begin(), hist.end(), fTemplateACF.begin());
    fTimeConvolve->Process(fTemplateACF.begin(), fTemplateACF.end(), fTemplateACFDerivative.begin());
-   FindPeaks(fTemplateACF, fTemplateACFDerivative, NULL);
+   FindBestPeak(fTemplateACF, fTemplateACFDerivative, NULL);
 
    // Prepare the quadratic coefficients of the template itself
    fTemplateQuad=fPeaks.begin()->quad;
    fTemplateLin=fPeaks.begin()->linear;
    fTemplateConst=fPeaks.begin()->constant;
    fTemplateScale=fTemplate->GetAmplitude();
-   fTemplateScale/=fPeaks.begin()->constant - fPeaks.begin()->linear*fPeaks.begin()->linear/4/fPeaks.begin()->quad;
+   fTemplateScale/=fPeaks.begin()->constant - fPeaks.begin()->linear*fPeaks.begin()->linear/4/fPeaks.begin()->quad; 
 
    // Convert to histograms
    fTemplateACFHist=functions::VectorToHist(fTemplateACF,"Template_ACF","Auto-correlation of template");
