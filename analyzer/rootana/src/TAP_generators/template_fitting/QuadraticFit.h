@@ -16,7 +16,6 @@ class QuadraticFit{
   public:
   /// @brief constructor Taking the number of samples that will be fit to when using this instance 
   QuadraticFit(int length):fN(length+(length+1)%2),fX2(0),fX4(0){
-   //for(double i= -(length-1)/2; i < (length+1)/2; ++i){
    int range=(fN-1)/2;
    for(double x= -range; x <= range; ++x){
      fX2+=x*x;
