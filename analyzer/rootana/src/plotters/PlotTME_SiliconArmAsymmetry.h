@@ -23,8 +23,10 @@ class PlotTME_SiliconArmAsymmetry : public BaseModule{
   TVMuonEventGenerator* fGenerator;
   modules::options* fOptions;
 
-  int fRightCounter;
-  int fLeftCounter;
+  double fRightCounter;
+  double fLeftCounter;
+
+  TH1F* fAmplitudeHistogram;
 };
 
 #endif // MAKEMUONEVENTS_H__
