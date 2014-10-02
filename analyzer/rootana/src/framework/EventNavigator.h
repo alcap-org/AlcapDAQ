@@ -63,7 +63,7 @@ class EventNavigator {
 
   /// Gives access to the run meta-data, including all information
   /// stored in the TSetupData struct
-  const SetupRecord& GetSetupRecord() {return *fSetupRecord;}
+  static const SetupRecord& GetSetupRecord() {return *Instance().fSetupRecord;}
 
   /// Gives read access to the LoopSequence, which must first be
   /// initailised with MakeLoopSequence() in main()
