@@ -62,8 +62,8 @@
   TLegend* leg = new TLegend(0.2, 0.53, 0.9, 0.755, "Gain Drifts");
   TLegend* leg_norm = new TLegend(0.6, 0.1, 0.8, 0.4, "Gain Drifts");
   TLegend* leg_shift = new TLegend(0.6, 0.1, 0.8, 0.4, "Gain Drifts");
-  TLegend* leg_sig = new TLegend(0.5, 0.1, 0.7, 0.4, "Sigma Drifts");
-  TLegend* leg_res = new TLegend(0.5, 0.1, 0.7, 0.4, "Resolution Drifts");
+  TLegend* leg_sig = new TLegend(0.5, 0.1, 0.95, 0.4, "Sigma Drifts");
+  TLegend* leg_res = new TLegend(0.5, 0.1, 0.65, 0.4, "Resolution Drifts");
   TMultiGraph* mg = new TMultiGraph("peakpos", "Germanium Peaks");
   TMultiGraph* mg_norm = new TMultiGraph("peakpos_norm", "Germanium Peaks (Normalized)");
   TMultiGraph* mg_shift = new TMultiGraph("peakpos_shift", "Germanium Peaks (Shifted)");

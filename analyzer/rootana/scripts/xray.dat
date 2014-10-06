@@ -1,4 +1,4 @@
-#Element	Lf	Li	Energy		Intensity
+#El/Iso		Lf	Li	Energy		Intensity
 H1
 C6
 O8
@@ -13,4 +13,4 @@ Fe26		1s(1/2)	2p(1/2)	1253.06		0.716
 ---		---	7p	1695.7		0.02
 ---		---	8p	1704.7		0.012
 ---		2p	3d	
-Pb82
+206Pb82
