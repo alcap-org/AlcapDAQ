@@ -93,19 +93,32 @@ void FixedWindowMEGenerator::AddPulsesInWindow(
 
 
     // Move the iteator for the start of the window
-    int look_ahead=1;
+    int look_ahead=0;
+    bool valid_start = false;
     while((start+look_ahead!=end) && (start!=end) ){
         double time = (*(start+look_ahead))->GetTime();
-        if(time==definitions::DefaultValue){
+
+        if(time==definitions::DefaultValue || time < early_edge){
             // If time is DefaultValue then we're looking at an unpaired
             // detector which we should ignore
             ++look_ahead;
             continue;
         }
-        look_ahead=1;
-        if(time>early_edge) break;
-        start+=look_ahead;
+	  if (time > late_edge) {
+	    // the first TDP in the container is too late for this TME
+	    return;
+	}
+        if(time>early_edge) {
+	  start+=look_ahead;
+	  look_ahead=1;
+	  valid_start = true;
+	  break;
+	}
     }
+      if(!valid_start) {
+	// If we got this far and didn't find a valid start TDP then stop processing
+	return;
+      }
     // Move the iteator for the end of the window
     stop=start;
     while( stop!=end ){  
