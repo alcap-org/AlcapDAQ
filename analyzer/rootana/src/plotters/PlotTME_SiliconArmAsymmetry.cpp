@@ -8,6 +8,7 @@
 #include <string>
 #include <map>
 #include <utility>
+#include <cmath>
 
 #include "MaxTimeDiffMEGenerator.h"
 #include "RegisterModule.inc"
@@ -46,13 +47,10 @@ int PlotTME_SiliconArmAsymmetry::ProcessEntry(TGlobalData *aData, const TSetupDa
       if (i_sourceID.matches(IDs::channel("SiR2"))) {
 	//	std::cout << "TME #" << i_muonEvent - gMuonEvents.begin() << ": " << (*i_muonEvent)->GetSource(i_source).str() << std::endl;
 	n_source_pulses = (*i_muonEvent)->NumPulses(i_sourceID);
-	  
-	fRightCounter += n_source_pulses;
       }
       else if (i_sourceID.matches(IDs::channel("SiL2"))) {
 	//	std::cout << "TME #" << i_muonEvent - gMuonEvents.begin() << ": " << (*i_muonEvent)->GetSource(i_source).str() << std::endl;
 	n_source_pulses = (*i_muonEvent)->NumPulses(i_sourceID);
-	fLeftCounter += n_source_pulses;
       }
 
       for (int index = 0; index < n_source_pulses; ++index) {
@@ -68,6 +66,14 @@ int PlotTME_SiliconArmAsymmetry::ProcessEntry(TGlobalData *aData, const TSetupDa
 
 	//	std::cout << i_sourceID << ": Amplitude of pulse = " << i_pulse->GetAmplitude(TDetectorPulse::kSlow) << std::endl;
 	fAmplitudeHistogram->Fill(amplitude);
+	if (amplitude > 300) {
+	  if (i_sourceID.matches(IDs::channel("SiR2"))) {
+	    fRightCounter++;
+	  }
+	  else if (i_sourceID.matches(IDs::channel("SiL2"))) {
+	    fLeftCounter++;
+	  }
+	}
       }
     }
   }
@@ -75,8 +81,13 @@ int PlotTME_SiliconArmAsymmetry::ProcessEntry(TGlobalData *aData, const TSetupDa
 }
 
 int PlotTME_SiliconArmAsymmetry::AfterLastEntry(TGlobalData *aData, const TSetupData* aSetup){
-  std::cout << "Left : Right = " << fLeftCounter << " : " << fRightCounter << std::endl;
-  std::cout << "Asymmetry ((N_L - N_R)/(N_L + N_R)) = " << (fLeftCounter - fRightCounter) / (fLeftCounter + fRightCounter) << std::endl;
+  double asymmetry = (fLeftCounter - fRightCounter) / (fLeftCounter + fRightCounter);
+  double total = fLeftCounter + fRightCounter;
+  double error_left = std::sqrt(fLeftCounter);
+  double error_right = std::sqrt(fRightCounter);
+  double error_asymmetry = std::sqrt( (1.0/total) + (asymmetry*asymmetry)/(total*total) );
+  std::cout << "Left : Right = " << fLeftCounter << "+-" << error_left << " : " << fRightCounter << "+-" << error_right << std::endl;
+  std::cout << "Asymmetry ((N_L - N_R)/(N_L + N_R)) = " << asymmetry << "+-" << error_asymmetry << std::endl;
     return 0;
 }
 
