@@ -7,9 +7,9 @@ void FitParametersFirstGuess(const TH1* h, const Double_t nbins, const Double_t 
 }
 
 ge_energy_runbyrun_calib() {
-  const unsigned int nsets = 1;//7;
+  const unsigned int nsets = 7;
   const unsigned int npeaks = 8;
-  const char* sets[nsets] = { "Al100" }; // , "Al50awithNDet2", "Al50awithoutNDet2", "Al50b", "Si16P", "SiR21pct", "SiR23pct" };
+  const char* sets[nsets] = { "Al100" , "Al50awithNDet2", "Al50awithoutNDet2", "Al50b", "Si16P", "SiR21pct", "SiR23pct" };
   const Double_t en[npeaks] =     { 351.932, 510.998928, 583.191, 609.312, 911.204, 1173.237, 1332.501, 1460.83 };
   const Double_t en_err[npeaks] = { 0.002,   0.000011,   0.002,   0.007,   0.004,   0.004,    0.005,    0.01 };
   const Double_t sigma = 8.;
@@ -23,7 +23,7 @@ ge_energy_runbyrun_calib() {
 				       { 10800., 10800.+ nbins },
 				       { 11850., 11850. + nbins } };
   TSQLiteServer* db = new TSQLiteServer("sqlite://merge.db");
-  unsigned int nfiles[nsets] = { 0 };//, 0, 0, 0, 0, 0, 0 };
+  unsigned int nfiles[nsets] = { 0, 0, 0, 0, 0, 0, 0 };
   unsigned int nfiles_tmp = 0;
   for (unsigned int i = 0; i < nsets; ++i) {
     char cmd[128];
@@ -52,7 +52,6 @@ ge_energy_runbyrun_calib() {
     delete res;
   }
 
-  //  TF1* fit = new TF1("fitfunc", "gaus(0)+pol1(3)");
   char fname[64];
   for (unsigned int i = 0; i < nsets; ++i) {
     for (unsigned int j = 0; j < nfiles[i]; ++j) {
@@ -60,19 +59,25 @@ ge_energy_runbyrun_calib() {
       printf("%s\n", fname);
       TFile* f = new TFile(fname, "READ");
       TH1* h = (TH1*)f->Get("GeSpectrum/hEnergyFarOOT");
+      // Get first guess at shift
+      h->GetXaxis()->SetRangeUser(3500., 4500.);
+      Double_t shift_511 = (bounds[1][0] + bounds[1][1])/2. - (Double_t)h->GetMaximumBin();
       for (unsigned int k = 0; k < npeaks; ++k) {
+	Double_t shift = shift_511*(bounds[k][0]+bounds[k][1])/2./10000.;
 	TF1 fit("fitfunc", "gaus(0)+pol1(3)");
-	h->GetXaxis()->SetRangeUser(bounds[k][0], bounds[k][1]);
+	printf("SHIFT: %g------------------\n", shift);
+	h->GetXaxis()->SetRangeUser(bounds[k][0] - shift, bounds[k][1] - shift);
 	Double_t par[5];
 	FitParametersFirstGuess(h, nbins, sigma, par);
-	fit.SetParameters(par);//fit->SetParameters(par);
-	fit.SetParLimits(0, 0., par[0]+par[1]);
-	fit.SetParLimits(1, bounds[k][0], bounds[k][1]);
+	fit.SetParameters(par);
+	fit.SetParLimits(0, 0., 2.*(par[0]+par[1]) );
+	fit.SetParLimits(1, bounds[k][0] - shift, bounds[k][1] - shift);
 	fit.SetParLimits(2, 0., 20.);
+	//	printf("Bounds on amplitude: %g\nBounds on centroid: %g\n", 2.*(par[0]+par[1]),
 	printf("%g %g %g %g %g\n", par[0], par[1], par[2], par[3], par[4]);
-	TFitResultPtr fitres = h->Fit(&fit, "SE");//TFitResultPtr fitres = h->Fit(fit, "SE");
-	printf("Fit result status:\t%d\t%d\n", (Int_t)fitres, fitres->Status());
-	if ((Int_t)fitres) {
+	TFitResultPtr fitres = h->Fit(&fit, "SM");//TFitResultPtr fitres = h->Fit(fit, "SE");
+	if (!fitres->IsValid()) {
+	  printf("Peak: %s(%u)\n", fname, k);
 	  return;
 	}
 	peaks[i][j][k] = fitres->Parameter(1); peaks_err[i][j][k] = fitres->ParError(1);
