@@ -33,13 +33,30 @@ class TH2;
 class GeSpectrum : public BaseModule {
 
  private:
+  // Histograms
   TH1* fHist_Energy;
   TH1* fHist_Time;
   TH1* fHist_MoreTime;
   TH1* fHist_EnergyOOT;
   TH1* fHist_EnergyFarOOT;
+  TH1* fHist_TimeOOT;
+  TH1* fHist_TimeFarOOT;
   TH2* fHist_TimeEnergy;
   TH1* fHist_MeanTOffset;
+
+  // Algorithms
+  const Algorithm::MaxBinAmplitude fMBAmpGe;
+  const Algorithm::ConstantFractionTime fCFTimeGe, fCFTimeMuSc;
+
+  // Time cuts
+  const double fTimeWindow_Small; // ns
+  const double fTimeWindow_Big;   // ns
+
+  // Channels
+  static const IDs::channel fGeS;
+  static const IDs::channel fGeF;
+  static const IDs::channel fMuSc;
+
 
  public:
   /// \brief
@@ -90,15 +107,6 @@ class GeSpectrum : public BaseModule {
   void ThrowIfInputsInsane(const modules::options*);
   void ThrowIfGeInsane(const std::vector<TPulseIsland*>& ge_fasts, const std::vector<TPulseIsland*>& ge_slows);
 
-
-  // Algorithms
-  const Algorithm::MaxBinAmplitude fMBAmpGe;
-  const Algorithm::ConstantFractionTime fCFTimeGe, fCFTimeMuSc;
-
-  // Channels
-  static const IDs::channel fGeS;
-  static const IDs::channel fGeF;
-  static const IDs::channel fMuSc;
 };
 
 #endif //GESPECTRUM_H_

@@ -40,17 +40,20 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
 	      TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fMuSc.str())),
 	      TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fMuSc.str())),
 	      0.,
-	      opts->GetDouble("musc_cf")) {
+	      opts->GetDouble("musc_cf")),
+  fTimeWindow_Small(500.), fTimeWindow_Big(5000.) {
   const static int nbins = std::pow(2.,14);
   TDirectory* cwd = TDirectory::CurrentDirectory();
   dir->cd();
-  fHist_Energy       = new TH1I("hEnergy", "Energy of Gammas", nbins, 0., nbins);
-  fHist_Time         = new TH1I("hTime", "Time of Gammas within Energy Window", 1000, -10000., 10000.);
-  fHist_MoreTime     = new TH1I("hMoreTime", "Time of Gammas within Energy Window (Wide)", 1000, -100000., 100000.);
-  fHist_EnergyOOT    = new TH1I("hEnergyOOT", "Energy of Gammas outside of Time Window", nbins, 0., nbins);
-  fHist_EnergyFarOOT = new TH1I("hEnergyFarOOT", "Energy of Gammas far from Muons", nbins, 0., nbins);
-  fHist_TimeEnergy   = new TH2I("hTimeEnergy", "Energy of Gammas within Time Window", 100, -500., 500., nbins, 0., nbins);
-  fHist_MeanTOffset  = new TH1I("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -20000., 20000.);
+  fHist_Energy       = new TH1D("hEnergy", "Energy of Gammas", nbins, 0., nbins);
+  fHist_Time         = new TH1D("hTime", "Time of Gammas within Energy Window", 1000, -10000., 10000.);
+  fHist_MoreTime     = new TH1D("hMoreTime", "Time of Gammas within Energy Window (Wide)", 1000, -100000., 100000.);
+  fHist_EnergyOOT    = new TH1D("hEnergyOOT", "Energy of Gammas outside of Time Window", nbins, 0., nbins);
+  fHist_EnergyFarOOT = new TH1D("hEnergyFarOOT", "Energy of Gammas far from Muons", nbins, 0., nbins);
+  fHist_TimeOOT      = new TH1D("hTimeOOT", "Time of Gammas outside of Time Window", 1000., -2.*fTimeWindow_Small, 2.*fTimeWindow_Small);
+  fHist_TimeFarOOT   = new TH1D("hTimeFarOOT", "Time of Gammas far from Muons", 1000., -100.*fTimeWindow_Big, 100.*fTimeWindow_Big);
+  fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
+  fHist_MeanTOffset  = new TH1D("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -4.*fTimeWindow_Big, 4.*fTimeWindow_Big);
   cwd->cd();
   ThrowIfInputsInsane(opts);
 }
@@ -68,9 +71,6 @@ int GeSpectrum::BeforeFirstEntry(TGlobalData* gData, const TSetupData *setup){
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
 int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
-
-  static const double time_window_small = 500.; // ns
-  static const double time_window_big = 5000.; // ns
 
   static const std::string bank_musc = TSetupData::Instance()->GetBankName(fMuSc.str());
   static const std::string bank_ges  = TSetupData::Instance()->GetBankName(fGeS.str());
@@ -127,38 +127,54 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   for (std::vector<double>::const_iterator geT = geTimes.begin(), geE = geEnergies.begin(), prev = muScTimes.begin(), next;
        geT != geTimes.end() && geE != geEnergies.end();
        ++geT, ++geE) {
-    const double unfound = 1e9;
-    double dt_prev = unfound, dt_next = unfound;
+    bool prev_found = false, next_found = false;
+    double dt_prev, dt_next;
   
     // Find the time difference with the most recent muon
-    // in any direction.
+    // both before and after.
     next = std::upper_bound(prev, muScTimes.end(), *geT);
     prev = next - 1;
     if (next == muScTimes.end()) {
       dt_prev = *geT - *prev;
+      prev_found = true;
     } else if (next == muScTimes.begin()) {
       dt_next = *geT - *next;
-      prev = next;
+      next_found = true;
     } else {
+      // The vast majority of cases are here
       dt_prev = *geT - *prev;
       dt_next = *geT - *next;
+      prev_found = next_found = true;
     }
 
-    if ((dt_prev == unfound || dt_prev > time_window_big) && (dt_next == unfound || dt_next < -time_window_big))
+    // Plot energy
+    if (( !prev_found || dt_prev > fTimeWindow_Big) && ( !next_found || dt_next < -fTimeWindow_Big) ) {
       fHist_EnergyFarOOT->Fill(*geE);
-    else if ((dt_prev == unfound || dt_prev > time_window_small) && (dt_next == unfound || dt_next < -time_window_small))
+    } else if ( (!prev_found || dt_prev > fTimeWindow_Small) && (!next_found || dt_next < -fTimeWindow_Small) ) {
       fHist_EnergyOOT->Fill(*geE);
-    else {
-      if ((dt_prev != unfound && dt_prev < time_window_small) && (dt_next != unfound && dt_next > -time_window_small)) {
+    } else {
+      if (prev_found && dt_prev <= fTimeWindow_Small) {
 	fHist_TimeEnergy->Fill(dt_prev, *geE);
-      } else if (dt_next != unfound && dt_next > -time_window_small) {
+      } else if (next_found && dt_next >= -fTimeWindow_Small) {
 	fHist_TimeEnergy->Fill(dt_next, *geE);
-      } else if (dt_prev != unfound && dt_prev < time_window_small) {
-	fHist_TimeEnergy->Fill(dt_prev, *geE);
+      } else {
+	std::cout << "WARNING: Unexpected branch! Prev: (" << prev_found << ", " << dt_prev << "), Next: (" << next_found << ", " << dt_next << ")" << std::endl;
       }
     }
-
     fHist_Energy->Fill(*geE);
+    // Plot time
+    if (prev_found) {
+      if (dt_prev > fTimeWindow_Big)
+	fHist_TimeFarOOT->Fill(dt_prev);
+      else if (dt_prev > fTimeWindow_Small)
+	fHist_TimeOOT->Fill(dt_prev);
+    }
+    if (next_found) {
+      if (dt_next < -fTimeWindow_Big)
+	fHist_TimeFarOOT->Fill(dt_next);
+      else if (dt_next < -fTimeWindow_Small)
+	fHist_TimeOOT->Fill(dt_next);
+    }
 
     // Silicon XRay
     //if (ge_energy >= 3260 && energy_ge <= 3290)
