@@ -20,27 +20,28 @@
 				       { 9500.,  9600. },
 				       { 10800., 10900.},
 				       { 11850., 11950.} };
-  const Double_t time[nfiles] = { 1387604653.92, 1387607518.98, 1387610414.26, 1387613304.14, 1387616138.98,
-				  1387618927.99,  1387622098.87, 1387625126.46, 1387627879.8, 1387631140.66,
-				  1387634404.95, 1387637159.86, 1387639919.46, 1387642858.41, 1387645790.1,
-				  1387648568.37, 1387651559.9, 1387664920.0, 1387667710.98, 1387670485.14,
-				  1387673258.58, 1387676026.6, 1387678825.48, 1387681660.52, 1387684482.86,
-				  1387687285.58, 1387690100.48, 1387692815.51, 1387697785.09, 1387700882.8,
-				  1387704520.53 };
   TSQLiteServer* db = new TSQLiteServer("sqlite://merge.db");
   char cmd[128];
   unsigned int nfiles[nsets] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+  unsigned int nfiles_tmp = 0;
   for (unsigned int i = 0; i < nsets; ++i) {
     sprintf(cmd, "SELECT COUNT(file) WHERE file LIKE '%s%%'", sets[i]);
     TSQLiteResult* res = con->Query(cmd);
     TSQLiteRow* row = res->Next();
     nfiles[i] = (unsigned int)atoi(row->GetField(0));
+    if (nfiles[i] > nfiles_tmp) nfiles_tmp = nfiles[i];
     delete row, res;
-  }
 
-  Double_t peaks[nsets][nfiles][npeaks], sigmas[nsets][nfiles][npeaks], peaks_err[nsets][nfiles][npeaks], sigmas_err[nsets][nfiles][npeaks];
-  Double_t chi2[nsets][nfiles][npeaks], ndf[nsets][nfiles][npeaks];
-  Int_t status[nsets][nfiles][npeaks];
+    unsigned int nf = 0;
+    sprintf(cmd, "SELECT time WHERE file LIKE '%s%%' ORDER BY time", sets[i]);
+    TSQLiteResult* res = con->Query(cmd);
+    while ((row=res->Next()) {
+	TSQLiteResult* res2
+  }
+  const unsigned int nfiles_max = nfiles_tmp;
+  Double_t peaks[nsets][nfiles_max][npeaks], sigmas[nsets][nfiles_max][npeaks], peaks_err[nsets][nfiles_max][npeaks], sigmas_err[nsets][nfiles_max][npeaks];
+  Double_t chi2[nsets][nfiles_max][npeaks], ndf[nsets][nfiles_max][npeaks];
+  Int_t status[nsets][nfiles_max][npeaks];
 
   TF1* fit = new TF1("fitfunc", "gaus(0)+pol1(3)");
   char fname[64];
