@@ -1,15 +1,28 @@
-void FitParametersFirstGuess(const TH1* h, const Double_t nbins, const Double_t sigma, Double_t par[5]) {
+void FitParametersFirstGuess(TH1* h, TF1* f, const Double_t sigma) {
+  const unsigned int npar = 5;
+  Double_t par[npar];
+
+  TAxis* x = h->GetXaxis();
+  const Double_t n = x->GetLast() - x->GetFirst() + 1.;
+
   par[4] = 0.;
-  par[3] = h->Integral()/nbins;
   par[2] = sigma;
   par[1] = (Double_t)h->GetMaximumBin();
+  h->GetXaxis()->SetRangeUser(par[1] - n/2., par[1] + n/2.);
+  par[3] = h->Integral()/n;
   par[0] = h->GetMaximum() - par[3];
+
+  f->SetParameters(par);
+  f->SetParLimits(0, 0., h->GetMaximum());
+  f->SetParLimits(1, x->GetFirst(), x->GetLast());
+  f->SetParLimits(2, 1., 3.*sigma);
+
 }
 
 ge_energy_runbyrun_calib() {
   const unsigned int nsets = 7;
   const unsigned int npeaks = 8;
-  const char* sets[nsets] = { "Al100" , "Al50awithNDet2", "Al50awithoutNDet2", "Al50b", "Si16P", "SiR21pct", "SiR23pct" };
+  const char* sets[nsets] = { "Al100", "Al50awithNDet2", "Al50awithoutNDet2", "Al50b", "Si16P", "SiR21pct", "SiR23pct"};
   const Double_t en[npeaks] =     { 351.932, 510.998928, 583.191, 609.312, 911.204, 1173.237, 1332.501, 1460.83 };
   const Double_t en_err[npeaks] = { 0.002,   0.000011,   0.002,   0.007,   0.004,   0.004,    0.005,    0.01 };
   const Double_t sigma = 8.;
@@ -56,28 +69,19 @@ ge_energy_runbyrun_calib() {
   for (unsigned int i = 0; i < nsets; ++i) {
     for (unsigned int j = 0; j < nfiles[i]; ++j) {
       sprintf(fname, "%s_%u.root", sets[i], j+1);
-      printf("%s\n", fname);
       TFile* f = new TFile(fname, "READ");
       TH1* h = (TH1*)f->Get("GeSpectrum/hEnergyFarOOT");
       // Get first guess at shift
       h->GetXaxis()->SetRangeUser(3500., 4500.);
       Double_t shift_511 = (bounds[1][0] + bounds[1][1])/2. - (Double_t)h->GetMaximumBin();
       for (unsigned int k = 0; k < npeaks; ++k) {
-	Double_t shift = shift_511*(bounds[k][0]+bounds[k][1])/2./10000.;
+	Double_t shift = shift_511*(1.+((bounds[k][0]+bounds[k][1])/2.-4100.)/6000.);
 	TF1 fit("fitfunc", "gaus(0)+pol1(3)");
-	printf("SHIFT: %g------------------\n", shift);
 	h->GetXaxis()->SetRangeUser(bounds[k][0] - shift, bounds[k][1] - shift);
-	Double_t par[5];
-	FitParametersFirstGuess(h, nbins, sigma, par);
-	fit.SetParameters(par);
-	fit.SetParLimits(0, 0., 2.*(par[0]+par[1]) );
-	fit.SetParLimits(1, bounds[k][0] - shift, bounds[k][1] - shift);
-	fit.SetParLimits(2, 0., 20.);
-	//	printf("Bounds on amplitude: %g\nBounds on centroid: %g\n", 2.*(par[0]+par[1]),
-	printf("%g %g %g %g %g\n", par[0], par[1], par[2], par[3], par[4]);
-	TFitResultPtr fitres = h->Fit(&fit, "SM");//TFitResultPtr fitres = h->Fit(fit, "SE");
+	FitParametersFirstGuess(h, &fit, sigma);
+	TFitResultPtr fitres = h->Fit(&fit, "SEQM");
 	if (!fitres->IsValid()) {
-	  printf("Peak: %s(%u)\n", fname, k);
+	  printf("Peak: %s(%u)\tStatus: %d\n", fname, k, (Int_t)fitres);
 	  return;
 	}
 	peaks[i][j][k] = fitres->Parameter(1); peaks_err[i][j][k] = fitres->ParError(1);
@@ -91,14 +95,17 @@ ge_energy_runbyrun_calib() {
   for (unsigned int i = 0; i < nsets; ++i) {
     sprintf(grname, "mg%s", sets[i]);
     sprintf(grtitle, "Gain (%s)", sets[i]);
-    mg[i] = new TMultiGtaph(grname, grtitle);
+    mg[i] = new TMultiGraph(grname, grtitle);
   }
   Double_t gain[nsets][nfiles_max], offset[nsets][nfiles_max], gain_err[nsets][nfiles_max], offset_err[nsets][nfiles_max];
   for (unsigned int i = 0; i < nsets; ++i) {
+    printf("--------------------------------------------------------------------------------\n");
+    printf("%s\nFile\tGain\tPedestal\tChi2\tNDF\Chi2/NDF\tGain Pct Err\n", sets[i]);
     for (unsigned int j = 0; j < nfiles[i]; ++j) {
       TGraphErrors* gr = new TGraphErrors(npeaks, peaks[i][j], en, peaks_err[i][j], en_err);
-      TFitResultPtr fitres = gr->Fit("pol1", "SQ0");
-      mg[i]->Add(gr);
+      TFitResultPtr fitres = gr->Fit("pol1", "SQ");
+      printf("%u\t%g\t%g\t%g\t%g\t%g\t%g\n", j, fitres->Value(1), fitres->Value(0), fitres->Chi2(), (Double_t)fitres->Ndf(), fitres->Chi2()/(Double_t)fitres->Ndf(), fitres->ParError(1)/fitres->Value(1));
+      mg[i]->Add(gr); gr->GetFunction("pol1")->SetLineColor(j+1); gr->SetMarkerColor(j+1); gr->SetMarkerStyle(1);
       gain[i][j] = fitres->Parameter(1); gain_err[i][j] = fitres->ParError(1);
       offset[i][j] = fitres->Parameter(0); offset_err[i][j] = fitres->ParError(0);
     }
