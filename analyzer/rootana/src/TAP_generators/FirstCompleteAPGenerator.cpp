@@ -23,7 +23,7 @@ FirstCompleteAPGenerator::FirstCompleteAPGenerator(TAPGeneratorOptions* opts):
 			opts->GetDouble("constant_fraction")), 
   fSimpleIntegral(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
 		  TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
-  fPulseCandidateFinder(new PulseCandidateFinder(GetChannel().str(), opts)) {
+  fPulseCandidateFinder(opts->GetBool("use_pcf",true)?new PulseCandidateFinder(GetChannel().str(), opts):NULL) {
 }
 
 FirstCompleteAPGenerator::~FirstCompleteAPGenerator(){
@@ -37,48 +37,47 @@ int FirstCompleteAPGenerator::ProcessPulses(
         const PulseIslandList& pulseList,
         AnalysedPulseList& analysedList){
 
-    // The variables that this generator will be filling
-    double amplitude, time, integral;
-
-    TAnalysedPulse* tap;
     // Loop over all the TPIs given to us
-    for (PulseIslandList::const_iterator original_tpi=pulseList.begin();
-            original_tpi!=pulseList.end(); original_tpi++){
-
-      // Look for more than one pulse on the TPI
-        fPulseCandidateFinder->FindPulseCandidates(*original_tpi);
-        int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
-        fPulseCandidateFinder->GetPulseCandidates(fSubPulses);
-
-
-        for(PulseIslandList::const_iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){
-            // Skip small pulses.  This must be at least 1 to skip empty pulses
-	  //            PulseIslandList::const_iterator i_tpi=original_tpi;
-            if((*i_tpi)->GetPulseLength() < 14) continue;
-
-            // Analyse each TPI
-            amplitude=fMaxBinAmplitude(*i_tpi);
-            time=fConstantFractionTime(*i_tpi);
-            integral=fSimpleIntegral(*i_tpi);
-
-            // Now that we've found the information we were looking for make a TAP to
-            // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
-            // the index of the parent TPI in the container as an argument
-            tap = MakeNewTAP(original_tpi-pulseList.begin());
-            tap->SetAmplitude(amplitude);
-            tap->SetTime(time);
-            tap->SetIntegral(integral);
-
-            // Finally add the new TAP to the output list
-            analysedList.push_back(tap);
-
-        } // loop over all sub-pulses
-
-
-    } // loop over all original TPIs
-
+    for (PulseIslandList::const_iterator i_tpi=pulseList.begin();
+            i_tpi!=pulseList.end(); ++i_tpi){
+        int tpi_ID = i_tpi - pulseList.begin();
+        if(fPulseCandidateFinder) MakeTAPsWithPCF(tpi_ID,*i_tpi,analysedList);
+        else AnalyseOneTpi(tpi_ID, *i_tpi,analysedList);
+    }
     return 0;
 }
+
+void FirstCompleteAPGenerator::MakeTAPsWithPCF(int tpi_ID, const TPulseIsland* original_tpi, AnalysedPulseList& analysedList){
+    // Look for more than one pulse on the TPI
+    fPulseCandidateFinder->FindPulseCandidates(original_tpi);
+    int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
+    fPulseCandidateFinder->GetPulseCandidates(fSubPulses);
+
+    // now loop over all sub-pulses
+    for(PulseIslandList::const_iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){
+        AnalyseOneTpi( tpi_ID, *i_tpi,analysedList);
+    }
+}
+
+void FirstCompleteAPGenerator::AnalyseOneTpi(int tpi_ID, const TPulseIsland* tpi, AnalysedPulseList& analysedList){
+    if(tpi->GetPulseLength() < 14) return;
+
+    // Analyse each TPI
+    double amplitude=fMaxBinAmplitude(tpi);
+    double time=fConstantFractionTime(tpi);
+    double integral=fSimpleIntegral(tpi);
+
+    // Now that we've found the information we were looking for make a TAP to
+    // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
+    // the index of the parent TPI in the container as an argument
+    TAnalysedPulse* tap = MakeNewTAP(tpi_ID);
+    tap->SetAmplitude(amplitude);
+    tap->SetTime(time);
+    tap->SetIntegral(integral);
+
+    // Finally add the new TAP to the output list
+    analysedList.push_back(tap);
+} 
 
 void FirstCompleteAPGenerator::DrawPulse(int original, int pulse_timestamp, int n_pulse_samples){
 
@@ -107,4 +106,4 @@ void FirstCompleteAPGenerator::DrawPulse(int original, int pulse_timestamp, int 
     }
 }
 
-ALCAP_TAP_GENERATOR(FirstComplete,constant_fraction,no_time_shift);
+ALCAP_TAP_GENERATOR(FirstComplete,constant_fraction,no_time_shift, use_pcf);
