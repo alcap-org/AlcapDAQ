@@ -16,6 +16,9 @@ TemplateArchive* TemplateConvolveAPGenerator::fTemplateArchive=NULL;
 TemplateConvolveAPGenerator::TemplateConvolveAPGenerator(TAPGeneratorOptions* opts):
    TVAnalysedPulseGenerator("TemplateConvolve",opts),
     fPedestal(EventNavigator::Instance().GetSetupRecord().GetPedestal(GetChannel())),
+    fTicksPerNs(EventNavigator::Instance().GetSetupRecord().GetTickLength(GetChannel())),
+    //fMuScTimeOffset(SetupNavigator::Instance()->GetCoarseTimeOffset(GetSource())),
+    fMuScTimeOffset(0.),
     fExpectPileUp(false), fIntegralRatio(NULL)
 {
    // get the templates from the archive
@@ -93,12 +96,13 @@ int TemplateConvolveAPGenerator::ProcessPulses(
        tap->SetEnergyConvolve(fConvolver->GetEnergyConvolution());
        tap->SetTimeConvolve(fConvolver->GetTimeConvolution());
        tap->SetTimeOffset(i_tap->time);
-       tap->SetTime(i_tap->time + fConvolver->GetTimeShift() + 0.5);
        tap->SetAmplitudeScale(i_tap->amplitude);
        tap->SetAmplitude(i_tap->amplitude*fConvolver->GetAmplitudeScale());
        tap->SetQuadraticFit(i_tap->quad,i_tap->linear, i_tap->constant);
        tap->SetTemplate(fTemplate);
        tap->SetPedestal(fPedestal);
+       double time= CalibrateTime(i_tap->time + fConvolver->GetTimeShift() +0.5, *tpi);
+       tap->SetTime(time);
        //DEBUG_VALUE(i_tap->amplitude, i_tap->time, i_tap->pedestal);
 
        // Finally add the new TAP to the output list
@@ -131,5 +135,8 @@ bool TemplateConvolveAPGenerator::PassesIntegralRatio(const TPulseIsland* pulse,
    return true;
 }
 
+double TemplateConvolveAPGenerator::CalibrateTime(double clockTime, const TPulseIsland* tpi)const{
+  return (clockTime + (double)tpi->GetTimeStamp()) * fTicksPerNs - fMuScTimeOffset;
+}
 
 ALCAP_TAP_GENERATOR(TemplateConvolve, template_archive, n_quad_fit, left, right, use_IR_cut, min_integral, max_integral, min_ratio, max_ratio );

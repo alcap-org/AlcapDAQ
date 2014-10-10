@@ -29,6 +29,8 @@ class TemplateConvolveAPGenerator:public TVAnalysedPulseGenerator {
 
   private:
     bool PassesIntegralRatio(const TPulseIsland* pulse,double& integral, double& ratio)const;
+    /// Convert time from clock time within the TPI to real time
+    double CalibrateTime(double clockTime, const TPulseIsland* tpi)const;
 
   private:
     static TemplateArchive* fTemplateArchive;
@@ -39,6 +41,7 @@ class TemplateConvolveAPGenerator:public TVAnalysedPulseGenerator {
     double fIntegralRatioMax, fIntegralRatioMin;
     double fTemplateAmp, fTemplatePed, fTemplateTime;
     double fPedestal;
+    double fTicksPerNs, fMuScTimeOffset;
     bool fExpectPileUp; // Do we expect this generator to have to deal with pile-up waveforms?
 
     Algorithm::IntegralRatio* fIntegralRatio;
