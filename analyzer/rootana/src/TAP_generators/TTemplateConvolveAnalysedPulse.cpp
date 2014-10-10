@@ -5,6 +5,7 @@
 #include "debug_tools.h"
 #include <TF1.h>
 #include <TPaveText.h>
+#include "EventNavigator.h"
 
 TTemplateConvolveAnalysedPulse::TTemplateConvolveAnalysedPulse():TAnalysedPulse(),
       fNPeaks(0), fPeakRank(0), fIntegralRatio(0){}
@@ -32,7 +33,10 @@ void TTemplateConvolveAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
    TH1F* time_hist=functions::VectorToHist(fTimeSamples,name+"_time","First derivative of convolution with template");
     
    //TMarker* marker=new TMarker(GetTime(), GetAmplitude()+10, 23);
-   TLine* line=new TLine(GetTime(), GetPedestal(), GetTime(), GetAmplitude()+GetPedestal());
+   int polarity=EventNavigator::GetSetupRecord().GetPolarity(GetSource().Channel());
+   double bottom= GetPedestal() - (polarity>0?0:GetAmplitude());
+   double top= GetPedestal() + (polarity>0?GetAmplitude():0);
+   TLine* line=new TLine(GetTime(), bottom, GetTime(), top);
    line->SetLineColor(kRed);
    tpi_pulse->GetListOfFunctions()->Add(line->Clone());
 
