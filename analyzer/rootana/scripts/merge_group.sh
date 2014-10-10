@@ -1,5 +1,23 @@
 #!/bin/bash
 
+# Shift was too large to add up between runs below
+# Don't add across these boundaries.
+# These runs come before some
+# change, like Ge refill or some other movement.
+# Or maybe just a lot of time passed and the
+# peaks moved a lot.
+# This is NOT an exhaustive list
+#
+# Returns true if we split here
+splithere() {
+    local splits="2897 2905 3012 3117 3329 3540 3659 3721"
+    if echo $1 | grep -q splits; then
+	return 0
+    else
+	return 1
+    fi
+}
+
 datasets="Al100 Al50b Si16P SiR23pct SiR21pct Al50awithNDet2 Al50awithoutNDet2"
 
 if [ $# -ne 5 ]; then
@@ -38,7 +56,7 @@ for d in $datasets; do
 	    echo "Cannot find a file for run $r (ROOT: $ifile, ODB: $odbfile)"
 	fi
 	# If we have enough files, hadd their histograms and calculate time and weight
-	if (($(echo $files | wc -w)>=group_size)); then
+	if (($(echo $files | wc -w)>=group_size)) || splithere $r; then
 	    # Calculate average weighted time of run and the total runtime (weight)
 	    tw=$(python -c "import numpy; ts=[sum(it)/2. for it in zip([$starts], [$stops])]; ws=numpy.subtract([$stops], [$starts]); print numpy.average(ts,weights=ws), sum(ws);")
 	    rs=${rs:1}; f=$d"_"$m; t=$(echo $tw | cut -d' ' -f1); w=$(echo $tw | cut -d' ' -f2);
