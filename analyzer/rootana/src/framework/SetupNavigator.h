@@ -5,7 +5,11 @@
 #include "IdSource.h"
 
 #include <TSQLiteServer.h>
+
 #include <iostream>
+#include <vector>
+#include <pair>
+#include <map>
 
 class SetupNavigator{
   SetupNavigator();
@@ -30,7 +34,7 @@ class SetupNavigator{
 
   /// \brief
   /// Gets the pedestal from the SQLite database
-  double GetPedestal(const IDs::channel& channel)const;
+  double GetPedestal(const IDs::channel& channel) const;
   /// \brief
   /// Gets the error on the pedestal from the SQLite database
   double GetNoise(const IDs::channel& channel) const ;
@@ -58,7 +62,7 @@ private:
   bool ReadEnergyCalibrationConstants();
   void OutputCalibCSV();
   
-  bool IsCalibRun()const{return fCommandLineArgs.calib;}
+  bool IsCalibRun() const {return fCommandLineArgs.calib;}
 
  private:
   static SetupNavigator* fThis;
