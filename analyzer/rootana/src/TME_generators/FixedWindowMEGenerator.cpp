@@ -91,7 +91,6 @@ void FixedWindowMEGenerator::AddPulsesInWindow(
     // skip empty lists
     if(start==end) return;
 
-
     // Move the iteator for the start of the window
     int look_ahead=1;
     while((start+look_ahead!=end) && (start!=end) ){
