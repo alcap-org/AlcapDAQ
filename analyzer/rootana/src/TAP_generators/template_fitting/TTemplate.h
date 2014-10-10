@@ -40,6 +40,7 @@ class TTemplate:public TObject{
       double GetPedestal()const;
       double GetTime()const;
       double GetAmplitude()const;
+      int GetPolarity()const{return fTriggerPolarity;};
 
       double GetRefineFactor()const{return fRefineFactor;}
 
