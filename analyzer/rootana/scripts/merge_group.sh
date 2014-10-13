@@ -11,7 +11,7 @@
 # Returns true if we split here
 splithere() {
     local splits="2897 2905 3012 3117 3329 3540 3659 3721"
-    if echo $1 | grep -q splits; then
+    if echo $splits | grep -q $1; then
 	return 0
     else
 	return 1
