@@ -1,3 +1,8 @@
+#include "TH1.h"
+#include "TF1.h"
+#include "TAxis.h"
+#include "TSQLiteServer.h"
+
 void FitParametersFirstGuess(TH1* h, TF1* f, const Double_t sigma) {
   const unsigned int npar = 5;
   Double_t par[npar];
@@ -16,8 +21,10 @@ void FitParametersFirstGuess(TH1* h, TF1* f, const Double_t sigma) {
   f->SetParLimits(0, 0., h->GetMaximum());
   f->SetParLimits(1, x->GetFirst(), x->GetLast());
   f->SetParLimits(2, 1., 3.*sigma);
-
+  return;
 }
+
+
 
 ge_energy_runbyrun_calib() {
   const unsigned int nsets = 7;
@@ -42,7 +49,7 @@ ge_energy_runbyrun_calib() {
     char cmd[128];
     sprintf(cmd, "SELECT COUNT(file) FROM Merge WHERE file LIKE '%s%%'", sets[i]);
     TSQLiteResult* res = (TSQLiteResult*)db->Query(cmd);
-    TSQLiteRow* row = res->Next();
+    TSQLiteRow* row = (TSQLiteRow*)res->Next();
     nfiles[i] = (unsigned int)atoi(row->GetField(0));
     if (nfiles[i] > nfiles_tmp) nfiles_tmp = nfiles[i];
     delete row;
@@ -55,7 +62,7 @@ ge_energy_runbyrun_calib() {
   Int_t status[nsets][nfiles_max][npeaks];
   for (unsigned int i = 0; i < nsets; ++i) {
     char cmd[128];
-    sprintf(cmd, "SELECT time FROM Merge WHERE file LIKE '%s%%'", sets[i]);
+    sprintf(cmd, "SELECT time FROM Merge WHERE file LIKE '%s%%' ORDER BY time ASC", sets[i]);
     TSQLiteResult* res = (TSQLiteResult*)db->Query(cmd);
     for (unsigned int j = 0; j < nfiles[i]; ++j) {
       TSQLiteRow* row = (TSQLiteRow*)res->Next();
@@ -86,7 +93,7 @@ ge_energy_runbyrun_calib() {
 	}
 	peaks[i][j][k] = fitres->Parameter(1); peaks_err[i][j][k] = fitres->ParError(1);
 	sigmas[i][j][k] = fitres->Parameter(2); sigmas_err[i][j][k] = fitres->ParError(2);
-	status[i][j][k] = (Int_t)fitres; chi2[i][j][k] = fitres->Chi2(); ndf[i][j][k] = fitres->Ndf();
+	status[i][j][k] = (Int_t)fitres; chi2[i][j][k] = fitres->Chi2(); ndf[i][j][k] = (Double_t) fitres->Ndf();
       }
     }
   }
@@ -97,7 +104,7 @@ ge_energy_runbyrun_calib() {
     sprintf(grtitle, "Gain (%s)", sets[i]);
     mg[i] = new TMultiGraph(grname, grtitle);
   }
-  Double_t gain[nsets][nfiles_max], offset[nsets][nfiles_max], gain_err[nsets][nfiles_max], offset_err[nsets][nfiles_max];
+  Double_t gain[nsets][nfiles_max], offset[nsets][nfiles_max], gain_err[nsets][nfiles_max], offset_err[nsets][nfiles_max], chi2_cal[nsets][nfiles_max], ndf_cal[nsets][nfiles_max];
   for (unsigned int i = 0; i < nsets; ++i) {
     printf("--------------------------------------------------------------------------------\n");
     printf("%s\nFile\tGain\tPedestal\tChi2\tNDF\Chi2/NDF\tGain Pct Err\n", sets[i]);
@@ -108,15 +115,39 @@ ge_energy_runbyrun_calib() {
       mg[i]->Add(gr); gr->GetFunction("pol1")->SetLineColor(j+1); gr->SetMarkerColor(j+1); gr->SetMarkerStyle(1);
       gain[i][j] = fitres->Parameter(1); gain_err[i][j] = fitres->ParError(1);
       offset[i][j] = fitres->Parameter(0); offset_err[i][j] = fitres->ParError(0);
+      chi2_cal[i][j] = fitres->Chi2(); ndf_cal[i][j] = (Double_t)fitres->Ndf();
     }
   }
-  
+  TMultiGraph* mg_gain = new TMultiGraph("mg_gain", "Gain Drift");
   for (unsigned int i = 0; i < nsets; ++i) {
     new TCanvas();
+    TGraphErrors* gr = new TGraphErrors(nfiles[i], time[i], gain[i], 0x0, gain_err[i]);
+    mg_gain->Add(gr); gr->SetMarkerColor(i+1); gr->SetMarkerStyle(1);
     mg[i]->Draw("A*");
   }
-  /* TGraphErrors* gr = new TGraphErrors(nfiles, time, gain, 0, gain_err); */
-  /* new TCanvas(); */
-  /* gr->Fit("pol1"); */
-  /* gr->Draw("A*"); */
+  new TCanvas();
+  mg_gain->Draw("A*");
+
+  std::ofstream ofile("ge_encal.csv");
+  printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+  ofile << "run,channel,gain,gain_error,offset,offset_error,chi2,ndf" << std::endl;
+  printf("-----------------------------------------------------------\n");
+  for (unsigned int i = 0; i < nsets; ++i) {
+    for (unsigned int j = 0; j < nfiles; ++j) {
+      printf("%u %u\n", i, j);
+      char cmd[128];
+      sprintf(cmd, "SELECT runs FROM Merge WHERE file=='%s_%u'", sets[i], j+1);
+      TSQLiteResult* res = (TSQLiteResult*)db->Query(cmd);
+      TSQLiteRow* row = (TSQLiteRow*)res->Next();
+      std::stringstream ss(row->GetField(0));
+      delete res; delete row;
+      while (ss.good()) {
+	double run;
+	ss >> run;
+	ofile << run << ",Ge-S," << gain[i][j] << ',' << gain_err[i][j] << ','
+	      << offset[i][j] << ',' << offset_err[i][j] << ','
+	      << chi2_cal[i][j] << ',' << ndf_cal[i][j] << std::endl;
+      }
+    }
+  }
 }
