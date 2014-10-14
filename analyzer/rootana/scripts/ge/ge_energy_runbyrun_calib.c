@@ -26,7 +26,7 @@ void FitParametersFirstGuess(TH1* h, TF1* f, const Double_t sigma) {
 
 
 
-ge_energy_runbyrun_calib() {
+ge_energy_runbyrun_calib(const char* mergedb_name) {
   const unsigned int nsets = 7;
   const unsigned int npeaks = 8;
   const char* sets[nsets] = { "Al100", "Al50awithNDet2", "Al50awithoutNDet2", "Al50b", "Si16P", "SiR21pct", "SiR23pct"};
@@ -42,13 +42,15 @@ ge_energy_runbyrun_calib() {
 				       { 9500.,  9500. + nbins },
 				       { 10800., 10800.+ nbins },
 				       { 11850., 11850. + nbins } };
-  TSQLiteServer* db = new TSQLiteServer("sqlite://merge.db");
+  char dbname[256];
+  sprintf(dbname, "sqlite://%s", mergedb_name);
+  TSQLiteServer* mergedb = new TSQLiteServer(dbname);
   unsigned int nfiles[nsets] = { 0, 0, 0, 0, 0, 0, 0 };
   unsigned int nfiles_tmp = 0;
   for (unsigned int i = 0; i < nsets; ++i) {
     char cmd[128];
     sprintf(cmd, "SELECT COUNT(file) FROM Merge WHERE file LIKE '%s%%'", sets[i]);
-    TSQLiteResult* res = (TSQLiteResult*)db->Query(cmd);
+    TSQLiteResult* res = (TSQLiteResult*)mergedb->Query(cmd);
     TSQLiteRow* row = (TSQLiteRow*)res->Next();
     nfiles[i] = (unsigned int)atoi(row->GetField(0));
     if (nfiles[i] > nfiles_tmp) nfiles_tmp = nfiles[i];
@@ -63,7 +65,7 @@ ge_energy_runbyrun_calib() {
   for (unsigned int i = 0; i < nsets; ++i) {
     char cmd[128];
     sprintf(cmd, "SELECT time FROM Merge WHERE file LIKE '%s%%' ORDER BY time ASC", sets[i]);
-    TSQLiteResult* res = (TSQLiteResult*)db->Query(cmd);
+    TSQLiteResult* res = (TSQLiteResult*)mergedb->Query(cmd);
     for (unsigned int j = 0; j < nfiles[i]; ++j) {
       TSQLiteRow* row = (TSQLiteRow*)res->Next();
       time[i][j] = atof(row->GetField(0));
@@ -128,25 +130,24 @@ ge_energy_runbyrun_calib() {
   new TCanvas();
   mg_gain->Draw("A*");
 
-  std::ofstream ofile("ge_encal.csv");
-  printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-  ofile << "run,channel,gain,gain_error,offset,offset_error,chi2,ndf" << std::endl;
-  printf("-----------------------------------------------------------\n");
   for (unsigned int i = 0; i < nsets; ++i) {
-    for (unsigned int j = 0; j < nfiles; ++j) {
-      printf("%u %u\n", i, j);
+    for (unsigned int j = 0; j < nfiles[i]; ++j) {
       char cmd[128];
       sprintf(cmd, "SELECT runs FROM Merge WHERE file=='%s_%u'", sets[i], j+1);
-      TSQLiteResult* res = (TSQLiteResult*)db->Query(cmd);
+      TSQLiteResult* res = (TSQLiteResult*)mergedb->Query(cmd);
       TSQLiteRow* row = (TSQLiteRow*)res->Next();
       std::stringstream ss(row->GetField(0));
       delete res; delete row;
       while (ss.good()) {
-	double run;
+	char ofname[128];
+	unsigned int run;
 	ss >> run;
+	sprintf(ofname, "calib.run%05u.Energy.csv", run);
+	std::ofstream ofile(ofname);
 	ofile << run << ",Ge-S," << gain[i][j] << ',' << gain_err[i][j] << ','
 	      << offset[i][j] << ',' << offset_err[i][j] << ','
 	      << chi2_cal[i][j] << ',' << ndf_cal[i][j] << std::endl;
+	ofile.close();
       }
     }
   }
