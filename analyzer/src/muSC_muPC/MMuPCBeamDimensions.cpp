@@ -50,6 +50,10 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 TH2F* hmuPC_XYWires;
+const double wire_spacing = 2; // 2mm
+const double total_x_length = wire_spacing*(kMuPC1NumXWires - 1);
+const double total_y_length = wire_spacing*(kMuPC1NumYWires - 1);
+
 
 ANA_MODULE MMuPCBeamDimensions_module =
 {
@@ -78,9 +82,9 @@ INT MMuPCBeamDimensions_init()
   }
 
   // Create some histograms
-  hmuPC_XYWires = new TH2F("hmuPC_XYWires", "Plot of X-Y muPC Wire Hits", kMuPC1NumXWires,0.5,kMuPC1NumXWires+0.5, kMuPC1NumYWires,0.5,kMuPC1NumYWires+0.5);
-  hmuPC_XYWires->GetXaxis()->SetTitle("muPC");
-  hmuPC_XYWires->GetYaxis()->SetTitle("Number of Hits");
+  hmuPC_XYWires = new TH2F("hmuPC_XYWires", "Plot of X-Y muPC Wire Hits", kMuPC1NumXWires,-total_x_length/2 - 0.5,total_x_length/2 + 0.5, kMuPC1NumYWires,-total_y_length/2 - 0.5, total_y_length/2 + 0.5);
+  hmuPC_XYWires->GetXaxis()->SetTitle("X Position [mm]");
+  hmuPC_XYWires->GetYaxis()->SetTitle("Y Position [mm]");
 
   gDirectory->Cd("/MidasHists/");
   return SUCCESS;
@@ -135,8 +139,13 @@ INT MMuPCBeamDimensions(EVENT_HEADER *pheader, void *pevent)
 
 	    int x_wire = (prev_x_wire->parameter - 4000);
 	    int y_wire = (prev_y_wire->parameter - 4050);
-	    std::cout << x_wire << " " << y_wire << std::endl;
-	    hmuPC_XYWires->Fill(x_wire, y_wire);
+	    //	    --x_wire; --y_wire; // want to number them 0 to 23
+
+	    double x_pos = (total_x_length/2) - wire_spacing*(kMuPC1NumXWires - x_wire);
+	    double y_pos = (total_y_length/2) - wire_spacing*(kMuPC1NumYWires - y_wire);
+
+	    std::cout << "(" << x_wire << ", " << y_wire << ") = (" << x_pos << ", " << y_pos << ")" << std::endl;
+	    hmuPC_XYWires->Fill(x_pos, y_pos);
 	  }
 	}
 
