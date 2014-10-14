@@ -25,7 +25,7 @@
 #include "../muSC_muPC/common.h" // for channel_hit
 
 /* ROOT includes */
-#include <TH1.h>
+#include <TH2.h>
 #include <TDirectory.h>
 
 /* AlCap includes */
@@ -38,6 +38,8 @@ using std::map;
 using std::vector;
 using std::pair;
 
+#include <iostream>
+
 /*-- Module declaration --------------------------------------------*/
 INT  MMuPCBeamDimensions_init(void);
 INT  MMuPCBeamDimensions(EVENT_HEADER*, void*);
@@ -47,15 +49,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-TH1F* hDQ_TDCCheck_muSc;
-TH1F* hDQ_TDCCheck_muScA;
-TH1F* hDQ_TDCCheck_muPC;
-TH1F* hDQ_TDCCheck_Unknown;
-
-TH1F* hDQ_TDCCheck_muSc_time;
-TH1F* hDQ_TDCCheck_muSc_rate;
-TH1F* hDQ_TDCCheck_TDiff;
-
+TH2F* hmuPC_XYWires;
 
 ANA_MODULE MMuPCBeamDimensions_module =
 {
@@ -84,9 +78,9 @@ INT MMuPCBeamDimensions_init()
   }
 
   // Create some histograms
-  hDQ_TDCCheck_muPC = new TH1F("hDQ_TDCCheck_muPC", "Number of Hits in TDC (muPC)", 3,0,3);
-  hDQ_TDCCheck_muPC->GetXaxis()->SetTitle("muPC");
-  hDQ_TDCCheck_muPC->GetYaxis()->SetTitle("Number of Hits");
+  hmuPC_XYWires = new TH2F("hmuPC_XYWires", "Plot of X-Y muPC Wire Hits", kMuPC1NumXWires,0.5,kMuPC1NumXWires+0.5, kMuPC1NumYWires,0.5,kMuPC1NumYWires+0.5);
+  hmuPC_XYWires->GetXaxis()->SetTitle("muPC");
+  hmuPC_XYWires->GetYaxis()->SetTitle("Number of Hits");
 
   gDirectory->Cd("/MidasHists/");
   return SUCCESS;
@@ -121,12 +115,29 @@ INT MMuPCBeamDimensions(EVENT_HEADER *pheader, void *pevent)
 	int hit_bank_size = bk_locate(pevent, "HITS", (DWORD *) &hit_bank);
 	hit_bank_size = hit_bank_size * sizeof(DWORD) / sizeof(channel_hit);
 
+	channel_hit* prev_x_wire = NULL;
+	channel_hit* prev_y_wire = NULL;
 	// At the moment just loop through the hits and print the information
 	// Parameter values have been obtained from MMuSCAnalysisMQL.cpp and MMuPC1AnalysisMQL.cpp
 	for (int i = 0; i < hit_bank_size; ++i) {
-	  if (hit_bank[i].parameter >= 4001 && hit_bank[i].parameter <= 4074)
-	    //	    printf("muPC hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
-	    hDQ_TDCCheck_muPC->Fill(1);
+	  int parameter = hit_bank[i].parameter;
+
+	  if (parameter >= 4001 && parameter <= (4000 + kMuPC1NumXWires)) {
+	    prev_x_wire = &hit_bank[i];
+	  }
+	  if (parameter >= 4051 && parameter <= (4050 + kMuPC1NumYWires)) {
+	    prev_y_wire = &hit_bank[i];
+	  }
+	  
+	  if (prev_x_wire && prev_y_wire) {
+	    double x_wire_time = prev_x_wire->time;
+	    double y_wire_time = prev_y_wire->time;
+
+	    int x_wire = (prev_x_wire->parameter - 4000);
+	    int y_wire = (prev_y_wire->parameter - 4050);
+	    std::cout << x_wire << " " << y_wire << std::endl;
+	    hmuPC_XYWires->Fill(x_wire, y_wire);
+	  }
 	}
 
 	return SUCCESS;
