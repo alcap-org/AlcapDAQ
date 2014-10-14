@@ -136,16 +136,21 @@ INT MMuPCBeamDimensions(EVENT_HEADER *pheader, void *pevent)
 	  if (prev_x_wire && prev_y_wire) {
 	    double x_wire_time = prev_x_wire->time;
 	    double y_wire_time = prev_y_wire->time;
+	    double tdiff = std::fabs(x_wire_time - y_wire_time);
+	    std::cout << "x_time = " << x_wire_time << ", y_time = " << y_wire_time << ", diff = " << tdiff << std::endl;
 
-	    int x_wire = (prev_x_wire->parameter - 4000);
-	    int y_wire = (prev_y_wire->parameter - 4050);
-	    //	    --x_wire; --y_wire; // want to number them 0 to 23
-
-	    double x_pos = (total_x_length/2) - wire_spacing*(kMuPC1NumXWires - x_wire);
-	    double y_pos = (total_y_length/2) - wire_spacing*(kMuPC1NumYWires - y_wire);
-
-	    std::cout << "(" << x_wire << ", " << y_wire << ") = (" << x_pos << ", " << y_pos << ")" << std::endl;
-	    hmuPC_XYWires->Fill(x_pos, y_pos);
+	    if (tdiff <= 95) {
+	      int x_wire = (prev_x_wire->parameter - 4000);
+	      int y_wire = (prev_y_wire->parameter - 4050);
+	      //	    --x_wire; --y_wire; // want to number them 0 to 23
+	      
+	      double x_pos = (total_x_length/2) - wire_spacing*(kMuPC1NumXWires - x_wire);
+	      double y_pos = (total_y_length/2) - wire_spacing*(kMuPC1NumYWires - y_wire);
+	      
+	      std::cout << "(" << x_wire << ", " << y_wire << ") = (" << x_pos << ", " << y_pos << ")" << std::endl;
+	      hmuPC_XYWires->Fill(x_pos, y_pos);
+	      prev_x_wire = NULL; prev_y_wire = NULL;
+	    }
 	  }
 	}
 
