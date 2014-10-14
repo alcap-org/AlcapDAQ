@@ -121,14 +121,19 @@ ge_energy_runbyrun_calib(const char* mergedb_name) {
     }
   }
   TMultiGraph* mg_gain = new TMultiGraph("mg_gain", "Gain Drift");
+  TLegend* leg_gain = new TLegend(0.7,0.7,0.9,0.9);
   for (unsigned int i = 0; i < nsets; ++i) {
     new TCanvas();
     TGraphErrors* gr = new TGraphErrors(nfiles[i], time[i], gain[i], 0x0, gain_err[i]);
     mg_gain->Add(gr); gr->SetMarkerColor(i+1); gr->SetMarkerStyle(1);
     mg[i]->Draw("A*");
+    leg_gain->AddEntry(gr, sets[i]);
   }
   new TCanvas();
   mg_gain->Draw("A*");
+  mg_gain->GetXaxis()->SetTitle("Unix Time (s)");
+  mg_gain->GetYaxis()->SetTitle("Gain (E=Gain*ADC+Offset)");
+  leg_gain->Draw("SAME");
 
   for (unsigned int i = 0; i < nsets; ++i) {
     for (unsigned int j = 0; j < nfiles[i]; ++j) {
@@ -144,6 +149,7 @@ ge_energy_runbyrun_calib(const char* mergedb_name) {
 	ss >> run;
 	sprintf(ofname, "calib.run%05u.Energy.csv", run);
 	std::ofstream ofile(ofname);
+	ofile << "run,channel,gain,gain_err,offset,offset_err,chi2,ndf" << std::endl;
 	ofile << run << ",Ge-S," << gain[i][j] << ',' << gain_err[i][j] << ','
 	      << offset[i][j] << ',' << offset_err[i][j] << ','
 	      << chi2_cal[i][j] << ',' << ndf_cal[i][j] << std::endl;

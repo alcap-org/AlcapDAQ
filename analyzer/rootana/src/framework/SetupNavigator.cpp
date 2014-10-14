@@ -45,7 +45,7 @@ SetupNavigator::SetupNavigator() :
   fCommandLineArgs(),
   fSQLiteFilename("sqlite://calibration.db"), fServer(new TSQLiteServer(fSQLiteFilename.c_str())),
   fPedestalNoiseTableName("PedestalAndNoise"), fCoarseTimeOffsetTableName("CoarseTimeOffset"),
-  fEnergyCalibrationConstantsTableName("EnergyCalibration") {
+  fEnergyCalibrationConstantsTableName("Energy") {
   if (fServer->IsZombie()) {
     std::cout << "SetupNavigator: ERROR: Couldn't connect to SQLite database." << std::endl;
     throw Except::NoCalibDB();
