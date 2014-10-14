@@ -11,6 +11,7 @@
 
 #include "TH1I.h"
 #include "TH2D.h"
+#include "TF1.h"
 #include "TDirectory.h"
 
 #include <stdexcept>
@@ -41,18 +42,25 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
 	      TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fMuSc.str())),
 	      0.,
 	      opts->GetDouble("musc_cf")),
+  fADC2Energy(new TF1("adc2energy","[0]*x+[1]")),
   fTimeWindow_Small(500.), fTimeWindow_Big(5000.) {
   const static int nbins = std::pow(2.,14);
+  const std::pair<double,double> adc2energy_par = SetupNavigator::Instance()->GetEnergyCalibrationConstants(IDs::channel("Ge-S"));
+  fADC2Energy->SetParameters(adc2energy_par.first, adc2energy_par.second);
   TDirectory* cwd = TDirectory::CurrentDirectory();
   dir->cd();
-  fHist_Energy       = new TH1D("hEnergy", "Energy of Gammas", nbins, 0., nbins);
+  fHist_ADC          = new TH1D("hADC", "Energy of Gammas;Energy (ADC);Counts", nbins, 0., nbins);
+  fHist_Energy       = new TH1D("hEnergy", "Energy of Gammas;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
   fHist_Time         = new TH1D("hTime", "Time of Gammas within Energy Window", 1000, -10000., 10000.);
   fHist_MoreTime     = new TH1D("hMoreTime", "Time of Gammas within Energy Window (Wide)", 1000, -100000., 100000.);
-  fHist_EnergyOOT    = new TH1D("hEnergyOOT", "Energy of Gammas outside of Time Window", nbins, 0., nbins);
-  fHist_EnergyFarOOT = new TH1D("hEnergyFarOOT", "Energy of Gammas far from Muons", nbins, 0., nbins);
+  fHist_ADCOOT       = new TH1D("hADCOOT", "Energy of Gammas outside of Time Window;Energy (ADC);Counts", nbins, 0., nbins);
+  fHist_EnergyOOT    = new TH1D("hEnergyOOT", "Energy of Gammas outside of Time Window;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  fHist_ADCFarOOT    = new TH1D("hADCFarOOT", "Energy of Gammas far from Muons;Energy (ADC);Counts", nbins, 0., nbins);
+  fHist_EnergyFarOOT = new TH1D("hEnergyFarOOT", "Energy of Gammas far from Muons;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
   fHist_TimeOOT      = new TH1D("hTimeOOT", "Time of Gammas outside of Time Window", 1000., -2.*fTimeWindow_Small, 2.*fTimeWindow_Small);
   fHist_TimeFarOOT   = new TH1D("hTimeFarOOT", "Time of Gammas far from Muons", 1000., -100.*fTimeWindow_Big, 100.*fTimeWindow_Big);
-  fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
+  fHist_TimeADC      = new TH2D("hTimeADC", "Energy of Gammas within Time Window;Energy (ADC);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
+  fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window;Energy (keV);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
   fHist_MeanTOffset  = new TH1D("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -4.*fTimeWindow_Big, 4.*fTimeWindow_Big);
   cwd->cd();
   ThrowIfInputsInsane(opts);
@@ -149,19 +157,24 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
 
     // Plot energy
     if (( !prev_found || dt_prev > fTimeWindow_Big) && ( !next_found || dt_next < -fTimeWindow_Big) ) {
-      fHist_EnergyFarOOT->Fill(*geE);
+      fHist_ADCFarOOT->Fill(*geE);
+      fHist_EnergyFarOOT->Fill(fADC2Energy->Eval(*geE));
     } else if ( (!prev_found || dt_prev > fTimeWindow_Small) && (!next_found || dt_next < -fTimeWindow_Small) ) {
-      fHist_EnergyOOT->Fill(*geE);
+      fHist_ADCOOT->Fill(*geE);
+      fHist_EnergyOOT->Fill(fADC2Energy->Eval(*geE));
     } else {
       if (prev_found && dt_prev <= fTimeWindow_Small) {
-	fHist_TimeEnergy->Fill(dt_prev, *geE);
+	fHist_TimeADC->Fill(dt_prev, *geE);
+	fHist_TimeEnergy->Fill(dt_prev, fADC2Energy->Eval(*geE));
       } else if (next_found && dt_next >= -fTimeWindow_Small) {
-	fHist_TimeEnergy->Fill(dt_next, *geE);
+	fHist_TimeADC->Fill(dt_next, *geE);
+	fHist_TimeEnergy->Fill(dt_next, fADC2Energy->Eval(*geE));
       } else {
 	std::cout << "WARNING: Unexpected branch! Prev: (" << prev_found << ", " << dt_prev << "), Next: (" << next_found << ", " << dt_next << ")" << std::endl;
       }
     }
-    fHist_Energy->Fill(*geE);
+    fHist_ADC->Fill(*geE);
+    fHist_Energy->Fill(fADC2Energy->Eval(*geE));
     // Plot time
     if (prev_found) {
       if (dt_prev > fTimeWindow_Big)

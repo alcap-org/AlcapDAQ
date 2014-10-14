@@ -11,6 +11,7 @@ namespace modules {class options;}
 
 class TH1;
 class TH2;
+class TF1;
 
 #include <cmath>
 
@@ -34,20 +35,24 @@ class GeSpectrum : public BaseModule {
 
  private:
   // Histograms
+  TH1* fHist_ADC;
   TH1* fHist_Energy;
   TH1* fHist_Time;
   TH1* fHist_MoreTime;
+  TH1* fHist_ADCOOT;
   TH1* fHist_EnergyOOT;
+  TH1* fHist_ADCFarOOT;
   TH1* fHist_EnergyFarOOT;
   TH1* fHist_TimeOOT;
   TH1* fHist_TimeFarOOT;
+  TH2* fHist_TimeADC;
   TH2* fHist_TimeEnergy;
   TH1* fHist_MeanTOffset;
 
   // Algorithms
   const Algorithm::MaxBinAmplitude fMBAmpGe;
   const Algorithm::ConstantFractionTime fCFTimeGe, fCFTimeMuSc;
-
+  TF1* fADC2Energy;
   // Time cuts
   const double fTimeWindow_Small; // ns
   const double fTimeWindow_Big;   // ns
