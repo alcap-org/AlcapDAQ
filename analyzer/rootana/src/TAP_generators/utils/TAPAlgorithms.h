@@ -16,14 +16,17 @@ namespace Algorithm {
 
 struct Algorithm::MaxBinAmplitude {
   public:
-  MaxBinAmplitude(double ped, int trig_pol)
-    :trigger_polarity(trig_pol), pedestal(ped){}
-  double operator() (const TPulseIsland* tpi) const;
+    MaxBinAmplitude(double ped, int trig_pol)
+      :trigger_polarity(trig_pol), pedestal(ped){}
+    double operator() (const TPulseIsland* tpi) const;
+    double GetTime()const {return time;}
+    double GetAmplitude()const {return amplitude;}
 
-  const int trigger_polarity;
-  const double pedestal;
-  mutable double time;
-  mutable double amplitude;
+    const int trigger_polarity;
+    const double pedestal;
+  private:
+    mutable double time;
+    mutable double amplitude;
 };
 
 struct Algorithm::MaxBinTime {

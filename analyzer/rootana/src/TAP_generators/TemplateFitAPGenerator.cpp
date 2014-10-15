@@ -103,7 +103,7 @@ int TemplateFitAPGenerator::ProcessPulses(
        continue;
     }
     double init_amp=fMaxBin(*tpi)/fTemplateAmp;
-    double init_time=  fMaxBin.time * fTemplate->GetRefineFactor()- fTemplateTime ;
+    double init_time=  fMaxBin.GetTime() * fTemplate->GetRefineFactor()- fTemplateTime ;
     fFitter->SetPedestal(fInitPedestal);
     fFitter->SetPulseEstimates(0, init_amp, init_time);
 

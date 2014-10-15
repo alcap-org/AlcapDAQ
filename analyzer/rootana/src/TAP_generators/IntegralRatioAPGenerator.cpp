@@ -63,8 +63,8 @@ int IntegralRatioAPGenerator::ProcessPulses(
         tap->SetIntegral(fIntegralRatioAlgo.GetTotal());
         tap->SetIntegralSmall(fIntegralRatioAlgo.GetTail());
         tap->SetIntegralRatio(fIntegralRatioAlgo.GetRatio());
-        tap->SetAmplitude(fMaxBinAmplitude.amplitude);
-        tap->SetTime(fMaxBinAmplitude.time);
+        tap->SetAmplitude(fMaxBinAmplitude.GetAmplitude());
+        tap->SetTime(fMaxBinAmplitude.GetTime());
 
         // Finally add the new TAP to the output list
         analysedList.push_back(tap);
