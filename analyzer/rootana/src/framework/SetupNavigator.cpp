@@ -195,7 +195,8 @@ bool SetupNavigator::ReadEnergyCalibrationConstants() {
     delete row;
   }
   delete res;
-  return !fEnergyCalibrationConstants.empty();
+  //  return !fEnergyCalibrationConstants.empty();
+  return true; // Right now there's no reason this should be filled for anything
 }
 
 
