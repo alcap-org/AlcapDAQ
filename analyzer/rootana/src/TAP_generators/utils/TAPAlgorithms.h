@@ -16,12 +16,17 @@ namespace Algorithm {
 
 struct Algorithm::MaxBinAmplitude {
   public:
-  MaxBinAmplitude(double ped, int trig_pol)
-    :trigger_polarity(trig_pol), pedestal(ped){}
-  double operator() (const TPulseIsland* tpi) const;
+    MaxBinAmplitude(double ped, int trig_pol)
+      :trigger_polarity(trig_pol), pedestal(ped){}
+    double operator() (const TPulseIsland* tpi) const;
+    double GetTime()const {return time;}
+    double GetAmplitude()const {return amplitude;}
 
-  const int trigger_polarity;
-  const double pedestal;
+    const int trigger_polarity;
+    const double pedestal;
+  private:
+    mutable double time;
+    mutable double amplitude;
 };
 
 struct Algorithm::MaxBinTime {
@@ -91,6 +96,7 @@ struct Algorithm::IntegralRatio{
   
   void SetTailStart(int v){ fTailIntegrator.SetStart(v); fHeadIntegrator.SetStop(v);}
   void SetPedestal(double v){ fTailIntegrator.SetPedestal(v); fHeadIntegrator.SetPedestal(v);}
+  void SetPedestalToMinimum(const TPulseIsland* tpi);
 
 private:
   Algorithm::SimpleIntegral fTailIntegrator;

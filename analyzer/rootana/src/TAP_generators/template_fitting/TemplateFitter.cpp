@@ -32,7 +32,7 @@ int TemplateFitter::FitPulseToTemplate(const TTemplate* hTemplate, const TH1D* h
   // Prepare for minimizations
   fMinuitFitter->Clear();
   HistogramFitFCN* fcn = (HistogramFitFCN*)fMinuitFitter->GetMinuitFCN();
-  fcn->SetTemplateHist(hTemplate->GetHisto());
+  fcn->SetTemplateHist(hTemplate->GetHisto(), hTemplate->GetPedestal());
   fcn->SetPulseHist(hPulse);
 
   //  fMinuitFitter->SetParameter(2, "TimeOffset", fTimeOffset, 1., -10, 10); // Timing should have step size no smaller than binning,
@@ -43,11 +43,11 @@ int TemplateFitter::FitPulseToTemplate(const TTemplate* hTemplate, const TH1D* h
                                                     // these heavily.
 
   // Loop through some time offsets ourselved
-  double max_time_offset = 4*fRefineFactor; // maximum distance to go from the initial estimate
+  double max_time_offset = 10*fRefineFactor; // maximum distance to go from the initial estimate
   double best_time_offset = 0;
   double best_pedestal_offset = 0;
   double best_amplitude_scale_factor = 0;
-  double best_chi2 = 99999999999;
+  double best_chi2 = 1e11;
   int best_status = -10000;
 
   // Calculate the bounds of the parameters
@@ -58,7 +58,7 @@ int TemplateFitter::FitPulseToTemplate(const TTemplate* hTemplate, const TH1D* h
   fPedestalOffset_maximum = max_adc_value;
 
   fAmplitudeScaleFactor_minimum = 0.1;
-  fAmplitudeScaleFactor_maximum = 100;
+  fAmplitudeScaleFactor_maximum = 1500;
 
   for (double time_offset = fTimeOffset_minimum; time_offset <= fTimeOffset_maximum; ++time_offset) {
     if (print_dbg) {
@@ -77,9 +77,11 @@ int TemplateFitter::FitPulseToTemplate(const TTemplate* hTemplate, const TH1D* h
     // Minimize and notify if there was a problem
     status = fMinuitFitter->Minimize(1000); // set limit of 1000 calls to FCN
 
-    if (print_dbg) {
-      if (status != 0)
+    if (status != 0){
+      if (print_dbg){ 
 	std::cout << "ERROR: Problem with fit (" << status << ")!" << std::endl;
+      }
+      continue;
     }
 
     // Get the fitted values
@@ -88,17 +90,19 @@ int TemplateFitter::FitPulseToTemplate(const TTemplate* hTemplate, const TH1D* h
 
     double delta_ped_offset_error = 1; // if the given parameter is within this much of the boundaries, then we will ignore it
     double delta_amp_sf_error = 0.001;
-    if ( (fPedestalOffset < fPedestalOffset_minimum + delta_ped_offset_error && fPedestalOffset > fPedestalOffset_minimum - delta_ped_offset_error) ||
-	 (fPedestalOffset < fPedestalOffset_maximum + delta_ped_offset_error && fPedestalOffset > fPedestalOffset_maximum - delta_ped_offset_error) ) {
-
+    if ( (fPedestalOffset < fPedestalOffset_minimum + delta_ped_offset_error 
+           && fPedestalOffset > fPedestalOffset_minimum - delta_ped_offset_error) 
+         || (fPedestalOffset < fPedestalOffset_maximum + delta_ped_offset_error 
+             && fPedestalOffset > fPedestalOffset_maximum - delta_ped_offset_error) ) {
       if (print_dbg) {
 	std::cout << "ERROR: PedestalOffset has hit a boundary (" << fPedestalOffset << ")" << std::endl;
       }
       status = -9999;
     }
-    else if ( (fAmplitudeScaleFactor < fAmplitudeScaleFactor_minimum + delta_amp_sf_error && fAmplitudeScaleFactor > fAmplitudeScaleFactor_minimum - delta_amp_sf_error) ||
-	      (fAmplitudeScaleFactor < fAmplitudeScaleFactor_maximum + delta_amp_sf_error && fAmplitudeScaleFactor > fAmplitudeScaleFactor_maximum - delta_amp_sf_error) ) {
-
+    else if (    (fAmplitudeScaleFactor < fAmplitudeScaleFactor_minimum + delta_amp_sf_error 
+                   && fAmplitudeScaleFactor > fAmplitudeScaleFactor_minimum - delta_amp_sf_error) 
+              || (fAmplitudeScaleFactor < fAmplitudeScaleFactor_maximum + delta_amp_sf_error 
+                   && fAmplitudeScaleFactor > fAmplitudeScaleFactor_maximum - delta_amp_sf_error) ) {
       if (print_dbg) {
 	std::cout << "ERROR: AmplitudeScaleFactor has hit a boundary (" << fAmplitudeScaleFactor << ")" << std::endl;
       }

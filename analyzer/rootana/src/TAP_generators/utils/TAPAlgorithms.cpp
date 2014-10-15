@@ -22,7 +22,8 @@ double Algorithm::MaxBinAmplitude::operator() (const TPulseIsland* tpi) const {
     peak_sample_pos = std::min_element(pulseSamples.begin(), pulseSamples.end());
 
   // Now calculate the amplitude
-  double amplitude = trigger_polarity*(*peak_sample_pos - pedestal);
+  amplitude = trigger_polarity*(*peak_sample_pos - pedestal);
+  time = peak_sample_pos- pulseSamples.begin();
 
   return amplitude;
 }
@@ -82,8 +83,11 @@ double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi)const {
   return integral;
 }
 
-double Algorithm::IntegralRatio::operator() (const TPulseIsland* tpi){
+void Algorithm::IntegralRatio::SetPedestalToMinimum(const TPulseIsland* tpi){
      SetPedestal(*std::min_element(tpi->GetSamples().begin(), tpi->GetSamples().end()));
+}
+
+double Algorithm::IntegralRatio::operator() (const TPulseIsland* tpi){
      fHead=fHeadIntegrator(tpi);
      fTail=fTailIntegrator(tpi);
      return GetRatio();
