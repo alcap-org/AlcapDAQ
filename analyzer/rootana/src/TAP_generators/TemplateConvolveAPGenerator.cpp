@@ -122,6 +122,7 @@ int TemplateConvolveAPGenerator::ProcessPulses(
 bool TemplateConvolveAPGenerator::PassesIntegralRatio(const TPulseIsland* pulse, double& integral, double& ratio)const{
    if(!fIntegralRatio) return true;
    try{
+     fIntegralRatio->SetPedestalToMinimum(pulse);
      (*fIntegralRatio)(pulse);
    }catch(std::out_of_range& e){
      return false;

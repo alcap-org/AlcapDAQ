@@ -49,6 +49,7 @@ int IntegralRatioAPGenerator::ProcessPulses(
 
         // Analyse each TPI
         try{
+            fIntegralRatioAlgo.SetPedestalToMinimum(*tpi);
             fIntegralRatioAlgo(*tpi);
         }catch(std::out_of_range& e){
             continue;

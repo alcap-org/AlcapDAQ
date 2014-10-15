@@ -83,8 +83,11 @@ double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi)const {
   return integral;
 }
 
-double Algorithm::IntegralRatio::operator() (const TPulseIsland* tpi){
+void Algorithm::IntegralRatio::SetPedestalToMinimum(const TPulseIsland* tpi){
      SetPedestal(*std::min_element(tpi->GetSamples().begin(), tpi->GetSamples().end()));
+}
+
+double Algorithm::IntegralRatio::operator() (const TPulseIsland* tpi){
      fHead=fHeadIntegrator(tpi);
      fTail=fTailIntegrator(tpi);
      return GetRatio();
