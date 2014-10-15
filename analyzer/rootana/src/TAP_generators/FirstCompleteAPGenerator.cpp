@@ -50,7 +50,6 @@ int FirstCompleteAPGenerator::ProcessPulses(
 void FirstCompleteAPGenerator::MakeTAPsWithPCF(int tpi_ID, const TPulseIsland* original_tpi, AnalysedPulseList& analysedList){
     // Look for more than one pulse on the TPI
     fPulseCandidateFinder->FindPulseCandidates(original_tpi);
-    int n_pulse_candidates = fPulseCandidateFinder->GetNPulseCandidates();
     fPulseCandidateFinder->GetPulseCandidates(fSubPulses);
 
     // now loop over all sub-pulses
