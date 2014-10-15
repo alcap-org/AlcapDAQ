@@ -37,6 +37,22 @@ class TAnalysedPulse : public TObject {
   /// you cannot set the source outside of the constructor.
   TAnalysedPulse();
 
+  virtual void Copy(TObject& rhs)const{
+    TObject::Copy(rhs);
+    if(rhs.InheritsFrom(Class())){
+      TAnalysedPulse* tap=static_cast<TAnalysedPulse*>(&rhs);
+      tap->fParentID=fParentID;
+      tap->fTPILength=fTPILength;
+      tap->fAmplitude=fAmplitude;
+      tap->fTime=fTime;
+      tap->fIntegral=fIntegral;
+      tap->fEnergy=fEnergy;
+      tap->fPedestal=fPedestal;
+      tap->fTriggerTime=fTriggerTime;
+      tap->fSource=fSource;
+    }
+  }
+
   public:
   /// \brief
   /// The constructor one should use if we need use one.

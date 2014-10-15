@@ -12,6 +12,7 @@ class TH1D;
 #include "PulseCandidateFinder.h"
 #include "TemplateFitter.h"
 #include "TTemplate.h"
+#include "InterpolatePulse.h"
 
 class TemplateCreator : public BaseModule{
   struct ChannelSet{
@@ -48,7 +49,9 @@ class TemplateCreator : public BaseModule{
 
   /// \brief
   /// Creates a refined histogram for a given TPulseIsland
-  TH1D* CreateRefinedPulseHistogram(const TPulseIsland* pulse, std::string histname, std::string histtitle, bool interpolate);
+  TH1D* CreateRefinedPulseHistogram(const TPulseIsland* pulse, std::string histname, std::string histtitle, bool interpolate){
+     return InterpolatePulse(pulse,histname,histtitle, interpolate, fRefineFactor);
+  }
 
   /// \brief
   /// Checks if the template has converged and that adding a new pulse has not effect on the template

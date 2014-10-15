@@ -14,6 +14,7 @@
 #include "ModulesNavigator.h"
 #include "PulseCandidateFinder.h"
 
+class TDirectory;
 class TVAnalysedPulseGenerator;
 class TPulseIsland;
 #include "TAnalysedPulse.h"
@@ -130,6 +131,8 @@ class ExportPulse : public BaseModule{
   bool fUsePCF;
   PulseCandidateFinder* fPulseFinder;
   PulseIslandList fSubPulses;
+  TDirectory* fTPIDirectory;
+  TDirectory* fTAPDirectory;
 
   TGlobalData* fGlobalData; // To be removed once Phill finishes the event navigator
 

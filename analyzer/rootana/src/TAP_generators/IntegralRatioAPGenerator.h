@@ -28,6 +28,7 @@ class IntegralRatioAPGenerator:public TVAnalysedPulseGenerator {
         double fPedestal;
         double fPolarity;
         Algorithm::IntegralRatio fIntegralRatioAlgo;
+        const Algorithm::MaxBinAmplitude fMaxBinAmplitude;
 
 };
 
