@@ -28,7 +28,7 @@ class modules::reader{
 
     public:
 	// default constructor
-	reader():fShouldPrint(false),fDebugAll(false),fDumpContents(false){};
+	reader():fShouldPrint(false),fDebugAll(false),fDumpContents(false),fDumpInputFile(false){};
 	// destructor.  Virtual in case someone ever decides to overload this
 	// class
 	virtual ~reader(){};
@@ -37,6 +37,7 @@ class modules::reader{
 	int ReadFile(const char* name);
 	void PrintAllOptions()const;
     int HowMany(const std::string& name)const;
+ bool DumpInputFile()const {return fDumpInputFile;}
 
 	size_t GetNumModules()const{return fModules.size();};
 	std::string GetModule(unsigned int i)const{return fModules[i].first;};
@@ -71,6 +72,7 @@ class modules::reader{
 	bool fShouldPrint;
 	bool fDebugAll;
 	bool fDumpContents;
+        bool fDumpInputFile;
 };
 
 inline bool modules::reader::AddSection(const std::string& name,const std::string& type){

@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string.h>
 #include <stdio.h>
+
 using namespace modules::parser;
 using std::endl;
 using std::cout;
@@ -281,6 +282,8 @@ void modules::reader::ProcessGlobalOption(Option_t opt){
      }
   }else if(opt.key=="list_modules"){
     modules::factory::Instance()->PrintPossibleModules();
+  }else if(opt.key=="show_input_data"){
+    fDumpInputFile=true;
   }else if(opt.key=="dump_contents"){
     fDumpContents=true;
   }else {
