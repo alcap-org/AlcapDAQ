@@ -2,6 +2,7 @@
 #include "ModulesParser.h"
 #include "TSetupData.h"
 #include "definitions.h"
+#include "debug_tools.h"
 
 #include <TSQLiteServer.h>
 #include <TSQLiteResult.h>
@@ -86,7 +87,7 @@ void SetupNavigator::CacheCalibDB() {
   } else {
     if (!ReadPedestalAndNoiseValues()) {
       std::cout << "SetupNavigator: ERROR: Table " << fPedestalNoiseTableName 
-                << " contains no calib data for this run" << std::endl;
+                << " contains no calib data for this run ("<<GetRunNumber()<<")" << std::endl;
     if (!IsCalibRun()) throw Except::UncalibratedRun();
     }
   }
@@ -96,7 +97,7 @@ void SetupNavigator::CacheCalibDB() {
   } else {
     if (!ReadCoarseTimeOffsetValues()) {
       std::cout << "SetupNavigator: ERROR: Table " << fCoarseTimeOffsetTableName 
-                << " contains no calib data for this run" << std::endl;
+                << " contains no calib data for this run ("<<GetRunNumber()<<")" << std::endl;
     if (!IsCalibRun()) throw Except::UncalibratedRun();
     }
   }
@@ -106,7 +107,7 @@ void SetupNavigator::CacheCalibDB() {
   } else {
     if (!ReadEnergyCalibrationConstants()) {
       std::cout << "SetupNavigator: ERROR: Table " << fEnergyCalibrationConstantsTableName
-		<< " contains no calib data for this run" << std::endl;
+                << " contains no calib data for this run ("<<GetRunNumber()<<")" << std::endl;
       if (!IsCalibRun()) throw Except::UncalibratedRun();
     }
   }
