@@ -1,11 +1,21 @@
-void guess_parameters(const TH1* h, Double_t par[7]) {
+/* void guess_parameters(const TH1* h, Double_t par[7]) { */
+/*   const Double_t e_xray = 346.828, e_gamma = 351.932; */
+/*   par[5] = 0.; par[2] = 1.; par[4] = 1.; // Pedestal, sigma aluminum, sigma lead */
+/*   par[6] = h->Integral()/(Double_t)(h->GetXaxis()->GetLast() - h->GetXaxis()->GetFirst()); */
+/*   par[0] = h->GetBinContent(h->FindFixBin(e_xray)) - par[5]; */
+/*   par[3] = h->GetBinContent(h->FindFixBin(e_gamma)) - par[5]; */
+/*   par[1] = e_xray; */
+/* } */
+
+void guess_parameters(const TH1* h, Double_t par[8]) {
   const Double_t e_xray = 346.828, e_gamma = 351.932;
-  par[5] = 0.; par[2] = 1.; par[4] = 1.; // Pedestal, sigma aluminum, sigma lead
+  par[7] = 0.; par[2] = 1.; par[5] = 1.; // Pedestal, sigma aluminum, sigma lead
   par[6] = h->Integral()/(Double_t)(h->GetXaxis()->GetLast() - h->GetXaxis()->GetFirst());
-  par[0] = h->GetBinContent(h->FindFixBin(e_xray)) - par[5];
-  par[3] = h->GetBinContent(h->FindFixBin(e_gamma)) - par[5];
-  par[1] = e_xray;
+  par[0] = h->GetBinContent(h->FindFixBin(e_xray)) - par[6];
+  par[3] = h->GetBinContent(h->FindFixBin(e_gamma)) - par[6];
+  par[1] = e_xray; par[4] = e_gamma;
 }
+
 
 void count_muons() {
   const Double_t rt2pi = TMath::Sqrt(2.*TMath::Pi());
@@ -19,6 +29,8 @@ void count_muons() {
   Double_t chi2[nfiles], ndf[nfiles];
 
   char formula[256];
+  /* sprintf(formula, "[0]*exp(-0.5*((x-[1])/[2])**2)+[3]*exp(-0.5*((x-([1]+%g))/[4])**2)+[5]*x+[6]", dE); // 5.104 is Pb214 gamma minus Al 2p-1s */
+  sprintf(formula, "gaus(0)+gaus(3)+pol1(6)");
   printf(formula); printf("\n");
   TF1* fit = new TF1("pkfunc", formula);
   TF1* eff = new TF1("efffunc", "[0]*x^[1]"); eff->SetParameters(0.08051, -0.8579);
@@ -32,14 +44,28 @@ void count_muons() {
     TH1* hEnter = (TH1*)f->Get("enter");
     hAll->GetXaxis()->SetRangeUser(343., 354.);
     hPrompt->GetXaxis()->SetRangeUser(343., 354.);
-    Double_t parAll[7], parPrompt[7];
+    /* Double_t parAll[7], parPrompt[7]; */
+    Double_t parAll[8], parPrompt[8];
     guess_parameters(hAll, parAll);
     guess_parameters(hPrompt, parPrompt);
 
-    fit->SetParameters(parAll); fit->SetParLimits(2, 0.2, 5.);
-    TFitResultPtr resAll = hAll->Fit(fit, "SNQ");
-    fit->SetParameters(parPrompt); fit->SetParLimits(4, 0.2, 5.);
-    TFitResultPtr resPrompt = hPrompt->Fit(fit, "SNQ");
+    TCanvas* c = new TCanvas(); c->Divide(2);
+    c->cd(1);
+    fit->SetParameters(parAll);
+    fit->SetParLimits(0, 0., 3.*parAll[0]);
+    fit->SetParLimits(1, parAll[1]-5., parAll[1]+5.);
+    fit->SetParLimits(2, 0.2, 5.);
+    fit->SetParLimits(3, 0., 3.*parAll[3]); 
+    fit->SetParLimits(4, parAll[4]-5., parAll[4]+5.);
+    TFitResultPtr resAll = hAll->Fit(fit, "S");
+    c->cd(2);
+    fit->SetParameters(parPrompt);
+    fit->SetParLimits(0, 0., 3.*parPrompt[0]);
+    fit->SetParLimits(1, parPrompt[1]-5., parPrompt[1]+5.);
+    fit->SetParLimits(2, 0.2, 5.);
+    fit->SetParLimits(3, 0., 3.*parPrompt[3]);
+    fit->SetParLimits(4, parPrompt[4]-5., parPrompt[4]+5.);
+    TFitResultPtr resPrompt = hPrompt->Fit(fit, "S");
 
     nxrays_all[i] = resAll->Value(0)*resAll->Value(2)*rt2pi;
     nxrays_prompt[i] = resPrompt->Value(0)*resPrompt->Value(2)*rt2pi;
@@ -63,8 +89,15 @@ void count_muons() {
   }
   TGraphErrors* gr_all = new TGraphErrors(nfiles, n, nper_all, 0x0, eper_all);
   TGraphErrors* gr_prompt = new TGraphErrors(nfiles, n, nper_prompt, 0x0, eper_prompt);
-  gr_all->SetMarkerStyle(2); gr_all->SetMarkerColor(kBlack);
-  gr_prompt->SetMarkerStyle(2); gr_prompt->SetMarkerColor(kBlack);
-  new TCanvas(); gr_all->Draw("AP");
-  new TCanvas(); gr_prompt->Draw("AP");
+  gr_all->SetMarkerStyle(2); gr_all->SetMarkerColor(kRed);
+  gr_prompt->SetMarkerStyle(2); gr_prompt->SetMarkerColor(kGreen);
+  TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
+  leg->AddEntry(gr_all, "No time cuts");
+  leg->AddEntry(gr_prompt, "Prompt");
+  TMultiGraph* mg = new TMultiGraph("mg", "Stops per entering muon");
+  mg->Add(gr_all); mg->Add(gr_prompt);
+  new TCanvas();
+  mg->Draw("AP");
+  leg->Draw("SAME");
+  /* TGraph *chi2ndf = new TGraph(n, chi2 */
 }
