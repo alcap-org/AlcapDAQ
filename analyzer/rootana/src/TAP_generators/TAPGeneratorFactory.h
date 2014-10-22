@@ -20,7 +20,11 @@ class TAPGeneratorFactory:public TemplateFactory<TVAnalysedPulseGenerator,TAPGen
         }
 
     	std::string GetTAPType(const IDs::generator& g){ 
-            return GetProduct(g.Type());
+            std::string gen=g.Type();
+            size_t n_subtract=gen.find("APGenerator");
+            if(n_subtract!=std::string::npos)
+               gen.erase(n_subtract); //remove APGenerator part
+            return GetProduct(gen);
         }
 
 		// Get the single instance of this class
@@ -35,12 +39,12 @@ inline TAPGeneratorFactory* TAPGeneratorFactory::Instance(){
     return instance;
 }
 
-#define ALCAP_TAP_GENERATOR__(NAME, CLASS, ARGUMENTS) \
+#define ALCAP_TAP_GENERATOR__( NAME, CLASS, ARGUMENTS) \
 RegistryProxy<CLASS,TVAnalysedPulseGenerator,TAPGeneratorOptions,TAPGeneratorFactory> \
    p_##CLASS(NAME, ARGUMENTS, CLASS::TapType() );
 
-#define ALCAP_TAP_GENERATOR( NAME , ... ) \
-    ALCAP_TAP_GENERATOR__(#NAME, NAME##APGenerator, #__VA_ARGS__)
+#define ALCAP_TAP_GENERATOR( CLASS , ... ) \
+    ALCAP_TAP_GENERATOR__( #CLASS, CLASS##APGenerator, #__VA_ARGS__)
 
 
 #endif // TAPGENERATORFACTORY__HH_

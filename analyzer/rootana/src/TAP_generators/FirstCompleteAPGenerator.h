@@ -23,6 +23,8 @@ class FirstCompleteAPGenerator:public TVAnalysedPulseGenerator {
 
  private:
    void DrawPulse(int original, int pulse_timestamp, int n_pulse_samples);
+   void MakeTAPsWithPCF(int tpi_ID,const TPulseIsland* tpi, AnalysedPulseList& analysedList);
+   void AnalyseOneTpi(int tpi_ID,const TPulseIsland* tpi, AnalysedPulseList& analysedList);
 
    // The algorithms that this generator will use
    const Algorithm::MaxBinAmplitude fMaxBinAmplitude;

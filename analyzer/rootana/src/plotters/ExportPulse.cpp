@@ -10,7 +10,7 @@
 //ROOT
 #include <TH1F.h>
 #include <THStack.h>
-#include <TObjArray.h>
+#include <TDirectory.h>
 
 //Local
 #include "ModulesFactory.h"
@@ -21,6 +21,7 @@
 #include "RegisterModule.inc"
 #include "EventNavigator.h"
 #include "SetupNavigator.h"
+#include "debug_tools.h"
 
 using std::cout;
 using std::endl;
@@ -43,6 +44,9 @@ ExportPulse::ExportPulse(modules::options* opts)
   if(fUsePCF){
       fPulseFinder=new PulseCandidateFinder();
   }
+  
+  fTPIDirectory=GetDirectory("TPIs");
+  fTAPDirectory=GetDirectory("TAPs");
 }
 
 
@@ -121,9 +125,11 @@ int ExportPulse::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
   // Check if we have any pulses to draw that were requested through the MODULEs file
   LoadPulsesRequestedByConfig();
 
+  fTPIDirectory->cd();
   int ret_val=DrawTPIs();
   if(ret_val!=0) return ret_val;
 
+  fTAPDirectory->cd();
   ret_val=DrawTAPs();
   if(ret_val!=0) return ret_val;
 
@@ -231,7 +237,7 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info){
   }
   
   TH1F* fullPulse=MakeHistTPI(pulse,hist);
-  fullPulse->SetDirectory(GetDirectory());
+  fullPulse->SetDirectory(fTPIDirectory);
   fullPulse->SetTitle(title.str().c_str());
 
   if(fUsePCF){
@@ -257,7 +263,7 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info){
       }
 
       // Save the stack
-      GetDirectory()->Add(stack);
+      fTPIDirectory->Add(stack);
   }
 
   return 0;
@@ -287,7 +293,7 @@ TH1F* ExportPulse::MakeHistTPI(const TPulseIsland* pulse, const std::string& nam
 int ExportPulse::PlotTAP(const TAnalysedPulse* pulse, const PulseInfo_t& info)const{
   std::string hist=info.MakeTPIName();
   TH1F* tpi_hist=NULL;
-  gDirectory->GetObject(hist.c_str(),tpi_hist);
+  fTPIDirectory->GetObject(hist.c_str(),tpi_hist);
   pulse->Draw(tpi_hist);
   return 0;
 }

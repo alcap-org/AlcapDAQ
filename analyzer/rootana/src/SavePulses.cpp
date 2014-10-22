@@ -54,15 +54,15 @@ int SavePulses::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 int SavePulses::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
     const AnalysedPulseList* pulseList;
     TClonesArray* array;
-    TAnalysedPulse* tap;
+    TObject* tap;
     for (SourceAnalPulseMap::const_iterator i_source = gAnalysedPulseMap.begin();
             i_source != gAnalysedPulseMap.end(); ++i_source) {
         pulseList=&i_source->second;
         array=fArrays[i_source->first];
         for (AnalysedPulseList::const_iterator i_pulse = pulseList->begin();
                 i_pulse != pulseList->end(); ++i_pulse) {
-            tap=(TAnalysedPulse*) array->ConstructedAt(i_pulse-pulseList->begin());
-            *tap=**i_pulse;
+            tap= array->ConstructedAt(i_pulse-pulseList->begin());
+            (*i_pulse)->Copy(*tap);
         }
     }
     fTree->Fill();

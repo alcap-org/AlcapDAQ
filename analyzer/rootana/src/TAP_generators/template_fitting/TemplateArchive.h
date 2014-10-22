@@ -4,6 +4,8 @@
 #include <TFile.h>
 #include "TTemplate.h"
 
+namespace IDs{class channel;};
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
 /// \author Andrew Edmonds 
@@ -39,9 +41,14 @@ class TemplateArchive {
   ~TemplateArchive();
 
  public:
+  const char* GetName()const{return fTemplateFile?fTemplateFile->GetName(): "";}
   /// \brief
   /// Gets the template histogram of the given name and returns it
-  const TTemplate* GetTemplate(const char* template_name);
+  TTemplate* GetTemplate(const char* template_name);
+
+  /// \brief
+  /// Gets the template histogram of the given name and returns it
+  TTemplate* GetTemplate(const IDs::channel& channel);
 
   /// \brief
   /// Takes the given histogram and saves it to the ROOT file

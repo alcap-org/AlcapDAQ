@@ -35,7 +35,7 @@ for ifile in infiles:
             args = row[0:2]
             cur = db.execute(cmd, args)
             if cur.fetchone():
-                cmd = "UPDATE " + table_name + " SET " + ",".join(s + "=?" for s in cols[2:]);
+                cmd = "UPDATE " + table_name + " SET '" + ",'".join(s + "'=?" for s in cols[2:]);
                 cmd = cmd + " WHERE run==? AND channel==?"
                 args = row[2:] + row[0:2]
             else:

@@ -27,12 +27,10 @@ MAKE_EXCEPTION(InvalidDetector, SetupNavigator)
 SetupNavigator* SetupNavigator::fThis=NULL;
 
 static std::string StripTimeShiftConfigFromString(std::string con) {
-  const char* strs[2] = {"{no_time_shift=true}", "{no_time_shift=false}"};
-  for (unsigned int i = 0; i < 2; ++i) {
-    std::size_t pos = con.find(strs[i]);
-    if (pos != std::string::npos)
-      con.replace(pos, std::char_traits<char>::length(strs[i]),"");
-  }
+  const char *start = "{no_time_shift=", *end = "}";
+  std::size_t pos;
+  while ( (pos=con.find(start)) != std::string::npos)
+    con.replace(pos, con.find(end, pos)-pos+1, "");
   return con;
 }
 
@@ -41,11 +39,13 @@ static std::string StripTimeShiftConfigFromString(std::string con) {
 std::map<IDs::channel, double> SetupNavigator::fPedestalValues;
 std::map<IDs::channel, double> SetupNavigator::fNoiseValues;
 std::map<IDs::source, double> SetupNavigator::fCoarseTimeOffset;
+std::map< IDs::channel, std::pair<double,double> > SetupNavigator::fEnergyCalibrationConstants;
 
 SetupNavigator::SetupNavigator() :
   fCommandLineArgs(),
   fSQLiteFilename("sqlite://calibration.db"), fServer(new TSQLiteServer(fSQLiteFilename.c_str())),
-  fPedestalNoiseTableName("PedestalAndNoise"), fCoarseTimeOffsetTableName("CoarseTimeOffset") {
+  fPedestalNoiseTableName("PedestalAndNoise"), fCoarseTimeOffsetTableName("CoarseTimeOffset"),
+  fEnergyCalibrationConstantsTableName("Energy") {
   if (fServer->IsZombie()) {
     std::cout << "SetupNavigator: ERROR: Couldn't connect to SQLite database." << std::endl;
     throw Except::NoCalibDB();
@@ -80,24 +80,34 @@ std::string SetupNavigator::GetBank(const IDs::channel& src)const{
 void SetupNavigator::CacheCalibDB() {
   // Cache all the variables we have in the database
   // First the pedestals and noises
-  if (!fServer->HasTable(fPedestalNoiseTableName.c_str())) {// check it exists
+  if (!fServer->HasTable(fPedestalNoiseTableName.c_str())) {
     std::cout << "SetupNavigator: ERROR: Table " << fPedestalNoiseTableName << " does not exist." << std::endl;
-    if(!IsCalibRun()) throw Except::MissingTable(fPedestalNoiseTableName.c_str());
+    if (!IsCalibRun()) throw Except::MissingTable(fPedestalNoiseTableName.c_str());
   } else {
-    if(!ReadPedestalAndNoiseValues()){
+    if (!ReadPedestalAndNoiseValues()) {
       std::cout << "SetupNavigator: ERROR: Table " << fPedestalNoiseTableName 
                 << " contains no calib data for this run" << std::endl;
-    if(!IsCalibRun()) throw Except::UncalibratedRun();
+    if (!IsCalibRun()) throw Except::UncalibratedRun();
     }
   }
   if (!fServer->HasTable(fCoarseTimeOffsetTableName.c_str())) {
     std::cout << "SetupNavigator: ERROR: Table " << fCoarseTimeOffsetTableName << " does not exist." << std::endl;
     if(!IsCalibRun()) throw Except::MissingTable(fPedestalNoiseTableName.c_str());
   } else {
-    if(!ReadCoarseTimeOffsetValues()){
+    if (!ReadCoarseTimeOffsetValues()) {
       std::cout << "SetupNavigator: ERROR: Table " << fCoarseTimeOffsetTableName 
                 << " contains no calib data for this run" << std::endl;
-    if(!IsCalibRun()) throw Except::UncalibratedRun();
+    if (!IsCalibRun()) throw Except::UncalibratedRun();
+    }
+  }
+  if (!fServer->HasTable(fEnergyCalibrationConstantsTableName.c_str())) {
+    std::cout << "SetupNavigator: Error: Table " << fEnergyCalibrationConstantsTableName << " does not exist." << std::endl;
+    if (!IsCalibRun()) throw Except::MissingTable(fEnergyCalibrationConstantsTableName.c_str());
+  } else {
+    if (!ReadEnergyCalibrationConstants()) {
+      std::cout << "SetupNavigator: ERROR: Table " << fEnergyCalibrationConstantsTableName
+		<< " contains no calib data for this run" << std::endl;
+      if (!IsCalibRun()) throw Except::UncalibratedRun();
     }
   }
 }
@@ -154,7 +164,7 @@ bool SetupNavigator::ReadCoarseTimeOffsetValues() {
     delete row;
   }
   delete res;
-  return !fCoarseTimeOffsetTableName.empty();
+  return !fCoarseTimeOffset.empty();
 }
 
 std::vector<std::string> SetupNavigator::GetCoarseTimeOffsetColumns() {
@@ -170,6 +180,23 @@ std::vector<std::string> SetupNavigator::GetCoarseTimeOffsetColumns() {
   }
   delete res;
   return cols;
+}
+
+
+bool SetupNavigator::ReadEnergyCalibrationConstants() {
+  std::stringstream cmd;
+  cmd << "SELECT channel,gain,offset FROM " << fEnergyCalibrationConstantsTableName
+      << " WHERE run==" << GetRunNumber();
+  TSQLResult* res = fServer->Query(cmd.str().c_str());
+  TSQLRow* row;
+  while ((row = res->Next())) {
+    fEnergyCalibrationConstants[IDs::channel(row->GetField(0))] =
+      std::pair<double,double>(atof(row->GetField(1)), atof(row->GetField(2)));
+    delete row;
+  }
+  delete res;
+  //  return !fEnergyCalibrationConstants.empty();
+  return true; // Right now there's no reason this should be filled for anything
 }
 
 
@@ -221,13 +248,17 @@ void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double dt) {
                  "when not flagged as calibration. Not setting." << std::endl;
     return;
   }
-  // The excess code here is to strip {no_time_shift=yes} from the generator config string
+  // The excess code here is to strip {no_time_shift=*} from the generator config string
   fCoarseTimeOffset[IDs::source(src.Channel(), IDs::generator(StripTimeShiftConfigFromString(src.Generator().str())))] = dt;
 }
 
-double SetupNavigator::GetNoise(const IDs::channel& channel) const{
+double SetupNavigator::GetNoise(const IDs::channel& channel) const {
   return alcap::at<Except::InvalidDetector>(fNoiseValues,channel,channel.str().c_str());
 }
-double SetupNavigator::GetPedestal(const IDs::channel& channel)const { 
+double SetupNavigator::GetPedestal(const IDs::channel& channel) const { 
   return alcap::at<Except::InvalidDetector>(fPedestalValues,channel,channel.str().c_str());
+}
+
+std::pair<double,double> SetupNavigator::GetEnergyCalibrationConstants(const IDs::channel& ch) const {
+  return alcap::at<Except::InvalidDetector>(fEnergyCalibrationConstants, ch, ch.str().c_str());
 }

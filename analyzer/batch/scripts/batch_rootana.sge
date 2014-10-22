@@ -66,6 +66,8 @@ ldd $CMD
 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
 # Check path variables
 env
+# Check memory available
+ulimit -a >&2
 # END DEBUG
 ################
 

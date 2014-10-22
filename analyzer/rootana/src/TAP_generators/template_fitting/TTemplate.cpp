@@ -24,7 +24,9 @@ TTemplate::TTemplate(const std::string& det,int refine,int trigger_polarity, boo
   fRefineFactor(refine),
   fTriggerPolarity(trigger_polarity),
   fChannel(det),
+  fName(MakeName(fChannel)),
   fTemplatePulse(NULL){
+
        // Setup the error hist
        std::string error_histname = "hErrorVsPulseAdded_" + fChannel.str();
        std::string error_histtitle = "Plot of the Error as each new Pulse is added to the template for the " + fChannel.str() + " channel";
@@ -38,6 +40,7 @@ TTemplate::~TTemplate(){
 void TTemplate::Initialize(int pulseID, TH1D* pulse, TDirectory* dir){
   
   fTemplatePulse=pulse;
+  fTemplatePulse->SetBit(TH1::kIsAverage);
   ++fTotalPulses;
 }
 
@@ -128,8 +131,41 @@ bool TTemplate::CheckConverged(){
   return fConverged;
 }
 
-void TTemplate::Normalise(){
+void TTemplate::NormaliseToAmplitude(){
     if(!fTemplatePulse) return;
+    fTemplatePulse->SetBit(TH1::kIsAverage);
+    SubtractPedestal();
+
+    double norm = std::fabs(fTemplatePulse->GetMaximum()); 
+    ScaleHist(1./norm);
+}
+
+void TTemplate::NormaliseToIntegral(){
+    if(!fTemplatePulse) return;
+    fTemplatePulse->SetBit(TH1::kIsAverage);
+    SubtractPedestal();
+
+    double norm = fTemplatePulse->Integral(); 
+    ScaleHist(1./norm);
+}
+
+void TTemplate::NormaliseToSumSquares(){
+    if(!fTemplatePulse) return;
+    fTemplatePulse->SetBit(TH1::kIsAverage);
+    SubtractPedestal();
+
+    TH1D* tmp = (TH1D*) fTemplatePulse->Clone("tmp"); 
+    tmp->Multiply(tmp);
+    double norm = sqrt(tmp->Integral());
+    delete tmp;
+    ScaleHist(1./norm);
+}
+
+TH1* TTemplate::RebinToOriginalSampling(){
+   return fTemplatePulse->Rebin(fRefineFactor);
+}
+    
+void TTemplate::SubtractPedestal(){
 
     // Normalise the template so that it has pedestal=0 and amplitude=1
     // Work out the pedestal of the template from the first 5 bins
@@ -147,13 +183,19 @@ void TTemplate::Normalise(){
 
       fTemplatePulse->SetBinContent(iBin, new_value);
     }
-
-    // Integrate over the histogram and scale to give an area of 1
-    // Want the absolute value for the integral because of the negative
-    // polarity pulses
-    double integral = std::fabs(fTemplatePulse->Integral()); 
-    fTemplatePulse->Scale(1.0/integral);
 }
+
+void TTemplate::ScaleHist(double factor){
+
+    // Subtract off the pedesal
+    for (int iBin = 0; iBin <= fTemplatePulse->GetNbinsX(); ++iBin) {
+      double old_value = fTemplatePulse->GetBinContent(iBin);
+      double new_value = old_value * factor;
+
+      fTemplatePulse->SetBinContent(iBin, new_value);
+    }
+}
+
 
 double TTemplate::GetPedestal()const{
   return fTemplatePulse->GetBinContent(1);

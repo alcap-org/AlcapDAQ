@@ -10,6 +10,8 @@
 #include "IdSource.h"
 #include "EventNavigator.h"
 #include "TIntegralRatioAnalysedPulse.h"
+#include "TTemplateFitAnalysedPulse.h"
+#include "TTemplateConvolveAnalysedPulse.h"
 
 #include <TFormula.h>
 
@@ -77,6 +79,8 @@ int PulseViewer::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
    if(fAvailablePulseTypes.empty()){
      fAvailablePulseTypes["TAnalysedPulse"]=kTAP;
      fAvailablePulseTypes["IntegralRatioAP"]=kIntegralRatioAP;
+     fAvailablePulseTypes["TemplateFitAP"]=kTemplateFitAP;
+     fAvailablePulseTypes["TemplateConvolveAP"]=kTemplateConvolveAP;
    }
 
    int ret_val= CheckPulseType(fRequestedPulseType);
@@ -99,6 +103,17 @@ int PulseViewer::CheckPulseType(const std::string& pulse_type){
    fPulseType=i_type->second;
    switch(fPulseType){
       case kTAP: break;
+      case kTemplateConvolveAP:
+         fAvailableParams["NPeaks"]=kNPeaks;
+         fAvailableParams["PeakRank"]=kPeakRank;
+         fAvailableParams["Integral_ratio"]=kIntegralRatio;
+         break;
+      case kTemplateFitAP:
+         fAvailableParams["Chi2"]=kChi2;
+         fAvailableParams["Status"]=kStatus;
+         fAvailableParams["Integral_ratio"]=kIntegralRatio;
+         fAvailableParams["Double_fitted"]=kWasDouble;
+         break;
       case kIntegralRatioAP:
          fAvailableParams["Integral_ratio"]=kIntegralRatio;
          fAvailableParams["Integral_tail"]=kIntegralTail;
@@ -179,6 +194,8 @@ bool PulseViewer::TestPulseType(const TAnalysedPulse* pulse){
   switch(fPulseType){
     case kTAP: return false;
     case kIntegralRatioAP: return dynamic_cast<const TIntegralRatioAnalysedPulse*>(pulse);
+    case kTemplateFitAP: return dynamic_cast<const TTemplateFitAnalysedPulse*>(pulse);
+    case kTemplateConvolveAP: return dynamic_cast<const TTemplateConvolveAnalysedPulse*>(pulse);
   }
   return false;
 }
@@ -210,23 +227,53 @@ double PulseViewer::GetParameterValue(const TIntegralRatioAnalysedPulse* pulse,c
     return retVal;
 }
 
+double PulseViewer::GetParameterValue(const TTemplateFitAnalysedPulse* pulse,const ParameterType& parameter){
+   double retVal=0;
+   switch (parameter){
+       case kIntegralRatio: retVal=pulse->GetIntegralRatio(); break;
+       case kChi2: retVal=pulse->GetChi2(); break;
+       case kStatus: retVal=pulse->GetFitStatus(); break;
+       case kWasDouble: retVal=pulse->WasFirstOfDouble(); break;
+       default: retVal=GetParameterValue( static_cast<const TAnalysedPulse*>(pulse),parameter);
+    }
+    return retVal;
+}
+
+double PulseViewer::GetParameterValue(const TTemplateConvolveAnalysedPulse* pulse,const ParameterType& parameter){
+   double retVal=0;
+   switch (parameter){
+       case kIntegralRatio: retVal=pulse->GetIntegralRatio(); break;
+       case kNPeaks: retVal=pulse->GetNPeaks(); break;
+       case kPeakRank: retVal=pulse->GetPeakRank(); break;
+       default: retVal=GetParameterValue( static_cast<const TAnalysedPulse*>(pulse),parameter);
+    }
+    return retVal;
+}
+
 int PulseViewer::ConsiderDrawing(const TAnalysedPulseID& id, const TAnalysedPulse* pulse){
   // Check pulse passes trigger condition
     double vals[fAvailableParams.size()];
     switch (fPulseType){
        case kTAP: GetVals(vals,pulse); break;
-       case kIntegralRatioAP: 
-            const TIntegralRatioAnalysedPulse* ir_pulse
-              =static_cast<const TIntegralRatioAnalysedPulse*>(pulse);
+       case kTemplateConvolveAP: if(true){
+            const TTemplateConvolveAnalysedPulse* tc_pulse =static_cast<const TTemplateConvolveAnalysedPulse*>(pulse);
+            GetVals(vals,tc_pulse);
+            } break;
+       case kTemplateFitAP: if(true){
+            const TTemplateFitAnalysedPulse* tf_pulse =static_cast<const TTemplateFitAnalysedPulse*>(pulse);
+            GetVals(vals,tf_pulse);
+            } break;
+       case kIntegralRatioAP: if(true){
+            const TIntegralRatioAnalysedPulse* ir_pulse =static_cast<const TIntegralRatioAnalysedPulse*>(pulse);
             GetVals(vals,ir_pulse);
-            break;
+            } break;
     }
     fFormula->SetParameters(vals);
     double value=fFormula->Eval(0);
   if(!value) return 0;
   if(Debug()){
     cout<<"PulseViewer: Event: "<<EventNavigator::Instance().EntryNo()
-        <<" Plotting pulse "<<id<<" [ "<<fFormula->GetExpFormula("P")<<" ]"<<endl;
+        <<" Plotting pulse "<<id<<" [ "<<fTriggerCondition<<" => "<<fFormula->GetExpFormula("P")<<" ]"<<endl;
   }
   
   // If it does, ask ExportPulse to draw it
