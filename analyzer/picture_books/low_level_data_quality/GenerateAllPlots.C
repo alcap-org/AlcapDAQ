@@ -44,6 +44,10 @@ void GenerateAllPlots(const char* data_dir, const int n_run) {
 
   command = "GenerateTDiffPlots(\"" + filename.str() + "\");";
   gROOT->ProcessLine(command.c_str());
+
+  command = "GenerateMuPCPlots(\"" + filename.str() + "\");";
+  gROOT->ProcessLine(command.c_str());
+
 }
 
 // void ZoomAxis(TH1* hist)
