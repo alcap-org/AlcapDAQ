@@ -3,7 +3,11 @@ common/MUnCompressRawData
 FADC/MOctalFADCProcessRaw
 v1724/MV1724ProcessRaw
 dt5720/MDT5720ProcessRaw
+
 muSC_muPC/MCaenCompProcessRaw
+muSC_muPC/MMuPC1AnalysisC
+muSC_muPC/MMuPC1AnalysisMQL
+muSC_muPC/MMuPC_Repackage
 
 caen/MCAENPulseIslandSortAndStitch
 
