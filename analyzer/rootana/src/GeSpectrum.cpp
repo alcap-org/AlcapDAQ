@@ -31,6 +31,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   BaseModule("GeSpectrum",opts),
   fHist_Energy(NULL), fHist_Time(NULL), fHist_MoreTime(NULL),
   fHist_EnergyOOT(NULL), fHist_EnergyFarOOT(NULL), fHist_TimeEnergy(NULL), fHist_MeanTOffset(NULL),
+  fHist_Livetime(NULL),
   fMBAmpGe(SetupNavigator::Instance()->GetPedestal(fGeS), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeS.str()))),
   fCFTimeGe(SetupNavigator::Instance()->GetPedestal(fGeF),
 	    TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeF.str())),
@@ -62,6 +63,8 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fHist_TimeADC      = new TH2D("hTimeADC", "Energy of Gammas within Time Window;Energy (ADC);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
   fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window;Energy (keV);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
   fHist_MeanTOffset  = new TH1D("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -4.*fTimeWindow_Big, 4.*fTimeWindow_Big);
+  fHist_Livetime     = new TH1D("hLivetime", "Livetime of different windows;Window;Livetime", 3, 0, 3.);
+  fHist_Livetime->GetXaxis()->SetBinLabel(1, "FarOOT"); fHist_Livetime->GetXaxis()->SetBinLabel(2, "OOT"); fHist_Livetime->GetXaxis()->SetBinLabel(3, "Prompt");
   cwd->cd();
   ThrowIfInputsInsane(opts);
 }
@@ -94,7 +97,6 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   const std::vector<double> muScTimes  = CalculateTimes(fMuSc,   TPIMap.at(bank_musc));
   const std::vector<double> geTimes    = CalculateTimes(fGeF,    TPIMap.at(bank_gef));
   const std::vector<double> geEnergies = CalculateEnergies(fGeS, TPIMap.at(bank_ges));
-
 
   //************************************//
   //***** First get average offset *****//
@@ -205,6 +207,17 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
     //   }
     // }
   }
+
+  //*************************************//
+  //******** Calculate Livetimes ********//
+  //*************************************//
+  Double_t t_Prompt = 2.*fTimeWindow_Small*muScTimes.size();
+  Double_t t_OOT = 2.*fTimeWindow_Big*muScTimes.size() - t_Prompt;
+  Double_t t_FarOOT = muScTimes.back() - muScTimes.front() - t_OOT - t_Prompt;
+  fHist_Livetime->Fill("Prompt", t_Prompt);
+  fHist_Livetime->Fill("OOT", t_OOT);
+  fHist_Livetime->Fill("FarOOT", t_FarOOT);
+
   return 0;
 }
 
