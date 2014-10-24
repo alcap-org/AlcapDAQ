@@ -44,7 +44,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
 	      0.,
 	      opts->GetDouble("musc_cf")),
   fADC2Energy(new TF1("adc2energy","[0]*x+[1]")),
-  fTimeWindow_Small(500.), fTimeWindow_Big(5000.) {
+  fTimeWindow_Small(200.), fTimeWindow_Big(5000.) {
   const static int nbins = std::pow(2.,14);
   const std::pair<double,double> adc2energy_par = SetupNavigator::Instance()->GetEnergyCalibrationConstants(IDs::channel("Ge-S"));
   fADC2Energy->SetParameters(adc2energy_par.first, adc2energy_par.second);
@@ -191,21 +191,16 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
 	fHist_TimeOOT->Fill(dt_next);
     }
 
-    // Silicon XRay
-    //if (ge_energy >= 3260 && energy_ge <= 3290)
     // Aluminium XRay
-    //if (*geE >= 340 && *geE <= 350) {
-    // Mg27 Gamma
-    // if (*geE >= 838 && *geE <= 848) {
-    //   if (dt_prev != unfound) {
-    // 	fHist_Time->Fill(dt_prev);
-    // 	fHist_MoreTime->Fill(dt_prev);
-    //   }
-    //   if (dt_next != unfound) {
-    // 	fHist_Time->Fill(dt_next);
-    // 	fHist_MoreTime->Fill(dt_next);
-    //   }
-    // }
+    if (fADC2Energy->Eval(*geE) >= 344 && fADC2Energy->Eval(*geE) <= 350) {
+      if (prev_found) {
+    	fHist_Time->Fill(dt_prev);
+    	fHist_MoreTime->Fill(dt_prev);
+      } else if (next_found) {
+    	fHist_Time->Fill(dt_next);
+    	fHist_MoreTime->Fill(dt_next);
+      }
+    }
   }
 
   //*************************************//
