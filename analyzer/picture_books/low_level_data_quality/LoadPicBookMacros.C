@@ -14,6 +14,7 @@ void LoadPicBookMacros() {
   gROOT->ProcessLine(".L GeneratePulseShapesPlots.C+");
   gROOT->ProcessLine(".L GenerateTDiffPlots.C+");
   gROOT->ProcessLine(".L GenerateTPIPlots.C+");
+  gROOT->ProcessLine(".L GenerateMuPCPlots.C+");
 
   gROOT->ProcessLine(".L GenerateTrendPlots.C+");
 

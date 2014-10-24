@@ -25,6 +25,7 @@ data_quality/MDQ_TDCCheck
 data_quality/MDQ_muScTDiff
 data_quality/MDQ_DAQLivetime
 data_quality/MDQ_Thresholds
+data_quality/MDQ_MuPC
 
 vacuum/MVacuumHisto
 

@@ -35,6 +35,9 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
   // The histograms
   TH2F* hDQ_TrendPlot;
   TH1F *hDQ_RunPlot;
+  
+  TH1F *hDQ_MuPCTrendPlot[4];//mean x, rms x, mean y, rms y
+  TH2F *hDQ_MuPCRunPlot;
 
   // Work out what the dataset is
   std::string dataset = "NULL";
@@ -55,7 +58,6 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
   else if (first_run == 3771)
     dataset = "SiR2(1%)";
 
-
   // Loop through the histograms in the first_file and get the island histograms (bank and channel names may differ between runs)
   TDirectoryFile* dir = (TDirectoryFile*) files[0]->Get("DataQuality_LowLevel");
 
@@ -63,6 +65,7 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
   TKey *dirKey;
   
   while ( (dirKey = (TKey*)nextDirKey()) ) {
+    std::string histogram_name = dirKey->ReadObj()->GetName();    
     // Get all the histograms
     if (strcmp(dirKey->ReadObj()->ClassName(), "TH1F") == 0) {
 
@@ -70,7 +73,7 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
       // Set up the canvases and trend plots from the first file
       TCanvas *c1 = new TCanvas();
 
-      std::string histogram_name = dirKey->ReadObj()->GetName();
+      //std::string histogram_name = dirKey->ReadObj()->GetName();
 
       // Don't want any of these plots as trends
       if (histogram_name.find("Total") != std::string::npos || 
@@ -118,7 +121,7 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
       hDQ_TrendPlot->GetZaxis()->SetTitleOffset(0.85);
       hDQ_TrendPlot->GetZaxis()->SetTitleSize(0.03);
 
-      gStyle->SetOptStat("e");
+      gStyle->SetOptStat(0000);
       hDQ_TrendPlot->SetStats(true);
 
       // Want to copy the bin labels for this plot
@@ -333,6 +336,82 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
       }
       c1->Print(pngname.c_str());
     }
+
+    //make muPC beam characteristic plots
+    if ((strcmp(dirKey->ReadObj()->ClassName(), "TH2F") == 0) && (histogram_name.find("XvsY_ExclHotWires") != std::string::npos)) {
+    //
+
+       // Set up the canvas 
+       TCanvas *muPCcanvases[4];
+
+      std::string histogram_location = "DataQuality_LowLevel/" + histogram_name;
+      std::string pngname[4];
+      pngname[0] = "data_quality_figs/MuPC_MeanX_TrendPlot.png";
+      pngname[1] = "data_quality_figs/MuPC_RMSX_TrendPlot.png";
+      pngname[2] = "data_quality_figs/MuPC_MeanY_TrendPlot.png";
+      pngname[3] = "data_quality_figs/MuPC_RMSY_TrendPlot.png";
+
+      files[0]->GetObject(histogram_location.c_str(),hDQ_MuPCRunPlot);
+
+      std::string trendplotname[4];
+      trendplotname[0] = "MuPC mean x wire";
+      trendplotname[1] = "MuPC rms x wire";
+      trendplotname[2] = "MuPC mean y wire";
+      trendplotname[3] = "MuPC rms y wire";
+      std::string trendplottitle[4];
+      trendplottitle[0] = "MuPC mean x wire (" + dataset + ")";
+      trendplottitle[1] = "MuPC rms x wire (" + dataset + ")";
+      trendplottitle[2] = "MuPC mean y wire (" + dataset + ")";
+      trendplottitle[3] = "MuPC rms y wire (" + dataset + ")";
+ 
+      hDQ_MuPCTrendPlot[0] = new TH1F(trendplotname[0].c_str(), trendplottitle[0].c_str(), n_runs, first_run, first_run+n_runs);
+      hDQ_MuPCTrendPlot[1] = new TH1F(trendplotname[1].c_str(), trendplottitle[1].c_str(), n_runs, first_run, first_run+n_runs);
+      hDQ_MuPCTrendPlot[2] = new TH1F(trendplotname[2].c_str(), trendplottitle[2].c_str(), n_runs, first_run, first_run+n_runs);
+      hDQ_MuPCTrendPlot[3] = new TH1F(trendplotname[3].c_str(), trendplottitle[3].c_str(), n_runs, first_run, first_run+n_runs);
+
+      hDQ_MuPCTrendPlot[0]->GetYaxis()->SetTitle("MuPC mean x wire hit");
+      hDQ_MuPCTrendPlot[1]->GetYaxis()->SetTitle("MuPC rms x wire hit");
+      hDQ_MuPCTrendPlot[2]->GetYaxis()->SetTitle("MuPC mean y wire hit");
+      hDQ_MuPCTrendPlot[3]->GetYaxis()->SetTitle("MuPC rms y wire hit");
+
+      for (int i=0; i<4; i++){ 
+        hDQ_MuPCTrendPlot[i]->GetXaxis()->SetTitle("Run Number");
+        hDQ_MuPCTrendPlot[i]->GetXaxis()->SetLabelSize(0.03);
+        hDQ_MuPCTrendPlot[i]->GetYaxis()->SetLabelSize(0.03);
+        hDQ_MuPCTrendPlot[i]->SetLineColor(kBlue);      
+      }
+
+      // Loop through the runs
+      for (int iRun = 0; iRun < n_runs; ++iRun) {
+
+       	if (files[iRun]->IsZombie()) continue; 
+
+	  files[iRun]->GetObject(histogram_location.c_str(),hDQ_MuPCRunPlot);
+
+	  if (hDQ_MuPCRunPlot == NULL) continue; // possible that this plot might not exist
+
+	  // Set the trend plots
+	  for (int iBin = 1; iBin <= hDQ_MuPCRunPlot->GetNbinsX(); ++iBin) {
+	  
+        hDQ_MuPCTrendPlot[0]->SetBinContent(iBin,hDQ_MuPCRunPlot->GetMean(1));
+        hDQ_MuPCTrendPlot[1]->SetBinContent(iBin,hDQ_MuPCRunPlot->GetRMS(1));
+        hDQ_MuPCTrendPlot[2]->SetBinContent(iBin,hDQ_MuPCRunPlot->GetMean(2));
+        hDQ_MuPCTrendPlot[3]->SetBinContent(iBin,hDQ_MuPCRunPlot->GetRMS(2));
+
+	  }
+
+      }
+	
+	  for (int i=0; i<4; i++){
+	
+	    muPCcanvases[i] = new TCanvas();
+	    hDQ_MuPCTrendPlot[i]->Draw();
+	    muPCcanvases[i]->Print(pngname[i].c_str());
+	
+	  }
+    
+     }
+
   }
 
   // Loop through the runs and delete the files

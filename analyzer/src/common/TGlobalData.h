@@ -7,7 +7,7 @@
 
 #include <TObject.h>
 #include "TPulseIsland.h"
-
+#include "TMuPCCluster.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief
@@ -35,6 +35,9 @@ class TGlobalData : public TObject{
   /// Map of bank names to vectors of TPIs.
   std::map<std::string, std::vector<TPulseIsland*> >
     fPulseIslandToChannelMap;
+
+  /// TMuPCCluster
+  std::vector<TMuPCCluster*> fMuPCClusterVector;
 
   TGlobalData(){}
  private:

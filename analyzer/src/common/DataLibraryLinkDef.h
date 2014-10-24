@@ -26,4 +26,6 @@
 
 #pragma link C++ class TVacuumData+;
 
+#pragma link C++ class TMuPCCluster+;
+
 #endif
