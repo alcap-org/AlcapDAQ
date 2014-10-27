@@ -31,10 +31,10 @@ void guess_parameters(const TH1* h, Double_t par[8]) {
 
 void count_muons() {
   const Double_t rt2pi = TMath::Sqrt(2.*TMath::Pi());
-  const char dataset[] = "Al100";
+  const char dataset[] = "Al50awithoutNDet2";
   const double E_xray = 346.828;
   const double dE = 5.104; // Pb214 gamma minus Al muonic 2p-1s
-  const unsigned int nfiles = 12;
+  const unsigned int nfiles = 7;
   
   Double_t nxrays_all[nfiles], exrays_all[nfiles];
   Double_t nxrays_prompt[nfiles], exrays_prompt[nfiles];
@@ -55,7 +55,6 @@ void count_muons() {
     TH1* hAll = (TH1*)f->Get("all");
     TH1* hPrompt = (TH1*)f->Get("prompt");
     TH1* hEnter = (TH1*)f->Get("enter");
-    /* hAll->Rebin(); hPrompt->Rebin(); */
     hAll->GetXaxis()->SetRangeUser(343., 354.);
     hPrompt->GetXaxis()->SetRangeUser(343., 354.);
     Double_t parAll[8], parPrompt[8];
@@ -113,14 +112,14 @@ void count_muons() {
   gr_prompt->SetMarkerStyle(2); gr_prompt->SetMarkerColor(kGreen);
   leg = new TLegend(0.5,0.7,0.9,0.9);
   linefit->SetParameter(0, 1.);
-  res = gr_all->Fit(linefit, "S"); gr_all->GetFunction("linefit")->SetLineColor(kGreen);
+  res = gr_all->Fit(linefit, "S"); gr_all->GetFunction("linefit")->SetLineColor(kRed);
   sprintf(lab, "No time cuts (y=%g, #chi^{2}=%g)", res->Value(0), res->Chi2()/res->Ndf());
   leg->AddEntry(gr_all, lab);
   linefit->SetParameter(0, 1.);
-  res = gr_prompt->Fit(linefit, "S"); gr_prompt->GetFunction("linefit")->SetLineColor(kRed);
+  res = gr_prompt->Fit(linefit, "S"); gr_prompt->GetFunction("linefit")->SetLineColor(kGreen);
   sprintf(lab, "Prompt (y=%g, #chi^{2}=%g)", res->Value(0), res->Chi2()/res->Ndf());
   leg->AddEntry(gr_prompt, lab);
-  TMultiGraph* mg1 = new TMultiGraph("mg1", "Stops per entering muon (Al100)");
+  TMultiGraph* mg1 = new TMultiGraph("mg1", "Stops per entering muon (Al50awithoutNDet2)");
   mg1->Add(gr_all); mg1->Add(gr_prompt);
   new TCanvas();
   mg1->Draw("AP"); mg1->GetXaxis()->SetTitle("Run Group (Groups of 10)"); mg1->GetYaxis()->SetTitle("Stops per Muon");
@@ -130,7 +129,7 @@ void count_muons() {
   TGraph *gr_chi2Prompt = new TGraph(nfiles, n, chi2Prompt);
   gr_chi2All->SetMarkerStyle(2); gr_chi2All->SetMarkerColor(kRed);
   gr_chi2Prompt->SetMarkerStyle(2); gr_chi2Prompt->SetMarkerColor(kGreen);
-  TMultiGraph* mg2 = new TMultiGraph("mg2", "Reduced Chi2 of XRay Peak Fits (Al100)");
+  TMultiGraph* mg2 = new TMultiGraph("mg2", "Reduced Chi2 of XRay Peak Fits (Al50awithoutNDet2)");
   mg2->Add(gr_chi2All); mg2->Add(gr_chi2Prompt);
   new TCanvas();
   mg2->Draw("AP"); mg2->GetXaxis()->SetTitle("Run Group (Groups of 10)"); mg2->GetYaxis()->SetTitle("Reduced #chi^{2}");

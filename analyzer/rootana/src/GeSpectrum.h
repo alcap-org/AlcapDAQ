@@ -47,8 +47,23 @@ class GeSpectrum : public BaseModule {
   TH1* fHist_TimeFarOOT;
   TH2* fHist_TimeADC;
   TH2* fHist_TimeEnergy;
-  TH1* fHist_MeanTOffset;
   TH1* fHist_Livetime;
+
+  TH1* fHist_PP_ADC;
+  TH1* fHist_PP_Energy;
+  TH1* fHist_PP_Time;
+  TH1* fHist_PP_MoreTime;
+  TH1* fHist_PP_ADCOOT;
+  TH1* fHist_PP_EnergyOOT;
+  TH1* fHist_PP_ADCFarOOT;
+  TH1* fHist_PP_EnergyFarOOT;
+  TH1* fHist_PP_TimeOOT;
+  TH1* fHist_PP_TimeFarOOT;
+  TH2* fHist_PP_TimeADC;
+  TH2* fHist_PP_TimeEnergy;
+  TH1* fHist_PP_Livetime;
+
+  TH1* fHist_MeanTOffset;
 
   // Algorithms
   const Algorithm::MaxBinAmplitude fMBAmpGe;
@@ -110,9 +125,11 @@ class GeSpectrum : public BaseModule {
   /// Takes a vector of TPIs and calculates all of their energies.
   std::vector<double> CalculateEnergies(const IDs::channel& chan, const std::vector<TPulseIsland*>& tpis);
 
-  void ThrowIfInputsInsane(const modules::options*);
-  void ThrowIfGeInsane(const std::vector<TPulseIsland*>& ge_fasts, const std::vector<TPulseIsland*>& ge_slows);
-
+  static void ThrowIfInputsInsane(const modules::options*);
+  static void ThrowIfGeInsane(const std::vector<TPulseIsland*>& ge_fasts, const std::vector<TPulseIsland*>& ge_slows);
+  bool IsGePileupProtected(const std::vector<double>::const_iterator& ge, const std::vector<double>::const_iterator& muon1, const std::vector<double>::const_iterator& muon2,
+			   const std::vector<double>& muon_vector, const double time_window);
+  static bool IsMuPileupProtected(const std::vector<double>::const_iterator& mu, const std::vector<double>& muon_vector, const double time_window);
 };
 
 #endif //GESPECTRUM_H_
