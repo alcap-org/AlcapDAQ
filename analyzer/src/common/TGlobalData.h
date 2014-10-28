@@ -44,6 +44,6 @@ class TGlobalData : public TObject{
   TGlobalData(const TGlobalData&);
   TGlobalData operator=(const TGlobalData&);
 
-  ClassDef(TGlobalData, 2)
+  ClassDef(TGlobalData, 3)
 };
 #endif

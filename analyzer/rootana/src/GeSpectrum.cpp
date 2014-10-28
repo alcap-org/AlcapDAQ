@@ -48,7 +48,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
 	      0.,
 	      opts->GetDouble("musc_cf")),
   fADC2Energy(new TF1("adc2energy","[0]*x+[1]")),
-  fTimeWindow_Small(200.), fTimeWindow_Big(5000.) {
+  fTimeWindow_Small(100.), fTimeWindow_Big(5000.) {
   ThrowIfInputsInsane(opts);
 
   const static int nbins = std::pow(2.,14);
@@ -59,7 +59,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
 
   fHist_ADC          = new TH1D("hADC", "Energy of Gammas;Energy (ADC);Counts", nbins, 0., nbins);
   fHist_Energy       = new TH1D("hEnergy", "Energy of Gammas;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fHist_Time         = new TH1D("hTime", "Time of Gammas within Energy Window", 1000, -10000., 10000.);
+  fHist_Time         = new TH1D("hTime", "Time of Gammas within Energy Window", 1000, -500., 500.);
   fHist_MoreTime     = new TH1D("hMoreTime", "Time of Gammas within Energy Window (Wide)", 1000, -100000., 100000.);
   fHist_ADCOOT       = new TH1D("hADCOOT", "Energy of Gammas outside of Time Window;Energy (ADC);Counts", nbins, 0., nbins);
   fHist_EnergyOOT    = new TH1D("hEnergyOOT", "Energy of Gammas outside of Time Window;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
@@ -67,13 +67,13 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fHist_EnergyFarOOT = new TH1D("hEnergyFarOOT", "Energy of Gammas far from Muons;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
   fHist_TimeOOT      = new TH1D("hTimeOOT", "Time of Gammas outside of Time Window", 1000., -2.*fTimeWindow_Small, 2.*fTimeWindow_Small);
   fHist_TimeFarOOT   = new TH1D("hTimeFarOOT", "Time of Gammas far from Muons", 1000., -100.*fTimeWindow_Big, 100.*fTimeWindow_Big);
-  fHist_TimeADC      = new TH2D("hTimeADC", "Energy of Gammas within Time Window;Energy (ADC);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
-  fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window;Energy (keV);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  fHist_TimeADC      = new TH2D("hTimeADC", "Energy of Gammas within Time Window;Time (ns);Energy (ADC);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
+  fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window;Time (ns);Energy (keV);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
   fHist_Livetime     = new TH1D("hLivetime", "Livetime of different windows;Window;Livetime", 3, 0, 3.);
 
   fHist_PP_ADC          = new TH1D("hPPADC", "Energy of Gammas;Energy (ADC);Counts", nbins, 0., nbins);
   fHist_PP_Energy       = new TH1D("hPPEnergy", "Energy of Gammas;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fHist_PP_Time         = new TH1D("hPPTime", "Time of Gammas within Energy Window", 1000, -10000., 10000.);
+  fHist_PP_Time         = new TH1D("hPPTime", "Time of Gammas within Energy Window", 1000, -500., 500.);
   fHist_PP_MoreTime     = new TH1D("hPPMoreTime", "Time of Gammas within Energy Window (Wide)", 1000, -100000., 100000.);
   fHist_PP_ADCOOT       = new TH1D("hPPADCOOT", "Energy of Gammas outside of Time Window;Energy (ADC);Counts", nbins, 0., nbins);
   fHist_PP_EnergyOOT    = new TH1D("hPPEnergyOOT", "Energy of Gammas outside of Time Window;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
@@ -81,8 +81,8 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fHist_PP_EnergyFarOOT = new TH1D("hPPEnergyFarOOT", "Energy of Gammas far from Muons;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
   fHist_PP_TimeOOT      = new TH1D("hPPTimeOOT", "Time of Gammas outside of Time Window", 1000., -2.*fTimeWindow_Small, 2.*fTimeWindow_Small);
   fHist_PP_TimeFarOOT   = new TH1D("hPPTimeFarOOT", "Time of Gammas far from Muons", 1000., -100.*fTimeWindow_Big, 100.*fTimeWindow_Big);
-  fHist_PP_TimeADC      = new TH2D("hPPTimeADC", "Energy of Gammas within Time Window;Energy (ADC);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
-  fHist_PP_TimeEnergy   = new TH2D("hPPTimeEnergy", "Energy of Gammas within Time Window;Energy (keV);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  fHist_PP_TimeADC      = new TH2D("hPPTimeADC", "Energy of Gammas within Time Window;Time (ns);Energy (ADC);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
+  fHist_PP_TimeEnergy   = new TH2D("hPPTimeEnergy", "Energy of Gammas within Time Window;Time (ns);Energy (keV);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
   fHist_PP_Livetime     = new TH1D("hPPLivetime", "Livetime of different windows;Window;Livetime", 3, 0, 3.);
 
   fHist_MeanTOffset  = new TH1D("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -4.*fTimeWindow_Big, 4.*fTimeWindow_Big);
@@ -218,28 +218,51 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
     }
     fHist_ADC->Fill(adc);
     fHist_Energy->Fill(en);
+    if (pp) {
+      fHist_PP_ADC->Fill(adc);
+      fHist_PP_Energy->Fill(adc);
+    }
     // Plot time
     if (prev_found) {
-      if (dt_prev > fTimeWindow_Big)
+      if (dt_prev > fTimeWindow_Big) {
 	fHist_TimeFarOOT->Fill(dt_prev);
-      else if (dt_prev > fTimeWindow_Small)
+	if (pp)
+	  fHist_PP_TimeFarOOT->Fill(dt_prev);
+      } else if (dt_prev > fTimeWindow_Small) {
 	fHist_TimeOOT->Fill(dt_prev);
+	if (pp)
+	  fHist_PP_TimeFarOOT->Fill(dt_next);
+      }
     }
     if (next_found) {
-      if (dt_next < -fTimeWindow_Big)
+      if (dt_next < -fTimeWindow_Big) {
 	fHist_TimeFarOOT->Fill(dt_next);
-      else if (dt_next < -fTimeWindow_Small)
+	if (pp)
+	  fHist_PP_TimeFarOOT->Fill(dt_next);
+      } else if (dt_next < -fTimeWindow_Small) {
 	fHist_TimeOOT->Fill(dt_next);
+	if (pp)
+	  fHist_PP_TimeOOT->Fill(dt_next);
+      }
     }
 
-    // Aluminium XRay
-    if (en >= 344 && en <= 350) {
+    const Double_t en_bounds[2] = { 344., 350. }; // Aluminium XRay
+    if (en >= en_bounds[0] && en <= en_bounds[1]) {
       if (prev_found) {
     	fHist_Time->Fill(dt_prev);
     	fHist_MoreTime->Fill(dt_prev);
-      } else if (next_found) {
+	if (pp) {
+	  fHist_PP_Time->Fill(dt_prev);
+	  fHist_PP_MoreTime->Fill(dt_prev);
+	}
+      }
+      if (next_found) {
     	fHist_Time->Fill(dt_next);
     	fHist_MoreTime->Fill(dt_next);
+	if (pp) {
+	  fHist_PP_Time->Fill(dt_next);
+	  fHist_PP_MoreTime->Fill(dt_next);
+	}
       }
     }
   }
@@ -319,10 +342,10 @@ void GeSpectrum::ThrowIfInputsInsane(const modules::options* opts) {
 
 bool GeSpectrum::IsGePileupProtected(const std::vector<double>::const_iterator& ge, const std::vector<double>::const_iterator& m1, const std::vector<double>::const_iterator& m2,
 				     const std::vector<double>& v, const double dt) {
-  if (std::abs(*ge-*m1) < fTimeWindow_Big)
+  if (std::abs(*ge-*m1) < dt)
     if (!IsMuPileupProtected(m1, v, dt))
       return false;
-  if (std::abs(*ge-*m2) < fTimeWindow_Big)
+  if (std::abs(*ge-*m2) < dt)
     return IsMuPileupProtected(m2, v, dt);
   return true;
 }

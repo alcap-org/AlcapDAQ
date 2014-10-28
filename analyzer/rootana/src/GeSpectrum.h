@@ -127,8 +127,8 @@ class GeSpectrum : public BaseModule {
 
   static void ThrowIfInputsInsane(const modules::options*);
   static void ThrowIfGeInsane(const std::vector<TPulseIsland*>& ge_fasts, const std::vector<TPulseIsland*>& ge_slows);
-  bool IsGePileupProtected(const std::vector<double>::const_iterator& ge, const std::vector<double>::const_iterator& muon1, const std::vector<double>::const_iterator& muon2,
-			   const std::vector<double>& muon_vector, const double time_window);
+  static bool IsGePileupProtected(const std::vector<double>::const_iterator& ge, const std::vector<double>::const_iterator& muon1, const std::vector<double>::const_iterator& muon2,
+				  const std::vector<double>& muon_vector, const double time_window);
   static bool IsMuPileupProtected(const std::vector<double>::const_iterator& mu, const std::vector<double>& muon_vector, const double time_window);
 };
 
