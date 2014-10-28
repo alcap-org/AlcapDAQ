@@ -29,13 +29,15 @@ const IDs::channel GeSpectrum::fMuSc(IDs::kMuSc, IDs::kNotApplicable);
 
 GeSpectrum::GeSpectrum(modules::options* opts) :
   BaseModule("GeSpectrum",opts),
-  fHist_ADC(NULL), fHist_Energy(NULL), fHist_Time(NULL), fHist_MoreTime(NULL),
-  fHist_ADCOOT(NULL), fHist_EnergyOOT(NULL), fHist_ADCFarOOT(NULL), fHist_EnergyFarOOT(NULL),
-  fHist_TimeOOT(NULL), fHist_TimeFarOOT(NULL), fHist_TimeADC(NULL), fHist_TimeEnergy(NULL), fHist_Livetime(NULL),
-  fHist_PP_ADC(NULL), fHist_PP_Energy(NULL), fHist_PP_Time(NULL), fHist_PP_MoreTime(NULL),
-  fHist_PP_ADCOOT(NULL), fHist_PP_EnergyOOT(NULL), fHist_PP_ADCFarOOT(NULL), fHist_PP_EnergyFarOOT(NULL),
-  fHist_PP_TimeOOT(NULL), fHist_PP_TimeFarOOT(NULL), fHist_PP_TimeADC(NULL), fHist_PP_TimeEnergy(NULL), fHist_PP_Livetime(NULL),
-  fHist_MeanTOffset(NULL),
+  fhADC(NULL), fhEnergy(NULL), fhTime(NULL), fhMoreTime(NULL),
+  fhADCOOT(NULL), fhEnergyOOT(NULL), fhADCFarOOT(NULL), fhEnergyFarOOT(NULL),
+  fhTimeOOT(NULL), fhTimeFarOOT(NULL), fhTimeADC(NULL), fhTimeEnergy(NULL),
+  fhLivetime(NULL), fhNMuons(NULL),
+  fhPP_ADC(NULL), fhPP_Energy(NULL), fhPP_Time(NULL), fhPP_MoreTime(NULL),
+  fhPP_ADCOOT(NULL), fhPP_EnergyOOT(NULL), fhPP_ADCFarOOT(NULL), fhPP_EnergyFarOOT(NULL),
+  fhPP_TimeOOT(NULL), fhPP_TimeFarOOT(NULL), fhPP_TimeADC(NULL), fhPP_TimeEnergy(NULL),
+  fhPP_Livetime(NULL), fhPP_NMuons(NULL),
+  fhMeanTOffset(NULL),
   fMBAmpGe(SetupNavigator::Instance()->GetPedestal(fGeS), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeS.str()))),
   fCFTimeGe(SetupNavigator::Instance()->GetPedestal(fGeF),
 	    TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeF.str())),
@@ -48,7 +50,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
 	      0.,
 	      opts->GetDouble("musc_cf")),
   fADC2Energy(new TF1("adc2energy","[0]*x+[1]")),
-  fTimeWindow_Small(100.), fTimeWindow_Big(5000.) {
+  fTimeWindow_Small(100.), fTimeWindow_Big(5000.), fPileupProtectionWindow(10000.) {
   ThrowIfInputsInsane(opts);
 
   const static int nbins = std::pow(2.,14);
@@ -57,37 +59,39 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   TDirectory* cwd = TDirectory::CurrentDirectory();
   dir->cd();
 
-  fHist_ADC          = new TH1D("hADC", "Energy of Gammas;Energy (ADC);Counts", nbins, 0., nbins);
-  fHist_Energy       = new TH1D("hEnergy", "Energy of Gammas;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fHist_Time         = new TH1D("hTime", "Time of Gammas within Energy Window", 1000, -500., 500.);
-  fHist_MoreTime     = new TH1D("hMoreTime", "Time of Gammas within Energy Window (Wide)", 1000, -100000., 100000.);
-  fHist_ADCOOT       = new TH1D("hADCOOT", "Energy of Gammas outside of Time Window;Energy (ADC);Counts", nbins, 0., nbins);
-  fHist_EnergyOOT    = new TH1D("hEnergyOOT", "Energy of Gammas outside of Time Window;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fHist_ADCFarOOT    = new TH1D("hADCFarOOT", "Energy of Gammas far from Muons;Energy (ADC);Counts", nbins, 0., nbins);
-  fHist_EnergyFarOOT = new TH1D("hEnergyFarOOT", "Energy of Gammas far from Muons;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fHist_TimeOOT      = new TH1D("hTimeOOT", "Time of Gammas outside of Time Window", 1000., -2.*fTimeWindow_Small, 2.*fTimeWindow_Small);
-  fHist_TimeFarOOT   = new TH1D("hTimeFarOOT", "Time of Gammas far from Muons", 1000., -100.*fTimeWindow_Big, 100.*fTimeWindow_Big);
-  fHist_TimeADC      = new TH2D("hTimeADC", "Energy of Gammas within Time Window;Time (ns);Energy (ADC);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
-  fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window;Time (ns);Energy (keV);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fHist_Livetime     = new TH1D("hLivetime", "Livetime of different windows;Window;Livetime", 3, 0, 3.);
+  fhADC          = new TH1D("hADC", "Energy of Gammas;Energy (ADC)", nbins, 0., nbins);
+  fhEnergy       = new TH1D("hEnergy", "Energy of Gammas;Energy (keV)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  fhTime         = new TH1D("hTime", "Time of Gammas within Energy Window;Time (ns)", 1000, -500., 500.);
+  fhMoreTime     = new TH1D("hMoreTime", "Time of Gammas within Energy Window (Wide);Time (ns)", 1000, -100000., 100000.);
+  fhADCOOT       = new TH1D("hADCOOT", "Energy of Gammas outside of Time Window;Energy (ADC)", nbins, 0., nbins);
+  fhEnergyOOT    = new TH1D("hEnergyOOT", "Energy of Gammas outside of Time Window;Energy (keV)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  fhADCFarOOT    = new TH1D("hADCFarOOT", "Energy of Gammas far from Muons;Energy (ADC)", nbins, 0., nbins);
+  fhEnergyFarOOT = new TH1D("hEnergyFarOOT", "Energy of Gammas far from Muons;Energy (keV)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  fhTimeOOT      = new TH1D("hTimeOOT", "Time of Gammas outside of Time Window;Time (ns)", 1000., -2.*fTimeWindow_Small, 2.*fTimeWindow_Small);
+  fhTimeFarOOT   = new TH1D("hTimeFarOOT", "Time of Gammas far from Muons;Time (ns)", 1000., -100.*fTimeWindow_Big, 100.*fTimeWindow_Big);
+  fhTimeADC      = new TH2D("hTimeADC", "Energy of Gammas within Time Window;Time (ns);Energy (ADC)", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
+  fhTimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window;Time (ns);Energy (keV)", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  fhLivetime     = new TH1D("hLivetime", "Livetime of different windows;Window;Livetime (ns)", 3, 0, 3.);
+  fhNMuons       = new TH1D("hNMuons", "Number of muons in MIDAS event;Number", 1000, 0., 1000.);
 
-  fHist_PP_ADC          = new TH1D("hPPADC", "Energy of Gammas;Energy (ADC);Counts", nbins, 0., nbins);
-  fHist_PP_Energy       = new TH1D("hPPEnergy", "Energy of Gammas;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fHist_PP_Time         = new TH1D("hPPTime", "Time of Gammas within Energy Window", 1000, -500., 500.);
-  fHist_PP_MoreTime     = new TH1D("hPPMoreTime", "Time of Gammas within Energy Window (Wide)", 1000, -100000., 100000.);
-  fHist_PP_ADCOOT       = new TH1D("hPPADCOOT", "Energy of Gammas outside of Time Window;Energy (ADC);Counts", nbins, 0., nbins);
-  fHist_PP_EnergyOOT    = new TH1D("hPPEnergyOOT", "Energy of Gammas outside of Time Window;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fHist_PP_ADCFarOOT    = new TH1D("hPPADCFarOOT", "Energy of Gammas far from Muons;Energy (ADC);Counts", nbins, 0., nbins);
-  fHist_PP_EnergyFarOOT = new TH1D("hPPEnergyFarOOT", "Energy of Gammas far from Muons;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fHist_PP_TimeOOT      = new TH1D("hPPTimeOOT", "Time of Gammas outside of Time Window", 1000., -2.*fTimeWindow_Small, 2.*fTimeWindow_Small);
-  fHist_PP_TimeFarOOT   = new TH1D("hPPTimeFarOOT", "Time of Gammas far from Muons", 1000., -100.*fTimeWindow_Big, 100.*fTimeWindow_Big);
-  fHist_PP_TimeADC      = new TH2D("hPPTimeADC", "Energy of Gammas within Time Window;Time (ns);Energy (ADC);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
-  fHist_PP_TimeEnergy   = new TH2D("hPPTimeEnergy", "Energy of Gammas within Time Window;Time (ns);Energy (keV);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fHist_PP_Livetime     = new TH1D("hPPLivetime", "Livetime of different windows;Window;Livetime", 3, 0, 3.);
+  fhPP_ADC          = new TH1D("hPPADC", "Energy of Gammas;Energy (ADC) (PP)", nbins, 0., nbins);
+  fhPP_Energy       = new TH1D("hPPEnergy", "Energy of Gammas;Energy (keV) (PP)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  fhPP_Time         = new TH1D("hPPTime", "Time of Gammas within Energy Window (PP);Time (ns)", 1000, -500., 500.);
+  fhPP_MoreTime     = new TH1D("hPPMoreTime", "Time of Gammas within Energy Window (Wide) (PP);Time (ns)", 1000, -100000., 100000.);
+  fhPP_ADCOOT       = new TH1D("hPPADCOOT", "Energy of Gammas outside of Time Window (PP);Energy (ADC)", nbins, 0., nbins);
+  fhPP_EnergyOOT    = new TH1D("hPPEnergyOOT", "Energy of Gammas outside of Time Window (PP);Energy (keV)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  fhPP_ADCFarOOT    = new TH1D("hPPADCFarOOT", "Energy of Gammas far from Muons (PP);Energy (ADC)", nbins, 0., nbins);
+  fhPP_EnergyFarOOT = new TH1D("hPPEnergyFarOOT", "Energy of Gammas far from Muons (PP);Energy (keV)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  fhPP_TimeOOT      = new TH1D("hPPTimeOOT", "Time of Gammas outside of Time Window (PP);Time (ns)", 1000., -2.*fTimeWindow_Small, 2.*fTimeWindow_Small);
+  fhPP_TimeFarOOT   = new TH1D("hPPTimeFarOOT", "Time of Gammas far from Muons (PP);Time (ns)", 1000., -100.*fTimeWindow_Big, 100.*fTimeWindow_Big);
+  fhPP_TimeADC      = new TH2D("hPPTimeADC", "Energy of Gammas within Time Window (PP);Time (ns);Energy (ADC)", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
+  fhPP_TimeEnergy   = new TH2D("hPPTimeEnergy", "Energy of Gammas within Time Window (PP);Time (ns);Energy (keV)", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  fhPP_Livetime     = new TH1D("hPPLivetime", "Livetime of different windows (PP);Window;Livetime (ns)", 3, 0, 3.);
+  fhPP_NMuons          = new TH1D("hPPNMuons", "Number of muons in MIDAS event (PP);Number", 1000, 0., 1000.);
 
-  fHist_MeanTOffset  = new TH1D("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -4.*fTimeWindow_Big, 4.*fTimeWindow_Big);
-  fHist_Livetime->GetXaxis()->SetBinLabel(1, "FarOOT"); fHist_Livetime->GetXaxis()->SetBinLabel(2, "OOT"); fHist_Livetime->GetXaxis()->SetBinLabel(3, "Prompt");
-  fHist_PP_Livetime->GetXaxis()->SetBinLabel(1, "FarOOT"); fHist_PP_Livetime->GetXaxis()->SetBinLabel(2, "OOT"); fHist_PP_Livetime->GetXaxis()->SetBinLabel(3, "Prompt");
+  fhMeanTOffset  = new TH1D("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -4.*fTimeWindow_Big, 4.*fTimeWindow_Big);
+  fhLivetime->GetXaxis()->SetBinLabel(1, "FarOOT"); fhLivetime->GetXaxis()->SetBinLabel(2, "OOT"); fhLivetime->GetXaxis()->SetBinLabel(3, "Prompt");
+  fhPP_Livetime->GetXaxis()->SetBinLabel(1, "FarOOT"); fhPP_Livetime->GetXaxis()->SetBinLabel(2, "OOT"); fhPP_Livetime->GetXaxis()->SetBinLabel(3, "Prompt");
   cwd->cd();
 }
 
@@ -149,7 +153,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   double tOff = 0.;
   if (hTOff.Integral() > 1) {
     tOff = hTOff.GetMean();
-    fHist_MeanTOffset->Fill(tOff);
+    fhMeanTOffset->Fill(tOff);
   }
 
 
@@ -178,94 +182,105 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
       dt_next = *geT - *next;
       prev_found = next_found = true;
     }
-    const bool pp = IsGePileupProtected(geT, prev, next, muScTimes, 10000.);
+    const bool pp = IsGePileupProtected(geT, prev, next, muScTimes);
 
     // Plot energy
     const Double_t adc = *geE;
     const Double_t en = fADC2Energy->Eval(adc);
     if ( (!prev_found || dt_prev > fTimeWindow_Big) && (!next_found || dt_next < -fTimeWindow_Big) ) {
-      fHist_ADCFarOOT->Fill(adc);
-      fHist_EnergyFarOOT->Fill(en);
+      fhADCFarOOT->Fill(adc);
+      fhEnergyFarOOT->Fill(en);
       if (pp) {
-	fHist_PP_ADCFarOOT->Fill(adc);
-	fHist_PP_EnergyFarOOT->Fill(en);
+	fhPP_ADCFarOOT->Fill(adc);
+	fhPP_EnergyFarOOT->Fill(en);
       }
     } else if ( (!prev_found || dt_prev > fTimeWindow_Small) && (!next_found || dt_next < -fTimeWindow_Small) ) {
-      fHist_ADCOOT->Fill(adc);
-      fHist_EnergyOOT->Fill(en);
+      fhADCOOT->Fill(adc);
+      fhEnergyOOT->Fill(en);
       if (pp) {
-	fHist_PP_ADCOOT->Fill(adc);
-	fHist_PP_EnergyOOT->Fill(en);
+	fhPP_ADCOOT->Fill(adc);
+	fhPP_EnergyOOT->Fill(en);
       }
     } else {
       if (prev_found && dt_prev <= fTimeWindow_Small) {
-	fHist_TimeADC->Fill(dt_prev, adc);
-	fHist_TimeEnergy->Fill(dt_prev, en);
+	fhTimeADC->Fill(dt_prev, adc);
+	fhTimeEnergy->Fill(dt_prev, en);
 	if (pp) {
-	  fHist_PP_TimeADC->Fill(dt_prev, adc);
-	  fHist_PP_TimeEnergy->Fill(dt_prev, en);
+	  fhPP_TimeADC->Fill(dt_prev, adc);
+	  fhPP_TimeEnergy->Fill(dt_prev, en);
 	}
       } else if (next_found && dt_next >= -fTimeWindow_Small) {
-	fHist_TimeADC->Fill(dt_next, adc);
-	fHist_TimeEnergy->Fill(dt_next, en);
+	fhTimeADC->Fill(dt_next, adc);
+	fhTimeEnergy->Fill(dt_next, en);
 	if (pp) {
-	  fHist_PP_TimeADC->Fill(dt_next, adc);
-	  fHist_PP_TimeEnergy->Fill(dt_next, en);
+	  fhPP_TimeADC->Fill(dt_next, adc);
+	  fhPP_TimeEnergy->Fill(dt_next, en);
 	}
       } else {
 	std::cout << "WARNING: Unexpected logical branch! Prev: (" << prev_found << ", " << dt_prev << "), Next: (" << next_found << ", " << dt_next << ")" << std::endl;
       }
     }
-    fHist_ADC->Fill(adc);
-    fHist_Energy->Fill(en);
+    fhADC->Fill(adc);
+    fhEnergy->Fill(en);
     if (pp) {
-      fHist_PP_ADC->Fill(adc);
-      fHist_PP_Energy->Fill(adc);
+      fhPP_ADC->Fill(adc);
+      fhPP_Energy->Fill(adc);
     }
     // Plot time
     if (prev_found) {
       if (dt_prev > fTimeWindow_Big) {
-	fHist_TimeFarOOT->Fill(dt_prev);
+	fhTimeFarOOT->Fill(dt_prev);
 	if (pp)
-	  fHist_PP_TimeFarOOT->Fill(dt_prev);
+	  fhPP_TimeFarOOT->Fill(dt_prev);
       } else if (dt_prev > fTimeWindow_Small) {
-	fHist_TimeOOT->Fill(dt_prev);
+	fhTimeOOT->Fill(dt_prev);
 	if (pp)
-	  fHist_PP_TimeFarOOT->Fill(dt_next);
+	  fhPP_TimeFarOOT->Fill(dt_next);
       }
     }
     if (next_found) {
       if (dt_next < -fTimeWindow_Big) {
-	fHist_TimeFarOOT->Fill(dt_next);
+	fhTimeFarOOT->Fill(dt_next);
 	if (pp)
-	  fHist_PP_TimeFarOOT->Fill(dt_next);
+	  fhPP_TimeFarOOT->Fill(dt_next);
       } else if (dt_next < -fTimeWindow_Small) {
-	fHist_TimeOOT->Fill(dt_next);
+	fhTimeOOT->Fill(dt_next);
 	if (pp)
-	  fHist_PP_TimeOOT->Fill(dt_next);
+	  fhPP_TimeOOT->Fill(dt_next);
       }
     }
 
     const Double_t en_bounds[2] = { 344., 350. }; // Aluminium XRay
     if (en >= en_bounds[0] && en <= en_bounds[1]) {
       if (prev_found) {
-    	fHist_Time->Fill(dt_prev);
-    	fHist_MoreTime->Fill(dt_prev);
+    	fhTime->Fill(dt_prev);
+    	fhMoreTime->Fill(dt_prev);
 	if (pp) {
-	  fHist_PP_Time->Fill(dt_prev);
-	  fHist_PP_MoreTime->Fill(dt_prev);
+	  fhPP_Time->Fill(dt_prev);
+	  fhPP_MoreTime->Fill(dt_prev);
 	}
       }
       if (next_found) {
-    	fHist_Time->Fill(dt_next);
-    	fHist_MoreTime->Fill(dt_next);
+    	fhTime->Fill(dt_next);
+    	fhMoreTime->Fill(dt_next);
 	if (pp) {
-	  fHist_PP_Time->Fill(dt_next);
-	  fHist_PP_MoreTime->Fill(dt_next);
+	  fhPP_Time->Fill(dt_next);
+	  fhPP_MoreTime->Fill(dt_next);
 	}
       }
     }
   }
+
+  //*************************************//
+  //************ Count Muons ************//
+  //*************************************//
+  unsigned int pp_nmu = 0;
+  for (std::vector<double>::const_iterator i = muScTimes.begin(); i < muScTimes.end(); ++i)
+    if (IsMuPileupProtected(i, muScTimes)) {
+      ++pp_nmu;
+    }
+  fhNMuons->Fill((Double_t)muScTimes.size());
+  fhPP_NMuons->Fill((Double_t)pp_nmu);
 
   //*************************************//
   //******** Calculate Livetimes ********//
@@ -273,13 +288,16 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   Double_t t_Prompt = 2.*fTimeWindow_Small*muScTimes.size();
   Double_t t_OOT = 2.*fTimeWindow_Big*muScTimes.size() - t_Prompt;
   Double_t t_FarOOT = muScTimes.back() - muScTimes.front() - t_OOT - t_Prompt;
-  fHist_Livetime->Fill("Prompt", t_Prompt);
-  fHist_Livetime->Fill("OOT", t_OOT);
-  fHist_Livetime->Fill("FarOOT", t_FarOOT);
+  Double_t t_PP_Prompt = 2.*fTimeWindow_Small*pp_nmu;
+  Double_t t_PP_OOT = 2.*fTimeWindow_Big*pp_nmu - t_PP_Prompt;
+  // Double_t t_PP_FarOOT = ?????
+  fhLivetime->Fill("Prompt", t_Prompt);
+  fhLivetime->Fill("OOT", t_OOT);
+  fhLivetime->Fill("FarOOT", t_FarOOT);
   // if (pp) {
-  //   fHist_PP_Livetime->Fill("Prompt", t_Prompt);
-  //   fHist_PP_Livetime->Fill("OOT", t_OOT);
-  //   fHist_PP_Livetime->Fill("FarOOT", t_FarOOT);
+  //   fhPP_Livetime->Fill("Prompt", t_Prompt);
+  //   fhPP_Livetime->Fill("OOT", t_OOT);
+  //   fhPP_Livetime->Fill("FarOOT", t_FarOOT);
   // }
 
   return 0;
@@ -341,23 +359,23 @@ void GeSpectrum::ThrowIfInputsInsane(const modules::options* opts) {
 }
 
 bool GeSpectrum::IsGePileupProtected(const std::vector<double>::const_iterator& ge, const std::vector<double>::const_iterator& m1, const std::vector<double>::const_iterator& m2,
-				     const std::vector<double>& v, const double dt) {
-  if (std::abs(*ge-*m1) < dt)
-    if (!IsMuPileupProtected(m1, v, dt))
+				     const std::vector<double>& v) {
+  if (std::abs(*ge-*m1) < fPileupProtectionWindow)
+    if (!IsMuPileupProtected(m1, v))
       return false;
-  if (std::abs(*ge-*m2) < dt)
-    return IsMuPileupProtected(m2, v, dt);
+  if (std::abs(*ge-*m2) < fPileupProtectionWindow)
+    return IsMuPileupProtected(m2, v);
   return true;
 }
 
-bool GeSpectrum::IsMuPileupProtected(const std::vector<double>::const_iterator& i, const std::vector<double>& v, const double dt) {
+bool GeSpectrum::IsMuPileupProtected(const std::vector<double>::const_iterator& i, const std::vector<double>& v) {
   if (i == v.begin()) {
-    if (*i > dt)
+    if (*i > fPileupProtectionWindow)
       return true;
     return false;
   } else if (i == v.end()) {
     return false;
-  } else if (*i - *(i-1) > dt && *(i+1) - *i > dt) {
+  } else if ( (*i - *(i-1) > fPileupProtectionWindow) && (*(i+1) - *i > fPileupProtectionWindow) ) {
     return true;
   }
   return false;

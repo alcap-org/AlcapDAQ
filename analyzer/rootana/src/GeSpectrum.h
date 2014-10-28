@@ -35,43 +35,46 @@ class GeSpectrum : public BaseModule {
 
  private:
   // Histograms
-  TH1* fHist_ADC;
-  TH1* fHist_Energy;
-  TH1* fHist_Time;
-  TH1* fHist_MoreTime;
-  TH1* fHist_ADCOOT;
-  TH1* fHist_EnergyOOT;
-  TH1* fHist_ADCFarOOT;
-  TH1* fHist_EnergyFarOOT;
-  TH1* fHist_TimeOOT;
-  TH1* fHist_TimeFarOOT;
-  TH2* fHist_TimeADC;
-  TH2* fHist_TimeEnergy;
-  TH1* fHist_Livetime;
+  TH1* fhADC;
+  TH1* fhEnergy;
+  TH1* fhTime;
+  TH1* fhMoreTime;
+  TH1* fhADCOOT;
+  TH1* fhEnergyOOT;
+  TH1* fhADCFarOOT;
+  TH1* fhEnergyFarOOT;
+  TH1* fhTimeOOT;
+  TH1* fhTimeFarOOT;
+  TH2* fhTimeADC;
+  TH2* fhTimeEnergy;
+  TH1* fhLivetime;
+  TH1* fhNMuons;
 
-  TH1* fHist_PP_ADC;
-  TH1* fHist_PP_Energy;
-  TH1* fHist_PP_Time;
-  TH1* fHist_PP_MoreTime;
-  TH1* fHist_PP_ADCOOT;
-  TH1* fHist_PP_EnergyOOT;
-  TH1* fHist_PP_ADCFarOOT;
-  TH1* fHist_PP_EnergyFarOOT;
-  TH1* fHist_PP_TimeOOT;
-  TH1* fHist_PP_TimeFarOOT;
-  TH2* fHist_PP_TimeADC;
-  TH2* fHist_PP_TimeEnergy;
-  TH1* fHist_PP_Livetime;
+  TH1* fhPP_ADC;
+  TH1* fhPP_Energy;
+  TH1* fhPP_Time;
+  TH1* fhPP_MoreTime;
+  TH1* fhPP_ADCOOT;
+  TH1* fhPP_EnergyOOT;
+  TH1* fhPP_ADCFarOOT;
+  TH1* fhPP_EnergyFarOOT;
+  TH1* fhPP_TimeOOT;
+  TH1* fhPP_TimeFarOOT;
+  TH2* fhPP_TimeADC;
+  TH2* fhPP_TimeEnergy;
+  TH1* fhPP_Livetime;
+  TH1* fhPP_NMuons;
 
-  TH1* fHist_MeanTOffset;
+  TH1* fhMeanTOffset;
 
   // Algorithms
   const Algorithm::MaxBinAmplitude fMBAmpGe;
   const Algorithm::ConstantFractionTime fCFTimeGe, fCFTimeMuSc;
   TF1* fADC2Energy;
-  // Time cuts
-  const double fTimeWindow_Small; // ns
-  const double fTimeWindow_Big;   // ns
+  // Time cuts (ns)
+  const double fTimeWindow_Small;
+  const double fTimeWindow_Big;
+  const double fPileupProtectionWindow;
 
   // Channels
   static const IDs::channel fGeS;
@@ -127,9 +130,9 @@ class GeSpectrum : public BaseModule {
 
   static void ThrowIfInputsInsane(const modules::options*);
   static void ThrowIfGeInsane(const std::vector<TPulseIsland*>& ge_fasts, const std::vector<TPulseIsland*>& ge_slows);
-  static bool IsGePileupProtected(const std::vector<double>::const_iterator& ge, const std::vector<double>::const_iterator& muon1, const std::vector<double>::const_iterator& muon2,
-				  const std::vector<double>& muon_vector, const double time_window);
-  static bool IsMuPileupProtected(const std::vector<double>::const_iterator& mu, const std::vector<double>& muon_vector, const double time_window);
+  bool IsGePileupProtected(const std::vector<double>::const_iterator& ge, const std::vector<double>::const_iterator& muon1, const std::vector<double>::const_iterator& muon2,
+			   const std::vector<double>& muon_vector);
+  bool IsMuPileupProtected(const std::vector<double>::const_iterator& mu, const std::vector<double>& muon_vector);
 };
 
 #endif //GESPECTRUM_H_
