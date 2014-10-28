@@ -31,10 +31,10 @@ void guess_parameters(const TH1* h, Double_t par[8]) {
 
 void count_muons() {
   const Double_t rt2pi = TMath::Sqrt(2.*TMath::Pi());
-  const char dataset[] = "Al50awithoutNDet2";
+  const char dataset[] = "Al50b";
   const double E_xray = 346.828;
   const double dE = 5.104; // Pb214 gamma minus Al muonic 2p-1s
-  const unsigned int nfiles = 7;
+  const unsigned int nfiles = 16;
   
   Double_t nxrays_all[nfiles], exrays_all[nfiles];
   Double_t nxrays_prompt[nfiles], exrays_prompt[nfiles];
@@ -42,7 +42,6 @@ void count_muons() {
   Double_t chi2All[nfiles], chi2Prompt[nfiles];
 
   char formula[256];
-  /* sprintf(formula, "[0]*exp(-0.5*((x-[1])/[2])**2)+[3]*exp(-0.5*((x-([1]+%g))/[4])**2)+[5]*x+[6]", dE); // 5.104 is Pb214 gamma minus Al 2p-1s */
   sprintf(formula, "gaus(0)+gaus(3)+pol1(6)");
   printf(formula); printf("\n");
   TF1* fit = new TF1("pkfunc", formula);
@@ -119,7 +118,7 @@ void count_muons() {
   res = gr_prompt->Fit(linefit, "S"); gr_prompt->GetFunction("linefit")->SetLineColor(kGreen);
   sprintf(lab, "Prompt (y=%g, #chi^{2}=%g)", res->Value(0), res->Chi2()/res->Ndf());
   leg->AddEntry(gr_prompt, lab);
-  TMultiGraph* mg1 = new TMultiGraph("mg1", "Stops per entering muon (Al50awithoutNDet2)");
+  TMultiGraph* mg1 = new TMultiGraph("mg1", "Stops per entering muon (PP Al50b)");
   mg1->Add(gr_all); mg1->Add(gr_prompt);
   new TCanvas();
   mg1->Draw("AP"); mg1->GetXaxis()->SetTitle("Run Group (Groups of 10)"); mg1->GetYaxis()->SetTitle("Stops per Muon");
@@ -129,12 +128,12 @@ void count_muons() {
   TGraph *gr_chi2Prompt = new TGraph(nfiles, n, chi2Prompt);
   gr_chi2All->SetMarkerStyle(2); gr_chi2All->SetMarkerColor(kRed);
   gr_chi2Prompt->SetMarkerStyle(2); gr_chi2Prompt->SetMarkerColor(kGreen);
-  TMultiGraph* mg2 = new TMultiGraph("mg2", "Reduced Chi2 of XRay Peak Fits (Al50awithoutNDet2)");
+  TMultiGraph* mg2 = new TMultiGraph("mg2", "Reduced Chi2 of XRay Peak Fits (PP Al50b)");
   mg2->Add(gr_chi2All); mg2->Add(gr_chi2Prompt);
   new TCanvas();
   mg2->Draw("AP"); mg2->GetXaxis()->SetTitle("Run Group (Groups of 10)"); mg2->GetYaxis()->SetTitle("Reduced #chi^{2}");
   leg = new TLegend(0.7, 0.7, 0.9, 0.9);
-  leg->AddEntry(gr_chi2all, "No time cut");
+  leg->AddEntry(gr_chi2All, "No time cut");
   leg->AddEntry(gr_chi2Prompt, "Prompt");
   leg->Draw("SAME");
 }
