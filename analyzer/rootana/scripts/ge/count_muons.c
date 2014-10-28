@@ -1,12 +1,3 @@
-/* void guess_parameters(const TH1* h, Double_t par[7]) { */
-/*   const Double_t e_xray = 346.828, e_gamma = 351.932; */
-/*   par[5] = 0.; par[2] = 1.; par[4] = 1.; // Pedestal, sigma aluminum, sigma lead */
-/*   par[6] = h->Integral()/(Double_t)(h->GetXaxis()->GetLast() - h->GetXaxis()->GetFirst()); */
-/*   par[0] = h->GetBinContent(h->FindFixBin(e_xray)) - par[5]; */
-/*   par[3] = h->GetBinContent(h->FindFixBin(e_gamma)) - par[5]; */
-/*   par[1] = e_xray; */
-/* } */
-
 void guess_parameters(const TH1* h, Double_t par[8]) {
   const Double_t e_xray = 346.828, e_gamma = 351.932;
   par[7] = 0.; par[2] = 1.; par[5] = 1.; // Pedestal, sigma aluminum, sigma lead
@@ -20,18 +11,15 @@ void guess_parameters(const TH1* h, Double_t par[8]) {
     par[3] = 1.;
 }
 
-/* void guess_parameters(const TH1* h, Double_t par[5]) { */
-/*   const Double_t e_xray = 346.828; */
-/*   par[4] = 0.; par[2] = 1.; // Pedestal, sigma aluminum, sigma lead */
-/*   par[3] = h->Integral()/(Double_t)(h->GetXaxis()->GetLast() - h->GetXaxis()->GetFirst()); */
-/*   par[0] = h->GetBinContent(h->FindFixBin(e_xray)) - par[3]; */
-/*   par[1] = e_xray; */
-/* } */
+Double_t count_entering_muons(TH1* h) {
+  Double_t n = 0.;
+  for (Int_t i = 1; i <= h->GetNbinsX(); ++i)
+    n += (Double_t)(i-1)*(h->GetBinContent(i));
+  return n;
+}
 
-
-void count_muons() {
+void count_muons(const char dataset[], bool pp) {
   const Double_t rt2pi = TMath::Sqrt(2.*TMath::Pi());
-  const char dataset[] = "Al50b";
   const double E_xray = 346.828;
   const double dE = 5.104; // Pb214 gamma minus Al muonic 2p-1s
   const unsigned int nfiles = 16;
@@ -51,9 +39,16 @@ void count_muons() {
     char fname[256];
     sprintf(fname, "%s_%u.root", dataset, i);
     TFile* f = new TFile(fname, "READ");
-    TH1* hAll = (TH1*)f->Get("all");
-    TH1* hPrompt = (TH1*)f->Get("prompt");
-    TH1* hEnter = (TH1*)f->Get("enter");
+    TH1 *hAll, *hPrompt, *hEnter;
+    if (pp) {
+      hAll = (TH1*)f->Get("pp_all");
+      hPrompt = (TH1*)f->Get("pp_prompt");
+      hEnter = (TH1*)f->Get("pp_enter");
+    } else {
+      hAll = (TH1*)f->Get("all");
+      hPrompt = (TH1*)f->Get("prompt");
+      hEnter = (TH1*)f->Get("enter");
+    }    
     hAll->GetXaxis()->SetRangeUser(343., 354.);
     hPrompt->GetXaxis()->SetRangeUser(343., 354.);
     Double_t parAll[8], parPrompt[8];
@@ -78,7 +73,7 @@ void count_muons() {
 
     nxrays_all[i] = resAll->Value(0)*resAll->Value(2)*rt2pi/hAll->GetXaxis()->GetBinWidth(1);
     nxrays_prompt[i] = resPrompt->Value(0)*resPrompt->Value(2)*rt2pi/hPrompt->GetXaxis()->GetBinWidth(1);
-    nenter[i] = hEnter->Integral(248, -1);
+    nenter[i] = count_entering_muons(hEnter);
 
     exrays_all[i] = nxrays_all[i]*TMath::Sqrt(TMath::Power(resAll->ParError(0)/resAll->Value(0), 2.) + TMath::Power(resAll->ParError(2)/resAll->Value(2), 2.));
     exrays_prompt[i] = nxrays_prompt[i]*TMath::Sqrt(TMath::Power(resPrompt->ParError(0)/resPrompt->Value(0), 2.) + TMath::Power(resPrompt->ParError(2)/resPrompt->Value(2), 2.));
@@ -118,7 +113,12 @@ void count_muons() {
   res = gr_prompt->Fit(linefit, "S"); gr_prompt->GetFunction("linefit")->SetLineColor(kGreen);
   sprintf(lab, "Prompt (y=%g, #chi^{2}=%g)", res->Value(0), res->Chi2()/res->Ndf());
   leg->AddEntry(gr_prompt, lab);
-  TMultiGraph* mg1 = new TMultiGraph("mg1", "Stops per entering muon (PP Al50b)");
+  char title[256];
+  if (pp)
+    sprintf(title, "Stops per entering muon (PP %s)", dataset);
+  else
+    sprintf(title, "Stopes per entering muon (%s)", dataset);
+  TMultiGraph* mg1 = new TMultiGraph("mg1", title);
   mg1->Add(gr_all); mg1->Add(gr_prompt);
   new TCanvas();
   mg1->Draw("AP"); mg1->GetXaxis()->SetTitle("Run Group (Groups of 10)"); mg1->GetYaxis()->SetTitle("Stops per Muon");
@@ -128,7 +128,11 @@ void count_muons() {
   TGraph *gr_chi2Prompt = new TGraph(nfiles, n, chi2Prompt);
   gr_chi2All->SetMarkerStyle(2); gr_chi2All->SetMarkerColor(kRed);
   gr_chi2Prompt->SetMarkerStyle(2); gr_chi2Prompt->SetMarkerColor(kGreen);
-  TMultiGraph* mg2 = new TMultiGraph("mg2", "Reduced Chi2 of XRay Peak Fits (PP Al50b)");
+  if (pp)
+    sprintf(title, "Reduced Chi2 of XRay Peak Fits (PP %s)", dataset);
+  else
+    sprintf(title, "Reduced Chi2 of XRay Peak Fits (%s)", dataset);
+  TMultiGraph* mg2 = new TMultiGraph("mg2", title);
   mg2->Add(gr_chi2All); mg2->Add(gr_chi2Prompt);
   new TCanvas();
   mg2->Draw("AP"); mg2->GetXaxis()->SetTitle("Run Group (Groups of 10)"); mg2->GetYaxis()->SetTitle("Reduced #chi^{2}");
