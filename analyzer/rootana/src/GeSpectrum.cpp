@@ -27,6 +27,11 @@ const IDs::channel GeSpectrum::fGeS(IDs::kGe, IDs::kSlow);
 const IDs::channel GeSpectrum::fGeF(IDs::kGe, IDs::kFast);
 const IDs::channel GeSpectrum::fMuSc(IDs::kMuSc, IDs::kNotApplicable);
 
+static bool IsMuScBigEnough(double x) {
+  const double h = 350.;
+  return x >= h;
+}
+
 GeSpectrum::GeSpectrum(modules::options* opts) :
   BaseModule("GeSpectrum",opts),
   fhADC(NULL), fhEnergy(NULL), fhTime(NULL), fhMoreTime(NULL),
@@ -38,17 +43,18 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fhPP_TimeOOT(NULL), fhPP_TimeFarOOT(NULL), fhPP_TimeADC(NULL), fhPP_TimeEnergy(NULL),
   fhPP_Livetime(NULL), fhPP_NMuons(NULL),
   fhMeanTOffset(NULL),
+  fMBAmpMuSc(SetupNavigator::Instance()->GetPedestal(fMuSc), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fMuSc.str()))),
   fMBAmpGe(SetupNavigator::Instance()->GetPedestal(fGeS), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeS.str()))),
-  fCFTimeGe(SetupNavigator::Instance()->GetPedestal(fGeF),
-	    TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeF.str())),
-	    TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fGeF.str())),
-	    SetupNavigator::Instance()->GetCoarseTimeOffset(IDs::source(fGeF, IDs::generator(opts->GetString("gef_gen"), opts->GetString("gef_cfg")))),
-	    opts->GetDouble("gef_cf")),
   fCFTimeMuSc(SetupNavigator::Instance()->GetPedestal(fMuSc),
 	      TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fMuSc.str())),
 	      TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fMuSc.str())),
 	      0.,
 	      opts->GetDouble("musc_cf")),
+  fCFTimeGe(SetupNavigator::Instance()->GetPedestal(fGeF),
+	    TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeF.str())),
+	    TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fGeF.str())),
+	    SetupNavigator::Instance()->GetCoarseTimeOffset(IDs::source(fGeF, IDs::generator(opts->GetString("gef_gen"), opts->GetString("gef_cfg")))),
+	    opts->GetDouble("gef_cf")),
   fADC2Energy(new TF1("adc2energy","[0]*x+[1]")),
   fTimeWindow_Small(100.), fTimeWindow_Big(5000.), fPileupProtectionWindow(10000.) {
   ThrowIfInputsInsane(opts);
@@ -120,9 +126,10 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   else if (TPIMap.at(bank_musc).size() == 0 || TPIMap.at(bank_ges).size() == 0 || TPIMap.at(bank_gef).size() == 0)
     return 0;
 
-  const std::vector<double> muScTimes  = CalculateTimes(fMuSc,   TPIMap.at(bank_musc));
-  const std::vector<double> geTimes    = CalculateTimes(fGeF,    TPIMap.at(bank_gef));
-  const std::vector<double> geEnergies = CalculateEnergies(fGeS, TPIMap.at(bank_ges));
+  const std::vector<double> muScTimes    = CalculateTimes(fMuSc,    TPIMap.at(bank_musc));
+  const std::vector<double> muScEnergies = CalculateEnergies(fMuSc, TPIMap.at(bank_musc));
+  const std::vector<double> geTimes      = CalculateTimes(fGeF,     TPIMap.at(bank_gef));
+  const std::vector<double> geEnergies   = CalculateEnergies(fGeS,  TPIMap.at(bank_ges));
 
   //************************************//
   //***** First get average offset *****//
@@ -275,11 +282,10 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   //************ Count Muons ************//
   //*************************************//
   unsigned int pp_nmu = 0;
-  for (std::vector<double>::const_iterator i = muScTimes.begin(); i < muScTimes.end(); ++i)
-    if (IsMuPileupProtected(i, muScTimes)) {
+  for (unsigned int i = 0; i < muScTimes.size(); ++i)
+    if (IsMuScBigEnough(muScEnergies[i]) && IsMuPileupProtected(muScTimes.begin() + i, muScTimes))
       ++pp_nmu;
-    }
-  fhNMuons->Fill((Double_t)muScTimes.size());
+  fhNMuons->Fill((Double_t)count_if(muScEnergies.begin(), muScEnergies.end(), IsMuScBigEnough));
   fhPP_NMuons->Fill((Double_t)pp_nmu);
 
   //*************************************//
@@ -330,6 +336,9 @@ std::vector<double> GeSpectrum::CalculateEnergies(const IDs::channel& ch, const 
   if (ch == fGeS)
     for (unsigned int i = 0; i < tpis.size(); ++i)
       e.push_back(fMBAmpGe(tpis[i]));
+  else if (ch == fMuSc)
+    for (unsigned int i = 0; i < tpis.size(); ++i)
+      e.push_back(fMBAmpMuSc(tpis[i]));
   else
     throw std::logic_error("GeSpectrum: Invalid channel to calculate energies for.");
   return e;
