@@ -88,7 +88,7 @@ INT MMuPCBeamDimensions_init()
   hmuPC_XYWires->GetYaxis()->SetTitle("Y Position [mm]");
 
 
-  hmuPC_XYWires_Random = new TH2F("hmuPC_XYWires_Random", "Plot of X-Y muPC Wire Hits drawn randomly from the other histogram", kMuPC1NumXWires,-total_x_length/2 - 0.5,total_x_length/2 + 0.5, kMuPC1NumYWires,-total_y_length/2 - 0.5, total_y_length/2 + 0.5);
+  hmuPC_XYWires_Random = new TH2F("hmuPC_XYWires_Random", "Plot of X-Y muPC Wire Hits drawn randomly from the other histogram", kMuPC1NumXWires*10,-total_x_length/2 - 0.5,total_x_length/2 + 0.5, kMuPC1NumYWires*10,-total_y_length/2 - 0.5, total_y_length/2 + 0.5);
   hmuPC_XYWires_Random->GetXaxis()->SetTitle("X Position [mm]");
   hmuPC_XYWires_Random->GetYaxis()->SetTitle("Y Position [mm]");
 
