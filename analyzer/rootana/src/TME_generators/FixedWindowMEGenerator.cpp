@@ -10,8 +10,8 @@ using std::cout;
 using std::endl;
 
 FixedWindowMEGenerator::FixedWindowMEGenerator(TMEGeneratorOptions* opts):
-	TVMuonEventGenerator("FixedWindow",opts){
-        fEventWindow=opts->GetDouble("event_window",10);
+	TVMuonEventGenerator("FixedWindow",opts),fInit(true){
+        fEventWindow=opts->GetDouble("event_window",1e4);
 }
 
 int FixedWindowMEGenerator::Init(const SourceDetPulseMap& detectorPulsesIn){
@@ -43,11 +43,10 @@ void FixedWindowMEGenerator::Reset(){
 
 int FixedWindowMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
         const SourceDetPulseMap& detectorPulsesIn){
-    static bool init=true;
-    if(init) {
+    if(fInit) {
         int error=Init(detectorPulsesIn);
         if(error) return error;
-        init=false;
+        fInit=false;
     }else{
         Reset();
     }
@@ -74,6 +73,7 @@ int FixedWindowMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
     }
     return 0;
 }
+
 void FixedWindowMEGenerator::AddPulsesInWindow(
         TMuonEvent* tme, double window, Detector_t& detector){
     // Get the central time for this event;
@@ -91,27 +91,29 @@ void FixedWindowMEGenerator::AddPulsesInWindow(
     // skip empty lists
     if(start==end) return;
 
-    // Move the iteator for the start of the window
-    int look_ahead=1;
-    while((start+look_ahead!=end) && (start!=end) ){
-        double time = (*(start+look_ahead))->GetTime();
-        if(time==definitions::DefaultValue){
-            // If time is DefaultValue then we're looking at an unpaired
-            // detector which we should ignore
-            ++look_ahead;
-            continue;
-        }
-        look_ahead=1;
-        if(time>early_edge) break;
-        start+=look_ahead;
+    // Move the iterator for the start of the window
+    DetectorPulseList::const_iterator i_tmp=start;
+    while( (i_tmp !=end)){
+        // skip over bad TDPs
+        while( (i_tmp!=end) && !(*i_tmp)->IsGood() ) ++i_tmp;
+        // if there are no TDPs left we can finish already
+        if(i_tmp==end) return;
+        double time=(*i_tmp)->GetTime(TDetectorPulse::kFast);
+        if(time<early_edge) ++i_tmp;
+        else break;
     }
+    start=i_tmp;
     // Move the iteator for the end of the window
-    stop=start;
-    while( stop!=end ){  
-        double time = (*stop)->GetTime();
-        if(time>late_edge) break;
-        ++stop;
+    while( (i_tmp !=end)){
+        // skip over bad TDPs
+        while( (i_tmp!=end) && !(*i_tmp)->IsGood() ) ++i_tmp;
+        // if there are no TDPs left we can finish already
+        if(i_tmp==end) break;
+        double time=(*i_tmp)->GetTime(TDetectorPulse::kFast);
+        if(time<late_edge) ++i_tmp;
+        else break;
     }
+    stop=i_tmp;
 
     // Add all pulses in the current window to the tme
     tme->AddPulses(*detector.source,start,stop);

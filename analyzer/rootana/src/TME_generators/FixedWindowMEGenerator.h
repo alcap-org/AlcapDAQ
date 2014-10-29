@@ -42,6 +42,7 @@ class FixedWindowMEGenerator:public TVMuonEventGenerator {
                 double window, Detector_t& detector);
 
     private:
+	bool fInit;
         double fEventWindow;
         Detector_t fMuSc;
         SourceList fDetectors;
