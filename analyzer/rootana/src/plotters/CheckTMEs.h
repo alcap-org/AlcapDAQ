@@ -55,11 +55,14 @@ class CheckTMEs : public BaseModule {
         /// \return Non-zero to indicate a problem.
         virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
 
+        long int fNullCount, fTdpCount;
+
         typedef std::vector<IDs::channel> DetectorList;
         DetectorList fDetectors;
 
         TH1F *fTotalPulses;
         TH2F *fPulsesPerDetector;
+        TH2F *fTDiffPerDetector;
         TH1F *fFlags;
 };
 
