@@ -49,10 +49,13 @@ class TDetectorPulse : public TObject {
         void SetPileUpChecked(const bool& val=true){ fCheckedForPileUp=val;};
 
         bool IsPairedPulse()const {return fParentPulse[kFast]&&fParentPulse[kSlow];}
+        bool CouldBePaired()const {return fCouldBePaired;}
+        bool IsGood()const {return ( !CouldBePaired() ) || IsPairedPulse();}
 
     private:
         bool fCheckedForPileUp;
         bool fPileUpSafe;
+        bool fCouldBePaired;
 
         const TAnalysedPulse* fParentPulse[kNumParents];
         int fParentID[kNumParents];
