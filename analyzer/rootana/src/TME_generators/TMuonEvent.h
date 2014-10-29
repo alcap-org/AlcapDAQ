@@ -47,6 +47,12 @@ class TMuonEvent{
         const IDs::source& GetSource(int n)const;
         /// @brief Get the number of sources with pulses in this TME
         int GetNumSources()const{return fPulseLists.size();};
+        /// @brief Get the index of the next source to match channel, ch, starting at index start
+	/// @details The returned index can be used with GetSource and then
+	/// passed back as the start parameter to loop over all source IDs
+	/// matching a given channel. If no sources match the channel ID then
+	/// the returned int is less than 0
+        int GetSourceIndex(const IDs::channel& ch, int start=0)const;
 
         /// @brief Retrieve a pulse from the specified source and position in the pulse
         /// list
@@ -90,7 +96,7 @@ class TMuonEvent{
             return fExhaustedChannels.find(so)!=fExhaustedChannels.end();};
 
         /// Get the time of this TME defined as the arrival time of the central muon
-        double GetTime()const {return fCentralMuon->GetTime();}
+        double GetTime()const {return fCentralMuon->GetTime(TDetectorPulse::kFast);}
 
     private:
             SourceDetPulseMap fPulseLists;
