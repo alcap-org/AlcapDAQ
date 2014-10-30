@@ -27,6 +27,11 @@ void merge_energy_histograms(unsigned int group_size, const char fdir[], const c
 	AddEnergyHistograms(hTotalOOT, hOOT);
 	hTotalEnter->Add(hEnter);
 	hTotalLT->Add(hLT);
+	AddEnergyHistograms(hPPTotalAll, hPPAll);
+	AddEnergyHistograms(hPPTotalPrompt, hPPPrompt);
+	AddEnergyHistograms(hPPTotalOOT, hPPOOT);
+	hPPTotalEnter->Add(hPPEnter);
+	hPPTotalLT->Add(hPPLT);
 	hAll->Write(); hPrompt->Write(); hOOT->Write(); hEnter->Write(); hLT->Write();
 	hPPAll->Write(); hPPPrompt->Write(); hPPOOT->Write(); hPPEnter->Write(); hPPLT->Write();
 	ofile->Close();
@@ -51,11 +56,11 @@ void merge_energy_histograms(unsigned int group_size, const char fdir[], const c
 	  hTotalOOT = (TH1*)hOOT->Clone("total_oot"); hTotalOOT->SetDirectory(0); hTotalOOT->Reset();
 	  hTotalEnter = (TH1*)hEnter->Clone("total_enter"); hTotalEnter->SetDirectory(0); hTotalEnter->Reset();
 	  hTotalLT = (TH1*)hLT->Clone("total_livetime"); hTotalLT->SetDirectory(0); hTotalLT->Reset();
-	  hPPTotalAll = (TH1*)hAll->Clone("pp_total_all"); hTotalAll->SetDirectory(0); hTotalAll->Reset();
-	  hPPTotalPrompt = (TH1*)hPrompt->Clone("pp_total_prompt"); hTotalPrompt->SetDirectory(0); hTotalPrompt->Reset();
-	  hPPTotalOOT = (TH1*)hOOT->Clone("pp_total_oot"); hTotalOOT->SetDirectory(0); hTotalOOT->Reset();
-	  hPPTotalEnter = (TH1*)hEnter->Clone("pp_total_enter"); hTotalEnter->SetDirectory(0); hTotalEnter->Reset();
-	  hPPTotalLT = (TH1*)hLT->Clone("pp_total_livetime"); hTotalLT->SetDirectory(0); hTotalLT->Reset();
+	  hPPTotalAll = (TH1*)hAll->Clone("pp_total_all"); hPPTotalAll->SetDirectory(0); hPPTotalAll->Reset();
+	  hPPTotalPrompt = (TH1*)hPrompt->Clone("pp_total_prompt"); hPPTotalPrompt->SetDirectory(0); hPPTotalPrompt->Reset();
+	  hPPTotalOOT = (TH1*)hOOT->Clone("pp_total_oot"); hPPTotalOOT->SetDirectory(0); hPPTotalOOT->Reset();
+	  hPPTotalEnter = (TH1*)hEnter->Clone("pp_total_enter"); hPPTotalEnter->SetDirectory(0); hPPTotalEnter->Reset();
+	  hPPTotalLT = (TH1*)hLT->Clone("pp_total_livetime"); hPPTotalLT->SetDirectory(0); hPPTotalLT->Reset();
 	}
       } else {
 	AddEnergyHistograms(hAll, (TH1*)ifile->Get("GeSpectrum/hEnergy"));
@@ -81,6 +86,8 @@ void merge_energy_histograms(unsigned int group_size, const char fdir[], const c
     sprintf(ofname, "%s.root", datasets[i]);
     ofile = new TFile(ofname, "RECREATE");
     ofile->cd();
-    hTotalAll->Write(); hTotalPrompt->Write(); hTotalOOT->Write(); hTotalEnter->Write(); hTotalLT->Write(); ofile->Close();
+    hTotalAll->Write(); hTotalPrompt->Write(); hTotalOOT->Write(); hTotalEnter->Write(); hTotalLT->Write();
+    hPPTotalAll->Write(); hPPTotalPrompt->Write(); hPPTotalOOT->Write(); hPPTotalEnter->Write(); hPPTotalLT->Write();
+    ofile->Close();
   }
 }

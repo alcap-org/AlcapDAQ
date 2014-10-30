@@ -36,3 +36,24 @@ void AddEnergyHistograms(TH1* h1, const TH1* h2) {
     }
   }
 }
+
+/* FINISH THIS LATER */
+unsigned int RearrangeMaskedArrays(const unsigned int n0, bool m[], Double_t x[], Double_t y[], Double_t ex[] = NULL, Double_t ey[] = NULL {
+    unsigned int n = n0 - 1;
+    for (unsigned int i = 0; i < n; ++i) {
+      if (!m[i]) {
+	while (!m[n] && n-1 > i) --n;
+	const Double_t tmp_x = x[n]; x[n] = x[i]; x[i] = tmp_x;
+	const Double_t tmp_y = y[n]; y[n] = y[i]; y[i] = tmp_y;
+	const bool     tmp_m = m[n]; m[n] = m[i]; m[i] = tmp_m;
+	if (ex)
+	  const Double_t tmp_ex = ex[n]; ex[n] = ex[i]; ex[i] = tmp_ex;
+	if (ey)
+	  const Double_t tmp_ey = ey[n]; ey[n] = ey[i]; ey[i] = tmp_ey;
+      }
+    }
+    n = 0;
+    for (unsigned int i = 0; i < n0; ++i) if (m[i]) ++n;
+    return ++n;
+	
+}
