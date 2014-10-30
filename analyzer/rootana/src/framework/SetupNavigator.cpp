@@ -17,14 +17,6 @@
 #include <TSQLiteResult.h>
 #include <TSQLiteRow.h>
 
-#include "AlcapExcept.h"
-
-MAKE_EXCEPTION(SetupNavigator, Base)
-MAKE_EXCEPTION(NoCalibDB, SetupNavigator)
-MAKE_EXCEPTION(MissingTable, SetupNavigator)
-MAKE_EXCEPTION(UncalibratedRun, SetupNavigator)
-MAKE_EXCEPTION(InvalidDetector, SetupNavigator)
-
 SetupNavigator* SetupNavigator::fThis=NULL;
 
 static std::string StripTimeShiftConfigFromString(std::string con) {

@@ -3,6 +3,7 @@
 
 #include "CommandLine.h"
 #include "IdSource.h"
+#include "AlcapExcept.h"
 
 #include <TSQLiteServer.h>
 
@@ -10,6 +11,12 @@
 #include <vector>
 #include <utility>
 #include <map>
+
+MAKE_EXCEPTION(SetupNavigator, Base)
+MAKE_EXCEPTION(NoCalibDB, SetupNavigator)
+MAKE_EXCEPTION(MissingTable, SetupNavigator)
+MAKE_EXCEPTION(UncalibratedRun, SetupNavigator)
+MAKE_EXCEPTION(InvalidDetector, SetupNavigator)
 
 class SetupNavigator{
   SetupNavigator();
