@@ -56,7 +56,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
 	    SetupNavigator::Instance()->GetCoarseTimeOffset(IDs::source(fGeF, IDs::generator(opts->GetString("gef_gen"), opts->GetString("gef_cfg")))),
 	    opts->GetDouble("gef_cf")),
   fADC2Energy(new TF1("adc2energy","[0]*x+[1]")),
-  fTimeWindow_Small(100.), fTimeWindow_Big(5000.), fPileupProtectionWindow(10000.) {
+  fTimeWindow_Small(opts->GetDouble("tw_small")), fTimeWindow_Big(opts->GetDouble("tw_big")), fPileupProtectionWindow(10000.) {
   ThrowIfInputsInsane(opts);
 
   const static int nbins = std::pow(2.,14);
@@ -67,7 +67,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
 
   fhADC          = new TH1D("hADC", "Energy of Gammas;Energy (ADC)", nbins, 0., nbins);
   fhEnergy       = new TH1D("hEnergy", "Energy of Gammas;Energy (keV)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fhTime         = new TH1D("hTime", "Time of Gammas within Energy Window;Time (ns)", 1000, -500., 500.);
+  fhTime         = new TH1D("hTime", "Time of Gammas within Energy Window;Time (ns)", 2000, -1000., 1000.);
   fhMoreTime     = new TH1D("hMoreTime", "Time of Gammas within Energy Window (Wide);Time (ns)", 1000, -100000., 100000.);
   fhADCOOT       = new TH1D("hADCOOT", "Energy of Gammas outside of Time Window;Energy (ADC)", nbins, 0., nbins);
   fhEnergyOOT    = new TH1D("hEnergyOOT", "Energy of Gammas outside of Time Window;Energy (keV)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
@@ -82,7 +82,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
 
   fhPP_ADC          = new TH1D("hPPADC", "Energy of Gammas;Energy (ADC) (PP)", nbins, 0., nbins);
   fhPP_Energy       = new TH1D("hPPEnergy", "Energy of Gammas;Energy (keV) (PP)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fhPP_Time         = new TH1D("hPPTime", "Time of Gammas within Energy Window (PP);Time (ns)", 1000, -500., 500.);
+  fhPP_Time         = new TH1D("hPPTime", "Time of Gammas within Energy Window (PP);Time (ns)", 2000, -1000., 1000.);
   fhPP_MoreTime     = new TH1D("hPPMoreTime", "Time of Gammas within Energy Window (Wide) (PP);Time (ns)", 1000, -100000., 100000.);
   fhPP_ADCOOT       = new TH1D("hPPADCOOT", "Energy of Gammas outside of Time Window (PP);Energy (ADC)", nbins, 0., nbins);
   fhPP_EnergyOOT    = new TH1D("hPPEnergyOOT", "Energy of Gammas outside of Time Window (PP);Energy (keV)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
@@ -231,7 +231,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
     fhEnergy->Fill(en);
     if (pp) {
       fhPP_ADC->Fill(adc);
-      fhPP_Energy->Fill(adc);
+      fhPP_Energy->Fill(en);
     }
     // Plot time
     if (prev_found) {
@@ -390,4 +390,4 @@ bool GeSpectrum::IsMuPileupProtected(const std::vector<double>::const_iterator& 
   return false;
 }
 
-ALCAP_REGISTER_MODULE(GeSpectrum, musc_cf, gef_gen, gef_cfg, gef_cf);
+ALCAP_REGISTER_MODULE(GeSpectrum, musc_cf, gef_gen, gef_cfg, gef_cf, tw_small, tw_big);
