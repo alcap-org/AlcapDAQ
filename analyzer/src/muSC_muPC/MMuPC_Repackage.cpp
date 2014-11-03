@@ -100,6 +100,9 @@ INT MMuPC_Repackage(EVENT_HEADER *pheader, void *pevent)
 
   myVectorCluster& cluster_vector =
     gData->fMuPCClusterVector;
+  for (unsigned int i = 0; i < cluster_vector.size(); ++i)
+    delete cluster_vector[i];
+  cluster_vector.clear();
 
   double timestamp = 0.;
   double wire_number_x = 0.;

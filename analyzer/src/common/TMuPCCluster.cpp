@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <algorithm>
 
+ClassImp(TMuPCCluster)
+
 TMuPCCluster::TMuPCCluster() : fTimeStamp(0), fWireNumberX(0), fWireNumberY(0) {
 }
 

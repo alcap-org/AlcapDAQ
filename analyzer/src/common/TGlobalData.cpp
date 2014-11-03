@@ -22,6 +22,10 @@ ClassImp(TGlobalData)
     pulse_vector.clear();
   }
 
+  for (unsigned int i = 0; i < fMuPCClusterVector.size(); ++i)
+    delete fMuPCClusterVector[i];
+  fMuPCClusterVector.clear();
+
 }
 //----------------------------------------------------------------------
 #ifdef ROOT_VERSION
