@@ -42,7 +42,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fhPP_ADCOOT(NULL), fhPP_EnergyOOT(NULL), fhPP_ADCFarOOT(NULL), fhPP_EnergyFarOOT(NULL),
   fhPP_TimeOOT(NULL), fhPP_TimeFarOOT(NULL), fhPP_TimeADC(NULL), fhPP_TimeEnergy(NULL),
   fhPP_Livetime(NULL), fhPP_NMuons(NULL),
-  fhMeanTOffset(NULL),
+  fhMeanTOffset(NULL), fhGePhysRes(NULL), fhNXRayCoinc(NULL),
   fMBAmpMuSc(SetupNavigator::Instance()->GetPedestal(fMuSc), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fMuSc.str()))),
   fMBAmpGe(SetupNavigator::Instance()->GetPedestal(fGeS), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeS.str()))),
   fCFTimeMuSc(SetupNavigator::Instance()->GetPedestal(fMuSc),
@@ -93,9 +93,12 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fhPP_TimeADC      = new TH2D("hPPTimeADC", "Energy of Gammas within Time Window (PP);Time (ns);Energy (ADC)", 500, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
   fhPP_TimeEnergy   = new TH2D("hPPTimeEnergy", "Energy of Gammas within Time Window (PP);Time (ns);Energy (keV)", 500, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
   fhPP_Livetime     = new TH1D("hPPLivetime", "Livetime of different windows (PP);Window;Livetime (ns)", 3, 0, 3.);
-  fhPP_NMuons          = new TH1D("hPPNMuons", "Number of muons in MIDAS event (PP);Number", 1000, 0., 1000.);
+  fhPP_NMuons       = new TH1D("hPPNMuons", "Number of muons in MIDAS event (PP);Number", 1000, 0., 1000.);
 
-  fhMeanTOffset  = new TH1D("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -4.*fTimeWindow_Big, 4.*fTimeWindow_Big);
+  fhMeanTOffset = new TH1D("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -4.*fTimeWindow_Big, 4.*fTimeWindow_Big);
+  fhGePhysRes   = new TH1D("hGePhysRes", "Physical Germanium Timing", 1000, -100., 100.);
+  fhNXRayCoinc  = new TH1D("hNXRayCoinc", "Number XRay MuSc Coincidences", 100, 0., 100.);
+
   fhLivetime->GetXaxis()->SetBinLabel(1, "FarOOT"); fhLivetime->GetXaxis()->SetBinLabel(2, "OOT"); fhLivetime->GetXaxis()->SetBinLabel(3, "Prompt");
   fhPP_Livetime->GetXaxis()->SetBinLabel(1, "FarOOT"); fhPP_Livetime->GetXaxis()->SetBinLabel(2, "OOT"); fhPP_Livetime->GetXaxis()->SetBinLabel(3, "Prompt");
   cwd->cd();
@@ -135,9 +138,10 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   //***** First get average offset *****//
   //************************************//
   TH1I hTOff("hTOff", "Time Offset", 4000, -20000., 20000.);
-  for (std::vector<double>::const_iterator geT = geTimes.begin(), prev = muScTimes.begin(), next;
+  std::vector<double> muScResTimes, geResTimes;
+  for (std::vector<double>::const_iterator geT = geTimes.begin(), geE = geEnergies.begin(), prev = muScTimes.begin(), next;
        geT != geTimes.end();
-       ++geT) {
+       ++geT, ++geE) {
     static const double unfound = 1e9;
     double dt[2] = {unfound, unfound}, &dt_prev = dt[0], &dt_next = dt[1];
     next = std::upper_bound(prev, muScTimes.end(), *geT);
@@ -156,6 +160,15 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
       if (std::abs(dt[it]) < 20000.)
 	hTOff.Fill(dt[it]);
 
+    Double_t en = fADC2Energy->Eval(*geE);
+    if ( (en > 344. && en < 350.) || (en > 935. && en < 941.) || (en > 969. &&  en < 975.) ) {
+      if (dt_next < 400. && dt_next < dt_prev)
+	muScResTimes.push_back(*next);
+      else
+	muScResTimes.push_back(*prev);
+      geResTimes.push_back(*geT);
+    }
+
   }
   double tOff = 0.;
   if (hTOff.Integral() > 1) {
@@ -163,6 +176,13 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
     fhMeanTOffset->Fill(tOff);
   }
 
+  //******************************************************************************//
+  //***** Try to determine germanium physical timing resolution restrictions *****//
+  //******************************************************************************//
+  if (muScResTimes.size() > 1)
+    for (unsigned int i = 1; i < muScResTimes.size(); ++i)
+	fhGePhysRes->Fill( (geResTimes[i] - geResTimes[i-1]) - (muScResTimes[i] - muScResTimes[i-1]) );
+  fhNXRayCoinc->Fill(muScResTimes.size());
 
   //**************************//
   //***** Now make plots *****//
