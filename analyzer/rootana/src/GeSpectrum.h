@@ -66,10 +66,12 @@ class GeSpectrum : public BaseModule {
   TH1* fhPP_NMuons;
 
   TH1* fhMeanTOffset;
-  TH1* fhGePhysRes;
+  TH2* fhGePhysRes;
+  TH1* fhGePhysResECut;
   TH1* fhNXRayCoinc;
 
   // Algorithms
+  const bool fUseSlowTiming;
   const Algorithm::MaxBinAmplitude fMBAmpMuSc;
   const Algorithm::MaxBinAmplitude fMBAmpGe;
   const Algorithm::ConstantFractionTime fCFTimeMuSc;
