@@ -55,6 +55,26 @@ int TMuonEvent::GetSourceIndex(const IDs::channel& ch, int start)const{
     return -1;
 }
 
+int TMuonEvent::GetFirstSourceIndex(const IDs::channel& ch)const{
+    for( SourceDetPulseMap::const_iterator i_source=fPulseLists.begin();
+          i_source!=fPulseLists.end(); ++i_source){
+        if(i_source->first.matches(ch)) 
+          return std::distance( fPulseLists.begin(),i_source);
+    }
+    return -1;
+}
+
+int TMuonEvent::GetLastSourceIndex(const IDs::channel& ch)const{
+    for( SourceDetPulseMap::const_reverse_iterator i_source=fPulseLists.rbegin();
+          i_source!=fPulseLists.rend(); ++i_source){
+        if(i_source->first.matches(ch)) 
+          return std::distance( i_source,fPulseLists.rend());
+    }
+    return -1;
+}
+
+
+
 int TMuonEvent::TotalNumPulses()const{
     int size=0;
     for(SourceDetPulseMap::const_iterator i_source=fPulseLists.begin();
