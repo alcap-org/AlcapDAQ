@@ -90,10 +90,17 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         fast_id=i_source->first.Channel();
         fast_id.SlowFast(IDs::kFast);
         slow_id=fast_id.GetCorrespondingFastSlow();
-        n_bits = setup->GetNBits(SetupNavigator::Instance()->GetBank(fast_id));
-        fast_amp_max = std::pow(2, n_bits);
-        n_bits = setup->GetNBits(SetupNavigator::Instance()->GetBank(slow_id));
-        slow_amp_max = std::pow(2, n_bits);
+        try{
+           n_bits = setup->GetNBits(SetupNavigator::Instance()->GetBank(fast_id));
+           fast_amp_max = std::pow(2, n_bits);
+           n_bits = setup->GetNBits(SetupNavigator::Instance()->GetBank(slow_id));
+           slow_amp_max = std::pow(2, n_bits);
+        }catch(Except::InvalidDetector& e){
+           cout<<"PlotTDPs::BeforeFirstEntry: Skipping channel '"<<i_source->first.Channel()
+               <<"' due to an error querying the setup navigator.  This is probably casued by only 1 of "
+                 "the fast/slow channels being connected for this run."<<endl;
+           continue;
+        }
 
         // Make a histogram of the relative amplitudes
         tmp.amplitudes=new TH2F((name+"_amp").c_str(),("Amplitudes of TDPs "+title).c_str(),
