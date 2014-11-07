@@ -59,16 +59,16 @@ class PlotTME_muStops : public BaseModule {
         void FillHistograms(const TMuonEvent* tme, const IDs::source& muSc_source, const IDs::source& siR2_source);
 
     private:
-        long int fStoppedMus;
-        long int fNStopsThisEvent;
+        long int fStoppedMus, fStoppedMus_PP;
+        long int fNStopsThisEvent, fNStopsThisEvent_PP;
         long int fEventNo;
 
         IDs::channel fMuSc, fSiR2;
 
         double fMuScMax, fMuScMin, fSiR2Max, fSiR2Min;
 
-        TH1F *fTDiff_PP, *fTDiff, *fStopsPerEvent;
-        TH2F *fAmplitudes, *fAmplitudes_PP, *fTDiffVsAmpSiR2;
+        TH1F *fTDiff_PP, *fTDiff, *fStopsPerEvent, *fStopsPerEvent_PP, *fStops, *fStops_PP;
+        TH2F *fAmplitudes, *fAmplitudes_PP, *fTDiffVsAmpSiR2, *fTDiffVsAmpSiR2_PP;
 };
 
 #endif //PLOTTME_MUSTOPS_h
