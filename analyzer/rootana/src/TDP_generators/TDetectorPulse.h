@@ -18,7 +18,7 @@
 
 class TDetectorPulse : public TObject {
     public:
-        enum ParentChannel_t { kSlow,kFast, kNumParents};
+        enum ParentChannel_t { kFast, kSlow,kNumParents};
         struct Tag{};
 
     public:
