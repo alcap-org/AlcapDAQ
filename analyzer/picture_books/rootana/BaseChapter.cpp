@@ -13,7 +13,7 @@ BaseChapter::BaseChapter(std::string chapter_name, modules::options* opts): fCha
   fLogY = opts->GetBool("logY", false);
   fLogZ = opts->GetBool("logZ", false);
 
-  fStatsBox = opts->GetBool("stats_box", false);
+  fStatsBox = opts->GetString("stats_box", "ourmen");
   fIsTrendPlot = opts->GetBool("trend_plot", false);
   fAutoZoom = opts->GetBool("auto_zoom", false);
 

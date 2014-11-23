@@ -34,7 +34,7 @@ class BaseChapter {
 
   /// \brief
   /// Returns whether or not we want a stats box
-  bool GetStatsBox() { return fStatsBox; }
+  std::string GetStatsBox() { return fStatsBox; }
 
   /// \brief
   /// Returns whether or not these are supposed to be trend plots
@@ -67,7 +67,7 @@ class BaseChapter {
 
   /// \brief
   /// Do we want a stats box?
-  bool fStatsBox;
+  std::string fStatsBox;
 
   /// \brief
   /// Is this a chapter of trend plots?

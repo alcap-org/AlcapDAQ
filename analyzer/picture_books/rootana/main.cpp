@@ -22,6 +22,9 @@ extern Int_t gErrorIgnoreLevel;
 
 int main(int argc, char **argv) {
 
+  gStyle->SetStatX(0.9);
+  gStyle->SetStatY(0.9);
+
   // Don't want ROOT to print out a line for every plot it saves
   gErrorIgnoreLevel = kFatal;
 
@@ -53,6 +56,9 @@ int main(int argc, char **argv) {
     run_files.push_back(file);
   }
 
+  // open a root file to save all plots to as well as the picture book
+  TFile* outFile=TFile::Open("plots/all_plots.root","Recreate");
+
   // Loop through the chapters
   for (std::vector<BaseChapter*>::const_iterator chapterIter = gChapters.begin(); chapterIter != gChapters.end(); ++chapterIter) {
     
@@ -66,7 +72,7 @@ int main(int argc, char **argv) {
     bool log_y = (*chapterIter)->GetLogY();
     bool log_z = (*chapterIter)->GetLogZ();
 
-    bool stats_box = (*chapterIter)->GetStatsBox();
+    std::string stats_box = (*chapterIter)->GetStatsBox();
     bool is_trend_plot = (*chapterIter)->GetIsTrendPlot();
     bool auto_zoom = (*chapterIter)->GetAutoZoom();
 
@@ -145,7 +151,7 @@ int main(int argc, char **argv) {
 	if (is_trend_plot) {
 
 	  if (trend_plots.find(histogram_name) == trend_plots.end()) {
-	    if (strcmp(hRunPlot->ClassName(), "TH1F") == 0) {
+	    if (hRunPlot->InheritsFrom("TH1") && !hRunPlot->InheritsFrom("TH2") && !hRunPlot->InheritsFrom("TH3")) {
 	      // Create the trend plot and add it to the map
 	      trend_plot = new TrendPlot(histogram_name, hRunPlot, arguments);
 	      trend_plots[histogram_name] = trend_plot;
@@ -175,8 +181,11 @@ int main(int argc, char **argv) {
 	c1->SetLogy(log_y);
 	c1->SetLogz(log_z);
 
-	gStyle->SetOptStat(111111);
-	hPlot->SetStats(stats_box);
+        if(stats_box=="0"){
+	  hPlot->SetStats(0);
+	} else {
+	  gStyle->SetOptStat(stats_box.c_str());
+	}
 
 	// Set the limits on each axis
 	if (auto_zoom) {
@@ -295,6 +304,10 @@ int main(int argc, char **argv) {
     } // end loop through runs
   } // end loop through chapters
 
+  outFile->Write();
+  outFile->Close();
+
   delete pic_book;
+  std::cout<<"Finished"<<std::endl;
   return 0;
 }
