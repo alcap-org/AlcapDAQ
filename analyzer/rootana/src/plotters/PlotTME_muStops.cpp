@@ -10,6 +10,7 @@
 
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TLine.h>
 
 #include <iostream>
 using std::cout;
@@ -20,13 +21,15 @@ extern MuonEventList gMuonEvents;
 PlotTME_muStops::PlotTME_muStops(modules::options* opts):
    BaseModule("PlotTME_muStops",opts),
    fStoppedMus(0),fStoppedMus_PP(0), fNStopsThisEvent(0),fNStopsThisEvent_PP(0), fEventNo(1),
-   fMuSc(IDs::kMuSc, IDs::kNotApplicable),
-   fSiR2(IDs::kSiR2, IDs::kNotApplicable),
+   fMuSc(opts->GetString("second","muSc")),
+   fSiR2(opts->GetString("first","SiR2")),
+   fChannel((TDetectorPulse::ParentChannel_t) (IDs::channel::GetSlowFastEnum(opts->GetString("channel","fast"))-IDs::kFast)),
    fMuScMax(opts->GetDouble("muSc_max",1e9)),
    fMuScMin(opts->GetDouble("muSc_min",0)),
    fSiR2Max(opts->GetDouble("SiR2_max",1e9)),
    fSiR2Min(opts->GetDouble("SiR2_min",0))
 {
+DEBUG_VALUE(fMuSc, fSiR2,fChannel);
 }
 
 PlotTME_muStops::~PlotTME_muStops(){
@@ -39,16 +42,32 @@ int PlotTME_muStops::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup
     fTDiff_PP=new TH1F("hTDiff_PP", "TDiff of SiR2 hits compared to muSc (pile-up protected)", 5000, -1.2e4,1.2e4);
     fTDiff_PP->SetXTitle(fTDiff->GetXaxis()->GetTitle());
 
+    fTDiffMuons=new TH1F("hTDiffMuons", "TDiff of muons considered to have stopped (with pile-up)", 5000, -1.2e4,1.2e4);
+    fTDiffMuons->SetXTitle("t_{SiR2} - t_{muSc} (ns)");
+    fTDiffMuons_PP=new TH1F("hTDiffMuons_PP", "TDiff of muons considered to have stopped (pile-up protected)", 5000, -1.2e4,1.2e4);
+    fTDiffMuons_PP->SetXTitle(fTDiffMuons->GetXaxis()->GetTitle());
+
     fTDiffVsAmpSiR2=new TH2F("hTDiffVsAmpSiR2",
-                             "Amplitudes of SiR2 hits compared to muSc (with pile-up) against the time diference",
+                             "Amplitudes of SiR2 hits (with pile-up) against the time difference compared to muSc ",
                               400, -1.1e4, 1.1e4, 400,0,4000);
     fTDiffVsAmpSiR2->SetXTitle(fTDiff->GetXaxis()->GetTitle());
     fTDiffVsAmpSiR2->SetYTitle("Amplitude in SiR2 (ADC units)");
     fTDiffVsAmpSiR2_PP=new TH2F("hTDiffVsAmpSiR2_PP",
-                             "Amplitudes of SiR2 hits compared to muSc (pile-up protected) against the time diference",
+                             "Amplitudes of SiR2 hits (pile-up protected) against the time diference compared to muSc",
                               400, -1.1e4, 1.1e4, 400,0,4000);
     fTDiffVsAmpSiR2_PP->SetXTitle(fTDiffVsAmpSiR2->GetXaxis()->GetTitle());
     fTDiffVsAmpSiR2_PP->SetYTitle(fTDiffVsAmpSiR2->GetYaxis()->GetTitle());
+
+    //fTDiffVsAmpSiR2_MuStop=new TH2F("hTDiffVsAmpSiR2_MuStop",
+    //                                "Amplitudes of SiR2 hits compared to muSc (with pile-up) against the time diference",
+    //                                 400, -1.1e4, 1.1e4, 400,0,4000);
+    //fTDiffVsAmpSiR2_MuStop->SetXTitle(fTDiff->GetXaxis()->GetTitle());
+    //fTDiffVsAmpSiR2_MuStop->SetYTitle("Amplitude in SiR2 (ADC units)");
+    fTDiffVsAmpSiR2_MuStop_PP=new TH2F("hTDiffVsAmpSiR2_MuStop_PP",
+                                    "Amplitudes of SiR2 hits compared to muSc (pile-up protected) against the time diference",
+                                     400, -1.1e4, 1.1e4, 400,0,4000);
+    fTDiffVsAmpSiR2_MuStop_PP->SetXTitle(fTDiffVsAmpSiR2->GetXaxis()->GetTitle());
+    fTDiffVsAmpSiR2_MuStop_PP->SetYTitle(fTDiffVsAmpSiR2->GetYaxis()->GetTitle());
 
 
     fAmplitudes=new TH2F("hAmp2d", "Amplitudes of SiR2 hits compared to muSc (with pile-up)", 400, 0,4000, 400,0,4000);
@@ -114,30 +133,45 @@ int PlotTME_muStops::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
 void PlotTME_muStops::FillHistograms(const TMuonEvent* tme, const IDs::source& muSc_source, const IDs::source& sir2_source){
   //check if we pass the muSc muon cut
-  const double amplitude=tme->GetCentralMuon()->GetAmplitude(TDetectorPulse::kFast);
-  if(amplitude<fMuScMin || amplitude> fMuScMax) return;
+  const double muSc_amp=tme->GetCentralMuon()->GetAmplitude(TDetectorPulse::kFast);
 
   const double time=tme->GetTime();
   const int N_muSc=tme->NumPulses(muSc_source);
   const int N_sir2=tme->NumPulses(sir2_source);
-  bool a_stop=false, a_stop_PP=false;
-  for(int i=0; i< N_sir2; ++i){
-    const TDetectorPulse* sir2_tdp=tme->GetPulse(sir2_source,i);
-    const double t_diff=sir2_tdp->GetTime(TDetectorPulse::kFast) - time;
-    const double sir2_amp=sir2_tdp->GetAmplitude(TDetectorPulse::kFast);
-    fTDiff->Fill(t_diff);
-    fTDiffVsAmpSiR2->Fill(t_diff, sir2_amp );
-    if(sir2_amp > fSiR2Min && sir2_amp < fSiR2Max){
-       a_stop=true;
-    }
-    if(!tme->HasMuonPileup()){
-      fTDiff_PP->Fill(t_diff);
-      fTDiffVsAmpSiR2_PP->Fill(t_diff, sir2_amp );
+
+  // Scan for a muon hit in the SiR2
+  bool a_stop=false;
+  if(muSc_amp>fMuScMin && muSc_amp< fMuScMax){
+    for(int i=0; i< N_sir2; ++i){
+      const double sir2_amp=tme->GetPulse(sir2_source,i)->GetAmplitude(fChannel);
       if(sir2_amp > fSiR2Min && sir2_amp < fSiR2Max){
-         a_stop_PP=true;
+         a_stop=true;
+         break;
       }
     }
+    if(a_stop) {
+      ++fNStopsThisEvent;
+      if(!tme->HasMuonPileup()) ++fNStopsThisEvent_PP;
+    }
+  }
 
+  // Fill all plots for SiR2
+  for(int i=0; i< N_sir2; ++i){
+    const TDetectorPulse* sir2_tdp=tme->GetPulse(sir2_source,i);
+    const double t_diff=sir2_tdp->GetTime(fChannel) - time;
+    const double sir2_amp=sir2_tdp->GetAmplitude(fChannel);
+    fTDiff->Fill(t_diff);
+    fTDiffVsAmpSiR2->Fill(t_diff, sir2_amp );
+    if(!tme->HasMuonPileup()){
+      if(muSc_amp>fMuScMin && muSc_amp< fMuScMax){
+         fTDiff_PP->Fill(t_diff);
+         fTDiffVsAmpSiR2_PP->Fill(t_diff, sir2_amp );
+         if(a_stop){
+           fTDiffMuons_PP->Fill(t_diff);
+           fTDiffVsAmpSiR2_MuStop_PP->Fill(t_diff,sir2_amp);
+         }
+      }
+    }
     for(int j=0; j< N_muSc; ++j){
       const double muSc_amp=tme->GetPulse(muSc_source,j)->GetAmplitude(TDetectorPulse::kFast);
       fAmplitudes->Fill(muSc_amp, sir2_amp );
@@ -146,13 +180,23 @@ void PlotTME_muStops::FillHistograms(const TMuonEvent* tme, const IDs::source& m
       }
     }
   }
-  if(a_stop) ++fNStopsThisEvent;
-  if(a_stop_PP) ++fNStopsThisEvent_PP;
 }
 
 int PlotTME_muStops::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
+  double y_min=fAmplitudes->GetYaxis()->GetXmin();
+  double y_max=fAmplitudes->GetYaxis()->GetXmax();
+  TLine* muSc_cut=new TLine(fMuScMin, y_min, fMuScMin, y_max);
+  muSc_cut->SetLineColor(kRed);
+  fAmplitudes->GetListOfFunctions()->Add(muSc_cut->Clone());
+  fAmplitudes_PP->GetListOfFunctions()->Add(muSc_cut->Clone());
+  muSc_cut->SetX1(fMuScMax);
+  muSc_cut->SetX2(fMuScMax);
+  fAmplitudes->GetListOfFunctions()->Add(muSc_cut->Clone());
+  fAmplitudes_PP->GetListOfFunctions()->Add(muSc_cut->Clone());
+  fTDiffVsAmpSiR2_MuStop_PP->ProjectionY("_py",236);
+
   cout<<"PlotTME_muStops::AfterLastEntry: Total number of muon stops = "<<fStoppedMus<<endl;
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(PlotTME_muStops,  muSc_min,muSc_max, SiR2_min, SiR2_max);
+ALCAP_REGISTER_MODULE(PlotTME_muStops,  muSc_min,muSc_max, SiR2_min, SiR2_max, first, channel);
