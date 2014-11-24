@@ -152,7 +152,8 @@ if space_limit <= 0. or space_limit > 0.95:
     raise ArgumentError(msg)
 for ds in datasets:
     if not ds in _DATASETS:
-        msg = "Dataset not recognized: " + str(ds)
+        msg = "Dataset not recognized: " + str(ds) +". "
+        msg += "Should be one of: " + ", ".join(_DATASETS)
         raise ArgumentError(msg)
 if not (os.path.isfile(modules) and os.access(modules, os.R_OK)):
     msg = "Modules file does not exist or is not readable (" + str(modules) + ")"
