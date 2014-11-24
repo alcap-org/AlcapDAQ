@@ -30,8 +30,8 @@ PlotTAP_TDiff::PlotTAP_TDiff(modules::options* opts) :
   fExportSQL(opts->GetBool("export_sql", false)) {
   if (fDetNameA == std::string("") || fDetNameB == std::string(""))
     throw Except::ModulesOptionError("Two detectors must be provided");
-  else if (fDetNameA == fDetNameB)
-    throw Except::ModulesOptionError((fDetNameA + "==" + fDetNameB).c_str());
+//  else if (fDetNameA == fDetNameB)
+//    throw Except::ModulesOptionError((fDetNameA + "==" + fDetNameB).c_str());
   else if (fExportSQL && fDetNameB != "muSc")
     throw Except::ModulesOptionError("If exporting to calibration DB, second detector must be muSc");
 }

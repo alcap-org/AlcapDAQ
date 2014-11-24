@@ -100,6 +100,9 @@ int main(int argc, char **argv)
               << arguments.infile <<"'.  Exiting." << std::endl;
     return 1;
   }
+  if( modules::navigator::Instance()->DumpInputFile()){
+    navi.DumpRawTree();
+  }
     
   // Make an initial call to singleton objects that are very likely to be called at some point.
   ret = PrepareSingletonObjects(arguments);

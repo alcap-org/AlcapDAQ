@@ -195,8 +195,9 @@ class EventNavigator {
 
   void Close();
 
-  TGlobalData* GetRawData() {return fRawData;}
-  TTree* GetRawTree() {return fRawTree;}
+  TGlobalData* GetRawData()const {return fRawData;}
+  TTree* GetRawTree()const {return fRawTree;}
+  void DumpRawTree()const;
 
 protected:
   ///Attach a raw data tree (found in raw_file). If sucessful will

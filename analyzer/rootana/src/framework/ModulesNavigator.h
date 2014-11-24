@@ -80,6 +80,8 @@ class modules::navigator{
       void SetDebug(bool d=true){fDebug=d;}
       bool Debug()const{return fDebug;}
 
+      bool DumpInputFile()const {return fDumpInputFile;}
+
       /// @brief Tell the navigator which output file to be used
       void SetOutFile(TFile* file){fOutFile=file;}
 
@@ -90,6 +92,7 @@ class modules::navigator{
       bool fModulesLoaded;
       bool fModulesMade;
       bool fDebug;
+      bool fDumpInputFile;
       modules::ordered_list fModules;
       modules::list fModulesSearch;
       modules::reader fModulesFile;

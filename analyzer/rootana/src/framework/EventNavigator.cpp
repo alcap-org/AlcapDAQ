@@ -187,6 +187,26 @@ Bool_t EventNavigator::VerifyRawData(TTree* raw_tree)
   return true;
 }
 
+//----------------------------------------------------------------------
+void EventNavigator::DumpRawTree() const
+{
+  TTree* raw_tree=GetRawTree();
+  if ( !raw_tree ){
+    std::cerr << "No raw data tree in file" << std::endl;
+    return; 
+  }
+  std::cout << "Raw Tree '" << raw_tree->GetName() << "' has " <<
+      raw_tree->GetEntriesFast()<<" entries. "<< std::endl;
+  TBranch* raw_branch=raw_tree->GetBranch(Format::Raw::DataBranchName);
+  if(!raw_branch) {
+    std::cout << "Tree " << raw_tree->GetName()
+              << " has no branch called " << Format::Raw::SetupBranchName
+              << " which should normally contain the input data." << std::endl;    
+  } else {
+    raw_branch->Print();
+  }
+}
+
 template<typename T, unsigned int& I> T ADV(T t) {
   if (I == 0) return t;
   return ADV<T,I-1>(++t);

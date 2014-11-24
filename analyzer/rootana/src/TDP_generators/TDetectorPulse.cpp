@@ -27,6 +27,7 @@ TDetectorPulse::TDetectorPulse(const IDs::source& sourceID,
   fParentID[kSlow]=s_parentID;
   fParentID[kFast]=f_parentID;
   fSource=sourceID;
+  fCouldBePaired=(GetSource().Generator().Type()!="PassThrough");
 }
 
 void TDetectorPulse::Reset(Option_t* o) {
@@ -37,4 +38,5 @@ void TDetectorPulse::Reset(Option_t* o) {
     }
     fCheckedForPileUp=false;
     fPileUpSafe=false;
+    fCouldBePaired=false;
 }

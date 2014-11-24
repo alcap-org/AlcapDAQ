@@ -7,7 +7,7 @@
 using std::cout;
 using std::endl;
 
-modules::navigator::navigator():fModulesLoaded(false),fModulesMade(false),fDebug(false),fOutFile(NULL){};
+modules::navigator::navigator():fModulesLoaded(false),fModulesMade(false),fDebug(false),fDumpInputFile(false),fOutFile(NULL){};
 
 int modules::navigator::LoadConfigFile(const char* filename){
     // Check we haven't already opened a modules file
@@ -18,6 +18,9 @@ int modules::navigator::LoadConfigFile(const char* filename){
     // Read in the file and dump the processed options
     int retVal=fModulesFile.ReadFile(filename);
     if(retVal!=0) return retVal;
+    
+    // check if we were asked to dump the input file's contents
+    if(fModulesFile.DumpInputFile()) fDumpInputFile=true;
 
     // Check the file contained at least one module
     size_t num_modules=fModulesFile.GetNumModules();

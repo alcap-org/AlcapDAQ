@@ -20,7 +20,8 @@ const TDetectorPulse* TMuonEvent::GetPulse(const IDs::source& source, int index)
     SourceDetPulseMap::const_iterator i_source=fPulseLists.find(source);
     if(i_source==fPulseLists.end()) return NULL;
     if(index>(int)i_source->second.size() || index<0) throw Except::OutOfRange();
-    return *(i_source->second.begin()+index);
+    const TDetectorPulse* pulse= *(i_source->second.begin()+index);
+    return pulse;
 }
 
 void TMuonEvent::AddPulse(const IDs::source& source, TDetectorPulse* pulse){
@@ -31,7 +32,9 @@ void TMuonEvent::AddPulses(const IDs::source& source,
         DetectorPulseList::const_iterator start,
         DetectorPulseList::const_iterator stop){
     if(stop-start <0)  throw Except::EndOfWindowBeforeStart();
-    fPulseLists[source].insert(fPulseLists[source].end(),start,stop);
+    for(DetectorPulseList::const_iterator i_p=start; i_p!=stop; ++i_p){
+      if( (*i_p)->IsGood()) fPulseLists[source].push_back(*i_p);
+    }
 }
 
 const IDs::source& TMuonEvent::GetSource(int n)const{
@@ -40,6 +43,37 @@ const IDs::source& TMuonEvent::GetSource(int n)const{
     std::advance(i_source,n);
     return i_source->first;
 }
+
+int TMuonEvent::GetSourceIndex(const IDs::channel& ch, int start)const{
+    if(start>(int)fPulseLists.size() || start<0) throw Except::OutOfRange();
+    SourceDetPulseMap::const_iterator i_source=fPulseLists.begin();
+    for(std::advance(i_source,start);
+            i_source!=fPulseLists.end(); ++i_source){
+        if(i_source->first.matches(ch)) 
+          return std::distance( fPulseLists.begin(),i_source);
+    }
+    return -1;
+}
+
+int TMuonEvent::GetFirstSourceIndex(const IDs::channel& ch)const{
+    for( SourceDetPulseMap::const_iterator i_source=fPulseLists.begin();
+          i_source!=fPulseLists.end(); ++i_source){
+        if(i_source->first.matches(ch)) 
+          return std::distance( fPulseLists.begin(),i_source);
+    }
+    return -1;
+}
+
+int TMuonEvent::GetLastSourceIndex(const IDs::channel& ch)const{
+    for( SourceDetPulseMap::const_reverse_iterator i_source=fPulseLists.rbegin();
+          i_source!=fPulseLists.rend(); ++i_source){
+        if(i_source->first.matches(ch)) 
+          return std::distance( i_source,fPulseLists.rend());
+    }
+    return -1;
+}
+
+
 
 int TMuonEvent::TotalNumPulses()const{
     int size=0;
@@ -70,7 +104,7 @@ bool TMuonEvent::HasMuonHit()const{
 }
 
 bool TMuonEvent::HasMuonPileup()const{
-    return NumPulses(MuSc)>1 || NumPulses(MuScA);
+    return NumPulses(MuSc)>1 ;//|| NumPulses(MuScA)>0;
 }
 
 bool TMuonEvent::WasEarlyInEvent()const{

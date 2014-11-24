@@ -1,7 +1,9 @@
-#ifndef CHECKTMES_H_
-#define CHECKTMES_H_
+#ifndef PLOTTME_ACTIVESIRMUSTOPS_h
+#define PLOTTME_ACTIVESIRMUSTOPS_h
 
+#include "TDetectorPulse.h"
 #include "BaseModule.h"
+#include "definitions.h"
 class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
@@ -23,17 +25,17 @@ class TH2F;
 /// You can add this to other groups instead of rootana_modules or in addition
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
-class CheckTMEs : public BaseModule {
+class PlotTME_activeSiRmuStops : public BaseModule {
 
     public:
         /// \brief
         /// Constructor description. If necessary, add a details tag like above.
         ///
         /// \param[in] opts Describe the options this module takes.
-        CheckTMEs(modules::options* opts);
+        PlotTME_activeSiRmuStops(modules::options* opts);
         /// \brief
         /// Is anything done in the destructor?
-        ~CheckTMEs();
+        ~PlotTME_activeSiRmuStops();
 
     private:
         /// \brief
@@ -55,15 +57,20 @@ class CheckTMEs : public BaseModule {
         /// \return Non-zero to indicate a problem.
         virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
 
-        long int fNullCount, fTdpCount;
+        void FillHistograms(const TMuonEvent* tme, const IDs::source& muSc_source, const IDs::source& siR2_source);
 
-        typedef std::vector<IDs::channel> DetectorList;
-        DetectorList fDetectors;
+    private:
+        long int fStoppedMus, fStoppedMus_PP;
+        long int fNStopsThisEvent, fNStopsThisEvent_PP;
+        long int fEventNo;
 
-        TH1F *fTotalPulses;
-        TH2F *fPulsesPerDetector;
-        TH2F *fTDiffPerDetector;
-        TH1F *fFlags;
+        IDs::channel fMuSc, fSiR2;
+        TDetectorPulse::ParentChannel_t fChannel;
+
+        double fMuScMax, fMuScMin, fSiR2Max, fSiR2Min;
+
+        TH1F *fTDiff_PP, *fTDiff, *fTDiffMuons, *fTDiffMuons_PP, *fStopsPerEvent, *fStopsPerEvent_PP, *fStops, *fStops_PP;
+        TH2F *fAmplitudes, *fAmplitudes_PP, *fTDiffVsAmpSiR2, *fTDiffVsAmpSiR2_PP, *fTDiffVsAmpSiR2_MuStop, *fTDiffVsAmpSiR2_MuStop_PP;
 };
 
-#endif //CHECKTMES_H_
+#endif //PLOTTME_ACTIVESIRMUSTOPS_h
