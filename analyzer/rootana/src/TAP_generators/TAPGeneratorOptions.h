@@ -11,7 +11,7 @@
 class TAPGeneratorOptions:public modules::options{
  public:
  TAPGeneratorOptions(const std::string& name):
-  modules::options(name){};
+  modules::options(name),fDebug(false){};
   ~TAPGeneratorOptions(){};
   
   void AddArgument(const int& number, const std::string& option);
@@ -22,9 +22,13 @@ class TAPGeneratorOptions:public modules::options{
   void SetChannel(const std::string& ch){ 
     fChannel = ch;
   }
+  
+  bool Debug()const{return fDebug;}
+  void Debug(bool v){fDebug=v;}
 
  private:
   std::string fChannel;
+  bool fDebug;
 
 };
 

@@ -29,7 +29,7 @@ class TVAnalysedPulseGenerator {
     public:
         TVAnalysedPulseGenerator(const char* name, TAPGeneratorOptions* opts){
             if(opts){
-                fDebug=opts->HasOption("debug");
+                fDebug=( opts->HasOption("debug") || opts->Debug());
             }
             fSource.Generator()=IDs::generator(name,opts->StringDescription());
             SetChannel(opts->GetChannel());

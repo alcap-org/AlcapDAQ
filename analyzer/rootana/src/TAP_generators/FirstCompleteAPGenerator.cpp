@@ -23,7 +23,11 @@ FirstCompleteAPGenerator::FirstCompleteAPGenerator(TAPGeneratorOptions* opts):
 			opts->GetDouble("constant_fraction")), 
   fSimpleIntegral(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
 		  TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
-  fPulseCandidateFinder(opts->GetBool("use_pcf",true)?new PulseCandidateFinder(GetChannel().str(), opts):NULL) {
+  fPulseCandidateFinder(NULL) {
+  if(opts->GetBool("use_pcf",true)){ 
+     if(opts->Debug()) opts->SetOption("debug","true");
+     fPulseCandidateFinder=new PulseCandidateFinder(GetChannel().str(), opts);
+  }
 }
 
 FirstCompleteAPGenerator::~FirstCompleteAPGenerator(){

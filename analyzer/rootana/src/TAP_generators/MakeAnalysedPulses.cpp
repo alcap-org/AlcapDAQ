@@ -24,9 +24,9 @@ MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
   fFastGeneratorType(opts->GetString("default_fast_generator","MaxBin")),
   fChannelsToAnalyse(),
   fOptions(opts),
-  fDefaultOpts(new TAPGeneratorOptions("default generator options")) {
-  opts->GetVectorStringsByWhiteSpace("analyse_channels",fChannelsToAnalyse);
-  if(Debug()) fDefaultOpts->SetOption("debug","true");
+  fDefaultOpts(new TAPGeneratorOptions("default generator options")){
+    opts->GetVectorStringsByWhiteSpace("analyse_channels",fChannelsToAnalyse);
+    if(Debug()) fDefaultOpts->SetOption("debug","true");
 }
 
 MakeAnalysedPulses::~MakeAnalysedPulses(){
@@ -203,6 +203,7 @@ bool MakeAnalysedPulses::AddGenerator(const string& detector,string generatorTyp
     // Make sure opts is not null
     if(!opts) opts=new TAPGeneratorOptions(*fDefaultOpts);
     opts->SetChannel(detector);
+    opts->Debug(Debug());
 
     // Get the requested generator
     TVAnalysedPulseGenerator* generator=
