@@ -1,5 +1,5 @@
-#ifndef PLOTTME_MUSTOPS_h
-#define PLOTTME_MUSTOPS_h
+#ifndef PLOTTME_ACTIVESIRMUSTOPS_h
+#define PLOTTME_ACTIVESIRMUSTOPS_h
 
 #include "TDetectorPulse.h"
 #include "BaseModule.h"
@@ -25,17 +25,17 @@ class TH2F;
 /// You can add this to other groups instead of rootana_modules or in addition
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
-class PlotTME_muStops : public BaseModule {
+class PlotTME_activeSiRmuStops : public BaseModule {
 
     public:
         /// \brief
         /// Constructor description. If necessary, add a details tag like above.
         ///
         /// \param[in] opts Describe the options this module takes.
-        PlotTME_muStops(modules::options* opts);
+        PlotTME_activeSiRmuStops(modules::options* opts);
         /// \brief
         /// Is anything done in the destructor?
-        ~PlotTME_muStops();
+        ~PlotTME_activeSiRmuStops();
 
     private:
         /// \brief
@@ -73,4 +73,4 @@ class PlotTME_muStops : public BaseModule {
         TH2F *fAmplitudes, *fAmplitudes_PP, *fTDiffVsAmpSiR2, *fTDiffVsAmpSiR2_PP, *fTDiffVsAmpSiR2_MuStop, *fTDiffVsAmpSiR2_MuStop_PP;
 };
 
-#endif //PLOTTME_MUSTOPS_h
+#endif //PLOTTME_ACTIVESIRMUSTOPS_h

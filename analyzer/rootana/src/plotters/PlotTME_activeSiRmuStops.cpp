@@ -1,4 +1,4 @@
-#include "PlotTME_muStops.h"
+#include "PlotTME_activeSiRmuStops.h"
 #include "RegisterModule.inc"
 #include "TGlobalData.h"
 #include "TSetupData.h"
@@ -18,8 +18,8 @@ using std::endl;
 
 extern MuonEventList gMuonEvents;
 
-PlotTME_muStops::PlotTME_muStops(modules::options* opts):
-   BaseModule("PlotTME_muStops",opts),
+PlotTME_activeSiRmuStops::PlotTME_activeSiRmuStops(modules::options* opts):
+   BaseModule("PlotTME_activeSiRmuStops",opts),
    fStoppedMus(0),fStoppedMus_PP(0), fNStopsThisEvent(0),fNStopsThisEvent_PP(0), fEventNo(1),
    fMuSc(opts->GetString("second","muSc")),
    fSiR2(opts->GetString("first","SiR2")),
@@ -32,10 +32,10 @@ PlotTME_muStops::PlotTME_muStops(modules::options* opts):
 DEBUG_VALUE(fMuSc, fSiR2,fChannel);
 }
 
-PlotTME_muStops::~PlotTME_muStops(){
+PlotTME_activeSiRmuStops::~PlotTME_activeSiRmuStops(){
 }
 
-int PlotTME_muStops::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTME_activeSiRmuStops::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
     fTDiff=new TH1F("hTDiff", "TDiff of SiR2 hits compared to muSc (with pile-up)", 5000, -1.2e4,1.2e4);
     fTDiff->SetXTitle("t_{SiR2} - t_{muSc} (ns)");
@@ -97,7 +97,7 @@ int PlotTME_muStops::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup
   return 0;
 }
 
-int PlotTME_muStops::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTME_activeSiRmuStops::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
     // Reset the number of mu stops in the event
     fNStopsThisEvent=0;
     fNStopsThisEvent_PP=0;
@@ -131,7 +131,7 @@ int PlotTME_muStops::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
   return 0;
 }
 
-void PlotTME_muStops::FillHistograms(const TMuonEvent* tme, const IDs::source& muSc_source, const IDs::source& sir2_source){
+void PlotTME_activeSiRmuStops::FillHistograms(const TMuonEvent* tme, const IDs::source& muSc_source, const IDs::source& sir2_source){
   //check if we pass the muSc muon cut
   const double muSc_amp=tme->GetCentralMuon()->GetAmplitude(TDetectorPulse::kFast);
 
@@ -182,7 +182,7 @@ void PlotTME_muStops::FillHistograms(const TMuonEvent* tme, const IDs::source& m
   }
 }
 
-int PlotTME_muStops::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTME_activeSiRmuStops::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
   double y_min=fAmplitudes->GetYaxis()->GetXmin();
   double y_max=fAmplitudes->GetYaxis()->GetXmax();
   TLine* muSc_cut=new TLine(fMuScMin, y_min, fMuScMin, y_max);
@@ -195,8 +195,8 @@ int PlotTME_muStops::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
   fAmplitudes_PP->GetListOfFunctions()->Add(muSc_cut->Clone());
   fTDiffVsAmpSiR2_MuStop_PP->ProjectionY("_py",236);
 
-  cout<<"PlotTME_muStops::AfterLastEntry: Total number of muon stops = "<<fStoppedMus<<endl;
+  cout<<"PlotTME_activeSiRmuStops::AfterLastEntry: Total number of muon stops = "<<fStoppedMus<<endl;
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(PlotTME_muStops,  muSc_min,muSc_max, SiR2_min, SiR2_max, first, channel);
+ALCAP_REGISTER_MODULE(PlotTME_activeSiRmuStops,  muSc_min,muSc_max, SiR2_min, SiR2_max, first, channel);
