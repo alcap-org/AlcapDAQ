@@ -31,12 +31,12 @@ int TestTME::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fDetectors.push_back(IDs::channel (kSiL1_2 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiL1_3 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiL1_4 , kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiL2   , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiR1_1 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiR1_2 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiR1_3 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiR1_4 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiR2   , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiL2   , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kMuSc   , kNotApplicable ));
 
     fTDiffPerDetector=new TH2F("hTDiffPerChannel", "TDiff to muSc for each channel per TME", 
@@ -61,9 +61,10 @@ int TestTME::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
   MuonEventList::const_iterator i_tme = gMuonEvents.begin();
 
   std::string input;
-  while (!fQuit) {
+  bool found_interesting_event = false;
+  while (!fQuit || !found_interesting_event) {
+    found_interesting_event = false;
     fTDiffPerDetector->Reset();
-    std::cout << "TME #" << i_tme - gMuonEvents.begin() << std::endl;
 
     // Loop through the detecotrs
     for(DetectorList::const_iterator i_det=fDetectors.begin();i_det!=fDetectors.end(); ++i_det){
@@ -84,18 +85,24 @@ int TestTME::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	source_index=(*i_tme)->GetSourceIndex(*i_det,source_index+1);
       }
     }
-    fTDiffPerDetector->Draw("COLZ");
-    fCanvas->Update();
-    std::cout << "Press n to go to next TME (q to quit)" << std::endl;
-    std::cin >> input;
-    if (input == "n") {
-      ++i_tme;
+    if (fTDiffPerDetector->GetEntries() > 1 && !(*i_tme)->HasMuonPileup()) {
+      std::cout << "TME #" << i_tme - gMuonEvents.begin() << std::endl;
+      found_interesting_event = true;
+      fTDiffPerDetector->Draw("COLZ");
+      fCanvas->Update();
+      
+      std::cout << "Press any key to go to next TME (q to quit)" << std::endl;
+      std::getline( std::cin, input);
+      if (input == "q") {
+	fQuit = true;
+	break;
+      }
     }
-    else if (input == "q") {
-      fQuit = true;
-    }
-    else {
-      std::cout << "Not an option" << std::endl;
+    std::cout << "TME #" << i_tme - gMuonEvents.begin() << std::endl;
+    ++i_tme;
+    if (i_tme == gMuonEvents.end() ) {
+      std::cout << "At the end" << std::endl;
+      break;
     }
   }
   /*    for(MuonEventList::const_iterator i_tme=gMuonEvents.begin();
