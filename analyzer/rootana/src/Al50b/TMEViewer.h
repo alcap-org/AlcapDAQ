@@ -1,5 +1,5 @@
-#ifndef TESTTME_H_
-#define TESTTME_H_
+#ifndef TMEViewer_H_
+#define TMEViewer_H_
 
 #include "BaseModule.h"
 class TGlobalData;
@@ -25,17 +25,17 @@ class TApplication;
 /// You can add this to other groups instead of rootana_modules or in addition
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
-class TestTME : public BaseModule {
+class TMEViewer : public BaseModule {
 
     public:
         /// \brief
         /// Constructor description. If necessary, add a details tag like above.
         ///
         /// \param[in] opts Describe the options this module takes.
-        TestTME(modules::options* opts);
+        TMEViewer(modules::options* opts);
         /// \brief
         /// Is anything done in the destructor?
-        ~TestTME();
+        ~TMEViewer();
 
     private:
         /// \brief
