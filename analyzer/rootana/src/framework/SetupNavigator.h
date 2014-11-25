@@ -50,6 +50,9 @@ class SetupNavigator{
   /// Gets the energy calibration constants
   std::pair<double,double> GetEnergyCalibrationConstants(const IDs::channel&) const;
 
+  double GetAdcToEnergyGain(const IDs::channel& ch) const{return GetEnergyCalibrationConstants(ch).first;}
+  double GetAdcToEnergyConstant(const IDs::channel& ch) const{return GetEnergyCalibrationConstants(ch).second;}
+
   void SetPedestalAndNoise(const IDs::channel& channel, double pedestal, double noise);
   void SetCoarseTimeOffset(const IDs::source& src, double dt);
 
@@ -94,7 +97,8 @@ private:
   static std::map<IDs::source, double> fCoarseTimeOffset;
   /// \brief
   /// The map that stores energy calibration constants as <Gain,Pedestal> pairs.
-  static std::map< IDs::channel, std::pair<double,double> > fEnergyCalibrationConstants;
+  typedef std::pair<double,double> EnergyCalibRow_t;
+  static std::map< IDs::channel, EnergyCalibRow_t > fEnergyCalibrationConstants;
 
 };
 

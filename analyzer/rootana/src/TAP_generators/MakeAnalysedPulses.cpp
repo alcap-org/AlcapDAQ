@@ -107,7 +107,6 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetu
 
     // Loop over each generator
     IDs::channel detector;
-    string bankname;
     PulseIslandList* thePulseIslands;
     ChannelGenerators_t::iterator generator;
     AnalysedPulseList theAnalysedPulses;
@@ -115,10 +114,9 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetu
     for(generator = fGenerators.begin(); generator != fGenerators.end(); generator++){
         // Get the bank name
         detector = (*generator)->GetChannel().str();
-        bankname = SetupNavigator::Instance()->GetBank(detector);
 
         // Get the TPIs
-        thePulseIslands=&gData->fPulseIslandToChannelMap[bankname];
+        thePulseIslands=&gData->fPulseIslandToChannelMap[(*generator)->GetBank()];
         if(thePulseIslands->empty() ){
           if( Debug()) cout << "Event No: " 
                             << EventNavigator::Instance().EntryNo() 
@@ -146,6 +144,8 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetu
         }
         // add the pulses into the map
         it->second=theAnalysedPulses;
+        
+        (*generator)->CalibratePulses(it->second);
     }
     return 0;
 }

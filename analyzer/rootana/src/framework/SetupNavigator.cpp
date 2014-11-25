@@ -32,7 +32,7 @@ static std::string StripTimeShiftConfigFromString(std::string con) {
 std::map<IDs::channel, double> SetupNavigator::fPedestalValues;
 std::map<IDs::channel, double> SetupNavigator::fNoiseValues;
 std::map<IDs::source, double> SetupNavigator::fCoarseTimeOffset;
-std::map< IDs::channel, std::pair<double,double> > SetupNavigator::fEnergyCalibrationConstants;
+std::map< IDs::channel, SetupNavigator::EnergyCalibRow_t > SetupNavigator::fEnergyCalibrationConstants;
 
 SetupNavigator::SetupNavigator() :
   fCommandLineArgs(),
@@ -178,13 +178,16 @@ std::vector<std::string> SetupNavigator::GetCoarseTimeOffsetColumns() {
 
 bool SetupNavigator::ReadEnergyCalibrationConstants() {
   std::stringstream cmd;
+  // // Ben:  In the future we will want to include generator parameters in the
+  // // table to be able to calibrate multiple generators simultaneously:
+  // cmd << "SELECT channel,gen_params,gain,offset FROM " << fEnergyCalibrationConstantsTableName 
   cmd << "SELECT channel,gain,offset FROM " << fEnergyCalibrationConstantsTableName
       << " WHERE run==" << GetRunNumber();
   TSQLResult* res = fServer->Query(cmd.str().c_str());
   TSQLRow* row;
   while ((row = res->Next())) {
     fEnergyCalibrationConstants[IDs::channel(row->GetField(0))] =
-      std::pair<double,double>(atof(row->GetField(1)), atof(row->GetField(2)));
+      EnergyCalibRow_t(atof(row->GetField(1)), atof(row->GetField(2)));
     delete row;
   }
   delete res;
@@ -252,6 +255,6 @@ double SetupNavigator::GetPedestal(const IDs::channel& channel) const {
   return alcap::at<Except::InvalidDetector>(fPedestalValues,channel,channel.str().c_str());
 }
 
-std::pair<double,double> SetupNavigator::GetEnergyCalibrationConstants(const IDs::channel& ch) const {
+SetupNavigator::EnergyCalibRow_t SetupNavigator::GetEnergyCalibrationConstants(const IDs::channel& ch) const {
   return alcap::at<Except::InvalidDetector>(fEnergyCalibrationConstants, ch, ch.str().c_str());
 }
