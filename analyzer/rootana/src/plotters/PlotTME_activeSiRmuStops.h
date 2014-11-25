@@ -4,6 +4,7 @@
 #include "TDetectorPulse.h"
 #include "BaseModule.h"
 #include "definitions.h"
+#include "ActiveSiRMuStopAlgo.h"
 class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
@@ -68,6 +69,8 @@ class PlotTME_activeSiRmuStops : public BaseModule {
         TDetectorPulse::ParentChannel_t fChannel;
 
         double fMuScMax, fMuScMin, fSiR2Max, fSiR2Min;
+        
+        TMEAlgorithm::ActiveSiRStop* fHasStoppedMuon;
 
         TH1F *fTDiff_PP, *fTDiff, *fTDiffMuons, *fTDiffMuons_PP, *fStopsPerEvent, *fStopsPerEvent_PP, *fStops, *fStops_PP;
         TH2F *fAmplitudes, *fAmplitudes_PP, *fTDiffVsAmpSiR2, *fTDiffVsAmpSiR2_PP, *fTDiffVsAmpSiR2_MuStop, *fTDiffVsAmpSiR2_MuStop_PP;
