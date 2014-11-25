@@ -1,4 +1,4 @@
-#include "TestTME.h"
+#include "TMEViewer.h"
 #include "RegisterModule.inc"
 #include "TGlobalData.h"
 #include "TSetupData.h"
@@ -18,14 +18,14 @@ using std::endl;
 
 extern MuonEventList gMuonEvents;
 
-TestTME::TestTME(modules::options* opts):
-   BaseModule("TestTME",opts),fNullCount(0),fTdpCount(0){
+TMEViewer::TMEViewer(modules::options* opts):
+   BaseModule("TMEViewer",opts),fNullCount(0),fTdpCount(0){
 }
 
-TestTME::~TestTME(){
+TMEViewer::~TMEViewer(){
 }
 
-int TestTME::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
+int TMEViewer::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     using namespace IDs;
     fDetectors.push_back(IDs::channel (kSiL1_1 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiL1_2 , kNotApplicable ));
@@ -56,7 +56,7 @@ int TestTME::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   return 0;
 }
 
-int TestTME::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+int TMEViewer::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
   // Loop over each TME
   MuonEventList::const_iterator i_tme = gMuonEvents.begin();
 
@@ -155,9 +155,9 @@ int TestTME::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
   return 0;
 }
 
-int TestTME::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
+int TMEViewer::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(TestTME);
+ALCAP_REGISTER_MODULE(TMEViewer);
