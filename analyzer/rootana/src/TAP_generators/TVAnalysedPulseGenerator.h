@@ -7,6 +7,7 @@
 #include "definitions.h"
 #include "TAPGeneratorOptions.h"
 #include "TAnalysedPulse.h"
+#include "SetupNavigator.h"
 
 #include <TClass.h>
 
@@ -85,6 +86,10 @@ class TVAnalysedPulseGenerator {
         /// being analysed
         IDs::channel GetChannel()const {return fSource.Channel();};
 
+        /// A convenience method for analysis to get the channel ID of the channel
+        /// being analysed
+        std::string GetBank()const {return fBankName;};
+
         /// \brief Get the source id for this generator being used on the current
         /// channel
         ///
@@ -104,7 +109,10 @@ class TVAnalysedPulseGenerator {
         /// 
         /// \details Called by MakeAnalysedPulses to tell this generator what channel
         /// it is looking at.  
-        virtual void SetChannel(const std::string& det){fSource.Channel()=det;};
+        virtual void SetChannel(const std::string& det){
+           fSource.Channel()=det;
+           fBankName= SetupNavigator::Instance()->GetBank(det);
+         };
 
 
     private:
@@ -112,6 +120,9 @@ class TVAnalysedPulseGenerator {
         /// The source identifying the generator and detector being
         /// processed.
         IDs::source fSource;
+        /// \brief
+        /// The bankname in the MIDAS file used by this channel
+        std::string fBankName;
         /// \brief
         /// Debug flagged set from modules file. Used, for example, in
         /// deciding whether or not to print helpful messages.
