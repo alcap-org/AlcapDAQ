@@ -8,6 +8,8 @@ namespace modules {class options;}
 namespace IDs {class channel;}
 class TH1F;
 class TH2F;
+class TCanvas;
+class TApplication;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
@@ -57,13 +59,14 @@ class TestTME : public BaseModule {
 
         long int fNullCount, fTdpCount;
 
+	bool fQuit;
+
         typedef std::vector<IDs::channel> DetectorList;
         DetectorList fDetectors;
 
-        TH1F *fTotalPulses;
-        TH2F *fPulsesPerDetector;
-        TH2F *fTDiffPerDetector;
-        TH1F *fFlags;
+	TCanvas* fCanvas;
+	TApplication* fApp;
+	TH2F* fTDiffPerDetector;
 };
 
 #endif //CHECKTMES_H_

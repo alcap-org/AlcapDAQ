@@ -9,6 +9,8 @@
 
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TCanvas.h>
+#include <TApplication.h>
 
 #include <iostream>
 using std::cout;
@@ -37,84 +39,117 @@ int TestTME::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fDetectors.push_back(IDs::channel (kSiL2   , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kMuSc   , kNotApplicable ));
 
-    // Plot the total number of pulses
-    fTotalPulses=new TH1F("hTotalPulses", "Total number of pulses per TME", 100, 0 ,100);
-    fTotalPulses->SetXTitle("Number of pulses");
-
-    // Plot the number of pulses per channel
-    fPulsesPerDetector=new TH2F("hPulsesPerChannel", "Pulses per channel per TME", 
-            50, 0 ,50,fDetectors.size(),0,fDetectors.size());
-    fPulsesPerDetector->SetXTitle("Number of pulses");
-    //fPulsesPerDetector->SetYTitle("Detector");
-
     fTDiffPerDetector=new TH2F("hTDiffPerChannel", "TDiff to muSc for each channel per TME", 
             5000, -1.2e4,1.2e4,fDetectors.size(),0,fDetectors.size());
     fTDiffPerDetector->SetXTitle("TDiff to central muon (ns)");
-
+    fTDiffPerDetector->SetDrawOption("COLZ");
+    fTDiffPerDetector->SetStats(false);
     for(DetectorList::const_iterator i_det=fDetectors.begin();
             i_det!=fDetectors.end(); ++i_det){
-        fPulsesPerDetector->GetYaxis()->SetBinLabel(i_det-fDetectors.begin()+1, i_det->str().c_str());
         fTDiffPerDetector->GetYaxis()->SetBinLabel(i_det-fDetectors.begin()+1, i_det->str().c_str());
     }
-    fPulsesPerDetector->SetDrawOption("colz");
-    fTDiffPerDetector->SetDrawOption("colz");
 
-    // Plot the number of TME flags
-    fFlags=new TH1F("hFlags", "Number of flagged per TME", 5,0,5);
-    fFlags->SetYTitle("Number of pulses");
-    int count=0;
-    fFlags->GetXaxis()->SetBinLabel(++count,"Healthy");
-    fFlags->GetXaxis()->SetBinLabel(++count,"Late");
-    fFlags->GetXaxis()->SetBinLabel(++count,"Early");
-    fFlags->GetXaxis()->SetBinLabel(++count,"Muon Hit");
-    fFlags->GetXaxis()->SetBinLabel(++count,"Muon PileUp");
-
+    fQuit = false;
+    char** args;
+    fApp = new TApplication("app",0,args); //  so we can see the Canvas when we draw it
+    fCanvas = new TCanvas("fCanvas", "fCanvas");
   return 0;
 }
 
 int TestTME::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
-    // Loop over each TME
-    for(MuonEventList::const_iterator i_tme=gMuonEvents.begin();
-            i_tme!=gMuonEvents.end(); ++i_tme){
-        // total pulses
-        fTotalPulses->Fill((*i_tme)->TotalNumPulses());
-        for(DetectorList::const_iterator i_det=fDetectors.begin();
-                i_det!=fDetectors.end(); ++i_det){
-            // pulses per channel
-            int N=0, n;
-            double tme_time= (*i_tme)->GetTime();
-	    int source_index=(*i_tme)->GetSourceIndex(*i_det);
-            while(source_index>-1){
-	      const IDs::source& source=(*i_tme)->GetSource(source_index);
-              n=(*i_tme)->NumPulses(source);
-              N+=n;
-              for(int i=0; i<n; ++i){
-                 const TDetectorPulse* tdp=(*i_tme)->GetPulse(source,i);
-	         if(tdp && (tdp->IsPairedPulse() || !tdp->CouldBePaired()) )
-                    fTDiffPerDetector->Fill(tdp->GetTime() - tme_time, i_det - fDetectors.begin());
-                 else if(!tdp)
-                    ++fNullCount;
-                ++fTdpCount;
-	      }
-	     source_index=(*i_tme)->GetSourceIndex(*i_det,source_index+1);
-	    }
-            fPulsesPerDetector->Fill(N, i_det - fDetectors.begin());
-        }
-        // fill flags hist
-        if((*i_tme)->HasMuonHit()) fFlags->Fill("Muon Hit",1.);
-        if((*i_tme)->HasMuonPileup()) fFlags->Fill("Muon PileUp",1.);
-        //if((*i_tme)->WasEarlyInEvent()) fFlags->Fill("Early",1.);
-        //else if((*i_tme)->WasLateInEvent()) fFlags->Fill("Late",1.);
-        //else  
-            fFlags->Fill("Healthy",1.);
+  // Loop over each TME
+  MuonEventList::const_iterator i_tme = gMuonEvents.begin();
+
+  std::string input;
+  while (!fQuit) {
+    fTDiffPerDetector->Reset();
+    std::cout << "TME #" << i_tme - gMuonEvents.begin() << std::endl;
+
+    // Loop through the detecotrs
+    for(DetectorList::const_iterator i_det=fDetectors.begin();i_det!=fDetectors.end(); ++i_det){
+
+      // pulses per channel
+      int N=0, n;
+      double tme_time= (*i_tme)->GetTime();
+      int source_index=(*i_tme)->GetSourceIndex(*i_det);
+      while(source_index>-1){
+	const IDs::source& source=(*i_tme)->GetSource(source_index);
+	n=(*i_tme)->NumPulses(source);
+	N+=n;
+	for(int i=0; i<n; ++i){
+	  const TDetectorPulse* tdp=(*i_tme)->GetPulse(source,i);
+	  if(tdp && (tdp->IsPairedPulse() || !tdp->CouldBePaired()) )
+	    fTDiffPerDetector->Fill(tdp->GetTime() - tme_time, i_det - fDetectors.begin());
+	}
+	source_index=(*i_tme)->GetSourceIndex(*i_det,source_index+1);
+      }
     }
+    fTDiffPerDetector->Draw("COLZ");
+    fCanvas->Update();
+    std::cout << "Press n to go to next TME (q to quit)" << std::endl;
+    std::cin >> input;
+    if (input == "n") {
+      ++i_tme;
+    }
+    else if (input == "q") {
+      fQuit = true;
+    }
+    else {
+      std::cout << "Not an option" << std::endl;
+    }
+  }
+  /*    for(MuonEventList::const_iterator i_tme=gMuonEvents.begin();
+            i_tme!=gMuonEvents.end(); ++i_tme){
+
+      // First, check for pile-up in the muSc
+      if ( (*i_tme)->HasMuonPileup()) {
+	continue;
+      }
+
+      double tme_time= (*i_tme)->GetTime(); // this is the same as the muSc time
+  */
+      /*      int source_index = (*i_tme)->GetSourceIndex(*fMuSc);
+      const IDs::source& source=(*i_tme)->GetSource(source_index);
+      const TDetectorPulse* muSc_tdp = (*i_tme)->GetPulse(source,0);
+      double muSc_time = muSc_tdp->GetTime();
+      std::cout << tme_time << " - " << muSc_time << " = " << tme_time - muSc_time << std::endl;
+      */
+  /*
+      // Now loop through the SiL1
+      for(DetectorList::const_iterator i_det=fSiL1.begin();
+                i_det!=fSiL1.end(); ++i_det){
+	// pulses per channel
+	int SiL1_source_index=(*i_tme)->GetSourceIndex(*i_det);
+	while(SiL1_source_index>-1){
+	  const IDs::source& SiL1_source=(*i_tme)->GetSource(SiL1_source_index);
+	  
+	  int n_SiL1 = (*i_tme)->NumPulses(SiL1_source);
+	  //	      std::cout << SiL1_source << " has " << n_SiL1 << " pulses" << std::endl;
+	  for(int i=0; i<n_SiL1; ++i){
+	    const TDetectorPulse* tdp=(*i_tme)->GetPulse(SiL1_source,i);
+	    double thin_amplitude = tdp->GetAmplitude();
+
+	    // Loop trhough the SiL2 pulses
+	    int SiL2_source_index=(*i_tme)->GetSourceIndex(*fSiL2);
+	    const IDs::source& SiL2_source=(*i_tme)->GetSource(SiL2_source_index);
+	    int n_SiL2 = (*i_tme)->NumPulses(SiL2_source);
+	    for (int j=0; j<n_SiL2; ++j) {
+	      const TDetectorPulse* tdp_SiL2=(*i_tme)->GetPulse(SiL2_source,j);
+	      double thick_amplitude = tdp_SiL2->GetAmplitude();
+	      std::cout << "(i, j) = (" << i << ", " << j << ") = " << thin_amplitude << ", " << thick_amplitude << std::endl;
+	      fAvdA_SiL->Fill(thin_amplitude, thin_amplitude+thick_amplitude);
+	    }
+	  }
+	  SiL1_source_index=(*i_tme)->GetSourceIndex(*i_det,SiL1_source_index+1);
+	}
+      }
+    }
+*/
   return 0;
 }
 
 int TestTME::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
-  cout<<"TestTME::AfterLastEntry: NULL TDP in TME ("<<++fNullCount<<")"<<endl;
-  cout<<"TestTME::AfterLastEntry: Total number of TDPs ("<<++fTdpCount<<")"<<endl;
-                  cout<<"TestTME::AfterLastEntry: Total entries in fTDiffPerDetector: "<<fTDiffPerDetector->GetEntries()<<endl;
+
   return 0;
 }
 
