@@ -32,6 +32,8 @@ class MakeAnalysedPulses : public BaseModule{
   virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup);
   virtual int AfterLastEntry(TGlobalData* gData,const TSetupData* setup){return 0;};
 
+  void CalibratePulses(const TVAnalysedPulseGenerator* generator, AnalysedPulseList& theAnalysedPulses)const;
+
   ChannelGenerators_t fGenerators;
   StringAnalPulseMap* fAnalysedPulseMap;
   std::string fSlowGeneratorType;

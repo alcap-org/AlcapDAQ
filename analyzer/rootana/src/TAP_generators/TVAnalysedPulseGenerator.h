@@ -28,13 +28,7 @@ class TPulseIsland;
 class TVAnalysedPulseGenerator {
 
     public:
-        TVAnalysedPulseGenerator(const char* name, TAPGeneratorOptions* opts){
-            if(opts){
-                fDebug=( opts->HasOption("debug") || opts->Debug());
-            }
-            fSource.Generator()=IDs::generator(name,opts->StringDescription());
-            SetChannel(opts->GetChannel());
-        };
+        TVAnalysedPulseGenerator(const char* name, TAPGeneratorOptions* opts);
         virtual ~TVAnalysedPulseGenerator(){};
 
     public:
@@ -101,6 +95,8 @@ class TVAnalysedPulseGenerator {
 
         static const char* TapType(){return TAnalysedPulse::Class()->GetName();}
 
+        virtual void CalibratePulses( AnalysedPulseList& theAnalysedPulses)const;
+
     protected:
         friend class MakeAnalysedPulses;
 
@@ -130,6 +126,11 @@ class TVAnalysedPulseGenerator {
         /// \brief
         /// The vector of TPIs being processed.
         PulseIslandList* fPulseList;
+
+        /// Flag if we have calibration constants for this generator
+        bool fCanCalibrate;
+        /// Cache the calibration constants so we don't need to look up in the setup navigator each time
+        double fAdcToEnergyGain, fAdcToEnergyOffset;
 };
 
 template <typename TypeOfTAP>
