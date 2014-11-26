@@ -103,7 +103,7 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		  double thick_energy = tdp_si_thick->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
 		  double thick_time = tdp_si_thick->GetTime();
 		  
-		  if ( (tme_time - thin_time) > 200 ) { 
+		  if ( std::fabs(tme_time - thin_time) > 200 ) { 
 		    (*i_plot)->Fill(thick_energy+thin_energy, thin_energy);
 		  }
 		}
