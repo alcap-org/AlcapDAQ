@@ -31,6 +31,8 @@ class TDetectorPulse : public TObject {
 
         void Reset(Option_t* o = "");
 
+        double GetEnergy(ParentChannel_t ch=kSlow)const{ 
+            TDP_GetField(ch,Energy); }
         double GetTime(ParentChannel_t ch=kFast)const{ 
             TDP_GetField(ch,Time); }
         double GetAmplitude(ParentChannel_t ch=kFast)const{ 
