@@ -74,6 +74,7 @@ class TME_EvdE : public BaseModule {
 
 	std::vector<Arm> fArms;
 	std::vector<TH2F*> fEvdEPlots;
+	std::vector<TH1F*> fTimePlots;
 };
 
 #endif //CHECKTMES_H_

@@ -48,13 +48,21 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fArms.push_back(fRightArm);
 
     //    fSiL1.push_back(IDs::channel (kMuSc   , kNotApplicable ));
-    TH2F* fSiL_EvdE = new TH2F("hSiL_EvdE", "_EvdE Between thick and thin SiL", 1000,0,10000, 1000,0,10000);
-    fSiL_EvdE->SetXTitle("[keV]");
-    fEvdEPlots.push_back(fSiL_EvdE);
+    TH2F* hSiL_EvdE = new TH2F("hSiL_EvdE", "EvdE plot for SiL", 1000,0,10000, 1000,0,10000);
+    hSiL_EvdE->SetXTitle("[keV]");
+    fEvdEPlots.push_back(hSiL_EvdE);
 
-    TH2F* fSiR_EvdE = new TH2F("hSiR_EvdE", "_EvdE Between thick and thin SiR", 1000,0,10000, 1000,0,10000);
-    fSiR_EvdE->SetXTitle("[keV]");
-    fEvdEPlots.push_back(fSiR_EvdE);
+    TH2F* hSiR_EvdE = new TH2F("hSiR_EvdE", "EvdE plot for SiR", 1000,0,10000, 1000,0,10000);
+    hSiR_EvdE->SetXTitle("[keV]");
+    fEvdEPlots.push_back(hSiR_EvdE);
+
+    TH1F* hSiL_Time = new TH1F("hSiL_Time", "Time distribution in SiL", 1000,0,1000);
+    hSiL_Time->SetXTitle("[ns]");
+    fTimePlots.push_back(hSiL_Time);
+
+    TH1F* hSiR_Time = new TH1F("hSiR_Time", "Time distribution in SiR", 1000,0,1000);
+    hSiR_Time->SetXTitle("[ns]");
+    fTimePlots.push_back(hSiR_Time);
 
   return 0;
 }
@@ -72,10 +80,10 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
       double tme_time= (*i_tme)->GetTime(); // this is the same as the muSc time
 
       // Loop through the arms and plots
-      std::vector<TH2F*>::iterator i_plot = fEvdEPlots.begin();
+      std::vector<TH2F*>::iterator i_evde_plot = fEvdEPlots.begin();
       for (std::vector<Arm>::const_iterator i_arm = fArms.begin(); 
-	   i_arm != fArms.end() || i_plot != fEvdEPlots.end(); 
-	   ++i_arm, ++i_plot) {
+	   i_arm != fArms.end() || i_evde_plot != fEvdEPlots.end(); 
+	   ++i_arm, ++i_evde_plot) {
 	// Now loop through the SiL1
 	DetectorList si_thin = (*i_arm).thin;
 	IDs::channel* si_thick = (*i_arm).thick;
@@ -105,7 +113,7 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		  double thick_time = tdp_si_thick->GetTime();
 		  
 		  if ( std::fabs(tme_time - thin_time) > 200 ) { 
-		    (*i_plot)->Fill(thick_energy+thin_energy, thin_energy);
+		    (*i_evde_plot)->Fill(thick_energy+thin_energy, thin_energy);
 		  }
 		}
 		si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick,si_thick_source_index+1);
