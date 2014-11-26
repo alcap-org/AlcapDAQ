@@ -48,11 +48,11 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fArms.push_back(fRightArm);
 
     //    fSiL1.push_back(IDs::channel (kMuSc   , kNotApplicable ));
-    TH2F* fSiL_EvdE = new TH2F("hSiL_EvdE", "_EvdE Between thick and thin SiL", 100,0,10000, 100,0,10000);
+    TH2F* fSiL_EvdE = new TH2F("hSiL_EvdE", "_EvdE Between thick and thin SiL", 1000,0,10000, 1000,0,10000);
     fSiL_EvdE->SetXTitle("[keV]");
     fEvdEPlots.push_back(fSiL_EvdE);
 
-    TH2F* fSiR_EvdE = new TH2F("hSiR_EvdE", "_EvdE Between thick and thin SiR", 100,0,10000, 100,0,10000);
+    TH2F* fSiR_EvdE = new TH2F("hSiR_EvdE", "_EvdE Between thick and thin SiR", 1000,0,10000, 1000,0,10000);
     fSiR_EvdE->SetXTitle("[keV]");
     fEvdEPlots.push_back(fSiR_EvdE);
 
