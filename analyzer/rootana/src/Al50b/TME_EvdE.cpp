@@ -37,12 +37,23 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fSiR1.push_back(IDs::channel (kSiR1_3 , kNotApplicable ));
     fSiR1.push_back(IDs::channel (kSiR1_4 , kNotApplicable ));
     fSiR2 = new IDs::channel (kSiR2   , kNotApplicable );
-    //    fSiL1.push_back(IDs::channel (kMuSc   , kNotApplicable ));
-    fSiL_EvdE = new TH2F("hSiL_EvdE", "_EvdE Between thick and thin SiL", 100,0,10000, 100,0,10000);
-    fSiL_EvdE->SetXTitle("[keV]");
 
-    fSiR_EvdE = new TH2F("hSiR_EvdE", "_EvdE Between thick and thin SiR", 100,0,10000, 100,0,10000);
+    fLeftArm.thin = fSiL1;
+    fLeftArm.thick = fSiL2;
+    fRightArm.thin = fSiR1;
+    fRightArm.thick = fSiR2;
+
+    fArms.push_back(fLeftArm);
+    fArms.push_back(fRightArm);
+
+    //    fSiL1.push_back(IDs::channel (kMuSc   , kNotApplicable ));
+    TH2F* fSiL_EvdE = new TH2F("hSiL_EvdE", "_EvdE Between thick and thin SiL", 100,0,10000, 100,0,10000);
+    fSiL_EvdE->SetXTitle("[keV]");
+    fEvdEPlots.push_back(fSiL_EvdE);
+
+    TH2F* fSiR_EvdE = new TH2F("hSiR_EvdE", "_EvdE Between thick and thin SiR", 100,0,10000, 100,0,10000);
     fSiR_EvdE->SetXTitle("[keV]");
+    fEvdEPlots.push_back(fSiR_EvdE);
 
   return 0;
 }
@@ -59,66 +70,43 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
       double tme_time= (*i_tme)->GetTime(); // this is the same as the muSc time
 
-      // Now loop through the SiL1
-      for(DetectorList::const_iterator i_det=fSiL1.begin();
-                i_det!=fSiL1.end(); ++i_det){
-	// pulses per channel
-	int SiL1_source_index=(*i_tme)->GetSourceIndex(*i_det);
-	while(SiL1_source_index>-1){
-	  const IDs::source& SiL1_source=(*i_tme)->GetSource(SiL1_source_index);
-	  
-	  int n_SiL1 = (*i_tme)->NumPulses(SiL1_source);
-	  //	      std::cout << SiL1_source << " has " << n_SiL1 << " pulses" << std::endl;
-	  for(int i=0; i<n_SiL1; ++i){
-	    const TDetectorPulse* tdp=(*i_tme)->GetPulse(SiL1_source,i);
-	    double thin_energy = tdp->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
+      // Loop through the arms and plots
+      std::vector<TH2F*>::iterator i_plot = fEvdEPlots.begin();
+      for (std::vector<Arm>::const_iterator i_arm = fArms.begin(); 
+	   i_arm != fArms.end() || i_plot != fEvdEPlots.end(); 
+	   ++i_arm, ++i_plot) {
+	// Now loop through the SiL1
+	DetectorList si_thin = (*i_arm).thin;
+	IDs::channel* si_thick = (*i_arm).thick;
 
-	    // Loop trhough the SiL2 pulses
-	    int SiL2_source_index=(*i_tme)->GetSourceIndex(*fSiL2);
-	    while (SiL2_source_index>-1) {
-	      const IDs::source& SiL2_source=(*i_tme)->GetSource(SiL2_source_index);
-	      int n_SiL2 = (*i_tme)->NumPulses(SiL2_source);
-	      for (int j=0; j<n_SiL2; ++j) {
-		const TDetectorPulse* tdp_SiL2=(*i_tme)->GetPulse(SiL2_source,j);
-		double thick_energy = tdp_SiL2->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
-		fSiL_EvdE->Fill(thick_energy+thin_energy, thin_energy);
+	for(DetectorList::const_iterator i_det=si_thin.begin();
+	    i_det!=si_thin.end(); ++i_det){
+	  // pulses per channel
+	  int si_thin_source_index=(*i_tme)->GetSourceIndex(*i_det);
+	  while(si_thin_source_index>-1){
+	    const IDs::source& si_thin_source=(*i_tme)->GetSource(si_thin_source_index);
+	    
+	    int n_si_thin = (*i_tme)->NumPulses(si_thin_source);
+	    //	      std::cout << si_thin_source << " has " << n_si_thin << " pulses" << std::endl;
+	    for(int i=0; i<n_si_thin; ++i){
+	      const TDetectorPulse* tdp_si_thin=(*i_tme)->GetPulse(si_thin_source,i);
+	      double thin_energy = tdp_si_thin->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
+	      
+	      // Loop trhough the si_thick pulses
+	      int si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick);
+	      while (si_thick_source_index>-1) {
+		const IDs::source& si_thick_source=(*i_tme)->GetSource(si_thick_source_index);
+		int n_si_thick = (*i_tme)->NumPulses(si_thick_source);
+		for (int j=0; j<n_si_thick; ++j) {
+		  const TDetectorPulse* tdp_si_thick=(*i_tme)->GetPulse(si_thick_source,j);
+		  double thick_energy = tdp_si_thick->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
+		  (*i_plot)->Fill(thick_energy+thin_energy, thin_energy);
+		}
+		si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick,si_thick_source_index+1);
 	      }
-	      SiL2_source_index=(*i_tme)->GetSourceIndex(*fSiL2,SiL2_source_index+1);
 	    }
+	    si_thin_source_index=(*i_tme)->GetSourceIndex(*i_det,si_thin_source_index+1);
 	  }
-	  SiL1_source_index=(*i_tme)->GetSourceIndex(*i_det,SiL1_source_index+1);
-	}
-      }
-
-      // Now loop through the SiR1
-      for(DetectorList::const_iterator i_det=fSiR1.begin();
-                i_det!=fSiR1.end(); ++i_det){
-	// pulses per channel
-	int SiR1_source_index=(*i_tme)->GetSourceIndex(*i_det);
-	while(SiR1_source_index>-1){
-	  const IDs::source& SiR1_source=(*i_tme)->GetSource(SiR1_source_index);
-	  
-	  int n_SiR1 = (*i_tme)->NumPulses(SiR1_source);
-	  //	      std::cout << SiR1_source << " has " << n_SiR1 << " pulses" << std::endl;
-	  for(int i=0; i<n_SiR1; ++i){
-	    const TDetectorPulse* tdp=(*i_tme)->GetPulse(SiR1_source,i);
-	    double thin_energy = tdp->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
-
-	    // Loop trhough the SiR2 pulses
-	    int SiR2_source_index=(*i_tme)->GetSourceIndex(*fSiR2);
-	    while (SiR2_source_index>-1) {
-	      const IDs::source& SiR2_source=(*i_tme)->GetSource(SiR2_source_index);
-	      int n_SiR2 = (*i_tme)->NumPulses(SiR2_source);
-	      for (int j=0; j<n_SiR2; ++j) {
-		const TDetectorPulse* tdp_SiR2=(*i_tme)->GetPulse(SiR2_source,j);
-		double thick_energy = tdp_SiR2->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
-		//		std::cout << "Slow Energies: " << tdp_SiR2->GetTAP(TDetectorPulse::kSlow)->GetEnergy() << ", " << tdp->GetTAP(TDetectorPulse::kSlow)->GetEnergy() << std::endl;
-		fSiR_EvdE->Fill(thick_energy+thin_energy, thin_energy);
-	      }
-	      SiR2_source_index=(*i_tme)->GetSourceIndex(*fSiR2,SiR2_source_index+1);
-	    }
-	  }
-	  SiR1_source_index=(*i_tme)->GetSourceIndex(*i_det,SiR1_source_index+1);
 	}
       }
     }

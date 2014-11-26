@@ -67,8 +67,13 @@ class TME_EvdE : public BaseModule {
         DetectorList fSiR1;
 	IDs::channel* fSiR2;
 
-	TH2F* fSiL_EvdE;
-	TH2F* fSiR_EvdE;
+	struct Arm {
+	  DetectorList thin;
+	  IDs::channel* thick;
+	} fLeftArm, fRightArm;
+
+	std::vector<Arm> fArms;
+	std::vector<TH2F*> fEvdEPlots;
 };
 
 #endif //CHECKTMES_H_
