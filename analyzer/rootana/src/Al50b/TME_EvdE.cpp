@@ -56,11 +56,11 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     hSiR_EvdE->SetXTitle("[keV]");
     fEvdEPlots.push_back(hSiR_EvdE);
 
-    TH1F* hSiL_Time = new TH1F("hSiL_Time", "Time distribution in SiL", 1000,0,1000);
+    TH1F* hSiL_Time = new TH1F("hSiL_Time", "Time distribution in SiL", 2000,-20000,20000);
     hSiL_Time->SetXTitle("[ns]");
     fTimePlots.push_back(hSiL_Time);
 
-    TH1F* hSiR_Time = new TH1F("hSiR_Time", "Time distribution in SiR", 1000,0,1000);
+    TH1F* hSiR_Time = new TH1F("hSiR_Time", "Time distribution in SiR", 2000,-20000,20000);
     hSiR_Time->SetXTitle("[ns]");
     fTimePlots.push_back(hSiR_Time);
 
@@ -81,9 +81,10 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
       // Loop through the arms and plots
       std::vector<TH2F*>::iterator i_evde_plot = fEvdEPlots.begin();
+      std::vector<TH1F*>::iterator i_time_plot = fTimePlots.begin();
       for (std::vector<Arm>::const_iterator i_arm = fArms.begin(); 
-	   i_arm != fArms.end() || i_evde_plot != fEvdEPlots.end(); 
-	   ++i_arm, ++i_evde_plot) {
+	   i_arm != fArms.end() || i_evde_plot != fEvdEPlots.end() || i_time_plot != fTimePlots.end(); 
+	   ++i_arm, ++i_evde_plot, ++i_time_plot) {
 	// Now loop through the SiL1
 	DetectorList si_thin = (*i_arm).thin;
 	IDs::channel* si_thick = (*i_arm).thick;
@@ -114,6 +115,7 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		  
 		  if ( std::fabs(tme_time - thin_time) > 200 ) { 
 		    (*i_evde_plot)->Fill(thick_energy+thin_energy, thin_energy);
+		    (*i_time_plot)->Fill(tme_time - thin_time);
 		  }
 		}
 		si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick,si_thick_source_index+1);
