@@ -91,7 +91,8 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	    for(int i=0; i<n_si_thin; ++i){
 	      const TDetectorPulse* tdp_si_thin=(*i_tme)->GetPulse(si_thin_source,i);
 	      double thin_energy = tdp_si_thin->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
-	      
+	      double thin_time = tdp_si_thin->GetTime();
+
 	      // Loop trhough the si_thick pulses
 	      int si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick);
 	      while (si_thick_source_index>-1) {
@@ -100,7 +101,11 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		for (int j=0; j<n_si_thick; ++j) {
 		  const TDetectorPulse* tdp_si_thick=(*i_tme)->GetPulse(si_thick_source,j);
 		  double thick_energy = tdp_si_thick->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
-		  (*i_plot)->Fill(thick_energy+thin_energy, thin_energy);
+		  double thick_time = tdp_si_thick->GetTime();
+		  
+		  if ( (tme_time - thin_time) > 200 ) { 
+		    (*i_plot)->Fill(thick_energy+thin_energy, thin_energy);
+		  }
 		}
 		si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick,si_thick_source_index+1);
 	      }
