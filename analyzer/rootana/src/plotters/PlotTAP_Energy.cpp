@@ -53,8 +53,14 @@ int PlotTAP_Energy::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
             histtitle<<"Energy of pulses from source " << i_det->first;
             histtitle<<" for run "<<SetupNavigator::Instance()->GetRunNumber();
             int n_bits = gSetup->GetNBits(gSetup->GetBankName(i_det->first.Channel().str()));
-            double max_adc_value = std::pow(2, n_bits);
-            TH1F* hEnergy = new TH1F(histname.c_str(), histtitle.str().c_str(), max_adc_value,0,max_adc_value);
+            const double max_adc_value = std::pow(2, n_bits);
+            double gain  = 1;
+            double offset= 0;
+            try{
+               gain  = SetupNavigator::Instance()->GetAdcToEnergyGain(    i_det->first.Channel());
+               offset= SetupNavigator::Instance()->GetAdcToEnergyConstant(i_det->first.Channel());
+            }catch( Except::InvalidDetector& e){};
+            TH1F* hEnergy = new TH1F(histname.c_str(), histtitle.str().c_str(), max_adc_value,0,gain*max_adc_value + offset);
             hEnergy->GetXaxis()->SetTitle("Energy (KeV)");
             hEnergy->GetYaxis()->SetTitle("Arbitrary Units");
             fEnergyPlots[keyname] = hEnergy;
