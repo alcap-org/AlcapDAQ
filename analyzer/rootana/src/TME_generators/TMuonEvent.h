@@ -3,6 +3,7 @@
 
 #include "definitions.h"
 #include "TDetectorPulse.h"
+#include "TSiliconEvent.h"
 #include <set>
 #include <vector>
 
@@ -20,6 +21,8 @@
 /// @see www.github.com/alcap-org/AlcapDAQ/issues/110
 class TMuonEvent{
     public:
+        enum LeftRight_t{kLeft, kRight};
+        
         /// @brief Construct a TMuonEvent with a known central muon
         TMuonEvent(const TDetectorPulse* central_mu, double window):
             fCentralMuon(central_mu),fWindowWidth(window) {};
@@ -101,11 +104,19 @@ class TMuonEvent{
         double GetTime()const {return fCentralMuon->GetTime(TDetectorPulse::kFast);}
         const TDetectorPulse* GetCentralMuon()const {return fCentralMuon;}
 
+        void InsertSiliconEvent(LeftRight_t lr, const TSiliconEvent& si_evt){
+           fSiliconHits[lr].push_back(si_evt); 
+        }
+        SiliconHitList::const_iterator BeginSiEvents(LeftRight_t lr)const{ return fSiliconHits[lr].begin();}
+        SiliconHitList::const_iterator EndSiEvents(LeftRight_t lr)const{ return fSiliconHits[lr].end();}
+
     private:
-            SourceDetPulseMap fPulseLists;
-            const TDetectorPulse* fCentralMuon;
-            double fWindowWidth;
-            typedef std::set<IDs::source> SourceSet;
-            SourceSet fExhaustedChannels;
+        SourceDetPulseMap fPulseLists;
+        SiliconHitList fSiliconHits[2];
+        const TDetectorPulse* fCentralMuon;
+        double fWindowWidth;
+        typedef std::set<IDs::source> SourceSet;
+        SourceSet fExhaustedChannels;
+
 };
 #endif // TMuonEvent_hh_
