@@ -63,6 +63,7 @@ class PlotTME_EvdE : public BaseModule {
 
     private:
         SourceSet fSourceList[LR::kNum];
+        double fSiWindow;
 };
 
 #endif //PLOTTME_EVDE_H_

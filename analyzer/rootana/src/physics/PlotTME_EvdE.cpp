@@ -40,7 +40,8 @@ const char* LR::str(LR::Type e, bool big){
 }
 
 PlotTME_EvdE::PlotTME_EvdE(modules::options* opts):
-   BaseModule("PlotTME_EvdE",opts){
+   BaseModule("PlotTME_EvdE",opts),
+   fSiWindow(opts->GetDouble("si_window",100)){
 }
 
 PlotTME_EvdE::~PlotTME_EvdE(){
@@ -60,7 +61,7 @@ int PlotTME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         fSourceList[i].E_vs_dE_no_pileUp=new TH2F(
                 Form("hE_vs_dE_no_pileUp_%s",LR::str(i,1)),
                 Form("Pile-up protected E vs dE for Si%s",LR::str(i)),
-                400,0,2500,400,0,8);
+                400,0,8000,400,0,8000);
         fSourceList[i].E_vs_dE_no_pileUp->SetXTitle("Amplitude");
         fSourceList[i].E_vs_dE_no_pileUp->SetYTitle("Amplitude");
 
@@ -68,7 +69,8 @@ int PlotTME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
         fSourceList[i].E_vs_dE_with_pileUp=new TH2F(
                 Form("hE_vs_dE_with_pileUp%s",LR::str(i,1)),
                 Form("E vs dE (without pile-up protection) for Si%s",LR::str(i)),
-                400,0,2500,400,0,8);
+                400,0,8000,400,0,8000);
+                //400,0,2500,400,0,0.1);
         fSourceList[i].E_vs_dE_with_pileUp->SetXTitle("E + dE (KeV)");
         fSourceList[i].E_vs_dE_with_pileUp->SetYTitle("E (keV)");
     }
@@ -89,31 +91,28 @@ int PlotTME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
         for(int side=0;side<LR::kNum;++side){
             // setup limits
             for(int i_ch=0;i_ch<Ch::kNum;++i_ch){
-                if(tme->NumPulses(fSourceList[side].sources[i_ch])==0){
-                    begin[i_ch]=DetectorPulseList::const_iterator();
-                    end[i_ch]=DetectorPulseList::const_iterator();
-                } else{
-                    begin[i_ch]=tme->BeginPulses(fSourceList[side].sources[i_ch]);
-                    end[i_ch]=tme->EndPulses(fSourceList[side].sources[i_ch]);
-                }
+                begin[i_ch]=tme->BeginPulses(fSourceList[side].sources[i_ch]);
+                end[i_ch]=tme->EndPulses(fSourceList[side].sources[i_ch]);
                 if(i_ch<4) i_thin[i_ch]=begin[i_ch];
             }
 
             // For each SiR2 hit
             for(DetectorPulseList::const_iterator i_Si2=begin[Ch::k2]; i_Si2!=end[Ch::k2]; ++i_Si2){
-                double time_start=(*i_Si2)->GetTime();
-                double time_stop=(i_Si2+1==end[Ch::k2])? 1e9:(*(i_Si2+1))->GetTime();
-                double E_thick=(*i_Si2)->GetAmplitude();
+                double time_start=(*i_Si2)->GetTime() - fSiWindow;
+                double time_stop=(*i_Si2)->GetTime() + fSiWindow;
+                double E_thick=(*i_Si2)->GetEnergy(TDetectorPulse::kSlow);
+                for(int i=0; i<4;++i) n_thin[i]=0;  // reset the thin pulse counters
 
                 // Add all correlated thin hits together
                 double dE=0;
                 for(int i=0; i<4;++i){
                     for(;i_thin[i]!=end[i] ; ++i_thin[i]){
                         const TDetectorPulse* pulse=*i_thin[i];
-                        if(!pulse->IsPairedPulse())continue;
-                        if(pulse->GetTime() > time_stop) break;
-                        if(pulse->GetTime() < time_start) continue;
-                        dE+=pulse->GetAmplitude();
+                        if(!pulse->IsGood())continue;
+                        double time=pulse->GetTime(TDetectorPulse::kFast);
+                        if( time > time_stop) break;
+                        if( time < time_start) continue;
+                        dE+=pulse->GetEnergy(TDetectorPulse::kSlow);
                     }
                 }
 
@@ -130,6 +129,12 @@ int PlotTME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 }
 
 int PlotTME_EvdE::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
+  if(Debug()){
+    for(int side=0;side<LR::kNum;++side){
+      cout<<"PlotTME_EvdE: E_vs_dE_no_pileUp "<< LR::str(side) <<" has "<<fSourceList[side].E_vs_dE_no_pileUp->GetEntries()<<endl;
+      cout<<"PlotTME_EvdE: E_vs_dE_with_pileUp "<< LR::str(side) <<" has "<<fSourceList[side].E_vs_dE_with_pileUp->GetEntries()<<endl;
+    }
+  }
   return 0;
 }
 
