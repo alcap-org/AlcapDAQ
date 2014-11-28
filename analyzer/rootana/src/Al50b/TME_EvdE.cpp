@@ -56,11 +56,11 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     hSiR_EvdE->SetXTitle("[keV]");
     fEvdEPlots.push_back(hSiR_EvdE);
 
-    TH1F* hSiL_Time = new TH1F("hSiL_Time", "Time distribution in SiL", 2000,-20000,20000);
+    TH1F* hSiL_Time = new TH1F("hSiL_Time", "Time distribution in SiL", 2500,0,5000);
     hSiL_Time->SetXTitle("[ns]");
     fTimePlots.push_back(hSiL_Time);
 
-    TH1F* hSiR_Time = new TH1F("hSiR_Time", "Time distribution in SiR", 2000,-20000,20000);
+    TH1F* hSiR_Time = new TH1F("hSiR_Time", "Time distribution in SiR", 2500,0,5000);
     hSiR_Time->SetXTitle("[ns]");
     fTimePlots.push_back(hSiR_Time);
 
@@ -113,7 +113,7 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		  double thick_energy = tdp_si_thick->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
 		  double thick_time = tdp_si_thick->GetTime();
 		  
-		  if ( std::fabs(tme_time - thin_time) > 200 ) { 
+		  if ( std::fabs(thin_time - tme_time) > 200 ) { 
 		    (*i_evde_plot)->Fill(thick_energy+thin_energy, thin_energy);
 		    (*i_time_plot)->Fill(tme_time - thin_time);
 		  }
