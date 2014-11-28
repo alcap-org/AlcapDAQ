@@ -112,10 +112,10 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		  const TDetectorPulse* tdp_si_thick=(*i_tme)->GetPulse(si_thick_source,j);
 		  double thick_energy = tdp_si_thick->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
 		  double thick_time = tdp_si_thick->GetTime();
-		  
-		  if ( std::fabs(thin_time - tme_time) > 200 ) { 
+		  double time_difference = thin_time - tme_time;
+		  if ( time_difference > 200 ) { 
 		    (*i_evde_plot)->Fill(thick_energy+thin_energy, thin_energy);
-		    (*i_time_plot)->Fill(tme_time - thin_time);
+		    (*i_time_plot)->Fill(time_difference);
 		  }
 		}
 		si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick,si_thick_source_index+1);
