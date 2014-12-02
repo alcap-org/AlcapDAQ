@@ -38,7 +38,8 @@ void LifetimeFits() {
   c1->SaveAs("~/data/out/v33/plots/SiL_DoubleExpFit.pdf");
   c1->SaveAs("~/data/out/v33/plots/SiL_DoubleExpFit.png");
 
-  initial_time = 600;
+  int lead_decay_drop = Pb_decay->GetX(1); // the time at which the exponential goes below 1
+  initial_time = lead_decay_drop - lead_decay_drop%100; // round to the nearest hundred
   TF1* new_expo = new TF1("new_exponential", "[0]*TMath::Exp([1]*x)", initial_time, final_time);    
   new_expo->SetParameter(0, 1000);
   new_expo->SetParameter(1, -0.001);
@@ -49,4 +50,6 @@ void LifetimeFits() {
 
   std::cout << "[" << initial_time << ", " << final_time << "]: Al = " << al_lifetime << " +- " << al_error << " ns" << std::endl;
   std::cout << "[" << initial_time << ", " << final_time << "]: chi^2/ndf = " << new_expo->GetChisquare() / new_expo->GetNDF() << std::endl;
+  c1->SaveAs("~/data/out/v33/plots/SiL_SingleExpFit.pdf");
+  c1->SaveAs("~/data/out/v33/plots/SiL_SingleExpFit.png");
 }
