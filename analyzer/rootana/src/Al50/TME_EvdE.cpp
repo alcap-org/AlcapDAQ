@@ -44,6 +44,12 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fRightArm.thin = fSiR1;
     fRightArm.thick = fSiR2;
 
+    // Hard-coded for the time being
+    fLeftArm.lower_time_cut = 600;
+    fLeftArm.upper_time_cut = 6000;
+    fRightArm.lower_time_cut = 500;
+    fRightArm.upper_time_cut = 4000;
+
     fArms.push_back(fLeftArm);
     fArms.push_back(fRightArm);
 
@@ -119,10 +125,10 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		  double thick_energy = tdp_si_thick->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
 		  double thick_time = tdp_si_thick->GetTime();
 		  double time_difference = thin_time - tme_time;
-		  //		  if ( time_difference > 200 ) { 
+		  if ( time_difference > i_arm->lower_time_cut && time_difference < i_arm->upper_time_cut ) { 
 		    (*i_evde_plot)->Fill(thick_energy+thin_energy, thin_energy);
 		    (*i_time_plot)->Fill(time_difference);
-		    //		  }
+		  }
 		}
 		si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick,si_thick_source_index+1);
 	      }

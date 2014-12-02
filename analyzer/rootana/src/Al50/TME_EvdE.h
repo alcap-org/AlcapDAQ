@@ -70,6 +70,8 @@ class TME_EvdE : public BaseModule {
 	struct Arm {
 	  DetectorList thin;
 	  IDs::channel* thick;
+	  double lower_time_cut;
+	  double upper_time_cut;
 	} fLeftArm, fRightArm;
 
 	std::vector<Arm> fArms;
