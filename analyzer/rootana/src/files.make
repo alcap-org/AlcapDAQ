@@ -10,7 +10,7 @@ DIRS += src/\
         src/plotters/\
         src/data_quality/\
         src/physics/\
-	src/Al50b/
+	src/Al50/
 
 # A list of classes that need dictionary generation by root
 # Make sure to add the relevant lines to the LibraryLinkDef.h file as well
