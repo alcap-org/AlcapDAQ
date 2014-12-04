@@ -56,11 +56,11 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   fArms.push_back(fRightArm);
 
   //    fSiL1.push_back(IDs::channel (kMuSc   , kNotApplicable ));
-  TH2F* hSiL_EvdE = new TH2F("hSiL_EvdE", "EvdE plot for SiL", 1000,0,10000, 1000,0,10000);
+  TH2F* hSiL_EvdE = new TH2F("hSiL_EvdE", "EvdE plot for SiL", 100,0,10000, 100,0,10000);
   hSiL_EvdE->SetXTitle("[keV]");
   fEvdEPlots.push_back(hSiL_EvdE);
 
-  TH2F* hSiR_EvdE = new TH2F("hSiR_EvdE", "EvdE plot for SiR", 1000,0,10000, 1000,0,10000);
+  TH2F* hSiR_EvdE = new TH2F("hSiR_EvdE", "EvdE plot for SiR", 100,0,10000, 100,0,10000);
   hSiR_EvdE->SetXTitle("[keV]");
   fEvdEPlots.push_back(hSiR_EvdE);
 
