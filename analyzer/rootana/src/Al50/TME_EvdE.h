@@ -9,7 +9,7 @@ namespace IDs {class channel;}
 class TH1F;
 class TH2F;
 class TCanvas;
-class TApplication;
+#include "TTree.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
@@ -77,6 +77,9 @@ class TME_EvdE : public BaseModule {
 	std::vector<Arm> fArms;
 	std::vector<TH2F*> fEvdEPlots;
 	std::vector<TH1F*> fTimePlots;
+	
+	bool fProtonCut;
+	TTree* fPIDCutTree;
 };
 
 #endif //CHECKTMES_H_

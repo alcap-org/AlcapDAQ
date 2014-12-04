@@ -1,4 +1,4 @@
-energy/D:p_stop_mean/D:p_stop_sigma/D:proton_mean/D:proton_sigma/D:deuteron_mean/D:deuteron_sigma/D:triton_mean/D:triton_sigma/D
+energy/D:p_stop_mean/D:p_stop_sigma/D:proton_mean/D:proton_sigma/D:deuteron_mean/D:deuteron_sigma/D:triton_mean/D:triton_sigma/D:alpha_mean/D:alpha_sigma/D
 0 0 0 0 0 0 0 0 0 0 0 
 100 0 0 0 0 0 0 0 0 0 0 
 200 0 0 0 0 0 0 0 0 0 0 

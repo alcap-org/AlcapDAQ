@@ -20,55 +20,66 @@ using std::endl;
 extern MuonEventList gMuonEvents;
 
 TME_EvdE::TME_EvdE(modules::options* opts):
-   BaseModule("TME_EvdE",opts),fNullCount(0),fTdpCount(0){
+  BaseModule("TME_EvdE",opts),fNullCount(0),fTdpCount(0){
+
+  fProtonCut=opts->GetBool("proton_cut", false);
 }
 
 TME_EvdE::~TME_EvdE(){
 }
 
 int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
-    using namespace IDs;
-    fSiL1.push_back(IDs::channel (kSiL1_1 , kNotApplicable ));
-    fSiL1.push_back(IDs::channel (kSiL1_2 , kNotApplicable ));
-    fSiL1.push_back(IDs::channel (kSiL1_3 , kNotApplicable ));
-    fSiL1.push_back(IDs::channel (kSiL1_4 , kNotApplicable ));
-    fSiL2 = new IDs::channel (kSiL2   , kNotApplicable );
-    fSiR1.push_back(IDs::channel (kSiR1_1 , kNotApplicable ));
-    fSiR1.push_back(IDs::channel (kSiR1_2 , kNotApplicable ));
-    fSiR1.push_back(IDs::channel (kSiR1_3 , kNotApplicable ));
-    fSiR1.push_back(IDs::channel (kSiR1_4 , kNotApplicable ));
-    fSiR2 = new IDs::channel (kSiR2   , kNotApplicable );
+  using namespace IDs;
+  fSiL1.push_back(IDs::channel (kSiL1_1 , kNotApplicable ));
+  fSiL1.push_back(IDs::channel (kSiL1_2 , kNotApplicable ));
+  fSiL1.push_back(IDs::channel (kSiL1_3 , kNotApplicable ));
+  fSiL1.push_back(IDs::channel (kSiL1_4 , kNotApplicable ));
+  fSiL2 = new IDs::channel (kSiL2   , kNotApplicable );
+  fSiR1.push_back(IDs::channel (kSiR1_1 , kNotApplicable ));
+  fSiR1.push_back(IDs::channel (kSiR1_2 , kNotApplicable ));
+  fSiR1.push_back(IDs::channel (kSiR1_3 , kNotApplicable ));
+  fSiR1.push_back(IDs::channel (kSiR1_4 , kNotApplicable ));
+  fSiR2 = new IDs::channel (kSiR2   , kNotApplicable );
 
-    fLeftArm.thin = fSiL1;
-    fLeftArm.thick = fSiL2;
-    fRightArm.thin = fSiR1;
-    fRightArm.thick = fSiR2;
+  fLeftArm.thin = fSiL1;
+  fLeftArm.thick = fSiL2;
+  fRightArm.thin = fSiR1;
+  fRightArm.thick = fSiR2;
 
-    // Hard-coded for the time being
-    fLeftArm.lower_time_cut = 600;
-    fLeftArm.upper_time_cut = 6000;
-    fRightArm.lower_time_cut = 500;
-    fRightArm.upper_time_cut = 4000;
+  // Hard-coded for the time being
+  fLeftArm.lower_time_cut = 600;
+  fLeftArm.upper_time_cut = 6000;
+  fRightArm.lower_time_cut = 500;
+  fRightArm.upper_time_cut = 4000;
 
-    fArms.push_back(fLeftArm);
-    fArms.push_back(fRightArm);
+  fArms.push_back(fLeftArm);
+  fArms.push_back(fRightArm);
 
-    //    fSiL1.push_back(IDs::channel (kMuSc   , kNotApplicable ));
-    TH2F* hSiL_EvdE = new TH2F("hSiL_EvdE", "EvdE plot for SiL", 1000,0,10000, 1000,0,10000);
-    hSiL_EvdE->SetXTitle("[keV]");
-    fEvdEPlots.push_back(hSiL_EvdE);
+  //    fSiL1.push_back(IDs::channel (kMuSc   , kNotApplicable ));
+  TH2F* hSiL_EvdE = new TH2F("hSiL_EvdE", "EvdE plot for SiL", 1000,0,10000, 1000,0,10000);
+  hSiL_EvdE->SetXTitle("[keV]");
+  fEvdEPlots.push_back(hSiL_EvdE);
 
-    TH2F* hSiR_EvdE = new TH2F("hSiR_EvdE", "EvdE plot for SiR", 1000,0,10000, 1000,0,10000);
-    hSiR_EvdE->SetXTitle("[keV]");
-    fEvdEPlots.push_back(hSiR_EvdE);
+  TH2F* hSiR_EvdE = new TH2F("hSiR_EvdE", "EvdE plot for SiR", 1000,0,10000, 1000,0,10000);
+  hSiR_EvdE->SetXTitle("[keV]");
+  fEvdEPlots.push_back(hSiR_EvdE);
 
-    TH1F* hSiL_Time = new TH1F("hSiL_Time", "Time distribution in SiL", 2500,0,10000);
-    hSiL_Time->SetXTitle("[ns]");
-    fTimePlots.push_back(hSiL_Time);
+  TH1F* hSiL_Time = new TH1F("hSiL_Time", "Time distribution in SiL", 2500,0,10000);
+  hSiL_Time->SetXTitle("[ns]");
+  fTimePlots.push_back(hSiL_Time);
 
-    TH1F* hSiR_Time = new TH1F("hSiR_Time", "Time distribution in SiR", 2500,0,10000);
-    hSiR_Time->SetXTitle("[ns]");
-    fTimePlots.push_back(hSiR_Time);
+  TH1F* hSiR_Time = new TH1F("hSiR_Time", "Time distribution in SiR", 2500,0,10000);
+  hSiR_Time->SetXTitle("[ns]");
+  fTimePlots.push_back(hSiR_Time);
+
+  if (fProtonCut) {
+    fPIDCutTree = new TTree();
+    fPIDCutTree->ReadFile("src/Al50/pid-cuts.txt");
+    fPIDCutTree->Print();
+  }
+  else {
+    fPIDCutTree = NULL;
+  }
 
   return 0;
 }
@@ -147,4 +158,4 @@ int TME_EvdE::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(TME_EvdE);
+ALCAP_REGISTER_MODULE(TME_EvdE, proton_cut);
