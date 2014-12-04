@@ -10,6 +10,7 @@ class TH1F;
 class TH2F;
 class TCanvas;
 #include "TTree.h"
+#include "TBranch.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
@@ -78,8 +79,10 @@ class TME_EvdE : public BaseModule {
 	std::vector<TH2F*> fEvdEPlots;
 	std::vector<TH1F*> fTimePlots;
 	
-	bool fProtonCut;
+	bool fStoppedProtonCut;
 	TTree* fPIDCutTree;
+	TBranch* fEnergyBranch;
+	double fEnergyEntry;
 };
 
 #endif //CHECKTMES_H_

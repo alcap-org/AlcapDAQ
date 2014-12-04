@@ -22,7 +22,7 @@ extern MuonEventList gMuonEvents;
 TME_EvdE::TME_EvdE(modules::options* opts):
   BaseModule("TME_EvdE",opts),fNullCount(0),fTdpCount(0){
 
-  fProtonCut=opts->GetBool("proton_cut", false);
+  fStoppedProtonCut=opts->GetBool("stopped_proton_cut", false);
 }
 
 TME_EvdE::~TME_EvdE(){
@@ -72,10 +72,13 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   hSiR_Time->SetXTitle("[ns]");
   fTimePlots.push_back(hSiR_Time);
 
-  if (fProtonCut) {
+  if (fStoppedProtonCut) {
     fPIDCutTree = new TTree();
     fPIDCutTree->ReadFile("src/Al50/pid-cuts.txt");
     fPIDCutTree->Print();
+
+    fEnergyBranch = (TBranch*) fPIDCutTree->GetBranch("energy");
+    fEnergyBranch->SetAddress(&fEnergyEntry);
   }
   else {
     fPIDCutTree = NULL;
@@ -136,9 +139,29 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		  double thick_energy = tdp_si_thick->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
 		  double thick_time = tdp_si_thick->GetTime();
 		  double time_difference = thin_time - tme_time;
+
+		  // Make the timing cut
 		  if ( time_difference > i_arm->lower_time_cut && time_difference < i_arm->upper_time_cut ) { 
-		    (*i_evde_plot)->Fill(thick_energy+thin_energy, thin_energy);
-		    (*i_time_plot)->Fill(time_difference);
+
+		    // Now check if this passes our proton cut
+		    if (fStoppedProtonCut) {
+
+		      // Find the entry for this total energy
+		      double proton_mean_dE;
+		      double proton_sigma_dE;
+		      for (int i_entry = 0; i_entry < fPIDCutTree->GetEntries(); ++i_entry) {
+			fPIDCutTree->GetEntry(i_entry);
+			std::cout << fEnergyEntry << " keV" << std::endl;
+		      }
+			     
+		      double proton_dE_lower = proton_mean_dE - proton_sigma_dE;
+		      double proton_dE_upper = proton_mean_dE + proton_sigma_dE;
+
+		      if (thin_energy > proton_dE_lower && thin_energy < proton_dE_upper) {
+			(*i_evde_plot)->Fill(thick_energy+thin_energy, thin_energy);
+			(*i_time_plot)->Fill(time_difference);
+		      }
+		    }
 		  }
 		}
 		si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick,si_thick_source_index+1);
@@ -158,4 +181,4 @@ int TME_EvdE::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(TME_EvdE, proton_cut);
+ALCAP_REGISTER_MODULE(TME_EvdE, stopped_proton_cut);
