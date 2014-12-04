@@ -167,11 +167,11 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		    // Now check if this passes our proton cut
 		    if (fStoppedProtonCut) {
 		      int bin = fStoppedProtonProbHist->FindBin(thick_energy+thin_energy, thin_energy);
-		      std::cout << "Bin #" << bin << std::endl;
+		      //		      std::cout << "Bin #" << bin << std::endl;
 		      double probability = fStoppedProtonProbHist->GetBinContent(bin);
-		      std::cout << "P(stopped proton | E = " << thick_energy+thin_energy << " & dE = " << thin_energy << ") = " << probability << std::endl;
+		      //		      std::cout << "P(stopped proton | E = " << thick_energy+thin_energy << " & dE = " << thin_energy << ") = " << probability << std::endl;
 		      if (probability > 0.99) {
-			std::cout << "Passes" << std::endl;
+			//			std::cout << "Passes" << std::endl;
 			passes_cuts = true;
 		      }
 		    }
