@@ -74,7 +74,7 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
   if (fStoppedProtonCut) {
     TTree* pid_cuts_tree = new TTree();
-    pid_cuts_tree->ReadFile("src/Al50/pid-cuts.txt");
+    pid_cuts_tree->ReadFile("/gpfs/home/edmonds_a/AlcapDAQ/analyzer/rootana/src/Al50/pid-cuts.txt");
     pid_cuts_tree->Print();
 
     TBranch* energy_branch = (TBranch*) pid_cuts_tree->GetBranch("energy");
