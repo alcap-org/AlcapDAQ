@@ -140,6 +140,7 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		  double thick_time = tdp_si_thick->GetTime();
 		  double time_difference = thin_time - tme_time;
 
+		  bool passes_cuts = false;
 		  // Make the timing cut
 		  if ( time_difference > i_arm->lower_time_cut && time_difference < i_arm->upper_time_cut ) { 
 
@@ -151,17 +152,27 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		      double proton_sigma_dE;
 		      for (int i_entry = 0; i_entry < fPIDCutTree->GetEntries(); ++i_entry) {
 			fPIDCutTree->GetEntry(i_entry);
-			std::cout << fEnergyEntry << " keV" << std::endl;
+			if (thick_energy+thin_energy < fEnergyEntry) {
+			  std::cout << thick_energy + thin_energy << " matches " << fEnergyEntry << " keV" << std::endl;
+			  break;
+			}
 		      }
 			     
 		      double proton_dE_lower = proton_mean_dE - proton_sigma_dE;
 		      double proton_dE_upper = proton_mean_dE + proton_sigma_dE;
 
 		      if (thin_energy > proton_dE_lower && thin_energy < proton_dE_upper) {
-			(*i_evde_plot)->Fill(thick_energy+thin_energy, thin_energy);
-			(*i_time_plot)->Fill(time_difference);
+			passes_cuts = true;
 		      }
 		    }
+		    else { // everything passes if we're not cutting on protons
+		      passes_cuts = true;
+		    }
+		  }
+
+		  if (passes_cuts) {
+		    (*i_evde_plot)->Fill(thick_energy+thin_energy, thin_energy);
+		    (*i_time_plot)->Fill(time_difference);
 		  }
 		}
 		si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick,si_thick_source_index+1);
