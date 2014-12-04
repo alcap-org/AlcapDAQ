@@ -83,6 +83,10 @@ class TME_EvdE : public BaseModule {
 	TTree* fPIDCutTree;
 	TBranch* fEnergyBranch;
 	double fEnergyEntry;
+	TBranch* fStoppedProtonMeanBranch;
+	double fStoppedProtonMeanEntry;
+	TBranch* fStoppedProtonSigmaBranch;
+	double fStoppedProtonSigmaEntry;
 };
 
 #endif //CHECKTMES_H_

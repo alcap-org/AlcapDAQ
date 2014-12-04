@@ -79,6 +79,12 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
     fEnergyBranch = (TBranch*) fPIDCutTree->GetBranch("energy");
     fEnergyBranch->SetAddress(&fEnergyEntry);
+
+    fStoppedProtonMeanBranch = (TBranch*) fPIDCutTree->GetBranch("p_stop_mean");
+    fStoppedProtonMeanBranch->SetAddress(&fStoppedProtonMeanEntry);
+    fStoppedProtonSigmaBranch = (TBranch*) fPIDCutTree->GetBranch("p_stop_sigma");
+    fStoppedProtonSigmaBranch->SetAddress(&fStoppedProtonSigmaEntry);
+
   }
   else {
     fPIDCutTree = NULL;
@@ -148,19 +154,18 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		    if (fStoppedProtonCut) {
 
 		      // Find the entry for this total energy
-		      double proton_mean_dE;
-		      double proton_sigma_dE;
 		      for (int i_entry = 0; i_entry < fPIDCutTree->GetEntries(); ++i_entry) {
 			fPIDCutTree->GetEntry(i_entry);
 			if (thick_energy+thin_energy < fEnergyEntry) {
-			  std::cout << thick_energy + thin_energy << " matches " << fEnergyEntry << " keV" << std::endl;
 			  break;
 			}
 		      }
-			     
-		      double proton_dE_lower = proton_mean_dE - proton_sigma_dE;
-		      double proton_dE_upper = proton_mean_dE + proton_sigma_dE;
-
+		      std::cout << thick_energy + thin_energy << " matches " << fEnergyEntry << " keV" << std::endl;
+			  
+		      double proton_dE_lower = fStoppedProtonMeanEntry - fStoppedProtonSigmaEntry;
+		      double proton_dE_upper = fStoppedProtonMeanEntry + fStoppedProtonSigmaEntry;
+		      std::cout << "Limits: " << proton_dE_lower << " -> " << proton_dE_upper << std::endl;
+		      std::cout << "Does " << thin_energy << " pass?" << std::endl;
 		      if (thin_energy > proton_dE_lower && thin_energy < proton_dE_upper) {
 			passes_cuts = true;
 		      }
