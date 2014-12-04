@@ -80,13 +80,7 @@ class TME_EvdE : public BaseModule {
 	std::vector<TH1F*> fTimePlots;
 	
 	bool fStoppedProtonCut;
-	TTree* fPIDCutTree;
-	TBranch* fEnergyBranch;
-	double fEnergyEntry;
-	TBranch* fStoppedProtonMeanBranch;
-	double fStoppedProtonMeanEntry;
-	TBranch* fStoppedProtonSigmaBranch;
-	double fStoppedProtonSigmaEntry;
+	TH2F* fStoppedProtonProbHist;
 };
 
 #endif //CHECKTMES_H_

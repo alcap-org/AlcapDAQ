@@ -73,21 +73,35 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   fTimePlots.push_back(hSiR_Time);
 
   if (fStoppedProtonCut) {
-    fPIDCutTree = new TTree();
-    fPIDCutTree->ReadFile("src/Al50/pid-cuts.txt");
-    fPIDCutTree->Print();
+    TTree* pid_cuts_tree = new TTree();
+    pid_cuts_tree->ReadFile("src/Al50/pid-cuts.txt");
+    pid_cuts_tree->Print();
 
-    fEnergyBranch = (TBranch*) fPIDCutTree->GetBranch("energy");
-    fEnergyBranch->SetAddress(&fEnergyEntry);
+    TBranch* energy_branch = (TBranch*) pid_cuts_tree->GetBranch("energy");
+    double energy;
+    energy_branch->SetAddress(&energy);
 
-    fStoppedProtonMeanBranch = (TBranch*) fPIDCutTree->GetBranch("p_stop_mean");
-    fStoppedProtonMeanBranch->SetAddress(&fStoppedProtonMeanEntry);
-    fStoppedProtonSigmaBranch = (TBranch*) fPIDCutTree->GetBranch("p_stop_sigma");
-    fStoppedProtonSigmaBranch->SetAddress(&fStoppedProtonSigmaEntry);
 
+    TBranch* d_energy_branch = (TBranch*) pid_cuts_tree->GetBranch("dEnergy");
+    double d_energy;
+    d_energy_branch->SetAddress(&d_energy);
+
+    TBranch* stopped_proton_prob_branch = (TBranch*) pid_cuts_tree->GetBranch("p_stop_prob");
+    double stopped_proton_prob;
+    stopped_proton_prob_branch->SetAddress(&stopped_proton_prob);
+
+    fStoppedProtonProbHist = new TH2F("hStoppedProtonProbHist", "hStoppedProtonProbHist", 100,0,10000, 100,0,10000);
+    fStoppedProtonProbHist->SetXTitle("E [keV]");
+    fStoppedProtonProbHist->SetYTitle("dE [keV]");
+    fStoppedProtonProbHist->SetTitle("Probability that a given (E, dE) is a proton");
+
+    for (int i_entry = 0; i_entry < pid_cuts_tree->GetEntries(); ++i_entry) {
+      pid_cuts_tree->GetEntry(i_entry);
+      fStoppedProtonProbHist->Fill(energy, d_energy, stopped_proton_prob);
+    }
   }
   else {
-    fPIDCutTree = NULL;
+    fStoppedProtonProbHist = NULL;
   }
 
   return 0;
@@ -152,21 +166,12 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
 		    // Now check if this passes our proton cut
 		    if (fStoppedProtonCut) {
-
-		      // Find the entry for this total energy
-		      for (int i_entry = 0; i_entry < fPIDCutTree->GetEntries(); ++i_entry) {
-			fPIDCutTree->GetEntry(i_entry);
-			if (thick_energy+thin_energy < fEnergyEntry) {
-			  break;
-			}
-		      }
-		      std::cout << thick_energy + thin_energy << " matches " << fEnergyEntry << " keV" << std::endl;
-			  
-		      double proton_dE_lower = fStoppedProtonMeanEntry - fStoppedProtonSigmaEntry;
-		      double proton_dE_upper = fStoppedProtonMeanEntry + fStoppedProtonSigmaEntry;
-		      std::cout << "Limits: " << proton_dE_lower << " -> " << proton_dE_upper << std::endl;
-		      std::cout << "Does " << thin_energy << " pass?" << std::endl;
-		      if (thin_energy > proton_dE_lower && thin_energy < proton_dE_upper) {
+		      int bin = fStoppedProtonProbHist->FindBin(thick_energy+thin_energy, thin_energy);
+		      std::cout << "Bin #" << bin << std::endl;
+		      double probability = fStoppedProtonProbHist->GetBinContent(bin);
+		      std::cout << "P(stopped proton | E = " << thick_energy+thin_energy << " & dE = " << thin_energy << ") = " << probability << std::endl;
+		      if (probability > 0.99) {
+			std::cout << "Passes" << std::endl;
 			passes_cuts = true;
 		      }
 		    }
