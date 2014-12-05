@@ -164,10 +164,9 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		  double thin_amplitude = tdp_si_thin->GetAmplitude();
 		  double thin_time = tdp_si_thin->GetTime();
 		  
-		  //		  if (std::fabs(thin_time - thick_time) < 200)
+		  bool passes_cuts = false;
 
 		  double arrival_time = thin_time - tme_time;
-		  bool passes_cuts = false;  
 		  if ( arrival_time > i_arm->lower_time_cut && arrival_time < i_arm->upper_time_cut ) { 
 		    // Now check if this passes our proton cut
 		    if (fStoppedProtonCut) {
@@ -182,10 +181,14 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		    }
 		  }
 
+		  if (thick_time - thin_time > 0) {
+		    //		    std::cout << "abs(t_thin - t_thick) = " << std::fabs(thin_time - thick_time) << std::endl;
+		    passes_cuts=true;
+		  }
 		  if (passes_cuts) {
-		    std::cout << "Amplitude --> Energy (thick): " << thick_amplitude << " --> " << thick_energy << std::endl;
-		    std::cout << "Amplitude --> Energy (thin): " << thin_amplitude << " --> " << thin_energy << std::endl;
-		    std::cout << "Plotting: " << thick_energy+thin_energy << ", " << thin_energy << std::endl;
+		    //		    std::cout << "Amplitude --> Energy (thick): " << thick_amplitude << " --> " << thick_energy << std::endl;
+		    //		    std::cout << "Amplitude --> Energy (thin): " << thin_amplitude << " --> " << thin_energy << std::endl;
+		    //		    std::cout << "Plotting: " << thick_energy+thin_energy << ", " << thin_energy << std::endl;
 		    (*i_evde_plot)->Fill(thick_energy+thin_energy, thin_energy);
 		    (*i_time_plot)->Fill(arrival_time);
 		  }
