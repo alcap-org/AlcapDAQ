@@ -128,54 +128,52 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	   i_arm != fArms.end() || i_evde_plot != fEvdEPlots.end() || i_time_plot != fTimePlots.end(); 
 	   ++i_arm, ++i_evde_plot, ++i_time_plot) {
 
-	// Now loop through the Si1
+	// Check that there are pulses in both the thin and the thick silicon detectors
 	DetectorList si_thin = (*i_arm).thin;
 	IDs::channel* si_thick = (*i_arm).thick;
 
-	// Loop through the thin quadrants
-	for(DetectorList::const_iterator i_det=si_thin.begin();
-	    i_det!=si_thin.end(); ++i_det){
+	// Get the thick detector
+	int si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick);
 
-	  int si_thin_source_index=(*i_tme)->GetSourceIndex(*i_det);
-	  while(si_thin_source_index>-1){
-	    const IDs::source& si_thin_source=(*i_tme)->GetSource(si_thin_source_index);
-	    
-	    int n_si_thin = (*i_tme)->NumPulses(si_thin_source);
-	    //	      std::cout << si_thin_source << " has " << n_si_thin << " pulses" << std::endl;
+	// While there are thick detector sources still around
+	while (si_thick_source_index>-1) {
+	  const IDs::source& si_thick_source=(*i_tme)->GetSource(si_thick_source_index);
+	  int n_si_thick = (*i_tme)->NumPulses(si_thick_source);
 
-	    // Loop through the pulses in this quadrant
-	    for(int i=0; i<n_si_thin; ++i){
-	      const TDetectorPulse* tdp_si_thin=(*i_tme)->GetPulse(si_thin_source,i);
-	      double thin_energy = tdp_si_thin->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
-	      double thin_amplitude = tdp_si_thin->GetAmplitude();
-	      double thin_time = tdp_si_thin->GetTime();
+	  // Loop through the pulses in the thick detector
+	  for (int i_thick_pulse=0; i_thick_pulse<n_si_thick; ++i_thick_pulse) {
+	    const TDetectorPulse* tdp_si_thick=(*i_tme)->GetPulse(si_thick_source,i_thick_pulse);
+	    double thick_energy = tdp_si_thick->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
+	    double thick_amplitude = tdp_si_thick->GetAmplitude();
+	    double thick_time = tdp_si_thick->GetTime();
 
-	      // Get the thick detector and the number of pulses in that
-	      int si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick);
-	      while (si_thick_source_index>-1) {
-		const IDs::source& si_thick_source=(*i_tme)->GetSource(si_thick_source_index);
-		int n_si_thick = (*i_tme)->NumPulses(si_thick_source);
+	    // Loop through the thin quadrants
+	    for(DetectorList::const_iterator i_det=si_thin.begin();
+		i_det!=si_thin.end(); ++i_det){
 
-		// Loop through the si_thick pulses
-		for (int j=0; j<n_si_thick; ++j) {
-		  const TDetectorPulse* tdp_si_thick=(*i_tme)->GetPulse(si_thick_source,j);
-		  double thick_energy = tdp_si_thick->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
-		  double thick_amplitude = tdp_si_thick->GetAmplitude();
-		  double thick_time = tdp_si_thick->GetTime();
-		  double time_difference = thin_time - tme_time;
+	      // Get the thin quadrant and loop through its sources
+	      int si_thin_source_index=(*i_tme)->GetSourceIndex(*i_det);
+	      while(si_thin_source_index>-1){
+		const IDs::source& si_thin_source=(*i_tme)->GetSource(si_thin_source_index);
+		int n_si_thin = (*i_tme)->NumPulses(si_thin_source);
 
-		  bool passes_cuts = false;
-		  // Make the timing cut
-		  if ( time_difference > i_arm->lower_time_cut && time_difference < i_arm->upper_time_cut ) { 
+		// Loop through the pulses in this quadrant
+		for(int i_thin_pulse=0; i_thin_pulse<n_si_thin; ++i_thin_pulse){
+		  const TDetectorPulse* tdp_si_thin=(*i_tme)->GetPulse(si_thin_source,i_thin_pulse);
+		  double thin_energy = tdp_si_thin->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
+		  double thin_amplitude = tdp_si_thin->GetAmplitude();
+		  double thin_time = tdp_si_thin->GetTime();
+		  
+		  //		  if (std::fabs(thin_time - thick_time) < 200)
 
+		  double arrival_time = thin_time - tme_time;
+		  bool passes_cuts = false;  
+		  if ( arrival_time > i_arm->lower_time_cut && arrival_time < i_arm->upper_time_cut ) { 
 		    // Now check if this passes our proton cut
 		    if (fStoppedProtonCut) {
 		      int bin = fStoppedProtonProbHist->FindBin(thick_energy+thin_energy, thin_energy);
-		      //		      std::cout << "Bin #" << bin << std::endl;
 		      double probability = fStoppedProtonProbHist->GetBinContent(bin);
-		      //		      std::cout << "P(stopped proton | E = " << thick_energy+thin_energy << " & dE = " << thin_energy << ") = " << probability << std::endl;
 		      if (probability > 0.99) {
-			//			std::cout << "Passes" << std::endl;
 			passes_cuts = true;
 		      }
 		    }
@@ -189,19 +187,20 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		    std::cout << "Amplitude --> Energy (thin): " << thin_amplitude << " --> " << thin_energy << std::endl;
 		    std::cout << "Plotting: " << thick_energy+thin_energy << ", " << thin_energy << std::endl;
 		    (*i_evde_plot)->Fill(thick_energy+thin_energy, thin_energy);
-		    (*i_time_plot)->Fill(time_difference);
+		    (*i_time_plot)->Fill(arrival_time);
 		  }
+
 		}
-		si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick,si_thick_source_index+1);
+		si_thin_source_index=(*i_tme)->GetSourceIndex(*i_det,si_thin_source_index+1);
 	      }
 	    }
-	    si_thin_source_index=(*i_tme)->GetSourceIndex(*i_det,si_thin_source_index+1);
 	  }
+	  si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick,si_thick_source_index+1);
 	}
       }
     }
-
-  return 0;
+    
+    return 0;
 }
 
 int TME_EvdE::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
