@@ -100,7 +100,7 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
       for (int i_entry = 0; i_entry < pid_cuts_tree->GetEntries(); ++i_entry) {
 	pid_cuts_tree->GetEntry(i_entry);
 	i_arm->h_stopped_proton_prob->Fill(energy, d_energy, stopped_proton_prob);
-	std::cout << i_arm->detname << ": Filling @ (" << energy << ", " << d_energy << "): " << stopped_proton_prob << std::endl;
+	//	std::cout << i_arm->detname << ": Filling @ (" << energy << ", " << d_energy << "): " << stopped_proton_prob << std::endl;
       }
       delete pid_cuts_tree;
     }
@@ -172,6 +172,7 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		    if (fStoppedProtonCut) {
 		      int bin = i_arm->h_stopped_proton_prob->FindBin(thick_energy+thin_energy, thin_energy);
 		      double probability = i_arm->h_stopped_proton_prob->GetBinContent(bin);
+		      //		      std::cout << "(E+dE, dE) = (" << thick_energy+thin_energy << ", " << thin_energy << "): Prob = " << probability << std::endl;
 		      if (probability > 0.99) {
 			passes_cuts = true;
 		      }
@@ -181,10 +182,10 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		    }
 		  }
 
-		  if (thick_time - thin_time > 0) {
+		  //		  if (thick_time - thin_time > 0) {
 		    //		    std::cout << "abs(t_thin - t_thick) = " << std::fabs(thin_time - thick_time) << std::endl;
-		    passes_cuts=true;
-		  }
+		  //		    passes_cuts=true;
+		  //		  }
 		  if (passes_cuts) {
 		    //		    std::cout << "Amplitude --> Energy (thick): " << thick_amplitude << " --> " << thick_energy << std::endl;
 		    //		    std::cout << "Amplitude --> Energy (thin): " << thin_amplitude << " --> " << thin_energy << std::endl;
