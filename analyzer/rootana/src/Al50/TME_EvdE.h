@@ -69,18 +69,20 @@ class TME_EvdE : public BaseModule {
 	IDs::channel* fSiR2;
 
 	struct Arm {
+	  std::string detname;
 	  DetectorList thin;
 	  IDs::channel* thick;
 	  double lower_time_cut;
 	  double upper_time_cut;
+
+	  TH2F* h_EvdE;
+	  TH1F* h_Time;
+	  TH2F* h_stopped_proton_prob;
 	} fLeftArm, fRightArm;
 
 	std::vector<Arm> fArms;
-	std::vector<TH2F*> fEvdEPlots;
-	std::vector<TH1F*> fTimePlots;
 	
 	bool fStoppedProtonCut;
-	TH2F* fStoppedProtonProbHist;
 };
 
 #endif //CHECKTMES_H_

@@ -29,6 +29,10 @@ TME_EvdE::~TME_EvdE(){
 }
 
 int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
+
+  fLeftArm.detname = "SiL";
+  fRightArm.detname = "SiR";
+
   using namespace IDs;
   fSiL1.push_back(IDs::channel (kSiL1_1 , kNotApplicable ));
   fSiL1.push_back(IDs::channel (kSiL1_2 , kNotApplicable ));
@@ -55,53 +59,55 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   fArms.push_back(fLeftArm);
   fArms.push_back(fRightArm);
 
-  //    fSiL1.push_back(IDs::channel (kMuSc   , kNotApplicable ));
-  TH2F* hSiL_EvdE = new TH2F("hSiL_EvdE", "EvdE plot for SiL", 100,0,10000, 100,0,10000);
-  hSiL_EvdE->SetXTitle("[keV]");
-  fEvdEPlots.push_back(hSiL_EvdE);
+  // Create the histograms for each arm
+  for (std::vector<Arm>::iterator i_arm = fArms.begin(); i_arm != fArms.end(); ++i_arm) {
+    std::string evde_histname = i_arm->detname + "_EvdE";
+    std::string evde_histtitle = "The E v dE plot for " + i_arm->detname;
+    i_arm->h_EvdE = new TH2F(evde_histname.c_str(), evde_histtitle.c_str(), 100,0,10000, 100,0,10000);
+    i_arm->h_EvdE->SetXTitle("E + dE [keV]");
+    i_arm->h_EvdE->SetYTitle("dE [keV]");
 
-  TH2F* hSiR_EvdE = new TH2F("hSiR_EvdE", "EvdE plot for SiR", 100,0,10000, 100,0,10000);
-  hSiR_EvdE->SetXTitle("[keV]");
-  fEvdEPlots.push_back(hSiR_EvdE);
+    std::string time_histname = i_arm->detname + "_Time";
+    std::string time_histtitle = "The time of hits in " + i_arm->detname;
+    i_arm->h_Time = new TH1F(time_histname.c_str(), time_histtitle.c_str(), 2500,0,10000);
+    i_arm->h_Time->SetXTitle("Time [ns]");
+    i_arm->h_Time->SetYTitle("Count");    
 
-  TH1F* hSiL_Time = new TH1F("hSiL_Time", "Time distribution in SiL", 2500,0,10000);
-  hSiL_Time->SetXTitle("[ns]");
-  fTimePlots.push_back(hSiL_Time);
+    if (fStoppedProtonCut) {
+      TTree* pid_cuts_tree = new TTree();
+      std::string pid_cuts_filename = "/gpfs/home/edmonds_a/AlcapDAQ/analyzer/rootana/src/Al50/pid-cuts-" + i_arm->detname + ".txt";
+      pid_cuts_tree->ReadFile(pid_cuts_filename.c_str());
+      pid_cuts_tree->Print();
 
-  TH1F* hSiR_Time = new TH1F("hSiR_Time", "Time distribution in SiR", 2500,0,10000);
-  hSiR_Time->SetXTitle("[ns]");
-  fTimePlots.push_back(hSiR_Time);
+      TBranch* energy_branch = (TBranch*) pid_cuts_tree->GetBranch("energy");
+      double energy;
+      energy_branch->SetAddress(&energy);
 
-  if (fStoppedProtonCut) {
-    TTree* pid_cuts_tree = new TTree();
-    pid_cuts_tree->ReadFile("/gpfs/home/edmonds_a/AlcapDAQ/analyzer/rootana/src/Al50/pid-cuts.txt");
-    pid_cuts_tree->Print();
+      TBranch* d_energy_branch = (TBranch*) pid_cuts_tree->GetBranch("dEnergy");
+      double d_energy;
+      d_energy_branch->SetAddress(&d_energy);
 
-    TBranch* energy_branch = (TBranch*) pid_cuts_tree->GetBranch("energy");
-    double energy;
-    energy_branch->SetAddress(&energy);
+      TBranch* stopped_proton_prob_branch = (TBranch*) pid_cuts_tree->GetBranch("p_stop_prob");
+      double stopped_proton_prob;
+      stopped_proton_prob_branch->SetAddress(&stopped_proton_prob);
 
+      std::string prob_histname = i_arm->detname + "_StoppedProtonProb";
+      std::string prob_histtitle = "Probability that at a given (E, dE) that the hit is a proton in " + i_arm->detname;
+      i_arm->h_stopped_proton_prob = new TH2F(prob_histname.c_str(), prob_histtitle.c_str(), 100,0,10000, 100,0,10000);
+      i_arm->h_stopped_proton_prob->SetXTitle("E [keV]");
+      i_arm->h_stopped_proton_prob->SetYTitle("dE [keV]");
 
-    TBranch* d_energy_branch = (TBranch*) pid_cuts_tree->GetBranch("dEnergy");
-    double d_energy;
-    d_energy_branch->SetAddress(&d_energy);
-
-    TBranch* stopped_proton_prob_branch = (TBranch*) pid_cuts_tree->GetBranch("p_stop_prob");
-    double stopped_proton_prob;
-    stopped_proton_prob_branch->SetAddress(&stopped_proton_prob);
-
-    fStoppedProtonProbHist = new TH2F("hStoppedProtonProbHist", "hStoppedProtonProbHist", 100,0,10000, 100,0,10000);
-    fStoppedProtonProbHist->SetXTitle("E [keV]");
-    fStoppedProtonProbHist->SetYTitle("dE [keV]");
-    fStoppedProtonProbHist->SetTitle("Probability that a given (E, dE) is a proton");
-
-    for (int i_entry = 0; i_entry < pid_cuts_tree->GetEntries(); ++i_entry) {
-      pid_cuts_tree->GetEntry(i_entry);
-      fStoppedProtonProbHist->Fill(energy, d_energy, stopped_proton_prob);
+      for (int i_entry = 0; i_entry < pid_cuts_tree->GetEntries(); ++i_entry) {
+	pid_cuts_tree->GetEntry(i_entry);
+	i_arm->h_stopped_proton_prob->Fill(energy, d_energy, stopped_proton_prob);
+	std::cout << i_arm->detname << ": Filling @ (" << energy << ", " << d_energy << "): " << stopped_proton_prob << std::endl;
+      }
+      delete pid_cuts_tree;
     }
-  }
-  else {
-    fStoppedProtonProbHist = NULL;
+    else {
+      i_arm->h_stopped_proton_prob = NULL;
+    }
+
   }
 
   return 0;
@@ -119,14 +125,8 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
       double tme_time= (*i_tme)->GetTime(); // this is the same as the muSc time
 
-      // Create some iterators for the plot vectors
-      std::vector<TH2F*>::iterator i_evde_plot = fEvdEPlots.begin();
-      std::vector<TH1F*>::iterator i_time_plot = fTimePlots.begin();
-
       // Loop through the arms and plots
-      for (std::vector<Arm>::const_iterator i_arm = fArms.begin(); 
-	   i_arm != fArms.end() || i_evde_plot != fEvdEPlots.end() || i_time_plot != fTimePlots.end(); 
-	   ++i_arm, ++i_evde_plot, ++i_time_plot) {
+      for (std::vector<Arm>::const_iterator i_arm = fArms.begin(); i_arm != fArms.end(); ++i_arm) {
 
 	// Check that there are pulses in both the thin and the thick silicon detectors
 	DetectorList si_thin = (*i_arm).thin;
@@ -170,8 +170,8 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		  if ( arrival_time > i_arm->lower_time_cut && arrival_time < i_arm->upper_time_cut ) { 
 		    // Now check if this passes our proton cut
 		    if (fStoppedProtonCut) {
-		      int bin = fStoppedProtonProbHist->FindBin(thick_energy+thin_energy, thin_energy);
-		      double probability = fStoppedProtonProbHist->GetBinContent(bin);
+		      int bin = i_arm->h_stopped_proton_prob->FindBin(thick_energy+thin_energy, thin_energy);
+		      double probability = i_arm->h_stopped_proton_prob->GetBinContent(bin);
 		      if (probability > 0.99) {
 			passes_cuts = true;
 		      }
@@ -189,8 +189,8 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		    //		    std::cout << "Amplitude --> Energy (thick): " << thick_amplitude << " --> " << thick_energy << std::endl;
 		    //		    std::cout << "Amplitude --> Energy (thin): " << thin_amplitude << " --> " << thin_energy << std::endl;
 		    //		    std::cout << "Plotting: " << thick_energy+thin_energy << ", " << thin_energy << std::endl;
-		    (*i_evde_plot)->Fill(thick_energy+thin_energy, thin_energy);
-		    (*i_time_plot)->Fill(arrival_time);
+		    i_arm->h_EvdE->Fill(thick_energy+thin_energy, thin_energy);
+		    i_arm->h_Time->Fill(arrival_time);
 		  }
 
 		}
