@@ -47,10 +47,10 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   fRightArm.thick = fSiR2;
 
   // Hard-coded for the time being
-  fLeftArm.lower_time_cut = 600;
-  fLeftArm.upper_time_cut = 6000;
-  fRightArm.lower_time_cut = 500;
-  fRightArm.upper_time_cut = 4000;
+  fLeftArm.lower_time_cut = 0;
+  fLeftArm.upper_time_cut = 999999;
+  fRightArm.lower_time_cut = 0;
+  fRightArm.upper_time_cut = 999999;
 
   fArms.push_back(fLeftArm);
   fArms.push_back(fRightArm);
