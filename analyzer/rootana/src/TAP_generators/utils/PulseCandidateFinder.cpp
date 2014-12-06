@@ -310,11 +310,11 @@ void PulseCandidateFinder::SetDefaultParameterValues() {
   fDefaultParameterValues[IDs::channel("ScGe")] = 20;
   fDefaultParameterValues[IDs::channel("ScVe")] = 100;
 
-  fDefaultParameterValues[IDs::channel("SiL2-F")] = 300;
-  fDefaultParameterValues[IDs::channel("SiL1-1-F")] = 130;
-  fDefaultParameterValues[IDs::channel("SiL1-2-F")] = 500;
-  fDefaultParameterValues[IDs::channel("SiL1-3-F")] = 135;
-  fDefaultParameterValues[IDs::channel("SiL1-4-F")] = 140;
+  fDefaultParameterValues[IDs::channel("SiL2-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-1-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-2-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-3-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-4-F")] = 0;
 
   fDefaultParameterValues[IDs::channel("SiR2-F")] = 0;
   fDefaultParameterValues[IDs::channel("SiR1-1-F")] = 0;
