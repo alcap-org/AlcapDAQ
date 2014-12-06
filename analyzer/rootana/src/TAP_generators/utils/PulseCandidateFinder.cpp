@@ -316,24 +316,24 @@ void PulseCandidateFinder::SetDefaultParameterValues() {
   fDefaultParameterValues[IDs::channel("SiL1-3-F")] = 135;
   fDefaultParameterValues[IDs::channel("SiL1-4-F")] = 140;
 
-  fDefaultParameterValues[IDs::channel("SiR2-F")] = 300;
-  fDefaultParameterValues[IDs::channel("SiR1-1-F")] = 135;
-  fDefaultParameterValues[IDs::channel("SiR1-2-F")] = 140;
-  fDefaultParameterValues[IDs::channel("SiR1-3-F")] = 140;
-  fDefaultParameterValues[IDs::channel("SiR1-4-F")] = 150;
+  fDefaultParameterValues[IDs::channel("SiR2-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-1-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-2-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-3-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-4-F")] = 0;
 
   // Set all the default values for the slow parameters
   fDefaultParameterValues[IDs::channel("Ge-S")] = 500;
 
-  fDefaultParameterValues[IDs::channel("SiL2-S")] = 100;
-  fDefaultParameterValues[IDs::channel("SiL1-1-S")] = 50;
-  fDefaultParameterValues[IDs::channel("SiL1-2-S")] = 80;
-  fDefaultParameterValues[IDs::channel("SiL1-3-S")] = 120;
-  fDefaultParameterValues[IDs::channel("SiL1-4-S")] = 80;
+  fDefaultParameterValues[IDs::channel("SiL2-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-1-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-2-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-3-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-4-S")] = 0;
 
-  fDefaultParameterValues[IDs::channel("SiR2-S")] = 100;
-  fDefaultParameterValues[IDs::channel("SiR1-1-S")] = 50;
-  fDefaultParameterValues[IDs::channel("SiR1-2-S")] = 65;
-  fDefaultParameterValues[IDs::channel("SiR1-3-S")] = 65;
-  fDefaultParameterValues[IDs::channel("SiR1-4-S")] = 62;
+  fDefaultParameterValues[IDs::channel("SiR2-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-1-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-2-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-3-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-4-S")] = 0;
 }
