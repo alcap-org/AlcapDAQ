@@ -27,9 +27,9 @@ void FitParametersFirstGuess(TH1* h, TF1* f, const Double_t sigma) {
 
 
 ge_energy_runbyrun_calib(const char* mergedb_name) {
-  const unsigned int nsets = 7;
+  const unsigned int nsets = 8;
   const unsigned int npeaks = 8;
-  const char* sets[nsets] = { "Al100", "Al50awithNDet2", "Al50awithoutNDet2", "Al50b", "Si16P", "SiR21pct", "SiR23pct"};
+  const char* sets[nsets] = { "SiR2", "Al100", "Al50awithNDet2", "Al50awithoutNDet2", "Al50b", "Si16P", "SiR21pct", "SiR23pct"};
   const Double_t en[npeaks] =     { 351.932, 510.998928, 583.191, 609.312, 911.204, 1173.237, 1332.501, 1460.83 };
   const Double_t en_err[npeaks] = { 0.002,   0.000011,   0.002,   0.007,   0.004,   0.004,    0.005,    0.01 };
   const Double_t sigma = 8.;
@@ -45,7 +45,7 @@ ge_energy_runbyrun_calib(const char* mergedb_name) {
   char dbname[256];
   sprintf(dbname, "sqlite://%s", mergedb_name);
   TSQLiteServer* mergedb = new TSQLiteServer(dbname);
-  unsigned int nfiles[nsets] = { 0, 0, 0, 0, 0, 0, 0 };
+  unsigned int nfiles[nsets] = { 0, 0, 0, 0, 0, 0, 0, 0 };
   unsigned int nfiles_tmp = 0;
   for (unsigned int i = 0; i < nsets; ++i) {
     char cmd[128];

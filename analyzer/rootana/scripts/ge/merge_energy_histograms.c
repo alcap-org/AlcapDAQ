@@ -1,6 +1,6 @@
 void merge_energy_histograms(unsigned int group_size, const char fdir[], const char dbname[]) {
-  const unsigned int ndatasets = 7;
-  const char* datasets[ndatasets] = { "Al50b", "Al100", "SiR21pct", "SiR23pct", "Si16P", "Al50awithNDet2", "Al50awithoutNDet2"};
+  const unsigned int ndatasets = 8;
+  const char* datasets[ndatasets] = { "Al50b", "Al100", "Si16P", "SiR2", "SiR21pct", "SiR23pct", "Al50awithNDet2", "Al50awithoutNDet2"};
   unsigned int nfiles[ndatasets];
   char ifname[256], ofname[256], cmd[256], dbcall[256];
   sprintf(dbcall, "sqlite://%s", dbname);
