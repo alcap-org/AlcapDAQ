@@ -82,7 +82,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   ThrowIfInputsInsane(opts);
 
   const static int nbins = std::pow(2.,14);
-  const std::pair<double,double> adc2energy_par = SetupNavigator::Instance()->GetEnergyCalibrationConstants(IDs::channel("Ge-S"));
+  const std::pair<double,double> adc2energy_par = opts->GetBool("calib") ? std::pair<double, double>(0., 0.) : SetupNavigator::Instance()->GetEnergyCalibrationConstants(IDs::channel("Ge-S"));
   fADC2Energy->SetParameters(adc2energy_par.first, adc2energy_par.second);
   TDirectory* cwd = TDirectory::CurrentDirectory();
   dir->cd();
@@ -456,4 +456,4 @@ bool GeSpectrum::IsMuPileupProtected(const std::vector<double>::const_iterator& 
   return false;
 }
 
-ALCAP_REGISTER_MODULE(GeSpectrum, musc_cf, ge_gen, ge_cfg, ge_cf, ge_slow_timing, tw_small, tw_big);
+ALCAP_REGISTER_MODULE(GeSpectrum, musc_cf, ge_gen, ge_cfg, ge_cf, ge_slow_timing, tw_small, tw_big, calib);
