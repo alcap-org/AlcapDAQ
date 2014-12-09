@@ -2,7 +2,7 @@
   // The file to run on in the sum of calibration runs 3375, 3378 and 3379.
   TFile* f = new TFile("calib_ge.root", "READ");
   TSpectrum* s = new TSpectrum(100, 3.);
-  TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGe-S#FirstComplete#{constant_fraction=0.60}{no_time_shift= true}_Amplitude");
+  TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGe-S#FirstComplete#{constant_fraction=0.60}{no_time_shift=true}_Amplitude");
   spec->Sumw2();
 
   // Activity
@@ -15,31 +15,35 @@
   TTimeStamp t(meas_date[2], meas_date[1], meas_date[0], 0, 0, 0);
   Double_t dt = (t.GetSec() - t0.GetSec())/60./60./24./365.2425;
   Double_t activity = activity0*TMath::Power(0.5,dt/halflife);
-  Double_t livetime = 3245.5; // aAnalysis-R13:129
+  Double_t livetime = 3245.5; // Analysis-R13:129
   Double_t events = activity*livetime;
 
   // Spectrum
   const unsigned int NPeaks = 15;
-  Double_t Energy[NPeaks]    = {121.7817, 244.6975, 344.2785, 411.1163, 443.965, 510.999, 778.9040, 867.378, 964.079, 1085.869, 1089.737, 1112.074, 1212.948, 1299.140, 1408.006};
-  Double_t LogEnergy[NPeaks];
-  Double_t Intensity[NPeaks] = {0.2858,   0.07583,  0.265,    0.02234, 0.02821,  0.279,   0.12942,  0.04245, 0.14605, 0.10207,  0.01726,  0.13644,  0.01422,  0.01623,  0.21005};
+  const unsigned int Peak511Index = 5, Peak122Index = 0;
+  Double_t Energy[NPeaks]      = {121.7817, 244.6975, 344.2785, 411.1163, 443.965, 510.999, 778.9040, 867.378, 964.079, 1085.869, 1089.737, 1112.074, 1212.948, 1299.140, 1408.006};
+  Double_t RedEn[NPeaks-1]       = {121.7817, 244.6975, 344.2785, 411.1163, 443.965, 778.9040, 867.378, 964.079, 1085.869, 1089.737, 1112.074, 1212.948, 1299.140, 1408.006};
+  Double_t Intensity[NPeaks-1] = {0.2858,   0.07583,  0.265,    0.02234,  0.02821, 0.12942,  0.04245, 0.14605, 0.10207,  0.01726,  0.13644,  0.01422,  0.01623,  0.21005};
+  Double_t LogEnergy[NPeaks];        for (unsigned int i = 0; i < NPeaks; ++i)   LogEnergy[i]      = TMath::Log(Energy[i]);
+  Double_t ExpectedCounts[NPeaks-1]; for (unsigned int i = 0; i < NPeaks-1; ++i) ExpectedCounts[i] = events*Intensity[i];
   Double_t ADC[NPeaks]       = {1000.75,  2015.48,  2831.37,  3379.41, 3648.90,  4196.38, 6392.91,  7118.00, 7909.78, 8907.53,  8941.08,  9121.85,  9948.85,  10654.3,  11547.5}; // First guess
   Double_t ADC_Meas[NPeaks];
-  const char* Functions[NPeaks] = { "gaus(0)+[3]*x+[4]", 
-				    "gaus(0)+gaus(3)+[6]*x+[7]",
-				    "gaus(0)+gaus(3)+[6]*x+[7]",
-				    "gaus(0)+[3]*x+[4]",
-				    "gaus(0)+[3]*x+[4]",
-				    "gaus(0)+[3]*x+[4]",
-				    "gaus(0)+[3]*x+[4]",
-				    "gaus(0)+[3]*x+[4]",
-				    "gaus(0)+[3]*x+[4]",
-				    "gaus(0)+gaus(3)+[6]*x+[7]",
-				    "gaus(0)+gaus(3)+[6]*x+[7]",
-				    "gaus(0)+gaus(3)+[6]*x+[7]",
-				    "gaus(0)+[3]*x+[4]",
-				    "gaus(0)+gaus(3)+[6]*x+[7]",
-				    "gaus(0)+[3]*x+[4]" };
+  const char* Functions[NPeaks]       = { "gaus(0)+[3]*x+[4]",
+					  "gaus(0)+gaus(3)+[6]*x+[7]",
+					  "gaus(0)+gaus(3)+[6]*x+[7]",
+					  "gaus(0)+[3]*x+[4]",
+					  "gaus(0)+[3]*x+[4]",
+					  "gaus(0)+[3]*x+[4]",
+					  "gaus(0)+[3]*x+[4]",
+					  "gaus(0)+[3]*x+[4]",
+					  "gaus(0)+[3]*x+[4]",
+					  "gaus(0)+gaus(3)+[6]*x+[7]",
+					  "gaus(0)+gaus(3)+[6]*x+[7]",
+					  "gaus(0)+gaus(3)+[6]*x+[7]",
+					  "gaus(0)+[3]*x+[4]",
+					  "gaus(0)+gaus(3)+[6]*x+[7]",
+					  "gaus(0)+[3]*x+[4]" };
+  const unsigned int NParam[NPeaks]   = { 5, 8, 8, 5, 5, 5, 5, 5, 5, 8, 8, 8, 5, 8, 5 };
   const Double_t FitParam[NPeaks][11] = { {1250., ADC[0],  8.,  0.,  0.,      0., 0., 0.,   0., 0., 0.},
 					  {200.,  ADC[1],  8.,  20., 1966.,   8., 0., 100., 0., 0., 0.},
 					  {70.,   ADC[2],  8.,  10., 2894.,   8., 0., 70.,  0., 0., 0.},
@@ -55,21 +59,18 @@
 					  {10.,   ADC[12], 8.,  0.,  5.,      0.. 0., 0.,   0., 0., 0.},
 					  {10.,   ADC[13], 8.,  25., 10610.,  8., 0., 2.,   0., 0., 0.},
 					  {120.,  ADC[14], 8.,  0.,  0.,      0., 0., 0.,   0., 0., 0.} };
-  Double_t ExpectedCounts[NPeaks];
-  Double_t Counts[NPeaks];
-  Double_t Efficiency[NPeaks];
-  Double_t LogEfficiency[NPeaks];
-  for (unsigned int i = 0; i < NPeaks; ++i) {
-    ExpectedCounts[i] = events*Intensity[i];
-    LogEnergy[i] = TMath::Log(Energy[i]);
-  }
+  Double_t FitParamRes[NPeaks][11];
+  Double_t FitParamErr[NPeaks][11];
+  Double_t Counts[NPeaks-1];
+  Double_t Efficiency[NPeaks-1];
+  Double_t LogEfficiency[NPeaks-1];
 
   // Errors
   Double_t Chi2Ndf[NPeaks];
   Double_t Error_ADC[NPeaks];
-  Double_t Error_Counts[NPeaks];
-  Double_t Error_Eff[NPeaks];
-  Double_t Error_LogEff[NPeaks];
+  Double_t Error_Counts[NPeaks-1];
+  Double_t Error_Eff[NPeaks-1];
+  Double_t Error_LogEff[NPeaks-1];
 
   // Count the events (integral of fit gaussian)
   const Double_t rt2pi = TMath::Sqrt(2.*TMath::Pi());
@@ -80,14 +81,28 @@
     fit->SetParameters(FitParam[i]);
     TFitResultPtr res = spec->Fit(fit,"SMENQ");
     Chi2Ndf[i] = res->Chi2()/(Double_t)res->Ndf();
-    ADC_Meas[i] = res->Value(1);
-    Error_ADC[i] = res->ParError(1);
-    Counts[i] = res->Value(0)*res->Value(2)*rt2pi;
-    Error_Counts[i] = Counts[i]*TMath::Sqrt(TMath::Power(res->ParError(0)/res->Value(0),2.)+TMath::Power(res->ParError(2)/res->Value(2),2.));
-    Efficiency[i] = Counts[i] / ExpectedCounts[i];
-    Error_Eff[i] = Error_Counts[i] / ExpectedCounts[i];
-    LogEfficiency[i] = TMath::Log(Efficiency[i]);
-    Error_LogEff[i] = Error_Eff[i] / Efficiency[i];
+    for (unsigned int j = 0; j < NParam[i]; ++j) {
+      FitParamRes[i][j] = res->Value(j);
+      FitParamErr[i][j] = res->ParError(j);
+    }
+  }
+  for (unsigned int i = 0; i < NPeaks; ++i) {
+    // Get energy calibration
+    ADC_Meas[i] = FitParamRes[i][1];
+    Error_ADC[i] = FitParamErr[i][1];
+    // Get efficiency calibration
+    // Adjust for lack of prediction for 511 peak
+    unsigned int j = i;
+    if (i == Peak511Index)
+      continue;
+    else if (i > Peak511Index)
+      --j;
+    Counts[j] = FitParamRes[i][0]*FitParamRes[i][2]*rt2pi;
+    Error_Counts[j] = Counts[j]*TMath::Sqrt(TMath::Power(FitParamErr[i][0]/FitParamRes[i][0],2.)+TMath::Power(FitParamErr[i][2]/FitParamRes[i][2],2.));
+    Efficiency[j] = Counts[j] / ExpectedCounts[j];
+    Error_Eff[j] = Error_Counts[j] / ExpectedCounts[j];
+    LogEfficiency[j] = TMath::Log(Efficiency[j]);
+    Error_LogEff[j] = Error_Eff[j] / Efficiency[j];
   }
 
   // Draw
@@ -95,9 +110,9 @@
   Double_t eff_par[2], eff_par_err[2], Chi2[2];
   unsigned int Ndf[2];
   /* TGraphErrors* e_cal   = new TGraphErrors(NPeaks, Energy, ADC_Meas, 0, Error_ADC); */
-  TGraphErrors* e_cal   = new TGraphErrors(NPeaks, ADC_Meas, Energy, Error_ADC, 0);
+  TGraphErrors* e_cal   = new TGraphErrors(NPeaks-1, ADC_Meas+1, Energy+1, Error_ADC+1, 0);
   /* TGraphErrors* eff_cal = new TGraphErrors(NPeaks-1, LogEnergy+1, LogEfficiency+1, 0, Error_LogEff+1); */
-  TGraphErrors* eff_cal = new TGraphErrors(NPeaks-1, Energy+1, Efficiency+1, 0, Error_Eff+1);
+  TGraphErrors* eff_cal = new TGraphErrors(NPeaks-2, RedEn+1, Efficiency+1, 0, Error_Eff+1);
   e_cal->SetTitle("Energy Calibration"); e_cal->GetXaxis()->SetTitle("ADC Value"); e_cal->GetYaxis()->SetTitle("Energy (keV)");
   eff_cal->SetTitle("Efficiency Calibration"); eff_cal->GetXaxis()->SetTitle("Energy (keV)"); eff_cal->GetYaxis()->SetTitle("Counts / Expected Counts");
   new TCanvas();
