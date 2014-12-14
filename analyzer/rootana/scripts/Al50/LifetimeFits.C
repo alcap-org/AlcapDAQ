@@ -23,6 +23,7 @@ void LifetimeFits() {
     expo->SetParameter(2, 1000);
     expo->SetParameter(3, -0.01);
     time_hists[i_arm]->Fit("exponential", "QR");
+    gStyle->SetOptFit(1111);
   
     double al_lifetime = -1.0/expo->GetParameter(1);
     double al_error = expo->GetParError(1) / (expo->GetParameter(1)*expo->GetParameter(1));
