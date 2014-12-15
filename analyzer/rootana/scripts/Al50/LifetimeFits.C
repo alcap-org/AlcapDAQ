@@ -1,5 +1,8 @@
 void LifetimeFits() {
 
+  TCanvas* c1 = new TCanvas("c1", "c1");
+  c1->SetLogy(1);
+
   std::string savelocation = "~/data/out/v33/plots";
   const int n_arms = 2;
 
