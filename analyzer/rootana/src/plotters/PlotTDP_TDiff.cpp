@@ -15,7 +15,8 @@ using std::endl;
 extern SourceDetPulseMap gDetectorPulseMap;
 
 PlotTDP_TDiff::PlotTDP_TDiff(modules::options* opts):
-   BaseModule("PlotTDP_TDiff",opts){
+   BaseModule("PlotTDP_TDiff",opts),
+  fTimeLow(opts->GetDouble("time_low",-1.e5)), fTimeHigh(opts->GetDouble("time_high",1.e5)){
 
   // Do something with opts here.  Has the user specified any
   // particular configuration that you want to know?
@@ -48,11 +49,7 @@ int PlotTDP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
   std::string histogram_name = modules::parser::ToCppValid("h" + fSourceA.str() + "_" + fSourceB.str() + "_TDiff");
   std::string histogram_title = "Time Difference between TDP source " + fSourceA.str() + "_" + fSourceB.str();
-  int x_max = 1000000;
-  int x_min = -1000000;
-  int bin_width = 100;
-  int n_bins = (x_max - x_min) / bin_width;
-  fTDiffPlot = new TH1F(histogram_name.c_str(), histogram_title.c_str(), n_bins, x_min, x_max);
+  fTDiffPlot = new TH1F(histogram_name.c_str(), histogram_title.c_str(), 600, fTimeLow, fTimeLow);
 
   std::string axis_title = "t_{" + detname_a + "} - t_{" + detname_b + "} [ns]";
   fTDiffPlot->GetXaxis()->SetTitle(axis_title.c_str());
@@ -114,4 +111,4 @@ int PlotTDP_TDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(PlotTDP_TDiff,source_a,source_b);
+ALCAP_REGISTER_MODULE(PlotTDP_TDiff,source_a,source_b, time_low, time_high);
