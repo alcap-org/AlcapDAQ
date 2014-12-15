@@ -5,24 +5,12 @@
 #include "BaseModule.h"
 #include <string>
 
-class TH2F;
-class TH1F;
+#include <TH1.h>
+#include <TH2.h>
+#include <TH3.h>
 class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
-
-namespace{
-namespace LR{
-    enum Type{kLeft=0, kRight, kNum};
-    const char* str(Type,bool big=false);
-    const char* str(int e,bool big=false){return str((Type)e, big);}
-}
-namespace Ch{
-    enum Type{k1_1=0, k1_2, k1_3, k1_4, k2, kNum};
-    const char* str(Type);
-    const char* str(int e){return str((Type)e);}
-}
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
@@ -34,11 +22,6 @@ namespace Ch{
 ///////////////////////////////////////////////////////////////////////////////1
 class PlotTME_EvdE : public BaseModule {
 
-    struct SourceSet{
-        TH2F *E_vs_dE_no_pileUp, *E_vs_dE_with_pileUp;
-        IDs::source sources[Ch::kNum];
-    };
-
     public:
         /// \brief
         /// Constructor 
@@ -46,24 +29,24 @@ class PlotTME_EvdE : public BaseModule {
         ~PlotTME_EvdE();
 
     private:
-        /// \brief
-        /// Fills the EvdE histogram
-        /// \return Non-zero to indicate a problem.
         virtual int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);
-        /// \brief
-        /// Set up the histograms and source IDs
-        /// \return Non-zero to indicate a problem.
         virtual int BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup);
-        /// \brief
-        /// \return Non-zero to indicate a problem.
         virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
 
-        /// @brief Get the source for a given channel in the list of TDP
-        const IDs::source& GetTDPSource(const std::string& ch );
-
     private:
-        SourceSet fSourceList[LR::kNum];
-        double fSiWindow;
+        enum Plots{ kNoCuts=0, kMuPP, kMuPP_muAmp, kMuPP_muAmp_T500, kNHists};
+        struct Hists{
+           TH2 *EvdE;
+           TH1 *time;
+           TH3 *EvdEvTime;
+           void Fill(double totalE, double deltaE, double deltaT){
+              EvdE->Fill(totalE,deltaE);
+              time->Fill(deltaT);
+              EvdEvTime->Fill(totalE,deltaE,deltaT);
+           }
+        };
+        Hists fHists[2][kNHists][4];
+        double fMinTime, fMuScMax, fMuScMin;
 };
 
 #endif //PLOTTME_EVDE_H_
