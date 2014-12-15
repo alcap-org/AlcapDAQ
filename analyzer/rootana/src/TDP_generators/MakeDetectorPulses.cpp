@@ -32,13 +32,16 @@ int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
     const IDs::generator* gen;
     IDs::source partner;
     IDs::source tdp_source;
+    const IDs::channel any_ch;
+    const IDs::generator any_gen;
+
     // Find all fast detectors
     TVDetectorPulseGenerator* generator;
     for (SourceAnalPulseMap::const_iterator i_source = gAnalysedPulseMap.begin();
             i_source != gAnalysedPulseMap.end(); i_source++) {
         ch=&i_source->first.Channel();
         gen=&i_source->first.Generator();
-
+	partner=IDs::source(any_ch, any_gen);
 	// Find the correct source since the generator options could be different
 	for (SourceAnalPulseMap::const_iterator j_source = gAnalysedPulseMap.begin();
 	     j_source != gAnalysedPulseMap.end(); ++j_source) {
