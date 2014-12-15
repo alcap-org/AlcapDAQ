@@ -102,6 +102,7 @@ class TMuonEvent{
 
         /// Get the time of this TME defined as the arrival time of the central muon
         double GetTime()const {return fCentralMuon->GetTime(TDetectorPulse::kFast);}
+        double GetAmplitude()const {return fCentralMuon->GetAmplitude(TDetectorPulse::kFast);}
         const TDetectorPulse* GetCentralMuon()const {return fCentralMuon;}
 
         void InsertSiliconEvent(LeftRight_t lr, const TSiliconEvent& si_evt){
@@ -109,6 +110,7 @@ class TMuonEvent{
         }
         SiliconHitList::const_iterator BeginSiEvents(LeftRight_t lr)const{ return fSiliconHits[lr].begin();}
         SiliconHitList::const_iterator EndSiEvents(LeftRight_t lr)const{ return fSiliconHits[lr].end();}
+        int NumSiHits(LeftRight_t lr)const{ return fSiliconHits[lr].size();}
 
     private:
         SourceDetPulseMap fPulseLists;
