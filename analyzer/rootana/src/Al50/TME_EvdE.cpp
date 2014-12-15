@@ -143,7 +143,7 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	  // Loop through the pulses in the thick detector
 	  for (int i_thick_pulse=0; i_thick_pulse<n_si_thick; ++i_thick_pulse) {
 	    const TDetectorPulse* tdp_si_thick=(*i_tme)->GetPulse(si_thick_source,i_thick_pulse);
-	    double thick_energy = tdp_si_thick->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
+	    double thick_energy = tdp_si_thick->GetTAP(TDetectorPulse::kFast)->GetEnergy();
 	    double thick_amplitude = tdp_si_thick->GetAmplitude();
 	    double thick_time = tdp_si_thick->GetTime();
 
@@ -160,7 +160,7 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		// Loop through the pulses in this quadrant
 		for(int i_thin_pulse=0; i_thin_pulse<n_si_thin; ++i_thin_pulse){
 		  const TDetectorPulse* tdp_si_thin=(*i_tme)->GetPulse(si_thin_source,i_thin_pulse);
-		  double thin_energy = tdp_si_thin->GetTAP(TDetectorPulse::kSlow)->GetEnergy();
+		  double thin_energy = tdp_si_thin->GetTAP(TDetectorPulse::kFast)->GetEnergy();
 		  double thin_amplitude = tdp_si_thin->GetAmplitude();
 		  double thin_time = tdp_si_thin->GetTime();
 		  
