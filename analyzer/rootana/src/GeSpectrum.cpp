@@ -39,7 +39,7 @@ static void RemoveSmallMuScPulsesAndPileup(std::vector<double>& t, std::vector<d
   std::vector<bool> rm(t.size(), false);
   static const double dt = 15000.;
   if (t[0] < dt) rm[0] = true;
-  for (unsigned int i = 1; i < t.size()-1; ++i)
+  for (unsigned int i = 1; i < t.size(); ++i)
     if (t[i] - t[i-1] < dt)
       rm[i] = rm[i-1] = true;
   rm[t.size()-1] = true;
