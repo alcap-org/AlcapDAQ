@@ -35,16 +35,19 @@ static void RemoveSmallMuScPulsesAndPileup(std::vector<double>& t, std::vector<d
       --i;
     }
   }
+
+  std::vector<bool> rm(t.size(), false);
   static const double dt = 15000.;
+  if (t[0] < dt) rm[0] = true;
+  for (unsigned int i = 1; i < t.size()-1; ++i)
+    if (t[i] - t[i-1] < dt)
+      rm[i] = rm[i-1] = true;
+  rm[t.size()-1] = true;
   for (unsigned int i = 0; i < t.size(); ++i) {
-    if (i == t.size() - 1) {
-      t.erase(t.end() - 1);
-      e.erase(e.end() - 1);
-    } else if ( (i == 0 && t[i] < dt) ||
-		(t[i] - t[i-1] < dt)  ||
-		(t[i+1] - t[i] < dt) ) {
-      t.erase(t.begin() + i);
-      e.erase(e.begin() + i);
+    if (rm[i]) {
+      t.erase(t.begin()+i);
+      e.erase(e.begin()+i);
+      rm.erase(rm.begin()+i);
       --i;
     }
   }
