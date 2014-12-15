@@ -37,38 +37,13 @@ class GeSpectrum : public BaseModule {
   // Histograms
   TH1* fhADC;
   TH1* fhEnergy;
-  TH1* fhTime;
-  TH1* fhMoreTime;
   TH1* fhADCOOT;
   TH1* fhEnergyOOT;
   TH1* fhADCFarOOT;
   TH1* fhEnergyFarOOT;
-  TH1* fhTimeOOT;
-  TH1* fhTimeFarOOT;
   TH2* fhTimeADC;
   TH2* fhTimeEnergy;
-  TH1* fhLivetime;
   TH1* fhNMuons;
-
-  TH1* fhPP_ADC;
-  TH1* fhPP_Energy;
-  TH1* fhPP_Time;
-  TH1* fhPP_MoreTime;
-  TH1* fhPP_ADCOOT;
-  TH1* fhPP_EnergyOOT;
-  TH1* fhPP_ADCFarOOT;
-  TH1* fhPP_EnergyFarOOT;
-  TH1* fhPP_TimeOOT;
-  TH1* fhPP_TimeFarOOT;
-  TH2* fhPP_TimeADC;
-  TH2* fhPP_TimeEnergy;
-  TH1* fhPP_Livetime;
-  TH1* fhPP_NMuons;
-
-  TH1* fhMeanTOffset;
-  TH2* fhGePhysRes;
-  TH1* fhGePhysResECut;
-  TH1* fhNXRayCoinc;
 
   // Algorithms
   const bool fUseSlowTiming;
@@ -87,7 +62,6 @@ class GeSpectrum : public BaseModule {
   static const IDs::channel fGeS;
   static const IDs::channel fGeF;
   static const IDs::channel fMuSc;
-
 
  public:
   /// \brief
@@ -137,9 +111,6 @@ class GeSpectrum : public BaseModule {
 
   static void ThrowIfInputsInsane(const modules::options*);
   static void ThrowIfGeInsane(const std::vector<TPulseIsland*>& ge_fasts, const std::vector<TPulseIsland*>& ge_slows);
-  bool IsGePileupProtected(const std::vector<double>::const_iterator& ge, const std::vector<double>::const_iterator& muon1, const std::vector<double>::const_iterator& muon2,
-			   const std::vector<double>& muon_vector);
-  bool IsMuPileupProtected(const std::vector<double>::const_iterator& mu, const std::vector<double>& muon_vector);
 };
 
 #endif //GESPECTRUM_H_
