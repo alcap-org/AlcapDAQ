@@ -68,18 +68,23 @@ int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
         }
 
         // Check whether a specific generator is given for this detector
-        if( fOptions->HasOption(ch->str()) ){
+        const std::string detname=IDs::channel::GetDetectorString(ch->Detector());
+       DEBUG_VALUE(ch->str(),detname);
+        if( fOptions->HasOption(detname) ){
             // If this channel is named explicitly, use that generator type
             // Get a vector for the generator(s) that we want to use for this detector
-            bool success=ParseGeneratorList(i_source->first, partner,fOptions->GetString(ch->str()));
+DEBUG_CHECKPOINT;
+            bool success=ParseGeneratorList(i_source->first, partner,fOptions->GetString(detname));
             if(! success) return 1;
         }else if(partner==i_source->first) {
            // if there is no corresponding fast / slow channel then use the pass
 	   // through generator
             bool success=ParseGeneratorList(i_source->first, partner,fPassThruName);
+DEBUG_CHECKPOINT;
             if(! success) return 1;
         } else {
             bool success=ParseGeneratorList(i_source->first, partner,fDefaultAlgorithm);
+DEBUG_CHECKPOINT;
             if(! success) return 1;
         }
     }
