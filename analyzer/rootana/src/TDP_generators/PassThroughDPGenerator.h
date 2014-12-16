@@ -12,5 +12,8 @@ class PassThroughDPGenerator:public TVDetectorPulseGenerator{
 
     public:
         virtual int ProcessPulses( DetectorPulseList& output);
+
+    private:
+        bool fUseFast;
 };
 #endif //PASSTHROUGHDPGENERATOR_H_
