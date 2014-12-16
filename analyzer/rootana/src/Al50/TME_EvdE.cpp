@@ -196,6 +196,9 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		    //		    std::cout << "abs(t_thin - t_thick) = " << std::fabs(thin_time - thick_time) << std::endl;
 		    passes_cuts=false;
 		  }
+		  if (fStoppedProtonCut && (thick_energy+thin_energy < 1500 || thick_energy+thin_energy > 8000)) {
+		    passes_cuts=false; // only accept proton if E is between 1.5 and 8 MeV (like Nam's cut)
+		  }
 		  if (passes_cuts) {
 		    //		    std::cout << "Amplitude --> Energy (thick): " << thick_amplitude << " --> " << thick_energy << std::endl;
 		    //		    std::cout << "Amplitude --> Energy (thin): " << thin_amplitude << " --> " << thin_energy << std::endl;
