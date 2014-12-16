@@ -51,10 +51,10 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   fRightArm.thick = fSiR2;
 
   // Hard-coded for the time being
-  fLeftArm.lower_time_cut = 600;
-  fLeftArm.upper_time_cut = 6000;
-  fRightArm.lower_time_cut = 500;
-  fRightArm.upper_time_cut = 4000;
+  fLeftArm.lower_time_cut = 0;
+  fLeftArm.upper_time_cut = 999999999;
+  fRightArm.lower_time_cut = 0;
+  fRightArm.upper_time_cut = 999999999;
 
   fArms.push_back(fLeftArm);
   fArms.push_back(fRightArm);
@@ -143,7 +143,13 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	  // Loop through the pulses in the thick detector
 	  for (int i_thick_pulse=0; i_thick_pulse<n_si_thick; ++i_thick_pulse) {
 	    const TDetectorPulse* tdp_si_thick=(*i_tme)->GetPulse(si_thick_source,i_thick_pulse);
+
 	    double thick_energy = tdp_si_thick->GetTAP(TDetectorPulse::kFast)->GetEnergy();
+	    // Skip to next pulse if energy <100 keV
+	    if (thick_energy < 100) {
+	      continue;
+	    }
+
 	    double thick_amplitude = tdp_si_thick->GetAmplitude();
 	    double thick_time = tdp_si_thick->GetTime();
 
@@ -161,12 +167,16 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		for(int i_thin_pulse=0; i_thin_pulse<n_si_thin; ++i_thin_pulse){
 		  const TDetectorPulse* tdp_si_thin=(*i_tme)->GetPulse(si_thin_source,i_thin_pulse);
 		  double thin_energy = tdp_si_thin->GetTAP(TDetectorPulse::kFast)->GetEnergy();
+
+		  if (thin_energy < 100) {
+		    continue;
+		  }
 		  double thin_amplitude = tdp_si_thin->GetAmplitude();
 		  double thin_time = tdp_si_thin->GetTime();
 		  
 		  bool passes_cuts = false;
 
-		  double arrival_time = thin_time - tme_time;
+		  double arrival_time = thick_time - tme_time;
 		  if ( arrival_time > i_arm->lower_time_cut && arrival_time < i_arm->upper_time_cut ) { 
 		    // Now check if this passes our proton cut
 		    if (fStoppedProtonCut) {
@@ -182,10 +192,10 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		    }
 		  }
 
-		  //		  if (thick_time - thin_time > 0) {
+		  if (std::abs(thin_time - thick_time) > 500) {
 		    //		    std::cout << "abs(t_thin - t_thick) = " << std::fabs(thin_time - thick_time) << std::endl;
-		  //		    passes_cuts=true;
-		  //		  }
+		    passes_cuts=false;
+		  }
 		  if (passes_cuts) {
 		    //		    std::cout << "Amplitude --> Energy (thick): " << thick_amplitude << " --> " << thick_energy << std::endl;
 		    //		    std::cout << "Amplitude --> Energy (thin): " << thin_amplitude << " --> " << thin_energy << std::endl;
