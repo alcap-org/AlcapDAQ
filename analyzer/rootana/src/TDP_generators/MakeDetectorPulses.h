@@ -43,12 +43,13 @@ class MakeDetectorPulses : public BaseModule{
     }
 
     private:
-    TVDetectorPulseGenerator* MakeGenerator(const std::string& generatorType,TDPGeneratorOptions* opts);
+    TVDetectorPulseGenerator* MakeGenerator(const IDs::source& current_source, const IDs::source& partner_source, const std::string& generatorType, TDPGeneratorOptions* opts );
     virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
     virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup);
     virtual int AfterLastEntry(TGlobalData* gData, const TSetupData* setup){return 0;}
 
     void DumpgAnalysedPulseMap(const SourceAnalPulseMap& aMap);
+    bool ParseGeneratorList(const IDs::source& current_source, const IDs::source& partner_source, const std::string& generatorList);
 
     private:
     modules::options* fOptions;
