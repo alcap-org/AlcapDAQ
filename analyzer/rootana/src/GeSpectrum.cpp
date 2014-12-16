@@ -28,7 +28,7 @@ const IDs::channel GeSpectrum::fGeF(IDs::kGe, IDs::kFast);
 const IDs::channel GeSpectrum::fMuSc(IDs::kMuSc, IDs::kNotApplicable);
 
 static void RemoveSmallMuScPulsesAndPileup(std::vector<double>& t, std::vector<double>& e) {
-  for (unsigned int i = t.size() - 1; i < t.size(); ++i) {
+  for (unsigned int i = 0; i < t.size(); ++i) {
     if (e[i] < 230) {
       t.erase(t.begin() + i);
       e.erase(e.begin() + i);
@@ -36,13 +36,15 @@ static void RemoveSmallMuScPulsesAndPileup(std::vector<double>& t, std::vector<d
     }
   }
 
+  if (t.empty()) return;
+
   std::vector<bool> rm(t.size(), false);
   static const double dt = 15000.;
-  if (t[0] < dt) rm[0] = true;
+  if (t.front() < dt) rm.front() = true;
   for (unsigned int i = 1; i < t.size(); ++i)
     if (t[i] - t[i-1] < dt)
       rm[i] = rm[i-1] = true;
-  rm[t.size()-1] = true;
+  rm.back() = true;
   for (unsigned int i = 0; i < t.size(); ++i) {
     if (rm[i]) {
       t.erase(t.begin()+i);
