@@ -4,17 +4,31 @@
 #include "MaxTimeDiffDPGenerator.h"
 #include "TDPGeneratorFactory.h"
 #include "TDPGeneratorOptions.h"
+#include "debug_tools.h"
+
+#include <algorithm>
 using std::endl;
 using std::cout;
 
 extern SourceAnalPulseMap gAnalysedPulseMap;
 extern SourceDetPulseMap gDetectorPulseMap;
 
+namespace{
+struct is_equal {
+  is_equal( const IDs::channel& ch):fCh(ch){fCh.SlowFast(IDs::kAnySlowFast);};
+  bool operator()(const std::string& str){return fCh.matches(str);}
+  private:
+     IDs::channel fCh;
+};
+}
+
 MakeDetectorPulses::MakeDetectorPulses(modules::options* opts):
-    BaseModule("MakeDetectorPulses",opts,false),fOptions(opts){
+    BaseModule("MakeDetectorPulses",opts,false),fOptions(opts),fPassThruGenerator(NULL){
         // Get the algorithm option from the modules file
         // If nothing was set, use MaxTimeDiff by default
-        fAlgorithm=opts->GetString("default_algorithm","MaxTimeDiff");
+        opts->GetVectorStringsByWhiteSpace("analyse_detectors",fDetectorsToAnalyse);
+        std::sort(fDetectorsToAnalyse.begin(), fDetectorsToAnalyse.end());
+        fDefaultAlgorithm=opts->GetString("default_algorithm","MaxTimeDiff");
         fPassThruName=opts->GetString("pass_through_algorithm","PassThrough");
     }
 
@@ -22,24 +36,31 @@ MakeDetectorPulses::~MakeDetectorPulses(){
 }
 
 int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
-    // Set up the generator
-    TDPGeneratorOptions gen_opts("gen opts",fOptions);
-    fGenerator=MakeGenerator(fAlgorithm,&gen_opts);
-    fPassThruGenerator=MakeGenerator(fPassThruName,&gen_opts);
-    if(!fGenerator) return 1;
+    // do we analyse all channels?
+    bool analyse_all=fDetectorsToAnalyse.empty();
+    if(!analyse_all) analyse_all= (std::find(fDetectorsToAnalyse.begin(), fDetectorsToAnalyse.end(), "all")!=fDetectorsToAnalyse.end());
 
     const IDs::channel* ch;
     const IDs::generator* gen;
+    const std::string* gen_name;
     IDs::source partner;
     IDs::source tdp_source;
+
     // Find all fast detectors
     TVDetectorPulseGenerator* generator;
     for (SourceAnalPulseMap::const_iterator i_source = gAnalysedPulseMap.begin();
             i_source != gAnalysedPulseMap.end(); i_source++) {
         ch=&i_source->first.Channel();
         gen=&i_source->first.Generator();
+        DEBUG_VALUE(*ch,*gen);
+        if( !analyse_all && 
+            (std::find_if(fDetectorsToAnalyse.begin(),
+                           fDetectorsToAnalyse.end(),
+                            is_equal(*ch))==fDetectorsToAnalyse.end())) continue;
+        DEBUG_CHECKPOINT;
 
 	// Find the correct source since the generator options could be different
+	partner.Reset();
 	for (SourceAnalPulseMap::const_iterator j_source = gAnalysedPulseMap.begin();
 	     j_source != gAnalysedPulseMap.end(); ++j_source) {
 	  
@@ -53,15 +74,26 @@ int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
         // if there is no corresponding fast / slow channel then use the pass
         // through generator
         if(partner==i_source->first) {
-            generator=fPassThruGenerator;
+            gen_name=&fPassThruName;
         } else {
-            generator=fGenerator;
+            gen_name=&fDefaultAlgorithm;
+        }
+
+        // Set up the generator
+        TDPGeneratorOptions gen_opts("gen opts",fOptions);
+        generator=MakeGenerator(*gen_name,&gen_opts);
+        if(!generator) {
+           cout<<"MakeDetectorPulses::BeforeFirstEntry: problem making generator '"<<*gen_name<<"' for detector '"<<ch<<"'."<<endl;
+           return 1;
         }
 
         // Prepare the source ID for the TDP generator
         tdp_source=i_source->first;
         tdp_source.Channel().SlowFast(IDs::kNotApplicable);
         tdp_source.Generator()=generator->GetGeneratorID();
+
+	//if(Debug())
+           cout<< "MakeDetectorPulses::BeforeFirstEntry: Making generator '"<<*gen_name<<"' with source ID: '"<<tdp_source<<"'" <<endl;
 
         if(ch->isFast()) {
             // fast channels go first

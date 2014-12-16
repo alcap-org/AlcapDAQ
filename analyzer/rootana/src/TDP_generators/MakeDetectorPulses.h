@@ -35,7 +35,7 @@ class MakeDetectorPulses : public BaseModule{
     MakeDetectorPulses(modules::options* opts);
     ~MakeDetectorPulses();
 
-    void SetAlgorithm(const TString& algorithm){fAlgorithm=algorithm;};
+    void SetDefaultAlgorithm(const TString& algorithm){fDefaultAlgorithm=algorithm;};
     void SetDetectorPulseMap(StringDetPulseMap& aMap){fDetectorPulseMap=&aMap;}
 
     IDs::generator GetPassThruGeneratorID()const {
@@ -51,13 +51,14 @@ class MakeDetectorPulses : public BaseModule{
     void DumpgAnalysedPulseMap(const SourceAnalPulseMap& aMap);
 
     private:
+    modules::options* fOptions;
     TVDetectorPulseGenerator* fPassThruGenerator; 
     TVDetectorPulseGenerator* fGenerator; 
     StringDetPulseMap* fDetectorPulseMap;
     typedef std::set<Detector_t > ChannelPairing_t;
     ChannelPairing_t fFastSlowPairs;
-    modules::options* fOptions;
-    std::string fAlgorithm, fPassThruName;
+    std::string fDefaultAlgorithm, fPassThruName;
+    std::vector<std::string> fDetectorsToAnalyse;
 
 };
 
