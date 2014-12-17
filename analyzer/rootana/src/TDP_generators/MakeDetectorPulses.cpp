@@ -69,22 +69,18 @@ int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
 
         // Check whether a specific generator is given for this detector
         const std::string detname=IDs::channel::GetDetectorString(ch->Detector());
-       DEBUG_VALUE(ch->str(),detname);
         if( fOptions->HasOption(detname) ){
             // If this channel is named explicitly, use that generator type
             // Get a vector for the generator(s) that we want to use for this detector
-DEBUG_CHECKPOINT;
             bool success=ParseGeneratorList(i_source->first, partner,fOptions->GetString(detname));
             if(! success) return 1;
         }else if(partner==i_source->first) {
            // if there is no corresponding fast / slow channel then use the pass
 	   // through generator
             bool success=ParseGeneratorList(i_source->first, partner,fPassThruName);
-DEBUG_CHECKPOINT;
             if(! success) return 1;
         } else {
             bool success=ParseGeneratorList(i_source->first, partner,fDefaultAlgorithm);
-DEBUG_CHECKPOINT;
             if(! success) return 1;
         }
     }
@@ -169,11 +165,10 @@ bool MakeDetectorPulses::ParseGeneratorList(const IDs::source& current_source, c
     TDPGeneratorOptions* opts;
     modules::parser::Constructor_t generator_request;
     bool still_good=true;
-    std::stringstream sstream;
     for(gen=generatorList.begin();gen!= generatorList.end();gen++){
       // check if we have options for this generator
       generator_request=modules::parser::ParseConstructor(*gen,'(',')');
-      sstream.str(generator_request.inside);
+      std::stringstream sstream(generator_request.inside);
       opts=new TDPGeneratorOptions(generator_request.before);
       for(int count=0; std::getline(sstream, arg,','); count++){
         opts->AddArgument(count,arg);
