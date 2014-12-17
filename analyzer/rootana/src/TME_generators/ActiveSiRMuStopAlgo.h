@@ -13,6 +13,7 @@ class TMEAlgorithm::ActiveSiRStop{
     public:
      ActiveSiRStop(const IDs::source& sir2, double muSc_min, double muSc_max, double SiR2_min, double SiR2_max);
 
+     void SetSiR2Source(const IDs::source so){fSiR2source=so;}
      bool operator()(const TMuonEvent* tme, TDetectorPulse::ParentChannel_t)const;
 
      private:
