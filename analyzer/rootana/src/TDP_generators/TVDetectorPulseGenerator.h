@@ -52,6 +52,7 @@ class TVDetectorPulseGenerator {
 
   const AnalysedPulseList* FastPulseList()const{return fFastPulses;}
   const AnalysedPulseList* SlowPulseList()const{return fSlowPulses;}
+  const AnalysedPulseList* PulseList(bool getFast)const{return getFast?fFastPulses:fSlowPulses;}
 
  private:
   bool fDebug;

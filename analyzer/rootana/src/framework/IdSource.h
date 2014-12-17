@@ -59,6 +59,8 @@ class IDs::source:public TObject{
   
   virtual ~source(){};
 
+  void Reset(){fChannel.Reset(); fGenerator.Reset();}
+
   /// Returns true if this source matches another
   bool operator==(const source& rhs)const;
   

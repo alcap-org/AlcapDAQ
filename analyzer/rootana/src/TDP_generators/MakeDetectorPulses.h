@@ -22,7 +22,7 @@ class MakeDetectorPulses : public BaseModule{
         IDs::source slow;
         TVDetectorPulseGenerator* generator;
         bool operator<(const Detector_t& rhs)const{
-            return fast<rhs.fast || (fast==rhs.fast && slow<rhs.slow);
+            return source<rhs.source;
         }
         Detector_t(const IDs::source& so,
                 const IDs::source& f,
@@ -35,7 +35,7 @@ class MakeDetectorPulses : public BaseModule{
     MakeDetectorPulses(modules::options* opts);
     ~MakeDetectorPulses();
 
-    void SetAlgorithm(const TString& algorithm){fAlgorithm=algorithm;};
+    void SetDefaultAlgorithm(const TString& algorithm){fDefaultAlgorithm=algorithm;};
     void SetDetectorPulseMap(StringDetPulseMap& aMap){fDetectorPulseMap=&aMap;}
 
     IDs::generator GetPassThruGeneratorID()const {
@@ -43,21 +43,23 @@ class MakeDetectorPulses : public BaseModule{
     }
 
     private:
-    TVDetectorPulseGenerator* MakeGenerator(const std::string& generatorType,TDPGeneratorOptions* opts);
+    TVDetectorPulseGenerator* MakeGenerator(const IDs::source& current_source, const IDs::source& partner_source, const std::string& generatorType, TDPGeneratorOptions* opts );
     virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
     virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup);
     virtual int AfterLastEntry(TGlobalData* gData, const TSetupData* setup){return 0;}
 
     void DumpgAnalysedPulseMap(const SourceAnalPulseMap& aMap);
+    bool ParseGeneratorList(const IDs::source& current_source, const IDs::source& partner_source, const std::string& generatorList);
 
     private:
+    modules::options* fOptions;
     TVDetectorPulseGenerator* fPassThruGenerator; 
     TVDetectorPulseGenerator* fGenerator; 
     StringDetPulseMap* fDetectorPulseMap;
     typedef std::set<Detector_t > ChannelPairing_t;
     ChannelPairing_t fFastSlowPairs;
-    modules::options* fOptions;
-    std::string fAlgorithm, fPassThruName;
+    std::string fDefaultAlgorithm, fPassThruName;
+    std::vector<std::string> fDetectorsToAnalyse;
 
 };
 

@@ -66,6 +66,7 @@ public:
   channel(const std::string& channel );
   virtual ~channel(){};
 
+  void Reset(){fDetector=kAnyDetector; fSlowFast=kAnySlowFast;};
 public:
   /// Get the detector enum for this channel
   Detector_t Detector()const{return fDetector;};
