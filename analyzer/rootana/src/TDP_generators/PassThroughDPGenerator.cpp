@@ -17,7 +17,7 @@ int PassThroughDPGenerator::ProcessPulses( DetectorPulseList& output){
     const AnalysedPulseList* pulses=PulseList(fUseFast);
     for(AnalysedPulseList::const_iterator i_pulse=pulses->begin();
             i_pulse!=pulses->end(); i_pulse++){
-        TDetectorPulse* det_pulse = MakeTDP(i_pulse-pulses->begin(), -1); // Create the TDetectorPulse
+        TDetectorPulse* det_pulse = MakeTDP(i_pulse-pulses->begin(),i_pulse-pulses->begin()); // Create the TDetectorPulse
         output.push_back(det_pulse);
     }
     return 0;
