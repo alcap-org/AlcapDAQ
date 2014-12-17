@@ -45,8 +45,11 @@ class GeSpectrum : public BaseModule {
   TH2* fhTimeEnergy;
   TH1* fhNMuons;
 
-  // Algorithms
+  // Some options
   const bool fUseSlowTiming;
+  const bool fCalibration;
+
+  // Algorithms
   const Algorithm::MaxBinAmplitude fMBAmpMuSc;
   const Algorithm::MaxBinAmplitude fMBAmpGe;
   const Algorithm::ConstantFractionTime fCFTimeMuSc;

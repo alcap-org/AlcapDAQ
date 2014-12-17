@@ -61,39 +61,40 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fhADCOOT(NULL), fhEnergyOOT(NULL), fhADCFarOOT(NULL), fhEnergyFarOOT(NULL),
   fhTimeADC(NULL), fhTimeEnergy(NULL),
   fhNMuons(NULL),
-  fUseSlowTiming(opts->GetBool("ge_slow_timing")),
+  fUseSlowTiming(opts->GetBool("ge_slow_timing")), fCalibration(opts->GetBool("calib")),
   fMBAmpMuSc(SetupNavigator::Instance()->GetPedestal(fMuSc), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fMuSc.str()))),
   fMBAmpGe(SetupNavigator::Instance()->GetPedestal(fGeS), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeS.str()))),
   fCFTimeMuSc(SetupNavigator::Instance()->GetPedestal(fMuSc),
 	      TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fMuSc.str())),
 	      TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fMuSc.str())),
 	      0.,
-	      opts->GetDouble("musc_cf")),
+	      fCalibration ? 0. : opts->GetDouble("musc_cf")),
   fCFTimeGe(SetupNavigator::Instance()->GetPedestal(fUseSlowTiming ? fGeS : fGeF),
 	    TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fUseSlowTiming ? fGeS.str() : fGeF.str())),
 	    TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fUseSlowTiming ? fGeS.str() : fGeF.str())),
-	    SetupNavigator::Instance()->GetCoarseTimeOffset(IDs::source(fUseSlowTiming ? fGeS : fGeF, IDs::generator(opts->GetString("ge_gen"), opts->GetString("ge_cfg")))),
+	    fCalibration ? 0. : SetupNavigator::Instance()->GetCoarseTimeOffset(IDs::source(fUseSlowTiming ? fGeS : fGeF, IDs::generator(opts->GetString("ge_gen"), opts->GetString("ge_cfg")))),
 	    opts->GetDouble("ge_cf")),
   fADC2Energy(new TF1("adc2energy","[0]*x+[1]")),
   fTimeWindow_Small(opts->GetDouble("tw_small")), fTimeWindow_Big(opts->GetDouble("tw_big")), fPileupProtectionWindow(10000.) {
   ThrowIfInputsInsane(opts);
 
   const static int nbins = std::pow(2.,14);
-  const std::pair<double,double> adc2energy_par = opts->GetBool("calib") ? std::pair<double, double>(0., 0.) : SetupNavigator::Instance()->GetEnergyCalibrationConstants(IDs::channel("Ge-S"));
+  const std::pair<double,double> adc2energy_par = fCalibration ? std::pair<double, double>(0., 0.) : SetupNavigator::Instance()->GetEnergyCalibrationConstants(IDs::channel("Ge-S"));
   fADC2Energy->SetParameters(adc2energy_par.first, adc2energy_par.second);
   TDirectory* cwd = TDirectory::CurrentDirectory();
   dir->cd();
 
-  fhADC          = new TH1D("hADC", "Energy of Gammas;Energy (ADC)", nbins, 0., nbins);
-  fhEnergy       = new TH1D("hEnergy", "Energy of Gammas;Energy (keV)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fhADCOOT       = new TH1D("hADCOOT", "Energy of Gammas outside of Time Window;Energy (ADC)", nbins, 0., nbins);
-  fhEnergyOOT    = new TH1D("hEnergyOOT", "Energy of Gammas outside of Time Window;Energy (keV)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fhADCFarOOT    = new TH1D("hADCFarOOT", "Energy of Gammas far from Muons;Energy (ADC)", nbins, 0., nbins);
-  fhEnergyFarOOT = new TH1D("hEnergyFarOOT", "Energy of Gammas far from Muons;Energy (keV)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fhTimeADC      = new TH2D("hTimeADC", "Energy of Gammas within Time Window;Time (ns);Energy (ADC)", 500, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
-  fhTimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window;Time (ns);Energy (keV)", 500, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-  fhNMuons       = new TH1D("hNMuons", "Number of muons in MIDAS event;Number", 1000, 0., 1000.);
-
+  fhADC            = new TH1D("hADC", "Energy of Gammas;Energy (ADC)", nbins, 0., nbins);
+  if (!fCalibration) {
+    fhEnergy       = new TH1D("hEnergy", "Energy of Gammas;Energy (keV)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+    fhADCOOT       = new TH1D("hADCOOT", "Energy of Gammas outside of Time Window;Energy (ADC)", nbins, 0., nbins);
+    fhEnergyOOT    = new TH1D("hEnergyOOT", "Energy of Gammas outside of Time Window;Energy (keV)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+    fhADCFarOOT    = new TH1D("hADCFarOOT", "Energy of Gammas far from Muons;Energy (ADC)", nbins, 0., nbins);
+    fhEnergyFarOOT = new TH1D("hEnergyFarOOT", "Energy of Gammas far from Muons;Energy (keV)", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+    fhTimeADC      = new TH2D("hTimeADC", "Energy of Gammas within Time Window;Time (ns);Energy (ADC)", 500, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
+    fhTimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window;Time (ns);Energy (keV)", 500, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  }
+  fhNMuons         = new TH1D("hNMuons", "Number of muons in MIDAS event;Number", 1000, 0., 1000.);
   cwd->cd();
 }
 
@@ -136,6 +137,12 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   for (std::vector<double>::const_iterator geT = geTimes.begin(), geE = geEnergies.begin(), prev = muScTimes.begin(), next;
        geT != geTimes.end() && geE != geEnergies.end();
        ++geT, ++geE) {
+    // Short-ciruit each iteration if only interested in calibrating
+    if (fCalibration) {
+      fhADC->Fill(*geE);
+      continue;
+    }
+
     bool prev_found = false, next_found = false;
     double dt_prev = 1e9, dt_next = 1e9;
 

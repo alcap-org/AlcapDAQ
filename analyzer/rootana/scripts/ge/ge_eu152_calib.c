@@ -2,7 +2,7 @@
   // The file to run on in the sum of calibration runs 3375, 3378 and 3379.
   TFile* f = new TFile("calib_ge.root", "READ");
   TSpectrum* s = new TSpectrum(100, 3.);
-  TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGe-S#FirstComplete#{constant_fraction=0.60}{no_time_shift= true}_Amplitude");
+  TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGe-S#FirstComplete#{constant_fraction=0.60}{no_time_shift=true}_Amplitude");
   spec->Sumw2();
 
   // Activity
