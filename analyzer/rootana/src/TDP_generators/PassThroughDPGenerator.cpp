@@ -4,6 +4,8 @@
 using std::cout;
 using std::endl;
 
+IDs::generator PassThroughDPGenerator::fStaticId = IDs::generator("PassThrough", IDs::kAnyConfig);
+
 PassThroughDPGenerator::PassThroughDPGenerator(TDPGeneratorOptions* opts):
     TVDetectorPulseGenerator("PassThrough",opts), fUseFast(opts->GetBool("use_fast",true)){
     // double check that we can use the slow source, ie. for detectors where
