@@ -4,6 +4,7 @@
 #include "IdSource.h"
 #include "BaseModule.h"
 #include <string>
+#include "ActiveSiRMuStopAlgo.h"
 
 #include <TH1.h>
 #include <TH2.h>
@@ -34,7 +35,7 @@ class PlotTME_EvdE : public BaseModule {
         virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
 
     private:
-        enum Plots{ kNoCuts=0, kMuPP, kMuPP_muAmp, kMuPP_muAmp_T500, kNHists};
+        enum Plots{ kNoCuts=0, kActiveStop, kMuPP, kMuPP_muAmp, kMuPP_muAmp_T500, kNHists};
         struct Hists{
            TH2 *EvdE;
            TH1 *time;
@@ -45,8 +46,9 @@ class PlotTME_EvdE : public BaseModule {
               EvdEvTime->Fill(totalE,deltaE,deltaT);
            }
         };
-        Hists fHists[2][kNHists][4];
+        Hists fHists[2][kNHists][5];
         double fMinTime, fMuScMax, fMuScMin;
+        TMEAlgorithm::ActiveSiRStop fActiveStops;
 };
 
 #endif //PLOTTME_EVDE_H_
