@@ -22,7 +22,7 @@ class MakeDetectorPulses : public BaseModule{
         IDs::source slow;
         TVDetectorPulseGenerator* generator;
         bool operator<(const Detector_t& rhs)const{
-            return fast<rhs.fast || (fast==rhs.fast && slow<rhs.slow);
+            return source<rhs.source;
         }
         Detector_t(const IDs::source& so,
                 const IDs::source& f,
