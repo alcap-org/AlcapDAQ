@@ -128,6 +128,15 @@ class PulseCandidateFinder {
   /// \brief
   /// The number of sigma (i.e. noise) that we want the threshold to be set to
   int fNSigma;
+
+  /// \brief
+  /// Check if the pulse is overflowed
+  ///
+  /// \detailed
+  /// Checks each sample and if the value is equal to the maximum ADC value then we've 
+  /// overflowed the digitiser and can ignore this pulse
+  bool CheckDigitiserOverflow();
+
 };
 
 #endif
