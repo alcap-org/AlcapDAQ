@@ -63,7 +63,7 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   for (std::vector<Arm>::iterator i_arm = fArms.begin(); i_arm != fArms.end(); ++i_arm) {
     std::string evde_histname = i_arm->detname + "_EvdE";
     std::string evde_histtitle = "The E v dE plot for " + i_arm->detname;
-    i_arm->h_EvdE = new TH2F(evde_histname.c_str(), evde_histtitle.c_str(), 100,0,10000, 100,0,10000);
+    i_arm->h_EvdE = new TH2F(evde_histname.c_str(), evde_histtitle.c_str(), 250,0,25000, 100,0,10000);
     i_arm->h_EvdE->SetXTitle("E + dE [keV]");
     i_arm->h_EvdE->SetYTitle("dE [keV]");
 
