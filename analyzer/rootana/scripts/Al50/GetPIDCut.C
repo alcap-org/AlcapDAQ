@@ -17,6 +17,14 @@ void GetPIDCut() {
 
   //  for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
 
+  for (int i_bin = 1; i_bin <= evde_hists[0]->GetNbinsX(); ++i_bin) {
+    for (int j_bin = 1; j_bin <= evde_hists[0]->GetNbinsY(); ++j_bin) {
+      
+      if (evde_hists[0]->GetBinContent(i_bin, j_bin) < 20) {
+	evde_hists[0]->SetBinContent(i_bin, j_bin, 0);
+      }
+    }
+  }
     evde_hists[0]->Draw("COLZ");
     //}
 
