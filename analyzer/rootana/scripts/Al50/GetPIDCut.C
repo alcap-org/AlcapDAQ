@@ -3,7 +3,7 @@ void GetPIDCut() {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogz(1);
 
-  std::string version = "v66";
+  std::string version = "v67";
   std::string savelocation = "~/data/out/"+version+"/plots";
   const int n_arms = 2;
 
