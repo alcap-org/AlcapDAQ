@@ -102,6 +102,16 @@ int modules::options::GetVectorStringsByDelimiter(const std::string& name, std::
     return num_tokens;
 }
 
+int modules::options::GetVectorDoublesByWhiteSpace(const std::string& name, std::vector<double>& vect)const{
+  std::stringstream ss(GetOption(name));
+  double val;
+  int num_tokens=0;
+  for(;ss>>val; num_tokens++) {
+    vect.push_back(val);
+  }
+  return num_tokens;
+}
+
 void modules::options::DumpOptions(const std::string& prefix)const{
     //std::cout<<"key  "<<" = "<<" value "<<std::endl;
     OptionsOrder_t::const_iterator it;

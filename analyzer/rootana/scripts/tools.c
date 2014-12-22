@@ -56,3 +56,33 @@ unsigned int RearrangeMaskedArrays(const unsigned int n0, bool m[], Double_t x[]
   for (unsigned int i = 0; i < n0; ++i) if (m[i]) ++n;
   return ++n;
 }
+
+void ConvolveHistogramWithFunction(TH1* h, const TF1* f) {
+  const double norm = f->Integral(h->GetXaxis()->GetBinLowEdge(1), h->GetXaxis()->GetBinUpEdge(h->GetNbinsX()));
+  for (unsigned int i = h->GetNbinsX(); i > 0; --i) {
+    const double n = h->GetBinContent(i)/norm;
+    h->SetBinContent(i, n);
+    for (unsigned int j = i+1; j <= h->GetNbinsX(); ++j)
+      h->Fill(h->GetBinCenter(j), n*f->Eval(h->GetBinCenter(j)-h->GetBinCenter(i)));
+  }
+}
+
+TH1* ConvolveHistograms(const TH1* h1, const TH1* h2) {
+  if ( h1->GetNbinsX()                                 != h2->GetNbinsX() ||
+       h1->GetXaxis()->GetBinLowEdge(1)                != h2->GetXaxis()->GetBinLowEdge()
+       h1->GetXaxis()->GetBinHighEdge(h1->GetNbinsX()) != h2->GetXaxis()->GetBinHighEdge(h2->GetNbinsX()) ) {
+    printf("Error: Histogram binning not identical! Not convolving.");
+    return NULL;
+  }
+  char name[256];
+  sprintf(name, "%s_conv_%s", h1->GetName(), h2->GetName());
+  TH1* hout = h1->Clone(name);
+  hout->Reset();
+
+  const double norm = h2->Integral(1, h2->GetNbinsX());
+  for (unsigned int i = hout->GetNbinsX(); i > 0; --i)
+    for (unsigned int j = std::max(?, i); j <= std::min(?, hout->GetNbinsX()); --j)
+      hout->Fill(i, h1->GetBinContent(i
+
+  return hout;
+}
