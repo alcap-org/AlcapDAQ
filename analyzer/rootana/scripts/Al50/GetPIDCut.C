@@ -33,14 +33,37 @@ void GetPIDCut() {
       }
     }
   }
-  TF1* fit_fn = new TF1("fit_fn", "[0]*TMath::Exp([1]*x + [2])", 2000,10000);//, 0,10000);
-  fit_fn->SetParameter(0, 2000);
-  fit_fn->SetParameter(1, -0.01);
-  fit_fn->SetParameter(2, 0);
-  
-  evde_hists[0]->Fit(fit_fn, "R");
 
-  evde_hists[0]->Draw("COLZ");
-    //}
+  // Get Contours
+  evde_hists[0]->Draw("CONT Z LIST");
+  c1->Update();
+  TObjArray *conts = (TObjArray*)gROOT->GetListOfSpecials()->FindObject("contours");
+  TList* contLevel = NULL;
+  TGraph* curv     = NULL;
+  TGraph* gc       = NULL;
+
+  Int_t nGraphs    = 0;
+  Int_t TotalConts = 0;
+
+  if (conts == NULL){
+    printf("*** No Contours Were Extracted!\n");
+    TotalConts = 0;
+    return;
+  } else {
+    TotalConts = conts->GetSize();
+  }
+
+  printf("TotalConts = %d\n", TotalConts);
+  
+  int i = 0;
+  contLevel = (TList*)conts->At(i);
+  printf("Contour %d has %d Graphs\n", i, contLevel->GetSize());
+  curv = (TGraph*)contLevel->At(0);
+  curv->GetYaxis()->SetRangeUser(0,10000);
+  curv->GetXaxis()->SetRangeUser(0,25000);
+  Double_t* cont_x = curv->GetX();
+  Double_t* cont_y = curv->GetY();
+  curv->Draw("AL");
+  nGraphs += contLevel->GetSize();
 
 }
