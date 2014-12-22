@@ -3,16 +3,18 @@ void LifetimeFits() {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy(1);
 
-  std::string savelocation = "~/data/out/v33/plots";
+  std::string version = "v62";
+  std::string savelocation = "~/data/out/"+version+"/plots";
   const int n_arms = 2;
 
-  TFile* file = new TFile("~/data/out/v33/total.root");
-  TH1F* SiL_Time = (TH1F*) file->Get("TME_EvdE/hSiL_Time");
-  TH1F* SiR_Time = (TH1F*) file->Get("TME_EvdE/hSiR_Time");
+  std::string filename = "~/data/out/"+version+"/total.root";
+  TFile* file = new TFile(filename.c_str());
+  TH1F* SiL_Time = (TH1F*) file->Get("TME_EvdE/SiL_Time");
+  TH1F* SiR_Time = (TH1F*) file->Get("TME_EvdE/SiR_Time");
 
   TH1F* time_hists[n_arms] = {SiL_Time, SiR_Time};
   std::string arm_names[n_arms] = {"SiL", "SiR"};
-  double final_times[n_arms] = {6000,4000};
+  double final_times[n_arms] = {6000,6000};
 
   for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
     time_hists[i_arm]->Rebin(20);
