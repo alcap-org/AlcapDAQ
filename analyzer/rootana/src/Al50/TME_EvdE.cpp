@@ -31,7 +31,16 @@ TME_EvdE::~TME_EvdE(){
 int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
   fLeftArm.detname = "SiL";
+  fLeftArmQuad1.detname = "SiL_Quad1";
+  fLeftArmQuad2.detname = "SiL_Quad2";
+  fLeftArmQuad3.detname = "SiL_Quad3";
+  fLeftArmQuad4.detname = "SiL_Quad4";
   fRightArm.detname = "SiR";
+  fRightArmQuad1.detname = "SiR_Quad1";
+  fRightArmQuad2.detname = "SiR_Quad2";
+  fRightArmQuad3.detname = "SiR_Quad3";
+  fRightArmQuad4.detname = "SiR_Quad4";
+
 
   using namespace IDs;
   fSiL1.push_back(IDs::channel (kSiL1_1 , kNotApplicable ));
@@ -47,17 +56,68 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
   fLeftArm.thin = fSiL1;
   fLeftArm.thick = fSiL2;
+  DetectorList left_quad_1; left_quad_1.push_back(IDs::channel (kSiL1_1 , kNotApplicable));
+  fLeftArmQuad1.thin = left_quad_1;
+  fLeftArmQuad1.thick = fSiL2;
+  DetectorList left_quad_2; left_quad_2.push_back(IDs::channel (kSiL1_2 , kNotApplicable));
+  fLeftArmQuad2.thin = left_quad_2;
+  fLeftArmQuad2.thick = fSiL2;
+  DetectorList left_quad_3; left_quad_3.push_back(IDs::channel (kSiL1_3 , kNotApplicable));
+  fLeftArmQuad3.thin = left_quad_3;
+  fLeftArmQuad3.thick = fSiL2;
+  DetectorList left_quad_4; left_quad_4.push_back(IDs::channel (kSiL1_4 , kNotApplicable));
+  fLeftArmQuad4.thin = left_quad_4;
+  fLeftArmQuad4.thick = fSiL2;
+
   fRightArm.thin = fSiR1;
   fRightArm.thick = fSiR2;
+  DetectorList right_quad_1; right_quad_1.push_back(IDs::channel (kSiR1_1 , kNotApplicable));
+  fRightArmQuad1.thin = right_quad_1;
+  fRightArmQuad1.thick = fSiR2;
+  DetectorList right_quad_2; right_quad_2.push_back(IDs::channel (kSiR1_2 , kNotApplicable));
+  fRightArmQuad2.thin = right_quad_2;
+  fRightArmQuad2.thick = fSiR2;
+  DetectorList right_quad_3; right_quad_3.push_back(IDs::channel (kSiR1_3 , kNotApplicable));
+  fRightArmQuad3.thin = right_quad_3;
+  fRightArmQuad3.thick = fSiR2;
+  DetectorList right_quad_4; right_quad_4.push_back(IDs::channel (kSiR1_4 , kNotApplicable));
+  fRightArmQuad4.thin = right_quad_4;
+  fRightArmQuad4.thick = fSiR2;
+
 
   // Hard-coded for the time being
   fLeftArm.lower_time_cut = 0;
   fLeftArm.upper_time_cut = 999999999;
+  fLeftArmQuad1.lower_time_cut = 0;
+  fLeftArmQuad1.upper_time_cut = 999999999;
+  fLeftArmQuad2.lower_time_cut = 0;
+  fLeftArmQuad2.upper_time_cut = 999999999;
+  fLeftArmQuad3.lower_time_cut = 0;
+  fLeftArmQuad3.upper_time_cut = 999999999;
+  fLeftArmQuad4.lower_time_cut = 0;
+  fLeftArmQuad4.upper_time_cut = 999999999;
+
   fRightArm.lower_time_cut = 0;
   fRightArm.upper_time_cut = 999999999;
+  fRightArmQuad1.lower_time_cut = 0;
+  fRightArmQuad1.upper_time_cut = 999999999;
+  fRightArmQuad2.lower_time_cut = 0;
+  fRightArmQuad2.upper_time_cut = 999999999;
+  fRightArmQuad3.lower_time_cut = 0;
+  fRightArmQuad3.upper_time_cut = 999999999;
+  fRightArmQuad4.lower_time_cut = 0;
+  fRightArmQuad4.upper_time_cut = 999999999;
 
   fArms.push_back(fLeftArm);
+  fArms.push_back(fLeftArmQuad1);
+  fArms.push_back(fLeftArmQuad2);
+  fArms.push_back(fLeftArmQuad3);
+  fArms.push_back(fLeftArmQuad4);
   fArms.push_back(fRightArm);
+  fArms.push_back(fRightArmQuad1);
+  fArms.push_back(fRightArmQuad2);
+  fArms.push_back(fRightArmQuad3);
+  fArms.push_back(fRightArmQuad4);
 
   // Create the histograms for each arm
   for (std::vector<Arm>::iterator i_arm = fArms.begin(); i_arm != fArms.end(); ++i_arm) {

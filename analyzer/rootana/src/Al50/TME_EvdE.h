@@ -78,7 +78,8 @@ class TME_EvdE : public BaseModule {
 	  TH2F* h_EvdE;
 	  TH1F* h_Time;
 	  TH2F* h_stopped_proton_prob;
-	} fLeftArm, fRightArm;
+	} fLeftArm, fLeftArmQuad1, fLeftArmQuad2, fLeftArmQuad3, fLeftArmQuad4, 
+	  fRightArm, fRightArmQuad1, fRightArmQuad2, fRightArmQuad3, fRightArmQuad4;
 
 	std::vector<Arm> fArms;
 	
