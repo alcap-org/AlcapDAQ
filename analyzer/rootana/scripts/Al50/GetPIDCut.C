@@ -33,6 +33,13 @@ void GetPIDCut() {
 	}
       }
     }
+
+    TF1* fit_fn = new TF1("fit_fn", "[0]*TMath::Exp([1]*x)", 2000, 10000);
+    fit_fn->SetLineColor(kBlue);
+    fit_fn->SetParameter(0, 2000);
+    fit_fn->SetParameter(1, -0.01);
+    evde_hists[i_arm]->Fit(fit_fn, "R");
+
     evde_hists[i_arm]->Draw("COLZ");
   }
 }
