@@ -58,10 +58,9 @@ unsigned int RearrangeMaskedArrays(const unsigned int n0, bool m[], Double_t x[]
 }
 
 void ConvolveHistogramWithFunction(TH1* h, const TF1* f) {
-  const double norm = f->Integral(h->GetXaxis()->GetBinLowEdge(1), h->GetXaxis()->GetBinUpEdge(h->GetNbinsX()));
   for (unsigned int i = h->GetNbinsX(); i > 0; --i) {
-    const double n = h->GetBinContent(i)/norm;
-    h->SetBinContent(i, n);
+    const double n = h->GetBinContent(i);
+    h->SetBinContent(i, n*f->Eval(0.));
     for (unsigned int j = i+1; j <= h->GetNbinsX(); ++j)
       h->Fill(h->GetBinCenter(j), n*f->Eval(h->GetBinCenter(j)-h->GetBinCenter(i)));
   }
@@ -81,8 +80,8 @@ TH1* ConvolveHistograms(const TH1* h1, const TH1* h2) {
 
   const double norm = h2->Integral(1, h2->GetNbinsX());
   for (unsigned int i = hout->GetNbinsX(); i > 0; --i)
-    for (unsigned int j = std::max(?, i); j <= std::min(?, hout->GetNbinsX()); --j)
-      hout->Fill(i, h1->GetBinContent(i
+    for (unsigned int j = std::max(0, i); j <= std::min(0, hout->GetNbinsX()); --j)
+      hout->Fill(i, h1->GetBinContent(i));
 
   return hout;
 }
