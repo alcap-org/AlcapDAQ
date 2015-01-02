@@ -21,14 +21,24 @@ void ProtonBandGraphicalCut() {
     double x_1 = 0, y_1 = 2000, x_2 = 4000, y_2 = 0;
     double gradient = (y_2 - y_1) / (x_2 - x_1);
     double offset = y_1;
+    TF1* electron_spot_cut = new TF1("electron_spot_cut", "[0]*x + [1]", 0, 15000);
+    electron_spot_cut->SetLineColor(kBlue);
+    electron_spot_cut->SetParameter(0, gradient);
+    electron_spot_cut->SetParameter(1, offset);
+
+    double punch_through_yoffset = 300;
+    TF1* punch_through_cut = new TF1("punch_through_cut", "[0]", 0, 25000);
+    punch_through_cut->SetLineColor(kBlue);
+    punch_through_cut->SetParameter(0, punch_through_yoffset);
+
 
     // Cut to remove the remaining deuteron band
-    TF1* fit_fn = new TF1("fit_fn", "[0]*TMath::Exp([1]*x) + [2]", 0, 15000);
-    fit_fn->SetLineColor(kBlue);
-    fit_fn->SetParameter(0, 4500);
-    fit_fn->SetParameter(1, -0.0004);
-    fit_fn->SetParameter(2, 500);
-    //    evde_hists[i_arm]->Fit(fit_fn, "R");
+    TF1* deuteron_cut = new TF1("deuteron_cut", "[0]*TMath::Exp([1]*x) + [2]", 0, 25000);
+    deuteron_cut->SetLineColor(kBlue);
+    deuteron_cut->SetParameter(0, 4500);
+    deuteron_cut->SetParameter(1, -0.0004);
+    deuteron_cut->SetParameter(2, 500);
+    //    evde_hists[i_arm]->Fit(deuteron_cut, "R");
 
     for (int i_bin = 1; i_bin <= evde_hists[i_arm]->GetNbinsX(); ++i_bin) {
       for (int j_bin = 1; j_bin <= evde_hists[i_arm]->GetNbinsY(); ++j_bin) {
@@ -36,14 +46,31 @@ void ProtonBandGraphicalCut() {
 	double y_coord = evde_hists[i_arm]->GetYaxis()->GetBinCenter(j_bin);
 	
 	if (evde_hists[i_arm]->GetBinContent(i_bin, j_bin) < 20 ||
-	    y_coord < gradient*x_coord + offset || 
-	    y_coord < 300 ||
-	    y_coord > fit_fn->Eval(x_coord) ) {
+	  y_coord < electron_spot_cut->Eval(x_coord) || 
+	  y_coord < punch_through_cut->Eval(x_coord) ||
+	    y_coord > deuteron_cut->Eval(x_coord) ) {
 	  evde_hists[i_arm]->SetBinContent(i_bin, j_bin, 0);
 	}
       }
     }
     evde_hists[i_arm]->Draw("COLZ");
-    fit_fn->Draw("LSAME");
+    //    electron_spot_cut->Draw("LSAME");
+    //    punch_through_cut->Draw("LSAME");
+    //    deuteron_cut->Draw("LSAME");
+
+    std::string plotname = savelocation+"/"+arm_names[i_arm]+"_EvdE_ProtonBand";
+    std::string pdfname = plotname+".pdf";
+    std::string pngname = plotname+".png";
+    c1->SaveAs(pdfname.c_str());
+    c1->SaveAs(pngname.c_str());
+
+    TH1D* hProjection = evde_hists[i_arm]->ProjectionX();
+    hProjection->Rebin(5);
+    hProjection->Draw("HIST E");
+    plotname = savelocation+"/"+arm_names[i_arm]+"_EvdE_ProtonBand_ProjectionX";
+    pdfname = plotname+".pdf";
+    pngname = plotname+".png";
+    c1->SaveAs(pdfname.c_str());
+    c1->SaveAs(pngname.c_str());
   }
 }
