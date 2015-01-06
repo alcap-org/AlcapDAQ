@@ -40,9 +40,16 @@ PlotAmpVsTDiff::PlotAmpVsTDiff(char *HistogramDirectoryName, std::string det_nam
   amp_vs_tdiff_plot_coarse->GetYaxis()->SetTitle(y_axis_title.c_str());
 
   histname = "h" + fDetNameA + "-" + fDetNameB + "_AmpVsTDiff_Fine";
-  amp_vs_tdiff_plot_fine = new TH2F(histname.c_str(), histtitle.c_str(), 5000,-5000,20000, max_adc_value,0,max_adc_value);
+  amp_vs_tdiff_plot_fine = new TH2F(histname.c_str(), histtitle.c_str(), 200,-1000,1000, max_adc_value,0,max_adc_value);
   amp_vs_tdiff_plot_fine->GetXaxis()->SetTitle(x_axis_title.c_str());
   amp_vs_tdiff_plot_fine->GetYaxis()->SetTitle(y_axis_title.c_str());
+
+
+  histname = "h" + fDetNameA + "-" + fDetNameB + "_1D_TDiff";
+  histtitle = "Plot of the time difference for the " + fDetNameA + " and " + fDetNameB + " detector";
+  oned_tdiff_plot = new TH1F(histname.c_str(), histtitle.c_str(), 1000,-500,3000);
+  oned_tdiff_plot->GetXaxis()->SetTitle(x_axis_title.c_str());
+
 
   dir->cd("/");
 }
@@ -76,6 +83,7 @@ int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
       amp_vs_tdiff_plot_coarse->Fill(t_diff, detB_amplitude);
       amp_vs_tdiff_plot_fine->Fill(t_diff, detB_amplitude);
+      oned_tdiff_plot->Fill(t_diff);
 
     } // end loop through detA pulses
   } // end loop through detB pulses

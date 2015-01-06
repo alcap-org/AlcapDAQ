@@ -12,6 +12,9 @@ class NGammaInt : public FillHistBase{
 
  private:
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+  virtual int AfterLastEntry(TGlobalData *gData);
+
+  char *fHistName;
 };
 
 #endif

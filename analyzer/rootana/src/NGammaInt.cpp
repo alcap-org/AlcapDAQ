@@ -35,13 +35,14 @@ using std::pair;
 
 std::map<std::string, TH2F*> NGDisc_plots;
 std::map<std::string, TH2F*> NGRatio_plots;
-std::map<std::string, TH1F*> NG1D_plot_05, NG1D_plot_10, NG1D_plot_15, NG1D_plot_20, NG1D_plot_25, NG1D_plot_30, NG1D_plot_35, NG1D_plot_40, NG1D_plot_50, NG1D_plot_60, NG1D_plot_70, NG1D_plot_80, NG1D_plot_90, NG1D_plot_100, NG1D_plot_150;
-std::map<std::string, TH1F*> NGEnergy_plots;
-//neutCount = 0, gammaCount = 0;
+std::map<std::string, TH1F*> NGNEnergy_plots, NGGEnergy_plots;
+int neutCount = 0, gammaCount = 0;
+std::map<std::string, TH1D*> NG1D_plots;
 
 NGammaInt::NGammaInt(char *HistogramDirectoryName) :
   FillHistBase(HistogramDirectoryName)
   {
+    fHistName = HistogramDirectoryName;
     dir->cd("/");
   }
 
@@ -62,11 +63,13 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
     std::string keyname = mapIter->first + GetName();
     
     //  I'm skipping the other detectors at this point.
-    if((detname != "NDet") && (detname != "NDet2") && (detname != "LiquidSc"))
+    if((detname != "NDet") && (detname != "NDet2") && (detname != "LiquidSc")){
       continue; 
+    }
 
+    //std::cout << bankname << "    " << detname << std::endl;
 
-    float ratioMax = 0.2, tailcount = 12;
+    float ratioMax = 0.35; //tailcount = 12;
 
 
 
@@ -91,203 +94,32 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
      std::string histname2 = "h" + detname + "_ratio";
      std::string histtitle2 = "Plot of pulse integral ratio for the " + detname + " detector";
-     TH2F* hNGRatio = new TH2F(histname2.c_str(), histtitle2.c_str(), 300, 0, ratioMax, 2000, 0, 15);
-     hNGRatio->GetXaxis()->SetTitle("integral ratio");
-     hNGRatio->GetYaxis()->SetTitle("Energy (MeVee)");
+     TH2F* hNGRatio = new TH2F(histname2.c_str(), histtitle2.c_str(), 2000, 0, 15, 300, 0, ratioMax);
+     hNGRatio->GetYaxis()->SetTitle("integral ratio");
+     hNGRatio->GetXaxis()->SetTitle("Energy (MeVee)");
      NGRatio_plots[keyname] = hNGRatio;
     }
- 
-    // there may be some easier way of doing this, but for the limited
-    // number of histograms, this suffices.  
-
-    /* 
-    if(NG1D_plots.find(keyname) == NG1D_plots.end())
-      {
-	for(int E = 1; E < 10; E++)
-	  {
-	    float Ep = E/2, Epp = (E-1)/2;
-	    std::stringstream ss, st;
-	    ss<<Ep;
-	    st<<Epp;
-	    std::string histname1 = "h" + detname + "_FoM_" + ss.str();
-	    std::string histtitle1 = "Plot of Ratios for Cut " + st.str() + " - " + ss.str() + " MeV";
-	    TH1F* hNG1D[E] = new TH1F(histname1.c_str(), histtitle1.c_str(), 300,0,0.45);
-	    hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	    hNG1D->GetYaxis()->SetTitle("Count");
-	    NG1D_plots[keyname] = hNG1D[E];
-	  }
-      }
-    */
-
-    if(NG1D_plot_05.find(keyname) == NG1D_plot_05.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_05";
-	std::string histtitle1 = "Plot of Ratios for Cut 0.0 - 0.5 MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_05[keyname] = hNG1D;
-      }
 
 
-    if(NG1D_plot_10.find(keyname) == NG1D_plot_10.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_10";
-	std::string histtitle1 = "Plot of Ratios for Cut 0.5 - 1.0 MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_10[keyname] = hNG1D;
-      }
-
-    if(NG1D_plot_15.find(keyname) == NG1D_plot_15.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_15";
-	std::string histtitle1 = "Plot of Ratios for Cut 1.0 - 1.5MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_15[keyname] = hNG1D;
-      }
-
-
-    if(NG1D_plot_20.find(keyname) == NG1D_plot_20.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_20";
-	std::string histtitle1 = "Plot of Ratios for Cut 1.5 - 2.0MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_20[keyname] = hNG1D;
-      }
-
-    if(NG1D_plot_25.find(keyname) == NG1D_plot_25.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_25";
-	std::string histtitle1 = "Plot of Ratios for Cut 2.0 - 2.5MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_25[keyname] = hNG1D;
-      }
-
-    if(NG1D_plot_30.find(keyname) == NG1D_plot_30.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_30";
-	std::string histtitle1 = "Plot of Ratios for Cut 2.5 - 3.0MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_30[keyname] = hNG1D;
-      }
-
-    if(NG1D_plot_35.find(keyname) == NG1D_plot_35.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_35";
-	std::string histtitle1 = "Plot of Ratios for Cut 3.0 - 3.5MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_35[keyname] = hNG1D;
-      }
-
-    if(NG1D_plot_40.find(keyname) == NG1D_plot_40.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_40";
-	std::string histtitle1 = "Plot of Ratios for Cut 3.5 - 4.0MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_40[keyname] = hNG1D;
-      }
-
-    if(NG1D_plot_50.find(keyname) == NG1D_plot_50.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_50";
-	std::string histtitle1 = "Plot of Ratios for Cut 4.0 - 5.0 MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_50[keyname] = hNG1D;
-      }
-
-
-    if(NG1D_plot_60.find(keyname) == NG1D_plot_60.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_60";
-	std::string histtitle1 = "Plot of Ratios for Cut 5.0 - 6.0 MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_60[keyname] = hNG1D;
-      }
-
-    if(NG1D_plot_70.find(keyname) == NG1D_plot_70.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_70";
-	std::string histtitle1 = "Plot of Ratios for Cut 6.0 - 7.0 MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_70[keyname] = hNG1D;
-      }
-
-
-    if(NG1D_plot_80.find(keyname) == NG1D_plot_80.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_80";
-	std::string histtitle1 = "Plot of Ratios for Cut 7.0 - 8.0 MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_80[keyname] = hNG1D;
-      }
-
-    if(NG1D_plot_90.find(keyname) == NG1D_plot_90.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_90";
-	std::string histtitle1 = "Plot of Ratios for Cut 8.0 - 9.0 MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_90[keyname] = hNG1D;
-      }
-
-    if(NG1D_plot_100.find(keyname) == NG1D_plot_100.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_100";
-	std::string histtitle1 = "Plot of Ratios for Cut 9.0 - 10.0 MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_100[keyname] = hNG1D;
-      }
-
-    if(NG1D_plot_150.find(keyname) == NG1D_plot_150.end())
-      {
-	std::string histname1 = "h" + detname + "_FoM_150";
-	std::string histtitle1 = "Plot of Ratios for Cut 10.0 - 15.0 MeV";
-	TH1F* hNG1D = new TH1F(histname1.c_str(), histtitle1.c_str(), 300, 0, ratioMax);
-	hNG1D->GetXaxis()->SetTitle("Integral Ratio");
-	hNG1D->GetYaxis()->SetTitle("Count");
-	NG1D_plot_150[keyname] = hNG1D;
-      }
-
-
-
-
-
-
- if(NGEnergy_plots.find(keyname) == NGEnergy_plots.end())
+ if(NGNEnergy_plots.find(keyname) == NGNEnergy_plots.end())
       {
 	std::string histname6 = "h" + detname + "_Amplitude";
 	std::string histtitle6 = "Plot of Neutron Amplitudes";
-	TH1F* hNGEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, 16.16);
-	hNGEnergy->GetXaxis()->SetTitle("Energy (MeVee)");
-	hNGEnergy->GetYaxis()->SetTitle("Count");
-	NGEnergy_plots[keyname] = hNGEnergy;
+	TH1F* hNGNEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, 16.16);
+	hNGNEnergy->GetXaxis()->SetTitle("Energy (MeVee)");
+	hNGNEnergy->GetYaxis()->SetTitle("Count");
+	NGNEnergy_plots[keyname] = hNGNEnergy;
       }
 
+ if(NGGEnergy_plots.find(keyname) == NGGEnergy_plots.end())
+      {
+	std::string histname6 = "h" + detname + "_AmplitudeG";
+	std::string histtitle6 = "Plot of Gamma Amplitudes";
+	TH1F* hNGGEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, 16.16);
+	hNGGEnergy->GetXaxis()->SetTitle("Energy (MeVee)");
+	hNGGEnergy->GetYaxis()->SetTitle("Count");
+	NGGEnergy_plots[keyname] = hNGGEnergy;
+      }
 
 
  ////////////////////////////////////////////////////////
@@ -326,46 +158,46 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
       pedestal = sum / count;
 
 
-
-
+      
       for(std::vector<int>::iterator sIter = samples.begin(); sIter != samples.end(); sIter++) 
 	{
 
-          float samp = (*sIter) - pedestal;
+          float samp = (*sIter);
 	  int time = std::distance(samples.begin(), sIter);
         
 	  //histogram our pulse
 	  hpulse->Fill(time, samp);
         }
 
-      peak = hpulse->GetMaximum();
+
+      peak = (hpulse->GetMaximum()) - pedestal;
       tpeak = hpulse->GetMaximumBin();
 
 
       if(detname == "NDet")
-	energy = peak * 0.00575;
+	energy = (float) (peak+15.2)/177.2;
       if(detname == "NDet2")
-	energy = peak * 0.00399;
+	energy = (float) (peak+15)/269.1;
 
-
+      
       /***************************/
       // if(energy < 1.349)
       //tailcount = 3.774 + 2.968*energy;
       //if(energy >= 1.349)
-      tailcount = 6.88 + 1.96*log(energy);
+      //tailcount = 6.88 + 1.96*log(energy);
 
-      int tcount = tailcount;
+      //int tcount = tailcount;
 
       
 
       /***************************/
-
+      
       tstart = tpeak - 3;
-      ttail = tpeak + tcount;
-      tstop = ttail + 10;
-      int trstop = tstop;
+      ttail = tpeak + 5;
+      tstop = tpeak + 20;
+      //int trstop = tstop;
 
-      float rem = (tailcount - tcount);
+      //float rem = (tailcount - tcount);
 
 
       if(peak > 5000)
@@ -375,63 +207,38 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 	}
 
 
-      fullInt = hpulse->Integral(tstart, trstop-1);
-      tailInt = hpulse->Integral(ttail+1, trstop-1);
-      tailInt += (1-rem) * hpulse->GetBinContent(ttail);
-      fullInt += rem * hpulse->GetBinContent(trstop);
-      tailInt += rem * hpulse->GetBinContent(trstop);
+      fullInt = hpulse->Integral(tstart, tstop);
+      fullInt -= 24 * pedestal;
+
+      tailInt = hpulse->Integral(ttail, tstop);
+      tailInt -= 16 * pedestal;
+
+      //tailInt += (1-rem) * hpulse->GetBinContent(ttail);
+      //fullInt += rem * hpulse->GetBinContent(trstop);
+      //tailInt += rem * hpulse->GetBinContent(trstop);
 
       ratio = tailInt / fullInt;
 
       delete hpulse;
-
+      
       // Fill the histograms
 
 
       NGDisc_plots[keyname]->Fill(fullInt, tailInt);
-      NGRatio_plots[keyname]->Fill(ratio, energy);
+      NGRatio_plots[keyname]->Fill(energy, ratio);
 
-      if(energy < 0.5)
-	NG1D_plot_05[keyname]->Fill(ratio);
-      if((energy > 0.5) && (energy < 1.0))
-	NG1D_plot_10[keyname]->Fill(ratio);	  
-      if((energy > 1.0) && (energy < 1.5))
-	NG1D_plot_15[keyname]->Fill(ratio);
-      if((energy > 1.5) && (energy < 2.0))
-	NG1D_plot_20[keyname]->Fill(ratio);
-      if((energy > 2.0) && (energy < 2.5))
-	NG1D_plot_25[keyname]->Fill(ratio);
-      if((energy > 2.5) && (energy < 3.0))
-	NG1D_plot_30[keyname]->Fill(ratio);
-      if((energy > 3.0) && (energy < 3.5))
-	NG1D_plot_35[keyname]->Fill(ratio);
-      if((energy > 3.5) && (energy < 4.0))
-	NG1D_plot_40[keyname]->Fill(ratio);
-      if((energy > 4.0) && (energy < 5.0))
-	NG1D_plot_50[keyname]->Fill(ratio);	  
-      if((energy > 5.0) && (energy < 6.0))
-	NG1D_plot_60[keyname]->Fill(ratio);
-      if((energy > 6.0) && (energy < 7.0))
-	NG1D_plot_70[keyname]->Fill(ratio);
-      if((energy > 7.0) && (energy < 8.0))
-	NG1D_plot_80[keyname]->Fill(ratio);
-      if((energy > 8.0) && (energy < 9.0))
-	NG1D_plot_90[keyname]->Fill(ratio);
-      if((energy > 9.0) && (energy < 10.0))
-	NG1D_plot_100[keyname]->Fill(ratio);
-      if((energy > 10.0) && (energy < 15.0))
-	NG1D_plot_150[keyname]->Fill(ratio);
+      float temp1 = 0.09415 + 0.03783/energy - 0.00557/(energy*energy);
+      float temp2 = 0.10815 + 0.03814/energy - 0.00591/(energy*energy);
 
 
-      float temp1 = -0.0161 + 0.0827/(sqrt(energy));
-      float temp2 = 0.0171 + 0.0259/energy + 0.0406/(energy*energy);
-
-
-      if((detname == "NDet") && (ratio > temp1)) 
-	NGEnergy_plots[keyname]->Fill(energy);      
-      if((detname == "NDet2") && (ratio > temp2))
-	NGEnergy_plots[keyname]->Fill(energy);
-
+      if((detname == "NDet") && (ratio >= temp1) && (energy > 0.5) && (energy < 9.0)) 
+	NGNEnergy_plots[keyname]->Fill(energy);      
+      if((detname == "NDet") && (ratio < temp1) && (energy > 0.5) && (energy < 9.0)) 
+	NGGEnergy_plots[keyname]->Fill(energy); 
+      if((detname == "NDet2") && (ratio >= temp2) && (energy > 0.5) && (energy < 9.0))
+	NGNEnergy_plots[keyname]->Fill(energy);
+      if((detname == "NDet2") && (ratio < temp2) && (energy > 0.5) && (energy < 9.0))
+	NGGEnergy_plots[keyname]->Fill(energy);
 
 
 
@@ -444,8 +251,8 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
       //   from our pulse.                                   //
       /////////////////////////////////////////////////////////
       
-      /* 
-      if((ratio >= 0.08) && (ratio < 0.09) && (neutCount < 10)  && (detname == "NDet") && (peak > 495) && (peak < 500))
+      
+      if((ratio >= 0.12) && (ratio < 0.15) && (neutCount < 20)  && (detname == "NDet") && (peak > 495) && (peak < 500))
 	{
           //make histogram here
           neutCount += 1;
@@ -461,14 +268,14 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
           for(std::vector<int>::iterator sIt = samples.begin(); sIt != samples.end(); sIt++)
 	    {
 	      int t = std::distance(samples.begin(), sIt);	      
-	      hPulse->Fill(t, *(sIt)- 1265);
+	      hPulse->Fill(t, *(sIt)-1265);
             } 
 
 
 	}
 
        
-      if((ratio < 0.05) && (ratio >= 0.03) && (gammaCount < 10) && (detname == "NDet") && (peak < 500) && (peak > 495))
+      if((ratio > 0.05) && (ratio < 0.07) && (gammaCount < 20) && (detname == "NDet") && (peak < 500) && (peak > 495))
 	{
           //make histogram here
           gammaCount += 1;
@@ -483,20 +290,67 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
           for(std::vector<int>::iterator sIt = samples.begin(); sIt != samples.end(); sIt++)
 	    {
 	      int t1 = std::distance(samples.begin(), sIt);
-              hPulse2->Fill(t1 , (*sIt) - 1265);
+              hPulse2->Fill(t1 , (*sIt)-1265);
        
 
             } 
 
 	}
-      */
       
-
-
-
     }//close pulse loop
 
   }//close map loop
 
   return 0;
+}
+
+int NGammaInt::AfterLastEntry(TGlobalData *gData){
+
+
+  std::string directory = "/" + std::string(fHistName);
+  dir-> cd(directory.c_str());
+
+  for(map<string, vector<TPulseIsland*> >::iterator mapIter = gData->fPulseIslandToChannelMap.begin(); mapIter != gData->fPulseIslandToChannelMap.end(); mapIter++)
+  {
+    std::string bankname = mapIter->first;
+    std::string keyname = mapIter->first + GetName();
+    std::string detname;
+
+    if(bankname == "Nf81")
+      detname = "NDet2";
+    if(bankname == "Ng81")
+      detname = "NDet";
+
+    double scale = 2000/15;
+    
+    //  I'm skipping the other detectors at this point.
+    if((detname != "NDet") && (detname != "NDet2"))
+      continue;  
+
+    for(int energyIt = 0; energyIt < 30; energyIt++){
+      float energy = (float) energyIt / 2;
+      int energyBin1 = 0, energyBin2 = 0;
+      if(detname == "NDet"){
+	energyBin1 = (energy*scale)+1;
+	energyBin2 = ((energy + 0.5)*scale) ;
+      }
+      if(detname == "NDet2"){
+	energyBin1 = (energy*scale)+1;
+	energyBin2 = ((energy+0.5)*scale) ;
+      }
+     
+
+      std::stringstream ss;
+      std::stringstream st;
+      ss << energy + 0.5;
+      st << energy;
+ 
+      std::string histname = "h" + detname + "_ratio_" + ss.str();
+      std::string histtitle = "Plot of Ratios for the cut " + st.str() + " to " + ss.str() + " MeV";
+      NG1D_plots[keyname] = NGRatio_plots[keyname]->ProjectionY(histname.c_str(), energyBin1, energyBin2);
+      NG1D_plots[keyname]->SetTitle(histtitle.c_str());
+  
+    }
+  }
+  
 }

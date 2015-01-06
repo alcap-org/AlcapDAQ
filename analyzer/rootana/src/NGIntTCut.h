@@ -12,10 +12,12 @@ class NGIntTCut : public FillHistBase{
 
  private:
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
+  virtual int AfterLastEntry(TGlobalData *gData);
 
   std::string fDetNameA;
   double fStartWindow;
   double fStopWindow;
+  char *fHistName;
 };
 
 #endif
