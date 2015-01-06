@@ -14,5 +14,9 @@ void UnfoldProtonSpectrum() {
 
     std::string folded_spectrum_name = arm_name + "_EvdE_px";
     TH1D* folded_spectrum = (TH1D*) data_file->Get(folded_spectrum_name.c_str());
+
+    RooUnfoldBayes unfold (response, folded_spectrum);
+    TH1D* unfolded_spectrum = (TH1D*) unfold.Hreco();
+    unfolded_spectrum->Draw("HIST E");
   }
 }
