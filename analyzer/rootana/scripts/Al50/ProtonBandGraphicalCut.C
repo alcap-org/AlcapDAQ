@@ -67,7 +67,7 @@ void ProtonBandGraphicalCut() {
     c1->SaveAs(pngname.c_str());
 
     TH1D* hProjection = evde_hists[i_arm]->ProjectionX();
-    hProjection->Rebin(5);
+    hProjection->Rebin(10);
     hProjection->Draw("HIST E");
     plotname = savelocation+"/"+arm_names[i_arm]+"_EvdE_ProtonBand_ProjectionX";
     pdfname = plotname+".pdf";
