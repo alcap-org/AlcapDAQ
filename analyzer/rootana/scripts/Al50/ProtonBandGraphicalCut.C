@@ -72,5 +72,11 @@ void ProtonBandGraphicalCut() {
     pngname = plotname+".png";
     c1->SaveAs(pdfname.c_str());
     c1->SaveAs(pngname.c_str());
+
+    double energy_range_low = 4000;
+    double energy_range_high = 8000;
+    int bin_low = hProjection->FindBin(energy_range_low);
+    int bin_high = hProjection->FindBin(energy_range_high);
+    std::cout << arm_names[i_arm] << " Proton Integral (" << energy_range_low << " - " << energy_range_high << " keV) = " << hProjection->Integral(bin_low, bin_high) << std::endl;
   }
 }
