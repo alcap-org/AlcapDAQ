@@ -15,6 +15,8 @@ void ProtonBandGraphicalCut() {
   TH2F* evde_hists[n_arms] = {SiL_EvdE, SiR_EvdE};
   std::string arm_names[n_arms] = {"SiL", "SiR"};
 
+  TFile* output_file = new TFile("result.root", "RECREATE");
+
   for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
   
     // straight line cut to remove electrons
@@ -72,6 +74,8 @@ void ProtonBandGraphicalCut() {
     pngname = plotname+".png";
     c1->SaveAs(pdfname.c_str());
     c1->SaveAs(pngname.c_str());
+
+    hProjection->Write();
 
     double energy_range_low = 4000;
     double energy_range_high = 8000;
