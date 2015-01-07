@@ -201,7 +201,7 @@ void *root_event_loop(void *arg){
   printf("There are %d entries\n",(int)nentries);
   std::cout<<"Processing file, which may take a while.  Have patience young padwan.."<<std::endl;
 
-  //Int_t nbytes = 0, nb = 0;
+  Int_t nbytes = 0, nb = 0;
 
   Long64_t start = 0;
   Long64_t stop = nentries;
@@ -246,10 +246,10 @@ void *root_event_loop(void *arg){
     }
     
     if (jentry%100 == 0) {
-      printf("Completed %ld events out of %ld \n", jentry, stop);
+      printf("Completed %ld events out of %ld \n", jentry, (long)stop);
     }
     // Let's get the next event
-    //nb = tree->GetEntry(jentry);
+    nb = tree->GetEntry(jentry);
 
     for(int i=0; i < n_fillhist; i++) {
       //printf("processing fillhists[%d]\n",i);      

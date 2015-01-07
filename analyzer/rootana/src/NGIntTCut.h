@@ -14,7 +14,7 @@ class NGIntTCut : public FillHistBase{
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
   virtual int AfterLastEntry(TGlobalData *gData);
 
-  int neutCount, gammaCount;
+  int neutCount = 0, gammaCount = 0;
 
   std::string fDetNameA;
   double fStartWindow;

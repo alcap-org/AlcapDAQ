@@ -52,8 +52,6 @@ NGammaInt::~NGammaInt()
 int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 {
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
-  neutCount = 0;
-  gammaCount = 0;
 
   for(map_iterator mapIter = gData->fPulseIslandToChannelMap.begin(); mapIter != gData->fPulseIslandToChannelMap.end(); mapIter++)
   {

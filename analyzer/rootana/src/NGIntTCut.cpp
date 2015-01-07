@@ -55,8 +55,7 @@ NGIntTCut::~NGIntTCut()
 int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 {
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
-  neutCount = 0;
-  gammaCount = 0;
+
 
   std::vector<TAnalysedPulse*> detAPulses = gAnalysedPulseMap[fDetNameA];
  
@@ -299,14 +298,14 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
      
       
-      if((ratio >= 0.12) && (ratio < 0.15) && (neutCount < 20)  && (detname == "NDet") && (peak > 495) && (peak < 500))
+      if((ratio >= 0.06) && (ratio < 0.085) && (neutCount < 20)  && (detname == "NDet") && (energy > 3.5) && (energy < 4.0))
 	{
           //make histogram here
           neutCount += 1;
 	  std::stringstream ss;
           ss << neutCount;
 	  std::string histname3 = "h" + ss.str() + "_npulse ";
-	  std::string histtitle3 = "Plot of neutron pulse " + ss.str();
+	  std::string histtitle3 = "Plot of gamma pulse " + ss.str() + "w/ time cut";
           TH1F* hPulse = new TH1F(histname3.c_str(), histtitle3.c_str(),150, 0, 150);
           hPulse->GetXaxis()->SetTitle("time");
           hPulse->GetYaxis()->SetTitle("ADC count");
@@ -322,14 +321,14 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 	}
 
        
-      if((ratio > 0.05) && (ratio < 0.07) && (gammaCount < 20) && (detname == "NDet") && (peak < 500) && (peak > 495))
+      if((ratio > 0.06) && (ratio < 0.085) && (gammaCount < 20) && (detname == "NDet") && (energy < 5.0) && (energy > 4.5))
 	{
           //make histogram here
           gammaCount += 1;
 	  std::stringstream ss;
           ss << gammaCount;
 	  std::string histname4 = "h" + ss.str() + "_gpulse ";
-	  std::string histtitle4 = "Plot of gamma pulse " + ss.str();
+	  std::string histtitle4 = "Plot of gamma pulse " + ss.str() + "w/o time cuts";
           TH1F* hPulse2 = new TH1F(histname4.c_str(), histtitle4.c_str(),150, 0, 150);
           hPulse2->GetXaxis()->SetTitle("time");
           hPulse2->GetYaxis()->SetTitle("ADC count");
