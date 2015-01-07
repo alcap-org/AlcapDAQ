@@ -1,4 +1,4 @@
-all: rootana libAnalysis.so libAnalysis.rootmap
+all: rootana
 
 .PHONY: clean print all
 
@@ -34,7 +34,7 @@ endif
 ROOT_LIBS = $(shell $(ROOTSYS)/bin/root-config --libs) -lThread -lGui -lMinuit
 ALL_LIBS =  $(ROOT_LIBS)
 
-OPTFLAGS = -g -O3 -Wno-write-strings
+OPTFLAGS = -g -O2
 
 CXXFLAGS = $(OPTFLAGS) \
            $(INCLUDE_CFLAGS) $(ROOT_CFLAGS) -fPIC
@@ -46,24 +46,13 @@ include src/files.make
 OBJECTS := $(notdir $(patsubst %.C,%.o,$(SOURCES)))
 OBJECTS := $(notdir $(patsubst %.cpp,%.o,$(OBJECTS)))
 
-LIB_DATACLASS := $(DAQdir)/analyzer/work/$(USER)/libDataClasses.so
-DATALINKDEF := $(DAQdir)/analyzer/src/common/DataLibraryLinkDef.h
 %.o: %.cpp
 	$(CXX) -c -Wall $(CXXFLAGS) $<
 	$(CXX) -MM $(CXXFLAGS) $< > $(notdir $(patsubst %.cpp,%.d,$<))
 
 rootana: $(OBJECTS)
 #	$(CXX) $(ICCFLAGS) $(ROOT_LIBS) -o rootana $(OBJECTS) ../work/grange/libDataClasses.so
-	$(CXX) $(ICCFLAGS) -Wl,--no-as-needed -o rootana $(OBJECTS) $(ROOT_LIBS) $(LIB_DATACLASS)
-
-libAnalysis.so: $(OBJECTS)
-	$(CXX) $(ICCLIBS) $(ROOT_LIBS) -shared -o libAnalysis.so \
-		$(shell root-config --ldflags) -I$(ROOTSYS)/include $^ -lMinuit -lPhysics \
-		$(LIB_DATACLASS)
-
-libAnalysis.rootmap: libAnalysis.so $(DATALINKDEF)
-	rlibmap -f -o libAnalysis.rootmap -l libAnalysis.so -d libCore \
-		-c $(DATALINKDEF)
+	$(CXX) $(ICCFLAGS) -Wl,--no-as-needed -o rootana $(OBJECTS) $(ROOT_LIBS) ../work/$(USER)/libDataClasses.so
 
 clean: 
 	rm -f *.d *.o *Dict.cpp *Dict.h blank rootana

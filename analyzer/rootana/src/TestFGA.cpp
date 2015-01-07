@@ -39,8 +39,7 @@ TestFGA::~TestFGA()
 
 int TestFGA::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 {
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
+
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
   for(map_iterator mapIter = gData->fPulseIslandToChannelMap.begin(); mapIter != gData->fPulseIslandToChannelMap.end(); mapIter++)

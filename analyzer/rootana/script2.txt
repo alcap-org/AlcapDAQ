@@ -1,0 +1,1 @@
+./rootana -i tree03563.root -o BeamT_3563.root; ./rootana -i tree03564.root -o BeamT_3564.root; ./rootana -i tree03565.root -o BeamT_3565.root; hadd BeamFGA1_15T.root BeamT_3563.root BeamT_3564.root BeamT_3565.root

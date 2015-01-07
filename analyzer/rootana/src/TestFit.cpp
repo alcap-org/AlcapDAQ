@@ -39,8 +39,6 @@ TestFit::~TestFit()
 
 int TestFit::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 {
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
   for(map_iterator mapIter = gData->fPulseIslandToChannelMap.begin(); mapIter != gData->fPulseIslandToChannelMap.end(); mapIter++)
@@ -122,15 +120,15 @@ int TestFit::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 	  peak = hpulse->GetMaximum();
 	  tpeak = hpulse->GetMaximumBin();
 
-	  Double_t fullInt = hpulse->Integral(tpeak - 3, tpeak + 20);
-	  Double_t tailInt = hpulse->Integral(tpeak + 5, tpeak + 20);
-	  Double_t ratio = tailInt / fullInt;
+	  //Double_t fullInt = hpulse->Integral(tpeak - 3, tpeak + 20);
+	  //Double_t tailInt = hpulse->Integral(tpeak + 5, tpeak + 20);
+	  //Double_t ratio = tailInt / fullInt;
 	  Double_t energy = peak * 0.00564;
 
 
 	  Double_t Skew = 0, Sigma = 0, sumSigma = 0, sum2 = 0, sum3 = 0;
 	  Double_t n = 25, x = 0, mean = 0, median = 0, q1 = 0, q3 = 0;
-	  Double_t Ex2 = 0, temp = 0, sumSkew = 0, skew = 0;
+	  Double_t Ex2 = 0, temp = 0, sumSkew = 0;//, skew = 0;
 
 	  for(int i = tpeak - 4; i < tpeak - 4 + n; i++)
 	    {
@@ -173,7 +171,7 @@ int TestFit::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
 	  Sigma = sqrt(sumSigma/(n-1));
 	  Skew = sumSkew * n / ((n-1) * (n-2) * Sigma * Sigma * Sigma);
-	  skew = ((q3 - median) - (median - q1)) / (q3 - q1);
+	  //skew = ((q3 - median) - (median - q1)) / (q3 - q1);
 	  
 
 

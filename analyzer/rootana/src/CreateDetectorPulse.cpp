@@ -30,9 +30,9 @@ CreateDetectorPulse::~CreateDetectorPulse(){
 }
 
 int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  //typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
+  //typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
+  //typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
   // Loop through and find a fast channel
    //std::cout << "Size of gAnalysedPulseMap " << gAnalysedPulseMap.size() << std::endl;
@@ -79,7 +79,7 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 	  while (pulseIters.size() > 0) {
 
 	    // Find out which of the next fast or slow pulsees happened next
-	    for (int b = 0; b < pulseIters.size(); ++b) {
+	    for (unsigned int b = 0; b < pulseIters.size(); ++b) {
 	      pulse_time = (*pulseIters[b])->GetTime() * 1e-6; // convert to ms	      
 	      min_time = std::min(min_time, pulse_time);
 
@@ -91,7 +91,7 @@ int CreateDetectorPulse::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 	    double time_difference = 0.1; // 0.1 ms
 	    TAnalysedPulse* fast_pulse = NULL;
 	    TAnalysedPulse* slow_pulse = NULL;
-	    for (int b = 0; b < pulseIters.size(); ++b) {
+	    for (unsigned int b = 0; b < pulseIters.size(); ++b) {
 
 	      TAnalysedPulse* pulse = *(pulseIters[b]);
 	      double pulse_time = pulse->GetTime() * 1e-6; // convert to ms

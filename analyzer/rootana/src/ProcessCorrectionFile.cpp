@@ -50,19 +50,17 @@ void CheckSetupData(TSetupData* s_data, char* correction_file){
 // TriggerPolarity = INT[48] :
 // Pedestal = INT[48] :
 bool ProcessValues(TSetupData* s_data,std::string field,std::string bank_name, std::string newVal){
-  if(field == "DetectorName"){
-    s_data->SetDetectorName(bank_name,newVal);
-  }else if(field == "Enabled"){
-  }else if(field == "SamplingFrequency"){
-  }else if(field == "TriggerPolarity"){
-    s_data->SetTriggerPolarity(bank_name,atoi(newVal.c_str()));
-  }else if(field == "Pedestal"){
-    s_data->SetPedestal(bank_name,atoi(newVal.c_str()));
-  }else if(field == "TimeShift"){
-    s_data->SetTimeShift(bank_name,atof(newVal.c_str()));
-  }else{
-    cout<<"WARNING: Unknown wiremap field: "<<field<<endl;
-  }
-  cout<<"Setting "<<field<<" for bank "<<bank_name<<" to "<<atof(newVal.c_str())<<endl;
-  return true;
+        if(field == "DetectorName"){
+                s_data->SetDetectorName(bank_name,newVal);
+        }else if(field == "Enabled"){
+        }else if(field == "SamplingFrequency"){
+        }else if(field == "TriggerPolarity"){
+                s_data->SetTriggerPolarity(bank_name,atoi(newVal.c_str()));
+        }else if(field == "Pedestal"){
+                s_data->SetPedestal(bank_name,atoi(newVal.c_str()));
+        }else{
+                cout<<"WARNING: Unknown wiremap field: "<<field<<endl;
+        }
+        cout<<"Setting "<<field<<" for bank "<<bank_name<<" to "<<newVal<<endl;
+        return true;
 }

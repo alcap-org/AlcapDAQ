@@ -16,11 +16,11 @@ using std::vector;
 using std::pair;
 
 const int NCHAN = 8;
-static TH1 *hSamples1 = 0;
-static TH1 *hSamples2 = 0;
-static TH1 *hSamples3 = 0;
-static TH2 *hBankSize = 0;
-static TH1 *bankHists[NCHAN];
+//static TH1 *hSamples1 = 0;
+//static TH1 *hSamples2 = 0;
+//static TH1 *hSamples3 = 0;
+//static TH2 *hBankSize = 0;
+//static TH1 *bankHists[NCHAN];
 
 CheckCoincidence::CheckCoincidence(char *HistogramDirectoryName,TSetupData* setup) :
   FillHistBase(HistogramDirectoryName,setup){

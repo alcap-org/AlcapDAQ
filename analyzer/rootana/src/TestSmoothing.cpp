@@ -37,8 +37,6 @@ TestSmoothing::~TestSmoothing()
 
 int TestSmoothing::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 {
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
   for(map_iterator mapIter = gData->fPulseIslandToChannelMap.begin(); mapIter != gData->fPulseIslandToChannelMap.end(); mapIter++)
@@ -109,9 +107,10 @@ int TestSmoothing::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
 	  //now to get the times and integrals for the original signal
 
-	  int tstart = 0, tstop = 0, tpeak = 0, ttail = 0;
+	  //int tstart = 0, tstop = 0, tpeak = 0, ttail = 0;
 	  float peak = 0, samp = 0, threshold = 3 * sigma;
 	  double fullInt = 0, tailInt = 0, ratio = 0;
+	  int tpeak = 0;
 
 	  if(threshold <= 5)
 	    threshold = 5;
@@ -160,15 +159,16 @@ int TestSmoothing::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 	  fullInt = hpulse->Integral(tpeak - 3, tpeak + 20);
 	  tailInt = hpulse->Integral(tpeak + 5, tpeak + 20);
 
-	  ratio = tailInt / fullInt;
+	  //ratio = tailInt / fullInt;
 
 	  //now we need to look through the smoothed sample
 	  //this will have to be done some other way as the iterator
 	  //method does not quite work.
 
-	  int tsmstart = 0, tsmtail = 0,tsmpeak = 0, tsmstop = 0;
+	  //int tsmstart = 0, tsmtail = 0,tsmpeak = 0, tsmstop = 0;
 	  float smpeak = 0;
 	  double smFullInt = 0, smTailInt = 0, smRatio = 0;
+	  int tsmpeak = 0;
 
 	  smpeak = hpulse2->GetMaximum();
 	  tsmpeak = hpulse2->GetMaximumBin();

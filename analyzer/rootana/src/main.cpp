@@ -21,11 +21,8 @@
 #include "PlotNEnergy.h"
 #include "ScintInt.h"
 #include "NGammaInt.h"
-#include "NGammaInt2.h"
-#include "NGammaSmInt.h"
 #include "NGammaLanInt.h"
 #include "NGIntTCut.h"
-#include "NGIntTCut2.h"
 #include "TestSmoothing.h"
 #include "TestFit.h"
 #include "TestTiming.h"
@@ -163,48 +160,10 @@ int main(int argc, char **argv){
   fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_Ge-S_Ge-F", "Ge-S","Ge-F");
   //fillhists[n_fillhist++] = new ScintInt("Neutron Integrals");
   fillhists[n_fillhist++] = new NGammaInt("PSD");
-  //fillhists[n_fillhist++] = new NGammaInt2("PSD_2");
-  //fillhists[n_fillhist++] = new NGammaSmInt("Smoothed PSD");
   //fillhists[n_fillhist++] = new NGammaLanInt("Landau Fitted PSD");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-1_SiL2_slow", "SiL1-1-S","SiL2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-2_SiL2_slow", "SiL1-2-S","SiL2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-3_SiL2_slow", "SiL1-3-S","SiL2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-4_SiL2_slow", "SiL1-4-S","SiL2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-1_SiL2_fast", "SiL1-1-F","SiL2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-2_SiL2_fast", "SiL1-2-F","SiL2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-3_SiL2_fast", "SiL1-3-F","SiL2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiL1-4_SiL2_fast", "SiL1-4-F","SiL2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-1_SiR2_slow", "SiR1-1-S","SiR2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-2_SiR2_slow", "SiR1-2-S","SiR2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-3_SiR2_slow", "SiR1-3-S","SiR2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-4_SiR2_slow", "SiR1-4-S","SiR2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-1_SiR2_fast", "SiR1-1-F","SiR2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-2_SiR2_fast", "SiR1-2-F","SiR2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-3_SiR2_fast", "SiR1-3-F","SiR2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_SiR1-4_SiR2_fast", "SiR1-4-F","SiR2-F");
 
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_Ge-S", "muSc","Ge-S");
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_Ge-F", "muSc","Ge-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-1-S", "muSc","SiL1-1-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-2-S", "muSc","SiL1-2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-3-S", "muSc","SiL1-3-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-4-S", "muSc","SiL1-4-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-1-F", "muSc","SiL1-1-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-2-F", "muSc","SiL1-2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-3-F", "muSc","SiL1-3-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL1-4-F", "muSc","SiL1-4-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL2S", "muSc","SiL2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiL2F", "muSc","SiL2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-1-S", "muSc","SiR1-1-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-2-S", "muSc","SiR1-2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-3-S", "muSc","SiR1-3-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-4-S", "muSc","SiR1-4-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-1-F", "muSc","SiR1-1-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-2-F", "muSc","SiR1-2-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-3-F", "muSc","SiR1-3-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR1-4-F", "muSc","SiR1-4-F");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR2S", "muSc","SiR2-S");
-  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_SiR2F", "muSc","SiR2-F");
   fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_NDet", "muSc","NDet");
   fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_NDet2", "muSc","NDet2");
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_ScVe", "muSc","ScVe");
@@ -216,7 +175,6 @@ int main(int argc, char **argv){
   fillhists[n_fillhist++] = new NGIntTCut("PSD_PbTCut", "muSc", 40, 400);
   fillhists[n_fillhist++] = new NGIntTCut("PSD_AlTCut", "muSc", 400, 4000);
   fillhists[n_fillhist++] = new NGIntTCut("PSD_WideTCut", "muSc", -1000, 8000);
-  //fillhists[n_fillhist++] = new NGIntTCut2("PSD AfterCut_2", "muSc", 300, 1700);
   //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_AfterCut");
   //fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);
   //fillhists[n_fillhist++] = new EvdE("EvdE");
@@ -243,7 +201,7 @@ void *root_event_loop(void *arg){
   printf("There are %d entries\n",(int)nentries);
   std::cout<<"Processing file, which may take a while.  Have patience young padwan.."<<std::endl;
 
-  Int_t nbytes = 0, nb = 0;
+  //Int_t nbytes = 0, nb = 0;
 
   Long64_t start = 0;
   Long64_t stop = nentries;
@@ -264,7 +222,7 @@ void *root_event_loop(void *arg){
     br->SetAddress(&g_event);
   }
   
-  nb = tree->GetEntry(start);
+  //nb = tree->GetEntry(start);
   int q = 0;
   for (int i=0; i < n_fillhist; i++) {
     q |= fillhists[i]->BeforeFirstEntry(g_event);
@@ -288,10 +246,10 @@ void *root_event_loop(void *arg){
     }
     
     if (jentry%100 == 0) {
-      printf("Completed %d events out of %d \n", jentry, stop);
+      printf("Completed %ld events out of %ld \n", jentry, stop);
     }
     // Let's get the next event
-    nb = tree->GetEntry(jentry);
+    //nb = tree->GetEntry(jentry);
 
     for(int i=0; i < n_fillhist; i++) {
       //printf("processing fillhists[%d]\n",i);      
@@ -331,7 +289,7 @@ void help_command_line(char *my_name){
 }
 
 bool isNumber(char *c){
-  for(int i=0; i<strlen(c); i++){
+  for(unsigned int i=0; i<strlen(c); i++){
     if(!isdigit(c[i])) return false;
   }
   return true;
@@ -359,7 +317,7 @@ int check_arguments(){
           arguments.run=GetRunNumber(arguments.infile);
   }
   if(strcmp(arguments.correction_file,"")==0){
-    sprintf(correction_file,"wiremap_corrections/correct%ld.dat",arguments.run);
+    sprintf(correction_file,"wiremap_corrections/correct%d.dat",arguments.run);
   }else sprintf(correction_file,arguments.correction_file);
   return 1;
 }
@@ -478,7 +436,7 @@ void ClearGlobalData(TGlobalData* data)
   for(mapIter = data->fPulseIslandToChannelMap.begin(); mapIter != mapEnd; mapIter++) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
     std::vector<TPulseIsland*> pulse_vector= mapIter->second;
-    for(int i=0; i<pulse_vector.size(); i++){
+    for(unsigned int i=0; i<pulse_vector.size(); i++){
       delete pulse_vector[i];
       pulse_vector[i] = NULL;
     }
@@ -490,7 +448,7 @@ void ClearGlobalData(TGlobalData* data)
 
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
     std::vector<TAnalysedPulse*> pulse_vector= mapIter->second;
-    for(int i=0; i<pulse_vector.size(); i++){
+    for(unsigned int i=0; i<pulse_vector.size(); i++){
       delete pulse_vector[i];
       pulse_vector[i] = NULL;
     }
@@ -501,7 +459,7 @@ void ClearGlobalData(TGlobalData* data)
   for(std::map<std::string, std::vector<TDetectorPulse*> >::iterator mapIter = gDetectorPulseMap.begin(); mapIter != gDetectorPulseMap.end(); mapIter++) {
     // The iterator is pointing to a pair<string, vector<TPulseIsland*> >
     std::vector<TDetectorPulse*> pulse_vector= mapIter->second;
-    for(int i=0; i<pulse_vector.size(); i++){
+    for(unsigned int i=0; i<pulse_vector.size(); i++){
       delete pulse_vector[i];
       pulse_vector[i] = NULL;
     }

@@ -58,9 +58,9 @@ PlotAmpVsTDiff::~PlotAmpVsTDiff(){
 }
 
 int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  //typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
+  //typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
+  //typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
   // Get the detA pulses ready for later
   std::vector<TAnalysedPulse*> detA_pulses = gAnalysedPulseMap[fDetNameA];
@@ -73,7 +73,7 @@ int PlotAmpVsTDiff::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
   for (std::vector<TAnalysedPulse*>::iterator detBPulseIter = detB_pulses.begin(); detBPulseIter != detB_pulses.end(); ++detBPulseIter) {
 
     // Loop through the detA pulses
-    bool coinc_found = false;
+    //bool coinc_found = false;
     for (std::vector<TAnalysedPulse*>::iterator detAPulseIter = currentDetAPulse; detAPulseIter != detA_pulses.end(); ++detAPulseIter) {
 
       double detB_time = (*detBPulseIter)->GetTime();

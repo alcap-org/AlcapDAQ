@@ -2,7 +2,6 @@ DIRS += src/
 
 SOURCES += \
 main.cpp \
-MakeAnalysedPulses.cpp\
 FillHistBase.cpp \
 AnalysePulseIsland.cpp \
 PlotAmplitude.cpp \
@@ -12,7 +11,18 @@ MakeMuonEvents.cpp \
 PlotTime.cpp \
 CoincidenceCut.cpp \
 PlotAmpVsTDiff.cpp \
-MaxBinAPGenerator.cpp \
 ProcessCorrectionFile.cpp \
-EvdE.cpp \
-DeadTimeGe.cpp
+PlotNEnergy.cpp\
+ScintInt.cpp\
+NGammaInt.cpp\
+NGammaLanInt.cpp\
+NGIntTCut.cpp\
+TestSmoothing.cpp\
+TestFit.cpp\
+TestTiming.cpp\
+TestVeto.cpp\
+TestFGA.cpp\
+TestVetoMuscCoinc.cpp\
+TestVetoMuscTiming.cpp\
+EvdE.cpp
+

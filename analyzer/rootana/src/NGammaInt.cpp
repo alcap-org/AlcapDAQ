@@ -36,7 +36,6 @@ using std::pair;
 std::map<std::string, TH2F*> NGDisc_plots;
 std::map<std::string, TH2F*> NGRatio_plots;
 std::map<std::string, TH1F*> NGNEnergy_plots, NGGEnergy_plots;
-int neutCount = 0, gammaCount = 0;
 std::map<std::string, TH1D*> NG1D_plots;
 
 NGammaInt::NGammaInt(char *HistogramDirectoryName) :
@@ -52,9 +51,9 @@ NGammaInt::~NGammaInt()
 
 int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 {
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  neutCount = 0;
+  gammaCount = 0;
 
   for(map_iterator mapIter = gData->fPulseIslandToChannelMap.begin(); mapIter != gData->fPulseIslandToChannelMap.end(); mapIter++)
   {
@@ -352,5 +351,5 @@ int NGammaInt::AfterLastEntry(TGlobalData *gData){
   
     }
   }
-  
+  return 0;
 }

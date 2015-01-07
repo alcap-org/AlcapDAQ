@@ -27,8 +27,8 @@ AnalysePulseIsland::~AnalysePulseIsland(){
 }
 
 int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
+  //typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
+  //typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
    //std::cout << "Size of gData " << gData->fPulseIslandToChannelMap.size() << std::endl;

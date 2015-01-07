@@ -1,11 +1,6 @@
 # MIDAS
 midas.log
-work/*/.*SHM
-work/*/*Dict*
-work/*/MODULES.h
-work/*/Makefile.MODULES
-src/muSC_muPC/MMuSCAnalysisMQL.cpp
-*/wiremap*
+
 # OS Files
 *~
 *.swp

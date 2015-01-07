@@ -1,0 +1,32 @@
+MOctalFADCProcessRaw.o:	../../src/FADC/MOctalFADCProcessRaw.cpp
+
+MV1724ProcessRaw.o:	../../src/v1724/MV1724ProcessRaw.cpp
+
+MDT5720ProcessRaw.o:	../../src/dt5720/MDT5720ProcessRaw.cpp
+
+MTreeOutput.o:	../../src/common/MTreeOutput.cpp
+
+MVacuumHisto.o:	../../src/vacuum/MVacuumHisto.cpp
+
+SOURCE_DIRS += ../../src/common:../../src/FADC:../../src/v1724:../../src/dt5720:../../src/common:../../src/vacuum
+
+INCLUDE_DIRS += :../../src/common:../../src/diagnostics:../../src/dt5720:../../src/DummyDet:../../src/FADC:../../src/muSC_muPC:../../src/new:../../src/physics:../../src/Timing:../../src/v1724:../../src/vacuum
+
+MODULE_OBJS = MOctalFADCProcessRaw.o MV1724ProcessRaw.o MDT5720ProcessRaw.o MTreeOutput.o MVacuumHisto.o
+MUnCompressRawData.o:	../../src/common/MUnCompressRawData.cpp
+
+MOctalFADCProcessRaw.o:	../../src/FADC/MOctalFADCProcessRaw.cpp
+
+MV1724ProcessRaw.o:	../../src/v1724/MV1724ProcessRaw.cpp
+
+MDT5720ProcessRaw.o:	../../src/dt5720/MDT5720ProcessRaw.cpp
+
+MTreeOutput.o:	../../src/common/MTreeOutput.cpp
+
+MVacuumHisto.o:	../../src/vacuum/MVacuumHisto.cpp
+
+SOURCE_DIRS += ../../src/common:../../src/common:../../src/FADC:../../src/v1724:../../src/dt5720:../../src/common:../../src/vacuum
+
+INCLUDE_DIRS += :../../src/common:../../src/diagnostics:../../src/dt5720:../../src/DummyDet:../../src/FADC:../../src/muSC_muPC:../../src/new:../../src/physics:../../src/Timing:../../src/v1724:../../src/vacuum
+
+MODULE_OBJS = MUnCompressRawData.o MOctalFADCProcessRaw.o MV1724ProcessRaw.o MDT5720ProcessRaw.o MTreeOutput.o MVacuumHisto.o

@@ -54,9 +54,9 @@ NGIntTCut::~NGIntTCut()
 
 int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 {
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  neutCount = 0;
+  gammaCount = 0;
 
   std::vector<TAnalysedPulse*> detAPulses = gAnalysedPulseMap[fDetNameA];
  
@@ -156,7 +156,7 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
 
       float constant_fraction = 0.50;
-      int trigger_polarity = gSetup->GetTriggerPolarity(bankname);
+      //int trigger_polarity = gSetup->GetTriggerPolarity(bankname);
       double clock_tick_in_ns = gSetup->GetClockTick(bankname);
       double time_shift = gSetup->GetTimeShift(bankname);
 
@@ -224,7 +224,7 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
          //replace with spline interpolation time permitting (to get lower cf)
 
     //get cf time
-      timeB = (dx + (*pIter)->GetTimeStamp()) * clock_tick_in_ns - time_shift;
+      timeB = (dx + (double)(*pIter)->GetTimeStamp()) * clock_tick_in_ns - time_shift;
       //timeB = (tpeak + (*pIter)->GetTimeStamp()) * clock_tick_in_ns - time_shift;
 
       // search for timing coincidence
@@ -237,20 +237,19 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 	  if(timeA > timeB + fStopWindow)
 	    {
 	      coincidence = false;
-	      //currentDetAPulse = --pIterA;
 	      break;  //we passed the time window, no coincidence found
 	    }
 
 
-	  if(pIterA != detAPulses.begin()){
-	    if(timeA - (*(pIterA - 1))->GetTime() < pileup){ 
-	      continue; //pre-pulse pileup protection (skip pulse)
-	    }
+	  if(pIterA != detAPulses.begin() && timeA - (*(pIterA - 1))->GetTime() < pileup){
+	   
+	    continue; //pre-pulse pileup protection (skip pulse)
+	    
 	  }
-	  if(pIterA+1 != detAPulses.end()){
-	    if( (*(pIterA + 1))->GetTime() - timeA < pileup){
-	      continue; //post-pulse pileup protection (skip pulse)
-	    }
+	  if(pIterA+1 != detAPulses.end() &&  (*(pIterA + 1))->GetTime() - timeA < pileup){
+	
+	    continue; //post-pulse pileup protection (skip pulse)
+	    
 	  }
 
 
@@ -293,6 +292,58 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 	NGGCEnergy_plots[keyname]->Fill(energy);
 
 
+
+
+      //plot waveforms
+
+
+     
+      
+      if((ratio >= 0.12) && (ratio < 0.15) && (neutCount < 20)  && (detname == "NDet") && (peak > 495) && (peak < 500))
+	{
+          //make histogram here
+          neutCount += 1;
+	  std::stringstream ss;
+          ss << neutCount;
+	  std::string histname3 = "h" + ss.str() + "_npulse ";
+	  std::string histtitle3 = "Plot of neutron pulse " + ss.str();
+          TH1F* hPulse = new TH1F(histname3.c_str(), histtitle3.c_str(),150, 0, 150);
+          hPulse->GetXaxis()->SetTitle("time");
+          hPulse->GetYaxis()->SetTitle("ADC count");
+	  hPulse->SetFillStyle(0);
+
+          for(std::vector<int>::iterator sIt = samples.begin(); sIt != samples.end(); sIt++)
+	    {
+	      int t = std::distance(samples.begin(), sIt);	      
+	      hPulse->Fill(t, *(sIt)-1265);
+            } 
+
+
+	}
+
+       
+      if((ratio > 0.05) && (ratio < 0.07) && (gammaCount < 20) && (detname == "NDet") && (peak < 500) && (peak > 495))
+	{
+          //make histogram here
+          gammaCount += 1;
+	  std::stringstream ss;
+          ss << gammaCount;
+	  std::string histname4 = "h" + ss.str() + "_gpulse ";
+	  std::string histtitle4 = "Plot of gamma pulse " + ss.str();
+          TH1F* hPulse2 = new TH1F(histname4.c_str(), histtitle4.c_str(),150, 0, 150);
+          hPulse2->GetXaxis()->SetTitle("time");
+          hPulse2->GetYaxis()->SetTitle("ADC count");
+
+          for(std::vector<int>::iterator sIt = samples.begin(); sIt != samples.end(); sIt++)
+	    {
+	      int t1 = std::distance(samples.begin(), sIt);
+              hPulse2->Fill(t1 , (*sIt)-1265);
+       
+
+            } 
+
+	}
+      
 
  
     }//close pulse loop

@@ -31,9 +31,6 @@ PlotNEnergy::~PlotNEnergy(){
 }
 
 int PlotNEnergy::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
   // Loop through and find a fast channel
   //  std::cout << "Size of gAnalysedPulseMap " << gAnalysedPulseMap.size() << std::endl;

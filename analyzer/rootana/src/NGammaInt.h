@@ -14,6 +14,8 @@ class NGammaInt : public FillHistBase{
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
   virtual int AfterLastEntry(TGlobalData *gData);
 
+  int neutCount, gammaCount;
+
   char *fHistName;
 };
 
