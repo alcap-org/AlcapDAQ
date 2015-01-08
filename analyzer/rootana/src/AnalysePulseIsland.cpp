@@ -136,10 +136,10 @@ void AnalysePulseIsland::GetAllParameters_MBCFT(TSetupData* gSetup, const TPulse
 
   std::vector<int>::const_iterator m = trigger_polarity > 0 ? std::max_element(b, e) : std::min_element(b, e);
 
-  for(std::vector<int>::const_iterator i = m+tStart; i < m+tStop; i++){
+  for(std::vector<int>::const_iterator i = m-4; i < m+20; ++i){
     int ph = *i - (int)pedestal;
     fullInt += std::abs(ph);
-    if(i > m+tTail){
+    if(i >= m+5){
       tailInt += std::abs(ph);
     }
   }
