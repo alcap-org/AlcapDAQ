@@ -113,14 +113,19 @@ void AnalysePulseIsland::GetAllParameters_MBCFT(TSetupData* gSetup, const TPulse
 
   float constant_fraction = 0.50;
   std::string bankname = pulse->GetBankName();
-  double pedestal = 0;//gSetup->GetPedestal(bankname);
   int trigger_polarity = gSetup->GetTriggerPolarity(bankname);
   double eCalib_slope = gSetup->GetADCSlopeCalib(bankname);
   double eCalib_offset = gSetup->GetADCOffsetCalib(bankname);
   double clock_tick_in_ns = gSetup->GetClockTick(bankname);
   double time_shift = gSetup->GetTimeShift(bankname);
+  double pedestal = 0;//gSetup->GetPedestal(bankname);
   int sum = 0, count = 10;
 
+  std::string detname = gSetup->GetDetectorName(bankname);
+  if(detname == "NDet")
+    time_shift += 192;
+  if(detname == "NDet2")
+    time_shift += 34;
 
   // First find the position of the peak
   const std::vector<int>& samps = pulse->GetSamples();
@@ -130,14 +135,6 @@ void AnalysePulseIsland::GetAllParameters_MBCFT(TSetupData* gSetup, const TPulse
     sum += *j;
   }
   pedestal = sum/count;
-
-
-  std::string detname = gSetup->GetDetectorName(bankname);
-  if(detname == "NDet")
-    time_shift += 192;
-  if(detname == "NDet2")
-    time_shift += 34;
-
 
 
   std::vector<int>::const_iterator m = trigger_polarity > 0 ? std::max_element(b, e) : std::min_element(b, e);
