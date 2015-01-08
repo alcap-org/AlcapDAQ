@@ -298,7 +298,7 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
      
       
-      if((ratio >= 0.06) && (ratio < 0.085) && (neutCount < 20)  && (detname == "NDet") && (energy > 3.5) && (energy < 4.0))
+      if((ratio >= 0.06) && (ratio < 0.085) && (neutCount < 20)  && (detname == "NDet") && (energy > 4.5) && (energy < 5.0))
 	{
           //make histogram here
           neutCount += 1;
@@ -321,7 +321,7 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 	}
 
        
-      if((ratio > 0.06) && (ratio < 0.085) && (gammaCount < 20) && (detname == "NDet") && (energy < 5.0) && (energy > 4.5))
+      if((ratio > 0.06) && (ratio < 0.085) && (gammaCount < 20) && (detname == "NDet") && (energy < 5.5) && (energy > 5.0))
 	{
           //make histogram here
           gammaCount += 1;

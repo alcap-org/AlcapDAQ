@@ -21,7 +21,6 @@
 #include <cmath>
 
 #include "TAnalysedPulse.h"
-#include "TDetectorPulse.h"
 #include "TH2F.h"
 #include "TH1.h"
 #include <sstream>
@@ -31,7 +30,7 @@ using std::map;
 using std::vector;
 using std::pair;
 
-
+extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
 std::map<std::string, TH2F*> NGDisc_plots;
 std::map<std::string, TH2F*> NGRatio_plots;
@@ -51,13 +50,12 @@ NGammaInt::~NGammaInt()
 
 int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 {
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
-  for(map_iterator mapIter = gData->fPulseIslandToChannelMap.begin(); mapIter != gData->fPulseIslandToChannelMap.end(); mapIter++)
-  {
-    std::string bankname = mapIter->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
-    std::string keyname = mapIter->first + GetName();
+  for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator detIter = gAnalysedPulseMap.begin(); detIter != gAnalysedPulseMap.end(); detIter++) {
+
+    std::string detname = detIter->first;
+    std::string keyname = detIter->first + GetName();
+
     
     //  I'm skipping the other detectors at this point.
     if((detname != "NDet") && (detname != "NDet2") && (detname != "LiquidSc")){
@@ -124,100 +122,29 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
  //  Analyze the waves
 
 
-    std::vector<TPulseIsland*> pulses = mapIter->second;
-
-    if(pulses.size() == 0)
-      continue;          // skip if no pulse
+    std::vector<TAnalysedPulse*> pulses = detIter->second;
 
    
-    for(std::vector<TPulseIsland*>::iterator pIter = pulses.begin(); pIter != pulses.end(); pIter++)
+    for(std::vector<TAnalysedPulse*>::iterator pIter = pulses.begin(); pIter != pulses.end(); ++pIter)
     {
-      std::vector<int> samples = (*pIter)->GetSamples();
-    
-      float sum = 0, pedestal = 0;
-      int count = 5; 
-      float peak = 0, energy = 0, tstart = 0, tstop = 0, ttail = 0, tpeak = 0;
-      double fullInt = 0, tailInt = 0;
-      double ratio = 0;  
-
-
-      TH1F* hpulse = new TH1F("signal", "Plot of pulse shape", 150, 0, 150);
-      hpulse->GetXaxis()->SetTitle("time");
-      hpulse->GetYaxis()->SetTitle("ADC Count");
-
-  
-
-
-
-      for(std::vector<int>::iterator sampIt = samples.begin(); sampIt != samples.begin() + count; sampIt++)
-	sum += (*sampIt);
-      
-      pedestal = sum / count;
-
-
-      
-      for(std::vector<int>::iterator sIter = samples.begin(); sIter != samples.end(); sIter++) 
-	{
-
-          float samp = (*sIter);
-	  int time = std::distance(samples.begin(), sIter);
-        
-	  //histogram our pulse
-	  hpulse->Fill(time, samp);
-        }
-
-
-      peak = (hpulse->GetMaximum()) - pedestal;
-      tpeak = hpulse->GetMaximumBin();
-
+      double energy = 0;
+      double peak = (*pIter)->GetAmplitude() - gSetup->GetPedestal(gSetup->GetBankName(detname));
+      double fullInt = (*pIter)->GetIntegral();
+      double tailInt = (*pIter)->GetTIntegral();
+      double ratio = (*pIter)->GetRatio();
 
       if(detname == "NDet")
 	energy = (float) (peak+15.2)/177.2;
       if(detname == "NDet2")
 	energy = (float) (peak+15)/269.1;
 
-      
-      /***************************/
-      // if(energy < 1.349)
-      //tailcount = 3.774 + 2.968*energy;
-      //if(energy >= 1.349)
-      //tailcount = 6.88 + 1.96*log(energy);
-
-      //int tcount = tailcount;
-
-      
-
-      /***************************/
-      
-      tstart = tpeak - 3;
-      ttail = tpeak + 5;
-      tstop = tpeak + 20;
-      //int trstop = tstop;
-
-      //float rem = (tailcount - tcount);
-
 
       if(peak > 5000)
 	{
-	  delete hpulse;
 	  continue;
 	}
 
 
-      fullInt = hpulse->Integral(tstart, tstop);
-      fullInt -= 24 * pedestal;
-
-      tailInt = hpulse->Integral(ttail, tstop);
-      tailInt -= 16 * pedestal;
-
-      //tailInt += (1-rem) * hpulse->GetBinContent(ttail);
-      //fullInt += rem * hpulse->GetBinContent(trstop);
-      //tailInt += rem * hpulse->GetBinContent(trstop);
-
-      ratio = tailInt / fullInt;
-
-      delete hpulse;
-      
       // Fill the histograms
 
 
@@ -248,7 +175,7 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
       //   from our pulse.                                   //
       /////////////////////////////////////////////////////////
       
-      
+      /*     
       if((ratio >= 0.12) && (ratio < 0.15) && (neutCount < 20)  && (detname == "NDet") && (peak > 495) && (peak < 500))
 	{
           //make histogram here
@@ -293,7 +220,7 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
             } 
 
 	}
-      
+      */
     }//close pulse loop
 
   }//close map loop
@@ -307,16 +234,10 @@ int NGammaInt::AfterLastEntry(TGlobalData *gData){
   std::string directory = "/" + std::string(fHistName);
   dir-> cd(directory.c_str());
 
-  for(map<string, vector<TPulseIsland*> >::iterator mapIter = gData->fPulseIslandToChannelMap.begin(); mapIter != gData->fPulseIslandToChannelMap.end(); mapIter++)
-  {
-    std::string bankname = mapIter->first;
-    std::string keyname = mapIter->first + GetName();
-    std::string detname;
+  for (std::map<std::string, std::vector<TAnalysedPulse*> >::iterator detIter = gAnalysedPulseMap.begin(); detIter != gAnalysedPulseMap.end(); detIter++) {
 
-    if(bankname == "Nf81")
-      detname = "NDet2";
-    if(bankname == "Ng81")
-      detname = "NDet";
+    std::string detname = detIter->first;
+    std::string keyname = detIter->first + GetName();
 
     double scale = 2000/15;
     

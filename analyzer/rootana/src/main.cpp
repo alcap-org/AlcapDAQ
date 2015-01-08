@@ -23,6 +23,7 @@
 #include "NGammaInt.h"
 #include "NGammaLanInt.h"
 #include "NGIntTCut.h"
+#include "NGIntTCut2.h"
 #include "TestSmoothing.h"
 #include "TestFit.h"
 #include "TestTiming.h"
@@ -30,6 +31,7 @@
 #include "TestFGA.h"
 #include "TestVetoMuscCoinc.h"
 #include "TestVetoMuscTiming.h"
+#include "TestRatio.h"
 
 #include "TTree.h"
 #include "TBranch.h"
@@ -154,7 +156,7 @@ int main(int argc, char **argv){
   //fillhists[n_fillhist++] = new TestVetoMuscCoinc("Veto Coinc Tests");
   //fillhists[n_fillhist++] = new TestVetoMuscTiming("Veto Timing Tests");
   //fillhists[n_fillhist++] = new TestFGA("FGA Tests");
-  //fillhists[n_fillhist++] = new TestTiming("Timing Tests");
+  fillhists[n_fillhist++] = new TestRatio("Ratio Tests");
 
 
   fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_Ge-S_Ge-F", "Ge-S","Ge-F");
@@ -171,9 +173,9 @@ int main(int argc, char **argv){
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF", "muSc","Ge-F", -100,100);
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-NDet", "muSc","NDet", 400,1000);
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-NDet2", "muSc","NDet2", 400,1000);
-  fillhists[n_fillhist++] = new NGIntTCut("PSD_PromptTCut", "muSc", -40, 40);
+  fillhists[n_fillhist++] = new NGIntTCut2("PSD_PromptTCut", "muSc", -40, 40);
   fillhists[n_fillhist++] = new NGIntTCut("PSD_PbTCut", "muSc", 40, 400);
-  fillhists[n_fillhist++] = new NGIntTCut("PSD_AlTCut", "muSc", 400, 4000);
+  fillhists[n_fillhist++] = new NGIntTCut2("PSD_AlTCut", "muSc", 400, 4000);
   fillhists[n_fillhist++] = new NGIntTCut("PSD_WideTCut", "muSc", -1000, 8000);
   //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_AfterCut");
   //fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);

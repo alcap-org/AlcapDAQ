@@ -51,19 +51,21 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       double amplitude = 0;
       double time = 0;
       double integral = 0;
+      double tintegral = 0.;
       double energy = 0.;
+      double ratio = 0.;
 
       // If this is a slow pulse
       if ( TSetupData::IsSlow(detname) ) {
-	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, energy);
+	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
       } else if ( TSetupData::IsFast(detname)) {
-	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, energy);
+	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
       } else {
-	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, energy);
+	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
       }
 
 
-      TAnalysedPulse* analysedPulse = new TAnalysedPulse(amplitude, time, integral, energy, detname);
+      TAnalysedPulse* analysedPulse = new TAnalysedPulse(amplitude, time, integral, tintegral, energy, ratio, detname);
       analysedPulses.push_back(analysedPulse);
     }    
     std::sort(analysedPulses.begin(), analysedPulses.end(), IsTimeOrdered);
@@ -76,7 +78,7 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 // GetAllParameters_MaxBin()
 // -- Gets all the parameters for the pulse using the max bin method
 void AnalysePulseIsland::GetAllParameters_MaxBin(TSetupData* gSetup, const TPulseIsland* pulse,
-						 double& amplitude, double& time, double& integral, double& energy) {
+						 double& amplitude, double& time, double& integral, double& tintegral, double& energy, double& ratio) {
 
   std::string bankname = pulse->GetBankName();
   double pedestal = gSetup->GetPedestal(bankname);
@@ -101,11 +103,13 @@ void AnalysePulseIsland::GetAllParameters_MaxBin(TSetupData* gSetup, const TPuls
   amplitude = peak_sample_value;
   time = ((pulse->GetTimeStamp() + peak_sample_pos) * gSetup->GetClockTick(bankname)) - gSetup->GetTimeShift(bankname);
   integral = 0;
+  tintegral = 0;
   energy = eCalib_slope * amplitude + eCalib_offset;
+  ratio = 0;
 }
 
 void AnalysePulseIsland::GetAllParameters_MBCFT(TSetupData* gSetup, const TPulseIsland* pulse,
-						 double& amplitude, double& time, double& integral, double& energy) {
+						double& amplitude, double& time, double& integral, double& tintegral, double& energy, double& ratio) {
 
   float constant_fraction = 0.50;
   std::string bankname = pulse->GetBankName();
@@ -122,12 +126,24 @@ void AnalysePulseIsland::GetAllParameters_MBCFT(TSetupData* gSetup, const TPulse
   if(detname == "NDet2")
     time_shift += 34;
 
+  double fullInt = 0, tailInt = 0;
+  double tStart = -3, tTail = 5, tStop = 20;
+
 
   // First find the position of the peak
   const std::vector<int>& samps = pulse->GetSamples();
   const std::vector<int>::const_iterator b = samps.begin(), e = samps.end();
 
   std::vector<int>::const_iterator m = trigger_polarity > 0 ? std::max_element(b, e) : std::min_element(b, e);
+
+  for(std::vector<int>::const_iterator i = m+tStart; i < m+tStop; i++){
+    int ph = *i - (int)pedestal;
+    fullInt += std::abs(ph);
+    if(i > m+tTail){
+      tailInt += std::abs(ph);
+    }
+  }
+      
   const int amp = *m;
   const unsigned int cf = trigger_polarity > 0 ?
       (unsigned int)(constant_fraction*(double)(amp-pedestal)) + pedestal :
@@ -136,13 +152,15 @@ void AnalysePulseIsland::GetAllParameters_MBCFT(TSetupData* gSetup, const TPulse
   double dx = (double)(m-b);
   if (*(m+1) != *m)
     dx += (double)((int)cf - *m)/(double)(*(m+1) - *m);
-      
+
 
   // Now assign the parameters
   amplitude = amp;
   time = (dx + (double)pulse->GetTimeStamp()) * clock_tick_in_ns - time_shift;
-  integral = 0;
+  integral = fullInt;
+  tintegral = tailInt;
   energy = eCalib_slope * amplitude + eCalib_offset;
+  ratio = tailInt / fullInt;
 }
 
 

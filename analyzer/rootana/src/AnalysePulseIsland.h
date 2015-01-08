@@ -16,9 +16,9 @@ class AnalysePulseIsland : public FillHistBase{
   virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
 
   void GetAllParameters_MaxBin(TSetupData* gSetup, const TPulseIsland* pulse,
-			       double& amplitude, double& time, double& integral, double& energy);
+			       double& amplitude, double& time, double& integral, double& tintegral, double& energy, double& ratio);
   void GetAllParameters_MBCFT(TSetupData* gSetup, const TPulseIsland* pulse,
-			       double& amplitude, double& time, double& integral, double& energy);
+			      double& amplitude, double& time, double& integral, double& tintegral, double& energy, double& ratio);
 
 };
 
