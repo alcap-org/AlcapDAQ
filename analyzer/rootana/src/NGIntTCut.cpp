@@ -213,7 +213,7 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
 
       //search for constant_fraction time
-      const unsigned int cf = (constant_fraction*(double)(peak-pedestal)) + pedestal;
+      const unsigned int cf = (constant_fraction*(double)peak) + pedestal;
 
       while(m != b && (*--m > (int)cf));
       double dx = (double)(m-b); // determine how many clock ticks we are in
