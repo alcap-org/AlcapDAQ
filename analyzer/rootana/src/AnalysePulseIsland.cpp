@@ -113,12 +113,24 @@ void AnalysePulseIsland::GetAllParameters_MBCFT(TSetupData* gSetup, const TPulse
 
   float constant_fraction = 0.50;
   std::string bankname = pulse->GetBankName();
-  double pedestal = gSetup->GetPedestal(bankname);
+  double pedestal = 0;//gSetup->GetPedestal(bankname);
   int trigger_polarity = gSetup->GetTriggerPolarity(bankname);
   double eCalib_slope = gSetup->GetADCSlopeCalib(bankname);
   double eCalib_offset = gSetup->GetADCOffsetCalib(bankname);
   double clock_tick_in_ns = gSetup->GetClockTick(bankname);
   double time_shift = gSetup->GetTimeShift(bankname);
+  int sum = 0, count = 10;
+
+
+  // First find the position of the peak
+  const std::vector<int>& samps = pulse->GetSamples();
+  const std::vector<int>::const_iterator b = samps.begin(), e = samps.end();
+
+  for(std::vector<int>::const_iterator j = b; j < b+count; ++j){
+    sum += *j;
+  }
+  pedestal = sum/count;
+
 
   std::string detname = gSetup->GetDetectorName(bankname);
   if(detname == "NDet")
@@ -126,21 +138,15 @@ void AnalysePulseIsland::GetAllParameters_MBCFT(TSetupData* gSetup, const TPulse
   if(detname == "NDet2")
     time_shift += 34;
 
-  double fullInt = 0, tailInt = 0;
-  double tStart = -3, tTail = 5, tStop = 20;
 
-
-  // First find the position of the peak
-  const std::vector<int>& samps = pulse->GetSamples();
-  const std::vector<int>::const_iterator b = samps.begin(), e = samps.end();
 
   std::vector<int>::const_iterator m = trigger_polarity > 0 ? std::max_element(b, e) : std::min_element(b, e);
 
   for(std::vector<int>::const_iterator i = m-4; i < m+20; ++i){
     int ph = *i - (int)pedestal;
-    fullInt += std::abs(ph);
+    integral += std::abs(ph);
     if(i >= m+5){
-      tailInt += std::abs(ph);
+      tintegral += std::abs(ph);
     }
   }
       
@@ -157,10 +163,8 @@ void AnalysePulseIsland::GetAllParameters_MBCFT(TSetupData* gSetup, const TPulse
   // Now assign the parameters
   amplitude = amp;
   time = (dx + (double)pulse->GetTimeStamp()) * clock_tick_in_ns - time_shift;
-  integral = fullInt;
-  tintegral = tailInt;
   energy = eCalib_slope * amplitude + eCalib_offset;
-  ratio = tailInt / fullInt;
+  ratio = tintegral / integral;
 }
 
 
