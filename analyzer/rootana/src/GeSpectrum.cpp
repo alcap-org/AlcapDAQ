@@ -50,17 +50,22 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   TDirectory* cwd = TDirectory::CurrentDirectory();
   dir->cd();
   fHist_ADC          = new TH1D("hADC", "Energy of Gammas;Energy (ADC);Counts", nbins, 0., nbins);
-  fHist_Energy       = new TH1D("hEnergy", "Energy of Gammas;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+
+  double energy_bin_width = 0.1; // keV
+  double min_energy = 0;
+  double max_energy = 2000;
+  int n_energy_bins = (max_energy - min_energy) / energy_bin_width;
+  fHist_Energy       = new TH1D("hEnergy", "Energy of Gammas;Energy (keV);Counts", n_energy_bins, min_energy, max_energy);
   fHist_Time         = new TH1D("hTime", "Time of Gammas within Energy Window", 1000, -10000., 10000.);
   fHist_MoreTime     = new TH1D("hMoreTime", "Time of Gammas within Energy Window (Wide)", 1000, -100000., 100000.);
   fHist_ADCOOT       = new TH1D("hADCOOT", "Energy of Gammas outside of Time Window;Energy (ADC);Counts", nbins, 0., nbins);
-  fHist_EnergyOOT    = new TH1D("hEnergyOOT", "Energy of Gammas outside of Time Window;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  fHist_EnergyOOT    = new TH1D("hEnergyOOT", "Energy of Gammas outside of Time Window;Energy (keV);Counts", n_energy_bins, min_energy, max_energy);
   fHist_ADCFarOOT    = new TH1D("hADCFarOOT", "Energy of Gammas far from Muons;Energy (ADC);Counts", nbins, 0., nbins);
-  fHist_EnergyFarOOT = new TH1D("hEnergyFarOOT", "Energy of Gammas far from Muons;Energy (keV);Counts", nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  fHist_EnergyFarOOT = new TH1D("hEnergyFarOOT", "Energy of Gammas far from Muons;Energy (keV);Counts", n_energy_bins, min_energy, max_energy);
   fHist_TimeOOT      = new TH1D("hTimeOOT", "Time of Gammas outside of Time Window", 1000., -2.*fTimeWindow_Small, 2.*fTimeWindow_Small);
   fHist_TimeFarOOT   = new TH1D("hTimeFarOOT", "Time of Gammas far from Muons", 1000., -100.*fTimeWindow_Big, 100.*fTimeWindow_Big);
   fHist_TimeADC      = new TH2D("hTimeADC", "Energy of Gammas within Time Window;Energy (ADC);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
-  fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window;Energy (keV);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
+  fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window;Energy (keV);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, n_energy_bins, min_energy, max_energy);
   fHist_MeanTOffset  = new TH1D("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -4.*fTimeWindow_Big, 4.*fTimeWindow_Big);
   cwd->cd();
   ThrowIfInputsInsane(opts);
