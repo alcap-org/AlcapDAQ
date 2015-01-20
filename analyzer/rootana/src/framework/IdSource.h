@@ -96,7 +96,7 @@ class IDs::source:public TObject{
   const channel& Channel()const{return fChannel;};
 
   /// Returns the source as a string
-  std::string str()const;
+  std::string str(bool cpp_valid=false)const;
 
   IDs::source& operator=(const std::string& rhs);
 
