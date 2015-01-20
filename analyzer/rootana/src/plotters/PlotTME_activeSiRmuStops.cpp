@@ -7,6 +7,7 @@
 #include "TMuonEvent.h"
 #include "debug_tools.h"
 #include "EventNavigator.h"
+#include "ActiveSiRMuStopAlgo.h"
 
 #include <TH1F.h>
 #include <TH2F.h>
@@ -28,12 +29,13 @@ PlotTME_activeSiRmuStops::PlotTME_activeSiRmuStops(modules::options* opts):
    fMuScMin(opts->GetDouble("muSc_min",0)),
    fSiR2Max(opts->GetDouble("SiR2_max",1e9)),
    fSiR2Min(opts->GetDouble("SiR2_min",0)),
-   fHasStoppedMuon(NULL)
+   fHasStoppedMuon(new TMEAlgorithm::ActiveSiRStop(IDs::source(),fMuScMin,fMuScMax,fSiR2Min,fSiR2Max))
 { 
 DEBUG_VALUE(fMuSc, fSiR2,fChannel);
 }
 
 PlotTME_activeSiRmuStops::~PlotTME_activeSiRmuStops(){
+  if(fHasStoppedMuon) delete fHasStoppedMuon;
 }
 
 int PlotTME_activeSiRmuStops::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
@@ -141,6 +143,7 @@ void PlotTME_activeSiRmuStops::FillHistograms(const TMuonEvent* tme, const IDs::
   const int N_sir2=tme->NumPulses(sir2_source);
 
   // Scan for a muon hit in the SiR2
+  fHasStoppedMuon->SetSiR2Source(sir2_source);
   bool a_stop=(*fHasStoppedMuon)(tme,fChannel);
   if(a_stop) {
     ++fNStopsThisEvent;
