@@ -1,4 +1,4 @@
-#include "PlotTME_EvdE.h"
+#include "PlotTME_EvdE_ActiveSi.h"
 #include "RegisterModule.inc"
 #include "TGlobalData.h"
 #include "TMuonEvent.h"
@@ -17,8 +17,8 @@ using std::endl;
 extern SourceDetPulseMap gDetectorPulseMap;
 extern MuonEventList gMuonEvents;
 
-PlotTME_EvdE::PlotTME_EvdE(modules::options* opts):
-   BaseModule("PlotTME_EvdE",opts),
+PlotTME_EvdE_ActiveSi::PlotTME_EvdE_ActiveSi(modules::options* opts):
+   BaseModule("PlotTME_EvdE_ActiveSi",opts),
    fMinTime(opts->GetDouble("min_time",500)),
    fMuScMax(opts->GetDouble("muSc_max",1e9)),
    fMuScMin(opts->GetDouble("muSc_min",0)),
@@ -30,14 +30,14 @@ PlotTME_EvdE::PlotTME_EvdE(modules::options* opts):
 {
 }
 
-PlotTME_EvdE::~PlotTME_EvdE(){
+PlotTME_EvdE_ActiveSi::~PlotTME_EvdE_ActiveSi(){
 }
 
-int PlotTME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTME_EvdE_ActiveSi::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
     // Make sure we've got MakeSiliconEvents being used
-    if(!modules::navigator::Instance()->Before("MakeSiliconEvents","PlotTME_EvdE")){
-        cout<<"It's meaningless to use the PlotTME_EvdE module without the MakeSiliconEvents module running first as well"<<endl;
+    if(!modules::navigator::Instance()->Before("MakeSiliconEvents","PlotTME_EvdE_ActiveSi")){
+        cout<<"It's meaningless to use the PlotTME_EvdE_ActiveSi module without the MakeSiliconEvents module running first as well"<<endl;
         return 1;
     }
 
@@ -70,8 +70,6 @@ int PlotTME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
     std::vector<double> t_bins;
     while(true){
-    double total=1e4;
-    double tstep=total/16.;
     for(double t=0; t<1600; t+=200) t_bins.push_back(t);
     for(double t=0; t<4800; t+=400) t_bins.push_back(t);
     break;
@@ -146,7 +144,7 @@ int PlotTME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   return 0;
 }
 
-int PlotTME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTME_EvdE_ActiveSi::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
     // for each TME
     for(MuonEventList::const_iterator i_tme=gMuonEvents.begin();
             i_tme!=gMuonEvents.end(); ++i_tme){
@@ -195,7 +193,7 @@ int PlotTME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
   return 0;
 }
 
-void PlotTME_EvdE::FillSiR2Hits(const TMuonEvent* tme,int quad, double deltaE, double totalE, double time){
+void PlotTME_EvdE_ActiveSi::FillSiR2Hits(const TMuonEvent* tme,int quad, double deltaE, double totalE, double time){
   // Loop over SiR2 hits
   // If hit is within time window of deltaT then fill amplitude onto SiR2 emission spectrum
 
@@ -213,7 +211,7 @@ void PlotTME_EvdE::FillSiR2Hits(const TMuonEvent* tme,int quad, double deltaE, d
   }
 }
 
-int PlotTME_EvdE::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTME_EvdE_ActiveSi::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
   if(Debug()){
     for(int side=0;side<1;++side){
     //for(int side=0;side<2;++side){
@@ -222,21 +220,21 @@ int PlotTME_EvdE::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
             fHists[side][pp][4].EvdE     ->Add(fHists[side][pp][quad].EvdE);
             fHists[side][pp][4].time     ->Add(fHists[side][pp][quad].time);
             fHists[side][pp][4].EvdEvTime->Add(fHists[side][pp][quad].EvdEvTime);
-            cout<<"PlotTME_EvdE: "<< fHists[side][pp][quad].EvdE->GetName() <<" has "<<fHists[side][pp][quad].EvdE->GetEntries()<<endl;
+            cout<<"PlotTME_EvdE_ActiveSi: "<< fHists[side][pp][quad].EvdE->GetName() <<" has "<<fHists[side][pp][quad].EvdE->GetEntries()<<endl;
           }
-          cout<<"PlotTME_EvdE: "<< fHists[side][pp][4].EvdE->GetName() <<" has "<<fHists[side][pp][4].EvdE->GetEntries()<<endl;
+          cout<<"PlotTME_EvdE_ActiveSi: "<< fHists[side][pp][4].EvdE->GetName() <<" has "<<fHists[side][pp][4].EvdE->GetEntries()<<endl;
        }
     }
     for(int quad=0;quad<4;++quad){
         fSiR2HitsThick[4]->Add(fSiR2HitsThick[quad]);
         fSiR2HitsThin[4]->Add(fSiR2HitsThin[quad]);
-        cout<<"PlotTME_EvdE: "<< fSiR2HitsThick[quad]->GetName() <<" has "<<fSiR2HitsThick[quad]->GetEntries()<<endl;
-        cout<<"PlotTME_EvdE: "<< fSiR2HitsThin[quad]->GetName() <<" has "<<fSiR2HitsThin[quad]->GetEntries()<<endl;
+        cout<<"PlotTME_EvdE_ActiveSi: "<< fSiR2HitsThick[quad]->GetName() <<" has "<<fSiR2HitsThick[quad]->GetEntries()<<endl;
+        cout<<"PlotTME_EvdE_ActiveSi: "<< fSiR2HitsThin[quad]->GetName() <<" has "<<fSiR2HitsThin[quad]->GetEntries()<<endl;
     }
-    cout<<"PlotTME_EvdE: "<< fSiR2HitsThick[4]->GetName() <<" has "<<fSiR2HitsThick[4]->GetEntries()<<endl;
-    cout<<"PlotTME_EvdE: "<< fSiR2HitsThin[4]->GetName() <<" has "<<fSiR2HitsThin[4]->GetEntries()<<endl;
+    cout<<"PlotTME_EvdE_ActiveSi: "<< fSiR2HitsThick[4]->GetName() <<" has "<<fSiR2HitsThick[4]->GetEntries()<<endl;
+    cout<<"PlotTME_EvdE_ActiveSi: "<< fSiR2HitsThin[4]->GetName() <<" has "<<fSiR2HitsThin[4]->GetEntries()<<endl;
   }
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(PlotTME_EvdE, min_time,muSc_min, muSc_max,SiR2_min,SiR2_max)
+ALCAP_REGISTER_MODULE(PlotTME_EvdE_ActiveSi, min_time,muSc_min, muSc_max,SiR2_min,SiR2_max)

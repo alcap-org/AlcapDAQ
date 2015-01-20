@@ -1,5 +1,5 @@
-#ifndef PLOTTME_EVDE_H_
-#define PLOTTME_EVDE_H_
+#ifndef PLOTTME_EVDE_ACTIVESI_H_
+#define PLOTTME_EVDE_ACTIVESI_H_
 
 #include "IdSource.h"
 #include "BaseModule.h"
@@ -22,13 +22,13 @@ namespace modules {class options;}
 /// Make the E vs dE plot using TMEs
 ///
 ///////////////////////////////////////////////////////////////////////////////1
-class PlotTME_EvdE : public BaseModule {
+class PlotTME_EvdE_ActiveSi : public BaseModule {
 
     public:
         /// \brief
         /// Constructor 
-        PlotTME_EvdE(modules::options* opts);
-        ~PlotTME_EvdE();
+        PlotTME_EvdE_ActiveSi(modules::options* opts);
+        ~PlotTME_EvdE_ActiveSi();
 
     private:
         virtual int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);
@@ -61,4 +61,4 @@ class PlotTME_EvdE : public BaseModule {
         TH1 *fSiR2Hits_time, *fSiR2Hits_time_zoom;
 };
 
-#endif //PLOTTME_EVDE_H_
+#endif //PLOTTME_EVDE_ACTIVESI_H_
