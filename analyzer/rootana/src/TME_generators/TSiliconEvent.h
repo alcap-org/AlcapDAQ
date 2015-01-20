@@ -2,8 +2,9 @@
 #define TME_GENERATORS_TSILICONEVENT_H
 
 #include <vector>
+#include "TObject.h"
 
-class TSiliconEvent{
+class TSiliconEvent:public TObject{
 
    public:
      TSiliconEvent():fNThinHits(0),fDeltaE(0),fTotalE(0){};
@@ -36,6 +37,8 @@ class TSiliconEvent{
      double fDeltaE;
      double fTotalE;
      double fThickTime;
+
+   ClassDef(TSiliconEvent,1);
 
 };
 

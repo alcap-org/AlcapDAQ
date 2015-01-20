@@ -6,6 +6,7 @@
 #include "TSiliconEvent.h"
 #include <set>
 #include <vector>
+#include <TObject.h>
 
 /// @brief Single event in the muon centred tree
 /// @author Ben Krikler
@@ -19,7 +20,7 @@
 /// @TODO Implement early / late TME flags
 ///
 /// @see www.github.com/alcap-org/AlcapDAQ/issues/110
-class TMuonEvent{
+class TMuonEvent:public TObject{
     public:
         enum LeftRight_t{kLeft, kRight};
         
@@ -120,5 +121,6 @@ class TMuonEvent{
         typedef std::set<IDs::source> SourceSet;
         SourceSet fExhaustedChannels;
 
+    ClassDef(TMuonEvent, 1);
 };
 #endif // TMuonEvent_hh_

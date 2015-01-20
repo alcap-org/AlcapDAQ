@@ -26,3 +26,5 @@ ROOT_DICT_CLASSES:=TAnalysedPulseMapWrapper\
         BankBranch\
         FlyWeight\
         TTemplate\
+        TSiliconEvent\
+        TMuonEvent
