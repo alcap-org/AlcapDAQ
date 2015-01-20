@@ -6,6 +6,7 @@
 #include <string>
 #include "ActiveSiRMuStopAlgo.h"
 
+#include <TF1.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
@@ -33,9 +34,10 @@ class PlotTME_EvdE : public BaseModule {
         virtual int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);
         virtual int BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup);
         virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
+        void FillSiR2Hits(const TMuonEvent* tme,int quad,double deltaE, double totalE, double time);
 
     private:
-        enum Plots{ kNoCuts=0, kActiveStop, kMuPP, kMuPP_muAmp, kMuPP_muAmp_T500, kNHists};
+        enum Plots{ kNoCuts=0, kActiveStop,kProtonBand, kMuPP, kMuPP_muAmp, kMuPP_muAmp_T500, kNHists};
         struct Hists{
            TH2 *EvdE;
            TH1 *time;
@@ -49,6 +51,14 @@ class PlotTME_EvdE : public BaseModule {
         Hists fHists[2][kNHists][5];
         double fMinTime, fMuScMax, fMuScMin;
         TMEAlgorithm::ActiveSiRStop fActiveStops;
+        IDs::source fSiR2Source;
+
+        double fEmissionTimeWidth, fEmissionTimeCentre;
+        TF1 *fHighCut, *fLowCut;
+        TH1 *fSiR2HitsThick[5];
+        TH1 *fSiR2HitsThin[5];
+        TH2 *fSiR2Hits_timeVsE;
+        TH1 *fSiR2Hits_time, *fSiR2Hits_time_zoom;
 };
 
 #endif //PLOTTME_EVDE_H_
