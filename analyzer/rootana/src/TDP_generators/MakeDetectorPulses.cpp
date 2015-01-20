@@ -80,6 +80,7 @@ int MakeDetectorPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
             bool success=ParseGeneratorList(i_source->first, partner,fPassThruName);
             if(! success) return 1;
         } else {
+           // Else we use the default pairing algorithm
             bool success=ParseGeneratorList(i_source->first, partner,fDefaultAlgorithm);
             if(! success) return 1;
         }
@@ -207,11 +208,13 @@ TVDetectorPulseGenerator* MakeDetectorPulses::MakeGenerator(const IDs::source& c
 
     if(ch.isFast()) {
         // fast channels go first
+        generator->SetPulseSources(current_source,partner_source);
         fFastSlowPairs.insert(Detector_t(tdp_source, current_source,partner_source,generator));
     }else{ 
         // slow channels go second
         // if both fast and slow are the same then later there will be
         // nothing to do.
+        generator->SetPulseSources(partner_source,current_source);
         fFastSlowPairs.insert(Detector_t(tdp_source, partner_source,current_source,generator));
     }
 
