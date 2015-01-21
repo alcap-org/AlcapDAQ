@@ -1,10 +1,13 @@
 #include "IdSource.h"
 #include <iostream>
 #include "debug_tools.h"
+#include "ModulesParser.h"
 ClassImp(IDs::source);
 
-std::string IDs::source::str()const{
-	return fChannel.str() + IDs::field_separator +fGenerator.str();
+std::string IDs::source::str(bool cpp_safe)const{
+	std::string tmp= fChannel.str() + IDs::field_separator +fGenerator.str();
+        if(cpp_safe) modules::parser::ToCppValid(tmp);
+        return tmp;
 }
 
 ostream& operator<< (ostream& os ,const IDs::source& id) {

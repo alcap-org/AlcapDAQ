@@ -138,6 +138,7 @@ bool SetupNavigator::ReadPedestalAndNoiseValues() {
 bool SetupNavigator::ReadCoarseTimeOffsetValues() {
   // The values that we will read in
   const std::vector<std::string> table = GetCoarseTimeOffsetColumns();
+for(unsigned i=0;i<table.size();++i) DEBUG_VALUE(i, table[i]);
 
   std::stringstream query;
   query << "SELECT channel";
@@ -258,3 +259,12 @@ double SetupNavigator::GetPedestal(const IDs::channel& channel) const {
 SetupNavigator::EnergyCalibRow_t SetupNavigator::GetEnergyCalibrationConstants(const IDs::channel& ch) const {
   return alcap::at<Except::InvalidDetector>(fEnergyCalibrationConstants, ch, ch.str().c_str());
 }
+double SetupNavigator::GetCoarseTimeOffset( IDs::source source) const {
+// Massive hack to remove config strings that specify other options.  Assumes
+// the timing option is placed first for the generator
+ std::string conf=source.Generator().Config();
+ unsigned curly_br=conf.find('}');
+if(curly_br!=std::string::npos){ source.Generator().Config(conf.substr(0,curly_br+1));}
+ 
+ return source.matches(IDs::channel("muSc")) ? 0. : alcap::at<Except::InvalidDetector>(fCoarseTimeOffset,source,source.str().c_str());
+ }
