@@ -32,6 +32,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fHist_Energy(NULL), fHist_Time(NULL), fHist_MoreTime(NULL),
   fHist_EnergyOOT(NULL), fHist_EnergyFarOOT(NULL), fHist_TimeEnergy(NULL), fHist_MeanTOffset(NULL),
   fMBAmpGe(SetupNavigator::Instance()->GetPedestal(fGeS), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeS.str()))),
+  fMBAmpMuSc(SetupNavigator::Instance()->GetPedestal(fMuSc), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fMuSc.str()))),
   fCFTimeGe(SetupNavigator::Instance()->GetPedestal(fGeF),
 	    TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeF.str())),
 	    TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fGeF.str())),
@@ -43,7 +44,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
 	      0.,
 	      opts->GetDouble("musc_cf")),
   fADC2Energy(new TF1("adc2energy","[0]*x+[1]")),
-  fTimeWindow_Small(500.), fTimeWindow_Big(5000.) {
+  fTimeWindow_Small(500.), fTimeWindow_Big(5000.), fPileupProtectionWindow(15000.) {
   const static int nbins = std::pow(2.,14);
   const std::pair<double,double> adc2energy_par = SetupNavigator::Instance()->GetEnergyCalibrationConstants(IDs::channel("Ge-S"));
   fADC2Energy->SetParameters(adc2energy_par.first, adc2energy_par.second);
@@ -97,24 +98,28 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
     return 0;
 
   const std::vector<double> muScTimes  = CalculateTimes(fMuSc,   TPIMap.at(bank_musc));
+  const std::vector<double> muScEnergies  = CalculateEnergies(fMuSc,   TPIMap.at(bank_musc));
   const std::vector<double> geTimes    = CalculateTimes(fGeF,    TPIMap.at(bank_gef));
   const std::vector<double> geEnergies = CalculateEnergies(fGeS, TPIMap.at(bank_ges));
-
+  
+  std::vector<double> muScTimesPP(muScTimes), muScEnergiesPP(muScEnergies);
+  RemovePileupMuScPulses(muScTimesPP, muScEnergiesPP);
 
   //************************************//
   //***** First get average offset *****//
   //************************************//
   TH1I hTOff("hTOff", "Time Offset", 4000, -20000., 20000.);
-  for (std::vector<double>::const_iterator geT = geTimes.begin(), prev = muScTimes.begin(), next;
+  for (std::vector<double>::const_iterator geT = geTimes.begin(), prev = muScTimesPP.begin(), next;
        geT != geTimes.end();
        ++geT) {
     static const double unfound = 1e9;
     double dt[2] = {unfound, unfound}, &dt_prev = dt[0], &dt_next = dt[1];
-    next = std::upper_bound(prev, muScTimes.end(), *geT);
+    std::vector<double>::const_iterator end = muScTimesPP.end();
+    next = std::upper_bound(prev, end, *geT);
     prev = next - 1;
-    if (next == muScTimes.end())
+    if (next == muScTimesPP.end())
       dt_prev = *geT - *prev;
-    else if (next == muScTimes.begin()) {
+    else if (next == muScTimesPP.begin()) {
       dt_next = *geT - *next;
       prev = next;
     } else {
@@ -137,7 +142,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   //**************************//
   //***** Now make plots *****//
   //**************************//
-  for (std::vector<double>::const_iterator geT = geTimes.begin(), geE = geEnergies.begin(), prev = muScTimes.begin(), next;
+  for (std::vector<double>::const_iterator geT = geTimes.begin(), geE = geEnergies.begin(), prev = muScTimesPP.begin(), next;
        geT != geTimes.end() && geE != geEnergies.end();
        ++geT, ++geE) {
     bool prev_found = false, next_found = false;
@@ -145,12 +150,13 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   
     // Find the time difference with the most recent muon
     // both before and after.
-    next = std::upper_bound(prev, muScTimes.end(), *geT);
+    std::vector<double>::const_iterator end = muScTimesPP.end();
+    next = std::upper_bound(prev, end, *geT);
     prev = next - 1;
-    if (next == muScTimes.end()) {
+    if (next == muScTimesPP.end()) {
       dt_prev = *geT - *prev;
       prev_found = true;
-    } else if (next == muScTimes.begin()) {
+    } else if (next == muScTimesPP.begin()) {
       dt_next = *geT - *next;
       next_found = true;
     } else {
@@ -240,6 +246,9 @@ std::vector<double> GeSpectrum::CalculateEnergies(const IDs::channel& ch, const 
   if (ch == fGeS)
     for (unsigned int i = 0; i < tpis.size(); ++i)
       e.push_back(fMBAmpGe(tpis[i]));
+  else if (ch == fMuSc)
+    for (unsigned int i = 0; i < tpis.size(); ++i)
+      e.push_back(fMBAmpMuSc(tpis[i]));
   else
     throw std::logic_error("GeSpectrum: Invalid channel to calculate energies for.");
   return e;
@@ -266,6 +275,24 @@ void GeSpectrum::ThrowIfInputsInsane(const modules::options* opts) {
     throw std::logic_error("GeSpectrum: GeF CF in options don't match.");
   if (gef_cf <= 0. || gef_cf > 1. || musc_cf <= 0. || musc_cf > 1.)
     throw std::logic_error("GeSpectrum: CF are out of reasonable bounds (0. to 1.).");
+}
+
+void GeSpectrum::RemovePileupMuScPulses(std::vector<double>& t, std::vector<double>& e) {
+  if (t.empty()) return;
+  std::vector<bool> rm(t.size(), false);
+  if (t.front() < fPileupProtectionWindow) rm.front() = true;
+  for (unsigned int i = 1; i < t.size(); ++i)
+    if (t[i] - t[i-1] < fPileupProtectionWindow)
+      rm[i] = rm[i-1] = true;
+  rm.back() = true;
+  for (unsigned int i = 0; i < t.size(); ++i) {
+    if (rm[i]) {
+      t.erase(t.begin()+i);
+      e.erase(e.begin()+i);
+      rm.erase(rm.begin()+i);
+      --i;
+    }
+  }
 }
 
 ALCAP_REGISTER_MODULE(GeSpectrum, musc_cf, gef_gen, gef_cfg, gef_cf);
