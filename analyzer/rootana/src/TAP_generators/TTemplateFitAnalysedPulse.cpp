@@ -16,48 +16,48 @@ TTemplateFitAnalysedPulse::~TTemplateFitAnalysedPulse(){
 }
 
 void TTemplateFitAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
-   if(tpi_pulse) {
-      std::string name=tpi_pulse->GetName();
-      name+="_templateAP";
-      TH1F* tap_pulse=(TH1F*)GetHisto()->Clone(name.c_str());
-      tap_pulse->SetDirectory(TDirectory::CurrentDirectory());
+   if(! tpi_pulse) return;
 
-      TPaveText* text_b=new TPaveText(0.7,0.60,0.9,0.9,"NB NDC");
-      text_b->AddText(Form("#chi^2 = %3.2g",GetChi2()));
-      text_b->AddText(Form("Status = %d",GetFitStatus()));
-      text_b->AddText(Form("Time = %g",GetTime()));
-      text_b->AddText(Form("Ampl. = %g",GetAmplitude()));
-      text_b->AddText(Form("NDoF = %d",GetNDoF()));
-      text_b->SetFillColor(kWhite);
-      text_b->SetBorderSize(1);
-      tap_pulse->GetListOfFunctions()->Add(text_b);
+   std::string name=tpi_pulse->GetName();
+   name+="_templateAP";
+   TH1F* tap_pulse=(TH1F*)GetHisto()->Clone(name.c_str());
+   tap_pulse->SetDirectory(TDirectory::CurrentDirectory());
 
-      TH1F* tap_pulse2=NULL;
-      if(fOtherPulse && !fIsPileUpPulse){
-        name+="2";
-        tap_pulse2=(TH1F*)fOtherPulse->GetHisto()->Clone(name.c_str());
-        tap_pulse2->SetDirectory(TDirectory::CurrentDirectory());
-      }
-       
-      //TMarker* marker=new TMarker(GetTime(), GetAmplitude()+GetPedestal()+10, 23);
-      //marker->SetMarkerColor(kRed);
-      //tap_pulse->GetListOfFunctions()->Add(marker);
+   TPaveText* text_b=new TPaveText(0.7,0.60,0.9,0.9,"NB NDC");
+   text_b->AddText(Form("#chi^2 = %3.2g",GetChi2()));
+   text_b->AddText(Form("Status = %d",GetFitStatus()));
+   text_b->AddText(Form("Time = %g",GetTime()));
+   text_b->AddText(Form("Ampl. = %g",GetAmplitude()));
+   text_b->AddText(Form("NDoF = %d",GetNDoF()));
+   text_b->SetFillColor(kWhite);
+   text_b->SetBorderSize(1);
+   tap_pulse->GetListOfFunctions()->Add(text_b);
 
-      //tap_pulse->Write();
+   TH1F* tap_pulse2=NULL;
+   if(fOtherPulse && !fIsPileUpPulse){
+     name+="2";
+     tap_pulse2=(TH1F*)fOtherPulse->GetHisto()->Clone(name.c_str());
+     tap_pulse2->SetDirectory(TDirectory::CurrentDirectory());
+   }
+    
+   //TMarker* marker=new TMarker(GetTime(), GetAmplitude()+GetPedestal()+10, 23);
+   //marker->SetMarkerColor(kRed);
+   //tap_pulse->GetListOfFunctions()->Add(marker);
 
-      TH1F* residual=(TH1F*) tpi_pulse->Clone(Form("%s_residual",tpi_pulse->GetName()));
-      TH1F* tap_rebinned=(TH1F*) tap_pulse->Rebin(GetTemplate()->GetRefineFactor(),Form("%s_rebin",tap_pulse->GetName()));
-      residual->Add(tap_rebinned, -1./GetTemplate()->GetRefineFactor());
-      if(tap_pulse2) {
-        delete tap_rebinned;
-        tap_rebinned=(TH1F*) tap_pulse2->Rebin(GetTemplate()->GetRefineFactor(),Form("%s_rebin",tap_pulse->GetName()));
-        residual->Add(tap_rebinned, -1./GetTemplate()->GetRefineFactor());
-      }
-      double integral=residual->Integral(5,residual->GetNbinsX()-5);
-      text_b->AddText(Form("Total residue = %g",integral));
-      delete tap_rebinned;
-      //residual->Write();
-   } 
+   //tap_pulse->Write();
+
+   TH1F* residual=(TH1F*) tpi_pulse->Clone(Form("%s_residual",tpi_pulse->GetName()));
+   TH1F* tap_rebinned=(TH1F*) tap_pulse->Rebin(GetTemplate()->GetRefineFactor(),Form("%s_rebin",tap_pulse->GetName()));
+   residual->Add(tap_rebinned, -1./GetTemplate()->GetRefineFactor());
+   if(tap_pulse2) {
+     delete tap_rebinned;
+     tap_rebinned=(TH1F*) tap_pulse2->Rebin(GetTemplate()->GetRefineFactor(),Form("%s_rebin",tap_pulse->GetName()));
+     residual->Add(tap_rebinned, -1./GetTemplate()->GetRefineFactor());
+   }
+   double integral=residual->Integral(5,residual->GetNbinsX()-5);
+   text_b->AddText(Form("Total residue = %g",integral));
+   delete tap_rebinned;
+   //residual->Write();
 }
 
 const TH1F* TTemplateFitAnalysedPulse::GetHisto()const{
