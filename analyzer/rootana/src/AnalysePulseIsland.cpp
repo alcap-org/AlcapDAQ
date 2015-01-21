@@ -6,8 +6,14 @@
 #include <stdlib.h>
 #include <string>
 #include <map>
+#include <vector>
 #include <utility>
 #include <algorithm>
+#include "TMath.h"
+#include "TROOT.h"
+#include "TFormula.h"
+#include "Math/Interpolator.h"
+#include "Math/InterpolationTypes.h"
 
 #include "TAnalysedPulse.h"
 
@@ -57,11 +63,11 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
       // If this is a slow pulse
       if ( TSetupData::IsSlow(detname) ) {
-	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
+	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
       } else if ( TSetupData::IsFast(detname)) {
-	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
+	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
       } else {
-	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
+	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
       }
 
 
@@ -158,10 +164,105 @@ void AnalysePulseIsland::GetAllParameters_MBCFT(TSetupData* gSetup, const TPulse
 
 
   // Now assign the parameters
-  amplitude = amp;
+  amplitude = trigger_polarity * (amp - pedestal);
   time = (dx + (double)pulse->GetTimeStamp()) * clock_tick_in_ns - time_shift;
   energy = eCalib_slope * amplitude + eCalib_offset;
   ratio = tintegral / integral;
+}
+
+
+void AnalysePulseIsland::GetAllParameters_InterCFT(TSetupData* gSetup, const TPulseIsland* pulse,
+						double& amplitude, double& time, double& integral, double& tintegral, double& energy, double& ratio) {
+  float constant_fraction = 0.50;
+  std::string bankname = pulse->GetBankName();
+  int trigger_polarity = gSetup->GetTriggerPolarity(bankname);
+  double eCalib_slope = gSetup->GetADCSlopeCalib(bankname);
+  double eCalib_offset = gSetup->GetADCOffsetCalib(bankname);
+  double clock_tick_in_ns = gSetup->GetClockTick(bankname);
+  double time_shift = gSetup->GetTimeShift(bankname);
+  double pedestal = 0;//gSetup->GetPedestal(bankname);
+  int sum = 0, count = 40;
+  double int_fact = 4;
+  double precision = 1;
+
+  std::string detname = gSetup->GetDetectorName(bankname);
+  if(detname == "NDet")
+    time_shift += 192;
+  if(detname == "NDet2")
+    time_shift += 34;
+
+  // First find the position of the peak
+  const std::vector<int>& samps = pulse->GetSamples();
+  std::vector<double> x, y; 
+  const std::vector<int>::const_iterator b = samps.begin(), e = samps.end();
+
+  for(std::vector<int>::const_iterator siter = b; siter != e; ++siter){
+    double time = std::distance(b, siter);
+    double value = *siter;
+    x.push_back(time);
+    y.push_back(value);
+  }
+
+  ROOT::Math::Interpolator inter(samps.size(), ROOT::Math::Interpolation::kCSPLINE);
+
+  inter.SetData(x, y);
+
+  for(std::vector<int>::const_iterator j = b; j < b+count; ++j){
+    sum += inter.Eval(std::distance(b,j)/int_fact);
+  }
+  pedestal = sum/count;
+
+  std::vector<int>::const_iterator m = trigger_polarity > 0 ? std::max_element(b, e) : std::min_element(b, e);
+
+
+  const int amp = *m;
+  const unsigned int cf = trigger_polarity > 0 ?
+      (unsigned int)(constant_fraction*(double)(amp-pedestal)) + pedestal :
+      (unsigned int)((double)(pedestal-amp)*(1.-constant_fraction) + amp);
+
+  double n = std::distance(b,m) * int_fact;
+
+  double current = amp;
+  while (n != 0 && (trigger_polarity > 0 ? current > (int)cf : current < (int)cf)){
+    n--;
+    current =inter.Eval(n/int_fact);
+  }
+ 
+  double ldiff = trigger_polarity * (cf - current);
+  double udiff = trigger_polarity * (inter.Eval((n+1)/int_fact) - cf);
+  double lLimit = n/int_fact;
+  double uLimit = (n+1)/int_fact;
+  double mid_point = 0;
+
+  while((ldiff > precision) && (udiff > precision)){
+    mid_point = 0.5 * (lLimit + uLimit);
+    current = inter.Eval(mid_point);
+
+    if(current > cf){
+      uLimit = mid_point;
+      udiff = current - cf;
+    }
+    else{
+      lLimit = mid_point;
+      ldiff = cf - current;
+    }
+  }//current is my cf value, can use mid_point for time
+
+  //evaluate integrals and ratios
+  for(; n < (std::distance(b, m) + 20) * int_fact; n++){
+    double ph = trigger_polarity * (inter.Eval(n/int_fact) - pedestal);
+    integral += ph;
+    if((n/int_fact) >= (std::distance(b,m) + 5))
+      tintegral += ph;
+  }
+
+
+
+  amplitude = trigger_polarity * (amp - pedestal);
+  time = (mid_point + (double)pulse->GetTimeStamp()) * clock_tick_in_ns - time_shift;
+  energy = eCalib_slope * amplitude + eCalib_offset;
+  ratio = tintegral / integral;
+
 }
 
 

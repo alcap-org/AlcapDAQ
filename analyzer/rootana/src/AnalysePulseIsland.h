@@ -19,6 +19,9 @@ class AnalysePulseIsland : public FillHistBase{
 			       double& amplitude, double& time, double& integral, double& tintegral, double& energy, double& ratio);
   void GetAllParameters_MBCFT(TSetupData* gSetup, const TPulseIsland* pulse,
 			      double& amplitude, double& time, double& integral, double& tintegral, double& energy, double& ratio);
+  void GetAllParameters_InterCFT(TSetupData* gSetup, const TPulseIsland* pulse,
+			      double& amplitude, double& time, double& integral, double& tintegral, double& energy, double& ratio);
+
 
 };
 
