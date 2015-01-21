@@ -78,6 +78,7 @@ void MultiHistogramFastFitFCN::Initialise(){
   sum_tpl.resize(N);
   sum_sq_tpl.resize(N);
   sum_cross_tpl.resize(N);
+  fInvertedSums.resize(N);
  
   // Make sure the last sum is 0
   sum_tpl[N] = sum_sq_tpl[N] = sum_cross_tpl[N] =0;
@@ -97,6 +98,16 @@ void MultiHistogramFastFitFCN::Initialise(){
         T_i_minus_k=fTemplateHist->GetBinContent(i-k+1); // +1 since bin 0 is the underflow bin in a TH1
         sum_cross_tpl[k]+=T_i * T_i_minus_k;
      }
+     
+     // Now compute the components of the inverted matrix of the sums
+     fInvertedSums[k].el11 = N*sum_sq_tpl[k] - sum_tpl[k]*sum_tpl[k];
+     fInvertedSums[k].el12 = sum_tpl[k]*sum_tpl[k] - N*sum_cross_tpl[k];
+     fInvertedSums[k].el13 = sum_cross_tpl[k] * sum_tpl[k] - sum_tpl[0] * sum_sq_tpl[k];
+     fInvertedSums[k].el22 = N*sum_sq_tpl[0] - sum_tpl[0]*sum_tpl[0];
+     fInvertedSums[k].el23 = sum_cross_tpl[k] * sum_tpl[0] - sum_sq_tpl[0]*sum_tpl[k];
+     fInvertedSums[k].el33 = sum_sq_tpl[0] * sum_sq_tpl[k] - sum_cross_tpl[k]*sum_cross_tpl[k];
+     fInvertedSums[k].determinant = N*(sum_sq_tpl[0]*sum_sq_tpl[k]         + sum_cross_tpl[k]*sum_cross_tpl[k]  )
+                                    - (sum_sq_tpl[0]*sum_tpl[k]*sum_tpl[k] + sum_sq_tpl[k]*sum_tpl[0]*sum_tpl[0]);
   }
  
   // Debugging

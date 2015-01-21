@@ -95,6 +95,15 @@ class MultiHistogramFastFitFCN : public ROOT::Minuit2::FCNBase {
   SamplesVector sum_sq_tpl;    // The sum of squares of all values in the template up-to the k-th entry;
   SamplesVector sum_cross_tpl; // The sum of all cross terms between the templates for the k-th offest
 
+  struct SumMatrix{
+    // Matrix representing the inversion of the matrix of summations found on the left side of the solution for the fit parameters
+    // It's 3x3 symmetric for fitting two identical templates so we only need 6 values here
+    double el11, el12, el13, el22, el23, el33;
+    double determinant;
+  };
+  typedef std::vector<SumMatrix> SumMatrices;
+  SumMatrices fInvertedSums;
+
 };
 
 inline void MultiHistogramFastFitFCN::GetHistogramBounds(int safety, int &low_edge, int& high_edge)const{
@@ -117,14 +126,12 @@ inline void MultiHistogramFastFitFCN::GetHistogramBounds(int safety, int &low_ed
 }
 
 inline void MultiHistogramFastFitFCN::UnpackParameters(const std::vector<double>& par)const{
-    if ( par.size() < fTemplates.size()+1) return;
     const std::vector<double>::const_iterator begin=par.begin();
-    std::vector<double>::const_iterator i_par=begin;
-    fPedestal=*i_par;
-    for(++i_par ; i_par!=par.end(); ++i_par){
-      int n= (i_par-begin-1) ;
-      fTemplates.at(n).fAmplitudeScale=*i_par;
+    for(std::vector<double>::const_iterator i_par=begin;
+	      i_par!=par.end(); ++i_par){
+      int n= (i_par-begin) ;
+      fTemplates.at(n).fTimeOffset=*i_par;
     }
-  }
+}
 
 #endif // MultiHistogramFastFitFCN_h__
