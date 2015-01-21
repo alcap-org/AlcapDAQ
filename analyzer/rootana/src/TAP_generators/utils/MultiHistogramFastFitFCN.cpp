@@ -4,6 +4,9 @@
 #include <iostream>
 #include <cassert>
 
+using std::cout;
+using std::endl;
+
 MultiHistogramFastFitFCN::MultiHistogramFastFitFCN(double refine_factor):
   fRefineFactor(refine_factor){
 }
@@ -32,41 +35,72 @@ double MultiHistogramFastFitFCN::operator() (const std::vector<double>& par) con
   // so if the step size in MINUIT is smalled than 1,
   // Any value of T will probably be seen as minimized, which it
   // almost certainly will not be.
-  UnpackParameters(par);
-  double chi2 = 0.;
 
-  int safety = 6*fRefineFactor; // remove a few bins from the fit
-  int bounds[2];
-  GetHistogramBounds(safety,bounds[0], bounds[1]);
-  
-  if( (bounds[1]-bounds[0]) < 40*fRefineFactor ) throw Except::SlimlyOverlappingTemplates();
+  switch(fNTemplatesToFit){
+    case 1:
+       return FitOne(par.at(0));
+    break;
+    case 2:
+       return FitTwo(par.at(0),par.at(1));
+    break;
+    default: return -1;
+  }
+}
 
-  // Calculate the degrees of freedom ( #data - #fit_params)
-  // +1 because we include both ends of the bounds when we loop through
-  fNDoF = ((bounds[1] - bounds[0] + 1)/fRefineFactor) - par.size(); 
-
-  double tpl_height,tpl_error;
-  for (int i = bounds[0]+(fRefineFactor/2.0); i <= bounds[1]-(fRefineFactor/2.0); i += fRefineFactor) { 
-    // calculate the chi^2 based on the centre of the 5 bins to avoid getting
-    // abonus from mathcing all 5.  We shift and scale the template so that it
-    // matches the pulse.  This is because, when we have a normalised template,
-    // we will get the actual amplitude, pedestal and time from the fit and not
-    // just offsets
-    tpl_height=0;
-    tpl_error=0;
-    
-    for(TemplateList::const_iterator i_tpl=fTemplates.begin(); 
-         i_tpl!=fTemplates.end(); ++i_tpl){
-       tpl_height+=i_tpl->GetHeight(i,fTemplateHist);
-       tpl_error+=i_tpl->fAmplitudeScale*i_tpl->GetError2(i,fTemplateHist);
-    }
-
-    double delta = fPulseHist->GetBinContent(i) - tpl_height;
-    chi2 += delta*delta / tpl_error;
+double MultiHistogramFastFitFCN::FitOne(double time_offset)const{
+  // Find the sums over the pulse being fit to
+  const int N = fTemplateHist->GetNbinsX();
+  double Y=0, Y_cross=0, Y_sq=0;
+  for(int i=0; i<N;i+=fRefineFactor){
+     int bin=i*1./fRefineFactor+time_offset;
+     double y=fPulseHist->GetBinContent(bin);
+     Y +=y;
+     Y_sq +=y*y;
+     Y_cross += y*fTemplateHist->GetBinContent(i);
   }
 
-  return chi2;
+  // Calculate the amplitude scale factor
+  double a = fInvertedSums_one.el11 * Y_cross - fInvertedSums_one.el12 * Y;
+  a /= fInvertedSums_one.determinant;
+  fTemplates.at(0).fAmplitudeScale=a;
+
+  // Calculate the pedestal
+  fPedestal = fInvertedSums_one.el22 * Y - fInvertedSums_one.el12 * Y_cross;
+  fPedestal /= fInvertedSums_one.determinant;
+
+  // Calculate the chi square
+  double chi_2 = a*a*sum_sq_tpl[0] + N*fPedestal*fPedestal
+               + Y_sq - 2*a*Y_cross - 2*fPedestal*Y + 2*a*fPedestal*sum_tpl[0];
+  return chi_2;
 }
+
+double MultiHistogramFastFitFCN::FitTwo(double time_offset, double time_offset2)const{
+ return 1.;
+}
+
+//{
+//  double tpl_height,tpl_error;
+//  for (int i = bounds[0]+(fRefineFactor/2.0); i <= bounds[1]-(fRefineFactor/2.0); i += fRefineFactor) { 
+//    // calculate the chi^2 based on the centre of the 5 bins to avoid getting
+//    // abonus from mathcing all 5.  We shift and scale the template so that it
+//    // matches the pulse.  This is because, when we have a normalised template,
+//    // we will get the actual amplitude, pedestal and time from the fit and not
+//    // just offsets
+//    tpl_height=0;
+//    tpl_error=0;
+//    
+//    for(TemplateList::const_iterator i_tpl=fTemplates.begin(); 
+//         i_tpl!=fTemplates.end(); ++i_tpl){
+//       tpl_height+=i_tpl->GetHeight(i,fTemplateHist);
+//       tpl_error+=i_tpl->fAmplitudeScale*i_tpl->GetError2(i,fTemplateHist);
+//    }
+//
+//    double delta = fPulseHist->GetBinContent(i) - tpl_height;
+//    chi2 += delta*delta / tpl_error;
+//  }
+//
+//  return chi2;
+//}
 
 void MultiHistogramFastFitFCN::Initialise(){
   // k is the separation of the two templates
@@ -78,7 +112,7 @@ void MultiHistogramFastFitFCN::Initialise(){
   sum_tpl.resize(N);
   sum_sq_tpl.resize(N);
   sum_cross_tpl.resize(N);
-  fInvertedSums.resize(N);
+  fInvertedSums_two.resize(N);
  
   // Make sure the last sum is 0
   sum_tpl[N] = sum_sq_tpl[N] = sum_cross_tpl[N] =0;
@@ -86,33 +120,46 @@ void MultiHistogramFastFitFCN::Initialise(){
   double T_i, T_i_minus_k;
  
   // Step over k in reverse
-  for( int k=N-1; k>=0; --k){
+  for( int k=N-1; k>=0; k-=fRefineFactor){
      T_i=fTemplateHist->GetBinContent(N-k+1); // +1 since bin 0 is the underflow bin in a TH1
      sum_tpl[k]=sum_tpl[k+1] + T_i;
      sum_sq_tpl[k]=sum_sq_tpl[k+1] + T_i*T_i;
 
      // Now calculate the cross terms for this separation
      // Since i < 0, T_i is 0 we can start at i=k
-     for( int i=k; i<N; ++i){
+     for( int i=k; i<N; i+=fRefineFactor){
         T_i=fTemplateHist->GetBinContent(i+1);           // +1 since bin 0 is the underflow bin in a TH1
         T_i_minus_k=fTemplateHist->GetBinContent(i-k+1); // +1 since bin 0 is the underflow bin in a TH1
         sum_cross_tpl[k]+=T_i * T_i_minus_k;
      }
      
-     // Now compute the components of the inverted matrix of the sums
-     fInvertedSums[k].el11 = N*sum_sq_tpl[k] - sum_tpl[k]*sum_tpl[k];
-     fInvertedSums[k].el12 = sum_tpl[k]*sum_tpl[k] - N*sum_cross_tpl[k];
-     fInvertedSums[k].el13 = sum_cross_tpl[k] * sum_tpl[k] - sum_tpl[0] * sum_sq_tpl[k];
-     fInvertedSums[k].el22 = N*sum_sq_tpl[0] - sum_tpl[0]*sum_tpl[0];
-     fInvertedSums[k].el23 = sum_cross_tpl[k] * sum_tpl[0] - sum_sq_tpl[0]*sum_tpl[k];
-     fInvertedSums[k].el33 = sum_sq_tpl[0] * sum_sq_tpl[k] - sum_cross_tpl[k]*sum_cross_tpl[k];
-     fInvertedSums[k].determinant = N*(sum_sq_tpl[0]*sum_sq_tpl[k]         + sum_cross_tpl[k]*sum_cross_tpl[k]  )
-                                    - (sum_sq_tpl[0]*sum_tpl[k]*sum_tpl[k] + sum_sq_tpl[k]*sum_tpl[0]*sum_tpl[0]);
+     // Now compute the components of the inverted matrix of the sums for two templates
+     fInvertedSums_two[k].el11 = N*sum_sq_tpl[k] - sum_tpl[k]*sum_tpl[k];
+     fInvertedSums_two[k].el12 = sum_tpl[k]*sum_tpl[k] - N*sum_cross_tpl[k];
+     fInvertedSums_two[k].el13 = sum_cross_tpl[k] * sum_tpl[k] - sum_tpl[0] * sum_sq_tpl[k];
+     fInvertedSums_two[k].el22 = N*sum_sq_tpl[0] - sum_tpl[0]*sum_tpl[0];
+     fInvertedSums_two[k].el23 = sum_cross_tpl[k] * sum_tpl[0] - sum_sq_tpl[0]*sum_tpl[k];
+     fInvertedSums_two[k].el33 = sum_sq_tpl[0] * sum_sq_tpl[k] - sum_cross_tpl[k]*sum_cross_tpl[k];
+     fInvertedSums_two[k].determinant = N*(sum_sq_tpl[0]*sum_sq_tpl[k]         + sum_cross_tpl[k]*sum_cross_tpl[k]  )
+                                        - (sum_sq_tpl[0]*sum_tpl[k]*sum_tpl[k] + sum_sq_tpl[k]*sum_tpl[0]*sum_tpl[0]);
+
   }
+  // Now compute the components of the inverted matrix of the sums for a single template
+  fInvertedSums_one.el11 = N;
+  fInvertedSums_one.el12 = sum_tpl[0];
+  fInvertedSums_one.el22 = sum_sq_tpl[0];
+  fInvertedSums_one.determinant = N*sum_sq_tpl[0] + sum_tpl[0]*sum_tpl[0];
  
   // Debugging
   for( int i=0; i<N; ++i){
      DEBUG_VALUE(sum_tpl[i],sum_sq_tpl[i],sum_cross_tpl[i]);
   }
  
+}
+
+void MultiHistogramFastFitFCN::SetFitNTemplates(int n_tpls){
+  fNTemplatesToFit=n_tpls;
+  if(fNTemplatesToFit > 2) {
+    cout<<"ERROR: MultiHistogramFastFitFCN::FitNTemplates: Attempting to fit more than 2 templates ("<< n_tpls<<", in fact) which is not implemented!"<<endl;
+  }
 }

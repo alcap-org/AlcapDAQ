@@ -40,8 +40,8 @@ class MultiHistogramFastFitFCN : public ROOT::Minuit2::FCNBase {
   void SetTime(int n, double time){
     fTemplates.at(n).fTimeOffset=time - fTemplateHist->GetMaximumBin();
   }
-  void SetInitialValues(int n, double time_offset){
-    SetTime(n, time_offset);
+  void SetAmplitudeScaleFactor(int n, double scale){
+    fTemplates.at(n).fAmplitudeScale=scale;
   }
 
   void Initialise();
@@ -49,6 +49,7 @@ class MultiHistogramFastFitFCN : public ROOT::Minuit2::FCNBase {
   void SetPulseHist(const TH1* pulse){fPulseHist=pulse;}
   void SetRefineFactor(int refine_factor) {fRefineFactor = refine_factor;}
   void SetTemplateHist( const TH1* hist){ fTemplateHist=hist; }
+  void SetFitNTemplates(int);
   
   double& GetPedestal()const{return fPedestal;}
   double& GetAmplitudeScaleFactor(int i)const{return fTemplates.at(i).fAmplitudeScale;}
@@ -72,7 +73,8 @@ class MultiHistogramFastFitFCN : public ROOT::Minuit2::FCNBase {
   int GetNDoF() { return fNDoF; }
 
  private:
-  inline void UnpackParameters(const std::vector<double>& par)const;
+  double FitOne(double time_offset)const;
+  double FitTwo(double time_offset,double time_offset2)const;
   inline void GetHistogramBounds(int safety, int &low_edge, int& high_edge)const;
 
   /// record this for TemplateFitter to retrieve later (NB mutable so that it
@@ -82,6 +84,7 @@ class MultiHistogramFastFitFCN : public ROOT::Minuit2::FCNBase {
   mutable double fPedestal;
   
   int fRefineFactor;
+  int fNTemplatesToFit;
 
   mutable TemplateList fTemplates;
 
@@ -102,7 +105,8 @@ class MultiHistogramFastFitFCN : public ROOT::Minuit2::FCNBase {
     double determinant;
   };
   typedef std::vector<SumMatrix> SumMatrices;
-  SumMatrices fInvertedSums;
+  SumMatrices fInvertedSums_two;
+  SumMatrix fInvertedSums_one;
 
 };
 
@@ -123,15 +127,6 @@ inline void MultiHistogramFastFitFCN::GetHistogramBounds(int safety, int &low_ed
     // find the minimum of all the ends of a template
     if(low_edge>tpl_start) low_edge=tpl_start;
   }
-}
-
-inline void MultiHistogramFastFitFCN::UnpackParameters(const std::vector<double>& par)const{
-    const std::vector<double>::const_iterator begin=par.begin();
-    for(std::vector<double>::const_iterator i_par=begin;
-	      i_par!=par.end(); ++i_par){
-      int n= (i_par-begin) ;
-      fTemplates.at(n).fTimeOffset=*i_par;
-    }
 }
 
 #endif // MultiHistogramFastFitFCN_h__
