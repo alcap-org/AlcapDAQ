@@ -19,3 +19,4 @@ exptab
 /sqlite*/
 *.pyc
 *.db
+*.ipynb
