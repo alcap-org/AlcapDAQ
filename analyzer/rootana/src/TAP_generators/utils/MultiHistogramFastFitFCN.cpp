@@ -8,7 +8,7 @@ using std::cout;
 using std::endl;
 
 MultiHistogramFastFitFCN::MultiHistogramFastFitFCN(double refine_factor):
-  fRefineFactor(refine_factor){
+  fRefineFactor(refine_factor),fTemplates(2){
 }
 
 MultiHistogramFastFitFCN::~MultiHistogramFastFitFCN() {
@@ -107,13 +107,13 @@ void MultiHistogramFastFitFCN::Initialise(){
   // k is the separation of the two templates
   // i is the index of the sample in the first template being looked at
   
-  int N  = fTemplateHist->GetNbinsX();
+  const int N  = fTemplateHist->GetNbinsX();
  
   // Make sure we can store all the values
-  sum_tpl.resize(N);
-  sum_sq_tpl.resize(N);
-  sum_cross_tpl.resize(N);
-  fInvertedSums_two.resize(N);
+  sum_tpl.resize(N/fRefineFactor);
+  sum_sq_tpl.resize(N/fRefineFactor);
+  sum_cross_tpl.resize(N/fRefineFactor);
+  fInvertedSums_two.resize(N/fRefineFactor);
  
   // Make sure the last sum is 0
   sum_tpl[N] = sum_sq_tpl[N] = sum_cross_tpl[N] =0;
@@ -125,7 +125,6 @@ void MultiHistogramFastFitFCN::Initialise(){
      T_i=fTemplateHist->GetBinContent(N-k+1); // +1 since bin 0 is the underflow bin in a TH1
      sum_tpl[k]=sum_tpl[k+1] + T_i;
      sum_sq_tpl[k]=sum_sq_tpl[k+1] + T_i*T_i;
-
      // Now calculate the cross terms for this separation
      // Since i < 0, T_i is 0 we can start at i=k
      for( int i=k; i<N; i+=fRefineFactor){
@@ -134,6 +133,7 @@ void MultiHistogramFastFitFCN::Initialise(){
         sum_cross_tpl[k]+=T_i * T_i_minus_k;
      }
      
+     // Now calculate the cross terms for this separation
      // Now compute the components of the inverted matrix of the sums for two templates
      fInvertedSums_two[k].el11 = N*sum_sq_tpl[k] - sum_tpl[k]*sum_tpl[k];
      fInvertedSums_two[k].el12 = sum_tpl[k]*sum_tpl[k] - N*sum_cross_tpl[k];
@@ -153,7 +153,8 @@ void MultiHistogramFastFitFCN::Initialise(){
  
   // Debugging
   for( int i=0; i<N; ++i){
-     DEBUG_VALUE(sum_tpl[i],sum_sq_tpl[i],sum_cross_tpl[i]);
+    if(i%100==0) cout<<"k, sum [k], sum_squares[k], sum_cross[k]"<<endl;
+     cout<<i<<", "<<sum_tpl[i]<<", "<<sum_sq_tpl[i]<<", "<<sum_cross_tpl[i]<<endl;
   }
  
 }
