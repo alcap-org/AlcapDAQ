@@ -42,7 +42,7 @@ class TTemplate:public TObject{
       double GetAmplitude()const;
       int GetPolarity()const{return fTriggerPolarity;};
 
-      double GetRefineFactor()const{return fRefineFactor;}
+      double GetRefineFactor()const{ return fIsRebinnedToOriginalBinning? 1:fRefineFactor;}
 
       const TH1D* GetHisto()const{return fTemplatePulse;}
 
@@ -55,6 +55,7 @@ class TTemplate:public TObject{
    private:
       bool fDebug;
       bool fConverged; ///< have we converged or not?
+      bool fIsRebinnedToOriginalBinning; ///< Have we been rebinned to the original bin widths?
       int fTotalPulses; ///< How many pulses have been averaged to make the template
       int fRefineFactor; ///< How many samples in the template correspond to 1 sample in an actual wavform
       int fTriggerPolarity;

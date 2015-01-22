@@ -20,6 +20,7 @@ TTemplate::TTemplate():
 TTemplate::TTemplate(const std::string& det,int refine,int trigger_polarity, bool debug):
   fDebug(debug),
   fConverged(false),
+  fIsRebinnedToOriginalBinning(false),
   fTotalPulses(0),
   fRefineFactor(refine),
   fTriggerPolarity(trigger_polarity),
@@ -162,6 +163,8 @@ void TTemplate::NormaliseToSumSquares(){
 }
 
 TH1* TTemplate::RebinToOriginalSampling(){
+   if(fIsRebinnedToOriginalBinning) return fTemplatePulse;
+   fIsRebinnedToOriginalBinning=true;
    return fTemplatePulse->Rebin(fRefineFactor);
 }
     
