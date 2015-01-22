@@ -193,17 +193,19 @@ void AnalysePulseIsland::GetAllParameters_InterCFT(TSetupData* gSetup, const TPu
 
   // First find the position of the peak
   const std::vector<int>& samps = pulse->GetSamples();
-  std::vector<double> x, y; 
+  vector<double> x, y; 
   const std::vector<int>::const_iterator b = samps.begin(), e = samps.end();
 
+  /*
   for(std::vector<int>::const_iterator siter = b; siter != e; ++siter){
     double time = std::distance(b, siter);
     double value = *siter;
     x.push_back(time);
     y.push_back(value);
   }
+  */
 
-  ROOT::Math::Interpolator inter(samps.size(), ROOT::Math::Interpolation::kCSPLINE);
+  ROOT::Math::Interpolator inter(x, y, ROOT::Math::Interpolation::kCSPLINE);
 
   inter.SetData(x, y);
 
