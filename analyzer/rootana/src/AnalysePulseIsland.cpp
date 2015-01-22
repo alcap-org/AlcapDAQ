@@ -60,15 +60,31 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       double tintegral = 0.;
       double energy = 0.;
       double ratio = 0.;
-
+      /*
       // If this is a slow pulse
       if ( TSetupData::IsSlow(detname) ) {
-	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
+	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
       } else if ( TSetupData::IsFast(detname)) {
-	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
+	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
       } else {
 	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
       }
+      */
+
+      if(detname == "muSc")
+	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
+
+      if(detname == "GeF")
+	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
+
+      if(detname == "GeS")
+	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
+
+      if(detname == "NDet")
+	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
+
+      if(detname == "NDet2")
+	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
 
 
       TAnalysedPulse* analysedPulse = new TAnalysedPulse(amplitude, time, integral, tintegral, energy, ratio, detname);
@@ -181,7 +197,7 @@ void AnalysePulseIsland::GetAllParameters_InterCFT(TSetupData* gSetup, const TPu
   double clock_tick_in_ns = gSetup->GetClockTick(bankname);
   double time_shift = gSetup->GetTimeShift(bankname);
   double pedestal = 0;//gSetup->GetPedestal(bankname);
-  int sum = 0, count = 40;
+  int sum = 0, count = 20;
   double int_fact = 4;
   double precision = 1;
 
@@ -193,24 +209,27 @@ void AnalysePulseIsland::GetAllParameters_InterCFT(TSetupData* gSetup, const TPu
 
   // First find the position of the peak
   const std::vector<int>& samps = pulse->GetSamples();
-  vector<double> x, y; 
   const std::vector<int>::const_iterator b = samps.begin(), e = samps.end();
+  std::vector<double> x, y;
 
-  /*
+  
   for(std::vector<int>::const_iterator siter = b; siter != e; ++siter){
-    double time = std::distance(b, siter);
-    double value = *siter;
-    x.push_back(time);
-    y.push_back(value);
+    unsigned int time = std::distance(b, siter);
+    int value = *siter;
+    x.push_back( (double) time);
+    y.push_back( (double) value);
   }
-  */
+
 
   ROOT::Math::Interpolator inter(x, y, ROOT::Math::Interpolation::kCSPLINE);
 
-  inter.SetData(x, y);
+  //inter.SetData(samps.size(), xi, yi);
+
+  //printf("testing\n");
 
   for(std::vector<int>::const_iterator j = b; j < b+count; ++j){
     sum += inter.Eval(std::distance(b,j)/int_fact);
+
   }
   pedestal = sum/count;
 
@@ -228,10 +247,14 @@ void AnalysePulseIsland::GetAllParameters_InterCFT(TSetupData* gSetup, const TPu
   while (n != 0 && (trigger_polarity > 0 ? current > (int)cf : current < (int)cf)){
     n--;
     current =inter.Eval(n/int_fact);
+
   }
  
+  //printf("testing\n");
+
   double ldiff = trigger_polarity * (cf - current);
   double udiff = trigger_polarity * (inter.Eval((n+1)/int_fact) - cf);
+
   double lLimit = n/int_fact;
   double uLimit = (n+1)/int_fact;
   double mid_point = 0;
@@ -240,25 +263,44 @@ void AnalysePulseIsland::GetAllParameters_InterCFT(TSetupData* gSetup, const TPu
     mid_point = 0.5 * (lLimit + uLimit);
     current = inter.Eval(mid_point);
 
+
     if(current > cf){
       uLimit = mid_point;
-      udiff = current - cf;
+      udiff = trigger_polarity * (current - cf);
     }
     else{
       lLimit = mid_point;
-      ldiff = cf - current;
+      ldiff = trigger_polarity * (cf - current);
     }
   }//current is my cf value, can use mid_point for time
 
-  //evaluate integrals and ratios
-  for(; n < (std::distance(b, m) + 20) * int_fact; n++){
-    double ph = trigger_polarity * (inter.Eval(n/int_fact) - pedestal);
-    integral += ph;
-    if((n/int_fact) >= (std::distance(b,m) + 5))
-      tintegral += ph;
+  /*
+  if((detname == "NDet") || (detname == "NDet2")){
+
+    //evaluate integrals and ratios
+    for(int i = (int) mid_point * int_fact; i < int_fact * (std::distance(b, m) + 20); i++){
+      double ph = trigger_polarity * (inter.Eval((double)i/int_fact) - pedestal);
+
+      integral += ph;
+      if((n/int_fact) >= (std::distance(b,m) + 5))
+	tintegral += ph;
+    }
   }
+  else{
+    integral = 1;
+    tintegral = 0;
+  }
+  */
 
-
+  if(std::distance(b, m) + 20 >=  std::distance(b, e)){
+    //std::cout << "error, pulse too close to end\n" << std::distance(b, m) << "   " << std::distance(b,e) << "   detname " << detname << std::endl;
+    integral = 1;
+    tintegral = 0;
+  }
+  else{
+    integral = inter.Integ(mid_point, std::distance(b, m) + 20);
+    tintegral = inter.Integ(std::distance(b, m) + 5, std::distance(b, m) + 20);
+  }
 
   amplitude = trigger_polarity * (amp - pedestal);
   time = (mid_point + (double)pulse->GetTimeStamp()) * clock_tick_in_ns - time_shift;
