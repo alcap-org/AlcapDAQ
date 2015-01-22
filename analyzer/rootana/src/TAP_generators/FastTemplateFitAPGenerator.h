@@ -5,7 +5,6 @@
 #include "TVAnalysedPulseGenerator.h"
 #include "definitions.h"
 #include "TemplateArchive.h"
-#include "TemplateFitter.h"
 #include "TemplateFastFitter.h"
 #include "TTemplate.h"
 #include "TTemplateFitAnalysedPulse.h"
@@ -36,16 +35,13 @@ class FastTemplateFitAPGenerator:public TVAnalysedPulseGenerator {
 
   private:
     static TemplateArchive* fTemplateArchive;
-    static TemplateArchive* fTemplateArchive2;
     bool fAttemptRefit;
     double fIntegralMax, fIntegralMin;
     double fIntegralRatioMax, fIntegralRatioMin;
     double fTemplateAmp, fTemplatePed, fTemplateTime;
-    double fTemplate2Amp, fTemplate2Ped, fTemplate2Time;
     double fInitPedestal;
     double fChi2MinToRefit;
     TTemplate* fTemplate;
-    TTemplate* fTemplate2;
     TemplateFastFitter* fFitter;
     Algorithm::IntegralRatio* fIntegralRatio;
     Algorithm::MaxBinAmplitude fMaxBin;

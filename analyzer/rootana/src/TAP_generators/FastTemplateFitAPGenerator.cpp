@@ -3,21 +3,21 @@
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
 #include "TTemplateFitAnalysedPulse.h"
+#include "MultiHistogramFastFitFCN.h"
 #include "InterpolatePulse.h"
 #include "EventNavigator.h"
 #include "debug_tools.h"
 #include <iostream>
+#include <TFitterMinuit.h>
 using std::cout;
 using std::endl;
 
 TemplateArchive* FastTemplateFitAPGenerator::fTemplateArchive=NULL;
-TemplateArchive* FastTemplateFitAPGenerator::fTemplateArchive2=NULL;
 
 FastTemplateFitAPGenerator::FastTemplateFitAPGenerator(TAPGeneratorOptions* opts):
    TVAnalysedPulseGenerator("FastTemplateFitAPGenerator",opts),
     fAttemptRefit(opts->GetBool("attempt_refit",false)),
     fInitPedestal(EventNavigator::Instance().GetSetupRecord().GetPedestal(GetChannel())),
-    fTemplate2(NULL),
     fIntegralRatio(NULL),
     fMaxBin(fInitPedestal, EventNavigator::Instance().GetSetupRecord().GetPolarity(GetChannel()))
 {
@@ -25,20 +25,11 @@ FastTemplateFitAPGenerator::FastTemplateFitAPGenerator(TAPGeneratorOptions* opts
    if(!fTemplateArchive){
      fTemplateArchive=new TemplateArchive(opts->GetString("template_archive").c_str(),"READ");
    }
-   if(opts->HasOption("template_archive_2")){
-     std::string template_2_src=opts->GetString("template_archive_2");
-     if (template_2_src!=fTemplateArchive->GetName() && !fTemplateArchive2)
-        fTemplateArchive2=new TemplateArchive(opts->GetString("template_archive_2").c_str(),"READ");
-     else if(!fTemplateArchive2){
-        fTemplateArchive2=fTemplateArchive;
-     }
-   }
    fTemplate=fTemplateArchive->GetTemplate(GetChannel());
-   if(fTemplateArchive2) fTemplate2=fTemplateArchive2->GetTemplate(GetChannel());
 
    // make the fitters
    fFitter = new TemplateFastFitter(GetChannel().str());
-   fFitter->AddTemplate(fTemplate);
+   fFitter->SetTemplate(fTemplate);
    fFitter->Init();
 
    // prepare the integral ratio cuts
@@ -59,12 +50,6 @@ FastTemplateFitAPGenerator::FastTemplateFitAPGenerator(TAPGeneratorOptions* opts
   fTemplateTime=fTemplate->GetTime();
   fTemplatePed=fTemplate->GetPedestal();
 
-  if(fTemplate2){
-     fTemplate2Amp=fTemplate2->GetAmplitude();
-     fTemplate2Time=fTemplate2->GetTime();
-     fTemplate2Ped=fTemplate2->GetPedestal();
-  }
-
   // chi2 to determine when we refit with 2 pulses
   fChi2MinToRefit=opts->GetDouble("min_chi2_to_refit",2e5);
 }
@@ -72,15 +57,10 @@ FastTemplateFitAPGenerator::FastTemplateFitAPGenerator(TAPGeneratorOptions* opts
 FastTemplateFitAPGenerator::~FastTemplateFitAPGenerator(){
   delete fFitter;
     
-  delete fFitter;
   if(fIntegralRatio) delete fIntegralRatio;
   if(fTemplateArchive) {
     delete fTemplateArchive;
     fTemplateArchive=NULL;
-  }
-  if(fTemplateArchive2) {
-    delete fTemplateArchive2;
-    fTemplateArchive2=NULL;
   }
 }
 
@@ -98,12 +78,12 @@ int FastTemplateFitAPGenerator::ProcessPulses(
        continue;
     }
     double init_time=  fMaxBin.GetTime() * fTemplate->GetRefineFactor()- fTemplateTime ;
-    fFitter->SetPulseEstimates(0, init_time);
+    fFitter->SetTimeOffset(0, init_time);
 
     // Make histo for TPI
     TH1D* hPulseToFit=InterpolatePulse(*tpi,"hPulseToFit","hPulseToFit",false,fTemplate->GetRefineFactor());
     
-    int fit_status = fFitter->FitWithOneTimeFree(0, hPulseToFit);
+    int fit_status = fFitter->FitWithOne(hPulseToFit);
 
     // Now that we've found the information we were looking for make a TAP to
     // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
@@ -163,15 +143,9 @@ bool FastTemplateFitAPGenerator::RefitWithTwo(TH1D* tpi, TTemplateFitAnalysedPul
   InitializeSecondPulse(tpi,tap_one,second_time);
 
   // fit the second template around the second peak
-  fFitter->SetPulseEstimates( 0, tap_one->GetTime());
-  fFitter->SetPulseEstimates( 1,  second_time);
-  int fit_status = fFitter->FitWithOneTimeFree(1, tpi);
-
-  // fit the first pulse again
-  fit_status = fFitter->FitWithOneTimeFree(0, tpi);
-
-  // fit the second pulse again
-  fit_status = fFitter->FitWithAllTimesFixed(tpi);
+  fFitter->SetTimeOffset( 0, tap_one->GetTime());
+  fFitter->SetTimeOffset( 1,  second_time);
+  int fit_status = fFitter->FitWithTwo(tpi);
 
   if(fit_status==0){
     // Has the double fit improved the chi-2 per NDoF
@@ -188,7 +162,7 @@ bool FastTemplateFitAPGenerator::RefitWithTwo(TH1D* tpi, TTemplateFitAnalysedPul
 
       // make the second tap
       tap_two = MakeNewTAP<TTemplateFitAnalysedPulse>(tap_one->GetParentID());
-      tap_two->SetTemplate(fTemplate2);
+      tap_two->SetTemplate(fTemplate);
       tap_two->SetPedestal(fFitter->GetPedestal());
       tap_two->SetAmplitude(fFitter->GetAmplitude(1));
       tap_two->SetTime(fFitter->GetTime(1));
@@ -224,7 +198,7 @@ void FastTemplateFitAPGenerator::InitializeSecondPulse(
         max_bin=bin;
       }
     }
-    second_time=max_bin - fTemplate2->GetTime();
+    second_time=max_bin - fTemplate->GetTime();
 }
 
 ALCAP_TAP_GENERATOR(FastTemplateFit,template_archive,use_IR_cut, min_integral, max_integral, min_ratio, max_ratio, attempt_refit,min_chi2_to_refit);

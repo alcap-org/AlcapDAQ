@@ -71,6 +71,7 @@ class MultiHistogramFastFitFCN : public ROOT::Minuit2::FCNBase {
   double Up() const {return 1.;}
 
   int GetNDoF() { return fNDoF; }
+  int GetChi2() { return fChi2; }
 
  private:
   double FitOne(double time_offset)const;

@@ -5,7 +5,7 @@
 #include "TPulseIsland.h"
 #include "TTemplate.h"
 
-class MultiHistogramFitFCN;
+class MultiHistogramFastFitFCN;
 #include "definitions.h"
 #include "AlcapExcept.h"
 
@@ -18,12 +18,9 @@ class TemplateFastFitter {
   struct TemplateDetails_t{
     double fAmplitudeScaleFactor;
     double fTimeOffset;
-    TTemplate* fTemplate;
-    double GetTime()const{ return  fTemplate->GetTime()+fTimeOffset; }
-    double GetAmplitude()const{ return  fTemplate->GetAmplitude()*fAmplitudeScaleFactor; }
-    void SetTime( double time){
-      fTimeOffset=time- fTemplate->GetTime();
-    }
+    TemplateDetails_t():
+	    fAmplitudeScaleFactor(definitions::DefaultValue),
+	    fTimeOffset(definitions::DefaultValue) {}
   };
   typedef std::vector<TemplateDetails_t> TemplateList;
 
@@ -41,38 +38,42 @@ class TemplateFastFitter {
     kFitNotConverged= 1,
     kInitialised=-200
   };
-  void AddTemplate(TTemplate* tpl);
-
-  /// @name fitting
-  /// @{
-  /// \brief
-  /// Sets the intial estimates for the template fitter
-  //void SetPedestal(double v){fPedestal=v;}
-  void SetPulseEstimates( int index,double time){
-      fTemplates.at(index).SetTime(time);
-  }
-  int FitWithOneTimeFree(int index,const TH1D* hPulse);
-  int FitWithAllTimesFixed(const TH1D* hPulse);
-  /// @}
+  void SetTemplate(TTemplate* tpl);
 
   /// @name getters
   /// @{
   double GetPedestal()const { return fPedestal; }
-  double GetAmplitude(int i)const { return fTemplates.at(i).GetAmplitude();}
-  double GetTime(int i)const { return fTemplates.at(i).GetTime(); }
+  double GetAmplitude(int i)const { return fTemplate->GetAmplitude() * fTemplates.at(i).fAmplitudeScaleFactor;}
+  double GetTime(int i)const { return fTemplate->GetTime() + fTemplates.at(i).fTimeOffset; }
   double GetChi2()const { return fChi2; }
   double GetNDoF()const { return fNDoF; }
   /// @}
 
+  /// @name setters:
+  /// @{
+  void SetAmplitudeSF(int i, double amp_sf) {  fTemplates.at(i).fAmplitudeScaleFactor = amp_sf;}
+  void SetTimeOffset(int i, double time_off) {  fTemplates.at(i).fTimeOffset = time_off; }
+  /// @}
+
+  /// @name fitting
+  /// @{
+  int FitWithOne(const TH1D* hPulse);
+  int FitWithTwo(const TH1D* hPulse);
+  /// @}
+
+ private:
+  int Fit(const TH1* hPulse);
+  
  private:
   TFitterMinuit* fMinuitFitter;
-  MultiHistogramFitFCN* fFitFCN;
+  MultiHistogramFastFitFCN* fFitFCN;
   IDs::channel fChannel;
   double fMaxADC,fMinADC;
 
   double fPedestal;
   int fRefineFactor;
   TemplateList fTemplates;
+  TTemplate* fTemplate;
   int fFreeTemplate;
 
   double fChi2;

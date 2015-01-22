@@ -38,13 +38,14 @@ double MultiHistogramFastFitFCN::operator() (const std::vector<double>& par) con
 
   switch(fNTemplatesToFit){
     case 1:
-       return FitOne(par.at(0));
+       fChi2= FitOne(par.at(0));
     break;
     case 2:
-       return FitTwo(par.at(0),par.at(1));
+       fChi2= FitTwo(par.at(0),par.at(1));
     break;
-    default: return -1;
+    default: fChi2= -1;
   }
+  return fChi2;
 }
 
 double MultiHistogramFastFitFCN::FitOne(double time_offset)const{
