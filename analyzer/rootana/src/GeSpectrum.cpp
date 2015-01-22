@@ -44,7 +44,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
 	      0.,
 	      opts->GetDouble("musc_cf")),
   fADC2Energy(new TF1("adc2energy","[0]*x+[1]")),
-  fTimeWindow_Small(300.), fTimeWindow_Big(5000.), fPileupProtectionWindow(15000.) {
+  fTimeWindow_Small(1000.), fTimeWindow_Big(5000.), fPileupProtectionWindow(15000.) {
   const static int nbins = std::pow(2.,14);
   const std::pair<double,double> adc2energy_par = SetupNavigator::Instance()->GetEnergyCalibrationConstants(IDs::channel("Ge-S"));
   fADC2Energy->SetParameters(adc2energy_par.first, adc2energy_par.second);
