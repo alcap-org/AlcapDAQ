@@ -7,6 +7,7 @@
 struct TemplateFastFitParameters:public TObject{
 	double determinant;
 	double n;
+	double k;
 	double sum_y;
 	double sum_y_T;
 	double sum_sq_T;
@@ -16,6 +17,7 @@ struct TemplateFastFitParameters:public TObject{
 	TemplateFastFitParameters():
 		determinant(definitions::DefaultValue),
                 n(definitions::DefaultValue),
+                k(definitions::DefaultValue),
                 sum_y(definitions::DefaultValue),
                 sum_y_T(definitions::DefaultValue),
                 sum_sq_T(definitions::DefaultValue),
