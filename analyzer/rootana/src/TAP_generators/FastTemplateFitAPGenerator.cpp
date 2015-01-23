@@ -32,6 +32,10 @@ FastTemplateFitAPGenerator::FastTemplateFitAPGenerator(TAPGeneratorOptions* opts
    fFitter->SetTemplate(fTemplate);
    fFitter->Init();
 
+   TH1* tpl=(TH1*)fTemplate->GetHisto()->Clone("Template");
+   tpl->SetDirectory(gDirectory);
+
+
    // prepare the integral ratio cuts
    if(opts->GetFlag("use_IR_cut")){
       fIntegralRatio=new Algorithm::IntegralRatio(
@@ -39,10 +43,10 @@ FastTemplateFitAPGenerator::FastTemplateFitAPGenerator(TAPGeneratorOptions* opts
                       opts->GetInt("start_tail",60),
                       opts->GetInt("stop_integral",0),
                       EventNavigator::Instance().GetSetupRecord().GetPolarity(GetChannel()));
-      fIntegralMax=opts->GetDouble("max_integral");
-      fIntegralMin=opts->GetDouble("min_integral");
-      fIntegralRatioMax=opts->GetDouble("max_ratio");
-      fIntegralRatioMin=opts->GetDouble("min_ratio");
+      fIntegralMax=opts->GetDouble("max_integral",1e10);
+      fIntegralMin=opts->GetDouble("min_integral",0);
+      fIntegralRatioMax=opts->GetDouble("max_ratio",1);
+      fIntegralRatioMin=opts->GetDouble("min_ratio",0);
   }
 
   // cache the template parameters so we dont need to look them up
@@ -70,7 +74,7 @@ int FastTemplateFitAPGenerator::ProcessPulses(
 
   // Loop over all the TPIs given to us
   TTemplateFitAnalysedPulse* tap;
-  double integral, ratio;
+  double integral=definitions::DefaultValue, ratio=definitions::DefaultValue;
   for (PulseIslandList::const_iterator tpi=pulseList.begin();
        tpi!=pulseList.end(); tpi++){
 
@@ -92,7 +96,9 @@ int FastTemplateFitAPGenerator::ProcessPulses(
     tap->SetTemplate(fTemplate);
     tap->SetPedestal(fFitter->GetPedestal());
     tap->SetAmplitude(fFitter->GetAmplitude(0));
-    tap->SetTime(-fFitter->GetTime(0));
+    tap->SetAmplitudeScaleFactor(fFitter->GetAmplitudeScaleFactor(0));
+    tap->SetTime(fFitter->GetTime(0));
+    tap->SetTimeOffset(fFitter->GetTimeOffset(0));
     tap->SetChi2(fFitter->GetChi2());
     tap->SetNDoF(fFitter->GetNDoF());
     tap->SetFitStatus(fit_status);
