@@ -64,6 +64,10 @@ class MultiHistogramFastFitFCN : public ROOT::Minuit2::FCNBase {
   TH1* GetHistSum()const{return hSum;}
   TH1* GetHistSumSq()const{return hSumSq;}
   TH1* GetHistSumCross()const{return hSumCross;}
+  TH1* GetHistAmplitudes()const{return fHAmplitude;}
+  TH1* GetHistPedestals()const{return fHPedestal;}
+
+  void HistogramFittingProcedure(int dims);
 
   /// @brief Used to calculate the chi-2
   /// @details
@@ -104,6 +108,8 @@ class MultiHistogramFastFitFCN : public ROOT::Minuit2::FCNBase {
   const TH1* fPulseHist; // The histogram to fit
   const TH1* fTemplateHist; // The histogram of the template we will fit with
   TH1 *hTpl, *hSum, *hSumSq, *hSumCross;
+  TH1 *fHAmplitude, *fHPedestal;
+  bool fHistogramFitPoints;
 
   // The following vectors get used when we fit things
   // K is used as the index within the vector and will correspond to the offset between the two templates in sample units

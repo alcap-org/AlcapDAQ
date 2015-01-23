@@ -3,12 +3,14 @@
 #include <cmath>
 #include <iostream>
 #include <cassert>
+#include <TH1.h>
+#include <TH2.h>
 
 using std::cout;
 using std::endl;
 
 MultiHistogramFastFitFCN::MultiHistogramFastFitFCN(double refine_factor):
-  fRefineFactor(refine_factor),fTemplates(2),hSum(0),hSumSq(0),hSumCross(0){
+  fRefineFactor(refine_factor),fTemplates(2),hSum(0),hSumSq(0),hSumCross(0),fHAmplitude(0),fHPedestal(0),fHistogramFitPoints(false){
 }
 
 MultiHistogramFastFitFCN::~MultiHistogramFastFitFCN() {
@@ -94,6 +96,11 @@ double MultiHistogramFastFitFCN::FitOne(double time_offset)const{
   fFitParameters.sum_y_T=Y_cross;
   fFitParameters.sum_sq_T=sum_sq_tpl[k];
   fFitParameters.sum_T=sum_tpl[k];
+
+  if(fHistogramFitPoints){
+	  fHAmplitude->Fill(time_offset,a);
+	  fHPedestal->Fill(time_offset,fPedestal);
+  }
   return chi_2;
 }
 
@@ -176,4 +183,16 @@ void MultiHistogramFastFitFCN::SetFitNTemplates(int n_tpls){
   if(fNTemplatesToFit > 2) {
     cout<<"ERROR: MultiHistogramFastFitFCN::FitNTemplates: Attempting to fit more than 2 templates ("<< n_tpls<<", in fact) which is not implemented!"<<endl;
   }
+}
+
+void MultiHistogramFastFitFCN::HistogramFittingProcedure(int dims){
+  if(dims!=1 || dims != 2)return;
+  else if(dims==1){
+     fHAmplitude=new TH1F("fHAmplitude","Histogram of amplitude as a function of time offset",sum_tpl.size(),0,sum_tpl.size());
+     fHPedestal=new TH1F("fHPedestal","Histogram of pedestal as a function of time offset",sum_tpl.size(),0,sum_tpl.size());
+  }else{
+     fHAmplitude=new TH2F("fHAmplitude","Histogram of amplitude as a function of time offset",sum_tpl.size(),0,sum_tpl.size(),400,0,-1);
+     fHPedestal=new TH2F("fHPedestal","Histogram of pedestal as a function of time offset",sum_tpl.size(),0,sum_tpl.size(),400,0,-1);
+  }
+  fHistogramFitPoints=true; 
 }
