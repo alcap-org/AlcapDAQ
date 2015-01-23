@@ -56,12 +56,12 @@ double MultiHistogramFastFitFCN::operator() (const std::vector<double>& par) con
 double MultiHistogramFastFitFCN::FitOne(double time_offset)const{
   // check for NaNs being fed in
   if(time_offset != time_offset) return DBL_MAX;
+
   // Check the bounds to use
   int N = fPulseHist->GetNbinsX() - time_offset;
   const int tpl_N=fTemplateHist->GetNbinsX();
   if( N > tpl_N ) N = tpl_N;
   const int k=tpl_N - N; // Get the value of k
-  //DEBUG_VALUE(N,tpl_N,k);
 
   // Find the sums over the pulse being fit to
   double Y=0, Y_cross=0, Y_sq=0;
@@ -89,6 +89,7 @@ double MultiHistogramFastFitFCN::FitOne(double time_offset)const{
   // copy over fit parameters
   fFitParameters.determinant=fInvertedSums[k].one_determinant;
   fFitParameters.n=N;
+  fFitParameters.k=k;
   fFitParameters.sum_y=Y;
   fFitParameters.sum_y_T=Y_cross;
   fFitParameters.sum_sq_T=sum_sq_tpl[k];
@@ -99,30 +100,6 @@ double MultiHistogramFastFitFCN::FitOne(double time_offset)const{
 double MultiHistogramFastFitFCN::FitTwo(double time_offset, double time_offset2)const{
  return 1.;
 }
-
-//{
-//  double tpl_height,tpl_error;
-//  for (int i = bounds[0]+(fRefineFactor/2.0); i <= bounds[1]-(fRefineFactor/2.0); i += fRefineFactor) { 
-//    // calculate the chi^2 based on the centre of the 5 bins to avoid getting
-//    // abonus from mathcing all 5.  We shift and scale the template so that it
-//    // matches the pulse.  This is because, when we have a normalised template,
-//    // we will get the actual amplitude, pedestal and time from the fit and not
-//    // just offsets
-//    tpl_height=0;
-//    tpl_error=0;
-//    
-//    for(TemplateList::const_iterator i_tpl=fTemplates.begin(); 
-//         i_tpl!=fTemplates.end(); ++i_tpl){
-//       tpl_height+=i_tpl->GetHeight(i,fTemplateHist);
-//       tpl_error+=i_tpl->fAmplitudeScale*i_tpl->GetError2(i,fTemplateHist);
-//    }
-//
-//    double delta = fPulseHist->GetBinContent(i) - tpl_height;
-//    chi2 += delta*delta / tpl_error;
-//  }
-//
-//  return chi2;
-//}
 
 void MultiHistogramFastFitFCN::Initialise(){
   // k is the separation of the two templates
@@ -150,18 +127,19 @@ void MultiHistogramFastFitFCN::Initialise(){
  
   double T_i, T_i_minus_k;
  
-  // Step over k in reverse
-  for( int k=N-1; k>=0; k-=fRefineFactor){
-     T_i=fTemplateHist->GetBinContent(N-k+1); // +1 since bin 0 is the underflow bin in a TH1
-     hTpl->SetBinContent(N-k+1,T_i);
-     sum_tpl[k]=sum_tpl[k+1] + T_i;
-     sum_sq_tpl[k]=sum_sq_tpl[k+1] + T_i*T_i;
+  // Step over k 
+  for( int k=0; k<N; k+=fRefineFactor){
+     T_i=fTemplateHist->GetBinContent(k+1); // +1 since bin 0 is the underflow bin in a TH1
+     hTpl->SetBinContent(k+1,T_i);
+
      // Now calculate the cross terms for this separation
      // Since i < 0, T_i is 0 we can start at i=k
      for( int i=k; i<N; i+=fRefineFactor){
         T_i=fTemplateHist->GetBinContent(i+1);           // +1 since bin 0 is the underflow bin in a TH1
         T_i_minus_k=fTemplateHist->GetBinContent(i-k+1); // +1 since bin 0 is the underflow bin in a TH1
-        sum_cross_tpl[k]+=T_i * T_i_minus_k;
+        sum_tpl[k]+=T_i_minus_k;
+        sum_sq_tpl[k]+= T_i_minus_k*T_i_minus_k;
+	sum_cross_tpl[k]+=T_i * T_i_minus_k;
      }
      hSum->SetBinContent(k,sum_tpl[k]);
      hSumSq->SetBinContent(k,sum_sq_tpl[k]);
