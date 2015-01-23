@@ -36,21 +36,33 @@ double MultiHistogramFastFitFCN::operator() (const std::vector<double>& par) con
   // Any value of T will probably be seen as minimized, which it
   // almost certainly will not be.
 
+	//DEBUG_VALUE(par.size(),par.front(),par.back());
+
   switch(fNTemplatesToFit){
     case 1:
        fChi2= FitOne(par.at(0));
     break;
     case 2:
+	    DEBUG_PRINT("Fitting Two");
        fChi2= FitTwo(par.at(0),par.at(1));
     break;
+    DEBUG_PRINT("Shouldn't be here!!");
     default: fChi2= -1;
   }
   return fChi2;
 }
 
 double MultiHistogramFastFitFCN::FitOne(double time_offset)const{
+  // check for NaNs being fed in
+  if(time_offset != time_offset) return DBL_MAX;
+  // Check the bounds to use
+  int N = fPulseHist->GetNbinsX() - time_offset;
+  const int tpl_N=fTemplateHist->GetNbinsX();
+  if( N > tpl_N ) N = tpl_N;
+  const int k=tpl_N - N; // Get the value of k
+  //DEBUG_VALUE(N,tpl_N,k);
+
   // Find the sums over the pulse being fit to
-  const int N = fTemplateHist->GetNbinsX();
   double Y=0, Y_cross=0, Y_sq=0;
   for(int i=0; i<N;i+=fRefineFactor){
      int bin=i*1./fRefineFactor+time_offset;
@@ -61,17 +73,17 @@ double MultiHistogramFastFitFCN::FitOne(double time_offset)const{
   }
 
   // Calculate the amplitude scale factor
-  double a = fInvertedSums_one.el11 * Y_cross - fInvertedSums_one.el12 * Y;
-  a /= fInvertedSums_one.determinant;
+  double a = fInvertedSums[k].one_11 * Y_cross - fInvertedSums[k].one_12 * Y;
+  a /= fInvertedSums[k].one_determinant;
   fTemplates.at(0).fAmplitudeScale=a;
 
   // Calculate the pedestal
-  fPedestal = fInvertedSums_one.el22 * Y - fInvertedSums_one.el12 * Y_cross;
-  fPedestal /= fInvertedSums_one.determinant;
+  fPedestal = fInvertedSums[k].one_22 * Y - fInvertedSums[k].one_12 * Y_cross;
+  fPedestal /= fInvertedSums[k].one_determinant;
 
   // Calculate the chi square
-  double chi_2 = a*a*sum_sq_tpl[0] + N*fPedestal*fPedestal
-               + Y_sq - 2*a*Y_cross - 2*fPedestal*Y + 2*a*fPedestal*sum_tpl[0];
+  double chi_2 = a*a*sum_sq_tpl[k] + (N-k) *fPedestal*fPedestal
+               + Y_sq - 2*a*Y_cross - 2*fPedestal*Y + 2*a*fPedestal*sum_tpl[k];
   return chi_2;
 }
 
@@ -113,7 +125,7 @@ void MultiHistogramFastFitFCN::Initialise(){
   sum_tpl.resize(N/fRefineFactor);
   sum_sq_tpl.resize(N/fRefineFactor);
   sum_cross_tpl.resize(N/fRefineFactor);
-  fInvertedSums_two.resize(N/fRefineFactor);
+  fInvertedSums.resize(N/fRefineFactor);
  
   // Make sure the last sum is 0
   sum_tpl[N] = sum_sq_tpl[N] = sum_cross_tpl[N] =0;
@@ -135,21 +147,21 @@ void MultiHistogramFastFitFCN::Initialise(){
      
      // Now calculate the cross terms for this separation
      // Now compute the components of the inverted matrix of the sums for two templates
-     fInvertedSums_two[k].el11 = N*sum_sq_tpl[k] - sum_tpl[k]*sum_tpl[k];
-     fInvertedSums_two[k].el12 = sum_tpl[k]*sum_tpl[k] - N*sum_cross_tpl[k];
-     fInvertedSums_two[k].el13 = sum_cross_tpl[k] * sum_tpl[k] - sum_tpl[0] * sum_sq_tpl[k];
-     fInvertedSums_two[k].el22 = N*sum_sq_tpl[0] - sum_tpl[0]*sum_tpl[0];
-     fInvertedSums_two[k].el23 = sum_cross_tpl[k] * sum_tpl[0] - sum_sq_tpl[0]*sum_tpl[k];
-     fInvertedSums_two[k].el33 = sum_sq_tpl[0] * sum_sq_tpl[k] - sum_cross_tpl[k]*sum_cross_tpl[k];
-     fInvertedSums_two[k].determinant = N*(sum_sq_tpl[0]*sum_sq_tpl[k]         + sum_cross_tpl[k]*sum_cross_tpl[k]  )
+     fInvertedSums[k].two_11 = N*sum_sq_tpl[k] - sum_tpl[k]*sum_tpl[k];
+     fInvertedSums[k].two_12 = sum_tpl[k]*sum_tpl[k] - N*sum_cross_tpl[k];
+     fInvertedSums[k].two_13 = sum_cross_tpl[k] * sum_tpl[k] - sum_tpl[0] * sum_sq_tpl[k];
+     fInvertedSums[k].two_22 = N*sum_sq_tpl[0] - sum_tpl[0]*sum_tpl[0];
+     fInvertedSums[k].two_23 = sum_cross_tpl[k] * sum_tpl[0] - sum_sq_tpl[0]*sum_tpl[k];
+     fInvertedSums[k].two_33 = sum_sq_tpl[0] * sum_sq_tpl[k] - sum_cross_tpl[k]*sum_cross_tpl[k];
+     fInvertedSums[k].two_determinant = N*(sum_sq_tpl[0]*sum_sq_tpl[k]         + sum_cross_tpl[k]*sum_cross_tpl[k]  )
                                         - (sum_sq_tpl[0]*sum_tpl[k]*sum_tpl[k] + sum_sq_tpl[k]*sum_tpl[0]*sum_tpl[0]);
 
+     // Now compute the components of the inverted matrix of the sums for a single template
+     fInvertedSums[k].one_11 = N-k;
+     fInvertedSums[k].one_12 = sum_tpl[k];
+     fInvertedSums[k].one_22 = sum_sq_tpl[k];
+     fInvertedSums[k].one_determinant = (N-k)*sum_sq_tpl[k] - sum_tpl[k]*sum_tpl[k];
   }
-  // Now compute the components of the inverted matrix of the sums for a single template
-  fInvertedSums_one.el11 = N;
-  fInvertedSums_one.el12 = sum_tpl[0];
-  fInvertedSums_one.el22 = sum_sq_tpl[0];
-  fInvertedSums_one.determinant = N*sum_sq_tpl[0] + sum_tpl[0]*sum_tpl[0];
  
   // Debugging
   for( int i=0; i<N; ++i){

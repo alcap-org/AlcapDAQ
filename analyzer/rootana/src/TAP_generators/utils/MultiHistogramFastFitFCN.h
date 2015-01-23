@@ -73,9 +73,9 @@ class MultiHistogramFastFitFCN : public ROOT::Minuit2::FCNBase {
   int GetNDoF() { return fNDoF; }
   int GetChi2() { return fChi2; }
 
- private:
   double FitOne(double time_offset)const;
   double FitTwo(double time_offset,double time_offset2)const;
+ private:
   inline void GetHistogramBounds(int safety, int &low_edge, int& high_edge)const;
 
   /// record this for TemplateFitter to retrieve later (NB mutable so that it
@@ -102,12 +102,12 @@ class MultiHistogramFastFitFCN : public ROOT::Minuit2::FCNBase {
   struct SumMatrix{
     // Matrix representing the inversion of the matrix of summations found on the left side of the solution for the fit parameters
     // It's 3x3 symmetric for fitting two identical templates so we only need 6 values here
-    double el11, el12, el13, el22, el23, el33;
-    double determinant;
+    double two_11, two_12, two_13, two_22, two_23, two_33;
+    double one_11, one_12, one_22;
+    double one_determinant, two_determinant;
   };
   typedef std::vector<SumMatrix> SumMatrices;
-  SumMatrices fInvertedSums_two;
-  SumMatrix fInvertedSums_one;
+  SumMatrices fInvertedSums;
 
 };
 
