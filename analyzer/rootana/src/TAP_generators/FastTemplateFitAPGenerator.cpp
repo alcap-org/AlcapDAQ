@@ -34,7 +34,7 @@ FastTemplateFitAPGenerator::FastTemplateFitAPGenerator(TAPGeneratorOptions* opts
 
    TH1* tpl=(TH1*)fTemplate->GetHisto()->Clone("Template");
    tpl->SetDirectory(gDirectory);
-
+   fFitter->SaveSumHistograms(gDirectory);
 
    // prepare the integral ratio cuts
    if(opts->GetFlag("use_IR_cut")){

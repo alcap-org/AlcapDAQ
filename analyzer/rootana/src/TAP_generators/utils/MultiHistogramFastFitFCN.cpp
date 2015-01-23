@@ -8,7 +8,7 @@ using std::cout;
 using std::endl;
 
 MultiHistogramFastFitFCN::MultiHistogramFastFitFCN(double refine_factor):
-  fRefineFactor(refine_factor),fTemplates(2){
+  fRefineFactor(refine_factor),fTemplates(2),hSum(0),hSumSq(0),hSumCross(0){
 }
 
 MultiHistogramFastFitFCN::~MultiHistogramFastFitFCN() {
@@ -86,8 +86,9 @@ double MultiHistogramFastFitFCN::FitOne(double time_offset)const{
   double chi_2 = a*a*sum_sq_tpl[k] + (N-k) *fPedestal*fPedestal
                + Y_sq - 2*a*Y_cross - 2*fPedestal*Y + 2*a*fPedestal*sum_tpl[k];
 
+  // copy over fit parameters
   fFitParameters.determinant=fInvertedSums[k].one_determinant;
-  fFitParameters.n=N-k;
+  fFitParameters.n=N;
   fFitParameters.sum_y=Y;
   fFitParameters.sum_y_T=Y_cross;
   fFitParameters.sum_sq_T=sum_sq_tpl[k];
@@ -134,6 +135,15 @@ void MultiHistogramFastFitFCN::Initialise(){
   sum_sq_tpl.resize(N/fRefineFactor);
   sum_cross_tpl.resize(N/fRefineFactor);
   fInvertedSums.resize(N/fRefineFactor);
+
+  hTpl=new TH1F("hTpl","Input template",N,0,N-1);
+  hTpl->SetDirectory(0);
+  hSum=new TH1F("hSum","Sum over template",N,0,N-1);
+  hSum->SetDirectory(0);
+  hSumSq=new TH1F("hSumSq","Sum over squares of template",N,0,N-1);
+  hSumSq->SetDirectory(0);
+  hSumCross=new TH1F("hSumCross","Autocorrelation of template",N,0,N-1);
+  hSumCross->SetDirectory(0);
  
   // Make sure the last sum is 0
   sum_tpl[N] = sum_sq_tpl[N] = sum_cross_tpl[N] =0;
@@ -143,6 +153,7 @@ void MultiHistogramFastFitFCN::Initialise(){
   // Step over k in reverse
   for( int k=N-1; k>=0; k-=fRefineFactor){
      T_i=fTemplateHist->GetBinContent(N-k+1); // +1 since bin 0 is the underflow bin in a TH1
+     hTpl->SetBinContent(N-k+1,T_i);
      sum_tpl[k]=sum_tpl[k+1] + T_i;
      sum_sq_tpl[k]=sum_sq_tpl[k+1] + T_i*T_i;
      // Now calculate the cross terms for this separation
@@ -152,6 +163,9 @@ void MultiHistogramFastFitFCN::Initialise(){
         T_i_minus_k=fTemplateHist->GetBinContent(i-k+1); // +1 since bin 0 is the underflow bin in a TH1
         sum_cross_tpl[k]+=T_i * T_i_minus_k;
      }
+     hSum->SetBinContent(k,sum_tpl[k]);
+     hSumSq->SetBinContent(k,sum_sq_tpl[k]);
+     hSumCross->SetBinContent(k,sum_cross_tpl[k]);
      
      // Now calculate the cross terms for this separation
      // Now compute the components of the inverted matrix of the sums for two templates

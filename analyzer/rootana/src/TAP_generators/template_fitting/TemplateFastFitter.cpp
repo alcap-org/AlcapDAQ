@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "TMath.h"
+#include "TDirectory.h"
 
 using std::cout;
 using std::endl;
@@ -98,4 +99,11 @@ int TemplateFastFitter::Fit(const TH1* hPulse){
 
 
   return status; // return status for the calling module to look at
+}
+
+void TemplateFastFitter::SaveSumHistograms(TDirectory* dir){
+   fFitFCN->GetHistTpl()->SetDirectory(dir);
+   fFitFCN->GetHistSum()->SetDirectory(dir);
+   fFitFCN->GetHistSumSq()->SetDirectory(dir);
+   fFitFCN->GetHistSumCross()->SetDirectory(dir);
 }

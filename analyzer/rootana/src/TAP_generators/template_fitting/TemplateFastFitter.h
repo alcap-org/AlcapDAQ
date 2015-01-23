@@ -14,6 +14,8 @@
 MAKE_EXCEPTION(TemplateFastFitter, Base);
 MAKE_EXCEPTION(MismatchedTemplateRefineFactors, TemplateFastFitter);
 
+class TDirectory;
+
 class TemplateFastFitter {
   void operator=(const TemplateFastFitter&);
 
@@ -65,6 +67,8 @@ class TemplateFastFitter {
   int FitWithOne(const TH1D* hPulse);
   int FitWithTwo(const TH1D* hPulse);
   /// @}
+
+  void SaveSumHistograms(TDirectory* dir);
 
  private:
   int Fit(const TH1* hPulse);
