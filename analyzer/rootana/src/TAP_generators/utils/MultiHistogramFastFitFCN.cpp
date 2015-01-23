@@ -49,6 +49,7 @@ double MultiHistogramFastFitFCN::operator() (const std::vector<double>& par) con
     DEBUG_PRINT("Shouldn't be here!!");
     default: fChi2= -1;
   }
+
   return fChi2;
 }
 
@@ -84,6 +85,13 @@ double MultiHistogramFastFitFCN::FitOne(double time_offset)const{
   // Calculate the chi square
   double chi_2 = a*a*sum_sq_tpl[k] + (N-k) *fPedestal*fPedestal
                + Y_sq - 2*a*Y_cross - 2*fPedestal*Y + 2*a*fPedestal*sum_tpl[k];
+
+  fFitParameters.determinant=fInvertedSums[k].one_determinant;
+  fFitParameters.n=N-k;
+  fFitParameters.sum_y=Y;
+  fFitParameters.sum_y_T=Y_cross;
+  fFitParameters.sum_sq_T=sum_sq_tpl[k];
+  fFitParameters.sum_T=sum_tpl[k];
   return chi_2;
 }
 

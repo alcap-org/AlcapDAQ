@@ -1,11 +1,13 @@
 #ifndef TemplateFastFitter_h_
 #define TemplateFastFitter_h_
 
+#include "TemplateFastFitParameters.h"
+#include "MultiHistogramFastFitFCN.h"
+
 #include "TFitterMinuit.h"
 #include "TPulseIsland.h"
 #include "TTemplate.h"
 
-class MultiHistogramFastFitFCN;
 #include "definitions.h"
 #include "AlcapExcept.h"
 
@@ -49,6 +51,7 @@ class TemplateFastFitter {
   double GetTimeOffset(int i)const { return fTemplates.at(i).fTimeOffset; }
   double GetChi2()const { return fChi2; }
   double GetNDoF()const { return fNDoF; }
+  TemplateFastFitParameters GetFitParameters()const { return fFitFCN->GetFitParameters(); }
   /// @}
 
   /// @name setters:

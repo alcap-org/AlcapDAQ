@@ -3,11 +3,12 @@
 
 #include "Minuit2/FCNBase.h"
 #include "TH1D.h"
+
 #include "AlcapExcept.h"
-
+#include "TemplateFastFitParameters.h"
 #include "debug_tools.h"
-#include <iostream>
 
+#include <iostream>
 #include <vector>
 
 MAKE_EXCEPTION(MultiHistogramFastFitFCN, Base);
@@ -55,6 +56,9 @@ class MultiHistogramFastFitFCN : public ROOT::Minuit2::FCNBase {
   double& GetAmplitudeScaleFactor(int i)const{return fTemplates.at(i).fAmplitudeScale;}
   double& GetTimeOffset(int i)const{return fTemplates.at(i).fTimeOffset;}
   int GetNTemplates()const{return fTemplates.size();}
+  TemplateFastFitParameters GetFitParameters()const{
+	  return fFitParameters;
+  }
 
   /// @brief Used to calculate the chi-2
   /// @details
@@ -86,6 +90,7 @@ class MultiHistogramFastFitFCN : public ROOT::Minuit2::FCNBase {
   
   int fRefineFactor;
   int fNTemplatesToFit;
+  mutable TemplateFastFitParameters fFitParameters;
 
   mutable TemplateList fTemplates;
 

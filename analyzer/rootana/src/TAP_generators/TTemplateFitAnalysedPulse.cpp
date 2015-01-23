@@ -88,4 +88,3 @@ double TTemplateFitAnalysedPulse::GetBinContent(int bin)const{
       // Set sample in histogram that's to be saved
       return sample*GetAmplitude() + GetPedestal();
 }
-

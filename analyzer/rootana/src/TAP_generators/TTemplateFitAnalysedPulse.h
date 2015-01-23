@@ -1,6 +1,7 @@
 #ifndef TTEMPLATEFITANALYSEDPULSE_H
 #define TTEMPLATEFITANALYSEDPULSE_H
 
+#include "TemplateFastFitParameters.h"
 #include "TAnalysedPulse.h"
 #include "TTemplate.h"
 #include <TRef.h>
@@ -19,6 +20,15 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
 
         // defined in .cpp file to force vtable to be built
         virtual ~TTemplateFitAnalysedPulse();
+
+        virtual void Copy(TObject& rhs)const{
+          TAnalysedPulse::Copy(rhs);
+          if(rhs.InheritsFrom(Class())){
+            TTemplateFitAnalysedPulse* tap=static_cast<TTemplateFitAnalysedPulse*>(&rhs);
+            tap->fIntegralRatio=fIntegralRatio;
+            tap->fFitParameters=fFitParameters;
+          }
+        }
 
         /// @name Getters
         /// @{
@@ -55,7 +65,8 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         void SetTemplate(TTemplate* val){fTemplate=val;}
         void SetResidual(const TH1F* val){fResidual=val;}
         void SetResidualIntegral(double val){fResidualTotal=val;}
-        void SetIntegralRatio(double val){fIntegralRatio=val;}
+        void SetIntegralRatio(double val){ fIntegralRatio=val;}
+        void SetFitParameters(TemplateFastFitParameters val){ fFitParameters=val;}
         /// @}
         
         void SetOtherPulse(TTemplateFitAnalysedPulse* pulse){fOtherPulse=pulse;}
@@ -74,6 +85,7 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         double fIntegralRatio;
         //double fTimeErr, fAmplitudeErr, fPedestalErr; 
         double fTimeOffset, fAmplitudeScaleFactor; 
+        TemplateFastFitParameters fFitParameters;
         TRef fTemplate;
         const TH1F* fResidual; //!
         mutable const TH1F* fHisto; //!
@@ -82,7 +94,7 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         bool fIsPileUpPulse;
         TTemplateFitAnalysedPulse* fOtherPulse; //!
 
-        ClassDef(TTemplateFitAnalysedPulse,2);
+        ClassDef(TTemplateFitAnalysedPulse,3);
 };
 
 #endif // TTEMPLATEFITANALYSEDPULSE_H

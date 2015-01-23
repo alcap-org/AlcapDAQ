@@ -104,6 +104,7 @@ int FastTemplateFitAPGenerator::ProcessPulses(
     tap->SetFitStatus(fit_status);
     tap->SetIntegral(integral);
     tap->SetIntegralRatio(ratio);
+    tap->SetFitParameters(fFitter->GetFitParameters());
 
     if(fAttemptRefit && fFitter->GetChi2() > fChi2MinToRefit){
         TTemplateFitAnalysedPulse* second_tap=NULL;
