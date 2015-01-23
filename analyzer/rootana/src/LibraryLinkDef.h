@@ -11,6 +11,7 @@
 #pragma link C++ class std::map<std::string,IDs::Detector_t>+;
 #pragma link C++ class std::map<IDs::Detector_t,std::string>+;
 
+#pragma link C++ class TemplateFastFitParameters+;
 #pragma link C++ class TIntegralRatioAnalysedPulse+;
 #pragma link C++ class TGaussFitAnalysedPulse+;
 #pragma link C++ class TTemplateConvolveAnalysedPulse+;

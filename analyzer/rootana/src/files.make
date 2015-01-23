@@ -27,4 +27,5 @@ ROOT_DICT_CLASSES:=TAnalysedPulseMapWrapper\
         FlyWeight\
         TTemplate\
         TSiliconEvent\
-        TMuonEvent
+        TMuonEvent\
+        TemplateFastFitParameters
