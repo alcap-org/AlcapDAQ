@@ -25,9 +25,9 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         int GetFitStatus()const{return fStatus;}
         double GetChi2()const{return fChi2;}
         int GetNDoF()const{return fNDoF;}
-        double GetTimeErr()const{return fTimeErr;}
-        double GetPedestalErr()const{return fPedestalErr;}
-        double GetAmplitudeErr()const{return fAmplitudeErr;}
+        //double GetTimeErr()const{return fTimeErr;}
+        //double GetPedestalErr()const{return fPedestalErr;}
+        //double GetAmplitudeErr()const{return fAmplitudeErr;}
         const TTemplate* GetTemplate()const{return (const TTemplate*) fTemplate.GetObject();}
         double GetResidualIntegral()const{return fResidualTotal;}
         double GetIntegralRatio()const{return fIntegralRatio;}
@@ -44,11 +44,11 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         /// @name Setters
         /// Set both the value and error for each field
         /// @{
-        void SetTimeOffset(const double& val){TAnalysedPulse::SetTime(GetTemplate()->GetTime()/GetTemplate()->GetRefineFactor()+val);}
-        void SetAmplitudeScaleFactor(const double& val){TAnalysedPulse::SetAmplitude(GetTemplate()->GetAmplitude()*val);}
-        void SetTime(const double& val, const double& err){TAnalysedPulse::SetTime(val); fTimeErr=err;}
-        void SetAmplitude(const double& val, const double& err){TAnalysedPulse::SetAmplitude(val); fAmplitudeErr=err;}
-        void SetPedestal(const double& val, const double& err){TAnalysedPulse::SetPedestal(val); fPedestalErr=err;}
+        void SetTimeOffset(const double& val){fTimeOffset=val;}
+        void SetAmplitudeScaleFactor(const double& val){fAmplitudeScaleFactor=val;}
+        //void SetTime(const double& val, const double& err){TAnalysedPulse::SetTime(val); fTimeErr=err;}
+        //void SetAmplitude(const double& val, const double& err){TAnalysedPulse::SetAmplitude(val); fAmplitudeErr=err;}
+        //void SetPedestal(const double& val, const double& err){TAnalysedPulse::SetPedestal(val); fPedestalErr=err;}
         void SetChi2(const double& val){fChi2=val;}
         void SetNDoF(const double& val){fNDoF=val;}
         void SetFitStatus(const double& val){fStatus=val;}
@@ -72,7 +72,8 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         int fStatus;
         double fChi2, fNDoF;
         double fIntegralRatio;
-        double fTimeErr, fAmplitudeErr, fPedestalErr; 
+        //double fTimeErr, fAmplitudeErr, fPedestalErr; 
+        double fTimeOffset, fAmplitudeScaleFactor; 
         TRef fTemplate;
         const TH1F* fResidual; //!
         mutable const TH1F* fHisto; //!
@@ -81,7 +82,7 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         bool fIsPileUpPulse;
         TTemplateFitAnalysedPulse* fOtherPulse; //!
 
-        ClassDef(TTemplateFitAnalysedPulse,1);
+        ClassDef(TTemplateFitAnalysedPulse,2);
 };
 
 #endif // TTEMPLATEFITANALYSEDPULSE_H

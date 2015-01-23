@@ -28,6 +28,7 @@ void TTemplateFitAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
    text_b->AddText(Form("Status = %d",GetFitStatus()));
    text_b->AddText(Form("Time = %g",GetTime()));
    text_b->AddText(Form("Ampl. = %g",GetAmplitude()));
+   text_b->AddText(Form("Ped. = %g",GetPedestal()));
    text_b->AddText(Form("NDoF = %d",GetNDoF()));
    text_b->SetFillColor(kWhite);
    text_b->SetBorderSize(1);
