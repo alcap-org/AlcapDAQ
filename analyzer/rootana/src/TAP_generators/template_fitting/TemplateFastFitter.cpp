@@ -77,6 +77,14 @@ int TemplateFastFitter::Fit(const TH1* hPulse){
   // Minimize and notify if there was a problem
   int status = fMinuitFitter->Minimize(1000); // set limit of 1000 calls to FCN
 
+  // Refit for the best value we found
+  // Ensures we get the right values of amplitude etc
+  std::vector<double> parameters(2);
+  for(int i=0; i<2; ++i){
+    parameters[i]=fMinuitFitter->GetParameter(i); 
+  }
+  (*fFitFCN)(parameters);
+
   // Store the Chi2 and degrees of freedom
   // get the chi-2
   fChi2 = fFitFCN->GetChi2();
