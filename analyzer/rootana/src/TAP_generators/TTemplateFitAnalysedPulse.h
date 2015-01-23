@@ -27,6 +27,8 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
             TTemplateFitAnalysedPulse* tap=static_cast<TTemplateFitAnalysedPulse*>(&rhs);
             tap->fIntegralRatio=fIntegralRatio;
             tap->fFitParameters=fFitParameters;
+            tap->fAmplitudeScaleFactor=fAmplitudeScaleFactor;
+            tap->fTimeOffset=fTimeOffset;
           }
         }
 
