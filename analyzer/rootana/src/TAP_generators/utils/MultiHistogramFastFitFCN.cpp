@@ -100,6 +100,7 @@ double MultiHistogramFastFitFCN::FitOne(double time_offset)const{
   if(fHistogramFitPoints){
 	  fHAmplitude->Fill(time_offset,a);
 	  fHPedestal->Fill(time_offset,fPedestal);
+	  fHChi2->Fill(time_offset,chi_2);
   }
   return chi_2;
 }
@@ -186,13 +187,16 @@ void MultiHistogramFastFitFCN::SetFitNTemplates(int n_tpls){
 }
 
 void MultiHistogramFastFitFCN::HistogramFittingProcedure(int dims){
-  if(dims!=1 || dims != 2)return;
+  if(dims!=1 && dims != 2)return; // wrong dimensions
+  else if(fHAmplitude) return; // already made
   else if(dims==1){
      fHAmplitude=new TH1F("fHAmplitude","Histogram of amplitude as a function of time offset",sum_tpl.size(),0,sum_tpl.size());
      fHPedestal=new TH1F("fHPedestal","Histogram of pedestal as a function of time offset",sum_tpl.size(),0,sum_tpl.size());
+     fHChi2=new TH1F("fHChi2","Histogram of chi2 as a function of time offset",sum_tpl.size(),0,sum_tpl.size());
   }else{
-     fHAmplitude=new TH2F("fHAmplitude","Histogram of amplitude as a function of time offset",sum_tpl.size(),0,sum_tpl.size(),400,0,-1);
-     fHPedestal=new TH2F("fHPedestal","Histogram of pedestal as a function of time offset",sum_tpl.size(),0,sum_tpl.size(),400,0,-1);
+     fHAmplitude=new TH2F("fHAmplitude","Histogram of amplitude as a function of time offset",400,0,sum_tpl.size(),400,0,-1);
+     fHPedestal=new TH2F("fHPedestal","Histogram of pedestal as a function of time offset",400,0,sum_tpl.size(),400,0,-1);
+     fHChi2=new TH2F("fHChi2","Histogram of chi2 as a function of time offset",400,0,sum_tpl.size(),400,0,-1);
   }
   fHistogramFitPoints=true; 
 }

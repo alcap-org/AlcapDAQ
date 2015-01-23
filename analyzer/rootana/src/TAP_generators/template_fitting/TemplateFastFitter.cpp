@@ -102,6 +102,7 @@ int TemplateFastFitter::Fit(const TH1* hPulse){
 }
 
 void TemplateFastFitter::SaveSumHistograms(TDirectory* dir){
+   fFitFCN->HistogramFittingProcedure(2);
    fFitFCN->GetHistTpl()->SetDirectory(dir);
    fFitFCN->GetHistSum()->SetDirectory(dir);
    fFitFCN->GetHistSumSq()->SetDirectory(dir);

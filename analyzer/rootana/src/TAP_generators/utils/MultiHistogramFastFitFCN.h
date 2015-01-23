@@ -108,7 +108,7 @@ class MultiHistogramFastFitFCN : public ROOT::Minuit2::FCNBase {
   const TH1* fPulseHist; // The histogram to fit
   const TH1* fTemplateHist; // The histogram of the template we will fit with
   TH1 *hTpl, *hSum, *hSumSq, *hSumCross;
-  TH1 *fHAmplitude, *fHPedestal;
+  TH1 *fHAmplitude, *fHPedestal, *fHChi2;
   bool fHistogramFitPoints;
 
   // The following vectors get used when we fit things
