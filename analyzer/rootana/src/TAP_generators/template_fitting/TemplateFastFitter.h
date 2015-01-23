@@ -44,7 +44,9 @@ class TemplateFastFitter {
   /// @{
   double GetPedestal()const { return fPedestal; }
   double GetAmplitude(int i)const { return fTemplate->GetAmplitude() * fTemplates.at(i).fAmplitudeScaleFactor;}
+  double GetAmplitudeScaleFactor(int i)const { return fTemplates.at(i).fAmplitudeScaleFactor;}
   double GetTime(int i)const { return fTemplate->GetTime() + fTemplates.at(i).fTimeOffset; }
+  double GetTimeOffset(int i)const { return fTemplates.at(i).fTimeOffset; }
   double GetChi2()const { return fChi2; }
   double GetNDoF()const { return fNDoF; }
   /// @}

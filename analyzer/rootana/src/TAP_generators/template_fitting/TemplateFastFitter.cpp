@@ -1,4 +1,3 @@
-#define ALCAP_NO_DEBUG
 #include "TemplateFastFitter.h"
 #include "MultiHistogramFastFitFCN.h"
 #include "SetupNavigator.h"
@@ -29,8 +28,13 @@ void TemplateFastFitter::Init(){
      return;
   }
 
+  fRefineFactor=1;
+  fTemplate->RebinToOriginalSampling();
+  fTemplate->NormaliseToAmplitude();
+
   fFitFCN=new MultiHistogramFastFitFCN(fRefineFactor);
   fFitFCN->SetTemplateHist(fTemplate->GetHisto());
+  fFitFCN->Initialise();
  
   fMinuitFitter = new TFitterMinuit(2);
   fMinuitFitter->SetMinuitFCN(fFitFCN);
@@ -47,8 +51,11 @@ int TemplateFastFitter::FitWithOne( const TH1D* hPulse){
   fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
 
   fFitFCN->SetFitNTemplates(1);
+  int guess = hPulse->GetMaximumBin() - fTemplate->GetTime();
+  fMinuitFitter->SetParameter(0,"time_template_",guess,-1,0,hPulse->GetNbinsX());
   fMinuitFitter->SetParameter(1,"time_template_2",0,0,0,1);
   fMinuitFitter->FixParameter(1);
+  fMinuitFitter->SetParameter(0,"time_template_",guess,-1,0,hPulse->GetNbinsX());
   return Fit(hPulse);
 }
 
@@ -56,10 +63,11 @@ int TemplateFastFitter::FitWithTwo( const TH1D* hPulse){
   // Prepare for minimizations
   fMinuitFitter->Clear();
   fFitFCN->SetPulseHist(hPulse);
-  fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
+  //fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
 
   fFitFCN->SetFitNTemplates(2);
-  fMinuitFitter->SetParameter(1,"time_template_2",0,0,0,1);
+  fMinuitFitter->SetParameter(0,"time_template_",0,10,0,hPulse->GetNbinsX());
+  fMinuitFitter->SetParameter(1,"time_template_2",10,10,0,hPulse->GetNbinsX());
   fMinuitFitter->ReleaseParameter(1);
   return Fit(hPulse);
 }
@@ -68,20 +76,18 @@ int TemplateFastFitter::Fit(const TH1* hPulse){
 
   // Minimize and notify if there was a problem
   int status = fMinuitFitter->Minimize(1000); // set limit of 1000 calls to FCN
-  if(status!=0) return -1;
 
   // Store the Chi2 and degrees of freedom
-  SetTimeOffset(0,fMinuitFitter->GetParameter(0)); 
-  SetTimeOffset(1,fMinuitFitter->GetParameter(1)); 
-
   // get the chi-2
   fChi2 = fFitFCN->GetChi2();
   fNDoF = fFitFCN->GetNDoF();
   fPedestal = fFitFCN->GetPedestal();
-  DEBUG_VALUE(status,parameters[0],fChi2,fNDoF);
 
-  for(int i=0; i<2; ++i)
-  SetAmplitudeSF(i, fFitFCN->GetAmplitudeScaleFactor(i));
+  for(int i=0; i<2; ++i){
+    SetAmplitudeSF(i, fFitFCN->GetAmplitudeScaleFactor(i));
+    SetTimeOffset(i,fMinuitFitter->GetParameter(i)); 
+  }
+
 
   return status; // return status for the calling module to look at
 }
