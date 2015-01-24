@@ -87,7 +87,7 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
   // Hard-coded for the time being
   fLeftArm.lower_time_cut = 0;
-  fLeftArm.upper_time_cut = 999999999;
+  fLeftArm.upper_time_cut = 10000;
   fLeftArmQuad1.lower_time_cut = 0;
   fLeftArmQuad1.upper_time_cut = 999999999;
   fLeftArmQuad2.lower_time_cut = 0;
@@ -98,7 +98,7 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   fLeftArmQuad4.upper_time_cut = 999999999;
 
   fRightArm.lower_time_cut = 0;
-  fRightArm.upper_time_cut = 999999999;
+  fRightArm.upper_time_cut = 10000;
   fRightArmQuad1.lower_time_cut = 0;
   fRightArmQuad1.upper_time_cut = 999999999;
   fRightArmQuad2.lower_time_cut = 0;
