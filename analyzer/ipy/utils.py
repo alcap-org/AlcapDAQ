@@ -23,29 +23,38 @@ class ListTable(list):
 
 class Ge:
     # Below are (value, error) pairs
-    eff_a = (0.06736, 7.919e-03)
-    eff_b = (-0.8383, 1.831e-02)
-    en_m  = (0.1219,  1.752e-06)
-    en_b  = (-0.5529, 8.079e-03)
+    eff_0   =  0.06736
+    eff_1   = -0.8383
+    eff_cor = ( (  1. ,      -9.954e-01  ),
+                ( -9.954e-01, 1.         ) )
+    eff_cov = ( (  6.271e-05, -1.443e-04 ),
+                ( -1.443e-04,  3.353e-04 ) )
+    en_0    =  0.1219
+    en_1    = -0.5529
+    en_cor  = ( (  1.,       -8.649e-01  ),
+                ( -8.649e-01, 1.         ) )
+    en_cov  = ( (  1.908e-04, -2.79e-08  ),
+                ( -2.79e-08,   5.457e-12 ) )
 
-    def __init__(self, eff_a=eff_a, eff_b=eff_b, en_m=en_m, en_b=en_b):
-        self.eff_a = eff_a
-        self.eff_b = eff_b
-        self.en_m  = en_m
-        self.en_b  = en_b
+    def __init__(self,
+                 eff_0=eff_0, eff_1=eff_1, eff_cor=eff_cor, eff_cov=eff_cov,
+                 en_0=en_0,   en_1=en_1,   en_cor=en_cor,   en_cov=en_cov):
+        self.eff_0 = eff_0
+        self.eff_1 = eff_1
+        self.en_0  = en_0
+        self.en_1  = en_1
 
     def Eff(self, e):
-        return self.eff_a[0] * e ** self.eff_b[0]
+        return self.eff_0 * e ** self.eff_1
 
     def En(self, adc):
-        return self.en_m[0]*adc + self.en_b[0]
+        return self.en_0 + self.en_1*adc
 
     def ErrEff(self, e):
-        return (e ** self.eff_b[0] * self.eff_a[1] ** 2. +
-                self.Eff(e) * numpy.log(e) * self.eff_b[1] ** 2.) ** 0.5
+        return self.Eff(e)*self.eff_1*self.eff_cov[0][0]**0.5/self.eff_0
 
     def ErrEn(self, adc):
-        return ((adc*self.en_m[1]) ** 2. + self.en_b ** 2.) ** 0.5
+        return (adc**2*self.en_cov[0][0]+self.en_cov[1][1]+2.*adc*self.en_cov[0][1])**0.5
 
 
 class Gauss:

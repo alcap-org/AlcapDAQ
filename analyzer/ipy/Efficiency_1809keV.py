@@ -3,11 +3,14 @@
 
 # <codecell>
 
+%matplotlib inline
 import ROOT
 from ROOT import TH1D
 import random
 import rootnotes
 from utils import Ge
+import numpy
+import matplotlib.pyplot as plt
 
 # <codecell>
 
@@ -19,27 +22,28 @@ ge    = Ge()
 
 # <codecell>
 
-n = 1000000
-for i in xrange(n):
-    h347 .Fill(random.gauss(*ge.eff_a)*347. **random.gauss(*ge.eff_b))
-    h1809.Fill(random.gauss(*ge.eff_a)*1809.**random.gauss(*ge.eff_b))
+L = numpy.linalg.cholesky(ge.eff_cov)
+M = (ge.eff_0, ge.eff)
+val = [[], []]
+for i in xrange(100000):
+    rand = L.dot((random.gauss(0, 1.), random.gauss(0, 1.))) + M
+    val[0].append(rand[0])
+    val[1].append(rand[1])
 
 # <codecell>
 
-c1.cd(); h347 .Draw();
+c1.cd(); h347.Draw();
 c2.cd(); h1809.Draw();
 
 # <codecell>
 
-c1
+fig  = plt.figure()
+axes = fig.add_axes((0.1, 0.1, 0.8, 0.8))
+axes.plot(val[0], val[1], 'r')
 
 # <codecell>
 
-c2
-
-# <codecell>
-
-ge.ErrEff(347.)*ge.Eff(347.)
+numpy.cov(val)
 
 # <codecell>
 
