@@ -72,19 +72,19 @@ int AnalysePulseIsland::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       */
 
       if(detname == "muSc")
-	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
+	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
 
       if(detname == "GeF")
-	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
+	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
 
       if(detname == "GeS")
-	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
+	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
 
       if(detname == "NDet")
-	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
+	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
 
       if(detname == "NDet2")
-	GetAllParameters_InterCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
+	GetAllParameters_MBCFT( gSetup, *pulseIter, amplitude, time, integral, tintegral, energy, ratio);
 
 
       TAnalysedPulse* analysedPulse = new TAnalysedPulse(amplitude, time, integral, tintegral, energy, ratio, detname);
@@ -133,7 +133,7 @@ void AnalysePulseIsland::GetAllParameters_MaxBin(TSetupData* gSetup, const TPuls
 void AnalysePulseIsland::GetAllParameters_MBCFT(TSetupData* gSetup, const TPulseIsland* pulse,
 						double& amplitude, double& time, double& integral, double& tintegral, double& energy, double& ratio) {
 
-  float constant_fraction = 0.50;
+  float constant_fraction = 0.65;
   std::string bankname = pulse->GetBankName();
   int trigger_polarity = gSetup->GetTriggerPolarity(bankname);
   double eCalib_slope = gSetup->GetADCSlopeCalib(bankname);
@@ -189,7 +189,7 @@ void AnalysePulseIsland::GetAllParameters_MBCFT(TSetupData* gSetup, const TPulse
 
 void AnalysePulseIsland::GetAllParameters_InterCFT(TSetupData* gSetup, const TPulseIsland* pulse,
 						double& amplitude, double& time, double& integral, double& tintegral, double& energy, double& ratio) {
-  float constant_fraction = 0.50;
+  float constant_fraction = 0.30;
   std::string bankname = pulse->GetBankName();
   int trigger_polarity = gSetup->GetTriggerPolarity(bankname);
   double eCalib_slope = gSetup->GetADCSlopeCalib(bankname);

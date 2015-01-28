@@ -173,10 +173,10 @@ int main(int argc, char **argv){
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF", "muSc","Ge-F", -100,100);
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-NDet", "muSc","NDet", 400,1000);
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-NDet2", "muSc","NDet2", 400,1000);
-  fillhists[n_fillhist++] = new NGIntTCut2("PSD_PromptTCut", "muSc", -40, 40);
-  fillhists[n_fillhist++] = new NGIntTCut("PSD_PbTCut", "muSc", 40, 400);
-  fillhists[n_fillhist++] = new NGIntTCut2("PSD_AlTCut", "muSc", 400, 4000);
-  fillhists[n_fillhist++] = new NGIntTCut("PSD_WideTCut", "muSc", -1000, 8000);
+  fillhists[n_fillhist++] = new NGIntTCut2("PSD_PromptTCut", "muSc", -15, 15);
+  fillhists[n_fillhist++] = new NGIntTCut("PSD_PbTCut", "muSc", 15, 150);
+  fillhists[n_fillhist++] = new NGIntTCut2("PSD_AlTCut", "muSc", 400, 2500);
+  fillhists[n_fillhist++] = new NGIntTCut("PSD_WideTCut", "muSc", -1000, 5000);
   //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_AfterCut");
   //fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);
   //fillhists[n_fillhist++] = new EvdE("EvdE");

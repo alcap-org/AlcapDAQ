@@ -54,18 +54,15 @@ NGIntTCut::~NGIntTCut()
 
 int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 {
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
-
 
   std::vector<TAnalysedPulse*> detAPulses = gAnalysedPulseMap[fDetNameA];
  
 
   //loop through detectors
-  for(map_iterator mapIter = gData->fPulseIslandToChannelMap.begin(); mapIter != gData->fPulseIslandToChannelMap.end(); mapIter++)
+  for(std::map<std::string, std::vector<TAnalysedPulse*> >::iterator detIter = gAnalysedPulseMap.begin(); detIter != gAnalysedPulseMap.end(); detIter++)
   {
-    std::string bankname = mapIter->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
-    std::string keyname = mapIter->first + GetName();
+    std::string detname = detIter->first;
+    std::string keyname = detIter->first + GetName();
     
     std::vector<TAnalysedPulse*>::iterator currentDetAPulse = detAPulses.begin();
 
@@ -86,7 +83,7 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
  
       std::string histname = "h" + detname + "_discrimination";
       std::string histtitle = "Plot of pulse integrals in the " + detname + " detector";
-      TH2F* hNGCDisc = new TH2F(histname.c_str(), histtitle.c_str(), 3000, 0, 12500, 1000, 0, 6000);
+      TH2F* hNGCDisc = new TH2F(histname.c_str(), histtitle.c_str(), 3001, 0, 12500, 1001, 0, 6000);
       hNGCDisc->GetXaxis()->SetTitle("full integral (adc counts)");
       hNGCDisc->GetYaxis()->SetTitle("tail integral (adc counts)");
       NGCDisc_plots[keyname] = hNGCDisc;
@@ -98,7 +95,7 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
      std::string histname2 = "h" + detname + "_ratio";
      std::string histtitle2 = "Plot of pulse integral ratio for the " + detname + " detector";
-     TH2F* hNGCRatio = new TH2F(histname2.c_str(), histtitle2.c_str(), 2000, 0, 11, 300, 0, ratioMax);
+     TH2F* hNGCRatio = new TH2F(histname2.c_str(), histtitle2.c_str(), 2001, 0, 11, 300, 0, ratioMax);
      hNGCRatio->GetYaxis()->SetTitle("integral ratio");
      hNGCRatio->GetXaxis()->SetTitle("Energy (MeVee)");
      NGCRatio_plots[keyname] = hNGCRatio;
@@ -108,8 +105,8 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
  if(NGNCEnergy_plots.find(keyname) == NGNCEnergy_plots.end())
       {
-	std::string histname6 = "h" + detname + "_Amplitude";
-	std::string histtitle6 = "Plot of Neutron Amplitudes";
+	std::string histname6 = "h" + detname + "_Energy";
+	std::string histtitle6 = "Plot of Neutron Energies";
 	TH1F* hNGNCEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, 16.16);
 	hNGNCEnergy->GetXaxis()->SetTitle("Energy (MeVee)");
 	hNGNCEnergy->GetYaxis()->SetTitle("Count");
@@ -118,8 +115,8 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
  if(NGGCEnergy_plots.find(keyname) == NGGCEnergy_plots.end())
       {
-	std::string histname6 = "h" + detname + "_AmplitudeG";
-	std::string histtitle6 = "Plot of Gamma Amplitudes";
+	std::string histname6 = "h" + detname + "_EnergyG";
+	std::string histtitle6 = "Plot of Gamma Energies";
 	TH1F* hNGGCEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, 16.16);
 	hNGGCEnergy->GetXaxis()->SetTitle("Energy (MeVee)");
 	hNGGCEnergy->GetYaxis()->SetTitle("Count");
@@ -134,97 +131,32 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
  //  Analyze the waves
 
 
-    std::vector<TPulseIsland*> pulses = mapIter->second;
-
-    if(pulses.size() == 0)
-      continue;          // skip if no pulse
+    std::vector<TAnalysedPulse*> pulses = detIter->second;
 
    
-    for(std::vector<TPulseIsland*>::iterator pIter = pulses.begin(); pIter != pulses.end(); pIter++)
+    for(std::vector<TAnalysedPulse*>::iterator pIter = pulses.begin(); pIter != pulses.end(); ++pIter)
     {
-      std::vector<int> samples = (*pIter)->GetSamples();
-    
-     
-      float sum = 0, pedestal = 0, peak = 0, energy = 0, tpeak = 0;
-      int count = 10;
-      float timeB = 0, timeA = 0;
-      bool coincidence = false;
-      double fullInt = 0, tailInt = 0;
-      double ratio = 0;  
+      double energy = 0;
+      double peak = (*pIter)->GetAmplitude();
+      double fullInt = (*pIter)->GetIntegral();
+      double tailInt = (*pIter)->GetTIntegral();
+      double ratio = (*pIter)->GetRatio();
+
       int pileup = 15000; //in ns
-
-
-      float constant_fraction = 0.50;
-      //int trigger_polarity = gSetup->GetTriggerPolarity(bankname);
-      double clock_tick_in_ns = gSetup->GetClockTick(bankname);
-      double time_shift = gSetup->GetTimeShift(bankname);
-
-
-      //corrections to time shifts
-      if(detname == "NDet")
-	time_shift += 192;
-      if(detname == "NDet2")
-	time_shift += 34;
+      double timeB = 0;
+      double timeA = 0;
+      bool coincidence = false;
 
 
 
-      for(std::vector<int>::iterator sampIt = samples.begin(); sampIt != samples.begin() + count; sampIt++)
-	sum += (*sampIt);
-      
-      pedestal = sum / count;
-
-
-
-
-      const std::vector<int>::const_iterator b = samples.begin(), e = samples.end();
-
-      //std::vector<int>::const_iterator m = trigger_polarity > 0 ? std::max_element(b, e) : std::min_element(b, e); // find peak position
-
-      std::vector<int>::const_iterator m = std::max_element(b, e);
-
-      peak = *m - pedestal;
-      tpeak = m-b;
-
-      if(peak > 5000)
-	{
-	  continue; // overflow cut
-	}
-
-
-      //Fill values for our integrals
-
-      for(std::vector<int>::const_iterator samp = m-3; samp != m+20; samp++){
-	fullInt += *(samp) - pedestal;
-	if(samp >= m+5){
-	  tailInt += *(samp) - pedestal;
-	}
-      }
-     
-
-      ratio = tailInt / fullInt;
-
-
-      //Scale to MeV
+      //Scale to MeVee
       if(detname == "NDet")
 	energy = (peak+15.2)/177.2;
       if(detname == "NDet2")
 	energy = (peak+15)/269.1;
 
-
-
-      //search for constant_fraction time
-      const unsigned int cf = (constant_fraction*(double)peak) + pedestal;
-
-      while(m != b && (*--m > (int)cf));
-      double dx = (double)(m-b); // determine how many clock ticks we are in
-      if(*(m+1) != *m)
-	dx += (double)((int)cf - *m)/(double)(*(m+1) - *m);;
-         //calculate shift to actual cf, linear interpolation
-         //replace with spline interpolation time permitting (to get lower cf)
-
-    //get cf time
-      timeB = (dx + (double)(*pIter)->GetTimeStamp()) * clock_tick_in_ns - time_shift;
-      //timeB = (tpeak + (*pIter)->GetTimeStamp()) * clock_tick_in_ns - time_shift;
+      //get cf time
+      timeB = (*pIter)->GetTime();
 
       // search for timing coincidence
 
@@ -277,8 +209,8 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
       NGCRatio_plots[keyname]->Fill(energy, ratio);
 
 
-      float temp1 = 0.09579 + 0.02932/energy - 0.00385/(energy * energy);
-      float temp2 = 0.10864 + 0.03444/energy - 0.00645/(energy*energy);
+      float temp1 = 0.09415 + 0.03783/energy - 0.00557/(energy * energy);
+      float temp2 = 0.10815 + 0.03814/energy - 0.00591/(energy * energy);
 
 
       if((detname == "NDet") && (ratio > temp1)) 
@@ -291,59 +223,6 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 	NGGCEnergy_plots[keyname]->Fill(energy);
 
 
-
-
-      //plot waveforms
-
-
-     
-      
-      if((ratio >= 0.06) && (ratio < 0.085) && (neutCount < 20)  && (detname == "NDet") && (energy > 4.5) && (energy < 5.0))
-	{
-          //make histogram here
-          neutCount += 1;
-	  std::stringstream ss;
-          ss << neutCount;
-	  std::string histname3 = "h" + ss.str() + "_npulse ";
-	  std::string histtitle3 = "Plot of gamma pulse " + ss.str() + "w/ time cut";
-          TH1F* hPulse = new TH1F(histname3.c_str(), histtitle3.c_str(),150, 0, 150);
-          hPulse->GetXaxis()->SetTitle("time");
-          hPulse->GetYaxis()->SetTitle("ADC count");
-	  hPulse->SetFillStyle(0);
-
-          for(std::vector<int>::iterator sIt = samples.begin(); sIt != samples.end(); sIt++)
-	    {
-	      int t = std::distance(samples.begin(), sIt);	      
-	      hPulse->Fill(t, *(sIt)-1265);
-            } 
-
-
-	}
-
-       
-      if((ratio > 0.06) && (ratio < 0.085) && (gammaCount < 20) && (detname == "NDet") && (energy < 5.5) && (energy > 5.0))
-	{
-          //make histogram here
-          gammaCount += 1;
-	  std::stringstream ss;
-          ss << gammaCount;
-	  std::string histname4 = "h" + ss.str() + "_gpulse ";
-	  std::string histtitle4 = "Plot of gamma pulse " + ss.str() + "w/o time cuts";
-          TH1F* hPulse2 = new TH1F(histname4.c_str(), histtitle4.c_str(),150, 0, 150);
-          hPulse2->GetXaxis()->SetTitle("time");
-          hPulse2->GetYaxis()->SetTitle("ADC count");
-
-          for(std::vector<int>::iterator sIt = samples.begin(); sIt != samples.end(); sIt++)
-	    {
-	      int t1 = std::distance(samples.begin(), sIt);
-              hPulse2->Fill(t1 , (*sIt)-1265);
-       
-
-            } 
-
-	}
-      
-
  
     }//close pulse loop
 
@@ -352,11 +231,12 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
   return 0;
 }
 
+
 int NGIntTCut::AfterLastEntry(TGlobalData *gData){
 
   std::string directory = "/" + std::string(fHistName);
   dir-> cd(directory.c_str());
-
+  /*
   for(map<string, vector<TPulseIsland*> >::iterator mapIter = gData->fPulseIslandToChannelMap.begin(); mapIter != gData->fPulseIslandToChannelMap.end(); mapIter++)
   {
     std::string bankname = mapIter->first;
@@ -368,24 +248,16 @@ int NGIntTCut::AfterLastEntry(TGlobalData *gData){
     if(bankname == "Ng81")
       detname = "NDet";
 
-    double scale = 2000/15;
+    double scale = 2000/11;
     
     //  I'm skipping the other detectors at this point.
     if((detname != "NDet") && (detname != "NDet2"))
       continue;  
 
-    for(int energyIt = 0; energyIt < 30; energyIt++){
+    for(int energyIt = 0; energyIt < 22; energyIt++){
       float energy = (float) energyIt / 2;
-      int energyBin1 = 0, energyBin2 = 0;
-      if(detname == "NDet"){
-	energyBin1 = (energy*scale)+1;
-	energyBin2 = ((energy + 0.5)*scale) ;
-      }
-      if(detname == "NDet2"){
-	energyBin1 = (energy*scale)+1;
-	energyBin2 = ((energy+0.5)*scale) ;
-      }
-     
+      int energyBin1 = (energy*scale)+1;
+      int energyBin2 = (energy + 0.5)*scale;
 
       std::stringstream ss;
       std::stringstream st;
@@ -394,10 +266,13 @@ int NGIntTCut::AfterLastEntry(TGlobalData *gData){
  
       std::string histname = "h" + detname + "_ratio_" + ss.str();
       std::string histtitle = "Plot of Ratios for the cut " + st.str() + " to " + ss.str() + " MeV";
+      
       NGC1D_plots[keyname] = NGCRatio_plots[keyname]->ProjectionY(histname.c_str(), energyBin1, energyBin2);
       NGC1D_plots[keyname]->SetTitle(histtitle.c_str());
-  
+      
     }
   }
+  */
+  return 0;
   
 }

@@ -76,7 +76,7 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
  
       std::string histname = "h" + detname + "_discrimination";
       std::string histtitle = "Plot of pulse integrals in the " + detname + " detector";
-      TH2F* hNGDisc = new TH2F(histname.c_str(), histtitle.c_str(), 3000, 0, 12500, 1000, 0, 6000);
+      TH2F* hNGDisc = new TH2F(histname.c_str(), histtitle.c_str(), 3001, 0, 12500, 1001, 0, 6000);
       hNGDisc->GetXaxis()->SetTitle("full integral (adc counts)");
       hNGDisc->GetYaxis()->SetTitle("tail integral (adc counts)");
       NGDisc_plots[keyname] = hNGDisc;
@@ -89,7 +89,7 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
      std::string histname2 = "h" + detname + "_ratio";
      std::string histtitle2 = "Plot of pulse integral ratio for the " + detname + " detector";
-     TH2F* hNGRatio = new TH2F(histname2.c_str(), histtitle2.c_str(), 2000, 0, 15, 300, 0, ratioMax);
+     TH2F* hNGRatio = new TH2F(histname2.c_str(), histtitle2.c_str(), 2001, 0, 15, 300, 0, ratioMax);
      hNGRatio->GetYaxis()->SetTitle("integral ratio");
      hNGRatio->GetXaxis()->SetTitle("Energy (MeVee)");
      NGRatio_plots[keyname] = hNGRatio;
@@ -128,7 +128,7 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
     for(std::vector<TAnalysedPulse*>::iterator pIter = pulses.begin(); pIter != pulses.end(); ++pIter)
     {
       double energy = 0;
-      double peak = (*pIter)->GetAmplitude() - gSetup->GetPedestal(gSetup->GetBankName(detname));
+      double peak = (*pIter)->GetAmplitude();
       double fullInt = (*pIter)->GetIntegral();
       double tailInt = (*pIter)->GetTIntegral();
       double ratio = (*pIter)->GetRatio();
