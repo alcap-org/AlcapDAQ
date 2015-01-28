@@ -139,7 +139,7 @@ int NGIntTCut2::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
     
       double energy = 0;
-      double peak = (*pIter)->GetAmplitude() - gSetup->GetPedestal(gSetup->GetBankName(detname));
+      double peak = (*pIter)->GetAmplitude();
       double fullInt = (*pIter)->GetIntegral();
       double tailInt = (*pIter)->GetTIntegral();
       double ratio = (*pIter)->GetRatio(); 
