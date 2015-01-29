@@ -1,5 +1,4 @@
-import math
-import numpy
+from math import pi, exp, log
 
 # Found this on the internet
 class ListTable(list):
@@ -22,7 +21,6 @@ class ListTable(list):
 
 
 class Ge:
-    # Below are (value, error) pairs
     eff_0   =  0.06736
     eff_1   = -0.8383
     eff_cor = ( (  1. ,      -9.954e-01  ),
@@ -51,14 +49,14 @@ class Ge:
         return self.en_0 + self.en_1*adc
 
     def ErrEff(self, e):
-        return self.Eff(e)*self.eff_1*self.eff_cov[0][0]**0.5/self.eff_0
+        return e**self.eff_1*self.eff_cov[0][0]+self.eff_0*e**self.eff_1*log(e)*self.eff_cov[1][1]+2*self.eff_0*e**(2.*self.eff_1)*log(e)*self.eff_cov[0][1]
 
     def ErrEn(self, adc):
         return (adc**2*self.en_cov[0][0]+self.en_cov[1][1]+2.*adc*self.en_cov[0][1])**0.5
 
 
 class Gauss:
-    rt2pi = (2.*math.pi)**0.5
+    rt2pi = (2.*pi)**0.5
     def __init__(self, a=None, x=None, s=None, ea=0., ex=0., es=0., fit_result=None, first_param=None):
         if not fit_result:
             self.amp     = a
@@ -76,7 +74,7 @@ class Gauss:
             self.errsig  = fit_result.ParError(first_param+2)
 
     def __call__(self, x):
-        return self.amp*math.exp(-0.5*((x-self.mean)/self.sig)**2.)
+        return self.amp*exp(-0.5*((x-self.mean)/self.sig)**2.)
 
     def GetCount(self):
         return Gauss.rt2pi*self.amp*self.sig
@@ -116,5 +114,5 @@ def CountEnteringMuons(h):
     return res
 
 def GuessExpoParams(x1, x2):
-    return ( (x2[0]*math.log(x1[1])-x1[0]*math.log(x2[1]))/(x2[0]-x1[0]),
-             math.log(x2[1]/x1[1])/(x2[0]-x1[0]) )
+    return ( (x2[0]*log(x1[1])-x1[0]*log(x2[1]))/(x2[0]-x1[0]),
+             log(x2[1]/x1[1])/(x2[0]-x1[0]) )
