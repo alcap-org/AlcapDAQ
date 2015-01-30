@@ -88,15 +88,10 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
 GeSpectrum::~GeSpectrum(){
 }
 
-// Called before the main event loop
-// Can be used to set things up, like histograms etc
-// Return non-zero to indicate a problem
 int GeSpectrum::BeforeFirstEntry(TGlobalData* gData, const TSetupData *setup){
   return 0;
 }
 
-// Called once for each event in the main event loop
-// Return non-zero to indicate a problem and terminate the event loop
 int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
 
   static const std::string bank_musc = TSetupData::Instance()->GetBankName(fMuSc.str());
@@ -118,8 +113,8 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   
   // Apply some cuts
   RemoveSmallMuScPulses (muScTimes, muScEnergies);
-  std::vector<double> muScTimesPP(muScTimes), muScEnergiesPP(muScEnergies);
-  RemovePileupMuScPulses(muScTimesPP, muScEnergiesPP);
+  //  std::vector<double> muScTimesPP(muScTimes), muScEnergiesPP(muScEnergies);
+  RemovePileupMuScPulses(muScTimes, muScEnergies);
 
   //**************************//
   //***** Now make plots *****//
@@ -192,14 +187,11 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   //************ Count Muons ************//
   //*************************************//
   fhNMuons  ->Fill(muScEnergies  .size());
-  fhPPNMuons->Fill(muScEnergiesPP.size());
+  //fhPPNMuons->Fill(muScEnergiesPP.size());
 
   return 0;
 }
 
-// Called just after the main event loop
-// Can be used to write things out, dump a summary etc
-// Return non-zero to indicate a problem
 int GeSpectrum::AfterLastEntry(TGlobalData* gData, const TSetupData *setup){
   return 0;
 }
