@@ -22,10 +22,10 @@ using std::map;
 using std::vector;
 using std::pair;
 
-//std::map<std::string, TH1F*> signals;
-//std::map<std::string, TH1F*> smSignals;
+std::map<std::string, TH1F*> NGPed_plots;
+std::map<std::string, TH1F*> NGChi_plots;
+std::map<std::string, TH2F*> NGPSD_plots, NGChivRatio_plots, NGChivAmp_plots;
 
-std::map<std::string, TH2F*> NGFit_plots;
 int FitCount = 0;
 
 TestFit::TestFit(char *HistogramDirectoryName) :
@@ -50,16 +50,57 @@ int TestFit::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
       if(detname != "NDet")
 	continue;
 
+      if(NGChivAmp_plots.find(keyname) == NGChivAmp_plots.end())
+        {
+         std::string histname2 = "h" + detname + "_ChivAmp";
+         std::string histtitle2 = "Plot of Chi Squared vs Amplitude";
+         TH2F* hNGRatio = new TH2F(histname2.c_str(), histtitle2.c_str(), 1000, 100, 1100, 2832, 0, 2831);
+         hNGRatio->GetXaxis()->SetTitle("Chi Squared");
+         hNGRatio->GetYaxis()->SetTitle("Amplitude");
+         NGChivAmp_plots[keyname] = hNGRatio;
+        }
 
-      if(NGFit_plots.find(keyname) == NGFit_plots.end())
+      if(NGChivRatio_plots.find(keyname) == NGChivRatio_plots.end())
+        {
+         std::string histname2 = "h" + detname + "_ChivRat";
+         std::string histtitle2 = "Plot of Chi Squared vs Integral Ratio";
+         TH2F* hNGRatio = new TH2F(histname2.c_str(), histtitle2.c_str(), 1000, 100, 1100, 300, 0, 0.35);
+         hNGRatio->GetXaxis()->SetTitle("Chi Squared");
+         hNGRatio->GetYaxis()->SetTitle("Ratio");
+         NGChivRatio_plots[keyname] = hNGRatio;
+        }
+
+
+      if(NGPSD_plots.find(keyname) == NGPSD_plots.end())
         {
          std::string histname2 = "h" + detname + "_ratio";
-         std::string histtitle2 = "Plot of Skewness for the " + detname + " detector";
-         TH2F* hNGRatio = new TH2F(histname2.c_str(), histtitle2.c_str(), 300, -1.5, 3.5, 3000, 0, 15);
-         hNGRatio->GetXaxis()->SetTitle("Skew");
-         hNGRatio->GetYaxis()->SetTitle("Count");
-         NGFit_plots[keyname] = hNGRatio;
+         std::string histtitle2 = "Plot of Integral Ratio";
+         TH2F* hNGRatio = new TH2F(histname2.c_str(), histtitle2.c_str(), 2832, 0, 16.16, 300, 0, 0.35);
+         hNGRatio->GetXaxis()->SetTitle("Energy (MeVee)");
+         hNGRatio->GetYaxis()->SetTitle("Integral Ratio");
+         NGPSD_plots[keyname] = hNGRatio;
         }
+
+      if(NGPed_plots.find(keyname) == NGPed_plots.end())
+        {
+         std::string histname2 = "h" + detname + "_Ped";
+         std::string histtitle2 = "Plot of the pedestals";
+         TH1F* hNGPed = new TH1F(histname2.c_str(), histtitle2.c_str(), 4000, 300, 800);
+         hNGPed->GetXaxis()->SetTitle("Pedestal");
+         hNGPed->GetYaxis()->SetTitle("Count");
+         NGPed_plots[keyname] = hNGPed;
+        }
+
+      if(NGChi_plots.find(keyname) == NGChi_plots.end())
+        {
+         std::string histname2 = "h" + detname + "_Chi2";
+         std::string histtitle2 = "Plot of Chi Square";
+         TH1F* hNGChi = new TH1F(histname2.c_str(), histtitle2.c_str(), 600, 150, 750);
+         hNGChi->GetXaxis()->SetTitle("Chi Squared");
+         hNGChi->GetYaxis()->SetTitle("Count");
+         NGChi_plots[keyname] = hNGChi;
+        }
+
 
 
       std::vector<TPulseIsland*> pulses = mapIter->second;
@@ -120,60 +161,11 @@ int TestFit::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 	  peak = hpulse->GetMaximum();
 	  tpeak = hpulse->GetMaximumBin();
 
-	  //Double_t fullInt = hpulse->Integral(tpeak - 3, tpeak + 20);
-	  //Double_t tailInt = hpulse->Integral(tpeak + 5, tpeak + 20);
-	  //Double_t ratio = tailInt / fullInt;
-	  Double_t energy = peak * 0.00564;
-
-
-	  Double_t Skew = 0, Sigma = 0, sumSigma = 0, sum2 = 0, sum3 = 0;
-	  Double_t n = 25, x = 0, mean = 0, median = 0, q1 = 0, q3 = 0;
-	  Double_t Ex2 = 0, temp = 0, sumSkew = 0;//, skew = 0;
-
-	  for(int i = tpeak - 4; i < tpeak - 4 + n; i++)
-	    {
-	      x= hpulse->GetBinContent(i);
-	      sum2 += x;
-	      mean += i*x;
-	      Ex2 += i*i*x;
-	    }
-
-	  mean /= sum2;
-	  Ex2 /= sum2;
-	  double temp3 = 0;
-	  for(int i = tpeak - 4; i < tpeak - 4 + n; i++)
-	    {
-	      x = hpulse->GetBinContent(i);
-	      double temp2 = 0.25 * sum2;
-	      sum3 += x;
-	      if((sum3 > temp2) && (q1 == 0))
-		{
-		  temp3 =  (sum3 - temp2)/x;
-		  q1 = i + temp3;
-		}
-	      if((sum3 > (temp2 * 2)) && (median == 0))
-		{
-		  temp3 = (sum3 - (temp2 * 2))/x;
-		  median = i + temp3;
-		}
-	      if((sum3 > (temp2 * 3))  && (q3 == 0))
-		{
-		  temp3 = (sum3 - (temp2 * 3))/x;
-		  q3 = i + temp3;
-		}
-
-
-	      temp = x - mean;
-	      sumSigma += temp * temp;
-	      sumSkew += temp * temp * temp;
-
-	    }
-
-	  Sigma = sqrt(sumSigma/(n-1));
-	  Skew = sumSkew * n / ((n-1) * (n-2) * Sigma * Sigma * Sigma);
-	  //skew = ((q3 - median) - (median - q1)) / (q3 - q1);
-	  
-
+	  Double_t fullInt = hpulse->Integral(tpeak - 3, tpeak + 20);
+	  Double_t tailInt = hpulse->Integral(tpeak + 5, tpeak + 20);
+	  Double_t ratio = tailInt / fullInt;
+	  Double_t energy = (float) (peak+15.2)/177.2;
+  
 
 
 	
@@ -191,45 +183,34 @@ int TestFit::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 	      continue;
 	    }
 
-	  //we will attempt a  fit using an exponential (plus a constant if the fit looks bad)
-	  
-	  //double_t Constant = 0, Sigma = 0, Mode = 0, Skew = 0;
-	  //double pi = 3.1415926535897;
-
-	  /*
+	  //we will attempt a  fit using a landau plus a constant 	  
 	    
-	  TF1* fPulse= new TF1("fPulse", "[0] *(([1]* sqrt(2 * pi))^-1) * exp((-(x-[2])^2)/(2*([2]^2))) * (1 + TMath::Erf([3]*(x - [2])/([1] * sqrt(2))))", 0., 150.);
+	  TF1* fPulse= new TF1("land", "landau(0) + [3]", 15, 150);
 	  fPulse->SetParameter(0, peak * 2);
 	  fPulse->SetParameter(2, tpeak);
 	  fPulse->SetParameter(1, 10/peak);
-	  fPulse->SetParameter(3, 6);
+	  fPulse->SetParameter(3, pedestal);
 
-	  hpulse->Fit("fPulse", "Q", "", tpeak - 3, tpeak + 20);
+	  hpulse->Fit(fPulse, "Q", "", 15, 60);
 
+	  Double_t land_height = fPulse->GetParameter(0);
+	  Double_t land_mpv = fPulse->GetParameter(1);
+	  Double_t land_sigma = fPulse->GetParameter(2);
+	  Double_t fit_ped = fPulse->GetParameter(3);
 
-	  Constant = fPulse->GetParameter(0);
-	  Sigma =fPulse->GetParameter(1);
-	  Mode = fPulse->GetParameter(2);
-	  Skew = fPulse->GetParameter(3);
-	  */
+	  Double_t Chi2 = fPulse->GetChisquare();
+
 	  
 	  delete hpulse;
-	  /*
-	  if((ratio < 0.1) && (energy > 2.0)) 
-	    continue;
-	  
-	  if((ratio < 0.125) && (energy > 0.8) && (energy < 2.0))
-	    continue;
-	  
-	  if((ratio < 0.15) && (energy < 0.8))
-	    continue;
-	  */
+	  delete fPulse;
 
 
+	  NGChi_plots[keyname]->Fill(Chi2);
+	  NGPed_plots[keyname]->Fill(fit_ped);
+	  NGPSD_plots[keyname]->Fill(energy, ratio);
 
-
-
-	  NGFit_plots[keyname]->Fill(Skew, energy);
+	  NGChivAmp_plots[keyname]->Fill(Chi2, peak);
+	  NGChivRatio_plots[keyname]->Fill(Chi2, ratio);
 	  
 	  /*	  
 	  if(FitCount > 20)

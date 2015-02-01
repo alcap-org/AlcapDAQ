@@ -95,7 +95,7 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
      std::string histname2 = "h" + detname + "_ratio";
      std::string histtitle2 = "Plot of pulse integral ratio for the " + detname + " detector";
-     TH2F* hNGCRatio = new TH2F(histname2.c_str(), histtitle2.c_str(), 2001, 0, 11, 300, 0, ratioMax);
+     TH2F* hNGCRatio = new TH2F(histname2.c_str(), histtitle2.c_str(), 2001, 0, 15, 300, 0, ratioMax);
      hNGCRatio->GetYaxis()->SetTitle("integral ratio");
      hNGCRatio->GetXaxis()->SetTitle("Energy (MeVee)");
      NGCRatio_plots[keyname] = hNGCRatio;
@@ -105,8 +105,8 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
  if(NGNCEnergy_plots.find(keyname) == NGNCEnergy_plots.end())
       {
-	std::string histname6 = "h" + detname + "_Energy";
-	std::string histtitle6 = "Plot of Neutron Energies";
+	std::string histname6 = "h" + detname + "_Amplitude";
+	std::string histtitle6 = "Plot of Neutron Amplitudes";
 	TH1F* hNGNCEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, 16.16);
 	hNGNCEnergy->GetXaxis()->SetTitle("Energy (MeVee)");
 	hNGNCEnergy->GetYaxis()->SetTitle("Count");
@@ -115,8 +115,8 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
  if(NGGCEnergy_plots.find(keyname) == NGGCEnergy_plots.end())
       {
-	std::string histname6 = "h" + detname + "_EnergyG";
-	std::string histtitle6 = "Plot of Gamma Energies";
+	std::string histname6 = "h" + detname + "_AmplitudeG";
+	std::string histtitle6 = "Plot of Gamma Amplitudes";
 	TH1F* hNGGCEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, 16.16);
 	hNGGCEnergy->GetXaxis()->SetTitle("Energy (MeVee)");
 	hNGGCEnergy->GetYaxis()->SetTitle("Count");
@@ -147,13 +147,14 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
       double timeA = 0;
       bool coincidence = false;
 
-
+      if(peak > 5000)
+	continue;
 
       //Scale to MeVee
       if(detname == "NDet")
-	energy = (peak+15.2)/177.2;
+	energy = (float) (peak+15.2)/177.2;
       if(detname == "NDet2")
-	energy = (peak+15)/269.1;
+	energy = (float) (peak+15)/269.1;
 
       //get cf time
       timeB = (*pIter)->GetTime();

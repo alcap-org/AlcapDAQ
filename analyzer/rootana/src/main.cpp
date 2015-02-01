@@ -147,36 +147,36 @@ int main(int argc, char **argv){
   // Now let's setup all the analysis modules we want
   fillhists = new FillHistBase *[50]; // increase if more than 20 modules
   n_fillhist = 0;  // number of modules (global variable)
-  fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
-  fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
+  //fillhists[n_fillhist++] = new AnalysePulseIsland("AnalysePulseIsland");
+  //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude");
   //fillhists[n_fillhist++] = new PlotNEnergy("PlotNEnergy");
   //fillhists[n_fillhist++] = new PlotTime("PlotTime");
   //fillhists[n_fillhist++] = new TestSmoothing("Smoothing Tests");
-  //fillhists[n_fillhist++] = new TestVeto("Veto Tests");
+  fillhists[n_fillhist++] = new TestFit("Fit Tests");
   //fillhists[n_fillhist++] = new TestVetoMuscCoinc("Veto Coinc Tests");
   //fillhists[n_fillhist++] = new TestVetoMuscTiming("Veto Timing Tests");
   //fillhists[n_fillhist++] = new TestFGA("FGA Tests");
-  fillhists[n_fillhist++] = new TestRatio("Ratio Tests");
+  //fillhists[n_fillhist++] = new TestRatio("Ratio Tests");
 
 
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_Ge-S_Ge-F", "Ge-S","Ge-F");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_Ge-S_Ge-F", "Ge-S","Ge-F");
   //fillhists[n_fillhist++] = new ScintInt("Neutron Integrals");
-  fillhists[n_fillhist++] = new NGammaInt("PSD");
+  //fillhists[n_fillhist++] = new NGammaInt("PSD");
   //fillhists[n_fillhist++] = new NGammaLanInt("Landau Fitted PSD");
 
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_Ge-S", "muSc","Ge-S");
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_Ge-F", "muSc","Ge-F");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_NDet", "muSc","NDet");
-  fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_NDet2", "muSc","NDet2");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_NDet", "muSc","NDet");
+  //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_NDet2", "muSc","NDet2");
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_MuSc_ScVe", "muSc","ScVe");
   //fillhists[n_fillhist++] = new PlotAmpVsTDiff("PlotAmpVsTDiff_ScVe_MuSc", "ScVe","muSc");
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-GeF", "muSc","Ge-F", -100,100);
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-NDet", "muSc","NDet", 400,1000);
   //fillhists[n_fillhist++] = new CoincidenceCut("CoincidenceCut_MuSc-NDet2", "muSc","NDet2", 400,1000);
-  fillhists[n_fillhist++] = new NGIntTCut2("PSD_PromptTCut", "muSc", -15, 15);
-  fillhists[n_fillhist++] = new NGIntTCut2("PSD_PbTCut", "muSc", 15, 150);
-  fillhists[n_fillhist++] = new NGIntTCut2("PSD_AlTCut", "muSc", 400, 2500);
-  fillhists[n_fillhist++] = new NGIntTCut2("PSD_WideTCut", "muSc", -1000, 5000);
+  //fillhists[n_fillhist++] = new NGIntTCut2("PSD_PromptTCut", "muSc", -15, 15);
+  //fillhists[n_fillhist++] = new NGIntTCut2("PSD_PbTCut", "muSc", 15, 150);
+  //fillhists[n_fillhist++] = new NGIntTCut2("PSD_AlTCut", "muSc", 400, 2500);
+  //fillhists[n_fillhist++] = new NGIntTCut2("PSD_WideTCut", "muSc", -1000, 5000);
   //fillhists[n_fillhist++] = new PlotAmplitude("PlotAmplitude_AfterCut");
   //fillhists[n_fillhist++] = new MakeMuonEvents("MakeMuonEvents",s_data);
   //fillhists[n_fillhist++] = new EvdE("EvdE");
