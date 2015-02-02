@@ -15,7 +15,7 @@ void ProtonBandGraphicalCut() {
   TH2F* evde_hists[n_arms] = {SiL_EvdE, SiR_EvdE};
   std::string arm_names[n_arms] = {"SiL", "SiR"};
 
-  TFile* output_file = new TFile("result.root", "RECREATE");
+  TFile* output_file = new TFile("result_Al50.root", "RECREATE");
 
   for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
   
@@ -42,6 +42,7 @@ void ProtonBandGraphicalCut() {
     deuteron_cut->SetParameter(2, 500);
     //    evde_hists[i_arm]->Fit(deuteron_cut, "R");
 
+    
     for (int i_bin = 1; i_bin <= evde_hists[i_arm]->GetNbinsX(); ++i_bin) {
       for (int j_bin = 1; j_bin <= evde_hists[i_arm]->GetNbinsY(); ++j_bin) {
 	double x_coord = evde_hists[i_arm]->GetXaxis()->GetBinCenter(i_bin);
@@ -55,6 +56,7 @@ void ProtonBandGraphicalCut() {
 	}
       }
     }
+    
     evde_hists[i_arm]->Draw("COLZ");
     //    electron_spot_cut->Draw("LSAME");
     //    punch_through_cut->Draw("LSAME");
@@ -67,7 +69,7 @@ void ProtonBandGraphicalCut() {
     c1->SaveAs(pngname.c_str());
 
     TH1D* hProjection = evde_hists[i_arm]->ProjectionX();
-    hProjection->Rebin(10);
+    //    hProjection->Rebin(10);
     hProjection->Draw("HIST E");
     plotname = savelocation+"/"+arm_names[i_arm]+"_EvdE_ProtonBand_ProjectionX";
     pdfname = plotname+".pdf";
