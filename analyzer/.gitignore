@@ -33,3 +33,11 @@ alcapana
 mucap_compress
 mucap_expand
 mucap_optimize
+
+# Temporary Batch Folders
+batch/log
+batch/tmp
+
+# Local databases
+rootana/calibration.db
+rootana/production.db
