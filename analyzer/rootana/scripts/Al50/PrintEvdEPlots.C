@@ -9,6 +9,9 @@ void PrintEvdEPlots() {
   TH2F* SiL_EvdE = (TH2F*) file->Get("TME_EvdE/all_particles/SiL_EvdE");
   TH2F* SiR_EvdE = (TH2F*) file->Get("TME_EvdE/all_particles/SiR_EvdE");
 
+  SiL_EvdE->SetStats(false);
+  SiR_EvdE->SetStats(false);
+
   TH2F* evde_hists[n_arms] = {SiL_EvdE, SiR_EvdE};
   std::string arm_names[n_arms] = {"SiL", "SiR"};
   bool project_x = true;
