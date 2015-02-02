@@ -3,14 +3,14 @@ void LifetimeFits() {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy(1);
 
-  std::string version = "v62";
+  std::string version = "v67";
   std::string savelocation = "~/data/out/"+version+"/plots";
   const int n_arms = 2;
 
   std::string filename = "~/data/out/"+version+"/total.root";
   TFile* file = new TFile(filename.c_str());
-  TH1F* SiL_Time = (TH1F*) file->Get("TME_EvdE/SiL_Time");
-  TH1F* SiR_Time = (TH1F*) file->Get("TME_EvdE/SiR_Time");
+  TH1F* SiL_Time = (TH1F*) file->Get("TME_EvdE/all_particles/SiL_Time");
+  TH1F* SiR_Time = (TH1F*) file->Get("TME_EvdE/all_particles/SiR_Time");
 
   TH1F* time_hists[n_arms] = {SiL_Time, SiR_Time};
   std::string arm_names[n_arms] = {"SiL", "SiR"};
