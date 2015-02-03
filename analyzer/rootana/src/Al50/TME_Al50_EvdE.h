@@ -1,5 +1,5 @@
-#ifndef TME_EvdE_H_
-#define TME_EvdE_H_
+#ifndef TME_Al50_EvdE_H_
+#define TME_Al50_EvdE_H_
 
 #include "BaseModule.h"
 class TGlobalData;
@@ -26,17 +26,17 @@ class TCanvas;
 /// You can add this to other groups instead of rootana_modules or in addition
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
-class TME_EvdE : public BaseModule {
+class TME_Al50_EvdE : public BaseModule {
 
     public:
         /// \brief
         /// Constructor description. If necessary, add a details tag like above.
         ///
         /// \param[in] opts Describe the options this module takes.
-        TME_EvdE(modules::options* opts);
+        TME_Al50_EvdE(modules::options* opts);
         /// \brief
         /// Is anything done in the destructor?
-        ~TME_EvdE();
+        ~TME_Al50_EvdE();
 
     private:
         /// \brief

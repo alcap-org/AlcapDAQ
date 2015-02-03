@@ -1,4 +1,4 @@
-#include "TME_EvdE.h"
+#include "TME_Al50_EvdE.h"
 #include "RegisterModule.inc"
 #include "TGlobalData.h"
 #include "TSetupData.h"
@@ -19,16 +19,16 @@ using std::endl;
 
 extern MuonEventList gMuonEvents;
 
-TME_EvdE::TME_EvdE(modules::options* opts):
-  BaseModule("TME_EvdE",opts),fNullCount(0),fTdpCount(0){
+TME_Al50_EvdE::TME_Al50_EvdE(modules::options* opts):
+  BaseModule("TME_Al50_EvdE",opts),fNullCount(0),fTdpCount(0){
 
   fStoppedProtonCut=opts->GetBool("stopped_proton_cut", false);
 }
 
-TME_EvdE::~TME_EvdE(){
+TME_Al50_EvdE::~TME_Al50_EvdE(){
 }
 
-int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
+int TME_Al50_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
   fLeftArm.detname = "SiL";
   fLeftArmQuad1.detname = "SiL_Quad1";
@@ -173,7 +173,7 @@ int TME_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   return 0;
 }
 
-int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+int TME_Al50_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
     for(MuonEventList::const_iterator i_tme=gMuonEvents.begin();
             i_tme!=gMuonEvents.end(); ++i_tme){
@@ -280,9 +280,9 @@ int TME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
     return 0;
 }
 
-int TME_EvdE::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
+int TME_Al50_EvdE::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 
   return 0;
 }
 
-ALCAP_REGISTER_MODULE(TME_EvdE, stopped_proton_cut);
+ALCAP_REGISTER_MODULE(TME_Al50_EvdE, stopped_proton_cut);
