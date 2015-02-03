@@ -6,6 +6,8 @@ class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
 
+#include "IdChannel.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
 /// \author Andrew Edmonds
@@ -36,7 +38,7 @@ class TME_RemoveScatteredMuons : public BaseModule {
   /// \return Non-zero to indicate a problem.
   virtual int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);
   /// \brief
-  /// Nothing is done before each run.
+  /// Before each run, create a list of silicon detectors
   ///
   /// \return Non-zero to indicate a problem.
   virtual int BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup);
@@ -51,6 +53,11 @@ class TME_RemoveScatteredMuons : public BaseModule {
   /// \details If the time difference between the central muon and any Si detector 
   /// hit is shorter than this, then the TME is deleted.
   double fTimeCut;
+
+  /// \brief All the silicon detectors
+  typedef std::vector<IDs::channel> DetectorList;
+  DetectorList fSiDetectors;
+
 };
 
 #endif //TME_REMOVESCATTEREDMUONS_H_

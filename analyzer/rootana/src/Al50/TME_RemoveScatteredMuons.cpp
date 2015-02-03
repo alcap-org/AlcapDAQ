@@ -5,9 +5,13 @@
 #include "ModulesOptions.h"
 #include "definitions.h"
 
+#include "TMuonEvent.h"
+
 #include <iostream>
 using std::cout;
 using std::endl;
+
+extern MuonEventList gMuonEvents;
 
 TME_RemoveScatteredMuons::TME_RemoveScatteredMuons(modules::options* opts):
    BaseModule("TME_RemoveScatteredMuons",opts){
@@ -31,12 +35,55 @@ int TME_RemoveScatteredMuons::BeforeFirstEntry(TGlobalData* gData,const TSetupDa
      cout<<"-----TME_RemoveScatteredMuons::BeforeFirstEntry(): time_cut = " << fTimeCut << std::endl;
   }
 
+  using namespace IDs;
+  fSiDetectors.push_back(IDs::channel (kSiL1_1 , kNotApplicable ));
+  fSiDetectors.push_back(IDs::channel (kSiL1_2 , kNotApplicable ));
+  fSiDetectors.push_back(IDs::channel (kSiL1_3 , kNotApplicable ));
+  fSiDetectors.push_back(IDs::channel (kSiL1_4 , kNotApplicable ));
+  fSiDetectors.push_back(IDs::channel (kSiL2   , kNotApplicable ));
+  fSiDetectors.push_back(IDs::channel (kSiR1_1 , kNotApplicable ));
+  fSiDetectors.push_back(IDs::channel (kSiR1_2 , kNotApplicable ));
+  fSiDetectors.push_back(IDs::channel (kSiR1_3 , kNotApplicable ));
+  fSiDetectors.push_back(IDs::channel (kSiR1_4 , kNotApplicable ));
+  fSiDetectors.push_back(IDs::channel (kSiR2   , kNotApplicable ));
+
+
   return 0;
 }
 
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
 int TME_RemoveScatteredMuons::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+
+  for(MuonEventList::const_iterator i_tme=gMuonEvents.begin();
+      i_tme!=gMuonEvents.end(); ++i_tme){
+
+    double tme_time= (*i_tme)->GetTime(); // this is the same as the muSc time
+
+    // Loop through the silicon detectors
+    for(DetectorList::const_iterator i_det=fSiDetectors.begin();
+	i_det!=fSiDetectors.end(); ++i_det){
+      
+      // Get this silicon detector and loop through its sources
+      int source_index=(*i_tme)->GetSourceIndex(*i_det);
+      while(source_index>-1){
+	const IDs::source& si_source=(*i_tme)->GetSource(source_index);
+	int n_pulses = (*i_tme)->NumPulses(si_source);
+
+	// Loop through the pulses in this silicon detector
+	for(int i_pulse=0; i_pulse<n_pulses; ++i_pulse){
+	  const TDetectorPulse* si_tdp=(*i_tme)->GetPulse(si_source,i_pulse);
+	  double si_time = si_tdp->GetTime();
+
+	  std::cout << si_time << " - " << tme_time << " = " << si_time - tme_time << std::endl;
+	}
+
+	// Get the next source
+	source_index=(*i_tme)->GetSourceIndex(*i_det,source_index+1);
+      }
+    }	
+  }
+
   return 0;
 }
 
