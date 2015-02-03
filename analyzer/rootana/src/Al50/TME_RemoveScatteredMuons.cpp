@@ -14,9 +14,8 @@ TME_RemoveScatteredMuons::TME_RemoveScatteredMuons(modules::options* opts):
 
   // Do something with opts here.  Has the user specified any
   // particular configuration that you want to know?
-  // For example, perhaps this module wants an axis range:
-  fXMax=opts->GetDouble("x_max",100); 
-  
+
+  fTimeCut = opts->GetDouble("time_cut", 0); // by default not used
 }
 
 TME_RemoveScatteredMuons::~TME_RemoveScatteredMuons(){
@@ -29,7 +28,6 @@ int TME_RemoveScatteredMuons::BeforeFirstEntry(TGlobalData* gData,const TSetupDa
   // Print extra info if we're debugging this module:
   if(Debug()){
      cout<<"-----TME_RemoveScatteredMuons::BeforeFirstEntry(): I'm debugging!"<<endl;
-     cout<<"-----TME_RemoveScatteredMuons::BeforeFirstEntry(): x_max is: "<<fXMax<<endl;
   }
 
   return 0;

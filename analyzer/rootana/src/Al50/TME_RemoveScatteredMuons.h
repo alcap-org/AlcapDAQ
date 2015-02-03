@@ -8,55 +8,49 @@ namespace modules {class options;}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
-/// \author AuthorName
+/// \author Andrew Edmonds
 ///
 /// \brief
-/// A one line description of what your module does.
+/// Removes any TMEs that have scattered muons in them
 ///
 /// \details
-/// A longer, more descriptive block of text.
-/// Specifics like members and methods will be described later.
-/// You can add this to other groups instead of rootana_modules or in addition
-/// to rootana_modules by adding more of the ingroup tags.
+/// Loops through the TME container and removes any hits in the Si detectors 
+/// that are too close to the central muon hit)
 ////////////////////////////////////////////////////////////////////////////////
 class TME_RemoveScatteredMuons : public BaseModule {
 
  public:
   /// \brief
-  /// Constructor description. If necessary, add a details tag like above.
+  /// Constructor.
   ///
-  /// \param[in] opts Describe the options this module takes.
+  /// \param[in] time_cut The time cut used to remove the scattered muons
   TME_RemoveScatteredMuons(modules::options* opts);
   /// \brief
-  /// Is anything done in the destructor?
+  /// Destructor.
   ~TME_RemoveScatteredMuons();
 
  private:
   /// \brief
-  /// What's calculated for every entry?
-  /// Don't hesitate to repeat what was said in the class description.
+  /// In every entry, we check for any Si hits that are too close to the central muon hit
   /// 
   /// \return Non-zero to indicate a problem.
   virtual int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);
   /// \brief
-  /// What needes to be done before each run?
-  /// Don't hesitate to repeat what was said in the class description.
+  /// Nothing is done before each run.
   ///
   /// \return Non-zero to indicate a problem.
   virtual int BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup);
   /// \brief
-  /// What needs to be done after each run?
-  /// Don't hesitate to repeat what was said in the class description.
+  /// Nothing is done after each run
   ///
   /// \return Non-zero to indicate a problem.
   virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
 
-  // Don't forget to add descriptions for each field...
-  /// \brief maximum x-value
+  /// \brief The time cut being used to remove scattered muons
   ///
-  /// \details used for doing something very intelligent and clever
-  // ...and don't hesitate to include details.
-  int fXMax;
+  /// \details If the time difference between the central muon and any Si detector 
+  /// hit is shorter than this, then the TME is deleted.
+  double fTimeCut;
 };
 
 #endif //TME_REMOVESCATTEREDMUONS_H_
