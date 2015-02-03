@@ -104,6 +104,9 @@ def submitted_jobs():
     jobs = []
     for line in out_lines[header_size:-1]:
         tokens = line.split()
+        # Ignore g4sim
+        if tokens[prog_name_loc] == "g4sim":
+            continue
         jobs.append(SGEJob.SGEJob(int(tokens[id_loc]), tokens[status_loc],
                                   tokens[prog_name_loc], tokens[date_loc],
                                   tokens[time_loc]))

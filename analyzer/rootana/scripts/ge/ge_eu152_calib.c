@@ -1,4 +1,4 @@
-{
+void ge_eu152_calib() {
   // The file to run on in the sum of calibration runs 3375, 3378 and 3379.
   TFile* f = new TFile("calib_ge.root", "READ");
   TSpectrum* s = new TSpectrum(100, 3.);
@@ -112,21 +112,28 @@
   /* TGraphErrors* e_cal   = new TGraphErrors(NPeaks, Energy, ADC_Meas, 0, Error_ADC); */
   TGraphErrors* e_cal   = new TGraphErrors(NPeaks-1, ADC_Meas+1, Energy+1, Error_ADC+1, 0);
   /* TGraphErrors* eff_cal = new TGraphErrors(NPeaks-1, LogEnergy+1, LogEfficiency+1, 0, Error_LogEff+1); */
-  TGraphErrors* eff_cal = new TGraphErrors(NPeaks-2, RedEn+1, Efficiency+1, 0, Error_Eff+1);
-  e_cal->SetTitle("Energy Calibration"); e_cal->GetXaxis()->SetTitle("ADC Value"); e_cal->GetYaxis()->SetTitle("Energy (keV)");
-  eff_cal->SetTitle("Efficiency Calibration"); eff_cal->GetXaxis()->SetTitle("Energy (keV)"); eff_cal->GetYaxis()->SetTitle("Counts / Expected Counts");
-  new TCanvas();
-  TFitResultPtr res = e_cal->Fit("pol1","SME"); e_cal->Draw("A*");
-  TPaveText* text_en = new TPaveText(0.5, 0.15, 0.8, 0.25, "brNDC"); text_en.AddText("Energy = p0 + p1 * ADC"); text_en->Draw();
+  TGraphErrors* eff_cal = new TGraphErrors(NPeaks-1, Energy+1, Efficiency+1, 0, Error_Eff+1);
+  e_cal->SetTitle("Ge Energy Calibration"); e_cal->GetXaxis()->SetTitle("ADC Value [ADC]"); e_cal->GetYaxis()->SetTitle("Energy [keV]");
+  eff_cal->SetTitle("Ge Efficiency Calibration"); eff_cal->GetXaxis()->SetTitle("Energy [keV]"); eff_cal->GetYaxis()->SetTitle("Counts / Expected Counts");
+  TCanvas* c_en = new TCanvas("c_en");
+  TF1* fit = new TF1("fit", "[0] + [1]*x");
+  fit->SetParameter(0, 0);
+  fit->SetParameter(1, 100);
+  fit->SetParName(0, "Offset");
+  fit->SetParName(1, "Gradient");
+  TFitResultPtr res = e_cal->Fit(fit,"SME"); e_cal->Draw("A*");
+  TPaveText* text_en = new TPaveText(0.2, 0.65, 0.5, 0.75, "nb NDC"); text_en->SetBorderSize(0); text_en->SetTextSize(0.04); text_en->SetFillColor(kWhite); text_en->AddText("Energy = Offset + Gradient * ADC"); text_en->Draw();
   Chi2[0] = res->Chi2(); Ndf[0] = res->Ndf();
   en_par[0] = res->Value(0); en_par[1] = res->Value(1);
   en_par_err[0] = res->ParError(0); en_par_err[1] = res->ParError(1);
-  new TCanvas();
-  gStyle->SetOptFit(111);
+  TCanvas* c_eff = new TCanvas("c_eff");
+  //  gStyle->SetOptFit(111);
   TF1* logfit = new TF1("func", "[0]*(x**[1])");
+  logfit->SetParName(0, "Coefficient");
+  logfit->SetParName(1, "Exponent");
   logfit->SetParameters(TMath::Exp(-2.6), -0.84);
   res = eff_cal->Fit(logfit, "SME"); eff_cal->Draw("A*");
-  TPaveText* text_eff = new TPaveText(0.5, 0.5, 0.8, 0.6, "brNDC"); text_eff.AddText("Eff = p0 * Energy^{p1}"); text_eff->Draw();
+  TPaveText* text_eff = new TPaveText(0.5, 0.5, 0.65, 0.6, "nb NDC"); text_eff->SetBorderSize(0); text_eff->SetTextSize(0.05); text_eff->AddText("#varepsilon = aE^{b}"); text_eff->SetFillColor(kWhite); text_eff->Draw();
   /* res = eff_cal->Fit("pol1", "SME"); eff_cal->Draw("A*"); */
   Chi2[1] = res->Chi2(); Ndf[1] = res->Ndf();
   eff_par[0] = res->Value(0); eff_par[1] = res->Value(1);
@@ -149,6 +156,14 @@
   printf("ADC = %g(%g) * Energy + %g(%g)    (%g/%u)\n", en_par[1], en_par_err[1], en_par[0], en_par_err[0], Chi2[0], Ndf[0]);
   /* printf("Eff = %g(%g)*Energy^[%g(%g)]    (%g/%u)\n", TMath::Exp(eff_par[0]), TMath::Exp(eff_par[0])*eff_par_err[0], eff_par[1], eff_par_err[1], Chi2[1], Ndf[1]); */
   printf("Eff = %g(%g)*Energy^[%g(%g)]    (%g/%u)\n", eff_par[0], eff_par_err[0], eff_par[1], eff_par_err[1], Chi2[1], Ndf[1]);
+
+  //  c_en->SaveAs("~/plots/ThesisPlots/ge-calibration-curve.pdf");
+  //  c_eff->SaveAs("~/plots/ThesisPlots/ge-efficiency-curve.pdf");
+
+  double si_peak = 400.177;
+  double al_peak = 346.828;
+  std::cout << "Eff(" << si_peak << ") = " << logfit->Eval(si_peak) << std::endl;
+  std::cout << "Eff(" << al_peak << ") = " << logfit->Eval(al_peak) << std::endl;
 }
 
 /*
@@ -174,4 +189,4 @@ Energy     ADC      Sigma
 E = 0.12202 +/- 0.00002* ADC - 1.0 +/- 0.1
 ln(Eff) = -0.84 +/- 0.05 * ln(E) - 2.6 +/- 0.3
 Eff=exp(-2.6)*E^(-0.84)
-/*
+*/
