@@ -28,6 +28,7 @@ int TME_RemoveScatteredMuons::BeforeFirstEntry(TGlobalData* gData,const TSetupDa
   // Print extra info if we're debugging this module:
   if(Debug()){
      cout<<"-----TME_RemoveScatteredMuons::BeforeFirstEntry(): I'm debugging!"<<endl;
+     cout<<"-----TME_RemoveScatteredMuons::BeforeFirstEntry(): time_cut = " << fTimeCut << std::endl;
   }
 
   return 0;
@@ -56,4 +57,4 @@ int TME_RemoveScatteredMuons::AfterLastEntry(TGlobalData* gData,const TSetupData
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(TME_RemoveScatteredMuons,x_max);
+ALCAP_REGISTER_MODULE(TME_RemoveScatteredMuons,time_cut);
