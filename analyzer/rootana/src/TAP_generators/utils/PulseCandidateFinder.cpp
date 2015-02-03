@@ -85,7 +85,7 @@ void PulseCandidateFinder::FindPulseCandidates(const TPulseIsland* pulse) {
   fPulseIsland = pulse;
 
   // Check if this pulse overflowed the digitiser
-  //  if (!CheckDigitiserOverflow()) {
+  if (!CheckDigitiserOverflow()) {
     // If we are using the "n_sigma" option, then all channels should use the slow pulse algorithm
     if (fNSigma != 0) {
       FindCandidatePulses_Slow(fParameterValue);
@@ -107,7 +107,7 @@ void PulseCandidateFinder::FindPulseCandidates(const TPulseIsland* pulse) {
 	FindCandidatePulses_Fast(fParameterValue);
       }
     }
-    //  }
+  }
 }
 
 PulseCandidateFinder::~PulseCandidateFinder() {
@@ -314,32 +314,32 @@ void PulseCandidateFinder::SetDefaultParameterValues() {
   fDefaultParameterValues[IDs::channel("ScGe")] = 20;
   fDefaultParameterValues[IDs::channel("ScVe")] = 100;
 
-  fDefaultParameterValues[IDs::channel("SiL2-F")] = 300;
-  fDefaultParameterValues[IDs::channel("SiL1-1-F")] = 130;
-  fDefaultParameterValues[IDs::channel("SiL1-2-F")] = 500;
-  fDefaultParameterValues[IDs::channel("SiL1-3-F")] = 135;
-  fDefaultParameterValues[IDs::channel("SiL1-4-F")] = 140;
+  fDefaultParameterValues[IDs::channel("SiL2-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-1-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-2-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-3-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-4-F")] = 0;
 
-  fDefaultParameterValues[IDs::channel("SiR2-F")] = 300;
-  fDefaultParameterValues[IDs::channel("SiR1-1-F")] = 135;
-  fDefaultParameterValues[IDs::channel("SiR1-2-F")] = 140;
-  fDefaultParameterValues[IDs::channel("SiR1-3-F")] = 140;
-  fDefaultParameterValues[IDs::channel("SiR1-4-F")] = 150;
+  fDefaultParameterValues[IDs::channel("SiR2-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-1-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-2-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-3-F")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-4-F")] = 0;
 
   // Set all the default values for the slow parameters
   fDefaultParameterValues[IDs::channel("Ge-S")] = 500;
 
-  fDefaultParameterValues[IDs::channel("SiL2-S")] = 100;
-  fDefaultParameterValues[IDs::channel("SiL1-1-S")] = 50;
-  fDefaultParameterValues[IDs::channel("SiL1-2-S")] = 80;
-  fDefaultParameterValues[IDs::channel("SiL1-3-S")] = 120;
-  fDefaultParameterValues[IDs::channel("SiL1-4-S")] = 80;
+  fDefaultParameterValues[IDs::channel("SiL2-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-1-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-2-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-3-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiL1-4-S")] = 0;
 
-  fDefaultParameterValues[IDs::channel("SiR2-S")] = 100;
-  fDefaultParameterValues[IDs::channel("SiR1-1-S")] = 50;
-  fDefaultParameterValues[IDs::channel("SiR1-2-S")] = 65;
-  fDefaultParameterValues[IDs::channel("SiR1-3-S")] = 65;
-  fDefaultParameterValues[IDs::channel("SiR1-4-S")] = 62;
+  fDefaultParameterValues[IDs::channel("SiR2-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-1-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-2-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-3-S")] = 0;
+  fDefaultParameterValues[IDs::channel("SiR1-4-S")] = 0;
 }
 
 bool PulseCandidateFinder::CheckDigitiserOverflow() {
