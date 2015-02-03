@@ -8,6 +8,7 @@
 #include "TMuonEvent.h"
 
 #include <iostream>
+#include <cmath>
 using std::cout;
 using std::endl;
 
@@ -55,15 +56,16 @@ int TME_RemoveScatteredMuons::BeforeFirstEntry(TGlobalData* gData,const TSetupDa
 // Return non-zero to indicate a problem and terminate the event loop
 int TME_RemoveScatteredMuons::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
-  for(MuonEventList::const_iterator i_tme=gMuonEvents.begin();
-      i_tme!=gMuonEvents.end(); ++i_tme){
+  for(MuonEventList::iterator i_tme=gMuonEvents.end()-1;
+      i_tme!=gMuonEvents.begin()-1; --i_tme){ // loop through backwards because I will be deleting TMEs as I go
 
-    double tme_time= (*i_tme)->GetTime(); // this is the same as the muSc time
+    double tme_time= (*i_tme)->GetTime(); // get the time of the central muon
+    bool scattered_muon = false;
 
     // Loop through the silicon detectors
     for(DetectorList::const_iterator i_det=fSiDetectors.begin();
 	i_det!=fSiDetectors.end(); ++i_det){
-      
+
       // Get this silicon detector and loop through its sources
       int source_index=(*i_tme)->GetSourceIndex(*i_det);
       while(source_index>-1){
@@ -75,12 +77,29 @@ int TME_RemoveScatteredMuons::ProcessEntry(TGlobalData* gData,const TSetupData *
 	  const TDetectorPulse* si_tdp=(*i_tme)->GetPulse(si_source,i_pulse);
 	  double si_time = si_tdp->GetTime();
 
-	  std::cout << si_time << " - " << tme_time << " = " << si_time - tme_time << std::endl;
+	  double time_difference = std::fabs(si_time - tme_time);
+	  if (time_difference < fTimeCut) {
+	    scattered_muon = true;
+	    break; // from the pulse for-loop
+	  }
+	}
+
+	if (scattered_muon) {
+	  break; // from the source while-loop
 	}
 
 	// Get the next source
 	source_index=(*i_tme)->GetSourceIndex(*i_det,source_index+1);
       }
+
+      if (scattered_muon) {
+	break; // from the silicon detectors for-loop
+      }
+    }
+
+    if (scattered_muon) {
+      // Delete this TME
+      gMuonEvents.erase(i_tme);
     }	
   }
 
