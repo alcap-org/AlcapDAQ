@@ -65,7 +65,7 @@ ODBDUMPFILE="$ODBDUMPDIR/dump$RUN.odb"
 
 ################
 # Command to run
-CMD="$DAQdir/analyzer/work/production/alcapana"
+CMD="$DAQdir/analyzer/work/$USER/alcapana"
 ARGS="-i $RAWFILE -o $HISTFILE -T $TREEFILE"
 
 ############################
