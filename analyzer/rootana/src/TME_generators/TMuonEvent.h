@@ -3,8 +3,10 @@
 
 #include "definitions.h"
 #include "TDetectorPulse.h"
+#include "TSiliconEvent.h"
 #include <set>
 #include <vector>
+#include <TObject.h>
 
 /// @brief Single event in the muon centred tree
 /// @author Ben Krikler
@@ -18,8 +20,10 @@
 /// @TODO Implement early / late TME flags
 ///
 /// @see www.github.com/alcap-org/AlcapDAQ/issues/110
-class TMuonEvent{
+class TMuonEvent:public TObject{
     public:
+        enum LeftRight_t{kLeft, kRight};
+        
         /// @brief Construct a TMuonEvent with a known central muon
         TMuonEvent(const TDetectorPulse* central_mu, double window):
             fCentralMuon(central_mu),fWindowWidth(window) {};
@@ -99,13 +103,24 @@ class TMuonEvent{
 
         /// Get the time of this TME defined as the arrival time of the central muon
         double GetTime()const {return fCentralMuon->GetTime(TDetectorPulse::kFast);}
+        double GetAmplitude()const {return fCentralMuon->GetAmplitude(TDetectorPulse::kFast);}
         const TDetectorPulse* GetCentralMuon()const {return fCentralMuon;}
 
+        void InsertSiliconEvent(LeftRight_t lr, const TSiliconEvent& si_evt){
+           fSiliconHits[lr].push_back(si_evt); 
+        }
+        SiliconHitList::const_iterator BeginSiEvents(LeftRight_t lr)const{ return fSiliconHits[lr].begin();}
+        SiliconHitList::const_iterator EndSiEvents(LeftRight_t lr)const{ return fSiliconHits[lr].end();}
+        int NumSiHits(LeftRight_t lr)const{ return fSiliconHits[lr].size();}
+
     private:
-            SourceDetPulseMap fPulseLists;
-            const TDetectorPulse* fCentralMuon;
-            double fWindowWidth;
-            typedef std::set<IDs::source> SourceSet;
-            SourceSet fExhaustedChannels;
+        SourceDetPulseMap fPulseLists;
+        SiliconHitList fSiliconHits[2];
+        const TDetectorPulse* fCentralMuon;
+        double fWindowWidth;
+        typedef std::set<IDs::source> SourceSet;
+        SourceSet fExhaustedChannels;
+
+    ClassDef(TMuonEvent, 1);
 };
 #endif // TMuonEvent_hh_

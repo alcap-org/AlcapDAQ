@@ -7,6 +7,7 @@
 #include "TMuonEvent.h"
 #include "debug_tools.h"
 #include "EventNavigator.h"
+#include "ActiveSiRMuStopAlgo.h"
 
 #include <TH1F.h>
 #include <TH2F.h>
@@ -27,12 +28,14 @@ PlotTME_activeSiRmuStops::PlotTME_activeSiRmuStops(modules::options* opts):
    fMuScMax(opts->GetDouble("muSc_max",1e9)),
    fMuScMin(opts->GetDouble("muSc_min",0)),
    fSiR2Max(opts->GetDouble("SiR2_max",1e9)),
-   fSiR2Min(opts->GetDouble("SiR2_min",0))
-{
+   fSiR2Min(opts->GetDouble("SiR2_min",0)),
+   fHasStoppedMuon(new TMEAlgorithm::ActiveSiRStop(IDs::source(),fMuScMin,fMuScMax,fSiR2Min,fSiR2Max))
+{ 
 DEBUG_VALUE(fMuSc, fSiR2,fChannel);
 }
 
 PlotTME_activeSiRmuStops::~PlotTME_activeSiRmuStops(){
+  if(fHasStoppedMuon) delete fHasStoppedMuon;
 }
 
 int PlotTME_activeSiRmuStops::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
@@ -140,19 +143,11 @@ void PlotTME_activeSiRmuStops::FillHistograms(const TMuonEvent* tme, const IDs::
   const int N_sir2=tme->NumPulses(sir2_source);
 
   // Scan for a muon hit in the SiR2
-  bool a_stop=false;
-  if(muSc_amp>fMuScMin && muSc_amp< fMuScMax){
-    for(int i=0; i< N_sir2; ++i){
-      const double sir2_amp=tme->GetPulse(sir2_source,i)->GetAmplitude(fChannel);
-      if(sir2_amp > fSiR2Min && sir2_amp < fSiR2Max){
-         a_stop=true;
-         break;
-      }
-    }
-    if(a_stop) {
-      ++fNStopsThisEvent;
-      if(!tme->HasMuonPileup()) ++fNStopsThisEvent_PP;
-    }
+  fHasStoppedMuon->SetSiR2Source(sir2_source);
+  bool a_stop=(*fHasStoppedMuon)(tme,fChannel);
+  if(a_stop) {
+    ++fNStopsThisEvent;
+    if(!tme->HasMuonPileup()) ++fNStopsThisEvent_PP;
   }
 
   // Fill all plots for SiR2

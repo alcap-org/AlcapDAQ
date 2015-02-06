@@ -9,6 +9,7 @@
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
+#include <cmath>
 
 #include <TSQLiteServer.h>
 #include <TSQLiteResult.h>
@@ -83,27 +84,30 @@ void PulseCandidateFinder::FindPulseCandidates(const TPulseIsland* pulse) {
 
   fPulseIsland = pulse;
 
-  // If we are using the "n_sigma" option, then all channels should use the slow pulse algorithm
-  if (fNSigma != 0) {
-    FindCandidatePulses_Slow(fParameterValue);
-  }
-  else { // We have a different algorithm for fast and slow pulses
-    if (fChannel.isFast()) {
-      if (fChannel.Detector() != IDs::kGe) {
-	FindCandidatePulses_Slow(fParameterValue); // use the slow algorithm for the fast silicon pulses because of the noisy pedestal
+  // Check if this pulse overflowed the digitiser
+  //  if (!CheckDigitiserOverflow()) {
+    // If we are using the "n_sigma" option, then all channels should use the slow pulse algorithm
+    if (fNSigma != 0) {
+      FindCandidatePulses_Slow(fParameterValue);
+    }
+    else { // We have a different algorithm for fast and slow pulses
+      if (fChannel.isFast()) {
+	if (fChannel.Detector() != IDs::kGe) {
+	  FindCandidatePulses_Slow(fParameterValue); // use the slow algorithm for the fast silicon pulses because of the noisy pedestal
+	}
+	else {
+	  FindCandidatePulses_Fast(fParameterValue);
+	}
+      }
+      else if (fChannel.isSlow()) {
+	FindCandidatePulses_Slow(fParameterValue);
       }
       else {
+	// this is a scintillator so do the fast pulse analysis
 	FindCandidatePulses_Fast(fParameterValue);
       }
     }
-    else if (fChannel.isSlow()) {
-      FindCandidatePulses_Slow(fParameterValue);
-    }
-    else {
-      // this is a scintillator so do the fast pulse analysis
-      FindCandidatePulses_Fast(fParameterValue);
-    }
-  }
+    //  }
 }
 
 PulseCandidateFinder::~PulseCandidateFinder() {
@@ -336,4 +340,24 @@ void PulseCandidateFinder::SetDefaultParameterValues() {
   fDefaultParameterValues[IDs::channel("SiR1-2-S")] = 65;
   fDefaultParameterValues[IDs::channel("SiR1-3-S")] = 65;
   fDefaultParameterValues[IDs::channel("SiR1-4-S")] = 62;
+}
+
+bool PulseCandidateFinder::CheckDigitiserOverflow() {
+  const std::vector<int>& samples = fPulseIsland->GetSamples();
+  unsigned int n_samples = samples.size();
+
+  std::string bankname = fPulseIsland->GetBankName();
+  int n_bits = TSetupData::Instance()->GetNBits(bankname);
+  double max_adc_value = std::pow(2, n_bits);
+  bool overflowed = false;
+
+  // Loop through the samples
+  for (unsigned int i = 0; i < n_samples; ++i) {
+    if (samples[i] >= max_adc_value) {
+      overflowed = true;
+      break;
+    }
+  }
+
+  return overflowed;
 }

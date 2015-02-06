@@ -51,11 +51,13 @@ class GeSpectrum : public BaseModule {
 
   // Algorithms
   const Algorithm::MaxBinAmplitude fMBAmpGe;
+  const Algorithm::MaxBinAmplitude fMBAmpMuSc;
   const Algorithm::ConstantFractionTime fCFTimeGe, fCFTimeMuSc;
   TF1* fADC2Energy;
   // Time cuts
   const double fTimeWindow_Small; // ns
   const double fTimeWindow_Big;   // ns
+  const double fPileupProtectionWindow;
 
   // Channels
   static const IDs::channel fGeS;
@@ -111,6 +113,7 @@ class GeSpectrum : public BaseModule {
 
   void ThrowIfInputsInsane(const modules::options*);
   void ThrowIfGeInsane(const std::vector<TPulseIsland*>& ge_fasts, const std::vector<TPulseIsland*>& ge_slows);
+  void RemovePileupMuScPulses(std::vector<double>& time, std::vector<double>& energy);
 
 };
 

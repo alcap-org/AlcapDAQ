@@ -47,7 +47,7 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
             }
         }
     }
-    std::cout<<"Will analyse ";
+    std::cout<<"MakeAnalysedPulses::BeforeFirstEntry: Will analyse ";
     if(analyse_all) std::cout<<"all ";
     else std::cout<<fChannelsToAnalyse.size()<<" of ";
     std::cout<<detectors.size()<<" channels"<<std::endl;

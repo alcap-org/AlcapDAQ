@@ -45,6 +45,8 @@ class IDs::generator:public TObject{
 
 	virtual ~generator(){};
 
+        void Reset(){fType=kAnyGenerator; fConfig=kAnyConfig;};
+
 	public:
 	/// Returns the type of generator that this ID represents
 	Generator_t Type()const{return fType;};

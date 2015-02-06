@@ -9,6 +9,7 @@
 #include "definitions.h"
 #include "IdSource.h"
 #include "MakeDetectorPulses.h"
+#include "PassThroughDPGenerator.h"
 #include "SetupNavigator.h"
 
 #include "TH2F.h"
@@ -54,7 +55,7 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     }
 
     // Init loop variables
-    IDs::generator passThruId=makeTDPs->GetPassThruGeneratorID();
+    IDs::generator passThruId=PassThroughDPGenerator::GetStaticId();
     Detector_t tmp;
     std::string name;
     std::string title;
@@ -72,7 +73,7 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
         // Ignore TDP sources that use the pass-through generator (so only have
         // one valid input channel, like a scintillator or the muScA)
-        if(i_source->first==passThruId){
+        if(passThruId.matches(i_source->first.Generator())){
             cout<<"Skipping TDP source, '"<<i_source->first<<"' as it was made with the pass-through generator"<<endl;
             continue;
         }

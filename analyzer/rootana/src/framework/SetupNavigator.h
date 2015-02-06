@@ -45,7 +45,7 @@ class SetupNavigator{
   /// \brief
   /// Gets the error on the pedestal from the SQLite database
   double GetNoise(const IDs::channel& channel) const ;
-  double GetCoarseTimeOffset(const IDs::source& src) const { return src.matches(IDs::channel("muSc")) ? 0. : fCoarseTimeOffset.at(src); }
+  double GetCoarseTimeOffset( IDs::source src) const ;
   /// \brief
   /// Gets the energy calibration constants
   std::pair<double,double> GetEnergyCalibrationConstants(const IDs::channel&) const;

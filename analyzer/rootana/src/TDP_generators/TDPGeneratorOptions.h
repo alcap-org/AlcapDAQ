@@ -17,6 +17,8 @@ class TDPGeneratorOptions:public modules::options{
             modules::options::operator=(*opts);
         }
 
+  void AddArgument(const int& number, const std::string& option);
+
     TDPGeneratorOptions& operator=(const modules::options& rhs){
         modules::options::operator=(rhs);
         return *this;
