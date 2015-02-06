@@ -155,24 +155,20 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
     ////////////////////////////////////////
     const Double_t adc = *geE;
     const Double_t en = fADC2Energy->Eval(adc);
-    if ( (!prev_found || dt_prev > fTimeWindow_Big) && (!next_found || dt_next < -fTimeWindow_Big) ) {
-      fhADCFarOOT->Fill(adc);
-      fhEnergyFarOOT->Fill(en);
-    } else if ( (!prev_found || dt_prev > fTimeWindow_Small) && (!next_found || dt_next < -fTimeWindow_Small) ) {
-      fhADCOOT->Fill(adc);
+    if ( prev_found && dt_prev <= fTimeWindow_Small ) {
+      fhTimeADC   ->Fill(dt_prev, adc);
+      fhTimeEnergy->Fill(dt_prev, en);
+    } else if ( next_found && dt_next >= -fTimeWindow_Small ) {
+      fhTimeADC   ->Fill(dt_next, adc);
+      fhTimeEnergy->Fill(dt_next, en);
+    } else if ( prev_found && dt_prev <= fTimeWindow_Big ) {
+      fhADCOOT   ->Fill(adc);
       fhEnergyOOT->Fill(en);
     } else {
-      if (prev_found && dt_prev <= fTimeWindow_Small) {
-	fhTimeADC->Fill(dt_prev, adc);
-	fhTimeEnergy->Fill(dt_prev, en);
-      } else if (next_found && dt_next >= -fTimeWindow_Small) {
-	fhTimeADC->Fill(dt_next, adc);
-	fhTimeEnergy->Fill(dt_next, en);
-      } else {
-	std::cout << "WARNING: Unexpected logical branch! Prev: (" << prev_found << ", " << dt_prev << "), Next: (" << next_found << ", " << dt_next << ")" << std::endl;
-      }
+      fhADCFarOOT   ->Fill(adc);
+      fhEnergyFarOOT->Fill(en);
     }
-    fhADC->Fill(adc);
+    fhADC   ->Fill(adc);
     fhEnergy->Fill(en);
     for (unsigned int i = 0; i < fvPeaksOfInterest.size(); ++i)
       if (en < fvPeaksOfInterest[i] + 2. && en > fvPeaksOfInterest[i] - 2) {
@@ -186,8 +182,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   //*************************************//
   //************ Count Muons ************//
   //*************************************//
-  fhNMuons  ->Fill(muScEnergies  .size());
-  //fhPPNMuons->Fill(muScEnergiesPP.size());
+  fhNMuons->Fill(muScEnergies.size());
 
   return 0;
 }
