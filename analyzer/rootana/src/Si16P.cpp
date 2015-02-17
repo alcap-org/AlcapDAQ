@@ -41,7 +41,7 @@ const double         Si16P::fConstantFraction(0.60);
 
 Si16P::Si16P(modules::options* opts) :
   BaseModule("Si16P",opts),
-  fHist_PIDRight(NULL), fHist_PIDLeft(NULL),
+  fhPIDRight(NULL), fhPIDLeft(NULL),
   fMBAmp_MuSc  (SetupNavigator::Instance()->GetPedestal(fMuSc),   TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fMuSc  .str()))),
   fMBAmp_SiR11S(SetupNavigator::Instance()->GetPedestal(fSiR11S), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fSiR11S.str()))),
   fMBAmp_SiR12S(SetupNavigator::Instance()->GetPedestal(fSiR12S), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fSiR12S.str()))),
@@ -53,11 +53,11 @@ Si16P::Si16P(modules::options* opts) :
   fMBAmp_SiL13S(SetupNavigator::Instance()->GetPedestal(fSiL13S), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fSiL13S.str()))),
   fMBAmp_SiL14S(SetupNavigator::Instance()->GetPedestal(fSiL14S), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fSiL14S.str()))),
   fMBAmp_SiL2S (SetupNavigator::Instance()->GetPedestal(fSiL2S),  TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fSiL2S .str()))),
-  fCFTime_MuSc  (SetupNavigator::Instance()->GetPedestal(fMuSc),
-		 TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fMuSc.str())),
-		 TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fMuSc.str())),
-		 0.,
-		 Si16P::fConstantFraction),
+  fCFTime_MuSc (SetupNavigator::Instance()->GetPedestal(fMuSc),
+		TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fMuSc.str())),
+		TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fMuSc.str())),
+		0.,
+		Si16P::fConstantFraction),
   fCFTime_SiR11S(SetupNavigator::Instance()->GetPedestal(fSiR11S),
 		 TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fSiR11S.str())),
 		 TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fSiR11S.str())),
@@ -118,10 +118,9 @@ Si16P::Si16P(modules::options* opts) :
   fADC2E_SiL13S(new TF1("adc2e_sil13s", "[0]+[1]*x")),
   fADC2E_SiL14S(new TF1("adc2e_sil14s", "[0]+[1]*x")),
   fADC2E_SiL2S (new TF1("adc2e_sil2s",  "[0]+[1]*x")),
-  fdTMuSc(opts->GetDouble("tcut_musc")),       fdTPID(opts->GetDouble("tcut_pid")),
-  fdTScatter(opts->GetDouble("tcut_scatter")), fdTDetectorPileup(opts->GetDouble("tcut_detpp")),
-  fdTSiLow(opts->GetDouble("tcut_si_low")),    fdTSiHigh(opts->GetDouble("tcut_si_high")),
-  fMuonCut(opts->GetDouble("adccut_musc")) {
+  fdTMuScPP (opts->GetDouble("tcut_musc")),    fdTPID        (opts->GetDouble("tcut_pid")),
+  fdTScatter(opts->GetDouble("tcut_scatter")), fdTSiLow      (opts->GetDouble("tcut_si_low")),
+  fdTSiHigh (opts->GetDouble("tcut_si_high")), fMuonEnergyCut(opts->GetDouble("adccut_musc")) {
 
   const int nbins_dE = std::pow(2., 12);
   const int nbins_E  = std::pow(2., 12);
@@ -150,10 +149,10 @@ Si16P::Si16P(modules::options* opts) :
 
   TDirectory* cwd = TDirectory::CurrentDirectory();
   dir->cd();
-  fHist_PIDRight = new TH2D("hPIDRight", "PID (Right);E+dE (keV);dE (keV);Counts",
+  fhPIDRight = new TH2D("hPIDRight", "PID (Right);E+dE (keV);dE (keV);Counts",
 			    nbins_E,  fADC2E_SiR2S->Eval(0.),  fADC2E_SiR2S->Eval(nbins_E),
 			    nbins_dE, fADC2E_SiR11S->Eval(0.), fADC2E_SiR11S->Eval(nbins_dE));
-  fHist_PIDLeft  = new TH2D("hPIDLeft",  "PID (Right);E+dE (keV);dE (keV);Counts",
+  fhPIDLeft  = new TH2D("hPIDLeft",  "PID (Right);E+dE (keV);dE (keV);Counts",
 			    nbins_E,  fADC2E_SiL2S->Eval(0.),  fADC2E_SiL2S->Eval(nbins_E),
 			    nbins_dE, fADC2E_SiL11S->Eval(0.), fADC2E_SiL11S->Eval(nbins_dE));
   cwd->cd();
@@ -188,129 +187,84 @@ int Si16P::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   static const std::string bank_sil14s = TSetupData::Instance()->GetBankName(Si16P::fSiL14S.str());
   static const std::string bank_sil2s  = TSetupData::Instance()->GetBankName(Si16P::fSiL2S.str());
 
-  const std::vector<double> muScTimes   = CalculateTimes(Si16P::fMuSc,   TPIMap.at(bank_musc));
-  const std::vector<double> siR11STimes = CalculateTimes(Si16P::fSiR11S, TPIMap.at(bank_sir11s));
-  const std::vector<double> siR12STimes = CalculateTimes(Si16P::fSiR12S, TPIMap.at(bank_sir12s));
-  const std::vector<double> siR13STimes = CalculateTimes(Si16P::fSiR13S, TPIMap.at(bank_sir13s));
-  const std::vector<double> siR14STimes = CalculateTimes(Si16P::fSiR14S, TPIMap.at(bank_sir14s));
-  const std::vector<double> siR2STimes  = CalculateTimes(Si16P::fSiR2S,  TPIMap.at(bank_sir2s));
-  const std::vector<double> siL11STimes = CalculateTimes(Si16P::fSiL11S, TPIMap.at(bank_sil11s));
-  const std::vector<double> siL12STimes = CalculateTimes(Si16P::fSiL12S, TPIMap.at(bank_sil12s));
-  const std::vector<double> siL13STimes = CalculateTimes(Si16P::fSiL13S, TPIMap.at(bank_sil13s));
-  const std::vector<double> siL14STimes = CalculateTimes(Si16P::fSiL14S, TPIMap.at(bank_sil14s));
-  const std::vector<double> siL2STimes  = CalculateTimes(Si16P::fSiL2S,  TPIMap.at(bank_sil2s));
+  std::vector< std::vector<double> > siR1STimes, siL1STimes;
+  std::vector<double> muScTimes = CalculateTimes(Si16P::fMuSc, TPIMap.at(bank_musc));
+  siR1STimes.push_back(CalculateTimes(Si16P::fSiR11S, TPIMap.at(bank_sir11s)));
+  siR1STimes.push_back(CalculateTimes(Si16P::fSiR12S, TPIMap.at(bank_sir12s)));
+  siR1STimes.push_back(CalculateTimes(Si16P::fSiR13S, TPIMap.at(bank_sir13s)));
+  siR1STimes.push_back(CalculateTimes(Si16P::fSiR14S, TPIMap.at(bank_sir14s)));
+  const std::vector<double> siR2STimes = CalculateTimes(Si16P::fSiR2S, TPIMap.at(bank_sir2s));
+  siL1STimes.push_back(CalculateTimes(Si16P::fSiL11S, TPIMap.at(bank_sil11s)));
+  siL1STimes.push_back(CalculateTimes(Si16P::fSiL12S, TPIMap.at(bank_sil12s)));
+  siL1STimes.push_back(CalculateTimes(Si16P::fSiL13S, TPIMap.at(bank_sil13s)));
+  siL1STimes.push_back(CalculateTimes(Si16P::fSiL14S, TPIMap.at(bank_sil14s)));
+  const std::vector<double> siL2STimes = CalculateTimes(Si16P::fSiL2S, TPIMap.at(bank_sil2s));
 
-  const std::vector<double> muScEnergies   = CalculateEnergies(Si16P::fMuSc,   TPIMap.at(bank_musc));
-  const std::vector<double> siR11SEnergies = CalculateEnergies(Si16P::fSiR11S, TPIMap.at(bank_sir11s));
-  const std::vector<double> siR12SEnergies = CalculateEnergies(Si16P::fSiR12S, TPIMap.at(bank_sir12s));
-  const std::vector<double> siR13SEnergies = CalculateEnergies(Si16P::fSiR13S, TPIMap.at(bank_sir13s));
-  const std::vector<double> siR14SEnergies = CalculateEnergies(Si16P::fSiR14S, TPIMap.at(bank_sir14s));
-  const std::vector<double> siR2SEnergies  = CalculateEnergies(Si16P::fSiR2S,  TPIMap.at(bank_sir2s));
-  const std::vector<double> siL11SEnergies = CalculateEnergies(Si16P::fSiL11S, TPIMap.at(bank_sil11s));
-  const std::vector<double> siL12SEnergies = CalculateEnergies(Si16P::fSiL12S, TPIMap.at(bank_sil12s));
-  const std::vector<double> siL13SEnergies = CalculateEnergies(Si16P::fSiL13S, TPIMap.at(bank_sil13s));
-  const std::vector<double> siL14SEnergies = CalculateEnergies(Si16P::fSiL14S, TPIMap.at(bank_sil14s));
-  const std::vector<double> siL2SEnergies  = CalculateEnergies(Si16P::fSiL2S,  TPIMap.at(bank_sil2s));
+  std::vector< std::vector<double> > siR1SEnergies, siL1SEnergies;
+  std::vector<double> muScEnergies = CalculateEnergies(Si16P::fMuSc, TPIMap.at(bank_musc));
+  siR1SEnergies.push_back(CalculateEnergies(Si16P::fSiR11S, TPIMap.at(bank_sir11s)));
+  siR1SEnergies.push_back(CalculateEnergies(Si16P::fSiR12S, TPIMap.at(bank_sir12s)));
+  siR1SEnergies.push_back(CalculateEnergies(Si16P::fSiR13S, TPIMap.at(bank_sir13s)));
+  siR1SEnergies.push_back(CalculateEnergies(Si16P::fSiR14S, TPIMap.at(bank_sir14s)));
+  const std::vector<double> siR2SEnergies = CalculateEnergies(Si16P::fSiR2S, TPIMap.at(bank_sir2s));
+  siL1SEnergies.push_back(CalculateEnergies(Si16P::fSiL11S, TPIMap.at(bank_sil11s)));
+  siL1SEnergies.push_back(CalculateEnergies(Si16P::fSiL12S, TPIMap.at(bank_sil12s)));
+  siL1SEnergies.push_back(CalculateEnergies(Si16P::fSiL13S, TPIMap.at(bank_sil13s)));
+  siL1SEnergies.push_back(CalculateEnergies(Si16P::fSiL14S, TPIMap.at(bank_sil14s)));
+  const std::vector<double> siL2SEnergies = CalculateEnergies(Si16P::fSiL2S, TPIMap.at(bank_sil2s));
+
+
+  // Check for no hits.
+  bool rempty = true, lempty = true;
+  for (unsigned int i = 0; i < siR1STimes.size(); ++i)
+    rempty &= siR1STimes[i].empty();
+  for (unsigned int i = 0; i < siL1STimes.size(); ++i)
+    lempty &= siL1STimes[i].empty();
+  if ( muScTimes.empty()              ||
+       (rempty && lempty)             ||
+       (rempty && siL2STimes.empty()) ||
+       (lempty && siR2STimes.empty())    )
+    return 0;
+
+  RemoveMuScPileUp(muScTimes, muScEnergies);
+  RemoveElectrons (muScTimes, muScEnergies);
+
+  RemoveScatteredMuons(muScTimes, muScEnergies, siR1STimes);
+  RemoveScatteredMuons(muScTimes, muScEnergies, siR2STimes);
+  RemoveScatteredMuons(muScTimes, muScEnergies, siL1STimes);
+  RemoveScatteredMuons(muScTimes, muScEnergies, siL2STimes);
+
+  RemoveMultipleDetectorHits(muScTimes, muScEnergies, siR1STimes);
+  RemoveMultipleDetectorHits(muScTimes, muScEnergies, siR2STimes);
+  RemoveMultipleDetectorHits(muScTimes, muScEnergies, siL1STimes);
+  RemoveMultipleDetectorHits(muScTimes, muScEnergies, siL2STimes);
+
 
   //*************************//
   //**** Find Candidates ****//
   //*************************//
   for (unsigned int iMuSc = 0; iMuSc < muScTimes.size(); ++iMuSc) {
-    // Reject electrons
-    if (muScEnergies[iMuSc] < fMuonCut)
-      continue;
-
-    // Reject e/mu entering soon before or after
-    if ( (iMuSc != 0                    && muScTimes[iMuSc]   - muScTimes[iMuSc-1] < fdTMuSc) || 
-	 (iMuSc != muScTimes.size() - 1 && muScTimes[iMuSc+1] - muScTimes[iMuSc]   < fdTMuSc) )
-      continue;
 
     // Get first hit after muSc
-    unsigned int iSiR11S = std::upper_bound(siR11STimes.begin(), siR11STimes.end(), muScTimes[iMuSc]) - siR11STimes.begin();
-    unsigned int iSiR12S = std::upper_bound(siR12STimes.begin(), siR12STimes.end(), muScTimes[iMuSc]) - siR12STimes.begin();
-    unsigned int iSiR13S = std::upper_bound(siR13STimes.begin(), siR13STimes.end(), muScTimes[iMuSc]) - siR13STimes.begin();
-    unsigned int iSiR14S = std::upper_bound(siR14STimes.begin(), siR14STimes.end(), muScTimes[iMuSc]) - siR14STimes.begin();
     unsigned int iSiR2S  = std::upper_bound(siR2STimes.begin(),  siR2STimes.end(),  muScTimes[iMuSc]) - siR2STimes.begin();
-    unsigned int iSiL11S = std::upper_bound(siL11STimes.begin(), siL11STimes.end(), muScTimes[iMuSc]) - siL11STimes.begin();
-    unsigned int iSiL12S = std::upper_bound(siL12STimes.begin(), siL12STimes.end(), muScTimes[iMuSc]) - siL12STimes.begin();
-    unsigned int iSiL13S = std::upper_bound(siL13STimes.begin(), siL13STimes.end(), muScTimes[iMuSc]) - siL13STimes.begin();
-    unsigned int iSiL14S = std::upper_bound(siL14STimes.begin(), siL14STimes.end(), muScTimes[iMuSc]) - siL14STimes.begin();
     unsigned int iSiL2S  = std::upper_bound(siL2STimes.begin(),  siL2STimes.end(),  muScTimes[iMuSc]) - siL2STimes.begin();
 
-    // Check for scattering
-    if ( (iSiR11S > 0 && muScTimes[iMuSc] - siR11STimes[iSiR11S-1] < fdTScatter) || (iSiR11S < siR11STimes.size() && siR11STimes[iSiR11S] - muScTimes[iMuSc] < fdTScatter) ||  
-	 (iSiR12S > 0 && muScTimes[iMuSc] - siR12STimes[iSiR12S-1] < fdTScatter) || (iSiR12S < siR12STimes.size() && siR12STimes[iSiR12S] - muScTimes[iMuSc] < fdTScatter) ||  
-	 (iSiR13S > 0 && muScTimes[iMuSc] - siR13STimes[iSiR13S-1] < fdTScatter) || (iSiR13S < siR13STimes.size() && siR13STimes[iSiR13S] - muScTimes[iMuSc] < fdTScatter) ||  
-	 (iSiR14S > 0 && muScTimes[iMuSc] - siR14STimes[iSiR14S-1] < fdTScatter) || (iSiR14S < siR14STimes.size() && siR14STimes[iSiR14S] - muScTimes[iMuSc] < fdTScatter) ||  
-	 (iSiR2S  > 0 && muScTimes[iMuSc] - siR2STimes[iSiR2S-1]   < fdTScatter) || (iSiR2S  < siR2STimes.size()  && siR2STimes[iSiR2S]   - muScTimes[iMuSc] < fdTScatter) ||
-	 (iSiL11S > 0 && muScTimes[iMuSc] - siL11STimes[iSiL11S-1] < fdTScatter) || (iSiL11S < siL11STimes.size() && siL11STimes[iSiL11S] - muScTimes[iMuSc] < fdTScatter) ||  
-	 (iSiL12S > 0 && muScTimes[iMuSc] - siL12STimes[iSiL12S-1] < fdTScatter) || (iSiL12S < siL12STimes.size() && siL12STimes[iSiL12S] - muScTimes[iMuSc] < fdTScatter) ||  
-	 (iSiL13S > 0 && muScTimes[iMuSc] - siL13STimes[iSiL13S-1] < fdTScatter) || (iSiL13S < siL13STimes.size() && siL13STimes[iSiL13S] - muScTimes[iMuSc] < fdTScatter) ||  
-	 (iSiL14S > 0 && muScTimes[iMuSc] - siL14STimes[iSiL14S-1] < fdTScatter) || (iSiL14S < siL14STimes.size() && siL14STimes[iSiL14S] - muScTimes[iMuSc] < fdTScatter) ||  
-	 (iSiL2S  > 0 && muScTimes[iMuSc] - siL2STimes[iSiL2S-1]   < fdTScatter) || (iSiL2S  < siL2STimes.size()  && siL2STimes[iSiL2S]   - muScTimes[iMuSc] < fdTScatter) )
-      continue;
-
-    // Check for hit in thick silicon and then one-and-only-one in-time hit in thin silicon.
-    if ( siR2STimes[iSiR2S] - muScTimes[iMuSc] > fdTSiLow  &&
+    if ( iSiR2S < siR2STimes.size() &&
+	 siR2STimes[iSiR2S] - muScTimes[iMuSc] > fdTSiLow  &&
 	 siR2STimes[iSiR2S] - muScTimes[iMuSc] < fdTSiHigh ) {
-      iSiR11S = std::upper_bound(siR11STimes.begin(), siR11STimes.end(), siR2STimes[iSiR2S]) - siR11STimes.begin();
-      iSiR12S = std::upper_bound(siR12STimes.begin(), siR12STimes.end(), siR2STimes[iSiR2S]) - siR12STimes.begin();
-      iSiR13S = std::upper_bound(siR13STimes.begin(), siR13STimes.end(), siR2STimes[iSiR2S]) - siR13STimes.begin();
-      iSiR14S = std::upper_bound(siR14STimes.begin(), siR14STimes.end(), siR2STimes[iSiR2S]) - siR14STimes.begin();
-      double e[2][4] = { {-1., -1, -1., -1.}, {-1., -1., -1., -1.} };
-      // Check for one-and-only-one in-time thin silicon hit
-      if ( iSiR11S != 0 && siR2STimes[iSiR2S] - siR11STimes[iSiR11S-1] < fdTPID ) e[0][0] = siR11SEnergies[iSiR11S-1];
-      if ( iSiR12S != 0 && siR2STimes[iSiR2S] - siR12STimes[iSiR12S-1] < fdTPID ) e[0][1] = siR12SEnergies[iSiR12S-1];
-      if ( iSiR13S != 0 && siR2STimes[iSiR2S] - siR13STimes[iSiR13S-1] < fdTPID ) e[0][2] = siR13SEnergies[iSiR13S-1];
-      if ( iSiR14S != 0 && siR2STimes[iSiR2S] - siR14STimes[iSiR14S-1] < fdTPID ) e[0][3] = siR14SEnergies[iSiR14S-1];
-      if ( iSiR11S != siR11STimes.size() && siR11STimes[iSiR11S] - siR2STimes[iSiR2S] < fdTPID ) e[1][0] = siR11SEnergies[iSiR11S];
-      if ( iSiR12S != siR12STimes.size() && siR12STimes[iSiR12S] - siR2STimes[iSiR2S] < fdTPID ) e[1][1] = siR12SEnergies[iSiR12S];
-      if ( iSiR13S != siR13STimes.size() && siR13STimes[iSiR13S] - siR2STimes[iSiR2S] < fdTPID ) e[1][2] = siR13SEnergies[iSiR13S];
-      if ( iSiR14S != siR14STimes.size() && siR14STimes[iSiR14S] - siR2STimes[iSiR2S] < fdTPID ) e[1][3] = siR14SEnergies[iSiR14S];
-      unsigned int count = 0;
-      double de = -1.;
-      for (unsigned int i = 0; i < 2; ++i) {
-	for (unsigned int j = 0; j < 4; ++j) {
-	  if (e[i][j] > 0.) {
-	    de = e[i][j];
-	    ++count;
-	  }
-	}
-      }
-      if (count == 1) {
-	fHist_PIDRight->Fill(de+siR2SEnergies[iSiR2S], de);
-      }
+      double e  = siR2SEnergies[iSiR2S];
+      double de = FindFirstMatchingThinHit(siR2STimes[iSiR2S], siR1STimes, siR1SEnergies);
+      if (de > 0)
+	fhPIDRight->Fill(e+de, de);
     }
-    if ( siL2STimes[iSiL2S] - muScTimes[iMuSc] > fdTSiLow  &&
+    if ( iSiL2S < siL2STimes.size() &&
+	 siL2STimes[iSiL2S] - muScTimes[iMuSc] > fdTSiLow  &&
 	 siL2STimes[iSiL2S] - muScTimes[iMuSc] < fdTSiHigh ) {
-      iSiL11S = std::upper_bound(siL11STimes.begin(), siL11STimes.end(), siL2STimes[iSiL2S]) - siL11STimes.begin();
-      iSiL12S = std::upper_bound(siL12STimes.begin(), siL12STimes.end(), siL2STimes[iSiL2S]) - siL12STimes.begin();
-      iSiL13S = std::upper_bound(siL13STimes.begin(), siL13STimes.end(), siL2STimes[iSiL2S]) - siL13STimes.begin();
-      iSiL14S = std::upper_bound(siL14STimes.begin(), siL14STimes.end(), siL2STimes[iSiL2S]) - siL14STimes.begin();
-      double e[2][4] = { {-1., -1, -1., -1.}, {-1., -1., -1., -1.} };
-      // Check for one-and-only-one in-time thin silicon hit
-      if ( iSiL11S != 0 && siL2STimes[iSiL2S] - siL11STimes[iSiL11S-1] < fdTPID ) e[0][0] = siL11SEnergies[iSiL11S-1];
-      if ( iSiL12S != 0 && siL2STimes[iSiL2S] - siL11STimes[iSiL12S-1] < fdTPID ) e[0][1] = siL12SEnergies[iSiL12S-1];
-      if ( iSiL13S != 0 && siL2STimes[iSiL2S] - siL11STimes[iSiL13S-1] < fdTPID ) e[0][2] = siL13SEnergies[iSiL13S-1];
-      if ( iSiL14S != 0 && siL2STimes[iSiL2S] - siL11STimes[iSiL14S-1] < fdTPID ) e[0][3] = siL14SEnergies[iSiL14S-1];
-      if ( iSiL11S != siL11STimes.size() && siL11STimes[iSiL11S] - siL2STimes[iSiL2S] < fdTPID ) e[1][0] = siL11SEnergies[iSiL11S];
-      if ( iSiL12S != siL12STimes.size() && siL12STimes[iSiL12S] - siL2STimes[iSiL2S] < fdTPID ) e[1][1] = siL12SEnergies[iSiL12S];
-      if ( iSiL13S != siL13STimes.size() && siL13STimes[iSiL13S] - siL2STimes[iSiL2S] < fdTPID ) e[1][2] = siL13SEnergies[iSiL13S];
-      if ( iSiL14S != siL14STimes.size() && siL14STimes[iSiL14S] - siL2STimes[iSiL2S] < fdTPID ) e[1][3] = siL14SEnergies[iSiL14S];
-      unsigned int count = 0;
-      double de = -1.;
-      for (unsigned int i = 0; i < 2; ++i) {
-	for (unsigned int j = 0; j < 4; ++j) {
-	  if (e[i][j] > 0.) {
-	    de = e[i][j];
-	    ++count;
-	  }
-	}
-      }
-      if (count == 1) {
-	fHist_PIDLeft->Fill(de+siL2SEnergies[iSiL2S], de);
-      }
-    }
+      double e  = siR2SEnergies[iSiR2S];
+      double de = FindFirstMatchingThinHit(siL2STimes[iSiL2S], siL1STimes, siL1SEnergies);
+      if (de > 0)
+	fhPIDLeft->Fill(e+de, de);
+    }    
   }
   return 0;
 }
@@ -356,6 +310,90 @@ std::vector<double> Si16P::CalculateEnergies(const IDs::channel& ch, const std::
   else throw std::logic_error("Si16P: Invalid channel to calculate energies for.");
   return e;
 }
+
+void Si16P::RemoveMuScPileUp(std::vector<double>& t, std::vector<double>& e) {
+  if (t.empty())  return;
+
+  std::vector<bool> rm(t.size(), false);
+  if (t.front() < fdTMuScPP) rm.front() = true;
+  for (unsigned int i = 1; i < t.size(); ++i)
+    if (t[i] - t[i-1] < fdTMuScPP)
+      rm[i] = rm[i-1] = true;
+  rm.back() = true;
+  for (unsigned int i = 0; i < t.size(); ++i) {
+    if (rm[i]) {
+      t .erase(t .begin()+i);
+      e .erase(e .begin()+i);
+      rm.erase(rm.begin()+i);
+      --i;
+    }
+  }
+}
+
+void Si16P::RemoveElectrons(std::vector<double>& t, std::vector<double>& e) {
+  for (unsigned int i = 0; i < t.size(); ++i) {
+    if (e[i] < fMuonEnergyCut) {
+      t.erase(t.begin() + i);
+      e.erase(e.begin() + i);
+      --i;
+    }
+  }
+}
+
+void Si16P::RemoveScatteredMuons(std::vector<double>& muT, std::vector<double>& muE,
+				 const std::vector<double>& siT) {
+  if (siT.empty()) return;
+  const std::vector<double>::const_iterator b = siT.begin(), e = siT.end();
+  for (unsigned int i = 0; i < muT.size(); ++i) {
+    std::vector<double>::const_iterator cSi = std::upper_bound(b, e, muT[i]);
+    if ( (  cSi <  e && *cSi - muT[i] < fdTScatter) ||
+	 (--cSi >= b && muT[i] - *cSi < fdTScatter) ) {
+      muT.erase(muT.begin()+i);
+      muE.erase(muE.begin()+i);
+      --i;
+    }
+  }
+}
+
+void Si16P::RemoveScatteredMuons(std::vector<double>& muT, std::vector<double>& muE,
+				 const std::vector< std::vector<double> >& siT) {
+  for (unsigned int i = 0; i < siT.size(); ++i)
+    RemoveScatteredMuons(muT, muE, siT[i]);
+}
+
+void Si16P::RemoveMultipleDetectorHits(std::vector<double>& muT, std::vector<double>& muE,
+				       const std::vector<double>& siT) {
+  const std::vector<double>::const_iterator b = siT.begin(), e = siT.end();
+  for (unsigned int i = 0; i < muT.size(); ++i) {
+    const unsigned int n = std::upper_bound(b, e, muT[i]+fdTSiHigh+fdTPID) - std::upper_bound(b, e, muT[i]+fdTSiLow-fdTPID);
+    if (n > 1) {
+      muT.erase(muT.begin()+i);
+      muE.erase(muE.begin()+i);
+      --i;
+    }
+  }
+}
+
+void Si16P::RemoveMultipleDetectorHits(std::vector<double>& muT, std::vector<double>& muE,
+				       const std::vector< std::vector<double> >& siT) {
+  std::vector<double> all;
+  for (unsigned int i = 0; i < siT.size(); ++i)
+    all.insert(all.end(), siT[i].begin(), siT[i].end());
+  std::sort(all.begin(), all.end());
+  RemoveMultipleDetectorHits(muT, muE, all);
+}
+
+double Si16P::FindFirstMatchingThinHit(const double t,
+				       const std::vector< std::vector<double> >& vvt,
+				       const std::vector< std::vector<double> >& vve) {
+  for (unsigned int i = 0; i < vvt.size(); ++i) {
+    std::vector<double>::const_iterator ct = std::upper_bound(vvt[i].begin(), vvt[i].end(), t);
+    if ( ct < vvt[i].end() && std::abs(t-*ct) <= fdTPID)
+      return vve[i][ct-vvt[i].begin()];
+  }
+  return -1.;
+}
+
 
 void Si16P::ThrowIfInputsInsane(modules::options* opts) {
 }

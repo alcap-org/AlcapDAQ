@@ -28,7 +28,7 @@ class Si16P : public BaseModule {
 
  private:
   // Histograms
-  TH2 *fHist_PIDRight, *fHist_PIDLeft;
+  TH2 *fhPIDRight, *fhPIDLeft;
 
   // Algorithms
   const Algorithm::MaxBinAmplitude fMBAmp_MuSc;
@@ -41,14 +41,13 @@ class Si16P : public BaseModule {
   TF1 *fADC2E_SiL11S, *fADC2E_SiL12S, *fADC2E_SiL13S, *fADC2E_SiL14S, *fADC2E_SiL2S;
 
   // Time cuts (ns)
-  const double fdTMuSc;
+  const double fdTMuScPP;
   const double fdTPID;
   const double fdTScatter;
-  const double fdTDetectorPileup;
   const double fdTSiLow, fdTSiHigh;
 
   // Energy cuts
-  const double fMuonCut; // ADC
+  const double fMuonEnergyCut; // ADC
 
   // Channels/Generator
   static const IDs::channel fMuSc;
@@ -93,15 +92,50 @@ class Si16P : public BaseModule {
 
   /// \brief
   /// Takes a vector of TPIs and calculates all of their times.
-  ///
-  /// \details
-  /// Since we'll be using the std::upper_bound/std::lower_bound methods,
-  /// this makes it possible to use the times of the TPIs without
-  /// writing some hacky compare function (that would use the TAPAlgorithms).
   std::vector<double> CalculateTimes(const IDs::channel& chan, const std::vector<TPulseIsland*>& tpis);
   /// \brief
   /// Takes a vector of TPIs and calculates all of their energies.
   std::vector<double> CalculateEnergies(const IDs::channel& chan, const std::vector<TPulseIsland*>& tpis);
+  /// \brief
+  /// Remove muSc hits (muons, electrons, etc.) that are too close to one another in time.
+  void RemoveMuScPileUp(std::vector<double>& times, std::vector<double>& energies);
+  /// \brief
+  /// Remove hits from muSc that are too low energy to be muons.
+  void RemoveElectrons(std::vector<double>& times, std::vector<double>& energies);
+  /// \brief
+  /// Remove hits that likely scattered away form the target and into detector arms.
+  ///
+  /// \details
+  /// If we see a hit quickly in the detector arms, the muon may have scattered.
+  /// The negative here is that the detector now has a large acceptance for
+  /// any capture products. Additionally, if the muon didn't scatter but this is
+  /// actually a disappearance product, we still want to throw out the event
+  /// because there's nothing to see later since the muon is already gone.
+  void RemoveScatteredMuons(std::vector<double>& muTimes, std::vector<double>& muEnergies,
+			    const std::vector<double>& siTimes);
+  void RemoveScatteredMuons(std::vector<double>& muTimes, std::vector<double>& muEnergies,
+			    const std::vector< std::vector<double> >& siTimes);
+
+  /// \brief
+  /// If there are multiple hists in the detector arms,
+  /// we cannot really figure out which one to count, so let's
+  /// ignore these.
+  void RemoveMultipleDetectorHits(std::vector<double>& muTimes, std::vector<double>& muEnergies,
+				  const std::vector<double>& siThickTimes);
+  void RemoveMultipleDetectorHits(std::vector<double>& muTimes, std::vector<double>& muEnergies,
+				  const std::vector< std::vector<double> >& siThinsTimes);
+
+  /// \brief
+  /// Find a matching hit in the thin detector for a hit in the thick
+  /// and return the energy; return -1.0 if none found.
+  ///
+  /// \details
+  /// Returns the first such matching hit in the corresponding thin detector.
+  /// A natural prerequisite is that multiple hits have already been omitted.
+  /// A matching hit is in siThickTime +/- fdTPID.
+  double FindFirstMatchingThinHit(const double siThickTime,
+				  const std::vector< std::vector<double> >& siThinTimes,
+				  const std::vector< std::vector<double> >& siThinEnergies);
 
   static void ThrowIfInputsInsane(modules::options*);
 };
