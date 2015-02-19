@@ -50,6 +50,7 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 TH2F* hmuPC_XYWires;
+TH2F* hmuPC_XYWires_no_time_cut;
 TH2F* hmuPC_XYWires_Random;
 const double wire_spacing = 2; // 2mm
 const double total_x_length = wire_spacing*(kMuPC1NumXWires - 1);
@@ -87,11 +88,14 @@ INT MMuPCBeamDimensions_init()
   hmuPC_XYWires->GetXaxis()->SetTitle("X Position [mm]");
   hmuPC_XYWires->GetYaxis()->SetTitle("Y Position [mm]");
 
+  hmuPC_XYWires_no_time_cut = new TH2F("hmuPC_XYWires_no_time_cut", "Plot of X-Y muPC Wire Hits (no time cut)", kMuPC1NumXWires,-total_x_length/2 - 0.5,total_x_length/2 + 0.5, kMuPC1NumYWires,-total_y_length/2 - 0.5, total_y_length/2 + 0.5);
+  hmuPC_XYWires_no_time_cut->GetXaxis()->SetTitle("X Position [mm]");
+  hmuPC_XYWires_no_time_cut->GetYaxis()->SetTitle("Y Position [mm]");
 
-  hmuPC_XYWires_Random = new TH2F("hmuPC_XYWires_Random", "Plot of X-Y muPC Wire Hits drawn randomly from the other histogram", kMuPC1NumXWires,-total_x_length/2 - 0.5,total_x_length/2 + 0.5, kMuPC1NumYWires,-total_y_length/2 - 0.5, total_y_length/2 + 0.5);
+  /*  hmuPC_XYWires_Random = new TH2F("hmuPC_XYWires_Random", "Plot of X-Y muPC Wire Hits drawn randomly from the other histogram", kMuPC1NumXWires,-total_x_length/2 - 0.5,total_x_length/2 + 0.5, kMuPC1NumYWires,-total_y_length/2 - 0.5, total_y_length/2 + 0.5);
   hmuPC_XYWires_Random->GetXaxis()->SetTitle("X Position [mm]");
   hmuPC_XYWires_Random->GetYaxis()->SetTitle("Y Position [mm]");
-
+  */
   gDirectory->Cd("/MidasHists/");
   return SUCCESS;
 }
@@ -109,13 +113,13 @@ INT MMuPCBeamDimensions_eor(INT run_number) {
     return false;
   }
 
-  int n_random_draws = 1000000;
+  /*  int n_random_draws = 1000000;
   double x, y;
   for (int i_draw = 0; i_draw < n_random_draws; ++i_draw) {
     hmuPC_XYWires->GetRandom2(x, y);
     hmuPC_XYWires_Random->Fill(x, y);
   }
-
+  */
   return SUCCESS;
 }
 
@@ -151,14 +155,19 @@ INT MMuPCBeamDimensions(EVENT_HEADER *pheader, void *pevent)
 	    double y_wire_time = prev_y_wire->time;
 	    double tdiff = std::fabs(x_wire_time - y_wire_time);
 
-	    if (tdiff <= 95) {
-	      int x_wire = (prev_x_wire->parameter - 4000);
-	      int y_wire = (prev_y_wire->parameter - 4050);
+	    int x_wire = (prev_x_wire->parameter - 4000);
+	    int y_wire = (prev_y_wire->parameter - 4050);
 	      
-	      double x_pos = (total_x_length/2) - wire_spacing*(kMuPC1NumXWires - x_wire);
-	      double y_pos = (total_y_length/2) - wire_spacing*(kMuPC1NumYWires - y_wire);
+	    double x_pos = (total_x_length/2) - wire_spacing*(kMuPC1NumXWires - x_wire);
+	    double y_pos = (total_y_length/2) - wire_spacing*(kMuPC1NumYWires - y_wire);
+	    hmuPC_XYWires_no_time_cut->Fill(x_pos, y_pos);
+
+	    if (tdiff <= 95) {
 	      
 	      hmuPC_XYWires->Fill(x_pos, y_pos);
+	      prev_x_wire = NULL; prev_y_wire = NULL;
+	    }
+	    else {
 	      prev_x_wire = NULL; prev_y_wire = NULL;
 	    }
 	  }
