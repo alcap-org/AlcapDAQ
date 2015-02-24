@@ -9,10 +9,10 @@ void ProtonBandGraphicalCut() {
 
   std::string filename = "~/data/out/"+version+"/total.root";
   TFile* file = new TFile(filename.c_str(), "READ");
-  TH2F* SiL_EvdE = (TH2F*) file->Get("TME_EvdE/all_particles/SiL_EvdE");
-  TH2F* SiR_EvdE = (TH2F*) file->Get("TME_EvdE/all_particles/SiR_EvdE");
+  TH2F* SiL_EvdE_stopped_proton_band = ((TH2F*) file->Get("TME_EvdE/all_particles/SiL_EvdE"))->Clone();
+  TH2F* SiR_EvdE_stopped_proton_band = ((TH2F*) file->Get("TME_EvdE/all_particles/SiR_EvdE"))->Clone();
 
-  TH2F* evde_hists[n_arms] = {SiL_EvdE, SiR_EvdE};
+  TH2F* evde_hists[n_arms] = {SiL_EvdE_stopped_proton_band, SiR_EvdE_stopped_proton_band};
   std::string arm_names[n_arms] = {"SiL", "SiR"};
 
   TFile* output_file = new TFile("result_Al50.root", "RECREATE");
@@ -84,5 +84,19 @@ void ProtonBandGraphicalCut() {
     int bin_low = hProjection->FindBin(energy_range_low);
     int bin_high = hProjection->FindBin(energy_range_high);
     std::cout << arm_names[i_arm] << " Proton Integral (" << energy_range_low << " - " << energy_range_high << " keV) = " << hProjection->Integral(bin_low, bin_high) << std::endl;
+
+    // Now want to do what I did in the MC (i.e. go through each energy bin and get a mean and rms for what I think is the stopped protons
+    double n_bins = evde_hists[i_arm]->GetNbinsX();
+
+    // Loop through the energy bins
+    std::string outfilename = "pid-cuts-" + arm_names[i_arm] + ".txt";
+    std::ofstream output(outfilename.c_str(), std::ofstream::out);
+    output << "energy/D:p_stop_mean/D:p_stop_rms/D:proton_mean/D:proton_rms/D:deuteron_mean/D:deuteron_rms/D:triton_mean/D:triton_rms/D:alpha_mean/D:\
+alpha_rms/D";
+    for (int i_bin = 1; i_bin <= n_bins; ++i_bin) {
+      double energy = evde_hists[i_arm]->GetXaxis()->GetBinLowEdge(i_bin);
+      TH1D* hProjection = evde_hists[i_arm]->ProjectionY("_py", i_bin, i_bin+1);
+      output << energy << " " << hProjection->GetMean() << " " << hProjection->GetRMS() << " 0 0 0 0 0 0 0 0" << std::endl;
+    }
   }
 }
