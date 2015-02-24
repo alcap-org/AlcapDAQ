@@ -108,16 +108,16 @@ Si16P::Si16P(modules::options* opts) :
 		 TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fSiL2S.str())),
 		 SetupNavigator::Instance()->GetCoarseTimeOffset(IDs::source(Si16P::fSiL2S, Si16P::fGenerator)),
 		 Si16P::fConstantFraction),
-  fADC2E_SiR11S(new TF1("adc2e_sir11s", "[0]+[1]*x")),
-  fADC2E_SiR12S(new TF1("adc2e_sir12s", "[0]+[1]*x")),
-  fADC2E_SiR13S(new TF1("adc2e_sir13s", "[0]+[1]*x")),
-  fADC2E_SiR14S(new TF1("adc2e_sir14s", "[0]+[1]*x")),
-  fADC2E_SiR2S (new TF1("adc2e_sir2s",  "[0]+[1]*x")),
-  fADC2E_SiL11S(new TF1("adc2e_sil11s", "[0]+[1]*x")),
-  fADC2E_SiL12S(new TF1("adc2e_sil12s", "[0]+[1]*x")),
-  fADC2E_SiL13S(new TF1("adc2e_sil13s", "[0]+[1]*x")),
-  fADC2E_SiL14S(new TF1("adc2e_sil14s", "[0]+[1]*x")),
-  fADC2E_SiL2S (new TF1("adc2e_sil2s",  "[0]+[1]*x")),
+  fADC2E_SiR11S(new TF1("adc2e_sir11s", "[0]*x+[1]")),
+  fADC2E_SiR12S(new TF1("adc2e_sir12s", "[0]*x+[1]")),
+  fADC2E_SiR13S(new TF1("adc2e_sir13s", "[0]*x+[1]")),
+  fADC2E_SiR14S(new TF1("adc2e_sir14s", "[0]*x+[1]")),
+  fADC2E_SiR2S (new TF1("adc2e_sir2s",  "[0]*x+[1]")),
+  fADC2E_SiL11S(new TF1("adc2e_sil11s", "[0]*x+[1]")),
+  fADC2E_SiL12S(new TF1("adc2e_sil12s", "[0]*x+[1]")),
+  fADC2E_SiL13S(new TF1("adc2e_sil13s", "[0]*x+[1]")),
+  fADC2E_SiL14S(new TF1("adc2e_sil14s", "[0]*x+[1]")),
+  fADC2E_SiL2S (new TF1("adc2e_sil2s",  "[0]*x+[1]")),
   fdTMuScPP (opts->GetDouble("tcut_musc")),    fdTPID        (opts->GetDouble("tcut_pid")),
   fdTScatter(opts->GetDouble("tcut_scatter")), fdTSiLow      (opts->GetDouble("tcut_si_low")),
   fdTSiHigh (opts->GetDouble("tcut_si_high")), fMuonEnergyCut(opts->GetDouble("adccut_musc")) {
@@ -260,7 +260,7 @@ int Si16P::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
     if ( iSiL2S < siL2STimes.size() &&
 	 siL2STimes[iSiL2S] - muScTimes[iMuSc] > fdTSiLow  &&
 	 siL2STimes[iSiL2S] - muScTimes[iMuSc] < fdTSiHigh ) {
-      double e  = siR2SEnergies[iSiR2S];
+      double e  = siL2SEnergies[iSiL2S];
       double de = FindFirstMatchingThinHit(siL2STimes[iSiL2S], siL1STimes, siL1SEnergies);
       if (de > 0)
 	fhPIDLeft->Fill(e+de, de);
