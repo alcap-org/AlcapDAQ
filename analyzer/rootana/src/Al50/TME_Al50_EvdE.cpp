@@ -245,7 +245,7 @@ int TME_Al50_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		      double mc_mean = i_arm->h_stopped_proton_profile->GetBinContent(bin);
 		      double mc_rms = i_arm->h_stopped_proton_profile->GetBinError(bin);
 
-		      if (std::fabs(mc_mean - thick_energy+thin_energy) < mc_rms) {
+		      if (std::fabs(mc_mean - thin_energy) < mc_rms) {
 			passes_cuts = true;
 		      }
 		    }
@@ -262,9 +262,11 @@ int TME_Al50_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 		    passes_cuts=false; // only accept proton if E is between 1.5 and 8 MeV (like Nam's cut)
 		  }
 		  if (passes_cuts) {
-		    //		    std::cout << "Amplitude --> Energy (thick): " << thick_amplitude << " --> " << thick_energy << std::endl;
-		    //		    std::cout << "Amplitude --> Energy (thin): " << thin_amplitude << " --> " << thin_energy << std::endl;
-		    //		    std::cout << "Plotting: " << thick_energy+thin_energy << ", " << thin_energy << std::endl;
+		    //		    if (fStoppedProtonCut) {
+		    //		      std::cout << "Amplitude --> Energy (thick): " << thick_amplitude << " --> " << thick_energy << std::endl;
+		    //		      std::cout << "Amplitude --> Energy (thin): " << thin_amplitude << " --> " << thin_energy << std::endl;
+		    //		      std::cout << "Plotting: " << thick_energy+thin_energy << ", " << thin_energy << std::endl;
+		      //		    }
 		    i_arm->h_EvdE->Fill(thick_energy+thin_energy, thin_energy);
 		    i_arm->h_Time->Fill(arrival_time);
 		  }
