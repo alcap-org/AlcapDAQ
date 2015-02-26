@@ -27,11 +27,13 @@ TMEViewer::~TMEViewer(){
 
 int TMEViewer::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     using namespace IDs;
+    fDetectors.push_back(IDs::channel (kScL , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiL1_1 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiL1_2 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiL1_3 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiL1_4 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiL2   , kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kScR , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiR1_1 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiR1_2 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiR1_3 , kNotApplicable ));
@@ -85,7 +87,7 @@ int TMEViewer::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	source_index=(*i_tme)->GetSourceIndex(*i_det,source_index+1);
       }
     }
-    if (fTDiffPerDetector->GetEntries() > 1 && !(*i_tme)->HasMuonPileup()) {
+    if (fTDiffPerDetector->GetEntries() > 5 && !(*i_tme)->HasMuonPileup()) {
       std::cout << "TME #" << i_tme - gMuonEvents.begin() << std::endl;
       found_interesting_event = true;
       fTDiffPerDetector->Draw("COLZ");
@@ -98,7 +100,7 @@ int TMEViewer::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	break;
       }
     }
-    std::cout << "TME #" << i_tme - gMuonEvents.begin() << std::endl;
+    //    std::cout << "TME #" << i_tme - gMuonEvents.begin() << std::endl;
     ++i_tme;
     if (i_tme == gMuonEvents.end() ) {
       std::cout << "At the end" << std::endl;
