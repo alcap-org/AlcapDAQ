@@ -5,8 +5,12 @@
 #include "TDirectory.h"
 #include "TH2.h"
 #include "TH1.h"
+#include "TCanvas.h"
+#include "TFitResult.h"
 
 void GetTimeResolutions(std::string filename) {
+
+  TCanvas* c1 = new TCanvas("c1", "c1");
 
   TFile* file = new TFile(filename.c_str(), "READ");
 
@@ -24,8 +28,14 @@ void GetTimeResolutions(std::string filename) {
       std::string plotname = det_obj->GetName();
       if (plotname.find("AmpA") != std::string::npos) {
 	TH2F* hist = (TH2F*) folder_dir->Get(plotname.c_str());
-	std::cout << "AE: " << plotname << " has " << hist->GetEntries() << " entries" << std::endl;
-	hist->Draw("COLZ");
+	TH1D* projection = hist->ProjectionX();
+	//	projection->Rebin(4);
+	TFitResultPtr fit_result = projection->Fit("gaus", "QS", "", -150,150);
+	std::cout << foldername << ": sigma = " << fit_result->Parameter(2) << std::endl;
+	projection->Draw();
+	std::string picname = foldername + ".pdf";
+	c1->Print(picname.c_str());
+	
       }
     }
     
