@@ -28,6 +28,10 @@ void DataAndMC() {
   std::string baseplotname = "TME_Al50_EvdE/all_particles/ARM_EvdE";
   ProtonBandGraphicalCut("data", filename, baseplotname, savelocation);
 
+  // MC
+  filename = "~/g4sim/alcap/scripts/Al50/plots.root";
+  baseplotname = "hAll_EvdE_ARM";
+  ProtonBandGraphicalCut("mc", filename, baseplotname, "");
 }
 
 void ProtonBandGraphicalCut(std::string identifier, std::string filename, std::string baseplotname, std::string output_location) {
@@ -122,7 +126,7 @@ void ProtonBandGraphicalCut(std::string identifier, std::string filename, std::s
     double n_bins = i_arm->selected_band->GetNbinsX();
 
     // Loop through the energy bins
-    std::string outfilename = "pid-cuts-" + i_arm->armname + ".txt";
+    std::string outfilename = "pid-cuts-" + i_arm->armname + "-" + identifier + ".txt";
     std::ofstream output(outfilename.c_str(), std::ofstream::out);
     output << "energy/D:p_stop_mean/D:p_stop_rms/D:proton_mean/D:proton_rms/D:deuteron_mean/D:deuteron_rms/D:triton_mean/D:triton_rms/D:alpha_mean/D:\
 alpha_rms/D";
