@@ -1,15 +1,18 @@
 #include <iostream>
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 
 #include "TCanvas.h"
 #include "TFile.h"
 #include "TH2.h"
 #include "TF1.h"
+#include "TFitResult.h"
 
 struct Arm {
   std::string armname;
   TH2F* selected_band;
+  TH1F* profile;
 } LeftArm, RightArm;
 
 void ProtonBandGraphicalCut(std::string identifier, std::string filename, std::string baseplotname, std::string output_location);
@@ -123,7 +126,7 @@ void ProtonBandGraphicalCut(std::string identifier, std::string filename, std::s
     std::cout << i_arm->armname << " Proton Integral (" << energy_range_low << " - " << energy_range_high << " keV) = " << hProjection->Integral(bin_low, bin_high) << std::endl;
 
     // Now want to do what I did in the MC (i.e. go through each energy bin and get a mean and rms for what I think is the stopped protons
-    double n_bins = i_arm->selected_band->GetNbinsX();
+    int n_bins = i_arm->selected_band->GetNbinsX();
 
     // Loop through the energy bins
     std::string outfilename = "pid-cuts-" + i_arm->armname + "-" + identifier + ".txt";
@@ -133,10 +136,22 @@ alpha_rms/D";
     int n_entries_covered = 0;
     for (int i_bin = 1; i_bin <= n_bins; ++i_bin) {
       double energy = i_arm->selected_band->GetXaxis()->GetBinLowEdge(i_bin);
-      TH1D* hProjection = i_arm->selected_band->ProjectionY("_py", i_bin, i_bin);
+      std::stringstream projectionname;
+      projectionname << identifier << "_" << i_arm->armname << "_" << energy << "_py";
+      TH1D* hProjection = i_arm->selected_band->ProjectionY(projectionname.str().c_str(), i_bin, i_bin);
 
       double mean = hProjection->GetMean();
       double rms = hProjection->GetRMS();
+      //      gaussian->SetParameters(mean, rms);
+
+      if (hProjection->GetEntries() > 0) {
+	TFitResultPtr fit_result = hProjection->Fit("gaus", "QS");
+	hProjection->Write();
+	if ( (int) fit_result == 0) {
+	  mean = fit_result->Parameter(1);
+	  rms = fit_result->Parameter(2);
+	}
+      }
 
       int integral_low = hProjection->FindBin(mean - 2*rms);
       int integral_high = hProjection->FindBin(mean + 2*rms);
@@ -145,5 +160,6 @@ alpha_rms/D";
       output << energy << " " << mean << " " << rms << " 0 0 0 0 0 0 0 0" << std::endl;
     }
     std::cout << i_arm->armname << ": " << n_entries_covered << " / " << i_arm->selected_band->GetEntries() << " " << n_entries_covered / i_arm->selected_band->GetEntries() << std::endl;
-  }
+  } // end for-loop through arms
+  output_file->Close();
 }
