@@ -127,6 +127,10 @@ void ProtonBandGraphicalCut(std::string identifier, std::string filename, std::s
 
     // Now want to do what I did in the MC (i.e. go through each energy bin and get a mean and rms for what I think is the stopped protons
     int n_bins = i_arm->selected_band->GetNbinsX();
+    double min_energy = i_arm->selected_band->GetXaxis()->GetXmin();
+    double max_energy = i_arm->selected_band->GetXaxis()->GetXmax();
+    std::string profilename = "hProfile_" + i_arm->armname + "_" + identifier;
+    i_arm->profile = new TH1F(profilename.c_str(), "", n_bins,min_energy,max_energy);
 
     // Loop through the energy bins
     std::string outfilename = "pid-cuts-" + i_arm->armname + "-" + identifier + ".txt";
@@ -148,8 +152,8 @@ alpha_rms/D";
 	TFitResultPtr fit_result = hProjection->Fit("gaus", "QS");
 	hProjection->Write();
 	if ( (int) fit_result == 0) {
-	  mean = fit_result->Parameter(1);
-	  rms = fit_result->Parameter(2);
+	  //	  mean = fit_result->Parameter(1);
+	  //	  rms = fit_result->Parameter(2);
 	}
       }
 
@@ -157,8 +161,11 @@ alpha_rms/D";
       int integral_high = hProjection->FindBin(mean + 2*rms);
       n_entries_covered += hProjection->Integral(integral_low, integral_high);
 
+      i_arm->profile->SetBinContent(i_bin, mean);
+      i_arm->profile->SetBinError(i_bin, rms);
       output << energy << " " << mean << " " << rms << " 0 0 0 0 0 0 0 0" << std::endl;
     }
+    i_arm->profile->Write();
     std::cout << i_arm->armname << ": " << n_entries_covered << " / " << i_arm->selected_band->GetEntries() << " " << n_entries_covered / i_arm->selected_band->GetEntries() << std::endl;
   } // end for-loop through arms
   output_file->Close();
