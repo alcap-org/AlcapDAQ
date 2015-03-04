@@ -43,6 +43,8 @@ int TME_SiArrivalTimes::BeforeFirstEntry(TGlobalData* gData,const TSetupData *se
   fSiDetectors.push_back(IDs::channel (kSiR1_4 , kNotApplicable ));
   fSiDetectors.push_back(IDs::channel (kSiR2   , kNotApplicable ));
 
+  fArrivalTimesHist = new TH1F("hArrivalTimes", "hArrivalTimes", 500,0,10000);
+ 
   return 0;
 }
 
@@ -71,8 +73,8 @@ int TME_SiArrivalTimes::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
 	  const TDetectorPulse* si_tdp=(*i_tme)->GetPulse(si_source,i_pulse);
 	  double si_time = si_tdp->GetTime();
 
-	  double time_difference = std::fabs(si_time - tme_time);
-	  std::cout << "AE: " << time_difference << std::endl;
+	  double arrival_time= std::fabs(si_time - tme_time);
+	  fArrivalTimesHist->Fill(arrival_time);
 	}
 
 	// Get the next source
