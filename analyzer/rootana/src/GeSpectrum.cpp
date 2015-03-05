@@ -97,46 +97,46 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   else if (TPIMap.at(bank_musc).size() == 0 || TPIMap.at(bank_ges).size() == 0 || TPIMap.at(bank_gef).size() == 0)
     return 0;
 
-  const std::vector<double> muScTimes  = CalculateTimes(fMuSc,   TPIMap.at(bank_musc));
-  const std::vector<double> muScEnergies  = CalculateEnergies(fMuSc,   TPIMap.at(bank_musc));
-  const std::vector<double> geTimes    = CalculateTimes(fGeF,    TPIMap.at(bank_gef));
-  const std::vector<double> geEnergies = CalculateEnergies(fGeS, TPIMap.at(bank_ges));
+  const std::vector<double> muScTimes    = CalculateTimes(fMuSc,   TPIMap.at(bank_musc));
+  const std::vector<double> muScEnergies = CalculateEnergies(fMuSc,   TPIMap.at(bank_musc));
+  const std::vector<double> geTimes      = CalculateTimes(fGeF,    TPIMap.at(bank_gef));
+  const std::vector<double> geEnergies   = CalculateEnergies(fGeS, TPIMap.at(bank_ges));
   
   std::vector<double> muScTimesPP(muScTimes), muScEnergiesPP(muScEnergies);
-  RemovePileupMuScPulses(muScTimesPP, muScEnergiesPP);
+  //RemovePileupMuScPulses(muScTimesPP, muScEnergiesPP);
 
-  //************************************//
-  //***** First get average offset *****//
-  //************************************//
-  TH1I hTOff("hTOff", "Time Offset", 4000, -20000., 20000.);
-  for (std::vector<double>::const_iterator geT = geTimes.begin(), prev = muScTimesPP.begin(), next;
-       geT != geTimes.end();
-       ++geT) {
-    static const double unfound = 1e9;
-    double dt[2] = {unfound, unfound}, &dt_prev = dt[0], &dt_next = dt[1];
-    std::vector<double>::const_iterator end = muScTimesPP.end();
-    next = std::upper_bound(prev, end, *geT);
-    prev = next - 1;
-    if (next == muScTimesPP.end())
-      dt_prev = *geT - *prev;
-    else if (next == muScTimesPP.begin()) {
-      dt_next = *geT - *next;
-      prev = next;
-    } else {
-      dt_prev = *geT - *prev;
-      dt_next = *geT - *next;
-    }
+  // //************************************//
+  // //***** First get average offset *****//
+  // //************************************//
+  // TH1I hTOff("hTOff", "Time Offset", 4000, -20000., 20000.);
+  // for (std::vector<double>::const_iterator geT = geTimes.begin(), prev = muScTimesPP.begin(), next;
+  //      geT != geTimes.end();
+  //      ++geT) {
+  //   static const double unfound = 1e9;
+  //   double dt[2] = {unfound, unfound}, &dt_prev = dt[0], &dt_next = dt[1];
+  //   std::vector<double>::const_iterator end = muScTimesPP.end();
+  //   next = std::upper_bound(prev, end, *geT);
+  //   prev = next - 1;
+  //   if (next == muScTimesPP.end())
+  //     dt_prev = *geT - *prev;
+  //   else if (next == muScTimesPP.begin()) {
+  //     dt_next = *geT - *next;
+  //     prev = next;
+  //   } else {
+  //     dt_prev = *geT - *prev;
+  //     dt_next = *geT - *next;
+  //   }
     
-    for (unsigned int it = 0; it < 2; ++it)
-      if (std::abs(dt[it]) < 20000.)
-	hTOff.Fill(dt[it]);
+  //   for (unsigned int it = 0; it < 2; ++it)
+  //     if (std::abs(dt[it]) < 20000.)
+  // 	hTOff.Fill(dt[it]);
 
-  }
-  double tOff = 0.;
-  if (hTOff.Integral() > 1) {
-    tOff = hTOff.GetMean();
-    fHist_MeanTOffset->Fill(tOff);
-  }
+  // }
+  // double tOff = 0.;
+  // if (hTOff.Integral() > 1) {
+  //   tOff = hTOff.GetMean();
+  //   fHist_MeanTOffset->Fill(tOff);
+  // }
 
 
   //**************************//
