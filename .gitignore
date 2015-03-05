@@ -18,3 +18,5 @@ www/html/trend/*
 exptab
 /sqlite*/
 *.pyc
+*.db
+*.ipynb

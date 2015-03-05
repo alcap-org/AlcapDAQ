@@ -161,6 +161,13 @@ class modules::options{
         /// @return Number of tokens pushed in to vect
         int GetVectorStringsByDelimiter(const std::string& name, std::vector<std::string>& vect,const char* delim=":")const;
 
+	/// @brief Fill a vector of doubles with tokens found
+	/// in the named option
+	/// @param name Name of the option to use
+	/// @param vect vector to fill with tokens
+	/// @return Number of tokens pushed in to vect
+	int GetVectorDoublesByWhiteSpace(const std::string& name, std::vector<double>& vect)const;
+
         /// @brief Check if a named option has been set
         /// @param name Name of option to use
         /// @return true if option was set, false if not

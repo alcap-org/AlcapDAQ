@@ -1,6 +1,8 @@
 #ifndef GESPECTRUM_H_
 #define GESPECTRUM_H_
 
+#include <vector>
+
 #include "BaseModule.h"
 #include "TAPAlgorithms.h"
 #include "IdChannel.h"
@@ -35,35 +37,45 @@ class GeSpectrum : public BaseModule {
 
  private:
   // Histograms
-  TH1* fHist_ADC;
-  TH1* fHist_Energy;
-  TH1* fHist_Time;
-  TH1* fHist_MoreTime;
-  TH1* fHist_ADCOOT;
-  TH1* fHist_EnergyOOT;
-  TH1* fHist_ADCFarOOT;
-  TH1* fHist_EnergyFarOOT;
-  TH1* fHist_TimeOOT;
-  TH1* fHist_TimeFarOOT;
-  TH2* fHist_TimeADC;
-  TH2* fHist_TimeEnergy;
-  TH1* fHist_MeanTOffset;
+  TH1* fhADC;
+  TH1* fhEnergy;
+  TH1* fhADCOOT;
+  TH1* fhEnergyOOT;
+  TH1* fhADCFarOOT;
+  TH1* fhEnergyFarOOT;
+  TH2* fhTimeADC;
+  TH2* fhTimeEnergy;
+  TH1* fhNMuons;
+  TH2* fhPPTimeADC;
+  TH2* fhPPTimeEnergy;
+  TH1* fhPPNMuons;
+  std::vector<TH2*> fvhTimePeak;
+  std::vector<TH2*> fvhPPTimePeak;
+
+  // Some options
+  const bool fUseSlowTiming;
+  const bool fCalibration;
 
   // Algorithms
-  const Algorithm::MaxBinAmplitude fMBAmpGe;
   const Algorithm::MaxBinAmplitude fMBAmpMuSc;
-  const Algorithm::ConstantFractionTime fCFTimeGe, fCFTimeMuSc;
+  const Algorithm::MaxBinAmplitude fMBAmpGe;
+  const Algorithm::ConstantFractionTime fCFTimeMuSc;
+  const Algorithm::ConstantFractionTime fCFTimeGe;
   TF1* fADC2Energy;
-  // Time cuts
-  const double fTimeWindow_Small; // ns
-  const double fTimeWindow_Big;   // ns
+
+  // Time cuts (ns)
+  const double fTimeWindow_Small;
+  const double fTimeWindow_Big;
   const double fPileupProtectionWindow;
+
+  // Energy cuts
+  const double fMuScPulseHeightCut;
+  std::vector<double> fvPeaksOfInterest;
 
   // Channels
   static const IDs::channel fGeS;
   static const IDs::channel fGeF;
   static const IDs::channel fMuSc;
-
 
  public:
   /// \brief
@@ -110,11 +122,15 @@ class GeSpectrum : public BaseModule {
   /// \brief
   /// Takes a vector of TPIs and calculates all of their energies.
   std::vector<double> CalculateEnergies(const IDs::channel& chan, const std::vector<TPulseIsland*>& tpis);
-
-  void ThrowIfInputsInsane(const modules::options*);
-  void ThrowIfGeInsane(const std::vector<TPulseIsland*>& ge_fasts, const std::vector<TPulseIsland*>& ge_slows);
+  /// \brief
+  /// Removes small muSc pulses.
+  void RemoveSmallMuScPulses(std::vector<double>& time, std::vector<double>& energy);
+  /// \brief
+  /// Removes pileup muons.
   void RemovePileupMuScPulses(std::vector<double>& time, std::vector<double>& energy);
 
+  static void ThrowIfInputsInsane(const modules::options*);
+  static void ThrowIfGeInsane(const std::vector<TPulseIsland*>& ge_fasts, const std::vector<TPulseIsland*>& ge_slows);
 };
 
 #endif //GESPECTRUM_H_
