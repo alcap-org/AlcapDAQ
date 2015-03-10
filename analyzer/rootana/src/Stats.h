@@ -1,7 +1,5 @@
-#ifndef GESPECTRUM_H_
-#define GESPECTRUM_H_
-
-#include <vector>
+#ifndef STATS_H_
+#define STATS_H_
 
 #include "BaseModule.h"
 #include "TAPAlgorithms.h"
@@ -12,64 +10,27 @@ class TSetupData;
 namespace modules {class options;}
 
 class TH1;
-class TH2;
-class TF1;
+class TNtupleD;
 
 #include <cmath>
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
 /// \author John R Quirk
-///
-/// \brief
-/// This produces the height spectrum of the germanium based on timing cuts.
-///
-/// \details
-/// We look near muon entrances for the xrays and several microseconds away for
-/// longer lived nuclear decays. We also look at medium time distances for
-/// captures. These refer to the "Energy", "EnergyFarOOT" and "EnergyOOT"
-/// histograms respectively. Also plots time vs energy in tight window
-/// in TimeEnergy histogram, and looks for timing correlations with muSc
-/// in MeanTOffset within a MIDAS event (as each event might have a slightly
-/// different offset due to clock reset).
 ////////////////////////////////////////////////////////////////////////////////
-class GeSpectrum : public BaseModule {
+class Stats : public BaseModule {
 
  private:
   // Histograms
-  TH1* fhADC;
-  TH1* fhEnergy;
-  TH1* fhADCOOT;
-  TH1* fhEnergyOOT;
-  TH1* fhADCFarOOT;
-  TH1* fhEnergyFarOOT;
-  TH2* fhTimeADC;
-  TH2* fhTimeEnergy;
-  std::vector<TH2*> fvhTimePeak;
+  TNtupleD* ftRunStats; // TPP, muSc height cut
+  TNtupleD* ftBlockStats; // LT, NMu, PPNMu
 
-  // Some options
-  const bool fUseSlowTiming;
-  const bool fCalibration;
-
-  // Algorithms
   const Algorithm::MaxBinAmplitude fMBAmpMuSc;
-  const Algorithm::MaxBinAmplitude fMBAmpGe;
   const Algorithm::ConstantFractionTime fCFTimeMuSc;
-  const Algorithm::ConstantFractionTime fCFTimeGe;
-  TF1* fADC2Energy;
-
-  // Time cuts (ns)
-  const double fTimeWindow_Small;
-  const double fTimeWindow_Big;
-  const double fPileupProtectionWindow;
-
-  // Energy cuts
-  const double fMuScPulseHeightCut;
-  std::vector<double> fvPeaksOfInterest;
+  const double fTPP;
+  const double fMuScHeightCut;
 
   // Channels
-  static const IDs::channel fGeS;
-  static const IDs::channel fGeF;
   static const IDs::channel fMuSc;
 
  public:
@@ -77,10 +38,10 @@ class GeSpectrum : public BaseModule {
   /// Constructor description. If necessary, add a details tag like above.
   ///
   /// \param[in] opts Describe the options this module takes.
-  GeSpectrum(modules::options* opts);
+  Stats(modules::options* opts);
   /// \brief
   /// Is anything done in the destructor?
-  ~GeSpectrum();
+  ~Stats();
 
  private:
   /// \brief
@@ -113,19 +74,15 @@ class GeSpectrum : public BaseModule {
   /// Since we'll be using the std::upper_bound/std::lower_bound methods,
   /// this makes it possible to use the times of the TPIs without
   /// writing some hacky compare function (that would use the TAPAlgorithms).
-  std::vector<double> CalculateTimes(const IDs::channel& chan, const std::vector<TPulseIsland*>& tpis);
+  std::vector<double> CalculateTimes(const std::vector<TPulseIsland*>& tpis);
   /// \brief
   /// Takes a vector of TPIs and calculates all of their energies.
-  std::vector<double> CalculateEnergies(const IDs::channel& chan, const std::vector<TPulseIsland*>& tpis);
-  /// \brief
-  /// Removes small muSc pulses.
-  void RemoveSmallMuScPulses(std::vector<double>& time, std::vector<double>& energy);
-  /// \brief
-  /// Removes pileup muons.
-  void RemovePileupMuScPulses(std::vector<double>& time, std::vector<double>& energy);
+  std::vector<double> CalculateEnergies(const std::vector<TPulseIsland*>& tpis);
 
-  static void ThrowIfInputsInsane(const modules::options*);
-  static void ThrowIfGeInsane(const std::vector<TPulseIsland*>& ge_fasts, const std::vector<TPulseIsland*>& ge_slows);
+  void ThrowIfInputsInsane(const modules::options*);
+  void RemovePileupMuScPulses(std::vector<double>& time, std::vector<double>& energy);
+  void RemoveElectrons(std::vector<double>& time, std::vector<double>& energy);
+
 };
 
-#endif //GESPECTRUM_H_
+#endif //LIVETIME_H_

@@ -31,9 +31,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   BaseModule("GeSpectrum",opts),
   fhADC(NULL), fhEnergy(NULL),
   fhADCOOT(NULL), fhEnergyOOT(NULL), fhADCFarOOT(NULL), fhEnergyFarOOT(NULL),
-  fhTimeADC(NULL), fhTimeEnergy(NULL), fhNMuons(NULL),
-  fhPPTimeADC(NULL), fhPPTimeEnergy(NULL), fhPPNMuons(NULL),
-  fvhTimePeak(), fvhPPTimePeak(),
+  fhTimeADC(NULL), fhTimeEnergy(NULL), fvhTimePeak(),
   fUseSlowTiming(opts->GetBool("ge_slow_timing")), fCalibration(opts->GetBool("calib")),
   fMBAmpMuSc(SetupNavigator::Instance()->GetPedestal(fMuSc), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fMuSc.str()))),
   fMBAmpGe(SetupNavigator::Instance()->GetPedestal(fGeS), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeS.str()))),
@@ -55,8 +53,6 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   const static int nbins = std::pow(2.,14);
   const std::pair<double,double> adc2energy_par = fCalibration ? std::pair<double, double>(0., 0.) : SetupNavigator::Instance()->GetEnergyCalibrationConstants(IDs::channel("Ge-S"));
   fADC2Energy->SetParameters(adc2energy_par.first, adc2energy_par.second);
-  TDirectory* cwd = TDirectory::CurrentDirectory();
-  dir->cd();
 
   fhADC            = new TH1D("hADC",          "Energy of Gammas;Energy (ADC)",                        nbins, 0.,                    nbins);
   if (!fCalibration) {
@@ -67,8 +63,6 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
     fhEnergyFarOOT = new TH1D("hEnergyFarOOT", "Energy of Gammas far from Muons;Energy (keV)",         nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
     fhTimeADC      = new TH2D("hTimeADC",      "Energy of Gammas within Time Window;Time (ns);Energy (ADC)",      500, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0.,                    nbins);
     fhTimeEnergy   = new TH2D("hTimeEnergy",   "Energy of Gammas within Time Window;Time (ns);Energy (keV)",      500, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
-    fhPPTimeADC    = new TH2D("hPPTimeADC",    "Energy of Gammas within Time Window (PP);Time (ns);Energy (ADC)", 500, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0.,                    nbins);
-    fhPPTimeEnergy = new TH2D("hPPTimeEnergy", "Energy of Gammas within Time Window (PP);Time (ns);Energy (keV)", 500, -fTimeWindow_Small, fTimeWindow_Small, nbins, fADC2Energy->Eval(0.), fADC2Energy->Eval(nbins));
     opts->GetVectorDoublesByWhiteSpace("peaks_of_interest", fvPeaksOfInterest);
     for (unsigned int i = 0; i < fvPeaksOfInterest.size(); ++i) {
       char name[64], title[64];
@@ -78,10 +72,7 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
       fvhTimePeak.push_back(new TH2D(name, title, 2000, -5000., 5000., 32, bounds[0], bounds[1]));
     }
   }
-  fhNMuons         = new TH1D("hNMuons",   "Number of muons in MIDAS event;Number",      2000, 0., 2000.);
-  fhPPNMuons       = new TH1D("hPPNMuons", "Number of muons in MIDAS event;Number (PP)", 2000, 0., 2000.);
 
-  cwd->cd();
 }
 
 GeSpectrum::~GeSpectrum(){
@@ -112,16 +103,15 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   
   // Apply some cuts
   RemoveSmallMuScPulses (muScTimes, muScEnergies);
-  //  std::vector<double> muScTimesPP(muScTimes), muScEnergiesPP(muScEnergies);
-  RemovePileupMuScPulses(muScTimes, muScEnergies);
+  //RemovePileupMuScPulses(muScTimes, muScEnergies);
 
 
   //**************************//
   //***** Now make plots *****//
   //**************************//
-  for (std::vector<double>::const_iterator geT = geTimes.begin(), geE = geEnergies.begin(), prev = muScTimesPP.begin(), next;
-       geT != geTimes.end() && geE != geEnergies.end();
-       ++geT, ++geE) {
+  for (std::vector<double>::const_iterator geT = geTimes.begin(), geE = geEnergies.begin(), prev = muScTimes.begin(), next;
+   geT != geTimes.end() && geE != geEnergies.end();
+   ++geT, ++geE) {
     // Short-ciruit each iteration if only interested in calibrating
     if (fCalibration) {
       fhADC->Fill(*geE);
@@ -137,10 +127,10 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
     /////////////////////////////////////////////////////
     next = std::upper_bound(prev, (std::vector<double>::const_iterator)muScTimes.end(), *geT);
     prev = next - 1;
-    if (next == muScTimesPP.end()) {
+    if (next == muScTimes.end()) {
       dt_prev = *geT - *prev;
       prev_found = true;
-    } else if (next == muScTimesPP.begin()) {
+    } else if (next == muScTimes.begin()) {
       dt_next = *geT - *next;
       next_found = true;
     } else {
@@ -172,22 +162,17 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
     fhEnergy->Fill(en);
     for (unsigned int i = 0; i < fvPeaksOfInterest.size(); ++i)
       if (en < fvPeaksOfInterest[i] + 2. && en > fvPeaksOfInterest[i] - 2) {
-	if (prev_found)
-	  fvhTimePeak[i]->Fill(dt_prev,en);
-	if (next_found)
-	  fvhTimePeak[i]->Fill(dt_next,en);
-      }
-  }
+       if (prev_found)
+         fvhTimePeak[i]->Fill(dt_prev,en);
+       if (next_found)
+         fvhTimePeak[i]->Fill(dt_next,en);
+     }
+   }
 
-  //*************************************//
-  //************ Count Muons ************//
-  //*************************************//
-  fhNMuons->Fill(muScEnergies.size());
+   return 0;
+ }
 
-  return 0;
-}
-
-int GeSpectrum::AfterLastEntry(TGlobalData* gData, const TSetupData *setup){
+ int GeSpectrum::AfterLastEntry(TGlobalData* gData, const TSetupData *setup){
   return 0;
 }
 
