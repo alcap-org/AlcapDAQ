@@ -1,26 +1,33 @@
 #include "TFile.h"
-#include "TNtupleD.h"
+#include "TTree.h"
 #include "TH1.h"
+#include <iostream>
 
-Double_t singles_rates() {
-  TFile* infile = new TFile("out.root", "READ");
+void singles_rates(const char* fname) {
+  TFile* infile = new TFile(fname, "READ");
 
   // Get number of muons and livetime
-  TNtubpleD* intree = (TNtubpleD*)infile->Get("Stats/BlockStats");
-  Double_t nmu = 0., tot_nmu = 0.;
-  Double_t lt  = 0., tot_lt  = 0.;
-  intree->SetBranchAddress("nmu", &&n);
-  intree->SetBranchAddress("lt",  &&lt);
+  TTree* intree = (TTree*)infile->Get("Stats/BlockStats");
+  double nmu     = 0.;
+  double tot_nmu = 0.;
+  double lt      = 0.;
+  double tot_lt  = 0.;
+  intree->SetBranchAddress("nmu", &nmu);
+  intree->SetBranchAddress("lt",  &lt);
 
   for (UInt_t i = 0; i < intree->GetEntries(); ++i) {
   	intree->GetEntry(i);
-  	tot_n += n;
+  	tot_nmu += nmu;
   	tot_lt += lt;
   }
 
-  // Get number of photons
-  TH1* hg = (TH1*)infile->Get("GeSpectrum/hADC"))
-  Double_t tot_ng = hg->Integral(500, hg->GetNbinsX()+1);
 
-  return tot_ng/tot_nmu;
+  // Get number of photons
+  TH1* hg = (TH1*)infile->Get("GeSpectrum/hADC");
+
+  const unsigned int npoints = 11;
+  for (unsigned int i = 0; i < npoints; ++i)
+    std::cout << 100*i << " bins:    " << hg->Integral(100*i, hg->GetNbinsX()+1)/tot_nmu << "    " << hg->Integral(100*i, hg->GetNbinsX()+1)/tot_nmu*50.e3 << std::endl;
+
+  return;
 }
