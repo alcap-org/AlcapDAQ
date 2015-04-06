@@ -4,11 +4,12 @@
 //#define PARALLEL_PORT1 0x4440  // always reads 4
 //#define PARALLEL_PORT0 0x1250
 //#define PARALLEL_PORT1 0x1251
-#define PARALLEL_PORT0 0x1150
-#define PARALLEL_PORT1 0x1151
+//#define PARALLEL_PORT0 0x1150
+//#define PARALLEL_PORT1 0x1151
 
-// #define PARALLEL_PORT0 0x378
-// #define PARALLEL_PORT1 (0x378+1)
+#define PARALLEL_PORT0 0x378
+#define PARALLEL_PORT1 (PARALLEL_PORT0+1)
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -144,11 +145,12 @@ INT parport_poll_live()
 
   unsigned char p = inb(PARALLEL_PORT1);
 
+  //printf("p=%i, 0x%x\n",p, p);
 
   if ( !(p & 0x40) )
     {
-      printf("p=%i, 0x%x\n",p, p);
-      printf("end of block\n");
+      //printf("p=%i, 0x%x\n",p, p);
+      //printf("end of block\n");
       return FE_END_BLOCK;
     }
   

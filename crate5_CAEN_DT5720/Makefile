@@ -30,13 +30,15 @@ MODULES += dt5720_module.o
 CAEN_DIR = $(DAQdir)/CAEN
 LDFLAGS += -L $(CAEN_DIR)/lib -lCAENDigitizer -lCAENComm -lCAENVME
 # CAEN_DIGITIZER library
-CXXFLAGS += -I $(CAEN_DIR)/CAENDigitizer/CAENDigitizer_2.3.2/include
+# CXXFLAGS += -I $(CAEN_DIR)/CAENDigitizer/CAENDigitizer_2.3.2/include
+CXXFLAGS += -I $(CAEN_DIR)/CAENDigitizer/CAENDigitizer_2.6.5/include
 #LDFLAGS += -L $(CAEN_DIR)/CAENDigitizer/CAENDigitizer_2.3.2/lib/i686 -lCAENDigitizer
 # CAEN Comm library
 CXXFLAGS += -I $(CAEN_DIR)/CAENComm/include
 #LDFLAGS += -L $(CAEN_DIR)/CAENComm/lib -lCAENComm
 # CAEN VME library
-CXXFLAGS += -I $(CAEN_DIR)/CAENVMELib/CAENVMELib-2.30.2/include
+#CXXFLAGS += -I $(CAEN_DIR)/CAENVMELib/CAENVMELib-2.30.2/include
+CXXFLAGS += -I $(CAEN_DIR)/CAENVMELib/CAENVMELib-2.41/include
 #LDFLAGS += -L $(CAEN_DIR)/CAENVMELib/CAENVMELib-2.30.2/lib/X86 -lCAENVME
 
 

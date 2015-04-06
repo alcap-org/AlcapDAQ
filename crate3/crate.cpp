@@ -379,7 +379,7 @@ INT resume_run(INT run_number, char *error)
  */
 void start_cycle()
 {
-  printf("starting new cycle in crate.cpp\n");
+  //printf("starting new cycle in crate.cpp\n");
   struct timeval restart_time;
   gettimeofday(&restart_time, NULL);
 
