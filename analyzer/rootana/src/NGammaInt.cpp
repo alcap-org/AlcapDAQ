@@ -251,7 +251,7 @@ int NGammaInt::AfterLastEntry(TGlobalData *gData){
     if((detname != "NDet") && (detname != "NDet2"))
       continue;  
 
-    for(int energyIt = 0; energyIt < 30; energyIt++){
+    for(int energyIt = 0; energyIt < 20; energyIt++){
       float energy = (float) energyIt / 2;
       int energyBin1 = 0, energyBin2 = 0;
       if(detname == "NDet"){
