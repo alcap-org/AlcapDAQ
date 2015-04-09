@@ -102,12 +102,17 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
     }
  
 
+    int Emax1 = 0;
+    if(detname == 'NDet')
+      Emax1 = 15.99;
+    else if(detname == 'NDet2')
+      Emax1 = 10.53;
 
  if(NGNCEnergy_plots.find(keyname) == NGNCEnergy_plots.end())
       {
 	std::string histname6 = "h" + detname + "_Amplitude";
 	std::string histtitle6 = "Plot of Neutron Amplitudes";
-	TH1F* hNGNCEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, 16.16);
+	TH1F* hNGNCEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, Emax1);
 	hNGNCEnergy->GetXaxis()->SetTitle("Energy (MeVee)");
 	hNGNCEnergy->GetYaxis()->SetTitle("Count");
 	NGNCEnergy_plots[keyname] = hNGNCEnergy;
@@ -117,7 +122,7 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
       {
 	std::string histname6 = "h" + detname + "_AmplitudeG";
 	std::string histtitle6 = "Plot of Gamma Amplitudes";
-	TH1F* hNGGCEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, 16.16);
+	TH1F* hNGGCEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, Emax1);
 	hNGGCEnergy->GetXaxis()->SetTitle("Energy (MeVee)");
 	hNGGCEnergy->GetYaxis()->SetTitle("Count");
 	NGGCEnergy_plots[keyname] = hNGGCEnergy;

@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 //  NGammaInt        for use in rootana for Alcap    //
 //                                                   //
 //  Damien Alexander                                 // 
@@ -96,21 +96,27 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
     }
 
 
- if(NGNEnergy_plots.find(keyname) == NGNEnergy_plots.end())
+    int Emax1 = 0;
+    if(detname == 'NDet')
+      Emax1 = 15.99;
+    else if(detname == 'NDet2')
+      Emax1 = 10.53;
+
+    if(NGNEnergy_plots.find(keyname) == NGNEnergy_plots.end())
       {
 	std::string histname6 = "h" + detname + "_Amplitude";
 	std::string histtitle6 = "Plot of Neutron Amplitudes";
-	TH1F* hNGNEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, 16.16);
+	TH1F* hNGNEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, Emax1);
 	hNGNEnergy->GetXaxis()->SetTitle("Energy (MeVee)");
 	hNGNEnergy->GetYaxis()->SetTitle("Count");
 	NGNEnergy_plots[keyname] = hNGNEnergy;
       }
 
- if(NGGEnergy_plots.find(keyname) == NGGEnergy_plots.end())
+    if(NGGEnergy_plots.find(keyname) == NGGEnergy_plots.end())
       {
 	std::string histname6 = "h" + detname + "_AmplitudeG";
 	std::string histtitle6 = "Plot of Gamma Amplitudes";
-	TH1F* hNGGEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, 16.16);
+	TH1F* hNGGEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, Emax1);
 	hNGGEnergy->GetXaxis()->SetTitle("Energy (MeVee)");
 	hNGGEnergy->GetYaxis()->SetTitle("Count");
 	NGGEnergy_plots[keyname] = hNGGEnergy;
