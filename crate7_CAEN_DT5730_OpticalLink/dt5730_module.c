@@ -203,9 +203,9 @@ INT dt5730_init()
   /* int iLine = 0;
        ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,iLine,0,VME_BASE,&handle);*/
   //ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,0,0,VME_BASE,&handle);
-
   // for A3818 PCIe card
-  ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_OpticalLink,0,1,VME_BASE,&handle);
+  ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_OpticalLink,0,2,VME_BASE,&handle);
+  printf("\nCAEN Handle:\t%d\n", handle);
   /*
   while(ret==CAEN_DGTZ_CommError)
     {
@@ -290,13 +290,13 @@ INT dt5730_pre_bor()
 
   data_size = 0;
 
-#if 1
-  // VT
+  // The SW Acq bit must be set/unset even for external gate control (S_IN via GPI)
   ret = CAEN_DGTZ_SWStartAcquisition(handle);
+  if(is_caen_error(ret,__LINE__-1,"dt5730_bor")) return FE_ERR_HW;
   // I found that I need to add sleep here. Otherwise I get HW error in digitizer
   // (the red "busy" light on the front panel turns on; no communication with the board)
-  ss_sleep(100);
-#endif
+  //ss_sleep(100);
+
 
   return SUCCESS;
 }
@@ -306,11 +306,9 @@ INT dt5730_eor()
 
   CAEN_DGTZ_ErrorCode ret;
 
-#if 1
-  // VT
+  // The SW Acq bit must be set/unset even for external gate control (S_IN via GPI)
   ret = CAEN_DGTZ_SWStopAcquisition(handle);
-#endif
-
+  if(is_caen_error(ret,__LINE__-1,"dt5730_bor")) return FE_ERR_HW;
 
   ret = CAEN_DGTZ_FreeReadoutBuffer(&caen_data_buffer);
   if(is_caen_error(ret,__LINE__-1,"dt5730_eor")) return FE_ERR_HW;

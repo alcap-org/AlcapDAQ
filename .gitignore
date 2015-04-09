@@ -18,3 +18,10 @@ www/html/trend/*
 exptab
 /sqlite*/
 *.pyc
+*.mod
+\#*\#
+*.o
+*.SHM
+*.log
+*.rbf
+*.so

@@ -1,0 +1,2 @@
+ROC FPGA Release is 04.01 - Build D411
+AMC FPGA Release is 00.12 - Build D502

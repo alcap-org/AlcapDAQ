@@ -1,0 +1,110 @@
+
+  -----------------------------------------------------------------------------
+
+                   --- CAEN SpA - Front End R&D Division --- 
+
+  -----------------------------------------------------------------------------
+
+
+  This file is x724 FPGA firmware revision history.
+  x724 digitizer board houses two kinds of FPGA devices that are 
+  configured with a single programming file:
+    - ROC FPGA is the mainboard FPGA for communication and trigger handling.
+    - AMC FPGA is the mezzanine FPGA for ADC and channel memory management:
+      there are eight of them, but they are loaded with the same firmware image.
+       
+  Release numbers are in the form X.X_Y.Y, where X.X is the motherboard 
+  FPGA release, while Y.Y is the channel mezzanine FPGA release.
+
+===============================================================================
+Release 4.1_0.12
+===============================================================================
+  New Features / Changes        :
+
+      * ROC: Added a new management of front panel LVDS I/Os
+      * ROC: Added Busy/Veto IN/Out; by default, the old LVDS I/O setting is kept
+     	for compatibility with previous versions
+      * ROC: Added support for new models (x743, DT5720D/DT5720E/N6720D/N6720E/V1720F/
+	V1720G)
+      * ROC: Modified some timig constraint	
+      * ROC: Modified default value for the Trgout Mask at power ON
+      * ROC: Modified usage of S-IN input (new modes for board synchronization)
+      * ROC: Added disable bit for the External Trigger input (bit 0x817C[0])
+      * ROC: Added dedicated clock synchronization command (write at 0x813C) to ensure proper
+        synchronization of a multi-board system with daisy-chained clock propagation scheme 
+	  * ROC: Added option to propagate S-IN to TRGOUT (bit[17:16] at 0x811C = "11")
+      * ROC: Added register 0x816C (set level for almost full output on LVDS I/O)
+      * ROC: Added registers 0x8180-0x819C (one per channel) to mask individual trigger validations
+      * ROC: Added option to send trigger clock onto TRGOUT (used to check synchronization)
+      * AMC: Implemented compatibility with FW Rev 3.4 (or higher) of the mother board
+
+  Bug fix     	            :
+  
+      * ROC: Firmware not working for 2 channel versions of the desktop/NIM digitizers
+      * ROC: Occasional communication error when restarting after an anomalous program
+        interruption (e.g. process killed); added an internal timeout to recover
+      * ROC: External trigger Mask not working
+      * ROC: Occasional data readout error
+      * ROC: Busy output on the LVDS I/Os not working with DPP firmware
+      * ROC: PLL lock flag (0x8104[7]) not reporting current status of lock
+      * ROC: Interrupts through optical link not working properly
+      * ROC: DES mode not supported for model V1751C
+      * ROC: Interrupts propagation on a daisy-chained optical link
+      * ROC: Occasional readout failure when performing acquisition start/stop
+  
+===============================================================================
+
+  INTERMEDIATE REVISIONS ARE CONSIDERED AS BETAs AND ARE NOT DOCUMENTED HERE
+  
+===============================================================================
+Release 3.2_0.11
+===============================================================================
+
+  New Features / Changes	:
+
+    * New syncronous start for multiboard configuration with TRG-OUT/TRG-IN
+      configuration fully implemented. Added possibility to start acquisition
+      with a software trigger to the first board in the chain.
+     
+  Bug fix     	            :
+  
+      * Fixed issue on optical link state machine.
+
+===============================================================================
+Release 3.1_0.11
+===============================================================================
+     
+  Bug fix     	            :
+  
+      * Fixed a major bug in VME interface that could generate misalignement 
+        on event readout.
+      * Fixed issue on acquisition start/stop: data readout could not 
+        restart after a stop/start acquisition sequence.  
+  
+===============================================================================
+Release 3.0_0.11
+===============================================================================
+
+    New Features / Changes	:
+
+      * Optical link interface protocol upgraded to CONET2:
+        CONET2 is NOT back compatible with previous CONET1 protocol.
+        Check migration instructions on CAEN website or 
+        contact support.frontend@caen.it.
+      * Changed run mode configuration bit usage(bit[1:0] of 0x8100 register):
+        Mode "00" unchanged.
+        Other modes changed to support improved multiboard run synchronization.
+      * Downsampling feature discontinued.
+      
+    Bug fix     	        :
+
+      * Minor bug fixing 
+  
+===============================================================================
+
+NOTE:
+
+Older releases removed from current release notes.
+For informations releated to older firmware versions,
+please contact CAEN.
+      

@@ -1,0 +1,84 @@
+[/Equipment/Crate 7/Settings]
+Master = BOOL : n
+Diagnostic Print Level = INT : -1079790036
+Operator Message Level = INT : -1079790036
+Enabled = BOOL : y
+Synchronous = BOOL : y
+
+[/Equipment/Crate 7/Settings/CAEN]
+software_trigger_mode = BYTE : 0
+hardware_trigger_mode = BYTE : 0
+self_trigger_mode = BYTE : 1
+trigger_positive_edge = BOOL : n
+max_events_per_block = DWORD : 1024
+event_aligned_readout = BOOL : y
+logic_level = STRING : [4] NIM
+post_trigger_size = BYTE : 20
+gpi_acquisition_mode = BOOL : y
+zero_suppression_mode = BYTE : 0
+event_packing = BOOL : n
+ext_clock = BOOL : y
+waveform length = DWORD : 64
+
+[/Equipment/Crate 7/Settings/CAEN/Ch00]
+enable = BOOL : y
+offset = FLOAT : 0
+self_trigger_threshhold = FLOAT : 0
+
+[/Equipment/Crate 7/Settings/CAEN/Ch01]
+enable = BOOL : n
+offset = FLOAT : 0
+self_trigger_threshhold = FLOAT : 0
+
+[/Equipment/Crate 7/Settings/CAEN/Ch02]
+enable = BOOL : n
+offset = FLOAT : 0
+self_trigger_threshhold = FLOAT : 0
+
+[/Equipment/Crate 7/Settings/CAEN/Ch03]
+enable = BOOL : n
+offset = FLOAT : 0
+self_trigger_threshhold = FLOAT : 0
+
+[/Equipment/Crate 7/Settings/CAEN/Ch04]
+enable = BOOL : n
+offset = FLOAT : 0
+self_trigger_threshhold = FLOAT : 0
+
+[/Equipment/Crate 7/Settings/CAEN/Ch05]
+enable = BOOL : n
+offset = FLOAT : 0
+self_trigger_threshhold = FLOAT : 0
+
+[/Equipment/Crate 7/Settings/CAEN/Ch06]
+enable = BOOL : n
+offset = FLOAT : 0
+self_trigger_threshhold = FLOAT : 0
+
+[/Equipment/Crate 7/Settings/CAEN/Ch07]
+enable = BOOL : n
+offset = FLOAT : 0
+self_trigger_threshhold = FLOAT : 0
+
+[/Equipment/Crate 7/Common]
+Event ID = WORD : 1000
+Trigger mask = WORD : 65535
+Buffer = STRING : [32] BUF7
+Type = INT : 66
+Source = INT : 16777215
+Format = STRING : [8] MIDAS
+Enabled = BOOL : y
+Read on = INT : 1
+Period = INT : 500
+Event limit = DOUBLE : 0
+Num subevents = DWORD : 0
+Log history = INT : 0
+Frontend host = STRING : [32] muonbe
+Frontend name = STRING : [32] Crate 7
+Frontend file name = STRING : [256] crate.cpp
+
+[/Equipment/Crate 7/Statistics]
+Events sent = DOUBLE : 0
+Events per sec. = DOUBLE : 0
+kBytes per sec. = DOUBLE : 0
+

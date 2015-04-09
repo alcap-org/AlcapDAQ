@@ -1,0 +1,41 @@
+make: Nothing to be done for `all'.
+/home/daq/AlcapDAQ
+**************************************
+Linking CAEN x64 libraries ...
+**************************************
+/home/daq/AlcapDAQ
+****************************************************
+Making crate3
+make: Nothing to be done for `all'.
+/home/daq/AlcapDAQ
+Done crate3!
+****************************************************
+Making crate4_CAEN_V1724
+make: Nothing to be done for `all'.
+/home/daq/AlcapDAQ
+Done crate4_CAEN_V1724!
+****************************************************
+Making crate5_CAEN_DT5720
+make: Nothing to be done for `all'.
+/home/daq/AlcapDAQ
+Done crate5_CAEN_DT5720!
+****************************************************
+Making crate6_CAEN_TDC
+g++ -O3 -I ../universe -I /home/daq/AlcapDAQ/midas/include -g -DPART_OF_MUCAP -DDO_IOPERM   -c -o vme_universe.o vme_universe.cpp
+vme_universe.cpp:9:22: error: asm/page.h: No such file or directory
+vme_universe.cpp: In function ‘long unsigned int page_round_down(long unsigned int)’:
+vme_universe.cpp:31: error: ‘PAGE_MASK’ was not declared in this scope
+vme_universe.cpp: In function ‘long unsigned int page_round_up(long unsigned int)’:
+vme_universe.cpp:36: error: ‘PAGE_MASK’ was not declared in this scope
+vme_universe.cpp:39: error: ‘PAGE_SIZE’ was not declared in this scope
+vme_universe.cpp: In function ‘vme_handle* vme_open(long unsigned int, vme_mapping_ctrl, int, int)’:
+vme_universe.cpp:112: warning: deprecated conversion from string constant to ‘char*’
+make: *** [vme_universe.o] Error 1
+/home/daq/AlcapDAQ
+Done crate6_CAEN_TDC!
+****************************************************
+Making crate9
+make: Nothing to be done for `all'.
+/home/daq/AlcapDAQ
+Done crate9!
+Check you've got root set up properly on this machine
