@@ -97,9 +97,9 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
 
     int Emax1 = 0;
-    if(detname == 'NDet')
+    if(detname == "NDet")
       Emax1 = 15.99;
-    else if(detname == 'NDet2')
+    else if(detname == "NDet2")
       Emax1 = 10.53;
 
     if(NGNEnergy_plots.find(keyname) == NGNEnergy_plots.end())
