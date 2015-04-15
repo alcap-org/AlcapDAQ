@@ -39,6 +39,8 @@ class GeSpectrum : public BaseModule {
   // Histograms
   TH1* fhADC;
   TH1* fhEnergy;
+  TH1* fhADCTWindow;
+  TH1* fhEnergyTWindow;
   TH1* fhADCOOT;
   TH1* fhEnergyOOT;
   TH1* fhADCFarOOT;
@@ -48,6 +50,8 @@ class GeSpectrum : public BaseModule {
   std::vector<TH2*> fvhTimePeak;
 
   // Some options
+  const bool fPileupProtected;
+  const bool fChargedParticleProtected;
   const bool fUseSlowTiming;
   const bool fCalibration;
 
@@ -56,12 +60,15 @@ class GeSpectrum : public BaseModule {
   const Algorithm::MaxBinAmplitude fMBAmpGe;
   const Algorithm::ConstantFractionTime fCFTimeMuSc;
   const Algorithm::ConstantFractionTime fCFTimeGe;
+  const Algorithm::ConstantFractionTime fCFTimeScGe;
   TF1* fADC2Energy;
 
   // Time cuts (ns)
   const double fTimeWindow_Small;
   const double fTimeWindow_Big;
+  std::vector<double> fTimeWindow_Asymmetric;
   const double fPileupProtectionWindow;
+  const double fChargedParticleProtectionWindow;
 
   // Energy cuts
   const double fMuScPulseHeightCut;
@@ -70,6 +77,7 @@ class GeSpectrum : public BaseModule {
   // Channels
   static const IDs::channel fGeS;
   static const IDs::channel fGeF;
+  static const IDs::channel fScGe;
   static const IDs::channel fMuSc;
 
  public:
@@ -86,7 +94,7 @@ class GeSpectrum : public BaseModule {
   /// \brief
   /// Histograms the heights in the germanium with time cuts
   /// relative to muSc.
-  /// 
+  ///
   /// \param[in] gData See BaseModule::ProcessEntry
   /// \param[in] gSetup See BaseModule::ProcessEntry
   /// \return Non-zero to indicate a problem.
@@ -123,8 +131,10 @@ class GeSpectrum : public BaseModule {
   /// \brief
   /// Removes pileup muons.
   void RemovePileupMuScPulses(std::vector<double>& time, std::vector<double>& energy);
+  void RemoveChargedParticles(std::vector<double>& time, std::vector<double>& energy,
+                              const std::vector<double>& scint);
 
-  static void ThrowIfInputsInsane(const modules::options*);
+  static void SaveInputsAndThrowIfInputsInsane(const modules::options*);
   static void ThrowIfGeInsane(const std::vector<TPulseIsland*>& ge_fasts, const std::vector<TPulseIsland*>& ge_slows);
 };
 

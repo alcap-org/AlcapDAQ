@@ -16,14 +16,14 @@ namespace Algorithm {
 
 struct Algorithm::MaxBinAmplitude {
   public:
-    MaxBinAmplitude(double ped, int trig_pol)
+    MaxBinAmplitude(double ped=0., int trig_pol=0)
       :trigger_polarity(trig_pol), pedestal(ped){}
     double operator() (const TPulseIsland* tpi) const;
     double GetTime()const {return time;}
     double GetAmplitude()const {return amplitude;}
 
-    const int trigger_polarity;
-    const double pedestal;
+    int trigger_polarity;
+    double pedestal;
   private:
     mutable double time;
     mutable double amplitude;
@@ -42,16 +42,16 @@ struct Algorithm::MaxBinTime {
 
 struct Algorithm::ConstantFractionTime {
   public:
-  ConstantFractionTime(double ped, int trig_pol, double clk_tick, double t_shift, double const_frac)
+  ConstantFractionTime(double ped=0., int trig_pol=0, double clk_tick=0., double t_shift=0., double const_frac=0.)
     :pedestal(ped), trigger_polarity(trig_pol), clock_tick_in_ns(clk_tick), time_shift(t_shift), constant_fraction(const_frac){}
   double operator() (const TPulseIsland* tpi) const;
 
-  const double pedestal;
-  const int trigger_polarity;
-  const double clock_tick_in_ns;
-  const double time_shift;
+  double pedestal;
+  int trigger_polarity;
+  double clock_tick_in_ns;
+  double time_shift;
 
-  const double constant_fraction;
+  double constant_fraction;
 };
 
 
@@ -61,7 +61,7 @@ struct Algorithm::SimpleIntegral {
     :trigger_polarity(trig_pol), pedestal(ped),start(0),stop(0){}
   /// @param first Start integral from "samples.begin()+first" sample
   /// @param last End integral at "samples.begin()+last" if last>0 or
-  /// "samples.end()+last" if last<=0 
+  /// "samples.end()+last" if last<=0
   SimpleIntegral(double ped, int trig_pol, int first, int last)
     :trigger_polarity(trig_pol), pedestal(ped),start(first),stop(last){}
   double operator() (const TPulseIsland* tpi)const;
@@ -93,7 +93,7 @@ struct Algorithm::IntegralRatio{
   double GetRatio()const {return fTail/(fHead+fTail);}
   double GetTotal()const{return fHead+fTail;}
   double GetTail()const{return fTail;}
-  
+
   void SetTailStart(int v){ fTailIntegrator.SetStart(v); fHeadIntegrator.SetStop(v);}
   void SetPedestal(double v){ fTailIntegrator.SetPedestal(v); fHeadIntegrator.SetPedestal(v);}
   void SetPedestalToMinimum(const TPulseIsland* tpi);

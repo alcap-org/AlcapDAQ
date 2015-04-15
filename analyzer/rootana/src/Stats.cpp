@@ -6,7 +6,6 @@
 #include "ModulesOptions.h"
 #include "definitions.h"
 #include "SetupNavigator.h"
-#include "ExportPulse.h"
 #include "PulseCandidateFinder.h"
 
 #include "TH1I.h"
@@ -68,6 +67,7 @@ int Stats::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   const long double nmu_pp = muTs.size();
 
   ftBlockStats->Fill(tmu, nmu, nmu_pp);
+
 
   return 0;
 }
