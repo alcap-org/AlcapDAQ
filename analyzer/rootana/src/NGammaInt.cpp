@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
 //  NGammaInt        for use in rootana for Alcap    //
 //                                                   //
 //  Damien Alexander                                 // 
@@ -34,7 +34,7 @@ extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
 std::map<std::string, TH2F*> NGDisc_plots;
 std::map<std::string, TH2F*> NGRatio_plots;
-std::map<std::string, TH1F*> NGNEnergy_plots, NGGEnergy_plots;
+std::map<std::string, TH1F*> NGNEnergy_plots, NGGEnergy_plots, NGNPH_plots, NGGPH_plots;
 std::map<std::string, TH1D*> NG1D_plots;
 
 NGammaInt::NGammaInt(char *HistogramDirectoryName) :
@@ -96,17 +96,21 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
     }
 
 
-    int Emax1 = 0;
-    if(detname == "NDet")
-      Emax1 = 15.99;
-    else if(detname == "NDet2")
-      Emax1 = 10.53;
+    int Emax1 = 0, Nmax1 = 0;
+    if(detname == "NDet"){
+      Emax1 = 16.08;
+      Nmax1 = 2832;
+    }
+    else if(detname == "NDet2"){
+      Emax1 = 10.55;
+      Nmax1 = 2825;
+    }
 
     if(NGNEnergy_plots.find(keyname) == NGNEnergy_plots.end())
       {
 	std::string histname6 = "h" + detname + "_Amplitude";
 	std::string histtitle6 = "Plot of Neutron Amplitudes";
-	TH1F* hNGNEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, Emax1);
+	TH1F* hNGNEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), Nmax1, 0, Emax1);
 	hNGNEnergy->GetXaxis()->SetTitle("Energy (MeVee)");
 	hNGNEnergy->GetYaxis()->SetTitle("Count");
 	NGNEnergy_plots[keyname] = hNGNEnergy;
@@ -116,10 +120,30 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
       {
 	std::string histname6 = "h" + detname + "_AmplitudeG";
 	std::string histtitle6 = "Plot of Gamma Amplitudes";
-	TH1F* hNGGEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, Emax1);
+	TH1F* hNGGEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), Nmax1, 0, Emax1);
 	hNGGEnergy->GetXaxis()->SetTitle("Energy (MeVee)");
 	hNGGEnergy->GetYaxis()->SetTitle("Count");
 	NGGEnergy_plots[keyname] = hNGGEnergy;
+      }
+
+    if(NGNPH_plots.find(keyname) == NGNPH_plots.end())
+      {
+	std::string histname7 = "h" + detname + "_PH";
+	std::string histtitle7 = "Plot of Neutron Pulse Heights";
+	TH1F* hNGNPH = new TH1F(histname7.c_str(), histtitle7.c_str(), Nmax1, 0, Emax1);
+	hNGNPH->GetXaxis()->SetTitle("Pulse Height (ADC counts)");
+	hNGNPH->GetYaxis()->SetTitle("Count");
+	NGNPH_plots[keyname] = hNGNPH;
+      }
+
+    if(NGGPH_plots.find(keyname) == NGGPH_plots.end())
+      {
+	std::string histname8 = "h" + detname + "_PHG";
+	std::string histtitle8 = "Plot of Gamma Pulse Heights";
+	TH1F* hNGGPH = new TH1F(histname8.c_str(), histtitle8.c_str(), Nmax1, 0, Nmax1);
+	hNGGPH->GetXaxis()->SetTitle("Pulse Height (ADC count)");
+	hNGGPH->GetYaxis()->SetTitle("Count");
+	NGGPH_plots[keyname] = hNGGPH;
       }
 
 
@@ -140,9 +164,9 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
       double ratio = (*pIter)->GetRatio();
 
       if(detname == "NDet")
-	energy = (float) (peak+15.2)/177.2;
+	energy = (float) -0.00897 + peak*0.00581;
       if(detname == "NDet2")
-	energy = (float) (peak+15)/269.1;
+	energy = (float) -0.0539 + peak*0.00399;
 
 
       if(peak > 5000)
@@ -161,14 +185,22 @@ int NGammaInt::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
       float temp2 = 0.10815 + 0.03814/energy - 0.00591/(energy*energy);
 
 
-      if((detname == "NDet") && (ratio >= temp1) && (energy > 0.5) && (energy < 9.0)) 
+      if((detname == "NDet") && (ratio >= temp1) && (energy > 0.5) && (energy < 9.0)){ 
 	NGNEnergy_plots[keyname]->Fill(energy);      
-      if((detname == "NDet") && (ratio < temp1) && (energy > 0.5) && (energy < 9.0)) 
+	NGNPH_plots[keyname]->Fill(peak);
+      }
+      if((detname == "NDet") && (ratio < temp1) && (energy > 0.5) && (energy < 9.0)) {
 	NGGEnergy_plots[keyname]->Fill(energy); 
-      if((detname == "NDet2") && (ratio >= temp2) && (energy > 0.5) && (energy < 9.0))
+	NGGPH_plots[keyname]->Fill(peak);
+      }
+      if((detname == "NDet2") && (ratio >= temp2) && (energy > 0.5) && (energy < 9.0)){
 	NGNEnergy_plots[keyname]->Fill(energy);
-      if((detname == "NDet2") && (ratio < temp2) && (energy > 0.5) && (energy < 9.0))
+	NGNPH_plots[keyname]->Fill(peak);
+      }
+      if((detname == "NDet2") && (ratio < temp2) && (energy > 0.5) && (energy < 9.0)){
 	NGGEnergy_plots[keyname]->Fill(energy);
+	NGGPH_plots[keyname]->Fill(peak);
+      }
 
 
 
@@ -251,14 +283,16 @@ int NGammaInt::AfterLastEntry(TGlobalData *gData){
     if((detname != "NDet") && (detname != "NDet2"))
       continue;  
 
-    for(int energyIt = 0; energyIt < 20; energyIt++){
+    for(int energyIt = 1; energyIt < 20; energyIt++){
       float energy = (float) energyIt / 2;
       int energyBin1 = 0, energyBin2 = 0;
       if(detname == "NDet"){
+	scale = 2833/15.99;
 	energyBin1 = (energy*scale)+1;
 	energyBin2 = ((energy + 0.5)*scale) ;
       }
       if(detname == "NDet2"){
+	scale = 2833/10.53;
 	energyBin1 = (energy*scale)+1;
 	energyBin2 = ((energy+0.5)*scale) ;
       }
@@ -271,8 +305,11 @@ int NGammaInt::AfterLastEntry(TGlobalData *gData){
  
       std::string histname = "h" + detname + "_ratio_" + ss.str();
       std::string histtitle = "Plot of Ratios for the cut " + st.str() + " to " + ss.str() + " MeV";
-      NG1D_plots[keyname] = NGRatio_plots[keyname]->ProjectionY(histname.c_str(), energyBin1, energyBin2);
-      NG1D_plots[keyname]->SetTitle(histtitle.c_str());
+      if(NGRatio_plots.find(keyname) != NGRatio_plots.end())
+	{
+	  NG1D_plots[keyname] = NGRatio_plots[keyname]->ProjectionY(histname.c_str(), energyBin1, energyBin2);
+	  NG1D_plots[keyname]->SetTitle(histtitle.c_str());
+	}
   
     }
   }

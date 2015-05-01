@@ -56,10 +56,10 @@ int PlotNEnergy::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
 
       //determine which detector and therfore which calibration to use
       if(detname == "NDet")
-        max_energy = max_adc_value * 0.00571;
+        max_energy = -0.00897 + max_adc_value * 0.00581;
 
       if(detname == "NDet2")
-        max_energy = max_adc_value * 0.00378;
+        max_energy = -0.0539 + max_adc_value * 0.00399;
 
       TH1D* hEnergy = new TH1D(histname.c_str(), histtitle.c_str(), (max_adc_value + 1),0,max_energy);  //changed to max_energy
       hEnergy->GetXaxis()->SetTitle("Energy [MeVee]");  //changed to energy
@@ -74,10 +74,10 @@ int PlotNEnergy::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
       double energy = 0;
 
       if(detname == "NDet")
-        energy = amplitude * 0.00571;  //different value to clear up binning error
+        energy = -0.00897 + amplitude * 0.00581;  //different value to clear up binning error
 
       if(detname == "NDet2")
-        energy = amplitude * 0.00378;
+        energy = -0.0539 + amplitude * 0.00399;
       
       energy_plots[keyname]->Fill(energy);
 	    

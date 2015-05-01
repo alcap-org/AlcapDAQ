@@ -34,7 +34,7 @@ extern std::map<std::string, std::vector<TAnalysedPulse*> > gAnalysedPulseMap;
 
 std::map<std::string, TH2F*> NGC2Disc_plots;
 std::map<std::string, TH2F*> NGC2Ratio_plots;
-std::map<std::string, TH1F*> NGNC2Energy_plots, NGGC2Energy_plots;
+std::map<std::string, TH1F*> NGNC2Energy_plots, NGGC2Energy_plots, NGNC2PH_plots, NGGC2PH_plots;
 std::map<std::string, TH1D*> NGC21D_plots;
 
 NGIntTCut2::NGIntTCut2(char *HistogramDirectoryName, std::string detnameA, double start_window, double stop_window) :
@@ -104,9 +104,9 @@ int NGIntTCut2::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
     int Emax1 = 0;
     if(detname == "NDet")
-      Emax1 = 15.99;
+      Emax1 = 16.16;
     else if(detname == "NDet2")
-      Emax1 = 10.53;
+      Emax1 = 16.16;
 
     if(NGNC2Energy_plots.find(keyname) == NGNC2Energy_plots.end())
       {
@@ -122,10 +122,30 @@ int NGIntTCut2::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
       {
 	std::string histname6 = "h" + detname + "_AmplitudeG";
 	std::string histtitle6 = "Plot of Gamma Amplitudes";
-	TH1F* hNGGCEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2832, 0, Emax1);
+	TH1F* hNGGCEnergy = new TH1F(histname6.c_str(), histtitle6.c_str(), 2835, 0, Emax1);
 	hNGGCEnergy->GetXaxis()->SetTitle("Energy (MeVee)");
 	hNGGCEnergy->GetYaxis()->SetTitle("Count");
 	NGGC2Energy_plots[keyname] = hNGGCEnergy;
+      }
+
+    if(NGNC2PH_plots.find(keyname) == NGNC2PH_plots.end())
+      {
+	std::string histname7 = "h" + detname + "_PH";
+	std::string histtitle7 = "Plot of Neutron PulseHeights";
+	TH1F* hNGNCPH = new TH1F(histname7.c_str(), histtitle7.c_str(), 2832, 0, 2832);
+	hNGNCPH->GetXaxis()->SetTitle("Pulse Height (ADC count)");
+	hNGNCPH->GetYaxis()->SetTitle("Count");
+	NGNC2PH_plots[keyname] = hNGNCPH;
+      }
+
+    if(NGGC2PH_plots.find(keyname) == NGGC2PH_plots.end())
+      {
+	std::string histname8 = "h" + detname + "_PHG";
+	std::string histtitle8 = "Plot of Gamma Pulse Heights";
+	TH1F* hNGGCPH = new TH1F(histname8.c_str(), histtitle8.c_str(), 2835, 0, 2835);
+	hNGGCPH->GetXaxis()->SetTitle("Pulse Height (ADC count)");
+	hNGGCPH->GetYaxis()->SetTitle("Count");
+	NGGC2PH_plots[keyname] = hNGGCPH;
       }
 
 
@@ -164,9 +184,9 @@ int NGIntTCut2::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
       //Scale to MeV
       if(detname == "NDet")
-	energy = (peak+15.2)/177.2;
+	energy = -0.00897 + peak*0.00581;
       if(detname == "NDet2")
-	energy = (peak+15)/269.1;
+	energy = -0.0539 + peak*0.00399;
 
       // search for timing coincidence
 
@@ -223,14 +243,22 @@ int NGIntTCut2::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
       float temp2 = 0.10864 + 0.03444/energy - 0.00645/(energy*energy);
 
 
-      if((detname == "NDet") && (ratio > temp1)) 
+      if((detname == "NDet") && (ratio > temp1)){ 
 	NGNC2Energy_plots[keyname]->Fill(energy);
-      if((detname == "NDet") && (ratio < temp1)) 
-	NGGC2Energy_plots[keyname]->Fill(energy);      
-      if((detname == "NDet2") && (ratio > temp2))
-	NGNC2Energy_plots[keyname]->Fill(energy);
-      if((detname == "NDet2") && (ratio < temp2))
+	NGNC2PH_plots[keyname]->Fill(peak);
+      }
+      if((detname == "NDet") && (ratio < temp1)){
 	NGGC2Energy_plots[keyname]->Fill(energy);
+	NGGC2PH_plots[keyname]->Fill(peak);
+      }      
+      if((detname == "NDet2") && (ratio > temp2)){
+	NGNC2Energy_plots[keyname]->Fill(energy);
+	NGNC2PH_plots[keyname]->Fill(peak);
+      }
+      if((detname == "NDet2") && (ratio < temp2)){
+	NGGC2Energy_plots[keyname]->Fill(energy);
+	NGGC2PH_plots[keyname]->Fill(peak);
+      }
 
       
 
@@ -258,7 +286,7 @@ int NGIntTCut2::AfterLastEntry(TGlobalData *gData){
     if((detname != "NDet") && (detname != "NDet2"))
       continue;  
 
-    for(int energyIt = 0; energyIt < 20; energyIt++){
+    for(int energyIt = 1; energyIt < 20; energyIt++){
       float energy = (float) energyIt / 2;
       int energyBin1 = 0, energyBin2 = 0;
       if(detname == "NDet"){

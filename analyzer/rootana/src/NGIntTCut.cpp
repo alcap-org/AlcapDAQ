@@ -157,9 +157,9 @@ int NGIntTCut::ProcessEntry(TGlobalData *gData, TSetupData *gSetup)
 
       //Scale to MeVee
       if(detname == "NDet")
-	energy = (float) (peak+15.2)/177.2;
+	energy = (float) -0.00897 + peak*0.00581;
       if(detname == "NDet2")
-	energy = (float) (peak+15)/269.1;
+	energy = (float) -0.0539 + peak*0.00399;
 
       //get cf time
       timeB = (*pIter)->GetTime();
