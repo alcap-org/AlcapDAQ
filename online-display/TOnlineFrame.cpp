@@ -35,7 +35,7 @@ TOnlineFrame::TOnlineFrame(const TGWindow * p,std::string module_file_name):TGMa
 		height)
 {
 
-	fCurrentDisplay = 8;
+	fCurrentDisplay = 0;
 	run_nr = 0;
 
 	// read macroses from the external file

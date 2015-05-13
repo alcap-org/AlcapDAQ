@@ -11,12 +11,12 @@ cd midas && make && cd -
 
 #export MIDAS_DIR=$PWD/dir
 if [[ ! -f exptab ]]; then
-	echo "Alcap $PWD/dir $(whoami)" > exptab
+	echo "AlCap $PWD/dir $(whoami)" > exptab
 fi
 export MIDAS_EXPTAB=$PWD/exptab
 export MIDASSYS=$PWD/midas
 export MIDAS_HOME=$MIDASSYS
-export MIDAS_DIR=$PWD/analyzer/work
+#export MIDAS_DIR=$PWD/analyzer/work
 #export MIDAS_ROOT=$HOME_COMET/Alcap/AlcapDAQ/midas
 
 uname=`uname -m`
@@ -43,6 +43,13 @@ do
 	fi
 	echo "Done "$crate"!"
 done
+
+echo "Making mevb"
+cd evb
+make
+cd -
+echo "Done mevb!"
+
 
 . thisdaq.sh
 cd  $START_DIR

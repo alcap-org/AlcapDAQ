@@ -1,17 +1,17 @@
-void caen_bu_times()
+void dt5730_times()
 {
   /*****************************************************************/
   // Prepare the canvas
   gStyle->SetOptStat("ne");
   TCanvas *AlCapCanvas = (TCanvas *) gROOT->GetListOfCanvases()->At(0);
   AlCapCanvas->Clear();
-  AlCapCanvas->Divide(2,2);
+  AlCapCanvas->Divide(3,3);
 
   //  gROOT->ProcessLine(".L modules/common/get_histogram.C"); // get_histogram() defined here
   /*****************************************************************/
   std::string hist_type = "Times";
-  const int n_channels = 4;
-  std::string bank_names[n_channels] = {"CaBU", "CbBU", "CcBU", "CdBU"};
+  const int n_channels = 8;
+  std::string bank_names[n_channels] = {"D700", "D701", "D702", "D703", "D704", "D705", "D706", "D707"};
 
   for (int iChn = 0; iChn < n_channels; iChn++) {
     TH1* hist = get_histogram(bank_names[iChn], hist_type);

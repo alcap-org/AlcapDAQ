@@ -1,7 +1,16 @@
 A Midas-based DAQ software
+
+-----------------------------------------
 Requirements:
 - a ROOT installation
 
+-----------------------------------------
+If it's already compiled, just set up 
+your environment:
+$ . setenv.sh
+$ . thisdaq.sh
+
+-----------------------------------------
 Compilation:
 - set environment variable ROOTSYS,
 - compile midas:
@@ -13,3 +22,4 @@ Compilation:
   cd crateX && make && cd -
 
 Or run the setup.sh script: ./setup.sh
+

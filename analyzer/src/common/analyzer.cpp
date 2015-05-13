@@ -323,9 +323,9 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
 		printf("Warning: Could not find key %s\n", keyName);
 		return false;
 	}
-	float TimeShifts[timeshift_key.num_values];
+	double TimeShifts[timeshift_key.num_values];
 	size = sizeof(TimeShifts);
-	if(db_get_value(hDB, 0, keyName, TimeShifts, &size, TID_FLOAT, 0) != DB_SUCCESS){
+	if(db_get_value(hDB, 0, keyName, TimeShifts, &size, TID_DOUBLE, 0) != DB_SUCCESS){
 		printf("Warning: Could not retrieve values for key %s\n", keyName);
 		ret = false;
 	}
@@ -412,7 +412,8 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
 		// Should be a bidirectional map. Lacking that functionality
 		// we simply check if the value detector exists
 		std::string bank_name(BankNames[i]), detector(DetectorNames[i]);
-		if(detector != "blank" && !(gSetup->SetDetectorName(bank_name,detector))) {
+		if(detector != "blank" && //!detector.empty() && //!bank_name.empty()
+		   !gSetup->SetDetectorName(bank_name,detector)) {
 			printf("WARNING: Detector %s listed multiple times in ODB! (Duplicate index %d)\n", detector.c_str(), i);
 			duplicate_dets.at(i) = true;
 		}
@@ -444,9 +445,9 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
 			sprintf(keyName, "/Analyzer/WireMap/SamplingFrequency");
 			if(db_find_key(hDB, 0, keyName, &hKey) == SUCCESS){
 				std::string bank_name(BankNames[i]);
-				float frequency = 170E6 / DCMPhase;
-				int size = sizeof(float);
-				db_set_data_index(hDB, hKey, &frequency, size, i, TID_FLOAT);
+				double frequency = 170E6 / DCMPhase;
+				int size = sizeof(double);
+				db_set_data_index(hDB, hKey, &frequency, size, i, TID_DOUBLE);
 			}
 		}
 
@@ -460,9 +461,9 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
 			printf("Warning: Could not find key %s\n", keyName);
 			return false;
 		}
-		float SamplingFrequencies[freq_key.num_values];
+		double SamplingFrequencies[freq_key.num_values];
 		size = sizeof(SamplingFrequencies);
-		if(db_get_value(hDB, 0, keyName , SamplingFrequencies, &size, TID_FLOAT, 0) != DB_SUCCESS){
+		if(db_get_value(hDB, 0, keyName , SamplingFrequencies, &size, TID_DOUBLE, 0) != DB_SUCCESS){
 			printf("Warning: Could not retrieve values for key %s\n", keyName);
 			ret = false;
 		}
@@ -483,9 +484,9 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
 			printf("Warning: Could not find key %s\n", keyName);
 			return false;
 		}
-		float ADCSlopeCalibs[adc_slope_calib_key.num_values];    
+		double ADCSlopeCalibs[adc_slope_calib_key.num_values];    
 		size = sizeof(ADCSlopeCalibs);
-		if(db_get_value(hDB, 0, keyName , ADCSlopeCalibs, &size, TID_FLOAT, 0) != DB_SUCCESS){
+		if(db_get_value(hDB, 0, keyName , ADCSlopeCalibs, &size, TID_DOUBLE, 0) != DB_SUCCESS){
 			printf("Warning: Could not retrieve values for key %s\n", keyName);
 			ret = false;
 		}
@@ -500,35 +501,18 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
 			printf("Warning: Could not find key %s\n", keyName);
 			return false;
 		}
-		float ADCOffsetCalibs[adc_offset_calib_key.num_values];    
+		double ADCOffsetCalibs[adc_offset_calib_key.num_values];    
 		size = sizeof(ADCOffsetCalibs);
-		if(db_get_value(hDB, 0, keyName , ADCOffsetCalibs, &size, TID_FLOAT, 0) != DB_SUCCESS){
+		if(db_get_value(hDB, 0, keyName , ADCOffsetCalibs, &size, TID_DOUBLE, 0) != DB_SUCCESS){
 			printf("Warning: Could not retrieve values for key %s\n", keyName);
 			ret = false;
 		}
 
 
-		float adcSlopeValue = ADCSlopeCalibs[i];
-		float adcOffsetValue = ADCOffsetCalibs[i];
+		double adcSlopeValue = ADCSlopeCalibs[i];
+		double adcOffsetValue = ADCOffsetCalibs[i];
 		gSetup->SetADCSlopeCalib(bank_name,adcSlopeValue);
 		gSetup->SetADCOffsetCalib(bank_name,adcOffsetValue);
-
-		//////////////////////////////////////
-		// Add the number of bits for each digitizer
-		if(TSetupData::IsFADC(bank_name )) {// FADC banks
-			gSetup->SetNBits(bank_name,12);
-		}
-		else if(TSetupData::IsHoustonCAEN(bank_name)) { // UH CAEN banks
-			gSetup->SetNBits(bank_name,14);
-		}
-		else if (TSetupData::IsBostonCAEN(bank_name)) { // UH CAEN banks
-			gSetup->SetNBits(bank_name,12);
-		} else if (bank_name == "ZZZZ") {
-			gSetup->SetNBits(bank_name, 0);
-		} else {
-			printf("Cannot determine digitizer type of bank %s!\n", bank_name.c_str());
-			ret = false;
-		}
 
 		///////////////////////////////////////
 		// Check to see if the bank is enabled   
@@ -609,12 +593,12 @@ bool UpdateDetectorBankNameMap(TSetupData *gSetup){
 	} // end loop over all non empty banks
 
 	// Check if there are duplicate detectors all enabled
-	for (int i = 0; i < duplicate_dets.size(); ++i) {
-		if (duplicate_dets.at(i)) {
-			printf("ERROR: Multiple detectors enabled! (Index %d)\n", i);
-			ret = false;
-		}
-	}
+	// for (int i = 0; i < duplicate_dets.size(); ++i) {
+	// 	if (duplicate_dets.at(i)) {
+	// 		printf("ERROR: Multiple detectors enabled! (Index %d)\n", i);
+	// 		ret = false;
+	// 	}
+	// }
 
 	return ret;
 }

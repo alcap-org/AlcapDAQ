@@ -1,5 +1,5 @@
 OBJS=getHist.o mainWindow.o Dictionary.o TOnlineFrame.o
-CXXFLAGS=`$(ROOTSYS)/bin/root-config --cflags`
+CXXFLAGS= -g `$(ROOTSYS)/bin/root-config --cflags`
 LIBS= `$(ROOTSYS)/bin/root-config --glibs` -lThread 
 
 all: online-display

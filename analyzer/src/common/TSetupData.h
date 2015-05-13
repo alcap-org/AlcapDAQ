@@ -5,6 +5,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <iostream>
 
 #include <TObject.h>
 
@@ -56,7 +57,10 @@ class TSetupData : public TObject{
   /// @return Which detector was hooked up to this bank, or "blank" if passed the bank "blank".
   /// Undefined behavior if passed a bank other than "blank" or what was used.
   std::string GetDetectorName(std::string BankName) const { 
-    if (fBankToDetectorMap.find(BankName)->second !=  "blank")
+    std::map<std::string, std::string>::const_iterator it = fBankToDetectorMap.find(BankName);
+    if (it == fBankToDetectorMap.end())
+      return BankName;
+    if (!it->second.empty() && it->second !=  "blank")
       return fBankToDetectorMap.find(BankName)->second;
     else
       return BankName;
@@ -72,7 +76,7 @@ class TSetupData : public TObject{
   //@{
   /// @return Length of sample clock ticks in nanoseconds.
   double GetClockTick(const std::string& BankName) const{ return GetValue(fBankToClockTickMap,BankName);}
-  int GetNBits(const std::string& BankName) const{ return GetValue(fBankToBitMap,BankName);}
+  int GetNBits(const std::string& BankName) const;
   /// Deprecated
   double GetADCSlopeCalib(const std::string& BankName) const{ return GetValue(fBankToADCSlopeCalibMap,BankName); };
   /// Deprecated

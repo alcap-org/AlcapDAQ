@@ -26,6 +26,9 @@
 #include "CAENDigitizer.h"
 #include "CAENDigitizerType.h"
 
+//
+#include "../CAEN_DesktopDigi_utils/CAENdtDigiUtils.h"
+
 static int       handle;
 static uint32_t  VME_BASE = 0x00000000;
 static char      *caen_data_buffer = NULL;         // data buffers used by CAEN
@@ -149,7 +152,11 @@ extern HNDLE hDB;
 
 INT dt5720_init()
 {
-  printf("Opening CAEN USB interface ...");
+  
+  //Power cycling
+  //simulate_power_cycle(0);//0 or 1 selects the 5720 or 5730, depending on which one had its usb plugged in first
+  
+  printf("Opening CAEN USB interface ...\n");
   fflush(stdout);
 
   HNDLE hKey;
@@ -159,7 +166,7 @@ INT dt5720_init()
   /* Grab Board */
   /* int iLine = 0;
        ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,iLine,0,VME_BASE,&handle);*/
-  ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,0,0,VME_BASE,&handle);
+  ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,0,1,VME_BASE,&handle);
   /*
   while(ret==CAEN_DGTZ_CommError)
     {

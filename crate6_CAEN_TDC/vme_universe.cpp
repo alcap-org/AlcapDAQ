@@ -28,15 +28,21 @@ struct vme_handle vme_handles[MAX_VME_HANDLES];
 
 inline unsigned long page_round_down(unsigned long addr)
 {
-  return addr & PAGE_MASK;
+  //return addr & PAGE_MASK;
+  
+  //https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=394217
+  //Do not rely on PAGE_SIZE or related defines existing or being correct.
+  //Instead, use sysconf(_SC_PAGESIZE) for PAGE_SIZE or ~(sysconf(_SC_PAGESIZE) - 1) for PAGE_MASK.
+  return addr & ~(sysconf(_SC_PAGESIZE) - 1);
 }
 
 inline unsigned long page_round_up(unsigned long addr)
 {
-  if(addr & ~PAGE_MASK == 0) {
+  //if(addr & ~PAGE_MASK == 0) {
+  if(addr & (sysconf(_SC_PAGESIZE) - 1) == 0) {
     return addr;
   } else {
-    return (addr & PAGE_MASK) + PAGE_SIZE;
+    return (addr & (sysconf(_SC_PAGESIZE) - 1)) + PAGE_SIZE;
   }
 }
 

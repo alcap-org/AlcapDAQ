@@ -86,7 +86,7 @@ INT module_init()
     std::string bankname = mapIter->first;
     
     // We only want the CAEN banks here
-    if (TSetupData::IsBostonCAEN(bankname))
+    if (bankname[1] == '5')
       caen_boston_bank_names.push_back(bankname);
   }
   
@@ -246,7 +246,7 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
 
       // *** updated by VT: align data by 32bit 
       p32 += caen_event_size + (caen_event_size%2);
-      //      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
+      //printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
 
     }
     

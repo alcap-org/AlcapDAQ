@@ -65,6 +65,7 @@ ANA_MODULE MMuPC1AnalysisC_module = {
 
 INT MMuPC1AnalysisC_init(void)
 {
+  TDirectory* cwd = gDirectory;
 
   // See if the DataQuality_LowLevel/ directory already exists
   if (!gDirectory->Cd("muPC_checks")) {
@@ -136,6 +137,8 @@ INT MMuPC1AnalysisC_init(void)
   mu_4101_VStime->GetYaxis()->SetTitle("hits");
   mu_4101_VStime->GetYaxis()->CenterTitle(1);
   */
+
+  cwd->cd();
 
   return SUCCESS;
 }

@@ -9,23 +9,29 @@
 #             CAEN
 #======================================================
 # v1724raw v1724/raw.C
-caen_uh_heights v1724/caen_uh_heights.C
-caen_uh_times v1724/caen_uh_times.C
-caen_uh_shapes v1724/caen_uh_shapes.C
+V1724_Heights v1724/v1724_heights.C
+V1724_Times v1724/v1724_times.C
+V1724_Shapes v1724/v1724_shapes.C
 
-caen_bu_heights dt5720/caen_bu_heights.C
-caen_bu_times dt5720/caen_bu_times.C
-caen_bu_shapes dt5720/caen_bu_shapes.C
+DT5720_Heights dt5720/dt5720_heights.C
+DT5720_Times dt5720/dt5720_times.C
+DT5720_Shapes dt5720/dt5720_shapes.C
+
+DT5730_Heights dt5730/dt5730_heights.C
+DT5730_Times dt5730/dt5730_times.C
+DT5730_Shapes dt5730/dt5730_shapes.C
+
+
 #
 #======================================================
 #             muSC
 #======================================================
-muSC muSCmuPC/muSC.C
+#muSC muSCmuPC/muSC.C
 #
 #======================================================
 #             muPC
 #======================================================
-muPC muSCmuPC/muPC.C
+#muPC muSCmuPC/muPC.C
 #
 # Dummy hist
 #Dummy dummy.C
@@ -33,52 +39,52 @@ muPC muSCmuPC/muPC.C
 #======================================================
 #             FADC
 #======================================================
-FADC_80_heights FADC/fadc_single_plots.C ("80","Heights")
-FADC_80_fit_heights FADC/fadc_fit_heights.C ("80","Heights")
-FADC_80_times FADC/fadc_single_plots.C  ("80","Times")
-FADC_80_shapes FADC/fadc_single_plots.C ("80","Shapes")
-FADC_80_latest_pulse FADC/fadc_single_plots.C ("80","LatestPulse")
+#FADC_80_heights FADC/fadc_single_plots.C ("80","Heights")
+#FADC_80_fit_heights FADC/fadc_fit_heights.C ("80","Heights")
+#FADC_80_times FADC/fadc_single_plots.C  ("80","Times")
+#FADC_80_shapes FADC/fadc_single_plots.C ("80","Shapes")
+#FADC_80_latest_pulse FADC/fadc_single_plots.C ("80","LatestPulse")
 
-FADC_81_heights FADC/fadc_single_plots.C ("81","Heights")
-FADC_81_fit_heights FADC/fadc_fit_heights.C ("81","Heights")
-FADC_81_times FADC/fadc_single_plots.C ("81","Times")
-FADC_81_shapes FADC/fadc_single_plots.C ("81","Shapes")
-FADC_81_latest_pulse FADC/fadc_single_plots.C ("81","LatestPulse")
+#FADC_81_heights FADC/fadc_single_plots.C ("81","Heights")
+#FADC_81_fit_heights FADC/fadc_fit_heights.C ("81","Heights")
+#FADC_81_times FADC/fadc_single_plots.C ("81","Times")
+#FADC_81_shapes FADC/fadc_single_plots.C ("81","Shapes")
+#FADC_81_latest_pulse FADC/fadc_single_plots.C ("81","LatestPulse")
 
-FADC_82_heights FADC/fadc_single_plots.C ("82","Heights")
-FADC_82_fit_heights FADC/fadc_fit_heights.C ("82","Heights")
-FADC_82_times FADC/fadc_single_plots.C ("82","Times")
-FADC_82_shapes FADC/fadc_single_plots.C ("82","Shapes")
-FADC_82_latest_pulse FADC/fadc_single_plots.C ("82","LatestPulse")
+#FADC_82_heights FADC/fadc_single_plots.C ("82","Heights")
+#FADC_82_fit_heights FADC/fadc_fit_heights.C ("82","Heights")
+#FADC_82_times FADC/fadc_single_plots.C ("82","Times")
+#FADC_82_shapes FADC/fadc_single_plots.C ("82","Shapes")
+#FADC_82_latest_pulse FADC/fadc_single_plots.C ("82","LatestPulse")
 
-FADC_83_heights FADC/fadc_single_plots.C ("83","Heights")
-FADC_83_fit_heights FADC/fadc_fit_heights.C ("83","Heights")
-FADC_83_times FADC/fadc_single_plots.C ("83","Times")
-FADC_83_shapes FADC/fadc_single_plots.C ("83","Shapes")
-FADC_83_latest_pulse FADC/fadc_single_plots.C ("83","LatestPulse")
+#FADC_83_heights FADC/fadc_single_plots.C ("83","Heights")
+#FADC_83_fit_heights FADC/fadc_fit_heights.C ("83","Heights")
+#FADC_83_times FADC/fadc_single_plots.C ("83","Times")
+#FADC_83_shapes FADC/fadc_single_plots.C ("83","Shapes")
+#FADC_83_latest_pulse FADC/fadc_single_plots.C ("83","LatestPulse")
 
-FADC_84_heights FADC/fadc_single_plots.C ("84","Heights")
-FADC_84_fit_heights FADC/fadc_fit_heights.C ("84","Heights")
-FADC_84_times FADC/fadc_single_plots.C ("84","Times")
-FADC_84_shapes FADC/fadc_single_plots.C ("84","Shapes")
-FADC_84_latest_pulse FADC/fadc_single_plots.C ("84","LatestPulse")
+#FADC_84_heights FADC/fadc_single_plots.C ("84","Heights")
+#FADC_84_fit_heights FADC/fadc_fit_heights.C ("84","Heights")
+#FADC_84_times FADC/fadc_single_plots.C ("84","Times")
+#FADC_84_shapes FADC/fadc_single_plots.C ("84","Shapes")
+#FADC_84_latest_pulse FADC/fadc_single_plots.C ("84","LatestPulse")
 
-FADC_IslandsPerBlock FADC/fadc_islands_read_per_block.C
-FADC_PacketLoss FADC/fadc_packet_losses.C
-FADC_OverflowingBuffers FADC/fadc_overflowing_buffers.C
+#FADC_IslandsPerBlock FADC/fadc_islands_read_per_block.C
+#FADC_PacketLoss FADC/fadc_packet_losses.C
+#FADC_OverflowingBuffers FADC/fadc_overflowing_buffers.C
 
-Si16 FADC/fadc_si16.C
+#Si16 FADC/fadc_si16.C
 
 #======================================================
 #        Vacuum
 #======================================================
-VacuumMonitor vacuum/VacuumMonitor.C
+#VacuumMonitor vacuum/VacuumMonitor.C
 
 #======================================================
 #         Common
 #======================================================
 raw_pulse_count common/raw_pulse_count.C
-beam_tuning common/beam_tuning.C
+#beam_tuning common/beam_tuning.C
 
 #======================================================
 #         Physics

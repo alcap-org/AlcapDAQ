@@ -283,6 +283,7 @@
 #include "msystem.h"
 #include "hardware.h"
 #include "ftplib.h"
+#include "strlcpy.h"
 #include <errno.h>              /* for mkdir() */
 #include <assert.h>
 

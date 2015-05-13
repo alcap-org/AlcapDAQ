@@ -21,6 +21,7 @@ export PATH=$MIDASSYS/linux$arch/bin:$DAQdir/online-display:$PATH
 export LD_LIBRARY_PATH=$MIDASSYS/linux$arch/lib:$DAQdir/compress:$LD_LIBRARY_PATH:$DAQdir/CAEN/lib:$DAQdir/analyzer/rootana
 
 if [ "$USER" == "daq" ]; then
+    export MIDAS_EXPTAB=$DAQdir/exptab
     export LD_LIBRARY_PATH=$DAQdir/CAEN/lib:$LD_LIBRARY_PATH
 else
     export MIDAS_DIR=$DAQdir/analyzer/work/$USER

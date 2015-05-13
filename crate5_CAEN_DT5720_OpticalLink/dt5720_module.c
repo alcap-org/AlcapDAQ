@@ -26,13 +26,18 @@
 #include "CAENDigitizer.h"
 #include "CAENDigitizerType.h"
 
+//
+#include "../CAEN_DesktopDigi_utils/CAENdtDigiUtils.h"
+
 static int       handle;
 static uint32_t  VME_BASE = 0x00000000;
 static char      *caen_data_buffer = NULL;         // data buffers used by CAEN
 static uint32_t  caen_data_buffer_size = 0;
 static char      *data_buffer;              // data buffers used by MIDAS
-static uint32_t  data_buffer_size;
+static uint32_t  data_buffer_size = 32*1024*1024;
 static uint32_t  data_size;
+static BOOL      pll_lost = FALSE;   // PLL lost during MIDAS block?
+static BOOL      board_full = FALSE; // Board full at least once during MIDAS block?
 
 
 
@@ -42,12 +47,13 @@ static INT dt5720_pre_bor();
 static INT dt5720_eor();
 static INT dt5720_poll_live();
 static INT dt5720_read(char *pevent); // MIDAS readout routine 
-static void dt5720_readout(); // read data from digitizer buffers
+static BOOL dt5720_readout(); // read data from digitizer buffers
 
 static BOOL dt5720_update_digitizer();
 static BOOL is_caen_error(CAEN_DGTZ_ErrorCode,int, const char*);
 static uint32_t analog2adc_trigger(int);
 static uint32_t analog2adc_offset(int);
+static BOOL cleanup();
 
 bool block_sig;
 typedef struct timespec timer_start;
@@ -149,7 +155,16 @@ extern HNDLE hDB;
 
 INT dt5720_init()
 {
-  printf("Opening CAEN OpticalLink interface ...");
+  
+  //Power cycling
+  //simulate_power_cycle(0);//0 or 1 selects the 5720 or 5730, depending on which one had its usb plugged in first
+  
+  BOOL use_optical = true;
+  if (use_optical){
+     printf("Opening CAEN OpticalLink interface ...");
+  } else {
+    printf("Opening CAEN USB interface ...");
+  }
   fflush(stdout);
 
   HNDLE hKey;
@@ -159,29 +174,27 @@ INT dt5720_init()
   /* Grab Board */
   /* int iLine = 0;
        ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,iLine,0,VME_BASE,&handle);*/
-  // ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,0,0,VME_BASE,&handle);
+  //ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,0,0,VME_BASE,&handle);
 
   // for A3818 PCIe card
-  ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_OpticalLink,0,2,VME_BASE,&handle);
-  /*
-  while(ret==CAEN_DGTZ_CommError)
-    {
-      //iLine++;
-      ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,iLine,0,VME_BASE,&handle);
-    }
-  */
+  if (use_optical){
+    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_OpticalLink, 0, 0, VME_BASE, &handle);//0 when only digi connected
+  } else {
+    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB, 0, 0, VME_BASE, &handle);
+  }
   if(is_caen_error(ret,__LINE__-1,"dt5720_init")) return FE_ERR_HW;
 
   /* Get Board Info */
   ret = CAEN_DGTZ_GetInfo(handle,&BoardInfo);
   if(is_caen_error(ret,__LINE__-1,"dt5720_init")) return FE_ERR_HW;
-  printf("\nConnected to CAEN Desktop Digitizer Model %s\n",BoardInfo.ModelName);
-  printf("\tROC FPGA Release is %s\n",BoardInfo.ROC_FirmwareRel);
-  printf("\tAMC FPGA Release is %s\n",BoardInfo.AMC_FirmwareRel);
+  printf("\nConnected to CAEN Desktop Digitizer Model %s\n", BoardInfo.ModelName);
+  printf("\tROC FPGA Release is %s\n", BoardInfo.ROC_FirmwareRel);
+  printf("\tAMC FPGA Release is %s\n", BoardInfo.AMC_FirmwareRel);
   
   /* Reset Digitizer */
   ret = CAEN_DGTZ_Reset(handle);
   if(is_caen_error(ret,__LINE__-1,"dt5720_init")) return FE_ERR_HW;
+  
 
   /* Link to Database */
   //cm_get_experiment_database(&hDB,NULL);
@@ -216,6 +229,9 @@ INT dt5720_init()
     }
 
 
+  data_buffer = (char*) malloc(data_buffer_size);
+
+
   return status;
 
 }
@@ -233,15 +249,9 @@ INT dt5720_pre_bor()
 {
   CAEN_DGTZ_ErrorCode ret;
 
-#ifdef SW_CONTROL
-  ret = CAEN_DGTZ_SetAcquisitionMode(handle,CAEN_DGTZ_SW_CONTROLLED);
-  if(is_caen_error(ret,__LINE__-1,"dt5720_bor")) return FE_ERR_HW;
-  ret = CAEN_DGTZ_SWStartAcquisition(handle);
-  if(is_caen_error(ret,__LINE__-1,"dt5720_bor")) return FE_ERR_HW;
-#endif /* SW_CONTROL */
-
   /* Setup Digitizer */
   if(!dt5720_update_digitizer()) return FE_ERR_HW;
+
 
   /* Allocate space for readout from digitizer */
   ret = CAEN_DGTZ_MallocReadoutBuffer(handle,&caen_data_buffer,&caen_data_buffer_size);
@@ -254,7 +264,6 @@ INT dt5720_pre_bor()
 
   data_size = 0;
 
-#if 1
   // VT
   //ret = CAEN_DGTZ_Reset(handle);
   //ret = CAEN_DGTZ_SetRecordLength(handle,32);
@@ -263,29 +272,25 @@ INT dt5720_pre_bor()
   //ret = CAEN_DGTZ_SetChannelSelfTrigger(handle,CAEN_DGTZ_TRGMODE_ACQ_ONLY,1);
   //ret = CAEN_DGTZ_SetSWTriggerMode(handle,CAEN_DGTZ_TRGMODE_ACQ_ONLY); 
   //ret = CAEN_DGTZ_SetAcquisitionMode(handle,CAEN_DGTZ_S_IN_CONTROLLED);
+
+  // The SW Acq bit must be set/unset even for external gate control (S_IN via GPI)
   ret = CAEN_DGTZ_SWStartAcquisition(handle);
+  if(is_caen_error(ret,__LINE__-1,"dt5720_bor")) return FE_ERR_HW;
+
   // I found that I need to add sleep here. Otherwise I get HW error in digitizer
   // (the red "busy" light on the front panel turns on; no communication with the board)
-  ss_sleep(100);
-#endif
-
+  //ss_sleep(100);
 
   return SUCCESS;
 }
 
 INT dt5720_eor()
 {
-
   CAEN_DGTZ_ErrorCode ret;
-#ifdef SW_CONTROL
+
+  // The SW Acq bit must be set/unset even for external gate control (S_IN via GPI)
   ret = CAEN_DGTZ_SWStopAcquisition(handle);
   if(is_caen_error(ret,__LINE__-1,"dt5720_bor")) return FE_ERR_HW;
-#endif /* SW_CONTROL */
-
-#if 1
-  // VT
-  ret = CAEN_DGTZ_SWStopAcquisition(handle);
-#endif
 
 
   ret = CAEN_DGTZ_FreeReadoutBuffer(&caen_data_buffer);
@@ -303,8 +308,12 @@ INT dt5720_read(char *pevent)
   // =====================================================================================
   // Read out remaining data from the digitizer
   // =====================================================================================
-  dt5720_readout();
-
+  BOOL readOK = dt5720_readout();
+  if (!readOK){
+    printf("readOK is FALSE\n");
+     return FE_ERR_HW;
+  }
+ 
   // =====================================================================================
   // Fill MIDAS event
   // =====================================================================================
@@ -322,15 +331,27 @@ INT dt5720_read(char *pevent)
   memcpy(pdata, data_buffer, data_size);
   pdata += data_size;
   bk_close(pevent, pdata);
-  // reset data couner for the next event
+  // reset data counter for the next event
   data_size = 0;
 
+  // =====================================================================================
+  // Get status information
+  // =====================================================================================
+  sprintf(bk_name, "CNS0");
+  bk_create(pevent, bk_name, TID_BYTE, &pdata);
+  memcpy(pdata++, &pll_lost, 1);
+  memcpy(pdata++, &board_full, 1);
+  pll_lost = board_full = FALSE;
+  bk_close(pevent, pdata);
+  
   return SUCCESS;
 }
 
-void dt5720_readout()
+BOOL dt5720_readout()
 {
-
+  CAEN_DGTZ_SendSWtrigger(handle);
+  CAEN_DGTZ_SendSWtrigger(handle);
+  CAEN_DGTZ_SendSWtrigger(handle);
   CAEN_DGTZ_ErrorCode ret;  
   uint32_t caen_data_size;
 
@@ -344,26 +365,95 @@ void dt5720_readout()
 
   /* Read out data if there is any */
   ret = CAEN_DGTZ_ReadData(handle,CAEN_DGTZ_SLAVE_TERMINATED_READOUT_MBLT,caen_data_buffer, &caen_data_size);
-  is_caen_error(ret,__LINE__-1,"dt5720_readout");
+  if (is_caen_error(ret,__LINE__-1,"dt5720_readout")) return FALSE;
+   /* printf("Error in CAEN_DGTZ_ReadData()\n"); */
+   /* if (ret==CAEN_DGTZ_CommError){ */
+   /*    printf("Stopping digitizer acquisition...\n"); */
+   /*    ret = CAEN_DGTZ_SWStopAcquisition(handle); */
+   /*    is_caen_error(ret,__LINE__-1,"dt5720_readout: CAEN_DGTZ_SWStopAcquisition"); */
+
+   /*    ret = CAEN_DGTZ_FreeReadoutBuffer(&caen_data_buffer); */
+   /*    is_caen_error(ret,__LINE__-1,"dt5720_readout: CAEN_DGTZ_FreeReadoutBuffer"); */
+
+   /*    caen_data_buffer = NULL; */
+
+   /*    ret = CAEN_DGTZ_Reset(handle); */
+   /*    is_caen_error(ret,__LINE__-1,"dt5720_readout: CAEN_DGTZ_Reset"); */
+
+   /*    //Software Reset */
+   /*    ret = CAEN_DGTZ_WriteRegister(handle, 0xEF24, 1); */
+   /*    is_caen_error(ret,__LINE__-1,"dt5720_readout: CAEN_DGTZ_WriteRegister"); */
+
+   /*    //---Configuration Reload--- */
+   /*    ret = CAEN_DGTZ_WriteRegister(handle, 0xEF34, 1); */
+   /*    is_caen_error(ret,__LINE__-1,"dt5720_readout: CAEN_DGTZ_WriteRegister (Config Reload)"); */
+
+   /*    ss_sleep(10); */
+   /*    printf("Closing digitizer...\n"); */
+   /*    ret = CAEN_DGTZ_CloseDigitizer(handle); */
+   /*    is_caen_error(ret,__LINE__-1,"dt5720_readout: CAEN_DGTZ_CloseDigitizer"); */
+
+   /*    ss_sleep(10); */
+   /*    printf("Opening digitizer (USB Mode)...\n"); */
+   /*    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,0,0,VME_BASE,&handle); */
+   /*    is_caen_error(ret,__LINE__-1,"dt5720_readout: CAEN_DGTZ_OpenDigitizer"); */
+   /*    if (ret==0){ */
+   /* 	printf("re-established communication using the USB.\n"); */
+   /*      ret = CAEN_DGTZ_Reset(handle); */
+   /*      is_caen_error(ret,__LINE__-1,"dt5720_readout: CAEN_DGTZ_Reset"); */
+   /*      printf("Closing digitizer...\n"); */
+   /*      ret = CAEN_DGTZ_CloseDigitizer(handle); */
+   /*      is_caen_error(ret,__LINE__-1,"dt5720_readout: CAEN_DGTZ_CloseDigitizer"); */
+   /*      //ret = CAEN_DGTZ_SWStartAcquisition(handle); */
+   /*    } else { */
+   /*       is_caen_error(ret,__LINE__-1,"dt5720_readout"); */
+   /*    } */
+
+   /*    printf("Opening digitizer (Optical Mode)...\n"); */
+   /*    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_PCIE_OpticalLink,0,1,VME_BASE,&handle); */
+   /*    if (ret==0){ */
+   /* 	printf("re-established communication.\n"); */
+   /*      ret = CAEN_DGTZ_SWStartAcquisition(handle); */
+   /*    } else { */
+   /*       is_caen_error(ret,__LINE__-1,"dt5720_readout"); */
+   /*    } */
+
+   /* } */
+
+   // Check if board full or loss of PLL lock
+   
+   
+  /* return TRUE; */
+  /* } */
+  caen_digi_status ds = caen_digi_get_status(handle);
+  if (ds.pll_lost)
+    pll_lost = TRUE;
+  if (ds.board_full)
+    board_full = TRUE;
 
   /* If there's data, copy from digitizers local buffer to different local buffer */
   if(caen_data_size > 0)
     {
       printf("data size: %i\n", caen_data_size);
-
+      
       if(data_size+caen_data_size < data_buffer_size )
 	{
 	  memcpy((data_buffer+data_size), caen_data_buffer, caen_data_size);
 	  data_size += caen_data_size;
 	}
     }
+  return TRUE;
 }
 
 INT dt5720_poll_live()
 {
 
-  dt5720_readout();
-
+  // dt5720_readout();
+ BOOL readOK = dt5720_readout();
+  if (!readOK){
+    printf("readOK is FALSE\n");
+     return FE_ERR_HW;
+  }
   return SUCCESS;
 }
 
@@ -609,9 +699,6 @@ BOOL dt5720_update_digitizer()
   if(is_caen_error(ret,__LINE__-1,"dt5720_update_digitizer")) return FE_ERR_HW;
 
 
-  data_buffer_size = 32*1024*1024;
-  data_buffer = (char*) malloc(data_buffer_size);
-
   return true;
 }
 
@@ -811,5 +898,25 @@ BOOL is_caen_error(CAEN_DGTZ_ErrorCode e, int l, const char* r)
       cm_msg(MT_ERROR,f,l,r,"CAEN DT5720 Unknown error.");
       break;
     }
+  //if (e!=CAEN_DGTZ_InvalidHandle){ 
+  //   cleanup();
+  //}
+  return TRUE;
+}
+
+BOOL cleanup()
+{
+  //tell MIDAS to send EOR to all frontends
+  
+  
+  CAEN_DGTZ_ErrorCode ret;
+  //ret = CAEN_DGTZ_WriteRegister(handle, CAEN_DGTZ_ACQ_CONTROL_ADD, 1<<6); 
+
+  ret = CAEN_DGTZ_CloseDigitizer(handle);
+  if(ret<0){
+    printf("Error closing. ret=%d\n",ret);
+    
+    return FALSE;
+  }
   return TRUE;
 }

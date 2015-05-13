@@ -9,10 +9,14 @@ UNIVERSE_INCLUDE = -I $(UNIVERSE)
 CXXFLAGS = -O3 $(UNIVERSE_INCLUDE) $(MIDAS_INCLUDE) -g -DPART_OF_MUCAP -DDO_IOPERM
 CFLAGS = $(CXXFLAGS)
 
+KERNEL_VERSION = $(shell uname -r)
+KERNEL_INCLUDE = -I /usr/src/kernels/$(KERNEL_VERSION)/arch/x86/include
+CXXFLAGS += $(KERNEL_INCLUDE)
+
 all: crate
 
 crate: $(MODULES)
-	$(CXX) -o $@ $(MODULES) $(MIDAS_LIB) 
+	$(CXX) $(CXXFLAGS) -o $@ $(MODULES) $(MIDAS_LIB) 
 
 clean:
 	rm -f crate *.o hyt1331.c

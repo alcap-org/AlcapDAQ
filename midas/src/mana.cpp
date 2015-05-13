@@ -5604,7 +5604,6 @@ void *server_thread(void *arg)
             /* search histo */
             TObject *obj;
             TIter next(gManaHistsDir->GetList());
-
             while ((obj = next())) {
                if (strcmp(str + 4, obj->GetName()) == 0)
                   break;

@@ -177,15 +177,13 @@ INT frontend_early_init()
   if(crate_number > 0) {
     frontend_name = new char[32];
     strcpy(frontend_name, "Crate ");
-    
-
+  
 #if 0
     sprintf(equipment[0].name, "Crate %d", crate_number);
     sprintf(equipment[0].info.buffer, "BUF%d", crate_number);
     equipment[0].info.event_id = 1000 + crate_number;
 #endif
     frontend_index = crate_number;
-
     printf("Crate number = %d\n",crate_number);
     
     if(has_periodic) {
@@ -404,7 +402,6 @@ INT consider_start()
     for(int i = 0; i < num_trigger_modules; i++) {
       if((*trigger_modules[i]).poll_dead != NULL) {
         int status = (*trigger_modules[i]).poll_dead();
-
 	if(status == FE_NEED_START && !event_avail) {
           start_cycle();
 	} else if(status != SUCCESS) {
@@ -448,6 +445,7 @@ INT frontend_loop()
 
   // Call appropriate poll functions, depending on whether we're live or dead
   //printf("fe loop: cycle_active %i\n",cycle_active);
+  
   if (cycle_active) { 
 
     for(int i = 0; i < num_trigger_modules; i++) {

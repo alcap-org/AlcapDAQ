@@ -39,11 +39,14 @@ class TGlobalData : public TObject{
   /// TMuPCCluster
   std::vector<TMuPCCluster*> fMuPCClusterVector;
 
+  /// Map of bank name to vector of TDC hits
+  std::map< std::string, std::vector<long> > fTDCHitsToChannelMap;
+
   TGlobalData(){}
  private:
   TGlobalData(const TGlobalData&);
   TGlobalData operator=(const TGlobalData&);
 
-  ClassDef(TGlobalData, 3)
+  ClassDef(TGlobalData, 4)
 };
 #endif

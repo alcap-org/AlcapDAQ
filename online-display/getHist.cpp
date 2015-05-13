@@ -32,6 +32,8 @@
  * file on disk or an online server.
  */
 
+#include <iostream>
+
 #include "TSocket.h"
 #include "TMessage.h"
 #include "TFile.h"
@@ -201,6 +203,7 @@ void closeSource()
 
 TObject *getObject(const char *name)
 {
+
 	if (r_socket != NULL) 
 	{
 		return getObjectFromSocket( name );
@@ -282,6 +285,7 @@ TObject *getObjectFromSocket(const char *name)
 		return NULL;
 	}
 	//printf("Alive!\n");
+	char str2[256];
 	Int_t n = r_socket->Recv(m);
 
 	if ( n <= 0 )

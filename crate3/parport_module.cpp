@@ -104,7 +104,6 @@ INT parport_start_block()
   clock_gettime(CLOCK_REALTIME,&timer_start);
 #endif
   block_nr++;
-  printf("parport_start_block %i\n",block_nr);
   //setPP(255, 1);
 
   // Send reset 
@@ -145,8 +144,8 @@ INT parport_poll_live()
 
   unsigned char p = inb(PARALLEL_PORT1);
 
-  //printf("p=%i, 0x%x\n",p, p);
-
+//printf("p=%i, 0x%x\n",p, p);
+//return FE_END_BLOCK;
   if ( !(p & 0x40) )
     {
       //printf("p=%i, 0x%x\n",p, p);
@@ -161,6 +160,6 @@ INT parport_poll_live()
 INT parport_poll_dead()
 {
   //printf("Send to start block\n");
-  //return FE_NEED_START;
-  return 0;
+  return FE_NEED_START;
+  //return 0;
 }

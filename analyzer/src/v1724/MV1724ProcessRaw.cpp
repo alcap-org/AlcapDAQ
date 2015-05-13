@@ -84,7 +84,7 @@ INT module_init()
     std::string bankname = mapIter->first;
     
     // We only want the CAEN banks here
-    if (TSetupData::IsHoustonCAEN(bankname))
+    if (bankname[1] == '4')
       caen_houston_bank_names.push_back(bankname);
   }
   

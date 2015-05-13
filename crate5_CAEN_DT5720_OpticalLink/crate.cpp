@@ -158,6 +158,8 @@ INT frontend_init()
     return FE_ERR_HW;
   }
 
+
+
   for(int i = 0; i < num_trigger_modules; i++) {
     if((*trigger_modules[i]).init != NULL) {
       int status = (*trigger_modules[i]).init();

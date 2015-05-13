@@ -15,6 +15,7 @@ Contents:     One module that fills out histograms for the pulse heights, pulse 
 #include <utility>
 #include <sstream>
 #include <cmath>
+#include <iostream>
 
 /* MIDAS includes */
 #include "midas.h"
@@ -46,7 +47,10 @@ map <std::string, TH1I*> height_histograms_map;
 map <std::string, TH1I*> time_histograms_map;
 map <std::string, TH2D*> shape_histograms_map;
 map <std::string, TH1I*> latest_pulse_histograms_map;
+TH1* hTDC00_Abs;
+TH1* hTDC00_Diff;
 static TH1I* hPulseRawCount;
+
 
 ANA_MODULE MCommonOnlineDisplayPlots_module =
 {
@@ -79,13 +83,7 @@ INT MCommonOnlineDisplayPlots_init()
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
 
-    int n_digitizer_bits = 0;
-    if (TSetupData::IsFADC(bankname))
-      n_digitizer_bits = 12;
-    else if (TSetupData::IsHoustonCAEN(bankname))
-      n_digitizer_bits = 14; //?
-    else if (TSetupData::IsBostonCAEN(bankname))
-      n_digitizer_bits = 12;
+    int n_digitizer_bits = gSetup->GetNBits(bankname);
     
     long max_adc_value = std::pow(2, n_digitizer_bits);
 
@@ -96,7 +94,7 @@ INT MCommonOnlineDisplayPlots_init()
     hPulseHeights->GetXaxis()->SetTitle("Pulse Height [ADC value]");
     hPulseHeights->GetYaxis()->SetTitle("Number of Pulses");
     height_histograms_map[bankname] = hPulseHeights;
-
+    std::cout << "Made histogram " << histname << " for bank and detector " << bankname << " " << detname << std::endl;
     // hPulseTimes
     histname = "h" + bankname + "_Times";
     histtitle = "Plot of the pulse times in the " + detname + " channels";
@@ -123,6 +121,10 @@ INT MCommonOnlineDisplayPlots_init()
 
   }
 
+  // TDC
+  hTDC00_Abs  = new TH1I("hTDC00_Abs",  "TDC Hit Stamps (Absolute)",   1000, 0., std::pow(2., 21.));
+  hTDC00_Diff = new TH1I("hTDC00_Diff", "TDC Hit Stamps (Since Last)", 10000, 0., 10000.);
+
   // hPulseRawCount
   std::string histname = "hPulseRawCount";
   std::string histtitle = "Plot of the raw counts in each channels";
@@ -146,8 +148,10 @@ INT MCommonOnlineDisplayPlots_bor(INT run_number) {
     time_histograms_map[bankname]->Reset();
     shape_histograms_map[bankname]->Reset();
     latest_pulse_histograms_map[bankname]->Reset();
-
   }
+
+  hTDC00_Abs->Reset();
+  hTDC00_Diff->Reset();
 
   hPulseRawCount->Reset();
 }
@@ -214,5 +218,17 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent)
 
 	  hPulseRawCount->Fill(bankname.c_str(), thePulses.size());
 	}
+
+	// TDC
+	const std::vector<long>& hits = gData->fTDCHitsToChannelMap.at("T400");
+	if (!hits.empty())
+	  {
+	    hTDC00_Abs->Fill(hits[0]);
+	    for (unsigned int i = 1; i < hits.size(); ++i)
+	      {
+		hTDC00_Abs->Fill(hits[i]);
+		hTDC00_Diff->Fill(hits[i]-hits[i-1]);
+	      }
+	  }
 	return SUCCESS;
 }

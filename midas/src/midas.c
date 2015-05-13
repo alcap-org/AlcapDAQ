@@ -17036,6 +17036,8 @@ INT eb_send_events(BOOL send_all)
 *                          last switch                               *
 \********************************************************************/
 
+//#define DM_DEBUG 1
+
 #define DM_FLUSH       10       /* flush request for DUAL_THREAD */
 #define DM_SEND        11       /* FULL send request for DUAL_THREAD */
 #define DM_KILL        12       /* Kill request for 2nd thread */

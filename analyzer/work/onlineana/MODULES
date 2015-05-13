@@ -3,6 +3,8 @@ common/MUnCompressRawData
 FADC/MOctalFADCProcessRaw
 v1724/MV1724ProcessRaw
 dt5720/MDT5720ProcessRaw
+dt5730/MDT5730ProcessRaw
+v1290/MV1290ProcessRaw
 
 muSC_muPC/MCaenCompProcessRaw
 muSC_muPC/MMuPC1AnalysisC

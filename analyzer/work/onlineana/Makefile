@@ -7,7 +7,7 @@ SOURCE_DIRS = src
 
 # A list of directories with header files. Should be colon-separated. eg:
 #   inc:tree_files/inc:extra_stuff/inc
-INCLUDE_DIRS = ../common
+INCLUDE_DIRS = ../common ../../../crate4_VME
 
 # MuCap compress library
 COMPRESS = ../../compress
