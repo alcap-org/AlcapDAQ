@@ -204,7 +204,7 @@ INT dt5730_init()
        ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,iLine,0,VME_BASE,&handle);*/
   //ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,0,0,VME_BASE,&handle);
   // for A3818 PCIe card
-  ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_PCIE_OpticalLink,0,1,VME_BASE,&handle);
+  ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_OpticalLink,0,2,VME_BASE,&handle);
   printf("\nCAEN Handle:\t%d\n", handle);
   /*
   while(ret==CAEN_DGTZ_CommError)

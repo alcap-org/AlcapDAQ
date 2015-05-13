@@ -158,7 +158,7 @@ INT dt5720_init()
   
   //Power cycling
   //simulate_power_cycle(0);//0 or 1 selects the 5720 or 5730, depending on which one had its usb plugged in first
-  
+
   BOOL use_optical = true;
   if (use_optical){
      printf("Opening CAEN OpticalLink interface ...");
@@ -178,10 +178,11 @@ INT dt5720_init()
 
   // for A3818 PCIe card
   if (use_optical){
-    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_OpticalLink, 0, 0, VME_BASE, &handle);//0 when only digi connected
+    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_OpticalLink,0,1,VME_BASE,&handle);
   } else {
-    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB, 0, 0, VME_BASE, &handle);
+    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,0,0,VME_BASE,&handle);
   }
+  printf("\nCAEN Handle:\t%d\n", handle);
   if(is_caen_error(ret,__LINE__-1,"dt5720_init")) return FE_ERR_HW;
 
   /* Get Board Info */
