@@ -2,12 +2,16 @@
 midas/linux
 midas/linux64
 /dir/
-CAEN/*
+CAEN/CAEN*
+CAEN/include
+CAEN/lib
 tmp/*
 test/*
 test_midas/*
 hist/*
 crate
+mevb
+midas.log
 bit3_mvme/kinoko_vmedrv/*.o
 bit3_mvme/kinoko_vmedrv/*.ko*
 bit3_mvme/kinoko_vmedrv/*.mod*
