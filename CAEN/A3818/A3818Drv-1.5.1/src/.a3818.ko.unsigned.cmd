@@ -1,1 +1,0 @@
-cmd_/home/daq/AlcapDAQ/CAEN/A3818/A3818Drv-1.5.1/src/a3818.ko.unsigned := ld -r -m elf_x86_64 -T /usr/src/kernels/2.6.32-504.12.2.el6.x86_64/scripts/module-common.lds --build-id -o /home/daq/AlcapDAQ/CAEN/A3818/A3818Drv-1.5.1/src/a3818.ko.unsigned /home/daq/AlcapDAQ/CAEN/A3818/A3818Drv-1.5.1/src/a3818.o /home/daq/AlcapDAQ/CAEN/A3818/A3818Drv-1.5.1/src/a3818.mod.o 
