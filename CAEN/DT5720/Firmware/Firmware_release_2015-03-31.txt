@@ -1,3 +1,0 @@
-ROC FPGA Release is 01.03 - Build A524
-AMC FPGA Release is 00.09 - Build A430
-

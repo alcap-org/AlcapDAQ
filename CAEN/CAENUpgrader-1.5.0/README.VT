@@ -1,4 +1,0 @@
-export LDFLAGS="-L/home/daq/AlcapDAQ/CAEN/lib"
-export CPPFLAGS="-I/home/daq/AlcapDAQ/CAEN/CAENVMELib/CAENVMELib-2.41/include/ -I/home/daq/AlcapDAQ/CAEN/CAENComm-1.2/include"
-
-./configure --prefix=/home/daq/AlcapDAQ/CAEN/CAENUpgrader-1.5.0/Install
