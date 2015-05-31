@@ -296,7 +296,17 @@ NEED_LIBROOTA=
 #
 # To add mySQL support to the logger, say "make ... NEED_MYSQL=1"
 NEED_MYSQL=1
-MYSQL_LIBS=/usr/lib64/mysql/libmysqlclient.so
+#
+# 
+# Updated by VT for compatibility with 32-bit machines
+#MYSQL_LIBS=/usr/lib64/mysql/libmysqlclient.so
+ifeq ($(shell uname -m),x86_64)
+    MYSQL_LIBS=/usr/lib64/mysql/libmysqlclient.so
+else
+    MYSQL_LIBS=/usr/lib/mysql/libmysqlclient.so
+endif
+
+
 
 #####################################################################
 # Nothing needs to be modified after this line 
