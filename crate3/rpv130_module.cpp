@@ -17,7 +17,6 @@ INT rpv130_init();
 INT rpv130_start_block();
 INT rpv130_poll_live();
 INT rpv130_poll_dead();
-bool block_sig;
 struct timespec timer_start;
 MVME_INTERFACE *myvme;
 
