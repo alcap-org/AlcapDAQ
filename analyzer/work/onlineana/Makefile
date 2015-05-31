@@ -7,7 +7,7 @@ SOURCE_DIRS = src
 
 # A list of directories with header files. Should be colon-separated. eg:
 #   inc:tree_files/inc:extra_stuff/inc
-INCLUDE_DIRS = ../common ../../../crate4_VME
+INCLUDE_DIRS = ../common:../../../crate4_VME
 
 # MuCap compress library
 COMPRESS = ../../compress
@@ -50,7 +50,7 @@ CXXFLAGS = $(OPTFLAGS) \
 
 
 # Makefile.MODULES is generated from the MODULE file. It defines
-# the variables MODULE_OBJS, which are 
+# the variables MODULE_OBJS, which are
 # lists of the MIDAS analyzer modules to be compiled and run.
 Makefile.MODULES: MODULES
 	../../generate-Makefile.MODULES
@@ -84,10 +84,10 @@ objs = $(base_objs) $(MODULE_OBJS)
 
 analyzer.o: MODULES.h
 MODULES.h: MODULES
-	../../generate-MODULES.h ./ 
-#$(INCLUDE_DIRS) 
+	../../generate-MODULES.h ./
+#$(INCLUDE_DIRS)
 
-M4FLAGS = -I. 
+M4FLAGS = -I.
 
 %.mql: %.MQL
 	m4 $(M4FLAGS) $< > $@
@@ -117,11 +117,11 @@ libDataClasses.rootmap: libDataClasses.so ../../src/common/DataLibraryLinkDef.h
 decompressor.o: decompressor.c
 	$(CC) -c $(MIDAS_CFLAGS) -I/usr/include/sasl  -UUSE_ROOT  $<
 
-clean: 
+clean:
 	rm -f *.d *.o *Dict.cpp *Dict.h MODULES.h Makefile.MODULES \
 	alcapana libDataClasses.so libDataClasses.rootmap
 
-print: 
+print:
 	@echo "DATA_CLASSES = $(DATA_CLASSES)"; echo
 	@echo "DATA_CLASSES = $(DATA_CLASSES)"; echo
 	@echo "DATA_LIBRARY_HEADERS = $(DATA_LIBRARY_HEADERS)"; echo

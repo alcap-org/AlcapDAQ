@@ -1,8 +1,8 @@
 /**
- * PROGRAM:     crate.cpp                                                
- * DESCRIPTION: Control and readout of CAEN V1724 digitizers.                           
- * author:      V.Tishchenko                                             
- * date:        20-Mar-2015                                              
+ * PROGRAM:     crate.cpp
+ * DESCRIPTION: Control and readout of CAEN V1724 digitizers.
+ * author:      V.Tishchenko
+ * date:        20-Mar-2015
  *
  * Modifications:
  *
@@ -45,7 +45,7 @@ BOOL frontend_call_loop = TRUE;
 INT display_period = 0;
 
 /* maximum event size produced by this frontend */
-#define MAX_DATA_SIZE  
+#define MAX_DATA_SIZE
 INT max_event_size = MAX_EVENT_SIZE;
 
 /* maximum event size for fragmented events (EQ_FRAGMENTED) */
@@ -98,7 +98,7 @@ extern struct readout_module rpc_master_module;
 extern struct readout_module rpc_slave_module;
 extern struct readout_module dt5730_module;
 
-struct readout_module *trigger_modules[] = { 
+struct readout_module *trigger_modules[] = {
   &rpc_master_module,
   &dt5730_module,
   &rpc_slave_module,  // must be last!
@@ -112,7 +112,7 @@ struct timeval readout_finished_time;
  */
 //extern struct readout_module s500_module;
 
-struct readout_module *periodic_modules[] = { 
+struct readout_module *periodic_modules[] = {
   //&s500_module,
 };
 int num_periodic_modules = sizeof(periodic_modules)/sizeof(periodic_modules[0]);
@@ -137,8 +137,8 @@ INT frontend_early_init()
   strcpy(frontend_name, "Crate ");
   frontend_index = crate_number;
 
-  printf("Crate number = %d\n",crate_number);
-  
+  printf("Crate number = %d\n", crate_number);
+
   printf("Frontend early init returns success \n");
   return SUCCESS;
 }
@@ -151,7 +151,7 @@ INT frontend_early_init()
 INT frontend_init()
 {
   printf("Entering frontend_init() ... \n");
-  INT run_state = odb_get_int("/Runinfo/State");
+  const INT run_state = odb_get_int("/Runinfo/State");
   if (run_state != STATE_STOPPED) {
     cm_msg(MERROR, "Crate",
             "Run must be stopped before starting crate program.");
@@ -160,7 +160,7 @@ INT frontend_init()
 
   for(int i = 0; i < num_trigger_modules; i++) {
     if((*trigger_modules[i]).init != NULL) {
-      int status = (*trigger_modules[i]).init();
+      const int status = (*trigger_modules[i]).init();
       if(status != SUCCESS) {
         return status;
       }
@@ -169,7 +169,7 @@ INT frontend_init()
 
   for(int i = 0; i < num_periodic_modules; i++) {
     if((*periodic_modules[i]).init != NULL) {
-      int status = (*periodic_modules[i]).init();
+      const int status = (*periodic_modules[i]).init();
       if(status != SUCCESS) {
         return status;
       }
@@ -203,7 +203,7 @@ INT frontend_exit()
 }
 
 /*
- * pre_begin_of_run:   Called before a new run is started. 
+ * pre_begin_of_run:   Called before a new run is started.
  */
 INT pre_begin_of_run(INT run_number, char *error)
 {
@@ -242,7 +242,7 @@ INT begin_of_run(INT run_number, char *error)
 
   for(int i = 0; i < num_trigger_modules; i++) {
     if((*trigger_modules[i]).bor != NULL) {
-      int status = (*trigger_modules[i]).bor();
+      const int status = (*trigger_modules[i]).bor();
       if(status != SUCCESS) {
         return status;
       }
@@ -251,7 +251,7 @@ INT begin_of_run(INT run_number, char *error)
 
   for(int i = 0; i < num_periodic_modules; i++) {
     if((*periodic_modules[i]).bor != NULL) {
-      int status = (*periodic_modules[i]).bor();
+      const int status = (*periodic_modules[i]).bor();
       if(status != SUCCESS) {
         return status;
       }
@@ -271,15 +271,14 @@ INT begin_of_run(INT run_number, char *error)
  * end_of_run:     Called on a request to stop a run. Can send
  *                 end-of-run event and close run gates.
  */
-INT end_of_run(INT run_number, char *error)
-{
+INT end_of_run(INT run_number, char *error) {
   diag_print(1, "*** End of run %d ***\n", run_number);
 
   between_runs = true;
 
   for(int i = 0; i < num_trigger_modules; i++) {
     if((*trigger_modules[i]).eor != NULL) {
-      int status = (*trigger_modules[i]).eor();
+      const int status = (*trigger_modules[i]).eor();
       if(status != SUCCESS) {
         return status;
       }
@@ -288,13 +287,12 @@ INT end_of_run(INT run_number, char *error)
 
   for(int i = 0; i < num_periodic_modules; i++) {
     if((*periodic_modules[i]).eor != NULL) {
-      int status = (*periodic_modules[i]).eor();
+      const int status = (*periodic_modules[i]).eor();
       if(status != SUCCESS) {
         return status;
       }
     }
   }
-
 
   return SUCCESS;
 }
@@ -303,26 +301,23 @@ INT end_of_run(INT run_number, char *error)
 /*
  * pause_run:      When a run is paused. Should disable trigger events.
  */
-INT pause_run(INT run_number, char *error)
-{
-    return SUCCESS;
+INT pause_run(INT run_number, char *error) {
+  return SUCCESS;
 }
 
 /* ********************************************************************* */
 /*
  * resume_run:     When a run is resumed. Should enable trigger events.
  */
-INT resume_run(INT run_number, char *error)
-{
-    return SUCCESS;
+INT resume_run(INT run_number, char *error) {
+  return SUCCESS;
 }
 
 /* ********************************************************************* */
 /*
  * start_cycle
  */
-void start_cycle()
-{
+void start_cycle() {
   printf("starting new cycle in crate.cpp\n");
   struct timeval restart_time;
   gettimeofday(&restart_time, NULL);
@@ -333,7 +328,7 @@ void start_cycle()
     }
   }
 
-  diag_print(2, "Waited %f microseconds for restart.\n", 
+  diag_print(2, "Waited %f microseconds for restart.\n",
     (restart_time.tv_sec-readout_finished_time.tv_sec)*1e6 +
       (restart_time.tv_usec-readout_finished_time.tv_usec));
 
@@ -343,27 +338,24 @@ void start_cycle()
 /*
  * consider_start
  */
-INT consider_start()
-{
-    for(int i = 0; i < num_trigger_modules; i++) {
-      if((*trigger_modules[i]).poll_dead != NULL) {
-        int status = (*trigger_modules[i]).poll_dead();
-
-	if(status == FE_NEED_START && !event_avail) {
-          start_cycle();
-	} else if(status != SUCCESS) {
-          return status;
-	}
-      }
+INT consider_start() {
+  for(int i = 0; i < num_trigger_modules; i++) {
+    if((*trigger_modules[i]).poll_dead != NULL) {
+      int status = (*trigger_modules[i]).poll_dead();
+      if(status == FE_NEED_START && !event_avail) {
+        start_cycle();
+    	} else if(status != SUCCESS) {
+        return status;
+    	}
     }
-
+  }
+  return SUCCESS;
 }
 
 /*
  * stop_cycle
  */
-void stop_cycle()
-{
+void stop_cycle() {
   for(int i = 0; i < num_trigger_modules; i++) {
     if((*trigger_modules[i]).stop_cycle != NULL) {
       (*trigger_modules[i]).stop_cycle();
@@ -372,15 +364,14 @@ void stop_cycle()
 }
 
 /* ********************************************************************* */
-/* 
+/*
  * If frontend_call_loop is true, this routine gets called when
- * the frontend is idle or once between every event 
- */ 
-INT frontend_loop()
-{
+ * the frontend is idle or once between every event
+ */
+INT frontend_loop() {
   // If we're going to be pre-empted, get it over with during livetime
   // rather than deadtime.
-  if (cycle_active || run_state != STATE_RUNNING || between_runs == TRUE) { 
+  if (cycle_active || run_state != STATE_RUNNING || between_runs == TRUE) {
     dm_area_flush();
     sched_yield();
   }
@@ -392,8 +383,7 @@ INT frontend_loop()
 
   // Call appropriate poll functions, depending on whether we're live or dead
   //printf("fe loop: cycle_active %i\n",cycle_active);
-  if (cycle_active) { 
-
+  if (cycle_active) {
     for(int i = 0; i < num_trigger_modules; i++) {
       if((*trigger_modules[i]).poll_live != NULL) {
 
@@ -402,16 +392,16 @@ INT frontend_loop()
         if (run_state != STATE_RUNNING || between_runs == TRUE) {
           return SUCCESS;
         }
-        int status = (*trigger_modules[i]).poll_live();
+        const int status = (*trigger_modules[i]).poll_live();
 
         if(status == FE_END_BLOCK) {
           cycle_active = 0;
-	  event_avail = true;
-	} else if(status == FE_NEED_STOP) {
-          stop_cycle(); 
-	} else if(status != SUCCESS) {
+      	  event_avail = true;
+      	} else if(status == FE_NEED_STOP) {
+          stop_cycle();
+      	} else if(status != SUCCESS) {
           return status;
-	}
+      	}
       }
     }
   } else {
@@ -422,7 +412,7 @@ INT frontend_loop()
 }
 
 /* ********************************************************************* */
-/* 
+/*
  * Polling routine for events. Returns TRUE if event
  * is available. If test equals TRUE, don't return. The test
  * flag is used to time the polling.
@@ -468,25 +458,25 @@ INT interrupt_configure(INT cmd, INT source, PTYPE adr)
 
 void print_diag_output(char *pevent)
 {
-  printf("--------\n"); 
+  printf("--------\n");
 
   printf("Event number: %d\n", (((EVENT_HEADER *)pevent)-1)->serial_number);
 
-  BANK32 *pbk = NULL; 
+  BANK32 *pbk = NULL;
   do {
-    DWORD *pdata; 
+    DWORD *pdata;
     int size = bk_iterate32(pevent, &pbk, &pdata);
     if(pbk != NULL) {
       printf("%c%c%c%c\t%d\t\t", pbk->name[0], pbk->name[1], pbk->name[2],
         pbk->name[3], size);
       for(int i = 0; i < MIN(4, size/4); i++) {
-         printf("0x%08x ", pdata[i]); 
+         printf("0x%08x ", pdata[i]);
       }
       printf("\n");
     }
   } while(pbk != NULL);
 
-  printf("--------\n"); 
+  printf("--------\n");
 }
 
 /* ********************************************************************* */
@@ -518,7 +508,7 @@ INT read_trigger_event(char *pevent, INT off)
     }
   }
   gettimeofday(&readout_finished_time, NULL);
-  diag_print(2, "Spent %f microseconds for readout.\n", 
+  diag_print(2, "Spent %f microseconds for readout.\n",
     (readout_finished_time.tv_sec-readout_start_time.tv_sec)*1e6 +
       (readout_finished_time.tv_usec-readout_start_time.tv_usec));
 
