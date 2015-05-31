@@ -7,7 +7,9 @@
 //#define PARALLEL_PORT0 0x1150
 //#define PARALLEL_PORT1 0x1151
 
-#define PARALLEL_PORT0 0x378
+//#define PARALLEL_PORT0 0x378
+// PSI R15a
+#define PARALLEL_PORT0 0xe050
 #define PARALLEL_PORT1 (PARALLEL_PORT0+1)
 
 #include <stdio.h>
@@ -46,11 +48,6 @@ struct readout_module parport_module = {
   NULL,                   // read
 };
 
-/*
- * parport_init
- *
- * Called at the beginning of the run 
- */
 
 INT setPP(char v, int usec) { 
 
@@ -61,6 +58,11 @@ INT setPP(char v, int usec) {
 
 }
 
+/*
+ * parport_init
+ *
+ * Called at the beginning of the run 
+ */
 
 INT parport_init()
 {
@@ -99,11 +101,15 @@ INT parport_init()
 INT parport_start_block()
 {
   
+  block_nr++;
+#if 0
+  printf("start block %i\n",block_nr);
+#endif
+
   block_sig = true;
 #if 0
   clock_gettime(CLOCK_REALTIME,&timer_start);
 #endif
-  block_nr++;
   //setPP(255, 1);
 
   // Send reset 
@@ -113,6 +119,7 @@ INT parport_start_block()
   // start new segment
   setPP(1, 1);
   setPP(0, 1);
+
   return SUCCESS;
 }
 
@@ -129,6 +136,9 @@ INT parport_start_block()
 
 INT parport_poll_live()
 {
+  
+  static unsigned int block=1;
+
 #if 0
   struct timespec timer_now;
   clock_gettime(CLOCK_REALTIME, &timer_now);  
@@ -137,19 +147,24 @@ INT parport_poll_live()
   printf("time elapse: %ld\n", time_elapse);
   if (time_elapse > 2*1000*1000)
     {
+#if 0
       printf("end of block\n");
+#endif
       return FE_END_BLOCK;
     }
 #endif 
 
   unsigned char p = inb(PARALLEL_PORT1);
 
-//printf("p=%i, 0x%x\n",p, p);
-//return FE_END_BLOCK;
+  //printf("p=%i, 0x%x\n",p, p);
+  //return FE_END_BLOCK;
   if ( !(p & 0x40) )
     {
+#if 0
       //printf("p=%i, 0x%x\n",p, p);
-      //printf("end of block\n");
+      printf("end of block %i\n",block);
+#endif
+      block++;
       return FE_END_BLOCK;
     }
   
@@ -160,6 +175,6 @@ INT parport_poll_live()
 INT parport_poll_dead()
 {
   //printf("Send to start block\n");
-  return FE_NEED_START;
-  //return 0;
+  //return FE_NEED_START;
+  return 0;
 }
