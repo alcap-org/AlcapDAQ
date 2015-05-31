@@ -28,10 +28,13 @@ CXX_LIBS += $(MIDAS_LIB)
 CXXFLAGS += $(MIDAS_INCLUDE) -DDO_IOPERM
 CFLAGS = $(CXXFLAGS)
 
+#We need this to reboot the desktop digitizers
+CXXFLAGS += -I $(CAEN_DIR)/include
+
 MODULES = crate.o rpc_master.o rpc_slave.o diag.o odb_wrapper.o
 #MODULES += rpv130_module.o
 #VMEDRVS += ../bit3_mvme/rpv130.o ../bit3_mvme/bt617.o
-DRVS += parport_module.o
+DRVS += parport_module.o caen_desktop_reset.o
 
 all: crate
 

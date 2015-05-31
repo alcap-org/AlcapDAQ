@@ -13,9 +13,7 @@ cd ..
 mkdir -p CAENUSB
 cd CAENUSB
 tar -xzvf ../tar/CAENUSBdrvB-1.4.tgz
-cd CAENUSBdrvB-1.4
-make
-cd ../..
+cd ..
 
 mkdir -p CAENV1x90
 cd CAENV1x90

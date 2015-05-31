@@ -3,6 +3,7 @@
 #include "CAENComm.h"
 #include <iostream>
 #include <cstdio>
+#include <stdint.h>
 
 //---------------------------------------------------------
 #include <stdlib.h>
@@ -13,35 +14,35 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
-#include "inc/CAENUSBdrvB.h"
-int file_handle;   // Handle got from CreateFile
-#define         BOOL    int
-#define         HANDLE  int
-#define         TRUE    1
-#define         FALSE   0
-#define         INVALID_HANDLE_VALUE    -1 
+//#include "inc/CAENUSBdrvB.h"
+//int file_handle;   // Handle got from CreateFile
+//#define         BOOL    int
+//#define         HANDLE  int
+//#define         TRUE    1
+//#define         FALSE   0
+//#define         INVALID_HANDLE_VALUE    -1 
 
-static int openUSBDriver(int *file_handle, int dtNum);
-static BOOL closeUSBDriver(HANDLE file_handle);
-static long rebootBoard(HANDLE file_handle, int page);
-int simulate_power_cycle(int dtNum);
+//static int openUSBDriver(int *file_handle, int dtNum);
+//static BOOL closeUSBDriver(HANDLE file_handle);
+//static long rebootBoard(HANDLE file_handle, int page);
+//int simulate_power_cycle(int dtNum);
 //------------------------------------------------------------------
 
 int main() {
 
   //------
-  simulate_power_cycle(1);
-  return 0;
+  //  simulate_power_cycle(1);
+  //  return 0;
   //------
 
   int handle;
-  //CAEN_DGTZ_ErrorCode ret;
-  CAENComm_ErrorCode ret;
+  CAEN_DGTZ_ErrorCode ret;
+  //CAENComm_ErrorCode ret;
 
   //---Open Digitizer---
-  //ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_OpticalLink, 0, 1, 0x0, &handle);
+  ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB, 0, 0, 0x0, &handle);
   //ret = CAENComm_OpenDevice(CAENComm_OpticalLink, 0, 1, 0x0, &handle);
-    ret = CAENComm_OpenDevice(CAENComm_USB, 0, 0, 0x0, &handle);
+  //ret = CAENComm_OpenDevice(CAENComm_USB, 0, 0, 0x0, &handle);
 
   std::cout << "Open return value:\t" << ret << std::endl;
 
@@ -52,11 +53,18 @@ int main() {
 
   //---Configuration Reload---
   //ret = CAEN_DGTZ_WriteRegister(handle, 0xEF34, 1);
-  ret = CAENComm_Write32(handle, 0xEF34, 1);
-  std::cout << "Confg. Reload Write Reg.  return value:\t" << ret << std::endl;
+  //ret = CAENComm_Write32(handle, 0xEF34, 1);
+  //std::cout << "Confg. Reload Write Reg.  return value:\t" << ret << std::endl;
+  uint32_t data;
+  ret = CAEN_DGTZ_ReadRegister(handle, 0x8100, &data);
+  std::cout << "Read register return: " << ret << std::endl;
+  data |= 0x1<<6;
+  ret = CAEN_DGTZ_WriteRegister(handle, 0x8100, data);
+  std::cout << "Write register return: " << ret << std::endl;
+  usleep(10e6);
 
-  //ret = CAEN_DGTZ_CloseDigitizer(handle);
-  ret = CAENComm_CloseDevice(handle);
+  ret = CAEN_DGTZ_CloseDigitizer(handle);
+  //ret = CAENComm_CloseDevice(handle);
   std::cout << "Close return value:\t" << ret << std::endl;
   return 0;
 
@@ -94,59 +102,59 @@ int main() {
   return 0;
 }
 
-static int openUSBDriver(int *file_handle,int dtNum)
-{
-   char devname[80];
+// static int openUSBDriver(int *file_handle,int dtNum)
+// {
+//    char devname[80];
 
-   sprintf(devname,"/dev/usb/v1718_%d",dtNum); // HACK : to be generic it should have a parameter board_number
-   printf("Opening USB device: %s\n",devname);
+//    sprintf(devname,"/dev/usb/v1718_%d",dtNum); // HACK : to be generic it should have a parameter board_number
+//    printf("Opening USB device: %s\n",devname);
             
-   *file_handle = open(devname, O_RDWR);
-   if( *file_handle == INVALID_HANDLE_VALUE ){
-     return FALSE;
-   } else {
-     return TRUE;
-   }
-}
+//    *file_handle = open(devname, O_RDWR);
+//    if( *file_handle == INVALID_HANDLE_VALUE ){
+//      return FALSE;
+//    } else {
+//      return TRUE;
+//    }
+// }
 
-static BOOL closeUSBDriver(HANDLE file_handle)
-{
-  BOOL ret;
-  ret = !close(file_handle);
-  file_handle = INVALID_HANDLE_VALUE;
-  return ret;
-}
+// static BOOL closeUSBDriver(HANDLE file_handle)
+// {
+//   BOOL ret;
+//   ret = !close(file_handle);
+//   file_handle = INVALID_HANDLE_VALUE;
+//   return ret;
+// }
 
-static long rebootBoard(HANDLE file_handle, int page)
-{
-  switch(page)
-  {
-    case 0 :
-      printf("Warning: We should never want to reboot from backup firmware image!");
-      //printf("Sending command to reboot from backup firmware image ...\n");
-      //ioctl(file_handle, V1718_IOCTL_REBOOTB, NULL);
-      //printf("Command sent.\n");
-      break;
-    case 1 :   
-      printf("Sending command to reboot from standard firmware image ...\n");
-      ioctl(file_handle, V1718_IOCTL_REBOOTF, NULL);
-      printf("Command sent.\n");
-      break;
-    default:
-      break;
-  }
+// static long rebootBoard(HANDLE file_handle, int page)
+// {
+//   switch(page)
+//   {
+//     case 0 :
+//       printf("Warning: We should never want to reboot from backup firmware image!");
+//       //printf("Sending command to reboot from backup firmware image ...\n");
+//       //ioctl(file_handle, V1718_IOCTL_REBOOTB, NULL);
+//       //printf("Command sent.\n");
+//       break;
+//     case 1 :   
+//       printf("Sending command to reboot from standard firmware image ...\n");
+//       ioctl(file_handle, V1718_IOCTL_REBOOTF, NULL);
+//       printf("Command sent.\n");
+//       break;
+//     default:
+//       break;
+//   }
   
-  return 0;
-}
+//   return 0;
+// }
 
-int simulate_power_cycle(int dtNum)
-{
-    if(openUSBDriver(&file_handle,dtNum)) {
-      rebootBoard(file_handle, 1);//second arg MUST be 1 to use Standard Firmware. (0 would load old Backup firmware)
-      closeUSBDriver(file_handle);
-      return 0;
-    } else {
-      printf("Error: Cannot connect to device via USB.\n");
-      return -1;
-    }
-}
+// int simulate_power_cycle(int dtNum)
+// {
+//     if(openUSBDriver(&file_handle,dtNum)) {
+//       rebootBoard(file_handle, 1);//second arg MUST be 1 to use Standard Firmware. (0 would load old Backup firmware)
+//       closeUSBDriver(file_handle);
+//       return 0;
+//     } else {
+//       printf("Error: Cannot connect to device via USB.\n");
+//       return -1;
+//     }
+// }

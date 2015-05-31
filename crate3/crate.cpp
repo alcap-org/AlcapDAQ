@@ -108,12 +108,12 @@ EQUIPMENT equipment[] = {
  */
 extern struct readout_module rpc_master_module;
 extern struct readout_module rpc_slave_module;
-//extern struct readout_module rpv130_module;
+extern struct readout_module caen_desktop_reset_module;
 extern struct readout_module parport_module;
 
 struct readout_module *trigger_modules[] = { 
   &rpc_master_module,
-  //&rpv130_module,
+  &caen_desktop_reset_module, // must be before parport
   &parport_module,
   &rpc_slave_module,  // must be last!
 };
@@ -124,11 +124,10 @@ struct timeval readout_finished_time;
 /*
  * List of modules in periodic event.
  */
-extern struct readout_module s500_module;
 
 struct readout_module *periodic_modules[] = { 
-  //&s500_module,
 };
+
 int num_periodic_modules = sizeof(periodic_modules)/sizeof(periodic_modules[0]);
 
 int cycle_active = 0;
