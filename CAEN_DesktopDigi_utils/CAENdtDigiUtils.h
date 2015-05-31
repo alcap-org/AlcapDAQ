@@ -1,3 +1,6 @@
+#ifndef _CAENDTDIGIUTILS_H__
+#define _CAENDTDIGIUTILS_H__
+
 #include <stdlib.h>
 #include <sys/time.h>                           // Rel. 1.4
 #include <sys/types.h>
@@ -7,26 +10,40 @@
 #include <stdio.h>
 #include <string.h>
 #include "CAENUSBdrvB.h"
+#include "CAENDigitizerType.h"
+#include "CAENDigitizer.h"
+
 int file_handle;   // Handle got from CreateFile
 #define         BOOL    int
 #define         HANDLE  int
 #define         TRUE    1
 #define         FALSE   0
-#define         INVALID_HANDLE_VALUE    -1 
+#define         INVALID_HANDLE_VALUE    -1
 
 //static int openUSBDriver(int *file_handle, int dtNum);
 //static BOOL closeUSBDriver(HANDLE file_handle);
 //static long rebootBoard(HANDLE file_handle, int page);
 //int simulate_power_cycle(int dtNum);
 
+typedef struct caen_digi_status
+{
+
+  BOOL run_active;
+  BOOL evt_ready;
+  BOOL board_full;
+  BOOL ext_clock;
+  BOOL pll_bypass;
+  BOOL pll_lost;
+  BOOL board_ready;
+} caen_digi_status;
 
 static int openUSBDriver(int *file_handle,int dtNum)
 {
    char devname[80];
 
-   sprintf(devname,"/dev/usb/v1718_%d",dtNum); // HACK : to be generic it should have a parameter board_number
+   sprintf(devname,"/dev/usb/v1718_%d",dtNum);
    printf("Opening USB device: %s\n",devname);
-            
+
    *file_handle = open(devname, O_RDWR);
    if( *file_handle == INVALID_HANDLE_VALUE ){
      return FALSE;
@@ -53,7 +70,7 @@ static long rebootBoard(HANDLE file_handle, int page)
       //ioctl(file_handle, V1718_IOCTL_REBOOTB, NULL);
       //printf("Command sent.\n");
       break;
-    case 1 :   
+    case 1 :
       printf("Sending command to reboot from standard firmware image ...\n");
       ioctl(file_handle, V1718_IOCTL_REBOOTF, NULL);
       printf("Command sent.\n");
@@ -61,7 +78,7 @@ static long rebootBoard(HANDLE file_handle, int page)
     default:
       break;
   }
-  
+
   return 0;
 }
 
@@ -76,3 +93,34 @@ int simulate_power_cycle(int dtNum)
       return -1;
     }
 }
+
+// // Check board status
+caen_digi_status caen_digi_get_status(int handle) {
+  uint32_t data;
+  CAEN_DGTZ_ReadRegister(handle, CAEN_DGTZ_ACQ_CONTROL_ADD, &data);
+  /*
+     8-bit Acquisition Status Register
+     Register is reflected on front panel LEDs
+     0: Reserved
+     1: Reserved
+     2: 1 if RUN ON
+     3: 1 if event is ready to be read out
+     4: 1 if maximum number of events currently on board
+     5: 1 if using external clock
+     6: 1 if PLL circuitry being bypassed, 1 if PLL is being used
+     7: 1 if no loss of PLL lock since last read
+     8: 1 if board ready for data taking
+   */
+   caen_digi_status ds;
+   ds.run_active  = (BOOL)((data <<= 2) & 1);
+   ds.evt_ready   = (BOOL)((data <<= 1) & 1);
+   ds.board_full  = (BOOL)((data <<= 1) & 1);
+   ds.ext_clock   = (BOOL)((data <<= 1) & 1);
+   ds.pll_bypass  = (BOOL)((data <<= 1) & 1);
+   ds.pll_lost    = !((BOOL)((data <<= 1) & 1));
+   ds.board_ready = (BOOL)((data <<= 1) & 1);
+   return ds;
+ }
+
+#endif // Include guard
+
