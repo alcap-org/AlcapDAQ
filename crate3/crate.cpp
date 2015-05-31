@@ -377,6 +377,8 @@ INT resume_run(INT run_number, char *error)
  */
 void start_cycle()
 {
+  if ( cycle_active == 1 ) return;
+
   //printf("starting new cycle in crate.cpp\n");
   struct timeval restart_time;
   gettimeofday(&restart_time, NULL);
@@ -422,6 +424,9 @@ void stop_cycle()
       (*trigger_modules[i]).stop_cycle();
     }
   }
+
+  cycle_active = 0;
+
 }
 
 /* ********************************************************************* */
