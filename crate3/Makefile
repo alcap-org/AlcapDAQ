@@ -34,12 +34,16 @@ CXXFLAGS += -I $(CAEN_DIR)/include
 MODULES = crate.o rpc_master.o rpc_slave.o diag.o odb_wrapper.o
 #MODULES += rpv130_module.o
 #VMEDRVS += ../bit3_mvme/rpv130.o ../bit3_mvme/bt617.o
-DRVS += parport_module.o caen_desktop_reset.o
+DRVS += parport_module.o caen_desktop_reset.o 
+
+# CAEN
+CAEN_DIR = $(DAQdir)/CAEN
+LDFLAGS += -L $(CAEN_DIR)/lib -lCAENDigitizer -lCAENComm -lCAENVME
 
 all: crate
 
 crate: $(MODULES) $(DRVS)
-	$(CXX) -o $@ $(MODULES) $(CXX_LIBS) $(DRVS)
+	$(CXX) -o $@ $(MODULES) $(CXX_LIBS) $(DRVS)  $(LDFLAGS)
 
 .c.o: $(DRV)
 	$(CXX) $(CXXFLAGS) -c $< 
