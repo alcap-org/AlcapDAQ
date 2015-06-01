@@ -11,13 +11,13 @@ muSC_muPC/MMuPC1AnalysisC
 muSC_muPC/MMuPC1AnalysisMQL
 muSC_muPC/MMuSCAnalysisMQL
 
-FADC/MOctalFADCBufferOverflow
-FADC/MOctalFADCPacketLoss
+# FADC/MOctalFADCBufferOverflow
+# FADC/MOctalFADCPacketLoss
 
 diagnostics/MCommonOnlineDisplayPlots
 common/MMuSCTimeDifferences
 
 vacuum/MVacuumHisto
 
-common/MTreeOutput
+# common/MTreeOutput
 
