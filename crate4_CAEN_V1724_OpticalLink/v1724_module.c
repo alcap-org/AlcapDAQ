@@ -60,7 +60,9 @@ struct readout_module v1724_module = {
 typedef struct s_v1724_odb 
 { 
   DWORD vme_base;                     ///< VME base address of the module
-  BOOL enabled;                       ///< don't readout the module if false    
+  BOOL  enabled;                      ///< don't readout the module if false    
+  BYTE  board_num;                    ///< Board number in daisychance 
+  BYTE  link_num;                     ///< Link number in A3818 card
   DWORD wf_length;                    ///< waveform length, samples
   BYTE  acquisition_mode;             ///< Acquisition mode: 0=CAEN_DGTZ_SW_CONTROLLED, 1=CAEN_DGTZ_S_IN_CONTROLLED;
   BYTE  software_trigger_mode;        ///< Software trigger mode: 0=CAEN_DGTZ_TRGMODE_DISABLED, 1=CAEN_DGTZ_TRGMODE_ACQ_ONLY, 2=CAEN_DGTZ_TRGMODE_EXTOUT_ONLY, 3=CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT
@@ -84,6 +86,8 @@ static S_V1724_ODB_DEF S_V1724_ODB[NBOARDS];
 [.]\n\
 VME base = DWORD : 0x32100000\n\
 enabled = BOOL : y\n\
+Board number = BYTE : 0\n\
+Link number = BYTE : 0\n\
 waveform length = DWORD : 32\n\
 acquisition mode = BYTE : 1\n\
 software trigger mode = BYTE : 0\n\
@@ -181,9 +185,17 @@ INT v1724_init()
       if ( !S_V1724_ODB[iboard].enabled ) continue;
 
 #if 0
-      ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,0,0,S_V1724_ODB[iboard].vme_base,&handle[iboard]);
+      ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB,
+				    0,
+				    S_V1724_ODB[iboard].board_num,
+				    S_V1724_ODB[iboard].vme_base,
+				    &handle[iboard]);
 #else
-      ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_OpticalLink,0,0,S_V1724_ODB[iboard].vme_base,&handle[iboard]);
+      ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_OpticalLink,
+				    S_V1724_ODB[iboard].link_num,
+				    S_V1724_ODB[iboard].board_num,
+				    S_V1724_ODB[iboard].vme_base,
+				    &handle[iboard]);
 #endif
       if(ret != CAEN_DGTZ_Success) 
 	{
