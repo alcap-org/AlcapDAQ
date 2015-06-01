@@ -183,11 +183,11 @@ BOOL dt5720_open() {
   CAEN_DGTZ_ErrorCode ret;
 
   if (S_DT5720_ODB.optical_link)
-    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_OpticalLink, S_DT5720_ODB.board_num,
-                                  S_DT5720_ODB.link_num, S_DT5720_ODB.vme_base,
+    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_OpticalLink, S_DT5720_ODB.link_num,
+                                  S_DT5720_ODB.board_num, S_DT5720_ODB.vme_base,
                                   &dev_handle);
   else
-    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB, S_DT5720_ODB.board_num, 0, 0,
+    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB, 0, S_DT5720_ODB.board_num, 0,
                                   &dev_handle);
   if(is_caen_error(ret, __LINE__, "dt5720_open")) return false;
 
@@ -243,6 +243,9 @@ INT dt5720_eor() {
   ret = CAEN_DGTZ_FreeReadoutBuffer(&caen_data_buffer);
   if(is_caen_error(ret,__LINE__-1,"dt5720_eor")) return FE_ERR_HW;
   caen_data_buffer = NULL;
+
+  ret = CAEN_DGTZ_CloseDigitizer(dev_handle);
+  if(is_caen_error(ret,__LINE__-1,"dt5720_eor")) return FE_ERR_HW;
 
   return SUCCESS;
 }
