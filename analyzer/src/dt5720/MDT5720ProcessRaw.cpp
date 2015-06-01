@@ -93,16 +93,17 @@ INT module_init()
   /*** Get necessary data from ODB ***/
   char key[80];
   int size;
-  unsigned int post_trigger_percentage, nSamples;
+  BYTE post_trigger_percentage;
+  unsigned int nSamples;
 
 
   // Get Trigger Time Tag info
   // Timestamp will be shifted by number of presamples
 
-  sprintf(key, "/Equipment/Crate 5/Settings/CAEN/waveform length");
+  sprintf(key, "/Equipment/Crate 5/Settings/CAEN/Waveform length STD");
   size = sizeof(nSamples);
   db_get_value(hDB, 0, key, &nSamples, &size, TID_DWORD, 1);
-  sprintf(key, "/Equipment/Crate 5/Settings/CAEN/post_trigger_size");
+  sprintf(key, "/Equipment/Crate 5/Settings/CAEN/Post trigger size");
   size = sizeof(post_trigger_percentage);
   db_get_value(hDB, 0, key, &post_trigger_percentage, &size, TID_BYTE, 1);
   //nPreSamples = (int) (0.01 * ((100 - post_trigger_percentage) * nSamples));
