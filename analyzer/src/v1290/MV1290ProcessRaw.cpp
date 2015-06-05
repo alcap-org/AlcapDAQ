@@ -62,22 +62,64 @@ INT module_init_tdc() {
   return SUCCESS;
 }
 
+
 /*-- module event routine -----------------------------------------*/
 INT module_event_tdc(EVENT_HEADER *pheader, void *pevent) {
   // Fetch a reference to the gData structure that stores a map
   // of (bank_name, vector<TPulseIsland*>) pairs
-  std::map< std::string, std::vector<long> >& tdc_map =
-    gData->fTDCHitsToChannelMap;
+  std::map< std::string, std::vector<long> >& tdc_map = gData->fTDCHitsToChannelMap;
+  
+  // clear old data
+  typedef std::map< std::string, std::vector<long> >::iterator map_iterator;
+  for (map_iterator theMapIter = tdc_map.begin(); theMapIter != tdc_map.end(); theMapIter++) 
+    {
+      std::vector<long> *theHits = &theMapIter->second;
+      theHits->clear();
+    }
+
+
 
   BYTE *pdata;
-  unsigned int bank_len = bk_locate(pevent, "TDC", &pdata);
+  const char *cbk_name = "DCDC";
+  unsigned int bank_len = bk_locate(pevent, cbk_name, &pdata);
+
+  if ( bank_len == 0 ) return SUCCESS;
+
+  // data format version
+  char dfver[8];
+  memcpy(dfver,pdata,4);
+  dfver[4] = '\0';
+  printf("bank [%s] data format version: [%s] size: [%i] bytes\n",cbk_name,dfver,bank_len);
+  pdata+=4;
+
   uint32_t *p32 = (uint32_t*)pdata;
   const uint32_t *p32_0 = p32;
 
-  while ((p32 - p32_0)*4 < bank_len) {
+  // Added by VT on 06/05/2015
+  // Rollover
+  int rollover = 2097152;
+  int rollover_counter = 0;
+  long t_last = -1;
+  long t0 = 0;
+
+  int data_size = (bank_len - 4)/4;
+  while ((p32 - p32_0) < data_size) {
+    //printf("0x%08x\n",*p32);
     if (V1290_IS_TDC_MEASURE(*p32)) {
       int chn = V1290_GET_TDC_MSR_CHANNEL(*p32);
       long meas = V1290_GET_TDC_MSR_MEASURE(*p32);
+      //printf("chn %i meas %i\n",chn,meas);
+      if ( chn == 1 ) printf("chn %i meas %i\n",chn,meas);
+      if ( t_last == -1 )
+	{
+	  t0 = meas;
+	}
+      else if ( meas < t_last )
+	{
+	  rollover_counter++;
+	}
+      t_last = meas;
+      meas = meas - t0 + rollover_counter*rollover;
       char bnk[5];
       sprintf(bnk, "T4%02d", chn);
       tdc_map[bnk].push_back(meas);

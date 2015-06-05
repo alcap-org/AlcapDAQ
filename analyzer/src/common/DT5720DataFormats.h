@@ -34,7 +34,7 @@ private:
   std::vector< std::vector<int> > waveforms_;
 };
 
-class DT5730BoardData {
+class DT5720BoardData {
 public:
   // Tell the object where the data is, and it will go through
   // and fill its members. The supplied data does not get referenced
@@ -45,7 +45,7 @@ public:
   bool channel_enabled(int ch) const {
       return channel_enableds_[ch];
     }
-  const DT5730ChannelData& channel_data(int ch) const {
+  const DT5720ChannelData& channel_data(int ch) const {
       return channel_data_[ch];
   }
 
@@ -56,7 +56,7 @@ private:
   const static int kNChan = 4;
   bool error_;
   bool channel_enableds_[kNChan];
-  DT5730ChannelData channel_data_[kNChan];
+  DT5720ChannelData channel_data_[kNChan];
 };
 
 #endif // Include guard

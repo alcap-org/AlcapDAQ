@@ -6,14 +6,17 @@
 
 class DT5730ChannelData {
 public:
+  DT5730ChannelData();
   // Tell the object where the data is, and it will go through
   // and fill its members. The supplied data does not get referenced
   // after returning so can be safely deleted.
   // Second input says whether to process the even or odd (true) pair
   // as the DT5730 bunches every 2 channels together.
+  // Third input outputs whether or not the specified channel has
+  // data present.
   // Returns the number of 32-bit words processed upon success
   // and -1 on failure.
-  int Process(uint32_t* data, bool odd);
+  int Process(uint32_t* data, bool odd, bool& is_data_present);
   int num_events() const {
     return waveforms_.size();
   }
@@ -26,11 +29,15 @@ public:
   const std::vector<int>& waveform(int evt) const {
     return waveforms_[evt];
   }
+  bool processed() const {
+    return processed_;
+  }
 
 private:
   struct Header;
   Header ProcessHeader(uint32_t* data);
 
+  bool processed_;
   int waveform_length_;
   std::vector<uint32_t> time_tags_;
   std::vector< std::vector<int> > waveforms_;
@@ -38,6 +45,8 @@ private:
 
 class DT5730BoardData {
 public:
+  const static int kNChan = 8;
+  DT5730BoardData();
   // Tell the object where the data is, and it will go through
   // and fill its members. The supplied data does not get referenced
   // after returning so can safely be deleted.
@@ -55,7 +64,7 @@ private:
   struct Header;
   Header ProcessHeader(uint32_t* data);
 
-  const static int kNChan = 8;
+  bool processed_;
   bool error_;
   bool channel_enableds_[kNChan];
   DT5730ChannelData channel_data_[kNChan];

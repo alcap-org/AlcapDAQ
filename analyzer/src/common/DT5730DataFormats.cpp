@@ -1,7 +1,12 @@
 #include "DT5730DataFormats.h"
 
 #include <stdint.h>
+#include <cstdio>
 #include <vector>
+
+DT5730ChannelData::DT5730ChannelData() : processed_(false), waveform_length_(0),
+                                        time_tags_(), waveforms_() {
+}
 
 struct DT5730ChannelData::Header {
   const static int header_size = 2;
@@ -10,10 +15,22 @@ struct DT5730ChannelData::Header {
   bool timetag_en, extras_en, waveform_en;
 };
 
-int DT5730ChannelData::Process(uint32_t* data, bool odd) {
+int DT5730ChannelData::Process(uint32_t* data, bool odd,
+                               bool& ch_data_present) {
+  if (processed_) {
+    printf("DT5730 channel already processed!\n");
+    return -1;
+  }
   Header header = ProcessHeader(data);
-  if (!header.format_en) return -1; // Sanity check, always enabled
-  if (!header.waveform_en || !header.timetag_en) return -1;
+  if (!header.format_en) {
+    printf("DT5730 dual channel header missing format word!\n");
+    return -1;
+  }
+  if (!header.waveform_en || !header.timetag_en) {
+    printf("DT5730 channel missing waveform or time tag (%d, %d)!\n",
+           header.waveform_en, header.timetag_en);
+    return -1;
+  }
 
   const int n_samps_per_word = 2;
   const int evt_size = header.waveform_en*(waveform_length_/n_samps_per_word) +
@@ -21,15 +38,20 @@ int DT5730ChannelData::Process(uint32_t* data, bool odd) {
   const int nevt = (header.nwords - Header::header_size)/evt_size;
   waveforms_.reserve(nevt);
 
+  printf("DT5730 channel event size and nevts: %d, %d\n", evt_size, nevt);
+
   data += Header::header_size;
   int nwords_processed = Header::header_size;
+  ch_data_present = false;
   for (int ievt = 0; ievt < nevt; ++ievt) {
     // Since the DT5730 groups every two channels together, here we ignore
     // the even channel if "odd" is true, and vice-versa.
     if (odd != *data>>31) {
       data += evt_size;
+      nwords_processed += evt_size;
       continue;
     }
+    ch_data_present = true;
     if (header.timetag_en) {
       time_tags_.push_back(*data & 0x7FFFFFFF);
       ++data; ++nwords_processed;
@@ -72,52 +94,66 @@ DT5730ChannelData::Header DT5730ChannelData::ProcessHeader(uint32_t* data) {
   return header;
 }
 
+DT5730BoardData::DT5730BoardData() : processed_(false), error_(false) {
+  for (int i = 0; i < kNChan; ++i) {
+    channel_enableds_[i] = false;
+    channel_data_[i] = DT5730ChannelData();
+  }
+}
+
 struct DT5730BoardData::Header {
   const static int header_size = 4;
   int nwords;
   int n_channel_data;
+  bool chpair_en[kNChan/2];
 };
 
 int DT5730BoardData::Process(uint32_t* data) {
+  if (processed_) {
+    printf("DT5730 board processing error: already processed!\n");
+    return -1;
+  }
+  processed_ = true;
+
   const Header header = ProcessHeader(data);
   data += Header::header_size;
   int nwords_processed = Header::header_size;
-  int ich = 0;
-  for (int i_channel_data = 0; i_channel_data < header.n_channel_data;
-       ++i_channel_data) {
-    while (!channel_enableds_[ich] && ich < kNChan) ++ich;
-    if (ich >= kNChan) {
-      printf("DT5730 Data Process Error: Invalid channel %d\n", ich);
+  for (int ichpair = 0; ichpair < kNChan/2; ++ichpair) {
+    if (!header.chpair_en[ichpair]) {
+      channel_enableds_[2*ichpair] = channel_enableds_[2*ichpair+1] = false;
+      continue;
+    }
+    bool is_data_present;
+
+    bool is_odd_ch = false;
+    int ich = 2*ichpair;
+    int n = channel_data_[ich].Process(data, is_odd_ch, is_data_present);
+    if (n < 0) {
+      printf("DT5730 error processing channel %d\n", ich);
       return -1;
     }
-    bool is_odd_channel = ich % 2;
-    if (!is_odd_channel) {
-      const int n = channel_data_[ich].Process(data, is_odd_channel);
-      if (n < 0) return -1;
-      nwords_processed += n;
-      data += n;
-      if (!channel_enableds_[++ich]) continue;
-      is_odd_channel = !is_odd_channel;
-    }
-    const int n = channel_data_[ich].Process(data, is_odd_channel);
-    if (n < 0) return -1;
-    nwords_processed += n;
-    data += n;
+    if (is_data_present) channel_enableds_[ich] = true;
+
+    is_odd_ch = true;
     ++ich;
+    channel_data_[ich].Process(data, is_odd_ch, is_data_present);
+    if (n < 0) {
+      printf("DT5730 error processing channel %d\n", ich);
+      return -1;
+    }
+    if (is_data_present) channel_enableds_[ich] = true;
+
+    data += n;
+    nwords_processed += n;
   }
-  if (header.nwords != nwords_processed) return -1;
   return nwords_processed;
 }
 
 DT5730BoardData::Header DT5730BoardData::ProcessHeader(uint32_t* data) {
   Header header = {0};
   header.nwords = data[0] & 0x0FFFFFFF;
-  const int channel_mask = data[1] & 0xFF;
-  for (int i = 0; i < kNChan; ++i)
-    channel_enableds_[i] = channel_mask & 1 << i;
-  header.n_channel_data = 0;
-  for (int i = 0; i < kNChan; i += 2)
-    if ( channel_enableds_[i] || channel_enableds_[i+1])
-      ++header.n_channel_data;
+  const int channel_pair_mask = data[1] & 0xF;
+  for (int i = 0; i < kNChan/2; ++i)
+    header.chpair_en[i] = channel_pair_mask & 1 << i;
   return header;
 }

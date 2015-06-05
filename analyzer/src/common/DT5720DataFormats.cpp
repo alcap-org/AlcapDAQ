@@ -1,6 +1,7 @@
 #include "DT5720DataFormats.h"
 
 #include <stdint.h>
+#include <cstdio>
 #include <vector>
 
 struct DT5720ChannelData::Header {
@@ -13,7 +14,7 @@ struct DT5720ChannelData::Header {
 int DT5720ChannelData::Process(uint32_t* data) {
   Header header = ProcessHeader(data);
   if (!header.format_en) {
-    printf("DT5720 Error: Missing format string in data.\n")
+    printf("DT5720 Error: Missing format string in data.\n");
     return -1;
   }
   if (!header.waveform_en) {
@@ -55,7 +56,7 @@ int DT5720ChannelData::Process(uint32_t* data) {
   return nwords_processed;
 }
 
-DT5720ChannelData::Header DT5730ChannelData::ProcessHeader(uint32_t* data) {
+DT5720ChannelData::Header DT5720ChannelData::ProcessHeader(uint32_t* data) {
   const uint32_t SIZE_MASK         = 0x00007FFF;
   const uint32_t FORMAT_EN_MASK    = 0x80000000;
   const uint32_t NSAMPLES_MASK     = 0x00000FFF;
@@ -71,7 +72,7 @@ DT5720ChannelData::Header DT5730ChannelData::ProcessHeader(uint32_t* data) {
   header.dualtrace_en = data[1] & DUALTRACE_EN_MASK;
   header.charge_en    = data[1] & CHARGE_EN_MASK;
   header.timetag_en   = data[1] & TIMETAG_EN_MASK;
-  header.extras_en    = data[1] & EXTRAS_EN_MASK;
+  header.baseline_en  = data[1] & BASELINE_EN_MASK;
   header.waveform_en  = data[1] & WAVEFORM_EN_MASK;
   waveform_length_    = 8*(data[1] & NSAMPLES_MASK);
   return header;
@@ -87,8 +88,7 @@ int DT5720BoardData::Process(uint32_t* data) {
   const Header header = ProcessHeader(data);
   data += Header::header_size;
   int nwords_processed = Header::header_size;
-  for (int i_channel_data = 0; i_channel_data < header.n_channel_data;
-       ++i_channel_data) {
+  for (int ich = 0; ich < kNChan; ++ich) {
     if (channel_enableds_[ich]) {
       const int n = channel_data_[ich].Process(data);
       if (n < 0) return -1;

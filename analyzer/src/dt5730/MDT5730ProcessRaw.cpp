@@ -30,8 +30,8 @@
 /*-- Module declaration --------------------------------------------*/
 static INT  module_init(void);
 static INT  module_event_caen(EVENT_HEADER*, void*);
-static INT  module_event_caen_std(uint32_t* data, int nbytes);
-static INT  module_event_caen_dpp(uint32_t* data, int nbytes);
+static INT  module_event_caen_std(uint32_t* data, const int nbytes);
+static INT  module_event_caen_dpp(uint32_t* data, const int nbytes);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -80,8 +80,10 @@ INT module_init() {
       mapIter != bank_to_detector_map.end(); mapIter++) {
 
     std::string bankname = mapIter->first;
-    if (bankname[1] == '7')
+    if (bankname[1] == '7') {
+      printf("Adding bankname to process: %c%c%c%c\n", bankname[0], bankname[1], bankname[2], bankname[3]);
       bank_names.push_back(bankname);
+    }
   }
 
   /*** Get necessary data from ODB ***/
@@ -121,11 +123,13 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent) {
   sprintf(bank_name,"CND%i",1); // one MIDAS bank per board
   int bank_len = bk_locate(pevent, bank_name, &pdata);
 
-  INT ret;
-  if (DPP)
-    ret = module_event_caen_dpp((uint32_t*)pdata, bank_len);
-  else
-    ret = module_event_caen_std((uint32_t*)pdata, bank_len);
+  INT ret = SUCCESS;
+  if (bank_len > 0) {
+    if (DPP)
+      ret = module_event_caen_dpp((uint32_t*)pdata, bank_len);
+    else
+      ret = module_event_caen_std((uint32_t*)pdata, bank_len);
+  }
 
   // print for testing
   if(pheader->serial_number == 1)
@@ -206,19 +210,39 @@ INT module_event_caen_dpp(uint32_t* p32, const int nbytes) {
 
     DT5730BoardData board_hits;
     const int nwords = board_hits.Process(p32);
-    if (nwords < 0)
+    if (nwords < 0) {
+      printf("DT5730: Error processing DPP data!\n");
       return SUCCESS;
+    }
+/*
+    for (int i = 0; i < DT5730BoardData::kNChan; ++i) {
+      const DT5730ChannelData& ch = board_hits.channel_data(i);
+      printf("---------------------------------");
+      printf("Channel %d\n", i);
+      printf("Enabled flag:    %d\n", board_hits.channel_enabled(i));
+      printf("Processed flag:  %d\n", ch.processed());
+      printf("Waveform length: %d\n", ch.waveform_length());
+      printf("Events:          %d\n", ch.num_events());
+      for (int j = 0; j < ch.num_events(); ++j) {
+        printf("Event            %d:\n", j);
+        printf("    Waveform length: %d\n", ch.waveform(j).size());
+        printf("    Time tag:        %d\n", ch.time_tag(j));
+      }
+    }
+//*/
     p32 += nwords;
-    for (std::vector<std::string>::iterator bankName = bank_names.begin();
-         bankName != bank_names.end(); ++bankName) {
-      std::vector<TPulseIsland*>& pulses = pulses_map[*bankName];
-      const int ich = bankName - bank_names.begin();
-      if (board_hits.channel_enabled(ich)) {
-        const DT5730ChannelData& ch_hits = board_hits.channel_data(ich);
-        for (int ievt; ievt < ch_hits.num_events(); ++ievt)
-          pulses.push_back(new TPulseIsland(ch_hits.time_tag(ich),
-                                            ch_hits.waveform(ich),
-                                            *bankName));
+    for (int ch = 0; ch < DT5730BoardData::kNChan; ++ch) {
+      if (board_hits.channel_enabled(ch)) {
+        char bankname[5];
+        sprintf(bankname, "D7%02d", ch);
+        std::vector<TPulseIsland*>& pulses = pulses_map[bankname];
+        const DT5730ChannelData& ch_hits = board_hits.channel_data(ch);
+        for (int ievt = 0; ievt < ch_hits.num_events(); ++ievt) {
+          printf("Ch %d, Evt %d, Size %d\n", ch, ievt, ch_hits.waveform(ievt).size());
+          pulses.push_back(new TPulseIsland(ch_hits.time_tag(ievt),
+                                            ch_hits.waveform(ievt),
+                                            bankname));
+        }
       }
     }
   }
