@@ -89,7 +89,7 @@ INT module_event_tdc(EVENT_HEADER *pheader, void *pevent) {
   char dfver[8];
   memcpy(dfver,pdata,4);
   dfver[4] = '\0';
-  printf("bank [%s] data format version: [%s] size: [%i] bytes\n",cbk_name,dfver,bank_len);
+  //printf("bank [%s] data format version: [%s] size: [%i] bytes\n",cbk_name,dfver,bank_len);
   pdata+=4;
 
   uint32_t *p32 = (uint32_t*)pdata;
@@ -109,7 +109,7 @@ INT module_event_tdc(EVENT_HEADER *pheader, void *pevent) {
       int chn = V1290_GET_TDC_MSR_CHANNEL(*p32);
       int64_t meas = V1290_GET_TDC_MSR_MEASURE(*p32);
       //printf("chn %i meas %i\n",chn,meas);
-      if ( chn == 1 ) printf("chn %i meas %i\n",chn,meas);
+      //if ( chn == 1 ) printf("chn %i meas %i\n",chn,meas);
       if ( t_last == -1 )
 	{
 	  t0 = meas;
@@ -117,7 +117,7 @@ INT module_event_tdc(EVENT_HEADER *pheader, void *pevent) {
       else if ( meas < t_last )
 	{
 	  rollover_counter++;
-	  printf("rollover %i\n",rollover_counter);
+	  //printf("rollover %i\n",rollover_counter);
 	}
       t_last = meas;
       meas = meas - t0 + rollover_counter*rollover;
