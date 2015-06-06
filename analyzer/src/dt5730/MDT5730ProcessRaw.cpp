@@ -115,6 +115,19 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent) {
   std::map< std::string, std::vector<TPulseIsland*> >& pulse_islands_map =
     gData->fPulseIslandToChannelMap;
 
+  // Clear out any previous events
+  for (std::vector<std::string>::iterator iter = bank_names.begin();
+       iter != bank_names.end(); ++iter) {
+    std::vector<TPulseIsland*>& islands = pulse_islands_map[*iter];
+    for (unsigned int i = 0; i < islands.size(); ++i) {
+      if (islands[i]) {
+	delete islands[i];
+	islands[i] = NULL;
+      }
+      islands.clear();
+    }
+  }
+
   BYTE* pdata;
 
   char bank_name[8];

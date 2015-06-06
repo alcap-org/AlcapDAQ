@@ -46,7 +46,7 @@ extern TSetupData* gSetup;
 
 /// \brief
 /// List of UH CAEN bank names for the event loop.
-static vector<string> caen_houston_bank_names;
+static vector<string> bank_names;
 /// \brief
 /// Number of samples to record before a trigger.
 /// \details
@@ -85,7 +85,7 @@ INT module_init()
 
     // We only want the CAEN banks here
     if (TSetupData::IsWFD(bankname) && bankname[1] == '4')
-      caen_houston_bank_names.push_back(bankname);
+      bank_names.push_back(bankname);
   }
 
   /*** Get necessary data from ODB ***/
@@ -107,25 +107,19 @@ INT module_init()
 /*-- module event routine -----------------------------------------*/
 INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
 {
-  // Some typedefs
-
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
-
   //printf("===================> %s MIDAS event %i\n",__FILE__,pheader->serial_number);
 
   // Fetch a reference to the gData structure that stores a map
   // of (bank_name, vector<TPulseIsland*>) pairs
-  TStringPulseIslandMap& pulse_islands_map =
+  std::map< std::string, std::vector<TPulseIsland*> >& pulse_islands_map =
     gData->fPulseIslandToChannelMap;
 
   // Delete the islands found in the previous block. Don't clear
   // the map of (bank_name, vector) pairs. Once we use a bank name
   // once, it will have a (possibly empty) entry in this map for the
   // whole run. JG: the islands.clear() line causes seg fault for > 1 TPulseIslandPair
-  for(std::vector<std::string>::iterator iter = caen_houston_bank_names.begin();
-      iter != caen_houston_bank_names.end(); ++iter){
+  for(std::vector<std::string>::iterator iter = bank_names.begin();
+      iter != bank_names.end(); ++iter){
     std::vector<TPulseIsland*>& islands = pulse_islands_map[*iter];
     for(int j=0; j<islands.size(); j++) {
       if(islands[j]) {
@@ -151,96 +145,80 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
   uint32_t *p32 = (uint32_t*)pdata;
   uint32_t *p32_0 = (uint32_t*)pdata;
 
+  while ((p32 - p32_0)*4 < bank_len ) {
 
-  while ( (p32 - p32_0)*4 < bank_len )
-    {
+    uint32_t caen_event_cw = p32[0]>>28;
+    //printf("CW: %08x\n",caen_event_cw);
+    if ( caen_event_cw != 0xA ) {
+  	  printf("***ERROR UH CAEN! Wrong data format: incorrect control word 0x%08x\n", caen_event_cw);
+  	  return SUCCESS;
+  	}
 
-      uint32_t caen_event_cw = p32[0]>>28;
-      //printf("CW: %08x\n",caen_event_cw);
-      if ( caen_event_cw != 0xA )
-	{
-	  printf("***ERROR UH CAEN! Wrong data format: incorrect control word 0x%08x\n", caen_event_cw);
-	  return SUCCESS;
-	}
+    uint32_t caen_event_size = p32[0] & 0x0FFFFFFF;
+    //printf("caen event size: %i\n",caen_event_size);
 
-      uint32_t caen_event_size = p32[0] & 0x0FFFFFFF;
-      //printf("caen event size: %i\n",caen_event_size);
+    uint32_t caen_channel_mask = p32[1] & 0x000000FF;
+    // count the number of channels in the event
+    int nchannels = 0;
+    for (int ichannel=0; ichannel<NCHAN; ichannel++ ) {
+  	  if ( caen_channel_mask & (1<<ichannel) ) nchannels++;
+  	}
 
-      uint32_t caen_channel_mask = p32[1] & 0x000000FF;
-      // count the number of channels in the event
-      int nchannels = 0;
-      for (int ichannel=0; ichannel<NCHAN; ichannel++ )
-	{
-	  if ( caen_channel_mask & (1<<ichannel) ) nchannels++;
-	}
+    uint32_t caen_event_counter = p32[2] & 0x00FFFFFF;
+    //      printf("caen event counter: %i\n",caen_event_counter);
 
-      uint32_t caen_event_counter = p32[2] & 0x00FFFFFF;
-      //      printf("caen event counter: %i\n",caen_event_counter);
+    uint32_t caen_trigger_time = p32[3];
+    //      printf("caen trigger time: %i\n",caen_trigger_time);// = clock ticks?
 
-      uint32_t caen_trigger_time = p32[3];
-      //      printf("caen trigger time: %i\n",caen_trigger_time);// = clock ticks?
+    // number of samples per channel
+    int nsamples = ((caen_event_size-4)*2) / nchannels;
+    //      printf("waveform length: %i\n",nsamples);
 
-      // number of samples per channel
-      unsigned int nsamples = ((caen_event_size-4)*2) / nchannels;
-      //      printf("waveform length: %i\n",nsamples);
+    // Loop through the channels (i.e. banks)
+    for (int ich = 0, iprocchan = 0; ich < NCHAN; ++ich) {
+      if (!(caen_channel_mask & 1<<ich)) continue;
 
-      // Loop through the channels (i.e. banks)
-      for (std::vector<std::string>::iterator bankNameIter = caen_houston_bank_names.begin();
-	   bankNameIter != caen_houston_bank_names.end(); bankNameIter++) {
-
-	vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
-	std::vector<int> sample_vector;
-	int ichannel = bankNameIter - caen_houston_bank_names.begin();
-
-
-	if ( caen_channel_mask & (1<<ichannel) )
-	  {
-	    // channel enabled
+    	std::vector<int> sample_vector;
 	    int isample = 0;
 	    int nwords = nsamples/2;
-
-	    for (int iword=0; iword<nwords; iword++)
-	      {
-
-		for (int isubword=0; isubword<2; isubword++)
-		  {
-		    uint32_t adc;
-
-		    if (isubword == 0 )
-		      adc = (p32[4+iword+ichannel*nwords] & 0x3fff);
-		    else
-		      adc = ((p32[4+iword+ichannel*nwords] >> 16) & 0x3fff);
-
-		    //printf("CAEN V1724 channel %d: adc[%i] = %i\n", ichannel, isample, adc);
-		    //		    h2_v1724_pulses[ichannel]->Fill(isample,adc);
-		    isample++;
-
-		    sample_vector.push_back(adc);
-
-		  }
-	      }
-
-	    pulse_islands.push_back(new TPulseIsland(caen_trigger_time - nPreSamples, sample_vector, *bankNameIter));
-	  }
+	    for (int iword=0; iword<nwords; iword++) {
+    		for (int isubword=0; isubword<2; isubword++) {
+  		    uint32_t adc;
+  		    if (isubword == 0)
+  		      adc = (p32[4+iword+iprocchan*nwords] & 0x3fff);
+  		    else
+  		      adc = ((p32[4+iword+iprocchan*nwords] >> 16) & 0x3fff);
+  		    //printf("CAEN V1724 channel %d: adc[%i] = %i\n", ichannel, isample, adc);
+    	    //		    h2_v1724_pulses[ichannel]->Fill(isample,adc);
+  		    isample++;
+  		    sample_vector.push_back(adc);
+        }
       }
+      ++iprocchan;
 
-      // align the event by two bytes.
-      p32 += caen_event_size + (caen_event_size%2);
-      //      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
-
+      char bankname[5];
+      sprintf(bankname, "D4%02d", ich);
+      std::vector<TPulseIsland*>& pulse_islands = pulse_islands_map[bankname];
+	    pulse_islands.push_back(new TPulseIsland(caen_trigger_time - nPreSamples,
+                                               sample_vector, bankname));
     }
+
+    // align the event by two bytes.
+    p32 += caen_event_size + (caen_event_size%2);
+    //      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
+  }
 
   // print for testing
   if(midas_event_number == 1) {
     // Loop through all the banks and print an output (because this ProcessRaw loops through pulses then banks, it has been put here)
-    for (std::vector<std::string>::iterator bankNameIter = caen_houston_bank_names.begin();
-	 bankNameIter != caen_houston_bank_names.end(); bankNameIter++) {
+    for (std::vector<std::string>::iterator bankNameIter = bank_names.begin();
+      	 bankNameIter != bank_names.end(); bankNameIter++) {
 
       vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
       printf("TEST MESSAGE: Read %d events from bank %s in event %d\n",
-	     pulse_islands.size(),
-	     (*(bankNameIter)).c_str(),
-	     midas_event_number);
+      	     pulse_islands.size(),
+      	     bankNameIter->c_str(),
+      	     midas_event_number);
     }
   }
 

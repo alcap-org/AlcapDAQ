@@ -10,6 +10,7 @@ Contents:     One module that fills out histograms for the pulse heights, pulse 
 /* Standard includes */
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string>
 #include <map>
 #include <utility>
@@ -108,7 +109,7 @@ INT MCommonOnlineDisplayPlots_init() {
 INT MCommonOnlineDisplayPlots_init_wfd(const std::string& bank,
                                        const std::string& det) {
   const int n_digitizer_bits = gSetup->GetNBits(bank);
-  const long max_adc_value = std::pow(2, n_digitizer_bits);
+  const int64_t max_adc_value = std::pow(2, n_digitizer_bits);
 
   // hPulseHeights
   std::string histname = "h" + bank + "_Heights";
@@ -245,11 +246,11 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent) {
 	}
 
 	// TDC
-	const std::map< std::string, std::vector<long> >& tdcs_map =
+	const std::map< std::string, std::vector<int64_t> >& tdcs_map =
       gData->fTDCHitsToChannelMap;
-  std::map< std::string, std::vector<long> >::const_iterator tdc;
+  std::map< std::string, std::vector<int64_t> >::const_iterator tdc;
   for (tdc = tdcs_map.begin(); tdc != tdcs_map.end(); ++tdc) {
-    const std::vector<long>& hits = tdc->second;
+    const std::vector<int64_t>& hits = tdc->second;
     if (!hits.empty()) {
       TH1* hist = tdc_rawtime_histograms_map[tdc->first];
       hist->Fill(hits[0]);

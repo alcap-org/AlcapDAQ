@@ -459,11 +459,11 @@ BOOL dt5720_update_digitizer_generic() {
       if (S_DT5720_ODB.ch[ch].enable)
 	channel_mask |= (1 << ch);
       ret = CAEN_DGTZ_SetChannelDCOffset(dev_handle, ch, S_DT5720_ODB.ch[ch].offset_std);
-      if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
+      if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_generic")) return false;
     }
 
   ret = CAEN_DGTZ_SetChannelEnableMask(dev_handle, channel_mask);
-  if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
+  if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_generic")) return false;
 
   const int allow_trigger_overlap_bit = 1<<1;
   ret = CAEN_DGTZ_WriteRegister(dev_handle, CAEN_DGTZ_BROAD_CH_CONFIGBIT_SET_ADD,

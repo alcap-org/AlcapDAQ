@@ -57,8 +57,8 @@ int DT5720ChannelData::Process(uint32_t* data) {
       waveforms_.push_back(adcs);
       nwords_processed += waveform_length_/n_samps_per_word;
     }
-    if (header.baseline_en) ++data;
-    if (header.charge_en) ++data;
+    if (header.baseline_en) ++data, ++nwords_processed;
+    if (header.charge_en) ++data, ++nwords_processed;
   }
   return nwords_processed;
 }
@@ -110,7 +110,10 @@ int DT5720BoardData::Process(uint32_t* data) {
       data += n;
     }
   }
-  if (header.nwords != nwords_processed) return -1;
+  if (header.nwords != nwords_processed) {
+    printf("DT5720 Error: Expected %d words, processed %d words!\n", header.nwords, nwords_processed);
+    return -1;
+  }
   return nwords_processed;
 }
 
