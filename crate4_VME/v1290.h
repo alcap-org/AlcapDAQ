@@ -189,7 +189,10 @@ typedef struct v1290_trg_conf_t
 #define V1290_TDC_HDR_BUNCH_ID_MSK		0x00000fff
 #define V1290_TDC_MSR_TRAILING_MSK		0x04000000
 #define V1290_TDC_MSR_CHANNEL_MSK		0x03f80000
-#define V1290_TDC_MSR_MEASURE_MSK		0x0007ffff
+// Modified by VT on 06/05/2015
+// I think the mask is incorrect
+//#define V1290_TDC_MSR_MEASURE_MSK		0x0007ffff
+#define V1290_TDC_MSR_MEASURE_MSK		0X001FFFFF
 #define V1290_TDC_TRL_TDC_MSK			0x03000000
 #define V1290_TDC_TRL_EVENT_ID_MSK		0x00fff000
 #define V1290_TDC_TRL_WCOUNT_MSK		0x00000fff
@@ -282,7 +285,7 @@ void v1290_SetAlmostFullLevel(int handle,
 		uint16_t level);
 uint16_t v1290_ReadAlmostFullLevel(int handle, 
 		uint16_t level);
-void v1290_FWRev(int handle);
+uint16_t v1290_FWRev(int handle);
 
 void v1290_ReadEventFIFO(int handle, uint16_t *dest);
 uint16_t v1290_ReadEventFIFOStored(int handle);

@@ -9,8 +9,8 @@ INT caen_desktop_reset_bor();
 struct readout_module caen_desktop_reset_module = {
   NULL,                   // init
   NULL,                   // exit
-  NULL,                   // pre_bor
-  caen_desktop_reset_bor, // bor
+  caen_desktop_reset_bor, // pre_bor
+  NULL,                   // bor
   NULL,                   // eor
   NULL,                   // poll_live
   NULL,                   // poll_dead

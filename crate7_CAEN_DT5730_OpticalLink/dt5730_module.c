@@ -37,8 +37,8 @@ static uint32_t           caen_data_buffer_size = 0;
 static char              *data_buffer;                          // data buffers used by MIDAS
 static const uint32_t     data_buffer_size      = 32*1024*1024;
 static uint32_t           data_size;
-static BOOL            pll_lost = FALSE;   // PLL lost during MIDAS block?
-static BOOL            board_full = FALSE; // Board full at least once during MIDAS block?
+//static BOOL            pll_lost = FALSE;   // PLL lost during MIDAS block?
+//static BOOL            board_full = FALSE; // Board full at least once during MIDAS block?
 
 static INT  dt5730_init(void);
 static void dt5730_exit(void);
@@ -231,8 +231,8 @@ BOOL dt5730_open() {
 
   /* Grab Board */
   if (S_DT5730_ODB.optical_link)
-    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_OpticalLink, S_DT5730_ODB.board_num,
-                                  S_DT5730_ODB.link_num, S_DT5730_ODB.vme_base,
+    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_OpticalLink, S_DT5730_ODB.link_num,
+                                  S_DT5730_ODB.board_num, S_DT5730_ODB.vme_base,
                                   &dev_handle);
   else
     ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB, S_DT5730_ODB.board_num, 0, 0,
@@ -278,6 +278,8 @@ INT dt5730_bor() {
   ret = CAEN_DGTZ_SWStartAcquisition(dev_handle);
   if(is_caen_error(ret, __LINE__, "dt5730_bor")) return FE_ERR_HW;
 
+  ss_sleep(1000);
+
   return SUCCESS;
 }
 
@@ -293,14 +295,37 @@ INT dt5730_eor() {
   if(is_caen_error(ret, __LINE__, "dt5730_eor")) return FE_ERR_HW;
   caen_data_buffer = NULL;
 
+  ret = CAEN_DGTZ_CloseDigitizer(dev_handle);
+  if(is_caen_error(ret,__LINE__-1,"dt5720_eor")) return FE_ERR_HW;
+
   return SUCCESS;
 }
 
 INT dt5730_read(char *pevent) {
+
+#if 0
+  // Added by VT
+  // Problem: stale data in onboard memories at the end of each MIDAS block
+  // Restart acquisition between each MIDAS block
+  CAEN_DGTZ_ErrorCode ret;
+  ret = CAEN_DGTZ_SWStopAcquisition(dev_handle);
+  is_caen_error(ret, __LINE__, "dt5730_read");
+#endif
+
   // ===========================================================================
   // Read out remaining data from the digitizer
   // ===========================================================================
   dt5730_readout();
+
+  // Flush on-board memory buffers and read remaning data
+  CAEN_DGTZ_ErrorCode ret;
+  ret = CAEN_DGTZ_WriteRegister(dev_handle, 0x803C, 0x1);
+  is_caen_error(ret, __LINE__, "dt5730_read");
+  printf("Reading remaning data\n");
+  dt5730_readout();
+
+  // Check if board full or loss of PLL lock
+  caen_digi_status ds = caen_digi_get_status(dev_handle);
 
   // ===========================================================================
   // Fill MIDAS event
@@ -325,10 +350,24 @@ INT dt5730_read(char *pevent) {
   // ===========================================================================
   sprintf(bk_name, "CNS1");
   bk_create(pevent, bk_name, TID_BYTE, &pdata);
+#if 0
+  // modified by VT
   memcpy(pdata++, &pll_lost, 1);
   memcpy(pdata++, &board_full, 1);
-  pll_lost = board_full = FALSE;
+#endif
+  memcpy(pdata++, &(ds.pll_lost), sizeof(ds.pll_lost));
+  memcpy(pdata++, &(ds.board_full), sizeof(ds.board_full));
+  //pll_lost = board_full = FALSE;
   bk_close(pevent, pdata);
+
+#if 0
+  // Added by VT
+  // Problem: stale data in onboard memories at the end of each MIDAS block
+  // Restart acquisition between each MIDAS block
+  ret = CAEN_DGTZ_SWStartAcquisition(dev_handle);
+  is_caen_error(ret, __LINE__, "dt5730_read");
+#endif
+
 
   return SUCCESS;
 }
@@ -342,12 +381,15 @@ BOOL dt5730_readout() {
                            caen_data_buffer, &caen_data_size);
   if (is_caen_error(ret, __LINE__, "dt5730_readout")) return FALSE;
 
+#if 0
+  // moved by VT to dt5730_read()
   // Check if board full or loss of PLL lock
   caen_digi_status ds = caen_digi_get_status(dev_handle);
   if (ds.pll_lost)
     pll_lost = TRUE;
   if (ds.board_full)
     board_full = TRUE;
+#endif
 
   /* If there's data, copy from digitizers local buffer to different local buffer */
   if(caen_data_size > 0) {
@@ -370,8 +412,8 @@ BOOL dt5730_update_digitizer() {
     return false;
   //then update the digi parameters specific to firmwares
   if (S_DT5730_ODB.dpp)
-     return dt5730_update_digitizer_dpp();
-   else
+    return dt5730_update_digitizer_dpp();
+  else
     return dt5730_update_digitizer_std();
 }
 

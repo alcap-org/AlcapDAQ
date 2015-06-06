@@ -358,7 +358,7 @@ INT consider_start()
 	}
       }
     }
-
+    return SUCCESS;
 }
 
 /*

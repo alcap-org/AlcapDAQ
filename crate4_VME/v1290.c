@@ -478,9 +478,9 @@ uint16_t v1290_ReadAlmostFullLevel(int handle, uint16_t level)
   return v1290_Read16(handle, V1290_ALMOST_FULL_LVL);
 }
 
-void v1290_FWRev(int handle)
+uint16_t v1290_FWRev(int handle)
 {
-  unsigned short int reg = v1290_Read16(handle, V1290_FW_REV);
+  return v1290_Read16(handle, V1290_FW_REV);
 }
 
 void v1290_ReadEventFIFO(int handle, uint16_t *dest)

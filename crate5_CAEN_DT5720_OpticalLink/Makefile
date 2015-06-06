@@ -32,7 +32,7 @@ LDFLAGS += -L $(CAEN_DIR)/lib -lCAENDigitizer -lCAENComm -lCAENVME
 # CAEN_DIGITIZER library
 #CXXFLAGS += -I $(CAEN_DIR)/CAENDigitizer/CAENDigitizer_2.3.2/include
 #LDFLAGS += -L $(CAEN_DIR)/CAENDigitizer/CAENDigitizer_2.3.2/lib/i686 -lCAENDigitizer
-CXXFLAGS += -I $(CAEN_DIR)/include
+CXXFLAGS += -I $(CAEN_DIR)/include -fPIC -DLINUX -O2
 # CAEN Comm library
 #CXXFLAGS += -I $(CAEN_DIR)/CAENComm/include
 #CXXFLAGS += -I $(CAEN_DIR)/CAENComm-1.2/include

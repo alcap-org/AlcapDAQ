@@ -26,10 +26,6 @@ static uint32_t        caen_data_buffer_size = 0;
 static char           *data_buffer;              // data buffers used by MIDAS
 static const uint32_t  data_buffer_size = 32*1024*1024;
 static uint32_t        data_size;
-static BOOL            pll_lost = FALSE;   // PLL lost during MIDAS block?
-static BOOL            board_full = FALSE; // Board full at least once during MIDAS block?
-
-
 
 static INT  dt5720_init(void);
 static void dt5720_exit(void);
@@ -154,6 +150,7 @@ Self trigger threshold DPP = WORD : 0\
 
 extern HNDLE hDB;
 
+
 INT dt5720_init() {
   printf("Setting up DB and memory for CAEN DT5720...\n");
 
@@ -213,7 +210,9 @@ void dt5720_exit() {
 INT dt5720_bor() {
   CAEN_DGTZ_ErrorCode ret;
 
-  dt5720_open();
+  printf("dt5720_bor() Begin Of Run\n");
+
+  if(!dt5720_open()) return FE_ERR_HW;
 
   /* Setup Digitizer */
   if(!dt5720_update_digitizer()) return FE_ERR_HW;
@@ -224,21 +223,50 @@ INT dt5720_bor() {
   if(is_caen_error(ret, __LINE__, "dt5720_bor")) return FE_ERR_HW;
   printf("Allocated %i bytes for CAEN data buffer\n", caen_data_buffer_size);
 
-  data_size = 0;
+  data_size = 0;  
+
+#if 0
+  // Modified by VT 06/03/2015:
+  // Have to wait here and clear buffers.
+  // Otherwisze we get a log of junk in first midas segment
+  ss_sleep(500);
+#endif
 
   // The SW Acq bit must be set/unset even for external gate control (S_IN via GPI)
   ret = CAEN_DGTZ_SWStartAcquisition(dev_handle);
   if(is_caen_error(ret, __LINE__, "dt5720_bor")) return FE_ERR_HW;
 
+#if 0
+  // Modified by VT 06/03/2015:
+  // Have to wait here and clear buffers.
+  // Otherwisze we get a log of junk in first midas segment
+  ss_sleep(1000);
+
+  //printf("dt5720_bor(): Clear buffers\n");
+  //ret = CAEN_DGTZ_ClearData( dev_handle );
+  //is_caen_error(ret, __LINE__, "dt5720_start_cycle");
+  data_size = 1;
+  while( data_size != 0 )
+    {
+      data_size = 0;
+      dt5720_readout();
+      ss_sleep(10);
+    }
+  printf("BOR end ==================================================================\n");
+#endif
+  ss_sleep(1000);
   return SUCCESS;
 }
 
-INT dt5720_eor() {
+INT dt5720_eor() 
+{
   CAEN_DGTZ_ErrorCode ret;
 
+#if 1
   // The SW Acq bit must be set/unset even for external gate control (S_IN via GPI)
   ret = CAEN_DGTZ_SWStopAcquisition(dev_handle);
   if(is_caen_error(ret, __LINE__, "dt5720_eor")) return FE_ERR_HW;
+#endif
 
   ret = CAEN_DGTZ_FreeReadoutBuffer(&caen_data_buffer);
   if(is_caen_error(ret,__LINE__-1,"dt5720_eor")) return FE_ERR_HW;
@@ -247,19 +275,42 @@ INT dt5720_eor() {
   ret = CAEN_DGTZ_CloseDigitizer(dev_handle);
   if(is_caen_error(ret,__LINE__-1,"dt5720_eor")) return FE_ERR_HW;
 
+  printf("dt5720_eor() End Of Run\n");
+
   return SUCCESS;
 }
 
 INT dt5720_read(char *pevent) {
+
+
   // ===========================================================================
   // Read out remaining data from the digitizer
   // ===========================================================================
   dt5720_readout();
 
+#if 0
+  CAEN_DGTZ_ErrorCode ret;
+  // The SW Acq bit must be set/unset even for external gate control (S_IN via GPI)
+  ret = CAEN_DGTZ_SWStopAcquisition(dev_handle);
+  is_caen_error(ret, __LINE__, "dt5720_read");
+#endif
+  dt5720_readout();
+
+  // Flush on-board memory buffers and read remaning data
+  CAEN_DGTZ_ErrorCode ret;
+  ret = CAEN_DGTZ_WriteRegister(dev_handle, 0x803C, 0x1);
+  is_caen_error(ret, __LINE__, "dt5720_read");
+  printf("Reading remaning data\n");
+  dt5720_readout();
+
+  
+  // Check if board full or loss of PLL lock
+  caen_digi_status ds = caen_digi_get_status(dev_handle);
+  
   // ===========================================================================
   // Fill MIDAS event
   // ===========================================================================
-  bk_init32(pevent);
+  //bk_init32(pevent);
   char bk_name[5];
   char *pdata;
 
@@ -279,10 +330,23 @@ INT dt5720_read(char *pevent) {
   // ===========================================================================
   sprintf(bk_name, "CNS0");
   bk_create(pevent, bk_name, TID_BYTE, &pdata);
-  memcpy(pdata++, &pll_lost, 1);
-  memcpy(pdata++, &board_full, 1);
-  pll_lost = board_full = FALSE;
+  memcpy(pdata++, &(ds.pll_lost), sizeof(ds.pll_lost));
+  memcpy(pdata++, &(ds.board_full), sizeof(ds.board_full));
   bk_close(pevent, pdata);
+
+
+#if 0
+  CAEN_DGTZ_ErrorCode ret;
+  printf("dt5720_read(): Clear buffers\n");
+  ret = CAEN_DGTZ_ClearData( dev_handle );
+  is_caen_error(ret, __LINE__, "dt5720_read");
+#endif
+
+#if 0
+  ret = CAEN_DGTZ_SWStartAcquisition(dev_handle);
+  is_caen_error(ret, __LINE__, "dt5720_read");
+#endif
+
 
   return SUCCESS;
 }
@@ -296,13 +360,6 @@ BOOL dt5720_readout() {
                            caen_data_buffer, &caen_data_size);
   if (is_caen_error(ret, __LINE__, "dt5720_readout")) return FALSE;
 
-  // Check if board full or loss of PLL lock
-  caen_digi_status ds = caen_digi_get_status(dev_handle);
-  if (ds.pll_lost)
-    pll_lost = TRUE;
-  if (ds.board_full)
-    board_full = TRUE;
-
   /* If there's data, copy from digitizers local buffer to different local buffer */
   if(caen_data_size > 0) {
     printf("data size: %i\n", caen_data_size);
@@ -314,8 +371,10 @@ BOOL dt5720_readout() {
   return TRUE;
 }
 
-INT dt5720_poll_live() {
+INT dt5720_poll_live() 
+{
   if(!dt5720_readout()) return FE_ERR_HW;
+
   return SUCCESS;
 }
 
@@ -351,6 +410,7 @@ BOOL dt5720_update_digitizer_generic() {
 
   ret = CAEN_DGTZ_SetSWTriggerMode(dev_handle, CAEN_DGTZ_TRGMODE_DISABLED);
   if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_generic")) return false;
+
   ret = CAEN_DGTZ_SetExtTriggerInputMode(dev_handle, CAEN_DGTZ_TRGMODE_DISABLED);
   if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_generic")) return false;
 
@@ -373,28 +433,43 @@ BOOL dt5720_update_digitizer_generic() {
   }
   if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_generic")) return false;
 
-  // Channel specific
+
+  //check that board is ready after setting Acq mode:
+  uint32_t regVal;
+  ret = CAEN_DGTZ_ReadRegister(dev_handle, 0x8104, &regVal); // 0x8104 Aqcuisition Status (bit 8 = "Board ready")
+  if (is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
+  printf("Checking if board is ready after CAEN_DGTZ_SetAcquisitionMode... ");
+  if ( regVal & (1<<8) ) printf("Board is ready.\n");
+  else                   printf("Board is NOT ready!\n");
+  //sleep for 1 second after setting Acquisition Mode, as suggested by CAEN (e-mail 4 Jun 2015)
+  printf("Sleeping for a second...\n");
+  ss_sleep(1000);
+  //check that board is ready after sleep:
+  ret = CAEN_DGTZ_ReadRegister(dev_handle, 0x8104, &regVal); // 0x8104 Aqcuisition Status (bit 8 = "Board ready")
+  if (is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
+  printf("Checking if board is ready after sleeping... ");
+  if ( regVal & (1<<8) ) printf("Board is ready.\n");
+  else                   printf("Board is NOT ready!\n");
+
+
+  //int channel_mask; channel_mask &= (1<<NCHAN)-1;
   uint32_t channel_mask = 0;
   for (int ch = 0; ch < NCHAN; ++ch)
-    if (S_DT5720_ODB.ch[ch].enable)
-      channel_mask |= (1 << ch);
+    {
+      if (S_DT5720_ODB.ch[ch].enable)
+	channel_mask |= (1 << ch);
+      ret = CAEN_DGTZ_SetChannelDCOffset(dev_handle, ch, S_DT5720_ODB.ch[ch].offset_std);
+      if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
+    }
+
   ret = CAEN_DGTZ_SetChannelEnableMask(dev_handle, channel_mask);
-  if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_generic")) return false;
+  if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
 
-  for (int ch = 0; ch < NCHAN; ++ch) {
-    ret = CAEN_DGTZ_SetChannelDCOffset(dev_handle, 0, S_DT5720_ODB.ch[ch].offset_std);
-    if(is_caen_error(ret,__LINE__,"dt5720_update_digitizer_generic")) return false;
-    ret = CAEN_DGTZ_SetChannelTriggerThreshold(dev_handle, ch, S_DT5720_ODB.ch[ch].self_trigger_threshold_std);
-    if(is_caen_error(ret,__LINE__,"dt5720_update_digitizer_generic")) return false;
-  }
-
-  // ===========================================================================
-  // Channel configuration set bit 0x8004=CAEN_DGTZ_BROAD_CH_CONFIGBIT_SET_ADD
-  // ===========================================================================
   const int allow_trigger_overlap_bit = 1<<1;
   ret = CAEN_DGTZ_WriteRegister(dev_handle, CAEN_DGTZ_BROAD_CH_CONFIGBIT_SET_ADD,
                                 allow_trigger_overlap_bit);
   if(is_caen_error(ret,__LINE__-1,"dt5720_update_digitizer_generic")) return false;
+
 
   return true;
 }
@@ -403,8 +478,7 @@ BOOL dt5720_update_digitizer_std() {
   CAEN_DGTZ_ErrorCode ret;
 
   const int channel_mask = 0xF;
-  ret = CAEN_DGTZ_SetChannelSelfTrigger(dev_handle, CAEN_DGTZ_TRGMODE_ACQ_ONLY,
-                                        channel_mask);
+  ret = CAEN_DGTZ_SetChannelSelfTrigger(dev_handle, CAEN_DGTZ_TRGMODE_ACQ_ONLY, channel_mask);
   if(is_caen_error(ret,__LINE__,"dt5720_update_digitizer_std")) return false;
 
   if(S_DT5720_ODB.max_events_per_block_std >= 2 &&
@@ -454,37 +528,44 @@ BOOL dt5720_update_digitizer_std() {
   for (int ch = 0; ch < NCHAN; ++ch) {
     ret = CAEN_DGTZ_SetChannelTriggerThreshold(dev_handle, ch, S_DT5720_ODB.ch[ch].self_trigger_threshold_std);
     if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_std")) return false;
+
+    ret = CAEN_DGTZ_SetChannelSelfTrigger(dev_handle, CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT, (1<<ch));
+    if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
   }
+
+
 
   return true;
 }
 
 BOOL dt5720_update_digitizer_dpp() {
   CAEN_DGTZ_ErrorCode ret;
-  CAEN_DGTZ_DPP_PSD_Params_t DPPParams = {0};
 
-  uint32_t channel_mask = 0xFFFF;
+  CAEN_DGTZ_DPP_CI_Params_t DPPParams = {0};
+
+  const uint32_t channel_mask = 0xF;
+  
+  // ===========================================================================
+  // Channel configuration set bit 0x8004=CAEN_DGTZ_BROAD_CH_CONFIGBIT_SET_ADD
+  // ===========================================================================
 
   // DPP parameters
   for(int ch=0; ch < NCHAN; ++ch) {
+
     DPPParams.thr[ch] = S_DT5720_ODB.ch[ch].self_trigger_threshold_dpp;
     // The following parameter is used to specifiy the number of samples for the baseline averaging:
     // 0: Fixed, 1: 8samp, 2: 32samp, 3: 128samp
     // Not sure how correct this is, check DPP user manual
-    DPPParams.nsbl[ch] = S_DT5720_ODB.ch[ch].baseline_average_dpp;
-    DPPParams.trgc[ch] = CAEN_DGTZ_DPP_TriggerConfig_Threshold; // Trigger on threshold
-    DPPParams.selft[ch] = 1;                                    // Self trigger enable
+    DPPParams.nsbl[ch]  = S_DT5720_ODB.ch[ch].baseline_average_dpp;
+    DPPParams.trgc[ch]  = CAEN_DGTZ_DPP_TriggerConfig_Threshold; // Trigger on threshold
+    DPPParams.selft[ch] = 1;                                     // Self trigger enable
 
     // The below are for features unused by us.
-    DPPParams.lgate[ch] = 32;    // Long Gate Width (N*4ns)
-    DPPParams.sgate[ch] = 24;    // Short Gate Width (N*4ns)
-    DPPParams.pgate[ch] = 8;     // Pre Gate Width (N*4ns)
-    DPPParams.csens[ch] = 0;
-    DPPParams.tvaw[ch] = 50;
+    DPPParams.gate[ch]  = 5;  // Time to integrate charge
+    DPPParams.pgate[ch] = 1;  // Time to integrate charge before trigger
+    DPPParams.csens[ch] = 0; // LSB charge value in pC (0: 40 pc)
+    DPPParams.tvaw[ch]  = 50; // Trigger validation window (anti/coinc window)
   }
-
-  DPPParams.purh = CAEN_DGTZ_DPP_PSD_PUR_DetectOnly;
-  DPPParams.purgap = 100;  // Pile-up Rejection Gap
   DPPParams.blthr = 3;     // Baseline Threshold     //This parameter is deprecated
   DPPParams.bltmo = 100;   // Baseline Timeout       //This parameter is deprecated
   DPPParams.trgho = 0;     // Trigger HoldOff
@@ -494,34 +575,74 @@ BOOL dt5720_update_digitizer_dpp() {
   if (is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
 
   ret = CAEN_DGTZ_SetDPPAcquisitionMode(dev_handle, CAEN_DGTZ_DPP_ACQ_MODE_Mixed, CAEN_DGTZ_DPP_SAVE_PARAM_EnergyAndTime);
+  //ret = CAEN_DGTZ_SetDPPAcquisitionMode(dev_handle,  CAEN_DGTZ_DPP_ACQ_MODE_Oscilloscope, CAEN_DGTZ_DPP_SAVE_PARAM_None);
   if (is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
 
-  for (int ch = 0; ch < NCHAN; ++ch)
+  //check that board is ready after setting Acq mode:
+  uint32_t regVal;
+  ret = CAEN_DGTZ_ReadRegister(dev_handle, 0x8104, &regVal); // 0x8104 Aqcuisition Status (bit 8 = "Board ready")
+  if (is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
+  printf("Checking if board is ready after CAEN_DGTZ_SetDPPAcquisitionMode... ");
+  if ( regVal & (1<<8) ) printf("Board is ready.\n");
+  else                   printf("Board is NOT ready!\n");
+  //sleep for 1 second after setting Acquisition Mode, as suggested by CAEN (e-mail 4 Jun 2015)
+  printf("Sleeping for a second...\n");
+  ss_sleep(1000);
+  //check that board is ready after sleep:
+  ret = CAEN_DGTZ_ReadRegister(dev_handle, 0x8104, &regVal); // 0x8104 Aqcuisition Status (bit 8 = "Board ready")
+  if (is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
+  printf("Checking if board is ready after sleeping... ");
+  if ( regVal & (1<<8) ) printf("Board is ready.\n");
+  else                   printf("Board is NOT ready!\n");
+
+  for (int ch = 0; ch < NCHAN; ++ch) {
     ret = CAEN_DGTZ_SetRecordLength(dev_handle, S_DT5720_ODB.ch[ch].wf_length_dpp, ch);
+    if (is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
+  }
+
+  // Set the Pre-Trigger size (in samples)
+  ret = CAEN_DGTZ_SetDPPPreTriggerSize(dev_handle, -1, S_DT5720_ODB.ch[0].pre_trigger_size_dpp);
   if (is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
 
   for (int ch = 0; ch < NCHAN; ++ch) {
-    // Set the Pre-Trigger size (in samples)
-    ret = CAEN_DGTZ_SetDPPPreTriggerSize(dev_handle, ch, S_DT5720_ODB.ch[ch].pre_trigger_size_dpp);
-    if (is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
-
     // Set the polarity for the given channel (CAEN_DGTZ_PulsePolarityPositive or CAEN_DGTZ_PulsePolarityNegative)
     if (S_DT5720_ODB.ch[ch].polarity_dpp >= 0)
       ret = CAEN_DGTZ_SetChannelPulsePolarity(dev_handle, ch, CAEN_DGTZ_PulsePolarityPositive);
     else
       ret = CAEN_DGTZ_SetChannelPulsePolarity(dev_handle, ch, CAEN_DGTZ_PulsePolarityNegative);
     if (is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
+
   }
+
 
   // Set how many events to accumulate in the board memory before
   // being available for readout
   // Since automatic, should be set after many other parameters I would think?
+  //ret = CAEN_DGTZ_SetDPPEventAggregation(dev_handle, 10, 1024*50);
+  //ret = CAEN_DGTZ_SetDPPEventAggregation(dev_handle, 5000, 0);
   ret = CAEN_DGTZ_SetDPPEventAggregation(dev_handle, 0, 0);
   if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
 
   // Need to figure out what to do here
   //ret = CAEN_DGTZ_SetDPP_PSD_VirtualProbe(dev_handle, CAEN_DGTZ_DPP_VIRTUALPROBE_SINGLE, CAEN_DGTZ_DPP_PSD_VIRTUALPROBE_Baseline, CAEN_DGTZ_DPP_PSD_DIGITALPROBE1_R6_GateLong, CAEN_DGTZ_DPP_PSD_DIGITALPROBE2_R6_OverThr);
   //if(is_caen_error(ret, __LINE__, "dt5730_update_digitizer_dpp")) return false;
+
+  ret = CAEN_DGTZ_SetRunSynchronizationMode(dev_handle, CAEN_DGTZ_RUN_SYNC_Disabled);
+  if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
+
+  // Added by VT on 06/05/2015
+  // ReConfigure Acquisition mode because the above SetRunSynchronizationMode
+  // call messes up the former settings
+  // Suggested by CAEN experts
+  if(S_DT5720_ODB.gpi_acquisition_mode) {
+    ret = CAEN_DGTZ_SetAcquisitionMode(dev_handle,CAEN_DGTZ_S_IN_CONTROLLED);
+    cm_msg(MINFO,"dt5720_update_digitizer","Using S_IN_CONTROLLED mode");
+  } else {
+    ret = CAEN_DGTZ_SetAcquisitionMode(dev_handle,CAEN_DGTZ_SW_CONTROLLED);
+    cm_msg(MINFO,"dt5720_update_digitizer","Using SW_CONTROLLED mode");
+  }
+  if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_generic")) return false;
+
 
   return true;
 }
@@ -655,3 +776,5 @@ BOOL cleanup()
   }
   return TRUE;
 }
+
+

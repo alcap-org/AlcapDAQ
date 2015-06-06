@@ -686,7 +686,7 @@ INT v1724_read(char *pevent)
   // =====================================================================================
   // Fill MIDAS event
   // =====================================================================================
-  bk_init32(pevent);
+  //bk_init32(pevent);
   char bk_name[80];
   char *pdata;
   for (int iboard=0; iboard<NBOARDS; iboard++)

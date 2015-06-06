@@ -60,8 +60,6 @@ struct readout_module v1290_module = {
 
 extern HNDLE hDB;
 
-int evt_cnt = 0;
-
 static int dev_handle = -1;
 static void v1290_SetupTrigger(int handle);
 static void v1290_SetupTDC(int handle);
@@ -70,6 +68,8 @@ static void v1290_SetupReadout(int handle);
 
 typedef struct s_v1290_odb{
   DWORD vme_base;
+  BYTE  board_num;                    ///< Board number in daisychain
+  BYTE  link_num;                     ///< Link number in A3818 card
   BOOL  leading_edge_detection;
   BYTE  edge_resolution;
   BYTE  dead_time_between_hits;
@@ -81,6 +81,8 @@ static S_V1290_ODB_DEF S_V1290_ODB;
 #define S_V1290_ODB_STR "\
 [.]\n\
 VME base = DWORD : 0xEE000000\n\
+Board number = BYTE : 0\n\
+Link number = BYTE : 0\n\
 Leading edge detection = BOOL : y\n\
 Edge resolution = BYTE : 3\n\
 Dead time Between hits = BYTE : 0\n\
@@ -125,15 +127,21 @@ INT v1290_init()
 
   CAENComm_ErrorCode ret;
   CAENComm_ConnectionType linkType = CAENComm_OpticalLink;
-  int linkNum = 0;
-  int conetNode = 2;
-  ret = CAENComm_OpenDevice(linkType, linkNum,
-			    conetNode, S_V1290_ODB.vme_base,
+
+  ret = CAENComm_OpenDevice(linkType, 
+			    S_V1290_ODB.link_num,
+			    S_V1290_ODB.board_num, 
+			    S_V1290_ODB.vme_base,
 			    &dev_handle);
   printf("CAENComm open: %d\n", ret);
   printf("Resetting module.\n");
   v1290_ModuleReset(dev_handle);
   ss_sleep(1000);
+
+  uint16_t v1290_FWRevision =  v1290_FWRev( dev_handle );
+  uint16_t rev_minor =  v1290_FWRevision & 0xF;
+  uint16_t rev_major =  (v1290_FWRevision >> 4 ) & 0xF;
+  printf("v1290 Firmware version: %i.%i\n",rev_minor,rev_major);
 
   printf("Setting continuous mode.\n");
   v1290_ContinuosSet(dev_handle);
@@ -198,40 +206,50 @@ int v1290_read(char *pevent)
   if(!v1290_readout())
     return FE_ERR_HW;
 
-  bk_init32(pevent);
+  //bk_init32(pevent);
   char* pdata;
 
-  bk_create(pevent, "TDC", TID_BYTE, &pdata);
+  bk_create(pevent, "DCDC", TID_BYTE, &pdata);
   if ( data_size > MAX_EVENT_SIZE )
     {
-      cm_msg(MERROR,"dt5720_read","Event size is too large. Truncating data...\n");
+      cm_msg(MERROR,"v1290_read","Event size is too large. Truncating data...\n");
       data_size = MAX_EVENT_SIZE;
     }
+
+  memcpy(pdata, "V1.0", 4);
+  pdata += 4;
+
   memcpy(pdata, data_buffer_0, data_size);
   pdata += data_size;
   bk_close(pevent, pdata);
   data_size = 0;
   data_buffer = data_buffer_0;
 
-  return bk_size(pevent);
+  return SUCCESS;
 }
 
 BOOL v1290_readout()
 {
   const int maxreads = 100;
   int nreads = 0;
+  int nwords32_request = 2048;
+  //printf("v1290_readout() \n");
   while (v1290_IsDataReady(dev_handle))
     {
-      int nwords32 = v1290_ReadEventBLT(dev_handle, (uint32_t*)data_buffer);
+      int nwords32 = v1290_ReadEventBLT(dev_handle, (uint32_t*)data_buffer,nwords32_request);
+      //printf("readout: %i 32-bit-words read out\n",nwords32);
       data_buffer += 4*nwords32;
       data_size   += 4*nwords32;
-      if (++nreads >= maxreads)
+      if (++nreads >= maxreads )
 	{
-	  cm_msg(MINFO,
-		 frontend_name,
-		 "V1290: Read 100 times, leaving readout loop.");
+	  //cm_msg(MINFO,
+	  //	 frontend_name,
+	  //	 "V1290: Read 100 times, leaving readout loop.");
 	  break;
 	}
+
+      if ( nwords32 < nwords32_request ) break;
+
     }
 
   return TRUE;
