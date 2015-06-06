@@ -88,9 +88,7 @@ INT module_init()
       mapIter != bank_to_detector_map.end(); mapIter++) {
 
     std::string bankname = mapIter->first;
-
-    // We only want the CAEN banks here
-    if (bankname[1] == '5')
+    if (TSetupData::IsWFD(bankname) && bankname[1] == '5')
       bank_names.push_back(bankname);
   }
 
@@ -104,13 +102,13 @@ INT module_init()
   // Get Trigger Time Tag info
   // Timestamp will be shifted by number of presamples
 
-  sprintf(key, "/Equipment/Crate 5/Settings/CAEN/Waveform length STD");
-  size = sizeof(nSamples);
-  db_get_value(hDB, 0, key, &nSamples, &size, TID_DWORD, 1);
-  sprintf(key, "/Equipment/Crate 5/Settings/CAEN/Post trigger size");
-  size = sizeof(post_trigger_percentage);
-  db_get_value(hDB, 0, key, &post_trigger_percentage, &size, TID_BYTE, 1);
-  //nPreSamples = (int) (0.01 * ((100 - post_trigger_percentage) * nSamples));
+  // sprintf(key, "/Equipment/Crate 5/Settings/CAEN/Waveform length STD");
+  // size = sizeof(nSamples);
+  // db_get_value(hDB, 0, key, &nSamples, &size, TID_DWORD, 1);
+  // sprintf(key, "/Equipment/Crate 5/Settings/CAEN/Post trigger size");
+  // size = sizeof(post_trigger_percentage);
+  // db_get_value(hDB, 0, key, &post_trigger_percentage, &size, TID_BYTE, 1);
+  // //nPreSamples = (int) (0.01 * ((100 - post_trigger_percentage) * nSamples));
   nPreSamples = 20; // From the Golden Data, it looks like there are 20 presamples.
                     // The frontend does not seem to correctly load post_trigger_size
                     // onto the CAEN.
@@ -127,12 +125,6 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent) {
   std::map< std::string, std::vector<TPulseIsland*> >& pulse_islands_map =
     gData->fPulseIslandToChannelMap;
 
-  // Some typedefs
-
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
-
   // Get the event number
   BYTE *pdata;
 
@@ -142,11 +134,13 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent) {
   sprintf(bank_name,"CND%i",0); // one MIDAS bank per board
   unsigned int bank_len = bk_locate(pevent, bank_name, &pdata);
 
-  INT ret;
-  if (DPP)
-    ret = module_event_caen_dpp((uint32_t*) pdata, bank_len);
-  else
-    ret = module_event_caen_std((uint32_t*) pdata, bank_len);
+  INT ret = SUCCESS;
+  if (bank_len > 0) {
+    if (DPP)
+      ret = module_event_caen_dpp((uint32_t*) pdata, bank_len);
+    else
+      ret = module_event_caen_std((uint32_t*) pdata, bank_len);
+  }
 
   // print for testing
   if(pheader->serial_number == 1) {
@@ -157,7 +151,7 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent) {
       vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
       printf("TEST MESSAGE: Read %d events from bank %s in event 1\n",
 	     pulse_islands.size(),
-	     (*(bankNameIter)).c_str());
+	     bankNameIter->c_str());
     }
   }
 
@@ -189,7 +183,7 @@ INT module_event_caen_std(uint32_t* p32, const int nbytes) {
     }
     //      printf("caen channel mask: 0x%08x (%i)\n",caen_channel_mask,nchannels);
 
-    // PW: There seems to be a factor of 2 missing between the timestamp and real timestamp
+    // The trigger time stamps has a period twice that of the ADC sampling clock
     uint32_t caen_trigger_time = 2*p32[3];
     //      printf("caen trigger time: %i\n",caen_trigger_time);// = clock ticks?
 
@@ -242,30 +236,34 @@ INT module_event_caen_std(uint32_t* p32, const int nbytes) {
 INT module_event_caen_dpp(uint32_t* p32, const int nbytes) {
  std::map< std::string, std::vector<TPulseIsland*> >& pulses_map =
     gData->fPulseIslandToChannelMap;
+
   const uint32_t* p32_0 = p32;
   while (4*(p32-p32_0) < nbytes) {
     const uint32_t caen_event_cw = p32[0]>>28;
-    if ( caen_event_cw != 0xA ) {
+    if (caen_event_cw != 0xA) {
       printf("***ERROR! Wrong data format it dt5730: incorrect control word 0x%08x\n",
              caen_event_cw);
       return SUCCESS;
     }
 
-    DT5720BoardData board_hits;
-    const int nwords = board_hits.Process(p32);
-    if (nwords < 0)
+    DT5720BoardData board;
+    const int nwords = board.Process(p32);
+    if (nwords < 0) {
+      printf("DT5720: Error processing DPP data!\n");
       return SUCCESS;
+    }
+
     p32 += nwords;
-    for (std::vector<std::string>::iterator bankName = bank_names.begin();
-         bankName != bank_names.end(); ++bankName) {
-      std::vector<TPulseIsland*>& pulses = pulses_map[*bankName];
-      const int ich = bankName - bank_names.begin();
-      if (board_hits.channel_enabled(ich)) {
-        const DT5720ChannelData& ch_hits = board_hits.channel_data(ich);
-        for (int ievt = 0; ievt < ch_hits.num_events(); ++ievt)
-          pulses.push_back(new TPulseIsland(ch_hits.time_tag(ich),
-                                            ch_hits.waveform(ich),
-                                            *bankName));
+    for (int ich = 0; ich < DT5720BoardData::kNChan; ++ich) {
+      if (board.channel_enabled(ich)) {
+        char bankname[5];
+        sprintf(bankname, "D5%02d", ich);
+        std::vector<TPulseIsland*>& pulses = pulses_map[bankname];
+        const DT5720ChannelData& channel = board.channel_data(ich);
+        for (int ievt = 0; ievt < channel.num_events(); ++ievt)
+          pulses.push_back(new TPulseIsland(channel.time_tag(ievt),
+                                            channel.waveform(ievt),
+                                            bankname));
       }
     }
   }

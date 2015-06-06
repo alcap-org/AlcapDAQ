@@ -99,5 +99,18 @@ int TPulseIsland::GetPeakSample() const {
 }
 
 double TPulseIsland::GetPedestal(int nPedSamples) const {
-  return TSetupData::Instance()->GetPedestal(fBankName);
+  double ped = 0.0;
+
+  //old way, set manually:
+  //ped = TSetupData::Instance()->GetPedestal(fBankName);
+
+  //loop over a few ped samples from the beginning of the waveform:
+  double sum = 0.0;
+  for (std::vector<int>::const_iterator sampleIter = fSamples.begin(); sampleIter<fSamples.begin()+nPedSamples; sampleIter++) {
+     sum += *sampleIter;
+  }
+  ped = sum/nPedSamples;
+
+  return ped;
 }
+

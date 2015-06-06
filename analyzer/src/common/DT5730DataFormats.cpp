@@ -18,17 +18,20 @@ struct DT5730ChannelData::Header {
 int DT5730ChannelData::Process(uint32_t* data, bool odd,
                                bool& ch_data_present) {
   if (processed_) {
-    printf("DT5730 channel already processed!\n");
+    printf("DT5730 Error: Channel already processed!\n");
     return -1;
   }
   Header header = ProcessHeader(data);
   if (!header.format_en) {
-    printf("DT5730 dual channel header missing format word!\n");
+    printf("DT5730 Error: Dual channel header missing format word!\n");
     return -1;
   }
-  if (!header.waveform_en || !header.timetag_en) {
-    printf("DT5730 channel missing waveform or time tag (%d, %d)!\n",
-           header.waveform_en, header.timetag_en);
+  if (!header.waveform_en) {
+    printf("DT5730 Error: Channel missing waveform!\n");
+    return -1;
+  }
+  if (!header.timetag_en) {
+    printf("DT5730 Error: Channel missing time tag!\n");
     return -1;
   }
 
@@ -36,9 +39,9 @@ int DT5730ChannelData::Process(uint32_t* data, bool odd,
   const int evt_size = header.waveform_en*(waveform_length_/n_samps_per_word) +
                        header.charge_en + header.timetag_en + header.extras_en;
   const int nevt = (header.nwords - Header::header_size)/evt_size;
-  waveforms_.reserve(nevt);
-
-  printf("DT5730 channel event size and nevts: %d, %d\n", evt_size, nevt);
+  waveforms_.reserve(nevt); // This is possibly an overestimate because of the
+                            // each data block containing events from possibly
+                            // two channels.
 
   data += Header::header_size;
   int nwords_processed = Header::header_size;

@@ -59,6 +59,9 @@ public:
   const DT5730ChannelData& channel_data(int ch) const {
       return channel_data_[ch];
   }
+  bool processed() {
+    return processed_;
+  }
 
 private:
   struct Header;

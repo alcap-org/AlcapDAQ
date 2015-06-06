@@ -80,10 +80,8 @@ INT module_init() {
       mapIter != bank_to_detector_map.end(); mapIter++) {
 
     std::string bankname = mapIter->first;
-    if (bankname[1] == '7') {
-      printf("Adding bankname to process: %c%c%c%c\n", bankname[0], bankname[1], bankname[2], bankname[3]);
+    if (TSetupData::IsWFD(bankname) && bankname[1] == '7')
       bank_names.push_back(bankname);
-    }
   }
 
   /*** Get necessary data from ODB ***/
@@ -202,45 +200,29 @@ INT module_event_caen_dpp(uint32_t* p32, const int nbytes) {
   const uint32_t* p32_0 = p32;
   while (4*(p32-p32_0) < nbytes) {
     const uint32_t caen_event_cw = p32[0]>>28;
-    if ( caen_event_cw != 0xA ) {
+    if (caen_event_cw != 0xA) {
       printf("***ERROR! Wrong data format it dt5730: incorrect control word 0x%08x\n",
              caen_event_cw);
       return SUCCESS;
     }
 
-    DT5730BoardData board_hits;
-    const int nwords = board_hits.Process(p32);
+    DT5730BoardData board;
+    const int nwords = board.Process(p32);
     if (nwords < 0) {
       printf("DT5730: Error processing DPP data!\n");
       return SUCCESS;
     }
-/*
-    for (int i = 0; i < DT5730BoardData::kNChan; ++i) {
-      const DT5730ChannelData& ch = board_hits.channel_data(i);
-      printf("---------------------------------");
-      printf("Channel %d\n", i);
-      printf("Enabled flag:    %d\n", board_hits.channel_enabled(i));
-      printf("Processed flag:  %d\n", ch.processed());
-      printf("Waveform length: %d\n", ch.waveform_length());
-      printf("Events:          %d\n", ch.num_events());
-      for (int j = 0; j < ch.num_events(); ++j) {
-        printf("Event            %d:\n", j);
-        printf("    Waveform length: %d\n", ch.waveform(j).size());
-        printf("    Time tag:        %d\n", ch.time_tag(j));
-      }
-    }
-//*/
+
     p32 += nwords;
-    for (int ch = 0; ch < DT5730BoardData::kNChan; ++ch) {
-      if (board_hits.channel_enabled(ch)) {
+    for (int ich = 0; ich < DT5730BoardData::kNChan; ++ich) {
+      if (board.channel_enabled(ich)) {
         char bankname[5];
-        sprintf(bankname, "D7%02d", ch);
+        sprintf(bankname, "D7%02d", ich);
         std::vector<TPulseIsland*>& pulses = pulses_map[bankname];
-        const DT5730ChannelData& ch_hits = board_hits.channel_data(ch);
-        for (int ievt = 0; ievt < ch_hits.num_events(); ++ievt) {
-          printf("Ch %d, Evt %d, Size %d\n", ch, ievt, ch_hits.waveform(ievt).size());
-          pulses.push_back(new TPulseIsland(ch_hits.time_tag(ievt),
-                                            ch_hits.waveform(ievt),
+        const DT5730ChannelData& channel = board.channel_data(ich);
+        for (int ievt = 0; ievt < channel.num_events(); ++ievt) {
+          pulses.push_back(new TPulseIsland(channel.time_tag(ievt),
+                                            channel.waveform(ievt),
                                             bankname));
         }
       }

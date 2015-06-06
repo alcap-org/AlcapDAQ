@@ -6,6 +6,7 @@
 
 class DT5720ChannelData {
 public:
+  DT5720ChannelData();
   // Tell the object where the data is, and it will go through
   // and fill its members. The supplied data does not get referenced
   // after returning so can be safely deleted.
@@ -24,11 +25,15 @@ public:
   const std::vector<int>& waveform(int evt) const {
     return waveforms_[evt];
   }
+  bool processed() const {
+    return processed_;
+  }
 
 private:
   struct Header;
   Header ProcessHeader(uint32_t* data);
 
+  bool processed_;
   int waveform_length_;
   std::vector<uint32_t> time_tags_;
   std::vector< std::vector<int> > waveforms_;
@@ -36,6 +41,8 @@ private:
 
 class DT5720BoardData {
 public:
+  const static int kNChan = 4;
+  DT5720BoardData();
   // Tell the object where the data is, and it will go through
   // and fill its members. The supplied data does not get referenced
   // after returning so can safely be deleted.
@@ -48,12 +55,15 @@ public:
   const DT5720ChannelData& channel_data(int ch) const {
       return channel_data_[ch];
   }
+  bool processed() {
+    return processed_;
+  }
 
 private:
   struct Header;
   Header ProcessHeader(uint32_t* data);
 
-  const static int kNChan = 4;
+  bool processed_;
   bool error_;
   bool channel_enableds_[kNChan];
   DT5720ChannelData channel_data_[kNChan];

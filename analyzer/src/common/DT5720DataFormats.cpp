@@ -4,6 +4,10 @@
 #include <cstdio>
 #include <vector>
 
+DT5720ChannelData::DT5720ChannelData() : processed_(false), waveform_length_(0),
+                                         time_tags_(), waveforms_() {
+}
+
 struct DT5720ChannelData::Header {
   const static int header_size = 2;
   int nwords;
@@ -12,17 +16,20 @@ struct DT5720ChannelData::Header {
 };
 
 int DT5720ChannelData::Process(uint32_t* data) {
+  if (processed_) {
+    printf("DT5720 Error: Channel already processed!\n");
+  }
   Header header = ProcessHeader(data);
   if (!header.format_en) {
     printf("DT5720 Error: Missing format string in data.\n");
     return -1;
   }
   if (!header.waveform_en) {
-    printf("DT5720 Error: Missing waveforms.\n");
+    printf("DT5720 Error: Channel missing waveforms!\n");
     return -1;
   }
   if (!header.timetag_en) {
-    printf("DT5720 Error: Missing trigger time tag.\n");
+    printf("DT5720 Error: Channel missing trigger time tag!\n");
     return -1;
   }
 
@@ -76,6 +83,13 @@ DT5720ChannelData::Header DT5720ChannelData::ProcessHeader(uint32_t* data) {
   header.waveform_en  = data[1] & WAVEFORM_EN_MASK;
   waveform_length_    = 8*(data[1] & NSAMPLES_MASK);
   return header;
+}
+
+DT5720BoardData::DT5720BoardData() : processed_(false), error_(false) {
+  for (int i = 0; i < kNChan; ++i) {
+    channel_enableds_[i] = false;
+    channel_data_[i] = DT5720ChannelData();
+  }
 }
 
 struct DT5720BoardData::Header {
