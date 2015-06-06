@@ -47,22 +47,23 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 
-static map<std::string, TGraph*> gr_nhits_map;
-static map<std::string, TH1D*> h1_autocorr_map;
+static map<std::string, TGraph*> gr_nhits_map;    // number of hits vs midas segment
+static map<std::string, TH1D*> h1_autocorr_map;   // autocorrelation 
+static map<std::string, TH1D*> h1_time_map;       // time in midas segment
 
 
 ANA_MODULE MTDCV1290_analysis_raw_module =
 {
-	"MTDCV1290_analysis_raw",    /* module name           */
-	"Volodya Tishchenko",               /* author                */
-	MTDCV1290_analysis_raw,      /* event routine         */
-	MTDCV1290_analysis_raw_bor,  /* BOR routine           */
-	NULL,                           /* EOR routine           */
-	MTDCV1290_analysis_raw_init, /* init routine          */
-	NULL,                           /* exit routine          */
-	NULL,                           /* parameter structure   */
-	0,                              /* structure size        */
-	NULL,                           /* initial parameters    */
+	"MTDCV1290_analysis_raw",      /* module name           */
+	"Volodya Tishchenko",          /* author                */
+	MTDCV1290_analysis_raw,        /* event routine         */
+	MTDCV1290_analysis_raw_bor,    /* BOR routine           */
+	NULL,                          /* EOR routine           */
+	MTDCV1290_analysis_raw_init,   /* init routine          */
+	NULL,                          /* exit routine          */
+	NULL,                          /* parameter structure   */
+	0,                             /* structure size        */
+	NULL,                          /* initial parameters    */
 };
 
 /** This method initializes histograms.
@@ -99,9 +100,14 @@ INT MTDCV1290_analysis_raw_bor(INT run_number) {
 
       //TH1D *h1_autocorr = new TH1D(Form("h1_autocorr_%s",bankname.c_str()),Form("Autocorrelation, %s",bankname.c_str()),16384,-2097152.0,2097152.0);      
       //TH1D *h1_autocorr = new TH1D(Form("h1_autocorr_%s",bankname.c_str()),Form("Autocorrelation, %s",bankname.c_str()),2097152,-4.1e12,4.1e12);      
-      TH1D *h1_autocorr = new TH1D(Form("h1_autocorr_%s",bankname.c_str()),Form("Autocorrelation, %s",bankname.c_str()),2097152,-4.1e10,4.1e10);      
+      TH1D *h1_autocorr = new TH1D(Form("h1_autocorr_%s",bankname.c_str()),Form("Autocorrelation, %s",bankname.c_str()),2097152,-4.3e10,4.3e10);      
       h1_autocorr->SetXTitle("time (ct)");
       h1_autocorr_map[bankname] = h1_autocorr;
+
+      TH1D *h1_time = new TH1D(Form("h1_time_%s",bankname.c_str()),Form("time in midas segment, %s",bankname.c_str()),2097152,0.0,190.3e10);      
+      h1_time->SetXTitle("time (ct)");
+      h1_time_map[bankname] = h1_time;
+
     }
   
   // restore pointer of global directory
@@ -117,15 +123,15 @@ INT MTDCV1290_analysis_raw_bor(INT run_number) {
 INT MTDCV1290_analysis_raw(EVENT_HEADER *pheader, void *pevent) {
 
 
-  std::map< std::string, std::vector<long> >& tdc_map = gData->fTDCHitsToChannelMap;
+  std::map< std::string, std::vector<int64_t> >& tdc_map = gData->fTDCHitsToChannelMap;
 
-  typedef std::map< std::string, std::vector<long> >::iterator map_iterator;
+  typedef std::map< std::string, std::vector<int64_t> >::iterator map_iterator;
   for (map_iterator theMapIter = tdc_map.begin(); theMapIter != tdc_map.end(); theMapIter++) 
     {
       std::string bankname = theMapIter->first;
 
       //std::string detname = gSetup->GetDetectorName(bankname);
-      std::vector<long> theHits = theMapIter->second;
+      std::vector<int64_t> theHits = theMapIter->second;
       
       //std::cout << "TDC bank [" << bankname << "] : " << theHits.size() << " events " << std::endl;
 
@@ -134,15 +140,23 @@ INT MTDCV1290_analysis_raw(EVENT_HEADER *pheader, void *pevent) {
 	  Int_t np = gr_nhits_map[bankname]->GetN();
 	  gr_nhits_map[bankname]->SetPoint(np, pheader->serial_number, theHits.size());
 	}
+      if ( h1_time_map[bankname] )
+	{
+	  for (unsigned int i=0; i<theHits.size(); i++ )
+	    {
+	      h1_time_map[bankname]->Fill( theHits[i] );
+	    }
+	}
+
 
       if ( h1_autocorr_map[bankname] ) 
 	{    
 	  for (unsigned int i=0; i<theHits.size(); i++ )
 	    {
-	      long t_i = theHits[i];
+	      int64_t t_i = theHits[i];
 	      for ( unsigned int j=i+1; j<theHits.size(); j++)
 		{
-		  long t_j = theHits[j];
+		  int64_t t_j = theHits[j];
 		  h1_autocorr_map[bankname]->Fill(t_j-t_i); 
 		  break;
 		}

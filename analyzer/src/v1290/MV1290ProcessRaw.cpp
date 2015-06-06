@@ -67,13 +67,13 @@ INT module_init_tdc() {
 INT module_event_tdc(EVENT_HEADER *pheader, void *pevent) {
   // Fetch a reference to the gData structure that stores a map
   // of (bank_name, vector<TPulseIsland*>) pairs
-  std::map< std::string, std::vector<long> >& tdc_map = gData->fTDCHitsToChannelMap;
+  std::map< std::string, std::vector<int64_t> >& tdc_map = gData->fTDCHitsToChannelMap;
   
   // clear old data
-  typedef std::map< std::string, std::vector<long> >::iterator map_iterator;
+  typedef std::map< std::string, std::vector<int64_t> >::iterator map_iterator;
   for (map_iterator theMapIter = tdc_map.begin(); theMapIter != tdc_map.end(); theMapIter++) 
     {
-      std::vector<long> *theHits = &theMapIter->second;
+      std::vector<int64_t> *theHits = &theMapIter->second;
       theHits->clear();
     }
 
@@ -97,17 +97,17 @@ INT module_event_tdc(EVENT_HEADER *pheader, void *pevent) {
 
   // Added by VT on 06/05/2015
   // Rollover
-  int rollover = 2097152;
-  int rollover_counter = 0;
-  long t_last = -1;
-  long t0 = 0;
+  const int64_t rollover = 2097152;
+  int64_t rollover_counter = 0;
+  int64_t t_last = -1;
+  int64_t t0 = 0;
 
   int data_size = (bank_len - 4)/4;
   while ((p32 - p32_0) < data_size) {
     //printf("0x%08x\n",*p32);
     if (V1290_IS_TDC_MEASURE(*p32)) {
       int chn = V1290_GET_TDC_MSR_CHANNEL(*p32);
-      long meas = V1290_GET_TDC_MSR_MEASURE(*p32);
+      int64_t meas = V1290_GET_TDC_MSR_MEASURE(*p32);
       //printf("chn %i meas %i\n",chn,meas);
       if ( chn == 1 ) printf("chn %i meas %i\n",chn,meas);
       if ( t_last == -1 )
@@ -117,6 +117,7 @@ INT module_event_tdc(EVENT_HEADER *pheader, void *pevent) {
       else if ( meas < t_last )
 	{
 	  rollover_counter++;
+	  printf("rollover %i\n",rollover_counter);
 	}
       t_last = meas;
       meas = meas - t0 + rollover_counter*rollover;
@@ -133,7 +134,7 @@ INT module_event_tdc(EVENT_HEADER *pheader, void *pevent) {
   if(pheader->serial_number == 1) {
     for (std::vector<std::string>::iterator bankName = bank_names.begin();
          bankName != bank_names.end(); bankName++) {
-      std::vector<long>& tdc_meas = tdc_map[*bankName];
+      std::vector<int64_t>& tdc_meas = tdc_map[*bankName];
       printf("TEST MESSAGE: Read %d events from bank %s in event 1\n",
              tdc_meas.size(), bankName->c_str());
     }

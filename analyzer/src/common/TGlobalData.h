@@ -5,6 +5,8 @@
 #include <map>
 #include <string>
 
+#include <stdint.h>
+
 #include <TObject.h>
 #include "TPulseIsland.h"
 #include "TMuPCCluster.h"
@@ -40,7 +42,7 @@ class TGlobalData : public TObject{
   std::vector<TMuPCCluster*> fMuPCClusterVector;
 
   /// Map of bank name to vector of TDC hits
-  std::map< std::string, std::vector<long> > fTDCHitsToChannelMap;
+  std::map< std::string, std::vector<int64_t> > fTDCHitsToChannelMap;
 
   TGlobalData(){}
  private:
