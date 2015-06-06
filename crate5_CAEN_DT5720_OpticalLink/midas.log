@@ -1,5 +1,0 @@
-Sat Apr  4 16:53:53 2015 [midas.c:10957:rpc_register_server] bind() failed: Address already in use
-Thu Apr 23 15:45:48 2015 [Crate 5] Deleted /System/Clients/10084 entry for client Logger
-
-Thu Apr 23 15:52:05 2015 [Crate 5] [midas.c:8800:rpc_server_connect] cannot get host name
-Fri May  1 14:20:13 2015 [Crate 5] [odb.c:1265:db_open_database] removing client Crate 3, pid 29774, index 1 because the pid no longer exists
