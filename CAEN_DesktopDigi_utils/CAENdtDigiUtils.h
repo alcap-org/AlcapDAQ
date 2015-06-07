@@ -97,7 +97,7 @@ int simulate_power_cycle(int dtNum)
 // // Check board status
 caen_digi_status caen_digi_get_status(int handle) {
   uint32_t data;
-  CAEN_DGTZ_ReadRegister(handle, CAEN_DGTZ_ACQ_CONTROL_ADD, &data);
+  CAEN_DGTZ_ReadRegister(handle, CAEN_DGTZ_ACQ_STATUS_ADD, &data);
   /*
      8-bit Acquisition Status Register
      Register is reflected on front panel LEDs
@@ -112,13 +112,14 @@ caen_digi_status caen_digi_get_status(int handle) {
      8: 1 if board ready for data taking
    */
    caen_digi_status ds;
-   ds.run_active  = (BOOL)((data <<= 2) & 1);
-   ds.evt_ready   = (BOOL)((data <<= 1) & 1);
-   ds.board_full  = (BOOL)((data <<= 1) & 1);
-   ds.ext_clock   = (BOOL)((data <<= 1) & 1);
-   ds.pll_bypass  = (BOOL)((data <<= 1) & 1);
-   ds.pll_lost    = !((BOOL)((data <<= 1) & 1));
-   ds.board_ready = (BOOL)((data <<= 1) & 1);
+   ds.run_active  = (BOOL)((data >>= 2) & 1);
+   ds.evt_ready   = (BOOL)((data >>= 1) & 1);
+   ds.board_full  = (BOOL)((data >>= 1) & 1);
+   ds.ext_clock   = (BOOL)((data >>= 1) & 1);
+   ds.pll_bypass  = (BOOL)((data >>= 1) & 1);
+   ds.pll_lost    = !((BOOL)((data >>= 1) & 1));
+   ds.board_ready = (BOOL)((data >>= 1) & 1);
+
    return ds;
  }
 

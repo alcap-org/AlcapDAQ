@@ -3,7 +3,7 @@
 Name:         MDT5730Errors
 Created by:   John R Quirk
 
-Contents:     Look at PLL lock and board fail bits
+Contents:     Look at PLL lock and board full bits
 
 \********************************************************************/
 
@@ -39,11 +39,15 @@ ANA_MODULE MDT5730Errors_module =
 	NULL,               /* initial parameters    */
 };
 
+enum BOARDERROR {
+  PLL_LOSS = 1,
+  BOARD_FULL = 2
+};
 
 INT MDT5730Errors_init() {
   hDT5730Errors = new TH1I("hDT5730Errors", "Errors in DT5730", 2, 0., 2.);
-  hDT5730Errors->GetXaxis()->SetBinLabel(1, "PLL Loss");
-  hDT5730Errors->GetXaxis()->SetBinLabel(2, "Board Full");
+  hDT5730Errors->GetXaxis()->SetBinLabel(PLL_LOSS, "PLL Loss");
+  hDT5730Errors->GetXaxis()->SetBinLabel(BOARD_FULL, "Board Full");
   hDT5730Errors->GetYaxis()->SetTitle("Occurences in Run");
   return SUCCESS;
 }
@@ -54,14 +58,14 @@ INT MDT5730Errors_bor(INT run_number) {
 }
 
 INT MDT5730Errors(EVENT_HEADER *pheader, void *pevent) {
-  BOOL* pdata;
+  BYTE* pdata;
   std::string bank("CNS1");
   const int bank_len = bk_locate(pevent, bank.c_str(), &pdata);
   if (bank_len > 0) {
     if (pdata[0])
-      hDT5730Errors->Fill(0);
+      hDT5730Errors->Fill(PLL_LOSS);
     if (pdata[1])
-      hDT5730Errors->Fill(1);
+      hDT5730Errors->Fill(BOARD_FULL);
   }
   return SUCCESS;
 }
