@@ -3,7 +3,7 @@
 
 #include <unistd.h>
 #include <sys/io.h>
-#include <sys/time.h> 
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -128,9 +128,9 @@ INT v1290_init()
   CAENComm_ErrorCode ret;
   CAENComm_ConnectionType linkType = CAENComm_OpticalLink;
 
-  ret = CAENComm_OpenDevice(linkType, 
+  ret = CAENComm_OpenDevice(linkType,
 			    S_V1290_ODB.link_num,
-			    S_V1290_ODB.board_num, 
+			    S_V1290_ODB.board_num,
 			    S_V1290_ODB.vme_base,
 			    &dev_handle);
   printf("CAENComm open: %d\n", ret);
@@ -178,6 +178,7 @@ INT v1290_pre_bor()
   if(!v1290_update_tdc()) return FE_ERR_HW;
   v1290_SoftClear(dev_handle);
   data_size = 0;
+  data_buffer = data_buffer_0;
   return SUCCESS;
 }
 
@@ -297,7 +298,8 @@ BOOL v1290_update_tdc()
   printf("V1290: Setting channel enables.\n");
   uint32_t chn_en_mask = 0;
   for (int ich = 0; ich < NCHAN; ++ich)
-    chn_en_mask += 1 << ich;
+    if (S_V1290_ODB.enable_channel[ich])
+      chn_en_mask += 1 << ich;
   v1290_WriteEnablePattern(dev_handle, chn_en_mask);
   ss_sleep(1000);
 

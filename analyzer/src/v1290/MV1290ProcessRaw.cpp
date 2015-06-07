@@ -125,7 +125,7 @@ INT module_event_tdc(EVENT_HEADER *pheader, void *pevent) {
       sprintf(bnk, "T4%02d", chn);
       tdc_map[bnk].push_back(meas);
     } else {
-      printf("V1290 Analyzer: Found non-measurement TDC data! (%08x)\n", *p32);
+      printf("V1290 Analyzer: Found non-measurement TDC data! (%08x) data size %i pos. %i\n", *p32, data_size, (p32 - p32_0));
     }
     ++p32;
   }

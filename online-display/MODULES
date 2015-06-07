@@ -2,7 +2,7 @@
 # Contents: the list of ROOT macros for the online-display
 # Format: TextOnTheButton FullMacroName
 # Use # for comments
-# 
+#
 # MODULES
 #
 #======================================================
@@ -20,6 +20,8 @@ DT5720_Shapes dt5720/dt5720_shapes.C
 DT5730_Heights dt5730/dt5730_heights.C
 DT5730_Times dt5730/dt5730_times.C
 DT5730_Shapes dt5730/dt5730_shapes.C
+
+CAEN_WFD_Errors caen_wfd/caen_wfd_errors.C
 
 
 #

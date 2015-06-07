@@ -69,8 +69,8 @@ int DT5730ChannelData::Process(uint32_t* data, bool odd,
       waveforms_.push_back(adcs);
       nwords_processed += waveform_length_/n_samps_per_word;
     }
-    if (header.extras_en) ++data;
-    if (header.charge_en) ++data;
+    if (header.extras_en) ++data, ++nwords_processed;
+    if (header.charge_en) ++data, ++nwords_processed;
   }
   return nwords_processed;
 }
