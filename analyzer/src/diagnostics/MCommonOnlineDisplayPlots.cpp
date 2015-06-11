@@ -152,13 +152,13 @@ INT MCommonOnlineDisplayPlots_init_tdc(const std::string& bank,
   std::string histname = "h" + bank + "_RawTime";
   std::string histtitle = "TDC Raw Times in " + det;
   TH1I* hTDCRawTime = new TH1I(histname.c_str(), histtitle.c_str(),
-                               1000, 0., std::pow(2., 21.));
+                               1000, 0., 120.e6);
   tdc_rawtime_histograms_map[bank] = hTDCRawTime;
 
   histname = "h" + bank + "_AdjTime";
   histtitle = "TDC Adjusted Times in " + det;
   TH1I* hTDCAdjTime = new TH1I(histname.c_str(), histtitle.c_str(),
-                               1000, 0., 120.e6);
+                               1000, 0., 110.e6);
   tdc_adjtime_histograms_map[bank] = hTDCAdjTime;
 
   return SUCCESS;
@@ -203,7 +203,6 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent) {
 	for (map_iterator theMapIter = pulses_map.begin();
        theMapIter != pulses_map.end(); theMapIter++) {
 	  std::string bankname = theMapIter->first;
-	  std::string detname = gSetup->GetDetectorName(bankname);
 	  std::vector<TPulseIsland*> thePulses = theMapIter->second;
 
 	  // Loop over the TPulseIslands and plot the histogram
@@ -211,35 +210,25 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent) {
          pulseIter != thePulses.end(); pulseIter++) {
 
 	    // Make sure the histograms exist and then fill them
-	    // Also check that this pulse didn't underflow (i.e. has a sample value at any point of 4096)
-	    bool underflow = false;
 	    if (shape_histograms_map.find(bankname) != shape_histograms_map.end()) {
-              TH2* shape_histogram = shape_histograms_map[bankname];
-              TH1* latest_pulse_histogram = latest_pulse_histograms_map[bankname];
+        TH2* shape_histogram = shape_histograms_map[bankname];
+        TH1* latest_pulse_histogram = latest_pulse_histograms_map[bankname];
 
 	      latest_pulse_histogram->Reset();
 
 	      std::vector<int> theSamples = (*pulseIter)->GetSamples();
 	      for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
-		int sample_number = sampleIter - theSamples.begin();
-		int sample_value = *sampleIter;
+      		int sample_number = sampleIter - theSamples.begin();
+      		int sample_value = *sampleIter;
 
-		if (sample_value == 4096) {
-		  underflow = true;
-		  break;
-		}
-		shape_histogram->Fill(sample_number, sample_value);
-		latest_pulse_histogram->SetBinContent(sample_number, sample_value);
+      		shape_histogram->Fill(sample_number, sample_value);
+      		latest_pulse_histogram->SetBinContent(sample_number, sample_value);
 	      }
 	    }
-
-	    if (underflow == false) {
-	      if (height_histograms_map.find(bankname) != height_histograms_map.end())
-		height_histograms_map[bankname]->Fill((*pulseIter)->GetPulseHeight());
-
-	      if (time_histograms_map.find(bankname) != time_histograms_map.end())
-		time_histograms_map[bankname]->Fill((*pulseIter)->GetPulseTime());
-	    }
+	    if (height_histograms_map.find(bankname) != height_histograms_map.end())
+    		height_histograms_map[bankname]->Fill((*pulseIter)->GetPulseHeight());
+      if (time_histograms_map.find(bankname) != time_histograms_map.end())
+    		time_histograms_map[bankname]->Fill((*pulseIter)->GetPulseTime());
 	  }
 
 	  hPulseRawCount->Fill(bankname.c_str(), thePulses.size());
@@ -252,10 +241,11 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent) {
   for (tdc = tdcs_map.begin(); tdc != tdcs_map.end(); ++tdc) {
     const std::vector<int64_t>& hits = tdc->second;
     if (!hits.empty()) {
+      static const double clock_tick = 0.025; // ns
       TH1* hist = tdc_rawtime_histograms_map[tdc->first];
       hist->Fill(hits[0]);
-      for (unsigned int i = 1; i < hits.size(); ++i) {
-        hist->Fill(hits[i]);
+      for (int i = 1; i < hits.size(); ++i) {
+        hist->Fill(clock_tick*hits[i]);
         //hTDC00_Diff->Fill(hits[i]-hits[i-1]);
       }
     }

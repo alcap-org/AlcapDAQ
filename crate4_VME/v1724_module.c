@@ -3,7 +3,7 @@
 
 #include <unistd.h>
 #include <sys/io.h>
-#include <sys/time.h> 
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -33,7 +33,7 @@ static void v1724_exit();
 static INT v1724_pre_bor();
 static INT v1724_eor();
 static INT v1724_poll_live();
-static INT v1724_read(char *pevent); // MIDAS readout routine 
+static INT v1724_read(char *pevent); // MIDAS readout routine
 static void v1724_readout(); // read data from digitizer buffers
 
 
@@ -58,11 +58,11 @@ struct readout_module v1724_module = {
 // ======================================================================
 
 // board settings
-typedef struct s_v1724_odb 
-{ 
+typedef struct s_v1724_odb
+{
   DWORD vme_base;                     ///< VME base address of the module
-  BOOL enabled;                       ///< don't readout the module if false    
-  BYTE  board_num;                    ///< Board number in daisychance 
+  BOOL enabled;                       ///< don't readout the module if false
+  BYTE  board_num;                    ///< Board number in daisychance
   BYTE  link_num;                     ///< Link number in A3818 card
   DWORD wf_length;                    ///< waveform length, samples
   BYTE  acquisition_mode;             ///< Acquisition mode: 0=CAEN_DGTZ_SW_CONTROLLED, 1=CAEN_DGTZ_S_IN_CONTROLLED;
@@ -149,7 +149,7 @@ trigger threshhold = DWORD : 0\n\
 
 INT v1724_init()
 {
-  
+
   /* ODB */
   char str[1024];
   HNDLE hKey;
@@ -179,20 +179,20 @@ INT v1724_init()
   CAEN_DGTZ_ErrorCode ret;
   CAEN_DGTZ_BoardInfo_t BoardInfo[NBOARDS];
   uint32_t data;
-  
+
   //CAEN_DGTZ_ConnectionType linkType = CAEN_DGTZ_USB;
   CAEN_DGTZ_ConnectionType linkType = CAEN_DGTZ_OpticalLink;
 
   for (int iboard=0; iboard<NBOARDS; iboard++)
     {
-      
+
       if ( !S_V1724_ODB[iboard].enabled ) continue;
       ret = CAEN_DGTZ_OpenDigitizer(linkType,
 				    S_V1724_ODB[iboard].link_num,
 				    S_V1724_ODB[iboard].board_num,
 				    S_V1724_ODB[iboard].vme_base,
 				    &dev_handle[iboard]);
-      if(ret != CAEN_DGTZ_Success) 
+      if(ret != CAEN_DGTZ_Success)
 	{
 	  cm_msg(MERROR,"v1724_init","Can't open digitizer at address 0x%08x\n",S_V1724_ODB[iboard].vme_base);
 	  return FE_ERR_HW;
@@ -237,7 +237,7 @@ INT v1724_init()
       // =====================================================================================
       // Configure max. number of buffers for BLT readout
       // =====================================================================================
-      ret = CAEN_DGTZ_SetMaxNumEventsBLT(dev_handle[iboard],1024); 
+      ret = CAEN_DGTZ_SetMaxNumEventsBLT(dev_handle[iboard],1024);
       if ( ret != CAEN_DGTZ_Success )
 	{
 	  cm_msg(MERROR,"v1724_init","Cannot configure data buffers for BLT readout. Error 0x%08x\n",ret);
@@ -248,7 +248,7 @@ INT v1724_init()
       // Allocate memory buffer to hold data received from digitizer
       // =====================================================================================
       caen_data_buffer[iboard] = NULL;
-      ret = CAEN_DGTZ_MallocReadoutBuffer(dev_handle[iboard], &(caen_data_buffer[iboard]), &(caen_data_buffer_size[iboard]));  
+      ret = CAEN_DGTZ_MallocReadoutBuffer(dev_handle[iboard], &(caen_data_buffer[iboard]), &(caen_data_buffer_size[iboard]));
       if ( ret != CAEN_DGTZ_Success )
 	{
 	  cm_msg(MERROR,"v1724_init","Cannot MallocReadoutBuffer. Error 0x%08x\n",ret);
@@ -275,7 +275,7 @@ INT v1724_init()
       // =====================================================================================
 
 
-#if 0            
+#if 0
       // PW
       uint32_t mydata;
       ret = CAEN_DGTZ_ReadRegister(dev_handle[iboard], 0x8100, &mydata);
@@ -299,7 +299,7 @@ INT v1724_init()
 	  return FE_ERR_HW;
 	}
       printf("2nd time Acquisition control register is: %d\n", mydata);
-     
+
       ret = CAEN_DGTZ_ReadRegister(dev_handle[iboard], CAEN_DGTZ_DOWNSAMPLE_FACT_ADD, &mydata);
       if ( ret != CAEN_DGTZ_Success )
 	{
@@ -343,7 +343,7 @@ void v1724_exit()
       // =====================================================================================
       // Free memory allocated for data buffer
       // =====================================================================================
-      ret = CAEN_DGTZ_FreeReadoutBuffer(&(caen_data_buffer[iboard]));  
+      ret = CAEN_DGTZ_FreeReadoutBuffer(&(caen_data_buffer[iboard]));
       if ( ret != CAEN_DGTZ_Success )
 	{
 	  cm_msg(MERROR,"v1724_exit","Cannot FreeReadoutBuffer. Error 0x%08x\n",ret);
@@ -361,7 +361,7 @@ void v1724_exit()
       // =====================================================================================
       // Free memory buffers
       // =====================================================================================
-      free( data_buffer[iboard] );      
+      free( data_buffer[iboard] );
     }
 }
 
@@ -370,8 +370,8 @@ INT v1724_pre_bor()
 
   CAEN_DGTZ_ErrorCode ret;
   for (int iboard=0; iboard<NBOARDS; iboard++)
-    { 
-      
+    {
+
       if ( !S_V1724_ODB[iboard].enabled ) continue;
 
       // ==========================================================================================
@@ -390,7 +390,7 @@ INT v1724_pre_bor()
       uint32_t channel_mask = 0x0; // disable all channels
       for (uint32_t ichan=0; ichan<8; ichan++)
 	{
-	  if ( S_V1724_ODB[iboard].ch[ichan].enabled ) 
+	  if ( S_V1724_ODB[iboard].ch[ichan].enabled )
 	    channel_mask |= (1 << ichan); // enable channel ichannel
 	}
       printf("channel enable mask: 0x%08x\n",channel_mask);
@@ -400,20 +400,20 @@ INT v1724_pre_bor()
 	  cm_msg(MERROR,"v1724_init","Cannot Enable channels. Error 0x%08x\n",ret);
 	  return FE_ERR_HW;
 	}
-      
+
       // =====================================================================================
       // Acquisition control
       // =====================================================================================
-      //ret = CAEN_DGTZ_SetAcquisitionMode(dev_handle[iboard],CAEN_DGTZ_S_IN_CONTROLLED); 
-      ret = CAEN_DGTZ_SetAcquisitionMode(dev_handle[iboard], (CAEN_DGTZ_AcqMode_t)S_V1724_ODB[iboard].acquisition_mode); 
+      //ret = CAEN_DGTZ_SetAcquisitionMode(dev_handle[iboard],CAEN_DGTZ_S_IN_CONTROLLED);
+      ret = CAEN_DGTZ_SetAcquisitionMode(dev_handle[iboard], (CAEN_DGTZ_AcqMode_t)S_V1724_ODB[iboard].acquisition_mode);
       if ( ret != CAEN_DGTZ_Success )
 	{
 	  cm_msg(MERROR,"v1724_init","Cannot configure Acquisition Control. Error 0x%08x\n",ret);
 	  return FE_ERR_HW;
 	}
-      
 
-    
+
+
       // =====================================================================================
       // Record length
       // =====================================================================================
@@ -428,16 +428,16 @@ INT v1724_pre_bor()
       // =====================================================================================
       // Self-trigger mode
       // =====================================================================================
-      
+
       // CAEN_DGTZ_TRGMODE_DISABLED
       uint32_t self_trigger_mask = 0x0; // disable all channels
       for (uint32_t ichan=0; ichan<8; ichan++)
 	{
-	  if ( S_V1724_ODB[iboard].ch[ichan].self_trigger_mode == CAEN_DGTZ_TRGMODE_DISABLED ) 
+	  if ( S_V1724_ODB[iboard].ch[ichan].self_trigger_mode == CAEN_DGTZ_TRGMODE_DISABLED )
 	    self_trigger_mask |= (1 << ichan); // enable channel ichannel
 	}
       printf("self-trigger DISABLED mask: 0x%08x\n",channel_mask);
-      ret = CAEN_DGTZ_SetChannelSelfTrigger(dev_handle[iboard], CAEN_DGTZ_TRGMODE_ACQ_ONLY, self_trigger_mask); 
+      ret = CAEN_DGTZ_SetChannelSelfTrigger(dev_handle[iboard], CAEN_DGTZ_TRGMODE_ACQ_ONLY, self_trigger_mask);
       if ( ret != CAEN_DGTZ_Success )
 	{
 	  cm_msg(MERROR,"v1724_init","Cannot SetCahnngelSelfTrigger. Error 0x%08x\n",ret);
@@ -448,11 +448,11 @@ INT v1724_pre_bor()
       self_trigger_mask = 0x0; // disable all channels
       for (uint32_t ichan=0; ichan<8; ichan++)
 	{
-	  if ( S_V1724_ODB[iboard].ch[ichan].self_trigger_mode == CAEN_DGTZ_TRGMODE_ACQ_ONLY ) 
+	  if ( S_V1724_ODB[iboard].ch[ichan].self_trigger_mode == CAEN_DGTZ_TRGMODE_ACQ_ONLY )
 	    self_trigger_mask |= (1 << ichan); // enable channel ichannel
 	}
       printf("self-trigger ACQ_ONLY mask: 0x%08x\n",channel_mask);
-      ret = CAEN_DGTZ_SetChannelSelfTrigger(dev_handle[iboard], CAEN_DGTZ_TRGMODE_ACQ_ONLY, self_trigger_mask); 
+      ret = CAEN_DGTZ_SetChannelSelfTrigger(dev_handle[iboard], CAEN_DGTZ_TRGMODE_ACQ_ONLY, self_trigger_mask);
       if ( ret != CAEN_DGTZ_Success )
 	{
 	  cm_msg(MERROR,"v1724_init","Cannot SetCahnngelSelfTrigger. Error 0x%08x\n",ret);
@@ -464,27 +464,27 @@ INT v1724_pre_bor()
       self_trigger_mask = 0x0; // disable all channels
       for (uint32_t ichan=0; ichan<8; ichan++)
 	{
-	  if ( S_V1724_ODB[iboard].ch[ichan].self_trigger_mode == CAEN_DGTZ_TRGMODE_EXTOUT_ONLY ) 
+	  if ( S_V1724_ODB[iboard].ch[ichan].self_trigger_mode == CAEN_DGTZ_TRGMODE_EXTOUT_ONLY )
 	    self_trigger_mask |= (1 << ichan); // enable channel ichannel
 	}
       printf("self-trigger EXTOUT_ONLY mask: 0x%08x\n",channel_mask);
-      ret = CAEN_DGTZ_SetChannelSelfTrigger(dev_handle[iboard], CAEN_DGTZ_TRGMODE_EXTOUT_ONLY, self_trigger_mask); 
+      ret = CAEN_DGTZ_SetChannelSelfTrigger(dev_handle[iboard], CAEN_DGTZ_TRGMODE_EXTOUT_ONLY, self_trigger_mask);
       if ( ret != CAEN_DGTZ_Success )
 	{
 	  cm_msg(MERROR,"v1724_init","Cannot SetCahnngelSelfTrigger. Error 0x%08x\n",ret);
 	  return FE_ERR_HW;
 	}
 
-      
+
       // CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT
       self_trigger_mask = 0x0; // disable all channels
       for (uint32_t ichan=0; ichan<8; ichan++)
 	{
-	  if ( S_V1724_ODB[iboard].ch[ichan].self_trigger_mode == CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT ) 
+	  if ( S_V1724_ODB[iboard].ch[ichan].self_trigger_mode == CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT )
 	    self_trigger_mask |= (1 << ichan); // enable channel ichannel
 	}
       printf("self-trigger ACQ_AND_EXTOUT mask: 0x%08x\n",channel_mask);
-      ret = CAEN_DGTZ_SetChannelSelfTrigger(dev_handle[iboard], CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT, self_trigger_mask); 
+      ret = CAEN_DGTZ_SetChannelSelfTrigger(dev_handle[iboard], CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT, self_trigger_mask);
       if ( ret != CAEN_DGTZ_Success )
 	{
 	  cm_msg(MERROR,"v1724_init","Cannot SetCahnngelSelfTrigger. Error 0x%08x\n",ret);
@@ -510,7 +510,7 @@ INT v1724_pre_bor()
       // Trigger threshold
       // =====================================================================================
       for (uint32_t ichan=0; ichan<8; ichan++)
-	{ 
+	{
 	  ret = CAEN_DGTZ_SetChannelTriggerThreshold(dev_handle[iboard], ichan, S_V1724_ODB[iboard].ch[ichan].trigger_threshold);
 	  if ( ret != CAEN_DGTZ_Success )
 	    {
@@ -518,7 +518,7 @@ INT v1724_pre_bor()
 	      return FE_ERR_HW;
 	    }
 	}
- 
+
 #if 0
       // =====================================================================================
       // Number of samples over threshold for trigger generation
@@ -533,7 +533,7 @@ INT v1724_pre_bor()
 	      return FE_ERR_HW;
 	    }
 	}
-#endif 
+#endif
 
 #if 1
       // =====================================================================================
@@ -560,7 +560,7 @@ INT v1724_pre_bor()
 	    }
 	}
 
-#if 0      
+#if 0
       // =====================================================================================
       // Pulse polarity
       // =====================================================================================
@@ -576,7 +576,7 @@ INT v1724_pre_bor()
 	    }
 	}
 #endif
-      
+
 #if 0
       // =====================================================================================
       // Set Zero suppresion parameters
@@ -595,7 +595,7 @@ INT v1724_pre_bor()
       // =====================================================================================
       // Zero suppresion mode
       // =====================================================================================
-      ret = CAEN_DGTZ_SetZeroSuppressionMode(dev_handle[iboard], CAEN_DGTZ_ZS_ZLE);  
+      ret = CAEN_DGTZ_SetZeroSuppressionMode(dev_handle[iboard], CAEN_DGTZ_ZS_ZLE);
       if ( ret != CAEN_DGTZ_Success )
 	{
 	  cm_msg(MERROR,"v1724_init","Cannot SetZeroSuppressionMode. Error 0x%08x\n",ret);
@@ -636,7 +636,7 @@ INT v1724_pre_bor()
 	  cm_msg(MERROR,"v1724_init","Cannot read from register 0x8000. Error 0x%08x\n",ret);
 	  return FE_ERR_HW;
 	}
-      
+
       // enable trigger overlap
       data |= (1<<1);
       printf("channel configuration register 0x8000: %0x08x\n",data);
@@ -657,7 +657,7 @@ INT v1724_eor()
 
   CAEN_DGTZ_ErrorCode ret;
   for (int iboard=0; iboard<NBOARDS; iboard++)
-    { 
+    {
 
       if ( !S_V1724_ODB[iboard].enabled ) continue;
 
@@ -686,7 +686,6 @@ INT v1724_read(char *pevent)
   // =====================================================================================
   // Fill MIDAS event
   // =====================================================================================
-  //bk_init32(pevent);
   char bk_name[80];
   char *pdata;
   for (int iboard=0; iboard<NBOARDS; iboard++)
@@ -715,7 +714,7 @@ INT v1724_read(char *pevent)
 void v1724_readout()
 {
 
-  CAEN_DGTZ_ErrorCode ret;  
+  CAEN_DGTZ_ErrorCode ret;
   for (int iboard=0; iboard<NBOARDS; iboard++)
     {
       if ( !S_V1724_ODB[iboard].enabled ) continue;
@@ -727,7 +726,7 @@ void v1724_readout()
 	{
 	  cm_msg(MERROR,"v1724_readout","Cannot read register 0x812C. Error 0x%08x\n",ret);
 	}
-      
+
       //ret = CAEN_DGTZ_ReadRegister(dev_handle[iboard], 0x814C, &rdata);
       //printf("Event size: 0x%08x ret = %i\n",rdata, ret);
 
@@ -748,8 +747,8 @@ void v1724_readout()
 	  uint32_t numEvents;
 	  CAEN_DGTZ_GetNumEvents(dev_handle[iboard],caen_data_buffer[iboard],caen_data_size,&numEvents);
 	  printf("numEvents: %i\n", numEvents);
-#endif 
-	  
+#endif
+
 	  if ( data_size[iboard] + caen_data_size < data_buffer_size[iboard] )
 	    {
 	      memcpy( (data_buffer[iboard] + data_size[iboard]), caen_data_buffer[iboard], caen_data_size);
@@ -757,7 +756,7 @@ void v1724_readout()
 	    }
 	}
     }
-  
+
 }
 
 INT v1724_poll_live()

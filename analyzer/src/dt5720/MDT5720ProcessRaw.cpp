@@ -126,26 +126,25 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent) {
     gData->fPulseIslandToChannelMap;
 
   // Clear out any previous events
-  for (std::vector<std::string>::iterator iter = bank_names.begin();
-       iter != bank_names.end(); ++iter) {
-    std::vector<TPulseIsland*>& islands = pulse_islands_map[*iter];
-    for (unsigned int i = 0; i < islands.size(); ++i) {
-      if (islands[i]) {
-	delete islands[i];
-	islands[i] = NULL;
+  for (std::map< std::string, std::vector<TPulseIsland*> >::iterator iter = pulse_islands_map.begin();
+       iter != pulse_islands_map.end(); ++iter) {
+    if (iter->first[0] == 'D' && iter->first[1] == '5') {
+      std::vector<TPulseIsland*>& islands = iter->second;
+      for (int i = 0; i < islands.size(); ++i) {
+        if (islands[i]) {
+        	delete islands[i];
+        	islands[i] = NULL;
+        }
       }
       islands.clear();
     }
   }
 
-  // Get the event number
-  BYTE *pdata;
-
-  //  printf("In caen ER!\n");
+  BYTE* pdata;
 
   char bank_name[8];
   sprintf(bank_name,"CND%i",0); // one MIDAS bank per board
-  unsigned int bank_len = bk_locate(pevent, bank_name, &pdata);
+  int bank_len = bk_locate(pevent, bank_name, &pdata);
 
   INT ret = SUCCESS;
   if (bank_len > 0) {

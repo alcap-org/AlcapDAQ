@@ -64,7 +64,7 @@ private:
   Header ProcessHeader(uint32_t* data);
 
   bool processed_;
-  bool error_;
+  bool boardfail_;
   bool channel_enableds_[kNChan];
   DT5720ChannelData channel_data_[kNChan];
 };

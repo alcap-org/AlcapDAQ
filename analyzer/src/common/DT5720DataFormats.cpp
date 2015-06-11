@@ -19,6 +19,7 @@ int DT5720ChannelData::Process(uint32_t* data) {
   if (processed_) {
     printf("DT5720 Error: Channel already processed!\n");
   }
+  processed_ = true;
   Header header = ProcessHeader(data);
   if (!header.format_en) {
     printf("DT5720 Error: Missing format string in data.\n");
@@ -60,6 +61,11 @@ int DT5720ChannelData::Process(uint32_t* data) {
     if (header.baseline_en) ++data, ++nwords_processed;
     if (header.charge_en) ++data, ++nwords_processed;
   }
+  if (header.nwords != nwords_processed) {
+    printf("DT5720 Error: Channel processed %d words, expected %d words.\n",
+           nwords_processed, header.nwords);
+    return -1;
+  }
   return nwords_processed;
 }
 
@@ -85,7 +91,7 @@ DT5720ChannelData::Header DT5720ChannelData::ProcessHeader(uint32_t* data) {
   return header;
 }
 
-DT5720BoardData::DT5720BoardData() : processed_(false), error_(false) {
+DT5720BoardData::DT5720BoardData() : processed_(false), boardfail_(false) {
   for (int i = 0; i < kNChan; ++i) {
     channel_enableds_[i] = false;
     channel_data_[i] = DT5720ChannelData();
@@ -96,10 +102,18 @@ struct DT5720BoardData::Header {
   const static int header_size = 4;
   int nwords;
   int n_channel_data;
+  int board_id;
 };
 
 int DT5720BoardData::Process(uint32_t* data) {
+  if (processed_) {
+    printf("DT5720 Error: Board already processed!\n");
+    return -1;
+  }
   const Header header = ProcessHeader(data);
+  if (boardfail_)
+    printf("DT5720 Error: Board fail bit set! Continuing processing...\n");
+
   data += Header::header_size;
   int nwords_processed = Header::header_size;
   for (int ich = 0; ich < kNChan; ++ich) {
@@ -111,7 +125,8 @@ int DT5720BoardData::Process(uint32_t* data) {
     }
   }
   if (header.nwords != nwords_processed) {
-    printf("DT5720 Error: Expected %d words, processed %d words!\n", header.nwords, nwords_processed);
+    printf("DT5720 Error: Board processed %d words, expected %d words!\n",
+           nwords_processed, header.nwords);
     return -1;
   }
   return nwords_processed;
@@ -121,6 +136,8 @@ DT5720BoardData::Header DT5720BoardData::ProcessHeader(uint32_t* data) {
   Header header = {0};
   header.nwords = data[0] & 0x0FFFFFFF;
   const int channel_mask = data[1] & 0xF;
+  boardfail_ = data[1]>>26 & 1;
+  header.board_id = data[1]>>27 & 0xF;
   header.n_channel_data = 0;
   for (int i = 0; i < kNChan; ++i) {
     channel_enableds_[i] = channel_mask & 1 << i;

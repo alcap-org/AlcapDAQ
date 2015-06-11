@@ -13,15 +13,15 @@ V1724_Heights v1724/v1724_heights.C
 V1724_Times v1724/v1724_times.C
 V1724_Shapes v1724/v1724_shapes.C
 
-DT5720_Heights dt5720/dt5720_heights.C
-DT5720_Times dt5720/dt5720_times.C
-DT5720_Shapes dt5720/dt5720_shapes.C
+V1720_Heights v1720/v1720_heights.C
+V1720_Times v1720/v1720_times.C
+V1720_Shapes v1720/v1720_shapes.C
 
 DT5730_Heights dt5730/dt5730_heights.C
 DT5730_Times dt5730/dt5730_times.C
 DT5730_Shapes dt5730/dt5730_shapes.C
 
-CAEN_WFD_Errors caen_wfd/caen_wfd_errors.C
+WFD_Errors caen_wfd/caen_wfd_errors.C
 
 
 #

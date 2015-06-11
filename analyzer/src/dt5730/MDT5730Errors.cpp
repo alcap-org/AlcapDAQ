@@ -41,13 +41,19 @@ ANA_MODULE MDT5730Errors_module =
 
 enum BOARDERROR {
   PLL_LOSS = 1,
-  BOARD_FULL = 2
+  BOARD_FULL = 2,
+  INTERNAL_TIMEOUT = 3,
+  OVER_TEMPERATURE = 4,
+  NO_ADC_POWER = 5
 };
 
 INT MDT5730Errors_init() {
-  hDT5730Errors = new TH1I("hDT5730Errors", "Errors in DT5730", 2, 0., 2.);
+  hDT5730Errors = new TH1I("hDT5730Errors", "Errors in DT5730", 5, 0., 5.);
   hDT5730Errors->GetXaxis()->SetBinLabel(PLL_LOSS, "PLL Loss");
   hDT5730Errors->GetXaxis()->SetBinLabel(BOARD_FULL, "Board Full");
+  hDT5730Errors->GetXaxis()->SetBinLabel(INTERNAL_TIMEOUT, "Internal Communication Timeout");
+  hDT5730Errors->GetXaxis()->SetBinLabel(OVER_TEMPERATURE, "Over Temperature");
+  hDT5730Errors->GetXaxis()->SetBinLabel(NO_ADC_POWER, "No ADC Power (Hot)");
   hDT5730Errors->GetYaxis()->SetTitle("Occurences in Run");
   return SUCCESS;
 }
@@ -66,6 +72,14 @@ INT MDT5730Errors(EVENT_HEADER *pheader, void *pevent) {
       hDT5730Errors->Fill(PLL_LOSS);
     if (pdata[1])
       hDT5730Errors->Fill(BOARD_FULL);
+    if (bank_len > 2) {
+      if (pdata[2])
+        hDT5730Errors->Fill(INTERNAL_TIMEOUT);
+      if (pdata[3])
+        hDT5730Errors->Fill(OVER_TEMPERATURE);
+      if (pdata[4])
+        hDT5730Errors->Fill(NO_ADC_POWER);
+    }
   }
   return SUCCESS;
 }

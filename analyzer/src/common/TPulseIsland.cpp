@@ -60,7 +60,7 @@ double TPulseIsland::GetSlowPulseAmplitude() const {
 }
 
 double TPulseIsland::GetPulseHeight() const {
-  
+
   double pedestal = GetPedestal(10);
   int peak_sample_element = GetPeakSample();
 
@@ -69,7 +69,7 @@ double TPulseIsland::GetPulseHeight() const {
 
 double TPulseIsland::GetPulseTime() const {
 
-  return (fTimeStamp + GetPeakSample()) * GetClockTickInNs();
+  return fTimeStamp * GetClockTickInNs();
 }
 
 // GetPulseWaveform()
