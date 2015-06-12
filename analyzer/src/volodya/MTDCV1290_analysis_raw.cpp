@@ -122,6 +122,7 @@ INT MTDCV1290_analysis_raw_bor(INT run_number) {
  */
 INT MTDCV1290_analysis_raw(EVENT_HEADER *pheader, void *pevent) {
 
+  //printf("MTDCV1290_analysis_raw(): event %06i ==================================== \n",pheader->serial_number);
 
   std::map< std::string, std::vector<int64_t> >& tdc_map = gData->fTDCHitsToChannelMap;
 
@@ -133,6 +134,8 @@ INT MTDCV1290_analysis_raw(EVENT_HEADER *pheader, void *pevent) {
       //std::string detname = gSetup->GetDetectorName(bankname);
       std::vector<int64_t> theHits = theMapIter->second;
       
+      //std::cout << "TDC bank [" << bankname << "] : " << theHits.size() << " events " << std::endl;
+      //if ( bankname == "T401" )
       //std::cout << "TDC bank [" << bankname << "] : " << theHits.size() << " events " << std::endl;
 
       if ( gr_nhits_map[bankname] )
@@ -148,21 +151,18 @@ INT MTDCV1290_analysis_raw(EVENT_HEADER *pheader, void *pevent) {
 	    }
 	}
 
-
       if ( h1_autocorr_map[bankname] ) 
 	{    
-	  for (unsigned int i=0; i<theHits.size(); i++ )
+	  for (int i=0; i<int(theHits.size())-1; i++ )
 	    {
 	      int64_t t_i = theHits[i];
-	      for ( unsigned int j=i+1; j<theHits.size(); j++)
-		{
-		  int64_t t_j = theHits[j];
-		  h1_autocorr_map[bankname]->Fill(t_j-t_i); 
-		  break;
-		}
+	      int64_t t_j = theHits[i+1];
+	      h1_autocorr_map[bankname]->Fill(t_j-t_i); 
+	      //Int_t np = gr_nhits_map[bankname]->GetN();
+	      //gr_nhits_map[bankname]->SetPoint(np, np, t_j - t_i );
 	    }
-
 	}
+
 
       // Loop over the TPulseIslands and plot the histogram
       //for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
