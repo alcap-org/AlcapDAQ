@@ -28,10 +28,6 @@ Contents:     A module to fill a histogram of the pulse lengths from each channe
 #include "TSetupData.h"
 #include "TPulseIsland.h"
 
-using std::string;
-using std::map;
-using std::vector;
-using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
 INT  MPulseLengths_init(void);
@@ -42,9 +38,11 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-static vector<TOctalFADCBankReader*> fadc_bank_readers;
-static TH2I* average_length_histogram;
-map <std::string, TH1I*> length_histograms_map;
+static const int NCHANV1724 = 8;
+static const int NCHANDT5730 = 8;
+static const int NCHANV1720 = 8;
+
+static std::vector<TH1I*> hvPulseLengths;
 
 ANA_MODULE MPulseLengths_module =
 {
@@ -62,14 +60,16 @@ ANA_MODULE MPulseLengths_module =
 
 /** This method initializes histograms.
 */
-INT MPulseLengths_init()
-{
-  // This histogram has the pulse lengths on the X-axis and the number of pulses on the Y-axis
-  // One histogram is created for each detector
-  
-  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
-  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
-      mapIter != bank_to_detector_map.end(); mapIter++) { 
+INT MPulseLengths_init() {
+
+  int ihist = 0;
+  for (int ich = 0; ich < NCHANV1720; ++ich, ++ihist) {
+    char name[32]; sprintf("hPulseLengths_D8%02d", ich);
+    char title[32]; sprintf("PulseLengths ")
+  }
+
+  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin();
+      mapIter != bank_to_detector_map.end(); mapIter++) {
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
@@ -82,13 +82,6 @@ INT MPulseLengths_init()
 
     length_histograms_map[bankname] = hDetLengths;
   }
-
-  std::string histname = "hAvgPulseLengthsPerChannel";
-  std::string histtitle = "Plot of the average pulse lengths per event for the each channel";
-  average_length_histogram = new TH2I(histname.c_str(), histtitle.c_str(), 1,0,1, 5000,0,5000);
-  average_length_histogram->GetXaxis()->SetTitle("Bank Name");
-  average_length_histogram->GetYaxis()->SetTitle("MIDAS Event Number");
-  average_length_histogram->SetBit(TH1::kCanRebin);
 
   return SUCCESS;
 }
@@ -112,11 +105,11 @@ INT MPulseLengths(EVENT_HEADER *pheader, void *pevent)
 		gData->fPulseIslandToChannelMap;
 
 	// Loop over the map and get each bankname, vector pair
-	for (map_iterator theMapIter = pulse_islands_map.begin(); theMapIter != pulse_islands_map.end(); theMapIter++) 
+	for (map_iterator theMapIter = pulse_islands_map.begin(); theMapIter != pulse_islands_map.end(); theMapIter++)
 	{
 	  std::string bankname = theMapIter->first;
 	  std::vector<TPulseIsland*> thePulses = theMapIter->second;
-	  
+
 	  if (thePulses.size() != 0) {
 	    // Loop over the TPulseIslands and plot the histogram
 	    double total_length_of_pulses = 0;

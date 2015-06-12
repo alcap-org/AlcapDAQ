@@ -30,6 +30,7 @@ int TSetupData::GetNBits(const std::string& bk)const{
     if      (bk[1] == '4') return 14;
     else if (bk[1] == '5') return 12;
     else if (bk[1] == '7') return 14;
+    else if (bk[1] == '8') return 12;
   } else if (bk[0] == 'C') { // Old CAEN digitizer bank names
     if      (bk[2] == 'U') return 14;
     else if (bk[2] == 'B') return 12;

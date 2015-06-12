@@ -35,6 +35,9 @@ typedef struct caen_digi_status
   BOOL pll_bypass;
   BOOL pll_lost;
   BOOL board_ready;
+  BOOL internal_comm_to;
+  BOOL over_temperature;
+  BOOL no_power;
 } caen_digi_status;
 
 static int openUSBDriver(int *file_handle,int dtNum)
@@ -96,32 +99,43 @@ int simulate_power_cycle(int dtNum)
 
 // // Check board status
 caen_digi_status caen_digi_get_status(int handle) {
+  caen_digi_status ds;
   uint32_t data;
   CAEN_DGTZ_ReadRegister(handle, CAEN_DGTZ_ACQ_STATUS_ADD, &data);
   /*
-     8-bit Acquisition Status Register
-     Register is reflected on front panel LEDs
-     0: Reserved
-     1: Reserved
-     2: 1 if RUN ON
-     3: 1 if event is ready to be read out
-     4: 1 if maximum number of events currently on board
-     5: 1 if using external clock
-     6: 1 if PLL circuitry being bypassed, 1 if PLL is being used
-     7: 1 if no loss of PLL lock since last read
-     8: 1 if board ready for data taking
-   */
-   caen_digi_status ds;
-   ds.run_active  = (BOOL)((data >>= 2) & 1);
-   ds.evt_ready   = (BOOL)((data >>= 1) & 1);
-   ds.board_full  = (BOOL)((data >>= 1) & 1);
-   ds.ext_clock   = (BOOL)((data >>= 1) & 1);
-   ds.pll_bypass  = (BOOL)((data >>= 1) & 1);
-   ds.pll_lost    = !((BOOL)((data >>= 1) & 1));
-   ds.board_ready = (BOOL)((data >>= 1) & 1);
+    8-bit Acquisition Status Register
+    Register is reflected on front panel LEDs
+    0: Reserved
+    1: Reserved
+    2: 1 if RUN ON
+    3: 1 if event is ready to be read out
+    4: 1 if maximum number of events currently on board
+    5: 1 if using external clock
+    6: 1 if PLL circuitry being bypassed, 1 if PLL is being used
+    7: 1 if no loss of PLL lock since last read
+    8: 1 if board ready for data taking
+  */
+  ds.run_active  = (BOOL)((data >>= 2) & 1);
+  ds.evt_ready   = (BOOL)((data >>= 1) & 1);
+  ds.board_full  = (BOOL)((data >>= 1) & 1);
+  ds.ext_clock   = (BOOL)((data >>= 1) & 1);
+  ds.pll_bypass  = (BOOL)((data >>= 1) & 1);
+  ds.pll_lost    = !((BOOL)((data >>= 1) & 1));
+  ds.board_ready = (BOOL)((data >>= 1) & 1);
 
-   return ds;
- }
+  CAEN_DGTZ_ReadRegister(handle, 0x8178, &data);
+  /*
+    Fail Status Register
+    0-3: Internal communication timeout
+    4:   PLL lock loss (taken care of above)
+    5:   Temperature failure
+    6:   ADC power down due to temperature failure
+  */
+  ds.internal_comm_to = (BOOL)(data & 1);
+  ds.over_temperature = (BOOL)((data >>= 5) & 1);
+  ds.no_power         = (BOOL)((data >>= 1) & 1);
+  return ds;
+}
 
 #endif // Include guard
 

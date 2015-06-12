@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \defgroup MV1724ProcessRaw
+/// \defgroup MV1720ProcessRaw
 /// \ingroup process_raw
 /// \author Volodya Tishchenko
 /// \author Joe Grange
@@ -37,8 +37,8 @@ using std::vector;
 using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
-static INT  module_init(void);
-static INT  module_event_caen(EVENT_HEADER*, void*);
+static INT  MV1720ProcessRaw_init(void);
+static INT  MV1720ProcessRaw_event(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -55,18 +55,18 @@ static vector<string> bank_names;
 /// from those.
 static unsigned int nPreSamples;
 /// \brief
-/// Number of channels in V1724.
+/// Number of channels in V1720.
 static const int NCHAN = 8;
 
 
-ANA_MODULE MV1724ProcessRaw_module =
+ANA_MODULE MV1720ProcessRaw_module =
 {
-  "MV1724ProcessRaw",            /* module name           */
+  "MV1720ProcessRaw",            /* module name           */
   "Vladimir Tishchenko",         /* author                */
-  module_event_caen,                  /* event routine         */
+  MV1720ProcessRaw_event,        /* event routine         */
   NULL,                          /* BOR routine           */
   NULL,                          /* EOR routine           */
-  module_init,                   /* init routine          */
+  MV1720ProcessRaw_init,         /* init routine          */
   NULL,                          /* exit routine          */
   NULL,                          /* parameter structure   */
   0,                             /* structure size        */
@@ -74,7 +74,7 @@ ANA_MODULE MV1724ProcessRaw_module =
 };
 
 /*--module init routine --------------------------------------------*/
-INT module_init()
+INT MV1720ProcessRaw_init()
 {
 
   std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
@@ -84,18 +84,18 @@ INT module_init()
     std::string bankname = mapIter->first;
 
     // We only want the CAEN banks here
-    if (TSetupData::IsWFD(bankname) && bankname[1] == '4')
+    if (TSetupData::IsWFD(bankname) && bankname[1] == '8')
       bank_names.push_back(bankname);
   }
 
   /*** Get necessary data from ODB ***/
   char key[80];
   int size;
-  unsigned int post_trigger_percentage, nSamples;
+  DWORD post_trigger_percentage, nSamples;
 
   // Get Trigger Time Tag info
   // Timestamp will be shifted by number of presamples
-  sprintf(key, "/Equipment/Crate 4/Settings/CAEN0/waveform length");
+  sprintf(key, "/Equipment/Crate 8/Settings/CAEN0/Waveform length");
   size = sizeof(nSamples);
   db_get_value(hDB, 0, key, &nSamples, &size, TID_DWORD, 1);
   post_trigger_percentage = 80; // This is hardcoded in the frontend
@@ -105,7 +105,7 @@ INT module_init()
 }
 
 /*-- module event routine -----------------------------------------*/
-INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
+INT MV1720ProcessRaw_event(EVENT_HEADER *pheader, void *pevent)
 {
   //printf("===================> %s MIDAS event %i\n",__FILE__,pheader->serial_number);
 
@@ -117,7 +117,7 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
   // Clear out any previous events
   for (std::map< std::string, std::vector<TPulseIsland*> >::iterator iter = pulse_islands_map.begin();
        iter != pulse_islands_map.end(); ++iter) {
-    if (iter->first[0] == 'D' && iter->first[1] == '4') {
+    if (iter->first[0] == 'D' && iter->first[1] == '8') {
       std::vector<TPulseIsland*>& islands = iter->second;
       for (int i = 0; i < islands.size(); ++i) {
         if (islands[i]) {
@@ -126,7 +126,6 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
         }
       }
       islands.clear();
-      //}
     }
   }
 
@@ -138,7 +137,7 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
   //  printf("In caen ER!\n");
 
   char bank_name[8];
-  sprintf(bank_name,"CDG%i",0); // one MIDAS bank per board
+  sprintf(bank_name,"D8B%i", 0); // one MIDAS bank per board
   unsigned int bank_len = bk_locate(pevent, bank_name, &pdata);
 
 
@@ -167,7 +166,8 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
     uint32_t caen_event_counter = p32[2] & 0x00FFFFFF;
     //      printf("caen event counter: %i\n",caen_event_counter);
 
-    uint32_t caen_trigger_time = p32[3];
+    //
+    uint32_t caen_trigger_time = 2*p32[3];
     //      printf("caen trigger time: %i\n",caen_trigger_time);// = clock ticks?
 
     // number of samples per channel
@@ -185,11 +185,11 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
     		for (int isubword=0; isubword<2; isubword++) {
   		    uint32_t adc;
   		    if (isubword == 0)
-  		      adc = (p32[4+iword+iprocchan*nwords] & 0x3fff);
+  		      adc = (p32[4+iword+iprocchan*nwords] & 0x0FFF);
   		    else
-  		      adc = ((p32[4+iword+iprocchan*nwords] >> 16) & 0x3fff);
-  		    //printf("CAEN V1724 channel %d: adc[%i] = %i\n", ichannel, isample, adc);
-    	    //		    h2_v1724_pulses[ichannel]->Fill(isample,adc);
+  		      adc = ((p32[4+iword+iprocchan*nwords] >> 16) & 0x0FFF);
+  		    //printf("CAEN V1720 channel %d: adc[%i] = %i\n", ichannel, isample, adc);
+    	    //		    h2_v1720_pulses[ichannel]->Fill(isample,adc);
   		    isample++;
   		    sample_vector.push_back(adc);
         }
@@ -197,7 +197,7 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
       ++iprocchan;
 
       char bankname[5];
-      sprintf(bankname, "D4%02d", ich);
+      sprintf(bankname, "D8%02d", ich);
       std::vector<TPulseIsland*>& pulse_islands = pulse_islands_map[bankname];
 	    pulse_islands.push_back(new TPulseIsland(caen_trigger_time - nPreSamples,
                                                sample_vector, bankname));
@@ -207,6 +207,14 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
     p32 += caen_event_size + (caen_event_size%2);
     //      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
   }
+
+
+  for (int ich = 0; ich < 4; ++ich) {
+    char bankname[5];
+    sprintf(bankname, "D8%02d", ich);
+    printf("V1720 Info: Processed %i pulses in channel %d.\n", pulse_islands_map[bankname].size(), ich);
+  }
+
 
   // print for testing
   if(midas_event_number == 1) {

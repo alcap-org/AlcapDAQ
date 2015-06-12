@@ -302,6 +302,9 @@ INT dt5730_eor() {
 }
 
 INT dt5730_read(char *pevent) {
+  // Check if board full or loss of PLL lock
+  // Must do before readout to get more accurate board full status.
+  caen_digi_status ds = caen_digi_get_status(dev_handle);
 
 #if 0
   // Added by VT
@@ -324,8 +327,6 @@ INT dt5730_read(char *pevent) {
   printf("Reading remaning data\n");
   dt5730_readout();
 
-  // Check if board full or loss of PLL lock
-  caen_digi_status ds = caen_digi_get_status(dev_handle);
 
   // ===========================================================================
   // Fill MIDAS event
@@ -343,6 +344,7 @@ INT dt5730_read(char *pevent) {
   memcpy(pdata, data_buffer, data_size);
   pdata += data_size;
   bk_close(pevent, pdata);
+  printf("data size: %i bytes\n",data_size);
   data_size = 0;
 
   // ===========================================================================
@@ -350,14 +352,11 @@ INT dt5730_read(char *pevent) {
   // ===========================================================================
   sprintf(bk_name, "CNS1");
   bk_create(pevent, bk_name, TID_BYTE, &pdata);
-#if 0
-  // modified by VT
-  memcpy(pdata++, &pll_lost, 1);
-  memcpy(pdata++, &board_full, 1);
-#endif
   memcpy(pdata++, &(ds.pll_lost), sizeof(ds.pll_lost));
   memcpy(pdata++, &(ds.board_full), sizeof(ds.board_full));
-  //pll_lost = board_full = FALSE;
+  memcpy(pdata++, &(ds.internal_comm_to), sizeof(ds.internal_comm_to));
+  memcpy(pdata++, &(ds.over_temperature), sizeof(ds.over_temperature));
+  memcpy(pdata++, &(ds.no_power), sizeof(ds.no_power));
   bk_close(pevent, pdata);
 
 #if 0
@@ -393,7 +392,7 @@ BOOL dt5730_readout() {
 
   /* If there's data, copy from digitizers local buffer to different local buffer */
   if(caen_data_size > 0) {
-    printf("data size: %i\n", caen_data_size);
+    //printf("data size: %i\n", caen_data_size);
     if(data_size+caen_data_size < data_buffer_size ) {
       memcpy((data_buffer+data_size), caen_data_buffer, caen_data_size);
       data_size += caen_data_size;

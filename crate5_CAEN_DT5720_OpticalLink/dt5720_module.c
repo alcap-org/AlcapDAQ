@@ -223,7 +223,7 @@ INT dt5720_bor() {
   if(is_caen_error(ret, __LINE__, "dt5720_bor")) return FE_ERR_HW;
   printf("Allocated %i bytes for CAEN data buffer\n", caen_data_buffer_size);
 
-  data_size = 0;  
+  data_size = 0;
 
 #if 0
   // Modified by VT 06/03/2015:
@@ -258,7 +258,7 @@ INT dt5720_bor() {
   return SUCCESS;
 }
 
-INT dt5720_eor() 
+INT dt5720_eor()
 {
   CAEN_DGTZ_ErrorCode ret;
 
@@ -281,7 +281,9 @@ INT dt5720_eor()
 }
 
 INT dt5720_read(char *pevent) {
-
+  // Check if board full or loss of PLL lock
+  // Must do before readout to get more accurate board full status
+  caen_digi_status ds = caen_digi_get_status(dev_handle);
 
   // ===========================================================================
   // Read out remaining data from the digitizer
@@ -293,6 +295,8 @@ INT dt5720_read(char *pevent) {
   // The SW Acq bit must be set/unset even for external gate control (S_IN via GPI)
   ret = CAEN_DGTZ_SWStopAcquisition(dev_handle);
   is_caen_error(ret, __LINE__, "dt5720_read");
+  ret = CAEN_DGTZ_SetAcquisitionMode(dev_handle,CAEN_DGTZ_S_IN_CONTROLLED);
+  is_caen_error(ret, __LINE__, "dt5720_read");
 #endif
   dt5720_readout();
 
@@ -303,10 +307,7 @@ INT dt5720_read(char *pevent) {
   printf("Reading remaning data\n");
   dt5720_readout();
 
-  
-  // Check if board full or loss of PLL lock
-  caen_digi_status ds = caen_digi_get_status(dev_handle);
-  
+
   // ===========================================================================
   // Fill MIDAS event
   // ===========================================================================
@@ -332,6 +333,9 @@ INT dt5720_read(char *pevent) {
   bk_create(pevent, bk_name, TID_BYTE, &pdata);
   memcpy(pdata++, &(ds.pll_lost), sizeof(ds.pll_lost));
   memcpy(pdata++, &(ds.board_full), sizeof(ds.board_full));
+  memcpy(pdata++, &(ds.internal_comm_to), sizeof(ds.internal_comm_to));
+  memcpy(pdata++, &(ds.over_temperature), sizeof(ds.over_temperature));
+  memcpy(pdata++, &(ds.no_power), sizeof(ds.no_power));
   bk_close(pevent, pdata);
 
 
@@ -371,7 +375,7 @@ BOOL dt5720_readout() {
   return TRUE;
 }
 
-INT dt5720_poll_live() 
+INT dt5720_poll_live()
 {
   if(!dt5720_readout()) return FE_ERR_HW;
 
@@ -544,7 +548,7 @@ BOOL dt5720_update_digitizer_dpp() {
   CAEN_DGTZ_DPP_CI_Params_t DPPParams = {0};
 
   const uint32_t channel_mask = 0xF;
-  
+
   // ===========================================================================
   // Channel configuration set bit 0x8004=CAEN_DGTZ_BROAD_CH_CONFIGBIT_SET_ADD
   // ===========================================================================
@@ -627,8 +631,10 @@ BOOL dt5720_update_digitizer_dpp() {
   //ret = CAEN_DGTZ_SetDPP_PSD_VirtualProbe(dev_handle, CAEN_DGTZ_DPP_VIRTUALPROBE_SINGLE, CAEN_DGTZ_DPP_PSD_VIRTUALPROBE_Baseline, CAEN_DGTZ_DPP_PSD_DIGITALPROBE1_R6_GateLong, CAEN_DGTZ_DPP_PSD_DIGITALPROBE2_R6_OverThr);
   //if(is_caen_error(ret, __LINE__, "dt5730_update_digitizer_dpp")) return false;
 
+#if 1
   ret = CAEN_DGTZ_SetRunSynchronizationMode(dev_handle, CAEN_DGTZ_RUN_SYNC_Disabled);
   if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_dpp")) return false;
+#endif
 
   // Added by VT on 06/05/2015
   // ReConfigure Acquisition mode because the above SetRunSynchronizationMode

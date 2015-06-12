@@ -1,22 +1,11 @@
-#common/MUnCompressRawData
-
-#FADC/MOctalFADCProcessRaw
+v1720/MV1720ProcessRaw
 v1724/MV1724ProcessRaw
-dt5720/MDT5720ProcessRaw
 dt5730/MDT5730ProcessRaw
 v1290/MV1290ProcessRaw
 
-# muSC_muPC/MCaenCompProcessRaw
-# muSC_muPC/MMuPC1AnalysisC
-# muSC_muPC/MMuPC1AnalysisMQL
-# muSC_muPC/MMuSCAnalysisMQL
-
-# FADC/MOctalFADCBufferOverflow
-# FADC/MOctalFADCPacketLoss
+dt5730/MDT5730Errors
 
 diagnostics/MCommonOnlineDisplayPlots
-# common/MMuSCTimeDifferences
-
 vacuum/MVacuumHisto
 
 # common/MTreeOutput
