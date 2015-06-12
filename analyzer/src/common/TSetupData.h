@@ -166,6 +166,11 @@ class TSetupData : public TObject{
 
   bool IsEnable(const std::string& BankName){return GetEnableBit(BankName);}
 
+  bool IsNeutron(const std::string& DetName) {
+    return (DetName == "NDet1" || DetName == "NDet2");
+  }
+
+
 private:
   // A small helper function to save us copying this about the place
   // all the time
