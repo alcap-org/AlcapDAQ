@@ -102,7 +102,7 @@ INT MDQ_IntegralRatio_init()
 
       std::string histname = "h" + bankname + "_DQ_IntegralRatio";
       std::string histtitle = "Long Integral vs Short Integral for " + bankname;
-      TH2D* hDQ_integralhist = new TH2D(histname.c_str(), histtitle.c_str(), 500, 200000, 600000, 500, 100000, 400000);
+      TH2D* hDQ_integralhist = new TH2D(histname.c_str(), histtitle.c_str(), 500, 2000, 100000, 500, 50, 8000);
       hDQ_integralhist->GetXaxis()->SetTitle("Long Integral (ADC counts)");
       hDQ_integralhist->GetYaxis()->SetTitle("Short Integral (ADC counts)");
       DQ_IntegralRatio_XY[bankname] = hDQ_integralhist;
@@ -111,9 +111,9 @@ INT MDQ_IntegralRatio_init()
 
       histname = "h" + bankname + "_DQ_IntegralRatio_PH";
       histtitle = "Integral Ratio vs pulse height for " + bankname;
-      TH2F* hDQ_integralPH = new TH2F(histname.c_str(), histtitle.c_str(), max_adc_value/8, 0, max_adc_value, 500, 0, 0.6);
-      hDQ_integralPH->GetXaxis()->SetTitle("Long Integral (ADC counts)");
-      hDQ_integralPH->GetYaxis()->SetTitle("Short Integral (ADC counts)");
+      TH2F* hDQ_integralPH = new TH2F(histname.c_str(), histtitle.c_str(), max_adc_value/8, 0, max_adc_value, 500, 0, 0.4);
+      hDQ_integralPH->GetYaxis()->SetTitle("Integral Ratio");
+      hDQ_integralPH->GetXaxis()->SetTitle("pulse height (ADC counts)");
       DQ_IntegralRatio_PH[bankname] = hDQ_integralPH;
 
 
@@ -162,47 +162,52 @@ INT MDQ_IntegralRatio(EVENT_HEADER *pheader, void *pevent)
 	  //get pulse samples
 	  const std::vector<int>& samples = (*pIter)->GetSamples();
 	  
-	  int trigger_polarity = -1;
+	  int trigger_polarity = gSetup->GetTriggerPolarity(bankname);
 	  std::vector<int>::const_iterator pulse_time;
 	  trigger_polarity == 1 ? pulse_time = std::max_element(samples.begin(), samples.end()) : pulse_time = std::min_element(samples.begin(), samples.end());
+
 	  /*
 	  int max_sample = (*pIter)->GetPeakSample();;
 	  int pulse_time = max_sample;
 	  */
-	  int max_sample = pulse_time - samples.begin();
-	  int pulse_height = samples.at(max_sample);
+	  int max_sample = std::distance(samples.begin(), pulse_time);
+	  int pedestal = (*pIter)->GetPedestal(16);
+	  int pulse_height = trigger_polarity * (samples.at(max_sample) - pedestal);
+
+	  //std::cout << pulse_height << std::endl;
 
 	  //Get clock tick and determine cut times
 	  double clock_tick = (*pIter)->GetClockTickInNs();
-	  int tLstart = max_sample - (20/clock_tick);
-	  int tSstart = max_sample + (35/clock_tick);
-	  int tstop = max_sample + (150/clock_tick);
+	  int tLstart = max_sample - 5;
+	  int tSstart = max_sample + 9;
+	  int tstop = max_sample + 80;
 
 	  //integrate and get ratio
-
 	  double lInt = 0, sInt=0;
 	  for(std::vector<int>::const_iterator sIter = samples.begin(); sIter != samples.end(); ++sIter)
 	    {
 	      if((std::distance(samples.begin(), sIter) > tLstart) && (std::distance(samples.begin(), sIter) < tstop))
 		{
-		  lInt += (*sIter);
+		  lInt += trigger_polarity*((*sIter)- pedestal);
 		  if(std::distance(samples.begin(), sIter) > tSstart)
-		    sInt += (*sIter);
+		    sInt += trigger_polarity*((*sIter)- pedestal);
 		}
+	   
 	    }
 
 	  double ratio = sInt/lInt;
+	  //std::cout << "long integral " << lInt << "    short integral " << sInt << "    ratio " << ratio << std::endl;
 
 	  //determine amplitude from pulse heights.  to be added later.
 
 	  //fill hists
 	  DQ_IntegralRatio_XY[bankname]->Fill(lInt, sInt);
-	  DQ_IntegralRatio_PH[bankname]->Fill(ratio, pulse_height);
+	  DQ_IntegralRatio_PH[bankname]->Fill(pulse_height, ratio);
 
-	  if(ratio < 0.5 && ratio > 0.25)
-	    DQ_Neutron[bankname]->Fill(pulse_height);
-	  else if(ratio < 0.2 && ratio > 0.10)
+	  if(((detname == "NdetD") && (ratio < 0.06)) || ((detname == "NdetU") && (ratio < 0.1)))
 	    DQ_Gamma[bankname]->Fill(pulse_height);
+	  else if(((detname == "NdetD")&&(ratio < 0.2 && ratio > 0.10))||((detname == "NdetU") && (ratio <0.3 && ratio > 0.1)))
+	    DQ_Neutron[bankname]->Fill(pulse_height);
 	}// pIter
     }//mIter
   
