@@ -111,15 +111,20 @@ INT MDQ_IntegralRatio_init()
 
       histname = "h" + bankname + "_DQ_IntegralRatio_PH";
       histtitle = "Integral Ratio vs pulse height for " + bankname;
-      TH2F* hDQ_integralPH = new TH2F(histname.c_str(), histtitle.c_str(), max_adc_value/8, 0, max_adc_value, 500, 0, 0.4);
+      TH2F* hDQ_integralPH = new TH2F(histname.c_str(), histtitle.c_str(), max_adc_value/8, 0, max_adc_value, 500, -0, 0.4);
       hDQ_integralPH->GetYaxis()->SetTitle("Integral Ratio");
       hDQ_integralPH->GetXaxis()->SetTitle("pulse height (ADC counts)");
       DQ_IntegralRatio_PH[bankname] = hDQ_integralPH;
 
+      int max_energy;
+      if(detname == "NdetD")
+	max_energy = (max_adc_value+1) * 0.0003999;
+      if(detname == "NdetU")
+	max_energy = (max_adc_value+1) * 0.0004015;
 
       histname = "h" + bankname + "_DQ_Neutron";
       histtitle = "Neutron Pulse Heights for " + bankname;
-      TH1F* hDQ_neutron = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value, 0, max_adc_value);
+      TH1F* hDQ_neutron = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value, 0, max_energy);
       hDQ_neutron->GetXaxis()->SetTitle("Pulse Height (ADC counts)");
       hDQ_neutron->GetYaxis()->SetTitle("count");
       DQ_Neutron[bankname] = hDQ_neutron;
@@ -127,7 +132,7 @@ INT MDQ_IntegralRatio_init()
 
       histname = "h" + bankname + "_DQ_Gamma";
       histtitle = "Gamma Pulse Heights for " + bankname;
-      TH1F* hDQ_gamma = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value, 0, max_adc_value);
+      TH1F* hDQ_gamma = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value, 0, max_energy);
       hDQ_gamma->GetXaxis()->SetTitle("Pulse Height (ADC counts)");
       hDQ_gamma->GetYaxis()->SetTitle("count");
       DQ_Gamma[bankname] = hDQ_gamma;
@@ -172,12 +177,16 @@ INT MDQ_IntegralRatio(EVENT_HEADER *pheader, void *pevent)
 	  */
 	  int max_sample = std::distance(samples.begin(), pulse_time);
 	  int pedestal = (*pIter)->GetPedestal(16);
+
+	  if(samples.at(max_sample) == 0)
+	     continue;
+
 	  int pulse_height = trigger_polarity * (samples.at(max_sample) - pedestal);
 
 	  //std::cout << pulse_height << std::endl;
 
 	  //Get clock tick and determine cut times
-	  double clock_tick = (*pIter)->GetClockTickInNs();
+	  //double clock_tick = (*pIter)->GetClockTickInNs();
 	  int tLstart = max_sample - 5;
 	  int tSstart = max_sample + 9;
 	  int tstop = max_sample + 80;
@@ -200,14 +209,21 @@ INT MDQ_IntegralRatio(EVENT_HEADER *pheader, void *pevent)
 
 	  //determine amplitude from pulse heights.  to be added later.
 
+	  float max_energy;
+	  if(detname == "NdetD")
+	    max_energy = (pulse_height * 0.0003999) + 0.008234;
+	  if(detname == "NdetU")
+	    max_energy = (pulse_height * 0.0004015) + 0.09037;
+
+
 	  //fill hists
 	  DQ_IntegralRatio_XY[bankname]->Fill(lInt, sInt);
 	  DQ_IntegralRatio_PH[bankname]->Fill(pulse_height, ratio);
 
 	  if(((detname == "NdetD") && (ratio < 0.11)) || ((detname == "NdetU") && (ratio < 0.12)))
-	    DQ_Gamma[bankname]->Fill(pulse_height);
+	    DQ_Gamma[bankname]->Fill(max_energy);
 	  else if(((detname == "NdetD")&&( ratio > 0.12))||((detname == "NdetU") && (ratio > 0.15)))
-	    DQ_Neutron[bankname]->Fill(pulse_height);
+	    DQ_Neutron[bankname]->Fill(max_energy);
 	}// pIter
     }//mIter
   
