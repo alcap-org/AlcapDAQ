@@ -204,9 +204,9 @@ INT MDQ_IntegralRatio(EVENT_HEADER *pheader, void *pevent)
 	  DQ_IntegralRatio_XY[bankname]->Fill(lInt, sInt);
 	  DQ_IntegralRatio_PH[bankname]->Fill(pulse_height, ratio);
 
-	  if(((detname == "NdetD") && (ratio < 0.06)) || ((detname == "NdetU") && (ratio < 0.1)))
+	  if(((detname == "NdetD") && (ratio < 0.11)) || ((detname == "NdetU") && (ratio < 0.12)))
 	    DQ_Gamma[bankname]->Fill(pulse_height);
-	  else if(((detname == "NdetD")&&(ratio < 0.2 && ratio > 0.10))||((detname == "NdetU") && (ratio <0.3 && ratio > 0.1)))
+	  else if(((detname == "NdetD")&&( ratio > 0.12))||((detname == "NdetU") && (ratio > 0.15)))
 	    DQ_Neutron[bankname]->Fill(pulse_height);
 	}// pIter
     }//mIter
