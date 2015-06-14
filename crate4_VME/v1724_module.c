@@ -226,7 +226,8 @@ INT v1724_init()
       // =====================================================================================
       // Setup 1024 data buffers (max.)
       // =====================================================================================
-      ret = CAEN_DGTZ_WriteRegister(dev_handle[iboard], 0x800C, 0xA);
+      //ret = CAEN_DGTZ_WriteRegister(dev_handle[iboard], 0x800C, 0xA);
+      ret = CAEN_DGTZ_WriteRegister(dev_handle[iboard], 0x800C, 0x08);
       if ( ret != CAEN_DGTZ_Success )
 	{
 	  cm_msg(MERROR,"v1724_init","Cannot configure data buffers. Error 0x%08x\n",ret);
@@ -703,7 +704,7 @@ INT v1724_read(char *pevent)
       memcpy(pdata, data_buffer[iboard], data_size[iboard]);
       pdata += data_size[iboard];
       bk_close(pevent, pdata);
-      //printf("board %i data size: %i\n",iboard,data_size[iboard]);
+      printf("v1724 board %i data size: %i\n",iboard,data_size[iboard]);
       // reset data couner for the next event
       data_size[iboard] = 0;
     }
@@ -715,33 +716,29 @@ void v1724_readout()
 {
 
   CAEN_DGTZ_ErrorCode ret;
-  for (int iboard=0; iboard<NBOARDS; iboard++)
-    {
-      if ( !S_V1724_ODB[iboard].enabled ) continue;
+  for (int iboard=0; iboard<NBOARDS; iboard++) {
+    if ( !S_V1724_ODB[iboard].enabled ) continue;
 
-      uint32_t rdata;
-      ret = CAEN_DGTZ_ReadRegister(dev_handle[iboard], 0x812C, &rdata);
-      //printf("Event Stored: 0x%08x ret = %i\n",rdata, ret);
-      if ( ret != CAEN_DGTZ_Success )
-	{
-	  cm_msg(MERROR,"v1724_readout","Cannot read register 0x812C. Error 0x%08x\n",ret);
-	}
+    uint32_t rdata;
+    ret = CAEN_DGTZ_ReadRegister(dev_handle[iboard], 0x812C, &rdata);
+    //printf("Event Stored: 0x%08x ret = %i\n",rdata, ret);
+    if ( ret != CAEN_DGTZ_Success ) {
+  	  cm_msg(MERROR,"v1724_readout","Cannot read register 0x812C. Error 0x%08x\n",ret);
+  	}
 
-      //ret = CAEN_DGTZ_ReadRegister(dev_handle[iboard], 0x814C, &rdata);
-      //printf("Event size: 0x%08x ret = %i\n",rdata, ret);
+    //ret = CAEN_DGTZ_ReadRegister(dev_handle[iboard], 0x814C, &rdata);
+    //printf("Event size: 0x%08x ret = %i\n",rdata, ret);
 
-      if ( rdata > 0 )
-	{
-	  // =====================================================================================
-	  // Read data
-	  // =====================================================================================
-	  uint32_t caen_data_size;
-	  ret = CAEN_DGTZ_ReadData(dev_handle[iboard], CAEN_DGTZ_SLAVE_TERMINATED_READOUT_MBLT, caen_data_buffer[iboard], &caen_data_size);
-	  if ( ret != CAEN_DGTZ_Success )
-	    {
+    if ( rdata > 0 ) {
+  	  // =====================================================================================
+  	  // Read data
+  	  // =====================================================================================
+  	  uint32_t caen_data_size;
+      ret = CAEN_DGTZ_ReadData(dev_handle[iboard], CAEN_DGTZ_SLAVE_TERMINATED_READOUT_MBLT, caen_data_buffer[iboard], &caen_data_size);
+  	  if ( ret != CAEN_DGTZ_Success ) {
 	      cm_msg(MERROR,"v1724_readout","Cannot DGTZ_ReadData. Error 0x%08x\n",ret);
 	    }
-	  //printf("data size: %i\n", caen_data_size);
+  	  //printf("data size: %i\n", caen_data_size);
 
 #if 0
 	  uint32_t numEvents;
@@ -749,14 +746,15 @@ void v1724_readout()
 	  printf("numEvents: %i\n", numEvents);
 #endif
 
-	  if ( data_size[iboard] + caen_data_size < data_buffer_size[iboard] )
-	    {
+  	  if ( data_size[iboard] + caen_data_size < data_buffer_size[iboard] ) {
 	      memcpy( (data_buffer[iboard] + data_size[iboard]), caen_data_buffer[iboard], caen_data_size);
 	      data_size[iboard] += caen_data_size;
 	    }
-	}
-    }
+  	}
+  }
 
+  // added by VT for testing
+  //ss_sleep(1);
 }
 
 INT v1724_poll_live()

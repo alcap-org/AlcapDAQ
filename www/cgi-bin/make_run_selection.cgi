@@ -12,7 +12,8 @@ $| = 1;
 #
 my %files = ();
 #my $histdir = "/home/l_data/online-hists";
-my $histdir = "/mnt/cheetah-hists";
+#my $histdir = "/mnt/cheetah-hists";
+my $histdir = "/data/alcap/R15a/root";
 if( -e $histdir ) {
     #system("ls -l $histdir > /tmp/files.txt");
     open(TMP,"ls -1 $histdir|");

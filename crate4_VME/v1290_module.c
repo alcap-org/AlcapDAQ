@@ -248,7 +248,7 @@ BOOL v1290_readout()
 	  //	 "V1290: Read 100 times, leaving readout loop.");
 	  break;
 	}
-
+      //ss_sleep(1);
       if ( nwords32 < nwords32_request ) break;
 
     }

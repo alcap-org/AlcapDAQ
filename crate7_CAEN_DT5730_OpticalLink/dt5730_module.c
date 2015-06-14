@@ -398,6 +398,10 @@ BOOL dt5730_readout() {
       data_size += caen_data_size;
     }
   }
+  
+  // added by VT for testing
+  //ss_sleep(1);
+
   return TRUE;
 }
 

@@ -21,6 +21,10 @@ DT5730_Heights dt5730/dt5730_heights.C
 DT5730_Times dt5730/dt5730_times.C
 DT5730_Shapes dt5730/dt5730_shapes.C
 
+DT5720_Heights dt5720/dt5720_heights.C
+DT5720_Times dt5720/dt5720_times.C
+DT5720_Shapes dt5720/dt5720_shapes.C
+
 WFD_Errors caen_wfd/caen_wfd_errors.C
 
 

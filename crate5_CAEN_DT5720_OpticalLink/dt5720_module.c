@@ -70,6 +70,7 @@ typedef struct s_dt5720_odb {
   BYTE      link_num;
   BOOL      dpp;
   BOOL      trigger_positive_edge_std;
+  BOOL      external_trigger;
   DWORD     max_events_per_block_std;
   BOOL      event_aligned_readout;
   char      logic_level[4];
@@ -84,6 +85,7 @@ typedef struct s_dt5720_odb {
     INT     polarity_dpp;
     DWORD   wf_length_dpp;
     DWORD   pre_trigger_size_dpp;
+    BOOL    self_trigger;
     WORD    self_trigger_threshold_std;
     WORD    self_trigger_threshold_dpp;
   } ch[NCHAN];
@@ -99,6 +101,7 @@ Board number = BYTE : 0\n\
 Link number = BYTE : 0\n\
 DPP = BOOL : y\n\
 Trigger positive edge = BOOL : y\n\
+External trigger = BOOL : n\n\
 Max events per block STD = DWORD : 1024\n\
 Event aligned readout = BOOL : y\n\
 Logic level = STRING : [4] NIM\n\
@@ -114,6 +117,7 @@ Baseline average DPP = BYTE : 2\n\
 Polarity DPP = INT : 1\n\
 Waveform length DPP = DWORD : 60\n\
 Pre trigger size DPP = DWORD : 10\n\
+Self trigger = BOOL : n\n\
 Self trigger threshold STD = WORD : 0\n\
 Self trigger threshold DPP = WORD : 0\
 \n\
@@ -124,6 +128,7 @@ Baseline average DPP = BYTE : 2\n\
 Polarity DPP = INT : 1\n\
 Waveform length DPP = DWORD : 60\n\
 Pre trigger size DPP = DWORD : 10\n\
+Self trigger = BOOL : n\n\
 Self trigger threshold STD = WORD : 0\n\
 Self trigger threshold DPP = WORD : 0\
 \n\
@@ -134,6 +139,7 @@ Baseline average DPP = BYTE : 2\n\
 Polarity DPP = INT : 1\n\
 Waveform length DPP = DWORD : 60\n\
 Pre trigger size DPP = DWORD : 10\n\
+Self trigger = BOOL : n\n\
 Self trigger threshold STD = WORD : 0\n\
 Self trigger threshold DPP = WORD : 0\
 \n\
@@ -144,6 +150,7 @@ Baseline average DPP = BYTE : 2\n\
 Polarity DPP = INT : 1\n\
 Waveform length DPP = DWORD : 60\n\
 Pre trigger size DPP = DWORD : 10\n\
+Self trigger = BOOL : n\n\
 Self trigger threshold STD = WORD : 0\n\
 Self trigger threshold DPP = WORD : 0\
 "
@@ -184,7 +191,7 @@ BOOL dt5720_open() {
                                   S_DT5720_ODB.board_num, S_DT5720_ODB.vme_base,
                                   &dev_handle);
   else
-    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB, 0, S_DT5720_ODB.board_num, 0,
+    ret = CAEN_DGTZ_OpenDigitizer(CAEN_DGTZ_USB, S_DT5720_ODB.link_num, 0, 0x0,
                                   &dev_handle);
   if(is_caen_error(ret, __LINE__, "dt5720_open")) return false;
 
@@ -415,7 +422,13 @@ BOOL dt5720_update_digitizer_generic() {
   ret = CAEN_DGTZ_SetSWTriggerMode(dev_handle, CAEN_DGTZ_TRGMODE_DISABLED);
   if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_generic")) return false;
 
-  ret = CAEN_DGTZ_SetExtTriggerInputMode(dev_handle, CAEN_DGTZ_TRGMODE_DISABLED);
+
+  if (S_DT5720_ODB.external_trigger)
+    ret = CAEN_DGTZ_SetExtTriggerInputMode(dev_handle,
+                                           CAEN_DGTZ_TRGMODE_ACQ_ONLY);
+  else
+    ret = CAEN_DGTZ_SetExtTriggerInputMode(dev_handle,
+                                           CAEN_DGTZ_TRGMODE_DISABLED);
   if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_generic")) return false;
 
   if(strcmp(S_DT5720_ODB.logic_level, "NIM") == 0)
@@ -455,16 +468,14 @@ BOOL dt5720_update_digitizer_generic() {
   if ( regVal & (1<<8) ) printf("Board is ready.\n");
   else                   printf("Board is NOT ready!\n");
 
-
   //int channel_mask; channel_mask &= (1<<NCHAN)-1;
   uint32_t channel_mask = 0;
-  for (int ch = 0; ch < NCHAN; ++ch)
-    {
-      if (S_DT5720_ODB.ch[ch].enable)
-	channel_mask |= (1 << ch);
-      ret = CAEN_DGTZ_SetChannelDCOffset(dev_handle, ch, S_DT5720_ODB.ch[ch].offset_std);
-      if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_generic")) return false;
-    }
+  for (int ch = 0; ch < NCHAN; ++ch) {
+    if (S_DT5720_ODB.ch[ch].enable)
+    	channel_mask |= (1 << ch);
+    ret = CAEN_DGTZ_SetChannelDCOffset(dev_handle, ch, S_DT5720_ODB.ch[ch].offset_std);
+    if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_generic")) return false;
+  }
 
   ret = CAEN_DGTZ_SetChannelEnableMask(dev_handle, channel_mask);
   if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_generic")) return false;
@@ -481,8 +492,20 @@ BOOL dt5720_update_digitizer_generic() {
 BOOL dt5720_update_digitizer_std() {
   CAEN_DGTZ_ErrorCode ret;
 
-  const int channel_mask = 0xF;
-  ret = CAEN_DGTZ_SetChannelSelfTrigger(dev_handle, CAEN_DGTZ_TRGMODE_ACQ_ONLY, channel_mask);
+  // Enable certain channels to self trigger after making sure all of them
+  // are disabled to rid the settings of any hysteresis.
+  int self_trigger_mask = 0xF;
+  ret = CAEN_DGTZ_SetChannelSelfTrigger(dev_handle,
+                                        CAEN_DGTZ_TRGMODE_DISABLED,
+                                        self_trigger_mask);
+  if(is_caen_error(ret,__LINE__,"dt5720_update_digitizer_std")) return false;
+  self_trigger_mask = 0x0;
+  for (int ich = 0; ich < NCHAN; ++ich)
+    if (S_DT5720_ODB.ch[ich].self_trigger)
+      self_trigger_mask |= 1<<ich;
+  ret = CAEN_DGTZ_SetChannelSelfTrigger(dev_handle,
+                                        CAEN_DGTZ_TRGMODE_ACQ_ONLY,
+                                        self_trigger_mask);
   if(is_caen_error(ret,__LINE__,"dt5720_update_digitizer_std")) return false;
 
   if(S_DT5720_ODB.max_events_per_block_std >= 2 &&

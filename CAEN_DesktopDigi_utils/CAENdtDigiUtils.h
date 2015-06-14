@@ -13,7 +13,7 @@
 #include "CAENDigitizerType.h"
 #include "CAENDigitizer.h"
 
-int file_handle;   // Handle got from CreateFile
+static int file_handle;   // Handle got from CreateFile
 #define         BOOL    int
 #define         HANDLE  int
 #define         TRUE    1
@@ -85,7 +85,7 @@ static long rebootBoard(HANDLE file_handle, int page)
   return 0;
 }
 
-int simulate_power_cycle(int dtNum)
+static int simulate_power_cycle(int dtNum)
 {
     if(openUSBDriver(&file_handle,dtNum)) {
       rebootBoard(file_handle, 1);//second arg MUST be 1 to use Standard Firmware. (0 would load old Backup firmware)
@@ -98,7 +98,7 @@ int simulate_power_cycle(int dtNum)
 }
 
 // // Check board status
-caen_digi_status caen_digi_get_status(int handle) {
+static caen_digi_status caen_digi_get_status(int handle) {
   caen_digi_status ds;
   uint32_t data;
   CAEN_DGTZ_ReadRegister(handle, CAEN_DGTZ_ACQ_STATUS_ADD, &data);
