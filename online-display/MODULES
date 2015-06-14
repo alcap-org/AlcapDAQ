@@ -27,6 +27,7 @@ DT5720_Shapes dt5720/dt5720_shapes.C
 
 WFD_Errors caen_wfd/caen_wfd_errors.C
 
+SyncCount common/synccount.C
 
 #
 #======================================================

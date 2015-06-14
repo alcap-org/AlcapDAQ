@@ -208,13 +208,11 @@ INT MV1720ProcessRaw_event(EVENT_HEADER *pheader, void *pevent)
     //      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
   }
 
-
   // for (int ich = 0; ich < 4; ++ich) {
   //   char bankname[5];
   //   sprintf(bankname, "D8%02d", ich);
   //   printf("V1720 Info: Processed %i pulses in channel %d.\n", pulse_islands_map[bankname].size(), ich);
   // }
-
 
   // print for testing
   if(midas_event_number == 1) {
