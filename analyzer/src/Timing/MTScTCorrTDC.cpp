@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \defgroup MPreTargTCorrTDC
+/// \defgroup MTScTCorrTDC
 ///
 /// \brief
 /// Timing correlations from within TDC
@@ -26,8 +26,8 @@
 
 
 /*-- Module declaration --------------------------------------------*/
-static INT MPreTargTCorrTDC_init(void);
-static INT MPreTargTCorrTDC(EVENT_HEADER*, void*);
+static INT MTScTCorrTDC_init(void);
+static INT MTScTCorrTDC(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -36,18 +36,18 @@ extern TSetupData* gSetup;
 /// \brief
 /// List of BU CAEN bank names for the event loop.
 static const int NCHANTDC = 32;
-const double TIME_LOW = -10e3, TIME_HIGH = 10e3;
-static TH1* vhPreTargTCorrTDC[NCHANTDC];
+const double TIME_LOW = -10e3, TIME_HIGH = 10e3; // ns
+static TH1* vhTScTCorrTDC[NCHANTDC];
 
 
-ANA_MODULE MPreTargTCorrTDC_module =
+ANA_MODULE MTScTCorrTDC_module =
 {
-  "MPreTargTCorrTDC",    /* module name           */
+  "MTScTCorrTDC",    /* module name           */
   "John R Quirk",        /* author                */
-  MPreTargTCorrTDC,      /* event routine         */
+  MTScTCorrTDC,      /* event routine         */
   NULL,                  /* BOR routine           */
   NULL,                  /* EOR routine           */
-  MPreTargTCorrTDC_init, /* init routine          */
+  MTScTCorrTDC_init, /* init routine          */
   NULL,                  /* exit routine          */
   NULL,                  /* parameter structure   */
   0,                     /* structure size        */
@@ -55,23 +55,23 @@ ANA_MODULE MPreTargTCorrTDC_module =
 };
 
 /*--module init routine --------------------------------------------*/
-INT MPreTargTCorrTDC_init() {
+INT MTScTCorrTDC_init() {
   for (int ich = 0; ich < NCHANTDC; ++ich) {
     char bank[5]; sprintf(bank, "T4%02d", ich);
-    char hist[64]; sprintf(hist, "hPreTargTCorrTDC_%s", bank);
-    vhPreTargTCorrTDC[ich] = new TH1D(hist, hist, 20000, TIME_LOW, TIME_HIGH);
-    vhPreTargTCorrTDC[ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
+    char hist[64]; sprintf(hist, "hTScTCorrTDC_%s", bank);
+    vhTScTCorrTDC[ich] = new TH1D(hist, hist, 20000, TIME_LOW, TIME_HIGH);
+    vhTScTCorrTDC[ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
   }
   return SUCCESS;
 }
 
 
 /*-- module event routine -----------------------------------------*/
-INT MPreTargTCorrTDC(EVENT_HEADER *pheader, void *pevent) {
+INT MTScTCorrTDC(EVENT_HEADER *pheader, void *pevent) {
   const std::map< std::string, std::vector<int64_t> >& tdc_map = gData->fTDCHitsToChannelMap;
-  const std::string ref_bank = gSetup->GetBankName("TPreTarg");
+  const std::string ref_bank = gSetup->GetBankName("TTSc");
   if (!tdc_map.count(ref_bank)) {
-    printf("MPreTargTCorrTDC: No reference hits TPreTarg!\n");
+    printf("MTScTCorrTDC: No reference hits TTSc!\n");
     return SUCCESS;
   }
   const std::vector<int64_t>& ref_hits = tdc_map.at(ref_bank);
@@ -88,7 +88,7 @@ INT MPreTargTCorrTDC(EVENT_HEADER *pheader, void *pevent) {
         if (dt < TIME_LOW)
           break;
         else if (dt < TIME_HIGH)
-          vhPreTargTCorrTDC[ich]->Fill(clock_tick*dt);
+          vhTScTCorrTDC[ich]->Fill(clock_tick*dt);
       }
     }
   }

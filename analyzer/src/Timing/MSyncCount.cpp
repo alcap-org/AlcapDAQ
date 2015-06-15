@@ -1,6 +1,6 @@
 /********************************************************************\
 
-Name:         MPulseLengths
+Name:         MSyncCount
 Created by:   John R Quirk
 
 Contents:     A module to fill a histogram of the pulse lengths from each channel
