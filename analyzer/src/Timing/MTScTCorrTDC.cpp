@@ -84,11 +84,11 @@ INT MTScTCorrTDC(EVENT_HEADER *pheader, void *pevent) {
     for (int i = 0; i < hits.size(); ++i) {
       for (int j = 0; j < ref_hits.size(); ++j) {
         static const double clock_tick = 0.025; // ns
-        const int64_t dt = hits[i] - ref_hits[j];
+        const double dt = clock_tick*(hits[i] - ref_hits[j]);
         if (dt < TIME_LOW)
           break;
         else if (dt < TIME_HIGH)
-          vhTScTCorrTDC[ich]->Fill(clock_tick*dt);
+          vhTScTCorrTDC[ich]->Fill(dt);
       }
     }
   }
