@@ -32,6 +32,11 @@ SyncCount common/synccount.C
 V1290_A v1290/v1290_rawtimes_0_8.C
 V1290_B v1290/v1290_rawtimes_9_15.C
 
+TDCTargetCorrelations1 v1290/v1290_tsctcorr_0_3.C
+TDCTargetCorrelations2 v1290/v1290_tsctcorr_4_7.C
+TDCTargetCorrelations3 v1290/v1290_tsctcorr_8_11.C
+TDCTargetCorrelations4 v1290/v1290_tsctcorr_12_15.C
+
 #
 #======================================================
 #             muSC

@@ -1,4 +1,4 @@
-void v1290_pretargtcorr_0_3()
+void v1290_tsctcorr_8_11()
 {
   /*****************************************************************/
   // Prepare the canvas
@@ -8,10 +8,10 @@ void v1290_pretargtcorr_0_3()
   AlCapCanvas->Divide(2,2);
 
   const int nplots = 4;
-  const std::string bank_names[nplots] = {"T400", "T401", "T402", "T403"};
+  const std::string bank_names[nplots] = {"T408", "T409", "T410", "T411"};
 
   for (int iplot = 0; iplot < nplots; ++iplot) {
-    char histname[64]; sprintf(histname, "hPreTargTCorrTDC_%s", bank_names[iplot]);
+    char histname[64]; sprintf(histname, "hTScTCorrTDC_%s", bank_names[iplot]);
     TH1* hist = getObject(histname);
     if (hist) {
   	  TVirtualPad *pad = AlCapCanvas->cd(iplot+1);
