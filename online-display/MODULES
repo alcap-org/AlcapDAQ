@@ -29,6 +29,11 @@ WFD_Errors caen_wfd/caen_wfd_errors.C
 
 SyncCount common/synccount.C
 
+TDCTargetCorrelations1 v1290/v1290_tsctcorr_0_3.C
+TDCTargetCorrelations2 v1290/v1290_tsctcorr_4_7.C
+TDCTargetCorrelations3 v1290/v1290_tsctcorr_8_11.C
+TDCTargetCorrelations4 v1290/v1290_tsctcorr_12_15.C
+
 #
 #======================================================
 #             muSC
