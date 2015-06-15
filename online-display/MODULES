@@ -29,6 +29,9 @@ WFD_Errors caen_wfd/caen_wfd_errors.C
 
 SyncCount common/synccount.C
 
+V1290_A v1290/v1290_rawtimes_0_8.C
+V1290_B v1290/v1290_rawtimes_9_15.C
+
 #
 #======================================================
 #             muSC
