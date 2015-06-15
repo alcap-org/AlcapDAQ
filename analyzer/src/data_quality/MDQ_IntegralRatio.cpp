@@ -236,7 +236,7 @@ INT MDQ_IntegralRatio(EVENT_HEADER *pheader, void *pevent)
 	  double energyMevee =1.;
 	  double energyMevnr=-1.;
 	  if(detname == "NdetD")  energyMevee = (pulse_height * 0.0003999) + 0.008234;
-	  if(detname == "NdetU")  energyMevee = (pulse_height * 0.0004015) + 0.09037;
+	  if(detname == "NdetU")  energyMevee = (pulse_height * 0.0004015) + 0.009037;
 
 	  /*
 	  energyMevee=0.83*energyMevnr - (2.82*(1.0 - exp(-0.25 * pow(energyMevnr,0.93)))); //from bicron data sheet (via Cecil 1978 paper)
