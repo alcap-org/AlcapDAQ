@@ -58,8 +58,9 @@ ANA_MODULE MTScTCorrTDC_module =
 INT MTScTCorrTDC_init() {
   for (int ich = 0; ich < NCHANTDC; ++ich) {
     char bank[5]; sprintf(bank, "T4%02d", ich);
-    char hist[64]; sprintf(hist, "hTScTCorrTDC_%s", bank);
-    vhTScTCorrTDC[ich] = new TH1D(hist, hist, 20000, TIME_LOW, TIME_HIGH);
+    char histname[64]; sprintf(histname, "hTScTCorrTDC_%s", bank);
+    char histtitle[64]; sprintf(histtitle, "TSc TCorr with %s", gSetup->GetDetectorName(bank).c_str());
+    vhTScTCorrTDC[ich] = new TH1D(histname, histtitle, 20000, TIME_LOW, TIME_HIGH);
     vhTScTCorrTDC[ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
   }
   return SUCCESS;

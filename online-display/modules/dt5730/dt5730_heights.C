@@ -16,8 +16,11 @@ void dt5730_heights()
   for (int iChn = 0; iChn < n_channels; iChn++) {
     TH1* hist = get_histogram(bank_names[iChn], hist_type);
     if (hist) {
-      AlCapCanvas->cd(iChn+1);
+      TVirtualPad *pad = AlCapCanvas->cd(iChn+1);
+      //     AlCapCanvas->cd(iChn+1);
       hist->Draw();
+      pad->SetLogy(1);
+      pad->SetLogx(0);
     }
   }
 }
