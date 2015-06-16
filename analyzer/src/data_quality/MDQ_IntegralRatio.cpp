@@ -241,7 +241,7 @@ INT MDQ_IntegralRatio(EVENT_HEADER *pheader, void *pevent)
 
 	  //determine amplitude from pulse heights.  to be added later.
 
-	  double energyMevee =1.;
+	  double energyMevee =-1.;
 	  double energyMevnr=-1.;
 	  if(detname == "NdetD")  energyMevee = (pulse_height * 0.0003999) + 0.008234;
 	  if(detname == "NdetU")  energyMevee = (pulse_height * 0.0004015) + 0.009037;
@@ -253,7 +253,7 @@ INT MDQ_IntegralRatio(EVENT_HEADER *pheader, void *pevent)
 	  //fill hists
 	  DQ_Integral_XY[bankname]->Fill(lInt, sInt);
 	  DQ_IntegralRatio_PH[bankname]->Fill(pulse_height, ratio);
-	  DQ_IntegralRatio_E[bankname]->Fill(energyMeVee, ratio);
+	  DQ_IntegralRatio_E[bankname]->Fill(energyMevee, ratio);
 
 	  // Damien's initial PSD based on AmBe data
 	  if(((detname == "NdetD") && (ratio < 0.11)) || ((detname == "NdetU") && (ratio < 0.12))) {
