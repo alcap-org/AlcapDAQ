@@ -1,4 +1,4 @@
-void raw_pulse_count()
+void synccount()
 {
   /*****************************************************************/
   // Prepare the canvas
@@ -18,6 +18,4 @@ void raw_pulse_count()
   AlCapCanvas->cd(2); d7->Draw();
   AlCapCanvas->cd(3); d8->Draw();
   AlCapCanvas->cd(4); t4->Draw();
-  hist->Draw();
-
 }
