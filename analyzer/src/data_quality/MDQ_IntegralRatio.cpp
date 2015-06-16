@@ -65,6 +65,7 @@ extern TSetupData* gSetup;
 
 map <std::string, TH2D*> DQ_Integral_XY;
 map <std::string, TH2F*> DQ_IntegralRatio_PH;
+map <std::string, TH2F*> DQ_IntegralRatio_E;
 map <std::string, TH1F*> DQ_NeutronEnMeVee;
 map <std::string, TH1F*> DQ_NeutronEnMeVnr;
 map <std::string, TH1F*> DQ_GammaEnMeVee;
@@ -117,6 +118,13 @@ INT MDQ_IntegralRatio_init()
       hDQ_integralPH->GetYaxis()->SetTitle("Integral Ratio");
       hDQ_integralPH->GetXaxis()->SetTitle("pulse height (ADC counts)");
       DQ_IntegralRatio_PH[bankname] = hDQ_integralPH;
+
+      histname = "h" + bankname + "_DQ_IntegralRatio_E";
+      histtitle = "Integral Ratio vs energy for " + bankname;
+      TH2F* hDQ_integralE = new TH2F(histname.c_str(), histtitle.c_str(), max_adc_value/8, 0, 6.5, 500, -0, 0.4);
+      hDQ_integralE->GetYaxis()->SetTitle("Integral Ratio");
+      hDQ_integralE->GetXaxis()->SetTitle("Energy (MeVee)");
+      DQ_IntegralRatio_E[bankname] = hDQ_integralE;
 
       /*  int max_energy;
 	  if(detname == "NdetD")
@@ -245,6 +253,7 @@ INT MDQ_IntegralRatio(EVENT_HEADER *pheader, void *pevent)
 	  //fill hists
 	  DQ_Integral_XY[bankname]->Fill(lInt, sInt);
 	  DQ_IntegralRatio_PH[bankname]->Fill(pulse_height, ratio);
+	  DQ_IntegralRatio_E[bankname]->Fill(energyMeVee, ratio);
 
 	  // Damien's initial PSD based on AmBe data
 	  if(((detname == "NdetD") && (ratio < 0.11)) || ((detname == "NdetU") && (ratio < 0.12))) {
