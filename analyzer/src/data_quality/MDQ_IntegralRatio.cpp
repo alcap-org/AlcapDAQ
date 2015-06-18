@@ -143,7 +143,7 @@ INT MDQ_IntegralRatio_init()
 
       histname = "h" + bankname + "_DQ_NeutronEnMeVee";
       histtitle = "Neutron Energy in MeVee for " + bankname;
-      TH1F* hDQ_neutronEnMeVee = new TH1F(histname.c_str(), histtitle.c_str(), 200, 0, 12);
+      TH1F* hDQ_neutronEnMeVee = new TH1F(histname.c_str(), histtitle.c_str(), 800, 0, 10.0125);
       hDQ_neutronEnMeVee->GetXaxis()->SetTitle("Neutron Energy  (MeVee)");
       hDQ_neutronEnMeVee->GetYaxis()->SetTitle("count");
       DQ_NeutronEnMeVee[bankname] = hDQ_neutronEnMeVee;

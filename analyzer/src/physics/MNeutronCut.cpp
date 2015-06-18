@@ -112,7 +112,7 @@ INT MNeutronCut(EVENT_HEADER *pheader, void *pevent)
 	  */
 
 	  // Damien's initial PSD based on AmBe data
-	  if(((detname == "NdetD") && (ratio < 0.11)) || ((detname == "NdetU") && (ratio < 0.12))) {//gamma, cut this
+	  if(((detname == "NdetD") && (sInt <0.12)) || ((detname == "NdetU") && (sInt < 0.15))) {//gamma, cut this
 	    thePulses.erase(pIter);
 	    pIter--;
 	  }
