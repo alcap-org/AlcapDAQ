@@ -105,7 +105,7 @@ INT MDQ_IntegralRatio_init()
 
       std::string histname = "h" + bankname + "_DQ_Integral";
       std::string histtitle = "Long Integral vs Short Integral for " + bankname;
-      TH2D* hDQ_integralhist = new TH2D(histname.c_str(), histtitle.c_str(), 500, 2000, 100000, 500, 50, 8000);
+      TH2D* hDQ_integralhist = new TH2D(histname.c_str(), histtitle.c_str(), 500, 2000, 140000, 500, 50, 12000);
       hDQ_integralhist->GetXaxis()->SetTitle("Long Integral (ADC counts)");
       hDQ_integralhist->GetYaxis()->SetTitle("Short Integral (ADC counts)");
       DQ_Integral_XY[bankname] = hDQ_integralhist;
@@ -251,19 +251,39 @@ INT MDQ_IntegralRatio(EVENT_HEADER *pheader, void *pevent)
           need to invert this or parametrize this to get energy in Mevnr
 	  */
 	  //fill hists
+
+	  bool neutron = FALSE;
+	  if(energyMevee > 2.0){
+	    if(detname == "NdetU")
+	      if(ratio >  -0.005*energyMevee +0.17)
+		neutron = TRUE;
+	    if(detname == "NdetD")
+	      if(ratio > -0.00581*energyMevee +0.14663)
+		neutron = TRUE;
+	  }
+	  else if(energyMevee <= 2.0) {
+	    if(detname == "NdetU")
+	      if(ratio > -0.025*energyMevee +0.21)
+		neutron = TRUE;
+	    if(detname == "NdetD")
+	      if(ratio >  -0.01667*energyMevee +0.16833)
+		neutron = TRUE;
+	  }
+
+
 	  DQ_Integral_XY[bankname]->Fill(lInt, sInt);
 	  DQ_IntegralRatio_PH[bankname]->Fill(pulse_height, ratio);
 	  DQ_IntegralRatio_E[bankname]->Fill(energyMevee, ratio);
 
 	  // Damien's initial PSD based on AmBe data
-	  if(((detname == "NdetD") && (ratio < 0.11)) || ((detname == "NdetU") && (ratio < 0.12))) {
-	    DQ_GammaPH[bankname]->Fill(pulse_height);
-	    DQ_GammaEnMeVee[bankname]->Fill(energyMevee);
-	  }
-	  else if(((detname == "NdetD")&&( ratio > 0.12))||((detname == "NdetU") && (ratio > 0.15))) {
+	  if(neutron) {
 	    DQ_NeutronPH[bankname]->Fill(pulse_height);
 	    DQ_NeutronEnMeVee[bankname]->Fill(energyMevee);
 	    DQ_NeutronEnMeVnr[bankname]->Fill(energyMevnr);
+	  }
+	  else {
+	    DQ_GammaPH[bankname]->Fill(pulse_height);
+	    DQ_GammaEnMeVee[bankname]->Fill(energyMevee);
 	  }
 	} // pIter
     } //mIter

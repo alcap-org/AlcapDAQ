@@ -111,13 +111,31 @@ INT MNeutronCut(EVENT_HEADER *pheader, void *pevent)
           need to invert this or parametrize this to get energy in Mevnr
 	  */
 
+	  bool neutron = FALSE;
+	  if(energyMevee > 2.0){
+	    if(detname == "NdetU")
+	      if(ratio >  -0.005*energyMevee +0.17)
+		neutron = TRUE;
+	    if(detname == "NdetD")
+	      if(ratio > -0.00581*energyMevee +0.14663)
+		neutron = TRUE;
+	  }
+	  else if(energyMevee <= 2.0) {
+	    if(detname == "NdetU")
+	      if(ratio > -0.025*energyMevee +0.21)
+		neutron = TRUE;
+	    if(detname == "NdetD")
+	      if(ratio >  -0.01667*energyMevee +0.16833)
+		neutron = TRUE;
+	  }
+
+
 	  // Damien's initial PSD based on AmBe data
-	  if(((detname == "NdetD") && (ratio <0.12)) || ((detname == "NdetU") && (ratio < 0.15))) {//gamma, cut this
+	  if(neutron) {//do nothing
+	  }
+	  else{  //gamma, cut this
 	    thePulses.erase(pIter);
 	    pIter--;
-	  }
-	  else if(((detname == "NdetD")&&( ratio > 0.12))||((detname == "NdetU") && (ratio > 0.15))) {
-	    //neutron, continue
 	  }
 	} // pIter
 
