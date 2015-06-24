@@ -22,8 +22,7 @@ TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, str
   fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name) {
 }
 
-void TPulseIsland::Reset(Option_t* o)
-{
+void TPulseIsland::Reset(Option_t* o) {
   fTimeStamp = 0;
   fSamples.clear();
   fBankName = "";

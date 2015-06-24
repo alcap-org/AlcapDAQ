@@ -43,15 +43,15 @@ static TH1* vhTScTCorrTDC[NCHANTDC];
 ANA_MODULE MTScTCorrTDC_module =
 {
   "MTScTCorrTDC",    /* module name           */
-  "John R Quirk",        /* author                */
+  "John R Quirk",    /* author                */
   MTScTCorrTDC,      /* event routine         */
-  NULL,                  /* BOR routine           */
-  NULL,                  /* EOR routine           */
+  NULL,              /* BOR routine           */
+  NULL,              /* EOR routine           */
   MTScTCorrTDC_init, /* init routine          */
-  NULL,                  /* exit routine          */
-  NULL,                  /* parameter structure   */
-  0,                     /* structure size        */
-  NULL,                  /* initial parameters    */
+  NULL,              /* exit routine          */
+  NULL,              /* parameter structure   */
+  0,                 /* structure size        */
+  NULL,              /* initial parameters    */
 };
 
 /*--module init routine --------------------------------------------*/
@@ -69,7 +69,9 @@ INT MTScTCorrTDC_init() {
 
 /*-- module event routine -----------------------------------------*/
 INT MTScTCorrTDC(EVENT_HEADER *pheader, void *pevent) {
-  const std::map< std::string, std::vector<int64_t> >& tdc_map = gData->fTDCHitsToChannelMap;
+  const std::map< std::string, std::vector<int64_t> >& tdc_map =
+    gData->fTDCHitsToChannelMap;
+
   const std::string ref_bank = gSetup->GetBankName("TTSc");
   if (!tdc_map.count(ref_bank)) {
     printf("MTScTCorrTDC: No reference hits TTSc!\n");
@@ -78,7 +80,7 @@ INT MTScTCorrTDC(EVENT_HEADER *pheader, void *pevent) {
   const std::vector<int64_t>& ref_hits = tdc_map.at(ref_bank);
 
   for (int ich = 0; ich < NCHANTDC; ++ich) {
-    char bank[5]; sprintf(bank, "T4%02d", ich);
+    char bank[8]; sprintf(bank, "T4%02d", ich);
     if (!tdc_map.count(bank)) continue;
 
     const std::vector<int64_t>& hits = tdc_map.at(bank);
