@@ -71,10 +71,14 @@ int TME_SiArrivalTimes::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
 	// Loop through the pulses in this silicon detector
 	for(int i_pulse=0; i_pulse<n_pulses; ++i_pulse){
 	  const TDetectorPulse* si_tdp=(*i_tme)->GetPulse(si_source,i_pulse);
-	  double si_time = si_tdp->GetTime();
 
+	  double si_time = si_tdp->GetTime();
 	  double arrival_time= std::fabs(si_time - tme_time);
-	  fArrivalTimesHist->Fill(arrival_time);
+
+	  double si_energy = si_tdp->GetEnergy();
+	  if (si_energy > 100) {
+	    fArrivalTimesHist->Fill(arrival_time);
+	  }
 	}
 
 	// Get the next source

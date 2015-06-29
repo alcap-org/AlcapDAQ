@@ -4,6 +4,8 @@
 #include "BaseModule.h"
 #include "IdChannel.h"
 
+#include "TH1.h"
+
 class TGlobalData;
 class TSetupData;
 namespace modules {class options;}
@@ -52,6 +54,8 @@ class TME_SiArrivalTimes : public BaseModule {
   /// The list of silicon detectors
   typedef std::vector<IDs::channel> DetectorList;
   DetectorList fSiDetectors;
+
+  TH1F* fArrivalTimesHist;
 
 };
 
