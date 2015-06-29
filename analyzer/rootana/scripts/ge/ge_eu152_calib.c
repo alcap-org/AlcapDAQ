@@ -112,9 +112,9 @@ void ge_eu152_calib() {
   /* TGraphErrors* e_cal   = new TGraphErrors(NPeaks, Energy, ADC_Meas, 0, Error_ADC); */
   TGraphErrors* e_cal   = new TGraphErrors(NPeaks-1, ADC_Meas+1, Energy+1, Error_ADC+1, 0);
   /* TGraphErrors* eff_cal = new TGraphErrors(NPeaks-1, LogEnergy+1, LogEfficiency+1, 0, Error_LogEff+1); */
-  TGraphErrors* eff_cal = new TGraphErrors(NPeaks-1, Energy+1, Efficiency+1, 0, Error_Eff+1);
-  e_cal->SetTitle("Ge Energy Calibration"); e_cal->GetXaxis()->SetTitle("ADC Value [ADC]"); e_cal->GetYaxis()->SetTitle("Energy [keV]");
-  eff_cal->SetTitle("Ge Efficiency Calibration"); eff_cal->GetXaxis()->SetTitle("Energy [keV]"); eff_cal->GetYaxis()->SetTitle("Counts / Expected Counts");
+  TGraphErrors* eff_cal = new TGraphErrors(NPeaks-1, RedEn+1, Efficiency+1, 0, Error_Eff+1);
+  e_cal->SetTitle(""); e_cal->GetXaxis()->SetTitle("ADC Value"); e_cal->GetYaxis()->SetTitleOffset(1.2); e_cal->GetYaxis()->SetTitle("Energy [keV]");
+  eff_cal->SetTitle(""); eff_cal->GetXaxis()->SetTitle("Energy [keV]"); eff_cal->GetYaxis()->SetTitle("Counts / Expected Counts");
   TCanvas* c_en = new TCanvas("c_en");
   TF1* fit = new TF1("fit", "[0] + [1]*x");
   fit->SetParameter(0, 0);
@@ -122,7 +122,7 @@ void ge_eu152_calib() {
   fit->SetParName(0, "Offset");
   fit->SetParName(1, "Gradient");
   TFitResultPtr res = e_cal->Fit(fit,"SME"); e_cal->Draw("A*");
-  TPaveText* text_en = new TPaveText(0.2, 0.65, 0.5, 0.75, "nb NDC"); text_en->SetBorderSize(0); text_en->SetTextSize(0.04); text_en->SetFillColor(kWhite); text_en->AddText("Energy = Offset + Gradient * ADC"); text_en->Draw();
+  TPaveText* text_en = new TPaveText(0.2, 0.65, 0.5, 0.75, "nb NDC"); text_en->SetBorderSize(0); text_en->SetTextSize(0.04); text_en->SetFillColor(kWhite); text_en->AddText("Energy = Offset + Gradient * ADC");// text_en->Draw();
   Chi2[0] = res->Chi2(); Ndf[0] = res->Ndf();
   en_par[0] = res->Value(0); en_par[1] = res->Value(1);
   en_par_err[0] = res->ParError(0); en_par_err[1] = res->ParError(1);
@@ -133,7 +133,7 @@ void ge_eu152_calib() {
   logfit->SetParName(1, "Exponent");
   logfit->SetParameters(TMath::Exp(-2.6), -0.84);
   res = eff_cal->Fit(logfit, "SME"); eff_cal->Draw("A*");
-  TPaveText* text_eff = new TPaveText(0.5, 0.5, 0.65, 0.6, "nb NDC"); text_eff->SetBorderSize(0); text_eff->SetTextSize(0.05); text_eff->AddText("#varepsilon = aE^{b}"); text_eff->SetFillColor(kWhite); text_eff->Draw();
+  TPaveText* text_eff = new TPaveText(0.5, 0.5, 0.65, 0.6, "nb NDC"); text_eff->SetBorderSize(0); text_eff->SetTextSize(0.05); text_eff->AddText("#varepsilon = aE^{b}"); text_eff->SetFillColor(kWhite);// text_eff->Draw();
   /* res = eff_cal->Fit("pol1", "SME"); eff_cal->Draw("A*"); */
   Chi2[1] = res->Chi2(); Ndf[1] = res->Ndf();
   eff_par[0] = res->Value(0); eff_par[1] = res->Value(1);
@@ -141,11 +141,11 @@ void ge_eu152_calib() {
   // Print out
   printf("\n");
   printf("    %-10s | %-8s | %-5s | %-10s | %-5s | %-7s\n", "Energy", "ADC", "+/-", "Eff", "+/-", "Chi2");
-  for (unsigned int i = 0; i < NPeaks; ++i) {
+  for (unsigned int i = 0; i < NPeaks-1; ++i) {
     int adc_exp = TMath::Floor(TMath::Log10(Error_ADC[i]));
     int eff_exp = TMath::Floor(TMath::Log10(Error_Eff[i]));
     printf("    %-10.10g | %-8.10g | %-5.1g | %-10.10g | %-5.1g | %-7.3g\n",
-	   Energy[i],
+	   RedEn[i],
 	   TMath::Floor(ADC_Meas[i] / TMath::Power(10., adc_exp)) * TMath::Power(10., adc_exp),
 	   Error_ADC[i],
 	   TMath::Floor(Efficiency[i] / TMath::Power(10., eff_exp)) * TMath::Power(10., eff_exp),
@@ -157,8 +157,8 @@ void ge_eu152_calib() {
   /* printf("Eff = %g(%g)*Energy^[%g(%g)]    (%g/%u)\n", TMath::Exp(eff_par[0]), TMath::Exp(eff_par[0])*eff_par_err[0], eff_par[1], eff_par_err[1], Chi2[1], Ndf[1]); */
   printf("Eff = %g(%g)*Energy^[%g(%g)]    (%g/%u)\n", eff_par[0], eff_par_err[0], eff_par[1], eff_par_err[1], Chi2[1], Ndf[1]);
 
-  //  c_en->SaveAs("~/plots/ThesisPlots/ge-calibration-curve.pdf");
-  //  c_eff->SaveAs("~/plots/ThesisPlots/ge-efficiency-curve.pdf");
+  c_en->SaveAs("~/plots/ThesisPlots/ge-calibration-curve.pdf");
+  c_eff->SaveAs("~/plots/ThesisPlots/ge-efficiency-curve.pdf");
 
   double si_peak = 400.177;
   double al_peak = 346.828;
