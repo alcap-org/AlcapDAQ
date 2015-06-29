@@ -30,8 +30,15 @@ void GetTimeResolutions(std::string filename) {
 	TH2F* hist = (TH2F*) folder_dir->Get(plotname.c_str());
 	TH1D* projection = hist->ProjectionX();
 	//	projection->Rebin(4);
+
 	TFitResultPtr fit_result = projection->Fit("gaus", "QS", "", -150,150);
-	std::cout << foldername << ": sigma = " << fit_result->Parameter(2) << std::endl;
+	std::cout << foldername << ": sigma = " << fit_result->Parameter(2) << " +- " << fit_result->ParError(2) << std::endl;
+	//" chi^2 / ndf = " << fit_result->Chi2() << " / " << fit_result->Ndf() << " = " << fit_result->Chi2() / fit_result->Ndf() << std::endl;
+	projection->SetTitle("");
+	std::string xaxis_title = "Time Difference (t_{" + foldername + "} - t_{#muSc}) [ns]";
+	projection->SetXTitle(xaxis_title.c_str());
+	projection->SetLineWidth(2);
+	projection->SetStats(false);
 	projection->Draw();
 	std::string picname = foldername + ".pdf";
 	c1->Print(picname.c_str());
