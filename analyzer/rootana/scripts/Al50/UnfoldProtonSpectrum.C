@@ -1,12 +1,20 @@
 void UnfoldProtonSpectrum() {
 
-  TFile* response_file = new TFile("Al50_1.07_target-hist_2015-01-15_response_stopped-only_10M-thnsparse_500keV-bins.root", "READ");
-  TFile* data_file = new TFile("result_Al50.root", "READ");
+  //TFile* response_file = new TFile("Al100_1.09_target-hist_2015-04-22_response_stopped-only_10M-thnsparse_500keV-bins.root", "READ");
+  TFile* response_file = new TFile("Al50_1.07_target-hist_2015-01-15_response_stopped-only_10M-thnsparse_500keV-bins_corrections_3_250keV-tru-bins.root", "READ");
+  //  TFile* data_file = new TFile("result_Al50_data.root", "READ");
+  TFile* proton_band_file = new TFile("~/g4sim/alcap/scripts/Al50/proton_band.root", "READ");
   TFile* out_file = new TFile("unfolded.root", "RECREATE");
 
   const int n_arms = 2;
   std::string arm_names[n_arms] = {"SiL", "SiR"};
   int rebin_factor = 5;
+  double time_cut_efficiency = 0.870;
+  double time_cut_purity = 0.936;
+  //  double proton_cut_efficiency[n_arms] = {0.69, 0.69}; //Al100?
+  //  double proton_cut_purity[n_arms] = {0.87, 0.89}; //Al100?
+  double proton_cut_efficiency[n_arms] = {0.62, 0.63};
+  double proton_cut_purity[n_arms] = {0.96, 0.98};
 
   for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
     std::string arm_name = arm_names[i_arm];
@@ -14,13 +22,14 @@ void UnfoldProtonSpectrum() {
     std::string response_name = arm_name + "_response";
     RooUnfoldResponse* response = (RooUnfoldResponse*) response_file->Get(response_name.c_str());
 
-    std::string folded_spectrum_name = arm_name + "_EvdE_px";
-    TH1D* folded_spectrum = (TH1D*) data_file->Get(folded_spectrum_name.c_str());
+    //    std::string folded_spectrum_name = arm_name + "_EvdE_px";
+    std::string folded_spectrum_name = "hEvdEBand_" + arm_name + ";1";
+    TH1D* folded_spectrum = ((TH2F*) proton_band_file->Get(folded_spectrum_name.c_str()))->ProjectionX();
+    folded_spectrum->Scale(time_cut_purity/time_cut_efficiency);
+    folded_spectrum->Scale(proton_cut_purity[i_arm]/proton_cut_efficiency[i_arm]);
     folded_spectrum->Rebin(rebin_factor);
     //    response->Hresponse()->Draw("COLZ");
 
-
-    
     double low_energy_cutoff = 0; // keV
     double high_energy_cutoff = 20000; // keV
 
@@ -36,6 +45,7 @@ void UnfoldProtonSpectrum() {
 
       for (int j_bin = 0; j_bin < response->Hresponse()->GetNbinsY(); ++j_bin) {
 	double bin_centre_y = response->Hresponse()->GetYaxis()->GetBinCenter(j_bin);
+	int n_entries = response->Hresponse()->GetBinContent(i_bin, j_bin);
 	if ( (bin_centre_x < low_energy_cutoff || bin_centre_x > high_energy_cutoff)){//
 	  //	     (bin_centre_y < low_energy_cutoff || bin_centre_y > high_energy_cutoff)) {
 	  response->Hresponse()->SetBinContent(i_bin, j_bin, 0);
@@ -47,7 +57,7 @@ void UnfoldProtonSpectrum() {
     //folded_spectrum->GetXaxis()->SetRangeUser(low_energy_cutoff, high_energy_cutoff);
     //response->Hresponse()->GetXaxis()->SetRangeUser(low_energy_cutoff, high_energy_cutoff);
 
-    RooUnfoldBayes unfold (response, folded_spectrum);
+    RooUnfoldBayes unfold (response, folded_spectrum, 4);
     //    response->Hresponse()->Draw("COLZ");
     TH1D* unfolded_spectrum = (TH1D*) unfold.Hreco();
     unfolded_spectrum->GetXaxis()->SetRangeUser(low_energy_cutoff, high_energy_cutoff);
