@@ -41,9 +41,12 @@ int TMEViewer::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fDetectors.push_back(IDs::channel (kSiR2   , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kMuSc   , kNotApplicable ));
 
-    fTDiffPerDetector=new TH2F("hTDiffPerChannel", "TDiff to muSc for each channel per TME", 
-            5000, -1.2e4,1.2e4,fDetectors.size(),0,fDetectors.size());
-    fTDiffPerDetector->SetXTitle("TDiff to central muon (ns)");
+    fTDiffPerDetector=new TH2F("hTDiffPerChannel", "",//"TDiff to muSc for each channel per TME", 
+            5000, -2e3,2e3,fDetectors.size(),0,fDetectors.size());
+    fTDiffPerDetector->SetXTitle("TDiff to central muon [ns]");
+    fTDiffPerDetector->SetYTitle("Detector");
+    fTDiffPerDetector->GetYaxis()->SetTitleOffset(1.3);
+    fTDiffPerDetector->GetZaxis()->SetTitle("Number of TDPs");
     fTDiffPerDetector->SetDrawOption("COLZ");
     fTDiffPerDetector->SetStats(false);
     for(DetectorList::const_iterator i_det=fDetectors.begin();
@@ -55,6 +58,7 @@ int TMEViewer::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     char** args;
     fApp = new TApplication("app",0,args); //  so we can see the Canvas when we draw it
     fCanvas = new TCanvas("fCanvas", "fCanvas");
+    fCanvas->SetRightMargin(0.95);
   return 0;
 }
 
@@ -81,13 +85,18 @@ int TMEViewer::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	N+=n;
 	for(int i=0; i<n; ++i){
 	  const TDetectorPulse* tdp=(*i_tme)->GetPulse(source,i);
-	  if(tdp && (tdp->IsPairedPulse() || !tdp->CouldBePaired()) )
-	    fTDiffPerDetector->Fill(tdp->GetTime() - tme_time, i_det - fDetectors.begin());
+	  if(tdp && (tdp->IsPairedPulse() || !tdp->CouldBePaired()) ) {
+
+	    //	    if ( (tdp->GetSource().Channel() == IDs::channel(IDs::kScL, IDs::kNotApplicable) && tdp->GetAmplitude() > 440) ||
+	    //		 (tdp->GetSource().Channel() == IDs::channel(IDs::kScR, IDs::kNotApplicable) && tdp->GetAmplitude() > 430) || tdp->GetSource().Channel() == IDs::channel(IDs::kMuSc, IDs::kNotApplicable)) {
+	      fTDiffPerDetector->Fill(tdp->GetTime() - tme_time, i_det - fDetectors.begin());
+	      //	    }
+	  }
 	}
 	source_index=(*i_tme)->GetSourceIndex(*i_det,source_index+1);
       }
     }
-    if (fTDiffPerDetector->GetEntries() > 5 && !(*i_tme)->HasMuonPileup()) {
+    if (fTDiffPerDetector->GetEntries() > 3 && !(*i_tme)->HasMuonPileup()) {
       std::cout << "TME #" << i_tme - gMuonEvents.begin() << std::endl;
       found_interesting_event = true;
       fTDiffPerDetector->Draw("COLZ");
