@@ -86,13 +86,13 @@ void ProtonBandGraphicalCut(std::string identifier, std::string filename, std::s
 	double x_coord = i_arm->selected_band->GetXaxis()->GetBinCenter(i_bin);
 	double y_coord = i_arm->selected_band->GetYaxis()->GetBinCenter(j_bin);
 	
-	if (i_arm->selected_band->GetBinContent(i_bin, j_bin) < 20 ||
+	/*	if (i_arm->selected_band->GetBinContent(i_bin, j_bin) < 20 ||
 	    y_coord < electron_spot_cut->Eval(x_coord) || 
 	    y_coord < punch_through_cut->Eval(x_coord) ||
 	    y_coord > deuteron_cut->Eval(x_coord) ) {
 
 	  i_arm->selected_band->SetBinContent(i_bin, j_bin, 0);
-	}
+	  }*/
       }
     }
     i_arm->selected_band->ResetStats();    
@@ -100,6 +100,10 @@ void ProtonBandGraphicalCut(std::string identifier, std::string filename, std::s
     //    electron_spot_cut->Draw("LSAME");
     //    punch_through_cut->Draw("LSAME");
     //    deuteron_cut->Draw("LSAME");
+    electron_spot_cut->Write();
+    punch_through_cut->Write();
+    deuteron_cut->Write();
+
 
     std::string output_plotname = output_location+"/"+i_arm->armname+"_EvdE_SelectedBand";
     std::string pdfname = plotname+".pdf";
