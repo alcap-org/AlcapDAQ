@@ -25,13 +25,9 @@ class TF1;
 /// This produces the height spectrum of the germanium based on timing cuts.
 ///
 /// \details
-/// We look near muon entrances for the xrays and several microseconds away for
-/// longer lived nuclear decays. We also look at medium time distances for
-/// captures. These refer to the "Energy", "EnergyFarOOT" and "EnergyOOT"
-/// histograms respectively. Also plots time vs energy in tight window
-/// in TimeEnergy histogram, and looks for timing correlations with muSc
-/// in MeanTOffset within a MIDAS event (as each event might have a slightly
-/// different offset due to clock reset).
+/// We look at ScGe hits where the GeS has railed, and where the
+/// GeF is in time coincidence with the ScGe to see the electron
+/// spectrum in the ScGe.
 ////////////////////////////////////////////////////////////////////////////////
 class ScGeConditionalHeight : public BaseModule {
 
@@ -42,7 +38,7 @@ class ScGeConditionalHeight : public BaseModule {
   const double fTCoinc;
   const Algorithm::ConstantFractionTime fCFTimeGe;
   const Algorithm::ConstantFractionTime fCFTimeScGe;
-
+  
   static const IDs::channel fGeS;
   static const IDs::channel fGeF;
   static const IDs::channel fScGe;
@@ -88,10 +84,16 @@ class ScGeConditionalHeight : public BaseModule {
   /// Since we'll be using the std::upper_bound/std::lower_bound methods,
   /// this makes it possible to use the times of the TPIs without
   /// writing some hacky compare function (that would use the TAPAlgorithms).
-  std::vector<double> CalculateTimes(const IDs::channel& chan, const std::vector<TPulseIsland*>& tpis);
+  std::vector<double>       CalculateTimes  (const IDs::channel& chan, const std::vector<TPulseIsland*>& tpis);
+  std::vector<unsigned int> CalculateHeights(const std::vector<TPulseIsland*>& tpis);
+  
   /// \brief
-
+  /// Checks inputs from the configuration file for this module
+  /// make sense, and then saves those to an options (opts) branch
+  /// in output file.
   static void SaveInputsAndThrowIfInputsInsane(const modules::options*);
+
+  static void ThrowIfGeInsane(const std::vector<TPulseIsland*>& ge1s, const std::vector<TPulseIsland*>& ge2s);
 };
 
 #endif //SCGECONDITIONALHEIGHT_H_
