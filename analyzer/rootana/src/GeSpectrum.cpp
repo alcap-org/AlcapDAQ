@@ -285,6 +285,15 @@ void GeSpectrum::RemovePileupMuScPulses(std::vector<double>& t, std::vector<doub
     if (t[i] - t[i-1] < fPileupProtectionWindow)
       rm[i] = rm[i-1] = true;
   rm.back() = true;
+
+  // AE: Add an energy cut
+  int amp_cut=400;
+  for (unsigned int i = 0; i < e.size(); ++i) {
+    if (e[i] < amp_cut) {
+      rm[i] = true;
+    }
+  }
+  rm.back() = true;
   for (unsigned int i = 0; i < t.size(); ++i) {
     if (rm[i]) {
       t.erase(t.begin()+i);
