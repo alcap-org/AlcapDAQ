@@ -68,6 +68,8 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fHist_TimeADC      = new TH2D("hTimeADC", "Energy of Gammas within Time Window;Energy (ADC);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
   fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window;Energy (keV);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, n_energy_bins, min_energy, max_energy);
   fHist_MeanTOffset  = new TH1D("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -4.*fTimeWindow_Big, 4.*fTimeWindow_Big);
+  fHist_MuScAmplitude = new TH1F("hMuScAmplitude", "Amplitude of the MuSc Pulses", 4096,0,4096);
+  fHist_MuScAmplitude_Muons = new TH1F("hMuScAmplitude_Muons", "Amplitude of Muon MuSc Pulses", 4096,0,4096);
   cwd->cd();
   ThrowIfInputsInsane(opts);
 }
@@ -287,10 +289,15 @@ void GeSpectrum::RemovePileupMuScPulses(std::vector<double>& t, std::vector<doub
   rm.back() = true;
 
   // AE: Add an energy cut
-  int amp_cut=400;
+  int low_amp_cut=400;
+  int high_amp_cut=2000;
   for (unsigned int i = 0; i < e.size(); ++i) {
-    if (e[i] < amp_cut) {
+    fHist_MuScAmplitude->Fill(e[i]);
+    if (e[i] < low_amp_cut || e[i] > high_amp_cut) {
       rm[i] = true;
+    }
+    else {
+      fHist_MuScAmplitude_Muons->Fill(e[i]);
     }
   }
   rm.back() = true;
