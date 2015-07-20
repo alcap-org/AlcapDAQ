@@ -50,11 +50,13 @@ class GeSpectrum : public BaseModule {
   TH1* fHist_MeanTOffset;
   TH1* fHist_MuScAmplitude;
   TH1* fHist_MuScAmplitude_Muons;
+  TH1* fHist_GeTimes;
 
   // Algorithms
   const Algorithm::MaxBinAmplitude fMBAmpGe;
   const Algorithm::MaxBinAmplitude fMBAmpMuSc;
   const Algorithm::ConstantFractionTime fCFTimeGe, fCFTimeMuSc;
+  const Algorithm::MaxBinTime fMBTimeGe, fMBTimeMuSc;
   TF1* fADC2Energy;
   // Time cuts
   const double fTimeWindow_Small; // ns
