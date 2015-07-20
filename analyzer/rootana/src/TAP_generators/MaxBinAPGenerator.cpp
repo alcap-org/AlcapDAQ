@@ -22,7 +22,7 @@ MaxBinAPGenerator::MaxBinAPGenerator(TAPGeneratorOptions* opts)
 		     TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
     fMaxBinTime(TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
 		TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
-		opts->GetDouble("time_shift", TSetupData::Instance()->GetTimeShift(TSetupData::Instance()->GetBankName(GetChannel().str())))) {
+		opts->GetBool("no_time_shift", false) ? 0. : SetupNavigator::Instance()->GetCoarseTimeOffset(GetSource())) {
 
 }
 
@@ -51,4 +51,4 @@ int MaxBinAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
   std::sort(analysedList.begin(), analysedList.end(), IsTimeOrdered);
   return 0;
 }
-ALCAP_TAP_GENERATOR(MaxBin);
+ALCAP_TAP_GENERATOR(MaxBin, no_time_shift);
