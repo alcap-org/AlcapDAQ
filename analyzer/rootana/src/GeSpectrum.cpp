@@ -72,7 +72,6 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fHist_MeanTOffset  = new TH1D("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -4.*fTimeWindow_Big, 4.*fTimeWindow_Big);
   fHist_MuScAmplitude = new TH1F("hMuScAmplitude", "Amplitude of the MuSc Pulses", 4096,0,4096);
   fHist_MuScAmplitude_Muons = new TH1F("hMuScAmplitude_Muons", "Amplitude of Muon MuSc Pulses", 4096,0,4096);
-  fHist_GeTimes = new TH1F("hGeTimes", "Time of Germanium Pulses", 5000,-1e5, 1e5);
   cwd->cd();
   ThrowIfInputsInsane(opts);
 }
@@ -106,7 +105,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   const std::vector<double> muScEnergies  = CalculateEnergies(fMuSc,   TPIMap.at(bank_musc));
   const std::vector<double> geTimes    = CalculateTimes(fGeS,    TPIMap.at(bank_ges));
   const std::vector<double> geEnergies = CalculateEnergies(fGeS, TPIMap.at(bank_ges));
-  
+
   std::vector<double> muScTimesPP(muScTimes), muScEnergiesPP(muScEnergies);
   RemovePileupMuScPulses(muScTimesPP, muScEnergiesPP);
 
@@ -186,7 +185,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
 	fHist_TimeADC->Fill(dt_next, *geE);
 	fHist_TimeEnergy->Fill(dt_next, fADC2Energy->Eval(*geE));
       } else {
-	std::cout << "WARNING: Unexpected branch! Prev: (" << prev_found << ", " << dt_prev << "), Next: (" << next_found << ", " << dt_next << ")" << std::endl;
+	  std::cout << "WARNING: Unexpected branch! Prev: (" << prev_found << ", " << dt_prev << "), Next: (" << next_found << ", " << dt_next << ")" << std::endl;
       }
     }
     fHist_ADC->Fill(*geE);
@@ -204,7 +203,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
       else if (dt_next < -fTimeWindow_Small)
 	fHist_TimeOOT->Fill(dt_next);
     }
-
+    
     // Silicon XRay
     //if (ge_energy >= 3260 && energy_ge <= 3290)
     // Aluminium XRay
@@ -240,7 +239,6 @@ std::vector<double> GeSpectrum::CalculateTimes(const IDs::channel& ch, const std
   else if (ch == fGeS)
     for (unsigned int i = 0; i < tpis.size(); ++i){
       t.push_back(fMBTimeGe(tpis[i]));
-      fHist_GeTimes->Fill(fMBTimeGe(tpis[i]));
     }
   else
     throw std::logic_error("GeSpectrum: Invalid channel to calculate times for.");
@@ -293,19 +291,6 @@ void GeSpectrum::RemovePileupMuScPulses(std::vector<double>& t, std::vector<doub
       rm[i] = rm[i-1] = true;
   rm.back() = true;
 
-  // AE: Add an energy cut
-  int low_amp_cut=400;
-  int high_amp_cut=2000;
-  for (unsigned int i = 0; i < e.size(); ++i) {
-    fHist_MuScAmplitude->Fill(e[i]);
-    if (e[i] < low_amp_cut || e[i] > high_amp_cut) {
-      rm[i] = true;
-    }
-    else {
-      fHist_MuScAmplitude_Muons->Fill(e[i]);
-    }
-  }
-  rm.back() = true;
   for (unsigned int i = 0; i < t.size(); ++i) {
     if (rm[i]) {
       t.erase(t.begin()+i);
