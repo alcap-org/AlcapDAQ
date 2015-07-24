@@ -60,7 +60,7 @@ extern TSetupData* gSetup;
 map <std::string, TH1F*> DQ_IslandLength_histograms_map;
 map <std::string, TH1F*> DQ_IslandLength_histograms_normalised_map;
 
-extern TH1F* hDQ_TDCCheck_muSc;
+extern TH1F* hDQ_TDCCheck_TTSc;
 
 ANA_MODULE MDQ_IslandLength_module =
 {
@@ -111,7 +111,7 @@ INT MDQ_IslandLength_init()
     TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), 10000,0,10000);
     hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Length [samples]");
     std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
-    yaxislabel += " per TDC muSc Hit";
+    yaxislabel += " per TDC TSc Hit";
     hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
     DQ_IslandLength_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
   }
@@ -142,7 +142,7 @@ INT MDQ_IslandLength_eor(INT run_number) {
       
     // Make sure the histograms exist and then fill them
     if (DQ_IslandLength_histograms_normalised_map.find(bankname) != DQ_IslandLength_histograms_normalised_map.end()) {
-      DQ_IslandLength_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
+      DQ_IslandLength_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_TTSc->GetEntries());
     }
   }
 

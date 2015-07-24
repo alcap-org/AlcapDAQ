@@ -5,7 +5,7 @@
 RunNumbers=( 66{58..74} 66{76..91} 6{692..711} )
 
 AlcapanaPath="$HOME/AlcapDAQ/analyzer/work/damien"
-DataDir="$AlcapanaPath/Pbhists_619"
+DataDir="$AlcapanaPath/Pbhists_620"
 mkdir -p $DataDir
 
 odbedit -c "rm Analyzer/WireMap"

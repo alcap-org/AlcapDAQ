@@ -58,7 +58,7 @@ extern TSetupData* gSetup;
 map <std::string, TH1F*> DQ_IslandTimestamp_histograms_map;
 map <std::string, TH1F*> DQ_IslandTimestamp_histograms_normalised_map;
 
-extern TH1F* hDQ_TDCCheck_muSc;
+extern TH1F* hDQ_TDCCheck_TTSc;
 
 ANA_MODULE MDQ_IslandTimestamp_module =
 {
@@ -112,7 +112,7 @@ INT MDQ_IslandTimestamp_init()
     TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), n_bins,0,bin_max);
     hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Time Stamp [ns]");
     std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
-    yaxislabel += " per TDC muSc Hit";
+    yaxislabel += " per TDC TSc Hit";
     hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
     DQ_IslandTimestamp_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
   }
@@ -144,7 +144,7 @@ INT MDQ_IslandTimestamp_eor(INT run_number) {
       
     // Make sure the histograms exist and then fill them
     if (DQ_IslandTimestamp_histograms_normalised_map.find(bankname) != DQ_IslandTimestamp_histograms_normalised_map.end()) {
-      DQ_IslandTimestamp_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
+      DQ_IslandTimestamp_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_TTSc->GetEntries());
     }
   }
 

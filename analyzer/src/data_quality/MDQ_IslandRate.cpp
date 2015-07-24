@@ -59,7 +59,7 @@ extern TSetupData* gSetup;
 TH1F* hDQ_IslandRate;
 TH1F* hDQ_IslandRate_normalised;
 
-extern TH1F* hDQ_TDCCheck_muSc;
+extern TH1F* hDQ_TDCCheck_TTSc;
 
 ANA_MODULE MDQ_IslandRate_module =
 {
@@ -101,7 +101,7 @@ INT MDQ_IslandRate_init()
   hDQ_IslandRate_normalised = new TH1F(histname.c_str(), histtitle.c_str(), 1,0,1);
   hDQ_IslandRate_normalised->GetXaxis()->SetTitle("Detector (Bank)");
   std::string yaxislabel = hDQ_IslandRate->GetYaxis()->GetTitle();
-  yaxislabel += " per TDC muSc Hit";
+  yaxislabel += " per TDC TSc Hit";
   hDQ_IslandRate_normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
 
 
@@ -161,7 +161,7 @@ INT MDQ_IslandRate_eor(INT run_number) {
   hDQ_IslandRate->Scale(1.0/duration);
   hDQ_IslandRate_normalised->Scale(1.0/duration);
 
-  hDQ_IslandRate_normalised->Scale(1.0/hDQ_TDCCheck_muSc->GetEntries()); // also normalise to the number of muSc hits in the TDC
+  hDQ_IslandRate_normalised->Scale(1.0/hDQ_TDCCheck_TTSc->GetEntries()); // also normalise to the number of muSc hits in the TDC
 
   return SUCCESS;
 }

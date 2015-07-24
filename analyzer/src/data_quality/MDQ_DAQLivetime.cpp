@@ -2,6 +2,7 @@
 /// \defgroup MDQ_DAQLivetime
 /// \ingroup lldq
 /// \author Andrew Edmonds
+/// \editor Damien Alexander
 ///
 /// \brief
 /// Stores fraction of run time that data was being taken.
@@ -12,10 +13,20 @@
 /// Creates ::hDQ_DAQLivetime.
 /// @{
 
-/// \var hDQ_DAQLivetime
+/// \var hDQ_DAQLivetime_event
 /// \brief
 /// Plots the livetime of the DAQ, calculated from the sum
 /// of event times by the total run time
+
+/// \var hDQ_DAQLivetime_pulser
+/// \brief
+/// Plots the Livetime of the DAQ, calculated from the ratio of
+/// of pulser pulses (10kHz, 100usec) to run time (from odb)
+
+/// \var hDQ_EventTime
+/// \brief
+/// Plots the time of each event based on the number of pulser
+/// hits sen (assumed 10 kHz)
 ////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
@@ -53,7 +64,10 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-TH1F* hDQ_DAQLivetime;
+TH1F* hDQ_DAQLivetime_event;
+TH1F* hDQ_DAQLivetime_pulser;
+TH1F* hDQ_EventTime;
+
 
 ANA_MODULE MDQ_DAQLivetime_module =
 {
@@ -81,13 +95,26 @@ INT MDQ_DAQLivetime_init()
     gDirectory->Cd(dir_name.c_str());
   }
 
-  // hDQ_DAQLivetime
-  std::string histname = "hDQ_DAQLivetime";
+  // hDQ_DAQLivetime_event
+  std::string histname = "hDQ_DAQLivetime_event";
   std::string histtitle = "DAQ Livetime of the Run";
-  hDQ_DAQLivetime = new TH1F(histname.c_str(), histtitle.c_str(), 3,0,3);
-  hDQ_DAQLivetime->GetXaxis()->SetTitle("");
-  hDQ_DAQLivetime->GetYaxis()->SetTitle("DAQ Livetime");
+  hDQ_DAQLivetime_event = new TH1F(histname.c_str(), histtitle.c_str(), 3,0,3);
+  hDQ_DAQLivetime_event->GetXaxis()->SetTitle("");
+  hDQ_DAQLivetime_event->GetYaxis()->SetTitle("DAQ Livetime");
 
+  // hDQ_DAQLivetime_pulser
+  histname = "hDQ_DAQLivetime_pulser";
+  histtitle = "DAQ Livetime of the Run (pulser based)";
+  hDQ_DAQLivetime_pulser = new TH1F(histname.c_str(), histtitle.c_str(), 3,0,3);
+  hDQ_DAQLivetime_pulser->GetXaxis()->SetTitle("");
+  hDQ_DAQLivetime_pulser->GetYaxis()->SetTitle("DAQ Livetime");
+
+  //hDQ_EventTime
+  histname = "hDQ_EventTime";
+  histtitle = "Duration of events";
+  hDQ_EventTime = new TH1F(histname.c_str(), histtitle.c_str(), 300, 0, 0.3);
+  hDQ_EventTime->GetXaxis()->SetTitle("Event duration (ms)");
+  hDQ_EventTime->GetYaxis()->SetTitle("");
 
   gDirectory->Cd("/MidasHists/");
   return SUCCESS;
@@ -142,7 +169,8 @@ INT MDQ_DAQLivetime_eor(INT run_number) {
 
   int duration = StopTimes[0] - StartTimes[0]; // length of run in seconds (checked against run #2600)
 
-  hDQ_DAQLivetime->Scale(1.0/duration);
+  hDQ_DAQLivetime_event->Scale(1.0/duration);
+  hDQ_DAQLivetime_pulser->Scale(1.0/duration);
 
   return SUCCESS;
 }
@@ -162,7 +190,23 @@ INT MDQ_DAQLivetime(EVENT_HEADER *pheader, void *pevent)
 	// Add an event
 	double gate_length = 110; // ms
 	gate_length /= 1000; // convert to seconds since that is what the duration of the run will be calculated in
-	hDQ_DAQLivetime->Fill(1,gate_length);
+	hDQ_DAQLivetime_event->Fill(1,gate_length);
+
+	double pulser_sep = 0.0001; //10kHz in seconds
+	const std::map<std::string, std::vector<int64_t> >& tdcs_map =
+	  gData->fTDCHitsToChannelMap;
+	char det[16]; sprintf(det, "TSync");
+	std::string bank = gSetup->GetBankName(det);
+	int nPulses = 0;
+	if(tdcs_map.count(bank))
+	  nPulses = tdcs_map.at(bank).size();
+	double event_time = nPulses * pulser_sep;
+	hDQ_DAQLivetime_pulser->Fill(1, event_time);
+	hDQ_EventTime->Fill(event_time);
+
+
+
+
 	return SUCCESS;
 }
 

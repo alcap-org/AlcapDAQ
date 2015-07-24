@@ -178,7 +178,9 @@ INT MDQ_DigitizerOverflow(EVENT_HEADER *pheader, void *pevent)
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
 
 	  int n_bits = gSetup->GetNBits(bankname);
-	  overflow_value = std::pow(2, n_bits) - 1;
+	  int trigger_polarity = gSetup->GetTriggerPolarity(bankname);
+	  //overflow = max bin for pos trigger polarity, zero otherwise
+	  overflow_value = (std::pow(2, n_bits) - 1);
 
 	  // Loop over the TPulseIslands and plot the histogram
 	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
@@ -191,13 +193,18 @@ INT MDQ_DigitizerOverflow(EVENT_HEADER *pheader, void *pevent)
 	      int sample_number = sampleIter - theSamples.begin();
 	      int sample_value = *sampleIter;
 
-	      if (sample_value >= overflow_value){
+	      if (sample_value >= overflow_value && trigger_polarity == 1){
 		//printf(" sample overflow! sample #%d value %d midas event #%d bankname %s detname %s\n",sample_number,sample_value,midas_event_number,bankname.c_str(),detname.c_str());
 		pulse_overflow = 1;
-
+		break;
+	      }
+	      else if(sample_value <= 0 && trigger_polarity == -1){
+		pulse_overflow = 1;
+		break;
 	      }
                 
-            
+	      //this should be done at the pulse level, not the sample level
+	      /*
 	      std::string binname = bankname + "(" + detname + ")";
               hDQ_DigitizerOverflow_Total->Fill(binname.c_str(),1);
               hDQ_DigitizerOverflow_TotalByEvent->Fill(binname.c_str(),midas_event_number,1);
@@ -205,8 +212,17 @@ INT MDQ_DigitizerOverflow(EVENT_HEADER *pheader, void *pevent)
                 hDQ_DigitizerOverflow_Fraction->Fill(binname.c_str(),1);
                 hDQ_DigitizerOverflow_FractionByEvent->Fill(binname.c_str(),midas_event_number,1);
                 //printf(" total pulses %d integral %f\n",total_pulses,hDQ_ADCSampleOverflow->Integral());
+		
               }
-
+	      */
+	    }
+	    std::string binname = bankname + "(" + detname + ")";
+	    hDQ_DigitizerOverflow_Total->Fill(binname.c_str(),1);
+	    hDQ_DigitizerOverflow_TotalByEvent->Fill(binname.c_str(),midas_event_number,1);
+	    if ((pulse_overflow)){
+	      hDQ_DigitizerOverflow_Fraction->Fill(binname.c_str(),1);
+	      hDQ_DigitizerOverflow_FractionByEvent->Fill(binname.c_str(),midas_event_number,1);
+	   
 	    }
 	  }
 	}

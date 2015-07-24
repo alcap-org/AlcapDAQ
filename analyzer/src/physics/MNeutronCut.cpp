@@ -30,7 +30,7 @@ ANA_MODULE MNeutronCut_module =
     MNeutronCut,                /*event routine       */
     NULL,                       /*BOR routine         */
     NULL,                       /*EOR routine         */
-    NULL,           /*init routine        */
+    NULL,                       /*init routine        */
     NULL,                       /*exit routine        */
     NULL,                       /*parameter structure */
     0,                          /*structure size      */
@@ -49,9 +49,11 @@ INT MNeutronCut(EVENT_HEADER *pheader, void *pevent)
       std::string bankname = mIter->first;
       std::string detname = gSetup->GetDetectorName(bankname);
       std::vector<TPulseIsland*>& thePulses = mIter->second;
- 
+
       if(!gSetup->IsNeutron(detname))
 	continue;
+
+      int trigger_polarity = gSetup->GetTriggerPolarity(bankname);
 
       //std::cout << thePulses.size() << " total hits in the neutron detector" << std::endl;
       
@@ -60,7 +62,6 @@ INT MNeutronCut(EVENT_HEADER *pheader, void *pevent)
 	  //get pulse samples
 	  const std::vector<int>& samples = (*pIter)->GetSamples();
 	  
-	  int trigger_polarity = gSetup->GetTriggerPolarity(bankname);
 	  std::vector<int>::const_iterator pulse_time;
 	  trigger_polarity == 1 ? pulse_time = std::max_element(samples.begin(), samples.end()) : pulse_time = std::min_element(samples.begin(), samples.end());
 

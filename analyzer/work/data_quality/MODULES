@@ -1,32 +1,28 @@
-common/MUnCompressRawData
-
-FADC/MOctalFADCProcessRaw
-v1724/MV1724ProcessRaw
 dt5720/MDT5720ProcessRaw
+dt5730/MDT5730ProcessRaw
+v1724/MV1724ProcessRaw
+v1720/MV1720ProcessRaw
+v1290/MV1290ProcessRaw
 
-muSC_muPC/MCaenCompProcessRaw
-muSC_muPC/MMuPC1AnalysisC
-muSC_muPC/MMuPC1AnalysisMQL
-muSC_muPC/MMuPC_Repackage
+dt5720/MDT5720Errors
+dt5730/MDT5730Errors
 
-caen/MCAENPulseIslandSortAndStitch
+data_quality/MDQ_TDCCheck
 
 data_quality/MDQ_Amplitude
+#data_quality/MDQ_Thresholds
+data_quality/MDQ_PulseShapes
+data_quality/MDQ_DAQLivetime
+data_quality/MDQ_RunTime
+data_quality/MDQ_IntegralRatio
 data_quality/MDQ_DigitizerOverflow
-data_quality/MDQ_FADCBufferOverflow
-data_quality/MDQ_FADCPacketLoss
 data_quality/MDQ_IslandCounter
 data_quality/MDQ_IslandLength
 data_quality/MDQ_IslandRate
 data_quality/MDQ_IslandTimestamp
-data_quality/MDQ_PulseShapes
-data_quality/MDQ_RunTime
-data_quality/MDQ_TDCCheck
-data_quality/MDQ_muScTDiff
-data_quality/MDQ_DAQLivetime
-data_quality/MDQ_Thresholds
+
+Timing/MSyncCount
+Timing/MTDCWFDTCorr
 
 vacuum/MVacuumHisto
-
-common/MTreeOutput
-
+#common/MTreeOutput

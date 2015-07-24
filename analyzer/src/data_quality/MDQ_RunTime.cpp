@@ -151,11 +151,6 @@ INT MDQ_RunTime(EVENT_HEADER *pheader, void *pevent)
 	// Get the event number
 	int midas_event_number = pheader->serial_number;
 
-	// Some typedefs
-	typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-	typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-	typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
-
 	// Don't need anything here
 
 	return SUCCESS;

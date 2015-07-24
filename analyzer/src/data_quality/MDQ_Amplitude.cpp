@@ -76,7 +76,7 @@ map <std::string, TH1F*> DQ_Amplitude_histograms_map;
 map <std::string, TH1F*> DQ_Amplitude_histograms_normalised_map;
 map <std::string, TH1F*> DQ_Amplitude_histograms_ped_sub_map;
 
-extern TH1F* hDQ_TDCCheck_muSc;
+extern TH1F* hDQ_TDCCheck_TTSc;
 
 ANA_MODULE MDQ_Amplitude_module =
 {
@@ -125,17 +125,17 @@ INT MDQ_Amplitude_init()
     hDQ_Histogram->GetXaxis()->SetTitle("Amplitude [adc]");
     hDQ_Histogram->GetYaxis()->SetTitle("Counts");
     DQ_Amplitude_histograms_map[bankname] = hDQ_Histogram;
-
+    
     // The normalised histogram
     std::string normhistname = histname + "_normalised";
     std::string normhisttitle = histtitle + " (normalised)";
     TH1F* hDQ_Histogram_Normalised = new TH1F(normhistname.c_str(), normhisttitle.c_str(), max_adc_value,0,max_adc_value);
     hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Amplitude [adc]");
     std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
-    yaxislabel += " per TDC muSc Hit";
+    yaxislabel += " per TDC TSc Hit";
     hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
     DQ_Amplitude_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
-
+    
     // The pedestal subtracted histogram
     std::string pedsubhistname = histname + "_ped_sub";
     std::string pedsubhisttitle = histtitle + " (pedestal subtracted)";
@@ -152,7 +152,7 @@ INT MDQ_Amplitude_init()
 /** This method does any last minute things to the histograms at the end of the run
  */
 INT MDQ_Amplitude_eor(INT run_number) {
-
+  
   // Some typedefs
   typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
@@ -171,10 +171,10 @@ INT MDQ_Amplitude_eor(INT run_number) {
       
     // Make sure the histograms exist and then fill them
     if (DQ_Amplitude_histograms_normalised_map.find(bankname) != DQ_Amplitude_histograms_normalised_map.end()) {
-      DQ_Amplitude_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
+      DQ_Amplitude_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_TTSc->GetEntries());
     }
   }
-
+  
   return SUCCESS;
 }
 
@@ -201,7 +201,7 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 
 	  // Get the histograms first
 	  TH1F* hDQ_Amplitude = DQ_Amplitude_histograms_map[bankname];
-	  TH1F* hDQ_Amplitude_Norm = DQ_Amplitude_histograms_normalised_map[bankname];
+	  //TH1F* hDQ_Amplitude_Norm = DQ_Amplitude_histograms_normalised_map[bankname];
 	  TH1F* hDQ_Amplitude_PedSub = DQ_Amplitude_histograms_ped_sub_map[bankname];
 	  // Loop over the TPulseIslands and plot the histogram
 	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
@@ -227,7 +227,7 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 			  const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
 			  int peak_sample = (*pulseIter)->GetPeakSample();
 			  hDQ_Amplitude->Fill(theSamples.at(peak_sample));
-			  hDQ_Amplitude_Norm->Fill(theSamples.at(peak_sample));
+			  //hDQ_Amplitude_Norm->Fill(theSamples.at(peak_sample));
 			  
 			  int amplitude = (*pulseIter)->GetPulseHeight();
 			  hDQ_Amplitude_PedSub->Fill(amplitude);
