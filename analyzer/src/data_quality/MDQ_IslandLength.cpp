@@ -95,6 +95,7 @@ INT MDQ_IslandLength_init()
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
+    if(IsTDC(bankname)) continue;
 
     // hDQ_IslandLength_[DetName]_[BankName]
     std::string histname = "hDQ_IslandLength_" + detname + "_" + bankname;
@@ -139,6 +140,7 @@ INT MDQ_IslandLength_eor(INT run_number) {
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
+    if(IsTDC(bankname)) continue;
       
     // Make sure the histograms exist and then fill them
     if (DQ_IslandLength_histograms_normalised_map.find(bankname) != DQ_IslandLength_histograms_normalised_map.end()) {
@@ -172,6 +174,7 @@ INT MDQ_IslandLength(EVENT_HEADER *pheader, void *pevent)
 			mapIter != pulse_islands_map.end(); ++mapIter) 
 	{
 	  std::string bankname = mapIter->first;
+	  if(IsTDC(bankname)) continue;
 	  std::string detname = gSetup->GetDetectorName(bankname);
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
 	  

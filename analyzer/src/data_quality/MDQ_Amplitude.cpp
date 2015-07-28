@@ -114,6 +114,7 @@ INT MDQ_Amplitude_init()
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
+    if(IsTDC(bankname)) continue;
     int n_bits = gSetup->GetNBits(bankname);
     int max_adc_value = std::pow(2, n_bits);
 
@@ -168,6 +169,7 @@ INT MDQ_Amplitude_eor(INT run_number) {
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
+    if(IsTDC(bankname)) continue;
       
     // Make sure the histograms exist and then fill them
     if (DQ_Amplitude_histograms_normalised_map.find(bankname) != DQ_Amplitude_histograms_normalised_map.end()) {
@@ -197,6 +199,7 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 	{
 	  std::string bankname = mapIter->first;
 	  std::string detname = gSetup->GetDetectorName(bankname);
+	  if(IsTDC(bankname)) continue;
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
 
 	  // Get the histograms first

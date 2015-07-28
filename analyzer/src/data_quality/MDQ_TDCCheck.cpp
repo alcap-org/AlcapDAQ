@@ -78,7 +78,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-static const int NCHANTDC = 32;
+static const int NCHANTDC = 16;
 const double TIME_LOW = -10e3, TIME_HIGH = 10e3; //ns
 
 static TH1* hDQ_TDCCheck[NCHANTDC];
@@ -227,8 +227,17 @@ INT MDQ_TDCCheck(EVENT_HEADER *pheader, void *pevent)
     gData->fTDCHitsToChannelMap;
 
   std::string refbank = gSetup->GetBankName("TTSc");
+  std::string pulsebank = gSetup->GetBankName("TSc");
+  if(tdc_map.find(refbank) == tdc_map.end()){
+    std::cout << "MDQ_TDCCheck Error : No TSc hits found in TDC" << std::endl;
+    return 1;
+  } 
   const std::vector<int64_t>& ref_hits = tdc_map.at(refbank);
-  const std::vector<TPulseIsland*>& pulses = wfd_map.at("TSc");
+  if(wfd_map.find(pulsebank) == wfd_map.end()){
+    std::cout << "MDQ_TDCCheck Error : No TSc hits found in WFD" << std::endl;
+    return 1;
+  } 
+  const std::vector<TPulseIsland*>& pulses = wfd_map.at(pulsebank);
   static const float clock_tick = 0.025; //ns conversion for TDC hits
 
   for(int ich = 0; ich < NCHANTDC; ++ich) {
@@ -236,12 +245,16 @@ INT MDQ_TDCCheck(EVENT_HEADER *pheader, void *pevent)
     char tdc_bank[5];
     sprintf(tdc_bank, "T4%02d", ich);
 
+    if(tdc_map.find(tdc_bank) == tdc_map.end()){
+      std::cout << "MDQ_TDCCheck error:  bank " << tdc_bank << " not found" << std::endl;
+      continue;
+    } 
     const std::vector<int64_t>& hits = tdc_map.at(tdc_bank);
-    hDQ_TDCCheck[ich]->Fill(hits.size());
+    hDQ_TDCCheck[ich]->Fill(1, hits.size());
 
-    if(tdc_bank == refbank.c_str()) {
-      hDQ_TDCCheck_TSc_rate->Fill(hits.size());
-      hDQ_TDCCheck_TTSc->Fill(hits.size());
+    if(tdc_bank == refbank) {
+      hDQ_TDCCheck_TSc_rate->Fill(1, hits.size());
+      hDQ_TDCCheck_TTSc->Fill(1, hits.size());
       for(int i=0; i< hits.size(); i++)
 	hDQ_TDCCheck_TSc_time->Fill(hits[i]);
     }

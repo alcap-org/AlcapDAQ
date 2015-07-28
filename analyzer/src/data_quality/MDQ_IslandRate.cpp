@@ -161,7 +161,7 @@ INT MDQ_IslandRate_eor(INT run_number) {
   hDQ_IslandRate->Scale(1.0/duration);
   hDQ_IslandRate_normalised->Scale(1.0/duration);
 
-  hDQ_IslandRate_normalised->Scale(1.0/hDQ_TDCCheck_TTSc->GetEntries()); // also normalise to the number of muSc hits in the TDC
+  hDQ_IslandRate_normalised->Scale(1.0/hDQ_TDCCheck_TTSc->GetEntries()); // also normalise to the number of TSc hits in the TDC
 
   return SUCCESS;
 }
@@ -187,6 +187,7 @@ INT MDQ_IslandRate(EVENT_HEADER *pheader, void *pevent)
 	for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) 
 	{
 	  std::string bankname = mapIter->first;
+	  if(IsTDC(bankname)) continue;
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
 	  std::string detname = gSetup->GetDetectorName(bankname);
 

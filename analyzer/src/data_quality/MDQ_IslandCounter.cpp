@@ -101,6 +101,10 @@ INT MDQ_IslandCounter_init()
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
 
+    if(IsTDC(bankname)){
+      continue;
+    }
+
     // hDQ_IslandCounter_[DetName]_[BankName]
     std::string histname = "hDQ_IslandCounter_" + detname + "_" + bankname;
     std::string histtitle = "Distribution of the number of islands per event in " + detname;
@@ -152,6 +156,7 @@ INT MDQ_IslandCounter_eor(INT run_number) {
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
+    if(IsTDC(bankname)) continue;
       
     // Make sure the histograms exist and then fill them
     if (DQ_IslandCounter_histograms_normalised_map.find(bankname) != DQ_IslandCounter_histograms_normalised_map.end()) {
@@ -195,6 +200,10 @@ INT MDQ_IslandCounter(EVENT_HEADER *pheader, void *pevent)
 	{
 	  std::string bankname = mapIter->first;
 	  std::string detname = gSetup->GetDetectorName(bankname);
+	  if(IsTDC(bankname)){
+	    continue;
+	  }
+
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
 			
 	  // Make sure the histograms exist and then fill them
