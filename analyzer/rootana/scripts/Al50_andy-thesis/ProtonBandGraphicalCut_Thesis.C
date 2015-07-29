@@ -1,10 +1,10 @@
-void ProtonBandGraphicalCut() {
+void ProtonBandGraphicalCut_Thesis() {
 
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogz(1);
 
   std::string version = "v69";
-  std::string savelocation = "~/data/out/"+version+"/plots";
+  std::string savelocation = "~/plots/ThesisPlots";
   const int n_arms = 2;
 
   std::string filename = "~/data/out/"+version+"/total.root";
@@ -12,10 +12,13 @@ void ProtonBandGraphicalCut() {
   TH2F* SiL_EvdE = (TH2F*) file->Get("TME_EvdE/all_particles/SiL_EvdE");
   TH2F* SiR_EvdE = (TH2F*) file->Get("TME_EvdE/all_particles/SiR_EvdE");
 
+  SiL_EvdE->SetStats(false);
+  SiR_EvdE->SetStats(false);
+
   TH2F* evde_hists[n_arms] = {SiL_EvdE, SiR_EvdE};
   std::string arm_names[n_arms] = {"SiL", "SiR"};
 
-  TFile* output_file = new TFile("result_Al50.root", "RECREATE");
+  TFile* output_file = new TFile("result.root", "RECREATE");
 
   for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
   
@@ -42,7 +45,6 @@ void ProtonBandGraphicalCut() {
     deuteron_cut->SetParameter(2, 500);
     //    evde_hists[i_arm]->Fit(deuteron_cut, "R");
 
-    
     for (int i_bin = 1; i_bin <= evde_hists[i_arm]->GetNbinsX(); ++i_bin) {
       for (int j_bin = 1; j_bin <= evde_hists[i_arm]->GetNbinsY(); ++j_bin) {
 	double x_coord = evde_hists[i_arm]->GetXaxis()->GetBinCenter(i_bin);
@@ -56,26 +58,30 @@ void ProtonBandGraphicalCut() {
 	}
       }
     }
-    
     evde_hists[i_arm]->Draw("COLZ");
     //    electron_spot_cut->Draw("LSAME");
     //    punch_through_cut->Draw("LSAME");
     //    deuteron_cut->Draw("LSAME");
 
-    std::string plotname = savelocation+"/"+arm_names[i_arm]+"_EvdE_ProtonBand";
+    std::string plotname = savelocation+"/"+arm_names[i_arm]+"-stopped-protons";
     std::string pdfname = plotname+".pdf";
     std::string pngname = plotname+".png";
     c1->SaveAs(pdfname.c_str());
-    c1->SaveAs(pngname.c_str());
+    //    c1->SaveAs(pngname.c_str());
 
     TH1D* hProjection = evde_hists[i_arm]->ProjectionX();
-    //    hProjection->Rebin(10);
+    std::string histtitle = "Energy Spectrum of Protons Stopped in " + arm_names[i_arm];
+    hProjection->SetTitle(histtitle.c_str());
+    hProjection->SetYTitle("Number of Protons");
+    hProjection->Rebin(5);
+    hProjection->SetLineWidth(2);
+    hProjection->SetStats(false);
     hProjection->Draw("HIST E");
-    plotname = savelocation+"/"+arm_names[i_arm]+"_EvdE_ProtonBand_ProjectionX";
+    plotname = savelocation+"/"+arm_names[i_arm]+"-stopped-protons-energy-spectrum";
     pdfname = plotname+".pdf";
     pngname = plotname+".png";
     c1->SaveAs(pdfname.c_str());
-    c1->SaveAs(pngname.c_str());
+    //    c1->SaveAs(pngname.c_str());
 
     hProjection->Write();
 
@@ -83,6 +89,8 @@ void ProtonBandGraphicalCut() {
     double energy_range_high = 8000;
     int bin_low = hProjection->FindBin(energy_range_low);
     int bin_high = hProjection->FindBin(energy_range_high);
+    double error;
+    std::cout << arm_names[i_arm] << " Proton Integral (Full) = " << hProjection->IntegralAndError(1, hProjection->GetNbinsX(), error) << " +- " << error << std::endl;
     std::cout << arm_names[i_arm] << " Proton Integral (" << energy_range_low << " - " << energy_range_high << " keV) = " << hProjection->Integral(bin_low, bin_high) << std::endl;
   }
 }

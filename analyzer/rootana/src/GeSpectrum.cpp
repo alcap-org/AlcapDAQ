@@ -33,6 +33,8 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fHist_EnergyOOT(NULL), fHist_EnergyFarOOT(NULL), fHist_TimeEnergy(NULL), fHist_MeanTOffset(NULL),
   fMBAmpGe(SetupNavigator::Instance()->GetPedestal(fGeS), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeS.str()))),
   fMBAmpMuSc(SetupNavigator::Instance()->GetPedestal(fMuSc), TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fMuSc.str()))),
+  fMBTimeGe(TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeS.str())), TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fGeS.str())), SetupNavigator::Instance()->GetCoarseTimeOffset(IDs::source(fGeS, IDs::generator(opts->GetString("ges_gen"), opts->GetString("ges_cfg"))))),
+  fMBTimeMuSc(TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fMuSc.str())), TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fMuSc.str())), 0.),
   fCFTimeGe(SetupNavigator::Instance()->GetPedestal(fGeF),
 	    TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeF.str())),
 	    TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fGeF.str())),
@@ -68,6 +70,8 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fHist_TimeADC      = new TH2D("hTimeADC", "Energy of Gammas within Time Window;Energy (ADC);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, nbins, 0., nbins);
   fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas within Time Window;Energy (keV);Time (ns);Counts", 100, -fTimeWindow_Small, fTimeWindow_Small, n_energy_bins, min_energy, max_energy);
   fHist_MeanTOffset  = new TH1D("hMeanTOffset", "Mean offset from nearest muon taken over MIDAS event", 4000, -4.*fTimeWindow_Big, 4.*fTimeWindow_Big);
+  fHist_MuScAmplitude = new TH1F("hMuScAmplitude", "Amplitude of the MuSc Pulses", 4096,0,4096);
+  fHist_MuScAmplitude_Muons = new TH1F("hMuScAmplitude_Muons", "Amplitude of Muon MuSc Pulses", 4096,0,4096);
   cwd->cd();
   ThrowIfInputsInsane(opts);
 }
@@ -99,9 +103,9 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
 
   const std::vector<double> muScTimes  = CalculateTimes(fMuSc,   TPIMap.at(bank_musc));
   const std::vector<double> muScEnergies  = CalculateEnergies(fMuSc,   TPIMap.at(bank_musc));
-  const std::vector<double> geTimes    = CalculateTimes(fGeF,    TPIMap.at(bank_gef));
+  const std::vector<double> geTimes    = CalculateTimes(fGeS,    TPIMap.at(bank_ges));
   const std::vector<double> geEnergies = CalculateEnergies(fGeS, TPIMap.at(bank_ges));
-  
+
   std::vector<double> muScTimesPP(muScTimes), muScEnergiesPP(muScEnergies);
   RemovePileupMuScPulses(muScTimesPP, muScEnergiesPP);
 
@@ -181,7 +185,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
 	fHist_TimeADC->Fill(dt_next, *geE);
 	fHist_TimeEnergy->Fill(dt_next, fADC2Energy->Eval(*geE));
       } else {
-	std::cout << "WARNING: Unexpected branch! Prev: (" << prev_found << ", " << dt_prev << "), Next: (" << next_found << ", " << dt_next << ")" << std::endl;
+	  std::cout << "WARNING: Unexpected branch! Prev: (" << prev_found << ", " << dt_prev << "), Next: (" << next_found << ", " << dt_next << ")" << std::endl;
       }
     }
     fHist_ADC->Fill(*geE);
@@ -199,7 +203,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
       else if (dt_next < -fTimeWindow_Small)
 	fHist_TimeOOT->Fill(dt_next);
     }
-
+    
     // Silicon XRay
     //if (ge_energy >= 3260 && energy_ge <= 3290)
     // Aluminium XRay
@@ -231,10 +235,11 @@ std::vector<double> GeSpectrum::CalculateTimes(const IDs::channel& ch, const std
   std::vector<double> t;
   if (ch == fMuSc)
     for (unsigned int i = 0; i < tpis.size(); ++i)
-      t.push_back(fCFTimeMuSc(tpis[i]));
-  else if (ch == fGeF)
-    for (unsigned int i = 0; i < tpis.size(); ++i)
-      t.push_back(fCFTimeGe(tpis[i]));
+      t.push_back(fMBTimeMuSc(tpis[i]));
+  else if (ch == fGeS)
+    for (unsigned int i = 0; i < tpis.size(); ++i){
+      t.push_back(fMBTimeGe(tpis[i]));
+    }
   else
     throw std::logic_error("GeSpectrum: Invalid channel to calculate times for.");
   return t;
@@ -285,6 +290,7 @@ void GeSpectrum::RemovePileupMuScPulses(std::vector<double>& t, std::vector<doub
     if (t[i] - t[i-1] < fPileupProtectionWindow)
       rm[i] = rm[i-1] = true;
   rm.back() = true;
+
   for (unsigned int i = 0; i < t.size(); ++i) {
     if (rm[i]) {
       t.erase(t.begin()+i);

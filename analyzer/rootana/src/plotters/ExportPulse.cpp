@@ -242,11 +242,11 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info){
 
   if(fUsePCF){
       // don't save the original
-      fullPulse->SetDirectory(0);
+    //      fullPulse->SetDirectory(0);
 
       // make the stack
-      THStack* stack=new THStack((hist+"_pulse_candidates").c_str(),title.str().c_str());
-      stack->Add(fullPulse);
+      //THStack* stack=new THStack((hist+"_pulse_candidates").c_str(),title.str().c_str());
+      //stack->Add(fullPulse);
 
       fPulseFinder->FindPulseCandidates(pulse);
       fPulseFinder->GetPulseCandidates(fSubPulses);
@@ -254,16 +254,19 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info){
           if((*i_tpi)->GetPulseLength() < 14) continue;
 
           int shift=(*i_tpi)->GetTimeStamp()-pulse->GetTimeStamp();
-          TH1F* sub_pulse=MakeHistTPI(*i_tpi,"sub_pulse",shift,pulse->GetPulseLength());
-          sub_pulse->SetFillColor(kMagenta);
+	  std::stringstream sub_pulse_name;
+	  sub_pulse_name << fullPulse->GetName() << "_" << i_tpi - fSubPulses.begin();
+          TH1F* sub_pulse=MakeHistTPI(*i_tpi,sub_pulse_name.str().c_str(),shift,pulse->GetPulseLength());
+          sub_pulse->SetLineColor(kMagenta);
           // need to subtract found pulse from full pulse else THStack
           // superposes the two regions 
-          fullPulse->Add(sub_pulse,-1);
-          stack->Add(sub_pulse);
+	  //          fullPulse->Add(sub_pulse,-1);
+	  //          stack->Add(sub_pulse);
+	  fTPIDirectory->Add(sub_pulse);
       }
 
       // Save the stack
-      fTPIDirectory->Add(stack);
+      //      fTPIDirectory->Add(stack);
   }
 
   return 0;
@@ -273,8 +276,9 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info){
 TH1F* ExportPulse::MakeHistTPI(const TPulseIsland* pulse, const std::string& name, int shift, int samples)const{
 
   size_t num_samples = samples? samples: pulse->GetPulseLength();
-  double min=0;
-  double max= num_samples;
+  double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(pulse->GetBankName());
+  double min=0*clock_tick_in_ns;
+  double max= num_samples*clock_tick_in_ns;
   TH1F* hPulse = new TH1F(name.c_str(), name.c_str(), num_samples,min,max);
   hPulse->SetDirectory(0);
 

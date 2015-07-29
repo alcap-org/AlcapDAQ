@@ -1,21 +1,26 @@
 void PrintEvdEPlots() {
 
-  std::string version = "v67";
+  std::string version = "v94";
   std::string savelocation = "~/data/out/"+version+"/plots";
   const int n_arms = 2;
   
   std::string filename = "~/data/out/"+version+"/total.root";
   TFile* file = new TFile(filename.c_str());
-  TH2F* SiL_EvdE = (TH2F*) file->Get("TME_EvdE/all_particles/SiL_EvdE");
-  TH2F* SiR_EvdE = (TH2F*) file->Get("TME_EvdE/all_particles/SiR_EvdE");
-
-  SiL_EvdE->SetStats(false);
-  SiR_EvdE->SetStats(false);
+  TH2F* SiL_EvdE = (TH2F*) file->Get("TME_Al50_EvdE/all_particles/SiL_EvdE");
+  TH2F* SiR_EvdE = (TH2F*) file->Get("TME_Al50_EvdE/all_particles/SiR_EvdE");
+  //  SiL_EvdE->SetStats(false);
+  //  SiR_EvdE->SetStats(false);
 
   TH2F* evde_hists[n_arms] = {SiL_EvdE, SiR_EvdE};
   std::string arm_names[n_arms] = {"SiL", "SiR"};
   bool project_x = true;
   for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
+
+    evde_hists[i_arm]->SetTitle("");
+    evde_hists[i_arm]->GetYaxis()->SetTitleOffset(1.4);
+    evde_hists[i_arm]->SetXTitle("E_{1} + E_{2} [keV]");
+    evde_hists[i_arm]->SetYTitle("E_{1} [keV]");
+    evde_hists[i_arm]->SetStats(false);
 
     evde_hists[i_arm]->Draw("COLZ");
     c1->SetLogz(0);

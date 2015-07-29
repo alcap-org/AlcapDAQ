@@ -38,7 +38,7 @@ else
 fi
 
 # If we're on Merlin then generate the figures
-if [ "$HOSTNAME" = "merlinl01" ] ; then
+if [ "$HOSTNAME" = "merlinl03" ] ; then
     mkdir -p data_quality_figs
     rm data_quality_figs/*.png
     echo "void RunPicBookMacros() { GenerateTrendPlots(\"$data_dir\", $first_run, $n_runs); latexWrapper($first_run, false); }" > RunPicBookMacros.C

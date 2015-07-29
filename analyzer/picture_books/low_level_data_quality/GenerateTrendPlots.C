@@ -108,10 +108,11 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
       std::string trendplotname = histogram_name + "_TrendPlot";
       std::string trendplottitle = "Trend Plot of " + histogram_name + " (" + dataset + ")";
 
-      hDQ_TrendPlot = new TH2F(trendplotname.c_str(), trendplottitle.c_str(), n_runs, first_run, first_run+n_runs, hDQ_RunPlot->GetNbinsX(), hDQ_RunPlot->GetXaxis()->GetXmin(), hDQ_RunPlot->GetXaxis()->GetXmax());
+      hDQ_TrendPlot = new TH2F(trendplotname.c_str(), "", n_runs, first_run, first_run+n_runs, hDQ_RunPlot->GetNbinsX(), hDQ_RunPlot->GetXaxis()->GetXmin(), hDQ_RunPlot->GetXaxis()->GetXmax());
 
       hDQ_TrendPlot->GetYaxis()->SetTitle(hDQ_RunPlot->GetXaxis()->GetTitle());
       hDQ_TrendPlot->GetYaxis()->SetLabelSize(0.03);
+      hDQ_TrendPlot->GetYaxis()->SetTitleOffset(1.3);
 
       hDQ_TrendPlot->GetXaxis()->SetTitle("Run Number");
       hDQ_TrendPlot->GetXaxis()->SetLabelSize(0.03);
@@ -121,6 +122,7 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
       hDQ_TrendPlot->GetZaxis()->SetTitleOffset(0.85);
       hDQ_TrendPlot->GetZaxis()->SetTitleSize(0.03);
 
+      c1->SetPadRightMargin(0.1);
       gStyle->SetOptStat(0000);
       hDQ_TrendPlot->SetStats(true);
 

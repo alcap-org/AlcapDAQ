@@ -1,0 +1,1 @@
+./run_production.py --production=rootana --new=03ab2c9_sil_sir_pid_cuts_more_MC --version=3 --database=/gpfs/home/edmonds_a/AlcapDAQ/analyzer/rootana/production.db --dataset=Al50b --dataset=Al50awithoutNDet2 --modules=/gpfs/home/edmonds_a/AlcapDAQ/analyzer/rootana/configurations/andy_Al50.cfg --display --spacelim=0.95
