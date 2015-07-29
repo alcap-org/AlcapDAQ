@@ -12,16 +12,28 @@ void PrintUnfoldedSpectra() {
   leg->SetTextSize(0.04);
   leg->SetFillColor(kWhite);
 
+  TF1* nam = new TF1("nam", "[0]*(1 - [1]/x)^[2] * TMath::Exp(x/[3])", 1400, 26000);
+  nam->SetParameters(0.05, 1400, 1.328, -3100);
+
   for (int i_arm = 1; i_arm >= 0; --i_arm) {
     std::string arm_name = arm_names[i_arm];
     
     std::string response_name = arm_name + "_response;2";
     RooUnfoldBayes* unfold = (RooUnfoldBayes*) file->Get(response_name.c_str());
 
+    /*    TH1F* folded_spectrum = unfold->Hmeasured();
+    folded_spectrum->SetStats(false);
+    folded_spectrum->SetLineWidth(2);
+    folded_spectrum->SetLineColor(kBlack);
+    folded_spectrum->Scale(1e6/8931.0); // geom factor (SiR) want the spectra to be roughly the same size
+    folded_spectrum->Draw("HIST E SAME");
+    */
+
     TH1F* unfolded_spectrum = unfold->Hreco(RooUnfold::ErrorTreatment::kErrors);
     unfolded_spectrum->SetStats(false);
     unfolded_spectrum->SetLineWidth(2);
     unfolded_spectrum->SetLineColor(colours[i_arm]);
+    //    unfolded_spectrum->Scale(1.0/24e6);
     //    std::string histtitle = "Unfolded Proton Energy Spectra";
     std::string histtitle = "";
     unfolded_spectrum->SetTitle(histtitle.c_str());
@@ -55,7 +67,8 @@ void PrintUnfoldedSpectra() {
 
     //    unfolded_spectrum->SetMaximum(1100000);
   }
-
+  nam->SetLineColor(kBlack);
+  //  nam->Draw("LSAME");
   leg->Draw();
 
   TLine* low_energy_cut = new TLine(3500, 0,3500, 520000);

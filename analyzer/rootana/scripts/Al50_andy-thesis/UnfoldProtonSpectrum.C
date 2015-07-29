@@ -1,9 +1,14 @@
 void UnfoldProtonSpectrum() {
 
-  //TFile* response_file = new TFile("Al100_1.09_target-hist_2015-04-22_response_stopped-only_10M-thnsparse_500keV-bins.root", "READ");
-  TFile* response_file = new TFile("Al50_1.07_target-hist_2015-01-15_response_stopped-only_10M-thnsparse_500keV-bins_corrections_3_250keV-tru-bins.root", "READ");
+  TFile* response_file = new TFile("Al100_1.09_target-hist_2015-04-22_response_stopped-only_10M-thnsparse_500keV-bins.root", "READ");
+  //  TFile* response_file = new TFile("Al50_1.07_target-hist_2015-01-15_response_stopped-only_10M-thnsparse_500keV-bins.root", "READ");
+  //  TFile* response_file = new TFile("Al50_1.07_target-hist_2015-06-30_response_stopped-only_10M-thnsparse_500keV-bins_1mm-offset.root", "READ");
+
   //  TFile* data_file = new TFile("result_Al50_data.root", "READ");
-  TFile* proton_band_file = new TFile("~/g4sim/alcap/scripts/Al50/proton_band.root", "READ");
+
+  //  TFile* proton_band_file = new TFile("~/g4sim_thesis/alcap/scripts/Al50_andy-thesis/proton_band.root", "READ");
+  //  TFile* proton_band_file = new TFile("~/g4sim_thesis/alcap/scripts/Al50_andy-thesis/proton_band_Al100_no-low-entry-cut.root", "READ");
+  TFile* proton_band_file = new TFile("~/g4sim_thesis/alcap/scripts/Al50_andy-thesis/proton_band_Al100_nam_subset.root", "READ");
   TFile* out_file = new TFile("unfolded.root", "RECREATE");
 
   const int n_arms = 2;
@@ -13,8 +18,16 @@ void UnfoldProtonSpectrum() {
   double time_cut_purity = 0.936;
   //  double proton_cut_efficiency[n_arms] = {0.69, 0.69}; //Al100?
   //  double proton_cut_purity[n_arms] = {0.87, 0.89}; //Al100?
-  double proton_cut_efficiency[n_arms] = {0.62, 0.63};
-  double proton_cut_purity[n_arms] = {0.96, 0.98};
+  //  double proton_cut_efficiency[n_arms] = {0.62, 0.63}; // Al50
+  //  double proton_cut_purity[n_arms] = {0.96, 0.98}; // Al50
+  //  double proton_cut_efficiency[n_arms] = {0.63, 0.63}; //Al100 (w time cut)
+  //  double proton_cut_purity[n_arms] = {0.97, 0.98}; //Al100 (w time cut)
+  //  double proton_cut_efficiency[n_arms] = {0.69, 0.68}; //Al100 (no time cut)
+  //  double proton_cut_purity[n_arms] = {0.90, 0.93}; //Al100 (no time cut)
+  double proton_cut_efficiency[n_arms] = {0.69, 0.68}; //Al100 (nam subset)
+  double proton_cut_purity[n_arms] = {0.89, 0.92}; //Al100 (nam subset)
+
+
 
   for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
     std::string arm_name = arm_names[i_arm];

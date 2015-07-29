@@ -5,7 +5,10 @@ void DrawGeSpectrum() {
   std::string version = "v79";
   std::string savelocation = "~/data/out/"+version+"/plots";
 
-  std::string filename = "~/data/out/"+version+"/total.root";
+  //  std::string filename = "~/data/out/"+version+"/total.root";
+  //  std::string filename = "out02830.root";
+  std::string filename = "~/data/out/v101/Al100_nam_subset.root";
+  //  std::string filename = "out02830.root";
   TFile* file = new TFile(filename.c_str(), "READ");
   TH1* hGeEnergy = (TH1*)file->Get("GeSpectrum/hEnergy");
   hGeEnergy->SetStats(0);
@@ -24,7 +27,7 @@ void DrawGeSpectrum() {
 
 
   int rebin_factor = 2;
-  double low_energy_limit = 340;
+  double low_energy_limit = 343.7;
   double high_energy_limit = 360;
 
   hGeEnergy->SetLineColor(kBlack);
@@ -60,7 +63,8 @@ void DrawGeSpectrum() {
   hGeEnergyPrompt->SetXTitle("Energy [keV]");
   hGeEnergyPrompt->SetYTitle("Counts");
   hGeEnergyPrompt->GetYaxis()->SetTitleOffset(1.3);
-  hGeEnergyPrompt->Draw("SAME");
+  hGeEnergyPrompt->SetStats(true);
+  hGeEnergyPrompt->Draw("SAMES");
 
   TLine* peak_line = new TLine(346.8, 0, 346.8, 9000);
   peak_line->SetLineWidth(2);
@@ -78,21 +82,21 @@ void DrawGeSpectrum() {
   leg->AddEntry(hGeEnergyFarOOT, "Far Out of Time (5#mus < |#Deltat| < 110ms)", "l");
   leg->Draw();
 
-  c1->Print("~/plots/ThesisPlots/ge-spectrum-time-bins.pdf");
+  //  c1->Print("~/plots/ThesisPlots/ge-spectrum-time-bins.pdf");
   
-  //  hGeEnergyPrompt->GetXaxis()->SetRangeUser(low_energy_limit, 356);
-  TF1* double_gaussian_fit = new TF1("double_gaus", "[0]*TMath::Gaus(x, [1], [2]) + [3]*TMath::Gaus(x, [4], [5]) + [6]*x + [7]", low_energy_limit, 356);
+  hGeEnergyPrompt->GetXaxis()->SetRangeUser(low_energy_limit, 355);
+  TF1* double_gaussian_fit = new TF1("double_gaus", "[0]*TMath::Gaus(x, [1], [2]) + [3]*TMath::Gaus(x, [4], [5]) + [6]*x + [7]", low_energy_limit, 355);
   double_gaussian_fit->SetParameter(0, 100);
   double_gaussian_fit->SetParameter(1, 347);
   double_gaussian_fit->SetParameter(2, 2);
   double_gaussian_fit->SetParameter(3, 100);
-  double_gaussian_fit->SetParameter(4, 352);
+  double_gaussian_fit->SetParameter(4, 351);
   double_gaussian_fit->SetParameter(5, 2);
-  double_gaussian_fit->SetParameter(6, -0.10);
+  double_gaussian_fit->SetParameter(6, -2);
   double_gaussian_fit->SetParameter(7, 1000);
   hGeEnergyPrompt->SetStats(false);
-  //gStyle->SetOptFit(11111);
-  //  hGeEnergyPrompt->Fit("double_gaus", "R");
+  gStyle->SetOptFit(11111);
+  hGeEnergyPrompt->Fit("double_gaus", "LR");
 
   TLine* peak_line_2 = new TLine(346.8, 800, 346.8, 2600);
   peak_line_2->SetLineWidth(2);
