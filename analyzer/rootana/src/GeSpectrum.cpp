@@ -51,7 +51,7 @@ GeSpectrum::~GeSpectrum(){
 // Return non-zero to indicate a problem
 int GeSpectrum::BeforeFirstEntry(TGlobalData* gData, const TSetupData *setup){
 
-  double energy_bin_width = SetupNavigator::Instance()->GetAdcToEnergyGain(fGeEnergy); // get the minimum energy bin width from the calibration - we can rebin later
+  double energy_bin_width = 0.1;//SetupNavigator::Instance()->GetAdcToEnergyGain(fGeEnergy); // get the minimum energy bin width from the calibration - we can rebin later
   double max_energy = 2000;
   double min_energy = 0;
   int n_energy_bins = (max_energy - min_energy) / energy_bin_width;
