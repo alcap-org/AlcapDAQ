@@ -17,56 +17,26 @@ class TF1;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
-/// \author John R Quirk
+/// \author John R Quirk and Andrew Edmonds
 ///
 /// \brief
-/// This produces the height spectrum of the germanium based on timing cuts.
+/// This produces a 2D histogram of the energy of the germanium pulse (y-axis) vs. the time differenve
+/// between the muSc pulse and the germanium pulse (x-axis). 
 ///
 /// \details
-/// We look near muon entrances for the xrays and several microseconds away for
-/// longer lived nuclear decays. We also look at medium time distances for
-/// captures. These refer to the "Energy", "EnergyFarOOT" and "EnergyOOT"
-/// histograms respectively. Also plots time vs energy in tight window
-/// in TimeEnergy histogram, and looks for timing correlations with muSc
-/// in MeanTOffset within a MIDAS event (as each event might have a slightly
-/// different offset due to clock reset).
+/// The produced histogram can then be analysed by separate scripts to do different things (e.g. apply
+/// time cuts and fit to X-ray peaks to get the number of stopped muons or to look for longer lived states)
 ////////////////////////////////////////////////////////////////////////////////
 class GeSpectrum : public BaseModule {
 
  private:
   // Histograms
-  TH1* fHist_ADC;
-  TH1* fHist_Energy;
-  TH1* fHist_Time;
-  TH1* fHist_MoreTime;
-  TH1* fHist_ADCOOT;
-  TH1* fHist_EnergyOOT;
-  TH1* fHist_ADCFarOOT;
-  TH1* fHist_EnergyFarOOT;
-  TH1* fHist_TimeOOT;
-  TH1* fHist_TimeFarOOT;
-  TH2* fHist_TimeADC;
   TH2* fHist_TimeEnergy;
-  TH1* fHist_MeanTOffset;
-  TH1* fHist_MuScAmplitude;
-  TH1* fHist_MuScAmplitude_Muons;
-
-  // Algorithms
-  const Algorithm::MaxBinAmplitude fMBAmpGe;
-  const Algorithm::MaxBinAmplitude fMBAmpMuSc;
-  const Algorithm::ConstantFractionTime fCFTimeGe, fCFTimeMuSc;
-  const Algorithm::MaxBinTime fMBTimeGe, fMBTimeMuSc;
-  TF1* fADC2Energy;
-  // Time cuts
-  const double fTimeWindow_Small; // ns
-  const double fTimeWindow_Big;   // ns
-  const double fPileupProtectionWindow;
 
   // Channels
-  static const IDs::channel fGeS;
-  static const IDs::channel fGeF;
+  static const IDs::channel fGe;
   static const IDs::channel fMuSc;
-
+  static const IDs::channel fGeEnergy; // specficially the slow pulse so that we can get the energy resolution
 
  public:
   /// \brief
@@ -80,8 +50,8 @@ class GeSpectrum : public BaseModule {
 
  private:
   /// \brief
-  /// Histograms the heights in the germanium with time cuts
-  /// relative to muSc.
+  /// Histograms the energy of the germanium pulse with the time difference 
+  /// of between the germanium pulse and the muSc pulse
   /// 
   /// \param[in] gData See BaseModule::ProcessEntry
   /// \param[in] gSetup See BaseModule::ProcessEntry
@@ -102,22 +72,10 @@ class GeSpectrum : public BaseModule {
   /// \return Non-zero to indicate a problem.
   virtual int AfterLastEntry(TGlobalData* gData, const TSetupData *setup);
 
-  /// \brief
-  /// Takes a vector of TPIs and calculates all of their times.
-  ///
-  /// \details
-  /// Since we'll be using the std::upper_bound/std::lower_bound methods,
-  /// this makes it possible to use the times of the TPIs without
-  /// writing some hacky compare function (that would use the TAPAlgorithms).
-  std::vector<double> CalculateTimes(const IDs::channel& chan, const std::vector<TPulseIsland*>& tpis);
-  /// \brief
-  /// Takes a vector of TPIs and calculates all of their energies.
-  std::vector<double> CalculateEnergies(const IDs::channel& chan, const std::vector<TPulseIsland*>& tpis);
-
-  void ThrowIfInputsInsane(const modules::options*);
-  void ThrowIfGeInsane(const std::vector<TPulseIsland*>& ge_fasts, const std::vector<TPulseIsland*>& ge_slows);
-  void RemovePileupMuScPulses(std::vector<double>& time, std::vector<double>& energy);
-
+  // Histogram parameters
+  double fMinTime;
+  double fMaxTime;
+  double fTimeBinWidth;
 };
 
 #endif //GESPECTRUM_H_
