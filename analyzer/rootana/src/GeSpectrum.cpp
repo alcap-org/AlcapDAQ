@@ -37,6 +37,10 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
   fMaxTime = opts->GetDouble("time_axis_max", 2e4);
   fTimeBinWidth = opts->GetDouble("time_bin_width", 100);
 
+  fMinEnergy = opts->GetDouble("energy_axis_min", 0);
+  fMaxEnergy = opts->GetDouble("energy_axis_max", 2000);
+  fEnergyBinWidth = opts->GetDouble("energy_bin_width", 0.1);
+
   TDirectory* cwd = TDirectory::CurrentDirectory();
   dir->cd();
 
@@ -51,13 +55,9 @@ GeSpectrum::~GeSpectrum(){
 // Return non-zero to indicate a problem
 int GeSpectrum::BeforeFirstEntry(TGlobalData* gData, const TSetupData *setup){
 
-  double energy_bin_width = 0.1;//SetupNavigator::Instance()->GetAdcToEnergyGain(fGeEnergy); // get the minimum energy bin width from the calibration - we can rebin later
-  double max_energy = 2000;
-  double min_energy = 0;
-  int n_energy_bins = (max_energy - min_energy) / energy_bin_width;
-
+  int n_energy_bins = (fMaxEnergy - fMinEnergy) / fEnergyBinWidth;
   int n_time_bins = (fMaxTime - fMinTime) / fTimeBinWidth;
-  fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas vs Time Difference to Central Muon (PP);Time [ns];Energy [keV];Counts", n_time_bins,fMinTime,fMaxTime, n_energy_bins, min_energy, max_energy);
+  fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas vs Time Difference to Central Muon (PP);Time [ns];Energy [keV];Counts", n_time_bins,fMinTime,fMaxTime, n_energy_bins, fMinEnergy, fMaxEnergy);
 
   return 0;
 }

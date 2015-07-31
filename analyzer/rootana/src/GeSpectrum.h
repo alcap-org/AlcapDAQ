@@ -76,6 +76,10 @@ class GeSpectrum : public BaseModule {
   double fMinTime;
   double fMaxTime;
   double fTimeBinWidth;
+
+  double fMinEnergy;
+  double fMaxEnergy;
+  double fEnergyBinWidth;
 };
 
 #endif //GESPECTRUM_H_
