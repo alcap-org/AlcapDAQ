@@ -26,7 +26,7 @@ int FillXRayInfo(XRay* xray);
 RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectrum, XRay* xray);
 
 // Takes a filename of a rootana output file as well as information on the timing cut and interesting x-ray
-int CountXRays(std::string filename, double time_cut, int rebin_factor=1, double energy_low = 343.7, double energy_high = 355, std::string target_material="Al") {
+int CountXRays(std::string filename, double time_cut, int rebin_factor=1, double energy_low = 344, double energy_high = 355, std::string target_material="Al") {
 
   TFile* file = new TFile(filename.c_str(), "READ");
   if (file->IsZombie()) {
