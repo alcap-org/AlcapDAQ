@@ -26,7 +26,7 @@ int FillXRayInfo(XRay* xray);
 RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectrum, XRay* xray);
 
 // Takes a filename of a rootana output file as well as information on the timing cut and interesting x-ray
-int CountXRays(std::string filename, double time_cut, int rebin_factor=2, double energy_low = 343.7, double energy_high = 355, std::string target_material="Al") {
+int CountXRays(std::string filename, double time_cut, int rebin_factor=1, double energy_low = 343.7, double energy_high = 355, std::string target_material="Al") {
 
   TFile* file = new TFile(filename.c_str(), "READ");
   if (file->IsZombie()) {
@@ -117,18 +117,18 @@ RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectr
   // First, the linear background
   factory_cmd << "Polynomial::pol1_bkg(edep[" << energy_low << ", " << energy_high << "], {bkg_offset[-10, 100], bkg_slope[-0.1, 0.1]})";
   ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
-  sum_factory_cmd << "nbkg[0, 10000]*pol1_bkg";
+  sum_factory_cmd << "nbkg[0, 50000]*pol1_bkg";
 
   // Now the X-ray peak of interest
   factory_cmd << "Gaussian::xraypeak_pdf(edep[" << energy_low << ", " << energy_high << "], xray_mean[" << xray->energy-1 << ", " << xray->energy+1 << "], xray_sigma[0.1, 10])"; // the x-ray peak itself
   ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
-  sum_factory_cmd << ", xray_amp[0,10000]*xraypeak_pdf";
+  sum_factory_cmd << ", xray_amp[0,50000]*xraypeak_pdf";
 
   // For Al 2p-1s, we also have a second peak that's a background
   if (xray->material == "Al" && xray->transition == "2p-1s") {
     factory_cmd << "Gaussian::bkgpeak_pdf(edep[" << energy_low << ", " << energy_high << "], bkg_mean[351,352], bkg_sigma[0.1, 10])";
     ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
-    sum_factory_cmd << ", bkg_amp[0,10000]*bkgpeak_pdf";
+    sum_factory_cmd << ", bkg_amp[0,50000]*bkgpeak_pdf";
   }
 
   // Now create the SUM pdf
@@ -143,6 +143,7 @@ RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectr
   RooPlot* Eframe = (ws->var("edep"))->frame();
   data.plotOn(Eframe);
   (ws->pdf("sum"))->plotOn(Eframe);
+  std::cout << "Goodness of fit: " << Eframe->chiSquare(9) << std::endl;
   Eframe->Draw();
 
   return ws->var("xray_amp");
