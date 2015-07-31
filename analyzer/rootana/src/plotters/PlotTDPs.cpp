@@ -121,6 +121,18 @@ int PlotTDPs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
                 200,slow_amp_min,slow_amp_max);
         tmp.slow_only_amps->SetXTitle("Amplitude in Slow channel");
 
+        // Histogram times for pulses not in either channel
+        tmp.fast_only_times=new TH1F((name+"_fast_only_time").c_str(),
+                ("Times of hits with no corresponding slow pulse "+title).c_str(), 
+		2000,0,-1);
+        tmp.fast_only_times->SetXTitle("Time in Fast channel");
+
+        // Histogram times for pulses not in either channel
+        tmp.slow_only_times=new TH1F((name+"_slow_only_time").c_str(),
+                ("Times of hits with no corresponding fast pulse "+title).c_str(), 
+		2000,0,-1);
+        tmp.slow_only_times->SetXTitle("Time in Slow channel");
+
         // Histogram of amplitude ratio to show the scale factor in paired
         // channels
         tmp.scale_factor=new  TH1F((name+"_scale_factor").c_str(),
@@ -212,8 +224,10 @@ int PlotTDPs::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
             // histogram for channels that weren't matched
             if(fast_amp==definitions::DefaultValue){
                 plots.slow_only_amps->Fill(slow_amp);
+                plots.slow_only_times->Fill(slow_time);
             }else if(slow_amp==definitions::DefaultValue){
                 plots.fast_only_amps->Fill(fast_amp);
+                plots.fast_only_times->Fill(fast_time);
             }else {
                 // Both channels saw hits, fill the 2d plot
                 plots.amplitudes->Fill(slow_amp,fast_amp);

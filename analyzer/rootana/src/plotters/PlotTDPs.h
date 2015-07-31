@@ -26,6 +26,7 @@ class PlotTDPs : public BaseModule {
             //amplitudes
             TH2F *amplitudes;
             TH1F *fast_only_amps, *slow_only_amps;
+            TH1F *fast_only_times, *slow_only_times;
             TH1F *scale_factor;
             // efficiencies
             TH1F *fast_amps_slow_cut, *slow_amps_fast_cut;
