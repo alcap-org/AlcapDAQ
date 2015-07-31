@@ -52,8 +52,7 @@ GeSpectrum::~GeSpectrum(){
 int GeSpectrum::BeforeFirstEntry(TGlobalData* gData, const TSetupData *setup){
 
   double energy_bin_width = SetupNavigator::Instance()->GetAdcToEnergyGain(fGeEnergy); // get the minimum energy bin width from the calibration - we can rebin later
-  int n_bits = TSetupData::Instance()->GetNBits(SetupNavigator::Instance()->GetBank(fGeEnergy));
-  double max_energy = std::pow(2, n_bits)*energy_bin_width;
+  double max_energy = 2000;
   double min_energy = 0;
   int n_energy_bins = (max_energy - min_energy) / energy_bin_width;
 
@@ -66,13 +65,6 @@ int GeSpectrum::BeforeFirstEntry(TGlobalData* gData, const TSetupData *setup){
 // Called once for each event in the main event loop
 // Return non-zero to indicate a problem and terminate the event loop
 int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
-
-  // Plan:
-  // Want to get the channels defined in the config file (but the source isn't defined - if there is only, one then use that but if there is more than one, quit with a list of options)
-  // Then want to remove the pile-up muSc pulses (this is done in TMEs already....)
-  // Then loop though muSc pulses
-  //   and Ge-F/Ge-S pulses at the same time (would be a good TDP...)
-  //      calc time difference and plot against energy
 
   // Loop over each TME
   for(MuonEventList::const_iterator i_tme=gMuonEvents.begin();
