@@ -109,6 +109,10 @@ int FillXRayInfo(XRay* xray) {
 }
 
 RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectrum, XRay* xray) {
+  
+  // Keep track of the number of parameters
+  int n_fit_params = 0;
+
   // Create the workspace and functions for fitting and create the summed pdf as we go
   RooWorkspace* ws = new RooWorkspace("ws", kTRUE);
   std::stringstream factory_cmd, sum_factory_cmd;
@@ -118,17 +122,20 @@ RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectr
   factory_cmd << "Polynomial::pol1_bkg(edep[" << energy_low << ", " << energy_high << "], {bkg_offset[-10, 100], bkg_slope[-0.1, 0.1]})";
   ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
   sum_factory_cmd << "nbkg[0, 50000]*pol1_bkg";
+  n_fit_params += 3; // bkg_offset, bkg_slope, nbkg
 
   // Now the X-ray peak of interest
   factory_cmd << "Gaussian::xraypeak_pdf(edep[" << energy_low << ", " << energy_high << "], xray_mean[" << xray->energy-1 << ", " << xray->energy+1 << "], xray_sigma[0.1, 10])"; // the x-ray peak itself
   ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
-  sum_factory_cmd << ", xray_amp[0,50000]*xraypeak_pdf";
+  sum_factory_cmd << ", xray_area[0,50000]*xraypeak_pdf";
+  n_fit_params += 3; // xray_mean, xray_sigma, xray_area
 
   // For Al 2p-1s, we also have a second peak that's a background
   if (xray->material == "Al" && xray->transition == "2p-1s") {
     factory_cmd << "Gaussian::bkgpeak_pdf(edep[" << energy_low << ", " << energy_high << "], bkg_mean[351,352], bkg_sigma[0.1, 10])";
     ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
-    sum_factory_cmd << ", bkg_amp[0,50000]*bkgpeak_pdf";
+    sum_factory_cmd << ", bkg_area[0,50000]*bkgpeak_pdf";
+    n_fit_params += 3; // bkg_mean, bkg_sigma, bkg_area
   }
 
   // Now create the SUM pdf
@@ -143,8 +150,8 @@ RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectr
   RooPlot* Eframe = (ws->var("edep"))->frame();
   data.plotOn(Eframe);
   (ws->pdf("sum"))->plotOn(Eframe);
-  std::cout << "Goodness of fit: " << Eframe->chiSquare(9) << std::endl;
+  std::cout << "Goodness of fit: " << Eframe->chiSquare(n_fit_params) << std::endl;
   Eframe->Draw();
 
-  return ws->var("xray_amp");
+  return ws->var("xray_area");
 }
