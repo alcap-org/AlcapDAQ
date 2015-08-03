@@ -15,6 +15,7 @@ Contents:     Look at PLL lock and board full bits
 
 /* ROOT includes */
 #include <TH1.h>
+#include "TDirectory.h"
 
 /*-- Module declaration --------------------------------------------*/
 INT MDT5720Errors_init(void);
@@ -48,6 +49,11 @@ enum BOARDERROR {
 };
 
 INT MDT5720Errors_init() {
+  TDirectory* cwd = gDirectory;
+  if (!gDirectory->Cd("DataQuality_LowLevel"))
+    gDirectory->mkdir("DataQuality_LowLevel/")->cd();
+  gDirectory->mkdir("DT5720Errors/")->cd();
+
   hDT5720Errors = new TH1I("hDT5720Errors", "Errors in DT5720", 5, 0., 5.);
   hDT5720Errors->GetXaxis()->SetBinLabel(PLL_LOSS, "PLL Loss");
   hDT5720Errors->GetXaxis()->SetBinLabel(BOARD_FULL, "Board Full");
@@ -55,6 +61,9 @@ INT MDT5720Errors_init() {
   hDT5720Errors->GetXaxis()->SetBinLabel(OVER_TEMPERATURE, "Over Temperature");
   hDT5720Errors->GetXaxis()->SetBinLabel(NO_ADC_POWER, "No ADC Power (Hot)");
   hDT5720Errors->GetYaxis()->SetTitle("Occurences in Run");
+
+  cwd->cd();
+
   return SUCCESS;
 }
 

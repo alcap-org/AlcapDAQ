@@ -19,7 +19,8 @@ Contents:     A module to fill a histogram of the pulse lengths from each channe
 #include "midas.h"
 
 /* ROOT includes */
-#include <TH2.h>
+#include "TH2.h"
+#include "TDirectory.h"
 
 /* AlCap includes */
 #include "TGlobalData.h"
@@ -57,6 +58,11 @@ ANA_MODULE MSyncCount_module =
 /** This method initializes histograms.
 */
 INT MSyncCount_init() {
+  TDirectory* cwd = gDirectory;
+  if (!gDirectory->Cd("DataQuality_LowLevel"))
+    gDirectory->mkdir("DataQuality_LowLevel/")->cd();
+  gDirectory->mkdir("SyncCount/")->cd();
+
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
     char name[32]; sprintf(name, "hSyncCount_Crate%d", icrate);
     char title[64]; sprintf(title,
@@ -67,6 +73,8 @@ INT MSyncCount_init() {
   char name[32]; sprintf(name, "hSyncCount_TDC");
   char title[64]; sprintf(title, "Sync Pulse Count TDC;Pulses per block");
   hvSyncCount.push_back(new TH1I(name, title, 70, 0., 70.));
+
+  cwd->cd();
   return SUCCESS;
 }
 
@@ -79,16 +87,14 @@ INT MSyncCount(EVENT_HEADER *pheader, void *pevent) {
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
     char det[16]; sprintf(det, "SyncCrate%d", icrate);
     std::string bank = gSetup->GetBankName(det);
+    int npulse = 0;
     if (pulses_map.count(bank)) {
       const std::vector<TPulseIsland*>& pulses = pulses_map.at(bank);
-      int npulse = 0;
       for (int ipulse = 0; ipulse < pulses.size(); ++ipulse)
         if (pulses[ipulse]->GetPulseHeight() > HEIGHTCUT)
           ++npulse;
-      hvSyncCount[icrate]->Fill(npulse);
-    } else {
-      hvSyncCount[icrate]->Fill(0.);
     }
+    hvSyncCount[icrate]->Fill(npulse);
   }
 
   const std::map< std::string, std::vector<int64_t> >& tdcs_map =
