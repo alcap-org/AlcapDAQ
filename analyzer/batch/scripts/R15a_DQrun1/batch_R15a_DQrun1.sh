@@ -87,7 +87,7 @@ OUTDIR=""
 FTPUSER="mucap"
 FTPPSWD=""
 FTPSRVR="ftp://archivftp.psi.ch"
-FTPDIR="mu2e/run2013"
+FTPDIR="mu2e/run2015a"
 
 # Get command line arguments
 while [ $# -gt 0 ]; do
