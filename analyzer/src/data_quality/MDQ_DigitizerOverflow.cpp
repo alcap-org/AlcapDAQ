@@ -140,6 +140,8 @@ INT MDQ_DigitizerOverflow_init()
     std::string detname = gSetup->GetDetectorName(bankname);
     std::string binname = bankname + "(" + detname + ")";
 
+    if(!TSetupData::IsWFD(bankname)) continue;
+
     hDQ_DigitizerOverflow_Fraction->Fill(binname.c_str(), 0);
     hDQ_DigitizerOverflow_Total->Fill(binname.c_str(), 0);
     hDQ_DigitizerOverflow_FractionByEvent->Fill(binname.c_str(), 0.0, 0.0);
@@ -176,6 +178,8 @@ INT MDQ_DigitizerOverflow(EVENT_HEADER *pheader, void *pevent)
 	  std::string bankname = mapIter->first;
 	  std::string detname = gSetup->GetDetectorName(bankname);
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
+
+	  if(!TSetupData::IsWFD(bankname)) continue;
 
 	  int n_bits = gSetup->GetNBits(bankname);
 	  int trigger_polarity = gSetup->GetTriggerPolarity(bankname);

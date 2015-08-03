@@ -58,7 +58,7 @@ extern TSetupData* gSetup;
 map <std::string, TH1F*> DQ_IslandTimestamp_histograms_map;
 map <std::string, TH1F*> DQ_IslandTimestamp_histograms_normalised_map;
 
-extern TH1F* hDQ_TDCCheck_TTSc;
+extern TH1F* hDQ_TDCCheck_nMuons;
 
 ANA_MODULE MDQ_IslandTimestamp_module =
 {
@@ -93,7 +93,7 @@ INT MDQ_IslandTimestamp_init()
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
-    if(IsTDC(bankname)) continue;
+    if(TSetupData::IsTDC(bankname)) continue;
 
     double bin_width = gSetup->GetClockTick(bankname) * 1000;
     double bin_max = 120e6;
@@ -142,11 +142,11 @@ INT MDQ_IslandTimestamp_eor(INT run_number) {
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
-    if(IsTDC(bankname)) continue;      
+    if(TSetupData::IsTDC(bankname)) continue;      
 
     // Make sure the histograms exist and then fill them
     if (DQ_IslandTimestamp_histograms_normalised_map.find(bankname) != DQ_IslandTimestamp_histograms_normalised_map.end()) {
-      DQ_IslandTimestamp_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_TTSc->GetEntries());
+      DQ_IslandTimestamp_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_nMuons->GetEntries());
     }
   }
 
@@ -175,7 +175,7 @@ INT MDQ_IslandTimestamp(EVENT_HEADER *pheader, void *pevent)
 	{
 	  std::string bankname = mapIter->first;
 	  std::string detname = gSetup->GetDetectorName(bankname);
-	  if(IsTDC(bankname)) continue;
+	  if(TSetupData::IsTDC(bankname)) continue;
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
 
 	  // Get the histograms before looping through the pulses

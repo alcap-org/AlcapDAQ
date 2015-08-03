@@ -60,7 +60,7 @@ extern TSetupData* gSetup;
 map <std::string, TH1F*> DQ_IslandLength_histograms_map;
 map <std::string, TH1F*> DQ_IslandLength_histograms_normalised_map;
 
-extern TH1F* hDQ_TDCCheck_TTSc;
+extern TH1F* hDQ_TDCCheck_nMuons;
 
 ANA_MODULE MDQ_IslandLength_module =
 {
@@ -95,13 +95,13 @@ INT MDQ_IslandLength_init()
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
-    if(IsTDC(bankname)) continue;
+    if(TSetupData::IsTDC(bankname)) continue;
 
     // hDQ_IslandLength_[DetName]_[BankName]
     std::string histname = "hDQ_IslandLength_" + detname + "_" + bankname;
     std::string histtitle = "Length of each TPulseIsland in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
-				10000, 0, 10000);
+				1000, 0, 1000);
     hDQ_Histogram->GetXaxis()->SetTitle("Length [samples]");
     hDQ_Histogram->GetYaxis()->SetTitle("Number of Islands");
     DQ_IslandLength_histograms_map[bankname] = hDQ_Histogram;
@@ -109,7 +109,7 @@ INT MDQ_IslandLength_init()
     // The normalised histogram
     histname += "_normalised";
     histtitle += " (normalised)";
-    TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), 10000,0,10000);
+    TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), 1000,0,1000);
     hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Length [samples]");
     std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
     yaxislabel += " per TDC TSc Hit";
@@ -140,11 +140,11 @@ INT MDQ_IslandLength_eor(INT run_number) {
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
-    if(IsTDC(bankname)) continue;
+    if(TSetupData::IsTDC(bankname)) continue;
       
     // Make sure the histograms exist and then fill them
     if (DQ_IslandLength_histograms_normalised_map.find(bankname) != DQ_IslandLength_histograms_normalised_map.end()) {
-      DQ_IslandLength_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_TTSc->GetEntries());
+      DQ_IslandLength_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_nMuons->GetEntries());
     }
   }
 
@@ -174,7 +174,7 @@ INT MDQ_IslandLength(EVENT_HEADER *pheader, void *pevent)
 			mapIter != pulse_islands_map.end(); ++mapIter) 
 	{
 	  std::string bankname = mapIter->first;
-	  if(IsTDC(bankname)) continue;
+	  if(TSetupData::IsTDC(bankname)) continue;
 	  std::string detname = gSetup->GetDetectorName(bankname);
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
 	  

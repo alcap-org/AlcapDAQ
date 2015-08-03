@@ -61,7 +61,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-extern TH1F* hDQ_TDCCheck_TTSc;
+extern TH1F* hDQ_TDCCheck_nMuons;
 
 map <std::string, TH1F*> DQ_IslandCounter_histograms_map;
 map <std::string, TH1F*> DQ_IslandCounter_histograms_normalised_map;
@@ -101,9 +101,7 @@ INT MDQ_IslandCounter_init()
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
 
-    if(IsTDC(bankname)){
-      continue;
-    }
+    if(TSetupData::IsTDC(bankname)) continue;
 
     // hDQ_IslandCounter_[DetName]_[BankName]
     std::string histname = "hDQ_IslandCounter_" + detname + "_" + bankname;
@@ -119,16 +117,16 @@ INT MDQ_IslandCounter_init()
     TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), 3500,0,3500);
     hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Number of TPulseIslands");
     std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
-    yaxislabel += " per TDC muSc Hit";
+    yaxislabel += " per TDC Muon Hit";
     hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
     DQ_IslandCounter_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
 
     histname += "_both_axes_normalised";
     histtitle += " (both axes normalised)";
     TH1F* hDQ_Histogram_Both_Axes_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), 3500,0,0.0035);
-    hDQ_Histogram_Both_Axes_Normalised->GetXaxis()->SetTitle("Number of TPulseIslands per TSc TDC Hit");
+    hDQ_Histogram_Both_Axes_Normalised->GetXaxis()->SetTitle("Number of TPulseIslands per TDC muon Hit");
     yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
-    yaxislabel += " per TDC TSc Hit";
+    yaxislabel += " per TDC Muon Hit";
     hDQ_Histogram_Both_Axes_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
     DQ_IslandCounter_histograms_both_axes_normalised_map[bankname] = hDQ_Histogram_Both_Axes_Normalised;
   }
@@ -156,20 +154,20 @@ INT MDQ_IslandCounter_eor(INT run_number) {
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
-    if(IsTDC(bankname)) continue;
+    if(TSetupData::IsTDC(bankname)) continue;
       
     // Make sure the histograms exist and then fill them
     if (DQ_IslandCounter_histograms_normalised_map.find(bankname) != DQ_IslandCounter_histograms_normalised_map.end()) {
 
       TH1F* normalised_histogram = DQ_IslandCounter_histograms_normalised_map[bankname];
-      normalised_histogram->Scale(1./hDQ_TDCCheck_TTSc->GetEntries());
+      normalised_histogram->Scale(1./hDQ_TDCCheck_nMuons->GetEntries());
 
       // to get the normalised x-axis we need to go through and fill a second histogram
       TH1F* both_axes_normalised_histogram = DQ_IslandCounter_histograms_both_axes_normalised_map[bankname];
       for (int iBin = 1; iBin < normalised_histogram->GetNbinsX(); ++iBin) {
 	double normalised_histogram_bin_content = normalised_histogram->GetBinContent(iBin);
 	double normalised_histogram_bin_center = normalised_histogram->GetBinCenter(iBin);
-	both_axes_normalised_histogram->Fill(normalised_histogram_bin_center / hDQ_TDCCheck_TTSc->GetEntries(), normalised_histogram_bin_content);
+	both_axes_normalised_histogram->Fill(normalised_histogram_bin_center / hDQ_TDCCheck_nMuons->GetEntries(), normalised_histogram_bin_content);
       }
     }
   }
@@ -200,9 +198,7 @@ INT MDQ_IslandCounter(EVENT_HEADER *pheader, void *pevent)
 	{
 	  std::string bankname = mapIter->first;
 	  std::string detname = gSetup->GetDetectorName(bankname);
-	  if(IsTDC(bankname)){
-	    continue;
-	  }
+	  if(TSetupData::IsTDC(bankname)) continue;
 
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
 			

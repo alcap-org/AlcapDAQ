@@ -84,9 +84,9 @@ const double TIME_LOW = -10e3, TIME_HIGH = 10e3; //ns
 static TH1* hDQ_TDCCheck[NCHANTDC];
 static TH1* hDQ_TDCCheck_TDiff[NCHANTDC];
 
-TH1F* hDQ_TDCCheck_TTSc;
-TH1F* hDQ_TDCCheck_TSc_time;
-TH1F* hDQ_TDCCheck_TSc_rate;
+TH1F* hDQ_TDCCheck_nMuons;
+TH1F* hDQ_TDCCheck_Muon_time;
+TH1F* hDQ_TDCCheck_Muon_rate;
 TH1F* hDQ_TDCCheck_TOffset;
 
 
@@ -123,7 +123,7 @@ INT MDQ_TDCCheck_init()
     char bank[5], histname[64], histtitle[64];
     sprintf(bank, "T4%02d", ich);
     std::string detname = gSetup->GetDetectorName(bank);
-    sprintf(histname, "hDQ_TDCCheck_%s", bank);
+    sprintf(histname, "hDQ_TDCCheck_%s_%s",detname.c_str(), bank);
     sprintf(histtitle, "Number of TDC hits in %s", detname.c_str());
     hDQ_TDCCheck[ich] = new TH1I(histname, histtitle, 3,0,3);
     hDQ_TDCCheck[ich]->GetXaxis()->SetTitle(detname.c_str());
@@ -135,19 +135,19 @@ INT MDQ_TDCCheck_init()
     hDQ_TDCCheck_TDiff[ich]->GetXaxis()->SetTitle("Timing Difference(ns)");
   }
 
-  hDQ_TDCCheck_TTSc = new TH1F("hDQ_TDCCheck_TTSc", "Number of Hits in TSc", 1200,0,120e6);
-  hDQ_TDCCheck_TTSc->GetXaxis()->SetTitle("TTSc");
-  hDQ_TDCCheck_TTSc->GetYaxis()->SetTitle("Number of Hits");
+  hDQ_TDCCheck_nMuons = new TH1F("hDQ_TDCCheck_nMuons", "Number of Hits in Muon Channel", 3,0,3);
+  hDQ_TDCCheck_nMuons->GetXaxis()->SetTitle("Muon Channel");
+  hDQ_TDCCheck_nMuons->GetYaxis()->SetTitle("Number of Hits");
 
-  hDQ_TDCCheck_TSc_time = new TH1F("hDQ_TDCCheck_TSc_time", "Time of TDC Hits in TSc", 1200,0,120e6);
-  hDQ_TDCCheck_TSc_time->GetXaxis()->SetTitle("Time of TSc Hit [ns]");
-  hDQ_TDCCheck_TSc_time->GetYaxis()->SetTitle("Number of Hits");
+  hDQ_TDCCheck_Muon_time = new TH1F("hDQ_TDCCheck_Muon_time", "Time of TDC Hits for muon channel", 1200,0,120e6);
+  hDQ_TDCCheck_Muon_time->GetXaxis()->SetTitle("Time of TSc Hit [ns]");
+  hDQ_TDCCheck_Muon_time->GetYaxis()->SetTitle("Number of Hits");
 
-  hDQ_TDCCheck_TSc_rate = new TH1F("hDQ_TDCCheck_TSc_rate", "Rate of TDC Hits in TSc", 3,0,3);
-  hDQ_TDCCheck_TSc_rate->GetXaxis()->SetTitle("TSc");
-  hDQ_TDCCheck_TSc_rate->GetYaxis()->SetTitle("Rate of TSc Hit [s^-1]");
+  hDQ_TDCCheck_Muon_rate = new TH1F("hDQ_TDCCheck_Muon_rate", "Rate of TDC Hits in muon channel", 3,0,3);
+  hDQ_TDCCheck_Muon_rate->GetXaxis()->SetTitle("Muon Channel");
+  hDQ_TDCCheck_Muon_rate->GetYaxis()->SetTitle("Rate of Muon Hits [s^-1]");
 
-  hDQ_TDCCheck_TOffset = new TH1F("hDQ_TDCCheck_TOffset", "Time difference between TSc hit in TDC and WFD", 10000, TIME_LOW, TIME_HIGH);
+  hDQ_TDCCheck_TOffset = new TH1F("hDQ_TDCCheck_TOffset", "Time difference between Muon hit in TDC and WFD", 10000, TIME_LOW, TIME_HIGH);
   hDQ_TDCCheck_TOffset->GetXaxis()->SetTitle("Time Difference of TSc Hits");
   hDQ_TDCCheck_TOffset->GetYaxis()->SetTitle("Number of Hits");
 
@@ -206,7 +206,7 @@ INT MDQ_TDCCheck_eor(INT run_number) {
 
   int duration = StopTimes[0] - StartTimes[0]; // length of run in seconds (checked against run #2600)
   
-  hDQ_TDCCheck_TSc_rate->Scale(1.0/duration);
+  hDQ_TDCCheck_Muon_rate->Scale(1.0/duration);
 
   return SUCCESS;
 }
@@ -251,15 +251,17 @@ INT MDQ_TDCCheck(EVENT_HEADER *pheader, void *pevent)
     } 
     const std::vector<int64_t>& hits = tdc_map.at(tdc_bank);
     hDQ_TDCCheck[ich]->Fill(1, hits.size());
-
+    
     if(tdc_bank == refbank) {
-      hDQ_TDCCheck_TSc_rate->Fill(1, hits.size());
-      hDQ_TDCCheck_TTSc->Fill(1, hits.size());
-      for(int i=0; i< hits.size(); i++)
-	hDQ_TDCCheck_TSc_time->Fill(hits[i]);
+      hDQ_TDCCheck_Muon_rate->Fill(1, hits.size());
+      for(int i=0; i< hits.size(); i++){
+	hDQ_TDCCheck_Muon_time->Fill(hits[i]);
+	hDQ_TDCCheck_nMuons->Fill(1);
+      }
+    
     }
 
-
+  
     for(int i = 0; i< hits.size(); i++) {
       for(int j = 0; j<ref_hits.size(); j++) {
 	const double dt = clock_tick * (hits[i] - ref_hits[j]);
@@ -269,7 +271,9 @@ INT MDQ_TDCCheck(EVENT_HEADER *pheader, void *pevent)
 	  hDQ_TDCCheck_TDiff[ich]->Fill(dt);
       }
     }
+  
   }
+  
 
   for(int t = 0; t < ref_hits.size(); t++) {
     for(int p = 0; p < pulses.size(); p++) {

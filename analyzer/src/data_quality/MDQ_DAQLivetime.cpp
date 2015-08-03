@@ -21,7 +21,7 @@
 /// \var hDQ_DAQLivetime_pulser
 /// \brief
 /// Plots the Livetime of the DAQ, calculated from the ratio of
-/// of pulser pulses (10kHz, 100usec) to run time (from odb)
+/// of pulser pulses (550 Hz, 1.818 ms) to run time (from odb)
 
 /// \var hDQ_EventTime
 /// \brief
@@ -192,7 +192,7 @@ INT MDQ_DAQLivetime(EVENT_HEADER *pheader, void *pevent)
 	gate_length /= 1000; // convert to seconds since that is what the duration of the run will be calculated in
 	hDQ_DAQLivetime_event->Fill(1,gate_length);
 
-	double pulser_sep = 0.0001; //10kHz in seconds
+	double pulser_sep = 0.001818; //10kHz in seconds
 	const std::map<std::string, std::vector<int64_t> >& tdcs_map =
 	  gData->fTDCHitsToChannelMap;
 	char det[16]; sprintf(det, "TSync");

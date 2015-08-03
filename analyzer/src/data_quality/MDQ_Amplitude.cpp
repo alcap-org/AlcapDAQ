@@ -76,7 +76,7 @@ map <std::string, TH1F*> DQ_Amplitude_histograms_map;
 map <std::string, TH1F*> DQ_Amplitude_histograms_normalised_map;
 map <std::string, TH1F*> DQ_Amplitude_histograms_ped_sub_map;
 
-extern TH1F* hDQ_TDCCheck_TTSc;
+extern TH1F* hDQ_TDCCheck_nMuons;
 
 ANA_MODULE MDQ_Amplitude_module =
 {
@@ -114,7 +114,7 @@ INT MDQ_Amplitude_init()
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
-    if(IsTDC(bankname)) continue;
+    if(TSetupData::IsTDC(bankname)) continue;
     int n_bits = gSetup->GetNBits(bankname);
     int max_adc_value = std::pow(2, n_bits);
 
@@ -169,11 +169,11 @@ INT MDQ_Amplitude_eor(INT run_number) {
 
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
-    if(IsTDC(bankname)) continue;
+    if(TSetupData::IsTDC(bankname)) continue;
       
     // Make sure the histograms exist and then fill them
     if (DQ_Amplitude_histograms_normalised_map.find(bankname) != DQ_Amplitude_histograms_normalised_map.end()) {
-      DQ_Amplitude_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_TTSc->GetEntries());
+      DQ_Amplitude_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_nMuons->GetEntries());
     }
   }
   
@@ -199,12 +199,12 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 	{
 	  std::string bankname = mapIter->first;
 	  std::string detname = gSetup->GetDetectorName(bankname);
-	  if(IsTDC(bankname)) continue;
+	  if(TSetupData::IsTDC(bankname)) continue;
 	  std::vector<TPulseIsland*> thePulses = mapIter->second;
 
 	  // Get the histograms first
 	  TH1F* hDQ_Amplitude = DQ_Amplitude_histograms_map[bankname];
-	  //TH1F* hDQ_Amplitude_Norm = DQ_Amplitude_histograms_normalised_map[bankname];
+	  TH1F* hDQ_Amplitude_Norm = DQ_Amplitude_histograms_normalised_map[bankname];
 	  TH1F* hDQ_Amplitude_PedSub = DQ_Amplitude_histograms_ped_sub_map[bankname];
 	  // Loop over the TPulseIslands and plot the histogram
 	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
@@ -230,7 +230,7 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 			  const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
 			  int peak_sample = (*pulseIter)->GetPeakSample();
 			  hDQ_Amplitude->Fill(theSamples.at(peak_sample));
-			  //hDQ_Amplitude_Norm->Fill(theSamples.at(peak_sample));
+			  hDQ_Amplitude_Norm->Fill(theSamples.at(peak_sample));
 			  
 			  int amplitude = (*pulseIter)->GetPulseHeight();
 			  hDQ_Amplitude_PedSub->Fill(amplitude);

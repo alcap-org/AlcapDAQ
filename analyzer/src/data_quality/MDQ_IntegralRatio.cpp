@@ -58,19 +58,16 @@ using std::vector;
 
 INT MDQ_IntegralRatio_init(void);
 INT MDQ_IntegralRatio(EVENT_HEADER*, void*);
-//Int MDQ_IntegralRatio_eor(INT);
+INT MDQ_IntegralRatio_eor(INT);
 
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 map <std::string, TH2D*> DQ_Integral_XY;
-map <std::string, TH2F*> DQ_IntegralRatio_PH;
-map <std::string, TH2F*> DQ_IntegralRatio_E;
-map <std::string, TH1F*> DQ_NeutronEnMeVee;
-map <std::string, TH1F*> DQ_NeutronEnMeVnr;
-map <std::string, TH1F*> DQ_GammaEnMeVee;
-map <std::string, TH1F*> DQ_GammaPH;
-map <std::string, TH1F*> DQ_NeutronPH;
+map <std::string, TH2F*> DQ_IntegralRatio_PH, DQ_IntegralRatio_E;
+map <std::string, TH1F*> DQ_NeutronEnMeVee, DQ_GammaEnMeVee, DQ_GammaPH, DQ_NeutronPH;
+//map <std::string, TH1F*> DQ_NeutronEnMeVnr;
+map <std::string, TH1D*> DQ_HEFoM;
 
 ANA_MODULE MDQ_IntegralRatio_module = 
   {
@@ -78,7 +75,7 @@ ANA_MODULE MDQ_IntegralRatio_module =
     "Damien Alexander",         /*author name         */
     MDQ_IntegralRatio,          /*event routine       */
     NULL,                       /*BOR routine         */
-    NULL,                       /*EOR routine         */
+    MDQ_IntegralRatio_eor,      /*EOR routine         */
     MDQ_IntegralRatio_init,     /*init routine        */
     NULL,                       /*exit routine        */
     NULL,                       /*parameter structure */
@@ -90,7 +87,11 @@ INT MDQ_IntegralRatio_init()
 {
   //check for directory, create if missing
   //place in DataQuality for now
-
+  std::string dir_name("DataQuality_IntegralRatio/");
+  if(!gDirectory->Cd(dir_name.c_str())) {
+    gDirectory->mkdir(dir_name.c_str());
+  }
+  gDirectory->Cd(dir_name.c_str());
 
   //initialize histograms
   std::map<std::string, std::string> bankDetMap = gSetup->fBankToDetectorMap;
@@ -140,21 +141,21 @@ INT MDQ_IntegralRatio_init()
       hDQ_neutronPH->GetXaxis()->SetTitle("Pulse Height (ADC counts)");
       hDQ_neutronPH->GetYaxis()->SetTitle("count");
       DQ_NeutronPH[bankname] = hDQ_neutronPH;
-
+      
       histname = "h" + bankname + "_DQ_NeutronEnMeVee";
       histtitle = "Neutron Energy in MeVee for " + bankname;
       TH1F* hDQ_neutronEnMeVee = new TH1F(histname.c_str(), histtitle.c_str(), 800, 0, 10.0125);
       hDQ_neutronEnMeVee->GetXaxis()->SetTitle("Neutron Energy  (MeVee)");
       hDQ_neutronEnMeVee->GetYaxis()->SetTitle("count");
       DQ_NeutronEnMeVee[bankname] = hDQ_neutronEnMeVee;
-
+      /*
       histname = "h" + bankname + "_DQ_NeutronEnMeVnr";
       histtitle = "Neutron Energy in MeVnr for " + bankname;
       TH1F* hDQ_neutronEnMeVnr = new TH1F(histname.c_str(), histtitle.c_str(), 200, 0, 12);
       hDQ_neutronEnMeVnr->GetXaxis()->SetTitle("Neutron Energy  (MeVnr)");
       hDQ_neutronEnMeVnr->GetYaxis()->SetTitle("count");
       DQ_NeutronEnMeVnr[bankname] = hDQ_neutronEnMeVnr;
-
+      */
       histname = "h" + bankname + "_DQ_GammaPH";
       histtitle = "Gamma Pulse Heights for " + bankname;
       TH1F* hDQ_gammaPH = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value, 0, max_adc_value);
@@ -168,13 +169,47 @@ INT MDQ_IntegralRatio_init()
       hDQ_gammaEnMeVee->GetXaxis()->SetTitle("Gamma Energy (MeV)");
       hDQ_gammaEnMeVee->GetYaxis()->SetTitle("count");
       DQ_GammaEnMeVee[bankname] = hDQ_gammaEnMeVee;
-
-
-      //Return to root directory
-      //gDirectory->Cd("/MidasHists/");
-
+    
     }
 
+  gDirectory->Cd("../DaraQuality_LowLevel/");
+  for(std::map<std::string, std::string>::iterator mapIter = bankDetMap.begin(); mapIter != bankDetMap.end(); mapIter++){
+
+    std::string bankname = mapIter->first;
+    std::string detname = gSetup->GetDetectorName(bankname);
+      
+    if(!gSetup->IsNeutron(detname)) continue;
+
+
+    std::string histname = "h" + bankname + "_HE_FoM";
+    std::string histtitle = "FoM for " + detname + " from 1 to 6 MeVee";
+    TH1D* hDQ_HEFoM = new TH1D(histname.c_str(), histtitle.c_str(), 500, 0, 0.4);
+    hDQ_HEFoM->GetXaxis()->SetTitle("Integral Ratio(PSD parameter)");
+    hDQ_HEFoM->GetYaxis()->SetTitle("arbitrary units");
+    DQ_HEFoM[bankname] = hDQ_HEFoM;
+  }
+
+
+  //Return to root directory
+  gDirectory->Cd("/MidasHists/");
+  return SUCCESS;
+}
+
+INT MDQ_IntegralRatio_eor(INT run_number) {
+  //need to make projection
+  ////edit, filled during event now 
+  /*
+  for(std::map<std::string, TH2F*>::iterator mIter = DQ_IntegralRatio_E.begin(); mIter != DQ_IntegralRatio_E.end(); mIter++) {
+    std::string bankname = mIter->first;
+    int max_adc_value = std::pow(2, gSetup->GetNBits(bankname));
+    int minE = (double)1*max_adc_value/6.5;
+    int maxE = (double)6*max_adc_value/6.0;
+
+    TH2F* hIntRatioPlot = DQ_IntegralRatio_E[bankname];
+    TH1D* hIntRatioPlot_py = hIntRatioPlot->ProjectionY("_py", minE, maxE, ""); 
+    DQ_HEFoM[bankname]->Add(hIntRatioPlot_py, 1);
+  }
+  */  
   return SUCCESS;
 }
 
@@ -242,7 +277,7 @@ INT MDQ_IntegralRatio(EVENT_HEADER *pheader, void *pevent)
 	  //determine amplitude from pulse heights.  to be added later.
 
 	  double energyMevee =-1.;
-	  double energyMevnr=-1.;
+	  //double energyMevnr=-1.;
 	  if(detname == "NdetD")  energyMevee = (pulse_height * 0.0003999) + 0.008234;
 	  if(detname == "NdetU")  energyMevee = (pulse_height * 0.0004015) + 0.009037;
 
@@ -275,11 +310,14 @@ INT MDQ_IntegralRatio(EVENT_HEADER *pheader, void *pevent)
 	  DQ_IntegralRatio_PH[bankname]->Fill(pulse_height, ratio);
 	  DQ_IntegralRatio_E[bankname]->Fill(energyMevee, ratio);
 
+	  if(energyMevee >= 1.0 && energyMevee <= 6.0)
+	    DQ_HEFoM[bankname]->Fill(ratio);
+
 	  // Damien's initial PSD based on AmBe data
 	  if(neutron) {
 	    DQ_NeutronPH[bankname]->Fill(pulse_height);
 	    DQ_NeutronEnMeVee[bankname]->Fill(energyMevee);
-	    DQ_NeutronEnMeVnr[bankname]->Fill(energyMevnr);
+	    //DQ_NeutronEnMeVnr[bankname]->Fill(energyMevnr);
 	  }
 	  else {
 	    DQ_GammaPH[bankname]->Fill(pulse_height);
