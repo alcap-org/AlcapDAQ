@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() {
-    echo "usage: batch_alcapana.sh [-h | --help] [--usage] [-n max_jobs] [-r run_low run_high] [-t loop_time_sec] [-d output_file] [-p ftp_password] [runs...]"
+    echo "usage: batch_alcapana.sh [-h | --help] [--usage] [-n max_jobs] [-r run_low run_high] [-t loop_time_sec] [-p ftp_password] [runs...]"
 }
 
 help() {
@@ -113,6 +113,7 @@ while [ $# -gt 0 ]; do
     elif [ $1 = "-p" ]; then
 	FTPPSWD="$2"
 	shift 2
+    else
 	RUNS="$RUNS $((10#$1))"
 	shift
     fi
@@ -160,6 +161,8 @@ HISTDIR="$DATADIR/hist"
 mkdir -p $LOGDIR
 mkdir -p $FLGDIR
 mkdir -p $RAWDIR
+mkdir -p $TREEDIR
+mkdir -p $HISTDIR
 
 # Check other instances of this aren't running
 if [ $(flagcount $FLGDIR) -ne 0 ]; then
