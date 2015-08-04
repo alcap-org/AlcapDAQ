@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() {
-    echo "usage: batch_alcapana.sh [-h | --help] [--usage] [-n max_jobs] [-r run_low run_high] [-t loop_time_sec] [-d output_directory] [-p ftp_password] [runs...]"
+    echo "usage: batch_alcapana.sh [-h | --help] [--usage] [-n max_jobs] [-r run_low run_high] [-t loop_time_sec] [-d output_file] [-p ftp_password] [runs...]"
 }
 
 help() {
@@ -82,12 +82,11 @@ flagcount() {
 RUNS=""
 NJOBS=1
 DT=30
-OUTDIR=""
 
 FTPUSER="mucap"
 FTPPSWD=""
 FTPSRVR="ftp://archivftp.psi.ch"
-FTPDIR="mu2e/run2015a"
+FTPDIR="mu2e/R15a"
 
 # Get command line arguments
 while [ $# -gt 0 ]; do
@@ -114,10 +113,6 @@ while [ $# -gt 0 ]; do
     elif [ $1 = "-p" ]; then
 	FTPPSWD="$2"
 	shift 2
-    elif [ $1 = "-d" ]; then
-        OUTDIR="$2"
-        shift 2
-    else
 	RUNS="$RUNS $((10#$1))"
 	shift
     fi
@@ -165,9 +160,6 @@ HISTDIR="$DATADIR/hist"
 mkdir -p $LOGDIR
 mkdir -p $FLGDIR
 mkdir -p $RAWDIR
-if [ $OUTDIR -ne "" ]; then
-    mkdir -p $HISTDIR/$OUTDIR
-fi
 
 # Check other instances of this aren't running
 if [ $(flagcount $FLGDIR) -ne 0 ]; then
@@ -178,7 +170,7 @@ fi
 
 # Submit jobs
 FLAGS=""
-CMD="$DAQdir/analyzer/batch/scripts/production-run-1/batch_R15a_DQrun1.sge"
+CMD="$DAQdir/analyzer/batch/scripts/R15a_DQrun1/batch_R15a_DQrun1.sge"
 for IRUN in $RUNS; do
 
     OLOG="$LOGDIR/alcapana.run$(runcanon $IRUN).out"
@@ -214,8 +206,6 @@ for IRUN in $RUNS; do
     touch $FLGDIR/$(flagcanon $IRUN)
     FLAGS=$(flagadd $FLAGS $IRUN)
     qsub -v DAQdir -e $ELOG -o $OLOG $CMD $IRUN
-
-    mv "$HISTDIR/hist$(runcannon $IRUN).root" "$HISTDIR/$OUTDIR/hist$(runcannon $IRUN).root"
 
 done
 
