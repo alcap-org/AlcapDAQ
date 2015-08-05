@@ -2,6 +2,7 @@
 /// \defgroup MDQ_TDCCheck
 /// \ingroup lldq
 /// \author Andrew Edmonds
+/// \editted by Damien Alexander
 ///
 /// \brief
 /// Plots information from the TDC, most importantly muSc, muScA, and muPC data.
@@ -73,6 +74,7 @@ using std::pair;
 INT  MDQ_TDCCheck_init(void);
 INT  MDQ_TDCCheck(EVENT_HEADER*, void*);
 INT  MDQ_TDCCheck_eor(INT);
+INT  MDQ_TDCCheck_bor(INT);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -82,12 +84,20 @@ static const int NCHANTDC = 16;
 const double TIME_LOW = -10e3, TIME_HIGH = 10e3; //ns
 
 static TH1* hDQ_TDCCheck[NCHANTDC];
-static TH1* hDQ_TDCCheck_TDiff[NCHANTDC];
+static TH1* hDQ_TDCCheck_TCorr[NCHANTDC];
+
+static int TDC_dataset = 0;
 
 TH1F* hDQ_TDCCheck_nMuons;
 TH1F* hDQ_TDCCheck_Muon_time;
 TH1F* hDQ_TDCCheck_Muon_rate;
 TH1F* hDQ_TDCCheck_TOffset;
+
+TH1F* hDQ_TDCCheck_muScA;
+TH1F* hDQ_TDCCheck_muPC;
+TH1F* hDQ_TDCCheck_Unknown;
+
+TH1F* hDQ_TDCCheck_TDiff;
 
 
 ANA_MODULE MDQ_TDCCheck_module =
@@ -95,7 +105,7 @@ ANA_MODULE MDQ_TDCCheck_module =
 	"MDQ_TDCCheck",                /* module name           */
 	"Damien Alexander",            /* author                */
 	MDQ_TDCCheck,                  /* event routine         */
-	NULL,                          /* BOR routine           */
+	MDQ_TDCCheck_bor,              /* BOR routine           */
 	MDQ_TDCCheck_eor,              /* EOR routine           */
 	MDQ_TDCCheck_init,             /* init routine          */
 	NULL,                          /* exit routine          */
@@ -103,6 +113,26 @@ ANA_MODULE MDQ_TDCCheck_module =
 	0,                             /* structure size        */
 	NULL,                          /* initial parameters    */
 };
+
+
+INT MDQ_TDCCheck_bor(int runnumber)
+{
+  if(runnumber < 3780){
+    //R13
+    TDC_dataset = 1;
+  }
+  else if(runnumber < 7425){
+    //R15a
+    TDC_dataset = 2;
+  }
+  else{
+    //unknown set
+    std::cout << "MDQ_TDCCheck error:  Run Number " << runnumber << " not associated with any known data set" << std::endl;
+    return 1;
+  }
+  return SUCCESS;
+}
+
 
 /** This method initializes histograms.
 */
@@ -116,25 +146,46 @@ INT MDQ_TDCCheck_init()
     gDirectory->Cd(dir_name.c_str());
   }
 
-
-
   // Create some histograms
-  for(int ich = 0; ich<NCHANTDC; ++ich) {
-    char bank[5], histname[64], histtitle[64];
-    sprintf(bank, "T4%02d", ich);
-    std::string detname = gSetup->GetDetectorName(bank);
-    sprintf(histname, "hDQ_TDCCheck_%s_%s",detname.c_str(), bank);
-    sprintf(histtitle, "Number of TDC hits in %s", detname.c_str());
-    hDQ_TDCCheck[ich] = new TH1I(histname, histtitle, 3,0,3);
-    hDQ_TDCCheck[ich]->GetXaxis()->SetTitle(detname.c_str());
-    hDQ_TDCCheck[ich]->GetYaxis()->SetTitle("Number of Hits");
+  //-------------R15a histograms ---------//
+  if(TDC_dataset == 2){
+    for(int ich = 0; ich<NCHANTDC; ++ich) {
+      char bank[5], histname[64], histtitle[64];
+      sprintf(bank, "T4%02d", ich);
+      std::string detname = gSetup->GetDetectorName(bank);
+      sprintf(histname, "hDQ_TDCCheck_%s_%s",detname.c_str(), bank);
+      sprintf(histtitle, "Number of TDC hits in %s", detname.c_str());
+      hDQ_TDCCheck[ich] = new TH1I(histname, histtitle, 3,0,3);
+      hDQ_TDCCheck[ich]->GetXaxis()->SetTitle(detname.c_str());
+      hDQ_TDCCheck[ich]->GetYaxis()->SetTitle("Number of Hits");
 
-    sprintf(histname, "hDQ_TDCCheck_TDiff_%s", bank);
-    sprintf(histtitle, "Timing Correlation, TSc and %s", detname.c_str());
-    hDQ_TDCCheck_TDiff[ich] = new TH1F(histname, histtitle, 10000, TIME_LOW, TIME_HIGH);
-    hDQ_TDCCheck_TDiff[ich]->GetXaxis()->SetTitle("Timing Difference(ns)");
+      sprintf(histname, "hDQ_TDCCheck_TCorr_%s", bank);
+      sprintf(histtitle, "Timing Correlation, TSc and %s", detname.c_str());
+      hDQ_TDCCheck_TCorr[ich] = new TH1F(histname, histtitle, 10000, TIME_LOW, TIME_HIGH);
+      hDQ_TDCCheck_TCorr[ich]->GetXaxis()->SetTitle("Timing Difference(ns)");
+    }
+
+    hDQ_TDCCheck_TOffset = new TH1F("hDQ_TDCCheck_TOffset", "Time difference between Muon hit in TDC and WFD", 10000, TIME_LOW, TIME_HIGH);
+    hDQ_TDCCheck_TOffset->GetXaxis()->SetTitle("Time Difference of TSc Hits");
+    hDQ_TDCCheck_TOffset->GetYaxis()->SetTitle("Number of Hits");
   }
 
+  //-----------R13 Histograms ---------//
+  if(TDC_dataset == 1){
+    hDQ_TDCCheck_muScA = new TH1F("hDQ_TDCCheck_muScA", "Number of Hits in TDC (muScA)", 3,0,3);
+    hDQ_TDCCheck_muScA->GetXaxis()->SetTitle("muScA");
+    hDQ_TDCCheck_muScA->GetYaxis()->SetTitle("Number of Hits");
+
+    hDQ_TDCCheck_muPC = new TH1F("hDQ_TDCCheck_muPC", "Number of Hits in TDC (muPC)", 3,0,3);
+    hDQ_TDCCheck_muPC->GetXaxis()->SetTitle("muPC");
+    hDQ_TDCCheck_muPC->GetYaxis()->SetTitle("Number of Hits");
+
+    hDQ_TDCCheck_Unknown = new TH1F("hDQ_TDCCheck_Unknown", "Number of Hits in TDC (Unknown)", 7000,0,7000);
+    hDQ_TDCCheck_Unknown->GetXaxis()->SetTitle("TDC Parameter");
+    hDQ_TDCCheck_Unknown->GetYaxis()->SetTitle("Number of Hits");
+  }
+
+  //-------general histograms -------//
   hDQ_TDCCheck_nMuons = new TH1F("hDQ_TDCCheck_nMuons", "Number of Hits in Muon Channel", 3,0,3);
   hDQ_TDCCheck_nMuons->GetXaxis()->SetTitle("Muon Channel");
   hDQ_TDCCheck_nMuons->GetYaxis()->SetTitle("Number of Hits");
@@ -146,12 +197,6 @@ INT MDQ_TDCCheck_init()
   hDQ_TDCCheck_Muon_rate = new TH1F("hDQ_TDCCheck_Muon_rate", "Rate of TDC Hits in muon channel", 3,0,3);
   hDQ_TDCCheck_Muon_rate->GetXaxis()->SetTitle("Muon Channel");
   hDQ_TDCCheck_Muon_rate->GetYaxis()->SetTitle("Rate of Muon Hits [s^-1]");
-
-  hDQ_TDCCheck_TOffset = new TH1F("hDQ_TDCCheck_TOffset", "Time difference between Muon hit in TDC and WFD", 10000, TIME_LOW, TIME_HIGH);
-  hDQ_TDCCheck_TOffset->GetXaxis()->SetTitle("Time Difference of TSc Hits");
-  hDQ_TDCCheck_TOffset->GetYaxis()->SetTitle("Number of Hits");
-
-
 
   gDirectory->Cd("/MidasHists/");
   return SUCCESS;
@@ -218,72 +263,132 @@ INT MDQ_TDCCheck(EVENT_HEADER *pheader, void *pevent)
   // Get the event number
   int midas_event_number = pheader->serial_number;
 
-  // Fetch a reference to the gData structure that stores a map
-  // of (bank_name, vector<TPulseIsland*>) pairs
-  const std::map<std::string, std::vector<TPulseIsland*> >& wfd_map =
-    gData->fPulseIslandToChannelMap;
 
-  const std::map<std::string, std::vector<int64_t> >& tdc_map =
-    gData->fTDCHitsToChannelMap;
+  //------R15a TDC Analysis ------//
+  if(TDC_dataset == 2){
+    // Fetch a reference to the gData structure that stores a map
+    // of (bank_name, vector<TPulseIsland*>) pairs
+    const std::map<std::string, std::vector<TPulseIsland*> >& wfd_map =
+      gData->fPulseIslandToChannelMap;
 
-  std::string refbank = gSetup->GetBankName("TTSc");
-  std::string pulsebank = gSetup->GetBankName("TSc");
-  if(tdc_map.find(refbank) == tdc_map.end()){
-    std::cout << "MDQ_TDCCheck Error : No TSc hits found in TDC" << std::endl;
-    return 1;
-  } 
-  const std::vector<int64_t>& ref_hits = tdc_map.at(refbank);
-  if(wfd_map.find(pulsebank) == wfd_map.end()){
-    std::cout << "MDQ_TDCCheck Error : No TSc hits found in WFD" << std::endl;
-    return 1;
-  } 
-  const std::vector<TPulseIsland*>& pulses = wfd_map.at(pulsebank);
-  static const float clock_tick = 0.025; //ns conversion for TDC hits
+    const std::map<std::string, std::vector<int64_t> >& tdc_map =
+      gData->fTDCHitsToChannelMap;
 
-  for(int ich = 0; ich < NCHANTDC; ++ich) {
-    if(!hDQ_TDCCheck[ich]) continue;
-    char tdc_bank[5];
-    sprintf(tdc_bank, "T4%02d", ich);
-
-    if(tdc_map.find(tdc_bank) == tdc_map.end()){
-      std::cout << "MDQ_TDCCheck error:  bank " << tdc_bank << " not found" << std::endl;
-      continue;
+    std::string refbank = gSetup->GetBankName("TTSc");
+    std::string pulsebank = gSetup->GetBankName("TSc");
+    if(tdc_map.find(refbank) == tdc_map.end()){
+      std::cout << "MDQ_TDCCheck Error : No TSc hits found in TDC" << std::endl;
+      return 1;
     } 
-    const std::vector<int64_t>& hits = tdc_map.at(tdc_bank);
-    hDQ_TDCCheck[ich]->Fill(1, hits.size());
-    
-    if(tdc_bank == refbank) {
-      hDQ_TDCCheck_Muon_rate->Fill(1, hits.size());
-      for(int i=0; i< hits.size(); i++){
-	hDQ_TDCCheck_Muon_time->Fill(hits[i]);
-	hDQ_TDCCheck_nMuons->Fill(1);
-      }
-    
-    }
+    const std::vector<int64_t>& ref_hits = tdc_map.at(refbank);
+    if(wfd_map.find(pulsebank) == wfd_map.end()){
+      std::cout << "MDQ_TDCCheck Error : No TSc hits found in WFD" << std::endl;
+      return 1;
+    } 
+    const std::vector<TPulseIsland*>& pulses = wfd_map.at(pulsebank);
+    static const float clock_tick = 0.025; //ns conversion for TDC hits
 
+    for(int ich = 0; ich < NCHANTDC; ++ich) {
+      if(!hDQ_TDCCheck[ich]) continue;
+      char tdc_bank[5];
+      sprintf(tdc_bank, "T4%02d", ich);
+
+      if(tdc_map.find(tdc_bank) == tdc_map.end()){
+	std::cout << "MDQ_TDCCheck error:  bank " << tdc_bank << " not found" << std::endl;
+	continue;
+      } 
+      const std::vector<int64_t>& hits = tdc_map.at(tdc_bank);
+      hDQ_TDCCheck[ich]->Fill(1, hits.size());
+    
+      if(tdc_bank == refbank) {
+	hDQ_TDCCheck_Muon_rate->Fill(1, hits.size());
+	for(int i=0; i< hits.size(); i++){
+	  hDQ_TDCCheck_Muon_time->Fill(hits[i]);
+	  hDQ_TDCCheck_nMuons->Fill(1);
+	}
+      }
   
-    for(int i = 0; i< hits.size(); i++) {
-      for(int j = 0; j<ref_hits.size(); j++) {
-	const double dt = clock_tick * (hits[i] - ref_hits[j]);
+      for(int i = 0; i< hits.size(); i++) {
+	for(int j = 0; j<ref_hits.size(); j++) {
+	  const double dt = clock_tick * (hits[i] - ref_hits[j]);
+	  if(dt < TIME_LOW)
+	    break;
+	  else if(dt < TIME_HIGH)
+	    hDQ_TDCCheck_TCorr[ich]->Fill(dt);
+	}
+      }
+    }
+  
+
+    for(int t = 0; t < ref_hits.size(); t++) {
+      for(int p = 0; p < pulses.size(); p++) {
+	const double dt = clock_tick * ref_hits[t] - pulses[p]->GetPulseTime();
 	if(dt < TIME_LOW)
 	  break;
 	else if(dt < TIME_HIGH)
-	  hDQ_TDCCheck_TDiff[ich]->Fill(dt);
+	  hDQ_TDCCheck_TOffset->Fill(dt);
       }
     }
-  
   }
-  
 
-  for(int t = 0; t < ref_hits.size(); t++) {
-    for(int p = 0; p < pulses.size(); p++) {
-      const double dt = clock_tick * ref_hits[t] - pulses[p]->GetPulseTime();
-      if(dt < TIME_LOW)
-	break;
-      else if(dt < TIME_HIGH)
-	hDQ_TDCCheck_TOffset->Fill(dt);
+
+  //-----------R13 TDC Analysis ----------//
+  if(TDC_dataset == 1){
+    // Some typedefs
+    typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
+    typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
+    typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+
+    // Fetch a reference to the gData structure that stores a map
+    // of (bank_name, vector<TPulseIsland*>) pairs
+    TStringPulseIslandMap& pulse_islands_map =
+      gData->fPulseIslandToChannelMap;
+
+    // Get a pointer to the hit data in the TDC
+    // NB copied and modified from MMuSCAnalysisC.cpp
+    channel_hit *hit_bank;
+    int hit_bank_size = bk_locate(pevent, "HITS", (DWORD *) &hit_bank);
+    hit_bank_size = hit_bank_size * sizeof(DWORD) / sizeof(channel_hit);
+
+    // At the moment just loop through the hits and print the information
+    // Parameter values have been obtained from MMuSCAnalysisMQL.cpp and MMuPC1AnalysisMQL.cpp
+    for (int i = 0; i < hit_bank_size; ++i) {
+      if (hit_bank[i].parameter == 6011) {
+	// printf("muSC hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	hDQ_TDCCheck_nMuons->Fill(1);
+	hDQ_TDCCheck_Muon_time->Fill(hit_bank[i].time);
+	hDQ_TDCCheck_Muon_rate->Fill(1);
+
+	// Plot the time difference between the time as given by the TDC and as given by the BU CAEN
+	std::string detname = "muSc";
+	std::string bankname = gSetup->GetBankName(detname);
+	std::vector<TPulseIsland*> theMuScPulses = pulse_islands_map[bankname];
+
+	// Loop over the TPulseIslands and plot the histogram
+	for(std::vector<TPulseIsland*>::iterator pulseIter = theMuScPulses.begin(); pulseIter != theMuScPulses.end(); ++pulseIter) {
+
+	  // Get the timestamp of the TPI in ns
+	  int time_stamp = (*pulseIter)->GetTimeStamp();
+	  double clock_tick_in_ns = (*pulseIter)->GetClockTickInNs();
+	  double block_time = time_stamp * clock_tick_in_ns;
+
+	  hDQ_TDCCheck_TDiff->Fill(block_time - hit_bank[i].time);
+	}
+      }
+
+      else if (hit_bank[i].parameter == 6002)
+	// printf("muSCA hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	hDQ_TDCCheck_muScA->Fill(1);
+
+      else if (hit_bank[i].parameter >= 4001 && hit_bank[i].parameter <= 4074)
+	// printf("muPC hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	hDQ_TDCCheck_muPC->Fill(1);
+      else
+	// printf("Unknown hit! Hit #%d: time = %f, parameter = %d\n", i, hit_bank[i].time, hit_bank[i].parameter);
+	hDQ_TDCCheck_Unknown->Fill(hit_bank[i].parameter);
     }
   }
+
 
   return SUCCESS;
 }

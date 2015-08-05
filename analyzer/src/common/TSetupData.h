@@ -143,7 +143,7 @@ class TSetupData : public TObject{
   //@}
 
   static bool IsFADC(const std::string& BankName) {
-    return BankName[0] == 'N';
+    return (BankName[0] == 'N' && BankName != "NULL");
   }
   static bool IsHoustonCAEN(const std::string& BankName) {
     return BankName.substr(2,2) == "UH";

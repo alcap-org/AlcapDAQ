@@ -64,17 +64,19 @@ map <std::string, TH1F*> DQ_Thresholds_histograms_map;
 
 ANA_MODULE MDQ_Thresholds_module =
 {
-	"MDQ_Thresholds",                    /* module name           */
+	"MDQ_Thresholds",              /* module name           */
 	"Andrew Edmonds",              /* author                */
-	MDQ_Thresholds,                      /* event routine         */
+	MDQ_Thresholds,                /* event routine         */
 	NULL,                          /* BOR routine           */
-	MDQ_Thresholds_eor,                          /* EOR routine           */
-	MDQ_Thresholds_init,                 /* init routine          */
+	MDQ_Thresholds_eor,            /* EOR routine           */
+	MDQ_Thresholds_init,           /* init routine          */
 	NULL,                          /* exit routine          */
 	NULL,                          /* parameter structure   */
 	0,                             /* structure size        */
 	NULL,                          /* initial parameters    */
 };
+
+
 
 /** This method initializes histograms.
 */
@@ -94,6 +96,7 @@ INT MDQ_Thresholds_init()
       mapIter != bank_to_detector_map.end(); mapIter++) { 
 
     std::string bankname = mapIter->first;
+    if(TSetupData::IsTDC(bankname)) continue;
     std::string detname = gSetup->GetDetectorName(bankname);
 
     // hDQ_Thresholds_[DetName]_[BankName]
@@ -129,7 +132,10 @@ INT MDQ_Thresholds_eor(INT run_number) {
       mapIter != bank_to_detector_map.end(); mapIter++) { 
 
     std::string bankname = mapIter->first;
+    if(TSetupData::IsTDC(bankname)) continue;
 
+    //I can keep old methods for R13.
+    //For R15a, override values and use IsWFD(bankname)
     if (TSetupData::Instance()->IsFADC(bankname)) {
       // get the FADC thresholds (both upper and lower)
 
@@ -228,22 +234,125 @@ INT MDQ_Thresholds_eor(INT run_number) {
       }
       DQ_Thresholds_histograms_map[bankname]->Fill("self_trigger_threshold", Thresholds[0]);
     }
+
+    //add Thresholds for R15a
+
+    //----------------------v1724--------------------------//
+    if((TSetupData::IsWFD(bankname)) && (bankname[1] == '4')){
+      // first get the channel and address from the bankname
+      int iChn = (int)(bankname[3] - 48);
+
+      // Get the threshold
+      sprintf(keyName, "/Equipment/Crate 4/Settings/CAEN0/Ch%d/trigger threshhold", iChn);
+      if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      KEY threshold_key;
+      if(db_get_key(hDB, hKey, &threshold_key) != DB_SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      float Thresholds[threshold_key.num_values];
+      int size = sizeof(Thresholds);
+      if(db_get_value(hDB, 0, keyName, Thresholds, &size, TID_DWORD, 0) != DB_SUCCESS){
+	printf("Warning: Could not retrieve values for key %s\n", keyName);
+	return false;
+      }
+      std::cout << bankname << "   "  << Thresholds[0] << std::endl;
+
+      DQ_Thresholds_histograms_map[bankname]->Fill("trigger threshold", Thresholds[0]);
+    }
+
+    //---------------------dt5720---------------------------//
+    if(TSetupData::IsWFD(bankname) && bankname[1] == '5'){
+      // first get the channel and address from the bankname
+      int iChn = (int)(bankname[3] - 48);
+
+      // Get the threshold
+      sprintf(keyName, "/Equipment/Crate 5/Settings/CAEN/Ch0%d/Self trigger threshold DPP", iChn);
+      if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      KEY threshold_key;
+      if(db_get_key(hDB, hKey, &threshold_key) != DB_SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      float Thresholds[threshold_key.num_values];
+      int size = sizeof(Thresholds);
+      if(db_get_value(hDB, 0, keyName, Thresholds, &size, TID_WORD, 0) != DB_SUCCESS){
+	printf("Warning: Could not retrieve values for key %s\n", keyName);
+	return false;
+      }
+      std::cout << bankname << "   "  << Thresholds[0] << std::endl;
+
+      DQ_Thresholds_histograms_map[bankname]->Fill("self_trigger_threshold DPP", Thresholds[0]);
+    }
+
+    //---------------------dt5730----------------------------//
+    if(TSetupData::IsWFD(bankname) && bankname.at(1) == '7'){
+      // first get the channel and address from the bankname
+      int iChn = (int)(bankname[3] - 48);
+
+      // Get the threshold
+      sprintf(keyName, "/Equipment/Crate 7/Settings/CAEN/Ch0%d/Self trigger threshold DPP", iChn);
+      if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      KEY threshold_key;
+      if(db_get_key(hDB, hKey, &threshold_key) != DB_SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      float Thresholds[threshold_key.num_values];
+      int size = sizeof(Thresholds);
+      if(db_get_value(hDB, 0, keyName, Thresholds, &size, TID_WORD, 0) != DB_SUCCESS){
+	printf("Warning: Could not retrieve values for key %s\n", keyName);
+	return false;
+      }
+      std::cout << bankname << "   "  << Thresholds[0] << std::endl;
+
+      DQ_Thresholds_histograms_map[bankname]->Fill("Self_trigger_threshold DPP", Thresholds[0]);
+    }
+
+    //-----------------------v1720--------------------------//
+    if(TSetupData::IsWFD(bankname) && bankname.at(1) == '8'){
+      // first get the channel and address from the bankname
+      int iChn = (int)(bankname[3] - 48);
+
+      // Get the threshold
+      sprintf(keyName, "/Equipment/Crate 8/Settings/CAEN0/Ch%d/Trigger threshhold", iChn);
+      if(db_find_key(hDB,0,keyName, &hKey) != SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      KEY threshold_key;
+      if(db_get_key(hDB, hKey, &threshold_key) != DB_SUCCESS){
+	printf("Warning: Could not find key %s\n", keyName);
+	return false;
+      }
+      float Thresholds[threshold_key.num_values];
+      int size = sizeof(Thresholds);
+      if(db_get_value(hDB, 0, keyName, Thresholds, &size, TID_DWORD, 0) != DB_SUCCESS){
+	printf("Warning: Could not retrieve values for key %s\n", keyName);
+	return false;
+      }
+      std::cout << bankname << "   "  << Thresholds[0] << std::endl;
+
+      DQ_Thresholds_histograms_map[bankname]->Fill("Trigger threshhold", Thresholds[0]);
+    }
+
   }
 
   return SUCCESS;
 }
 
-/** This method fills the histograms
- */
+
 INT MDQ_Thresholds(EVENT_HEADER *pheader, void *pevent)
 {
-	// Get the event number
-	int midas_event_number = pheader->serial_number;
-
-	// Some typedefs
-	typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-	typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-	typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
 	// Don't need anything here
 
