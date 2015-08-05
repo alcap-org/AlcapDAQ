@@ -2,8 +2,8 @@
 
 DAQdir=$(dirname ${BASH_SOURCE[0]} | xargs readlink -e)
 
-if [ -f $DAQdir/root/bin/thisroot.sh ] ;then
-	. $DAQdir/root/bin/thisroot.sh
+if [ -f $DAQdir/root-install/bin/thisroot.sh ] ;then
+	. $DAQdir/root-install/bin/thisroot.sh
 else
 	echo "Check you've got root set up properly on this machine"
 fi
