@@ -109,10 +109,10 @@ mkdir -p $MIDAS_DIR
 
 ###########
 # Setup ODB
-ODB_DEFAULTS="$(ls $ODBDIR/*.odb)"
-for IODB in $ODB_DEFAULTS; do
-    yes n | odbedit -c "load $IODB" > /dev/null
-done
+#ODB_DEFAULTS="$(ls $ODBDIR/*.odb)"
+#for IODB in $ODB_DEFAULTS; do
+#    yes n | odbedit -c "load $IODB" > /dev/null
+#done
 if [ $LOADODB ]; then
     yes n | odbedit -c "load $ODBDATAFILE" > /dev/null
 else
