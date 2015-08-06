@@ -1,3 +1,5 @@
+#include "XRay.h"
+
 #include "TFile.h"
 #include "TDirectoryFile.h"
 #include "TH2.h"
@@ -11,16 +13,6 @@
 
 #include <iostream>
 #include <sstream>
-
-struct XRay {
-  std::string transition;
-  std::string material;
-  double energy;
-  double intensity;
-  double intensity_error;
-  double efficiency;
-  double efficiency_error;
-};
 
 int FillXRayInfo(XRay* xray);
 RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectrum, XRay* xray);
