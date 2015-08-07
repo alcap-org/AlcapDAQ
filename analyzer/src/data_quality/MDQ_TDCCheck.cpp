@@ -86,7 +86,7 @@ const double TIME_LOW = -10e3, TIME_HIGH = 10e3; //ns
 static TH1* hDQ_TDCCheck[NCHANTDC];
 static TH1* hDQ_TDCCheck_TCorr[NCHANTDC];
 
-static int TDC_dataset = 0;
+const int TDC_dataset = 2;  //R15a dataset
 
 TH1F* hDQ_TDCCheck_nMuons;
 TH1F* hDQ_TDCCheck_Muon_time;
@@ -117,6 +117,7 @@ ANA_MODULE MDQ_TDCCheck_module =
 
 INT MDQ_TDCCheck_bor(int runnumber)
 {
+  /*
   if(runnumber < 3780){
     //R13
     TDC_dataset = 1;
@@ -130,6 +131,8 @@ INT MDQ_TDCCheck_bor(int runnumber)
     std::cout << "MDQ_TDCCheck error:  Run Number " << runnumber << " not associated with any known data set" << std::endl;
     return 1;
   }
+  std::cout << "bor : TDC_dataset = " << TDC_dataset << std::endl;
+  */
   return SUCCESS;
 }
 
@@ -145,29 +148,31 @@ INT MDQ_TDCCheck_init()
     gDirectory->mkdir(dir_name.c_str());
     gDirectory->Cd(dir_name.c_str());
   }
-
   // Create some histograms
   //-------------R15a histograms ---------//
   if(TDC_dataset == 2){
+    
+    hDQ_TDCCheck_TOffset = new TH1F("hDQ_TDCCheck_TOffset", "Time difference between Muon hit in TDC and WFD", 10000, TIME_LOW, TIME_HIGH);
+    hDQ_TDCCheck_TOffset->GetXaxis()->SetTitle("Time Difference of TSc Hits");
+    hDQ_TDCCheck_TOffset->GetYaxis()->SetTitle("Number of Hits");
+    
     for(int ich = 0; ich<NCHANTDC; ++ich) {
       char bank[5], histname[64], histtitle[64];
       sprintf(bank, "T4%02d", ich);
       std::string detname = gSetup->GetDetectorName(bank);
+
       sprintf(histname, "hDQ_TDCCheck_%s_%s",detname.c_str(), bank);
       sprintf(histtitle, "Number of TDC hits in %s", detname.c_str());
       hDQ_TDCCheck[ich] = new TH1I(histname, histtitle, 3,0,3);
       hDQ_TDCCheck[ich]->GetXaxis()->SetTitle(detname.c_str());
       hDQ_TDCCheck[ich]->GetYaxis()->SetTitle("Number of Hits");
 
-      sprintf(histname, "hDQ_TDCCheck_TCorr_%s", bank);
-      sprintf(histtitle, "Timing Correlation, TSc and %s", detname.c_str());
+      sprintf(histname, "hDQ_TDCCheck_TCorr_%s_%s", detname.c_str(), bank);
+      sprintf(histtitle, "TDC Timing Correlation, TSc and %s", detname.c_str());
       hDQ_TDCCheck_TCorr[ich] = new TH1F(histname, histtitle, 10000, TIME_LOW, TIME_HIGH);
       hDQ_TDCCheck_TCorr[ich]->GetXaxis()->SetTitle("Timing Difference(ns)");
     }
 
-    hDQ_TDCCheck_TOffset = new TH1F("hDQ_TDCCheck_TOffset", "Time difference between Muon hit in TDC and WFD", 10000, TIME_LOW, TIME_HIGH);
-    hDQ_TDCCheck_TOffset->GetXaxis()->SetTitle("Time Difference of TSc Hits");
-    hDQ_TDCCheck_TOffset->GetYaxis()->SetTitle("Number of Hits");
   }
 
   //-----------R13 Histograms ---------//
@@ -318,20 +323,22 @@ INT MDQ_TDCCheck(EVENT_HEADER *pheader, void *pevent)
 	}
       }
     }
-  
-
+    
     for(int t = 0; t < ref_hits.size(); t++) {
       for(int p = 0; p < pulses.size(); p++) {
 	const double dt = clock_tick * ref_hits[t] - pulses[p]->GetPulseTime();
 	if(dt < TIME_LOW)
 	  break;
-	else if(dt < TIME_HIGH)
+	else if(dt < TIME_HIGH){
+	  //std::cout << dt << std::endl;
 	  hDQ_TDCCheck_TOffset->Fill(dt);
+	}
       }
     }
+    
   }
 
-
+  
   //-----------R13 TDC Analysis ----------//
   if(TDC_dataset == 1){
     // Some typedefs
@@ -388,7 +395,7 @@ INT MDQ_TDCCheck(EVENT_HEADER *pheader, void *pevent)
 	hDQ_TDCCheck_Unknown->Fill(hit_bank[i].parameter);
     }
   }
-
+  
 
   return SUCCESS;
 }

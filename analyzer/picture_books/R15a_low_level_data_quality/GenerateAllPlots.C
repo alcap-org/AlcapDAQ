@@ -24,28 +24,25 @@ void GenerateAllPlots(const char* data_dir, const int n_run) {
   filename << data_dir << "/hist/hist0" << n_run << ".root";
   std::cout << "Filename: " << filename.str() << std::endl;
 
-  std::string command = "GenerateFADCPlots(\"" + filename.str() + "\");";
-  gROOT->ProcessLine(command.c_str());
-
-  command = "GenerateDigitizerOverflowPlots(\"" + filename.str() + "\");";
+  std::string command = "GenerateDigitizerPlots(\"" + filename.str() + "\");";
   gROOT->ProcessLine(command.c_str());
 
   command = "GenerateRunTimePlot(\"" + filename.str() + "\");";
   gROOT->ProcessLine(command.c_str());
-
+  
   command = "GenerateTDCPlots(\"" + filename.str() + "\");";
   gROOT->ProcessLine(command.c_str());
-
+  
   command = "GenerateTPIPlots(\"" + filename.str() + "\");";
   gROOT->ProcessLine(command.c_str());
 
   command = "GeneratePulseShapesPlots(\"" + filename.str() + "\");";
   gROOT->ProcessLine(command.c_str());
-
+  
   command = "GenerateTDiffPlots(\"" + filename.str() + "\");";
   gROOT->ProcessLine(command.c_str());
 
-  command = "GenerateMuPCPlots(\"" + filename.str() + "\");";
+  command = "GenerateTimingPlots(\"" + filename.str() + "\");";
   gROOT->ProcessLine(command.c_str());
 
 }

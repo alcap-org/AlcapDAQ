@@ -95,36 +95,40 @@ void createSections() {
   }
 
   // Now do specifics
-  section_headings[0].section_name = "\\section{FADC-specific data quality issues}\n\n";
-  (section_headings[0]).subsection_names[0] = "\\subsection{Packet loss}\n\n";
-  (section_headings[0]).subsection_names[1] = "\\subsection{Buffer overflow}\n\n";
+  section_headings[0].section_name = "\\section{Digitizer-specific Issues}\n\n";
+  (section_headings[0]).subsection_names[0] = "\\section{Digitizer Overflows}\n\n";
+  (section_headings[0]).subsection_names[1] = "\\section{Digitizer Errors}\n\n";
 
-  section_headings[1].section_name = "\\section{Digitizer overflows}\n\n";
+  section_headings[1].section_name = "\\section{TPulseIsland-specific data quality issues}\n\n";
+  (section_headings[1]).subsection_names[0] = "\\subsection{Total number of TPulseIslands}\n\n";
+  (section_headings[1]).subsection_names[1] = "\\subsection{Length of TPulseIslands}\n\n";
+  (section_headings[1]).subsection_names[2] = "\\subsection{Rate of TPulseIslands}\n\n";
+  (section_headings[1]).subsection_names[3] = "\\subsection{Timestamps of TPulseIslands}\n\n";
+  (section_headings[1]).subsection_names[4] = "\\subsection{Amplitudes of TPulseIslands}\n\n";
 
-  section_headings[2].section_name = "\\section{TPulseIsland-specific data quality issues}\n\n";
-  (section_headings[2]).subsection_names[0] = "\\subsection{Total number of TPulseIslands}\n\n";
-  (section_headings[2]).subsection_names[1] = "\\subsection{Length of TPulseIslands}\n\n";
-  (section_headings[2]).subsection_names[2] = "\\subsection{Rate of TPulseIslands}\n\n";
-  (section_headings[2]).subsection_names[3] = "\\subsection{Timestamps of TPulseIslands}\n\n";
-  (section_headings[2]).subsection_names[4] = "\\subsection{Amplitudes of TPulseIslands}\n\n";
+  section_headings[2].section_name = "\\section{Pulse Details}\n\n";
+  (section_headings[2]).subsection_names[0] = "\\subsection{Pulse Shape Persistancy Plot}\n\n";
+  (section_headings[1]).subsection_names[1] = "\\subsection{Neutron Gamma Separation plot}\n\n";
 
-  section_headings[3].section_name = "\\section{Pulse persistancy plots}\n\n";
+  section_headings[3].section_name = "\\section{TDC-specific data quality issues}\n\n";
+  (section_headings[3]).subsection_names[0] = "\\subsection{Number of muons hits}\n\n";
+  (section_headings[3]).subsection_names[1] = "\\subsection{Rate of muon hits}\n\n";
+  (section_headings[3]).subsection_names[2] = "\\subsection{muon hit times}\n\n";
 
-  section_headings[4].section_name = "\\section{TDC-specific data quality issues}\n\n";
-  (section_headings[4]).subsection_names[0] = "\\subsection{Rate of muSc hits}\n\n";
-  (section_headings[4]).subsection_names[1] = "\\subsection{Unknown TDC parameters}\n\n";
-  (section_headings[4]).subsection_names[2] = "\\subsection{Time difference between muSc hits in TDC and BU CAEN}\n\n";
+  section_headings[4].section_name = "\\section{Time differences between channels and muSc}\n\n";
+  (section_headings[4]).subsection_names[0] = "\\subsection{Time Differences in TDC}\n\n";
+  (section_headings[4]).subsection_names[1] = "\\subsection{Time Differences in WFDs}\n\n";
 
-  section_headings[5].section_name = "\\section{Time differences between channels and muSc hit}\n\n";
+  section_headings[5].section_name = "\\section{Run Time}\n\n";
 
-  section_headings[6].section_name = "\\section{Run time}\n\n";
+  section_headings[6].section_name = "\\section{DAQ-specific data quality issues}\n\n";
+  (section_headings[6]).subsection_names[0] = "\\subsection{DAQ Livetime}\n\n";
+  (section_headings[6]).subsection_names[1] = "\\subsection{Pedestal}\n\n";
+  (section_headings[6]).subsection_names[2] = "\\subsection{Noise}\n\n";
+  (section_headings[6]).subsection_names[3] = "\\subsection{Thresholds}\n\n";
 
-  section_headings[7].section_name = "\\section{DAQ-specific data quality issues}\n\n";
-  (section_headings[7]).subsection_names[0] = "\\subsection{DAQ Livetime}\n\n";
-  (section_headings[7]).subsection_names[1] = "\\subsection{Pedestal}\n\n";
-  (section_headings[7]).subsection_names[2] = "\\subsection{Noise}\n\n";
-  (section_headings[7]).subsection_names[3] = "\\subsection{Thresholds}\n\n";
-
+  section_headings[7].section_name = "\\section{Timing)\n\n";
+  (section_headings[7]).subsection_names[0] = "\\subsection{Sync Pulses}\n\n";
 }
 
 std::vector<std::string> getListOfLines() {
@@ -160,22 +164,21 @@ std::vector<std::string> getListOfLines() {
 	  int section = -1;
 	  int subsection = -1;
 
-	  if (plotname.find("FADC") != std::string::npos) {
+	  
+	  if (plotname.find("Digitizer") != std::string::npos) {
 	    section = 0;
 
-	    // Check for subsection
-	    if (plotname.find("PacketLoss") != std::string::npos) {
+	    //Check for subsection
+	    if (plotname.find("Overflow") != std::string::npos){
 	      subsection = 0;
 	    }
-	    else if (plotname.find("BufferOverflow") != std::string::npos) {
+	    else if (plotname.find("Error") != std::string::npos){
 	      subsection = 1;
 	    }
-	  }
-	  else if (plotname.find("Digitizer") != std::string::npos) {
-	    section = 1;
+
 	  }
 	  else if (plotname.find("Island") != std::string::npos) {
-	    section = 2;
+	    section = 1;
 
 	    // Check for subsection
 	    if (plotname.find("Counter") != std::string::npos) {
@@ -194,28 +197,44 @@ std::vector<std::string> getListOfLines() {
 	      subsection = 4;
 	    }
 	  }
-	  else if (plotname.find("TDCCheck") != std::string::npos) {
-	    section = 4;
-
+	  else if (plotname.find("PulseShapes") != std::string::npos) { // want the Pedestal and Noise plots to be put into a separate section even though they are created in this module
+	    section = 2;
+	    subsection = 0;
+	  }
+	  else if (plotname.find("HEFoM") != std::string::npos) {
+	    section = 2;
+	    subsection = 1;
+	  }
+	  else if ((plotname.find("TDCCheck") != std::string::npos) && (plotname.find("TCorr") == std::string::npos)) {
+	    section = 3;
 	    // Check for subsection
-	    if (plotname.find("muSc_rate") != std::string::npos) {
+	    if (plotname.find("nMuons") != std::string::npos) {
 	      subsection = 0;
 	    }
-	    else if (plotname.find("Unknown") != std::string::npos) {
+	    else if (plotname.find("Muon_rate") != std::string::npos) {
 	      subsection = 1;
 	    }
-	    else if (plotname.find("TDiff") != std::string::npos) {
+	    else if (plotname.find("Muon_time") != std::string::npos) {
 	      subsection = 2;
 	    }
 	  }
-	  else if (plotname.find("muScTDiff") != std::string::npos) {
+	  else if (plotname.find("TCorr") != std::string::npos) {
+	    section = 4;
+	    //Check for subsection
+	    if (plotname.find("TDCCheck") != std::string::npos) {
+	      subsection = 0;
+	    }
+	    if (plotname.find("WFD") != std::string::npos) {
+	      subsection = 1;
+	    }
+	  }
+
+	  else if (plotname.find("RunTime") != std::string::npos) {
 	    section = 5;
 	  }
-	  else if (plotname.find("RunTime") != std::string::npos) {
-	    section = 6;
-	  }
+
 	  else if (plotname.find("DAQ") != std::string::npos) {
-	    section = 7;
+	    section = 6;
 	    // Check for subsection
 	    if (plotname.find("Livetime") != std::string::npos) {
 	      subsection = 0;
@@ -230,9 +249,11 @@ std::vector<std::string> getListOfLines() {
 	      subsection = 3;
 	    }
 	  }
-	  else if (plotname.find("PulseShapes") != std::string::npos) { // want the Pedestal and Noise plots to be put into a separate section even though they are created in this module
-	    section = 3;
+	  else if (plotname.find("SyncCount") != std::string::npos) {
+	    section = 7;
+	    subsection = 0;
 	  }
+
 
 
 	  // If the section was found...
@@ -279,7 +300,7 @@ void latexHeader(FILE * pFile,const int run_number, bool run_book){
 
   char *target; int first_run=0; int last_run=0;
    // Hard-code some info about the datsets and run numbers (probably a better way to do this)
-   if (run_number>=2091 && run_number <= 2172) { target = "SiR"; first_run=2091; last_run=2172; }
+   if (run_number>=6179 && run_number <= 6184) { target = "Ambient"; first_run=6179; last_run=6184; }
    else if (run_number>=2808 && run_number <= 3012) { target = "Al100"; first_run=2808; last_run=3012; }
    else if (run_number>=3101 && run_number <= 3329) { target = "Al50(a) (without NDet2)"; first_run=3101; last_run=3329; }
    else if (run_number>=3442 && run_number <= 3456) { target = "Al50(a) (with NDet2)"; first_run=3442; last_run=3456; }

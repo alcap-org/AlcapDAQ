@@ -7,12 +7,13 @@ void LoadPicBookMacros() {
   gROOT->ProcessLine(".L GenerateAllPlots.C+");
   
   // Load the functions individually
-  gROOT->ProcessLine(".L GenerateDigitizerOverflowPlots.C+");
+  gROOT->ProcessLine(".L GenerateDigitizerPlots.C+");
   gROOT->ProcessLine(".L GenerateRunTimePlot.C+");
   gROOT->ProcessLine(".L GenerateTDCPlots.C+");
   gROOT->ProcessLine(".L GeneratePulseShapesPlots.C+");
   gROOT->ProcessLine(".L GenerateTDiffPlots.C+");
   gROOT->ProcessLine(".L GenerateTPIPlots.C+");
+  gROOT->ProcessLine(".L GenerateTimingPlots.C+");
 
   gROOT->ProcessLine(".L GenerateTrendPlots.C+");
 

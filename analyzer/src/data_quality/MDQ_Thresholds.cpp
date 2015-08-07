@@ -253,13 +253,13 @@ INT MDQ_Thresholds_eor(INT run_number) {
 	printf("Warning: Could not find key %s\n", keyName);
 	return false;
       }
-      float Thresholds[threshold_key.num_values];
+      DWORD Thresholds[threshold_key.num_values];
       int size = sizeof(Thresholds);
       if(db_get_value(hDB, 0, keyName, Thresholds, &size, TID_DWORD, 0) != DB_SUCCESS){
 	printf("Warning: Could not retrieve values for key %s\n", keyName);
 	return false;
       }
-      std::cout << bankname << "   "  << Thresholds[0] << std::endl;
+      //std::cout << bankname << "   "  << Thresholds[0] << std::endl;
 
       DQ_Thresholds_histograms_map[bankname]->Fill("trigger threshold", Thresholds[0]);
     }
@@ -280,13 +280,13 @@ INT MDQ_Thresholds_eor(INT run_number) {
 	printf("Warning: Could not find key %s\n", keyName);
 	return false;
       }
-      float Thresholds[threshold_key.num_values];
+      WORD Thresholds[threshold_key.num_values];
       int size = sizeof(Thresholds);
       if(db_get_value(hDB, 0, keyName, Thresholds, &size, TID_WORD, 0) != DB_SUCCESS){
 	printf("Warning: Could not retrieve values for key %s\n", keyName);
 	return false;
       }
-      std::cout << bankname << "   "  << Thresholds[0] << std::endl;
+      //std::cout << bankname << "   "  << Thresholds[0] << std::endl;
 
       DQ_Thresholds_histograms_map[bankname]->Fill("self_trigger_threshold DPP", Thresholds[0]);
     }
@@ -307,13 +307,13 @@ INT MDQ_Thresholds_eor(INT run_number) {
 	printf("Warning: Could not find key %s\n", keyName);
 	return false;
       }
-      float Thresholds[threshold_key.num_values];
+      WORD Thresholds[threshold_key.num_values];
       int size = sizeof(Thresholds);
       if(db_get_value(hDB, 0, keyName, Thresholds, &size, TID_WORD, 0) != DB_SUCCESS){
 	printf("Warning: Could not retrieve values for key %s\n", keyName);
 	return false;
       }
-      std::cout << bankname << "   "  << Thresholds[0] << std::endl;
+      //std::cout << bankname << "   "  << Thresholds[0] << std::endl;
 
       DQ_Thresholds_histograms_map[bankname]->Fill("Self_trigger_threshold DPP", Thresholds[0]);
     }
@@ -334,13 +334,13 @@ INT MDQ_Thresholds_eor(INT run_number) {
 	printf("Warning: Could not find key %s\n", keyName);
 	return false;
       }
-      float Thresholds[threshold_key.num_values];
+      DWORD Thresholds[threshold_key.num_values];
       int size = sizeof(Thresholds);
       if(db_get_value(hDB, 0, keyName, Thresholds, &size, TID_DWORD, 0) != DB_SUCCESS){
 	printf("Warning: Could not retrieve values for key %s\n", keyName);
 	return false;
       }
-      std::cout << bankname << "   "  << Thresholds[0] << std::endl;
+      //std::cout << bankname << "   "  << Thresholds[0] << std::endl;
 
       DQ_Thresholds_histograms_map[bankname]->Fill("Trigger threshhold", Thresholds[0]);
     }

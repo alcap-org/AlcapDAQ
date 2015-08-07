@@ -10,9 +10,9 @@
 #include <sstream>
 
 // This will generate the following PDFs:
-// -- hDQ_TDCCheck_muSc_rate.png
-// -- hDQ_TDCCheck_Unknown.png
-// -- hDQ_TDCCheck_TDiff.png
+// -- hDQ_TDCCheck_nMuons.png
+// -- hDQ_TDCCheck_Muon_rate.png
+// -- hDQ_TDCCheck_Muon_time.png
 void GenerateTDCPlots(std::string filename) {
 
   std::cout << "Generating TDC plots..." << std::endl;
@@ -25,27 +25,27 @@ void GenerateTDCPlots(std::string filename) {
   TFile* file = new TFile(filename.c_str(), "READ");
 
   // The histograms
-  TH1F *hDQ_TDCCheck_muSc_rate;
-  TH1F *hDQ_TDCCheck_Unknown;
-  TH1F *hDQ_TDCCheck_TDiff;
+  TH1F *hDQ_TDCCheck_nMuons;
+  TH1F *hDQ_TDCCheck_Muon_rate;
+  TH1F *hDQ_TDCCheck_Muon_time;
 
   // The names of these histograms in the ROOT file should be the same regardless of the run
-  file->GetObject("DataQuality_LowLevel/hDQ_TDCCheck_muSc_rate",hDQ_TDCCheck_muSc_rate);
-  file->GetObject("DataQuality_LowLevel/hDQ_TDCCheck_Unknown",hDQ_TDCCheck_Unknown);
-  file->GetObject("DataQuality_LowLevel/hDQ_TDCCheck_TDiff",hDQ_TDCCheck_TDiff);
+  file->GetObject("DataQuality_LowLevel/hDQ_TDCCheck_Muon_rate",hDQ_TDCCheck_Muon_rate);
+  file->GetObject("DataQuality_LowLevel/hDQ_TDCCheck_nMuons",hDQ_TDCCheck_nMuons);
+  file->GetObject("DataQuality_LowLevel/hDQ_TDCCheck_Muon_time",hDQ_TDCCheck_Muon_time);
 
-  hDQ_TDCCheck_muSc_rate->GetYaxis()->SetTitleOffset(1.3);
-  hDQ_TDCCheck_Unknown->GetYaxis()->SetTitleOffset(1.3);
-  hDQ_TDCCheck_TDiff->GetYaxis()->SetTitleOffset(1.3);
+  hDQ_TDCCheck_Muon_rate->GetYaxis()->SetTitleOffset(1.3);
+  hDQ_TDCCheck_nMuons->GetYaxis()->SetTitleOffset(1.3);
+  hDQ_TDCCheck_Muon_time->GetYaxis()->SetTitleOffset(1.3);
 
   TCanvas *c1 = new TCanvas();
 
-  hDQ_TDCCheck_muSc_rate->Draw();
-  c1->Print("data_quality_figs/hDQ_TDCCheck_muSc_rate.png");
+  hDQ_TDCCheck_Muon_rate->Draw();
+  c1->Print("data_quality_figs/hDQ_TDCCheck_Muon_rate.png");
 
-  hDQ_TDCCheck_Unknown->Draw();
-  c1->Print("data_quality_figs/hDQ_TDCCheck_Unknown.png");
+  hDQ_TDCCheck_nMuons->Draw();
+  c1->Print("data_quality_figs/hDQ_TDCCheck_nMuons.png");
 
-  hDQ_TDCCheck_TDiff->Draw();
-  c1->Print("data_quality_figs/hDQ_TDCCheck_TDiff.png");
+  hDQ_TDCCheck_Muon_time->Draw();
+  c1->Print("data_quality_figs/hDQ_TDCCheck_Muon_time.png");
 }

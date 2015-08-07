@@ -36,8 +36,8 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
   TH2F* hDQ_TrendPlot;
   TH1F *hDQ_RunPlot;
   
-  TH1F *hDQ_MuPCTrendPlot[4];//mean x, rms x, mean y, rms y
-  TH2F *hDQ_MuPCRunPlot;
+  //TH1F *hDQ_MuPCTrendPlot[4];//mean x, rms x, mean y, rms y
+  //TH2F *hDQ_MuPCRunPlot;
 
   // Work out what the dataset is
   std::string dataset = "NULL";
@@ -253,73 +253,10 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
       }
       else if (histogram_name.find("Threshold") != std::string::npos) {
 
-	if (histogram_name.find("BU") != std::string::npos || histogram_name.find("UH") != std::string::npos) { // CAEN thresholds (FADC thresholds have two y bins) 
-	  TH1D* hDQ_TrendPlot_1D = hDQ_TrendPlot->ProjectionX("_px", 1, 1);
-	  hDQ_TrendPlot_1D->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
-	  hDQ_TrendPlot_1D->Draw();	  
-	}
-	else { // FADC thresholds
-	  TH1D* hDQ_TrendPlot_1D_UpperThresh = hDQ_TrendPlot->ProjectionX("_px_upper", 1,1);
-	  hDQ_TrendPlot_1D_UpperThresh->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
-	  TH1D* hDQ_TrendPlot_1D_LowerThresh = hDQ_TrendPlot->ProjectionX("_px_lower", 2,2);
-	  hDQ_TrendPlot_1D_LowerThresh->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
-	  hDQ_TrendPlot_1D_LowerThresh->SetLineColor(kRed);
 
-	  hDQ_TrendPlot_1D_LowerThresh->SetLineWidth(2);
-	  hDQ_TrendPlot_1D_UpperThresh->SetLineWidth(2);
-
-	  hDQ_TrendPlot_1D_LowerThresh->Draw();
-	  hDQ_TrendPlot_1D_UpperThresh->Draw("SAME");
-
-	  legend->AddEntry(hDQ_TrendPlot_1D_LowerThresh, "Lower Threshold", "l");
-	  legend->AddEntry(hDQ_TrendPlot_1D_UpperThresh, "Upper Threshold", "l");
-	  legend->Draw();
-	}
-      }
-      else if (histogram_name.find("FADC") != std::string::npos) {
-	
-	TH1D* hDQ_TrendPlot_1D_0x80 = hDQ_TrendPlot->ProjectionX("_px_0x80", 1,1);
-	hDQ_TrendPlot_1D_0x80->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
-	TH1D* hDQ_TrendPlot_1D_0x81 = hDQ_TrendPlot->ProjectionX("_px_0x81", 2,2);
-	hDQ_TrendPlot_1D_0x81->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
-	TH1D* hDQ_TrendPlot_1D_0x82 = hDQ_TrendPlot->ProjectionX("_px_0x82", 3,3);
-	hDQ_TrendPlot_1D_0x82->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
-	TH1D* hDQ_TrendPlot_1D_0x83 = hDQ_TrendPlot->ProjectionX("_px_0x83", 4,4);
-	hDQ_TrendPlot_1D_0x83->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
-
-	hDQ_TrendPlot_1D_0x80->SetFillColor(kRed);
-	hDQ_TrendPlot_1D_0x81->SetFillColor(8);
-	hDQ_TrendPlot_1D_0x82->SetFillColor(9);
-	hDQ_TrendPlot_1D_0x83->SetFillColor(kBlack);
-
-	hDQ_TrendPlot_1D_0x81->SetFillStyle(3002);
-	hDQ_TrendPlot_1D_0x82->SetFillStyle(3004);
-	hDQ_TrendPlot_1D_0x83->SetFillStyle(3005);
-
-	hDQ_TrendPlot_1D_0x80->SetLineColor(kRed);
-	hDQ_TrendPlot_1D_0x81->SetLineColor(8);
-	hDQ_TrendPlot_1D_0x82->SetLineColor(9);
-	hDQ_TrendPlot_1D_0x83->SetLineColor(kBlack);
-
-	hDQ_TrendPlot_1D_0x80->GetYaxis()->SetRangeUser(0,1.1);
-	hDQ_TrendPlot_1D_0x81->GetYaxis()->SetRangeUser(0,1.1);
-	hDQ_TrendPlot_1D_0x82->GetYaxis()->SetRangeUser(0,1.1);
-	hDQ_TrendPlot_1D_0x83->GetYaxis()->SetRangeUser(0,1.1);
-
-
-	hDQ_TrendPlot_1D_0x80->Draw();
-	hDQ_TrendPlot_1D_0x81->Draw("SAME");
-	hDQ_TrendPlot_1D_0x82->Draw("SAME");
-	hDQ_TrendPlot_1D_0x83->Draw("SAME");
-
-	legend->AddEntry(hDQ_TrendPlot_1D_0x80, "0x80", "f");
-	legend->AddEntry(hDQ_TrendPlot_1D_0x81, "0x81", "f");
-	legend->AddEntry(hDQ_TrendPlot_1D_0x82, "0x82", "f");
-	legend->AddEntry(hDQ_TrendPlot_1D_0x83, "0x83", "f");
-	legend->Draw();
-      }
-      else {
-	hDQ_TrendPlot->Draw("COLZ");
+	TH1D* hDQ_TrendPlot_1D = hDQ_TrendPlot->ProjectionX("_px", 1, 1);
+	hDQ_TrendPlot_1D->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
+	hDQ_TrendPlot_1D->Draw();
       }
 
       // Set some plots to log-z
