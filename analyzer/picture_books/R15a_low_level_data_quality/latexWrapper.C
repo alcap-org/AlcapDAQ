@@ -96,8 +96,8 @@ void createSections() {
 
   // Now do specifics
   section_headings[0].section_name = "\\section{Digitizer-specific Issues}\n\n";
-  (section_headings[0]).subsection_names[0] = "\\section{Digitizer Overflows}\n\n";
-  (section_headings[0]).subsection_names[1] = "\\section{Digitizer Errors}\n\n";
+  (section_headings[0]).subsection_names[0] = "\\subsection{Digitizer Overflows}\n\n";
+  (section_headings[0]).subsection_names[1] = "\\subsection{Digitizer Errors}\n\n";
 
   section_headings[1].section_name = "\\section{TPulseIsland-specific data quality issues}\n\n";
   (section_headings[1]).subsection_names[0] = "\\subsection{Total number of TPulseIslands}\n\n";
@@ -108,7 +108,7 @@ void createSections() {
 
   section_headings[2].section_name = "\\section{Pulse Details}\n\n";
   (section_headings[2]).subsection_names[0] = "\\subsection{Pulse Shape Persistancy Plot}\n\n";
-  (section_headings[1]).subsection_names[1] = "\\subsection{Neutron Gamma Separation plot}\n\n";
+  (section_headings[2]).subsection_names[1] = "\\subsection{Neutron Gamma Separation plot}\n\n";
 
   section_headings[3].section_name = "\\section{TDC-specific data quality issues}\n\n";
   (section_headings[3]).subsection_names[0] = "\\subsection{Number of muons hits}\n\n";
@@ -127,7 +127,7 @@ void createSections() {
   (section_headings[6]).subsection_names[2] = "\\subsection{Noise}\n\n";
   (section_headings[6]).subsection_names[3] = "\\subsection{Thresholds}\n\n";
 
-  section_headings[7].section_name = "\\section{Timing)\n\n";
+  section_headings[7].section_name = "\\section{Timing}\n\n";
   (section_headings[7]).subsection_names[0] = "\\subsection{Sync Pulses}\n\n";
 }
 

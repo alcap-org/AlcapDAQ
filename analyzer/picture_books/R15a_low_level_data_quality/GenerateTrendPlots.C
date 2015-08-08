@@ -57,6 +57,8 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
     dataset = "SiR2(3%)";
   else if (first_run == 3771)
     dataset = "SiR2(1%)";
+  else if (first_ru == 6179)
+    dataset = "Ambient";
 
   // Loop through the histograms in the first_file and get the island histograms (bank and channel names may differ between runs)
   TDirectoryFile* dir = (TDirectoryFile*) files[0]->Get("DataQuality_LowLevel");

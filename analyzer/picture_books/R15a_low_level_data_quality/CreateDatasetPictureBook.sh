@@ -2,7 +2,7 @@
 # CreateDatasetPictureBook.sh
 # Usage: ./CreateDatasetPictureBook.sh data_dir first_run n_runs
 
-MERLIN_USER=edmonds_a
+MERLIN_USER=alexander_d
 
 if [ $# -ne 3 ] ; then
 	echo "Incorrect Usage!"
@@ -32,6 +32,8 @@ elif [ $first_run -eq 3763 ] ; then
     dataset="SiR2-3pct"
 elif [ $first_run -eq 3771 ] ; then
     dataset="SiR2-1pct"
+elif [ $first_run -eq 6179 ] ; then
+    dataset="Ambient"
 else
     echo "Invalid first_run for a dataset"
     exit
@@ -47,10 +49,11 @@ if [ "$HOSTNAME" = "merlinl01" ] ; then
 
 # Merlin doesn't have pdflatex so what we need to do is go over there, re-run this script and then come back
 else
-    ssh -XY $MERLIN_USER@merlinl01.psi.ch "cd AlcapDAQ && . thisdaq.sh && cd analyzer/picture_books/low_level_data_quality && ./CreateDatasetPictureBook.sh ~/data/ $first_run $n_runs"
-    scp -r $MERLIN_USER@merlinl01.psi.ch:~/AlcapDAQ/analyzer/picture_books/low_level_data_quality/data_quality_figs .
-    scp -r $MERLIN_USER@merlinl01.psi.ch:~/AlcapDAQ/analyzer/picture_books/low_level_data_quality/*.tex .
-    
+    ssh -XY $MERLIN_USER@merlinl01.psi.ch "cd AlcapDAQ && . thisdaq.sh && cd analyzer/picture_books/R15a_low_level_data_quality && ./CreateDatasetPictureBook.sh ~/data/ $first_run $n_runs"
+    scp -r $MERLIN_USER@merlinl01.psi.ch:~/AlcapDAQ/analyzer/picture_books/R15a_low_level_data_quality/data_quality_figs .
+    scp -r $MERLIN_USER@merlinl01.psi.ch:~/AlcapDAQ/analyzer/picture_books/R15a_low_level_data_quality/*.tex .
+
+  
     echo "First passthrough with pdflatex..."
     pdflatex Data_Quality_Run$first_run > output.txt
     echo "Second passthrough with pdflatex..."
@@ -60,4 +63,4 @@ else
     mv Data_Quality_Run$first_run.pdf Data_Quality_Dataset-$dataset.pdf
     mv data_quality_figs/ data_quality_figs_$dataset/
     tar -czf data_quality_figs_$dataset.tar.gz data_quality_figs_$dataset/
-fi
+#fi
