@@ -300,7 +300,8 @@ void latexHeader(FILE * pFile,const int run_number, bool run_book){
 
   char *target; int first_run=0; int last_run=0;
    // Hard-code some info about the datsets and run numbers (probably a better way to do this)
-   if (run_number>=6179 && run_number <= 6184) { target = "Ambient"; first_run=6179; last_run=6184; }
+   if (run_number >= 6179 && run_number <= 6184) { target = "Ambient"; first_run=6179; last_run=6184; }
+   else if (run_number >= 6000 && run_number <= 6178) { target = "AlSet1"; first_run = 6000; last_run = 6178; }
    else if (run_number>=2808 && run_number <= 3012) { target = "Al100"; first_run=2808; last_run=3012; }
    else if (run_number>=3101 && run_number <= 3329) { target = "Al50(a) (without NDet2)"; first_run=3101; last_run=3329; }
    else if (run_number>=3442 && run_number <= 3456) { target = "Al50(a) (with NDet2)"; first_run=3442; last_run=3456; }

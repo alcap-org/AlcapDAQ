@@ -34,6 +34,8 @@ elif [ $first_run -eq 3771 ] ; then
     dataset="SiR2-1pct"
 elif [ $first_run -eq 6179 ] ; then
     dataset="Ambient"
+elif [ $first_run -eq 6000 ] ; then
+    dataset="AlSet1"
 else
     echo "Invalid first_run for a dataset"
     exit
@@ -63,4 +65,4 @@ else
     mv Data_Quality_Run$first_run.pdf Data_Quality_Dataset-$dataset.pdf
     mv data_quality_figs/ data_quality_figs_$dataset/
     tar -czf data_quality_figs_$dataset.tar.gz data_quality_figs_$dataset/
-#fi
+fi
