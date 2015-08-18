@@ -44,11 +44,15 @@ class TGlobalData : public TObject{
   /// Map of bank name to vector of TDC hits
   std::map< std::string, std::vector<int64_t> > fTDCHitsToChannelMap;
 
+  /// Pulse alignment
+  std::vector<int> fTDCSynchronizationPulseIndex;
+  std::vector<double> fTDCSynchronizationPulseOffset;
+
   TGlobalData(){}
  private:
   TGlobalData(const TGlobalData&);
   TGlobalData operator=(const TGlobalData&);
 
-  ClassDef(TGlobalData, 4)
+  ClassDef(TGlobalData, 5)
 };
 #endif
