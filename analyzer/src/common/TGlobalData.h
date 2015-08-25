@@ -45,7 +45,14 @@ class TGlobalData : public TObject{
   std::map< std::string, std::vector<int64_t> > fTDCHitsToChannelMap;
 
   /// Pulse alignment
+  /// The index of the TDC synchronization pulse that aligns with the
+  /// first WFD synchronization pulse in a crate.
+  /// The vector is indexed by crate number.
   std::vector<int> fTDCSynchronizationPulseIndex;
+  /// The timing difference, indexed by crate number, between the TDC
+  /// matched synchronization pulse and the first WFD synchronization
+  /// pulse (TDC-WFD, since the TDC seems to always start first).
+  /// To use, add to all times in the crate.
   std::vector<double> fTDCSynchronizationPulseOffset;
 
   TGlobalData(){}
