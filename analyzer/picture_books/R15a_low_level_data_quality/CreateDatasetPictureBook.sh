@@ -54,7 +54,7 @@ else
     ssh -XY $MERLIN_USER@merlinl01.psi.ch "cd AlcapDAQ && . thisdaq.sh && cd analyzer/picture_books/R15a_low_level_data_quality && ./CreateDatasetPictureBook.sh ~/data/ $first_run $n_runs"
     scp -r $MERLIN_USER@merlinl01.psi.ch:~/AlcapDAQ/analyzer/picture_books/R15a_low_level_data_quality/data_quality_figs .
     scp -r $MERLIN_USER@merlinl01.psi.ch:~/AlcapDAQ/analyzer/picture_books/R15a_low_level_data_quality/*.tex .
-
+    scp -r $MERLIN_USER@merlinl01.psi.ch:~/AlcapDAQ/analyzer/picture_books/R15a_low_level_data_quality/list_of_lines.txt .
   
     echo "First passthrough with pdflatex..."
     pdflatex Data_Quality_Run$first_run > output.txt

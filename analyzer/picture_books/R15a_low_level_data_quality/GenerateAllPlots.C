@@ -39,8 +39,8 @@ void GenerateAllPlots(const char* data_dir, const int n_run) {
   command = "GeneratePulseShapesPlots(\"" + filename.str() + "\");";
   gROOT->ProcessLine(command.c_str());
   
-  command = "GenerateTDiffPlots(\"" + filename.str() + "\");";
-  gROOT->ProcessLine(command.c_str());
+  //  command = "GenerateTDiffPlots(\"" + filename.str() + "\");";
+  //  gROOT->ProcessLine(command.c_str());
 
   command = "GenerateTimingPlots(\"" + filename.str() + "\");";
   gROOT->ProcessLine(command.c_str());
