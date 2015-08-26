@@ -26,6 +26,10 @@ ClassImp(TGlobalData)
     delete fMuPCClusterVector[i];
   fMuPCClusterVector.clear();
 
+  fTDCSynchronizationPulseIndex.clear();
+  fTDCSynchronizationPulseOffset.clear();
+
+
 }
 //----------------------------------------------------------------------
 #ifdef ROOT_VERSION
