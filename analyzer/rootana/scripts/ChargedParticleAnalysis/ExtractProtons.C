@@ -14,7 +14,7 @@ int ExtractProtons(std::string filename, std::vector<Cut*>& cuts) {
     std::cout << "Error: Problem opening file " << filename.c_str() << std::endl;
     return 1;
   }
-  // Check that the GeSpectrum folder was created
+  // Check that the correct EvdE folder was created
   TDirectoryFile* evde_dir = (TDirectoryFile*) file->Get("TME_Al50_EvdE");
   if (!evde_dir) {
     std::cout << "Error: TME_Al50_EvdE folder doesn't exist in output file" << std::endl;
@@ -70,6 +70,10 @@ int ExtractProtons(std::string filename, std::vector<Cut*>& cuts) {
 	    }
 	  }
 	}
+	if (bin_content < 10) {
+	  remove = true;
+	}
+
 	if (remove) {
 	  hEvdEBand->SetBinContent(i_bin, j_bin, 0);
 	}
@@ -80,6 +84,14 @@ int ExtractProtons(std::string filename, std::vector<Cut*>& cuts) {
     }
     hEvdEBand->ResetStats();
     std::cout << (*i_arm)->GetArmName() << ": " << hEvdEBand->GetEntries() << " entries" << std::endl;
+
+    // Integrate
+    double integral_low = 2500;
+    double integral_high = 10000;
+    double bin_integral_low = hEvdEBand->GetXaxis()->FindBin(integral_low);
+    double bin_integral_high = hEvdEBand->GetXaxis()->FindBin(integral_high);
+    std::cout << "Integral (" << integral_low/1000 << " - " << integral_high/1000 << " MeV) = " 
+	      << hEvdEBand->ProjectionX()->Integral(bin_integral_low, bin_integral_high) << std::endl;
     hEvdEBand->Draw("COLZ");
   }
   return 0;

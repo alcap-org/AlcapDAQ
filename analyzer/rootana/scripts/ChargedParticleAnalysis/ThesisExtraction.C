@@ -27,5 +27,6 @@ void ThesisExtraction() {
   std::vector<Cut*> cuts;
   cuts.push_back(electron_spot_cut); cuts.push_back(punch_through_cut); cuts.push_back(deuteron_cut);
 
-  ExtractProtons("all-tin-absorber.root", cuts);
+  //  ExtractProtons("all-tin-absorber.root", cuts);
+  ExtractProtons("~/data/out/v94/total.root", cuts);
 }
