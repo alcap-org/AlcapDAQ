@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-int ExtractProtons(std::string filename, std::vector<Cut*>& cuts) {
+int ExtractBand(std::string filename, std::vector<Cut*>& cuts) {
 
   TFile* file = new TFile(filename.c_str(), "READ");
   if (file->IsZombie()) {
