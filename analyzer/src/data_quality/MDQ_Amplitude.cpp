@@ -62,15 +62,10 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TApplication.h"
 #include "TROOT.h"
-extern TDirectory * gManaHistsDir;
-extern TFile * gManaOutputFile;
-extern TApplication * manaApp;
-extern TROOT * gROOT;
 
 map <std::string, TH1F*> DQ_Amplitude_histograms_map;
 map <std::string, TH1F*> DQ_Amplitude_histograms_normalised_map;
@@ -96,31 +91,28 @@ ANA_MODULE MDQ_Amplitude_module =
 */
 INT MDQ_Amplitude_init()
 {
-  // See if the DataQuality_LowLevel/ directory already exists
-  if (!gDirectory->Cd("DataQuality_LowLevel")) {
-    
-    std::string dir_name("DataQuality_LowLevel/");
-    gDirectory->mkdir(dir_name.c_str());
-    gDirectory->Cd(dir_name.c_str());
-  }
+  TDirectory* cwd = gDirectory;
+  if (!gDirectory->Cd("DataQuality_LowLevel"))
+    gDirectory->mkdir("DataQuality_LowLevel/")->cd();
 
   // Create a histogram for each detector
-  std::map<std::string, std::string> Bank2DetMap = gSetup->fBankToDetectorMap;
+  const std::map<std::string, std::string>& Bank2DetMap =
+    gSetup->fBankToDetectorMap;
 
-  typedef std::map<std::string, std::string>::iterator String2StringMapIter;
+  typedef std::map<std::string, std::string>::const_iterator String2StringMapIter;
 
   for(String2StringMapIter mapIter = Bank2DetMap.begin(); 
       mapIter != Bank2DetMap.end(); mapIter++) { 
 
-    std::string bankname = mapIter->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
+    const std::string bankname = mapIter->first;
+    const std::string detname = gSetup->GetDetectorName(bankname);
     if(TSetupData::IsTDC(bankname)) continue;
-    int n_bits = gSetup->GetNBits(bankname);
-    int max_adc_value = std::pow(2, n_bits);
+    const int n_bits = gSetup->GetNBits(bankname);
+    const int max_adc_value = std::pow(2, n_bits);
 
     // hDQ_Amplitude_[DetName]_[BankName]
-    std::string histname = "hDQ_Amplitude_" + detname + "_" + bankname;
-    std::string histtitle = "Amplitude of Pulses in " + detname;
+    const std::string histname = "hDQ_Amplitude_" + detname + "_" + bankname;
+    const std::string histtitle = "Amplitude of Pulses in " + detname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
 				max_adc_value, 0, max_adc_value);
     hDQ_Histogram->GetXaxis()->SetTitle("Amplitude [adc]");
@@ -128,14 +120,14 @@ INT MDQ_Amplitude_init()
     DQ_Amplitude_histograms_map[bankname] = hDQ_Histogram;
     
     // The normalised histogram
-    std::string normhistname = histname + "_normalised";
-    std::string normhisttitle = histtitle + " (normalised)";
-    TH1F* hDQ_Histogram_Normalised = new TH1F(normhistname.c_str(), normhisttitle.c_str(), max_adc_value,0,max_adc_value);
-    hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Amplitude [adc]");
-    std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
-    yaxislabel += " per TDC TSc Hit";
-    hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
-    DQ_Amplitude_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
+    // std::string normhistname = histname + "_normalised";
+    // std::string normhisttitle = histtitle + " (normalised)";
+    // TH1F* hDQ_Histogram_Normalised = new TH1F(normhistname.c_str(), normhisttitle.c_str(), max_adc_value,0,max_adc_value);
+    // hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Amplitude [adc]");
+    // std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
+    // yaxislabel += " per TDC TSc Hit";
+    // hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
+    // DQ_Amplitude_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
     
     // The pedestal subtracted histogram
     std::string pedsubhistname = histname + "_ped_sub";
@@ -146,7 +138,7 @@ INT MDQ_Amplitude_init()
     DQ_Amplitude_histograms_ped_sub_map[bankname] = hDQ_Histogram_PedSub;
   }
 
-  gDirectory->Cd("/MidasHists/");
+  cwd->cd();
   return SUCCESS;
 }
 
@@ -155,27 +147,27 @@ INT MDQ_Amplitude_init()
 INT MDQ_Amplitude_eor(INT run_number) {
   
   // Some typedefs
-  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  // typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
+  // typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
+  // typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
   
   // Fetch a reference to the gData structure that stores a map
   // of (bank_name, vector<TPulseIsland*>) pairs
-  TStringPulseIslandMap& pulse_islands_map =
-    gData->fPulseIslandToChannelMap;
+  // TStringPulseIslandMap& pulse_islands_map =
+  //   gData->fPulseIslandToChannelMap;
 
   // Loop over the map and get each bankname, vector pair
-  for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) {
+  // for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) {
 
-    std::string bankname = mapIter->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
-    if(TSetupData::IsTDC(bankname)) continue;
+  //   std::string bankname = mapIter->first;
+  //   std::string detname = gSetup->GetDetectorName(bankname);
+  //   if(TSetupData::IsTDC(bankname)) continue;
       
-    // Make sure the histograms exist and then fill them
-    if (DQ_Amplitude_histograms_normalised_map.find(bankname) != DQ_Amplitude_histograms_normalised_map.end()) {
-      DQ_Amplitude_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_nMuons->GetEntries());
-    }
-  }
+  //   // Make sure the histograms exist and then fill them
+  //   if (DQ_Amplitude_histograms_normalised_map.find(bankname) != DQ_Amplitude_histograms_normalised_map.end()) {
+  //     DQ_Amplitude_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_nMuons->GetEntries());
+  //   }
+  // }
   
   return SUCCESS;
 }
@@ -184,61 +176,59 @@ INT MDQ_Amplitude_eor(INT run_number) {
  */
 INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 {
-	// Some typedefs
-	typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-	typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-	typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  // Some typedefs
+  typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
+  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
+  typedef map<string, vector<TPulseIsland*> >::const_iterator map_iterator;
 
-	// Fetch a reference to the gData structure that stores a map
-	// of (bank_name, vector<TPulseIsland*>) pairs
-	TStringPulseIslandMap& pulse_islands_map = gData->fPulseIslandToChannelMap;
+  // Fetch a reference to the gData structure that stores a map
+  // of (bank_name, vector<TPulseIsland*>) pairs
+  const TStringPulseIslandMap& pulse_islands_map = gData->fPulseIslandToChannelMap;
 
-	// Loop over the map and get each bankname, vector pair
-	for (map_iterator mapIter = pulse_islands_map.begin(); 
-			mapIter != pulse_islands_map.end(); ++mapIter) 
-	{
-	  std::string bankname = mapIter->first;
-	  std::string detname = gSetup->GetDetectorName(bankname);
-	  if(TSetupData::IsTDC(bankname)) continue;
-	  std::vector<TPulseIsland*> thePulses = mapIter->second;
+  // Loop over the map and get each bankname, vector pair
+  for (map_iterator mapIter = pulse_islands_map.begin(); 
+       mapIter != pulse_islands_map.end(); ++mapIter)  {
+    const string& bankname = mapIter->first;
+    if(TSetupData::IsTDC(bankname)) continue;
 
-	  // Get the histograms first
-	  TH1F* hDQ_Amplitude = DQ_Amplitude_histograms_map[bankname];
-	  TH1F* hDQ_Amplitude_Norm = DQ_Amplitude_histograms_normalised_map[bankname];
-	  TH1F* hDQ_Amplitude_PedSub = DQ_Amplitude_histograms_ped_sub_map[bankname];
-	  // Loop over the TPulseIslands and plot the histogram
-	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
-				pulseIter != thePulses.end(); ++pulseIter) {
-	    // Make sure the histograms exist and then fill them
-			if (DQ_Amplitude_histograms_map.find(bankname) !=
-					DQ_Amplitude_histograms_map.end()) 
-			{ 
-			  /*				bool underflow = false;
-				const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
-				for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); 
-						sampleIter != theSamples.end(); ++sampleIter)
-				{
+    const vector<TPulseIsland*>& thePulses = mapIter->second;
+
+    // Get the histograms first
+    TH1F* hDQ_Amplitude = DQ_Amplitude_histograms_map[bankname];
+    // TH1F* hDQ_Amplitude_Norm = DQ_Amplitude_histograms_normalised_map[bankname];
+    TH1F* hDQ_Amplitude_PedSub = DQ_Amplitude_histograms_ped_sub_map[bankname];
+    // Loop over the TPulseIslands and plot the histogram
+    for (vector<TPulseIsland*>::const_iterator pulseIter = thePulses.begin();
+	 pulseIter != thePulses.end(); ++pulseIter) {
+      // Make sure the histograms exist and then fill them
+      if (DQ_Amplitude_histograms_map.find(bankname) !=
+	  DQ_Amplitude_histograms_map.end()) { 
+	/*				bool underflow = false;
+					const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
+					for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); 
+					sampleIter != theSamples.end(); ++sampleIter)
+					{
 					if (*sampleIter == 4096)
-						underflow == true;
-				}
-				if (!underflow)
-				{
+					underflow == true;
+					}
+					if (!underflow)
+					{
 					int amplitude = (*pulseIter)->GetPulseHeight();
 					DQ_Amplitude_histograms_map[bankname]->Fill(amplitude);
-				}
-			  */
-			  const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
-			  int peak_sample = (*pulseIter)->GetPeakSample();
-			  hDQ_Amplitude->Fill(theSamples.at(peak_sample));
-			  hDQ_Amplitude_Norm->Fill(theSamples.at(peak_sample));
-			  
-			  int amplitude = (*pulseIter)->GetPulseHeight();
-			  hDQ_Amplitude_PedSub->Fill(amplitude);
-				
-	    }
-	  }
-	}
-	return SUCCESS;
+					}
+	*/
+	const vector<int>& theSamples = (*pulseIter)->GetSamples();
+	int peak_sample = (*pulseIter)->GetPeakSample();
+	hDQ_Amplitude->Fill(theSamples.at(peak_sample));
+	// hDQ_Amplitude_Norm->Fill(theSamples.at(peak_sample));
+	
+	int amplitude = (*pulseIter)->GetPulseHeight();
+	hDQ_Amplitude_PedSub->Fill(amplitude);
+	
+      }
+    }
+  }
+  return SUCCESS;
 }
 
 /// @}
