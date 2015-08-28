@@ -202,21 +202,7 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 	 pulseIter != thePulses.end(); ++pulseIter) {
       // Make sure the histograms exist and then fill them
       if (DQ_Amplitude_histograms_map.find(bankname) !=
-	  DQ_Amplitude_histograms_map.end()) { 
-	/*				bool underflow = false;
-					const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
-					for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); 
-					sampleIter != theSamples.end(); ++sampleIter)
-					{
-					if (*sampleIter == 4096)
-					underflow == true;
-					}
-					if (!underflow)
-					{
-					int amplitude = (*pulseIter)->GetPulseHeight();
-					DQ_Amplitude_histograms_map[bankname]->Fill(amplitude);
-					}
-	*/
+	  DQ_Amplitude_histograms_map.end()) {
 	const vector<int>& theSamples = (*pulseIter)->GetSamples();
 	int peak_sample = (*pulseIter)->GetPeakSample();
 	hDQ_Amplitude->Fill(theSamples.at(peak_sample));
