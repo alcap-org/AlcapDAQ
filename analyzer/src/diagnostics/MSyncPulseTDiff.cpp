@@ -18,6 +18,7 @@
 
 /* ROOT includes */
 #include "TH1D.h"
+#include "TDirectory.h"
 
 //JG: added alcap includes
 /* AlCap includes */
@@ -38,7 +39,10 @@ extern TSetupData* gSetup;
 static const int NCRATE = 9;
 static TH1* vhSyncPulseAllTDiff[NCRATE+1];
 static TH1* vhSyncPulseAvgTDiff[NCRATE+1];
+static TH1* hMasterPulseAllTDiff;
+static TH1* hMasterPulseAvgTDiff;
 
+static std::vector<int> identify_pulses_and_calculate_times(const std::vector<TPulseIsland*>&);
 
 ANA_MODULE MSyncPulseTDiff_module =
 {
@@ -56,6 +60,9 @@ ANA_MODULE MSyncPulseTDiff_module =
 
 /*--module init routine --------------------------------------------*/
 INT MSyncPulseTDiff_init() {
+  TDirectory* cwd = gDirectory;
+  gDirectory->mkdir("SyncPulseTDiff/")->cd();
+
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
     char name[64], title[128];
 
@@ -73,8 +80,18 @@ INT MSyncPulseTDiff_init() {
                                          2000000, 72000000., 74000000.);
   vhSyncPulseAvgTDiff[NCRATE] = new TH1D("hSyncPulseAvgTDiff_TDC",
                                          "Sync Pulse Avg dT Distribution TDC;Tf-Ti (Ticks)",
-                                         1000000, 73000000., 74000000.);
+                                         2000000, 72000000., 74000000.);
 
+  // These next two only matter for run 7319, where
+  // the clock is plugged into TDC Ch. 2 (TMaster)
+  hMasterPulseAllTDiff = new TH1D("hMasterPulseAllTDiff_TDC",
+                                  "Master Clock All dT Distribution TDC;Ti-T(i-1) (Ticks)",
+                                  2000000, 0., 2000000);
+  hMasterPulseAvgTDiff = new TH1D("hMasterPulseAvgTDiff_TDC",
+                                  "Master Clock Avg dT Distribution TDC;Tf-Ti (Ticks)",
+                                  2000000, 0., 2000000);
+
+  cwd->cd();
   return SUCCESS;
 }
 
@@ -89,30 +106,47 @@ INT MSyncPulseTDiff(EVENT_HEADER *pheader, void *pevent) {
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
     char det[16]; sprintf(det, "SyncCrate%d", icrate);
     std::string bank = gSetup->GetBankName(det);
-    if (!wfd_map.count(bank)) continue;
+    if (!wfd_map.count(bank)) continue; 
 
-    const std::vector<TPulseIsland*>& pulses = wfd_map.at(bank);
-    for (int ipulse = 1; ipulse < pulses.size(); ++ipulse)
-      vhSyncPulseAllTDiff[icrate]->Fill(pulses[ipulse]->GetTimeStamp() -
-                                        pulses[ipulse-1]->GetTimeStamp());
-    if (pulses.size() >= 2)
-      vhSyncPulseAvgTDiff[icrate]->Fill((pulses.back()->GetTimeStamp() -
-                                         pulses.front()->GetTimeStamp()) /
-                                        (pulses.size()-1));
+    const std::vector<int> times = identify_pulses_and_calculate_times(wfd_map.at(bank));
+    for (int ipulse = 1; ipulse < times.size(); ++ipulse)
+      vhSyncPulseAllTDiff[icrate]->Fill(times[ipulse] - times[ipulse-1]);
+    if (times.size() > 2)
+      vhSyncPulseAvgTDiff[icrate]->Fill((times.back() - times.front())/(double)(times.size()-1));
   }
 
   std::string bank = gSetup->GetBankName("TSync");
-  if (!tdc_map.count(bank))
-    return SUCCESS;
+  if (tdc_map.count(bank)) {
+    const std::vector<int64_t>& hits = tdc_map.at(bank);
+    for (int ihit = 1; ihit < hits.size(); ++ihit)
+      vhSyncPulseAllTDiff[NCRATE]->Fill(hits[ihit]-hits[ihit-1]);
+    if (hits.size() >= 2)
+      vhSyncPulseAvgTDiff[NCRATE]->Fill((hits.back()-hits.front()) /
+                                        (hits.size()-1));
+  }
 
-  const std::vector<int64_t>& hits = tdc_map.at(bank);
-  for (int ihit = 1; ihit < hits.size(); ++ihit)
-    vhSyncPulseAllTDiff[NCRATE]->Fill(hits[ihit]-hits[ihit-1]);
-  if (hits.size() >= 2)
-    vhSyncPulseAvgTDiff[NCRATE]->Fill((hits.back()-hits.front()) /
-                                      (hits.size()-1));
+  bank = gSetup->GetBankName("TMaster");
+  if (tdc_map.count(bank)) {
+    const std::vector<int64_t>& hits = tdc_map.at(bank);
+    for (int ihit = 1; ihit < hits.size(); ++ihit)
+      hMasterPulseAllTDiff->Fill(hits[ihit]-hits[ihit-1]);
+    if (hits.size() >= 2)
+      hMasterPulseAvgTDiff->Fill((hits.back()-hits.front()) /
+                                 (hits.size()-1));
+  }
 
   return SUCCESS;
+}
+
+static const int PULSE_HEIGHT_CUT = 500;
+
+std::vector<int> identify_pulses_and_calculate_times(const std::vector<TPulseIsland*>& tpis) {
+  std::vector<int> ts;
+  ts.reserve(tpis.size());
+  for (int i = 0; i < tpis.size(); ++i)
+    if (tpis[i]->GetPulseHeight() > PULSE_HEIGHT_CUT)
+      ts.push_back(tpis[i]->GetTimeStamp() + tpis[i]->GetPeakSample());
+  return ts;
 }
 
 /// @}

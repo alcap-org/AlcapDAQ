@@ -20,24 +20,34 @@
 
 /* ROOT includes */
 #include "TH1D.h"
+#include "TH2D.h"
+#include "TDirectory.h"
 
-//JG: added alcap includes
 /* AlCap includes */
+#include "AlCap.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 
 
 /*-- Module declaration --------------------------------------------*/
-static INT MTDCWFDTCorr_init(void);
-static INT MTDCWFDTCorr(EVENT_HEADER*, void*);
-
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-static const int NTDCCHAN = 32;
-const double TIME_LOW = -10e3, TIME_HIGH = 10e3;
-static TH1* vhTDCWFDTCorr[NTDCCHAN];
+using namespace AlCap;
+using std::string;
+using std::vector;
+using std::map;
+
+static INT MTDCWFDTCorr_init(void);
+static INT MTDCWFDTCorr(EVENT_HEADER*, void*);
+
+namespace {
+  const double TIME_LOW = -10e3, TIME_HIGH = 10e3; //ns
+  TH2* vvhTDCWFDTCorr[NCRATE][MAXNCHANWFD]; // 10 is max number of channels
+  string WFD_TDC_BANK[NCRATE][MAXNCHANWFD];
+  string WFD_BANK_NAME[NCRATE][MAXNCHANWFD];
+}
 
 ANA_MODULE MTDCWFDTCorr_module =
 {
@@ -55,51 +65,80 @@ ANA_MODULE MTDCWFDTCorr_module =
 
 /*--module init routine --------------------------------------------*/
 INT MTDCWFDTCorr_init() {
-  for (int ich = 0; ich < NTDCCHAN; ++ich) {
-    char tdc_bank[5], wfd_bank[5];
+  TDirectory* cwd = gDirectory;
+  if (!gDirectory->Cd("DataQuality_LowLevel"))
+    gDirectory->mkdir("DataQuality_LowLevel/")->cd();
+  gDirectory->mkdir("TDCWFDTCorr/")->cd();
 
-    sprintf(tdc_bank, "T4%02d", ich);
-    const std::string det = gSetup->GetDetectorName(tdc_bank).substr(1);
-    sprintf(wfd_bank, "%s", gSetup->GetBankName(det).c_str());
-    if (!strlen(wfd_bank)) {
-      printf("INFO: MTDCWFDTCorr: No corresponding WFD for bank %s\n",
-             tdc_bank);
-      continue;
+  for (int icrate = 0; icrate < NCRATE; ++icrate) {
+    for (int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
+      char tdc_bank[5], wfd_bank[5];
+      sprintf(wfd_bank, "D%d%02d", icrate, ich);
+      const std::string det = gSetup->GetDetectorName(wfd_bank);
+      if (det.substr(0, 2) == "Ge")
+	sprintf(tdc_bank, "%s", gSetup->GetBankName("TGeCHT").c_str());
+      else
+	sprintf(tdc_bank, "%s", gSetup->GetBankName("T"+det).c_str());
+
+      if (!strlen(tdc_bank)) {
+        printf("INFO: MTDCWFDTCorr: No corresponding TDC for bank %s (%s)\n",
+               wfd_bank, det.c_str());
+	WFD_TDC_BANK[icrate][ich] = WFD_BANK_NAME[icrate][ich] = "";
+        continue;
+      }
+
+      WFD_BANK_NAME[icrate][ich] = wfd_bank;
+      WFD_TDC_BANK[icrate][ich]  = tdc_bank;
+      printf("TDC bank %s, WFD bank %s, Detector %s\n",
+	     tdc_bank, wfd_bank, det.c_str());
+      char hist[64]; sprintf(hist, "hTDCWFDTCorr_%s", det.c_str());
+      vvhTDCWFDTCorr[icrate][ich] = new TH2D(hist, hist, 20000, TIME_LOW, TIME_HIGH, 20, 0., 100.e6);
+      vvhTDCWFDTCorr[icrate][ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
     }
-    printf("TDC bank %s, WFD bank %s, Detector %s\n", tdc_bank, wfd_bank, det.c_str());
-
-    char hist[64]; sprintf(hist, "hTDCWFDTcorr_%s", det.c_str());
-    vhTDCWFDTCorr[ich] = new TH1D(hist, hist, 20000, TIME_LOW, TIME_HIGH);
-    vhTDCWFDTCorr[ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
   }
+
+  cwd->cd();
   return SUCCESS;
 }
 
 
 /*-- module event routine -----------------------------------------*/
 INT MTDCWFDTCorr(EVENT_HEADER *pheader, void *pevent) {
-  const std::map< std::string, std::vector<int64_t> >& tdc_map =
+  const map< string, vector<int64_t> >& tdc_map =
       gData->fTDCHitsToChannelMap;
-  const std::map< std::string, std::vector<TPulseIsland*> >& wfd_map =
-        gData->fPulseIslandToChannelMap;
+  const map< string, vector<TPulseIsland*> >& wfd_map =
+      gData->fPulseIslandToChannelMap;
 
-  for (int ich = 0; ich < NTDCCHAN; ++ich) {
-    if (!vhTDCWFDTCorr[ich]) continue;
-    char tdc_bank[5], wfd_bank[5];
+  // const std::vector<double>& toffs = gData->fTDCSynchronizationPulseOffset;
+  // static int ev = -1; ++ev;
+  // for (int i = 0; i < toffs.size(); ++i)
+  //   printf("Ev: %d, Crate: %d, T-Offset: %g\n", ++ev, i, toffs[i]);
+ 
 
-    sprintf(tdc_bank, "T4%02d", ich);
-    sprintf(wfd_bank, "%s", gSetup->GetBankName(gSetup->GetDetectorName(tdc_bank).substr(1)).c_str());
+  for (int icrate = 0; icrate < NCRATE; ++icrate) {
+    if (gData->fTDCSynchronizationPulseIndex[icrate] == -1) continue;
 
-    const std::vector<int64_t>&       times  = tdc_map.at(tdc_bank);
-    const std::vector<TPulseIsland*>& pulses = wfd_map.at(wfd_bank);
-    for (int t = 0; t < times.size(); ++t) {
-      for (int p = 0; p < pulses.size(); ++p) {
-        static const double tdc_tick = 0.025; // ns
-        const double dt = tdc_tick*times[t] - pulses[p]->GetPulseTime();
-        if (dt < TIME_LOW)
-          break;
-        else if (dt < TIME_HIGH)
-          vhTDCWFDTCorr[ich]->Fill(dt);
+    const double toff = gData->fTDCSynchronizationPulseOffset[icrate];
+    for (int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
+      const string& tdc_bank = WFD_TDC_BANK[icrate][ich];
+      const string& wfd_bank = WFD_BANK_NAME[icrate][ich];
+      if (!vvhTDCWFDTCorr[icrate][ich] ||
+	  !tdc_map.count(WFD_TDC_BANK[icrate][ich]) ||
+	  !wfd_map.count(WFD_BANK_NAME[icrate][ich])) continue;
+
+      const vector<int64_t>&       times  = tdc_map.at(tdc_bank);
+      const vector<TPulseIsland*>& pulses = wfd_map.at(wfd_bank);
+      //printf("%s: %d, %s: %d, toff: %g\n", tdc_bank.c_str(), times.size(), wfd_bank.c_str(), pulses.size(), toff);
+      for (int t = 0; t < times.size(); ++t) {
+        for (int p = 0; p < pulses.size(); ++p) {
+          const double dt = TICKTDC*times[t] -
+                            TICKWFD[icrate]*pulses[p]->GetTimeStamp() -
+	                    toff;
+          if (dt < TIME_LOW)
+            break;
+          else if (dt < TIME_HIGH)
+            vvhTDCWFDTCorr[icrate][ich]->Fill(dt, TICKTDC*times[t]);
+        }
       }
     }
   }
