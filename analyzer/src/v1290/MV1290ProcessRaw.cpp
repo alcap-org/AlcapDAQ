@@ -68,10 +68,10 @@ INT module_event_tdc(EVENT_HEADER *pheader, void *pevent) {
   // Fetch a reference to the gData structure that stores a map
   // of (bank_name, vector<TPulseIsland*>) pairs
   std::map< std::string, std::vector<int64_t> >& tdc_map = gData->fTDCHitsToChannelMap;
-  
+
   // clear old data
   typedef std::map< std::string, std::vector<int64_t> >::iterator map_iterator;
-  for (map_iterator theMapIter = tdc_map.begin(); theMapIter != tdc_map.end(); theMapIter++) 
+  for (map_iterator theMapIter = tdc_map.begin(); theMapIter != tdc_map.end(); theMapIter++)
     {
       std::vector<int64_t> *theHits = &theMapIter->second;
       theHits->clear();
@@ -108,23 +108,16 @@ INT module_event_tdc(EVENT_HEADER *pheader, void *pevent) {
     if (V1290_IS_TDC_MEASURE(*p32)) {
       int chn = V1290_GET_TDC_MSR_CHANNEL(*p32);
       int64_t meas = V1290_GET_TDC_MSR_MEASURE(*p32);
-      //printf("chn %i meas %i\n",chn,meas);
-      //if ( chn == 1 ) printf("chn %i meas %i\n",chn,meas);
-      if ( t_last == -1 )
-	{
-	  t0 = meas;
-	}
-      else if ( meas < t_last )
-	{
-	  rollover_counter++;
-	  //printf("rollover %i\n",rollover_counter);
-	}
+      if (t_last == -1)
+    	  t0 = meas;
+      else if (meas < t_last && t_last-meas > rollover/2)
+    	  rollover_counter++;
       t_last = meas;
       meas = meas - t0 + rollover_counter*rollover;
       char bnk[5];
       sprintf(bnk, "T4%02d", chn);
       tdc_map[bnk].push_back(meas);
-    } else {
+    } else if (*p32 != 0xC0000000) {
       printf("V1290 Analyzer: Found non-measurement TDC data! (%08x) data size %i pos. %i\n", *p32, data_size, (p32 - p32_0));
     }
     ++p32;
