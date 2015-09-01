@@ -28,36 +28,17 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
   for (int iRun = 0; iRun < n_runs; ++iRun) {
 
     std::stringstream filename;
-    filename << data_dir << "hist/hist0" << first_run+iRun << ".root";
+    filename << data_dir << "/hist/hist0" << first_run+iRun << ".root";
     files[iRun] = new TFile(filename.str().c_str(), "READ");
   }
 
   // The histograms
   TH2F* hDQ_TrendPlot;
   TH1F *hDQ_RunPlot;
-  
-  //TH1F *hDQ_MuPCTrendPlot[4];//mean x, rms x, mean y, rms y
-  //TH2F *hDQ_MuPCRunPlot;
 
   // Work out what the dataset is
   std::string dataset = "NULL";
-  if (first_run == 2091)
-    dataset = "SiR";
-  else if (first_run == 2808)
-    dataset = "Al100";
-  else if (first_run == 3101)
-    dataset = "Al50(a)_without-NDet2";
-  else if (first_run == 3442)
-    dataset = "Al50(a)_with-NDet2";
-  else if (first_run == 3474)
-    dataset = "Si16P";
-  else if (first_run == 3563)
-    dataset = "Al50(b)";
-  else if (first_run == 3763)
-    dataset = "SiR2(3%)";
-  else if (first_run == 3771)
-    dataset = "SiR2(1%)";
-  else if (first_run == 6179)
+  if (first_run == 6179)
     dataset = "Ambient";
   else if (first_run == 6000)
     dataset = "AlSet1";
@@ -73,7 +54,6 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
     // Get all the histograms
     if (strcmp(dirKey->ReadObj()->ClassName(), "TH1F") == 0) {
 
-
       // Set up the canvases and trend plots from the first file
       TCanvas *c1 = new TCanvas();
 
@@ -81,9 +61,9 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 
       // Don't want any of these plots as trends
       if (histogram_name.find("Total") != std::string::npos || 
-	  histogram_name.find("TDCCheck_muScA") != std::string::npos || 
-	  histogram_name.find("TDCCheck_muPC") != std::string::npos || 
-	  histogram_name.find("TDCCheck_muSc_time") != std::string::npos) {
+	  histogram_name.find("TDCCheck_TOffset") != std::string::npos || 
+	  histogram_name.find("ProjectionY") != std::string::npos || 
+	  histogram_name.find("TDCCheck_Muon_time") != std::string::npos) {
 	continue;
       }
 
@@ -192,6 +172,9 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 
       }
 
+      std::cout << "Histogram " << histogram_name << " testing" << std::endl;
+
+
       // Zoom in on some plots
       if (histogram_name.find("IslandCounter") != std::string::npos || 
 	  histogram_name.find("IslandLength") != std::string::npos) {
@@ -246,10 +229,12 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
       legend->SetTextSize(0.04);
       legend->SetFillColor(kWhite);
 
+      hDQ_TrendPlot->Draw("COLZ");
+
       // For these plots we want a TH1F* rather than a TH2
       if (histogram_name.find("DAQLivetime") != std::string::npos || // DAQ livetime
 	  histogram_name.find("RunTime") != std::string::npos ||
-	  histogram_name.find("TDCCheck_muSc") != std::string::npos ) {
+	  histogram_name.find("TDCCheck_nMuons") != std::string::npos ) {
 	
 	TH1D* hDQ_TrendPlot_1D = hDQ_TrendPlot->ProjectionX("_px", 2, 2);
 	hDQ_TrendPlot_1D->GetYaxis()->SetTitle(hDQ_TrendPlot->GetZaxis()->GetTitle());
@@ -277,6 +262,7 @@ void GenerateTrendPlots(std::string data_dir, int first_run, const int n_runs) {
 	c1->SetLogz(0);
       }
       c1->Print(pngname.c_str());
+      delete hDQ_TrendPlot;
     }
 
   }
