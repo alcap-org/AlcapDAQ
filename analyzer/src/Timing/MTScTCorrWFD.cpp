@@ -91,15 +91,17 @@ INT MTScTCorrWFD(EVENT_HEADER *pheader, void *pevent) {
 
       const std::vector<TPulseIsland*>& pulses = wfd_map.at(WFDBANKS[icrate][ich]);
 
-      for (int i = 0; i < pulses.size(); ++i) {
+      for (int i = 0, j0 = 0; i < pulses.size(); ++i) {
         //if (pulses[ip]->GetPulseHeight() < 600) continue;
         const double t = TICKWFD[icrate] * pulses[i]->GetTimeStamp();
-        for (int j = 0; j < ref_pulses.size(); ++j) {
+        for (int j = j0; j < ref_pulses.size(); ++j) {
           const double dt = t - tickref * ref_pulses[j]->GetTimeStamp();
           if (dt < TIME_LOW)
             break;
           else if (dt < TIME_HIGH)
             vvhTScTCorrWFD[icrate][ich]->Fill(dt);
+	  else
+	    ++j0;
         }
       }
     }

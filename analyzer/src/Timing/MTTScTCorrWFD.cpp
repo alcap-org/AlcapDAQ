@@ -36,7 +36,7 @@ extern TSetupData* gSetup;
 
 using namespace AlCap;
 namespace {
-  const double TIME_LOW = -3000., TIME_HIGH = 3000.;
+const double TIME_LOW = -3000., TIME_HIGH = 3000.;
   TH2* vvhTTScTCorrWFDT[NCRATE][MAXNCHANWFD];
   TH2* vvhTTScTCorrWFDE[NCRATE][MAXNCHANWFD];
   std::string WFDBANKS[NCRATE][MAXNCHANWFD];
@@ -85,43 +85,43 @@ INT MTTScTCorrWFD_init() {
     }
   }
   TTSCBANK = gSetup->GetBankName("TTSc");
-
+  
   cwd->cd();
   return SUCCESS;
 }
 
-
-/*-- module event routine -----------------------------------------*/
 INT MTTScTCorrWFD(EVENT_HEADER *pheader, void *pevent) {
   const std::map< std::string, std::vector<TPulseIsland*> >& wfd_map =
     gData->fPulseIslandToChannelMap;
   const std::map< std::string, std::vector<int64_t> >& tdc_map =
     gData->fTDCHitsToChannelMap;
-
+  
   if (!tdc_map.count(TTSCBANK)) {
     printf("MTTScTCorrWFD: No reference hits TTSc!\n");
     return SUCCESS;
   }
   const std::vector<int64_t>& hits = tdc_map.at(TTSCBANK);
-
-
+  
+  
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
     const double toff = gData->fTDCSynchronizationPulseOffset[icrate];
     for (int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
       if (!wfd_map.count(WFDBANKS[icrate][ich])) continue;
       const std::vector<TPulseIsland*>& tpis =
 	wfd_map.at(WFDBANKS[icrate][ich]);
-
-      for (int i = 0; i < tpis.size(); ++i) {
+      
+      for (int i = 0, j0 = 0; i < tpis.size(); ++i) {
         const double t = TICKWFD[icrate] * tpis[i]->GetTimeStamp() + toff;
 	const double e = tpis[i]->GetPulseHeight();
-        for (int j = 0; j < hits.size(); ++j) {
+        for (int j = j0; j < hits.size(); ++j) {
 	  const double dt = t - TICKTDC * hits[j];
           if (dt < TIME_LOW) {
             break;
 	  } else if (dt < TIME_HIGH) {
             vvhTTScTCorrWFDT[icrate][ich]->Fill(dt, t);
 	    vvhTTScTCorrWFDE[icrate][ich]->Fill(dt, e);
+	  } else {
+	    ++j0;
 	  }
         }
       }
@@ -130,5 +130,4 @@ INT MTTScTCorrWFD(EVENT_HEADER *pheader, void *pevent) {
 
   return SUCCESS;
 }
-
 /// @}
