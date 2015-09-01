@@ -5,6 +5,7 @@ namespace AlCap {
 				    0, 8, 4,
 				    0, 8, 8,
 				    0};
+  const int    NCHANTDC         = 32;
   const double TICKWFD [NCRATE] = { 0., 0.,                    0.,
   				    0., 62.003158141820534865, 4.,
   				    0., 2.000102776481803346,  4.,
