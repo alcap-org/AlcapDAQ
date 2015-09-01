@@ -92,7 +92,7 @@ INT MTDCWFDTCorr_init() {
       printf("TDC bank %s, WFD bank %s, Detector %s\n",
 	     tdc_bank, wfd_bank, det.c_str());
       char hist[64]; sprintf(hist, "hTDCWFDTCorr_%s", det.c_str());
-      vvhTDCWFDTCorr[icrate][ich] = new TH2D(hist, hist, 20000, TIME_LOW, TIME_HIGH, 20, 0., 100.e6);
+      vvhTDCWFDTCorr[icrate][ich] = new TH2D(hist, hist, 20000, TIME_LOW, TIME_HIGH, 1000, 0., 100.e6);
       vvhTDCWFDTCorr[icrate][ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
     }
   }
@@ -108,17 +108,11 @@ INT MTDCWFDTCorr(EVENT_HEADER *pheader, void *pevent) {
       gData->fTDCHitsToChannelMap;
   const map< string, vector<TPulseIsland*> >& wfd_map =
       gData->fPulseIslandToChannelMap;
-
-  // const std::vector<double>& toffs = gData->fTDCSynchronizationPulseOffset;
-  // static int ev = -1; ++ev;
-  // for (int i = 0; i < toffs.size(); ++i)
-  //   printf("Ev: %d, Crate: %d, T-Offset: %g\n", ++ev, i, toffs[i]);
  
-
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
     if (gData->fTDCSynchronizationPulseIndex[icrate] == -1) continue;
-
     const double toff = gData->fTDCSynchronizationPulseOffset[icrate];
+
     for (int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
       const string& tdc_bank = WFD_TDC_BANK[icrate][ich];
       const string& wfd_bank = WFD_BANK_NAME[icrate][ich];
