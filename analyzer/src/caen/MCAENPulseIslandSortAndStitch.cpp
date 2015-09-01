@@ -36,80 +36,31 @@
 
 /*-- Module declaration --------------------------------------------*/
 static INT module_event_sort_and_stitch(EVENT_HEADER *pheader, void *pevent);
-static INT module_init_sort_and_stitch();
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-/// \brief
-/// Number of samples we expect a UH CAEN pulse to be no shorter than
-/// (from ODB).
-static unsigned int nUHSamples;
-/// \brief
-/// Number of samples we expect a BU CAEN pulse to be no shorter than
-/// (from ODB).
-static unsigned int nBUSamples;
-/// \brief
-/// Number of samples saved before a trigger on UH CAEN
-/// (from ODB).
-static unsigned int nUHPreSamples;
-/// \brief
-/// Number of samples saved before a trigger on BU CAEN
-/// (from ODB).
-static unsigned int nBUPreSamples;
-
 ANA_MODULE MCAENPulseIslandSortAndStitch_module =
 {
-	"MCAENPulseIslandSortAndStitch",   /* module name           */
-	"Vladimir Tishchenko",             /* author                */
-	module_event_sort_and_stitch,      /* event routine         */
-	NULL,                              /* BOR routine           */
-	NULL,                              /* EOR routine           */
-	module_init_sort_and_stitch,       /* init routine          */
-	NULL,                              /* exit routine          */
-	NULL,                              /* parameter structure   */
-	0,                                 /* structure size        */
-	NULL,                              /* initial parameters    */
+	"MCAENPulseIslandSortAndStitch", /* module name           */
+	"Vladimir Tishchenko",           /* author                */
+	module_event_sort_and_stitch,    /* event routine         */
+	NULL,                            /* BOR routine           */
+	NULL,                            /* EOR routine           */
+	NULL,                            /* init routine          */
+	NULL,                            /* exit routine          */
+	NULL,                            /* parameter structure   */
+	0,                               /* structure size        */
+	NULL,                            /* initial parameters    */
 };
 
-static bool pulse_islands_t_comp(TPulseIsland *a, TPulseIsland *b);
-static void pulse_islands_stitch(std::vector<TPulseIsland*>& v, unsigned int nSamples);
-
-
-INT module_init_sort_and_stitch() {
-
-   /*** Get necessary data from ODB ***/
-  char key[80];
-  int size;
-  unsigned int post_trigger_percentage;
-
-  sprintf(key, "/Equipment/Crate 4/Settings/CAEN0/waveform length");
-  size = sizeof(nUHSamples);
-  db_get_value(hDB, 0, key, &nUHSamples, &size, TID_DWORD, 1);
-  post_trigger_percentage = 80; // This is hardcoded in the frontend
-  nUHPreSamples = (int) (0.01 * ((100 - post_trigger_percentage) * nUHSamples));
-  
-  return SUCCESS;
-
-  sprintf(key, "/Equipment/Crate 5/Settings/CAEN/waveform length");
-  size = sizeof(nBUSamples);
-  db_get_value(hDB, 0, key, &nBUSamples, &size, TID_DWORD, 1);
-  sprintf(key, "/Equipment/Crate 5/Settings/CAEN/post_trigger_size");
-  size = sizeof(post_trigger_percentage);
-  db_get_value(hDB, 0, key, &post_trigger_percentage, &size, TID_BYTE, 1);
-  //nBUPreSamples = (int) (0.01 * ((100 - post_trigger_percentage) * nBUSamples));
-  nBUPreSamples = 20; // From the Golden Data, it looks like there are 20 presamples.
-                    // The frontend does not seem to correctly load post_trigger_size
-                    // onto the CAEN.
-  
-  return SUCCESS;
-}
+static bool pulse_islands_t_comp(const TPulseIsland*, const TPulseIsland*);
+static void pulse_islands_stitch(std::vector<TPulseIsland*>&);
 
 /// \brief
 /// This method sorts pulses in time and then stitches them together.
-INT module_event_sort_and_stitch(EVENT_HEADER *pheader, void *pevent)
-{
+INT module_event_sort_and_stitch(EVENT_HEADER *pheader, void *pevent) {
   // Some typedefs
   typedef std::map<std::string, std::vector<TPulseIsland*> > TStringPulseIslandMap;
 
@@ -117,19 +68,15 @@ INT module_event_sort_and_stitch(EVENT_HEADER *pheader, void *pevent)
   // of (bank_name, vector<TPulseIsland*>) pairs
   TStringPulseIslandMap& pulse_islands_map = gData->fPulseIslandToChannelMap;
 
-  for (std::map<std::string, std::vector<TPulseIsland*> >::iterator it=pulse_islands_map.begin(); it!=pulse_islands_map.end(); ++it)
-    {
-      unsigned int nSamples = 0;
-      if (TSetupData::IsBostonCAEN(it->first))
-	nSamples = nBUSamples;
-      else if (TSetupData::IsHoustonCAEN(it->first))
-	nSamples = nUHSamples;
-      if (nSamples != 0) {
-	std::vector<TPulseIsland*> &v = it->second;
-	std::sort(v.begin(), v.end(), pulse_islands_t_comp);
-	pulse_islands_stitch(v, nSamples);
-      }
+  for (std::map<std::string, std::vector<TPulseIsland*> >::iterator it=pulse_islands_map.begin(); it!=pulse_islands_map.end(); ++it) {
+    const std::string& bank = it->first;
+    if (bank[0] == 'D' && (bank[1] == '4' || bank[1] == '7')) {
+      if (!pulse_islands_map.count(bank)) continue;
+      std::vector<TPulseIsland*>& pulses = pulse_islands_map[bank];
+      std::sort(pulses.begin(), pulses.end(), pulse_islands_t_comp);
+      pulse_islands_stitch(pulses);
     }
+  }
 
   return SUCCESS;
 }
@@ -137,8 +84,7 @@ INT module_event_sort_and_stitch(EVENT_HEADER *pheader, void *pevent)
 
 /// \brief
 /// Ordering of pulse islands in time base on timestamp.
-bool pulse_islands_t_comp(TPulseIsland *a, TPulseIsland *b) 
-{ 
+bool pulse_islands_t_comp(const TPulseIsland* a, const TPulseIsland* b) {
   return (a->GetTimeStamp() < b->GetTimeStamp()); 
 }
 
@@ -159,28 +105,25 @@ bool pulse_islands_t_comp(TPulseIsland *a, TPulseIsland *b)
 /// preceding pulse.
 ///
 /// \todo Instead stitch together if the timestamps line up appropriately.
-void pulse_islands_stitch(std::vector<TPulseIsland*>& pulses, unsigned int nSamples) {
-  unsigned int nPulses = pulses.size();
-  if (nPulses == 0) return;
-  std::vector<int> next_samples, current_samples;
-  TPulseIsland* temp_pulse;
-  for (unsigned int iPulse = 0; iPulse < nPulses - 1; ++iPulse) {
-    next_samples = pulses[iPulse + 1]->GetSamples();
-    // If the next pulse is less than the set number of samples,
-    // it's a continuation of this pulse
-    while (next_samples.size() < nSamples) {
-      current_samples = pulses[iPulse]->GetSamples();
-      for (unsigned int i = 0; i < next_samples.size(); ++i)
-	current_samples.push_back(next_samples[i]);
-      temp_pulse = pulses[iPulse];
-      pulses[iPulse] = new TPulseIsland(temp_pulse->GetTimeStamp(), current_samples, temp_pulse->GetBankName());
-      delete temp_pulse;
-      delete pulses[iPulse + 1];
-      pulses.erase(pulses.begin() + iPulse + 1);
-      if (!(iPulse < --nPulses - 1)) break;
-      next_samples = pulses[iPulse + 1]->GetSamples();
-    }
+void pulse_islands_stitch(std::vector<TPulseIsland*>& pulses) {
+  if (pulses.size() == 0) return;
+  
+  std::vector<bool> merge(pulses.size(), false);
+  for (int i = 1; i < pulses.size(); ++i)
+    merge[i] =
+      pulses[i]->GetPulseLength() ==
+      pulses[i]->GetTimeStamp() - pulses[i-1]->GetTimeStamp();
+
+  for (int i = 0; i < pulses.size()-1; ++i) {
+    if (!merge[i+1]) continue;
+    const std::vector<int>& s0 = pulses[i]  ->GetSamples();
+    const std::vector<int>& s1 = pulses[i+1]->GetSamples();
+    std::vector<int> samps(s0);
+    samps.insert(samps.end(), s1.begin(), s1.end());
+    pulses[i]->SetSamples(samps.begin(), samps.end());
+    delete pulses[i+1];
+    pulses.erase(pulses.begin()+i+1);
+    merge.erase(merge.begin()+i+1);
   }
 }
-
 /// @}
