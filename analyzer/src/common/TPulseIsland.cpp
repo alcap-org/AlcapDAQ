@@ -4,6 +4,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <algorithm>
+#include <numeric>
 
 #include "TF1.h"
 
@@ -67,7 +68,6 @@ double TPulseIsland::GetPulseHeight() const {
 }
 
 double TPulseIsland::GetPulseTime() const {
-
   return fTimeStamp * GetClockTickInNs();
 }
 
@@ -83,6 +83,12 @@ TH1I* TPulseIsland::GetPulseWaveform(std::string histname, std::string histtitle
   }
 
   return hWaveform;
+}
+
+int TPulseIsland::GetPulseIntegral() const {
+  return GetTriggerPolarity() *
+    std::accumulate(fSamples.begin(), fSamples.end(),
+		    fSamples.size()*GetPedestal(10));
 }
 
 
