@@ -52,9 +52,9 @@ INT MDT5730Errors_init() {
   TDirectory* cwd = gDirectory;
   if (!gDirectory->Cd("DataQuality_LowLevel"))
     gDirectory->mkdir("DataQuality_LowLevel/")->cd();
-  gDirectory->mkdir("DT5730Errors/")->cd();
+  //gDirectory->mkdir("DT5730Errors/")->cd();
 
-  hDT5730Errors = new TH1I("hDT5730Errors", "Errors in DT5730", 5, 0., 5.);
+  hDT5730Errors = new TH1F("hDT5730Errors", "Errors in DT5730", 5, 0., 5.);
   hDT5730Errors->GetXaxis()->SetBinLabel(PLL_LOSS, "PLL Loss");
   hDT5730Errors->GetXaxis()->SetBinLabel(BOARD_FULL, "Board Full");
   hDT5730Errors->GetXaxis()->SetBinLabel(INTERNAL_TIMEOUT, "Internal Communication Timeout");

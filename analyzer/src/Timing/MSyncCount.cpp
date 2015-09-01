@@ -39,7 +39,7 @@ extern TSetupData* gSetup;
 static const int NCRATE = 9;
 static const int HEIGHTCUT = 100;
 
-static std::vector<TH1I*> hvSyncCount;
+static std::vector<TH1F*> hvSyncCount;
 
 ANA_MODULE MSyncCount_module =
 {
@@ -61,18 +61,18 @@ INT MSyncCount_init() {
   TDirectory* cwd = gDirectory;
   if (!gDirectory->Cd("DataQuality_LowLevel"))
     gDirectory->mkdir("DataQuality_LowLevel/")->cd();
-  gDirectory->mkdir("SyncCount/")->cd();
+  //gDirectory->mkdir("SyncCount/")->cd();
 
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
     char name[32]; sprintf(name, "hSyncCount_Crate%d", icrate);
     char title[64]; sprintf(title,
                             "Sync Pulse Count Crate %d;Pulses per block",
                             icrate);
-    hvSyncCount.push_back(new TH1I(name, title, 70, 0., 70.));
+    hvSyncCount.push_back(new TH1F(name, title, 70, 0., 70.));
   }
   char name[32]; sprintf(name, "hSyncCount_TDC");
   char title[64]; sprintf(title, "Sync Pulse Count TDC;Pulses per block");
-  hvSyncCount.push_back(new TH1I(name, title, 70, 0., 70.));
+  hvSyncCount.push_back(new TH1F(name, title, 70, 0., 70.));
 
   cwd->cd();
   return SUCCESS;
