@@ -4,6 +4,7 @@
 #include "TFile.h"
 #include "TDirectoryFile.h"
 #include "TF1.h"
+#include "TCanvas.h"
 
 #include <iostream>
 
@@ -28,6 +29,9 @@ int ExtractBand(std::string filename, std::vector<Cut*>& cuts) {
   arms.push_back(left_arm); arms.push_back(right_arm);
 
   for (std::vector<SiArm*>::iterator i_arm = arms.begin(); i_arm != arms.end(); ++i_arm) {
+
+    std::string canvasname = "c_" + (*i_arm)->GetArmName();
+    TCanvas* c = new TCanvas(canvasname.c_str(), canvasname.c_str());
 
     // Get the EvdE plot for this arm
     std::string histname = "all_particles/" + (*i_arm)->GetArmName() + "_EvdE";
@@ -70,9 +74,6 @@ int ExtractBand(std::string filename, std::vector<Cut*>& cuts) {
 	    }
 	  }
 	}
-	if (bin_content < 10) {
-	  remove = true;
-	}
 
 	if (remove) {
 	  hEvdEBand->SetBinContent(i_bin, j_bin, 0);
@@ -92,7 +93,16 @@ int ExtractBand(std::string filename, std::vector<Cut*>& cuts) {
     double bin_integral_high = hEvdEBand->GetXaxis()->FindBin(integral_high);
     std::cout << "Integral (" << integral_low/1000 << " - " << integral_high/1000 << " MeV) = " 
 	      << hEvdEBand->ProjectionX()->Integral(bin_integral_low, bin_integral_high) << std::endl;
+
+    // Draw
     hEvdEBand->Draw("COLZ");
+    c->SetLogz();
+
+    // Also draw the cuts
+    for (std::vector<Cut*>::const_iterator i_cut = cuts.begin(); i_cut != cuts.end(); ++i_cut) {
+      TF1* fn = (*i_cut)->eqn;
+      fn->Draw("LSAME");
+    }
   }
   return 0;
 }
