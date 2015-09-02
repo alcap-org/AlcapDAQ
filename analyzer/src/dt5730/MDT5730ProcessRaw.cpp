@@ -49,7 +49,6 @@ static std::vector<std::string> bank_names;
 /// However, it does \e not seem like this was set correctly in the front end.
 /// \todo
 /// Find out the problem and characterize.
-static unsigned int nPreSamples;
 /// \brief
 /// Number of channels in DT5730.
 static const int NCHAN = 8;
@@ -88,21 +87,6 @@ INT module_init() {
   char key[80];
   int  size;
 
-  // Timestamp will be shifted by number of presamples for STD firmware
-  // Timestamp is CFD for DPP firmware, so we will not use this in that case.
-  // sprintf(key, "/Equipment/Crate 7/Settings/CAEN/Waveform length");
-  // BYTE   post_trigger_percentage;
-  // DWORD  nSamples;
-  // size = sizeof(nSamples);
-  // db_get_value(hDB, 0, key, &nSamples, &size, TID_DWORD, 0);
-  // sprintf(key, "/Equipment/Crate 7/Settings/CAEN/Post trigger size");
-  // size = sizeof(post_trigger_percentage);
-  // db_get_value(hDB, 0, key, &post_trigger_percentage, &size, TID_BYTE, 0);
-  // nPreSamples = (int) (0.01 * ((100 - post_trigger_percentage) * nSamples));
-  nPreSamples = 20; // From the Golden Data, it looks like there are 20 presamples.
-                    // The frontend does not seem to correctly load post_trigger_size
-                    // onto the CAEN.
-
   sprintf(key, "/Equipment/Crate 7/Settings/CAEN/DPP");
   size = sizeof(DPP);
   db_get_value(hDB, 0, key, &DPP, &size, TID_BOOL, 0);
@@ -122,8 +106,8 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent) {
       std::vector<TPulseIsland*>& islands = iter->second;
       for (int i = 0; i < islands.size(); ++i) {
         if (islands[i]) {
-        	delete islands[i];
-        	islands[i] = NULL;
+	  delete islands[i];
+	  islands[i] = NULL;
         }
       }
       islands.clear();
@@ -143,6 +127,7 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent) {
     else
       ret = module_event_caen_std((uint32_t*)pdata, bank_len);
   }
+
 
   // print for testing
   if(pheader->serial_number == 1)
@@ -201,7 +186,7 @@ INT module_event_caen_std(uint32_t* p32, const int nbytes) {
             sample_vector.push_back(adc);
           }
         }
-        pulse_islands.push_back(new TPulseIsland(caen_trigger_time - nPreSamples, sample_vector, *bankNameIter));
+        pulse_islands.push_back(new TPulseIsland(caen_trigger_time, sample_vector, *bankNameIter));
       }
     }
   }

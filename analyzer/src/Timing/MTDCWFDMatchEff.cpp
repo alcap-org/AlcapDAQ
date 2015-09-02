@@ -64,8 +64,6 @@ ANA_MODULE MTDCWFDMatchEff_module =
 /*--module init routine --------------------------------------------*/
 INT MTDCWFDMatchEff_init() {
   TDirectory* cwd = gDirectory;
-  if (!gDirectory->Cd("DataQuality_LowLevel"))
-    gDirectory->mkdir("DataQuality_LowLevel/")->cd();
   gDirectory->mkdir("TDCWFDMatchEff/")->cd();
 
   for (int icrate = 0; icrate < NCRATE; ++icrate) {

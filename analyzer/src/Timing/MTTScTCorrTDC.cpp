@@ -18,6 +18,7 @@
 
 /* ROOT includes */
 #include "TH1D.h"
+#include "TDirectory.h"
 
 //JG: added alcap includes
 /* AlCap includes */
@@ -57,6 +58,9 @@ ANA_MODULE MTTScTCorrTDC_module =
 
 /*--module init routine --------------------------------------------*/
 INT MTTScTCorrTDC_init() {
+  TDirectory* cwd = gDirectory;
+  gDirectory->mkdir("TTScTCorrTDC")->cd();
+
   for (int ich = 0; ich < NCHANTDC; ++ich) {
     char bank[5]; sprintf(bank, "T4%02d", ich);
     char histname[64]; sprintf(histname, "hTTScTCorrTDC_%s", bank);
@@ -65,6 +69,7 @@ INT MTTScTCorrTDC_init() {
     vhTTScTCorrTDC[ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
     TDCBANKS[ich] = bank;
   }
+  cwd->cd();
   return SUCCESS;
 }
 

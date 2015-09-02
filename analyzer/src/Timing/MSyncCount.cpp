@@ -37,7 +37,6 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-
 using namespace AlCap;
 namespace {
   const int HEIGHTCUT = 100;
@@ -65,9 +64,7 @@ ANA_MODULE MSyncCount_module =
 */
 INT MSyncCount_init() {
   TDirectory* cwd = gDirectory;
-  if (!gDirectory->Cd("DataQuality_LowLevel"))
-    gDirectory->mkdir("DataQuality_LowLevel/")->cd();
-  //gDirectory->mkdir("SyncCount/")->cd();
+  gDirectory->mkdir("SyncCount/")->cd();
 
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
     char tmp[8]; sprintf(tmp, "%d", icrate);
