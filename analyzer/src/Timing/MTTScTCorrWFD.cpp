@@ -7,22 +7,21 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdint.h>
+#include <cmath>
 #include <string>
 #include <map>
-#include <algorithm>
 
 /* MIDAS includes */
 #include "midas.h"
 
 /* ROOT includes */
-#include "TH1D.h"
-#include "TH2D.h"
+#include "TH2F.h"
+#include "TDirectory.h"
 
 //JG: added alcap includes
 /* AlCap includes */
+#include "AlCap.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 
@@ -30,26 +29,19 @@
 /*-- Module declaration --------------------------------------------*/
 static INT MTTScTCorrWFD_init(void);
 static INT MTTScTCorrWFD(EVENT_HEADER*, void*);
-std::vector<int> calculate_tpi_times(const std::vector<TPulseIsland*>&);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-/// \brief
-/// List of BU CAEN bank names for the event loop.
-static const int NCRATE = 9;
-static const int NCHAN[NCRATE] = {0, 0, 0,
-                                  0, 8, 4,
-                                  0, 8, 8};
-static const double WFD_TICK[NCRATE] = {0., 0., 0.,
-                                        0., 1e3/16.1290, 4,
-                                        0., 2, 4};
-//const double TIME_LOW = -20e3, TIME_HIGH = 20e3;
-const double TIME_DIFFERENCE_MAX = 10e6; //ns
-//static std::vector< std::vector<TH1*> > vvhTTScTCorrWFD(NCRATE);
-static std::vector< std::vector<TH2*> > vvhTTScTCorrWFD(NCRATE);
-
+using namespace AlCap;
+namespace {
+const double TIME_LOW = -3000., TIME_HIGH = 3000.;
+  TH2* vvhTTScTCorrWFDT[NCRATE][MAXNCHANWFD];
+  TH2* vvhTTScTCorrWFDE[NCRATE][MAXNCHANWFD];
+  std::string WFDBANKS[NCRATE][MAXNCHANWFD];
+  std::string TTSCBANK;
+}
 
 ANA_MODULE MTTScTCorrWFD_module =
 {
@@ -67,72 +59,70 @@ ANA_MODULE MTTScTCorrWFD_module =
 
 /*--module init routine --------------------------------------------*/
 INT MTTScTCorrWFD_init() {
+  TDirectory* cwd = gDirectory;
+  gDirectory->mkdir("TTScTCorrWFD")->cd();
+
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
-    for (int ichan = 0; ichan < NCHAN[icrate]; ++ichan) {
+    for (int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
       char bank[8], name[64], title[128];
-      sprintf(bank, "D%d%02d", icrate, ichan);
-      sprintf(name, "hTTScTCorrWFD_%s", bank);
+      sprintf(bank, "D%d%02d", icrate, ich);
+      sprintf(name, "hTTScTCorrWFDT_%s", bank);
+      const int emax = std::pow(2, gSetup->GetNBits(bank));
+      WFDBANKS[icrate][ich] = bank;
       sprintf(title,
-              "TTSc timing correlation %s;Time TTSc (ns);Time Difference (ns)",
+              "TTSc timing correlation %s;WFD-TTSc Time (ns);Time WFD (ns)",
               gSetup->GetDetectorName(bank).c_str());
-      //TH1* hist = new TH1D(name, title, 10000, TIME_LOW, TIME_HIGH);
-      TH2* hist = new TH2D(name, title,
-                           1000, 0., 100e6,  // 0-100e6 ns (100 ms)
-                           20000, 0., 100e6);
-                           // -TIME_DIFFERENCE_MAX,
-                           // TIME_DIFFERENCE_MAX); // 0-100e6 ns (100 ms)
-      vvhTTScTCorrWFD[icrate].push_back(hist);
+      vvhTTScTCorrWFDT[icrate][ich] = new TH2F(name, title,
+					       1000, TIME_LOW, TIME_HIGH,
+					       2000, 0., 110e6);
+      sprintf(name, "hTTScTCorrWFDE_%s", bank);
+      sprintf(title,
+              "TTSc timing correlation %s;WFD-TTSc Time (ns);WFD Energy (ADC)",
+              gSetup->GetDetectorName(bank).c_str());
+      vvhTTScTCorrWFDE[icrate][ich] = new TH2F(name, title,
+					       1000, TIME_LOW, TIME_HIGH,
+					       emax, 0., emax);
     }
   }
+  TTSCBANK = gSetup->GetBankName("TTSc");
+  
+  cwd->cd();
   return SUCCESS;
 }
 
-
-/*-- module event routine -----------------------------------------*/
 INT MTTScTCorrWFD(EVENT_HEADER *pheader, void *pevent) {
-  const std::map< std::string, std::vector<TPulseIsland*> >& pulses_map =
+  const std::map< std::string, std::vector<TPulseIsland*> >& wfd_map =
     gData->fPulseIslandToChannelMap;
-  const std::map< std::string, std::vector<int64_t> >& hits_map =
+  const std::map< std::string, std::vector<int64_t> >& tdc_map =
     gData->fTDCHitsToChannelMap;
-
-  const std::string mu_bank = gSetup->GetBankName("TTSc");
-  if (!hits_map.count(mu_bank)) {
+  
+  if (!tdc_map.count(TTSCBANK)) {
     printf("MTTScTCorrWFD: No reference hits TTSc!\n");
     return SUCCESS;
   }
-  std::vector<int64_t> mu_hits = hits_map.at(mu_bank);
-  std::sort(mu_hits.begin(), mu_hits.end());
-
+  const std::vector<int64_t>& hits = tdc_map.at(TTSCBANK);
+  
+  
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
-    // char sync_det[16]; sprintf("SyncCrate%d", icrate);
-    // const double t0_crate = WFD_TICK[icrate] * pulses_map.at(gSetup->GetBankName(sync_det))[0]->GetTimeStamp();
-    for (int ichan = 0; ichan < NCHAN[icrate]; ++ichan) {
-      char bank[8]; sprintf(bank, "D%d%02d", icrate, ichan);
-      if (!pulses_map.count(bank)) continue;
-
-      std::vector<int> pulses = calculate_tpi_times(pulses_map.at(bank));
-      std::sort(pulses.begin(), pulses.end());
-      const double wfd_tick = gSetup->GetClockTick(bank);
-      //const double wfd_tick = WFD_TICK[icrate];
-      printf("WFD tick %s: %g\n", bank, wfd_tick);
-      for (int ipulse = 0; ipulse < pulses.size(); ++ipulse) {
-        //if (pulses[ipulse]->GetPulseHeight() < 600) continue;
-        const double tpulse = wfd_tick * pulses[ipulse];
-        for (int imu = 0; imu < mu_hits.size(); ++imu) {
-          static const double tdc_tick = 0.025; // ns
-          const double tmu = tdc_tick * mu_hits[imu];
-          // const double dt = tpulse - tmu;
-          // if (dt < -TIME_DIFFERENCE_MAX)
-            // continue;
-          // else if (dt < TIME_DIFFERENCE_MAX)
-            vvhTTScTCorrWFD[icrate][ichan]->Fill(tpulse, tmu);
-          // else
-            // break;
-        //const double dt = tpulse - tdc_tick * mu_hits[imu];
-        //if (dt < TIME_LOW)
-        //  break;
-        //else if (dt < TIME_HIGH)
-        //  vvhTTScTCorrWFD[icrate][ichan]->Fill(dt);
+    const double toff = gData->fTDCSynchronizationPulseOffset[icrate];
+    for (int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
+      if (!wfd_map.count(WFDBANKS[icrate][ich])) continue;
+      const std::vector<TPulseIsland*>& tpis =
+	wfd_map.at(WFDBANKS[icrate][ich]);
+      
+      for (int i = 0, j0 = 0; i < tpis.size(); ++i) {
+        const double t = TICKWFD[icrate] * tpis[i]->GetTimeStamp() + toff;
+	const double e = tpis[i]->GetPulseHeight();
+        for (int j = j0; j < hits.size(); ++j) {
+	  const double dt = t - TICKTDC * hits[j];
+          if (dt < TIME_LOW) {
+            break;
+	  } else if (dt < TIME_HIGH) {
+            vvhTTScTCorrWFDT[icrate][ich]->Fill(dt, t);
+	    vvhTTScTCorrWFDE[icrate][ich]->Fill(dt, e);
+	  } else {
+	    ++j0;
+	  }
         }
       }
     }
@@ -140,13 +130,4 @@ INT MTTScTCorrWFD(EVENT_HEADER *pheader, void *pevent) {
 
   return SUCCESS;
 }
-
-std::vector<int> calculate_tpi_times(const std::vector<TPulseIsland*>& tpis) {
-  std::vector<int> ts;
-  ts.reserve(tpis.size());
-  for (int i = 0; i < tpis.size(); ++i)
-    ts.push_back(tpis[i]->GetTimeStamp());
-  return ts;
-}
-
 /// @}

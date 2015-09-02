@@ -84,14 +84,16 @@ INT MTScTCorrTDC(EVENT_HEADER *pheader, void *pevent) {
     if (!tdc_map.count(bank)) continue;
 
     const std::vector<int64_t>& hits = tdc_map.at(bank);
-    for (int i = 0; i < hits.size(); ++i) {
-      for (int j = 0; j < ref_hits.size(); ++j) {
+    for (int i = 0, j0 = 0; i < hits.size(); ++i) {
+      for (int j = j0; j < ref_hits.size(); ++j) {
         static const double clock_tick = 0.025; // ns
         const double dt = clock_tick*(hits[i] - ref_hits[j]);
         if (dt < TIME_LOW)
           break;
         else if (dt < TIME_HIGH)
           vhTScTCorrTDC[ich]->Fill(dt);
+	else
+	  ++j0;
       }
     }
   }

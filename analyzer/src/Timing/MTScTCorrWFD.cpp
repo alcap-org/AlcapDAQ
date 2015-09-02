@@ -21,6 +21,7 @@
 
 //JG: added alcap includes
 /* AlCap includes */
+#include "AlCap.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 
@@ -35,73 +36,72 @@ extern TSetupData* gSetup;
 
 /// \brief
 /// List of BU CAEN bank names for the event loop.
-static const int NCRATE = 9;
-static const int NCHAN[NCRATE] = {0, 0, 0, 0, 8, 4, 0, 8, 8};
-const double TIME_LOW = -20e3, TIME_HIGH = 20e3;
-static std::vector< std::vector<TH1*> > vvhTScTCorrWFD(NCRATE);
-
+using namespace AlCap;
+namespace {
+  const double TIME_LOW = -20e3, TIME_HIGH = 20e3;
+  TH1* vvhTScTCorrWFD[NCRATE][MAXNCHANWFD];
+  std::string WFDBANKS[NCRATE][MAXNCHANWFD];
+}
 
 ANA_MODULE MTScTCorrWFD_module =
 {
   "MTScTCorrWFD",    /* module name           */
-  "John R Quirk",     /* author                */
+  "John R Quirk",    /* author                */
   MTScTCorrWFD,      /* event routine         */
-  NULL,               /* BOR routine           */
-  NULL,               /* EOR routine           */
+  NULL,              /* BOR routine           */
+  NULL,              /* EOR routine           */
   MTScTCorrWFD_init, /* init routine          */
-  NULL,               /* exit routine          */
-  NULL,               /* parameter structure   */
-  0,                  /* structure size        */
-  NULL,               /* initial parameters    */
+  NULL,              /* exit routine          */
+  NULL,              /* parameter structure   */
+  0,                 /* structure size        */
+  NULL,              /* initial parameters    */
 };
 
 /*--module init routine --------------------------------------------*/
 INT MTScTCorrWFD_init() {
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
-    for (int ichan = 0; ichan < NCHAN[icrate]; ++ichan) {
-      char bank[8], name[64], title[128];
-      sprintf(bank, "D%d%02d", icrate, ichan);
-      sprintf(name, "hTScTCorrWFD_%s", bank);
-      sprintf(title, "TSc timing correlation %s;Timing Difference (ns)",
-              gSetup->GetDetectorName(bank).c_str());
-      TH1* hist = new TH1D(name, title, 10000, TIME_LOW, TIME_HIGH);
-      vvhTScTCorrWFD[icrate].push_back(hist);
+    for (int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
+      char bank[5]; sprintf(bank, "D%d%02d", icrate, ich);
+      char histname[64]; sprintf(histname, "hTScTCorrWFD_%s", bank);
+      char histtitle[64]; sprintf(histtitle, "TSc TCorr with %s", gSetup->GetDetectorName(bank).c_str());
+      vvhTScTCorrWFD[icrate][ich] = new TH1D(histname, histtitle, 20000, TIME_LOW, TIME_HIGH);
+      vvhTScTCorrWFD[icrate][ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
+      WFDBANKS[icrate][ich] = bank;
     }
   }
   return SUCCESS;
 }
 
-
 /*-- module event routine -----------------------------------------*/
 INT MTScTCorrWFD(EVENT_HEADER *pheader, void *pevent) {
-  const std::map< std::string, std::vector<TPulseIsland*> >& pulses_map =
+  const std::map< std::string, std::vector<TPulseIsland*> >& wfd_map =
     gData->fPulseIslandToChannelMap;
 
-  const std::string mu_bank = gSetup->GetBankName("TSc");
-  if (!pulses_map.count(mu_bank)) {
+  const static std::string ref_bank = gSetup->GetBankName("TSc");
+  if (!wfd_map.count(ref_bank)) {
     printf("MTScTCorrWFD: No reference pulses TSc!\n");
     return SUCCESS;
   }
-  const std::vector<TPulseIsland*>& mu_pulses = pulses_map.at(mu_bank);
-  const double mu_tick = gSetup->GetClockTick(mu_bank);
+  const std::vector<TPulseIsland*>& ref_pulses = wfd_map.at(ref_bank);
+  const static double tickref = TICKWFD[ref_bank[1]-'0'];
 
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
-    for (int ichan = 0; ichan < NCHAN[icrate]; ++ichan) {
-      char bank[8]; sprintf(bank, "D%d%02d", icrate, ichan);
-      if (!pulses_map.count(bank)) continue;
+    for (int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
+      if (!wfd_map.count(WFDBANKS[icrate][ich])) continue;
 
-      const std::vector<TPulseIsland*>& pulses = pulses_map.at(bank);
-      const double pulse_tick = gSetup->GetClockTick(bank);
+      const std::vector<TPulseIsland*>& pulses = wfd_map.at(WFDBANKS[icrate][ich]);
 
-      for (int ipulse = 0; ipulse < pulses.size(); ++ipulse) {
-        if (pulses[ipulse]->GetPulseHeight() < 600) continue;
-        const double tpulse = pulse_tick * pulses[ipulse]->GetTimeStamp();
-        for (int imu = 0; imu < mu_pulses.size(); ++imu) {
-          const double dt = tpulse - mu_tick * mu_pulses[imu]->GetTimeStamp();
+      for (int i = 0, j0 = 0; i < pulses.size(); ++i) {
+        //if (pulses[ip]->GetPulseHeight() < 600) continue;
+        const double t = TICKWFD[icrate] * pulses[i]->GetTimeStamp();
+        for (int j = j0; j < ref_pulses.size(); ++j) {
+          const double dt = t - tickref * ref_pulses[j]->GetTimeStamp();
           if (dt < TIME_LOW)
             break;
           else if (dt < TIME_HIGH)
-            vvhTScTCorrWFD[icrate][ichan]->Fill(dt);
+            vvhTScTCorrWFD[icrate][ich]->Fill(dt);
+	  else
+	    ++j0;
         }
       }
     }

@@ -14,6 +14,7 @@
 #include <cstring>
 #include <string>
 #include <map>
+#include <cmath>
 
 /* MIDAS includes */
 #include "midas.h"
@@ -43,8 +44,9 @@ static INT MTDCWFDTCorr_init(void);
 static INT MTDCWFDTCorr(EVENT_HEADER*, void*);
 
 namespace {
-  const double TIME_LOW = -10e3, TIME_HIGH = 10e3; //ns
-  TH2* vvhTDCWFDTCorr[NCRATE][MAXNCHANWFD]; // 10 is max number of channels
+  const double TIME_LOW = -1e3, TIME_HIGH = 1e3; //ns
+  TH2* vvhTDCWFDTCorrT[NCRATE][MAXNCHANWFD];
+  TH2* vvhTDCWFDTCorrE[NCRATE][MAXNCHANWFD];
   string WFD_TDC_BANK[NCRATE][MAXNCHANWFD];
   string WFD_BANK_NAME[NCRATE][MAXNCHANWFD];
 }
@@ -87,13 +89,21 @@ INT MTDCWFDTCorr_init() {
         continue;
       }
 
+      const double emax = std::pow(2., gSetup->GetNBits(wfd_bank));
       WFD_BANK_NAME[icrate][ich] = wfd_bank;
       WFD_TDC_BANK[icrate][ich]  = tdc_bank;
       printf("TDC bank %s, WFD bank %s, Detector %s\n",
 	     tdc_bank, wfd_bank, det.c_str());
-      char hist[64]; sprintf(hist, "hTDCWFDTCorr_%s", det.c_str());
-      vvhTDCWFDTCorr[icrate][ich] = new TH2D(hist, hist, 20000, TIME_LOW, TIME_HIGH, 20, 0., 100.e6);
-      vvhTDCWFDTCorr[icrate][ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
+      char hist[64];
+      sprintf(hist, "hTDCWFDTCorrT_%s", det.c_str());
+      vvhTDCWFDTCorrT[icrate][ich] = new TH2D(hist, hist, 2000, TIME_LOW, TIME_HIGH, 1000, 0., 100.e6);
+      vvhTDCWFDTCorrT[icrate][ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
+      vvhTDCWFDTCorrT[icrate][ich]->GetXaxis()->SetTitle("TDC Block Time (ns)");
+      sprintf(hist, "hTDCWFDTCorrE_%s", det.c_str());
+      vvhTDCWFDTCorrE[icrate][ich] = new TH2D(hist, hist, 2000, TIME_LOW, TIME_HIGH, emax, 0., emax);
+      vvhTDCWFDTCorrE[icrate][ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
+      vvhTDCWFDTCorrE[icrate][ich]->GetXaxis()->SetTitle("Energy (ADC)");
+      
     }
   }
 
@@ -108,22 +118,16 @@ INT MTDCWFDTCorr(EVENT_HEADER *pheader, void *pevent) {
       gData->fTDCHitsToChannelMap;
   const map< string, vector<TPulseIsland*> >& wfd_map =
       gData->fPulseIslandToChannelMap;
-
-  // const std::vector<double>& toffs = gData->fTDCSynchronizationPulseOffset;
-  // static int ev = -1; ++ev;
-  // for (int i = 0; i < toffs.size(); ++i)
-  //   printf("Ev: %d, Crate: %d, T-Offset: %g\n", ++ev, i, toffs[i]);
  
-
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
     if (gData->fTDCSynchronizationPulseIndex[icrate] == -1) continue;
-
     const double toff = gData->fTDCSynchronizationPulseOffset[icrate];
+
     for (int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
       const string& tdc_bank = WFD_TDC_BANK[icrate][ich];
       const string& wfd_bank = WFD_BANK_NAME[icrate][ich];
-      if (!vvhTDCWFDTCorr[icrate][ich] ||
-	  !tdc_map.count(WFD_TDC_BANK[icrate][ich]) ||
+      if (tdc_bank.empty() || wfd_bank.empty()) continue;
+      if (!tdc_map.count(WFD_TDC_BANK[icrate][ich]) ||
 	  !wfd_map.count(WFD_BANK_NAME[icrate][ich])) continue;
 
       const vector<int64_t>&       times  = tdc_map.at(tdc_bank);
@@ -134,10 +138,12 @@ INT MTDCWFDTCorr(EVENT_HEADER *pheader, void *pevent) {
           const double dt = TICKTDC*times[t] -
                             TICKWFD[icrate]*pulses[p]->GetTimeStamp() -
 	                    toff;
-          if (dt < TIME_LOW)
+          if (dt < TIME_LOW) {
             break;
-          else if (dt < TIME_HIGH)
-            vvhTDCWFDTCorr[icrate][ich]->Fill(dt, TICKTDC*times[t]);
+          } else if (dt < TIME_HIGH) {
+            vvhTDCWFDTCorrT[icrate][ich]->Fill(dt, TICKTDC*times[t]);
+            vvhTDCWFDTCorrE[icrate][ich]->Fill(dt, pulses[p]->GetPulseHeight());
+	  }
         }
       }
     }
