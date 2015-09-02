@@ -172,7 +172,7 @@ INT MDQ_IntegralRatio_init()
     
     }
 
-  gDirectory->Cd("../DataQuality_LowLevel/");
+  //gDirectory->Cd("../DataQuality_LowLevel/");
   for(std::map<std::string, std::string>::iterator mapIter = bankDetMap.begin(); mapIter != bankDetMap.end(); mapIter++){
 
     std::string bankname = mapIter->first;

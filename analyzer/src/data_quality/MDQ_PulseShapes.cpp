@@ -108,7 +108,7 @@ ANA_MODULE MDQ_PulseShapes_module =
 INT MDQ_PulseShapes_init()
 {
   // See if the DataQuality_LowLevel/ directory already exists
-  std::string dir_name("DataQuality_LowLevel/");
+  std::string dir_name("DQ_PulseShapes/");
   if (!gDirectory->Cd(dir_name.c_str())) {
     gDirectory->mkdir(dir_name.c_str());
   }

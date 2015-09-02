@@ -86,9 +86,9 @@ ANA_MODULE MDQ_IslandCounter_module =
 INT MDQ_IslandCounter_init()
 {
     // See if the DataQuality_LowLevel/ directory already exists
-  if (!gDirectory->Cd("DataQuality_LowLevel")) {
+  if (!gDirectory->Cd("DQ_IslandCounter")) {
     
-    std::string dir_name("DataQuality_LowLevel/");
+    std::string dir_name("DQ_IslandCounter/");
     gDirectory->mkdir(dir_name.c_str());
     gDirectory->Cd(dir_name.c_str());
   }

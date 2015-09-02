@@ -10,6 +10,7 @@ dt5730/MDT5730Errors
 data_quality/MDQ_TDCCheck
 
 data_quality/MDQ_Amplitude
+data_quality/MDQ_Integral
 data_quality/MDQ_Thresholds
 data_quality/MDQ_PulseShapes
 data_quality/MDQ_DAQLivetime
