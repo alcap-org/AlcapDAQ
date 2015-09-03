@@ -92,8 +92,8 @@ ANA_MODULE MDQ_Amplitude_module =
 INT MDQ_Amplitude_init()
 {
   TDirectory* cwd = gDirectory;
-  if (!gDirectory->Cd("DataQuality_LowLevel"))
-    gDirectory->mkdir("DataQuality_LowLevel/")->cd();
+  if (!gDirectory->Cd("DQ_Amplitude"))
+    gDirectory->mkdir("DQ_Amplitude/")->cd();
 
   // Create a histogram for each detector
   const std::map<std::string, std::string>& Bank2DetMap =
@@ -105,7 +105,7 @@ INT MDQ_Amplitude_init()
       mapIter != Bank2DetMap.end(); mapIter++) { 
 
     const std::string bankname = mapIter->first;
-    const std::string detname = gSetup->GetDetectorName(bankname);
+    const std::string detname = mapIter->second;
     if(TSetupData::IsTDC(bankname)) continue;
     const int n_bits = gSetup->GetNBits(bankname);
     const int max_adc_value = std::pow(2, n_bits);

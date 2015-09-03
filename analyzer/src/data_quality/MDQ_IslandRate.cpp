@@ -80,9 +80,9 @@ ANA_MODULE MDQ_IslandRate_module =
 INT MDQ_IslandRate_init()
 {
     // See if the DataQuality_LowLevel/ directory already exists
-  if (!gDirectory->Cd("DataQuality_LowLevel")) {
+  if (!gDirectory->Cd("DQ_IslandRate")) {
     
-    std::string dir_name("DataQuality_LowLevel/");
+    std::string dir_name("DQ_IslandRate/");
     gDirectory->mkdir(dir_name.c_str());
     gDirectory->Cd(dir_name.c_str());
   }

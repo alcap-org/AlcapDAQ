@@ -50,8 +50,8 @@ enum BOARDERROR {
 
 INT MDT5720Errors_init() {
   TDirectory* cwd = gDirectory;
-  if (!gDirectory->Cd("DataQuality_LowLevel"))
-    gDirectory->mkdir("DataQuality_LowLevel/")->cd();
+  //if (!gDirectory->Cd("DT5720Errors"))
+    //gDirectory->mkdir("DataQuality_LowLevel/")->cd();
   gDirectory->mkdir("DT5720Errors/")->cd();
 
   hDT5720Errors = new TH1I("hDT5720Errors", "Errors in DT5720", 5, 0., 5.);

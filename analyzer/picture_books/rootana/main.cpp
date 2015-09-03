@@ -120,6 +120,7 @@ int main(int argc, char **argv) {
       while ( (dirKey = (TKey*)nextDirKey()) ) {
 
 	std::string histogram_name = dirKey->ReadObj()->GetName();
+	std::cout << histogram_name << std::endl;
 
 	// If we have been told that we want a specific plot type for this chapter,
 	// check that this is one of the plots we want
