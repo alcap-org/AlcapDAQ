@@ -82,7 +82,7 @@ ANA_MODULE MDQ_IslandCounter_module =
 
 INT MDQ_IslandCounter_init() {
   TDirectory* cwd = gDirectory;
-  gDirectory->mkdir("IslandCounter")->cd();
+  gDirectory->mkdir("DQ_IslandCounter")->cd();
 
   // Create a histogram for each detector
   const map<string, string>& bank_to_detector_map = gSetup->fBankToDetectorMap;

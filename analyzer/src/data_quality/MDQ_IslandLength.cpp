@@ -74,7 +74,7 @@ ANA_MODULE MDQ_IslandLength_module =
 
 INT MDQ_IslandLength_init() {
   TDirectory* cwd = gDirectory;
-  DIR = gDirectory->mkdir("IslandLength");
+  DIR = gDirectory->mkdir("DQ_IslandLength");
   DIR->cd();
 
   map<string, string> bank_to_detector_map = gSetup->fBankToDetectorMap;
