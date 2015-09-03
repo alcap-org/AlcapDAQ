@@ -44,7 +44,7 @@ static INT MTDCWFDTCorr_init(void);
 static INT MTDCWFDTCorr(EVENT_HEADER*, void*);
 
 namespace {
-  const double TIME_LOW = -1e3, TIME_HIGH = 1e3; //ns
+  const double TIME_LOW = -1e3, TIME_HIGH = 2e4; //ns
   TH2* vvhTDCWFDTCorrT[NCRATE][MAXNCHANWFD];
   TH2* vvhTDCWFDTCorrE[NCRATE][MAXNCHANWFD];
   string WFD_TDC_BANK[NCRATE][MAXNCHANWFD];
@@ -96,11 +96,11 @@ INT MTDCWFDTCorr_init() {
       sprintf(hist, "hTDCWFDTCorrT_%s", det.c_str());
       vvhTDCWFDTCorrT[icrate][ich] = new TH2D(hist, hist, 2000, TIME_LOW, TIME_HIGH, 1000, 0., 100.e6);
       vvhTDCWFDTCorrT[icrate][ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
-      vvhTDCWFDTCorrT[icrate][ich]->GetXaxis()->SetTitle("TDC Block Time (ns)");
+      vvhTDCWFDTCorrT[icrate][ich]->GetYaxis()->SetTitle("TDC Block Time (ns)");
       sprintf(hist, "hTDCWFDTCorrE_%s", det.c_str());
       vvhTDCWFDTCorrE[icrate][ich] = new TH2D(hist, hist, 2000, TIME_LOW, TIME_HIGH, emax, 0., emax);
       vvhTDCWFDTCorrE[icrate][ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
-      vvhTDCWFDTCorrE[icrate][ich]->GetXaxis()->SetTitle("Energy (ADC)");
+      vvhTDCWFDTCorrE[icrate][ich]->GetYaxis()->SetTitle("Energy (ADC)");
       
     }
   }

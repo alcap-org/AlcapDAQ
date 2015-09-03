@@ -31,8 +31,9 @@ using std::vector;
 using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
-static INT  MTDCHitTime_init(void);
-static INT  MTDCHitTime(EVENT_HEADER*, void*);
+static INT MTDCHitTime_init(void);
+static INT MTDCHitTime(EVENT_HEADER*, void*);
+static INT MTDCHitTime_eor(INT);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -40,6 +41,7 @@ extern TSetupData* gSetup;
 
 using namespace AlCap;
 namespace {
+  TDirectory* DIR;
   TH1* vhTDCHitTime[NCHANTDC];
   std::string TDCBANKS[NCHANTDC];
 }
@@ -50,7 +52,7 @@ ANA_MODULE MTDCHitTime_module =
   "John R Quirk",   /* author                */
   MTDCHitTime,      /* event routine         */
   NULL,             /* BOR routine           */
-  NULL,             /* EOR routine           */
+  MTDCHitTime_eor,  /* EOR routine           */
   MTDCHitTime_init, /* init routine          */
   NULL,             /* exit routine          */
   NULL,             /* parameter structure   */
@@ -60,9 +62,8 @@ ANA_MODULE MTDCHitTime_module =
 
 INT MTDCHitTime_init() {
   TDirectory* cwd = gDirectory;
-  if (!gDirectory->Cd("DataQuality_LowLevel"))
-    gDirectory->mkdir("DataQuality_LowLevel")->cd();
-  gDirectory->mkdir("TDCHitTime")->cd();
+  DIR = gDirectory->mkdir("TDCHitTime");
+  DIR->cd();
 
   // Create a histogram for each detector
   for (int ich = 0; ich < NCHANTDC; ++ich) {
@@ -73,6 +74,23 @@ INT MTDCHitTime_init() {
     sprintf(name, "hTDCHitTime_%s_%s", bank, det.c_str());
     sprintf(title, "TDC block hit times %s;Time (ns)", det.c_str());
     vhTDCHitTime[ich] = new TH1F(name, title, 120.e6/25.e2, 0., 120.e6);
+  }
+  cwd->cd();
+  return SUCCESS;
+}
+
+INT MTDCHitTime_eor(INT run_number) {
+  TDirectory* cwd = gDirectory;
+  DIR->cd();
+  for (int ich = 0; ich < NCHANTDC; ++ich) {
+    TH1* h0 = vhTDCHitTime[ich];
+    string name(h0->GetName());
+    string title(h0->GetTitle());
+    name += "_normalized";
+    title += " (normalized)";
+    TH1* h = (TH1*)h0->Clone(name.c_str());
+    h->SetTitle(title.c_str());
+    h->Scale(1./gData->NMuRun());
   }
   cwd->cd();
   return SUCCESS;

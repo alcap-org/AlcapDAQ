@@ -140,6 +140,16 @@ INT MDQ_Amplitude_eor(INT run_number) {
     h->SetTitle(title.c_str());
     h->Scale(1./gData->NMuRun());
   }
+  for (map<string, TH1F*>::const_iterator ihist = DQ_Amplitude_histograms_ped_sub_map.begin();
+       ihist != DQ_Amplitude_histograms_ped_sub_map.end(); ++ihist) {
+    string name(ihist->second->GetName());
+    string title(ihist->second->GetTitle());
+    name += "_normalised";
+    title += " (normalised)";
+    TH1* h = (TH1*)ihist->second->Clone(name.c_str());
+    h->SetTitle(title.c_str());
+    h->Scale(1./gData->NMuRun());
+  }
 
   cwd->cd();
   return SUCCESS;

@@ -60,13 +60,12 @@ INT MCAENPulseIslandStitch(EVENT_HEADER *pheader, void *pevent) {
     gData->fPulseIslandToChannelMap;
 
   for (map<string, vector<TPulseIsland*> >::iterator i = wfd_map.begin(),
-	 e = wfd_map.begin(); i != e; ++i) {
+	 e = wfd_map.end(); i != e; ++i) {
     const std::string& bank = i->first;
     if (bank[0] == 'D' &&
 	(bank[1] == '4' || bank[1] == '5' ||
 	 bank[1] == '7' || bank[1] == '8'))
-      if (wfd_map.count(bank))
-	stitch(wfd_map[bank]);
+      stitch(i->second);
   }
 
   return SUCCESS;
@@ -79,7 +78,7 @@ void stitch(vector<TPulseIsland*>& pulses) {
       pulses[i]->GetPulseLength() ==
       pulses[i]->GetTimeStamp() - pulses[i-1]->GetTimeStamp();
 
-  for (int i = 0; i < pulses.size()-1; ++i) {
+  for (int i = 0; i < (int)pulses.size()-1; ++i) {
     if (!merge[i+1]) continue;
     const std::vector<int>& s0 = pulses[i]  ->GetSamples();
     const std::vector<int>& s1 = pulses[i+1]->GetSamples();
@@ -89,6 +88,7 @@ void stitch(vector<TPulseIsland*>& pulses) {
     delete pulses[i+1];
     pulses.erase(pulses.begin()+i+1);
     merge.erase(merge.begin()+i+1);
+    --i;
   }
 }
 /// @}
