@@ -72,22 +72,10 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-
-#include "TDirectory.h"
-#include "TFile.h"
-#include "TApplication.h"
-#include "TROOT.h"
-extern TDirectory * gManaHistsDir;
-extern TFile * gManaOutputFile;
-extern TApplication * manaApp;
-extern TROOT * gROOT;
-
 map <std::string, TH2F*> DQ_PulseShapes_histograms_map;
 map <std::string, TH1D*> DQ_PulseShapesProjectionY_histograms_map;
 TH1F* hDQ_PulseShapes_Pedestals;
 TH1F* hDQ_PulseShapes_Noises;
-
-//static int GetLastPresampleBin(std::string bankname);
 
 ANA_MODULE MDQ_PulseShapes_module =
 {
@@ -110,9 +98,8 @@ INT MDQ_PulseShapes_init()
   // See if the DataQuality_LowLevel/ directory already exists
   std::string dir_name("DQ_PulseShapes/");
   if (!gDirectory->Cd(dir_name.c_str())) {
-    gDirectory->mkdir(dir_name.c_str());
+    gDirectory->mkdir(dir_name.c_str())->cd();
   }
-  gDirectory->Cd(dir_name.c_str());
 
   // Create a histogram for each detector
   std::map<std::string, std::string> Bank2DetMap = gSetup->fBankToDetectorMap;
@@ -170,27 +157,22 @@ INT MDQ_PulseShapes_init()
 
 /** This method fills the histograms
  */
-INT MDQ_PulseShapes(EVENT_HEADER *pheader, void *pevent)
-{
-  // Get the event number
-  int midas_event_number = pheader->serial_number;
-
+INT MDQ_PulseShapes(EVENT_HEADER *pheader, void *pevent) {
   // Some typedefs
   typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  typedef map<string, vector<TPulseIsland*> >::const_iterator map_iterator;
 
   // Fetch a reference to the gData structure that stores a map
   // of (bank_name, vector<TPulseIsland*>) pairs
-  TStringPulseIslandMap& pulse_islands_map =
+  const TStringPulseIslandMap& pulse_islands_map =
     gData->fPulseIslandToChannelMap;
 
   // Loop over the map and get each bankname, vector pair
   for (map_iterator mapIter = pulse_islands_map.begin(); 
        mapIter != pulse_islands_map.end(); ++mapIter) {
-    std::string bankname = mapIter->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
-    std::vector<TPulseIsland*> thePulses = mapIter->second;
+    const std::string& bankname = mapIter->first;
+    const std::vector<TPulseIsland*>& thePulses = mapIter->second;
 	  
     if (DQ_PulseShapes_histograms_map.find(bankname) ==
 	DQ_PulseShapes_histograms_map.end()) continue;
@@ -198,19 +180,17 @@ INT MDQ_PulseShapes(EVENT_HEADER *pheader, void *pevent)
     TH2F* hDQ_PulseShapes = DQ_PulseShapes_histograms_map[bankname];
 
     // Loop over the TPulseIslands and plot the histogram
-    for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
-	 pulseIter != thePulses.end(); ++pulseIter) {
+    for (std::vector<TPulseIsland*>::const_iterator pulseIter = thePulses.begin(),
+	   endp = thePulses.end();
+	 pulseIter != endp; ++pulseIter) {
 
       // Fill the Histograms
-
-      const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
-      for (std::vector<int>::const_iterator sampleIter = theSamples.begin(); 
-	   sampleIter != theSamples.end(); ++sampleIter) {
-	int sample_number = sampleIter - theSamples.begin();
-	//int sample_number = 0;
-	int sample_value = *sampleIter;
-	hDQ_PulseShapes->Fill(sample_number,sample_value);
-	
+      const vector<int>& theSamples = (*pulseIter)->GetSamples();
+      for (vector<int>::const_iterator sampleIter = theSamples.begin(),
+	     ends = theSamples.end(); 
+	   sampleIter != ends; ++sampleIter) {
+	const int sample_number = sampleIter - theSamples.begin();
+	hDQ_PulseShapes->Fill(sample_number,*sampleIter);
       }
     }
   }
@@ -244,14 +224,13 @@ INT MDQ_PulseShapes_eor(INT run_number) { // Make projection
       double pedestal = hDQ_Histogram_projY->GetBinCenter(max_bin);
       double pedestal_value = hDQ_Histogram_projY->GetBinContent(max_bin);
       double noise = 0;
-      for (int iBin = max_bin; iBin < hDQ_Histogram_projY->GetNbinsX(); ++iBin)
-	{
-	  double value = hDQ_Histogram_projY->GetBinContent(iBin);
-	  if (value < 0.5*pedestal_value) { // rms as half max
-	    noise = hDQ_Histogram_projY->GetBinCenter(iBin) - pedestal;
-	    break;
-	  }
+      for (int iBin = max_bin; iBin < hDQ_Histogram_projY->GetNbinsX(); ++iBin) {
+	double value = hDQ_Histogram_projY->GetBinContent(iBin);
+	if (value < 0.5*pedestal_value) { // rms as half max
+	  noise = hDQ_Histogram_projY->GetBinCenter(iBin) - pedestal;
+	  break;
 	}
+      }
 
       std::string binlabel = bankname + " (" + detname + ")";
       hDQ_PulseShapes_Pedestals->Fill(binlabel.c_str(), pedestal);
