@@ -127,7 +127,7 @@ INT MDQ_IslandCounter(EVENT_HEADER *pheader, void *pevent) {
     const int n_pulse_islands = mapIter->second.size();
     if (hIslandCounterMap.find(bankname) != hIslandCounterMap.end()) {
       hIslandCounterMap[bankname]->Fill(n_pulse_islands);
-      hIslandRateMap[bankname]->Fill(n_pulse_islands/gData->NMuBlock());
+      hIslandRateMap[bankname]->Fill(n_pulse_islands/(double)gData->NMuBlock());
     }
   }
 
