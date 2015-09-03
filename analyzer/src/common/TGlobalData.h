@@ -61,7 +61,7 @@ class TGlobalData : public TObject{
   int NMuBlock() {return fNMuBlock;}
   int NMuRun() {return fNMuRun;} 
 
-  TGlobalData() : fNMuBlock(0.), fNMuRun(0.) {}
+  TGlobalData() : fNMuBlock(0), fNMuRun(0) {}
 
  private:
   TGlobalData(const TGlobalData&);

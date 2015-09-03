@@ -62,16 +62,11 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-#include "TDirectory.h"
-#include "TFile.h"
-#include "TApplication.h"
-#include "TROOT.h"
-
-map <std::string, TH1F*> DQ_Amplitude_histograms_map;
-map <std::string, TH1F*> DQ_Amplitude_histograms_normalised_map;
-map <std::string, TH1F*> DQ_Amplitude_histograms_ped_sub_map;
-
-extern TH1F* hDQ_TDCCheck_nMuons;
+namespace {
+  TDirectory* DIR;
+  map <string, TH1F*> DQ_Amplitude_histograms_map;
+  map <string, TH1F*> DQ_Amplitude_histograms_ped_sub_map;
+}
 
 ANA_MODULE MDQ_Amplitude_module =
 {
@@ -89,11 +84,10 @@ ANA_MODULE MDQ_Amplitude_module =
 
 /** This method initializes histograms.
 */
-INT MDQ_Amplitude_init()
-{
+INT MDQ_Amplitude_init() {
   TDirectory* cwd = gDirectory;
-  if (!gDirectory->Cd("DQ_Amplitude"))
-    gDirectory->mkdir("DQ_Amplitude/")->cd();
+  DIR = gDirectory->mkdir("DQ_Amplitude/");
+  DIR->cd();
 
   // Create a histogram for each detector
   const std::map<std::string, std::string>& Bank2DetMap =
@@ -119,16 +113,6 @@ INT MDQ_Amplitude_init()
     hDQ_Histogram->GetYaxis()->SetTitle("Counts");
     DQ_Amplitude_histograms_map[bankname] = hDQ_Histogram;
     
-    // The normalised histogram
-    // std::string normhistname = histname + "_normalised";
-    // std::string normhisttitle = histtitle + " (normalised)";
-    // TH1F* hDQ_Histogram_Normalised = new TH1F(normhistname.c_str(), normhisttitle.c_str(), max_adc_value,0,max_adc_value);
-    // hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Amplitude [adc]");
-    // std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
-    // yaxislabel += " per TDC TSc Hit";
-    // hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
-    // DQ_Amplitude_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
-    
     // The pedestal subtracted histogram
     std::string pedsubhistname = histname + "_ped_sub";
     std::string pedsubhisttitle = histtitle + " (pedestal subtracted)";
@@ -142,33 +126,22 @@ INT MDQ_Amplitude_init()
   return SUCCESS;
 }
 
-/** This method does any last minute things to the histograms at the end of the run
- */
 INT MDQ_Amplitude_eor(INT run_number) {
+  TDirectory* cwd = gDirectory;
+  DIR->cd();
   
-  // Some typedefs
-  // typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  // typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  // typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
-  
-  // Fetch a reference to the gData structure that stores a map
-  // of (bank_name, vector<TPulseIsland*>) pairs
-  // TStringPulseIslandMap& pulse_islands_map =
-  //   gData->fPulseIslandToChannelMap;
+  for (map<string, TH1F*>::const_iterator ihist = DQ_Amplitude_histograms_map.begin();
+       ihist != DQ_Amplitude_histograms_map.end(); ++ihist) {
+    string name(ihist->second->GetName());
+    string title(ihist->second->GetTitle());
+    name += "_normalised";
+    title += " (normalised)";
+    TH1* h = (TH1*)ihist->second->Clone(name.c_str());
+    h->SetTitle(title.c_str());
+    h->Scale(1./gData->NMuRun());
+  }
 
-  // Loop over the map and get each bankname, vector pair
-  // for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) {
-
-  //   std::string bankname = mapIter->first;
-  //   std::string detname = gSetup->GetDetectorName(bankname);
-  //   if(TSetupData::IsTDC(bankname)) continue;
-      
-  //   // Make sure the histograms exist and then fill them
-  //   if (DQ_Amplitude_histograms_normalised_map.find(bankname) != DQ_Amplitude_histograms_normalised_map.end()) {
-  //     DQ_Amplitude_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_nMuons->GetEntries());
-  //   }
-  // }
-  
+  cwd->cd();
   return SUCCESS;
 }
 
