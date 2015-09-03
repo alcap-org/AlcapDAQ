@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <string>
 #include <map>
+#include <vector>
 #include <utility>
 #include <sstream>
 #include <cmath>
@@ -120,7 +121,7 @@ INT MDQ_IslandCounter(EVENT_HEADER *pheader, void *pevent) {
   const TStringPulseIslandMap& wfd_map =
     gData->fPulseIslandToChannelMap;
 
-  for (map_iterator mapIter = wfd_map.begin(), end = wfd_map.end;
+  for (map_iterator mapIter = wfd_map.begin(), end = wfd_map.end();
        mapIter != end; ++mapIter) {
     const string& bankname = mapIter->first;
     const int n_pulse_islands = mapIter->second.size();
