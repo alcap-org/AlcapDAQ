@@ -45,7 +45,8 @@ namespace {
   TH1* vvhWFDADCBitFreq[NCRATE][MAXNCHANWFD];
   int NSAMPTOTAL[NCRATE][MAXNCHANWFD] = {};
   std::string BANKS[NCRATE][MAXNCHANWFD];
-  int NBITS[NCRATE][MAXNCHANWFD];
+  int NBITS[NCRATE];
+  int MAXVAL[NCRATE];
 }
 
 ANA_MODULE MWFDADCBitFreq_module =
@@ -68,12 +69,15 @@ INT MWFDADCBitFreq_init() {
   DIR->cd();
 
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
+    const int nbits = gSetup->GetNBits(icrate);
+    NBITS[icrate] = nbits;
+    MAXVAL[icrate] = 0;
+    for (int ibit = 0; ibit < nbits; ++ibit)
+      MAXVAL[icrate] |= 1<<ibit;
     for (int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
       char bank[5]; sprintf(bank, "D%d%02d", icrate, ich);
       BANKS[icrate][ich] = bank;
       const string det = gSetup->GetDetectorName(bank);
-      const int nbits = gSetup->GetNBits(bank);
-      NBITS[icrate][ich] = nbits;
       char name[64], title[128];
       sprintf(name, "hWFDADCFreq_%s_%s", bank, det.c_str());
       sprintf(title, "Bit Frequency %s (%s);Bit", bank, det.c_str());
@@ -104,10 +108,16 @@ INT MWFDADCBitFreq(EVENT_HEADER *pheader, void *pevent) {
 	const vector<int>& samps = (*p)->GetSamples();
 	NSAMPTOTAL[icrate][ich] += samps.size();
 	for (vector<int>::const_iterator s = samps.begin(), es = samps.end();
-	     s != es; ++s)
-	  for (int b = 0; b < NBITS[icrate][ich]; ++b)
-	    if (*s & 1 << b)
-	      h->Fill(b);
+	     s != es; ++s) {
+	  if (*s != 0 && *s != MAXVAL[icrate]) {
+	    for (int b = 0; b < NBITS[icrate]; ++b) {
+	      if (*s & 1 << b)
+		h->Fill(b);
+	    }
+	  } else {
+	    --NSAMPTOTAL[icrate][ich];
+	  }
+	}
       }
     }
   }

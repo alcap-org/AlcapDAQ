@@ -79,6 +79,7 @@ class TSetupData : public TObject{
     return GetValue(fBankToClockTickMap, BankName);
   }
   int GetNBits(const std::string& BankName) const;
+  int GetNBits(const int CrateNumber) const;
   /// Deprecated
   double GetADCSlopeCalib(const std::string& BankName) const {
     return GetValue(fBankToADCSlopeCalibMap, BankName);
