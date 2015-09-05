@@ -65,9 +65,9 @@ extern TSetupData* gSetup;
 
 map <std::string, TH2D*> DQ_Integral_XY;
 map <std::string, TH2F*> DQ_IntegralRatio_PH, DQ_IntegralRatio_E;
-map <std::string, TH1F*> DQ_NeutronEnMeVee, DQ_GammaEnMeVee, DQ_GammaPH, DQ_NeutronPH;
-//map <std::string, TH1F*> DQ_NeutronEnMeVnr;
-map <std::string, TH1D*> DQ_HEFoM;
+map <std::string, TH1F*> DQ_NeutronEnMeVee, DQ_GammaEnMeVee, DQ_Gamma_PH, DQ_Neutron_PH;
+map <std::string, TH1F*> DQ_Neutron_INT, DQ_Gamma_INT;
+map <std::string, TH1F*> DQ_HEFoM;
 
 ANA_MODULE MDQ_IntegralRatio_module = 
   {
@@ -115,14 +115,14 @@ INT MDQ_IntegralRatio_init()
 
       histname = "h" + bankname + "_DQ_IntegralRatio_PH";
       histtitle = "Integral Ratio vs pulse height for " + bankname;
-      TH2F* hDQ_integralPH = new TH2F(histname.c_str(), histtitle.c_str(), max_adc_value/8, 0, max_adc_value, 500, -0, 0.4);
+      TH2F* hDQ_integralPH = new TH2F(histname.c_str(), histtitle.c_str(), max_adc_value/4, 0, max_adc_value, 500, -0, 0.4);
       hDQ_integralPH->GetYaxis()->SetTitle("Integral Ratio");
       hDQ_integralPH->GetXaxis()->SetTitle("pulse height (ADC counts)");
       DQ_IntegralRatio_PH[bankname] = hDQ_integralPH;
 
       histname = "h" + bankname + "_DQ_IntegralRatio_E";
       histtitle = "Integral Ratio vs energy for " + bankname;
-      TH2F* hDQ_integralE = new TH2F(histname.c_str(), histtitle.c_str(), max_adc_value/8, 0, 6.5, 500, -0, 0.4);
+    TH2F* hDQ_integralE = new TH2F(histname.c_str(), histtitle.c_str(), max_adc_value/4, 0, 7.0, 500, -0, 0.4);
       hDQ_integralE->GetYaxis()->SetTitle("Integral Ratio");
       hDQ_integralE->GetXaxis()->SetTitle("Energy (MeVee)");
       DQ_IntegralRatio_E[bankname] = hDQ_integralE;
@@ -135,60 +135,56 @@ INT MDQ_IntegralRatio_init()
 
       */
 
-      histname = "h" + bankname + "_DQ_NeutronPH";
+      histname = "h" + bankname + "_DQ_Neutron_PH";
       histtitle = "Neutron Pulse Heights for " + bankname;
       TH1F* hDQ_neutronPH = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value, 0, max_adc_value);
       hDQ_neutronPH->GetXaxis()->SetTitle("Pulse Height (ADC counts)");
       hDQ_neutronPH->GetYaxis()->SetTitle("count");
-      DQ_NeutronPH[bankname] = hDQ_neutronPH;
+      DQ_Neutron_PH[bankname] = hDQ_neutronPH;
+
+      histname = "h" + bankname + "_DQ_Neutron_INT";
+      histtitle = "Neutron Integral for " + bankname;
+      TH1F* hDQ_neutronINT = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value, 0, max_adc_value * 15);
+      hDQ_neutronINT->GetXaxis()->SetTitle("Full Integral (ADC counts)");
+      hDQ_neutronINT->GetYaxis()->SetTitle("count");
+      DQ_Neutron_INT[bankname] = hDQ_neutronINT;
       
       histname = "h" + bankname + "_DQ_NeutronEnMeVee";
       histtitle = "Neutron Energy in MeVee for " + bankname;
-      TH1F* hDQ_neutronEnMeVee = new TH1F(histname.c_str(), histtitle.c_str(), 800, 0, 10.0125);
+      TH1F* hDQ_neutronEnMeVee = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value, 0, 7.0);
       hDQ_neutronEnMeVee->GetXaxis()->SetTitle("Neutron Energy  (MeVee)");
       hDQ_neutronEnMeVee->GetYaxis()->SetTitle("count");
       DQ_NeutronEnMeVee[bankname] = hDQ_neutronEnMeVee;
-      /*
-      histname = "h" + bankname + "_DQ_NeutronEnMeVnr";
-      histtitle = "Neutron Energy in MeVnr for " + bankname;
-      TH1F* hDQ_neutronEnMeVnr = new TH1F(histname.c_str(), histtitle.c_str(), 200, 0, 12);
-      hDQ_neutronEnMeVnr->GetXaxis()->SetTitle("Neutron Energy  (MeVnr)");
-      hDQ_neutronEnMeVnr->GetYaxis()->SetTitle("count");
-      DQ_NeutronEnMeVnr[bankname] = hDQ_neutronEnMeVnr;
-      */
-      histname = "h" + bankname + "_DQ_GammaPH";
+
+      histname = "h" + bankname + "_DQ_Gamma_PH";
       histtitle = "Gamma Pulse Heights for " + bankname;
       TH1F* hDQ_gammaPH = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value, 0, max_adc_value);
       hDQ_gammaPH->GetXaxis()->SetTitle("Pulse Height (ADC counts)");
       hDQ_gammaPH->GetYaxis()->SetTitle("count");
-      DQ_GammaPH[bankname] = hDQ_gammaPH;
+      DQ_Gamma_PH[bankname] = hDQ_gammaPH;
+
+      histname = "h" + bankname + "_DQ_Gamma_INT";
+      histtitle = "Gamma Integral for " + bankname;
+      TH1F* hDQ_gammaINT = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value, 0, max_adc_value * 15);
+      hDQ_gammaINT->GetXaxis()->SetTitle("Full Integral (ADC counts)");
+      hDQ_gammaINT->GetYaxis()->SetTitle("count");
+      DQ_Gamma_INT[bankname] = hDQ_gammaINT;
 
       histname = "h" + bankname + "_DQ_GammaEnMeVee";
       histtitle = "Gamma Energy for " + bankname;
-      TH1F* hDQ_gammaEnMeVee = new TH1F(histname.c_str(), histtitle.c_str(), 200, 0, 12);
+      TH1F* hDQ_gammaEnMeVee = new TH1F(histname.c_str(), histtitle.c_str(), max_adc_value, 0, 7.0);
       hDQ_gammaEnMeVee->GetXaxis()->SetTitle("Gamma Energy (MeV)");
       hDQ_gammaEnMeVee->GetYaxis()->SetTitle("count");
       DQ_GammaEnMeVee[bankname] = hDQ_gammaEnMeVee;
-    
+
+
+      histname = "h" + bankname + "_HE_FoM";
+      histtitle = "FoM for " + detname + " from 1 to 6 MeVee";
+      TH1F* hDQ_HEFoM = new TH1F(histname.c_str(), histtitle.c_str(), 500, 0, 0.4);
+      hDQ_HEFoM->GetXaxis()->SetTitle("Integral Ratio(PSD parameter)");
+      hDQ_HEFoM->GetYaxis()->SetTitle("arbitrary units");
+      DQ_HEFoM[bankname] = hDQ_HEFoM;
     }
-
-  //gDirectory->Cd("../DataQuality_LowLevel/");
-  for(std::map<std::string, std::string>::iterator mapIter = bankDetMap.begin(); mapIter != bankDetMap.end(); mapIter++){
-
-    std::string bankname = mapIter->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
-      
-    if(!gSetup->IsNeutron(detname)) continue;
-
-
-    std::string histname = "h" + bankname + "_HE_FoM";
-    std::string histtitle = "FoM for " + detname + " from 1 to 6 MeVee";
-    TH1D* hDQ_HEFoM = new TH1D(histname.c_str(), histtitle.c_str(), 500, 0, 0.4);
-    hDQ_HEFoM->GetXaxis()->SetTitle("Integral Ratio(PSD parameter)");
-    hDQ_HEFoM->GetYaxis()->SetTitle("arbitrary units");
-    DQ_HEFoM[bankname] = hDQ_HEFoM;
-  }
-
 
   //Return to root directory
   gDirectory->Cd("/MidasHists/");
@@ -259,9 +255,10 @@ INT MDQ_IntegralRatio(EVENT_HEADER *pheader, void *pevent)
 	  int tstop = max_sample + 80;
 
 	  //integrate and get ratio
-	  double lInt = 0, sInt=0;
+	  double lInt = 0, sInt=0, fullInt = 0;
 	  for(std::vector<int>::const_iterator sIter = samples.begin(); sIter != samples.end(); ++sIter)
 	    {
+	      fullInt += trigger_polarity*((*sIter) - pedestal);
 	      if((std::distance(samples.begin(), sIter) > tLstart) && (std::distance(samples.begin(), sIter) < tstop))
 		{
 		  lInt += trigger_polarity*((*sIter)- pedestal);
@@ -315,12 +312,13 @@ INT MDQ_IntegralRatio(EVENT_HEADER *pheader, void *pevent)
 
 	  // Damien's initial PSD based on AmBe data
 	  if(neutron) {
-	    DQ_NeutronPH[bankname]->Fill(pulse_height);
+	    DQ_Neutron_PH[bankname]->Fill(pulse_height);
+	    DQ_Neutron_INT[bankname]->Fill(fullInt);
 	    DQ_NeutronEnMeVee[bankname]->Fill(energyMevee);
-	    //DQ_NeutronEnMeVnr[bankname]->Fill(energyMevnr);
 	  }
 	  else {
-	    DQ_GammaPH[bankname]->Fill(pulse_height);
+	    DQ_Gamma_PH[bankname]->Fill(pulse_height);
+	    DQ_Gamma_INT[bankname]->Fill(fullInt);
 	    DQ_GammaEnMeVee[bankname]->Fill(energyMevee);
 	  }
 	} // pIter
