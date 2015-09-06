@@ -55,11 +55,21 @@ class TGlobalData : public TObject{
   /// To use, add to all times in the crate.
   std::vector<double> fTDCSynchronizationPulseOffset;
 
-  TGlobalData(){}
+  void SetNMuBlock(int n) {
+    fNMuRun += (fNMuBlock = n);
+  }
+  int NMuBlock() {return fNMuBlock;}
+  int NMuRun() {return fNMuRun;} 
+
+  TGlobalData() : fNMuBlock(0), fNMuRun(0) {}
+
  private:
   TGlobalData(const TGlobalData&);
   TGlobalData operator=(const TGlobalData&);
 
-  ClassDef(TGlobalData, 5)
+  int fNMuBlock; //! Don't save
+  int fNMuRun;   //! Don't save
+
+  ClassDef(TGlobalData, 6)
 };
 #endif

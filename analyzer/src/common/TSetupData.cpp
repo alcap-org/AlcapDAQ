@@ -26,13 +26,19 @@ void TSetupData::GetAllDetectors(std::vector<std::string>& detectors)const{
 }
 
 int TSetupData::GetNBits(const std::string& bk)const{
-  if (bk[0] == 'D') { // Digitizer bank names
-    if      (bk[1] == '4') return 14; // CAEN V1724
-    else if (bk[1] == '5') return 12; // CAEN DT5720
-    else if (bk[1] == '7') return 14; // CAEN DT5730
-    else if (bk[1] == '8') return 12; // CAEN V1720
-  }
+  if (bk[0] == 'D')
+    return GetNBits(bk[1] - '0');
   return -1;
+}
+
+int TSetupData::GetNBits(const int crate) const {
+  switch (crate) {
+  case 4: return 14;
+  case 5: return 12;
+  case 7: return 14;
+  case 8: return 12;
+  default: return -1;
+  }
 }
 
 #ifdef ROOT_VERSION

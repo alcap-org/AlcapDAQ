@@ -22,180 +22,120 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /* Standard includes */
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 #include <string>
 #include <map>
-#include <utility>
-#include <sstream>
-#include <cmath>
 
 /* MIDAS includes */
 #include "midas.h"
 
 /* ROOT includes */
 #include <TH1.h>
-#include <TH2.h>
 #include <TDirectory.h>
 
 /* AlCap includes */
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "TPulseIsland.h"
+#include "TDirectory.h"
 
 using std::string;
 using std::map;
 using std::vector;
-using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
-INT  MDQ_IslandLength_init(void);
-INT  MDQ_IslandLength(EVENT_HEADER*, void*);
-INT  MDQ_IslandLength_eor(INT);
+INT MDQ_IslandLength_init(void);
+INT MDQ_IslandLength(EVENT_HEADER*, void*);
+INT MDQ_IslandLength_eor(INT);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-map <std::string, TH1F*> DQ_IslandLength_histograms_map;
-map <std::string, TH1F*> DQ_IslandLength_histograms_normalised_map;
-
-extern TH1F* hDQ_TDCCheck_nMuons;
+namespace {
+  map <string, TH1F*> hIslandLengthMap;
+  TDirectory* DIR;
+}
 
 ANA_MODULE MDQ_IslandLength_module =
 {
-	"MDQ_IslandLength",                    /* module name           */
-	"Nam Tran",              /* author                */
-	MDQ_IslandLength,                      /* event routine         */
-	NULL,                          /* BOR routine           */
-	MDQ_IslandLength_eor,                          /* EOR routine           */
-	MDQ_IslandLength_init,                 /* init routine          */
-	NULL,                          /* exit routine          */
-	NULL,                          /* parameter structure   */
-	0,                             /* structure size        */
-	NULL,                          /* initial parameters    */
+  "MDQ_IslandLength",    /* module name           */
+  "Nam Tran",            /* author                */
+  MDQ_IslandLength,      /* event routine         */
+  NULL,                  /* BOR routine           */
+  MDQ_IslandLength_eor,  /* EOR routine           */
+  MDQ_IslandLength_init, /* init routine          */
+  NULL,                  /* exit routine          */
+  NULL,                  /* parameter structure   */
+  0,                     /* structure size        */
+  NULL,                  /* initial parameters    */
 };
 
-/** This method initializes histograms.
-*/
-INT MDQ_IslandLength_init()
-{
-  // See if the DataQuality_LowLevel/ directory already exists
-  std::string dir_name("DQ_IslandLength/");
-  if (!gDirectory->Cd(dir_name.c_str())) {
-    gDirectory->mkdir(dir_name.c_str());
-    gDirectory->Cd(dir_name.c_str());
-  }
+INT MDQ_IslandLength_init() {
+  TDirectory* cwd = gDirectory;
+  DIR = gDirectory->mkdir("DQ_IslandLength");
+  DIR->cd();
 
+  map<string, string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(map<string, string>::iterator mapIter = bank_to_detector_map.begin(); 
+      mapIter != bank_to_detector_map.end(); ++mapIter) { 
 
-  // Create a histogram for each detector
-  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
-  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
-      mapIter != bank_to_detector_map.end(); mapIter++) { 
-
-    std::string bankname = mapIter->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
+    const std::string bankname = mapIter->first;
+    const std::string detname = gSetup->GetDetectorName(bankname);
     if(TSetupData::IsTDC(bankname)) continue;
 
-    // hDQ_IslandLength_[DetName]_[BankName]
-    std::string histname = "hDQ_IslandLength_" + detname + "_" + bankname;
-    std::string histtitle = "Length of each TPulseIsland in " + detname;
-    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
-				1000, 0, 1000);
-    hDQ_Histogram->GetXaxis()->SetTitle("Length [samples]");
-    hDQ_Histogram->GetYaxis()->SetTitle("Number of Islands");
-    DQ_IslandLength_histograms_map[bankname] = hDQ_Histogram;
-
-    // The normalised histogram
-    histname += "_normalised";
-    histtitle += " (normalised)";
-    TH1F* hDQ_Histogram_Normalised = new TH1F(histname.c_str(), histtitle.c_str(), 1000,0,1000);
-    hDQ_Histogram_Normalised->GetXaxis()->SetTitle("Length [samples]");
-    std::string yaxislabel = hDQ_Histogram->GetYaxis()->GetTitle();
-    yaxislabel += " per TDC TSc Hit";
-    hDQ_Histogram_Normalised->GetYaxis()->SetTitle(yaxislabel.c_str());
-    DQ_IslandLength_histograms_normalised_map[bankname] = hDQ_Histogram_Normalised;
+    const std::string histname = "IslandLength_" + detname + "_" + bankname;
+    const std::string histtitle = "Length of each TPulseIsland in " + detname;
+    TH1F* hist = new TH1F(histname.c_str(), histtitle.c_str(), 1000, 0, 1000);
+    hist->GetXaxis()->SetTitle("Length [samples]");
+    hist->GetYaxis()->SetTitle("Number of Islands");
+    hIslandLengthMap[bankname] = hist;
   }
 
-  gDirectory->Cd("/MidasHists/");
+  cwd->cd();
   return SUCCESS;
 }
 
-/** This method does any last minute things to the histograms at the end of the run
- */
 INT MDQ_IslandLength_eor(INT run_number) {
+  TDirectory* cwd = gDirectory;
+  DIR->cd();
 
-  // Some typedefs
+  for (map<string, TH1F*>::const_iterator ihist = hIslandLengthMap.begin(),
+	 end = hIslandLengthMap.end(); ihist != end; ++ihist) {
+    const TH1* h0 = ihist->second;
+    std::string name(h0->GetName());
+    std::string title(h0->GetTitle());
+    name += "_norm";
+    title += " (normalized)";
+    TH1* hist = (TH1*)h0->Clone(name.c_str());
+    hist->SetTitle(title.c_str());
+    hist->Scale(1./gData->NMuRun());
+  }
+  cwd->cd();
+  return SUCCESS;
+}
+
+
+INT MDQ_IslandLength(EVENT_HEADER *pheader, void *pevent) {
   typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  typedef map<string, vector<TPulseIsland*> >::const_iterator map_iterator;
   
-  // Fetch a reference to the gData structure that stores a map
-  // of (bank_name, vector<TPulseIsland*>) pairs
-  TStringPulseIslandMap& pulse_islands_map =
+  const TStringPulseIslandMap& pulse_islands_map =
     gData->fPulseIslandToChannelMap;
 
-  // Loop over the map and get each bankname, vector pair
-  for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) {
-
-    std::string bankname = mapIter->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
-    if(TSetupData::IsTDC(bankname)) continue;
-      
-    // Make sure the histograms exist and then fill them
-    if (DQ_IslandLength_histograms_normalised_map.find(bankname) != DQ_IslandLength_histograms_normalised_map.end()) {
-      DQ_IslandLength_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_nMuons->GetEntries());
-    }
+  for (map_iterator mapIter = pulse_islands_map.begin(); 
+       mapIter != pulse_islands_map.end(); ++mapIter)  {
+    const string& bankname = mapIter->first;
+    if (hIslandLengthMap.find(bankname) == hIslandLengthMap.end()) continue;
+    const vector<TPulseIsland*>& thePulses = mapIter->second;
+    TH1F* hist = hIslandLengthMap.at(bankname);
+    
+    for (vector<TPulseIsland*>::const_iterator pulseIter = thePulses.begin(),
+	   end = thePulses.end(); pulseIter != end; ++pulseIter)
+      hist->Fill((*pulseIter)->GetPulseLength());
   }
-
-  return SUCCESS;
-}
-
-
-/** This method fills the histograms
- */
-INT MDQ_IslandLength(EVENT_HEADER *pheader, void *pevent)
-{
-	// Get the event number
-	int midas_event_number = pheader->serial_number;
-
-	// Some typedefs
-	typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-	typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-	typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
-
-	// Fetch a reference to the gData structure that stores a map
-	// of (bank_name, vector<TPulseIsland*>) pairs
-	TStringPulseIslandMap& pulse_islands_map =
-		gData->fPulseIslandToChannelMap;
-
-	// Loop over the map and get each bankname, vector pair
-	for (map_iterator mapIter = pulse_islands_map.begin(); 
-			mapIter != pulse_islands_map.end(); ++mapIter) 
-	{
-	  std::string bankname = mapIter->first;
-	  if(TSetupData::IsTDC(bankname)) continue;
-	  std::string detname = gSetup->GetDetectorName(bankname);
-	  std::vector<TPulseIsland*> thePulses = mapIter->second;
-	  
-	  // Get the histograms before looping through the pulses
-	  TH1F* hDQ_IslandLength = DQ_IslandLength_histograms_map[bankname];
-	  TH1F* hDQ_IslandLength_Norm = DQ_IslandLength_histograms_normalised_map[bankname];
-	  
-	  // Loop over the TPulseIslands and plot the histogram
-	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
-				pulseIter != thePulses.end(); ++pulseIter) {
-
-	    // Make sure the histograms exist and then fill them
-	    if (DQ_IslandLength_histograms_map.find(bankname) != DQ_IslandLength_histograms_map.end()) 
-	      { 
-		const std::vector<int>& theSamples = (*pulseIter)->GetSamples();
-		hDQ_IslandLength->Fill(theSamples.size());
-		hDQ_IslandLength_Norm->Fill(theSamples.size());
-	    }
-	  }
-	}
-	return SUCCESS;
+    return SUCCESS;
 }
 
 /// @}

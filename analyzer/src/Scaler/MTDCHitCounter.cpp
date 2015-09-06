@@ -31,8 +31,8 @@ using std::vector;
 using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
-static INT  MTDCHitCounter_init(void);
-static INT  MTDCHitCounter(EVENT_HEADER*, void*);
+static INT MTDCHitCounter_init(void);
+static INT MTDCHitCounter(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -40,7 +40,9 @@ extern TSetupData* gSetup;
 
 using namespace AlCap;
 namespace {
+  TDirectory* DIR;
   TH1* vhTDCHitCounter[NCHANTDC];
+  TH1* vhTDCHitRates[NCHANTDC];
   std::string TDCBANKS[NCHANTDC];
 }
 
@@ -60,19 +62,24 @@ ANA_MODULE MTDCHitCounter_module =
 
 INT MTDCHitCounter_init() {
   TDirectory* cwd = gDirectory;
-  if (!gDirectory->Cd("DataQuality_LowLevel"))
-    gDirectory->mkdir("DataQuality_LowLevel")->cd();
-  gDirectory->mkdir("TDCHitCounter")->cd();
+  DIR = gDirectory->mkdir("TDCHitCounter");
+  DIR->cd();
 
   // Create a histogram for each detector
   for (int ich = 0; ich < NCHANTDC; ++ich) {
     char bank[5]; sprintf(bank, "T4%02d", ich);
     const string det = gSetup->GetDetectorName(bank);
     TDCBANKS[ich] = bank;
+
     char name[64], title[128];
     sprintf(name, "hTDCHitCounter_%s_%s", bank, det.c_str());
     sprintf(title, "TDC hits per block %s;Hits", det.c_str());
     vhTDCHitCounter[ich] = new TH1F(name, title, 10000, 0., 10000.);
+
+    sprintf(name, "hTDCHitRate_%s_%s", bank, det.c_str());
+    sprintf(title, "TDC rates per block %s;Hits", det.c_str());
+    vhTDCHitRates[ich] = new TH1F(name, title, 10000, 0., 10.);
+    
   }
   cwd->cd();
   return SUCCESS;
@@ -81,9 +88,15 @@ INT MTDCHitCounter_init() {
 INT MTDCHitCounter(EVENT_HEADER *pheader, void *pevent) {
   const map< string, vector<int64_t> >& tdc_map = gData->fTDCHitsToChannelMap;
 
-  for (int ich = 0; ich < NCHANTDC; ++ich)
-    if (tdc_map.count(TDCBANKS[ich]))
-      vhTDCHitCounter[ich]->Fill(tdc_map.at(TDCBANKS[ich]).size());
+  for (int ich = 0; ich < NCHANTDC; ++ich) {
+    if (tdc_map.count(TDCBANKS[ich])) {
+      if (tdc_map.count(TDCBANKS[ich])) {
+	const int n = tdc_map.at(TDCBANKS[ich]).size();
+	vhTDCHitCounter[ich]->Fill(n);
+	vhTDCHitRates[ich]->Fill(n/(double)gData->NMuBlock());
+      }
+    }
+  }
 
   return SUCCESS;
 }

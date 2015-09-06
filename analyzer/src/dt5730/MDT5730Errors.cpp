@@ -50,9 +50,7 @@ enum BOARDERROR {
 
 INT MDT5730Errors_init() {
   TDirectory* cwd = gDirectory;
-  if (!gDirectory->Cd("DataQuality_LowLevel"))
-    gDirectory->mkdir("DataQuality_LowLevel/")->cd();
-  //gDirectory->mkdir("DT5730Errors/")->cd();
+  gDirectory->mkdir("DT5730Errors/")->cd();
 
   hDT5730Errors = new TH1F("hDT5730Errors", "Errors in DT5730", 5, 0., 5.);
   hDT5730Errors->GetXaxis()->SetBinLabel(PLL_LOSS, "PLL Loss");
@@ -74,7 +72,7 @@ INT MDT5730Errors_bor(INT run_number) {
 
 INT MDT5730Errors(EVENT_HEADER *pheader, void *pevent) {
   BYTE* pdata;
-  std::string bank("CNS1");
+  const static std::string bank("CNS1");
   const int bank_len = bk_locate(pevent, bank.c_str(), &pdata);
   if (bank_len > 0) {
     if (pdata[0])

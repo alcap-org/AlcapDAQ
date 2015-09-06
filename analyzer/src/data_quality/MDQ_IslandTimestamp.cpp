@@ -37,6 +37,7 @@
 #include <TDirectory.h>
 
 /* AlCap includes */
+#include "AlCap.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "TPulseIsland.h"
@@ -55,10 +56,11 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-map <std::string, TH1F*> DQ_IslandTimestamp_histograms_map;
-map <std::string, TH1F*> DQ_IslandTimestamp_histograms_normalised_map;
-
-extern TH1F* hDQ_TDCCheck_nMuons;
+using namespace AlCap;
+namespace {
+  map <string, TH1F*> DQ_IslandTimestamp_histograms_map;
+  map <string, TH1F*> DQ_IslandTimestamp_histograms_normalised_map;
+}
 
 ANA_MODULE MDQ_IslandTimestamp_module =
 {
@@ -81,18 +83,18 @@ INT MDQ_IslandTimestamp_init()
   // See if the DataQuality_LowLevel/ directory already exists
   if (!gDirectory->Cd("DQ_IslandTimestamp")) {
     
-    std::string dir_name("DQ_IslandTimestamp/");
+    string dir_name("DQ_IslandTimestamp/");
     gDirectory->mkdir(dir_name.c_str());
     gDirectory->Cd(dir_name.c_str());
   }
 
   // Create a histogram for each detector
-  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
-  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
+  map<string, string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  for(map<string, string>::iterator mapIter = bank_to_detector_map.begin(); 
       mapIter != bank_to_detector_map.end(); mapIter++) { 
 
-    std::string bankname = mapIter->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
+    string bankname = mapIter->first;
+    string detname = gSetup->GetDetectorName(bankname);
     if(TSetupData::IsTDC(bankname)) continue;
 
     double bin_width = gSetup->GetClockTick(bankname) * 1000;
@@ -130,23 +132,22 @@ INT MDQ_IslandTimestamp_eor(INT run_number) {
   // Some typedefs
   typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-  typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  typedef map<string, vector<TPulseIsland*> >::const_iterator map_iterator;
   
   // Fetch a reference to the gData structure that stores a map
   // of (bank_name, vector<TPulseIsland*>) pairs
-  TStringPulseIslandMap& pulse_islands_map =
+  const TStringPulseIslandMap& pulse_islands_map =
     gData->fPulseIslandToChannelMap;
 
   // Loop over the map and get each bankname, vector pair
   for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) {
 
-    std::string bankname = mapIter->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
+    const std::string& bankname = mapIter->first;
     if(TSetupData::IsTDC(bankname)) continue;      
 
     // Make sure the histograms exist and then fill them
     if (DQ_IslandTimestamp_histograms_normalised_map.find(bankname) != DQ_IslandTimestamp_histograms_normalised_map.end()) {
-      DQ_IslandTimestamp_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_nMuons->GetEntries());
+      DQ_IslandTimestamp_histograms_normalised_map[bankname]->Scale(1./gData->NMuRun());
     }
   }
 
@@ -163,32 +164,31 @@ INT MDQ_IslandTimestamp(EVENT_HEADER *pheader, void *pevent)
 	// Some typedefs
 	typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
 	typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
-	typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
+	typedef map<string, vector<TPulseIsland*> >::const_iterator map_iterator;
 
 	// Fetch a reference to the gData structure that stores a map
 	// of (bank_name, vector<TPulseIsland*>) pairs
-	TStringPulseIslandMap& pulse_islands_map =
-		gData->fPulseIslandToChannelMap;
+	const TStringPulseIslandMap& pulse_islands_map =
+	  gData->fPulseIslandToChannelMap;
 
 	// Loop over the map and get each bankname, vector pair
 	for (map_iterator mapIter = pulse_islands_map.begin(); mapIter != pulse_islands_map.end(); ++mapIter) 
 	{
-	  std::string bankname = mapIter->first;
-	  std::string detname = gSetup->GetDetectorName(bankname);
+	  const string& bankname = mapIter->first;
 	  if(TSetupData::IsTDC(bankname)) continue;
-	  std::vector<TPulseIsland*> thePulses = mapIter->second;
+	  const vector<TPulseIsland*>& thePulses = mapIter->second;
 
 	  // Get the histograms before looping through the pulses
 	  TH1F* hDQ_IslandTimestamp = DQ_IslandTimestamp_histograms_map[bankname];
 	  TH1F* hDQ_IslandTimestamp_Norm = DQ_IslandTimestamp_histograms_normalised_map[bankname];
 			
 	  // Loop over the TPulseIslands and plot the histogram
-	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
+	  for (vector<TPulseIsland*>::const_iterator pulseIter = thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
 
 	    // Make sure the histograms exist and then fill them
 	    if (DQ_IslandTimestamp_histograms_map.find(bankname) != DQ_IslandTimestamp_histograms_map.end()) {
 	      int time_stamp = (*pulseIter)->GetTimeStamp();
-	      double clock_tick_in_ns = (*pulseIter)->GetClockTickInNs();
+	      double clock_tick_in_ns = TICKWFD[atoi(bankname[1])];
 	      double block_time = time_stamp * clock_tick_in_ns;
 
 	      hDQ_IslandTimestamp->Fill(block_time);

@@ -18,6 +18,7 @@
 
 /* ROOT includes */
 #include "TH1D.h"
+#include "TDirectory.h"
 
 //JG: added alcap includes
 /* AlCap includes */
@@ -34,8 +35,6 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-/// \brief
-/// List of BU CAEN bank names for the event loop.
 using namespace AlCap;
 namespace {
   const double TIME_LOW = -20e3, TIME_HIGH = 20e3;
@@ -59,6 +58,9 @@ ANA_MODULE MTScTCorrWFD_module =
 
 /*--module init routine --------------------------------------------*/
 INT MTScTCorrWFD_init() {
+  TDirectory* cwd = gDirectory;
+  gDirectory->mkdir("TScTCorrWFD")->cd();
+
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
     for (int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
       char bank[5]; sprintf(bank, "D%d%02d", icrate, ich);
@@ -69,6 +71,7 @@ INT MTScTCorrWFD_init() {
       WFDBANKS[icrate][ich] = bank;
     }
   }
+  cwd->cd();
   return SUCCESS;
 }
 

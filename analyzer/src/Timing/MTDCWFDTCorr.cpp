@@ -44,7 +44,7 @@ static INT MTDCWFDTCorr_init(void);
 static INT MTDCWFDTCorr(EVENT_HEADER*, void*);
 
 namespace {
-  const double TIME_LOW = -1e3, TIME_HIGH = 1e3; //ns
+  const double TIME_LOW = -1e3, TIME_HIGH = 2e4; //ns
   TH2* vvhTDCWFDTCorrT[NCRATE][MAXNCHANWFD];
   TH2* vvhTDCWFDTCorrE[NCRATE][MAXNCHANWFD];
   string WFD_TDC_BANK[NCRATE][MAXNCHANWFD];
@@ -68,8 +68,6 @@ ANA_MODULE MTDCWFDTCorr_module =
 /*--module init routine --------------------------------------------*/
 INT MTDCWFDTCorr_init() {
   TDirectory* cwd = gDirectory;
-  if (!gDirectory->Cd("DataQuality_LowLevel"))
-    gDirectory->mkdir("DataQuality_LowLevel/")->cd();
   gDirectory->mkdir("TDCWFDTCorr/")->cd();
 
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
@@ -98,11 +96,11 @@ INT MTDCWFDTCorr_init() {
       sprintf(hist, "hTDCWFDTCorrT_%s", det.c_str());
       vvhTDCWFDTCorrT[icrate][ich] = new TH2D(hist, hist, 2000, TIME_LOW, TIME_HIGH, 1000, 0., 100.e6);
       vvhTDCWFDTCorrT[icrate][ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
-      vvhTDCWFDTCorrT[icrate][ich]->GetXaxis()->SetTitle("TDC Block Time (ns)");
+      vvhTDCWFDTCorrT[icrate][ich]->GetYaxis()->SetTitle("TDC Block Time (ns)");
       sprintf(hist, "hTDCWFDTCorrE_%s", det.c_str());
       vvhTDCWFDTCorrE[icrate][ich] = new TH2D(hist, hist, 2000, TIME_LOW, TIME_HIGH, emax, 0., emax);
       vvhTDCWFDTCorrE[icrate][ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
-      vvhTDCWFDTCorrE[icrate][ich]->GetXaxis()->SetTitle("Energy (ADC)");
+      vvhTDCWFDTCorrE[icrate][ich]->GetYaxis()->SetTitle("Energy (ADC)");
       
     }
   }
@@ -132,9 +130,8 @@ INT MTDCWFDTCorr(EVENT_HEADER *pheader, void *pevent) {
 
       const vector<int64_t>&       times  = tdc_map.at(tdc_bank);
       const vector<TPulseIsland*>& pulses = wfd_map.at(wfd_bank);
-      //printf("%s: %d, %s: %d, toff: %g\n", tdc_bank.c_str(), times.size(), wfd_bank.c_str(), pulses.size(), toff);
-      for (int t = 0; t < times.size(); ++t) {
-        for (int p = 0; p < pulses.size(); ++p) {
+      for (int t = 0, p0 = 0; t < times.size(); ++t) {
+        for (int p = p0; p < pulses.size(); ++p) {
           const double dt = TICKTDC*times[t] -
                             TICKWFD[icrate]*pulses[p]->GetTimeStamp() -
 	                    toff;
@@ -143,6 +140,8 @@ INT MTDCWFDTCorr(EVENT_HEADER *pheader, void *pevent) {
           } else if (dt < TIME_HIGH) {
             vvhTDCWFDTCorrT[icrate][ich]->Fill(dt, TICKTDC*times[t]);
             vvhTDCWFDTCorrE[icrate][ich]->Fill(dt, pulses[p]->GetPulseHeight());
+	  } else {
+	    ++p0;
 	  }
         }
       }
