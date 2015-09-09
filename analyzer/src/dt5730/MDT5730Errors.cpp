@@ -9,50 +9,59 @@ Contents:     Look at PLL lock and board full bits
 
 /* Standard includes */
 #include <stdio.h>
+#include <string>
 
 /* MIDAS includes */
 #include "midas.h"
 
 /* ROOT includes */
-#include <TH1.h>
+#include "TH1D.h"
 #include "TDirectory.h"
+
+/* AlCap includes */
+#include "TGlobalData.h"
 
 /*-- Module declaration --------------------------------------------*/
 INT MDT5730Errors_init(void);
 INT MDT5730Errors_bor(INT);
+INT MDT5730Errors_eor(INT);
 INT MDT5730Errors(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
-
-static TH1* hDT5730Errors;
+extern TGlobalData* gData;
 
 ANA_MODULE MDT5730Errors_module =
 {
-	"MDT5730Errors",    /* module name           */
-	"John R Quirk",     /* author                */
-	MDT5730Errors,      /* event routine         */
-	MDT5730Errors_bor,  /* BOR routine           */
-	NULL,               /* EOR routine           */
-	MDT5730Errors_init, /* init routine          */
-	NULL,               /* exit routine          */
-	NULL,               /* parameter structure   */
-	0,                  /* structure size        */
-	NULL,               /* initial parameters    */
+  "MDT5730Errors",    /* module name           */
+  "John R Quirk",     /* author                */
+  MDT5730Errors,      /* event routine         */
+  MDT5730Errors_bor,  /* BOR routine           */
+  MDT5730Errors_eor,  /* EOR routine           */
+  MDT5730Errors_init, /* init routine          */
+  NULL,               /* exit routine          */
+  NULL,               /* parameter structure   */
+  0,                  /* structure size        */
+  NULL,               /* initial parameters    */
 };
 
-enum BOARDERROR {
-  PLL_LOSS = 1,
-  BOARD_FULL = 2,
-  INTERNAL_TIMEOUT = 3,
-  OVER_TEMPERATURE = 4,
-  NO_ADC_POWER = 5
-};
+namespace {
+  enum BOARDERROR {
+    PLL_LOSS = 1,
+    BOARD_FULL = 2,
+    INTERNAL_TIMEOUT = 3,
+    OVER_TEMPERATURE = 4,
+    NO_ADC_POWER = 5
+  };
+  TDirectory* DIR;
+  TH1* hDT5730Errors;
+}
 
 INT MDT5730Errors_init() {
   TDirectory* cwd = gDirectory;
-  gDirectory->mkdir("DT5730Errors/")->cd();
+  DIR = gDirectory->mkdir("DT5730Errors/");
+  DIR->cd();
 
-  hDT5730Errors = new TH1F("hDT5730Errors", "Errors in DT5730", 5, 0., 5.);
+  hDT5730Errors = new TH1D("hDT5730Errors", "Errors in DT5730", 5, 0., 5.);
   hDT5730Errors->GetXaxis()->SetBinLabel(PLL_LOSS, "PLL Loss");
   hDT5730Errors->GetXaxis()->SetBinLabel(BOARD_FULL, "Board Full");
   hDT5730Errors->GetXaxis()->SetBinLabel(INTERNAL_TIMEOUT, "Internal Communication Timeout");
@@ -67,6 +76,19 @@ INT MDT5730Errors_init() {
 
 INT MDT5730Errors_bor(INT run_number) {
   hDT5730Errors->Reset();
+  return SUCCESS;
+}
+
+INT MDT5730Errors_eor(INT run_number) {
+  TDirectory* cwd = gDirectory;
+  DIR->cd();
+  std::string name  = hDT5730Errors->GetName();
+  std::string title = hDT5730Errors->GetTitle();
+  name += "_normalized"; title += " (normalized)";
+  TH1* h = (TH1*)hDT5730Errors->Clone(name.c_str());
+  h->SetTitle(title.c_str());
+  h->Scale(1./gData->NBlocks());
+  cwd->cd();
   return SUCCESS;
 }
 

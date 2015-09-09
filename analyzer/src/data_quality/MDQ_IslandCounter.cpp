@@ -63,6 +63,7 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 namespace {
+  TDirectory* DIR;
   map <string, TH1F*> hIslandCounterMap;
   map <string, TH1F*> hIslandRateMap;
 }
@@ -73,7 +74,7 @@ ANA_MODULE MDQ_IslandCounter_module =
   "Andrew Edmonds",       /* author                */
   MDQ_IslandCounter,      /* event routine         */
   NULL,                   /* BOR routine           */
-  NULL,                   /* EOR routine           */
+  MDQ_IslandCounter_eor,  /* EOR routine           */
   MDQ_IslandCounter_init, /* init routine          */
   NULL,                   /* exit routine          */
   NULL,                   /* parameter structure   */
@@ -83,7 +84,8 @@ ANA_MODULE MDQ_IslandCounter_module =
 
 INT MDQ_IslandCounter_init() {
   TDirectory* cwd = gDirectory;
-  gDirectory->mkdir("DQ_IslandCounter")->cd();
+  DIR = gDirectory->mkdir("DQ_IslandCounter");
+  DIR->cd();
 
   // Create a histogram for each detector
   const map<string, string>& bank_to_detector_map = gSetup->fBankToDetectorMap;
@@ -110,6 +112,31 @@ INT MDQ_IslandCounter_init() {
     hIslandRateMap[bankname] = hist;
   }
 
+  cwd->cd();
+  return SUCCESS;
+}
+
+INT MDQ_IslandCounter_eor(INT run_number) {
+  TDirectory* cwd = gDirectory;
+  DIR->cd();
+  for (map<string, TH1F*>::const_iterator ih1 = hIslandCounterMap.begin(),
+	 ih2 = hIslandRateMap.begin(); ih1 != hIslandCounterMap.end();
+       ++ih1, ++ih2) {
+    TH1* h0 = ih1->second;
+    string name(h0->GetName()), title(h0->GetTitle());
+    name += "_Norm"; title += " (normalized)";
+    TH1* h = (TH1*)h0->Clone(name.c_str());
+    h->SetTitle(title.c_str());
+    h->Scale(1./h->GetEntries());
+
+    h0 = ih2->second;
+    name = h0->GetName(); title = h0->GetTitle();
+    name += "_Norm"; title += " (normalized)";
+    h = (TH1*)h0->Clone(name.c_str());
+    h->SetTitle(title.c_str());
+    h->Scale(1./h->GetEntries());
+  }
+  
   cwd->cd();
   return SUCCESS;
 }

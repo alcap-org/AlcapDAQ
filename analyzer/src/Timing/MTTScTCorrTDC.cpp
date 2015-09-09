@@ -29,6 +29,7 @@
 
 /*-- Module declaration --------------------------------------------*/
 static INT MTTScTCorrTDC_init(void);
+static INT MTTScTCorrTDC_eor(INT);
 static INT MTTScTCorrTDC(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
@@ -39,6 +40,7 @@ using namespace AlCap;
 namespace {
   const double TIME_LOW = -1500., TIME_HIGH = 1500.; // ns
   TH1* vhTTScTCorrTDC[NCHANTDC];
+  TH1* vhTTScTCorrTDCNorm[NCHANTDC];
   std::string TDCBANKS[NCHANTDC];
 }
 
@@ -48,7 +50,7 @@ ANA_MODULE MTTScTCorrTDC_module =
   "John R Quirk",     /* author                */
   MTTScTCorrTDC,      /* event routine         */
   NULL,               /* BOR routine           */
-  NULL,               /* EOR routine           */
+  MTTScTCorrTDC_eor,  /* EOR routine           */
   MTTScTCorrTDC_init, /* init routine          */
   NULL,               /* exit routine          */
   NULL,               /* parameter structure   */
@@ -67,12 +69,22 @@ INT MTTScTCorrTDC_init() {
     char histtitle[64]; sprintf(histtitle, "TTSc TCorr with %s", gSetup->GetDetectorName(bank).c_str());
     vhTTScTCorrTDC[ich] = new TH1D(histname, histtitle, 20000, TIME_LOW, TIME_HIGH);
     vhTTScTCorrTDC[ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
+    sprintf(histname, "hTTScTCorrTDC_%s_Norm", bank);
+    sprintf(histtitle, "TTSc TCorr with %s (Normalized)", gSetup->GetDetectorName(bank).c_str());
+    vhTTScTCorrTDCNorm[ich] = new TH1D(histname, histtitle, 20000, TIME_LOW, TIME_HIGH);
+    vhTTScTCorrTDCNorm[ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
+    vhTTScTCorrTDCNorm[ich]->Sumw2();
     TDCBANKS[ich] = bank;
   }
   cwd->cd();
   return SUCCESS;
 }
 
+INT MTTScTCorrTDC_eor(INT run_number) {
+  for (int ich = 0; ich < NCHANTDC; ++ich)
+    vhTTScTCorrTDCNorm[ich]->Scale(1./gData->NBlocks());
+  return SUCCESS;
+}
 
 /*-- module event routine -----------------------------------------*/
 INT MTTScTCorrTDC(EVENT_HEADER *pheader, void *pevent) {
@@ -90,15 +102,18 @@ INT MTTScTCorrTDC(EVENT_HEADER *pheader, void *pevent) {
     if (!tdc_map.count(TDCBANKS[ich])) continue;
 
     const std::vector<int64_t>& hits = tdc_map.at(TDCBANKS[ich]);
+    const double norm = 1./hits.size();
     for (int i = 0, j0 = 0; i < hits.size(); ++i) {
       for (int j = j0; j < ref_hits.size(); ++j) {
         const double dt = TICKTDC*(hits[i] - ref_hits[j]);
-        if (dt < TIME_LOW)
+        if (dt < TIME_LOW) {
           break;
-        else if (dt < TIME_HIGH)
+        } else if (dt < TIME_HIGH) {
           vhTTScTCorrTDC[ich]->Fill(dt);
-	else
+	  vhTTScTCorrTDCNorm[ich]->Fill(dt, norm);
+	} else {
 	  ++j0;
+	}
       }
     }
   }
