@@ -46,7 +46,7 @@ static INT MTDCWFDTCorr(EVENT_HEADER*, void*);
 
 namespace {
   TDirectory* DIR;
-  const double TIME_LOW = -1e3, TIME_HIGH = 2e4; //ns
+  const double TIME_LOW = -1e3, TIME_HIGH = 5e3; //ns
   TH2* vvhTDCWFDTCorrT[NCRATE][MAXNCHANWFD];
   TH2* vvhTDCWFDTCorrE[NCRATE][MAXNCHANWFD];
   TH2* vvhTDCWFDTCorrT_Norm[NCRATE][MAXNCHANWFD];
