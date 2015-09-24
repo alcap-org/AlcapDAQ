@@ -9,7 +9,7 @@ void raw_pulse_count()
   /*****************************************************************/
   
   AlCapCanvas->cd();
-  TH1* hist = (TH1 *)getObject("hPulseRawCount");
+  TH1* hist = (TH1 *)getObject("hHitRawCount");
   hist->Draw();
   
 }
