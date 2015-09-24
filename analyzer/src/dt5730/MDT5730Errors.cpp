@@ -58,8 +58,8 @@ namespace {
 
 INT MDT5730Errors_init() {
   TDirectory* cwd = gDirectory;
-  DIR = gDirectory->mkdir("DT5730Errors/");
-  DIR->cd();
+  //  DIR = gDirectory->mkdir("DT5730Errors/");
+  //  DIR->cd();
 
   hDT5730Errors = new TH1D("hDT5730Errors", "Errors in DT5730", 5, 0., 5.);
   hDT5730Errors->GetXaxis()->SetBinLabel(PLL_LOSS, "PLL Loss");
@@ -95,6 +95,7 @@ INT MDT5730Errors_eor(INT run_number) {
 INT MDT5730Errors(EVENT_HEADER *pheader, void *pevent) {
   BYTE* pdata;
   const static std::string bank("CNS1");
+
   const int bank_len = bk_locate(pevent, bank.c_str(), &pdata);
   if (bank_len > 0) {
     if (pdata[0])
