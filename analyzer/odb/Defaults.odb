@@ -1,5 +1,5 @@
 [/Analyzer/WireMap]
-ADCSlopeCalib = FLOAT[52] :
+ADCSlopeCalib = DOUBLE[52] :
 [0] 1
 [1] 1
 [2] 1
@@ -52,7 +52,7 @@ ADCSlopeCalib = FLOAT[52] :
 [49] 1
 [50] 1
 [51] 1
-ADCOffsetCalib = FLOAT[52] :
+ADCOffsetCalib = DOUBLE[52] :
 [0] 0
 [1] 0
 [2] 0
@@ -105,7 +105,7 @@ ADCOffsetCalib = FLOAT[52] :
 [49] 0
 [50] 0
 [51] 0
-TimeShift = FLOAT[52] :
+TimeShift = DOUBLE[52] :
 [0] 4000
 [1] 4000
 [2] 0

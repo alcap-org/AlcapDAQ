@@ -158,7 +158,7 @@ Enabled = BOOL[52] :
 [49] n
 [50] n
 [51] n
-SamplingFrequency = FLOAT[52] :
+SamplingFrequency = DOUBLE[52] :
 [0] 1.7e+07
 [1] 1.7e+07
 [2] 8.5e+06

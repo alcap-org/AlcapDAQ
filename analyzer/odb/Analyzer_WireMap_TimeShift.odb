@@ -1,5 +1,5 @@
 [/Analyzer/WireMap]
-TimeShift = FLOAT[52] :
+TimeShift = DOUBLE[52] :
 [0] 2918
 [1] 2928
 [2] 0
