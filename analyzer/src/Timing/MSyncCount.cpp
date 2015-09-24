@@ -67,8 +67,8 @@ ANA_MODULE MSyncCount_module =
 
 INT MSyncCount_init() {
   TDirectory* cwd = gDirectory;
-  DIR = gDirectory->mkdir("SyncCount/");
-  DIR->cd();
+  //  DIR = gDirectory->mkdir("SyncCount/");
+  //  DIR->cd();
 
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
     char tmp[8]; sprintf(tmp, "%d", icrate);
