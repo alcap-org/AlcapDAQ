@@ -132,7 +132,7 @@ INT MCommonOnlineDisplayPlots_init_wfd(const std::string& bank,
   histtitle = "Plot of the pulse shapes in the " + det + " channels";
   TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(),
                                 400, -0.5, 399.5,
-                                max_adc_value+1, 0, max_adc_value+1);
+                                (max_adc_value+1)/10, 0, max_adc_value+1);
   hPulseShapes->GetXaxis()->SetTitle("Time Stamp");
   hPulseShapes->GetYaxis()->SetTitle("ADC Value");
   shape_histograms_map[bank] = hPulseShapes;
