@@ -76,6 +76,7 @@ INT MWFDClockBitFreq_init() {
       vvhWFDClockBitFreq[icrate][ich] = new TH1F(name, title,
 						 BITSWFDCLK[icrate], 0.,
 						 BITSWFDCLK[icrate]);
+      vvhWFDClockBitFreq[icrate][ich]->Sumw2();
     }
   }
   cwd->cd();

@@ -76,11 +76,12 @@ INT MTDCHitCounter_init() {
     sprintf(name, "hTDCHitCounter_%s_%s", bank, det.c_str());
     sprintf(title, "TDC hits per block %s;Hits", det.c_str());
     vhTDCHitCounter[ich] = new TH1D(name, title, 10000, 0., 10000.);
+    vhTDCHitCounter[ich]->Sumw2();
 
     sprintf(name, "hTDCHitRate_%s_%s", bank, det.c_str());
     sprintf(title, "TDC rates per block %s;Hits", det.c_str());
     vhTDCHitRates[ich] = new TH1D(name, title, 10000, 0., 10.);
-    
+    vhTDCHitRates[ich]->Sumw2();
   }
   cwd->cd();
   return SUCCESS;

@@ -24,7 +24,6 @@
 #include "TH2D.h"
 #include "TDirectory.h"
 
-//JG: added alcap includes
 /* AlCap includes */
 #include "AlCap.h"
 #include "TGlobalData.h"
@@ -90,7 +89,7 @@ INT MIdentifySyncPulse_init() {
 	      "Sync Pulse Alignment for %s (First WFD Sync Pulse);Sync Pulse Index",
 	      det);
       vvhIdentifySyncPulse[icrate][ich] = new TH1D(name, title, 100, 0., 100.);
-
+      vvhIdentifySyncPulse[icrate][ich]->Sumw2();
       // sprintf(name, "hNumMatches_%s", bank);
       // sprintf(title,
       // 	      "Num %s pulses matched in WFD;Sync Pulse Index;Number Matches",

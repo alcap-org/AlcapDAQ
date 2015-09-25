@@ -111,6 +111,7 @@ INT MDQ_Amplitude_init() {
 				max_adc_value, 0, max_adc_value);
     hDQ_Histogram->GetXaxis()->SetTitle("Amplitude [adc]");
     hDQ_Histogram->GetYaxis()->SetTitle("Counts");
+    hDQ_Histogram->Sumw2();
     DQ_Amplitude_histograms_map[bankname] = hDQ_Histogram;
     
     // The pedestal subtracted histogram
@@ -119,6 +120,7 @@ INT MDQ_Amplitude_init() {
     TH1F* hDQ_Histogram_PedSub = new TH1F(pedsubhistname.c_str(), pedsubhisttitle.c_str(), 2*max_adc_value,-max_adc_value,max_adc_value); // make sure we see any negative amplitudes
     hDQ_Histogram_PedSub->GetXaxis()->SetTitle("Amplitude [adc]");
     hDQ_Histogram_PedSub->GetYaxis()->SetTitle("Counts");
+    hDQ_Histogram_PedSub->Sumw2();
     DQ_Amplitude_histograms_ped_sub_map[bankname] = hDQ_Histogram_PedSub;
   }
 

@@ -127,13 +127,13 @@ INT MTTScTCorrWFD_eor(INT run_number) {
       TH2* h0 = vvhTTScTCorrWFDE[icrate][ich];
       string name(h0->GetName());
       name.erase(name.size()-2);
-      h0->ProjectionX(name.c_str());
+      h0->ProjectionX(name.c_str(), 0, -1, "e");
 
       h0 = vvhTTScTCorrWFDE_Norm[icrate][ich];
       h0->Scale(1./gData->NBlocks());
       name = h0->GetName();
       name.erase(name.size()-2);
-      h0->ProjectionX(name.c_str());
+      h0->ProjectionX(name.c_str(), 0, -1, "e");
     }
   }
   cwd->cd();

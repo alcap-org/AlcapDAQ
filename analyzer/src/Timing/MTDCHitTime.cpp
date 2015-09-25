@@ -74,6 +74,7 @@ INT MTDCHitTime_init() {
     sprintf(name, "hTDCHitTime_%s_%s", bank, det.c_str());
     sprintf(title, "TDC block hit times %s;Time (ns)", det.c_str());
     vhTDCHitTime[ich] = new TH1F(name, title, 120.e6/25.e2, 0., 120.e6);
+    vhTDCHitTime[ich]->Sumw2();
   }
   cwd->cd();
   return SUCCESS;

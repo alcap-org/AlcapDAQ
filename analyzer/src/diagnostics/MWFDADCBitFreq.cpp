@@ -82,6 +82,7 @@ INT MWFDADCBitFreq_init() {
       sprintf(name, "hWFDADCFreq_%s_%s", bank, det.c_str());
       sprintf(title, "Bit Frequency %s (%s);Bit", bank, det.c_str());
       vvhWFDADCBitFreq[icrate][ich] = new TH1F(name, title, nbits, 0., nbits);
+      vvhWFDADCBitFreq[icrate][ich]->Sumw2();
     }
   }
   cwd->cd();

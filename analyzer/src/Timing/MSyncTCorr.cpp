@@ -73,7 +73,8 @@ INT MSyncTCorr_init() {
     //vhSyncTCorr[icrate] = new TH1D(hist, hist, 3000, TIME_LOW, TIME_HIGH);
     vhSyncTCorr[icrate] = new TH2D(hist, hist,
 				   3000,  TIME_LOW, TIME_HIGH,
-				   11000, 0.,       110.e6);
+				   1100, 0.,       110.e6);
+    vhSyncTCorr[icrate]->Sumw2();
     vhSyncTCorr[icrate]->GetXaxis()->SetTitle("Timing Difference TDC-WFD (ns)");
     vhSyncTCorr[icrate]->GetYaxis()->SetTitle("TDC Time (ns)");
   }

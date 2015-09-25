@@ -95,25 +95,30 @@ INT MSyncPulseTDiff_init() {
     sprintf(name, "hSyncPulseAllTDiff_%d", icrate);
     sprintf(title, "Sync Pulse All dT Distribution Crate %d;Ti-T(i-1) (Ticks)", icrate);
     vhSyncAllTDiffWFD[icrate] = new TH1D(name, title, 2000000, 0., 2e6);
+    vhSyncAllTDiffWFD[icrate]->Sumw2();
 
     sprintf(name, "hSyncPulseAvgTDiff_%d", icrate);
     sprintf(title, "Sync Pulse Avg dT Distribution Crate %d;Tf-Ti (Ticks)", icrate);
     vhSyncAvgTDiffWFD[icrate] = new TH1D(name, title, 2000000, 0., 2e6);
+    vhSyncAvgTDiffWFD[icrate]->Sumw2();
 
     sprintf(name, "hSyncTDiffTDCWFDRatio_%d", icrate);
     sprintf(title, "Sync Pulse TDiff Ratio Crate %d;TDC/WFD", icrate);
     vhSyncTDiffTDCWFDRatio[icrate] = new TH2D(name, title,
 					      10000, vvHistBounds[icrate][0], vvHistBounds[icrate][1],
 					      60,   0., 80.);
+    vhSyncTDiffTDCWFDRatio[icrate]->Sumw2();
   }
 
   sBankSyncTDC = gSetup->GetBankName("TSync");
   hSyncAllTDiffTDC = new TH1D("hSyncPulseAllTDiff_TDC",
 			      "Sync Pulse All dT Distribution TDC;Ti-T(i-1) (Ticks)",
 			      2000000, 72000000., 74000000.);
+  hSyncAllTDiffTDC->Sumw2();
   hSyncAvgTDiffTDC = new TH1D("hSyncPulseAvgTDiff_TDC",
 			      "Sync Pulse Avg dT Distribution TDC;Tf-Ti (Ticks)",
 			      2000000, 72000000., 74000000.);
+  hSyncAvgTDiffTDC->Sumw2();
 
   // These next two only matter for run 7319, where
   // the clock is plugged into TDC Ch. 2 (TMaster)
@@ -121,9 +126,11 @@ INT MSyncPulseTDiff_init() {
   hMasterAllTDiff = new TH1D("hMasterPulseAllTDiff_TDC",
 			     "Master Clock All dT Distribution TDC;Ti-T(i-1) (Ticks)",
 			     2000000, 0., 2000000);
+  hMasterAllTDiff->Sumw2();
   hMasterAvgTDiff = new TH1D("hMasterPulseAvgTDiff_TDC",
 			     "Master Clock Avg dT Distribution TDC;Tf-Ti (Ticks)",
 			     2000000, 0., 2000000);
+  hMasterAvgTDiff->Sumw2();
 
   cwd->cd();
   return SUCCESS;

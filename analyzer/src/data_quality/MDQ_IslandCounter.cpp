@@ -102,6 +102,7 @@ INT MDQ_IslandCounter_init() {
     TH1F* hist = new TH1F(histname.c_str(), histtitle.c_str(), 3500, 0, 3500);
     hist->GetXaxis()->SetTitle("Number of TPulseIslands");
     hist->GetYaxis()->SetTitle("Number of Blocks");
+    hist->Sumw2();
     hIslandCounterMap[bankname] = hist;
 
     histname = "hIslandRate_" + detname + "_" + bankname;
@@ -109,6 +110,7 @@ INT MDQ_IslandCounter_init() {
     hist = new TH1F(histname.c_str(), histtitle.c_str(), 3500, 0, 2.);
     hist->GetXaxis()->SetTitle("Number of TPulseIslands");
     hist->GetYaxis()->SetTitle("Number of Blocks");
+    hist->Sumw2();
     hIslandRateMap[bankname] = hist;
   }
 

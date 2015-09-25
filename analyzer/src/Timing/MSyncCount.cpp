@@ -82,6 +82,7 @@ INT MSyncCount_init() {
                             "Sync Pulse Count Crate %d;Pulses per block",
                             icrate);
     vhSyncCountWFD[icrate] = new TH1F(name, title, 70, 0., 70.);
+    vhSyncCountWFD[icrate]->Sumw2();
   }
   SyncBankTDC = gSetup->GetBankName(std::string("TSync"));
   if (SyncBankTDC.empty()) {
@@ -90,6 +91,7 @@ INT MSyncCount_init() {
     char name[32]; sprintf(name, "hSyncCount_TDC");
     char title[64]; sprintf(title, "Sync Pulse Count TDC;Pulses per block");
     hSyncCountTDC = new TH1F(name, title, 70, 0., 70.);
+    hSyncCountTDC->Sumw2();
   }
 
   cwd->cd();

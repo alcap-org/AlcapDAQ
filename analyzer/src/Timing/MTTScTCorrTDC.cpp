@@ -68,12 +68,13 @@ INT MTTScTCorrTDC_init() {
     char histname[64]; sprintf(histname, "hTTScTCorrTDC_%s", bank);
     char histtitle[64]; sprintf(histtitle, "TTSc TCorr with %s", gSetup->GetDetectorName(bank).c_str());
     vhTTScTCorrTDC[ich] = new TH1D(histname, histtitle, 20000, TIME_LOW, TIME_HIGH);
+    vhTTScTCorrTDC[ich]->Sumw2();
     vhTTScTCorrTDC[ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
     sprintf(histname, "hTTScTCorrTDC_%s_Norm", bank);
     sprintf(histtitle, "TTSc TCorr with %s (Normalized)", gSetup->GetDetectorName(bank).c_str());
     vhTTScTCorrTDCNorm[ich] = new TH1D(histname, histtitle, 20000, TIME_LOW, TIME_HIGH);
-    vhTTScTCorrTDCNorm[ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
     vhTTScTCorrTDCNorm[ich]->Sumw2();
+    vhTTScTCorrTDCNorm[ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
     TDCBANKS[ich] = bank;
   }
   cwd->cd();
