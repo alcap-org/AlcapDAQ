@@ -98,7 +98,7 @@ INT MSyncCount_init() {
 
 INT MSyncCount_eor(INT run_number) {
   TDirectory* cwd = gDirectory;
-  DIR->cd();
+  //  DIR->cd();
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
     TH1* h0 = vhSyncCountWFD[icrate];
     if (h0) {

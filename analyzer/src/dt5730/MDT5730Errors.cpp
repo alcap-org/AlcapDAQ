@@ -81,7 +81,7 @@ INT MDT5730Errors_bor(INT run_number) {
 
 INT MDT5730Errors_eor(INT run_number) {
   TDirectory* cwd = gDirectory;
-  DIR->cd();
+  //  DIR->cd();
   std::string name  = hDT5730Errors->GetName();
   std::string title = hDT5730Errors->GetTitle();
   name += "_normalized"; title += " (normalized)";
