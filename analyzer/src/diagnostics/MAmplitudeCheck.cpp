@@ -81,6 +81,15 @@ INT MAmplitudeCheck_init()
       int n_bits = gSetup->GetNBits(bankname);
       int max_adc = std::pow(2, n_bits);
 
+      if(detname != "TSc"
+	 && detname != "GeCHEH"
+	 && detname != "GeCHEL"
+	 && detname != "NdetD"
+	 && detname != "NdetU"
+	 && detname != "LaBr3")
+	continue;
+
+
       string histname = "hAmplitudeCheck_PH_" + detname + "_" + bankname;
       string histtitle = "Pulse Height distribution in " + detname;
       TH1F* hAmplitudeCheck_PH = new TH1F(histname.c_str(), histtitle.c_str(),
@@ -117,6 +126,15 @@ INT MAmplitudeCheck(EVENT_HEADER *pheader, void *pevent)
     if(!gSetup->IsWFD(bankname)) continue;
     int polarity = gSetup->GetTriggerPolarity(bankname);
     vector<TPulseIsland*> Pulses = mIter->second;
+    std::string detname = gSetup->GetDetectorName(bankname);
+
+    if(detname != "TSc"
+       && detname != "GeCHEH"
+       && detname != "GeCHEL"
+       && detname != "NdetD"
+       && detname != "NdetU"
+       && detname != "LaBr3")
+      continue;
 
     for(vector<TPulseIsland*>::iterator pIter = Pulses.begin();
 	pIter != Pulses.end(); pIter++) {
@@ -129,6 +147,8 @@ INT MAmplitudeCheck(EVENT_HEADER *pheader, void *pevent)
       int tpeak = 0, peak = 0;
       //polarity == 1 ? tpeak = std::max_element(samples.begin(), samples.end()) :
       //tpeak = std::min_element(samples.begin(), samples.end());
+
+      if(samples.size() < 8) continue;
       TH1F* hPulse = new TH1F("hPulse", "Waveform", samples.size(),0, samples.size());
       for(vector<int>::iterator sIt = samples.begin(); sIt != samples.end(); sIt ++) {
 	int ph = polarity * ((*sIt) - pedestal);

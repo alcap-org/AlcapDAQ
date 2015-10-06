@@ -37,7 +37,7 @@ extern TSetupData* gSetup;
 
 using namespace AlCap;
 namespace {
-  const double TIME_LOW = -1500., TIME_HIGH = 1500.; // ns
+  const double TIME_LOW = -2500., TIME_HIGH = 7500.; // ns
   TH1* vhTTScTCorrTDC[NCHANTDC];
   std::string TDCBANKS[NCHANTDC];
 }
@@ -65,7 +65,7 @@ INT MTTScTCorrTDC_init() {
     char bank[5]; sprintf(bank, "T4%02d", ich);
     char histname[64]; sprintf(histname, "hTTScTCorrTDC_%s", bank);
     char histtitle[64]; sprintf(histtitle, "TTSc TCorr with %s", gSetup->GetDetectorName(bank).c_str());
-    vhTTScTCorrTDC[ich] = new TH1D(histname, histtitle, 20000, TIME_LOW, TIME_HIGH);
+    vhTTScTCorrTDC[ich] = new TH1D(histname, histtitle, 40000, TIME_LOW, TIME_HIGH);
     vhTTScTCorrTDC[ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
     TDCBANKS[ich] = bank;
   }

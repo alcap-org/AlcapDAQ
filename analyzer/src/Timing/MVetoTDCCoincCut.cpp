@@ -23,6 +23,7 @@
 #include "TH1D.h"
 
 /* AlCap includes */
+#include "AlCap.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 
@@ -33,6 +34,8 @@ static INT MVetoTDCCoincCut(EVENT_HEADER*, void*);
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
+
+using namespace AlCap;
 
 const double TIME_LOW = -2e3, TIME_HIGH = 2e3; // in ns
 ANA_MODULE MVetoTDCCoincCut_module = 
@@ -62,33 +65,48 @@ INT MVetoTDCCoincCut(EVENT_HEADER *pheader, void *pevent)
     std::string detname = gSetup->GetDetectorName(mIter->first);
     if(!tdc_map.count(mIter->first))
       continue;
+    /*
     std::string vetoname = detname + "V";
+    if( detname == "TGeCHT") vetoname = "TGeV";
+    if(detname == "TTSc") vetoname = "TVSc";
     std::string vetobank = gSetup->GetBankName(vetoname);
-    if( detname == "TGeCHT")
-      vetoname = "TGeV";
-    if(!tdc_map.count(vetobank)){// detector has no veto
+    if(!tdc_map.count(vetobank)){// detector has no veto or is veto, skip
       //printf("MVetoTDCCoincCut: No veto found for %s\n", detname.c_str());
-      continue;                    // or is veto.  skip bank
+      continue; 
     }
+    */
     std::vector<int64_t>& det_hits = mIter->second;
-    std::vector<int64_t>& veto_hits = tdc_map.at(vetobank);
+    //std::vector<int64_t>& veto_hits = tdc_map.at(vetobank);
 
     //std::cout << detname << " has veto counter " << vetoname << std::endl;
     //std::cout << detname << " has " << det_hits.size() << " hits before the coincidence cut" << std::endl;
 
-    for(unsigned i = 0; i < det_hits.size(); i++)
+    for(unsigned i = 0; i < det_hits.size(); i++){
+      
+      //check for double pulse counts
+      for(unsigned j=i+1; j< det_hits.size(); j++) {
+	static const double clock_tick = TICKTDC; // conversion to ns
+	const double dt = clock_tick * (det_hits[i] -  det_hits[j]);
+	if(dt < -1000.) break;
+	else if(dt < 1000.){  // a coincidence has occured
+	  det_hits.erase(det_hits.begin() + j);
+	  j--;
+	}
+      } // end j loop
+      /*
+      ///check for vetos in time window
       for(unsigned j=0; j< veto_hits.size(); j++) {
-	static const double clock_tick = 0.025; // conversion to ns
+	static const double clock_tick = TICKTDC; // conversion to ns
 	const double dt = clock_tick * (det_hits[i] -  veto_hits[j]);
-	if(dt < TIME_LOW)
-	  break;
+	if(dt < TIME_LOW) break;
 	else if(dt < TIME_HIGH){  // a coincidence has occured
 	  det_hits.erase(det_hits.begin() + i);
 	  i--;
 	}
       } // end j loop
     //std::cout << detname << " has " << det_hits.size() << " hits after the coincidence cut" << std::endl;
-
+    */    
+    }//end i loop
 
   }
 

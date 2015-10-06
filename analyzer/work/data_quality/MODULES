@@ -7,23 +7,23 @@ v1290/MV1290ProcessRaw
 dt5720/MDT5720Errors
 dt5730/MDT5730Errors
 
-data_quality/MDQ_TDCCheck
+#data_quality/MDQ_TDCCheck
 
 data_quality/MDQ_Amplitude
 data_quality/MDQ_Integral
-data_quality/MDQ_Thresholds
-data_quality/MDQ_PulseShapes
-data_quality/MDQ_DAQLivetime
+#data_quality/MDQ_Thresholds
+#data_quality/MDQ_PulseShapes
+#data_quality/MDQ_DAQLivetime
 data_quality/MDQ_RunTime
 data_quality/MDQ_IntegralRatio
-data_quality/MDQ_DigitizerOverflow
-data_quality/MDQ_IslandCounter
-data_quality/MDQ_IslandLength
-data_quality/MDQ_IslandRate
-data_quality/MDQ_IslandTimestamp
-data_quality/MDQ_WFD_TCorr
+#data_quality/MDQ_DigitizerOverflow
+#data_quality/MDQ_IslandCounter
+#data_quality/MDQ_IslandLength
+#data_quality/MDQ_IslandRate
+#data_quality/MDQ_IslandTimestamp
+#data_quality/MDQ_WFD_TCorr
 
-Timing/MSyncCount
+#Timing/MSyncCount
 
 vacuum/MVacuumHisto
 #common/MTreeOutput

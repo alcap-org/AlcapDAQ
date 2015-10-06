@@ -67,7 +67,7 @@ map <std::string, TH2D*> DQ_Integral_XY;
 map <std::string, TH2F*> DQ_IntegralRatio_PH, DQ_IntegralRatio_E;
 map <std::string, TH1F*> DQ_NeutronEnMeVee, DQ_GammaEnMeVee, DQ_Gamma_PH, DQ_Neutron_PH;
 map <std::string, TH1F*> DQ_Neutron_INT, DQ_Gamma_INT;
-map <std::string, TH1F*> DQ_HEFoM;
+map <std::string, TH1F*> DQ_HEFoM, DQ_LEFoM;
 
 ANA_MODULE MDQ_IntegralRatio_module = 
   {
@@ -184,6 +184,13 @@ INT MDQ_IntegralRatio_init()
       hDQ_HEFoM->GetXaxis()->SetTitle("Integral Ratio(PSD parameter)");
       hDQ_HEFoM->GetYaxis()->SetTitle("arbitrary units");
       DQ_HEFoM[bankname] = hDQ_HEFoM;
+
+      histname = "h" + bankname + "_LE_FoM";
+      histtitle = "FoM for " + detname + " from 0.5 to 1 MeVee";
+      TH1F* hDQ_LEFoM = new TH1F(histname.c_str(), histtitle.c_str(), 600, 0, 0.45);
+      hDQ_LEFoM->GetXaxis()->SetTitle("Integral Ratio(PSD parameter)");
+      hDQ_LEFoM->GetYaxis()->SetTitle("arbitrary units");
+      DQ_LEFoM[bankname] = hDQ_LEFoM;
     }
 
   //Return to root directory
@@ -309,6 +316,8 @@ INT MDQ_IntegralRatio(EVENT_HEADER *pheader, void *pevent)
 
 	  if(energyMevee >= 1.0 && energyMevee <= 6.0)
 	    DQ_HEFoM[bankname]->Fill(ratio);
+	  if(energyMevee >= 0.5 && energyMevee <= 1.0)
+	    DQ_LEFoM[bankname]->Fill(ratio);
 
 	  // Damien's initial PSD based on AmBe data
 	  if(neutron) {

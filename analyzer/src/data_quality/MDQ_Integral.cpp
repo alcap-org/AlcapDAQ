@@ -129,6 +129,7 @@ INT MDQ_Integral(EVENT_HEADER *pheader, void *pevent)
     const std::string bankname = mIter->first;
     const std::vector<TPulseIsland*>& pulses = mIter->second;
     int polarity = gSetup->GetTriggerPolarity(bankname);
+    int nbits = gSetup->GetNBits(bankname);
 
     for(std::vector<TPulseIsland*>::const_iterator pIter = pulses.begin(); pIter != pulses.end(); pIter++){
       if(DQ_Integral_histograms_map.find(bankname) == DQ_Integral_histograms_map.end()) continue;
@@ -136,13 +137,19 @@ INT MDQ_Integral(EVENT_HEADER *pheader, void *pevent)
       float integral = 0;
       float integral_ps = 0;
       float pedestal = (*pIter)->GetPedestal(8);
+      bool overflow = false;
 
       const std::vector<int>& samples = (*pIter)->GetSamples();
       for(std::vector<int>::const_iterator sIter = samples.begin(); sIter != samples.end(); sIter++){
+	if((*sIter) == 0 || (*sIter) == std::pow(2,nbits)){
+	  overflow = true;
+	  break;
+	}
 	integral += (*sIter);
 	integral_ps += polarity * ((*sIter) - pedestal);
       }
 
+      if(overflow) continue;
       DQ_Integral_histograms_map[bankname]->Fill(integral);
       DQ_Integral_histograms_ped_sub_map[bankname]->Fill(integral_ps);
     }

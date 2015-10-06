@@ -135,8 +135,10 @@ INT MNeutronCut(EVENT_HEADER *pheader, void *pevent)
 	  if(neutron) {//do nothing
 	  }
 	  else{  //gamma, cut this
-	    thePulses.erase(pIter);
-	    pIter--;
+	    if(std::distance(thePulses.begin(), pIter) > 1){
+	      thePulses.erase(pIter);
+	      pIter--;
+	    }
 	  }
 	} // pIter
 
