@@ -58,6 +58,7 @@ INT MRolloverTDiff_init() {
   hRolloverTDiff = new TH1D("hRolloverTDiff",
                             "Rollover Time Distribution;Ti-T(i-1) (ns)",
                             600, 0., 600e3);
+  hRolloverTDiff->Sumw2();
   return SUCCESS;
 }
 

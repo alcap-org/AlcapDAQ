@@ -81,7 +81,7 @@ INT MDQ_IslandLength_init() {
   for(map<string, string>::iterator mapIter = bank_to_detector_map.begin(); 
       mapIter != bank_to_detector_map.end(); ++mapIter) { 
 
-    const std::string bankname = mapIter->first;
+    const std::string& bankname = mapIter->first;
     const std::string detname = gSetup->GetDetectorName(bankname);
     if(TSetupData::IsTDC(bankname)) continue;
 
@@ -90,6 +90,7 @@ INT MDQ_IslandLength_init() {
     TH1F* hist = new TH1F(histname.c_str(), histtitle.c_str(), 1000, 0, 1000);
     hist->GetXaxis()->SetTitle("Length [samples]");
     hist->GetYaxis()->SetTitle("Number of Islands");
+    hist->Sumw2();
     hIslandLengthMap[bankname] = hist;
   }
 

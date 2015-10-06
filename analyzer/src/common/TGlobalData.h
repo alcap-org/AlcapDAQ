@@ -60,8 +60,12 @@ class TGlobalData : public TObject{
   }
   int NMuBlock() {return fNMuBlock;}
   int NMuRun() {return fNMuRun;} 
+  void SetNBlocks(int n) {
+    fNBlocks = n;
+  }
+  int NBlocks() {return fNBlocks;}
 
-  TGlobalData() : fNMuBlock(0), fNMuRun(0) {}
+  TGlobalData() : fNMuBlock(0), fNMuRun(0), fNBlocks(0) {}
 
  private:
   TGlobalData(const TGlobalData&);
@@ -69,7 +73,8 @@ class TGlobalData : public TObject{
 
   int fNMuBlock; //! Don't save
   int fNMuRun;   //! Don't save
+  int fNBlocks;  //! Don't save
 
-  ClassDef(TGlobalData, 6)
+  ClassDef(TGlobalData, 7)
 };
 #endif

@@ -6,12 +6,11 @@ namespace AlCap {
 				    0, 8, 8,
 				    0};
   const int    NCHANTDC         = 32;
-  const double TICKWFD [NCRATE] = { 0., 0.,                    0.,
-  				    0., 62.003158141820534865, 4.,
-  				    0., 2.000102776481803346,  4.,
+  const double TICKWFD [NCRATE] = { 0., 0.,  0.,
+  				    0., 62., 4.,
+  				    0., 2.,  4.,
   				    0.}; // ns
-  const double TICKTDC          = 0.024415317011901430;   // ns
-  const double SYNCPULSEFREQ    = 554.832644497609862810; // Hz
+  const double TICKTDC          = 1./(40.96);   // ns
   const int BITSWFDADC[NCRATE]  = { 0,  0,  0,
 				    0, 14, 12,
 				    0, 14, 12,

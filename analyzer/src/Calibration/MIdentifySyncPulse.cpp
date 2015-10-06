@@ -24,7 +24,6 @@
 #include "TH2D.h"
 #include "TDirectory.h"
 
-//JG: added alcap includes
 /* AlCap includes */
 #include "AlCap.h"
 #include "TGlobalData.h"
@@ -41,14 +40,16 @@ using std::vector;
 using std::map;
 
 static INT MIdentifySyncPulse_init(void);
+static INT MIdentifySyncPulse_eor(INT);
 static INT MIdentifySyncPulse(EVENT_HEADER*, void*);
 static vector<double> calculate_and_sort_times(const vector<TPulseIsland*>&, double);
 static vector<double> calculate_and_sort_times(const vector<int64_t>&, double);
 
 namespace {
+  TDirectory* DIR;
   TH1* vvhIdentifySyncPulse[NCRATE][10];
-  TH1* vvhNumMatches[NCRATE][10];
-  TH1* vvhIdentifySyncPulseJut[NCRATE][10];
+  // TH1* vvhNumMatches[NCRATE][10];
+  // TH1* vvhIdentifySyncPulseJut[NCRATE][10];
   const double COINC_WINDOW = 50000.; // +/- ns
   string WFD_CORRESPONDING_TDC_CHAN[NCRATE][10];
   string WFD_BANK_NAME[NCRATE][10];
@@ -62,7 +63,7 @@ ANA_MODULE MIdentifySyncPulse_module =
   "John R Quirk",          /* author                */
   MIdentifySyncPulse,      /* event routine         */
   NULL,                    /* BOR routine           */
-  NULL,                    /* EOR routine           */
+  MIdentifySyncPulse_eor,  /* EOR routine           */
   MIdentifySyncPulse_init, /* init routine          */
   NULL,                    /* exit routine          */
   NULL,                    /* parameter structure   */
@@ -73,7 +74,8 @@ ANA_MODULE MIdentifySyncPulse_module =
 /*--module init routine --------------------------------------------*/
 INT MIdentifySyncPulse_init() {
   TDirectory* cwd = gDirectory;
-  gDirectory->mkdir("IdentifySyncPulse/")->cd();
+  DIR = gDirectory->mkdir("IdentifySyncPulse/");
+  DIR->cd();
 
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
     for (int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
@@ -87,16 +89,16 @@ INT MIdentifySyncPulse_init() {
 	      "Sync Pulse Alignment for %s (First WFD Sync Pulse);Sync Pulse Index",
 	      det);
       vvhIdentifySyncPulse[icrate][ich] = new TH1D(name, title, 100, 0., 100.);
+      vvhIdentifySyncPulse[icrate][ich]->Sumw2();
+      // sprintf(name, "hNumMatches_%s", bank);
+      // sprintf(title,
+      // 	      "Num %s pulses matched in WFD;Sync Pulse Index;Number Matches",
+      // 	      det);
+      // vvhNumMatches[icrate][ich] = new TH1D(name, title, 100, 0., 100.);
 
-      sprintf(name, "hNumMatches_%s", bank);
-      sprintf(title,
-	      "Num %s pulses matched in WFD;Sync Pulse Index;Number Matches",
-	      det);
-      vvhNumMatches[icrate][ich] = new TH1D(name, title, 100, 0., 100.);
-
-      sprintf(name, "hIdentifySyncPulseJut_%s", bank);
-      sprintf(title, "Factor %s pulses matched over asynchronous;Factor", det);
-      vvhIdentifySyncPulseJut[icrate][ich] = new TH1D(name, title, 1e4, 0, 1e4);
+      // sprintf(name, "hIdentifySyncPulseJut_%s", bank);
+      // sprintf(title, "Factor %s pulses matched over asynchronous;Factor", det);
+      // vvhIdentifySyncPulseJut[icrate][ich] = new TH1D(name, title, 1e4, 0, 1e4);
 
       // Record which TDC channel is matched with which WFD channel
       if (strncmp("Ge", det, 2) == 0)
@@ -115,6 +117,22 @@ INT MIdentifySyncPulse_init() {
   return SUCCESS;
 }
 
+INT MIdentifySyncPulse_eor(INT run_number) {
+  TDirectory* cwd = gDirectory;
+  DIR->cd();
+  for (int icrate = 0; icrate < NCRATE; ++icrate) {
+    for (int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
+      TH1* h0 = vvhIdentifySyncPulse[icrate][ich];
+      string name = h0->GetName(), title = h0->GetTitle();
+      name += "_normalized"; title += " (normalized)";
+      TH1* h = (TH1*)h0->Clone(name.c_str());
+      h->SetTitle(title.c_str());
+      h->Scale(1./gData->NBlocks());
+    }
+  }
+  cwd->cd();
+  return SUCCESS;
+}
 
 /*-- module event routine -----------------------------------------*/
 INT MIdentifySyncPulse(EVENT_HEADER *pheader, void *pevent) {
@@ -143,8 +161,10 @@ INT MIdentifySyncPulse(EVENT_HEADER *pheader, void *pevent) {
       const std::string& tdc_bank = WFD_CORRESPONDING_TDC_CHAN[icrate][ich];
       if (!wfd_map.count(wfd_bank) || !tdc_map.count(tdc_bank))
 	continue;
-      const std::vector<double> wfd = calculate_and_sort_times(wfd_map.at(wfd_bank), TICKWFD[icrate]);
-      const std::vector<double> tdc = calculate_and_sort_times(tdc_map.at(tdc_bank), TICKTDC);
+      const std::vector<double> wfd =
+	calculate_and_sort_times(wfd_map.at(wfd_bank), TICKWFD[icrate]);
+      const std::vector<double> tdc =
+	calculate_and_sort_times(tdc_map.at(tdc_bank), TICKTDC);
 
       std::vector<int> nmatchespersync(synctdc.size(), 0);
       for (int isync = 0; isync < synctdc.size(); ++isync) {
@@ -175,15 +195,15 @@ INT MIdentifySyncPulse(EVENT_HEADER *pheader, void *pevent) {
       // }
 
       // Trying to determine a metric for aligning
-      const int nmax = nmatchespersync[max_sync];
-      if (nmatchespersync.size() == 1) {
-        vvhIdentifySyncPulseJut[icrate][ich]->Fill(nmax);
-        continue;
-      }
-      const double tot = std::accumulate(nmatchespersync.begin(), nmatchespersync.end(), 0);
-      const double avg = (tot - nmax) / (double)(nmatchespersync.size() - 1);
-      if (avg != 0.)
-        vvhIdentifySyncPulseJut[icrate][ich]->Fill((nmax/avg)*(nmax/tot));
+      // const int nmax = nmatchespersync[max_sync];
+      // if (nmatchespersync.size() == 1) {
+      //   vvhIdentifySyncPulseJut[icrate][ich]->Fill(nmax);
+      //   continue;
+      // }
+      // const double tot = std::accumulate(nmatchespersync.begin(), nmatchespersync.end(), 0);
+      // const double avg = (tot - nmax) / (double)(nmatchespersync.size() - 1);
+      // if (avg != 0.)
+      //   vvhIdentifySyncPulseJut[icrate][ich]->Fill((nmax/avg)*(nmax/tot));
     }
 
     // If all active channels agree on which TDC pulse aligns,
@@ -193,7 +213,6 @@ INT MIdentifySyncPulse(EVENT_HEADER *pheader, void *pevent) {
       gData->fTDCSynchronizationPulseIndex.back() = i;
       gData->fTDCSynchronizationPulseOffset.back() = synctdc[i] - syncwfd[0];
     }
-
   }
 
   return SUCCESS;

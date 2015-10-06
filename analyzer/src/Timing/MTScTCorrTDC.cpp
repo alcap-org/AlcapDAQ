@@ -61,6 +61,7 @@ INT MTScTCorrTDC_init() {
     char histname[64]; sprintf(histname, "hTScTCorrTDC_%s", bank);
     char histtitle[64]; sprintf(histtitle, "TSc TCorr with %s", gSetup->GetDetectorName(bank).c_str());
     vhTScTCorrTDC[ich] = new TH1D(histname, histtitle, 20000, TIME_LOW, TIME_HIGH);
+    vhTScTCorrTDC[ich]->Sumw2();
     vhTScTCorrTDC[ich]->GetXaxis()->SetTitle("Timing Difference (ns)");
   }
   return SUCCESS;

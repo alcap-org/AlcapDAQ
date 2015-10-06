@@ -17,7 +17,7 @@
 #include "midas.h"
 
 /* ROOT includes */
-#include <TH1F.h>
+#include <TH1D.h>
 #include <TDirectory.h>
 
 /* AlCap includes */
@@ -33,6 +33,7 @@ using std::pair;
 /*-- Module declaration --------------------------------------------*/
 static INT MTDCHitCounter_init(void);
 static INT MTDCHitCounter(EVENT_HEADER*, void*);
+static INT MTDCHitCounter_eor(INT);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -52,7 +53,7 @@ ANA_MODULE MTDCHitCounter_module =
   "John R Quirk",      /* author                */
   MTDCHitCounter,      /* event routine         */
   NULL,                /* BOR routine           */
-  NULL,                /* EOR routine           */
+  MTDCHitCounter_eor,  /* EOR routine           */
   MTDCHitCounter_init, /* init routine          */
   NULL,                /* exit routine          */
   NULL,                /* parameter structure   */
@@ -74,12 +75,37 @@ INT MTDCHitCounter_init() {
     char name[64], title[128];
     sprintf(name, "hTDCHitCounter_%s_%s", bank, det.c_str());
     sprintf(title, "TDC hits per block %s;Hits", det.c_str());
-    vhTDCHitCounter[ich] = new TH1F(name, title, 10000, 0., 10000.);
+    vhTDCHitCounter[ich] = new TH1D(name, title, 10000, 0., 10000.);
+    vhTDCHitCounter[ich]->Sumw2();
 
     sprintf(name, "hTDCHitRate_%s_%s", bank, det.c_str());
     sprintf(title, "TDC rates per block %s;Hits", det.c_str());
-    vhTDCHitRates[ich] = new TH1F(name, title, 10000, 0., 10.);
-    
+    vhTDCHitRates[ich] = new TH1D(name, title, 10000, 0., 10.);
+    vhTDCHitRates[ich]->Sumw2();
+  }
+  cwd->cd();
+  return SUCCESS;
+}
+
+INT MTDCHitCounter_eor(INT run_number) {
+  TDirectory* cwd = gDirectory;
+  DIR->cd();
+  for (int ich = 0; ich < NCHANTDC; ++ich) {
+    TH1* h0 = vhTDCHitCounter[ich];
+    std::string name(h0->GetName());
+    std::string title(h0->GetTitle());
+    name += "_normalized"; title += " (normalized)";
+    TH1* h = (TH1*)vhTDCHitCounter[ich]->Clone(name.c_str());
+    h->SetTitle(title.c_str());
+    h->Scale(1./h->GetEntries());
+
+    h0 = vhTDCHitRates[ich];
+    name = h0->GetName();
+    title = h0->GetTitle();
+    name += "_normalized"; title += " (normalized)";
+    h = (TH1*)vhTDCHitRates[ich]->Clone(name.c_str());
+    h->SetTitle(title.c_str());
+    h->Scale(1./h->GetEntries());
   }
   cwd->cd();
   return SUCCESS;
@@ -90,11 +116,9 @@ INT MTDCHitCounter(EVENT_HEADER *pheader, void *pevent) {
 
   for (int ich = 0; ich < NCHANTDC; ++ich) {
     if (tdc_map.count(TDCBANKS[ich])) {
-      if (tdc_map.count(TDCBANKS[ich])) {
-	const int n = tdc_map.at(TDCBANKS[ich]).size();
-	vhTDCHitCounter[ich]->Fill(n);
-	vhTDCHitRates[ich]->Fill(n/(double)gData->NMuBlock());
-      }
+      const int n = tdc_map.at(TDCBANKS[ich]).size();
+      vhTDCHitCounter[ich]->Fill(n);
+      vhTDCHitRates[ich]->Fill(n/(double)gData->NMuBlock());
     }
   }
 

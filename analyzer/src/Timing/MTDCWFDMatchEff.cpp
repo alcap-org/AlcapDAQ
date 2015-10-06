@@ -91,9 +91,11 @@ INT MTDCWFDMatchEff_init() {
       sprintf(fmt, "h%%sMatchEf_%s", det.c_str());
       sprintf(title, fmt, "WFD");
       vvhTDCWFDMatchEff[icrate][ich][0] = new TH1I(title, title, 10, 0., 10.);
+      vvhTDCWFDMatchEff[icrate][ich][0]->Sumw2();
       vvhTDCWFDMatchEff[icrate][ich][0]->GetXaxis()->SetTitle("Matches");
       sprintf(title, fmt, "TDC");
       vvhTDCWFDMatchEff[icrate][ich][1] = new TH1I(title, title, 10, 0., 10.);
+      vvhTDCWFDMatchEff[icrate][ich][1]->Sumw2();
       vvhTDCWFDMatchEff[icrate][ich][1]->GetXaxis()->SetTitle("Matches");
     }
   }
