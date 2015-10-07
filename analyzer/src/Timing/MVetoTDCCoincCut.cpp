@@ -36,8 +36,10 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 using namespace AlCap;
+namespace{
+const double TIME_LOW = -300, TIME_HIGH = 300; // in ns
+}
 
-const double TIME_LOW = -2e3, TIME_HIGH = 2e3; // in ns
 ANA_MODULE MVetoTDCCoincCut_module = 
   {
   "MVetoTDCCoincCut",     /* module name           */

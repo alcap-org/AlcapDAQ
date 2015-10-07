@@ -126,14 +126,17 @@ INT MTDCWFDMatchEff(EVENT_HEADER *pheader, void *pevent) {
       const std::vector<double>& pulses = calc_times(wfd_map.at(wfd_bank), TICKWFD[icrate], toff);
       std::vector<double>::const_iterator h0 = hits.begin(), p0 = pulses.begin();
       std::vector<double>::const_iterator hf = hits.end(),   pf = pulses.end();
-      for (std::vector<double>::const_iterator ih = h0, ip = p0;
-	   ih < hf && ip < pf; ++ih, ++ip) {
+      for (std::vector<double>::const_iterator ih = h0; ih < hf; ++ih) {
 	p0 = std::upper_bound(p0, pf, (*ih)+TIME_LOW);
-	h0 = std::upper_bound(h0, hf, (*ip)+TIME_LOW);
 	const int nh = std::upper_bound(p0, pf, (*ih)+TIME_HIGH) - p0;
+	vvhTDCWFDMatchEff[icrate][ich][1]->Fill(nh);
+      }
+      p0 = pulses.begin();
+      for (std::vector<double>::const_iterator ip = p0; ip < pf; ++ip) {
+	h0 = std::upper_bound(h0, hf, (*ip)+TIME_LOW);
 	const int np = std::upper_bound(h0, hf, (*ip)+TIME_HIGH) - h0;
 	vvhTDCWFDMatchEff[icrate][ich][0]->Fill(np);
-	vvhTDCWFDMatchEff[icrate][ich][1]->Fill(nh);
+
       }
     }
   }
