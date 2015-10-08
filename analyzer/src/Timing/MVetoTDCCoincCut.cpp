@@ -37,7 +37,8 @@ extern TSetupData* gSetup;
 
 using namespace AlCap;
 namespace{
-const double TIME_LOW = -300, TIME_HIGH = 300; // in ns
+  const double TIME_LOW = -300, TIME_HIGH = 300; // in ns
+ const double DOUBLEPULSE_LOW = -50, DOUBLEPULSE_HIGH = 50;
 }
 
 ANA_MODULE MVetoTDCCoincCut_module = 
@@ -67,7 +68,7 @@ INT MVetoTDCCoincCut(EVENT_HEADER *pheader, void *pevent)
     std::string detname = gSetup->GetDetectorName(mIter->first);
     if(!tdc_map.count(mIter->first))
       continue;
-    /*
+    
     std::string vetoname = detname + "V";
     if( detname == "TGeCHT") vetoname = "TGeV";
     if(detname == "TTSc") vetoname = "TVSc";
@@ -76,9 +77,9 @@ INT MVetoTDCCoincCut(EVENT_HEADER *pheader, void *pevent)
       //printf("MVetoTDCCoincCut: No veto found for %s\n", detname.c_str());
       continue; 
     }
-    */
+    
     std::vector<int64_t>& det_hits = mIter->second;
-    //std::vector<int64_t>& veto_hits = tdc_map.at(vetobank);
+    std::vector<int64_t>& veto_hits = tdc_map.at(vetobank);
 
     //std::cout << detname << " has veto counter " << vetoname << std::endl;
     //std::cout << detname << " has " << det_hits.size() << " hits before the coincidence cut" << std::endl;
@@ -89,13 +90,13 @@ INT MVetoTDCCoincCut(EVENT_HEADER *pheader, void *pevent)
       for(unsigned j=i+1; j< det_hits.size(); j++) {
 	static const double clock_tick = TICKTDC; // conversion to ns
 	const double dt = clock_tick * (det_hits[i] -  det_hits[j]);
-	if(dt < -1000.) break;
-	else if(dt < 1000.){  // a coincidence has occured
+	if(dt < DOUBLEPULSE_LOW) break;
+	else if(dt < DOUBLEPULSE_HIGH){  // a coincidence has occured
 	  det_hits.erase(det_hits.begin() + j);
 	  j--;
 	}
       } // end j loop
-      /*
+      
       ///check for vetos in time window
       for(unsigned j=0; j< veto_hits.size(); j++) {
 	static const double clock_tick = TICKTDC; // conversion to ns
@@ -107,7 +108,7 @@ INT MVetoTDCCoincCut(EVENT_HEADER *pheader, void *pevent)
 	}
       } // end j loop
     //std::cout << detname << " has " << det_hits.size() << " hits after the coincidence cut" << std::endl;
-    */    
+    
     }//end i loop
 
   }
