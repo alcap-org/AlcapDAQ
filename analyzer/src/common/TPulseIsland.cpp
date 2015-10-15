@@ -7,26 +7,29 @@
 #include <numeric>
 
 #include "TF1.h"
+#include "TSetupData.h"
 
 using std::vector;
 using std::string;
 
-TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fBankName("") {
+TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fBankName(""), fTDCTime(0), fPSD_parameter(-1) {
 }
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>::const_iterator& first,
         const vector<int>::const_iterator& last, string bank_name) :
-  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name) {
+  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(0), fPSD_parameter(-1) {
 }
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name) :
-  fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name) {
+  fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(0), fPSD_parameter(-1) {
 }
 
 void TPulseIsland::Reset(Option_t* o) {
   fTimeStamp = 0;
   fSamples.clear();
   fBankName = "";
+  fTDCTime = 0;
+  fPSD_parameter = -1;
 }
 
 // GetAmplitude()
@@ -119,3 +122,47 @@ double TPulseIsland::GetPedestal(int nPedSamples) const {
   return ped;
 }
 
+double TPulseIsland::GetIntegral() const {
+  std::string det = TSetupData::Instance()->GetDetectorName(fBankName);
+  int polarity = TSetupData::Instance()->GetTriggerPolarity(fBankName);
+  int nSamp = fSamples.size();
+  float pedBegin = 0, pedEnd = 0, pedBeginSamp = 0, pedEndSamp = 0;
+  float pedSlope = 0, pedInt = 0, pedMid = 0;
+  float integral = 0, integral_ps = 0;
+
+  //integrate the pedestal
+  for(std::vector<int>::const_iterator pulse_begin = fSamples.begin() + 1; pulse_begin != fSamples.begin() + 9; pulse_begin++){
+    pedBegin += (*pulse_begin);
+    pedBeginSamp += 1;
+  }
+  for(std::vector<int>::const_iterator pulse_end = fSamples.end() - 9; pulse_end != fSamples.end(); pulse_end++){
+    pedEnd += (*pulse_end);
+    pedEndSamp += 1;
+  }
+  pedBegin /= pedBeginSamp;
+  pedEnd /= pedEndSamp;
+  pedSlope = (pedEnd - pedBegin)/(float)nSamp;
+  pedMid = pedSlope * ((float)nSamp/2) + pedBegin;
+  if(det == "TSc"){
+    pedBegin = GetPedestal(4);
+    pedMid = pedBegin; pedEnd = pedBegin;   
+  }
+  pedInt = (float)(nSamp-1)/6 * (pedBegin + (4*pedMid) + pedEnd);
+
+  //integrate the wave
+  int nInt = 0;
+  int lastSamp = 0;
+  for(int i = 0; i+2 < nSamp; i += 2){
+    integral += (fSamples.at(i) + (4*fSamples.at(i+1)) + fSamples.at(i+2))/3;
+    nInt += 2;
+    lastSamp = i+2;
+    }
+  if(nSamp % 2 == 0){
+    integral += 0.5 * (fSamples.at(lastSamp) + fSamples.at(lastSamp + 1));
+    nInt ++;
+    lastSamp++;
+  }
+  integral_ps = polarity * (integral - pedInt);
+
+  return integral_ps;
+}

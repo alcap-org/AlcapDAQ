@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include <stdint.h>
+
 #include <TObject.h>
 #include <TH1.h>
 #include "TSetupData.h"
@@ -28,6 +30,9 @@ class TPulseIsland : public TObject {
   int fTimeStamp;
   /// The name describing the digitizer channel the pulse originated
   std::string fBankName;
+  // variables added by Damien
+  int64_t fTDCTime;   //correlated hit TDC time
+  float fPSD_parameter;     //integral ratio, 1+ == neutron in simplest case
 
  public:
   /// This defaultconstructor I believe exists so ROOT can load these from file and is not used explcitly.
@@ -61,6 +66,9 @@ class TPulseIsland : public TObject {
   const std::vector<int>& GetSamples() const { return fSamples; }
   int GetTimeStamp() const { return fTimeStamp; }
   const std::string& GetBankName() const { return fBankName; }
+  int64_t GetTDCTime() const { return fTDCTime; }
+  float GetPSDParameter() const { return fPSD_parameter; }
+
 
   double GetClockTickInNs() const { return TSetupData::Instance()->GetClockTick(fBankName); }
   int GetTriggerPolarity() const {return TSetupData::Instance()->GetTriggerPolarity(fBankName);};
@@ -87,11 +95,15 @@ class TPulseIsland : public TObject {
   /// @return Pedestal as stored in ODB
   double GetPedestal(int nPedSamples) const;
   //@}
+  double GetIntegral() const;
+
 
   void SetBankName(const std::string& name ){fBankName=name;}
   void SetTimeStamp(int t ){fTimeStamp=t;}
   void SetSamples( const std::vector<int>::const_iterator& first,
           const std::vector<int>::const_iterator& last){fSamples.assign(first,last);}
+  void SetTDCTime(int64_t t)  { fTDCTime = t; }
+  void SetPSDParameter(float PSD)  { fPSD_parameter = PSD; }
 
  private:
   /// Copying is made explicitly private since we do not need it yet.

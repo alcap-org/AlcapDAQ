@@ -338,6 +338,8 @@ INT MPSDIntegral(EVENT_HEADER *pheader, void *pevent)
       NdetRatioEnergy_map[bankname]->Fill(energy, ratio_t);
 
 
+      (*pIter)->SetPSDParameter(ratio_t);
+
       //Plot some questionable pulses
       /*
       bool plot = false;

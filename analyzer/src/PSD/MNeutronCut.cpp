@@ -316,14 +316,17 @@ INT MNeutronCut(EVENT_HEADER *pheader, void *pevent)
       ratio = sInt/lInt;
 
       float energy=0, ratio_t = 0;
+      
       if(detname == "NdetD"){
 	energy = 0.02358 + 0.00006766 * integral_ps;
-	ratio_t = ratio/(0.08482 + 3.951/sqrt(integral_ps) + 73.88/integral_ps);
+	//ratio_t = ratio/(0.08482 + 3.951/sqrt(integral_ps) + 73.88/integral_ps);
       }
       if(detname == "NdetU"){
 	energy = 0.02117 + 0.0000686 * integral_ps;
-	ratio_t = ratio/(0.08944 + 6.653/sqrt(integral_ps) - 64/12/integral_ps);
+	//ratio_t = ratio/(0.08944 + 6.653/sqrt(integral_ps) - 64/12/integral_ps);
       }
+      
+      ratio_t = (*pIter)->GetPSDParameter();
 
 
       NeutronUncut_map[bankname]->Fill(integral_ps, ratio_t);
