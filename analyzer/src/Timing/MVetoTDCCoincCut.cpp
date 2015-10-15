@@ -104,7 +104,8 @@ INT MVetoTDCCoincCut(EVENT_HEADER *pheader, void *pevent)
 	if(dt < TIME_LOW) break;
 	else if(dt < TIME_HIGH){  // a coincidence has occured
 	  det_hits.erase(det_hits.begin() + i);
-	  i--;
+	  if(i > 0)
+	    i--;
 	}
       } // end j loop
     //std::cout << detname << " has " << det_hits.size() << " hits after the coincidence cut" << std::endl;

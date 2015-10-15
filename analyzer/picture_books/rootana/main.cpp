@@ -48,14 +48,15 @@ int main(int argc, char **argv) {
 
   // Open all the TFiles that we will want
   std::vector<TFile*> run_files;
+  
   for (int i_run = arguments.start; i_run < arguments.stop; ++i_run) {
     std::stringstream filename;
-    filename << arguments.infilelocation << "out0" << i_run << ".root";
+    filename << arguments.infilelocation << "hist0" << i_run << ".root";
     
     TFile* file = new TFile(filename.str().c_str(), "READ");
     run_files.push_back(file);
   }
-
+  
   // open a root file to save all plots to as well as the picture book
   TFile* outFile=TFile::Open("plots/all_plots.root","Recreate");
 
@@ -100,9 +101,17 @@ int main(int argc, char **argv) {
     for (int i_run = 0; i_run < n_runs; ++i_run) {
 
       TFile* file = run_files.at(i_run);
+      /*
+      std::stringstream filename;                                              
+      filename << arguments.infilelocation << "hist0" << i_run+arguments.start << ".root";     
+ 
+      TFile* file = new TFile(filename.str().c_str(), "READ");        
+      */
+      if(i_run % 10 == 0) 
+	std::cout << "Run #" << i_run << " of " << n_runs << std::endl;
 
       if ( file->IsZombie() ) {
-	//	std::cout << "Problems opening file for run " << first_run+i_run << ", ignoring it." << std::endl;
+      	std::cout << "Problems opening file for run " << first_run+i_run << ", ignoring it." << std::endl;
 	continue;
       }
 
@@ -114,13 +123,17 @@ int main(int argc, char **argv) {
 	return 0;
       }
 
+
       TIter nextDirKey(dir->GetListOfKeys()); // get the list of keys in the directory (should include the histograms)
       TKey *dirKey;
   
       while ( (dirKey = (TKey*)nextDirKey()) ) {
 
 	std::string histogram_name = dirKey->ReadObj()->GetName();
-	std::cout << histogram_name << std::endl;
+
+	if(i_run % 10 == 0)
+	  std::cout << histogram_name << std::endl;
+	
 
 	// If we have been told that we want a specific plot type for this chapter,
 	// check that this is one of the plots we want
@@ -295,6 +308,8 @@ int main(int argc, char **argv) {
 	
 	  // Add the figure to the latex document
 	  pic_book->InsertFigure(pngname_str);
+	  outFile->Write();
+	  delete hPlot;
 	  ++n_plots;
 	}
 
