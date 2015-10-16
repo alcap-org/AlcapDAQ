@@ -38,11 +38,12 @@ using namespace AlCap;
 namespace {
   std::string WFDBANKS[NCRATE][MAXNCHANWFD];
   std::string TDCBANKS[NCRATE][MAXNCHANWFD];
-  //std::string VETOBANKS[NCRATE][MAXNCHANWFD];
+  std::string VETOBANKS[NCRATE][MAXNCHANWFD];
   TH2D* vvhTDCWFDMatch_Align[NCRATE][MAXNCHANWFD];
   TH2D* vvhTDCWFDMatch_CutAlign[NCRATE][MAXNCHANWFD];
   const double TIME_LOW = -5e3, TIME_HIGH = 1e4;
   const double ALIGN_LOW = -100, ALIGN_HIGH = 100;
+  const double VETO_LOW = -25, VETO_HIGH = 25;
 }
 
 
@@ -75,17 +76,17 @@ INT MTDCWFDMatch_init() {
       if(det == "NdetD" || det == "NdetU" || det == "LaBr3"){
 	WFDBANKS[icrate][ich] = bank;
 	TDCBANKS[icrate][ich] = gSetup->GetBankName("T" + det);
-	//VETOBANKS[icrate][ich] = "T" + det + "V";
+	VETOBANKS[icrate][ich] = gSetup->GetBankName("T" + det + "V");
       }
       else if(det == "GeCHEH" || det == "GeCHEL"){
 	WFDBANKS[icrate][ich] = bank;
 	TDCBANKS[icrate][ich] = gSetup->GetBankName("TGeCHT");
-	//VETOBANKS[icrate][ich] = "TGeV";
+	VETOBANKS[icrate][ich] = gSetup->GetBankName("TGeV");
       }
       else if(det == "TSc") {
 	WFDBANKS[icrate][ich] = bank;
 	TDCBANKS[icrate][ich] = gSetup->GetBankName("TTSc");
-	//VETOBANKS[icrate][ich] = "TVSc";
+	VETOBANKS[icrate][ich] = gSetup->GetBankName("TVSc");
       }
       else{
 	WFDBANKS[icrate][ich] = " ";
@@ -121,35 +122,45 @@ INT MTDCWFDMatch_init() {
 INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
   const map< string, vector<TPulseIsland*> >& wfd_map = gData->fPulseIslandToChannelMap;
   const map<string, vector<int64_t> >& tdc_map = gData->fTDCHitsToChannelMap;
-  std::string ref_bank = gSetup->GetBankName("TTSc");
-  if(!tdc_map.count(ref_bank)){
-      printf("MTDCWFDMatch: No reference hits TTSc!\n");
-      return SUCCESS;
-  }
-        
+      
 
   for(int icrate = 0; icrate < NCRATE; ++icrate){
     for(int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
       if(WFDBANKS[icrate][ich] == " ") continue;
-      if(!wfd_map.count(WFDBANKS[icrate][ich])) continue;
       std::string det=gSetup->GetDetectorName(WFDBANKS[icrate][ich]);
-      //std::cout << WFDBANKS[icrate][ich] << "   " << det << "   " << TDCBANKS[icrate][ich] << "   " << VETOBANKS[icrate][ich] << std::endl;
+
       const int polarity = gSetup->GetTriggerPolarity(WFDBANKS[icrate][ich]);
       const int nBits = gSetup->GetNBits(WFDBANKS[icrate][ich]);
       const int max_adc = std::pow(2, nBits);
 
+      if(!wfd_map.count(WFDBANKS[icrate][ich])){
+	printf("MTDCWFDMatch: No hits in channel %s!\n", WFDBANKS[icrate][ich].c_str());
+	return SUCCESS;
+      }
       const std::vector<TPulseIsland*>& pulses = wfd_map.at(WFDBANKS[icrate][ich]);
 
       if(!tdc_map.count(TDCBANKS[icrate][ich])){
-	printf("MTCorrTest: No hits in channel %s!\n", TDCBANKS[icrate][ich].c_str());
+	printf("MTDCWFDMatch: No hits in channel %s!\n", TDCBANKS[icrate][ich].c_str());
 	return SUCCESS;
       }
       const std::vector<int64_t>& times = tdc_map.at(TDCBANKS[icrate][ich]);
+
+      if(!tdc_map.count(VETOBANKS[icrate][ich])){
+	printf("MTDCWFDMatch: No hits in channel %s!\n", VETOBANKS[icrate][ich].c_str());
+	return SUCCESS;
+      }
+      const std::vector<int64_t>& vetos = tdc_map.at(VETOBANKS[icrate][ich]);
+
+
       double toff = gData->fTDCSynchronizationPulseOffset[icrate];
-      double tcorr = 0, aligncorr = 0;;
-      if(det == "GeCHEH" || det == "GeCHEL"){ tcorr = 1000; aligncorr = 200; }
-      if(det == "TSc") {aligncorr = -60; tcorr = -50;};
-      if(det == "LaBr3") aligncorr = 0;
+      double tcorr = 0, aligncorr = 0, vcorr = 0;
+      if(det == "GeCHEH" || det == "GeCHEL"){ tcorr = 1000; aligncorr = 200; vcorr = 127;}
+      if(det == "TSc") {aligncorr = -60; tcorr = -50; vcorr = -10;};
+      if(det == "LaBr3") vcorr = 7;
+      if(det == "NdetD") vcorr = 52;
+      if(det == "NdetU") vcorr == 40;
+
+
 
       //two loops, pulse loop
       int a0 = 0;
@@ -168,7 +179,6 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	float tThreshold = 0;
 	float threshold = MTDCWFDMatch_Threshold(det);
 	float cf = 0, cft_init = 0, cf_init = 0, cft = 0;
-	int nMatch = 0;
 	float tdiff_align = 0;
 
 	//plot waveform for CFT
@@ -218,6 +228,8 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	//a0 set to zero before pulse loop
 	// alignment loop
 
+	int64_t a1 = 0;
+	int nMatch = 0;
 	for(int a = a0; a<times.size(); ++a){
 	  double dt_cft = TICKTDC*times[a] - CFT - toff+tcorr;
 
@@ -228,6 +240,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	    nMatch++;
 	    tdiff_align = dt_cft;
 	    pulses[p]->SetTDCTime(times[a]);
+	    a1 = times[a];
 	  }
 	  else {
 	    if(a0 > 1) a0--;//just in case we passed the next pulse
@@ -237,10 +250,29 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	}
 	//back in pulse loop
 	//check for pulse discard
-	if(nMatch != 1) continue;
+	if(nMatch != 1){
+	  pulses[p]->SetVetoPulse(true);
+	  continue;
+	}
+
+	for(int v = 0; v<vetos.size(); ++v){
+	  double dt = TICKTDC*(a1 - vetos[v]) - vcorr; // a1 = pulse TDC time
+
+	  if(dt < VETO_LOW) break;
+	  else if(dt < VETO_HIGH){
+	    pulses[p]->SetVetoPulse(true);
+	    break;
+	  }
+
+	}
+
+	if(pulses[p]->GetVetoPulse()) continue;
 	vvhTDCWFDMatch_CutAlign[icrate][ich]->Fill(tdiff_align, max);
 
+
+
       }
+
     }
   }
 

@@ -33,6 +33,7 @@ class TPulseIsland : public TObject {
   // variables added by Damien
   int64_t fTDCTime;   //correlated hit TDC time
   float fPSD_parameter;     //integral ratio, 1+ == neutron in simplest case
+  bool fVetoPulse;
 
  public:
   /// This defaultconstructor I believe exists so ROOT can load these from file and is not used explcitly.
@@ -88,6 +89,7 @@ class TPulseIsland : public TObject {
   TH1I* GetPulseWaveform(std::string histname, std::string histtitle) const;
   int GetPulseLength() const { return fSamples.size(); }
   int GetPulseIntegral() const;
+  bool GetVetoPulse() const { return fVetoPulse; }
 
   /// @return Index in samples vector corresponding to pulse peak.
   int GetPeakSample() const;
@@ -104,6 +106,7 @@ class TPulseIsland : public TObject {
           const std::vector<int>::const_iterator& last){fSamples.assign(first,last);}
   void SetTDCTime(int64_t t)  { fTDCTime = t; }
   void SetPSDParameter(float PSD)  { fPSD_parameter = PSD; }
+  void SetVetoPulse(bool check) { fVetoPulse = check; }
 
  private:
   /// Copying is made explicitly private since we do not need it yet.

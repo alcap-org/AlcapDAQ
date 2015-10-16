@@ -42,11 +42,9 @@ using namespace AlCap;
 namespace {
   std::string WFDBANKS[NCRATE][MAXNCHANWFD];
   std::string TDCBANKS[NCRATE][MAXNCHANWFD];
-  std::string VETOBANKS[NCRATE][MAXNCHANWFD];
   TH2D* vvhTCorrTest_EvTDiff[NCRATE][MAXNCHANWFD];
   TH2D* vvhTCorrTest_IEvTDiff[NCRATE][MAXNCHANWFD];
   const double TIME_LOW = -5e3, TIME_HIGH = 1e4;
-  const double VETO_LOW = -2000, VETO_HIGH = 2000;
 }
 
 
@@ -78,24 +76,19 @@ INT MTCorrTest_init() {
 
       if(det == "NdetD" || det == "NdetU" || det == "LaBr3"){
 	WFDBANKS[icrate][ich] = bank;
-	TDCBANKS[icrate][ich] = gSetup->GetBankName("T" + det);
-	VETOBANKS[icrate][ich] = gSetup->GetBankName("T" + det + "V");
-	std::cout << WFDBANKS[icrate][ich] << "   " << TDCBANKS[icrate][ich] << "   " << VETOBANKS[icrate][ich] << std::endl;
+	//TDCBANKS[icrate][ich] = gSetup->GetBankName("T" + det);
       }
       else if(det == "GeCHEH" || det == "GeCHEL"){
 	WFDBANKS[icrate][ich] = bank;
-	TDCBANKS[icrate][ich] = gSetup->GetBankName("TGeCHT");
-	VETOBANKS[icrate][ich] = gSetup->GetBankName("TGeV");
+	//TDCBANKS[icrate][ich] = gSetup->GetBankName("TGeCHT");
       }
       else if(det == "TSc") {
 	WFDBANKS[icrate][ich] = bank;
-	TDCBANKS[icrate][ich] = gSetup->GetBankName("TTSc");
-	VETOBANKS[icrate][ich] = gSetup->GetBankName("TVSc");
+	//TDCBANKS[icrate][ich] = gSetup->GetBankName("TTSc");
       }
       else{
 	WFDBANKS[icrate][ich] = "";
-	TDCBANKS[icrate][ich] = "";
-	VETOBANKS[icrate][ich] = "";
+	//TDCBANKS[icrate][ich] = "";
 	continue;  // ignoring SYNC pulses, Rollover, LYSO, GeCHT, and empty
       }
 
@@ -132,15 +125,23 @@ INT MTCorrTest_init() {
 
 INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
   const map< string, vector<TPulseIsland*> >& wfd_map = gData->fPulseIslandToChannelMap;
-  const map<string, vector<int64_t> >& tdc_map = gData->fTDCHitsToChannelMap;
+  //const map<string, vector<int64_t> >& tdc_map = gData->fTDCHitsToChannelMap;
+
+  /*
   std::string ref_bank = gSetup->GetBankName("TTSc");
   if(!tdc_map.count(ref_bank)){
       printf("MTCorrTest: No reference hits TTSc!\n");
       return SUCCESS;
   }
-    
   const std::vector<int64_t>& ref_times = tdc_map.at(ref_bank);
-    
+  */  
+  std::string ref_bank = gSetup->GetBankName("TSc");
+  if(!wfd_map.count(ref_bank)){
+      printf("MTCorrTest: No reference hits TSc!\n");
+      return SUCCESS;
+  }
+  const std::vector<TPulseIsland*>& ref_hits = wfd_map.at(ref_bank);
+
   for(int icrate = 0; icrate < NCRATE; ++icrate){
     for(int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
       if(WFDBANKS[icrate][ich] == " ") continue;
@@ -152,12 +153,6 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
       const int max_adc = std::pow(2, nBits) - 1;
 
       const std::vector<TPulseIsland*>& pulses = wfd_map.at(WFDBANKS[icrate][ich]);
-      if(!tdc_map.count(VETOBANKS[icrate][ich])) {
-	std::cout << "No veto hits found for detector" << det << std::endl;
-	continue;
-      }
-
-      const std::vector<int64_t>& veto_hits = tdc_map.at(VETOBANKS[icrate][ich]);
 
       //two loops, pulse loop
       int t0 = 0;
@@ -168,7 +163,6 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	const std::vector<int>& samples = pulses[p]->GetSamples();
 	const int nSamp = samples.size();
 	if(nSamp < 8) continue;
-	bool VetoCheck = false;
 
 	float integral_ps = pulses[p]->GetIntegral();
 	float max = pulses[p]->GetPulseHeight();
@@ -180,29 +174,15 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	if(*(std::max_element(samples.begin(), samples.end())) >= max_adc) continue;
 	if(gSetup->IsNeutron(WFDBANKS[icrate][ich]) && pulses[p]->GetPSDParameter() < 1) continue; //gamma
 	
-	//veto check
-	for(int v = 0; v < veto_hits.size(); ++v){
-	  double dt = TICKTDC*(pulses[p]->GetTDCTime() - veto_hits[v]);
-	  
-	  if(dt < VETO_LOW){
-	    break;
-	  }
-	  else if(dt < VETO_HIGH){
-	    VetoCheck = true;
-	    break;
-	  }
-	}
+	if(pulses[p]->GetVetoPulse()) continue; //vetoed
 
-
-	if(VetoCheck) continue;
 	
 	float energy_amp = MTCorrTest_Energy(det, max);
 	float energy_int = MTCorrTest_IntEnergy(det, integral_ps);
 
 	//loop over TTSc times
-	for(int t = t0; t<ref_times.size(); ++t){
-	  double dt = TICKTDC*pulses[p]->GetTDCTime() - TICKTDC*ref_times[t];
-
+	for(int t = t0; t<ref_hits.size(); ++t){
+	  double dt = TICKTDC*(pulses[p]->GetTDCTime() - ref_hits[t]->GetTDCTime());
 	  if(dt < TIME_LOW) break;
 	  else if(dt < TIME_HIGH){
 	    vvhTCorrTest_EvTDiff[icrate][ich]->Fill(dt, energy_amp);

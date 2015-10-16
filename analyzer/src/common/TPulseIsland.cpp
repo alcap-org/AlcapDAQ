@@ -12,16 +12,16 @@
 using std::vector;
 using std::string;
 
-TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fBankName(""), fTDCTime(0), fPSD_parameter(-1) {
+TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fBankName(""), fTDCTime(0), fPSD_parameter(-1), fVetoPulse(false) {
 }
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>::const_iterator& first,
         const vector<int>::const_iterator& last, string bank_name) :
-  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(0), fPSD_parameter(-1) {
+  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(0), fPSD_parameter(-1), fVetoPulse(false) {
 }
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name) :
-  fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(0), fPSD_parameter(-1) {
+  fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(0), fPSD_parameter(-1), fVetoPulse(false) {
 }
 
 void TPulseIsland::Reset(Option_t* o) {
@@ -30,6 +30,7 @@ void TPulseIsland::Reset(Option_t* o) {
   fBankName = "";
   fTDCTime = 0;
   fPSD_parameter = -1;
+  fVetoPulse = false;
 }
 
 // GetAmplitude()
