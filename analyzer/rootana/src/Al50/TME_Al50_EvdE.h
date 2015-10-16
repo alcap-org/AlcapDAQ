@@ -78,6 +78,7 @@ class TME_Al50_EvdE : public BaseModule {
 	  TH2F* h_EvdE;
 	  TH1F* h_Time;
 	  TH1F* h_stopped_proton_profile;
+	  TH1F* h_VetoedThinEnergy;
 	} fLeftArm, fLeftArmQuad1, fLeftArmQuad2, fLeftArmQuad3, fLeftArmQuad4, 
 	  fRightArm, fRightArmQuad1, fRightArmQuad2, fRightArmQuad3, fRightArmQuad4;
 
