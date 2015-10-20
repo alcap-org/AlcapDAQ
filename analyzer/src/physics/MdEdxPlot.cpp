@@ -54,6 +54,8 @@ const int max_sectors_per_layer = 4; // for the first layer only!
 static TH2D* hdEdx[n_arms];
 static std::string arm_names[n_arms] = {"SiL", "SiR"};
 static std::string si_bank_names[n_arms][n_layers_per_arm][max_sectors_per_layer];
+static double adc_slope_calib[n_arms][n_layers_per_arm][max_sectors_per_layer];
+static double adc_offset_calib[n_arms][n_layers_per_arm][max_sectors_per_layer];
 
 
 ANA_MODULE MdEdxPlot_module =
@@ -90,21 +92,31 @@ INT MdEdxPlot_init()
 	  detname.str(""); // don't want multiple copies of the thicker layers
 	  detname << "N/A";
 	}
-	si_bank_names[i_arm][i_layer][i_quadrant] = gSetup->GetBankName(detname.str());
+	std::string bankname = gSetup->GetBankName(detname.str());
+	si_bank_names[i_arm][i_layer][i_quadrant] = bankname;
+	adc_slope_calib[i_arm][i_layer][i_quadrant] = gSetup->GetADCSlopeCalib(bankname);
+	adc_offset_calib[i_arm][i_layer][i_quadrant] = gSetup->GetADCOffsetCalib(bankname);
 	//	printf("AE: %s --> %s\n", detname.str().c_str(), (si_bank_names[i_arm][i_layer][i_quadrant]).c_str());
 	detname.str("");
       }
     }
 
     // While looping through the arms create the dE/dx plots
-    int max_adc_value = 4096; // probably want to check which channel we're in before setting this
-    max_adc_value = 7500;
+    double min_edep = 0;
+    double max_total_edep = 15000;
+    double max_thin_edep = 5000;
+    double edep_width = 100;
+    int n_total_edep_bins = (max_total_edep - min_edep) / edep_width;
+    int n_thin_edep_bins = (max_thin_edep - min_edep) / edep_width;
+
+    //    int max_adc_value = 4096; // probably want to check which channel we're in before setting this
+    //    max_adc_value = 7500;
 
     std::string histname = "hdEdx_" + arm_names[i_arm];
     std::string histtitle = "dE/dx plot for " + arm_names[i_arm];
-    hdEdx[i_arm] = new TH2D(histname.c_str(), histtitle.c_str(), max_adc_value/10,0,max_adc_value, max_adc_value/10,0,max_adc_value);
-    hdEdx[i_arm]->GetXaxis()->SetTitle("Pulse Height in Si1");
-    hdEdx[i_arm]->GetYaxis()->SetTitle("Total Pulse Height in Si1, Si2 and Si3");
+    hdEdx[i_arm] = new TH2D(histname.c_str(), histtitle.c_str(), n_total_edep_bins,min_edep,max_total_edep, n_thin_edep_bins,min_edep,max_thin_edep);
+    hdEdx[i_arm]->GetYaxis()->SetTitle("EDep in Si1");
+    hdEdx[i_arm]->GetXaxis()->SetTitle("Total EDep in Si1, Si2 and Si3");
   }
 
   return SUCCESS;
@@ -161,11 +173,11 @@ INT MdEdxPlot(EVENT_HEADER *pheader, void *pevent)
 	  // Now loop through each detector at the same time and start adding energy deposits and fill the histogram
 	  bool done = false;
 	  while (!done) {
-	    double pulse_heights[n_layers_per_arm];
+	    double pulse_edeps[n_layers_per_arm];
 	    double current_time = 0;
 
 	    for (int i_layer = 0; i_layer < n_layers_per_arm; ++i_layer) {
-	      pulse_heights[i_layer] = 0; // start at 0
+	      pulse_edeps[i_layer] = 0; // start at 0
 	      for (int i_quadrant = 0; i_quadrant < max_sectors_per_layer; ++i_quadrant) {
 		int current_index = pulse_counters[i_layer][i_quadrant];
 		//		printf("Layer #%d, Quadrant #%d, Index %d, size = %d\n", i_layer, i_quadrant, current_index, vector_sizes[i_layer][i_quadrant]);
@@ -176,8 +188,10 @@ INT MdEdxPlot(EVENT_HEADER *pheader, void *pevent)
 		// Want a time check
 		if (current_time < 0.1) { // if we don't have a time yet
 		  current_time = (si_pulses[i_layer][i_quadrant].at(current_index))->GetPulseTime();
-		  pulse_heights[i_layer] = (si_pulses[i_layer][i_quadrant].at(current_index))->GetPulseHeight(); // add all quadrants
-		  //		  printf("Layer #%d, Q%d: time = %f, height = %f\n", i_layer, i_quadrant, current_time, pulse_heights[i_layer]);
+		  pulse_edeps[i_layer] = 
+		    (adc_slope_calib[i_arm][i_layer][i_quadrant]) * ((si_pulses[i_layer][i_quadrant].at(current_index))->GetPulseHeight())
+		         + adc_offset_calib[i_arm][i_layer][i_quadrant]; 
+		  //		  printf("Layer #%d, Q%d: time = %f, height = %f\n", i_layer, i_quadrant, current_time, pulse_edeps[i_layer]);
 		  ++(pulse_counters[i_layer][i_quadrant]); // may miss things though...
 		}
 		else {
@@ -185,19 +199,21 @@ INT MdEdxPlot(EVENT_HEADER *pheader, void *pevent)
 		  double pulse_time = (si_pulses[i_layer][i_quadrant].at(current_index))->GetPulseTime();
 		  //		  printf("Pulse time = %f\n", pulse_time);
 		  if (std::fabs(current_time - pulse_time) < time_difference) {
-		    pulse_heights[i_layer] += (si_pulses[i_layer][i_quadrant].at(current_index))->GetPulseHeight(); // add all quadrants
-		    //		    printf("Match! Layer #%d, Q%d: time = %f, total height = %f\n", i_layer, i_quadrant, pulse_time, pulse_heights[i_layer]);
+		    pulse_edeps[i_layer] += 
+		      (adc_slope_calib[i_arm][i_layer][i_quadrant]) * ((si_pulses[i_layer][i_quadrant].at(current_index))->GetPulseHeight())
+		           + adc_offset_calib[i_arm][i_layer][i_quadrant]; 
+		    //		    printf("Match! Layer #%d, Q%d: time = %f, total height = %f\n", i_layer, i_quadrant, pulse_time, pulse_edeps[i_layer]);
 		    ++(pulse_counters[i_layer][i_quadrant]); // used this one
 		  }
 		}
 	      }
 
 	      // Now fill in the plots
-	      double all_layer_pulse_height = 0;
+	      double all_layer_pulse_edep = 0;
 	      for (int i_layer = 0; i_layer < n_layers_per_arm; ++i_layer) {
-		all_layer_pulse_height += pulse_heights[i_layer];
+		all_layer_pulse_edep += pulse_edeps[i_layer];
 	      }
-	      hdEdx[i_arm]->Fill(all_layer_pulse_height, pulse_heights[0]);
+	      hdEdx[i_arm]->Fill(all_layer_pulse_edep, pulse_edeps[0]);
 	    }
 	    
 	    // Check if any of the vectors are done
