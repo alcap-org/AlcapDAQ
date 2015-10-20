@@ -3,7 +3,9 @@
 Name:         MdEdxPlot
 Created by:   Andrew Edmonds
 
-Contents:     One module that fills out histograms for the pulse heights, pulse shapes and the raw counts for all digitizer channels. These are all in one module to be more efficient in terms of minimising the number of times we loop through the channels.
+Contents:     A module that gives the dEdx plots for the left and right silicon detectors
+
+Updated: 2015-10-19 for R2015b where we will have three silicon layers and will actually try to use this online...
 
 \********************************************************************/
 
@@ -45,13 +47,14 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-static TH2D* hdEdx_left;
-static TH2D* hdEdx_right;
+const int n_arms = 2;
+const int n_layers_per_arm = 3;
+const int max_sectors_per_layer = 4; // for the first layer only!
 
-std::vector<std::string> left_thin_banknames;
-std::vector<std::string> left_thick_banknames;
-std::vector<std::string> right_thin_banknames;
-std::vector<std::string> right_thick_banknames;
+static TH2D* hdEdx[n_arms];
+static std::string arm_names[n_arms] = {"SiL", "SiR"};
+static std::string si_bank_names[n_arms][n_layers_per_arm][max_sectors_per_layer];
+
 
 ANA_MODULE MdEdxPlot_module =
 {
@@ -74,43 +77,40 @@ INT MdEdxPlot_init()
   // The dE/dx histogram is created for the left and right arms of the detector:
   // energy in Si1 (x-axis) vs total energy in Si1 + Si2 (y-axis)
 
-  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
-  for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); 
-      mapIter != bank_to_detector_map.end(); mapIter++) { 
+  std::stringstream detname;
+  for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
+    for (int i_layer = 0; i_layer < n_layers_per_arm; ++i_layer) {
+      for (int i_quadrant = 0; i_quadrant < max_sectors_per_layer; ++i_quadrant) {
+	detname << arm_names[i_arm] << i_layer+1;
+	if (i_layer == 0) {
+	  detname << "-" << i_quadrant+1;
+	}
+	detname << "-S";
+	if (i_layer > 0 && i_quadrant > 0) {
+	  detname.str(""); // don't want multiple copies of the thicker layers
+	  detname << "N/A";
+	}
+	si_bank_names[i_arm][i_layer][i_quadrant] = gSetup->GetBankName(detname.str());
+	//	printf("AE: %s --> %s\n", detname.str().c_str(), (si_bank_names[i_arm][i_layer][i_quadrant]).c_str());
+	detname.str("");
+      }
+    }
 
-    std::string bankname = mapIter->first;
-    std::string detname = gSetup->GetDetectorName(bankname);
+    // While looping through the arms create the dE/dx plots
+    int max_adc_value = 4096; // probably want to check which channel we're in before setting this
+    max_adc_value = 7500;
 
-    if (detname.substr(0,4) == "SiL1" && detname.substr(7,4) == "slow")
-      left_thin_banknames.push_back(bankname);
-    else if (detname.substr(0,4) == "SiL2" && detname.substr(5,4) == "slow")
-      left_thick_banknames.push_back(bankname);
-    else if (detname.substr(0,4) == "SiR1" && detname.substr(7,4) == "slow")
-      right_thin_banknames.push_back(bankname);
-    else if (detname.substr(0,4) == "SiR2" && detname.substr(5,4) == "slow")
-      right_thick_banknames.push_back(bankname);
+    std::string histname = "hdEdx_" + arm_names[i_arm];
+    std::string histtitle = "dE/dx plot for " + arm_names[i_arm];
+    hdEdx[i_arm] = new TH2D(histname.c_str(), histtitle.c_str(), max_adc_value,0,max_adc_value, max_adc_value,0,max_adc_value);
+    hdEdx[i_arm]->GetXaxis()->SetTitle("Pulse Height in Si1");
+    hdEdx[i_arm]->GetYaxis()->SetTitle("Total Pulse Height in Si1, Si2 and Si3");
   }
-
-  int max_adc_value = 4096; // probably want to check which channel we're in before setting this
-  max_adc_value = 7500;
-  // hdEdx
-  std::string histname = "hdEdx_left";
-  std::string histtitle = "dE/dx plot for the left arm";
-  hdEdx_left = new TH2D(histname.c_str(), histtitle.c_str(), max_adc_value,0,max_adc_value, max_adc_value,0,max_adc_value);
-  hdEdx_left->GetXaxis()->SetTitle("Pulse Height in Si1");
-  hdEdx_left->GetYaxis()->SetTitle("Total Pulse Height in Si1 and Si2");
-
-  histname = "hdEdx_right";
-  histtitle = "dE/dx plot for the right arm";
-  hdEdx_right = new TH2D(histname.c_str(), histtitle.c_str(), max_adc_value,0,max_adc_value, max_adc_value,0,max_adc_value);
-  hdEdx_right->GetXaxis()->SetTitle("Pulse Height in Si1");
-  hdEdx_right->GetYaxis()->SetTitle("Total Pulse Height in Si1 and Si2");
 
   return SUCCESS;
 }
 
-/** This method processes one MIDAS block, producing a vector
- * of TOctalFADCIsland objects from the raw Octal FADC data.
+/** This method processes one MIDAS block
  */
 INT MdEdxPlot(EVENT_HEADER *pheader, void *pevent)
 {
@@ -127,88 +127,94 @@ INT MdEdxPlot(EVENT_HEADER *pheader, void *pevent)
 	TStringPulseIslandMap& pulse_islands_map =
 		gData->fPulseIslandToChannelMap;
 
-	////////////////////////////
-	// SiL
-	// Just loop over the banks we know are connected to these detectors
-	std::vector<std::map<double, double> > thinSiLeft_TimeHeightMaps;
-	for (std::vector<std::string>::iterator bankNameIter = left_thin_banknames.begin();
-	     bankNameIter != left_thin_banknames.end(); bankNameIter++) {
-
-	  std::vector<TPulseIsland*> temp_vector = gData->fPulseIslandToChannelMap[*bankNameIter];
-	  //skip bank if it doesen't exist
-	  if (temp_vector.size() == 0) continue;
+	// Loop through the arms
+	for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
+	  int pulse_counters[n_layers_per_arm][max_sectors_per_layer]; // to keep track of where we are in each vector
+	  int vector_sizes[n_layers_per_arm][max_sectors_per_layer]; // record this for the future
 	  
-	  thinSiLeft_TimeHeightMaps.push_back(MakePulseTimeHeightMap(temp_vector));
+	  // Get the pulses for each detector (we'll have to go through each at the same time to get coincidences)
+	  std::vector<TPulseIsland*> si_pulses[n_layers_per_arm][max_sectors_per_layer];
+	  // Loop through the layers
+	  for (int i_layer = 0; i_layer < n_layers_per_arm; ++i_layer) {
+	    
+	    // Loop through the quadrants
+	    for (int i_quadrant = 0; i_quadrant < max_sectors_per_layer; ++i_quadrant) {
+	      pulse_counters[i_layer][i_quadrant] = 0;
+
+	      std::string bankname = si_bank_names[i_arm][i_layer][i_quadrant];
+	      if (bankname == "") {
+		vector_sizes[i_layer][i_quadrant] = 0;
+		continue; // from looping through quadrants
+	      }
+
+	      // Get the TPulseIslands for this bank
+	      si_pulses[i_layer][i_quadrant] = gData->fPulseIslandToChannelMap[bankname];
+	      vector_sizes[i_layer][i_quadrant] = (si_pulses[i_layer][i_quadrant]).size();
+	      //	      printf("AE: %s: %d pulses\n", bankname.c_str(), (int) (si_pulses[i_layer][i_quadrant]).size());
+	      //skip bank if it doesen't exist
+	      if (si_pulses[i_layer][i_quadrant].size() == 0) {
+		continue;
+	      }
+	    }
+	  }
+
+	  // Now loop through each detector at the same time and start adding energy deposits and fill the histogram
+	  bool done = false;
+	  while (!done) {
+	    double pulse_heights[n_layers_per_arm];
+	    double current_time = 0;
+
+	    for (int i_layer = 0; i_layer < n_layers_per_arm; ++i_layer) {
+	      pulse_heights[i_layer] = 0; // start at 0
+	      for (int i_quadrant = 0; i_quadrant < max_sectors_per_layer; ++i_quadrant) {
+		int current_index = pulse_counters[i_layer][i_quadrant];
+		//		printf("Layer #%d, Quadrant #%d, Index %d, size = %d\n", i_layer, i_quadrant, current_index, vector_sizes[i_layer][i_quadrant]);
+		if (current_index >= vector_sizes[i_layer][i_quadrant]) {
+		  continue;
+		}
+
+		// Want a time check
+		if (current_time < 0.1) { // if we don't have a time yet
+		  current_time = (si_pulses[i_layer][i_quadrant].at(current_index))->GetPulseTime();
+		  pulse_heights[i_layer] = (si_pulses[i_layer][i_quadrant].at(current_index))->GetPulseHeight(); // add all quadrants
+		  //		  printf("Layer #%d, Q%d: time = %f, height = %f\n", i_layer, i_quadrant, current_time, pulse_heights[i_layer]);
+		  ++(pulse_counters[i_layer][i_quadrant]); // may miss things though...
+		}
+		else {
+		  double time_difference = 10000; // 
+		  double pulse_time = (si_pulses[i_layer][i_quadrant].at(current_index))->GetPulseTime();
+		  //		  printf("Pulse time = %f\n", pulse_time);
+		  if (std::fabs(current_time - pulse_time) < time_difference) {
+		    pulse_heights[i_layer] += (si_pulses[i_layer][i_quadrant].at(current_index))->GetPulseHeight(); // add all quadrants
+		    //		    printf("Match! Layer #%d, Q%d: time = %f, total height = %f\n", i_layer, i_quadrant, pulse_time, pulse_heights[i_layer]);
+		    ++(pulse_counters[i_layer][i_quadrant]); // used this one
+		  }
+		}
+	      }
+
+	      // Now fill in the plots
+	      double all_layer_pulse_height = 0;
+	      for (int i_layer = 0; i_layer < n_layers_per_arm; ++i_layer) {
+		all_layer_pulse_height += pulse_heights[i_layer];
+	      }
+	      hdEdx[i_arm]->Fill(all_layer_pulse_height, pulse_heights[0]);
+	    }
+	    
+	    // Check if any of the vectors are done
+	    for (int i_layer = 0; i_layer < n_layers_per_arm; ++i_layer) {
+	      for (int i_quadrant = 0; i_quadrant < max_sectors_per_layer; ++i_quadrant) {
+		done = true;
+		if (pulse_counters[i_layer][i_quadrant] < vector_sizes[i_layer][i_quadrant]) {
+		  done = false;
+		  break; // from quadrant loop
+		}
+	      }
+	      if (done == false) { // if we already know we aren't finished
+		break; // from the layer loop
+	      }
+	    }
+	  }
 	}
-	std::map<double, double> thinLeftSum;
-	if (thinSiLeft_TimeHeightMaps.size() != 0)
-	  thinLeftSum = MakePulseHeightSums(thinSiLeft_TimeHeightMaps, 1000);
-
-	std::vector<std::map<double, double> > totalLeft_TimeHeightMaps;
-	for (std::vector<std::string>::iterator leftThickIter = left_thick_banknames.begin();
-	     leftThickIter != left_thick_banknames.end(); leftThickIter++) {
-
-	  std::vector<TPulseIsland*> temp_vector = gData->fPulseIslandToChannelMap[*leftThickIter];
-	  //skip bank if it doesen't exist
-	  if (temp_vector.size() == 0) continue;
-	  
-	  totalLeft_TimeHeightMaps.push_back(MakePulseTimeHeightMap(temp_vector));
-	}
-	if (thinLeftSum.size() != 0)
-	  totalLeft_TimeHeightMaps.push_back(thinLeftSum);
-
-	std::map<double, double> totalLeftSum;
-	if (totalLeft_TimeHeightMaps.size() != 0)
-	  totalLeftSum = MakePulseHeightSums(totalLeft_TimeHeightMaps, 1000);
-
-	for (std::map<double, double>::iterator thinHit = thinLeftSum.begin(), totalHit = totalLeftSum.begin(); 
-	     thinHit != thinLeftSum.end() || totalHit != totalLeftSum.end(); thinHit++, totalHit++) {
-
-	  hdEdx_left->Fill((*thinHit).second, (*totalHit).second);
-	}	
-	//
-	////////////////////////////
-
-
-	////////////////////////////
-	// SiR
-	// Just loop over the banks we know are connected to these detectors
-	std::vector<std::map<double, double> > thinSiRight_TimeHeightMaps;
-	for (std::vector<std::string>::iterator bankNameIter = right_thin_banknames.begin();
-	     bankNameIter != right_thin_banknames.end(); bankNameIter++) {
-
-	  std::vector<TPulseIsland*> temp_vector = gData->fPulseIslandToChannelMap[*bankNameIter];
-	  //skip bank if it doesen't exist
-	  if (temp_vector.size() == 0) continue;
-	  
-	  thinSiRight_TimeHeightMaps.push_back(MakePulseTimeHeightMap(temp_vector));
-	}
-	std::map<double, double> thinRightSum;
-	if (thinSiRight_TimeHeightMaps.size() != 0)
-	  thinRightSum = MakePulseHeightSums(thinSiRight_TimeHeightMaps, 1000);
-
-	std::vector<std::map<double, double> > totalRight_TimeHeightMaps;
-	for (std::vector<std::string>::iterator rightThickIter = right_thick_banknames.begin();
-	     rightThickIter != right_thick_banknames.end(); rightThickIter++) {
-
-	  std::vector<TPulseIsland*> temp_vector = gData->fPulseIslandToChannelMap[*rightThickIter];
-	  //skip bank if it doesen't exist
-	  if (temp_vector.size() == 0) continue;
-	  
-	  totalRight_TimeHeightMaps.push_back(MakePulseTimeHeightMap(temp_vector));
-	}
-	if (thinRightSum.size() != 0)
-	  totalRight_TimeHeightMaps.push_back(thinRightSum);
-
-	std::map<double, double> totalRightSum;
-	if (totalRight_TimeHeightMaps.size() != 0)
-	  totalRightSum = MakePulseHeightSums(totalRight_TimeHeightMaps, 1000);
-
-	for (std::map<double, double>::iterator thinHit = thinRightSum.begin(), totalHit = totalRightSum.begin(); 
-	     thinHit != thinRightSum.end() || totalHit != totalRightSum.end(); thinHit++, totalHit++) {
-
-	  hdEdx_right->Fill((*thinHit).second, (*totalHit).second);
-	}	
 
 	return SUCCESS;
 }
