@@ -37,6 +37,11 @@ TDCTargetCorrelations2 v1290/v1290_tsctcorr_4_7.C
 TDCTargetCorrelations3 v1290/v1290_tsctcorr_8_11.C
 TDCTargetCorrelations4 v1290/v1290_tsctcorr_12_15.C
 
+#======================================================
+#	Physics
+#======================================================
+dEdx physics/silicon_dEdx.C
+
 #
 #======================================================
 #             muSC

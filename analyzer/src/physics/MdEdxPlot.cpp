@@ -102,7 +102,7 @@ INT MdEdxPlot_init()
 
     std::string histname = "hdEdx_" + arm_names[i_arm];
     std::string histtitle = "dE/dx plot for " + arm_names[i_arm];
-    hdEdx[i_arm] = new TH2D(histname.c_str(), histtitle.c_str(), max_adc_value,0,max_adc_value, max_adc_value,0,max_adc_value);
+    hdEdx[i_arm] = new TH2D(histname.c_str(), histtitle.c_str(), max_adc_value/10,0,max_adc_value, max_adc_value/10,0,max_adc_value);
     hdEdx[i_arm]->GetXaxis()->SetTitle("Pulse Height in Si1");
     hdEdx[i_arm]->GetYaxis()->SetTitle("Total Pulse Height in Si1, Si2 and Si3");
   }

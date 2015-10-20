@@ -10,11 +10,11 @@ void silicon_dEdx()
   /*****************************************************************/
   
   AlCapCanvas->cd(1);
-  TH2* left_hist = (TH2 *)gDirectory->Get("hdEdx_left");
+  TH2* left_hist = (TH2 *)getObject("hdEdx_SiL");
   left_hist->Draw("COLZ");
 
   AlCapCanvas->cd(2);
-  TH2* right_hist = (TH2 *)gDirectory->Get("hdEdx_right");
+  TH2* right_hist = (TH2 *)getObject("hdEdx_SiR");
   right_hist->Draw("COLZ");
   
 }
