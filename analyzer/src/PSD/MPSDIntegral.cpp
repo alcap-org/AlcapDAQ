@@ -38,7 +38,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-std::map<std::string,TH2F*> NdetRatio_map, NdetRatioEnergy_map;
+std::map<std::string,TH2F*> NdetRatio_map, NdetNormRatio_map, NdetRatioEnergy_map;
 std::map<int, TH1D*> NdetDIFoM_map, NdetUIFoM_map;
 
 bool PSDInt_firstEvent = true;
@@ -95,6 +95,14 @@ INT MPSDIntegral_BookHistograms()
     hNdetRatio->GetYaxis()->SetTitle("Integral Ratio");
     hNdetRatio->GetXaxis()->SetTitle("Integral (pedestal subtracted)");
     NdetRatio_map[bankname] = hNdetRatio;
+
+
+    histname = "h" + detname + "_NormRatio";
+    histtitle = "Integral Ratio vs Integral for " + detname;
+    TH2F* hNdetNormRatio = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, max_bin, 600, 0, 2.5);
+    hNdetNormRatio->GetYaxis()->SetTitle("Integral Ratio");
+    hNdetNormRatio->GetXaxis()->SetTitle("Integral (pedestal subtracted)");
+    NdetNormRatio_map[bankname] = hNdetNormRatio;
     
     
       histname = "h" + detname + "RatioEnergy";
@@ -334,7 +342,8 @@ INT MPSDIntegral(EVENT_HEADER *pheader, void *pevent)
 	ratio_t = ratio/(0.08944 + 6.653/sqrt(integral_ps) - 64/12/integral_ps);
       }
 
-      NdetRatio_map[bankname]->Fill(integral_ps, ratio_t);
+      NdetRatio_map[bankname]->Fill(integral_ps, ratio);
+      NdetNormRatio_map[bankname]->Fill(integral_ps, ratio_t);
       NdetRatioEnergy_map[bankname]->Fill(energy, ratio_t);
 
 
