@@ -69,7 +69,7 @@ INT MGeSpectrum_init()
   // The dE/dx histogram is created for the left and right arms of the detector:
   // energy in Si1 (x-axis) vs total energy in Si1 + Si2 (y-axis)
 
-  std::string detname = "Ge-S";
+  std::string detname = "GeCHEH";
   ge_bankname = gSetup->GetBankName(detname);
   adc_slope_calib = gSetup->GetADCSlopeCalib(ge_bankname);
   adc_offset_calib = gSetup->GetADCOffsetCalib(ge_bankname);
@@ -77,7 +77,7 @@ INT MGeSpectrum_init()
   // While looping through the arms create the dE/dx plots
   double min_energy = 0;
   double max_energy = 5000;
-  double energy_width = 100;
+  double energy_width = 10;
   int n_energy_bins = (max_energy - min_energy) / energy_width;
 
   std::string histname = "hGeSpectrum";
@@ -107,7 +107,7 @@ INT MGeSpectrum(EVENT_HEADER *pheader, void *pevent)
 		gData->fPulseIslandToChannelMap;
 
 	// Get the pulses for the germanium
-	std::vector<TPulseIsland*> ge_pulses = gData->fPulseIslandToChannelMap[bankname];
+	std::vector<TPulseIsland*> ge_pulses = gData->fPulseIslandToChannelMap[ge_bankname];
 	for (std::vector<TPulseIsland*>::const_iterator i_pulse = ge_pulses.begin(); i_pulse != ge_pulses.end(); ++i_pulse) {
 	  double pulse_energy = adc_slope_calib * (*i_pulse)->GetPulseHeight() + adc_offset_calib; 
 	  hGeSpectrum->Fill(pulse_energy);
