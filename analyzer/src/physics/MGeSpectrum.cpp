@@ -77,7 +77,7 @@ INT MGeSpectrum_init()
   // While looping through the arms create the dE/dx plots
   double min_energy = 0;
   double max_energy = 5000;
-  double energy_width = 10;
+  double energy_width = 1;
   int n_energy_bins = (max_energy - min_energy) / energy_width;
 
   std::string histname = "hGeSpectrum";
@@ -109,7 +109,8 @@ INT MGeSpectrum(EVENT_HEADER *pheader, void *pevent)
 	// Get the pulses for the germanium
 	std::vector<TPulseIsland*> ge_pulses = gData->fPulseIslandToChannelMap[ge_bankname];
 	for (std::vector<TPulseIsland*>::const_iterator i_pulse = ge_pulses.begin(); i_pulse != ge_pulses.end(); ++i_pulse) {
-	  double pulse_energy = adc_slope_calib * (*i_pulse)->GetPulseHeight() + adc_offset_calib; 
+	  double pulse_energy = (adc_slope_calib * (*i_pulse)->GetPulseHeight()) + adc_offset_calib; 
+	  //	  double pulse_energy = (*i_pulse)->GetPulseHeight();
 	  hGeSpectrum->Fill(pulse_energy);
 	}
 
