@@ -91,7 +91,7 @@ INT MPSDIntegral_BookHistograms()
     
     std::string histname = "h" + detname + "Ratio";
     std::string histtitle = "Integral Ratio vs Integral for " + detname;
-    TH2F* hNdetRatio = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, max_bin, 600, 0, 2.5);
+    TH2F* hNdetRatio = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, max_bin, 600, 0, 0.45);
     hNdetRatio->GetYaxis()->SetTitle("Integral Ratio");
     hNdetRatio->GetXaxis()->SetTitle("Integral (pedestal subtracted)");
     NdetRatio_map[bankname] = hNdetRatio;
