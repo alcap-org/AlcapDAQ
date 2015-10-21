@@ -158,7 +158,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
       if(det == "TSc") {aligncorr = -60; tcorr = -50; vcorr = -10;};
       if(det == "LaBr3") vcorr = 7;
       if(det == "NdetD") vcorr = 52;
-      if(det == "NdetU") vcorr == 40;
+      if(det == "NdetU") vcorr = 40;
 
 
 

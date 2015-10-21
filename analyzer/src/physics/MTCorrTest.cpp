@@ -1,4 +1,4 @@
-/* Standard includes */
+/*Standard includes */
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -172,7 +172,7 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	if(max < polarity*(threshold-pedestal)) continue;
 	if(*(std::min_element(samples.begin(), samples.end())) == 0) continue;
 	if(*(std::max_element(samples.begin(), samples.end())) >= max_adc) continue;
-	if(gSetup->IsNeutron(WFDBANKS[icrate][ich]) && pulses[p]->GetPSDParameter() < 1) continue; //gamma
+	if(gSetup->IsNeutron(det) && pulses[p]->GetPSDParameter() < 1) continue; //gamma
 	
 	if(pulses[p]->GetVetoPulse()) continue; //vetoed
 
