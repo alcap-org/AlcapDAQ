@@ -113,7 +113,7 @@ extern struct readout_module parport_module;
 
 struct readout_module *trigger_modules[] = { 
   &rpc_master_module,
-  &caen_desktop_reset_module, // must be before parport
+  //&caen_desktop_reset_module, // must be before parport
   &parport_module,
   &rpc_slave_module,  // must be last!
 };
@@ -384,7 +384,12 @@ void start_cycle()
 
   for(int i = 0; i < num_trigger_modules; i++) {
     if((*trigger_modules[i]).start_cycle != NULL) {
-      (*trigger_modules[i]).start_cycle();
+      INT status = (*trigger_modules[i]).start_cycle();
+      if ( status != SUCCESS )
+	{
+	  // Stop the run!
+	  cm_transition(TR_STOP, 0, NULL, 0, ASYNC, FALSE);
+	}
     }
   }
 

@@ -1,9 +1,14 @@
+#define BIT(x) (1<<x)
+
+
 static int sis3300_bank_nr[sis3300_n_boards]; // active bank nr., 0 or 1;
+
+static u_int32_t sis3300_ID[sis3300_n_boards]; // Module ID and firmware revision register
 
 static const int  sis3300_event_size = 128; // event size (samples);
 //static const int  sis3300_event_size = 4096; // event size (samples);
 //static const int  sis3300_event_size = 12288; // event size (samples);
-static const int  sis3300_max_number_of_events = 4096; // Max. number of evens for data buffers
+static const int  sis3300_max_number_of_events = 3072; // Max. number of evens for data buffers
 
 static u_int32_t  sis3300_event_counter[sis3300_n_boards];
 static u_int32_t *sis3300_ADC12_data   [sis3300_n_boards];
@@ -12,6 +17,7 @@ static u_int32_t *sis3300_ADC56_data   [sis3300_n_boards];
 static u_int32_t *sis3300_ADC78_data   [sis3300_n_boards];
 static u_int32_t *sis3300_TimeStamps   [sis3300_n_boards];
 static u_int32_t *sis3300_Trigger_data [sis3300_n_boards];
+static u_int32_t  sis3300_err          [sis3300_n_boards];
 
 INT sis3300_A32D32_write(const int board_nr, const u_int32_t reg, const u_int32_t data)
 {
@@ -52,6 +58,7 @@ static INT sis3300_open()
 
   u_int32_t addr ;
   u_int32_t data ;
+  u_int32_t D ;
   int return_code ;
 
   for (unsigned int i=0; i<sis3300_n_boards; i++)
@@ -89,12 +96,43 @@ static INT sis3300_open()
 	}
 
       printf("Opening board %i at base address 0x%08x ... ",i+1, sis3300_odb[i].vme_base);
-      if ( sis3300_A32D32_read(i, 0x4, data) != SUCCESS ) return FE_ERR_HW;
-      printf(" SUCCESS!\nModul Identification register:  0x%08x\n", data );
+      if ( sis3300_A32D32_read(i, 0x4, sis3300_ID[i]) != SUCCESS ) return FE_ERR_HW;
+      printf(" SUCCESS!\nModul Identification register:  0x%08x\n", sis3300_ID[i] );
 
       // *** Reset *** 
       if ( sis3300_A32D32_write(i, SIS3300_KEY_RESET, 0x0) != SUCCESS ) return FE_ERR_HW;
-      
+
+      // ==============================================================
+      // *** configure acquisition register 0x10 ***
+      // ==============================================================
+
+      data = 0x0;
+      //data += (1<<0);  // Enable sample clock for Memory Bank 1
+      //data += (1<<1);  // Enable sample clock for Memory Bank 2
+      data += (1<<2);  // Enable auto bank switch mode
+      //data += (1<<4);  // Enable autostart (in multievent mode only)
+      data += (1<<5);  // Enable multi event mode (clock will be cleared at end of bank only)
+#if 0
+      data += (1<<7);   // Enable Stop Delay
+#endif
+      data += (1<<8);   // Enable front panel Start / Stop logic
+      //data += (1<<10);  // Enable front panel Gate mode
+      //data += (1<<17);  // Disable sample clock for Memory Bank 2
+      //data += (1<<18);  // Disable autobank switch mode
+      //data += (1<<20);  // Disable autostart in multievent mode
+      //data += (1<<22);  // Disable external start delay
+      //data += (1<<23);  // Disable external stop delay
+      //data += (1<<24);  // Disable Front Panel Start/Stop logic
+      data += (1<<25);  // Disable P2 Start/Stop logic
+      data += (1<<27);  // Disable external clock random mode
+      data += (1<<31);  // Clear multiplexer mode
+
+      // clock source
+      D = sis3300_odb[i].clock_src & 0x7;
+      data += (D<<12);
+
+      if ( sis3300_A32D32_write(i, SIS3300_ACQ_CONTROL, data) != SUCCESS ) return FE_ERR_HW;
+     
     }
   
   return SUCCESS;
@@ -219,6 +257,9 @@ static INT sis3300_arm_all()
       //data += (1<<18);  // Disable auto bank switch mode
       //if ( sis3300_A32D32_write(i, SIS3300_ACQ_CONTROL, data) != SUCCESS ) return FE_ERR_HW;
 
+      // *** reset time counter ***
+      if ( sis3300_A32D32_write(i, 0x38, 0x0 ) != SUCCESS ) return FE_ERR_HW;
+  
       data = 0x0;
       data += (1<<2);  // Enable auto bank switch mode
       data += (1<<0);  // Enable Sample Clock  For Memory Bank 1
@@ -234,8 +275,7 @@ static INT sis3300_arm_all()
 
       // Start sampling in auto bank switch mode      
       if ( sis3300_A32D32_write(i, 0x40, 0x0) != SUCCESS ) return FE_ERR_HW;
-
-      
+    
 #if 1
       // Enable autostart mode after issuing the "Start sampling in auto bank switch mode
       // Otherwise the board starts data taking autmatically (prior to MIDAS segment)
@@ -299,7 +339,7 @@ static INT sis3300_disarm_all()
 #if 1
       // Read ACQUISITION STATUS register 0x10
       if ( sis3300_A32D32_read(i, 0x10, data) != SUCCESS ) return FE_ERR_HW;
-      printf("acquisition register 0x10: 0x%08x\n",data);
+      printf("SIS3300 board %i Acquisition register 0x10: 0x%08x\n",i,data);
 #endif
 
     }  
@@ -320,17 +360,24 @@ static INT sis3300_bor()
       
       if ( sis3300_odb[i].enabled == 0 ) continue;
       
+      // reset the event counter
       sis3300_event_counter[i] = 0;
+
+      // reset errors
+      sis3300_err[i] = 0;
+
 
       // ==============================================================
       // *** configure Control register 0x0 ***
       // ==============================================================
 
       data = 0x0;
-      data += (1<<5); // Activate Trigger Upon Armed and Started
-      data += (1<<6); // Enable Internal Trigger Routing
-      data += (1<<2); // Enable Trigger Output on Output ch. 1
-
+      data += (1<<0);  // Switch ON user LED
+      data += (1<<5);  // Activate Trigger Upon Armed and Started
+      data += (1<<2);  // Enable Trigger Output on Output ch. 1
+      data += (1<<6);  // Enable Internal Trigger Routing
+      data += (1<<12); // Set Don't clear time stamp bit
+      
       if ( sis3300_A32D32_write(i, SIS3300_CONTROL, data) != SUCCESS ) return FE_ERR_HW;
 
       // ==============================================================
@@ -354,9 +401,15 @@ static INT sis3300_bor()
       //data += (1<<22);  // Disable external start delay
       //data += (1<<23);  // Disable external stop delay
       //data += (1<<24);  // Disable Front Panel Start/Stop logic
-      data += (1<<25);  // Disable P2 Start/Stop logic
-      data += (1<<27);  // Disable external clock random mode
-      data += (1<<31);  // Clear multiplexer mode
+      //data += (1<<25);  // Disable P2 Start/Stop logic
+      //data += (1<<27);  // Disable external clock random mode
+      //data += (1<<31);  // Clear multiplexer mode
+
+      // clock source
+      // Don't whant to do this on every run!
+      //D = sis3300_odb[i].clock_src & 0x7;
+      //data += (D<<12);
+
  
       if ( sis3300_A32D32_write(i, SIS3300_ACQ_CONTROL, data) != SUCCESS ) return FE_ERR_HW;
 
@@ -430,6 +483,13 @@ static INT sis3300_eor()
   // Stop sampling in auto bank switch mode
   sis3300_disarm_all();
 
+  // switch off user LED
+  for (unsigned int i=0; i<sis3300_n_boards; i++)
+    {
+      if ( sis3300_odb[i].enabled == 0 ) continue;
+      if ( sis3300_A32D32_write(i, 0x0, (1<<16)) != SUCCESS ) return FE_ERR_HW;
+    }
+
   return SUCCESS;
 
 }
@@ -444,7 +504,7 @@ static INT sis3300_readout(const int board_nr, const int bank_nr)
   u_int32_t got_lwords ;
   int no_of_lwords;
 
-  printf("Reading out board %i, bank %i\n", board_nr, bank_nr);
+  printf("SIS3300: Reading out board %i, bank %i\n", board_nr, bank_nr);
 
   // *** read Event Counter (0x200010/0x200014 for Bank 1/2) ***  
   u_int32_t n_events = 0;
@@ -466,12 +526,13 @@ static INT sis3300_readout(const int board_nr, const int bank_nr)
 #if 0
   n_events = 1024;
 #endif
-  printf("Bank %i event counter: %i\n", bank_nr+1, n_events);
+  printf("SIS3300 Board %i Bank %i event counter: %i\n", board_nr, bank_nr+1, n_events);
 
   if ( sis3300_event_counter[board_nr] + n_events > sis3300_max_number_of_events )
     {
-      cm_msg(MERROR, "sis3300_readout()", "not enough space to read data from digitizer. Plese increase prameter 'sis3300_max_number_of_events' (%i)",sis3300_max_number_of_events);
-      return FE_ERR_HW;      
+      cm_msg(MERROR, "sis3300_readout()", "not enough space to read data from digitizer. Plese increase parameter 'sis3300_max_number_of_events' (%i)",sis3300_max_number_of_events);
+      sis3300_err[board_nr] += BIT(0);
+      return FE_ERR_HW; 
     }
   
   // *** read Event Time Stamp Directory (0x1000/0x2000 for Bank 1/2) ***
@@ -618,7 +679,8 @@ static INT sis3300_poll()
 	  printf("================================>  Bank 1 full\n");
 
 	  // Readout data from Bank 1
-	  sis3300_readout(i, 0);
+	  //if ( sis3300_readout(i, 0) != SUCCESS ) cm_transition(TR_STOP, 0, NULL, 0, ASYNC, FALSE);;
+	  if ( sis3300_readout(i, 0) != SUCCESS ) return FE_ERR_HW;
 
 	  sis3300_bank_nr[i] = 1;
 
@@ -697,11 +759,8 @@ static INT sis3300_readout_eob()
 
     }
 #endif
-  
 
-  // ==============================================================
   // *** Start sampling in auto bank switch mode ***
-  // ==============================================================
   if ( sis3300_arm_all() != SUCCESS ) return FE_ERR_HW;
 
   return SUCCESS;

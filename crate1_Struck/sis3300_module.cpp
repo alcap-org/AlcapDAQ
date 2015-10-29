@@ -110,7 +110,7 @@ INT module_read(char *pevent)
 
       if ( sis3300_odb[i].enabled == 0 ) continue;
 
-      printf("Board %i event counter: %i\n",i, sis3300_event_counter[i]);
+      printf("SIS3300 Board %i event counter: %i\n",i, sis3300_event_counter[i]);
 
 #if 0
       bk_close(pevent, pdata);
@@ -121,6 +121,10 @@ INT module_read(char *pevent)
       sprintf(bk_name, "S30%i", i);
       bk_create(pevent, bk_name, TID_BYTE, &pdata);
 
+      // record the module ID
+      memcpy(pdata, sis3300_ID+i, sizeof(sis3300_ID[0]));
+      pdata += sizeof(sis3300_ID[0]);
+
       // record the number os samples per event
       memcpy(pdata, &sis3300_event_size, sizeof(sis3300_event_size));
       pdata += sizeof(sis3300_event_size);
@@ -128,7 +132,12 @@ INT module_read(char *pevent)
       // record the number of events
       memcpy(pdata, &(sis3300_event_counter[i]), sizeof(sis3300_event_counter[i]));
       pdata += sizeof(sis3300_event_counter[i]);
-      
+
+      // record the error mask
+      memcpy(pdata, sis3300_err+i, sizeof(sis3300_err[0]));
+      pdata += sizeof(sis3300_err[0]);
+      sis3300_err[i] = 0x0;
+     
       u_int32_t len;
 
       // record time stamps
@@ -143,6 +152,7 @@ INT module_read(char *pevent)
 
       // record ADC data
       len = sizeof(u_int32_t)*sis3300_event_counter[i]*sis3300_event_size; 
+      printf("SIS3300 board %i data size: %i bytes\n",i,len);
       memcpy(pdata, sis3300_ADC12_data[i], len); 
       pdata += len;
 

@@ -56,7 +56,7 @@ LIBS = -lm -lz -lutil -lnsl -lpthread
 #                 
 DRV_DIR         = $(MIDASSYS)/drivers
 INC_DIR         = $(MIDASSYS)/include
-LIB_DIR         = $(MIDASSYS)/linux/lib
+LIB_DIR         = $(MIDASSYS)/linux64/lib
 
 #-------------------------------------------------------------------
 # Hardware driver can be (camacnul, kcs2926, kcs2927, hyt1331)

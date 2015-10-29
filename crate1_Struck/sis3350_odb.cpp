@@ -6,6 +6,7 @@ extern HNDLE hDB;
 typedef struct {
   DWORD     vme_base;
   BOOL      enabled;
+  WORD      clock_src;
   struct {
     BOOL    enabled;
     WORD    gain;     // 0-Low; 1-High
@@ -32,6 +33,7 @@ static S_SIS3350_ODB_DEF sis3350_odb[sis3350_n_boards];
 [.]\n\
 VME Base = DWORD : 805306368\n\
 Enabled = BOOL : n\n\
+Clock src (0-int 3-ext) = WORD : 0 \n\
 [Ch 1]\n\
 Enabled = BOOL : n\n\
 gain (0-Low,1-High) = WORD : 0\n\

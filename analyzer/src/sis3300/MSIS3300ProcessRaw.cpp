@@ -151,6 +151,10 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 
       if ( bank_len < 4 ) continue;
 
+      // module ID
+      uint32_t board_ID = *p32++;
+      printf("board ID: 0x%08x\n", board_ID);
+
       // wf length (samples)
       int wf_len = *p32++;
       printf("SIS3300 waveform length: %i\n", wf_len);
