@@ -4403,7 +4403,9 @@ INT bm_open_buffer(char *buffer_name, INT buffer_size, INT * buffer_handle)
       HNDLE shm_handle;
       BUFFER_HEADER *pheader;
 
-      if (buffer_size <= 0 || buffer_size > 32E6) {
+      // modified by VT on 1025-10-27
+      //if (buffer_size <= 0 || buffer_size > 32E6) {
+      if (buffer_size <= 0 || buffer_size > 128E6) {
          cm_msg(MERROR, "bm_open_buffer", "invalid buffer size");
          return BM_INVALID_PARAM;
       }
