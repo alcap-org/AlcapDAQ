@@ -157,7 +157,17 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
       // module ID
       uint32_t board_ID = *p32++;
       printf("board ID: 0x%08x\n", board_ID);
-
+      
+      uint32_t board_type = board_ID>>16;
+      printf("board type: 0x%08x\n", board_type);
+      uint32_t adc_mask = 0xFFF;
+      uint32_t ovfw_bit = (1<<12);
+      if ( board_type == 0x3301 )
+	{
+	  adc_mask = 0x3FFF;
+	  ovfw_bit = (1<<14);
+	}
+      
       // wf length (samples)
       int wf_len = *p32++;
       printf("SIS3300 waveform length: %i\n", wf_len);
@@ -259,7 +269,8 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 		  //if ( i == 2 && ich == 0) printf("sample nr: %i\n",sample_nr);
 		  //u_int16_t w16 = (p16_ADC[ich])[(i*wf_len+k)*2];
 		  u_int16_t w16 = (p16_ADC[ich])[(i*wf_len+sample_nr)*2];
-		  int adc = w16&0xFFF;
+		  int adc  = w16 & adc_mask;
+		  int ovfw = w16 & ovfw_bit;
 		  //if ( i == 2 && ich == 0) printf("sample nr: %i adc = %i\n",sample_nr, adc);
 
 		  sample_vector.push_back(adc);
