@@ -145,11 +145,18 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
       unsigned int bank_len = bk_locate(pevent, bank_name, &pdata);
       
       if ( pdata == NULL ) continue;
+
+      std::string bankname( Form("SIS3300_B%02d",iboard) );
+      TH1D *h1_Err = h1_Err_map.find(bankname)->second;
       
       uint32_t *p32   = (uint32_t*)pdata;
       uint32_t *p32_0 = (uint32_t*)pdata;
 
       if ( bank_len < 4 ) continue;
+
+      // Module ID
+      uint32_t module_ID = *p32++;
+      printf("Module ID: 0x%08x\n", module_ID);
 
       // wf length (samples)
       int wf_len = *p32++;
@@ -158,6 +165,20 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
       // number of events (triggers)
       int n_events =  *p32++;
       printf("SIS3300 number of triggers (events): %i\n", n_events);
+
+      // Errors
+      uint32_t errors = *p32++;
+      printf("Errors: 0x%08x\n", errors);
+      if ( errors )
+	{	  
+	  for (int bit=0; bit<8*sizeof(errors); bit++)
+	    {
+	      u_int32_t mask = 1<<bit;
+	      if ( (errors&mask) == mask )
+		h1_Err->Fill( bit );
+	    }
+	}
+
 
       // time stamps
       u_int32_t *p32_timestamps = p32;
@@ -214,8 +235,9 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	    {
 	      printf("*** ERROR! invalid sample end address: 0x%04x\n",trigger_sample);
 	      trigger_sample = 0;
+	      h1_Err->Fill( 100 );
 	    }
-	  printf("event %i time: 0x%08x trigger 0x%08x mask 0x%x\n",i, time,trigger, trigger_mask);	  
+	  //printf("event %i time: 0x%08x trigger 0x%08x mask 0x%x\n",i, time,trigger, trigger_mask);	  
 
 	  bool wraparound = ((trigger>>19)&1);
 	  if ( ! wraparound ) time += wf_len - trigger_sample + 1;

@@ -109,7 +109,7 @@ INT module_event_tdc(EVENT_HEADER *pheader, void *pevent) {
       int chn = V1290_GET_TDC_MSR_CHANNEL(*p32);
       int64_t meas = V1290_GET_TDC_MSR_MEASURE(*p32);
       if (t_last == -1)
-    	  t0 = meas;
+	;//t0 = meas;
       else if (meas < t_last && t_last-meas > rollover/2)
     	  rollover_counter++;
       t_last = meas;

@@ -81,13 +81,14 @@ INT module_bor(INT run_number)
 
   for (unsigned int iboard=0; iboard<sis3350_n_boards; ++iboard)
     {
-
-      std::string bankname( Form("SIS3350_B%02d",iboard) );
-      
-      TH1D *h1_Err = new TH1D(Form("h1_Errors_%s",bankname.c_str()),Form("Errors in board, %s",bankname.c_str()),1024,-0.5,1023.5);      
-      h1_Err->SetXTitle("Error number");
-      h1_Err_map[bankname] = h1_Err;
+      for (unsigned int i_ch=0; i_ch<sis3350_n_channels; ++i_ch)
+	{
+	  std::string bankname( Form("SIS3350_B%02dC%02d",iboard, i_ch) );
 	  
+	  TH1D *h1_Err = new TH1D(Form("h1_Errors_%s",bankname.c_str()),Form("Errors in board, %s",bankname.c_str()),1024,-0.5,1023.5);      
+	  h1_Err->SetXTitle("Error number");
+	  h1_Err_map[bankname] = h1_Err;
+	}
     }
 
   // restore pointer of global directory
@@ -137,9 +138,12 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
   BYTE *pdata;
 
   for (int iboard=0; iboard<sis3350_n_boards; iboard++)
-    {
+    {      
       for (int i_ch=0; i_ch<sis3350_n_channels; i_ch++)
 	{
+	  
+	  std::string bankname( Form("SIS3350_B%02dC%02d",iboard, i_ch) );
+	  TH1D *h1_Err = h1_Err_map.find(bankname)->second;
 
 	  char bank_name[32];
 	  sprintf(bank_name,"S5%i%i", iboard, i_ch); 
@@ -148,6 +152,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	  printf("bank [%s] length %i\n",bank_name, bank_len);
 	  
 	  if ( pdata == NULL ) continue;
+
 	  
 	  uint32_t *p32   = (uint32_t*)pdata;
 	  uint32_t *p32_0 = (uint32_t*)pdata;
@@ -158,11 +163,27 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	  u_int32_t data_size = *p32++;
 	  printf("SIS3350 Bank [%s] adc_data_size: %i 16-bit words\n", bank_name, data_size);
 
+	  // Error mask
+	  u_int32_t errors = *p32++;
+	  printf("                  errors: 0x%08x\n", errors);
+
+	  if ( errors )
+	    {	      
+	      for (int bit=0; bit<8*sizeof(errors); bit++)
+		{
+		  u_int32_t mask = 1<<bit;
+		  if ( (errors&mask) == mask )
+		      h1_Err->Fill( bit );
+		}
+	    }
+
 	  // ADC data start here
-	  // Check data size for consistency 
+	  // check data size for consistency 
 	  if ( data_size/2 != (bank_len - (p32 - p32_0)) )
 	    {
 	      printf("***ERROR! Corrupted ADC data in bank [%s]\n",bank_name);
+	      h1_Err->Fill( 100 );
+	      continue;
 	    }
 	  
 	  while ( (p32 + 4 - p32_0) < bank_len )
@@ -172,14 +193,14 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	      u_int64_t time_2 = *p32++;
 	      u_int64_t time = (time_2 & 0x00000FFF) + ((time_2 & 0x0FFF0000)>>4) + 
 		((time_1 & 0x00000FFF)<<24) + ((time_1 & 0x0FFF0000)<<20);
-	      printf("     -> time %Li\n", time);
+	      //printf("     -> time %Li\n", time);
 	      
 	      // wf length
 	      u_int64_t wf_len_1 = *p32++;
 	      u_int64_t wf_len_2 = *p32++;
 	      u_int64_t wf_len = (wf_len_2 & 0x00000FFF) + ((wf_len_2 & 0x0FFF0000)>>4) + 
 		((wf_len_1 & 0x00000007)<<24);
-	      printf("     -> wf_len %Li\n", wf_len);
+	      //printf("     -> wf_len %Li\n", wf_len);
 	      
 	      // Information word
 	      u_int32_t info =  (wf_len_1>>16) & 0x0FFF;
@@ -200,7 +221,8 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	      if ( wf_len < 8 || (wf_len%2) )
 		{
 		  printf("***ERROR! Bad SIS3350 ADC data. Bank [%s]\n",bank_name);
-		  return 0;
+		  h1_Err->Fill( 101 );
+		  break;
 		}
 	      
 	      
@@ -220,7 +242,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	      char bankname[32];
 	      sprintf(bankname, "SIS3350_B%02dC%02d", iboard, i_ch);
 	      std::vector<TPulseIsland*>& pulse_islands = pulse_islands_map[bankname];
-	      pulse_islands.push_back(new TPulseIsland(time, sample_vector, bankname));
+	      pulse_islands.push_back(new TPulseIsland(time*2.0, sample_vector, bankname));
 	    }
 	}
 
