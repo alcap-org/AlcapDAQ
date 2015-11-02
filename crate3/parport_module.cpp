@@ -9,7 +9,8 @@
 
 //#define PARALLEL_PORT0 0x378
 // PSI R15a
-#define PARALLEL_PORT0 0xe050
+//#define PARALLEL_PORT0 0xe050
+#define PARALLEL_PORT0 0xd050
 #define PARALLEL_PORT1 (PARALLEL_PORT0+1)
 
 #include <stdio.h>
@@ -119,6 +120,18 @@ INT parport_start_block()
   // start new segment
   setPP(1, 1);
   setPP(0, 1);
+
+  // make sure that the segment has started 
+  unsigned char p = inb(PARALLEL_PORT1);
+#if 0
+  printf("parport status: 0x%08x\n",p);
+#endif
+  if ( !(p & 0x40) )
+    {
+      cm_msg(MERROR, "parport_start_block()",
+	     " The new segment did not start");
+      return FE_ERR_HW;
+    }
 
   return SUCCESS;
 }

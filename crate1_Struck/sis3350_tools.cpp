@@ -1,7 +1,8 @@
-#define SETBIT(x) (1<<x)
+#define BIT(x) (1<<x)
 
 static int sis3350_sampling_bank_nr; // active bank nr., 0 or 1;
 static int sis3350_event_ready[sis3350_n_boards];
+static u_int32_t sis3350_err[sis3350_n_boards][sis3350_n_channels];
 static u_int32_t sis3350_last_sample_addr[sis3350_n_boards][sis3350_n_channels];
 static u_int32_t *sis3350_ADC_data[sis3350_n_boards][sis3350_n_channels];
 static u_int32_t sis3350_ADC_data_size[sis3350_n_boards][sis3350_n_channels];
@@ -100,7 +101,7 @@ static INT sis3350_gain_offset_configuration(const int board_nr)
       if ( data > 128 ) data = 128;
       if ( sis3350_odb[board_nr].ch[i].gain == 1)
 	{
-	  data += SETBIT(7);
+	  data += BIT(7);
 	}
       
       if ( sis3350_A32D32_write(board_nr, reg[i], data) != SUCCESS ) return FE_ERR_HW; 
@@ -119,8 +120,9 @@ static INT SIS3350_External_Input_Offset_Configuration(const int board_nr)
 {
 
   // 0x7B0C - NIM level
+  // 0xFFFF/2 - zero level
   // clock offset 
-  if ( sis3350_write_dac_offset(board_nr, SIS3350_EXT_CLOCK_TRIGGER_DAC_CONTROL_STATUS, 0, 0x7B0C ) != SUCCESS ) return FE_ERR_HW;
+  if ( sis3350_write_dac_offset(board_nr, SIS3350_EXT_CLOCK_TRIGGER_DAC_CONTROL_STATUS, 0, 0xFFFF/2 ) != SUCCESS ) return FE_ERR_HW;
   // trigger offset
   if ( sis3350_write_dac_offset(board_nr, SIS3350_EXT_CLOCK_TRIGGER_DAC_CONTROL_STATUS, 1, 0x7B0C ) != SUCCESS ) return FE_ERR_HW;
 
@@ -141,15 +143,15 @@ static INT sis3350_trigger_configuration(const int board_nr)
 
       // enable trigger 
       if ( sis3350_odb[board_nr].ch[i].enabled && sis3350_odb[board_nr].ch[i].trigger_enable )
-	data += SETBIT(26);
+	data += BIT(26);
 
       // GT condition
       if ( sis3350_odb[board_nr].ch[i].trigger_logic == 1 )
-	data += SETBIT(25);
+	data += BIT(25);
       
       // Trigger mode (0-thrreshold, 1-FIR)
       if ( sis3350_odb[board_nr].ch[i].trigger_mode == 1 )
-	data += SETBIT(24);
+	data += BIT(24);
       
       // Trigger Pulse Length
       D = sis3350_odb[board_nr].ch[i].trigger_pulse_length;
@@ -176,6 +178,18 @@ static INT sis3350_trigger_configuration(const int board_nr)
       data = sis3350_odb[board_nr].ch[i].trigger_threshold_ON + (sis3350_odb[board_nr].ch[i].trigger_threshold_OFF<<16);
       if ( sis3350_A32D32_write(board_nr, reg_thr[i], data) != SUCCESS ) return FE_ERR_HW; 
 
+      // Trigger output, register 0x38
+      data = 0x0;
+      data += BIT(4); // ADC1 trigger is ored to LEMO out
+      data += BIT(5); // ADC1 trigger is ored to LEMO out
+      data += BIT(6); // ADC1 trigger is ored to LEMO out
+      data += BIT(7); // ADC1 trigger is ored to LEMO out
+
+      if ( sis3350_A32D32_write(board_nr, 0x38, data) != SUCCESS ) return FE_ERR_HW; 
+
+
+
+
 #if 1
       if ( sis3350_A32D32_read(board_nr, reg_trig[i], data) != SUCCESS ) return FE_ERR_HW; 
       printf("Board %i chan %i trigger register READBACK: 0x%08x\n", board_nr, i, data);
@@ -196,6 +210,7 @@ static INT sis3350_open()
 
   u_int32_t addr ;
   u_int32_t data ;
+  u_int32_t D    ;
   int return_code ;
 
   for (unsigned int i=0; i<sis3350_n_boards; i++)
@@ -227,25 +242,29 @@ static INT sis3350_open()
       //data += SIS3350_ACQ_OPERATION_DIRECT_MEMORY_STOP;
       //data += SIS3350_ACQ_OPERATION_DIRECT_MEMORY_START;
 
-      //data += 0;                       // RingBuffer Asynchronous Mode
-      //data += SETBIT(0);             // RingBuffer Synchronous Mode
-      //data += SETBIT(1);             // Direct Memory Gate Asynchronous Mode
-      //data += SETBIT(1) + SETBIT(0); // Direct Memory Gate Synchronous Mode
-      //data += SETBIT(2);             // Direct Memory Trigger Stop Mode
-      //data += SETBIT(2) + SETBIT(0); // Direct Memory Trigger Start Mode
+      //data += 0;                     // RingBuffer Asynchronous Mode
+      //data += BIT(0);             // RingBuffer Synchronous Mode
+      //data += BIT(1);             // Direct Memory Gate Asynchronous Mode
+      //data += BIT(1) + BIT(0); // Direct Memory Gate Synchronous Mode
+      //data += BIT(2);             // Direct Memory Trigger Stop Mode
+      //data += BIT(2) + BIT(0); // Direct Memory Trigger Start Mode
 
-      data += SETBIT(5); // Enable Multi Event mode
+      data += BIT(4); // Invet Bit for external Lemo TRG IN (1==NIM)
+      data += BIT(5); // Enable Multi Event mode
 
-      data += SETBIT(6); // Enable internal channel triggers as Gate/Trigger
-      data += SETBIT(8); // Enable External Lemo TRG IN as Gate/Trigger
-      //data += SETBIT(9); // Enable External LVDS TRG IN as Gate/Trigger
+      data += BIT(6); // Enable internal channel triggers as Gate/Trigger
+      data += BIT(8); // Enable External Lemo TRG IN as Gate/Trigger
+      //data += BIT(9); // Enable External LVDS TRG IN as Gate/Trigger
       
       // clock source
       //data += 0; // Frequency Synthesizer
-      //data += SETBIT(12); // internal 100 MHz
-      //data += SETBIT(13); // external LVDS
-      //data += SETBIT(12) + SETBIT(13); // external BNC
-      
+      //data += BIT(12); // internal 100 MHz
+      //data += BIT(13); // external LVDS
+      //data += BIT(12) + BIT(13); // external BNC
+
+      D = sis3350_odb[i].clock_src & 0x3;
+      data += (D<<12);
+            
       if ( sis3350_A32D32_write(i, SIS3350_ACQUISTION_CONTROL, data) != SUCCESS ) return FE_ERR_HW;
 
 
@@ -337,7 +356,7 @@ static INT sis3350_arm_all()
 #if 1
       // Read ACQUISITION STATUS register 0x10
       if ( sis3350_A32D32_read(i, 0x10, data) != SUCCESS ) return FE_ERR_HW;
-      printf("acquisition register 0x10: 0x%08x\n",data);
+      printf("SIS3350: Board %i acquisition register 0x10: 0x%08x\n", i, data);
 #endif      
 
     }
@@ -396,7 +415,7 @@ static INT sis3350_bor()
       // ==============================================================
 
       data = 0x0;
-      data += SETBIT(0); // Switch ON user LED
+      data += BIT(0); // Switch ON user LED
 
       if ( sis3350_A32D32_write(i, SIS3350_CONTROL_STATUS, data) != SUCCESS ) return FE_ERR_HW;
 
@@ -407,23 +426,23 @@ static INT sis3350_bor()
       data = 0x0;
 
       //data += 0;                     // RingBuffer Asynchronous Mode
-      //data += SETBIT(0);             // RingBuffer Synchronous Mode
-      //data += SETBIT(1);             // Direct Memory Gate Asynchronous Mode
-      //data += SETBIT(1) + SETBIT(0); // Direct Memory Gate Synchronous Mode
-      //data += SETBIT(2);             // Direct Memory Trigger Stop Mode
-      //data += SETBIT(2) + SETBIT(0); // Direct Memory Trigger Start Mode
+      //data += BIT(0);             // RingBuffer Synchronous Mode
+      //data += BIT(1);             // Direct Memory Gate Asynchronous Mode
+      //data += BIT(1) + BIT(0); // Direct Memory Gate Synchronous Mode
+      //data += BIT(2);             // Direct Memory Trigger Stop Mode
+      //data += BIT(2) + BIT(0); // Direct Memory Trigger Start Mode
 
-      //data += SETBIT(5); // Enable Multi Event mode
+      //data += BIT(5); // Enable Multi Event mode
 
-      //data += SETBIT(6); // Enable internal channel triggers as Gate/Trigger
-      //data += SETBIT(8); // Enable External Lemo TRG IN as Gate/Trigger
-      //data += SETBIT(9); // Enable External LVDS TRG IN as Gate/Trigger
+      //data += BIT(6); // Enable internal channel triggers as Gate/Trigger
+      //data += BIT(8); // Enable External Lemo TRG IN as Gate/Trigger
+      //data += BIT(9); // Enable External LVDS TRG IN as Gate/Trigger
       
       // clock source
       //data += 0; // Frequency Synthesizer
-      //data += SETBIT(12); // internal 100 MHz
-      //data += SETBIT(13); // external LVDS
-      //data += SETBIT(12) + SETBIT(13); // external BNC
+      //data += BIT(12); // internal 100 MHz
+      //data += BIT(13); // external LVDS
+      //data += BIT(12) + BIT(13); // external BNC
       
       //if ( sis3350_A32D32_write(i, SIS3350_ACQUISTION_CONTROL, data) != SUCCESS ) return FE_ERR_HW;
 
@@ -462,6 +481,10 @@ static INT sis3350_bor()
       printf("acquisition register 0x10: 0x%08x\n",data);
 #endif      
 
+      // reset errors
+      for ( unsigned int j=0; j<sis3350_n_channels; j++)
+	sis3350_err[i][j] = 0;
+
     }
   
 
@@ -478,7 +501,7 @@ static INT sis3350_eor()
 {
 
   // Disarm sampling logic
-  //if ( sis3350_disarm_all() != SUCCESS ) return FE_ERR_HW;
+  if ( sis3350_disarm_all() != SUCCESS ) return FE_ERR_HW;
 
   // Stop sampling in auto bank switch mode
   //sis3350_disarm_all();
@@ -521,8 +544,19 @@ static INT sis3350_Read_ADC_Channel(const int board_nr,    //
   unsigned int next_event_sample_start_addr =  (sample_start_addr &  (SIS3350_MAX_SAMPLE_LENGTH-1));
   unsigned int rest_event_sample_length     =  (sample_length ); 
   
-  if ( rest_event_sample_length >= SIS3350_MAX_SAMPLE_LENGTH ) rest_event_sample_length = SIS3350_MAX_SAMPLE_LENGTH;
-  if ( rest_event_sample_length >= sis3350_ADC_max_data_size ) rest_event_sample_length = sis3350_ADC_max_data_size;
+  if ( rest_event_sample_length >= SIS3350_MAX_SAMPLE_LENGTH ) 
+    {
+      cm_msg(MERROR, "sis3350_read_ADC_channel","Board %i channel %i Event size is too large :%ui. Truncating data...\n",board_nr,channel_nr,rest_event_sample_length);
+      rest_event_sample_length = SIS3350_MAX_SAMPLE_LENGTH;
+      sis3350_err[board_nr][channel_nr] += BIT(0);
+    }
+
+  if ( rest_event_sample_length >= sis3350_ADC_max_data_size ) 
+    {
+      cm_msg(MERROR, "sis3350_read_ADC_channel","Board %i channel %i Event size is too large :%ui. Truncating data...\n",board_nr,channel_nr,rest_event_sample_length);
+      rest_event_sample_length = sis3350_ADC_max_data_size;
+      sis3350_err[board_nr][channel_nr] += BIT(0);
+    }
 
   sis3350_ADC_data_size[board_nr][channel_nr] = rest_event_sample_length;
   
@@ -673,7 +707,7 @@ static INT sis3350_ReadStopAddressCounterAllBoards()
 	      {
 		if ( sis3350_A32D32_read(i, reg[j], data) != SUCCESS ) return FE_ERR_HW;   
 		sis3350_last_sample_addr[i][j] = data ;
-		printf("Board %i ADC %i stop sample: 0x%08x\n",i, j, data);
+		printf("SIS3350: Board %i ADC %i stop sample: 0x%08x\n",i, j, data);
 	      }	    
 	  }
       } 
@@ -702,14 +736,20 @@ static INT sis3350_readout_eob()
   sis3350_A32D32_write(0, SIS3350_KEY_TRIGGER, 0x0);
 #endif
 
-#if 1
-  // read the multievent register
-  if ( sis3350_A32D32_read(0, 0x24, data) != SUCCESS ) return FE_ERR_HW;   
-  printf("Multi-event counter: %i\n",data);
-#endif
-
   // *** Disarm (disable sample clock) ***
   sis3350_disarm_all();
+
+#if 1
+  // testing
+  for (unsigned int i=0; i<sis3350_n_boards; i++)
+    {
+      if ( sis3350_odb[i].enabled == 0 ) continue;
+      // read the multievent register
+      if ( sis3350_A32D32_read(i, 0x24, data) != SUCCESS ) return FE_ERR_HW;   
+      printf("SIS3350: Board %i Multi-event counter: %i\n",i, data);
+    }
+#endif
+
 
   // *** readout ADC data size ***
   if ( ! sis3350_ReadStopAddressCounterAllBoards() == SUCCESS ) return FE_ERR_HW;

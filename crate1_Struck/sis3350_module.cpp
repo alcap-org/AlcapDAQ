@@ -120,9 +120,13 @@ INT module_read(char *pevent)
 	  sprintf(bk_name, "S5%i%i", i, j);
 	  bk_create(pevent, bk_name, TID_DWORD, &pdata);
 
-	  // record data size
+	  // record the data size
 	  *pdata++ = sis3350_ADC_data_size[i][j];
 
+	  // record the error mask
+	  *pdata++ = sis3350_err[i][j];
+	  sis3350_err[i][j] = 0;
+	  
 	  // record ADC data
 	  memcpy(pdata, sis3350_ADC_data[i][j], sizeof(DWORD)*sis3350_ADC_data_size[i][j]);
 	  pdata += sis3350_ADC_data_size[i][j]/2;

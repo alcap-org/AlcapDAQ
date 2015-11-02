@@ -31,10 +31,10 @@ CCFLAGS  += -I$(STRUCK_DRIVER_PATH) -I$(STRUCK_DRIVER_PATH)/sis3100_calls
 LDFLAGS  += -L$(STRUCK_DRIVER_PATH)/sis3100_calls -ldl -lstdc++  -lrt -l_sis3100 -Wl,"-rpath=$(STRUCK_DRIVER_PATH)/sis3100_calls"
 
 # SIS3300 digitizer
-CXXFLAGS += -I$(DAQdir)/Struck/sis330x/SOFTWARE/HEADER
+CXXFLAGS += -I$(DAQdir)/Struck/sis330x
 
 # SIS3350 digitizer
-CXXFLAGS += -I$(DAQdir)/Struck/sis3350/software/sis3350_header
+CXXFLAGS += -I$(DAQdir)/Struck/sis3350
 
 
 MODULES = crate.o rpc_master.o rpc_slave.o diag.o odb_wrapper.o

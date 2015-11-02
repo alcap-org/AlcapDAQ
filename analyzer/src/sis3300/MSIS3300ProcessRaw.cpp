@@ -154,9 +154,9 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 
       if ( bank_len < 4 ) continue;
 
-      // Module ID
-      uint32_t module_ID = *p32++;
-      printf("Module ID: 0x%08x\n", module_ID);
+      // module ID
+      uint32_t board_ID = *p32++;
+      printf("board ID: 0x%08x\n", board_ID);
 
       // wf length (samples)
       int wf_len = *p32++;
