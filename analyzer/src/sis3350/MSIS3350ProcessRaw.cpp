@@ -112,12 +112,12 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
   for (std::map< std::string, std::vector<TPulseIsland*> >::iterator iter = pulse_islands_map.begin(); iter != pulse_islands_map.end(); ++iter) 
     {
       if ( iter->first[0] == 'S' &&
-	   iter->first[1] == 'I' && 
-	   iter->first[2] == 'S' && 
-	   iter->first[3] == '3' && 
-	   iter->first[4] == '3' && 
-	   iter->first[5] == '5' && 
-	   iter->first[6] == '0' ) 
+	   iter->first[1] == '5')// && 
+	//	   iter->first[2] == 'S' && 
+	//	   iter->first[3] == '3' && 
+	//	   iter->first[4] == '3' && 
+	//	   iter->first[5] == '5' && 
+	//	   iter->first[6] == '0' ) 
 	{
 	  std::vector<TPulseIsland*>& islands = iter->second;
 	  for (int i = 0; i < islands.size(); ++i) 
@@ -149,7 +149,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	  sprintf(bank_name,"S5%i%i", iboard, i_ch); 
 	  
 	  unsigned int bank_len = bk_locate(pevent, bank_name, &pdata);
-	  printf("bank [%s] length %i\n",bank_name, bank_len);
+	  //	  printf("bank [%s] length %i\n",bank_name, bank_len);
 	  
 	  if ( pdata == NULL ) continue;
 
@@ -161,11 +161,11 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
  
 	  // data size
 	  u_int32_t data_size = *p32++;
-	  printf("SIS3350 Bank [%s] adc_data_size: %i 16-bit words\n", bank_name, data_size);
+	  //	  printf("SIS3350 Bank [%s] adc_data_size: %i 16-bit words\n", bank_name, data_size);
 
 	  // Error mask
 	  u_int32_t errors = *p32++;
-	  printf("                  errors: 0x%08x\n", errors);
+	  //	  printf("                  errors: 0x%08x\n", errors);
 
 	  if ( errors )
 	    {	      
@@ -239,11 +239,24 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 		  adc = ((d32>>16)&0xFFFF);
 		  sample_vector.push_back(adc);
 		}
-	      char bankname[32];
-	      sprintf(bankname, "SIS3350_B%02dC%02d", iboard, i_ch);
-	      std::vector<TPulseIsland*>& pulse_islands = pulse_islands_map[bankname];
-	      pulse_islands.push_back(new TPulseIsland(time*2.0, sample_vector, bankname));
+	      //	      char bankname[32];
+	      //	      sprintf(bankname, "SIS3350_B%02dC%02d", iboard, i_ch);
+	      std::vector<TPulseIsland*>& pulse_islands = pulse_islands_map[bank_name]; // use the MIDAS bank name
+	      pulse_islands.push_back(new TPulseIsland(time*2.0, sample_vector, bank_name));
 	    }
+	  
+	  // print for testing
+	  if(midas_event_number == 1) {
+	    // Loop through all the banks and print an output (because this ProcessRaw loops through pulses then banks, it has been put here)
+	    //	    char bankname[32];
+	    //	    sprintf(bankname, "SIS3350_B%02dC%02d", iboard, i_ch);
+	    vector<TPulseIsland*>& pulse_islands = pulse_islands_map[bank_name];
+	    printf("TEST MESSAGE: Read %d events from bank %s in event %d\n",
+		   pulse_islands.size(),
+		   bank_name,
+		   //		   bankname,
+		   midas_event_number);
+	  }
 	}
 
     }

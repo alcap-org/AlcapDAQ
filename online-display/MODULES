@@ -25,6 +25,10 @@ DT5720_Heights dt5720/dt5720_heights.C
 DT5720_Times dt5720/dt5720_times.C
 DT5720_Shapes dt5720/dt5720_shapes.C
 
+SIS3350_Heights sis3350/sis3350_heights.C
+SIS3350_Times sis3350/sis3350_times.C
+SIS3350_Shapes sis3350/sis3350_shapes.C
+
 WFD_Errors caen_wfd/caen_wfd_errors.C
 
 SyncCount common/synccount.C
