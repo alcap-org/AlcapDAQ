@@ -19,6 +19,11 @@ void dt5720_times()
       AlCapCanvas->cd(iChn+1);
       hist->GetXaxis()->SetRangeUser(0., 1.2E8);
       hist->Draw();
+
+      TLine* line = new TLine(1.12E8, 0, 1.12E8, hist->GetMaximum());
+      line->SetLineColor(kRed);
+      line->SetLineWidth(2);
+      line->Draw("LSAME");
     }
   }
 }

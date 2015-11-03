@@ -133,14 +133,14 @@ INT MCommonOnlineDisplayPlots_init_wfd(const std::string& bank,
   TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(),
                                 400, -0.5, 399.5,
                                 (max_adc_value+1)/10, 0, max_adc_value+1);
-  hPulseShapes->GetXaxis()->SetTitle("Time Stamp");
+  hPulseShapes->GetXaxis()->SetTitle("Time [ct]");
   hPulseShapes->GetYaxis()->SetTitle("ADC Value");
   shape_histograms_map[bank] = hPulseShapes;
   //hLatestPulse
   histname = "h" + bank + "_LatestPulse";
   histtitle = "Plot of the latest pulse in the " + det + " channels";
-  TH1I* hLatestPulse = new TH1I(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5);
-  hLatestPulse->GetXaxis()->SetTitle("Time Stamp");
+  TH1I* hLatestPulse = new TH1I(histname.c_str(), histtitle.c_str(), 400,-0.5,399.5);
+  hLatestPulse->GetXaxis()->SetTitle("Time [ct]");
   hLatestPulse->GetYaxis()->SetTitle("ADC Value");
   latest_pulse_histograms_map[bank] = hLatestPulse;
 
@@ -191,52 +191,54 @@ INT MCommonOnlineDisplayPlots_bor(INT run_number) {
  * of TOctalFADCIsland objects from the raw Octal FADC data.
  */
 INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent) {
-	// Some typedefs
-	typedef std::map<string, vector<TPulseIsland*> >::iterator map_iterator;
+  // Some typedefs
+  typedef std::map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
-	// Fetch a reference to the gData structure that stores a map
-	// of (bank_name, vector<TPulseIsland*>) pairs
-	std::map<std::string, std::vector<TPulseIsland*> >& pulses_map =
-      gData->fPulseIslandToChannelMap;
+  // Fetch a reference to the gData structure that stores a map
+  // of (bank_name, vector<TPulseIsland*>) pairs
+  std::map<std::string, std::vector<TPulseIsland*> >& pulses_map =
+    gData->fPulseIslandToChannelMap;
 
-	// Loop over the map and get each bankname, vector pair
-	for (map_iterator theMapIter = pulses_map.begin();
+  // Loop over the map and get each bankname, vector pair
+  for (map_iterator theMapIter = pulses_map.begin();
        theMapIter != pulses_map.end(); theMapIter++) {
-	  std::string bankname = theMapIter->first;
-	  std::vector<TPulseIsland*> thePulses = theMapIter->second;
+    std::string bankname = theMapIter->first;
+    std::vector<TPulseIsland*> thePulses = theMapIter->second;
 
-	  // Loop over the TPulseIslands and plot the histogram
-	  for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
+    // Loop over the TPulseIslands and plot the histogram
+    for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
          pulseIter != thePulses.end(); pulseIter++) {
 
-	    // Make sure the histograms exist and then fill them
-	    if (shape_histograms_map.find(bankname) != shape_histograms_map.end()) {
+      // Make sure the histograms exist and then fill them
+      if (shape_histograms_map.find(bankname) != shape_histograms_map.end()) {
         TH2* shape_histogram = shape_histograms_map[bankname];
         TH1* latest_pulse_histogram = latest_pulse_histograms_map[bankname];
 
-	      latest_pulse_histogram->Reset();
+	latest_pulse_histogram->Reset();
 
-	      std::vector<int> theSamples = (*pulseIter)->GetSamples();
-	      for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
-      		int sample_number = sampleIter - theSamples.begin();
-      		int sample_value = *sampleIter;
+	std::vector<int> theSamples = (*pulseIter)->GetSamples();
+	for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
+	  int sample_number = sampleIter - theSamples.begin();
+	  int sample_value = *sampleIter;
 
-      		shape_histogram->Fill(sample_number, sample_value);
-      		latest_pulse_histogram->SetBinContent(sample_number, sample_value);
-	      }
-	    }
-	    if (height_histograms_map.find(bankname) != height_histograms_map.end())
-    		height_histograms_map[bankname]->Fill((*pulseIter)->GetPulseHeight());
-      if (time_histograms_map.find(bankname) != time_histograms_map.end())
-    		time_histograms_map[bankname]->Fill((*pulseIter)->GetPulseTime());
-	  }
-
-	  hPulseRawCount->Fill(bankname.c_str(), thePulses.size());
+	  shape_histogram->Fill(sample_number, sample_value);
+	  latest_pulse_histogram->SetBinContent(sample_number, sample_value);
 	}
+      }
+      if (height_histograms_map.find(bankname) != height_histograms_map.end()) {
+	height_histograms_map[bankname]->Fill((*pulseIter)->GetPulseHeight());
+      }
+      if (time_histograms_map.find(bankname) != time_histograms_map.end()) {
+	time_histograms_map[bankname]->Fill((*pulseIter)->GetPulseTime());
+      }
+    }
 
-	// TDC
-	const std::map< std::string, std::vector<int64_t> >& tdcs_map =
-      gData->fTDCHitsToChannelMap;
+    hPulseRawCount->Fill(bankname.c_str(), thePulses.size());
+  }
+
+  // TDC
+  const std::map< std::string, std::vector<int64_t> >& tdcs_map =
+    gData->fTDCHitsToChannelMap;
   std::map< std::string, std::vector<int64_t> >::const_iterator tdc;
   for (tdc = tdcs_map.begin(); tdc != tdcs_map.end(); ++tdc) {
     const std::vector<int64_t>& hits = tdc->second;

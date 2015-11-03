@@ -159,8 +159,10 @@ class TSetupData : public TObject{
     return (*(BankName.end() -1) == 'F' || BankName.substr(0,2) == "Sc" );
   }
   static bool IsWFD(const std::string& BankName) {
-    return BankName.at(0) == 'D';
+    return BankName.at(0) == 'D' || BankName.at(0) == 'S';
   }
+  // use a separate function for Struck digitisers because of bank S5xx, which was being 
+  // read twice because MDT5720ProcessRaw checks for IsWFD() and bank_name[2] == '5'
   static bool IsTDC(const std::string& BankName) {
     return BankName.at(0) == 'T';
   }

@@ -32,5 +32,7 @@ www/html/trend/*
 *.idx
 *.idf
 *.hst
+*.odb
+*.mid
 
 analyzer/work/damien/
