@@ -46,7 +46,7 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 static const int sis3300_n_channels = 8;
-static const int sis3300_n_boards = 1;
+static const int sis3300_n_boards = 5;
 
 static map<std::string, TH2D*> h2_pulses_map;       // ADC vs sample_nr histograms
 static map<std::string, TH1D*> h1_time_map;         // time histograms
@@ -93,9 +93,12 @@ INT module_bor(INT run_number)
   for (unsigned int iboard=0; iboard<sis3300_n_boards; ++iboard)
     {
 
+      TDirectory *subdir = dir->mkdir(Form("B%d",iboard+1));
+      subdir->cd();
+
       for (unsigned int ich=0; ich<sis3300_n_channels; ich++)
 	{
-	  std::string bankname( Form("SIS3300_B%02dC%02d",iboard,ich) );
+	  std::string bankname( Form("SIS3300_B%dC%d",iboard+1,ich+1) );
 	  
 	  /*
 	    TGraph *gr_nhits = new TGraph();
@@ -122,13 +125,13 @@ INT module_bor(INT run_number)
 	  h2_pulses_map[bankname] = h2_pulses;
 
 	  //TH1D *h1_time = new TH1D(Form("h1_time_%s",bankname.c_str()),Form("time, %s",bankname.c_str()),12000000,-0.5,1.2e7);   
-	  TH1D *h1_time = new TH1D(Form("h1_time_%s",bankname.c_str()),Form("time, %s",bankname.c_str()),120000,-0.5,1.2e7);   
+	  TH1D *h1_time = new TH1D(Form("h1_time_%s",bankname.c_str()),Form("time, %s",bankname.c_str()),1000000,-0.5,1.2e5);   
 	  h1_time->SetXTitle("time (ct)");
 	  h1_time->SetYTitle("counts");
 	  h1_time_map[bankname] = h1_time;
 	  
 	}
-
+      dir->cd();
     }
 
   // restore pointer of global directory
