@@ -87,7 +87,7 @@ INT MCommonOnlineDisplayPlots_init() {
     std::string bankname = mapIter->first;
     std::string detname = mapIter->second;
     INT ret = SUCCESS;
-    if (TSetupData::IsWFD(bankname) || TSetupData::IsStruckWFD(bankname))
+    if (TSetupData::IsWFD(bankname))
      ret = MCommonOnlineDisplayPlots_init_wfd(bankname, detname);
     else if (TSetupData::IsTDC(bankname))
       ret = MCommonOnlineDisplayPlots_init_tdc(bankname, detname);
@@ -133,14 +133,14 @@ INT MCommonOnlineDisplayPlots_init_wfd(const std::string& bank,
   TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(),
                                 400, -0.5, 399.5,
                                 (max_adc_value+1)/10, 0, max_adc_value+1);
-  hPulseShapes->GetXaxis()->SetTitle("Time Stamp");
+  hPulseShapes->GetXaxis()->SetTitle("Time [ct]");
   hPulseShapes->GetYaxis()->SetTitle("ADC Value");
   shape_histograms_map[bank] = hPulseShapes;
   //hLatestPulse
   histname = "h" + bank + "_LatestPulse";
   histtitle = "Plot of the latest pulse in the " + det + " channels";
-  TH1I* hLatestPulse = new TH1I(histname.c_str(), histtitle.c_str(), 64,-0.5,63.5);
-  hLatestPulse->GetXaxis()->SetTitle("Time Stamp");
+  TH1I* hLatestPulse = new TH1I(histname.c_str(), histtitle.c_str(), 400,-0.5,399.5);
+  hLatestPulse->GetXaxis()->SetTitle("Time [ct]");
   hLatestPulse->GetYaxis()->SetTitle("ADC Value");
   latest_pulse_histograms_map[bank] = hLatestPulse;
 
@@ -173,7 +173,7 @@ INT MCommonOnlineDisplayPlots_bor(INT run_number) {
       mapIter != bank_to_detector_map.end(); mapIter++) {
 
     std::string bankname = mapIter->first;
-    if (TSetupData::IsWFD(bankname) || TSetupData::IsStruckWFD(bankname)) {
+    if (TSetupData::IsWFD(bankname)) {
       height_histograms_map[bankname]->Reset();
       time_histograms_map[bankname]->Reset();
       shape_histograms_map[bankname]->Reset();
@@ -204,9 +204,6 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent) {
        theMapIter != pulses_map.end(); theMapIter++) {
     std::string bankname = theMapIter->first;
     std::vector<TPulseIsland*> thePulses = theMapIter->second;
-
-    double adc_slope_calib = gSetup->GetADCSlopeCalib(bankname);
-    double adc_offset_calib = gSetup->GetADCOffsetCalib(bankname);
 
     // Loop over the TPulseIslands and plot the histogram
     for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();

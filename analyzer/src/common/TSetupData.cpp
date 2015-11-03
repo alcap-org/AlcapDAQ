@@ -28,7 +28,13 @@ void TSetupData::GetAllDetectors(std::vector<std::string>& detectors)const{
 int TSetupData::GetNBits(const std::string& bk)const{
   if (bk[0] == 'D')
     return GetNBits(bk[1] - '0');
-  if (bk[0] == 'S' && bk[1] == '5')
+  if (bk[0] == 'S' && 
+      bk[1] == 'I' &&
+      bk[2] == 'S' &&
+      bk[3] == '3' &&
+      bk[4] == '3' &&
+      bk[5] == '5' &&
+      bk[6] == '0')
     return 12;
   return -1;
 }

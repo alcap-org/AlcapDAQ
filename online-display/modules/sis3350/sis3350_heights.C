@@ -12,7 +12,8 @@ void sis3350_heights()
   std::string hist_type = "Heights";
   const int n_boards = 2;
   const int n_channels = 4;
-  std::string bank_names[n_boards*n_channels] = {"S500", "S501", "S502", "S503", "S510", "S511", "S512", "S513"};
+  std::string bank_names[n_boards*n_channels] = {"SIS3350_B00C00", "SIS3350_B00C01","SIS3350_B00C02","SIS3350_B00C03",
+						 "SIS3350_B01C00","SIS3350_B01C01","SIS3350_B01C02","SIS3350_B01C03"};
 
   for (int iChn = 0; iChn < n_channels*n_boards; iChn++) {
     TH1* hist = get_histogram(bank_names[iChn], hist_type);

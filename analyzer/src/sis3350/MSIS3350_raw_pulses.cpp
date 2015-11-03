@@ -95,7 +95,7 @@ INT module_bor(INT run_number)
 
       for (unsigned int ich=0; ich<sis3350_n_channels; ich++)
 	{
-	  std::string bankname( Form("S5%d%d",iboard,ich) );
+	  std::string bankname( Form("SIS3350_B%02dC%02d",iboard, ich) );
 	  
 	  /*
 	    TGraph *gr_nhits = new TGraph();
