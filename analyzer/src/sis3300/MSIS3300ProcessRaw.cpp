@@ -48,7 +48,7 @@ extern TSetupData* gSetup;
 static const int sis3300_n_channels = 8;
 static const int sis3300_n_boards   = 5;
 static map<std::string, TH1D*> h1_Err_map;       // Errors
-
+static std::vector<std::string> sis3300_bank_names;
 
 ANA_MODULE MSIS3300ProcessRaw_module =
 {
@@ -116,7 +116,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	   iter->first[3] == '3' && 
 	   iter->first[4] == '3' && 
 	   iter->first[5] == '0' && 
-	   iter->first[6] == '0' ) 
+	   (iter->first[6] == '0' || iter->first[6] == '1') ) 
 	{
 	  std::vector<TPulseIsland*>& islands = iter->second;
 	  for (int i = 0; i < islands.size(); ++i) 
@@ -156,10 +156,10 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 
       // module ID
       uint32_t board_ID = *p32++;
-      printf("board ID: 0x%08x\n", board_ID);
+      //      printf("board ID: 0x%08x\n", board_ID);
       
       uint32_t board_type = board_ID>>16;
-      printf("board type: 0x%08x\n", board_type);
+      //      printf("board type: 0x%08x\n", board_type);
       uint32_t adc_mask = 0xFFF;
       uint32_t ovfw_bit = (1<<12);
       if ( board_type == 0x3301 )
@@ -170,15 +170,15 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
       
       // wf length (samples)
       int wf_len = *p32++;
-      printf("SIS3300 waveform length: %i\n", wf_len);
+      //      printf("SIS3300 waveform length: %i\n", wf_len);
 
       // number of events (triggers)
       int n_events =  *p32++;
-      printf("SIS3300 number of triggers (events): %i\n", n_events);
+      //      printf("SIS3300 number of triggers (events): %i\n", n_events);
 
       // Errors
       uint32_t errors = *p32++;
-      printf("Errors: 0x%08x\n", errors);
+      //      printf("Errors: 0x%08x\n", errors);
       if ( errors )
 	{	  
 	  for (int bit=0; bit<8*sizeof(errors); bit++)
@@ -198,10 +198,10 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 
       // ADC data
       u_int32_t adc_data_bytes = sizeof(u_int32_t)*n_events*wf_len;
-      printf("SIS3300 ADC data len: %i (bytes)\n", adc_data_bytes);
+      //      printf("SIS3300 ADC data len: %i (bytes)\n", adc_data_bytes);
 
       u_int32_t adc_data_lwords = n_events*wf_len; 
-      printf("SIS3300 ADC data len: %i (32-bit-long words)\n", adc_data_lwords);
+      //      printf("SIS3300 ADC data len: %i (32-bit-long words)\n", adc_data_lwords);
 
       u_int16_t *p16_ADC[sis3300_n_channels];
       
@@ -276,7 +276,15 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 		  sample_vector.push_back(adc);
 		}
 	      char bankname[32];
-	      sprintf(bankname, "SIS3300_B%02dC%02d", iboard, ich);
+	      if (board_type == 0x3301) {
+		sprintf(bankname, "SIS3301_B%02dC%02d", iboard, ich);
+	      }
+	      else {
+		sprintf(bankname, "SIS3300_B%02dC%02d", iboard, ich);
+	      }
+	      if (midas_event_number == 1 && i==0) {
+		sis3300_bank_names.push_back(bankname);
+	      }
 	      std::vector<TPulseIsland*>& pulse_islands = pulse_islands_map[bankname];
 	      //if ( i == 2 )
 	      //if ( trigger_mask == 0x80 && wraparound )
@@ -450,15 +458,15 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 
 
 
-#if 0
+#if 1
   // print for testing
   if(midas_event_number == 1) {
     // Loop through all the banks and print an output (because this ProcessRaw loops through pulses then banks, it has been put here)
-    for (std::vector<std::string>::iterator bankNameIter = bank_names.begin();
-      	 bankNameIter != bank_names.end(); bankNameIter++) {
+    for (std::vector<std::string>::iterator bankNameIter = sis3300_bank_names.begin();
+      	 bankNameIter != sis3300_bank_names.end(); bankNameIter++) {
 
       vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
-      printf("TEST MESSAGE: Read %d events from bank %s in event %d\n",
+      printf("TEST MESSAGE: Read %d events into bank %s in event %d\n",
       	     pulse_islands.size(),
       	     bankNameIter->c_str(),
       	     midas_event_number);

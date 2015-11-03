@@ -1,0 +1,34 @@
+# file: MODULES_struck
+# Contents: the list of ROOT macros for the online-display
+# Format: TextOnTheButton FullMacroName
+# Use # for comments
+#
+# MODULES
+#
+#======================================================
+#             Struck
+#======================================================
+SIS3350_Heights sis3350/sis3350_heights.C
+SIS3350_Times sis3350/sis3350_times.C
+SIS3350_Shapes sis3350/sis3350_shapes.C
+SIS3350_LatestPulse sis3350/sis3350_latest_pulse.C
+
+SIS3300_B00_Heights sis3300/sis3300_b00_heights.C
+SIS3300_B00_Times sis3300/sis3300_b00_times.C
+SIS3300_B00_Shapes sis3300/sis3300_b00_shapes.C
+SIS3300_B00_LatestPulse sis3300/sis3300_b00_latest_pulse.C
+
+SIS3300_B01_Heights sis3300/sis3300_b01_heights.C
+SIS3300_B01_Times sis3300/sis3300_b01_times.C
+SIS3300_B01_Shapes sis3300/sis3300_b01_shapes.C
+SIS3300_B01_LatestPulse sis3300/sis3300_b01_latest_pulse.C
+
+SIS3300_B02_Heights sis3300/sis3300_b02_heights.C
+SIS3300_B02_Times sis3300/sis3300_b02_times.C
+SIS3300_B02_Shapes sis3300/sis3300_b02_shapes.C
+SIS3300_B02_LatestPulse sis3300/sis3300_b02_latest_pulse.C
+
+SIS3300_B03_Heights sis3300/sis3300_b03_heights.C
+SIS3300_B03_Times sis3300/sis3300_b03_times.C
+SIS3300_B03_Shapes sis3300/sis3300_b03_shapes.C
+SIS3300_B03_LatestPulse sis3300/sis3300_b03_latest_pulse.C
