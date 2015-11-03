@@ -1,4 +1,4 @@
-static const unsigned int sis3300_n_boards   = 5; // must be < 10; modify midas bank name otherwise!
+static const unsigned int sis3300_n_boards   = 6; // must be < 10; modify midas bank name otherwise!
 static const unsigned int sis3300_n_channels = 8;
 
 extern HNDLE hDB;
@@ -64,7 +64,7 @@ static INT sis3300_odb_init()
 
       /* Link to Database */
       char key_str[1024];
-      sprintf( key_str, "/Equipment/Crate %i/Settings/SIS3300/Board %i", crate_number, i);
+      sprintf( key_str, "/Equipment/Crate %i/Settings/SIS3300/Board %i", crate_number, i+1);
 
       int status = db_check_record(hDB, 0, key_str, S_SIS3300_ODB_STR, FALSE);
 

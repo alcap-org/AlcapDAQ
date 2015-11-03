@@ -118,7 +118,7 @@ INT module_read(char *pevent)
       continue;
 #endif
 
-      sprintf(bk_name, "S30%i", i);
+      sprintf(bk_name, "S30%i", i+1);
       bk_create(pevent, bk_name, TID_BYTE, &pdata);
 
       // record the module ID

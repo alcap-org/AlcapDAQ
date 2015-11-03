@@ -103,7 +103,7 @@ static INT sis3350_odb_init()
 
       /* Link to Database */
       char key_str[1024];
-      sprintf( key_str, "/Equipment/Crate %i/Settings/SIS3350/Board %i", crate_number, i);
+      sprintf( key_str, "/Equipment/Crate %i/Settings/SIS3350/Board %i", crate_number, i+1);
 
       int status = db_check_record(hDB, 0, key_str, S_SIS3350_ODB_STR, FALSE);
 
