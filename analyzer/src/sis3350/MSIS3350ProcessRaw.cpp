@@ -249,7 +249,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	  if(midas_event_number == 1) {
 	    // Loop through all the banks and print an output (because this ProcessRaw loops through pulses then banks, it has been put here)
 	    char bankname[32];
-	    sprintf(bankname, "SIS3350_B%02dC%02d", iboard, i_ch);
+	    sprintf(bankname, "SIS3350_B%dC%d", iboard+1, i_ch+1);
 	    vector<TPulseIsland*>& pulse_islands = pulse_islands_map[bankname];
 	    printf("TEST MESSAGE: Read %d events from bank %s to %s in event %d\n",
 		   pulse_islands.size(),
