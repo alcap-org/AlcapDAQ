@@ -5,6 +5,7 @@ midas/linux64
 CAEN/CAEN*
 CAEN/include
 CAEN/lib
+Struck
 tmp/*
 test/*
 test_midas/*
