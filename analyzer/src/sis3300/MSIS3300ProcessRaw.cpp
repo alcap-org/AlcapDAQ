@@ -67,17 +67,11 @@ ANA_MODULE MSIS3300ProcessRaw_module =
 /*--module init routine --------------------------------------------*/
 INT module_init()
 {
-  return SUCCESS;
-}
-
-INT module_bor(INT run_number) 
-{
-  
   // save current directory 
-  TDirectory *dir0 = gDirectory;
+  //  TDirectory *dir0 = gDirectory;
 
-  TDirectory *dir = dir0->mkdir("MSIS3300ProcessRaw");
-  dir->cd();
+  //  TDirectory *dir = dir0->mkdir("MSIS3300ProcessRaw");
+  //  dir->cd();
 
   for (unsigned int iboard=0; iboard<sis3300_n_boards; ++iboard)
     {
@@ -91,7 +85,21 @@ INT module_bor(INT run_number)
     }
 
   // restore pointer of global directory
-  dir0->cd();
+  //  dir0->cd();
+
+  return SUCCESS;
+}
+
+INT module_bor(INT run_number) 
+{
+  
+  for (unsigned int iboard=0; iboard<sis3300_n_boards; ++iboard)
+    {
+
+      std::string bankname( Form("SIS3300_B%d",iboard+1) );
+      h1_Err_map[bankname]->Reset();
+	  
+    }
 
 
   return SUCCESS;

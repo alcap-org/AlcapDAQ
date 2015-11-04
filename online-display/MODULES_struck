@@ -44,3 +44,5 @@ SIS3301_Board6_Heights sis3301/sis3301_Board6_heights.C
 SIS3301_Board6_Times sis3301/sis3301_Board6_times.C
 SIS3301_Board6_Shapes sis3301/sis3301_Board6_shapes.C
 SIS3301_Board6_LatestPulse sis3301/sis3301_Board6_latest_pulse.C
+
+SIS330x_BoardErrors sis3300/sis330x_board_errors.C
