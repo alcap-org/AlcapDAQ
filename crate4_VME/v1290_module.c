@@ -225,6 +225,7 @@ int v1290_read(char *pevent)
   bk_close(pevent, pdata);
   data_size = 0;
   data_buffer = data_buffer_0;
+  printf("v1290 bank size: %i\n",bk_size(pevent));
 
   return SUCCESS;
 }

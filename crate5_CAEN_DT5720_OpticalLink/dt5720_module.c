@@ -521,6 +521,7 @@ BOOL dt5720_update_digitizer_std() {
   ret = CAEN_DGTZ_SetRecordLength(dev_handle, S_DT5720_ODB.wf_length_std);
   if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer")) return false;
 
+#if 1
   if (S_DT5720_ODB.post_trigger_size_std >= 0 &&
       S_DT5720_ODB.post_trigger_size_std <=100) {
     ret = CAEN_DGTZ_SetPostTriggerSize(dev_handle,
@@ -530,7 +531,9 @@ BOOL dt5720_update_digitizer_std() {
     cm_msg(MINFO,"dt5720_update_digitizer","Invalid post trigger size. Set to 80 percent.");
   }
   if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_std")) return false;
+#endif
 
+#if 1
   // According to correspondence with CAEN, second argument (channel nuumber)
   // is ignored. But just in case...
   if (S_DT5720_ODB.trigger_positive_edge_std) {
@@ -546,6 +549,7 @@ BOOL dt5720_update_digitizer_std() {
       if (is_caen_error(ret, __LINE__, "dt5720_update_digitizer_std")) return false;
     }
   }
+#endif
 
   ret = CAEN_DGTZ_SetZeroSuppressionMode(dev_handle, CAEN_DGTZ_ZS_NO);
   if(is_caen_error(ret, __LINE__, "dt5720_update_digitizer_std")) return false;
