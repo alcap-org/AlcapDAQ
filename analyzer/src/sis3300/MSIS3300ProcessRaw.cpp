@@ -325,7 +325,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 
 
 
-#if 0
+#if 1
   // print for testing
   if(midas_event_number == 1) {
     // Loop through all the banks and print an output (because this ProcessRaw loops through pulses then banks, it has been put here)

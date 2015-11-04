@@ -1,4 +1,4 @@
-void sis3301_b04_times()
+void sis3300_Board2_times()
 {
   /*****************************************************************/
   // Prepare the canvas
@@ -12,7 +12,7 @@ void sis3301_b04_times()
   std::string hist_type = "Times";
   const int n_channels = 8;
   std::string bank_names[n_channels] = {
-    "SIS3301_B04C00", "SIS3301_B04C01","SIS3301_B04C02","SIS3301_B04C03", "SIS3301_B04C04","SIS3301_B04C05","SIS3301_B04C06","SIS3301_B04C07"};
+    "SIS3300_B2C1", "SIS3300_B2C2","SIS3300_B2C3","SIS3300_B2C4", "SIS3300_B2C5","SIS3300_B2C6","SIS3300_B2C7","SIS3300_B2C8"};
 
   for (int iChn = 0; iChn < n_channels; iChn++) {
     TH1* hist = get_histogram(bank_names[iChn], hist_type);

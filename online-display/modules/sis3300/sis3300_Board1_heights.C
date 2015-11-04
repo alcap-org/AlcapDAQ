@@ -1,4 +1,4 @@
-void sis3350_heights()
+void sis3300_Board1_heights()
 {
   /*****************************************************************/
   // Prepare the canvas
@@ -10,12 +10,12 @@ void sis3350_heights()
   //  gROOT->ProcessLine(".L modules/common/get_histogram.C"); // get_histogram() defined here
   /*****************************************************************/
   std::string hist_type = "Heights";
-  const int n_boards = 2;
-  const int n_channels = 4;
-  std::string bank_names[n_boards*n_channels] = {"SIS3350_B1C1", "SIS3350_B1C2","SIS3350_B1C3","SIS3350_B1C4",
-						 "SIS3350_B2C1","SIS3350_B2C2","SIS3350_B2C3","SIS3350_B2C4"};
+  const int n_channels = 8;
+  std::string bank_names[n_channels] = {
+    "SIS3300_B1C1", "SIS3300_B1C2","SIS3300_B1C3","SIS3300_B1C4","SIS3300_B1C5", "SIS3300_B1C6","SIS3300_B1C7","SIS3300_B1C8"}
+						 
 
-  for (int iChn = 0; iChn < n_channels*n_boards; iChn++) {
+  for (int iChn = 0; iChn < n_channels; iChn++) {
     TH1* hist = get_histogram(bank_names[iChn], hist_type);
     if (hist) {
       AlCapCanvas->cd(iChn+1);
