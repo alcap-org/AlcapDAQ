@@ -13,6 +13,8 @@ SIS3350_Times sis3350/sis3350_times.C
 SIS3350_Shapes sis3350/sis3350_shapes.C
 SIS3350_LatestPulse sis3350/sis3350_latest_pulse.C
 
+SIS3350_BoardErrors sis3350/sis3350_board_errors.C
+
 SIS3300_Board1_Heights sis3300/sis3300_Board1_heights.C
 SIS3300_Board1_Times sis3300/sis3300_Board1_times.C
 SIS3300_Board1_Shapes sis3300/sis3300_Board1_shapes.C
