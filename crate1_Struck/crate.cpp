@@ -105,7 +105,7 @@ struct readout_module *trigger_modules[] = {
   &rpc_master_module,
   &sis3100_module,
   &sis3300_module,
-  &sis3350_module,
+  &sis3350_module,    // must be last by one!
   &rpc_slave_module,  // must be last!
 };
 int num_trigger_modules = sizeof(trigger_modules)/sizeof(trigger_modules[0]);

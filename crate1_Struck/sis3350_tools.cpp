@@ -8,6 +8,8 @@ static u_int32_t *sis3350_ADC_data[sis3350_n_boards][sis3350_n_channels];
 static u_int32_t sis3350_ADC_data_size[sis3350_n_boards][sis3350_n_channels];
 static u_int32_t sis3350_ADC_max_data_size = MAX_EVENT_SIZE/sis3350_n_channels;
 
+extern INT send_ready_for_cycle();
+
 static INT sis3350_A32D32_write(const int board_nr, const u_int32_t reg, const u_int32_t data)
 {
   
@@ -759,6 +761,10 @@ static INT sis3350_readout_eob()
   // ==============================================================  
   sis3350_sampling_bank_nr = (sis3350_sampling_bank_nr+1)%2;  
   if ( sis3350_arm_all() != SUCCESS ) return FE_ERR_HW;
+
+  // Can start new segment while we are reading out the date from alternate 
+  // memory bank
+  send_ready_for_cycle();
 
 
   // *** readout data from ADC memories ***  

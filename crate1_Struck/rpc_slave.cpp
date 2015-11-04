@@ -205,7 +205,8 @@ INT rpc_slave_read(char *pevent)
 
   // Announce that we're ready for the next cycle
 
-  send_ready_for_cycle();
+  // Modified by VT for R15b: We do this in SIS3350 readout.
+  //send_ready_for_cycle();
 
   return SUCCESS;
 }
