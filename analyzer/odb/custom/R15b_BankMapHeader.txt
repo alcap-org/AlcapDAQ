@@ -1,0 +1,31 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <title>R15b Wiremap summary</title>
+</head>
+<body>
+
+<h1>
+<u>Wiremap Summary</u></h1>
+
+<form name="form1" method="Get" action="/CS/DetectorBankMapCAEN">
+
+<input type=hidden name="redir" value="Test">
+
+<h3>Editable values hard-linked to bank name.  
+After switching channels, please edit Detector field.</font><h3>
+
+<table border="6" width="640">
+<tr>
+</tr>
+
+<tr>
+<td colspan="2" align="center">Detector</td>
+<td colspan="2" align="center">Bank Name</td>
+<td colspan="2" align="center">Sampling Frequency</td>
+<td colspan="2" align="center">Time Shift</td>
+<td colspan="2" align="center">Trigger Polarity</td>
+<td colspan="2" align="center">Pedestal</td>
+<td colspan="2" align="center">Channel Enabled?</td>
+</tr>
