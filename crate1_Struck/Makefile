@@ -1,3 +1,17 @@
+# This frontend provides two modes of operating the SIS3300 board:
+# A) Autobank switch mode (automatically starts sampling into the second bank)
+#    The disadvantage is long readout time between MIDAS segments
+#    The advantage is that the number of events (triggers) per midas block
+#    is not limited (providing we can readout the full bank prior to filling out the 
+#    second memory bank).
+# 
+# B) Single bank mode. Alternate sampling/readout between two memory banks.
+#    The adtvantage is minimal deadtime between the MIDAS segments.
+#
+
+#OPERATING_MODE = AUTOBANK_SWITCH_MODE_DEF
+OPERATING_MODE = SINGLE_BANK_MODE_DEF
+
 # get OS type from shell
 OSTYPE = $(shell uname)
 ifeq ($(OSTYPE),Linux)
@@ -9,7 +23,7 @@ endif
 
 CC = gcc
 CXX = g++
-CXXFLAGS = -g -Wall -O3 -I/usr/include 
+CXXFLAGS = -g -Wall -O3 -I/usr/include  -D$(OPERATING_MODE)
 CXX_LIBS += -lutil -lpthread -lrt
 
 KERNEL_VERSION = $(shell uname -r)
@@ -56,6 +70,6 @@ clean:
 	rm -f crate *.o 
 
 
-sis3300_module.o:	sis3300_odb.cpp sis3300_tools.cpp
+sis3300_module.o:	sis3300_odb.cpp sis3300_tools.cpp sis3300_tools_onebank.cpp sis3300_tools_twobanks.cpp
 
 sis3350_module.o:	sis3350_odb.cpp sis3350_tools.cpp

@@ -726,17 +726,11 @@ static INT sis3350_ReadStopAddressCounterAllBoards()
 }
 
 
-static INT sis3350_readout_eob() 
+// separate function, callable from sis3300 readtout
+INT sis3350_readout_eob_early()
 {
   u_int32_t addr ;
   u_int32_t data ;
-  int return_code ;
-
-#if 0
-  sis3350_A32D32_write(0, SIS3350_KEY_TRIGGER, 0x0);
-  ss_sleep(10);
-  sis3350_A32D32_write(0, SIS3350_KEY_TRIGGER, 0x0);
-#endif
 
   // *** Disarm (disable sample clock) ***
   sis3350_disarm_all();
@@ -766,6 +760,25 @@ static INT sis3350_readout_eob()
   // memory bank
   send_ready_for_cycle();
 
+  return SUCCESS;
+}
+
+
+static INT sis3350_readout_eob() 
+{
+  u_int32_t addr ;
+  u_int32_t data ;
+  int return_code ;
+
+#if 0
+  sis3350_A32D32_write(0, SIS3350_KEY_TRIGGER, 0x0);
+  ss_sleep(10);
+  sis3350_A32D32_write(0, SIS3350_KEY_TRIGGER, 0x0);
+#endif
+
+#ifdef AUTOBANK_SWITCH_MODE_DEF
+  if ( sis3350_readout_eob_early() != SUCCESS ) return FE_ERR_HW;
+#endif
 
   // *** readout data from ADC memories ***  
 #if 1

@@ -31,6 +31,12 @@
 
 #include "sis3300_odb.cpp"
 #include "sis3300_tools.cpp"
+#ifdef SINGLE_BANK_MODE_DEF
+#include "sis3300_tools_onebank.cpp"
+#endif
+#ifdef AUTOBANK_SWITCH_MODE_DEF
+#include "sis3300_tools_twobanks.cpp"
+#endif
 
 // Struck includes
 
