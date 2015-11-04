@@ -83,7 +83,7 @@ INT module_bor(INT run_number)
     {
       for (unsigned int i_ch=0; i_ch<sis3350_n_channels; ++i_ch)
 	{
-	  std::string bankname( Form("SIS3350_B%02dC%02d",iboard, i_ch) );
+	  std::string bankname( Form("SIS3350_B%dC%d",iboard+1, i_ch+1) );
 	  
 	  TH1D *h1_Err = new TH1D(Form("h1_Errors_%s",bankname.c_str()),Form("Errors in board, %s",bankname.c_str()),1024,-0.5,1023.5);      
 	  h1_Err->SetXTitle("Error number");
@@ -142,11 +142,11 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
       for (int i_ch=0; i_ch<sis3350_n_channels; i_ch++)
 	{
 	  
-	  std::string bankname( Form("SIS3350_B%02dC%02d",iboard, i_ch) );
+	  std::string bankname( Form("SIS3350_B%dC%d",iboard+1, i_ch+1) );
 	  TH1D *h1_Err = h1_Err_map.find(bankname)->second;
 
 	  char bank_name[32];
-	  sprintf(bank_name,"S5%i%i", iboard, i_ch); 
+	  sprintf(bank_name,"S5%i%i", iboard+1, i_ch+1); 
 	  
 	  unsigned int bank_len = bk_locate(pevent, bank_name, &pdata);
 	  //	  printf("bank [%s] length %i\n",bank_name, bank_len);
@@ -240,7 +240,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 		  sample_vector.push_back(adc);
 		}
 	      char bankname[32];
-	      sprintf(bankname, "SIS3350_B%02dC%02d", iboard, i_ch);
+	      sprintf(bankname, "SIS3350_B%dC%d", iboard+1, i_ch+1);
 	      std::vector<TPulseIsland*>& pulse_islands = pulse_islands_map[bankname];
 	      pulse_islands.push_back(new TPulseIsland(time*2.0, sample_vector, bankname));
 	    }
@@ -249,7 +249,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	  if(midas_event_number == 1) {
 	    // Loop through all the banks and print an output (because this ProcessRaw loops through pulses then banks, it has been put here)
 	    char bankname[32];
-	    sprintf(bankname, "SIS3350_B%02dC%02d", iboard, i_ch);
+	    sprintf(bankname, "SIS3350_B%dC%d", iboard+1, i_ch+1);
 	    vector<TPulseIsland*>& pulse_islands = pulse_islands_map[bankname];
 	    printf("TEST MESSAGE: Read %d events from bank %s to %s in event %d\n",
 		   pulse_islands.size(),

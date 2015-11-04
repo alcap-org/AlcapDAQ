@@ -46,7 +46,7 @@ extern TSetupData* gSetup;
 /// \brief
 /// Number of channels in SIS3300.
 static const int sis3300_n_channels = 8;
-static const int sis3300_n_boards   = 5;
+static const int sis3300_n_boards   = 6;
 static map<std::string, TH1D*> h1_Err_map;       // Errors
 static std::vector<std::string> sis3300_bank_names;
 
@@ -82,7 +82,7 @@ INT module_bor(INT run_number)
   for (unsigned int iboard=0; iboard<sis3300_n_boards; ++iboard)
     {
 
-      std::string bankname( Form("SIS3300_B%02d",iboard) );
+      std::string bankname( Form("SIS3300_B%d",iboard+1) );
       
       TH1D *h1_Err = new TH1D(Form("h1_Errors_%s",bankname.c_str()),Form("Errors in board, %s",bankname.c_str()),1024,-0.5,1023.5);      
       h1_Err->SetXTitle("Error number");
@@ -140,14 +140,11 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
     {
 
       char bank_name[32];
-      sprintf(bank_name,"S30%i", iboard); 
+      sprintf(bank_name,"S30%i", iboard+1);
 
       unsigned int bank_len = bk_locate(pevent, bank_name, &pdata);
       
       if ( pdata == NULL ) continue;
-
-      std::string bankname( Form("SIS3300_B%02d",iboard) );
-      TH1D *h1_Err = h1_Err_map.find(bankname)->second;
       
       uint32_t *p32   = (uint32_t*)pdata;
       uint32_t *p32_0 = (uint32_t*)pdata;
@@ -167,6 +164,10 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	  adc_mask = 0x3FFF;
 	  ovfw_bit = (1<<14);
 	}
+
+      std::string bankname( Form("SIS3300_B%d",iboard+1) );
+      TH1D *h1_Err = h1_Err_map.find(bankname)->second;
+
       
       // wf length (samples)
       int wf_len = *p32++;
@@ -276,12 +277,14 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 		  sample_vector.push_back(adc);
 		}
 	      char bankname[32];
-	      if (board_type == 0x3301) {
-		sprintf(bankname, "SIS3301_B%02dC%02d", iboard, ich);
-	      }
-	      else {
-		sprintf(bankname, "SIS3300_B%02dC%02d", iboard, ich);
-	      }
+	      if (board_type == 0x3301) 
+		{
+		  sprintf(bankname, "SIS3301_B%dC%d", iboard+1, ich+1);
+		}
+	      else 
+		{
+		  sprintf(bankname, "SIS3300_B%dC%d", iboard+1, ich+1);
+		}
 	      if (midas_event_number == 1 && i==0) {
 		sis3300_bank_names.push_back(bankname);
 	      }
@@ -317,143 +320,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	      printf("Sample %5i: %8i %8i %8i %8i %8i %8i %8i %8i\n",k,adc_1&0xFFF,adc_2&0xFFF,adc_3&0xFFF,adc_4&0xFFF,adc_5&0xFFF,adc_6&0xFFF,adc_7&0xFFF,adc_8&0xFFF );
 	      }
 	      */
-	  
-
 	}
-
-      
-
-#if 0
-      // decode ADC data 
-      u_int16_t *p16 = (u_int16_t*) p32;
-      u_int16_t adc;
-
-      // ADC 1/2
-      for (int i=0; i<n_events; i++)
-	{
-	  for (int j=0; j<wf_len; j++)
-	    {
-	      // ADC 2 
-	      adc = *p16++;
-	      printf("adc 1 = 0x%04x\n",adc);
-
-	      // ADC 1
-	      adc = *p16++;	  
-	      printf("adc 2 = 0x%04x\n",adc);
-	    }
-	}
-
-      // ADC 3/4
-      for (int i=0; i<n_events; i++)
-	{
-	  // ADC 3 
-	  adc = *p16++;
-	  printf("adc 3 = 0x%04x\n",adc);
-
-	  // ADC 4
-	  adc = *p16++;	  
-	  printf("adc 4 = 0x%04x\n",adc);
-	}
-
-      // ADC 5/6
-      for (int i=0; i<n_events; i++)
-	{
-	  // ADC 5 
-	  adc = *p16++;
-	  printf("adc 5 = 0x%04x\n",adc);
-
-	  // ADC 6
-	  adc = *p16++;	  
-	  printf("adc 6 = 0x%04x\n",adc);
-	}
-
-      // ADC 7/8
-      for (int i=0; i<n_events; i++)
-	{
-	  // ADC 7 
-	  adc = *p16++;
-	  printf("adc 7 = 0x%04x\n",adc);
-
-	  // ADC 8
-	  adc = *p16++;	  
-	  printf("adc 8 = 0x%04x\n",adc);
-	}
-#endif
-
-#if 0
-
-      while ((p32 - p32_0)*4 < bank_len ) {
-	
-	uint32_t caen_event_cw = p32[0]>>28;
-	//printf("CW: %08x\n",caen_event_cw);
-	if ( caen_event_cw != 0xA ) {
-  	  printf("***ERROR UH CAEN! Wrong data format: incorrect control word 0x%08x\n", caen_event_cw);
-  	  return SUCCESS;
-  	}
-	
-	uint32_t caen_event_size = p32[0] & 0x0FFFFFFF;
-	//printf("caen event size: %i\n",caen_event_size);
-	
-	uint32_t caen_channel_mask = p32[1] & 0x000000FF;
-	// count the number of channels in the event
-	int nchannels = 0;
-	for (int ichannel=0; ichannel<NCHAN; ichannel++ ) {
-  	  if ( caen_channel_mask & (1<<ichannel) ) nchannels++;
-  	}
-	
-	uint32_t caen_event_counter = p32[2] & 0x00FFFFFF;
-	//      printf("caen event counter: %i\n",caen_event_counter);
-	
-	//
-	uint32_t caen_trigger_time = 2*p32[3];
-	//      printf("caen trigger time: %i\n",caen_trigger_time);// = clock ticks?
-	
-	// number of samples per channel
-	int nsamples = ((caen_event_size-4)*2) / nchannels;
-	//      printf("waveform length: %i\n",nsamples);
-	
-	// Loop through the channels (i.e. banks)
-	for (int ich = 0, iprocchan = 0; ich < NCHAN; ++ich) {
-	  if (!(caen_channel_mask & 1<<ich)) continue;
-	  
-	  std::vector<int> sample_vector;
-	  int isample = 0;
-	  int nwords = nsamples/2;
-	  for (int iword=0; iword<nwords; iword++) {
-	    for (int isubword=0; isubword<2; isubword++) {
-	      uint32_t adc;
-	      if (isubword == 0)
-		adc = (p32[4+iword+iprocchan*nwords] & 0x0FFF);
-	      else
-		adc = ((p32[4+iword+iprocchan*nwords] >> 16) & 0x0FFF);
-	      //printf("CAEN V1720 channel %d: adc[%i] = %i\n", ichannel, isample, adc);
-	      //		    h2_v1720_pulses[ichannel]->Fill(isample,adc);
-	      isample++;
-	      sample_vector.push_back(adc);
-	    }
-	  }
-	  ++iprocchan;
-	  
-	  char bankname[5];
-	  sprintf(bankname, "D8%02d", ich);
-	  std::vector<TPulseIsland*>& pulse_islands = pulse_islands_map[bankname];
-	  pulse_islands.push_back(new TPulseIsland(caen_trigger_time - nPreSamples,
-						   sample_vector, bankname));
-	}
-	
-	// align the event by two bytes.
-	p32 += caen_event_size + (caen_event_size%2);
-	//      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
-      }
-
-#endif
-      
-      // for (int ich = 0; ich < 4; ++ich) {
-      //   char bankname[5];
-      //   sprintf(bankname, "D8%02d", ich);
-      //   printf("V1720 Info: Processed %i pulses in channel %d.\n", pulse_islands_map[bankname].size(), ich);
-      // }
-
     }
 
 

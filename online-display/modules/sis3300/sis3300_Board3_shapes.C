@@ -1,4 +1,4 @@
-void sis3300_b03_shapes()
+void sis3300_Board3_shapes()
 {
   /*****************************************************************/
   // Prepare the canvas
@@ -12,7 +12,7 @@ void sis3300_b03_shapes()
   std::string hist_type = "Shapes";
   const int n_channels = 8;
   std::string bank_names[n_channels] = {
-    "SIS3300_B03C00", "SIS3300_B03C01","SIS3300_B03C02","SIS3300_B03C03", "SIS3300_B03C04","SIS3300_B03C05","SIS3300_B03C06","SIS3300_B03C07"};
+    "SIS3300_B3C1", "SIS3300_B3C2","SIS3300_B3C3","SIS3300_B3C4", "SIS3300_B3C5","SIS3300_B3C6","SIS3300_B3C7","SIS3300_B3C8"};
 
   for (int iChn = 0; iChn < n_channels; iChn++) {
     TH1* hist = get_histogram(bank_names[iChn], hist_type);
