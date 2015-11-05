@@ -6,7 +6,7 @@ use DBI;
 use CGI qw(:standard *table);
 
 $| = 1;
-$dsn = "DBI:mysql;alcap";
+$dsn = "DBI:mysql;database=alcap;host=abe.psi.ch";
 $user = "webguest";
 
 my $run;

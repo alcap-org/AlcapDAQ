@@ -13,7 +13,7 @@ $| = 1;
 my %files = ();
 #my $histdir = "/home/l_data/online-hists";
 #my $histdir = "/mnt/cheetah-hists";
-my $histdir = "/data/alcap/R15a/root";
+my $histdir = "/data/alcap/R15b/root";
 if( -e $histdir ) {
     #system("ls -l $histdir > /tmp/files.txt");
     open(TMP,"ls -1 $histdir|");
@@ -65,7 +65,7 @@ if( $editable!=1 ) {
     $linkedit = "<A href=\"$selfurl+E\">Switch to editable mode</A></td>";
 }
 
-my $dsn = "DBI:mysql:alcap";
+my $dsn = "DBI:mysql:database=alcap;host=abe.psi.ch";
 my $user = "webguest";
 my $pass = undef;
 
@@ -339,7 +339,7 @@ Content-type: text/html
 
 <HTML>
 <HEAD>
-<TITLE>AlCap Run 2013 Log</TITLE>
+<TITLE>AlCap Run 2015b Log</TITLE>
 </HEAD>
 <BODY bgcolor="#ffffff" text="#880000" link="#0000ff" vlink="#0000ff">
 
@@ -360,7 +360,7 @@ function open_runs_view(href) {
 function update(w,run,field,id) { 
     value = w.document.forms[0].elements[id].value;
     w.status="Change "+field+" for "+run+" to "+value;
-    var newurl = "http://"+w.location.host+"/cgi-bin/alcap/update_run.cgi?";
+    var newurl = "https://"+w.location.host+"/cgi-bin/alcap/update_run.cgi?";
     newurl += run+"+"+field+"+"+value;
     update_w = open(newurl,"update_status_window",
 		    "toolbar=0,location=0,directories=0,status=0,"+
@@ -372,7 +372,7 @@ function update(w,run,field,id) {
 <TABLE ALIGN=center WIDTH="80%">
 <tr>
 <td align=left width=200></td>
-<td align=center><H2>AlCap Run 2013 Log</H2></td>
+<td align=center><H2>AlCap Run 2015b Log</H2></td>
 <td align=right width=200>$linkedit</td>
 </tr>
 </TABLE>

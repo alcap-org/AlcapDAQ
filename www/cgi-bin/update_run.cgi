@@ -6,14 +6,15 @@ use DBI;
 use CGI qw(:standard);
 
 $| = 1;
-$dsn = "DBI:mysql:alcap";
-$user = "webguest";
-$pass = "";
+$dsn = "DBI:mysql:database=alcap;host=abe.psi.ch";
+$user = "daq";
+$pass = "alcapdaq";
+
 
 my $run;
 if( $#ARGV<0 ) { exit(0); } else { $run=$ARGV[0]; }
 
-my $dbh = DBI->connect($dsn, $user);
+my $dbh = DBI->connect($dsn, $user, $pass);
 if( !$dbh ) {
     print header;
     print start_html('Update status');

@@ -6,7 +6,7 @@ use DBI;
 use CGI qw(:standard);
 
 $| = 1;
-$dsn = "DBI:mysql:alcap";
+$dsn = "DBI:mysql:database=alcap;host=abe.psi.ch";
 $user = "webguest";
 
 my $dbh = DBI->connect($dsn, $user);
@@ -41,7 +41,7 @@ $sth1->finish;
 $dbh->disconnect;
 
 print header;
-print start_html("AlCap Run 2013");
+print start_html("AlCap Run 2015b");
 print h3("Select runs:");
 
 print "<table>";
