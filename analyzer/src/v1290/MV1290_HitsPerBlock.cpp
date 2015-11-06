@@ -123,7 +123,6 @@ INT MV1290_HitsPerBlock(EVENT_HEADER *pheader, void *pevent) {
     for (int i_count = 0; i_count < n_blocks_for_average; ++i_count) {
       average += previous_counts[i_count];
     }
-    average /= n_blocks_for_average;
     hTDCHitCountsAvg10Blocks->SetBinContent(hTDCHitCountsAvg10Blocks->GetXaxis()->FindBin(tdc_detname.c_str()), average);
   }
 
