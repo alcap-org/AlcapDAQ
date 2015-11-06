@@ -76,7 +76,7 @@ INT MV1290_HitsPerBlock_init() {
 
   hTDCHitCountsAvg10Blocks = new TH1F("hTDCHitCountsAvg10Blocks", "Number of TDC Hits in this Block", 1,0,1);
   hTDCHitCountsAvg10Blocks->SetXTitle("Channel");
-  hTDCHitCountsAvg10Blocks->SetYTitle("Number of Hits (Average Over 10 Blocks)");
+  hTDCHitCountsAvg10Blocks->SetYTitle("Number of Hits [Hz]"); // since we are averageing over 10 * 100 ms blocks
   hTDCHitCountsAvg10Blocks->SetBit(TH1::kCanRebin);
 
   return SUCCESS;
@@ -110,6 +110,9 @@ INT MV1290_HitsPerBlock(EVENT_HEADER *pheader, void *pevent) {
     std::string tdc_bankname = theMapIter->first;
     std::string tdc_detname = gSetup->GetDetectorName(tdc_bankname);
     
+    if (tdc_detname == "TRollover") {
+      continue;
+    }
     std::vector<int64_t> theTDCHits = theMapIter->second;
 
     hTDCHitCountsPerBlock->Fill(tdc_detname.c_str(), theTDCHits.size());
