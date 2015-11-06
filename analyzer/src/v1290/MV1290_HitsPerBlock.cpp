@@ -47,7 +47,7 @@ extern TSetupData* gSetup;
 static TH1F* hTDCHitCountsPerBlock;
 static TH1F* hTDCHitCountsAvg10Blocks;
 static const int n_blocks_for_average = 10;
-static double previous_counts[n_blocks_for_average];
+std::map<std::string, std::vector<double> > previous_counts;
 
 ANA_MODULE MV1290_HitsPerBlock_module =
 {
@@ -114,14 +114,20 @@ INT MV1290_HitsPerBlock(EVENT_HEADER *pheader, void *pevent) {
       continue;
     }
     std::vector<int64_t> theTDCHits = theMapIter->second;
+    int n_tdc_hits = theTDCHits.size();
+    hTDCHitCountsPerBlock->Fill(tdc_detname.c_str(), n_tdc_hits);
 
-    hTDCHitCountsPerBlock->Fill(tdc_detname.c_str(), theTDCHits.size());
+    std::vector<double>& counts = previous_counts[tdc_detname];
+    if (midas_event_number > 10) {
+      counts.at( (midas_event_number%10)) = n_tdc_hits;
+    }
+    else {
+      counts.push_back(n_tdc_hits);
+    }
 
-    previous_counts[midas_event_number%10] = theTDCHits.size();
-
-    double average;
-    for (int i_count = 0; i_count < n_blocks_for_average; ++i_count) {
-      average += previous_counts[i_count];
+    double average = 0;
+    for (std::vector<double>::const_iterator i_count = counts.begin(); i_count != counts.end(); ++i_count) {
+      average += (*i_count);
     }
     hTDCHitCountsAvg10Blocks->SetBinContent(hTDCHitCountsAvg10Blocks->GetXaxis()->FindBin(tdc_detname.c_str()), average);
   }
