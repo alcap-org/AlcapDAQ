@@ -465,26 +465,40 @@ BOOL dt5730_update_digitizer_generic() {
   }
   if (is_caen_error(ret, __LINE__, "dt5730_update_digitizer_generic")) return false;
 
+#if 1
+  // commented out by VT on 2015-11-05
+  // due to  CAEN DT5730 Generic (unspecified) error.
   uint32_t channel_mask = 0;
   for (int ch = 0; ch < NCHAN; ++ch)
     if (S_DT5730_ODB.ch[ch].enable)
       channel_mask |= (1 << ch);
+  printf("Setting channel mask 0x%08x\n",channel_mask);
   ret = CAEN_DGTZ_SetChannelEnableMask(dev_handle, channel_mask);
   if (is_caen_error(ret, __LINE__, "dt5730_update_digitizer_generic")) return false;
+#endif
 
+#if 1
+  // commented out by VT on 2015-11-05
+  // due to  CAEN DT5730 Generic (unspecified) error.
   for (int ch = 0; ch < NCHAN; ++ch) {
+    printf("Setting offset to %i in channel %i\n",S_DT5730_ODB.ch[ch].offset_std,ch);
     ret = CAEN_DGTZ_SetChannelDCOffset(dev_handle, ch, S_DT5730_ODB.ch[ch].offset_std);
     if (is_caen_error(ret, __LINE__, "dt5730_update_digitizer_generic")) return false;
   }
-
+#endif
 
   // ===========================================================================
   // Channel configuration set bit 0x8004=CAEN_DGTZ_BROAD_CH_CONFIGBIT_SET_ADD
   // ===========================================================================
+#if 1
+  // commented out by VT on 2015-11-05
+  // due to  CAEN DT5730 Generic (unspecified) error.
+  printf("Setting CAEN_DGTZ_BROAD_CH_CONFIGBIT_SET_ADD...\n");
   const int allow_trigger_overlap_bit = 1<<1;
   ret = CAEN_DGTZ_WriteRegister(dev_handle, CAEN_DGTZ_BROAD_CH_CONFIGBIT_SET_ADD,
 				allow_trigger_overlap_bit);
   if(is_caen_error(ret, __LINE__-1, "dt5730_update_digitizer_generic")) return false;
+#endif
 
   return true;
 }
@@ -573,23 +587,40 @@ BOOL dt5730_update_digitizer_dpp() {
   DPPParams.bltmo = 100;   // Baseline Timeout       //This parameter is deprecated
   DPPParams.trgho = 0;     // Trigger HoldOff
 
+#if 1
+  // commented out by VT on 2015-11-05
+  // due to CAEN DT5730 Module does not support this function error message
   // Set the DPP specific parameters for the channels in the given channelMask
+  printf("Setting DPP parameters...\n");
   ret = CAEN_DGTZ_SetDPPParameters(dev_handle, channel_mask, &DPPParams);
   if (is_caen_error(ret, __LINE__, "dt5730_update_digitizer_dpp")) return false;
+#endif
 
+#if 1
+  // commented out by VT on 2015-11-05
+  // due to CAEN DT5730 Module does not support this function error message
+  printf("Setting DPP ACQ_MODE_Mixed");
   ret = CAEN_DGTZ_SetDPPAcquisitionMode(dev_handle, CAEN_DGTZ_DPP_ACQ_MODE_Mixed, CAEN_DGTZ_DPP_SAVE_PARAM_EnergyAndTime);
   if (is_caen_error(ret, __LINE__, "dt5730_update_digitizer_dpp")) return false;
+#endif
 
   // For DT5730, can only set even channels.
   // Setting applies for even/odd couples.
   for (int ch = 0; ch < NCHAN; ch += 2)
-    ret = CAEN_DGTZ_SetRecordLength(dev_handle, S_DT5730_ODB.ch[ch].wf_length_dpp, ch);
-  if (is_caen_error(ret,__LINE__,"dt5730_update_digitizer_dpp")) return false;
+    {
+      printf("Setting wf_length=%i in channel %i\n",S_DT5730_ODB.ch[ch].wf_length_dpp,0);
+      ret = CAEN_DGTZ_SetRecordLength(dev_handle, S_DT5730_ODB.ch[ch].wf_length_dpp, ch);
+      if (is_caen_error(ret,__LINE__,"dt5730_update_digitizer_dpp")) return false;
+    }
 
   for (int ch = 0; ch < NCHAN; ++ch) {
-    // Set the Pre-Trigger size (in samples)
+#if 1
+  // commented out by VT on 2015-11-05
+  // due to CAEN DT5730 Module does not support this function error message
+     // Set the Pre-Trigger size (in samples)
     ret = CAEN_DGTZ_SetDPPPreTriggerSize(dev_handle, ch, S_DT5730_ODB.ch[ch].pre_trigger_size_dpp);
     if (is_caen_error(ret, __LINE__, "dt5730_update_digitizer_dpp")) return false;
+#endif
 
     // Set the polarity for the given channel (CAEN_DGTZ_PulsePolarityPositive or CAEN_DGTZ_PulsePolarityNegative)
     if (S_DT5730_ODB.ch[ch].polarity_dpp >= 0)
@@ -599,11 +630,16 @@ BOOL dt5730_update_digitizer_dpp() {
     if (is_caen_error(ret, __LINE__, "dt5730_update_digitizer_dpp")) return false;
   }
 
-  // Set how many events to accumulate in the board memory before
+
+#if 1
+  // commented out by VT on 2015-11-05
+  // due to CAEN DT5730 Module does not support this function error message
+   // Set how many events to accumulate in the board memory before
   // being available for readout
   // Since automatic, should be set after many other parameters I would think?
   ret = CAEN_DGTZ_SetDPPEventAggregation(dev_handle, 0, 0);
   if(is_caen_error(ret, __LINE__, "dt5730_update_digitizer_dpp")) return false;
+#endif
 
   // Need to figure out what to do here
   //ret = CAEN_DGTZ_SetDPP_PSD_VirtualProbe(dev_handle, CAEN_DGTZ_DPP_VIRTUALPROBE_SINGLE, CAEN_DGTZ_DPP_PSD_VIRTUALPROBE_Baseline, CAEN_DGTZ_DPP_PSD_DIGITALPROBE1_R6_GateLong, CAEN_DGTZ_DPP_PSD_DIGITALPROBE2_R6_OverThr);

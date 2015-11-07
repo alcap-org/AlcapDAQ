@@ -344,6 +344,8 @@ INT dt5720_read(char *pevent) {
   memcpy(pdata++, &(ds.over_temperature), sizeof(ds.over_temperature));
   memcpy(pdata++, &(ds.no_power), sizeof(ds.no_power));
   bk_close(pevent, pdata);
+  
+  printf("BANK SIZE: %i\n",bk_size(pevent));
 
 
 #if 0
@@ -373,7 +375,7 @@ BOOL dt5720_readout() {
 
   /* If there's data, copy from digitizers local buffer to different local buffer */
   if(caen_data_size > 0) {
-    printf("data size: %i\n", caen_data_size);
+    //printf("data size: %i\n", caen_data_size);
     if(data_size+caen_data_size < data_buffer_size ) {
       memcpy((data_buffer+data_size), caen_data_buffer, caen_data_size);
       data_size += caen_data_size;

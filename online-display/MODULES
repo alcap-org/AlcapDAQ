@@ -35,7 +35,7 @@ SyncCount common/synccount.C
 
 V1290_A v1290/v1290_rawtimes_0_8.C
 V1290_B v1290/v1290_rawtimes_9_15.C
-
+TDCHitsPerBlock v1290/v1290_hits_per_block.C
 TDCTargetCorrelations1 v1290/v1290_tsctcorr_0_3.C
 TDCTargetCorrelations2 v1290/v1290_tsctcorr_4_7.C
 TDCTargetCorrelations3 v1290/v1290_tsctcorr_8_11.C
@@ -50,12 +50,12 @@ physics physics/physics.C
 #======================================================
 #             muSC
 #======================================================
-#muSC muSCmuPC/muSC.C
+muSC muSCmuPC/muSC.C
 #
 #======================================================
 #             muPC
 #======================================================
-#muPC muSCmuPC/muPC.C
+muPC muSCmuPC/muPC.C
 #
 # Dummy hist
 #Dummy dummy.C
