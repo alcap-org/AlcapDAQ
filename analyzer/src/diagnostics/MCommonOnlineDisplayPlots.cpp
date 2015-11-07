@@ -52,7 +52,9 @@ map<std::string, TH1I*> height_histograms_map;
 map<std::string, TH1I*> time_histograms_map;
 map<std::string, TH2D*> shape_histograms_map;
 map<std::string, TH1I*> latest_pulse_histograms_map;
-map<std::string, TH1I*> tdc_rawtime_histograms_map;
+map<std::string, TH1F*> tdc_rawtime_histograms_map;
+map<std::string, TH1F*> tdc_rawtime_beginofblock_histograms_map;
+map<std::string, TH1F*> tdc_rawtime_endofblock_histograms_map;
 map<std::string, TH1I*> tdc_adjtime_histograms_map;
 static TH1I* hPulseRawCount;
 
@@ -110,6 +112,7 @@ INT MCommonOnlineDisplayPlots_init_wfd(const std::string& bank,
                                        const std::string& det) {
   const int n_digitizer_bits = gSetup->GetNBits(bank);
   const int64_t max_adc_value = std::pow(2, n_digitizer_bits);
+  const double clock_tick = gSetup->GetClockTick(bank);
 
   // hPulseHeights
   std::string histname = "h" + bank + "_Heights";
@@ -128,19 +131,22 @@ INT MCommonOnlineDisplayPlots_init_wfd(const std::string& bank,
   hPulseTimes->GetYaxis()->SetTitle("Number of Pulses");
   time_histograms_map[bank] = hPulseTimes;
   // hPulseShapes
+  double min_time = 0;
+  double max_time = 2000;
+  double n_bins = (max_time - min_time) / clock_tick;
   histname = "h" + bank + "_Shapes";
   histtitle = "Plot of the pulse shapes in the " + det + " channels";
   TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(),
-                                400, -0.5, 399.5,
+                                n_bins,min_time,max_time,
                                 (max_adc_value+1)/10, 0, max_adc_value+1);
-  hPulseShapes->GetXaxis()->SetTitle("Time [ct]");
+  hPulseShapes->GetXaxis()->SetTitle("Time [ns]");
   hPulseShapes->GetYaxis()->SetTitle("ADC Value");
   shape_histograms_map[bank] = hPulseShapes;
   //hLatestPulse
   histname = "h" + bank + "_LatestPulse";
   histtitle = "Plot of the latest pulse in the " + det + " channels";
-  TH1I* hLatestPulse = new TH1I(histname.c_str(), histtitle.c_str(), 400,-0.5,399.5);
-  hLatestPulse->GetXaxis()->SetTitle("Time [ct]");
+  TH1I* hLatestPulse = new TH1I(histname.c_str(), histtitle.c_str(), n_bins,min_time,max_time);
+  hLatestPulse->GetXaxis()->SetTitle("Time [ns]");
   hLatestPulse->GetYaxis()->SetTitle("ADC Value");
   latest_pulse_histograms_map[bank] = hLatestPulse;
 
@@ -151,14 +157,30 @@ INT MCommonOnlineDisplayPlots_init_tdc(const std::string& bank,
                                        const std::string& det) {
   std::string histname = "h" + bank + "_RawTime";
   std::string histtitle = "TDC Raw Times in " + det;
-  TH1I* hTDCRawTime = new TH1I(histname.c_str(), histtitle.c_str(),
-                               1000, 0., 120.e6);
+  TH1F* hTDCRawTime = new TH1F(histname.c_str(), histtitle.c_str(),
+                               1000, 0, 110.e6);
+  hTDCRawTime->SetXTitle("Time [ns]");
   tdc_rawtime_histograms_map[bank] = hTDCRawTime;
+
+  histname = "h" + bank + "_RawTime_BeginOfBlock";
+  histtitle = "TDC Raw Times in " + det + "(begin of block)";
+  TH1F* hTDCRawTime_BeginOfBlock = new TH1F(histname.c_str(), histtitle.c_str(),
+                               1000, 0, 5000);
+  hTDCRawTime_BeginOfBlock->SetXTitle("Time [ns]");
+  tdc_rawtime_beginofblock_histograms_map[bank] = hTDCRawTime_BeginOfBlock;
+
+  histname = "h" + bank + "_RawTime_EndOfBlock";
+  histtitle = "TDC Raw Times in " + det + "(end of block)";
+  TH1F* hTDCRawTime_EndOfBlock = new TH1F(histname.c_str(), histtitle.c_str(),
+                               1000, 99e6, 102e6);
+  hTDCRawTime_EndOfBlock->SetXTitle("Time [ns]");
+  tdc_rawtime_endofblock_histograms_map[bank] = hTDCRawTime_EndOfBlock;
 
   histname = "h" + bank + "_AdjTime";
   histtitle = "TDC Adjusted Times in " + det;
   TH1I* hTDCAdjTime = new TH1I(histname.c_str(), histtitle.c_str(),
-                               1000, 0., 110.e6);
+                               1000, 0, 110.e6);
+  hTDCAdjTime->SetXTitle("Time [ns]");
   tdc_adjtime_histograms_map[bank] = hTDCAdjTime;
 
   return SUCCESS;
@@ -180,6 +202,8 @@ INT MCommonOnlineDisplayPlots_bor(INT run_number) {
       latest_pulse_histograms_map[bankname]->Reset();
     } else if (TSetupData::IsTDC(bankname)) {
       tdc_rawtime_histograms_map[bankname]->Reset();
+      tdc_rawtime_beginofblock_histograms_map[bankname]->Reset();
+      tdc_rawtime_endofblock_histograms_map[bankname]->Reset();
       tdc_adjtime_histograms_map[bankname]->Reset();
     }
   }
@@ -213,7 +237,7 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent) {
       if (shape_histograms_map.find(bankname) != shape_histograms_map.end()) {
         TH2* shape_histogram = shape_histograms_map[bankname];
         TH1* latest_pulse_histogram = latest_pulse_histograms_map[bankname];
-
+	double clock_tick = (*pulseIter)->GetClockTickInNs();
 	latest_pulse_histogram->Reset();
 
 	std::vector<int> theSamples = (*pulseIter)->GetSamples();
@@ -221,7 +245,7 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent) {
 	  int sample_number = sampleIter - theSamples.begin();
 	  int sample_value = *sampleIter;
 
-	  shape_histogram->Fill(sample_number, sample_value);
+	  shape_histogram->Fill(sample_number*clock_tick, sample_value);
 	  latest_pulse_histogram->SetBinContent(sample_number, sample_value);
 	}
       }
@@ -245,9 +269,13 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent) {
     if (!hits.empty()) {
       static const double clock_tick = 0.025; // ns
       TH1* hist = tdc_rawtime_histograms_map[tdc->first];
-      hist->Fill(hits[0]);
-      for (int i = 1; i < hits.size(); ++i) {
+      TH1* hist_beginofblock = tdc_rawtime_beginofblock_histograms_map[tdc->first];
+      TH1* hist_endofblock = tdc_rawtime_endofblock_histograms_map[tdc->first];
+      //      hist->Fill(hits[0]);
+      for (int i = 0; i < hits.size(); ++i) {
         hist->Fill(clock_tick*hits[i]);
+        hist_beginofblock->Fill(clock_tick*hits[i]);
+        hist_endofblock->Fill(clock_tick*hits[i]);
         //hTDC00_Diff->Fill(hits[i]-hits[i-1]);
       }
     }
