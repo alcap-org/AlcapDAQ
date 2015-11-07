@@ -28,9 +28,18 @@ INT caen_desktop_reset_bor() {
   // in the order they were plugged in. Since this
   // is difficult to determine, we just do it for
   // all of the ones we might have.
-  const int NDigitizers = 2;
+  const int NDigitizers = 0;
   for (int i = 0; i < NDigitizers; ++i)
-    simulate_power_cycle(i);
+      simulate_power_cycle(i);
+
+  // *** modified by VT on 2015-11-07 ***
+  // We run the DT5720 with a Standard firmware, so we don't have
+  // power cycle it. 
+  // DT5720 has to be power ON the first.
+  // Than it will stay the first (USB link Nr. 0)
+  // 
+  simulate_power_cycle(1);
+
   ss_sleep(10*1000); // Give units time to restart.
 
   return SUCCESS;

@@ -113,7 +113,7 @@ extern struct readout_module parport_module;
 
 struct readout_module *trigger_modules[] = { 
   &rpc_master_module,
-  //&caen_desktop_reset_module, // must be before parport
+  &caen_desktop_reset_module, // must be before parport
   &parport_module,
   &rpc_slave_module,  // must be last!
 };
