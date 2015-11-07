@@ -47,7 +47,7 @@ extern TSetupData* gSetup;
 static TH1F* hTDCHitCountsPerBlock;
 static TH1F* hTDCHitCountsAvg10Blocks;
 static const int n_blocks_for_average = 10;
-std::map<std::string, std::vector<double> > previous_counts;
+std::map<std::string, std::vector<double> > tdc_previous_counts;
 
 ANA_MODULE MV1290_HitsPerBlock_module =
 {
@@ -117,7 +117,7 @@ INT MV1290_HitsPerBlock(EVENT_HEADER *pheader, void *pevent) {
     int n_tdc_hits = theTDCHits.size();
     hTDCHitCountsPerBlock->Fill(tdc_detname.c_str(), n_tdc_hits);
 
-    std::vector<double>& counts = previous_counts[tdc_detname];
+    std::vector<double>& counts = tdc_previous_counts[tdc_detname];
     if (midas_event_number > 10) {
       counts.at( (midas_event_number%10)) = n_tdc_hits;
     }
@@ -130,6 +130,10 @@ INT MV1290_HitsPerBlock(EVENT_HEADER *pheader, void *pevent) {
       average += (*i_count);
     }
     hTDCHitCountsAvg10Blocks->SetBinContent(hTDCHitCountsAvg10Blocks->GetXaxis()->FindBin(tdc_detname.c_str()), average);
+
+    // Set the range so that we don't see all the empty bins since kCanRebin doubles the number of bins each time
+    hTDCHitCountsPerBlock->GetXaxis()->SetRange(1, tdc_previous_counts.size());
+    hTDCHitCountsAvg10Blocks->GetXaxis()->SetRange(1, tdc_previous_counts.size());
   }
 
   return SUCCESS;
