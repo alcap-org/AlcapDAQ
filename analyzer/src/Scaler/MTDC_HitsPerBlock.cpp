@@ -1,6 +1,6 @@
 /********************************************************************\
 
-Name:         MV1290_HitsPerBlock
+Name:         MTDC_HitsPerBlock
 Created by:   Andrew Edmonds
 
 Contents:     Plots the number of TDC hits per channel per MIDAS block
@@ -36,9 +36,9 @@ using std::vector;
 using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
-INT MV1290_HitsPerBlock_init(void);
-INT MV1290_HitsPerBlock_bor(INT);
-INT MV1290_HitsPerBlock(EVENT_HEADER*, void*);
+INT MTDC_HitsPerBlock_init(void);
+INT MTDC_HitsPerBlock_bor(INT);
+INT MTDC_HitsPerBlock(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -47,16 +47,16 @@ extern TSetupData* gSetup;
 static TH1F* hTDCHitCountsPerBlock;
 static TH1F* hTDCHitCountsAvg10Blocks;
 static const int n_blocks_for_average = 10;
-std::map<std::string, std::vector<double> > previous_counts;
+std::map<std::string, std::vector<double> > tdc_previous_counts;
 
-ANA_MODULE MV1290_HitsPerBlock_module =
+ANA_MODULE MTDC_HitsPerBlock_module =
 {
-	"MV1290_HitsPerBlock",    /* module name           */
+	"MTDC_HitsPerBlock",    /* module name           */
 	"Andrew Edmonds",               /* author                */
-	MV1290_HitsPerBlock,      /* event routine         */
-	MV1290_HitsPerBlock_bor,  /* BOR routine           */
+	MTDC_HitsPerBlock,      /* event routine         */
+	MTDC_HitsPerBlock_bor,  /* BOR routine           */
 	NULL,                           /* EOR routine           */
-	MV1290_HitsPerBlock_init, /* init routine          */
+	MTDC_HitsPerBlock_init, /* init routine          */
 	NULL,                           /* exit routine          */
 	NULL,                           /* parameter structure   */
 	0,                              /* structure size        */
@@ -65,7 +65,7 @@ ANA_MODULE MV1290_HitsPerBlock_module =
 
 /** This method initializes histograms.
 */
-INT MV1290_HitsPerBlock_init() {
+INT MTDC_HitsPerBlock_init() {
   // The following histograms are created for each channel:
 
 
@@ -84,17 +84,30 @@ INT MV1290_HitsPerBlock_init() {
 
 // Resets the histograms at the beginning of each run
 // so that the online display updates
-INT MV1290_HitsPerBlock_bor(INT run_number) {
+INT MTDC_HitsPerBlock_bor(INT run_number) {
 
   hTDCHitCountsPerBlock->Reset();
   hTDCHitCountsAvg10Blocks->Reset();
+
+  const std::map< std::string, std::vector<int64_t> >& tdc_map =
+    gData->fTDCHitsToChannelMap;
+
+  // Loop through the TDC hits and plot the times, we know that the sync pulse is in Ch1
+  for (std::map<std::string, vector<int64_t> >::const_iterator theMapIter = tdc_map.begin();
+       theMapIter != tdc_map.end(); theMapIter++) {
+
+    std::string tdc_bankname = theMapIter->first;
+    std::string tdc_detname = gSetup->GetDetectorName(tdc_bankname);
+    std::vector<double>& counts = tdc_previous_counts[tdc_detname];
+    counts.clear();
+  }
   return SUCCESS;
 }
 
 /** This method processes one MIDAS block, producing a vector
  * of TOctalFADCIsland objects from the raw Octal FADC data.
  */
-INT MV1290_HitsPerBlock(EVENT_HEADER *pheader, void *pevent) {
+INT MTDC_HitsPerBlock(EVENT_HEADER *pheader, void *pevent) {
 
   int midas_event_number = pheader->serial_number;
 
@@ -117,7 +130,7 @@ INT MV1290_HitsPerBlock(EVENT_HEADER *pheader, void *pevent) {
     int n_tdc_hits = theTDCHits.size();
     hTDCHitCountsPerBlock->Fill(tdc_detname.c_str(), n_tdc_hits);
 
-    std::vector<double>& counts = previous_counts[tdc_detname];
+    std::vector<double>& counts = tdc_previous_counts[tdc_detname];
     if (midas_event_number > 10) {
       counts.at( (midas_event_number%10)) = n_tdc_hits;
     }
@@ -130,6 +143,10 @@ INT MV1290_HitsPerBlock(EVENT_HEADER *pheader, void *pevent) {
       average += (*i_count);
     }
     hTDCHitCountsAvg10Blocks->SetBinContent(hTDCHitCountsAvg10Blocks->GetXaxis()->FindBin(tdc_detname.c_str()), average);
+
+    // Set the range so that we don't see all the empty bins since kCanRebin doubles the number of bins each time
+    hTDCHitCountsPerBlock->GetXaxis()->SetRange(1, tdc_previous_counts.size());
+    hTDCHitCountsAvg10Blocks->GetXaxis()->SetRange(1, tdc_previous_counts.size());
   }
 
   return SUCCESS;
