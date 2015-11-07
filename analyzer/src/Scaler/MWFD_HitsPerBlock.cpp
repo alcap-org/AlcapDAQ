@@ -88,6 +88,20 @@ INT MWFD_HitsPerBlock_bor(INT run_number) {
 
   hWFDHitCountsPerBlock->Reset();
   hWFDHitCountsAvg10Blocks->Reset();
+
+  const std::map< std::string, std::vector<TPulseIsland*> >& wfd_map =
+    gData->fPulseIslandToChannelMap;
+
+  // Loop through the WFD hits and plot the times, we know that the sync pulse is in Ch1
+  for (std::map<std::string, vector<TPulseIsland*> >::const_iterator theMapIter = wfd_map.begin();
+       theMapIter != wfd_map.end(); theMapIter++) {
+
+    std::string wfd_bankname = theMapIter->first;
+    std::string wfd_detname = gSetup->GetDetectorName(wfd_bankname);
+    std::vector<double>& counts = wfd_previous_counts[wfd_detname];
+    counts.clear();
+  }
+
   return SUCCESS;
 }
 
