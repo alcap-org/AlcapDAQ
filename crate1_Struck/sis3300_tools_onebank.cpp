@@ -210,6 +210,10 @@ static INT sis3300_bor()
       //data += (1<<4);  // Enable autostart (in multievent mode only)
       data += (1<<5);  // Enable multi event mode (clock will be cleared at end of bank only)
       //data += (1<<7);   // Enable Stop Delay
+      if ( sis3300_odb[i].stop_delay > 0 )
+	data += (1<<7);   // Enable Stop Delay
+      else
+	data += (1<<23);  // Disable external stop delay
       data += (1<<8);   // Enable front panel Start / Stop logic
       //data += (1<<10);  // Enable front panel Gate mode
       //data += (1<<17);  // Disable sample clock for Memory Bank 2
