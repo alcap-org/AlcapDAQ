@@ -88,13 +88,13 @@ INT module_bor(INT run_number)
   TDirectory *dir0 = gDirectory;
 
   TDirectory *dir = dir0->mkdir("MSIS3300_raw_pulses");
-  dir->cd();
+  //dir->cd();
 
   for (unsigned int iboard=0; iboard<sis3300_n_boards; ++iboard)
     {
 
       TDirectory *subdir = dir->mkdir(Form("B%d",iboard+1));
-      subdir->cd();
+      //subdir->cd();
 
       for (unsigned int ich=0; ich<sis3300_n_channels; ich++)
 	{
@@ -119,7 +119,8 @@ INT module_bor(INT run_number)
 	    h1_time_map[bankname] = h1_time;
 	  */
 	  
-	  TH2D *h2_pulses = new TH2D(Form("h2_pulses_%s",bankname.c_str()),Form("ADC vs clock tick, %s",bankname.c_str()),128,-0.5,127.5,4096,-0.5,4095.5);      
+	  TH2D *h2_pulses = new TH2D(Form("h2_pulses_%s",bankname.c_str()),Form("ADC vs clock tick, %s",bankname.c_str()),128,-0.5,127.5,4096,-0.5,4095.5);
+	  //TH2D *h2_pulses = new TH2D(Form("h2_pulses_%s",bankname.c_str()),Form("ADC vs clock tick, %s",bankname.c_str()),257,-0.5,256.5,4096,-0.5,4095.5);      
 	  h2_pulses->SetXTitle("time (ct)");
 	  h2_pulses->SetYTitle("ADC");
 	  h2_pulses_map[bankname] = h2_pulses;
@@ -177,7 +178,7 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	      for (unsigned int j=0; j<theSamples.size(); j++)
 		{
 		  //h2_pulses_map[bankname]->Fill( j, theSamples[j]);
-		  h2_pulses->Fill( j, theSamples[j]);
+		  h2_pulses->Fill( 1.0*j, 1.0*theSamples[j]);
 		}
 	    }
 
