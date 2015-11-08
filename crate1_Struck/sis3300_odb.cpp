@@ -6,7 +6,9 @@ extern HNDLE hDB;
 typedef struct {
   DWORD     vme_base;
   BOOL      enabled;
-  BOOL      clock_src;
+  WORD      clock_src;
+  BYTE      averaging;
+  WORD      stop_delay;
   struct {
     BOOL    enabled;
     DWORD   threshold;
@@ -21,6 +23,8 @@ static S_SIS3300_ODB_DEF sis3300_odb[sis3300_n_boards];
 VME Base = DWORD : 1073741824\n\
 Enabled = BOOL : n\n\
 Clock src (0-int 6-ext) = WORD : 0\n\
+Averaging (0-7) = BYTE : 0\n\
+Stop Delay (0-65536) = WORD : 0\n\
 [Ch 1]\n\
 Enabled = BOOL : n\n\
 Threshold (0-4095) = DWORD : 4095\n\

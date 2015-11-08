@@ -1,4 +1,6 @@
+#define BIT(x) (1<<x)
 static int sis3300_bank_nr; // active bank nr., 0 or 1;
+static const int n_ADC_groups = 4;
 
 static INT sis3300_open()
 {
@@ -59,7 +61,7 @@ static INT sis3300_open()
       //data += (1<<2);  // Enable auto bank switch mode
       //data += (1<<4);  // Enable autostart (in multievent mode only)
       data += (1<<5);  // Enable multi event mode (clock will be cleared at end of bank only)
-      //data += (1<<7);   // Enable Stop Delay
+      if ( sis3300_odb[i].stop_delay > 0 ) data += (1<<7);   // Enable Stop Delay
       data += (1<<8);   // Enable front panel Start / Stop logic
       //data += (1<<10);  // Enable front panel Gate mode
       //data += (1<<17);  // Disable sample clock for Memory Bank 2
@@ -208,6 +210,10 @@ static INT sis3300_bor()
       //data += (1<<4);  // Enable autostart (in multievent mode only)
       data += (1<<5);  // Enable multi event mode (clock will be cleared at end of bank only)
       //data += (1<<7);   // Enable Stop Delay
+      if ( sis3300_odb[i].stop_delay > 0 )
+	data += (1<<7);   // Enable Stop Delay
+      else
+	data += (1<<23);  // Disable external stop delay
       data += (1<<8);   // Enable front panel Start / Stop logic
       //data += (1<<10);  // Enable front panel Gate mode
       //data += (1<<17);  // Disable sample clock for Memory Bank 2
@@ -235,27 +241,53 @@ static INT sis3300_bor()
       data = 0x1000; // bit 12 has to be 1
       //data += 0x7;   // 1024 Events each 128 samples; Disable Wrap around mode
       data += (1<<3);  // Enable Wrap around mode
+      //data += (1<<4);  // Enable Gate Chaining Mode
       //data += (1<<1);  //   32 Events 4K Samples
       data += 0x7;   // 1024 Events each 128 samples
+      //data += 0x4;   // 128 Events each 1024 samples
+      //data += 0x6;   // 512 Events each 256 samples
+      //data += 0x2;   // 32 Events each 4096 samples
+
+      // averaging
+      u_int32_t averaging = (sis3300_odb[i].averaging) & 0x7;
+      if ( averaging )
+	{
+	  data += (averaging<<16);
+	}
       
       if ( sis3300_A32D32_write(i, SIS3300_EVT_CONFIG, data) != SUCCESS ) return FE_ERR_HW;
 
       // ==============================================================
       // *** configure Threshold Registers 0x200004 - 0x380004 ***
       // ==============================================================
-      
-      // *** ADC group 1 ***
+      u_int32_t addr_thr[n_ADC_groups] = {SIS3300_GROUP1_THRESHOLD,SIS3300_GROUP2_THRESHOLD, SIS3300_GROUP3_THRESHOLD, SIS3300_GROUP4_THRESHOLD};
 
-      data = 0x84008400 ; 	/* ADC1: LE (lower_equal 0x400); ADC2 : LE (lower_equal 0x400) */
+      for (unsigned int j=0; j<n_ADC_groups; j++)
+	{
+	  // *** ADC group j ***      
+	  data = 0x0;
+	  u_int32_t thr_1 = (sis3300_odb[i].ch[j*2+0].threshold)&0x1FFF;
+	  u_int32_t thr_2 = (sis3300_odb[i].ch[j*2+1].threshold)&0x1FFF;
+	  
+	  u_int32_t logic_1 = (sis3300_odb[i].ch[j*2+0].thr_logic)&0x1;
+	  u_int32_t logic_2 = (sis3300_odb[i].ch[j*2+1].thr_logic)&0x1;
+	  
+	  data += (thr_1<<16);
+	  data += (logic_1<<31);
+	  
+	  data += thr_2;
+	  data += (logic_2<<15);
+	  
+	  if ( sis3300_A32D32_write(i, addr_thr[j], data) != SUCCESS ) return FE_ERR_HW;
+	}
 
-      if ( sis3300_A32D32_write(i, SIS3300_GROUP1_THRESHOLD, data) != SUCCESS ) return FE_ERR_HW;
 	
       // ==============================================================
       // *** configure Trigger Setup Registers 0x200028 - 0x380028 ***
       // ==============================================================
       
-      // *** ADC group 1 ***
-
+      // *** all ADC groups ***
+      
       data = 0x0; // disabled
       data += (1<<28); // Enable Pulse Mode
       data += 0x00090000; // Pulse = 10 clocks
@@ -263,19 +295,9 @@ static INT sis3300_bor()
       data += 0x00000008;  // 9 clocks under threshold
       data += 0x00000006;  // 9 clocks over  threshold
       
-      if ( sis3300_A32D32_write(i, 0x200028, data) != SUCCESS ) return FE_ERR_HW;
-
-      // ==============================================================
-      // *** Arm sampling logic ***
-      // ==============================================================
-      //if ( sis3300_arm( i ) != SUCCESS ) return FE_ERR_HW;
-
-#if 1
+      if ( sis3300_A32D32_write(i, 0x100028, data) != SUCCESS ) return FE_ERR_HW;
       // Stop Delay
-      //if ( sis3300_A32D32_write(i, 0x18, 500) != SUCCESS ) return FE_ERR_HW;
-      if ( sis3300_A32D32_write(i, 0x18, 0) != SUCCESS ) return FE_ERR_HW;
-      //if ( sis3300_A32D32_write(i, 0x18, 50) != SUCCESS ) return FE_ERR_HW;
-#endif
+      if ( sis3300_A32D32_write(i, 0x18, sis3300_odb[i].stop_delay) != SUCCESS ) return FE_ERR_HW;
       
     }
   

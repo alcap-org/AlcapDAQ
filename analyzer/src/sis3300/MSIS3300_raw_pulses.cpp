@@ -50,6 +50,7 @@ static const int sis3300_n_boards = 5;
 
 static map<std::string, TH2D*> h2_pulses_map;       // ADC vs sample_nr histograms
 static map<std::string, TH1D*> h1_time_map;         // time histograms
+static map<std::string, TH1D*> h1_ADCmax_map;       // ADC max
 
 
 ANA_MODULE MSIS3300_raw_pulses_module =
@@ -88,13 +89,13 @@ INT module_bor(INT run_number)
   TDirectory *dir0 = gDirectory;
 
   TDirectory *dir = dir0->mkdir("MSIS3300_raw_pulses");
-  dir->cd();
+  //dir->cd();
 
   for (unsigned int iboard=0; iboard<sis3300_n_boards; ++iboard)
     {
 
       TDirectory *subdir = dir->mkdir(Form("B%d",iboard+1));
-      subdir->cd();
+      //subdir->cd();
 
       for (unsigned int ich=0; ich<sis3300_n_channels; ich++)
 	{
@@ -119,7 +120,8 @@ INT module_bor(INT run_number)
 	    h1_time_map[bankname] = h1_time;
 	  */
 	  
-	  TH2D *h2_pulses = new TH2D(Form("h2_pulses_%s",bankname.c_str()),Form("ADC vs clock tick, %s",bankname.c_str()),128,-0.5,127.5,4096,-0.5,4095.5);      
+	  TH2D *h2_pulses = new TH2D(Form("h2_pulses_%s",bankname.c_str()),Form("ADC vs clock tick, %s",bankname.c_str()),128,-0.5,127.5,4096,-0.5,4095.5);
+	  //TH2D *h2_pulses = new TH2D(Form("h2_pulses_%s",bankname.c_str()),Form("ADC vs clock tick, %s",bankname.c_str()),257,-0.5,256.5,4096,-0.5,4095.5);      
 	  h2_pulses->SetXTitle("time (ct)");
 	  h2_pulses->SetYTitle("ADC");
 	  h2_pulses_map[bankname] = h2_pulses;
@@ -129,7 +131,12 @@ INT module_bor(INT run_number)
 	  h1_time->SetXTitle("time (ct)");
 	  h1_time->SetYTitle("counts");
 	  h1_time_map[bankname] = h1_time;
-	  
+	 
+	  TH1D *h1_ADCmax = new TH1D(Form("h1_ADCmax_%s",bankname.c_str()),Form("time, %s",bankname.c_str()),4097,-0.5,4096.5);   
+	  h1_ADCmax->SetXTitle("ADCmax");
+	  h1_ADCmax->SetYTitle("counts");
+	  h1_ADCmax_map[bankname] = h1_ADCmax;	 
+ 
 	}
       dir->cd();
     }
@@ -164,8 +171,9 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 		<< std::endl;
       */
 
-      TH2D *h2_pulses = h2_pulses_map[bankname];
-      TH1D *h1_time   = h1_time_map  [bankname];
+      TH2D *h2_pulses   = h2_pulses_map[bankname];
+      TH1D *h1_time     = h1_time_map  [bankname];
+      TH1D *h1_ADCmax   = h1_ADCmax_map[bankname];
 
       for (unsigned int i=0; i<thePulses.size(); i++)
 	{
@@ -174,11 +182,15 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	  if ( h2_pulses )
 	    {
 	      std::vector<int> theSamples = thePulses[i]->GetSamples();
+	      unsigned int ADCmax = 0;
 	      for (unsigned int j=0; j<theSamples.size(); j++)
 		{
 		  //h2_pulses_map[bankname]->Fill( j, theSamples[j]);
-		  h2_pulses->Fill( j, theSamples[j]);
+		  int adc = theSamples[j];
+		  h2_pulses->Fill( 1.0*j, 1.0*adc);
+		  if ( abs(adc) > ADCmax ) ADCmax = abs(adc); 
 		}
+	      h1_ADCmax->Fill( ADCmax );
 	    }
 
 	  if ( h1_time )

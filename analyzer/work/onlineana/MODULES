@@ -8,13 +8,16 @@ dt5720/MDT5720ProcessRaw
 v1290/MV1290ProcessRaw
 sis3350/MSIS3350ProcessRaw
 #
+sis3300/MSIS3300ProcessRaw
+sis3300/MSIS3300_raw_pulses
+#
 muSC_muPC/MCaenCompProcessRaw
 muSC_muPC/MMuPC1AnalysisC
 muSC_muPC/MMuPC1AnalysisMQL
 muSC_muPC/MMuSCAnalysisMQL
 
 dt5730/MDT5730Errors
-v1290/MV1290_HitsPerBlock
+#v1290/MV1290_HitsPerBlock
 diagnostics/MCommonOnlineDisplayPlots
 
 Timing/MSyncCount
