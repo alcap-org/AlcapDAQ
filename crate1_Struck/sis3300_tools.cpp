@@ -3,6 +3,8 @@
 static u_int32_t sis3300_ID[sis3300_n_boards]; // Module ID and firmware revision register
 
 static const int  sis3300_event_size = 128; // event size (samples);
+//static const int  sis3300_event_size = 256; // event size (samples);
+//static const int  sis3300_event_size = 1024; // event size (samples);
 //static const int  sis3300_event_size = 4096; // event size (samples);
 //static const int  sis3300_event_size = 12288; // event size (samples);
 static const int  sis3300_max_number_of_events = 3072; // Max. number of evens for data buffers

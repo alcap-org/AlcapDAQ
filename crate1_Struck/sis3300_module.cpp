@@ -33,6 +33,7 @@
 #include "sis3300_tools.cpp"
 #ifdef SINGLE_BANK_MODE_DEF
 #include "sis3300_tools_onebank.cpp"
+//#include "sis3300_tools_onebank_gatechaining.cpp"
 #endif
 #ifdef AUTOBANK_SWITCH_MODE_DEF
 #include "sis3300_tools_twobanks.cpp"
