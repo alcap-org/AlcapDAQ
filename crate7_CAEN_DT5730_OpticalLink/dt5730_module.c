@@ -200,6 +200,66 @@ Self trigger threshold DPP = WORD : 0\
 
 extern HNDLE hDB;
 
+INT dt5730_temperature_calibration()
+{
+  CAEN_DGTZ_ErrorCode ret;
+  uint32_t data;
+  uint32_t reg;
+
+  // Check that "SPI Bus Busy" flag is zero
+  unsigned int tries_max = 100;
+  BOOL is_ready = true;
+  for (unsigned int T=0; T<tries_max; ++T)
+    {
+      is_ready = true;
+      for (unsigned int i=0; i<NCHAN; ++i)
+	{
+	  reg = 0x1088+(i<<8);
+	  ret = CAEN_DGTZ_ReadRegister(dev_handle, reg, &data);
+	  if (is_caen_error(ret, __LINE__, "dt5730_temperature_calibration")) return FE_ERR_HW;
+	  if ( (data&(1<<2)) == (1<<2) ) is_ready = false; 
+	}
+      if ( is_ready ) break;
+      ss_sleep( 100 );
+    }
+  if ( ! is_ready )
+    {
+      printf("***ERROR! Cannot calibrate the temperature! DAC is still busy");
+      return FE_ERR_HW;
+    }
+
+  // *** start temperature calibration ***
+  ret =  CAEN_DGTZ_WriteRegister(dev_handle, 0x809C, 0x1);
+
+  ss_sleep(1000);
+  
+  // Wait until temperature calibration procedure to complete
+  for (unsigned int T=0; T<tries_max; ++T)
+    {
+      is_ready = true;
+      for (unsigned int i=0; i<NCHAN; ++i)
+	{
+	  reg = 0x1088+(i<<8);
+	  ret = CAEN_DGTZ_ReadRegister(dev_handle, reg, &data);
+	  if (is_caen_error(ret, __LINE__, "dt5730_temperature_calibration")) return FE_ERR_HW;
+	  if ( (data&(1<<2)) == (1<<2) ) is_ready = false; 
+	}
+      if ( is_ready ) break;
+      ss_sleep( 1000 );
+    }
+  if ( ! is_ready )
+    {
+      printf("***ERROR! Cannot calibrate the temperature! The calibration procedure took too long to complete");
+      return FE_ERR_HW;
+    }
+
+  printf("Temperature calibration procedure completed successfully\n");
+  ss_sleep( 1000 );
+  
+  return SUCCESS;
+}
+
+
 INT dt5730_init() {
   printf("Setting up DB and memory for CAEN DT5730...\n");
 
@@ -221,6 +281,12 @@ INT dt5730_init() {
 
   data_buffer = (char*) malloc(data_buffer_size);
 
+  // *** Temperature Calibration ***
+  if ( ! dt5730_open() ) return FE_ERR_HW;
+  if ( dt5730_temperature_calibration() != SUCCESS ) return FE_ERR_HW;
+  CAEN_DGTZ_ErrorCode ret = CAEN_DGTZ_CloseDigitizer(dev_handle);
+  if(is_caen_error(ret,__LINE__-1,"dt5720_eor")) return FE_ERR_HW;
+  
   return status;
 }
 
