@@ -132,7 +132,7 @@ INT MCommonOnlineDisplayPlots_init_wfd(const std::string& bank,
   time_histograms_map[bank] = hPulseTimes;
   // hPulseShapes
   double min_time = 0;
-  double max_time = 2000;
+  double max_time = 10000;
   double n_bins = (max_time - min_time) / clock_tick;
   histname = "h" + bank + "_Shapes";
   histtitle = "Plot of the pulse shapes in the " + det + " channels";
