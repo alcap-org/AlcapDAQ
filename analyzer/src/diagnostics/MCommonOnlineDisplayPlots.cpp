@@ -137,9 +137,9 @@ INT MCommonOnlineDisplayPlots_init_wfd(const std::string& bank,
   histname = "h" + bank + "_Shapes";
   histtitle = "Plot of the pulse shapes in the " + det + " channels";
   TH2D* hPulseShapes = new TH2D(histname.c_str(), histtitle.c_str(),
-                                n_bins,min_time,max_time,
+                                400,-0.5,399.5,
                                 (max_adc_value+1)/10, 0, max_adc_value+1);
-  hPulseShapes->GetXaxis()->SetTitle("Time [ns]");
+  hPulseShapes->GetXaxis()->SetTitle("Time [ct]");
   hPulseShapes->GetYaxis()->SetTitle("ADC Value");
   shape_histograms_map[bank] = hPulseShapes;
   //hLatestPulse
@@ -245,7 +245,7 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent) {
 	  int sample_number = sampleIter - theSamples.begin();
 	  int sample_value = *sampleIter;
 
-	  shape_histogram->Fill(sample_number*clock_tick, sample_value);
+	  shape_histogram->Fill(sample_number, sample_value);
 	  latest_pulse_histogram->SetBinContent(sample_number, sample_value);
 	}
       }
