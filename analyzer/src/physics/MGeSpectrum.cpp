@@ -43,10 +43,14 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-static TH1D* hGeSpectrum;
-static double adc_slope_calib;
-static double adc_offset_calib;
-static std::string ge_bankname;
+static TH1D* hGeSpectrum_HiGain;
+static TH1D* hGeSpectrum_LoGain;
+static double adc_slope_calib_higain;
+static double adc_offset_calib_higain;
+static std::string ge_bankname_higain;
+static double adc_slope_calib_logain;
+static double adc_offset_calib_logain;
+static std::string ge_bankname_logain;
 
 ANA_MODULE MGeSpectrum_module =
 {
@@ -69,10 +73,15 @@ INT MGeSpectrum_init()
   // The dE/dx histogram is created for the left and right arms of the detector:
   // energy in Si1 (x-axis) vs total energy in Si1 + Si2 (y-axis)
 
-  std::string detname = "GeCHEH";
-  ge_bankname = gSetup->GetBankName(detname);
-  adc_slope_calib = gSetup->GetADCSlopeCalib(ge_bankname);
-  adc_offset_calib = gSetup->GetADCOffsetCalib(ge_bankname);
+  std::string detname = "GeHiGain";
+  ge_bankname_higain = gSetup->GetBankName(detname);
+  adc_slope_calib_higain = gSetup->GetADCSlopeCalib(ge_bankname_higain);
+  adc_offset_calib_higain = gSetup->GetADCOffsetCalib(ge_bankname_higain);
+
+  detname = "GeLoGain";
+  ge_bankname_logain = gSetup->GetBankName(detname);
+  adc_slope_calib_logain = gSetup->GetADCSlopeCalib(ge_bankname_logain);
+  adc_offset_calib_logain = gSetup->GetADCOffsetCalib(ge_bankname_logain);
 
   // While looping through the arms create the dE/dx plots
   double min_energy = 0;
@@ -80,11 +89,17 @@ INT MGeSpectrum_init()
   double energy_width = 1;
   int n_energy_bins = (max_energy - min_energy) / energy_width;
 
-  std::string histname = "hGeSpectrum";
-  std::string histtitle = "Germanium Spectrum";
-  hGeSpectrum = new TH1D(histname.c_str(), histtitle.c_str(), n_energy_bins,min_energy,max_energy);
-  hGeSpectrum->GetYaxis()->SetTitle("Counts");
-  hGeSpectrum->GetXaxis()->SetTitle("Energy [keV]");
+  std::string histname = "hGeSpectrum_HiGain";
+  std::string histtitle = "Germanium Spectrum (High Gain)";
+  hGeSpectrum_HiGain = new TH1D(histname.c_str(), histtitle.c_str(), n_energy_bins,min_energy,max_energy);
+  hGeSpectrum_HiGain->GetYaxis()->SetTitle("Counts");
+  hGeSpectrum_HiGain->GetXaxis()->SetTitle("Energy [keV]");
+
+  histname = "hGeSpectrum_LoGain";
+  histtitle = "Germanium Spectrum (Low Gain)";
+  hGeSpectrum_LoGain = new TH1D(histname.c_str(), histtitle.c_str(), n_energy_bins,min_energy,max_energy);
+  hGeSpectrum_LoGain->GetYaxis()->SetTitle("Counts");
+  hGeSpectrum_LoGain->GetXaxis()->SetTitle("Energy [keV]");
 
   return SUCCESS;
 }
@@ -107,11 +122,18 @@ INT MGeSpectrum(EVENT_HEADER *pheader, void *pevent)
 		gData->fPulseIslandToChannelMap;
 
 	// Get the pulses for the germanium
-	std::vector<TPulseIsland*> ge_pulses = gData->fPulseIslandToChannelMap[ge_bankname];
-	for (std::vector<TPulseIsland*>::const_iterator i_pulse = ge_pulses.begin(); i_pulse != ge_pulses.end(); ++i_pulse) {
-	  double pulse_energy = (adc_slope_calib * (*i_pulse)->GetPulseHeight()) + adc_offset_calib; 
+	std::vector<TPulseIsland*>& ge_pulses_higain = gData->fPulseIslandToChannelMap[ge_bankname_higain];
+	for (std::vector<TPulseIsland*>::const_iterator i_pulse = ge_pulses_higain.begin(); i_pulse != ge_pulses_higain.end(); ++i_pulse) {
+	  double pulse_energy = (adc_slope_calib_higain * (*i_pulse)->GetPulseHeight()) + adc_offset_calib_higain; 
 	  //	  double pulse_energy = (*i_pulse)->GetPulseHeight();
-	  hGeSpectrum->Fill(pulse_energy);
+	  hGeSpectrum_HiGain->Fill(pulse_energy);
+	}
+
+	std::vector<TPulseIsland*>& ge_pulses_logain = gData->fPulseIslandToChannelMap[ge_bankname_logain];
+	for (std::vector<TPulseIsland*>::const_iterator i_pulse = ge_pulses_logain.begin(); i_pulse != ge_pulses_logain.end(); ++i_pulse) {
+	  double pulse_energy = (adc_slope_calib_logain * (*i_pulse)->GetPulseHeight()) + adc_offset_calib_logain; 
+	  //	  double pulse_energy = (*i_pulse)->GetPulseHeight();
+	  hGeSpectrum_LoGain->Fill(pulse_energy);
 	}
 
 	return SUCCESS;
