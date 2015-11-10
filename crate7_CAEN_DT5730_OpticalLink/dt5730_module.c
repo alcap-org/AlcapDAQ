@@ -367,7 +367,25 @@ INT dt5730_eor() {
   return SUCCESS;
 }
 
-INT dt5730_read(char *pevent) {
+INT dt5730_read(char *pevent) 
+{
+
+  CAEN_DGTZ_ErrorCode ret;
+#if 0
+  // Generate software trigger so we see all channels
+  ret = CAEN_DGTZ_WriteRegister(dev_handle, 0x8108, 0x1);
+  ret = CAEN_DGTZ_WriteRegister(dev_handle, 0x10C0, 0x1);
+  ret = CAEN_DGTZ_WriteRegister(dev_handle, 0x11C0, 0x1);
+  ret = CAEN_DGTZ_WriteRegister(dev_handle, 0x12C0, 0x1);
+  ret = CAEN_DGTZ_WriteRegister(dev_handle, 0x13C0, 0x1);
+  ret = CAEN_DGTZ_WriteRegister(dev_handle, 0x14C0, 0x1);
+  ret = CAEN_DGTZ_WriteRegister(dev_handle, 0x15C0, 0x1);
+  ret = CAEN_DGTZ_WriteRegister(dev_handle, 0x16C0, 0x1);
+  ret = CAEN_DGTZ_WriteRegister(dev_handle, 0x17C0, 0x1);
+  ret = CAEN_DGTZ_WriteRegister(dev_handle, 0x80C0, 0x1);
+#endif
+
+
   // Check if board full or loss of PLL lock
   // Must do before readout to get more accurate board full status.
   caen_digi_status ds = caen_digi_get_status(dev_handle);
@@ -381,13 +399,14 @@ INT dt5730_read(char *pevent) {
   is_caen_error(ret, __LINE__, "dt5730_read");
 #endif
 
+
   // ===========================================================================
   // Read out remaining data from the digitizer
   // ===========================================================================
   dt5730_readout();
 
   // Flush on-board memory buffers and read remaning data
-  CAEN_DGTZ_ErrorCode ret;
+  //CAEN_DGTZ_ErrorCode ret;
   ret = CAEN_DGTZ_WriteRegister(dev_handle, 0x803C, 0x1);
   is_caen_error(ret, __LINE__, "dt5730_read");
   printf("Reading remaning data\n");
@@ -507,7 +526,8 @@ BOOL dt5730_update_digitizer_generic() {
     if (is_caen_error(ret,__LINE__-1,"dt5730_update_digitizer_generic")) return false;
   }
 
-  ret = CAEN_DGTZ_SetSWTriggerMode(dev_handle, CAEN_DGTZ_TRGMODE_DISABLED);
+  //ret = CAEN_DGTZ_SetSWTriggerMode(dev_handle, CAEN_DGTZ_TRGMODE_DISABLED);
+  ret = CAEN_DGTZ_SetSWTriggerMode(dev_handle, CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT);
   if (is_caen_error(ret,__LINE__,"dt5730_update_digitizer_generic")) return false;
   ret = CAEN_DGTZ_SetExtTriggerInputMode(dev_handle,CAEN_DGTZ_TRGMODE_DISABLED);
   if (is_caen_error(ret,__LINE__,"dt5730_update_digitizer_generic")) return false;

@@ -46,7 +46,7 @@ extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
 static const int sis3300_n_channels = 8;
-static const int sis3300_n_boards = 5;
+static const int sis3300_n_boards = 6;
 
 static map<std::string, TH2D*> h2_pulses_map;       // ADC vs sample_nr histograms
 static map<std::string, TH1D*> h1_time_map;         // time histograms
@@ -99,7 +99,10 @@ INT module_bor(INT run_number)
 
       for (unsigned int ich=0; ich<sis3300_n_channels; ich++)
 	{
-	  std::string bankname( Form("SIS3300_B%dC%d",iboard+1,ich+1) );
+	  //std::string bankname( Form("SIS3300_B%dC%d",iboard+1,ich+1) );
+	  char *model_name = "SIS3300";
+	  if ( iboard == 5 ) model_name = "SIS3301";
+	  std::string bankname( Form("%s_B%dC%d",model_name,iboard+1,ich+1) );
 	  
 	  /*
 	    TGraph *gr_nhits = new TGraph();
@@ -138,7 +141,7 @@ INT module_bor(INT run_number)
 	  h1_ADCmax_map[bankname] = h1_ADCmax;	 
  
 	}
-      dir->cd();
+      //dir->cd();
     }
 
   // restore pointer of global directory

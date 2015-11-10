@@ -31,7 +31,8 @@ static uint32_t       data_size = 0; // bytes
 
 static INT v1290_init();
 static void v1290_exit();
-static INT v1290_pre_bor();
+//static INT v1290_pre_bor();
+static INT v1290_bor();
 static INT v1290_poll_live();
 static INT v1290_read(char *pevent); // MIDAS readout routine
 static BOOL v1290_readout();
@@ -41,8 +42,8 @@ static BOOL v1290_update_tdc();
 struct readout_module v1290_module = {
   v1290_init,      // init
   v1290_exit,      // exit
-  v1290_pre_bor,   // pre_bor
-  NULL,            // bor
+  NULL, //v1290_pre_bor,   // pre_bor
+  v1290_bor,            // bor
   NULL,            // eor
   v1290_poll_live, // poll_live
   NULL,            // poll_dead
@@ -173,7 +174,8 @@ void v1290_exit()
   return;
 }
 
-INT v1290_pre_bor()
+//INT v1290_pre_bor()
+INT v1290_bor()
 {
   if(!v1290_update_tdc()) return FE_ERR_HW;
   v1290_SoftClear(dev_handle);
