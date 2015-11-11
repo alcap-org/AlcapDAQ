@@ -252,7 +252,9 @@ INT MPSDIntegral(EVENT_HEADER *pheader, void *pevent)
 	float tmp = pedestal - samples.at(j); //polarity -1
 	if(tmp < pct * max_ps){//below CF threshold
 	  //interpolate the point to CF, linear, ensure pedestal subtraction
-	  float slope = 1/(samples.at(j) - samples.at(j+1)); // polarity -1
+	  float slope = 0;
+	  if(samples.at(j) != samples.at(j+1))
+	    slope = 1/(samples.at(j) - samples.at(j+1)); // polarity -1
 	  float h1 = (pct*max_ps)  - (tmp);
 	  tLstart = j + h1*slope;
 	  break;

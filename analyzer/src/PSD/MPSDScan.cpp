@@ -118,7 +118,7 @@ INT MPSDScan_BookHistograms()
 
 INT MPSDScan_eor(INT run_number)
 {
-  gDirectory->mkdir("NdetD_FoM")->cd();
+  gDirectory->mkdir("PSDScan/NdetD_FoM")->cd();
   //add in FoM projections( or would pulse height based selection
   //make more sense?)  need to consider this closely
   for(std::map<int, TH2F*>::iterator mIt = NdetDRatio_map.begin(); mIt != NdetDRatio_map.end(); mIt++){
@@ -142,7 +142,7 @@ INT MPSDScan_eor(INT run_number)
   }
   gDirectory->cd("..");
 
-  gDirectory->mkdir("NdetU_FoM")->cd();
+  gDirectory->mkdir("PSDScan/NdetU_FoM")->cd();
   for(std::map<int, TH2F*>::iterator mIt = NdetURatio_map.begin(); mIt != NdetURatio_map.end(); mIt++){
     std::stringstream ss1;
     int cut = std::distance(NdetURatio_map.begin(), mIt);

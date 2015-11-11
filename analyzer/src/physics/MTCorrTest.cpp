@@ -44,7 +44,7 @@ namespace {
   std::string TDCBANKS[NCRATE][MAXNCHANWFD];
   TH2D* vvhTCorrTest_EvTDiff[NCRATE][MAXNCHANWFD];
   TH2D* vvhTCorrTest_IEvTDiff[NCRATE][MAXNCHANWFD];
-  const double TIME_LOW = -5e3, TIME_HIGH = 1e4;
+  const double TIME_LOW = -3e3, TIME_HIGH = 5e3;
 }
 
 
@@ -104,14 +104,14 @@ INT MTCorrTest_init() {
       ///////////// E vs TDiff  //////////////////////
       char histname[64]; sprintf(histname, "hTCorrTest_EvTDiff_%s", det.c_str());
       char histtitle[64]; sprintf(histtitle, "Energy vs TSC TDiff for %s", det.c_str());
-      vvhTCorrTest_EvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/10, TIME_LOW, TIME_HIGH, max_adc/4, 0, max_amp_e);
+      vvhTCorrTest_EvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW), TIME_LOW, TIME_HIGH, max_adc/2, 0, max_amp_e);
       vvhTCorrTest_EvTDiff[icrate][ich]->GetXaxis()->SetTitle("TDiff (TDC) (ns)");
       vvhTCorrTest_EvTDiff[icrate][ich]->GetYaxis()->SetTitle("Energy (amplitude) (MeV)");
 
       ///////////// IE v TDiff //////////////////////
       sprintf(histname, "hTCorrTest_IEvTDiff_%s", det.c_str());
       sprintf(histtitle, "Energy vs TSC TDiff for %s", det.c_str());
-      vvhTCorrTest_IEvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/10, TIME_LOW, TIME_HIGH, max_adc/4, 0, max_int_e);
+      vvhTCorrTest_IEvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW), TIME_LOW, TIME_HIGH, max_adc/2, 0, max_int_e);
       vvhTCorrTest_IEvTDiff[icrate][ich]->GetXaxis()->SetTitle("TDiff (TDC) (ns)");
       vvhTCorrTest_IEvTDiff[icrate][ich]->GetYaxis()->SetTitle("Energy (integral) (MeV)");
     }
