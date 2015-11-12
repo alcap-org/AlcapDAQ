@@ -138,6 +138,8 @@ void range_curve_2015_11_11() {
     }
 
     TH1* xray_hist(NULL);
+    TH1F* hSiR2_Heights(NULL);
+
     for (std::vector<int>::const_iterator i_run = (*i_scale_factor)->run_numbers.begin(); i_run != (*i_scale_factor)->run_numbers.end(); ++i_run) {
 
       std::stringstream filename;
@@ -147,13 +149,15 @@ void range_curve_2015_11_11() {
 	std::cout << "Problem opening file " << filename.str() << std::endl;
 	continue;
       }
-      
+
+      // Get the number of entering muons
       TH1F* hMuScHiTDC = (TH1F*) file->Get("hT402_RawTime");
       if (!hMuScHiTDC) {
 	std::cout << "Problem getting hMuScHiTDC" << std::endl;
       }
       (*i_scale_factor)->n_entering_muons += hMuScHiTDC->GetEntries();
       
+      // Get the number of muons in each quadrant
       for (int i_quadrant = 0; i_quadrant < n_quadrants; ++i_quadrant) {
 	std::stringstream histname;
 	histname << "hSIS3300_B1C" << i_quadrant+1 << "_Heights";
@@ -167,28 +171,68 @@ void range_curve_2015_11_11() {
 	(*i_scale_factor)->n_SiR1_silicon_muons[i_quadrant] += hSiR1_Heights->Integral(hSiR1_Heights->FindBin(SiR1_MuonThreshold[i_quadrant]), hSiR1_Heights->GetNbinsX());
       }
 
+      // SiR2
       std::stringstream histname;
       histname << "hSIS3300_B1C7_Heights";
-      TH1F* hSiR2_Heights = (TH1F*) file->Get(histname.str().c_str());
-      if (!hSiR2_Heights) {
+      TH1* tmp_SiR2_hist = (TH1*) file->Get(histname.str().c_str());
+      if (!tmp_SiR2_hist) {
 	std::cout << "Problem getting hSiR2_Heights" << std::endl;
       }
       //	if (i_quadrant == 3) {
-      //      hSiR2_Heights->Draw("SAME");
-      //	}
-      (*i_scale_factor)->n_SiR2_peak_pos = hSiR2_Heights->GetBinCenter(hSiR2_Heights->GetMaximumBin());
+      if (hSiR2_Heights) {
+	hSiR2_Heights->Add(tmp_SiR2_hist);
+      } else {
+	hSiR2_Heights = (TH1F*)tmp_SiR2_hist->Clone("xray_hist");
+	hSiR2_Heights->SetDirectory(0);
+      }
+      delete tmp_SiR2_hist;
 
-      TH1* tmp_hist = (TH1*) file->Get("hD402_Heights");
+      // Get the number of X-rays
+      TH1F* tmp_hist = (TH1F*) file->Get("hD402_Heights");
       if (xray_hist) {
 	xray_hist->Add(tmp_hist);
       } else {
-	xray_hist = (TH1*)tmp_hist->Clone("xray_hist");
+	xray_hist = (TH1F*)tmp_hist->Clone("xray_hist");
 	xray_hist->SetDirectory(0);
       }
       delete tmp_hist;
 
+    } // end of run loop
+
+
+    // Now get the muon peak in SiR2
+    hSiR2_Heights->Rebin(8);
+    hSiR2_Heights->Draw();
+    //	}
+    // Start just before the range and move down until we hit a maximum - this should be the muon peak
+    double prev_val = 1; int prev_bin = hSiR2_Heights->GetNbinsX();
+    bool fit = false;;
+    for (int i_bin = hSiR2_Heights->GetNbinsX(); i_bin >= 1; --i_bin) {
+      double this_val = hSiR2_Heights->GetBinContent(i_bin);
+      if (prev_val > this_val && prev_val > 10000) {
+	//	  std::cout << "Prev: Bin #" << prev_bin << " = " << prev_val << std::endl;
+	//	  std::cout << "This: Bin #" << i_bin << " = " << this_val << std::endl;
+	TFitResultPtr fit_result = hSiR2_Heights->Fit("gaus", "SQ", "", hSiR2_Heights->GetBinCenter(prev_bin-1), hSiR2_Heights->GetBinCenter(prev_bin+1));
+	if (! (int) fit_result) {
+	  (*i_scale_factor)->n_SiR2_peak_pos = fit_result->Parameter(1);
+	  fit = true;
+	  break;
+	}
+      }
+      else {
+	prev_val = this_val;
+	prev_bin = i_bin;
+      }
     }
-    
+    if (fit == false) {
+      std::cout << "Fit didn't work" << std::endl;
+    }
+    std::stringstream pngname;
+    pngname << "/home/edmonds/plots/2015-11-12/SiR2Heights_MuonPeakFit_" << (*i_scale_factor)->scale_factor << ".png";
+    //    hSiR2_Heights->SaveAs(pngname.str().c_str());
+
+
+    // Now calculate the X-rays
     static double rt2pi = TMath::Sqrt(2.*TMath::Pi());
     xray_hist->GetXaxis()->SetRangeUser(2155., 2180.);
     TFitResultPtr res = xray_hist->Fit("gaus", "NSQ");
@@ -206,12 +250,13 @@ void range_curve_2015_11_11() {
     }
     std::cout << "SiR2 Peak Position = " << (*i_scale_factor)->n_SiR2_peak_pos << std::endl;
     */
-    std::cout << (*i_scale_factor)->scale_factor << " ";
+    //    std::cout << (*i_scale_factor)->scale_factor << " ";
     for (int i_quadrant = 0; i_quadrant < n_quadrants; ++i_quadrant) {
-      std::cout << (*i_scale_factor)->n_SiR1_silicon_muons[i_quadrant]/(*i_scale_factor)->n_entering_muons << " ";
+      //      std::cout << (*i_scale_factor)->n_SiR1_silicon_muons[i_quadrant]/(*i_scale_factor)->n_entering_muons << " ";
     }
-    std::cout  << std::endl;
-    std::cout << "xrays:\t" << (*i_scale_factor)->n_xrays << std::endl;
+    //    std::cout  << std::endl;
+    //    std::cout << "xrays:\t" << (*i_scale_factor)->n_xrays << std::endl;
+    std::cout << (*i_scale_factor)->scale_factor << " " << (*i_scale_factor)->n_SiR2_peak_pos << std::endl;
   }
 
   

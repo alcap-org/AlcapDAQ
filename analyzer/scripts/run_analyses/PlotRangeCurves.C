@@ -32,4 +32,12 @@ void PlotRangeCurves() {
   leg->AddEntry(SiR1_3_gr, "SiR1-3", "l");
   leg->AddEntry(SiR1_4_gr, "SiR1-4", "l");
   leg->Draw();
+
+  TCanvas* c2 = new TCanvas("c2", "c2");
+  TGraph* SiR2_gr = new TGraph("SiR2_MuonPeakPosition.txt", "%lg %lg");
+  SiR2_gr->SetLineColor(kBlue);
+  SiR2_gr->SetLineWidth(2);
+  SiR2_gr->Draw("AL*");
+  SiR2_gr->GetXaxis()->SetTitle("Scale Factor [x 30.8 MeV/c]");
+  SiR2_gr->GetYaxis()->SetTitle("Muon Peak Position [ADC]");
 }
