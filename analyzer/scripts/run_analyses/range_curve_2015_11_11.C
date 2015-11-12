@@ -3,6 +3,8 @@
 
 #include "TFile.h"
 #include "TH1.h"
+#include "TMath.h"
+#include "TFitResult.h"
 
 static const int n_quadrants = 4;
 
@@ -12,6 +14,7 @@ struct RangeCurveRun {
   double n_entering_muons;
   double n_SiR1_silicon_muons[n_quadrants];
   double n_SiR2_peak_pos;
+  double n_xrays;
 };
 
 void range_curve_2015_11_11() {
@@ -134,6 +137,7 @@ void range_curve_2015_11_11() {
       (*i_scale_factor)->n_SiR1_silicon_muons[i_quadrant] = 0;
     }
 
+    TH1* xray_hist(NULL);
     for (std::vector<int>::const_iterator i_run = (*i_scale_factor)->run_numbers.begin(); i_run != (*i_scale_factor)->run_numbers.end(); ++i_run) {
 
       std::stringstream filename;
@@ -173,7 +177,25 @@ void range_curve_2015_11_11() {
       //      hSiR2_Heights->Draw("SAME");
       //	}
       (*i_scale_factor)->n_SiR2_peak_pos = hSiR2_Heights->GetBinCenter(hSiR2_Heights->GetMaximumBin());
+
+      TH1* tmp_hist = (TH1*) file->Get("hD402_Heights");
+      if (xray_hist) {
+	xray_hist->Add(tmp_hist);
+      } else {
+	xray_hist = (TH1*)tmp_hist->Clone("xray_hist");
+	xray_hist->SetDirectory(0);
+      }
+      delete tmp_hist;
+
     }
+    
+    static double rt2pi = TMath::Sqrt(2.*TMath::Pi());
+    xray_hist->GetXaxis()->SetRangeUser(2155., 2180.);
+    TFitResultPtr res = xray_hist->Fit("gaus", "NSQ");
+    (*i_scale_factor)->n_xrays = rt2pi*res->Parameter(0)*res->Parameter(2);
+    (*i_scale_factor)->n_xrays /= (*i_scale_factor)->n_entering_muons;
+    delete xray_hist;
+
     //  std::cout << "SF 1 = " << (*i_scale_factor)->n_entering_muons << std::endl;
     /*    std::cout << "SF " << (*i_scale_factor)->scale_factor << std::endl;
     std::cout << "=========" << std::endl;
@@ -189,6 +211,7 @@ void range_curve_2015_11_11() {
       std::cout << (*i_scale_factor)->n_SiR1_silicon_muons[i_quadrant]/(*i_scale_factor)->n_entering_muons << " ";
     }
     std::cout  << std::endl;
+    std::cout << "xrays:\t" << (*i_scale_factor)->n_xrays << std::endl;
   }
 
   
