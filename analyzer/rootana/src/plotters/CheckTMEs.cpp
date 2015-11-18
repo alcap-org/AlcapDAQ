@@ -25,9 +25,9 @@ CheckTMEs::~CheckTMEs(){
 
 int CheckTMEs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     using namespace IDs;
-    fDetectors.push_back(IDs::channel (kGe     , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kScR    , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kScL    , kNotApplicable ));
+    //fDetectors.push_back(IDs::channel (kGe     , kNotApplicable ));
+    //fDetectors.push_back(IDs::channel (kScR    , kNotApplicable ));
+    //fDetectors.push_back(IDs::channel (kScL    , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kScVe   , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kScGe   , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiL1_1 , kNotApplicable ));
@@ -42,8 +42,8 @@ int CheckTMEs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fDetectors.push_back(IDs::channel (kSiL2   , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kMuSc   , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kMuScA  , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kNDet   , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kNDet2  , kNotApplicable ));
+    //fDetectors.push_back(IDs::channel (kNDet   , kNotApplicable ));
+    //fDetectors.push_back(IDs::channel (kNDet2  , kNotApplicable ));
 
     // Plot the total number of pulses
     fTotalPulses=new TH1F("hTotalPulses", "Total number of pulses per TME", 100, 0 ,100);

@@ -92,7 +92,7 @@ void PulseCandidateFinder::FindPulseCandidates(const TPulseIsland* pulse) {
     }
     else { // We have a different algorithm for fast and slow pulses
       if (fChannel.isFast()) {
-	if (fChannel.Detector() != IDs::kGe) {
+	if (fChannel.Detector() != IDs::kGeHi) {
 	  FindCandidatePulses_Slow(fParameterValue); // use the slow algorithm for the fast silicon pulses because of the noisy pedestal
 	}
 	else {

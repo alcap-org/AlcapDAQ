@@ -23,8 +23,8 @@
 #include <string>
 #include <sstream>
 
-const IDs::channel GeSpectrum::fGeS(IDs::kGe, IDs::kSlow);
-const IDs::channel GeSpectrum::fGeF(IDs::kGe, IDs::kFast);
+const IDs::channel GeSpectrum::fGeS(IDs::kGeHi, IDs::kSlow);
+const IDs::channel GeSpectrum::fGeF(IDs::kGeHi, IDs::kFast);
 const IDs::channel GeSpectrum::fMuSc(IDs::kMuSc, IDs::kNotApplicable);
 
 GeSpectrum::GeSpectrum(modules::options* opts) :
