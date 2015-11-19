@@ -303,7 +303,9 @@ INT module_event(EVENT_HEADER *pheader, void *pevent)
 	      //if ( ! wraparound )
 	      //if ( i == 1 )
 	      //if ( trigger_mask == 0x80 && wraparound && n_events == 3 )
-	      pulse_islands.push_back(new TPulseIsland(time, sample_vector, bankname));
+	      // Don't record WF unless it triggered
+	      if ( trigger_mask & (1<<(7-ich)) )
+		pulse_islands.push_back(new TPulseIsland(time, sample_vector, bankname));
 	    }
 
 #if 0

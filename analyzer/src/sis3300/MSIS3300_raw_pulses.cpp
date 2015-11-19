@@ -75,7 +75,35 @@ INT module_init() {
   // hPulseTimes: time stamp (x-axis) vs number of pulses (y-axis)
   // hPulseRawCount: number of pulses (y-axis) - channels on x-axis?
   // hPulseShapes: sample number (x-axis) vs ADC value (y-axis) vs pulse (z-axis)
-  
+
+  for (unsigned int iboard=0; iboard<sis3300_n_boards; ++iboard)
+    {
+      for (unsigned int ich=0; ich<sis3300_n_channels; ich++)
+	{
+	  //std::string bankname( Form("SIS3300_B%dC%d",iboard+1,ich+1) );
+	  char *model_name = "SIS3300";
+	  if ( iboard == 5 ) model_name = "SIS3301";
+	  std::string bankname( Form("%s_B%dC%d",model_name,iboard+1,ich+1) );
+	  
+	  TH2D *h2_pulses = new TH2D(Form("h2_pulses_%s",bankname.c_str()),Form("ADC vs clock tick, %s",bankname.c_str()),128,-0.5,127.5,4096,-0.5,4095.5);
+	  //TH2D *h2_pulses = new TH2D(Form("h2_pulses_%s",bankname.c_str()),Form("ADC vs clock tick, %s",bankname.c_str()),257,-0.5,256.5,4096,-0.5,4095.5);      
+	  h2_pulses->SetXTitle("time (ct)");
+	  h2_pulses->SetYTitle("ADC");
+	  h2_pulses_map[bankname] = h2_pulses;
+
+	  TH1D *h1_time = new TH1D(Form("h1_time_%s",bankname.c_str()),Form("time, %s",bankname.c_str()),10000,-0.5,1.2e8);   
+	  h1_time->SetXTitle("time (ct)");
+	  h1_time->SetYTitle("counts");
+	  h1_time_map[bankname] = h1_time;
+	 
+	  TH1D *h1_ADCmax = new TH1D(Form("h1_ADCmax_%s",bankname.c_str()),Form("time, %s",bankname.c_str()),4097,-0.5,4096.5);   
+	  h1_ADCmax->SetXTitle("ADCmax");
+	  h1_ADCmax->SetYTitle("counts");
+	  h1_ADCmax_map[bankname] = h1_ADCmax;	 
+ 
+	}
+    }
+
   return SUCCESS;
 }
 
@@ -84,6 +112,8 @@ INT module_init() {
 // so that the online display updates
 INT module_bor(INT run_number) 
 {
+
+#if 0
   
   // save current directory 
   TDirectory *dir0 = gDirectory;
@@ -146,7 +176,7 @@ INT module_bor(INT run_number)
 
   // restore pointer of global directory
   dir0->cd();
-
+#endif
 
   return SUCCESS;
 }
