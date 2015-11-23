@@ -75,7 +75,8 @@ class TPulseIsland : public TObject {
   /// @return Pedestal subtracted value of largest (smallest) sample for positive (negative) pulses.
   double GetPulseHeight() const;
   /// @return Time in nanoseconds of the peak of the pulse.
-  double GetPulseTime() const;  
+  double GetPulseTime() const;
+  double GetCFTime(double frac) const;
   /// @return An histogram representing the pulse for drawing or fitting.
   TH1I* GetPulseWaveform(std::string histname, std::string histtitle) const;
   int GetPulseLength() const { return fSamples.size(); }
