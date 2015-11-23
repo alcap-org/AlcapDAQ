@@ -82,7 +82,7 @@ INT TCorrGeT(EVENT_HEADER *pheader, void *pevent) {
       std::cout <<"lower bound at position" << *it - *it0 << std::endl;
       const double dt = *it - *it0;
       //      printf("time Difference mu-Ge %d \n",ts.at(100));
-      if (dt > 50000.)
+      if (dt > 36000.)
 	break;
       ++n;
        
