@@ -36,5 +36,5 @@ cd root-build/
 cmake -Dminuit2=ON -Dsqlite=on -DSQLITE_INCLUDE_DIR=../sqlite-install/include -DSQLITE_LIBRARIES=../sqlite-install/lib/libsqlite3.so -DCMAKE_INSTALL_PREFIX=../root-install ../root/ 2>&1 |tee install_log.txt
 
 # Now compile and install
-make 2>&1 |tee -a install_log.txt
+make -j 8 2>&1 |tee -a install_log.txt
 make install 2>&1 |tee -a install_log.txt

@@ -60,7 +60,7 @@ ANA_MODULE TCorrGeT_module =
 
 INT TCorrGeT_init() {
   hTCorrGe  = new TH2I("hTCorrGeTGeLoE", "GeLo TCorr with GeT;dt (ns)",
-		       1000, -36000., -35000, 4096, 0., 16384.);
+		       10000, -50000, 50000, 4096, 0., 16384.);
   hNTCorrGe = new TH1I("hNTCorrGeTGeLoE", "N Matches GeLo TCorr with GeT",
 		       20, 0, 20);
   return SUCCESS;
@@ -69,6 +69,7 @@ INT TCorrGeT_init() {
 INT TCorrGeT(EVENT_HEADER *pheader, void *pevent) {
 
   const vector<double> t0s = GetGeTTimes();
+  //  printf("timeMuons %d \n",t0s.size());
   const vector<double> ts  = GetGeETimes();
   const vector<double> es  = GetGeEHeights();
 
@@ -76,12 +77,15 @@ INT TCorrGeT(EVENT_HEADER *pheader, void *pevent) {
   for (vector<double>::const_iterator it0 = t0s.begin(); it0 < et0; ++it0) {
     const vector<double>::const_iterator bt = ts.begin(), et = ts.end();
     int n = 0;
-    for (vector<double>::const_iterator it = lower_bound(bt, et, *it0 - 36000.);
+    for (vector<double>::const_iterator it = lower_bound(bt, et, *it0);
 	 it < et; ++it) {
+      std::cout <<"lower bound at position" << *it - *it0 << std::endl;
       const double dt = *it - *it0;
-      if (dt > -35000.)
+      //      printf("time Difference mu-Ge %d \n",ts.at(100));
+      if (dt > 50000.)
 	break;
       ++n;
+       
       hTCorrGe->Fill(dt, es[it-bt]);
     }
     hNTCorrGe->Fill(n);
@@ -90,15 +94,15 @@ INT TCorrGeT(EVENT_HEADER *pheader, void *pevent) {
 }
 
 vector<double> GetGeTTimes() {
-  const string geT_name("T404");
+  const string GeT_name("T404");
   const double tick = 0.0244140625; // ns
   const map<string, vector<int64_t> >& hit_map =
     gData->fTDCHitsToChannelMap;
 
   vector<double> ts;
-  if (!hit_map.count(geT_name))
+  if (!hit_map.count(GeT_name))
     return ts;
-  const vector<int64_t>& hits = hit_map.at(geT_name);
+  const vector<int64_t>& hits = hit_map.at(GeT_name);
   ts.reserve(hits.size());
   for (vector<int64_t>::const_iterator i = hits.begin(), e = hits.end();
        i < e; ++i)
@@ -119,7 +123,7 @@ vector<double> GetGeETimes() {
   ts.reserve(tpis.size());
   for (vector<TPulseIsland*>::const_iterator i = tpis.begin(), e = tpis.end();
        i < e; ++i)
-    ts.push_back(tick*(*i)->GetCFTime(0.2));
+    ts.push_back(tick*(*i)->GetCFTime(0.2)); // ER 23.11 it was  GetCFTime(0.2)
   return ts;
 }
 
