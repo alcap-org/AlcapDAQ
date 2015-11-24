@@ -71,6 +71,32 @@ double TPulseIsland::GetPulseTime() const {
   return fTimeStamp * GetClockTickInNs();
 }
 
+double TPulseIsland::GetCFTime(double frac) const {
+  const int ped = GetPedestal(10), pol = GetTriggerPolarity();
+
+  const std::vector<int>::const_iterator
+    b = fSamples.begin(), e = fSamples.end();
+  std::vector<int>::const_iterator m = pol > 0 ?
+    std::max_element(b, e) : std::min_element(b, e);
+  const int amp = *m;
+
+  const double cf = pol > 0 ?
+    frac*(amp-ped) + ped :
+    (ped-amp)*(1.-frac) + amp;
+
+  if (pol > 0) {
+    while (m != b && *--m > cf){};
+  } else {
+    while (m != b && *--m < cf){};
+  }
+
+  double dx = m-b;
+  if (*(m+1) != *m)
+    dx += (cf - *m)/(*(m+1) - *m);
+
+  return (dx + fTimeStamp);
+}
+
 // GetPulseWaveform()
 // -- Fills a histogram with all the samples and returns it
 TH1I* TPulseIsland::GetPulseWaveform(std::string histname, std::string histtitle) const {
