@@ -15,10 +15,12 @@ void sis3300_Board4_shapes()
     "SIS3300_B4C1", "SIS3300_B4C2","SIS3300_B4C3","SIS3300_B4C4", "SIS3300_B4C5","SIS3300_B4C6","SIS3300_B4C7","SIS3300_B4C8"};
 
   for (int iChn = 0; iChn < n_channels; iChn++) {
-    TH1* hist = get_histogram(bank_names[iChn], hist_type);
+    //TH1* hist = get_histogram(bank_names[iChn], hist_type);
+    TH1* hist =  (TH1*) getObject(Form("h2_pulses_SIS3300_B4C%i",iChn+1));
     if (hist) {
       AlCapCanvas->cd(iChn+1);
       hist->Draw("COLZ");
+      gPad->SetLogz();
     }
   }
 }

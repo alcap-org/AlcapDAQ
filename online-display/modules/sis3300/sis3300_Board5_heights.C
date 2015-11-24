@@ -19,7 +19,11 @@ void sis3300_Board5_heights()
     TH1* hist = get_histogram(bank_names[iChn], hist_type);
     if (hist) {
       AlCapCanvas->cd(iChn+1);
+      hist->Rebin(10);
       hist->Draw();
+      //hist->GetXaxis()->SetRangeUser(0.0,3000.0);
+      hist->GetXaxis()->SetRangeUser(0.0,1500.0);
+      //gPad->SetLogy();
     }
   }
 }

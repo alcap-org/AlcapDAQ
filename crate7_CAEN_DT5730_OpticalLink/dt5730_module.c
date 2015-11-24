@@ -329,6 +329,9 @@ INT dt5730_bor() {
 
   dt5730_open();
 
+  // *** Temperature Calibration ***
+  if ( dt5730_temperature_calibration() != SUCCESS ) return FE_ERR_HW;
+
   /* Setup Digitizer */
   if(!dt5730_update_digitizer()) return FE_ERR_HW;
 

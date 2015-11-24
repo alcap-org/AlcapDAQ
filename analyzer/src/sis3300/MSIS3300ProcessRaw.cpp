@@ -47,7 +47,8 @@ extern TSetupData* gSetup;
 /// Number of channels in SIS3300.
 static const int sis3300_n_channels = 8;
 static const int sis3300_n_boards   = 6;
-static map<std::string, TH1D*> h1_Err_map;       // Errors
+static map<std::string, TH1D*> h1_Err_map;           // Errors
+static map<std::string, TH2D*> h2_triggers_map;      // Number of triggers
 static std::vector<std::string> sis3300_bank_names;
 
 ANA_MODULE MSIS3300ProcessRaw_module =
@@ -81,7 +82,12 @@ INT module_init()
       TH1D *h1_Err = new TH1D(Form("h1_Errors_%s",bankname.c_str()),Form("Errors in board, %s",bankname.c_str()),1024,-0.5,1023.5);      
       h1_Err->SetXTitle("Error number");
       h1_Err_map[bankname] = h1_Err;
-	  
+
+      TH2D *h2_triggers = new TH2D(Form("h2_triggers_%s",bankname.c_str()),Form("Triggers in board, %s",bankname.c_str()),1100,0.5,1100.5,sis3300_n_channels+1,-0.5,0.5+sis3300_n_channels);      
+      h2_triggers->SetXTitle("Number of triggers");
+      h2_triggers->SetXTitle("Channel Number");
+      h2_triggers_map[bankname] = h2_triggers;
+
     }
 
   // restore pointer of global directory

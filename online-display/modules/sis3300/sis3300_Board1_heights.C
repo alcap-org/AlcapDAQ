@@ -11,16 +11,18 @@ void sis3300_Board1_heights()
   /*****************************************************************/
   std::string hist_type = "Heights";
   const int n_channels = 8;
-  //std::string bank_names[n_channels] = {
-  //  "SIS3300_B1C1", "SIS3300_B1C2","SIS3300_B1C3","SIS3300_B1C4","SIS3300_B1C5", "SIS3300_B1C6","SIS3300_B1C7","SIS3300_B1C8"}
+  std::string bank_names[n_channels] = {
+    "SIS3300_B1C1", "SIS3300_B1C2","SIS3300_B1C3","SIS3300_B1C4","SIS3300_B1C5", "SIS3300_B1C6","SIS3300_B1C7","SIS3300_B1C8"}
 						 
 
   for (int iChn = 0; iChn < n_channels; iChn++) {
-    //TH1* hist = get_histogram(bank_names[iChn], hist_type);
-    TH1* hist = (TH1*) getObject(Form("h1_ADCmax_SIS3300_B1C%i",iChn+1));
+    TH1* hist = get_histogram(bank_names[iChn], hist_type);
+    //    TH1* hist = (TH1*) getObject(Form("h1_ADCmax_SIS3300_B1C%i",iChn+1));
     if (hist) {
       AlCapCanvas->cd(iChn+1);
       hist->Draw();
+      hist->GetXaxis()->SetRangeUser(0.0,3000.0);
+      gPad->SetLogy();
     }
   }
 }

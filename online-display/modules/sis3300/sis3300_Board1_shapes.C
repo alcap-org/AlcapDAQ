@@ -20,6 +20,7 @@ void sis3300_Board1_shapes()
     if (hist) {
       AlCapCanvas->cd(iChn+1);
       hist->Draw("COLZ");
+      gPad->SetLogz();
     }
   }
 }
