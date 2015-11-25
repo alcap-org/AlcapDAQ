@@ -40,7 +40,8 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 
 namespace {
-  TH2 *hTCorrGe;
+  TH2 *hTCorrGeVsE;
+  TH2 *hTCorrGeVsT;
   TH1 *hNTCorrGe;
 }
 
@@ -59,8 +60,12 @@ ANA_MODULE TCorrGeT_module =
 };
 
 INT TCorrGeT_init() {
-  hTCorrGe  = new TH2I("hTCorrGeTGeLoE", "GeLo TCorr with GeT;dt (ns)",
-		       1000, -36000., -35000, 4096, 0., 16384.);
+  hTCorrGeVsE  = new TH2I("hTCorrGeTGeLoE",
+			  "GeLo TCorr with GeT;dt (ns);E (ADC)",
+			  30000, -150000., 150000, 4096, 0., 16384.);
+  hTCorrGeVsT  = new TH2I("hTCorrGeTGeLoT",
+			  "GeLo TCorr with GeT;dt (ns);T (ns)",
+			  30000, -150000., 150000, 4096, 0., 100.e6);
   hNTCorrGe = new TH1I("hNTCorrGeTGeLoE", "N Matches GeLo TCorr with GeT",
 		       20, 0, 20);
   return SUCCESS;
@@ -76,13 +81,14 @@ INT TCorrGeT(EVENT_HEADER *pheader, void *pevent) {
   for (vector<double>::const_iterator it0 = t0s.begin(); it0 < et0; ++it0) {
     const vector<double>::const_iterator bt = ts.begin(), et = ts.end();
     int n = 0;
-    for (vector<double>::const_iterator it = lower_bound(bt, et, *it0 - 36000.);
+    for (vector<double>::const_iterator it = lower_bound(bt, et, *it0 - 150000.);
 	 it < et; ++it) {
       const double dt = *it - *it0;
-      if (dt > -35000.)
+      if (dt > 150000.)
 	break;
       ++n;
-      hTCorrGe->Fill(dt, es[it-bt]);
+      hTCorrGeVsE->Fill(dt, es[it-bt]);
+      hTCorrGeVsT->Fill(dt, *it);
     }
     hNTCorrGe->Fill(n);
   }
