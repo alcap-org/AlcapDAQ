@@ -34,6 +34,8 @@ extern TSetupData* gSetup;
 static TH1D *h1_hits;
 static TH1D *h1_hits_10;     // last 10 blocks;
 static TH1D *h1_hits_10_aux; // last 10 blocks;
+static TH1D *h1_rollover_t;
+static TH1D *h1_rollover_dn;
 
 /// \brief
 /// List of BU CAEN bank names for the event loop.
@@ -69,7 +71,11 @@ INT module_init_tdc() {
 
   h1_hits_10     = new TH1D("h1_M1290_hits_10","MV1290 hits, last 10 blocks",65,0.5,65.5);
   h1_hits_10_aux = new TH1D("h1_M1290_hits_10_aux","MV1290 hits, last 10 blocks",65,0.5,65.5);
-  
+
+  h1_rollover_t = new TH1D("h1_rollover_t", "Rollover Timing Distribution;dT (ns)",
+			   10000, 0., 110.e6);
+  h1_rollover_dn = new TH1D("h1_rollover_dn", "Number of hits between rollovers",
+			    25, 0., 25.);
   
   return SUCCESS;
 }
@@ -115,20 +121,23 @@ INT module_event_tdc(EVENT_HEADER *pheader, void *pevent) {
   const int64_t rollover = 2097152;
   int64_t rollover_counter = 0;
   int64_t t_last = -1;
-  int64_t t0 = 0;
 
   int data_size = (bank_len - 4)/4;
+  int nhits_since_rollover = 0;
   while ((p32 - p32_0) < data_size) {
     //printf("0x%08x\n",*p32);
     if (V1290_IS_TDC_MEASURE(*p32)) {
+      ++nhits_since_rollover;
       int chn = V1290_GET_TDC_MSR_CHANNEL(*p32);
       int64_t meas = V1290_GET_TDC_MSR_MEASURE(*p32);
-      if (t_last == -1)
-	;//t0 = meas;
-      else if (meas < t_last && t_last-meas > rollover/2)
-    	  rollover_counter++;
+      if (meas < t_last && t_last-meas > rollover/2 && nhits_since_rollover > 2) {
+	rollover_counter++;
+	h1_rollover_t->Fill(0.0244140625*(meas + rollover_counter*rollover));
+	h1_rollover_dn->Fill(nhits_since_rollover);
+	nhits_since_rollover = 0;
+      }
       t_last = meas;
-      meas = meas - t0 + rollover_counter*rollover;
+      meas = meas + rollover_counter*rollover;
       char bnk[5];
       sprintf(bnk, "T4%02d", chn);
       tdc_map[bnk].push_back(meas);
