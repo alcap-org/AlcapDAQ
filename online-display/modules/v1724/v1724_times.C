@@ -5,13 +5,13 @@ void v1724_times()
   gStyle->SetOptStat("ne");
   TCanvas *AlCapCanvas = (TCanvas *) gROOT->GetListOfCanvases()->At(0);
   AlCapCanvas->Clear();
-  AlCapCanvas->Divide(3,3);
+  AlCapCanvas->Divide(3,2);
 
   // gROOT->ProcessLine(".L common/get_histogram.C") // get_histogram defined here
   /*****************************************************************/
   std::string hist_type = "Times";
-  const int n_channels = 8;
-  std::string bank_names[n_channels] = {"D400", "D401", "D402", "D403", "D404", "D405", "D406", "D407"};
+  const int n_channels = 5;
+  std::string bank_names[n_channels] = {"D400","D401", "D402", "D403", "D404"};
 
   for (int iChn = 0; iChn < n_channels; iChn++) {
     TH1* hist = get_histogram(bank_names[iChn], hist_type);

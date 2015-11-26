@@ -12,9 +12,11 @@
 V1724_Heights v1724/v1724_heights.C
 V1724_Times v1724/v1724_times.C
 V1724_Shapes v1724/v1724_shapes.C
+V1724_Pulse v1724/v1724_latest_pulse.C
 
 V1290_A v1290/v1290_rawtimes_0_8.C
 V1290_B v1290/v1290_rawtimes_9_15.C
+
 TDCHitsPerBlock v1290/v1290_hits_per_block.C
 
 
