@@ -58,6 +58,9 @@ static unsigned int nPreSamples;
 /// Number of channels in V1724.
 static const int NCHAN = 8;
 
+static bool tpi_comp(const TPulseIsland* tpi1, const TPulseIsland* tpi2) {
+  return tpi1->GetTimeStamp() < tpi2->GetTimeStamp();
+}
 
 ANA_MODULE MV1724ProcessRaw_module =
 {
@@ -208,6 +211,14 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
     //      printf("offset: %i bank size: %i\n", (int)(p32-p32_0), bank_len);
   }
 
+  for (int ich = 0; ich < NCHAN; ++ich) {
+    char bankname[5]; sprintf(bankname, "D4%02d", ich);
+    if (pulse_islands_map.count(bankname)) {
+      std::vector<TPulseIsland*>& pulse_islands = pulse_islands_map.at(bankname);
+      std::sort(pulse_islands.begin(), pulse_islands.end(), tpi_comp);
+    }
+  }
+  
   // print for testing
   if(midas_event_number == 1) {
     // Loop through all the banks and print an output (because this ProcessRaw loops through pulses then banks, it has been put here)
