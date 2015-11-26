@@ -33,27 +33,36 @@ using std::lower_bound;
 /*-- Module declaration --------------------------------------------*/
 static INT GeSpectra_init(void);
 static INT GeSpectra(EVENT_HEADER*, void*);
-static void GetGeTDCTimes(vector<double>& ge1, vector<double>& ge2);
-static void GetGeWFDTimes(vector<double>& ge1, vector<double>& ge2);
-static void GetGeEnergies(vector<double>& ge1, vector<double>& ge2);
+static void GetTDCTimes(const string& channel_name, vector<double>& times);
+static void GetMuScTimes (vector<double>& musc);
+static void GetGeTDCTimes(vector<double>& ge1,   vector<double>& ge2);
+static void GetGeWFDTimes(vector<double>& ge1,   vector<double>& ge2);
+static void GetGeEnergies(vector<double>& ge1,   vector<double>& ge2);
+static void GetVetoTimes (vector<double>& veto1, vector<double>& veto2);
+static bool IsCPProtected(const vector<double>& vs, double t);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 
 namespace {
-  const Double_t ADC1[2] = { 9.35545e+03, 1.06251e+04 };
-  const Double_t ADC2[2] = { 1.92472e+03, 2.18558e+03 };
+  const Double_t ADC1[2] = { 6.49508e+03, 7.29774e+03 };
+  const Double_t ADC2[2] = { 2.91441e+03, 3.17513e+03 };
   const Double_t E[2] = { 1173.237, 1332.501};
   const TGraph ADC2E1(2, ADC1, E);
   const TGraph ADC2E2(2, ADC2, E);
   const TGraph* ADC2E[2] = { &ADC2E1, &ADC2E2 };
   const Double_t TDCMatchWindow[2][2] = { { 15500., 17000. },
 					  { 16400., 17000. } };
+  const Double_t MuonLookTime[2] = { -10000., -10000. };
 
-  TH2 *hGe1TVsE;
-  TH2 *hGe2TVsE;
+  TH2 *hGe1BlockTVsE;
+  TH2 *hGe2BlockTVsE;
   TH1 *hGe1TUnmatched;
   TH1 *hGe2TUnmatched;
+  TH2 *hGe1MuTVsE;
+  TH2 *hGe2MuTVsE;
+  TH2 *hGe1MuTVsE_CPP;
+  TH2 *hGe2MuTVsE_CPP;
 }
 
 ANA_MODULE GeSpectra_module =
@@ -71,20 +80,36 @@ ANA_MODULE GeSpectra_module =
 };
 
 INT GeSpectra_init() {
-  hGe1TVsE  = new TH2I("h2Ge1Spectra",
-		       "Ge1 Spectra;Time in block muon (ns);E (keV)",
-		       1000, 0., 100.e6,
-		       4096, ADC2E[0]->Eval(0), ADC2E[0]->Eval(16384));
-  hGe2TVsE  = new TH2I("h2Ge2Spectra",
-		       "Ge2 Spectra;Time in block muon (ns);E (keV)",
-		       1000, 0., 100.e6,
-		       4096, ADC2E[1]->Eval(0), ADC2E[1]->Eval(16384));
+  hGe1BlockTVsE  = new TH2I("h2Ge1SpectraBlock",
+			    "Ge1 Spectra;Time in block muon (ns);E (keV)",
+			    1000, 0., 100.e6,
+			    4096, ADC2E[0]->Eval(0), ADC2E[0]->Eval(16384));
+  hGe2BlockTVsE  = new TH2I("h2Ge2SpectraBlock",
+			    "Ge2 Spectra;Time in block muon (ns);E (keV)",
+			    1000, 0., 100.e6,
+			    4096, ADC2E[1]->Eval(0), ADC2E[1]->Eval(16384));
   hGe1TUnmatched = new TH1I("h1Ge1TDCUnmatched",
 			    "Ge1 Unmatched TDC hits;Block time (ns)",
 			    1000, 0., 100.e6);
   hGe2TUnmatched = new TH1I("h1Ge2TDCUnmatched",
 			    "Ge2 Unmatched TDC hits;Block time (ns)",
 			    1000, 0., 100.e6);
+  hGe1MuTVsE     = new TH2I("h2Ge1SpectraMuCentered",
+			    "Ge1 Spectra;Time since muon (ns);E (keV)",
+			    1000, 0., 10.e3,
+			    4096, ADC2E[0]->Eval(0), ADC2E[0]->Eval(16384));
+  hGe2MuTVsE     = new TH2I("h2Ge2SpectraMuCentered",
+			    "Ge2 Spectra;Time since muon (ns);E (keV)",
+			    1000, 0., 10.e3,
+			    4096, ADC2E[1]->Eval(0), ADC2E[1]->Eval(16384));
+  hGe1MuTVsE_CPP  = new TH2I("h2Ge1SpectraMuCenteredCPProtected",
+			    "Ge1 Spectra;Time since muon (ns);E (keV)",
+			    1000, 0., 10.e3,
+			    4096, ADC2E[0]->Eval(0), ADC2E[0]->Eval(16384));
+  hGe2MuTVsE_CPP  = new TH2I("h2Ge2SpectraMuCenteredCPProtected",
+			    "Ge2 Spectra;Time since muon (ns);E (keV)",
+			    1000, 0., 10.e3,
+			    4096, ADC2E[1]->Eval(0), ADC2E[1]->Eval(16384));
 
   return SUCCESS;
 }
@@ -93,10 +118,14 @@ INT GeSpectra(EVENT_HEADER *pheader, void *pevent) {
 
   vector<double> tdc1_ts, tdc2_ts, wfd1_ts, wfd2_ts;
   vector<double> wfd1_es, wfd2_es;
+  vector<double> mu_ts;
+  vector<double> veto1_ts, veto2_ts;
   GetGeTDCTimes(tdc1_ts, tdc2_ts);
   GetGeWFDTimes(wfd1_ts, wfd2_ts);
   GetGeEnergies(wfd1_es, wfd2_es);
-
+  GetMuScTimes (mu_ts);
+  GetVetoTimes (veto1_ts, veto2_ts);
+  
   // Ge 1 loop
   for (int itdc = 0; itdc < tdc1_ts.size(); ++itdc) {
      vector<double>::const_iterator ilower =
@@ -110,7 +139,18 @@ INT GeSpectra(EVENT_HEADER *pheader, void *pevent) {
       continue;
     }
     int iwfd = ilower - wfd1_ts.begin();
-    hGe1TVsE->Fill(tdc1_ts[itdc], wfd1_es[iwfd]);
+    hGe1BlockTVsE->Fill(tdc1_ts[itdc], wfd1_es[iwfd]);
+
+    vector<double>::const_iterator mut =
+      lower_bound(mu_ts.begin(), mu_ts.end(), tdc1_ts[itdc] + MuonLookTime[0]);
+    const bool cpprotected = IsCPProtected(veto1_ts, tdc1_ts[itdc]);
+    if (mut == mu_ts.end()) {
+      hGe1MuTVsE->Fill(1.e10, wfd1_es[iwfd]);
+      if (cpprotected) hGe1MuTVsE_CPP->Fill(1.e10, wfd1_es[iwfd]);
+    } else {
+      hGe1MuTVsE->Fill(tdc1_ts[itdc] - *mut, wfd1_es[iwfd]);
+      if (cpprotected) hGe1MuTVsE_CPP->Fill(tdc1_ts[itdc] - *mut, wfd1_es[iwfd]);
+    }
   }
   // Ge 2 loop
   for (int itdc = 0; itdc < tdc2_ts.size(); ++itdc) {
@@ -125,27 +165,33 @@ INT GeSpectra(EVENT_HEADER *pheader, void *pevent) {
       continue;
     }
     int iwfd = ilower - wfd2_ts.begin();
-    hGe1TVsE->Fill(tdc2_ts[itdc], wfd2_es[iwfd]);
+    hGe2BlockTVsE->Fill(tdc2_ts[itdc], wfd2_es[iwfd]);
+
+    vector<double>::const_iterator mut =
+      lower_bound(mu_ts.begin(), mu_ts.end(), tdc2_ts[itdc] + MuonLookTime[0]);
+    const bool cpprotected = IsCPProtected(veto2_ts, tdc2_ts[itdc]);
+    if (mut == mu_ts.end()) {
+      hGe2MuTVsE->Fill(1.e10, wfd2_es[iwfd]);
+      if (cpprotected) hGe2MuTVsE_CPP->Fill(1.e10, wfd2_es[iwfd]);
+    } else {
+      hGe2MuTVsE->Fill(tdc2_ts[itdc] - *mut, wfd2_es[iwfd]);
+      if (cpprotected) hGe2MuTVsE_CPP->Fill(tdc2_ts[itdc] - *mut, wfd2_es[iwfd]);
+    }
   }
 
   return SUCCESS;
 }
 
+void GetMuScTimes(vector<double>& musc) {
+  const string bank("T402");
+  GetTDCTimes(bank, musc);
+}
+  
 void GetGeTDCTimes(vector<double>& ge1, vector<double>& ge2) {
   const string GeT_name[2] = { "T404", "T405" };
-  const double tick = 0.0244140625; // ns
-  const map<string, vector<int64_t> >& hit_map =
-    gData->fTDCHitsToChannelMap;
-
   vector<double>* ges[2] = { &ge1, &ge2 };
-  for (int ige = 0; ige < 2; ++ige) {
-    if (!hit_map.count(GeT_name[ige])) continue;
-    vector<double>& ts = *ges[ige];
-    const vector<int64_t>& hits = hit_map.at(GeT_name[ige]);
-    ts.reserve(hits.size());
-    for (int ihit = 0; ihit < hits.size(); ++ihit)
-      ts.push_back(tick*hits[ihit]);
-  }
+  for (int ige = 0; ige < 2; ++ige)
+    GetTDCTimes(GeT_name[ige], *ges[ige]);
 }
 
 void GetGeWFDTimes(vector<double>& ge1, vector<double>& ge2) {
@@ -179,4 +225,28 @@ void GetGeEnergies(vector<double>& ge1, vector<double>& ge2) {
     for (int itpi = 0; itpi < tpis.size(); ++itpi)
       es.push_back(ADC2E[ige]->Eval(tpis[itpi]->GetPulseHeight()));
   }
+}
+
+void GetTDCTimes(const string& bank, vector<double>& ts) {
+  const double tick = 0.0244140625; // ns
+  const map<string, vector<int64_t> >& hit_map =
+    gData->fTDCHitsToChannelMap;
+
+  if (!hit_map.count(bank)) return;
+  const vector<int64_t>& hits = hit_map.at(bank);
+  ts.reserve(hits.size());
+  for (int ihit = 0; ihit < hits.size(); ++ihit)
+    ts.push_back(tick*hits[ihit]);
+}
+
+void GetVetoTimes(vector<double>& veto1, vector<double>& veto2) {
+  const string Veto_name[2] = { "T412", "T414" };
+  vector<double>* vetos[2] = { &veto1, &veto2 };
+  for (int iveto = 0; iveto < 2; ++iveto)
+    GetTDCTimes(Veto_name[iveto], *vetos[iveto]);
+}
+
+bool IsCPProtected(const vector<double>& vs, double t) {
+  const vector<double>::const_iterator b = vs.begin(), e = vs.end();
+  return lower_bound(b, e, t + 300.) - lower_bound(b, e, t - 300.);
 }

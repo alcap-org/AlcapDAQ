@@ -61,10 +61,10 @@ double TPulseIsland::GetSlowPulseAmplitude() const {
 
 double TPulseIsland::GetPulseHeight() const {
 
-  double pedestal = GetPedestal(10);
+  //double pedestal = GetPedestal(10);
   int peak_sample_element = GetPeakSample();
 
-  return ( GetTriggerPolarity()*(fSamples.at(peak_sample_element) - pedestal) );
+  return (GetTriggerPolarity()*(fSamples.at(peak_sample_element))); //- pedestal) );
 }
 
 double TPulseIsland::GetPulseTime() const {
