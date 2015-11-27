@@ -17,9 +17,6 @@ V1724_Pulse v1724/v1724_latest_pulse.C
 V1290_A v1290/v1290_rawtimes_0_8.C
 V1290_B v1290/v1290_rawtimes_9_15.C
 
-TDCHitsPerBlock v1290/v1290_hits_per_block.C
-
-
 #
 #======================================================
 #             Ge
@@ -30,13 +27,6 @@ Ge_Veto_Spectra ge/spectra_vcut.C
 TDC-WFD_TCorr   ge/autotcorr.C
 MuSc_TCorr      ge/musctcorr.C
 Veto_TCorr      ge/vetotcorr.C
-
-
-#
-#======================================================
-#             muSC
-#======================================================
-#muSC muSCmuPC/muSC.C
 
 #======================================================
 #         Common

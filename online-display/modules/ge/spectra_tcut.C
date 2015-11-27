@@ -12,22 +12,20 @@ void spectra_tcut()
 
   TH1* hge1_all = hge1_spectrum->ProjectionY("hge1_all");
   TH1* hge1_pws = hge1_spectrum->ProjectionY("hge1_promptwithstop",
-					     hge1_spectrum->FindBin(-100.),
-					     hge1_spectrum->FindBin(100.));
+					     hge1_spectrum->GetXaxis()->FindBin(-100.),
+					     hge1_spectrum->GetXaxis()->FindBin(100.));
   TH1* hge1_pwc = hge1_spectrum->ProjectionY("hge1_promptwithcapture",
-					     hge1_spectrum->FindBin(100.),
-					     hge1_spectrum->FindBin(2000.));
+					     hge1_spectrum->GetXaxis()->FindBin(100.),
+					     hge1_spectrum->GetXaxis()->FindBin(2000.));
   TH1* hge1_del = hge1_spectrum->ProjectionY("hge1_delayed",
-					     hge1_spectrum->FindBin(2000.), -1);
+					     hge1_spectrum->GetXaxis()->FindBin(2000.), -1);
   TH1* hge2_all = hge2_spectrum->ProjectionY("hge2_all");
-  TH1* hge2_pws = hge2_spectrum->ProjectionY("hge2_promptwithstop",
-					     hge2_spectrum->FindBin(-100.),
-					     hge2_spectrum->FindBin(100.));
+  TH1* hge2_pws = hge2_spectrum->ProjectionY("hge2_promptwithstop", hge2_spectrum->GetXaxis()->FindBin(-100.), hge2_spectrum->GetXaxis()->FindBin(100.));
   TH1* hge2_pwc = hge2_spectrum->ProjectionY("hge2_promptwithcapture",
-					     hge2_spectrum->FindBin(100.),
-					     hge2_spectrum->FindBin(2000.));
+					     hge2_spectrum->GetXaxis()->FindBin(100.),
+					     hge2_spectrum->GetXaxis()->FindBin(2000.));
   TH1* hge2_del = hge2_spectrum->ProjectionY("hge2_delayed",
-					     hge2_spectrum->FindBin(2000.), -1);
+					     hge2_spectrum->GetXaxis()->FindBin(2000.), -1);
   
   hge1_all->SetLineColor(kBlack); hge2_all->SetLineColor(kBlack);
   hge1_pws->SetLineColor(kRed);   hge2_pws->SetLineColor(kRed);

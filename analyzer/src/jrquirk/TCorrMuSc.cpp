@@ -68,22 +68,22 @@ INT TCorrMuSc_init() {
     name += dets[i];
     string title(" time correlations with MuSc (All TDC);T-T_{Mu} (ns)");
     title = dets[i] + title;
-    hTCorr[i] = new TH1I(name.c_str(), title.c_str(), 1000, -500., 500.);
+    hTCorr[i] = new TH1I(name.c_str(), title.c_str(), 2000, -1000., 1000.);
   }  
   return SUCCESS;
 }
 
 INT TCorrMuSc(EVENT_HEADER *pheader, void *pevent) {
-  const string musc_name("T403");
+  const string musc_name("T402");
   const vector<double> mus = GetTimes(musc_name);
   for (int idet = 0; idet < ndet; ++idet) {
     const vector<double> hits = GetTimes(banks[idet]);
     for (int ihit = 0; ihit < hits.size(); ++ihit) {
       int imu = lower_bound(mus.begin(), mus.end(),
-			    hits[ihit] - 150.e3) - mus.begin();
+			    hits[ihit] - 1000.) - mus.begin();
       for (; imu < mus.size(); ++imu) {
 	const double dt = hits[ihit] - mus[imu];
-	if (dt < -150.e3) break;
+	if (dt < -1000.) break;
 	hTCorr[idet]->Fill(dt);
       }
     }
