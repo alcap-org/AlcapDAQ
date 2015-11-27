@@ -2,5 +2,6 @@ TGlobalData
 TSetupData
 TPulseIsland
 TMuPCCluster
+TGeHit
 
 TVacuumData

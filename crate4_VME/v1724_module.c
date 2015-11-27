@@ -540,7 +540,7 @@ INT v1724_pre_bor()
       // =====================================================================================
       // Set post-trigger size
       // =====================================================================================
-      ret = CAEN_DGTZ_SetPostTriggerSize(dev_handle[iboard],80);
+      ret = CAEN_DGTZ_SetPostTriggerSize(dev_handle[iboard],65);
       if ( ret != CAEN_DGTZ_Success )
 	{
 	  cm_msg(MERROR,"v1724_init","Cannot SetPostTriggerSize. Error 0x%08x\n",ret);

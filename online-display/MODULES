@@ -12,105 +12,23 @@
 V1724_Heights v1724/v1724_heights.C
 V1724_Times v1724/v1724_times.C
 V1724_Shapes v1724/v1724_shapes.C
-
-V1720_Heights v1720/v1720_heights.C
-V1720_Times v1720/v1720_times.C
-V1720_Shapes v1720/v1720_shapes.C
-
-DT5730_Heights dt5730/dt5730_heights.C
-DT5730_Times dt5730/dt5730_times.C
-DT5730_Shapes dt5730/dt5730_shapes.C
-
-DT5720_Heights dt5720/dt5720_heights.C
-DT5720_Times dt5720/dt5720_times.C
-DT5720_Shapes dt5720/dt5720_shapes.C
-
-SIS3350_Heights sis3350/sis3350_heights.C
-SIS3350_Times sis3350/sis3350_times.C
-SIS3350_Shapes sis3350/sis3350_shapes.C
-
-WFD_Errors caen_wfd/caen_wfd_errors.C
-
-SyncCount common/synccount.C
+V1724_Pulse v1724/v1724_latest_pulse.C
 
 V1290_A v1290/v1290_rawtimes_0_8.C
 V1290_B v1290/v1290_rawtimes_9_15.C
-TDCHitsPerBlock v1290/v1290_hits_per_block.C
-TDCTargetCorrelations1 v1290/v1290_tsctcorr_0_3.C
-TDCTargetCorrelations2 v1290/v1290_tsctcorr_4_7.C
-TDCTargetCorrelations3 v1290/v1290_tsctcorr_8_11.C
-TDCTargetCorrelations4 v1290/v1290_tsctcorr_12_15.C
-
-#======================================================
-#	Physics
-#======================================================
-physics physics/physics.C
 
 #
 #======================================================
-#             muSC
+#             Ge
 #======================================================
-muSC muSCmuPC/muSC.C
-#
-#======================================================
-#             muPC
-#======================================================
-muPC muSCmuPC/muPC.C
-#
-# Dummy hist
-#Dummy dummy.C
-#
-#======================================================
-#             FADC
-#======================================================
-#FADC_80_heights FADC/fadc_single_plots.C ("80","Heights")
-#FADC_80_fit_heights FADC/fadc_fit_heights.C ("80","Heights")
-#FADC_80_times FADC/fadc_single_plots.C  ("80","Times")
-#FADC_80_shapes FADC/fadc_single_plots.C ("80","Shapes")
-#FADC_80_latest_pulse FADC/fadc_single_plots.C ("80","LatestPulse")
-
-#FADC_81_heights FADC/fadc_single_plots.C ("81","Heights")
-#FADC_81_fit_heights FADC/fadc_fit_heights.C ("81","Heights")
-#FADC_81_times FADC/fadc_single_plots.C ("81","Times")
-#FADC_81_shapes FADC/fadc_single_plots.C ("81","Shapes")
-#FADC_81_latest_pulse FADC/fadc_single_plots.C ("81","LatestPulse")
-
-#FADC_82_heights FADC/fadc_single_plots.C ("82","Heights")
-#FADC_82_fit_heights FADC/fadc_fit_heights.C ("82","Heights")
-#FADC_82_times FADC/fadc_single_plots.C ("82","Times")
-#FADC_82_shapes FADC/fadc_single_plots.C ("82","Shapes")
-#FADC_82_latest_pulse FADC/fadc_single_plots.C ("82","LatestPulse")
-
-#FADC_83_heights FADC/fadc_single_plots.C ("83","Heights")
-#FADC_83_fit_heights FADC/fadc_fit_heights.C ("83","Heights")
-#FADC_83_times FADC/fadc_single_plots.C ("83","Times")
-#FADC_83_shapes FADC/fadc_single_plots.C ("83","Shapes")
-#FADC_83_latest_pulse FADC/fadc_single_plots.C ("83","LatestPulse")
-
-#FADC_84_heights FADC/fadc_single_plots.C ("84","Heights")
-#FADC_84_fit_heights FADC/fadc_fit_heights.C ("84","Heights")
-#FADC_84_times FADC/fadc_single_plots.C ("84","Times")
-#FADC_84_shapes FADC/fadc_single_plots.C ("84","Shapes")
-#FADC_84_latest_pulse FADC/fadc_single_plots.C ("84","LatestPulse")
-
-#FADC_IslandsPerBlock FADC/fadc_islands_read_per_block.C
-#FADC_PacketLoss FADC/fadc_packet_losses.C
-#FADC_OverflowingBuffers FADC/fadc_overflowing_buffers.C
-
-#Si16 FADC/fadc_si16.C
-
-#======================================================
-#        Vacuum
-#======================================================
-#VacuumMonitor vacuum/VacuumMonitor.C
+Entrance_Counter physics/entrance_counter.C
+Ge_TCut_Spectra ge/spectra_tcut.C
+Ge_Veto_Spectra ge/spectra_vcut.C
+TDC-WFD_TCorr   ge/autotcorr.C
+MuSc_TCorr      ge/musctcorr.C
+Veto_TCorr      ge/vetotcorr.C
 
 #======================================================
 #         Common
 #======================================================
-raw_pulse_count common/raw_pulse_count.C
-#beam_tuning common/beam_tuning.C
-
-#======================================================
-#         Physics
-#======================================================
-#dEdx physics/silicon_dEdx.C
+Raw_Pulse_Count common/raw_pulse_count.C
