@@ -27,6 +27,8 @@ Ge_Veto_Spectra ge/spectra_vcut.C
 TDC-WFD_TCorr   ge/autotcorr.C
 MuSc_TCorr      ge/musctcorr.C
 Veto_TCorr      ge/vetotcorr.C
+Ge1_EvsT        ge/spectra_ge1.C
+Ge2_EvsT	ge/spectra_ge2.C
 
 #======================================================
 #         Common
