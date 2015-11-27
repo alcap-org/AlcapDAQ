@@ -20,6 +20,8 @@ dt5730/MDT5730Errors
 #v1290/MV1290_HitsPerBlock
 diagnostics/MCommonOnlineDisplayPlots
 
+muX/MGeAnalysis
+
 Timing/MSyncCount
 Timing/MTScTCorrTDC
 
