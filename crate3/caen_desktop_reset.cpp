@@ -38,9 +38,9 @@ INT caen_desktop_reset_bor() {
   // DT5720 has to be power ON the first.
   // Than it will stay the first (USB link Nr. 0)
   // 
-  simulate_power_cycle(1);
+  //simulate_power_cycle(1);
 
-  ss_sleep(10*1000); // Give units time to restart.
+  //ss_sleep(10*1000); // Give units time to restart.
 
   return SUCCESS;
 }
