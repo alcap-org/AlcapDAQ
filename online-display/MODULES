@@ -29,6 +29,7 @@ MuSc_TCorr      ge/musctcorr.C
 Veto_TCorr      ge/vetotcorr.C
 Ge1_EvsT        ge/spectra_ge1.C
 Ge2_EvsT	ge/spectra_ge2.C
+Ge1_Vs_Ge2      ge/ge1vsge2.C
 
 #======================================================
 #         Common
