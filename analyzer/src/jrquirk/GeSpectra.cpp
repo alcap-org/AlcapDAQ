@@ -46,11 +46,10 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 
 namespace {
-  //  const Double_t ADC1[2] = { 6.49508e+03, 7.29774e+03 }; // Before run 192
-  //  const Double_t ADC2[2] = { 2.91441e+03, 3.17513e+03 }; // Before run 192
-  const Double_t ADC1[2] = {7.49810e+03, 8.45279e+03}; // After and run 192
-  const Double_t ADC2[2] = {7.61058e+03, 8.53723e+03}; // After run 192
-   
+ //  const Double_t ADC1[2] = { 6.49508e+03, 7.29774e+03 };
+ // const Double_t ADC2[2] = { 2.91441e+03, 3.17513e+03 }; // Re measurement
+  const Double_t ADC1[2] = {7.49812e+03, 8.45277e+03};
+  const Double_t ADC2[2] = {7.61058e+03 , 8.53722e+03 }; //Zn measurement
   const Double_t E[2] = { 1173.237, 1332.501};
   const TGraph ADC2E1(2, ADC1, E);
   const TGraph ADC2E2(2, ADC2, E);
