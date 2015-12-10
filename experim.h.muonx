@@ -1,0 +1,4222 @@
+/********************************************************************\
+
+  Name:         experim.h
+  Created by:   ODBedit program
+
+  Contents:     This file contains C structures for the "Experiment"
+                tree in the ODB and the "/Analyzer/Parameters" tree.
+
+                Additionally, it contains the "Settings" subtree for
+                all items listed under "/Equipment" as well as their
+                event definition.
+
+                It can be used by the frontend and analyzer to work
+                with these information.
+
+                All C structures are accompanied with a string represen-
+                tation which can be used in the db_create_record function
+                to setup an ODB structure which matches the C structure.
+
+  Created on:   Thu Nov 26 20:24:05 2015
+
+\********************************************************************/
+
+#define EXP_EDIT_DEFINED
+
+typedef struct {
+  char      quality__yntc_[64];
+  char      muon_polarity[64];
+  char      target[32];
+  char      beam_p_scale[32];
+  char      shift[32];
+  char      comment[256];
+} EXP_EDIT;
+
+#define EXP_EDIT_STR(_name) char *_name[] = {\
+"[.]",\
+"Quality (YNTC) = STRING : [64] C",\
+"Muon polarity = STRING : [64] -",\
+"Target = STRING : [32] -",\
+"Beam p scale = STRING : [32] -",\
+"Shift = STRING : [32] er, ak",\
+"Comment = STRING : [256] 88Y at target, new calibration run",\
+"",\
+NULL }
+
+#ifndef EXCL_CRATE_3
+
+#define CRATE_3_SETTINGS_DEFINED
+
+typedef struct {
+  BOOL      master;
+  INT       diagnostic_print_level;
+  INT       operator_message_level;
+  BOOL      enabled;
+  BOOL      synchronous;
+} CRATE_3_SETTINGS;
+
+#define CRATE_3_SETTINGS_STR(_name) char *_name[] = {\
+"[.]",\
+"Master = BOOL : y",\
+"Diagnostic Print Level = INT : -1074740852",\
+"Operator Message Level = INT : -1074740852",\
+"Enabled = BOOL : y",\
+"Synchronous = BOOL : y",\
+"",\
+NULL }
+
+#define CRATE_3_COMMON_DEFINED
+
+typedef struct {
+  WORD      event_id;
+  WORD      trigger_mask;
+  char      buffer[32];
+  INT       type;
+  INT       source;
+  char      format[8];
+  BOOL      enabled;
+  INT       read_on;
+  INT       period;
+  double    event_limit;
+  DWORD     num_subevents;
+  INT       log_history;
+  char      frontend_host[32];
+  char      frontend_name[32];
+  char      frontend_file_name[256];
+} CRATE_3_COMMON;
+
+#define CRATE_3_COMMON_STR(_name) char *_name[] = {\
+"[.]",\
+"Event ID = WORD : 1000",\
+"Trigger mask = WORD : 65535",\
+"Buffer = STRING : [32] BUF3",\
+"Type = INT : 66",\
+"Source = INT : 16777215",\
+"Format = STRING : [8] MIDAS",\
+"Enabled = BOOL : y",\
+"Read on = INT : 1",\
+"Period = INT : 500",\
+"Event limit = DOUBLE : 0",\
+"Num subevents = DWORD : 0",\
+"Log history = INT : 0",\
+"Frontend host = STRING : [32] abe",\
+"Frontend name = STRING : [32] Crate 3",\
+"Frontend file name = STRING : [256] crate.cpp",\
+"",\
+NULL }
+
+#endif
+
+#ifndef EXCL_CRATE_9
+
+#define CRATE_9_SETTINGS_DEFINED
+
+typedef struct {
+  BOOL      master;
+  INT       diagnostic_print_level;
+  INT       operator_message_level;
+  BOOL      enabled;
+  BOOL      synchronous;
+  struct {
+    BOOL      enabled;
+    INT       interface;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_0;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_1;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_2;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_3;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_4;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_5;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_6;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_7;
+  } nfadc_80;
+  struct {
+    BOOL      enabled;
+    INT       interface;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_0;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_1;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_2;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_3;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_4;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_5;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_6;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_7;
+  } nfadc_81;
+  struct {
+    BOOL      enabled;
+    INT       interface;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_0;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_1;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_2;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_3;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_4;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_5;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_6;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_7;
+  } nfadc_82;
+  struct {
+    BOOL      enabled;
+    INT       interface;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_4;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_5;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_6;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_7;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_0;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_1;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_2;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_3;
+  } nfadc_83;
+  struct {
+    BOOL      enabled;
+    INT       interface;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_0;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_1;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_2;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_3;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_4;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_5;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_6;
+    struct {
+      INT       led_mode;
+      INT       lower_threshold;
+      INT       upper_threshold;
+      INT       pulser_period;
+      INT       trigger_mask;
+      INT       presamples;
+      INT       stretch_samples;
+      INT       dcm_phase;
+    } channel_7;
+  } nfadc_84;
+} CRATE_9_SETTINGS;
+
+#define CRATE_9_SETTINGS_STR(_name) char *_name[] = {\
+"[.]",\
+"Master = BOOL : n",\
+"Diagnostic Print Level = INT : 0",\
+"Operator Message Level = INT : -1",\
+"Enabled = BOOL : n",\
+"Synchronous = BOOL : y",\
+"",\
+"[NFADC 80]",\
+"Enabled = BOOL : y",\
+"Interface = INT : 7",\
+"",\
+"[NFADC 80/Channel 0]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2655",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 30",\
+"DCM phase = INT : 10",\
+"",\
+"[NFADC 80/Channel 1]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2650",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 30",\
+"DCM phase = INT : 10",\
+"",\
+"[NFADC 80/Channel 2]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 0",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 30",\
+"DCM phase = INT : 20",\
+"",\
+"[NFADC 80/Channel 3]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 0",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 30",\
+"DCM phase = INT : 10",\
+"",\
+"[NFADC 80/Channel 4]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 0",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 60",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 80/Channel 5]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 0",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 60",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 80/Channel 6]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 0",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 60",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 80/Channel 7]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 0",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 60",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 81]",\
+"Enabled = BOOL : y",\
+"Interface = INT : 2",\
+"",\
+"[NFADC 81/Channel 0]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1500",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 70",\
+"DCM phase = INT : 2",\
+"",\
+"[NFADC 81/Channel 1]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1290",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 70",\
+"DCM phase = INT : 2",\
+"",\
+"[NFADC 81/Channel 2]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1450",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 0",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 70",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 81/Channel 3]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1625",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 0",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 70",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 81/Channel 4]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1470",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 0",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 70",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 81/Channel 5]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1400",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 30",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 81/Channel 6]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1325",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 30",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 81/Channel 7]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1200",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 30",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 82]",\
+"Enabled = BOOL : y",\
+"Interface = INT : 6",\
+"",\
+"[NFADC 82/Channel 0]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2710",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 5",\
+"Stretch samples = INT : 30",\
+"DCM phase = INT : 10",\
+"",\
+"[NFADC 82/Channel 1]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2665",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 5",\
+"Stretch samples = INT : 30",\
+"DCM phase = INT : 10",\
+"",\
+"[NFADC 82/Channel 2]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2655",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 5",\
+"Stretch samples = INT : 30",\
+"DCM phase = INT : 10",\
+"",\
+"[NFADC 82/Channel 3]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2659",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 5",\
+"Stretch samples = INT : 30",\
+"DCM phase = INT : 10",\
+"",\
+"[NFADC 82/Channel 4]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2705",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 5",\
+"Stretch samples = INT : 40",\
+"DCM phase = INT : 10",\
+"",\
+"[NFADC 82/Channel 5]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2682",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 5",\
+"Stretch samples = INT : 40",\
+"DCM phase = INT : 10",\
+"",\
+"[NFADC 82/Channel 6]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2655",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 5",\
+"Stretch samples = INT : 40",\
+"DCM phase = INT : 10",\
+"",\
+"[NFADC 82/Channel 7]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2692",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 5",\
+"Stretch samples = INT : 40",\
+"DCM phase = INT : 10",\
+"",\
+"[NFADC 83]",\
+"Enabled = BOOL : y",\
+"Interface = INT : 3",\
+"",\
+"[NFADC 83/Channel 4]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1451",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 80",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 83/Channel 5]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1417",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 80",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 83/Channel 6]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1413",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 80",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 83/Channel 7]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1400",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 80",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 83/Channel 0]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1420",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 70",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 83/Channel 1]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1800",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 70",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 83/Channel 2]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1415",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 70",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 83/Channel 3]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 0",\
+"Upper threshold = INT : 1413",\
+"Pulser period = INT : 500000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 70",\
+"DCM phase = INT : 1",\
+"",\
+"[NFADC 84]",\
+"Enabled = BOOL : n",\
+"Interface = INT : 0",\
+"",\
+"[NFADC 84/Channel 0]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2640",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 30",\
+"DCM phase = INT : 10",\
+"",\
+"[NFADC 84/Channel 1]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2650",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 5000000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 30",\
+"DCM phase = INT : 10",\
+"",\
+"[NFADC 84/Channel 2]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2300",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 5000000",\
+"Trigger mask = INT : 0",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 20",\
+"DCM phase = INT : 5",\
+"",\
+"[NFADC 84/Channel 3]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2300",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 5000000",\
+"Trigger mask = INT : 0",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 20",\
+"DCM phase = INT : 5",\
+"",\
+"[NFADC 84/Channel 4]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2300",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 5000000",\
+"Trigger mask = INT : 0",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 20",\
+"DCM phase = INT : 5",\
+"",\
+"[NFADC 84/Channel 5]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2300",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 5000000",\
+"Trigger mask = INT : 0",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 20",\
+"DCM phase = INT : 5",\
+"",\
+"[NFADC 84/Channel 6]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2300",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 500",\
+"Trigger mask = INT : 0",\
+"Presamples = INT : 7",\
+"Stretch samples = INT : 20",\
+"DCM phase = INT : 5",\
+"",\
+"[NFADC 84/Channel 7]",\
+"LED Mode = INT : 4",\
+"Lower threshold = INT : 2720",\
+"Upper threshold = INT : 4095",\
+"Pulser period = INT : 5000000",\
+"Trigger mask = INT : 1",\
+"Presamples = INT : 5",\
+"Stretch samples = INT : 40",\
+"DCM phase = INT : 10",\
+"",\
+NULL }
+
+#define CRATE_9_COMMON_DEFINED
+
+typedef struct {
+  WORD      event_id;
+  WORD      trigger_mask;
+  char      buffer[32];
+  INT       type;
+  INT       source;
+  char      format[8];
+  BOOL      enabled;
+  INT       read_on;
+  INT       period;
+  double    event_limit;
+  DWORD     num_subevents;
+  INT       log_history;
+  char      frontend_host[32];
+  char      frontend_name[32];
+  char      frontend_file_name[256];
+} CRATE_9_COMMON;
+
+#define CRATE_9_COMMON_STR(_name) char *_name[] = {\
+"[.]",\
+"Event ID = WORD : 1000",\
+"Trigger mask = WORD : 65535",\
+"Buffer = STRING : [32] BUF9",\
+"Type = INT : 66",\
+"Source = INT : 16777215",\
+"Format = STRING : [8] MIDAS",\
+"Enabled = BOOL : n",\
+"Read on = INT : 1",\
+"Period = INT : 500",\
+"Event limit = DOUBLE : 0",\
+"Num subevents = DWORD : 0",\
+"Log history = INT : 0",\
+"Frontend host = STRING : [32] fe1",\
+"Frontend name = STRING : [32] Crate 9",\
+"Frontend file name = STRING : [256] crate.cpp",\
+"",\
+NULL }
+
+#endif
+
+#ifndef EXCL_EB
+
+#define EB_COMMON_DEFINED
+
+typedef struct {
+  WORD      event_id;
+  WORD      trigger_mask;
+  char      buffer[32];
+  INT       type;
+  INT       source;
+  char      format[8];
+  BOOL      enabled;
+  INT       read_on;
+  INT       period;
+  double    event_limit;
+  DWORD     num_subevents;
+  INT       log_history;
+  char      frontend_host[32];
+  char      frontend_name[32];
+  char      frontend_file_name[256];
+} EB_COMMON;
+
+#define EB_COMMON_STR(_name) char *_name[] = {\
+"[.]",\
+"Event ID = WORD : 1",\
+"Trigger mask = WORD : 0",\
+"Buffer = STRING : [32] SYSTEM",\
+"Type = INT : 0",\
+"Source = INT : 0",\
+"Format = STRING : [8] MIDAS",\
+"Enabled = BOOL : y",\
+"Read on = INT : 0",\
+"Period = INT : 0",\
+"Event limit = DOUBLE : 0",\
+"Num subevents = DWORD : 0",\
+"Log history = INT : 0",\
+"Frontend host = STRING : [32] abe",\
+"Frontend name = STRING : [32] Ebuilder",\
+"Frontend file name = STRING : [256] ebuser.cpp",\
+"",\
+NULL }
+
+#define EB_SETTINGS_DEFINED
+
+typedef struct {
+  INT       number_of_fragment;
+  BOOL      user_build;
+  char      user_field[64];
+  BOOL      fragment_required[2];
+} EB_SETTINGS;
+
+#define EB_SETTINGS_STR(_name) char *_name[] = {\
+"[.]",\
+"Number of Fragment = INT : 2",\
+"User build = BOOL : y",\
+"User Field = STRING : [64] 100",\
+"Fragment Required = BOOL[2] :",\
+"[0] y",\
+"[1] y",\
+"",\
+NULL }
+
+#endif
+
+#ifndef EXCL_CRATE_5
+
+#define CRATE_5_SETTINGS_DEFINED
+
+typedef struct {
+  BOOL      master;
+  INT       diagnostic_print_level;
+  INT       operator_message_level;
+  BOOL      enabled;
+  BOOL      synchronous;
+  struct {
+    BOOL      optical_link;
+    DWORD     vme_base;
+    BYTE      board_number;
+    BYTE      link_number;
+    BOOL      dpp;
+    BOOL      trigger_positive_edge;
+    BOOL      external_trigger;
+    DWORD     max_events_per_block_std;
+    BOOL      event_aligned_readout;
+    char      logic_level[4];
+    BOOL      gpi_acquisition_mode;
+    BYTE      post_trigger_size;
+    BOOL      external_clock;
+    DWORD     waveform_length_std;
+    struct {
+      BOOL      enable;
+      WORD      offset_std;
+      BYTE      baseline_average_dpp;
+      INT       polarity_dpp;
+      DWORD     waveform_length_dpp;
+      DWORD     pre_trigger_size_dpp;
+      BOOL      self_trigger;
+      WORD      self_trigger_threshold_std;
+      WORD      self_trigger_threshold_dpp;
+    } ch00;
+    struct {
+      BOOL      enable;
+      WORD      offset_std;
+      BYTE      baseline_average_dpp;
+      INT       polarity_dpp;
+      DWORD     waveform_length_dpp;
+      DWORD     pre_trigger_size_dpp;
+      BOOL      self_trigger;
+      WORD      self_trigger_threshold_std;
+      WORD      self_trigger_threshold_dpp;
+    } ch01;
+    struct {
+      BOOL      enable;
+      WORD      offset_std;
+      BYTE      baseline_average_dpp;
+      INT       polarity_dpp;
+      DWORD     waveform_length_dpp;
+      DWORD     pre_trigger_size_dpp;
+      BOOL      self_trigger;
+      WORD      self_trigger_threshold_std;
+      WORD      self_trigger_threshold_dpp;
+    } ch02;
+    struct {
+      BOOL      enable;
+      WORD      offset_std;
+      BYTE      baseline_average_dpp;
+      INT       polarity_dpp;
+      DWORD     waveform_length_dpp;
+      DWORD     pre_trigger_size_dpp;
+      BOOL      self_trigger;
+      WORD      self_trigger_threshold_std;
+      WORD      self_trigger_threshold_dpp;
+    } ch03;
+  } caen;
+} CRATE_5_SETTINGS;
+
+#define CRATE_5_SETTINGS_STR(_name) char *_name[] = {\
+"[.]",\
+"Master = BOOL : n",\
+"Diagnostic Print Level = INT : -1079790036",\
+"Operator Message Level = INT : -1079790036",\
+"Enabled = BOOL : n",\
+"Synchronous = BOOL : y",\
+"",\
+"[CAEN]",\
+"Optical link = BOOL : n",\
+"VME Base = DWORD : 0",\
+"Board number = BYTE : 0",\
+"Link number = BYTE : 0",\
+"DPP = BOOL : n",\
+"Trigger positive edge = BOOL : n",\
+"External trigger = BOOL : n",\
+"Max events per block STD = DWORD : 1024",\
+"Event aligned readout = BOOL : y",\
+"Logic level = STRING : [4] NIM",\
+"GPI acquisition mode = BOOL : y",\
+"Post trigger size = BYTE : 220",\
+"External clock = BOOL : y",\
+"Waveform length STD = DWORD : 500",\
+"",\
+"[CAEN/Ch00]",\
+"Enable = BOOL : y",\
+"Offset STD = WORD : 8000",\
+"Baseline average DPP = BYTE : 2",\
+"Polarity DPP = INT : -1",\
+"Waveform length DPP = DWORD : 500",\
+"Pre trigger size DPP = DWORD : 250",\
+"Self trigger = BOOL : y",\
+"Self trigger threshold STD = WORD : 3800",\
+"Self trigger threshold DPP = WORD : 200",\
+"",\
+"[CAEN/Ch01]",\
+"Enable = BOOL : y",\
+"Offset STD = WORD : 8000",\
+"Baseline average DPP = BYTE : 2",\
+"Polarity DPP = INT : -1",\
+"Waveform length DPP = DWORD : 500",\
+"Pre trigger size DPP = DWORD : 250",\
+"Self trigger = BOOL : y",\
+"Self trigger threshold STD = WORD : 3800",\
+"Self trigger threshold DPP = WORD : 300",\
+"",\
+"[CAEN/Ch02]",\
+"Enable = BOOL : y",\
+"Offset STD = WORD : 8000",\
+"Baseline average DPP = BYTE : 2",\
+"Polarity DPP = INT : -1",\
+"Waveform length DPP = DWORD : 500",\
+"Pre trigger size DPP = DWORD : 10",\
+"Self trigger = BOOL : y",\
+"Self trigger threshold STD = WORD : 3800",\
+"Self trigger threshold DPP = WORD : 300",\
+"",\
+"[CAEN/Ch03]",\
+"Enable = BOOL : y",\
+"Offset STD = WORD : 8000",\
+"Baseline average DPP = BYTE : 2",\
+"Polarity DPP = INT : -1",\
+"Waveform length DPP = DWORD : 60",\
+"Pre trigger size DPP = DWORD : 10",\
+"Self trigger = BOOL : y",\
+"Self trigger threshold STD = WORD : 3800",\
+"Self trigger threshold DPP = WORD : 300",\
+"",\
+NULL }
+
+#define CRATE_5_COMMON_DEFINED
+
+typedef struct {
+  WORD      event_id;
+  WORD      trigger_mask;
+  char      buffer[32];
+  INT       type;
+  INT       source;
+  char      format[8];
+  BOOL      enabled;
+  INT       read_on;
+  INT       period;
+  double    event_limit;
+  DWORD     num_subevents;
+  INT       log_history;
+  char      frontend_host[32];
+  char      frontend_name[32];
+  char      frontend_file_name[256];
+} CRATE_5_COMMON;
+
+#define CRATE_5_COMMON_STR(_name) char *_name[] = {\
+"[.]",\
+"Event ID = WORD : 1000",\
+"Trigger mask = WORD : 65535",\
+"Buffer = STRING : [32] BUF5",\
+"Type = INT : 66",\
+"Source = INT : 16777215",\
+"Format = STRING : [8] MIDAS",\
+"Enabled = BOOL : y",\
+"Read on = INT : 1",\
+"Period = INT : 500",\
+"Event limit = DOUBLE : 0",\
+"Num subevents = DWORD : 0",\
+"Log history = INT : 0",\
+"Frontend host = STRING : [32] abe",\
+"Frontend name = STRING : [32] Crate 5",\
+"Frontend file name = STRING : [256] crate.cpp",\
+"",\
+NULL }
+
+#endif
+
+#ifndef EXCL_VACUUMMONITOR
+
+#define VACUUMMONITOR_COMMON_DEFINED
+
+typedef struct {
+  WORD      event_id;
+  WORD      trigger_mask;
+  char      buffer[32];
+  INT       type;
+  INT       source;
+  char      format[8];
+  BOOL      enabled;
+  INT       read_on;
+  INT       period;
+  double    event_limit;
+  DWORD     num_subevents;
+  INT       log_history;
+  char      frontend_host[32];
+  char      frontend_name[32];
+  char      frontend_file_name[256];
+} VACUUMMONITOR_COMMON;
+
+#define VACUUMMONITOR_COMMON_STR(_name) char *_name[] = {\
+"[.]",\
+"Event ID = WORD : 24",\
+"Trigger mask = WORD : 0",\
+"Buffer = STRING : [32] SYSTEM",\
+"Type = INT : 1",\
+"Source = INT : 0",\
+"Format = STRING : [8] MIDAS",\
+"Enabled = BOOL : y",\
+"Read on = INT : 511",\
+"Period = INT : 1000",\
+"Event limit = DOUBLE : 0",\
+"Num subevents = DWORD : 0",\
+"Log history = INT : 0",\
+"Frontend host = STRING : [32] pony",\
+"Frontend name = STRING : [32] VacuumMonitor",\
+"Frontend file name = STRING : [256] frontend.c",\
+"",\
+NULL }
+
+#endif
+
+#ifndef EXCL_CRATE_6
+
+#define CRATE_6_SETTINGS_DEFINED
+
+typedef struct {
+  BOOL      enabled;
+  BOOL      master;
+  BOOL      synchronous;
+  INT       diagnostic_print_level;
+  INT       operator_message_level;
+  struct {
+    BOOL      enabled_status;
+    DWORD     vme_address;
+    INT       ext_clock_frequency_mhz;
+    BOOL      active_readout_mode;
+    BOOL      record_trailing_edges;
+    INT       half_full_level;
+    INT       active_readout_buffer_size;
+    struct {
+      INT       channel[128];
+    } wiring;
+    struct {
+      BOOL      channel_enabled[128];
+    } channels;
+  } caen_0;
+} CRATE_6_SETTINGS;
+
+#define CRATE_6_SETTINGS_STR(_name) char *_name[] = {\
+"[.]",\
+"Enabled = BOOL : n",\
+"Master = BOOL : n",\
+"Synchronous = BOOL : y",\
+"Diagnostic Print Level = INT : 0",\
+"Operator Message Level = INT : -1",\
+"",\
+"[CAEN 0]",\
+"enabled status = BOOL : y",\
+"vme address = DWORD : 134283264",\
+"ext clock frequency MHz = INT : 25",\
+"active readout mode = BOOL : y",\
+"Record trailing edges = BOOL : n",\
+"Half-full level = INT : 16000",\
+"Active readout buffer size = INT : 131072",\
+"",\
+"[CAEN 0/wiring]",\
+"channel = INT[128] :",\
+"[0] 6500",\
+"[1] 11549",\
+"[2] 6011",\
+"[3] 11551",\
+"[4] 11552",\
+"[5] 11553",\
+"[6] 11554",\
+"[7] 6805",\
+"[8] 6050",\
+"[9] 6051",\
+"[10] 11500",\
+"[11] 11501",\
+"[12] 66803",\
+"[13] 11503",\
+"[14] 11504",\
+"[15] 66002",\
+"[16] 11197",\
+"[17] 11198",\
+"[18] 11199",\
+"[19] 11200",\
+"[20] 11201",\
+"[21] 11202",\
+"[22] 11203",\
+"[23] 11204",\
+"[24] 11205",\
+"[25] 11206",\
+"[26] 11207",\
+"[27] 11208",\
+"[28] 11209",\
+"[29] 11210",\
+"[30] 11211",\
+"[31] 11212",\
+"[32] 4017",\
+"[33] 4018",\
+"[34] 4019",\
+"[35] 4020",\
+"[36] 4021",\
+"[37] 4022",\
+"[38] 4023",\
+"[39] 4024",\
+"[40] 4067",\
+"[41] 4068",\
+"[42] 4069",\
+"[43] 4070",\
+"[44] 4071",\
+"[45] 4072",\
+"[46] 4073",\
+"[47] 4074",\
+"[48] 4051",\
+"[49] 4052",\
+"[50] 4053",\
+"[51] 4054",\
+"[52] 4055",\
+"[53] 4056",\
+"[54] 4057",\
+"[55] 4058",\
+"[56] 4059",\
+"[57] 4060",\
+"[58] 4061",\
+"[59] 4062",\
+"[60] 4063",\
+"[61] 4064",\
+"[62] 4065",\
+"[63] 4066",\
+"[64] 4001",\
+"[65] 4002",\
+"[66] 4003",\
+"[67] 4004",\
+"[68] 4005",\
+"[69] 4006",\
+"[70] 4007",\
+"[71] 4008",\
+"[72] 4009",\
+"[73] 4010",\
+"[74] 4011",\
+"[75] 4012",\
+"[76] 4013",\
+"[77] 4014",\
+"[78] 4015",\
+"[79] 4016",\
+"[80] 4108",\
+"[81] 4107",\
+"[82] 4106",\
+"[83] 4105",\
+"[84] 4104",\
+"[85] 4103",\
+"[86] 4102",\
+"[87] 4101",\
+"[88] 4167",\
+"[89] 4168",\
+"[90] 4169",\
+"[91] 4170",\
+"[92] 4171",\
+"[93] 4172",\
+"[94] 4173",\
+"[95] 4174",\
+"[96] 4151",\
+"[97] 4152",\
+"[98] 4153",\
+"[99] 4154",\
+"[100] 4155",\
+"[101] 4156",\
+"[102] 4157",\
+"[103] 4158",\
+"[104] 4159",\
+"[105] 4160",\
+"[106] 4161",\
+"[107] 4162",\
+"[108] 4163",\
+"[109] 4164",\
+"[110] 4165",\
+"[111] 4166",\
+"[112] 11293",\
+"[113] 11294",\
+"[114] 11295",\
+"[115] 11296",\
+"[116] 11297",\
+"[117] 11298",\
+"[118] 11299",\
+"[119] 11300",\
+"[120] 11301",\
+"[121] 11302",\
+"[122] 11303",\
+"[123] 11304",\
+"[124] 11305",\
+"[125] 11306",\
+"[126] 11307",\
+"[127] 11308",\
+"",\
+"[CAEN 0/channels]",\
+"channel enabled = BOOL[128] :",\
+"[0] y",\
+"[1] y",\
+"[2] y",\
+"[3] y",\
+"[4] y",\
+"[5] y",\
+"[6] y",\
+"[7] y",\
+"[8] y",\
+"[9] y",\
+"[10] y",\
+"[11] y",\
+"[12] y",\
+"[13] y",\
+"[14] y",\
+"[15] y",\
+"[16] y",\
+"[17] y",\
+"[18] y",\
+"[19] y",\
+"[20] y",\
+"[21] y",\
+"[22] y",\
+"[23] y",\
+"[24] y",\
+"[25] y",\
+"[26] y",\
+"[27] y",\
+"[28] y",\
+"[29] y",\
+"[30] y",\
+"[31] y",\
+"[32] y",\
+"[33] y",\
+"[34] y",\
+"[35] y",\
+"[36] y",\
+"[37] y",\
+"[38] y",\
+"[39] y",\
+"[40] y",\
+"[41] y",\
+"[42] y",\
+"[43] y",\
+"[44] y",\
+"[45] y",\
+"[46] y",\
+"[47] y",\
+"[48] y",\
+"[49] y",\
+"[50] y",\
+"[51] y",\
+"[52] y",\
+"[53] y",\
+"[54] y",\
+"[55] y",\
+"[56] y",\
+"[57] y",\
+"[58] y",\
+"[59] y",\
+"[60] y",\
+"[61] y",\
+"[62] y",\
+"[63] y",\
+"[64] y",\
+"[65] y",\
+"[66] y",\
+"[67] y",\
+"[68] y",\
+"[69] y",\
+"[70] y",\
+"[71] y",\
+"[72] y",\
+"[73] y",\
+"[74] y",\
+"[75] y",\
+"[76] y",\
+"[77] y",\
+"[78] y",\
+"[79] y",\
+"[80] y",\
+"[81] y",\
+"[82] y",\
+"[83] y",\
+"[84] y",\
+"[85] y",\
+"[86] y",\
+"[87] y",\
+"[88] y",\
+"[89] y",\
+"[90] y",\
+"[91] y",\
+"[92] y",\
+"[93] y",\
+"[94] y",\
+"[95] y",\
+"[96] y",\
+"[97] y",\
+"[98] y",\
+"[99] y",\
+"[100] y",\
+"[101] y",\
+"[102] y",\
+"[103] y",\
+"[104] y",\
+"[105] y",\
+"[106] y",\
+"[107] y",\
+"[108] y",\
+"[109] y",\
+"[110] y",\
+"[111] y",\
+"[112] y",\
+"[113] y",\
+"[114] y",\
+"[115] y",\
+"[116] y",\
+"[117] y",\
+"[118] y",\
+"[119] y",\
+"[120] y",\
+"[121] y",\
+"[122] y",\
+"[123] y",\
+"[124] y",\
+"[125] y",\
+"[126] y",\
+"[127] y",\
+"",\
+NULL }
+
+#define CRATE_6_COMMON_DEFINED
+
+typedef struct {
+  WORD      event_id;
+  WORD      trigger_mask;
+  char      buffer[32];
+  INT       type;
+  INT       source;
+  char      format[8];
+  BOOL      enabled;
+  INT       read_on;
+  INT       period;
+  double    event_limit;
+  DWORD     num_subevents;
+  INT       log_history;
+  char      frontend_host[32];
+  char      frontend_name[32];
+  char      frontend_file_name[256];
+} CRATE_6_COMMON;
+
+#define CRATE_6_COMMON_STR(_name) char *_name[] = {\
+"[.]",\
+"Event ID = WORD : 1000",\
+"Trigger mask = WORD : 65535",\
+"Buffer = STRING : [32] BUF6",\
+"Type = INT : 66",\
+"Source = INT : 16777215",\
+"Format = STRING : [8] MIDAS",\
+"Enabled = BOOL : y",\
+"Read on = INT : 1",\
+"Period = INT : 500",\
+"Event limit = DOUBLE : 0",\
+"Num subevents = DWORD : 0",\
+"Log history = INT : 0",\
+"Frontend host = STRING : [32] fe6",\
+"Frontend name = STRING : [32] Crate 6",\
+"Frontend file name = STRING : [256] crate.cpp",\
+"",\
+NULL }
+
+#endif
+
+#ifndef EXCL_GERMANIUM
+
+#define GERMANIUM_ALARMCHECK_DEFINED
+
+typedef struct {
+  INT       lastfilltime;
+} GERMANIUM_ALARMCHECK;
+
+#define GERMANIUM_ALARMCHECK_STR(_name) char *_name[] = {\
+"[.]",\
+"LastFillTime = INT : 28741",\
+"",\
+NULL }
+
+#define GERMANIUM_SETTINGS_DEFINED
+
+typedef struct {
+  BOOL      master;
+  INT       diagnostic_print_level;
+  INT       operator_message_level;
+  BOOL      enabled;
+  BOOL      synchronous;
+  struct {
+    BOOL      justfilled;
+    char      lastfill[141];
+    INT       timesincefill;
+  } alarm;
+} GERMANIUM_SETTINGS;
+
+#define GERMANIUM_SETTINGS_STR(_name) char *_name[] = {\
+"[.]",\
+"Master = BOOL : n",\
+"Diagnostic Print Level = INT : -1079790036",\
+"Operator Message Level = INT : -1079790036",\
+"Enabled = BOOL : y",\
+"Synchronous = BOOL : y",\
+"",\
+"[Alarm]",\
+"JustFilled = BOOL : y",\
+"LastFill = STRING : [141] Fri Dec 13 11:47:01 CET 2013",\
+"TimeSinceFill = INT : 8229",\
+"",\
+NULL }
+
+#define GERMANIUM_COMMON_DEFINED
+
+typedef struct {
+  WORD      event_id;
+  WORD      trigger_mask;
+  char      buffer[32];
+  INT       type;
+  INT       source;
+  char      format[8];
+  BOOL      enabled;
+  INT       read_on;
+  INT       period;
+  double    event_limit;
+  DWORD     num_subevents;
+  INT       log_history;
+  char      frontend_host[32];
+  char      frontend_name[32];
+  char      frontend_file_name[256];
+} GERMANIUM_COMMON;
+
+#define GERMANIUM_COMMON_STR(_name) char *_name[] = {\
+"[.]",\
+"Event ID = WORD : 1000",\
+"Trigger mask = WORD : 65535",\
+"Buffer = STRING : [32] SYSTEM",\
+"Type = INT : 66",\
+"Source = INT : 16777215",\
+"Format = STRING : [8] MIDAS",\
+"Enabled = BOOL : y",\
+"Read on = INT : 1",\
+"Period = INT : 500",\
+"Event limit = DOUBLE : 0",\
+"Num subevents = DWORD : 0",\
+"Log history = INT : 0",\
+"Frontend host = STRING : [32] abner",\
+"Frontend name = STRING : [32] Germanium",\
+"Frontend file name = STRING : [256] crate.cpp",\
+"",\
+NULL }
+
+#define GERMANIUM_CALIBRATION_DEFINED
+
+typedef struct {
+  double    constant;
+  double    slope;
+} GERMANIUM_CALIBRATION;
+
+#define GERMANIUM_CALIBRATION_STR(_name) char *_name[] = {\
+"[.]",\
+"constant = DOUBLE : 80",\
+"slope = DOUBLE : 4",\
+"",\
+NULL }
+
+#endif
+
+#ifndef EXCL_BEAMLINE
+
+#define BEAMLINE_COMMON_DEFINED
+
+typedef struct {
+  WORD      event_id;
+  WORD      trigger_mask;
+  char      buffer[32];
+  INT       type;
+  INT       source;
+  char      format[8];
+  BOOL      enabled;
+  INT       read_on;
+  INT       period;
+  double    event_limit;
+  DWORD     num_subevents;
+  INT       log_history;
+  char      frontend_host[32];
+  char      frontend_name[32];
+  char      frontend_file_name[256];
+} BEAMLINE_COMMON;
+
+#define BEAMLINE_COMMON_STR(_name) char *_name[] = {\
+"[.]",\
+"Event ID = WORD : 11",\
+"Trigger mask = WORD : 0",\
+"Buffer = STRING : [32] SYSTEM",\
+"Type = INT : 8",\
+"Source = INT : 0",\
+"Format = STRING : [8] MIDAS",\
+"Enabled = BOOL : y",\
+"Read on = INT : 255",\
+"Period = INT : 30000",\
+"Event limit = DOUBLE : 0",\
+"Num subevents = DWORD : 0",\
+"Log history = INT : 1",\
+"Frontend host = STRING : [32] abner",\
+"Frontend name = STRING : [32] Beamline Frontend",\
+"Frontend file name = STRING : [256] EPICSGFA_eblpie1.c",\
+"",\
+NULL }
+
+#define BEAMLINE_SETTINGS_DEFINED
+
+typedef struct {
+  struct {
+    struct {
+      struct {
+        char      loadfile[32];
+        INT       sum_not_connected;
+        INT       sum_not_in_tolerance;
+        char      alarmwhennotconnected[32];
+        char      alarmwhennotintolerance[32];
+        char      epics_channel_name[71][32];
+        BOOL      used[71];
+        BOOL      readonly[71];
+        char      chn_flags[71][16];
+        char      desc_typ[71][40];
+        char      desc_sec[71][40];
+        float     minval[71];
+        float     maxval[71];
+        float     tolerance[71];
+      } dd;
+    } epicsgfa;
+  } devices;
+  char      names[71][32];
+  float     update_threshold_measured[71];
+  struct {
+    INT       mue4;
+  } channels;
+} BEAMLINE_SETTINGS;
+
+#define BEAMLINE_SETTINGS_STR(_name) char *_name[] = {\
+"[Devices/EPICSGFA/DD]",\
+"Loadfile = STRING : [32] MuSun_PiE1_bl.setup",\
+"Sum_NOT_Connected = INT : 34",\
+"Sum_NOT_in_Tolerance = INT : 0",\
+"AlarmWhenNOTConnected = STRING : [32] NONE",\
+"AlarmWhenNOTinTolerance = STRING : [32] NONE",\
+"EPICS Channel name = STRING[71] :",\
+"[32] MHC4:IST:2",\
+"[32] QTH51:SOL:2",\
+"[32] QTH51:IST:2",\
+"[32] QTH52:SOL:2",\
+"[32] QTH52:IST:2",\
+"[32] FSH51:SOL:2",\
+"[32] FSH51:IST1:2",\
+"[32] QTH53:SOL:2",\
+"[32] QTH53:IST:2",\
+"[32] ASZ51:SOL:2",\
+"[32] ASZ51:IST:2",\
+"[32] KSG51:COM:2",\
+"[32] KSG51:STA:1",\
+"[32] QTB51:SOL:2",\
+"[32] QTB51:IST:2",\
+"[32] QTB52:SOL:2",\
+"[32] QTB52:IST:2",\
+"[32] DSC51-L:SOL:2",\
+"[32] DSC51-L:IST:2",\
+"[32] DSC51-R:SOL:2",\
+"[32] DSC51-R:IST:2",\
+"[32] ASY51:SOL:2",\
+"[32] ASY51:IST:2",\
+"[32] QSL51:SOL:2",\
+"[32] QSL51:IST:2",\
+"[32] QSL52:SOL:2",\
+"[32] QSL52:IST:2",\
+"[32] FS53-L:SOL:2",\
+"[32] FS53-L:IST1:2",\
+"[32] FS53-R:SOL:2",\
+"[32] FS53-R:IST1:2",\
+"[32] FS53-O:SOL:2",\
+"[32] FS53-O:IST1:2",\
+"[32] FS53-U:SOL:2",\
+"[32] FS53-U:IST1:2",\
+"[32] ASL51:SOL:2",\
+"[32] ASL51:IST:2",\
+"[32] QSL53:SOL:2",\
+"[32] QSL53:IST:2",\
+"[32] QSL54:SOL:2",\
+"[32] QSL54:IST:2",\
+"[32] SSK51:SOL:2",\
+"[32] SSK51:IST:2",\
+"[32] SEP2:SOL:2",\
+"[32] SEP2:IST:2",\
+"[32] QSE51:SOL:2",\
+"[32] QSE51:IST:2",\
+"[32] QSE52:SOL:2",\
+"[32] QSE52:IST:2",\
+"[32] ASK51:SOL:2",\
+"[32] ASK51:IST:2",\
+"[32] QSN51:SOL:2",\
+"[32] QSN51:IST:2",\
+"[32] QSL55:SOL:2",\
+"[32] QSL55:IST:2",\
+"[32] QSN52:SOL:2",\
+"[32] QSN52:IST:2",\
+"[32] FS54-L:SOL:2",\
+"[32] FS54-L:IST1:2",\
+"[32] FS54-R:SOL:2",\
+"[32] FS54-R:IST1:2",\
+"[32] FS54-O:SOL:2",\
+"[32] FS54-O:IST1:2",\
+"[32] FS54-U:SOL:2",\
+"[32] FS54-U:IST1:2",\
+"[32] QSN53:SOL:2",\
+"[32] QSN53:IST:2",\
+"[32] QSL56:SOL:2",\
+"[32] QSL56:IST:2",\
+"[32] QSN54:SOL:2",\
+"[32] QSN54:IST:2",\
+"Used = BOOL[71] :",\
+"[0] y",\
+"[1] y",\
+"[2] y",\
+"[3] y",\
+"[4] y",\
+"[5] y",\
+"[6] y",\
+"[7] y",\
+"[8] y",\
+"[9] y",\
+"[10] y",\
+"[11] y",\
+"[12] y",\
+"[13] y",\
+"[14] y",\
+"[15] y",\
+"[16] y",\
+"[17] y",\
+"[18] y",\
+"[19] y",\
+"[20] y",\
+"[21] y",\
+"[22] y",\
+"[23] y",\
+"[24] y",\
+"[25] y",\
+"[26] y",\
+"[27] y",\
+"[28] y",\
+"[29] y",\
+"[30] y",\
+"[31] y",\
+"[32] y",\
+"[33] y",\
+"[34] y",\
+"[35] y",\
+"[36] y",\
+"[37] y",\
+"[38] y",\
+"[39] y",\
+"[40] y",\
+"[41] y",\
+"[42] y",\
+"[43] y",\
+"[44] y",\
+"[45] y",\
+"[46] y",\
+"[47] y",\
+"[48] y",\
+"[49] y",\
+"[50] y",\
+"[51] y",\
+"[52] y",\
+"[53] y",\
+"[54] y",\
+"[55] y",\
+"[56] y",\
+"[57] y",\
+"[58] y",\
+"[59] y",\
+"[60] y",\
+"[61] y",\
+"[62] y",\
+"[63] y",\
+"[64] y",\
+"[65] y",\
+"[66] y",\
+"[67] y",\
+"[68] y",\
+"[69] y",\
+"[70] y",\
+"Readonly = BOOL[71] :",\
+"[0] y",\
+"[1] n",\
+"[2] y",\
+"[3] n",\
+"[4] y",\
+"[5] n",\
+"[6] y",\
+"[7] n",\
+"[8] y",\
+"[9] n",\
+"[10] y",\
+"[11] n",\
+"[12] y",\
+"[13] n",\
+"[14] y",\
+"[15] n",\
+"[16] y",\
+"[17] n",\
+"[18] y",\
+"[19] n",\
+"[20] y",\
+"[21] n",\
+"[22] y",\
+"[23] n",\
+"[24] y",\
+"[25] n",\
+"[26] y",\
+"[27] n",\
+"[28] y",\
+"[29] n",\
+"[30] y",\
+"[31] n",\
+"[32] y",\
+"[33] n",\
+"[34] y",\
+"[35] n",\
+"[36] y",\
+"[37] n",\
+"[38] y",\
+"[39] n",\
+"[40] y",\
+"[41] n",\
+"[42] y",\
+"[43] n",\
+"[44] y",\
+"[45] n",\
+"[46] y",\
+"[47] n",\
+"[48] y",\
+"[49] n",\
+"[50] y",\
+"[51] n",\
+"[52] y",\
+"[53] n",\
+"[54] y",\
+"[55] n",\
+"[56] y",\
+"[57] n",\
+"[58] y",\
+"[59] n",\
+"[60] y",\
+"[61] n",\
+"[62] y",\
+"[63] n",\
+"[64] y",\
+"[65] n",\
+"[66] y",\
+"[67] n",\
+"[68] n",\
+"[69] n",\
+"[70] y",\
+"Chn_Flags = STRING[71] :",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IVMCF",\
+"[16] IG",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] I",\
+"[16] IG",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IVMCF",\
+"[16] IG",\
+"[16] IVMCF",\
+"[16] IG",\
+"[16] IVMCF",\
+"[16] IG",\
+"[16] IVMCF",\
+"[16] IG",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IVMCF",\
+"[16] IG",\
+"[16] IVMCF",\
+"[16] IG",\
+"[16] IVMCF",\
+"[16] IG",\
+"[16] IVMCF",\
+"[16] IG",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"[16] IFZMCT",\
+"[16] I",\
+"DESC:TYP = STRING[71] :",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] BX",\
+"[40] BX",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"[40] **TYPE_NOT_FOUND**",\
+"DESC:SEC = STRING[71] :",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"[40] **SEC_NOT_FOUND**",\
+"Minval = FLOAT[71] :",\
+"[0] 0",\
+"[1] -100",\
+"[2] 0",\
+"[3] -100",\
+"[4] 0",\
+"[5] 0",\
+"[6] 0",\
+"[7] -100",\
+"[8] 0",\
+"[9] -200",\
+"[10] 0",\
+"[11] 0",\
+"[12] 0",\
+"[13] -100",\
+"[14] 0",\
+"[15] -100",\
+"[16] 0",\
+"[17] -100",\
+"[18] 0",\
+"[19] -100",\
+"[20] 0",\
+"[21] -200",\
+"[22] 0",\
+"[23] -100",\
+"[24] 0",\
+"[25] -100",\
+"[26] 0",\
+"[27] 0",\
+"[28] 0",\
+"[29] 0",\
+"[30] 0",\
+"[31] 0",\
+"[32] 0",\
+"[33] 0",\
+"[34] 0",\
+"[35] -200",\
+"[36] 0",\
+"[37] -100",\
+"[38] 0",\
+"[39] -100",\
+"[40] 0",\
+"[41] -200",\
+"[42] 0",\
+"[43] -500",\
+"[44] 0",\
+"[45] -100",\
+"[46] 0",\
+"[47] -100",\
+"[48] 0",\
+"[49] -200",\
+"[50] 0",\
+"[51] -100",\
+"[52] 0",\
+"[53] -100",\
+"[54] 0",\
+"[55] -100",\
+"[56] 0",\
+"[57] 0",\
+"[58] 0",\
+"[59] 0",\
+"[60] 0",\
+"[61] 0",\
+"[62] 0",\
+"[63] 0",\
+"[64] 0",\
+"[65] -100",\
+"[66] 0",\
+"[67] -100",\
+"[68] 0",\
+"[69] -100",\
+"[70] 0",\
+"Maxval = FLOAT[71] :",\
+"[0] 0",\
+"[1] 100",\
+"[2] 0",\
+"[3] 100",\
+"[4] 0",\
+"[5] 0",\
+"[6] 0",\
+"[7] 100",\
+"[8] 0",\
+"[9] 200",\
+"[10] 0",\
+"[11] 0",\
+"[12] 0",\
+"[13] 100",\
+"[14] 0",\
+"[15] 100",\
+"[16] 0",\
+"[17] 100",\
+"[18] 0",\
+"[19] 100",\
+"[20] 0",\
+"[21] 200",\
+"[22] 0",\
+"[23] 100",\
+"[24] 0",\
+"[25] 100",\
+"[26] 0",\
+"[27] 0",\
+"[28] 0",\
+"[29] 0",\
+"[30] 0",\
+"[31] 0",\
+"[32] 0",\
+"[33] 0",\
+"[34] 0",\
+"[35] 200",\
+"[36] 0",\
+"[37] 100",\
+"[38] 0",\
+"[39] 100",\
+"[40] 0",\
+"[41] 200",\
+"[42] 0",\
+"[43] 500",\
+"[44] 0",\
+"[45] 100",\
+"[46] 0",\
+"[47] 100",\
+"[48] 0",\
+"[49] 200",\
+"[50] 0",\
+"[51] 100",\
+"[52] 0",\
+"[53] 100",\
+"[54] 0",\
+"[55] 100",\
+"[56] 0",\
+"[57] 0",\
+"[58] 0",\
+"[59] 0",\
+"[60] 0",\
+"[61] 0",\
+"[62] 0",\
+"[63] 0",\
+"[64] 0",\
+"[65] 100",\
+"[66] 0",\
+"[67] 100",\
+"[68] 0",\
+"[69] 100",\
+"[70] 0",\
+"Tolerance = FLOAT[71] :",\
+"[0] 0",\
+"[1] 0.1",\
+"[2] 0",\
+"[3] 0.1",\
+"[4] 0",\
+"[5] 1",\
+"[6] 0",\
+"[7] 0.1",\
+"[8] 0",\
+"[9] 0.1",\
+"[10] 0",\
+"[11] 0",\
+"[12] 0",\
+"[13] 0.1",\
+"[14] 0",\
+"[15] 0.1",\
+"[16] 0",\
+"[17] 0.1",\
+"[18] 0",\
+"[19] 0.1",\
+"[20] 0",\
+"[21] 0.1",\
+"[22] 0",\
+"[23] 0.1",\
+"[24] 0",\
+"[25] 0.1",\
+"[26] 0",\
+"[27] 1",\
+"[28] 0",\
+"[29] 1",\
+"[30] 0",\
+"[31] 1",\
+"[32] 0",\
+"[33] 1",\
+"[34] 0",\
+"[35] 0.1",\
+"[36] 0",\
+"[37] 0.1",\
+"[38] 0",\
+"[39] 0.1",\
+"[40] 0",\
+"[41] 0.1",\
+"[42] 0",\
+"[43] 0.1",\
+"[44] 0",\
+"[45] 0.1",\
+"[46] 0",\
+"[47] 0.1",\
+"[48] 0",\
+"[49] 0.1",\
+"[50] 0",\
+"[51] 0.1",\
+"[52] 0",\
+"[53] 0.1",\
+"[54] 0",\
+"[55] 0.1",\
+"[56] 0",\
+"[57] 1",\
+"[58] 0",\
+"[59] 1",\
+"[60] 0",\
+"[61] 1",\
+"[62] 0",\
+"[63] 1",\
+"[64] 0",\
+"[65] 0.1",\
+"[66] 0",\
+"[67] 0.1",\
+"[68] 0",\
+"[69] 0.1",\
+"[70] 0",\
+"",\
+"[.]",\
+"Names = STRING[71] :",\
+"[32] Protons",\
+"[32] QTH51 Demand",\
+"[32] QTH51 Actual",\
+"[32] QTH52 Demand",\
+"[32] QTH52 Actual",\
+"[32] FSH51 Demand",\
+"[32] FSH51 Actual",\
+"[32] QTH53 Demand",\
+"[32] QTH53 Actual",\
+"[32] ASZ51 Demand",\
+"[32] ASZ51 Actual",\
+"[32] Beamblock Command",\
+"[32] Beamblock Status",\
+"[32] QTB51 Demand",\
+"[32] QTB51 Actual",\
+"[32] QTB52 Demand",\
+"[32] QTB52 Actual",\
+"[32] DSC51-L Demand",\
+"[32] DSC51-L Actual",\
+"[32] DSC51-R Demand",\
+"[32] DSC51-R Actual",\
+"[32] ASY51 Demand",\
+"[32] ASY51 Actual",\
+"[32] QSL51 Demand",\
+"[32] QSL51 Actual",\
+"[32] QSL52 Demand",\
+"[32] QSL52 Actual",\
+"[32] FS53-L Demand",\
+"[32] FS53-L Actual",\
+"[32] FS53-R Demand",\
+"[32] FS53-R Actual",\
+"[32] FS53-O Demand",\
+"[32] FS53-O Actual",\
+"[32] FS53-U Demand",\
+"[32] FS53-U Actual",\
+"[32] ASL51 Demand",\
+"[32] ASL51 Actual",\
+"[32] QSL53 Demand",\
+"[32] QSL53 Actual",\
+"[32] QSL54 Demand",\
+"[32] QSL54 Actual",\
+"[32] SSK51 Demand",\
+"[32] SSK51 Actual",\
+"[32] SEP2 Demand",\
+"[32] SEP2 Actual",\
+"[32] QSE51 Demand",\
+"[32] QSE51 Actual",\
+"[32] QSE52 Demand",\
+"[32] QSE52 Actual",\
+"[32] ASK51 Demand",\
+"[32] ASK51 Actual",\
+"[32] QSN51 Demand",\
+"[32] QSN51 Actual",\
+"[32] QSL55 Demand",\
+"[32] QSL55 Actual",\
+"[32] QSN52 Demand",\
+"[32] QSN52 Actual",\
+"[32] FS54-L Demand",\
+"[32] FS54-L Actual",\
+"[32] FS54-R Demand",\
+"[32] FS54-R Actual",\
+"[32] FS54-O Demand",\
+"[32] FS54-O Actual",\
+"[32] FS54-U Demand",\
+"[32] FS54-U Actual",\
+"[32] QSN53 Demand",\
+"[32] QSN53 Actual",\
+"[32] QSL56 Demand",\
+"[32] QSL56 Actual",\
+"[32] QSN54 Demand",\
+"[32] QSN54 Actual",\
+"Update Threshold Measured = FLOAT[71] :",\
+"[0] 0.1",\
+"[1] 0.1",\
+"[2] 0.1",\
+"[3] 0.1",\
+"[4] 0.1",\
+"[5] 0.1",\
+"[6] 0.1",\
+"[7] 0.1",\
+"[8] 0.1",\
+"[9] 0.1",\
+"[10] 0.1",\
+"[11] 0.1",\
+"[12] 0.1",\
+"[13] 0.1",\
+"[14] 0.1",\
+"[15] 0.1",\
+"[16] 0.1",\
+"[17] 0.1",\
+"[18] 0.1",\
+"[19] 0.1",\
+"[20] 0.1",\
+"[21] 0.1",\
+"[22] 0.1",\
+"[23] 0.1",\
+"[24] 0.1",\
+"[25] 0.1",\
+"[26] 0.1",\
+"[27] 0.1",\
+"[28] 0.1",\
+"[29] 0.1",\
+"[30] 0.1",\
+"[31] 0.1",\
+"[32] 0.1",\
+"[33] 0.1",\
+"[34] 0.1",\
+"[35] 0.1",\
+"[36] 0.1",\
+"[37] 0.1",\
+"[38] 0.1",\
+"[39] 0.1",\
+"[40] 0.1",\
+"[41] 0.1",\
+"[42] 0.1",\
+"[43] 0.1",\
+"[44] 0.1",\
+"[45] 0.1",\
+"[46] 0.1",\
+"[47] 0.1",\
+"[48] 0.1",\
+"[49] 0.1",\
+"[50] 0.1",\
+"[51] 0.1",\
+"[52] 0.1",\
+"[53] 0.1",\
+"[54] 0.1",\
+"[55] 0.1",\
+"[56] 0.1",\
+"[57] 0.1",\
+"[58] 0.1",\
+"[59] 0.1",\
+"[60] 0.1",\
+"[61] 0.1",\
+"[62] 0.1",\
+"[63] 0.1",\
+"[64] 0.1",\
+"[65] 0.1",\
+"[66] 0.1",\
+"[67] 0.1",\
+"[68] 0.1",\
+"[69] 0.1",\
+"[70] 0.1",\
+"",\
+"[Channels]",\
+"muE4 = INT : 19",\
+"",\
+NULL }
+
+#endif
+
+#ifndef EXCL_CRATE_7
+
+#define CRATE_7_SETTINGS_DEFINED
+
+typedef struct {
+  BOOL      master;
+  struct {
+    BOOL      optical_link;
+    DWORD     vme_base;
+    BYTE      board_number;
+    BYTE      link_number;
+    BOOL      dpp;
+    BOOL      trigger_positive_edge;
+    DWORD     max_events_per_block_std;
+    BOOL      event_aligned_readout;
+    char      logic_level[4];
+    BOOL      gpi_acquisition_mode;
+    BYTE      post_trigger_size;
+    BOOL      external_clock;
+    DWORD     waveform_length_std;
+    struct {
+      BOOL      enable;
+      WORD      offset_std;
+      BYTE      baseline_average_dpp;
+      INT       polarity_dpp;
+      DWORD     waveform_length_dpp;
+      DWORD     pre_trigger_size_dpp;
+      WORD      self_trigger_threshold_std;
+      WORD      self_trigger_threshold_dpp;
+    } ch00;
+    struct {
+      BOOL      enable;
+      WORD      offset_std;
+      BYTE      baseline_average_dpp;
+      INT       polarity_dpp;
+      DWORD     waveform_length_dpp;
+      DWORD     pre_trigger_size_dpp;
+      WORD      self_trigger_threshold_std;
+      WORD      self_trigger_threshold_dpp;
+    } ch01;
+    struct {
+      BOOL      enable;
+      WORD      offset_std;
+      BYTE      baseline_average_dpp;
+      INT       polarity_dpp;
+      DWORD     waveform_length_dpp;
+      DWORD     pre_trigger_size_dpp;
+      WORD      self_trigger_threshold_std;
+      WORD      self_trigger_threshold_dpp;
+    } ch02;
+    struct {
+      BOOL      enable;
+      WORD      offset_std;
+      BYTE      baseline_average_dpp;
+      INT       polarity_dpp;
+      DWORD     waveform_length_dpp;
+      DWORD     pre_trigger_size_dpp;
+      WORD      self_trigger_threshold_std;
+      WORD      self_trigger_threshold_dpp;
+    } ch03;
+    struct {
+      BOOL      enable;
+      WORD      offset_std;
+      BYTE      baseline_average_dpp;
+      INT       polarity_dpp;
+      DWORD     waveform_length_dpp;
+      DWORD     pre_trigger_size_dpp;
+      WORD      self_trigger_threshold_std;
+      WORD      self_trigger_threshold_dpp;
+    } ch04;
+    struct {
+      BOOL      enable;
+      WORD      offset_std;
+      BYTE      baseline_average_dpp;
+      INT       polarity_dpp;
+      DWORD     waveform_length_dpp;
+      DWORD     pre_trigger_size_dpp;
+      WORD      self_trigger_threshold_std;
+      WORD      self_trigger_threshold_dpp;
+    } ch05;
+    struct {
+      BOOL      enable;
+      WORD      offset_std;
+      BYTE      baseline_average_dpp;
+      INT       polarity_dpp;
+      DWORD     waveform_length_dpp;
+      DWORD     pre_trigger_size_dpp;
+      WORD      self_trigger_threshold_std;
+      WORD      self_trigger_threshold_dpp;
+    } ch06;
+    struct {
+      BOOL      enable;
+      WORD      offset_std;
+      BYTE      baseline_average_dpp;
+      INT       polarity_dpp;
+      DWORD     waveform_length_dpp;
+      DWORD     pre_trigger_size_dpp;
+      WORD      self_trigger_threshold_std;
+      WORD      self_trigger_threshold_dpp;
+    } ch07;
+  } caen;
+  INT       diagnostic_print_level;
+  INT       operator_message_level;
+  BOOL      enabled;
+  BOOL      synchronous;
+} CRATE_7_SETTINGS;
+
+#define CRATE_7_SETTINGS_STR(_name) char *_name[] = {\
+"[.]",\
+"Master = BOOL : n",\
+"",\
+"[CAEN]",\
+"Optical link = BOOL : n",\
+"VME Base = DWORD : 0",\
+"Board number = BYTE : 1",\
+"Link number = BYTE : 0",\
+"DPP = BOOL : y",\
+"Trigger positive edge = BOOL : y",\
+"Max events per block STD = DWORD : 1024",\
+"Event aligned readout = BOOL : y",\
+"Logic level = STRING : [4] NIM",\
+"GPI acquisition mode = BOOL : y",\
+"Post trigger size = BYTE : 20",\
+"External clock = BOOL : y",\
+"Waveform length STD = DWORD : 64",\
+"",\
+"[CAEN/Ch00]",\
+"Enable = BOOL : n",\
+"Offset STD = WORD : 16000",\
+"Baseline average DPP = BYTE : 4",\
+"Polarity DPP = INT : -1",\
+"Waveform length DPP = DWORD : 500",\
+"Pre trigger size DPP = DWORD : 16",\
+"Self trigger threshold STD = WORD : 0",\
+"Self trigger threshold DPP = WORD : 3000",\
+"",\
+"[CAEN/Ch01]",\
+"Enable = BOOL : n",\
+"Offset STD = WORD : 20000",\
+"Baseline average DPP = BYTE : 4",\
+"Polarity DPP = INT : -1",\
+"Waveform length DPP = DWORD : 500",\
+"Pre trigger size DPP = DWORD : 16",\
+"Self trigger threshold STD = WORD : 0",\
+"Self trigger threshold DPP = WORD : 4095",\
+"",\
+"[CAEN/Ch02]",\
+"Enable = BOOL : y",\
+"Offset STD = WORD : 8000",\
+"Baseline average DPP = BYTE : 4",\
+"Polarity DPP = INT : -1",\
+"Waveform length DPP = DWORD : 500",\
+"Pre trigger size DPP = DWORD : 50",\
+"Self trigger threshold STD = WORD : 0",\
+"Self trigger threshold DPP = WORD : 400",\
+"",\
+"[CAEN/Ch03]",\
+"Enable = BOOL : y",\
+"Offset STD = WORD : 8000",\
+"Baseline average DPP = BYTE : 4",\
+"Polarity DPP = INT : -1",\
+"Waveform length DPP = DWORD : 500",\
+"Pre trigger size DPP = DWORD : 50",\
+"Self trigger threshold STD = WORD : 0",\
+"Self trigger threshold DPP = WORD : 350",\
+"",\
+"[CAEN/Ch04]",\
+"Enable = BOOL : y",\
+"Offset STD = WORD : 4000",\
+"Baseline average DPP = BYTE : 4",\
+"Polarity DPP = INT : -1",\
+"Waveform length DPP = DWORD : 500",\
+"Pre trigger size DPP = DWORD : 30",\
+"Self trigger threshold STD = WORD : 0",\
+"Self trigger threshold DPP = WORD : 350",\
+"",\
+"[CAEN/Ch05]",\
+"Enable = BOOL : y",\
+"Offset STD = WORD : 4000",\
+"Baseline average DPP = BYTE : 4",\
+"Polarity DPP = INT : -1",\
+"Waveform length DPP = DWORD : 500",\
+"Pre trigger size DPP = DWORD : 30",\
+"Self trigger threshold STD = WORD : 0",\
+"Self trigger threshold DPP = WORD : 360",\
+"",\
+"[CAEN/Ch06]",\
+"Enable = BOOL : y",\
+"Offset STD = WORD : 6000",\
+"Baseline average DPP = BYTE : 4",\
+"Polarity DPP = INT : -1",\
+"Waveform length DPP = DWORD : 500",\
+"Pre trigger size DPP = DWORD : 16",\
+"Self trigger threshold STD = WORD : 0",\
+"Self trigger threshold DPP = WORD : 800",\
+"",\
+"[CAEN/Ch07]",\
+"Enable = BOOL : y",\
+"Offset STD = WORD : 6000",\
+"Baseline average DPP = BYTE : 4",\
+"Polarity DPP = INT : -1",\
+"Waveform length DPP = DWORD : 500",\
+"Pre trigger size DPP = DWORD : 16",\
+"Self trigger threshold STD = WORD : 0",\
+"Self trigger threshold DPP = WORD : 800",\
+"",\
+"[.]",\
+"Diagnostic Print Level = INT : -1075474820",\
+"Operator Message Level = INT : -1075474820",\
+"Enabled = BOOL : n",\
+"Synchronous = BOOL : y",\
+"",\
+NULL }
+
+#define CRATE_7_COMMON_DEFINED
+
+typedef struct {
+  WORD      event_id;
+  WORD      trigger_mask;
+  char      buffer[32];
+  INT       type;
+  INT       source;
+  char      format[8];
+  BOOL      enabled;
+  INT       read_on;
+  INT       period;
+  double    event_limit;
+  DWORD     num_subevents;
+  INT       log_history;
+  char      frontend_host[32];
+  char      frontend_name[32];
+  char      frontend_file_name[256];
+} CRATE_7_COMMON;
+
+#define CRATE_7_COMMON_STR(_name) char *_name[] = {\
+"[.]",\
+"Event ID = WORD : 1000",\
+"Trigger mask = WORD : 65535",\
+"Buffer = STRING : [32] BUF7",\
+"Type = INT : 66",\
+"Source = INT : 16777215",\
+"Format = STRING : [8] MIDAS",\
+"Enabled = BOOL : y",\
+"Read on = INT : 1",\
+"Period = INT : 500",\
+"Event limit = DOUBLE : 0",\
+"Num subevents = DWORD : 0",\
+"Log history = INT : 0",\
+"Frontend host = STRING : [32] abe",\
+"Frontend name = STRING : [32] Crate 7",\
+"Frontend file name = STRING : [256] crate.cpp",\
+"",\
+NULL }
+
+#endif
+
+#ifndef EXCL_CRATE_4
+
+#define CRATE_4_SETTINGS_DEFINED
+
+typedef struct {
+  BOOL      master;
+  struct {
+    DWORD     vme_base;
+    BOOL      enabled;
+    BYTE      board_number;
+    BYTE      link_number;
+    DWORD     waveform_length;
+    BYTE      acquisition_mode;
+    BYTE      software_trigger_mode;
+    BYTE      hardware_trigger_mode;
+    BYTE      trigger_edge__0_ris_1_fal_;
+    INT       down_sampling_factor;
+    char      roc_firmware[128];
+    char      amc_firmware[128];
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch0;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch1;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch2;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch3;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch4;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch5;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch6;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch7;
+  } caen0;
+  INT       diagnostic_print_level;
+  INT       operator_message_level;
+  BOOL      enabled;
+  BOOL      synchronous;
+  struct {
+    DWORD     vme_base;
+    BYTE      board_number;
+    BYTE      link_number;
+    BOOL      leading_edge_detection;
+    BYTE      edge_resolution;
+    BYTE      dead_time_between_hits;
+    BOOL      enable_ch0;
+    BOOL      enable_ch1;
+    BOOL      enable_ch2;
+    BOOL      enable_ch3;
+    BOOL      enable_ch4;
+    BOOL      enable_ch5;
+    BOOL      enable_ch6;
+    BOOL      enable_ch7;
+    BOOL      enable_ch8;
+    BOOL      enable_ch9;
+    BOOL      enable_ch10;
+    BOOL      enable_ch11;
+    BOOL      enable_ch12;
+    BOOL      enable_ch13;
+    BOOL      enable_ch14;
+    BOOL      enable_ch15;
+  } tdc;
+} CRATE_4_SETTINGS;
+
+#define CRATE_4_SETTINGS_STR(_name) char *_name[] = {\
+"[.]",\
+"Master = BOOL : n",\
+"",\
+"[CAEN0]",\
+"VME base = DWORD : 839909376",\
+"enabled = BOOL : y",\
+"Board number = BYTE : 0",\
+"Link number = BYTE : 0",\
+"waveform length = DWORD : 300",\
+"acquisition mode = BYTE : 1",\
+"software trigger mode = BYTE : 0",\
+"hardware trigger mode = BYTE : 0",\
+"trigger edge (0-ris 1-fal) = BYTE : 0",\
+"down sampling factor = INT : 1",\
+"ROC firmware = STRING : [128] -",\
+"AMC firmware = STRING : [128] -",\
+"",\
+"[CAEN0/Ch0]",\
+"enabled = BOOL : y",\
+"DC offset = DWORD : 10000",\
+"self-trigger mode = BYTE : 1",\
+"trigger threshhold = DWORD : 13000",\
+"",\
+"[CAEN0/Ch1]",\
+"enabled = BOOL : y",\
+"DC offset = DWORD : 60000",\
+"self-trigger mode = BYTE : 1",\
+"trigger threshhold = DWORD : 2200",\
+"",\
+"[CAEN0/Ch2]",\
+"enabled = BOOL : y",\
+"DC offset = DWORD : 60000",\
+"self-trigger mode = BYTE : 1",\
+"trigger threshhold = DWORD : 2600",\
+"",\
+"[CAEN0/Ch3]",\
+"enabled = BOOL : y",\
+"DC offset = DWORD : 10000",\
+"self-trigger mode = BYTE : 0",\
+"trigger threshhold = DWORD : 25000",\
+"",\
+"[CAEN0/Ch4]",\
+"enabled = BOOL : y",\
+"DC offset = DWORD : 10000",\
+"self-trigger mode = BYTE : 0",\
+"trigger threshhold = DWORD : 20000",\
+"",\
+"[CAEN0/Ch5]",\
+"enabled = BOOL : n",\
+"DC offset = DWORD : 0",\
+"self-trigger mode = BYTE : 1",\
+"trigger threshhold = DWORD : 0",\
+"",\
+"[CAEN0/Ch6]",\
+"enabled = BOOL : n",\
+"DC offset = DWORD : 60000",\
+"self-trigger mode = BYTE : 1",\
+"trigger threshhold = DWORD : 1500",\
+"",\
+"[CAEN0/Ch7]",\
+"enabled = BOOL : n",\
+"DC offset = DWORD : 60000",\
+"self-trigger mode = BYTE : 1",\
+"trigger threshhold = DWORD : 3000",\
+"",\
+"[.]",\
+"Diagnostic Print Level = INT : -1073996212",\
+"Operator Message Level = INT : -1073996212",\
+"Enabled = BOOL : y",\
+"Synchronous = BOOL : y",\
+"",\
+"[TDC]",\
+"VME base = DWORD : 3992977408",\
+"Board number = BYTE : 0",\
+"Link number = BYTE : 0",\
+"Leading edge detection = BOOL : y",\
+"Edge resolution = BYTE : 3",\
+"Dead time Between hits = BYTE : 0",\
+"Enable Ch0 = BOOL : y",\
+"Enable Ch1 = BOOL : y",\
+"Enable Ch2 = BOOL : y",\
+"Enable Ch3 = BOOL : y",\
+"Enable Ch4 = BOOL : y",\
+"Enable Ch5 = BOOL : y",\
+"Enable Ch6 = BOOL : y",\
+"Enable Ch7 = BOOL : y",\
+"Enable Ch8 = BOOL : y",\
+"Enable Ch9 = BOOL : y",\
+"Enable Ch10 = BOOL : y",\
+"Enable Ch11 = BOOL : y",\
+"Enable Ch12 = BOOL : y",\
+"Enable Ch13 = BOOL : y",\
+"Enable Ch14 = BOOL : y",\
+"Enable Ch15 = BOOL : y",\
+"",\
+NULL }
+
+#define CRATE_4_COMMON_DEFINED
+
+typedef struct {
+  WORD      event_id;
+  WORD      trigger_mask;
+  char      buffer[32];
+  INT       type;
+  INT       source;
+  char      format[8];
+  BOOL      enabled;
+  INT       read_on;
+  INT       period;
+  double    event_limit;
+  DWORD     num_subevents;
+  INT       log_history;
+  char      frontend_host[32];
+  char      frontend_name[32];
+  char      frontend_file_name[256];
+} CRATE_4_COMMON;
+
+#define CRATE_4_COMMON_STR(_name) char *_name[] = {\
+"[.]",\
+"Event ID = WORD : 1000",\
+"Trigger mask = WORD : 65535",\
+"Buffer = STRING : [32] BUF4",\
+"Type = INT : 66",\
+"Source = INT : 16777215",\
+"Format = STRING : [8] MIDAS",\
+"Enabled = BOOL : y",\
+"Read on = INT : 1",\
+"Period = INT : 500",\
+"Event limit = DOUBLE : 0",\
+"Num subevents = DWORD : 0",\
+"Log history = INT : 0",\
+"Frontend host = STRING : [32] abe",\
+"Frontend name = STRING : [32] Crate 4",\
+"Frontend file name = STRING : [256] crate.cpp",\
+"",\
+NULL }
+
+#endif
+
+#ifndef EXCL_CRATE_8
+
+#define CRATE_8_SETTINGS_DEFINED
+
+typedef struct {
+  BOOL      master;
+  struct {
+    DWORD     vme_base;
+    BOOL      enabled;
+    BYTE      board_number;
+    BYTE      link_number;
+    DWORD     waveform_length;
+    BYTE      acquisition_mode;
+    BYTE      software_trigger_mode;
+    BYTE      hardware_trigger_mode;
+    BYTE      trigger_edge__0_ris_1_fal_;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch0;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch1;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch2;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch3;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch4;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch5;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch6;
+    struct {
+      BOOL      enabled;
+      DWORD     dc_offset;
+      BYTE      self_trigger_mode;
+      DWORD     trigger_threshhold;
+    } ch7;
+  } caen0;
+  INT       diagnostic_print_level;
+  INT       operator_message_level;
+  BOOL      enabled;
+  BOOL      synchronous;
+} CRATE_8_SETTINGS;
+
+#define CRATE_8_SETTINGS_STR(_name) char *_name[] = {\
+"[.]",\
+"Master = BOOL : n",\
+"",\
+"[CAEN0]",\
+"VME base = DWORD : 268697600",\
+"Enabled = BOOL : y",\
+"Board number = BYTE : 2",\
+"Link number = BYTE : 0",\
+"Waveform length = DWORD : 80",\
+"Acquisition mode = BYTE : 1",\
+"Software trigger mode = BYTE : 0",\
+"Hardware trigger mode = BYTE : 1",\
+"Trigger edge (0-ris 1-fal) = BYTE : 1",\
+"",\
+"[CAEN0/Ch0]",\
+"Enabled = BOOL : y",\
+"DC offset = DWORD : 8000",\
+"Self-trigger mode = BYTE : 1",\
+"Trigger threshhold = DWORD : 3000",\
+"",\
+"[CAEN0/Ch1]",\
+"Enabled = BOOL : y",\
+"DC offset = DWORD : 8000",\
+"Self-trigger mode = BYTE : 0",\
+"Trigger threshhold = DWORD : 1000",\
+"",\
+"[CAEN0/Ch2]",\
+"Enabled = BOOL : y",\
+"DC offset = DWORD : 8000",\
+"Self-trigger mode = BYTE : 0",\
+"Trigger threshhold = DWORD : 1000",\
+"",\
+"[CAEN0/Ch3]",\
+"Enabled = BOOL : y",\
+"DC offset = DWORD : 8000",\
+"Self-trigger mode = BYTE : 0",\
+"Trigger threshhold = DWORD : 0",\
+"",\
+"[CAEN0/Ch4]",\
+"Enabled = BOOL : n",\
+"DC offset = DWORD : 8000",\
+"Self-trigger mode = BYTE : 1",\
+"Trigger threshhold = DWORD : 3900",\
+"",\
+"[CAEN0/Ch5]",\
+"Enabled = BOOL : n",\
+"DC offset = DWORD : 8000",\
+"Self-trigger mode = BYTE : 1",\
+"Trigger threshhold = DWORD : 3000",\
+"",\
+"[CAEN0/Ch6]",\
+"Enabled = BOOL : n",\
+"DC offset = DWORD : 0",\
+"Self-trigger mode = BYTE : 1",\
+"Trigger threshhold = DWORD : 0",\
+"",\
+"[CAEN0/Ch7]",\
+"Enabled = BOOL : n",\
+"DC offset = DWORD : 8000",\
+"Self-trigger mode = BYTE : 1",\
+"Trigger threshhold = DWORD : 3000",\
+"",\
+"[.]",\
+"Diagnostic Print Level = INT : -1079790036",\
+"Operator Message Level = INT : -1079790036",\
+"Enabled = BOOL : n",\
+"Synchronous = BOOL : y",\
+"",\
+NULL }
+
+#define CRATE_8_COMMON_DEFINED
+
+typedef struct {
+  WORD      event_id;
+  WORD      trigger_mask;
+  char      buffer[32];
+  INT       type;
+  INT       source;
+  char      format[8];
+  BOOL      enabled;
+  INT       read_on;
+  INT       period;
+  double    event_limit;
+  DWORD     num_subevents;
+  INT       log_history;
+  char      frontend_host[32];
+  char      frontend_name[32];
+  char      frontend_file_name[256];
+} CRATE_8_COMMON;
+
+#define CRATE_8_COMMON_STR(_name) char *_name[] = {\
+"[.]",\
+"Event ID = WORD : 1000",\
+"Trigger mask = WORD : 65535",\
+"Buffer = STRING : [32] BUF8",\
+"Type = INT : 66",\
+"Source = INT : 16777215",\
+"Format = STRING : [8] MIDAS",\
+"Enabled = BOOL : n",\
+"Read on = INT : 1",\
+"Period = INT : 500",\
+"Event limit = DOUBLE : 0",\
+"Num subevents = DWORD : 0",\
+"Log history = INT : 0",\
+"Frontend host = STRING : [32] abe",\
+"Frontend name = STRING : [32] Crate 8",\
+"Frontend file name = STRING : [256] crate.cpp",\
+"",\
+NULL }
+
+#endif
+
+#ifndef EXCL_CRATE_1
+
+#define CRATE_1_SETTINGS_DEFINED
+
+typedef struct {
+  BOOL      master;
+  INT       diagnostic_print_level;
+  INT       operator_message_level;
+  BOOL      enabled;
+  BOOL      synchronous;
+  struct {
+    struct {
+      DWORD     vme_base;
+      BOOL      enabled;
+      WORD      clock_src__0_int_3_ext_;
+      struct {
+        BOOL      enabled;
+        WORD      gain__0_low_1_high_;
+        WORD      vga__0_128_;
+        DWORD     offset__0_65536_;
+        BOOL      trig_enable;
+        WORD      trig_logic__1_gt__0_lt_;
+        WORD      trig_mode__0_thr_1_fir_;
+        DWORD     trig_thresh_on__0_4095_;
+        DWORD     trig_thresh_off__0_4095_;
+        WORD      trig_pulse_len__0_256_;
+        WORD      trig_sumg__0_32_;
+        WORD      trig_p__0_32_;
+      } ch_1;
+      struct {
+        BOOL      enabled;
+        WORD      gain__0_low_1_high_;
+        WORD      vga__0_128_;
+        DWORD     offset__0_65536_;
+        BOOL      trig_enable;
+        WORD      trig_logic__1_gt__0_lt_;
+        WORD      trig_mode__0_thr_1_fir_;
+        DWORD     trig_thresh_on__0_4095_;
+        DWORD     trig_thresh_off__0_4095_;
+        WORD      trig_pulse_len__0_256_;
+        WORD      trig_sumg__0_32_;
+        WORD      trig_p__0_32_;
+      } ch_2;
+      struct {
+        BOOL      enabled;
+        WORD      gain__0_low_1_high_;
+        WORD      vga__0_128_;
+        DWORD     offset__0_65536_;
+        BOOL      trig_enable;
+        WORD      trig_logic__1_gt__0_lt_;
+        WORD      trig_mode__0_thr_1_fir_;
+        DWORD     trig_thresh_on__0_4095_;
+        DWORD     trig_thresh_off__0_4095_;
+        WORD      trig_pulse_len__0_256_;
+        WORD      trig_sumg__0_32_;
+        WORD      trig_p__0_32_;
+      } ch_3;
+      struct {
+        BOOL      enabled;
+        WORD      gain__0_low_1_high_;
+        WORD      vga__0_128_;
+        DWORD     offset__0_65536_;
+        BOOL      trig_enable;
+        WORD      trig_logic__1_gt__0_lt_;
+        WORD      trig_mode__0_thr_1_fir_;
+        DWORD     trig_thresh_on__0_4095_;
+        DWORD     trig_thresh_off__0_4095_;
+        WORD      trig_pulse_len__0_256_;
+        WORD      trig_sumg__0_32_;
+        WORD      trig_p__0_32_;
+      } ch_4;
+      struct {
+        DWORD     wf_len__mult_8_;
+        DWORD     presamples__mult_2_;
+      } ch_1_2;
+      struct {
+        DWORD     wf_len__mult_8_;
+        DWORD     presamples__mult_2_;
+      } ch_3_4;
+    } board_1;
+    struct {
+      DWORD     vme_base;
+      BOOL      enabled;
+      WORD      clock_src__0_int_3_ext_;
+      struct {
+        BOOL      enabled;
+        WORD      gain__0_low_1_high_;
+        WORD      vga__0_128_;
+        DWORD     offset__0_65536_;
+        BOOL      trig_enable;
+        WORD      trig_logic__1_gt__0_lt_;
+        WORD      trig_mode__0_thr_1_fir_;
+        DWORD     trig_thresh_on__0_4095_;
+        DWORD     trig_thresh_off__0_4095_;
+        WORD      trig_pulse_len__0_256_;
+        WORD      trig_sumg__0_32_;
+        WORD      trig_p__0_32_;
+      } ch_1;
+      struct {
+        BOOL      enabled;
+        WORD      gain__0_low_1_high_;
+        WORD      vga__0_128_;
+        DWORD     offset__0_65536_;
+        BOOL      trig_enable;
+        WORD      trig_logic__1_gt__0_lt_;
+        WORD      trig_mode__0_thr_1_fir_;
+        DWORD     trig_thresh_on__0_4095_;
+        DWORD     trig_thresh_off__0_4095_;
+        WORD      trig_pulse_len__0_256_;
+        WORD      trig_sumg__0_32_;
+        WORD      trig_p__0_32_;
+      } ch_2;
+      struct {
+        BOOL      enabled;
+        WORD      gain__0_low_1_high_;
+        WORD      vga__0_128_;
+        DWORD     offset__0_65536_;
+        BOOL      trig_enable;
+        WORD      trig_logic__1_gt__0_lt_;
+        WORD      trig_mode__0_thr_1_fir_;
+        DWORD     trig_thresh_on__0_4095_;
+        DWORD     trig_thresh_off__0_4095_;
+        WORD      trig_pulse_len__0_256_;
+        WORD      trig_sumg__0_32_;
+        WORD      trig_p__0_32_;
+      } ch_3;
+      struct {
+        BOOL      enabled;
+        WORD      gain__0_low_1_high_;
+        WORD      vga__0_128_;
+        DWORD     offset__0_65536_;
+        BOOL      trig_enable;
+        WORD      trig_logic__1_gt__0_lt_;
+        WORD      trig_mode__0_thr_1_fir_;
+        DWORD     trig_thresh_on__0_4095_;
+        DWORD     trig_thresh_off__0_4095_;
+        WORD      trig_pulse_len__0_256_;
+        WORD      trig_sumg__0_32_;
+        WORD      trig_p__0_32_;
+      } ch_4;
+      struct {
+        DWORD     wf_len__mult_8_;
+        DWORD     presamples__mult_2_;
+      } ch_1_2;
+      struct {
+        DWORD     wf_len__mult_8_;
+        DWORD     presamples__mult_2_;
+      } ch_3_4;
+    } board_2;
+  } sis3350;
+  struct {
+    struct {
+      DWORD     vme_base;
+      BOOL      enabled;
+      WORD      clock_src__0_int_6_ext_;
+      BYTE      averaging__0_7_;
+      WORD      stop_delay__0_65536_;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_1;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_2;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_3;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_4;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_5;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_6;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_7;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_8;
+    } board_1;
+    struct {
+      DWORD     vme_base;
+      BOOL      enabled;
+      WORD      clock_src__0_int_6_ext_;
+      BYTE      averaging__0_7_;
+      WORD      stop_delay__0_65536_;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_1;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_2;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_3;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_4;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_5;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_6;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_7;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_8;
+    } board_2;
+    struct {
+      DWORD     vme_base;
+      BOOL      enabled;
+      WORD      clock_src__0_int_6_ext_;
+      BYTE      averaging__0_7_;
+      WORD      stop_delay__0_65536_;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_1;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_2;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_3;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_4;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_5;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_6;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_7;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_8;
+    } board_3;
+    struct {
+      DWORD     vme_base;
+      BOOL      enabled;
+      WORD      clock_src__0_int_6_ext_;
+      BYTE      averaging__0_7_;
+      WORD      stop_delay__0_65536_;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_1;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_2;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_3;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_4;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_5;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_6;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_7;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_8;
+    } board_4;
+    struct {
+      DWORD     vme_base;
+      BOOL      enabled;
+      WORD      clock_src__0_int_6_ext_;
+      BYTE      averaging__0_7_;
+      WORD      stop_delay__0_65536_;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_1;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_2;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_3;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_4;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_5;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_6;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_7;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_8;
+    } board_5;
+    struct {
+      DWORD     vme_base;
+      BOOL      enabled;
+      WORD      clock_src__0_int_6_ext_;
+      BYTE      averaging__0_7_;
+      WORD      stop_delay__0_65536_;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_1;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_2;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_3;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_4;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_5;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_6;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_7;
+      struct {
+        BOOL      enabled;
+        DWORD     threshold__0_4095_;
+        BYTE      threshold_logic__0_gt_1_le_;
+      } ch_8;
+    } board_6;
+  } sis3300;
+} CRATE_1_SETTINGS;
+
+#define CRATE_1_SETTINGS_STR(_name) char *_name[] = {\
+"[.]",\
+"Master = BOOL : n",\
+"Diagnostic Print Level = INT : 32580",\
+"Operator Message Level = INT : 32580",\
+"Enabled = BOOL : n",\
+"Synchronous = BOOL : y",\
+"",\
+"[SIS3350/Board 1]",\
+"VME Base = DWORD : 805306368",\
+"Enabled = BOOL : y",\
+"Clock src (0-int 3-ext) = WORD : 3",\
+"",\
+"[SIS3350/Board 1/Ch 1]",\
+"Enabled = BOOL : y",\
+"gain (0-Low,1-High) = WORD : 0",\
+"VGA (0-128) = WORD : 120",\
+"offset (0-65536) = DWORD : 36600",\
+"trig enable = BOOL : y",\
+"trig logic (1-GT; 0-LT) = WORD : 0",\
+"trig mode (0-thr,1-FIR) = WORD : 0",\
+"trig thresh ON (0-4095) = DWORD : 3830",\
+"trig thresh OFF (0-4095) = DWORD : 3000",\
+"trig pulse len (0-256) = WORD : 100",\
+"trig sumG (0-32) = WORD : 10",\
+"trig P (0-32) = WORD : 10",\
+"",\
+"[SIS3350/Board 1/Ch 2]",\
+"Enabled = BOOL : y",\
+"gain (0-Low,1-High) = WORD : 0",\
+"VGA (0-128) = WORD : 120",\
+"offset (0-65536) = DWORD : 36600",\
+"trig enable = BOOL : y",\
+"trig logic (1-GT; 0-LT) = WORD : 0",\
+"trig mode (0-thr,1-FIR) = WORD : 0",\
+"trig thresh ON (0-4095) = DWORD : 3200",\
+"trig thresh OFF (0-4095) = DWORD : 3000",\
+"trig pulse len (0-256) = WORD : 100",\
+"trig sumG (0-32) = WORD : 10",\
+"trig P (0-32) = WORD : 10",\
+"",\
+"[SIS3350/Board 1/Ch 3]",\
+"Enabled = BOOL : y",\
+"gain (0-Low,1-High) = WORD : 0",\
+"VGA (0-128) = WORD : 120",\
+"offset (0-65536) = DWORD : 32768",\
+"trig enable = BOOL : y",\
+"trig logic (1-GT; 0-LT) = WORD : 0",\
+"trig mode (0-thr,1-FIR) = WORD : 0",\
+"trig thresh ON (0-4095) = DWORD : 3200",\
+"trig thresh OFF (0-4095) = DWORD : 3000",\
+"trig pulse len (0-256) = WORD : 100",\
+"trig sumG (0-32) = WORD : 10",\
+"trig P (0-32) = WORD : 10",\
+"",\
+"[SIS3350/Board 1/Ch 4]",\
+"Enabled = BOOL : y",\
+"gain (0-Low,1-High) = WORD : 0",\
+"VGA (0-128) = WORD : 20",\
+"offset (0-65536) = DWORD : 32768",\
+"trig enable = BOOL : y",\
+"trig logic (1-GT; 0-LT) = WORD : 0",\
+"trig mode (0-thr,1-FIR) = WORD : 0",\
+"trig thresh ON (0-4095) = DWORD : 2000",\
+"trig thresh OFF (0-4095) = DWORD : 2000",\
+"trig pulse len (0-256) = WORD : 100",\
+"trig sumG (0-32) = WORD : 10",\
+"trig P (0-32) = WORD : 10",\
+"",\
+"[SIS3350/Board 1/Ch 1,2]",\
+"wf len (mult 8) = DWORD : 128",\
+"presamples (mult 2) = DWORD : 24",\
+"",\
+"[SIS3350/Board 1/Ch 3,4]",\
+"wf len (mult 8) = DWORD : 128",\
+"presamples (mult 2) = DWORD : 24",\
+"",\
+"[SIS3350/Board 2]",\
+"VME Base = DWORD : 939524096",\
+"Enabled = BOOL : y",\
+"Clock src (0-int 3-ext) = WORD : 3",\
+"",\
+"[SIS3350/Board 2/Ch 1]",\
+"Enabled = BOOL : y",\
+"gain (0-Low,1-High) = WORD : 0",\
+"VGA (0-128) = WORD : 120",\
+"offset (0-65536) = DWORD : 36600",\
+"trig enable = BOOL : y",\
+"trig logic (1-GT; 0-LT) = WORD : 0",\
+"trig mode (0-thr,1-FIR) = WORD : 0",\
+"trig thresh ON (0-4095) = DWORD : 3500",\
+"trig thresh OFF (0-4095) = DWORD : 1800",\
+"trig pulse len (0-256) = WORD : 100",\
+"trig sumG (0-32) = WORD : 10",\
+"trig P (0-32) = WORD : 10",\
+"",\
+"[SIS3350/Board 2/Ch 2]",\
+"Enabled = BOOL : y",\
+"gain (0-Low,1-High) = WORD : 0",\
+"VGA (0-128) = WORD : 120",\
+"offset (0-65536) = DWORD : 36600",\
+"trig enable = BOOL : y",\
+"trig logic (1-GT; 0-LT) = WORD : 0",\
+"trig mode (0-thr,1-FIR) = WORD : 0",\
+"trig thresh ON (0-4095) = DWORD : 3650",\
+"trig thresh OFF (0-4095) = DWORD : 4095",\
+"trig pulse len (0-256) = WORD : 100",\
+"trig sumG (0-32) = WORD : 10",\
+"trig P (0-32) = WORD : 10",\
+"",\
+"[SIS3350/Board 2/Ch 3]",\
+"Enabled = BOOL : y",\
+"gain (0-Low,1-High) = WORD : 0",\
+"VGA (0-128) = WORD : 20",\
+"offset (0-65536) = DWORD : 50000",\
+"trig enable = BOOL : y",\
+"trig logic (1-GT; 0-LT) = WORD : 0",\
+"trig mode (0-thr,1-FIR) = WORD : 0",\
+"trig thresh ON (0-4095) = DWORD : 3000",\
+"trig thresh OFF (0-4095) = DWORD : 4095",\
+"trig pulse len (0-256) = WORD : 100",\
+"trig sumG (0-32) = WORD : 10",\
+"trig P (0-32) = WORD : 10",\
+"",\
+"[SIS3350/Board 2/Ch 4]",\
+"Enabled = BOOL : n",\
+"gain (0-Low,1-High) = WORD : 0",\
+"VGA (0-128) = WORD : 0",\
+"offset (0-65536) = DWORD : 32768",\
+"trig enable = BOOL : n",\
+"trig logic (1-GT; 0-LT) = WORD : 1",\
+"trig mode (0-thr,1-FIR) = WORD : 0",\
+"trig thresh ON (0-4095) = DWORD : 4095",\
+"trig thresh OFF (0-4095) = DWORD : 4095",\
+"trig pulse len (0-256) = WORD : 100",\
+"trig sumG (0-32) = WORD : 10",\
+"trig P (0-32) = WORD : 10",\
+"",\
+"[SIS3350/Board 2/Ch 1,2]",\
+"wf len (mult 8) = DWORD : 128",\
+"presamples (mult 2) = DWORD : 24",\
+"",\
+"[SIS3350/Board 2/Ch 3,4]",\
+"wf len (mult 8) = DWORD : 64",\
+"presamples (mult 2) = DWORD : 8",\
+"",\
+"[SIS3300/Board 1]",\
+"VME Base = DWORD : 1073741824",\
+"Enabled = BOOL : y",\
+"Clock src (0-int 6-ext) = WORD : 6",\
+"Averaging (0-7) = BYTE : 2",\
+"Stop Delay (0-65536) = WORD : 400",\
+"",\
+"[SIS3300/Board 1/Ch 1]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 320",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 1/Ch 2]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 200",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 1/Ch 3]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 220",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 1/Ch 4]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 200",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 1/Ch 5]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 500",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 1/Ch 6]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 225",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 1/Ch 7]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 200",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 1/Ch 8]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 200",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 2]",\
+"VME Base = DWORD : 1476395008",\
+"Enabled = BOOL : n",\
+"Clock src (0-int 6-ext) = WORD : 6",\
+"Averaging (0-7) = BYTE : 0",\
+"Stop Delay (0-65536) = WORD : 85",\
+"",\
+"[SIS3300/Board 2/Ch 1]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 2368",\
+"Threshold logic (0:GT 1:LE) = BYTE : 1",\
+"",\
+"[SIS3300/Board 2/Ch 2]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 2420",\
+"Threshold logic (0:GT 1:LE) = BYTE : 1",\
+"",\
+"[SIS3300/Board 2/Ch 3]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 2390",\
+"Threshold logic (0:GT 1:LE) = BYTE : 1",\
+"",\
+"[SIS3300/Board 2/Ch 4]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 2382",\
+"Threshold logic (0:GT 1:LE) = BYTE : 1",\
+"",\
+"[SIS3300/Board 2/Ch 5]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 2200",\
+"Threshold logic (0:GT 1:LE) = BYTE : 1",\
+"",\
+"[SIS3300/Board 2/Ch 6]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 2200",\
+"Threshold logic (0:GT 1:LE) = BYTE : 1",\
+"",\
+"[SIS3300/Board 2/Ch 7]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 2398",\
+"Threshold logic (0:GT 1:LE) = BYTE : 1",\
+"",\
+"[SIS3300/Board 2/Ch 8]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 2395",\
+"Threshold logic (0:GT 1:LE) = BYTE : 1",\
+"",\
+"[SIS3300/Board 3]",\
+"VME Base = DWORD : 1610612736",\
+"Enabled = BOOL : n",\
+"Clock src (0-int 6-ext) = WORD : 6",\
+"Averaging (0-7) = BYTE : 2",\
+"Stop Delay (0-65536) = WORD : 420",\
+"",\
+"[SIS3300/Board 3/Ch 1]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 217",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 3/Ch 2]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 360",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 3/Ch 3]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 340",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 3/Ch 4]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 197",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 3/Ch 5]",\
+"Enabled = BOOL : n",\
+"Threshold (0-4095) = DWORD : 4095",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 3/Ch 6]",\
+"Enabled = BOOL : n",\
+"Threshold (0-4095) = DWORD : 4095",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 3/Ch 7]",\
+"Enabled = BOOL : n",\
+"Threshold (0-4095) = DWORD : 4095",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 3/Ch 8]",\
+"Enabled = BOOL : n",\
+"Threshold (0-4095) = DWORD : 4095",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 4]",\
+"VME Base = DWORD : 1744830464",\
+"Enabled = BOOL : n",\
+"Clock src (0-int 6-ext) = WORD : 6",\
+"Averaging (0-7) = BYTE : 2",\
+"Stop Delay (0-65536) = WORD : 350",\
+"",\
+"[SIS3300/Board 4/Ch 1]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 231",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 4/Ch 2]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 230",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 4/Ch 3]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 180",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 4/Ch 4]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 185",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 4/Ch 5]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 180",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 4/Ch 6]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 170",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 4/Ch 7]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 167",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 4/Ch 8]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 187",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 5]",\
+"VME Base = DWORD : 1879048192",\
+"Enabled = BOOL : n",\
+"Clock src (0-int 6-ext) = WORD : 6",\
+"Averaging (0-7) = BYTE : 2",\
+"Stop Delay (0-65536) = WORD : 350",\
+"",\
+"[SIS3300/Board 5/Ch 1]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 167",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 5/Ch 2]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 179",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 5/Ch 3]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 173",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 5/Ch 4]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 153",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 5/Ch 5]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 172",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 5/Ch 6]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 180",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 5/Ch 7]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 163",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 5/Ch 8]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 350",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 6]",\
+"VME Base = DWORD : 1342177280",\
+"Enabled = BOOL : n",\
+"Clock src (0-int 6-ext) = WORD : 6",\
+"Averaging (0-7) = BYTE : 2",\
+"Stop Delay (0-65536) = WORD : 350",\
+"",\
+"[SIS3300/Board 6/Ch 1]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 500",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 6/Ch 2]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 500",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 6/Ch 3]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 500",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 6/Ch 4]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 500",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 6/Ch 5]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 500",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 6/Ch 6]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 500",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 6/Ch 7]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 500",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+"[SIS3300/Board 6/Ch 8]",\
+"Enabled = BOOL : y",\
+"Threshold (0-4095) = DWORD : 500",\
+"Threshold logic (0:GT 1:LE) = BYTE : 0",\
+"",\
+NULL }
+
+#define CRATE_1_COMMON_DEFINED
+
+typedef struct {
+  WORD      event_id;
+  WORD      trigger_mask;
+  char      buffer[32];
+  INT       type;
+  INT       source;
+  char      format[8];
+  BOOL      enabled;
+  INT       read_on;
+  INT       period;
+  double    event_limit;
+  DWORD     num_subevents;
+  INT       log_history;
+  char      frontend_host[32];
+  char      frontend_name[32];
+  char      frontend_file_name[256];
+} CRATE_1_COMMON;
+
+#define CRATE_1_COMMON_STR(_name) char *_name[] = {\
+"[.]",\
+"Event ID = WORD : 1000",\
+"Trigger mask = WORD : 65535",\
+"Buffer = STRING : [32] BUF1",\
+"Type = INT : 66",\
+"Source = INT : 16777215",\
+"Format = STRING : [8] MIDAS",\
+"Enabled = BOOL : y",\
+"Read on = INT : 1",\
+"Period = INT : 500",\
+"Event limit = DOUBLE : 0",\
+"Num subevents = DWORD : 0",\
+"Log history = INT : 0",\
+"Frontend host = STRING : [32] abe",\
+"Frontend name = STRING : [32] Crate 1",\
+"Frontend file name = STRING : [256] crate.cpp",\
+"",\
+NULL }
+
+#endif
+
