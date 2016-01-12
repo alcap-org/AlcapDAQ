@@ -337,19 +337,19 @@ INT MPSDIntegral(EVENT_HEADER *pheader, void *pevent)
       float energy=0, ratio_t = 0;
       if(detname == "NdetD"){
 	energy = 0.02358 + 0.00006766 * integral_ps;
-	ratio_t = ratio/(0.08482 + 3.951/sqrt(integral_ps) + 73.88/integral_ps);
+	ratio_t = ratio/(0.09880 + 283.1/integral_ps);
       }
       if(detname == "NdetU"){
 	energy = 0.02117 + 0.0000686 * integral_ps;
-	ratio_t = ratio/(0.08944 + 6.653/sqrt(integral_ps) - 64/12/integral_ps);
+	ratio_t = ratio/(0.1116 +  337.7/integral_ps);
       }
 
       NdetRatio_map[bankname]->Fill(integral_ps, ratio);
       NdetNormRatio_map[bankname]->Fill(integral_ps, ratio_t);
-      NdetRatioEnergy_map[bankname]->Fill(energy, ratio_t);
+      NdetRatioEnergy_map[bankname]->Fill(energy, ratio);
 
 
-      (*pIter)->SetPSDParameter(ratio_t);
+      (*pIter)->SetPSDParameter(ratio);
 
       //Plot some questionable pulses
       /*

@@ -33,7 +33,7 @@ class TPulseIsland : public TObject {
   // variables added by Damien
   int64_t fTDCTime;   //correlated hit TDC time
   float fPSD_parameter;     //integral ratio, 1+ == neutron in simplest case
-  bool fVetoPulse;
+  bool fVetoPulse, fPileupPulse, fDoublePulse;
 
  public:
   /// This defaultconstructor I believe exists so ROOT can load these from file and is not used explcitly.
@@ -70,7 +70,6 @@ class TPulseIsland : public TObject {
   int64_t GetTDCTime() const { return fTDCTime; }
   float GetPSDParameter() const { return fPSD_parameter; }
 
-
   double GetClockTickInNs() const { return TSetupData::Instance()->GetClockTick(fBankName); }
   int GetTriggerPolarity() const {return TSetupData::Instance()->GetTriggerPolarity(fBankName);};
 
@@ -90,6 +89,8 @@ class TPulseIsland : public TObject {
   int GetPulseLength() const { return fSamples.size(); }
   int GetPulseIntegral() const;
   bool GetVetoPulse() const { return fVetoPulse; }
+  bool GetPileupPulse() const { return fPileupPulse; }
+  bool GetDoublePulse() const { return fDoublePulse; }
 
   /// @return Index in samples vector corresponding to pulse peak.
   int GetPeakSample() const;
@@ -98,6 +99,8 @@ class TPulseIsland : public TObject {
   double GetPedestal(int nPedSamples) const;
   //@}
   double GetIntegral() const;
+  double GetFitMax() const;
+
 
 
   void SetBankName(const std::string& name ){fBankName=name;}
@@ -107,6 +110,8 @@ class TPulseIsland : public TObject {
   void SetTDCTime(int64_t t)  { fTDCTime = t; }
   void SetPSDParameter(float PSD)  { fPSD_parameter = PSD; }
   void SetVetoPulse(bool check) { fVetoPulse = check; }
+  void SetPileupPulse(bool check) { fPileupPulse = check; }
+  void SetDoublePulse(bool check) { fDoublePulse = check; }
 
  private:
   /// Copying is made explicitly private since we do not need it yet.

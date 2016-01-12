@@ -44,6 +44,7 @@ namespace {
   const double TIME_LOW = -5e3, TIME_HIGH = 1e4;
   const double ALIGN_LOW = -100, ALIGN_HIGH = 100;
   const double VETO_LOW = -25, VETO_HIGH = 25;
+  const double PILEUP_LOW = -8e3, PILEUP_HIGH=8e3;
 }
 
 
@@ -241,6 +242,13 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	    tdiff_align = dt_cft;
 	    pulses[p]->SetTDCTime(times[a]);
 	    a1 = times[a];
+
+	    if(det == "TSc"){  	    //check this pulse for pileup
+	      if(PILEUP_LOW < TICKTDC * (times[a-1] - times[a]))
+		pulses[p]->SetPileupPulse(true);
+	      if(PILEUP_HIGH > TICKTDC * (times[a+1] - times[a]))
+		pulses[p]->SetPileupPulse(true);
+	    }
 	  }
 	  else {
 	    if(a0 > 1) a0--;//just in case we passed the next pulse
@@ -250,10 +258,11 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	}
 	//back in pulse loop
 	//check for pulse discard
-	if(nMatch != 1){
-	  pulses[p]->SetVetoPulse(true);
+	if(nMatch != 1 && det != "TSc"){
+	  pulses[p]->SetDoublePulse(true);
 	  continue;
 	}
+
 
 	for(int v = 0; v<vetos.size(); ++v){
 	  double dt = TICKTDC*(a1 - vetos[v]) - vcorr; // a1 = pulse TDC time

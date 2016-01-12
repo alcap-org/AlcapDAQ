@@ -12,16 +12,16 @@
 using std::vector;
 using std::string;
 
-TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fBankName(""), fTDCTime(0), fPSD_parameter(-1), fVetoPulse(false) {
+TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fBankName(""), fTDCTime(0), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false) {
 }
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>::const_iterator& first,
         const vector<int>::const_iterator& last, string bank_name) :
-  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(0), fPSD_parameter(-1), fVetoPulse(false) {
+  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(0), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false) {
 }
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name) :
-  fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(0), fPSD_parameter(-1), fVetoPulse(false) {
+  fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(0), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false) {
 }
 
 void TPulseIsland::Reset(Option_t* o) {
@@ -31,6 +31,8 @@ void TPulseIsland::Reset(Option_t* o) {
   fTDCTime = 0;
   fPSD_parameter = -1;
   fVetoPulse = false;
+  fPileupPulse = false;
+  fDoublePulse = false;
 }
 
 // GetAmplitude()
@@ -122,6 +124,34 @@ double TPulseIsland::GetPedestal(int nPedSamples) const {
 
   return ped;
 }
+
+double TPulseIsland::GetFitMax() const {
+  double pedestal = GetPedestal(10);
+  int nSamp = fSamples.size();
+  int polarity = GetTriggerPolarity();
+
+  TH1F* hpulse = new TH1F("hpulse", "waveform", nSamp, 0, nSamp);
+  for(int i = 0; i < nSamp; i++)
+    hpulse->SetBinContent(i, polarity *(fSamples.at(i) - pedestal));
+
+  int peak = GetPeakSample();
+  TF1* fit1 = new TF1("fit1", "gaus", 0, nSamp);
+  fit1->SetParameters(fSamples.at(peak), peak, 2);
+  if(peak < 2 || peak > nSamp - 2){
+    delete hpulse;
+    delete fit1;
+    return 0;
+  }
+  hpulse->Fit("fit1", "Q", "", peak-2, peak+2);
+
+  double max = fit1->GetParameter(0);
+  delete hpulse;
+  delete fit1;
+
+  return max;
+}
+
+
 
 double TPulseIsland::GetIntegral() const {
   std::string det = TSetupData::Instance()->GetDetectorName(fBankName);

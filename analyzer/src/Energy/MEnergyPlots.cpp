@@ -101,15 +101,16 @@ INT MEnergyPlots_BookHistograms()
     float max_amp_e = MEnergyPlots_GetEnergyAmp(detname, max_adc);
     float max_int_e = MEnergyPlots_GetEnergyInt(detname, max_bin_PS);
 
-
+    
     //hIntegralE_[detname]_[bankname]
     std::string histname = "hIntegralE_" + detname + "_" + bankname;
     std::string histtitle = "Energy of Pulses in " + detname + " (Integral)";
-    TH1F* hIntHist = new TH1F(histname.c_str(), histtitle.c_str(), max_adc, 0, max_int_e);
+    TH1F* hIntHist = new TH1F(histname.c_str(), histtitle.c_str(), max_adc/4, 0, max_int_e);
     hIntHist->GetXaxis()->SetTitle("Energy (MeV(ee)) ");
     hIntHist->GetYaxis()->SetTitle("Counts");
     IntegralEnergy_map[bankname] = hIntHist;
-
+    
+    
     //hAmplitudeE_[detname]_[bankname]
     histname = "hAmplitudeE_" + detname + "_" + bankname;
     histtitle = "Energy of Pulses in " + detname + " (Amplitude)";
@@ -117,22 +118,24 @@ INT MEnergyPlots_BookHistograms()
     hAmpHist->GetXaxis()->SetTitle("Energy (MeV(ee))");
     hAmpHist->GetYaxis()->SetTitle("Count");
     AmplitudeEnergy_map[bankname] = hAmpHist;
-
+    
+    
     //hFitE_[detname]_[bankname]
     histname = "hFitE_" + detname + "_" + bankname;
     histtitle = "Energy of Pulses in " + detname + " (Fit Amplitude)";
-    TH1F* hFitHist = new TH1F(histname.c_str(), histtitle.c_str(), max_adc, 0, max_amp_e);
+    TH1F* hFitHist = new TH1F(histname.c_str(), histtitle.c_str(), max_adc/4, 0, max_amp_e);
     hFitHist->GetXaxis()->SetTitle("Energy (MeV(ee))");
     hFitHist->GetYaxis()->SetTitle("Count");
     FitEnergy_map[bankname] = hFitHist;
-
+    
+    
     histname = "hIntegralVAmp" + bankname;
     histtitle = "Integral vs Amplitude for " + bankname;
     TH2F* hIntVAmp = new TH2F(histname.c_str(), histtitle.c_str(), max_adc/4, 0, max_int_e, max_adc/4, 0, max_amp_e);
     hIntVAmp->GetYaxis()->SetTitle("Amplitude (pedestal_subtracted)");
     hIntVAmp->GetXaxis()->SetTitle("Integral (pedestal_subtracted)");
     IntegralVAmplitude_map[bankname] = hIntVAmp;
-
+    
   }
 
   cwd->cd();
@@ -258,20 +261,22 @@ INT MEnergyPlots(EVENT_HEADER *pheader, void *pevent)
       double fit_max = fit1->GetParameter(0);
       delete hPulse;
       delete fit1;
-      */   
+      */ 
       //////////////  Fill Hists  ///////////////////////
       delete hPulse;
       if(overflow) continue;
 
+      double fit_max = (*pIter)->GetFitMax();
+
       float energy_amp = MEnergyPlots_GetEnergyAmp(detname, max);
       float energy_int = MEnergyPlots_GetEnergyInt(detname, integral_ps);
-      //float energy_fit = MEnergyPlots_GetEnergyFit(detname, fit_max);
+      float energy_fit = MEnergyPlots_GetEnergyFit(detname, fit_max);
 
       if(energy_int < 0.025) continue;
 
       IntegralEnergy_map[bankname]->Fill(energy_int);
       AmplitudeEnergy_map[bankname]->Fill(energy_amp);
-      //FitEnergy_map[bankname]->Fill(energy_fit);
+      FitEnergy_map[bankname]->Fill(energy_fit);
       IntegralVAmplitude_map[bankname]->Fill(energy_int, energy_amp);
 
     }
@@ -307,8 +312,8 @@ float MEnergyPlots_GetEnergyFit(std::string detname, double fit_amp){
   float energy = 0;
   if(detname == "NdetD"){ energy = (fit_amp * 0.0003914) + 0.0289;  }
   if(detname == "NdetU"){ energy = (fit_amp * 0.0004381) + 0.0257;  }
-  if(detname == "GeCHEH"){ energy = (fit_amp * 0.0001522) - 0.0004239;  }
-  if(detname == "GeCHEL"){ energy = (fit_amp * 0.0003858) - 0.0017;    }
+  if(detname == "GeCHEH"){ energy = (fit_amp * 0.0001519) + 0.0002643;  }
+  if(detname == "GeCHEL"){ energy = (fit_amp * 0.0003846) - 0.0003008;    }
   if(detname == "LaBr3"){ energy = (fit_amp * 0.00163022) - 0.00836618;  } 
 
   return energy;
