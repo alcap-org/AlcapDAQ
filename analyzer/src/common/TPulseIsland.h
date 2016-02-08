@@ -80,12 +80,13 @@ class TPulseIsland : public TObject {
   /// @return An histogram representing the pulse for drawing or fitting.
   TH1I* GetPulseWaveform(std::string histname, std::string histtitle) const;
   int GetPulseLength() const { return fSamples.size(); }
-  int GetPulseIntegral() const;
+  double GetPulseIntegral() const;
 
   /// @return Index in samples vector corresponding to pulse peak.
   int GetPeakSample() const;
   /// @param[in] nPedSamples Deprecated
   /// @return Pedestal as stored in ODB
+  double GetPedestal() const {return TSetupData::Instance()->GetPedestal(fBankName);};
   double GetPedestal(int nPedSamples) const;
   //@}
 

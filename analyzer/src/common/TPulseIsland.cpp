@@ -64,7 +64,7 @@ double TPulseIsland::GetPulseHeight() const {
   //double pedestal = GetPedestal(10);
   int peak_sample_element = GetPeakSample();
 
-  return ( GetTriggerPolarity()*(fSamples.at(peak_sample_element) ) );
+  return ( (fSamples.at(peak_sample_element) ) );
 }
 
 double TPulseIsland::GetPulseTime() const {
@@ -111,10 +111,16 @@ TH1I* TPulseIsland::GetPulseWaveform(std::string histname, std::string histtitle
   return hWaveform;
 }
 
-int TPulseIsland::GetPulseIntegral() const {
-  return GetTriggerPolarity() *
-    std::accumulate(fSamples.begin(), fSamples.end(),
-		    fSamples.size()*GetPedestal(10));
+double TPulseIsland::GetPulseIntegral() const {
+  int pedestal = GetPedestal(); //printf(" ped %d pol %d\n", pedestal,GetTriggerPolarity());
+  double sum=0.;
+  for(int i = 0; i < fSamples.size(); i++)
+  {
+    sum = sum + GetTriggerPolarity()*(fSamples.at(i)-pedestal); 
+  }
+//  return GetTriggerPolarity() * std::accumulate(fSamples.begin(), fSamples.end(),  pedestal);
+  //printf("polarity %d, sum %f , pedestal %d , PulseHeight %f\n", GetTriggerPolarity(), sum, pedestal,GetPulseHeight()); 
+  return sum;
 }
 
 

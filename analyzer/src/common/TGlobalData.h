@@ -10,6 +10,7 @@
 #include <TObject.h>
 #include "TPulseIsland.h"
 #include "TMuPCCluster.h"
+#include "TGeHit.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief
@@ -43,6 +44,12 @@ class TGlobalData : public TObject{
 
   /// Map of bank name to vector of TDC hits
   std::map< std::string, std::vector<int64_t> > fTDCHitsToChannelMap;
+  
+  //Ge detector hits
+  std::vector<TGeHit*> fGeHits;
+  void AddGeHit(TGeHit* hit){fGeHits.push_back(hit);}
+  std::vector<TGeHit* > GetGeHits() { return fGeHits; }
+  void ClearGeHits() { fGeHits.clear(); }
 
   /// Pulse alignment
   /// The index of the TDC synchronization pulse that aligns with the
