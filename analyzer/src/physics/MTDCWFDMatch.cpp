@@ -5,6 +5,7 @@
 #include <map>
 #include <utility>
 #include <cmath>
+#include <sstream>
 
 /* MIDAS includes */
 #include "midas.h"
@@ -43,10 +44,11 @@ namespace {
   TH2D* vvhTDCWFDMatch_CutAlign[NCRATE][MAXNCHANWFD];
   const double TIME_LOW = -5e3, TIME_HIGH = 1e4;
   const double ALIGN_LOW = -100, ALIGN_HIGH = 100;
-  const double VETO_LOW = -25, VETO_HIGH = 25;
-  const double PILEUP_LOW = -8e3, PILEUP_HIGH=8e3;
+  const double VETO_LOW = -15, VETO_HIGH = 15;
+  const double PILEUP_LOW = -2e3, PILEUP_HIGH=2e3;
 }
 
+INT plotCount = 0;
 
 ANA_MODULE MTDCWFDMatch_module =
 {
@@ -101,14 +103,14 @@ INT MTDCWFDMatch_init() {
       ////////////////Alignment//////////////////
       char histname[64]; sprintf(histname, "hTCorrTest_Align_%s", det.c_str());
       char histtitle[64]; sprintf(histtitle, "TDC WFD Alignment for %s", det.c_str());
-      vvhTDCWFDMatch_Align[icrate][ich] = new TH2D(histname, histtitle, (ALIGN_HIGH-ALIGN_LOW), ALIGN_LOW*2, ALIGN_HIGH*2, max_adc/4, 0, max_adc);
+      vvhTDCWFDMatch_Align[icrate][ich] = new TH2D(histname, histtitle, 10*(ALIGN_HIGH-ALIGN_LOW), ALIGN_LOW*50, ALIGN_HIGH*50, max_adc/4, 0, max_adc);
       vvhTDCWFDMatch_Align[icrate][ich]->GetXaxis()->SetTitle("Alignment Difference (ns)");
       vvhTDCWFDMatch_Align[icrate][ich]->GetYaxis()->SetTitle("Energy (MeV)");
 
       /////////////// Cut Alignment //////////////////
       sprintf(histname, "hTCorrTest_CutAlign_%s", det.c_str());
       sprintf(histtitle, "TDC WFD Alignment for %s after cut", det.c_str());
-      vvhTDCWFDMatch_CutAlign[icrate][ich] = new TH2D(histname, histtitle, (ALIGN_HIGH-ALIGN_LOW), ALIGN_LOW*2, ALIGN_HIGH*2, max_adc/4, 0, max_adc);
+      vvhTDCWFDMatch_CutAlign[icrate][ich] = new TH2D(histname, histtitle, 5*(ALIGN_HIGH-ALIGN_LOW), ALIGN_LOW*2, ALIGN_HIGH*2, max_adc/4, 0, max_adc);
       vvhTDCWFDMatch_CutAlign[icrate][ich]->GetXaxis()->SetTitle("Alignment Difference (ns)");
       vvhTDCWFDMatch_CutAlign[icrate][ich]->GetYaxis()->SetTitle("Energy (MeV)");
 
@@ -161,6 +163,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
       if(det == "NdetD") vcorr = 52;
       if(det == "NdetU") vcorr = 40;
 
+      int trigCount = 0;
 
 
       //two loops, pulse loop
@@ -180,7 +183,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	float tThreshold = 0;
 	float threshold = MTDCWFDMatch_Threshold(det);
 	float cf = 0, cft_init = 0, cf_init = 0, cft = 0;
-	float tdiff_align = 0;
+	float tdiff_align = -15000;
 
 	//plot waveform for CFT
 	TH1I* hpulse = new TH1I("hpulse", "Waveform", nSamp, 0, nSamp);
@@ -226,28 +229,46 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	//max = amp, cft = time, integral_ps = int
 	double CFT = (pulses[p]->GetTimeStamp() - tThreshold + cft) * TICKWFD[icrate];
 
+	//std::cout << "Times : CFT " << CFT << " timestamp " << pulses[p]->GetTimeStamp() * TICKWFD[icrate] << std::endl;
+	//if(p+1 < pulses.size()) std::cout << "TDiff : " << pulses[p+1]->GetTimeStamp() - pulses[p]->GetTimeStamp() << std::endl;
+
 	//a0 set to zero before pulse loop
 	// alignment loop
 
 	int64_t a1 = 0;
 	int nMatch = 0;
+	bool plot = false;
+	double trigTimes[6] = {0, 0, 0, 0, 0, 0};
 	for(int a = a0; a<times.size(); ++a){
 	  double dt_cft = TICKTDC*times[a] - CFT - toff+tcorr;
 
-	  if(dt_cft > 2*(ALIGN_LOW - aligncorr)) vvhTDCWFDMatch_Align[icrate][ich]->Fill(dt_cft, max);
+	  if(dt_cft > 2*(ALIGN_LOW - aligncorr)){
+	    vvhTDCWFDMatch_Align[icrate][ich]->Fill(dt_cft, max);
+	    //plot = true;
+	    //trigTimes[trigCount] = times[a];
+	    //trigCount++;
+	  }
 
 	  if(dt_cft < ALIGN_LOW-aligncorr) { a0++; continue; }
 	  else if(dt_cft < ALIGN_HIGH + aligncorr) {
+	    if(nMatch == 0) {
+	      tdiff_align = dt_cft;
+	      pulses[p]->SetTDCTime(times[a]);
+	      a1 = times[a];
+	    }
+	    //if(nMatch >= 1) plot = true;
 	    nMatch++;
-	    tdiff_align = dt_cft;
-	    pulses[p]->SetTDCTime(times[a]);
-	    a1 = times[a];
-
 	    if(det == "TSc"){  	    //check this pulse for pileup
-	      if(PILEUP_LOW < TICKTDC * (times[a-1] - times[a]))
+	      if(p+1 >= pulses.size()) continue;
+	      double pileupTime = TICKWFD[icrate] * (pulses[p+1]->GetTimeStamp() - pulses[p]->GetTimeStamp() );
+	      if(PILEUP_LOW < pileupTime && PILEUP_HIGH > pileupTime){
 		pulses[p]->SetPileupPulse(true);
-	      if(PILEUP_HIGH > TICKTDC * (times[a+1] - times[a]))
-		pulses[p]->SetPileupPulse(true);
+		//std::cout << "Pileup pulse : " << pileupTime << " " << pulses[p+1]->GetTimeStamp() << " " << pulses[p]->GetTimeStamp() << std::endl;
+		if(nMatch == 1) trigCount++;
+		plot = true;
+	      }
+	      //if(PILEUP_HIGH > TICKTDC * (times[a+1] - times[a]))
+	      //pulses[p]->SetPileupPulse(true);
 	    }
 	  }
 	  else {
@@ -258,11 +279,12 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	}
 	//back in pulse loop
 	//check for pulse discard
-	if(nMatch != 1 && det != "TSc"){
+	
+	if(nMatch >= 2 && det != "TSc"){
 	  pulses[p]->SetDoublePulse(true);
 	  continue;
 	}
-
+	
 
 	for(int v = 0; v<vetos.size(); ++v){
 	  double dt = TICKTDC*(a1 - vetos[v]) - vcorr; // a1 = pulse TDC time
@@ -274,14 +296,26 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	  }
 
 	}
+	
+	if(plot == true && det == "TSc" && plotCount < 20 && tdiff_align > 10 && tdiff_align < 13 && max > 2000){
+	  plotCount++;
+	  //if further needed, plot waveforms
+	  std::stringstream ss;
+	  ss << plotCount;
+	  std::string histname = "TDCWFDMatch_" + ss.str();
+	  std::string histtitle = "TSc odd time waveform " + ss.str();
+	  TH1F* hIPulse = new TH1F(histname.c_str(), histtitle.c_str(), nSamp, 0, nSamp);
+	  for(int l = 0; l< nSamp; l++)
+	    hIPulse->Fill(l, samples.at(l));
+
+	}
+	
 
 	if(pulses[p]->GetVetoPulse()) continue;
 	vvhTDCWFDMatch_CutAlign[icrate][ich]->Fill(tdiff_align, max);
 
-
-
       }
-
+      //std::cout << trigCount << std::endl;
     }
   }
 

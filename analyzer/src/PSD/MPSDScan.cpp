@@ -43,6 +43,7 @@ std::map<int, TH2F*> NdetDRatio_map, NdetURatio_map, NdetURatioEnergy_map, NdetD
 
 bool PSD_firstEvent = true;
 int PSD_counter = 0;
+int PSDInt_counter = 0;
 
 ANA_MODULE MPSDScan_module =
 {
@@ -534,25 +535,28 @@ INT MPSDScan(EVENT_HEADER *pheader, void *pevent)
 	  NdetURatioEnergy_map[k]->Fill(energy, ratio);
 	}
 
+	if(k != 3) continue;
+	bool plot = false;
+	if(energy > 1 && energy < 3) plot = true;
+	if(ratio > 0.26 && ratio < 0.32) plot = true;
+	if(PSDInt_counter < 40 && detname == "NdetU" && plot){
+	  std::stringstream ss;
+	  ss << PSDInt_counter;
+	  std::string histname = "hPSDIntPulse" + ss.str();
+	  std::string histtitle = "High Ratio Waveform" + ss.str();
+	  TH1F* hIPulse = new TH1F(histname.c_str(), histtitle.c_str(), nSamp, 0, nSamp);
+	  for(int j = 0; j < nSamp; j++)
+	    hIPulse->Fill(j, samples.at(j));
+	  PSDInt_counter++;
+	}
+
       }
       //(*pIter)->SetPSDParameter(ratio);
 
       //Plot some questionable pulses
-      /*
-      bool plot = false;
-      if(integral_ps > 65000 && integral_ps < 66000) plot = true;
-      if(ratio > 0.1 && ratio < 0.115) plot = true;
-      if(PSDInt_counter < 20 && detname == "NdetD" && plot){
-	std::stringstream ss;
-	ss << PSDInt_counter;
-	std::string histname = "hPSDIntPulse" + ss.str();
-	std::string histtitle = "High Integral Waveform" + ss.str();
-	TH1F* hIPulse = new TH1F(histname.c_str(), histtitle.c_str(), nSamp, 0, nSamp);
-	for(int j = 0; j < nSamp; j++)
-	  hIPulse->Fill(j, samples.at(j));
-      PSDInt_counter++;
-      }
-      */
+      
+
+      
     }
 
   }
