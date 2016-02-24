@@ -296,7 +296,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	  }
 
 	}
-	
+	/*
 	if(plot == true && det == "TSc" && plotCount < 20 && tdiff_align > 10 && tdiff_align < 13 && max > 2000){
 	  plotCount++;
 	  //if further needed, plot waveforms
@@ -309,7 +309,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	    hIPulse->Fill(l, samples.at(l));
 
 	}
-	
+	*/
 
 	if(pulses[p]->GetVetoPulse()) continue;
 	vvhTDCWFDMatch_CutAlign[icrate][ich]->Fill(tdiff_align, max);

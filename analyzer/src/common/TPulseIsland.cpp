@@ -12,23 +12,23 @@
 using std::vector;
 using std::string;
 
-TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fBankName(""), fTDCTime(0), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false) {
+TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fBankName(""), fTDCTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false) {
 }
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>::const_iterator& first,
         const vector<int>::const_iterator& last, string bank_name) :
-  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(0), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false) {
+  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false) {
 }
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name) :
-  fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(0), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false) {
+  fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false) {
 }
 
 void TPulseIsland::Reset(Option_t* o) {
   fTimeStamp = 0;
   fSamples.clear();
   fBankName = "";
-  fTDCTime = 0;
+  fTDCTime = -1;
   fPSD_parameter = -1;
   fVetoPulse = false;
   fPileupPulse = false;

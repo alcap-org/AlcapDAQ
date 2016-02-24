@@ -231,7 +231,9 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 
 
 	//loop over TTSc times
+	if(pulses[p]->GetTDCTime() < 0) continue;
 	for(int t = t0; t<ref_hits.size(); ++t){
+	  if(ref_hits[t]->GetTDCTime() < 0) continue;
 	  double dt = TICKTDC*(pulses[p]->GetTDCTime() - ref_hits[t]->GetTDCTime());
 	  if(dt < TIME_LOW) break;
 	  else if(dt < TIME_HIGH){
