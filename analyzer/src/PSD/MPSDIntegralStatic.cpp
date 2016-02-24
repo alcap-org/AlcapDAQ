@@ -109,53 +109,54 @@ INT MPSDIntegralStatic_BookHistograms()
     NdetNormRatio_map[bankname] = hNdetNormRatio;
     */
     
-      histname = "h" + detname + "RatioEnergyS";
-      histtitle = "Integral Ratio vs Energy for " + detname;
-      TH2F* hNdetERatio = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, 7.5, 600, 0, 0.5);
-      hNdetERatio->GetYaxis()->SetTitle("Integral Ratio");
-      hNdetERatio->GetXaxis()->SetTitle("Energy (MeVee)");
-      NdetRatioEnergyS_map[bankname] = hNdetERatio;
+    histname = "h" + detname + "RatioEnergyS";
+    histtitle = "Integral Ratio vs Energy for " + detname;
+    TH2F* hNdetERatio = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, 7.5, 600, 0, 0.5);
+    hNdetERatio->GetYaxis()->SetTitle("Integral Ratio");
+    hNdetERatio->GetXaxis()->SetTitle("Energy (MeVee)");
+    NdetRatioEnergyS_map[bankname] = hNdetERatio;
 
 
-      histname = "h" + detname + "_FullvTail";
-      histtitle = "Full Integral vs Tail Integral for " + detname;
-      TH2F* hNdetIntegrals = new TH2F(histname.c_str(), histtitle.c_str(), 2000, 0, 100000, 1000, 0, 20000);
-      hNdetIntegrals->GetYaxis()->SetTitle("Tail Integral");
-      hNdetIntegrals->GetXaxis()->SetTitle("Full Integral");
-      NdetIntegrals_map[bankname] = hNdetIntegrals;
+    histname = "h" + detname + "_FullvTail";
+    histtitle = "Full Integral vs Tail Integral for " + detname;
+    TH2F* hNdetIntegrals = new TH2F(histname.c_str(), histtitle.c_str(), 2000, 0, 100000, 1000, 0, 20000);
+    hNdetIntegrals->GetYaxis()->SetTitle("Tail Integral");
+    hNdetIntegrals->GetXaxis()->SetTitle("Full Integral");
+    NdetIntegrals_map[bankname] = hNdetIntegrals;
 
-      histname = "h" + detname + "_TailVEnergy";
-      histtitle = "Tail Integral vs energy for " + detname;
-      TH2F* hNdetEIntegral = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, 6.75, 1000, 0, 20000);
-      hNdetEIntegral->GetYaxis()->SetTitle("Tail Integral");
-      hNdetEIntegral->GetXaxis()->SetTitle("Energy (MeVee)");
-      NdetIntegralE_map[bankname] = hNdetEIntegral;
+    histname = "h" + detname + "_TailVEnergy";
+    histtitle = "Tail Integral vs energy for " + detname;
+    TH2F* hNdetEIntegral = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, 6.75, 1000, 0, 20000);
+    hNdetEIntegral->GetYaxis()->SetTitle("Tail Integral");
+    hNdetEIntegral->GetXaxis()->SetTitle("Energy (MeVee)");
+    NdetIntegralE_map[bankname] = hNdetEIntegral;
 
-      
-      std::string outTitle = detname + ".dat";
-      std::ofstream *outfile = new std::ofstream(outTitle.c_str(), std::ios::trunc);
-      waveforms[bankname] = outfile;
-      
+    /*
+    std::string outTitle = detname + ".dat";
+    std::ofstream *outfile = new std::ofstream(outTitle.c_str(), std::ios::trunc);
+    waveforms[bankname] = outfile;
+    */
   }
 
 
 
 
   cwd->cd();
-  gDirectory->mkdir("PSDIntegralStatic_Unknown");
-  gDirectory->mkdir("PSDIntegralStatic_Neutron");
-  gDirectory->mkdir("PSDIntegralStatic_Gamma");
+  //gDirectory->mkdir("PSDIntegralStatic_Unknown");
+  //gDirectory->mkdir("PSDIntegralStatic_Neutron");
+  //gDirectory->mkdir("PSDIntegralStatic_Gamma");
   return SUCCESS;
 }
 
 INT MPSDIntegral_eor(INT run_number)
 {
-  
+  /*
   for(std::map<std::string, std::ofstream*>::const_iterator mIter = waveforms.begin(); mIter != waveforms.end(); mIter++){
     std::ofstream *outfile = mIter->second;
     outfile->close();
   }
-  
+  */
+
   /*  
   gDirectory->mkdir("PSDIntegral/NdetD_FoM");
   gDirectory->mkdir("PSDIntegral/NdetU_FoM");
@@ -316,7 +317,6 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
 
       /////////////////long gate//////////////////////////////////////
 
-      //integrate first sample (trapezoidal with linear interpolation)
       int lastSamp = 0;
       //integrate bulk, Simpson's rule
       for(int i = tLstart; i+2 <= tstop; i += 2){
@@ -330,11 +330,11 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
 	lIntPed += pedSlope*(tstop) + pedBegin;
       }
 
-      lInt -= lIntPed;
-      lInt *= polarity;
+      lInt = polarity * (lInt - lIntPed);
 
       ///////////////short gate///////////////////////////////////
 
+      lastSamp = 0;
       //integrate bulk, Simpson's rule
       for(int i = tSstart; i+2 <= tstop; i += 2){
 	sInt += (samples.at(i) + (4*samples.at(i+1)) + samples.at(i+2))/3;
@@ -347,8 +347,7 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
 	sIntPed += pedSlope*(tstop) + pedBegin;
       }
 
-      sInt -= sIntPed;
-      sInt *= polarity;
+      sInt = polarity * (sInt - sIntPed);
 
       /////////////////////////////////////////////////////////
 
@@ -376,6 +375,8 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
 
       (*pIter)->SetPSDParameter(ratio);
 
+
+      /*
       //Plot some questionable pulses
       if(PSDIntS_counter >= 20 && PSDIntS2_counter >= 20 && PSDIntS3_counter >= 20) continue;
       
@@ -454,7 +455,7 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
 	PSDIntS3_counter++;
 	gDirectory->cd("..");
       }
-
+      */
     }
   }
 

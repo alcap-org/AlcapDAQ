@@ -41,7 +41,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-std::map<int,TH2F*> NdetDFGA_map, NdetUFGA_map, NdetDFGAE_map, NdetUFGAE_map;
+std::map<std::string,TH2F*> NdetFGA_map, NdetFGAE_map;
 
 
 bool PSDFGA_firstEvent = true;
@@ -89,33 +89,21 @@ INT MPSDFGA_BookHistograms()
     int n_samples = samples.size();
     const int max_adc = std::pow(2, gSetup->GetNBits(bankname));
 
-    for(int i = 0; i < 4; i++){
-      std::stringstream ss;
-      ss << 70 + i * 10;
 
-      std::string histname = "h" + detname + "_FGA" + ss.str();
-      std::string histtitle = "FGA PSD for " + detname + " with tail end " +ss.str();
-      TH2F* hNdetFGA = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, max_adc, 800, 0, 0.9);
-      hNdetFGA->GetYaxis()->SetTitle("1 - (F(1)/F(0))^2");
-      hNdetFGA->GetXaxis()->SetTitle("Pulse Height (adc count)");
+    std::string histname = "h" + detname + "_FGA";
+    std::string histtitle = "FGA PSD for " + detname + " with tail end ";
+    TH2F* hNdetFGA = new TH2F(histname.c_str(), histtitle.c_str(), max_adc/4, 0, max_adc, 800, 0, 0.9);
+    hNdetFGA->GetYaxis()->SetTitle("1 - (F(1)/F(0))^2");
+    hNdetFGA->GetXaxis()->SetTitle("Pulse Height (adc count)");
+    NdetFGA_map[bankname] = hNdetFGA;
 
 
-      histname = "h" + detname + "_FGAE" +ss.str();
-      histtitle = "FGA PSD vs Energy for " + detname + " with tail end " +ss.str();
-      TH2F* hNdetFGAE = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, 6.75, 800, 0, 0.9);
-      hNdetFGAE->GetYaxis()->SetTitle("1 - (F(1)/F(0))^2");
-      hNdetFGAE->GetXaxis()->SetTitle("Energy (MeVee)");
-
-      if(detname == "NdetD"){
-	NdetDFGA_map[i] = hNdetFGA;
-	NdetDFGAE_map[i] = hNdetFGAE;
-      }
-      if(detname == "NdetU"){
-	NdetUFGA_map[i] = hNdetFGA;
-	NdetUFGAE_map[i] = hNdetFGAE;
-      }
-
-    }
+    histname = "h" + detname + "_FGAE";
+    histtitle = "FGA PSD vs Energy for " + detname + " with tail end ";
+    TH2F* hNdetFGAE = new TH2F(histname.c_str(), histtitle.c_str(), max_adc/4, 0, 6.75, 800, 0, 0.9);
+    hNdetFGAE->GetYaxis()->SetTitle("1 - (F(1)/F(0))^2");
+    hNdetFGAE->GetXaxis()->SetTitle("Energy (MeVee)");
+    NdetFGAE_map[bankname] = hNdetFGAE;
 
   }
 
@@ -212,40 +200,35 @@ INT MPSDFGA(EVENT_HEADER *pheader, void *pevent)
 
       //////////FGA Algorithm//////////////////////////////////
 
-      for(int j = 0; j < 4; j++){
-	int length = 70 + (j * 10);
-	if(tMax + length > samples.size()) continue;
-	float sum1 = 0, sumcos = 0, sumsin = 0;
-	float avg1 = 0, avg0 = 0;
-	float tmp = 0, diff = 0, energy = 0;
-	float coef = 2 * 3.14159 / length;
+      int length = 80;
+      if(tMax + length > samples.size()) continue;
+      float sum1 = 0, sumcos = 0, sumsin = 0;
+      float avg1 = 0, avg0 = 0;
+      float tmp = 0, diff = 0, energy = 0;
+      float coef = 2 * 3.14159 / length;
 
-	for(int i = tMax; i < tMax + length; i++){
-	  tmp = (polarity * (samples.at(i) - pedBegin) ) / max_ps;
-	  sum1 += tmp;
-	  sumcos += tmp * cos(coef * i);
-	  sumsin += tmp * sin(coef * i);
-	}
-
-	avg1 = sqrt(sumcos * sumcos + sumsin * sumsin);
-	avg0 = abs(sum1);
-
-	diff = avg0 - avg1;
-	float ratiosq = 1 - ( (avg1 * avg1) / (avg0 * avg0) );
-
-	//fill the histograms
-
-	if(detname == "NdetD"){
-	  energy = 0.008234 + 0.0003999 * max_ps;
-	  NdetDFGA_map[j]->Fill(max_ps, ratiosq);
-	  NdetDFGAE_map[j]->Fill(energy, ratiosq);
-	}
-	if(detname == "NdetU"){
-	  energy = 0.009037 + 0.0004015 * max_ps;
-	  NdetUFGA_map[j]->Fill(max_ps, ratiosq);
-	  NdetUFGAE_map[j]->Fill(energy, ratiosq);
-	}
+      for(int i = tMax; i < tMax + length; i++){
+	tmp = (polarity * (samples.at(i) - pedBegin) ) / max_ps;
+	sum1 += tmp;
+	sumcos += tmp * cos(coef * i);
+	sumsin += tmp * sin(coef * i);
       }
+
+      avg1 = sqrt(sumcos * sumcos + sumsin * sumsin);
+      avg0 = abs(sum1);
+
+      diff = avg0 - avg1;
+      float ratiosq = 1 - ( (avg1 * avg1) / (avg0 * avg0) );
+
+      //fill the histograms
+
+      if(detname == "NdetD") energy = 0.008234 + 0.0003999 * max_ps;
+	
+      if(detname == "NdetU") energy = 0.009037 + 0.0004015 * max_ps;
+
+      NdetFGA_map[bankname]->Fill(max_ps, ratiosq);
+      NdetFGAE_map[bankname]->Fill(energy, ratiosq);
+      
 
       /*
       //Plot some questionable pulses
