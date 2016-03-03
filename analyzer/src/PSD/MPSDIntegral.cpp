@@ -38,7 +38,8 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-std::map<std::string,TH2F*> NdetRatio_map, NdetNormRatio_map, NdetRatioEnergy_map;
+std::map<std::string,TH2F*> NdetRatio_map, NdetRatioEnergy_map;
+//std::map<std::string,TH2F*> NdetNormRatio_map;
 std::map<int, TH1D*> NdetDIFoM_map, NdetUIFoM_map;
 
 bool PSDInt_firstEvent = true;
@@ -96,21 +97,21 @@ INT MPSDIntegral_BookHistograms()
     hNdetRatio->GetXaxis()->SetTitle("Integral (pedestal subtracted)");
     NdetRatio_map[bankname] = hNdetRatio;
 
-
+    /*
     histname = "h" + detname + "_NormRatio";
     histtitle = "Integral Ratio vs Integral for " + detname;
     TH2F* hNdetNormRatio = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, max_bin, 600, 0, 2.5);
     hNdetNormRatio->GetYaxis()->SetTitle("Integral Ratio");
     hNdetNormRatio->GetXaxis()->SetTitle("Integral (pedestal subtracted)");
     NdetNormRatio_map[bankname] = hNdetNormRatio;
+    */
     
-    
-      histname = "h" + detname + "RatioEnergy";
-      histtitle = "Integral Ratio vs Energy for " + detname;
-      TH2F* hNdetERatio = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, 7.5, 600, 0, 2.5);
-      hNdetERatio->GetYaxis()->SetTitle("Integral Ratio");
-      hNdetERatio->GetXaxis()->SetTitle("Energy (MeVee)");
-      NdetRatioEnergy_map[bankname] = hNdetERatio;
+    histname = "h" + detname + "RatioEnergy";
+    histtitle = "Integral Ratio vs Energy for " + detname;
+    TH2F* hNdetERatio = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, 7.5, 600, 0, 0.45);
+    hNdetERatio->GetYaxis()->SetTitle("Integral Ratio");
+    hNdetERatio->GetXaxis()->SetTitle("Energy (MeVee)");
+    NdetRatioEnergy_map[bankname] = hNdetERatio;
 
   }
 
@@ -345,7 +346,7 @@ INT MPSDIntegral(EVENT_HEADER *pheader, void *pevent)
       }
 
       NdetRatio_map[bankname]->Fill(integral_ps, ratio);
-      NdetNormRatio_map[bankname]->Fill(integral_ps, ratio_t);
+      //NdetNormRatio_map[bankname]->Fill(integral_ps, ratio_t);
       NdetRatioEnergy_map[bankname]->Fill(energy, ratio);
 
 

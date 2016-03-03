@@ -41,16 +41,16 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-std::map<std::string,TH2F*> NdetRatioS_map, /*NdetNormRatioS_map,*/ NdetRatioEnergyS_map, NdetIntegrals_map, NdetIntegralE_map;
+std::map<std::string,TH2F*> NdetRatioS_map, NdetRatioEnergyS_map, NdetIntegrals_map, NdetIntegralE_map;
 //std::map<int, TH1D*> NdetDIFoMS_map, NdetUIFoMS_map;
-static std::map<std::string, std::ofstream*> waveforms;
+//static std::map<std::string, std::ofstream*> waveforms;
 
 bool PSDIntS_firstEvent = true;
 int PSDIntS_counter = 0, PSDIntS2_counter = 0, PSDIntS3_counter = 0;
 
 ANA_MODULE MPSDIntegralStatic_module =
 {
-	"MPSDIntegral",                /* module name           */
+	"MPSDIntegralStatic",          /* module name           */
 	"Damien Alexander",            /* author                */
 	MPSDIntegralStatic,            /* event routine         */
 	NULL,                          /* BOR routine           */
@@ -99,19 +99,10 @@ INT MPSDIntegralStatic_BookHistograms()
     hNdetRatio->GetYaxis()->SetTitle("Integral Ratio");
     hNdetRatio->GetXaxis()->SetTitle("Pulse Height (adc count)");
     NdetRatioS_map[bankname] = hNdetRatio;
-
-    /*
-    histname = "h" + detname + "_NormRatio";
-    histtitle = "Integral Ratio vs Integral for " + detname;
-    TH2F* hNdetNormRatio = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, max_bin, 600, 0, 2.5);
-    hNdetNormRatio->GetYaxis()->SetTitle("Integral Ratio");
-    hNdetNormRatio->GetXaxis()->SetTitle("Integral (pedestal subtracted)");
-    NdetNormRatio_map[bankname] = hNdetNormRatio;
-    */
     
     histname = "h" + detname + "RatioEnergyS";
     histtitle = "Integral Ratio vs Energy for " + detname;
-    TH2F* hNdetERatio = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, 7.5, 600, 0, 0.5);
+    TH2F* hNdetERatio = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, 7.5, 600, 0, 0.45);
     hNdetERatio->GetYaxis()->SetTitle("Integral Ratio");
     hNdetERatio->GetXaxis()->SetTitle("Energy (MeVee)");
     NdetRatioEnergyS_map[bankname] = hNdetERatio;
@@ -357,18 +348,15 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
       //fill the histograms
       ratio = sInt/lInt;
 
-      float energy=0; //, ratio_t = 0;
+      float energy=0;
       if(detname == "NdetD"){
 	energy = 0.008234 + 0.0003999 * max_ps;
-	//ratio_t = ratio/(0.09880 + 283.1/integral_ps);
       }
       if(detname == "NdetU"){
 	energy = 0.009037 + 0.0004015 * max_ps;
-	//ratio_t = ratio/(0.1116 +  337.7/integral_ps);
       }
 
       NdetRatioS_map[bankname]->Fill(max_ps, ratio);
-      //NdetNormRatio_map[bankname]->Fill(integral_ps, ratio_t);
       NdetRatioEnergyS_map[bankname]->Fill(energy, ratio);
       NdetIntegrals_map[bankname]->Fill(lInt, sInt);
       NdetIntegralE_map[bankname]->Fill(energy, sInt);
