@@ -254,15 +254,16 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
       //////////////full integral/////////////////////////////////
        
       for(int i = 0; i+2 < nSamp; i += 2){
-	if((samples.at(i) == 0 || samples.at(i+1) == 0) || (samples.at(i) == max_adc || samples.at(i+1) == max_adc)){ 
-	  overflow = true; break;
-	}
+
 	integral += (samples.at(i) + (4*samples.at(i+1)) + samples.at(i+2))/3;
 	if(samples.at(i) < max){
 	  max = samples.at(i); tMax = i;
 	}
 	if(samples.at(i+1) < max){
 	  max = samples.at(i+1); tMax = i+1;
+	}
+	if((samples.at(i) == 0 || samples.at(i+1) == 0) || (samples.at(i) == max_adc || samples.at(i+1) == max_adc)){ 
+	  overflow = true; break;
 	}
       }
       if(nSamp % 2 == 0) //need to include last point
@@ -342,7 +343,7 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
 
       /////////////////////////////////////////////////////////
 
-      if(overflow) continue;
+      //if(overflow) continue;
 
 
       //fill the histograms

@@ -51,6 +51,8 @@ bool PSDIntTest_firstEvent = true;
 int PSDIntTestND_count = 0, PSDIntTestGD_count = 0, PSDIntTestAD_count = 0;
 int PSDIntTestNU_count = 0, PSDIntTestGU_count = 0, PSDIntTestAU_count = 0;
 
+extern TH1F* hDQ_TDCCheck_nMuons;
+
 ANA_MODULE MPSDIntTest_module =
 {
 	"MPSDIntTest",                 /* module name           */
@@ -98,21 +100,21 @@ INT MPSDIntTest_BookHistograms()
     
     std::string histname = "h" + detname + "_Neutron";
     std::string histtitle = detname + " Neutrons over 1.5 MeV";
-    TH1I* hNeutronCount = new TH1I(histname.c_str(), histtitle.c_str(), 5500, 500, 6000);
+    TH1I* hNeutronCount = new TH1I(histname.c_str(), histtitle.c_str(), 1000, 0, 0.001);
     hNeutronCount->GetYaxis()->SetTitle("");
     hNeutronCount->GetXaxis()->SetTitle("Count");
     NeutronCount_map[bankname] = hNeutronCount;
 
     histname = "h" + detname + "_Alt";
     histtitle = detname + " Alternate Waveforms over 1.5 MeV";
-    TH1I* hAltCount = new TH1I(histname.c_str(), histtitle.c_str(), 300, 0, 300);
+    TH1I* hAltCount = new TH1I(histname.c_str(), histtitle.c_str(), 1000, 0, 0.00001);
     hAltCount->GetYaxis()->SetTitle("");
     hAltCount->GetXaxis()->SetTitle("Count");
     AltCount_map[bankname] = hAltCount;
 
     histname = "h" + detname + "_Gamma";
     histtitle = "Baseline for " + detname + " Gammas over 1.5 MeV";
-    TH1I* hGammaCount = new TH1I(histname.c_str(), histtitle.c_str(), 10000, 10000, 70000);
+    TH1I* hGammaCount = new TH1I(histname.c_str(), histtitle.c_str(), 1000, 0, 0.01);
     hGammaCount->GetYaxis()->SetTitle("");
     hGammaCount->GetXaxis()->SetTitle("Count");
     GammaCount_map[bankname] = hGammaCount;
@@ -155,14 +157,14 @@ INT MPSDIntTest_BookHistograms()
     hPedestalPSD->GetYaxis()->SetTitle("Ratio");
     hPedestalPSD->GetXaxis()->SetTitle("Energy (MeVee)");
     PedestalPSD_map[bankname] = hPedestalPSD;
-
+/*
     histname = "h" + detname + "_BaselinePSD";
     histtitle = "Ratio vs energy for " + detname + " static Baseline";
     TH2F* hBaselinePSD = new TH2F(histname.c_str(), histtitle.c_str(), max_adc/2, 0, 6.5, 300, 0, 0.5);
     hBaselinePSD->GetYaxis()->SetTitle("Ratio");
     hBaselinePSD->GetXaxis()->SetTitle("Energy (MeVee)");
     BaselinePSD_map[bankname] = hBaselinePSD; 
-
+*/
   }
 
   cwd->cd();
@@ -172,6 +174,8 @@ INT MPSDIntTest_BookHistograms()
 
 INT MPSDIntTest_eor(INT run_number)
 {
+
+  float nMuons = hDQ_TDCCheck_nMuons->GetEntries();
   const std::map<std::string, std::vector<TPulseIsland*> >& tpi_map = gData->fPulseIslandToChannelMap;
 
   for(std::map<std::string, std::vector<TPulseIsland*> >::const_iterator mIter = tpi_map.begin(); mIter != tpi_map.end(); mIter++){
@@ -180,14 +184,14 @@ INT MPSDIntTest_eor(INT run_number)
     if(!gSetup->IsNeutron(detname)) continue;
 
     if(detname == "NdetD"){
-      NeutronCount_map[bankname]->Fill(PSDIntTestND_count);
-      GammaCount_map[bankname]->Fill(PSDIntTestGD_count);
-      AltCount_map[bankname]->Fill(PSDIntTestAD_count);
+      NeutronCount_map[bankname]->Fill(PSDIntTestND_count/nMuons);
+      GammaCount_map[bankname]->Fill(PSDIntTestGD_count/nMuons);
+      AltCount_map[bankname]->Fill(PSDIntTestAD_count/nMuons);
     }
     if(detname == "NdetU"){
-      NeutronCount_map[bankname]->Fill(PSDIntTestNU_count);
-      GammaCount_map[bankname]->Fill(PSDIntTestGU_count);
-      AltCount_map[bankname]->Fill(PSDIntTestAU_count);
+      NeutronCount_map[bankname]->Fill(PSDIntTestNU_count/nMuons);
+      GammaCount_map[bankname]->Fill(PSDIntTestGU_count/nMuons);
+      AltCount_map[bankname]->Fill(PSDIntTestAU_count/nMuons);
     }
   }
 
@@ -298,12 +302,13 @@ INT MPSDIntTest(EVENT_HEADER *pheader, void *pevent)
       if(tstop >= nSamp) continue; 
 
       float pedestal = (*pIter)->GetPedestal(16);
+      /*
       float baseline = 0;
       if(detname == "NdetD")
 	baseline = 15837;
       if(detname == "NdetU")
 	baseline = 15886;
-
+      */
 
       /////////////////long gate//////////////////////////////////////
 
@@ -312,25 +317,25 @@ INT MPSDIntTest(EVENT_HEADER *pheader, void *pevent)
       for(int i = tLstart; i+2 <= tstop; i += 2){
 	lInt1 += (samples.at(i) + (4*samples.at(i+1)) + samples.at(i+2))/3;
 	lInt2 += (samples.at(i) + (4*samples.at(i+1)) + samples.at(i+2))/3;
-	lInt3 += (samples.at(i) + (4*samples.at(i+1)) + samples.at(i+2))/3;
+	//lInt3 += (samples.at(i) + (4*samples.at(i+1)) + samples.at(i+2))/3;
 	lIntPed1 += 2 * (pedSlope*(i+1) + pedBegin);
 	lIntPed2 += 2 * pedestal;
-	lIntPed3 += 2 * baseline; 
+	//lIntPed3 += 2 * baseline; 
 	lastSamp = i+2;
       }
       //assume pulse tail not at endpoint, linearly interpolate last point
       if(lastSamp != tstop){
 	lInt1 += samples.at(tstop);
 	lInt2 += samples.at(tstop);
-	lInt3 += samples.at(tstop);
+	//lInt3 += samples.at(tstop);
 	lIntPed1 += pedSlope*(tstop) + pedBegin;
 	lIntPed2 += pedestal;
-	lIntPed3 += baseline;
+	//lIntPed3 += baseline;
       }
 
       lInt1 = polarity * (lInt1 - lIntPed1);
       lInt2 = polarity * (lInt2 - lIntPed2);
-      lInt3 = polarity * (lInt3 - lIntPed3);
+      //lInt3 = polarity * (lInt3 - lIntPed3);
 
       ///////////////short gate///////////////////////////////////
 
@@ -339,25 +344,25 @@ INT MPSDIntTest(EVENT_HEADER *pheader, void *pevent)
       for(int i = tSstart; i+2 <= tstop; i += 2){
 	sInt1 += (samples.at(i) + (4*samples.at(i+1)) + samples.at(i+2))/3;
 	sInt2 += (samples.at(i) + (4*samples.at(i+1)) + samples.at(i+2))/3;
-	sInt3 += (samples.at(i) + (4*samples.at(i+1)) + samples.at(i+2))/3;
+	//sInt3 += (samples.at(i) + (4*samples.at(i+1)) + samples.at(i+2))/3;
 	sIntPed1 += 2 * (pedSlope*(i+1) + pedBegin);
 	sIntPed2 += 2 * pedestal;
-	sIntPed3 += 2 * baseline;
+	//sIntPed3 += 2 * baseline;
 	lastSamp = i+2;
       }
       //integrate last, trapezoidal with linear interpolation
       if(lastSamp != tstop){
 	sInt1 += samples.at(tstop);
 	sInt2 += samples.at(tstop);
-	sInt3 += samples.at(tstop);
+	//sInt3 += samples.at(tstop);
 	sIntPed1 += pedSlope*(tstop) + pedBegin;
 	sIntPed2 += pedestal;
-	sIntPed3 += baseline;
+	//sIntPed3 += baseline;
       }
 
       sInt1 = polarity * (sInt1 - sIntPed1);
       sInt2 = polarity * (sInt2 - sIntPed2);
-      sInt3 = polarity * (sInt3 - sIntPed3);
+      //sInt3 = polarity * (sInt3 - sIntPed3);
 
       /////////////////////////////////////////////////////////
 
@@ -367,7 +372,7 @@ INT MPSDIntTest(EVENT_HEADER *pheader, void *pevent)
       //fill the histograms
       ratio1 = sInt1/lInt1;
       ratio2 = sInt2/lInt2;
-      ratio3 = sInt3/lInt3;
+      //ratio3 = sInt3/lInt3;
 
       float energy=0;
       if(detname == "NdetD"){
@@ -386,7 +391,7 @@ INT MPSDIntTest(EVENT_HEADER *pheader, void *pevent)
 
       StdPSD_map[bankname]->Fill(energy, ratio1);
       PedestalPSD_map[bankname]->Fill(energy, ratio2);
-      BaselinePSD_map[bankname]->Fill(energy, ratio3);
+      //BaselinePSD_map[bankname]->Fill(energy, ratio3);
 
       if(energy < 1.5) continue;
       else if(detname == "NdetD"){
