@@ -41,7 +41,7 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-std::map<std::string,TH1F*> NeutronBaseline_map, GammaBaseline_map, AltBaseline_map;
+std::map<std::string,TH1F*> NeutronBaseline_map, GammaBaseline_map, AltBaseline_map, AltTimestamp_map;
 std::map<std::string,TH1I*> NeutronCount_map, GammaCount_map, AltCount_map;
 std::map<std::string, TH2F*> StdPSD_map, PedestalPSD_map, BaselinePSD_map;
 //std::map<int, TH1D*> NdetDIFoMS_map, NdetUIFoMS_map;
@@ -157,6 +157,14 @@ INT MPSDIntTest_BookHistograms()
     hPedestalPSD->GetYaxis()->SetTitle("Ratio");
     hPedestalPSD->GetXaxis()->SetTitle("Energy (MeVee)");
     PedestalPSD_map[bankname] = hPedestalPSD;
+
+    histname = "hDQ_IslandTimestamp_" + detname + "_" + bankname;
+    histtitle = "Distribution of time stamps in " + detname;
+    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), n_bins, 0, bin_max);
+    hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
+    hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands");
+    AltTimestamp_map[bankname] = hDQ_Histogram;
+
 /*
     histname = "h" + detname + "_BaselinePSD";
     histtitle = "Ratio vs energy for " + detname + " static Baseline";
@@ -382,8 +390,10 @@ INT MPSDIntTest(EVENT_HEADER *pheader, void *pevent)
 	energy = 0.009037 + 0.0004015 * max_ps;
       }
 
-      if(energy > 1.5 && ratio1 > 0.23)
+      if(energy > 1.5 && ratio1 > 0.23){
+	int timestamp = (*pIter)->GetTimeStamp();
 	AltBaseline_map[bankname]->Fill(pedestal);
+	AltTimestamp_map[bankname]->Fill(timestamp);
       else if((energy > 1.5 && ratio1 > 0.13) || (energy < 1.5 && ratio1 > 0.17))
 	NeutronBaseline_map[bankname]->Fill(pedestal);
       else if((energy > 1.5 && ratio1 < 0.13) || (energy < 1.5 && ratio1 < 0.16))
