@@ -34,6 +34,7 @@ using namespace std;
 /*-- Module declaration --------------------------------------------*/
 INT  MPSDIntTest_init(void);
 INT  MPSDIntTest(EVENT_HEADER*, void*);
+INT  MPSDIntTest_bor(INT);
 INT  MPSDIntTest_eor(INT);
 INT  MPSDIntTest_BookHistograms();
 
@@ -41,15 +42,19 @@ extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-std::map<std::string,TH1F*> NeutronBaseline_map, GammaBaseline_map, AltBaseline_map, AltTimestamp_map;
-std::map<std::string,TH1I*> NeutronCount_map, GammaCount_map, AltCount_map;
+std::map<std::string,TH2F*> NeutronBaseline_map, GammaBaseline_map, AltBaseline_map;
+std::map<std::string, TH1F*> AltTimestamp_map;
+std::map<std::string, TH1I*> NeutronCount_map, GammaCount_map, AltCount_map;
 std::map<std::string, TH2F*> StdPSD_map, PedestalPSD_map, BaselinePSD_map;
 //std::map<int, TH1D*> NdetDIFoMS_map, NdetUIFoMS_map;
 static std::map<std::string, std::ofstream*> waveforms;
 
-bool PSDIntTest_firstEvent = true;
-int PSDIntTestND_count = 0, PSDIntTestGD_count = 0, PSDIntTestAD_count = 0;
-int PSDIntTestNU_count = 0, PSDIntTestGU_count = 0, PSDIntTestAU_count = 0;
+namespace{
+  bool PSDIntTest_firstEvent = true;
+  int PSDIntTestND_count = 0, PSDIntTestGD_count = 0, PSDIntTestAD_count = 0;
+  int PSDIntTestNU_count = 0, PSDIntTestGU_count = 0, PSDIntTestAU_count = 0;
+  int runNumber;
+}
 
 extern TH1F* hDQ_TDCCheck_nMuons;
 
@@ -58,7 +63,7 @@ ANA_MODULE MPSDIntTest_module =
 	"MPSDIntTest",                 /* module name           */
 	"Damien Alexander",            /* author                */
 	MPSDIntTest,                   /* event routine         */
-	NULL,                          /* BOR routine           */
+	MPSDIntTest_bor,               /* BOR routine           */
         MPSDIntTest_eor,               /* EOR routine           */
 	MPSDIntTest_init,              /* init routine          */
 	NULL,                          /* exit routine          */
@@ -101,44 +106,44 @@ INT MPSDIntTest_BookHistograms()
     std::string histname = "h" + detname + "_Neutron";
     std::string histtitle = detname + " Neutrons over 1.5 MeV";
     TH1I* hNeutronCount = new TH1I(histname.c_str(), histtitle.c_str(), 1000, 0, 0.001);
-    hNeutronCount->GetYaxis()->SetTitle("");
-    hNeutronCount->GetXaxis()->SetTitle("Count");
+    hNeutronCount->GetYaxis()->SetTitle("number of runs");
+    hNeutronCount->GetXaxis()->SetTitle("Number of Neutrons (normalized to muons)");
     NeutronCount_map[bankname] = hNeutronCount;
 
     histname = "h" + detname + "_Alt";
     histtitle = detname + " Alternate Waveforms over 1.5 MeV";
     TH1I* hAltCount = new TH1I(histname.c_str(), histtitle.c_str(), 1000, 0, 0.00001);
-    hAltCount->GetYaxis()->SetTitle("");
-    hAltCount->GetXaxis()->SetTitle("Count");
+    hAltCount->GetYaxis()->SetTitle("number of runs");
+    hAltCount->GetXaxis()->SetTitle("Number of High PSD waves (normalized to muons)");
     AltCount_map[bankname] = hAltCount;
 
     histname = "h" + detname + "_Gamma";
     histtitle = "Baseline for " + detname + " Gammas over 1.5 MeV";
     TH1I* hGammaCount = new TH1I(histname.c_str(), histtitle.c_str(), 1000, 0, 0.01);
-    hGammaCount->GetYaxis()->SetTitle("");
-    hGammaCount->GetXaxis()->SetTitle("Count");
+    hGammaCount->GetYaxis()->SetTitle("number of runs");
+    hGammaCount->GetXaxis()->SetTitle("Number of Gammas (normalized to muons)");
     GammaCount_map[bankname] = hGammaCount;
 
     ////Baselines
 
     histname = "h" + detname + "_NeutronBase";
     histtitle = "Baseline for " + detname + " Neutrons";
-    TH1F* hNeutronBaseline = new TH1F(histname.c_str(), histtitle.c_str(), 700, max_adc - 700, max_adc);
-    hNeutronBaseline->GetYaxis()->SetTitle("Count");
+    TH2F* hNeutronBaseline = new TH2F(histname.c_str(), histtitle.c_str(), 600, max_adc - 800, max_adc - 200, 1450, 5976, 7426);
+    hNeutronBaseline->GetYaxis()->SetTitle("Run Number");
     hNeutronBaseline->GetXaxis()->SetTitle("Baseline(adc count)");
     NeutronBaseline_map[bankname] = hNeutronBaseline;
 
     histname = "h" + detname + "_AltBase";
     histtitle = "Baseline for " + detname + " Alternate Waveformss";
-    TH1F* hAltBaseline = new TH1F(histname.c_str(), histtitle.c_str(), 700, max_adc - 700, max_adc);
-    hAltBaseline->GetYaxis()->SetTitle("Count");
+    TH2F* hAltBaseline = new TH2F(histname.c_str(), histtitle.c_str(), 600, max_adc - 800, max_adc - 200, 1450, 5976, 7426);
+    hAltBaseline->GetYaxis()->SetTitle("Run Number");
     hAltBaseline->GetXaxis()->SetTitle("Baseline(adc count)");
     AltBaseline_map[bankname] = hAltBaseline;
 
     histname = "h" + detname + "_GammaBase";
     histtitle = "Baseline for " + detname + " Gammas";
-    TH1F* hGammaBaseline = new TH1F(histname.c_str(), histtitle.c_str(), 700, max_adc - 700, max_adc);
-    hGammaBaseline->GetYaxis()->SetTitle("Count");
+    TH2F* hGammaBaseline = new TH2F(histname.c_str(), histtitle.c_str(), 600, max_adc - 800, max_adc - 200, 1450, 5976, 7426);
+    hGammaBaseline->GetYaxis()->SetTitle("Run Number");
     hGammaBaseline->GetXaxis()->SetTitle("Baseline(adc count)");
     GammaBaseline_map[bankname] = hGammaBaseline;
 
@@ -158,9 +163,9 @@ INT MPSDIntTest_BookHistograms()
     hPedestalPSD->GetXaxis()->SetTitle("Energy (MeVee)");
     PedestalPSD_map[bankname] = hPedestalPSD;
 
-    histname = "hDQ_IslandTimestamp_" + detname + "_" + bankname;
-    histtitle = "Distribution of time stamps in " + detname;
-    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), n_bins, 0, bin_max);
+    histname = "hTimestamp_" + detname;
+    histtitle = "High PSD waveform time stamps in " + detname;
+    TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 50e3, 0, 100e6);
     hDQ_Histogram->GetXaxis()->SetTitle("Time Stamp [ns]");
     hDQ_Histogram->GetYaxis()->SetTitle("Number of TPulseIslands");
     AltTimestamp_map[bankname] = hDQ_Histogram;
@@ -178,6 +183,12 @@ INT MPSDIntTest_BookHistograms()
   cwd->cd();
 
   return SUCCESS;
+}
+
+INT MPSDIntTest_bor(INT run_number)
+{
+  runNumber = run_number;
+  return 0;
 }
 
 INT MPSDIntTest_eor(INT run_number)
@@ -239,8 +250,8 @@ INT MPSDIntTest(EVENT_HEADER *pheader, void *pevent)
       float lInt2 = 0, sInt2 = 0, ratio2 = 0;
       float lIntPed2 = 0, sIntPed2 = 0;
       //static pedestal, average pedestal value for data
-      float lInt3 = 0, sInt3 = 0, ratio3 = 0;
-      float lIntPed3 = 0, sIntPed3 = 0;
+      //float lInt3 = 0, sInt3 = 0, ratio3 = 0;
+      //float lIntPed3 = 0, sIntPed3 = 0;
 
       float tLstart = 0, tSstart = 0, tstop = 0;
       bool overflow = false;
@@ -392,12 +403,13 @@ INT MPSDIntTest(EVENT_HEADER *pheader, void *pevent)
 
       if(energy > 1.5 && ratio1 > 0.23){
 	int timestamp = (*pIter)->GetTimeStamp();
-	AltBaseline_map[bankname]->Fill(pedestal);
+	AltBaseline_map[bankname]->Fill(pedestal, runNumber);
 	AltTimestamp_map[bankname]->Fill(timestamp);
+      }
       else if((energy > 1.5 && ratio1 > 0.13) || (energy < 1.5 && ratio1 > 0.17))
-	NeutronBaseline_map[bankname]->Fill(pedestal);
+	NeutronBaseline_map[bankname]->Fill(pedestal, runNumber);
       else if((energy > 1.5 && ratio1 < 0.13) || (energy < 1.5 && ratio1 < 0.16))
-	GammaBaseline_map[bankname]->Fill(pedestal);
+	GammaBaseline_map[bankname]->Fill(pedestal, runNumber);
 
       StdPSD_map[bankname]->Fill(energy, ratio1);
       PedestalPSD_map[bankname]->Fill(energy, ratio2);
