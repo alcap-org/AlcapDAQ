@@ -119,7 +119,7 @@ INT MPSDIntTest_BookHistograms()
 
     histname = "h" + detname + "_Gamma";
     histtitle = "Baseline for " + detname + " Gammas over 1.5 MeV";
-    TH1I* hGammaCount = new TH1I(histname.c_str(), histtitle.c_str(), 1000, 0, 0.01);
+    TH1I* hGammaCount = new TH1I(histname.c_str(), histtitle.c_str(), 1000, 0, 0.02);
     hGammaCount->GetYaxis()->SetTitle("number of runs");
     hGammaCount->GetXaxis()->SetTitle("Number of Gammas (normalized to muons)");
     GammaCount_map[bankname] = hGammaCount;
@@ -417,14 +417,14 @@ INT MPSDIntTest(EVENT_HEADER *pheader, void *pevent)
 
       if(energy < 1.5) continue;
       else if(detname == "NdetD"){
-	if(ratio1 <= 0.16 && ratio1 > 0.09) PSDIntTestGD_count++;
-	else if (ratio1 <= 0.26 && ratio1 > 0.16) PSDIntTestND_count++;
-	else if (ratio1 <= 0.35 && ratio1 > 0.26) PSDIntTestAD_count++;
+	if(ratio2 <= 0.135 && ratio2 > 0.05) PSDIntTestGD_count++;
+	else if (ratio2 <= 0.24 && ratio2 > 0.135) PSDIntTestND_count++;
+	else if (ratio2 <= 0.35 && ratio2 > 0.24) PSDIntTestAD_count++;
       }
       else if(detname == "NdetU"){
-	if(ratio1 <= 0.17 && ratio1 > 0.1) PSDIntTestGU_count++;
-	else if (ratio1 <= 0.27 && ratio1 > 0.17) PSDIntTestNU_count++;
-	else if (ratio1 <= 0.37 && ratio1 > 0.27) PSDIntTestAU_count++;
+	if(ratio2 <= 0.15 && ratio2 > 0.05) PSDIntTestGU_count++;
+	else if (ratio2 <= 0.26 && ratio2 > 0.15) PSDIntTestNU_count++;
+	else if (ratio2 <= 0.34 && ratio2 > 0.26) PSDIntTestAU_count++;
       }
 
 
