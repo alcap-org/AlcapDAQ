@@ -19,7 +19,7 @@
 
 /* ROOT includes */
 #include <TProfile.h>
-#include <TDirectory.h>
+#include <TTree.h>
 
 /* AlCap includes */
 #include "TGlobalData.h"
@@ -33,23 +33,16 @@ using std::pair;
 
 /*-- Module declaration --------------------------------------------*/
 INT MPedestals_init(void);
+INT MPedestals_eor(INT);
 INT MPedestals(EVENT_HEADER*, void*);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
+extern TTree* gTrendTree;
 
-#include "TDirectory.h"
-#include "TFile.h"
-#include "TApplication.h"
-#include "TROOT.h"
-extern TDirectory * gManaHistsDir;
-extern TFile * gManaOutputFile;
-extern TApplication * manaApp;
-extern TROOT * gROOT;
-
-map<std::string, TProfile*> vhAvg;
-map<std::string, TProfile*> vhRMS;
+static map<string, TProfile*> vhAvg;
+static map<string, TProfile*> vhRMS;
 
 ANA_MODULE MPedestals_module =
 {
@@ -57,7 +50,7 @@ ANA_MODULE MPedestals_module =
   "John R Quirk",  /* author                */
   MPedestals,      /* event routine         */
   NULL,            /* BOR routine           */
-  NULL,            /* EOR routine           */
+  MPedestals_eor,  /* EOR routine           */
   MPedestals_init, /* init routine          */
   NULL,            /* exit routine          */
   NULL,            /* parameter structure   */
@@ -89,17 +82,35 @@ INT MPedestals_init() {
 				   9, 2, 11, "S");
 
   }
-  gDirectory->Cd("/MidasHists/");
   return SUCCESS;
 }
 
-/** This method fills the histograms
- */
+INT MPedestals_eor(INT run)
+{
+  std::cout << "BEGIN OF PEDESTAL EOR\n---------------------------" << std::endl;
+  map<std::string, TProfile*>::const_iterator his;
+  for (his = vhAvg.begin(); his != vhAvg.end(); ++his) {
+    string brNameAvg      = his->first + "_PedAvg";
+    string brNameRMS      = his->first + "_PedRMS";
+    string brNamePulseRMS = his->first + "_PedPulseRMS";
+    double avg, rms, pulserms;
+    TBranch* brAvg      = gTrendTree->Branch(brNameAvg.c_str(), &avg);
+    TBranch* brRMS      = gTrendTree->Branch(brNameRMS.c_str(), &rms);
+    TBranch* brPulseRMS = gTrendTree->Branch(brNamePulseRMS.c_str(), &pulserms);
+    avg = vhAvg.at(his->first)->GetBinContent(3);
+    rms = vhAvg.at(his->first)->GetBinError(3);
+    pulserms = vhRMS.at(his->first)->GetBinContent(3);
+    brAvg->Fill(); brRMS->Fill(); brPulseRMS->Fill();
+    brAvg->ResetAddress(); brRMS->ResetAddress(); brPulseRMS->ResetAddress();
+  }
+  std::cout << "END OF PEDESTAL EOR\n---------------------------" << std::endl;
+  return SUCCESS;
+}
+
 INT MPedestals(EVENT_HEADER *pheader, void *pevent)
 {
   // Some typedefs
   typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
-  typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
   typedef map<string, vector<TPulseIsland*> >::iterator map_iterator;
 
   // Fetch a reference to the gData structure that stores a map
