@@ -53,6 +53,9 @@
 PAWC_DEFINE(1000000);
 #endif /* HAVE_HBOOK */
 
+/* ROOT includes */
+#include <TTree.h>
+
 /* AlCap includes */
 #include "TGlobalData.h"
 #include "TSetupData.h"
@@ -80,6 +83,9 @@ TSetupData* gSetup;
 /// \brief
 /// Vacuum data slow control.
 TVacuumData* gVacuum;
+/// \brief
+/// Trend tree for trend plots
+TTree* gTrendTree;
 
 TSetupData* TSetupData::Instance()
 {
@@ -202,6 +208,11 @@ INT analyzer_init()
 	// Initialize gVacuum
 	gVacuum = new TVacuumData();
 
+	// Do not initialize trend tree.
+	// MTrendTree will initialize if
+	// the module is included.
+	gTrendTree = (TTree*)NULL;
+	
 	return SUCCESS;
 }
 
