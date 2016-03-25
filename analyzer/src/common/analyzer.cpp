@@ -60,6 +60,7 @@ PAWC_DEFINE(1000000);
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "TVacuumData.h"
+#include "TTrendTree.h"
 
 /*-- Globals -------------------------------------------------------*/
 
@@ -85,7 +86,7 @@ TSetupData* gSetup;
 TVacuumData* gVacuum;
 /// \brief
 /// Trend tree for trend plots
-TTree* gTrendTree;
+TTrendTree* gTrendTree;
 
 TSetupData* TSetupData::Instance()
 {
@@ -211,7 +212,7 @@ INT analyzer_init()
 	// Do not initialize trend tree.
 	// MTrendTree will initialize if
 	// the module is included.
-	gTrendTree = (TTree*)NULL;
+	gTrendTree = new TTrendTree();
 	
 	return SUCCESS;
 }

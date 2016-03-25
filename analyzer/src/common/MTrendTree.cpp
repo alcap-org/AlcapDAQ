@@ -7,6 +7,9 @@
 
 \********************************************************************/
 
+/* Standard includes */
+#include <iostream>
+
 /* MIDAS includes */
 #include "midas.h"
 
@@ -14,8 +17,8 @@
 #include <TTree.h>
 #include <TBranch.h>
 
-/* Standard includes */
-#include <iostream>
+/* AlCap includes */
+#include "TTrendTree.h"
 
 /*-- Module declaration --------------------------------------------*/
 INT MTrendTree_bor(INT);
@@ -24,7 +27,8 @@ INT MTrendTree_init(void);
 INT MTrendTree_exit(void);
 INT MTrendTree(EVENT_HEADER*, void*);
 
-extern TTree *gTrendTree;
+extern HNDLE hDB;
+extern TTrendTree *gTrendTree;
 
 ANA_MODULE MTrendTree_module =
 {
@@ -45,33 +49,46 @@ INT MTrendTree_init()
   return SUCCESS;
 }
 
+static int gRun = -1;
+static int gBlocks = -1;
 INT MTrendTree_bor(INT run)
 {
-  gTrendTree = new TTree("Trends","Trends of data");
-  TBranch* br = gTrendTree->Branch("run", &run);
-  br->Fill();
-  br->ResetAddress();
+  gRun = run;
+  gBlocks = 0;
+  gTrendTree->Init(run);
   return SUCCESS;
 }
 
 INT MTrendTree_eor(INT run)
 {
-  gTrendTree->SetEntries();
-  gTrendTree->Write();
-  delete gTrendTree;
-  gTrendTree = NULL;
+
+  // Get start, stop, and run times
+  ULong64_t start = 0, stop = 0;
+  int size = sizeof(DWORD);
+  char keyname[128];
+  sprintf(keyname, "/Runinfo/Start time binary");
+  db_get_value(hDB, 0, keyname, &start, &size, TID_DWORD, false);
+  size = sizeof(DWORD);
+  sprintf(keyname, "/Runinfo/Stop time binary");
+  db_get_value(hDB, 0, keyname, &stop, &size, TID_DWORD, false);
+
+  gTrendTree->FillRunTree("start",  start);
+  gTrendTree->FillRunTree("stop",   stop);
+  gTrendTree->FillRunTree("blocks", gBlocks);
+  gTrendTree->Finish();
   return SUCCESS;
 }
 
 INT MTrendTree_exit()
 {
-  std::cout << "TREND TREE EXIT...";
-  std::cout << "DONE" << std::endl;
   return SUCCESS;
 }
 
 // Even though we don't use this, we need it to be called.
-INT MTrendTree(EVENT_HEADER*, void*)
+INT MTrendTree(EVENT_HEADER* ev, void*)
 {
+  ++gBlocks;
+  gTrendTree->FillBlockTree("run",   gRun);
+  gTrendTree->FillBlockTree("block", ev->serial_number);
   return SUCCESS;
 }

@@ -25,6 +25,7 @@
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "TPulseIsland.h"
+#include "TTrendTree.h"
 
 using std::string;
 using std::map;
@@ -39,7 +40,7 @@ INT MPedestals(EVENT_HEADER*, void*);
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
-extern TTree* gTrendTree;
+extern TTrendTree* gTrendTree;
 
 static map<string, TProfile*> vhAvg;
 static map<string, TProfile*> vhRMS;
@@ -87,23 +88,18 @@ INT MPedestals_init() {
 
 INT MPedestals_eor(INT run)
 {
-  std::cout << "BEGIN OF PEDESTAL EOR\n---------------------------" << std::endl;
   map<std::string, TProfile*>::const_iterator his;
   for (his = vhAvg.begin(); his != vhAvg.end(); ++his) {
     string brNameAvg      = his->first + "_PedAvg";
     string brNameRMS      = his->first + "_PedRMS";
     string brNamePulseRMS = his->first + "_PedPulseRMS";
-    double avg, rms, pulserms;
-    TBranch* brAvg      = gTrendTree->Branch(brNameAvg.c_str(), &avg);
-    TBranch* brRMS      = gTrendTree->Branch(brNameRMS.c_str(), &rms);
-    TBranch* brPulseRMS = gTrendTree->Branch(brNamePulseRMS.c_str(), &pulserms);
-    avg = vhAvg.at(his->first)->GetBinContent(3);
-    rms = vhAvg.at(his->first)->GetBinError(3);
-    pulserms = vhRMS.at(his->first)->GetBinContent(3);
-    brAvg->Fill(); brRMS->Fill(); brPulseRMS->Fill();
-    brAvg->ResetAddress(); brRMS->ResetAddress(); brPulseRMS->ResetAddress();
+    gTrendTree->FillRunTree(brNameAvg.c_str(),
+			    vhAvg.at(his->first)->GetBinContent(3));
+    gTrendTree->FillRunTree(brNameRMS.c_str(),
+			    vhAvg.at(his->first)->GetBinError(3));
+    gTrendTree->FillRunTree(brNamePulseRMS.c_str(),
+			    vhRMS.at(his->first)->GetBinContent(3));
   }
-  std::cout << "END OF PEDESTAL EOR\n---------------------------" << std::endl;
   return SUCCESS;
 }
 
