@@ -5,7 +5,7 @@
 #include <cassert>
 
 /* ROOT includes */
-class TTree;
+#include <TTree.h>
 
 class TTrendTree {
  public:
