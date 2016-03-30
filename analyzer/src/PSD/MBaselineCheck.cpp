@@ -98,6 +98,7 @@ INT MBaselineCheck_init(){
     if(detname == "GeCHEH" || detname == "GeCHEL"){
       pedStart = 0;
       pedEnd = 2000; 
+    }
 
     std::string histname = "hPedvRun_"+detname+"_"+bankname;
     std::string histtitle = "Pedestal as average of first 8 samples by run for " + detname;
