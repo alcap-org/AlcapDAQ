@@ -92,18 +92,27 @@ INT MBaselineCheck_init(){
     hBaseline->GetYaxis()->SetTitle("count");
     Baseline[bankname]=hBaseline;
     */
+
+    int pedStart = max_adc - 2000;
+    int pedEnd = max_adc;
+    if(detname == "GeCHEH" || detname == "GeCHEL"){
+      pedStart = 0;
+      pedEnd = 2000; 
+
     std::string histname = "hPedvRun_"+detname+"_"+bankname;
     std::string histtitle = "Pedestal as average of first 8 samples by run for " + detname;
     if(detname == "TSc" || detname == "GeCHT")
       std::string histtitle = "Pedestal as average of first 4 samples by run for " + detname;
-    TH2D* hPedvRun = new TH2D(histname.c_str(), histtitle.c_str(), 2000, max_adc - 2000, max_adc, 1450,5976, 7426);
+    TH2D* hPedvRun = new TH2D(histname.c_str(), histtitle.c_str(), 
+			      2000, pedStart, pedEnd, 1450,5976, 7426);
     hPedvRun->GetXaxis()->SetTitle("Pedestal (adc value)");
     hPedvRun->GetYaxis()->SetTitle("Run Number");
     PedvRun[bankname]=hPedvRun;
 
     histname = "hBasevRun_"+detname+"_"+bankname;
     histtitle = "Pedestal as most likely value by run for " + detname;
-    TH2D* hBasevRun = new TH2D(histname.c_str(), histtitle.c_str(), 2000, max_adc - 2000, max_adc, 1450, 5976, 7426);
+    TH2D* hBasevRun = new TH2D(histname.c_str(), histtitle.c_str(),
+			       2000, pedStart, pedEnd, 1450, 5976, 7426);
     hBasevRun->GetXaxis()->SetTitle("Pedestal (adc value)");
     hBasevRun->GetYaxis()->SetTitle("Run Number");
     BasevRun[bankname]=hBasevRun;
@@ -113,8 +122,9 @@ INT MBaselineCheck_init(){
 
 
       histname = "hPeakvRun_"+detname;
-      histtitle = "Peak value for " + detname;;
-      TH2D* hPeakvRun = new TH2D(histname.c_str(), histtitle.c_str(), 3000, 8000, 11000, 1450, 5976, 7426);
+      histtitle = "Peak value for " + detname;
+      TH2D* hPeakvRun = new TH2D(histname.c_str(), histtitle.c_str(), 
+				 3000, 8000, 11000, 1450, 5976, 7426);
       hPeakvRun->GetXaxis()->SetTitle("pulse height (adc_counts)");
       hPeakvRun->GetYaxis()->SetTitle("Run Number");
       PeakvRun[bankname]=hPeakvRun;
@@ -166,12 +176,17 @@ INT MBaselineCheck(EVENT_HEADER *pheader, void *pevent){
 
       if(detname != "SyncCrate7") continue;
 
-      int max = 0;
-      std::vector<int>::iterator maxLoc;
-      maxLoc = (polarity < 0) ? std::min_element(Samples.begin(), Samples.end() ) : std::max_element(Samples.begin(), Samples.end() );
-      max = std::distance(Samples.begin(), maxLoc);
 
-      PeakvRun[bankname]->Fill(Samples.at(max), runNumber);
+      //avg adc values from 27 to 35
+      float max = 0;
+      int nCount = 8;
+      for(int i = 27; i< 27 + nCount; i++)
+	{
+	  max += Samples.at(i);
+	}
+      max = max / nCount;
+
+      PeakvRun[bankname]->Fill(max, runNumber);
 
 
       /*
