@@ -40,7 +40,7 @@ extern TSetupData* gSetup;
 
 namespace{
   int runNumber;
-  map<std::string, TH2D*> PedvRun, BasevRun;
+  map<std::string, TH2D*> PedvRun, BasevRun, PedvEvent;
   map<std::string, TH2D*> PeakvRun;
   //map<std::string, TH1F*> Pedestal, Baseline;
 }
@@ -103,12 +103,22 @@ INT MBaselineCheck_init(){
     std::string histname = "hPedvRun_"+detname+"_"+bankname;
     std::string histtitle = "Pedestal as average of first 8 samples by run for " + detname;
     if(detname == "TSc" || detname == "GeCHT")
-      std::string histtitle = "Pedestal as average of first 4 samples by run for " + detname;
+      histtitle = "Pedestal as average of first 4 samples by run for " + detname;
     TH2D* hPedvRun = new TH2D(histname.c_str(), histtitle.c_str(), 
 			      2000, pedStart, pedEnd, 1450,5976, 7426);
     hPedvRun->GetXaxis()->SetTitle("Pedestal (adc value)");
     hPedvRun->GetYaxis()->SetTitle("Run Number");
     PedvRun[bankname]=hPedvRun;
+
+    histname = "hPedvEvent_"+detname+"_"+bankname;
+    histtitle = "Pedestal as average of first 8 samples by event for " + detname;
+    if(detname == "TSc" || detname == "GeCHT")
+      histtitle = "Pedestal as average of first 4 samples by event for " + detname;
+    TH2D* hPedvEvent = new TH2D(histname.c_str(), histtitle.c_str(), 
+			      2000, pedStart, pedEnd, 300, 0, 3000);
+    hPedvEvent->GetXaxis()->SetTitle("Pedestal (adc value)");
+    hPedvEvent->GetYaxis()->SetTitle("Event Number");
+    PedvEvent[bankname]=hPedvEvent;
 
     histname = "hBasevRun_"+detname+"_"+bankname;
     histtitle = "Pedestal as most likely value by run for " + detname;
@@ -129,6 +139,8 @@ INT MBaselineCheck_init(){
       hPeakvRun->GetXaxis()->SetTitle("pulse height (adc_counts)");
       hPeakvRun->GetYaxis()->SetTitle("Run Number");
       PeakvRun[bankname]=hPeakvRun;
+
+
     }
 
   }
@@ -175,6 +187,10 @@ INT MBaselineCheck(EVENT_HEADER *pheader, void *pevent){
       PedvRun[bankname]->Fill(pedestal, runNumber);
       BasevRun[bankname]->Fill(baseline_loc, runNumber);
 
+      int eventNumber = pheader->serial_number;
+
+      PedvEvent[bankname]->Fill(pedestal, eventNumber);
+
       if(detname != "SyncCrate7") continue;
 
 
@@ -188,6 +204,7 @@ INT MBaselineCheck(EVENT_HEADER *pheader, void *pevent){
       max = max / nCount;
 
       PeakvRun[bankname]->Fill(max, runNumber);
+
 
 
       /*

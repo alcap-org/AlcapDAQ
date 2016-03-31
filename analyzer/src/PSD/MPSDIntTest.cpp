@@ -46,6 +46,7 @@ std::map<std::string,TH2F*> NeutronBaseline_map, GammaBaseline_map, AltBaseline_
 std::map<std::string, TH1F*> AltTimestamp_map;
 std::map<std::string, TH1I*> NeutronCount_map, GammaCount_map, AltCount_map;
 std::map<std::string, TH2F*> StdPSD_map, PedestalPSD_map, BaselinePSD_map;
+std::map<std::string, TH2F*> LEPSDvRun_map, MEPSDvRun_map, HEPSDvRun_map;
 //std::map<int, TH1D*> NdetDIFoMS_map, NdetUIFoMS_map;
 static std::map<std::string, std::ofstream*> waveforms;
 
@@ -178,6 +179,27 @@ INT MPSDIntTest_BookHistograms()
     hBaselinePSD->GetXaxis()->SetTitle("Energy (MeVee)");
     BaselinePSD_map[bankname] = hBaselinePSD; 
 */
+
+    histname = "h" + detname + "_LEPSD";
+    histtitle = "Low Energy (< 0.7 MeV) PSD by run for " + detname ;
+    TH2F* hLEPSDvRun = new TH2F(histname.c_str(), histtitle.c_str(), 1450, 5976, 7426, 600, 0, 0.45);
+    hLEPSDvRun->GetYaxis()->SetTitle("Ratio");
+    hLEPSDvRun->GetXaxis()->SetTitle("Run Number");
+    LEPSDvRun_map[bankname] = hLEPSDvRun;
+
+    histname = "h" + detname + "_MEPSD";
+    histtitle = "Mid Energy (0.7 - 2.0 MeV) PSD by run for " + detname ;
+    TH2F* hMEPSDvRun = new TH2F(histname.c_str(), histtitle.c_str(), 1450, 5976, 7426, 600, 0, 0.45);
+    hMEPSDvRun->GetYaxis()->SetTitle("Ratio");
+    hMEPSDvRun->GetXaxis()->SetTitle("Run Number");
+    MEPSDvRun_map[bankname] = hMEPSDvRun;
+
+    histname = "h" + detname + "_HEPSD";
+    histtitle = "High Energy (> 2.0 MeV) PSD by run for " + detname ;
+    TH2F* hHEPSDvRun = new TH2F(histname.c_str(), histtitle.c_str(), 1450, 5976, 7426, 600, 0, 0.45);
+    hHEPSDvRun->GetYaxis()->SetTitle("Ratio");
+    hHEPSDvRun->GetXaxis()->SetTitle("Run Number");
+    HEPSDvRun_map[bankname] = hHEPSDvRun;
   }
 
   cwd->cd();
@@ -414,6 +436,10 @@ INT MPSDIntTest(EVENT_HEADER *pheader, void *pevent)
       StdPSD_map[bankname]->Fill(energy, ratio1);
       PedestalPSD_map[bankname]->Fill(energy, ratio2);
       //BaselinePSD_map[bankname]->Fill(energy, ratio3);
+
+      if(energy < 0.7) LEPSDvRun_map[bankname]->Fill(runNumber, ratio2);
+      else if(energy < 2.0) MEPSDvRun_map[bankname]->Fill(runNumber, ratio2);
+      else HEPSDvRun_map[bankname]->Fill(runNumber, ratio2);
 
       if(energy < 1.5) continue;
       else if(detname == "NdetD"){
