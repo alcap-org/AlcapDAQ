@@ -223,6 +223,13 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	const int nSamp = samples.size();
 	if(nSamp < 8) continue;
 
+	if(*(std::min_element( samples.begin(), samples.end() )) <= 0) continue;
+	if(*(std::max_element( samples.begin(), samples.end() )) >= max_adc-1) continue;
+
+
+	if(pulses[p]->GetVetoPulse()) continue; //vetoed
+	if(pulses[p]->GetPileupPulse()) continue; //Pileup Protection
+
 	//float integral_ps = pulses[p]->GetIntegral();
 	float max = pulses[p]->GetPulseHeight();
 	float threshold = MTCorrTest_Threshold(det);
@@ -232,12 +239,7 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 
 	//pulse detail checks
 	if(max < polarity*(threshold-pedestal)) continue;
-	if(*(std::min_element( samples.begin(), samples.end() )) <= 0) continue;
-	if(*(std::max_element( samples.begin(), samples.end() )) >= max_adc-1) continue;
 
-
-	if(pulses[p]->GetVetoPulse()) continue; //vetoed
-	if(pulses[p]->GetPileupPulse()) continue; //Pileup Protection
 	//if(pulses[p]->GetDoublePulse()) continue; //Multiple hits near TSc
 
 	
