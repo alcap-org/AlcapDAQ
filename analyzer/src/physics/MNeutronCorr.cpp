@@ -31,6 +31,9 @@ static INT MNeutronCorr(EVENT_HEADER*, void*);
 float MNeutronCorr_IntEnergy(std::string, float);  //integral energies only
 float MNeutronCorr_nSamples(std::string);
 float MNeutronCorr_Threshold(std::string);
+bool MNeutronCorr_Neutron(std::string, double, float);
+float MNeutronCorr_Energy(std::string, float);
+
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -164,9 +167,11 @@ INT MNeutronCorr(EVENT_HEADER *pheader, void *pevent) {
     double nTDiff = 0;
 
     const std::vector<int>& nSamples = nup_pulses[p]->GetSamples();
+    float energy_U = MNeutronCorr_Energy("NdetU", nMax);
+    float energyI_U = MNeutronCorr_IntEnergy("NdetU", nIntegral);
 
 
-    if(nPSD < 1) continue;//gamma, skip
+    if(!(MNeutronCorr_Neutron("NdetU", nPSD, energy_U))) continue; //gamma
     if(nMax < nPolarity*(nThreshold - nPedestal)) continue;
     if(*(std::min_element(nSamples.begin(), nSamples.end())) == 0) continue;
     if(*(std::max_element(nSamples.begin(), nSamples.end())) >= 16383) continue;
@@ -210,13 +215,16 @@ INT MNeutronCorr(EVENT_HEADER *pheader, void *pevent) {
       if(max < polarity*(threshold-pedestal)) continue;
       if(*(std::min_element(samples.begin(), samples.end())) == 0) continue;
       if(*(std::max_element(samples.begin(), samples.end())) >= max_adc) continue;
-      if(ndown_pulses[d]->GetPSDParameter() < 1) continue; //gamma, skip
+
+      float energyI_D = MNeutronCorr_IntEnergy("NdetD", integral_ps);
+      float energy_D = MNeutronCorr_Energy("NdetD", max);
+      float dPSD = ndown_pulses[d]->GetPSDParameter();
+
+      if(!(MNeutronCorr_Neutron("NdetD", dPSD, energy_D))) continue; //gamma
       if(ndown_pulses[d]->GetVetoPulse()) continue;
 
       //look for correlated signal
-      
-      float energy_D = MNeutronCorr_IntEnergy("NdetD", integral_ps);
-      float energy_U = MNeutronCorr_IntEnergy("NdetU", nIntegral);
+     
 
       //two energies, energy_D and energy_U
       //two times, nTDiff and dt_n
@@ -234,6 +242,16 @@ INT MNeutronCorr(EVENT_HEADER *pheader, void *pevent) {
   return SUCCESS;
 }
   
+float MNeutronCorr_Energy(std::string detname, float amp) {
+  float energy = 0;
+  if(detname == "NdetD"){ energy = (amp * 0.0003999) + 0.008234;  }
+  else if(detname == "NdetU"){ energy = (amp * 0.0004015) + 0.009037;  }
+  else if(detname == "GeCHEH"){ energy = (amp * 0.0001522) - 0.0004239;  }
+  else if(detname == "GeCHEL"){ energy = (amp * 0.0003858) - 0.0017;    }
+  else if(detname == "LaBr3"){ energy = (amp * 0.00163022) - 0.00836618;  } 
+  else energy = amp;
+  return energy;
+}
 
 float MNeutronCorr_IntEnergy(std::string detname, float Int) {
   float energy = 0;
@@ -268,3 +286,19 @@ float MNeutronCorr_Threshold(std::string detname){
   return thresh;
 }
 
+bool MNeutronCorr_Neutron(std::string det, double ratio, float energy){
+
+  if(det == "NdetD"){  //need to update cuts for NdetD
+    if(ratio < 0.13) return 0; //gamma
+    else if(ratio < 0.155 && energy < 2.0) return 0; //gamma
+    else if(ratio < 0.18 && energy < 0.7) return 0;// gamma
+    else return 1; // neutron
+  }
+  if(det == "NdetU"){ 
+    if(ratio < 0.14) return 0; //gamma
+    else if(ratio < 0.17 && energy < 2.0) return 0; //gamma
+    else if(ratio < 0.2 && energy < 0.7) return 0;// gamma
+    else return 1; // neutron
+  }
+  return 0;
+}
