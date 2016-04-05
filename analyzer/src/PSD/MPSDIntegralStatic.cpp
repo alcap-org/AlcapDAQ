@@ -115,6 +115,7 @@ INT MPSDIntegralStatic_BookHistograms()
     hNdetIntegrals->GetXaxis()->SetTitle("Full Integral");
     NdetIntegrals_map[bankname] = hNdetIntegrals;
 
+    
     histname = "h" + detname + "_TailVEnergy";
     histtitle = "Tail Integral vs energy for " + detname;
     TH2F* hNdetEIntegral = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, 6.75, 1000, 0, 20000);

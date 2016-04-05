@@ -44,7 +44,7 @@ namespace {
   TH2D* vvhTDCWFDMatch_CutAlign[NCRATE][MAXNCHANWFD];
   const double TIME_LOW = -5e3, TIME_HIGH = 1e4;
   const double ALIGN_LOW = -100, ALIGN_HIGH = 100;
-  const double VETO_LOW = -15, VETO_HIGH = 15;
+  const double VETO_LOW = -40, VETO_HIGH = 40;
   const double PILEUP_LOW = -1e4, PILEUP_HIGH=1e4;
 }
 

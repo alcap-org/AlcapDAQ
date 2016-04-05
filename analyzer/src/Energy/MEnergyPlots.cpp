@@ -101,6 +101,13 @@ INT MEnergyPlots_BookHistograms()
     float max_amp_e = MEnergyPlots_GetEnergyAmp(detname, max_adc);
     float max_int_e = MEnergyPlots_GetEnergyInt(detname, max_bin_PS);
 
+    float max_fit = 7.5;
+    if(detname == "GeCHEH") max_fit = 2.5;
+    if(detname == "GeCHEL") max_fit = 6.0;
+    if(detname == "TSc") max_fit = 15000.0;
+    if(detname == "LaBr3") max_fit = 15.0;
+
+
     
     //hIntegralE_[detname]_[bankname]
     std::string histname = "hIntegralE_" + detname + "_" + bankname;
@@ -123,7 +130,7 @@ INT MEnergyPlots_BookHistograms()
     //hFitE_[detname]_[bankname]
     histname = "hFitE_" + detname + "_" + bankname;
     histtitle = "Energy of Pulses in " + detname + " (Fit Amplitude)";
-    TH1F* hFitHist = new TH1F(histname.c_str(), histtitle.c_str(), max_adc/4, 0, max_amp_e);
+    TH1F* hFitHist = new TH1F(histname.c_str(), histtitle.c_str(), 18000, 0, max_fit);
     hFitHist->GetXaxis()->SetTitle("Energy (MeV(ee))");
     hFitHist->GetYaxis()->SetTitle("Count");
     FitEnergy_map[bankname] = hFitHist;
