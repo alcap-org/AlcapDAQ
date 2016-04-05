@@ -239,6 +239,9 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	int nMatch = 0;
 	bool plot = false;
 	double trigTimes[6] = {0, 0, 0, 0, 0, 0};
+
+	if(det == "TSc" && pulses[p]->GetPileupPulse()) continue;
+
 	for(int a = a0; a<times.size(); ++a){
 	  double dt_cft = TICKTDC*times[a] - CFT - toff+tcorr;
 
@@ -263,6 +266,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	      double pileupTime = TICKWFD[icrate] * (pulses[p+1]->GetTimeStamp() - pulses[p]->GetTimeStamp() );
 	      if(PILEUP_LOW < pileupTime && PILEUP_HIGH > pileupTime){
 		pulses[p]->SetPileupPulse(true);
+		pulses[p+1]->SetPileupPulse(true);
 		//std::cout << "Pileup pulse : " << pileupTime << " " << pulses[p+1]->GetTimeStamp() << " " << pulses[p]->GetTimeStamp() << std::endl;
 		if(nMatch == 1) trigCount++;
 		plot = true;
