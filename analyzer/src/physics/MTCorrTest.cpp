@@ -119,7 +119,7 @@ INT MTCorrTest_init() {
       char histname[64]; sprintf(histname, "hTCorrTest_EvTDiff_%s", det.c_str());
       char histtitle[64]; sprintf(histtitle, "Energy vs TSC TDiff for %s", det.c_str());
       
-      vvhTCorrTest_EvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/14, TIME_LOW, TIME_HIGH, max_adc/2, 0, max_amp_e);
+      vvhTCorrTest_EvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/14, TIME_LOW, TIME_HIGH, max_adc/4, 0, max_amp_e);
       vvhTCorrTest_EvTDiff[icrate][ich]->GetXaxis()->SetTitle("TDiff (TDC) (ns)");
       vvhTCorrTest_EvTDiff[icrate][ich]->GetYaxis()->SetTitle("Energy (amplitude) (MeV)");
       
@@ -127,7 +127,7 @@ INT MTCorrTest_init() {
       ///////////// FE v TDiff //////////////////////
       sprintf(histname, "hTCorrTest_FEvTDiff_%s", det.c_str());
       sprintf(histtitle, "Fit Energy vs TSC TDiff for %s", det.c_str());
-      vvhTCorrTest_FEvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/2, TIME_LOW, TIME_HIGH, 7500, 0, max_fit);
+      vvhTCorrTest_FEvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/5, TIME_LOW, TIME_HIGH, 7500, 0, max_fit);
       vvhTCorrTest_FEvTDiff[icrate][ich]->GetXaxis()->SetTitle("TDiff (TDC) (ns)");
       vvhTCorrTest_FEvTDiff[icrate][ich]->GetYaxis()->SetTitle("Energy (fit) (MeV)");
 
