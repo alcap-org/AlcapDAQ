@@ -82,7 +82,7 @@ INT MTCorrTest_init() {
       char bank[5]; sprintf(bank, "D%d%02d", icrate, ich);
       std::string det = gSetup->GetDetectorName(bank);
 
-      if(det == "NdetD" || det == "NdetU" || det == "LaBr3"){
+      if(det == "NdetD" || det == "NdetU" /*|| det == "LaBr3"*/){
 	WFDBANKS[icrate][ich] = bank;
 	//TDCBANKS[icrate][ich] = gSetup->GetBankName("T" + det);
       }
@@ -90,10 +90,12 @@ INT MTCorrTest_init() {
 	WFDBANKS[icrate][ich] = bank;
 	//TDCBANKS[icrate][ich] = gSetup->GetBankName("TGeCHT");
       }
+      /*
       else if(det == "TSc") {
 	WFDBANKS[icrate][ich] = bank;
 	//TDCBANKS[icrate][ich] = gSetup->GetBankName("TTSc");
       }
+      */
       else{
 	WFDBANKS[icrate][ich] = "";
 	//TDCBANKS[icrate][ich] = "";
