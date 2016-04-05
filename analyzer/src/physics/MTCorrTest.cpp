@@ -234,9 +234,9 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	float max = pulses[p]->GetPulseHeight();
 	float threshold = MTCorrTest_Threshold(det);
 	float fit_max = 0;
-	if(det == "TSc") fit_max = max;
+	if(det == "TSc") fit_max = max;	
 	else fit_max = pulses[p]->GetFitMax();
-
+	
 	double PSD_ratio = pulses[p]->GetPSDParameter();
 
 	//pulse detail checks
@@ -342,7 +342,7 @@ float MTCorrTest_GetEnergyFit(std::string detname, double fit_amp){
   if(detname == "GeCHEH"){ energy = (fit_amp * 0.0001519) - 0.0002643;  }
   if(detname == "GeCHEL"){ energy = (fit_amp * 0.0003846) - 0.0003008;    }
   if(detname == "LaBr3"){ energy = (fit_amp * 0.00163022) - 0.00836618;  } 
-  if(detname == "TSc") {energy = fit_amp}
+  if(detname == "TSc") {energy = fit_amp; }
 
   return energy;
 }
