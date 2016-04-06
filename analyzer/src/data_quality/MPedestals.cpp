@@ -82,6 +82,10 @@ INT MPedestals_init() {
     vhRMS[bankname] = new TProfile(histname.c_str(), histtitle.c_str(),
 				   9, 2, 11, "S");
 
+    gTrendTree->InitRunBranch<Double_t>(bankname+"_PedAvg", -1.);
+    gTrendTree->InitRunBranch<Double_t>(bankname+"_PedRMS", -1.);
+    gTrendTree->InitRunBranch<Double_t>(bankname+"_PedPulseRMS", -1.);
+    gTrendTree->InitBlockBranch<double>(bankname+"_PedAvg", -1.);
   }
   return SUCCESS;
 }
@@ -90,14 +94,11 @@ INT MPedestals_eor(INT run)
 {
   map<std::string, TProfile*>::const_iterator his;
   for (his = vhAvg.begin(); his != vhAvg.end(); ++his) {
-    string brNameAvg      = his->first + "_PedAvg";
-    string brNameRMS      = his->first + "_PedRMS";
-    string brNamePulseRMS = his->first + "_PedPulseRMS";
-    gTrendTree->FillRunTree(brNameAvg.c_str(),
+    gTrendTree->FillRunTree(his->first+"_PedAvg",
 			    vhAvg.at(his->first)->GetBinContent(3));
-    gTrendTree->FillRunTree(brNameRMS.c_str(),
+    gTrendTree->FillRunTree(his->first+"_PedRMS",
 			    vhAvg.at(his->first)->GetBinError(3));
-    gTrendTree->FillRunTree(brNamePulseRMS.c_str(),
+    gTrendTree->FillRunTree(his->first+"_PedPulseRMS",
 			    vhRMS.at(his->first)->GetBinContent(3));
   }
   return SUCCESS;
@@ -118,25 +119,29 @@ INT MPedestals(EVENT_HEADER *pheader, void *pevent)
        mapIter != pulse_islands_map.end(); ++mapIter) {
     const std::string& bankname = mapIter->first;
     const std::vector<TPulseIsland*>& thePulses = mapIter->second;
-
+    double block_avg = 0.;
     // Loop over the TPulseIslands and plot the histogram
     for (std::vector<TPulseIsland*>::const_iterator pulseIter =
 	   thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
-      if (vhAvg.find(bankname) != vhAvg.end()) {
-	TProfile* hAvg = vhAvg[bankname];
-	TProfile* hRMS = vhRMS[bankname];
-	const vector<int>::const_iterator& s0 =
-	  (*pulseIter)->GetSamples().begin();
-	for (int ds = 2; ds <= 10; ++ds) {
-	  double sum = std::accumulate(s0, s0 + ds, 0.);
-	  double sqsum = std::inner_product(s0, s0 + ds,
-					    s0, 0.);
-	  double avg = sum/ds;
-	  double std = std::sqrt(sqsum/(ds-1) - avg*avg*ds/(ds-1));
-	  hAvg->Fill(ds, avg);
-	  hRMS->Fill(ds, std);
-	}
+      if (vhAvg.find(bankname) == vhAvg.end()) continue;
+      TProfile* hAvg = vhAvg[bankname];
+      TProfile* hRMS = vhRMS[bankname];
+      const vector<int>::const_iterator& s0 =
+	(*pulseIter)->GetSamples().begin();
+      for (int ds = 2; ds <= 10; ++ds) {
+	double sum = std::accumulate(s0, s0 + ds, 0.);
+	double sqsum = std::inner_product(s0, s0 + ds,
+					  s0, 0.);
+	double avg = sum/ds;
+	double std = std::sqrt(sqsum/(ds-1) - avg*avg*ds/(ds-1));
+	hAvg->Fill(ds, avg);
+	hRMS->Fill(ds, std);
+	if (ds == 4) block_avg += avg;
       }
+    }
+    if (thePulses.size() > 0) {
+      block_avg /= thePulses.size();
+      gTrendTree->FillBlockTree(mapIter->first+"_PedAvg", block_avg);
     }
   }
   return SUCCESS;

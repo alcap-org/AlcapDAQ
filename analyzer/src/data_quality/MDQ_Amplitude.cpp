@@ -47,6 +47,7 @@
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "TPulseIsland.h"
+#include "TTrendTree.h"
 
 using std::string;
 using std::map;
@@ -61,6 +62,7 @@ INT  MDQ_Amplitude_eor(INT);
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
+extern TTrendTree* gTrendTree;
 
 namespace {
   TDirectory* DIR;
@@ -99,14 +101,13 @@ INT MDQ_Amplitude_init() {
       mapIter != Bank2DetMap.end(); mapIter++) { 
 
     const std::string bankname = mapIter->first;
-    const std::string detname = mapIter->second;
     if(TSetupData::IsTDC(bankname)) continue;
-    const int n_bits = gSetup->GetNBits(bankname);
+    const int n_bits = 14;
     const int max_adc_value = std::pow(2, n_bits);
 
     // hDQ_Amplitude_[DetName]_[BankName]
-    const std::string histname = "hDQ_Amplitude_" + detname + "_" + bankname;
-    const std::string histtitle = "Amplitude of Pulses in " + detname;
+    const std::string histname = "hDQ_Amplitude_" + bankname;
+    const std::string histtitle = "Amplitude of Pulses in " + bankname;
     TH1F* hDQ_Histogram = new TH1F(histname.c_str(), histtitle.c_str(), 
 				max_adc_value, 0, max_adc_value);
     hDQ_Histogram->GetXaxis()->SetTitle("Amplitude [adc]");
@@ -122,36 +123,50 @@ INT MDQ_Amplitude_init() {
     DQ_Amplitude_histograms_ped_sub_map[bankname] = hDQ_Histogram_PedSub;
   }
 
+  // Setup TTrendTree
+  for (map<string, TH1F*>::const_iterator ih = DQ_Amplitude_histograms_map.begin();
+       ih != DQ_Amplitude_histograms_map.end(); ++ih) {
+    gTrendTree->InitRunBranch<Int_t>(ih->first+"_AmpMode", -1);
+    gTrendTree->InitRunBranch<Double_t>(ih->first+"_AmpMean", -1.);
+  }
+
   cwd->cd();
   return SUCCESS;
 }
 
 INT MDQ_Amplitude_eor(INT run_number) {
-  TDirectory* cwd = gDirectory;
-  DIR->cd();
+  for (map<string, TH1F*>::const_iterator ih = DQ_Amplitude_histograms_map.begin();
+       ih != DQ_Amplitude_histograms_map.end(); ++ih) {
+    gTrendTree->FillRunTree(ih->first + "_AmpMode",
+				   ih->second->GetMaximumBin());
+    gTrendTree->FillRunTree(ih->first + "_AmpMean",
+				      ih->second->GetMean());
+  }
+  // TDirectory* cwd = gDirectory;
+  // DIR->cd();
   
-  for (map<string, TH1F*>::const_iterator ihist = DQ_Amplitude_histograms_map.begin();
-       ihist != DQ_Amplitude_histograms_map.end(); ++ihist) {
-    string name(ihist->second->GetName());
-    string title(ihist->second->GetTitle());
-    name += "_normalised";
-    title += " (normalised)";
-    TH1* h = (TH1*)ihist->second->Clone(name.c_str());
-    h->SetTitle(title.c_str());
-    h->Scale(1./gData->NMuRun());
-  }
-  for (map<string, TH1F*>::const_iterator ihist = DQ_Amplitude_histograms_ped_sub_map.begin();
-       ihist != DQ_Amplitude_histograms_ped_sub_map.end(); ++ihist) {
-    string name(ihist->second->GetName());
-    string title(ihist->second->GetTitle());
-    name += "_normalised";
-    title += " (normalised)";
-    TH1* h = (TH1*)ihist->second->Clone(name.c_str());
-    h->SetTitle(title.c_str());
-    h->Scale(1./gData->NMuRun());
-  }
+  // for (map<string, TH1F*>::const_iterator ihist = DQ_Amplitude_histograms_map.begin();
+  //      ihist != DQ_Amplitude_histograms_map.end(); ++ihist) {
+  //   string name(ihist->second->GetName());
+  //   string title(ihist->second->GetTitle());
+  //   name += "_normalised";
+  //   title += " (normalised)";
+  //   TH1* h = (TH1*)ihist->second->Clone(name.c_str());
+  //   h->SetTitle(title.c_str());
+  //   h->Scale(1./gData->NMuRun());
+  // }
+  // for (map<string, TH1F*>::const_iterator ihist = DQ_Amplitude_histograms_ped_sub_map.begin();
+  //      ihist != DQ_Amplitude_histograms_ped_sub_map.end(); ++ihist) {
+  //   string name(ihist->second->GetName());
+  //   string title(ihist->second->GetTitle());
+  //   name += "_normalised";
+  //   title += " (normalised)";
+  //   TH1* h = (TH1*)ihist->second->Clone(name.c_str());
+  //   h->SetTitle(title.c_str());
+  //   h->Scale(1./gData->NMuRun());
+  // }
 
-  cwd->cd();
+  // cwd->cd();
   return SUCCESS;
 }
 
@@ -193,7 +208,8 @@ INT MDQ_Amplitude(EVENT_HEADER *pheader, void *pevent)
 	
 	int amplitude = (*pulseIter)->GetPulseHeight();
 	hDQ_Amplitude_PedSub->Fill(amplitude);
-	
+	// if (bankname == "SIS3300_B1C7" && theSamples.at(peak_sample) < 130)
+	//   (*pulseIter)->GetPulseWaveform("weirdwf", "weirdwf")->Write();
       }
     }
   }

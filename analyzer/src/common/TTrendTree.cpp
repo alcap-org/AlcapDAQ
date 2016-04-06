@@ -1,5 +1,5 @@
 /* Standard includes */
-#include <cassert>
+#include <cstring>
 
 /* ROOT invludes */
 #include <TBranch.h>
@@ -8,26 +8,31 @@
 /* AlCap includes */
 #include "TTrendTree.h"
 
-TTrendTree::TTrendTree() : fRunTree(NULL), fBlockTree(NULL) {
+TTrendTree::TTrendTree() : fActive(false), fpBlockVals(), fpRunVals(),
+			   fpBlockDefaults(), fpRunDefaults(),
+			   fBlockSizeOfPtrs(), fRunSizeOfPtrs(),
+                           fRunTree("RunTrend", "Trends over run"),
+                           fBlockTree("BlockTrend", "Trends over block") {
+  fRunTree.SetDirectory(0);
+  fBlockTree.SetDirectory(0);
 }
 
-void TTrendTree::Init(int run) {
-  fRunTree   = new TTree("RunTrend", "Trends over run");
-  fBlockTree = new TTree("BlockTrend", "Trends over block");
-  FillRunTree("run", run);
+void TTrendTree::Init() {
+  fActive = true;
 }
 
-void TTrendTree::Finish() {
-  if (fRunTree) {
-    fRunTree->SetEntries();
-    fRunTree->Write();
-    delete fRunTree;
-    fRunTree = NULL;
-  }
-  if (fBlockTree) {
-    fBlockTree->SetEntries();
-    fBlockTree->Write();
-    delete fBlockTree;
-    fBlockTree = NULL;
-  }
+void TTrendTree::EOB() {
+  fBlockTree.Fill();
+  for (int i = 0; i < fpBlockVals.size(); ++i)
+    memcpy(fpBlockVals[i], fpBlockDefaults[i], fBlockSizeOfPtrs[i]);
+}
+
+void TTrendTree::EOR() {
+  fRunTree  .Fill();
+  for (int i = 0; i < fpRunVals.size(); ++i)
+    memcpy(fpRunVals[i], fpRunDefaults[i], fRunSizeOfPtrs[i]);  
+  fRunTree  .Write();
+  fBlockTree.Write();
+  fRunTree  .Reset();
+  fBlockTree.Reset();
 }

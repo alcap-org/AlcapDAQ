@@ -46,6 +46,13 @@ ANA_MODULE MTrendTree_module =
 
 INT MTrendTree_init()
 {
+  gTrendTree->Init();
+  gTrendTree->InitRunBranch<int>("run", -1);
+  gTrendTree->InitRunBranch<int>("blocks", -1);
+  gTrendTree->InitRunBranch<ULong64_t>("start", 0);
+  gTrendTree->InitRunBranch<ULong64_t>("stop", 0);
+  gTrendTree->InitBlockBranch<int>("run", -1);
+  gTrendTree->InitBlockBranch<int>("block", -1);
   return SUCCESS;
 }
 
@@ -55,14 +62,12 @@ INT MTrendTree_bor(INT run)
 {
   gRun = run;
   gBlocks = 0;
-  gTrendTree->Init(run);
   return SUCCESS;
 }
 
 INT MTrendTree_eor(INT run)
 {
-
-  // Get start, stop, and run times
+  // Get start and stop times.
   ULong64_t start = 0, stop = 0;
   int size = sizeof(DWORD);
   char keyname[128];
@@ -72,10 +77,11 @@ INT MTrendTree_eor(INT run)
   sprintf(keyname, "/Runinfo/Stop time binary");
   db_get_value(hDB, 0, keyname, &stop, &size, TID_DWORD, false);
 
+  gTrendTree->FillRunTree("run",    gRun);
+  gTrendTree->FillRunTree("blocks", gBlocks);
   gTrendTree->FillRunTree("start",  start);
   gTrendTree->FillRunTree("stop",   stop);
-  gTrendTree->FillRunTree("blocks", gBlocks);
-  gTrendTree->Finish();
+  gTrendTree->EOR();
   return SUCCESS;
 }
 
@@ -84,11 +90,10 @@ INT MTrendTree_exit()
   return SUCCESS;
 }
 
-// Even though we don't use this, we need it to be called.
 INT MTrendTree(EVENT_HEADER* ev, void*)
 {
-  ++gBlocks;
   gTrendTree->FillBlockTree("run",   gRun);
-  gTrendTree->FillBlockTree("block", ev->serial_number);
+  gTrendTree->FillBlockTree("block", gBlocks++);
+  gTrendTree->EOB();
   return SUCCESS;
 }
