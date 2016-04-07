@@ -173,12 +173,11 @@ INT TPedestal_init_wfd(const std::string& bank,
 // so that the online display updates
 INT TPedestal_bor(INT run_number) {
   gTrendTree->Init();
-  gTrendTree->InitRunBranch("run", 0);
+  gTrendTree->InitRunBranch<int>("run", 0);
   gTrendTree->FillRunTree("run", run_number);
   std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
   for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin();
       mapIter != bank_to_detector_map.end(); mapIter++) {
-
     std::string bankname = mapIter->first;
     if(TSetupData::IsWFD(bankname) ) {
       height_histograms_map[bankname]->Reset();
@@ -190,6 +189,7 @@ INT TPedestal_bor(INT run_number) {
 }
 INT TPedestal_eor(INT run_number) {
   TDetector * detector = new TDetector("");
+  gTrendTree->InitRunBranch<TDetector *>("detector", detector);
   std::vector<std::string> vName, vChannel;
   std::vector<Float_t> vMean, vStddev, vRms;
   std::string bankname = "";
@@ -200,22 +200,20 @@ INT TPedestal_eor(INT run_number) {
       mapIter != bank_to_detector_map.end(); mapIter++) {
 
     bankname = mapIter->first;
-//    if(bankname.compare("SIS3300_B4C1") != 0 && bankname.compare("SIS3300_B4C2") !=0) continue;
-    if(bankname.find("SIS3300") == std::string::npos) continue;
-//    if(bankname.find("SIS3300_B4C1") == std::string::npos) continue;
-      hMean = pedestal_mean_map[bankname]->GetMean();
-      hStddev = pedestal_stddev_map[bankname]->GetMean();
-      hRms = pedestal_rms_map[bankname]->GetMean();
-      if(bankname.find("_") != std::string::npos) {
-        vName.push_back(bankname.substr(0, 7) );
-        vChannel.push_back(bankname.substr(8) );
-      } else {
-        vName.push_back("");
-        vChannel.push_back(bankname);
-      }
-      vMean.push_back(hMean);
-      vStddev.push_back(hStddev);
-      vRms.push_back(hRms);
+//    if(bankname.find("D40") == std::string::npos) continue;
+    hMean = pedestal_mean_map[bankname]->GetMean();
+    hStddev = pedestal_stddev_map[bankname]->GetMean();
+    hRms = pedestal_rms_map[bankname]->GetMean();
+    if(bankname.find("_") != std::string::npos) {
+      vName.push_back(bankname.substr(0, 7) );
+      vChannel.push_back(bankname.substr(8) );
+    } else {
+      vName.push_back("");
+      vChannel.push_back(bankname);
+    }
+    vMean.push_back(hMean);
+    vStddev.push_back(hStddev);
+    vRms.push_back(hRms);
   }
   detector->sName = vName;
   detector->sChannel = vChannel;
@@ -260,9 +258,7 @@ INT TPedestal(EVENT_HEADER *pheader, void *pevent) {
        theMapIter != pulses_map.end(); theMapIter++) {
     std::string bankname = theMapIter->first;
     std::vector<TPulseIsland*> thePulses = theMapIter->second;
-//    if(bankname.compare("SIS3300_B4C1") != 0 && bankname.compare("SIS3300_B4C2") !=0) continue;
-    if(bankname.find("SIS3300") == std::string::npos) continue;
-//    if(bankname.find("SIS3300_B4C1") == std::string::npos) continue;
+//    if(bankname.find("D40") == std::string::npos) continue;
     // Loop over the TPulseIslands and plot the histogram
     for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
          pulseIter != thePulses.end(); pulseIter++) {
@@ -278,14 +274,11 @@ INT TPedestal(EVENT_HEADER *pheader, void *pevent) {
     std::string bankname = theMapIter->first;
     std::vector<TPulseIsland*> thePulses = theMapIter->second;
 
-//    if(bankname.compare("SIS3300_B4C1") != 0 && bankname.compare("SIS3300_B4C2") !=0) continue;
-    if(bankname.find("SIS3300") == std::string::npos) continue;
-//    if(bankname.find("SIS3300_B4C1") == std::string::npos) continue;
+//    if(bankname.find("D40") == std::string::npos) continue;
     // Loop over the TPulseIslands and plot the histogram
     for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
          pulseIter != thePulses.end(); pulseIter++) {
       if(sizeof(xpeaks)/sizeof(*xpeaks)>1 && xpeaks[1] > 2000  &&(*pulseIter)->GetPulseHeight() > (xpeaks[1]-200) ) continue; //is the sync pulse height, remove sync pulse
-//        printf("%s, %f, %d\n", bankname.c_str(), xpeaks[1], sizeof(xpeaks)/sizeof(*xpeaks));
         // Make sure the histograms exist and then fill them
         TH2* shape_histogram = shape_histograms_map[bankname];
         TH2* pedestal_values_histogram = pedestal_values_map[bankname];
