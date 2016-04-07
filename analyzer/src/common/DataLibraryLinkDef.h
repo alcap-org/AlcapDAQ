@@ -28,4 +28,5 @@
 
 #pragma link C++ class TMuPCCluster+;
 
+#pragma link C++ class TDetector+;
 #endif
