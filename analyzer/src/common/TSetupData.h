@@ -158,6 +158,7 @@ class TSetupData : public TObject{
   static bool IsFast(const std::string& BankName) {
     return (*(BankName.end() -1) == 'F' || BankName.substr(0,2) == "Sc" );
   }
+  //waveform digitizer
   static bool IsWFD(const std::string& BankName) {
     return BankName.at(0) == 'D' || BankName.at(0) == 'S';
   }
