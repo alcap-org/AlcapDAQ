@@ -1,11 +1,3 @@
-common/MUnCompressRawData
-
-v1720/MV1720ProcessRaw
 v1724/MV1724ProcessRaw
-dt5730/MDT5730ProcessRaw
-dt5720/MDT5720ProcessRaw
-v1290/MV1290ProcessRaw
-sis3350/MSIS3350ProcessRaw
-sis3300/MSIS3300ProcessRaw
-#common/MTreeOutput
+common/MTreeOutput
 vacuum/MVacuumHisto

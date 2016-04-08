@@ -86,6 +86,8 @@ ANA_MODULE TPedestal_module =
 
 /** This method initializes histograms.
 */
+static int gRun = -1;
+static int gBlocks = -1;
 INT TPedestal_init() {
 //  gROOT->ProcessLine("#include <vector>");
 
@@ -235,7 +237,7 @@ Float_t * TPedestal_findPeaks(TH1I* height_histogram)
   TSpectrum *spc = new TSpectrum(2); //2 peak candidates
   Int_t nfound = spc->Search(height_histogram, sigma, "", threshold);
   Float_t * xpeaks = spc->GetPositionX();
-  std::sort(xpeaks, xpeaks + nfound);
+  std::sort(xpeaks, xpeaks + sizeof(xpeaks)/sizeof(*xpeaks) );
   return xpeaks;
 }
 /** This method processes one MIDAS block, producing a vector
@@ -257,7 +259,6 @@ INT TPedestal(EVENT_HEADER *pheader, void *pevent) {
     std::string bankname = theMapIter->first;
     std::vector<TPulseIsland*> thePulses = theMapIter->second;
 //    if(bankname.find("D40") == std::string::npos) continue;
-    if(!TSetupData::IsWFD(bankname) ) continue;
     // Loop over the TPulseIslands and plot the histogram
     for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
          pulseIter != thePulses.end(); pulseIter++) {
@@ -277,31 +278,28 @@ INT TPedestal(EVENT_HEADER *pheader, void *pevent) {
     // Loop over the TPulseIslands and plot the histogram
     for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
          pulseIter != thePulses.end(); pulseIter++) {
-      if(TSetupData::IsWFD(bankname) )
-      {
-        if(sizeof(xpeaks)/sizeof(*xpeaks)>1 && xpeaks[1] > 2000 && (*pulseIter)->GetPulseHeight() > (xpeaks[1]-200) ) continue; //is the sync pulse height, remove sync pulse
-      }
-      // Make sure the histograms exist and then fill them
-      TH2* shape_histogram = shape_histograms_map[bankname];
-      TH2* pedestal_values_histogram = pedestal_values_map[bankname];
-      TH1* pedestal_mean_histogram = pedestal_mean_map[bankname];
-      TH1* pedestal_stddev_histogram = pedestal_stddev_map[bankname];
-      TH1* pedestal_rms_histogram = pedestal_rms_map[bankname];
-      pedestal_values_histogram->Reset();
+      if(sizeof(xpeaks)/sizeof(*xpeaks)>1 && xpeaks[1] > 2000  &&(*pulseIter)->GetPulseHeight() > (xpeaks[1]-200) ) continue; //is the sync pulse height, remove sync pulse
+        // Make sure the histograms exist and then fill them
+        TH2* shape_histogram = shape_histograms_map[bankname];
+        TH2* pedestal_values_histogram = pedestal_values_map[bankname];
+        TH1* pedestal_mean_histogram = pedestal_mean_map[bankname];
+        TH1* pedestal_stddev_histogram = pedestal_stddev_map[bankname];
+        TH1* pedestal_rms_histogram = pedestal_rms_map[bankname];
+        pedestal_values_histogram->Reset();
 
-      std::vector<int> theSamples = (*pulseIter)->GetSamples();
-      for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
-        int sample_number = sampleIter - theSamples.begin();
-        int sample_value = *sampleIter;
-        shape_histogram->Fill(sample_number, sample_value);      
-        if(sample_number >= 0 && sample_number < 10) {
-          pedestal_values_histogram->Fill(sample_number, sample_value);
+        std::vector<int> theSamples = (*pulseIter)->GetSamples();
+        for (std::vector<int>::iterator sampleIter = theSamples.begin(); sampleIter != theSamples.end(); sampleIter++) {
+          int sample_number = sampleIter - theSamples.begin();
+          int sample_value = *sampleIter;
+          shape_histogram->Fill(sample_number, sample_value);      
+          if(sample_number >= 100 && sample_number < 120) {
+            pedestal_values_histogram->Fill(sample_number, sample_value);
+          }
         }
-      }
-      pedestal_mean_histogram->Fill(pedestal_values_histogram->GetMean(2) );
-      pedestal_stddev_histogram->Fill(pedestal_values_histogram->GetStdDev(2) );
-      double rootMeanSquare = std::sqrt ( pedestal_values_histogram->GetMean(2)*pedestal_values_histogram->GetMean(2) + pedestal_values_histogram->GetStdDev(2)*pedestal_values_histogram->GetStdDev(2) );
-      pedestal_rms_histogram->Fill(rootMeanSquare ); 
+        pedestal_mean_histogram->Fill(pedestal_values_histogram->GetMean(2) );
+        pedestal_stddev_histogram->Fill(pedestal_values_histogram->GetStdDev(2) );
+        double rootMeanSquare = std::sqrt ( pedestal_values_histogram->GetMean(2)*pedestal_values_histogram->GetMean(2) + pedestal_values_histogram->GetStdDev(2)*pedestal_values_histogram->GetStdDev(2) );
+        pedestal_rms_histogram->Fill(rootMeanSquare ); 
     }
   }
 

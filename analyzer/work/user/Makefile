@@ -38,7 +38,7 @@ endif
 MIDAS_LIBS = $(MIDASSYS)/$(LINUXARCH)/lib/rmana.o \
              -L $(MIDASSYS)/$(LINUXARCH)/lib \
              -lmidas -lutil
-ROOT_LIBS = $(shell $(ROOTSYS)/bin/root-config --libs) -lThread -lGui -lMinuit -lSpectrum
+ROOT_LIBS = $(shell $(ROOTSYS)/bin/root-config --libs) -lThread -lGui -lMinuit
 UNCOMPRESS_LIBS = -L$(COMPRESS) -L$(MD5) -lmd5
 ALL_LIBS =  $(MIDAS_LIBS) $(ROOT_LIBS) $(UNCOMPRESS_LIBS)
 
