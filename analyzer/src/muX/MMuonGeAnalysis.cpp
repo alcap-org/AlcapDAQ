@@ -351,7 +351,7 @@ void MakeTripleCoincidenceHists(std::vector<TMuonHit>* muons, std::vector<TGeHit
                 if(tDiff > tDiffGeLow && tDiff < tDiffGeHigh)
                 {
                   hGe1EnergyVsGe2EnergyVsMuonTime->Fill(energy1,energy2,tDiffMuon);
-                  if(muons->at(iMuon).IsPPMuon()) hGe1EnergyVsGe2EnergyVsMuonTimePPex->Fill(energy1,energy2,tDiffMuon);
+                  if(muons->at(iMuon).IsPPMuon()) hGe1EnergyVsGe2EnergyVsMuonTimePP->Fill(energy1,energy2,tDiffMuon);
                   if(gehits->at(iGe1).GoodHit() && gehits->at(iGe2).GoodHit() && muons->at(iMuon).IsPPMuon()) hGe1EnergyVsGe2EnergyGoodHitsVsMuonTimePP->Fill(energy1,energy2,tDiffMuon);
                 }
               }
