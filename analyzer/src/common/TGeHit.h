@@ -49,14 +49,14 @@ class TGeHit : public TObject {
   float GetTPulseAmpBlockPed();
   float GetTPulseAmpFixedPed();
   
-  float GetEnergy() { return GetEPulseHeight(); } // should become energy calibrated pulse height
+  double GetEnergy(double a, double b,bool pedestal_subtract=false);// should become energy calibrated pulse height
   float GetBlockEPedestal() { return blockEPedestal; }
   float GetBlockTPedestal() { return blockTPedestal; }
   
   TPulseIsland* GetEPulse(){ return ePulse; }
   TPulseIsland* GetTPulse(){ return tPulse; }
   
-  double GetTime() { return fTime; }
+  double GetTime() { return fTime + tPulse->GetClockTickInNs()*tPulse->GetTimeStamp(); }
   
   bool FoundTPulse() { return foundTPulse; }
   bool MatchEVsT() { return matchEVsT; }
@@ -72,13 +72,22 @@ class TGeHit : public TObject {
   void SetTPulse(TPulseIsland* pulse) { tPulse = pulse; }
   void SetEPedestal(float value) { blockEPedestal = value; }
   void SetTPedestal(float value) { blockTPedestal = value; }
-  void SetTime(float value) { fTime = value; }
+  void SetTime(double value) { fTime = value;}
   
   //Pulse analysis ****
-  int SearchTPulses();
+  double SearchTPulses();
   int PulseShapeAnalysis();
   bool InEVsTBand(float eAmp, float tAmp);
   bool InAmpVsIntBand(float amp, float in);
+  
+  struct TimeSortHits {
+    bool operator()(TGeHit h1, TGeHit h2) {
+      double t1 = h1.GetTime();
+      double t2 = h2.GetTime();
+      return t1 < t2;
+    }
+  };
+
 
  private:
  
@@ -89,7 +98,7 @@ class TGeHit : public TObject {
   float blockEPedestal;
   float blockTPedestal;
   
-  float fTime;
+  double fTime; //time of the pulse within the island in ns
   
   //Hit quality bits
   bool foundTPulse;
@@ -129,15 +138,18 @@ class TGeHit : public TObject {
   //double slowTime; // in ns
   //double fastTime; // in ns
   
+  int pulseLength;
+  
+  private:
   /// Copying is made explicitly private since we do not need it yet.
-  TGeHit(const TGeHit& src);
+  //TGeHit(const TGeHit& src);
   /// Assignment is made explicitly private since we do not need it yet.
-  TGeHit operator=(const TGeHit& rhs); 
+  //TGeHit operator=(const TGeHit& rhs); 
   
   void Reset();
 
 
-  ClassDef(TGeHit, 1);
+  ClassDef(TGeHit, 2);
 };
 
 #endif

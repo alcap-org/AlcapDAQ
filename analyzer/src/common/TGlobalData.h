@@ -11,6 +11,7 @@
 #include "TPulseIsland.h"
 #include "TMuPCCluster.h"
 #include "TGeHit.h"
+#include "TMuonHit.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief
@@ -46,10 +47,16 @@ class TGlobalData : public TObject{
   std::map< std::string, std::vector<int64_t> > fTDCHitsToChannelMap;
   
   //Ge detector hits
-  std::vector<TGeHit*> fGeHits;
-  void AddGeHit(TGeHit* hit){fGeHits.push_back(hit);}
-  std::vector<TGeHit* > GetGeHits() { return fGeHits; }
+  std::vector<TGeHit> fGeHits;
+  void AddGeHit(TGeHit hit){fGeHits.push_back(hit);}// std::cout << "hit added of time " << fGeHits.size() << std::endl; }
+  std::vector<TGeHit>* GetGeHits() { return &fGeHits; }
   void ClearGeHits() { fGeHits.clear(); }
+  
+  //Muon entrances
+  std::vector<TMuonHit> fMuonHits;
+  void AddMuonHit(TMuonHit hit){ fMuonHits.push_back(hit);}
+  std::vector<TMuonHit>* GetMuonHits() { return &fMuonHits; }
+  void ClearMuonHits() { fMuonHits.clear(); }
 
   /// Pulse alignment
   /// The index of the TDC synchronization pulse that aligns with the

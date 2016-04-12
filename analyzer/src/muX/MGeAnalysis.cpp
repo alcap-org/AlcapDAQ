@@ -71,6 +71,8 @@ namespace {
   TH3 *hGeShape;
   TH2* hGe1MaxSampleVsE;
   TH2* hGe2MaxSampleVsE;
+  TH1 *hGeHitTimes;
+  TH2 *hGeHitTimeVersusAmplitude;
 }
 
 ANA_MODULE MGeAnalysis_module =
@@ -147,15 +149,16 @@ INT MGeAnalysis_init()
   hGe1MaxSampleVsE = new TH2F("hGe1MaxSampleVsE"," Max Sample fast channel versus amplitude slow channel ; Max Sample; Amplitude",400,0,400,8500,0.,17000.);
   hGe2MaxSampleVsE = new TH2F("hGe2MaxSampleVsE"," Max Sample fast channel versus amplitude slow channel ; Max Sample; Amplitude",400,0,400,8500,0.,17000.);
   
-  std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
+  /*std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
   for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin(); mapIter != bank_to_detector_map.end(); mapIter++) { 
 
       std::string bankname = mapIter->first;
       std::string detname = gSetup->GetDetectorName(bankname);
-    }
+    }*/
     
-    
+  hGeHitTimes = new TH1I("hGeHitTimes","germanium hit times; time(ns)", 1000, 0., 100000000);
 
+  hGeHitTimeVersusAmplitude = new TH2F("hGeHitTimeVersusAmplitude","Hit time within the island versus E pulse amplitude; time (ns) ; Pulse Height (ADC)",100,0,5000,170,0,17000);
 
   return SUCCESS;
 }
@@ -269,6 +272,7 @@ int MatchEandT(const vector<TPulseIsland*>* Epulses,const vector<TPulseIsland*>*
     int peakSample = Tpulses->at(i)->GetPeakSample();
     double Epedestal = Epulses->at(i)->GetPedestal();
     double TPedestal = Tpulses->at(i)->GetPedestal();
+
     
     if(Echannel ==1)
     {
@@ -290,12 +294,11 @@ int MatchEandT(const vector<TPulseIsland*>* Epulses,const vector<TPulseIsland*>*
     if(acceptHit)
     {
       //Set Flags (pile up, pulse quality, ... )
-      hit.SearchTPulses();
+      double timeInIsland = hit.SearchTPulses(); 
       hit.PulseShapeAnalysis();
-             
-      //Set Hit
-      gData->AddGeHit(&hit);
+      hGeHitTimeVersusAmplitude->Fill(timeInIsland,Eamplitude);
       
+      //if(timeInIsland<1) { cout << "pulse size" << Tpulses->at(i)->GetPulseLength() << "  " << hit.Shape() << " " << hit.MatchEVsT() << endl; } 
       //Set previously calculated pedestals
       if(Echannel ==1)
       {
@@ -305,14 +308,18 @@ int MatchEandT(const vector<TPulseIsland*>* Epulses,const vector<TPulseIsland*>*
       if(Echannel==2)
       {
         hit.SetEPedestal(ped->at(1));
-        hit.SetTPedestal(ped->at(2));
+        hit.SetTPedestal(ped->at(3));
       }
-      
+             
+      //Set Hit
+      gData->AddGeHit(hit);
+            
       //get info from the hits
       hGeHitStats->Fill(4+Echannel);
       if(!hit.SecondPulse()) hGeHitStats->Fill(6+Echannel);
       if(hit.MatchEVsT()) hGeHitStats->Fill(8+Echannel);
       if(hit.Shape()) hGeHitStats->Fill(10+Echannel);
+      hGeHitTimes->Fill(hit.GetTime()); 
     }
         
     //

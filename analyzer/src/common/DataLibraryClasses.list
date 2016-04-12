@@ -3,5 +3,6 @@ TSetupData
 TPulseIsland
 TMuPCCluster
 TGeHit
+TMuonHit
 
 TVacuumData

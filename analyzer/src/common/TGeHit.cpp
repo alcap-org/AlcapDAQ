@@ -18,11 +18,11 @@ TGeHit::TGeHit()
 {
 }
 
+
 TGeHit::TGeHit(int ch)
 {
    Reset();
    channel = ch;
-  
    //E vs T shape parameters
    aLow1 = -0.583386745289; //cuts for E Vs T Ge1
    aHigh1 = -0.192671241745;
@@ -51,12 +51,14 @@ TGeHit::TGeHit(int ch)
    
    cutLow = 10;
    cutHigh = 10;  
+   
+   pulseLength = 300; //number of samples
  
 }
 
 TGeHit::~TGeHit()
 {
-  Reset();
+  //Reset();
 }
 
 void TGeHit::Reset() {
@@ -68,6 +70,11 @@ void TGeHit::Reset() {
   matchEVsT = false;
   secondPulse = false;
   shape = false;
+  
+  blockEPedestal=0.;
+  blockTPedestal=0.;
+  
+  fTime=0.;
 }
 
 bool TGeHit::SetEPulse(TPulseIsland* pulse)
@@ -123,11 +130,13 @@ no: * look for second pulse
          
       no
 **/
-int TGeHit::SearchTPulses()
+double TGeHit::SearchTPulses()
 {
   float tAmp = GetTPulseHeight();
   float eAmp = GetEPulseHeight();
+  int eTime = ePulse->GetPeakSample();
   int tTime = tPulse->GetPeakSample();
+  double clockTick = tPulse->GetClockTickInNs();
   
 
   //check amplitude
@@ -136,7 +145,8 @@ int TGeHit::SearchTPulses()
     if(GetTFixedPedestal()-softT1Threshold < tAmp)
     {
       foundTPulse=false;
-      return 0;
+      fTime = eTime*clockTick ;
+      return fTime;
     }
   }
   if(channel == 2)
@@ -144,7 +154,8 @@ int TGeHit::SearchTPulses()
     if(GetTFixedPedestal()-softT2Threshold < tAmp)
     {
       foundTPulse=false;
-      return 0;
+      fTime = eTime*clockTick ; //Use E pulse to set the time
+      return fTime;
     }
   }
   foundTPulse = true; //one pulse found
@@ -176,18 +187,18 @@ int TGeHit::SearchTPulses()
   {
     if(GetTFixedPedestal()-softT1Threshold < secondAmp) //watch out, this is for negative pulses
     {
-      float t = tPulse->GetPulseTime() + tPulse->GetClockTickInNs()*tTime;
+      float t = tTime*clockTick ;
       fTime = t; //as there is no second pulse, set 'time' as the time of the first pulse
-      return 1;
+      return t;
     }
   }
   if(channel == 2)
   {
     if(GetTFixedPedestal() - softT2Threshold < secondAmp)
     {
-      float t = tPulse->GetPulseTime() + tPulse->GetClockTickInNs()*tTime;
+      float t = tTime*clockTick ;
       fTime = t; //as there is no second pulse, set 'time' as the time of the first pulse
-      return 1;
+      return t;
     }
   }
   
@@ -198,23 +209,23 @@ int TGeHit::SearchTPulses()
     //second pulse is found and it is a 'nice one. However, if the first one was also a 'nice one' take the time of the first one
     if( matchEVsT )
     {
-      float t = tPulse->GetPulseTime() + tPulse->GetClockTickInNs()*tTime;
+      float t = tTime*clockTick ;
       fTime = t;
     }
     else
     {
       matchEVsT = true;
-      float t = tPulse->GetPulseTime() + tPulse->GetClockTickInNs()*secondTime;
+      float t = tPulse->GetClockTickInNs()*secondTime;
       fTime = t;
     }
   }
   else //second pulse is not a 'nice' one, largest pulse gives the time
   {
-    float t = tPulse->GetPulseTime() + tPulse->GetClockTickInNs()*tTime;
+    float t = tTime*clockTick ;
     fTime = t;
   }
   
-  return 1;
+  return fTime;
  
   
 }
@@ -270,7 +281,20 @@ bool TGeHit::InAmpVsIntBand(float amp, float in)
 
 bool TGeHit::GoodHit()
 {
-  if( FoundTPulse() && MatchEVsT() && !SecondPulse() &&  Shape() )  return true;
+  if( FoundTPulse() && MatchEVsT() && !SecondPulse() &&  Shape() && ePulse->GetPulseLength() == pulseLength)  return true;
   else return false;
+}
+
+double TGeHit::GetEnergy(double a, double b, bool pedestal_subtract)
+{
+  double ped = GetEFixedPedestal();
+  double amp = GetEPulseHeight();
+  double block_ped = GetBlockEPedestal();
+  
+  double out = 0.;
+  if(pedestal_subtract == false) { out = a*amp+b; }
+  else { out = (amp-block_ped)*a; }
+  
+  return out;  
 }
 

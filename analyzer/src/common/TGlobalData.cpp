@@ -30,6 +30,7 @@ ClassImp(TGlobalData)
   fTDCSynchronizationPulseOffset.clear();
   
   fGeHits.clear();
+  fMuonHits.clear();
 
 
 }

@@ -25,6 +25,7 @@
 #pragma link C++ class pair<string, string>+;
 
 #pragma link C++ class TGeHit+;
+#pragma link C++ class TMuonHit;
 
 #pragma link C++ class TVacuumData+;
 

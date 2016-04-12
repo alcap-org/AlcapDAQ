@@ -71,7 +71,7 @@ double TPulseIsland::GetPulseTime() const {
   return fTimeStamp * GetClockTickInNs();
 }
 
-double TPulseIsland::GetCFTime(double frac) const {
+double TPulseIsland::GetCFTime(double frac) const {	
   const int ped = GetPedestal(10), pol = GetTriggerPolarity();
 
   const std::vector<int>::const_iterator
