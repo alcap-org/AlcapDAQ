@@ -2,6 +2,7 @@
 import sys
 import getpass
 import os
+debug = False
 content = ""
 def appendToContent(line):
   global content
@@ -36,11 +37,39 @@ author_name = raw_input("Name of author:") or getpass.getuser()
 module_name = raw_input("Name of MODULE:") or "default"
 module_description = raw_input("Description:") or ""
 
-function_list = ("init(void)", "exit(void)", "bor(INT)", "eor(INT)", "event(EVENT_HEADER*, void*)")
-include_standard_libraries = ("<stdio.h>", "<stdlib.h>", "<string>", "<map>",)
+function_list = (
+  "init(void)", 
+  "exit(void)", 
+  "bor(INT)", 
+  "eor(INT)", 
+  "event(EVENT_HEADER*, void*)"
+  )
+include_standard_libraries = (
+  "<stdio.h>", 
+  "<stdlib.h>",
+  "<string>",
+  "<map>",
+  )
 include_midas_libraries = ("\"midas.h\"",)
-include_alcap_libraries = ("\"TGlobalData.h\"", "\"TPulseIsland.h\"",)
-using_namespaces = ("std::string", "std::map", "std::vector", "std::pair",)
+include_alcap_libraries = (
+  "\"TGlobalData.h\"", 
+  "\"TPulseIsland.h\"",
+  "\"TTrendTree.h\"",
+  "\"TSetupData.h\"",
+  "\"TDetector.h\"",
+  )
+using_namespaces = (
+  "std::string", 
+  "std::map", 
+  "std::vector", 
+  "std::pair",
+  )
+extern_list = (
+  "HNDLE hDB",
+  "TGlobalData* gData",
+  "TSetupData* gSetup",
+  "TTrendTree* gTrendTree",
+  )
 
 constructIncludes(include_standard_libraries, "Standard includes");
 constructIncludes(include_midas_libraries, "MIDAS includes");
@@ -49,15 +78,24 @@ constructIncludes(include_alcap_libraries, "AlCap includes");
 appendToContent("/* namespaces */\n")
 for item in using_namespaces:
   appendToContent("using " + item + ";")
+
+for item in extern_list:
+  appendToContent("extern " + item + ";")
+
+appendToContent("/*-- Module declaration --------------------------------------------*/")
 for item in function_list:
   appendToContent("static INT " + module_name + "_" + item + ";")
 appendToContent(constructDescriptor(module_name, author_name) )
 
+
 for item in function_list:
   constructEmptyFunctions(module_name, item)
 
-source_directory = os.environ['DAQdir'] + "/analyzer/src/" +  author_name + "/"
-modulefile = open(source_directory + module_name + ".cpp", 'w+')
-modulefile.write(content)
-modulefile.close()
-print module_name + " generated in " + source_directory + "\n"
+if debug:
+  print content
+else:
+  source_directory = os.environ['DAQdir'] + "/analyzer/src/" +  author_name + "/"
+  modulefile = open(source_directory + module_name + ".cpp", 'w+')
+  modulefile.write(content)
+  modulefile.close()
+  print module_name + " generated in " + source_directory + "\n"
