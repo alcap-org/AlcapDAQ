@@ -86,7 +86,7 @@ double tCoinc = 50;
 double offSet = -15080.;
 
 //Ge coincidence window;
-double tDiffGeLow = -200.;
+double tDiffGeLow = -400.;
 double tDiffGeHigh = 200.;
 
 namespace {
