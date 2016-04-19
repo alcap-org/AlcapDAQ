@@ -334,12 +334,12 @@ void MakeTripleCoincidenceHists(std::vector<TMuonHit>* muons, std::vector<TGeHit
             double muonTime = muons->at(iMuon).GetTime()-offSet;
             double tDiffMuon = muonTime-geTime1;
                         
-            if(tDiffMuon < -tDiff) // muon hits to far before the germanium hit
+            if(tDiffMuon < -tWide) // muon hits to far before the germanium hit
             {
               ilowestMuon = iMuon;
               continue;
             }
-            if(tDiffMuon > tDiff) //jumped over the Ge hit
+            if(tDiffMuon > tWide) //jumped over the Ge hit
             {
               break;
             }
