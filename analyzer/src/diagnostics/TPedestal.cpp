@@ -200,7 +200,7 @@ INT TPedestal_eor(INT run_number) {
       mapIter != bank_to_detector_map.end(); mapIter++) {
 
     bankname = mapIter->first;
-//    if(bankname.find("D40") == std::string::npos) continue;
+    if(bankname.find("SIS3300_B1C1") == std::string::npos) continue;
     hMean = pedestal_mean_map[bankname]->GetMean();
     hStddev = pedestal_stddev_map[bankname]->GetMean();
     hRms = pedestal_rms_map[bankname]->GetMean();
@@ -258,7 +258,7 @@ INT TPedestal(EVENT_HEADER *pheader, void *pevent) {
        theMapIter != pulses_map.end(); theMapIter++) {
     std::string bankname = theMapIter->first;
     std::vector<TPulseIsland*> thePulses = theMapIter->second;
-//    if(bankname.find("D40") == std::string::npos) continue;
+    if(bankname.find("SIS3300_B1C1") == std::string::npos) continue;
     // Loop over the TPulseIslands and plot the histogram
     for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
          pulseIter != thePulses.end(); pulseIter++) {
@@ -274,7 +274,7 @@ INT TPedestal(EVENT_HEADER *pheader, void *pevent) {
     std::string bankname = theMapIter->first;
     std::vector<TPulseIsland*> thePulses = theMapIter->second;
 
-//    if(bankname.find("D40") == std::string::npos) continue;
+    if(bankname.find("SIS3300_B1C1") == std::string::npos) continue;
     // Loop over the TPulseIslands and plot the histogram
     for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
          pulseIter != thePulses.end(); pulseIter++) {

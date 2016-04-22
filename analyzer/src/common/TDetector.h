@@ -15,6 +15,10 @@ class TDetector : public TObject {
     std::vector<Float_t> fMean;
     std::vector<Float_t> fStddev;
     std::vector<Float_t> fRms;
+    std::vector<Float_t> fPedestal;
+    std::vector<Float_t> fTime;
+    std::vector<Float_t> fEnergy;
+    std::vector<Float_t> fAmplitude;
     ClassDef(TDetector, 2);
 };
 #endif

@@ -9,5 +9,5 @@
 TDetector::TDetector() {
 
 }
-TDetector::TDetector(std::string) {
+TDetector::TDetector(std::string sName) {
 }
