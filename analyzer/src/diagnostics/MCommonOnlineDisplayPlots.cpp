@@ -3,7 +3,10 @@
 Name:         MCommonOnlineDisplayPlots
 Created by:   Andrew Edmonds
 
-Contents:     One module that fills out histograms for the pulse heights, pulse shapes and the raw counts for all digitizer channels. These are all in one module to be more efficient in terms of minimising the number of times we loop through the channels.
+Contents:     One module that fills out histograms for the pulse heights, 
+pulse shapes and the raw counts for all digitizer channels. These are all 
+in one module to be more efficient in terms of minimising the number of 
+times we loop through the channels.
 
 \********************************************************************/
 
@@ -52,7 +55,7 @@ map<std::string, TH1I*> height_histograms_map;
 map<std::string, TH1I*> time_histograms_map;
 map<std::string, TH2D*> shape_histograms_map;
 map<std::string, TH1I*> latest_pulse_histograms_map;
-map<std::string, TH1I*> adcSum_histograms_map;
+map<std::string, TH1I*> adcIntegral_histograms_map;
 map<std::string, TH1F*> tdc_rawtime_histograms_map;
 map<std::string, TH1F*> tdc_rawtime_beginofblock_histograms_map;
 map<std::string, TH1F*> tdc_rawtime_endofblock_histograms_map;
@@ -156,7 +159,7 @@ INT MCommonOnlineDisplayPlots_init_wfd(const std::string& bank,
   TH1I* hadcSum = new TH1I(histname.c_str(), histtitle.c_str(), max_adc_value, 0, max_adc_value*1000);
   hLatestPulse->GetXaxis()->SetTitle("Time [ns]");
   hLatestPulse->GetYaxis()->SetTitle("ADC Value");
-  adcSum_histograms_map[bank] = hadcSum;
+  adcIntegral_histograms_map[bank] = hadcSum;
 
   return SUCCESS;
 }
@@ -208,7 +211,7 @@ INT MCommonOnlineDisplayPlots_bor(INT run_number) {
       time_histograms_map[bankname]->Reset();
       shape_histograms_map[bankname]->Reset();
       latest_pulse_histograms_map[bankname]->Reset();
-      adcSum_histograms_map[bankname]->Reset();
+      adcIntegral_histograms_map[bankname]->Reset();
     } else if (TSetupData::IsTDC(bankname)) {
       tdc_rawtime_histograms_map[bankname]->Reset();
       tdc_rawtime_beginofblock_histograms_map[bankname]->Reset();
@@ -264,8 +267,8 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent) {
       if (time_histograms_map.find(bankname) != time_histograms_map.end()) {
 	time_histograms_map[bankname]->Fill((*pulseIter)->GetPulseTime());
       }
-      if (adcSum_histograms_map.find(bankname) != adcSum_histograms_map.end()) {
-	adcSum_histograms_map[bankname]->Fill((*pulseIter)->GetPulseIntegral() );
+      if (adcIntegral_histograms_map.find(bankname) != adcIntegral_histograms_map.end()) {
+	adcIntegral_histograms_map[bankname]->Fill((*pulseIter)->GetPulseIntegral() );
       }
     }
 
