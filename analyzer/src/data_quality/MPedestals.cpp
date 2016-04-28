@@ -20,6 +20,7 @@
 /* ROOT includes */
 #include <TProfile.h>
 #include <TTree.h>
+#include <TSpectrum.h>
 
 /* AlCap includes */
 #include "TGlobalData.h"
@@ -36,6 +37,8 @@ using std::pair;
 INT MPedestals_init(void);
 INT MPedestals_eor(INT);
 INT MPedestals(EVENT_HEADER*, void*);
+
+Float_t * MPedestal_findPeaks(TH1I* height_histogram);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -104,6 +107,16 @@ INT MPedestals_eor(INT run)
   return SUCCESS;
 }
 
+Float_t * MPedestal_findPeaks(TH1I* height_histogram)
+{
+  float sigma = 2;
+  float threshold = 0.5;
+  TSpectrum *spc = new TSpectrum(2); //2 peak candidates
+  Int_t nfound = spc->Search(height_histogram, sigma, "", threshold);
+  Float_t * xpeaks = spc->GetPositionX();
+  std::sort(xpeaks, xpeaks + sizeof(xpeaks)/sizeof(*xpeaks) );
+  return xpeaks;
+}
 INT MPedestals(EVENT_HEADER *pheader, void *pevent)
 {
   // Some typedefs
@@ -114,6 +127,21 @@ INT MPedestals(EVENT_HEADER *pheader, void *pevent)
   // of (bank_name, vector<TPulseIsland*>) pairs
   TStringPulseIslandMap& pulse_islands_map = gData->fPulseIslandToChannelMap;
 
+//  //For identification of sync pulses using TSpectrum
+//  Float_t * xpeaks;
+//  TH1I* hPulseHeights = new TH1I("", "", 128, 0, 128);
+//  // Loop over the map and get each bankname, vector pair
+//  for (map_iterator theMapIter = pulse_islands_map.begin();
+//       theMapIter != pulse_islands_map.end(); theMapIter++) {
+//    std::string bankname = theMapIter->first;
+//    std::vector<TPulseIsland*> thePulses = theMapIter->second;
+//    // Loop over the TPulseIslands and plot the histogram
+//    for (std::vector<TPulseIsland*>::iterator pulseIter = thePulses.begin();
+//         pulseIter != thePulses.end(); pulseIter++) {
+//      hPulseHeights->Fill((*pulseIter)->GetPulseHeight());
+//    }
+//    xpeaks = MPedestal_findPeaks(hPulseHeights);
+//  }
   // Loop over the map and get each bankname, vector pair
   for (map_iterator mapIter = pulse_islands_map.begin(); 
        mapIter != pulse_islands_map.end(); ++mapIter) {
@@ -123,6 +151,13 @@ INT MPedestals(EVENT_HEADER *pheader, void *pevent)
     // Loop over the TPulseIslands and plot the histogram
     for (std::vector<TPulseIsland*>::const_iterator pulseIter =
 	   thePulses.begin(); pulseIter != thePulses.end(); ++pulseIter) {
+
+//      if(sizeof(xpeaks)/sizeof(*xpeaks)>1 && xpeaks[1] > 2000  &&
+//        (*pulseIter)->GetPulseHeight() > (xpeaks[1]-200) ) 
+//        {
+//          continue; //is the sync pulse height, remove sync pulse
+//        }
+
       if (vhAvg.find(bankname) == vhAvg.end()) continue;
       TProfile* hAvg = vhAvg[bankname];
       TProfile* hRMS = vhRMS[bankname];

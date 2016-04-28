@@ -96,18 +96,7 @@ mkdir -p $MIDAS_DIR
 
 ###########
 # Setup ODB and dump for later reference
-ODB_DEFAULTS="$(ls $ODBDIR/*.odb)"
-for IODB in $ODB_DEFAULTS; do
-    yes n | odbedit -c "load $IODB" > /dev/null
-done
 yes n | odbedit -c "load $ODBDATAFILE" > /dev/null
-if [ -f $ODBCORRFILE ]; then
-    yes n | odbedit -c "load $ODBCORRFILE" > /dev/null
-else
-    echo "ERROR: Cannot find ODB corrections."
-    exit 8
-fi
-odbedit -c "save $ODBDUMPFILE"
 
 ################
 # BEGIN DEBUG

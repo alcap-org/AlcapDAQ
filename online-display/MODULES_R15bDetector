@@ -1,0 +1,34 @@
+# file: MODULES
+# Contents: the list of ROOT macros for the online-display
+# Format: TextOnTheButton FullMacroName
+# Use # for comments
+# 
+# MODULES
+#
+V1290TDC-RawTimes v1290/v1290_rawtimes_0_8.C
+
+DT5730-Heights dt5730/dt5730_heights.C
+DT5730-Times dt5730/dt5730_times.C
+DT5730-Shapes dt5730/dt5730_shapes.C
+DT5730-LatestPulse dt5730/dt5730_latest_pulse.C
+
+DT5720-Heights dt5720/dt5720_heights.C
+DT5720-Times dt5720/dt5720_times.C
+DT5720-Shapes dt5720/dt5720_shapes.C
+DT5720-LatestPulse dt5720/dt5720_latest_pulse.C
+
+V1724-Heights v1724/v1724_heights.C
+V1724-Times v1724/v1724_times.C
+V1724-Shapes v1724/v1724_shapes.C
+V1724-LatestPulse v1724/v1724_latest_pulse.C
+
+SIS3350-Heights sis3350/sis3350_heights.C
+SIS3350-Times sis3350/sis3350_times.C
+SIS3350-Shapes sis3350/sis3350_shapes.C
+SIS3350-LatestPulse sis3350/sis3350_latest_pulse.C
+
+SIS3300-Heights sis330x.C ("SIS3300","Heights")
+SIS3300-adcIntegral sis330x.C ("SIS3300","adcIntegral")
+SIS3300-Times sis330x.C ("SIS3300","Times")
+SIS3300-Shapes sis330x.C ("SIS3300","Shapes")
+SIS3300-LatestPulse sis330x.C ("SIS3300","LatestPulse")

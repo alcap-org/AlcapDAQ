@@ -1,0 +1,45 @@
+# file: MODULES
+# Contents: the list of ROOT macros for the online-display
+# Format: TextOnTheButton FullMacroName
+# Use # for comments
+# 
+# MODULES
+#
+GeLoGain One_channel.C ("D401")
+GeHiGain One_channel.C ("D402")
+
+DT5730-Heights dt5730/dt5730_heights.C
+DT5730-adcSum dt5730/dt5730_adcSum.C
+DT5730-Times dt5730/dt5730_times.C
+DT5730-Shapes dt5730/dt5730_shapes.C
+
+Left-Heights left.C ("Heights")
+Left-adcIntegral left.C ("adcIntegral")
+Left-Times left.C ("Times")
+Left-Shapes left.C ("Shapes")
+Left-LatestPulse left.C ("LatestPulse")
+Right-Heights right.C ("Heights")
+Right-adcIntegral right.C ("adcIntegral")
+Right-Times right.C ("Times")
+Right-Shapes right.C ("Shapes")
+Right-LatestPulse right.C ("LatestPulse")
+Target-Heights right.C ("Heights")
+Target-adcIntegral right.C ("adcIntegral")
+Target-Times right.C ("Times")
+Target-Shapes right.C ("Shapes")
+Target-LatestPulse right.C ("LatestPulse")
+
+#FADC_IslandsPerBlock FADC/fadc_islands_read_per_block.C
+#FADC_PacketLoss FADC/fadc_packet_losses.C
+#FADC_OverflowingBuffers FADC/fadc_overflowing_buffers.C
+
+#======================================================
+#         Common
+#======================================================
+raw_pulse_count common/raw_pulse_count.C
+#beam_tuning common/beam_tuning.C
+
+#======================================================
+#         Physics
+#======================================================
+#dEdx physics/silicon_dEdx.C
