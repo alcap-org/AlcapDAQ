@@ -16,13 +16,20 @@ namespace IDs{
   enum Detector_t { 
     kErrorDetector=-1,
     kAnyDetector=0,
-		kGe       , kLiquidSc , kNDet     , kNDet2  , kScGe   , // 1-5
-		kScL      , kScR      , kScVe     , kSiL1_1 , kSiL1_2 , // 6-10
-		kSiL1_3   , kSiL1_4   , kSiL2     , kSiR1_1 , kSiR1_2 , // 11-15
-		kSiR1_3   , kSiR1_4   , kSiR1_sum , kSiR2   , kMuSc   , // 16-20
-		kMuScA };                                               // 21
+		kGe       , kLiquidSc , kNDet          , kNDet2   , kScGe    , // 1-5
+		kScL      , kScR      , kScVe          , kSiL1_1  , kSiL1_2  , // 6-10
+		kSiL1_3   , kSiL1_4   , kSiL2          , kSiR1_1  , kSiR1_2  , // 11-15
+		kSiR1_3   , kSiR1_4   , kSiR1_sum      , kSiR2    , kMuSc    , // 16-20
+                kMuScA    , kTRollover, kTSync         , kTMuSc_Hi, kTMuSc_Lo, // 21-25
+                kTGe      , kTScVe    , kTProtonsOver10, kMuScan  , kSiL1_A  , // 26-30
+                kSiL1_B   , kSiT_1    , kSiT_2         , kSiT_3   , kSiT_4   , // 31-35
+                kSiL3     , kSiR3     , kGeLoGain      , kGeHiGain, kSiL1_5  , // 36-40
+                kSiL1_6   , kSiL1_7   , kSiL1_8        , kSiL1_9  , kSiL1_10 , // 41-45
+                kSiL1_11  , kSiL1_12  , kSiL1_13       , kSiL1_14 , kSiL1_15 , // 46-50
+                kSiL1_16 // 51
+  };                                              
   /// Used by some algorithms to loop over all Detector_t enum values
-	const short num_detector_enums=21;
+	const short num_detector_enums=51;
 
   /// Enum for timing filter types applied to a channel
   /// As for Detector_t, kErrorSlowFast is used to mark an error

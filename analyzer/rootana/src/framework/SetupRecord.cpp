@@ -50,7 +50,7 @@ int SetupRecord::InitChannels(const TSetupData* setup_data)
   fInfoLookup.resize(b2d.size());
   for (StrStrIt it = b2d.begin() ; it != b2d.end(); ++it){
     const std::string& name = it->first;
-    if (name.size() > 4) throw std::out_of_range("Bank name too long!");
+    //    if (name.size() > 4) throw std::out_of_range("Bank name too long!");
     ChannelID cid(it->second);
     fNameOrderLookup.insert(std::make_pair(name,lut_size));
     fIDOrderLookup.insert(std::make_pair(cid,lut_size));
