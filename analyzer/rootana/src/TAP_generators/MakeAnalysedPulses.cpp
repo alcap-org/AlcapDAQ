@@ -20,8 +20,8 @@ extern Long64_t* gEntryNumber;
 
 MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
   BaseModule("MakeAnalysedPulses",opts,false),
-  fSlowGeneratorType(opts->GetString("default_slow_generator","MaxBin")),
-  fFastGeneratorType(opts->GetString("default_fast_generator","MaxBin")),
+  fSlowGeneratorType(opts->GetString("default_slow_generator")),
+  fFastGeneratorType(opts->GetString("default_fast_generator")),
   fChannelsToAnalyse(),
   fOptions(opts),
   fDefaultOpts(new TAPGeneratorOptions("default generator options")){
@@ -68,6 +68,13 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
             }
             if(it_chan== fChannelsToAnalyse.end() ) skip_detector=true;
         }
+	else {
+	  // We want to skip the TDCs anyway
+	  if (TSetupData::IsTDC(setup->GetBankName(*det))) {
+	    std::cout << "Skipping detector " << *det << " because it is a TDC channel" << std::endl;
+	    skip_detector=true;
+	  }
+	}
         if(skip_detector)
 	  continue;
         // else find the right generator to build

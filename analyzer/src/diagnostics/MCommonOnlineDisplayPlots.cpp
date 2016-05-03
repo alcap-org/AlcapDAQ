@@ -153,13 +153,13 @@ INT MCommonOnlineDisplayPlots_init_wfd(const std::string& bank,
   hLatestPulse->GetXaxis()->SetTitle("Time [ns]");
   hLatestPulse->GetYaxis()->SetTitle("ADC Value");
   latest_pulse_histograms_map[bank] = hLatestPulse;
-  //adcSum
-  histname = "h" + bank + "_adcSum";
-  histtitle = "Plot of the adcSum in the " + det + " channels";
-  TH1I* hadcSum = new TH1I(histname.c_str(), histtitle.c_str(), max_adc_value, 0, max_adc_value*1000);
+  //adcIntegral
+  histname = "h" + bank + "_adcIntegral";
+  histtitle = "Plot of the adcIntegral in the " + det + " channels";
+  TH1I* hadcIntegral = new TH1I(histname.c_str(), histtitle.c_str(), max_adc_value, 0, max_adc_value*1000);
   hLatestPulse->GetXaxis()->SetTitle("Time [ns]");
   hLatestPulse->GetYaxis()->SetTitle("ADC Value");
-  adcIntegral_histograms_map[bank] = hadcSum;
+  adcIntegral_histograms_map[bank] = hadcIntegral;
 
   return SUCCESS;
 }
