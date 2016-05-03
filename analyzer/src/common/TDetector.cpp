@@ -11,3 +11,4 @@ TDetector::TDetector() {
 }
 TDetector::TDetector(std::string sName) {
 }
+TDetector::~TDetector() { }
