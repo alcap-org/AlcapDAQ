@@ -26,10 +26,10 @@ namespace IDs{
                 kSiL3     , kSiR3     , kGeLoGain      , kGeHiGain, kSiL1_5  , // 36-40
                 kSiL1_6   , kSiL1_7   , kSiL1_8        , kSiL1_9  , kSiL1_10 , // 41-45
                 kSiL1_11  , kSiL1_12  , kSiL1_13       , kSiL1_14 , kSiL1_15 , // 46-50
-                kSiL1_16 // 51
+                kSiL1_16  , kSync// 52
   };                                              
   /// Used by some algorithms to loop over all Detector_t enum values
-	const short num_detector_enums=51;
+	const short num_detector_enums=52;
 
   /// Enum for timing filter types applied to a channel
   /// As for Detector_t, kErrorSlowFast is used to mark an error
