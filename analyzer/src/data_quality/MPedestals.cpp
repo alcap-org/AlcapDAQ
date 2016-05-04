@@ -159,6 +159,12 @@ INT MPedestals(EVENT_HEADER *pheader, void *pevent)
 //        }
 
       if (vhAvg.find(bankname) == vhAvg.end()) continue;
+
+      //is the sync pulse height, remove sync pulse
+      if(sizeof(xpeaks)/sizeof(*xpeaks)>1 i
+        && xpeaks[1] > 2000  
+        &&(*pulseIter)->GetPulseHeight() > (xpeaks[1]-200) ) continue; 
+
       TProfile* hAvg = vhAvg[bankname];
       TProfile* hRMS = vhRMS[bankname];
       const vector<int>::const_iterator& s0 =
