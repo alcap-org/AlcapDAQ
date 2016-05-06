@@ -44,7 +44,6 @@ std::string IDs::channel::GetDetectorString(Detector_t det){
 	// Add
 	case kTRollover      : output="TRollover"      ; break ;
 	case kTSync          : output="TSync"          ; break ;
-	case kSync           : output="Sync"           ; break ;
 	case kTMuSc_Hi       : output="TMuSc-Hi"       ; break ;
 	case kTMuSc_Lo       : output="TMuSc-Lo"       ; break ;
 	case kTGe            : output="TGe"            ; break ;
@@ -73,6 +72,8 @@ std::string IDs::channel::GetDetectorString(Detector_t det){
 	case kSiL1_14        : output="SiL1-14"         ; break ;
 	case kSiL1_15        : output="SiL1-15"         ; break ;
 	case kSiL1_16        : output="SiL1-16"         ; break ;
+	case kSync           : output="Sync"           ; break ;
+	case kTMuScA         : output="TMuScA"           ; break ;
 	}
      return output;
 }
@@ -90,7 +91,7 @@ IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
 	     "SiL3"     , "SiR3"     , "GeLoGain"      , "GeHiGain", "SiL1-5"  , // 36-40
 	     "SiL1-6"   , "SiL1-7"   , "SiL1-8"        , "SiL1-9"  , "SiL1-10" , // 41-45
 	     "SiL1-11"  , "SiL1-12"  , "SiL1-13"       , "SiL1-14" , "SiL1-15" , // 46-50
-	     "SiL1-16"  , "Sync"// 52
+	     "SiL1-16"  , "Sync"     , "TMuScA" // 53
      };                                                 
      for (int i=0;i<=IDs::num_detector_enums;i++){
         if(modules::parser::iequals(det,names[i])) return (Detector_t)i;
