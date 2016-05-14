@@ -20,6 +20,8 @@ runcanon() {
 	echo 00$x
     elif [ $x -lt 10000 ]; then
 	echo 0$x
+    else
+        echo $x
     fi
 }
 

@@ -153,6 +153,7 @@ TGlobalData* EventNavigator::ConnectRawData(TFile* raw_file)
   fRawData = new TGlobalData;
   int status = fRawTree->SetBranchAddress(Format::Raw::DataBranchName,
                                           &fRawData);
+  fRawTree->SetBasketSize("*", 32000);
   if (status!=0){
     fRawTree = 0x0;
     fRawData = 0x0;

@@ -20,6 +20,8 @@ runcanon() {
 	echo 00$x
     elif [ $x -lt 10000 ]; then
 	echo 0$x
+    else
+        echo $x
     fi
 }
 
@@ -66,7 +68,7 @@ ODBDUMPFILE="$ODBDUMPDIR/dump$RUN.odb"
 ################
 # Command to run
 CMD="$DAQdir/analyzer/work/$USER/alcapana"
-ARGS="-i $RAWFILE -o $HISTFILE -T $TREEFILE"
+ARGS="-i $RAWFILE -o $HISTFILE" # -T $TREEFILE"
 
 ############################
 # Make necessary directories
@@ -96,7 +98,8 @@ mkdir -p $MIDAS_DIR
 
 ###########
 # Setup ODB and dump for later reference
-yes n | odbedit -c "load $ODBDATAFILE" > /dev/null
+#yes n | odbedit -c "load $ODBDATAFILE" > /dev/null
+yes y | odbedit -c "load $ODBDATAFILE"
 
 ################
 # BEGIN DEBUG

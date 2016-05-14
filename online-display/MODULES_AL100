@@ -1,0 +1,36 @@
+# file: MODULES
+# Contents: the list of ROOT macros for the online-display
+# Format: TextOnTheButton FullMacroName
+# Use # for comments
+# 
+# MODULES
+#
+BeamSC AL100/beamSC.C
+BeamSiT AL100/SiT.C
+
+GeLoGain One_channel.C ("D401")
+GeHiGain One_channel.C ("D402")
+
+DT5730-adcSum dt5730/dt5730_adcSum.C
+DT5730-Times dt5730/dt5730_times.C
+DT5730-Shapes dt5730/dt5730_shapes.C
+
+Left-Heights left.C ("Heights")
+Left-adcIntegral left.C ("adcIntegral")
+Left-Times left.C ("Times")
+Left-Shapes left.C ("Shapes")
+Right-Heights right.C ("Heights")
+Right-adcIntegral right.C ("adcIntegral")
+Right-Times right.C ("Times")
+Right-Shapes right.C ("Shapes")
+
+#======================================================
+#         Common
+#======================================================
+raw_pulse_count common/raw_pulse_count.C
+#beam_tuning common/beam_tuning.C
+
+#======================================================
+#         Physics
+#======================================================
+#dEdx physics/silicon_dEdx.C
