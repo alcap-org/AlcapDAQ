@@ -94,10 +94,12 @@ IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
 	     "SiL1-16"  , "Sync"     , "TMuScA" // 53
      };                                                 
      for (int i=0;i<=IDs::num_detector_enums;i++){
-        if(modules::parser::iequals(det,names[i])) return (Detector_t)i;
+        if(modules::parser::iequals(det,names[i]))
+          return (Detector_t)i;
      } 
      std::cout<<"Unknown detector name given to IDs::channel: '"<<det<<"'"<<std::endl;
-     throw Except::InvalidDetector(det.c_str());
+//     throw Except::InvalidDetector(det.c_str());
+     return (Detector_t)0;
 }
 
 IDs::channel& IDs::channel::operator=(const std::string& rhs){
