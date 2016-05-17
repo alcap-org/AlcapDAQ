@@ -63,6 +63,8 @@ using std::endl;
 //declare histograms here, don't now why
 namespace {
   TH2 *hGeE;
+  TH2 *hGe2EVersusTDiffHits;
+  TH3 *hGe2PedestalVersusTDiffHits;
   TH2 *hGe1EVsT;
   TH2 *hGe2EVsT;
   TH1 *hGeHitStats;
@@ -73,6 +75,7 @@ namespace {
   TH2* hGe2MaxSampleVsE;
   TH1 *hGeHitTimes;
   TH2 *hGeHitTimeVersusAmplitude;
+  
 }
 
 ANA_MODULE MGeAnalysis_module =
@@ -105,6 +108,11 @@ INT MGeAnalysis_init()
   hGeE->GetYaxis()->SetBinLabel(2, "Ge2, slow channel");
   hGeE->GetYaxis()->SetBinLabel(3, "Ge1, fast channel");
   hGeE->GetYaxis()->SetBinLabel(4, "Ge2, fast channel");
+  
+  hGe2EVersusTDiffHits = new TH2F("hGe2EVersusTDiffHits","Ge2 pulse height spectrum versus detector history; Pulse amplitude (ADC); Time difference (us)",4250,0.,17000.,150,0,300000);
+  hGe2PedestalVersusTDiffHits = new TH3F("hGe2PedestalVersusTDiffHits","Ge2 pulse pedestal versus detector history; Pulse pedestal (ADC); Time difference (us); previous pulse amplitude (ADC)",300,400.,1000.,150,0,300000,20,0,17000);
+  
+  
   
   //pedestal histograms
   hGePed = new TH2F("hGePed","Ge pedestals (first n samples); channel ",600,400.,1000.,4,0.5,4.5);
@@ -230,6 +238,9 @@ int RawHitsAnalysis(const vector<TPulseIsland*>* pulses,int channel, int ev_nr, 
   int size = pulses->size();
   float sum = 0.;
   
+  float previousTime = 0.;
+  float previousAmplitude = 0.;
+  
   for(int i = 0; i < size; i++)
   {
     hGeHitStats->Fill(channel);
@@ -244,6 +255,20 @@ int RawHitsAnalysis(const vector<TPulseIsland*>* pulses,int channel, int ev_nr, 
     
     if(channel > 2) pedestal = pedestal - 14000;
     hGePed->Fill(pedestal,channel);
+    
+    if(channel ==2)
+    {
+      float tDiff = pulses->at(i)->GetPulseTime()-previousTime;
+      if(previousAmplitude > 0) hGe2PedestalVersusTDiffHits->Fill(pedestal,tDiff,previousAmplitude);
+      //if (previousAmplitude < 2600. ) cout << previousAmplitude << endl;
+      if(amplitude > 2510. ) //determined from the hGeE spectrum. above 2500 channels hGe2 has triggered
+      {
+         hGe2EVersusTDiffHits->Fill(amplitude,tDiff);
+         previousTime = pulses->at(i)->GetPulseTime();
+         previousAmplitude = amplitude;
+      }
+    }
+    
     
     sum+=pedestal;
   }

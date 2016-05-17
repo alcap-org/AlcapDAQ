@@ -70,11 +70,11 @@ using namespace AlCap;
 
 //E calibration
 //Ge1
-float a_ge1 = 1.66796e-01;
-float b_ge1 = -7.75928e+01;
+float a_ge1 = 1.6676e-01;
+float b_ge1 = -7.720+01;
 //Ge2
-float a_ge2 = 1.71850e-01;
-float b_ge2 = -1.34667e+02;
+float a_ge2 = 1.7168e-01;
+float b_ge2 = -1.328e+02;
 
 //Wide Window
 double tWide = 50000;
