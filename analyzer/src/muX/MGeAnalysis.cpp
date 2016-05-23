@@ -256,10 +256,17 @@ int RawHitsAnalysis(const vector<TPulseIsland*>* pulses,int channel, int ev_nr, 
     if(channel > 2) pedestal = pedestal - 14000;
     hGePed->Fill(pedestal,channel);
     
-    if(channel ==2)
+    if(channel ==2 && pulses->at(i)->GetPulseLength()==300 )
     {
       float tDiff = pulses->at(i)->GetPulseTime()-previousTime;
-      if(previousAmplitude > 0) hGe2PedestalVersusTDiffHits->Fill(pedestal,tDiff,previousAmplitude);
+      TGeHit hit = TGeHit(2);
+      hit.SetEPulse(pulses->at(i));
+      hit.PulseShapeAnalysis();
+      if(pulses->at(i)->GetPeakSample() > 70 && pulses->at(i)->GetPeakSample() < 180 && amplitude > 3000. && previousAmplitude > 0 && pulses->at(i)->GetPulseLength()==300 && hit.Shape())
+      {
+        hGe2PedestalVersusTDiffHits->Fill(pedestal,tDiff,previousAmplitude);
+        //printf("fill\n");
+      }
       //if (previousAmplitude < 2600. ) cout << previousAmplitude << endl;
       if(amplitude > 2510. ) //determined from the hGeE spectrum. above 2500 channels hGe2 has triggered
       {
