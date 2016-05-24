@@ -195,7 +195,10 @@ class RunManager:
             new_dir = os.path.dirname(new_paths[ftype])
             if not os.path.exists(new_dir):
                 os.makedirs(new_dir)
-            os.rename(old_paths[ftype], new_paths[ftype])
+            try:
+                os.rename(old_paths[ftype], new_paths[ftype])
+            except OSError:
+                self.screenman.Message("Problem renaming file")
             self.dbm.RegisterFile(run, new_paths[ftype], ftype)
         self.screenman.Message("Finished run: " + str(run))
         self.to_finish.remove(run)

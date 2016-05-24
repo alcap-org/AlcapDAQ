@@ -14,7 +14,7 @@ _ALCAPANA = "alcapana"
 _ROOTANA  = "rootana"
 _PROGRAMS = [_ALCAPANA, _ROOTANA]
 _DATASETS = ["Al100", "Al50awithoutNDet2", "Al50awithNDet2", "Al50b", "SiR2",
-             "SiR21pct", "SiR23pct", "Si16P"]
+             "SiR21pct", "SiR23pct", "Si16P", "Si16b"]
 
 def usage():
     print "Usage: ./run_production --production=PROD_TYPE [optional arguments...]"
