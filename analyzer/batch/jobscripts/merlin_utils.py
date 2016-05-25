@@ -51,7 +51,7 @@ if not os.path.exists(ODBdir):
     raise AlCapError("ODB dir (" + ODBdir + ") does not exist!")
 
 ftpurl = "archivftp.psi.ch"
-ftpdir = "mu2e/run2013"
+ftpdir = "mu2e/R15b"
 ftpinfo = netrc.netrc(os.environ["HOME"] + "/.netrc").authenticators(ftpurl)
 if not ftpinfo:
     raise AlCapError("Could not find FTP info in netrc file!")

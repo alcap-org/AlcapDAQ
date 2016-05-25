@@ -41,17 +41,24 @@ class DBManager:
     #  \param[in] prod The production type of either alcapana or rootana (string)
     #  \param[in] ver The version of the production (int).
     #  \return A run number of a run not yet claimed (int).
-    def GetAnyAvailableRunNumber(self, datasets=[]):
+    def GetAnyAvailableRunNumber(self, datasets=[], tranches=[]):
         cmd = "SELECT run FROM " + self.production_table + " WHERE status='N'"
         cur = self.db.execute(cmd)
         for row in cur:
             if len(datasets) == 0:
                 return row[0]
-            cmd = "SELECT dataset FROM datasets WHERE run==?"
+            cmd = "SELECT dataset FROM R15bdatasets WHERE run==?"
             data = self.db.execute(cmd, (row[0],))
             for datum in data:
                 if str(datum[0]) in datasets:
-                    return row[0]
+                    if len(tranches) == 0:
+                        return row[0]
+                    cmd = "SELECT tranche FROM R15bdatasets WHERE run==?"
+                    data = self.db.execute(cmd, (row[0],))
+                    for datum in data:
+                        if str(datum[0]) in tranches:
+                            return row[0]
+
         return None
 
     ## \brief
@@ -68,11 +75,11 @@ class DBManager:
     #  \param[in] ver The version of the production (int); if none provided
     #  default to most recent version.
     #  \return The run number of the claimed run (int).
-    def ClaimAnyAvailableRun(self, datasets=[]):
+    def ClaimAnyAvailableRun(self, datasets=[], tranches=[]):
     # We don't want someone to claim a run before we do, so we
     # lock the database in a context block before checking.
         with self.db:
-            run = self.GetAnyAvailableRunNumber(datasets)
+            run = self.GetAnyAvailableRunNumber(datasets, tranches)
             if not run:
                 return None
             self.ClaimRun(run)
@@ -149,7 +156,7 @@ class DBManager:
                 cmd = ("CREATE TABLE " + self.production_table +
                        "(run INTEGER, status TEXT, user TEXT, start TIMESTAMP, stop TIMESTAMP, out TEXT, olog TEXT, elog TEXT, modules TEXT)")
             self.db.execute(cmd)
-            cmd = "SELECT run FROM datasets WHERE quality=?"
+            cmd = "SELECT run FROM R15bdatasets WHERE quality=?"
             cur = self.db.execute(cmd, (qual,))
             cmd = "INSERT INTO " + self.production_table + "(run, status) VALUES (?, ?)"
             for row in cur:
