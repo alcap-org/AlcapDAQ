@@ -46,7 +46,7 @@ class RunManager:
     #  \param[in] prog A string indicating the production type
     #  ("alcapana" or "rootana").
     #  \param[in] ver An integer representing the version number.
-    def __init__(self, prod, ver, screenman, modules, database, datasets, calib):
+    def __init__(self, prod, ver, screenman, modules, database, datasets, calib, tranches):
         self.screenman = screenman
         if prod not in _PROGRAMS:
             raise UnknownProductionError(prod)
@@ -55,6 +55,7 @@ class RunManager:
         self.mods = modules
         self.datasets = datasets
         self.calib = calib
+        self.tranches = tranches
         self.dbm = DBManager.DBManager(prod, ver, screenman, database)
         self.n_runs = 0
         self.n_downloaded = 0
@@ -71,7 +72,7 @@ class RunManager:
     #  manage at a time
     def ClaimRuns(self, max_num_runs):
         while self.n_runs < max_num_runs:
-            run = self.dbm.ClaimAnyAvailableRun(self.datasets)
+            run = self.dbm.ClaimAnyAvailableRun(self.datasets, self.tranches)
             if not run:
                 return
             self.n_runs = self.n_runs + 1

@@ -64,13 +64,16 @@ def usage():
     print "                      exist, it will not be created."
     print "                      (Default: ~/data/production.db)"
     print "    --calib           Passes the calibration argument to rootana."
+    print "    --tranche=#       Only process tranch number # for the given datasets."
+    print "                      Multiple can be specified with multiple --tranche=#."
+    print "                      (Default: all tranches)"
 
 
 ################################################################################
 # Argument parsing #############################################################
 ################################################################################
 short_args = "h"
-long_args = ["usage", "help", "production=", "version=", "new=", "pause=", "nproc=", "nprep=", "spacelim=", "display", "modules=", "dataset=", "database=", "calib"]
+long_args = ["usage", "help", "production=", "version=", "new=", "pause=", "nproc=", "nprep=", "spacelim=", "display", "modules=", "dataset=", "database=", "calib", "tranche="]
 opts, unrecognized = getopt.getopt(sys.argv[1:], short_args, long_args)
 
 # Default arguments
@@ -87,6 +90,7 @@ modules = mu.CFGdir + "/production.cfg"
 datasets = []
 database = mu.DATAdir + "/production.db"
 calib = False
+tranches = []
 
 # Parse arguments
 for opt, val in opts:
@@ -118,6 +122,8 @@ for opt, val in opts:
         database = val
     elif opt == "--calib":
         calib = True
+    elif opt == "--tranche":
+        tranches.append(val)
 
 # Argument checking
 if len(unrecognized) > 0:
@@ -176,7 +182,7 @@ if new:
 elif not version:
     version = dbman.GetRecentProductionVersionNumber()
     screenman.Message("INFO: Most recent production version " + str(version))
-runman = RunManager.RunManager(production, version, screenman, modules, database, datasets, calib)
+runman = RunManager.RunManager(production, version, screenman, modules, database, datasets, calib, tranches)
 
 
 screenman.SetProgram(production)
