@@ -3,6 +3,7 @@
 #include "TFile.h"
 #include "TDirectoryFile.h"
 #include "TH2.h"
+#include "TF1.h"
 
 #include "RooFit.h"
 #include "RooAbsPdf.h"
@@ -18,7 +19,7 @@ int FillXRayInfo(XRay* xray);
 RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectrum, XRay* xray);
 
 // Takes a filename of a rootana output file as well as information on the timing cut and interesting x-ray
-int CountXRays(std::string filename, double time_cut, int rebin_factor=1, double energy_low = 344, double energy_high = 355, std::string target_material="Al") {
+int CountXRays(std::string filename, std::string target_material="Al", std::string dirname = "PlotTAP_EnergyTime", std::string histname = "hGeLoGain#MaxBinAPGenerator#any_EnergyTime", double time_cut=9999999, int rebin_factor=1) {
 
   TFile* file = new TFile(filename.c_str(), "READ");
   if (file->IsZombie()) {
@@ -26,21 +27,21 @@ int CountXRays(std::string filename, double time_cut, int rebin_factor=1, double
     return 1;
   }
   // Check that the GeSpectrum folder was created
-  TDirectoryFile* ge_spectrum_dir = (TDirectoryFile*) file->Get("GeSpectrum");
+  TDirectoryFile* ge_spectrum_dir = (TDirectoryFile*) file->Get(dirname.c_str());
   if (!ge_spectrum_dir) {
-    std::cout << "Error: GeSpectrum folder doesn't exist in output file" << std::endl;
+    std::cout << "Error: " << dirname << " folder doesn't exist in output file" << std::endl;
     return 1;
   }
 
   // Get the 2D time-energy histogram
-  TH2F* hTimeEnergy = (TH2F*) ge_spectrum_dir->Get("hTimeEnergy");
+  TH2F* hTimeEnergy = (TH2F*) ge_spectrum_dir->Get(histname.c_str());
   if (!hTimeEnergy) {
-    std::cout << "Error: Could not find hTimeEnergy" << std::endl;
+    std::cout << "Error: Could not find " << histname << std::endl;
     return 1;
   }
 
   // Apply the time cut and rebin
-  TH1* hEnergyTimeCut = hTimeEnergy->ProjectionY("_py", hTimeEnergy->GetXaxis()->FindBin(-time_cut), hTimeEnergy->GetXaxis()->FindBin(time_cut));
+  TH1* hEnergyTimeCut = hTimeEnergy->ProjectionX("_py", hTimeEnergy->GetYaxis()->FindBin(-time_cut), hTimeEnergy->GetYaxis()->FindBin(time_cut));
   hEnergyTimeCut->Rebin(rebin_factor);
 
   // Now define the X-ray we want to look at
@@ -51,13 +52,33 @@ int CountXRays(std::string filename, double time_cut, int rebin_factor=1, double
     return 1;
   }
 
+  // Here is the germanium effiency fit
+  // TODO: Double check all these
+  TF1* ge_eff = new TF1("ge_eff", "[0]*(x^[1])");
+  ge_eff->SetParameters(13.3779, -0.866146); //R15b (GeLoGain)
+  ge_eff->SetParError(0, 0.519812); //R15b (GeLoGain)
+  ge_eff->SetParError(1, 0.00610575); //R15b (GeLoGain)
+  xray.efficiency = ge_eff->Eval(xray.energy);
+
+  // Assuming uncertainty in the energy is small
+  TF1* ge_eff_err = new TF1("ge_eff_err", "sqrt(x^(2*[1]) * ([2]^2 + 2*[0]*[3]*TMath::Log(x)*([0]*[3] + [4]*[2])))");
+  ge_eff_err->SetParameters(ge_eff->GetParameter(0), // a
+			    ge_eff->GetParameter(1), // b
+			    ge_eff->GetParError(0), // delta-a
+			    ge_eff->GetParError(1), // delta-b
+			    -0.0031591); // covariance between a and b (R15b GeLoGain)
+  xray.efficiency_error = ge_eff_err->Eval(xray.energy);
+
   // Now get the area under the X-ray peak by doing a fit to the spectrum
+  double energy_low = xray.energy-5;
+  double energy_high = xray.energy+5;
   RooRealVar* area = GetAreaUnderPeak(energy_low, energy_high, hEnergyTimeCut, &xray);
   //  std::cout << "Area under the curve = " << area->getValV() << " +- " << area->getError() << std::endl;
 
   // Factors to account for the detector effects
   std::vector<double> detector_effects;
-  detector_effects.push_back(1.04); detector_effects.push_back(1.01); // For R13 (dead time and TRP reset respectively)
+  //  detector_effects.push_back(1.04); detector_effects.push_back(1.01); // For R13 (dead time and TRP reset respectively)
+  // TODO: Add detector effects for R15b
 
   // Now calculate the number of stopped muons
   double n_stopped_muons = area->getValV() / (xray.intensity * xray.efficiency);
@@ -71,6 +92,10 @@ int CountXRays(std::string filename, double time_cut, int rebin_factor=1, double
 							(xray.efficiency_error/xray.efficiency)*(xray.efficiency_error/xray.efficiency) );
 							    
 
+  std::cout << "XRay: " << xray.material << " " << xray.transition << " " << xray.energy << " keV" << std::endl;
+  std::cout << "Area = " << area->getValV() << " +/- " << area->getError() << std::endl;
+  std::cout << "Intensity = " << xray.intensity << " +/- " << xray.intensity_error << std::endl;
+  std::cout << "Efficiency = " << xray.efficiency << " +/- " << xray.efficiency_error << std::endl;
   std::cout << "Number of Stopped Muons = " << n_stopped_muons << " +- " << n_stopped_muons_error << std::endl;
   //  hEnergyTimeCut->Draw();
   return 0;
@@ -85,13 +110,29 @@ int FillXRayInfo(XRay* xray) {
     xray->intensity_error = 0.008;
 
     // For R13
-    xray->efficiency = 5e-4;
-    xray->efficiency_error = 0.1e-4;
+    //    xray->efficiency = 5e-4;
+    //    xray->efficiency_error = 0.1e-4;
     return 0;
   }
   else if (xray->material == "Si") {
-    std::cout << "Silicon x-ray (not currently implemented)" << std::endl;
-    return 1;
+    std::cout << "Silicon x-ray:" << std::endl;
+    xray->transition = "2p-1s";
+    xray->energy = 400.177;
+    xray->intensity = 0.803;
+    xray->intensity_error = 0.008;
+  }
+  else if (xray->material == "Ti") {
+    std::cout << "Titanium x-ray:" << std::endl;
+    xray->transition = "2p-1s";
+    //    xray->energy = 942; // PRL V18 N26 (1967)
+    xray->energy = 931; // elog:336 and Fig. 1b of the above
+    xray->intensity = 0.752; 
+    xray->intensity_error = 0.007;
+  }
+  else if (xray->material == "511") {
+    std::cout << "511 keV peak:" << std::endl;
+    xray->transition = "511";
+    xray->energy = 511;
   }
   else {
     std::cout << "Error: Unknown target material" << std::endl;
