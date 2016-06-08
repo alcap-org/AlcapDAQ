@@ -24,13 +24,15 @@ xrays per muon stop is 0.79. Thus, the stopping rate is
 //This uses run 8377 is calib.root
 **/
 
-void ge_eu152_calib() {
+void R15b_ge_eu152_calib() {
   // The file to run on in the sum of calibration runs 3375, 3378 and 3379.
   //TFile* f = new TFile("calib_ge.root", "READ");
-  TFile* f = new TFile("calib.root", "READ");
+  //  TFile* f = new TFile("calib.root", "READ");
+  TFile* f = new TFile("out08377.root", "READ");
 //  TSpectrum* s = new TSpectrum(100, 3.);
   //TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGe-S#FirstComplete#{constant_fraction=0.60}{no_time_shift=true}_Amplitude");
-  TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGeLoGain#FirstComplete#{constant_fraction=0.60}{no_time_shift=true}_Amplitude");
+  //  TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGeLoGain#FirstComplete#{constant_fraction=0.60}{no_time_shift=true}_Amplitude");
+  TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGeLoGain#MaxBinAPGenerator#any_Amplitude");
   spec->Sumw2();
 
   // Activity
@@ -97,13 +99,17 @@ void ge_eu152_calib() {
     const Double_t fit_window = 100.;
     spec->GetXaxis()->SetRangeUser(ADC[i] - fit_window, ADC[i] + fit_window);
     fit->SetParameters(FitParam[i]);
-    TFitResultPtr res = spec->Fit(fit,"SMENQ");
+    TFitResultPtr res = spec->Fit(fit,"SMEQ+");
     Chi2Ndf[i] = res->Chi2()/(Double_t)res->Ndf();
     for (unsigned int j = 0; j < NParam[i]; ++j) {
       FitParamRes[i][j] = res->Value(j);
       FitParamErr[i][j] = res->ParError(j);
     }
   }
+  TCanvas* c_spec = new TCanvas("c_spec", "c_spec");
+  spec->GetXaxis()->SetRangeUser(0, 4000);
+  c_spec->SetLogy();
+  spec->Draw("");
   for (unsigned int i = 0; i < NPeaks-1; ++i) {
     // Get energy calibration
     ADC_Meas[i] = FitParamRes[i][1];
