@@ -47,14 +47,45 @@ void ge_eu152_calib() {
   Double_t events = activity*livetime;
 
   // Spectrum
-  const unsigned int NPeaks = 8;
+  const unsigned int NPeaks = 10;
   const unsigned int Peak511Index = 5, Peak122Index = 0;
-  Double_t Energy[NPeaks]    = {244.6975,344.2785, 411.1163, 443.965, 778.904, 867.378, 964.079, 1408.0};
+  Double_t Energy[NPeaks]    = {
+	244.6975,
+	344.2785,
+	411.1163, 
+	443.965, 
+	778.904, 
+	867.378, 
+	964.079,
+	1085.9,
+	1112.1,
+	1408.0
+	};
 //  Double_t RedEn[NPeaks-1]       = {295.94, 344.2785, 367.79, 411.1163, 443.965, 778.9040, 867.378, 964.079, 1085.869, 1112.074, 1212.948, 1299.140, 1408.006};
-  Double_t Intensity[NPeaks] = { 0.0758,  0.265,  0.0223,   0.0282, 0.1294, 0.0425, 0.146, 0.21};
+  Double_t Intensity[NPeaks] = { 
+	0.0758,
+	0.265,
+	0.0223,   
+	0.031,
+	0.1294, 
+	0.0425, 
+	0.146,
+	0.102,
+	0.136,
+	0.21};
   Double_t LogEnergy[NPeaks];        for (unsigned int i = 0; i < NPeaks; ++i)   LogEnergy[i]      = TMath::Log(Energy[i]);
-  Double_t ExpectedCounts[NPeaks-1]; for (unsigned int i = 0; i < NPeaks-1; ++i) ExpectedCounts[i] = events*Intensity[i];
-  Double_t ADC[NPeaks]       = {  626.15,  878.52,  1047.6,  1131.09, 1980.39, 2204.9, 2450.11, 3576.92};
+  Double_t ExpectedCounts[NPeaks]; for (unsigned int i = 0; i < NPeaks; ++i) ExpectedCounts[i] = events*Intensity[i];
+  Double_t ADC[NPeaks]       = {  
+	626.15,  
+	878.52,  
+	1047.6,  
+	1131.09, 
+	1980.39, 
+	2204.9, 
+	2450.11, 
+	2759.74,
+	2825.81,
+	3576.92};
   Double_t ADC_Meas[NPeaks];
   const char* Functions[NPeaks]       = {
 					  "gaus(0)+[3]*x+[4]",
@@ -65,30 +96,34 @@ void ge_eu152_calib() {
 					  "gaus(0)+[3]*x+[4]",
 					  "gaus(0)+[3]*x+[4]",
 					  "gaus(0)+[3]*x+[4]",
+					  "gaus(0)+[3]*x+[4]",
+					  "gaus(0)+[3]*x+[4]",
 					  };
-  const unsigned int NParam[NPeaks]   = { 5, 5, 5, 5, 5, 5, 5, 5};
+  const unsigned int NParam[NPeaks]   = { 5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
   const Double_t FitParam[NPeaks][11] = { 
-					  {4829.69, ADC[0], 3.72  ,   -3.50,  3048.72, 0., 0., 0., 0., 0., 0.},
-					  {11933.9, ADC[1], 3.998 ,    2.60, -1450.83, 0., 0., 0., 0., 0., 0.},
-					  {683.522, ADC[2], 4.102 ,  0.2218,  653.992, 0., 0., 0., 0., 0., 0.},
-					  {952.212, ADC[3], 4.059 ,   -0.11,  532.142, 0., 0., 0., 0., 0., 0.},
-					  {2011.72, ADC[4], 4.824 ,   -1.24,   2825.1, 0., 0., 0., 0., 0., 0.},
-					  {508.042, ADC[5], 5.220 , -0.2697,  896.204, 0., 0., 0., 0., 0., 0.},
-					  {1748.53, ADC[6], 5.595 ,   -0.70,   1929.5, 0., 0., 0., 0., 0., 0.},
-					  {1508.03, ADC[7], 7.227 ,  -0.033,  139.652, 0., 0., 0., 0., 0., 0.},
+					  {4829.69, ADC[0],  3.720,   -3.50,  3048.72, 0., 0., 0., 0., 0., 0.},
+					  {11933.9, ADC[1],  3.998,    2.60, -1450.83, 0., 0., 0., 0., 0., 0.},
+					  {683.522, ADC[2],  4.102,  0.2218,  653.992, 0., 0., 0., 0., 0., 0.},
+					  {952.212, ADC[3],  4.059,   -0.11,  532.142, 0., 0., 0., 0., 0., 0.},
+					  {2011.72, ADC[4],  4.824,   -1.24,   2825.1, 0., 0., 0., 0., 0., 0.},
+					  {508.042, ADC[5],  5.220, -0.2697,  896.204, 0., 0., 0., 0., 0., 0.},
+					  {1748.53, ADC[6],  5.595,   -0.70,   1929.5, 0., 0., 0., 0., 0., 0.},
+					  {1258.16, ADC[7],  6.545, 0.13061,  -178.53, 0., 0., 0., 0., 0., 0.},
+					  {1403.01, ADC[8],  5.771, -0.0916,  456.596, 0., 0., 0., 0., 0., 0.},
+					  {1508.03, ADC[9], 7.227,  -0.033,  139.652, 0., 0., 0., 0., 0., 0.},
 					};
   Double_t FitParamRes[NPeaks][11];
   Double_t FitParamErr[NPeaks][11];
-  Double_t Counts[NPeaks-1];
-  Double_t Efficiency[NPeaks-1];
-  Double_t LogEfficiency[NPeaks-1];
+  Double_t Counts[NPeaks];
+  Double_t Efficiency[NPeaks];
+  Double_t LogEfficiency[NPeaks];
 
   // Errors
   Double_t Chi2Ndf[NPeaks];
   Double_t Error_ADC[NPeaks];
-  Double_t Error_Counts[NPeaks-1];
-  Double_t Error_Eff[NPeaks-1];
-  Double_t Error_LogEff[NPeaks-1];
+  Double_t Error_Counts[NPeaks];
+  Double_t Error_Eff[NPeaks];
+  Double_t Error_LogEff[NPeaks];
 
   // Count the events (integral of fit gaussian)
   const Double_t rt2pi = TMath::Sqrt(2.*TMath::Pi());
@@ -104,7 +139,7 @@ void ge_eu152_calib() {
       FitParamErr[i][j] = res->ParError(j);
     }
   }
-  for (unsigned int i = 0; i < NPeaks-1; ++i) {
+  for (unsigned int i = 0; i < NPeaks; ++i) {
     // Get energy calibration
     ADC_Meas[i] = FitParamRes[i][1];
     Error_ADC[i] = FitParamErr[i][1];
@@ -121,13 +156,13 @@ void ge_eu152_calib() {
 //  Doing some math, if G is a Gaussian with some constant term (c), mean (m) and sigma (s) then you have:
 //  G(x) = c * exp ( -0.5 * [(x-m)/s]^2 )
 //  and Integral(-infinity -> infinity) [G(x)] = c * s * sqrt(2*pi) = N
-    Counts[j] = FitParamRes[i][0]*FitParamRes[i][2]*rt2pi; //rt2pi = squareroot(2*PI)
-    Error_Counts[j] = Counts[j]*TMath::Sqrt(TMath::Power(FitParamErr[i][0]/FitParamRes[i][0],2.)+TMath::Power(FitParamErr[i][2]/FitParamRes[i][2],2.));
-    Efficiency[j] = Counts[j] / ExpectedCounts[j];
-printf("i=%d Counts=%d Expected=%d\n", i, Counts[j], ExpectedCounts[j]);
-    Error_Eff[j] = Error_Counts[j] / ExpectedCounts[j];
-    LogEfficiency[j] = TMath::Log(Efficiency[j]);
-    Error_LogEff[j] = Error_Eff[j] / Efficiency[j];
+    Counts[i] = FitParamRes[i][0]*FitParamRes[i][2]*rt2pi; //rt2pi = squareroot(2*PI)
+    Error_Counts[i] = Counts[i]*TMath::Sqrt(TMath::Power(FitParamErr[i][0]/FitParamRes[i][0],2.)+TMath::Power(FitParamErr[i][2]/FitParamRes[i][2],2.));
+    Efficiency[i] = Counts[i] / ExpectedCounts[i];
+printf("i=%d\tCounts=%f x %f=%f\tExpected=%f\n", i, FitParamRes[i][0], FitParamRes[i][2], Counts[i], ExpectedCounts[i]);
+    Error_Eff[i] = Error_Counts[i] / ExpectedCounts[i];
+    LogEfficiency[i] = TMath::Log(Efficiency[i]);
+    Error_LogEff[i] = Error_Eff[i] / Efficiency[i];
   }
 
   // Draw
@@ -135,9 +170,9 @@ printf("i=%d Counts=%d Expected=%d\n", i, Counts[j], ExpectedCounts[j]);
   Double_t eff_par[2], eff_par_err[2], Chi2[2];
   unsigned int Ndf[2];
   /* TGraphErrors* e_cal   = new TGraphErrors(NPeaks, Energy, ADC_Meas, 0, Error_ADC); */
-  TGraphErrors* e_cal   = new TGraphErrors(NPeaks-1, ADC_Meas+1, Energy+1, Error_ADC+1, 0);
+  TGraphErrors* e_cal   = new TGraphErrors(NPeaks, ADC_Meas, Energy, Error_ADC, 0);
   /* TGraphErrors* eff_cal = new TGraphErrors(NPeaks-1, LogEnergy+1, LogEfficiency+1, 0, Error_LogEff+1); */
-  TGraphErrors* eff_cal = new TGraphErrors(NPeaks-1, Energy+1, Efficiency+1, 0, Error_Eff+1);
+  TGraphErrors* eff_cal = new TGraphErrors(NPeaks, Energy, Efficiency, 0, Error_Eff);
   e_cal->SetTitle("Ge Energy Calibration"); e_cal->GetXaxis()->SetTitle("ADC Value [ADC]"); e_cal->GetYaxis()->SetTitle("Energy [keV]");
   eff_cal->SetTitle("Ge Efficiency Calibration"); eff_cal->GetXaxis()->SetTitle("Energy [keV]"); eff_cal->GetYaxis()->SetTitle("Counts / Expected Counts");
   TCanvas* c_en = new TCanvas("c_en");
@@ -147,18 +182,20 @@ printf("i=%d Counts=%d Expected=%d\n", i, Counts[j], ExpectedCounts[j]);
   fit->SetParName(0, "Offset");
   fit->SetParName(1, "Gradient");
   TFitResultPtr res = e_cal->Fit(fit,"SME"); e_cal->Draw("A*");
-  TPaveText* text_en = new TPaveText(0.2, 0.65, 0.5, 0.75, "nb NDC"); text_en->SetBorderSize(0); text_en->SetTextSize(0.04); text_en->SetFillColor(kWhite); text_en->AddText("Energy = Offset + Gradient * ADC"); text_en->Draw();
+  TPaveText* text_en = new TPaveText(0.2, 0.65, 0.5, 0.75, "nb NDC"); text_en->SetBorderSize(0); text_en->SetTextSize(0.04); text_en->SetFillColor(kWhite); text_en->AddText("E = p0 + p1*ADC"); text_en->Draw();
   Chi2[0] = res->Chi2(); Ndf[0] = res->Ndf();
   en_par[0] = res->Value(0); en_par[1] = res->Value(1);
   en_par_err[0] = res->ParError(0); en_par_err[1] = res->ParError(1);
   TCanvas* c_eff = new TCanvas("c_eff");
   //  gStyle->SetOptFit(111);
-  TF1* logfit = new TF1("func", "[0]*(x**[1])");
+  //TF1* logfit = new TF1("func", "[0]*(x**[1])");
+  TF1* logfit = new TF1("func", "expo");
   logfit->SetParName(0, "Coefficient");
   logfit->SetParName(1, "Exponent");
   logfit->SetParameters(TMath::Exp(-2.6), -0.84);
   res = eff_cal->Fit(logfit, "SME"); eff_cal->Draw("A*");
-  TPaveText* text_eff = new TPaveText(0.5, 0.5, 0.65, 0.6, "nb NDC"); text_eff->SetBorderSize(0); text_eff->SetTextSize(0.05); text_eff->AddText("#varepsilon = aE^{b}"); text_eff->SetFillColor(kWhite); text_eff->Draw();
+  //TPaveText* text_eff = new TPaveText(0.5, 0.5, 0.65, 0.6, "nb NDC"); text_eff->SetBorderSize(0); text_eff->SetTextSize(0.05); text_eff->AddText("#varepsilon = aE^{b}"); text_eff->SetFillColor(kWhite); text_eff->Draw();
+  TPaveText* text_eff = new TPaveText(0.5, 0.5, 0.65, 0.6, "nb NDC"); text_eff->SetBorderSize(0); text_eff->SetTextSize(0.05); text_eff->AddText("#varepsilon= e^{p0+p1*E}"); text_eff->SetFillColor(kWhite); text_eff->Draw();
   /* res = eff_cal->Fit("pol1", "SME"); eff_cal->Draw("A*"); */
   Chi2[1] = res->Chi2(); Ndf[1] = res->Ndf();
   eff_par[0] = res->Value(0); eff_par[1] = res->Value(1);
@@ -180,7 +217,8 @@ printf("i=%d Counts=%d Expected=%d\n", i, Counts[j], ExpectedCounts[j]);
   printf("\n");
   printf("Energy = %g(%g) * ADC + %g(%g)    (%g/%u)\n", en_par[1], en_par_err[1], en_par[0], en_par_err[0], Chi2[0], Ndf[0]);
   /* printf("Eff = %g(%g)*Energy^[%g(%g)]    (%g/%u)\n", TMath::Exp(eff_par[0]), TMath::Exp(eff_par[0])*eff_par_err[0], eff_par[1], eff_par_err[1], Chi2[1], Ndf[1]); */
-  printf("Eff = %g(%g)*Energy^[%g(%g)]    (%g/%u)\n", eff_par[0], eff_par_err[0], eff_par[1], eff_par_err[1], Chi2[1], Ndf[1]);
+  //printf("Eff = %g(%g)*Energy^[%g(%g)]    (%g/%u)\n", eff_par[0], eff_par_err[0], eff_par[1], eff_par_err[1], Chi2[1], Ndf[1]);
+  printf("Eff = exp(%g(%g)+Energy*[%g(%g)]    (%g/%u)\n", eff_par[0], eff_par_err[0], eff_par[1], eff_par_err[1], Chi2[1], Ndf[1]);
 
   //  c_en->SaveAs("~/plots/ThesisPlots/ge-calibration-curve.pdf");
   //  c_eff->SaveAs("~/plots/ThesisPlots/ge-efficiency-curve.pdf");
