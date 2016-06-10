@@ -55,9 +55,9 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
   // Here is the germanium effiency fit
   // TODO: Double check all these
   TF1* ge_eff = new TF1("ge_eff", "[0]*(x^[1])");
-  ge_eff->SetParameters(13.3779, -0.866146); //R15b (GeLoGain)
-  ge_eff->SetParError(0, 0.519812); //R15b (GeLoGain)
-  ge_eff->SetParError(1, 0.00610575); //R15b (GeLoGain)
+  ge_eff->SetParameters(19.2647, -0.918468); //R15b (GeLoGain)
+  ge_eff->SetParError(0, 0.746229); //R15b (GeLoGain)
+  ge_eff->SetParError(1, 0.00610242); //R15b (GeLoGain)
   xray.efficiency = ge_eff->Eval(xray.energy);
 
   // Assuming uncertainty in the energy is small
