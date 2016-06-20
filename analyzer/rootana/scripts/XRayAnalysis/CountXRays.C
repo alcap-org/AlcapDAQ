@@ -19,7 +19,7 @@ int FillXRayInfo(XRay* xray);
 RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectrum, XRay* xray);
 
 // Takes a filename of a rootana output file as well as information on the timing cut and interesting x-ray
-int CountXRays(std::string filename, std::string target_material="Al", std::string dirname = "PlotTAP_EnergyTime", std::string histname = "hGeLoGain#MaxBinAPGenerator#any_EnergyTime", double time_cut=9999999, int rebin_factor=1) {
+int CountXRays(std::string filename, std::string target_material="Al", std::string channel = "GeLoGain", int rebin_factor=1, std::string dirname = "PlotTAP_EnergyTime", std::string histname_suffix = "MaxBinAPGenerator#any_EnergyTime", double time_cut=9999999) {
 
   TFile* file = new TFile(filename.c_str(), "READ");
   if (file->IsZombie()) {
@@ -34,6 +34,7 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
   }
 
   // Get the 2D time-energy histogram
+  std::string histname = "h" + channel + "#" + histname_suffix;
   TH2F* hTimeEnergy = (TH2F*) ge_spectrum_dir->Get(histname.c_str());
   if (!hTimeEnergy) {
     std::cout << "Error: Could not find " << histname << std::endl;
@@ -52,26 +53,37 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
     return 1;
   }
 
-  // Here is the germanium effiency fit
-  // TODO: Double check all these
+  // Here is the germanium effiency fit for R15b
+  double a, b, delta_a, delta_b, corr;
+  if (channel == "GeLoGain") {
+    a = 3.35575; delta_a = 0.173375;
+    b = -0.817004; delta_b = 0.00811692;
+    corr = -0.9952;
+  }
+  else if (channel == "GeHiGain") {
+    a = 9.23416; delta_a = 0.441046;
+    b = -0.95712; delta_b = 0.00783701;
+    corr = -0.99561;
+  }
+  else {
+    std::cout << channel << " isn't a germanium channel. Aborting..." << std::endl;
+    return 1;
+  }
   TF1* ge_eff = new TF1("ge_eff", "[0]*(x^[1])");
-  ge_eff->SetParameters(3.355575, -0.817004); //R15b (GeLoGain)
-  ge_eff->SetParError(0, 0.173375); //R15b (GeLoGain)
-  ge_eff->SetParError(1, 0.00875182); //R15b (GeLoGain)
+  ge_eff->SetParameters(a, b);
+  ge_eff->SetParError(0, delta_a);
+  ge_eff->SetParError(1, delta_b);
   xray.efficiency = ge_eff->Eval(xray.energy);
 
   // Assuming uncertainty in the energy is small
   TF1* ge_eff_err = new TF1("ge_eff_err", "sqrt(x^(2*[1]) * ([2]^2 + 2*[0]*[3]*TMath::Log(x)*([0]*[3] + [4]*[2])))");
-  ge_eff_err->SetParameters(ge_eff->GetParameter(0), // a
-			    ge_eff->GetParameter(1), // b
-			    ge_eff->GetParError(0), // delta-a
-			    ge_eff->GetParError(1), // delta-b
-			    -0.0014005); // covariance between a and b (R15b GeLoGain)
+  ge_eff_err->SetParameters(a, b, delta_a, delta_b, 
+			    corr / (delta_a*delta_b)); // covariance between a and b
   xray.efficiency_error = ge_eff_err->Eval(xray.energy);
 
   // Now get the area under the X-ray peak by doing a fit to the spectrum
-  double energy_low = xray.energy-5;
-  double energy_high = xray.energy+5;
+  double energy_low = xray.energy-10;
+  double energy_high = xray.energy+10;
   RooRealVar* area = GetAreaUnderPeak(energy_low, energy_high, hEnergyTimeCut, &xray);
   //  std::cout << "Area under the curve = " << area->getValV() << " +- " << area->getError() << std::endl;
 
@@ -133,6 +145,8 @@ int FillXRayInfo(XRay* xray) {
     std::cout << "511 keV peak:" << std::endl;
     xray->transition = "511";
     xray->energy = 511;
+    xray->intensity = 1;
+    xray->intensity = 0;
   }
   else {
     std::cout << "Error: Unknown target material" << std::endl;
