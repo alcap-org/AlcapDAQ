@@ -56,14 +56,14 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
   // Here is the germanium effiency fit for R15b
   double a, b, delta_a, delta_b, corr;
   if (channel == "GeLoGain") {
-    a = 19.2647; delta_a = 0.746229;
-    b = -0.918468; delta_b = 0.00610242;
-    corr = -0.8846;
+    a = 3.35575; delta_a = 0.173375;
+    b = -0.817004; delta_b = 0.00811692;
+    corr = -0.9952;
   }
   else if (channel == "GeHiGain") {
-    a = 33.8124; delta_a = 1.14499;
-    b = -1.00169; delta_b = 0.00541004;
-    corr = -0.8558;
+    a = 9.23416; delta_a = 0.441046;
+    b = -0.95712; delta_b = 0.00783701;
+    corr = -0.99561;
   }
   else {
     std::cout << channel << " isn't a germanium channel. Aborting..." << std::endl;

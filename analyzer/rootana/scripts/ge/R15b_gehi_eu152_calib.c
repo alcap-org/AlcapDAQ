@@ -19,16 +19,15 @@ xrays per muon stop is 0.79. Thus, the stopping rate is
 
 (0.85/0.79)/9.05e-4=1190 Hz
 
-(8304,'2015-11-09 19:01:40','Eu-152 calibration for real','AE JQ MW JM AP','C','-','-','-','2015-11-09 19:06:47',2931,999554000,NULL,NULL)
-(8367,'2015-11-10 14:42:05','Checking Eu152 Ge lines. Data taken.','JQ AE JM','C','-','-','-','2015-11-10 14:48:39',3800,1878510000,NULL,NULL)
+
 (8377,'2015-11-10 18:46:11','Eu-152 calibration, source on Ge face (crate 5 disabled)','AE JQ MW JM AP','C','-','-','-','2015-11-10 18:54:55',5111,2000500000,NULL,NULL)
 **/
 
-void R15b_ge_eu152_calib() {
-  // The file to run on run R15b 8377, 8367
+void R15b_gehi_eu152_calib() {
+  // The file to run on run R15b 8377
   TFile* f = new TFile("calib.root", "READ");
   //TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGe-S#FirstComplete#{constant_fraction=0.60}{no_time_shift=true}_Amplitude");
-  TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGeLoGain#FirstComplete#{constant_fraction=0.60}{no_time_shift=true}_Amplitude");
+  TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGeHiGain#FirstComplete#{constant_fraction=0.60}{no_time_shift=true}_Amplitude");
 //  TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGeLoGain#MaxBinAPGenerator#any_Amplitude");
   spec->Sumw2();
 
@@ -42,7 +41,7 @@ void R15b_ge_eu152_calib() {
   TTimeStamp t(meas_date[2], meas_date[1], meas_date[0], 0, 0, 0);
   Double_t dt = (t.GetSec() - t0.GetSec())/60./60./24./365.2425;
   Double_t activity = activity0*TMath::Power(0.5,dt/halflife);
-  Double_t livetime = 918; //524; // 8min 44sec
+  Double_t livetime = 918; // 524 8min 44sec
   Double_t events = activity*livetime;
 
   // Spectrum
@@ -74,16 +73,17 @@ void R15b_ge_eu152_calib() {
   Double_t LogEnergy[NPeaks];        for (unsigned int i = 0; i < NPeaks; ++i)   LogEnergy[i]      = TMath::Log(Energy[i]);
   Double_t ExpectedCounts[NPeaks]; for (unsigned int i = 0; i < NPeaks; ++i) ExpectedCounts[i] = events*Intensity[i];
   Double_t ADC[NPeaks]       = {  
-	628.15,  
-	880.52,  
-	1050.6,  
-	1133.09, 
-	1983.39, 
-	2208.58, 
-	2454.11, 
-	2763.74,
-	2829.81,
-	3581.92};
+	1374.15, 
+	1913.69, 
+	2275.5, 
+	2453.32, 
+	4268.84, 
+	4748,
+	5272.44,
+	5933.5,
+	6074.11,
+	7678.14
+	};
   Double_t ADC_Meas[NPeaks];
   const char* Functions[NPeaks]       = {
 					  "gaus(0)+[3]*x+[4]",
@@ -98,15 +98,15 @@ void R15b_ge_eu152_calib() {
 					  "gaus(0)+[3]*x+[4]",
 					  };
   const unsigned int NParam[NPeaks]   = { 5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
-  const unsigned int FitWindow[NPeaks] = {10.,10.,30.,30.,30.,8.,30.,8.,30.,30.}; 
+  const unsigned int FitWindow[NPeaks] = {30.,30.,11.,11.,20.,20.,20.,15.,30.,40.}; 
   const Double_t FitParam[NPeaks][11] = { 
 					  {4829.69, ADC[0],  3.720,   -3.50,  3048.72, 0., 0., 0., 0., 0., 0.},
 					  {11933.9, ADC[1],  3.998,    2.60, -1450.83, 0., 0., 0., 0., 0., 0.},
 					  {683.522, ADC[2],  4.102,  0.2218,  653.992, 0., 0., 0., 0., 0., 0.},
 					  {952.212, ADC[3],  4.059,   -0.11,  532.142, 0., 0., 0., 0., 0., 0.},
 					  {2011.72, ADC[4],  4.824,   -1.24,   2825.1, 0., 0., 0., 0., 0., 0.},
-					  {332.924, ADC[5],  4.383, 1.09138,  -2194.3, 0., 0., 0., 0., 0., 0.},
-					  {1748.53, ADC[6],  5.595,   -0.70,   1929.5, 0., 0., 0., 0., 0., 0.},
+					  {288.073, ADC[5],  9.199, -0.0328,  299.217, 0., 0., 0., 0., 0., 0.},
+					  {1011.37, ADC[6],  9.711, -0.3338,  1858.81, 0., 0., 0., 0., 0., 0.},
 					  {1258.16, ADC[7],  6.545, 0.13061,  -178.53, 0., 0., 0., 0., 0., 0.},
 					  {1403.01, ADC[8],  5.771, -0.0916,  456.596, 0., 0., 0., 0., 0., 0.},
 					  {1508.03, ADC[9],  7.227,  -0.033,  139.652, 0., 0., 0., 0., 0., 0.},
@@ -139,7 +139,7 @@ void R15b_ge_eu152_calib() {
     }
   }
   TCanvas* c_spec = new TCanvas("c_spec", "c_spec");
-  spec->GetXaxis()->SetRangeUser(0, 4000);
+  spec->GetXaxis()->SetRangeUser(0, 8000);
   c_spec->SetLogy();
   spec->Draw("");
   for (unsigned int i = 0; i < NPeaks; ++i) {
@@ -192,8 +192,8 @@ void R15b_ge_eu152_calib() {
 **/
   TCanvas* c_eff = new TCanvas("c_eff");
   //  gStyle->SetOptFit(111);
-  TF1* logfit = new TF1("func", "[0]*(x**[1])");
-//  TF1* logfit = new TF1("func", "[0]*x+[1]+[2]/x+[3]/x^2+[4]/x^3+[5]/x^4");
+//  TF1* logfit = new TF1("func", "[0]*(x**[1])");
+  TF1* logfit = new TF1("func", "[0]*x+[1]+[2]/x+[3]/x^2+[4]/x^3+[5]/x^4");
   logfit->SetParName(0, "Coefficient");
   logfit->SetParName(1, "Exponent");
   logfit->SetParameters(TMath::Exp(-2.6), -0.84);
