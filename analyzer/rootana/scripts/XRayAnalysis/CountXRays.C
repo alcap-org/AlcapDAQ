@@ -55,9 +55,9 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
   // Here is the germanium effiency fit
   // TODO: Double check all these
   TF1* ge_eff = new TF1("ge_eff", "[0]*(x^[1])");
-  ge_eff->SetParameters(19.2647, -0.918468); //R15b (GeLoGain)
-  ge_eff->SetParError(0, 0.746229); //R15b (GeLoGain)
-  ge_eff->SetParError(1, 0.00610242); //R15b (GeLoGain)
+  ge_eff->SetParameters(3.355575, -0.817004); //R15b (GeLoGain)
+  ge_eff->SetParError(0, 0.173375); //R15b (GeLoGain)
+  ge_eff->SetParError(1, 0.00875182); //R15b (GeLoGain)
   xray.efficiency = ge_eff->Eval(xray.energy);
 
   // Assuming uncertainty in the energy is small
@@ -66,7 +66,7 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
 			    ge_eff->GetParameter(1), // b
 			    ge_eff->GetParError(0), // delta-a
 			    ge_eff->GetParError(1), // delta-b
-			    -0.0031591); // covariance between a and b (R15b GeLoGain)
+			    -0.0014005); // covariance between a and b (R15b GeLoGain)
   xray.efficiency_error = ge_eff_err->Eval(xray.energy);
 
   // Now get the area under the X-ray peak by doing a fit to the spectrum
