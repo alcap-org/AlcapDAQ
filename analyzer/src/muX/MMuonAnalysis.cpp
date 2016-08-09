@@ -152,7 +152,7 @@ INT MMuonAnalysis(EVENT_HEADER *pheader, void *pevent)
   // Get the event number
   int midas_event_number = pheader->serial_number;
 
- //detector names, fast and slow channel of the two Ge detectors
+ //detector names
   const string muSCHi_name("T402");
   const string muSCLo_name("T408");
   const string muSCA_name("T409");
