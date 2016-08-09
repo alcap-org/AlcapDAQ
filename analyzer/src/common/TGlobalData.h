@@ -11,6 +11,7 @@
 #include "TPulseIsland.h"
 #include "TMuPCCluster.h"
 #include "TGeHit.h"
+#include "TGeHitTDC.h"
 #include "TMuonHit.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +52,12 @@ class TGlobalData : public TObject{
   void AddGeHit(TGeHit hit){fGeHits.push_back(hit);}// std::cout << "hit added of time " << fGeHits.size() << std::endl; }
   std::vector<TGeHit>* GetGeHits() { return &fGeHits; }
   void ClearGeHits() { fGeHits.clear(); }
+  
+  //Ge detector hits
+  std::vector<TGeHitTDC> fGeHitsTDC;
+  void AddGeHitTDC(TGeHitTDC hit){fGeHitsTDC.push_back(hit);}// std::cout << "hit added of time " << fGeHits.size() << std::endl; }
+  std::vector<TGeHitTDC>* GetGeHitsTDC() { return &fGeHitsTDC; }
+  void ClearGeHitsTDC() { fGeHitsTDC.clear(); }
   
   //Muon entrances
   std::vector<TMuonHit> fMuonHits;

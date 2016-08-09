@@ -45,7 +45,7 @@ INT  MMuonGeAnalysis_bor(INT);
 INT  MMuonGeAnalysis(EVENT_HEADER*, void*);
 
 //utility methods
-void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons, std::vector<TGeHit>* gehits);
+void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons, std::vector<TGeHit>* gehits, std::vector<TGeHitTDC>* gehitsTDC);
 void MakeGeVsGeTimeHists(std::vector<TGeHit>* gehits);
 void MakeTripleCoincidenceHists(std::vector<TMuonHit>* muons, std::vector<TGeHit>* gehits);
 
@@ -186,6 +186,7 @@ INT MMuonGeAnalysis(EVENT_HEADER *pheader, void *pevent)
   //get hits from gData
   std::vector<TMuonHit>* muonHits = gData->GetMuonHits();
   std::vector<TGeHit>* geHits = gData->GetGeHits(); 
+  std::vector<TGeHitTDC>* geHitsTDC = gData->GetGeHitsTDC();
   
   for(int iGe = 0; iGe < geHits->size(); iGe++ )
   {
@@ -197,7 +198,7 @@ INT MMuonGeAnalysis(EVENT_HEADER *pheader, void *pevent)
   std::sort(muonHits->begin(), muonHits->end(),TMuonHit::TimeSortHits());
 
 
-  MakeGeVsMuonTimeHists(muonHits,geHits);
+  MakeGeVsMuonTimeHists(muonHits,geHits,geHitsTDC);
   MakeGeVsGeTimeHists(geHits);
   MakeTripleCoincidenceHists(muonHits,geHits);
   
@@ -207,7 +208,7 @@ INT MMuonGeAnalysis(EVENT_HEADER *pheader, void *pevent)
   return SUCCESS;
 }
 
-void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons, std::vector<TGeHit>* gehits)
+void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons, std::vector<TGeHit>* gehits, std::vector<TGeHitTDC>* gehitsTDC)
 {
   int geSize = gehits->size();
   int muonSize = muons->size();

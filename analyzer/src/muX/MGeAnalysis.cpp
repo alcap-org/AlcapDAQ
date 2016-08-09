@@ -29,6 +29,7 @@ Contents:     Base Analysis module for HPGe detector. Makes TGeHIts and histogra
 #include "TSetupData.h"
 #include "TPulseIsland.h"
 #include "TGeHit.h"
+#include "AlCap.h"
 
 using std::string;
 using std::map;
@@ -43,7 +44,10 @@ INT  MGeAnalysis(EVENT_HEADER*, void*);
 //utility methods
 
 int RawHitsAnalysis(const vector<TPulseIsland*>* pulses,int channel, int ev_nr, std::vector<float>* ped);
+int TDCTimeCorrelation(const vector<TPulseIsland*>* pulses,std::vector<double>* times,int channel,std::vector<float>* ped);
 int MatchEandT(const vector<TPulseIsland*>* Epulses,const vector<TPulseIsland*>* Tpulses,int Echannel, int Tchannel,std::vector<float>* ped);
+std::vector<double> GetTDCTimes_here(const string& bank); // So I can`t have methods with the same name over different modules?
+float GetCorrectionFactor(double tDiff,double amp,int channel);
 
 
 extern HNDLE hDB;
@@ -52,6 +56,31 @@ extern TSetupData* gSetup;
 
 static std::vector<std::string> left_thin_banknames;
 static std::vector<std::string> right_thin_banknames;
+
+//Wide Window
+double tWide_Window = 50000;
+
+//cuts for tdc-E pulse matches
+double ge1_ECut = 9000; //abobe 9000 channels, a straight cut
+double ge1_TCutLow = -19975;
+double ge1_TCutHigh = -19670;
+double ge1_a = -30.612244898;
+double ge1_b = -593142.857143;
+
+double ge1_TCutHighWide = -10900;
+double ge1_TCutLowWide = -13200;
+
+double ge2_ECut = 9000; //abobe 900 channels, a straight cut
+double ge2_TCutLow = -20585;
+double ge2_TCutHigh = -20140;
+double ge2_a = -33.5483870968;
+double ge2_b = -667661.290323;
+
+double ge2_TCutHighWide = -11000;
+double ge2_TCutLowWide = -14600;
+
+
+
 
 //const double pedestals[4];
 
@@ -65,6 +94,7 @@ namespace {
   TH2 *hGeE;
   TH2 *hGe2EVersusTDiffHits;
   TH3 *hGe2PedestalVersusTDiffHits;
+  TH3 *hGe1PedestalVersusTDiffHits;
   TH2 *hGe1EVsT;
   TH2 *hGe2EVsT;
   TH1 *hGeHitStats;
@@ -73,8 +103,9 @@ namespace {
   TH3 *hGeShape;
   TH2* hGe1MaxSampleVsE;
   TH2* hGe2MaxSampleVsE;
-  TH1 *hGeHitTimes;
+  TH2 *hGeHitTimes;
   TH2 *hGeHitTimeVersusAmplitude;
+  TH3* hGeEVersusTDCTDiff;
   
 }
 
@@ -111,7 +142,9 @@ INT MGeAnalysis_init()
   
   hGe2EVersusTDiffHits = new TH2F("hGe2EVersusTDiffHits","Ge2 pulse height spectrum versus detector history; Pulse amplitude (ADC); Time difference (us)",4250,0.,17000.,150,0,300000);
   hGe2PedestalVersusTDiffHits = new TH3F("hGe2PedestalVersusTDiffHits","Ge2 pulse pedestal versus detector history; Pulse pedestal (ADC); Time difference (us); previous pulse amplitude (ADC)",300,400.,1000.,150,0,300000,20,0,17000);
+  hGe1PedestalVersusTDiffHits = new TH3F("hGe1PedestalVersusTDiffHits","Ge1 pulse pedestal versus detector history; Pulse pedestal (ADC); Time difference (us); previous pulse amplitude (ADC)",300,400.,1000.,150,0,300000,20,0,17000);
   
+  hGeEVersusTDCTDiff = new TH3F("hGeEVersusTDCTDiff","Energy versus Tdiff with TDC signal; Pulse Amplitude (ADC); TDiff (ns); Detector",170,0.,17000,5000,-25000,25000,2,0.5,2.5);
   
   
   //pedestal histograms
@@ -127,7 +160,7 @@ INT MGeAnalysis_init()
   hGe2EVsT = new TH2F("hGe1EVsT","Time correlation between fast and slow signal of Ge2; tDiff (ns); Pulse Height (ADC)", 10000,-50000.,+50000.,17000,0,17000);
   
   //stats histogram
-  hGeHitStats = new TH1I("hGeHitStats","Ge hit stats",16,0.5,16.5);
+  hGeHitStats = new TH1I("hGeHitStats","Ge hit stats",20,0.5,20.5);
   hGeHitStats->GetXaxis()->SetBinLabel(1,"Ge1 slow triggers");
   hGeHitStats->GetXaxis()->SetBinLabel(2,"Ge2 slow triggers");
   hGeHitStats->GetXaxis()->SetBinLabel(3,"Ge1 fast triggers");
@@ -140,6 +173,13 @@ INT MGeAnalysis_init()
   hGeHitStats->GetXaxis()->SetBinLabel(10,"Ge2 EvsT Match hits");
   hGeHitStats->GetXaxis()->SetBinLabel(11,"Ge1 E shape ok");
   hGeHitStats->GetXaxis()->SetBinLabel(12,"Ge2 E shape ok");
+  hGeHitStats->GetXaxis()->SetBinLabel(13,"Ge1 TDC triggers");
+  hGeHitStats->GetXaxis()->SetBinLabel(14,"Ge2 TDC triggers");
+  hGeHitStats->GetXaxis()->SetBinLabel(15,"Ge1 TDC Hits");
+  hGeHitStats->GetXaxis()->SetBinLabel(16,"Ge2 TDC Hits");
+  hGeHitStats->GetXaxis()->SetBinLabel(17,"Ge1 TDC Hits PP");
+  hGeHitStats->GetXaxis()->SetBinLabel(18,"Ge2 TDC Hits PP");
+
 
   
   hTriggersVsBlock = new TH1I("hTriggersVsBlock","Ge triggers vs Block Nr; Block Nr; # raw Ge pulses",10000,0.5,10000.5);
@@ -164,7 +204,11 @@ INT MGeAnalysis_init()
       std::string detname = gSetup->GetDetectorName(bankname);
     }*/
     
-  hGeHitTimes = new TH1I("hGeHitTimes","germanium hit times; time(ns)", 1000, 0., 100000000);
+  hGeHitTimes = new TH2I("hGeHitTimes","germanium hit times; time(ns)", 1000, 0., 100000000,4,0.5,4.5);
+  hGeShape->GetYaxis()->SetBinLabel(1,"Ge1 hits");
+  hGeShape->GetZaxis()->SetBinLabel(2,"Ge2 hits");
+  hGeShape->GetZaxis()->SetBinLabel(3,"Ge1 tdc hits");
+  hGeShape->GetZaxis()->SetBinLabel(4,"Ge2 tdc hits");  
 
   hGeHitTimeVersusAmplitude = new TH2F("hGeHitTimeVersusAmplitude","Hit time within the island versus E pulse amplitude; time (ns) ; Pulse Height (ADC)",100,0,5000,170,0,17000);
 
@@ -193,6 +237,9 @@ INT MGeAnalysis(EVENT_HEADER *pheader, void *pevent)
   const string ge1T_name("D403");
   const string ge2T_name("D404");
   
+  const string ge1TDC_name("T410");
+  const string ge2TDC_name("T411");
+  
   // Some typedefs
   typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;
   typedef pair<string, vector<TPulseIsland*> > TStringPulseIslandPair;
@@ -209,6 +256,9 @@ INT MGeAnalysis(EVENT_HEADER *pheader, void *pevent)
   const vector<TPulseIsland*>& ge1T_pulses = pulses_map.at(ge1T_name);
   const vector<TPulseIsland*>& ge2T_pulses = pulses_map.at(ge2T_name);
   
+  vector<double> ge1TDC = GetTDCTimes_here(ge1TDC_name);
+  vector<double> ge2TDC = GetTDCTimes_here(ge2TDC_name);
+
   int nPulses = ge1E_pulses.size();
   hTriggersVsBlock->SetBinContent(midas_event_number,nPulses);
   
@@ -224,10 +274,14 @@ INT MGeAnalysis(EVENT_HEADER *pheader, void *pevent)
   RawHitsAnalysis(&ge2T_pulses,4,midas_event_number,&blockPedestal);
   
   gData->ClearGeHits();
+  gData->ClearGeHitsTDC();
+  
+  TDCTimeCorrelation(&ge1E_pulses,&ge1TDC,1,&blockPedestal);
+  TDCTimeCorrelation(&ge2E_pulses,&ge2TDC,2,&blockPedestal);
+  
   MatchEandT(&ge1E_pulses,&ge1T_pulses,1,3,&blockPedestal);
   MatchEandT(&ge2E_pulses,&ge2T_pulses,2,4,&blockPedestal);
-	
-
+  
   //////////////////////////////////////
   return SUCCESS;
 }
@@ -240,6 +294,9 @@ int RawHitsAnalysis(const vector<TPulseIsland*>* pulses,int channel, int ev_nr, 
   
   float previousTime = 0.;
   float previousAmplitude = 0.;
+  
+  float previousTimeGe1 = 0.;
+  float previousAmplitudeGe1 = 0.;
   
   for(int i = 0; i < size; i++)
   {
@@ -276,11 +333,147 @@ int RawHitsAnalysis(const vector<TPulseIsland*>* pulses,int channel, int ev_nr, 
       }
     }
     
+    if(channel ==1 && pulses->at(i)->GetPulseLength()==300 )
+    {
+      float tDiff = pulses->at(i)->GetPulseTime()-previousTimeGe1;
+      TGeHit hit = TGeHit(1);
+      hit.SetEPulse(pulses->at(i));
+      hit.PulseShapeAnalysis();
+      if(pulses->at(i)->GetPeakSample() > 70 && pulses->at(i)->GetPeakSample() < 180 && amplitude > 3000. && previousAmplitudeGe1 > 0 && pulses->at(i)->GetPulseLength()==300 && hit.Shape())
+      {
+        hGe1PedestalVersusTDiffHits->Fill(pedestal,tDiff,previousAmplitudeGe1);
+        //printf("fill\n");
+      }
+      //if (previousAmplitude < 2600. ) cout << previousAmplitude << endl;
+      if(amplitude > 2510. ) //determined from the hGeE spectrum. above 2500 channels hGe2 has triggered
+      {
+         previousTime = pulses->at(i)->GetPulseTime();
+         previousAmplitudeGe1 = amplitude;
+      }
+    }
+    
+    
     
     sum+=pedestal;
   }
   
   ped->at(channel-1)=sum/(1.*size);
+  
+  return 1;
+}
+
+
+int TDCTimeCorrelation(const vector<TPulseIsland*>* pulses,std::vector<double>* times,int channel, std::vector<float>* ped)
+{
+  
+  int iLowest = 0;
+  double lastETime = 0.;
+
+  for(unsigned int iTDC = 0; iTDC < times->size(); iTDC++ )
+  {
+    hGeHitStats->Fill(12+channel);
+    double tdcTime = times->at(iTDC);
+    for(unsigned int iGe = iLowest; iGe < pulses->size(); iGe++)
+    {
+      
+      TPulseIsland* pulse = pulses->at(iGe); 
+      double slowTime = pulse->GetClockTickInNs() * ( pulse->GetTimeStamp() );
+      double tDiff = tdcTime - slowTime;
+
+      if( tDiff > tWide_Window) //tdc hit leading the ge pulse
+      {
+        iLowest = iGe;
+        continue;
+      }
+      if( tDiff < -tWide_Window ) { break; }
+
+      double energy = pulse->GetPulseHeight();
+      hGeEVersusTDCTDiff->Fill(energy,tDiff,channel);
+      
+      
+      //so now we have a candidate match
+      bool makehit = false;
+      
+      /*if(channel == 1 && tDiff > ge1_TCutLow)
+      {
+        if(energy > ge1_ECut && tDiff < ge1_TCutHigh) makehit = true;
+        else if(energy < ge1_a*tDiff + ge1_b) makehit = true;
+      }
+      
+      if(channel == 2 && tDiff > ge2_TCutLow )
+      {
+        if(energy > ge2_ECut && tDiff < ge2_TCutHigh) makehit = true;
+        else if(energy < ge1_a*tDiff + ge1_b) makehit = true;
+      }*/
+      
+      if(channel == 1 && tDiff > ge1_TCutLowWide && tDiff < ge1_TCutHighWide) { makehit = true; }
+      if(channel == 2 && tDiff > ge2_TCutLowWide && tDiff < ge2_TCutHighWide) { makehit = true; }
+      
+      if(makehit)
+      {
+        TGeHitTDC hit(channel);
+        bool acceptHit = hit.SetEPulse(pulse);
+        if(acceptHit)
+        {
+          hit.PulseShapeAnalysis();
+          hit.SetTime(tdcTime);
+          if(channel == 1) hit.SetEPedestal(ped->at(0));
+          if(channel == 2) hit.SetEPedestal(ped->at(1));
+          if(fabs(slowTime - lastETime) < 10. ) { hit.SetSecondPulse(true); }
+          else {hGeHitStats->Fill(16+channel);} 
+          gData->AddGeHitTDC(hit);
+          hGeHitTimes->Fill(tdcTime,channel+2); 
+          hGeHitStats->Fill(14+channel);
+          lastETime = slowTime;
+        }
+      }
+    }
+  }
+  
+  //
+  std::vector<TGeHitTDC>* geHitsTDC = gData->GetGeHitsTDC();
+  
+  double previousGe1Time = 0.;
+  double previousGe2Time = 0.;
+  double previousGe1Amplitude = 0;
+  double previousGe2Amplitude = 0;
+  double previousLightningTimeGe1; //last big hit which disturbs the electronics for ~ 1ms
+  double previousLightningTimeGe2;
+  
+  for(int iGe = 0; iGe < geHitsTDC->size(); iGe++)
+  {
+    int channel = geHitsTDC->at(iGe).GetChannel();
+    double time = geHitsTDC->at(iGe).GetTime();
+    double amplitude =  geHitsTDC->at(iGe).GetEPulseHeight();
+    int peakSample = geHitsTDC->at(iGe).GetEPulse()->GetPeakSample();
+    bool shape = geHitsTDC->at(iGe).Shape();
+    int pulseLength = geHitsTDC->at(iGe).GetEPulse()->GetPulseLength();
+    std::vector<int> samples = geHitsTDC->at(iGe).GetEPulse()->GetSamples();
+    int lastSample = samples.at(pulseLength-1);
+    
+    
+    if(channel ==1)
+    {
+      double tDiff = time - previousGe1Time;
+      //set pedestal correction factor
+      if( tDiff > 0 && tDiff < 300000 && previousGe1Amplitude > 0) double correction = GetCorrectionFactor(tDiff,previousGe1Amplitude,1);
+  
+      //qualify the pulse as a reference for the next pulse and save the parameters
+      if(peakSample > 70 && peakSample < 180 && amplitude > 3000. && pulseLength==300 && shape)
+      {
+        previousGe1Time = time;
+        previousGe1Amplitude = amplitude;        
+      }
+      
+      //check if the this is a "lightning" pulse
+      if(lastSample >8500) previousLightningTimeGe1 = time;
+    }
+    
+    
+    if(channel ==2)
+    {
+    }
+  }
   
   return 1;
 }
@@ -351,7 +544,7 @@ int MatchEandT(const vector<TPulseIsland*>* Epulses,const vector<TPulseIsland*>*
       if(!hit.SecondPulse()) hGeHitStats->Fill(6+Echannel);
       if(hit.MatchEVsT()) hGeHitStats->Fill(8+Echannel);
       if(hit.Shape()) hGeHitStats->Fill(10+Echannel);
-      hGeHitTimes->Fill(hit.GetTime()); 
+      hGeHitTimes->Fill(hit.GetTime(),Echannel); 
     }
         
     //
@@ -364,3 +557,23 @@ int MatchEandT(const vector<TPulseIsland*>* Epulses,const vector<TPulseIsland*>*
   return 1;
 }
 
+//copy from John, 
+std::vector<double> GetTDCTimes_here(const string& bank) 
+{
+  
+  vector<double> times;
+  const double tick = AlCap::TICKTDC;
+  const map<string, vector<int64_t> >& hit_map = gData->fTDCHitsToChannelMap;
+  if (!hit_map.count(bank)) return times;
+  
+  const vector<int64_t>& hits = hit_map.at(bank);
+  times.reserve(hits.size());
+  
+  for (int ihit = 0; ihit < hits.size(); ++ihit){ times.push_back(tick*hits[ihit]); }
+  return times;
+}
+
+float GetCorrectionFactor(double tDiff,double amp,int channel)
+{
+  return 0;
+}
