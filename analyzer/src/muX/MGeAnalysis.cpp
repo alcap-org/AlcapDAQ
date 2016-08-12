@@ -15,6 +15,8 @@ Contents:     Base Analysis module for HPGe detector. Makes TGeHIts and histogra
 #include <utility>
 #include <sstream>
 #include <cmath>
+#include <fstream>
+#include <algorithm>
 
 /* MIDAS includes */
 #include "midas.h"
@@ -48,6 +50,7 @@ int TDCTimeCorrelation(const vector<TPulseIsland*>* pulses,std::vector<double>* 
 int MatchEandT(const vector<TPulseIsland*>* Epulses,const vector<TPulseIsland*>* Tpulses,int Echannel, int Tchannel,std::vector<float>* ped);
 std::vector<double> GetTDCTimes_here(const string& bank); // So I can`t have methods with the same name over different modules?
 float GetCorrectionFactor(double tDiff,double amp,int channel);
+float BilinearInterpolation(float q11, float q12, float q21, float q22, float x1, float x2, float y1, float y2, float x, float y);
 
 
 extern HNDLE hDB;
@@ -79,7 +82,14 @@ double ge2_b = -667661.290323;
 double ge2_TCutHighWide = -11000;
 double ge2_TCutLowWide = -14600;
 
+//pc stands for pedestal correction. Stores pedestal corrections
+std::vector<float> ge1_pc_energy;
+std::vector<float> ge1_pc_time;
+std::vector<float> ge1_pc_pedestal;
 
+std::vector<float> ge2_pc_energy;
+std::vector<float> ge2_pc_time;
+std::vector<float> ge2_pc_pedestal;
 
 
 //const double pedestals[4];
@@ -211,6 +221,40 @@ INT MGeAnalysis_init()
   hGeShape->GetZaxis()->SetBinLabel(4,"Ge2 tdc hits");  
 
   hGeHitTimeVersusAmplitude = new TH2F("hGeHitTimeVersusAmplitude","Hit time within the island versus E pulse amplitude; time (ns) ; Pulse Height (ADC)",100,0,5000,170,0,17000);
+  
+  //read values of pedestal file
+  string name = "ge1_pedestalshift.dat";
+  std::ifstream file1(name);
+  if(file1.is_open())
+  {
+    float a,b,c;
+    while(file1 >> a >> b >> c)
+    {
+      //std::cout << "a " << a << " b " << b << " c " << c << std::endl;
+      ge1_pc_energy.push_back(a);
+      ge1_pc_time.push_back(b);
+      ge1_pc_pedestal.push_back(c);
+    }
+  }
+  
+  file1.close();
+  
+  name="ge2_pedestalshift.dat";
+  std::ifstream file2(name);
+  if(file2.is_open())
+  {
+    float a,b,c;
+    while(file2 >> a >> b >> c)
+    {
+      //std::cout << "a " << a << " b " << b << " c " << c << std::endl;
+      ge2_pc_energy.push_back(a);
+      ge2_pc_time.push_back(b);
+      ge2_pc_pedestal.push_back(c);
+    }
+  }
+  
+  file2.close();
+  
 
   return SUCCESS;
 }
@@ -347,7 +391,7 @@ int RawHitsAnalysis(const vector<TPulseIsland*>* pulses,int channel, int ev_nr, 
       //if (previousAmplitude < 2600. ) cout << previousAmplitude << endl;
       if(amplitude > 2510. ) //determined from the hGeE spectrum. above 2500 channels hGe2 has triggered
       {
-         previousTime = pulses->at(i)->GetPulseTime();
+         previousTimeGe1 = pulses->at(i)->GetPulseTime();
          previousAmplitudeGe1 = amplitude;
       }
     }
@@ -433,12 +477,12 @@ int TDCTimeCorrelation(const vector<TPulseIsland*>* pulses,std::vector<double>* 
   //
   std::vector<TGeHitTDC>* geHitsTDC = gData->GetGeHitsTDC();
   
-  double previousGe1Time = 0.;
-  double previousGe2Time = 0.;
-  double previousGe1Amplitude = 0;
-  double previousGe2Amplitude = 0;
-  double previousLightningTimeGe1; //last big hit which disturbs the electronics for ~ 1ms
-  double previousLightningTimeGe2;
+  double previousGe1Time = -600000;
+  double previousGe2Time = -600000;
+  double previousGe1Amplitude = -600000;
+  double previousGe2Amplitude =-600000;
+  double previousLightningTimeGe1 = -600000; //last big hit which disturbs the electronics for ~ 1ms
+  double previousLightningTimeGe2 = -600000; 
   
   for(int iGe = 0; iGe < geHitsTDC->size(); iGe++)
   {
@@ -455,8 +499,12 @@ int TDCTimeCorrelation(const vector<TPulseIsland*>* pulses,std::vector<double>* 
     if(channel ==1)
     {
       double tDiff = time - previousGe1Time;
+      double tDiffLightning = time - previousLightningTimeGe1;
+      if(tDiffLightning < 600000) ;//0.6 ms window where we flag events
       //set pedestal correction factor
-      if( tDiff > 0 && tDiff < 300000 && previousGe1Amplitude > 0) double correction = GetCorrectionFactor(tDiff,previousGe1Amplitude,1);
+      double correction = 0.;
+      if( tDiff > 0 && tDiff < 300000 && previousGe1Amplitude > 0) correction = GetCorrectionFactor(tDiff,previousGe1Amplitude,1); // ' correction ' is actually the pedestal from the grid file
+      if(correction > 1.) geHitsTDC->at(iGe).SetPedestalCorrection( correction - geHitsTDC->at(iGe).GetEFixedPedestal() ); //GetCorrectionfactor returns 0 
   
       //qualify the pulse as a reference for the next pulse and save the parameters
       if(peakSample > 70 && peakSample < 180 && amplitude > 3000. && pulseLength==300 && shape)
@@ -466,12 +514,29 @@ int TDCTimeCorrelation(const vector<TPulseIsland*>* pulses,std::vector<double>* 
       }
       
       //check if the this is a "lightning" pulse
-      if(lastSample >8500) previousLightningTimeGe1 = time;
+      if(lastSample > 8500) previousLightningTimeGe1 = time;
     }
     
     
     if(channel ==2)
     {
+      double tDiff = time - previousGe2Time;
+      double tDiffLightning = time - previousLightningTimeGe2;
+      if(tDiffLightning < 600000) ;//0.6 ms window where we flag events
+      //set pedestal correction factor
+      double correction = 0.;
+      if( tDiff > 0 && tDiff < 300000 && previousGe2Amplitude > 0) correction = GetCorrectionFactor(tDiff,previousGe2Amplitude,2); // ' correction ' is actually the pedestal from the grid file
+      if(correction > 1.) geHitsTDC->at(iGe).SetPedestalCorrection( correction - geHitsTDC->at(iGe).GetEFixedPedestal() ); //GetCorrectionfactor returns 0 
+  
+      //qualify the pulse as a reference for the next pulse and save the parameters
+      if(peakSample > 70 && peakSample < 180 && amplitude > 3000. && pulseLength==300 && shape)
+      {
+        previousGe2Time = time;
+        previousGe2Amplitude = amplitude;        
+      }
+      
+      //check if the this is a "lightning" pulse
+      if(lastSample > 8500) previousLightningTimeGe2 = time;
     }
   }
   
@@ -575,5 +640,91 @@ std::vector<double> GetTDCTimes_here(const string& bank)
 
 float GetCorrectionFactor(double tDiff,double amp,int channel)
 {
+  std::vector<float> pc_energy;
+  std::vector<float> pc_time;
+  std::vector<float> pc_pedestal;
+  
+  if(channel ==1)
+  {
+    //check if there is anything there
+    if(ge1_pc_energy.size() < 1) return 0.;
+    pc_energy = ge1_pc_energy;
+    pc_time = ge1_pc_time;
+    pc_pedestal = ge1_pc_pedestal;
+  }
+  if(channel ==2)
+  {
+    //check if there is anything there
+    if(ge2_pc_energy.size() < 1) return 0.;
+    pc_energy = ge2_pc_energy;
+    pc_time = ge2_pc_time;
+    pc_pedestal = ge2_pc_pedestal;
+  }
+  
+  //see if the tDiff and amp is in range of the grid
+  float minEnergy = *min_element(pc_energy.begin(), pc_energy.end()); 
+  float maxEnergy = *max_element(pc_energy.begin(), pc_energy.end());
+  float minTime = *min_element(pc_time.begin(), pc_time.end()); 
+  float maxTime = *max_element(pc_time.begin(), pc_time.end());
+  
+  if(tDiff < minTime || tDiff > maxTime || amp < minEnergy || amp > maxEnergy) return 0.;
+  
+  //look for the 4 corner points for the bilinear interpolation 
+  //assume that the vector are order first by energy, then time
+  
+  int size = pc_energy.size();
+  //step 1, get the index for the first energy/amp entry bigger than the input amp
+  int step1_index;
+  int index1, index2, index3, index4; //4 points for the lin interpolation
+  for(int i = 0; i<size; i++)
+  {
+    step1_index = i;
+    if(amp<pc_energy.at(i)) break;
+  }
+  
+  //step 2, go down, and get the two point for the low energy
+   
+  for(int i = step1_index-1; i >= 0; i--)
+  {
+    index1 = i;
+    if( tDiff > pc_time.at(i) ) break;
+  }
+  
+  index2 = index1 +1;
+  
+  //and the same for the high energy range
+  for(int i = step1_index; i < size; i++)
+  {
+    index4 = i;
+    if( tDiff < pc_time.at(i) ) break;
+  }
+  
+  index3 = index4-1;
+  
+  float x1 = pc_energy.at(index1);
+  float x2 = pc_energy.at(index3);
+  float y1 = pc_time.at(index1);
+  float y2 = pc_time.at(index2);
+  
+  float value = BilinearInterpolation(pc_pedestal.at(index1),pc_pedestal.at(index2),pc_pedestal.at(index3),pc_pedestal.at(index4),x1,x2,y1,y2,amp,tDiff);
+  //std::cout << "value " << value << "  amp " << amp << " tDiff " << tDiff <<  std::endl;
+  
   return 0;
+}
+
+float BilinearInterpolation(float q11, float q12, float q21, float q22, float x1, float x2, float y1, float y2, float x, float y) 
+{
+    float x2x1, y2y1, x2x, y2y, yy1, xx1;
+    x2x1 = x2 - x1;
+    y2y1 = y2 - y1;
+    x2x = x2 - x;
+    y2y = y2 - y;
+    yy1 = y - y1;
+    xx1 = x - x1;
+    return 1.0 / (x2x1 * y2y1) * (
+        q11 * x2x * y2y +
+        q21 * xx1 * y2y +
+        q12 * x2x * yy1 +
+        q22 * xx1 * yy1
+    );
 }

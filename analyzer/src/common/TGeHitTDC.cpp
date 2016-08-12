@@ -44,6 +44,7 @@ TGeHitTDC::TGeHitTDC(int ch)
    
    pulseLength = 300; //number of samples
    pedestalCorrectionFromPreviousPulse = 0.;
+   postLightning = false;
  
 }
 
@@ -135,13 +136,13 @@ bool TGeHitTDC::InAmpVsIntBand(float amp, float in)
 
 bool TGeHitTDC::GoodHit()
 {
-  if( !SecondPulse() &&  Shape() && ePulse->GetPulseLength() == pulseLength)  return true;
+  if( !SecondPulse() &&  Shape() && ePulse->GetPulseLength() == pulseLength && !GetPostLightningFlag())  return true;
   else return false;
 }
 
 double TGeHitTDC::GetEnergy(double a, double b, bool pedestal_subtract)
 {
-  double ped = GetEFixedPedestal() - pedestalCorrectionFromPreviousPulse; //correction set by the history of the detector, i.e. previous hit(s)
+  double ped = GetEFixedPedestal() + pedestalCorrectionFromPreviousPulse; //correction set by the history of the detector, i.e. previous hit(s)
   double amp = GetEPulseHeight();
   double block_ped = GetBlockEPedestal();
   
