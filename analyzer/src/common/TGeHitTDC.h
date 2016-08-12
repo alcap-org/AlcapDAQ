@@ -47,6 +47,7 @@ class TGeHitTDC : public TObject {
   double GetEnergy(double a, double b,bool pedestal_subtract=false);// should become energy calibrated pulse height
   float GetBlockEPedestal() { return blockEPedestal; }
   float GetPedestalCorrection(){return pedestalCorrectionFromPreviousPulse ; }
+  bool GetPostLightningFlag(){ return postLightning;}
 
   TPulseIsland* GetEPulse(){ return ePulse; }
   
@@ -66,6 +67,7 @@ class TGeHitTDC : public TObject {
   void SetSecondPulse(bool value) {secondPulse = value; }
   
   void SetPedestalCorrection(float value){ pedestalCorrectionFromPreviousPulse = value;}
+  void GetPostLightningFlag(bool value){ postLightning = value;}
   
   //Pulse analysis ****
   int PulseShapeAnalysis();
@@ -93,6 +95,7 @@ class TGeHitTDC : public TObject {
   //Hit quality bits
   bool secondPulse;
   bool shape;
+  bool postLightning;
   
   //Pulse shape parameters (yes, would be better to store it in TSetupData
   
