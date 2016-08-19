@@ -224,7 +224,7 @@ INT MGeAnalysis_init()
   
   //read values of pedestal file
   string name = "ge1_pedestalshift.dat";
-  std::ifstream file1(name);
+  std::ifstream file1(name.c_str());
   if(file1.is_open())
   {
     float a,b,c;
@@ -240,7 +240,7 @@ INT MGeAnalysis_init()
   file1.close();
   
   name="ge2_pedestalshift.dat";
-  std::ifstream file2(name);
+  std::ifstream file2(name.c_str());
   if(file2.is_open())
   {
     float a,b,c;
