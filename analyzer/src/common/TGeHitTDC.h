@@ -67,7 +67,7 @@ class TGeHitTDC : public TObject {
   void SetSecondPulse(bool value) {secondPulse = value; }
   
   void SetPedestalCorrection(float value){ pedestalCorrectionFromPreviousPulse = value;}
-  void GetPostLightningFlag(bool value){ postLightning = value;}
+  void SetPostLightningFlag(bool value){ postLightning = value;}
   
   //Pulse analysis ****
   int PulseShapeAnalysis();

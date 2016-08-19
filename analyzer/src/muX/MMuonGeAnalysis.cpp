@@ -45,9 +45,9 @@ INT  MMuonGeAnalysis_bor(INT);
 INT  MMuonGeAnalysis(EVENT_HEADER*, void*);
 
 //utility methods
-void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons, std::vector<TGeHit>* gehits, std::vector<TGeHitTDC>* gehitsTDC);
-void MakeGeVsGeTimeHists(std::vector<TGeHit>* gehits);
-void MakeTripleCoincidenceHists(std::vector<TMuonHit>* muons, std::vector<TGeHit>* gehits);
+void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons, std::vector<TGeHitTDC>* gehits);
+void MakeGeVsGeTimeHists(std::vector<TGeHitTDC>* gehits);
+void MakeTripleCoincidenceHists(std::vector<TMuonHit>* muons, std::vector<TGeHitTDC>* gehits);
 
 
 extern HNDLE hDB;
@@ -86,8 +86,8 @@ double tCoinc = 50;
 double offSet = -15080.;
 
 //Ge coincidence window;
-double tDiffGeLow = -400.;
-double tDiffGeHigh = 200.;
+double tDiffGeLow = -100.;
+double tDiffGeHigh = 30.;
 
 namespace {
   TH2 *hGe1VersusTime;
@@ -106,6 +106,7 @@ namespace {
   TH3* hGe1EnergyVsGe2EnergyVsMuonTime;
   TH3* hGe1EnergyVsGe2EnergyVsMuonTimePP;
   TH3* hGe1EnergyVsGe2EnergyGoodHitsVsMuonTimePP;
+  TH1* hTripleStats;
 }
 
 ANA_MODULE MMuonGeAnalysis_module =
@@ -161,9 +162,18 @@ INT MMuonGeAnalysis_init()
   
   hGe1EnergyVsGe2EnergyVsMuonTime = new TH3F("hGe1EnergyVsGe2EnergyVsMuonTime","Energy Ge1 Versus Energy Ge2, time coincidence, Vs Muon Tme; Ge1 Energy (keV); Ge2 Energy (keV); muonTime - Ge1Time",1500,0.,3000.,1500,0.,3000.,40,-1000,1000); // big histo!
   
-    hGe1EnergyVsGe2EnergyVsMuonTimePP = new TH3F("hGe1EnergyVsGe2EnergyVsMuonTimePP","Energy Ge1 Versus Energy Ge2, time coincidence, Vs Muon Time (PP); Ge1 Energy (keV); Ge2 Energy (keV); muonTime - Ge1Time",1500,0.,3000.,1500,0.,3000.,40,-1000,1000); // big histo!
+  hGe1EnergyVsGe2EnergyVsMuonTimePP = new TH3F("hGe1EnergyVsGe2EnergyVsMuonTimePP","Energy Ge1 Versus Energy Ge2, time coincidence, Vs Muon Time (PP); Ge1 Energy (keV); Ge2 Energy (keV); muonTime - Ge1Time",1500,0.,3000.,1500,0.,3000.,40,-1000,1000); // big histo!
   
   hGe1EnergyVsGe2EnergyGoodHitsVsMuonTimePP = new TH3F("hGe1EnergyVsGe2EnergyGoodHitsVsMuonTimePP","Energy Ge1 Versus Energy Ge2, time coincidence, Vs Muon Tme (Good Ge hits + muon PP); Ge1 Energy (keV); Ge2 Energy (keV); muonTime - Ge1Time",1500,0.,3000.,1500,0.,3000.,40,-1000,1000); // big histo!
+  
+    //stats histogram
+  hTripleStats = new TH1I("hTripleStats","Ge-muon hit stats",20,0.5,20.5);
+  hTripleStats->GetXaxis()->SetBinLabel(1,"muon hits");
+  hTripleStats->GetXaxis()->SetBinLabel(2,"Ge1 hits");
+  hTripleStats->GetXaxis()->SetBinLabel(3,"Ge2 hits");
+  
+
+  
   return SUCCESS;
   
 }
@@ -190,17 +200,19 @@ INT MMuonGeAnalysis(EVENT_HEADER *pheader, void *pevent)
   
   for(int iGe = 0; iGe < geHits->size(); iGe++ )
   {
-    //if(geHits->at(iGe).GetChannel()==1) cout << " fff " << endl;
+    if(geHits->at(iGe).GetChannel()==1) hTripleStats->Fill(2);
+    if(geHits->at(iGe).GetChannel()==2) hTripleStats->Fill(3);
   }
   
   
   std::sort(geHits->begin(), geHits->end(),TGeHit::TimeSortHits());
+  std::sort(geHitsTDC->begin(), geHitsTDC->end(),TGeHitTDC::TimeSortHits());
   std::sort(muonHits->begin(), muonHits->end(),TMuonHit::TimeSortHits());
 
 
-  MakeGeVsMuonTimeHists(muonHits,geHits,geHitsTDC);
-  MakeGeVsGeTimeHists(geHits);
-  MakeTripleCoincidenceHists(muonHits,geHits);
+  MakeGeVsMuonTimeHists(muonHits,geHitsTDC);
+  MakeGeVsGeTimeHists(geHitsTDC);
+  MakeTripleCoincidenceHists(muonHits,geHitsTDC);
   
  
   
@@ -208,7 +220,7 @@ INT MMuonGeAnalysis(EVENT_HEADER *pheader, void *pevent)
   return SUCCESS;
 }
 
-void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons, std::vector<TGeHit>* gehits, std::vector<TGeHitTDC>* gehitsTDC)
+void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons,  std::vector<TGeHitTDC>* gehits)
 {
   int geSize = gehits->size();
   int muonSize = muons->size();
@@ -232,10 +244,11 @@ void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons, std::vector<TGeHit>* ge
     for(int iGe = ilowest; iGe < geSize; iGe++ )
     {
       double timeGe = gehits->at(iGe).GetTime();
-      timeGe = timeGe + offSet; // correction for the large TPC-WFD time offset
+      //timeGe = timeGe + offSet; // correction for the large TPC-WFD time offset
       double tDiff = timeMuon - timeGe;
       int channel = gehits->at(iGe).GetChannel(); 
       double energy; 
+      //std::cout << "ped correction " << gehits->at(iGe).GetPedestalCorrection() << std::endl;
       if(channel==1) { energy = gehits->at(iGe).GetEnergy(a_ge1,b_ge1);  }
       if(channel==2) energy = gehits->at(iGe).GetEnergy(a_ge2,b_ge2);
       
@@ -249,7 +262,7 @@ void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons, std::vector<TGeHit>* ge
       if( fabs(tDiff) < tWide ) //ge hit found for muon-ge histogram 
       {
         if(channel==1) { hGe1VersusTime->Fill(energy,tDiff); }
-        if(channel==2) hGe2VersusTime->Fill(energy,tDiff);
+        if(channel==2) { hGe2VersusTime->Fill(energy,tDiff);}
         
         if(channel==1 && gehits->at(iGe).GoodHit() ) hGe1VersusTimeGoodHit->Fill(energy,tDiff);
         if(channel==2 && gehits->at(iGe).GoodHit() ) hGe2VersusTimeGoodHit->Fill(energy,tDiff);
@@ -262,12 +275,12 @@ void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons, std::vector<TGeHit>* ge
   
 }
 
-void MakeGeVsGeTimeHists(std::vector<TGeHit>* gehits)
+void MakeGeVsGeTimeHists(std::vector<TGeHitTDC>* gehits)
 {
   
 }
 
-void MakeTripleCoincidenceHists(std::vector<TMuonHit>* muons, std::vector<TGeHit>* gehits)
+void MakeTripleCoincidenceHists(std::vector<TMuonHit>* muons, std::vector<TGeHitTDC>* gehits)
 {
 
   int geSize = gehits->size();
@@ -332,7 +345,7 @@ void MakeTripleCoincidenceHists(std::vector<TMuonHit>* muons, std::vector<TGeHit
           //triple coincidences
           for(int iMuon = ilowestMuon; iMuon < muonSize; iMuon++)
           {
-            double muonTime = muons->at(iMuon).GetTime()-offSet;
+            double muonTime = muons->at(iMuon).GetTime();//-offSet;
             double tDiffMuon = muonTime-geTime1;
                         
             if(tDiffMuon < -tWide) // muon hits to far before the germanium hit

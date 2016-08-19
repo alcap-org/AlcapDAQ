@@ -500,11 +500,16 @@ int TDCTimeCorrelation(const vector<TPulseIsland*>* pulses,std::vector<double>* 
     {
       double tDiff = time - previousGe1Time;
       double tDiffLightning = time - previousLightningTimeGe1;
-      if(tDiffLightning < 600000) ;//0.6 ms window where we flag events
+      if(tDiffLightning < 600000) geHitsTDC->at(iGe).SetPostLightningFlag(true);//0.6 ms window where we flag events
+      
       //set pedestal correction factor
       double correction = 0.;
-      if( tDiff > 0 && tDiff < 300000 && previousGe1Amplitude > 0) correction = GetCorrectionFactor(tDiff,previousGe1Amplitude,1); // ' correction ' is actually the pedestal from the grid file
-      if(correction > 1.) geHitsTDC->at(iGe).SetPedestalCorrection( correction - geHitsTDC->at(iGe).GetEFixedPedestal() ); //GetCorrectionfactor returns 0 
+      if( tDiff > 0 && tDiff < 300000 && previousGe1Amplitude > 0) 
+      {
+          correction = GetCorrectionFactor(tDiff,previousGe1Amplitude,1); // ' correction ' is actually the pedestal from the grid file
+          //std::cout << " correction " << correction << std::endl;
+      }
+      if(correction > 1.) geHitsTDC->at(iGe).SetPedestalCorrection( correction - geHitsTDC->at(iGe).GetEFixedPedestal() ); 
   
       //qualify the pulse as a reference for the next pulse and save the parameters
       if(peakSample > 70 && peakSample < 180 && amplitude > 3000. && pulseLength==300 && shape)
@@ -522,11 +527,15 @@ int TDCTimeCorrelation(const vector<TPulseIsland*>* pulses,std::vector<double>* 
     {
       double tDiff = time - previousGe2Time;
       double tDiffLightning = time - previousLightningTimeGe2;
-      if(tDiffLightning < 600000) ;//0.6 ms window where we flag events
+      if(tDiffLightning < 600000) geHitsTDC->at(iGe).SetPostLightningFlag(true);//0.6 ms window where we flag events
       //set pedestal correction factor
       double correction = 0.;
       if( tDiff > 0 && tDiff < 300000 && previousGe2Amplitude > 0) correction = GetCorrectionFactor(tDiff,previousGe2Amplitude,2); // ' correction ' is actually the pedestal from the grid file
-      if(correction > 1.) geHitsTDC->at(iGe).SetPedestalCorrection( correction - geHitsTDC->at(iGe).GetEFixedPedestal() ); //GetCorrectionfactor returns 0 
+      if(correction > 1.) 
+      {
+        geHitsTDC->at(iGe).SetPedestalCorrection( correction - geHitsTDC->at(iGe).GetEFixedPedestal() ); 
+        //std::cout << " correction " << correction -  geHitsTDC->at(iGe).GetEFixedPedestal() << std::endl;
+      }
   
       //qualify the pulse as a reference for the next pulse and save the parameters
       if(peakSample > 70 && peakSample < 180 && amplitude > 3000. && pulseLength==300 && shape)
@@ -709,7 +718,7 @@ float GetCorrectionFactor(double tDiff,double amp,int channel)
   float value = BilinearInterpolation(pc_pedestal.at(index1),pc_pedestal.at(index2),pc_pedestal.at(index3),pc_pedestal.at(index4),x1,x2,y1,y2,amp,tDiff);
   //std::cout << "value " << value << "  amp " << amp << " tDiff " << tDiff <<  std::endl;
   
-  return 0;
+  return value;
 }
 
 float BilinearInterpolation(float q11, float q12, float q21, float q22, float x1, float x2, float y1, float y2, float x, float y) 
