@@ -56,14 +56,14 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
   // Here is the germanium effiency fit for R15b
   double a, b, delta_a, delta_b, corr;
   if (channel == "GeLoGain") {
-    a = 3.35575; delta_a = 0.173375;
-    b = -0.817004; delta_b = 0.00811692;
-    corr = -0.9952;
+    a = 1.13252; delta_a = 0.116562;
+    b = -0.916445; delta_b = 0.0163159;
+    corr = -0.99516;
   }
   else if (channel == "GeHiGain") {
-    a = 9.23416; delta_a = 0.441046;
-    b = -0.95712; delta_b = 0.00783701;
-    corr = -0.99561;
+    a = 1.0815; delta_a = 0.0978322;
+    b = -0.965896; delta_b = 0.0144359;
+    corr = -0.99663;
   }
   else {
     std::cout << channel << " isn't a germanium channel. Aborting..." << std::endl;
@@ -78,7 +78,7 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
   // Assuming uncertainty in the energy is small
   TF1* ge_eff_err = new TF1("ge_eff_err", "sqrt(x^(2*[1]) * ([2]^2 + 2*[0]*[3]*TMath::Log(x)*([0]*[3] + [4]*[2])))");
   ge_eff_err->SetParameters(a, b, delta_a, delta_b, 
-			    corr / (delta_a*delta_b)); // covariance between a and b
+			    (corr*delta_a*delta_b)); // covariance between a and b
   xray.efficiency_error = ge_eff_err->Eval(xray.energy);
 
   // Now get the area under the X-ray peak by doing a fit to the spectrum
@@ -168,20 +168,20 @@ RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectr
   // First, the linear background
   factory_cmd << "Polynomial::pol1_bkg(edep[" << energy_low << ", " << energy_high << "], {bkg_offset[-10, 100], bkg_slope[-0.1, 0.1]})";
   ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
-  sum_factory_cmd << "nbkg[0, 50000]*pol1_bkg";
+  sum_factory_cmd << "nbkg[0, 500000]*pol1_bkg";
   n_fit_params += 3; // bkg_offset, bkg_slope, nbkg
 
   // Now the X-ray peak of interest
   factory_cmd << "Gaussian::xraypeak_pdf(edep[" << energy_low << ", " << energy_high << "], xray_mean[" << xray->energy-1 << ", " << xray->energy+1 << "], xray_sigma[0.1, 10])"; // the x-ray peak itself
   ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
-  sum_factory_cmd << ", xray_area[0,50000]*xraypeak_pdf";
+  sum_factory_cmd << ", xray_area[0,500000]*xraypeak_pdf";
   n_fit_params += 3; // xray_mean, xray_sigma, xray_area
 
   // For Al 2p-1s, we also have a second peak that's a background
   if (xray->material == "Al" && xray->transition == "2p-1s") {
     factory_cmd << "Gaussian::bkgpeak_pdf(edep[" << energy_low << ", " << energy_high << "], bkg_mean[351,352], bkg_sigma[0.1, 10])";
     ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
-    sum_factory_cmd << ", bkg_area[0,50000]*bkgpeak_pdf";
+    sum_factory_cmd << ", bkg_area[0,500000]*bkgpeak_pdf";
     n_fit_params += 3; // bkg_mean, bkg_sigma, bkg_area
   }
 
