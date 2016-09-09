@@ -295,7 +295,7 @@ NEED_LIBROOTA=
 # Optional libmysqlclient library for mlogger
 #
 # To add mySQL support to the logger, say "make ... NEED_MYSQL=1"
-NEED_MYSQL=1
+#NEED_MYSQL=1
 #
 # 
 # Updated by VT for compatibility with 32-bit machines

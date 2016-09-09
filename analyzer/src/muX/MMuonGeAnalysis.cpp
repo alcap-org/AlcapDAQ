@@ -248,7 +248,7 @@ void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons,  std::vector<TGeHitTDC>
       double tDiff = timeMuon - timeGe;
       int channel = gehits->at(iGe).GetChannel(); 
       double energy; 
-      //std::cout << "ped correction " << gehits->at(iGe).GetPedestalCorrection() << std::endl;
+      std::cout << "ped correction " << gehits->at(iGe).GetPedestalCorrection() << std::endl;
       if(channel==1) { energy = gehits->at(iGe).GetEnergy(a_ge1,b_ge1);  }
       if(channel==2) energy = gehits->at(iGe).GetEnergy(a_ge2,b_ge2);
       
