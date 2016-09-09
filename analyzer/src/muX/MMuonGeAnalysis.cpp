@@ -86,8 +86,8 @@ double tCoinc = 50;
 double offSet = -15080.;
 
 //Ge coincidence window;
-double tDiffGeLow = -100.;
-double tDiffGeHigh = 30.;
+double tDiffGeLow = -400.;
+double tDiffGeHigh = 400.;
 
 namespace {
   TH2 *hGe1VersusTime;
@@ -248,7 +248,7 @@ void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons,  std::vector<TGeHitTDC>
       double tDiff = timeMuon - timeGe;
       int channel = gehits->at(iGe).GetChannel(); 
       double energy; 
-      //std::cout << "ped correction " << gehits->at(iGe).GetPedestalCorrection() << std::endl;
+      
       if(channel==1) { energy = gehits->at(iGe).GetEnergy(a_ge1,b_ge1);  }
       if(channel==2) energy = gehits->at(iGe).GetEnergy(a_ge2,b_ge2);
       
@@ -263,6 +263,8 @@ void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons,  std::vector<TGeHitTDC>
       {
         if(channel==1) { hGe1VersusTime->Fill(energy,tDiff); }
         if(channel==2) { hGe2VersusTime->Fill(energy,tDiff);}
+        
+        std::cout << "ped correction " << gehits->at(iGe).GetPedestalCorrection() << " channel : " << channel << std::endl;
         
         if(channel==1 && gehits->at(iGe).GoodHit() ) hGe1VersusTimeGoodHit->Fill(energy,tDiff);
         if(channel==2 && gehits->at(iGe).GoodHit() ) hGe2VersusTimeGoodHit->Fill(energy,tDiff);
@@ -314,7 +316,7 @@ void MakeTripleCoincidenceHists(std::vector<TMuonHit>* muons, std::vector<TGeHit
       
       if(tDiff < -tWide) break;
       
-      if( fabs(tDiff) < tWide)
+      if( fabs(tDiff) < tNarrow)
       {
         //ge ge coincidences
         if( channel1 != channel2 )
