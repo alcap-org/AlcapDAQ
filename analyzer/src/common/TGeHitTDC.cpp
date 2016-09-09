@@ -142,7 +142,7 @@ bool TGeHitTDC::GoodHit()
 
 double TGeHitTDC::GetEnergy(double a, double b, bool pedestal_subtract)
 {
-  double ped = GetEFixedPedestal() + pedestalCorrectionFromPreviousPulse; //correction set by the history of the detector, i.e. previous hit(s)
+  double ped = GetEFixedPedestal() - pedestalCorrectionFromPreviousPulse; //correction set by the history of the detector, i.e. previous hit(s)
   double amp = GetEPulseHeight();
   double block_ped = GetBlockEPedestal();
   
