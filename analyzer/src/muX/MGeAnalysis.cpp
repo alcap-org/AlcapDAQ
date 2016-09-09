@@ -116,6 +116,7 @@ namespace {
   TH2 *hGeHitTimes;
   TH2 *hGeHitTimeVersusAmplitude;
   TH3* hGeEVersusTDCTDiff;
+
   
 }
 
@@ -144,11 +145,13 @@ INT MGeAnalysis_init()
   //
   
   //basic pulse height spectra
-  hGeE = new TH2F("hGeE","Ge pulse height spectra; Pulse amplitude (ADC); ",17000,0.,17000.,4,0.5,4.5);
+  hGeE = new TH2F("hGeE","Ge pulse height spectra; Pulse amplitude (ADC); ",17000,0.,17000.,6,0.5,6.5);
   hGeE->GetYaxis()->SetBinLabel(1, "Ge1, slow channel");
   hGeE->GetYaxis()->SetBinLabel(2, "Ge2, slow channel");
   hGeE->GetYaxis()->SetBinLabel(3, "Ge1, fast channel");
   hGeE->GetYaxis()->SetBinLabel(4, "Ge2, fast channel");
+  hGeE->GetYaxis()->SetBinLabel(5, "Ge1, slow channel, BLR corrected");
+  hGeE->GetYaxis()->SetBinLabel(6, "Ge2, slow channel, BLR corrected");
   
   hGe2EVersusTDiffHits = new TH2F("hGe2EVersusTDiffHits","Ge2 pulse height spectrum versus detector history; Pulse amplitude (ADC); Time difference (us)",4250,0.,17000.,150,0,300000);
   hGe2PedestalVersusTDiffHits = new TH3F("hGe2PedestalVersusTDiffHits","Ge2 pulse pedestal versus detector history; Pulse pedestal (ADC); Time difference (us); previous pulse amplitude (ADC)",300,400.,1000.,150,0,300000,20,0,17000);
@@ -158,11 +161,13 @@ INT MGeAnalysis_init()
   
   
   //pedestal histograms
-  hGePed = new TH2F("hGePed","Ge pedestals (first n samples); channel ",600,400.,1000.,4,0.5,4.5);
+  hGePed = new TH2F("hGePed","Ge pedestals (first n samples); channel ",1100,-100.,1000.,6,0.5,6.5);
   hGePed->GetYaxis()->SetBinLabel(1, "Ge1, slow channel");
   hGePed->GetYaxis()->SetBinLabel(2, "Ge2, slow channel");
   hGePed->GetYaxis()->SetBinLabel(3, "Ge1, fast channel, -14000");
   hGePed->GetYaxis()->SetBinLabel(4, "Ge2, fast channel, -14000");
+  hGePed->GetYaxis()->SetBinLabel(5, "Ge1, pedestal correction");
+  hGePed->GetYaxis()->SetBinLabel(6, "Ge2, pedestal correction");
 
 
   //Time correlation spectra
@@ -216,9 +221,9 @@ INT MGeAnalysis_init()
     
   hGeHitTimes = new TH2I("hGeHitTimes","germanium hit times; time(ns)", 1000, 0., 100000000,4,0.5,4.5);
   hGeShape->GetYaxis()->SetBinLabel(1,"Ge1 hits");
-  hGeShape->GetZaxis()->SetBinLabel(2,"Ge2 hits");
-  hGeShape->GetZaxis()->SetBinLabel(3,"Ge1 tdc hits");
-  hGeShape->GetZaxis()->SetBinLabel(4,"Ge2 tdc hits");  
+  hGeShape->GetYaxis()->SetBinLabel(2,"Ge2 hits");
+  hGeShape->GetYaxis()->SetBinLabel(3,"Ge1 tdc hits");
+  hGeShape->GetYaxis()->SetBinLabel(4,"Ge2 tdc hits");  
 
   hGeHitTimeVersusAmplitude = new TH2F("hGeHitTimeVersusAmplitude","Hit time within the island versus E pulse amplitude; time (ns) ; Pulse Height (ADC)",100,0,5000,170,0,17000);
   
@@ -375,6 +380,8 @@ int RawHitsAnalysis(const vector<TPulseIsland*>* pulses,int channel, int ev_nr, 
          previousTime = pulses->at(i)->GetPulseTime();
          previousAmplitude = amplitude;
       }
+      
+      
     }
     
     if(channel ==1 && pulses->at(i)->GetPulseLength()==300 )
@@ -395,6 +402,8 @@ int RawHitsAnalysis(const vector<TPulseIsland*>* pulses,int channel, int ev_nr, 
          previousAmplitudeGe1 = amplitude;
       }
     }
+    
+    
     
     
     
@@ -509,8 +518,11 @@ int TDCTimeCorrelation(const vector<TPulseIsland*>* pulses,std::vector<double>* 
           correction = GetCorrectionFactor(tDiff,previousGe1Amplitude,1); // ' correction ' is actually the pedestal from the grid file
           //std::cout << " correction " << correction << std::endl;
       }
-      if(correction > 1.) geHitsTDC->at(iGe).SetPedestalCorrection( correction - geHitsTDC->at(iGe).GetEFixedPedestal() ); 
-  
+      if(correction > 1.) 
+      {
+        geHitsTDC->at(iGe).SetPedestalCorrection( correction - geHitsTDC->at(iGe).GetEFixedPedestal() ); 
+      }
+
       //qualify the pulse as a reference for the next pulse and save the parameters
       if(peakSample > 70 && peakSample < 180 && amplitude > 3000. && pulseLength==300 && shape)
       {
@@ -520,6 +532,9 @@ int TDCTimeCorrelation(const vector<TPulseIsland*>* pulses,std::vector<double>* 
       
       //check if the this is a "lightning" pulse
       if(lastSample > 8500) previousLightningTimeGe1 = time;
+      
+      hGeE->Fill(amplitude + geHitsTDC->at(iGe).GetPedestalCorrection() ,5);
+      hGePed->Fill(geHitsTDC->at(iGe).GetPedestalCorrection(),5);
     }
     
     
@@ -546,6 +561,9 @@ int TDCTimeCorrelation(const vector<TPulseIsland*>* pulses,std::vector<double>* 
       
       //check if the this is a "lightning" pulse
       if(lastSample > 8500) previousLightningTimeGe2 = time;
+      
+      hGeE->Fill(amplitude + geHitsTDC->at(iGe).GetPedestalCorrection() ,6);
+      hGePed->Fill(geHitsTDC->at(iGe).GetPedestalCorrection(),6);
     }
   }
   
