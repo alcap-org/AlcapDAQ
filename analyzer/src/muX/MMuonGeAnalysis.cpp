@@ -70,8 +70,8 @@ using namespace AlCap;
 
 //E calibration
 //Ge1
-float a_ge1 = 1.6676e-01;
-float b_ge1 = -7.720+01;
+float a_ge1 = 1.66765e-01;
+float b_ge1 = -7.720e+01;
 //Ge2
 float a_ge2 = 1.7168e-01;
 float b_ge2 = -1.328e+02;
@@ -222,6 +222,7 @@ INT MMuonGeAnalysis(EVENT_HEADER *pheader, void *pevent)
 
 void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons,  std::vector<TGeHitTDC>* gehits)
 {
+  
   int geSize = gehits->size();
   int muonSize = muons->size();
   //std::cout << " muon hit size " << muonSize << endl;
@@ -249,8 +250,8 @@ void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons,  std::vector<TGeHitTDC>
       int channel = gehits->at(iGe).GetChannel(); 
       double energy; 
       
-      if(channel==1) { energy = gehits->at(iGe).GetEnergy(a_ge1,b_ge1);  }
-      if(channel==2) energy = gehits->at(iGe).GetEnergy(a_ge2,b_ge2);
+      if(channel==1) { energy = gehits->at(iGe).GetEnergy(a_ge1,b_ge1);}
+      if(channel==2) { energy = gehits->at(iGe).GetEnergy(a_ge2,b_ge2);}
       
       if(tDiff > tWide) //the muon time is still to far ahead of the Ge hit  
       {
@@ -263,8 +264,6 @@ void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons,  std::vector<TGeHitTDC>
       {
         if(channel==1) { hGe1VersusTime->Fill(energy,tDiff); }
         if(channel==2) { hGe2VersusTime->Fill(energy,tDiff);}
-        
-//        std::cout << "ped correction " << gehits->at(iGe).GetPedestalCorrection() << " channel : " << channel << "   tDiff: " << tDiff << std::endl;
         
         if(channel==1 && gehits->at(iGe).GoodHit() ) hGe1VersusTimeGoodHit->Fill(energy,tDiff);
         if(channel==2 && gehits->at(iGe).GoodHit() ) hGe2VersusTimeGoodHit->Fill(energy,tDiff);
