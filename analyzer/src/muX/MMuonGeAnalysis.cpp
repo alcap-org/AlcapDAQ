@@ -324,8 +324,6 @@ void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons,  std::vector<TGeHitTDC>
         if(channel==1) { hGe1VersusTime->Fill(energy,tDiff); }
         if(channel==2) { hGe2VersusTime->Fill(energy,tDiff);}
         
-        //std::cout << "ped correction " << gehits->at(iGe).GetPedestalCorrection() << " channel : " << channel << std::endl;
-        
         if(channel==1 && gehits->at(iGe).GoodHit() ) hGe1VersusTimeGoodHit->Fill(energy,tDiff);
         if(channel==2 && gehits->at(iGe).GoodHit() ) hGe2VersusTimeGoodHit->Fill(energy,tDiff);
         
