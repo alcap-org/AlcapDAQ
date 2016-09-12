@@ -60,6 +60,8 @@ void TGeHitTDC::Reset() {
   secondPulse = false;
   shape = false;
   
+  electroncoincidence=false;
+     
   blockEPedestal=0.;
   
   fTime=0.;
@@ -140,10 +142,12 @@ bool TGeHitTDC::GoodHit()
   else return false;
 }
 
-double TGeHitTDC::GetEnergy(double a, double b, bool pedestal_subtract)
+double TGeHitTDC::GetEnergy(double a, double b, bool noBLR, bool pedestal_subtract)
 {
   double ped = GetEFixedPedestal(); 
-  double amp = GetEPulseHeight() + pedestalCorrectionFromPreviousPulse; //correction set by the history of the detector, i.e. previous hit(s)
+  double amp;
+  if(!noBLR) amp = GetEPulseHeight() + pedestalCorrectionFromPreviousPulse; //correction set by the history of the detector, i.e. previous hit(s)
+  else amp = GetEPulseHeight();
   double block_ped = GetBlockEPedestal();
   
   double out = 0.;

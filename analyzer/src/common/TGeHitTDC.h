@@ -44,10 +44,11 @@ class TGeHitTDC : public TObject {
   float GetEPulseAmpBlockPed() ;
   float GetEPulseAmpFixedPed();
   
-  double GetEnergy(double a, double b,bool pedestal_subtract=false);// should become energy calibrated pulse height
+  double GetEnergy(double a, double b,bool noBLR = false, bool pedestal_subtract=false);// should become energy calibrated pulse height
   float GetBlockEPedestal() { return blockEPedestal; }
   float GetPedestalCorrection(){return pedestalCorrectionFromPreviousPulse ; }
   bool GetPostLightningFlag(){ return postLightning;}
+  bool GetElectronCoincidence() { return electroncoincidence; } 
 
   TPulseIsland* GetEPulse(){ return ePulse; }
   
@@ -68,6 +69,7 @@ class TGeHitTDC : public TObject {
   
   void SetPedestalCorrection(float value){ pedestalCorrectionFromPreviousPulse = value;}
   void SetPostLightningFlag(bool value){ postLightning = value;}
+  void SetElectronCoincidence(bool value) { electroncoincidence=value;}
   
   //Pulse analysis ****
   int PulseShapeAnalysis();
@@ -96,6 +98,7 @@ class TGeHitTDC : public TObject {
   bool secondPulse;
   bool shape;
   bool postLightning;
+  bool electroncoincidence;
   
   //Pulse shape parameters (yes, would be better to store it in TSetupData
   
@@ -125,7 +128,7 @@ class TGeHitTDC : public TObject {
   void Reset();
 
 
-  ClassDef(TGeHitTDC, 1);
+  ClassDef(TGeHitTDC, 2);
 };
 
 #endif

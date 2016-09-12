@@ -32,6 +32,7 @@ ClassImp(TGlobalData)
   fGeHits.clear();
   fGeHitsTDC.clear();
   fMuonHits.clear();
+  feSCHits.clear();
 
 
 }

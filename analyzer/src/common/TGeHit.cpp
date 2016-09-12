@@ -53,6 +53,7 @@ TGeHit::TGeHit(int ch)
    cutHigh = 10;  
    
    pulseLength = 300; //number of samples
+   
  
 }
 
@@ -73,6 +74,8 @@ void TGeHit::Reset() {
   
   blockEPedestal=0.;
   blockTPedestal=0.;
+  
+  electroncoincidence=false;
   
   fTime=0.;
 }

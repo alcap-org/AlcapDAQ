@@ -26,7 +26,8 @@
 
 #pragma link C++ class TGeHit+;
 #pragma link C++ class TGeHitTDC+;
-#pragma link C++ class TMuonHit;
+#pragma link C++ class TMuonHit+;
+#pragma link C++ class TeSCHit+;
 
 #pragma link C++ class TVacuumData+;
 

@@ -13,6 +13,7 @@
 #include "TGeHit.h"
 #include "TGeHitTDC.h"
 #include "TMuonHit.h"
+#include "TeSCHit.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief
@@ -47,7 +48,7 @@ class TGlobalData : public TObject{
   /// Map of bank name to vector of TDC hits
   std::map< std::string, std::vector<int64_t> > fTDCHitsToChannelMap;
   
-  //Ge detector hits
+  //Ge detector hitscat MO		
   std::vector<TGeHit> fGeHits;
   void AddGeHit(TGeHit hit){fGeHits.push_back(hit);}// std::cout << "hit added of time " << fGeHits.size() << std::endl; }
   std::vector<TGeHit>* GetGeHits() { return &fGeHits; }
@@ -64,6 +65,12 @@ class TGlobalData : public TObject{
   void AddMuonHit(TMuonHit hit){ fMuonHits.push_back(hit);}
   std::vector<TMuonHit>* GetMuonHits() { return &fMuonHits; }
   void ClearMuonHits() { fMuonHits.clear(); }
+  
+  //eSC Hits
+  std::vector<TeSCHit> feSCHits;
+  void AddeSCHit(TeSCHit hit){ feSCHits.push_back(hit);}
+  std::vector<TeSCHit>* GeteSCHits() { return &feSCHits; }
+  void CleareSCHits() { feSCHits.clear(); }
 
   /// Pulse alignment
   /// The index of the TDC synchronization pulse that aligns with the

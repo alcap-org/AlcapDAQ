@@ -3,6 +3,7 @@ TSetupData
 TPulseIsland
 TMuPCCluster
 TGeHit
+TeSCHit
 TGeHitTDC
 TMuonHit
 
