@@ -194,6 +194,8 @@ INT MGeAnalysis_init()
   hGeHitStats->GetXaxis()->SetBinLabel(16,"Ge2 TDC Hits");
   hGeHitStats->GetXaxis()->SetBinLabel(17,"Ge1 TDC Hits PP");
   hGeHitStats->GetXaxis()->SetBinLabel(18,"Ge2 TDC Hits PP");
+  hGeHitStats->GetXaxis()->SetBinLabel(19,"Ge1 lightning flag");
+  hGeHitStats->GetXaxis()->SetBinLabel(20,"Ge2 lightning flag");
 
 
   
@@ -509,7 +511,9 @@ int TDCTimeCorrelation(const vector<TPulseIsland*>* pulses,std::vector<double>* 
     {
       double tDiff = time - previousGe1Time;
       double tDiffLightning = time - previousLightningTimeGe1;
-      if(tDiffLightning < 600000) geHitsTDC->at(iGe).SetPostLightningFlag(true);//0.6 ms window where we flag events
+      if(tDiffLightning < 600000) { geHitsTDC->at(iGe).SetPostLightningFlag(true);//0.6 ms window where we flag events
+        hGeHitStats->Fill(19);
+        }
       
       //set pedestal correction factor
       double correction = 0.;
@@ -542,7 +546,9 @@ int TDCTimeCorrelation(const vector<TPulseIsland*>* pulses,std::vector<double>* 
     {
       double tDiff = time - previousGe2Time;
       double tDiffLightning = time - previousLightningTimeGe2;
-      if(tDiffLightning < 600000) geHitsTDC->at(iGe).SetPostLightningFlag(true);//0.6 ms window where we flag events
+      if(tDiffLightning < 600000) { geHitsTDC->at(iGe).SetPostLightningFlag(true);//0.6 ms window where we flag events
+        hGeHitStats->Fill(20); 
+      }
       //set pedestal correction factor
       double correction = 0.;
       if( tDiff > 0 && tDiff < 300000 && previousGe2Amplitude > 0) correction = GetCorrectionFactor(tDiff,previousGe2Amplitude,2); // ' correction ' is actually the pedestal from the grid file

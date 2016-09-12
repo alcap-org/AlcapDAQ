@@ -49,6 +49,7 @@ class TGeHitTDC : public TObject {
   float GetPedestalCorrection(){return pedestalCorrectionFromPreviousPulse ; }
   bool GetPostLightningFlag(){ return postLightning;}
   bool GetElectronCoincidence() { return electroncoincidence; } 
+  bool GetOppositeElectronCoincidence() { return opelectroncoincidence; } 
 
   TPulseIsland* GetEPulse(){ return ePulse; }
   
@@ -70,6 +71,7 @@ class TGeHitTDC : public TObject {
   void SetPedestalCorrection(float value){ pedestalCorrectionFromPreviousPulse = value;}
   void SetPostLightningFlag(bool value){ postLightning = value;}
   void SetElectronCoincidence(bool value) { electroncoincidence=value;}
+  void SetOppositeElectronCoincidence(bool value) { opelectroncoincidence=value;}
   
   //Pulse analysis ****
   int PulseShapeAnalysis();
@@ -99,6 +101,7 @@ class TGeHitTDC : public TObject {
   bool shape;
   bool postLightning;
   bool electroncoincidence;
+  bool opelectroncoincidence;
   
   //Pulse shape parameters (yes, would be better to store it in TSetupData
   

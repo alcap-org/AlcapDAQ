@@ -76,6 +76,7 @@ void TGeHit::Reset() {
   blockTPedestal=0.;
   
   electroncoincidence=false;
+  opelectroncoincidence=false;
   
   fTime=0.;
 }

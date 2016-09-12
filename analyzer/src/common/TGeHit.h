@@ -63,6 +63,7 @@ class TGeHit : public TObject {
   bool SecondPulse() { return secondPulse; }
   bool Shape(){ return shape; }
   bool GetElectronCoincidence() { return electroncoincidence; } 
+  bool GetOppositeElectronCoincidence() { return opelectroncoincidence; } 
   
   bool GoodHit();
   
@@ -75,6 +76,7 @@ class TGeHit : public TObject {
   void SetTPedestal(float value) { blockTPedestal = value; }
   void SetTime(double value) { fTime = value;}
   void SetElectronCoincidence(bool value) { electroncoincidence=value; }
+  void SetOppositeElectronCoincidence(bool value) { opelectroncoincidence=value;}
   
   //Pulse analysis ****
   double SearchTPulses();
@@ -108,6 +110,7 @@ class TGeHit : public TObject {
   bool secondPulse;
   bool shape;
   bool electroncoincidence;
+  bool opelectroncoincidence;
   
   //Pulse shape parameters (yes, would be better to store it in TSetupData
   //for E vs T
