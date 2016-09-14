@@ -352,10 +352,13 @@ void MakeGeVsGeTimeHists(std::vector<TGeHitTDC>* gehits)
 
 void MakeElectronVsMuonTimeHists(std::vector<TMuonHit>* muons,std::vector<TeSCHit>* electrons)
 {
+
+  unsigned int iLowest = 0;
+
   for(unsigned int iMuon = 0; iMuon < muons->size(); iMuon++)
   {
     double timeMuon = muons->at(iMuon).GetTime();
-    unsigned int iLowest = 0;
+
     
     for(unsigned int iElectron = iLowest; iElectron < electrons->size(); iElectron++)
     {
@@ -388,12 +391,13 @@ void MakeElectronVsMuonTimeHists(std::vector<TMuonHit>* muons,std::vector<TeSCHi
 
 void MakeElectronVsGeTimeHists(std::vector<TGeHitTDC>* gehits,std::vector<TeSCHit>* electrons)
 {
+
+  unsigned int iLowest = 0;
+
   for(unsigned int iGe = 0; iGe < gehits->size(); iGe++)
   {
     double timeGe = gehits->at(iGe).GetTime();
     int geChannel = gehits->at(iGe).GetChannel();
-    
-    unsigned int iLowest = 0;
     
     for(unsigned int iElectron = iLowest; iElectron < electrons->size(); iElectron++)
     {
