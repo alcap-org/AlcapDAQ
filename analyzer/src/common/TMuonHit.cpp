@@ -39,7 +39,9 @@ void TMuonHit::Reset() {
   muSCLoPileUpWide = false;
   muSCAPileUpWide = false;
   bookEnd = false;
-  
+  electron=false;
+  electron_delay_time=-100000.;
+  electronDetectorID = -1;
   time = 0.;
 }
 
@@ -61,3 +63,22 @@ bool TMuonHit::IsPPMuonWithLo()
   else return false; 
 }
 
+bool TMuonHit::HasElectronCoincidence()
+{
+  if(!HasElectron()) return false;
+  if( electron_delay_time < 10. && electron_delay_time > -10.) return true;
+  else return false;
+}
+
+bool TMuonHit::HasDelayedElectron(double lowT, double highT)
+{
+  if(electron_delay_time > lowT && electron_delay_time < highT) return true;
+  else return false;
+  
+}
+
+void TMuonHit::SetElectronDelayTime(double value)
+{
+  SetElectron(true);
+  electron_delay_time = value; 
+}

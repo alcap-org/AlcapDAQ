@@ -88,8 +88,8 @@ double tCoinc = 50;
 double offSet = -15080.;
 
 //Ge coincidence window;
-double tDiffGeLow = -400.;
-double tDiffGeHigh = 400.;
+double tDiffGeLow = -500.;
+double tDiffGeHigh = 500.;
 
 //electron veto on ge detector window
 double ge1ElLow = 10.;
@@ -108,8 +108,14 @@ namespace {
   TH2 *hGe2VersusTimeGoodHitPPElectronVeto;
   TH2 *hGe1VersusTimeGoodHitPPNoBLR;
   TH2 *hGe2VersusTimeGoodHitPPNoBLR;
+  TH2 *hGe1VersusTimeGoodHitPPBlockPedestal;
+  TH2 *hGe2VersusTimeGoodHitPPBlockPedestal;
   TH2 *hGe1VersusTimeGoodHitPPElectronOpposite;
   TH2 *hGe2VersusTimeGoodHitPPElectronOpposite;
+  TH2 *hGe1VersusTimeGoodHitPPDelayedElectron;
+  TH2 *hGe2VersusTimeGoodHitPPDelayedElectron;
+  TH2 *hGe1VersusTimeGoodHitPPLateDelayedElectron;
+  TH2 *hGe2VersusTimeGoodHitPPLateDelayedElectron;
   TH1* hmuSCHitAutoCorrelationPP;
   TH1* hmuSCHitTimeDifferences;
   TH1 *hmuonHitTimesbis;
@@ -166,8 +172,17 @@ INT MMuonGeAnalysis_init()
     hGe1VersusTimeGoodHitPPNoBLR = new TH2F("hGe1VersusTimeGoodHitPPNoBLR","Ge1 energy versus time, good ge hits, PP on the muon, no extra BLR ; Ge1 energy (keV) ; tDiff (ns) ",1500.,0.,3000.,nBins,tLow,tHigh);
   hGe2VersusTimeGoodHitPPNoBLR = new TH2F("hGe2VersusTimeGoodHitPPNoBLR","Ge2 energy versus time, good ge hits, PP on the muon, no extra BLR ; Ge2 energy (keV) ; tDiff (ns) ",1500.,0.,3000.,nBins,tLow,tHigh);
   
+      hGe1VersusTimeGoodHitPPBlockPedestal = new TH2F("hGe1VersusTimeGoodHitPPBlockPedestal","Ge1 energy versus time, good ge hits, PP on the muon, no extra BLR ; Ge1 energy (keV) ; tDiff (ns) ",1500.,0.,3000.,nBins,tLow,tHigh);
+  hGe2VersusTimeGoodHitPPBlockPedestal = new TH2F("hGe2VersusTimeGoodHitPPBlockPedestal","Ge2 energy versus time, good ge hits, PP on the muon, no extra BLR ; Ge2 energy (keV) ; tDiff (ns) ",1500.,0.,3000.,nBins,tLow,tHigh);
+  
   hGe1VersusTimeGoodHitPPElectronVeto = new TH2F("hGe1VersusTimeGoodHitPPElectronVeto","Ge1 energy versus time, good ge hits, PP on the muon, veto from electron detector ; Ge1 energy (keV) ; tDiff (ns) ",1500.,0.,3000.,nBins,tLow,tHigh);
   hGe2VersusTimeGoodHitPPElectronVeto = new TH2F("hGe2VersusTimeGoodHitPPElectronVeto","Ge2 energy versus time, good ge hits, PP on the muon, veto from electron detector ; Ge2 energy (keV) ; tDiff (ns) ",1500.,0.,3000.,nBins,tLow,tHigh);
+  
+    hGe1VersusTimeGoodHitPPDelayedElectron = new TH2F("hGe1VersusTimeGoodHitPPDelayedElectron","Ge1 energy versus time, good ge hits, PP on the muon, delayed electron rel. to the muon ; Ge1 energy (keV) ; tDiff (ns) ",1500.,0.,3000.,nBins,tLow,tHigh);
+  hGe2VersusTimeGoodHitPPDelayedElectron = new TH2F("hGe2VersusTimeGoodHitPPDelayedElectron","Ge2 energy versus time, good ge hits, PP on the muon, delayed electron rel. to the muon ; Ge2 energy (keV) ; tDiff (ns) ",1500.,0.,3000.,nBins,tLow,tHigh);
+  
+  hGe1VersusTimeGoodHitPPLateDelayedElectron = new TH2F("hGe1VersusTimeGoodHitPPLateDelayedElectron","Ge1 energy versus time, good ge hits, PP on the muon, late delayed electron rel. to the muon ; Ge1 energy (keV) ; tDiff (ns) ",1500.,0.,3000.,nBins,tLow,tHigh);
+  hGe2VersusTimeGoodHitPPLateDelayedElectron = new TH2F("hGe2VersusTimeGoodHitPPLateDelayedElectron","Ge2 energy versus time, good ge hits, PP on the muon, late delayed electron rel. to the muon ; Ge2 energy (keV) ; tDiff (ns) ",1500.,0.,3000.,nBins,tLow,tHigh);
   
     hGe1VersusTimeGoodHitPPElectronOpposite = new TH2F("hGe1VersusTimeGoodHitPPElectronOpposite","Ge1 energy versus time, good ge hits, PP on the muon,electron hit in the opposing detector ; Ge1 energy (keV) ; tDiff (ns) ",1500.,0.,3000.,nBins,tLow,tHigh);
   hGe2VersusTimeGoodHitPPElectronOpposite = new TH2F("hGe2VersusTimeGoodHitPPElectronOpposite","Ge2 energy versus time, good ge hits, PP on the muon, electron hit in the opposing detector ; Ge2 energy (keV) ; tDiff (ns) ",1500.,0.,3000.,nBins,tLow,tHigh);
@@ -305,12 +320,16 @@ void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons,  std::vector<TGeHitTDC>
       int channel = gehits->at(iGe).GetChannel(); 
       double energy;
       double energyNoBLR;
+      double energyBlockPedestal;
       
       if(channel==1) { energy = gehits->at(iGe).GetEnergy(a_ge1,b_ge1);}
       if(channel==2) { energy = gehits->at(iGe).GetEnergy(a_ge2,b_ge2);}
       
       if(channel==1) { energyNoBLR = gehits->at(iGe).GetEnergy(a_ge1,b_ge1,true);}
       if(channel==2) { energyNoBLR = gehits->at(iGe).GetEnergy(a_ge2,b_ge2,true);}
+      
+      if(channel==1) { energyBlockPedestal = gehits->at(iGe).GetEnergy(a_ge1,b_ge1,false,true);}
+      if(channel==2) { energyBlockPedestal = gehits->at(iGe).GetEnergy(a_ge2,b_ge2,false,true);}
       
       if(tDiff > tWide) //the muon time is still to far ahead of the Ge hit  
       {
@@ -333,9 +352,18 @@ void MakeGeVsMuonTimeHists(std::vector<TMuonHit>* muons,  std::vector<TGeHitTDC>
         if(channel==1 && gehits->at(iGe).GoodHit() && muons->at(iMuon).IsPPMuon() ) hGe1VersusTimeGoodHitPPNoBLR->Fill(energyNoBLR,tDiff);
         if(channel==2 && gehits->at(iGe).GoodHit() && muons->at(iMuon).IsPPMuon() ) hGe2VersusTimeGoodHitPPNoBLR->Fill(energyNoBLR,tDiff);
         
+        if(channel==1 && gehits->at(iGe).GoodHit() && muons->at(iMuon).IsPPMuon() ) hGe1VersusTimeGoodHitPPBlockPedestal->Fill(energyBlockPedestal,tDiff);
+        if(channel==2 && gehits->at(iGe).GoodHit() && muons->at(iMuon).IsPPMuon() ) hGe2VersusTimeGoodHitPPBlockPedestal->Fill(energyBlockPedestal,tDiff);
+        
         if(channel==1 && gehits->at(iGe).GoodHit() && muons->at(iMuon).IsPPMuon() && !gehits->at(iGe).GetElectronCoincidence() ) hGe1VersusTimeGoodHitPPElectronVeto->Fill(energy,tDiff);
         if(channel==2 && gehits->at(iGe).GoodHit() && muons->at(iMuon).IsPPMuon() && !gehits->at(iGe).GetElectronCoincidence() ) hGe2VersusTimeGoodHitPPElectronVeto->Fill(energy,tDiff);
         
+        if(channel==1 && gehits->at(iGe).GoodHit() && muons->at(iMuon).IsPPMuon() && muons->at(iMuon).HasDelayedElectron() ) hGe1VersusTimeGoodHitPPDelayedElectron->Fill(energy,tDiff);
+        if(channel==2 && gehits->at(iGe).GoodHit() && muons->at(iMuon).IsPPMuon() && muons->at(iMuon).HasDelayedElectron() ) hGe2VersusTimeGoodHitPPDelayedElectron->Fill(energy,tDiff);
+        
+        if(channel==1 && gehits->at(iGe).GoodHit() && muons->at(iMuon).IsPPMuon() && muons->at(iMuon).HasDelayedElectron(150.,800.) ) hGe1VersusTimeGoodHitPPLateDelayedElectron->Fill(energy,tDiff);
+        if(channel==2 && gehits->at(iGe).GoodHit() && muons->at(iMuon).IsPPMuon() && muons->at(iMuon).HasDelayedElectron(150.,800.) ) hGe2VersusTimeGoodHitPPLateDelayedElectron->Fill(energy,tDiff);
+                
         if(channel==1 && gehits->at(iGe).GoodHit() && muons->at(iMuon).IsPPMuon() && gehits->at(iGe).GetOppositeElectronCoincidence() ) hGe1VersusTimeGoodHitPPElectronOpposite->Fill(energy,tDiff);
         if(channel==2 && gehits->at(iGe).GoodHit() && muons->at(iMuon).IsPPMuon() && gehits->at(iGe).GetOppositeElectronCoincidence() ) hGe2VersusTimeGoodHitPPElectronOpposite->Fill(energy,tDiff);
         
@@ -381,7 +409,11 @@ void MakeElectronVsMuonTimeHists(std::vector<TMuonHit>* muons,std::vector<TeSCHi
       if(electrons->at(iElectron).LowNotHi()) 
       {
         hElectronMuonTDiff->Fill(tDiff,2+channel);
-      }                  
+      }
+      //
+      double delayTime = -(tDiff-100.);
+      muons->at(iMuon).SetElectronDelayTime(delayTime);
+                              
     }
     
   }
@@ -444,11 +476,11 @@ void MakeElectronVsGeTimeHists(std::vector<TGeHitTDC>* gehits,std::vector<TeSCHi
         if( geChannel==2 ) { low = ge2ElLow; high = ge2ElHigh; }
         if(tDiff > low && tDiff < high) {  gehits->at(iGe).SetOppositeElectronCoincidence(true); }
       }
-      
+    
     }
-                
+  
   }
-      
+
 }
 
 

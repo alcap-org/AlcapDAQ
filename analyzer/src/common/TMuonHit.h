@@ -36,8 +36,13 @@ class TMuonHit : public TObject {
   bool MuSCLoPileUpWide() { return muSCLoPileUpWide; }
   bool MuSCAPileUpWide() { return muSCAPileUpWide; }
   bool BookEnd() { return bookEnd; }
-  
+  bool HasElectron() { return electron; }
+  bool HasElectronCoincidence(); 
+  bool HasDelayedElectron(double lowT = 20., double highT = 600.);
+    
   double GetTime() { return time; }
+  double GetElectronDelayTime() { return electron_delay_time; }
+  int GetElectronDetectorID() { return electronDetectorID; }
   
   //Set Functions************************
   void SetLowNotHi(bool value){ lowNotHi = value; } 
@@ -48,8 +53,10 @@ class TMuonHit : public TObject {
   void SetMuSCLoPileUpWide(bool value) { muSCLoPileUpWide = value; }
   void SetMuSCAPileUpWide(bool value) { muSCAPileUpWide = value; }
   void SetBookEnd(bool value) { bookEnd = value; }
-  
+  void SetElectron(bool value) { electron = value; }
   void SetTime(double value){ time = value; }
+  void SetElectronDelayTime(double value) ;
+  void SetElectronDetectorID(int value) { electronDetectorID = value; }
   
   //PP/Quality info
   bool IsMuon() { return !lowNotHi; }
@@ -77,10 +84,13 @@ class TMuonHit : public TObject {
   bool muSCLoPileUpWide;
   bool muSCAPileUpWide;
   bool bookEnd;
+  bool electron;
+  int electronDetectorID;
   
   //times and time differences
   double time;
   int id;
+  double electron_delay_time;
 
   public:
 
@@ -92,7 +102,7 @@ class TMuonHit : public TObject {
   void Reset();
 
 
-  ClassDef(TMuonHit, 1);
+  ClassDef(TMuonHit, 2);
 };
 
 #endif
