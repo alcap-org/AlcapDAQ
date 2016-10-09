@@ -30,7 +30,7 @@ static INT MTCorrTest_init(void);
 static INT MTCorrTest(EVENT_HEADER*, void*);
 INT MTCorrTest_bor(int);
 INT MTCorrTest_eor(int);
-//float MTCorrTest_Energy(std::string, float);
+float MTCorrTest_Energy(std::string, float);
 //float MTCorrTest_IntEnergy(std::string, float);
 float MTCorrTest_GetEnergyFit(std::string, double);
 float MTCorrTest_nSamples(std::string);
@@ -48,7 +48,7 @@ namespace {
   std::string WFDBANKS[NCRATE][MAXNCHANWFD];
   std::string TDCBANKS[NCRATE][MAXNCHANWFD];
   //TH2D* vvhTCorrTest_PHvTDiff[NCRATE][MAXNCHANWFD];
-  //TH2D* vvhTCorrTest_EvTDiff[NCRATE][MAXNCHANWFD];
+  TH2D* vvhTCorrTest_EvTDiff[NCRATE][MAXNCHANWFD];
   TH2D* vvhTCorrTest_FEvTDiff[NCRATE][MAXNCHANWFD];
   //TH2D* vvhTCorrTest_IEvTDiff[NCRATE][MAXNCHANWFD];
   TH2D* vvhTCorrTest_PSDCut[NCRATE][MAXNCHANWFD];
@@ -129,20 +129,20 @@ INT MTCorrTest_init() {
 
       float max_fit = 7.5;
       if(det == "GeCHEH") max_fit = 2.5;
-      if(det == "GeCHEL") max_fit = 6.0;
-      if(det == "LaBr3") max_fit = 15.0;
+      else if(det == "GeCHEL") max_fit = 6.0;
+      else if(det == "LaBr3") max_fit = 15.0;
 
       
       //setup histograms
 
       ///////////// E vs TDiff  //////////////////////
-      /*
-      sprintf(histname, "hTCorrTest_EvTDiff_%s", det.c_str());
-      sprintf(histtitle, "Energy vs TSC TDiff for %s", det.c_str());
-      vvhTCorrTest_EvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/14, TIME_LOW, TIME_HIGH, max_adc/4, 0, max_amp_e);
-      vvhTCorrTest_EvTDiff[icrate][ich]->GetXaxis()->SetTitle("TDiff (TDC) (ns)");
-      vvhTCorrTest_EvTDiff[icrate][ich]->GetYaxis()->SetTitle("Energy (amplitude) (MeV)");
-      */
+      if(det != "TSc" && det != "NdetD" && det != "NdetU"){
+	sprintf(histname, "hTCorrTest_EvTDiff_%s", det.c_str());
+	sprintf(histtitle, "Energy vs TSC TDiff for %s", det.c_str());
+	vvhTCorrTest_EvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/14, TIME_LOW, TIME_HIGH, max_adc/4, 0, max_amp_e);
+	vvhTCorrTest_EvTDiff[icrate][ich]->GetXaxis()->SetTitle("TDiff (TDC) (ns)");
+	vvhTCorrTest_EvTDiff[icrate][ich]->GetYaxis()->SetTitle("Energy (amplitude) (MeV)");
+      }
 
       ///////////// FE v TDiff //////////////////////
       if(det != "TSc"){
@@ -277,7 +277,7 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	//if(pulses[p]->GetDoublePulse()) continue; //Multiple hits near TSc
 
 	
-	//float energy_amp = MTCorrTest_Energy(det, max);
+	float energy_amp = MTCorrTest_Energy(det, max);
 	//float energy_int = MTCorrTest_IntEnergy(det, integral_ps);
 	float energy_fit = MTCorrTest_GetEnergyFit(det, fit_max);
 
@@ -293,11 +293,13 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	if(pulses[p]->GetTDCTime() < 0) continue;
 	for(int t = t0; t<ref_hits.size(); ++t){
 	  if(ref_hits[t]->GetTDCTime() < 0) continue;
+	  if(ref_hits[t]->GetPileupPulse() ) continue;
+	  if(ref_hits[t]->GetVetoPulse() ) continue;
 	  double dt = TICKTDC*(pulses[p]->GetTDCTime() - ref_hits[t]->GetTDCTime());
 	  if(dt < TIME_LOW) break;
 	  else if(dt < TIME_HIGH){
 	    if(det != "NdetD" && det != "NdetU"){
-	      //vvhTCorrTest_EvTDiff[icrate][ich]->Fill(dt, energy_amp);
+	      vvhTCorrTest_EvTDiff[icrate][ich]->Fill(dt, energy_amp);
 	      vvhTCorrTest_FEvTDiff[icrate][ich]->Fill(dt, energy_fit);
 	      //vvhTCorrTest_IEvTDiff[icrate][ich]->Fill(dt, energy_int);
 	      //vvhTCorrTest_PHvTDiff[icrate][ich]->Fill(dt, max);
@@ -328,7 +330,7 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
   return SUCCESS;
 } 
   
-/*
+
 float MTCorrTest_Energy(std::string detname, float amp) {
   float energy = 0;
   if(detname == "NdetD"){ energy = (amp * 0.0003999) + 0.008234;  }
@@ -339,7 +341,7 @@ float MTCorrTest_Energy(std::string detname, float amp) {
   else energy = amp;
   return energy;
 }
-
+/*
 float MTCorrTest_IntEnergy(std::string detname, float Int) {
   float energy = 0;
   if(detname == "NdetD"){ energy = (0.0000686 * Int) + 0.02117;  }
@@ -396,7 +398,7 @@ bool MTCorrTest_Neutron(std::string det, double ratio, float energy){
   if(det == "NdetU"){ 
     if(ratio < 0.14) return 0; //gamma
     else if(ratio < 0.17 && energy < 2.0) return 0; //gamma
-    else if(ratio < 0.2 && energy < 0.7) return 0;// gamma
+    else if(ratio < 0.20 && energy < 0.7) return 0;// gamma
     else return 1; // neutron
   }
   return 0;

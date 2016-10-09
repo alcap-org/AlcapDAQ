@@ -210,7 +210,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	  }
 	}
 
-	//GetCF timing
+	////////////////GetCF timing/////////////////////////////////
 	cf = 0.1*max;
 	for(int i = tMax; i > 0; i--){
 	  double tmp = polarity * (samples.at(i) - pedestal);
@@ -233,7 +233,9 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	//if(p+1 < pulses.size()) std::cout << "TDiff : " << pulses[p+1]->GetTimeStamp() - pulses[p]->GetTimeStamp() << std::endl;
 
 	//a0 set to zero before pulse loop
-	// alignment loop
+
+
+	//////////////// alignment loop ////////////////////////////////
 
 	int64_t a1 = 0;
 	int nMatch = 0;

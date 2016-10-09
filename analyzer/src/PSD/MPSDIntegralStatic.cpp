@@ -36,12 +36,15 @@ INT  MPSDIntegralStatic_init(void);
 INT  MPSDIntegralStatic(EVENT_HEADER*, void*);
 //INT  MPSDIntegral_eor(INT);
 INT  MPSDIntegralStatic_BookHistograms();
+bool MPSDIntegralStatic_Neutron(std::string, double, float);
+float MPSDIntegralStatic_GetEnergyFit(std::string, double);
+
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-std::map<std::string,TH2F*> NdetRatioS_map, NdetRatioEnergyS_map, NdetIntegrals_map, NdetIntegralE_map;
+std::map<std::string,TH2F*> NdetRatioS_map, NdetRatioEnergyS_map, NdetRatioFEnergyS_map, NdetIntegrals_map, NdetIntegralE_map, NdetRatioCut_map;
 //std::map<int, TH1D*> NdetDIFoMS_map, NdetUIFoMS_map;
 //static std::map<std::string, std::ofstream*> waveforms;
 
@@ -100,6 +103,13 @@ INT MPSDIntegralStatic_BookHistograms()
     hNdetRatio->GetXaxis()->SetTitle("Pulse Height (adc count)");
     NdetRatioS_map[bankname] = hNdetRatio;
     
+    histname = "h" + detname + "RatioFEnergyS";
+    histtitle = "Integral Ratio vs Energy (fit) for " + detname;
+    TH2F* hNdetFERatio = new TH2F(histname.c_str(), histtitle.c_str(), 600, 0, 7.5, 600, 0, 0.45);
+    hNdetFERatio->GetYaxis()->SetTitle("Integral Ratio");
+    hNdetFERatio->GetXaxis()->SetTitle("Energy (MeVee) (Fit)");
+    NdetRatioFEnergyS_map[bankname] = hNdetFERatio;
+
     histname = "h" + detname + "RatioEnergyS";
     histtitle = "Integral Ratio vs Energy for " + detname;
     TH2F* hNdetERatio = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, 7.5, 600, 0, 0.45);
@@ -122,6 +132,13 @@ INT MPSDIntegralStatic_BookHistograms()
     hNdetEIntegral->GetYaxis()->SetTitle("Tail Integral");
     hNdetEIntegral->GetXaxis()->SetTitle("Energy (MeVee)");
     NdetIntegralE_map[bankname] = hNdetEIntegral;
+
+    histname = "h" + detname + "RatioCutS";
+    histtitle = "Integral Ratio vs Energy (fit) after cut for " + detname;
+    TH2F* hNdetRatioCut = new TH2F(histname.c_str(), histtitle.c_str(), 600, 0, 7.5, 600, 0, 0.45);
+    hNdetRatioCut->GetYaxis()->SetTitle("Integral Ratio");
+    hNdetRatioCut->GetXaxis()->SetTitle("Energy (MeVee) (Fit)");
+    NdetRatioCut_map[bankname] = hNdetRatioCut;
 
     /*
     std::string outTitle = detname + ".dat";
@@ -226,6 +243,7 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
 
 
       const std::vector<int>& samples = (*pIter)->GetSamples();
+      float fitMax = (*pIter)->GetFitMax();
       const int nSamp = samples.size();
 
       //////////////Pedestal /////////////////////////////////////
@@ -357,11 +375,19 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
       if(detname == "NdetU"){
 	energy = 0.009037 + 0.0004015 * max_ps;
       }
+      if(*(std::min_element( samples.begin(), samples.end() )) <= 0) continue;
+      if(*(std::max_element( samples.begin(), samples.end() )) >= max_adc-1) continue;
+      float eFit = MPSDIntegralStatic_GetEnergyFit(detname, fitMax);
+      bool isNeutron = MPSDIntegralStatic_Neutron(detname, ratio, eFit); 
 
       NdetRatioS_map[bankname]->Fill(max_ps, ratio);
       NdetRatioEnergyS_map[bankname]->Fill(energy, ratio);
+      NdetRatioFEnergyS_map[bankname]->Fill(eFit, ratio);
       NdetIntegrals_map[bankname]->Fill(lInt, sInt);
       NdetIntegralE_map[bankname]->Fill(energy, sInt);
+
+      if(isNeutron) NdetRatioCut_map[bankname]->Fill(eFit, ratio);
+
 
       (*pIter)->SetPSDParameter(ratio);
 
@@ -450,4 +476,42 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
   }
 
   return SUCCESS;
+}
+bool MPSDIntegralStatic_Neutron(std::string det, double ratio, float energy){
+  /*
+  if(det == "NdetD"){  //need to update cuts for NdetD
+    if(ratio < 0.13) return 0; //gamma
+    else if(ratio < 0.155 && energy < 2.0) return 0; //gamma
+    else if(ratio < 0.18 && energy < 0.7) return 0;// gamma
+    else return 1; // neutron
+  }
+  if(det == "NdetU"){ 
+    if(ratio < 0.14) return 0; //gamma
+    else if(ratio < 0.17 && energy < 2.0) return 0; //gamma
+    else if(ratio < 0.20 && energy < 0.7) return 0;// gamma
+    else return 1; // neutron
+  }
+  return 0;
+  */
+  if(det == "NdetD"){  //need to update cuts for NdetD
+    if(ratio < 0.14) return 0; //gamma
+    else if(ratio < 0.17 && energy < 2.0) return 0; //gamma
+    else if(ratio < 0.2 && energy < 0.7) return 0;// gamma
+    else return 1; // neutron
+  }
+  if(det == "NdetU"){ 
+    if(ratio < 0.16) return 0; //gamma
+    else if(ratio < 0.19 && energy < 2.0) return 0; //gamma
+    else if(ratio < 0.22 && energy < 0.7) return 0;// gamma
+    else return 1; // neutron
+  }
+  return 0;
+}
+
+float MPSDIntegralStatic_GetEnergyFit(std::string detname, double fit_amp){
+  float energy = 0;
+  if(detname == "NdetD"){ energy = (fit_amp * 0.0003914) + 0.0289;  }
+  if(detname == "NdetU"){ energy = (fit_amp * 0.0004381) + 0.0257;  }
+
+  return energy;
 }
