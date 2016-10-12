@@ -188,7 +188,7 @@ INT MDQ_IslandTimestamp(EVENT_HEADER *pheader, void *pevent)
 	    // Make sure the histograms exist and then fill them
 	    if (DQ_IslandTimestamp_histograms_map.find(bankname) != DQ_IslandTimestamp_histograms_map.end()) {
 	      int time_stamp = (*pulseIter)->GetTimeStamp();
-	      double clock_tick_in_ns = TICKWFD[atoi(bankname[1])];
+	      double clock_tick_in_ns = TICKWFD[atoi(bankname.c_str())];
 	      double block_time = time_stamp * clock_tick_in_ns;
 
 	      hDQ_IslandTimestamp->Fill(block_time);
