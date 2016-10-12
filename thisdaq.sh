@@ -30,3 +30,6 @@ fi
 # Set the environment variables for SQLite
 export PATH=$DAQdir/sqlite-install/bin:$PATH
 export LD_LIBRARY_PATH=$DAQdir/sqlite-install/lib:$LD_LIBRARY_PATH
+
+export PATH=$PATH:$DAQdir/analyzer/work/$(whoami):$DAQdir/analyzer/rootana
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DAQdir/analyzer/work/$(whoami)
