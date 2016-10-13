@@ -44,7 +44,7 @@ static TTree *fEventTree = NULL;
 static TBranch *fEventBranch = NULL;
 static TTree *fSetupTree = NULL;
 static TBranch *fSetupBranch = NULL;
-static TTree *fVacuumTree = NULL;
+// static TTree *fVacuumTree = NULL;
 // static TBranch *fVacuumBranch = NULL;
 
 ANA_MODULE MTreeOutput_module =
@@ -121,7 +121,7 @@ INT MTreeOutput_init()
 INT MTreeOutput(EVENT_HEADER *pheader, void *pevent)
 {
   fEventTree->Fill();
-  fVacuumTree->Fill();
+  // fVacuumTree->Fill();
   return SUCCESS;
 }
 

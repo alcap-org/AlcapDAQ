@@ -61,7 +61,7 @@ PAWC_DEFINE(1000000);
 /*-- Globals -------------------------------------------------------*/
 
 /* The analyzer name (client name) as seen by other MIDAS clients   */
-char *analyzer_name = "Analyzer";
+const char *analyzer_name = "Analyzer";
 
 /* analyzer_loop is called with this interval in ms (0 to disable)  */
 INT  analyzer_loop_period = 0;
