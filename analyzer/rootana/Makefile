@@ -1,21 +1,17 @@
 all:  init libAnalysis.so rootana libAnalysis.rootmap
 
-.PHONY: clean print all unit_test doxygen
+.PHONY: clean print all doxygen
 
 ###################################################################################
 # Process the files.make file which lists the directories that contain source code
 ###################################################################################
 include src/files.make
 
-# Root directory for unit test framework
-TUT_ROOT = src/unit_test
-
 # Directories that contain source code
 EMPTY:=
 SPACE:=$(EMPTY) $(EMPTY)
 SOURCES:=$(foreach Dir,$(DIRS),$(wildcard $(Dir)/*.cpp))
 SOURCE_DIRS:= $(subst $(SPACE),:,$(DIRS))
-TUT_SOURCES = $(filter-out $(TUT_ROOT)/tut_main.cpp, $(wildcard $(TUT_ROOT)/*.cpp))
 
 # Classes that need a root dictionary
 ROOT_DICT_HEADERS:=$(ROOT_DICT_CLASSES:%=%.h)
@@ -32,7 +28,6 @@ DATA_LIBRARY_NAME:=RootanaDataClasses
 # A list of directories with header files. Should be colon-separated. eg:
 #   inc:tree_files/inc:extra_stuff/inc
 INCLUDE_DIRS:= ../src/common:$(SOURCE_DIRS)
-TUT_INCLUDE_DIRS = $(TUT_ROOT)
 
 
 # converts the colon-separated list to a list with -I flags. eg:
@@ -79,10 +74,6 @@ OBJECTS := $(notdir $(patsubst %.C,%.o,$(SOURCES)))
 OBJECTS := $(patsubst %.cpp,%.o, $(OBJECTS))
 OBJECTS := $(addprefix $(OBJ_DIR)/, $(OBJECTS))
 
-TUT_USE_OBJECTS := $(filter-out obj/main.o, $(OBJECTS))
-TUT_OBJECTS := $(notdir $(patsubst %.cpp,%.o, $(TUT_SOURCES)))
-TUT_OBJECTS := $(addprefix $(TUT_ROOT)/, $(TUT_OBJECTS)) 
-
 ####################################################################
 # Define the various make targets
 ####################################################################
@@ -123,20 +114,7 @@ init: | make_obj_dir
 make_obj_dir:
 	@mkdir -p $(OBJ_DIR) 
 
-tut: init libAnalysis.so libAnalysis.rootmap unit_test
-	@echo -e "Running tests."
-	@./unit_test
-
-$(TUT_ROOT)/%.o: $(TUT_ROOT)/%.cpp
-	@echo -e "Making object: '"$@"'"
-	@$(CXX) -c -Wall $(CXXFLAGS) -I$(TUT_INCLUDE_DIRS) -o $@ $^   
-
-unit_test: $(TUT_USE_OBJECTS) $(ROOTANA_DATACLASSES) $(TUT_SOURCES) $(TUT_OBJECTS) $(TUT_ROOT)/tut_main.o
-	@echo -e "Building unit_tests"
-	@$(CXX) -c -Wall $(CXXFLAGS) -I$(TUT_INCLUDE_DIRS) -o $(TUT_ROOT)/tut_main.o $(TUT_ROOT)/tut_main.cpp
-	@$(CXX) $(ICCFLAGS) -Wl,--no-as-needed -o unit_test $(TUT_USE_OBJECTS) $(ROOT_LIBS) -L$(PWD) $(ALCAPANA_DATACLASSES) $(ROOTANA_DATACLASSES) -I$(TUT_INCLUDE_DIRS) $(TUT_OBJECTS) $(TUT_ROOT)/tut_main.o
-
-clean: clean_libraries clean_rootana clean_obj_dir clean_tut
+clean: clean_libraries clean_rootana clean_obj_dir
 
 clean_libraries:
 	@echo Removing libraries
@@ -151,11 +129,6 @@ clean_rootana:
 clean_obj_dir:
 	@echo Removing objects
 	rm -rf $(OBJ_DIR)
-
-clean_tut:
-	@echo Removing unit tests
-	rm -f unit_test
-	rm -f $(TUT_ROOT)/*.o 
 
 print:
 	@echo -e "ALL_LIBS = $(ALL_LIBS)             \n" 
@@ -176,11 +149,6 @@ print:
 	@echo -e "ROOT_DICT_HEADERS = $(ROOT_DICT_HEADERS)           \n" 
 	@echo -e "SOURCES = $(SOURCES)               \n" 
 	@echo -e "SOURCE_DIRS = $(SOURCE_DIRS)       \n" 
-	@echo -e "TUT_ROOT = $(TUT_ROOT)       \n"
-	@echo -e "TUT_SOURCES = $(TUT_SOURCES)       \n"
-	@echo -e "TUT_OBJECTS = $(TUT_OBJECTS)       \n"
-	@echo -e "TUT_USE_OBJECTS = $(TUT_USE_OBJECTS)       \n"
-	@echo -e "TUT_INCLUDE_DIRS = $(TUT_INCLUDE_DIRS)  \n"
 	@echo $(wildcard $(OBJ_DIR)/*.d)
 
 include $(wildcard $(OBJ_DIR)/*.d)
