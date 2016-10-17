@@ -56,14 +56,14 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
   // Here is the germanium effiency fit for R15b
   double a, b, delta_a, delta_b, corr;
   if (channel == "GeLoGain") {
-    a = 1.13252; delta_a = 0.116562;
-    b = -0.916445; delta_b = 0.0163159;
-    corr = -0.99516;
+    a = 0.223417; delta_a = 0.0213393;
+    b = -0.919075; delta_b = 0.0151079;
+    corr = -0.995269;
   }
   else if (channel == "GeHiGain") {
-    a = 1.0815; delta_a = 0.0978322;
-    b = -0.965896; delta_b = 0.0144359;
-    corr = -0.99663;
+    a = 0.244223; delta_a = 0.0228416;
+    b = -0.931899; delta_b = 0.0148333;
+    corr = -0.995306;
   }
   else {
     std::cout << channel << " isn't a germanium channel. Aborting..." << std::endl;
@@ -76,9 +76,8 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
   xray.efficiency = ge_eff->Eval(xray.energy);
 
   // Assuming uncertainty in the energy is small
-  TF1* ge_eff_err = new TF1("ge_eff_err", "sqrt(x^(2*[1]) * ([2]^2 + 2*[0]*[3]*TMath::Log(x)*([0]*[3] + [4]*[2])))");
-  ge_eff_err->SetParameters(a, b, delta_a, delta_b, 
-			    (corr*delta_a*delta_b)); // covariance between a and b
+  TF1* ge_eff_err = new TF1("ge_eff_err", "sqrt(x^(2*[1]) * ([2]^2 + TMath::Log(x)*[0]*[3]*([0]*[3]*TMath::Log(x) + 2*[4]*[2])))");
+  ge_eff_err->SetParameters(a, b, delta_a, delta_b, corr);
   xray.efficiency_error = ge_eff_err->Eval(xray.energy);
 
   // Now get the area under the X-ray peak by doing a fit to the spectrum
