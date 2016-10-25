@@ -123,7 +123,7 @@ INT MTCorrTest_init() {
 
       int nBits = gSetup->GetNBits(bank);
       int max_adc = std::pow(2, nBits);
-      //float max_amp_e = MTCorrTest_Energy(det, max_adc);
+      float max_amp_e = MTCorrTest_Energy(det, max_adc);
       //float max_int = max_adc * MTCorrTest_nSamples(det); 
       //float max_int_e = MTCorrTest_IntEnergy(det, max_int);
 
@@ -131,6 +131,7 @@ INT MTCorrTest_init() {
       if(det == "GeCHEH") max_fit = 2.5;
       else if(det == "GeCHEL") max_fit = 6.0;
       else if(det == "LaBr3") max_fit = 15.0;
+
 
       
       //setup histograms
