@@ -54,7 +54,7 @@ std::string IDs::channel::GetDetectorString(Detector_t det){
             case kTTSc        : output="TTSc"     ; break ; 
             case kTGeCHT      : output="TGeCHT"   ; break ; 
             case kTLaBr3      : output="TLaBr3"   ; break ; 
-            default : output="Unknown"; break;
+            default           : output="Unknown"  ; break ;
 	}
      return output;
 }
@@ -72,10 +72,12 @@ IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
        "TTSc",  "TGeCHT", "TLaBr3"
 	      };
      for (int i=0;i<=IDs::num_detector_enums;i++){
-        if(modules::parser::iequals(det,names[i])) return (Detector_t)i;
+       if(modules::parser::iequals(det,names[i])) 
+         return (Detector_t)i;
      } 
      std::cout<<"Unknown detector name given to IDs::channel: '"<<det<<"'"<<std::endl;
-     throw Except::InvalidDetector(det.c_str());
+     // throw Except::InvalidDetector(det.c_str());
+     return (Detector_t)0;
 }
 
 IDs::channel& IDs::channel::operator=(const std::string& rhs){
