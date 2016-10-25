@@ -20,9 +20,14 @@ namespace IDs{
 		kScL      , kScR      , kScVe     , kSiL1_1 , kSiL1_2 , // 6-10
 		kSiL1_3   , kSiL1_4   , kSiL2     , kSiR1_1 , kSiR1_2 , // 11-15
 		kSiR1_3   , kSiR1_4   , kSiR1_sum , kSiR2   , kMuSc   , // 16-20
-		kMuScA };                                               // 21
+		kMuScA    ,                                           // 21
+    kSyncCrate4     , kGeCHEH , kGeCHEL , kGeCHT    ,         // 25
+    kTSc, kLaBr3, kSyncCrate7, kRollOver, kTSync, // 30
+    kTTSc, kTGeCHT, kTLaBr3, // 33    
+    kFakeLastDetector // hold the number of detectors + 1
+  }; 
   /// Used by some algorithms to loop over all Detector_t enum values
-	const short num_detector_enums=21;
+	const short num_detector_enums=kFakeLastDetector - 1;
 
   /// Enum for timing filter types applied to a channel
   /// As for Detector_t, kErrorSlowFast is used to mark an error
