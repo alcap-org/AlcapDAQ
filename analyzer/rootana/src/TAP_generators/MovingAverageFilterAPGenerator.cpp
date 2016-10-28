@@ -11,6 +11,7 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <algorithm>
 
 MovingAverageFilterAPGenerator::MovingAverageFilterAPGenerator(TAPGeneratorOptions* opts):
   TVAnalysedPulseGenerator("MovingAverageFilter",opts),
@@ -19,11 +20,11 @@ MovingAverageFilterAPGenerator::MovingAverageFilterAPGenerator(TAPGeneratorOptio
   fWindowWidth = opts->GetInt("window_width");
   fConstantFraction = opts->GetDouble("constant_fraction");
 
-  // if(opts->GetBool("use_pcf",true))
-  // { 
-    // if(opts->Debug()) opts->SetOption("debug","true");
-    // fPulseCandidateFinder=new PulseCandidateFinder(GetChannel().str(), opts);
-  // }
+  if(opts->GetBool("use_pcf",true))
+  { 
+    if(opts->Debug()) opts->SetOption("debug","true");
+    fPulseCandidateFinder=new PulseCandidateFinder(GetChannel().str(), opts);
+  }
 }
 
 MovingAverageFilterAPGenerator::~MovingAverageFilterAPGenerator(){
@@ -90,9 +91,18 @@ void MovingAverageFilterAPGenerator::AnalyseOneTpi(int tpi_ID, const TPulseIslan
   // double amplitude=fMaxBinAmplitude(tpi);
   // double time=fConstantFractionTime(tpi);
   // double integral=fSimpleIntegral(tpi);
-  double amplitude = 1.;
-  double time = 1.;
   double integral = 1.;
+  // Analyse the filtered waveform
+  double ped = 0.;
+  // double integral = 0.;
+  // for (unsigned int isample = 0; isample < mavg_samples.size(); ++isample) {
+  // mavg_samples.at(isample) = ped - mavg_samples.at(isample);
+  // }
+  std::vector<double>::const_iterator peak_sample_pos =
+    std::min_element(mavg_samples.begin(), mavg_samples.end());
+  double amplitude = 
+    SetupNavigator::Instance()->GetPedestal(GetChannel()) - *peak_sample_pos;
+  int time = peak_sample_pos - mavg_samples.begin() + fWindowWidth - 1;
 
   // Now that we've found the information we were looking for make a TAP to
   // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
