@@ -68,7 +68,7 @@ map <std::string, TH1F*> DQ_muScTDiff_histograms_normalised_map;
 map <std::string, TH1F*> DQ_muScTDiff_histograms_with_time_shift_map;
 float axis_limit = 50000;
 
-extern TH1F* hDQ_TDCCheck_muSc;
+//extern TH1F* hDQ_TDCCheck_muSc;
 
 ANA_MODULE MDQ_muScTDiff_module =
 {
@@ -157,11 +157,11 @@ INT MDQ_muScTDiff_eor(INT run_number) {
     std::string bankname = mapIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
       
-    if (DQ_muScTDiff_histograms_normalised_map.find(bankname) != DQ_muScTDiff_histograms_normalised_map.end()) {
-
-      // Normalise to the muSc hits
-      DQ_muScTDiff_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
-    }
+//    if (DQ_muScTDiff_histograms_normalised_map.find(bankname) != DQ_muScTDiff_histograms_normalised_map.end()) {
+//
+//      // Normalise to the muSc hits
+//      DQ_muScTDiff_histograms_normalised_map[bankname]->Scale(1./hDQ_TDCCheck_muSc->GetEntries());
+//    }
   }
 
   return SUCCESS;
@@ -185,7 +185,7 @@ INT MDQ_muScTDiff(EVENT_HEADER *pheader, void *pevent)
 		gData->fPulseIslandToChannelMap;
 
 	// Get the muSc pulses
-	std::string muSc_bankname = gSetup->GetBankName("muSc");
+	std::string muSc_bankname = gSetup->GetBankName("SiT-1-F");
 	std::vector<TPulseIsland*> theMuScPulses = pulse_islands_map[muSc_bankname];
 
 	// Loop over the map and get each bankname, vector pair
@@ -195,7 +195,7 @@ INT MDQ_muScTDiff(EVENT_HEADER *pheader, void *pevent)
 	    std::string detname = gSetup->GetDetectorName(bankname);
 	    
 	    // Don't bother comparing muSc to muSc
-	    if (detname == "muSc")
+	    if (detname == "SiT-1-F")
 	      continue;
 
 	    std::vector<TPulseIsland*> thePulses = mapIter->second;

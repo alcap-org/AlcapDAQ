@@ -60,7 +60,6 @@ int PlotTPI_PedestalAndNoise::ProcessEntry(TGlobalData* gData,const TSetupData *
     // Get the TPIs
     thePulseIslands = it->second;
     if (thePulseIslands.size() == 0) continue; // no pulses here..
-
     // Create the histogram that will store all the average RMS noises from each event
     if (fPedestalVsNoiseHistograms.find(detname) == fPedestalVsNoiseHistograms.end()) {
       int n_bits = TSetupData::Instance()->GetNBits(bankname);

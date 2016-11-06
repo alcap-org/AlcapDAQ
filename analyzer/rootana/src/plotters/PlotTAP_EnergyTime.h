@@ -18,6 +18,8 @@ class PlotTAP_EnergyTime : public BaseModule{
   virtual int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);
 
   std::map<std::string, TH2F*> fEnergyTimePlots;
+  double fTimeLow;
+  double fTimeHigh;
 };
 
 #endif

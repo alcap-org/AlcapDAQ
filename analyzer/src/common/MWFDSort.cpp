@@ -47,7 +47,6 @@ bool tpi_less(const TPulseIsland* a, const TPulseIsland* b) {
 INT MWFDSort(EVENT_HEADER *pheader, void *pevent) {
   map< string, vector<TPulseIsland*> >& wfd_map =
     gData->fPulseIslandToChannelMap;
-
   for (map< string, vector<TPulseIsland*> >::iterator i = wfd_map.begin(),
 	 e = wfd_map.end(); i != e; ++i)
     std::sort(i->second.begin(), i->second.end(), tpi_less);
