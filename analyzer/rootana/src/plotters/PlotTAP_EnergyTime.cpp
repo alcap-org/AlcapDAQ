@@ -74,7 +74,6 @@ int PlotTAP_EnergyTime::ProcessEntry(TGlobalData *gData, const TSetupData* gSetu
 	    double Energy = (*pulseIter)->GetEnergy();
 	    double Time = (*pulseIter)->GetTime();
             fEnergyTimePlots[keyname]->Fill(Energy, Time);
-
         } // end loop through pulses
 
     } // end loop through detectors

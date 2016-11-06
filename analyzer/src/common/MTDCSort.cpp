@@ -43,7 +43,6 @@ ANA_MODULE MTDCSort_module =
 INT MTDCSort(EVENT_HEADER *pheader, void *pevent) {
   map< string, vector<int64_t> >& tdc_map =
     gData->fTDCHitsToChannelMap;
-
   for (map< string, vector<int64_t> >::iterator i = tdc_map.begin(),
 	 e = tdc_map.end(); i != e; ++i)
     std::sort(i->second.begin(), i->second.end());
