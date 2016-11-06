@@ -73,7 +73,7 @@ class PlotTAP_TDiff : public BaseModule {
   bool fExportSQL;
 
   std::map<std::string, std::vector<TH2F*> > fHists;
-  std::map<std::string, std::vector<TH1F*> > fTests;
+  std::map<std::string, std::vector<TH1F*> > fProjs;
 
   std::vector<IDs::source> fDetASources, fDetBSources;
 };

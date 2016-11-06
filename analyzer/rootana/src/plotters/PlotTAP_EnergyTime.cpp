@@ -24,9 +24,7 @@ using std::pair;
 extern SourceAnalPulseMap gAnalysedPulseMap;
 
 PlotTAP_EnergyTime::PlotTAP_EnergyTime(modules::options* opts) : 
-    BaseModule("PlotTAP_EnergyTime",opts)
-//    fTimeLow(opts->GetDouble("time_low",0)), fTimeHigh(opts->GetDouble("time_high",1.e5))
-{
+    BaseModule("PlotTAP_EnergyTime",opts) {
     }
 
 PlotTAP_EnergyTime::~PlotTAP_EnergyTime(){  
@@ -63,7 +61,7 @@ int PlotTAP_EnergyTime::ProcessEntry(TGlobalData *gData, const TSetupData* gSetu
                offset= SetupNavigator::Instance()->GetAdcToEnergyConstant(i_det->first.Channel());
             }catch( Except::InvalidDetector& e){};
 	    //TODO: make the time axis configurable in the cfg file
-            TH2F* hEnergyTime = new TH2F(histname.c_str(), histtitle.str().c_str(), max_adc_value,0,gain*max_adc_value + offset, 10000,-10000,20000);
+            TH2F* hEnergyTime = new TH2F(histname.c_str(), histtitle.str().c_str(), max_adc_value,0,gain*max_adc_value + offset, 10000,-10000,10000);
             hEnergyTime->GetXaxis()->SetTitle("Energy (KeV)");
             hEnergyTime->GetYaxis()->SetTitle("Time [ns]");
             fEnergyTimePlots[keyname] = hEnergyTime;

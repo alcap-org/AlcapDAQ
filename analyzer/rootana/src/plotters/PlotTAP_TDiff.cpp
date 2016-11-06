@@ -74,11 +74,11 @@ int PlotTAP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
     const AnalysedPulseList& detAPulses = gAnalysedPulseMap[fDetASources[i]];
     const AnalysedPulseList& detBPulses = gAnalysedPulseMap[fDetBSources[i]];
     const std::vector<TH2F*>& hists = fHists[fDetASources[i].str()];
-    const std::vector<TH1F*>& tests = fTests[fDetASources[i].str()];
+    const std::vector<TH1F*>& tests = fProjs[fDetASources[i].str()];
     
     for(AnalysedPulseList::const_iterator pulseIt = detAPulses.begin();
 	pulseIt != detAPulses.end(); ++pulseIt) {
-//if ( (*pulseIt)->GetTPILength() != 300 ) continue;
+
       for(AnalysedPulseList::const_iterator pulseIt2 = detBPulses.begin();
 	  pulseIt2 != detBPulses.end(); ++pulseIt2) {
 	double tDiff = (*pulseIt)->GetTime() - (*pulseIt2)->GetTime();
@@ -88,7 +88,6 @@ int PlotTAP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
 	hists[2]->Fill(tDiff, (*pulseIt)->GetIntegral());
 	hists[3]->Fill(tDiff, (*pulseIt2)->GetIntegral());
 	
-        tests[0]->Fill(tDiff);
       }//end detBPulse loop
     }//end detAPulse loop
   }//end sources loop
@@ -115,7 +114,7 @@ void PlotTAP_TDiff::BookHistograms(const TSetupData* setup) {
     const int maxAmpA = std::pow(2, setup->GetNBits(setup->GetBankName(fDetNameA)));
     const int maxAmpB = std::pow(2, setup->GetNBits(setup->GetBankName(fDetNameB)));
     std::vector<TH2F*>& hists = fHists[fDetASources.at(i).str()];
-    std::vector<TH1F*>& tests = fTests[fDetASources.at(i).str()];
+    std::vector<TH1F*>& proj = fProjs[fDetASources.at(i).str()];
     
     //ampA plots
     std::string histname("h" + fDetNameB + "_" + fDetASources.at(i).str() + "TDiff_AmpA");
@@ -139,7 +138,7 @@ void PlotTAP_TDiff::BookHistograms(const TSetupData* setup) {
     
     histname = "h" + fDetNameB + "_" + fDetASources.at(i).str() + "TDiff";
     histtitle = "Time difference of " + fDetNameA + " vs " + fDetNameB + " detectors with the " + gen + " generator;Time Difference (ns);Amplitude (ADC counts)";
-    tests.push_back(new TH1F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh) );
+    proj.push_back(new TH1F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh) );
   }
 }
 
