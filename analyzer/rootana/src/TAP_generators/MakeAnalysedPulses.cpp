@@ -71,7 +71,7 @@ int MakeAnalysedPulses::BeforeFirstEntry(TGlobalData* gData, const TSetupData* s
 	else {
 	  // We want to skip the TDCs anyway
 	  if (TSetupData::IsTDC(setup->GetBankName(*det))) {
-	    std::cout << "Skipping detector " << *det << " because it is a TDC channel" << std::endl;
+	    std::cout << "MakeAnalysedPulses::BeforeFirstEntry: Skipping detector " << *det << " because it is a TDC channel" << std::endl;
 	    skip_detector=true;
 	  }
 	}
