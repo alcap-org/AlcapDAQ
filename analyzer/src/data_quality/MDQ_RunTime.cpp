@@ -45,19 +45,21 @@ using std::pair;
 INT  MDQ_RunTime_init(void);
 INT  MDQ_RunTime(EVENT_HEADER*, void*);
 INT  MDQ_RunTime_eor(INT);
+INT  MDQ_RunTime_bor(INT);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-TH1F* hDQ_RunTime;
+TH1F* hDQ_RunTime, *hDQ_RunTime_Event;
+INT NEVENTS_RT;
 
 ANA_MODULE MDQ_RunTime_module =
 {
 	"MDQ_RunTime",                    /* module name           */
 	"Andrew Edmonds",              /* author                */
 	MDQ_RunTime,                      /* event routine         */
-	NULL,                          /* BOR routine           */
+	MDQ_RunTime_bor,                          /* BOR routine           */
 	MDQ_RunTime_eor,                          /* EOR routine           */
 	MDQ_RunTime_init,                 /* init routine          */
 	NULL,                          /* exit routine          */
@@ -84,6 +86,13 @@ INT MDQ_RunTime_init()
   hDQ_RunTime = new TH1F(histname.c_str(), histtitle.c_str(), 3,0,3);
   hDQ_RunTime->GetXaxis()->SetTitle("");
   hDQ_RunTime->GetYaxis()->SetTitle("Run Time [s]");
+  
+
+  histname = "hDQ_RunTime_Event";
+  histtitle = "The duration of the run";
+  hDQ_RunTime_Event = new TH1F(histname.c_str(), histtitle.c_str(), 3,0,3);
+  hDQ_RunTime_Event->GetXaxis()->SetTitle("");
+  hDQ_RunTime_Event->GetYaxis()->SetTitle("Run Time [s] (Events * 0.1 s");
 
 
   gDirectory->Cd("/MidasHists/");
@@ -92,6 +101,12 @@ INT MDQ_RunTime_init()
 
 /** This method does any last minute things to the histograms at the end of the run
  */
+
+INT MDQ_RunTime_bor(INT run_number) {
+  NEVENTS_RT = 0;
+  return SUCCESS;
+}
+
 INT MDQ_RunTime_eor(INT run_number) {
 
   // Get the run duration to scale the histogram
@@ -139,6 +154,8 @@ INT MDQ_RunTime_eor(INT run_number) {
 
   int duration = StopTimes[0] - StartTimes[0]; // length of run in seconds (checked against run #2600)
 
+  float duration_event = 0.1 * NEVENTS_RT; 
+  hDQ_RunTime_Event->Fill(1, duration_event);
   hDQ_RunTime->Fill(1,duration);
 
   return SUCCESS;
@@ -152,6 +169,8 @@ INT MDQ_RunTime(EVENT_HEADER *pheader, void *pevent)
 	int midas_event_number = pheader->serial_number;
 
 	// Don't need anything here
+
+	NEVENTS_RT +=1;
 
 	return SUCCESS;
 }

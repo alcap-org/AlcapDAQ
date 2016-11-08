@@ -197,3 +197,38 @@ double TPulseIsland::GetIntegral() const {
 
   return integral_ps;
 }
+
+double TPulseIsland::GetEnergyAmp(int amp) const{
+  std::string det = TSetupData::Instance()->GetDetectorName(fBankName);
+  double energy = 0;
+  if(det == "NdetD"){ energy = ((double)amp * 0.0003999) + 0.008234;  }
+  if(det == "NdetU"){ energy = ((double)amp * 0.0004015) + 0.009037;  }
+  if(det == "GeCHEH"){ energy = ((double)amp * 0.0001517) - 0.0003119;  }
+  if(det == "GeCHEL"){ energy = ((double)amp * 0.0003838) - 0.000629;    }
+  if(det == "LaBr3"){ energy = ((double)amp * 0.00163022) - 0.00836618;  } 
+  return energy;
+}
+
+
+double TPulseIsland::GetEnergyInt(double Int) const{
+  std::string det = TSetupData::Instance()->GetDetectorName(fBankName);
+  double energy = 0;
+  if(det == "NdetD"){ energy = (0.0000686 * (double)Int) + 0.02117;  }
+  if(det == "NdetU"){ energy = (0.00006766 * (double)Int) + 0.02358;  }
+  if(det == "GeCHEH"){ energy = (0.000002022 * (double)Int) + 0.001323;  }
+  if(det == "GeCHEL"){ energy = (0.000005112 * (double)Int) + 0.00150;  }
+  if(det == "LaBr3"){ energy = 0.0000823 * (double)Int;  } 
+  return energy;
+}
+
+double TPulseIsland::GetEnergyFit(double fit) const{
+  std::string det = TSetupData::Instance()->GetDetectorName(fBankName);
+  float energy = 0;
+  if(det == "NdetD"){ energy = (fit * 0.0003914) + 0.0289;  }
+  if(det == "NdetU"){ energy = (fit * 0.0004381) + 0.0257;  }
+  if(det == "GeCHEH"){ energy = (fit * 0.0001518) + 0.000299;  }
+  if(det == "GeCHEL"){ energy = (fit * 0.0003841) - 0.0003155;    }
+  if(det == "LaBr3"){ energy = (fit * 0.00163022) - 0.00836618;  } 
+  return energy;
+}
+

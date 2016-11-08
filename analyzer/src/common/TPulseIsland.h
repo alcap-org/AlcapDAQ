@@ -100,6 +100,9 @@ class TPulseIsland : public TObject {
   //@}
   double GetIntegral() const;
   double GetFitMax() const;
+  double GetEnergyAmp(int amp) const;
+  double GetEnergyFit(double fit) const;
+  double GetEnergyInt(double Int) const;
 
 
 

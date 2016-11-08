@@ -44,8 +44,9 @@ namespace {
   TH2D* vvhTDCWFDMatch_CutAlign[NCRATE][MAXNCHANWFD];
   const double TIME_LOW = -5e3, TIME_HIGH = 1e4;
   const double ALIGN_LOW = -100, ALIGN_HIGH = 100;
-  const double VETO_LOW = -40, VETO_HIGH = 40;
+  const double VETO_LOW = -80, VETO_HIGH = 80;
   const double PILEUP_LOW = -1e4, PILEUP_HIGH=1e4;
+  const double DOUBLE_LOW = -1e3, DOUBLE_HIGH=1e3;
 }
 
 INT plotCount = 0;
@@ -110,7 +111,7 @@ INT MTDCWFDMatch_init() {
       /////////////// Cut Alignment //////////////////
       sprintf(histname, "hTCorrTest_CutAlign_%s", det.c_str());
       sprintf(histtitle, "TDC WFD Alignment for %s after cut", det.c_str());
-      vvhTDCWFDMatch_CutAlign[icrate][ich] = new TH2D(histname, histtitle, 5*(ALIGN_HIGH-ALIGN_LOW), ALIGN_LOW*2, ALIGN_HIGH*2, max_adc/4, 0, max_adc);
+      vvhTDCWFDMatch_CutAlign[icrate][ich] = new TH2D(histname, histtitle, 5*(ALIGN_HIGH-ALIGN_LOW), ALIGN_LOW*10, ALIGN_HIGH*10, max_adc/4, 0, max_adc);
       vvhTDCWFDMatch_CutAlign[icrate][ich]->GetXaxis()->SetTitle("Alignment Difference (ns)");
       vvhTDCWFDMatch_CutAlign[icrate][ich]->GetYaxis()->SetTitle("Energy (MeV)");
 
@@ -156,8 +157,14 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 
 
       double toff = gData->fTDCSynchronizationPulseOffset[icrate];
+      //toff is a standard alignment parameter for the crate.
+      //individual channels still need tweaking
+
       double tcorr = 0, aligncorr = 0, vcorr = 0;
-      if(det == "GeCHEH" || det == "GeCHEL"){ tcorr = 1000; aligncorr = 200; vcorr = 127;}
+      //tcorr corrects spectrum to place value near zero in correlation
+      //aligncorr is a correction to the align range size, mostly for Ge
+      //vcorr is the time difference between veto and channel in MTTScTcorrTDC
+      if(det == "GeCHEH" || det == "GeCHEL"){ tcorr = 500; aligncorr = 600; vcorr = 127;}
       if(det == "TSc") {aligncorr = -60; tcorr = -50; vcorr = -10;};
       if(det == "LaBr3") vcorr = 7;
       if(det == "NdetD") vcorr = 52;
@@ -201,7 +208,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	float thresh_tmp = polarity * (threshold - pedestal);
 	if(max < thresh_tmp) {delete hpulse; continue; }
 
-	//find timestamp location
+	//find timestamp location, does this affect all detectors?
 	for(int i = 0; i< tMax; i++) {
 	  float tmp = polarity * (samples.at(i) - pedestal);
 	  if(tmp < thresh_tmp) {
@@ -211,7 +218,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	}
 
 	////////////////GetCF timing/////////////////////////////////
-	cf = 0.1*max;
+	cf = 0.02*max;
 	for(int i = tMax; i > 0; i--){
 	  double tmp = polarity * (samples.at(i) - pedestal);
 	  if(tmp < cf){
@@ -228,6 +235,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 
 	//max = amp, cft = time, integral_ps = int
 	double CFT = (pulses[p]->GetTimeStamp() - tThreshold + cft) * TICKWFD[icrate];
+	//if(det == "GeCHEH" || det == "GeCHEL") CFT += tThreshold * TICKWFD[icrate]; 
 
 	//std::cout << "Times : CFT " << CFT << " timestamp " << pulses[p]->GetTimeStamp() * TICKWFD[icrate] << std::endl;
 	//if(p+1 < pulses.size()) std::cout << "TDiff : " << pulses[p+1]->GetTimeStamp() - pulses[p]->GetTimeStamp() << std::endl;
@@ -264,9 +272,30 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	    //if(nMatch >= 1) plot = true;
 	    nMatch++;
 	    if(det == "TSc"){  	    //check this pulse for pileup
+	      if(p-1 <= 0) continue;
+	      double pileupTime = TICKWFD[icrate] * (pulses[p]->GetTimeStamp() - pulses[p-1]->GetTimeStamp() );
+	      if(PILEUP_LOW < pileupTime && PILEUP_HIGH > pileupTime){
+		pulses[p]->SetPileupPulse(true);
+		pulses[p-1]->SetPileupPulse(true);
+		if(nMatch == 1) trigCount++;
+		//plot = true;
+	      }
+	      if(p+1 >= pulses.size() ) continue;
+	      pileupTime = TICKWFD[icrate] * (pulses[p+1]->GetTimeStamp() - pulses[p]->GetTimeStamp() );
+	      if(PILEUP_LOW < pileupTime && PILEUP_HIGH > pileupTime){
+		if(pulses[p]->GetPileupPulse() != true)
+		  pulses[p]->SetPileupPulse(true);
+		pulses[p+1]->SetPileupPulse(true);
+		//std::cout << "Pileup pulse : " << pileupTime << " " << pulses[p+1]->GetTimeStamp() << " " << pulses[p]->GetTimeStamp() << std::endl;
+		if(nMatch == 1) trigCount++;
+		//plot = true;
+	      }
+	    }
+	    /*
+	    else{  	    //check this pulse for pileup
 	      if(p+1 >= pulses.size()) continue;
 	      double pileupTime = TICKWFD[icrate] * (pulses[p+1]->GetTimeStamp() - pulses[p]->GetTimeStamp() );
-	      if(PILEUP_LOW < pileupTime && PILEUP_HIGH > pileupTime){
+	      if(DOUBLE_LOW < pileupTime && DOUBLE_HIGH > pileupTime){
 		pulses[p]->SetPileupPulse(true);
 		pulses[p+1]->SetPileupPulse(true);
 		//std::cout << "Pileup pulse : " << pileupTime << " " << pulses[p+1]->GetTimeStamp() << " " << pulses[p]->GetTimeStamp() << std::endl;
@@ -275,7 +304,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	      }
 	      //if(PILEUP_HIGH > TICKTDC * (times[a+1] - times[a]))
 	      //pulses[p]->SetPileupPulse(true);
-	    }
+	      }*/
 	  }
 	  else {
 	    if(a0 > 1) a0--;//just in case we passed the next pulse
@@ -291,6 +320,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	  continue;
 	}
 	
+	if(det == "GeCHEL" && tdiff_align > 100  && tdiff_align < 300) plot = true;
 
 	for(int v = 0; v<vetos.size(); ++v){
 	  double dt = TICKTDC*(a1 - vetos[v]) - vcorr; // a1 = pulse TDC time
@@ -302,8 +332,8 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	  }
 
 	}
-	/*
-	if(plot == true && det == "TSc" && plotCount < 20 && tdiff_align > 10 && tdiff_align < 13 && max > 2000){
+	
+	if(plot == true && det == "GeCHEL" && plotCount < 20 && max > 4000){
 	  plotCount++;
 	  //if further needed, plot waveforms
 	  std::stringstream ss;
@@ -315,9 +345,10 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	    hIPulse->Fill(l, samples.at(l));
 
 	}
-	*/
+	
 
 	if(pulses[p]->GetVetoPulse()) continue;
+	//if(pulses[p]->GetPileupPulse() ) continue;
 	vvhTDCWFDMatch_CutAlign[icrate][ich]->Fill(tdiff_align, max);
 
       }

@@ -37,14 +37,15 @@ INT  MPSDIntegralStatic(EVENT_HEADER*, void*);
 //INT  MPSDIntegral_eor(INT);
 INT  MPSDIntegralStatic_BookHistograms();
 bool MPSDIntegralStatic_Neutron(std::string, double, float);
-float MPSDIntegralStatic_GetEnergyFit(std::string, double);
+//float MPSDIntegralStatic_GetEnergyFit(std::string, double);
 
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
 extern TSetupData* gSetup;
 
-std::map<std::string,TH2F*> NdetRatioS_map, NdetRatioEnergyS_map, NdetRatioFEnergyS_map, NdetIntegrals_map, NdetIntegralE_map, NdetRatioCut_map;
+std::map<std::string, TH2D*> NdetRatioEnergyS_map, NdetRatioFEnergyS_map, NdetIntegralE_map;
+std::map<std::string,TH2F*> NdetRatioS_map,  NdetIntegrals_map, NdetRatioCut_map;
 //std::map<int, TH1D*> NdetDIFoMS_map, NdetUIFoMS_map;
 //static std::map<std::string, std::ofstream*> waveforms;
 
@@ -105,14 +106,14 @@ INT MPSDIntegralStatic_BookHistograms()
     
     histname = "h" + detname + "RatioFEnergyS";
     histtitle = "Integral Ratio vs Energy (fit) for " + detname;
-    TH2F* hNdetFERatio = new TH2F(histname.c_str(), histtitle.c_str(), 600, 0, 7.5, 600, 0, 0.45);
+    TH2D* hNdetFERatio = new TH2D(histname.c_str(), histtitle.c_str(), 600, 0, 7.5, 600, 0, 0.45);
     hNdetFERatio->GetYaxis()->SetTitle("Integral Ratio");
     hNdetFERatio->GetXaxis()->SetTitle("Energy (MeVee) (Fit)");
     NdetRatioFEnergyS_map[bankname] = hNdetFERatio;
 
     histname = "h" + detname + "RatioEnergyS";
     histtitle = "Integral Ratio vs Energy for " + detname;
-    TH2F* hNdetERatio = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, 7.5, 600, 0, 0.45);
+    TH2D* hNdetERatio = new TH2D(histname.c_str(), histtitle.c_str(), max_adc, 0, 7.5, 600, 0, 0.45);
     hNdetERatio->GetYaxis()->SetTitle("Integral Ratio");
     hNdetERatio->GetXaxis()->SetTitle("Energy (MeVee)");
     NdetRatioEnergyS_map[bankname] = hNdetERatio;
@@ -128,7 +129,7 @@ INT MPSDIntegralStatic_BookHistograms()
     
     histname = "h" + detname + "_TailVEnergy";
     histtitle = "Tail Integral vs energy for " + detname;
-    TH2F* hNdetEIntegral = new TH2F(histname.c_str(), histtitle.c_str(), max_adc, 0, 6.75, 1000, 0, 20000);
+    TH2D* hNdetEIntegral = new TH2D(histname.c_str(), histtitle.c_str(), max_adc, 0, 6.75, 1000, 0, 20000);
     hNdetEIntegral->GetYaxis()->SetTitle("Tail Integral");
     hNdetEIntegral->GetXaxis()->SetTitle("Energy (MeVee)");
     NdetIntegralE_map[bankname] = hNdetEIntegral;
@@ -368,16 +369,18 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
       //fill the histograms
       ratio = sInt/lInt;
 
-      float energy=0;
+      double energy= (*pIter)->GetEnergyAmp(max_ps);
+      /*
       if(detname == "NdetD"){
 	energy = 0.008234 + 0.0003999 * max_ps;
       }
       if(detname == "NdetU"){
 	energy = 0.009037 + 0.0004015 * max_ps;
       }
+      */
       if(*(std::min_element( samples.begin(), samples.end() )) <= 0) continue;
       if(*(std::max_element( samples.begin(), samples.end() )) >= max_adc-1) continue;
-      float eFit = MPSDIntegralStatic_GetEnergyFit(detname, fitMax);
+      double eFit = (*pIter)->GetEnergyFit(fitMax);
       bool isNeutron = MPSDIntegralStatic_Neutron(detname, ratio, eFit); 
 
       NdetRatioS_map[bankname]->Fill(max_ps, ratio);
@@ -508,6 +511,7 @@ bool MPSDIntegralStatic_Neutron(std::string det, double ratio, float energy){
   return 0;
 }
 
+/*
 float MPSDIntegralStatic_GetEnergyFit(std::string detname, double fit_amp){
   float energy = 0;
   if(detname == "NdetD"){ energy = (fit_amp * 0.0003914) + 0.0289;  }
@@ -515,3 +519,4 @@ float MPSDIntegralStatic_GetEnergyFit(std::string detname, double fit_amp){
 
   return energy;
 }
+*/

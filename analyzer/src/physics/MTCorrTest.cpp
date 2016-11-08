@@ -32,7 +32,7 @@ INT MTCorrTest_bor(int);
 INT MTCorrTest_eor(int);
 float MTCorrTest_Energy(std::string, float);
 //float MTCorrTest_IntEnergy(std::string, float);
-float MTCorrTest_GetEnergyFit(std::string, double);
+//float MTCorrTest_GetEnergyFit(std::string, double);
 float MTCorrTest_nSamples(std::string);
 float MTCorrTest_Threshold(std::string);
 bool MTCorrTest_Neutron(std::string, double, float);
@@ -278,9 +278,9 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	//if(pulses[p]->GetDoublePulse()) continue; //Multiple hits near TSc
 
 	
-	float energy_amp = MTCorrTest_Energy(det, max);
-	//float energy_int = MTCorrTest_IntEnergy(det, integral_ps);
-	float energy_fit = MTCorrTest_GetEnergyFit(det, fit_max);
+	double energy_amp = pulses[p]->GetEnergyAmp(max);
+	//double energy_int = pulses[p]->IntEnergy(integral_ps);
+	double energy_fit = pulses[p]->GetEnergyFit(fit_max);
 
 	//if( !MTCorrTest_Neutron(det, PSD_ratio, energy_amp) ) continue; //gamma
 
@@ -375,7 +375,7 @@ float MTCorrTest_Threshold(std::string detname){
   else thresh = 0;
   return thresh;
 }
-
+/*
 float MTCorrTest_GetEnergyFit(std::string detname, double fit_amp){
   float energy = 0;
   if(detname == "NdetD"){ energy = (fit_amp * 0.0003914) + 0.0289;  }
@@ -387,7 +387,7 @@ float MTCorrTest_GetEnergyFit(std::string detname, double fit_amp){
 
   return energy;
 }
-
+*/
 bool MTCorrTest_Neutron(std::string det, double ratio, float energy){
 
   if(det == "NdetD"){  //need to update cuts for NdetD
