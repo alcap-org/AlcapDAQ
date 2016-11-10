@@ -82,7 +82,7 @@ INT MTDCWFDMatch_init() {
 	TDCBANKS[icrate][ich] = gSetup->GetBankName("T" + det);
 	VETOBANKS[icrate][ich] = gSetup->GetBankName("T" + det + "V");
       }
-      else if(det == "GeCHEH"/* || det == "GeCHEL"*/){
+      else if(det == "GeCHEH" || det == "GeCHEL"){
 	WFDBANKS[icrate][ich] = bank;
 	TDCBANKS[icrate][ich] = gSetup->GetBankName("TGeCHT");
 	VETOBANKS[icrate][ich] = gSetup->GetBankName("TGeV");
@@ -160,12 +160,12 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
       //toff is a standard alignment parameter for the crate.
       //individual channels still need tweaking
 
-      double tcorr = 0, aligncorr = 0, vcorr = 0;
+      double tcorr = 0, aligncorr = 0, vcorr = 0, vRange = 0;
       //tcorr corrects spectrum to place value near zero in correlation
       //aligncorr is a correction to the align range size, mostly for Ge
       //vcorr is the time difference between veto and channel in MTTScTcorrTDC
-      if(det == "GeCHEH" || det == "GeCHEL"){ tcorr = 500; aligncorr = 600; vcorr = 127;}
-      if(det == "TSc") {aligncorr = -60; tcorr = -50; vcorr = -10;};
+      if(det == "GeCHEH" || det == "GeCHEL"){ tcorr = 225; aligncorr = 1000; vcorr = 127;}
+      if(det == "TSc") {aligncorr = -60; tcorr = -50; vcorr = -10; vRange = 9920; };
       if(det == "LaBr3") vcorr = 7;
       if(det == "NdetD") vcorr = 52;
       if(det == "NdetU") vcorr = 40;

@@ -53,7 +53,7 @@ namespace {
   //TH2D* vvhTCorrTest_IEvTDiff[NCRATE][MAXNCHANWFD];
   TH2D* vvhTCorrTest_PSDCut[NCRATE][MAXNCHANWFD];
   TH2D* vvhTCorrTest_PSD[NCRATE][MAXNCHANWFD];
-  TH2D* vvhTCorrTest_EvTDiffG[NCRATE][MAXNCHANWFD];
+  //TH2D* vvhTCorrTest_EvTDiffG[NCRATE][MAXNCHANWFD];
   TH1D* vhTCorrTest_Count_TSc;
   TH1D* vhTCorrTest_TSc_Amp;
   const double TIME_LOW = -2e3, TIME_HIGH = 8e3;
@@ -91,7 +91,7 @@ INT MTCorrTest_init() {
 
   sprintf(histname, "hTCorrTest_Count_TSc");
   sprintf(histtitle, "Number of counts in TSc");
-  vhTCorrTest_Count_TSc = new TH1D(histname, histtitle, 1450, 5976, 7426);
+  vhTCorrTest_Count_TSc = new TH1D(histname, histtitle, 1455, 5975, 7430);
   vhTCorrTest_Count_TSc->GetXaxis()->SetTitle("RunNumber");
   vhTCorrTest_Count_TSc->GetYaxis()->SetTitle("Number of valid pulses");
 
@@ -106,7 +106,7 @@ INT MTCorrTest_init() {
 	WFDBANKS[icrate][ich] = bank;
 	//TDCBANKS[icrate][ich] = gSetup->GetBankName("T" + det);
       }
-      else if(det == "GeCHEH"/* || det == "GeCHEL"*/){
+      else if(det == "GeCHEH" || det == "GeCHEL"){
 	WFDBANKS[icrate][ich] = bank;
 	//TDCBANKS[icrate][ich] = gSetup->GetBankName("TGeCHT");
       }
@@ -186,13 +186,14 @@ INT MTCorrTest_init() {
 	vvhTCorrTest_PSD[icrate][ich]->GetYaxis()->SetTitle("PSD parameter");
 
 	////////////////gamma spectrum to check timed response /////////////
+	/*
 	sprintf(histname, "hTCorrTest_EvTDiff_%s_%s", det.c_str(), "gamma");
 	sprintf(histtitle, "Energy vs TSC TDiff for %s %s", det.c_str(), "gammas");
       
       vvhTCorrTest_EvTDiffG[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/7, TIME_LOW, TIME_HIGH, 7500, 0, max_fit);
       vvhTCorrTest_EvTDiffG[icrate][ich]->GetXaxis()->SetTitle("TDiff (TDC) (ns)");
       vvhTCorrTest_EvTDiffG[icrate][ich]->GetYaxis()->SetTitle("Energy (fit) (MeV)");
-
+	*/
 
       }
     }
@@ -278,14 +279,14 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	//if(pulses[p]->GetDoublePulse()) continue; //Multiple hits near TSc
 
 	
-	double energy_amp = pulses[p]->GetEnergyAmp(max);
+	//double energy_amp = pulses[p]->GetEnergyAmp(max);
 	//double energy_int = pulses[p]->IntEnergy(integral_ps);
 	double energy_fit = pulses[p]->GetEnergyFit(fit_max);
 
 	//if( !MTCorrTest_Neutron(det, PSD_ratio, energy_amp) ) continue; //gamma
 
 	if(det == "TSc"){
-	  vhTCorrTest_TSc_Amp->Fill(energy_fit);
+	  vhTCorrTest_TSc_Amp->Fill(max);
 	  TScCount++;
 	  continue;
 	}
@@ -300,7 +301,7 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	  if(dt < TIME_LOW) break;
 	  else if(dt < TIME_HIGH){
 	    if(det != "NdetD" && det != "NdetU"){
-	      vvhTCorrTest_EvTDiff[icrate][ich]->Fill(dt, energy_amp);
+	      //vvhTCorrTest_EvTDiff[icrate][ich]->Fill(dt, energy_amp);
 	      vvhTCorrTest_FEvTDiff[icrate][ich]->Fill(dt, energy_fit);
 	      //vvhTCorrTest_IEvTDiff[icrate][ich]->Fill(dt, energy_int);
 	      //vvhTCorrTest_PHvTDiff[icrate][ich]->Fill(dt, max);
@@ -314,7 +315,7 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 
 	    }
 	    else{
-	      vvhTCorrTest_EvTDiffG[icrate][ich]->Fill(dt, energy_fit);
+	      //vvhTCorrTest_EvTDiffG[icrate][ich]->Fill(dt, energy_fit);
 	      vvhTCorrTest_PSD[icrate][ich]->Fill(energy_fit, PSD_ratio);
 
 	    }
