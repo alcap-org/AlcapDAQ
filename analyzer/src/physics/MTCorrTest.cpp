@@ -106,7 +106,7 @@ INT MTCorrTest_init() {
 	WFDBANKS[icrate][ich] = bank;
 	//TDCBANKS[icrate][ich] = gSetup->GetBankName("T" + det);
       }
-      else if(det == "GeCHEH" || det == "GeCHEL"){
+      else if(det == "GeCHEH"/* || det == "GeCHEL"*/){
 	WFDBANKS[icrate][ich] = bank;
 	//TDCBANKS[icrate][ich] = gSetup->GetBankName("TGeCHT");
       }

@@ -77,12 +77,12 @@ INT MTDCWFDMatch_init() {
       char bank[5]; sprintf(bank, "D%d%02d", icrate, ich);
       std::string det = gSetup->GetDetectorName(bank);
       //std::cout << "testing MTCorrTest_init " << bank << std::endl;
-      if(det == "NdetD" || det == "NdetU" || det == "LaBr3"){
+      if(det == "NdetD" || det == "NdetU"/* || det == "LaBr3"*/){
 	WFDBANKS[icrate][ich] = bank;
 	TDCBANKS[icrate][ich] = gSetup->GetBankName("T" + det);
 	VETOBANKS[icrate][ich] = gSetup->GetBankName("T" + det + "V");
       }
-      else if(det == "GeCHEH" || det == "GeCHEL"){
+      else if(det == "GeCHEH"/* || det == "GeCHEL"*/){
 	WFDBANKS[icrate][ich] = bank;
 	TDCBANKS[icrate][ich] = gSetup->GetBankName("TGeCHT");
 	VETOBANKS[icrate][ich] = gSetup->GetBankName("TGeV");
