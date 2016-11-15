@@ -286,6 +286,12 @@ INT MCommonOnlineDisplayPlots(EVENT_HEADER *pheader, void *pevent) {
       TH1* hist = tdc_rawtime_histograms_map[tdc->first];
       TH1* hist_beginofblock = tdc_rawtime_beginofblock_histograms_map[tdc->first];
       TH1* hist_endofblock = tdc_rawtime_endofblock_histograms_map[tdc->first];
+
+      if (!hist && !hist_beginofblock && !hist_endofblock) {
+	std::cout << "WARNING: TDC Histogram for " << tdc->first << " does not exist. This channel may be \"blank\" in the wiremap." << std::endl;
+	continue;
+      }
+
       //      hist->Fill(hits[0]);
       for (int i = 0; i < hits.size(); ++i) {
         hist->Fill(clock_tick*hits[i]);
