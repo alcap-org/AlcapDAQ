@@ -54,7 +54,7 @@ class SetupNavigator{
   double GetAdcToEnergyConstant(const IDs::channel& ch) const{return GetEnergyCalibrationConstants(ch).second;}
 
   void SetPedestalAndNoise(const IDs::channel& channel, double pedestal, double noise);
-  void SetCoarseTimeOffset(const IDs::source& src, double dt);
+  void SetCoarseTimeOffset(const IDs::source& src, double mean, double sigma);
 
 private:
 
@@ -95,6 +95,9 @@ private:
   /// \brief
   /// The map that stores the gross time offset values from SQLite database.
   static std::map<IDs::source, double> fCoarseTimeOffset;
+  /// \brief
+  /// The map that stores the gross time offset sigma values from SQLite database.
+  static std::map<IDs::source, double> fCoarseTimeOffsetSigma;
   /// \brief
   /// The map that stores energy calibration constants as <Gain,Pedestal> pairs.
   typedef std::pair<double,double> EnergyCalibRow_t;

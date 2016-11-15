@@ -17,6 +17,7 @@
 #include <cmath>
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TF1.h>
 //#include <debug_tools.h>
 
 MAKE_EXCEPTION(ModulesOptionError, Base)
@@ -74,7 +75,6 @@ int PlotTAP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
     const AnalysedPulseList& detAPulses = gAnalysedPulseMap[fDetASources[i]];
     const AnalysedPulseList& detBPulses = gAnalysedPulseMap[fDetBSources[i]];
     const std::vector<TH2F*>& hists = fHists[fDetASources[i].str()];
-    const std::vector<TH1F*>& tests = fProjs[fDetASources[i].str()];
     
     for(AnalysedPulseList::const_iterator pulseIt = detAPulses.begin();
 	pulseIt != detAPulses.end(); ++pulseIt) {
@@ -102,7 +102,15 @@ int PlotTAP_TDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
   if (fExportSQL) {
     for (unsigned int i = 0; i < fDetASources.size(); ++i) {
       TH1D* h = fHists[fDetASources[i].str()][0]->ProjectionX();
-      SetupNavigator::Instance()->SetCoarseTimeOffset(fDetASources[i], h->GetBinCenter(h->GetMaximumBin()));
+
+      int binMax = h->GetMaximumBin();
+      int maxPoint = h->GetXaxis()->GetBinCenter(binMax);
+      int window_size = 1000;
+      
+      TF1 * fitter = new TF1("fitter", "gaus", maxPoint - window_size/2, maxPoint + window_size/2);
+      fitter->SetParameter(1, maxPoint);
+      h->Fit(fitter, "RQ+");
+      SetupNavigator::Instance()->SetCoarseTimeOffset(fDetASources[i], fitter->GetParameter(1), fitter->GetParameter(2) );
     }
   }
   return 0;
@@ -136,6 +144,7 @@ void PlotTAP_TDiff::BookHistograms(const TSetupData* setup) {
     histtitle = "Integral of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + gen + " generator;Time Difference (ns);Integral (ADC counts)";
     hists.push_back(new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, 5*maxAmpB));
     
+    //projection
     histname = "h" + fDetNameB + "_" + fDetASources.at(i).str() + "TDiff";
     histtitle = "Time difference of " + fDetNameA + " vs " + fDetNameB + " detectors with the " + gen + " generator;Time Difference (ns);Amplitude (ADC counts)";
     proj.push_back(new TH1F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh) );

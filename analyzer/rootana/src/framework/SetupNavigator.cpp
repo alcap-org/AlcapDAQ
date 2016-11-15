@@ -32,6 +32,7 @@ static std::string StripTimeShiftConfigFromString(std::string con) {
 std::map<IDs::channel, double> SetupNavigator::fPedestalValues;
 std::map<IDs::channel, double> SetupNavigator::fNoiseValues;
 std::map<IDs::source, double> SetupNavigator::fCoarseTimeOffset;
+std::map<IDs::source, double> SetupNavigator::fCoarseTimeOffsetSigma;
 std::map< IDs::channel, SetupNavigator::EnergyCalibRow_t > SetupNavigator::fEnergyCalibrationConstants;
 
 SetupNavigator::SetupNavigator() :
@@ -216,7 +217,7 @@ void SetupNavigator::OutputCalibCSV() {
   }
   fTO << "run,channel";
   for (std::set<IDs::generator>::const_iterator i = gens.begin(); i != gens.end(); ++i)
-    fTO << "," << i->str();
+    fTO << "," << i->str() << "," << i->str() << "_sigma";
   fTO << std::endl;
   for (std::set<IDs::channel>::const_iterator i = chns.begin(); i != chns.end(); ++i) {
     fTO << GetRunNumber() << "," << i->str();
@@ -224,6 +225,9 @@ void SetupNavigator::OutputCalibCSV() {
       fTO << ",";
       if (fCoarseTimeOffset.count(IDs::source(*i, *j)))
 	fTO << fCoarseTimeOffset.at(IDs::source(*i, *j));
+      fTO << ",";
+      if (fCoarseTimeOffsetSigma.count(IDs::source(*i, *j)))
+	fTO << fCoarseTimeOffsetSigma.at(IDs::source(*i, *j));
     }
     fTO << std::endl;
   }
@@ -239,14 +243,15 @@ void SetupNavigator::SetPedestalAndNoise(const IDs::channel& chn, double ped, do
   fNoiseValues[chn] = nse;
 }
 
-void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double dt) {
+void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double mean, double sigma) {
   if(!IsCalibRun()) {
     std::cout << "SetupNavigator: Warning: Request to edit coarse time offsets "
                  "when not flagged as calibration. Not setting." << std::endl;
     return;
   }
   // The excess code here is to strip {no_time_shift=*} from the generator config string
-  fCoarseTimeOffset[IDs::source(src.Channel(), IDs::generator(StripTimeShiftConfigFromString(src.Generator().str())))] = dt;
+  fCoarseTimeOffset[IDs::source(src.Channel(), IDs::generator(StripTimeShiftConfigFromString(src.Generator().str())))] = mean;
+  fCoarseTimeOffsetSigma[IDs::source(src.Channel(), IDs::generator(StripTimeShiftConfigFromString(src.Generator().str())))] = sigma;
 }
 
 double SetupNavigator::GetNoise(const IDs::channel& channel) const {
