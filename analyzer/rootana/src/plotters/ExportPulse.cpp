@@ -230,6 +230,7 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info){
   title << " from event " << info.event;
   title << " on detector " << info.detname;
   title << " (" << info.bankname<<")";
+  title << ", t0 = " << pulse->GetTimeStamp();
   
   // Print some stuff if wanted
   if(Debug()){
