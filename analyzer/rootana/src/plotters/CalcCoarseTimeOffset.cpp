@@ -104,7 +104,8 @@ int CalcCoarseTimeOffset::AfterLastEntry(TGlobalData* gData, const TSetupData *s
   for (unsigned int i = 0; i < fDetASources.size(); ++i) {
     const std::string keyname = fDetASources[i].str();
     const double dt = oned_plots[keyname]->GetBinCenter(oned_plots[keyname]->GetMaximumBin());
-    SetupNavigator::Instance()->SetCoarseTimeOffset(fDetASources[i], dt);
+    double sigma = 0;
+    SetupNavigator::Instance()->SetCoarseTimeOffset(fDetASources[i], dt, sigma);
   }
   return 0;
 }
