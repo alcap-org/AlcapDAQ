@@ -93,7 +93,7 @@ void MovingAverageFilterAPGenerator::AnalyseOneTpi(int tpi_ID, const TPulseIslan
   // double integral=fSimpleIntegral(tpi);
   double integral = 1.;
   // Analyse the filtered waveform
-  double ped = 0.;
+  // double ped = 0.;
   // double integral = 0.;
   // for (unsigned int isample = 0; isample < mavg_samples.size(); ++isample) {
   // mavg_samples.at(isample) = ped - mavg_samples.at(isample);
