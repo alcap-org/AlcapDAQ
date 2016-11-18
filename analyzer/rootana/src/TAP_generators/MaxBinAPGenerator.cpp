@@ -18,11 +18,12 @@ static bool IsTimeOrdered(TAnalysedPulse* a, TAnalysedPulse* b) {
 //======================================================================
 MaxBinAPGenerator::MaxBinAPGenerator(TAPGeneratorOptions* opts)
   : TVAnalysedPulseGenerator("MaxBinAPGenerator", opts),
-    fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
-		     TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
-    fMaxBinTime(TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
-		TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
-		opts->GetDouble("time_shift", TSetupData::Instance()->GetTimeShift(TSetupData::Instance()->GetBankName(GetChannel().str())))) {
+  fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()),
+                   TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
+  fMaxBinTime(TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
+              TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
+              opts->GetDouble("time_shift", TSetupData::Instance()->GetTimeShift(TSetupData::Instance()->GetBankName(GetChannel().str()))),
+              TSetupData::Instance()->GetDownSampling(GetBank().c_str(), SetupNavigator::Instance()->GetRunNumber())) {
 
 }
 
@@ -38,7 +39,7 @@ int MaxBinAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
   for (PulseIslandList::const_iterator pulseIter = pulseList.begin(); pulseIter != pulseList.end(); pulseIter++) {
     amplitude = fMaxBinAmplitude(*pulseIter);
     time = fMaxBinTime(*pulseIter);
-    
+
     // Make the TAnalysedPulse pulse
     outPulse=MakeNewTAP(pulseIter-pulseList.begin());
     outPulse->SetAmplitude(amplitude);
@@ -46,7 +47,7 @@ int MaxBinAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
     //    outPulse->SetEnergy(energy); //AE (3rd Aug 2014): Commenting this out for the time being since we don't really know how we're doing calibration. The equation used before was:   energy = fECalibSlope * amplitude + fECalibOffset;
     // Add the pulse into the list
     analysedList.push_back(outPulse);
-    
+
   }
   std::sort(analysedList.begin(), analysedList.end(), IsTimeOrdered);
   return 0;

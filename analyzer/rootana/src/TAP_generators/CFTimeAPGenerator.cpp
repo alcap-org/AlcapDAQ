@@ -19,11 +19,12 @@ class OptionsError : public std::exception {
 CFTimeAPGenerator::CFTimeAPGenerator(TAPGeneratorOptions* opts):
   TVAnalysedPulseGenerator("CFTimeAPGenerator",opts),
   // Set-up the algorithm in the generator list (it looks a bit messy)
-  fConstantFractionTime(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+  fConstantFractionTime(SetupNavigator::Instance()->GetPedestal(GetChannel()),
 			TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
 			TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
 			opts->GetDouble("time_shift", TSetupData::Instance()->GetTimeShift(TSetupData::Instance()->GetBankName(GetChannel().str()))),
-			opts->GetDouble("constant_fraction", -0.10)
+			TSetupData::GetDownSampling(GetBank().c_str(), SetupNavigator::Instance()->GetRunNumber()),
+      opts->GetDouble("constant_fraction", -0.10)
 			) {
 
 }

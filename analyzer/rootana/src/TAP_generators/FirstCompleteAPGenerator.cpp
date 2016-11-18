@@ -14,17 +14,18 @@
 
 FirstCompleteAPGenerator::FirstCompleteAPGenerator(TAPGeneratorOptions* opts):
   TVAnalysedPulseGenerator("FirstComplete",opts),
-  fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+  fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()),
 		   TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
-  fConstantFractionTime(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+  fConstantFractionTime(SetupNavigator::Instance()->GetPedestal(GetChannel()),
 			TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
 			TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
 			opts->GetBool("no_time_shift", false) ? 0. : SetupNavigator::Instance()->GetCoarseTimeOffset(GetSource()),
-			opts->GetDouble("constant_fraction")), 
-  fSimpleIntegral(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+			TSetupData::GetDownSampling(GetBank().c_str(), SetupNavigator::Instance()->GetRunNumber()),
+      opts->GetDouble("constant_fraction")),
+  fSimpleIntegral(SetupNavigator::Instance()->GetPedestal(GetChannel()),
 		  TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
   fPulseCandidateFinder(NULL) {
-  if(opts->GetBool("use_pcf",true)){ 
+  if(opts->GetBool("use_pcf",true)){
      if(opts->Debug()) opts->SetOption("debug","true");
      fPulseCandidateFinder=new PulseCandidateFinder(GetChannel().str(), opts);
   }
@@ -32,12 +33,12 @@ FirstCompleteAPGenerator::FirstCompleteAPGenerator(TAPGeneratorOptions* opts):
 
 FirstCompleteAPGenerator::~FirstCompleteAPGenerator(){
     // delete all sub-pulses
-    for(PulseIslandList::iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){ 
+    for(PulseIslandList::iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){
         delete *i_tpi;
     }
 }
 
-int FirstCompleteAPGenerator::ProcessPulses( 
+int FirstCompleteAPGenerator::ProcessPulses(
         const PulseIslandList& pulseList,
         AnalysedPulseList& analysedList){
 
@@ -80,7 +81,7 @@ void FirstCompleteAPGenerator::AnalyseOneTpi(int tpi_ID, const TPulseIsland* tpi
 
     // Finally add the new TAP to the output list
     analysedList.push_back(tap);
-} 
+}
 
 void FirstCompleteAPGenerator::DrawPulse(int original, int pulse_timestamp, int n_pulse_samples){
 
@@ -91,7 +92,7 @@ void FirstCompleteAPGenerator::DrawPulse(int original, int pulse_timestamp, int 
     for (std::vector<TPulseIsland*>::const_iterator subPulseIter = fSubPulses.begin();
             subPulseIter != fSubPulses.end(); ++subPulseIter) {
         std::stringstream histname;
-        histname << "hSubPulse_" << GetChannel() << "_Event" 
+        histname << "hSubPulse_" << GetChannel() << "_Event"
             << EventNavigator::Instance().EntryNo() <<"_Pulse" << original
             << "_SubPulse" << subPulseIter - fSubPulses.begin();
 

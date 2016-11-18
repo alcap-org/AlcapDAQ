@@ -7,7 +7,7 @@ std::string TSetupData::GetBankName(std::string DetectorName) const{
    for(it = fBankToDetectorMap.begin(); it != fBankToDetectorMap.end(); ++it){
     if(it->second == DetectorName) return it->first;
   }
-  
+
   return std::string("");
 }
 
@@ -25,44 +25,37 @@ void TSetupData::GetAllDetectors(std::vector<std::string>& detectors)const{
    }
 }
 
-int TSetupData::GetNBits(const std::string& bk)const{
+int TSetupData::GetNBits(const std::string& bk) const {
   if (bk[0] == 'D')
     return GetNBits(bk[1] - '0');
-  if (bk[0] == 'S' && 
-      bk[1] == 'I' &&
-      bk[2] == 'S' &&
-      bk[3] == '3' &&
-      bk[4] == '3' &&
-      bk[5] == '5' &&
-      bk[6] == '0')
-    return 12;
-  if (bk[0] == 'S' && 
-      bk[1] == 'I' &&
-      bk[2] == 'S' &&
-      bk[3] == '3' &&
-      bk[4] == '3' &&
-      bk[5] == '0' &&
-      bk[6] == '0')
-    return 12;
-  if (bk[0] == 'S' && 
-      bk[1] == 'I' &&
-      bk[2] == 'S' &&
-      bk[3] == '3' &&
-      bk[4] == '3' &&
-      bk[5] == '0' &&
-      bk[6] == '1')
-    return 14;
+  else if (bk[0] == 'S')
+    return GetNBits(1);
   return -1;
 }
 
 int TSetupData::GetNBits(const int crate) const {
   switch (crate) {
+  case 1: return 12;
   case 4: return 14;
   case 5: return 12;
   case 7: return 14;
   case 8: return 12;
   default: return -1;
   }
+}
+
+int TSetupData::GetDownSampling(const char* bank, int run) {
+  if (bank[0] == 'S' && bank[5] == '0') {
+    switch (bank[9] - '0') {
+      case 1: return 1<<2;
+      case 2: return 1<<0;
+      case 3: return 1<<(run < 8340 ? 0 : 2);
+      case 4: return 1<<(run < 8540 ? 0 : 2);
+      case 5: return 1<<(run < 8540 ? 0 : 2);
+      case 6: return 1<<(run < 9800 ? 0 : 2);
+    }
+  }
+  return 1;
 }
 
 #ifdef ROOT_VERSION
