@@ -37,9 +37,9 @@ int PlotTAP_Integral::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setu
     title="Integral of pulses coming from "+source->str();
 
     // make a histogram
-    int x_min = 5000000;
-    int x_max = -100000; // make x_max < x_min so that the x axis could be resize automatically
-    int n_bins = 4000;
+    int x_min = 0;
+    int x_max = 2E5; // make x_max < x_min so that the x axis could be resize automatically
+    int n_bins = 2000;
     hist=new TH1F(name.c_str(),title.c_str(),n_bins,x_min,x_max);
     hist->SetXTitle("Integral of each pulse (arb. units)");
 
