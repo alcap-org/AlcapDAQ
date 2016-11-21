@@ -25,7 +25,7 @@ extern SourceAnalPulseMap gAnalysedPulseMap;
 
 PlotTAP_TDiff::PlotTAP_TDiff(modules::options* opts) :
   BaseModule("PlotTAP_TDiff",opts),
-  fDetNameA(opts->GetString("det1")), fDetNameB(opts->GetString("det2")),
+  fDetNameA(opts->GetString("detA")), fDetNameB(opts->GetString("detB")),
   fTimeLow(opts->GetDouble("time_low",-1.e5)), fTimeHigh(opts->GetDouble("time_high",1.e5)),
   fExportSQL(opts->GetBool("export_sql", false)) {
   if (fDetNameA == std::string("") || fDetNameB == std::string(""))
@@ -141,4 +141,4 @@ void PlotTAP_TDiff::BookHistograms(const TSetupData* setup) {
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(PlotTAP_TDiff,det1,det2,time_low,time_high,export_sql);
+ALCAP_REGISTER_MODULE(PlotTAP_TDiff,detA,detB,time_low,time_high,export_sql);
