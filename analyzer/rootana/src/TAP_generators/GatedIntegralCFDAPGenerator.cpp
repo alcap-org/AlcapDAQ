@@ -105,6 +105,9 @@ void GatedIntegralCFDAPGenerator::Analyse(int tpi_ID,
       break;
     }
   }
+  double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(
+        TSetupData::Instance()->GetBankName(GetChannel().str()));
+  cftime = (cftime + tpi->GetTimeStamp()) * clock_tick_in_ns;
 
   // Now that we've found the information we were looking for make a TAP to
   // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
