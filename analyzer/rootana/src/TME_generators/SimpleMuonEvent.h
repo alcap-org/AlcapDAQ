@@ -31,7 +31,7 @@ class SimpleMuonEvent : public BaseModule{
   AnalysedPulseList GetDetectorPulse(std::string detname);
 
   TTree *mutree;
-  bool IsMuonHit(TAnalysedPulse * TScPulse);
+  bool IsMuonHit(const TAnalysedPulse * TScPulse);
   double fTimeWindow;
   double fCoinWindow;
   double fPileupProtectionWindow;
