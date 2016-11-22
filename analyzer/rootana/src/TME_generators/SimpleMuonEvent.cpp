@@ -7,6 +7,7 @@
 #include <utility>
 #include <algorithm>
 #include <cmath>
+#include "debug_tools.h"
 
 #include "TAnalysedPulse.h"
 #include "TDetectorPulse.h"
@@ -24,7 +25,7 @@ using modules::parser::GetDouble;
 extern StringAnalPulseMap gAnalysedPulseMap;
 
 SimpleMuonEvent::SimpleMuonEvent(modules::options* opts):
-  BaseModule( (opts->GetString("0")).c_str() ) 
+  BaseModule("SimpleMuonEvent", opts, false)
 { 
   dir->cd("/"); 
 
@@ -43,17 +44,19 @@ SimpleMuonEvent::SimpleMuonEvent(modules::options* opts):
   fDetNames["SiR13S"] = "SiR1-3-S";
   fDetNames["SiR14S"] = "SiR1-4-S";
 
-  fTimeWindow = 
-    (opts->GetString("1")!= "") ? GetDouble(opts->GetString("1")) : 10.e3;
+  fTimeWindow = opts->GetDouble("time_window", 10.E3);
+  fCoinWindow = opts->GetDouble("coin_window", 1.E3);
+  fPileupProtectionWindow = opts->GetDouble("pileup_protection_window", 15.E3);
+  fThreshold_muSc = opts->GetDouble("musc_threshold", 240.);
+  fDebug = opts->GetBool("debug", false);
 
-  fCoinWindow = 
-    (opts->GetString("2")!= "") ? GetDouble(opts->GetString("2")) : 1.e3;
-
-  fPileupProtectionWindow = 
-    (opts->GetString("3")!= "") ? GetDouble(opts->GetString("3")) : 15.e3;
-
-  fThreshold_muSc = 
-    (opts->GetString("4")!= "") ? GetDouble(opts->GetString("4")) : 240.;
+  if (fDebug) {
+    std::cout << "SimpleMuonEvent:" << std::endl;
+    std::cout << ", time_window: " << fTimeWindow << std::endl;
+    std::cout << ", coin_window: " << fCoinWindow << std::endl;
+    std::cout << ", pileup_protection_window: " << fPileupProtectionWindow << std::endl;
+    std::cout << ", musc_threshold: " << fThreshold_muSc << std::endl;
+  }
 }
 
 SimpleMuonEvent::~SimpleMuonEvent() { }
@@ -254,4 +257,5 @@ AnalysedPulseList SimpleMuonEvent::GetDetectorPulse(string detname)
   return pulse_list;
 }
 
-ALCAP_REGISTER_MODULE(SimpleMuonEvent)
+ALCAP_REGISTER_MODULE(SimpleMuonEvent, time_window, coin_window,
+    pileup_protection_window, musc_threshold, debug)

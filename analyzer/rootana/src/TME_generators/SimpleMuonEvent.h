@@ -36,6 +36,7 @@ class SimpleMuonEvent : public BaseModule{
   double fCoinWindow;
   double fPileupProtectionWindow;
   double fThreshold_muSc;
+  bool fDebug;
 
   static std::map<std::string, std::string> fDetNames;
 
