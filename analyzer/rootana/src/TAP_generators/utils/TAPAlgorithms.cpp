@@ -12,7 +12,7 @@
 double Algorithm::MaxBinAmplitude::operator() (const TPulseIsland* tpi) const {
 
   // Get the samples and get an iterator ready to find the peak sample
-  const std::vector<int>& pulseSamples = tpi->GetSamples();  
+  const std::vector<int>& pulseSamples = tpi->GetSamples();
   std::vector<int>::const_iterator peak_sample_pos;
 
   // Find the position of the peak samples
@@ -31,7 +31,7 @@ double Algorithm::MaxBinAmplitude::operator() (const TPulseIsland* tpi) const {
 double Algorithm::MaxBinTime::operator() (const TPulseIsland* tpi) const {
 
   // Get the samples and get an iterator ready to find the peak sample
-  std::vector<int> pulseSamples = tpi->GetSamples();  
+  std::vector<int> pulseSamples = tpi->GetSamples();
   std::vector<int>::iterator peak_sample_pos;
 
   // Find the position of the peak samples
@@ -41,7 +41,7 @@ double Algorithm::MaxBinTime::operator() (const TPulseIsland* tpi) const {
     peak_sample_pos = std::min_element(pulseSamples.begin(), pulseSamples.end());
 
   // Now calculate the time
-  double time = ((tpi->GetTimeStamp() + (peak_sample_pos - pulseSamples.begin())) * clock_tick_in_ns) - time_shift;
+  double time = ((tpi->GetTimeStamp() + (peak_sample_pos - pulseSamples.begin())*down_samp) * clock_tick_in_ns) - time_shift;
 
   return time;
 }
@@ -61,17 +61,17 @@ double Algorithm::ConstantFractionTime::operator() (const TPulseIsland* tpi) con
   if (*(m+1) != *m)
     dx += (double)((int)cf - *m)/(double)(*(m+1) - *m);
 
-  return (dx + (double)tpi->GetTimeStamp()) * clock_tick_in_ns - time_shift;
+  return (dx*down_samp + (double)tpi->GetTimeStamp()) * clock_tick_in_ns - time_shift;
 }
 
 double Algorithm::SimpleIntegral::operator() (const TPulseIsland* tpi)const {
   const std::vector<int>& samples = tpi->GetSamples();
-  
+
   double length = samples.size();
   typedef std::vector<int> SampleVector;
   SampleVector::const_iterator begin=samples.begin()+start;
-  if(start > length 
-          || ( stop>0 && stop<start ) 
+  if(start > length
+          || (stop>0 && stop<start)
           || (stop<0 && length+stop <start) ){
       throw std::out_of_range("Algorithm::SimpleIntegral::operator() bad integral range" );
   }

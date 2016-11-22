@@ -37,11 +37,13 @@ GeSpectrum::GeSpectrum(modules::options* opts) :
 	    TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fGeF.str())),
 	    TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fGeF.str())),
 	    SetupNavigator::Instance()->GetCoarseTimeOffset(IDs::source(fGeF, IDs::generator(opts->GetString("gef_gen"), opts->GetString("gef_cfg")))),
+      TSetupData::GetDownSampling("GeF", SetupNavigator::Instance()->GetRunNumber()),
 	    opts->GetDouble("gef_cf")),
   fCFTimeMuSc(SetupNavigator::Instance()->GetPedestal(fMuSc),
 	      TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(fMuSc.str())),
 	      TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(fMuSc.str())),
 	      0.,
+        TSetupData::GetDownSampling("musc", SetupNavigator::Instance()->GetRunNumber()),
 	      opts->GetDouble("musc_cf")),
   fADC2Energy(new TF1("adc2energy","[0]*x+[1]")),
   fTimeWindow_Small(1000.), fTimeWindow_Big(5000.), fPileupProtectionWindow(15000.) {
@@ -101,7 +103,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
   const std::vector<double> muScEnergies  = CalculateEnergies(fMuSc,   TPIMap.at(bank_musc));
   const std::vector<double> geTimes    = CalculateTimes(fGeF,    TPIMap.at(bank_gef));
   const std::vector<double> geEnergies = CalculateEnergies(fGeS, TPIMap.at(bank_ges));
-  
+
   std::vector<double> muScTimesPP(muScTimes), muScEnergiesPP(muScEnergies);
   RemovePileupMuScPulses(muScTimesPP, muScEnergiesPP);
 
@@ -126,7 +128,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
       dt_prev = *geT - *prev;
       dt_next = *geT - *next;
     }
-    
+
     for (unsigned int it = 0; it < 2; ++it)
       if (std::abs(dt[it]) < 20000.)
 	hTOff.Fill(dt[it]);
@@ -147,7 +149,7 @@ int GeSpectrum::ProcessEntry(TGlobalData* gData, const TSetupData *setup){
        ++geT, ++geE) {
     bool prev_found = false, next_found = false;
     double dt_prev, dt_next;
-  
+
     // Find the time difference with the most recent muon
     // both before and after.
     std::vector<double>::const_iterator end = muScTimesPP.end();

@@ -18,12 +18,13 @@ class OptionsError : public std::exception {
 
 CFTimeMBAmpAPGenerator::CFTimeMBAmpAPGenerator(TAPGeneratorOptions* opts) :
   TVAnalysedPulseGenerator("CFTimeMBAmpAPGenerator",opts),
-  fConstantFractionTime(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+  fConstantFractionTime(SetupNavigator::Instance()->GetPedestal(GetChannel()),
 			TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())),
 			TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str())),
 			opts->GetBool("no_time_shift") ? 0. : SetupNavigator::Instance()->GetCoarseTimeOffset(GetSource()),
-			opts->GetDouble("constant_fraction", -0.10)), 
-  fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()), 
+			TSetupData::GetDownSampling(GetBank().c_str(), SetupNavigator::Instance()->GetRunNumber()),
+      opts->GetDouble("constant_fraction", -0.10)),
+  fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()),
 		   TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))) {
 }
 

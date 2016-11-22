@@ -21,7 +21,7 @@ MAKE_EXCEPTION(InvalidDetector, SetupNavigator)
 class SetupNavigator{
   SetupNavigator();
   /// \brief
-  /// Closes the database if open or saves 
+  /// Closes the database if open or saves
   ~SetupNavigator();
  public:
   static SetupNavigator* Instance();
@@ -44,8 +44,8 @@ class SetupNavigator{
   double GetPedestal(const IDs::channel& channel) const;
   /// \brief
   /// Gets the error on the pedestal from the SQLite database
-  double GetNoise(const IDs::channel& channel) const ;
-  double GetCoarseTimeOffset( IDs::source src) const ;
+  double GetNoise(const IDs::channel& channel) const;
+  double GetCoarseTimeOffset( IDs::source src) const;
   /// \brief
   /// Gets the energy calibration constants
   std::pair<double,double> GetEnergyCalibrationConstants(const IDs::channel&) const;
@@ -71,7 +71,7 @@ private:
   /// Read in energy calibration constants.
   bool ReadEnergyCalibrationConstants();
   void OutputCalibCSV();
-  
+
   bool IsCalibRun() const {return fCommandLineArgs.calib;}
 
  private:
