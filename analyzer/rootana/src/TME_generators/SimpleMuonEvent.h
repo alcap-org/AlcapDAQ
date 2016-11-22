@@ -31,32 +31,19 @@ class SimpleMuonEvent : public BaseModule{
   AnalysedPulseList GetDetectorPulse(std::string detname);
 
   TTree *mutree;
-  bool IsMuonHit(TAnalysedPulse * muScPulse);
+  bool IsMuonHit(TAnalysedPulse * TScPulse);
   double fTimeWindow;
   double fCoinWindow;
   double fPileupProtectionWindow;
-  double fThreshold_muSc;
+  double fThreshold_TSc;
   bool fDebug;
 
   static std::map<std::string, std::string> fDetNames;
 
-  double ft_muSc;
-  double fE_muSc;
-  Prepare_Detector(SiR2S)
-  Prepare_Detector(SiL2S)
-  Prepare_Detector(SiR2F)
-  Prepare_Detector(SiL2F)
+  double ft_TSc;
+  double fE_TSc;
 
-  Prepare_Detector(GeS)
-  Prepare_Detector(SiR11S)
-  Prepare_Detector(SiR12S)
-  Prepare_Detector(SiR13S)
-  Prepare_Detector(SiR14S)
-
-  Prepare_Detector(SiL11S)
-  Prepare_Detector(SiL12S)
-  Prepare_Detector(SiL13S)
-  Prepare_Detector(SiL14S)
+  Prepare_Detector(LaBr3)
 };
 
 std::map<std::string, std::string> SimpleMuonEvent::fDetNames;

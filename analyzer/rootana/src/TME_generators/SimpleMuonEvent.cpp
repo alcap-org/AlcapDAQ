@@ -18,44 +18,29 @@ using std::string;
 using std::map;
 using std::vector;
 using std::pair;
-using modules::parser::GetOneWord;
-using modules::parser::GetDouble;
 
-
-extern StringAnalPulseMap gAnalysedPulseMap;
+extern SourceAnalPulseMap gAnalysedPulseMap;
 
 SimpleMuonEvent::SimpleMuonEvent(modules::options* opts):
   BaseModule("SimpleMuonEvent", opts, false)
 { 
   dir->cd("/"); 
 
-  fDetNames["GeS"] = "Ge-S";
-  fDetNames["muSc"] = "muSc";
-  fDetNames["SiR2S"] = "SiR2-S";
-  fDetNames["SiL2S"] = "SiL2-S";
-  fDetNames["SiR2F"] = "SiR2-F";
-  fDetNames["SiL2F"] = "SiL2-F";
-  fDetNames["SiL11S"] = "SiL1-1-S";
-  fDetNames["SiL12S"] = "SiL1-2-S";
-  fDetNames["SiL13S"] = "SiL1-3-S";
-  fDetNames["SiL14S"] = "SiL1-4-S";
-  fDetNames["SiR11S"] = "SiR1-1-S";
-  fDetNames["SiR12S"] = "SiR1-2-S";
-  fDetNames["SiR13S"] = "SiR1-3-S";
-  fDetNames["SiR14S"] = "SiR1-4-S";
+  fDetNames["LaBr3"] = "LaBr3";
+  fDetNames["TSc"] = "TSc";
 
   fTimeWindow = opts->GetDouble("time_window", 10.E3);
   fCoinWindow = opts->GetDouble("coin_window", 1.E3);
   fPileupProtectionWindow = opts->GetDouble("pileup_protection_window", 15.E3);
-  fThreshold_muSc = opts->GetDouble("musc_threshold", 240.);
+  fThreshold_TSc = opts->GetDouble("musc_threshold", 240.);
   fDebug = opts->GetBool("debug", false);
 
   if (fDebug) {
     std::cout << "SimpleMuonEvent:" << std::endl;
-    std::cout << ", time_window: " << fTimeWindow << std::endl;
-    std::cout << ", coin_window: " << fCoinWindow << std::endl;
-    std::cout << ", pileup_protection_window: " << fPileupProtectionWindow << std::endl;
-    std::cout << ", musc_threshold: " << fThreshold_muSc << std::endl;
+    std::cout << "\t- time_window: " << fTimeWindow << std::endl;
+    std::cout << "\t- coin_window: " << fCoinWindow << std::endl;
+    std::cout << "\t- pileup_protection_window: " << fPileupProtectionWindow << std::endl;
+    std::cout << "\t- musc_threshold: " << fThreshold_TSc << std::endl;
   }
 }
 
@@ -72,22 +57,8 @@ int SimpleMuonEvent::BeforeFirstEntry(TGlobalData *gData, const TSetupData *gSet
 {
   char branchname[100];
   mutree = new TTree("mutree", "mutree");
-  DeclareBranch(muSc)
-  DeclareBranch(SiR2S)
-  DeclareBranch(SiL2S)
-  DeclareBranch(SiR2F)
-  DeclareBranch(SiL2F)
-
-  DeclareBranch(GeS)
-  DeclareBranch(SiR11S)
-  DeclareBranch(SiR12S)
-  DeclareBranch(SiR13S)
-  DeclareBranch(SiR14S)
-
-  DeclareBranch(SiL11S)
-  DeclareBranch(SiL12S)
-  DeclareBranch(SiL13S)
-  DeclareBranch(SiL14S)
+  DeclareBranch(TSc)
+  DeclareBranch(LaBr3)
 
   return 0;
 }
@@ -99,13 +70,13 @@ int SimpleMuonEvent::BeforeFirstEntry(TGlobalData *gData, const TSetupData *gSet
 
 #define DetectorLoop(det)\
   while ((current ## det ## pulse != pulses_ ## det.end()) \
-      && (*current ## det ## pulse)->GetTime()  < ft_muSc - fTimeWindow )\
+      && (*current ## det ## pulse)->GetTime()  < ft_TSc - fTimeWindow )\
         current ## det ## pulse++;\
   AnalysedPulseList::iterator iter ## det;\
   iter ## det = current ## det ## pulse;\
   while (iter ## det != pulses_ ## det.end())\
   {\
-    if ((*iter ## det)->GetTime() < ft_muSc + fTimeWindow )\
+    if ((*iter ## det)->GetTime() < ft_TSc + fTimeWindow )\
     {\
       ft_##det.push_back((*iter ## det)->GetTime());\
       fE_##det.push_back((*iter ## det)->GetAmplitude());\
@@ -122,31 +93,17 @@ int SimpleMuonEvent::BeforeFirstEntry(TGlobalData *gData, const TSetupData *gSet
 int SimpleMuonEvent::ProcessEntry(TGlobalData *gData, const TSetupData *gSetup)
 {
   std::string tmpstr;
-  DeclarePulseList(muSc)
-  DeclarePulseList(SiR2S)
-  DeclarePulseList(SiL2S)
-  DeclarePulseList(SiR2F)
-  DeclarePulseList(SiL2F)
-
-  DeclarePulseList(GeS)
-  DeclarePulseList(SiR11S)
-  DeclarePulseList(SiR12S)
-  DeclarePulseList(SiR13S)
-  DeclarePulseList(SiR14S)
-
-  DeclarePulseList(SiL11S)
-  DeclarePulseList(SiL12S)
-  DeclarePulseList(SiL13S)
-  DeclarePulseList(SiL14S)
+  DeclarePulseList(TSc)
+  DeclarePulseList(LaBr3)
 
   // Make a list of muon hits: over threshold
   AnalysedPulseList muCandidates;
 
-  for (AnalysedPulseList::iterator muScIter = pulses_muSc.begin(); 
-      muScIter != pulses_muSc.end(); ++muScIter) 
+  for (AnalysedPulseList::iterator TScIter = pulses_TSc.begin(); 
+      TScIter != pulses_TSc.end(); ++TScIter) 
   {
-    if (IsMuonHit(*muScIter))
-      muCandidates.push_back(*muScIter);
+    if (IsMuonHit(*TScIter))
+      muCandidates.push_back(*TScIter);
   }
 
   // Pile-up protection
@@ -162,73 +119,41 @@ int SimpleMuonEvent::ProcessEntry(TGlobalData *gData, const TSetupData *gSetup)
   }
 
   // Keep track of pulse iterators
-  AnalysedPulseList::iterator currentGeSpulse = pulses_GeS.begin();
-  AnalysedPulseList::iterator currentSiR2Spulse = pulses_SiR2S.begin();
-  AnalysedPulseList::iterator currentSiL2Spulse = pulses_SiL2S.begin();
-  AnalysedPulseList::iterator currentSiR2Fpulse = pulses_SiR2F.begin();
-  AnalysedPulseList::iterator currentSiL2Fpulse = pulses_SiL2F.begin();
-  AnalysedPulseList::iterator currentSiR11Spulse = pulses_SiR11S.begin();
-  AnalysedPulseList::iterator currentSiR12Spulse = pulses_SiR12S.begin();
-  AnalysedPulseList::iterator currentSiR13Spulse = pulses_SiR13S.begin();
-  AnalysedPulseList::iterator currentSiR14Spulse = pulses_SiR14S.begin();
-  AnalysedPulseList::iterator currentSiL11Spulse = pulses_SiL11S.begin();
-  AnalysedPulseList::iterator currentSiL12Spulse = pulses_SiL12S.begin();
-  AnalysedPulseList::iterator currentSiL13Spulse = pulses_SiL13S.begin();
-  AnalysedPulseList::iterator currentSiL14Spulse = pulses_SiL14S.begin();
+  AnalysedPulseList::iterator currentLaBr3pulse = pulses_LaBr3.begin();
 
   // Loop over muon hits
   for (AnalysedPulseList::iterator muIter = muHits.begin(); 
       muIter+1 < muHits.end(); ++muIter)
   {
-    ft_muSc = (*muIter)->GetTime();
-    fE_muSc = (*muIter)->GetAmplitude();
+    ft_TSc = (*muIter)->GetTime();
+    fE_TSc = (*muIter)->GetAmplitude();
 
     // skip this det until the lower bound of the time window
-    while ((currentGeSpulse != pulses_GeS.end()) 
-      //&& (*currentGeSpulse)->GetTime() + 7500 < ft_muSc - fTimeWindow )
-      && (*currentGeSpulse)->GetTime() < ft_muSc - fTimeWindow )
-        currentGeSpulse++;
+    while ((currentLaBr3pulse != pulses_LaBr3.end()) 
+      //&& (*currentLaBr3pulse)->GetTime() + 7500 < ft_TSc - fTimeWindow )
+      && (*currentLaBr3pulse)->GetTime() < ft_TSc - fTimeWindow )
+        currentLaBr3pulse++;
 
-    AnalysedPulseList::iterator iterGeS;
-    iterGeS = currentGeSpulse;
-    while (iterGeS != pulses_GeS.end())
+    AnalysedPulseList::iterator iterLaBr3;
+    iterLaBr3 = currentLaBr3pulse;
+    while (iterLaBr3 != pulses_LaBr3.end())
     {
-      //if ((*iterGeS)->GetTime() + 7.5e3< ft_muSc + fTimeWindow )
-      if ((*iterGeS)->GetTime() < ft_muSc + fTimeWindow )
+      //if ((*iterLaBr3)->GetTime() + 7.5e3< ft_TSc + fTimeWindow )
+      if ((*iterLaBr3)->GetTime() < ft_TSc + fTimeWindow )
       {
-        ft_GeS.push_back((*iterGeS)->GetTime());
-        fE_GeS.push_back((*iterGeS)->GetAmplitude());
+        ft_LaBr3.push_back((*iterLaBr3)->GetTime());
+        fE_LaBr3.push_back((*iterLaBr3)->GetAmplitude());
       }
-      iterGeS++;
+      iterLaBr3++;
     }
 
-    DetectorLoop(SiR2S) 
-    DetectorLoop(SiL2S)
-    DetectorLoop(SiR2F) 
-    DetectorLoop(SiL2F)
-    DetectorLoop(SiR11S)
-    DetectorLoop(SiR12S)
-    DetectorLoop(SiR13S)
-    DetectorLoop(SiR14S)
-    DetectorLoop(SiL11S)
-    DetectorLoop(SiL12S)
-    DetectorLoop(SiL13S)
-    DetectorLoop(SiL14S)
+    // DetectorLoop(SiR2S) 
+    // DetectorLoop(SiL2S)
+    // DetectorLoop(SiR2F) 
+    // DetectorLoop(SiL2F)
     // finally fill the tree
     mutree->Fill();
-    ClearDetectorVector(GeS);
-    ClearDetectorVector(SiR2S);
-    ClearDetectorVector(SiL2S)
-    ClearDetectorVector(SiR2F);
-    ClearDetectorVector(SiL2F)
-    ClearDetectorVector(SiR11S)
-    ClearDetectorVector(SiR12S)
-    ClearDetectorVector(SiR13S)
-    ClearDetectorVector(SiR14S)
-    ClearDetectorVector(SiL11S)
-    ClearDetectorVector(SiL12S)
-    ClearDetectorVector(SiL13S)
-    ClearDetectorVector(SiL14S)
+    ClearDetectorVector(LaBr3);
 
   }
 
@@ -239,20 +164,22 @@ int SimpleMuonEvent::ProcessEntry(TGlobalData *gData, const TSetupData *gSetup)
 #undef DeclarePulseList
 #undef ClearDetectorVector
 
-bool SimpleMuonEvent::IsMuonHit(TAnalysedPulse * muScPulse)
+bool SimpleMuonEvent::IsMuonHit(TAnalysedPulse * TScPulse)
 {
-  return (muScPulse->GetAmplitude()>240);
+  return (TScPulse->GetAmplitude() > fThreshold_TSc);
 }
 
 AnalysedPulseList SimpleMuonEvent::GetDetectorPulse(string detname)
 {
   AnalysedPulseList pulse_list;
-  if (gAnalysedPulseMap.find(detname) == gAnalysedPulseMap.end()) {
-    if (Debug())
-      std::cout << detname << " pulses not found" << std::endl;
-  }
-  else {
-      pulse_list =  gAnalysedPulseMap[detname];
+
+  for (SourceAnalPulseMap::const_iterator sourceIt2 = gAnalysedPulseMap.begin();
+      sourceIt2 != gAnalysedPulseMap.end(); ++sourceIt2)
+  {
+    if (sourceIt2->first.Channel() != detname) {
+      continue;
+    }
+    pulse_list = sourceIt2->second;
   }
   return pulse_list;
 }
