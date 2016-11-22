@@ -44,6 +44,8 @@ class SimpleMuonEvent : public BaseModule{
   double fE_TSc;
 
   Prepare_Detector(LaBr3)
+  Prepare_Detector(GeCHEL)
+  Prepare_Detector(GeCHEH)
 };
 
 std::map<std::string, std::string> SimpleMuonEvent::fDetNames;

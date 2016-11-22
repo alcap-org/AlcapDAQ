@@ -48,5 +48,6 @@ class GatedIntegralCFDAPGenerator:public TVAnalysedPulseGenerator {
    bool fPedCalculation;
    unsigned int fNped;
    double fPedestal;
+   bool fNoTimeShift;
 };
 #endif /* end of include guard: MAFLABR3APGENERATOR_H_T6YH9NCO */

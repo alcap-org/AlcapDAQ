@@ -22,6 +22,7 @@ GatedIntegralCFDAPGenerator::GatedIntegralCFDAPGenerator(TAPGeneratorOptions* op
   if (fPedCalculation) {
     fNped = opts->GetInt("nped", 12);
   }
+  fNoTimeShift = opts->GetBool("no_time_shift", false);
   if (opts->Debug()) {
     std::cout << "Settings for this GatedIntegralCFD: ";
     std::cout << "gate = " << fGateWidth;
@@ -108,6 +109,9 @@ void GatedIntegralCFDAPGenerator::Analyse(int tpi_ID,
   double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(
         TSetupData::Instance()->GetBankName(GetChannel().str()));
   cftime = (cftime + tpi->GetTimeStamp()) * clock_tick_in_ns;
+  if (!fNoTimeShift) {
+    cftime = cftime - SetupNavigator::Instance()->GetCoarseTimeOffset(GetSource());
+  }
 
   // Now that we've found the information we were looking for make a TAP to
   // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
@@ -124,4 +128,5 @@ void GatedIntegralCFDAPGenerator::Analyse(int tpi_ID,
 void GatedIntegralCFDAPGenerator::DrawPulse(int original, int pulse_timestamp, int n_pulse_samples){
 }
 
-ALCAP_TAP_GENERATOR(GatedIntegralCFD, gate_width, constant_fraction, ped_cal, nped);
+ALCAP_TAP_GENERATOR(GatedIntegralCFD, gate_width, constant_fraction, ped_cal, 
+    nped, no_time_shift);
