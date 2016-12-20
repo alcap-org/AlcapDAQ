@@ -58,6 +58,8 @@
 #include "debug_tools.h"
 
 // Forward declaration of functions ======================
+void PrintSetupData(TSetupData* s_data);
+void PrintSetupNavigator(SetupNavigator* s_navigator, TSetupData* s_data);
 Int_t Main_event_loop(TTree* dataTree, ARGUMENTS& arguments);
 void ClearGlobalData(TGlobalData*);
 TTree* GetTree(TFile* inFile, const char* t_name);
@@ -113,6 +115,8 @@ int main(int argc, char **argv)
 
   // Now that we've loaded the TSetupData for this run check if there are any
   // suggested replacements for the wiremap data
+  PrintSetupData(TSetupData::Instance());
+  PrintSetupNavigator(SetupNavigator::Instance(), TSetupData::Instance());
   //CheckSetupData(navi.GetSetupData(), arguments.correction_file);
 
   //Event Tree
@@ -268,10 +272,10 @@ void PrintSetupData(TSetupData* s_data)
   // print things out
   std::map<std::string, std::string>::iterator it_info;
   std::cout << "### TSetupData ###\n"
-            << "Bank  Detector Name  Clock Tick (ns)  Pedestal (ADC)"
-            << "  Trigger Polarity  Time Shift (ns)  No. of Bits\n"
-            << "----  -------------  ---------------  --------------"
-            << "  ----------------  ---------------  -----------" 
+            << "Bank  Detector Name  Clock Tick (ns)"//  Pedestal (ADC)"
+            << "  Trigger Polarity  "/*Time Shift (ns)*/"  No. of Bits\n"
+            << "----  -------------  ---------------"//  --------------"
+            << "  ----------------  "/*---------------*/"  -----------" 
             << std::endl;
 
   for (it_info=s_data->fBankToDetectorMap.begin(); 
@@ -280,11 +284,54 @@ void PrintSetupData(TSetupData* s_data)
     std::cout << bankname << "  " 
               << s_data->GetDetectorName(bankname) << "\t\t" 
               << s_data->GetClockTick(bankname) << "\t" 
-              << s_data->GetPedestal(bankname) << "\t\t" 
+      //              << s_data->GetPedestal(bankname) << "\t\t" 
               << s_data->GetTriggerPolarity(bankname) << "\t\t" 
-              << s_data->GetTimeShift(bankname) << "\t\t" 
+      //              << s_data->GetTimeShift(bankname) << "\t\t" 
               << s_data->GetNBits(bankname)
               << std::endl;
+  }
+}
+
+void PrintSetupNavigator(SetupNavigator* s_navigator, TSetupData* s_data)
+{
+  if(!s_navigator) return;
+  // print things out
+  std::map<std::string, std::string>::iterator it_info;
+  std::cout << "### SetupNavigator ###\n"
+            << "Detector Name  Pedestal (ADC)  Noise (ADC)"
+            << "  Energy Gain  Energy Offset\n"
+            << "-------------  --------------  -----------"
+            << "  -----------  --------------" 
+            << std::endl;
+
+  for (it_info=s_data->fBankToDetectorMap.begin(); 
+       it_info!=s_data->fBankToDetectorMap.end(); ++it_info){
+    const std::string& bankname = it_info->first;
+    const std::string& detname = s_data->GetDetectorName(bankname);
+    const IDs::channel& channel = IDs::channel(detname);
+
+    std::cout << detname << "  ";
+    try {
+      std::cout << s_navigator->GetPedestal(channel) << "\t\t";
+    }
+    catch (Except::InvalidDetector& e) {
+      std::cout << "N/A\t\t";
+    }
+    try {
+      std::cout << s_navigator->GetNoise(channel) << "\t\t";
+    }
+    catch (Except::InvalidDetector& e) {
+      std::cout << "N/A\t\t";
+    }
+      //              << s_navigator->GetCoarseTimeOffset(channel) << "\t\t"  // difficult to do because this takes an IDs::source (i.e. a channel and generator)
+    try {
+      std::cout << s_navigator->GetAdcToEnergyGain(channel) << "\t\t" 
+		<< s_navigator->GetAdcToEnergyConstant(channel) << "\t\t";
+    }
+    catch(Except::InvalidDetector& e){
+      std::cout<< "N/A\t\tN/A\t\t"; // don't have the energy calibrations for this
+    }
+    std::cout << std::endl;
   }
 }
 
