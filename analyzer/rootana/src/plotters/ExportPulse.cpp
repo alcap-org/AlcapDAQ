@@ -236,7 +236,7 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info){
     cout<<"Plotting "<<title.str()<<"' ["<<hist<<"]"<<endl;
   }
   
-  TH1F* fullPulse=MakeHistTPI(pulse,hist);
+  TH1F* fullPulse=MakeHistTPI(pulse,hist,info);
   fullPulse->SetDirectory(fTPIDirectory);
   fullPulse->SetTitle(title.str().c_str());
 
@@ -254,7 +254,7 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info){
           if((*i_tpi)->GetPulseLength() < 14) continue;
 
           int shift=(*i_tpi)->GetTimeStamp()-pulse->GetTimeStamp();
-          TH1F* sub_pulse=MakeHistTPI(*i_tpi,"sub_pulse",shift,pulse->GetPulseLength());
+          TH1F* sub_pulse=MakeHistTPI(*i_tpi,"sub_pulse",info,shift,pulse->GetPulseLength());
           sub_pulse->SetFillColor(kMagenta);
           // need to subtract found pulse from full pulse else THStack
           // superposes the two regions 
@@ -270,20 +270,27 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info){
 }
 
 //----------------------------------------------------------------------
-TH1F* ExportPulse::MakeHistTPI(const TPulseIsland* pulse, const std::string& name, int shift, int samples)const{
+TH1F* ExportPulse::MakeHistTPI(const TPulseIsland* pulse, const std::string& name, const PulseInfo_t& info, int shift, int samples)const{
 
+  int downsampling = TSetupData::GetDownSampling(info.bankname.c_str(), SetupNavigator::Instance()->GetRunNumber());
   size_t num_samples = samples? samples: pulse->GetPulseLength();
   double min=0;
-  double max= num_samples;
+  double max=num_samples*TSetupData::Instance()->GetClockTick(info.bankname)*downsampling;
+  double pedestal = SetupNavigator::Instance()->GetPedestal(info.detname);
+  std::cout << "AE: pedestal = " << pedestal << ", clocktick = " << TSetupData::Instance()->GetClockTick(info.bankname) << ", downsampling = " << downsampling << ", min = " << min << ", max = " << max << std::endl;
   TH1F* hPulse = new TH1F(name.c_str(), name.c_str(), num_samples,min,max);
   hPulse->SetDirectory(0);
+  hPulse->SetXTitle("time [ns]");
+  hPulse->SetYTitle("pedestal subtracted [ADC]");
 
   //double pedestal_error = SetupNavigator::Instance()->GetNoise(IDs::channel(info.detname));
   size_t bin=0;
   for ( size_t i=0;i <(size_t)pulse->GetPulseLength(); ++i) {
-    bin=i+1+shift;
-    hPulse->SetBinContent(bin, pulse->GetSamples().at(i));
-    hPulse->SetBinError(bin, 0);//pedestal_error);
+    for (int i_downsample = 0; i_downsample < downsampling; ++i_downsample) {
+      bin=i+1+shift+i_downsample;
+      hPulse->SetBinContent(bin, pulse->GetSamples().at(i)-pedestal);
+      hPulse->SetBinError(bin, 0);//pedestal_error);
+    }
   }
   return hPulse;
 }

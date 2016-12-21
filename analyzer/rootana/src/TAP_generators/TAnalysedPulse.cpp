@@ -57,7 +57,7 @@ void TAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
 	  double x_max=tpi_pulse->GetXaxis()->GetXmax();
 	  double x_min=tpi_pulse->GetXaxis()->GetXmin();
 	  TH1F* tap_pulse=new TH1F((name+"_AP").c_str(),("TAP for "+name).c_str(),n_bins,x_min,x_max);
-	  int bin=tap_pulse->FindBin(fTime);
+	  int bin=tap_pulse->FindBin(fTime - GetTriggerTime());
 	  tap_pulse->SetBinContent(bin,fAmplitude);
 	}
 }
