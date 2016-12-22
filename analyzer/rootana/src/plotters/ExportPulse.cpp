@@ -277,7 +277,6 @@ TH1F* ExportPulse::MakeHistTPI(const TPulseIsland* pulse, const std::string& nam
   double min=0;
   double max=num_samples*TSetupData::Instance()->GetClockTick(info.bankname)*downsampling;
   double pedestal = SetupNavigator::Instance()->GetPedestal(info.detname);
-  std::cout << "AE: pedestal = " << pedestal << ", clocktick = " << TSetupData::Instance()->GetClockTick(info.bankname) << ", downsampling = " << downsampling << ", min = " << min << ", max = " << max << std::endl;
   TH1F* hPulse = new TH1F(name.c_str(), name.c_str(), num_samples,min,max);
   hPulse->SetDirectory(0);
   hPulse->SetXTitle("time [ns]");
