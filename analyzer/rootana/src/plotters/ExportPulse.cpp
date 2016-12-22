@@ -301,7 +301,7 @@ int ExportPulse::PlotTAP(const TAnalysedPulse* pulse, const PulseInfo_t& info)co
   std::string hist=info.MakeTPIName();
   TH1F* tpi_hist=NULL;
   fTPIDirectory->GetObject(hist.c_str(),tpi_hist);
-  pulse->Draw(tpi_hist);
+  pulse->Draw(tpi_hist, info.bankname);
   return 0;
 }
 
