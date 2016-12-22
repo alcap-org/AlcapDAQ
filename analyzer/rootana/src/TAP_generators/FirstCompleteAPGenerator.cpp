@@ -25,7 +25,7 @@ FirstCompleteAPGenerator::FirstCompleteAPGenerator(TAPGeneratorOptions* opts):
   fSimpleIntegral(SetupNavigator::Instance()->GetPedestal(GetChannel()),
 		  TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
   fPulseCandidateFinder(NULL) {
-  if(opts->GetBool("use_pcf",true)){
+  if(opts->GetBool("use_pcf",false)){
      if(opts->Debug()) opts->SetOption("debug","true");
      fPulseCandidateFinder=new PulseCandidateFinder(GetChannel().str(), opts);
   }
