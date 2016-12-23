@@ -50,7 +50,7 @@ void TAnalysedPulse::Reset(Option_t* o) {
   fTriggerTime=fDefaultValue;
 }
 
-void TAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
+void TAnalysedPulse::Draw(const TH1F* tpi_pulse, std::string bankname)const{
 	if(tpi_pulse) {
 	  std::string name=tpi_pulse->GetName();
 	  int n_bins=tpi_pulse->GetXaxis()->GetNbins();
@@ -58,7 +58,8 @@ void TAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
 	  double x_min=tpi_pulse->GetXaxis()->GetXmin();
 	  TH1F* tap_pulse=new TH1F((name+"_AP").c_str(),("TAP for "+name).c_str(),n_bins,x_min,x_max);
 	  int bin=tap_pulse->FindBin(fTime - GetTriggerTime());
-	  tap_pulse->SetBinContent(bin,fAmplitude);
+	  int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+	  tap_pulse->SetBinContent(bin,trigger_polarity*fAmplitude);
 	}
 }
 
