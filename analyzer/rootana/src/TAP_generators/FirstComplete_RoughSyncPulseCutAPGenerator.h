@@ -8,11 +8,11 @@
 #include "TAPAlgorithms.h"
 #include "PulseCandidateFinder.h"
 
-class FirstCompleteAPGenerator_RoughSyncPulseCut:public TVAnalysedPulseGenerator {
+class FirstComplete_RoughSyncPulseCutAPGenerator:public TVAnalysedPulseGenerator {
 
  public:
-  FirstCompleteAPGenerator_RoughSyncPulseCut(TAPGeneratorOptions* opts);
-  virtual ~FirstCompleteAPGenerator_RoughSyncPulseCut();
+  FirstComplete_RoughSyncPulseCutAPGenerator(TAPGeneratorOptions* opts);
+  virtual ~FirstComplete_RoughSyncPulseCutAPGenerator();
 
  public:
    virtual int ProcessPulses( const PulseIslandList&,AnalysedPulseList&);

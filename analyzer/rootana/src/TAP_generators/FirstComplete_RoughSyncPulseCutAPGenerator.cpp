@@ -1,5 +1,5 @@
 #include "TAPGeneratorFactory.h"
-#include "FirstCompleteAPGenerator_RoughSyncPulseCut.h"
+#include "FirstComplete_RoughSyncPulseCutAPGenerator.h"
 #include "TPulseIsland.h"
 #include "TAnalysedPulse.h"
 #include "SetupNavigator.h"
@@ -12,7 +12,7 @@
 #include <cmath>
 #include <sstream>
 
-FirstCompleteAPGenerator_RoughSyncPulseCut::FirstCompleteAPGenerator_RoughSyncPulseCut(TAPGeneratorOptions* opts):
+FirstComplete_RoughSyncPulseCutAPGenerator::FirstComplete_RoughSyncPulseCutAPGenerator(TAPGeneratorOptions* opts):
   TVAnalysedPulseGenerator("FirstComplete",opts),
   fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()),
 		   TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
@@ -31,14 +31,14 @@ FirstCompleteAPGenerator_RoughSyncPulseCut::FirstCompleteAPGenerator_RoughSyncPu
   }
 }
 
-FirstCompleteAPGenerator_RoughSyncPulseCut::~FirstCompleteAPGenerator_RoughSyncPulseCut(){
+FirstComplete_RoughSyncPulseCutAPGenerator::~FirstComplete_RoughSyncPulseCutAPGenerator(){
     // delete all sub-pulses
     for(PulseIslandList::iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){
         delete *i_tpi;
     }
 }
 
-int FirstCompleteAPGenerator_RoughSyncPulseCut::ProcessPulses(
+int FirstComplete_RoughSyncPulseCutAPGenerator::ProcessPulses(
         const PulseIslandList& pulseList,
         AnalysedPulseList& analysedList){
 
@@ -52,7 +52,7 @@ int FirstCompleteAPGenerator_RoughSyncPulseCut::ProcessPulses(
     return 0;
 }
 
-void FirstCompleteAPGenerator_RoughSyncPulseCut::MakeTAPsWithPCF(int tpi_ID, const TPulseIsland* original_tpi, AnalysedPulseList& analysedList){
+void FirstComplete_RoughSyncPulseCutAPGenerator::MakeTAPsWithPCF(int tpi_ID, const TPulseIsland* original_tpi, AnalysedPulseList& analysedList){
     // Look for more than one pulse on the TPI
     fPulseCandidateFinder->FindPulseCandidates(original_tpi);
     fPulseCandidateFinder->GetPulseCandidates(fSubPulses);
@@ -63,7 +63,7 @@ void FirstCompleteAPGenerator_RoughSyncPulseCut::MakeTAPsWithPCF(int tpi_ID, con
     }
 }
 
-void FirstCompleteAPGenerator_RoughSyncPulseCut::AnalyseOneTpi(int tpi_ID, const TPulseIsland* tpi, AnalysedPulseList& analysedList){
+void FirstComplete_RoughSyncPulseCutAPGenerator::AnalyseOneTpi(int tpi_ID, const TPulseIsland* tpi, AnalysedPulseList& analysedList){
     if(tpi->GetPulseLength() < 14) return;
 
     // Analyse each TPI
@@ -86,7 +86,7 @@ void FirstCompleteAPGenerator_RoughSyncPulseCut::AnalyseOneTpi(int tpi_ID, const
     analysedList.push_back(tap);
 }
 
-void FirstCompleteAPGenerator_RoughSyncPulseCut::DrawPulse(int original, int pulse_timestamp, int n_pulse_samples){
+void FirstComplete_RoughSyncPulseCutAPGenerator::DrawPulse(int original, int pulse_timestamp, int n_pulse_samples){
 
   /*    if( ExportPulse::Instance())
         ExportPulse::Instance()->AddToExportList(GetChannel().str(), original);
@@ -113,4 +113,4 @@ void FirstCompleteAPGenerator_RoughSyncPulseCut::DrawPulse(int original, int pul
     }
 }
 
-ALCAP_TAP_GENERATOR(FirstComplete,constant_fraction,no_time_shift, use_pcf);
+ALCAP_TAP_GENERATOR(FirstComplete_RoughSyncPulseCut,constant_fraction,no_time_shift, use_pcf);
