@@ -62,6 +62,15 @@ int PlotTAP_NMuons_Si16::BeforeFirstEntry(TGlobalData* gData,const TSetupData *s
   fSi16TAPAmplitudes->GetXaxis()->SetTitle("Strip Number");
   fSi16TAPAmplitudes->GetYaxis()->SetTitle("TAP Amplitude [ADC]");
   fSi16TAPAmplitudes->SetStats(false);
+
+  histname = "hSi16TAPEnergies";
+  histtitle.str("");
+  histtitle<<"TAP Energy Distributions for each strip";
+  histtitle<<" for run "<<SetupNavigator::Instance()->GetRunNumber();
+  fSi16TAPEnergies = new TH2F(histname.c_str(), histtitle.str().c_str(), 16,1,17, 1200,0,12000);
+  fSi16TAPEnergies->GetXaxis()->SetTitle("Strip Number");
+  fSi16TAPEnergies->GetYaxis()->SetTitle("TAP Energy [keV]");
+  fSi16TAPEnergies->SetStats(false);
   return 0;
 }
 
@@ -93,7 +102,9 @@ int PlotTAP_NMuons_Si16::ProcessEntry(TGlobalData* gData,const TSetupData *setup
 
         for (AnalysedPulseList::const_iterator pulseIter = pulses->begin(); pulseIter != pulses->end(); ++pulseIter) {
 	  double amplitude = (*pulseIter)->GetAmplitude();
+	  double energy = (*pulseIter)->GetEnergy();
 	  fSi16TAPAmplitudes->Fill(strip_number, amplitude);
+	  fSi16TAPEnergies->Fill(strip_number, energy);
 	  if (amplitude > fADCCutLow && amplitude < fADCCutHigh) {
 	    fNMuonsPerStrip->Fill(strip_number);
 	  }

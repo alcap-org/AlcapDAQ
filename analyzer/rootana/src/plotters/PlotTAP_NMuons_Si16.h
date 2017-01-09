@@ -61,6 +61,7 @@ class PlotTAP_NMuons_Si16 : public BaseModule {
   /// \brief the histogram we will fill
   TH1F* fNMuonsPerStrip;
   TH2F* fSi16TAPAmplitudes;
+  TH2F* fSi16TAPEnergies;
 };
 
 #endif //PLOTTAP_NMUONS_SI16_H_

@@ -1,0 +1,14 @@
+This script loops through a ROOT file and saves some of the plots as PDFs, while creating a tex file that can be used to make a beamer presentation
+
+pdflatex is not available on merlin so you will probably have to copy files locally
+
+To use this script:
+ - run rootana with the config script configurations/correlations_for_meeting_2017-01-10.cfg or configurations/correlations-w-rough-time-cut_for_meeting_2017-01-10.cfg
+ - on your local machine:
+   - scp the out.root file and CreateCorrelationsBook.C
+   - "mkdir figs"
+   - edit CreateCorrelationsBook.C so that "filename" is the name of your file and that the title of the resulting tex file
+   - run "root -l -b CreateCorrelationsBook.C"
+   - quit root
+   - scp main.tex
+   - run "pdflatex main.tex"
