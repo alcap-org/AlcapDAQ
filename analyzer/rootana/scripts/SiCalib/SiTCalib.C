@@ -288,7 +288,7 @@ void SiTCalib() {
   }
   calib_script << ")" << std::endl;
   calib_script << "for run in $@;do" << std::endl;
-  calib_script << "  for i_channel in {0.." << n_si_channels << "};do" << std::endl;
+  calib_script << "  for i_channel in {0.." << n_si_channels-1 << "};do" << std::endl;
   calib_script << "    echo \"INSERT into Energy  (run, channel, gain, offset) values ( $run, \\\"${Channels[$i_channel]}\\\", ${Gains[$i_channel]}, ${Offsets[$i_channel]}) ;\"" << std::endl;
   calib_script << "  done" << std::endl;
   calib_script << "done" << std::endl;
