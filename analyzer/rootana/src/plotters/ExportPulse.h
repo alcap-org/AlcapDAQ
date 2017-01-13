@@ -136,6 +136,9 @@ class ExportPulse : public BaseModule{
 
   TGlobalData* fGlobalData; // To be removed once Phill finishes the event navigator
 
+  bool fSubtractPedestal;
+  bool fUseBlockTime;
+
 };
 
 inline ExportPulse* ExportPulse::Instance() {

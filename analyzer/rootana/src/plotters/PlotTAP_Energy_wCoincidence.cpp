@@ -13,6 +13,8 @@
 #include "ModulesOptions.h"
 #include "AlcapExcept.h"
 
+#include "ExportPulse.h"
+
 
 #include <cmath>
 #include <TH1F.h>
@@ -28,7 +30,8 @@ extern SourceAnalPulseMap gAnalysedPulseMap;
 PlotTAP_Energy_wCoincidence::PlotTAP_Energy_wCoincidence(modules::options* opts) :
   BaseModule("PlotTAP_Energy_wCoincidence",opts),
   fDetNameA(opts->GetString("det1")), fDetNameB(opts->GetString("det2")),
-  fCoincidenceTimeLow(opts->GetDouble("coincidence_time_low")), fCoincidenceTimeHigh(opts->GetDouble("coincidence_time_high")) {  
+  fCoincidenceTimeLow(opts->GetDouble("coincidence_time_low")), fCoincidenceTimeHigh(opts->GetDouble("coincidence_time_high")),
+  fExportPulses(opts->GetBool("export_pulse", false)), fTotalPulsesExported(0) {  
   if (fDetNameA == std::string("") || fDetNameB == std::string(""))
     throw Except::ModulesOptionError("Two detectors must be provided");
   else if (fDetNameA == fDetNameB)
@@ -64,6 +67,13 @@ int PlotTAP_Energy_wCoincidence::BeforeFirstEntry(TGlobalData* gData,const TSetu
       }
   }
   BookHistograms(setup);
+
+   // Check we're also running with the ExportPulse module
+   if(fExportPulses && !ExportPulse::Instance()){
+     std::cout<<"PlotTAP_Energy_wCoincidence: Error: You need to run with the ExportPulse module to be able to export pulses"<<std::endl;
+     return 1;
+   }
+
   return 0;
 }
 
@@ -85,6 +95,12 @@ int PlotTAP_Energy_wCoincidence::ProcessEntry(TGlobalData* gData,const TSetupDat
 
 	if (tDiff >= fCoincidenceTimeLow && tDiff <= fCoincidenceTimeHigh) {
 	  hists[0]->Fill((*pulseIt)->GetEnergy(), (*pulseIt2)->GetEnergy());
+
+	  if(fExportPulses && fTotalPulsesExported <= 40) {
+	    ExportPulse::Instance()->AddToExportList(*pulseIt);
+	    ExportPulse::Instance()->AddToExportList(*pulseIt2);
+	    fTotalPulsesExported += 2;
+	  }
 	}
       }//end detBPulse loop
     }//end detAPulse loop
@@ -124,7 +140,7 @@ void PlotTAP_Energy_wCoincidence::BookHistograms(const TSetupData* setup) {
     std::string histname("h" + fDetNameB + "_" + fDetNameA + "_inCoincidence");
     std::stringstream histtitle;
     histtitle << "Energy of " << fDetNameA << " vs Energy " << fDetNameB << " detectors with tdiff > " << fCoincidenceTimeLow << " && tdiff < " << fCoincidenceTimeHigh << gen << " generator;E_{" << fDetNameA << "} [keV];E_{" << fDetNameB << "} [keV]";
-    hists.push_back(new TH2F(histname.c_str(), histtitle.str().c_str(), maxAmpA,0,gainA*maxAmpA+offsetA, maxAmpB, 0, gainB*maxAmpB+offsetB));
+    hists.push_back(new TH2F(histname.c_str(), histtitle.str().c_str(), maxAmpA,0,gainA*maxAmpA+offsetA, maxAmpB/16, 0, gainB*maxAmpB+offsetB));
 
   }
 }
@@ -133,4 +149,4 @@ void PlotTAP_Energy_wCoincidence::BookHistograms(const TSetupData* setup) {
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(PlotTAP_Energy_wCoincidence,det1,det2,coincidence_time_low,coincidence_time_high);
+ALCAP_REGISTER_MODULE(PlotTAP_Energy_wCoincidence,det1,det2,coincidence_time_low,coincidence_time_high,export_pulse);

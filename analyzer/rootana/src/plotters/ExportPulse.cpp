@@ -44,6 +44,8 @@ ExportPulse::ExportPulse(modules::options* opts)
   if(fUsePCF){
       fPulseFinder=new PulseCandidateFinder();
   }
+  fSubtractPedestal = opts->GetBool("subtract_pedestal", true);
+  fUseBlockTime = opts->GetBool("use_block_time", false);
   
   fTPIDirectory=GetDirectory("TPIs");
   fTAPDirectory=GetDirectory("TAPs");
@@ -277,17 +279,42 @@ TH1F* ExportPulse::MakeHistTPI(const TPulseIsland* pulse, const std::string& nam
   double min=0;
   double max=num_samples*TSetupData::Instance()->GetClockTick(info.bankname)*downsampling;
   double pedestal = SetupNavigator::Instance()->GetPedestal(info.detname);
-  TH1F* hPulse = new TH1F(name.c_str(), name.c_str(), num_samples,min,max);
+
+  TH1F* hPulse;
+  if(fUseBlockTime) {
+    double start_time = pulse->GetTimeStamp() * TSetupData::Instance()->GetClockTick(info.bankname);
+    hPulse = new TH1F(name.c_str(), name.c_str(), num_samples,start_time+min,start_time+max);
+  }
+  else {
+    hPulse = new TH1F(name.c_str(), name.c_str(), num_samples,min,max);
+  }
+
+  hPulse->GetXaxis()->SetNoExponent(true);
   hPulse->SetDirectory(0);
-  hPulse->SetXTitle("time [ns]");
-  hPulse->SetYTitle("pedestal subtracted [ADC]");
+  if (fUseBlockTime) {
+    hPulse->SetXTitle("block time [ns]");
+  }
+  else {
+    hPulse->SetXTitle("pulse time [ns]");
+  }
+  if (fSubtractPedestal) {
+    hPulse->SetYTitle("pedestal subtracted [ADC]");
+  }
+  else {
+    hPulse->SetYTitle("pedestal not subtracted [ADC]");
+  }
 
   //double pedestal_error = SetupNavigator::Instance()->GetNoise(IDs::channel(info.detname));
   size_t bin=0;
   for ( size_t i=0;i <(size_t)pulse->GetPulseLength(); ++i) {
     for (int i_downsample = 0; i_downsample < downsampling; ++i_downsample) {
       bin=i+1+shift+i_downsample;
-      hPulse->SetBinContent(bin, pulse->GetSamples().at(i)-pedestal);
+      if (fSubtractPedestal) {
+	hPulse->SetBinContent(bin, pulse->GetSamples().at(i)-pedestal);
+      }
+      else {
+	hPulse->SetBinContent(bin, pulse->GetSamples().at(i));
+      }
       hPulse->SetBinError(bin, 0);//pedestal_error);
     }
   }
@@ -300,7 +327,7 @@ int ExportPulse::PlotTAP(const TAnalysedPulse* pulse, const PulseInfo_t& info)co
   std::string hist=info.MakeTPIName();
   TH1F* tpi_hist=NULL;
   fTPIDirectory->GetObject(hist.c_str(),tpi_hist);
-  pulse->Draw(tpi_hist, info.bankname);
+  pulse->Draw(tpi_hist, info.bankname, fSubtractPedestal, fUseBlockTime);
   return 0;
 }
 
@@ -393,4 +420,4 @@ void ExportPulse::ClearPulsesToExport(){
   fTAPsToPlot.clear();
 }
 
-ALCAP_REGISTER_MODULE(ExportPulse,run_pulse_finder);
+ALCAP_REGISTER_MODULE(ExportPulse,subtract_pedestal,use_block_time,run_pulse_finder);

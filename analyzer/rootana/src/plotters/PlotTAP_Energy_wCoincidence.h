@@ -74,6 +74,9 @@ class PlotTAP_Energy_wCoincidence : public BaseModule {
   std::map<std::string, std::vector<TH2F*> > fHists;
 
   std::vector<IDs::source> fDetASources, fDetBSources;
+
+  bool fExportPulses;
+  int fTotalPulsesExported;
 };
 
 #endif //PLOTTDIFF_H_
