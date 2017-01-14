@@ -25,11 +25,11 @@ class ExportPulse : public BaseModule{
   typedef int TPulseIslandID;
   typedef int EventID_t;
   typedef std::set<TPulseIslandID> PulseIDList_t;
-  typedef std::map<std::string,PulseIDList_t> ChannelPulseIDs_t;
+  typedef std::vector< std::pair<std::string,TPulseIslandID> > ChannelPulseIDs_t;
   typedef std::map<EventID_t,PulseIDList_t> EventPulseIDList_t;
   typedef std::map<std::string,EventPulseIDList_t> EventChannelPulseIDs_t;
   typedef std::set<const TAnalysedPulse*> TAPList_t;
-  typedef std::map<std::string,TAPList_t> ChannelTAPs_t;
+  typedef std::vector< std::pair<std::string,const TAnalysedPulse*> > ChannelTAPs_t;
 
   /// Information needed to make one plot.
   /// In future this may be moved elsewhere to be used by other modules
@@ -146,13 +146,16 @@ inline ExportPulse* ExportPulse::Instance() {
 }
 
 inline void ExportPulse::AddToExportList(const std::string& detector,TPulseIslandID pulse_id) {
-  fTPIsToPlot[detector].insert(pulse_id);
+  std::pair<std::string, TPulseIslandID> new_pair(detector, pulse_id);
+  fTPIsToPlot.push_back(new_pair);
 }
 
 inline void ExportPulse::AddToExportList(const TAnalysedPulse* pulse){
   std::string channel=pulse->GetSource().Channel().str();
   if(Debug()) std::cout<<"ExportPulse: Asked to draw a TAP for "<<channel<<std::endl;
-  fTAPsToPlot[channel].insert(pulse);
+
+  std::pair<std::string, const TAnalysedPulse*> new_pair(channel, pulse);
+  fTAPsToPlot.push_back(new_pair);
   AddToExportList(channel,pulse->GetParentID());
 }
 
