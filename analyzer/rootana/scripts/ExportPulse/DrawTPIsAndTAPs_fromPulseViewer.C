@@ -8,7 +8,7 @@
 #include <iostream>
 
 // This macro draws 4 random TPIs and TAPs that were exported using ExportPulse in rootana
-void DrawTPIsAndTAPs(std::string filename, int seed = 0) {
+void DrawTPIsAndTAPs_fromPulseViewer(std::string filename, int seed = 0) {
   TFile* file = new TFile(filename.c_str(), "READ");
   if (file->IsZombie()) {
     std::cout << "Problem opening file " << filename << std::endl;

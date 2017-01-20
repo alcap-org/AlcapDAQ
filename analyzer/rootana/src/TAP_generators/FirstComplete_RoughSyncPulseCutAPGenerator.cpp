@@ -13,7 +13,7 @@
 #include <sstream>
 
 FirstComplete_RoughSyncPulseCutAPGenerator::FirstComplete_RoughSyncPulseCutAPGenerator(TAPGeneratorOptions* opts):
-  TVAnalysedPulseGenerator("FirstComplete",opts),
+  TVAnalysedPulseGenerator("FirstComplete_RoughSyncPulseCut",opts),
   fMaxBinAmplitude(SetupNavigator::Instance()->GetPedestal(GetChannel()),
 		   TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str()))),
   fConstantFractionTime(SetupNavigator::Instance()->GetPedestal(GetChannel()),

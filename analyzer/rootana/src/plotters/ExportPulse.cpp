@@ -44,6 +44,8 @@ ExportPulse::ExportPulse(modules::options* opts)
   if(fUsePCF){
       fPulseFinder=new PulseCandidateFinder();
   }
+  fSubtractPedestal = opts->GetBool("subtract_pedestal", true);
+  fUseBlockTime = opts->GetBool("use_block_time", false);
   
   fTPIDirectory=GetDirectory("TPIs");
   fTAPDirectory=GetDirectory("TAPs");
@@ -140,28 +142,19 @@ int ExportPulse::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
 
 //----------------------------------------------------------------------
 int ExportPulse::DrawTAPs(){
-  // Initialise variables that would be used in the loops
-  const TAPList_t* requestedPulses;
   
-  // Loop over channel that we've been requested to draw a pulse from
-  for(ChannelTAPs_t::const_iterator i_detector=fTAPsToPlot.begin();
-      i_detector!=fTAPsToPlot.end();
-      i_detector++){
-    SetCurrentDetectorName(i_detector->first);
+  // Loop over all the TAPs we've been asked to export
+  for(ChannelTAPs_t::const_iterator i_channel_tap=fTAPsToPlot.begin();
+      i_channel_tap!=fTAPsToPlot.end();
+      i_channel_tap++){
+
+    SetCurrentDetectorName(i_channel_tap->first);
     
-    // Get the pulse list for this channel
-    requestedPulses=&(i_detector->second);
+    const TAnalysedPulse* i_pulse = i_channel_tap->second;
+    SetCurrentPulseID(i_pulse->GetParentID());
     
-    // Loop over every requested pulse for that channel
-    for(TAPList_t::const_iterator i_pulse=requestedPulses->begin();
-      i_pulse!=requestedPulses->end();
-      i_pulse++){
-      
-      SetCurrentPulseID((*i_pulse)->GetParentID());
-      // Draw the pulse
-      PlotTAP(*i_pulse,fPulseInfo);
-      
-    }
+    // Draw the pulse
+    PlotTAP(i_pulse,fPulseInfo);
   }
   return 0;
 }
@@ -174,35 +167,29 @@ int ExportPulse::DrawTPIs(){
   const PulseIDList_t* requestedPulses;
   PulseIslandList* pulseList;
 
-  // Loop over channel that we've been requested to draw a pulse from
-  for(ChannelPulseIDs_t::const_iterator i_detector=fTPIsToPlot.begin();
-      i_detector!=fTPIsToPlot.end();
-      i_detector++){
-    SetCurrentDetectorName(i_detector->first);
+  // Loop over all the pulses that have been requested (this should be time ordered)
+  for(ChannelPulseIDs_t::const_iterator i_channel_pulseid=fTPIsToPlot.begin();
+      i_channel_pulseid!=fTPIsToPlot.end();
+      i_channel_pulseid++){
+    SetCurrentDetectorName(i_channel_pulseid->first);
     
     // Get the pulse list for this channel
-    requestedPulses=&(i_detector->second);
+    TPulseIslandID i_pulseID = i_channel_pulseid->second;
     pulseList=GetTPIsFromDetector();
     
-    // Loop over every requested pulse for that channel
-    for(PulseIDList_t::const_iterator i_pulseID=requestedPulses->begin();
-        i_pulseID!=requestedPulses->end();
-        i_pulseID++){
-      // Update the pulse info struct
-      SetCurrentPulseID(*i_pulseID);
+    SetCurrentPulseID(i_pulseID);
       
-      // Get the current requested TPI for this channel
-      try{
-        pulse=pulseList->at(*i_pulseID);
-      }
-      catch(const std::out_of_range& oor){
-        cout<<"Skipping out of range pulse: "<<*i_pulseID<<" on detector '"<<i_detector->first<<endl;
-        continue;
-      }
-      
-      // Draw the pulse
-      PlotTPI(pulse,fPulseInfo);
+    // Get the current requested TPI for this channel
+    try{
+      pulse=pulseList->at(i_pulseID);
     }
+    catch(const std::out_of_range& oor){
+      cout<<"Skipping out of range pulse: "<<i_pulseID<<" on detector '"<<i_channel_pulseid->first<<endl;
+      continue;
+    }
+      
+    // Draw the pulse
+    PlotTPI(pulse,fPulseInfo);
   }
   return 0;
 }
@@ -277,17 +264,42 @@ TH1F* ExportPulse::MakeHistTPI(const TPulseIsland* pulse, const std::string& nam
   double min=0;
   double max=num_samples*TSetupData::Instance()->GetClockTick(info.bankname)*downsampling;
   double pedestal = SetupNavigator::Instance()->GetPedestal(info.detname);
-  TH1F* hPulse = new TH1F(name.c_str(), name.c_str(), num_samples,min,max);
+
+  TH1F* hPulse;
+  if(fUseBlockTime) {
+    double start_time = pulse->GetTimeStamp() * TSetupData::Instance()->GetClockTick(info.bankname);
+    hPulse = new TH1F(name.c_str(), name.c_str(), num_samples,start_time+min,start_time+max);
+  }
+  else {
+    hPulse = new TH1F(name.c_str(), name.c_str(), num_samples,min,max);
+  }
+
+  hPulse->GetXaxis()->SetNoExponent(true);
   hPulse->SetDirectory(0);
-  hPulse->SetXTitle("time [ns]");
-  hPulse->SetYTitle("pedestal subtracted [ADC]");
+  if (fUseBlockTime) {
+    hPulse->SetXTitle("block time [ns]");
+  }
+  else {
+    hPulse->SetXTitle("pulse time [ns]");
+  }
+  if (fSubtractPedestal) {
+    hPulse->SetYTitle("pedestal subtracted [ADC]");
+  }
+  else {
+    hPulse->SetYTitle("pedestal not subtracted [ADC]");
+  }
 
   //double pedestal_error = SetupNavigator::Instance()->GetNoise(IDs::channel(info.detname));
   size_t bin=0;
   for ( size_t i=0;i <(size_t)pulse->GetPulseLength(); ++i) {
     for (int i_downsample = 0; i_downsample < downsampling; ++i_downsample) {
       bin=i+1+shift+i_downsample;
-      hPulse->SetBinContent(bin, pulse->GetSamples().at(i)-pedestal);
+      if (fSubtractPedestal) {
+	hPulse->SetBinContent(bin, pulse->GetSamples().at(i)-pedestal);
+      }
+      else {
+	hPulse->SetBinContent(bin, pulse->GetSamples().at(i));
+      }
       hPulse->SetBinError(bin, 0);//pedestal_error);
     }
   }
@@ -300,7 +312,7 @@ int ExportPulse::PlotTAP(const TAnalysedPulse* pulse, const PulseInfo_t& info)co
   std::string hist=info.MakeTPIName();
   TH1F* tpi_hist=NULL;
   fTPIDirectory->GetObject(hist.c_str(),tpi_hist);
-  pulse->Draw(tpi_hist, info.bankname);
+  pulse->Draw(tpi_hist, info.bankname, fSubtractPedestal, fUseBlockTime);
   return 0;
 }
 
@@ -386,11 +398,9 @@ void ExportPulse::LoadPulsesRequestedByConfig(){
 //----------------------------------------------------------------------
 void ExportPulse::ClearPulsesToExport(){
   ChannelPulseIDs_t::iterator i_channel;
-  for (i_channel=fTPIsToPlot.begin();i_channel!=fTPIsToPlot.end();i_channel++){
-		  i_channel->second.clear();
-  }
+
   fTPIsToPlot.clear();
   fTAPsToPlot.clear();
 }
 
-ALCAP_REGISTER_MODULE(ExportPulse,run_pulse_finder);
+ALCAP_REGISTER_MODULE(ExportPulse,subtract_pedestal,use_block_time,run_pulse_finder);
