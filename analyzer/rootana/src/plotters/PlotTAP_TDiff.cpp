@@ -31,8 +31,8 @@ PlotTAP_TDiff::PlotTAP_TDiff(modules::options* opts) :
   fExportSQL(opts->GetBool("export_sql", false)) {  
   if (fDetNameA == std::string("") || fDetNameB == std::string(""))
     throw Except::ModulesOptionError("Two detectors must be provided");
-  else if (fDetNameA == fDetNameB)
-    throw Except::ModulesOptionError((fDetNameA + "==" + fDetNameB).c_str());
+  //  else if (fDetNameA == fDetNameB)
+  //    throw Except::ModulesOptionError((fDetNameA + "==" + fDetNameB).c_str());
   //  else if (fExportSQL && fDetNameB != "SiT-1-F")
   //    throw Except::ModulesOptionError("If exporting to calibration DB, second detector must be SiT-1-F");
 }
@@ -86,8 +86,8 @@ int PlotTAP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
 	
 	hists[0]->Fill(tDiff, (*pulseIt)->GetAmplitude());
 	hists[1]->Fill(tDiff, (*pulseIt2)->GetAmplitude());
-	hists[2]->Fill(tDiff, (*pulseIt)->GetTime());
-	hists[3]->Fill(tDiff, (*pulseIt2)->GetTime());
+	//	hists[2]->Fill(tDiff, (*pulseIt)->GetTime());
+	//	hists[3]->Fill(tDiff, (*pulseIt2)->GetTime());
 
 	projs[0]->Fill(tDiff);
 	
@@ -130,27 +130,27 @@ void PlotTAP_TDiff::BookHistograms(const TSetupData* setup) {
     //ampA plots
     std::string histname("h" + fDetNameB + "_" + fDetASources.at(i).str() + "TDiff_AmpA");
     std::string histtitle("Amplitude of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + gen + " generator;t_{" + fDetNameA + "} - t_{" + fDetNameB + "} (ns);Amplitude of " + fDetNameA + " [ADC]");
-    hists.push_back(new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, maxAmpA));
+    hists.push_back(new TH2F(histname.c_str(), histtitle.c_str(), 100, fTimeLow, fTimeHigh, 100, 0, maxAmpA));
 
     //ampB plots
     histname = "h" + fDetNameB + "_" + fDetASources.at(i).str() + " TDiff_AmpB";
     histtitle = "Amplitude of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + gen + " generator;t_{" + fDetNameA + "} - t_{" + fDetNameB + "} (ns);Amplitude of " + fDetNameB + " [ADC]";
-    hists.push_back(new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 200, 0, maxAmpB));
+    hists.push_back(new TH2F(histname.c_str(), histtitle.c_str(), 100, fTimeLow, fTimeHigh, 100, 0, maxAmpB));
 
     //intA plots
-    histname = "h" + fDetNameB + "_" + fDetASources.at(i).str() + " TDiff_TimeA";
+    /*    histname = "h" + fDetNameB + "_" + fDetASources.at(i).str() + " TDiff_TimeA";
     histtitle = "Time of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + gen + " generator;t_{" + fDetNameA + "} - t_{" + fDetNameB + "} (ns);Time of " + fDetNameA + " [ns]";
-    hists.push_back(new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 1000, 0, 120e6));
+    hists.push_back(new TH2F(histname.c_str(), histtitle.c_str(), 100, fTimeLow, fTimeHigh, 1000, 0, 120e6));
 
     //intB plots
     histname = "h" + fDetNameB + "_" + fDetASources.at(i).str() + " TDiff_TimeB";
     histtitle = "Time of " + fDetNameB + " vs time difference with " + fDetNameA + " detectors with the " + gen + " generator;t_{" + fDetNameA + "} - t_{" + fDetNameB + "} (ns);Time of " + fDetNameB + " [ns]";
-    hists.push_back(new TH2F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh, 1000, 0, 120e6));
-    
+    hists.push_back(new TH2F(histname.c_str(), histtitle.c_str(), 100, fTimeLow, fTimeHigh, 1000, 0, 120e6));
+    */
     //projection
     histname = "h" + fDetNameB + "_" + fDetASources.at(i).str() + "TDiff";
     histtitle = "Time difference of " + fDetNameA + " vs " + fDetNameB + " detectors with the " + gen + " generator;t_{" + fDetNameA + "} - t_{" + fDetNameB + "} (ns);Amplitude of " + fDetNameA + " [ADC]";
-    proj.push_back(new TH1F(histname.c_str(), histtitle.c_str(), 200, fTimeLow, fTimeHigh) );
+    proj.push_back(new TH1F(histname.c_str(), histtitle.c_str(), 100, fTimeLow, fTimeHigh) );
   }
 }
 
