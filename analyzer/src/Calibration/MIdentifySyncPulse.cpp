@@ -77,6 +77,7 @@ INT MIdentifySyncPulse_init() {
   DIR = gDirectory->mkdir("IdentifySyncPulse/");
   DIR->cd();
 
+
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
     for (int ich = 0; ich < NCHANWFD[icrate]; ++ich) {
       char bank[5], name[64], det[32], title[128];

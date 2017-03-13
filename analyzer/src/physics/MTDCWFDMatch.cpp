@@ -104,7 +104,7 @@ INT MTDCWFDMatch_init() {
       ////////////////Alignment//////////////////
       char histname[64]; sprintf(histname, "hTCorrTest_Align_%s", det.c_str());
       char histtitle[64]; sprintf(histtitle, "TDC WFD Alignment for %s", det.c_str());
-      vvhTDCWFDMatch_Align[icrate][ich] = new TH2D(histname, histtitle, 10*(ALIGN_HIGH-ALIGN_LOW), ALIGN_LOW*50, ALIGN_HIGH*50, max_adc/4, 0, max_adc);
+      vvhTDCWFDMatch_Align[icrate][ich] = new TH2D(histname, histtitle, 25*(ALIGN_HIGH-ALIGN_LOW), ALIGN_LOW*50, ALIGN_HIGH*50, max_adc/4, 0, max_adc);
       vvhTDCWFDMatch_Align[icrate][ich]->GetXaxis()->SetTitle("Alignment Difference (ns)");
       vvhTDCWFDMatch_Align[icrate][ich]->GetYaxis()->SetTitle("Energy (MeV)");
 
@@ -218,7 +218,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	}
 
 	////////////////GetCF timing/////////////////////////////////
-	cf = 0.02*max;
+	cf = 0.2*max;
 	for(int i = tMax; i > 0; i--){
 	  double tmp = polarity * (samples.at(i) - pedestal);
 	  if(tmp < cf){
@@ -234,7 +234,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 
 
 	//max = amp, cft = time, integral_ps = int
-	double CFT = (pulses[p]->GetTimeStamp() - tThreshold + cft) * TICKWFD[icrate];
+	double CFT = (pulses[p]->GetTimeStamp() + tThreshold + cft) * TICKWFD[icrate];
 	//if(det == "GeCHEH" || det == "GeCHEL") CFT += tThreshold * TICKWFD[icrate]; 
 
 	//std::cout << "Times : CFT " << CFT << " timestamp " << pulses[p]->GetTimeStamp() * TICKWFD[icrate] << std::endl;
@@ -317,7 +317,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	
 	if(nMatch >= 2 && det != "TSc"){
 	  pulses[p]->SetDoublePulse(true);
-	  continue;
+	  //continue;
 	}
 	
 	if(det == "GeCHEL" && tdiff_align > 100  && tdiff_align < 300) plot = true;
@@ -347,7 +347,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	}
 	
 
-	if(pulses[p]->GetVetoPulse()) continue;
+	//if(pulses[p]->GetVetoPulse()) continue;
 	//if(pulses[p]->GetPileupPulse() ) continue;
 	vvhTDCWFDMatch_CutAlign[icrate][ich]->Fill(tdiff_align, max);
 
@@ -375,7 +375,7 @@ float MTDCWFDMatch_nSamples(std::string detname){
 
 float MTDCWFDMatch_Threshold(std::string detname){
   float thresh = 0;
-  if(detname == "GeCHEH") thresh = 1500;
+  if(detname == "GeCHEH") thresh = 1500; //original
   else if(detname == "GeCHEL") thresh = 1050;
   else if(detname == "NdetD") thresh = 15450;
   else if(detname == "NdetU") thresh = 15510;

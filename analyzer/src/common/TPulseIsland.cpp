@@ -224,8 +224,8 @@ double TPulseIsland::GetEnergyInt(double Int) const{
 double TPulseIsland::GetEnergyFit(double fit) const{
   std::string det = TSetupData::Instance()->GetDetectorName(fBankName);
   float energy = 0;
-  if(det == "NdetD"){ energy = (fit * 0.0003914) + 0.0289;  }
-  if(det == "NdetU"){ energy = (fit * 0.0004381) + 0.0257;  }
+  if(det == "NdetD"){ energy = (fit * 0.0003914) + 0.02889;  }
+  if(det == "NdetU"){ energy = (fit * 0.0004381) + 0.02568;  }
   if(det == "GeCHEH"){ energy = (fit * 0.0001518) + 0.000299;  }
   if(det == "GeCHEL"){ energy = (fit * 0.0003841) - 0.0003155;    }
   if(det == "LaBr3"){ energy = (fit * 0.00163022) - 0.00836618;  } 
