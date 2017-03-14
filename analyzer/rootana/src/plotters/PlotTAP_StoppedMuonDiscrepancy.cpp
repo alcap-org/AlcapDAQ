@@ -207,11 +207,22 @@ int PlotTAP_StoppedMuonDiscrepancy::ProcessEntry(TGlobalData *gData, const TSetu
 
   //Get the Ge spectrum with coincident SiL3-S pulses
   AnalysedPulseList GeLoGain_w_SiL3_coincidence_pulse_list;
-  FindCoincidentPulses( GeLoGain_pulse_list, &SiL3_w_SiL1_coincidence_pulse_list, GeLoGain_w_SiL3_coincidence_pulse_list, fCoincidenceTimeLow_SiL3_GeLoGain, fCoincidenceTimeHigh_SiL3_GeLoGain, false, fSiL3_GeLoGain_TDiff);
+  if ( !SiL3_w_SiL1_coincidence_pulse_list.empty() ) {
+    FindCoincidentPulses( GeLoGain_pulse_list, &SiL3_w_SiL1_coincidence_pulse_list, GeLoGain_w_SiL3_coincidence_pulse_list, fCoincidenceTimeLow_SiL3_GeLoGain, fCoincidenceTimeHigh_SiL3_GeLoGain, false, fSiL3_GeLoGain_TDiff);
+  }
+  else {
+    FindCoincidentPulses( GeLoGain_pulse_list, SiL3_pulse_list, GeLoGain_w_SiL3_coincidence_pulse_list, fCoincidenceTimeLow_SiL3_GeLoGain, fCoincidenceTimeHigh_SiL3_GeLoGain, false, fSiL3_GeLoGain_TDiff);
+  }
 
   // Get the SiL3-S spectrum that is coincident with the GeLoGain
   AnalysedPulseList SiL3_w_GeLoGain_coincidence_pulse_list;
-  FindCoincidentPulses( &SiL3_w_SiL1_coincidence_pulse_list, GeLoGain_pulse_list, SiL3_w_GeLoGain_coincidence_pulse_list, fCoincidenceTimeLow_SiL3_GeLoGain, fCoincidenceTimeHigh_SiL3_GeLoGain, false, NULL);
+  if ( !SiL3_w_SiL1_coincidence_pulse_list.empty() ) {
+    FindCoincidentPulses( &SiL3_w_SiL1_coincidence_pulse_list, GeLoGain_pulse_list, SiL3_w_GeLoGain_coincidence_pulse_list, fCoincidenceTimeLow_SiL3_GeLoGain, fCoincidenceTimeHigh_SiL3_GeLoGain, false, NULL);
+  }
+  else {
+    FindCoincidentPulses( SiL3_pulse_list, GeLoGain_pulse_list, SiL3_w_GeLoGain_coincidence_pulse_list, fCoincidenceTimeLow_SiL3_GeLoGain, fCoincidenceTimeHigh_SiL3_GeLoGain, false, NULL);
+  }
+
 
   // Now fill the plot
   for (AnalysedPulseList::const_iterator i_GeLoGain_coincident_pulse = GeLoGain_w_SiL3_coincidence_pulse_list.begin(), 
