@@ -15,28 +15,48 @@ FixedWindowMEGenerator::FixedWindowMEGenerator(TMEGeneratorOptions* opts):
 }
 
 int FixedWindowMEGenerator::Init(const SourceDetPulseMap& detectorPulsesIn){
-    for(SourceDetPulseMap::const_iterator i_source=detectorPulsesIn.begin();
-            i_source!=detectorPulsesIn.end();++i_source){
-        // if i_source->source is muSc then
-        if(i_source->first.matches(IDs::channel(IDs::kMuSc))){
-            // if source is wildcard then select fMuSc 
-            if(!fMuSc.source || fMuSc.source->isWildCardChannel()){
-                fMuSc=Detector_t(i_source);
-            }else{
-                cout<<"FixedWindowMEGenerator: Error: Multiple muSc TDP sources found"<<endl;
-                return 1;
-            }
-        }else{
-            fDetectors.push_back(Detector_t(i_source));
-        }
+
+  // Define our muon counters
+  std::vector<IDs::channel> muon_counters;
+  muon_counters.push_back(IDs::channel(IDs::kSiT_1));
+  muon_counters.push_back(IDs::channel(IDs::kSiT_2));
+  muon_counters.push_back(IDs::channel(IDs::kSiT_3));
+  muon_counters.push_back(IDs::channel(IDs::kSiT_4));
+
+  // Loop through the "sources" (channel + generator(?)) and get the sources corresponding to our muon counters
+  for(SourceDetPulseMap::const_iterator i_source=detectorPulsesIn.begin();
+      i_source!=detectorPulsesIn.end();++i_source){
+
+    bool is_muon_counter = false;
+    for(std::vector<IDs::channel>::const_iterator i_muon_counter = muon_counters.begin(); i_muon_counter != muon_counters.end(); ++i_muon_counter) {
+      if(i_source->first.matches(*i_muon_counter)){
+	//	// if source is wildcard then select fMuSc 
+	//	if(!fMuSc.source || fMuSc.source->isWildCardChannel()){
+	//	  fMuSc=Detector_t(i_source);
+	//	}else{
+	//	  cout<<"FixedWindowMEGenerator: Error: Multiple muSc TDP sources found"<<endl;
+	//	  return 1;
+	//	}
+	fMuonCounters.push_back(Detector_t(i_source));
+	is_muon_counter = true;
+      }
     }
-    return 0;
+
+    if (!is_muon_counter) {
+	fOtherDetectors.push_back(Detector_t(i_source));
+      }  
+    }
+  return 0;
 }
 
 void FixedWindowMEGenerator::Reset(){
-    fMuSc.Reset();
-    for(SourceList::iterator i_det=fDetectors.begin();
-            i_det!=fDetectors.end(); ++i_det){
+    for(SourceList::iterator i_mu_counter=fMuonCounters.begin();
+            i_mu_counter!=fMuonCounters.end(); ++i_mu_counter){
+        i_mu_counter->Reset();
+    }
+
+    for(SourceList::iterator i_det=fOtherDetectors.begin();
+            i_det!=fOtherDetectors.end(); ++i_det){
         i_det->Reset();
     }
 }
@@ -51,31 +71,40 @@ int FixedWindowMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
         Reset();
     }
 
-    // Loop over all muons
-    for(DetectorPulseList::const_iterator i_muSc=fMuSc.pulses->begin();
-            i_muSc!=fMuSc.pulses->end(); ++i_muSc){
+    // Loop over all muon counters
+    for(SourceList::const_iterator i_mu_counter=fMuonCounters.begin();
+            i_mu_counter!=fMuonCounters.end(); ++i_mu_counter){
+
+      // Loop over all the "muons" (actually pulses) in this muon counter pulse list
+      for(DetectorPulseList::const_iterator i_muons=(*i_mu_counter).pulses->begin();
+	  i_muons!=(*i_mu_counter).pulses->end(); ++i_muons){
+
         // Make a TME centred on this muon
-        TMuonEvent* tme=new TMuonEvent(*i_muSc, fEventWindow);
+        TMuonEvent* tme=new TMuonEvent(*i_muons, fEventWindow);
 
-        // Add all muon pulses in the event window to this TME
-        AddPulsesInWindow(tme,fEventWindow,fMuSc);
+        // Add all pulses from all muon counters in the event window to this TME
+        for(SourceList::iterator i_other_mu_counter=fMuonCounters.begin();
+                i_other_mu_counter!=fMuonCounters.end(); ++i_other_mu_counter){
+	  AddPulsesInWindow(tme,fEventWindow,(*i_other_mu_counter));
+	}
 
-        for(SourceList::iterator i_det=fDetectors.begin();
-                i_det!=fDetectors.end(); ++i_det){
-            // Add all pulses in the event window to this TME
-            AddPulsesInWindow(tme,fEventWindow,*i_det);
+	// Add all pulses from all other detectors in the event window to this TME
+        for(SourceList::iterator i_det=fOtherDetectors.begin();
+                i_det!=fOtherDetectors.end(); ++i_det){
+
+	  AddPulsesInWindow(tme,fEventWindow,*i_det);
         }
         //if(Debug()) cout<<"FixedWindowMEGenerator::ProcessPulses:"
         //    " Created TME with "<<tme->TotalNumPulses()<<" pulses" <<endl;
 
         // Add TME to list of event
         muonEventsOut.push_back(tme);
+      }
     }
     return 0;
 }
 
-void FixedWindowMEGenerator::AddPulsesInWindow(
-        TMuonEvent* tme, double window, Detector_t& detector){
+void FixedWindowMEGenerator::AddPulsesInWindow(TMuonEvent* tme, double window, Detector_t& detector){
     // Get the central time for this event;
     double central_time=tme->GetTime();
     double early_edge=central_time-window;
@@ -83,8 +112,10 @@ void FixedWindowMEGenerator::AddPulsesInWindow(
 
     // advance the start and stop iterators that define the range of pulses
     // contained in the window
-    DetectorPulseList::const_iterator& start=detector.start_window;
-    DetectorPulseList::const_iterator& stop=detector.end_window;
+    //    DetectorPulseList::const_iterator& start=detector.start_window;
+    //    DetectorPulseList::const_iterator& stop=detector.end_window;
+    DetectorPulseList::const_iterator start=detector.start_window;
+    DetectorPulseList::const_iterator stop=detector.end_window;
     const DetectorPulseList::const_iterator& end=detector.pulses->end();
     //const DetectorPulseList::const_iterator& begin=detector.pulses->begin();
 

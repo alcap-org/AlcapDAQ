@@ -5,6 +5,8 @@
 #include "TVMuonEventGenerator.h"
 #include "definitions.h"
 
+#include "SetupNavigator.h"
+
 class FixedWindowMEGenerator:public TVMuonEventGenerator {
     struct Detector_t{
         const IDs::source* source;
@@ -39,13 +41,13 @@ class FixedWindowMEGenerator:public TVMuonEventGenerator {
         int Init(const SourceDetPulseMap&);
         void Reset();
         void AddPulsesInWindow(TMuonEvent* tme,
-                double window, Detector_t& detector);
+			       double window, Detector_t& detector);
 
     private:
 	bool fInit;
         double fEventWindow;
-        Detector_t fMuSc;
-        SourceList fDetectors;
+        SourceList fMuonCounters;
+        SourceList fOtherDetectors;
 
 };
 

@@ -82,6 +82,8 @@ class TMuonEvent:public TObject{
         /// @brief Get the number of pulses contained in this TME for a given
         /// source
         int NumPulses(const IDs::source& source)const;
+	/// @brief Get the total number of pulses in a list of channels
+	int NumPulses(const std::vector<IDs::channel>& channels)const;
 
         /// @brief Does this TME pass the muon hit criteria
         bool HasMuonHit()const;
