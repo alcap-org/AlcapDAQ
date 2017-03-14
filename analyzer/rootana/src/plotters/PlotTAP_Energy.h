@@ -17,6 +17,10 @@ class PlotTAP_Energy : public BaseModule{
   virtual int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);
 
   std::map<std::string, TH1F*> fEnergyPlots;
+
+  int fNBins;
+  double fMinEnergy;
+  double fMaxEnergy;
 };
 
 #endif
