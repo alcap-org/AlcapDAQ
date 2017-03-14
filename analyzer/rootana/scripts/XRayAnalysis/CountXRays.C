@@ -19,7 +19,7 @@ int FillXRayInfo(XRay* xray);
 RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectrum, XRay* xray);
 
 // Takes a filename of a rootana output file as well as information on the timing cut and interesting x-ray
-int CountXRays(std::string filename, std::string target_material="Al", std::string channel = "GeLoGain", int rebin_factor=1, std::string dirname = "PlotTAP_EnergyTime", std::string histname_suffix = "MaxBinAPGenerator#any_EnergyTime", double time_cut=9999999) {
+int CountXRays(std::string filename, std::string target_material="Al", std::string channel = "GeLoGain", int rebin_factor=1, std::string dirname = "PlotTAP_EnergyTime", std::string histname_suffix = "MaxBinAPGenerator#any_EnergyTime", double low_time_cut=-9999999, double high_time_cut=9999999) {
 
   TFile* file = new TFile(filename.c_str(), "READ");
   if (file->IsZombie()) {
@@ -42,7 +42,7 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
   }
 
   // Apply the time cut and rebin
-  TH1* hEnergyTimeCut = hTimeEnergy->ProjectionX("_py", hTimeEnergy->GetYaxis()->FindBin(-time_cut), hTimeEnergy->GetYaxis()->FindBin(time_cut));
+  TH1* hEnergyTimeCut = hTimeEnergy->ProjectionX("_py", hTimeEnergy->GetYaxis()->FindBin(low_time_cut), hTimeEnergy->GetYaxis()->FindBin(high_time_cut));
   hEnergyTimeCut->Rebin(rebin_factor);
 
   // Now define the X-ray we want to look at
@@ -57,25 +57,25 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
   double a, b, delta_a, delta_b, corr;
   if (channel == "GeLoGain") {
     // Run 10319
-    //    a = 0.223417; delta_a = 0.0213393;
-    //    b = -0.919075; delta_b = 0.0151079;
-    //    corr = -0.995269;
+    a = 0.223417; delta_a = 0.0213393;
+    b = -0.919075; delta_b = 0.0151079;
+    corr = -0.995269;
 
     // Run 9302
-    a = 0.173809; delta_a = 0.0226852;
-    b = -0.91031; delta_b = 0.020632;
-    corr = -0.995468;
+    //    a = 0.173809; delta_a = 0.0226852;
+    //    b = -0.91031; delta_b = 0.020632;
+    //    corr = -0.995468;
   }
   else if (channel == "GeHiGain") {
     // Run 10319
-    //    a = 0.244223; delta_a = 0.0228416;
-    //    b = -0.931899; delta_b = 0.0148333;
-    //    corr = -0.995306;
+    a = 0.244223; delta_a = 0.0228416;
+    b = -0.931899; delta_b = 0.0148333;
+    corr = -0.995306;
     
     // Run 9302
-    a = 0.19928; delta_a = 0.0256165;
-    b = -0.931788; delta_b = 0.020387;
-    corr = -0.995484;
+    //    a = 0.19928; delta_a = 0.0256165;
+    //    b = -0.931788; delta_b = 0.020387;
+    //    corr = -0.995484;
   }
   else {
     std::cout << channel << " isn't a germanium channel. Aborting..." << std::endl;
@@ -116,10 +116,10 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
 							    
 
   std::cout << "XRay: " << xray.material << " " << xray.transition << " " << xray.energy << " keV" << std::endl;
-  std::cout << "Area = " << area->getValV() << " +/- " << area->getError() << std::endl;
-  std::cout << "Intensity = " << xray.intensity << " +/- " << xray.intensity_error << std::endl;
-  std::cout << "Efficiency = " << xray.efficiency << " +/- " << xray.efficiency_error << std::endl;
-  std::cout << "Number of Stopped Muons = " << n_stopped_muons << " +- " << n_stopped_muons_error << std::endl;
+  std::cout << "Area = " << area->getValV() << " +/- " << area->getError() << " (" << (area->getError() / area->getValV()) * 100 << "%)" << std::endl;
+  std::cout << "Intensity = " << xray.intensity << " +/- " << xray.intensity_error << " (" << (xray.intensity_error / xray.intensity) * 100 << "%)" << std::endl;
+  std::cout << "Efficiency = " << xray.efficiency << " +/- " << xray.efficiency_error << " (" << (xray.efficiency_error / xray.efficiency) * 100 << "%)" << std::endl;
+  std::cout << "Number of Stopped Muons = " << n_stopped_muons << " +- " << n_stopped_muons_error << " (" << (n_stopped_muons_error / n_stopped_muons) * 100 << "%)" << std::endl;
   //  hEnergyTimeCut->Draw();
   return 0;
 }
