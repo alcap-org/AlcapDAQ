@@ -72,6 +72,7 @@ class PlotTAP_Energy_wCoincidence : public BaseModule {
   double fCoincidenceTimeLow, fCoincidenceTimeHigh;
 
   std::map<std::string, std::vector<TH2F*> > fHists;
+  std::map<std::string, std::vector<TH1F*> > fHists_1D;
 
   std::vector<IDs::source> fDetASources, fDetBSources;
 

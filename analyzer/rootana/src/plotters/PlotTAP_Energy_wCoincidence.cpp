@@ -85,16 +85,20 @@ int PlotTAP_Energy_wCoincidence::ProcessEntry(TGlobalData* gData,const TSetupDat
     const AnalysedPulseList& detAPulses = gAnalysedPulseMap[fDetASources[i]];
     const AnalysedPulseList& detBPulses = gAnalysedPulseMap[fDetBSources[i]];
     const std::vector<TH2F*>& hists = fHists[fDetASources[i].str()];
-    
+    const std::vector<TH1F*>& hists_1d = fHists_1D[fDetASources[i].str()];
+
     for(AnalysedPulseList::const_iterator pulseIt = detAPulses.begin();
 	pulseIt != detAPulses.end(); ++pulseIt) {
 
+      bool coincidence_found = false;
       for(AnalysedPulseList::const_iterator pulseIt2 = detBPulses.begin();
 	  pulseIt2 != detBPulses.end(); ++pulseIt2) {
 	double tDiff = (*pulseIt)->GetTime() - (*pulseIt2)->GetTime();
 
 	if (tDiff >= fCoincidenceTimeLow && tDiff <= fCoincidenceTimeHigh) {
+
 	  hists[0]->Fill((*pulseIt)->GetEnergy(), (*pulseIt2)->GetEnergy());
+	  coincidence_found = true;
 
 	  if(fExportPulses && fTotalPulsesExported <= 40) {
 	    ExportPulse::Instance()->AddToExportList(*pulseIt);
@@ -103,6 +107,10 @@ int PlotTAP_Energy_wCoincidence::ProcessEntry(TGlobalData* gData,const TSetupDat
 	  }
 	}
       }//end detBPulse loop
+
+      if (!coincidence_found) {
+	hists_1d[0]->Fill((*pulseIt)->GetEnergy());
+      }
     }//end detAPulse loop
   }//end sources loop
 
@@ -140,8 +148,14 @@ void PlotTAP_Energy_wCoincidence::BookHistograms(const TSetupData* setup) {
     std::string histname("h" + fDetNameB + "_" + fDetNameA + "_inCoincidence");
     std::stringstream histtitle;
     histtitle << "Energy of " << fDetNameA << " vs Energy " << fDetNameB << " detectors with tdiff > " << fCoincidenceTimeLow << " && tdiff < " << fCoincidenceTimeHigh << gen << " generator;E_{" << fDetNameA << "} [keV];E_{" << fDetNameB << "} [keV]";
-    hists.push_back(new TH2F(histname.c_str(), histtitle.str().c_str(), maxAmpA,0,gainA*maxAmpA+offsetA, maxAmpB/16, 0, gainB*maxAmpB+offsetB));
+    hists.push_back(new TH2F(histname.c_str(), histtitle.str().c_str(), maxAmpA,0,gainA*maxAmpA+offsetA, maxAmpB/8, 0, gainB*maxAmpB+offsetB));
 
+    //without coincidence
+    std::vector<TH1F*>& hists_1d = fHists_1D[fDetASources.at(i).str()];
+    histname = "h" + fDetNameA + "_outCoincidence";
+    histtitle.str("");
+    histtitle << "Energy of " << fDetNameA << " with no coinicidence tdiff > " << fCoincidenceTimeLow << " && tdiff < " << fCoincidenceTimeHigh << " with " << fDetNameB << " " << gen << " generator;E_{" << fDetNameA << "} [keV]";
+    hists_1d.push_back(new TH1F(histname.c_str(), histtitle.str().c_str(), maxAmpA,0,gainA*maxAmpA+offsetA));
   }
 }
 
