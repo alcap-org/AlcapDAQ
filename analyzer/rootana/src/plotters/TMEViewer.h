@@ -10,6 +10,7 @@ class TH1F;
 class TH2F;
 class TCanvas;
 class TApplication;
+#include "TPad.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
@@ -65,8 +66,13 @@ class TMEViewer : public BaseModule {
         DetectorList fDetectors;
 
 	TCanvas* fCanvas;
+	TPad* fPad_TimeWindow;
+	TPad* fPad_TimeWindowZoomIn;
+	TPad* fPad_Pulses;
+	std::vector<TH1F*> fTPIHists;
 	TApplication* fApp;
 	TH2F* fTDiffPerDetector;
+	TH2F* fTDiffPerDetector_ZoomIn;
 };
 
 #endif //CHECKTMES_H_
