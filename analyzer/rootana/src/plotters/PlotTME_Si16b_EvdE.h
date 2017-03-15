@@ -10,6 +10,7 @@ class TH1F;
 class TH2F;
 class TCanvas;
 class TApplication;
+#include "TNtuple.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
@@ -80,11 +81,7 @@ class PlotTME_Si16b_EvdE : public BaseModule {
 	IDs::channel* fSiR3;
 	DetectorArm fRightArm;
 
-	TH2F* fEvdE_Right;
-	TH1F* fTDiff_Layer1_Layer2;
-	TH2F* fEvdE_Right_wCoincCut;
-
-	TH1F* fLifetimeHist;
+	TNtuple* fSiRHits;
 };
 
 #endif //CHECKTMES_H_

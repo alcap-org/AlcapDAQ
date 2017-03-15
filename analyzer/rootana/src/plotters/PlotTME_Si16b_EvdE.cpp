@@ -44,29 +44,7 @@ int PlotTME_Si16b_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *se
     fRightArm.fLayer2 = fSiR2;
     fRightArm.fLayer3 = fSiR3;
 
-    double min_x_energy = 0;
-    double max_x_energy = 20000;
-    double min_y_energy = 0;
-    double max_y_energy = 3000;
-    double energy_width = 10; // keV bins
-    int n_bins_x = (max_x_energy - min_x_energy) / energy_width;
-    int n_bins_y = (max_y_energy - min_y_energy) / energy_width;
-
-    fEvdE_Right = new TH2F("hEvdE", "E v dE (right arm)", n_bins_x,min_x_energy,max_x_energy, n_bins_y,min_y_energy,max_y_energy);
-    fEvdE_Right->SetXTitle("E_{1} + E_{2} [keV]");
-    fEvdE_Right->SetYTitle("E_{1} [keV]");
-
-    fEvdE_Right_wCoincCut = (TH2F*) fEvdE_Right->Clone("fEvdE_Right_wCoincCut");
-
-    fTDiff_Layer1_Layer2 = new TH1F("hTDiff_Layer1_Layer2", "Time Difference between Layer 1 hit and Layer 2 hit", 20000,-10000,10000);
-    fTDiff_Layer1_Layer2->SetXTitle("t_{2} - t_{1} [ns]");
-
-    double min_time = -10000;
-    double max_time = 10000;
-    double time_width = 1;
-    int n_time_bins = (max_time - min_time) / time_width;
-    fLifetimeHist = new TH1F("fLifetimeHist", "Hit Times of layer1 hits in fEvdE_Right_wCoincCut", n_time_bins,min_time,max_time);
-    fLifetimeHist->SetXTitle("Hit time [ns]");
+    fSiRHits = new TNtuple("SiRHits", "", "SiR1Energy:SiR2Energy:SiR3Energy:SiR1Time:SiR2Time:SiR3Time");
 
   return 0;
 }
@@ -106,20 +84,13 @@ int PlotTME_Si16b_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
 	for(int i=0; i<n_pulses_layer2; ++i){
 	  const TDetectorPulse* layer2_tdp=(*i_tme)->GetPulse(layer2_source,i);
 
-	  double dE = layer1_tdp->GetEnergy();
-	  double E = layer2_tdp->GetEnergy() + dE;
-	  fEvdE_Right->Fill(E, dE);
+	  double layer1_energy = layer1_tdp->GetEnergy();
+	  double layer2_energy = layer2_tdp->GetEnergy();
 
-	  double layer1_time = layer1_tdp->GetTime();
-	  double layer2_time = layer2_tdp->GetTime();
-	  double tdiff = layer2_time - layer1_time;
-	  fTDiff_Layer1_Layer2->Fill(tdiff);
+	  double layer1_time = layer1_tdp->GetTime() - central_muon_time;
+	  double layer2_time = layer2_tdp->GetTime() - central_muon_time;
 
-	  if (tdiff > -200 && tdiff < 200) {
-	    fEvdE_Right_wCoincCut->Fill(E, dE);
-
-	    fLifetimeHist->Fill(layer1_time - central_muon_time);
-	  }
+	  fSiRHits->Fill(layer1_energy, layer2_energy, 0, layer1_time, layer2_time, 0);
 	}
       }
     }
