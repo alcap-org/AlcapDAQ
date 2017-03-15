@@ -56,7 +56,10 @@ class SetupNavigator{
   void SetPedestalAndNoise(const IDs::channel& channel, double pedestal, double noise);
   void SetCoarseTimeOffset(const IDs::source& src, double mean, double sigma);
 
-private:
+  void SetChannelSyncs(std::string bank, int i1, int i2);
+  void SetBoardSyncs(std::string board, double t);
+
+ private:
 
   /// \brief
   /// Reads the pedestal and pedestal error values.
@@ -70,6 +73,9 @@ private:
   /// \brief
   /// Read in energy calibration constants.
   bool ReadEnergyCalibrationConstants();
+  /// \brief
+  /// Read in sync pulse info
+  bool ReadSynchronizationInfo();
   void OutputCalibCSV();
 
   bool IsCalibRun() const {return fCommandLineArgs.calib;}
@@ -85,6 +91,8 @@ private:
   const std::string fPedestalNoiseTableName;
   const std::string fCoarseTimeOffsetTableName;
   const std::string fEnergyCalibrationConstantsTableName;
+  const std::string fChannelSyncTableName;
+  const std::string fBoardSyncTableName;
 
   /// \brief
   /// The map that stores the pedestal values that we get from the SQLite database
@@ -102,6 +110,10 @@ private:
   /// The map that stores energy calibration constants as <Gain,Pedestal> pairs.
   typedef std::pair<double,double> EnergyCalibRow_t;
   static std::map< IDs::channel, EnergyCalibRow_t > fEnergyCalibrationConstants;
+  /// \brief
+  /// Map that stores the bank to sync TPI index info and time info.
+  std::map< IDs::channel, std::map< int, std::pair<int, int> > > fChanSyncs;
+  std::map< IDs::channel, std::map<int, double> > fBoardSyncTime;
 
 };
 
