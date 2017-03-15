@@ -1,5 +1,5 @@
-#ifndef CHECKTMES_H_
-#define CHECKTMES_H_
+#ifndef PlotTME_CentralMuonInfo_H_
+#define PlotTME_CentralMuonInfo_H_
 
 #include "BaseModule.h"
 class TGlobalData;
@@ -8,14 +8,16 @@ namespace modules {class options;}
 namespace IDs {class channel;}
 class TH1F;
 class TH2F;
+class TCanvas;
+class TApplication;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
 /// \ingroup rootana_plotters
-/// \author Ben Krikler
+/// \author Andrew Edmonds
 ///
 /// \brief
-/// Produce various plots that characterise the produced TMuonEvents
+/// Testing the TMEs for R15b, this will plot the central muon energy
 ///
 /// \details
 /// A longer, more descriptive block of text.
@@ -23,17 +25,17 @@ class TH2F;
 /// You can add this to other groups instead of rootana_modules or in addition
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
-class CheckTMEs : public BaseModule {
+class PlotTME_CentralMuonInfo : public BaseModule {
 
     public:
         /// \brief
         /// Constructor description. If necessary, add a details tag like above.
         ///
         /// \param[in] opts Describe the options this module takes.
-        CheckTMEs(modules::options* opts);
+        PlotTME_CentralMuonInfo(modules::options* opts);
         /// \brief
         /// Is anything done in the destructor?
-        ~CheckTMEs();
+        ~PlotTME_CentralMuonInfo();
 
     private:
         /// \brief
@@ -57,14 +59,13 @@ class CheckTMEs : public BaseModule {
 
         long int fNullCount, fTdpCount;
 
-        typedef std::vector<IDs::channel> DetectorList;
-        DetectorList fDetectors;
+	bool fQuit;
 
-        TH1F *fTotalPulses;
-        TH2F *fPulsesPerDetector;
-        TH2F *fTDiffPerDetector;
-        TH1F *fFlags;
-	bool fPileupProtected;
+        typedef std::vector<IDs::channel> DetectorList;
+        DetectorList fSiT;
+
+	TH2F* fCentralMuonEnergyTime;
+	TH2F* fCentralMuonEnergyTime_PP; // pileup protected
 };
 
 #endif //CHECKTMES_H_

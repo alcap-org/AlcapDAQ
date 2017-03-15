@@ -9,6 +9,10 @@ using std::endl;
 namespace {
     IDs::channel MuSc(IDs::kMuSc,IDs::kNotApplicable);
     IDs::channel MuScA(IDs::kMuScA,IDs::kNotApplicable);
+  IDs::channel SiT_1(IDs::kSiT_1, IDs::kNotApplicable);
+  IDs::channel SiT_2(IDs::kSiT_2, IDs::kNotApplicable);
+  IDs::channel SiT_3(IDs::kSiT_3, IDs::kNotApplicable);
+  IDs::channel SiT_4(IDs::kSiT_4, IDs::kNotApplicable);
 }
 
 MAKE_EXCEPTION(TMuonEvent,Base)
@@ -99,12 +103,31 @@ int TMuonEvent::NumPulses(const IDs::source& source)const{
     return i_source->second.size();
 }
 
+int TMuonEvent::NumPulses(const std::vector<IDs::channel>& channels)const {
+    int size=0;
+    // Loop through the given channels first
+    for (std::vector<IDs::channel>::const_iterator i_channel = channels.begin(); i_channel != channels.end(); ++i_channel) {
+
+      // Now loop through all the sources in the TME
+      for(SourceDetPulseMap::const_iterator i_source=fPulseLists.begin(); i_source!=fPulseLists.end(); ++i_source) {
+	// if the channel of this source matches the given channel
+        if(i_source->first==(*i_channel)) {
+	  size+=i_source->second.size(); // add to the number of pulses
+	  break; // from this for loop
+	}
+      }
+    }
+    return size;  
+}
+
 bool TMuonEvent::HasMuonHit()const{
-    return NumPulses(MuSc); // && NumPulses(MuPCX) && NumPulses(MuPCY);
+    DEBUG_PRINT("TMuonEvent::HasMuonHit() has not been updated to R15b yet");
+    return true;
+    //    return NumPulses(MuSc); // && NumPulses(MuPCX) && NumPulses(MuPCY);
 }
 
 bool TMuonEvent::HasMuonPileup()const{
-    return NumPulses(MuSc)>1 ;//|| NumPulses(MuScA)>0;
+  return (NumPulses(SiT_1)+NumPulses(SiT_2)+NumPulses(SiT_3)+NumPulses(SiT_4))>1 ;
 }
 
 bool TMuonEvent::WasEarlyInEvent()const{

@@ -71,6 +71,7 @@ class PlotTAP_TDiff : public BaseModule {
   std::string fDetNameA, fDetNameB;
   double fTimeLow, fTimeHigh;
   bool fExportSQL;
+  bool fUseHighAmpBinCut;
 
   std::map<std::string, std::vector<TH2F*> > fHists;
   std::map<std::string, std::vector<TH1F*> > fProjs;
