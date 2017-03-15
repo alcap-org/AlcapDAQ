@@ -1,4 +1,4 @@
-#include "ExtractBand.C"
+#include "scripts/PlotTME_Si16b_EvdE/ExtractBand.C"
 
 void ProtonBandExtraction() {
   double x_1 = 0, y_1 = 2000, x_2 = 4000, y_2 = 0;
@@ -28,5 +28,5 @@ void ProtonBandExtraction() {
   cuts.push_back(electron_spot_cut); cuts.push_back(punch_through_cut); cuts.push_back(deuteron_cut);
 
   //  ExtractBand("all-tin-absorber.root", cuts);
-  ExtractBand("~/data/out/v22/Si16b.root", cuts);
+  ExtractBand("~/data/out/v22/Si16b.root", cuts, "PlotTME_Si16b_EvdE", "SiRHits", "SiR1Energy+SiR2Energy", "SiR1Energy");
 }
