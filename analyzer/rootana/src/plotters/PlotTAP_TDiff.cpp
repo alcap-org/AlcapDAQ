@@ -28,7 +28,8 @@ PlotTAP_TDiff::PlotTAP_TDiff(modules::options* opts) :
   BaseModule("PlotTAP_TDiff",opts),
   fDetNameA(opts->GetString("det1")), fDetNameB(opts->GetString("det2")),
   fTimeLow(opts->GetDouble("time_low",-1.e5)), fTimeHigh(opts->GetDouble("time_high",1.e5)),
-  fExportSQL(opts->GetBool("export_sql", false)) {  
+  fExportSQL(opts->GetBool("export_sql", false)),
+  fUseHighAmpBinCut(opts->GetBool("use_high_amp_bin_cut", false)){  
   if (fDetNameA == std::string("") || fDetNameB == std::string(""))
     throw Except::ModulesOptionError("Two detectors must be provided");
   //  else if (fDetNameA == fDetNameB)
@@ -83,13 +84,16 @@ int PlotTAP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
       for(AnalysedPulseList::const_iterator pulseIt2 = detBPulses.begin();
 	  pulseIt2 != detBPulses.end(); ++pulseIt2) {
 	double tDiff = (*pulseIt)->GetTime() - (*pulseIt2)->GetTime();
-	
+
+	//	if ( (*pulseIt)->GetAmplitude() > 3500 || (*pulseIt2)->GetAmplitude() > 3500) {
+
 	hists[0]->Fill(tDiff, (*pulseIt)->GetAmplitude());
 	hists[1]->Fill(tDiff, (*pulseIt2)->GetAmplitude());
 	//	hists[2]->Fill(tDiff, (*pulseIt)->GetTime());
 	//	hists[3]->Fill(tDiff, (*pulseIt2)->GetTime());
 
 	projs[0]->Fill(tDiff);
+	//	}
 	
       }//end detBPulse loop
     }//end detAPulse loop
@@ -104,11 +108,32 @@ int PlotTAP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
 int PlotTAP_TDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
   if (fExportSQL) {
     for (unsigned int i = 0; i < fDetASources.size(); ++i) {
-      TH1D* h = fHists[fDetASources[i].str()][0]->ProjectionX();
+      TH2F* hHist = fHists[fDetASources[i].str()][0];
+      TH1D* h = NULL;
+      if (!fUseHighAmpBinCut) {
+	h = hHist->ProjectionX();
+      }
+      else {
+	TH1D* hAmp = hHist->ProjectionY();
+	// Find the last filled bin so that we can ignore it in the fit (there's an odd SiT-3-S bump that needs removing)
+	int last_filled_bin = hAmp->GetNbinsX();
+	for (int i_bin = hAmp->GetNbinsX(); i_bin >= 1; --i_bin) {
+	  double bin_content = hAmp->GetBinContent(i_bin); 
+	  if (bin_content > 0) {
+	    last_filled_bin = i_bin;
+	    break;
+	  }
+	}
+
+	std::string histname = hHist->GetName();
+	histname += "_highAmpBinCut";
+
+	h = hHist->ProjectionX(histname.c_str(), 1, last_filled_bin-1);
+      }
 
       int binMax = h->GetMaximumBin();
       int maxPoint = h->GetXaxis()->GetBinCenter(binMax);
-      int window_size = 1000;
+      int window_size = 500;
       
       TF1 * fitter = new TF1("fitter", "gaus", maxPoint - window_size/2, maxPoint + window_size/2);
       fitter->SetParameter(1, maxPoint);
