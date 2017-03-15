@@ -1,32 +1,35 @@
-#include "scripts/PlotTME_Si16b_EvdE/ExtractBand.C"
+#include "ExtractBand.C"
+
+#include <sstream>
 
 void ProtonBandExtraction() {
+
+  std::string x_varname = "(SiR1Energy+SiR2Energy)";
+  std::string y_varname = "SiR1Energy";
+
   double x_1 = 0, y_1 = 2000, x_2 = 4000, y_2 = 0;
-  double gradient = (y_2 - y_1) / (x_2 - x_1);
-  double offset = y_1;
-  TF1* electron_spot_cut_eqn = new TF1("electron_spot_cut_eqn", "[0]*x + [1]", 0, 15000);
-  electron_spot_cut_eqn->SetLineColor(kBlack);
-  electron_spot_cut_eqn->SetParameter(0, gradient);
-  electron_spot_cut_eqn->SetParameter(1, offset);
-  Cut* electron_spot_cut = new Cut(electron_spot_cut_eqn, true);
+  double electron_spot_gradient = (y_2 - y_1) / (x_2 - x_1);
+  double electron_spot_offset = y_1;
+  std::stringstream cut_string;
+  cut_string.str("");
+  cut_string << y_varname << ">" << "(" << electron_spot_gradient << "*" << x_varname << "+" << electron_spot_offset << ")";
+  std::cout << "Cut 1 (electron spot): " << cut_string.str() << std::endl;
+  TCut electron_spot_cut = cut_string.str().c_str();
 
   double punch_through_yoffset = 300;
-  TF1* punch_through_cut_eqn = new TF1("punch_through_cut_eqn", "[0]", 0, 25000);
-  punch_through_cut_eqn->SetLineColor(kBlack);
-  punch_through_cut_eqn->SetParameter(0, punch_through_yoffset);
-  Cut* punch_through_cut = new Cut(punch_through_cut_eqn, true);
+  cut_string.str("");
+  cut_string << y_varname << ">" << punch_through_yoffset;
+  std::cout << "Cut 2 (punch through protons): " << cut_string.str() << std::endl;
+  TCut punch_through_cut = cut_string.str().c_str();
 
-  // Cut to remove the remaining deuteron band                                                                                                      
-  TF1* deuteron_cut_eqn = new TF1("deuteron_cut_eqn", "[0]*TMath::Exp([1]*x) + [2]", 0, 25000);
-  deuteron_cut_eqn->SetLineColor(kBlack);
-  deuteron_cut_eqn->SetParameter(0, 4500);
-  deuteron_cut_eqn->SetParameter(1, -0.0004);
-  deuteron_cut_eqn->SetParameter(2, 500);
-  Cut* deuteron_cut = new Cut(deuteron_cut_eqn, false);
-
-  std::vector<Cut*> cuts;
-  cuts.push_back(electron_spot_cut); cuts.push_back(punch_through_cut); cuts.push_back(deuteron_cut);
+  double deuteron_cut_peak = 4500;
+  double deuteron_cut_slope = -0.0004;
+  double deuteron_cut_yoffset = 500;
+  cut_string.str("");
+  cut_string << y_varname << "<" << deuteron_cut_peak << "*TMath::Exp(" << deuteron_cut_slope << "*" << x_varname << ")+" << deuteron_cut_yoffset;
+  std::cout << "Cut 3 (deuteron): " << cut_string.str() << std::endl;
+  TCut deuteron_cut = cut_string.str().c_str();
 
   //  ExtractBand("all-tin-absorber.root", cuts);
-  ExtractBand("~/data/out/v22/Si16b.root", cuts, "PlotTME_Si16b_EvdE", "SiRHits", "SiR1Energy+SiR2Energy", "SiR1Energy");
+  ExtractBand("~/data/out/v22/Si16b.root", electron_spot_cut&&punch_through_cut&&deuteron_cut, "PlotTME_Si16b_EvdE", "SiRHits", x_varname, y_varname);
 }
