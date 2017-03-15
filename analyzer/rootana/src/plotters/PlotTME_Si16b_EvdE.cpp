@@ -65,7 +65,7 @@ int PlotTME_Si16b_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *se
   return 0;
 }
 
-int PlotTME_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
+int PlotTME_Si16b_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
   for(MuonEventList::const_iterator i_tme=gMuonEvents.begin(); i_tme!=gMuonEvents.end(); ++i_tme){
 
