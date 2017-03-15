@@ -60,7 +60,13 @@ int PlotTME_Si16b_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *se
 
     fTDiff_Layer1_Layer2 = new TH1F("hTDiff_Layer1_Layer2", "Time Difference between Layer 1 hit and Layer 2 hit", 20000,-10000,10000);
     fTDiff_Layer1_Layer2->SetXTitle("t_{2} - t_{1} [ns]");
-   
+
+    double min_time = -10000;
+    double max_time = 10000;
+    double time_width = 1;
+    int n_time_bins = (max_time - min_time) / time_width;
+    fLifetimeHist = new TH1F("fLifetimeHist", "Hit Times of layer1 hits in fEvdE_Right_wCoincCut", n_time_bins,min_time,max_time);
+    fLifetimeHist->SetXTitle("Hit time [ns]");
 
   return 0;
 }
@@ -111,6 +117,8 @@ int PlotTME_Si16b_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
 
 	  if (tdiff > -200 && tdiff < 200) {
 	    fEvdE_Right_wCoincCut->Fill(E, dE);
+
+	    fLifetimeHist->Fill(layer1_time - central_muon_time);
 	  }
 	}
       }

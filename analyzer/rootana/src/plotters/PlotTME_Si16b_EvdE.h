@@ -83,6 +83,8 @@ class PlotTME_Si16b_EvdE : public BaseModule {
 	TH2F* fEvdE_Right;
 	TH1F* fTDiff_Layer1_Layer2;
 	TH2F* fEvdE_Right_wCoincCut;
+
+	TH1F* fLifetimeHist;
 };
 
 #endif //CHECKTMES_H_
