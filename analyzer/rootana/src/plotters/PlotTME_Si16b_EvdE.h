@@ -71,7 +71,7 @@ class PlotTME_Si16b_EvdE : public BaseModule {
 
         DetectorList fSiT;
 
-	//	DetectorList fSiL1;
+	DetectorList fSiL1;
 	//	IDs::channel* fSiL2; // will be NULL probably
 	//	IDs::channel* fSiL3;
 	//	DetectorArm fLeftArm;

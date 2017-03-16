@@ -44,7 +44,24 @@ int PlotTME_Si16b_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *se
     fRightArm.fLayer2 = fSiR2;
     fRightArm.fLayer3 = fSiR3;
 
-    fSiRHits = new TNtuple("SiRHits", "", "SiR1Energy:SiR2Energy:SiR3Energy:SiR1Time:SiR2Time:SiR3Time");
+    fSiRHits = new TNtuple("SiRHits", "", "CentralMuonEnergy:SiL1Energy:SiL1Time:SiR1Energy:SiR2Energy:SiR3Energy:SiR1Time:SiR2Time:SiR3Time");
+
+    fSiL1.push_back(IDs::channel (kSiL1_1 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_2 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_3 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_4 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_5 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_6 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_7 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_8 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_9 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_10 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_11 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_12 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_13 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_14 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_15 , kNotApplicable ));
+    fSiL1.push_back(IDs::channel (kSiL1_16 , kNotApplicable ));
 
   return 0;
 }
@@ -54,7 +71,29 @@ int PlotTME_Si16b_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
   for(MuonEventList::const_iterator i_tme=gMuonEvents.begin(); i_tme!=gMuonEvents.end(); ++i_tme){
 
     double central_muon_time = (*i_tme)->GetCentralMuon()->GetTime();
+    double central_muon_energy = (*i_tme)->GetCentralMuon()->GetEnergy();
 
+    // Want to only a single hit in SiL1
+    int n_sil1_pulses = (*i_tme)->NumPulses(fSiL1);
+    if (n_sil1_pulses != 1) {
+      continue; // to the next TME
+    }
+
+    // Get the SiL1 pulse
+    double sil1_energy = 0;
+    double sil1_time = 0;
+    for(DetectorList::const_iterator i_sil1_det=fSiL1.begin(); i_sil1_det!=fSiL1.end(); ++i_sil1_det){
+      int sil1_source_index=(*i_tme)->GetFirstSourceIndex(*i_sil1_det); // I shouldn't have more than one source
+      if (sil1_source_index<0) {
+	continue; // this TME has no sources for this channel
+      }
+      const IDs::source& sil1_source=(*i_tme)->GetSource(sil1_source_index);	
+      const TDetectorPulse* sil1_tdp=(*i_tme)->GetPulse(sil1_source,0); // we already know this only has one pulse
+      sil1_energy = sil1_tdp->GetEnergy();
+      sil1_time = sil1_tdp->GetTime() - central_muon_time;
+    }
+
+    // Now continue and get the SiR1 and SiR2 hits
     DetectorList layer1 = fRightArm.fLayer1;
     IDs::channel* layer2 = fRightArm.fLayer2;
     for(DetectorList::const_iterator i_det=layer1.begin(); i_det!=layer1.end(); ++i_det){
@@ -90,7 +129,7 @@ int PlotTME_Si16b_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
 	  double layer1_time = layer1_tdp->GetTime() - central_muon_time;
 	  double layer2_time = layer2_tdp->GetTime() - central_muon_time;
 
-	  fSiRHits->Fill(layer1_energy, layer2_energy, 0, layer1_time, layer2_time, 0);
+	  fSiRHits->Fill(central_muon_energy, sil1_energy, sil1_time, layer1_energy, layer2_energy, 0, layer1_time, layer2_time, 0);
 	}
       }
     }
