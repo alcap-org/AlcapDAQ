@@ -7,7 +7,14 @@
 #include "TCanvas.h"
 #include "TNtuple.h"
 
+#include "RooWorkspace.h"
+#include "RooDataHist.h"
+#include "RooPlot.h"
+#include "RooAbsPdf.h"
+#include "RooRealVar.h"
+
 #include <iostream>
+#include <sstream>
 
 int ExtractBand(std::string filename, const std::vector<Cut*>& cuts, std::string dirname, std::string ntuplename, std::string x_varname, std::string y_varname) {
 
@@ -28,6 +35,7 @@ int ExtractBand(std::string filename, const std::vector<Cut*>& cuts, std::string
   for (std::vector<Cut*>::const_iterator i_cut = cuts.begin(); i_cut != cuts.end(); ++i_cut) {
     full_cut += (*i_cut)->cut;
   }
+  //  full_cut += "SiR1Time<2000 && SiR1Time>=100";
   std::cout << "Full Cut = " << full_cut << std::endl;
   
 
@@ -83,15 +91,50 @@ int ExtractBand(std::string filename, const std::vector<Cut*>& cuts, std::string
 	      << hEvdEBand->ProjectionX()->Integral(bin_integral_low, bin_integral_high) << std::endl;
 
     // Draw
-    hEvdE->Draw("COLZ");
-    //    hEvdEBand->Draw("COLZ");
+    //    hEvdE->Draw("COLZ");
+    hEvdEBand->Draw("COLZ");
     c->SetLogz();
+    c->Update();
 
     // Also draw the cuts
     for (std::vector<Cut*>::const_iterator i_cut = cuts.begin(); i_cut != cuts.end(); ++i_cut) {
-      TF1* fn = (*i_cut)->eqn;
-      fn->Draw("LSAME");
+      (*i_cut)->Draw(c);
     }
+
+    TCanvas* c_folded = new TCanvas("c_folded", "c_folded");
+    TH1D* hFoldedSpectrum = hEvdEBand->ProjectionX();
+    hFoldedSpectrum->Rebin(50); // rebin to 500 keV bins
+    hFoldedSpectrum->Draw("HIST E");
+
+
+    // Now draw the lifetime plot
+    TCanvas* c_lifetime = new TCanvas("c_lifetime", "c_lifetime");
+    c_lifetime->SetLogy();
+    TH1F* hLifetime = new TH1F("hLifetime", "Layer 1 Hit Times of Extracted Band", 120,-5000,10000);
+    arm_hits->Draw("SiR1Time>>hLifetime", full_cut, "goff");
+    TF1* lifetime_fn = new TF1("lifetime_fn", "[0]*TMath::Exp(-x/[1])", 100,2000);
+    lifetime_fn->SetParameters(1000, 750);
+    hLifetime->Fit(lifetime_fn, "R");
+    hLifetime->Draw("HIST E");
+    lifetime_fn->Draw("LSAME");
+    //    RooWorkspace* ws = new RooWorkspace("ws", kTRUE);
+    //    std::stringstream factory_cmd, sum_factory_cmd;
+    //    factory_cmd << "scale[100, 5000]*Exponential::si_life(time[250,5000], lifetime[-2e-3, -1e-3])";
+    //    std::cout << factory_cmd.str() << std::endl;
+    //    ws->factory(factory_cmd.str().c_str());
+    //    factory_cmd.str("");
+
+    //    RooDataHist data("data", "Time Spectrum", (ws->argSet("time")), hLifetime);
+    //    (ws->pdf("si_life"))->fitTo(data);
+
+    //    RooPlot* Eframe = (ws->var("time"))->frame();
+    //    data.plotOn(Eframe);
+    //    (ws->pdf("si_life"))->plotOn(Eframe);
+    //    ws->Print();
+    //    std::cout << -1.0/ws->var("lifetime")->getValV() << " +/- " << (-1.0/ws->var("lifetime")->getValV())*(ws->var("lifetime")->getError()/ws->var("lifetime")->getValV()) << std::endl;
+    //    Eframe->Draw();
+
+
   }
   return 0;
 }
