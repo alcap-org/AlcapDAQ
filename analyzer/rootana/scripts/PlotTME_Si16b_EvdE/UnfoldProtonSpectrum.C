@@ -1,12 +1,12 @@
 void UnfoldProtonSpectrum() {
 
-  TFile* response_file = new TFile("Al50_1.07_target-hist_2015-01-15_response_stopped-only_10M-thnsparse_500keV-bins.root", "READ");
-  TFile* data_file = new TFile("result_Al50.root", "READ");
-  TFile* out_file = new TFile("unfolded.root", "RECREATE");
+  TFile* response_file = new TFile("scripts/PlotTME_Si16b_EvdE/R15b_10M_proton_20MeV_strawman_response.root", "READ");
+  TFile* data_file = new TFile("scripts/PlotTME_Si16b_EvdE/Si16b_plots.root", "READ");
+  TFile* out_file = new TFile("scripts/PlotTME_Si16b_EvdE/unfolded.root", "RECREATE");
 
-  const int n_arms = 2;
-  std::string arm_names[n_arms] = {"SiL", "SiR"};
-  int rebin_factor = 5;
+  const int n_arms = 1;
+  std::string arm_names[n_arms] = {"SiR"};
+  int rebin_factor = 1;
 
   for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
     std::string arm_name = arm_names[i_arm];
@@ -14,7 +14,7 @@ void UnfoldProtonSpectrum() {
     std::string response_name = arm_name + "_response";
     RooUnfoldResponse* response = (RooUnfoldResponse*) response_file->Get(response_name.c_str());
 
-    std::string folded_spectrum_name = arm_name + "_EvdE_px";
+    std::string folded_spectrum_name = "hProtonBand_px";
     TH1D* folded_spectrum = (TH1D*) data_file->Get(folded_spectrum_name.c_str());
     folded_spectrum->Rebin(rebin_factor);
     //    response->Hresponse()->Draw("COLZ");
@@ -56,8 +56,8 @@ void UnfoldProtonSpectrum() {
     folded_spectrum->Draw("HIST E SAME");
     unfold.PrintTable(cout);
 
-    double energy_range_low = 4000;
-    double energy_range_high = 8000;
+    double energy_range_low = 3000;
+    double energy_range_high = 10000;
     int bin_low = unfolded_spectrum->FindBin(energy_range_low);
     int bin_high = unfolded_spectrum->FindBin(energy_range_high);
     double error;
