@@ -73,8 +73,18 @@ int PlotTME_Si16b_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
     double central_muon_time = (*i_tme)->GetCentralMuon()->GetTime();
     double central_muon_energy = (*i_tme)->GetCentralMuon()->GetEnergy();
 
-    // Collect all the layer 1 hits
     DetectorList layer1 = fRightArm.fLayer1;
+    IDs::channel* layer2 = fRightArm.fLayer2;
+    IDs::channel* layer3 = fRightArm.fLayer3;
+    // quickly check all the SiR channels and if there are no hits whatsoever then save time and just continue to the next TME
+    int n_total_sir_pulses = (*i_tme)->NumPulses(layer1);
+    n_total_sir_pulses += (*i_tme)->NumPulses(*layer2);
+    n_total_sir_pulses += (*i_tme)->NumPulses(*layer3);
+    if (n_total_sir_pulses == 0) {
+      continue; // to the next TME
+    }
+
+    // Collect all the layer 1 hits
     std::vector<const TDetectorPulse*> layer1_tdps;
     for(DetectorList::const_iterator i_det=layer1.begin(); i_det!=layer1.end(); ++i_det){
       
@@ -98,7 +108,6 @@ int PlotTME_Si16b_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
     }
 
     // Collect all the layer two hits
-    IDs::channel* layer2 = fRightArm.fLayer2;
     std::vector<const TDetectorPulse*> layer2_tdps;
     int layer2_source_index=(*i_tme)->GetFirstSourceIndex(*layer2); // I shouldn't have more than one source
     if (layer2_source_index>=0) {
@@ -113,7 +122,6 @@ int PlotTME_Si16b_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
     }
 
     // Collect all the layer 3 hits
-    IDs::channel* layer3 = fRightArm.fLayer3;
     std::vector<const TDetectorPulse*> layer3_tdps;
     int layer3_source_index=(*i_tme)->GetFirstSourceIndex(*layer3); // I shouldn't have more than one source
     if (layer3_source_index>=0) {
@@ -132,8 +140,13 @@ int PlotTME_Si16b_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
     double layer1_time, layer2_time, layer3_time;
     for (std::vector<const TDetectorPulse*>::const_iterator i_layer1_tdp = layer1_tdps.begin(); i_layer1_tdp != layer1_tdps.end()+1; ++i_layer1_tdp) {
       if ( i_layer1_tdp == layer1_tdps.end()) {
-	layer1_energy = -1000;
-	layer1_time = (*i_tme)->GetWindowWidth()*10; // put it will outside of the window
+	if (layer1_tdps.size() == 0) {
+	  layer1_energy = -1000;
+	  layer1_time = (*i_tme)->GetWindowWidth()*10; // put it will outside of the window
+	}
+	else {
+	  continue;
+	}
       }
       else {
 	layer1_energy = (*i_layer1_tdp)->GetEnergy();
@@ -141,8 +154,13 @@ int PlotTME_Si16b_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
       }
       for (std::vector<const TDetectorPulse*>::const_iterator i_layer2_tdp = layer2_tdps.begin(); i_layer2_tdp != layer2_tdps.end()+1; ++i_layer2_tdp) {
 	if ( i_layer2_tdp == layer2_tdps.end()) {
-	  layer2_energy = -1000;
-	  layer2_time = (*i_tme)->GetWindowWidth()*10; // put it will outside of the window
+	  if (layer2_tdps.size() == 0) {
+	    layer2_energy = -1000;
+	    layer2_time = (*i_tme)->GetWindowWidth()*10; // put it will outside of the window
+	  }
+	  else {
+	    continue; // don't want to put in a "fake" missing hit
+	  }
 	}
 	else {
 	  layer2_energy = (*i_layer2_tdp)->GetEnergy();
@@ -150,8 +168,13 @@ int PlotTME_Si16b_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup)
 	}
 	for (std::vector<const TDetectorPulse*>::const_iterator i_layer3_tdp = layer3_tdps.begin(); i_layer3_tdp != layer3_tdps.end()+1; ++i_layer3_tdp) {
 	  if ( i_layer3_tdp == layer3_tdps.end()) {
-	    layer3_energy = -1000;
-	    layer3_time = (*i_tme)->GetWindowWidth()*10; // put it will outside of the window
+	    if (layer3_tdps.size() == 0) {
+	      layer3_energy = -1000;
+	      layer3_time = (*i_tme)->GetWindowWidth()*10; // put it will outside of the window
+	    }
+	    else {
+	      continue;
+	    }
 	  }
 	  else {
 	    layer3_energy = (*i_layer3_tdp)->GetEnergy();
