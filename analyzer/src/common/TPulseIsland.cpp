@@ -17,11 +17,11 @@ TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fBankName(""), fTDCTim
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>::const_iterator& first,
         const vector<int>::const_iterator& last, string bank_name) :
-  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false) {
+  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fFit(0) {
 }
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name) :
-  fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false) {
+  fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fFit(0) {
 }
 
 void TPulseIsland::Reset(Option_t* o) {
@@ -29,10 +29,12 @@ void TPulseIsland::Reset(Option_t* o) {
   fSamples.clear();
   fBankName = "";
   fTDCTime = -1;
+  fWFDTime = -1;
   fPSD_parameter = -1;
   fVetoPulse = false;
   fPileupPulse = false;
   fDoublePulse = false;
+  fFit = 0;
 }
 
 // GetAmplitude()
@@ -206,6 +208,7 @@ double TPulseIsland::GetEnergyAmp(int amp) const{
   if(det == "GeCHEH"){ energy = ((double)amp * 0.0001517) - 0.0003119;  }
   if(det == "GeCHEL"){ energy = ((double)amp * 0.0003838) - 0.000629;    }
   if(det == "LaBr3"){ energy = ((double)amp * 0.00163022) - 0.00836618;  } 
+  if(det == "GeCHT"){ energy = (double)amp;  }
   return energy;
 }
 
@@ -218,6 +221,7 @@ double TPulseIsland::GetEnergyInt(double Int) const{
   if(det == "GeCHEH"){ energy = (0.000002022 * (double)Int) + 0.001323;  }
   if(det == "GeCHEL"){ energy = (0.000005112 * (double)Int) + 0.00150;  }
   if(det == "LaBr3"){ energy = 0.0000823 * (double)Int;  } 
+  if(det == "GeCHT"){ energy = Int;  }
   return energy;
 }
 
@@ -229,6 +233,7 @@ double TPulseIsland::GetEnergyFit(double fit) const{
   if(det == "GeCHEH"){ energy = (fit * 0.0001518) + 0.000299;  }
   if(det == "GeCHEL"){ energy = (fit * 0.0003841) - 0.0003155;    }
   if(det == "LaBr3"){ energy = (fit * 0.00163022) - 0.00836618;  } 
+  if(det == "GeCHT"){ energy = fit;  }
   return energy;
 }
 

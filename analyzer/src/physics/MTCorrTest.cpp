@@ -53,7 +53,7 @@ namespace {
   TH2D* vvhTCorrTest_FEvTDiff[NCRATE][MAXNCHANWFD];
   //TH2D* vvhTCorrTest_IEvTDiff[NCRATE][MAXNCHANWFD];
   TH2D* vvhTCorrTest_PSDCut[NCRATE][MAXNCHANWFD];
-  TH3D* vvhTCorrTest_PSD[NCRATE][MAXNCHANWFD];
+  TH2D* vvhTCorrTest_PSD[NCRATE][MAXNCHANWFD];
   //TH2D* vvhTCorrTest_EvTDiffG[NCRATE][MAXNCHANWFD];
   TH1D* vhTCorrTest_Count_TSc;
   TH1D* vhTCorrTest_TSc_Amp;
@@ -107,7 +107,7 @@ INT MTCorrTest_init() {
 	WFDBANKS[icrate][ich] = bank;
 	//TDCBANKS[icrate][ich] = gSetup->GetBankName("T" + det);
       }
-      else if(det == "GeCHEH" || det == "GeCHEL"){
+      else if(det == "GeCHEH" || det == "GeCHEL" || det == "GeCHT"){
 	WFDBANKS[icrate][ich] = bank;
 	//TDCBANKS[icrate][ich] = gSetup->GetBankName("TGeCHT");
       }
@@ -131,6 +131,7 @@ INT MTCorrTest_init() {
       if(det == "GeCHEH") max_fit = 2.5;
       else if(det == "GeCHEL") max_fit = 6.0;
       else if(det == "LaBr3") max_fit = 15.0;
+      else if(det == "GeCHT") max_fit = max_adc;
 
 
       
@@ -151,7 +152,7 @@ INT MTCorrTest_init() {
       if(det != "TSc"){
 	sprintf(histname, "hTCorrTest_FEvTDiff_%s", det.c_str());
 	sprintf(histtitle, "Fit Energy vs TSC TDiff for %s", det.c_str());
-	vvhTCorrTest_FEvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/100, TIME_LOW, TIME_HIGH + 100, 7500, 0, max_fit);
+	vvhTCorrTest_FEvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/20, TIME_LOW, TIME_HIGH + 20, 7500, 0, max_fit);
 	vvhTCorrTest_FEvTDiff[icrate][ich]->GetXaxis()->SetTitle("TDiff (TDC) (ns)");
 	vvhTCorrTest_FEvTDiff[icrate][ich]->GetYaxis()->SetTitle("Energy (fit) (MeV)");
       }
@@ -175,16 +176,16 @@ INT MTCorrTest_init() {
 
       //PSD after time cuts/vetos
       if(det == "NdetD" || det == "NdetU"){
-	/*
+	
 	sprintf(histname, "hTCorrTest_PSDCut_%s", det.c_str());
 	sprintf(histtitle, "Pulse Height vs PSD parameter for %s", det.c_str());
-	vvhTCorrTest_PSDCut[icrate][ich] = new TH2D(histname, histtitle, 7500, 0, max_fit, 600, 0, 0.45);
+	vvhTCorrTest_PSDCut[icrate][ich] = new TH2D(histname, histtitle, 640, 0, 8.0125, 600, 0, 0.45);
 	vvhTCorrTest_PSDCut[icrate][ich]->GetXaxis()->SetTitle("Energy (fit)");
 	vvhTCorrTest_PSDCut[icrate][ich]->GetYaxis()->SetTitle("PSD parameter");
-	*/
+	
 	sprintf(histname, "hTCorrTest_PSD_%s", det.c_str());
 	sprintf(histtitle, "Pulse Height (Fit) vs PSD parameter for %s", det.c_str());
-	vvhTCorrTest_PSD[icrate][ich] = new TH3D(histname, histtitle, 640, 0, 8.0125, 600, 0, 0.45,  (TIME_HIGH-TIME_LOW)/200, TIME_LOW, TIME_HIGH + 200);
+	vvhTCorrTest_PSD[icrate][ich] = new TH2D(histname, histtitle, 640, 0, 8.0125, 600, 0, 0.4);
 	vvhTCorrTest_PSD[icrate][ich]->GetXaxis()->SetTitle("Pulse Height (Fit) (adc counts)");
 	vvhTCorrTest_PSD[icrate][ich]->GetYaxis()->SetTitle("PSD parameter");
 
@@ -254,6 +255,11 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
       int t0 = 0;
       for(int p = 0; p < pulses.size(); ++p){
 	//setup variables
+
+	if(pulses[p]->GetVetoPulse()) continue; //vetoed
+	if(pulses[p]->GetPileupPulse()) continue; //Pileup Protection
+	if(pulses[p]->GetTDCTime() < 0 ) continue; //no correlated TDC pulse
+
 	float pedestal = pulses[p]->GetPedestal(8);
 	if(det == "TSc") pedestal = pulses[p]->GetPedestal(4);
 	const std::vector<int>& samples = pulses[p]->GetSamples();
@@ -263,21 +269,16 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	if(*(std::min_element( samples.begin(), samples.end() )) <= 0) continue;
 	if(*(std::max_element( samples.begin(), samples.end() )) >= max_adc-1) continue;
 
-
-	if(pulses[p]->GetVetoPulse()) continue; //vetoed
-	if(pulses[p]->GetPileupPulse()) continue; //Pileup Protection
-
 	//float integral_ps = pulses[p]->GetIntegral();
-	float max = pulses[p]->GetPulseHeight();
 	float threshold = MTCorrTest_Threshold(det);
 	float fit_max = 0;
-	if(det == "TSc") fit_max = max;	
+	if(det == "TSc" || det == "GeCHT") fit_max = pulses[p]->GetPulseHeight();	
 	else fit_max = pulses[p]->GetFitMax();
 	
 	double PSD_ratio = pulses[p]->GetPSDParameter();
 
 	//pulse detail checks
-	if(max < polarity*(threshold-pedestal)) continue;
+	if(fit_max < polarity*(threshold-pedestal)) continue;
 
 	//if(pulses[p]->GetDoublePulse()) continue; //Multiple hits near TSc
 
@@ -289,18 +290,19 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	//if( !MTCorrTest_Neutron(det, PSD_ratio, energy_amp) ) continue; //gamma
 
 	if(det == "TSc"){
-	  vhTCorrTest_TSc_Amp->Fill(max);
+	  vhTCorrTest_TSc_Amp->Fill(fit_max);
 	  TScCount++;
 	  continue;
 	}
 
 	//loop over TTSc times
-	if(pulses[p]->GetTDCTime() < 0) continue;
 	for(int t = t0; t<ref_hits.size(); ++t){
 	  if(ref_hits[t]->GetTDCTime() < 0) continue;
 	  if(ref_hits[t]->GetPileupPulse() ) continue;
 	  if(ref_hits[t]->GetVetoPulse() ) continue;
 	  double dt = TICKTDC*(pulses[p]->GetTDCTime() - ref_hits[t]->GetTDCTime());
+
+	  if(dt > 3*TIME_HIGH && t >= 1) t0 = t-1;
 	  if(dt < TIME_LOW) break;
 	  else if(dt < TIME_HIGH){
 	    if(det != "NdetD" && det != "NdetU"){
@@ -313,18 +315,17 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	      //vvhTCorrTest_EvTDiff[icrate][ich]->Fill(dt, energy_amp);
 	      vvhTCorrTest_FEvTDiff[icrate][ich]->Fill(dt, energy_fit);
 	      //vvhTCorrTest_IEvTDiff[icrate][ich]->Fill(dt, energy_int);
-	      //vvhTCorrTest_PSDCut[icrate][ich]->Fill(energy_fit, PSD_ratio);
-	      vvhTCorrTest_PSD[icrate][ich]->Fill(energy_fit, PSD_ratio, dt);
+	      vvhTCorrTest_PSDCut[icrate][ich]->Fill(energy_fit, PSD_ratio);
+	      vvhTCorrTest_PSD[icrate][ich]->Fill(energy_fit, PSD_ratio);
 
 	    }
 	    else{
 	      //vvhTCorrTest_EvTDiffG[icrate][ich]->Fill(dt, energy_fit);
-	      vvhTCorrTest_PSD[icrate][ich]->Fill(energy_fit, PSD_ratio, dt);
+	      vvhTCorrTest_PSD[icrate][ich]->Fill(energy_fit, PSD_ratio);
 
 	    }
 
 	  }
-	  else ++t0;
 	}
       }
     }
@@ -372,6 +373,7 @@ float MTCorrTest_Threshold(std::string detname){
   float thresh = 0;
   if(detname == "GeCHEH") thresh = 1500;
   else if(detname == "GeCHEL") thresh = 1050;
+  else if(detname == "GeCHT") thresh = 15300;
   else if(detname == "NdetD") thresh = 15450;
   else if(detname == "NdetU") thresh = 15510;
   else if(detname == "LaBr3") thresh = 15645;
@@ -379,19 +381,7 @@ float MTCorrTest_Threshold(std::string detname){
   else thresh = 0;
   return thresh;
 }
-/*
-float MTCorrTest_GetEnergyFit(std::string detname, double fit_amp){
-  float energy = 0;
-  if(detname == "NdetD"){ energy = (fit_amp * 0.0003914) + 0.0289;  }
-  if(detname == "NdetU"){ energy = (fit_amp * 0.0004381) + 0.0257;  }
-  if(detname == "GeCHEH"){ energy = (fit_amp * 0.0001519) - 0.0002643;  }
-  if(detname == "GeCHEL"){ energy = (fit_amp * 0.0003846) - 0.0003008;    }
-  if(detname == "LaBr3"){ energy = (fit_amp * 0.00163022) - 0.00836618;  } 
-  if(detname == "TSc") {energy = fit_amp; }
 
-  return energy;
-}
-*/
 bool MTCorrTest_Neutron(std::string det, double ratio, float energy){
 
   if(det == "NdetD"){  //need to update cuts for NdetD

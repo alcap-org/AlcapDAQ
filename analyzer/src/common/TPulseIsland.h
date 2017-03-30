@@ -34,6 +34,8 @@ class TPulseIsland : public TObject {
   int64_t fTDCTime;   //correlated hit TDC time
   float fPSD_parameter;     //integral ratio, 1+ == neutron in simplest case
   bool fVetoPulse, fPileupPulse, fDoublePulse;
+  double fWFDTime;
+  float fFit;
 
  public:
   /// This defaultconstructor I believe exists so ROOT can load these from file and is not used explcitly.
@@ -68,6 +70,7 @@ class TPulseIsland : public TObject {
   int GetTimeStamp() const { return fTimeStamp; }
   const std::string& GetBankName() const { return fBankName; }
   int64_t GetTDCTime() const { return fTDCTime; }
+  double GetWFDTime() const {return fWFDTime; }
   float GetPSDParameter() const { return fPSD_parameter; }
 
   double GetClockTickInNs() const { return TSetupData::Instance()->GetClockTick(fBankName); }
@@ -103,6 +106,7 @@ class TPulseIsland : public TObject {
   double GetEnergyAmp(int amp) const;
   double GetEnergyFit(double fit) const;
   double GetEnergyInt(double Int) const;
+  float GetFit() const { return fFit; }
 
 
 
@@ -111,11 +115,12 @@ class TPulseIsland : public TObject {
   void SetSamples( const std::vector<int>::const_iterator& first,
           const std::vector<int>::const_iterator& last){fSamples.assign(first,last);}
   void SetTDCTime(int64_t t)  { fTDCTime = t; }
+  void SetWFDTime(double t) { fWFDTime = t; } 
   void SetPSDParameter(float PSD)  { fPSD_parameter = PSD; }
+  void SetFit(float energy) { fFit = energy; }
   void SetVetoPulse(bool check) { fVetoPulse = check; }
   void SetPileupPulse(bool check) { fPileupPulse = check; }
   void SetDoublePulse(bool check) { fDoublePulse = check; }
-
  private:
   /// Copying is made explicitly private since we do not need it yet.
   TPulseIsland(const TPulseIsland& src);

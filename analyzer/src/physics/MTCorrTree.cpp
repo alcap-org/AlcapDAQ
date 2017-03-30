@@ -52,7 +52,7 @@ namespace {
   TH1D* vhTCorrTree_Count_TSc;
   TH1D* vhTCorrTree_TSc_Amp;
   const double TIME_LOW = -2e3, TIME_HIGH = 8e3;
-  double TScCount;
+  double TScCount = 0;
 
   TFile *treeFile = NULL;
   char bank[5], det[10];
@@ -83,7 +83,7 @@ extern TROOT* gROOT;
 static bool PLUGIN_LOADED = false;
 
 
-INT MTCorrTree_init() {
+INT MTCorrTree_bor(int runNumber) {
 
   TDirectory* cwd = gDirectory;
   gDirectory->mkdir("TCorrTree")->cd();
@@ -210,9 +210,8 @@ INT MTCorrTree_eor(int run_number){
   return 0;
 }
 
-INT MTCorrTree_bor(int run_number){
-  TScCount = 0;
-  return 0;
+INT MTCorrTree_init(){
+  return SUCCESS;
 }
 
 INT MTCorrTree(EVENT_HEADER *pheader, void *pevent) {

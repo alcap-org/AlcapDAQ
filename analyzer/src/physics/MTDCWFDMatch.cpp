@@ -47,9 +47,10 @@ namespace {
   const double VETO_LOW = -80, VETO_HIGH = 80;
   const double PILEUP_LOW = -1e4, PILEUP_HIGH=1e4;
   const double DOUBLE_LOW = -1e3, DOUBLE_HIGH=1e3;
+  INT plotCount = 0, plotCountLow = 0;
+
 }
 
-INT plotCount = 0;
 
 ANA_MODULE MTDCWFDMatch_module =
 {
@@ -82,7 +83,7 @@ INT MTDCWFDMatch_init() {
 	TDCBANKS[icrate][ich] = gSetup->GetBankName("T" + det);
 	VETOBANKS[icrate][ich] = gSetup->GetBankName("T" + det + "V");
       }
-      else if(det == "GeCHEH" || det == "GeCHEL"){
+      else if(det == "GeCHEH" || det == "GeCHEL" || det == "GeCHT"){
 	WFDBANKS[icrate][ich] = bank;
 	TDCBANKS[icrate][ich] = gSetup->GetBankName("TGeCHT");
 	VETOBANKS[icrate][ich] = gSetup->GetBankName("TGeV");
@@ -104,7 +105,7 @@ INT MTDCWFDMatch_init() {
       ////////////////Alignment//////////////////
       char histname[64]; sprintf(histname, "hTCorrTest_Align_%s", det.c_str());
       char histtitle[64]; sprintf(histtitle, "TDC WFD Alignment for %s", det.c_str());
-      vvhTDCWFDMatch_Align[icrate][ich] = new TH2D(histname, histtitle, 25*(ALIGN_HIGH-ALIGN_LOW), ALIGN_LOW*50, ALIGN_HIGH*50, max_adc/4, 0, max_adc);
+      vvhTDCWFDMatch_Align[icrate][ich] = new TH2D(histname, histtitle, 20*(ALIGN_HIGH-ALIGN_LOW), ALIGN_LOW*10, ALIGN_HIGH*30, max_adc/4, 0, max_adc);
       vvhTDCWFDMatch_Align[icrate][ich]->GetXaxis()->SetTitle("Alignment Difference (ns)");
       vvhTDCWFDMatch_Align[icrate][ich]->GetYaxis()->SetTitle("Energy (MeV)");
 
@@ -164,11 +165,13 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
       //tcorr corrects spectrum to place value near zero in correlation
       //aligncorr is a correction to the align range size, mostly for Ge
       //vcorr is the time difference between veto and channel in MTTScTcorrTDC
-      if(det == "GeCHEH" || det == "GeCHEL"){ tcorr = 225; aligncorr = 1000; vcorr = 127;}
-      if(det == "TSc") {aligncorr = -60; tcorr = -50; vcorr = -10; vRange = 9920; };
+      if(det == "GeCHEH" || det == "GeCHEL"){ tcorr = -1600; aligncorr = 1000; vcorr = 127;}
+      if(det == "TSc") {aligncorr = -60; tcorr = -70; vcorr = -10; vRange = 9920; };
       if(det == "LaBr3") vcorr = 7;
-      if(det == "NdetD") vcorr = 52;
-      if(det == "NdetU") vcorr = 40;
+      if(det == "NdetD") {vcorr = 52; tcorr = -60;}
+      if(det == "NdetU") {vcorr = 40; tcorr = -60;}
+      if(det == "GeCHT") {vcorr = 40; tcorr = -60;}
+
 
       int trigCount = 0;
 
@@ -188,8 +191,9 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	int tMax = 0;
 	//bool aligned = false;
 	float tThreshold = 0;
+	int tThreshTmp = 0;
 	float threshold = MTDCWFDMatch_Threshold(det);
-	float cf = 0, cft_init = 0, cf_init = 0, cft = 0;
+	double cf = 0, cft_init = 0, cf_init = 0, cft = 0;
 	float tdiff_align = -15000;
 
 	//plot waveform for CFT
@@ -198,7 +202,7 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	  float adc = samples.at(i);
 	  if(adc == 0 || adc >= max_adc-1){ overflow = true; break; }
 	  hpulse->SetBinContent(i, samples.at(i));
-	  float tmp = polarity*(samples.at(i) - pedestal);
+	  float tmp = polarity*(adc - pedestal);
 	  if(tmp > max){
 	    max = tmp; tMax = i;
 	  }
@@ -208,17 +212,29 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	float thresh_tmp = polarity * (threshold - pedestal);
 	if(max < thresh_tmp) {delete hpulse; continue; }
 
+
 	//find timestamp location, does this affect all detectors?
-	for(int i = 0; i< tMax; i++) {
-	  float tmp = polarity * (samples.at(i) - pedestal);
-	  if(tmp < thresh_tmp) {
-	    tThreshold = i;
+	for(int i = 0; i< tMax; ++i) {
+	  float tmp = samples.at(i);
+	  if(tmp > threshold && polarity == 1) {
+	    tThreshTmp = i;
+	    break;
+	  }
+	  if(tmp < threshold && polarity == -1) {
+	    tThreshTmp = i;
 	    break;
 	  }
 	}
 
+	if(tThreshTmp <= 1) tThreshTmp = 2;
+	double x1t = tThreshTmp-1, x2t = tThreshTmp;
+	double y1t = samples.at(x1t), y2t = samples.at(x2t);
+	tThreshold = ( (threshold - y1t)*(x2t - x1t)/(y2t - y1t) ) + x1t;  //linear interpolation
+	//tThreshold = 0;
+
+
 	////////////////GetCF timing/////////////////////////////////
-	cf = 0.2*max;
+	cf = 0.1*max;
 	for(int i = tMax; i > 0; i--){
 	  double tmp = polarity * (samples.at(i) - pedestal);
 	  if(tmp < cf){
@@ -234,11 +250,8 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 
 
 	//max = amp, cft = time, integral_ps = int
-	double CFT = (pulses[p]->GetTimeStamp() + tThreshold + cft) * TICKWFD[icrate];
-	//if(det == "GeCHEH" || det == "GeCHEL") CFT += tThreshold * TICKWFD[icrate]; 
+	double CFT = (pulses[p]->GetTimeStamp() - tThreshold + cft) * TICKWFD[icrate];
 
-	//std::cout << "Times : CFT " << CFT << " timestamp " << pulses[p]->GetTimeStamp() * TICKWFD[icrate] << std::endl;
-	//if(p+1 < pulses.size()) std::cout << "TDiff : " << pulses[p+1]->GetTimeStamp() - pulses[p]->GetTimeStamp() << std::endl;
 
 	//a0 set to zero before pulse loop
 
@@ -247,69 +260,40 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 
 	int64_t a1 = 0;
 	int nMatch = 0;
-	bool plot = false;
-	double trigTimes[6] = {0, 0, 0, 0, 0, 0};
+	bool plot = false, plotLow = false;
 
-	if(det == "TSc" && pulses[p]->GetPileupPulse()) continue;
+	//if(det == "TSc" && pulses[p]->GetPileupPulse()) continue;
+
+	if(det == "GeCHEH" || det == "GeCHEL") // correlate to GeCHT?
+	  ;
 
 	for(int a = a0; a<times.size(); ++a){
-	  double dt_cft = TICKTDC*times[a] - CFT - toff+tcorr;
+	  double dt_cft = (CFT + toff - tcorr) - TICKTDC*times[a];
+	  if(dt_cft > 3*(ALIGN_HIGH + aligncorr) && a >= 1) a0 = a-1;
 
-	  if(dt_cft > 2*(ALIGN_LOW - aligncorr)){
+	  if(dt_cft < 2*(ALIGN_HIGH + aligncorr) && nMatch == 0){
 	    vvhTDCWFDMatch_Align[icrate][ich]->Fill(dt_cft, max);
 	    //plot = true;
-	    //trigTimes[trigCount] = times[a];
-	    //trigCount++;
 	  }
 
-	  if(dt_cft < ALIGN_LOW-aligncorr) { a0++; continue; }
+	  if(dt_cft < ALIGN_LOW-aligncorr) { /*a0++;*/ break; }
 	  else if(dt_cft < ALIGN_HIGH + aligncorr) {
 	    if(nMatch == 0) {
 	      tdiff_align = dt_cft;
 	      pulses[p]->SetTDCTime(times[a]);
+	      pulses[p]->SetWFDTime(CFT + toff);
 	      a1 = times[a];
 	    }
-	    //if(nMatch >= 1) plot = true;
 	    nMatch++;
 	    if(det == "TSc"){  	    //check this pulse for pileup
-	      if(p-1 <= 0) continue;
-	      double pileupTime = TICKWFD[icrate] * (pulses[p]->GetTimeStamp() - pulses[p-1]->GetTimeStamp() );
-	      if(PILEUP_LOW < pileupTime && PILEUP_HIGH > pileupTime){
-		pulses[p]->SetPileupPulse(true);
-		pulses[p-1]->SetPileupPulse(true);
-		if(nMatch == 1) trigCount++;
-		//plot = true;
-	      }
 	      if(p+1 >= pulses.size() ) continue;
-	      pileupTime = TICKWFD[icrate] * (pulses[p+1]->GetTimeStamp() - pulses[p]->GetTimeStamp() );
+	      float pileupTime = TICKWFD[icrate] * (pulses[p+1]->GetTimeStamp() - pulses[p]->GetTimeStamp() );
 	      if(PILEUP_LOW < pileupTime && PILEUP_HIGH > pileupTime){
 		if(pulses[p]->GetPileupPulse() != true)
 		  pulses[p]->SetPileupPulse(true);
 		pulses[p+1]->SetPileupPulse(true);
-		//std::cout << "Pileup pulse : " << pileupTime << " " << pulses[p+1]->GetTimeStamp() << " " << pulses[p]->GetTimeStamp() << std::endl;
-		if(nMatch == 1) trigCount++;
-		//plot = true;
 	      }
 	    }
-	    /*
-	    else{  	    //check this pulse for pileup
-	      if(p+1 >= pulses.size()) continue;
-	      double pileupTime = TICKWFD[icrate] * (pulses[p+1]->GetTimeStamp() - pulses[p]->GetTimeStamp() );
-	      if(DOUBLE_LOW < pileupTime && DOUBLE_HIGH > pileupTime){
-		pulses[p]->SetPileupPulse(true);
-		pulses[p+1]->SetPileupPulse(true);
-		//std::cout << "Pileup pulse : " << pileupTime << " " << pulses[p+1]->GetTimeStamp() << " " << pulses[p]->GetTimeStamp() << std::endl;
-		if(nMatch == 1) trigCount++;
-		plot = true;
-	      }
-	      //if(PILEUP_HIGH > TICKTDC * (times[a+1] - times[a]))
-	      //pulses[p]->SetPileupPulse(true);
-	      }*/
-	  }
-	  else {
-	    if(a0 > 1) a0--;//just in case we passed the next pulse
-	    
-	    break;
 	  }
 	}
 	//back in pulse loop
@@ -320,39 +304,55 @@ INT MTDCWFDMatch(EVENT_HEADER *pheader, void *pevent) {
 	  //continue;
 	}
 	
-	if(det == "GeCHEL" && tdiff_align > 100  && tdiff_align < 300) plot = true;
+	//if(det == "GeCHEH" && tdiff_align > -500  && tdiff_align < -200) plot = true;
+	//if(det == "GeCHEH" && tdiff_align > -1200  && tdiff_align < -1000) plotLow = true;
 
 	for(int v = 0; v<vetos.size(); ++v){
 	  double dt = TICKTDC*(a1 - vetos[v]) - vcorr; // a1 = pulse TDC time
 
-	  if(dt < VETO_LOW) break;
-	  else if(dt < VETO_HIGH){
+	  if(dt < VETO_LOW + vcorr - vRange) break;
+	  else if(dt < VETO_HIGH + vcorr + vRange){
 	    pulses[p]->SetVetoPulse(true);
 	    break;
 	  }
 
 	}
-	
-	if(plot == true && det == "GeCHEL" && plotCount < 20 && max > 4000){
+
+	/*	
+	if(plot == true && det == "GeCHEH" && plotCount < 20 && max > 14000 && max < 14500){
 	  plotCount++;
 	  //if further needed, plot waveforms
 	  std::stringstream ss;
 	  ss << plotCount;
-	  std::string histname = "TDCWFDMatch_" + ss.str();
+	  std::string histname = "TDCWFDMatch_O_" + ss.str();
 	  std::string histtitle = "TSc odd time waveform " + ss.str();
 	  TH1F* hIPulse = new TH1F(histname.c_str(), histtitle.c_str(), nSamp, 0, nSamp);
 	  for(int l = 0; l< nSamp; l++)
 	    hIPulse->Fill(l, samples.at(l));
 
 	}
-	
+
+	if(plotLow == true && det == "GeCHEH" && plotCountLow < 20 && max > 14000 && max < 14500){
+	  plotCountLow++;
+	  //if further needed, plot waveforms
+	  std::stringstream ss;
+	  ss << plotCountLow;
+	  std::string histname = "TDCWFDMatch_N_" + ss.str();
+	  std::string histtitle = "TSc normal time waveform " + ss.str();
+	  TH1F* hIPulse = new TH1F(histname.c_str(), histtitle.c_str(), nSamp, 0, nSamp);
+	  for(int l = 0; l< nSamp; l++)
+	    hIPulse->Fill(l, samples.at(l));
+
+	}
+	*/
+
+	if(tdiff_align < ALIGN_LOW - aligncorr) continue;
 
 	//if(pulses[p]->GetVetoPulse()) continue;
 	//if(pulses[p]->GetPileupPulse() ) continue;
 	vvhTDCWFDMatch_CutAlign[icrate][ich]->Fill(tdiff_align, max);
 
       }
-      //std::cout << trigCount << std::endl;
     }
   }
 
@@ -368,6 +368,7 @@ float MTDCWFDMatch_nSamples(std::string detname){
   if(detname == "TSc") nSamples = 5;//12
   else if(detname == "NdetD" || detname == "NdetU") nSamples = 7.5;//150
   else if(detname == "GeCHEH" || detname == "GeCHEL") nSamples = 80;//300
+  else if(detname == "GeCHT") nSamples = 7.5;//150
   else if(detname == "LaBr3") nSamples = 24;//128
   else nSamples = 100;
   return nSamples;
@@ -376,7 +377,9 @@ float MTDCWFDMatch_nSamples(std::string detname){
 float MTDCWFDMatch_Threshold(std::string detname){
   float thresh = 0;
   if(detname == "GeCHEH") thresh = 1500; //original
+  //if(detname == "GeCHEH") thresh = 500; //test
   else if(detname == "GeCHEL") thresh = 1050;
+  else if(detname == "GeCHT") thresh = 15300;
   else if(detname == "NdetD") thresh = 15450;
   else if(detname == "NdetU") thresh = 15510;
   else if(detname == "LaBr3") thresh = 15645;

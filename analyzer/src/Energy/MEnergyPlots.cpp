@@ -317,38 +317,3 @@ INT MEnergyPlots(EVENT_HEADER *pheader, void *pevent)
 
   return SUCCESS;
 }
-/*
-float MEnergyPlots_GetEnergyAmp(std::string detname, int amp){
-  float energy = 0;
-  if(detname == "NdetD"){ energy = (amp * 0.0003999) + 0.008234;  }
-  if(detname == "NdetU"){ energy = (amp * 0.0004015) + 0.009037;  }
-  if(detname == "GeCHEH"){ energy = (amp * 0.0001522) - 0.0004239;  }
-  if(detname == "GeCHEL"){ energy = (amp * 0.0003858) - 0.0017;    }
-  if(detname == "LaBr3"){ energy = (amp * 0.00163022) - 0.00836618;  } 
-
-  return energy;
-}
-
-
-
-float MEnergyPlots_GetEnergyInt(std::string detname, float Int){
-  float energy = 0;
-  if(detname == "NdetD"){ energy = (0.0000686 * Int) + 0.02117;  }
-  if(detname == "NdetU"){ energy = (0.00006766 * Int) + 0.02358;  }
-  if(detname == "GeCHEH"){ energy = 0.000002033 * Int;  }
-  if(detname == "GeCHEL"){ energy = 0.000005145 * Int;  }
-  if(detname == "LaBr3"){ energy = 0.0000823 * Int;  } 
-  return energy;
-}
-
-float MEnergyPlots_GetEnergyFit(std::string detname, double fit_amp){
-  float energy = 0;
-  if(detname == "NdetD"){ energy = (fit_amp * 0.0003914) + 0.0289;  }
-  if(detname == "NdetU"){ energy = (fit_amp * 0.0004381) + 0.0257;  }
-  if(detname == "GeCHEH"){ energy = (fit_amp * 0.0001519) + 0.0002643;  }
-  if(detname == "GeCHEL"){ energy = (fit_amp * 0.0003846) - 0.0003008;    }
-  if(detname == "LaBr3"){ energy = (fit_amp * 0.00163022) - 0.00836618;  } 
-
-  return energy;
-}
-*/
