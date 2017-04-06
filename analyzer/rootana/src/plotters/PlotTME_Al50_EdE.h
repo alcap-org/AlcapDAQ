@@ -1,5 +1,5 @@
-#ifndef PlotTME_EdE_H_
-#define PlotTME_EdE_H_
+#ifndef PlotTME_Al50_EdE_H_
+#define PlotTME_Al50_EdE_H_
 
 #include "BaseModule.h"
 class TGlobalData;
@@ -26,17 +26,17 @@ class TApplication;
 /// You can add this to other groups instead of rootana_modules or in addition
 /// to rootana_modules by adding more of the ingroup tags.
 ////////////////////////////////////////////////////////////////////////////////
-class PlotTME_EdE : public BaseModule {
+class PlotTME_Al50_EdE : public BaseModule {
 
     public:
         /// \brief
         /// Constructor description. If necessary, add a details tag like above.
         ///
         /// \param[in] opts Describe the options this module takes.
-        PlotTME_EdE(modules::options* opts);
+        PlotTME_Al50_EdE(modules::options* opts);
         /// \brief
         /// Is anything done in the destructor?
-        ~PlotTME_EdE();
+        ~PlotTME_Al50_EdE();
 
     private:
         /// \brief
