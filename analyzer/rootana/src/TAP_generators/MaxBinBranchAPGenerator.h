@@ -1,23 +1,22 @@
-#ifndef CFBRANCHAPGENERATOR_H__
-#define CFBRANCHAPGENERATOR_H__
+#ifndef MAXBINBRANCHAPGENERATOR_H__
+#define MAXBINBRANCHAPGENERATOR_H__
 
 #include "TVAnalysedPulseGenerator.h"
 #include "TAPAlgorithms.h"
 #include <vector>
 #include <string>
-#include <fstream>
 
 class TPulseIsland;
 class TAnalysedPulse;
 class TTree;
 
-class CFBranchAPGenerator:public TVAnalysedPulseGenerator {
+class MaxBinBranchAPGenerator:public TVAnalysedPulseGenerator {
 
  public:
-  CFBranchAPGenerator(TAPGeneratorOptions* opts);
+  MaxBinBranchAPGenerator(TAPGeneratorOptions* opts);
 
-  virtual ~CFBranchAPGenerator(){};
-
+  virtual ~MaxBinBranchAPGenerator(){};
+  
 public:
   virtual int ProcessPulses(const PulseIslandList&,AnalysedPulseList&);
   virtual bool MayDivideTPIs(){return false;};
@@ -27,13 +26,12 @@ private:
   /// The algorithms that this generator uses
   Algorithm::MaxBinAmplitude fMaxBinAmplitude;
   Algorithm::MaxBinTime fMaxBinTime;
-  Algorithm::ConstantFractionTime fCFTime;
 
   TTree* fTree;
-  int                 fEvent;
-  std::vector<int>    fAmp;
-  std::vector<double> fTime;
-  bool fInitialized;
+  Double_t fAmp;
+  Double_t fTime;
+  Int_t fBlock;
+  bool fRenamed;
 };
 
-#endif // CFBRANCHAPGENERATOR_H__
+#endif // MAXBINBRANCHAPGENERATOR_H__

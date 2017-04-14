@@ -206,42 +206,42 @@ bool SetupNavigator::ReadEnergyCalibrationConstants() {
   return true; // Right now there's no reason this should be filled for anything
 }
 
-bool ReadSynchronizationInfo() {
-  stringstream cmd;
-  cmd << "SELECT block,detector,i1,i2 FROM " << fChannelSyncTableName
-      << "WHERE run==" << GetRunNumber();
-  TSQLResult* res = fServer->Query(cmd.str().c_str());
-  TSQLRow* row;
-  while ((row = res->Next())) {
-    int block = atoi(row->GetField(0));
-    string bank = row->GetField(1);
-    string det = TSetupData::Instance()->GetDetectorName(bank);
-    int i1 = atoi(row->GetField(2)), i2 = atoi(row->GetField(3));
-    fChanSyncs[det][block] = std::make_pair(i1, i2);
-  }
-  cmd << "SELECT block,detector,t" << fBoardSyncTableName
-      << "WHERE run==" << GetRunNumber();
-  res = fServer->Query(cmd.str().c_str());
-  while ((row = res->Next())) {
-    int block = atoi(row->GetField(0));
-    IDs::channel ch(row->GetField(1));
-    double t = atof(row->GetField(2));
-    fChanSyncs[ch][block] = t;
-  }
-}
+// bool ReadSynchronizationInfo() {
+//   stringstream cmd;
+//   cmd << "SELECT block,detector,i1,i2 FROM " << fChannelSyncTableName
+//       << "WHERE run==" << GetRunNumber();
+//   TSQLResult* res = fServer->Query(cmd.str().c_str());
+//   TSQLRow* row;
+//   while ((row = res->Next())) {
+//     int block = atoi(row->GetField(0));
+//     string bank = row->GetField(1);
+//     string det = TSetupData::Instance()->GetDetectorName(bank);
+//     int i1 = atoi(row->GetField(2)), i2 = atoi(row->GetField(3));
+//     fChanSyncs[det][block] = std::make_pair(i1, i2);
+//   }
+//   cmd << "SELECT block,detector,t" << fBoardSyncTableName
+//       << "WHERE run==" << GetRunNumber();
+//   res = fServer->Query(cmd.str().c_str());
+//   while ((row = res->Next())) {
+//     int block = atoi(row->GetField(0));
+//     IDs::channel ch(row->GetField(1));
+//     double t = atof(row->GetField(2));
+//     fChanSyncs[ch][block] = t;
+//   }
+// }
 
 void SetupNavigator::OutputCalibCSV() {
   char fmt[128], ofname[128];
-  sprintf(fmt, "calib.%05d.%%s.csv", r);
+  sprintf(fmt, "calib.%05d.%%s.csv", GetRunNumber());
 
-  sprintf(ofname, fmt, fPedestalNoiseTableName)
+  sprintf(ofname, fmt, fPedestalNoiseTableName.c_str());
   std::ofstream fPN(ofname);
   fPN << "run,channel,pedestal,noise" << endl;
   for (map<IDs::channel, double>::const_iterator i = fPedestalValues.begin(); i != fPedestalValues.end(); ++i)
     fPN << GetRunNumber() << "," << i->first.str() << ","
         << i->second << "," << fNoiseValues.at(i->first) << endl;
 
-  sprintf(ofname, fmt, fCoarseTimeOffsetTableName);
+  sprintf(ofname, fmt, fCoarseTimeOffsetTableName.c_str());
   std::ofstream fTO(ofname);
   std::set<IDs::generator> gens;
   std::set<IDs::channel> chns;
@@ -277,9 +277,9 @@ void SetupNavigator::OutputCalibCSV() {
           << j->second.first << ',' << j->second.second << endl;
   sprintf(ofname, fmt, fBoardSyncTableName);
   std::ofstream fBS(ofname);
-  for (map< IDs::channel, map<int, double> >::const_iterator i = fBoardSyncTime.begin();
+  for (map< IDs::channel, vector<double> >::const_iterator i = fBoardSyncTime.begin();
        i != fBoardSyncTime.end(); ++i)
-    for (map<int, double>::const_iterator j = i->second.begin();
+    for (vector<double>::const_iterator j = i->second.begin();
          j != i->second.end(); ++j)
       fBS << GetRunNumber() << ',' << j->first << ',' << i->first << ','
           << j->second << endl;

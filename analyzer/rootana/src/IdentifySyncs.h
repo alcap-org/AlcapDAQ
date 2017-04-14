@@ -13,17 +13,24 @@ namespace modules {class options;}
 /// Identify synchronization pulses. Either create database or read in database.
 ////////////////////////////////////////////////////////////////////////////////
 class IdentifySyncs : public BaseModule {
-
+  enum Board {
+    D4,         D5,         D7,         T4,
+    SIS3350_B1, SIS3350_B2, SIS3300_B1, SIS3300_B2,
+    SIS3300_B3, SIS3300_B4, SIS3300_B5, SIS3301_B6,
+    NBRD
+  };
+  static const std::string BOARDSTR[NBRD];
  public:
   IdentifySyncs(modules::options* opts);
-  ~IdentifySyncs();
+  // Want to see if compiles without this
+  // ~IdentifySyncs();
 
  private:
-  virtual int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);
-  virtual int BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup);
-  virtual int AfterLastEntry(TGlobalData* gData,const TSetupData *setup);
+  int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);
+  int BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup);
+  int AfterLastEntry(TGlobalData* gData,const TSetupData *setup) { return 0; }
 
-  std::map< std::string, std::vector<IDs::source> > fBoardMap;
+  std::map< Board, std::vector<IDs::source> > fBoardMap;
 };
 
 #endif //IDENTIFYSYNCS_H_

@@ -48,10 +48,13 @@ class Syncs {
         dt(sf.t-s0.t), s0(s0), sf(sf) {}
   double operator[] (int i) const {
     switch (i) {
-    case 1:  return s0.t;
-    case 2:  return sf.t;
+    case 0:  return s0.t;
+    case 1:  return sf.t;
     default: assert(0);
     }
+  }
+  std::pair<int, int> Indexes() const {
+    return std::make_pair(s0.e, sf.i);
   }
   static bool ValidEDiff(const TAnalysedPulse* t1, const TAnalysedPulse* t2) {
     return ValidEDiff(t1->GetAmplitude(), t2->GetAmplitude());
@@ -153,6 +156,46 @@ public:
   }
 };
 
+// Use compare so we can get board or board and channel.
+Board BoardEnum(const string& s) {
+  for (Board b = D4; b < NB; ++b)
+    if (s.compare(0, b <= T4 ? 2 : 8, BOARDSTR[b]) == 0)
+      return b;
+  throw "Invalid board: " + s;
+}
+
+string BoardStr(Board b) {
+  return BOARDSTR[b];
+}
+
+bool FirstCh1(Board b) {
+  return SIS3350_B1 <= b;
+}
+
+string ChannelStr(Board b, int ch) {
+  return BoardStr(b) + ((FirstCh1(b) ? '1' : '0') + ch);
+}
+
+bool IsSIS3300(Board b) {
+  return b == SIS3300_B1 || b == SIS3300_B2 || b == SIS3300_B3 ||
+         b == SIS3300_B4 || b == SIS3300_B5 || b == SIS3301_B6;
+}
+
+bool IsCAEN(Board b) {
+  return b == D4 || b == D5 || b == D7 || b == T4;
+}
+
+int NCh(Board b) {
+  if      (b == D5 || b == SIS3350_B1 || b == SIS3350_B2) return 4;
+  else if (b == T4)                                       return 16;
+  else if (b <  NBRD)                                     return 8;
+  throw "Invalid board: NBRD";
+}
+
+int Ch(const string& c) {
+  return atoi(c.substr(c.size()-2).c_str()) - FirstCh1(BoardEnum(c));
+}
+
 vector<Syncs> postulate_syncs(int ich, const vector<TAnalysedPulse*>& ch) {
   vector<Syncs> syncs;
   for (int i = 0; i < ch.size(); ++i)
@@ -196,7 +239,6 @@ Syncs find_board_syncs_d4(const vector<TAnalysedPulse*> ch) {
 // Also D7, but we failed on that board generally
 vector<Syncs> find_board_syncs_sis3300(const vector<IDs::source>& brd) {
   vector< vector<Syncs> > syncs = postulate_syncs(brd);
-  //std::sort(syncs.begin(), syncs.end(), CompLength<Syncs>);
   vector<int> count(syncs[0].size(), 1);
   for (int jch = 1; jch < syncs.size(); ++jch)
     for (int isync = 0; isync < syncs[0].size(); ++isync)
@@ -212,44 +254,36 @@ vector<Syncs> find_board_syncs_sis3300(const vector<IDs::source>& brd) {
 }
 
 
+// D4: Hits at a bit over 5000 pedsub'd ADC in channel 0 only after run 9642.
+// D5: Didn't really... use
+// D7: All thresholds set too high and crate started too late, but otherwise
+//     should have the sync pulses in all channels like any Si.
+// T4: T401 for all runs.
 IdentifySyncs::IdentifySyncs(modules::options* opts):
    BaseModule("IdentifySyncs", opts) {
-  fBoardMap["SIS3350_B1"] = vector<IDs::source>(4);
-  fBoardMap["SIS3350_B2"] = vector<IDs::source>(4);
-  fBoardMap["SIS3300_B1"] = vector<IDs::source>(8);
-  fBoardMap["SIS3300_B2"] = vector<IDs::source>(8);
-  fBoardMap["SIS3300_B3"] = vector<IDs::source>(8);
-  fBoardMap["SIS3300_B4"] = vector<IDs::source>(8);
-  fBoardMap["SIS3300_B5"] = vector<IDs::source>(8);
-  fBoardMap["SIS3301_B6"] = vector<IDs::source>(8);
-  fBoardMap["D4"] = vector<IDs::source>(8); // Hits at a bit over 5000 pedsub'd ADC
-                                            // in channel 0 only after run 9642.
-  fBoardMap["D5"] = vector<IDs::source>(4); // Didn't really... use
-  fBoardMap["D7"] = vector<IDs::source>(8); // All thresholds set too high
-                                            // and crate started too late, but
-                                            // otherwise should have the sync
-                                            // pulses in all channels
-  fBoardMap["T4"] = vector<IDs::source>(16);// Channel 1 for all runs.
-
+    for (Board b = D4; b < NBRD; ++b)
+      fBoardMap[b].resize(NCh(b));
 }
 
-IdentifySyncs::~IdentifySyncs(){
-}
+// Just want to see whether or not compiles without this.
+// IdentifySyncs::~IdentifySyncs(){
+// }
 
 int IdentifySyncs::BeforeFirstEntry(TGlobalData* gData, const TSetupData *setup){
-  vector<string> dups; // Check to make sure only one Source per detector
+  set<IDs::channel> dets;
   for (SourceAnalPulseMap::const_iterator i = gAnalysedPulseMap.begin();
        i != gAnalysedPulseMap.end(); ++i) {
-    string det = i->first.Channel().str();
-    string ch  = setup->GetBankName(det);
-    fBoardMap.at(ch.substr(0, ch.size()-2)).at(ch.at(ch.size()-1)-'0'-(ch[0]=='S'?1:0)) = i->first;
-    if (find(dups.begin(), dups.end(), det) == dups.end()) {
-      dups.push_back(det);
-    } else {
+    IDs::channel det = i->first.Channel();
+    string ch  = setup->GetBankName(det.str());
+    Board brd  = BoardEnum(ch);
+    fBoardMap[brd][Ch(ch)] = i->first;
+    if (!dets.insert(det).second) {
       cout << "ERROR: IdentifySyncs: Multiple Sources for detector " << det
            << endl;
       return 1;
     }
+    fChanSyncs    [det].resize(EventNavigator::Instance()->GetInputNEntries());
+    fBoardSyncTime[det].resize(EventNavigator::Instance()->GetInputNEntries());
   }
   return 0;
 }
@@ -273,46 +307,60 @@ vector<string> enumerate_channels(string brd) {
     sprintf(str, (brd+fmt).c_str(), i);
     chs.push_back(str);
   }
+  return chs;
 }
 
 int IdentifySyncs::ProcessEntry(TGlobalData* gData, const TSetupData *setup) {
   //gErrorIgnoreLevel = kError; // TError.h
-  map< string, vector<Syncs> > block_syncs;
-  for (map< string, vector<IDs::source> >::iterator ibrd = fBoardMap.begin();
+  map< Board, vector<Syncs> > block_syncs;
+  for (map< Board, vector<IDs::source> >::iterator ibrd = fBoardMap.begin();
      ibrd != fBoardMap.end(); ++ibrd) {
-    if        (ibrd->first              == "D4") {
+    if  (ibrd->first == D4) {
       Syncs s = find_board_syncs_d4(gAnalysedPulseMap[ibrd->second[0]]);
-      block_syncs[ibrd->first].push_back(s);
-    } else if (ibrd->first              == "D5" ||
-               ibrd->first              == "D7" ||
-               ibrd->first.substr(0, 6) == "SIS330") {
+      block_syncs[ibrd->first].assign(1, s);
+    } else if (ibrd->first == D5 ||  ibrd->first == D7 || IsSIS3300(ibrd->first)) {
       block_syncs[ibrd->first] = find_board_syncs_sis3300(ibrd->second);
-    } else if (ibrd->first.substr(0, 6) == "SIS335") {
+    } else if (ibrd->first == SIS3350_B1 || ibrd->first == SIS3350_B2) {
       // Won't worry about this.
       // Doesn't seem like we ever seriously considered these boards.
       continue;
     }
   }
+  // TDC sees two pulses in beginning, and two at end.
+  // So we take the first of these pairs.
   if (gData->fTDCHitsToChannelMap.count("T401")) {
     static const double dt = 1./40.96; // ns
     const vector<int64_t>& ts = gData->fTDCHitsToChannelMap["T401"];
-    block_syncs["T4"] =
-      vector<Syncs>(1, Syncs(Sync(1, 0, ts[0]*dt, 0.),
-                             Sync(1, 2, ts[2]*dt, 0.)));
+    block_syncs["T4"].assign(1, Syncs(Sync(1, 0, ts[0]*dt, 0.),
+                                      Sync(1, 2, ts[2]*dt, 0.)));
   }
 
   // Now fill SetupNavigator info
   // Use SiT-1-S board as t0 for syncs
-  string ch0 = setup->GetBankName("SiT-1-S");
-
+  //string ch0 = setup->GetBankName("SiT-1-S");
+  map< Board, pair<int, double> > t0s;
+  for (map< Board, vector<Syncs> >::const_iterator i = block_syncs.begin();
+       i != block_syncs.end(); ++i) {
+    for (int j = 0; j < i->second.size(); ++j) {
+      const int b = EventNavigator::Instance()->EntryNo();
+      string ch = (i->first, j);  /////////////////START HERE
+      fChannelSyncs[ch][b] = i->second[j].Indexes();
+      board_t0[brd] += (i->second[j][0].t - board_t0[brd].second) /
+                       (++board_t0[brd]->first);
+    }
+  }
   return 0;
 }
 
-int IdentifySyncs::AfterLastEntry(TGlobalData* gData,const TSetupData *setup) {
-
-  return 0;
+const string IdentifySyncs::BOARDSTR[IdentifySync::NBRD] = {
+  "D4",         "D5",         "D7",         "T4",
+  "SIS3350_B1", "SIS3350_B2", "SIS3300_B1", "SIS3300_B2",
+  "SIS3300_B3", "SIS3300_B4", "SIS3300_B5", "SIS3301_B6"
 }
 
+const int IdentifySyncs::BOARDNCH[IdentifySyncs::NBRD] = {
+  4, 4,
+}
 // The following macro registers this module to be useable in the config file.
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly

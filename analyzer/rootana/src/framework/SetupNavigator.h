@@ -75,7 +75,7 @@ class SetupNavigator{
   bool ReadEnergyCalibrationConstants();
   /// \brief
   /// Read in sync pulse info
-  bool ReadSynchronizationInfo();
+  //bool ReadSynchronizationInfo();
   void OutputCalibCSV();
 
   bool IsCalibRun() const {return fCommandLineArgs.calib;}
@@ -112,8 +112,10 @@ class SetupNavigator{
   static std::map< IDs::channel, EnergyCalibRow_t > fEnergyCalibrationConstants;
   /// \brief
   /// Map that stores the bank to sync TPI index info and time info.
-  std::map< IDs::channel, std::map< int, std::pair<int, int> > > fChanSyncs;
-  std::map< IDs::channel, std::map<int, double> > fBoardSyncTime;
+  // [channel][block] = i1, i2
+  std::map< IDs::channel, std::vector< std::pair<int, int> > > fChanSyncs;
+  // [channel][block] = dt
+  std::map< IDs::channel, std::vector<double> > fBoardSyncTime;
 
 };
 
