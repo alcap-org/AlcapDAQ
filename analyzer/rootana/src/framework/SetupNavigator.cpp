@@ -266,23 +266,21 @@ void SetupNavigator::OutputCalibCSV() {
     fTO << endl;
   }
 
-  sprintf(ofname, fmt, fChannelSyncTableName);
-  std::ofstream fCS(ofname);
-  fCS << "run,block,bank,i1,i2" << endl;
-  for (map< IDs::channel, map< int, pair<int, int> > >::const_iterator i = fChanSyncs.begin();
-       i != fChanSyncs.end(); ++i)
-    for (map< int, pair<int, int> >::const_iterator j = i->second.begin();
-         j != i->second.end(); ++j)
-      fCS << GetRunNumber() << ',' << j->first << ',' << i->first << ','
-          << j->second.first << ',' << j->second.second << endl;
-  sprintf(ofname, fmt, fBoardSyncTableName);
-  std::ofstream fBS(ofname);
-  for (map< IDs::channel, vector<double> >::const_iterator i = fBoardSyncTime.begin();
-       i != fBoardSyncTime.end(); ++i)
-    for (vector<double>::const_iterator j = i->second.begin();
-         j != i->second.end(); ++j)
-      fBS << GetRunNumber() << ',' << j->first << ',' << i->first << ','
-          << j->second << endl;
+  // sprintf(ofname, fmt, fChannelSyncTableName.c_str());
+  // std::ofstream fCS(ofname);
+  // fCS << "run,block,bank,i1,i2" << endl;
+  // for (map< IDs::channel, vector< pair<int, int> > >::const_iterator i = fChanSyncs.begin();
+  //      i != fChanSyncs.end(); ++i)
+  //   for (int j = 0; j < i->second.size(); ++j)
+  //     fCS << GetRunNumber() << ", " << j << ", " << i->first << ", "
+  //         << i->second[j].first << ", " << i->second[j].second << endl;
+  // sprintf(ofname, fmt, fBoardSyncTableName.c_str());
+  // std::ofstream fBS(ofname);
+  // for (map< IDs::channel, vector<double> >::const_iterator i = fBoardSyncTime.begin();
+  //      i != fBoardSyncTime.end(); ++i)
+  //   for (int j = 0; j < i->second.size(); ++j)
+  //     fBS << GetRunNumber() << ", " << j << ", " << i->first << ", "
+  //         << i->second[j] << endl;
 }
 
 void SetupNavigator::SetPedestalAndNoise(const IDs::channel& chn, double ped, double nse) {

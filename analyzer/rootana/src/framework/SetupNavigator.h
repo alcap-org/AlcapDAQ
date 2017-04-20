@@ -1,9 +1,10 @@
 #ifndef SETUPNAVIGATOR_H_
 #define SETUPNAVIGATOR_H_
 
-#include "CommandLine.h"
-#include "IdSource.h"
 #include "AlcapExcept.h"
+#include "CommandLine.h"
+#include "IdChannel.h"
+#include "IdSource.h"
 
 #include <TSQLiteServer.h>
 
@@ -56,8 +57,8 @@ class SetupNavigator{
   void SetPedestalAndNoise(const IDs::channel& channel, double pedestal, double noise);
   void SetCoarseTimeOffset(const IDs::source& src, double mean, double sigma);
 
-  void SetChannelSyncs(std::string bank, int i1, int i2);
-  void SetBoardSyncs(std::string board, double t);
+  void SetChannelSyncs(const IDs::channel& ch, int i1, int i2);
+  void SetBoardSyncs  (const IDs::channel& ch, double t);
 
  private:
 

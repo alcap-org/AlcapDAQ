@@ -21,6 +21,7 @@ ROOT_DICT_CLASSES:=TAnalysedPulseMapWrapper\
 	TTemplateFitAnalysedPulse\
 	TTemplateConvolveAnalysedPulse\
 	TIntegralRatioAnalysedPulse\
+	IdBoard\
 	IdChannel\
 	IdGenerator\
 	IdSource\
