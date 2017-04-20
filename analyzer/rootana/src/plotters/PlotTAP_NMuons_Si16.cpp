@@ -27,7 +27,7 @@ PlotTAP_NMuons_Si16::PlotTAP_NMuons_Si16(modules::options* opts):
   // particular configuration that you want to know?
   // For example, perhaps this module wants an axis range:
   fADCCutLow=opts->GetDouble("adc_cut_low",200); 
-  fADCCutHigh=opts->GetDouble("adc_cut_high",2500); 
+  fADCCutHigh=opts->GetDouble("adc_cut_high",2500);
   
 }
 
@@ -58,7 +58,7 @@ int PlotTAP_NMuons_Si16::BeforeFirstEntry(TGlobalData* gData,const TSetupData *s
   IDs::channel an_si16_channel = IDs::channel(IDs::kSiL1_1, IDs::kSlow);
   int n_bits = setup->GetNBits(setup->GetBankName(an_si16_channel.str()));
   double max_adc_value = std::pow(2, n_bits);
-  fSi16TAPAmplitudes = new TH2F(histname.c_str(), histtitle.str().c_str(), 16,1,17, max_adc_value,0,max_adc_value);
+  fSi16TAPAmplitudes = new TH2F(histname.c_str(), histtitle.str().c_str(), 16,1,17, max_adc_value/16,0,max_adc_value);
   fSi16TAPAmplitudes->GetXaxis()->SetTitle("Strip Number");
   fSi16TAPAmplitudes->GetYaxis()->SetTitle("TAP Amplitude [ADC]");
   fSi16TAPAmplitudes->SetStats(false);
@@ -67,7 +67,7 @@ int PlotTAP_NMuons_Si16::BeforeFirstEntry(TGlobalData* gData,const TSetupData *s
   histtitle.str("");
   histtitle<<"TAP Energy Distributions for each strip";
   histtitle<<" for run "<<SetupNavigator::Instance()->GetRunNumber();
-  fSi16TAPEnergies = new TH2F(histname.c_str(), histtitle.str().c_str(), 16,1,17, 1200,0,12000);
+  fSi16TAPEnergies = new TH2F(histname.c_str(), histtitle.str().c_str(), 16,1,17, 120,0,12000);
   fSi16TAPEnergies->GetXaxis()->SetTitle("Strip Number");
   fSi16TAPEnergies->GetYaxis()->SetTitle("TAP Energy [keV]");
   fSi16TAPEnergies->SetStats(false);

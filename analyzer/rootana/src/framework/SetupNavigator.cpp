@@ -319,7 +319,7 @@ double SetupNavigator::GetCoarseTimeOffset( IDs::source source) const {
 // the timing option is placed first for the generator
  string conf=source.Generator().Config();
  unsigned curly_br=conf.find('}');
-if(curly_br!=string::npos){ source.Generator().Config(conf.substr(0,curly_br+1));}
-
- return source.matches(IDs::channel("SiT-1-F")) ? 0. : alcap::at<Except::InvalidDetector>(fCoarseTimeOffset,source,source.str().c_str());
- }
+if(curly_br!=std::string::npos){ source.Generator().Config(conf.substr(0,curly_br+1));}
+ 
+ return source.matches(IDs::channel("SiT-1-S")) ? 0. : alcap::at<Except::InvalidDetector>(fCoarseTimeOffset,source,source.str().c_str());
+}

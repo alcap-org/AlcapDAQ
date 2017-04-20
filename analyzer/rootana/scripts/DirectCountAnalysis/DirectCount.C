@@ -1,9 +1,10 @@
-void GaussianFits() {
+void DirectCount() {
 
   //  std::string filename = "out10352.root";
   //  std::string filename = "out08997_direct-count.root";
   //  std::string filename = "out10404.root";
-  std::string filename = "combo.root";
+  //  std::string filename = "combo.root";
+  std::string filename = "~/data/out/v11/Si16b.root";
   TFile* file = new TFile(filename.c_str());
   if ( file->IsZombie() ) {
     std::cout << "Problems opening file " << filename << std::endl;

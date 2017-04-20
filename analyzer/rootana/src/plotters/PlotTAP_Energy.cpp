@@ -24,7 +24,10 @@ using std::pair;
 extern SourceAnalPulseMap gAnalysedPulseMap;
 
 PlotTAP_Energy::PlotTAP_Energy(modules::options* opts) : 
-    BaseModule("PlotTAP_Energy",opts) {
+  BaseModule("PlotTAP_Energy",opts), 
+  fNBins(opts->GetInt("n_bins", 0)),
+  fMinEnergy(opts->GetDouble("min_energy", 0)),
+  fMaxEnergy(opts->GetDouble("max_energy", 0)){
     }
 
 PlotTAP_Energy::~PlotTAP_Energy(){  
@@ -52,15 +55,21 @@ int PlotTAP_Energy::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
             std::stringstream histtitle;
             histtitle<<"Energy of pulses from source " << i_det->first;
             histtitle<<" for run "<<SetupNavigator::Instance()->GetRunNumber();
-            int n_bits = gSetup->GetNBits(gSetup->GetBankName(i_det->first.Channel().str()));
-            const double max_adc_value = std::pow(2, n_bits);
-            double gain  = 1;
-            double offset= 0;
-            try{
-               gain  = SetupNavigator::Instance()->GetAdcToEnergyGain(    i_det->first.Channel());
-               offset= SetupNavigator::Instance()->GetAdcToEnergyConstant(i_det->first.Channel());
-            }catch( Except::InvalidDetector& e){};
-            TH1F* hEnergy = new TH1F(histname.c_str(), histtitle.str().c_str(), max_adc_value,0,gain*max_adc_value + offset);
+
+	    if (fNBins==0) { // if we have the default number of bins
+	      int n_bits = gSetup->GetNBits(gSetup->GetBankName(i_det->first.Channel().str()));
+	      const double max_adc_value = std::pow(2, n_bits);
+	      fNBins = max_adc_value;
+	      double gain  = 1;
+	      double offset= 0;
+	      try{
+		gain  = SetupNavigator::Instance()->GetAdcToEnergyGain(    i_det->first.Channel());
+		offset= SetupNavigator::Instance()->GetAdcToEnergyConstant(i_det->first.Channel());
+	      }catch( Except::InvalidDetector& e){};
+	      fMinEnergy = 0;
+	      fMaxEnergy = gain*max_adc_value + offset;
+	    }
+            TH1F* hEnergy = new TH1F(histname.c_str(), histtitle.str().c_str(), fNBins,fMinEnergy,fMaxEnergy);
             hEnergy->GetXaxis()->SetTitle("Energy (KeV)");
             hEnergy->GetYaxis()->SetTitle("Arbitrary Units");
             fEnergyPlots[keyname] = hEnergy;
@@ -79,4 +88,4 @@ int PlotTAP_Energy::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
     return 0;
 }
 
-ALCAP_REGISTER_MODULE(PlotTAP_Energy)
+ALCAP_REGISTER_MODULE(PlotTAP_Energy, n_bins, min_energy, max_energy)

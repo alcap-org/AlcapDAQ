@@ -19,7 +19,7 @@ int FillXRayInfo(XRay* xray);
 RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectrum, XRay* xray);
 
 // Takes a filename of a rootana output file as well as information on the timing cut and interesting x-ray
-int CountXRays(std::string filename, std::string target_material="Al", std::string channel = "GeLoGain", int rebin_factor=1, std::string dirname = "PlotTAP_EnergyTime", std::string histname_suffix = "MaxBinAPGenerator#any_EnergyTime", double low_time_cut=-9999999, double high_time_cut=9999999) {
+int CountXRays(std::string filename, std::string target_material="Al", std::string channel = "GeLoGain", int rebin_factor=1, std::string dirname = "PlotTAP_EnergyTime", std::string histname = "hGeLoGain#MaxBinAPGenerator#any_EnergyTime", double low_time_cut=-9999999, double high_time_cut=9999999) {
 
   TFile* file = new TFile(filename.c_str(), "READ");
   if (file->IsZombie()) {
@@ -34,7 +34,7 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
   }
 
   // Get the 2D time-energy histogram
-  std::string histname = "h" + channel + "#" + histname_suffix;
+  //  std::string histname = "h" + channel + "#" + histname_suffix;
   TH2F* hTimeEnergy = (TH2F*) ge_spectrum_dir->Get(histname.c_str());
   if (!hTimeEnergy) {
     std::cout << "Error: Could not find " << histname << std::endl;
@@ -116,10 +116,10 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
 							    
 
   std::cout << "XRay: " << xray.material << " " << xray.transition << " " << xray.energy << " keV" << std::endl;
-  std::cout << "Area = " << area->getValV() << " +/- " << area->getError() << " (" << (area->getError() / area->getValV()) * 100 << "%)" << std::endl;
-  std::cout << "Intensity = " << xray.intensity << " +/- " << xray.intensity_error << " (" << (xray.intensity_error / xray.intensity) * 100 << "%)" << std::endl;
-  std::cout << "Efficiency = " << xray.efficiency << " +/- " << xray.efficiency_error << " (" << (xray.efficiency_error / xray.efficiency) * 100 << "%)" << std::endl;
-  std::cout << "Number of Stopped Muons = " << n_stopped_muons << " +- " << n_stopped_muons_error << " (" << (n_stopped_muons_error / n_stopped_muons) * 100 << "%)" << std::endl;
+  std::cout << "Area = " << area->getValV() << " +/- " << area->getError() << std::endl;
+  std::cout << "Intensity = " << xray.intensity << " +/- " << xray.intensity_error << std::endl;
+  std::cout << "Efficiency = " << xray.efficiency << " +/- " << xray.efficiency_error << std::endl;
+  std::cout << "Number of Stopped Muons = " << n_stopped_muons << " +- " << n_stopped_muons_error << std::endl;
   //  hEnergyTimeCut->Draw();
   return 0;
 }
