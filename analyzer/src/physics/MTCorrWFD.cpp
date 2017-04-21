@@ -140,7 +140,7 @@ INT MTCorrWFD_init() {
       if(det != "TSc"){
 	sprintf(histname, "hTCorrWFD_FEvTDiff_%s", det.c_str());
 	sprintf(histtitle, "Fit Energy vs TSC TDiff for %s", det.c_str());
-	vvhTCorrWFD_FEvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/20, TIME_LOW, TIME_HIGH + 20, 7500, 0, max_fit);
+	vvhTCorrWFD_FEvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/2, TIME_LOW, TIME_HIGH + 20, 7500, 0, max_fit);
 	vvhTCorrWFD_FEvTDiff[icrate][ich]->GetXaxis()->SetTitle("TDiff (TDC) (ns)");
 	vvhTCorrWFD_FEvTDiff[icrate][ich]->GetYaxis()->SetTitle("Energy (fit) (MeV)");
       }
