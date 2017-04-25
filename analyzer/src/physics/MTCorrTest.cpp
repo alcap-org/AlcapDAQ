@@ -180,13 +180,13 @@ INT MTCorrTest_init() {
       if(det == "NdetD" || det == "NdetU"){
 	
 	sprintf(histname, "hTCorrTest_PSDCut_%s", det.c_str());
-	sprintf(histtitle, "Pulse Height vs PSD parameter for %s", det.c_str());
+	sprintf(histtitle, "Pulse Height vs PSD parameter for %s, Time Cut", det.c_str());
 	vvhTCorrTest_PSDCut[icrate][ich] = new TH2D(histname, histtitle, 640, 0, 8.0125, 600, 0, 0.45);
 	vvhTCorrTest_PSDCut[icrate][ich]->GetXaxis()->SetTitle("Energy (fit)");
 	vvhTCorrTest_PSDCut[icrate][ich]->GetYaxis()->SetTitle("PSD parameter");
 	
 	sprintf(histname, "hTCorrTest_PSD_%s", det.c_str());
-	sprintf(histtitle, "Pulse Height (Fit) vs PSD parameter for %s", det.c_str());
+	sprintf(histtitle, "Pulse Height (Fit) vs PSD parameter for %s BG", det.c_str());
 	vvhTCorrTest_PSD[icrate][ich] = new TH2D(histname, histtitle, 640, 0, 8.0125, 600, 0, 0.4);
 	vvhTCorrTest_PSD[icrate][ich]->GetXaxis()->SetTitle("Pulse Height (Fit) (adc counts)");
 	vvhTCorrTest_PSD[icrate][ich]->GetYaxis()->SetTitle("PSD parameter");
@@ -257,6 +257,10 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
       int t0 = 0;
       for(int p = 0; p < pulses.size(); ++p){
 	//setup variables
+	double tcorr = 0;
+	if(det == "NdeD") tcorr = -57;
+	if(det == "NdetU") tcorr = -49;
+	if(det == "GeCHEH" || det == "GeCHEL") tcorr = -120;
 
 	if(pulses[p]->GetVetoPulse()) continue; //vetoed
 	if(pulses[p]->GetPileupPulse()) continue; //Pileup Protection
@@ -301,14 +305,14 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	}
 	double prior = -15000;
 	bool hist = false;
-	bool hist_cut = false;
+	//bool hist_cut = false;
 
 	//loop over TTSc times
 	for(int t = t0; t<ref_hits.size(); ++t){
 	  if(ref_hits[t]->GetTDCTime() < 0) continue;
 	  if(ref_hits[t]->GetPileupPulse() ) continue;
 	  if(ref_hits[t]->GetVetoPulse() ) continue;
-	  double dt = TICKTDC*(pulses[p]->GetTDCTime() - ref_hits[t]->GetTDCTime());
+	  double dt = TICKTDC*(pulses[p]->GetTDCTime() - ref_hits[t]->GetTDCTime() +tcorr);
 
 	  if(dt > 3*TIME_HIGH && t >= 1) t0 = t-1;
 	  if(dt < TIME_LOW) break;
@@ -332,7 +336,7 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	      //vvhTCorrTest_EvTDiffG[icrate][ich]->Fill(dt, energy_fit);
 	      vvhTCorrTest_PSD[icrate][ich]->Fill(energy_fit, PSD_ratio);
 	      */
-	      if((det == "NdetD" || det == "NdetU") && MTCorrTest_Neutron(det, PSD_ratio, energy_fit) ) hist_cut = true;
+	      //if((det == "NdetD" || det == "NdetU") && MTCorrTest_Neutron(det, PSD_ratio, energy_fit) ) hist_cut = true;
 	  }
 
 	  
@@ -342,8 +346,8 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	if(hist && prior > TIME_LOW){
 	  vvhTCorrTest_FEvTDiff[icrate][ich]->Fill(prior, energy_fit);
 	  if(det == "NdetD" || det == "NdetU"){
-	    vvhTCorrTest_PSD[icrate][ich]->Fill(energy_fit, PSD_ratio);
-	    if(hist_cut) vvhTCorrTest_PSDCut[icrate][ich]->Fill(energy_fit, PSD_ratio);
+	    if(prior > -1500 && prior < -500)vvhTCorrTest_PSD[icrate][ich]->Fill(energy_fit, PSD_ratio);
+	    if(prior > 200 && prior < 4200) vvhTCorrTest_PSDCut[icrate][ich]->Fill(energy_fit, PSD_ratio);
 	  }
 	}
 	else if(hist) std::cout << "MTCorrTest : plotting incorrect time, check algorithm" << std::endl;
