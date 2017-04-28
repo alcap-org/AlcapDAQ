@@ -109,14 +109,14 @@ INT MTDCWFDMatch_init() {
       ////////////////Alignment//////////////////
       char histname[64]; sprintf(histname, "hTCorrTest_Align_%s", det.c_str());
       char histtitle[64]; sprintf(histtitle, "TDC WFD Alignment for %s", det.c_str());
-      vvhTDCWFDMatch_Align[icrate][ich] = new TH2D(histname, histtitle, (ALIGN_HIGH-ALIGN_LOW)/10, ALIGN_LOW*2, ALIGN_HIGH*2, max_adc/4, 0, max_adc);
+      vvhTDCWFDMatch_Align[icrate][ich] = new TH2D(histname, histtitle, (ALIGN_HIGH-ALIGN_LOW)/20, ALIGN_LOW*2, ALIGN_HIGH*2, max_adc/8, 0, max_adc);
       vvhTDCWFDMatch_Align[icrate][ich]->GetXaxis()->SetTitle("Alignment Difference (ns)");
       vvhTDCWFDMatch_Align[icrate][ich]->GetYaxis()->SetTitle("Energy (MeV)");
 
       /////////////// Cut Alignment //////////////////
       sprintf(histname, "hTCorrTest_CutAlign_%s", det.c_str());
       sprintf(histtitle, "TDC WFD Alignment for %s after cut", det.c_str());
-      vvhTDCWFDMatch_CutAlign[icrate][ich] = new TH2D(histname, histtitle, (ALIGN_HIGH-ALIGN_LOW)/10, ALIGN_LOW, ALIGN_HIGH, max_adc/4, 0, max_adc);
+      vvhTDCWFDMatch_CutAlign[icrate][ich] = new TH2D(histname, histtitle, (ALIGN_HIGH-ALIGN_LOW)/10, ALIGN_LOW, ALIGN_HIGH, max_adc/8, 0, max_adc);
       vvhTDCWFDMatch_CutAlign[icrate][ich]->GetXaxis()->SetTitle("Alignment Difference (ns)");
       vvhTDCWFDMatch_CutAlign[icrate][ich]->GetYaxis()->SetTitle("Energy (MeV)");
 

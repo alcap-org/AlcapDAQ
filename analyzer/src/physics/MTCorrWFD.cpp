@@ -140,7 +140,7 @@ INT MTCorrWFD_init() {
       if(det != "TSc"){
 	sprintf(histname, "hTCorrWFD_FEvTDiff_%s", det.c_str());
 	sprintf(histtitle, "Fit Energy vs TSC TDiff for %s", det.c_str());
-	vvhTCorrWFD_FEvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/2, TIME_LOW, TIME_HIGH + 20, 7500, 0, max_fit);
+	vvhTCorrWFD_FEvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW)/5, TIME_LOW, TIME_HIGH + 20, 7500, 0, max_fit);
 	vvhTCorrWFD_FEvTDiff[icrate][ich]->GetXaxis()->SetTitle("TDiff (TDC) (ns)");
 	vvhTCorrWFD_FEvTDiff[icrate][ich]->GetYaxis()->SetTitle("Energy (fit) (MeV)");
       }
@@ -285,7 +285,7 @@ INT MTCorrWFD(EVENT_HEADER *pheader, void *pevent) {
 
 	//loop over TSc times
 	for(int t = t0; t<ref_hits.size(); ++t){
-	  //if(ref_hits[t]->GetTDCTime() < 0) continue;
+	  if(ref_hits[t]->GetTDCTime() < 0) continue;
 	  if(ref_hits[t]->GetPileupPulse() ) continue;
 	  if(ref_hits[t]->GetVetoPulse() ) continue;
 	  double dt = pulses[p]->GetWFDTime() - ref_hits[t]->GetWFDTime() + tCorr;
