@@ -259,7 +259,7 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	//setup variables
 	double tcorr = 0;
 	if(det == "NdetD") tcorr = -57;
-	if(det == "NdetU") tcorr = -49;
+	if(det == "NdetU") tcorr = -39;
 	if(det == "GeCHEH" || det == "GeCHEL") tcorr = -120;
 
 	if(pulses[p]->GetVetoPulse()) continue; //vetoed
