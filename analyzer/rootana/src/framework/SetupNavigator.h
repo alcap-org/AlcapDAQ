@@ -3,15 +3,16 @@
 
 #include "AlcapExcept.h"
 #include "CommandLine.h"
+#include "IdBoard.h"
 #include "IdChannel.h"
 #include "IdSource.h"
 
 #include <TSQLiteServer.h>
 
 #include <iostream>
-#include <vector>
-#include <utility>
 #include <map>
+#include <utility>
+#include <vector>
 
 MAKE_EXCEPTION(SetupNavigator, Base)
 MAKE_EXCEPTION(NoCalibDB, SetupNavigator)
@@ -57,8 +58,9 @@ class SetupNavigator{
   void SetPedestalAndNoise(const IDs::channel& channel, double pedestal, double noise);
   void SetCoarseTimeOffset(const IDs::source& src, double mean, double sigma);
 
-  void SetChannelSyncs(const IDs::channel& ch, int i1, int i2);
-  void SetBoardSyncs  (const IDs::channel& ch, double t);
+  void SetChanSyncs(const IDs::channel& ch, int block, std::pair<int, int> is);
+  // void SetBoardSync(const IDs::board& brd,  int block, double t);
+  void SetBoardSync(const IDs::board& brd, int block, std::pair<double, double> ts);
 
  private:
 
@@ -76,7 +78,7 @@ class SetupNavigator{
   bool ReadEnergyCalibrationConstants();
   /// \brief
   /// Read in sync pulse info
-  //bool ReadSynchronizationInfo();
+  // bool ReadSynchronizationInfo();
   void OutputCalibCSV();
 
   bool IsCalibRun() const {return fCommandLineArgs.calib;}
@@ -116,7 +118,8 @@ class SetupNavigator{
   // [channel][block] = i1, i2
   std::map< IDs::channel, std::vector< std::pair<int, int> > > fChanSyncs;
   // [channel][block] = dt
-  std::map< IDs::channel, std::vector<double> > fBoardSyncTime;
+  // std::map< IDs::board, std::vector<double> > fBoardSyncTime;
+  std::map< IDs::board, std::vector< std::pair<double, double> > > fBoardSyncTime;
 
 };
 

@@ -4,8 +4,8 @@
 #pragma link off all functions;
 #pragma link C++ nestedclasses;
 
-#pragma link C++ class IDs::channel+;
 #pragma link C++ class IDs::board+;
+#pragma link C++ class IDs::channel+;
 #pragma link C++ class IDs::generator+;
 #pragma link C++ class IDs::source+;
 #pragma link C++ enum IDs::Board_t+;

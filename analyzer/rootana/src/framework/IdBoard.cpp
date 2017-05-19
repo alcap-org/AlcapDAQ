@@ -5,9 +5,9 @@
 
 #include "Rtypes.h"
 
-#include <algorithm>
 #include <cassert>
 #include <cstdlib>
+#include <cstdio>
 #include <string>
 #include <vector>
 
@@ -16,16 +16,17 @@ using std::vector;
 
 ClassImp(IDs::board);
 
-const string IDs::board::fgBoardStr[IDs::kNBoard] = {
-  "D4",         "D5",         "D7",         "T4",
-  "SIS3350_B1", "SIS3350_B2", "SIS3300_B1", "SIS3300_B2",
-  "SIS3300_B3", "SIS3300_B4", "SIS3300_B5", "SIS3301_B6"
-};
-
 IDs::Board_t IDs::board::Board(const IDs::channel& b) {
-  std::string d = TSetupData::Instance()->GetBankName(b.str());
+  string d = TSetupData::Instance()->GetBankName(b.str());
   for (board i = Begin(); i != End(); ++i)
     if (d.compare(0, d.size()-2, i.Str()) == 0)
+      return i.Board();
+  assert(false);
+}
+
+IDs::Board_t IDs::board::Board(const string& b) {
+  for (board i = Begin(); i != End(); ++i)
+    if (b == i.Str())
       return i.Board();
   assert(false);
 }
@@ -56,6 +57,24 @@ IDs::board& IDs::board::operator++() {
     default:          fBoard = kErrorBoard;
   }
   return *this;
+}
+
+string IDs::board::Str() const {
+  switch (fBoard) {
+    case kD4:         return "D4";
+    case kD5:         return "D5";
+    case kD7:         return "D7";
+    case kT4:         return "T4";
+    case kSIS3350_B1: return "SIS3350_B1";
+    case kSIS3350_B2: return "SIS3350_B2";
+    case kSIS3300_B1: return "SIS3300_B1";
+    case kSIS3300_B2: return "SIS3300_B2";
+    case kSIS3300_B3: return "SIS3300_B3";
+    case kSIS3300_B4: return "SIS3300_B4";
+    case kSIS3300_B5: return "SIS3300_B5";
+    case kSIS3301_B6: return "SIS3301_B6";
+    default:          assert(false);
+  }
 }
 
 int IDs::board::NCh() const {

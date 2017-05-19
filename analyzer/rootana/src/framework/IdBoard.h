@@ -7,6 +7,7 @@
 #include "Rtypes.h"
 #include "TObject.h"
 
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -26,14 +27,15 @@ namespace IDs{
 
 class IDs::board : public TObject{
   Board_t             fBoard;
-  static const std::string fgBoardStr[kNBoard];
 
   static Board_t Board(const IDs::channel&);
+  static Board_t Board(const std::string&);
 
   std::string Bank(int i) const;
 
 public:
   board(Board_t brd=kErrorBoard) : fBoard(brd)        {}
+  board(const std::string&  brd) : fBoard(Board(brd)) {}
   board(const IDs::channel& brd) : fBoard(Board(brd)) {}
   virtual ~board()                                    {}
   int ChIndex(const IDs::channel&);
@@ -44,7 +46,7 @@ public:
   bool IsSIS()     const { return IsSIS3300()   || IsSIS3350(); }
   IDs::channel Channel(int i) const;
   Board_t Board()   const { return fBoard; }
-  std::string Str() const { return fgBoardStr[fBoard]; }
+  std::string Str() const;
   int     NCh()     const;
   friend bool operator!=(const board&, const board&);
   friend bool operator< (const board&, const board&);
@@ -74,6 +76,10 @@ inline bool IDs::operator!=(const board& l, const board& r) {
 
 inline bool IDs::operator<(const board& l, const board& r) {
   return l.fBoard < r.fBoard;
+}
+
+inline std::ostream& operator<<(ostream& os, const IDs::board& id) {
+  return os<<id.Str();
 }
 
 #endif //IDBOARD_H_

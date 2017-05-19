@@ -18,8 +18,11 @@ infiles = sys.argv[2:]
 
 for ifile in infiles:
     table_name = ifile.split('.')[2]
-    db.execute("CREATE TABLE IF NOT EXISTS " + table_name + "(run INT, channel TEXT)")
-    with open(ifile, 'rb') as f:
+    colname = "board" if "Board" in table_name else "channel"
+    db.execute("CREATE TABLE IF NOT EXISTS " + table_name + "(run INT, " +
+               colname + " TEXT)")
+    board_indexed = True if table_name in ["BoardSyncTime", "ChannelSyncs"] else False
+    with open(ifile, "rb") as f:
         table = csv.reader(f)
         cols = tuple(x.strip() for x in table.next())
 
@@ -30,16 +33,22 @@ for ifile in infiles:
                     db.execute("ALTER TABLE " + table_name + " ADD COLUMN '" + col + "' REAL")
 
         for line in table:
-            row = (int(line[0]),line[1].strip()) + tuple(none_or_float(word) for word in line[2:])
-            cmd = "SELECT * FROM " + table_name + " WHERE run==? AND channel==?"
-            args = row[0:2]
-            cur = db.execute(cmd, args)
+            n    = 3 if board_indexed else 2
+            row  = (int(line[0]),line[1].strip()) + tuple(none_or_float(word) for word in line[2:])
+            cmd  = ("SELECT * FROM " + table_name + " WHERE run==? AND " +
+                    colname + "==?" + (" AND block==?" if board_indexed else ""))
+            args = row[0:n]
+            cur   = db.execute(cmd, args)
             if cur.fetchone():
-                cmd = "UPDATE " + table_name + " SET '" + ",'".join(s + "'=?" for s in cols[2:]);
-                cmd = cmd + " WHERE run==? AND channel==?"
-                args = row[2:] + row[0:2]
+                cmd = "UPDATE " + table_name + " SET '" + ",'".join(s + "'=?" for s in cols[n:]);
+                cmd = (cmd + " WHERE run==? AND " + colname + "==?" +
+                       (" AND block==?" if board_indexed else ""))
+                args = row[n:] + row[:n]
             else:
-                cmd = "INSERT INTO " + table_name + "('" + "','".join(s for s in cols) + "') VALUES (" + ",".join("?" for s in cols) + ")"
+                cmd = ("INSERT INTO " + table_name + "('" +
+                       "','".join(s for s in cols) + "') VALUES (" +
+                       ",".join("?" for s in cols) + ")")
                 args = row
             with db:
+                print cmd, args
                 db.execute(cmd, args)

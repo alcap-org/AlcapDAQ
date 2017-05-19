@@ -16,8 +16,6 @@ namespace modules {class options;}
 class IdentifySyncs : public BaseModule {
  public:
   IdentifySyncs(modules::options* opts);
-  // Want to see if compiles without this
-  // ~IdentifySyncs();
 
  private:
   int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);

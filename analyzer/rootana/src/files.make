@@ -10,23 +10,22 @@ DIRS += src/\
         src/plotters/\
         src/data_quality/\
         src/physics/\
-	src/Al50/
+		src/Al50/
 
 # A list of classes that need dictionary generation by root
 # Make sure to add the relevant lines to the LibraryLinkDef.h file as well
-#ROOT_DICT_CLASSES:=TDetectorPulse
 ROOT_DICT_CLASSES:=TAnalysedPulseMapWrapper\
-	TDetectorPulse\
-	TGaussFitAnalysedPulse\
-	TTemplateFitAnalysedPulse\
-	TTemplateConvolveAnalysedPulse\
-	TIntegralRatioAnalysedPulse\
-	IdBoard\
-	IdChannel\
-	IdGenerator\
-	IdSource\
-        BankBranch\
-        FlyWeight\
-        TTemplate\
-        TSiliconEvent\
-        TMuonEvent
+			       TDetectorPulse\
+			       TGaussFitAnalysedPulse\
+			       TTemplateFitAnalysedPulse\
+			       TTemplateConvolveAnalysedPulse\
+			       TIntegralRatioAnalysedPulse\
+			       IdBoard\
+			       IdChannel\
+			       IdGenerator\
+			       IdSource\
+			       BankBranch\
+			       FlyWeight\
+			       TTemplate\
+			       TSiliconEvent\
+			       TMuonEvent

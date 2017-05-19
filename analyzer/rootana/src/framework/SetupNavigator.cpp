@@ -1,22 +1,29 @@
 #include "SetupNavigator.h"
-#include "ModulesParser.h"
-#include "TSetupData.h"
+
 #include "definitions.h"
 #include "debug_tools.h"
-#include "EventNavigator.h"
+#include "IdBoard.h"
+#include "IdChannel.h"
+#include "IdSource.h"
+#include "ModulesParser.h"
+#include "TSetupData.h"
+using IDs::board;
+using IDs::channel;
+using IDs::source;
 
 #include <TSQLiteServer.h>
 #include <TSQLiteResult.h>
 #include <TSQLiteRow.h>
 
-#include <utility>
 #include <cstdlib>
+#include <cassert>
 #include <iostream>
-#include <sstream>
 #include <fstream>
-#include <string>
-#include <vector>
 #include <map>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 using std::map;
 using std::vector;
 using std::pair;
@@ -145,7 +152,6 @@ bool SetupNavigator::ReadPedestalAndNoiseValues() {
   return !fPedestalValues.empty();
 }
 
-
 bool SetupNavigator::ReadCoarseTimeOffsetValues() {
   // The values that we will read in
   const vector<string> table = GetCoarseTimeOffsetColumns();
@@ -206,27 +212,31 @@ bool SetupNavigator::ReadEnergyCalibrationConstants() {
   return true; // Right now there's no reason this should be filled for anything
 }
 
-// bool ReadSynchronizationInfo() {
+// bool SetupNavigator::ReadSynchronizationInfo() {
 //   stringstream cmd;
-//   cmd << "SELECT block,detector,i1,i2 FROM " << fChannelSyncTableName
+//   cmd << "SELECT channel,block,i1,i2 FROM " << fChannelSyncTableName
 //       << "WHERE run==" << GetRunNumber();
 //   TSQLResult* res = fServer->Query(cmd.str().c_str());
 //   TSQLRow* row;
 //   while ((row = res->Next())) {
-//     int block = atoi(row->GetField(0));
-//     string bank = row->GetField(1);
-//     string det = TSetupData::Instance()->GetDetectorName(bank);
-//     int i1 = atoi(row->GetField(2)), i2 = atoi(row->GetField(3));
-//     fChanSyncs[det][block] = std::make_pair(i1, i2);
+//     IDs::channel ch(row->GetField(0));
+//     int block = atoi(row->GetField(1));
+//     int i1    = atoi(row->GetField(2));
+//     int i2    = atoi(row->GetField(3));
+//     if (fChanSyncs[ch].size() < block+1)
+//       fChanSyncs[ch].resize(block+1);
+//     fChanSyncs[ch][block] = std::make_pair(i1, i2);
 //   }
-//   cmd << "SELECT block,detector,t" << fBoardSyncTableName
+//   cmd << "SELECT board,block,t" << fBoardSyncTableName
 //       << "WHERE run==" << GetRunNumber();
 //   res = fServer->Query(cmd.str().c_str());
 //   while ((row = res->Next())) {
-//     int block = atoi(row->GetField(0));
-//     IDs::channel ch(row->GetField(1));
-//     double t = atof(row->GetField(2));
-//     fChanSyncs[ch][block] = t;
+//     IDs::board brd(row->GetField(0));
+//     int block = atoi(row->GetField(1));
+//     double t  = atof(row->GetField(2));
+//     if (fBoardSyncTime[brd].size() < block + 1)
+//       fBoardSyncTime[brd].resize(block + 1);
+//     fBoardSyncTime[brd][block] = t;
 //   }
 // }
 
@@ -266,21 +276,28 @@ void SetupNavigator::OutputCalibCSV() {
     fTO << endl;
   }
 
-  // sprintf(ofname, fmt, fChannelSyncTableName.c_str());
-  // std::ofstream fCS(ofname);
-  // fCS << "run,block,bank,i1,i2" << endl;
-  // for (map< IDs::channel, vector< pair<int, int> > >::const_iterator i = fChanSyncs.begin();
-  //      i != fChanSyncs.end(); ++i)
-  //   for (int j = 0; j < i->second.size(); ++j)
-  //     fCS << GetRunNumber() << ", " << j << ", " << i->first << ", "
-  //         << i->second[j].first << ", " << i->second[j].second << endl;
-  // sprintf(ofname, fmt, fBoardSyncTableName.c_str());
-  // std::ofstream fBS(ofname);
-  // for (map< IDs::channel, vector<double> >::const_iterator i = fBoardSyncTime.begin();
+  sprintf(ofname, fmt, fChannelSyncTableName.c_str());
+  std::ofstream fCS(ofname);
+  fCS << "run,channel,block,i1,i2" << endl;
+  for (map< IDs::channel, vector< pair<int, int> > >::const_iterator i = fChanSyncs.begin();
+       i != fChanSyncs.end(); ++i)
+    for (int j = 0; j < i->second.size(); ++j)
+      fCS << GetRunNumber() << ", " << i->first << ", " << j << ", "
+          << i->second[j].first << ", " << i->second[j].second << endl;
+  sprintf(ofname, fmt, fBoardSyncTableName.c_str());
+  std::ofstream fBS(ofname);
+  // fBS << "run,board,block,t" << endl;
+  // for (map< IDs::board, vector<double> >::const_iterator i = fBoardSyncTime.begin();
   //      i != fBoardSyncTime.end(); ++i)
   //   for (int j = 0; j < i->second.size(); ++j)
-  //     fBS << GetRunNumber() << ", " << j << ", " << i->first << ", "
+  //     fBS << GetRunNumber() << ", " << i->first << ", " << j << ", "
   //         << i->second[j] << endl;
+  fBS << "run,board,block,t1,t2" << endl;
+  for (map< IDs::board, vector< pair<double, double> > >::const_iterator i = fBoardSyncTime.begin();
+       i != fBoardSyncTime.end(); ++i)
+    for (int j = 0; j < i->second.size(); ++j)
+      fBS << GetRunNumber() << ", " << i->first << ", " << j << ", "
+          << i->second[j].first << ", " << i->second[j].second << endl;
 }
 
 void SetupNavigator::SetPedestalAndNoise(const IDs::channel& chn, double ped, double nse) {
@@ -304,6 +321,27 @@ void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double mean, do
   fCoarseTimeOffsetSigma[IDs::source(src.Channel(), IDs::generator(StripTimeShiftConfigFromString(src.Generator().str())))] = sigma;
 }
 
+void SetupNavigator::SetChanSyncs(const IDs::channel& ch, int b,
+                                  pair<int, int> is) {
+  assert(IsCalibRun());
+  if (fChanSyncs[ch].size() < b+1)
+    fChanSyncs[ch].resize(b+1);
+  fChanSyncs[ch][b] = is;
+}
+
+// void SetupNavigator::SetBoardSync(const IDs::board& brd, int b, double t) {
+//   assert(IsCalibRun());
+//   if (fBoardSyncTime[brd].size() < b+1)
+//     fBoardSyncTime[brd].resize(b+1);
+//   fBoardSyncTime[brd][b] = t;
+// }
+void SetupNavigator::SetBoardSync(const IDs::board& brd, int b, std::pair<double, double> ts) {
+  assert(IsCalibRun());
+  if (fBoardSyncTime[brd].size() < b+1)
+    fBoardSyncTime[brd].resize(b+1);
+  fBoardSyncTime[brd][b] = ts;
+}
+
 double SetupNavigator::GetNoise(const IDs::channel& channel) const {
   return alcap::at<Except::InvalidDetector>(fNoiseValues,channel,channel.str().c_str());
 }
@@ -320,6 +358,6 @@ double SetupNavigator::GetCoarseTimeOffset( IDs::source source) const {
  string conf=source.Generator().Config();
  unsigned curly_br=conf.find('}');
 if(curly_br!=std::string::npos){ source.Generator().Config(conf.substr(0,curly_br+1));}
- 
+
  return source.matches(IDs::channel("SiT-1-S")) ? 0. : alcap::at<Except::InvalidDetector>(fCoarseTimeOffset,source,source.str().c_str());
 }

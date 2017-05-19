@@ -6,6 +6,7 @@
 #include "IdChannel.h"
 #include "ModulesOptions.h"
 #include "RegisterModule.inc"
+#include "SetupNavigator.h"
 #include "TAnalysedPulse.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
@@ -32,7 +33,7 @@ class Sync {
 public:
   int ch, i;
   double t, e;
-  Sync(int ch = -1, int i = -1, double t = -1, double e = -1) :
+  Sync(int ch = -1, int i = -1, double t = 0., double e = 0.) :
   ch(ch), i(i), t(t), e(e) {}
   Sync(int ch, int i, TAnalysedPulse* tap) :
   ch(ch), i(i), t(tap->GetTime()), e(tap->GetAmplitude()) {}
@@ -56,15 +57,11 @@ class Syncs {
   Syncs(const Sync& s0 = Sync(), const Sync& sf = Sync()) :
         dt(sf.t-s0.t), s0(s0), sf(sf) {}
   Sync operator[] (int i) const {
-    switch (i) {
-    case 0:  return s0;
-    case 1:  return sf;
-    default: assert(0);
-    }
+    assert(i == 0 || i == 1);
+    if (i == 0) return s0;
+    else        return sf;
   }
-  std::pair<int, int> Indexes() const {
-    return std::make_pair(s0.e, sf.i);
-  }
+  std::pair<int, int> Indexes() const { return std::make_pair(s0.i, sf.i); }
   static bool ValidEDiff(const TAnalysedPulse* t1, const TAnalysedPulse* t2) {
     return ValidEDiff(t1->GetAmplitude(), t2->GetAmplitude());
   }
@@ -74,9 +71,7 @@ class Syncs {
   static bool ValidEDiff(double e1, double e2) {
     return 2.*std::abs(e1 - e2)/(e1+e2) < eps_e;
   }
-  static bool ValidTDiff(double t1, double t2) {
-    return t2 - t1 > min_dt;
-  }
+  static bool ValidTDiff(double t1, double t2) { return t2 - t1 > min_dt; }
   static void SetContraints(double t, double e, double dt) {
     eps_t  = t;
     eps_e  = e;
@@ -85,15 +80,12 @@ class Syncs {
   bool operator==(const Syncs& rhs) const {
     return 2.*std::abs(dt - rhs.dt)/(dt+rhs.dt) < eps_t;
   }
-  bool operator!=(const Syncs& rhs) const {
-    return !(*this == rhs);
-  }
-  bool operator<(const Syncs& rhs) const {
-    return dt < rhs.dt && *this != rhs;
-  }
+  bool operator!=(const Syncs& rhs) const { return !(*this == rhs); }
+  bool operator<(const Syncs& rhs)  const { return dt < rhs.dt && *this != rhs; }
   void Print() {
     std::cout << "s0: "; s0.Print();
     std::cout << "sf: "; sf.Print();
+    std::cout << "dt:" << dt << std::endl;
   }
 };
 double Syncs::eps_t  = 1.e-6;  // ns
@@ -141,13 +133,13 @@ public:
       else
         syncs.push_back(Syncs());
     }
-    std::sort(syncs.begin(), syncs.end(), CompChannel);
+    //std::sort(syncs.begin(), syncs.end(), CompChannel);
   }
   int Invalid() {
     if      (nmax > 1) return 1;
     else if (nmax < 1) return -1;
     for (int i = 0; i < nch; ++i)
-      if (counts[i] >  1) return  1;
+      if (counts[i] > 1) return 1;
     return 0;
   }
   void Print() {
@@ -169,8 +161,7 @@ vector<Syncs> postulate_syncs(int ich, const vector<TAnalysedPulse*>& ch) {
   vector<Syncs> syncs;
   for (int i = 0; i < ch.size(); ++i)
     for (int j = i+1; j < ch.size(); ++j)
-      if (Syncs::ValidTDiff(ch[i], ch[j]) &&
-          Syncs::ValidEDiff(ch[i], ch[j]) )
+      if (Syncs::ValidTDiff(ch[i], ch[j]) && Syncs::ValidEDiff(ch[i], ch[j]))
         syncs.push_back(Syncs(Sync(ich, i, ch[i]), Sync(ich, j, ch[j])));
   std::sort(syncs.begin(), syncs.end(), CompTDiff);
   return syncs;
@@ -193,8 +184,19 @@ void print_results(const vector<Syncs> s, const vector<int>& c) {
                 << ") " << c[i] << std::endl;
 }
 
-// TODO: Function returns vector of indices for channels
-// in board from shortest to longest
+// Switch to this function at some point for consistency
+vector<Syncs> find_board_syncs_d4(const vector<IDs::source>& brd) {
+  static const int ich = 1;
+  vector<Syncs> syncs(brd.size());
+  const vector<TAnalysedPulse*>& ch = gAnalysedPulseMap[brd[ich]];
+  for (int i = 0; i < ch.size(); ++i) {
+    if (ch[i]->GetAmplitude() > 5000) {
+      syncs[ich] = Syncs(Sync(0, i, ch[i]), Sync());
+      break;
+    }
+  }
+  return syncs;
+}
 
 Syncs find_board_syncs_d4(const vector<TAnalysedPulse*> ch) {
   for (int i = 0; i < ch.size(); ++i)
@@ -203,9 +205,11 @@ Syncs find_board_syncs_d4(const vector<TAnalysedPulse*> ch) {
   return Syncs();
 }
 
-// Each element is the sync for the channel. Also good for SIS3301 and
+// Each element is the sync pair for the channel. Good for all boards
+// relying on the pulse going into test spot in mesytecs.
+// That means the SIS3301 and
 // seemingly D5 for when we used it early on (wasn't used for production).
-// Also D7, but we failed on that board generally
+// Also D7, but we failed on that board generally.
 vector<Syncs> find_board_syncs_sis3300(const vector<IDs::source>& brd) {
   vector< vector<Syncs> > syncs = postulate_syncs(brd);
   vector<int> count(syncs[0].size(), 1);
@@ -214,11 +218,8 @@ vector<Syncs> find_board_syncs_sis3300(const vector<IDs::source>& brd) {
       count[isync] += std::count(syncs[jch].begin(), syncs[jch].end(),
                                  syncs[0][isync]);
   SyncStats st(syncs, count);
-  if (st.Invalid()) {
-    cout << "fbs_sis3300 invalid " << brd.front().str() << endl;
-    st.Print();
+  if (st.Invalid())
     return vector<Syncs>();
-  }
   return st.syncs;
 }
 
@@ -247,8 +248,6 @@ int IdentifySyncs::BeforeFirstEntry(TGlobalData* gData, const TSetupData *setup)
            << endl;
       return 1;
     }
-    // fChanSyncs    [det].resize(EventNavigator::Instance()->GetInputNEntries());
-    // fBoardSyncTime[det].resize(EventNavigator::Instance()->GetInputNEntries());
   }
   return 0;
 }
@@ -281,28 +280,26 @@ int IdentifySyncs::ProcessEntry(TGlobalData* gData, const TSetupData *setup) {
   }
 
   // Now fill SetupNavigator info
-  // Use SiT-1-S board as t0 for syncs
-  //string ch0 = setup->GetBankName("SiT-1-S");
-  map< board, pair<int, double> > t0s;
-  for (map< board, vector<Syncs> >::const_iterator i = block_syncs.begin();
+  map< board, pair<int, double> > t0s[2];
+  for (map< board, vector<Syncs> >::iterator i = block_syncs.begin();
        i != block_syncs.end(); ++i) {
-    for (int j = 0; j < i->second.size(); ++j) {
-      // What are defaults?
-      int n = EventNavigator::Instance().EntryNo();
-      channel ch = i->first.Channel(j);
-      if (ch.isValid()) {
-        // fChannelSyncs[ch][n] = i->second[j].Indexes();
-        t0s[i->first].second += (i->second[j][0].t - t0s[i->first].second) /
-                                (++t0s[i->first].first);
-      } else {
-        cout << "not considering " << ch.str() << endl;
-      }
+    const board& brd           = i->first;
+     vector<Syncs>& syncs = i->second;
+    int n = EventNavigator::Instance().EntryNo();
+    for (int j = 0; j < syncs.size(); ++j) {
+      if (!syncs[j][0].Valid()) continue;
+      channel ch = brd.Channel(syncs[j][0].ch);
+      if (!ch.isValid()) continue;
+      t0s[0][brd].second += (syncs[j][0].t - t0s[0][brd].second) /
+                            (++t0s[0][brd].first);
+      t0s[1][brd].second += (syncs[j][1].t - t0s[1][brd].second) /
+                            (++t0s[1][brd].first);
+      SetupNavigator::Instance()->SetChanSyncs(ch, n, syncs[j].Indexes());
     }
+    SetupNavigator::Instance()->SetBoardSync(brd, n,
+                                             std::make_pair(t0s[0][brd].second,
+                                                            t0s[1][brd].second));
   }
-
-  // Print out
-  for (map< board, pair<int, double> >::iterator i = t0s.begin(); i != t0s.end(); ++i)
-    cout << i->first.Str() << " " << i->second.first << " " << i->second.second << endl;
   return 0;
 }
 
