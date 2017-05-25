@@ -19,7 +19,6 @@ int ExportAllTAP::ProcessEntry(TGlobalData* gData, const TSetupData* gSetup) {
     for (AnalysedPulseList::const_iterator tap = taps.begin();
          tap != taps.end();
          ++tap) {
-      std::cout << i_det->first << " " << tap-taps.begin() << std::endl;
       ExportPulse::Instance()->AddToExportList(*tap);
     }
   }
