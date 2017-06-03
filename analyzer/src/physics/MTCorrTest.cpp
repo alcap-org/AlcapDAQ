@@ -51,13 +51,14 @@ namespace {
   //TH2D* vvhTCorrTest_PHvTDiff[NCRATE][MAXNCHANWFD];
   TH2D* vvhTCorrTest_EvTDiff[NCRATE][MAXNCHANWFD];
   TH2D* vvhTCorrTest_FEvTDiff[NCRATE][MAXNCHANWFD];
+  TH1D* vhTCorrTest_TDiff[NCRATE][MAXNCHANWFD];
   //TH2D* vvhTCorrTest_IEvTDiff[NCRATE][MAXNCHANWFD];
   TH2D* vvhTCorrTest_PSDCut[NCRATE][MAXNCHANWFD];
   TH2D* vvhTCorrTest_PSD[NCRATE][MAXNCHANWFD];
   //TH2D* vvhTCorrTest_EvTDiffG[NCRATE][MAXNCHANWFD];
   TH1D* vhTCorrTest_Count_TSc;
   TH1D* vhTCorrTest_TSc_Amp;
-  const double TIME_LOW = -2e3, TIME_HIGH = 8e3;
+  const double TIME_LOW = -1e4, TIME_HIGH = 1e4;
   double TScCount;
 }
 
@@ -154,9 +155,18 @@ INT MTCorrTest_init() {
       if(det != "TSc"){
 	sprintf(histname, "hTCorrTest_FEvTDiff_%s", det.c_str());
 	sprintf(histtitle, "Fit Energy vs TSC TDiff for %s", det.c_str());
-	vvhTCorrTest_FEvTDiff[icrate][ich] = new TH2D(histname, histtitle, (TIME_HIGH - TIME_LOW), TIME_LOW, TIME_HIGH + 20, 800, 0, 10.0125);
+	vvhTCorrTest_FEvTDiff[icrate][ich] = new TH2D(histname, histtitle, 1e4, -2e3, 8e3, 800, 0, 10.0125);
 	vvhTCorrTest_FEvTDiff[icrate][ich]->GetXaxis()->SetTitle("TDiff (TDC) (ns)");
 	vvhTCorrTest_FEvTDiff[icrate][ich]->GetYaxis()->SetTitle("Energy (fit) (MeV)");
+
+
+	/////////// TDiff ///////////////////////////////////////
+	sprintf(histname, "hTCorrTest_TDiff_%s", det.c_str());
+	sprintf(histtitle, "TSC TDiff for %s", det.c_str());
+	vhTCorrTest_TDiff[icrate][ich] = new TH1D(histname, histtitle, 1e4, -1e4, 1e4);
+	vhTCorrTest_TDiff[icrate][ich]->GetXaxis()->SetTitle("TDiff (TDC) (ns)");
+	vhTCorrTest_TDiff[icrate][ich]->GetYaxis()->SetTitle("Count");
+
       }
       ///////////// IE v TDiff //////////////////////
       /*
@@ -342,12 +352,18 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	  
 	}
 
+	//float cutLow = 100., cutHigh = 1100.;  //Pb
+	float cutLow = 200., cutHigh = 4200.;  //Al
+	//float cutLow = 200., cutHigh = 2200.;  //Pb
+	//float cutLow = 200., cutHigh = 6200.;  //Pb
+
 
 	if(hist && prior > TIME_LOW){
 	  vvhTCorrTest_FEvTDiff[icrate][ich]->Fill(prior, energy_fit);
+	  vhTCorrTest_TDiff[icrate][ich]->Fill(prior);
 	  if(det == "NdetD" || det == "NdetU"){
-	    if(prior > -1500 && prior < -500)vvhTCorrTest_PSD[icrate][ich]->Fill(energy_fit, PSD_ratio);
-	    if(prior > 100 && prior < 1100) vvhTCorrTest_PSDCut[icrate][ich]->Fill(energy_fit, PSD_ratio);
+	    if(prior > (-1 * cutHigh) && prior < (-1*cutLow) )vvhTCorrTest_PSD[icrate][ich]->Fill(energy_fit, PSD_ratio);
+	    if(prior > cutLow && prior < cutHigh) vvhTCorrTest_PSDCut[icrate][ich]->Fill(energy_fit, PSD_ratio);
 	  }
 	}
 	else if(hist) std::cout << "MTCorrTest : plotting incorrect time, check algorithm" << std::endl;
