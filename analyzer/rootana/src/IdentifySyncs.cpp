@@ -283,8 +283,8 @@ int IdentifySyncs::ProcessEntry(TGlobalData* gData, const TSetupData *setup) {
   map< board, pair<int, double> > t0s[2];
   for (map< board, vector<Syncs> >::iterator i = block_syncs.begin();
        i != block_syncs.end(); ++i) {
-    const board& brd           = i->first;
-     vector<Syncs>& syncs = i->second;
+    const board&   brd   = i->first;
+    vector<Syncs>& syncs = i->second;
     int n = EventNavigator::Instance().EntryNo();
     for (int j = 0; j < syncs.size(); ++j) {
       if (!syncs[j][0].Valid()) continue;

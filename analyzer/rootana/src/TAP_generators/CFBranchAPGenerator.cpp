@@ -44,27 +44,24 @@ CFBranchAPGenerator::CFBranchAPGenerator(TAPGeneratorOptions* opts)
 
 
 //----------------------------------------------------------------------
-int CFBranchAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
-					   AnalysedPulseList& analysedList)
+int CFBranchAPGenerator::ProcessPulses(const PulseIslandList& tpis,
+                                       AnalysedPulseList& taps)
 {
   if ( !fInitialized) {
     fInitialized = true;
-    fTree->SetName(("MaxBinCF"+pulseList[0]->GetBankName()).c_str());
+    fTree->SetName(("MaxBinCF"+tpis[0]->GetBankName()).c_str());
   }
   fEvent = EventNavigator::Instance().EntryNo();
   fAmp .clear();
   fTime.clear();
-  for (PulseIslandList::const_iterator pulseIter = pulseList.begin();
-       pulseIter != pulseList.end(); ++pulseIter) {
-    fAmp .push_back(fMaxBinAmplitude(*pulseIter));
-    fTime.push_back(fCFTime(*pulseIter));
+  for (PulseIslandList::const_iterator tpi = tpis.begin();
+       tpi != tpis.end(); ++tpi) {
+    fAmp .push_back(fMaxBinAmplitude(*tpi));
+    fTime.push_back((*tpi)->GetTimeStamp());
+    // fTime.push_back(fCFTime(*pulseIter));
     //if (fTime < 10e3 || fTime > 96e6) { // roughly cut out sync pulses
     //  continue;
     //}
-    // if (ExportPulse::Instance())
-    //   ExportPulse::Instance()->AddToExportList(TSetupData::Instance()->GetDetectorName((*pulseIter)->GetBankName()),
-    //                                            pulseIter-pulseList.begin());
-    //   //ExportPulse::Instance()->AddToExportList((*pulseIter)->GetBankName(), pulseIter-pulseList.begin());
   }
   fTree->Fill();
   return 0;
