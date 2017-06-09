@@ -39,7 +39,7 @@ class PlotTAP_TDiff : public BaseModule {
   /// \brief
   /// What's calculated for every entry?
   /// Don't hesitate to repeat what was said in the class description.
-  /// 
+  ///
   /// \param[in] gData See BaseModule::ProcessEntry
   /// \param[in] gSetup See BaseModule::ProcessEntry
   /// \return Non-zero to indicate a problem.
@@ -75,6 +75,7 @@ class PlotTAP_TDiff : public BaseModule {
 
   std::map<std::string, std::vector<TH2F*> > fHists;
   std::map<std::string, std::vector<TH1F*> > fProjs;
+  std::map<std::string, std::vector<TH2F*> > fTDeps;
 
   std::vector<IDs::source> fDetASources, fDetBSources;
 };
