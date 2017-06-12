@@ -29,16 +29,12 @@ PlotTAP_TDiff::PlotTAP_TDiff(modules::options* opts) :
   fDetNameA(opts->GetString("det1")), fDetNameB(opts->GetString("det2")),
   fTimeLow(opts->GetDouble("time_low",-1.e5)), fTimeHigh(opts->GetDouble("time_high",1.e5)),
   fExportSQL(opts->GetBool("export_sql", false)),
-  fUseHighAmpBinCut(opts->GetBool("use_high_amp_bin_cut", false)){  
+  fUseHighAmpBinCut(opts->GetBool("use_high_amp_bin_cut", false)){
   if (fDetNameA == std::string("") || fDetNameB == std::string(""))
     throw Except::ModulesOptionError("Two detectors must be provided");
-  //  else if (fDetNameA == fDetNameB)
-  //    throw Except::ModulesOptionError((fDetNameA + "==" + fDetNameB).c_str());
-  //  else if (fExportSQL && fDetNameB != "SiT-1-F")
-  //    throw Except::ModulesOptionError("If exporting to calibration DB, second detector must be SiT-1-F");
+   else if (fExportSQL && fDetNameB != "SiT-1-F")
+     throw Except::ModulesOptionError("If exporting to calibration DB, second detector must be SiT-1-F");
 }
-
-
 
 PlotTAP_TDiff::~PlotTAP_TDiff() {
 }
@@ -50,19 +46,19 @@ int PlotTAP_TDiff::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
   for(SourceAnalPulseMap::const_iterator sourceIt = gAnalysedPulseMap.begin();
       sourceIt != gAnalysedPulseMap.end(); sourceIt++) {
 
-    if( sourceIt->first.Channel() != fDetNameA)
+    if(sourceIt->first.Channel() != fDetNameA)
       continue;   //check for detector A
-    
-    for(SourceAnalPulseMap::const_iterator sourceIt2 = gAnalysedPulseMap.begin(); sourceIt2 != gAnalysedPulseMap.end(); ++sourceIt2)
-      {
-	if(sourceIt2->first.Channel() != fDetNameB)
-	  continue;  //check for detector B
 
-	//I should make a vector of the sources for detA and detB
-	fDetASources.push_back(sourceIt->first);
-	fDetBSources.push_back(sourceIt2->first);
-	break;
-      }
+    for(SourceAnalPulseMap::const_iterator sourceIt2 = gAnalysedPulseMap.begin();
+        sourceIt2 != gAnalysedPulseMap.end(); ++sourceIt2) {
+      if(sourceIt2->first.Channel() != fDetNameB)
+	      continue;  //check for detector B
+
+       //I should make a vector of the sources for detA and detB
+      fDetASources.push_back(sourceIt->first);
+      fDetBSources.push_back(sourceIt2->first);
+      break;
+    }
   }
   BookHistograms(setup);
   return 0;
@@ -77,24 +73,23 @@ int PlotTAP_TDiff::ProcessEntry(TGlobalData* gData,const TSetupData *setup) {
     const AnalysedPulseList& detBPulses = gAnalysedPulseMap[fDetBSources[i]];
     const std::vector<TH2F*>& hists = fHists[fDetASources[i].str()];
     const std::vector<TH1F*>& projs = fProjs[fDetASources[i].str()];
-    
+    const std::vector<TH2F*>& tdeps = fTDeps[fDetASources[i].str()];
+
     for(AnalysedPulseList::const_iterator pulseIt = detAPulses.begin();
-	pulseIt != detAPulses.end(); ++pulseIt) {
+        pulseIt != detAPulses.end(); ++pulseIt) {
 
       for(AnalysedPulseList::const_iterator pulseIt2 = detBPulses.begin();
-	  pulseIt2 != detBPulses.end(); ++pulseIt2) {
-	double tDiff = (*pulseIt)->GetTime() - (*pulseIt2)->GetTime();
+          pulseIt2 != detBPulses.end(); ++pulseIt2) {
+        double tDiff = (*pulseIt)->GetTime() - (*pulseIt2)->GetTime();
 
-	//	if ( (*pulseIt)->GetAmplitude() > 3500 || (*pulseIt2)->GetAmplitude() > 3500) {
+      	//	if ( (*pulseIt)->GetAmplitude() > 3500 || (*pulseIt2)->GetAmplitude() > 3500) {
 
-	hists[0]->Fill(tDiff, (*pulseIt)->GetAmplitude());
-	hists[1]->Fill(tDiff, (*pulseIt2)->GetAmplitude());
-	//	hists[2]->Fill(tDiff, (*pulseIt)->GetTime());
-	//	hists[3]->Fill(tDiff, (*pulseIt2)->GetTime());
+        hists[0]->Fill(tDiff, (*pulseIt)->GetAmplitude());
+        hists[1]->Fill(tDiff, (*pulseIt2)->GetAmplitude());
+        projs[0]->Fill(tDiff);
+        tdeps[0]->Fill(tDiff, (*pulseIt2)->GetTime());
+        //	}
 
-	projs[0]->Fill(tDiff);
-	//	}
-	
       }//end detBPulse loop
     }//end detAPulse loop
   }//end sources loop
@@ -118,7 +113,7 @@ int PlotTAP_TDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 	// Find the last filled bin so that we can ignore it in the fit (there's an odd SiT-3-S bump that needs removing)
 	int last_filled_bin = hAmp->GetNbinsX();
 	for (int i_bin = hAmp->GetNbinsX(); i_bin >= 1; --i_bin) {
-	  double bin_content = hAmp->GetBinContent(i_bin); 
+	  double bin_content = hAmp->GetBinContent(i_bin);
 	  if (bin_content > 0) {
 	    last_filled_bin = i_bin;
 	    break;
@@ -134,7 +129,7 @@ int PlotTAP_TDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
       int binMax = h->GetMaximumBin();
       int maxPoint = h->GetXaxis()->GetBinCenter(binMax);
       int window_size = 500;
-      
+
       TF1 * fitter = new TF1("fitter", "gaus", maxPoint - window_size/2, maxPoint + window_size/2);
       fitter->SetParameter(1, maxPoint);
       h->Fit(fitter, "RQ+");
@@ -150,8 +145,9 @@ void PlotTAP_TDiff::BookHistograms(const TSetupData* setup) {
     const int maxAmpA = std::pow(2, setup->GetNBits(setup->GetBankName(fDetNameA)));
     const int maxAmpB = std::pow(2, setup->GetNBits(setup->GetBankName(fDetNameB)));
     std::vector<TH2F*>& hists = fHists[fDetASources.at(i).str()];
-    std::vector<TH1F*>& proj = fProjs[fDetASources.at(i).str()];
-    
+    std::vector<TH1F*>& proj  = fProjs[fDetASources.at(i).str()];
+    std::vector<TH2F*>& tdep  = fTDeps[fDetASources.at(i).str()];
+
     //ampA plots
     std::string histname("h" + fDetNameB + "_" + fDetASources.at(i).str() + "TDiff_AmpA");
     std::string histtitle("Amplitude of " + fDetNameA + " vs time difference with " + fDetNameB + " detectors with the " + gen + " generator;t_{" + fDetNameA + "} - t_{" + fDetNameB + "} (ns);Amplitude of " + fDetNameA + " [ADC]");
@@ -174,13 +170,26 @@ void PlotTAP_TDiff::BookHistograms(const TSetupData* setup) {
     */
     //projection
     histname = "h" + fDetNameB + "_" + fDetASources.at(i).str() + "TDiff";
-    histtitle = "Time difference of " + fDetNameA + " vs " + fDetNameB + " detectors with the " + gen + " generator;t_{" + fDetNameA + "} - t_{" + fDetNameB + "} (ns);Amplitude of " + fDetNameA + " [ADC]";
-    proj.push_back(new TH1F(histname.c_str(), histtitle.c_str(), 100, fTimeLow, fTimeHigh) );
+    histtitle = "Time difference of " + fDetNameA + " vs " + fDetNameB +
+                " detectors with the " + gen + " generator;t_{" + fDetNameA +
+                "} - t_{" + fDetNameB + "} (ns);Amplitude of " + fDetNameA +
+                " [ADC]";
+    proj.push_back(new TH1F(histname.c_str(), histtitle.c_str(),
+                            100, fTimeLow, fTimeHigh) );
+
+    // TDep
+    histname  = "h" + fDetNameB + "_" + fDetASources.at(i).str() + " TDiff_TimeA";
+    histtitle = "Time of " + fDetNameB + " vs time difference with " +
+                fDetNameA + " detectors with the " + gen + " generator;t_{" +
+                fDetNameA + "} - t_{" + fDetNameB + "} (ns);Time of " +
+                fDetNameA + " [ns]";
+    tdep.push_back(new TH2F(histname.c_str(), histtitle.c_str(),
+                            100, fTimeLow, fTimeHigh, 100, 0., 100.e6));
   }
 }
 
 // The following macro registers this module to be useable in the config file.
 // The first argument is compulsory and gives the name of this module
-// All subsequent arguments will be used as names for arguments given directly 
+// All subsequent arguments will be used as names for arguments given directly
 // within the modules file.  See the github wiki for more.
 ALCAP_REGISTER_MODULE(PlotTAP_TDiff,det1,det2,time_low,time_high,export_sql);
