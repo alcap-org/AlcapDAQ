@@ -19,6 +19,7 @@ using IDs::source;
 #include <cassert>
 #include <iostream>
 #include <fstream>
+#include <limits>
 #include <map>
 #include <sstream>
 #include <string>
@@ -286,12 +287,7 @@ void SetupNavigator::OutputCalibCSV() {
           << i->second[j].first << ", " << i->second[j].second << endl;
   sprintf(ofname, fmt, fBoardSyncTableName.c_str());
   std::ofstream fBS(ofname);
-  // fBS << "run,board,block,t" << endl;
-  // for (map< IDs::board, vector<double> >::const_iterator i = fBoardSyncTime.begin();
-  //      i != fBoardSyncTime.end(); ++i)
-  //   for (int j = 0; j < i->second.size(); ++j)
-  //     fBS << GetRunNumber() << ", " << i->first << ", " << j << ", "
-  //         << i->second[j] << endl;
+  fBS.precision(std::numeric_limits<double>::digits10+2);
   fBS << "run,board,block,t1,t2" << endl;
   for (map< IDs::board, vector< pair<double, double> > >::const_iterator i = fBoardSyncTime.begin();
        i != fBoardSyncTime.end(); ++i)
