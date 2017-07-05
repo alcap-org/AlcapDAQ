@@ -51,6 +51,10 @@ class SetupNavigator{
   /// \brief
   /// Gets the energy calibration constants
   std::pair<double,double> GetEnergyCalibrationConstants(const IDs::channel&) const;
+  /// \brief
+  /// Get time offset from SiT-1-S board
+  double GetSyncOffset(const IDs::channel&, int block) const;
+  std::pair<int, int> GetChanSyncs(const IDs::channel& ch, int block=-1) const;
 
   double GetAdcToEnergyGain(const IDs::channel& ch) const{return GetEnergyCalibrationConstants(ch).first;}
   double GetAdcToEnergyConstant(const IDs::channel& ch) const{return GetEnergyCalibrationConstants(ch).second;}
@@ -78,7 +82,7 @@ class SetupNavigator{
   bool ReadEnergyCalibrationConstants();
   /// \brief
   /// Read in sync pulse info
-  // bool ReadSynchronizationInfo();
+  bool ReadSynchronizationInfo();
   void OutputCalibCSV();
 
   bool IsCalibRun() const {return fCommandLineArgs.calib;}
@@ -117,8 +121,7 @@ class SetupNavigator{
   /// Map that stores the bank to sync TPI index info and time info.
   // [channel][block] = i1, i2
   std::map< IDs::channel, std::vector< std::pair<int, int> > > fChanSyncs;
-  // [channel][block] = dt
-  // std::map< IDs::board, std::vector<double> > fBoardSyncTime;
+  // [channel][block] = t1, t2
   std::map< IDs::board, std::vector< std::pair<double, double> > > fBoardSyncTime;
 
 };

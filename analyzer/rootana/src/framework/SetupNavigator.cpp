@@ -213,33 +213,36 @@ bool SetupNavigator::ReadEnergyCalibrationConstants() {
   return true; // Right now there's no reason this should be filled for anything
 }
 
-// bool SetupNavigator::ReadSynchronizationInfo() {
-//   stringstream cmd;
-//   cmd << "SELECT channel,block,i1,i2 FROM " << fChannelSyncTableName
-//       << "WHERE run==" << GetRunNumber();
-//   TSQLResult* res = fServer->Query(cmd.str().c_str());
-//   TSQLRow* row;
-//   while ((row = res->Next())) {
-//     IDs::channel ch(row->GetField(0));
-//     int block = atoi(row->GetField(1));
-//     int i1    = atoi(row->GetField(2));
-//     int i2    = atoi(row->GetField(3));
-//     if (fChanSyncs[ch].size() < block+1)
-//       fChanSyncs[ch].resize(block+1);
-//     fChanSyncs[ch][block] = std::make_pair(i1, i2);
-//   }
-//   cmd << "SELECT board,block,t" << fBoardSyncTableName
-//       << "WHERE run==" << GetRunNumber();
-//   res = fServer->Query(cmd.str().c_str());
-//   while ((row = res->Next())) {
-//     IDs::board brd(row->GetField(0));
-//     int block = atoi(row->GetField(1));
-//     double t  = atof(row->GetField(2));
-//     if (fBoardSyncTime[brd].size() < block + 1)
-//       fBoardSyncTime[brd].resize(block + 1);
-//     fBoardSyncTime[brd][block] = t;
-//   }
-// }
+bool SetupNavigator::ReadSynchronizationInfo() {
+  stringstream cmd;
+  cmd << "SELECT channel,block,i1,i2 FROM " << fChannelSyncTableName
+      << "WHERE run==" << GetRunNumber();
+  TSQLResult* res = fServer->Query(cmd.str().c_str());
+  TSQLRow* row;
+  while ((row = res->Next())) {
+    IDs::channel ch(row->GetField(0));
+    int block = atoi(row->GetField(1));
+    int i1    = atoi(row->GetField(2));
+    int i2    = atoi(row->GetField(3));
+    if (fChanSyncs[ch].size() < block+1)
+      fChanSyncs[ch].resize(block+1);
+    fChanSyncs[ch][block] = std::make_pair(i1, i2);
+  }
+  cmd.str("");
+  cmd.clear();
+  cmd << "SELECT board,block,t1,t2" << fBoardSyncTableName
+      << "WHERE run==" << GetRunNumber();
+  res = fServer->Query(cmd.str().c_str());
+  while ((row = res->Next())) {
+    IDs::board brd(row->GetField(0));
+    int block = atoi(row->GetField(1));
+    double t1 = atof(row->GetField(2));
+    double t2 = atof(row->GetField(3));
+    if (fBoardSyncTime[brd].size() < block + 1)
+      fBoardSyncTime[brd].resize(block + 1);
+    fBoardSyncTime[brd][block] = std::make_pair(t1, t2);
+  }
+}
 
 void SetupNavigator::OutputCalibCSV() {
   char fmt[128], ofname[128];
@@ -319,20 +322,22 @@ void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double mean, do
 
 void SetupNavigator::SetChanSyncs(const IDs::channel& ch, int b,
                                   pair<int, int> is) {
-  assert(IsCalibRun());
+  if(!IsCalibRun()) {
+    cout << "SetupNavigator: Warning: Request to edit chan syncs "
+            "when not flagged as calibration." << endl;
+    assert(false);
+  }
   if (fChanSyncs[ch].size() < b+1)
     fChanSyncs[ch].resize(b+1);
   fChanSyncs[ch][b] = is;
 }
 
-// void SetupNavigator::SetBoardSync(const IDs::board& brd, int b, double t) {
-//   assert(IsCalibRun());
-//   if (fBoardSyncTime[brd].size() < b+1)
-//     fBoardSyncTime[brd].resize(b+1);
-//   fBoardSyncTime[brd][b] = t;
-// }
 void SetupNavigator::SetBoardSync(const IDs::board& brd, int b, std::pair<double, double> ts) {
-  assert(IsCalibRun());
+  if(!IsCalibRun()) {
+    cout << "SetupNavigator: Warning: Request to edit board syncs "
+            "when not flagged as calibration." << endl;
+    assert(false);
+  }
   if (fBoardSyncTime[brd].size() < b+1)
     fBoardSyncTime[brd].resize(b+1);
   fBoardSyncTime[brd][b] = ts;
@@ -356,4 +361,18 @@ double SetupNavigator::GetCoarseTimeOffset( IDs::source source) const {
 if(curly_br!=std::string::npos){ source.Generator().Config(conf.substr(0,curly_br+1));}
 
  return source.matches(IDs::channel("SiT-1-S")) ? 0. : alcap::at<Except::InvalidDetector>(fCoarseTimeOffset,source,source.str().c_str());
+}
+
+double SetupNavigator::GetSyncOffset(const channel& ch, int blk) const {
+  static board brd0 = board(channel("SiT-1-S"));
+  board brd(ch);
+  pair<double, double> t0s = fBoardSyncTime.at(brd0).at(blk);
+  pair<double, double> ts  = fBoardSyncTime.at(brd) .at(blk);
+  return ts.first - t0s.first;
+}
+
+pair<int, int> SetupNavigator::GetChanSyncs(const IDs::channel& ch, int blk) const {
+  if      (!fChanSyncs.count(ch)) return std::make_pair(-1, -1);
+  else if (blk <= 0)              return fChanSyncs.find(ch)->second.back();
+  else                            return fChanSyncs.find(ch)->second.at(blk);
 }

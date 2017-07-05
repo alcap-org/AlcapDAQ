@@ -44,6 +44,7 @@ public:
   bool IsSIS3350() const;
   bool IsCAEN()    const { return kD4 <= fBoard && fBoard <= kT4; }
   bool IsSIS()     const { return IsSIS3300()   || IsSIS3350(); }
+  bool Good()      const { return IsSIS()       || IsCAEN(); }
   IDs::channel Channel(int i) const;
   Board_t Board()   const { return fBoard; }
   std::string Str() const;
