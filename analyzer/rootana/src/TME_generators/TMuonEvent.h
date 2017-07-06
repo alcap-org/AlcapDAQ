@@ -108,6 +108,9 @@ class TMuonEvent:public TObject{
         double GetAmplitude()const {return fCentralMuon->GetAmplitude(TDetectorPulse::kFast);}
         const TDetectorPulse* GetCentralMuon()const {return fCentralMuon;}
 
+	// Get the TME window width
+	double GetWindowWidth() const { return fWindowWidth; }
+
         void InsertSiliconEvent(LeftRight_t lr, const TSiliconEvent& si_evt){
            fSiliconHits[lr].push_back(si_evt); 
         }
