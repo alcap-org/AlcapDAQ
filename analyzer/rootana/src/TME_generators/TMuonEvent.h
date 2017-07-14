@@ -118,6 +118,13 @@ class TMuonEvent:public TObject{
         SiliconHitList::const_iterator EndSiEvents(LeftRight_t lr)const{ return fSiliconHits[lr].end();}
         int NumSiHits(LeftRight_t lr)const{ return fSiliconHits[lr].size();}
 
+	struct PointerCompare {
+	  bool operator()(const TMuonEvent* left, const TMuonEvent* right) {
+	    bool less = left->GetCentralMuon()->GetTime() < right->GetCentralMuon()->GetTime();
+	    return less;
+	  }
+	};
+
     private:
         SourceDetPulseMap fPulseLists;
         SiliconHitList fSiliconHits[2];
