@@ -49,6 +49,7 @@ class FixedWindowMEGenerator:public TVMuonEventGenerator {
         SourceList fMuonCounters;
         SourceList fOtherDetectors;
 
+	double fCentralMuonEnergyCut;
 };
 
 #endif //FIXEDWINDOW_H__

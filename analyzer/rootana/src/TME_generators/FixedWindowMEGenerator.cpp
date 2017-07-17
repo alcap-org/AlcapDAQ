@@ -12,6 +12,7 @@ using std::endl;
 FixedWindowMEGenerator::FixedWindowMEGenerator(TMEGeneratorOptions* opts):
 	TVMuonEventGenerator("FixedWindow",opts),fInit(true){
         fEventWindow=opts->GetDouble("event_window",1e4);
+	fCentralMuonEnergyCut=opts->GetDouble("central_muon_energy_cut");
 }
 
 int FixedWindowMEGenerator::Init(const SourceDetPulseMap& detectorPulsesIn){
@@ -78,6 +79,10 @@ int FixedWindowMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
       // Loop over all the "muons" (actually pulses) in this muon counter pulse list
       for(DetectorPulseList::const_iterator i_muons=(*i_mu_counter).pulses->begin();
 	  i_muons!=(*i_mu_counter).pulses->end(); ++i_muons){
+
+	if ((*i_muons)->GetEnergy() < fCentralMuonEnergyCut) {
+	  continue;
+	}
 
         // Make a TME centred on this muon
         TMuonEvent* tme=new TMuonEvent(*i_muons, fEventWindow);
