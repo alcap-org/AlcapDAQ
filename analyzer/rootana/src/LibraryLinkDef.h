@@ -43,4 +43,9 @@
 #pragma link C++ class TTemplate+;
 
 #pragma link C++ class TAnalysedPulseMapWrapper+;
+
+#pragma link C++ class SimplePulse+;
+#pragma link C++ class std::vector<SimplePulse>+;
+#pragma link C++ class std::vector<SimplePulse*>+;
+
 #endif    /* __CINT__ */

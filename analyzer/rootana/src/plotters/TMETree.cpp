@@ -15,6 +15,7 @@
 #include <TApplication.h>
 
 #include <iostream>
+#include <cmath>
 using std::cout;
 using std::endl;
 
@@ -74,33 +75,24 @@ int TMETree::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fTMETree->Branch("TMEId", &fTMEId);
 
     fTMETree->Branch("TMEWindowWidth", &fTMEWindowWidth);
+    fTMETree->Branch("centralMuonChannel", &fCentralMuonChannel);
+    fTMETree->Branch("centralMuonTPIID", &fCentralMuonTPIID);
     fTMETree->Branch("centralMuonEnergy", &fCentralMuonEnergy);
     fTMETree->Branch("centralMuonTime", &fCentralMuonTime);
 
-    fTMETree->Branch("overlappingWindow", &fOverlappingWindow);
+    fTMETree->Branch("timeToPrevTME", &fTimeToPrevTME);
+    fTMETree->Branch("timeToNextTME", &fTimeToNextTME);
     fTMETree->Branch("anyDoubleCountedPulses", &fAnyDoubleCountedPulses);
     
     for (DetectorList::const_iterator i_det=fAllDets.begin(); i_det!=fAllDets.end(); ++i_det){
       
       const std::string& i_detname = i_det->str();
 
-      std::string branchname = modules::parser::ToCppValid(i_detname+"_E");
-      fTMETree->Branch(branchname.c_str(), &fEnergies[i_detname]);
-
-      branchname = modules::parser::ToCppValid(i_detname+"_Amp");
-      fTMETree->Branch(branchname.c_str(), &fAmplitudes[i_detname]);
-
-      branchname = modules::parser::ToCppValid(i_detname+"_tblock");
-      fTMETree->Branch(branchname.c_str(), &fBlockTimes[i_detname]);
-
-      branchname = modules::parser::ToCppValid(i_detname+"_tTME");
-      fTMETree->Branch(branchname.c_str(), &fTMETimes[i_detname]);
+      std::string branchname = modules::parser::ToCppValid(i_detname);
+      fTMETree->Branch(branchname.c_str(), &fChannels[i_detname]);
 
       branchname = modules::parser::ToCppValid(i_detname+"_nPulses");
       fTMETree->Branch(branchname.c_str(), &fNPulses[i_detname]);
-
-      branchname = modules::parser::ToCppValid(i_detname+"_doubleCountedPulses");
-      fTMETree->Branch(branchname.c_str(), &fDoubleCountedPulses[i_detname]);
     }
     //    fTMETree->Branch("NPulses", &fNPulses);
     //    fTMETree->Branch("DetName", fDetNames);
@@ -120,27 +112,21 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
     fTMEId = i_tme - gMuonEvents.begin();
     fTMEWindowWidth = (*i_tme)->GetWindowWidth();
-    fCentralMuonTime = (*i_tme)->GetCentralMuon()->GetTime();
-    fCentralMuonEnergy = (*i_tme)->GetCentralMuon()->GetEnergy();
 
-    fOverlappingWindow = false;
+    const TDetectorPulse* central_muon = (*i_tme)->GetCentralMuon();
+    fCentralMuonChannel = central_muon->GetSource().Channel().str();
+    fCentralMuonTPIID = central_muon->GetTAP(TDetectorPulse::kSlow)->GetParentID();
+    fCentralMuonEnergy = central_muon->GetEnergy();
+    fCentralMuonTime = central_muon->GetTime();
+
+    fTimeToPrevTME = -1;
+    fTimeToNextTME = -1;
     if (i_tme != gMuonEvents.begin()) {
-      double this_tme_begin_time = fCentralMuonTime - fTMEWindowWidth/2;
-      double prev_tme_end_time = (*(i_tme-1))->GetCentralMuon()->GetTime() + (*(i_tme-1))->GetWindowWidth()/2;
-      //      std::cout << "Prev End = " << prev_tme_end_time << ", This Begin = " << this_tme_begin_time << " ";
-      if (this_tme_begin_time < prev_tme_end_time) {
-	fOverlappingWindow = true;
-      }
+      fTimeToPrevTME = std::fabs(fCentralMuonTime - (*(i_tme-1))->GetCentralMuon()->GetTime());
     }
     if (i_tme != gMuonEvents.end()-1) {
-      double this_tme_end_time = fCentralMuonTime + fTMEWindowWidth/2;
-      double next_tme_begin_time = (*(i_tme+1))->GetCentralMuon()->GetTime() - (*(i_tme+1))->GetWindowWidth()/2;
-      //      std::cout << "This End = " << this_tme_end_time << ", Next Begin = " << next_tme_begin_time << " ";
-      if (this_tme_end_time > next_tme_begin_time) {
-	fOverlappingWindow = true;
-      }
+      fTimeToNextTME = std::fabs(fCentralMuonTime - (*(i_tme+1))->GetCentralMuon()->GetTime());
     }
-    //    std::cout << fOverlappingWindow << std::endl;
     
     fAnyDoubleCountedPulses = false;
 
@@ -148,11 +134,7 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
       
       const std::string& i_detname = i_det->str();
       fNPulses[i_detname] = 0;
-      fEnergies[i_detname].clear();
-      fAmplitudes[i_detname].clear();
-      fBlockTimes[i_detname].clear();
-      fTMETimes[i_detname].clear();
-      fDoubleCountedPulses[i_detname] = false;
+      fChannels[i_detname].clear();
       
       int i_det_source_index=(*i_tme)->GetFirstSourceIndex(*i_det); // I shouldn't have more than one source
       if (i_det_source_index<0) {
@@ -166,10 +148,13 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
       for(int i=0; i<n_pulses_i_det; ++i){ 
 	const TDetectorPulse* tdp=(*i_tme)->GetPulse(i_det_source,i);
 
-	fEnergies[i_detname].push_back(tdp->GetEnergy());
-	fAmplitudes[i_detname].push_back(tdp->GetAmplitude());
-	fBlockTimes[i_detname].push_back(tdp->GetTime());
-	fTMETimes[i_detname].push_back(tdp->GetTime() - fCentralMuonTime);
+	SimplePulse* pulse = new SimplePulse();
+	pulse->tpi_id = tdp->GetTAP(TDetectorPulse::kSlow)->GetParentID();
+	pulse->E = tdp->GetEnergy();
+	pulse->Amp = tdp->GetAmplitude();
+	pulse->tblock = tdp->GetTime();
+	pulse->tTME = (tdp->GetTime() - fCentralMuonTime);
+
 	//	std::cout << &fEnergies[i_detname] << std::endl;
 	//	std::cout << "Pulse #" << i << ", " << i_detname << ", " << tdp->GetEnergy() << ", " << *(fEnergies[i_detname].end()-1) << std::endl;
 
@@ -193,14 +178,12 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
 	  int j_det_source_index=(*j_tme)->GetFirstSourceIndex(*i_det); // I shouldn't have more than one source
 	  if (j_det_source_index<0) {
-	    fDoubleCountedPulses[i_detname] = false;
 	    continue; // this TME has no sources for this channel
 	  }
 	  const IDs::source& j_det_source=(*j_tme)->GetSource(j_det_source_index);
 
 	  int n_pulses_prev_tme = (*j_tme)->NumPulses(j_det_source);
 	  if (n_pulses_prev_tme == 0) {
-	    fDoubleCountedPulses[i_detname] = false;
 	    continue; // we are fine
 	  }
 	  else {
@@ -208,12 +191,14 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	      const TDetectorPulse* prev_tdp=(*j_tme)->GetPulse(j_det_source,j);
 	      
 	      if (prev_tdp->GetTAP(TDetectorPulse::kSlow)->GetParentID() == tdp->GetTAP(TDetectorPulse::kSlow)->GetParentID()) {
-		fDoubleCountedPulses[i_detname] = true;
+		pulse->bit_mask.SetBitNumber(SimplePulse::kDoubleCounted);
 		fAnyDoubleCountedPulses = true;
 	      }
 	    }
 	  }
 	}
+
+	fChannels[i_detname].push_back(pulse);
       }
     }
 

@@ -11,6 +11,7 @@ class TH2F;
 class TCanvas;
 class TApplication;
 #include "TTree.h"
+#include "SimplePulse.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana_modules
@@ -68,19 +69,18 @@ class TMETree : public BaseModule {
 	int fTMEId;
 
 	double fTMEWindowWidth;
+	std::string fCentralMuonChannel;
+	int fCentralMuonTPIID;
 	double fCentralMuonEnergy;
 	double fCentralMuonTime;
 
-	bool fOverlappingWindow;
+	double fTimeToPrevTME;
+	double fTimeToNextTME;
 	bool fAnyDoubleCountedPulses;
 
 	std::map<std::string, int> fNPulses;
-	std::map<std::string, std::vector<double> > fEnergies;
-	std::map<std::string, std::vector<double> > fAmplitudes;
-	std::map<std::string, std::vector<double> > fBlockTimes;
-	std::map<std::string, std::vector<double> > fTMETimes;
-	std::map<std::string, bool> fDoubleCountedPulses;
-	//	std::vector<double>* fTimes;
+	std::map<std::string, std::vector<SimplePulse*> > fChannels;
+
 };
 
 #endif //CHECKTMES_H_
