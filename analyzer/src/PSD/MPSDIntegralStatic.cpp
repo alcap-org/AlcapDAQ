@@ -381,7 +381,7 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
       if(*(std::min_element( samples.begin(), samples.end() )) <= 0) continue;
       if(*(std::max_element( samples.begin(), samples.end() )) >= max_adc-1) continue;
       //double eFit = (*pIter)->GetEnergyFit(fitMax);
-      bool isNeutron = MPSDIntegralStatic_Neutron(detname, ratio, eFit); 
+      bool isNeutron = MPSDIntegralStatic_Neutron(detname, ratio, energy); 
 
       NdetRatioS_map[bankname]->Fill(max_ps, ratio);
       NdetRatioEnergyS_map[bankname]->Fill(energy, ratio);
@@ -389,7 +389,7 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
       NdetIntegrals_map[bankname]->Fill(lInt, sInt);
       NdetIntegralE_map[bankname]->Fill(energy, sInt);
 
-      if(isNeutron) NdetRatioCut_map[bankname]->Fill(eFit, ratio);
+      if(isNeutron) NdetRatioCut_map[bankname]->Fill(energy, ratio);
 
 
       (*pIter)->SetPSDParameter(ratio);
