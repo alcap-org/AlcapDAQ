@@ -35,7 +35,7 @@ class TPulseIsland : public TObject {
   float fPSD_parameter;     //integral ratio, 1+ == neutron in simplest case
   bool fVetoPulse, fPileupPulse, fDoublePulse;
   double fWFDTime;
-  float fFit;
+  float fEnergy;
 
  public:
   /// This defaultconstructor I believe exists so ROOT can load these from file and is not used explcitly.
@@ -106,7 +106,7 @@ class TPulseIsland : public TObject {
   double GetEnergyAmp(int amp) const;
   double GetEnergyFit(double fit) const;
   double GetEnergyInt(double Int) const;
-  float GetFit() const { return fFit; }
+  float GetEnergy() const { return fEnergy; }
 
 
 
@@ -117,7 +117,7 @@ class TPulseIsland : public TObject {
   void SetTDCTime(int64_t t)  { fTDCTime = t; }
   void SetWFDTime(double t) { fWFDTime = t; } 
   void SetPSDParameter(float PSD)  { fPSD_parameter = PSD; }
-  void SetFit(float energy) { fFit = energy; }
+  void SetEnergy(float energy) { fEnergy = energy; }
   void SetVetoPulse(bool check) { fVetoPulse = check; }
   void SetPileupPulse(bool check) { fPileupPulse = check; }
   void SetDoublePulse(bool check) { fDoublePulse = check; }

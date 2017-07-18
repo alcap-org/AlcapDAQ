@@ -12,16 +12,16 @@
 using std::vector;
 using std::string;
 
-TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fBankName(""), fTDCTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false) {
+TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fBankName(""), fTDCTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
 }
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>::const_iterator& first,
         const vector<int>::const_iterator& last, string bank_name) :
-  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fFit(0) {
+  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
 }
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name) :
-  fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fFit(0) {
+  fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
 }
 
 void TPulseIsland::Reset(Option_t* o) {
@@ -34,7 +34,7 @@ void TPulseIsland::Reset(Option_t* o) {
   fVetoPulse = false;
   fPileupPulse = false;
   fDoublePulse = false;
-  fFit = 0;
+  fEnergy = 0;
 }
 
 // GetAmplitude()

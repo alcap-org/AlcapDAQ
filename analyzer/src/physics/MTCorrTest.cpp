@@ -104,16 +104,16 @@ INT MTCorrTest_init() {
       char bank[5]; sprintf(bank, "D%d%02d", icrate, ich);
       std::string det = gSetup->GetDetectorName(bank);
 
-      if(det == "NdetD" || det == "NdetU" /*|| det == "LaBr3"*/){
+      if(det == "NdetD" || det == "NdetU" || det == "LaBr3"){
 	WFDBANKS[icrate][ich] = bank;
 	//TDCBANKS[icrate][ich] = gSetup->GetBankName("T" + det);
       }
-      
+      /*
       else if(det == "GeCHEH" || det == "GeCHEL" || det == "GeCHT"){
 	WFDBANKS[icrate][ich] = bank;
 	//TDCBANKS[icrate][ich] = gSetup->GetBankName("TGeCHT");
       }
-      
+      */
       else if(det == "TSc") {
 	WFDBANKS[icrate][ich] = bank;
 	//TDCBANKS[icrate][ich] = gSetup->GetBankName("TTSc");
@@ -155,7 +155,7 @@ INT MTCorrTest_init() {
       if(det != "TSc"){
 	sprintf(histname, "hTCorrTest_FEvTDiff_%s", det.c_str());
 	sprintf(histtitle, "Fit Energy vs TSC TDiff for %s", det.c_str());
-	vvhTCorrTest_FEvTDiff[icrate][ich] = new TH2D(histname, histtitle, 1e4, -2e3, 8e3, 800, 0, 10.0125);
+	vvhTCorrTest_FEvTDiff[icrate][ich] = new TH2D(histname, histtitle, 1e4, -2e3, 8e3, 640, 0, 8.0125);
 	vvhTCorrTest_FEvTDiff[icrate][ich]->GetXaxis()->SetTitle("TDiff (TDC) (ns)");
 	vvhTCorrTest_FEvTDiff[icrate][ich]->GetYaxis()->SetTitle("Energy (fit) (MeV)");
 
@@ -288,7 +288,7 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 	//float integral_ps = pulses[p]->GetIntegral();
 	float threshold = MTCorrTest_Threshold(det);
 	float fit_max = 0;
-	if(det == "TSc" || det == "GeCHT") fit_max = pulses[p]->GetPulseHeight();	
+	if(det == "TSc" || det == "GeCHT") fit_max = pulses[p]->GetPulseHeight();
 	else fit_max = pulses[p]->GetFitMax();
 	
 	double PSD_ratio = pulses[p]->GetPSDParameter();
@@ -301,10 +301,12 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 
 	//if(pulses[p]->GetDoublePulse()) continue; //Multiple hits near TSc
 
-	
+	double energy = 0;	
+	if(det == "NdetD" || det == "NdetU") energy = pulses[p]->GetEnergy();
+	else energy = pulses[p]->GetEnergyFit(fit_max);
 	//double energy_amp = pulses[p]->GetEnergyAmp(max);
 	//double energy_int = pulses[p]->IntEnergy(integral_ps);
-	double energy_fit = pulses[p]->GetEnergyFit(fit_max);
+	//double energy_fit = pulses[p]->GetEnergyFit(fit_max);
 
 	//if( !MTCorrTest_Neutron(det, PSD_ratio, energy_amp) ) continue; //gamma
 
@@ -359,11 +361,11 @@ INT MTCorrTest(EVENT_HEADER *pheader, void *pevent) {
 
 
 	if(hist && prior > TIME_LOW){
-	  vvhTCorrTest_FEvTDiff[icrate][ich]->Fill(prior, energy_fit);
+	  vvhTCorrTest_FEvTDiff[icrate][ich]->Fill(prior, energy);
 	  vhTCorrTest_TDiff[icrate][ich]->Fill(prior);
 	  if(det == "NdetD" || det == "NdetU"){
-	    if(prior > (-1 * cutHigh) && prior < (-1*cutLow) )vvhTCorrTest_PSD[icrate][ich]->Fill(energy_fit, PSD_ratio);
-	    if(prior > cutLow && prior < cutHigh) vvhTCorrTest_PSDCut[icrate][ich]->Fill(energy_fit, PSD_ratio);
+	    if(prior > (-1 * cutHigh) && prior < (-1*cutLow) )vvhTCorrTest_PSD[icrate][ich]->Fill(energy, PSD_ratio);
+	    if(prior > cutLow && prior < cutHigh) vvhTCorrTest_PSDCut[icrate][ich]->Fill(energy, PSD_ratio);
 	  }
 	}
 	else if(hist) std::cout << "MTCorrTest : plotting incorrect time, check algorithm" << std::endl;

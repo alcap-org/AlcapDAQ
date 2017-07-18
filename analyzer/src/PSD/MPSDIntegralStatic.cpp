@@ -135,10 +135,10 @@ INT MPSDIntegralStatic_BookHistograms()
     NdetIntegralE_map[bankname] = hNdetEIntegral;
 
     histname = "h" + detname + "RatioCutS";
-    histtitle = "Integral Ratio vs Energy (fit) after cut for " + detname;
+    histtitle = "Integral Ratio vs Energy (Int) after cut for " + detname;
     TH2F* hNdetRatioCut = new TH2F(histname.c_str(), histtitle.c_str(), 600, 0, 7.5, 600, 0, 0.45);
     hNdetRatioCut->GetYaxis()->SetTitle("Integral Ratio");
-    hNdetRatioCut->GetXaxis()->SetTitle("Energy (MeVee) (Fit)");
+    hNdetRatioCut->GetXaxis()->SetTitle("Energy (MeVee) (Integral)");
     NdetRatioCut_map[bankname] = hNdetRatioCut;
 
     /*
@@ -244,7 +244,7 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
 
 
       const std::vector<int>& samples = (*pIter)->GetSamples();
-      float fitMax = (*pIter)->GetFitMax();
+      //float fitMax = (*pIter)->GetFitMax();
       const int nSamp = samples.size();
 
       //////////////Pedestal /////////////////////////////////////
@@ -369,7 +369,7 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
       //fill the histograms
       ratio = sInt/lInt;
 
-      double energy= (*pIter)->GetEnergyAmp(max_ps);
+      double energy= (*pIter)->GetEnergyInt(integral_ps);
       /*
       if(detname == "NdetD"){
 	energy = 0.008234 + 0.0003999 * max_ps;
@@ -380,12 +380,12 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
       */
       if(*(std::min_element( samples.begin(), samples.end() )) <= 0) continue;
       if(*(std::max_element( samples.begin(), samples.end() )) >= max_adc-1) continue;
-      double eFit = (*pIter)->GetEnergyFit(fitMax);
+      //double eFit = (*pIter)->GetEnergyFit(fitMax);
       bool isNeutron = MPSDIntegralStatic_Neutron(detname, ratio, eFit); 
 
       NdetRatioS_map[bankname]->Fill(max_ps, ratio);
       NdetRatioEnergyS_map[bankname]->Fill(energy, ratio);
-      NdetRatioFEnergyS_map[bankname]->Fill(eFit, ratio);
+      //NdetRatioFEnergyS_map[bankname]->Fill(eFit, ratio);
       NdetIntegrals_map[bankname]->Fill(lInt, sInt);
       NdetIntegralE_map[bankname]->Fill(energy, sInt);
 
@@ -393,7 +393,7 @@ INT MPSDIntegralStatic(EVENT_HEADER *pheader, void *pevent)
 
 
       (*pIter)->SetPSDParameter(ratio);
-
+      (*pIter)->SetEnergy(energy);
 
       /*
       //Plot some questionable pulses
