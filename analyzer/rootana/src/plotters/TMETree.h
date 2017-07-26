@@ -79,7 +79,7 @@ class TMETree : public BaseModule {
 	bool fAnyDoubleCountedPulses;
 
 	std::map<std::string, int> fNPulses;
-	std::map<std::string, std::vector<SimplePulse*> > fChannels;
+	std::map<std::string, std::vector<SimplePulse> > fChannels;
 
 };
 

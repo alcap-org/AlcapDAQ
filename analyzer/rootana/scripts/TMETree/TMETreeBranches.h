@@ -25,79 +25,79 @@ double timeToNextTME; // time from the central muon in this TME to the central m
 bool anyDoubleCountedPulses; // have any pulses in this TMuonEvent been included in more than one TMuonEvent?
 
 int SiT_1_nPulses; // number of pulses in this channel for this TMuonEvent
-std::vector<SimplePulse*>* SiT_1 = 0; // all the pulses in this channel for this TMuonEvent
+std::vector<SimplePulse>* SiT_1 = 0; // all the pulses in this channel for this TMuonEvent
 int SiT_2_nPulses;
-std::vector<SimplePulse*>* SiT_2 = 0;
+std::vector<SimplePulse>* SiT_2 = 0;
 int SiT_3_nPulses;
-std::vector<SimplePulse*>* SiT_3 = 0;
+std::vector<SimplePulse>* SiT_3 = 0;
 int SiT_4_nPulses;
-std::vector<SimplePulse*>* SiT_4 = 0;
+std::vector<SimplePulse>* SiT_4 = 0;
 int* all_SiT_nPulses[n_SiT_channels];
-std::vector<SimplePulse*>* all_SiT_channels[n_SiT_channels];
+std::vector<SimplePulse>* all_SiT_channels[n_SiT_channels];
 
 //int SiL1_1_nPulses; // number of pulses in this channel for this TMuonEvent
-//std::vector<SimplePulse*>* SiL1_1 = 0; // all the pulses in this channel for this TMuonEvent
+//std::vector<SimplePulse>* SiL1_1 = 0; // all the pulses in this channel for this TMuonEvent
 int SiL1_2_nPulses;
-std::vector<SimplePulse*>* SiL1_2 = 0;
+std::vector<SimplePulse>* SiL1_2 = 0;
 int SiL1_3_nPulses;
-std::vector<SimplePulse*>* SiL1_3 = 0;
+std::vector<SimplePulse>* SiL1_3 = 0;
 int SiL1_4_nPulses;
-std::vector<SimplePulse*>* SiL1_4 = 0;
+std::vector<SimplePulse>* SiL1_4 = 0;
 int SiL1_5_nPulses;
-std::vector<SimplePulse*>* SiL1_5 = 0;
+std::vector<SimplePulse>* SiL1_5 = 0;
 int SiL1_6_nPulses;
-std::vector<SimplePulse*>* SiL1_6 = 0;
+std::vector<SimplePulse>* SiL1_6 = 0;
 int SiL1_7_nPulses;
-std::vector<SimplePulse*>* SiL1_7 = 0;
+std::vector<SimplePulse>* SiL1_7 = 0;
 int SiL1_8_nPulses;
-std::vector<SimplePulse*>* SiL1_8 = 0;
+std::vector<SimplePulse>* SiL1_8 = 0;
 int SiL1_9_nPulses;
-std::vector<SimplePulse*>* SiL1_9 = 0;
+std::vector<SimplePulse>* SiL1_9 = 0;
 int SiL1_10_nPulses;
-std::vector<SimplePulse*>* SiL1_10 = 0;
+std::vector<SimplePulse>* SiL1_10 = 0;
 int SiL1_11_nPulses;
-std::vector<SimplePulse*>* SiL1_11 = 0;
+std::vector<SimplePulse>* SiL1_11 = 0;
 int SiL1_12_nPulses;
-std::vector<SimplePulse*>* SiL1_12 = 0;
+std::vector<SimplePulse>* SiL1_12 = 0;
 int SiL1_13_nPulses;
-std::vector<SimplePulse*>* SiL1_13 = 0;
+std::vector<SimplePulse>* SiL1_13 = 0;
 int SiL1_14_nPulses;
-std::vector<SimplePulse*>* SiL1_14 = 0;
+std::vector<SimplePulse>* SiL1_14 = 0;
 int SiL1_15_nPulses;
-std::vector<SimplePulse*>* SiL1_15 = 0;
+std::vector<SimplePulse>* SiL1_15 = 0;
 //int SiL1_16_nPulses;
-//std::vector<SimplePulse*>* SiL1_16 = 0;
+//std::vector<SimplePulse>* SiL1_16 = 0;
 int* all_SiL1_nPulses[n_SiL1_channels];
-std::vector<SimplePulse*>* all_SiL1_channels[n_SiL1_channels];
+std::vector<SimplePulse>* all_SiL1_channels[n_SiL1_channels];
 
 int SiL3_nPulses;
-std::vector<SimplePulse*>* SiL3 = 0;
+std::vector<SimplePulse>* SiL3 = 0;
 
 int SiR1_1_nPulses; // number of pulses in this channel for this TMuonEvent
-std::vector<SimplePulse*>* SiR1_1 = 0; // all the pulses in this channel for this TMuonEvent
+std::vector<SimplePulse>* SiR1_1 = 0; // all the pulses in this channel for this TMuonEvent
 int SiR1_2_nPulses;
-std::vector<SimplePulse*>* SiR1_2 = 0;
+std::vector<SimplePulse>* SiR1_2 = 0;
 int SiR1_3_nPulses;
-std::vector<SimplePulse*>* SiR1_3 = 0;
+std::vector<SimplePulse>* SiR1_3 = 0;
 int SiR1_4_nPulses;
-std::vector<SimplePulse*>* SiR1_4 = 0;
+std::vector<SimplePulse>* SiR1_4 = 0;
 int* all_SiR1_nPulses[n_SiR1_channels];
-std::vector<SimplePulse*>* all_SiR1_channels[n_SiR1_channels];
+std::vector<SimplePulse>* all_SiR1_channels[n_SiR1_channels];
 
 int SiR2_nPulses;
-std::vector<SimplePulse*>* SiR2 = 0;
+std::vector<SimplePulse>* SiR2 = 0;
 
 int SiR3_nPulses;
-std::vector<SimplePulse*>* SiR3 = 0;
+std::vector<SimplePulse>* SiR3 = 0;
 
 int GeLoGain_nPulses;
-std::vector<SimplePulse*>* GeLoGain = 0;
+std::vector<SimplePulse>* GeLoGain = 0;
 
 int GeHiGain_nPulses;
-std::vector<SimplePulse*>* GeHiGain = 0;
+std::vector<SimplePulse>* GeHiGain = 0;
 
 int* all_nPulses[n_all_channels];
-std::vector<SimplePulse*>* all_channels[n_all_channels];
+std::vector<SimplePulse>* all_channels[n_all_channels];
 
 
 void SetTMEBranchAddresses(TTree* tmetree) {

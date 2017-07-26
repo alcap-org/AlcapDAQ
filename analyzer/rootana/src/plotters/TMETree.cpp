@@ -191,14 +191,14 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	      const TDetectorPulse* prev_tdp=(*j_tme)->GetPulse(j_det_source,j);
 	      
 	      if (prev_tdp->GetTAP(TDetectorPulse::kSlow)->GetParentID() == tdp->GetTAP(TDetectorPulse::kSlow)->GetParentID()) {
-		pulse->bit_mask.SetBitNumber(SimplePulse::kDoubleCounted);
+		pulse->bit_mask += kDoubleCounted;
 		fAnyDoubleCountedPulses = true;
 	      }
 	    }
 	  }
 	}
 
-	fChannels[i_detname].push_back(pulse);
+	fChannels[i_detname].push_back(*pulse);
       }
     }
 
