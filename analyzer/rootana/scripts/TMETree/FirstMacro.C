@@ -33,8 +33,9 @@ void FirstMacro(std::string filename) {
 
     std::cout << "All pulses in this TME (E [keV], t [ns], bitmask):" << std::endl;
     for (int i_channel = 0; i_channel < n_all_channels; ++i_channel) {
-      int n_pulses = *(all_nPulses[i_channel]);
+      //      int n_pulses = *(all_nPulses[i_channel]);
       std::vector<SimplePulse>* i_pulse_list = all_channels[i_channel];
+      int n_pulses = i_pulse_list->size();
       if (n_pulses > 0) {
 	std::cout << all_channel_names[i_channel] << " (" << n_pulses << " pulse(s)): ";
 	for (int i_pulse = 0; i_pulse < n_pulses; ++i_pulse) {

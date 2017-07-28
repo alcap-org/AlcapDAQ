@@ -20,10 +20,13 @@ void SpeedingUp(std::string filename) {
   SetTMEBranchAddresses(tmetree); // setup the branch addresses
 
   int n_entries = tmetree->GetEntries();
+  TStopwatch sw2;
   for (int i_tme = 0; i_tme < n_entries; ++i_tme) {
 
     if (i_tme % 10000 == 0) {
       std::cout << i_tme << " / " << n_entries << std::endl;
+      std::cout << "Real Time = " << sw2.RealTime() << ", CPU Time =  " << sw2.CpuTime() << std::endl;
+      sw2.Start();
     }
 
     tmetree->GetEntry(i_tme);

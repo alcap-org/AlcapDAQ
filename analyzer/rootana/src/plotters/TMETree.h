@@ -64,23 +64,22 @@ class TMETree : public BaseModule {
         DetectorList fAllDets;
 
 	TTree* fTMETree;
-	int fRunId;
-	int fBlockId;
-	int fTMEId;
+	Int_t fRunId;
+	Int_t fBlockId;
+	Int_t fTMEId;
 
-	double fTMEWindowWidth;
+	Double_t fTMEWindowWidth;
 	std::string fCentralMuonChannel;
-	int fCentralMuonTPIID;
-	double fCentralMuonEnergy;
-	double fCentralMuonTime;
+	Int_t fCentralMuonTPIID;
+	Double_t fCentralMuonEnergy;
+	Double_t fCentralMuonTime;
 
-	double fTimeToPrevTME;
-	double fTimeToNextTME;
-	bool fAnyDoubleCountedPulses;
+	Double_t fTimeToPrevTME;
+	Double_t fTimeToNextTME;
+	Bool_t fAnyDoubleCountedPulses;
 
-	std::map<std::string, int> fNPulses;
 	std::map<std::string, std::vector<SimplePulse> > fChannels;
-
+	std::map<std::string, std::vector<int> > fTPIsSeen;
 };
 
 #endif //CHECKTMES_H_

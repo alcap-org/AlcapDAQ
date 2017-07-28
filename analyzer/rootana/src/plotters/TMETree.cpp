@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 using std::cout;
 using std::endl;
 
@@ -52,7 +53,6 @@ int TMETree::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fAllDets.push_back(IDs::channel (kSiL1_15 , kNotApplicable ));
     //    fAllDets.push_back(IDs::channel (kSiL1_16 , kNotApplicable ));
     fAllDets.push_back(IDs::channel (kSiL3 , kNotApplicable ));
-    //    fAllDets.push_back(IDs::channel (kSiL1_1 , kNotApplicable ));
 
     fAllDets.push_back(IDs::channel (kSiR1_1, kNotApplicable ));
     fAllDets.push_back(IDs::channel (kSiR1_2, kNotApplicable ));
@@ -64,10 +64,6 @@ int TMETree::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fAllDets.push_back(IDs::channel (kGeLoGain , kNotApplicable ));
     fAllDets.push_back(IDs::channel (kGeHiGain , kNotApplicable ));
 
-
-    //    fDetNames = new std::vector<std::string>;
-    //    fEnergies = new std::vector<double>;
-    //    fTimes = new std::vector<double>;
 
     fTMETree = new TTree("TMETree", "");
     fTMETree->Branch("runId", &fRunId);
@@ -90,16 +86,9 @@ int TMETree::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
       std::string branchname = modules::parser::ToCppValid(i_detname);
       fTMETree->Branch(branchname.c_str(), &fChannels[i_detname]);
-
-      branchname = modules::parser::ToCppValid(i_detname+"_nPulses");
-      fTMETree->Branch(branchname.c_str(), &fNPulses[i_detname]);
     }
-    //    fTMETree->Branch("NPulses", &fNPulses);
-    //    fTMETree->Branch("DetName", fDetNames);
-    //    fTMETree->Branch("Energy", fEnergies);
-    //    fTMETree->Branch("Time", fTimes);
 
-  fRunId = SetupNavigator::Instance()->GetRunNumber();
+    fRunId = SetupNavigator::Instance()->GetRunNumber();
 
   return 0;
 }
@@ -107,6 +96,12 @@ int TMETree::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
   fBlockId = EventNavigator::Instance().EntryNo();
+
+  // Reset the TPIsSeen vector, we want to be able to look over multiple TMEs
+  for(DetectorList::const_iterator i_det=fAllDets.begin(); i_det!=fAllDets.end(); ++i_det){   
+    const std::string& i_detname = i_det->str();
+    fTPIsSeen[i_detname].clear();
+  }
 
   for(MuonEventList::const_iterator i_tme=gMuonEvents.begin(); i_tme!=gMuonEvents.end(); ++i_tme){
 
@@ -133,8 +128,10 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
     for(DetectorList::const_iterator i_det=fAllDets.begin(); i_det!=fAllDets.end(); ++i_det){
       
       const std::string& i_detname = i_det->str();
-      fNPulses[i_detname] = 0;
-      fChannels[i_detname].clear();
+      std::vector<SimplePulse>& i_pulse_list = fChannels[i_detname];
+      i_pulse_list.clear();
+
+      std::vector<int>& tpis_seen = fTPIsSeen[i_detname];
       
       int i_det_source_index=(*i_tme)->GetFirstSourceIndex(*i_det); // I shouldn't have more than one source
       if (i_det_source_index<0) {
@@ -144,23 +141,36 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	
       // Loop through all the pulses
       int n_pulses_i_det = (*i_tme)->NumPulses(i_det_source);
-      fNPulses[i_detname] = n_pulses_i_det;
       for(int i=0; i<n_pulses_i_det; ++i){ 
 	const TDetectorPulse* tdp=(*i_tme)->GetPulse(i_det_source,i);
 
-	SimplePulse* pulse = new SimplePulse();
-	pulse->tpi_id = tdp->GetTAP(TDetectorPulse::kSlow)->GetParentID();
-	pulse->E = tdp->GetEnergy();
-	pulse->Amp = tdp->GetAmplitude();
-	pulse->tblock = tdp->GetTime();
-	pulse->tTME = (tdp->GetTime() - fCentralMuonTime);
+	SimplePulse pulse(tdp->GetTAP(TDetectorPulse::kSlow)->GetParentID(), tdp->GetEnergy(), tdp->GetAmplitude(), tdp->GetTime(), tdp->GetTime() - fCentralMuonTime, 0);
 
+	// Check to see if this TPI has already been used in another TME
+	// go in reverse since it is more likely to be immediately previously
+	bool seen_before = false;
+	for (std::vector<int>::const_reverse_iterator i_tpi_id = tpis_seen.rbegin(); i_tpi_id != tpis_seen.rend(); ++i_tpi_id) { 
+	  if (*i_tpi_id == pulse.tpi_id) {
+	    // This TPI has been seen before
+	    seen_before = true;
+	    break;
+	  }
+	  else if ( *i_tpi_id < pulse.tpi_id) {
+	    // tpi ids will be inserted in order and so we can break from this loop since we know we won't find it
+	    break; // from for loop
+	  }
+	}
+	if ( !seen_before) {
+	  // not seen this before so put it in the vector
+	  tpis_seen.push_back(pulse.tpi_id);
+	}
+	
 	//	std::cout << &fEnergies[i_detname] << std::endl;
 	//	std::cout << "Pulse #" << i << ", " << i_detname << ", " << tdp->GetEnergy() << ", " << *(fEnergies[i_detname].end()-1) << std::endl;
 
 
 	// Now check to see if we have put this pulse in another TME (it will be either the TME before or the TME after)
-	int n_ends = 2; //  want to check each "end" of the TME
+	/*	int n_ends = 2; //  want to check each "end" of the TME
 	for (int i_end = 0; i_end < n_ends; ++i_end) {
 	  MuonEventList::const_iterator j_tme;
 	  if (i_end == 0) {
@@ -197,8 +207,20 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	    }
 	  }
 	}
+	*/
+	
+	i_pulse_list.push_back(pulse);
+      }
 
-	fChannels[i_detname].push_back(*pulse);
+      // Go through and flag all pulses that were inserted more than once (based on TPI ID)
+      for (std::vector<SimplePulse>::iterator i_pulse = i_pulse_list.begin(); i_pulse != i_pulse_list.end(); ++i_pulse) {
+	for (std::vector<int>::const_iterator i_tpi_seen = tpis_seen.begin(); i_tpi_seen != tpis_seen.end(); ++i_tpi_seen) {
+
+	  if ( (*i_pulse).tpi_id == *i_tpi_seen) {
+	    (*i_pulse).bit_mask |= kDoubleCounted;
+	    fAnyDoubleCountedPulses = true;
+	  }
+	}
       }
     }
 
