@@ -80,6 +80,7 @@ class TMETree : public BaseModule {
 
 	std::map<std::string, std::vector<SimplePulse> > fChannels;
 	std::map<std::string, std::vector<int> > fTPIsSeen;
+	std::map<std::string, std::vector<int> > fTPIsDoubleCounted;
 
 	TTree* fNonTMETree;
 	std::map<std::string, std::vector<SimplePulse> > fChannels_NonTME;
