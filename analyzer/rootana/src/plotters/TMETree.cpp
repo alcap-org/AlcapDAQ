@@ -21,6 +21,7 @@ using std::cout;
 using std::endl;
 
 extern MuonEventList gMuonEvents;
+extern SourceDetPulseMap gDetectorPulseMap;
 
 TMETree::TMETree(modules::options* opts):
   BaseModule("TMETree",opts){
@@ -79,6 +80,10 @@ int TMETree::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fTMETree->Branch("timeToPrevTME", &fTimeToPrevTME);
     fTMETree->Branch("timeToNextTME", &fTimeToNextTME);
     fTMETree->Branch("anyDoubleCountedPulses", &fAnyDoubleCountedPulses);
+
+    fNonTMETree = new TTree("NonTMETree", "");
+    fNonTMETree->Branch("runId", &fRunId);
+    fNonTMETree->Branch("blockId", &fBlockId);
     
     for (DetectorList::const_iterator i_det=fAllDets.begin(); i_det!=fAllDets.end(); ++i_det){
       
@@ -86,6 +91,8 @@ int TMETree::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
 
       std::string branchname = modules::parser::ToCppValid(i_detname);
       fTMETree->Branch(branchname.c_str(), &fChannels[i_detname]);
+
+      fNonTMETree->Branch(branchname.c_str(), &fChannels_NonTME[i_detname]);
     }
 
     fRunId = SetupNavigator::Instance()->GetRunNumber();
@@ -167,47 +174,6 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 	
 	//	std::cout << &fEnergies[i_detname] << std::endl;
 	//	std::cout << "Pulse #" << i << ", " << i_detname << ", " << tdp->GetEnergy() << ", " << *(fEnergies[i_detname].end()-1) << std::endl;
-
-
-	// Now check to see if we have put this pulse in another TME (it will be either the TME before or the TME after)
-	/*	int n_ends = 2; //  want to check each "end" of the TME
-	for (int i_end = 0; i_end < n_ends; ++i_end) {
-	  MuonEventList::const_iterator j_tme;
-	  if (i_end == 0) {
-	    if (i_tme == gMuonEvents.begin()) {
-	      continue;
-	    }
-	    j_tme = i_tme-1;
-	  }
-	  else if (i_end == 1) {
-	    if (i_tme == gMuonEvents.end()-1) {
-	      continue;
-	    }
-	    j_tme = i_tme+1;
-	  }
-
-	  int j_det_source_index=(*j_tme)->GetFirstSourceIndex(*i_det); // I shouldn't have more than one source
-	  if (j_det_source_index<0) {
-	    continue; // this TME has no sources for this channel
-	  }
-	  const IDs::source& j_det_source=(*j_tme)->GetSource(j_det_source_index);
-
-	  int n_pulses_prev_tme = (*j_tme)->NumPulses(j_det_source);
-	  if (n_pulses_prev_tme == 0) {
-	    continue; // we are fine
-	  }
-	  else {
-	    for(int j=0; j<n_pulses_prev_tme; ++j){ 
-	      const TDetectorPulse* prev_tdp=(*j_tme)->GetPulse(j_det_source,j);
-	      
-	      if (prev_tdp->GetTAP(TDetectorPulse::kSlow)->GetParentID() == tdp->GetTAP(TDetectorPulse::kSlow)->GetParentID()) {
-		pulse->bit_mask += kDoubleCounted;
-		fAnyDoubleCountedPulses = true;
-	      }
-	    }
-	  }
-	}
-	*/
 	
 	i_pulse_list.push_back(pulse);
       }
@@ -226,6 +192,57 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
     fTMETree->Fill();
   }
+
+  // Now create the NonTMETree for pulses that aren't included in any TME
+  for(SourceDetPulseMap::const_iterator i_source=gDetectorPulseMap.begin();
+      i_source!= gDetectorPulseMap.end(); ++i_source){
+
+    IDs::channel i_channel = (i_source->first).Channel();
+    const std::string& i_detname = IDs::channel::GetDetectorString(i_channel.Detector());
+
+    // Check that we want to look at this detector
+    bool want = false;
+    for(DetectorList::const_iterator i_det=fAllDets.begin(); i_det!=fAllDets.end(); ++i_det){   
+      if ( i_det->str() == i_detname) {
+	want = true;
+	break;
+      }
+    }
+    if (!want) {
+      continue;
+    }
+
+    const DetectorPulseList& i_tdp_list = i_source->second;
+
+    std::vector<SimplePulse>& i_pulse_list = fChannels_NonTME[i_detname];
+    i_pulse_list.clear();
+    std::vector<int>& tpis_seen = fTPIsSeen[i_detname];
+
+    //    std::cout << i_tdp_list << std::endl;
+    for (DetectorPulseList::const_iterator i_tdp = i_tdp_list.begin(); i_tdp != i_tdp_list.end(); ++i_tdp) {
+      int i_tpi_id = (*i_tdp)->GetTAP(TDetectorPulse::kSlow)->GetParentID();
+
+      bool seen = false;
+      //      std::cout << "Looking for " << i_detname << " TPI ID = " << i_tpi_id << std::endl;
+      //      std::cout << "Checking... ";
+      for (std::vector<int>::const_iterator i_tpi_seen = tpis_seen.begin(); i_tpi_seen != tpis_seen.end(); ++i_tpi_seen) {
+	//	std::cout << *i_tpi_seen << ", ";
+	if (*i_tpi_seen == i_tpi_id) {
+	  //	  std::cout << " Found!" << std::endl;
+	  seen = true;
+	  break;
+	}
+      }
+
+      if (!seen) {
+	//	std::cout << "Not found! Pushing back..." << std::endl;
+	SimplePulse pulse(i_tpi_id, (*i_tdp)->GetEnergy(), (*i_tdp)->GetAmplitude(), (*i_tdp)->GetTime(), 0, 0);
+	i_pulse_list.push_back(pulse);
+      }
+    }
+  }
+  fNonTMETree->Fill();
+    
   return 0;
 }
 

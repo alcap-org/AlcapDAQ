@@ -70,6 +70,7 @@ void SetTMEBranchAddresses(TTree* tmetree) {
 
   TBranch* br_runId = tmetree->GetBranch("runId");
   TBranch* br_blockId = tmetree->GetBranch("blockId");
+
   TBranch* br_TMEId = tmetree->GetBranch("TMEId");
   TBranch* br_TMEWindowWidth = tmetree->GetBranch("TMEWindowWidth");
   TBranch* br_centralMuonChannel = tmetree->GetBranch("centralMuonChannel");
@@ -118,15 +119,34 @@ void SetTMEBranchAddresses(TTree* tmetree) {
 
   br_runId->SetAddress(&runId);
   br_blockId->SetAddress(&blockId);
-  br_TMEId->SetAddress(&TMEId);
-  br_TMEWindowWidth->SetAddress(&TMEWindowWidth);
-  br_centralMuonChannel->SetAddress(&centralMuonChannel);
-  br_centralMuonTPIID->SetAddress(&centralMuonTPIID);
-  br_centralMuonEnergy->SetAddress(&centralMuonEnergy);
-  br_centralMuonTime->SetAddress(&centralMuonTime);
-  br_timeToPrevTME->SetAddress(&timeToPrevTME);
-  br_timeToNextTME->SetAddress(&timeToNextTME);
-  br_anyDoubleCountedPulses->SetAddress(&anyDoubleCountedPulses);
+  // Check these branches exist because we could be being passed the NonTMETree
+  if (br_TMEId) {
+    br_TMEId->SetAddress(&TMEId);
+  }
+  if (br_TMEWindowWidth) {
+    br_TMEWindowWidth->SetAddress(&TMEWindowWidth);
+  }
+  if (br_centralMuonChannel) {
+    br_centralMuonChannel->SetAddress(&centralMuonChannel);
+  }
+  if (br_centralMuonTPIID) {
+    br_centralMuonTPIID->SetAddress(&centralMuonTPIID);
+  }
+  if (br_centralMuonEnergy) {
+    br_centralMuonEnergy->SetAddress(&centralMuonEnergy);
+  }
+  if (br_centralMuonTime) {
+    br_centralMuonTime->SetAddress(&centralMuonTime);
+  }
+  if (br_timeToPrevTME) {
+    br_timeToPrevTME->SetAddress(&timeToPrevTME);
+  }
+  if (br_timeToNextTME) {
+    br_timeToNextTME->SetAddress(&timeToNextTME);
+  }
+  if (br_anyDoubleCountedPulses) {
+    br_anyDoubleCountedPulses->SetAddress(&anyDoubleCountedPulses);
+  }
 
   br_SiT_1->SetAddress(&SiT_1);
   br_SiT_2->SetAddress(&SiT_2);
