@@ -22,9 +22,9 @@ extern MuonEventList gMuonEvents;
 extern SourceDetPulseMap gDetectorPulseMap;
 
 MakeMuonEvents::MakeMuonEvents(modules::options* opts):
-  BaseModule("MakeMuonEvents",opts,false),fOptions(opts){
+  BaseModule("MakeMuonEvents",opts,true),fOptions(opts){
       if(fOptions){
-          fAlgorithm=fOptions->GetString("algorithm","FixedWindow");
+          fAlgorithm=fOptions->GetString("algorithm");
       }
   dir->cd("/");
 }

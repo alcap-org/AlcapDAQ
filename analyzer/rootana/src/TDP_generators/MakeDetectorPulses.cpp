@@ -24,12 +24,12 @@ struct is_equal {
 }
 
 MakeDetectorPulses::MakeDetectorPulses(modules::options* opts):
-    BaseModule("MakeDetectorPulses",opts,false),fOptions(opts),fPassThruGenerator(NULL){
+    BaseModule("MakeDetectorPulses",opts,true),fOptions(opts),fPassThruGenerator(NULL){
         // Get the algorithm option from the modules file
         // If nothing was set, use MaxTimeDiff by default
         opts->GetVectorStringsByWhiteSpace("analyse_detectors",fDetectorsToAnalyse);
         std::sort(fDetectorsToAnalyse.begin(), fDetectorsToAnalyse.end());
-        fDefaultAlgorithm=opts->GetString("default_algorithm","MaxTimeDiff");
+        fDefaultAlgorithm=opts->GetString("default_algorithm");
         fPassThruName=opts->GetString("pass_through_algorithm","PassThrough");
     }
 

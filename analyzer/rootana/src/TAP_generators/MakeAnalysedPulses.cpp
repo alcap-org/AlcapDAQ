@@ -19,7 +19,7 @@ extern SourceAnalPulseMap gAnalysedPulseMap;
 extern Long64_t* gEntryNumber;
 
 MakeAnalysedPulses::MakeAnalysedPulses(modules::options* opts):
-  BaseModule("MakeAnalysedPulses",opts,false),
+  BaseModule("MakeAnalysedPulses",opts,true),
   fSlowGeneratorType(opts->GetString("default_slow_generator")),
   fFastGeneratorType(opts->GetString("default_fast_generator")),
   fChannelsToAnalyse(),
