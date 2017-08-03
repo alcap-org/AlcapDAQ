@@ -74,6 +74,7 @@ int PulseViewer::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
      fAvailableParams["pedestal"]=kPedestal;
      fAvailableParams["trigger_time"]=kTriggerTime;
      fAvailableParams["event_no"]=kEventNo;
+     fAvailableParams["tpi_id"]=kTPIID;
    }
 
    if(fAvailablePulseTypes.empty()){
@@ -211,6 +212,7 @@ double PulseViewer::GetParameterValue(const TAnalysedPulse* pulse,const Paramete
        case kPedestal: retVal=pulse->GetPedestal(); break;
        case kTriggerTime: retVal=pulse->GetTriggerTime(); break;
        case kEventNo: retVal=fEvent; break;
+       case kTPIID: retVal=pulse->GetParentID(); break;
        default: retVal=definitions::DefaultValue;
            cout<<"PulseViewer::GetParameterValue: Error: Cannot get param: "<<parameter<<" from a TAnalysedPulse"<<endl;
     }

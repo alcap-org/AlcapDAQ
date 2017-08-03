@@ -29,6 +29,7 @@ class PulseViewer : public BaseModule{
         kPedestal,
         kTriggerTime,
         kEventNo,
+	kTPIID,
         kIntegralRatio,
         kIntegralTail,
         kChi2,
