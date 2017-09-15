@@ -202,7 +202,7 @@ void SetupNavigator::OutputCalibCSV() {
   char r[6];
   sprintf(r, "%05d", GetRunNumber());
 
-  std::ofstream fPN((std::string("calib.run") + r + "." + fPedestalNoiseTableName + ".csv").c_str());
+  std::ofstream fPN((std::string("calib.db/calib.run") + r + "." + fPedestalNoiseTableName + ".csv").c_str());
   fPN << "run,channel,pedestal,noise" << std::endl;
   for (std::map<IDs::channel, double>::const_iterator i = fPedestalValues.begin(); i != fPedestalValues.end(); ++i)
     fPN << GetRunNumber() << "," << i->first.str() << ","
