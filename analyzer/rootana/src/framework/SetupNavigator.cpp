@@ -208,7 +208,7 @@ void SetupNavigator::OutputCalibCSV() {
     fPN << GetRunNumber() << "," << i->first.str() << ","
 	<< i->second << "," << fNoiseValues.at(i->first) << std::endl;
 
-  std::ofstream fTO((std::string("calib.run") + r + "." + fCoarseTimeOffsetTableName + ".csv").c_str());
+  std::ofstream fTO((std::string("calib.db/calib.run") + r + "." + fCoarseTimeOffsetTableName + ".csv").c_str());
   std::set<IDs::generator> gens;
   std::set<IDs::channel> chns;
   for (std::map<IDs::source, double>::const_iterator i = fCoarseTimeOffset.begin(); i != fCoarseTimeOffset.end(); ++i) {
