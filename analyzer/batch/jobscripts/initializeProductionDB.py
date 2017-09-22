@@ -14,7 +14,7 @@ datasets = { 'Al100' : [ irange(9410, 9412),   irange(9494, 9505),
             'Ti50'  : [ irange(10157, 10206),
                         irange(10208, 10249),
                         irange(10251, 10254) ],
-             'MT'    : [ irange(10272, 10309), irange(10310, 10317) ],
+             'MT'    : [ irange(8317, 8322), irange(10272, 10309), irange(10310, 10317) ],
              'Si16b' : [ irange(10362, 10368), irange(10383, 10421),
                          irange(10425, 10450) ],
              'Eu152' : [ [9282], irange(9301, 9302), irange(9683, 9686) ],
@@ -24,8 +24,8 @@ datasets = { 'Al100' : [ irange(9410, 9412),   irange(9494, 9505),
 }
 #rated gold is by default, just keep adding if we want to downgrade runs
 quality = {
-	9283: 'trash',
-	9683: 'trash',
+	9283: 'silver',
+	9683: 'silver',
 	9738: 'silver',
 	10388: 'silver'
 }
