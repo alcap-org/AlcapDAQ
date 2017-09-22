@@ -46,6 +46,7 @@ void Peaks::EstimateParameters(TH1* h) {
 void Peaks::Fit(TH1* h, bool print) {
   for (int i = 0; i < peaks.size(); ++i)
     peaks[i].Fit(h, print);
+  h->Write();
 }
 
 void Peaks::Calibrate(Run run, bool print) {
@@ -66,9 +67,11 @@ void Peaks::Calibrate(Run run, bool print) {
   if (print) {
     char str[64]; sprintf(str, "Run %d Energy;ADC;Energy (keV)", run.N());
     engr->SetTitle(str);
-    engr->Draw("A*");
-    gPad->Print("ecal.png");
+    engr->SetName("hEnGr");
+    engr->Draw("AP");
+//    gPad->Print("ecal.png");
   }
+  engr->Write();
   if (run.ValidForEff()) {
     effgr = new TGraphErrors(peaks.size(), en, eff, 0, efferr);
     efffitresult = effgr->Fit(efffcn, "SEQM");
@@ -76,9 +79,11 @@ void Peaks::Calibrate(Run run, bool print) {
       char str[64]; sprintf(str, "Run %d Efficiency;Energy (keV);Efficiency",
 			    run.N());
       effgr->SetTitle(str);
-      effgr->Draw("A*");
-      gPad->Print("effcal.png");
+      effgr->SetName("hEffGr");
+      effgr->Draw("AP");
+//      gPad->Print("effcal.png");
     }
+    effgr->Write();
   }
 }
 

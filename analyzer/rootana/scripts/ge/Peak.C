@@ -100,7 +100,7 @@ void Peak::Fit(TH1* h, bool print) {
   fitresult = h->Fit(fnc, "+SMEQ");
   if (print && gPad) {
     char str[32]; sprintf(str, "%dkeV.png", (int)e);
-    gPad->Print(str);
+//    gPad->Print(str);
   }
   h->GetXaxis()->SetRange();
 }
