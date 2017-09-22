@@ -22,6 +22,14 @@ datasets = { 'Al100' : [ irange(9410, 9412),   irange(9494, 9505),
              'Am241' : [ irange(10482, 10493), irange(10495, 10510) ],
              'Y88'   : [ irange(10320, 10322) ]
 }
+#rated gold is by default, just keep adding if we want to downgrade runs
+quality = {
+	9283: 'trash',
+	9683: 'trash',
+	9738: 'silver',
+	10388: 'silver'
+}
+
 geometry = { 'Al100' : 'P2',
              'Si16a' : 'S14',
              'Al50'  : 'P3',
@@ -38,11 +46,15 @@ db = sqlite3.connect("productionR15b.db")
 
 db.execute('CREATE TABLE R15bdatasets'
            '(run INT, dataset TEXT, tranche INT, quality TEXT, geometry TEXT)')
+db.execute('CREATE TABLE productions(type TEXT, version INTEGER, software TEXT, start TIMESTAMP, stop TIMESTAMP, base INTEGER)')
 
 for ds, tranches in datasets.iteritems():
     for itr, tr in enumerate(tranches):
         for r in tr:
+            q = "gold"
+            if r in quality:
+                q = quality[r]
             db.execute("INSERT INTO R15bdatasets VALUES (?, ?, ?, ?, ?)",
-                       (r, ds, itr+1, "gold", geometry[ds]))
+                       (r, ds, itr+1, q, geometry[ds]))
 
 db.commit()
