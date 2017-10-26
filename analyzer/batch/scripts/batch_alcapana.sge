@@ -1,29 +1,11 @@
 #!/bin/bash
-# batch_alcapana.sge 
-# Define run time. 
+# batch_alcapana.sge
+# Define run time.
 #$ -l s_rt=01:00:00,h_rt=01:04:00
 ###################################################
 # Fix the SGE environment-handling bug (bash):
 source /usr/share/Modules/init/sh
 export -n -f module
-
-#########################
-# Canonicalize run number
-runcanon() {
-    x=$1;
-    ((x=x))
-    if [ $x -lt 10 ]; then
-	echo 0000$x
-    elif [ $x -lt 100 ]; then
-	echo 000$x
-    elif [ $x -lt 1000 ]; then
-	echo 00$x
-    elif [ $x -lt 10000 ]; then
-	echo 0$x
-    else
-        echo $x
-    fi
-}
 
 ##################################################
 # Check input variable and an environment variable
@@ -35,11 +17,7 @@ elif [ -z "$DAQdir" ]; then
     exit 2
 fi
 
-##############################
-# Get the canonical run number
-# (with appropriate number of
-# zeros)
-RUN=$(runcanon $1)
+RUN=$(printf %05d $1)
 
 ###################
 # Setup environment
@@ -110,9 +88,9 @@ odbedit -c "save $ODBDUMPFILE"
 
 ################
 # BEGIN DEBUG
-# Check that the libraries are available (on the master host):  
+# Check that the libraries are available (on the master host):
 echo "ldd $CMD"
-ldd $CMD 
+ldd $CMD
 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
 # Check path variables
 env

@@ -1,95 +1,73 @@
 #!/bin/bash
 
 usage() {
-    echo "usage: batch_alcapana.sh [-h | --help] [--usage] [options] [runs...]"
+  echo "usage: batch_alcapana.sh [-h | --help] [--usage] [options] [runs...]"
 }
 
 help() {
-    usage
-    echo "At least one run must be specified by either a range (-r) of runs"
-    echo "(inclusive) or in a space seperated list. Multiple ranges and"
-    echo "runs can be specified."
-    echo
-    echo "Options:"
-    echo "-n    The maximum number of jobs to submit to the queue at a time."
-    echo "-r    Space separated range of runs to process. Multiple ranges can be specified,"
-    echo "      they must all be preceded by their own -r."
-    echo "-t    Amount of time in seconds between checks to see if more jobs can be submittied."
-    echo "      Default is 30, there is no real motivation for this other than the concern"
-    echo "      of using up Merlin login node resources."
-    echo "-p    FTP password to download raw data. If not passed at command line,"
-    echo "      you will be prompted for it."
-    echo
-    echo "Example:"
-    echo "\$ ./batch_alcapana.sh -r 1 6 9 -n 5 125 -r 367 369"
-    echo "This will process runs 1-6, 9, 125, and 367-369, and up to 5"
-    echo "at a time."
+  usage
+  echo "At least one run must be specified by either a range (-r) of runs"
+  echo "(inclusive) or in a space seperated list. Multiple ranges and"
+  echo "runs can be specified."
+  echo
+  echo "Options:"
+  echo "-n    The maximum number of jobs to submit to the queue at a time."
+  echo "-r    Space separated range of runs to process. Multiple ranges can be specified,"
+  echo "      they must all be preceded by their own -r."
+  echo "-t    Amount of time in seconds between checks to see if more jobs can be submittied."
+  echo "      Default is 30, there is no real motivation for this other than the concern"
+  echo "      of using up Merlin login node resources."
+  echo "-p    FTP password to download raw data. If not passed at command line,"
+  echo "      you will be prompted for it."
+  echo
+  echo "Example:"
+  echo "\$ ./batch_alcapana.sh -r 1 6 9 -n 5 125 -r 367 369"
+  echo "This will process runs 1-6, 9, 125, and 367-369, and up to 5"
+  echo "at a time."
 }
 
-runcanon() {
-    if [ $1 -lt 10 ]; then
-	echo 0000$1
-    elif [ $1 -lt 100 ]; then
-	echo 000$1
-    elif [ $1 -lt 1000 ]; then
-	echo 00$1
-    elif [ $1 -lt 10000 ]; then
-	echo 0$1
-    else
-        echo $1
-    fi
-}
-
-runfilecanon() {
-    x=""
-    echo "run$(runcanon $1).mid"
-}
-
-flagcanon() {
-    echo "alcapana.run$(runcanon $1).flag"
-}
 
 flagadd() {
-    x=""
-    while [ $# -gt 0 ]; do
-	x="$x $1"
+  x=""
+  while [ $# -gt 0 ]; do
+    x="$x $1"
 	shift
-    done
-    echo "$x"
+  done
+  echo "$x"
 }
 
 flagrm() {
-    rx="$1"
+  rx="$1"
+  shift
+  x=""
+  y=""
+  while [ $# -gt 0 ]; do
+    x="$x $1"
     shift
-    x=""
-    y=""
-    while [ $# -gt 0 ]; do
-	x="$x $1"
-	shift
-    done
-    for ix in $x; do
-	if [ ! $ix = $rx ]; then
-	    y="$y $ix"
-	fi
-    done
-    echo $y
+  done
+  for ix in $x; do
+    if [ ! $ix = $rx ]; then
+      y="$y $ix"
+    fi
+  done
+  echo $y
 }
 
 flagdone() {
-    if [ -f "$1/$(flagcanon $2)" ]; then
-	echo ""
-    else
-	echo "done"
-    fi
+  if [ -f $1/$(printf alcapana.run%05d.flag $2) ]; then
+    echo ""
+  else
+    echo "done"
+  fi
 }
 
 flagcount() {
-    n=0
-    x=$(ls $1/alcapana.*.flag 2> /dev/null)
-    for ix in $x; do
-	((n += 1))
-    done
-    echo $n
+  n=0
+  x=$(ls $1/alcapana.*.flag 2> /dev/null)
+  for ix in $x; do
+    ((n += 1))
+  done
+  echo $n
 }
 
 RUNS=""
@@ -187,37 +165,39 @@ FLAGS=""
 CMD="$DAQdir/analyzer/batch/scripts/batch_alcapana.sge"
 for IRUN in $RUNS; do
 
-    OLOG="$LOGDIR/alcapana.run$(runcanon $IRUN).out"
-    ELOG="$LOGDIR/alcapana.run$(runcanon $IRUN).err"
+    OLOG=$(printf $LOGDIR/alcapana.run%05d.out $IRUN)
+    ELOG=$(printf $LOGDIR/alcapana.run%05d.err $IRUN)
 
     while [ $(flagcount $FLGDIR) -ge $NJOBS ]; do
-	sleep $DT
+       sleep $DT
     done
     for IFLAG in $FLAGS; do
-	if [ "$(flagdone $FLGDIR $IFLAG)" ]; then
-	    echo "Finished run $IFLAG!"
-	    FLAGS="$(flagrm $IFLAG $FLAGS)"
-	    rm -f "$RAWDIR/$(runfilecanon $IFLAG)"
-	fi
+       if [ "$(flagdone $FLGDIR $IFLAG)" ]; then
+         echo "Finished run $IFLAG!"
+         FLAGS="$(flagrm $IFLAG $FLAGS)"
+         rm -f $(printf $RAWDIR/run%05d.mid $IFLAG)
+       fi
     done
 
-    if [ -f "$TREEDIR/tree$(runcanon $IRUN).root" -o -f "$HISTDIR/hist$(runcanon $IRUN).root" ]; then
-	echo "WARNING: It seems a tree or hist file for run $IRUN exists!"
-	continue
+    if [ -f $(printf $TREEDIR/tree%05d.root $IRUN) -o
+         -f $(printf $HISTDIR/hist%05d.root $IRUN) ]; then
+	  echo "WARNING: It seems a tree or hist file for run $IRUN exists!"
+      continue
     fi
-    
+
     rm -f $OLOG
     rm -f $ELOG
 
     echo "Downloading run $IRUN..."
-    wget -c --user=$FTPUSER --password=$FTPPSWD $FTPSRVR/$FTPDIR/$(runfilecanon $IRUN)
-    if [ -f "$(runfilecanon $IRUN)" ]; then
-	mv "$(runfilecanon $IRUN)" "$RAWDIR/"
+    RUNFILE=$(printf run%05d.mid $IRUN)
+    wget -c --user=$FTPUSER --password=$FTPPSWD $FTPSRVR/$FTPDIR/$RUNFILE
+    if [ -f $RUNFILE ]; then
+      mv $RUNFILE $RAWDIR/
     else
-	continue
+      continue
     fi
 
-    touch $FLGDIR/$(flagcanon $IRUN)
+    touch $FLGDIR/$(printf alcapana.run%05d.flag $IRUN)
     FLAGS=$(flagadd $FLAGS $IRUN)
     qsub -v DAQdir -e $ELOG -o $OLOG $CMD $IRUN
 
@@ -228,7 +208,7 @@ while [ $(flagcount $FLGDIR) -gt 0 ]; do
 	if [ "$(flagdone $FLGDIR $IFLAG)" ]; then
 	    echo "Finished run $IFLAG!"
 	    FLAGS="$(flagrm $IFLAG $FLAGS)"
-	    rm -f "$RAWDIR/$(runfilecanon $IFLAG)"
+	    rm -f "$RAWDIR/$(printf run%05d.mid $IFLAG)"
 	fi
     done
     sleep $DT
