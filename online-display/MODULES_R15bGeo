@@ -1,9 +1,9 @@
-# file: MODULES
+# file: MODULES_R15bGeo
 # Contents: the list of ROOT macros for the online-display
 # Format: TextOnTheButton FullMacroName
 # Use # for comments
 # 
-# MODULES
+# MODULES_R15bGeo
 #
 GeLoGain One_channel.C ("D401")
 GeHiGain One_channel.C ("D402")

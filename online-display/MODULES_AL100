@@ -1,9 +1,9 @@
-# file: MODULES
+# file: MODULES_AL100
 # Contents: the list of ROOT macros for the online-display
 # Format: TextOnTheButton FullMacroName
 # Use # for comments
 # 
-# MODULES
+# MODULES_AL100
 #
 BeamSC AL100/beamSC.C
 BeamSiT AL100/SiT.C

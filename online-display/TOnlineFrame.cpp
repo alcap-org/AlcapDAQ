@@ -39,22 +39,22 @@ TOnlineFrame::TOnlineFrame(const TGWindow * p,std::string module_file_name):TGMa
 	run_nr = 0;
 
 	// read macroses from the external file
-	//const char *is_name = "/home/daq/DAQ/online-display/MODULES";
+	//const char *is_name = "/home/daq/DAQ/online-display/MODULES_DEAFULT";
 	const char *env_name = "DAQdir";
 	std::string env_value = "";
 	std::string is_name;
 	if ( getenv(env_name) )
 	{
-                if (module_file_name.empty() ) module_file_name="MODULES";
+                if (module_file_name.empty() ) module_file_name="MODULES_DEFAULT";
 		env_value = getenv(env_name);
 		is_name = env_value + "/online-display/"+module_file_name;
 	}
 	else
 	{
-		std::cerr << "***ERROR! shell variable " << env_name << " is not set. The program will not be able to find display modules." << std::endl;      
+		std::cerr << "***ERROR! shell variable " << env_name << " is not set. The program will not be able to find display modules." << std::endl;
 	}
 
-	//const char *is_name = "/home/daq/DAQ/online-display/MODULES";
+	//const char *is_name = "/home/daq/DAQ/online-display/MODULES_DEAFULT";
 	std::cout << "Reading modules from file [" << is_name << "]" << std::endl;
 	ifstream *is = new ifstream( is_name.c_str() );
 	char buf[1024];
@@ -188,11 +188,11 @@ TOnlineFrame::TOnlineFrame(const TGWindow * p,std::string module_file_name):TGMa
 
 
 	// a menu for changing screens
-	//fScreenFrame = new TGHorizontalFrame(fTopFrame, 480, 28, kChildFrame);//, kFixedWidth); 
+	//fScreenFrame = new TGHorizontalFrame(fTopFrame, 480, 28, kChildFrame);//, kFixedWidth);
 	//fTopFrame->AddFrame(fScreenFrame, new TGLayoutHints(kLHintsLeft));
-	for (unsigned int i = 0; i < screens.size(); i++) 
+	for (unsigned int i = 0; i < screens.size(); i++)
 	{
-		TGTextButton *b = new TGTextButton(frame_user, screens[i].visibleName, 
+		TGTextButton *b = new TGTextButton(frame_user, screens[i].visibleName,
 				SCREENS_BASE + i);
 		b->SetToolTipText((screens[i].macroName + screens[i].macroArgs).c_str());
 		b->Associate(this);
@@ -217,7 +217,7 @@ TOnlineFrame::TOnlineFrame(const TGWindow * p,std::string module_file_name):TGMa
 	MapWindow();
 	SetMinWidth(300);
 
-// Define the histogram 
+// Define the histogram
 	gROOT->LoadMacro("modules/common/get_histogram.C");
         gROOT->LoadMacro("modules/common/get_histogram_2d.C");
 
@@ -234,13 +234,13 @@ Bool_t TOnlineFrame::ProcessMessage(Long_t msg, Long_t param1,
 	char name[1024];
 	char text[1024];
 
-	switch (GET_MSG(msg)) 
+	switch (GET_MSG(msg))
 	{
-		case kC_COMMAND:      
-			switch (GET_SUBMSG(msg)) 
-			{	
+		case kC_COMMAND:
+			switch (GET_SUBMSG(msg))
+			{
 				case kCM_BUTTON:
-					if (param1 >= SCREENS_BASE) 
+					if (param1 >= SCREENS_BASE)
 					{
 						ULong_t ucolor_black;
 						gClient->GetColorByName("#000000",ucolor_black);
@@ -251,8 +251,8 @@ Bool_t TOnlineFrame::ProcessMessage(Long_t msg, Long_t param1,
 					{
 						UpdateDisplay();
 					}
-					else if (param1 == B_PRINT) 
-					{  
+					else if (param1 == B_PRINT)
+					{
 						unsigned long int t = time(NULL);
 						sprintf(name,"%s_run_%06ld_%lu.pdf",screens[fCurrentDisplay].visibleName,run_nr,t);
 						fEmbeddedCanvas->GetCanvas()->Print(name);
@@ -289,21 +289,21 @@ Bool_t TOnlineFrame::ProcessMessage(Long_t msg, Long_t param1,
 					break;
 				default:
 					printf("Unknown command received\n");
-					break;	  
+					break;
 			} // switch (GET_SUBMSG(msg))
 			break; // case kC_COMMAND
 		case kC_TEXTENTRY:
-			switch (GET_SUBMSG(msg)) 
-			{	
+			switch (GET_SUBMSG(msg))
+			{
 				case kTE_ENTER:
 					if ( OpenRootFile( fFileName->GetText(), kFALSE ) )
 					{
 						ConsiderAutoupdate( kTRUE );
 					}
-					break;	  
+					break;
 			}
 			break; // case kC_TEXTENTRY
-	} // switch (GET_MSG(msg)) 
+	} // switch (GET_MSG(msg))
 
 
 
@@ -343,7 +343,7 @@ void TOnlineFrame::CloseWindow()
 
 void TOnlineFrame::ConsiderCycling()
 {
-	if(fCycleDisplays->GetState() == kButtonDown) 
+	if(fCycleDisplays->GetState() == kButtonDown)
 	{
 		fCurrentDisplay = (fCurrentDisplay+1) % screens.size();
 		const char *macro = screens[fCurrentDisplay].macroName.c_str();
@@ -351,15 +351,15 @@ void TOnlineFrame::ConsiderCycling()
 	}
 }
 
-/** 
- * 
- * 
+/**
+ *
+ *
  * @param force Force update if true
  */
 
 void TOnlineFrame::ConsiderAutoupdate(const Bool_t force)
 {
-	if (((fAutoUpdate->GetState() == kButtonDown) && fCycleDisplays->GetState()) != kButtonDown || force ) 
+	if (((fAutoUpdate->GetState() == kButtonDown) && fCycleDisplays->GetState()) != kButtonDown || force )
 	{
 		const char *macro = screens[fCurrentDisplay].macroName.c_str();
 		runMacro(macro);
@@ -377,7 +377,7 @@ void TOnlineFrame::setServerName(const char *name)
 }
 
 const unsigned int TOnlineFrame::getServerPort() const
-{  
+{
 	return atol(fServerPort->GetText());
 }
 
@@ -389,7 +389,7 @@ void TOnlineFrame::setServerPort(const unsigned int port_nr)
 }
 
 const unsigned int TOnlineFrame::getAutoUpdateTime() const
-{  
+{
 	unsigned int t = atol(fAutoUpdateTime->GetText());
 	if ( t < 1 ) t = 1;
 	return t;
@@ -416,7 +416,7 @@ TSocket *TOnlineFrame::ConnectToServer()
 		print_msg(msg);
 		print_msg("ERROR",2);
 		exit(1);
-		//fServerName->ChangeBackground(ucolor_white);      
+		//fServerName->ChangeBackground(ucolor_white);
 	}
 	else
 	{
@@ -496,7 +496,7 @@ void TOnlineFrame::runMacro(const char *macro)
 	fEmbeddedCanvas->GetCanvas()->Clear();
 	fEmbeddedCanvas->Clear();
 	gROOT->cd();
-	gROOT->Macro(macro);  
+	gROOT->Macro(macro);
 	// check status
 	int status = get_status_code();
 	if ( status != 0 )
@@ -505,12 +505,12 @@ void TOnlineFrame::runMacro(const char *macro)
 		switch ( status )
 		{
 			case RDISP_ERR_NO_CON:
-				msg = "No connection to remote server";	   
+				msg = "No connection to remote server";
 				break;
 			case RDISP_ERR_BAD_RESPONSE:
 				msg = "Bad response from the server";
 				break;
-			case RDISP_ERR_NO_RESPONSE:	  
+			case RDISP_ERR_NO_RESPONSE:
 				msg = "No response from the server";
 				break;
 			case RDISP_ERR_NO_SOURCE:

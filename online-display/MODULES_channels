@@ -1,9 +1,9 @@
-# file: MODULES
+# file: MODULES_channels
 # Contents: the list of ROOT macros for the online-display
 # Format: TextOnTheButton FullMacroName
 # Use # for comments
 # 
-# MODULES
+# MODULES_channels
 #
 CaUH modules/One_channel.C ("CaUH")
 CbUH modules/One_channel.C ("CbUH")

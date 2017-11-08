@@ -1,9 +1,9 @@
-# file: MODULES
+# file: MODULES_R15bDetector
 # Contents: the list of ROOT macros for the online-display
 # Format: TextOnTheButton FullMacroName
 # Use # for comments
 # 
-# MODULES
+# MODULES_R15bDetector
 #
 V1290TDC-RawTimes v1290/v1290_rawtimes_0_8.C
 

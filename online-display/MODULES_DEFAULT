@@ -1,9 +1,9 @@
-# file: MODULES
+# file: MODULES_DEFAULT
 # Contents: the list of ROOT macros for the online-display
 # Format: TextOnTheButton FullMacroName
 # Use # for comments
 #
-# MODULES
+# MODULES_DEFAULT
 #
 
 Si16 physics/Si16.C
