@@ -31,6 +31,26 @@ const char * validationTestFilename = "/home/mark/montecarlo/unfolding.proton.un
 //const char * validationTestFilename = "test_data/unfolding.proton.6sigma2.20k.target.100.leftright.root";
 //const char * validationTestFilename = "test_data/unfolding.proton.16sigma2.20k.target.100.leftright.root";
 
+const char * dataFilename = "/home/mark/data/tproof-output.root";
+
+void Unfold(const char *descriptor, TH2D* hTransferMatrix, TH2D* hEvdE)
+{       
+        gStyle->SetOptStat(0);
+        hEvdE->RebinY(170);
+        hEvdE->RebinX(170);
+        TH1D *hMeas = hEvdE->ProjectionX();
+        RooUnfoldResponse response(0, 0, hTransferMatrix);
+        RooUnfoldBayes unfold(&response, hMeas, 6);
+        TH1D* hReco= (TH1D*) unfold.Hreco(); 
+        TCanvas *c = new TCanvas(descriptor, descriptor);
+        hReco->Draw();
+        hReco->SetTitle("Unfolded data");
+        hMeas->SetLineColor(kMagenta);
+        hMeas->Draw("SAME");
+        c->BuildLegend();
+        hReco->SetTitle("Unfolding validation");
+}
+
 void Validation(const char *descriptor, TH2D* hTransferMatrix/* transfer matrix */, TH1D* hMeas /* fake measured data with known truth distribution*/, TH1F* hInput /* truth distribution */, TH1F* hAcceptance /* truth hits detector assuming 100% efficiency */)
 {
 	gStyle->SetOptStat(0);
@@ -120,6 +140,16 @@ void RooUnfoldAlCap()
 	TH2D *hEvdE_punch_left= (TH2D *)fFake->Get("SiL/hEvdE_punch_left");
 	TH1D *hMeasPTLeft = hEvdE_punch_left->ProjectionX();
 	Validation("Left punch through", hTransferMatrixPTLeft, hMeasPTLeft, hInputLeft, hAcceptanceLeft);
+
+        std::cout << "=====Left proton data=====" << std::endl;
+        TFile *fData = new TFile(dataFilename, "READ");
+        TH2D *hMeasData = (TH2D *)fData->Get("hSiL_EvdE_proton");
+        Unfold("Left proton stopped", hTransferMatrixRight, hMeasData);
+
+        std::cout << "=====Right proton data=====" << std::endl;
+        TFile *fData = new TFile(dataFilename, "READ");
+        TH2D *hMeasData = (TH2D *)fData->Get("hSiR_EvdE_proton");
+        Unfold("Right proton stopped", hTransferMatrixRight, hMeasData);
 }
 
 #ifndef __CINT__
