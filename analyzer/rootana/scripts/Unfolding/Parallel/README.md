@@ -1,13 +1,5 @@
-Analysis with ROOTv6 and TProof
-
-To not use TProof
+Generate histograms for particle spectrums and unfolding
 
 $ root -l 
 
 $ .L runProof.C
-
-$ runProof(1)
-
-To use TProof
-
-$ root -l runProof.C
