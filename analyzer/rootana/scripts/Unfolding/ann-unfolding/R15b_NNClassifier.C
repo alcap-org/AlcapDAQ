@@ -160,7 +160,12 @@ void Data(TMultiLayerPerceptron *mlp) {
 	Double_t params[2];
 	for (int i = 0; i < tData->GetEntries(); i++) {
 		tData->GetEntry(i);
-		if(dSiL1_E==0 || dSiL3_E==0) continue;
+		SiL1_E = 0;
+		SiL3_E = 0;
+		SiR1_E = 0;
+		SiR2_E = 0;
+		SiR3_E = 0;
+		if(dSiL1_E==0 && dSiL3_E==0) continue;
 		params[0] = dSiL1_E;
 		params[1] = dSiL3_E;
 //		params[0] = dSiR1_E;
@@ -170,13 +175,14 @@ void Data(TMultiLayerPerceptron *mlp) {
 			hNNCut->Fill(dSiL1_E+dSiL3_E, dSiL1_E);
 			SiL1_E = dSiL1_E;
 			SiL3_E = dSiL3_E;
+			tNNClassifierOutput->Fill();
+			
 		}
 		if(mlp->Evaluate(0, params) <= 0.5) {
 			hRaw->Fill(dSiL1_E+dSiL3_E, dSiL1_E);
 		}
 //		if(mlp->Evaluate(0, params) > 0.5) hNNCut->Fill(dSiR1_E+dSiR2_E, dSiR1_E);
 //		if(mlp->Evaluate(0, params) <= 0.5) hRaw->Fill(dSiR1_E+dSiR2_E, dSiR1_E);
-		tNNClassifierOutput->Fill();
 	}
 	TH1D *hNNCut_px = hNNCut->ProjectionX();
 
@@ -193,7 +199,7 @@ void Data(TMultiLayerPerceptron *mlp) {
 	hRaw->SetMarkerColor(kRed);
 	hRaw->Draw();
 	hNNCut->SetMarkerColor(kBlue);
-	hNNCut->Draw("SAME");
+	hNNCut->Draw("colz SAME");
 	c1->cd(2);
 	hNNCut_px->Draw();
 	fNNOutput->Write();
