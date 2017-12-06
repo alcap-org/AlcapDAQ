@@ -26,12 +26,12 @@ using std::endl;
 // Global definitions
 //==============================================================================
 const char * responseMatrixFilename = "/home/mark/montecarlo/unfolding.proton.0-24.200k.target.200.leftright.root";
-//const char * validationTestFilename = "test_data/unfolding.proton.5expo2.20k.target.100.leftright.root";
-const char * validationTestFilename = "/home/mark/montecarlo/unfolding.proton.uniform0-10.20k.target.100.leftright.root";
+const char * validationTestFilename = "/home/mark/montecarlo/unfolding.proton.5expo2.20k.target.100.leftright.root";
+//const char * validationTestFilename = "/home/mark/montecarlo/unfolding.proton.uniform0-10.20k.target.100.leftright.root";
 //const char * validationTestFilename = "test_data/unfolding.proton.6sigma2.20k.target.100.leftright.root";
 //const char * validationTestFilename = "test_data/unfolding.proton.16sigma2.20k.target.100.leftright.root";
 
-const char * dataFilename = "/home/mark/data/tproof-output.root";
+const char * dataFilename = "tproof-output.root";
 
 void Unfold(const char *descriptor, TH2D* hTransferMatrix, TH2D* hEvdE)
 {       

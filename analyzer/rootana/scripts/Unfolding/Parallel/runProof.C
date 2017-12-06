@@ -21,6 +21,8 @@ void runProof(bool debug=true)
 		gInterpreter->GenerateDictionary("vector<SimplePulse>", "SimplePulse.h;vector");
 		gInterpreter->GenerateDictionary("SimplePulse", "SimplePulse.h");
 		TChain *chain = new TChain("TMETree/TMETree");
+                //chain->Add("/home/mark/data/out/Al100-full/out09682.root");
+                //chain->Add("/home/mark/data/out/tranche8.root");
                 chain->Add("/home/mark/data/out/Al100.root");
 		chain->Process("TMETree.C+");
 	} else {

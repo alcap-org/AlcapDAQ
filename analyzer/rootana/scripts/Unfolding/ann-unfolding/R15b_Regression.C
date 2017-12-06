@@ -72,7 +72,8 @@ void LoadTraining(TTree * tTraining, const char * particle) {
 		SiR1_E=0; SiR2_E=0; SiR3_E=0;
 	}
 }
-void LoadTest(TMultiLayerPerceptron *mlp, TTree * tTest, const char * particle) {
+void LoadTest(TMultiLayerPerceptron *mlp, const char * particle, TTree *tTest) {
+	gStyle->SetOptStat(0);
 	std::cout << "==========Generating test data==========" << std::endl;
 	//TFile *test_file = new TFile("data/old-data-exponential-depth/regression-test-proton-uniform_0-10MeV.root", "READ");
 	TFile *fTest = new TFile("/home/mark/montecarlo/proton.5expo2.20k.target.100.leftright.root", "READ");
@@ -132,7 +133,6 @@ void LoadTest(TMultiLayerPerceptron *mlp, TTree * tTest, const char * particle) 
 		SiL1_E=0; SiL3_E=0;
 		SiR1_E=0; SiR2_E=0; SiR3_E=0;
 	}
-	fTest->Close();	
 	TH1F *hUnfold = new TH1F("hUnfold", "Unfolded data; Energy [MeV]", 24, 0, 24);
 	TH1F *hEval = new TH1F("hEval", "Fake data; Energy [MeV]", 24, 0, 24);
 	TH1F *hTrue = new TH1F("htTrue", "Truth; Energy [MeV]", 24, 0, 24);
@@ -146,9 +146,35 @@ void LoadTest(TMultiLayerPerceptron *mlp, TTree * tTest, const char * particle) 
 		hEval->Fill(SiL1_E+SiL3_E);
 	}
 	TCanvas *cTest = new TCanvas("Test set", "Test set");
-	hEval->Draw("E"); hEval->SetLineColor(kMagenta);
-	hTrue->Draw("SAME"); hTrue->SetLineColor(kGreen);
+	TPad *pad1 = new TPad("pad1","This is pad1",0.02,0.29,0.98,0.97);
+	TPad *pad2 = new TPad("pad2","This is pad2",0.02,0.02,0.98,0.27);
+	pad1->Draw();
+	pad2->Draw();
+
+	pad1->cd();
+	hUnfold->Draw("E");
+	hEval->Draw("SAME");
+	hEval->SetLineColor(kMagenta);
+	hTrue->Draw("SAME");
+	hTrue->SetLineColor(kGreen);
 	hEval->SetTitle("Neural network unfolding validation");
+
+	pad2->cd();
+	TH1 *hUnfold_clone = hUnfold->Clone();
+	hUnfold_clone->SetTitle(";;"); 
+	hUnfold_clone->GetYaxis()->SetLabelSize(0.1);
+	hUnfold_clone->GetXaxis()->SetLabelSize(0.1);
+	hUnfold_clone->GetYaxis()->SetTitle("Difference");
+	hUnfold_clone->GetYaxis()->SetTitleSize(0.1);
+	hUnfold_clone->GetYaxis()->SetTitleOffset(0.25);
+	TH1 *hTrue_clone = hTrue->Clone();
+	hUnfold_clone->Add(hTrue_clone, -1);
+	hUnfold_clone->Divide(hTrue_clone);
+	hUnfold_clone->Scale(100);
+	hUnfold_clone->Draw("E");
+	TLine *line = new TLine(0, 0, 24, 0);
+	line->Draw("SAME");
+	
 }
 void LoadData(TMultiLayerPerceptron *mlp, const char * particle) {
 	std::cout << "==========Unfolding data==========" << std::endl;
@@ -189,28 +215,27 @@ void R15b_Regression(const char * particle = "proton", Int_t training_epoch=10) 
 		gSystem->Load("libMLP");
 	}
 
-	TFile *nn_output = new TFile("nn_output.root", "RECREATE");
+	TFile *fOutputFile= new TFile("NNUnfolding-output.root", "RECREATE");
 	TTree *tTraining= new TTree("Training", "Training");
 	LoadTraining(tTraining, particle);
 
 //	TMultiLayerPerceptron *mlp = new TMultiLayerPerceptron("SiL1_E,SiL3_E:2:truth_E", training, "Entry$%2", "(Entry$%2)==0", TNeuron::kSigmoid); 
 	TMultiLayerPerceptron *mlp = new TMultiLayerPerceptron("SiL1_E,SiL3_E:2:truth_E", tTraining);
 	mlp->LoadWeights("unfolding-proton-SiL-weights");
-	mlp->SetLearningMethod(TMultiLayerPerceptron::kBFGS);
-	mlp->Train(training_epoch, "text,graph update=10"); //text, graph
-	mlp->DumpWeights();
+//	mlp->SetLearningMethod(TMultiLayerPerceptron::kBFGS);
+//	mlp->Train(training_epoch, "text,graph update=100"); //text, graph
+//	mlp->DumpWeights();
 
 	// analyze it
+	TCanvas* cIO=new TCanvas("TruthDeviation", "TruthDeviation");
+	cIO->Divide(2,2);
 	TMLPAnalyzer* mlpa=new TMLPAnalyzer(mlp);
 	mlpa->GatherInformations();
 	mlpa->CheckNetwork();
 //	mlpa->DrawDInputs();
 
 	// draw statistics shows the quality of the ANN's approximation
-	TCanvas* cIO=new TCanvas("TruthDeviation", "TruthDeviation");
-	cIO->Divide(2,2);
 	cIO->cd(1);
-	TCanvas *d = new TCanvas("d", "d");
 	// draw the difference between the ANN's output for (x,y) and 
 	// the true value f(x,y), vs. f(x,y), as TProfiles
 	mlpa->DrawTruthDeviations();
@@ -227,12 +252,14 @@ void R15b_Regression(const char * particle = "proton", Int_t training_epoch=10) 
 	hDelta->SetTitle("Difference between ANN output and truth vs. truth");
 	hDelta->Draw("E");
 
-	Bool_t run_test = false;
+	Bool_t run_test = true;
 	if(run_test) {
 		TTree *tTest = new TTree("Test", "Test");
-		LoadTest(mlp, tTest, particle);
+		LoadTest(mlp, particle, tTest);
 	}
 	//////Data//////
 	LoadData(mlp, particle);
-	nn_output->Write();
+	fOutputFile->Write();
+
+	fOutputFile->Close();
 }

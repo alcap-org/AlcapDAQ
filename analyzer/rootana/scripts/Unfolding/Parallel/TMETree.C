@@ -98,17 +98,29 @@ void TMETree::SlaveBegin(TTree* /*tree*/) {
 	std::vector<TH1D *> vSiT_energy;
 	for(int i=0; i<n_SiT_channels; i++) {
 		TH1D *t = new TH1D(Form("hSiT%d_time", i+1), Form("hSiT%d time; t [ns]", i+1), 1000, -10000, 10000);
-		TH1D *e = new TH1D(Form("hSiT%d_energy", i+1), Form("hSiT%d energy; E [MeV]", i+1), 4096, 0, 8.192);
+		TH1D *e = new TH1D(Form("hSiT%d_energy", i+1), Form("hSiT%d energy; E [MeV]", i+1), 4096, 0, 10.24);
 		vSiT_time.push_back(t);
 		vSiT_energy.push_back(e);
 	}
 	hSiT["time"] = vSiT_time;
 	hSiT["energy"] = vSiT_energy;
+	hSiTCheck = new TH2D("hSiTCheck", "SiT Check; E [keV]; ADC value", 4096, 0, 10240, 4096, 0, 10240);
 
 	hGeLoGain["time"] = new TH1D("hGeLoGain_time", "GeLoGain time; t[ns]", 1000, -10000, 10000);
-	hGeLoGain["energy"] = new TH1D("hGeLoGain_energy", "GeLoGain energy; E [MeV]", 4096, 0, 3.000);
+	hGeLoGain["energy"] = new TH1D("hGeLoGain_energy", "GeLoGain energy; E [keV]", 16384, 0, 6200);
+	hGeLoGain["prompt"] = new TH1D("hGeLoGain_energy_prompt", "GeLoGain prompt energy; E [keV]", 16384, 0, 6200);
+	hGeLoGain["semiprompt"] = new TH1D("hGeLoGain_energy_semiprompt", "GeLoGain semiprompt energy; E [keV]", 16384, 0, 6200);
+	hGeLoGain["delayed"] = new TH1D("hGeLoGain_energy_delayed", "GeLoGain delayed energy; E [keV]", 16384, 0, 6200);
 	hGeHiGain["time"] = new TH1D("hGeHiGain_time", "GeHiGain time; t[ns]", 1000, -10000, 10000);
-	hGeHiGain["energy"] = new TH1D("hGeHiGain_energy", "GeHiGain energy; E [MeV]", 4096, 0, 3.000);
+	hGeHiGain["energy"] = new TH1D("hGeHiGain_energy", "GeHiGain energy; E [keV]", 16384, 0, 2800);
+	hGeHiGain["prompt"] = new TH1D("hGeHiGain_energy_prompt", "GeHiGain prompt energy; E [keV]", 16384, 0, 2800);
+	hGeHiGain["semiprompt"] = new TH1D("hGeHiGain_energy_semiprompt", "GeHiGain semiprompt energy; E [keV]", 16384, 0, 2800);
+	hGeHiGain["delayed"] = new TH1D("hGeHiGain_energy_delayed", "GeHiGain delayed energy; E [keV]", 16384, 0, 2800);
+
+	hGeLoGainDrift511 = new TH2D("hGeLoGainDrift511", "GeLoGain Drift 511keV; Run Id; E [keV]", 300, 9400, 9699, 200, 490, 529);
+	hGeHiGainDrift511 = new TH2D("hGeHiGainDrift511", "GeHiGain Drift 511keV; Run Id; E [keV]", 300, 9400, 9699, 200, 490, 529);
+	hGeLoGainDrift1460 = new TH2D("hGeLoGainDrift1460", "GeLoGain Drift K-40 1460keV; Run Id; E [keV]", 300, 9400, 9699, 400, 1400, 1499);
+	hGeHiGainDrift1460 = new TH2D("hGeHiGainDrift1460", "GeHiGain Drift K-40 1460keV; Run Id; E [keV]", 300, 9400, 9699, 400, 1400, 1499);
 
 }
 
@@ -117,6 +129,7 @@ Bool_t TMETree::Process(Long64_t entry) {
 	if(entry % 100000 == 0) {
 		Info("Process", "%llu / %llu", entry, fChain->GetEntries() );
 	}
+	if(anyDoubleCountedPulses) return kTRUE;
 	std::vector<SimplePulse> vSiL1[n_SiL1_channels] = {
 		*SiL1_2, *SiL1_3, *SiL1_4, *SiL1_5, *SiL1_6,
 		*SiL1_7, *SiL1_8, *SiL1_9, *SiL1_10, *SiL1_11,
@@ -218,12 +231,47 @@ Bool_t TMETree::Process(Long64_t entry) {
 					hSiT["energy"].at(i_chn)->Fill(E);
 					hSiT_t->Fill(vSiT[i_chn].at(0).tTME);
 					hSiT_E->Fill(E);
+					hSiTCheck->Fill(vSiT[i_chn].at(0).E, vSiT[i_chn].at(0).Amp);
 				}
 			}
-			if(GeLoGain->size() ) hGeLoGain["time"]->Fill(GeLoGain->at(0).tTME);
-			if(GeLoGain->size() ) hGeLoGain["energy"]->Fill(GeLoGain->at(0).E * 0.001);
-			if(GeHiGain->size() ) hGeHiGain["time"]->Fill(GeHiGain->at(0).tTME);
-			if(GeHiGain->size() ) hGeHiGain["energy"]->Fill(GeHiGain->at(0).E * 0.001);
+			Double_t E=0;
+			Double_t tTME=0;
+			if(GeLoGain->size() ) {
+				E = GeLoGain->at(0).E;
+				tTME = GeLoGain->at(0).tTME;
+				hGeLoGain["time"]->Fill(GeLoGain->at(0).tTME);
+				hGeLoGain["energy"]->Fill(E);
+				if(E>490 && E<530)
+					hGeLoGainDrift511->Fill(runId, E);
+				if(tTME>=-100 && tTME<100)
+					hGeLoGain["prompt"]->Fill(GeLoGain->at(0).E);
+				if(tTME>=100 && tTME<4000)
+					hGeLoGain["semiprompt"]->Fill(GeLoGain->at(0).E);
+				if(tTME>=4000) {
+					hGeLoGain["delayed"]->Fill(GeLoGain->at(0).E);
+					if(E>1400 && E<1500)
+						hGeLoGainDrift1460->Fill(runId, E);
+				}
+			}
+			E=0;
+			tTME=0;
+			if(GeHiGain->size() ) {
+				E = GeHiGain->at(0).E;
+				tTME = GeHiGain->at(0).tTME;
+				hGeHiGain["time"]->Fill(GeHiGain->at(0).tTME);
+				hGeHiGain["energy"]->Fill(E);
+				if(E>490 && E<530)
+					hGeHiGainDrift511->Fill(runId, E);
+				if(tTME>=0 && tTME<100)
+					hGeHiGain["prompt"]->Fill(GeHiGain->at(0).E);
+				if(tTME>=100 && tTME<4000)
+					hGeHiGain["semiprompt"]->Fill(GeHiGain->at(0).E);
+				if(tTME>=4000) {
+					hGeHiGain["delayed"]->Fill(GeHiGain->at(0).E);
+					if(E>1400 && E<1500)
+						hGeHiGainDrift1460->Fill(runId, E);
+				}
+			}
 			return kTRUE;
 		}
 
@@ -268,11 +316,19 @@ Bool_t TMETree::Process(Long64_t entry) {
 				fOutput->Add(hSiT["time"].at(i) );
 				fOutput->Add(hSiT["energy"].at(i) );
 			}
-			fOutput->Add(hGeLoGain["time"]);
-			fOutput->Add(hGeLoGain["energy"]);
-			fOutput->Add(hGeHiGain["time"]);
-			fOutput->Add(hGeHiGain["energy"]);
+			fOutput->Add(hSiTCheck);
 
+			for(std::map<const char *, TH1D *>::iterator it = hGeLoGain.begin(); it != hGeLoGain.end(); it++) {
+				fOutput->Add(it->second);
+			}
+			for(std::map<const char *, TH1D *>::iterator it = hGeHiGain.begin(); it != hGeHiGain.end(); it++) {
+				fOutput->Add(it->second);
+			}
+
+			fOutput->Add(hGeLoGainDrift511);
+			fOutput->Add(hGeHiGainDrift511);
+			fOutput->Add(hGeLoGainDrift1460);
+			fOutput->Add(hGeHiGainDrift1460);
 		}
 
 		void TMETree::Terminate() {

@@ -15,6 +15,10 @@ class TMETree : public TSelector {
 		std::map<const char *, std::vector<TH1D *> > hSiT;                    
 		std::map<const char *, TH1D *> hGeLoGain;                        
 		std::map<const char *, TH1D *> hGeHiGain;                        
+		TH2D *hGeLoGainDrift511;
+		TH2D *hGeHiGainDrift511;
+		TH2D *hGeLoGainDrift1460;
+		TH2D *hGeHiGainDrift1460;
 		/**                                                            
 		 *  * map contains, time, energy, likelihood probability cut, neural network cut as the key
 		 *   * and histograms of the result, raw and cut                   
@@ -30,6 +34,8 @@ class TMETree : public TSelector {
 
 		TH1D *hSiT_t;                                               
 		TH1D *hSiT_E;                                               
+		TH2D *hSiTCheck;
+
 		TH1D *hSiL_tDiff;                                           
 		TH1D *hSiR_tDiff;                                           
 		TH2D *hSiL_EvdE;
