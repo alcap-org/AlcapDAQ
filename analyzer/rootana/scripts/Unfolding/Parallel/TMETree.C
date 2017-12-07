@@ -243,9 +243,9 @@ Bool_t TMETree::Process(Long64_t entry) {
 				hGeLoGain["energy"]->Fill(E);
 				if(E>490 && E<530)
 					hGeLoGainDrift511->Fill(runId, E);
-				if(tTME>=-100 && tTME<100)
+				if(tTME>=-200 && tTME<200)
 					hGeLoGain["prompt"]->Fill(GeLoGain->at(0).E);
-				if(tTME>=100 && tTME<4000)
+				if(tTME>=200 && tTME<4000)
 					hGeLoGain["semiprompt"]->Fill(GeLoGain->at(0).E);
 				if(tTME>=4000) {
 					hGeLoGain["delayed"]->Fill(GeLoGain->at(0).E);
@@ -262,9 +262,9 @@ Bool_t TMETree::Process(Long64_t entry) {
 				hGeHiGain["energy"]->Fill(E);
 				if(E>490 && E<530)
 					hGeHiGainDrift511->Fill(runId, E);
-				if(tTME>=0 && tTME<100)
+				if(tTME>=-200 && tTME<200)
 					hGeHiGain["prompt"]->Fill(GeHiGain->at(0).E);
-				if(tTME>=100 && tTME<4000)
+				if(tTME>=200 && tTME<4000)
 					hGeHiGain["semiprompt"]->Fill(GeHiGain->at(0).E);
 				if(tTME>=4000) {
 					hGeHiGain["delayed"]->Fill(GeHiGain->at(0).E);

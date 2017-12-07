@@ -41,7 +41,23 @@ std::vector<Double_t> vhResNumber;
 std::vector<Double_t> vhResError;
 
 int FillXRayInfo(XRay* xray);
-RooRealVar* GetAreaUnderPeak(Double_t energy_low, Double_t energy_high, TH1* hSpectrum, XRay* xray);
+RooRealVar* GetAreaUnderPeak(const char *descriptor, Double_t energy_low, Double_t energy_high, TH1* hSpectrum, XRay* xray);
+
+void CalculateNumberOfStoppedMuons(XRay *xray, RooRealVar *area, Double_t &n_stopped_muons, Double_t &n_stopped_muons_error) {
+	// Factors to account for the detector effects
+	std::vector<Double_t> detector_effects;
+	//  detector_effects.push_back(1.04); detector_effects.push_back(1.01); // For R13 (dead time and TRP reset respectively)
+	// TODO: Add detector effects for R15b
+	n_stopped_muons = area->getValV() / (xray->intensity * xray->efficiency);
+	for (std::vector<Double_t>::const_iterator i_factor = detector_effects.begin(); i_factor != detector_effects.end(); ++i_factor) {
+		n_stopped_muons *= (*i_factor);
+	}
+
+	// ...and the uncertainty
+	n_stopped_muons_error = n_stopped_muons* sqrt( (area->getError()/area->getValV())*(area->getError()/area->getValV()) +
+			(xray->intensity_error/xray->intensity)*(xray->intensity_error/xray->intensity) +
+			(xray->efficiency_error/xray->efficiency)*(xray->efficiency_error/xray->efficiency) );
+}
 
 // Takes a filename of a rootana output file as well as information on the timing cut and interesting x-ray
 int CountXRays(TH1D *hEnergy, std::string channel = "GeLoGain",  std::string target_material="Al", std::string transition="2p-1s", Double_t lower_offset=1, Double_t upper_offset=1, int rebin_factor=1) {
@@ -85,10 +101,10 @@ int CountXRays(TH1D *hEnergy, std::string channel = "GeLoGain",  std::string tar
 	xray.efficiency_error = ge_eff_err->Eval(xray.energy);
 
 	// Now get the area under the X-ray peak by doing a fit to the spectrum
-	Double_t energy_low = xray.energy - 8;
-	Double_t energy_high = xray.energy + 8;
+	Double_t energy_low = xray.energy - 12;
+	Double_t energy_high = xray.energy + 12;
 	std::string descriptor = channel +  " " + target_material + " " + transition;
-	RooRealVar* area = GetAreaUnderPeak(descriptor, energy_low, energy_high, hEnergy, &xray, lower_offset, upper_offset);
+	RooRealVar* area = GetAreaUnderPeak(descriptor.c_str(), energy_low, energy_high, hEnergy, &xray, lower_offset, upper_offset);
 	//  std::cout << "Area under the curve = " << area->getValV() << " +- " << area->getError() << std::endl;
 
 	// Factors to account for the detector effects
@@ -163,17 +179,80 @@ int FillXRayInfo(XRay* xray) {
 		xray->intensity_error = 0.0010;
 	}
 	else if (xray->material == "Al" && xray->transition == "844") {
-		std::cout << "Aluminium 2+-0+ gamma ray:" << std::endl;
+		std::cout << "Al-27 2+-0+ gamma ray:" << std::endl;
 		xray->energy = 843.74;
 		xray->intensity = 0.099;
 		xray->intensity_error = 0.010;
 	}
-	else if (xray->material == "Mg" && xray->transition == "1808") {
-		std::cout << "Mg 2+-0+ gamma ray:" << std::endl;
-		xray->energy = 1808.66;
+	else if (xray->material == "Al" && xray->transition == "983") {
+		std::cout << "Al-28 0+(972.35) to 2+(30.6382) gamma ray:" << std::endl;
+		xray->energy = 983.018;
+		xray->intensity = 0.0017;
+		xray->intensity_error = 0.0017;
+	}
+	else if (xray->material == "Al" && xray->transition == "941") {
+		std::cout << "Al-28 0+(972.35) to 2+(30.6382) gamma ray:" << std::endl;
+		xray->energy = 941.72;
+		xray->intensity = 0.023;
+		xray->intensity_error = 0.0011;
+	}
+	//Magnesium 27 peaks
+	else if (xray->material == "Mg-27" && xray->transition == "985") {
+		std::cout << "Mg-27 3/2+(984.88) to 1/2+(0.0) gamma ray:" << std::endl;
+		xray->energy = 984.88;
+		xray->intensity = 0.032;
+		xray->intensity_error = 0.002;
+	}
+	else if (xray->material == "Mg-27" && xray->transition == "1699") {
+		std::cout << "Mg-27 5/2+(1698.52) to 1/2+(0.0) gamma ray:" << std::endl;
+		xray->energy = 1698.52;
+		xray->intensity = 0.02;
+		xray->intensity_error = 0.002;
+	}
+	else if (xray->material == "Mg-27" && xray->transition == "955") {
+		std::cout << "Mg-27 5/2+(1940.23) to 3/2+(984.8) gamma ray:" << std::endl;
+		xray->energy = 955.42;
+		xray->intensity = 0.0126;
+		xray->intensity_error = 0.0006;
+	}
+	else if (xray->material == "Mg-27" && xray->transition == "1940") {
+		std::cout << "Mg-27 5/2+(1940.23) to 1/2+(0.0) gamma ray:" << std::endl;
+		xray->energy = 1940.23;
+		xray->intensity = 0.0060;
+		xray->intensity_error = 0.0007;
+	}
+	//Magnesium 26 peaks
+	else if (xray->material == "Mg-26" && xray->transition == "2510") {
+		std::cout << "Mg-26 4+(4318.89) to 2+(1808.74) gamma ray:" << std::endl;
+		xray->energy = 2510.15;
+		xray->intensity = 0.087;
+		xray->intensity_error = 0.007;
+	}
+	else if (xray->material == "Mg-26" && xray->transition == "2132") {
+		std::cout << "Mg-26 3+(3941.57) to 2+(1808.74) gamma ray:" << std::endl;
+		xray->energy = 2132.83;
+		xray->intensity = 0.013;
+		xray->intensity_error = 0.002;
+	}
+	else if (xray->material == "Mg-26" && xray->transition == "2938") {
+		std::cout << "Mg-26 2+(2938.33) to 0+(0.0) gamma ray:" << std::endl;
+		xray->energy = 2938.33;
+		xray->intensity = 0.011;
+		xray->intensity_error = 0.002;
+	}
+	else if (xray->material == "Mg-26" && xray->transition == "1130") {
+		std::cout << "Mg-26 2+(2938.33) to 2+(1808.74) gamma ray:" << std::endl;
+		xray->energy = 1129.59;
+		xray->intensity = 0.148;
+		xray->intensity_error = 0.015;
+	}
+	else if (xray->material == "Mg-26" && xray->transition == "1808") {
+		std::cout << "Mg-26 2+(1808.74) to 0+(0.0) gamma ray:" << std::endl;
+		xray->energy = 1808.74;
 		xray->intensity = 0.51;
 		xray->intensity_error = 0.05;
 	}
+	//Silicon peaks
 	else if (xray->material == "Si") {
 		std::cout << "Silicon x-ray:" << std::endl;
 		xray->transition = "2p-1s";
@@ -210,7 +289,7 @@ int FillXRayInfo(XRay* xray) {
 	return 0;
 }
 
-RooRealVar* GetAreaUnderPeak(std::string descriptor, Double_t energy_low, Double_t energy_high, TH1* hSpectrum, XRay* xray, Double_t bkg_lower_offset=1, Double_t bkg_upper_offset=1) {
+RooRealVar* GetAreaUnderPeak(const char * descriptor, Double_t energy_low, Double_t energy_high, TH1* hSpectrum, XRay* xray, Double_t bkg_lower_offset=1, Double_t bkg_upper_offset=1) {
 
 	// Keep track of the number of parameters
 	int n_fit_params = 0;
@@ -310,13 +389,16 @@ RooRealVar* GetAreaUnderPeak(std::string descriptor, Double_t energy_low, Double
 
 	if (xray->material == "Al" && xray->transition == "844") {
 		//Mg-27 843.7 activation //does not quite work, although the peak is somewhat clearly seen
-		//factory_cmd << "Gaussian::bkgpeak_pdf(edep[" << energy_low << ", " << energy_high << "], bkg_mean[" << 843.74-bkg_lower_offset << "," << 843.74+bkg_upper_offset << "], bkg_sigma[0.1, 2])";
-		//ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
-		//sum_factory_cmd << ", bkg_area[0,250000]*bkgpeak_pdf";
-		//n_fit_params += 3; // bkg_mean, bkg_sigma, bkg_area
+		factory_cmd << "Gaussian::bkgpeak_pdf(edep[" << energy_low << ", " << energy_high << "], bkg_mean[" << 843.74-bkg_lower_offset << "," << 843.74+bkg_upper_offset << "], bkg_sigma[0.1, 2])";
+		ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
+		sum_factory_cmd << ", bkg_area[0,250000]*bkgpeak_pdf";
+		n_fit_params += 3; // bkg_mean, bkg_sigma, bkg_area
 	}
-	if (xray->material == "Mg" && xray->transition == "1808") {
-		//if and when we find a background peak in the vicinity
+	if (xray->material == "Mg-26" && xray->transition == "2510") {
+		factory_cmd << "Gaussian::bkgpeak_pdf(edep[" << energy_low << ", " << energy_high << "], bkg_mean[" << 2501-bkg_lower_offset << "," << 2501+bkg_upper_offset << "], bkg_sigma[0.1, 2])";
+		ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
+		sum_factory_cmd << ", bkg_area[0,250000]*bkgpeak_pdf";
+		n_fit_params += 3; // bkg_mean, bkg_sigma, bkg_area
 	}
 	// Now create the SUM pdf
 	sum_factory_cmd << ")";
@@ -330,25 +412,32 @@ RooRealVar* GetAreaUnderPeak(std::string descriptor, Double_t energy_low, Double
 
 	// Draw the fit
 	RooPlot* Eframe = (ws->var("edep"))->frame();
-	Eframe->SetName(descriptor.c_str() );
-	Eframe->SetTitle(Form("%s; E [keV]", descriptor.c_str() ) );
+	Eframe->SetName(descriptor );
+	Eframe->SetTitle(Form("%skeV peak; E [keV]", descriptor) );
 	data.plotOn(Eframe, RooFit::MarkerSize(1), RooFit::MarkerStyle(1) );
 	//data.statOn(Eframe); 
 	pdf->plotOn(Eframe, RooFit::Components("expo_bkg_pdf"), RooFit::LineStyle(kDotted) );
 	pdf->plotOn(Eframe, RooFit::Components("xraypeak_pdf"), RooFit::LineStyle(kDashed) );
 	pdf->plotOn(Eframe, RooFit::Components("bkgpeak_pdf"), RooFit::LineStyle(kDashDotted) );
 	if(xray->material == "511") pdf->plotOn(Eframe, RooFit::Components("bkgpeak2_pdf"), RooFit::LineStyle(kDashDotted) );
+
+	//Calculate number of stopped muons to display on plot`
+	Double_t n_stopped_muons = 0;
+	Double_t n_stopped_muons_error = 0;
+	CalculateNumberOfStoppedMuons(xray, ws->var("xray_area"), n_stopped_muons, n_stopped_muons_error);
+
 	pdf->plotOn(Eframe, RooFit::LineColor(kRed), RooFit::LineWidth(1) );
 	pdf->paramOn(Eframe,
-			RooFit::Layout(0.65, 0.95, 0.94),
-			RooFit::Label(Form("#chi^{2} / ndf = %f / %d", Eframe->chiSquare(), n_fit_params) )
+			RooFit::Layout(0.65, 0.96, 0.95),
+			RooFit::Label(Form("#splitline{#chi^{2} / ndf = %f / %d}{N_{#gamma} = %.2e #pm %.2e}", Eframe->chiSquare(), n_fit_params, n_stopped_muons, n_stopped_muons_error) )
 		    );
 	Eframe->getAttText()->SetTextFont(42);
 	Eframe->getAttText()->SetTextSize(0.03);
-	std::cout << "Goodness of fit: " << Eframe->chiSquare(n_fit_params) << std::endl;
-	Eframe->Draw();
 
-	return ws->var("xray_area");;
+	std::cout << "Goodness of fit: " << Eframe->chiSquare(n_fit_params) << std::endl;
+
+	Eframe->Draw();
+	return ws->var("xray_area");
 }
 
 void Normalization(const char * filename) {
@@ -367,80 +456,90 @@ void Normalization(const char * filename) {
 	TH1D* hGeHiGain_energy_delayed = (TH1D*) file->Get("hGeHiGain_energy_delayed");
 
 	//GeLoGain Prompt
-	TCanvas *cGeLoGain2 = new TCanvas("GeLoGain511", "GeLoGain");
 	CountXRays(hGeLoGain_energy_prompt, "GeLoGain", "511", "", 0.5, 0.5, 1);
-	TCanvas *cGeLoGain2 = new TCanvas("GeLoGainAl2p1s", "GeLoGain");
 	CountXRays(hGeLoGain_energy_prompt, "GeLoGain", "Al", "2p-1s", 1, 0.5, 1);
-	TCanvas *cGeLoGain3 = new TCanvas("GeLoGainAl3p1s", "GeLoGain");
 	CountXRays(hGeLoGain_energy_prompt, "GeLoGain", "Al", "3p-1s", 1.5, 1);
-	TCanvas *cGeLoGain4 = new TCanvas("GeLoGainAl4p1s", "GeLoGain");
 	CountXRays(hGeLoGain_energy_prompt, "GeLoGain", "Al", "4p-1s");
-	//TCanvas *cGeLoGain5 = new TCanvas("GeLoGainAl5p1s", "GeLoGain");
-	//CountXRays(hGeLoGain_energy_prompt, "Al", "5p-1s", "GeLoGain");
+	CountXRays(hGeLoGain_energy_prompt, "Al", "5p-1s", "GeLoGain");
 	TGraphErrors *gGeLoGain = new TGraphErrors(vlResEnergy.size(), &vlResEnergy[0], &vlResNumber[0], 0, &vlResError[0]);
 	gGeLoGain->SetMarkerStyle(kOpenCircle);
 
 	//GeHiGain Prompt
-	TCanvas *cGeHiGain2 = new TCanvas("GeHiGain511", "GeHiGain");
 	CountXRays(hGeHiGain_energy_prompt, "GeHiGain", "511", "", 0.5, 0.5, 2);
-	TCanvas *cGeHiGain2 = new TCanvas("GeHiGainAl2p1s", "GeHiGain");
 	CountXRays(hGeHiGain_energy_prompt, "GeHiGain", "Al", "2p-1s", 1.5, 1, 2);
-	TCanvas *cGeHiGain3 = new TCanvas("GeHiGainAl3p1s", "GeHiGain");
 	CountXRays(hGeHiGain_energy_prompt, "GeHiGain", "Al", "3p-1s", 1.5, 1, 1);
-	TCanvas *cGeHiGain4 = new TCanvas("GeHiGainAl4p1s", "GeHiGain");
 	CountXRays(hGeHiGain_energy_prompt, "GeHiGain", "Al", "4p-1s");
-	//TCanvas *cGeHiGain5 = new TCanvas("GeHiGainAl5p1s", "GeHiGain");
-	//CountXRays(hGeHiGain_energy_prompt, "GeHiGain", "Al", "5p-1s");
+	CountXRays(hGeHiGain_energy_prompt, "GeHiGain", "Al", "5p-1s");
 
 	//GeLoGain semiprompt, 100ns to 4000ns
-	TCanvas *csGeLoGain1 = new TCanvas("GeLoGainAl844", "GeLoGain");
-	CountXRays(hGeLoGain_energy_semiprompt, "GeLoGain", "Al", "844");
-	TCanvas *csGeLoGain2 = new TCanvas("GeLoGainMg1808", "GeLoGain");
-	CountXRays(hGeLoGain_energy_semiprompt, "GeLoGain", "Mg", "1808");
+	CountXRays(hGeLoGain_energy_semiprompt, "GeLoGain", "Al", "844", 2, 3);
+	CountXRays(hGeLoGain_energy_semiprompt, "GeLoGain", "Mg-26", "1808"); 
+	CountXRays(hGeLoGain_energy_semiprompt, "GeLoGain", "Mg-26", "1130"); 
+	CountXRays(hGeLoGain_energy_semiprompt, "GeLoGain", "Mg-26", "2938"); 
+	CountXRays(hGeLoGain_energy_semiprompt, "GeLoGain", "Mg-26", "2132"); 
+	CountXRays(hGeLoGain_energy_semiprompt, "GeLoGain", "Mg-26", "2510"); 
+	CountXRays(hGeLoGain_energy_semiprompt, "GeLoGain", "Mg-27", "985"); 
+	CountXRays(hGeLoGain_energy_semiprompt, "GeLoGain", "Mg-27", "1699"); 
+	CountXRays(hGeLoGain_energy_semiprompt, "GeLoGain", "Mg-27", "955"); 
+	CountXRays(hGeLoGain_energy_semiprompt, "GeLoGain", "Mg-27", "1940"); 
 
 	//GeHiGain semiprompt, 100ns to 4000ns
-	TCanvas *csGeHiGain1 = new TCanvas("GeHiGainAl844", "GeHiGain");
 	CountXRays(hGeHiGain_energy_semiprompt, "GeHiGain", "Al", "844");
-	TCanvas *csGeHiGain2 = new TCanvas("GeHiGainMg1808", "GeHiGain");
 	CountXRays(hGeHiGain_energy_semiprompt, "GeHiGain", "Mg", "1808");
+	CountXRays(hGeHiGain_energy_semiprompt, "GeHiGain", "Mg-26", "1130");
+	CountXRays(hGeLoGain_energy_semiprompt, "GeHiGain", "Mg-26", "2938", 1, 1, 2);
+	CountXRays(hGeHiGain_energy_semiprompt, "GeHiGain", "Mg-26", "2132");
+	CountXRays(hGeHiGain_energy_semiprompt, "GeHiGain", "Mg-26", "2510", 2, 2, 2);
+	CountXRays(hGeHiGain_energy_semiprompt, "GeHiGain", "Mg-27", "985");
+	CountXRays(hGeHiGain_energy_semiprompt, "GeHiGain", "Mg-27", "1699");
+	CountXRays(hGeHiGain_energy_semiprompt, "GeHiGain", "Mg-27", "955");
+	CountXRays(hGeHiGain_energy_semiprompt, "GeHiGain", "Mg-27", "1940");
 
 	//delayed spectrum, >4000ns
-	TCanvas *cdGeLoGain1 = new TCanvas("GeLoGain1460", "GeHiGain");
 	CountXRays(hGeHiGain_energy_delayed, "GeHiGain", "1460", "");
-	TCanvas *cdLoHiGain1 = new TCanvas("GeHiGain1460", "GeHiGain");
 	CountXRays(hGeHiGain_energy_delayed, "GeHiGain", "1460", "");
 
 	TGraphErrors *gGeHiGain = new TGraphErrors(vhResEnergy.size(), &vhResEnergy[0], &vhResNumber[0], 0, &vhResError[0]);
 	gGeHiGain->SetMarkerStyle(kOpenSquare);
 
 	//Draw number of stopped muons vs energy, which peaks used for observing muonic x-rays
-	TCanvas *summary = new TCanvas("Summary", "Summary");
-	TMultiGraph *mg = new TMultiGraph("stopped muons", "Number of stopped muons observed; E[keV];");
-	mg->Add(gGeLoGain);
-	mg->Add(gGeHiGain);
-	mg->Draw("AP");
-	TLegend *legend = new TLegend(0.63, 0.79, 0.93, 0.94);
-	legend->AddEntry(gGeLoGain, "GeLoGain", "lp");
-	legend->AddEntry(gGeHiGain, "GeHiGain", "lp");
-	legend->Draw();
-	TLatex latex;
-	latex.SetTextSize(0.025);
-	for(int i=0; i<vlResNumber.size(); i++) latex.DrawLatex(vlResEnergy.at(i), vlResNumber.at(i), Form("%.2e", vlResNumber.at(i) ) );
-	for(int i=0; i<vhResNumber.size(); i++) latex.DrawLatex(vhResEnergy.at(i), vhResNumber.at(i), Form("%.2e", vhResNumber.at(i) ) );
-	summary->Draw();
-	mg->Write();
-
-	//For reference, the energy spectra with different time cuts
-	gStyle->SetOptStat(0);
-	TCanvas *timeCompare = new TCanvas("Time Comparison", "Time Comparison");
-	hGeLoGain_energy_prompt->Draw();
-	hGeLoGain_energy_semiprompt->Draw("SAME");
-	hGeLoGain_energy_semiprompt->SetLineColor(kGreen);
-	hGeLoGain_energy_delayed->Draw("SAME");
-	hGeLoGain_energy_delayed->SetLineColor(kRed);
-	timeCompare->BuildLegend();
-	timeCompare->Draw();
-	timeCompare->Write();
+	//	TCanvas *summary = new TCanvas("Summary", "Summary");
+	//	TMultiGraph *mg = new TMultiGraph("stopped muons", "Number of stopped muons observed; E[keV];");
+	//	mg->Add(gGeLoGain);
+	//	mg->Add(gGeHiGain);
+	//	mg->Draw("AP");
+	//	TLegend *legend = new TLegend(0.63, 0.79, 0.93, 0.94);
+	//	legend->AddEntry(gGeLoGain, "GeLoGain", "lp");
+	//	legend->AddEntry(gGeHiGain, "GeHiGain", "lp");
+	//	legend->Draw();
+	//	TLatex latex;
+	//	latex.SetTextSize(0.025);
+	//	for(int i=0; i<vlResNumber.size(); i++) latex.DrawLatex(vlResEnergy.at(i), vlResNumber.at(i), Form("%.2e", vlResNumber.at(i) ) );
+	//	for(int i=0; i<vhResNumber.size(); i++) latex.DrawLatex(vhResEnergy.at(i), vhResNumber.at(i), Form("%.2e", vhResNumber.at(i) ) );
+	//	summary->Draw();
+	//	mg->Write();
+	//
+	//	//For reference, the energy spectra with different time cuts
+	//	gStyle->SetOptStat(0);
+	//	TCanvas *timeCompare = new TCanvas("GeLoGainTimeComparison", "Time Comparison");
+	//	hGeLoGain_energy_prompt->Draw();
+	//	hGeLoGain_energy_semiprompt->Draw("SAME");
+	//	hGeLoGain_energy_semiprompt->SetLineColor(kGreen);
+	//	hGeLoGain_energy_delayed->Draw("SAME");
+	//	hGeLoGain_energy_delayed->SetLineColor(kRed);
+	//	timeCompare->BuildLegend();
+	//	timeCompare->Draw();
+	//	timeCompare->Write();
+	//
+	//	TCanvas *cGeHiGainTimeCompare = new TCanvas("GeHiGainTimeComparison", "Time Comparison");
+	//	hGeHiGain_energy_prompt->Draw();
+	//	hGeHiGain_energy_semiprompt->Draw("SAME");
+	//	hGeHiGain_energy_semiprompt->SetLineColor(kGreen);
+	//	hGeHiGain_energy_delayed->Draw("SAME");
+	//	hGeHiGain_energy_delayed->SetLineColor(kRed);
+	//	cGeHiGainTimeCompare->BuildLegend();
+	//	cGeHiGainTimeCompare->Draw();
+	//	cGeHiGainTimeCompare->Write();
 
 	fOutputFile->Write();
 }
