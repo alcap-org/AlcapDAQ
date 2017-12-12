@@ -3,6 +3,10 @@
 import sys
 import sqlite3
 
+if len(sys.argv) < 2:
+    print "Usage: ./insert_energy_calibration.py DATABASE runNumber1 runNumber2 runNumber3..."
+    exit(0)
+
 db = sqlite3.connect(sys.argv[1])
 run_numbers = sys.argv[2:]
 
@@ -101,10 +105,6 @@ def execute_sqls_with_err(channel, table_name='Energy'):
 		args = (run_number, channel, arrGain, arrGainErr, arrOffset, arrOffsetErr)
 	with db:
 		db.execute(cmd, args)
-
-if len(sys.argv) < 2:
-    print "Usage: ./insert_energy_calibration.py DATABASE runNumber1 runNumber2 runNumber3..."
-    exit(0)
 
 #Fill or update energy calibration data for various detectors
 for run_number in run_numbers:
