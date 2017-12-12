@@ -82,6 +82,7 @@ int main(int argc, char **argv)
   // Parse the command line
   ARGUMENTS arguments;
   int ret = analyze_command_line (argc, argv,arguments);
+  print_arguments(arguments);
   if(ret!=0) return ret;
   std::cout << "Starting event" << std::endl;
   // Give the command line arguments to the navigator

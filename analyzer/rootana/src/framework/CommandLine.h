@@ -12,6 +12,7 @@ struct ARGUMENTS {
   int stop;
   int run;
   bool calib;
+  std::string calib_db_file;
 };// ARGUMENTS;
 
 void help_command_line(const char* my_name);

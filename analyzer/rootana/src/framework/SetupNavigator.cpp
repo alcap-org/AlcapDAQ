@@ -37,13 +37,9 @@ std::map< IDs::channel, SetupNavigator::EnergyCalibRow_t > SetupNavigator::fEner
 
 SetupNavigator::SetupNavigator() :
   fCommandLineArgs(),
-  fSQLiteFilename("sqlite://calibration.db"), fServer(new TSQLiteServer(fSQLiteFilename.c_str())),
+  fSQLiteFilename(), fServer(),
   fPedestalNoiseTableName("PedestalAndNoise"), fCoarseTimeOffsetTableName("CoarseTimeOffset"),
   fEnergyCalibrationConstantsTableName("Energy") {
-  if (fServer->IsZombie()) {
-    std::cout << "SetupNavigator: ERROR: Couldn't connect to SQLite database." << std::endl;
-    throw Except::NoCalibDB();
-  }
 }
 
 
@@ -72,6 +68,15 @@ std::string SetupNavigator::GetBank(const IDs::channel& src)const{
 }
 
 void SetupNavigator::CacheCalibDB() {
+  // First open the calib DB
+  fSQLiteFilename = "sqlite://";
+  fSQLiteFilename += fCommandLineArgs.calib_db_file;
+  fServer = new TSQLiteServer(fSQLiteFilename.c_str());
+  if (fServer->IsZombie()) {
+    std::cout << "SetupNavigator: ERROR: Couldn't connect to SQLite database." << std::endl;
+    throw Except::NoCalibDB();
+  }
+
   // Cache all the variables we have in the database
   // First the pedestals and noises
   if (!fServer->HasTable(fPedestalNoiseTableName.c_str())) {
@@ -202,13 +207,13 @@ void SetupNavigator::OutputCalibCSV() {
   char r[6];
   sprintf(r, "%05d", GetRunNumber());
 
-  std::ofstream fPN((std::string("calib.db/calib.run") + r + "." + fPedestalNoiseTableName + ".csv").c_str());
+  std::ofstream fPN((std::string("calib_db/calib.run") + r + "." + fPedestalNoiseTableName + ".csv").c_str());
   fPN << "run,channel,pedestal,noise" << std::endl;
   for (std::map<IDs::channel, double>::const_iterator i = fPedestalValues.begin(); i != fPedestalValues.end(); ++i)
     fPN << GetRunNumber() << "," << i->first.str() << ","
 	<< i->second << "," << fNoiseValues.at(i->first) << std::endl;
 
-  std::ofstream fTO((std::string("calib.db/calib.run") + r + "." + fCoarseTimeOffsetTableName + ".csv").c_str());
+  std::ofstream fTO((std::string("calib_db/calib.run") + r + "." + fCoarseTimeOffsetTableName + ".csv").c_str());
   std::set<IDs::generator> gens;
   std::set<IDs::channel> chns;
   for (std::map<IDs::source, double>::const_iterator i = fCoarseTimeOffset.begin(); i != fCoarseTimeOffset.end(); ++i) {

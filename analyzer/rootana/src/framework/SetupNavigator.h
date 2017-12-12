@@ -80,7 +80,7 @@ private:
 
   /// \brief
   /// The SQLite filename, the SQLite server object and the current table name
-  const std::string fSQLiteFilename;
+  std::string fSQLiteFilename;
   TSQLiteServer* fServer;
   const std::string fPedestalNoiseTableName;
   const std::string fCoarseTimeOffsetTableName;

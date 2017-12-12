@@ -24,8 +24,9 @@ void help_command_line(const char* my_name)
             << "  -m <modules file>      Name of the MODULES file to be used.\n"
 	    << "  -c                     Tell the setup navigator that this is a calibration\n"
 	    << "                         run, and it might not find all of the tables it needs\n"
-	    << "                         in the calibration database\nbut to continue all the\n"
-	    << "                         same."
+	    << "                         in the calibration database but to continue all the\n"
+	    << "                         same.\n"
+	    << "  -d <calib DB file>     Location of the calibration DB to use [default: ./calibration.db]\n"
             << std::endl;
   return;
 }
@@ -105,6 +106,10 @@ int check_arguments(ARGUMENTS& arguments){
     buff << "wiremap_corrections/correct" << arguments.run << ".dat";
     arguments.correction_file=buff.str();
   }
+
+  if(arguments.calib_db_file.size() == 0){
+    arguments.calib_db_file="calibration.db";
+  }
   return 0; //success
 }
 
@@ -125,6 +130,7 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
   arguments.stop=0;
   arguments.run=-1;
   arguments.calib=false;
+  arguments.calib_db_file="";
 
   // Now loop over all the arguments
   // There are a minimum of seven arguments:
@@ -237,6 +243,17 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
      i+=1;
      break;
      //----------
+   case 'd':
+     if(i+1 < argc){
+       arguments.calib_db_file = argv[i+1];
+       i+=2;
+     }
+     else{
+       std::cerr << "ERROR: No argument for calibration database specified\n";
+       help_command_line(argv[0]);   return 1;
+     }
+     break;
+     //-----------
    default:
      std::cerr << "ERROR: Argument " << argv[i] << " not recognized\n";
      help_command_line(argv[0]);   return 1;
@@ -282,5 +299,6 @@ void print_arguments(const ARGUMENTS& args){
             << "\n    stop event:\t\t" << args.stop
             << "\n    run number:\t\t" << args.run
 	    << "\n    calibration:\t " << args.calib
+	    << "\n    calibration DB:\t " << args.calib_db_file
             << std::endl;
 }
