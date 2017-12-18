@@ -1,9 +1,18 @@
-#include "XRay.h"
+struct XRay {
+  std::string transition;
+  std::string material;
+  double energy;
+  double intensity;
+  double intensity_error;
+  double efficiency;
+  double efficiency_error;
+};
 
 #include "TFile.h"
 #include "TDirectoryFile.h"
 #include "TH2.h"
 #include "TF1.h"
+#include "TPad.h"
 
 #include "RooFit.h"
 #include "RooAbsPdf.h"
@@ -16,7 +25,7 @@
 #include <sstream>
 
 int FillXRayInfo(XRay* xray);
-RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectrum, XRay* xray);
+RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectrum, XRay* xray, TPad* pad);
 
 // Takes a filename of a rootana output file as well as information on the timing cut and interesting x-ray
 int CountXRays(std::string filename, std::string target_material="Al", std::string channel = "GeLoGain", int rebin_factor=1, std::string dirname = "PlotTAP_EnergyTime", std::string histname_suffix = "MaxBinAPGenerator#any_EnergyTime", double low_time_cut=-9999999, double high_time_cut=9999999) {
@@ -95,7 +104,8 @@ int CountXRays(std::string filename, std::string target_material="Al", std::stri
   // Now get the area under the X-ray peak by doing a fit to the spectrum
   double energy_low = xray.energy-10;
   double energy_high = xray.energy+10;
-  RooRealVar* area = GetAreaUnderPeak(energy_low, energy_high, hEnergyTimeCut, &xray);
+  TPad* pad = new TPad("pad", "pad", 0.0, 0.0, 1.0, 1.0);
+  RooRealVar* area = GetAreaUnderPeak(energy_low, energy_high, hEnergyTimeCut, &xray, pad);
   //  std::cout << "Area under the curve = " << area->getValV() << " +- " << area->getError() << std::endl;
 
   // Factors to account for the detector effects
@@ -166,7 +176,7 @@ int FillXRayInfo(XRay* xray) {
   return 0;
 }
 
-RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectrum, XRay* xray) {
+RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectrum, XRay* xray, TPad* pad) {
   
   // Keep track of the number of parameters
   int n_fit_params = 0;
@@ -205,8 +215,12 @@ RooRealVar* GetAreaUnderPeak(double energy_low, double energy_high, TH1* hSpectr
   (ws->pdf("sum"))->fitTo(data);
   
   // Draw the fit
+  pad->cd();
   RooPlot* Eframe = (ws->var("edep"))->frame();
+  Eframe->SetTitle(hSpectrum->GetTitle());
+  Eframe->GetXaxis()->SetTitle("Energy [keV]");
   data.plotOn(Eframe);
+  Eframe->SetMinimum(3000);
   (ws->pdf("sum"))->plotOn(Eframe);
   std::cout << "Goodness of fit: " << Eframe->chiSquare(n_fit_params) << std::endl;
   Eframe->Draw();
