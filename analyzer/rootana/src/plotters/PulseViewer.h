@@ -17,7 +17,7 @@ class PulseViewer : public BaseModule{
     typedef int TPulseIslandID;
     typedef int TAnalysedPulseID;
     typedef int EventID_t;
-    typedef std::map<TPulseIslandID,int> PulseIDList_t;
+    typedef std::map<TPulseIslandID,std::vector<TAnalysedPulseID> > PulseIDList_t;
     typedef std::map<EventID_t,PulseIDList_t> EventPulseIDList_t;
 
     enum  ParameterType {

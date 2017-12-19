@@ -151,6 +151,12 @@ int TemplateFitter::FitPulseToTemplate(const TTemplate* hTemplate, const TH1D* h
       best_status = -9999;
   }
 
+  if (print_dbg) {
+    std::cout << "TemplateFitter::FitPulseToTemplate(): Best Values:\tChi2 " << fChi2 << "\tP "
+	      << fPedestalOffset << "\tA " << fAmplitudeScaleFactor << "\tT " << fTimeOffset 
+	      << ", ndof = " << fNDoF << ", prob = " << TMath::Prob(fChi2, fNDoF) << std::endl;
+  }
+
   return best_status; // return status for the calling module to look at
 }
 

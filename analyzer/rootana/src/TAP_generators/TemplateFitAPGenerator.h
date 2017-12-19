@@ -10,6 +10,9 @@
 #include "TTemplate.h"
 #include "TTemplateFitAnalysedPulse.h"
 #include "TAPAlgorithms.h"
+#include "PulseCandidateFinder_TSpectrum.h"
+
+#include "TTree.h"
 
 class TemplateFitAPGenerator:public TVAnalysedPulseGenerator {
 
@@ -37,20 +40,16 @@ class TemplateFitAPGenerator:public TVAnalysedPulseGenerator {
 
   private:
     static TemplateArchive* fTemplateArchive;
-    static TemplateArchive* fTemplateArchive2;
     double fIntegralMax, fIntegralMin;
     double fIntegralRatioMax, fIntegralRatioMin;
     double fTemplateAmp, fTemplatePed, fTemplateTime;
-    double fTemplate2Amp, fTemplate2Ped, fTemplate2Time;
     double fInitPedestal;
     double fChi2MinToRefit;
     TTemplate* fTemplate;
-    TTemplate* fTemplate2;
-    TemplateMultiFitter* fFitter;
-    TemplateMultiFitter* fDoubleFitter;
     Algorithm::IntegralRatio* fIntegralRatio;
     Algorithm::MaxBinAmplitude fMaxBin;
-
+    PulseCandidateFinder_TSpectrum* fPCF;
+    int fMaxTemplates;
 };
 
 #endif //TEMPLATEFITAPGENERATOR_H__

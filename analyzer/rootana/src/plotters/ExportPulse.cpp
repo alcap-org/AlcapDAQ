@@ -6,11 +6,14 @@
 #include <utility> //std::pair
 #include <sstream>
 #include <stdexcept>
+#include <cmath>
 
 //ROOT
 #include <TH1F.h>
 #include <THStack.h>
 #include <TDirectory.h>
+#include <TCanvas.h>
+#include <TPolyMarker.h>
 
 //Local
 #include "ModulesFactory.h"
@@ -23,6 +26,10 @@
 #include "SetupNavigator.h"
 #include "debug_tools.h"
 
+#include "TTemplateFitAnalysedPulse.h"
+#include "InterpolatePulse.h"
+#include "TPaveText.h"
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -33,7 +40,7 @@ extern Long64_t* gTotalEntries;
 //----------------------------------------------------------------------
 ExportPulse::ExportPulse(modules::options* opts)
   : BaseModule("ExportPulse",opts),fGuidanceShown(false)
-  , fSetup(NULL), fOptions(opts), fPulseFinder(NULL)
+  , fSetup(NULL), fOptions(opts), fPulseFinder_TSpectrum(NULL)
 {
   fPulseInfo.pulseID=-1;
   fPulseInfo.event=-1;
@@ -42,10 +49,32 @@ ExportPulse::ExportPulse(modules::options* opts)
   
   fUsePCF=opts->GetFlag("run_pulse_finder");
   if(fUsePCF){
-      fPulseFinder=new PulseCandidateFinder();
+      fPulseFinder_TSpectrum=new PulseCandidateFinder_TSpectrum();
   }
-  fSubtractPedestal = opts->GetBool("subtract_pedestal", true);
-  fUseBlockTime = opts->GetBool("use_block_time", false);
+  std::string x_axis = opts->GetString("x_axis");
+  if (x_axis == "sample_number") {
+    fXAxis = kSampleNumber;
+  }
+  else if (x_axis == "block_time") {
+    fXAxis = kBlockTime;
+  }
+  else if (x_axis == "pulse_time") {
+    fXAxis = kPulseTime;
+  }
+  else {
+    fXAxis = kXAxisError;
+  }
+
+  std::string y_axis = opts->GetString("y_axis");
+  if (y_axis == "not_pedestal_subtracted") {
+    fYAxis = kNotPedestalSubtracted;
+  }
+  else if (y_axis == "pedestal_subtracted") {
+    fYAxis = kPedestalSubtracted;
+  }
+  else {
+    fYAxis = kYAxisError;
+  }
   
   fTPIDirectory=GetDirectory("TPIs");
   fTAPDirectory=GetDirectory("TAPs");
@@ -114,6 +143,12 @@ int ExportPulse::BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup){
       }
     }
   }
+
+  // Check that the x- and y-axes are well defined
+  if (fXAxis == kXAxisError || fYAxis == kYAxisError) {
+    std::cout << "ExportPulse: fXAxis or fYAxis are not defined" << std::endl;
+    return 1;
+  }
   return 0;
 }
 
@@ -144,6 +179,7 @@ int ExportPulse::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
 int ExportPulse::DrawTAPs(){
   
   // Loop over all the TAPs we've been asked to export
+  //  std::cout << "AE (ExportPulse) TAPsToPlot = " << fTAPsToPlot.size() << std::endl;
   for(ChannelTAPs_t::const_iterator i_channel_tap=fTAPsToPlot.begin();
       i_channel_tap!=fTAPsToPlot.end();
       i_channel_tap++){
@@ -151,10 +187,20 @@ int ExportPulse::DrawTAPs(){
     SetCurrentDetectorName(i_channel_tap->first);
     
     const TAnalysedPulse* i_pulse = i_channel_tap->second;
-    SetCurrentPulseID(i_pulse->GetParentID());
+    if (i_pulse->GetParentID() == fPulseInfo.pulseID) {
+      // already on the same TPI
+      SetCurrentSubPulseID(fPulseInfo.subPulseID+1);
+    }
+    else {
+      SetCurrentPulseID(i_pulse->GetParentID());
+      SetCurrentSubPulseID(0); //reset
+    }
     
     // Draw the pulse
     PlotTAP(i_pulse,fPulseInfo);
+
+    // if we've also get another TAP from the same TPI
+    // Draw the summed TAP
   }
   return 0;
 }
@@ -168,6 +214,7 @@ int ExportPulse::DrawTPIs(){
   PulseIslandList* pulseList;
 
   // Loop over all the pulses that have been requested (this should be time ordered)
+  //  std::cout << "AE (ExportPulse) TPIsToPlot = " << fTPIsToPlot.size() << std::endl;
   for(ChannelPulseIDs_t::const_iterator i_channel_pulseid=fTPIsToPlot.begin();
       i_channel_pulseid!=fTPIsToPlot.end();
       i_channel_pulseid++){
@@ -207,6 +254,19 @@ std::string ExportPulse::PulseInfo_t::MakeTPIName()const{
   return hist;
 }
 
+std::string ExportPulse::PulseInfo_t::MakeTAPName()const{
+  std::stringstream histname;
+  histname << "Pulse_" << detname;
+  histname << "_" << event;
+  histname << "_" << pulseID;
+  histname << "_" << subPulseID;
+  std::string hist=histname.str();
+  // replace all non c++ characters with underscore so we can use the
+  // histograms in root directly.
+  modules::parser::ToCppValid(hist);
+  return hist;
+}
+
 //----------------------------------------------------------------------
 int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info){
   
@@ -229,28 +289,55 @@ int ExportPulse::PlotTPI(const TPulseIsland* pulse, const PulseInfo_t& info){
 
   if(fUsePCF){
       // don't save the original
-      fullPulse->SetDirectory(0);
+    //      fullPulse->SetDirectory(0);
 
       // make the stack
-      THStack* stack=new THStack((hist+"_pulse_candidates").c_str(),title.str().c_str());
-      stack->Add(fullPulse);
+      //      THStack* stack=new THStack((hist+"_pulse_candidates").c_str(),title.str().c_str());
+      //      stack->Add(fullPulse);
 
-      fPulseFinder->FindPulseCandidates(pulse);
-      fPulseFinder->GetPulseCandidates(fSubPulses);
-      for(PulseIslandList::const_iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){
-          if((*i_tpi)->GetPulseLength() < 14) continue;
+    //      std::string canvasname = "c_" + hist;
+    //      TCanvas* c_export = new TCanvas(canvasname.c_str(), canvasname.c_str());
+    //      fullPulse->Draw("HIST");
 
-          int shift=(*i_tpi)->GetTimeStamp()-pulse->GetTimeStamp();
-          TH1F* sub_pulse=MakeHistTPI(*i_tpi,"sub_pulse",info,shift,pulse->GetPulseLength());
-          sub_pulse->SetFillColor(kMagenta);
-          // need to subtract found pulse from full pulse else THStack
-          // superposes the two regions 
-          fullPulse->Add(sub_pulse,-1);
-          stack->Add(sub_pulse);
+    fPulseFinder_TSpectrum->FindPulseCandidates(pulse, fullPulse);
+      TList *functions = fullPulse->GetListOfFunctions();
+      TPolyMarker *pm = (TPolyMarker*)functions->FindObject("TPolyMarker");
+      if (pm) {
+	//	pm->SetMarkerSize(0.5);
+      	pm->Draw();
       }
+      //      std::cout << "AE: Event #" << info.event << ", Pulse #" << info.pulseID << ": NPulses = " << fPulseFinder_TSpectrum->GetNPulseCandidates() << std::endl;
+      /*      fPulseFinder_TSpectrum->GetPulseCandidates(fSubPulses);
+      std::stringstream sub_pulse_name;
+      for(PulseIslandList::const_iterator i_tpi=fSubPulses.begin(); i_tpi!=fSubPulses.end(); ++i_tpi){
+	//          if((*i_tpi)->GetPulseLength() < 14) continue;
 
+	int i_sub_pulse = i_tpi-fSubPulses.begin();
+	int shift=(*i_tpi)->GetTimeStamp()-pulse->GetTimeStamp();
+	sub_pulse_name.str("");
+	sub_pulse_name << "Sub" << hist << "_" << i_sub_pulse;
+	TH1F* sub_pulse=MakeHistTPI(*i_tpi,sub_pulse_name.str(),info,shift,pulse->GetPulseLength());
+	sub_pulse->SetTitle(title.str().c_str());
+	sub_pulse->SetLineColor(kMagenta);
+	// need to subtract found pulse from full pulse else THStack
+	// superposes the two regions 
+	sub_pulse->Draw("HIST SAME");
+	
+	double new_x = sub_pulse->GetBinCenter(sub_pulse->GetMaximumBin());
+	double new_y = sub_pulse->GetMaximum();
+	TPolyMarker* new_marker = new TPolyMarker(1, &new_x, &new_y);
+	new_marker->SetMarkerColor(kBlue);
+	new_marker->SetMarkerStyle(kOpenTriangleDown);
+	new_marker->Draw("SAME");
+
+	  //	  fTPIDirectory->Add(sub_pulse);
+	  //	  fullPulse->Add(sub_pulse,-1);
+	  //          stack->Add(sub_pulse);
+      }
+      */
       // Save the stack
-      fTPIDirectory->Add(stack);
+      //      fTPIDirectory->Add(stack);
+      //      fTPIDirectory->Add(c_export);
   }
 
   return 0;
@@ -262,47 +349,64 @@ TH1F* ExportPulse::MakeHistTPI(const TPulseIsland* pulse, const std::string& nam
   int downsampling = TSetupData::GetDownSampling(info.bankname.c_str(), SetupNavigator::Instance()->GetRunNumber());
   size_t num_samples = samples? samples: pulse->GetPulseLength();
   double min=0;
-  double max=num_samples*TSetupData::Instance()->GetClockTick(info.bankname)*downsampling;
-  double pedestal = SetupNavigator::Instance()->GetPedestal(info.detname);
-
-  TH1F* hPulse;
-  if(fUseBlockTime) {
+  double max=num_samples;
+  double pedestal = 0;
+  if (fXAxis != kSampleNumber) {
+    max *= TSetupData::Instance()->GetClockTick(info.bankname)*downsampling;
+  }
+  if (fXAxis == kBlockTime) {
     double start_time = pulse->GetTimeStamp() * TSetupData::Instance()->GetClockTick(info.bankname);
-    hPulse = new TH1F(name.c_str(), name.c_str(), num_samples,start_time+min,start_time+max);
+    min += start_time;
+    max += start_time;
   }
-  else {
-    hPulse = new TH1F(name.c_str(), name.c_str(), num_samples,min,max);
+  if (fYAxis == kPedestalSubtracted) {
+    pedestal = SetupNavigator::Instance()->GetPedestal(info.detname);
   }
 
+  TH1F* hPulse = new TH1F(name.c_str(), name.c_str(), num_samples,min,max);
   hPulse->GetXaxis()->SetNoExponent(true);
   hPulse->SetDirectory(0);
-  if (fUseBlockTime) {
-    hPulse->SetXTitle("block time [ns]");
-  }
-  else {
+
+  switch (fXAxis) {
+  case kSampleNumber:
+    hPulse->SetXTitle("sample number [ct]");
+    break;
+
+  case kPulseTime:
     hPulse->SetXTitle("pulse time [ns]");
-  }
-  if (fSubtractPedestal) {
-    hPulse->SetYTitle("pedestal subtracted [ADC]");
-  }
-  else {
-    hPulse->SetYTitle("pedestal not subtracted [ADC]");
+    break;
+
+  case kBlockTime:
+    hPulse->SetXTitle("block time [ns]");
+    break;
+
+  case kXAxisError:
+    return NULL;
   }
 
-  //double pedestal_error = SetupNavigator::Instance()->GetNoise(IDs::channel(info.detname));
+  switch (fYAxis) {
+  case kNotPedestalSubtracted:
+    hPulse->SetYTitle("pedestal not subtracted [ADC]");
+    break;
+  case kPedestalSubtracted:
+    hPulse->SetYTitle("pedestal subtracted [ADC]");
+    break;
+  case kYAxisError:
+    return NULL;
+  }
+
   size_t bin=0;
   for ( size_t i=0;i <(size_t)pulse->GetPulseLength(); ++i) {
-    for (int i_downsample = 0; i_downsample < downsampling; ++i_downsample) {
-      bin=i+1+shift+i_downsample;
-      if (fSubtractPedestal) {
-	hPulse->SetBinContent(bin, pulse->GetSamples().at(i)-pedestal);
-      }
-      else {
-	hPulse->SetBinContent(bin, pulse->GetSamples().at(i));
-      }
-      hPulse->SetBinError(bin, 0);//pedestal_error);
+    bin=i+1+shift;
+    if (fYAxis == kPedestalSubtracted) {
+      hPulse->SetBinContent(bin, pulse->GetSamples().at(i)-pedestal);
     }
+    else if (fYAxis == kNotPedestalSubtracted) {
+      hPulse->SetBinContent(bin, pulse->GetSamples().at(i));
+    }
+    hPulse->SetBinError(bin, 0);//pedestal_error);
   }
+  hPulse->SetStats(false);
   return hPulse;
 }
 
@@ -312,8 +416,127 @@ int ExportPulse::PlotTAP(const TAnalysedPulse* pulse, const PulseInfo_t& info)co
   std::string hist=info.MakeTPIName();
   TH1F* tpi_hist=NULL;
   fTPIDirectory->GetObject(hist.c_str(),tpi_hist);
-  pulse->Draw(tpi_hist, info.bankname, fSubtractPedestal, fUseBlockTime);
+  TH1F* tap_hist=MakeHistTAP(tpi_hist, pulse, info);
+
+  tap_hist->SetDirectory(fTAPDirectory);
+
   return 0;
+}
+
+TH1F* ExportPulse::MakeHistTAP(TH1F* tpi_hist, const TAnalysedPulse* pulse, const PulseInfo_t& info)const{
+  if(tpi_hist) {
+    std::stringstream name;
+    name.str("");
+    name << tpi_hist->GetName();
+    
+    double x_max=tpi_hist->GetXaxis()->GetXmax();
+    double x_min=tpi_hist->GetXaxis()->GetXmin();
+    TH1F* tap_pulse=NULL;
+    if (dynamic_cast<const TTemplateFitAnalysedPulse*>(pulse)) {
+      // Currently TTemplateFitAnalysedPulse defined time as block time and amplitude as pedestal subtracted
+      // the template is defined to have time at its maximum bin and amplitude is normalised to 1
+      name << "_" << info.subPulseID << "_templateAP";
+      const TTemplateFitAnalysedPulse* tf_pulse =static_cast<const TTemplateFitAnalysedPulse*>(pulse);
+
+      int n_bins=tf_pulse->GetTPILength()*tf_pulse->GetTemplate()->GetRefineFactor();
+      tap_pulse=new TH1F(name.str().c_str(), name.str().c_str(),n_bins,x_min,x_max);
+
+      double time = tf_pulse->GetTime();      
+      
+      //      double time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(pulse->GetSource());
+      double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(info.bankname);
+      int down_samp = TSetupData::GetDownSampling(info.bankname.c_str(), SetupNavigator::Instance()->GetRunNumber());
+      double sample_time = (time - tf_pulse->GetTriggerTime() /* + time_shift */) / (clock_tick_in_ns * down_samp);
+      for ( int i_bin=0; i_bin<n_bins; i_bin++){
+
+	if (fXAxis == kBlockTime) {
+	  //	  time += time_shift;
+	}
+	else if (fXAxis == kPulseTime) {
+	  time -= tf_pulse->GetTriggerTime();
+	  //	  time += time_shift;
+	}
+	else if (fXAxis == kSampleNumber) {
+	  time = sample_time;
+	}
+	int tpl_bin=tf_pulse->GetTemplate()->GetTime() // the template time in template bins
+	    - sample_time*tf_pulse->GetTemplate()->GetRefineFactor() // the shift
+	    + i_bin;
+
+	// get bin sample
+	double sample=tf_pulse->GetTemplate()->GetHisto()->GetBinContent(tpl_bin);
+	sample *= tf_pulse->GetAmplitude();
+	if (fYAxis == kNotPedestalSubtracted) {
+	  sample += tf_pulse->GetPedestal();
+	}
+	
+	tap_pulse->SetBinContent(i_bin,sample);
+      }
+
+      // Print some useful information
+      TPaveText* text_b=new TPaveText(0.66,0.7,0.9,0.9,"NB NDC");
+      text_b->AddText(Form("#chi^2 = %3.2g",tf_pulse->GetChi2()));
+      text_b->AddText(Form("Status = %d",tf_pulse->GetFitStatus()));
+      text_b->AddText(Form("Time = %g",tf_pulse->GetTime()));
+      text_b->AddText(Form("Ampl. = %g",tf_pulse->GetAmplitude()));
+      text_b->AddText(Form("NDoF = %d",tf_pulse->GetNDoF()));
+      text_b->SetFillColor(kWhite);
+      text_b->SetBorderSize(1);
+      tap_pulse->SetStats(false);
+      tap_pulse->GetListOfFunctions()->Add(text_b);
+
+      //      TH1F* residual=(TH1F*) tpi_hist->Clone(Form("%s_residual",tap_pulse->GetName()));
+      TH1F* tap_rebinned=(TH1F*) tap_pulse->Rebin(tf_pulse->GetTemplate()->GetRefineFactor(),Form("%s_rebin",tap_pulse->GetName()));
+      tap_rebinned->Scale(1.0/tf_pulse->GetTemplate()->GetRefineFactor());
+      tap_rebinned->Write();
+      //      residual->Add(tap_rebinned, -1./tf_pulse->GetTemplate()->GetRefineFactor());
+      //      residual->Write();
+    }
+    else {
+      name << "_AP";
+      int n_bins=tpi_hist->GetXaxis()->GetNbins();
+      tap_pulse = new TH1F(name.str().c_str(),("TAP for "+name.str()).c_str(),n_bins,x_min,x_max);
+      // for standard TAnalysedPulses: time is defined as block time and amplitudes are given as pedestal subtracted
+      // do the conversion if needs be
+      double time = pulse->GetTime();
+      //      std::cout << "Time before conversion = " << time << std::endl;
+      if (fXAxis == kBlockTime) {
+	double time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(pulse->GetSource());
+	time += time_shift;
+      }
+      else if (fXAxis == kPulseTime) {
+	double time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(pulse->GetSource());
+	time -= pulse->GetTriggerTime();
+	time += time_shift;
+      }
+      else if (fXAxis == kSampleNumber) {
+	time -= pulse->GetTriggerTime();
+	double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(info.bankname);
+	//	double time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(pulse->GetSource());
+	int down_samp = TSetupData::GetDownSampling(info.bankname.c_str(), SetupNavigator::Instance()->GetRunNumber());
+	//	time += time_shift;
+	time = time / (clock_tick_in_ns * down_samp);
+      }
+      //      std::cout << "Time after conversion = " << time << std::endl;
+
+      double amplitude = pulse->GetAmplitude();
+      //      std::cout << "Amplitude before converion = " << amplitude << std::endl;
+      if (fYAxis == kNotPedestalSubtracted) {
+	double pedestal = SetupNavigator::Instance()->GetPedestal(info.detname);
+	amplitude += pedestal;
+      }
+      //      std::cout << "Amplitude after cnoversio = " << amplitude << std::endl;
+
+      int bin=tap_pulse->FindBin(time);	    
+    
+      int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(info.bankname);
+      tap_pulse->SetBinContent(bin,trigger_polarity*amplitude);
+    }
+
+
+    tap_pulse->SetLineColor(kRed);
+    return tap_pulse;
+  }
 }
 
 //----------------------------------------------------------------------

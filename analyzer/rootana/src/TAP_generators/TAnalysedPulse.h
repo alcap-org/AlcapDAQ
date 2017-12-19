@@ -91,7 +91,7 @@ class TAnalysedPulse : public TObject {
   /// Clean this up
   ///
   /// \param[in] tpi_pulse A histogram representation of the parent pulse
-  virtual void Draw(const TH1F* tpi_pulse, std::string bankname, bool subtract_pedestal, bool use_block_time)const;
+  virtual void Draw(const TH1F* tpi_pulse)const;
 
   /// \name Getters
   //@{

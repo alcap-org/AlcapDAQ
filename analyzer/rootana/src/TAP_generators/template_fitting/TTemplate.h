@@ -28,6 +28,7 @@ class TTemplate:public TObject{
         if(hist_dir){
           fTemplatePulse->SetDirectory(hist_dir);
           fErrors->SetDirectory(hist_dir);
+	  //	  fTemplateErrors->SetDirectory(hist_dir);
         }
         curr->cd();
       }
@@ -36,6 +37,8 @@ class TTemplate:public TObject{
       void NormaliseToIntegral();
       void NormaliseToSumSquares();
       TH1* RebinToOriginalSampling();
+
+      //      void CreateTemplateErrorsHist();
 
       double GetPedestal()const;
       double GetTime()const;
@@ -62,6 +65,7 @@ class TTemplate:public TObject{
       std::string fName;
       TH1D *fErrors;
       TH1D *fTemplatePulse;
+      //      TH1D *fTemplateErrors;
    
    ClassDef(TTemplate,1);
 };

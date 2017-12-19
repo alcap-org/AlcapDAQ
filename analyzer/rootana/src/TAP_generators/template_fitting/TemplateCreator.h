@@ -9,8 +9,8 @@ class TH1D;
 
 #include "TAPAlgorithms.h"
 #include "TemplateArchive.h"
-#include "PulseCandidateFinder.h"
-#include "TemplateFitter.h"
+#include "PulseCandidateFinder_TSpectrum.h"
+#include "TemplateMultiFitter.h"
 #include "TTemplate.h"
 #include "InterpolatePulse.h"
 
@@ -22,8 +22,8 @@ class TemplateCreator : public BaseModule{
      int trigger_polarity;
      TTemplate* template_pulse;
 
-     TemplateFitter* fitter;
-     PulseCandidateFinder* pulse_finder;
+     TemplateMultiFitter* fitter;
+     PulseCandidateFinder_TSpectrum* pulse_finder;
      Algorithm::IntegralRatio *integralRatio;
 
      // constructor takes a lot of the effort of initialising the above fields
@@ -72,7 +72,7 @@ class TemplateCreator : public BaseModule{
   /// The factor that we scale the number of bins in the template histogram by
   int fRefineFactor;
 
-  TemplateFitter* fTemplateFitter;
+  TemplateMultiFitter* fTemplateFitter;
 
   modules::options* fOpts; ///< Store the options for use in ProcessEntry
 
@@ -91,7 +91,7 @@ class TemplateCreator : public BaseModule{
   double fIntegralMax, fIntegralMin;
   double fIntegralRatioMax, fIntegralRatioMin;
   int fStartIntegral, fStopIntegral, fStartTail;
-  
+  TH1F* fIntegralRatioHist;
 };
 
 #endif //TEMPLATECREATOR_H_

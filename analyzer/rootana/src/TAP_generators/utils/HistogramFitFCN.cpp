@@ -51,7 +51,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
               << " and time (float part) = " << T_flt << std::endl;
   }
  
-  int half_range = 10*fRefineFactor; // remove a few bins from the fit
+  int half_range = 0*fRefineFactor; // remove a few bins from the fit
   int bounds[2];
   bounds[0] = half_range+1;//std::max(T_int - fTemplateHist->GetNbinsX() / 2, 1);
   bounds[1] = std::min(fTemplateHist->GetNbinsX(), fPulseHist->GetNbinsX()) - half_range-1; //std::min(T_int + fTemplateHist->GetNbinsX() / 2 - 1, fPulseHist->GetNbinsX());
@@ -97,7 +97,7 @@ double HistogramFitFCN::operator() (const std::vector<double>& par) const {
     }
     double hTemplate_bin_error = fTemplateHist->GetBinError(i - T_int);
     //double hPulse_bin_error = fPulseHist->GetBinError(i);
-    chi2 += delta*delta / (A*hTemplate_bin_error*hTemplate_bin_error);
+    chi2 += delta*delta / (A*A*hTemplate_bin_error*hTemplate_bin_error);
     if (print_dbg) {
       std::cout << "Template Error = " << hTemplate_bin_error << ", chi2 (added) = " << delta*delta/(hTemplate_bin_error*hTemplate_bin_error) << ", chi2 (total) = " << chi2 << std::endl;
     }

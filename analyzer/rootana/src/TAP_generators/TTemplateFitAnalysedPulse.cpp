@@ -6,6 +6,8 @@
 #include "Functions.h"
 #include "debug_tools.h"
 
+#include <sstream>
+
 TTemplateFitAnalysedPulse::TTemplateFitAnalysedPulse(
        const IDs::source& sourceID, const TPulseIslandID& parentID, const TPulseIsland* parentTPI):
             TAnalysedPulse(sourceID,parentID,parentTPI),
@@ -15,12 +17,13 @@ TTemplateFitAnalysedPulse::~TTemplateFitAnalysedPulse(){
    //if(fHisto) delete fHisto;
 }
 
-void TTemplateFitAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
+void TTemplateFitAnalysedPulse::Draw(const TH1F* tpi_pulse, int sub_pulse_id, bool subtract_pedestal)const{
    if(tpi_pulse) {
-      std::string name=tpi_pulse->GetName();
-      name+="_templateAP";
-      TH1F* tap_pulse=(TH1F*)GetHisto()->Clone(name.c_str());
-      tap_pulse->SetDirectory(TDirectory::CurrentDirectory());
+     std::stringstream name;
+     name << tpi_pulse->GetName() << "_" << sub_pulse_id << "_templateAP";
+     TH1F* tap_pulse=(TH1F*)GetHisto(subtract_pedestal)->Clone(name.str().c_str());
+     tap_pulse->SetTitle(name.str().c_str());
+     tap_pulse->SetDirectory(TDirectory::CurrentDirectory());
 
       TPaveText* text_b=new TPaveText(0.7,0.60,0.9,0.9,"NB NDC");
       text_b->AddText(Form("#chi^2 = %3.2g",GetChi2()));
@@ -32,35 +35,38 @@ void TTemplateFitAnalysedPulse::Draw(const TH1F* tpi_pulse)const{
       text_b->SetBorderSize(1);
       tap_pulse->GetListOfFunctions()->Add(text_b);
 
-      TH1F* tap_pulse2=NULL;
-      if(fOtherPulse && !fIsPileUpPulse){
-        name+="2";
-        tap_pulse2=(TH1F*)fOtherPulse->GetHisto()->Clone(name.c_str());
-        tap_pulse2->SetDirectory(TDirectory::CurrentDirectory());
-      }
+      //      TH1F* tap_pulse2=NULL;
+      //      if(fOtherPulse && !fIsPileUpPulse){
+      //        name+="2";
+      //        tap_pulse2=(TH1F*)fOtherPulse->GetHisto()->Clone(name.c_str());
+      //        tap_pulse2->SetDirectory(TDirectory::CurrentDirectory());
+      //      }
        
-      //TMarker* marker=new TMarker(GetTime(), GetAmplitude()+GetPedestal()+10, 23);
-      //marker->SetMarkerColor(kRed);
-      //tap_pulse->GetListOfFunctions()->Add(marker);
+      TMarker* marker=new TMarker(GetTime(), GetAmplitude()+GetPedestal()+10, 23);
+      if (subtract_pedestal) {
+	marker->SetY(marker->GetY()-GetPedestal());
+      }
+      marker->SetMarkerColor(kRed);
+      tap_pulse->GetListOfFunctions()->Add(marker);
 
-      //tap_pulse->Write();
+      tap_pulse->Write();
 
-      TH1F* residual=(TH1F*) tpi_pulse->Clone(Form("%s_residual",tpi_pulse->GetName()));
+      TH1F* residual=(TH1F*) tpi_pulse->Clone(Form("%s_residual",tap_pulse->GetName()));
       TH1F* tap_rebinned=(TH1F*) tap_pulse->Rebin(GetTemplate()->GetRefineFactor(),Form("%s_rebin",tap_pulse->GetName()));
       residual->Add(tap_rebinned, -1./GetTemplate()->GetRefineFactor());
-      if(tap_pulse2) {
-        delete tap_rebinned;
-        tap_rebinned=(TH1F*) tap_pulse2->Rebin(GetTemplate()->GetRefineFactor(),Form("%s_rebin",tap_pulse->GetName()));
-        residual->Add(tap_rebinned, -1./GetTemplate()->GetRefineFactor());
-      }
+      //      if(tap_pulse2) {
+      //        delete tap_rebinned;
+      //        tap_rebinned=(TH1F*) tap_pulse2->Rebin(GetTemplate()->GetRefineFactor(),Form("%s_rebin",tap_pulse->GetName()));
+      //        residual->Add(tap_rebinned, -1./GetTemplate()->GetRefineFactor());
+      //      }
       double integral=residual->Integral(5,residual->GetNbinsX()-5);
       text_b->AddText(Form("Total residue = %g",integral));
       delete tap_rebinned;
-      //residual->Write();
+      residual->Write();
    } 
 }
 
-const TH1F* TTemplateFitAnalysedPulse::GetHisto()const{
+const TH1F* TTemplateFitAnalysedPulse::GetHisto(bool subtract_pedestal)const{
       if(fHisto) return fHisto;
 
       std::string name=Form("Pulse_%s_%4lld_%3d_templateAP",
@@ -71,9 +77,13 @@ const TH1F* TTemplateFitAnalysedPulse::GetHisto()const{
       TH1F* tap_pulse=new TH1F(name.c_str(), name.c_str(),num_samples,0,GetTPILength());
       for ( int i=0; i<num_samples; i++){
          double height=GetBinContent(i);
+	 if (subtract_pedestal) {
+	   height -= GetPedestal();
+	 }
          tap_pulse->SetBinContent(i,height);
       }
       tap_pulse->SetDirectory(0);
+      tap_pulse->SetLineColor(kRed);
 
       fHisto=tap_pulse;
       return fHisto;
@@ -82,6 +92,7 @@ const TH1F* TTemplateFitAnalysedPulse::GetHisto()const{
 double TTemplateFitAnalysedPulse::GetBinContent(int bin)const{
       // deduce right bin to look in
       int tpl_bin=GetTime()-GetTemplate()->GetTime()/GetTemplate()->GetRefineFactor()+bin;
+
       // get bin sample
       double sample=GetTemplate()->GetHisto()->GetBinContent(tpl_bin);
       // Set sample in histogram that's to be saved

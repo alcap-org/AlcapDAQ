@@ -12,7 +12,7 @@
 #include "TSetupData.h"
 #include "ModulesOptions.h"
 #include "ModulesNavigator.h"
-#include "PulseCandidateFinder.h"
+#include "PulseCandidateFinder_TSpectrum.h"
 
 class TDirectory;
 class TVAnalysedPulseGenerator;
@@ -35,13 +35,18 @@ class ExportPulse : public BaseModule{
   /// In future this may be moved elsewhere to be used by other modules
   struct PulseInfo_t{
     int pulseID;
+    int subPulseID;
     Long64_t event;
     std::string bankname;
     std::string detname;
     /// Function to convert the details in this struct
     /// into a string used for naming plots
     std::string MakeTPIName()const;
+    std::string MakeTAPName()const;
   };
+
+  enum XAxis {kXAxisError=-1, kSampleNumber=0, kPulseTime=1, kBlockTime=2};
+  enum YAxis {kYAxisError=-1, kNotPedestalSubtracted=0, kPedestalSubtracted=1};
 
  public:
   ExportPulse(modules::options* opts);
@@ -96,10 +101,13 @@ class ExportPulse : public BaseModule{
 
   /// Plot a single TAP
   int PlotTAP(const TAnalysedPulse* pulse, const PulseInfo_t& info)const;
+
+  TH1F* MakeHistTAP(TH1F* tpi_hist, const TAnalysedPulse* pulse, const PulseInfo_t& info)const;
   /// Get a pointer to the list of TPIs for a given detector
   PulseIslandList* GetTPIsFromDetector(std::string bank="");
 
   void SetCurrentPulseID(const TPulseIslandID& id){fPulseInfo.pulseID=id;};
+  void SetCurrentSubPulseID(const int& id){fPulseInfo.subPulseID=id;};
   void SetCurrentEventNumber(const Long64_t& num){fPulseInfo.event=num;};
   void SetCurrentDetectorName(const std::string& detector);
 
@@ -129,15 +137,15 @@ class ExportPulse : public BaseModule{
   const TSetupData* fSetup;
   modules::options* fOptions;
   bool fUsePCF;
-  PulseCandidateFinder* fPulseFinder;
+  PulseCandidateFinder_TSpectrum* fPulseFinder_TSpectrum;
   PulseIslandList fSubPulses;
   TDirectory* fTPIDirectory;
   TDirectory* fTAPDirectory;
 
   TGlobalData* fGlobalData; // To be removed once Phill finishes the event navigator
 
-  bool fSubtractPedestal;
-  bool fUseBlockTime;
+  XAxis fXAxis;
+  YAxis fYAxis;
 
 };
 
@@ -147,12 +155,23 @@ inline ExportPulse* ExportPulse::Instance() {
 
 inline void ExportPulse::AddToExportList(const std::string& detector,TPulseIslandID pulse_id) {
   std::pair<std::string, TPulseIslandID> new_pair(detector, pulse_id);
-  fTPIsToPlot.push_back(new_pair);
+
+  // Check we haven't already added this
+  bool already_added = false;
+  for (ChannelPulseIDs_t::const_iterator i_tpi_to_plot = fTPIsToPlot.begin(); i_tpi_to_plot != fTPIsToPlot.end(); ++i_tpi_to_plot) {
+    if (i_tpi_to_plot->first == new_pair.first && i_tpi_to_plot->second == new_pair.second) {
+      already_added = true;
+      break;
+    }
+  }
+  if (!already_added) {
+    fTPIsToPlot.push_back(new_pair);
+  }
 }
 
 inline void ExportPulse::AddToExportList(const TAnalysedPulse* pulse){
   std::string channel=pulse->GetSource().Channel().str();
-  if(Debug()) std::cout<<"ExportPulse: Asked to draw a TAP for "<<channel<<std::endl;
+  std::cout<<"ExportPulse: Asked to draw a TAP for "<<channel<<std::endl;
 
   std::pair<std::string, const TAnalysedPulse*> new_pair(channel, pulse);
   fTAPsToPlot.push_back(new_pair);
@@ -168,7 +187,7 @@ inline void ExportPulse::SetCurrentDetectorName(const std::string& detector){
   fPulseInfo.bankname=fSetup->GetBankName(detector);
   fClockTick = TSetupData::Instance()->GetClockTick(fPulseInfo.bankname);
   fTimeShift = TSetupData::Instance()->GetTimeShift(fPulseInfo.bankname);
-  if(fPulseFinder) fPulseFinder->SetChannel(detector);
+  if(fPulseFinder_TSpectrum) fPulseFinder_TSpectrum->SetChannel(detector);
 }
 
 #endif // ExportPulse_H__

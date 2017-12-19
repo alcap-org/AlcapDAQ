@@ -44,37 +44,53 @@ void TTemplate::Initialize(int pulseID, TH1D* pulse, TDirectory* dir){
   ++fTotalPulses;
 }
 
-void TTemplate::AddPulse(double x_offset, double y_scale, double y_offset, const TH1D* hPulse){
+void TTemplate::AddPulse(double pulse_time, double pulse_amplitude, double pulse_pedestal, const TH1D* hPulse){
 
   if (fDebug) {
     std::cout << "TTemplate::AddPulse(): # pulses = " << fTotalPulses << std::endl;
   }
 
-  double template_pedestal = fTemplatePulse->GetBinContent(1);
+  // Want to move the pulse to the template
+  double template_pedestal = GetPedestal();
+  double y_offset = template_pedestal - pulse_pedestal;
   double total_error=0;
 
-  // Loop through the pulse histogram
-  for (int iPulseBin = 1; iPulseBin < hPulse->GetNbinsX(); ++iPulseBin) {
+  double template_time = GetTime();
+  double x_offset = template_time - pulse_time;
 
-    // First, get the corrected sample value based on the fitted parameters
-    double uncorrected_value = hPulse->GetBinContent(iPulseBin);
-    double corrected_value = uncorrected_value - y_offset;
-    corrected_value /= y_scale;
-    corrected_value += template_pedestal;
+  double template_amplitude = GetAmplitude();
+  double y_scale = template_amplitude / pulse_amplitude;
+
+  // Loop through the template histogram
+  //  for (int iPulseBin = 1; iPulseBin < hPulse->GetNbinsX(); ++iPulseBin) {
+  for (int iTemplateBin = 1; iTemplateBin <= fTemplatePulse->GetNbinsX(); ++iTemplateBin) {
 
     // Get the corrected bin number based on the fitted time offset We add 0.5
     // so that we round to the nearest integer and then subtract time offset
     // because this value might not want to go directly into the template
-    int bin_number = iPulseBin + 0.5 - x_offset; 
+    int iPulseBin = iTemplateBin + 0.5 - x_offset; 
 
-    // Only change the bin contents of bins within the range of the template histogram
-    if (bin_number < 1 || bin_number > fTemplatePulse->GetNbinsX()) {
-      continue;
+    // If we are outside of the bounds of the pulse we are adding,
+    // assume that the uncorrected value is the same as the pulse's pedestal
+    double uncorrected_value;
+    if (iPulseBin < 1 || iPulseBin > hPulse->GetNbinsX()) {
+      uncorrected_value = pulse_pedestal;
+      //      continue;
+    }
+    else {
+      uncorrected_value = hPulse->GetBinContent(iPulseBin);
     }
 
+
+    // First, get the corrected sample value based on the fitted parameters
+    double corrected_value = uncorrected_value + y_offset - template_pedestal; // want to scale the amplitude which is defined relative to the tempalte pedestal
+    corrected_value *= y_scale;
+    corrected_value += template_pedestal; // add it back because we want to find the template pedestal
+    //    std::cout << "Corrected = " << y_scale << "*(" << uncorrected_value << " + " << y_offset << " - " << template_pedestal << ") + " << template_pedestal << " = " << corrected_value << std::endl;
+
     // Store the old bin content and error for later
-    double old_bin_content = fTemplatePulse->GetBinContent(bin_number);
-    double old_bin_error = fTemplatePulse->GetBinError(bin_number);
+    double old_bin_content = fTemplatePulse->GetBinContent(iTemplateBin);
+    double old_bin_error = fTemplatePulse->GetBinError(iTemplateBin);
 
     // Calculate the new bin content...
     double new_bin_content = fTotalPulses * old_bin_content + corrected_value;
@@ -89,15 +105,15 @@ void TTemplate::AddPulse(double x_offset, double y_scale, double y_offset, const
     total_error+=new_bin_error;
 
     if (fDebug) {
-      cout << "TemplateCreator::AddPulseToTemplate(): Bin #" << bin_number 
+      cout << "TTemplate::AddPulse(): Template Bin #" << iTemplateBin << " Pulse Bin #" << iPulseBin
            << ": Corrected Sample Value = " << corrected_value << endl
     	   << "\t\t\tOld Value (Error) = " << old_bin_content << "(" << old_bin_error << ")" << endl
     	   << "\t\t\tNew Value (Error) = " << new_bin_content << "(" << new_bin_error << ")" << endl;
     }
 
     // Set the new bin content and error of the template
-    fTemplatePulse->SetBinContent(bin_number, new_bin_content);
-    fTemplatePulse->SetBinError(bin_number, new_bin_error);
+    fTemplatePulse->SetBinContent(iTemplateBin, new_bin_content);
+    fTemplatePulse->SetBinError(iTemplateBin, new_bin_error);
   }
 
   // increment the total number of pulses
@@ -131,6 +147,17 @@ bool TTemplate::CheckConverged(){
   return fConverged;
 }
 
+/*void TTemplate::CreateTemplateErrorsHist() {
+  std::string histname = fTemplatePulse->GetName();
+  histname += "_errors";
+  fTemplateErrors = (TH1D*) fTemplatePulse->Clone(histname.c_str());
+
+  for (int i_bin = 1; i_bin <= fTemplatePulse->GetNbinsX(); ++i_bin) {
+    double error = fTemplatePulse->GetBinError(i_bin);
+    fTemplateErrors->SetBinContent(i_bin, error);
+  }
+}
+*/
 void TTemplate::NormaliseToAmplitude(){
     if(!fTemplatePulse) return;
     fTemplatePulse->SetBit(TH1::kIsAverage);
@@ -192,13 +219,24 @@ void TTemplate::ScaleHist(double factor){
       double old_value = fTemplatePulse->GetBinContent(iBin);
       double new_value = old_value * factor;
 
+      double old_error = fTemplatePulse->GetBinError(iBin);
+      double new_error = old_error * factor;
+
       fTemplatePulse->SetBinContent(iBin, new_value);
+      fTemplatePulse->SetBinError(iBin, new_error);
     }
 }
 
 
 double TTemplate::GetPedestal()const{
-  return fTemplatePulse->GetBinContent(1);
+    int n_bins_for_template_pedestal = 5;
+    double total = 0;
+    for (int iBin = 1; iBin <= n_bins_for_template_pedestal; ++iBin) {
+      total += fTemplatePulse->GetBinContent(iBin);
+    }
+    double template_pedestal = total / n_bins_for_template_pedestal;
+
+    return template_pedestal;
 }
 
 double TTemplate::GetTime()const{

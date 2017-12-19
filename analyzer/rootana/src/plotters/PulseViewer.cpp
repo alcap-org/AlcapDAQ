@@ -176,13 +176,17 @@ int PulseViewer::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
     // Check each TAP against trigger
     int retVal=0;
+    std::cout << "AE (PulseViewer): N TAPs = " << allTAPs->size() << std::endl;
     for(AnalysedPulseList::iterator i_pulse=allTAPs->begin();
 		i_pulse!=allTAPs->end() && retVal==0;
 		i_pulse++){
             if(fEvent==0){
                 retVal=TestPulseType(*i_pulse);
             }
-	    retVal=ConsiderDrawing((*i_pulse)->GetParentID() ,*i_pulse);
+
+	    //	    retVal=ConsiderDrawing((*i_pulse)->GetParentID(),*i_pulse);
+	    retVal=ConsiderDrawing(i_pulse - allTAPs->begin(),*i_pulse);
+	    
     }
     if(retVal!=0) return retVal;
 
@@ -272,20 +276,22 @@ int PulseViewer::ConsiderDrawing(const TAnalysedPulseID& id, const TAnalysedPuls
     }
     fFormula->SetParameters(vals);
     double value=fFormula->Eval(0);
+    TPulseIslandID tpi_id = pulse->GetParentID();
   if(!value) return 0;
-  if(Debug()){
+  //  if(Debug()){
     cout<<"PulseViewer: Event: "<<EventNavigator::Instance().EntryNo()
-        <<" Plotting pulse "<<id<<" [ "<<fTriggerCondition<<" => "<<fFormula->GetExpFormula("P")<<" ]"<<endl;
-  }
+        <<" Plotting pulse "<<tpi_id<<" (TAP ID = " << id << ") [ "<<fTriggerCondition<<" => "<<fFormula->GetExpFormula("P")<<" ]"<<endl;
+    //  }
   
   // If it does, ask ExportPulse to draw it
   // We're safe to assume Instance will return becuase we test it's
   // existence in BeforeFirstEntry
-  if(fPulsesPlotted[EventNavigator::Instance().EntryNo()].count(id)==0){
+  //  if(fPulsesPlotted[EventNavigator::Instance().EntryNo()].count(id)==0){
       ExportPulse::Instance()->AddToExportList(pulse);
       fTotalPlotted++;
-  }
-  fPulsesPlotted[EventNavigator::Instance().EntryNo()][id]++;
+      //  }
+      int sub_pulses_plotted = fPulsesPlotted[EventNavigator::Instance().EntryNo()][tpi_id].size();
+      fPulsesPlotted[EventNavigator::Instance().EntryNo()][tpi_id].push_back(sub_pulses_plotted);
   return 0;
 }
 
@@ -303,7 +309,15 @@ int PulseViewer::AfterLastEntry(TGlobalData* gData, const TSetupData* setup){
               cout<<prefix<<std::setw(6)<< i_event->first<<" | ";
               for(PulseIDList_t::const_iterator i_pulse=i_event->second.begin();
                       i_pulse!=i_event->second.end();i_pulse++){
-                  cout<<std::setw(2)<< i_pulse->first <<"("<< i_pulse->second<<")" <<", ";
+		cout<<std::setw(2)<< i_pulse->first <<"(";
+		for (std::vector<TAnalysedPulseID>::const_iterator i_sub_pulse = i_pulse->second.begin(); 
+		     i_sub_pulse!=i_pulse->second.end();++i_sub_pulse) {
+		  cout<<(*i_sub_pulse);
+		  if (i_sub_pulse != i_pulse->second.end()-1) {
+		    cout<< ", ";
+		  }
+		}
+		cout << ")" <<", ";
               }
               cout<<endl;
           }

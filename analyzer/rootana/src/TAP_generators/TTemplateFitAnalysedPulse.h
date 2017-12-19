@@ -37,7 +37,7 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         /// @name Histogram_getters
         /// @{
         double GetBinContent(int i)const;
-        const TH1F* GetHisto()const;
+        const TH1F* GetHisto(bool subtract_pedestal)const;
         const TH1F* GetResidual()const{return fResidual;}
         /// @}
 
@@ -66,7 +66,7 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         using TAnalysedPulse::SetTime;
 
         /// @@brief overload the TAnalysedPulse::Draw method
-        virtual void Draw(const TH1F* tpi_pulse)const;
+        virtual void Draw(const TH1F* tpi_pulse, int sub_pulse_id, bool subtract_pedestal)const;
 
     private:
         int fStatus;
