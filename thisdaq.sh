@@ -1,9 +1,13 @@
 #!/bin/bash
 
 DAQdir=$(dirname ${BASH_SOURCE[0]} | xargs readlink -e)
-
+hostname=`hostname`
+domainname=`hostname -d`
 if [ -f $DAQdir/root-install/bin/thisroot.sh ] ;then
-	. $DAQdir/root-install/bin/thisroot.sh
+    . $DAQdir/root-install/bin/thisroot.sh
+elif [ "$domainname" == "bu.edu" ]; then
+#    echo "On BU machine...adding ROOT with the module command"
+    module add root
 else
 	echo "Check you've got root set up properly on this machine"
 fi

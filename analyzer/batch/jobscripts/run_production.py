@@ -1,7 +1,8 @@
 #!/usr/bin/python
 import DBManager
 import RunManager
-import merlin_utils as mu
+#import merlin_utils as mu
+import mu2e_bu_utils as mu
 import ScreenManager
 from AlCapExceptions import *
 
@@ -15,7 +16,7 @@ _ROOTANA  = "rootana"
 _PROGRAMS = [_ALCAPANA, _ROOTANA]
 _DATASETS = ["Al100", "Al50awithoutNDet2", "Al50awithNDet2", "Al50b", "SiR2",
              "SiR21pct", "SiR23pct", "Si16P", "Si16b",
-             "Eu152", "Co60", "Am241", "Y88", "Si16a", "Ti50"]
+             "Eu152", "Co60", "Am241", "Y88", "Si16a", "Ti50", "SiL3"]
 
 def usage():
     print "Usage: ./run_production --production=PROD_TYPE [optional arguments...]"
@@ -68,13 +69,16 @@ def usage():
     print "    --tranche=#       Only process tranch number # for the given datasets."
     print "                      Multiple can be specified with multiple --tranche=#."
     print "                      (Default: all tranches)"
+    print "    --calibdatabase=DB SQLite3 database to use for calibration constants. If it doesn't"
+    print "                      exist, it will be created."
+    print "                      (Default: ~/data/calibration.db)"
 
 
 ################################################################################
 # Argument parsing #############################################################
 ################################################################################
 short_args = "h"
-long_args = ["usage", "help", "production=", "version=", "new=", "pause=", "nproc=", "nprep=", "spacelim=", "display", "modules=", "dataset=", "database=", "calib", "tranche="]
+long_args = ["usage", "help", "production=", "version=", "new=", "pause=", "nproc=", "nprep=", "spacelim=", "display", "modules=", "dataset=", "database=", "calib", "tranche=", "calibdatabase="]
 opts, unrecognized = getopt.getopt(sys.argv[1:], short_args, long_args)
 
 # Default arguments
@@ -92,6 +96,7 @@ datasets = []
 database = mu.DATAdir + "/production.db"
 calib = False
 tranches = []
+calibdatabase = mu.DATAdir + "/calibration.db"
 
 # Parse arguments
 for opt, val in opts:
@@ -125,6 +130,8 @@ for opt, val in opts:
         calib = True
     elif opt == "--tranche":
         tranches.append(val)
+    elif opt == "--calibdatabase":
+        calibdatabase = val
 
 # Argument checking
 if len(unrecognized) > 0:
@@ -183,7 +190,7 @@ if new:
 elif not version:
     version = dbman.GetRecentProductionVersionNumber()
     screenman.Message("INFO: Most recent production version " + str(version))
-runman = RunManager.RunManager(production, version, screenman, modules, database, datasets, calib, tranches)
+runman = RunManager.RunManager(production, version, screenman, modules, database, datasets, calib, tranches, calibdatabase)
 
 
 screenman.SetProgram(production)

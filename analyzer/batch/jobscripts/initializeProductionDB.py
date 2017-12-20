@@ -20,7 +20,8 @@ datasets = { 'Al100' : [ irange(9410, 9412),   irange(9494, 9505),
              'Eu152' : [ [9282], irange(9301, 9302), irange(9683, 9686) ],
              'Co60'  : [ irange(9283, 9284) ],
              'Am241' : [ irange(10482, 10493), irange(10495, 10510) ],
-             'Y88'   : [ irange(10320, 10322) ]
+             'Y88'   : [ irange(10320, 10322) ],
+             'SiL3'  : [ irange(9039, 9066) ]
 }
 #rated gold is by default, just keep adding if we want to downgrade runs
 quality = {
@@ -39,7 +40,8 @@ geometry = { 'Al100' : 'P2',
              'Eu152' : 'P6',
              'Co60'  : 'P6',
              'Am241' : 'P6',
-             'Y88'   : 'P6'
+             'Y88'   : 'P6',
+             'SiL3'  : 'P1'
 }
 
 db = sqlite3.connect("productionR15b.db")

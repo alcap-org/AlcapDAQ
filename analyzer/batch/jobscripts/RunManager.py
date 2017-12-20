@@ -1,4 +1,5 @@
-import merlin_utils as mu
+#import merlin_utils as mu
+import mu2e_bu_utils as mu
 import DBManager
 import SGEJob
 import ScreenManager
@@ -46,7 +47,7 @@ class RunManager:
     #  \param[in] prog A string indicating the production type
     #  ("alcapana" or "rootana").
     #  \param[in] ver An integer representing the version number.
-    def __init__(self, prod, ver, screenman, modules, database, datasets, calib, tranches):
+    def __init__(self, prod, ver, screenman, modules, database, datasets, calib, tranches, calibdatabase):
         self.screenman = screenman
         if prod not in _PROGRAMS:
             raise UnknownProductionError(prod)
@@ -56,6 +57,7 @@ class RunManager:
         self.datasets = datasets
         self.calib = calib
         self.tranches = tranches
+        self.calibdatabase = calibdatabase
         self.dbm = DBManager.DBManager(prod, ver, screenman, database)
         self.n_runs = 0
         self.n_downloaded = 0
@@ -153,7 +155,7 @@ class RunManager:
             infile = None
             if self.prod == _ROOTANA:
                 infile = self.dbm.GetRootanaInputFile(run)
-            job = mu.submit_job(run, self.prod, infile, self.mods, self.calib)
+            job = mu.submit_job(run, self.prod, infile, self.mods, self.calib, self.calibdatabase)
             self.to_finish.append(self.to_submit.pop(0))
             self.dbm.RegisterRunStart(run)
             return [run, job]
