@@ -32,8 +32,8 @@ PlotTAP_TDiff::PlotTAP_TDiff(modules::options* opts) :
   fUseHighAmpBinCut(opts->GetBool("use_high_amp_bin_cut", false)){
   if (fDetNameA == std::string("") || fDetNameB == std::string(""))
     throw Except::ModulesOptionError("Two detectors must be provided");
-   else if (fExportSQL && fDetNameB != "SiT-1-F")
-     throw Except::ModulesOptionError("If exporting to calibration DB, second detector must be SiT-1-F");
+  else if (fExportSQL && (fDetNameB != "SiT-1-S" && fDetNameB != "muSc"))
+     throw Except::ModulesOptionError("If exporting to calibration DB, second detector must be SiT-1-S or muSc");
 }
 
 PlotTAP_TDiff::~PlotTAP_TDiff() {
@@ -123,12 +123,13 @@ int PlotTAP_TDiff::AfterLastEntry(TGlobalData* gData,const TSetupData *setup){
 	std::string histname = hHist->GetName();
 	histname += "_highAmpBinCut";
 
-	h = hHist->ProjectionX(histname.c_str(), 1, last_filled_bin-1);
+	int n_bins_to_remove = 50;
+	h = hHist->ProjectionX(histname.c_str(), 1, last_filled_bin-n_bins_to_remove);
       }
 
       int binMax = h->GetMaximumBin();
       int maxPoint = h->GetXaxis()->GetBinCenter(binMax);
-      int window_size = 500;
+      int window_size = 4*h->GetXaxis()->GetBinWidth(1);//500;
 
       TF1 * fitter = new TF1("fitter", "gaus", maxPoint - window_size/2, maxPoint + window_size/2);
       fitter->SetParameter(1, maxPoint);
