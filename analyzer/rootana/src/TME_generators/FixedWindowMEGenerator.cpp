@@ -13,16 +13,16 @@ FixedWindowMEGenerator::FixedWindowMEGenerator(TMEGeneratorOptions* opts):
 	TVMuonEventGenerator("FixedWindow",opts),fInit(true){
         fEventWindow=opts->GetDouble("event_window",1e4);
 	fCentralMuonEnergyCut=opts->GetDouble("central_muon_energy_cut");
+	opts->GetVectorStringsByDelimiter("muon_channels",fMuonChannels, " : ");
 }
 
 int FixedWindowMEGenerator::Init(const SourceDetPulseMap& detectorPulsesIn){
 
   // Define our muon counters
   std::vector<IDs::channel> muon_counters;
-  muon_counters.push_back(IDs::channel(IDs::kSiT_1));
-  muon_counters.push_back(IDs::channel(IDs::kSiT_2));
-  muon_counters.push_back(IDs::channel(IDs::kSiT_3));
-  muon_counters.push_back(IDs::channel(IDs::kSiT_4));
+  for (std::vector<std::string>::const_iterator i_name = fMuonChannels.begin(); i_name != fMuonChannels.end(); ++i_name) {
+    muon_counters.push_back(IDs::channel(*i_name));
+  }
 
   // Loop through the "sources" (channel + generator(?)) and get the sources corresponding to our muon counters
   for(SourceDetPulseMap::const_iterator i_source=detectorPulsesIn.begin();
@@ -79,8 +79,12 @@ int FixedWindowMEGenerator::ProcessPulses(MuonEventList& muonEventsOut,
       // Loop over all the "muons" (actually pulses) in this muon counter pulse list
       for(DetectorPulseList::const_iterator i_muons=(*i_mu_counter).pulses->begin();
 	  i_muons!=(*i_mu_counter).pulses->end(); ++i_muons){
-
-	if ((*i_muons)->GetEnergy() < fCentralMuonEnergyCut) {
+	double muon_energy = (*i_muons)->GetEnergy();
+	if (muon_energy < 0) {
+	  // could be doing muSc which doesn't have a calibration
+	  muon_energy = (*i_muons)->GetAmplitude();
+	}
+	if (muon_energy < fCentralMuonEnergyCut) {
 	  continue;
 	}
 

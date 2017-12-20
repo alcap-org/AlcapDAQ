@@ -32,6 +32,7 @@ TMETree::~TMETree(){
 
 int TMETree::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     using namespace IDs;
+    fAllDets.push_back(IDs::channel (kMuSc , kNotApplicable ));
     fAllDets.push_back(IDs::channel (kSiT_1 , kNotApplicable ));
     fAllDets.push_back(IDs::channel (kSiT_2 , kNotApplicable ));
     fAllDets.push_back(IDs::channel (kSiT_3 , kNotApplicable ));

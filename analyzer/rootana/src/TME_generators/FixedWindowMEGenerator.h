@@ -46,6 +46,7 @@ class FixedWindowMEGenerator:public TVMuonEventGenerator {
     private:
 	bool fInit;
         double fEventWindow;
+	std::vector<std::string> fMuonChannels;
         SourceList fMuonCounters;
         SourceList fOtherDetectors;
 
