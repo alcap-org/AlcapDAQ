@@ -1,6 +1,10 @@
 #ifndef AlCapConstants_h_
 #define AlCapConstants_h_
 
+#include <string>
+
+const int n_muSc_channels = 1;
+
 const int n_SiT_channels = 4;
 std::string all_SiT_channel_names[n_SiT_channels] = {"SiT_1", "SiT_2", "SiT_3", "SiT_4"};
 
@@ -25,7 +29,10 @@ std::string all_GeLoGain_channel_names[n_GeLoGain_channels] = {"GeLoGain"};
 const int n_GeHiGain_channels = 1;
 std::string all_GeHiGain_channel_names[n_GeHiGain_channels] = {"GeHiGain"};
 
-const int n_all_channels = n_SiT_channels + n_SiL1_channels + n_SiL3_channels + n_SiR1_channels + n_SiR2_channels + n_SiR3_channels + n_GeLoGain_channels + n_GeHiGain_channels;
+const int n_all_channels = n_muSc_channels + n_SiT_channels + n_SiL1_channels +
+                           n_SiL3_channels + n_SiR1_channels + n_SiR2_channels +
+                           n_SiR3_channels + n_GeLoGain_channels +
+                           n_GeHiGain_channels;
 std::string all_channel_names[n_all_channels];
 
 #endif
