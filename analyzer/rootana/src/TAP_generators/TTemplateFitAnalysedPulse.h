@@ -15,7 +15,7 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         /// @details Same signature as for TAnalysedPulse so that MakeNewTAP can
         /// create these specialised TAPs
         TTemplateFitAnalysedPulse(const IDs::source& sourceID,
-                const TPulseIslandID& parentID, const TPulseIsland* parentTPI);
+				  const TPulseIslandID& parentID, const TAnalysedPulseID& tapID, const TPulseIsland* parentTPI);
 
         // defined in .cpp file to force vtable to be built
         virtual ~TTemplateFitAnalysedPulse();
@@ -40,6 +40,9 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         const TH1F* GetHisto(bool subtract_pedestal)const;
         const TH1F* GetResidual()const{return fResidual;}
         /// @}
+
+	double GetTemplateTimeOffset() const { return fTemplateTimeOffset; }
+	void SetTemplateTimeOffset(double val) { fTemplateTimeOffset = val; }
 
         /// @name Setters
         /// Set both the value and error for each field
@@ -72,7 +75,8 @@ class TTemplateFitAnalysedPulse:public TAnalysedPulse{
         int fStatus;
         double fChi2, fNDoF;
         double fIntegralRatio;
-        double fTimeErr, fAmplitudeErr, fPedestalErr; 
+        double fTimeErr, fAmplitudeErr, fPedestalErr;
+	double fTemplateTimeOffset;
         TRef fTemplate;
         const TH1F* fResidual; //!
         mutable const TH1F* fHisto; //!

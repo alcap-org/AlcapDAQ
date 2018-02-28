@@ -11,8 +11,8 @@ TTemplateConvolveAnalysedPulse::TTemplateConvolveAnalysedPulse():TAnalysedPulse(
       fNPeaks(0), fPeakRank(0), fIntegralRatio(0){}
 
 TTemplateConvolveAnalysedPulse::TTemplateConvolveAnalysedPulse(
-       const IDs::source& sourceID, const TPulseIslandID& parentID, const TPulseIsland* parentTPI):
-            TAnalysedPulse(sourceID,parentID,parentTPI),
+					const IDs::source& sourceID, const TPulseIslandID& parentID, const TAnalysedPulseID& tapID, const TPulseIsland* parentTPI):
+  TAnalysedPulse(sourceID,parentID,tapID,parentTPI),
       fNPeaks(0), fPeakRank(0), fIntegralRatio(0)
 {}
 

@@ -59,7 +59,7 @@ int IntegralRatioAPGenerator::ProcessPulses(
         // Now that we've found the information we were looking for make a TAP to
         // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
         // the index of the parent TPI in the container as an argument
-        tap = MakeNewTAP<TIntegralRatioAnalysedPulse>(tpi-pulseList.begin());
+        tap = MakeNewTAP<TIntegralRatioAnalysedPulse>(tpi-pulseList.begin(), 0);
         tap->SetIntegral(fIntegralRatioAlgo.GetTotal());
         tap->SetIntegralSmall(fIntegralRatioAlgo.GetTail());
         tap->SetIntegralRatio(fIntegralRatioAlgo.GetRatio());

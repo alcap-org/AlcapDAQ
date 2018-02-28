@@ -8,9 +8,8 @@
 
 #include <sstream>
 
-TTemplateFitAnalysedPulse::TTemplateFitAnalysedPulse(
-       const IDs::source& sourceID, const TPulseIslandID& parentID, const TPulseIsland* parentTPI):
-            TAnalysedPulse(sourceID,parentID,parentTPI),
+TTemplateFitAnalysedPulse::TTemplateFitAnalysedPulse(const IDs::source& sourceID, const TPulseIslandID& parentID, const TAnalysedPulseID& tapID, const TPulseIsland* parentTPI):
+  TAnalysedPulse(sourceID,parentID,tapID,parentTPI),
              fResidual(NULL), fHisto(NULL),fIsPileUpPulse(false),fOtherPulse(NULL){}
 
 TTemplateFitAnalysedPulse::~TTemplateFitAnalysedPulse(){

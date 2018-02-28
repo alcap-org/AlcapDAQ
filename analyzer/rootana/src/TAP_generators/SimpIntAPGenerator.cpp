@@ -25,7 +25,7 @@ int SimpIntAPGenerator::ProcessPulses(
       //      energy = fECalibSlope* integral + fECalibOffset;
       double integral = fSimpleIntegral(*pIt);
 
-      outPulse=MakeNewTAP(pIt-pulseList.begin());
+      outPulse=MakeNewTAP(pIt-pulseList.begin(), 0);
       outPulse->SetIntegral(integral);
       //      outPulse->SetEnergy(energy);
       // Add the pulse to the TAP list

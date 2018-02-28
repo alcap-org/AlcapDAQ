@@ -86,7 +86,7 @@ int TemplateConvolveAPGenerator::ProcessPulses(
     
        // Make a new TAP to store the data.  This method makes a TAP and sets the parent TPI info.  It needs
        // the index of the parent TPI in the container as an argument
-       tap = MakeNewTAP<TTemplateConvolveAnalysedPulse>(tpi-pulseList.begin());
+      tap = MakeNewTAP<TTemplateConvolveAnalysedPulse>(tpi-pulseList.begin(), 0);
        if(fIntegralRatio){
          tap->SetIntegral(integral);
          tap->SetIntegralRatio(ratio);

@@ -9,6 +9,8 @@
 #include "SetupNavigator.h"
 #include "EventNavigator.h"
 
+#include "TTemplateFitAnalysedPulse.h"
+
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TCanvas.h>
@@ -118,8 +120,9 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
     for(DetectorList::const_iterator i_det=fAllDets.begin(); i_det!=fAllDets.end(); ++i_det){
 
       const std::string& i_detname = i_det->str();
-      std::vector<int>& tpis_seen = fTPIsSeen[i_detname];
-      std::vector<int>& tpis_doubleCounted = fTPIsDoubleCounted[i_detname];
+      std::vector<std::pair<int,int> >& tpis_seen = fTPIsSeen[i_detname];
+      std::vector<std::pair<int,int> >& tpis_doubleCounted = fTPIsDoubleCounted[i_detname];
+      //      std::vector<int>& taps_cutOff = fTAPsCutOff[i_detname];
 
       int i_det_source_index=(*i_tme)->GetFirstSourceIndex(*i_det); // I shouldn't have more than one source
       if (i_det_source_index<0) {
@@ -132,26 +135,37 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
       for(int i=0; i<n_pulses_i_det; ++i){ 
 	const TDetectorPulse* tdp=(*i_tme)->GetPulse(i_det_source,i);
 	int this_tpi_id = tdp->GetTAP(TDetectorPulse::kSlow)->GetParentID();
+	int this_tap_id = tdp->GetTAP(TDetectorPulse::kSlow)->GetTAPID();
 
 	// Check to see if this TPI has already been used in another TME
 	// go in reverse since it is more likely to be immediately previously
 	bool seen_before = false;
-	for (std::vector<int>::const_reverse_iterator i_tpi_id = tpis_seen.rbegin(); i_tpi_id != tpis_seen.rend(); ++i_tpi_id) { 
-	  if (*i_tpi_id == this_tpi_id) {
+	for (std::vector<std::pair<int,int> >::const_reverse_iterator i_tpi_id = tpis_seen.rbegin(); i_tpi_id != tpis_seen.rend(); ++i_tpi_id) { 
+	  if ((*i_tpi_id).first == this_tpi_id && (*i_tpi_id).second == this_tap_id) {
 	    // This TPI has been seen before
 	    seen_before = true;
 	    tpis_doubleCounted.push_back(*i_tpi_id);
 	    break;
 	  }
-	  else if ( *i_tpi_id < this_tpi_id) {
+	  else if ( (*i_tpi_id).first < this_tpi_id) {
 	    // tpi ids will be inserted in order and so we can break from this loop since we know we won't find it
 	    break; // from for loop
 	  }
 	}
 	if ( !seen_before ) {
 	  // not seen this before so put it in the vector
-	  tpis_seen.push_back(this_tpi_id);
+	  tpis_seen.push_back(std::pair<int,int>(this_tpi_id, this_tap_id));
 	}
+
+	// Check to see if this is a "cut-off" pulse
+	/*	const TAnalysedPulse* tap = tdp->GetTAP(TDetectorPulse::kSlow);
+	if (dynamic_cast<const TTemplateFitAnalysedPulse*>(tap)) {
+	  const TTemplateFitAnalysedPulse* tf_pulse =static_cast<const TTemplateFitAnalysedPulse*>(tap);
+	  if (tf_pulse->GetTemplateTimeOffset() > 3900) {
+	    taps_cutOff.push_back(this_tpi_id);
+	  }
+	}
+	*/
       }
     }
   }
@@ -185,7 +199,8 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
       std::vector<SimplePulse>& i_pulse_list = fChannels[i_detname];
       i_pulse_list.clear();
 
-      std::vector<int>& tpis_doubleCounted = fTPIsDoubleCounted[i_detname];
+      std::vector<std::pair<int,int> >& tpis_doubleCounted = fTPIsDoubleCounted[i_detname];
+      //      std::vector<int>& taps_cutOff = fTAPsCutOff[i_detname];
       
       int i_det_source_index=(*i_tme)->GetFirstSourceIndex(*i_det); // I shouldn't have more than one source
       if (i_det_source_index<0) {
@@ -198,14 +213,20 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
       for(int i=0; i<n_pulses_i_det; ++i){ 
 	const TDetectorPulse* tdp=(*i_tme)->GetPulse(i_det_source,i);
 
-	SimplePulse pulse(tdp->GetTAP(TDetectorPulse::kSlow)->GetParentID(), tdp->GetEnergy(), tdp->GetAmplitude(), tdp->GetTime(), tdp->GetTime() - fCentralMuonTime, 0);
+	SimplePulse pulse(tdp->GetTAP(TDetectorPulse::kSlow)->GetParentID(), tdp->GetTAP(TDetectorPulse::kSlow)->GetTAPID(), tdp->GetEnergy(), tdp->GetAmplitude(), tdp->GetTime(), tdp->GetTime() - fCentralMuonTime, 0);
 
-	for (std::vector<int>::const_iterator i_tpi_doubleCounted = tpis_doubleCounted.begin(); i_tpi_doubleCounted != tpis_doubleCounted.end(); ++i_tpi_doubleCounted) {
-	  if ( pulse.tpi_id == *i_tpi_doubleCounted) {
+	for (std::vector<std::pair<int,int> >::const_iterator i_tpi_doubleCounted = tpis_doubleCounted.begin(); i_tpi_doubleCounted != tpis_doubleCounted.end(); ++i_tpi_doubleCounted) {
+	  if ( pulse.tpi_id == (*i_tpi_doubleCounted).first && pulse.tap_id == (*i_tpi_doubleCounted).second) {
 	    pulse.bit_mask |= kDoubleCounted;
 	    fAnyDoubleCountedPulses = true;
 	  }
 	}
+	//	for (std::vector<int>::const_iterator i_tap_cutOff = taps_cutOff.begin(); i_tap_cutOff != taps_cutOff.end(); ++i_tap_cutOff) {
+	//	  if ( pulse.tpi_id == *i_tap_cutOff) {
+	//	    pulse.bit_mask |= kCutOff;
+	//	  }
+	//	}
+
 	// can check for other things here
 	// and then if there's nothing on it, set it to OK
 	if (pulse.bit_mask == 0) {
@@ -244,18 +265,19 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
     std::vector<SimplePulse>& i_nontme_pulse_list = fChannels_NonTME[i_detname];
     i_nontme_pulse_list.clear();
-    std::vector<int>& tpis_seen = fTPIsSeen[i_detname];
+    std::vector<std::pair<int,int> >& tpis_seen = fTPIsSeen[i_detname];
 
     //    std::cout << i_tdp_list << std::endl;
     for (DetectorPulseList::const_iterator i_tdp = i_tdp_list.begin(); i_tdp != i_tdp_list.end(); ++i_tdp) {
       int i_tpi_id = (*i_tdp)->GetTAP(TDetectorPulse::kSlow)->GetParentID();
+      int i_tap_id = (*i_tdp)->GetTAP(TDetectorPulse::kSlow)->GetTAPID();
 
       bool seen = false;
       //      std::cout << "Looking for " << i_detname << " TPI ID = " << i_tpi_id << std::endl;
       //      std::cout << "Checking... ";
-      for (std::vector<int>::const_iterator i_tpi_seen = tpis_seen.begin(); i_tpi_seen != tpis_seen.end(); ++i_tpi_seen) {
+      for (std::vector<std::pair<int,int> >::const_iterator i_tpi_seen = tpis_seen.begin(); i_tpi_seen != tpis_seen.end(); ++i_tpi_seen) {
 	//	std::cout << *i_tpi_seen << ", ";
-	if (*i_tpi_seen == i_tpi_id) {
+	if ((*i_tpi_seen).first == i_tpi_id && (*i_tpi_seen).second == i_tap_id) {
 	  //	  std::cout << " Found!" << std::endl;
 	  seen = true;
 	  break;
@@ -264,7 +286,7 @@ int TMETree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
       if (!seen) {
 	//	std::cout << "Not found! Pushing back..." << std::endl;
-	SimplePulse pulse(i_tpi_id, (*i_tdp)->GetEnergy(), (*i_tdp)->GetAmplitude(), (*i_tdp)->GetTime(), 0, 0);
+	SimplePulse pulse(i_tpi_id, (*i_tdp)->GetTAP(TDetectorPulse::kSlow)->GetTAPID(), (*i_tdp)->GetEnergy(), (*i_tdp)->GetAmplitude(), (*i_tdp)->GetTime(), 0, 0);
 	i_nontme_pulse_list.push_back(pulse);
       }
     }
