@@ -5,6 +5,7 @@
 #include "TLegend.h"
 
 #include <iostream>
+#include <vector>
 
 ////////////////////////////////////////////////////////////////////////////////
 // USER DEFINED VARIABLE
@@ -28,7 +29,8 @@ static const char IFNAME_PSEL[] = "~/data/R15b/pselal50.root";
 ////////////////////////////////////////////////////////////////////////////////
 
 
-vector<ParticleLikelihood> pls_l, pls_r;
+vector<ParticleLikelihoodData> pls_l, pls_r;
+// vector<ParticleLikelihoodMC> pls_l, pls_r;
 // Proton, deuteron, triton, alpha; right, left
 Double_t pfcn_l(Double_t* x, Double_t* par) { return pls_l[0](x[1], x[0]); }
 Double_t pfcn_r(Double_t* x, Double_t* par) { return pls_r[0](x[1], x[0]); }
@@ -45,8 +47,10 @@ void init_fcns() {
   if (init) return;
   init = true;
 
-  pls_l = LoadParticleLikelihoods('L');
-  pls_r = LoadParticleLikelihoods('R');
+  pls_l = LoadParticleLikelihoodsData('L');
+  pls_r = LoadParticleLikelihoodsData('R');
+  // pls_l = LoadParticleLikelihoodsMC('L');
+  // pls_r = LoadParticleLikelihoodsMC('R');
   fpl = new TF2("fpl", pfcn_l, 0., 20.e3, 0., 10.e3);
   fpr = new TF2("fpr", pfcn_r, 0., 20.e3, 0., 10.e3);
   fdl = new TF2("fdl", dfcn_l, 0., 20.e3, 0., 10.e3);
@@ -86,6 +90,8 @@ void init_hists() {
   TH1::SetDefaultSumw2();
   init_fcns();
 
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
+
   hpl = pls_l[0].GetHist();
   hpr = pls_r[0].GetHist();
   hdl = pls_l[1].GetHist();
@@ -94,15 +100,6 @@ void init_hists() {
   htr = pls_r[2].GetHist();
   hal = pls_l[3].GetHist();
   har = pls_r[3].GetHist();
-
-  ppl = pls_l[0].GetProfile();
-  ppr = pls_r[0].GetProfile();
-  pdl = pls_l[1].GetProfile();
-  pdr = pls_r[1].GetProfile();
-  ptl = pls_l[2].GetProfile();
-  ptr = pls_r[2].GetProfile();
-  pal = pls_l[3].GetProfile();
-  par = pls_r[3].GetProfile();
 
   TFile* psel_file = new TFile(IFNAME_PSEL);
   spl = (TH2*)psel_file->Get("evde_l0_proton");
@@ -115,6 +112,7 @@ void init_hists() {
   sar = (TH2*)psel_file->Get("evde_r0_alpha");
   sul = (TH2*)psel_file->Get("evde_l0_unclassified");
   sur = (TH2*)psel_file->Get("evde_r0_unclassified");
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
 
 
   epl = spl->ProfileX();
@@ -125,15 +123,24 @@ void init_hists() {
   etr = str->ProfileX();
   eal = sal->ProfileX();
   ear = sar->ProfileX();
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
 
   hpl->SetMarkerColor(kRed);
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
   hpr->SetMarkerColor(kRed);
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
   hdl->SetMarkerColor(kGreen);
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
   hdr->SetMarkerColor(kGreen);
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
   htl->SetMarkerColor(kBlue);
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
   htr->SetMarkerColor(kBlue);
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
   hal->SetMarkerColor(kMagenta);
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
   har->SetMarkerColor(kMagenta);
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
 
   ppl->SetLineColor(kRed);
   ppr->SetLineColor(kRed);
@@ -143,7 +150,9 @@ void init_hists() {
   ptr->SetLineColor(kBlue);
   pal->SetLineColor(kMagenta);
   par->SetLineColor(kMagenta);
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
 
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
   spl->SetMarkerColor(kRed);
   spr->SetMarkerColor(kRed);
   sdl->SetMarkerColor(kGreen);
@@ -154,6 +163,7 @@ void init_hists() {
   sar->SetMarkerColor(kMagenta);
   sul->SetMarkerColor(kBlack);
   sur->SetMarkerColor(kBlack);
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
 
   spl->SetLineColor(kRed);
   spr->SetLineColor(kRed);
@@ -165,6 +175,7 @@ void init_hists() {
   sar->SetLineColor(kMagenta);
   sul->SetLineColor(kBlack);
   sur->SetLineColor(kBlack);
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
 
   epl->SetLineColor(kBlue);
   epr->SetLineColor(kRed);
@@ -174,6 +185,7 @@ void init_hists() {
   etr->SetLineColor(kRed);
   eal->SetLineColor(kBlue);
   ear->SetLineColor(kRed);
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
 
   hpl->SetStats(false);
   hpr->SetStats(false);
@@ -184,6 +196,7 @@ void init_hists() {
   hal->SetStats(false);
   har->SetStats(false);
 
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
   ppl->SetStats(false);
   ppr->SetStats(false);
   pdl->SetStats(false);
@@ -193,6 +206,7 @@ void init_hists() {
   pal->SetStats(false);
   par->SetStats(false);
 
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
   spl->SetStats(false);
   spr->SetStats(false);
   sdl->SetStats(false);
@@ -204,6 +218,7 @@ void init_hists() {
   sul->SetStats(false);
   sur->SetStats(false);
 
+  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
   epl->SetStats(false);
   epr->SetStats(false);
   edl->SetStats(false);

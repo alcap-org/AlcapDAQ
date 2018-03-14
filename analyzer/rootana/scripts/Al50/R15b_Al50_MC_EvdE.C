@@ -5,7 +5,7 @@
 #include "TChain.h"
 #include "TDirectory.h"
 #include "TFile.h"
-#include "TH2.h"
+#include "TH3F.h"
 #include "TLegend.h"
 #include "TTree.h"
 
@@ -46,27 +46,30 @@ static const char*  OFNAMEFMT_T = "~/data/R15b/Triton_EvdE_MC_%d.root";
 static const char*  OFNAMEFMT_A = "~/data/R15b/Alpha_EvdE_MC_%d.root";
 // The number of g4sim generated files for each particle.
 static const int    NIFILES     = 12;
-// Time cuts for histograms
-static const int    NT    = 4;
-static const double T[NT] = { 100, 500 , 10e3, 100e6};
+// Histogram bins
+static const double NE          = 2000;              // 10 keV
+static const double NDE         = 1000;              // 10 keV
+static const double ELO         = 0;                 // keV
+static const double EHI         = 20e3;              // keV
+static const double DELO        = 0;                 // keV
+static const double DEHI        = 10e3;              // keV
+static const int    NT          = 2;
+static const Double_t T[NT+1]   = {-200, 400, 4500}; // ns?
 ////////////////////////////////////////////////////////////////////////////////
 
-int GetHistTimeIndex(double t) {
-  for (int i = 0; i < NT; ++i)
-    if (t < T[i])
-      return i;
-  return NT;
-}
-
-bool ValidT(double t) {
-  return 0. < t && t < T[NT-1];
+Double_t* ConstructBins(int n, Double_t xlo, Double_t xhi) {
+  Double_t* x = new Double_t[n+1];
+  Double_t dx = (xhi-xlo)/n;
+  for (int i = 0; i <= n; ++i)
+    x[i] = i*dx+xlo;
+  return x;
 }
 
 class ParticleHist {
   string type;
   string particle_name;
   bool stopped;
-  TH2F* hEvdE[NT+1];
+  TH3F* hEvdE;
 
 public:
   ParticleHist() {}
@@ -76,94 +79,75 @@ public:
     return p == particle_name && s == stopped;
   }
   int Fill(double E, double dE, double t) {
-    hEvdE[NT]->Fill(E, dE);
-    return hEvdE[GetHistTimeIndex(t)]->Fill(E, dE);
+    return hEvdE->Fill(E, dE, t);
   }
-  void BookHist(int nx, double xlo, double xhi, int ny, double ylo, double yhi,
+  void BookHist(int nx, const Double_t* x,
+                int ny, const Double_t* y,
+                int nz, const Double_t* z,
                 string d) {
     TH1::SetDefaultSumw2(kTRUE);
-    for (int i = 0; i < NT; ++i) {
-      char name[128];
-      sprintf(name, "hEvdE_%s_%s_t%d", d.c_str(), type.c_str(), i);
-      hEvdE[i] = new TH2F(name, name, nx, xlo, xhi, ny, ylo, yhi);
-      hEvdE[i]->SetXTitle("E_{tot} [keV]");
-      hEvdE[i]->SetYTitle("dE [keV]");
-    }
-    char name[128];
-    sprintf(name, "hEvdE_%s_%s", d.c_str(), type.c_str());
-    hEvdE[NT] = new TH2F(name, name, nx, xlo, xhi, ny, ylo, yhi);
-    hEvdE[NT]->SetXTitle("E_{tot} [keV]");
-    hEvdE[NT]->SetYTitle("dE [keV]");
+    char name[128], title[256];
+    sprintf(name,  "hEvdE_%s_%s", d.c_str(), type.c_str());
+    sprintf(title, "EvdE %s (%s);E_{tot} [keV];dE [keV];t [ns]",
+            d.c_str(), type.c_str());
+    hEvdE = new TH3F(name, title, nx, x, ny, y, nz, z);
   }
   void Write(TFile* f) {
-    for (int i = 0; i <= NT; ++i) {
-      hEvdE[i]->SetDirectory(f);
-      hEvdE[i]->Write();
-    }
+    hEvdE->SetDirectory(f);
+    hEvdE->Write();
   }
 };
 
 class Arm {
   string det, thin, thick, part;
   vector<ParticleHist> hists;
-  TH2F* hAllEvdE[NT+1];
+  TH3F* hAllEvdE;
 
 public:
   Arm(const string& det, const string& thin, const string& thick,
       const string& part) :
   det(det), thin(thin), thick(thick), part(part) {}
 
-  bool ValidThinMatch(const string& d, const string& p, double t) {
-    return d == thin && p == part && ValidT(t);
+  bool ValidThinMatch(const string& d, const string& p) {
+    return d == thin && p == part;
   }
-  bool ValidThickMatch(const string& d, const string& p, double t) {
-    return d == thick && p == part && ValidT(t);
+  bool ValidThickMatch(const string& d, const string& p) {
+    return d == thick && p == part;
   }
   void Fill(const string& p, bool stopped, double E, double dE, double t) {
-    if (!ValidT(t)) return;
     for (int i = 0; i < hists.size(); ++i) {
       if (hists[i].Match(p, stopped)) {
         hists[i].Fill(E, dE, t);
         break;
       }
     }
-    hAllEvdE[NT]->Fill(E, dE);
-    hAllEvdE[GetHistTimeIndex(t)]->Fill(E, dE);
+    hAllEvdE->Fill(E, dE, t);
   }
   void Register(const ParticleHist& p) {
     hists.push_back(p);
   }
-  void BookHists(double w, double xlo, double xhi, double ylo, double yhi) {
+  void BookHists(int nx, const Double_t* x,
+                 int ny, const Double_t* y,
+                 int nz, const Double_t* z) {
     TH1::SetDefaultSumw2(kTRUE);
-    int nx = (xhi - xlo) / w;
-    int ny = (yhi - ylo) / w;
-    for (int i = 0; i < NT; ++i) {
-      char name[128], title[128];
-      sprintf(name, "hAll_EvdE_%s_t%d", det.c_str(), i);
-      sprintf(title, "EvdE plot for the %s detector;E + dE [keV];dE [keV]",
-              det.c_str());
-      hAllEvdE[i] = new TH2F(name, title, nx, xlo, xhi, ny, ylo, yhi);
-    }
     char name[128], title[128];
-    sprintf(name, "hAll_EvdE_%s", det.c_str());
+    sprintf(name,  "hAll_EvdE_%s", det.c_str());
     sprintf(title, "EvdE plot for the %s detector;E + dE [keV];dE [keV]",
             det.c_str());
-    hAllEvdE[NT] = new TH2F(name, title, nx, xlo, xhi, ny, ylo, yhi);
+    hAllEvdE = new TH3F(name, title, nx, x, ny, y, nz, z);
     for (int i = 0; i < hists.size(); ++i)
-      hists[i].BookHist(nx, xlo, xhi, ny, ylo, yhi, det);
+      hists[i].BookHist(nx, x, ny, y, nz, z, det);
   }
   void Save(TFile* f) {
     for (int i = 0; i < hists.size(); ++i)
       hists[i].Write(f);
-    for (int i = 0; i <= NT; ++i) {
-      hAllEvdE[i]->SetDirectory(f);
-      hAllEvdE[i]->Write();
-    }
+    hAllEvdE->SetDirectory(f);
+    hAllEvdE->Write();
   }
 };
 
-void EvdE(const char* ifname, const char* ofname, const Particle& parttype) {
-
+void EvdE(const char* ifname, const char* ofname, const Particle& parttype,
+          bool verbose=false) {
   TFile* ifile = new TFile(ifname, "READ");
   TTree* tree  = (TTree*)ifile->Get("tree");
   TFile* ofile = new TFile(ofname, "RECREATE");
@@ -182,46 +166,43 @@ void EvdE(const char* ifname, const char* ofname, const Particle& parttype) {
   tree->SetBranchAddress("M_stopped",      &stops);
   tree->SetBranchAddress("M_Ot",           &ts);
 
-  const double de   = 100;
-  const double elo  = 0;
-  const double ehi  = 20e3;
-  const double delo = 0;
-  const double dehi = 10e3;
-
   const int n_arms = 2;
   Arm LeftArm ("SiL", "SiL1", "SiL3", parttype.Name);
   Arm RightArm("SiR", "SiR1", "SiR2", parttype.Name);
   Arm arms[n_arms] = {LeftArm, RightArm};
 
   for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
-    ParticleHist stopped    ("stopped",     parttype.Name, 1);
-    ParticleHist not_stopped("not_stopped", parttype.Name, 0);
+    ParticleHist stopped    ("stopped",     parttype.Name, true);
+    ParticleHist not_stopped("not_stopped", parttype.Name, false);
     arms[i_arm].Register(stopped);
     arms[i_arm].Register(not_stopped);
-    arms[i_arm].BookHists(de, elo, ehi, delo, dehi);
+    arms[i_arm].BookHists(NE,  ConstructBins(NE,  ELO,  EHI),
+                          NDE, ConstructBins(NDE, DELO, DEHI),
+                          NT,  T);
   }
 
   for (int i_entry = 0; i_entry < tree->GetEntries(); ++i_entry) {
      tree->GetEvent(i_entry);
 
-    if (i_entry % 10000 == 0)
+    if (verbose && i_entry % 10000 == 0)
       std::cout << i_entry << " / " << tree->GetEntries() << std::endl;
 
-    double dE      = 0;
-    double E       = 0;
-    bool   stop    = false;
+    double dE = 0, E = 0, t0 = 0., t1 = 0.;
+    bool   stop = false;
     for (int iElement = 0; iElement < particles->size(); ++iElement) {
       const string& particle = particles->at(iElement);
       const string& vol      = vols     ->at(iElement);
-      const double t         = ts       ->at(iElement);     // ns
-      const double edep      = edeps    ->at(iElement)*1e6; // keV
+      const double  t        = ts       ->at(iElement);     // ns
+      const double  edep     = edeps    ->at(iElement)*1e6; // keV
       // Loop through the arms
       for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
-        if        (arms[i_arm].ValidThickMatch(vol, particle, t)) {
-          E = edep;
+        if        (arms[i_arm].ValidThickMatch(vol, particle)) {
+          E  = edep;
+          t1 = t;
           stop = stops->at(iElement);
-        } else if (arms[i_arm].ValidThinMatch(vol, particle, t)) {
+        } else if (arms[i_arm].ValidThinMatch(vol, particle)) {
           dE = edep;
+          t0 = t;
         }
         if (E > 0. && dE > 0.) {
           arms[i_arm].Fill(particle, stop, E+dE, dE, t);
@@ -239,7 +220,7 @@ void EvdE(const char* ifname, const char* ofname, const Particle& parttype) {
   ifile->Close();
 }
 
-void R15b_Al50_MC_EvdE(int n=0, int mode=0) {
+void R15b_Al50_MC_EvdE(int n=0, int mode=0, bool verbose=false) {
   char ifname[64], ofname[64];
   if (n == 0)
     for (int i = 1; i <= NIFILES; ++i)
@@ -250,22 +231,22 @@ void R15b_Al50_MC_EvdE(int n=0, int mode=0) {
   case 1:
     sprintf(ifname, IFNAMEFMT_P, n);
     sprintf(ofname, OFNAMEFMT_P, n);
-    EvdE(ifname, ofname, PROTON);
+    EvdE(ifname, ofname, PROTON, verbose);
     return;
   case 2:
     sprintf(ifname, IFNAMEFMT_D, n);
     sprintf(ofname, OFNAMEFMT_D, n);
-    EvdE(ifname, ofname, DEUTERON);
+    EvdE(ifname, ofname, DEUTERON, verbose);
     return;
   case 3:
     sprintf(ifname, IFNAMEFMT_T, n);
     sprintf(ofname, OFNAMEFMT_T, n);
-    EvdE(ifname, ofname, TRITON);
+    EvdE(ifname, ofname, TRITON, verbose);
     return;
   case 4:
     sprintf(ifname, IFNAMEFMT_A, n);
     sprintf(ofname, OFNAMEFMT_A, n);
-    EvdE(ifname, ofname, ALPHA);
+    EvdE(ifname, ofname, ALPHA, verbose);
     return;
   case 5:
     R15b_Al50_MC_EvdE(n, kProton);
