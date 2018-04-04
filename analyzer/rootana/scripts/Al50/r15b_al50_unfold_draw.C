@@ -22,6 +22,15 @@
   hlt->SetLineColor(kBlue); hrt->SetLineColor(kRed);
   hla->SetLineColor(kBlue); hra->SetLineColor(kRed);
 
+  hlp->GetXaxis()->SetRangeUser(2.0e3, 15e3);
+  hrp->GetXaxis()->SetRangeUser(2.0e3, 15e3);
+  hld->GetXaxis()->SetRangeUser(2.5e3, 20e3);
+  hrd->GetXaxis()->SetRangeUser(2.5e3, 20e3);
+  hlt->GetXaxis()->SetRangeUser(3.0e3, 20e3);
+  hrt->GetXaxis()->SetRangeUser(3.0e3, 20e3);
+  hla->GetXaxis()->SetRangeUser(9.0e3, 20e3);
+  hra->GetXaxis()->SetRangeUser(9.0e3, 20e3);
+
   TLegend* l = new TLegend(0.7, 0.7, 0.9, 0.9);
   l->AddEntry(hlp, "Left");
   l->AddEntry(hrp, "Right");

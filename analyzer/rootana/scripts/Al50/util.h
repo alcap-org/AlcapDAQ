@@ -1,10 +1,21 @@
 #ifndef AL50_UTIL_H_
 #define AL50_UTIL_H_
 
+#include "./scripts/TMETree/TMEUtils.h"
+#include "./src/plotters/SimplePulse.h"
+
+#include "TAxis.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TH1D.h"
 #include "TMath.h"
+#include "TVector2.h"
 
 #include <cmath>
+#include <iostream>
 #include <string>
+
+
 
 enum Side  { kRight, kLeft };
 enum Layer { kThin,  kThick };
@@ -23,6 +34,34 @@ enum ParticleType {
   kAlpha, kAllParticleTypes
 };
 
+namespace HistUtils {
+  TH1* ProjectionXY(const TH2* h, double phi, double XP, double w) {
+    std::string pname = h->GetName();
+    pname += "_pxy";
+    const TAxis *X = h->GetXaxis(), *Y = h->GetYaxis();
+    TVector2 o(X->GetXmin(), Y->GetXmin()), d(X->GetXmax(), Y->GetXmax());
+    double p_lo = o.Rotate(phi).Y(), p_hi = d.Rotate(phi).Y();
+    TH1* p = new TH1D(pname.c_str(), h->GetTitle(),
+                      (p_hi-p_lo)/X->GetBinWidth(1), p_lo, p_hi);
+    for (int i = 1; i <= h->GetNbinsX(); ++i) {
+      for (int j = 1; j <= h->GetNbinsY(); ++j) {
+        TVector2 x(X->GetBinCenter(i), Y->GetBinCenter(j));
+        TVector2 xp = x.Rotate(phi);
+        if ((XP-w/2) < xp.X() && xp.X() < (XP+w/2))
+          p->Fill(xp.Y(), h->GetBinContent(i, j));
+      }
+    }
+    return p;
+  }
+  Double_t* ConstructBins(int n, Double_t xlo, Double_t xhi) {
+    Double_t* x = new Double_t[n+1];
+    Double_t dx = (xhi-xlo)/n;
+    for (int i = 0; i <= n; ++i)
+      x[i] = i*dx+xlo;
+    return x;
+  }
+}
+
 namespace GeFcn {
   // A:  Amplitude of gaussian
   // S:  Sigma of gaussian
@@ -30,7 +69,7 @@ namespace GeFcn {
   // E:  Mean energy of photon peak
   // I:  Intensity (probably 0.798 +/- 0.008)
   // d*: Error on valud (except db, see above)
-  static const double rt2pi = sqrt(2.*TMath::Pi());
+  static const long double rt2pi = std::sqrt(2.*TMath::Pi());
   double GaussArea(double A, double S, double db) {
     return rt2pi*A*S/db;
   }
@@ -95,4 +134,79 @@ namespace GeFcn {
     return par[0]+par[1]*x[0]+GePeak(x, par1)+GePeak(x, par2);
   }
 }
-#endif
+
+namespace SiUtils {
+  double BetheStoppingPower(double dx/*m*/, double E/*keV*/, int pid) {
+    // SiR1 dx = 58e-6 m
+    // SiL1 dx = 52e-6 m
+    double N_A   = 6.022140857e23;      // atoms per mol
+    double Z     = 14;
+    double rho   = 2.328;               // g/cm3
+    double A     = 28.0855;             // u (dimensionless)
+    double M_u   = 1;                   // g/mol
+    double n     = (N_A*Z*rho)/(A*M_u); // electrons per m3
+    double m_e   = 510.9989461;         // keV/c2
+    double e     = -1.6021766208e-19;   // C
+    double pi    = TMath::Pi();
+    double eps_0 = 8.854187817620e-12;  // C/(V*m)
+    double Q     = e*e/(4.*pi*eps_0);   // C*V*m
+    double I     = 173e-3;              // keV
+    double c     = 299792458.;          // m/s
+    double z = 0., m = 0.;
+    switch (pid) { // Set charge z and mass m in keV/c2
+      case 1:  z = 1; m = 938272.03; break;
+      case 2:  z = 1; m = 1875612.9; break;
+      case 3:  z = 1; m = 2809432.;  break;
+      case 4:  z = 2; m = 3727379.;  break;
+      default: throw "Invalid particle selection.";
+    }
+    double a = 2*pi*n*z*z*m/(m_e*e*e)*Q*Q;
+    double b = 4*m_e/(m*I);
+    std::cout << "a: " << a << std::endl << "b: " << b << std::endl;
+    return 2*pi*n*z*z*m/(m_e*E*e*e)*Q*Q*std::log(4*E*m_e/(m*I))*dx;
+  }
+  double dE(double t/*m*/, double E/*keV*/, int pid) {
+    double dx = 1e-8;
+    double edep = 0;
+    while (t > 0 && E > edep) {
+      edep += BetheStoppingPower(dx, E-edep, pid);
+      t -= dx;
+    }
+    return edep;
+  }
+  Double_t dE(Double_t x[], Double_t par[]) {
+    return dE(par[0], x[0], (int)par[1]);
+  }
+  class SiEvent {
+    double de, e, t1, t2, t3;
+    bool valid;
+   public:
+  // Add time cut...?
+    SiEvent(const std::vector<SimplePulse>* si1,
+            const std::vector<SimplePulse>* si2,
+            const std::vector<SimplePulse>* si3,
+            const TMECal::ECal* adc2e_si1) {
+      if (!TMECuts::OnlyOneHit(si1) || (si3 && !TMECuts::AtMostOneHit(si3))) {
+        valid = false;
+        return;
+      }
+      valid = true;
+      if (adc2e_si1) e = de = adc2e_si1->Eval(si1->front().Amp);
+      else           e = de = si1->front().E;
+      e += si2->front().E;
+      if (si3 && TMECuts::OnlyOneHit(si3)) {
+        e  += si2->front().E + si3->front().E;
+        t3  = si3->front().tTME;
+      }
+      t1 = si1->front().tTME;
+      t2 = si2->front().tTME;
+    }
+    bool   Valid() { return valid;   }
+    double dE()    { return de;      }
+    double E()     { return e;       }
+    double T()     { return t1;      }
+    double dT()    { return t2 - t1; }
+  };
+}
+
+#endif // INCLUDE GUARD
