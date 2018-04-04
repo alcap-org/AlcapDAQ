@@ -1,0 +1,17 @@
+Instructions for the scripts in this folder:
+
+1. Counting Stopped Muons
+Starting from a rootana output file with a 2D plot of energy vs time for the TAPs
+  - run XRaySpectrum.C
+  - run CountStoppedMuons.C
+  - run PrettyPlot.C
+
+Alternatively, starting from a rootana output file with a TME tree
+
+2. Producing EvdE Plots
+
+3. Extracting Proton/etc. Bands
+
+4. Unfolding
+
+5. Final Fits
