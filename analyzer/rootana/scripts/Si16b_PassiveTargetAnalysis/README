@@ -4,14 +4,22 @@ Instructions for the scripts in this folder:
 Starting from a rootana output file with a 2D plot of energy vs time for the TAPs
   - run XRaySpectrum.C
   - run CountStoppedMuons.C
-  - run PrettyPlot.C
-
-Alternatively, starting from a rootana output file with a TME tree
 
 2. Producing EvdE Plots
+Starting from a rootana output file with a TME tree
+  - run EvdEPlot.C to generate EvdE plots and the time plot for things that pass that proton cut
+  - run LifetimeFit.C to fit the muonic atom lifetime
 
-3. Extracting Proton/etc. Bands
+3. Extracting Proton Bands
+  - this is done in EvdEPlot.C
+  - to plot the folded spectrum run FoldedSpectrum.C on the result of EvdEPlot.C
 
 4. Unfolding
+  - you'll need a response matrix from the MC
+  - then you can run UnfoldProtonSpectrum.C to generate a new ROOT File
 
-5. Final Fits
+5. Final Plots and Fits
+  - 
+
+6. Pretty Plots
+  - run PrettyPlot.C to generate pretty plots

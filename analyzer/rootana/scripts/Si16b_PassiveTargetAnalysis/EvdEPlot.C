@@ -7,17 +7,30 @@
 #include "TFile.h"
 #include "TTree.h"
 
-#include "AlCapConstants.h"
-#include "TMETreeBranches.h"
+#include "scripts/TMETree/AlCapConstants.h"
+#include "scripts/TMETree/TMETreeBranches.h"
 
 #include <iostream>
 
 #include "TH2.h"
 #include "TMath.h"
 
-void Andy_Si16b_EvdEPlot() {
+void EvdEPlot() {
 
+  /////////////////////////////
+  // User parameters
   std::string filename = "~/data/out/v10/Si16b.root";
+  std::string outfilename = "~/data/results/Si16b_passive/EvdEPlots.root";
+  double layer_coincidence_time = 200; // coincidence time between layers
+  double x_1 = 0, y_1 = 2250, x_2 = 5500, y_2 = 0; // parameters for the diagonal electron spot cut
+  double electron_spot_gradient = (y_2 - y_1) / (x_2 - x_1);
+  double electron_spot_yoffset = y_1;
+  double punch_through_cut = 300; // parameters for the horizontal punch through proton cut
+  double deuteron_cut_peak = 4500; // parameters for the exponential remove deuteron cut
+  double deuteron_cut_slope = -0.0004;
+  double deuteron_cut_yoffset = 500;
+  //  double pb_time_cut = 200; // early time cut to remove lead contamination
+
   TFile* file = new TFile(filename.c_str(), "READ");
   TTree* tmetree = (TTree*) file->Get("TMETree/TMETree");
 
@@ -78,21 +91,7 @@ void Andy_Si16b_EvdEPlot() {
   hTime_Proton_Veto->SetTitle("Proton Hit Times (w/ SiR3 Veto)");
   hTime_Proton_Veto->SetXTitle("TME Time [ns]");
 
-  // Define the various cuts
-  double layer_coincidence_time = 200;
-
-  double x_1 = 0, y_1 = 2250, x_2 = 5500, y_2 = 0;
-  double electron_spot_gradient = (y_2 - y_1) / (x_2 - x_1);
-  double electron_spot_yoffset = y_1;
-
-  double punch_through_cut = 300; // keV
-
-  double deuteron_cut_peak = 4500;
-  double deuteron_cut_slope = -0.0004;
-  double deuteron_cut_yoffset = 500;
-
-  double pb_time_cut = 200; //ns
-
+  
   SetTMEBranchAddresses(tmetree); // setup the branch addresses
 
   std::cout << "Total TMEs = " << tmetree->GetEntries() << std::endl;
@@ -176,7 +175,7 @@ void Andy_Si16b_EvdEPlot() {
 
   hEvdE_Si16b_Veto->Draw("COLZ");
 
-  TFile* out_file = new TFile("Andy_Si16b_EvdEPlot.root", "RECREATE");
+  TFile* out_file = new TFile(outfilename.c_str(), "RECREATE");
   hEvdE_Si16b_Veto->Write();
   hEvdE_Si16b_NoVeto->Write();
   hEvdE_Si16b_ZoomNoVeto->Write();

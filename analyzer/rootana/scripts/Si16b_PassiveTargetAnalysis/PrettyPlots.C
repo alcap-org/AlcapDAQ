@@ -4,7 +4,7 @@ void PrettyPlots() {
   //////////////////
   // Open all files
   std::string mustops_gelo_filename = "/home/edmonds/data/results/Si16b_passive/CountStoppedMuons_GeLoGain.root";
-  std::string outfilename = "/home/edmonds/data/results/Si16b_passive/final_plots.root";
+  std::string outfilename = "/home/edmonds/data/results/Si16b_passive/pretty-plots.root";
   
   TFile* mustops_gelo_file = new TFile(mustops_gelo_filename.c_str(), "READ");
   if (mustops_gelo_file->IsZombie()) {
