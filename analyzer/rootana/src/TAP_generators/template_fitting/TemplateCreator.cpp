@@ -162,23 +162,26 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	}
       }
 
-      /*      // check it has a nice amplitude
+      // check it has a nice amplitude
       const std::vector<int>& theSamples = (pulse)->GetSamples();
       int n_samples = theSamples.size();
-      double max_sample = 0;      
+      double max_sample = -9999999;
+      int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
       for (int i = 0; i < n_samples; ++i) {
-	int sample_value = theSamples.at(i);
+	int sample_value = trigger_polarity*theSamples.at(i);
 	if (sample_value > max_sample) {
 	  max_sample = sample_value;
 	}
       }
-      if (max_sample < 1000 || max_sample > 1500) {
-	cout << "TemplateCreator: Pulse #" << pulseIter - thePulseIslands.begin()
-	     << " has a too low or high peak sample value (" << max_sample << ")" << std::endl;
+      double pedestal = SetupNavigator::Instance()->GetPedestal(detname);
+      if (max_sample-(trigger_polarity*pedestal) < 1000 || max_sample-(trigger_polarity*pedestal) > 1500) {
+	if (Debug()) {
+	  cout << "TemplateCreator: Pulse #" << pulseIter - thePulseIslands.begin()
+	       << " has a too low or high peak sample value (" << max_sample << ")" << std::endl;
+	}
 	continue;
       }
-      */
-
+      
       // check this pulse is safely within the waveform
       int pulse_length = pulse->GetSamples().size();
       if (pulse->GetPeakSample() >= pulse_length - 2*pulse_length/5.0) {
@@ -231,13 +234,13 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	    newhistname << "hTemplate_" << i_ch->template_pulse->PulsesMerged() << "Pulses_" << detname;
 	    i_ch->template_pulse->GetHisto()->Clone(newhistname.str().c_str())->Write();
 	  }
-	  //	  if (Debug()) {
+	  if (Debug()) {
 	    cout << "TemplateCreator: Initial Template Pedestal = " 
 		 << i_ch->template_pulse->GetPedestal() << " ADC, Amplitude = "
 		 << i_ch->template_pulse->GetAmplitude() << " ADC, Time = "
 		 << i_ch->template_pulse->GetTime() << " template time bins" << std::endl << std::endl;
 
-	    //	  }
+	  }
 	}
         continue;
       }
@@ -267,24 +270,24 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
       double time_offset_estimate = definitions::DefaultValue;
 
       // Define the values to scale and shift things by 
-      if (TSetupData::Instance()->GetTriggerPolarity(bankname) >0) { 
+      //      if (TSetupData::Instance()->GetTriggerPolarity(bankname) >0) { 
         pulse_amplitude = (hPulseToFit->GetMaximum() - pulse_pedestal);
         pulse_time = hPulseToFit->GetMaximumBin() - 1;
-      }
-      else if (TSetupData::Instance()->GetTriggerPolarity(bankname) <0) {
-        pulse_amplitude = (pulse_pedestal - hPulseToFit->GetMinimum());
-        pulse_time = hPulseToFit->GetMinimumBin() - 1; // go from bin numbering (1, n_samples) to clock ticks (0, n_samples-1)
-      }
+	//      }
+	//      else if (TSetupData::Instance()->GetTriggerPolarity(bankname) <0) {
+	//        pulse_amplitude = (pulse_pedestal - hPulseToFit->GetMinimum());
+	//        pulse_time = hPulseToFit->GetMinimumBin() - 1; // go from bin numbering (1, n_samples) to clock ticks (0, n_samples-1)
+	//      }
       amplitude_scale_factor_estimate = pulse_amplitude / template_amplitude;  // estimated scale factor
       time_offset_estimate = pulse_time - template_time;
 
       //      fTemplateFitter->SetInitialParameterEstimates(pedestal_offset_estimate, amplitude_scale_factor_estimate, time_offset_estimate);
-      std::cout << "TemplateCreator: Template: Pedestal = " << template_pedestal << " ADC, Amplitude = " << template_amplitude << " ADC, Time = " << template_time << " template time bins" << std::endl;
-      std::cout << "TemplateCreator: Pulse: Pedestal = " << pulse_pedestal << " ADC, Amplitude = " << pulse_amplitude << " ADC, Time = " << pulse_time << " template time bins" << std::endl;
+      //      std::cout << "TemplateCreator: Template: Pedestal = " << template_pedestal << " ADC, Amplitude = " << template_amplitude << " ADC, Time = " << template_time << " template time bins" << std::endl;
+      //      std::cout << "TemplateCreator: Pulse: Pedestal = " << pulse_pedestal << " ADC, Amplitude = " << pulse_amplitude << " ADC, Time = " << pulse_time << " template time bins" << std::endl;
       fTemplateFitter->SetPedestalEstimate(pulse_pedestal);
       fTemplateFitter->SetPulseEstimates(0, pulse_amplitude, pulse_time);
 
-      std::cout << "TemplateCreator: Initial Estimates: PedOffset = " << pedestal_offset_estimate << ", AmpScaleFactor = " << amplitude_scale_factor_estimate << ", TimeOffset = " << time_offset_estimate << std::endl;
+      //      std::cout << "TemplateCreator: Initial Estimates: PedOffset = " << pedestal_offset_estimate << ", AmpScaleFactor = " << amplitude_scale_factor_estimate << ", TimeOffset = " << time_offset_estimate << std::endl;
       
       //      fTemplateFitter->SetPedestal(pedestal_offset_estimate);
       //      fTemplateFitter->SetPulseEstimates(0, amplitude_scale_factor_estimate, time_offset_estimate);

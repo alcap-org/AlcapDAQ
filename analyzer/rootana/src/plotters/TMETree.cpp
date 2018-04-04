@@ -40,7 +40,7 @@ int TMETree::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fAllDets.push_back(IDs::channel (kSiT_3 , kNotApplicable ));
     fAllDets.push_back(IDs::channel (kSiT_4 , kNotApplicable ));
 
-    //    fAllDets.push_back(IDs::channel (kSiL1_1 , kNotApplicable ));
+    fAllDets.push_back(IDs::channel (kSiL1_1 , kNotApplicable ));
     fAllDets.push_back(IDs::channel (kSiL1_2 , kNotApplicable ));
     fAllDets.push_back(IDs::channel (kSiL1_3 , kNotApplicable ));
     fAllDets.push_back(IDs::channel (kSiL1_4 , kNotApplicable ));

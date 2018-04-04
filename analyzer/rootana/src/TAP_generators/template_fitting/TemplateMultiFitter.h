@@ -5,6 +5,7 @@
 #include "TPulseIsland.h"
 #include "TTemplate.h"
 #include "MultiHistogramFitFCN.h"
+#include "BrentDeckerMinimizer.h"
 
 #include "definitions.h"
 #include "AlcapExcept.h"
@@ -50,6 +51,7 @@ class TemplateMultiFitter {
  public:
   TemplateMultiFitter(const IDs::channel& ch, int refine_factor = 0);
   ~TemplateMultiFitter();
+  void Reset();
   void Init();
 
  public:
@@ -74,6 +76,7 @@ class TemplateMultiFitter {
   int FitPulseToTemplate(int index,const TH1D* hPulse); // for template creation
   int FitWithOneTimeFree(int index,const TH1D* hPulse, double offset_range);
   int FitWithAllTimesFixed(const TH1D* hPulse);
+  bool FindLargeResidual(const TH1D* hPulse, double& amplitude, double& time);
   /// @}
 
   /// @name getters
@@ -97,6 +100,7 @@ class TemplateMultiFitter {
 
  private:
   TFitterMinuit* fMinuitFitter;
+  //  BrentDeckerMinimizer* fMinuitFitter;
   MultiHistogramFitFCN* fFitFCN;
   IDs::channel fChannel;
   double fMaxADC,fMinADC;

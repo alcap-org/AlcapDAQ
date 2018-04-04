@@ -58,6 +58,7 @@ void PulseCandidateFinder_TSpectrum::FindPulseCandidates(const TPulseIsland* pul
   double min=0;
   double max=num_samples*TSetupData::Instance()->GetClockTick(bankname)*downsampling;
   double pedestal = SetupNavigator::Instance()->GetPedestal(fChannel.str());
+  int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname.c_str());
 
   if (!hPulse) {
     hPulse = new TH1F("Pulse", "", num_samples,min,max);
@@ -69,7 +70,7 @@ void PulseCandidateFinder_TSpectrum::FindPulseCandidates(const TPulseIsland* pul
     size_t bin=0;
     for ( size_t i=0;i <(size_t)fPulseIsland->GetPulseLength(); ++i) {
       bin=i+1;
-      hPulse->SetBinContent(bin, fPulseIsland->GetSamples().at(i)-pedestal);
+      hPulse->SetBinContent(bin, trigger_polarity*(fPulseIsland->GetSamples().at(i)-pedestal));
       hPulse->SetBinError(bin, 0);//pedestal_error);
     }
   }
@@ -81,17 +82,66 @@ void PulseCandidateFinder_TSpectrum::FindPulseCandidates(const TPulseIsland* pul
   fTSpectrum->Search(hPulse, sigma, "noMarkov nobackground nodraw", threshold);
 
   if (fTSpectrum->GetNPeaks() == 0) {
-    //    fTSpectrum->Search(hPulse, sigma, "nodraw", threshold);
-    std::cout << "PulseCandidateFinder_TSpectrum: No pulses found!!" << std::endl;
+    fTSpectrum->Search(hPulse, sigma, "nodraw", threshold);
+    if (fTSpectrum->GetNPeaks() == 0) {
+      std::cout << "PulseCandidateFinder_TSpectrum: No pulses found!!" << std::endl;
+    }
   }
 
   // Just use empty locations because we only want this to count the peaks...
+  double last_peak_amplitude = 0;
+  bool already_popped = false;
+  bool popped_now = false;
+  std::vector<PeakLocation> saturated_peak_locations;
+
   for (int i_peak = 0; i_peak < fTSpectrum->GetNPeaks(); ++i_peak) {
+    popped_now = false;
+
+    double peak_amplitude = *(fTSpectrum->GetPositionY() + i_peak);
+    double peak_time = *(fTSpectrum->GetPositionX() + i_peak);
+    // sometimes (e.g. for satured pulses) we get multiple peaks at the same amplitude where it saturated
+    // we want to take the middle one
+    if (std::fabs(last_peak_amplitude - peak_amplitude) < 0.1) {
+      popped_now = true;
+      PeakLocation saturated_location;
+      saturated_location.time = peak_time;
+      saturated_location.amplitude = peak_amplitude;
+      saturated_peak_locations.push_back(saturated_location);
+      if(!already_popped) {
+	// Also add the previous peak location and pop it
+	saturated_location.time = (fPulseCandidatePeakLocations.end()-1)->time;
+	saturated_location.amplitude = (fPulseCandidatePeakLocations.end()-1)->amplitude;
+	saturated_peak_locations.push_back(saturated_location);
+	fPulseCandidatePeakLocations.pop_back(); // remove the first one we saw
+	already_popped = true;
+      }
+      if (i_peak != fTSpectrum->GetNPeaks()-1) {
+	continue; // don't do anything else
+      }
+    }
+    if ( (already_popped && !popped_now) || (already_popped && i_peak == fTSpectrum->GetNPeaks()-1)) { // we are finished with seeing saturated pulse locations
+      // find the mean and copy that location in
+      double avg_amplitude = 0;
+      double avg_time = 0;
+      for (std::vector<PeakLocation>::const_iterator i_loc = saturated_peak_locations.begin(); i_loc != saturated_peak_locations.end(); ++i_loc) {
+	avg_amplitude += i_loc->amplitude;
+	avg_time += i_loc->time;
+      }
+      avg_time /= saturated_peak_locations.size();
+      PeakLocation saturated_location;
+      saturated_location.amplitude = avg_amplitude;
+      saturated_location.time = avg_time;
+      fPulseCandidatePeakLocations.push_back(saturated_location);
+      already_popped = false;
+    }
+    
     PeakLocation peak_location;
-    peak_location.time = *(fTSpectrum->GetPositionX() + i_peak);
-    peak_location.amplitude = *(fTSpectrum->GetPositionY() + i_peak);
+    peak_location.time = peak_time;
+    peak_location.amplitude = peak_amplitude;
     //    std::cout << "Adding peak location t = " << peak_location.time << ", A = " << peak_location.amplitude << std::endl;
     fPulseCandidatePeakLocations.push_back(peak_location);
+
+    last_peak_amplitude = peak_location.amplitude;
 
     Location location;
     location.start = 0;

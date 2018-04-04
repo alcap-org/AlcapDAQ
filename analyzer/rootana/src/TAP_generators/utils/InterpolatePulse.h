@@ -10,7 +10,7 @@ namespace functions{
 // Creates a histogram with sub-bin resolution
 TH1D* InterpolatePulse(
     const TPulseIsland* pulse, std::string histname,
-     std::string histtitle, bool interpolate, int refine);
+    std::string histtitle, bool interpolate, int refine, bool ped_subtract = false);
 
 void FillBinLabels(double* labels, int size, int start=-1, int increment=1);
 

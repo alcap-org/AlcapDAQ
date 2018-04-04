@@ -16,7 +16,9 @@ void FillPulsesToDraw(std::vector<PulseToDraw>& pulses);
 
 void PulsePictureBook() {
 
-  int run_number = 9740;
+  int run_number = 9040;
+  //  int run_number = 10404;
+  //  int run_number = 9041;
 
   std::ofstream out_file;
   out_file.open("picture-book/picture-book.tex", std::ofstream::out);
@@ -35,7 +37,11 @@ void PulsePictureBook() {
   out_file << "\\section{Picture Book}" << std::endl;
 
   std::stringstream filename;
-  filename << "out" << std::setw(5) << std::setfill('0') << run_number << "_template-fits.root";
+  filename << "/home/edmonds/data/out/local/out" << std::setw(5) << std::setfill('0') << run_number << "_template-fits_export-pulse_3.root";
+  TFile* file = new TFile(filename.str().c_str(), "READ");
+  if (file->IsZombie()) {
+    std::cout << "Problem opening file " << filename << std::endl;
+  }
 
   std::vector<PulseToDraw> pulses_to_draw;
   FillPulsesToDraw(pulses_to_draw);
@@ -45,18 +51,19 @@ void PulsePictureBook() {
     histname.str("");
     histname << "Pulse_" << i_pulse->detname << "_" << i_pulse->event_number << "_" << i_pulse->pulse_number;
     TCanvas c1("c1", "c1", 1200, 800);
-    DrawTPIAndTemplateTAPs_fromPulseViewer(filename.str(), histname.str(), c1);
-    
-    std::string pdfname = "figs/" + histname.str() + ".pdf";
-    std::string savename = "picture-book/" + pdfname;
-    c1.SaveAs(savename.c_str());
-    
-    out_file << "\\begin{frame}" << std::endl;
-    out_file << "\\begin{center}" << std::endl;
-    out_file << "\\includegraphics[width=1.0\\textwidth]{" << pdfname << "}" << std::endl;
-    out_file << std::endl << "Event " << i_pulse->event_number << " Pulse " << i_pulse->pulse_number << std::endl;
-    out_file << "\\end{center}" << std::endl;
-    out_file << "\\end{frame}" << std::endl << std::endl;
+    if (DrawTPIAndTemplateTAPs_fromPulseViewer_file(file, histname.str(), c1)) {
+      
+      std::string pdfname = "figs/" + histname.str() + ".pdf";
+      std::string savename = "picture-book/" + pdfname;
+      c1.SaveAs(savename.c_str());
+      
+      out_file << "\\begin{frame}" << std::endl;
+      out_file << "\\begin{center}" << std::endl;
+      out_file << "\\includegraphics[width=1.0\\textwidth]{" << pdfname << "}" << std::endl;
+      out_file << std::endl << "Event " << i_pulse->event_number << " Pulse " << i_pulse->pulse_number << std::endl;
+      out_file << "\\end{center}" << std::endl;
+      out_file << "\\end{frame}" << std::endl << std::endl;
+    }
   }
   out_file << "\\end{document}" << std::endl;
   out_file.close();
@@ -64,140 +71,146 @@ void PulsePictureBook() {
 
 void FillPulsesToDraw(std::vector<PulseToDraw>& pulses) {
 
-  // Interesting ones
-  /*  pulses.push_back(PulseToDraw("SiL1_9_S", 0, 2));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 0, 5));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 6));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 7));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 9));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 10));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 1));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 7));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 4, 5));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 5));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 6));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 8));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 6, 2));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 6, 6));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 6, 8));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 5));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 8));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 15));
-  //  pulses.push_back(PulseToDraw("SiL1_9_S", 8, 7));
-  */
-  // All pulses
-  pulses.push_back(PulseToDraw("SiL1_9_S", 0, 0)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 0, 1));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 0, 2));  
-  pulses.push_back(PulseToDraw("SiL1_9_S", 0, 3));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 0, 4));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 0, 5));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 0, 6));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 0, 7));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 0, 8));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 0, 9));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 0, 10));
+  // Interesting ones for SiL3 dataset (run 9040)
+  for (int i_event = 0; i_event < 20; ++i_event) {
+    for (int i_pulse = 0; i_pulse < 1100; ++i_pulse) {
+      pulses.push_back(PulseToDraw("SiL3_S", i_event, i_pulse));
+      //    pulses.push_back(PulseToDraw("muSc", 0, i_pulse));
+    }
+  }
   
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 0)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 1)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 2)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 3)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 4)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 5)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 6)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 7)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 8)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 9));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 10 ));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 11));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 1, 12));
-  
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 0)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 1));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 2));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 3));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 4));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 5));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 6));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 7));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 8));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 9));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 10));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 11));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 12));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 13));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 2, 14));
 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 3, 0)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 3, 1)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 3, 2)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 3, 3)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 3, 4)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 3, 5)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 3, 6)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 3, 7)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 3, 8)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 3, 9));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 3, 10));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 3, 11));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 3, 12));
-  
-  pulses.push_back(PulseToDraw("SiL1_9_S", 4, 0)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 4, 1)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 4, 2)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 4, 3)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 4, 4)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 4, 5)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 4, 6)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 4, 7));
-  
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 0)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 1)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 2)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 3)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 4)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 5)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 6)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 7)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 8)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 9));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 10));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 11));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 12));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 13));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 14));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 5, 15));
-  
+  // Interesting one for Si16b datset (run 10404);
+  /*  for (int i_pulse = 0; i_pulse <= 139; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiT_1_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 78; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiT_2_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 143; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiT_3_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 235; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiT_4_S", 0, i_pulse));
+  }
+
+  for (int i_pulse = 0; i_pulse <= 6; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_1_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 6; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_2_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 10; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_3_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 10; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_4_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 9; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_5_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 9; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_6_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 16; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_7_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 12; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_8_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 13; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_9_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 9; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_10_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 12; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_11_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 14; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_12_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 14; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_13_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 13; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_14_S", 0, i_pulse));
+  }
+  for (int i_pulse = 0; i_pulse <= 11; ++i_pulse) {
+    pulses.push_back(PulseToDraw("SiL1_15_S", 0, i_pulse));
+  }
+  */
+
+  /*  pulses.push_back(PulseToDraw("SiL3_S", 0, 64));
+pulses.push_back(PulseToDraw("SiL3_S", 0, 199));
+pulses.push_back(PulseToDraw("SiL3_S", 0, 335));
+pulses.push_back(PulseToDraw("SiL3_S", 0, 433));
+pulses.push_back(PulseToDraw("SiL3_S", 0, 504));
+pulses.push_back(PulseToDraw("SiL3_S", 0, 598));
+pulses.push_back(PulseToDraw("SiL3_S", 0, 682));
+pulses.push_back(PulseToDraw("SiL3_S", 0, 714));
+pulses.push_back(PulseToDraw("SiL3_S", 0, 795));
+pulses.push_back(PulseToDraw("SiL3_S", 0, 795));
+pulses.push_back(PulseToDraw("SiL3_S", 0, 843));
+pulses.push_back(PulseToDraw("SiL3_S", 0, 882));
+
+ pulses.push_back(PulseToDraw("SiL3_S", 1, 97));
+pulses.push_back(PulseToDraw("SiL3_S", 1, 311));
+pulses.push_back(PulseToDraw("SiL3_S", 1, 326));
+pulses.push_back(PulseToDraw("SiL3_S", 1, 330));
+pulses.push_back(PulseToDraw("SiL3_S", 1, 421));
+pulses.push_back(PulseToDraw("SiL3_S", 1, 537));
+pulses.push_back(PulseToDraw("SiL3_S", 2, 111));
+pulses.push_back(PulseToDraw("SiL3_S", 2, 410));
+pulses.push_back(PulseToDraw("SiL3_S", 2, 461));
+pulses.push_back(PulseToDraw("SiL3_S", 2, 559));
+pulses.push_back(PulseToDraw("SiL3_S", 3, 375));
+pulses.push_back(PulseToDraw("SiL3_S", 3, 393));
+pulses.push_back(PulseToDraw("SiL3_S", 4, 41));
+pulses.push_back(PulseToDraw("SiL3_S", 4, 173));
+pulses.push_back(PulseToDraw("SiL3_S", 4, 558));
+pulses.push_back(PulseToDraw("SiL3_S", 4, 623));
+pulses.push_back(PulseToDraw("SiL3_S", 4, 750));
+pulses.push_back(PulseToDraw("SiL3_S", 4, 938));
+  */
+
+    /*  pulses.push_back(PulseToDraw("SiL3_S", 0, 61));
+	pulses.push_back(PulseToDraw("SiL3_S", 0, 208));
+	pulses.push_back(PulseToDraw("SiL3_S", 0, 241));
+	pulses.push_back(PulseToDraw("SiL3_S", 0, 282));
+	pulses.push_back(PulseToDraw("SiL3_S", 0, 325));
+	pulses.push_back(PulseToDraw("SiL3_S", 0, 335));
+	pulses.push_back(PulseToDraw("SiL3_S", 0, 345));
+	pulses.push_back(PulseToDraw("SiL3_S", 0, 449));
+	pulses.push_back(PulseToDraw("SiL3_S", 0, 462));
+	pulses.push_back(PulseToDraw("SiL3_S", 0, 493));
+	pulses.push_back(PulseToDraw("SiL3_S", 0, 649));
+	pulses.push_back(PulseToDraw("SiL3_S", 0, 969));
+    */
   /*
-  pulses.push_back(PulseToDraw("SiL1_9_S", 6, 0));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 6, 1)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 6, 2)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 6, 3)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 6, 4)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 6, 5)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 6, 6)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 6, 7)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 6, 8)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 6, 9));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 6, 10));
-  
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 0)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 1)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 2)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 3)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 4)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 5)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 6)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 7)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 8)); 
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 9));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 10));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 11));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 12));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 13));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 14));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 15));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 16));
-  pulses.push_back(PulseToDraw("SiL1_9_S", 7, 17));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 71));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 72));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 124));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 125));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 175));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 176));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 335));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 336));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 462));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 463));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 626));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 624));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 649));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 650));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 832));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 833));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 840));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 841));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 907));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 908));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 915));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 916));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 969));
+  pulses.push_back(PulseToDraw("SiL3_S", 0, 970));
   */
 }

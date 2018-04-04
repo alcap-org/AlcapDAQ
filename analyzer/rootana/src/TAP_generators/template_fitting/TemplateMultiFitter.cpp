@@ -17,7 +17,7 @@ TemplateMultiFitter::TemplateMultiFitter(const IDs::channel& ch, int refine_fact
   // Calculate the max ADC value
   fMinADC = 0;
   int n_bits = TSetupData::Instance()->GetNBits(TSetupData::Instance()->GetBankName(fChannel.str()));
-  fMaxADC = std::pow(2, n_bits)*1.5;
+  fMaxADC = std::pow(2, n_bits)*10;
 }
 
 void TemplateMultiFitter::Init(){
@@ -35,13 +35,27 @@ void TemplateMultiFitter::Init(){
  
   int num_params=fTemplates.size()+1; //  1 parameter per template (amplitude) + global pedestal.
   fMinuitFitter = new TFitterMinuit(num_params);
+  //  fMinuitFitter = new BrentDeckerMinimizer(num_params);
   fMinuitFitter->SetMinuitFCN(fFitFCN);
   fMinuitFitter->SetPrintLevel(-1); // set the debug level to quiet (-1=quiet, 0=normal, 1=verbose)
 
   fChi2 = 0;
 }
 
+void TemplateMultiFitter::Reset() {
+  if (fMinuitFitter) {
+    delete fMinuitFitter;
+    fMinuitFitter = NULL;
+    fFitFCN = NULL;
+  }
+  fTemplates.clear();
+}
+
 TemplateMultiFitter::~TemplateMultiFitter() {
+  if (fMinuitFitter) {
+    delete fMinuitFitter;
+  }
+  fTemplates.clear();
 }
 
 int TemplateMultiFitter::FitWithOneTimeFree(int index, const TH1D* hPulse, double offset_range){
@@ -102,15 +116,18 @@ void TemplateMultiFitter::TimeOffsetLoop(TemplateDetails_t& current_template, do
   // Calculate the bounds of the time offset
   int min_offset = current_template.fTimeOffset - offset_range;
   int max_offset = current_template.fTimeOffset + offset_range;
-  // Loop through the time offsets
-  for (double time_offset = min_offset; time_offset <= max_offset; ++time_offset) {
+  // Loop through the time offsets from the middle out
+  int mid_offset = current_template.fTimeOffset;
+  int counter = 0;
+  //  std::cout << "Start (min = " << min_offset << ", max = " << max_offset << ", mid = " << mid_offset << ")"<< std::endl;
+  for (double time_offset = mid_offset; time_offset <= max_offset && time_offset >= min_offset; time_offset += std::pow(-1,counter%2)*counter) {
     //    std::cout << "TemplateMultiFitter::SingleTimeOffsetLoop(): Checking Time Offset = " << time_offset << "\n";
     fMinuitFitter->Clear();
     fMinuitFitter->CreateMinimizer(TFitterMinuit::kMigrad);
     fFitFCN->SetTimeOffset(current_template.fIndex, time_offset);
 
     FitThisTime(current_template, time_offset); // try to fit with this time
-
+    ++counter;
     /*    std::cout << "TemplateMultiFitter::SingleTimeOffsetLoop(): Current Values:\tStatus = " << fCurrentValues.status << "\tChi2 = " << fCurrentValues.chi2 << "\tPedOffset = "
 	      << fCurrentValues.parameters[0] << " Time Offset = " << fCurrentValues.time_offset << "\n";
     for(TemplateList::iterator i_tpl=fTemplates.begin(); i_tpl!=fTemplates.end(); ++i_tpl){
@@ -138,8 +155,8 @@ void TemplateMultiFitter::FitThisTime(TemplateDetails_t& current_template, doubl
   fCurrentValues.time_offset = time_offset;
   // Reset the estimates for the non-time offset parameters
   double ped_offset = fPedestal - current_template.fTemplate.GetPedestal();
-  double min_ped_offset = ped_offset-50;
-  double max_ped_offset = ped_offset+50;
+  double min_ped_offset = ped_offset-500;
+  double max_ped_offset = ped_offset+500;
   fMinuitFitter->SetParameter(0, "PedestalOffset", ped_offset, 0.1, min_ped_offset, max_ped_offset);
   for(TemplateList::const_iterator i_tpl=fTemplates.begin(); i_tpl!=fTemplates.end(); ++i_tpl){
     int i=i_tpl-fTemplates.begin();
@@ -189,7 +206,8 @@ void TemplateMultiFitter::FitThisTime(TemplateDetails_t& current_template, doubl
     fBestValues.ndof = fCurrentValues.ndof;
   }
 
-  /*  std::cout << "TemplateMultiFitter::FitThisTime(): Current Values:\tStatus = " << fCurrentValues.status << "\tChi2 = " << fCurrentValues.chi2 << "\tPedOffset = "
+  /*
+  std::cout << "TemplateMultiFitter::FitThisTime(): Current Values:\tStatus = " << fCurrentValues.status << "\tChi2 = " << fCurrentValues.chi2 << "\tPedOffset = "
 	      << fCurrentValues.parameters[0] << " Time Offset = " << fCurrentValues.time_offset << "\n";
   for(TemplateList::iterator i_tpl=fTemplates.begin(); i_tpl!=fTemplates.end(); ++i_tpl){
     int n = i_tpl - fTemplates.begin();
@@ -227,5 +245,26 @@ void TemplateMultiFitter::AddTemplate(TTemplate* tpl){
   if(fRefineFactor==0) fRefineFactor=tpl->GetRefineFactor();
   else if(fRefineFactor!= tpl->GetRefineFactor()){
     throw Except::MismatchedTemplateRefineFactors();
+  }
+}
+
+bool TemplateMultiFitter::FindLargeResidual(const TH1D* hPulse, double& amplitude, double& time) {
+
+  double max_delta = 0;
+  for (int i_bin = 1; i_bin < hPulse->GetNbinsX(); ++i_bin) {
+    double delta = fFitFCN->CalculateDelta(i_bin);
+    //    std::cout << i_bin << " " << delta << std::endl;
+    if (delta > max_delta && std::fabs(i_bin-hPulse->GetMaximumBin()) > 20) {
+      max_delta = delta;
+      amplitude = hPulse->GetBinContent(i_bin);
+      time = hPulse->GetBinCenter(i_bin);
+    }    
+  }
+
+  if (max_delta > 100) {
+    return true;
+  }
+  else {
+    return false;
   }
 }

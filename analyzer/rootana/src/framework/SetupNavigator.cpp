@@ -272,9 +272,10 @@ SetupNavigator::EnergyCalibRow_t SetupNavigator::GetEnergyCalibrationConstants(c
 double SetupNavigator::GetCoarseTimeOffset( IDs::source source) const {
 // Massive hack to remove config strings that specify other options.  Assumes
 // the timing option is placed first for the generator
+  // EDIT: 2018-02-14: just strip the time shift option, leave all the other config options in
  std::string conf=source.Generator().Config();
  unsigned curly_br=conf.find('}');
-if(curly_br!=std::string::npos){ source.Generator().Config(conf.substr(0,curly_br+1));}
- bool central_muon_channel = source.matches(IDs::channel("SiT-1-S")) || source.matches(IDs::channel("muSc")); 
+ if(curly_br!=std::string::npos){ source.Generator().Config(StripTimeShiftConfigFromString(conf)); }// conf.substr(0,curly_br+1));}
+ bool central_muon_channel = source.matches(IDs::channel("SiT-1-S")) || source.matches(IDs::channel("muSc"));// || source.matches(IDs::channel("SiL1-8-S")); 
  return central_muon_channel ? 0. : alcap::at<Except::InvalidDetector>(fCoarseTimeOffset,source,source.str().c_str());
  }

@@ -180,6 +180,7 @@ int ExportPulse::DrawTAPs(){
   
   // Loop over all the TAPs we've been asked to export
   //  std::cout << "AE (ExportPulse) TAPsToPlot = " << fTAPsToPlot.size() << std::endl;
+  fPulseInfo.subPulseID=-1;
   for(ChannelTAPs_t::const_iterator i_channel_tap=fTAPsToPlot.begin();
       i_channel_tap!=fTAPsToPlot.end();
       i_channel_tap++){
@@ -395,16 +396,29 @@ TH1F* ExportPulse::MakeHistTPI(const TPulseIsland* pulse, const std::string& nam
     return NULL;
   }
 
+  double pedestal_error = SetupNavigator::Instance()->GetNoise(info.detname);
+  int n_bits = TSetupData::Instance()->GetNBits(info.bankname);
+  double max_adc_value = std::pow(2, n_bits)-1;
+  int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(info.bankname);
+
   size_t bin=0;
   for ( size_t i=0;i <(size_t)pulse->GetPulseLength(); ++i) {
     bin=i+1+shift;
+    int sample_value = pulse->GetSamples().at(i);
     if (fYAxis == kPedestalSubtracted) {
-      hPulse->SetBinContent(bin, pulse->GetSamples().at(i)-pedestal);
+      hPulse->SetBinContent(bin, trigger_polarity*(sample_value-pedestal));
     }
     else if (fYAxis == kNotPedestalSubtracted) {
-      hPulse->SetBinContent(bin, pulse->GetSamples().at(i));
+      hPulse->SetBinContent(bin, trigger_polarity*sample_value);
     }
-    hPulse->SetBinError(bin, 0);//pedestal_error);
+
+    // Set the bin contents and bin error
+    if (sample_value >= max_adc_value) {
+      hPulse->SetBinError( bin, max_adc_value); // set a large error bar so that template fitting can work
+    }
+    else {
+      hPulse->SetBinError( bin, pedestal_error);
+    }
   }
   hPulse->SetStats(false);
   return hPulse;
@@ -441,27 +455,32 @@ TH1F* ExportPulse::MakeHistTAP(TH1F* tpi_hist, const TAnalysedPulse* pulse, cons
       int n_bins=tf_pulse->GetTPILength()*tf_pulse->GetTemplate()->GetRefineFactor();
       tap_pulse=new TH1F(name.str().c_str(), name.str().c_str(),n_bins,x_min,x_max);
 
-      double time = tf_pulse->GetTime();      
+      double time = tf_pulse->GetTime(); // CF time
       
-      //      double time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(pulse->GetSource());
+      //      double time_shift = 0;
+      double time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(pulse->GetSource());
       double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(info.bankname);
       int down_samp = TSetupData::GetDownSampling(info.bankname.c_str(), SetupNavigator::Instance()->GetRunNumber());
-      double sample_time = (time - tf_pulse->GetTriggerTime() /* + time_shift */) / (clock_tick_in_ns * down_samp);
-      for ( int i_bin=0; i_bin<n_bins; i_bin++){
+      double sample_time = (time - tf_pulse->GetTriggerTime()) / (clock_tick_in_ns * down_samp);
 
-	if (fXAxis == kBlockTime) {
-	  //	  time += time_shift;
-	}
-	else if (fXAxis == kPulseTime) {
-	  time -= tf_pulse->GetTriggerTime();
-	  //	  time += time_shift;
-	}
-	else if (fXAxis == kSampleNumber) {
-	  time = sample_time;
-	}
-	int tpl_bin=tf_pulse->GetTemplate()->GetTime() // the template time in template bins
-	    - sample_time*tf_pulse->GetTemplate()->GetRefineFactor() // the shift
-	    + i_bin;
+      if (fXAxis == kBlockTime) {
+	time += time_shift;
+      }
+      else if (fXAxis == kPulseTime) {
+	time -= tf_pulse->GetTriggerTime();
+	time += time_shift;
+      }
+      else if (fXAxis == kSampleNumber) {
+	time = sample_time;
+      }
+
+      for ( int i_bin=0; i_bin<=n_bins; i_bin++){
+
+	//	int tpl_bin=tf_pulse->GetTemplate()->GetTime() // the template time in template bins
+	//	    - sample_time*tf_pulse->GetTemplate()->GetRefineFactor() // the shift
+	//	    + i_bin;
+	int tpl_bin = -tf_pulse->GetTemplateTimeOffset() / (down_samp)
+	  + i_bin;
 
 	// get bin sample
 	double sample=tf_pulse->GetTemplate()->GetHisto()->GetBinContent(tpl_bin);
@@ -470,20 +489,25 @@ TH1F* ExportPulse::MakeHistTAP(TH1F* tpi_hist, const TAnalysedPulse* pulse, cons
 	  sample += tf_pulse->GetPedestal();
 	}
 	
-	tap_pulse->SetBinContent(i_bin,sample);
+	tap_pulse->SetBinContent(i_bin+1,sample);
       }
 
       // Print some useful information
       TPaveText* text_b=new TPaveText(0.66,0.7,0.9,0.9,"NB NDC");
       text_b->AddText(Form("#chi^2 = %3.2g",tf_pulse->GetChi2()));
       text_b->AddText(Form("Status = %d",tf_pulse->GetFitStatus()));
-      text_b->AddText(Form("Time = %g",tf_pulse->GetTime()));
+      text_b->AddText(Form("Time = %g",time));//tf_pulse->GetTime()));
       text_b->AddText(Form("Ampl. = %g",tf_pulse->GetAmplitude()));
       text_b->AddText(Form("NDoF = %d",tf_pulse->GetNDoF()));
       text_b->SetFillColor(kWhite);
       text_b->SetBorderSize(1);
       tap_pulse->SetStats(false);
       tap_pulse->GetListOfFunctions()->Add(text_b);
+
+      TLine* time_line = new TLine(time, 0, time, tap_pulse->GetMaximum());
+      time_line->SetLineColor(kBlue);
+      time_line->SetLineWidth(2);
+      tap_pulse->GetListOfFunctions()->Add(time_line);
 
       //      TH1F* residual=(TH1F*) tpi_hist->Clone(Form("%s_residual",tap_pulse->GetName()));
       TH1F* tap_rebinned=(TH1F*) tap_pulse->Rebin(tf_pulse->GetTemplate()->GetRefineFactor(),Form("%s_rebin",tap_pulse->GetName()));

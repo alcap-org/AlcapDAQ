@@ -31,7 +31,7 @@ std::vector<SimplePulse>* SiT_3 = 0;
 std::vector<SimplePulse>* SiT_4 = 0;
 std::vector<SimplePulse>* all_SiT_channels[n_SiT_channels];
   
-//std::vector<SimplePulse>* SiL1_1 = 0; // all the pulses in this channel for this TMuonEvent
+std::vector<SimplePulse>* SiL1_1 = 0; // all the pulses in this channel for this TMuonEvent
 std::vector<SimplePulse>* SiL1_2 = 0;
 std::vector<SimplePulse>* SiL1_3 = 0;
 std::vector<SimplePulse>* SiL1_4 = 0;
@@ -89,7 +89,7 @@ void SetTMEBranchAddresses(TTree* tmetree) {
   TBranch* br_SiT_3 = tmetree->GetBranch("SiT_3");
   TBranch* br_SiT_4 = tmetree->GetBranch("SiT_4");
 
-  //  TBranch* br_SiL1_1 = tmetree->GetBranch("SiL1_1");
+  TBranch* br_SiL1_1 = tmetree->GetBranch("SiL1_1");
   TBranch* br_SiL1_2 = tmetree->GetBranch("SiL1_2");
   TBranch* br_SiL1_3 = tmetree->GetBranch("SiL1_3");
   TBranch* br_SiL1_4 = tmetree->GetBranch("SiL1_4");
@@ -168,9 +168,9 @@ void SetTMEBranchAddresses(TTree* tmetree) {
     br_SiT_4->SetAddress(&SiT_4);
   }
 
-  //  if (br_SiL1_1) {
-    //  br_SiL1_1->SetAddress(&SiL1_1);
-  //  }
+  if (br_SiL1_1) {
+    br_SiL1_1->SetAddress(&SiL1_1);
+  }
   if (br_SiL1_2) {
     br_SiL1_2->SetAddress(&SiL1_2);
   }
@@ -288,7 +288,7 @@ void CollectChannels() {
 
   // SiL1
   i_counter = 0;
-  //  all_SiL1_channels[i_counter++] = SiL1_1;
+  all_SiL1_channels[i_counter++] = SiL1_1;
   all_SiL1_channels[i_counter++] = SiL1_2;
   all_SiL1_channels[i_counter++] = SiL1_3;
   all_SiL1_channels[i_counter++] = SiL1_4;
@@ -320,7 +320,7 @@ void CollectChannels() {
   all_channels[i_counter++] = SiT_3;
   all_channels[i_counter++] = SiT_4;
 
-  //  all_channels[i_counter++] = SiL1_1;
+  all_channels[i_counter++] = SiL1_1;
   all_channels[i_counter++] = SiL1_2;
   all_channels[i_counter++] = SiL1_3;
   all_channels[i_counter++] = SiL1_4;

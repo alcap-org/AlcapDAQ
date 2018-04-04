@@ -26,8 +26,15 @@ TemplateFitAPGenerator::TemplateFitAPGenerator(TAPGeneratorOptions* opts):
    TVAnalysedPulseGenerator("TemplateFitAPGenerator",opts),
    fInitPedestal(SetupNavigator::Instance()->GetPedestal(GetChannel())),
     fIntegralRatio(NULL),
-   fMaxTemplates(2),
-   fMaxBin(fInitPedestal, TSetupData::Instance()->GetTriggerPolarity(TSetupData::Instance()->GetBankName(GetChannel().str())))
+   fMaxTemplates(3),
+   fMaxBin(fInitPedestal, TSetupData::Instance()->GetTriggerPolarity(GetBank())),
+   fCFTime(fInitPedestal,  TSetupData::Instance()->GetTriggerPolarity(GetBank()),
+	   TSetupData::Instance()->GetClockTick(GetBank()),
+	   opts->GetBool("no_time_shift", false) ? 0. : SetupNavigator::Instance()->GetCoarseTimeOffset(GetSource()),
+	   TSetupData::GetDownSampling(GetBank().c_str(), SetupNavigator::Instance()->GetRunNumber()),
+	   opts->GetDouble("constant_fraction")),
+   fNoTimeShift(opts->GetBool("no_time_shift", false)),
+   fSyncPulses(opts->GetBool("sync_pulses", false))
 {
    // get the templates from the archive
    if(!fTemplateArchive){
@@ -66,9 +73,11 @@ TemplateFitAPGenerator::TemplateFitAPGenerator(TAPGeneratorOptions* opts):
   fTemplateTime=fTemplate->GetTime();
   fTemplatePed=fTemplate->GetPedestal();
 
+  fMultiFitter = new TemplateMultiFitter(GetChannel().str());
+
   // chi2 to determine when we refit with 2 pulses
   //  fChi2MinToRefit=opts->GetDouble("min_chi2_to_refit",2e5);
-  fChi2MinToRefit=opts->GetDouble("min_chi2_to_refit",300);
+  fChi2MinToRefit=opts->GetDouble("min_chi2_to_refit",200);
 }
 
 TemplateFitAPGenerator::~TemplateFitAPGenerator(){
@@ -78,6 +87,7 @@ TemplateFitAPGenerator::~TemplateFitAPGenerator(){
     delete fTemplateArchive;
     fTemplateArchive=NULL;
   }
+  delete fMultiFitter;
 }
 
 int TemplateFitAPGenerator::ProcessPulses( 
@@ -87,121 +97,210 @@ int TemplateFitAPGenerator::ProcessPulses(
   // Loop over all the TPIs given to us
   TTemplateFitAnalysedPulse* tap;
   double integral, ratio;
+  bool debug = false;
   for (PulseIslandList::const_iterator tpi=pulseList.begin();
        tpi!=pulseList.end(); tpi++){
 
-    //    std::cout << std::endl << "New TPI! (#" << tpi-pulseList.begin() << ")" << std::endl;
-    //    std::cout << "========" << std::endl;
+    /*    if ( tpi-pulseList.begin() == 31){
+      debug = true;
+    }
+    else {
+      debug = false;
+    }
+    */
+    
+    
+    if (debug) {
+      std::cout << std::endl << "New TPI! (#" << tpi-pulseList.begin() << ")" << std::endl;
+      std::cout << "========" << std::endl;
+    }
 
     if(fIntegralRatio && !PassesIntegralRatio(*tpi, integral,ratio)){
        continue;
     }
 
     // Get a couple of histograms that we will use for all fit attempts
-    TH1D* hPulseUnrefined = InterpolatePulse(*tpi,"hPulseUnrefined","hPulseUnrefined",false,1);
+    int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity((*tpi)->GetBankName());
+    TH1D* hPulseUnrefined = InterpolatePulse(*tpi,"hPulseUnrefined","hPulseUnrefined",false,1,true);
     fPCF->FindPulseCandidates(*tpi, hPulseUnrefined);
-    const std::vector<PulseCandidateFinder_TSpectrum::PeakLocation> peak_locations = fPCF->GetPeakLocations(); // NB these are NOT pedestal subtracted but not in template time bins
+    std::vector<PulseCandidateFinder_TSpectrum::PeakLocation> peak_locations = fPCF->GetPeakLocations(); // NB these are NOT pedestal subtracted but not in template time bins
 
+    if (debug) {
+      std::cout << "AE: Peak Locations.size() = " << peak_locations.size() << std::endl;
+      for (int i_peak = 0; i_peak < peak_locations.size(); ++i_peak) {
+	std::cout << "Peak #" << i_peak+1 << ": t = " << peak_locations.at(i_peak).time << ", A = " << peak_locations.at(i_peak).amplitude << std::endl;
+      }
+    }
     TH1D* hPulseToFit=InterpolatePulse(*tpi,"hPulseToFit","hPulseToFit",false,fTemplate->GetRefineFactor());
 
     double init_amp=fMaxBin(*tpi);///fTemplateAmp;
     double init_time=  fMaxBin.GetTime() * fTemplate->GetRefineFactor(); //- fTemplateTime ;
-    //    std::cout << "Init Amp = "<< init_amp << ", Init Time = " << init_time << ", Init Pedestal = " << fInitPedestal << std::endl;
+    if (debug) {
+      std::cout << "Init Amp = "<< init_amp << ", Init Time = " << init_time << ", Init Pedestal = " << fInitPedestal << std::endl;
+    }
     
 
     // Go in order trying to fit with an additional template each time
     double best_chi2 = 9e7;
     std::vector<TTemplateFitAnalysedPulse*> best_taps;
+    
     for (int n_templates = 1; n_templates <= fMaxTemplates; ++n_templates) {
-      //      std::cout << std::endl << "Attempting " << n_templates << " templates..." << std::endl;
-      // Create the fitter with the correct number of templates
-      TemplateMultiFitter* fitter = new TemplateMultiFitter(GetChannel().str());
-      for (int i_template = 0; i_template < n_templates; ++i_template) {
-	fitter->AddTemplate(fTemplate);
+      if (debug) {
+	std::cout << std::endl << "Attempting " << n_templates << " templates..." << std::endl;
       }
-      fitter->Init();
+      // Create the fitter with the correct number of templates
+      fMultiFitter->Reset();
+      for (int i_template = 0; i_template < n_templates; ++i_template) {
+	fMultiFitter->AddTemplate(fTemplate);
+      }
+      fMultiFitter->Init();
 
       // Get an estimate for the initial template parameters
       if (peak_locations.size() < n_templates) {
 	//	std::cout << "TSpectrum found fewer peaks than the number of templates requested" << std::endl;
+	//	std::cout << "AE: " << peak_locations.size() << ", " << n_templates << std::endl;
 	continue;
       }
-      //      std::cout << "Initial Template Estimates:" << std::endl;
+      if (debug) {
+	std::cout << "Initial Template Estimates:" << std::endl;
+      }
       for (int i_template = 0; i_template < n_templates; ++i_template) {
-	fitter->SetPulseEstimates(i_template, 
-				  peak_locations.at(i_template).amplitude - fInitPedestal, 
+	fMultiFitter->SetPulseEstimates(i_template, 
+				  peak_locations.at(i_template).amplitude - trigger_polarity*fInitPedestal, 
 				  (peak_locations.at(i_template).time+0.5)*fTemplate->GetRefineFactor());
-	//	std::cout << "\t Template #" << i_template << ": A = " << fitter->GetAmplitude(i_template) << ", t = " << fitter->GetTime(i_template) << std::endl;
-      }
-      //      std::cout << "\t Pedestal = " << fitter->GetPedestal() << ", Chi^2 = " << fitter->GetChi2() << std::endl;
 
-      fitter->SetPedestalEstimate(fInitPedestal);
-
-      //      std::cout << "Fitting with all times fixed (1)..." << std::endl;
-      int fit_status = fitter->FitWithAllTimesFixed(hPulseToFit);
-      /*      std::cout << "Final parameters:" << std::endl;
-      for (int i_template = 0; i_template < n_templates; ++i_template) {
-	std::cout << "\t Template #" << i_template << ": A = " << fitter->GetAmplitude(i_template) << ", t = " << fitter->GetTime(i_template) << std::endl;
+	if (debug) {
+	  std::cout << "\t Template #" << i_template << ": A = " << fMultiFitter->GetAmplitude(i_template) << ", t = " << fMultiFitter->GetTime(i_template) << std::endl;
+	}
       }
-      std::cout << "\t Pedestal = " << fitter->GetPedestal() << ", Chi^2 / NdF = " << fitter->GetChi2() << " / " << fitter->GetNDoF() << " = " << fitter->GetChi2() / fitter->GetNDoF() << std::endl;
-      */
+      if (debug) {
+	std::cout << "\t Pedestal = " << fMultiFitter->GetPedestal() << ", Chi^2 = " << fMultiFitter->GetChi2() << std::endl;
+      }
+
+      fMultiFitter->SetPedestalEstimate(trigger_polarity*fInitPedestal);
+
+      if (debug) {
+	std::cout << "Fitting with all times fixed (1)..." << std::endl;
+      }
+      int fit_status = fMultiFitter->FitWithAllTimesFixed(hPulseToFit);
+
+      if (debug) {
+	std::cout << "Final parameters:" << std::endl;
+	for (int i_template = 0; i_template < n_templates; ++i_template) {
+	  std::cout << "\t Template #" << i_template << ": A = " << fMultiFitter->GetAmplitude(i_template) << ", t = " << fMultiFitter->GetTime(i_template) << std::endl;
+	}
+	std::cout << "\t Pedestal = " << fMultiFitter->GetPedestal() << ", Chi^2 / NdF = " << fMultiFitter->GetChi2() << " / " << fMultiFitter->GetNDoF() << " = " << fMultiFitter->GetChi2() / fMultiFitter->GetNDoF() << std::endl;
+      }
 
       // Now fit each individual peak on its own
-      //      std::cout << "Fitting each template individually..." << std::endl;
-      for (int i_template = 0; i_template < n_templates; ++i_template) {
-	//      for (int i_template = n_templates-1; i_template >= 0; --i_template) {
-	int fit_status = fitter->FitWithOneTimeFree(i_template, hPulseToFit, 5*fTemplate->GetRefineFactor());
-	//	std::cout << "\t Template #" << i_template << ": status = " << fit_status << ", A = " << fitter->GetAmplitude(i_template) << ", t = " << fitter->GetTime(i_template) << " template bins, P = " << fitter->GetPedestal() << ", Chi^2 / NdF = " << fitter->GetChi2() << " / " << fitter->GetNDoF() << " = " << fitter->GetChi2() / fitter->GetNDoF() << std::endl;
+      if (debug) {
+	std::cout << "Fitting each template individually..." << std::endl;
       }
 
-      /*      std::cout << "Final parameters:" << std::endl;
       for (int i_template = 0; i_template < n_templates; ++i_template) {
-	std::cout << "\t Template #" << i_template << ": A = " << fitter->GetAmplitude(i_template) << ", t = " << fitter->GetTime(i_template) << std::endl;
-      }
-      std::cout << "\t Pedestal = " << fitter->GetPedestal() << ", Chi^2 / NdF = " << fitter->GetChi2() << " / " << fitter->GetNDoF() << " = " << fitter->GetChi2() / fitter->GetNDoF() << std::endl;
-      */
+	double range = 5;
 
-      if (fitter->GetChi2() < best_chi2) {
-	best_taps.clear();
+	if (fMultiFitter->GetTime(i_template) > (*tpi)->GetSamples().size()-5) { // if we are close to the end of the TPI
+	  range = 10; // allow it to go out a bit further
+	}
+	fit_status = fMultiFitter->FitWithOneTimeFree(i_template, hPulseToFit, range*fTemplate->GetRefineFactor());
+
+	if (debug) {
+	  std::cout << "\t Template #" << i_template << ": status = " << fit_status << ", A = " << fMultiFitter->GetAmplitude(i_template) << ", t = " << fMultiFitter->GetTime(i_template) << " template bins, P = " << fMultiFitter->GetPedestal() << ", Chi^2 / NdF = " << fMultiFitter->GetChi2() << " / " << fMultiFitter->GetNDoF() << " = " << fMultiFitter->GetChi2() / fMultiFitter->GetNDoF() << std::endl;
+	}
+      }
+
+      if (debug) {
+	std::cout << "Final parameters:" << std::endl;
 	for (int i_template = 0; i_template < n_templates; ++i_template) {
-	  TTemplateFitAnalysedPulse* tap = MakeNewTAP<TTemplateFitAnalysedPulse>(tpi-pulseList.begin());
+	  std::cout << "\t Template #" << i_template << ": A = " << fMultiFitter->GetAmplitude(i_template) << ", t = " << fMultiFitter->GetTime(i_template) << std::endl;
+	}
+	std::cout << "\t Pedestal = " << fMultiFitter->GetPedestal() << ", Chi^2 / NdF = " << fMultiFitter->GetChi2() << " / " << fMultiFitter->GetNDoF() << " = " << fMultiFitter->GetChi2() / fMultiFitter->GetNDoF() << std::endl;
+      }
+	//	std::cout << "AE: chi^2 = " << fMultiFitter->GetChi2()  << std::endl;
+      if (fMultiFitter->GetChi2() < best_chi2 && fit_status==0) {	
+	for (std::vector<TTemplateFitAnalysedPulse*>::const_iterator i_best_tap = best_taps.begin(); i_best_tap != best_taps.end(); ++i_best_tap) {
+	  delete *i_best_tap;
+	}
+	best_taps.clear();
+	
+	for (int i_template = 0; i_template < n_templates; ++i_template) {
+	  TTemplateFitAnalysedPulse* tap = MakeNewTAP<TTemplateFitAnalysedPulse>(tpi-pulseList.begin(), i_template);
 	  tap->SetTemplate(fTemplate);
-	  tap->SetPedestal(fitter->GetPedestal());
-	  tap->SetAmplitude(fitter->GetAmplitude(i_template));
+	  tap->SetPedestal(fMultiFitter->GetPedestal());
+	  tap->SetAmplitude(fMultiFitter->GetAmplitude(i_template));
 
 	  double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(TSetupData::Instance()->GetBankName(GetChannel().str()));
-	  double time_shift = 0;//SetupNavigator::Instance()->GetCoarseTimeOffset(GetSource());
+	  double time_shift;
+	  if (fNoTimeShift) {
+	    time_shift = 0;
+	  }
+	  else {
+	    time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(GetSource());
+	  }
+	  
 	  int down_samp = TSetupData::GetDownSampling(GetBank().c_str(), SetupNavigator::Instance()->GetRunNumber());
-	  double time = fitter->GetTime(i_template); // in template time bins
-	  time /= fTemplate->GetRefineFactor(); // convert to clock ticks
-	  time *= down_samp; // take into account the down sampling
-	  time = (*tpi)->GetTimeStamp() + time; // convert to block time (in clock ticks)
+	  double time = (*tpi)->GetTimeStamp() + ( (fTemplate->GetCFTime() / fTemplate->GetRefineFactor()) * down_samp );
+	  double tpl_time_offset = fMultiFitter->GetTimeOffset(i_template); // in template time bins
+	  tpl_time_offset /= fTemplate->GetRefineFactor(); // convert to clock ticks
+	  tpl_time_offset *= down_samp; // take into account the down sampling
+
+	  tap->SetTemplateTimeOffset(tpl_time_offset);
+	  //	  tpl_time_offset += time_shift;
+	  
+	  time += tpl_time_offset;
 	  time *= clock_tick_in_ns; // convert to ns
-	  time -= time_shift; // account for cable delays
+	  time -= time_shift;
+
+	  if (fSyncPulses) {
+	    if (time < 10e3 || time > 96e6) {
+	      continue;
+	    }
+	  }
+
 	  tap->SetTime(time);
-	  tap->SetChi2(fitter->GetChi2());
-	  tap->SetNDoF(fitter->GetNDoF());
+	  tap->SetChi2(fMultiFitter->GetChi2());
+	  tap->SetNDoF(fMultiFitter->GetNDoF());
 	  tap->SetFitStatus(fit_status);
 	  //	tap->SetIntegral(integral);
 	  //	tap->SetIntegralRatio(ratio);
 
 	  best_taps.push_back(tap);
 
-	  best_chi2 = fitter->GetChi2();
+	  best_chi2 = fMultiFitter->GetChi2();
 	}
       }
 
-      if (best_chi2 <= fChi2MinToRefit) {
+      if (best_chi2 < fChi2MinToRefit) {
 	break;
       }
+      else if (peak_locations.size() < n_templates+1) {
+	// Look for the residual
+	PulseCandidateFinder_TSpectrum::PeakLocation add_location;
+	bool large_residual = fMultiFitter->FindLargeResidual(hPulseToFit, add_location.amplitude, add_location.time);
 
-      delete fitter;
+	if (large_residual) {
+	  peak_locations.push_back(add_location);
+	  //	  std::cout << "Added peak... t = " << add_location.time << ", A = " << add_location.amplitude << std::endl;
+	}
+      }
     }
 
 
     for (std::vector<TTemplateFitAnalysedPulse*>::const_iterator i_best_tap = best_taps.begin(); i_best_tap != best_taps.end(); ++i_best_tap) {
       analysedList.push_back(*i_best_tap);
+
+      /*      	  if ((*i_best_tap)->GetParentID() == 71 ||(*i_best_tap)->GetParentID() == 124 || (*i_best_tap)->GetParentID() == 175 || (*i_best_tap)->GetParentID() == 335
+	      || (*i_best_tap)->GetParentID() == 462 || (*i_best_tap)->GetParentID() == 626 || (*i_best_tap)->GetParentID() == 649 || (*i_best_tap)->GetParentID() == 832
+	      || (*i_best_tap)->GetParentID() == 840 || (*i_best_tap)->GetParentID() == 907 || (*i_best_tap)->GetParentID() == 915 || (*i_best_tap)->GetParentID() == 969) {
+	    
+	    std::cout << "AE: "  << (*i_best_tap)->GetParentID() << ": " << (*i_best_tap)->GetTime() << " " << (*i_best_tap)->GetAmplitude() << std::endl;
+	  }
+      */  
     }
+
+    delete hPulseUnrefined;
+    delete hPulseToFit;
   }
   std::sort(analysedList.begin(), analysedList.end(), IsTimeOrdered);
 
@@ -328,4 +427,4 @@ void TemplateFitAPGenerator::InitializeSecondPulse(
     std::cout << "Initializing second pulse to A = " << second_scale << " and t = " << second_time << std::endl;
 }
 
-ALCAP_TAP_GENERATOR(TemplateFit,template_archive,use_IR_cut, min_integral, max_integral, min_ratio, max_ratio, template_archive_2,min_chi2_to_refit);
+ALCAP_TAP_GENERATOR(TemplateFit,template_archive,constant_fraction,no_time_shift,sync_pulses, use_IR_cut, min_integral, max_integral, min_ratio, max_ratio, template_archive_2,min_chi2_to_refit);

@@ -33,6 +33,8 @@ for ifile in infiles:
             row = (int(line[0]),line[1].strip()) + tuple(none_or_float(word) for word in line[2:])
             cmd = "SELECT * FROM " + table_name + " WHERE run==? AND channel==?"
             args = row[0:2]
+            
+            cur = db.execute(cmd, args)
             cur = db.execute(cmd, args)
             if cur.fetchone():
                 cmd = "UPDATE " + table_name + " SET '" + ",'".join(s + "'=?" for s in cols[2:]);

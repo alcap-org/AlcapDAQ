@@ -2,10 +2,13 @@ void DrawFullXRaySpectrum_ForLBLReview() {
 
   gROOT->ProcessLine(".L scripts/XRayAnalysis/CountXRays.C+");
   
-  TFile* file = new TFile("/gpfs/data/edmonds_a/merlin4/data/out/v11/Si16b.root", "READ");
+  //TFile* file = new TFile("/gpfs/data/edmonds_a/merlin4/data/out/v11/Si16b.root", "READ");
+  TFile* file = new TFile("/home/edmonds/data/out/local/Si16b_v11_ge-spectrum.root", "READ");
+  //    TFile* file = new TFile("/home/edmonds/data/out/v6/SiL3_ge-spectrum.root", "READ");
 
-  std::string channel = "GeHiGain";
+  std::string channel = "GeLoGain";
   std::string histname = "PlotTAP_EnergyTime/h" + channel + "#FirstComplete#{constant_fraction=0.20}{no_time_shift= true}_EnergyTime;1";
+  //    std::string histname = "PlotTAP_EnergyTime/h" + channel + "#MaxBinAPGenerator#{no_time_shift=true}_EnergyTime;1";
   TH2F* hGe_2DPlot = (TH2F*) file->Get(histname.c_str());
   TH1D* hGe_FullSpectrum = hGe_2DPlot->ProjectionX();
 
@@ -67,18 +70,22 @@ void DrawFullXRaySpectrum_ForLBLReview() {
   hGe_FullSpectrum->GetYaxis()->SetTitleOffset(1.3);
   hGe_FullSpectrum->SetTitle("X-Ray Spectrum (Silicon Target)");
   hGe_FullSpectrum->GetXaxis()->SetRangeUser(50, 1200);
+  hGe_FullSpectrum->SetMaximum(hGe_FullSpectrum->GetMaximum()*1.50);
 
   hGe_FullSpectrum->Draw("HIST E");
 
   int bin_2p1s = hGe_FullSpectrum->FindBin(xray.energy);
-  double arrow_y_end = hGe_FullSpectrum->GetBinContent(bin_2p1s)+500;
-  double arrow_y_start = arrow_y_end + 1500;
+  //  double arrow_y_end = hGe_FullSpectrum->GetBinContent(bin_2p1s)+500;
+  //  double arrow_y_start = arrow_y_end + 1500;
+  double arrow_y_end = hGe_FullSpectrum->GetBinContent(bin_2p1s)*1.05;
+  double arrow_y_start = arrow_y_end*1.10;
   TArrow* arrow = new TArrow(xray.energy, arrow_y_start, xray.energy, arrow_y_end, 0.01);
   arrow->SetLineColor(kRed);
   arrow->SetLineWidth(2);
   arrow->Draw("");
 
-  TLatex* label = new TLatex(xray.energy, arrow_y_start+3000, "2p-1s");
+  //  TLatex* label = new TLatex(xray.energy, arrow_y_start+3000, "2p-1s");
+    TLatex* label = new TLatex(xray.energy, arrow_y_start*1.17, "2p-1s");
   label->SetTextAlign(21);
   label->SetTextSize(0.04);
   label->Draw("");
@@ -86,12 +93,14 @@ void DrawFullXRaySpectrum_ForLBLReview() {
   std::stringstream text;
   text.str("");
   text << "(" << xray.energy << " keV)";
-  TLatex* energy_label = new TLatex(xray.energy, arrow_y_start+1000, text.str().c_str());
+  //  TLatex* energy_label = new TLatex(xray.energy, arrow_y_start+1000, text.str().c_str());
+  TLatex* energy_label = new TLatex(xray.energy, arrow_y_start*1.12, text.str().c_str());
   energy_label->SetTextAlign(21);
   energy_label->SetTextSize(0.034);
   energy_label->Draw("");
 
-  TLatex* preliminary_text = new TLatex(800, 8000, "AlCap Preliminary");
+  //  TLatex* preliminary_text = new TLatex(800, 8000, "AlCap Preliminary");
+  TLatex* preliminary_text = new TLatex(800, 1000, "AlCap Preliminary");
   preliminary_text->SetTextAlign(22);
   preliminary_text->SetTextSize(0.05);
   preliminary_text->Draw("");
@@ -115,7 +124,8 @@ void DrawFullXRaySpectrum_ForLBLReview() {
   text.str("");
   text << "N_{stopped~muons} = (" << std::setprecision(3) << n_stopped_muons/1e6 << " #pm " << std::setprecision(1) << n_stopped_muons_error/1e6 << ") #times 10^{6}";
   std::cout << text.str() << std::endl;
-  TLatex* count_label = new TLatex(850, 6000, text.str().c_str());
+  //  TLatex* count_label = new TLatex(850, 6000, text.str().c_str());
+  TLatex* count_label = new TLatex(850, 600, text.str().c_str());
   count_label->SetTextAlign(22);
   count_label->SetTextSize(0.034);
   count_label->Draw("");

@@ -112,12 +112,17 @@ void SiL3Calib() {
   si_channel_canvases = new TCanvas(canvasname.str().c_str(), canvasname.str().c_str());
   si_channel_canvases->Divide(3, 2);
 
+  std::string foldername = "/home/edmonds/data/out/local/";
   std::stringstream filename;
   std::stringstream histname;
   for (int i_calib_point = 0; i_calib_point < n_calib_points; ++i_calib_point) {
     filename.str("");
-    filename << "out" << std::setw(5) << std::setfill('0') << calib_run_numbers[i_calib_point] << ".root";
+    filename << foldername << "out" << std::setw(5) << std::setfill('0') << calib_run_numbers[i_calib_point] << ".root";
     TFile* file = new TFile(filename.str().c_str(), "READ");
+    if (file->IsZombie()) {
+      continue;
+    }
+			   
 
     canvasname.str("");
     canvasname << "c" << i_calib_point;
@@ -125,7 +130,8 @@ void SiL3Calib() {
     si_channel_canvases->cd(i_calib_point+1);
 
     histname.str("");
-    histname << "PlotTAP_Amplitude_wTimeCuts/hSiL3-S#MaxBinAPGenerator#{no_time_shift=true}_Amplitude_wTimeCuts";
+    //    histname << "PlotTAP_Amplitude_wTimeCuts/hSiL3-S#MaxBinAPGenerator#{no_time_shift=true}_Amplitude_wTimeCuts";
+    histname << "PlotTAP_Amplitude_wTimeCuts/hSiL3-S#TemplateFitAPGenerator#{template_archive=templates_SiL3Dataset.root}{constant_fraction= 0.20}{no_time_shift= true}_Amplitude_wTimeCuts";
     TH1F* hist = (TH1F*) file->Get(histname.str().c_str());
     hist->SetDirectory(0);
     hist->Rebin(calib_rebin_factors[i_calib_point]);
@@ -260,10 +266,10 @@ void SiL3Calib() {
 
   std::string canvas_name = si_channel_canvases->GetName();
   std::string savename = "~/plots/2016-12-19/" + canvas_name + ".pdf";
-  si_channel_canvases->SaveAs(savename.c_str());
+  //  si_channel_canvases->SaveAs(savename.c_str());
 
   // Now write out the calibration constants
-  std::ofstream calib_script;
+  /*  std::ofstream calib_script;
   calib_script.open("scripts/r15b_insert_calib_sil3.sh", std::ofstream::out);
   calib_script << "#! /bin/bash" << std::endl;
   calib_script << std::endl;
@@ -274,7 +280,7 @@ void SiL3Calib() {
   calib_script << "  echo \"INSERT into Energy  (run, channel, gain, offset) values ( $run, \\\"${Channel}\\\", ${Gain}, ${Offset}) ;\"" << std::endl;
   calib_script << "done" << std::endl;
   calib_script.close();
-
+  */
 
   TCanvas* c_gr2 = new TCanvas("c_gr2", "c_gr2");
   c_gr2->Divide(4, 4);

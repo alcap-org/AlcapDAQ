@@ -16,7 +16,7 @@ namespace modules {class options;}
 /// Plots the number of muons in each Si16 strip
 ///
 /// \details
-/// Applies an ADC cut to select muons in the Si16 channels
+/// Applies an Energy cut to select muons in the Si16 channels
 ////////////////////////////////////////////////////////////////////////////////
 class PlotTAP_NMuons_Si16 : public BaseModule {
 
@@ -55,8 +55,8 @@ class PlotTAP_NMuons_Si16 : public BaseModule {
   ///
   /// \details used for doing something very intelligent and clever
   // ...and don't hesitate to include details.
-  double fADCCutLow;
-  double fADCCutHigh;
+  double fEnergyCutLow;
+  double fEnergyCutHigh;
 
   /// \brief the histogram we will fill
   TH1F* fNMuonsPerStrip;

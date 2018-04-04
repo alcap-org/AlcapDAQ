@@ -9,7 +9,7 @@
 
 TH1D* functions::InterpolatePulse(
     const TPulseIsland* pulse, std::string histname,
-     std::string histtitle, bool interpolate, int refine) {
+    std::string histtitle, bool interpolate, int refine, bool ped_subtract) {
 
   // Get a few things first
   const std::string& bankname = pulse->GetBankName();
@@ -17,10 +17,14 @@ TH1D* functions::InterpolatePulse(
   const std::vector<int>& theSamples = pulse->GetSamples();
   int n_samples = theSamples.size();
   int n_bins = refine*n_samples; // number of bins in the template
-
+  int n_bits = TSetupData::Instance()->GetNBits(bankname);
+  double max_adc_value = std::pow(2, n_bits);
+  int trigger_polarity = TSetupData::Instance()->GetTriggerPolarity(bankname);
+  
   // Create the higher resolution histogram
   TH1D* hist = new TH1D(histname.c_str(), histtitle.c_str(), n_bins, 0, n_samples);
 
+  double pedestal = SetupNavigator::Instance()->GetPedestal(detname);
   double pedestal_error = SetupNavigator::Instance()->GetNoise(detname);
 
   // Go through the bins in the high-resolution histogram
@@ -46,9 +50,17 @@ TH1D* functions::InterpolatePulse(
       sample_value = theSamples.at(sample_number);
     }
 
+    if (sample_value >= max_adc_value-1) {
+      hist->SetBinError( bin, max_adc_value); // set a large error bar so that template fitting can work
+    }
+    else {
+      hist->SetBinError( bin, pedestal_error);
+    }
     // Set the bin contents and bin error
-    hist->SetBinContent( bin, sample_value);
-    hist->SetBinError( bin, pedestal_error);
+    if (ped_subtract) {
+      sample_value -= pedestal;
+    }
+    hist->SetBinContent( bin, trigger_polarity*sample_value);
   }
   hist->SetDirectory(0);
 
