@@ -11,9 +11,11 @@ int CountStoppedMuons() {
   //////////////////
   // User Parameters
   std::string channel = "GeLoGain";
-  std::string filename = "/home/edmonds/data/results/Si16b_passive/XRaySpectrum_" + channel + ".root";
+  //  std::string dataset = "Si16b_passive";
+  std::string dataset = "SiL3_active";
+  std::string filename = "/home/edmonds/data/results/" + dataset + "/XRaySpectrum_" + channel + ".root";
   std::string histname = "hGe_FullSpectrum";
-  std::string outfilename = "/home/edmonds/data/results/Si16b_passive/CountStoppedMuons_" + channel + ".root";
+  std::string outfilename = "/home/edmonds/data/results/" + dataset + "/CountStoppedMuons_" + channel + ".root";
   std::string material = "Si";
   int ge_eff_run = 10319; // can be 10319 or 9302
 

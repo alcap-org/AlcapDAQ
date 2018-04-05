@@ -3,8 +3,10 @@ void PrettyPlots() {
 
   //////////////////
   // Open all files
-  std::string mustops_gelo_filename = "/home/edmonds/data/results/Si16b_passive/CountStoppedMuons_GeLoGain.root";
-  std::string outfilename = "/home/edmonds/data/results/Si16b_passive/pretty-plots.root";
+  //  std::string dataset = "Si16b_passive";
+  std::string dataset = "SiL3_active";
+  std::string mustops_gelo_filename = "/home/edmonds/data/results/" + dataset + "/CountStoppedMuons_GeLoGain.root";
+  std::string outfilename = "/home/edmonds/data/results/" + dataset + "/pretty-plots.root";
   
   TFile* mustops_gelo_file = new TFile(mustops_gelo_filename.c_str(), "READ");
   if (mustops_gelo_file->IsZombie()) {
@@ -38,27 +40,28 @@ void PrettyPlots() {
   hGe_Spectrum->Draw("HIST E");
   
   int bin_xray = hGe_Spectrum->FindBin(xray_energy);
-  double arrow_y_end = hGe_Spectrum->GetBinContent(bin_xray)*1.05;
-  double arrow_y_start = arrow_y_end*1.15;
+  double arrow_y_end = hGe_Spectrum->GetBinContent(bin_xray)*1.1;
+  double arrow_y_start = arrow_y_end*1.5;
   TArrow* arrow = new TArrow(xray_energy, arrow_y_start, xray_energy, arrow_y_end, 0.01);
   arrow->SetLineColor(kRed);
   arrow->SetLineWidth(2);
   arrow->Draw("");
+
+  std::stringstream text;
+  text.str("");
+  text << "(" << xray_energy << " keV)";
+  TLatex* energy_label = new TLatex(xray_energy, arrow_y_start*1.1, text.str().c_str());
+  energy_label->SetTextAlign(21);
+  energy_label->SetTextSize(0.034);
+  energy_label->Draw("");
+
   
   TLatex* label = new TLatex(xray_energy, arrow_y_start*1.35, (*xray_transition).c_str());
   label->SetTextAlign(21);
   label->SetTextSize(0.04);
   label->Draw("");
 
-  std::stringstream text;
-  text.str("");
-  text << "(" << xray_energy << " keV)";
-  TLatex* energy_label = new TLatex(xray_energy, arrow_y_start*1.3, text.str().c_str());
-  energy_label->SetTextAlign(21);
-  energy_label->SetTextSize(0.034);
-  energy_label->Draw("");
-
-  TLatex* preliminary_text = new TLatex(800, 1000, "AlCap Preliminary");
+  TLatex* preliminary_text = new TLatex(300, 25000, "AlCap Preliminary");
   preliminary_text->SetTextAlign(22);
   preliminary_text->SetTextSize(0.05);
   preliminary_text->Draw("");
@@ -72,16 +75,16 @@ void PrettyPlots() {
   (ws->pdf("sum"))->plotOn(Eframe);
 
   
-  TPad* inset_pad = new TPad("inset", "inset", 0.45, 0.45, 0.89, 0.89);
+  TPad* inset_pad = new TPad("inset", "inset", 0.45, 0.40, 0.89, 0.84);
   inset_pad->Draw();
   inset_pad->cd();
   Eframe->Draw();
 
   text.str("");
-  text << "N_{stop#mu} = " << n_stopped_muons << " #pm " << n_stopped_muons_error;
+  text << "N_{stop #mu} = (" << std::fixed << std::setprecision(1) << n_stopped_muons/1e6 << " #pm " << std::setprecision(1) << n_stopped_muons_error/1e6 << ") #times 10^{6}";
   TLatex* mustop_text = new TLatex(400, 1000, text.str().c_str());
   mustop_text->SetTextAlign(22);
-  mustop_text->SetTextSize(0.034);
+  mustop_text->SetTextSize(0.1);
   mustop_text->Draw("");
 
 
