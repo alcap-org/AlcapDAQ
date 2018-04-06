@@ -2,7 +2,7 @@ void NormalisedProtonSpectrum() {
 
   ////////////////////////
   // User parameters
-  std::string unfolded_filename = "~/data/results/Si16b_passive/unfolded.root";
+  std::string unfolded_filename = "~/data/results/Si16b_passive/unfolded-wVeto.root";
   std::string unfolded_histname = "hUnfoldedSpectrum";
   std::string mustop_filename = "~/data/results/Si16b_passive/CountStoppedMuons_GeLoGain.root";
   std::string mustop_treename = "mustops";
@@ -31,11 +31,13 @@ void NormalisedProtonSpectrum() {
   hNormalisedSpectrum->Draw("HIST E");
 
   TF1* proton_spec_fit = new TF1("proton_spec_fit", "[0]*(1 - [1]/x)^[2] * TMath::Exp(-x/[3])", 2400, 12000);
-  proton_spec_fit->SetParameters(0.05, 1500, 1.1, 5000);
+  proton_spec_fit->SetParameters(30e-6, 1500, 0.5, 5000);
+  proton_spec_fit->SetParLimits(1, 1000, 2500);
+  proton_spec_fit->SetParLimits(2, 0.2, 5);
   hNormalisedSpectrum->Fit(proton_spec_fit, "R");
   proton_spec_fit->Draw("LSAME");
 
-  std::cout << proton_spec_fit->Integral(3000, 1000000) << std::endl;
+  std::cout << proton_spec_fit->Integral(2000, 1000000) << std::endl;
   
   hNormalisedSpectrum->Write();
   outfile->Write();

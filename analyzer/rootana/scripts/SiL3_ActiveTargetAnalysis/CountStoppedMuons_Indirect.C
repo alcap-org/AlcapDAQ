@@ -5,13 +5,13 @@
 
 #include "scripts/XRayAnalysis/XRayUtils.h"
 
-int CountStoppedMuons() {
+int CountStoppedMuons_Indirect() {
 
   
   //////////////////
   // User Parameters
-  std::string channel = "GeLoGain";
-  std::string dataset = "Si16b_passive";
+  std::string channel = "GeHiGain";
+  std::string dataset = "SiL3_active";
   std::string filename = "/home/edmonds/data/results/" + dataset + "/XRaySpectrum_" + channel + ".root";
   std::string histname = "hGe_FullSpectrum";
   std::string outfilename = "/home/edmonds/data/results/" + dataset + "/CountStoppedMuons_" + channel + ".root";

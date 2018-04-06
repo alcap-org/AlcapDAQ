@@ -1,15 +1,15 @@
 // Make all the pretty plots for this analysis
-void PrettyPlots() {
+TCanvas* Pretty_CountStoppedMuons_GeHiGain() {
 
   //////////////////
   // Open all files
-  std::string dataset = "Si16b_passive";
-  std::string mustops_gelo_filename = "/home/edmonds/data/results/" + dataset + "/CountStoppedMuons_GeLoGain.root";
+  std::string dataset = "SiL3_active";
+  std::string mustops_gehi_filename = "/home/edmonds/data/results/" + dataset + "/CountStoppedMuons_GeHiGain.root";
   std::string outfilename = "/home/edmonds/data/results/" + dataset + "/pretty-plots.root";
   
-  TFile* mustops_gelo_file = new TFile(mustops_gelo_filename.c_str(), "READ");
-  if (mustops_gelo_file->IsZombie()) {
-    std::cout << "Trouble opening mustops_gelo " << mustops_gelo_filename << std::endl;
+  TFile* mustops_gehi_file = new TFile(mustops_gehi_filename.c_str(), "READ");
+  if (mustops_gehi_file->IsZombie()) {
+    std::cout << "Trouble opening mustops_gehi " << mustops_gehi_filename << std::endl;
     return 1;
   }
 
@@ -18,7 +18,7 @@ void PrettyPlots() {
   // Create mustops canvas
   TCanvas* c_mustops = new TCanvas("c_mustops", "c_mustops");
 
-  TTree* mustops_tree = (TTree*) mustops_gelo_file->Get("mustops");
+  TTree* mustops_tree = (TTree*) mustops_gehi_file->Get("mustops");
   double xray_energy = 0;
   std::string* xray_transition = 0;
   double n_stopped_muons = 0;
@@ -31,8 +31,8 @@ void PrettyPlots() {
   
   mustops_tree->GetEntry(0);
   
-  TH1F* hGe_Spectrum = (TH1F*) mustops_gelo_file->Get("hGe_Spectrum");
-  RooWorkspace* ws = (RooWorkspace*) mustops_gelo_file->Get("ws");
+  TH1F* hGe_Spectrum = (TH1F*) mustops_gehi_file->Get("hGe_Spectrum");
+  RooWorkspace* ws = (RooWorkspace*) mustops_gehi_file->Get("ws");
   ws->Print();
 
   c_mustops->cd();
@@ -40,7 +40,7 @@ void PrettyPlots() {
   
   int bin_xray = hGe_Spectrum->FindBin(xray_energy);
   double arrow_y_end = hGe_Spectrum->GetBinContent(bin_xray)*1.1;
-  double arrow_y_start = arrow_y_end*1.5;
+  double arrow_y_start = arrow_y_end*1.2;
   TArrow* arrow = new TArrow(xray_energy, arrow_y_start, xray_energy, arrow_y_end, 0.01);
   arrow->SetLineColor(kRed);
   arrow->SetLineWidth(2);
@@ -60,7 +60,7 @@ void PrettyPlots() {
   label->SetTextSize(0.04);
   label->Draw("");
 
-  TLatex* preliminary_text = new TLatex(300, 25000, "AlCap Preliminary");
+  TLatex* preliminary_text = new TLatex(300, 120, "AlCap Preliminary");
   preliminary_text->SetTextAlign(22);
   preliminary_text->SetTextSize(0.05);
   preliminary_text->Draw("");
@@ -81,14 +81,10 @@ void PrettyPlots() {
 
   text.str("");
   text << "N_{stop #mu} = (" << std::fixed << std::setprecision(1) << n_stopped_muons/1e6 << " #pm " << std::setprecision(1) << n_stopped_muons_error/1e6 << ") #times 10^{6}";
-  TLatex* mustop_text = new TLatex(400, 1000, text.str().c_str());
+  TLatex* mustop_text = new TLatex(400, 100, text.str().c_str());
   mustop_text->SetTextAlign(22);
   mustop_text->SetTextSize(0.1);
   mustop_text->Draw("");
 
-
-  TFile* outfile = new TFile(outfilename.c_str(), "RECREATE");
-  c_mustops->Write();
-  outfile->Write();
-  outfile->Close();
+  return c_mustops;
 }

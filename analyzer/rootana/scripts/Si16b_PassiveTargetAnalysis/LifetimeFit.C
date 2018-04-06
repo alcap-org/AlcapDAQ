@@ -3,7 +3,7 @@ void LifetimeFit() {
   ///////////////////////
   // User parameters
   std::string filename = "~/data/results/Si16b_passive/EvdEPlots.root";
-  std::string histname = "hTime_Proton_Veto";
+  std::string histname = "hTime_Proton_NoVeto";
 
   TFile* file = new TFile(filename.c_str(), "READ");
   TH1F* hProtonTime = (TH1F*) file->Get(histname.c_str());

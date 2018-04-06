@@ -72,9 +72,13 @@ int FillXRayInfo(XRay& xray) {
 int FillGeEffParams(const std::string& channel, const int& run, double& a, double& b, double& delta_a, double& delta_b, double& corr) {
   if (channel == "GeLoGain") {
     if (run == 10319) {
-      a = 0.223417; delta_a = 0.0213393;
-      b = -0.919075; delta_b = 0.0151079;
-      corr = -0.995269;
+      // from GoogleSheet
+      //      a = 0.223417; delta_a = 0.0213393;
+      //      b = -0.919075; delta_b = 0.0151079;
+      //      corr = -0.995269;
+      a = 0.1792; delta_a = 0.01533;
+      b = -0.9332; delta_b = 0.01332;
+      corr = -0.867502;
     }
     else if (run == 9302) {
       a = 0.173809; delta_a = 0.0226852;
@@ -88,9 +92,13 @@ int FillGeEffParams(const std::string& channel, const int& run, double& a, doubl
   }
   else if (channel == "GeHiGain") {
     if (run == 10319) {
-      a = 0.244223; delta_a = 0.0228416;
-      b = -0.931899; delta_b = 0.0148333;
-      corr = -0.995306;
+      // from GoogleSheet
+      //      a = 0.244223; delta_a = 0.0228416;
+      //      b = -0.931899; delta_b = 0.0148333;
+      //      corr = -0.995306;
+      a = 0.193; delta_a = 0.01635;
+      b = -0.9437; delta_b = 0.01323;
+      corr = -0.86864;
     }
     else if (run == 9302) {
       a = 0.19928; delta_a = 0.0256165;

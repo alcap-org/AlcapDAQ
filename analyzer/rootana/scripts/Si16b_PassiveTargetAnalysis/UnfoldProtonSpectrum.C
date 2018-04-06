@@ -5,9 +5,9 @@ void UnfoldProtonSpectrum() {
   /////////////////////////////////////
   // User parameters
   std::string data_filename = "~/data/results/Si16b_passive/EvdEPlots.root";
-  std::string histname = "hEvdE_Si16b_Proton_Veto";
+  std::string histname = "hEvdE_Si16b_Proton_NoVeto";
   std::string response_filename = "~/data/mc/Si16b_passive/R15b_Si16b_full-dir-response-matrix.root";
-  std::string outfilename = "~/data/results/Si16b_passive/unfolded.root";
+  std::string outfilename = "~/data/results/Si16b_passive/unfolded-woutVeto.root";
 
   TCanvas* c1 = new TCanvas("c1", "c1");
   //  c1->Divide(2);
@@ -37,6 +37,7 @@ void UnfoldProtonSpectrum() {
     folded_spectrum->Rebin(10);
 
     TH2D* response_matrix = response->Hresponse();
+    response_matrix->SetTitle("hResponseMatrix");
     
     RooUnfoldBayes unfold (response, folded_spectrum);
 
@@ -49,29 +50,6 @@ void UnfoldProtonSpectrum() {
     folded_spectrum->SetLineWidth(2);
     folded_spectrum->Draw("HIST E SAMES");
     unfold.PrintTable(cout);
-
-    double integral_min = 2000;
-    double integral_max = 15000;
-    int integral_bin_min = unfolded_spectrum->FindBin(integral_min);
-    int integral_bin_max = unfolded_spectrum->FindBin(integral_max);
-    double integral, error;
-    integral = unfolded_spectrum->IntegralAndError(integral_bin_min, integral_bin_max, error);
-    std::cout << "Integral (" << integral_min << " -- " << integral_max << " keV): " << integral << " +- " << error << std::endl;
-
-    integral_min = 3000;
-    integral_max = 10000;
-    integral_bin_min = unfolded_spectrum->FindBin(integral_min);
-    integral_bin_max = unfolded_spectrum->FindBin(integral_max);
-    integral = unfolded_spectrum->IntegralAndError(integral_bin_min, integral_bin_max, error);
-    std::cout << "Integral (" << integral_min << " -- " << integral_max << " keV): " << integral << " +- " << error << std::endl;
-
-    integral_min = 4000;
-    integral_max = 8000;
-    integral_bin_min = unfolded_spectrum->FindBin(integral_min);
-    integral_bin_max = unfolded_spectrum->FindBin(integral_max);
-    integral = unfolded_spectrum->IntegralAndError(integral_bin_min, integral_bin_max, error);
-    std::cout << "Integral (" << integral_min << " -- " << integral_max << " keV): " << integral << " +- " << error << std::endl;
-
 
     outfile->cd();
     response->Write();

@@ -1,9 +1,9 @@
 // Make all the pretty plots for this analysis
-void PrettyPlots() {
+TCanvas* Pretty_CountStoppedMuons_GeLoGain() {
 
   //////////////////
   // Open all files
-  std::string dataset = "Si16b_passive";
+  std::string dataset = "SiL3_active";
   std::string mustops_gelo_filename = "/home/edmonds/data/results/" + dataset + "/CountStoppedMuons_GeLoGain.root";
   std::string outfilename = "/home/edmonds/data/results/" + dataset + "/pretty-plots.root";
   
@@ -60,7 +60,7 @@ void PrettyPlots() {
   label->SetTextSize(0.04);
   label->Draw("");
 
-  TLatex* preliminary_text = new TLatex(300, 25000, "AlCap Preliminary");
+  TLatex* preliminary_text = new TLatex(300, 230, "AlCap Preliminary");
   preliminary_text->SetTextAlign(22);
   preliminary_text->SetTextSize(0.05);
   preliminary_text->Draw("");
@@ -81,14 +81,10 @@ void PrettyPlots() {
 
   text.str("");
   text << "N_{stop #mu} = (" << std::fixed << std::setprecision(1) << n_stopped_muons/1e6 << " #pm " << std::setprecision(1) << n_stopped_muons_error/1e6 << ") #times 10^{6}";
-  TLatex* mustop_text = new TLatex(400, 1000, text.str().c_str());
+  TLatex* mustop_text = new TLatex(400, 200, text.str().c_str());
   mustop_text->SetTextAlign(22);
   mustop_text->SetTextSize(0.1);
   mustop_text->Draw("");
 
-
-  TFile* outfile = new TFile(outfilename.c_str(), "RECREATE");
-  c_mustops->Write();
-  outfile->Write();
-  outfile->Close();
+  return c_mustops;
 }
