@@ -1,0 +1,4 @@
+1. Run EventSelection.C on a TMETree file
+   - This plots TME time vs Energy for all TMEs where there is 1 muSc hit
+   - Also produces a tree of
+2. 

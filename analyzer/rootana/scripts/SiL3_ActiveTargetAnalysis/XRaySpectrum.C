@@ -10,8 +10,11 @@ int XRaySpectrum() {
   // User Parameters
   std::string channel = "GeHiGain";
   std::string dataset = "SiL3_active";
-  std::string filename = "/home/edmonds/data/out/v6/out09040.root"; // must contain a 2D histogram of energy vs time
-  std::string histname = "PlotTAP_EnergyTime/h" + channel + "#MaxBinAPGenerator#{no_time_shift=true}_EnergyTime";
+  //  std::string filename = "/home/edmonds/data/out/v6/out09040.root"; // must contain a 2D histogram of energy vs time
+  //  std::string filename = "/home/edmonds/data/out/v6/SiL3_ge-spectrum.root"; // must contain a 2D histogram of energy vs time
+  //  std::string histname = "PlotTAP_EnergyTime/h" + channel + "#MaxBinAPGenerator#{no_time_shift=true}_EnergyTime";
+  std::string filename = "~/data/results/" + dataset + "/EventSelection_NewCuts.root"; // must contain a 2D histogram of energy vs time
+  std::string histname = "h" + channel + "_EnergyTime";
   std::string outfilename = "/home/edmonds/data/results/" + dataset + "/XRaySpectrum_" + channel + ".root";
   
   ///////////////////////////////////

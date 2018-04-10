@@ -15,26 +15,30 @@
 
 #include "src/plotters/SimplePulse.h"
 
-void CountStoppedMuons_DirectTAPs(){
+void DeadTime(){
 
   //////////////////////////////
   // User parameters
   //  std::string filename = "~/data/out/local/out09040_tme-tree_templates.root";
   std::string filename = "~/data/out/v13/SiL3.root";
-  std::string outfilename = "~/data/results/SiL3_active/CountStoppedMuons_DirectTAPs.root";
+  std::string outfilename = "~/data/results/SiL3_active/DeadTime.root";
 
   TFile* file = new TFile(filename.c_str(), "READ");
   TTree* taptree = (TTree*) file->Get("TAPTree/TAPTree");
 
+  double min_tdiff = 0;
+  double max_tdiff = 20000;
+  double tdiff_width = 200;
+  int n_tdiff_bins = (max_tdiff - min_tdiff) / tdiff_width;
   double min_energy = 0;
   double max_energy = 20000;
   double energy_width = 100;
   int n_energy_bins = (max_energy - min_energy) / energy_width;
 
-  TH1F* hEnergy = new TH1F("hEnergy", "", n_energy_bins,min_energy,max_energy);
-  hEnergy->SetTitle("Run 9040 SiL3 Energy (TAP Tree)");
-  hEnergy->SetXTitle("Energy [keV]");
-  hEnergy->SetYTitle("Raw Count");
+  TH2F* hTDiff = new TH2F("hTDiff", "", n_tdiff_bins,min_tdiff,max_tdiff, n_energy_bins,min_energy,max_energy);
+  hTDiff->SetTitle("SiL3 Time Between Consecutive Pulses (TAP Tree)");
+  hTDiff->SetXTitle("t_{i+1} - t_{i} [ns]");
+  hTDiff->SetYTitle("Energy [keV]");
 
   Int_t blockId;
   TBranch* br_blockId = taptree->GetBranch("blockId");
@@ -43,12 +47,10 @@ void CountStoppedMuons_DirectTAPs(){
   SimplePulse* sil3_s_tap = new SimplePulse();
   taptree->SetBranchAddress("SiL3_S", &sil3_s_tap);
   
-  double min_muon_energy = 3000;
-  double max_muon_energy = 6000;
-  int n_stopped_muons = 0;
-
   std::cout << "Total TAPs = " << taptree->GetEntries() << std::endl;
   int n_entries = taptree->GetEntries();
+  bool first_in_event = false;
+  double prev_time = 0;
   for (int i_tap = 0; i_tap < n_entries; ++i_tap) {
     taptree->GetEntry(i_tap);
 
@@ -59,38 +61,27 @@ void CountStoppedMuons_DirectTAPs(){
     SimplePulse* this_tap = sil3_s_tap;
     double Amp = this_tap->Amp;
     if (Amp<=0) {
+      first_in_event = false;
       continue;
     }
-    double E = this_tap->Amp*4.58 - 10.39; // new calibration
-    if (E > 100) {
-      hEnergy->Fill(E);
+    double energy = Amp*4.58 - 10.39;
+    double time = this_tap->tblock;
+    if (!first_in_event) {
+      //      std::cout <<"Start of event: t = " << time << std::endl;
+      first_in_event = true;
     }
-
-    if (min_muon_energy <= E && E <= max_muon_energy) {
-      ++n_stopped_muons;
+    else {
+      //      std::cout << "t = " << time << ", prev_t = " << prev_time << ", delta_t = " << time - prev_time << std::endl;
+      hTDiff->Fill(time - prev_time, energy);
     }
+    prev_time = time;
   }
-  std::cout << n_stopped_muons << std::endl;
 
-  int min_integral_bin = hEnergy->GetXaxis()->FindBin(min_muon_energy);
-  int max_integral_bin = hEnergy->GetXaxis()->FindBin(max_muon_energy)-1;
-  std::cout << "AE: " << hEnergy->GetXaxis()->GetBinLowEdge(min_integral_bin) << ", " << hEnergy->GetXaxis()->GetBinUpEdge(max_integral_bin) << std::endl;
-  double integral_error = 0;
-  double integral = hEnergy->IntegralAndError(min_integral_bin, max_integral_bin, integral_error);
+  hTDiff->Draw("COLZ");
   
   TFile* output = new TFile(outfilename.c_str(), "RECREATE");
-  hEnergy->Write();
+  hTDiff->Write();
   
-  TTree* tree = new TTree("mustops", "mustops");
-  tree->Branch("min_muon_energy", &min_muon_energy);
-  tree->Branch("max_muon_energy", &max_muon_energy);
-  tree->Branch("direct_count", &n_stopped_muons);
-  tree->Branch("integral", &integral);
-  tree->Branch("integral_error", &integral_error);
-  tree->Fill();
-  tree->Write();
-
   output->Write();
   output->Close();
-
 }

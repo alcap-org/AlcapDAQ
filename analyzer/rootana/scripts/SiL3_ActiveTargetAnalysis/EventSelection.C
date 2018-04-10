@@ -18,35 +18,22 @@
 #include "TCanvas.h"
 #include "TLatex.h"
 
-void PlotsFromTMETree() {
+void EventSelection() {
 
-  //  std::string filename = "~/data/out/v5/SiL3_tmetree.root";
-  //  std::string filename = "~/data/out/v5/out09041.root";
-  //  std::string filename = "~/data/out/local/out09041_template-fits_test.root";
-  //  std::string filename = "~/data/out/local/outSiL3_two-runs.root";
-  std::string filename = "~/data/out/local/out09040_tme-tree_templates.root";
-
-  //  std::string outfilename = "scripts/SiL3_ActiveTargetAnalysis/hist_files/PlotsFromTMETree_Run9041_noTemplates.root";
-  //  std::string outfilename = "scripts/SiL3_ActiveTargetAnalysis/hist_files/PlotsFromTMETree_Run9041_Small.root";
-  //  std::string outfilename = "scripts/SiL3_ActiveTargetAnalysis/hist_files/PlotsFromTMETree_Run9041_Smaller.root";
-  //  std::string outfilename = "scripts/SiL3_ActiveTargetAnalysis/hist_files/PlotsFromTMETree_Run9041_Smaller-Rebin.root";
-  //  std::string outfilename = "scripts/SiL3_ActiveTargetAnalysis/hist_files/PlotsFromTMETree_TwoRuns_Range-0-10MeV_Binning-100keV.root";
-  //  std::string outfilename = "scripts/SiL3_ActiveTargetAnalysis/hist_files/PlotsFromTMETree_TwoRuns_Range-0-30MeV_Binning-100keV.root";
-  //  std::string outfilename = "scripts/SiL3_ActiveTargetAnalysis/hist_files/PlotsFromTMETree_TwoRuns_Range-0-100MeV_Binning-100keV.root";
-  //  std::string outfilename = "scripts/SiL3_ActiveTargetAnalysis/hist_files/PlotsFromTMETree_TwoRuns_Range-0-20MeV_Binning-100keV.root";
-  //  std::string outfilename = "scripts/SiL3_ActiveTargetAnalysis/hist_files/PlotsFromTMETree_TwoRuns_Range-0-100MeV_Binning-500keV.root";
-  //  std::string outfilename = "scripts/SiL3_ActiveTargetAnalysis/hist_files/PlotsFromTMETree_Run9040_Range-0-20MeV_Binning-100keV.root";
-  std::string outfilename = "scripts/SiL3_ActiveTargetAnalysis/hist_files/PlotsFromTMETree_Run9040_Range-0-100MeV_Binning-100keV_NewCalib.root";
-  
-  // The cuts I'm doing
-  int n_total_tmes = 0;
+  ///////////////////////////////////////////
+  // User parameters
+  //  std::string filename = "~/data/out/local/out09040_tme-tree_templates.root";
+  std::string filename = "~/data/out/v13/SiL3.root";
+  std::string outfilename = "~/data/results/SiL3_active/EventSelection.root";
   int max_muSc_pulses = 1; // only accept TMEs where there is a single muon in the central muon channel
-  int n_analysed_tmes = 0;
   double min_muon_energy = 3000; // count stopped muons that pass these cuts
   double max_muon_energy = 6000;
   double muon_time_cut = 200;
-  int n_stopped_muons = 0;
   double overall_energy_cut = 100; // only accept energy deposits greater than this (to remove noise)
+
+  int n_total_tmes = 0;
+  int n_analysed_tmes = 0;
+  int n_stopped_muons = 0;
   
   TFile* file = new TFile(filename.c_str(), "READ");
   TTree* tmetree = (TTree*) file->Get("TMETree/TMETree");
@@ -57,7 +44,7 @@ void PlotsFromTMETree() {
   int n_time_bins = (max_time - min_time) / time_width;
 
   double min_energy = 0;
-  double max_energy = 100000;
+  double max_energy = 30000;
   double energy_width = 100;
   int n_energy_bins = (max_energy - min_energy) / energy_width;
 
@@ -83,17 +70,17 @@ void PlotsFromTMETree() {
     std::vector<SimplePulse>* i_thick_pulse_list = SiL3;
     int n_thick_pulses = i_thick_pulse_list->size();
 
-    // Wuickly check for any double counted pulses in SiL3
+    // Quickly check for any double counted pulses in SiL3
     bool double_counted = false;
     for (int i_thick_pulse = 0; i_thick_pulse < n_thick_pulses; ++i_thick_pulse) {
-      if (i_thick_pulse_list->at(i_thick_pulse).bit_mask == 2) {
+      double thick_bit_mask = i_thick_pulse_list->at(i_thick_pulse).bit_mask;
+      if (thick_bit_mask == 2) {
 	double_counted = true;
       }
     }
     if (double_counted) {
       continue;
     }
-
 
     std::vector<SimplePulse>* i_muSc_pulse_list = muSc;
     int n_muSc_pulses = i_muSc_pulse_list->size();
@@ -107,31 +94,25 @@ void PlotsFromTMETree() {
     double muon_time = 0;
     for (int i_thick_pulse = 0; i_thick_pulse < n_thick_pulses; ++i_thick_pulse) {      
       double thick_time = i_thick_pulse_list->at(i_thick_pulse).tTME;
-      //      double thick_energy = i_thick_pulse_list->at(i_thick_pulse).E;
-            double thick_energy = i_thick_pulse_list->at(i_thick_pulse).Amp*4.58 - 10.39;
+      double thick_energy = i_thick_pulse_list->at(i_thick_pulse).Amp*4.58 - 10.39;
       if (thick_energy > min_muon_energy && thick_energy < max_muon_energy && std::fabs(thick_time)<muon_time_cut) {
 	muon_element = i_thick_pulse;
 	muon_time = thick_time;
 
 	++n_stopped_muons;
-	//	std::cout << "Muon! E = " << thick_energy << ", t = " << thick_time << std::endl;
       }
     }
-    /*
-    if (muon_element == -1) {
-      continue; // didn't find a muon
-    }
-    */
+
     // Plot the energy and time difference of everything else
     for (int i_thick_pulse = 0; i_thick_pulse < n_thick_pulses; ++i_thick_pulse) {
       //      if (i_thick_pulse != muon_element) {
-	double thick_time = i_thick_pulse_list->at(i_thick_pulse).tTME;
+      double thick_time = i_thick_pulse_list->at(i_thick_pulse).tTME;
 	double thick_energy = i_thick_pulse_list->at(i_thick_pulse).Amp*4.58 - 10.39;
-	double thick_bit_mask = i_thick_pulse_list->at(i_thick_pulse).bit_mask;
-	//      	std::cout << "Proton? E = " << thick_energy << ", t = " << thick_time << ", dt = " << thick_time - muon_time << std::endl;
+
 	if (thick_energy > overall_energy_cut) {
 	  hTimeEnergy->Fill(thick_time, thick_energy);
 	}
+	//      }
     }
   }
 

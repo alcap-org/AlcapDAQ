@@ -22,12 +22,12 @@ struct FullPulseId {
   int tpi_id;
 };
 
-void EvdEPlot() {
+void EvdEPlot_NewCuts() {
 
   /////////////////////////////
   // User parameters
   std::string filename = "~/data/out/v10/Si16b.root";
-  std::string outfilename = "~/data/results/Si16b_passive/EvdEPlots.root";
+  std::string outfilename = "~/data/results/Si16b_passive/EvdEPlots_NewCuts.root";
   double layer_coincidence_time = 200; // coincidence time between layers
   double x_1 = 0, y_1 = 2250, x_2 = 5500, y_2 = 0; // parameters for the diagonal electron spot cut
   double electron_spot_gradient = (y_2 - y_1) / (x_2 - x_1);
@@ -36,7 +36,9 @@ void EvdEPlot() {
   double deuteron_cut_peak = 4500; // parameters for the exponential remove deuteron cut
   double deuteron_cut_slope = -0.0004;
   double deuteron_cut_yoffset = 500;
-  //  double pb_time_cut = 200; // early time cut to remove lead contamination
+  int max_SiT_pulses = 1;
+  bool cut_any_double_counted = true;
+  double time_cut = 200; // early time cut to remove lead contamination
 
   TFile* file = new TFile(filename.c_str(), "READ");
   TTree* tmetree = (TTree*) file->Get("TMETree/TMETree");
@@ -114,13 +116,33 @@ void EvdEPlot() {
 
   std::vector<FullPulseId> GeLoGain_pulses_seen;
   std::vector<FullPulseId> GeHiGain_pulses_seen;
+
+  double min_sil3_energy = 0;
+  double max_sil3_energy = 20000;
+  double sil3_energy_width = 100;
+  double min_sil3_time = -30000;
+  double max_sil3_time = 30000;
+  double sil3_time_width = 100;
+  int n_sil3_energy_bins = (max_sil3_energy - min_sil3_energy) / sil3_energy_width;
+  int n_sil3_time_bins = (max_sil3_time - min_sil3_time) / sil3_time_width;
+
+  TH2F* hSiL3_Si16b_EnergyTime = new TH2F("hSiL3_Si16b_EnergyTime", "", n_sil3_time_bins,min_sil3_time,max_sil3_time, n_sil3_energy_bins,min_sil3_energy,max_sil3_energy);
+  hSiL3_Si16b_EnergyTime->SetTitle("SiL3 Energy vs tTME");
+  hSiL3_Si16b_EnergyTime->SetXTitle("tTME [ns]");
+  hSiL3_Si16b_EnergyTime->SetYTitle("E_{SiL3} [keV]");
+
   
   SetTMEBranchAddresses(tmetree); // setup the branch addresses
+
+  int n_total_tmes = 0;
+  int n_analysed_tmes = 0;
 
   std::cout << "Total TMEs = " << tmetree->GetEntries() << std::endl;
   int n_entries = tmetree->GetEntries();
   for (int i_tme = 0; i_tme < n_entries; ++i_tme) {
 
+    ++n_total_tmes;
+    
     if (i_tme % 100000 == 0) {
       std::cout << i_tme << " / " << n_entries << std::endl;
     }
@@ -128,20 +150,52 @@ void EvdEPlot() {
     tmetree->GetEntry(i_tme);
     CollectChannels(); // collect all channels into various groups (e.g. SiR1, SiL1, All) for easy looping
 
+    // If any channel has a double counted pulses
+    if (anyDoubleCountedPulses && cut_any_double_counted) {
+      continue; // skip to the next TME
+    }
+    
+    // Check for any other SiT pulses
+    int this_sit_channel = -1;
+    if (*centralMuonChannel == "SiT-1-S") {
+      this_sit_channel = 0;
+    }
+    else if (*centralMuonChannel == "SiT-2-S") {
+      this_sit_channel = 1;
+    }
+    else if (*centralMuonChannel == "SiT-3-S") {
+      this_sit_channel = 2;
+    }
+    else if (*centralMuonChannel == "SiT-4-S") {
+      this_sit_channel = 3;
+    }
+    if (this_sit_channel < 0 || this_sit_channel > 3) {
+      std::cout << "Problem with determining SiT channel" << std::endl;
+      return;
+    }
+
+    bool too_many_sit_pulses = false;
+    for (int i_sit_channel = 0; i_sit_channel < n_SiT_channels; ++i_sit_channel) {
+      int n_sit_pulses = all_SiT_channels[i_sit_channel]->size();
+      if (i_sit_channel == this_sit_channel && n_sit_pulses != 1) {
+	too_many_sit_pulses = true;
+      }
+      if (i_sit_channel != this_sit_channel && n_sit_pulses != 0) {
+	too_many_sit_pulses = true;
+      }
+    }
+    if (too_many_sit_pulses) {
+      continue; // to the next TME
+    }
+
+    // Now we can carry on
+    ++n_analysed_tmes;
     std::vector<SimplePulse>* i_thick_pulse_list = SiR2;
     int n_thick_pulses = i_thick_pulse_list->size();
-
-    //    if (n_thick_pulses < 1) {
-    //      continue;
-    //    }
 
     for (int i_thin_channel = 0; i_thin_channel < n_SiR1_channels; ++i_thin_channel) {
       std::vector<SimplePulse>* i_thin_pulse_list = all_SiR1_channels[i_thin_channel];
       int n_thin_pulses = i_thin_pulse_list->size();
-
-      //      if (n_thin_pulses < 1) {
-      //	continue;
-      //      }
 
 
       for (int i_thick_pulse = 0; i_thick_pulse < n_thick_pulses; ++i_thick_pulse) {
@@ -156,12 +210,9 @@ void EvdEPlot() {
 	  double thin_time = i_thin_pulse_list->at(i_thin_pulse).tTME;
 	  double thin_energy = i_thin_pulse_list->at(i_thin_pulse).E;
 
-	  //	  if (thick_time < pb_time_cut || thin_time < pb_time_cut) {
-	  //	    continue;
-	  //	  }
-	  //	  if (i_thin_pulse_list->at(i_thin_pulse).bit_mask == 2) {
-	  //	    continue;
-	  //	  }
+	  if (thick_time < time_cut || thin_time < time_cut) {
+	    continue; // to the next pulse
+	  }
 
 	  if (std::fabs(thin_time - thick_time) < layer_coincidence_time) {
 	    //	    std::cout << "Thin Hit: " << thin_energy << " keV, " << thin_time << " ns" << std::endl;
@@ -253,6 +304,18 @@ void EvdEPlot() {
 	hGeHiGain_EnergyTime->Fill(ge_energy, ge_time);
       }
     }
+
+
+    // Also record the SiL3 pulses for the full charged particle analysis
+    int n_sil3_pulses = SiL3->size();
+
+    for (int i_sil3_pulse = 0; i_sil3_pulse < n_sil3_pulses; ++i_sil3_pulse) {
+      double sil3_time = SiL3->at(i_sil3_pulse).tTME;
+      double sil3_energy = SiL3->at(i_sil3_pulse).E;
+
+      hSiL3_Si16b_EnergyTime->Fill(sil3_time, sil3_energy);
+    }
+
   }
 
   hEvdE_Si16b_Veto->Draw("COLZ");
@@ -268,6 +331,15 @@ void EvdEPlot() {
   hTime_Proton_Veto->Write();
   hGeLoGain_EnergyTime->Write();
   hGeHiGain_EnergyTime->Write();
+  hSiL3_Si16b_EnergyTime->Write();
+
+  TTree* tree = new TTree("cuts", "");
+  tree->Branch("n_total_tmes", &n_total_tmes);
+  tree->Branch("n_analysed_tmes", &n_analysed_tmes);
+  tree->Branch("layer_coincidence_time", &layer_coincidence_time);
+  tree->Branch("time_cut", &time_cut);
+  tree->Fill();
+  tree->Write();
     
   out_file->Write();
   out_file->Close();

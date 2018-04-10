@@ -60,7 +60,7 @@ TCanvas* Pretty_CountStoppedMuons_GeLoGain() {
   label->SetTextSize(0.04);
   label->Draw("");
 
-  TLatex* preliminary_text = new TLatex(300, 230, "AlCap Preliminary");
+  TLatex* preliminary_text = new TLatex(300, 6000, "AlCap Preliminary");
   preliminary_text->SetTextAlign(22);
   preliminary_text->SetTextSize(0.05);
   preliminary_text->Draw("");
@@ -81,7 +81,7 @@ TCanvas* Pretty_CountStoppedMuons_GeLoGain() {
 
   text.str("");
   text << "N_{stop #mu} = (" << std::fixed << std::setprecision(1) << n_stopped_muons/1e6 << " #pm " << std::setprecision(1) << n_stopped_muons_error/1e6 << ") #times 10^{6}";
-  TLatex* mustop_text = new TLatex(400, 200, text.str().c_str());
+  TLatex* mustop_text = new TLatex(400, 1800, text.str().c_str());
   mustop_text->SetTextAlign(22);
   mustop_text->SetTextSize(0.1);
   mustop_text->Draw("");

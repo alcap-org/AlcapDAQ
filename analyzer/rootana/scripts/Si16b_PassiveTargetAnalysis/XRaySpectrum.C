@@ -10,9 +10,17 @@ int XRaySpectrum() {
   // User Parameters
   std::string channel = "GeLoGain";
   std::string dataset = "Si16b_passive";
-  std::string filename = "/home/edmonds/data/out/local/Si16b_v11_ge-spectrum.root"; // must contain a 2D histogram of energy vs time
-  std::string histname = "PlotTAP_EnergyTime/h" + channel + "#FirstComplete#{constant_fraction=0.20}{no_time_shift= true}_EnergyTime;1";
-  std::string outfilename = "/home/edmonds/data/results/" + dataset + "/XRaySpectrum_" + channel + ".root";
+  //  std::string filename = "/home/edmonds/data/out/local/Si16b_v11_ge-spectrum.root"; // must contain a 2D histogram of energy vs time
+  //  std::string histname = "PlotTAP_EnergyTime/h" + channel + "#FirstComplete#{constant_fraction=0.20}{no_time_shift= true}_EnergyTime;1";
+  //  std::string outfilename = "/home/edmonds/data/results/" + dataset + "/XRaySpectrum_" + channel + ".root";
+  //  int rebin_factor = 1;
+  //  std::string filename = "/home/edmonds/data/results/Si16b_passive/EvdEPlots.root"; // must contain a 2D histogram of energy vs time
+  std::string filename = "/home/edmonds/data/results/Si16b_passive/EvdEPlots_NewCuts.root"; // must contain a 2D histogram of energy vs timea
+  std::string histname = "h" + channel + "_EnergyTime";
+  std::string outfilename = "/home/edmonds/data/results/" + dataset + "/XRaySpectrum_" + channel + "_fromTMEs_NewCuts.root";
+  int rebin_factor = 4;
+  //  double min_time_cut = -200;
+  //  double max_time_cut = 200;
   
   ///////////////////////////////////
   // Now produce plots  
@@ -28,7 +36,10 @@ int XRaySpectrum() {
     return 1;
   }
 
-  TH1D* hGe_FullSpectrum = hGe_2DPlot->ProjectionX("hGe_FullSpectrum");
+  //  int min_time_cut_bin = hGe_2DPlot->GetYaxis()->FindBin(min_time_cut);
+  //  int max_time_cut_bin = hGe_2DPlot->GetYaxis()->FindBin(max_time_cut)-1;
+  TH1D* hGe_FullSpectrum = hGe_2DPlot->ProjectionX("hGe_FullSpectrum");//, min_time_cut_bin, max_time_cut_bin);
+  hGe_FullSpectrum->Rebin(rebin_factor);
 
   TFile* outfile = new TFile(outfilename.c_str(), "RECREATE");
 

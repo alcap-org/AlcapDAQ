@@ -12,9 +12,11 @@ int CountStoppedMuons() {
   // User Parameters
   std::string channel = "GeLoGain";
   std::string dataset = "Si16b_passive";
-  std::string filename = "/home/edmonds/data/results/" + dataset + "/XRaySpectrum_" + channel + ".root";
+  //  std::string filename = "/home/edmonds/data/results/" + dataset + "/XRaySpectrum_" + channel + ".root";
+  std::string filename = "/home/edmonds/data/results/" + dataset + "/XRaySpectrum_" + channel + "_fromTMEs_NewCuts.root";
   std::string histname = "hGe_FullSpectrum";
-  std::string outfilename = "/home/edmonds/data/results/" + dataset + "/CountStoppedMuons_" + channel + ".root";
+  //  std::string outfilename = "/home/edmonds/data/results/" + dataset + "/CountStoppedMuons_" + channel + ".root";
+  std::string outfilename = "/home/edmonds/data/results/" + dataset + "/CountStoppedMuons_" + channel + "_fromTMEs_NewCuts.root";
   std::string material = "Si";
   int ge_eff_run = 10319; // can be 10319 or 9302
 
@@ -86,7 +88,7 @@ int CountStoppedMuons() {
   std::cout << "Intensity = " << xray.intensity << " +/- " << xray.intensity_error << " (" << (xray.intensity_error / xray.intensity) * 100 << "%)" << std::endl;
   std::cout << "Efficiency = " << xray.efficiency << " +/- " << xray.efficiency_error << " (" << (xray.efficiency_error / xray.efficiency) * 100 << "%)" << std::endl;
   std::cout << "Number of Stopped Muons = " << n_stopped_muons << " +- " << n_stopped_muons_error << " (" << (n_stopped_muons_error / n_stopped_muons) * 100 << "%)" << std::endl;
-
+  
   TTree* mustops_tree = new TTree("mustops", "");
   mustops_tree->Branch("ge_eff_a", &a);
   mustops_tree->Branch("ge_eff_b", &b);

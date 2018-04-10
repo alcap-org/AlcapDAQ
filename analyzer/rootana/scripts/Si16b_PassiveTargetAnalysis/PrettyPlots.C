@@ -4,7 +4,7 @@ void PrettyPlots() {
   //////////////////
   // Open all files
   std::string dataset = "Si16b_passive";
-  std::string mustops_gelo_filename = "/home/edmonds/data/results/" + dataset + "/CountStoppedMuons_GeLoGain.root";
+  std::string mustops_gelo_filename = "/home/edmonds/data/results/" + dataset + "/CountStoppedMuons_GeLoGain_fromTMEs_NewCuts.root";
   std::string outfilename = "/home/edmonds/data/results/" + dataset + "/pretty-plots.root";
   
   TFile* mustops_gelo_file = new TFile(mustops_gelo_filename.c_str(), "READ");
@@ -72,6 +72,8 @@ void PrettyPlots() {
   Eframe->SetMinimum(3000);
   (ws->data("data"))->plotOn(Eframe);
   (ws->pdf("sum"))->plotOn(Eframe);
+  (ws->pdf("sum"))->plotOn(Eframe, RooFit::Components(ws->argSet("xraypeak_pdf")), RooFit::LineColor(kRed), RooFit::LineStyle(kDashed));
+  (ws->pdf("sum"))->plotOn(Eframe, RooFit::Components(ws->argSet("pol1_bkg")), RooFit::LineColor(kRed), RooFit::LineStyle(kDashed));
 
   
   TPad* inset_pad = new TPad("inset", "inset", 0.45, 0.40, 0.89, 0.84);

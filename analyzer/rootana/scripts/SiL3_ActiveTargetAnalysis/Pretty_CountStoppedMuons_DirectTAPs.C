@@ -8,7 +8,7 @@ TCanvas* Pretty_CountStoppedMuons_DirectTAPs() {
   
   TFile* file = new TFile(filename.c_str(), "READ");
   if (file->IsZombie()) {
-    std::cout << "Trouble opening mustops_gelo " << filename << std::endl;
+    std::cout << "Trouble opening file " << filename << std::endl;
     return 1;
   }
 
@@ -31,6 +31,7 @@ TCanvas* Pretty_CountStoppedMuons_DirectTAPs() {
   mustops_tree->GetEntry(0);
   
   TH1F* hSiL3_Spectrum = (TH1F*) file->Get("hEnergy");
+  hSiL3_Spectrum->SetTitle("SiL3 Energy Spectrum");
 
   c_mustops->cd();
   hEnergy->SetLineWidth(2);
@@ -50,7 +51,7 @@ TCanvas* Pretty_CountStoppedMuons_DirectTAPs() {
   std::stringstream text;
   text.str("");
   text << "N_{stop #mu} = (" << std::fixed << std::setprecision(3) << direct_count/1e6 << " #pm " << std::setprecision(3) << direct_count_error/1e6 << ") #times 10^{6}";
-  TLatex* mustop_text = new TLatex(13000, 200e3, text.str().c_str());
+  TLatex* mustop_text = new TLatex(13000, 5e6, text.str().c_str());
   mustop_text->SetTextAlign(22);
   mustop_text->SetTextSize(0.05);
   mustop_text->Draw("");
