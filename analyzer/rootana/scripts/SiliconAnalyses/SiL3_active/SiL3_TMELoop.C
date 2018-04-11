@@ -15,7 +15,7 @@ void SiL3_TMELoop() {
   args.ge_hi_gain.name = "GeHiGain";
   args.ge_hi_gain.channel = &GeHiGain;
 
-  args.target_channels.push_back(&SiL3);
+  args.target.channels.push_back(&SiL3);
   
   
   // Event vetos
@@ -33,5 +33,13 @@ void SiL3_TMELoop() {
   args.params_GeEvstTME[0] = ge_x_axis;
   args.params_GeEvstTME[1] = ge_y_axis;
 
+  // This is an active target analysis
+  args.active_target_analysis = true;
+  PlotParams target_x_axis(-30000, 30000, 100); // time
+  PlotParams target_y_axis(0, 30000, 100); // energy
+  args.params_TargetEvstTME[0] = target_x_axis;
+  args.params_TargetEvstTME[1] = target_y_axis;
+
+  
   TMELoop(args);
 }

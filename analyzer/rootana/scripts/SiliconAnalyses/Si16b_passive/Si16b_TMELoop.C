@@ -31,20 +31,20 @@ void Si16b_TMELoop() {
   args.ge_hi_gain.name = "GeHiGain";
   args.ge_hi_gain.channel = &GeHiGain;
 
-  args.target_channels.push_back(&SiL1_2);
-  args.target_channels.push_back(&SiL1_3);
-  args.target_channels.push_back(&SiL1_4);
-  args.target_channels.push_back(&SiL1_5);
-  args.target_channels.push_back(&SiL1_6);
-  args.target_channels.push_back(&SiL1_7);
-  args.target_channels.push_back(&SiL1_8);
-  args.target_channels.push_back(&SiL1_9);
-  args.target_channels.push_back(&SiL1_10);
-  args.target_channels.push_back(&SiL1_11);
-  args.target_channels.push_back(&SiL1_12);
-  args.target_channels.push_back(&SiL1_13);
-  args.target_channels.push_back(&SiL1_14);
-  args.target_channels.push_back(&SiL1_15);
+  args.target.channels.push_back(&SiL1_2);
+  args.target.channels.push_back(&SiL1_3);
+  args.target.channels.push_back(&SiL1_4);
+  args.target.channels.push_back(&SiL1_5);
+  args.target.channels.push_back(&SiL1_6);
+  args.target.channels.push_back(&SiL1_7);
+  args.target.channels.push_back(&SiL1_8);
+  args.target.channels.push_back(&SiL1_9);
+  args.target.channels.push_back(&SiL1_10);
+  args.target.channels.push_back(&SiL1_11);
+  args.target.channels.push_back(&SiL1_12);
+  args.target.channels.push_back(&SiL1_13);
+  args.target.channels.push_back(&SiL1_14);
+  args.target.channels.push_back(&SiL1_15);
 
   
   // Event vetos
@@ -68,6 +68,8 @@ void Si16b_TMELoop() {
   args.params_GeEvstTME[0] = ge_x_axis;
   args.params_GeEvstTME[1] = ge_y_axis;
 
+  // Not currently an active target analysis
+  args.active_target_analysis = false;
   
   TMELoop(args);
 }

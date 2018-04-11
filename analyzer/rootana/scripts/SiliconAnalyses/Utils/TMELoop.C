@@ -47,7 +47,17 @@ struct GeOutput {
   TH2F* hEvstTME;
 };
   
+struct TargetInfo {
+  std::vector<std::vector<SimplePulse>** > channels;
+};
 
+struct TargetOutput {
+  TargetOutput() {};
+  TargetOutput(const TargetInfo* t) : info(t) {};
+
+  const TargetInfo* info;
+  TH2F* hEvstTME;
+};
 
 struct TMELoopArgs {
   // Standard parameters
@@ -62,7 +72,7 @@ struct TMELoopArgs {
   ArmInfo right_arm;
   GeInfo ge_lo_gain;
   GeInfo ge_hi_gain;
-  std::vector<std::vector<SimplePulse>** > target_channels;
+  TargetInfo target;
 
   bool left_arm_complete() const {
     if (!left_arm.layer1_channels.empty() && !left_arm.layer2_channels.empty()) { // only ever had two layers working in the left arm
@@ -95,11 +105,16 @@ struct TMELoopArgs {
   // To produce E vs tTME plots for the ge channels
   bool produceGeEvstTMEPlots;
   PlotParams params_GeEvstTME[2];
+
+  // To produce E vs tTME plots for the target in an active analysis
+  bool active_target_analysis;
+  PlotParams params_TargetEvstTME[2];
 };
 
 struct TMELoopOutput {
   std::vector<ArmOutput> arms;
   std::vector<GeOutput> ges;
+  TargetOutput target;
 
   TTree* infotree;
 
@@ -118,6 +133,10 @@ struct TMELoopOutput {
 	i_ge->hEvstTME->Write();
       }
     }
+
+    if (target.hEvstTME) {
+      target.hEvstTME->Write();
+    }
     
     if (infotree) {
       infotree->Fill();
@@ -128,14 +147,20 @@ struct TMELoopOutput {
 
 int CheckArgs(const TMELoopArgs& args) {
   if (args.muon_channels.empty()) {
-    std::cout << "No muon channels specified" << std::endl;
+    std::cout << "WARNING: No muon channels specified" << std::endl;
     return 1;
   }
 
   if (!args.veto_any_double_counts) {
-    std::cout << "WARNING: not vetoing on any TMEs with any double counted events" << std::endl;
-    std::cout << "TMELoop.C does not currently accurately handle double counted pulses" << std::endl;
-    std::cout << "If you want to continue remove the return statement in this if branch and re-run" << std::endl;
+    std::cout << "WARNING: not vetoing on any TMEs with any double counted events" << std::endl
+	      << "TMELoop.C does not currently accurately handle double counted pulses" << std::endl
+	      << "If you want to continue remove the return statement in this if branch and re-run" << std::endl;
+    return 1;
+  }
+
+  if (args.active_target_analysis && args.target.channels.empty()) {
+    std::cout << "WARNING: TMELoop defined as an active target analysis but there are" << std::endl
+	      << "no channels in the TargetInfo" << std::endl;
     return 1;
   }
 
@@ -146,7 +171,7 @@ void Setup(const TMELoopArgs& args) {
   final_output.infotree = new TTree("infotree", "");
 
   ////////////////////////////////////
-  // For the EvdE Plots
+  // Create the EvdE Plots
   bool produceEvdEPlots = args.produceEvdEPlots;
   final_output.infotree->Branch("produceEvdEPlots", &produceEvdEPlots);  
   if (args.produceEvdEPlots) {
@@ -157,19 +182,27 @@ void Setup(const TMELoopArgs& args) {
     if (args.left_arm_complete()) {
       final_output.arms.push_back(ArmOutput(&args.left_arm));
       std::string histname = allhist_basename + args.left_arm.name;
-      final_output.arms.back().hEvdE_all = new TH2F(histname.c_str(), "", xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+      final_output.arms.back().hEvdE_all = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+      final_output.arms.back().hEvdE_all->SetXTitle("E_{1} + E_{2} [keV]");
+      final_output.arms.back().hEvdE_all->SetYTitle("E_{1} [keV]");
 
       histname += "_veto";
-      final_output.arms.back().hEvdE_all_veto = new TH2F(histname.c_str(), "", xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+      final_output.arms.back().hEvdE_all_veto = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+      final_output.arms.back().hEvdE_all_veto->SetXTitle("E_{1} + E_{2} [keV]");
+      final_output.arms.back().hEvdE_all_veto->SetYTitle("E_{1} [keV]");
     }
     
     if (args.right_arm_complete()) {
       final_output.arms.push_back(ArmOutput(&args.right_arm));
       std::string histname = allhist_basename + args.right_arm.name;
-      final_output.arms.back().hEvdE_all = new TH2F(histname.c_str(), "", xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+      final_output.arms.back().hEvdE_all = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+      final_output.arms.back().hEvdE_all->SetXTitle("E_{1} + E_{2} [keV]");
+      final_output.arms.back().hEvdE_all->SetYTitle("E_{1} [keV]");
 
       histname += "_veto";
-      final_output.arms.back().hEvdE_all_veto = new TH2F(histname.c_str(), "", xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+      final_output.arms.back().hEvdE_all_veto = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+      final_output.arms.back().hEvdE_all_veto->SetXTitle("E_{1} + E_{2} [keV]");
+      final_output.arms.back().hEvdE_all_veto->SetYTitle("E_{1} [keV]");
     }
 
     // Record info about these plots
@@ -180,7 +213,7 @@ void Setup(const TMELoopArgs& args) {
   }
 
   ///////////////////////////////////////////
-  // For the germanium EvstTME plots
+  // Create the germanium EvstTME plots
   bool produceGeEvstTMEPlots = args.produceGeEvstTMEPlots;
   final_output.infotree->Branch("produceGeEvstTMEPlots", &produceGeEvstTMEPlots);  
   if (args.produceGeEvstTMEPlots) {
@@ -190,13 +223,31 @@ void Setup(const TMELoopArgs& args) {
     if (args.ge_lo_gain.channel) {
       final_output.ges.push_back(GeOutput(&args.ge_lo_gain));
       std::string histname = allhist_basename + args.ge_lo_gain.name;
-      final_output.ges.back().hEvstTME = new TH2F(histname.c_str(), "", xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+      final_output.ges.back().hEvstTME = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+      final_output.ges.back().hEvstTME->SetXTitle("tTME [ns]");
+      final_output.ges.back().hEvstTME->SetYTitle("Energy [keV]");
     }
     if (args.ge_hi_gain.channel) {
       final_output.ges.push_back(GeOutput(&args.ge_hi_gain));
       std::string histname = allhist_basename + args.ge_hi_gain.name;
-      final_output.ges.back().hEvstTME = new TH2F(histname.c_str(), "", xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+      final_output.ges.back().hEvstTME = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+      final_output.ges.back().hEvstTME->SetXTitle("tTME [ns]");
+      final_output.ges.back().hEvstTME->SetYTitle("Energy [keV]");
     }
+  }
+
+  ///////////////////////////////////////
+  // Create the active target EvstTME plots
+  bool active_target_analysis = args.active_target_analysis;
+  final_output.infotree->Branch("active_target_analysis", &active_target_analysis);
+  if (args.active_target_analysis) {
+    final_output.target.info = &args.target;
+    const PlotParams& xaxis = args.params_TargetEvstTME[0];
+    const PlotParams& yaxis = args.params_TargetEvstTME[1];
+    std::string histname = "hEvstTME_Target";
+    final_output.target.hEvstTME = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+    final_output.target.hEvstTME->SetXTitle("tTME [ns]");
+    final_output.target.hEvstTME->SetYTitle("Energy [keV]");
   }
 }
 
@@ -236,7 +287,8 @@ void TMELoop(const TMELoopArgs& args) {
     tmetree->GetEntry(i_tme);
     CollectChannels(); // collect all channels into various groups (e.g. SiR1, SiL1, All) for easy looping
 
-    // Veto on events
+    /////////////////////////////////////
+    // Event Vetoes
     if (args.veto_any_double_counts && anyDoubleCountedPulses) {
       continue; // to the next TME
     }
@@ -253,6 +305,8 @@ void TMELoop(const TMELoopArgs& args) {
 
     ++n_analysed_tmes;
 
+    /////////////////////////////////
+    // Fill EvdE plots
     if (args.produceEvdEPlots) {
       for (std::vector<ArmOutput>::iterator i_arm = final_output.arms.begin(); i_arm != final_output.arms.end(); ++i_arm) {
 
@@ -324,6 +378,24 @@ void TMELoop(const TMELoopArgs& args) {
 	}
       }      
     } // end if Ge EvstTME plots
+
+    ////////////////////////////////////////////
+    // Fill Target EvstTME plots
+    if (args.active_target_analysis) {
+      int n_target_channels = final_output.target.info->channels.size();
+
+      for (int i_target_channel = 0; i_target_channel < n_target_channels; ++i_target_channel) {
+	std::vector<SimplePulse>* i_target_pulse_list = *(final_output.target.info->channels.at(i_target_channel));
+	int n_target_pulses = i_target_pulse_list->size();
+
+	for (int i_target_pulse = 0; i_target_pulse < n_target_pulses; ++i_target_pulse) {
+	  double target_energy = i_target_pulse_list->at(i_target_pulse).E;
+	  double target_time = i_target_pulse_list->at(i_target_pulse).tTME;
+
+	  final_output.target.hEvstTME->Fill(target_time, target_energy);
+	}
+      }
+    } // end fill target EvstTME plots
     
   } // end TME loop
 
