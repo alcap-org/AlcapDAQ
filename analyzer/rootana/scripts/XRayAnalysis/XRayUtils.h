@@ -39,10 +39,11 @@ int FillXRayInfo(XRay& xray) {
   }
   else if (xray.material == "Si") {
     std::cout << "Silicon x-ray:" << std::endl;
-    xray.transition = "2p-1s";
-    xray.energy = 400.177;
-    xray.intensity = 0.803;
-    xray.intensity_error = 0.008;
+    if (xray.transition == "2p-1s") {
+      xray.energy = 400.177;
+      xray.intensity = 0.803;
+      xray.intensity_error = 0.008;
+    }
   }
   else if (xray.material == "Ti") {
     std::cout << "Titanium x-ray:" << std::endl;
