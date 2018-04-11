@@ -5,7 +5,7 @@ void Si16b_TMELoop() {
   args.infilename = "~/data/out/v10/Si16b.root";
   args.tmetreename = "TMETree/TMETree";
   args.outfilename = "~/data/results/Si16b_passive/results.root";
-  args.n_entries = 5000000;
+  args.n_entries = 1000000;
 
   // Channel configuration
   args.muon_channels.push_back(&SiT_1);
@@ -52,29 +52,9 @@ void Si16b_TMELoop() {
   args.veto_max_muon_channel_pulses = 1;
   args.max_muon_channel_pulses = 1;
 
-  // Want the EvdE plot
-  args.produceEvdEPlots = true;
-  PlotParams x_axis(0, 20000, 10);
-  PlotParams y_axis(0, 10000, 10);
-  args.params_EvdE[0] = x_axis;
-  args.params_EvdE[1] = y_axis;
+  // Want the EvdE tree
+  args.produceEvdETree = true;
   args.evde_layer_coincidence_time = 200; // coincidence time between layers
-  args.evde_time_cut = 200; // cut out protons from early times
-
-  args.extractProtons = true;
-  double x_1 = 0, y_1 = 2250, x_2 = 5500, y_2 = 0; // parameters for the diagonal electron spot cut
-  double electron_spot_gradient = (y_2 - y_1) / (x_2 - x_1);
-  double electron_spot_yoffset = y_1;
-  args.proton_cuts.electron_spot = new TF1("proton_cut_electron_spot", "[0]*x + [1]", x_axis.min, x_axis.max);
-  args.proton_cuts.electron_spot->SetParameters(electron_spot_gradient, electron_spot_yoffset);
-  double punchthrough_cut = 300; // parameters for the horizontal punch through proton cut
-  args.proton_cuts.punchthrough = new TF1("proton_cut_punchthrough", "[0]", x_axis.min, x_axis.max);
-  args.proton_cuts.punchthrough->SetParameter(0, punchthrough_cut);
-  double deuteron_cut_peak = 4500; // parameters for the exponential remove deuteron cut
-  double deuteron_cut_slope = -0.0004;
-  double deuteron_cut_yoffset = 500;
-  args.proton_cuts.deuteron_removal = new TF1("proton_cut_deuteron_removal", "[0]*TMath::Exp([1]*x) + [2]", x_axis.min, x_axis.max);
-  args.proton_cuts.deuteron_removal->SetParameters(deuteron_cut_peak, deuteron_cut_slope, deuteron_cut_yoffset);
 
 
   // Want to produce the EvstTME plots for the ge channels
