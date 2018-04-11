@@ -2,6 +2,8 @@
 #include "TH2.h"
 #include "TTree.h"
 
+#include "TF1.h"
+
 #include "scripts/TMETree/AlCapConstants.h"
 #include "scripts/TMETree/TMETreeBranches.h"
 
@@ -32,6 +34,8 @@ struct ArmOutput {
   const ArmInfo* arminfo;
   TH2F* hEvdE_all;
   TH2F* hEvdE_all_veto;
+  TH2F* hEvdE_proton;
+  TH2F* hEvdE_proton_veto;
 };
 
 struct GeInfo {
@@ -57,6 +61,12 @@ struct TargetOutput {
 
   const TargetInfo* info;
   TH2F* hEvstTME;
+};
+
+struct ProtonCuts {
+  TF1* electron_spot;
+  TF1* punchthrough;
+  TF1* deuteron_removal;
 };
 
 struct TMELoopArgs {
@@ -96,11 +106,15 @@ struct TMELoopArgs {
   bool veto_max_muon_channel_pulses;
   int max_muon_channel_pulses;
 
-  // To produce the EvdE plot for SiR
+  // To produce the EvdE plots
   bool produceEvdEPlots;
   PlotParams params_EvdE[2];
   double evde_layer_coincidence_time;
   double evde_time_cut;
+
+  // To extract protons
+  bool extractProtons;
+  ProtonCuts proton_cuts;
 
   // To produce E vs tTME plots for the ge channels
   bool produceGeEvstTMEPlots;
@@ -113,6 +127,7 @@ struct TMELoopArgs {
 
 struct TMELoopOutput {
   std::vector<ArmOutput> arms;
+  const ProtonCuts* proton_cuts;
   std::vector<GeOutput> ges;
   TargetOutput target;
 
@@ -126,7 +141,23 @@ struct TMELoopOutput {
       if(i_arm->hEvdE_all_veto) {
 	i_arm->hEvdE_all_veto->Write();
       }
+      if(i_arm->hEvdE_proton) {
+	i_arm->hEvdE_proton->Write();
+      }
+      if(i_arm->hEvdE_proton_veto) {
+	i_arm->hEvdE_proton_veto->Write();
+      }
     }
+    if (proton_cuts->electron_spot) {
+      proton_cuts->electron_spot->Write();
+    }
+    if (proton_cuts->punchthrough) {
+      proton_cuts->punchthrough->Write();
+    }
+    if (proton_cuts->deuteron_removal) {
+      proton_cuts->deuteron_removal->Write();
+    }
+
 
     for (std::vector<GeOutput>::const_iterator i_ge = ges.begin(); i_ge != ges.end(); ++i_ge) {
       if(i_ge->hEvstTME) {
@@ -158,8 +189,13 @@ int CheckArgs(const TMELoopArgs& args) {
     return 1;
   }
 
+  if (args.extractProtons && !args.produceEvdEPlots) {
+    std::cout << "WARNING: TMELoop configured to extract protons but not to produce EvdE plots" << std::endl;
+    return 1;
+  }
+
   if (args.active_target_analysis && args.target.channels.empty()) {
-    std::cout << "WARNING: TMELoop defined as an active target analysis but there are" << std::endl
+    std::cout << "WARNING: TMELoop configured as an active target analysis but there are" << std::endl
 	      << "no channels in the TargetInfo" << std::endl;
     return 1;
   }
@@ -177,39 +213,50 @@ void Setup(const TMELoopArgs& args) {
   if (args.produceEvdEPlots) {
     const PlotParams& xaxis = args.params_EvdE[0];
     const PlotParams& yaxis = args.params_EvdE[1];
-    std::string allhist_basename = "hEvdE_all_";
-    std::string protonhist_basename = "hEvdE_proton_";
     if (args.left_arm_complete()) {
       final_output.arms.push_back(ArmOutput(&args.left_arm));
-      std::string histname = allhist_basename + args.left_arm.name;
-      final_output.arms.back().hEvdE_all = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
-      final_output.arms.back().hEvdE_all->SetXTitle("E_{1} + E_{2} [keV]");
-      final_output.arms.back().hEvdE_all->SetYTitle("E_{1} [keV]");
-
-      histname += "_veto";
-      final_output.arms.back().hEvdE_all_veto = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
-      final_output.arms.back().hEvdE_all_veto->SetXTitle("E_{1} + E_{2} [keV]");
-      final_output.arms.back().hEvdE_all_veto->SetYTitle("E_{1} [keV]");
     }
     
     if (args.right_arm_complete()) {
       final_output.arms.push_back(ArmOutput(&args.right_arm));
-      std::string histname = allhist_basename + args.right_arm.name;
-      final_output.arms.back().hEvdE_all = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
-      final_output.arms.back().hEvdE_all->SetXTitle("E_{1} + E_{2} [keV]");
-      final_output.arms.back().hEvdE_all->SetYTitle("E_{1} [keV]");
+    }
+
+    std::string allhist_basename = "hEvdE_all_";
+    std::string protonhist_basename = "hEvdE_proton_";
+    for (std::vector<ArmOutput>::iterator i_arm = final_output.arms.begin(); i_arm != final_output.arms.end(); ++i_arm) {
+      
+      std::string histname = allhist_basename + i_arm->arminfo->name;
+      i_arm->hEvdE_all = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+      i_arm->hEvdE_all->SetXTitle("E_{1} + E_{2} [keV]");
+      i_arm->hEvdE_all->SetYTitle("E_{1} [keV]");
 
       histname += "_veto";
-      final_output.arms.back().hEvdE_all_veto = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
-      final_output.arms.back().hEvdE_all_veto->SetXTitle("E_{1} + E_{2} [keV]");
-      final_output.arms.back().hEvdE_all_veto->SetYTitle("E_{1} [keV]");
+      i_arm->hEvdE_all_veto = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+      i_arm->hEvdE_all_veto->SetXTitle("E_{1} + E_{2} [keV]");
+      i_arm->hEvdE_all_veto->SetYTitle("E_{1} [keV]");
+
+      if (args.extractProtons) {
+	std::string protonhist_basename = "hEvdE_proton_";
+	histname = protonhist_basename + i_arm->arminfo->name;
+	i_arm->hEvdE_proton = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+	i_arm->hEvdE_proton->SetXTitle("E_{1} + E_{2} [keV]");
+	i_arm->hEvdE_proton->SetYTitle("E_{1} [keV]");
+	
+	histname += "_veto";
+	i_arm->hEvdE_proton_veto = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
+	i_arm->hEvdE_proton_veto->SetXTitle("E_{1} + E_{2} [keV]");
+	i_arm->hEvdE_proton_veto->SetYTitle("E_{1} [keV]");
+      }
     }
+
 
     // Record info about these plots
     double evde_layer_coincidence_time = args.evde_layer_coincidence_time;
     double evde_time_cut = args.evde_time_cut;
     final_output.infotree->Branch("evde_layer_coincidence_time", &evde_layer_coincidence_time);
     final_output.infotree->Branch("evde_time_cut", &evde_time_cut);
+
+    final_output.proton_cuts = &args.proton_cuts;
   }
 
   ///////////////////////////////////////////
@@ -341,6 +388,7 @@ void TMELoop(const TMELoopArgs& args) {
 		  total_n_third_pulses += n_third_pulses;
 		}
 
+		double total_energy = thick_energy+thin_energy;
 		// are the hits in the first and second layers in time?
 		if (std::fabs(thin_time - thick_time) < args.evde_layer_coincidence_time) {
 
@@ -349,11 +397,21 @@ void TMELoop(const TMELoopArgs& args) {
 		    continue; // to the next pulse
 		  }
 
-		  i_arm->hEvdE_all->Fill(thick_energy+thin_energy, thin_energy);
+		  bool passes_electron_spot = (thin_energy > args.proton_cuts.electron_spot->Eval(total_energy));
+		  bool passes_punchthrough = (thin_energy > args.proton_cuts.punchthrough->Eval(total_energy));
+		  bool passes_deuteron_removal = (thin_energy < args.proton_cuts.deuteron_removal->Eval(total_energy));
+
+		  i_arm->hEvdE_all->Fill(total_energy, thin_energy);
+		  if (args.extractProtons && passes_electron_spot && passes_punchthrough && passes_deuteron_removal) {
+		    i_arm->hEvdE_proton->Fill(total_energy, thin_energy);
+		  }
 
 		  // veto on a hit in the third layer
 		  if (total_n_third_pulses == 0) {
-		    i_arm->hEvdE_all_veto->Fill(thick_energy+thin_energy, thin_energy);
+		    i_arm->hEvdE_all_veto->Fill(total_energy, thin_energy);
+		    if (args.extractProtons && passes_electron_spot && passes_deuteron_removal) { // doesn't need to pass punchthrough cut for the veto
+		      i_arm->hEvdE_proton_veto->Fill(total_energy, thin_energy);
+		    }
 		  }
 		}
 	      }
