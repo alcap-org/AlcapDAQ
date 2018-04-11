@@ -4,8 +4,8 @@ void Si16b_TMELoop() {
   TMELoopArgs args;
   args.infilename = "~/data/out/v10/Si16b.root";
   args.tmetreename = "TMETree/TMETree";
-  args.outfilename = "~/data/results/Si16b_passive/results.root";
-  args.n_entries = 1000000;
+  args.outfilename = "~/data/results/Si16b_passive/subtrees.root";
+  args.n_entries = -1; // run for all TMEs
 
   // Channel configuration
   args.muon_channels.push_back(&SiT_1);

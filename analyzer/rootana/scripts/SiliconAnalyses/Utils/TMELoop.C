@@ -74,12 +74,17 @@ struct TargetInfo {
   std::vector<std::vector<SimplePulse>** > channels;
 };
 
+struct TargetTreeInfo {
+  double energy;
+  double time;
+} targettreeinfo;
+
 struct TargetOutput {
   TargetOutput() {};
   TargetOutput(const TargetInfo* t) : info(t) {};
 
   const TargetInfo* info;
-  TH2F* hEvstTME;
+  TTree* targettree;
 };
 
 struct TMELoopArgs {
@@ -124,11 +129,9 @@ struct TMELoopArgs {
 
   // To produce E vs tTME plots for the ge channels
   bool produceGeEvstTMETree;
-  PlotParams params_GeEvstTME[2];
 
   // To produce E vs tTME plots for the target in an active analysis
   bool active_target_analysis;
-  PlotParams params_TargetEvstTME[2];
 };
 
 struct TMELoopOutput {
@@ -151,8 +154,8 @@ struct TMELoopOutput {
       }
     }
 
-    if (target.hEvstTME) {
-      target.hEvstTME->Write();
+    if (target.targettree) {
+      target.targettree->Write();
     }
     
     if (infotree) {
@@ -249,12 +252,10 @@ void Setup(const TMELoopArgs& args) {
   final_output.infotree->Branch("active_target_analysis", &active_target_analysis);
   if (args.active_target_analysis) {
     final_output.target.info = &args.target;
-    const PlotParams& xaxis = args.params_TargetEvstTME[0];
-    const PlotParams& yaxis = args.params_TargetEvstTME[1];
-    std::string histname = "hEvstTME_Target";
-    final_output.target.hEvstTME = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
-    final_output.target.hEvstTME->SetXTitle("tTME [ns]");
-    final_output.target.hEvstTME->SetYTitle("Energy [keV]");
+    std::string treename = "targettree";
+    final_output.target.targettree = new TTree(treename.c_str(), treename.c_str());
+    final_output.target.targettree->Branch("energy", &targettreeinfo.energy);
+    final_output.target.targettree->Branch("time", &targettreeinfo.time);
   }
 }
 
@@ -323,13 +324,13 @@ void TMELoop(const TMELoopArgs& args) {
       // Reset these branches
       armtreeinfo.thick_energy = 0;
       armtreeinfo.thick_time = 0;
-      armtreeinfo.thick_tpi_id = 0;
+      armtreeinfo.thick_tpi_id = -1;
       armtreeinfo.thin_energy = 0;
       armtreeinfo.thin_time = 0;
-      armtreeinfo.thin_tpi_id = 0;
+      armtreeinfo.thin_tpi_id = -1;
       armtreeinfo.third_energy = 0;
       armtreeinfo.third_time = 0;
-      armtreeinfo.third_tpi_id = 0;
+      armtreeinfo.third_tpi_id = -1;
 
       for (std::vector<ArmOutput>::iterator i_arm = final_output.arms.begin(); i_arm != final_output.arms.end(); ++i_arm) {
 
@@ -423,8 +424,10 @@ void TMELoop(const TMELoopArgs& args) {
 	for (int i_target_pulse = 0; i_target_pulse < n_target_pulses; ++i_target_pulse) {
 	  double target_energy = i_target_pulse_list->at(i_target_pulse).E;
 	  double target_time = i_target_pulse_list->at(i_target_pulse).tTME;
+	  targettreeinfo.energy = target_energy;
+	  targettreeinfo.time = target_time;
 
-	  final_output.target.hEvstTME->Fill(target_time, target_energy);
+	  final_output.target.targettree->Fill();
 	}
       }
     } // end fill target EvstTME plots

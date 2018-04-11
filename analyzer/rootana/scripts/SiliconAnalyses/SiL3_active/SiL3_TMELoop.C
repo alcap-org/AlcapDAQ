@@ -4,8 +4,8 @@ void SiL3_TMELoop() {
   TMELoopArgs args;
   args.infilename = "~/data/out/v13/SiL3.root";
   args.tmetreename = "TMETree/TMETree";
-  args.outfilename = "~/data/results/SiL3_active/results.root";
-  args.n_entries = 5000000;
+  args.outfilename = "~/data/results/SiL3_active/subtrees.root";
+  args.n_entries = -1;
 
   // Channel configuration
   args.muon_channels.push_back(&muSc);
@@ -24,22 +24,13 @@ void SiL3_TMELoop() {
   args.max_muon_channel_pulses = 1;
 
   // Don't want the EvdE plot
-  args.produceEvdEPlots = false;
+  args.produceEvdETree = false;
 
   // Want to produce the EvstTME plots for the ge channels
-  args.produceGeEvstTMEPlots = true;
-  PlotParams ge_x_axis(-30000, 30000, 10); // time
-  PlotParams ge_y_axis(0, 1500, 0.5); // energy
-  args.params_GeEvstTME[0] = ge_x_axis;
-  args.params_GeEvstTME[1] = ge_y_axis;
+  args.produceGeEvstTMETree = true;
 
   // This is an active target analysis
   args.active_target_analysis = true;
-  PlotParams target_x_axis(-30000, 30000, 100); // time
-  PlotParams target_y_axis(0, 30000, 100); // energy
-  args.params_TargetEvstTME[0] = target_x_axis;
-  args.params_TargetEvstTME[1] = target_y_axis;
-
   
   TMELoop(args);
 }
