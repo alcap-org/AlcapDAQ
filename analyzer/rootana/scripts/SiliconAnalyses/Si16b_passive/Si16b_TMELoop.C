@@ -54,15 +54,10 @@ void Si16b_TMELoop() {
 
   // Want the EvdE tree
   args.produceEvdETree = true;
-  args.evde_layer_coincidence_time = 200; // coincidence time between layers
 
 
   // Want to produce the EvstTME plots for the ge channels
-  args.produceGeEvstTMEPlots = true;
-  PlotParams ge_x_axis(-30000, 30000, 10); // time
-  PlotParams ge_y_axis(0, 1500, 0.5); // energy
-  args.params_GeEvstTME[0] = ge_x_axis;
-  args.params_GeEvstTME[1] = ge_y_axis;
+  args.produceGeEvstTMETree = true;
 
   // Not currently an active target analysis
   args.active_target_analysis = false;

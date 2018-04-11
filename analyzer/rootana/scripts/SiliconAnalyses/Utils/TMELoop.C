@@ -57,12 +57,17 @@ struct GeInfo {
   std::vector<SimplePulse>** channel;
 };
 
+struct GeTreeInfo {
+  double energy;
+  double time;
+} getreeinfo;
+
 struct GeOutput {
   GeOutput() {};
   GeOutput(const GeInfo* g) : geinfo(g) {};
 
   const GeInfo* geinfo;
-  TH2F* hEvstTME;
+  TTree* getree;
 };
   
 struct TargetInfo {
@@ -116,10 +121,9 @@ struct TMELoopArgs {
 
   // To produce the EvdE tree
   bool produceEvdETree;
-  double evde_layer_coincidence_time;
 
   // To produce E vs tTME plots for the ge channels
-  bool produceGeEvstTMEPlots;
+  bool produceGeEvstTMETree;
   PlotParams params_GeEvstTME[2];
 
   // To produce E vs tTME plots for the target in an active analysis
@@ -142,8 +146,8 @@ struct TMELoopOutput {
     }
 
     for (std::vector<GeOutput>::const_iterator i_ge = ges.begin(); i_ge != ges.end(); ++i_ge) {
-      if(i_ge->hEvstTME) {
-	i_ge->hEvstTME->Write();
+      if(i_ge->getree) {
+	i_ge->getree->Write();
       }
     }
 
@@ -199,8 +203,8 @@ void Setup(const TMELoopArgs& args) {
     std::string tree_basename = "armtree_";
     for (std::vector<ArmOutput>::iterator i_arm = final_output.arms.begin(); i_arm != final_output.arms.end(); ++i_arm) {
       
-      std::string histname = tree_basename + i_arm->arminfo->name;
-      i_arm->armtree = new TTree(histname.c_str(), histname.c_str());
+      std::string treename = tree_basename + i_arm->arminfo->name;
+      i_arm->armtree = new TTree(treename.c_str(), treename.c_str());
       i_arm->armtree->Branch("run_id", &armtreeinfo.run_id);
       i_arm->armtree->Branch("block_id", &armtreeinfo.block_id);
       i_arm->armtree->Branch("tme_id", &armtreeinfo.tme_id);
@@ -215,34 +219,27 @@ void Setup(const TMELoopArgs& args) {
       i_arm->armtree->Branch("third_time", &armtreeinfo.third_time);
       i_arm->armtree->Branch("third_tpi_id", &armtreeinfo.third_tpi_id);
     }
-
-
-    // Record info about these plots
-    double evde_layer_coincidence_time = args.evde_layer_coincidence_time;
-    final_output.infotree->Branch("evde_layer_coincidence_time", &evde_layer_coincidence_time);
   }
 
   ///////////////////////////////////////////
   // Create the germanium EvstTME plots
-  bool produceGeEvstTMEPlots = args.produceGeEvstTMEPlots;
-  final_output.infotree->Branch("produceGeEvstTMEPlots", &produceGeEvstTMEPlots);  
-  if (args.produceGeEvstTMEPlots) {
-    const PlotParams& xaxis = args.params_GeEvstTME[0];
-    const PlotParams& yaxis = args.params_GeEvstTME[1];
-    std::string allhist_basename = "hEvstTME_";
+  bool produceGeEvstTMETree = args.produceGeEvstTMETree;
+  final_output.infotree->Branch("produceGeEvstTMETree", &produceGeEvstTMETree);  
+  if (args.produceGeEvstTMETree) {
+
     if (args.ge_lo_gain.channel) {
       final_output.ges.push_back(GeOutput(&args.ge_lo_gain));
-      std::string histname = allhist_basename + args.ge_lo_gain.name;
-      final_output.ges.back().hEvstTME = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
-      final_output.ges.back().hEvstTME->SetXTitle("tTME [ns]");
-      final_output.ges.back().hEvstTME->SetYTitle("Energy [keV]");
     }
     if (args.ge_hi_gain.channel) {
       final_output.ges.push_back(GeOutput(&args.ge_hi_gain));
-      std::string histname = allhist_basename + args.ge_hi_gain.name;
-      final_output.ges.back().hEvstTME = new TH2F(histname.c_str(), histname.c_str(), xaxis.n_bins,xaxis.min,xaxis.max, yaxis.n_bins,yaxis.min,yaxis.max);
-      final_output.ges.back().hEvstTME->SetXTitle("tTME [ns]");
-      final_output.ges.back().hEvstTME->SetYTitle("Energy [keV]");
+    }
+    
+    std::string tree_basename = "getree_";
+    for (std::vector<GeOutput>::iterator i_ge = final_output.ges.begin(); i_ge != final_output.ges.end(); ++i_ge) {
+      std::string treename = tree_basename + i_ge->geinfo->name;
+      i_ge->getree = new TTree(treename.c_str(), treename.c_str());
+      i_ge->getree->Branch("energy", &getreeinfo.energy);
+      i_ge->getree->Branch("time", &getreeinfo.time);
     }
   }
 
@@ -265,7 +262,8 @@ void TMELoop(const TMELoopArgs& args) {
 
   TFile* infile = new TFile(args.infilename.c_str(), "READ");
   TTree* tmetree = (TTree*) infile->Get(args.tmetreename.c_str());
-
+  TFile* outfile = new TFile(args.outfilename.c_str(), "RECREATE");
+  
   if (CheckArgs(args)) {
     std::cout << "Problem with input TME loop arguments" << std::endl;
     return;
@@ -397,7 +395,7 @@ void TMELoop(const TMELoopArgs& args) {
 
     /////////////////////////////////////////////
     // Fill Ge EvstTME plots
-    if (args.produceGeEvstTMEPlots) {
+    if (args.produceGeEvstTMETree) {
       for (std::vector<GeOutput>::iterator i_ge = final_output.ges.begin(); i_ge != final_output.ges.end(); ++i_ge) {
 
 	std::vector<SimplePulse>* i_ge_pulse_list = *(i_ge->geinfo->channel);
@@ -405,8 +403,10 @@ void TMELoop(const TMELoopArgs& args) {
 	for (int i_ge_pulse = 0; i_ge_pulse < n_ge_pulses; ++i_ge_pulse) {
 	  double ge_energy = i_ge_pulse_list->at(i_ge_pulse).E;
 	  double ge_time = i_ge_pulse_list->at(i_ge_pulse).tTME;
+	  getreeinfo.energy = ge_energy;
+	  getreeinfo.time = ge_time;
 	  
-	  i_ge->hEvstTME->Fill(ge_time, ge_energy);
+	  i_ge->getree->Fill();
 	}
       }      
     } // end if Ge EvstTME plots
@@ -431,7 +431,6 @@ void TMELoop(const TMELoopArgs& args) {
     
   } // end TME loop
 
-  TFile* outfile = new TFile(args.outfilename.c_str(), "RECREATE");
   final_output.Write();
   outfile->Close();
 }
