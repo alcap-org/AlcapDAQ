@@ -13,8 +13,8 @@ class TIntegralRatioAnalysedPulse:public TAnalysedPulse{
         /// @details Same signature as for TAnalysedPulse so that MakeNewTAP can
         /// create these specialised TAPs
         TIntegralRatioAnalysedPulse(const IDs::source& sourceID,
-                const TPulseIslandID& parentID, const TPulseIsland* parentTPI):
-            TAnalysedPulse(sourceID,parentID,parentTPI){}
+		    const TPulseIslandID& parentID, const TAnalysedPulseID& tapID, const TPulseIsland* parentTPI):
+        TAnalysedPulse(sourceID,parentID,tapID,parentTPI){}
 
         // defined in .cpp file to force vtable to be built
         virtual ~TIntegralRatioAnalysedPulse(){};

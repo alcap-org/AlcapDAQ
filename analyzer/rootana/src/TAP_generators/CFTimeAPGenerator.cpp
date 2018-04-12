@@ -37,7 +37,7 @@ int CFTimeAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
 
     double time = fConstantFractionTime(tpi);
 
-    TAnalysedPulse* tap = MakeNewTAP(iTPI);
+    TAnalysedPulse* tap = MakeNewTAP(iTPI, 0);
     tap->SetTime(time);
     analysedList.push_back(tap);
   }

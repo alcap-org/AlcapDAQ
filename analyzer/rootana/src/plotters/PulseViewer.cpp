@@ -278,10 +278,10 @@ int PulseViewer::ConsiderDrawing(const TAnalysedPulseID& id, const TAnalysedPuls
     double value=fFormula->Eval(0);
     TPulseIslandID tpi_id = pulse->GetParentID();
   if(!value) return 0;
-  //  if(Debug()){
+  if(Debug()){
     cout<<"PulseViewer: Event: "<<EventNavigator::Instance().EntryNo()
         <<" Plotting pulse "<<tpi_id<<" (TAP ID = " << id << ") [ "<<fTriggerCondition<<" => "<<fFormula->GetExpFormula("P")<<" ]"<<endl;
-    //  }
+  }
   
   // If it does, ask ExportPulse to draw it
   // We're safe to assume Instance will return becuase we test it's

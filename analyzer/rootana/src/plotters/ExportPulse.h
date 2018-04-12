@@ -171,7 +171,7 @@ inline void ExportPulse::AddToExportList(const std::string& detector,TPulseIslan
 
 inline void ExportPulse::AddToExportList(const TAnalysedPulse* pulse){
   std::string channel=pulse->GetSource().Channel().str();
-  std::cout<<"ExportPulse: Asked to draw a TAP for "<<channel<<std::endl;
+  //  std::cout<<"ExportPulse: Asked to draw a TAP for "<<channel<<std::endl;
 
   std::pair<std::string, const TAnalysedPulse*> new_pair(channel, pulse);
   fTAPsToPlot.push_back(new_pair);

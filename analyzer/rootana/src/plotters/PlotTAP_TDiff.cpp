@@ -32,8 +32,8 @@ PlotTAP_TDiff::PlotTAP_TDiff(modules::options* opts) :
   fUseHighAmpBinCut(opts->GetBool("use_high_amp_bin_cut", false)){
   if (fDetNameA == std::string("") || fDetNameB == std::string(""))
     throw Except::ModulesOptionError("Two detectors must be provided");
-  else if (fExportSQL && (fDetNameB != "SiT-1-S" && fDetNameB != "muSc"))
-     throw Except::ModulesOptionError("If exporting to calibration DB, second detector must be SiT-1-S or muSc");
+  else if (fExportSQL && (fDetNameB != "SiT-1-S" && fDetNameB != "muSc" && fDetNameB != "SiL1-8-S"))
+     throw Except::ModulesOptionError("If exporting to calibration DB, second detector must be SiT-1-S, muSc (SiL3 dataset) or SiL1-8-S (early SiL range scan when muSc was removed)");
 }
 
 PlotTAP_TDiff::~PlotTAP_TDiff() {

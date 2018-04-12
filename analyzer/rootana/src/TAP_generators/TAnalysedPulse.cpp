@@ -15,8 +15,9 @@ using std::string;
 #define PrintValue(value) PrintHelp<<#value "= |"<<value<<"|"<<std::endl;
 
 TAnalysedPulse::TAnalysedPulse(const IDs::source& sourceID,
-             const TPulseIslandID& parentID, const TPulseIsland* parentTPI):
+			       const TPulseIslandID& parentID, const TAnalysedPulseID& tapID,const TPulseIsland* parentTPI):
   fParentID(fDefaultValue),
+  fTAPID(fDefaultValue),
   fTPILength(fDefaultValue),
   fAmplitude(fDefaultValue),
   fTime(fDefaultValue),
@@ -26,10 +27,12 @@ TAnalysedPulse::TAnalysedPulse(const IDs::source& sourceID,
   fTriggerTime(fDefaultValue),
   fSource(sourceID){
     SetParentTPIProperties(parentID, parentTPI);
+    fTAPID = tapID;
 }
 
 TAnalysedPulse::TAnalysedPulse():
   fParentID(fDefaultValue),
+  fTAPID(fDefaultValue),
   fTPILength(fDefaultValue),
   fAmplitude(fDefaultValue),
   fTime(fDefaultValue),
@@ -42,6 +45,7 @@ TAnalysedPulse::TAnalysedPulse():
 
 void TAnalysedPulse::Reset(Option_t* o) {
   fParentID=fDefaultValue;
+  fTAPID=fDefaultValue;
   fTPILength=fDefaultValue;
   fAmplitude=fDefaultValue;
   fTime=fDefaultValue;

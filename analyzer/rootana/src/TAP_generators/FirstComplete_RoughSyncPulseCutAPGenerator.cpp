@@ -77,7 +77,7 @@ void FirstComplete_RoughSyncPulseCutAPGenerator::AnalyseOneTpi(int tpi_ID, const
     // Now that we've found the information we were looking for make a TAP to
     // hold it.  This method makes a TAP and sets the parent TPI info.  It needs
     // the index of the parent TPI in the container as an argument
-    TAnalysedPulse* tap = MakeNewTAP(tpi_ID);
+    TAnalysedPulse* tap = MakeNewTAP(tpi_ID, 0);
     tap->SetAmplitude(amplitude);
     tap->SetTime(time);
     tap->SetIntegral(integral);

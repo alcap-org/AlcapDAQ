@@ -42,6 +42,7 @@ class TTemplate:public TObject{
 
       double GetPedestal()const;
       double GetTime()const;
+      double GetCFTime();
       double GetAmplitude()const;
       int GetPolarity()const{return fTriggerPolarity;};
 
@@ -61,6 +62,7 @@ class TTemplate:public TObject{
       int fTotalPulses; ///< How many pulses have been averaged to make the template
       int fRefineFactor; ///< How many samples in the template correspond to 1 sample in an actual wavform
       int fTriggerPolarity;
+      int fCFTimeBin;
       IDs::channel fChannel;
       std::string fName;
       TH1D *fErrors;

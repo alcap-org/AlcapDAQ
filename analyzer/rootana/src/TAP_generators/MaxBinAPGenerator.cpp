@@ -41,7 +41,7 @@ int MaxBinAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
     time = fMaxBinTime(*pulseIter);
 
     // Make the TAnalysedPulse pulse
-    outPulse=MakeNewTAP(pulseIter-pulseList.begin());
+    outPulse=MakeNewTAP(pulseIter-pulseList.begin(), 0);
     outPulse->SetAmplitude(amplitude);
     outPulse->SetTime(time);
     //    outPulse->SetEnergy(energy); //AE (3rd Aug 2014): Commenting this out for the time being since we don't really know how we're doing calibration. The equation used before was:   energy = fECalibSlope * amplitude + fECalibOffset;

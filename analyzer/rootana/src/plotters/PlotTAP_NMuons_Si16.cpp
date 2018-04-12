@@ -26,8 +26,8 @@ PlotTAP_NMuons_Si16::PlotTAP_NMuons_Si16(modules::options* opts):
   // Do something with opts here.  Has the user specified any
   // particular configuration that you want to know?
   // For example, perhaps this module wants an axis range:
-  fADCCutLow=opts->GetDouble("adc_cut_low",200); 
-  fADCCutHigh=opts->GetDouble("adc_cut_high",2500);
+  fEnergyCutLow=opts->GetDouble("energy_cut_low",400); 
+  fEnergyCutHigh=opts->GetDouble("energy_cut_high",10000);
   
 }
 
@@ -45,7 +45,7 @@ int PlotTAP_NMuons_Si16::BeforeFirstEntry(TGlobalData* gData,const TSetupData *s
 
   std::string histname = "hNMuonsPerStrip";
   std::stringstream histtitle;
-  histtitle<<"Number of Muons per Strip (" << fADCCutLow << " ADC < Amplitude < " << fADCCutHigh << ")";
+  histtitle<<"Number of Muons per Strip (" << fEnergyCutLow << " keV < E < " << fEnergyCutHigh << " keV)";
   histtitle<<" for run "<<SetupNavigator::Instance()->GetRunNumber();
   fNMuonsPerStrip = new TH1F(histname.c_str(), histtitle.str().c_str(), 16,1,17);
   fNMuonsPerStrip->GetXaxis()->SetTitle("Strip Number");
@@ -105,7 +105,7 @@ int PlotTAP_NMuons_Si16::ProcessEntry(TGlobalData* gData,const TSetupData *setup
 	  double energy = (*pulseIter)->GetEnergy();
 	  fSi16TAPAmplitudes->Fill(strip_number, amplitude);
 	  fSi16TAPEnergies->Fill(strip_number, energy);
-	  if (amplitude > fADCCutLow && amplitude < fADCCutHigh) {
+	  if (energy > fEnergyCutLow && amplitude < fEnergyCutHigh) {
 	    fNMuonsPerStrip->Fill(strip_number);
 	  }
         } // end loop through pulses
@@ -128,13 +128,13 @@ int PlotTAP_NMuons_Si16::AfterLastEntry(TGlobalData* gData,const TSetupData *set
   TCanvas* c = new TCanvas("c", "c");
   c->SetLogz();
   fSi16TAPAmplitudes->Draw("COLZ");
-  TLine* low_cut_line = new TLine(fSi16TAPAmplitudes->GetXaxis()->GetXmin(), fADCCutLow, fSi16TAPAmplitudes->GetXaxis()->GetXmax(), fADCCutLow);
+  TLine* low_cut_line = new TLine(fSi16TAPAmplitudes->GetXaxis()->GetXmin(), fEnergyCutLow, fSi16TAPAmplitudes->GetXaxis()->GetXmax(), fEnergyCutLow);
   low_cut_line->SetLineWidth(2);
   low_cut_line->SetLineColor(kRed);
   low_cut_line->SetLineStyle(kDashed);
   low_cut_line->Draw("LSAME");
 
-  TLine* high_cut_line = new TLine(fSi16TAPAmplitudes->GetXaxis()->GetXmin(), fADCCutHigh, fSi16TAPAmplitudes->GetXaxis()->GetXmax(), fADCCutHigh);
+  TLine* high_cut_line = new TLine(fSi16TAPAmplitudes->GetXaxis()->GetXmin(), fEnergyCutHigh, fSi16TAPAmplitudes->GetXaxis()->GetXmax(), fEnergyCutHigh);
   high_cut_line->SetLineWidth(2);
   high_cut_line->SetLineColor(kRed);
   high_cut_line->SetLineStyle(kDashed);
@@ -149,4 +149,4 @@ int PlotTAP_NMuons_Si16::AfterLastEntry(TGlobalData* gData,const TSetupData *set
 // The first argument is compulsory and gives the name of this module
 // All subsequent arguments will be used as names for arguments given directly 
 // within the modules file.  See the github wiki for more.
-ALCAP_REGISTER_MODULE(PlotTAP_NMuons_Si16,adc_cut_low,adc_cut_high);
+ALCAP_REGISTER_MODULE(PlotTAP_NMuons_Si16,energy_cut_low,energy_cut_high);

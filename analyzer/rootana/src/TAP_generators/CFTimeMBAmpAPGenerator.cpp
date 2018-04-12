@@ -37,7 +37,7 @@ int CFTimeMBAmpAPGenerator::ProcessPulses(const PulseIslandList& pulseList,
     double time = fConstantFractionTime(tpi);
     double amplitude  = fMaxBinAmplitude(tpi);
 
-    TAnalysedPulse* tap = MakeNewTAP(iTPI);
+    TAnalysedPulse* tap = MakeNewTAP(iTPI, 0);
     tap->SetTime(time);
     tap->SetAmplitude(amplitude);
     analysedList.push_back(tap);

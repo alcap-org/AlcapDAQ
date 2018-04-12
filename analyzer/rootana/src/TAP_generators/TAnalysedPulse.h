@@ -11,6 +11,8 @@
 class TH1F;
 class TPulseIsland;
 
+typedef int TAnalysedPulseID;
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \ingroup rootana
 ///
@@ -42,6 +44,7 @@ class TAnalysedPulse : public TObject {
     if(rhs.InheritsFrom(Class())){
       TAnalysedPulse* tap=static_cast<TAnalysedPulse*>(&rhs);
       tap->fParentID=fParentID;
+      tap->fTAPID=fTAPID;
       tap->fTPILength=fTPILength;
       tap->fAmplitude=fAmplitude;
       tap->fTime=fTime;
@@ -69,7 +72,7 @@ class TAnalysedPulse : public TObject {
   /// \param[in] parentID The position in the TGD vector of the TPI
   /// used to make this TAP.
   /// \param[in] parentTPI The pulse that was used to produce this TAP.
-  TAnalysedPulse(const IDs::source& sourceID,const TPulseIslandID& parentID, const TPulseIsland* parentTPI);
+  TAnalysedPulse(const IDs::source& sourceID,const TPulseIslandID& parentID, const TAnalysedPulseID& tapID, const TPulseIsland* parentTPI);
   virtual ~TAnalysedPulse() {};
 
   /// \brief
@@ -96,6 +99,7 @@ class TAnalysedPulse : public TObject {
   /// \name Getters
   //@{
   TPulseIslandID GetParentID()const{return fParentID;};
+  TAnalysedPulseID GetTAPID()const{return fTAPID;};
   int GetTPILength()const{return fTPILength;};
   double GetAmplitude()const{return fAmplitude;};
   double GetTime()const{return fTime;};
@@ -116,6 +120,7 @@ class TAnalysedPulse : public TObject {
   /// later in the analysis.
   //@{
   void SetParentID(const TPulseIslandID& val){ fParentID=val;};
+  void SetTAPID(const TAnalysedPulseID& val){ fTAPID=val;};
   void SetTPILength(const int& val){ fTPILength=val;};
   void SetAmplitude(const double& val){ fAmplitude=val;};
   void SetTime(const double& val){ fTime=val;};
@@ -145,6 +150,7 @@ class TAnalysedPulse : public TObject {
 
   private:
   TPulseIslandID fParentID;
+  TAnalysedPulseID fTAPID;
   int fTPILength;
   double fAmplitude;
   double fTime;
@@ -160,7 +166,7 @@ class TAnalysedPulse : public TObject {
   /// fields are set to.
   static const int fDefaultValue = definitions::DefaultValue;
 
-  ClassDef(TAnalysedPulse, 5);
+  ClassDef(TAnalysedPulse, 6);
 };
 
 #endif

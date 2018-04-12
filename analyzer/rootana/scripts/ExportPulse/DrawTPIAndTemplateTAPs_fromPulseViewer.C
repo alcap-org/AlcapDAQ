@@ -13,12 +13,7 @@
 #include <cmath>
 
 // This macro draws a single TPIs and its template TAPs that were exported using ExportPulse in rootana
-void DrawTPIAndTemplateTAPs_fromPulseViewer(std::string filename, std::string pulse_name, TCanvas& c1) {
-  TFile* file = new TFile(filename.c_str(), "READ");
-  if (file->IsZombie()) {
-    std::cout << "Problem opening file " << filename << std::endl;
-    return;
-  }
+bool DrawTPIAndTemplateTAPs_fromPulseViewer_file(TFile* file, std::string pulse_name, TCanvas& c1) {
 
   int n_pulses_to_draw = 1;
   //  c1.Divide(2);
@@ -53,7 +48,7 @@ void DrawTPIAndTemplateTAPs_fromPulseViewer(std::string filename, std::string pu
     TH1F* hTPI = (TH1F*) file->Get(tpi_histname.c_str());
     if (!hTPI) {
       std::cout << "Problem obtaining TPI histogram " << tpi_histname << std::endl;
-      return;
+      return false;
     }
     else {
       TList *functions = hTPI->GetListOfFunctions();
@@ -65,18 +60,23 @@ void DrawTPIAndTemplateTAPs_fromPulseViewer(std::string filename, std::string pu
 	pm->SetMarkerColor(kBlue);
       }
 
-
       hTPI->SetLineWidth(2);
       hTPI->SetLineColor(kBlack);
 
       pad_w_errors->cd();
-      hTPI->Draw();
+      hTPI->Draw("HIST");
       hTPI->SetTitle("with error bars");
+      if (pm) {
+	pm->Draw("SAME");
+      }
 
       pad_wout_errors->cd();
       TH1F* hTPI_wout_errors = (TH1F*) hTPI->Clone("hTPI_wout_errors");
       hTPI_wout_errors->SetTitle("without error bars");
-      hTPI_wout_errors->Draw();
+      hTPI_wout_errors->Draw("HIST P");
+      if (pm) {
+	pm->Draw("SAME");
+      }
 
       leg->AddEntry(hTPI, "Original TPI", "l");
       if (pm) {
@@ -95,6 +95,7 @@ void DrawTPIAndTemplateTAPs_fromPulseViewer(std::string filename, std::string pu
       TH1F* hTAP = (TH1F*) file->Get(tap_histname.str().c_str());
       if (!hTAP) {
 	std::cout << "Problem obtaining TAP histogram " << tap_histname.str() << std::endl;
+	continue;
       }
 
       tap_histname << "_rebin";
@@ -120,6 +121,10 @@ void DrawTPIAndTemplateTAPs_fromPulseViewer(std::string filename, std::string pu
 	  text_b->SetY1(text_b->GetY1() - i_sub_pulse*y_height);
 	  text_b->SetY2(text_b->GetY2() - i_sub_pulse*y_height);
 	  text_b->Draw();
+	}
+	TLine* time_line = (TLine*)functions->FindObject("TLine");
+	if (time_line) {
+	  time_line->Draw();
 	}
 
       }
@@ -183,12 +188,24 @@ void DrawTPIAndTemplateTAPs_fromPulseViewer(std::string filename, std::string pu
       hTPI->SetMaximum(hSumTAP->GetMaximum()*1.10);
       
       pad_w_errors->cd();
-      hTPI->Draw("SAME");
+      hTPI->Draw("HIST SAME");
 
       pad_wout_errors->cd();
-      hTPI->Draw("SAME");
+      hTPI->Draw("HIST SAME");
       //    }
 
     //    leg->Draw();
   }
+  //  file->Close();
+  return true;
 }
+bool DrawTPIAndTemplateTAPs_fromPulseViewer(std::string filename, std::string pulse_name, TCanvas& c1) { 
+  TFile* file = new TFile(filename.c_str(), "READ");
+  if (file->IsZombie()) {
+    std::cout << "Problem opening file " << filename << std::endl;
+    return false;
+  }
+  DrawTPIAndTemplateTAPs_fromPulseViewer_file(file, pulse_name, c1);
+  return true;
+}
+ 

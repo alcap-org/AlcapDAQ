@@ -79,8 +79,9 @@ class TMETree : public BaseModule {
 	Bool_t fAnyDoubleCountedPulses;
 
 	std::map<std::string, std::vector<SimplePulse> > fChannels;
-	std::map<std::string, std::vector<int> > fTPIsSeen;
-	std::map<std::string, std::vector<int> > fTPIsDoubleCounted;
+	std::map<std::string, std::vector<std::pair<int,int> > > fTPIsSeen;
+	std::map<std::string, std::vector<std::pair<int,int> > > fTPIsDoubleCounted;
+	//	std::map<std::string, std::vector<int> > fTAPsCutOff;
 
 	TTree* fNonTMETree;
 	std::map<std::string, std::vector<SimplePulse> > fChannels_NonTME;

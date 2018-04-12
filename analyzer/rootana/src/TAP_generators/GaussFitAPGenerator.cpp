@@ -49,7 +49,7 @@ int GaussFitAPGenerator::ProcessPulses(
         FitPulse(*tpi,index,tap_data);
 
         // Make a TGaussFitAnalysedPulse 
-        tap = MakeNewTAP<TGaussFitAnalysedPulse>(index);
+        tap = MakeNewTAP<TGaussFitAnalysedPulse>(index, 0);
 
         // Now assign all the measure values
         tap->SetAmplitude ( tap_data.value[kAmplitude] , tap_data.error[kAmplitude] );

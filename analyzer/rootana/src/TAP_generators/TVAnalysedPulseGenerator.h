@@ -60,7 +60,7 @@ class TVAnalysedPulseGenerator {
         /// For example, for to make a specialied analysed pulse called
         /// TSpecialAnalysedPulse (original, huh?) you would do:
         /// \code
-        /// TSpecialAnalysedPulse* tsap=MakeNewTAP<TSpecialAnalysedPulse>(parent_index);
+        /// TSpecialAnalysedPulse* tsap=MakeNewTAP<TSpecialAnalysedPulse>(parent_index, tap_index);
         /// \endcode
         ///
         /// \param[in] parent_index The TPulseIslandID of the TPI being used
@@ -68,10 +68,10 @@ class TVAnalysedPulseGenerator {
         /// \tparam[in] TypeOfTAP The type of specialisation of TAnalysedPulse that
         /// you want to create.
         template <typename TypeOfTAP>
-            TypeOfTAP* MakeNewTAP(int parent_index)const;
+	  TypeOfTAP* MakeNewTAP(int parent_index, int tap_index)const;
 
-        TAnalysedPulse* MakeNewTAP(int parent_index)const{
-            return MakeNewTAP<TAnalysedPulse>(parent_index);
+        TAnalysedPulse* MakeNewTAP(int parent_index, int tap_index)const{
+	  return MakeNewTAP<TAnalysedPulse>(parent_index, tap_index);
         }
 
         bool Debug()const{return fDebug;};
@@ -134,10 +134,10 @@ class TVAnalysedPulseGenerator {
 };
 
 template <typename TypeOfTAP>
-inline TypeOfTAP* TVAnalysedPulseGenerator::MakeNewTAP(int parent_index)const{
+inline TypeOfTAP* TVAnalysedPulseGenerator::MakeNewTAP(int parent_index, int tap_index)const{
     TypeOfTAP* pulse=NULL;
     TPulseIsland* parent = fPulseList->at(parent_index);
-    pulse=new TypeOfTAP(GetSource(),parent_index,parent);
+    pulse=new TypeOfTAP(GetSource(),parent_index,tap_index,parent);
     return pulse;
 }
 

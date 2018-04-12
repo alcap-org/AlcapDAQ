@@ -14,7 +14,8 @@ TTemplate::TTemplate():
   fTriggerPolarity(0),
   fChannel(),
   fErrors(NULL),
-  fTemplatePulse(NULL){
+  fTemplatePulse(NULL),
+  fCFTimeBin(-1){
 }
 
 TTemplate::TTemplate(const std::string& det,int refine,int trigger_polarity, bool debug):
@@ -25,7 +26,8 @@ TTemplate::TTemplate(const std::string& det,int refine,int trigger_polarity, boo
   fTriggerPolarity(trigger_polarity),
   fChannel(det),
   fName(MakeName(fChannel)),
-  fTemplatePulse(NULL){
+  fTemplatePulse(NULL),
+  fCFTimeBin(-1){
 
        // Setup the error hist
        std::string error_histname = "hErrorVsPulseAdded_" + fChannel.str();
@@ -239,12 +241,28 @@ double TTemplate::GetPedestal()const{
     return template_pedestal;
 }
 
+// Templates are always positive polarity now
 double TTemplate::GetTime()const{
-  if(fTriggerPolarity>0) return fTemplatePulse->GetMaximumBin()-1;
-  return fTemplatePulse->GetMinimumBin()-1;
+  /*  if(fTriggerPolarity>0)*/ return fTemplatePulse->GetMaximumBin()-1;
+  //  return fTemplatePulse->GetMinimumBin()-1;
+}
+
+double TTemplate::GetCFTime(){
+  if (fCFTimeBin < 0) {
+    double max = fTemplatePulse->GetMaximum();
+    for (int i_bin = fTemplatePulse->GetMaximumBin(); i_bin >= 1; --i_bin) {
+      double content = fTemplatePulse->GetBinContent(i_bin);
+      if (content / max < 0.20) {
+	fCFTimeBin = i_bin;
+	//	std::cout << "fCFTime = " << fCFTimeBin << std::endl;
+	break;
+      }
+    }
+  }
+  return fCFTimeBin;
 }
 
 double TTemplate::GetAmplitude()const{
-  if(fTriggerPolarity>0) return fTemplatePulse->GetMaximum() - GetPedestal();
-  return GetPedestal() - fTemplatePulse->GetMinimum();
+  /*  if(fTriggerPolarity>0)*/ return fTemplatePulse->GetMaximum() - GetPedestal();
+  //  return GetPedestal() - fTemplatePulse->GetMinimum();
 }

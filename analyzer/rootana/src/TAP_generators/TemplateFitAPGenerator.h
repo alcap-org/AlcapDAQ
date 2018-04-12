@@ -48,8 +48,14 @@ class TemplateFitAPGenerator:public TVAnalysedPulseGenerator {
     TTemplate* fTemplate;
     Algorithm::IntegralRatio* fIntegralRatio;
     Algorithm::MaxBinAmplitude fMaxBin;
+    Algorithm::ConstantFractionTime fCFTime;
     PulseCandidateFinder_TSpectrum* fPCF;
     int fMaxTemplates;
+
+    TemplateMultiFitter* fMultiFitter;
+    
+    bool fNoTimeShift;
+    bool fSyncPulses;
 };
 
 #endif //TEMPLATEFITAPGENERATOR_H__
