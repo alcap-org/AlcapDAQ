@@ -1,5 +1,6 @@
 //#include "scripts/SiliconAnalyses/SiL3_active/SiL3_EvdEPlot.C"
 #include "scripts/SiliconAnalyses/SiL3_active/SiL3_XRaySpectrum.C"
+#include "scripts/SiliconAnalyses/SiL3_active/SiL3_TargetSpectrum.C"
 
 void SiL3_AllPlots() {
 
@@ -11,4 +12,5 @@ void SiL3_AllPlots() {
   outfile->Close();
 
   SiL3_XRaySpectrum(infilename, outfilename);
+  SiL3_TargetSpectrum(infilename, outfilename);
 }

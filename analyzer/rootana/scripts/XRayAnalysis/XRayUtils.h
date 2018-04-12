@@ -1,3 +1,6 @@
+#ifndef XRayUtils_h_
+#define XRayUtils_h_
+
 struct XRay {
   std::string transition;
   std::string material;
@@ -173,3 +176,5 @@ RooWorkspace* FitPeak(double energy_low, double energy_high, TH1* hSpectrum, XRa
   
   return ws;
 }
+
+#endif

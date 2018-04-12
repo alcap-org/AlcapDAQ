@@ -56,8 +56,10 @@ void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& ar
   RooWorkspace* ws = FitPeak(xray_energy_low, xray_energy_high, hGe_Spectrum, &xray);
 
   RooRealVar* area = ws->var("xray_area");
-  std::cout << "AE: " << area->getValV() << " " << xray.intensity << " " << xray.efficiency << std::endl;
-  double n_stopped_muons = area->getValV() / (xray.intensity * xray.efficiency);
+  double xray_count = area->getValV();
+  double xray_count_error = area->getError();
+  std::cout << "AE: " << xray_count << " " << xray.intensity << " " << xray.efficiency << std::endl;
+  double n_stopped_muons = xray_count / (xray.intensity * xray.efficiency);
   // Factors to account for the detector effects
   std::vector<double> detector_effects;
   //  detector_effects.push_back(1.04); detector_effects.push_back(1.01); // For R13 (dead time and TRP reset respectively)
@@ -66,33 +68,37 @@ void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& ar
     n_stopped_muons *= (*i_factor);
   }
 
-  double n_stopped_muons_error = n_stopped_muons* sqrt( (area->getError()/area->getValV())*(area->getError()/area->getValV()) +
+  double n_stopped_muons_error = n_stopped_muons* sqrt( (xray_count_error/xray_count)*(xray_count_error/xray_count) +
 							(xray.intensity_error/xray.intensity)*(xray.intensity_error/xray.intensity) +
 							(xray.efficiency_error/xray.efficiency)*(xray.efficiency_error/xray.efficiency) );
   
   std::cout << "XRay: " << xray.material << " " << xray.transition << " " << xray.energy << " keV" << std::endl;
-  std::cout << "Area = " << area->getValV() << " +/- " << area->getError() << " (" << (area->getError() / area->getValV()) * 100 << "%)" << std::endl;
+  std::cout << "Area = " << xray_count << " +/- " << xray_count_error << " (" << (xray_count_error / xray_count) * 100 << "%)" << std::endl;
   std::cout << "Intensity = " << xray.intensity << " +/- " << xray.intensity_error << " (" << (xray.intensity_error / xray.intensity) * 100 << "%)" << std::endl;
   std::cout << "Efficiency = " << xray.efficiency << " +/- " << xray.efficiency_error << " (" << (xray.efficiency_error / xray.efficiency) * 100 << "%)" << std::endl;
   std::cout << "Number of Stopped Muons = " << n_stopped_muons << " +- " << n_stopped_muons_error << " (" << (n_stopped_muons_error / n_stopped_muons) * 100 << "%)" << std::endl;
   
-  TTree* mustops_tree = new TTree("mustops", "");
-  mustops_tree->Branch("xray_energy", &xray.energy);
-  mustops_tree->Branch("xray_material", &xray.material);
-  mustops_tree->Branch("xray_transition", &xray.transition);
-  mustops_tree->Branch("xray_intensity", &xray.intensity);
-  mustops_tree->Branch("xray_efficiency", &xray.efficiency);
-  mustops_tree->Branch("n_stopped_muons", &n_stopped_muons);
-  mustops_tree->Branch("n_stopped_muons_error", &n_stopped_muons_error);
+  TTree* indirect_count_tree = new TTree("indirect_count", "");
+  indirect_count_tree->Branch("xray_count", &xray_count);
+  indirect_count_tree->Branch("xray_count_error", &xray_count_error);
+  indirect_count_tree->Branch("xray_energy", &xray.energy);
+  indirect_count_tree->Branch("xray_material", &xray.material);
+  indirect_count_tree->Branch("xray_transition", &xray.transition);
+  indirect_count_tree->Branch("xray_intensity", &xray.intensity);
+  indirect_count_tree->Branch("xray_intensity_error", &xray.intensity_error);
+  indirect_count_tree->Branch("xray_efficiency", &xray.efficiency);
+  indirect_count_tree->Branch("xray_efficiency_error", &xray.efficiency_error);
+  indirect_count_tree->Branch("n_stopped_muons", &n_stopped_muons);
+  indirect_count_tree->Branch("n_stopped_muons_error", &n_stopped_muons_error);
 
-  mustops_tree->Fill();
+  indirect_count_tree->Fill();
   
-  TFile* outfile = new TFile(args.outfilename.c_str(), "RECREATE");
+  TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   hGe_Spectrum->Write();
   ws->Write();
   ge_eff->Write();
   ge_eff_err->Write();
-  mustops_tree->Write();
+  indirect_count_tree->Write();
   outfile->Write();
   outfile->Close();
 }
