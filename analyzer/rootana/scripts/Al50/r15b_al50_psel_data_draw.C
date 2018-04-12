@@ -1,5 +1,6 @@
 #include "./scripts/Al50/R15b_Al50_psel.C"
 
+#include "Rtypes.h"
 #include "TCanvas.h"
 #include "TF1.h"
 #include "TF2.h"
@@ -32,7 +33,7 @@ static const char IFNAME_PRAW[] = "~/data/R15b/evdeal50.root";
 static const char IFNAME_PSEL[] = "~/data/R15b/pselal50.root";
 ////////////////////////////////////////////////////////////////////////////////
 
-vector<ParticleLikelihoodData> pls_l, pls_r;
+vector<ParticleLikelihood::PSelData> pls_l, pls_r;
 // Proton, deuteron, triton, alpha; right, left
 Double_t pfcn_l(Double_t* x, Double_t* par) { return pls_l[0](x[1], x[0]); }
 Double_t pfcn_r(Double_t* x, Double_t* par) { return pls_r[0](x[1], x[0]); }
@@ -50,8 +51,8 @@ void init_fcns() {
   if (init) return;
   init = true;
 
-  pls_l = LoadParticleLikelihoodsData('l');
-  pls_r = LoadParticleLikelihoodsData('r');
+  pls_l = ParticleLikelihood::LoadParticleLikelihoodsData('l');
+  pls_r = ParticleLikelihood::LoadParticleLikelihoodsData('r');
   fpl = new TF2("fpl", pfcn_l, 0., 20.e3, 0., 10.e3);
   fpr = new TF2("fpr", pfcn_r, 0., 20.e3, 0., 10.e3);
   fdl = new TF2("fdl", dfcn_l, 0., 20.e3, 0., 10.e3);
@@ -113,14 +114,43 @@ void init_hists() {
   hr->SetStats(0);
 }
 
+void draw_psel_1d() {
+  TFile* f = new TFile(IFNAME_PSEL);
+  TH3* h3rp = (TH3*)f->Get("evde_r0_proton");
+  TH3* h3lp = (TH3*)f->Get("evde_l0_proton");
+  h3rp->GetZaxis()->SetRange(2, 5);
+  h3lp->GetZaxis()->SetRange(2, 5);
+  TH1* h1rp = h3rp->Project3D("x");
+  TH1* h1lp = h3lp->Project3D("x");
+
+  TCanvas* c = new TCanvas;
+  TLegend* l = new TLegend(0.7, 0.7, 0.9, 0.9);
+  char ltr[128], ltl[128];
+  sprintf(ltl, "Left Telescope (%d)", (int)h1lp->GetEntries());
+  sprintf(ltr, "Right Telescope (%d)", (int)h1rp->GetEntries());
+  l->AddEntry(h1lp, ltl);
+  l->AddEntry(h1rp, ltr);
+  h1rp->SetLineColor(kRed);
+  h1lp->SetLineColor(kBlue);
+  h1rp->SetTitle("Measured Proton Energy Spectrum;E [keV]");
+  h1lp->SetStats(false);
+  h1rp->SetStats(false);
+  h1rp->Draw();
+  h1lp->Draw("SAME");
+  l->Draw();
+  c->SaveAs("img/e_raw_proton.png");
+}
+
 void r15b_al50_psel_data_draw() {
+  draw_psel_1d();
+
   init_hists();
   TLegend*  l1      = new TLegend(0.1, 0.7, 0.3, 0.9);
   TLegend*  l2      = new TLegend(0.7, 0.7, 0.9, 0.9);
   TLine* line_model = new TLine();
   TLine* line_class = new TLine();
   line_model->SetLineStyle(2);
-  l1->AddEntry(line_model, "Prediction",   "l");
+  l1->AddEntry(line_model, "Fit function", "l");
   l1->AddEntry(line_class, "Cut from fit", "l");
   l2->AddEntry(fpl,        "Proton",       "l");
   l2->AddEntry(fdl,        "Deuteron",     "l");
@@ -128,7 +158,9 @@ void r15b_al50_psel_data_draw() {
   l2->AddEntry(fal,        "#alpha",       "l");
 
   TCanvas* cl = new TCanvas;
-  hl->Draw("COL");
+  hl->SetTitle("Left Telescope PID;E [keV];dE [keV]");
+  hl->GetYaxis()->SetTitleOffset(1.4);
+  hl->Draw();
   tpl->Draw("SAME"); fpl->Draw("SAME CONT3");
   tdl->Draw("SAME"); fdl->Draw("SAME CONT3");
   ttl->Draw("SAME"); ftl->Draw("SAME CONT3");
@@ -137,7 +169,9 @@ void r15b_al50_psel_data_draw() {
   cl->SetLogz();
   cl->SaveAs("img/l_data_classification.png");
   TCanvas* cr = new TCanvas;
-  hr->Draw("COL");
+  hr->SetTitle("Right Telescope PID;E [keV];dE [keV]");
+  hr->GetYaxis()->SetTitleOffset(1.4);
+  hr->Draw();
   tpr->Draw("SAME"); fpr->Draw("SAME CONT3");
   tdr->Draw("SAME"); fdr->Draw("SAME CONT3");
   ttr->Draw("SAME"); ftr->Draw("SAME CONT3");
@@ -150,45 +184,50 @@ void r15b_al50_psel_data_draw() {
                     new TLine(2.e3, 50.,  19.e3, 50.) };
   lim[0]->SetLineStyle(9); lim[1]->SetLineStyle(9);
   TCanvas* csigl = new TCanvas;
-  TGraph* glp = pls_l[0].SigGraph();
-  TGraph* gld = pls_l[1].SigGraph();
-  TGraph* glt = pls_l[2].SigGraph();
-  TGraph* gla = pls_l[3].SigGraph();
+  TGraph glp = pls_l[0].SigGraph();
+  TGraph gld = pls_l[1].SigGraph();
+  TGraph glt = pls_l[2].SigGraph();
+  TGraph gla = pls_l[3].SigGraph();
   TMultiGraph* mgl = new TMultiGraph();
-  mgl->Add(glp); mgl->Add(gld); mgl->Add(glt); mgl->Add(gla);
-  mgl->SetTitle("SiL PID #sigma");
-  glp->SetLineColor(kRed);
-  gld->SetLineColor(kGreen);
-  glt->SetLineColor(kBlue);
-  gla->SetLineColor(kMagenta);
-  mgl->SetTitle("");
+  mgl->Add(&glp); mgl->Add(&gld); mgl->Add(&glt); mgl->Add(&gla);
+  mgl->SetTitle("SiL PID #sigma;Energy [keV];Fit value [keV']");
+  glp.SetLineColor(kRed);
+  gld.SetLineColor(kGreen);
+  glt.SetLineColor(kBlue);
+  gla.SetLineColor(kMagenta);
   mgl->Draw("A");
   lim[0]->Draw(); lim[1]->Draw();
   l2->Draw();
   csigl->SaveAs("img/l_data_class_sig.png");
   TCanvas* csigr = new TCanvas;
-  TGraph* grp = pls_r[0].SigGraph();
-  TGraph* grd = pls_r[1].SigGraph();
-  TGraph* grt = pls_r[2].SigGraph();
-  TGraph* gra = pls_r[3].SigGraph();
+  TGraph grp = pls_r[0].SigGraph();
+  TGraph grd = pls_r[1].SigGraph();
+  TGraph grt = pls_r[2].SigGraph();
+  TGraph gra = pls_r[3].SigGraph();
   TMultiGraph* mgr = new TMultiGraph();
-  mgr->SetTitle("SiL PID #sigma");
-  mgr->Add(grp); mgr->Add(grd); mgr->Add(grt); mgr->Add(gra);
-  grp->SetLineColor(kRed);
-  grd->SetLineColor(kGreen);
-  grt->SetLineColor(kBlue);
-  gra->SetLineColor(kMagenta);
-  mgr->SetTitle("");
+  mgr->Add(&grp); mgr->Add(&grd); mgr->Add(&grt); mgr->Add(&gra);
+  mgr->SetTitle("SiR PID #sigma;Energy [keV];Fit value [keV']");
+  grp.SetLineColor(kRed);
+  grd.SetLineColor(kGreen);
+  grt.SetLineColor(kBlue);
+  gra.SetLineColor(kMagenta);
   mgr->Draw("A");
   lim[0]->Draw(); lim[1]->Draw();
   l2->Draw();
   csigr->SaveAs("img/r_data_class_sig.png");
 
-  vector<TH1*>& v = pls_r[2].GetHists();
-  vector<TF1*>& f = pls_r[2].GetFits();
-  for (int i = 0; i < v.size(); ++i) {
-    new TCanvas();
-    v[i]->Draw();
-    f[i]->Draw("SAME");
-  }
+  // for (int i = /*0*/1; i < 4; ++i) {
+  //   char ps[4] = {'p', 'd', 't', 'a'};
+  //   vector<TH1*>& v = pls_r[i].GetHists();
+  //   vector<TF1*>& f = pls_r[i].GetFits();
+  //   for (int j = 0; j < v.size(); ++j) {
+  //     TCanvas* c = new TCanvas();
+  //     v[j]->Draw();
+  //     f[j]->Draw("SAME");
+  //     char ofname[256];
+  //     sprintf(ofname, "img/%i_%c_fit.png", j, ps[i]);
+  //     c->SaveAs(ofname);
+  //   }
+  //   break;
+  // }
 }

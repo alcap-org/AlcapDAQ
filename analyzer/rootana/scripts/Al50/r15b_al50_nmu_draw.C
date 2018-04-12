@@ -1,23 +1,35 @@
-{
-  const char IFNAME[] = "~/data/R15b/nmual50.root";
+#include "./scripts/Al50/util.h"
 
-  TFile* f = new TFile(IFNAME);
-  gROOT->ProcessLine(".L scripts/Al50/util.h+g");
+#include "Rtypes.h"
+#include "TCanvas.h"
+#include "TF1.h"
+#include "TFile.h"
+#include "TFitResult.h"
+#include "TH1.h"
+#include "TLegend.h"
+#include "TPaveStats.h"
+#include "TStyle.h"
 
-  // Draw SiT energy spectrum (muons)
-  gStyle->SetOptStat("e");
-  TCanvas* cmu = new TCanvas();
-  hemu->SetTitle("Energy of Central Muon in each TME;E [keV];Count [/2.5keV]");
-  hemu->GetXaxis()->SetRangeUser(0, 8e3);
-  hemu->Draw();
-  cmu->SetLogy();
-  cmu->SaveAs("incoming_muons.png");
+namespace {
+  TH1 *hemu;
+  TH1 *hgehi_e_all,  *hgelo_e_all;
+  TH1 *hgehi_e_tcut, *hgelo_e_tcut;
+  TH1 *hgehi_t_ecut, *hgelo_t_ecut;
+}
 
-  // Fit and draw Ge spectra
-  TH1* hhi = hgehi_e_tcut;
-  TH1* hlo = hgelo_e_tcut;
-  hgehi_e_all->SetStats(kFALSE);
-  hgelo_e_all->SetStats(kFALSE);
+void LoadHistograms(TFile* f) {
+  hemu = (TH1*)f->Get("hemu");
+  hgehi_e_all  = (TH1*)f->Get("hgehi_e_all");
+  hgelo_e_all  = (TH1*)f->Get("hgelo_e_all");
+  hgehi_e_tcut = (TH1*)f->Get("hgehi_e_tcut");
+  hgelo_e_tcut = (TH1*)f->Get("hgelo_e_tcut");
+  hgehi_t_ecut = (TH1*)f->Get("hgehi_t_ecut");
+  hgelo_t_ecut = (TH1*)f->Get("hgelo_t_ecut");
+}
+
+void DrawFullScaleHistograms() {
+  hgehi_e_all->SetStats(false);
+  hgelo_e_all->SetStats(false);
   hgehi_e_all->SetTitle("Ge Spectrum (Al50 Target) all times;Energy [keV];Raw Count");
   hgehi_e_all->GetXaxis()->SetTitleOffset(1.2);
   hgehi_e_all->GetYaxis()->SetTitleOffset(1.4);
@@ -31,65 +43,120 @@
   hgehi_e_all->Draw();
   hgelo_e_all->Draw("SAME");
   l_all->Draw();
-  c_all->SaveAs("ge_e.png");
+  c_all->SaveAs("img/ge_e.png");
+}
 
+struct Norm {
+  int n;
+  double en, chi2, ndf;
+  double Chi2_red() { return ((double)chi2)/ndf; }
+  int Chi2()        { return (int)chi2;          }
+  int Ndf()         { return (int)ndf;           }
+};
+
+void ConstructFitFunctions(TF1*& hi, TF1*& lo) {
+  hi = new TF1("fcn_hi",
+               "pol1(0)+[2]*exp(-0.5*(x-[3])^2/[6]^2)+[4]*exp(-0.5*(x-[5])^2/[6]^2)",
+               335, 355);
+  lo = new TF1("fcn_lo",
+               "pol1(0)+[2]*exp(-0.5*(x-[3])^2/[6]^2)+[4]*exp(-0.5*(x-[5])^2/[6]^2)",
+               335, 355);
+  hi->SetParameters(1.5e3, 0., 10e3, 345., 2e3, 349.5, 1.);
+  lo->SetParameters(1.5e3, 0., 13e3, 344., 2e3, 348.5, 1.);
+  hi->SetParName(0, "Bkg y-int"); lo->SetParName(0, "Bkg y-int");
+  hi->SetParName(1, "Bkg Slope"); lo->SetParName(1, "Bkg Slope");
+  hi->SetParName(2, "Al Amp");    lo->SetParName(2, "Al Amp");
+  hi->SetParName(3, "Al Energy"); lo->SetParName(3, "Al Energy");
+  hi->SetParName(4, "Pb Amp");    lo->SetParName(4, "Pb Amp");
+  hi->SetParName(5, "Pb Energy"); lo->SetParName(5, "Pb Energy");
+  hi->SetParName(6, "Sigma");     lo->SetParName(6, "Sigma");
+  hi->SetLineColor(kRed);
+  lo->SetLineColor(kBlue);
+}
+
+Norm FitGeHist(TH1* h, TF1* f) {
+  double I = 0.798, dI = 0.008, E = 347.;
+  f->Print();
+  Double_t pars[7];
+  f->GetParameters(pars);
+  printf("%g %g %g %g %g %g %g\n", pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6]);
+  h->Fit(f);
+  f->GetParameters(pars);
+  printf("%g %g %g %g %g %g %g\n", pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6]);
+  TFitResultPtr r = h->Fit(f, "S");
+  Norm N = {
+    (int)GeFcn::NMuHi(r->Parameter(2), r->Parameter(6), h->GetBinWidth(1), I, E),
+    GeFcn::NMuErrHi(r->Parameter(2), r->ParError(2), r->Parameter(6),
+                    r->ParError(6), h->GetBinWidth(0), I, dI, E),
+    r->Chi2(), (double)r->Ndf() };
+  return N;
+}
+
+void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo) {
   TCanvas* c_fit = new TCanvas;
-  hhi->GetXaxis()->SetRangeUser(335., 355.);
-  hlo->GetXaxis()->SetRangeUser(335., 355.);
-  hhi->SetTitle("X-Ray Spectrum (Al50 Target) #pm200ns;Energy [keV];Raw Count");
-  hhi->GetXaxis()->SetTitleOffset(1.2);
-  hhi->GetYaxis()->SetTitleOffset(1.4);
-  hhi->SetLineColor(kRed);
-  TF1* fcn_hi = new TF1("fcn_hi", "pol1(0)+[2]*exp(-0.5*(x-[3])^2/[6]^2)+[4]*exp(-0.5*(x-[5])^2/[6]^2)");
-  TF1* fcn_lo = new TF1("fcn_lo", "pol1(0)+[2]*exp(-0.5*(x-[3])^2/[6]^2)+[4]*exp(-0.5*(x-[5])^2/[6]^2)");
-  fcn_hi->SetParameters(15e3, 0., 45e3, 345., 10e3, 349.5, 1.);
-  fcn_lo->SetParameters(15e3, 0., 40e3, 344., 5e3, 348.5, 1.);
-  fcn_hi->SetParName(0, "Bkg y-int"); fcn_lo->SetParName(0, "Bkg y-int");
-  fcn_hi->SetParName(1, "Bkg Slope"); fcn_lo->SetParName(1, "Bkg Slope");
-  fcn_hi->SetParName(2, "Al Amp");    fcn_lo->SetParName(2, "Al Amp");
-  fcn_hi->SetParName(3, "Al Energy"); fcn_lo->SetParName(3, "Al Energy");
-  fcn_hi->SetParName(4, "Pb Amp");    fcn_lo->SetParName(4, "Pb Amp");
-  fcn_hi->SetParName(5, "Pb Energy"); fcn_lo->SetParName(5, "Pb Energy");
-  fcn_hi->SetParName(6, "Sigma");     fcn_lo->SetParName(6, "Sigma");
-  fcn_lo->SetLineColor(kBlue);
-  hhi->Fit(fcn_hi, "S");
-  hlo->Fit(fcn_lo, "S");
-  TFitResultPtr fit_hi = hhi->Fit(fcn_hi, "S");
-  TFitResultPtr fit_lo = hlo->Fit(fcn_lo, "S");
-
-  int nhi = GeFcn::NMuHi(fit_hi->Parameter(2), fit_hi->Parameter(6), hhi->GetBinWidth(0), 0.798, 347.);
-  int nlo = GeFcn::NMuLo(fit_lo->Parameter(2), fit_lo->Parameter(6), hlo->GetBinWidth(0), 0.798, 347.);
-  double nhi_err = GeFcn::NMuErrHi(fit_hi->Parameter(2), fit_hi->ParError(2), fit_hi->Parameter(6), fit_hi->ParError(6), hhi->GetBinWidth(0), 0.798, 0.008, 347.);
-  double nlo_err = GeFcn::NMuErrLo(fit_lo->Parameter(2), fit_lo->ParError(2), fit_lo->Parameter(6), fit_lo->ParError(6), hlo->GetBinWidth(0), 0.798, 0.008, 347.);
-
+  hi->GetXaxis()->SetRangeUser(335., 355.);
+  lo->GetXaxis()->SetRangeUser(335., 355.);
+  hi->SetTitle("X-Ray Spectrum (Al50 Target) #pm200ns;Energy [keV];Raw Count");
+  hi->GetXaxis()->SetTitleOffset(1.2);
+  hi->GetYaxis()->SetTitleOffset(1.4);
+  hi->SetLineColor(kRed);
+  lo->SetLineColor(kBlue);
   gStyle->SetOptStat("n");
   gStyle->SetOptFit(111);
-  hhi->SetStats(kTRUE);
-  hlo->SetStats(kTRUE);
-  hhi->SetName("GeHiGain");
-  hlo->SetName("GeLoGain");
-  hhi->Draw();
+  hi->SetStats(kTRUE);
+  lo->SetStats(kTRUE);
+  hi->SetName("GeHiGain");
+  lo->SetName("GeLoGain");
+  hi->Draw();
   c_fit->Update();
-  TPaveStats* stats_hi = (TPaveStats*)hhi->GetListOfFunctions()->FindObject("stats");
-  hlo->Draw();
+  TPaveStats* stats_hi = (TPaveStats*)hi->GetListOfFunctions()->FindObject("stats");
+  lo->Draw();
   c_fit->Update();
-  TPaveStats* stats_lo = (TPaveStats*)hlo->GetListOfFunctions()->FindObject("stats");
+  TPaveStats* stats_lo = (TPaveStats*)lo->GetListOfFunctions()->FindObject("stats");
   stats_hi->SetX1NDC(0.10); stats_hi->SetX2NDC(0.35);
   stats_hi->SetY1NDC(0.50); stats_hi->SetY2NDC(0.90);
   stats_lo->SetX1NDC(0.10); stats_lo->SetX2NDC(0.35);
   stats_lo->SetY1NDC(0.10); stats_lo->SetY2NDC(0.50);
   TLegend* l_fit = new TLegend(0.55, 0.70, 0.95, 0.90);
   char l_fit_hi[64], l_fit_lo[64];
-  sprintf(l_fit_hi, "Ge High Gain (%.3g#pm%.2g #mu)", nhi, nhi_err);
-  sprintf(l_fit_lo, "Ge Low Gain (%.3g#pm%.2g #mu)", nlo, nlo_err);
-  l_fit->AddEntry(hhi, l_fit_hi);
-  l_fit->AddEntry(hlo, l_fit_lo);
-  hhi->Draw();
-  hlo->Draw("SAME");
+  sprintf(l_fit_hi, "Ge High Gain (%.3g#pm%.2g #mu)", (double)nhi.n, nhi.en);
+  sprintf(l_fit_lo, "Ge Low Gain (%.3g#pm%.2g #mu)",  (double)nlo.n, nlo.en);
+  l_fit->AddEntry(hi, l_fit_hi);
+  l_fit->AddEntry(lo, l_fit_lo);
+  hi->Draw();
+  lo->Draw("SAME");
   l_fit->Draw();
   c_fit->Update();
-  c_fit->SaveAs("ge_e_zoom.png");
+  c_fit->SaveAs("img/ge_e_zoom.png");
+}
 
-  printf("Hi chi2 %d/%d (%f), n %d +/- %f\n", fit_hi->Chi2(), fit_hi->Ndf(), ((double)fit_hi->Chi2())/fit_hi->Ndf(), nhi, nhi_err);
-  printf("Lo chi2 %d/%d (%f), n %d +/- %f\n", fit_lo->Chi2(), fit_lo->Ndf(), ((double)fit_lo->Chi2())/fit_lo->Ndf(), nlo, nlo_err);
+void r15b_al50_nmu_draw () {
+  const char IFNAME[] = "~/data/R15b/nmual50.root";
+  TFile* f = new TFile(IFNAME);
+  LoadHistograms(f);
+
+  // Draw SiT energy spectrum (muons)
+  // gStyle->SetOptStat("e");
+  // TCanvas* cmu = new TCanvas();
+  // hemu->SetTitle("Energy of Central Muon in each TME;E [keV];Count [/2.5keV]");
+  // hemu->GetXaxis()->SetRangeUser(0, 8e3);
+  // hemu->Draw();
+  // cmu->SetLogy();
+  // cmu->SaveAs("img/incoming_muons.png");
+
+  // Fit and draw Ge spectra
+  // DrawFullScaleHistograms();
+  TH1* hhi = hgehi_e_tcut;
+  TH1* hlo = hgelo_e_tcut;
+
+  TF1 *fcn_hi, *fcn_lo;
+  ConstructFitFunctions(fcn_hi, fcn_lo);
+  Norm nhi = FitGeHist(hhi, fcn_hi);
+  Norm nlo = FitGeHist(hlo, fcn_lo);
+  DrawFits(hhi, hlo, nhi, nlo);
+
+  printf("Hi chi2 %d/%d (%f), n %d +/- %f\n",
+         nhi.Chi2(), nhi.Ndf(), nhi.Chi2_red(), nhi.n, nhi.en);
+  printf("Lo chi2 %d/%d (%f), n %d +/- %f\n",
+         nlo.Chi2(), nlo.Ndf(), nlo.Chi2_red(), nlo.n, nlo.en);
 }

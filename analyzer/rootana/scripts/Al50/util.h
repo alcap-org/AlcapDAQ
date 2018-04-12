@@ -14,21 +14,28 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <vector>
 
 
+void PrintAndThrow(const char* err) {
+  std::cout << err << std::endl;
+  throw err;
+}
 
-enum Side  { kRight, kLeft };
+enum Side  { kRight, kLeft, kNSides, kInvalidSide };
 enum Layer { kThin,  kThick };
 
 struct Particle { std::string Name; double M; /*GeV*/ };
 bool operator==(const Particle& l, const Particle& r) { return l.Name == r.Name; }
-const Particle PHOTON   = {"gamma",     0.};
-const Particle ELECTRON = {"electron",  511.999e-6};
-const Particle MUON     = {"muon",      105.658e-3};
-const Particle PROTON   = {"proton",    938.272e-3};
-const Particle DEUTERON = {"deuteron",  1876.124e-3};
-const Particle TRITON   = {"triton",    2809.432e-3};
-const Particle ALPHA    = {"alpha",     3727.379e-3};
+const Particle NULLPARTICLE = {"null",      -1.};
+const Particle PHOTON       = {"gamma",     0.};
+const Particle ELECTRON     = {"electron",  511.999e-6};
+const Particle MUON         = {"muon",      105.658e-3};
+const Particle PROTON       = {"proton",    938.272e-3};
+const Particle DEUTERON     = {"deuteron",  1876.124e-3};
+const Particle TRITON       = {"triton",    2809.432e-3};
+const Particle ALPHA        = {"alpha",     3727.379e-3};
+static const Particle* PARTICLES[4] = { &PROTON, &DEUTERON, &TRITON, &ALPHA };
 enum ParticleType {
   kNotAParticle, kPhoton, kElectron, kMuon, kProton, kDeuteron, kTriton,
   kAlpha, kAllParticleTypes
@@ -178,34 +185,37 @@ namespace SiUtils {
     return dE(par[0], x[0], (int)par[1]);
   }
   class SiEvent {
-    double de, e, t1, t2, t3;
+    std::vector<double> e, t;
     bool valid;
    public:
   // Add time cut...?
     SiEvent(const std::vector<SimplePulse>* si1,
             const std::vector<SimplePulse>* si2,
             const std::vector<SimplePulse>* si3,
-            const TMECal::ECal* adc2e_si1) {
+            const TMECal::ECal* adc2e_si1) : e(3, 0.), t(3, 0.), valid(true) {
       if (!TMECuts::OnlyOneHit(si1) || (si3 && !TMECuts::AtMostOneHit(si3))) {
         valid = false;
         return;
       }
-      valid = true;
-      if (adc2e_si1) e = de = adc2e_si1->Eval(si1->front().Amp);
-      else           e = de = si1->front().E;
-      e += si2->front().E;
-      if (si3 && TMECuts::OnlyOneHit(si3)) {
-        e  += si2->front().E + si3->front().E;
-        t3  = si3->front().tTME;
+      if (adc2e_si1) e[0] = adc2e_si1->Eval(si1->front().Amp);
+      else           e[0] = si1->front().E;
+      e[1] = si2->front().E;
+      if (si3) {
+        if (TMECuts::OnlyOneHit(si3)) {
+          e[2] = si3->front().E;
+          t[2] = si3->front().tTME;
+        }
       }
-      t1 = si1->front().tTME;
-      t2 = si2->front().tTME;
+      t[0] = si1->front().tTME;
+      t[1] = si2->front().tTME;
     }
-    bool   Valid() { return valid;   }
-    double dE()    { return de;      }
-    double E()     { return e;       }
-    double T()     { return t1;      }
-    double dT()    { return t2 - t1; }
+    bool   Valid()   { return valid;          }
+    double E()       { return e[0]+e[1]+e[2]; }
+    double E(int i)  { return e[i];           }
+    double dE()      { return E(0);           }
+    double T()       { return t[0];           }
+    double dT()      { return t[1] - t[0];    }
+    bool ThreeHits() { return e[0] > 0. && e[1] > 0. && e[2] > 0.; }
   };
 }
 

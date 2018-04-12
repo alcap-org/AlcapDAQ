@@ -4,6 +4,7 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TH3.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // USER DEFINED VARIABLES
@@ -46,8 +47,12 @@ void unfold(const char* ifname, const char* ofname, const char* ihnames[2]) {
   TH1::SetDefaultSumw2(kTRUE);
   TFile* fdata = new TFile(IFNAME_DATA);
   TFile* fmctm = new TFile(ifname);
-  TH2* hevde[2] = { (TH2*)fdata->Get(ihnames[0]),
-                    (TH2*)fdata->Get(ihnames[1])};
+  TH3* hevdevt[2] = { (TH3*)fdata->Get(ihnames[0]),
+                      (TH3*)fdata->Get(ihnames[1])};
+  hevdevt[0]->GetZaxis()->SetRange(2, 5);
+  hevdevt[1]->GetZaxis()->SetRange(2, 5);
+  TH2* hevde[2] = { (TH2*)hevdevt[0]->Project3D("yx"),
+                    (TH2*)hevdevt[1]->Project3D("yx") };
   RooUnfoldResponse* resp[2] = { (RooUnfoldResponse*)fmctm->Get("SiL_TM"),
                                  (RooUnfoldResponse*)fmctm->Get("SiR_TM") };
   TH1* heraw[2] = { hevde[0]->ProjectionX(),

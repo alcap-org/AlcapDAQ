@@ -1,23 +1,30 @@
 #pragma once
 
-#include "./src/plotters/SimplePulse.h"
 #include "./scripts/TMETree/TMETreeBranches.h"
+#include "./src/plotters/SimplePulse.h"
 
 namespace TMECuts {
   bool OnlyOneHit(const std::vector<SimplePulse>* sps) {
     return sps->size() == 1;
   }
-  bool OnlyOneHit(const std::vector<SimplePulse>* sps[], int N) {
+  bool OnlyOneHit(const std::vector<std::vector<SimplePulse>*>& sps) {
     int n = 0;
-    for (int i = 0; i < N; ++i)
+    for (int i = 0; i < sps.size(); ++i)
       n += sps[i]->size();
     return n == 1;
+  }
+  bool OnlyOneMuon() {
+    // Make sure to call CollectChannels first
+    return OnlyOneHit(all_SiT_channels);
+  }
+  bool AtMostOneHit(const std::vector<SimplePulse>* sps) {
+    return sps->size() <= 1;
   }
   bool Valid(const std::vector<SimplePulse>* sps) {
     return OnlyOneHit(sps);
   }
-  bool Valid(const std::vector<SimplePulse>* sps[], int N) {
-    return OnlyOneHit(sps, N);
+  bool Valid(const std::vector<std::vector<SimplePulse>*> sps) {
+    return OnlyOneHit(sps);
   }
   bool TCorr(double t1, double t2, double dt) {
     return std::abs(t1-t2) < dt;
@@ -33,7 +40,8 @@ namespace TMECal {
   struct ECal {
     double e0, g;
     ECal(double e0=0, double g=0) : e0(e0), g(g) {}
-    double operator()(double adc) const { return e0+g*adc; }
+    double Eval      (double adc) const { return e0+g*adc; }
+    double operator()(double adc) const { return Eval(adc); }
   };
   ECal SiL1A2E[16];
   ECal SiL3A2E(4.47046,11.0748);
