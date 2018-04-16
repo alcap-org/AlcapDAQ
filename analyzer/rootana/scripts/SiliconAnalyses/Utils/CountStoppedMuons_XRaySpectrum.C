@@ -1,3 +1,6 @@
+#ifndef CountStoppedMuons_XRaySpectrum_C_
+#define CountStoppedMuons_XRaySpectrum_C_
+
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -10,10 +13,16 @@ struct CountStoppedMuons_XRaySpectrumArgs {
   std::string channel;
   std::string inhistname;
   std::string outfilename;
-
+  std::string outtreename;
+  std::string outwsname;
+  
   std::string material;
   std::string transition;
   int rebin_factor;
+  int ge_eff_run;
+
+  double min_time;
+  double max_time;
 };
 
 void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& args) {
@@ -22,13 +31,14 @@ void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& ar
   TH2F* hEnergyTime = (TH2F*) file->Get(args.inhistname.c_str());
 
   // time cuts can go in here
-  TH1F* hGe_Spectrum = (TH1F*) hEnergyTime->ProjectionY();
+  int min_time_bin = hEnergyTime->GetXaxis()->FindBin(args.min_time);
+  int max_time_bin = hEnergyTime->GetXaxis()->FindBin(args.max_time)-1;
+  TH1F* hGe_Spectrum = (TH1F*) hEnergyTime->ProjectionY("_py", min_time_bin, max_time_bin);
   hGe_Spectrum->Rebin(args.rebin_factor);
   
   // Get germanium efficiency curves
-  int ge_eff_run = 10319; // can be 10319 or 9302
   double a, b, delta_a, delta_b, corr;
-  if (FillGeEffParams(args.channel, ge_eff_run, a, b, delta_a, delta_b, corr) == 1) {
+  if (FillGeEffParams(args.channel, args.ge_eff_run, a, b, delta_a, delta_b, corr) == 1) {
     std::cout << "Error from FillGeEffParams. Aborting..." << std::endl;
     return;
   }
@@ -53,7 +63,7 @@ void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& ar
 
   double xray_energy_low = xray.energy-10;
   double xray_energy_high = xray.energy+10;
-  RooWorkspace* ws = FitPeak(xray_energy_low, xray_energy_high, hGe_Spectrum, &xray);
+  RooWorkspace* ws = FitPeak(args.outwsname, xray_energy_low, xray_energy_high, hGe_Spectrum, &xray);
 
   RooRealVar* area = ws->var("xray_area");
   double xray_count = area->getValV();
@@ -78,7 +88,7 @@ void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& ar
   std::cout << "Efficiency = " << xray.efficiency << " +/- " << xray.efficiency_error << " (" << (xray.efficiency_error / xray.efficiency) * 100 << "%)" << std::endl;
   std::cout << "Number of Stopped Muons = " << n_stopped_muons << " +- " << n_stopped_muons_error << " (" << (n_stopped_muons_error / n_stopped_muons) * 100 << "%)" << std::endl;
   
-  TTree* indirect_count_tree = new TTree("indirect_count", "");
+  TTree* indirect_count_tree = new TTree(args.outtreename.c_str(), "");
   indirect_count_tree->Branch("xray_count", &xray_count);
   indirect_count_tree->Branch("xray_count_error", &xray_count_error);
   indirect_count_tree->Branch("xray_energy", &xray.energy);
@@ -102,3 +112,5 @@ void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& ar
   outfile->Write();
   outfile->Close();
 }
+
+#endif

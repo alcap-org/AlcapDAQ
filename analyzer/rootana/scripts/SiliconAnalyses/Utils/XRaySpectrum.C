@@ -22,7 +22,7 @@ struct XRaySpectrumArgs {
 
 void XRaySpectrum(XRaySpectrumArgs& args) {
   TFile* in_file = new TFile(args.infilename.c_str(), "READ");
-  TTree* getree = (TTree*) in_file->Get(args.treename.c_str());
+  TTree* geTree = (TTree*) in_file->Get(args.treename.c_str());
 
   int n_energy_bins = (args.max_energy - args.min_energy) / args.energy_width;
   int n_time_bins = (args.max_time - args.min_time) / args.time_width;
@@ -34,12 +34,12 @@ void XRaySpectrum(XRaySpectrumArgs& args) {
 
   double energy;
   double time;
-  getree->SetBranchAddress("energy", &energy);
-  getree->SetBranchAddress("time", &time);
+  geTree->SetBranchAddress("energy", &energy);
+  geTree->SetBranchAddress("time", &time);
   
-  int n_entries = getree->GetEntries();
+  int n_entries = geTree->GetEntries();
   for (int i_entry = 0; i_entry < n_entries; ++i_entry) {
-    getree->GetEntry(i_entry);
+    geTree->GetEntry(i_entry);
     if (i_entry % 100000 == 0) {
       std::cout << i_entry << " / " << n_entries << std::endl;
     }
