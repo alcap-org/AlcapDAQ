@@ -9,6 +9,18 @@
 #include "AlCapConstants.h"
 #include "src/plotters/SimplePulse.h"
 
+#include "TBranch.h"
+#include "TTree.h"
+
+#include <vector>
+
+// #ifdef __CINT__
+// #pragma link C++ class SimplePulse+;
+// #pragma link C++ class vector<SimplePulse >+;
+// #pragma link C++ class vector< vector<SimplePulse >* >+;
+// #endif
+
+
 // Still to add:
 // -- ideniftier of who created the tree and with which software
 Int_t runId; // run number
@@ -24,13 +36,13 @@ Double_t timeToNextTME; // time from the central muon in this TME to the central
 Bool_t anyDoubleCountedPulses; // have any pulses in this TMuonEvent been included in more than one TMuonEvent?
 
 std::vector<SimplePulse>* muSc = 0; // all the pulses in this channel for this TMuonEvent
-  
+
 std::vector<SimplePulse>* SiT_1 = 0; // all the pulses in this channel for this TMuonEvent
 std::vector<SimplePulse>* SiT_2 = 0;
 std::vector<SimplePulse>* SiT_3 = 0;
 std::vector<SimplePulse>* SiT_4 = 0;
-std::vector<SimplePulse>* all_SiT_channels[n_SiT_channels];
-  
+std::vector< std::vector<SimplePulse>* > all_SiT_channels(n_SiT_channels);
+
 std::vector<SimplePulse>* SiL1_1 = 0; // all the pulses in this channel for this TMuonEvent
 std::vector<SimplePulse>* SiL1_2 = 0;
 std::vector<SimplePulse>* SiL1_3 = 0;
@@ -47,7 +59,7 @@ std::vector<SimplePulse>* SiL1_13 = 0;
 std::vector<SimplePulse>* SiL1_14 = 0;
 std::vector<SimplePulse>* SiL1_15 = 0;
 //std::vector<SimplePulse>* SiL1_16 = 0;
-std::vector<SimplePulse>* all_SiL1_channels[n_SiL1_channels];
+std::vector< std::vector<SimplePulse>* > all_SiL1_channels(n_SiL1_channels);
 
 std::vector<SimplePulse>* SiL3 = 0;
 
@@ -55,35 +67,35 @@ std::vector<SimplePulse>* SiR1_1 = 0; // all the pulses in this channel for this
 std::vector<SimplePulse>* SiR1_2 = 0;
 std::vector<SimplePulse>* SiR1_3 = 0;
 std::vector<SimplePulse>* SiR1_4 = 0;
-std::vector<SimplePulse>* all_SiR1_channels[n_SiR1_channels];
-  
+std::vector< std::vector<SimplePulse>* > all_SiR1_channels(n_SiR1_channels);
+
 std::vector<SimplePulse>* SiR2 = 0;
-  
+
 std::vector<SimplePulse>* SiR3 = 0;
 
 std::vector<SimplePulse>* GeLoGain = 0;
 std::vector<SimplePulse>* GeHiGain = 0;
-  
-std::vector<SimplePulse>* all_channels[n_all_channels];
+
+std::vector< std::vector<SimplePulse>* > all_channels(n_all_channels);
 
 
 void SetTMEBranchAddresses(TTree* tmetree) {
-    
+
   TBranch* br_runId = tmetree->GetBranch("runId");
   TBranch* br_blockId = tmetree->GetBranch("blockId");
-    
-  TBranch* br_TMEId = tmetree->GetBranch("TMEId");
-  TBranch* br_TMEWindowWidth = tmetree->GetBranch("TMEWindowWidth");
-  TBranch* br_centralMuonChannel = tmetree->GetBranch("centralMuonChannel");
-  TBranch* br_centralMuonTPIID = tmetree->GetBranch("centralMuonTPIID");
-  TBranch* br_centralMuonEnergy = tmetree->GetBranch("centralMuonEnergy");
-  TBranch* br_centralMuonTime = tmetree->GetBranch("centralMuonTime");
-  TBranch* br_timeToPrevTME = tmetree->GetBranch("timeToPrevTME");
-  TBranch* br_timeToNextTME = tmetree->GetBranch("timeToNextTME");
+
+  TBranch* br_TMEId                  = tmetree->GetBranch("TMEId");
+  TBranch* br_TMEWindowWidth         = tmetree->GetBranch("TMEWindowWidth");
+  TBranch* br_centralMuonChannel     = tmetree->GetBranch("centralMuonChannel");
+  TBranch* br_centralMuonTPIID       = tmetree->GetBranch("centralMuonTPIID");
+  TBranch* br_centralMuonEnergy      = tmetree->GetBranch("centralMuonEnergy");
+  TBranch* br_centralMuonTime        = tmetree->GetBranch("centralMuonTime");
+  TBranch* br_timeToPrevTME          = tmetree->GetBranch("timeToPrevTME");
+  TBranch* br_timeToNextTME          = tmetree->GetBranch("timeToNextTME");
   TBranch* br_anyDoubleCountedPulses = tmetree->GetBranch("anyDoubleCountedPulses");
 
   TBranch* br_muSc = tmetree->GetBranch("muSc");
-  
+
   TBranch* br_SiT_1 = tmetree->GetBranch("SiT_1");
   TBranch* br_SiT_2 = tmetree->GetBranch("SiT_2");
   TBranch* br_SiT_3 = tmetree->GetBranch("SiT_3");
@@ -248,10 +260,11 @@ void SetTMEBranchAddresses(TTree* tmetree) {
   if (br_GeHiGain) {
     br_GeHiGain->SetAddress(&GeHiGain);
   }
+  tmetree->GetEntry(0);
 }
 
 void CollectChannels() {
-  
+
   // collect all the names
   int i_counter = 0;
   for (int i_SiT_channel = 0; i_SiT_channel < n_SiT_channels; ++i_SiT_channel) {

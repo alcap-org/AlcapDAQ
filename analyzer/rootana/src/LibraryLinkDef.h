@@ -47,5 +47,6 @@
 #pragma link C++ class SimplePulse+;
 #pragma link C++ class std::vector<SimplePulse>+;
 #pragma link C++ class std::vector<SimplePulse*>+;
+#pragma link C++ class std::vector< std::vector<SimplePulse>* >+;
 
 #endif    /* __CINT__ */
