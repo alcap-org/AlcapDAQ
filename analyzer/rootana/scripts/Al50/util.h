@@ -84,21 +84,21 @@ namespace GeFcn {
     return GaussArea(A, S, db) * sqrt(dA*dA/(A*A) + dS*dS/(S*S));
   }
   double GeHiEff(double E) {
-    static const double a = 0.244223,   b = -0.931899;
+    static const double a = 0.193,   b = -0.944;
     return a*pow(E, b);
   }
   double GeHiEffErr(double E) {
-    static const double a = 0.244223,   b = -0.931899, c = -0.995306,
-                       da = 0.0228416, db = 0.0148333;
+    static const double a = 0.193, b = -0.944, c = -0.995306,
+                       da = 0.016, db = 0.013;
     return sqrt(pow(E, 2*b) * (da*da + log(E)*a*db*(a*db*log(E) + 2*c*da)));
   }
   double GeLoEff(double E) {
-    static const double a = 0.223417,   b = -0.919075;
+    static const double a = 0.179, b = -0.933;
     return a*pow(E, b);
   }
   double GeLoEffErr(double E) {
-    static const double a = 0.223417,   b = -0.919075, c = -0.995269,
-                       da = 0.0213393, db = 0.0151079;
+    static const double a = 0.179, b = -0.933, c = -0.995269,
+                       da = 0.015, db = 0.013;
     return sqrt(pow(E, 2*b) * (da*da + log(E)*a*db*(a*db*log(E) + 2*c*da)));
   }
   double NMuHi(double A, double S, double db, double I, double E) {
@@ -209,12 +209,13 @@ namespace SiUtils {
       t[0] = si1->front().tTME;
       t[1] = si2->front().tTME;
     }
-    bool   Valid()   { return valid;          }
-    double E()       { return e[0]+e[1]+e[2]; }
-    double E(int i)  { return e[i];           }
-    double dE()      { return E(0);           }
-    double T()       { return t[0];           }
-    double dT()      { return t[1] - t[0];    }
+    bool   Valid()          { return valid;          }
+    double E()              { return e[0]+e[1]+e[2]; }
+    double E(int i)         { return e[i];           }
+    double dE()             { return E(0);           }
+    double T()              { return t[0];           }
+    double dT()             { return t[1] - t[0];    }
+    double dT(int i, int j) { return t[i] - t[j];    }
     bool ThreeHits() { return e[0] > 0. && e[1] > 0. && e[2] > 0.; }
   };
 }
