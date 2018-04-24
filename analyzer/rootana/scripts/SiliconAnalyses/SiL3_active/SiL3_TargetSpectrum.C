@@ -4,10 +4,12 @@ void SiL3_TargetSpectrum(std::string infilename, std::string outfilename) {
 
   TargetSpectrumArgs args;
   args.infilename = infilename;
-  args.treename = "targettree";
+  args.treename = "siBlockTree_Target";
+  args.layername = "thick";
+  args.layerveto = false;
   args.outfilename = outfilename;
   
-  args.outhistname = "hEnergyTime_Target";
+  args.outhistname = "hTarget";
   args.min_energy = 0;
   args.max_energy = 30000;
   args.energy_width = 100;

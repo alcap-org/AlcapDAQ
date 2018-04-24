@@ -6,6 +6,8 @@
 #ifndef TMETreeBranches_h_
 #define TMETreeBranches_h_
 
+#include "TTree.h"
+
 #include "AlCapConstants.h"
 #include "src/plotters/SimplePulse.h"
 
@@ -77,6 +79,8 @@ std::vector<SimplePulse>* GeLoGain = 0;
 std::vector<SimplePulse>* GeHiGain = 0;
 
 std::vector< std::vector<SimplePulse>* > all_channels(n_all_channels);
+
+std::vector<SimplePulse>* empty = 0;
 
 
 void SetTMEBranchAddresses(TTree* tmetree) {
@@ -260,7 +264,9 @@ void SetTMEBranchAddresses(TTree* tmetree) {
   if (br_GeHiGain) {
     br_GeHiGain->SetAddress(&GeHiGain);
   }
-  tmetree->GetEntry(0);
+
+  tmetree->GetEntry(0); // This sets the addresses for CollectChannels
+  empty = new std::vector<SimplePulse>;
 }
 
 void CollectChannels() {

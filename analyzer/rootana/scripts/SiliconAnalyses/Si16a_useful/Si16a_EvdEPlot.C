@@ -1,6 +1,6 @@
 #include "scripts/SiliconAnalyses/Utils/EvdEPlot.C"
 
-void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
+void Si16a_EvdEPlot(std::string infilename, std::string outfilename) {
 
   EvdEPlotArgs args;
   args.infilename = infilename;
@@ -29,7 +29,7 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
   args.outhistname = "hEvdE_proton_SiR";
   args.third_layer_veto = false;
   args.do_cut = true;
-  args.cutfilename = "~/data/results/Si16b_passive/cuts.root";
+  args.cutfilename = "~/data/results/Si16a_useful/cuts.root";
   args.cutname = "proton_band";
   EvdEPlot(args);
 

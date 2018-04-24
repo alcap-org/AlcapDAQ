@@ -1,6 +1,6 @@
 #include "scripts/SiliconAnalyses/Utils/XRaySpectrum.C"
 
-void SiL3_XRaySpectrum(std::string infilename, std::string outfilename) {
+void Si16a_XRaySpectrum(std::string infilename, std::string outfilename) {
 
   const int n_ge_channels = 2;
   std::string ge_channels[n_ge_channels] = {"GeLoGain", "GeHiGain"};

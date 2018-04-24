@@ -47,6 +47,11 @@ int FillXRayInfo(XRay& xray) {
       xray.intensity = 0.803;
       xray.intensity_error = 0.008;
     }
+    if (xray.transition == "3p-1s") {
+      xray.energy = 476.8;
+      xray.intensity = 0.074;
+      xray.intensity_error = 0.001;
+    }
   }
   else if (xray.material == "Ti") {
     std::cout << "Titanium x-ray:" << std::endl;
@@ -134,13 +139,13 @@ int FillGeEffFunctions(const double& a, const double& b, const double& delta_a, 
   return 0;
 }
 
-RooWorkspace* FitPeak(double energy_low, double energy_high, TH1* hSpectrum, XRay* xray) {
+RooWorkspace* FitPeak(std::string wsname, double energy_low, double energy_high, TH1* hSpectrum, XRay* xray) {
   
   // Keep track of the number of parameters
   int n_fit_params = 0;
 
   // Create the workspace and functions for fitting and create the summed pdf as we go
-  RooWorkspace* ws = new RooWorkspace("ws", kTRUE);
+  RooWorkspace* ws = new RooWorkspace(wsname.c_str(), kTRUE);
   std::stringstream factory_cmd, sum_factory_cmd;
   sum_factory_cmd << "SUM::sum(";
 
@@ -151,7 +156,7 @@ RooWorkspace* FitPeak(double energy_low, double energy_high, TH1* hSpectrum, XRa
   n_fit_params += 3; // bkg_offset, bkg_slope, nbkg
 
   // Now the X-ray peak of interest
-  factory_cmd << "Gaussian::xraypeak_pdf(edep[" << energy_low << ", " << energy_high << "], xray_mean[" << xray->energy-1 << ", " << xray->energy+1 << "], xray_sigma[0.1, 10])"; // the x-ray peak itself
+  factory_cmd << "Gaussian::xraypeak_pdf(edep[" << energy_low << ", " << energy_high << "], xray_mean[" << xray->energy-2 << ", " << xray->energy+2 << "], xray_sigma[0.1, 10])"; // the x-ray peak itself
   ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
   sum_factory_cmd << ", xray_area[0,500000]*xraypeak_pdf";
   n_fit_params += 3; // xray_mean, xray_sigma, xray_area

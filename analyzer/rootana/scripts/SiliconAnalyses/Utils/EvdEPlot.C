@@ -2,9 +2,15 @@
 #include "TTree.h"
 #include "TH2.h"
 #include "TF1.h"
+#include "TCutG.h"
 
 #include <iostream>
 #include <sstream>
+
+struct CutInfo {
+  TFile* file;
+  TCutG* tCutG;
+} cutInfo;
 
 struct EvdEPlotArgs {
   std::string infilename;
@@ -27,15 +33,20 @@ struct EvdEPlotArgs {
   bool early_time_veto;
   double early_time_cut;
 
-  bool do_proton_cut;
-  TF1* electron_spot_cut;
-  TF1* punchthrough_cut;
-  TF1* deuteron_removal_cut;
+  bool do_cut;
+  std::string cutfilename;
+  std::string cutname;
 };
 
 void EvdEPlot(EvdEPlotArgs& args) {
   TFile* in_file = new TFile(args.infilename.c_str(), "READ");
+  if (in_file->IsZombie()) {
+    std::cout << "Problem opening file " << args.infilename << std::endl;
+  }
   TTree* armtree = (TTree*) in_file->Get(args.treename.c_str());
+  if (!armtree) {
+    std::cout << "Problem getting tree " << args.treename << std::endl;
+  }
 
   int n_x_energy_bins = (args.max_x_energy - args.min_x_energy) / args.x_energy_width;
   int n_y_energy_bins = (args.max_y_energy - args.min_y_energy) / args.y_energy_width;
@@ -53,7 +64,12 @@ void EvdEPlot(EvdEPlotArgs& args) {
   if (args.early_time_veto) {
     cuttree->Branch("early_time_cut", &args.early_time_cut);
   }
-  cuttree->Branch("do_proton_cut", &args.do_proton_cut);
+  cuttree->Branch("do_cut", &args.do_cut);
+  if (args.do_cut) {
+    cutInfo.file = new TFile(args.cutfilename.c_str(), "READ");
+    cutInfo.tCutG = (TCutG*) cutInfo.file->Get(args.cutname.c_str());
+    cutInfo.file->Close();
+  }
 
   double thin_energy;
   double thin_time;
@@ -97,20 +113,9 @@ void EvdEPlot(EvdEPlotArgs& args) {
       }
     }
 
-    if (args.do_proton_cut) {
-      bool passes_electron_spot = (thin_energy > args.electron_spot_cut->Eval(total_energy));
-      bool passes_punchthrough = (thin_energy > args.punchthrough_cut->Eval(total_energy));
-      bool passes_deuteron_removal = (thin_energy < args.deuteron_removal_cut->Eval(total_energy));
-
-      if (args.third_layer_veto) {
-	if (!passes_electron_spot || !passes_deuteron_removal) {
-	  continue; // to the next arm events
-	}
-      }
-      else {
-	if (!passes_electron_spot || !passes_punchthrough || !passes_deuteron_removal) {
-	  continue; // to the next arm events
-	}
+    if (args.do_cut) {
+      if (!cutInfo.tCutG->IsInside(total_energy, thin_energy) ) {
+	continue; // to the next arm event
       }
     }
 
@@ -123,10 +128,8 @@ void EvdEPlot(EvdEPlotArgs& args) {
   hEvdE->Write();
   cuttree->Fill();
   cuttree->Write();
-  if (args.do_proton_cut) {
-    args.electron_spot_cut->Write();
-    args.punchthrough_cut->Write();
-    args.deuteron_removal_cut->Write();
+  if (args.do_cut) {
+    cutInfo.tCutG->Write();
   }
 
   outfile->Write();

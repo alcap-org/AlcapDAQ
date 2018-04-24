@@ -1,5 +1,6 @@
 #include "scripts/SiliconAnalyses/SiL3_active/SiL3_CountStoppedMuons_XRaySpectrum.C"
 #include "scripts/SiliconAnalyses/SiL3_active/SiL3_CountStoppedMuons_TargetSpectrum.C"
+#include "scripts/SiliconAnalyses/SiL3_active/SiL3_CountStoppedMuons_CrossCheckSpectrum.C"
 
 void SiL3_AllNormalisations() {
 
@@ -12,4 +13,5 @@ void SiL3_AllNormalisations() {
 
   SiL3_CountStoppedMuons_XRaySpectrum(infilename, outfilename);
   SiL3_CountStoppedMuons_TargetSpectrum(infilename, outfilename);
+  SiL3_CountStoppedMuons_CrossCheckSpectrum(infilename, outfilename);
 }

@@ -9,25 +9,14 @@
 
 #include <iostream>
 
-struct PlotParams {
-  PlotParams() {};
-  PlotParams(double x_min, double x_max, double x_width) : min(x_min), max(x_max), width(x_width) {
-    n_bins = (max - min) / width;
-  }
-  double min;
-  double max;
-  double width;
-  int n_bins;
-};
-
-struct ArmInfo {
+struct SiBlockInfo {
   std::string name;
   std::vector<std::vector<SimplePulse>** > layer1_channels;
   std::vector<std::vector<SimplePulse>** > layer2_channels;
   std::vector<std::vector<SimplePulse>** > layer3_channels;
 };
 
-struct ArmTreeInfo {
+struct SiBlockTreeInfo {
   int run_id;
   int block_id;
   int tme_id;
@@ -41,15 +30,20 @@ struct ArmTreeInfo {
   int thin_tpi_id;
   int thick_tpi_id;
   int third_tpi_id;
-  
-} armtreeinfo;
+  int thin_tap_id;
+  int thick_tap_id;
+  int third_tap_id;
+  int thin_channel;
+  int thick_channel;
+  int third_channel;  
+} siBlockTreeInfo;
 
-struct ArmOutput {
-  ArmOutput() {};
-  ArmOutput(const ArmInfo* a) : arminfo(a) {};
+struct SiBlockOutput {
+  SiBlockOutput() {};
+  SiBlockOutput(const SiBlockInfo* a) : siBlockInfo(a) {};
 
-  const ArmInfo* arminfo;
-  TTree* armtree;
+  const SiBlockInfo* siBlockInfo;
+  TTree* siBlockTree;
 };
 
 struct GeInfo {
@@ -58,33 +52,59 @@ struct GeInfo {
 };
 
 struct GeTreeInfo {
+  int run_id;
+  int block_id;
+  int tme_id;
+  int tpi_id;
+  int tap_id;
+  
   double energy;
   double time;
-} getreeinfo;
+} geTreeInfo;
 
 struct GeOutput {
   GeOutput() {};
-  GeOutput(const GeInfo* g) : geinfo(g) {};
+  GeOutput(const GeInfo* g) : geInfo(g) {};
 
-  const GeInfo* geinfo;
-  TTree* getree;
+  const GeInfo* geInfo;
+  TTree* geTree;
 };
   
-struct TargetInfo {
-  std::vector<std::vector<SimplePulse>** > channels;
-};
 
-struct TargetTreeInfo {
-  double energy;
-  double time;
-} targettreeinfo;
+struct GeTargetTreeInfo {
+  int run_id;
+  int block_id;
+  int tme_id;
 
-struct TargetOutput {
-  TargetOutput() {};
-  TargetOutput(const TargetInfo* t) : info(t) {};
+  int ge_tpi_id;
+  int ge_tap_id;
+  double ge_energy;
+  double ge_time;
 
-  const TargetInfo* info;
-  TTree* targettree;
+  double thin_energy;
+  double thick_energy;
+  double third_energy;
+  double thin_time;
+  double thick_time;
+  double third_time;
+  int thin_tpi_id;
+  int thick_tpi_id;
+  int third_tpi_id;
+  int thin_tap_id;
+  int thick_tap_id;
+  int third_tap_id;
+  int thin_channel;
+  int thick_channel;
+  int third_channel;
+} geTargetTreeInfo;
+
+struct GeTargetOutput {
+  GeTargetOutput() {};
+  GeTargetOutput(const GeInfo* g, const SiBlockInfo* t) : geInfo(g), targetInfo(t) {};
+
+  const GeInfo* geInfo;
+  const SiBlockInfo* targetInfo;
+  TTree* geTargetTree;
 };
 
 struct TMELoopArgs {
@@ -96,11 +116,11 @@ struct TMELoopArgs {
 
   // Channel configuration
   std::vector<std::vector<SimplePulse>** > muon_channels;
-  ArmInfo left_arm;
-  ArmInfo right_arm;
+  SiBlockInfo left_arm;
+  SiBlockInfo right_arm;
   GeInfo ge_lo_gain;
   GeInfo ge_hi_gain;
-  TargetInfo target;
+  SiBlockInfo target; // for active target runs
 
   bool left_arm_complete() const {
     if (!left_arm.layer1_channels.empty() && !left_arm.layer2_channels.empty()) { // only ever had two layers working in the left arm
@@ -123,39 +143,32 @@ struct TMELoopArgs {
   bool veto_any_double_counts;
   bool veto_max_muon_channel_pulses;
   int max_muon_channel_pulses;
-
-  // To produce the EvdE tree
-  bool produceEvdETree;
-
-  // To produce E vs tTME plots for the ge channels
-  bool produceGeEvstTMETree;
-
-  // To produce E vs tTME plots for the target in an active analysis
-  bool active_target_analysis;
 };
 
 struct TMELoopOutput {
-  std::vector<ArmOutput> arms;
+  std::vector<SiBlockOutput> siBlocks;
   std::vector<GeOutput> ges;
-  TargetOutput target;
+  std::vector<GeTargetOutput> geTargets;
 
   TTree* infotree;
 
   void Write() {
-    for (std::vector<ArmOutput>::const_iterator i_arm = arms.begin(); i_arm != arms.end(); ++i_arm) {
-      if(i_arm->armtree) {
-	i_arm->armtree->Write();
+    for (std::vector<SiBlockOutput>::const_iterator i_siBlock = siBlocks.begin(); i_siBlock != siBlocks.end(); ++i_siBlock) {
+      if(i_siBlock->siBlockTree) {
+	i_siBlock->siBlockTree->Write();
       }
     }
 
     for (std::vector<GeOutput>::const_iterator i_ge = ges.begin(); i_ge != ges.end(); ++i_ge) {
-      if(i_ge->getree) {
-	i_ge->getree->Write();
+      if(i_ge->geTree) {
+	i_ge->geTree->Write();
       }
     }
 
-    if (target.targettree) {
-      target.targettree->Write();
+    for (std::vector<GeTargetOutput>::const_iterator i_geTarget = geTargets.begin(); i_geTarget != geTargets.end(); ++i_geTarget) {
+      if(i_geTarget->geTargetTree) {
+	i_geTarget->geTargetTree->Write();
+      }
     }
     
     if (infotree) {
@@ -178,85 +191,100 @@ int CheckArgs(const TMELoopArgs& args) {
     return 1;
   }
 
-  if (args.active_target_analysis && args.target.channels.empty()) {
-    std::cout << "WARNING: TMELoop configured as an active target analysis but there are" << std::endl
-	      << "no channels in the TargetInfo" << std::endl;
-    return 1;
-  }
-
   return 0;
 }
 
 void Setup(const TMELoopArgs& args) {
   final_output.infotree = new TTree("infotree", "");
 
-  ////////////////////////////////////
-  // Create the EvdE Plots
-  bool produceEvdETree = args.produceEvdETree;
-  final_output.infotree->Branch("produceEvdETree", &produceEvdETree);  
-  if (args.produceEvdETree) {
-    if (args.left_arm_complete()) {
-      final_output.arms.push_back(ArmOutput(&args.left_arm));
-    }
-    
-    if (args.right_arm_complete()) {
-      final_output.arms.push_back(ArmOutput(&args.right_arm));
-    }
-
-    std::string tree_basename = "armtree_";
-    for (std::vector<ArmOutput>::iterator i_arm = final_output.arms.begin(); i_arm != final_output.arms.end(); ++i_arm) {
-      
-      std::string treename = tree_basename + i_arm->arminfo->name;
-      i_arm->armtree = new TTree(treename.c_str(), treename.c_str());
-      i_arm->armtree->Branch("run_id", &armtreeinfo.run_id);
-      i_arm->armtree->Branch("block_id", &armtreeinfo.block_id);
-      i_arm->armtree->Branch("tme_id", &armtreeinfo.tme_id);
-      
-      i_arm->armtree->Branch("thin_energy", &armtreeinfo.thin_energy);
-      i_arm->armtree->Branch("thin_time", &armtreeinfo.thin_time);
-      i_arm->armtree->Branch("thin_tpi_id", &armtreeinfo.thin_tpi_id);
-      i_arm->armtree->Branch("thick_energy", &armtreeinfo.thick_energy);
-      i_arm->armtree->Branch("thick_time", &armtreeinfo.thick_time);
-      i_arm->armtree->Branch("thick_tpi_id", &armtreeinfo.thick_tpi_id);
-      i_arm->armtree->Branch("third_energy", &armtreeinfo.third_energy);
-      i_arm->armtree->Branch("third_time", &armtreeinfo.third_time);
-      i_arm->armtree->Branch("third_tpi_id", &armtreeinfo.third_tpi_id);
-    }
-  }
-
   ///////////////////////////////////////////
-  // Create the germanium EvstTME plots
-  bool produceGeEvstTMETree = args.produceGeEvstTMETree;
-  final_output.infotree->Branch("produceGeEvstTMETree", &produceGeEvstTMETree);  
-  if (args.produceGeEvstTMETree) {
+  // Put everything into the final output
+  final_output.siBlocks.push_back(SiBlockOutput(&args.left_arm));
+  final_output.siBlocks.push_back(SiBlockOutput(&args.right_arm));
+  final_output.siBlocks.push_back(SiBlockOutput(&args.target));
 
-    if (args.ge_lo_gain.channel) {
-      final_output.ges.push_back(GeOutput(&args.ge_lo_gain));
-    }
-    if (args.ge_hi_gain.channel) {
-      final_output.ges.push_back(GeOutput(&args.ge_hi_gain));
-    }
+  final_output.ges.push_back(GeOutput(&args.ge_lo_gain));
+  final_output.ges.push_back(GeOutput(&args.ge_hi_gain));
+
+  final_output.geTargets.push_back(GeTargetOutput(&args.ge_lo_gain, &args.target));
+  final_output.geTargets.push_back(GeTargetOutput(&args.ge_hi_gain, &args.target));
+
+  ///////////////////////////////////////////////
+  // Create the subtrees
+  std::string tree_basename = "siBlockTree_";
+  for (std::vector<SiBlockOutput>::iterator i_siBlock = final_output.siBlocks.begin(); i_siBlock != final_output.siBlocks.end(); ++i_siBlock) {
+      
+    std::string treename = tree_basename + i_siBlock->siBlockInfo->name;
+    i_siBlock->siBlockTree = new TTree(treename.c_str(), treename.c_str());
+    i_siBlock->siBlockTree->Branch("run_id", &siBlockTreeInfo.run_id);
+    i_siBlock->siBlockTree->Branch("block_id", &siBlockTreeInfo.block_id);
+    i_siBlock->siBlockTree->Branch("tme_id", &siBlockTreeInfo.tme_id);
     
-    std::string tree_basename = "getree_";
-    for (std::vector<GeOutput>::iterator i_ge = final_output.ges.begin(); i_ge != final_output.ges.end(); ++i_ge) {
-      std::string treename = tree_basename + i_ge->geinfo->name;
-      i_ge->getree = new TTree(treename.c_str(), treename.c_str());
-      i_ge->getree->Branch("energy", &getreeinfo.energy);
-      i_ge->getree->Branch("time", &getreeinfo.time);
-    }
+    i_siBlock->siBlockTree->Branch("thin_energy", &siBlockTreeInfo.thin_energy);
+    i_siBlock->siBlockTree->Branch("thin_time", &siBlockTreeInfo.thin_time);
+    i_siBlock->siBlockTree->Branch("thin_tpi_id", &siBlockTreeInfo.thin_tpi_id);
+    i_siBlock->siBlockTree->Branch("thin_tap_id", &siBlockTreeInfo.thin_tap_id);
+    i_siBlock->siBlockTree->Branch("thin_channel", &siBlockTreeInfo.thin_channel);
+
+    i_siBlock->siBlockTree->Branch("thick_energy", &siBlockTreeInfo.thick_energy);
+    i_siBlock->siBlockTree->Branch("thick_time", &siBlockTreeInfo.thick_time);
+    i_siBlock->siBlockTree->Branch("thick_tpi_id", &siBlockTreeInfo.thick_tpi_id);
+    i_siBlock->siBlockTree->Branch("thick_tap_id", &siBlockTreeInfo.thick_tap_id);
+    i_siBlock->siBlockTree->Branch("thick_channel", &siBlockTreeInfo.thick_channel);
+
+    i_siBlock->siBlockTree->Branch("third_energy", &siBlockTreeInfo.third_energy);
+    i_siBlock->siBlockTree->Branch("third_time", &siBlockTreeInfo.third_time);
+    i_siBlock->siBlockTree->Branch("third_tpi_id", &siBlockTreeInfo.third_tpi_id);
+    i_siBlock->siBlockTree->Branch("third_tap_id", &siBlockTreeInfo.third_tap_id);
+    i_siBlock->siBlockTree->Branch("third_channel", &siBlockTreeInfo.third_channel);
   }
 
-  ///////////////////////////////////////
-  // Create the active target EvstTME plots
-  bool active_target_analysis = args.active_target_analysis;
-  final_output.infotree->Branch("active_target_analysis", &active_target_analysis);
-  if (args.active_target_analysis) {
-    final_output.target.info = &args.target;
-    std::string treename = "targettree";
-    final_output.target.targettree = new TTree(treename.c_str(), treename.c_str());
-    final_output.target.targettree->Branch("energy", &targettreeinfo.energy);
-    final_output.target.targettree->Branch("time", &targettreeinfo.time);
+  tree_basename = "geTree_";
+  for (std::vector<GeOutput>::iterator i_ge = final_output.ges.begin(); i_ge != final_output.ges.end(); ++i_ge) {
+    std::string treename = tree_basename + i_ge->geInfo->name;
+    i_ge->geTree = new TTree(treename.c_str(), treename.c_str());
+    i_ge->geTree->Branch("run_id", &geTreeInfo.run_id);
+    i_ge->geTree->Branch("block_id", &geTreeInfo.block_id);
+    i_ge->geTree->Branch("tme_id", &geTreeInfo.tme_id);
+    i_ge->geTree->Branch("tpi_id", &geTreeInfo.tpi_id);
+    i_ge->geTree->Branch("tap_id", &geTreeInfo.tap_id);
+    i_ge->geTree->Branch("energy", &geTreeInfo.energy);
+    i_ge->geTree->Branch("time", &geTreeInfo.time);
   }
+
+  // Create the cross-correlation between the ge and the active target tree
+  tree_basename = "geTargetTree_";
+  for (std::vector<GeTargetOutput>::iterator i_geTarget = final_output.geTargets.begin(); i_geTarget != final_output.geTargets.end(); ++i_geTarget) {
+    std::string treename = tree_basename + i_geTarget->geInfo->name;
+    i_geTarget->geTargetTree = new TTree(treename.c_str(), treename.c_str());
+    i_geTarget->geTargetTree->Branch("run_id", &geTargetTreeInfo.run_id);
+    i_geTarget->geTargetTree->Branch("block_id", &geTargetTreeInfo.block_id);
+    i_geTarget->geTargetTree->Branch("tme_id", &geTargetTreeInfo.tme_id);
+    
+    i_geTarget->geTargetTree->Branch("ge_tpi_id", &geTargetTreeInfo.ge_tpi_id);
+    i_geTarget->geTargetTree->Branch("ge_tap_id", &geTargetTreeInfo.ge_tap_id);
+    i_geTarget->geTargetTree->Branch("ge_energy", &geTargetTreeInfo.ge_energy);
+    i_geTarget->geTargetTree->Branch("ge_time", &geTargetTreeInfo.ge_time);
+
+    i_geTarget->geTargetTree->Branch("thin_energy", &geTargetTreeInfo.thin_energy);
+    i_geTarget->geTargetTree->Branch("thin_time", &geTargetTreeInfo.thin_time);
+    i_geTarget->geTargetTree->Branch("thin_tpi_id", &geTargetTreeInfo.thin_tpi_id);
+    i_geTarget->geTargetTree->Branch("thin_tap_id", &geTargetTreeInfo.thin_tap_id);
+    i_geTarget->geTargetTree->Branch("thin_channel", &geTargetTreeInfo.thin_channel);
+
+    i_geTarget->geTargetTree->Branch("thick_energy", &geTargetTreeInfo.thick_energy);
+    i_geTarget->geTargetTree->Branch("thick_time", &geTargetTreeInfo.thick_time);
+    i_geTarget->geTargetTree->Branch("thick_tpi_id", &geTargetTreeInfo.thick_tpi_id);
+    i_geTarget->geTargetTree->Branch("thick_tap_id", &geTargetTreeInfo.thick_tap_id);
+    i_geTarget->geTargetTree->Branch("thick_channel", &geTargetTreeInfo.thick_channel);
+
+    i_geTarget->geTargetTree->Branch("third_energy", &geTargetTreeInfo.third_energy);
+    i_geTarget->geTargetTree->Branch("third_time", &geTargetTreeInfo.third_time);
+    i_geTarget->geTargetTree->Branch("third_tpi_id", &geTargetTreeInfo.third_tpi_id);
+    i_geTarget->geTargetTree->Branch("third_tap_id", &geTargetTreeInfo.third_tap_id);
+    i_geTarget->geTargetTree->Branch("third_channel", &geTargetTreeInfo.third_channel);
+  }
+  
 }
 
 void TMELoop(const TMELoopArgs& args) {
@@ -315,125 +343,348 @@ void TMELoop(const TMELoopArgs& args) {
     ++n_analysed_tmes;
 
     /////////////////////////////////
-    // Fill EvdE plots
-    if (args.produceEvdETree) {
-      armtreeinfo.run_id = runId;
-      armtreeinfo.block_id = blockId;
-      armtreeinfo.tme_id = TMEId;
+    // Fill SiBlock trees
+    siBlockTreeInfo.run_id = runId;
+    siBlockTreeInfo.block_id = blockId;
+    siBlockTreeInfo.tme_id = TMEId;
+    
+    // Reset these branches
+    siBlockTreeInfo.thick_energy = 0;
+    siBlockTreeInfo.thick_time = 0;
+    siBlockTreeInfo.thick_tpi_id = -1;
+    siBlockTreeInfo.thick_tap_id = -1;
+    siBlockTreeInfo.thick_channel = -1;
+    siBlockTreeInfo.thin_energy = 0;
+    siBlockTreeInfo.thin_time = 0;
+    siBlockTreeInfo.thin_tpi_id = -1;
+    siBlockTreeInfo.thin_tap_id = -1;
+    siBlockTreeInfo.thin_channel = -1;
+    siBlockTreeInfo.third_energy = 0;
+    siBlockTreeInfo.third_time = 0;
+    siBlockTreeInfo.third_tpi_id = -1;
+    siBlockTreeInfo.third_tap_id = -1;
+    siBlockTreeInfo.third_channel = -1;
 
-      // Reset these branches
-      armtreeinfo.thick_energy = 0;
-      armtreeinfo.thick_time = 0;
-      armtreeinfo.thick_tpi_id = -1;
-      armtreeinfo.thin_energy = 0;
-      armtreeinfo.thin_time = 0;
-      armtreeinfo.thin_tpi_id = -1;
-      armtreeinfo.third_energy = 0;
-      armtreeinfo.third_time = 0;
-      armtreeinfo.third_tpi_id = -1;
+    for (std::vector<SiBlockOutput>::iterator i_siBlock = final_output.siBlocks.begin(); i_siBlock != final_output.siBlocks.end(); ++i_siBlock) {
 
-      for (std::vector<ArmOutput>::iterator i_arm = final_output.arms.begin(); i_arm != final_output.arms.end(); ++i_arm) {
+      // First count all the pulses in each layer
+      // Loop through layer 1 channels
+      int n_thin_channels = i_siBlock->siBlockInfo->layer1_channels.size();
+      int n_total_thin_pulses = 0;
+      for (int i_thin_channel = 0; i_thin_channel < n_thin_channels; ++i_thin_channel) {
+	std::vector<SimplePulse>* i_thin_pulse_list = *(i_siBlock->siBlockInfo->layer1_channels.at(i_thin_channel));
+	n_total_thin_pulses += i_thin_pulse_list->size();
+      }
+      
+      // Loop through layer 2 channels
+      int n_thick_channels = i_siBlock->siBlockInfo->layer2_channels.size();
+      int n_total_thick_pulses = 0;
+      for (int i_thick_channel = 0; i_thick_channel < n_thick_channels; ++i_thick_channel) {
+	std::vector<SimplePulse>* i_thick_pulse_list = *(i_siBlock->siBlockInfo->layer2_channels.at(i_thick_channel));
+	n_total_thick_pulses += i_thick_pulse_list->size();
+      }
+      
+      // Loop through layer 3 channels
+      int n_third_channels = i_siBlock->siBlockInfo->layer3_channels.size();
+      int n_total_third_pulses = 0;
+      for (int i_third_channel = 0; i_third_channel < n_third_channels; ++i_third_channel) {
+	std::vector<SimplePulse>* i_third_pulse_list = *(i_siBlock->siBlockInfo->layer3_channels.at(i_third_channel));
+	n_total_third_pulses += i_third_pulse_list->size();
+      }
+      if (n_total_thin_pulses == 0 && n_total_thick_pulses == 0 && n_total_third_pulses == 0) {
+	continue; // to next SiBlock
+      }
+      //      std::cout << i_siBlock->siBlockInfo->name << " SiBlock" << std::endl;
+      //      std::cout << "(N Thin, N Thick, N Third) = (" << n_total_thin_pulses << ", " << n_total_thick_pulses << ", " << n_total_third_pulses << ")" << std::endl;
 
+      // Now that we know how many total pulses there are, we can now fill the tree safely
+      for (int i_thin_channel = 0; i_thin_channel < n_thin_channels; ++i_thin_channel) {
+	std::vector<SimplePulse>* i_thin_pulse_list = *(i_siBlock->siBlockInfo->layer1_channels.at(i_thin_channel));
+	int n_thin_pulses = i_thin_pulse_list->size();
 	// Loop through layer 2 channels
-	int n_thick_channels = i_arm->arminfo->layer2_channels.size();
 	for (int i_thick_channel = 0; i_thick_channel < n_thick_channels; ++i_thick_channel) {
-	  std::vector<SimplePulse>* i_thick_pulse_list = *(i_arm->arminfo->layer2_channels.at(i_thick_channel));
+	  std::vector<SimplePulse>* i_thick_pulse_list = *(i_siBlock->siBlockInfo->layer2_channels.at(i_thick_channel));
 	  int n_thick_pulses = i_thick_pulse_list->size();
 
-	  // Loop through layer 1 channels
-	  int n_thin_channels = i_arm->arminfo->layer1_channels.size();
-	  for (int i_thin_channel = 0; i_thin_channel < n_thin_channels; ++i_thin_channel) {
-	    std::vector<SimplePulse>* i_thin_pulse_list = *(i_arm->arminfo->layer1_channels.at(i_thin_channel));
-	    int n_thin_pulses = i_thin_pulse_list->size();
+	  int n_third_channels = i_siBlock->siBlockInfo->layer3_channels.size();
+	  for (int i_third_channel = 0; i_third_channel < n_third_channels; ++i_third_channel) {
+	    std::vector<SimplePulse>* i_third_pulse_list = *(i_siBlock->siBlockInfo->layer3_channels.at(i_third_channel));
+	    int n_third_pulses = i_third_pulse_list->size();
 
-	    // Loop through layer 2 pulses
-	    for (int i_thick_pulse = 0; i_thick_pulse < n_thick_pulses; ++i_thick_pulse) {
-	      double thick_time = i_thick_pulse_list->at(i_thick_pulse).tTME;
-	      double thick_energy = i_thick_pulse_list->at(i_thick_pulse).E;
-	      double thick_tpi_id = i_thick_pulse_list->at(i_thick_pulse).tpi_id;
-	      armtreeinfo.thick_energy = thick_energy;
-	      armtreeinfo.thick_time = thick_time;
-	      armtreeinfo.thick_tpi_id = thick_tpi_id;
-
-	      // Loop through layer 1 pulses
-	      for (int i_thin_pulse = 0; i_thin_pulse < n_thin_pulses; ++i_thin_pulse) {
-		double thin_time = i_thin_pulse_list->at(i_thin_pulse).tTME;
-		double thin_energy = i_thin_pulse_list->at(i_thin_pulse).E;
-		double thin_tpi_id = i_thin_pulse_list->at(i_thin_pulse).tpi_id;
-		armtreeinfo.thin_time = thin_time;
-		armtreeinfo.thin_energy = thin_energy;
-		armtreeinfo.thin_tpi_id = thin_tpi_id;
-		
-		// Loop through layer 3 channels and just count the number of pulses for the veto
-		int n_third_channels = i_arm->arminfo->layer2_channels.size();
-		int total_n_third_pulses = 0;
-		for (int i_third_channel = 0; i_third_channel < n_third_channels; ++i_third_channel) {
-		  std::vector<SimplePulse>* i_third_pulse_list = *(i_arm->arminfo->layer3_channels.at(i_third_channel));
-		  int n_third_pulses = i_third_pulse_list->size();
-		  total_n_third_pulses += n_third_pulses;
-
-		  for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
-		    double third_time = i_third_pulse_list->at(i_third_pulse).tTME;
-		    double third_energy = i_third_pulse_list->at(i_third_pulse).E;
-		    double third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
-		    armtreeinfo.third_energy = third_energy;
-		    armtreeinfo.third_time = third_time;
-		    armtreeinfo.third_tpi_id = third_tpi_id;
-		    
-		    i_arm->armtree->Fill();
-		  }
+	    // If we have hits in all channels
+	    for (int i_thin_pulse = 0; i_thin_pulse < n_thin_pulses; ++i_thin_pulse) {
+	      siBlockTreeInfo.thin_time = i_thin_pulse_list->at(i_thin_pulse).tTME;
+	      siBlockTreeInfo.thin_energy = i_thin_pulse_list->at(i_thin_pulse).E;
+	      siBlockTreeInfo.thin_tpi_id = i_thin_pulse_list->at(i_thin_pulse).tpi_id;
+	      siBlockTreeInfo.thin_tap_id = i_thin_pulse_list->at(i_thin_pulse).tap_id;
+	      siBlockTreeInfo.thin_channel = i_thin_channel;
+	      for (int i_thick_pulse = 0; i_thick_pulse < n_thick_pulses; ++i_thick_pulse) {
+		siBlockTreeInfo.thick_time = i_thick_pulse_list->at(i_thick_pulse).tTME;
+		siBlockTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).E;
+		siBlockTreeInfo.thick_tpi_id = i_thick_pulse_list->at(i_thick_pulse).tpi_id;
+		siBlockTreeInfo.thick_tap_id = i_thick_pulse_list->at(i_thick_pulse).tap_id;
+		siBlockTreeInfo.thick_channel = i_thick_channel;
+		for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
+		  siBlockTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
+		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		  siBlockTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
+		  siBlockTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
+		  siBlockTreeInfo.third_channel = i_third_channel;
+		  //		  std::cout << "==> Filling 123" << std::endl;
+		  i_siBlock->siBlockTree->Fill(); // filling when hits in layers 1,2,3
+		} // end loop through layer 3 pulses
+		if (n_total_third_pulses == 0 && i_third_channel == 0) { // only fill once
+		  //		  std::cout << "==> Filling 12" << std::endl;
+		  i_siBlock->siBlockTree->Fill(); // filling when hits in layers 1,2
 		}
-
-		if (total_n_third_pulses == 0) {
-		  i_arm->armtree->Fill(); // fill in any events where there were no third layer hits
+	      } // end loop through layer 2 pulses
+	      if (n_total_thick_pulses == 0 && i_thick_channel == 0) {
+		for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
+		  siBlockTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
+		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		  siBlockTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
+		  siBlockTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
+		  siBlockTreeInfo.third_channel = i_third_channel;
+		  //		  std::cout << "==> Filling 13" << std::endl;
+		  i_siBlock->siBlockTree->Fill(); // filling when hits in layers 1
+		} // end loop through layer 3 pulses
+	      }
+	      if (n_total_thick_pulses == 0 && i_thick_channel == 0 &&
+		  n_total_third_pulses == 0 && i_third_channel == 0) {
+		//		  std::cout << "==> Filling 1" << std::endl;
+		  i_siBlock->siBlockTree->Fill(); // filling when hits in layers 1
+	      }		
+	    } // end loop through layer 1 pulses
+	      
+	    if (n_total_thin_pulses == 0 && i_thin_channel == 0) {
+	      for (int i_thick_pulse = 0; i_thick_pulse < n_thick_pulses; ++i_thick_pulse) {
+		siBlockTreeInfo.thick_time = i_thick_pulse_list->at(i_thick_pulse).tTME;
+		siBlockTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).E;
+		siBlockTreeInfo.thick_tpi_id = i_thick_pulse_list->at(i_thick_pulse).tpi_id;
+		siBlockTreeInfo.thick_tap_id = i_thick_pulse_list->at(i_thick_pulse).tap_id;
+		siBlockTreeInfo.thick_channel = i_thick_channel;
+		for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
+		  siBlockTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
+		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		  siBlockTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
+		  siBlockTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
+		  siBlockTreeInfo.third_channel = i_third_channel;
+		  //		  std::cout << "==> Filling 23" << std::endl;
+		  i_siBlock->siBlockTree->Fill(); // filling when hits in layers 2,3
+		} // end loop through layer 3 pulses
+		if (n_total_third_pulses == 0 && i_third_channel == 0) {
+		  //		  std::cout << "==> Filling 2" << std::endl;
+		  i_siBlock->siBlockTree->Fill(); // filling when hits in layers 2
 		}
+	      } // end loop through layer 2 pulses
+	      if (n_total_thick_pulses == 0 && i_thick_channel == 0) {
+		for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
+		  siBlockTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
+		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		  siBlockTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
+		  siBlockTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
+		  siBlockTreeInfo.third_channel = i_third_channel;
+		  //		  std::cout << "==> Filling 3" << std::endl;
+		  i_siBlock->siBlockTree->Fill(); // filling when hits in layers 3
+		} // end loop through layer 3 pulses
 	      }
 	    }
-	  }
-	}
-      } // end Arm loop
-    } // end EvdE plots if
-
-    /////////////////////////////////////////////
-    // Fill Ge EvstTME plots
-    if (args.produceGeEvstTMETree) {
-      for (std::vector<GeOutput>::iterator i_ge = final_output.ges.begin(); i_ge != final_output.ges.end(); ++i_ge) {
-
-	std::vector<SimplePulse>* i_ge_pulse_list = *(i_ge->geinfo->channel);
-	int n_ge_pulses = i_ge_pulse_list->size();
-	for (int i_ge_pulse = 0; i_ge_pulse < n_ge_pulses; ++i_ge_pulse) {
-	  double ge_energy = i_ge_pulse_list->at(i_ge_pulse).E;
-	  double ge_time = i_ge_pulse_list->at(i_ge_pulse).tTME;
-	  getreeinfo.energy = ge_energy;
-	  getreeinfo.time = ge_time;
-	  
-	  i_ge->getree->Fill();
-	}
-      }      
-    } // end if Ge EvstTME plots
-
-    ////////////////////////////////////////////
-    // Fill Target EvstTME plots
-    if (args.active_target_analysis) {
-      int n_target_channels = final_output.target.info->channels.size();
-
-      for (int i_target_channel = 0; i_target_channel < n_target_channels; ++i_target_channel) {
-	std::vector<SimplePulse>* i_target_pulse_list = *(final_output.target.info->channels.at(i_target_channel));
-	int n_target_pulses = i_target_pulse_list->size();
-
-	for (int i_target_pulse = 0; i_target_pulse < n_target_pulses; ++i_target_pulse) {
-	  double target_energy = i_target_pulse_list->at(i_target_pulse).E;
-	  double target_time = i_target_pulse_list->at(i_target_pulse).tTME;
-	  targettreeinfo.energy = target_energy;
-	  targettreeinfo.time = target_time;
-
-	  final_output.target.targettree->Fill();
-	}
-      }
-    } // end fill target EvstTME plots
+	  } // end loop through third channel
+	} // end loop through second channel
+      } // end loop through thin channel
+    }
     
-  } // end TME loop
+    /////////////////////////////////////////////
+    // Fill GeOutput tree
+    for (std::vector<GeOutput>::iterator i_ge = final_output.ges.begin(); i_ge != final_output.ges.end(); ++i_ge) {
+      geTreeInfo.run_id = runId;
+      geTreeInfo.block_id = blockId;
+      geTreeInfo.tme_id = TMEId;
+      
+      // Reset these branches
+      geTreeInfo.energy = 0;
+      geTreeInfo.time = 0;
+      geTreeInfo.tpi_id = -1;
+      geTreeInfo.tap_id = -1;
 
+      std::vector<SimplePulse>* i_ge_pulse_list = *(i_ge->geInfo->channel);
+      int n_ge_pulses = i_ge_pulse_list->size();
+      for (int i_ge_pulse = 0; i_ge_pulse < n_ge_pulses; ++i_ge_pulse) {
+	geTreeInfo.tpi_id = i_ge_pulse_list->at(i_ge_pulse).tpi_id;
+	geTreeInfo.tap_id = i_ge_pulse_list->at(i_ge_pulse).tap_id;
+	geTreeInfo.energy = i_ge_pulse_list->at(i_ge_pulse).E;
+	geTreeInfo.time = i_ge_pulse_list->at(i_ge_pulse).tTME;
+	
+	i_ge->geTree->Fill();
+      }      
+    }
+
+    ///////////////////////////////////////
+    // Fill geTarget tree
+    for (std::vector<GeTargetOutput>::iterator i_geTarget = final_output.geTargets.begin(); i_geTarget != final_output.geTargets.end(); ++i_geTarget) {
+      geTargetTreeInfo.run_id = runId;
+      geTargetTreeInfo.block_id = blockId;
+      geTargetTreeInfo.tme_id = TMEId;
+
+      geTargetTreeInfo.ge_tpi_id = -1;
+      geTargetTreeInfo.ge_tap_id = -1;
+      geTargetTreeInfo.ge_energy = 0;
+      geTargetTreeInfo.ge_time = 0;
+      std::vector<SimplePulse>* i_ge_pulse_list = *(i_geTarget->geInfo->channel);
+      int n_ge_pulses = i_ge_pulse_list->size();
+      for (int i_ge_pulse = 0; i_ge_pulse < n_ge_pulses; ++i_ge_pulse) {
+	double ge_energy = i_ge_pulse_list->at(i_ge_pulse).E;
+	double ge_time = i_ge_pulse_list->at(i_ge_pulse).tTME;
+	double ge_tpi_id = i_ge_pulse_list->at(i_ge_pulse).tpi_id;
+	geTargetTreeInfo.ge_tpi_id = ge_tpi_id;
+	geTargetTreeInfo.ge_energy = ge_energy;
+	geTargetTreeInfo.ge_time = ge_time;
+
+	geTargetTreeInfo.thick_energy = 0;
+	geTargetTreeInfo.thick_time = 0;
+	geTargetTreeInfo.thick_tpi_id = -1;
+	geTargetTreeInfo.thick_tap_id = -1;
+	geTargetTreeInfo.thick_channel = -1;
+	geTargetTreeInfo.thin_energy = 0;
+	geTargetTreeInfo.thin_time = 0;
+	geTargetTreeInfo.thin_tpi_id = -1;
+	geTargetTreeInfo.thin_tap_id = -1;
+	geTargetTreeInfo.thin_channel = -1;
+	geTargetTreeInfo.third_energy = 0;
+	geTargetTreeInfo.third_time = 0;
+	geTargetTreeInfo.third_tpi_id = -1;
+	geTargetTreeInfo.third_tap_id = -1;
+	geTargetTreeInfo.third_channel = -1;
+
+	// First count all the pulses in each layer
+	// Loop through layer 1 channels
+	int n_thin_channels = i_geTarget->targetInfo->layer1_channels.size();
+	int n_total_thin_pulses = 0;
+	for (int i_thin_channel = 0; i_thin_channel < n_thin_channels; ++i_thin_channel) {
+	  std::vector<SimplePulse>* i_thin_pulse_list = *(i_geTarget->targetInfo->layer1_channels.at(i_thin_channel));
+	  n_total_thin_pulses += i_thin_pulse_list->size();
+	}
+      
+	// Loop through layer 2 channels
+	int n_thick_channels = i_geTarget->targetInfo->layer2_channels.size();
+	int n_total_thick_pulses = 0;
+	for (int i_thick_channel = 0; i_thick_channel < n_thick_channels; ++i_thick_channel) {
+	  std::vector<SimplePulse>* i_thick_pulse_list = *(i_geTarget->targetInfo->layer2_channels.at(i_thick_channel));
+	  n_total_thick_pulses += i_thick_pulse_list->size();
+	}
+      
+	// Loop through layer 3 channels
+	int n_third_channels = i_geTarget->targetInfo->layer3_channels.size();
+	int n_total_third_pulses = 0;
+	for (int i_third_channel = 0; i_third_channel < n_third_channels; ++i_third_channel) {
+	  std::vector<SimplePulse>* i_third_pulse_list = *(i_geTarget->targetInfo->layer3_channels.at(i_third_channel));
+	  n_total_third_pulses += i_third_pulse_list->size();
+	}
+	if (n_total_thin_pulses == 0 && n_total_thick_pulses == 0 && n_total_third_pulses == 0) {
+	  continue; // to next SiBlock
+	}
+	//      std::cout << i_geTarget->targetInfo->name << " SiBlock" << std::endl;
+	//      std::cout << "(N Thin, N Thick, N Third) = (" << n_total_thin_pulses << ", " << n_total_thick_pulses << ", " << n_total_third_pulses << ")" << std::endl;
+
+	// Now that we know how many total pulses there are, we can now fill the tree safely
+	for (int i_thin_channel = 0; i_thin_channel < n_thin_channels; ++i_thin_channel) {
+	  std::vector<SimplePulse>* i_thin_pulse_list = *(i_geTarget->targetInfo->layer1_channels.at(i_thin_channel));
+	  int n_thin_pulses = i_thin_pulse_list->size();
+	  // Loop through layer 2 channels
+	  for (int i_thick_channel = 0; i_thick_channel < n_thick_channels; ++i_thick_channel) {
+	    std::vector<SimplePulse>* i_thick_pulse_list = *(i_geTarget->targetInfo->layer2_channels.at(i_thick_channel));
+	    int n_thick_pulses = i_thick_pulse_list->size();
+
+	    int n_third_channels = i_geTarget->targetInfo->layer3_channels.size();
+	    for (int i_third_channel = 0; i_third_channel < n_third_channels; ++i_third_channel) {
+	      std::vector<SimplePulse>* i_third_pulse_list = *(i_geTarget->targetInfo->layer3_channels.at(i_third_channel));
+	      int n_third_pulses = i_third_pulse_list->size();
+
+	      // If we have hits in all channels
+	      for (int i_thin_pulse = 0; i_thin_pulse < n_thin_pulses; ++i_thin_pulse) {
+		geTargetTreeInfo.thin_time = i_thin_pulse_list->at(i_thin_pulse).tTME;
+		geTargetTreeInfo.thin_energy = i_thin_pulse_list->at(i_thin_pulse).E;
+		geTargetTreeInfo.thin_tpi_id = i_thin_pulse_list->at(i_thin_pulse).tpi_id;
+		geTargetTreeInfo.thin_tap_id = i_thin_pulse_list->at(i_thin_pulse).tap_id;
+		geTargetTreeInfo.thin_channel = i_thin_channel;
+		for (int i_thick_pulse = 0; i_thick_pulse < n_thick_pulses; ++i_thick_pulse) {
+		  geTargetTreeInfo.thick_time = i_thick_pulse_list->at(i_thick_pulse).tTME;
+		  geTargetTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).E;
+		  geTargetTreeInfo.thick_tpi_id = i_thick_pulse_list->at(i_thick_pulse).tpi_id;
+		  geTargetTreeInfo.thick_tap_id = i_thick_pulse_list->at(i_thick_pulse).tap_id;
+		  geTargetTreeInfo.thick_channel = i_thick_channel;
+		  for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
+		    geTargetTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
+		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		    geTargetTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
+		    geTargetTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
+		    geTargetTreeInfo.third_channel = i_third_channel;
+		    //		  std::cout << "==> Filling 123" << std::endl;
+		    i_geTarget->geTargetTree->Fill(); // filling when hits in layers 1,2,3
+		  } // end loop through layer 3 pulses
+		  if (n_total_third_pulses == 0 && i_third_channel == 0) { // only fill once
+		    //		  std::cout << "==> Filling 12" << std::endl;
+		    i_geTarget->geTargetTree->Fill(); // filling when hits in layers 1,2
+		  }
+		} // end loop through layer 2 pulses
+		if (n_total_thick_pulses == 0 && i_thick_channel == 0) {
+		  for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
+		    geTargetTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
+		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		    geTargetTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
+		    geTargetTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
+		    geTargetTreeInfo.third_channel = i_third_channel;
+		    //		  std::cout << "==> Filling 13" << std::endl;
+		    i_geTarget->geTargetTree->Fill(); // filling when hits in layers 1
+		  } // end loop through layer 3 pulses
+		}
+		if (n_total_thick_pulses == 0 && i_thick_channel == 0 &&
+		    n_total_third_pulses == 0 && i_third_channel == 0) {
+		  //		  std::cout << "==> Filling 1" << std::endl;
+		  i_geTarget->geTargetTree->Fill(); // filling when hits in layers 1
+		}		
+	      } // end loop through layer 1 pulses
+	      
+	      if (n_total_thin_pulses == 0 && i_thin_channel == 0) {
+		for (int i_thick_pulse = 0; i_thick_pulse < n_thick_pulses; ++i_thick_pulse) {
+		  geTargetTreeInfo.thick_time = i_thick_pulse_list->at(i_thick_pulse).tTME;
+		  geTargetTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).E;
+		  geTargetTreeInfo.thick_tpi_id = i_thick_pulse_list->at(i_thick_pulse).tpi_id;
+		  geTargetTreeInfo.thick_tap_id = i_thick_pulse_list->at(i_thick_pulse).tap_id;
+		  geTargetTreeInfo.thick_channel = i_thick_channel;
+		  for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
+		    geTargetTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
+		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		    geTargetTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
+		    geTargetTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
+		    geTargetTreeInfo.third_channel = i_third_channel;
+		    //		  std::cout << "==> Filling 23" << std::endl;
+		    i_geTarget->geTargetTree->Fill(); // filling when hits in layers 2,3
+		  } // end loop through layer 3 pulses
+		  if (n_total_third_pulses == 0 && i_third_channel == 0) {
+		    //		  std::cout << "==> Filling 2" << std::endl;
+		    i_geTarget->geTargetTree->Fill(); // filling when hits in layers 2
+		  }
+		} // end loop through layer 2 pulses
+		if (n_total_thick_pulses == 0 && i_thick_channel == 0) {
+		  for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
+		    geTargetTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
+		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		    geTargetTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
+		    geTargetTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
+		    geTargetTreeInfo.third_channel = i_third_channel;
+		    //		  std::cout << "==> Filling 3" << std::endl;
+		    i_geTarget->geTargetTree->Fill(); // filling when hits in layers 3
+		  } // end loop through layer 3 pulses
+		}
+	      }
+	    } // end loop through third channel
+	  } // end loop through second channel
+	} // end loop through thin channel
+      }
+    }
+  } // end TME loop
+  
   final_output.Write();
   outfile->Close();
 }

@@ -11,5 +11,5 @@ void Si16b_AllPlots() {
   outfile->Close();
 
   Si16b_EvdEPlot(infilename, outfilename);
-  Si16b_XRaySpectrum(infilename, outfilename);
+  //  Si16b_XRaySpectrum(infilename, outfilename);
 }

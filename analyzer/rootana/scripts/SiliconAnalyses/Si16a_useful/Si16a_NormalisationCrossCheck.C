@@ -1,15 +1,15 @@
-void SiL3_NormalisationCrossCheck() {
+void Si16a_NormalisationCrossCheck() {
 
-  std::string infilename = "~/data/results/SiL3_active/normalisation.root";
+  std::string infilename = "~/data/results/Si16a_useful/normalisation09743.root";
   TFile* file = new TFile(infilename.c_str(), "READ");
 
-  //  std::string direct_count_treename = "direct_cross_check";
-  //  std::string indirect_count_treename = "indirect_cross_check";
-  //  std::string wsname = "ws_cross_check";
+  std::string direct_count_treename = "cross_check_direct";
+  std::string indirect_count_treename = "cross_check_indirect";
+  std::string wsname = "ws_cross_check";
 
-  std::string direct_count_treename = "direct_count";
-  std::string indirect_count_treename = "indirect_count";
-  std::string wsname = "ws";
+  //  std::string direct_count_treename = "target_direct";
+  //  std::string indirect_count_treename = "xray_spectrum_indirect";
+  //  std::string wsname = "ws";
 
   std::cout << "Trees:" << std::endl;
   std::cout << "\tDirect Count = " << direct_count_treename << std::endl;
@@ -81,7 +81,7 @@ void SiL3_NormalisationCrossCheck() {
   max_muon_energy_line->Draw("LSAME");
 
   latex_text.str("");
-  latex_text << "N_{stop} = (" << std::fixed << std::setprecision(3) << direct_count/1e6 << " #pm " << direct_count_error/1e6 << ") x 10^{6}";
+  latex_text << "N_{stop} = (" << std::fixed << std::setprecision(3) << direct_count/1e3 << " #pm " << direct_count_error/1e3 << ") x 10^{3}";
   latex->DrawLatexNDC(0.5, 0.4, latex_text.str().c_str());
 
   
@@ -101,7 +101,7 @@ void SiL3_NormalisationCrossCheck() {
   Eframe->Draw();
   
   latex_text.str("");
-  latex_text << "#splitline{  #varepsilon = (" << std::setprecision(2) << xray_efficiency*1e4 << " #pm " << xray_efficiency_error*1e4 << ") x 10^{-4}}{#rightarrow N_{stop} = (" << std::fixed << std::setprecision(1) << indirect_count/1e6 << " #pm " << indirect_count_error/1e6 << ") x 10^{6}}";
+  latex_text << "#splitline{  #varepsilon = (" << std::setprecision(2) << xray_efficiency*1e4 << " #pm " << xray_efficiency_error*1e4 << ") x 10^{-4}}{#rightarrow N_{stop} = (" << std::fixed << std::setprecision(1) << indirect_count/1e3 << " #pm " << indirect_count_error/1e3 << ") x 10^{3}}";
   latex->DrawLatexNDC(0.3, 0.75, latex_text.str().c_str());
 
   latex_text.str("");

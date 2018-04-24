@@ -15,22 +15,26 @@ void SiL3_TMELoop() {
   args.ge_hi_gain.name = "GeHiGain";
   args.ge_hi_gain.channel = &GeHiGain;
 
-  args.target.channels.push_back(&SiL3);
+  args.right_arm.name = "SiR";
+  args.right_arm.layer1_channels.push_back(&empty);
+  args.right_arm.layer2_channels.push_back(&empty);
+  args.right_arm.layer3_channels.push_back(&empty);
+
+  args.left_arm.name = "SiL";
+  args.left_arm.layer1_channels.push_back(&empty);
+  args.left_arm.layer2_channels.push_back(&empty);
+  args.left_arm.layer3_channels.push_back(&empty);
+
+  args.target.name = "Target";
+  args.target.layer1_channels.push_back(&empty);
+  args.target.layer2_channels.push_back(&SiL3);
+  args.target.layer3_channels.push_back(&empty);
   
   
   // Event vetos
   args.veto_any_double_counts = true;
   args.veto_max_muon_channel_pulses = 1;
   args.max_muon_channel_pulses = 1;
-
-  // Don't want the EvdE plot
-  args.produceEvdETree = false;
-
-  // Want to produce the EvstTME plots for the ge channels
-  args.produceGeEvstTMETree = true;
-
-  // This is an active target analysis
-  args.active_target_analysis = true;
   
   TMELoop(args);
 }
