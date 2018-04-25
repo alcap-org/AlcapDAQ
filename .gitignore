@@ -35,5 +35,6 @@ www/html/trend/*
 *.hst
 *.odb
 *.mid
-
+*DS_Store*
+*rdict.pcm
 analyzer/work/damien/

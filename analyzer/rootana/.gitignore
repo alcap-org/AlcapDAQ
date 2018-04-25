@@ -1,3 +1,9 @@
 obj/
+jobs/
+out/
+img/
 rootana
+test.C
+test
+*.png
 *.csv
