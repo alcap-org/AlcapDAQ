@@ -209,14 +209,14 @@ namespace SiUtils {
       t[0] = si1->front().tTME;
       t[1] = si2->front().tTME;
     }
-    bool   Valid()          { return valid;          }
-    double E()              { return e[0]+e[1]+e[2]; }
-    double E(int i)         { return e[i];           }
-    double dE()             { return E(0);           }
-    double T()              { return t[0];           }
-    double dT()             { return t[1] - t[0];    }
-    double dT(int i, int j) { return t[i] - t[j];    }
-    bool ThreeHits() { return e[0] > 0. && e[1] > 0. && e[2] > 0.; }
+    bool   Valid()          const { return valid;          }
+    double E()              const { return e[0]+e[1]+e[2]; }
+    double E(int i)         const { return e[i];           }
+    double dE()             const { return E(0);           }
+    double T()              const { return t[0];           }
+    double dT()             const { return t[1] - t[0];    }
+    double dT(int i, int j) const { return t[i] - t[j];    }
+    bool ThreeHits() const { return e[0] > 0. && e[1] > 0. && e[2] > 0.; }
   };
 }
 

@@ -49,14 +49,16 @@ void unfold(const char* ifname, const char* ofname, const char* ihnames[2]) {
   TFile* fmctm = new TFile(ifname);
   TH3* hevdevt[2] = { (TH3*)fdata->Get(ihnames[0]),
                       (TH3*)fdata->Get(ihnames[1])};
-  hevdevt[0]->GetZaxis()->SetRange(2, 5);
-  hevdevt[1]->GetZaxis()->SetRange(2, 5);
+  hevdevt[0]->GetZaxis()->SetRangeUser(400., 100e3);
+  hevdevt[1]->GetZaxis()->SetRangeUser(400., 100e3);
   TH2* hevde[2] = { (TH2*)hevdevt[0]->Project3D("yx"),
                     (TH2*)hevdevt[1]->Project3D("yx") };
   RooUnfoldResponse* resp[2] = { (RooUnfoldResponse*)fmctm->Get("SiL_TM"),
                                  (RooUnfoldResponse*)fmctm->Get("SiR_TM") };
   TH1* heraw[2] = { hevde[0]->ProjectionX(),
                     hevde[1]->ProjectionX() };
+  heraw[0]->Rebin(4);
+  heraw[1]->Rebin(4);
   RooUnfoldBayes* unfold[2] = { new RooUnfoldBayes(resp[0], heraw[0], NITER),
                                 new RooUnfoldBayes(resp[1], heraw[1], NITER) };
   TH1* h_e_reco[2] = { unfold[0]->Hreco(),

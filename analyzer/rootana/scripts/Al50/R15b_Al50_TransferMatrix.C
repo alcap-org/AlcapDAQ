@@ -5,6 +5,7 @@
 #include "TFileMerger.h"
 #include "TH2.h"
 #include "TH2I.h"
+#include "TRandom3.h"
 #include "TTree.h"
 
 #include "RooUnfoldResponse.h"
@@ -69,7 +70,7 @@ public:
   Arm() {}
   Arm(Side s, const Particle& p) :
   arm(s), response(nullptr) {
-    int    NE   = 400;
+    int    NE   = 100;
     double E[2] = {0., 20e3};
     char hname[128];
     sprintf(hname, "Si%c_TM", s == kLeft ? 'L' : 'R');
@@ -80,8 +81,10 @@ public:
                       NE, E[0], E[1], NE, E[0], E[1]);
   }
   void Hit(double emeas, double etrue) {
-    response->Fill(emeas, etrue);
-    diffVe  ->Fill(etrue, etrue-emeas);
+    static TRandom3 smear;
+    double e = smear.Gaus(emeas, 70.);
+    response->Fill(e, etrue);
+    diffVe  ->Fill(etrue, etrue-e);
   }
   void Miss(double etrue)              { response->Miss(etrue); }
   void Fake(double emeas)              { response->Fake(emeas); }
@@ -114,7 +117,26 @@ class Hit {
   }
 };
 
-class Event {
+class MCEvent {
+  double emeas, e0;
+ public:
+  MCEvent(double emeas, double e0) : emeas(emeas), e0(e0) {}
+  static void SaveAsTree(TFile* f, const char* trname,
+                         const vector<MCEvent>& evs) {
+    TTree* tr = new TTree(trname, trname);
+    tr->SetDirectory(f);
+    MCEvent ev(0, 0);
+    tr->Branch("e0", &ev.e0);
+    tr->Branch("emeas", &ev.emeas);
+    for (int i = 0; i < evs.size(); ++i) {
+      ev = evs[i];
+      tr->Fill();
+    }
+    tr->Write();
+  }
+};
+
+class MCProcessor {
   TTree* tr;
   Particle p0;
   vector<string> *particles, *vols, *ovols;
@@ -123,9 +145,9 @@ class Event {
   Hit stophit;
   double hitEs[2][2]; // [Side][Thin/Thick]
  public:
-  Event(TTree* tr, const Particle& p0) : tr(tr), p0(p0), particles(nullptr),
-  vols(nullptr), ovols(nullptr), edeps(nullptr), ts(nullptr), es(nullptr),
-  stops(nullptr), trkIDs(nullptr) {
+  MCProcessor(TTree* tr, const Particle& p0) :
+  tr(tr), p0(p0), particles(nullptr), vols(nullptr), ovols(nullptr),
+  edeps(nullptr), ts(nullptr), es(nullptr), stops(nullptr), trkIDs(nullptr) {
     tr->SetBranchAddress("M_particleName", &particles);
     tr->SetBranchAddress("M_volName",      &vols);
     tr->SetBranchAddress("M_ovolName",     &ovols);
@@ -176,13 +198,13 @@ class Event {
   }
 };
 
-void TM(const char* ifname, map<Side,Arm> arms, const Particle& p,
-        bool verbose=false) {
+void TM(const char* ifname, map<Side,Arm> arms, vector<MCEvent>& levs,
+        vector<MCEvent>& revs, const Particle& p, bool verbose=false) {
   TFile* ifile = new TFile(ifname, "READ");
   if (ifile->IsZombie())
     PrintAndThrow("Cannot find file!");
   TTree* tree = (TTree*)ifile->Get("tree");
-  Event evs(tree, p);
+  MCProcessor evs(tree, p);
   for (int i = 0; i < evs.NEvents(); ++i) {
     if (verbose && i % 10000 == 0)
       std::cout << i << " / " << evs.NEvents() << std::endl;
@@ -190,9 +212,11 @@ void TM(const char* ifname, map<Side,Arm> arms, const Particle& p,
     evs.Process(i);
     if (evs.StoppedInLeft()) {
       arms[kLeft] .Hit(evs.EL(), evs.E0());
+      levs.push_back(MCEvent(evs.EL(), evs.E0()));
       arms[kRight].Miss(evs.E0());
     } else if (evs.StoppedInRight()) {
       arms[kRight].Hit(evs.ER(), evs.E0());
+      revs.push_back(MCEvent(evs.ER(), evs.E0()));
       arms[kLeft] .Miss(evs.E0());
     } else {
       arms[kLeft] .Miss(evs.E0());
@@ -210,12 +234,15 @@ void TM(const char* ofprefix, const char* ifprefix, const Particle& p, int n,
   sprintf(ofname, "%s/%s_%d.root", DATADIR, ofprefix, n);
 
   map<Side,Arm> arms;
+  vector<MCEvent> levs, revs;
   arms[kLeft]  = Arm(kLeft,  p);
   arms[kRight] = Arm(kRight, p);
-  TM(ifname, arms, p, verbose);
+  TM(ifname, arms, levs, revs, p, verbose);
   TFile* ofile = new TFile(ofname, "RECREATE");
   arms[kLeft] .Write();
   arms[kRight].Write();
+  MCEvent::SaveAsTree(ofile, "SiL_TransTree", levs);
+  MCEvent::SaveAsTree(ofile, "SiR_TransTree", revs);
   ofile->Close();
 }
 

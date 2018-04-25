@@ -118,8 +118,8 @@ void draw_psel_1d() {
   TFile* f = new TFile(IFNAME_PSEL);
   TH3* h3rp = (TH3*)f->Get("evde_r0_proton");
   TH3* h3lp = (TH3*)f->Get("evde_l0_proton");
-  h3rp->GetZaxis()->SetRange(2, 5);
-  h3lp->GetZaxis()->SetRange(2, 5);
+  h3rp->GetZaxis()->SetRangeUser(400, 100e3);
+  h3lp->GetZaxis()->SetRangeUser(400, 100e3);
   TH1* h1rp = h3rp->Project3D("x");
   TH1* h1lp = h3lp->Project3D("x");
 
@@ -179,6 +179,30 @@ void r15b_al50_psel_data_draw() {
   l1->Draw();        l2->Draw();
   cr->SetLogz();
   cr->SaveAs("img/r_data_classification.png");
+
+  TCanvas* cl_zoom = new TCanvas;
+  TH2* hl_zoom = (TH2*)hl->Clone("hl_zoom");
+  hl_zoom->GetYaxis()->SetRangeUser(0, 3e3);
+  hl_zoom->Draw();
+  tpl->Draw("SAME"); fpl->Draw("SAME CONT3");
+  tdl->Draw("SAME"); fdl->Draw("SAME CONT3");
+  ttl->Draw("SAME"); ftl->Draw("SAME CONT3");
+  tal->Draw("SAME"); fal->Draw("SAME CONT3");
+  l1->Draw();        l2->Draw();
+  cl_zoom->SetLogz();
+  cl_zoom->SaveAs("img/l_data_classification_zoom.png");
+  TCanvas* cr_zoom = new TCanvas;
+  TH2* hr_zoom = (TH2*)hr->Clone("hr_zoom");
+  hr_zoom->GetYaxis()->SetRangeUser(0, 3e3);
+  hr_zoom->Draw();
+  tpr->Draw("SAME"); fpr->Draw("SAME CONT3");
+  tdr->Draw("SAME"); fdr->Draw("SAME CONT3");
+  ttr->Draw("SAME"); ftr->Draw("SAME CONT3");
+  tar->Draw("SAME"); far->Draw("SAME CONT3");
+  l1->Draw();        l2->Draw();
+  cr_zoom->SetLogz();
+  cr_zoom->SaveAs("img/r_data_classification_zoom.png");
+
 
   TLine* lim[2] = { new TLine(2.e3, 200., 19.e3, 200.),
                     new TLine(2.e3, 50.,  19.e3, 50.) };

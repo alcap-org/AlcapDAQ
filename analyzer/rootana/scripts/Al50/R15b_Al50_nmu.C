@@ -25,12 +25,6 @@ bool IsAl2p1s(const SimplePulse& p) {
 }
 
 void R15b_Al50_nmu(int run=0) {
-  if (run == 0) // Compile only
-    return;
-  else if (run < 0) // Run on all
-    for (int i = 9890; i <= 10128; ++i)
-      R15b_Al50_nmu(run);
-
   char ifname[128], ofname[128];
   TH1::SetDefaultSumw2(kTRUE);
   sprintf(ifname, IFNAMEFMT, run);
@@ -67,4 +61,9 @@ void R15b_Al50_nmu(int run=0) {
   }
   // hmu_all->SetDirectory(ofile);
   ofile->Write();
+}
+
+void R15b_Al50_nmu(int run=0) {
+  if (run == 0) return;
+  R15b_Al50_nmu(run);
 }
