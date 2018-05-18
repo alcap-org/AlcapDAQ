@@ -23,8 +23,8 @@
   // TH2* h_dl = resp_dl->Hresponse(); TH2* h_dr = resp_dr->Hresponse();
   // TH2* h_tl = resp_tl->Hresponse(); TH2* h_tr = resp_tr->Hresponse();
   // TH2* h_al = resp_al->Hresponse(); TH2* h_ar = resp_ar->Hresponse();
-  h_pl->SetTitle("SiL Proton Response;E_{meas} [keV];E_{true} [keV]");
-  h_pr->SetTitle("SiR Proton Response;E_{meas} [keV];E_{true} [keV]");
+  h_pl->SetTitle("SiL Proton Response;E_{true} [keV];E_{meas} [keV]");
+  h_pr->SetTitle("SiR Proton Response;E_{true} [keV];E_{meas} [keV]");
   // h_dl->SetTitle("SiL Deuteron Response;E_{meas} [keV];E_{true} [keV]");
   // h_dr->SetTitle("SiR Deuteron Response;E_{meas} [keV];E_{true} [keV]");
   // h_tl->SetTitle("SiL Triton Response;E_{meas} [keV];E_{true} [keV]");

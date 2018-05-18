@@ -1,8 +1,8 @@
 {
-  const char* IFNAME_P    = "~/data/R15b/al50unfoldp.root";
-  const char* IFNAME_D    = "~/data/R15b/al50unfoldd.root";
-  const char* IFNAME_T    = "~/data/R15b/al50unfoldt.root";
-  const char* IFNAME_A    = "~/data/R15b/al50unfolda.root";
+  const char* IFNAME_P    = "~/data/R15b/enal50p.root";
+  // const char* IFNAME_D    = "~/data/R15b/al50unfoldd.root";
+  // const char* IFNAME_T    = "~/data/R15b/al50unfoldt.root";
+  // const char* IFNAME_A    = "~/data/R15b/al50unfolda.root";
 
   TFile* fp = new TFile(IFNAME_P);
   // TFile* fd = new TFile(IFNAME_D);
@@ -120,5 +120,11 @@
   hp->Draw();
   avgrate->Draw();
   // fap->Draw("SAME");
-  cpavg->SaveAs("img/proton_e_reco_avg.png")
+  cpavg->SaveAs("img/proton_e_reco_avg.png");
+
+  printf("Total rate: %.3g/cap\n", hp->Integral());
+  printf("0-10 MeV:   %.3g/cap\n", hp->Integral(hp->FindFixBin(0),
+                                                hp->FindFixBin(10e3)));
+  printf("4-8 MeV:    %.3g/cap\n", hp->Integral(hp->FindFixBin(4e3),
+                                                hp->FindFixBin(8e3)));
 }

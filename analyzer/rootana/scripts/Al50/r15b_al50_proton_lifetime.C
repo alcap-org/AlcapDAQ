@@ -33,26 +33,31 @@
   lfcn->SetParNames("BG Flat", "BG Amp", "BG Lifetime", "Al Amp", "Al Lifetime");
   rfcn->SetParameters(2, 150, 170, 410, 890);
   lfcn->SetParameters(2, 150, 170, 410, 890);
-  // rfcn->SetLineColor(635);
-  // lfcn->SetLineColor(603);
-
   hr->Fit(rfcn);
   hl->Fit(lfcn);
+  TRatioPlot* rres = new TRatioPlot(hr);
+  TRatioPlot* lres = new TRatioPlot(hl);
 
   gStyle->SetOptFit(111);
 
-  TCanvas* c = new TCanvas("c", "Proton Lifetime", 1400, 500);
+  TCanvas* c = new TCanvas("c", "Proton Lifetime", 1400, 700);
   c->Divide(2);
   c->cd(1)->SetLogy();
-  hl->Draw();
+  lres->Draw("noconfint");
   c->cd(2)->SetLogy();
-  hr->Draw();
+  rres->Draw("noconfint");
+  lres->GetLowerRefGraph()->SetMinimum(-3);
+  lres->GetLowerRefGraph()->SetMaximum(3);
+  rres->GetLowerRefGraph()->SetMinimum(-3);
+  rres->GetLowerRefGraph()->SetMaximum(3);
+  c->Update();
   c->SaveAs("img/proton_lifetime.png");
-  hl->GetXaxis()->SetRangeUser(0, 2e3);
-  hr->GetXaxis()->SetRangeUser(0, 2e3);
+  lres->GetLowerRefGraph()->GetXaxis()->SetRangeUser(0, 2e3);
+  rres->GetLowerRefGraph()->GetXaxis()->SetRangeUser(0, 2e3);
   c->cd(1);
-  hl->Draw();
+  lres->Draw("noconfint");
   c->cd(2);
-  hr->Draw();
+  rres->Draw("noconfint");
+  c->Update();
   c->SaveAs("img/proton_lifetime_zoom.png");
 }

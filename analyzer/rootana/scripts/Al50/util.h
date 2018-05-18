@@ -25,16 +25,28 @@ void PrintAndThrow(const char* err) {
 enum Side  { kRight, kLeft, kNSides, kInvalidSide };
 enum Layer { kThin,  kThick };
 
-struct Particle { std::string Name; double M; /*GeV*/ };
+struct Particle {
+  std::string Name;
+  double M; /*GeV*/
+  double P2E(double px, double py, double pz) const {
+    return sqrt(px*px+py*py+pz*pz+M*M);
+  }
+  double P2T(double px, double py, double pz) const {
+    return P2E(px, py, pz)-M;
+  }
+  double E2T(double e) const {
+    return e - M;
+  }
+};
 bool operator==(const Particle& l, const Particle& r) { return l.Name == r.Name; }
-const Particle NULLPARTICLE = {"null",      -1.};
-const Particle PHOTON       = {"gamma",     0.};
-const Particle ELECTRON     = {"electron",  511.999e-6};
-const Particle MUON         = {"muon",      105.658e-3};
-const Particle PROTON       = {"proton",    938.272e-3};
-const Particle DEUTERON     = {"deuteron",  1876.124e-3};
-const Particle TRITON       = {"triton",    2809.432e-3};
-const Particle ALPHA        = {"alpha",     3727.379e-3};
+const Particle NULLPARTICLE = {"null",     -1.};
+const Particle PHOTON       = {"gamma",    0.};
+const Particle ELECTRON     = {"e-",       511.999e-6};
+const Particle MUON         = {"mu-",      105.658e-3};
+const Particle PROTON       = {"proton",   938.272e-3};
+const Particle DEUTERON     = {"deuteron", 1876.124e-3};
+const Particle TRITON       = {"triton",   2809.432e-3};
+const Particle ALPHA        = {"alpha",    3727.379e-3};
 static const Particle* PARTICLES[4] = { &PROTON, &DEUTERON, &TRITON, &ALPHA };
 enum ParticleType {
   kNotAParticle, kPhoton, kElectron, kMuon, kProton, kDeuteron, kTriton,

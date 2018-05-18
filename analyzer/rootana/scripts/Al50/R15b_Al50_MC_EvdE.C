@@ -10,6 +10,7 @@
 #include "TTree.h"
 
 #include <algorithm>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -40,10 +41,16 @@ static const char*  IFNAMEFMT_P = "~/data/R15b/mc/R15bAl50ProtTarg_%d.root";
 static const char*  IFNAMEFMT_D = "~/data/R15b/mc/R15bAl50DeutTarg_%d.root";
 static const char*  IFNAMEFMT_T = "~/data/R15b/mc/R15bAl50TritTarg_%d.root";
 static const char*  IFNAMEFMT_A = "~/data/R15b/mc/R15bAl50AlphaTarg_%d.root";
+static const char*  IFNAMEFMT_M = "XXXXXXXXXXXXX";
+static const char*  IFNAMEFMT_E = "XXXXXXXXXXXXX";
+static const char*  IFNAMEFMT_G = "XXXXXXXXXXXXX";
 static const char*  OFNAMEFMT_P = "~/data/R15b/Proton_EvdE_MC_%d.root";
 static const char*  OFNAMEFMT_D = "~/data/R15b/Deuteron_EvdE_MC_%d.root";
 static const char*  OFNAMEFMT_T = "~/data/R15b/Triton_EvdE_MC_%d.root";
 static const char*  OFNAMEFMT_A = "~/data/R15b/Alpha_EvdE_MC_%d.root";
+static const char*  OFNAMEFMT_M = "XXXXXXXXXXXXX";
+static const char*  OFNAMEFMT_E = "XXXXXXXXXXXXX";
+static const char*  OFNAMEFMT_G = "XXXXXXXXXXXXX";
 // The number of g4sim generated files for each particle.
 static const int    NIFILES     = 12;
 // Histogram bins
@@ -146,6 +153,31 @@ public:
   }
 };
 
+struct PIDEvent {
+  Double_t e, de, t, dt;
+  PIDEvent (Double_t e=0, Double_t de=0, Double_t t=0, Double_t dt=0) :
+  e(e), de(de), t(t) , dt(dt) {}
+};
+
+void ConstructAndSaveTrees(TFile* f, const vector<PIDEvent> pids[2]) {
+  TDirectory* cwd = gDirectory;
+  f->cd();
+  TTree* tr[2] = { new TTree("PID_L", "PID Left MC"),
+                   new TTree("PID_R", "PID Right MC") };
+  PIDEvent pid[2];
+  for (int i = 0; i < 2; ++i) {
+    tr[i]->Branch("e",  &pid[i].e);
+    tr[i]->Branch("de", &pid[i].de);
+    tr[i]->Branch("t",  &pid[i].t);
+    tr[i]->Branch("dt", &pid[i].dt);
+    for (int j = 0; j < pids[i].size(); ++j) {
+      pid[i] = pids[i][j];
+      tr[i]->Fill();
+    }
+  }
+  cwd->cd();
+}
+
 void EvdE(const char* ifname, const char* ofname, const Particle& parttype,
           bool verbose=false) {
   TFile* ifile = new TFile(ifname, "READ");
@@ -170,6 +202,7 @@ void EvdE(const char* ifname, const char* ofname, const Particle& parttype,
   Arm LeftArm ("SiL", "SiL1", "SiL3", parttype.Name);
   Arm RightArm("SiR", "SiR1", "SiR2", parttype.Name);
   Arm arms[n_arms] = {LeftArm, RightArm};
+  vector<PIDEvent> vpids[2];
 
   for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
     ParticleHist stopped    ("stopped",     parttype.Name, true);
@@ -197,62 +230,102 @@ void EvdE(const char* ifname, const char* ofname, const Particle& parttype,
       // Loop through the arms
       for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
         if        (arms[i_arm].ValidThickMatch(vol, particle)) {
-          E  = edep;
-          t1 = t;
+          E    = edep;
+          t1   = t;
           stop = stops->at(iElement);
         } else if (arms[i_arm].ValidThinMatch(vol, particle)) {
           dE = edep;
           t0 = t;
         }
         if (E > 0. && dE > 0.) {
-          arms[i_arm].Fill(particle, stop, E+dE, dE, t);
-          E  = 0.;
-          dE = 0.;
+          arms[i_arm].Fill(particle, stop, E+dE, dE, t0);
+          vpids[i_arm].push_back(PIDEvent(E+dE, dE));
+          E    = 0.;
+          dE   = 0.;
           stop = false;
         }
       }
     }
   }
-  // Now print the PID plots
+
   for (int i_arm = 0; i_arm < n_arms; ++i_arm)
     arms[i_arm].Save(ofile);
+  ConstructAndSaveTrees(ofile, vpids);
   ofile->Close();
   ifile->Close();
 }
 
-void R15b_Al50_MC_EvdE(int n=0, int mode=0, bool verbose=false) {
+// Particle SelectParticle(int mode=0, const char* ifname=0x0,
+//                         const char* ofname=0x0) {
+//   switch (mode) {
+//     case 1: return PROTON;
+//     case 2: return DEUTERON;
+//     case 3: return TRITON;
+//     case 4: return ALPHA;
+//     case 5: return MUON;
+//     case 6: return ELECTRON;
+//     case 7: return PHOTON;
+//     default: return Particle();
+//   }
+// }
+
+void R15b_Al50_MC_EvdE(int mode, const char* ifname, const char* ofname,
+                       bool verbose=false) {
+  Particle p;
+  switch (mode) {
+    case 0:               return;
+    case 1: p = PROTON;   break;
+    case 2: p = DEUTERON; break;
+    case 3: p = TRITON;   break;
+    case 4: p = ALPHA;    break;
+    case 5: p = MUON;     break;
+    case 6: p = ELECTRON; break;
+    case 7: p = PHOTON;   break;
+  }
+  EvdE(ifname, ofname, p, verbose);
+}
+
+void R15b_Al50_MC_EvdE(int mode=0, int n=0, bool verbose=false) {
   char ifname[64], ofname[64];
-  if (n == 0)
-    for (int i = 1; i <= NIFILES; ++i)
-      R15b_Al50_MC_EvdE(i, mode);
+  Particle p;
   switch (mode) {
   case 0:
     return;
   case 1:
     sprintf(ifname, IFNAMEFMT_P, n);
     sprintf(ofname, OFNAMEFMT_P, n);
-    EvdE(ifname, ofname, PROTON, verbose);
-    return;
+    p = PROTON;
+    break;
   case 2:
     sprintf(ifname, IFNAMEFMT_D, n);
     sprintf(ofname, OFNAMEFMT_D, n);
-    EvdE(ifname, ofname, DEUTERON, verbose);
-    return;
+    p = DEUTERON;
+    break;
   case 3:
     sprintf(ifname, IFNAMEFMT_T, n);
     sprintf(ofname, OFNAMEFMT_T, n);
-    EvdE(ifname, ofname, TRITON, verbose);
-    return;
+    p = TRITON;
+    break;
   case 4:
     sprintf(ifname, IFNAMEFMT_A, n);
     sprintf(ofname, OFNAMEFMT_A, n);
-    EvdE(ifname, ofname, ALPHA, verbose);
-    return;
+    p = ALPHA;
+    break;
   case 5:
-    R15b_Al50_MC_EvdE(n, kProton);
-    R15b_Al50_MC_EvdE(n, kDeuteron);
-    R15b_Al50_MC_EvdE(n, kTriton);
-    R15b_Al50_MC_EvdE(n, kAlpha);
-    return;
+    sprintf(ifname, IFNAMEFMT_M, n);
+    sprintf(ofname, OFNAMEFMT_M, n);
+    p = MUON;
+    break;
+  case 6:
+    sprintf(ifname, IFNAMEFMT_E, n);
+    sprintf(ofname, OFNAMEFMT_E, n);
+    p = ELECTRON;
+    break;
+  case 7:
+    sprintf(ifname, IFNAMEFMT_G, n);
+    sprintf(ofname, OFNAMEFMT_G, n);
+    p = PHOTON;
+    break;
   }
+  EvdE(ifname, ofname, p, verbose);
 }

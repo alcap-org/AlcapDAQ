@@ -27,7 +27,16 @@ void LoadHistograms(TFile* f) {
   hgelo_t_ecut = (TH1*)f->Get("hgelo_t_ecut");
 }
 
-void DrawFullScaleHistograms() {
+void DrawSiTHistograms() {
+  TCanvas* cmu = new TCanvas();
+  hemu->SetTitle("Energy of Central Muon in each TME;E [keV];Count [/2.5keV]");
+  hemu->GetXaxis()->SetRangeUser(0, 8e3);
+  hemu->Draw();
+  cmu->SetLogy();
+  cmu->SaveAs("img/incoming_muons.png");
+}
+
+void DrawFullScaleGeHistograms() {
   hgehi_e_all->SetStats(false);
   hgelo_e_all->SetStats(false);
   hgehi_e_all->SetTitle("Ge Spectrum (Al50 Target) all times;Energy [keV];Raw Count");
@@ -70,26 +79,34 @@ void ConstructFitFunctions(TF1*& hi, TF1*& lo) {
   hi->SetParName(4, "Pb Amp");    lo->SetParName(4, "Pb Amp");
   hi->SetParName(5, "Pb Energy"); lo->SetParName(5, "Pb Energy");
   hi->SetParName(6, "Sigma");     lo->SetParName(6, "Sigma");
-  hi->SetLineColor(kRed);
-  lo->SetLineColor(kBlue);
+  hi->SetLineColor(kRed);          lo->SetLineColor(kBlue);
 }
 
 Norm FitGeHist(TH1* h, TF1* f) {
   double I = 0.798, dI = 0.008, E = 347.;
-  f->Print();
-  Double_t pars[7];
-  f->GetParameters(pars);
-  printf("%g %g %g %g %g %g %g\n", pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6]);
-  h->Fit(f);
-  f->GetParameters(pars);
-  printf("%g %g %g %g %g %g %g\n", pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6]);
-  TFitResultPtr r = h->Fit(f, "S");
+  h->Fit(f, "RQ");
+  TFitResultPtr r = h->Fit(f, "SRQ");
   Norm N = {
     (int)GeFcn::NMuHi(r->Parameter(2), r->Parameter(6), h->GetBinWidth(1), I, E),
     GeFcn::NMuErrHi(r->Parameter(2), r->ParError(2), r->Parameter(6),
                     r->ParError(6), h->GetBinWidth(0), I, dI, E),
     r->Chi2(), (double)r->Ndf() };
   return N;
+}
+
+void DrawBlindedBox() {
+  TPaveText* p = new TPaveText(0.1, 0.5, 0.35, 0.90, "NDC");
+  p->AddText(0, 0.9, "Fit Result")->SetTextSize(0.05);
+  p->AddLine(0., 0.8, 1, 0.8);
+  p->AddText("Blinded");
+  p->Draw();
+}
+
+void DrawPeakLabels() {
+  TText* al = new TLatex(343.8, 3000, "Al 2p-1s");
+  TText* pb = new TLatex(347.5, 4500, "#mu+Pb#rightarrow^{207}Tl");
+  al->Draw();
+  pb->Draw();
 }
 
 void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo) {
@@ -102,7 +119,7 @@ void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo) {
   hi->SetLineColor(kRed);
   lo->SetLineColor(kBlue);
   gStyle->SetOptStat("n");
-  gStyle->SetOptFit(111);
+  gStyle->SetOptFit(0); //gStyle->SetOptFit(111);
   hi->SetStats(kTRUE);
   lo->SetStats(kTRUE);
   hi->SetName("GeHiGain");
@@ -124,8 +141,10 @@ void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo) {
   l_fit->AddEntry(hi, l_fit_hi);
   l_fit->AddEntry(lo, l_fit_lo);
   hi->Draw();
-  lo->Draw("SAME");
-  l_fit->Draw();
+  // lo->Draw("SAME");
+  // l_fit->Draw();
+  DrawBlindedBox();
+  DrawPeakLabels();
   c_fit->Update();
   c_fit->SaveAs("img/ge_e_zoom.png");
 }
@@ -134,18 +153,13 @@ void r15b_al50_nmu_draw () {
   const char IFNAME[] = "~/data/R15b/nmual50.root";
   TFile* f = new TFile(IFNAME);
   LoadHistograms(f);
+  gStyle->SetOptStat("e");
 
   // Draw SiT energy spectrum (muons)
-  // gStyle->SetOptStat("e");
-  // TCanvas* cmu = new TCanvas();
-  // hemu->SetTitle("Energy of Central Muon in each TME;E [keV];Count [/2.5keV]");
-  // hemu->GetXaxis()->SetRangeUser(0, 8e3);
-  // hemu->Draw();
-  // cmu->SetLogy();
-  // cmu->SaveAs("img/incoming_muons.png");
+  // DrawSiTHistograms();
 
   // Fit and draw Ge spectra
-  // DrawFullScaleHistograms();
+  // DrawFullScaleGeHistograms();
   TH1* hhi = hgehi_e_tcut;
   TH1* hlo = hgelo_e_tcut;
 
@@ -157,6 +171,6 @@ void r15b_al50_nmu_draw () {
 
   printf("Hi chi2 %d/%d (%f), n %d +/- %f\n",
          nhi.Chi2(), nhi.Ndf(), nhi.Chi2_red(), nhi.n, nhi.en);
-  printf("Lo chi2 %d/%d (%f), n %d +/- %f\n",
-         nlo.Chi2(), nlo.Ndf(), nlo.Chi2_red(), nlo.n, nlo.en);
+  // printf("Lo chi2 %d/%d (%f), n %d +/- %f\n",
+  //        nlo.Chi2(), nlo.Ndf(), nlo.Chi2_red(), nlo.n, nlo.en);
 }

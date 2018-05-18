@@ -23,111 +23,134 @@ using std::vector;
 ////////////////////////////////////////////////////////////////////////////////
 // USER MODIFIABLE VARIABLES
 // Compile only:                   root -l -b -q R15b_Al50_TransferMatrix.C+g
-// Serially run all:               root -l -b -q R15b_Al50_MC_EvdE.C+g\(5\)
 // Run specific particle and file: root -l -b -q R15b_Al50_MC_EvdE.C+g\(mode\)
-// Where mode is one of:
-//   0 (Compile only), 1 (Protons), 2 (Deuteron), 3 (Tritons), 4 (Alphas),
-//   5 (All particles)
+// Where mode is a char and one of (any other will compile only):
+//   p (Protons), d (Deuteron), t (Tritons), a (Alphas)
 // Input files should be output from g4sim with either p, d, t, or a generated
-// inside of the target. The energy, position, and direction do not matter as
-// long as the primary is generated inside of the target and is one of p, d,
-// t, or a.
-// Input files are assumed to have the file name format IFNAMEPRE_#.root,
-// where # counts up from 1.
+// inside of the target.
 // Output files contain a RooUnfoldResponse object for the left and right
-// Si detector packages.
-namespace {
-  const char DATADIR[] = "~/data/R15b";
-  const char IFNAMEPRE_P[] = "mc/R15bAl50ProtTarg";
-  const char IFNAMEPRE_D[] = "mc/R15bAl50DeutTarg";
-  const char IFNAMEPRE_T[] = "mc/R15bAl50TritTarg";
-  const char IFNAMEPRE_A[] = "mc/R15bAl50AlphaTarg";
-  const char OFNAMEPRE_P[] = "al50ptm";
-  const char OFNAMEPRE_D[] = "al50dtm";
-  const char OFNAMEPRE_T[] = "al50ttm";
-  const char OFNAMEPRE_A[] = "al50atm";
-}
+// Si detector packages. Also a tree containing the e0 and emeas, as well as
+// the position of the target it was generated in.
 ////////////////////////////////////////////////////////////////////////////////
 
 // Necessary since hadd doesn't know about RooUnfold objects
-void Merge(const char* fnamepre, int n) {
+void Merge(const char* ifnameprefix, int n) {
   TFileMerger ofile;
   for (Long_t i = 1; i <= n; ++i) {
-    TString ifname = TString(DATADIR) + '/' + fnamepre + '_' + i + ".root";
+    TString ifname = TString(ifnameprefix) + i + ".root";
     ofile.AddFile(ifname);
   }
-  TString ofname = TString(DATADIR) + '/' + fnamepre + ".root";
+  TString ofname = TString(ifnameprefix) + ".root";
   ofile.OutputFile(ofname);
   ofile.Merge();
 }
 
 class Arm {
   Side arm;
-  RooUnfoldResponse* response;
-  TH2* diffVe;
+  RooUnfoldResponse* response[10];
+  TH2* diffVe[10];
 
 public:
   Arm() {}
-  Arm(Side s, const Particle& p) :
-  arm(s), response(nullptr) {
-    int    NE   = 100;
-    double E[2] = {0., 20e3};
+  Arm(Side s) : arm(s) {
+    int    NE   = 75;
+    double E[2] = {0., 15e3};
     char hname[128];
-    sprintf(hname, "Si%c_TM", s == kLeft ? 'L' : 'R');
-    response = new RooUnfoldResponse(NE, E[0], E[1], hname);
-    sprintf(hname, "Si%c_DM", s == kLeft ? 'L' : 'R');
-    diffVe = new TH2I(hname,
-                      "Si Difference vs Energy;E_0 [keV];E_0-E_{meas} [keV]",
-                      NE, E[0], E[1], NE, E[0], E[1]);
+    for (int i = 0; i <= 9; ++i) {
+      sprintf(hname, "Si%c_TM_%d", s == kLeft ? 'L' : 'R', i);
+      response[i] = new RooUnfoldResponse(NE, E[0], E[1], hname);
+      sprintf(hname, "Si%c_DM_%d", s == kLeft ? 'L' : 'R', i);
+      diffVe[i] = new TH2I(hname,
+                           "Difference vs Energy;E_0 [keV];E_0-E_{meas} [keV]",
+                           NE, E[0], E[1], NE, E[0], E[1]/5);
+    }
   }
-  void Hit(double emeas, double etrue) {
+  void Miss(double etrue, int i) {
+    response[0]->Miss(etrue);
+    response[i]->Miss(etrue);
+  }
+  void Hit(double emeas, double etrue, int i) {
     static TRandom3 smear;
-    double e = smear.Gaus(emeas, 70.);
-    response->Fill(e, etrue);
-    diffVe  ->Fill(etrue, etrue-e);
+    double e = smear.Gaus(emeas, 70.); // ARBITRARY RESOLUTION, FIX
+    response[0]->Fill(e,     etrue);
+    diffVe  [0]->Fill(etrue, etrue-e);
+    response[i]->Fill(e,     etrue);
+    diffVe  [i]->Fill(etrue, etrue-e);
   }
-  void Miss(double etrue)              { response->Miss(etrue); }
-  void Fake(double emeas)              { response->Fake(emeas); }
-  void Write()                         { response->Write(); diffVe->Write(); }
-  Side Position()                const { return arm; }
-  TH2* Response()                const { return response->Hresponse(); }
+  void Fake(double emeas, int i) {
+    response[0]->Fake(emeas);
+    response[i]->Fake(emeas);
+  }
+  void Write() {
+    for (int i = 0; i <= 9; ++i) {
+      response[i]->Write();
+      diffVe  [i]->Write();
+    }
+  }
+  Side Position()      const { return arm; }
+  TH2* Response(int i) const { return response[i]->Hresponse(); }
 };
 
 class Hit {
  private:
-  bool isproton, stopped;
+  bool isparticle, stopped;
+  int seg;
+  double edep/*keV*/;
   string vol;
-  double edep/*keV*/, t/*ns*/;
+  double x, y, z;
  public:
-  Hit() : isproton(false), stopped(false), vol(""), edep(0), t(0) {}
-  Hit(bool isproton, bool stopped, string vol, double edep, double t) :
-  isproton(isproton), stopped(stopped), vol(vol), edep(edep), t(t) {}
-  bool IsThick() { return vol == "SiL3" || vol == "SiR2" || vol == "SiR3"; }
-  bool IsThin()  { return vol == "SiL1" || vol == "SiR1"; }
-  bool IsLeft()  { return vol == "SiL1" || vol == "SiL3"; }
-  bool IsRight() { return vol == "SiR1" || vol == "SiR2" || vol == "SiR3"; }
-  bool IsSiDet() { return IsLeft()      || IsRight(); }
-  bool Stopped() { return stopped; }
-  double EDep()  { return edep; }
-  string Volume()          { return vol; }
-  bool IsADetectedProton() { return isproton && IsSiDet(); }
-  void Print() {
-    std::cout << "P: " << isproton << ", stop: " << stopped << ", Vol: "
-              << vol << ", edep: " << edep << ", t: " << t << std::endl;
+  Hit() : isparticle(false), stopped(false), seg(-1),
+  edep(0), vol(""), x(0), y(0), z(0) {}
+  Hit(bool isparticle, bool stopped, int seg, double edep,
+      string vol, double x, double y, double z) :
+  isparticle(isparticle), stopped(stopped),
+  seg(seg), edep(edep), vol(vol), x(x), y(y), z(z) {}
+  bool IsThick()      const { return vol == "SiL3" || vol == "SiR2" || vol == "SiR3"; }
+  bool IsThin()       const { return vol == "SiL1" || vol == "SiR1"; }
+  bool IsLeft()       const { return vol == "SiL1" || vol == "SiL3"; }
+  bool IsRight()      const { return vol == "SiR1" || vol == "SiR2" || vol == "SiR3"; }
+  bool FiducialLeft() const {
+    return (vol == "SiL1" && 2 <= seg && seg <= 15) || vol == "SiL3";
+  }
+  bool IsSiDet()      const { return FiducialLeft() || IsRight(); }
+  bool Stopped()      const { return stopped; }
+  double EDep()       const { return edep; }
+  string Volume()     const { return vol; }
+  double X()          const { return x; }
+  double Y()          const { return y; }
+  double Z()          const { return z; }
+  bool IsADetectedParticle()       const { return isparticle && IsSiDet(); }
+  bool MatchedVolume(const Hit& h) const { return h.seg == seg && h.vol == vol; }
+  int DetectorSegment()            const { return seg; }
+  bool Valid()                     const { return !vol.empty(); }
+  void Print() const {
+    std::cout << "P: " << isparticle << ", stop: " << stopped << ", Vol: "
+              << vol << "(" << seg << "), edep: " << edep << std::endl;
   }
 };
 
 class MCEvent {
+  int detseg, targseg;
   double emeas, e0;
+  double x0, y0, z0;
  public:
-  MCEvent(double emeas, double e0) : emeas(emeas), e0(e0) {}
+  MCEvent() : detseg(-1), targseg(-1), emeas(0.), e0(0.) {}
+  MCEvent(int detseg, int targseg, double emeas, double e0,
+          double x0, double y0, double z0) :
+  detseg(detseg), targseg(targseg), emeas(emeas), e0(e0),
+  x0(x0), y0(y0), z0(z0) {}
   static void SaveAsTree(TFile* f, const char* trname,
                          const vector<MCEvent>& evs) {
     TTree* tr = new TTree(trname, trname);
     tr->SetDirectory(f);
-    MCEvent ev(0, 0);
-    tr->Branch("e0", &ev.e0);
-    tr->Branch("emeas", &ev.emeas);
+    MCEvent ev;
+    tr->Branch("detseg",  &ev.detseg);
+    tr->Branch("targseg", &ev.targseg);
+    tr->Branch("e0",      &ev.e0);
+    tr->Branch("emeas",   &ev.emeas);
+    tr->Branch("x0",      &ev.x0);
+    tr->Branch("y0",      &ev.y0);
+    tr->Branch("z0",      &ev.z0);
     for (int i = 0; i < evs.size(); ++i) {
       ev = evs[i];
       tr->Fill();
@@ -139,59 +162,89 @@ class MCEvent {
 class MCProcessor {
   TTree* tr;
   Particle p0;
-  vector<string> *particles, *vols, *ovols;
-  vector<double> *edeps, *ts, *es;
-  vector<int> *stops, *trkIDs;
-  Hit stophit;
+  vector<string> *particles, *vols;
+  vector<double> *edeps, *es, *xs, *ys, *zs;
+  vector<int>    *stops, *segs;
+  vector<Hit>    hits;
   double hitEs[2][2]; // [Side][Thin/Thick]
  public:
   MCProcessor(TTree* tr, const Particle& p0) :
-  tr(tr), p0(p0), particles(nullptr), vols(nullptr), ovols(nullptr),
-  edeps(nullptr), ts(nullptr), es(nullptr), stops(nullptr), trkIDs(nullptr) {
+  tr(tr), p0(p0), particles(nullptr), vols(nullptr), edeps(nullptr),
+  es(nullptr), xs(nullptr), ys(nullptr), zs(nullptr), stops(nullptr),
+  segs(nullptr), hits{Hit(), Hit()} {
     tr->SetBranchAddress("M_particleName", &particles);
     tr->SetBranchAddress("M_volName",      &vols);
-    tr->SetBranchAddress("M_ovolName",     &ovols);
+    tr->SetBranchAddress("M_volID",        &segs);   // Segment (repetition #)
     tr->SetBranchAddress("M_stopped",      &stops);
-    tr->SetBranchAddress("M_tid",          &trkIDs); // Starts at 1
-    tr->SetBranchAddress("M_t",            &ts);     // don't know, ns?
-    tr->SetBranchAddress("M_e",            &es);     // GeV
-    tr->SetBranchAddress("M_edep",         &edeps);
+    tr->SetBranchAddress("M_local_x",      &xs);     // cm
+    tr->SetBranchAddress("M_local_y",      &ys);     // cm
+    tr->SetBranchAddress("M_local_z",      &zs);     // cm
+    tr->SetBranchAddress("M_ekin",         &es);     // GeV
+    tr->SetBranchAddress("M_edep",         &edeps);  // GeV
   }
-  int NEvents() { return tr->GetEntries(); }
-  int NHits()   { return particles->size(); }
-  double E0()   { return (es->at(0)-p0.M)*1e6; }
-  double EL()   { return hitEs[0][0]+hitEs[0][1]; }
-  double ER()   { return hitEs[1][0]+hitEs[1][1]; }
-  bool PrimaryIsIncorrect() {
-    return p0.Name != particles->at(0) || ovols->at(0) != "Target" ||
-           trkIDs->at(0) != 1;
+  int NEvents() const { return tr->GetEntries(); }
+  int NHits()   const { return particles->size(); }
+  double E0()   const { return es->at(0)*1e6; }
+  double EL()   const { return hitEs[0][0]+hitEs[0][1]; }
+  double ER()   const { return hitEs[1][0]+hitEs[1][1]; }
+  double X0()   const { return xs->at(0); }
+  double Y0()   const { return ys->at(0); }
+  double Z0()   const { return zs->at(0); }
+  int TargetSegment() const {
+    const double L    = 8.7; // cm, length of target side (height and width)
+    const double X[4] = {-L/2, -L/2+L/3, -L/2+2*L/3, L/2};
+    const double Y[4] = {-L/2, -L/2+L/3, -L/2+2*L/3, L/2};
+    double x = xs->at(0), y = ys->at(0);
+    if      (x < X[1] && y < Y[1]) return 1;
+    else if (x < X[2] && y < Y[1]) return 2;
+    else if (            y < Y[1]) return 3;
+    else if (x < X[1] && y < Y[2]) return 4;
+    else if (x < X[2] && y < Y[2]) return 5;
+    else if (            y < Y[2]) return 6;
+    else if (x < X[1]            ) return 7;
+    else if (x < X[2]            ) return 8;
+    else                           return 9;
   }
-  Hit GetHit(int i) {
-    return Hit(particles->at(i) == "proton", stops->at(i), vols->at(i),
-               edeps->at(i)*1e6, ts->at(i));
+  int DetectorSegment() const {
+    return hits[0].DetectorSegment();
+  }
+  Hit GetHit(int i) const {
+    return Hit(particles->at(i) == p0.Name, stops->at(i), segs->at(i)+1,
+               edeps->at(i)*1e6, vols->at(i), xs->at(i), ys->at(i),
+               zs->at(i));
   }
   void Process(int i) {
     tr->GetEvent(i);
-    stophit = Hit();
+    hits = { Hit(), Hit() };
+    // tranhit = Hit();
+    // stophit = Hit();
     hitEs[0][0] = hitEs[0][1] = hitEs[1][0] = hitEs[1][1] = 0.;
-    if (PrimaryIsIncorrect())
-      PrintAndThrow("Incorrect primary in simulation!");
-    for (int i = 1; i < NHits(); ++i) {
-      Hit hit = GetHit(i);
-      if (!hit.IsADetectedProton())
+
+    for (int j = 1; j < NHits(); ++j) {
+      Hit hit = GetHit(j);
+      if (!hit.IsADetectedParticle())
         continue;
       int s = hit.IsLeft() ? 0 : 1;
-      if      (hit.IsThin() && !hit.Stopped()) hitEs[s][0] += hit.EDep();
-      else if (hit.IsThick())                  hitEs[s][1] += hit.EDep();
-      if      (hit.Stopped())                  stophit      = hit;
+      if      (hit.IsThin())                    hitEs[s][0] += hit.EDep();
+      else if (hit.IsThick())                   hitEs[s][1] += hit.EDep();
+      if      (hit.Stopped())                   hits[1]      = hit;
+      else if (!hits[0].Valid() && hit.IsThin()) hits[0]      = hit;
     }
   }
-  bool StoppedInLeft()  { return stophit.IsLeft()  && stophit.IsThick(); }
-  bool StoppedInRight() { return stophit.IsRight() && stophit.IsThick(); }
-  bool Insane()         { return E0() < 1.5e3; }
+  bool ValidLeftHit()  {
+    return hits[1].IsLeft() && hits[1].IsThick() &&
+           hits[0].IsLeft() && hits[0].IsThin();
+  }
+  bool ValidRightHit() {
+    return hits[1].IsRight() && hits[1].IsThick() &&
+           hits[0].IsRight() && hits[0].IsThin();
+  }
   void Print() {
-    std::cout << "e0: " << E0() << ", (el, er): (" << EL() << ", " << ER() << "), stophit-->" << std::endl;
-    stophit.Print();
+    std::cout << "e0: " << E0() << ", (el, er): (" << EL() << ", " << ER()
+              << "), tranhit-->" << std::endl;
+    hits[0].Print();
+    std::cout << "stophit-->" << std::endl;
+    hits[1].Print();
   }
   void Print(int i) {
     GetHit(i).Print();
@@ -206,37 +259,37 @@ void TM(const char* ifname, map<Side,Arm> arms, vector<MCEvent>& levs,
   TTree* tree = (TTree*)ifile->Get("tree");
   MCProcessor evs(tree, p);
   for (int i = 0; i < evs.NEvents(); ++i) {
-    if (verbose && i % 10000 == 0)
+    if (verbose && i % 100000 == 0)
       std::cout << i << " / " << evs.NEvents() << std::endl;
 
     evs.Process(i);
-    if (evs.StoppedInLeft()) {
-      arms[kLeft] .Hit(evs.EL(), evs.E0());
-      levs.push_back(MCEvent(evs.EL(), evs.E0()));
-      arms[kRight].Miss(evs.E0());
-    } else if (evs.StoppedInRight()) {
-      arms[kRight].Hit(evs.ER(), evs.E0());
-      revs.push_back(MCEvent(evs.ER(), evs.E0()));
-      arms[kLeft] .Miss(evs.E0());
+    int targseg = evs.TargetSegment();
+    int detseg  = evs.DetectorSegment();
+    if (evs.ValidLeftHit()) {
+      arms[kLeft] .Hit(evs.EL(), evs.E0(), targseg);
+      levs.push_back(MCEvent(detseg, targseg, evs.EL(), evs.E0(),
+                             evs.X0(), evs.Y0(), evs.Z0()));
+      arms[kRight].Miss(evs.E0(), targseg);
+    } else if (evs.ValidRightHit()) {
+      arms[kRight].Hit(evs.ER(), evs.E0(), targseg);
+      revs.push_back(MCEvent(detseg, targseg, evs.ER(), evs.E0(),
+                             evs.X0(), evs.Y0(), evs.Z0()));
+      arms[kLeft] .Miss(evs.E0(), targseg);
     } else {
-      arms[kLeft] .Miss(evs.E0());
-      arms[kRight].Miss(evs.E0());
+      arms[kLeft] .Miss(evs.E0(), targseg);
+      arms[kRight].Miss(evs.E0(), targseg);
     }
   }
   ifile->Close();
   delete ifile;
 }
 
-void TM(const char* ofprefix, const char* ifprefix, const Particle& p, int n,
+void TM(const char* ifname, const char* ofname, const Particle& p,
         bool verbose=false) {
-  char ifname[256], ofname[256];
-  sprintf(ifname, "%s/%s_%d.root", DATADIR, ifprefix, n);
-  sprintf(ofname, "%s/%s_%d.root", DATADIR, ofprefix, n);
-
   map<Side,Arm> arms;
   vector<MCEvent> levs, revs;
-  arms[kLeft]  = Arm(kLeft,  p);
-  arms[kRight] = Arm(kRight, p);
+  arms[kLeft]  = Arm(kLeft);
+  arms[kRight] = Arm(kRight);
   TM(ifname, arms, levs, revs, p, verbose);
   TFile* ofile = new TFile(ofname, "RECREATE");
   arms[kLeft] .Write();
@@ -246,24 +299,19 @@ void TM(const char* ofprefix, const char* ifprefix, const Particle& p, int n,
   ofile->Close();
 }
 
-void R15b_Al50_TransferMatrix(int mode=0, int fnum=0, bool verbose=false) {
+void R15b_Al50_TransferMatrix(const char* ifprefix, int n) {
+  Merge(ifprefix, n);
+}
+
+void R15b_Al50_TransferMatrix(char mode='\0', const char* ifname=nullptr,
+                              const char* ofname=nullptr, bool verbose=false) {
+  Particle p;
   switch(mode) {
-    case 0: return;
-    case 1:  TM(OFNAMEPRE_P, IFNAMEPRE_P, PROTON,   fnum, verbose);
-             return;
-    case 2:  TM(OFNAMEPRE_D, IFNAMEPRE_D, DEUTERON, fnum, verbose);
-             return;
-    case 3:  TM(OFNAMEPRE_T, IFNAMEPRE_T, TRITON,   fnum, verbose);
-             return;
-    case 4:  TM(OFNAMEPRE_A, IFNAMEPRE_A, ALPHA,    fnum, verbose);
-             return;
-    case -1: Merge(OFNAMEPRE_P, fnum);
-             return;
-    case -2: Merge(OFNAMEPRE_D, fnum);
-             return;
-    case -3: Merge(OFNAMEPRE_T, fnum);
-             return;
-    case -4: Merge(OFNAMEPRE_A, fnum);
-             return;
+    case 'p':  p = PROTON;   break;
+    case 'd':  p = DEUTERON; break;
+    case 't':  p = TRITON;   break;
+    case 'a':  p = ALPHA;    break;
+    default: return;
   }
+  TM(ifname, ofname, p, verbose);
 }
