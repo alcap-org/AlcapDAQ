@@ -1,7 +1,7 @@
 {
   int nb   = 0;
   int ntme = 0;
-  for (int i = 9890; i < 10128; ++i) {
+  for (int i = /*9890*/10081; i < 10128; ++i) {
     char ifname[64];
     sprintf(ifname, "~/R15bTME/Al50/tme%05d.root", i);
     TFile* f = new TFile(ifname, "READ");
@@ -17,6 +17,6 @@
     delete f;
   }
   printf("Blocks: %d\n", nb);
-  printf("Livetime: %g hours\n", nb*96.e-3/3600.);
+  printf("Livetime: %g hours\n", nb*(96.e-3-10e-6)/3600.);
   printf("TMEs: %d\n", ntme);
 }

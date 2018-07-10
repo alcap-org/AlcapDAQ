@@ -6,6 +6,7 @@
 #include "TFile.h"
 #include "TFitResult.h"
 #include "TH1.h"
+#include "TLatex.h"
 #include "TLegend.h"
 #include "TPaveStats.h"
 #include "TStyle.h"
@@ -56,11 +57,12 @@ void DrawFullScaleGeHistograms() {
 }
 
 struct Norm {
-  int n;
-  double en, chi2, ndf;
+  int n, nx;
+  double en, enx, chi2, ndf;
   double Chi2_red() { return ((double)chi2)/ndf; }
   int Chi2()        { return (int)chi2;          }
   int Ndf()         { return (int)ndf;           }
+  int NXrays()      { return nx;                 }
 };
 
 void ConstructFitFunctions(TF1*& hi, TF1*& lo) {
@@ -79,8 +81,13 @@ void ConstructFitFunctions(TF1*& hi, TF1*& lo) {
   hi->SetParName(4, "Pb Amp");    lo->SetParName(4, "Pb Amp");
   hi->SetParName(5, "Pb Energy"); lo->SetParName(5, "Pb Energy");
   hi->SetParName(6, "Sigma");     lo->SetParName(6, "Sigma");
-  hi->SetLineColor(kRed);          lo->SetLineColor(kBlue);
+  hi->SetLineColor(kRed);         lo->SetLineColor(kBlue);
 }
+
+// Norm RooFitGeHist(TH1* h) {
+//   RooWorkSpace* ws = new RooWorkspace("rws");
+//   ws.factory
+// }
 
 Norm FitGeHist(TH1* h, TF1* f) {
   double I = 0.798, dI = 0.008, E = 347.;
@@ -88,8 +95,11 @@ Norm FitGeHist(TH1* h, TF1* f) {
   TFitResultPtr r = h->Fit(f, "SRQ");
   Norm N = {
     (int)GeFcn::NMuHi(r->Parameter(2), r->Parameter(6), h->GetBinWidth(1), I, E),
+    (int)GeFcn::GaussArea(r->Parameter(2), r->Parameter(6), h->GetBinWidth(1)),
     GeFcn::NMuErrHi(r->Parameter(2), r->ParError(2), r->Parameter(6),
                     r->ParError(6), h->GetBinWidth(0), I, dI, E),
+    GeFcn::GaussAreaErr(r->Parameter(2), r->ParError(2),
+                        r->Parameter(6), r->ParError(6), h->GetBinWidth(1)),
     r->Chi2(), (double)r->Ndf() };
   return N;
 }
@@ -119,7 +129,7 @@ void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo) {
   hi->SetLineColor(kRed);
   lo->SetLineColor(kBlue);
   gStyle->SetOptStat("n");
-  gStyle->SetOptFit(0); //gStyle->SetOptFit(111);
+  gStyle->SetOptFit(111);
   hi->SetStats(kTRUE);
   lo->SetStats(kTRUE);
   hi->SetName("GeHiGain");
@@ -141,17 +151,16 @@ void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo) {
   l_fit->AddEntry(hi, l_fit_hi);
   l_fit->AddEntry(lo, l_fit_lo);
   hi->Draw();
-  // lo->Draw("SAME");
-  // l_fit->Draw();
-  DrawBlindedBox();
+  lo->Draw("SAME");
+  l_fit->Draw();
+  // DrawBlindedBox();
   DrawPeakLabels();
   c_fit->Update();
   c_fit->SaveAs("img/ge_e_zoom.png");
 }
 
-void r15b_al50_nmu_draw () {
-  const char IFNAME[] = "~/data/R15b/nmual50.root";
-  TFile* f = new TFile(IFNAME);
+void r15b_al50_nmu_draw (const char* ifname) {
+  TFile* f = new TFile(ifname);
   LoadHistograms(f);
   gStyle->SetOptStat("e");
 
@@ -162,6 +171,8 @@ void r15b_al50_nmu_draw () {
   // DrawFullScaleGeHistograms();
   TH1* hhi = hgehi_e_tcut;
   TH1* hlo = hgelo_e_tcut;
+  // TH1* hhi = hgehi_e_all;
+  // TH1* hlo = hgelo_e_all;
 
   TF1 *fcn_hi, *fcn_lo;
   ConstructFitFunctions(fcn_hi, fcn_lo);
@@ -169,8 +180,8 @@ void r15b_al50_nmu_draw () {
   Norm nlo = FitGeHist(hlo, fcn_lo);
   DrawFits(hhi, hlo, nhi, nlo);
 
-  printf("Hi chi2 %d/%d (%f), n %d +/- %f\n",
-         nhi.Chi2(), nhi.Ndf(), nhi.Chi2_red(), nhi.n, nhi.en);
-  // printf("Lo chi2 %d/%d (%f), n %d +/- %f\n",
-  //        nlo.Chi2(), nlo.Ndf(), nlo.Chi2_red(), nlo.n, nlo.en);
+  printf("Hi chi2 %d/%d (%f), n %d +/- %f, nx %d +/- %f\n",
+         nhi.Chi2(), nhi.Ndf(), nhi.Chi2_red(), nhi.n, nhi.en, nhi.nx, nhi.enx);
+  printf("Lo chi2 %d/%d (%f), n %d +/- %f, nx %d +/- %f\n",
+         nlo.Chi2(), nlo.Ndf(), nlo.Chi2_red(), nlo.n, nlo.en, nlo.nx, nlo.enx);
 }

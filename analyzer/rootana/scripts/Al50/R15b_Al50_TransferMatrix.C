@@ -33,11 +33,13 @@ using std::vector;
 // the position of the target it was generated in.
 ////////////////////////////////////////////////////////////////////////////////
 
+static TRandom3 SMEAR;
+
 // Necessary since hadd doesn't know about RooUnfold objects
 void Merge(const char* ifnameprefix, int n) {
   TFileMerger ofile;
   for (Long_t i = 1; i <= n; ++i) {
-    TString ifname = TString(ifnameprefix) + i + ".root";
+    TString ifname = TString(ifnameprefix) + '_' + i + ".root";
     ofile.AddFile(ifname);
   }
   TString ofname = TString(ifnameprefix) + ".root";
@@ -47,48 +49,31 @@ void Merge(const char* ifnameprefix, int n) {
 
 class Arm {
   Side arm;
-  RooUnfoldResponse* response[10];
-  TH2* diffVe[10];
+  RooUnfoldResponse* response;
+  TH2* diffVe;
 
 public:
-  Arm() {}
-  Arm(Side s) : arm(s) {
-    int    NE   = 75;
+  Arm() : arm(kLeft), response(nullptr), diffVe(nullptr) {}
+  Arm(Side s) : arm(s), response(nullptr), diffVe(nullptr) {
+    int    NE   = 150;
     double E[2] = {0., 15e3};
-    char hname[128];
-    for (int i = 0; i <= 9; ++i) {
-      sprintf(hname, "Si%c_TM_%d", s == kLeft ? 'L' : 'R', i);
-      response[i] = new RooUnfoldResponse(NE, E[0], E[1], hname);
-      sprintf(hname, "Si%c_DM_%d", s == kLeft ? 'L' : 'R', i);
-      diffVe[i] = new TH2I(hname,
-                           "Difference vs Energy;E_0 [keV];E_0-E_{meas} [keV]",
-                           NE, E[0], E[1], NE, E[0], E[1]/5);
-    }
+    response = new RooUnfoldResponse(NE, E[0], E[1],
+                                     TString::Format("Si%c_TM", s == kLeft ?
+                                                     'L' : 'R'));
+    diffVe = new TH2I(TString::Format("Si%c_DM", s == kLeft ? 'L' : 'R'),
+                      "Difference vs Energy;E_0 [keV];E_0-E_{meas} [keV]",
+                      NE, E[0], E[1], NE, E[0], E[1]/5);
   }
-  void Miss(double etrue, int i) {
-    response[0]->Miss(etrue);
-    response[i]->Miss(etrue);
+  void Hit(double emeas, double etrue) {
+    double e = SMEAR.Gaus(emeas, 70.); // ARBITRARY RESOLUTION, FIX
+    response->Fill(e,     etrue);
+    diffVe  ->Fill(etrue, etrue-e);
   }
-  void Hit(double emeas, double etrue, int i) {
-    static TRandom3 smear;
-    double e = smear.Gaus(emeas, 70.); // ARBITRARY RESOLUTION, FIX
-    response[0]->Fill(e,     etrue);
-    diffVe  [0]->Fill(etrue, etrue-e);
-    response[i]->Fill(e,     etrue);
-    diffVe  [i]->Fill(etrue, etrue-e);
-  }
-  void Fake(double emeas, int i) {
-    response[0]->Fake(emeas);
-    response[i]->Fake(emeas);
-  }
-  void Write() {
-    for (int i = 0; i <= 9; ++i) {
-      response[i]->Write();
-      diffVe  [i]->Write();
-    }
-  }
-  Side Position()      const { return arm; }
-  TH2* Response(int i) const { return response[i]->Hresponse(); }
+  void Miss(double etrue) { response->Miss(etrue); }
+  void Fake(double emeas) { response->Fake(emeas); }
+  void Write()            { response->Write(); diffVe->Write(); }
+  Side Position()   const { return arm; }
+  TH2* Response()   const { return response->Hresponse(); }
 };
 
 class Hit {
@@ -130,27 +115,28 @@ class Hit {
 };
 
 class MCEvent {
-  int detseg, targseg;
+  int detseg;
   double emeas, e0;
   double x0, y0, z0;
  public:
-  MCEvent() : detseg(-1), targseg(-1), emeas(0.), e0(0.) {}
-  MCEvent(int detseg, int targseg, double emeas, double e0,
+  MCEvent() : detseg(-1), emeas(0.), e0(0.), x0(0), y0(0), z0(0) {}
+  MCEvent(int detseg, double emeas, double e0,
           double x0, double y0, double z0) :
-  detseg(detseg), targseg(targseg), emeas(emeas), e0(e0),
-  x0(x0), y0(y0), z0(z0) {}
+  detseg(detseg), emeas(emeas), e0(e0), x0(x0), y0(y0), z0(z0) {
+    if (emeas > 0.)
+      emeas = SMEAR.Gaus(emeas, 70.);
+  }
   static void SaveAsTree(TFile* f, const char* trname,
                          const vector<MCEvent>& evs) {
     TTree* tr = new TTree(trname, trname);
     tr->SetDirectory(f);
     MCEvent ev;
-    tr->Branch("detseg",  &ev.detseg);
-    tr->Branch("targseg", &ev.targseg);
-    tr->Branch("e0",      &ev.e0);
-    tr->Branch("emeas",   &ev.emeas);
-    tr->Branch("x0",      &ev.x0);
-    tr->Branch("y0",      &ev.y0);
-    tr->Branch("z0",      &ev.z0);
+    tr->Branch("detseg",     &ev.detseg);
+    tr->Branch("e0",         &ev.e0);
+    tr->Branch("emeas",      &ev.emeas);
+    tr->Branch("x0",         &ev.x0);
+    tr->Branch("y0",         &ev.y0);
+    tr->Branch("z0",         &ev.z0);
     for (int i = 0; i < evs.size(); ++i) {
       ev = evs[i];
       tr->Fill();
@@ -182,32 +168,15 @@ class MCProcessor {
     tr->SetBranchAddress("M_ekin",         &es);     // GeV
     tr->SetBranchAddress("M_edep",         &edeps);  // GeV
   }
-  int NEvents() const { return tr->GetEntries(); }
-  int NHits()   const { return particles->size(); }
-  double E0()   const { return es->at(0)*1e6; }
-  double EL()   const { return hitEs[0][0]+hitEs[0][1]; }
-  double ER()   const { return hitEs[1][0]+hitEs[1][1]; }
-  double X0()   const { return xs->at(0); }
-  double Y0()   const { return ys->at(0); }
-  double Z0()   const { return zs->at(0); }
-  int TargetSegment() const {
-    const double L    = 8.7; // cm, length of target side (height and width)
-    const double X[4] = {-L/2, -L/2+L/3, -L/2+2*L/3, L/2};
-    const double Y[4] = {-L/2, -L/2+L/3, -L/2+2*L/3, L/2};
-    double x = xs->at(0), y = ys->at(0);
-    if      (x < X[1] && y < Y[1]) return 1;
-    else if (x < X[2] && y < Y[1]) return 2;
-    else if (            y < Y[1]) return 3;
-    else if (x < X[1] && y < Y[2]) return 4;
-    else if (x < X[2] && y < Y[2]) return 5;
-    else if (            y < Y[2]) return 6;
-    else if (x < X[1]            ) return 7;
-    else if (x < X[2]            ) return 8;
-    else                           return 9;
-  }
-  int DetectorSegment() const {
-    return hits[0].DetectorSegment();
-  }
+  int NEvents()         const { return tr->GetEntries();          }
+  int NHits()           const { return particles->size();         }
+  double E0()           const { return es->at(0)*1e6;             }
+  double EL()           const { return hitEs[0][0]+hitEs[0][1];   }
+  double ER()           const { return hitEs[1][0]+hitEs[1][1];   }
+  double X0()           const { return xs->at(0);                 }
+  double Y0()           const { return ys->at(0);                 }
+  double Z0()           const { return zs->at(0);                 }
+  int DetectorSegment() const { return hits[0].DetectorSegment(); }
   Hit GetHit(int i) const {
     return Hit(particles->at(i) == p0.Name, stops->at(i), segs->at(i)+1,
                edeps->at(i)*1e6, vols->at(i), xs->at(i), ys->at(i),
@@ -216,8 +185,6 @@ class MCProcessor {
   void Process(int i) {
     tr->GetEvent(i);
     hits = { Hit(), Hit() };
-    // tranhit = Hit();
-    // stophit = Hit();
     hitEs[0][0] = hitEs[0][1] = hitEs[1][0] = hitEs[1][1] = 0.;
 
     for (int j = 1; j < NHits(); ++j) {
@@ -225,19 +192,23 @@ class MCProcessor {
       if (!hit.IsADetectedParticle())
         continue;
       int s = hit.IsLeft() ? 0 : 1;
-      if      (hit.IsThin())                    hitEs[s][0] += hit.EDep();
-      else if (hit.IsThick())                   hitEs[s][1] += hit.EDep();
-      if      (hit.Stopped())                   hits[1]      = hit;
+      if      (hit.IsThin())                     hitEs[s][0] += hit.EDep();
+      else if (hit.IsThick())                    hitEs[s][1] += hit.EDep();
+      if      (hit.Stopped())                    hits[1]      = hit;
       else if (!hits[0].Valid() && hit.IsThin()) hits[0]      = hit;
     }
   }
   bool ValidLeftHit()  {
-    return hits[1].IsLeft() && hits[1].IsThick() &&
-           hits[0].IsLeft() && hits[0].IsThin();
+    return hits[0].IsLeft() && hits[0].IsThin() &&
+           hits[1].IsLeft() && hits[1].IsThick();
   }
   bool ValidRightHit() {
-    return hits[1].IsRight() && hits[1].IsThick() &&
-           hits[0].IsRight() && hits[0].IsThin();
+    return hits[0].IsRight() && hits[0].IsThin() &&
+           hits[1].IsRight() && hits[1].IsThick();
+  }
+  bool ValidGeneratedParticle() {
+    return !vols->empty() && vols->at(0) == "Target" &&
+    particles->at(0) == p0.Name;
   }
   void Print() {
     std::cout << "e0: " << E0() << ", (el, er): (" << EL() << ", " << ER()
@@ -263,21 +234,26 @@ void TM(const char* ifname, map<Side,Arm> arms, vector<MCEvent>& levs,
       std::cout << i << " / " << evs.NEvents() << std::endl;
 
     evs.Process(i);
-    int targseg = evs.TargetSegment();
-    int detseg  = evs.DetectorSegment();
+    if (!evs.ValidGeneratedParticle())
+      continue;
+    int detseg = evs.DetectorSegment();
     if (evs.ValidLeftHit()) {
-      arms[kLeft] .Hit(evs.EL(), evs.E0(), targseg);
-      levs.push_back(MCEvent(detseg, targseg, evs.EL(), evs.E0(),
+      arms[kLeft] .Hit(evs.EL(), evs.E0());
+      arms[kRight].Miss(evs.E0());
+      levs.push_back(MCEvent(detseg,   evs.EL(), evs.E0(),
                              evs.X0(), evs.Y0(), evs.Z0()));
-      arms[kRight].Miss(evs.E0(), targseg);
+      revs.push_back(MCEvent(0, 0, evs.E0(), evs.X0(), evs.Y0(), evs.Z0()));
     } else if (evs.ValidRightHit()) {
-      arms[kRight].Hit(evs.ER(), evs.E0(), targseg);
-      revs.push_back(MCEvent(detseg, targseg, evs.ER(), evs.E0(),
+      arms[kRight].Hit(evs.ER(), evs.E0());
+      arms[kLeft] .Miss(evs.E0());
+      levs.push_back(MCEvent(0, 0, evs.E0(), evs.X0(), evs.Y0(), evs.Z0()));
+      revs.push_back(MCEvent(detseg,   evs.ER(), evs.E0(),
                              evs.X0(), evs.Y0(), evs.Z0()));
-      arms[kLeft] .Miss(evs.E0(), targseg);
     } else {
-      arms[kLeft] .Miss(evs.E0(), targseg);
-      arms[kRight].Miss(evs.E0(), targseg);
+      arms[kLeft] .Miss(evs.E0());
+      arms[kRight].Miss(evs.E0());
+      levs.push_back(MCEvent(0, 0, evs.E0(), evs.X0(), evs.Y0(), evs.Z0()));
+      revs.push_back(MCEvent(0, 0, evs.E0(), evs.X0(), evs.Y0(), evs.Z0()));
     }
   }
   ifile->Close();

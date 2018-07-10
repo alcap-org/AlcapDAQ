@@ -4,7 +4,9 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
-#include "TH3.h"
+#include "TTree.h"
+
+#include <iostream>
 
 ////////////////////////////////////////////////////////////////////////////////
 // USER DEFINED VARIABLES
@@ -21,34 +23,29 @@
 // ifname_data: The output of the particle selection script; the data.
 // ofname:      Output file name.
 // Iterations for Bayesian unfolding
-static const int   NITER       = 4;
-// The names of the histograms in the above file. The zero indicates
-// all segments are summed. The first element should be the histograms for
-// the left Si detector package and the second element the right.
-static const char* IHNAME_P[2] = {"evde_l0_proton",   "evde_r0_proton"};
-static const char* IHNAME_D[2] = {"evde_l0_deuteron", "evde_r0_deuteron"};
-static const char* IHNAME_T[2] = {"evde_l0_triton",   "evde_r0_triton"};
-static const char* IHNAME_A[2] = {"evde_l0_alpha",    "evde_r0_alpha"};
+static const int   NITER       = 6;
 ////////////////////////////////////////////////////////////////////////////////
 
+void Rebin(RooUnfoldResponse* r, int n) {
+  r->Htruth()   ->Rebin(n);
+  r->Hmeasured()->Rebin(n);
+  r->Hresponse()->Rebin2D(n, n);
+}
 
 void unfold(const char* ifname_tm, const char* ifname_data,
-            const char* ihnames[2], const char* ofname) {
+            const char* ofname) {
   TH1::SetDefaultSumw2(kTRUE);
   TFile* fdata = new TFile(ifname_data);
   TFile* fmctm = new TFile(ifname_tm);
-  TH3* hevdevt[2] = { (TH3*)fdata->Get(ihnames[0]),
-                      (TH3*)fdata->Get(ihnames[1])};
-  hevdevt[0]->GetZaxis()->SetRangeUser(400., 100e3);
-  hevdevt[1]->GetZaxis()->SetRangeUser(400., 100e3);
-  TH2* hevde[2] = { (TH2*)hevdevt[0]->Project3D("yx"),
-                    (TH2*)hevdevt[1]->Project3D("yx") };
-  RooUnfoldResponse* resp[2] = { (RooUnfoldResponse*)fmctm->Get("SiL_TM_0"),
-                                 (RooUnfoldResponse*)fmctm->Get("SiR_TM_0") };
-  TH1* heraw[2] = { hevde[0]->ProjectionX(),
-                    hevde[1]->ProjectionX() };
-  heraw[0]->Rebin(4);
-  heraw[1]->Rebin(4);
+  TTree* tr[2] = { (TTree*)fdata->Get("PID_LP"), (TTree*)fdata->Get("PID_RP") };
+  tr[0]->Draw("e>>hle(30,0,15e3)", "t > 400 && abs(dt) < 200 && e3 == 0");
+  tr[1]->Draw("e>>hre(30,0,15e3)", "t > 400 && abs(dt) < 200 && e3 == 0");
+  TH1* heraw[2] = { (TH1*)gDirectory->Get("hle"),
+                    (TH1*)gDirectory->Get("hre") };
+  RooUnfoldResponse* resp[2] = { (RooUnfoldResponse*)fmctm->Get("SiL_TM"),
+                                 (RooUnfoldResponse*)fmctm->Get("SiR_TM") };
+  Rebin(resp[0], 5);
+  Rebin(resp[1], 5);
   RooUnfoldBayes* unfold[2] = { new RooUnfoldBayes(resp[0], heraw[0], NITER),
                                 new RooUnfoldBayes(resp[1], heraw[1], NITER) };
   TH1* h_e_reco[2] = { unfold[0]->Hreco(),
@@ -66,9 +63,9 @@ void R15b_Al50_Unfold(char mode='\0', const char* ifname_tm=nullptr,
                       const char* ifname_data=nullptr,
                       const char* ofname=nullptr) {
   switch(mode) {
-    case 'p': unfold(ifname_tm, ifname_data, IHNAME_P, ofname); return;
-    case 'd': unfold(ifname_tm, ifname_data, IHNAME_D, ofname); return;
-    case 't': unfold(ifname_tm, ifname_data, IHNAME_T, ofname); return;
-    case 'a': unfold(ifname_tm, ifname_data, IHNAME_A, ofname); return;
+    case 'p': unfold(ifname_tm, ifname_data, ofname); return;
+    case 'd': unfold(ifname_tm, ifname_data, ofname); return;
+    case 't': unfold(ifname_tm, ifname_data, ofname); return;
+    case 'a': unfold(ifname_tm, ifname_data, ofname); return;
   }
 }

@@ -47,117 +47,43 @@ static const int NSIL = 16;
 static const int NSIR = 4;
 
 struct PIDEvent {
-  Double_t e, de, t, dt;
-  PIDEvent (Double_t e=0, Double_t de=0, Double_t t=0, Double_t dt=0) :
-  e(e), de(de), t(t) , dt(dt) {}
+  double e1, e2, e3, t1, t2, t3;
+  int seg;
+  PIDEvent (double e1=0, double e2=0, double e3=0,
+            double t1=0, double t2=0, double t3=0, int seg=0) :
+  e1(e1), e2(e2), e3(e3), t1(t1), t2(t2), t3(t3), seg(seg) {}
 };
 
-void BookEvdEHistograms(TFile* f, char lr, vector< vector<TH3*> >& hs) {
-  const int NX = 400, NY = 200, NZ = 4;
-  // const int NX = 100, NY = 25, NZ = 240;
-  Double_t* X = HistUtils::ConstructBins(NX, 0,    20e3);
-  Double_t* Y = HistUtils::ConstructBins(NY, 0,    5e3);
-  Double_t  Z[NZ+1] = { -200, 400, 1600, 2400, 4500};
-  // Double_t* Z = HistUtils::ConstructBins(NZ, -1e3, 5e3);
-  TH1::SetDefaultSumw2(kTRUE);
-  for (int i = 0; i < hs.size(); ++i) {
-    for (int j = 0; j < hs[i].size()-1; ++j) {
-      char hname[128], htitle[128];
-      sprintf(hname,  "evde_%c%d_%s", lr, i, PARTICLES[j]->Name.c_str());
-      sprintf(htitle, "E vs dE %c%d;E [keV];dE [keV];t [ns]", std::toupper(lr), i);
-      hs[i][j] = new TH3F(hname, htitle, NX, X, NY, Y, NZ, Z);
-      hs[i][j]->SetDirectory(f);
-    }
-    char hname[128], htitle[128];
-    sprintf(hname,  "evde_%c%d_unclassified", lr, i);
-    sprintf(htitle, "E vs dE %c%d;E;dE;t", std::toupper(lr), i);
-    hs[i].back() = new TH3F(hname, htitle, NX, X, NY, Y, NZ, Z);
-    hs[i].back()->SetDirectory(f);
-  }
-}
-
 void ConstructAndSaveTrees(TFile* f, char lr,
-                           const vector< vector< vector<PIDEvent> > >& pids) {
+                           const vector< vector<PIDEvent> >& pids) {
   TDirectory* cwd = gDirectory;
   f->cd();
   for (int i = 0; i < pids.size(); ++i) {
-    for (int j = 0; j < pids[i].size(); ++j) {
       char trname[32];
-      if (j < pids[i].size()-1)
-        sprintf(trname, "PID_%c%d%c", std::toupper(lr), i+1,
-                std::toupper(PARTICLES[j]->Name[0]));
+      if (i < pids.size()-1)
+        sprintf(trname, "PID_%c%c", std::toupper(lr),
+                std::toupper(PARTICLES[i]->Name[0]));
       else
-        sprintf(trname, "PID_%c%dU", std::toupper(lr), i+1);
-      TTree* tr = new TTree(trname, trname);
+        sprintf(trname, "PID_%cU", std::toupper(lr));
+      TTree* tr = new TTree(trname, PARTICLES[i]->Name.c_str());
       PIDEvent pid;
-      tr->Branch("e",  &pid.e);
-      tr->Branch("de", &pid.de);
-      tr->Branch("t",  &pid.t);
-      tr->Branch("dt", &pid.dt);
-      for (int k = 0; k < pids[i][j].size(); ++k) {
-        pid = pids[i][j][k];
+      tr->Branch("e1",  &pid.e1);
+      tr->Branch("e2",  &pid.e2);
+      tr->Branch("e3",  &pid.e3);
+      tr->Branch("t1",  &pid.t1);
+      tr->Branch("t2",  &pid.t2);
+      tr->Branch("t3",  &pid.t3);
+      tr->Branch("seg", &pid.seg);
+      for (int j = 0; j < pids[i].size(); ++j) {
+        pid = pids[i][j];
         tr->Fill();
       }
+      tr->SetAlias("e",  "e1+e2+e3");
+      tr->SetAlias("de", "e1");
+      tr->SetAlias("t",  "t1");
+      tr->SetAlias("dt", "t2-t1");
     }
-  }
   cwd->cd();
-}
-
-void BookTvEHistograms(TFile* f, char lr, vector< vector<TH2*> >& hs) {
-  TH1::SetDefaultSumw2(kTRUE);
-  char hname[128], htitle[128];
-  for (int i = 0; i < hs.size(); ++i) {
-    for (int j = 0; j < hs[i].size()-1; ++j) {
-      sprintf(hname,  "tve_%c%d_%s", lr, i, PARTICLES[j]->Name.c_str());
-      sprintf(htitle, "T vs E %c%d", std::toupper(lr), i);
-      hs[i][j] = new TH2F(hname, htitle, 2000, -10e3, 10e3, 200, 0, 20e3);
-      hs[i][j]->SetDirectory(f);
-    }
-  }
-  for (int i = 0; i < hs.size(); ++i) {
-    sprintf(hname,  "tve_%c%d_unclassified", lr, i);
-    sprintf(htitle, "T vs E %c%d", std::toupper(lr), i);
-    hs[i].back() = new TH2F(hname, htitle, 2000, -10e3, 10e3, 200, 0, 20e3);
-    hs[i].back()->SetDirectory(f);
-  }
-}
-
-void BookdTHistograms(TFile* f, char lr, vector< vector<TH1*> >& hs) {
-  TH1::SetDefaultSumw2(kTRUE);
-  char hname[128], htitle[128];
-  for (int i = 0; i < hs.size(); ++i) {
-    for (int j = 0; j < hs[i].size()-1; ++j) {
-      sprintf(hname,  "dt_%c%d_%s", lr, i, PARTICLES[j]->Name.c_str());
-      sprintf(htitle, "T_{thick}-T_{thin} %c%d", std::toupper(lr), i);
-      hs[i][j] = new TH1F(hname, htitle, 1000, -5e3, 5e3);
-      hs[i][j]->SetDirectory(f);
-    }
-  }
-  for (int i = 0; i < hs.size(); ++i) {
-    sprintf(hname,  "dt_%c%d_unclassified", lr, i);
-    sprintf(htitle, "T_{thick} vs T_{thin} %c%d", std::toupper(lr), i);
-    hs[i].back() = new TH1F(hname, htitle, 1000, -5e3, 5e3);
-    hs[i].back()->SetDirectory(f);
-  }
-}
-
-void BookTHistograms(TFile* f, char lr, vector< vector<TH1*> >& hs) {
-  TH1::SetDefaultSumw2(kTRUE);
-  char hname[128], htitle[128];
-  for (int i = 0; i < hs.size(); ++i) {
-    for (int j = 0; j < hs[i].size()-1; ++j) {
-      sprintf(hname, "t_%c%d_%s", lr, i, PARTICLES[j]->Name.c_str());
-      sprintf(htitle, "TME T_{thin} %c%d;T [ns]", std::toupper(lr), i);
-      hs[i][j] = new TH1F(hname, htitle, 4000, -20.e3, 20.e3);
-      hs[i][j]->SetDirectory(f);
-    }
-  }
-  for (int i = 0; i < hs.size(); ++i) {
-    sprintf(hname, "t_%c%d_unclassified", lr, i);
-    sprintf(htitle, "TME T_{thin} %c%d;T [ns]", std::toupper(lr), i);
-    hs[i].back() = new TH1F(hname, htitle, 4000, -20.e3, 20.e3);
-    hs[i].back()->SetDirectory(f);
-  }
 }
 
 template <class T>
@@ -184,25 +110,7 @@ void psel(TTree* tr, const char* ofname, bool usealllayers=true,
   SetTMEBranchAddresses(tr);
   CollectChannels();
   TMECal::Init();
-  vector< vector<TH3*> > hrevde(NSIR+1, vector<TH3*>(NPTYPE));
-  vector< vector<TH3*> > hlevde(NSIL+1, vector<TH3*>(NPTYPE));
-  vector< vector< vector<PIDEvent> > > // [Si Segment][Particle][Point]
-    vrpids(NSIR, vector< vector<PIDEvent> >(NPTYPE)),
-    vlpids(NSIL, vector< vector<PIDEvent> >(NPTYPE));
-  vector< vector<TH2*> > hrtve (NSIR+1, vector<TH2*>(NPTYPE));
-  vector< vector<TH2*> > hltve (NSIL+1, vector<TH2*>(NPTYPE));
-  vector< vector<TH1*> > hrdt  (NSIR+1, vector<TH1*>(NPTYPE));
-  vector< vector<TH1*> > hldt  (NSIL+1, vector<TH1*>(NPTYPE));
-  vector< vector<TH1*> > hrt   (NSIR+1, vector<TH1*>(NPTYPE));
-  vector< vector<TH1*> > hlt   (NSIL+1, vector<TH1*>(NPTYPE));
-  BookEvdEHistograms(ofile, 'r', hrevde);
-  BookEvdEHistograms(ofile, 'l', hlevde);
-  BookTvEHistograms (ofile, 'r', hrtve);
-  BookTvEHistograms (ofile, 'l', hltve);
-  BookdTHistograms  (ofile, 'r', hrdt);
-  BookdTHistograms  (ofile, 'l', hldt);
-  BookTHistograms   (ofile, 'r', hrt);
-  BookTHistograms   (ofile, 'l', hlt);
+  vector< vector<PIDEvent> > vrpids(NPTYPE), vlpids(NPTYPE);
   vector<ParticleLikelihood::PSelData> pls_r =
     ParticleLikelihood::LoadParticleLikelihoodsData('r');
   vector<ParticleLikelihood::PSelData> pls_l =
@@ -216,11 +124,8 @@ void psel(TTree* tr, const char* ofname, bool usealllayers=true,
         SiEvent ev(SiR1s[j], SiR2, (usealllayers ? SiR3 : nullptr), nullptr);
         if (ev.Valid()) {
           int k = WhichParticle(pls_r, ev.dE(), ev.E());
-          hrevde[j+1][k]->Fill(ev.E(), ev.dE(), ev.T());
-          vrpids[j]  [k].push_back(PIDEvent(ev.E(), ev.dE(), ev.T(), ev.dT()));
-          hrtve [j+1][k]->Fill(ev.T(), ev.E());
-          hrdt  [j+1][k]->Fill(ev.dT());
-          hrt   [j+1][k]->Fill(ev.T());
+          vrpids[k].push_back(PIDEvent(ev.E(0), ev.E(1), ev.E(2),
+                                       ev.T(0), ev.T(1), ev.T(2), j+1));
         }
       }
     }
@@ -229,24 +134,14 @@ void psel(TTree* tr, const char* ofname, bool usealllayers=true,
         SiEvent ev(SiL1s[j], SiL3, nullptr, &TMECal::SiL1A2E[j]);
         if (ev.Valid()) {
           int k = WhichParticle(pls_l, ev.dE(), ev.E());
-          hlevde[j+1][k]->Fill(ev.E(), ev.dE(), ev.T());
-          vlpids[j]  [k].push_back(PIDEvent(ev.E(), ev.dE(), ev.T(), ev.dT()));
-          hltve [j+1][k]->Fill(ev.T(), ev.E());
-          hldt  [j+1][k]->Fill(ev.dT());
+          vlpids[k].push_back(PIDEvent(ev.E(0), ev.E(1), ev.E(2),
+                                       ev.T(0), ev.T(1), ev.T(2), j+1));
         }
       }
     }
   }
-  CombineHistograms(hrevde);
-  CombineHistograms(hlevde);
   ConstructAndSaveTrees(ofile, 'r', vrpids);
   ConstructAndSaveTrees(ofile, 'l', vlpids);
-  CombineHistograms(hrtve);
-  CombineHistograms(hltve);
-  CombineHistograms(hrdt);
-  CombineHistograms(hldt);
-  CombineHistograms(hrt);
-  CombineHistograms(hlt);
   ofile->Write();
 }
 

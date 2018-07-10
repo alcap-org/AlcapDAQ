@@ -1,6 +1,16 @@
 {
-  TFile* ftm   = new TFile("data/tmal50.root");
+  TFile* ftm   = new TFile("data/tmal50p.root");
   TFile* fdata = new TFile("data/pselal50.root");
+  TList* leg = new TList();
+  leg->Add(new TPave(0.6, 0.8, 0.7, 0.9, 0, "NB NDC"));
+  leg->Add(new TPave(0.7, 0.8, 0.8, 0.9, 0, "NB NDC"));
+  leg->Add(new TPave(0.8, 0.8, 0.9, 0.9, 0, "NB NDC"));
+  leg->Add(new TPave(0.6, 0.7, 0.7, 0.8, 0, "NB NDC"));
+  leg->Add(new TPave(0.7, 0.7, 0.8, 0.8, 0, "NB NDC"));
+  leg->Add(new TPave(0.8, 0.7, 0.9, 0.8, 0, "NB NDC"));
+  leg->Add(new TPave(0.6, 0.6, 0.7, 0.7, 0, "NB NDC"));
+  leg->Add(new TPave(0.7, 0.6, 0.8, 0.7, 0, "NB NDC"));
+  leg->Add(new TPave(0.8, 0.6, 0.9, 0.7, 0, "NB NDC"));
   RooUnfoldResponse* TM[2][10] = {
     {
       (RooUnfoldResponse*)ftm->Get("SiL_TM_0"),
@@ -43,126 +53,92 @@
       (TH2*)ftm->Get("SiR_DM_2"), (TH2*)ftm->Get("SiR_DM_1")
     }
   };
-  TH1* TMp[2][10];
-  TProfile* DMp[2][10];
-  for (int i = 0; i < 2; ++i) {
-    for (int j = 0; j < 10; ++j) {
-      TMp[i][j] = TM[i][j]->Hresponse()->ProjectionY();
-      TM[i][j] ->SetTitle("Response;E_{meas} [keV];E_{0} [keV]");
-      TMp[i][j]->SetTitle(";E_{0} [keV]");
-      TMp[i][j]->SetLineColor(j);
-      TMp[i][j]->SetMaximum(2e3);
-      DMp[i][j] = DM[i][j]->ProfileX();
-      DMp[i][j]->SetLineColor(j);
-      DMp[i][j]->SetStats(false);
-      DM[i][j] ->SetTitle("MC Measured Differences;E_{0} [keV];E_{0}-E_{meas}");
-      DMp[i][j]->SetTitle("MC Measured Differences;E_{0} [keV];E_{0}-E_{meas}");
-      DM[i][j]->GetYaxis()->SetRangeUser(0, 3e3);
-    }
-  }
-  TPave* box[10];
-  box[1] = new TPave(0.6, 0.8, 0.7, 0.9, 0, "NB NDC");
-  box[2] = new TPave(0.7, 0.8, 0.8, 0.9, 0, "NB NDC");
-  box[3] = new TPave(0.8, 0.8, 0.9, 0.9, 0, "NB NDC");
-  box[4] = new TPave(0.6, 0.7, 0.7, 0.8, 0, "NB NDC");
-  box[5] = new TPave(0.7, 0.7, 0.8, 0.8, 0, "NB NDC");
-  box[6] = new TPave(0.8, 0.7, 0.9, 0.8, 0, "NB NDC");
-  box[7] = new TPave(0.6, 0.6, 0.7, 0.7, 0, "NB NDC");
-  box[8] = new TPave(0.7, 0.6, 0.8, 0.7, 0, "NB NDC");
-  box[9] = new TPave(0.8, 0.6, 0.9, 0.7, 0, "NB NDC");
-  for (int i = 1; i <= 9; ++i)
-    box[i]->SetFillColor(i);
-
-  TH3* hevdevt[2] = { (TH3*)fdata->Get("evde_l0_proton"),
-                      (TH3*)fdata->Get("evde_r0_proton") };
+  THStack* TMp[2] = {
+    new THStack("TMprojsl", "Left Relative Efficiency;E_{0} [keV];~Norm"),
+    new THStack("TMprojsr", "Right Relative Efficiency;E_{0} [keV];~Norm")
+  };
+  THStack* DMp[2] = {
+    new THStack("DMprofsl",
+                "MC Left Measured Differences;E_{0} [keV];E_{0}-E_{meas}"),
+    new THStack("DMprofsr",
+                "MC Right Measured Differences;E_{0} [keV];E_{0}-E_{meas}")
+  };
+  THStack* E[2] = {
+    new THStack("hel", "SiL unfolding as function of proton emission;E [keV]"),
+    new THStack("her", "SiR unfolding as function of proton emission;E [keV]")
+  };
+  TH3* hevdevt[2] = {
+    (TH3*)fdata->Get("evde_l0_proton"),
+    (TH3*)fdata->Get("evde_r0_proton")
+  };
   RooUnfoldBayes* unfold[2][10];
-  TH1 *heraw[2], *he[2][10];
+  TH1* heraw[2];
   for (int i = 0; i < 2; ++i) {
+    hevdevt[i]->GetXaxis()->SetRangeUser(0, 15e3);
     hevdevt[i]->GetZaxis()->SetRangeUser(400, 100e3);
     hevdevt[i]->RebinX(4);
-    hevdevt[i]->GetXaxis()->SetRangeUser(0, 15e3);
     heraw[i] = hevdevt[i]->Project3D("ex");
-    for (int j = 0; j < 10; ++j) {
+    for (int j = 1; j < 10; ++j) {
       unfold[i][j] = new RooUnfoldBayes(TM[i][j], heraw[i], 4);
-      he    [i][j] = unfold[i][j]->Hreco();
-      he[i][j]->SetLineColor(j);
-      he[i][j]->SetStats(false);
-      char htitle[256];
-      sprintf(htitle,
-              "Si%c unfolding as function of proton emission position;E [keV]",
-              i == 0 ? 'L' : 'R');
-      he[i][j]->SetTitle(htitle);
+      TH1* htmp    = TM[i][j]->Hresponse()->ProjectionY();
+      TH1* hdmp    = DMp[i][j] = DM[i][j]->ProfileX();
+      TH1* he      = unfold[i][j]->Hreco();
+      TMp[i]  ->Add(htmp);
+      DMp[i]  ->Add(hdmp);
+      E[i]    ->Add(he);
+      htmp    ->SetLineColor(j);
+      hdmp    ->SetLineColor(j);
+      he      ->SetLineColor(j);
+      box[j]  ->SetFillColor(j);
+      TM[i][j]->SetTitle("Response;E_{meas} [keV];E_{0} [keV]");
+      DM[i][j]->SetTitle("MC Measured Differences;E_{0} [keV];E_{0}-E_{meas} [keV]");
+      DM[i][j]->GetYaxis()->SetRangeUser(0, 3e3);
     }
   }
 
   gStyle->SetOptStat(11);
 
-  TCanvas* cltm = new TCanvas("cltm", "SiL", 1400, 1000);
-  cltm->Divide(3, 3);
-  for (int i = 1; i <= 9; ++i) {
-    cltm->cd(i);
-    TM[0][i]->Hresponse()->Draw("COL");
-  }
-  cltm->SaveAs("img/sil_tm_targsec.png");
-  TCanvas* crtm = new TCanvas("crtm", "SiR", 1400, 1000);
-  crtm->Divide(3, 3);
-  for (int i = 1; i <= 9; ++i) {
-    crtm->cd(i);
-    TM[1][i]->Hresponse()->Draw("COL");
-  }
-  crtm->SaveAs("img/sir_tm_targsec.png");
+  TCanvas* ce = new TCanvas("ce", "Si", 1400, 500);
+  ce->Divide(2);
+  ce->cd(1); E[0]->Draw("nostack"); leg->Draw();
+  ce->cd(2); E[1]->Draw("nostack"); leg->Draw();
+  ce->SaveAs("img/tm_lateral.pdf(");
 
-  TCanvas* cltmp = new TCanvas("cltmp", "SiL");
-  for (int i = 1; i <= 9; ++i) {
-    TMp[0][i]->Draw("SAME");
-    box[i]->Draw();
+  TCanvas* ctm[2] = {
+    new TCanvas("cltm", "SiL", 1400, 1000),
+    new TCanvas("crtm", "SiR", 1400, 1000)
+  };
+  for (int i = 0; i < 2; ++i) {
+    ctm[i]->Divide(3, 3);
+    for (int j = 1; j <= 9; ++j) {
+      ctm[i]->cd(j);
+      TM[i][j]->Hresponse()->Draw("COL");
+    }
+    ctm[i]->SaveAs("img/tm_lateral.pdf");
   }
-  cltmp->SaveAs("img/sil_tmp_targsec.png");
-  TCanvas* crtmp = new TCanvas("crtmp", "SiR");
-  for (int i = 1; i <= 9; ++i) {
-    TMp[1][i]->Draw("SAME");
-    box[i]->Draw();
-  }
-  crtmp->SaveAs("img/sir_tmp_targsec.png");
 
-  TCanvas* cldm = new TCanvas("cldp", "SiL", 1400, 1000);
-  cldm->Divide(3, 3);
-  for (int i = 1; i <= 9; ++i) {
-    cldm->cd(i);
-    DM[0][i]->Draw("COL");
-  }
-  cldm->SaveAs("img/sil_dm_targsec.png");
-  TCanvas* crdm = new TCanvas("crdp", "SiR", 1400, 1000);
-  crdm->Divide(3, 3);
-  for (int i = 1; i <= 9; ++i) {
-    crdm->cd(i);
-    DM[1][i]->Draw("COL");
-  }
-  crdm->SaveAs("img/sir_dm_targsec.png");
+  TCanvas* ctmp = new TCanvas("ctmp", "Si", 1400, 500);
+  ctmp->Divide(2);
+  ctmp->cd(1); TMp[0]->Draw("nostack"); leg->Draw();
+  ctmp->cd(2); TMp[1]->Draw("nostack"); leg->Draw();
+  ctmp->SaveAs("img/tm_lateral.pdf");
 
-  TCanvas* cldp = new TCanvas("cldmp", "SiL");
-  for (int i = 1; i<= 9; ++i) {
-    DMp[0][i]->Draw("SAME");
-    box[i]->Draw();
+  TCanvas* cdm[2] = {
+    new TCanvas("cldm", "SiL", 1400, 1000),
+    new TCanvas("crdm", "SiR", 1400, 1000)
+  };
+  for (int i = 0; i < 2; ++i) {
+    cdm[i]->Divide(3, 3);
+    for (int j = 1; j <= 9; ++j) {
+      cdm[i]->cd(j);
+      DM[i][j]->Draw("COL");
+    }
+    cdm[i]->SaveAs("img/tm_later.pdf");
   }
-  cldp->SaveAs("img/sil_dp_targsec.png");
-  TCanvas* crdp = new TCanvas("crdmp", "SiR");
-  for (int i = 1; i<= 9; ++i) {
-    DMp[1][i]->Draw("SAME");
-    box[i]->Draw();
-  }
-  crdp->SaveAs("img/sir_dp_targsec.png");
 
-  TCanvas* cle = new TCanvas("cle", "SiL");
-  for (int i = 1; i <= 9; ++i) {
-    he[0][i]->Draw("SAME");
-    box[i]->Draw();
-  }
-  cle->SaveAs("img/sil_e_targsec.png");
-  TCanvas* cre = new TCanvas("cre", "SiR");
-  for (int i = 1; i <= 9; ++i) {
-    he[1][i]->Draw("SAME");
-    box[i]->Draw();
-  }
-  cre->SaveAs("img/sir_e_targsec.png");
+  TCanvas* cdp = new TCanvas("cdmp", "Si", 1400, 500);
+  cdp->Divide(2);
+  cdp->cd(1); DMp[0]->Draw("nostack"); leg[0]->Draw();
+  cdp->cd(2); DMp[1]->Draw("nostack"); leg[1]->Draw();
+  cdp->SaveAs("img/tm_lateral).pdf)");
 }

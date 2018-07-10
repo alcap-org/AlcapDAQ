@@ -4,6 +4,9 @@
 #include "./scripts/TMETree/TMEUtils.h"
 #include "./src/plotters/SimplePulse.h"
 
+#include "RooUnfoldResponse.h"
+
+#include "TArrayD.h"
 #include "TAxis.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -205,27 +208,27 @@ namespace SiUtils {
             const std::vector<SimplePulse>* si2,
             const std::vector<SimplePulse>* si3,
             const TMECal::ECal* adc2e_si1) : e(3, 0.), t(3, 0.), valid(true) {
-      if (!TMECuts::OnlyOneHit(si1) || (si3 && !TMECuts::AtMostOneHit(si3))) {
+      if (!TMECuts::OnlyOneHit(si1) || !TMECuts::OnlyOneHit(si2) ||
+          (si3 && !TMECuts::AtMostOneHit(si3))) {
         valid = false;
         return;
       }
       if (adc2e_si1) e[0] = adc2e_si1->Eval(si1->front().Amp);
       else           e[0] = si1->front().E;
-      e[1] = si2->front().E;
-      if (si3) {
-        if (TMECuts::OnlyOneHit(si3)) {
-          e[2] = si3->front().E;
-          t[2] = si3->front().tTME;
-        }
-      }
       t[0] = si1->front().tTME;
+      e[1] = si2->front().E;
       t[1] = si2->front().tTME;
+      if (si3 && TMECuts::OnlyOneHit(si3)) {
+        e[2] = si3->front().E;
+        t[2] = si3->front().tTME;
+      }
     }
     bool   Valid()          const { return valid;          }
     double E()              const { return e[0]+e[1]+e[2]; }
     double E(int i)         const { return e[i];           }
     double dE()             const { return E(0);           }
     double T()              const { return t[0];           }
+    double T(int i)         const { return t[i];           }
     double dT()             const { return t[1] - t[0];    }
     double dT(int i, int j) const { return t[i] - t[j];    }
     bool ThreeHits() const { return e[0] > 0. && e[1] > 0. && e[2] > 0.; }
