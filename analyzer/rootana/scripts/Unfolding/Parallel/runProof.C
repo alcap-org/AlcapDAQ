@@ -1,39 +1,43 @@
-void runProof(bool debug=true)
+void runProof(bool debug=false)
 {
-//        std::vector<TString> dataFiles;
-//        TString dirname="/home/mark/data/out/Al100-full/";
-//        TString ext=".root";
-//        TSystemDirectory dir(dirname, dirname);
-//        TList *files = dir.GetListOfFiles();
-//        if (files) {
-//                TSystemFile *file;
-//                TString fname;
-//                TIter next(files);
-//                while ((file=(TSystemFile*)next())) {
-//                        fname = file->GetName();
-//                        if (!file->IsDirectory() && fname.EndsWith(ext)) {
-//                                dataFiles.push_back(dirname + fname);
-//                        }
-//                }
-//        }
+        std::vector<TString> dataFiles;
+        TString dirname="/data/R15b/tme/Al50/";
+//        TString dirname="/home/m-wong/all/";
+        TString ext=".root";
+        TSystemDirectory dir(dirname, dirname);
+        TList *files = dir.GetListOfFiles();
+        if (files) {
+                TSystemFile *file;
+                TString fname;
+                TIter next(files);
+                while ((file=(TSystemFile*)next())) {
+                        fname = file->GetName();
+                        if (!file->IsDirectory() && fname.EndsWith(ext) && fname!="tme10128.root") {
+                                dataFiles.push_back(dirname + fname);
+                        }
+                }
+        }
 	if(debug) {
-		gROOT->ProcessLine(".L SimplePulse.h");
-		gInterpreter->GenerateDictionary("vector<SimplePulse>", "SimplePulse.h;vector");
-		gInterpreter->GenerateDictionary("SimplePulse", "SimplePulse.h");
+//		gROOT->ProcessLine(".L SimplePulse.h");
+//		gInterpreter->GenerateDictionary("vector<SimplePulse>", "SimplePulse.h;vector");
+//		gInterpreter->GenerateDictionary("SimplePulse", "SimplePulse.h");
+
+		TProof *p = TProof::Open("lite://", "workers=1");
+		p->SetBit(TProof::kUsingSessionGui);
 		TChain *chain = new TChain("TMETree/TMETree");
-                //chain->Add("/home/mark/data/out/Al100-full/out09682.root");
-                //chain->Add("/home/mark/data/out/tranche8.root");
-                chain->Add("/home/mark/data/out/Al100.root");
-		chain->Process("TMETree.C+");
+                for(int i=0; i < 1; i++) {
+                        chain->Add(dataFiles.at(i) );
+                }
+		chain->SetProof();
+		chain->Process("TMETree.C+", "test-output.root", 100000);
 	} else {
-		TProof *p = TProof::Open("lite://", "workers=4");
-		//p->SetBit(TProof::kUsingSessionGui);
-		p->Load("SimplePulse.h");
+		TProof *p = TProof::Open("lite://", "workers=10");
+		p->SetBit(TProof::kUsingSessionGui);
 		TChain *chain = new TChain("TMETree/TMETree");
                 for(int i=0; i < dataFiles.size(); i++) {
                         chain->Add(dataFiles.at(i) );
                 }
 		chain->SetProof();
-		chain->Process("TMETree.C+");
+		chain->Process("TMETree.C+", "al50-wPP-wCoincidence-gt400ns.root");
 	}
 }

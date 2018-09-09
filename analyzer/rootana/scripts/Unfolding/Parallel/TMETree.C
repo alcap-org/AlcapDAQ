@@ -1,135 +1,290 @@
 #define TMETree_cxx
+// The class definition in TMETree.h has been generated automatically
+// by the ROOT utility TTree::MakeSelector(). This class is derived
+// from the ROOT class TSelector. For more information on the TSelector
+// framework see $ROOTSYS/README/README.SELECTOR or the ROOT User Manual.
+
+
+// The following methods are defined in this file:
+//    Begin():        called every time a loop on the tree starts,
+//                    a convenient place to create your histograms.
+//    SlaveBegin():   called after Begin(), when on PROOF called only on the
+//                    slave servers.
+//    Process():      called for each event, in this function you decide what
+//                    to read and fill your histograms.
+//    SlaveTerminate: called at the end of the loop on the tree, when on PROOF
+//                    called only on the slave servers.
+//    Terminate():    called at the end of the loop on the tree,
+//                    a convenient place to draw/fit your histograms.
+//
+// To use this file, try the following session on your Tree T:
+//
+// root> T->Process("TMETree.C")
+// root> T->Process("TMETree.C","some options")
+// root> T->Process("TMETree.C+")
+//
+
 #include "TMETree.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "AlCapConstants.h"
-#include "TH2.h"
-#include "TMath.h"
+#include <TNtuple.h>
+#include <TCanvas.h>
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TH3D.h>
+#include <TMath.h>
+#include "TSQLiteServer.h"
+#include "TSQLiteResult.h"
+#include "TSQLiteRow.h"
+#include <algorithm>
 
-#include <iostream>
+void TMETree::LoadAl100Cuts()
+{
+}
+void TMETree::LoadAl50Cuts()
+{
+   SiL_cutg = new TCutG("left", 53);
+   SiL_cutg->SetPoint(0,-0.000973585,0.320611);
+   SiL_cutg->SetPoint(1,0.175661,0.320611);
+   SiL_cutg->SetPoint(2,0.175661,0.329771);
+   SiL_cutg->SetPoint(3,0.300834,0.329771);
+   SiL_cutg->SetPoint(4,0.300834,0.329771);
+   SiL_cutg->SetPoint(5,0.396801,0.329771);
+   SiL_cutg->SetPoint(6,0.396801,0.334351);
+   SiL_cutg->SetPoint(7,0.476078,0.334351);
+   SiL_cutg->SetPoint(8,0.476078,0.334351);
+   SiL_cutg->SetPoint(9,0.542837,0.334351);
+   SiL_cutg->SetPoint(10,0.542837,0.343511);
+   SiL_cutg->SetPoint(11,0.601252,0.343511);
+   SiL_cutg->SetPoint(12,0.601252,0.348092);
+   SiL_cutg->SetPoint(13,0.652712,0.348092);
+   SiL_cutg->SetPoint(14,0.652712,0.348092);
+   SiL_cutg->SetPoint(15,0.698609,0.348092);
+   SiL_cutg->SetPoint(16,0.698609,0.352672);
+   SiL_cutg->SetPoint(17,0.740334,0.352672);
+   SiL_cutg->SetPoint(18,0.740334,0.348092);
+   SiL_cutg->SetPoint(19,0.777886,0.348092);
+   SiL_cutg->SetPoint(20,0.777886,0.348092);
+   SiL_cutg->SetPoint(21,0.812656,0.348092);
+   SiL_cutg->SetPoint(22,0.812656,0.357252);
+   SiL_cutg->SetPoint(23,0.844645,0.357252);
+   SiL_cutg->SetPoint(24,0.844645,0.361832);
+   SiL_cutg->SetPoint(25,0.873853,0.361832);
+   SiL_cutg->SetPoint(26,0.873853,0.352672);
+   SiL_cutg->SetPoint(27,0.90306,0.352672);
+   SiL_cutg->SetPoint(28,0.90306,0.370992);
+   SiL_cutg->SetPoint(29,0.928095,0.370992);
+   SiL_cutg->SetPoint(30,0.928095,0.357252);
+   SiL_cutg->SetPoint(31,0.953129,0.357252);
+   SiL_cutg->SetPoint(32,0.953129,0.338931);
+   SiL_cutg->SetPoint(33,0.976773,0.338931);
+   SiL_cutg->SetPoint(34,0.976773,0.30687);
+   SiL_cutg->SetPoint(35,0.999026,0.30687);
+   SiL_cutg->SetPoint(36,0.999026,0.60916);
+   SiL_cutg->SetPoint(37,0.976773,0.60916);
+   SiL_cutg->SetPoint(38,0.976773,0.577099);
+   SiL_cutg->SetPoint(39,0.953129,0.577099);
+   SiL_cutg->SetPoint(40,0.953129,0.558779);
+   SiL_cutg->SetPoint(41,0.928095,0.558779);
+   SiL_cutg->SetPoint(42,0.928095,0.549618);
+   SiL_cutg->SetPoint(43,0.90306,0.549618);
+   SiL_cutg->SetPoint(44,0.90306,0.549618);
+   SiL_cutg->SetPoint(45,0.873853,0.549618);
+   SiL_cutg->SetPoint(46,0.873853,0.540458);
+   SiL_cutg->SetPoint(47,0.844645,0.540458);
+   SiL_cutg->SetPoint(48,0.844645,0.535878);
+   SiL_cutg->SetPoint(49,0.812656,0.535878);
+   SiL_cutg->SetPoint(50,0.812656,0.535878);
+   SiL_cutg->SetPoint(51,0.777886,0.535878);
+   SiL_cutg->SetPoint(52,0.777886,0.526718);
+   SiL_cutg->SetPoint(53,0.740334,0.526718);
+   SiL_cutg->SetPoint(54,0.740334,0.508397);
+   SiL_cutg->SetPoint(55,0.698609,0.508397);
+   SiL_cutg->SetPoint(56,0.698609,0.508397);
+   SiL_cutg->SetPoint(57,0.652712,0.508397);
+   SiL_cutg->SetPoint(58,0.652712,0.499237);
+   SiL_cutg->SetPoint(59,0.601252,0.499237);
+   SiL_cutg->SetPoint(60,0.601252,0.490076);
+   SiL_cutg->SetPoint(61,0.542837,0.490076);
+   SiL_cutg->SetPoint(62,0.542837,0.485496);
+   SiL_cutg->SetPoint(63,0.476078,0.485496);
+   SiL_cutg->SetPoint(64,0.476078,0.471756);
+   SiL_cutg->SetPoint(65,0.396801,0.471756);
+   SiL_cutg->SetPoint(66,0.396801,0.462595);
+   SiL_cutg->SetPoint(67,0.300834,0.462595);
+   SiL_cutg->SetPoint(68,0.300834,0.458015);
+   SiL_cutg->SetPoint(69,0.175661,0.458015);
+   SiL_cutg->SetPoint(70,0.175661,0.462595);
+   SiL_cutg->SetPoint(71,-0.000973585,0.462595);
+   SiL_cutg->SetPoint(72,-0.000973585,0.320611);
 
-Double_t TMETree::LikelihoodProbabilityCut(Double_t X, Double_t mu, Double_t sigma) {
-	Double_t Z = (X - mu)/sigma;
-	return exp(-Z*Z/2) / ((sqrt(2 * 3.1415) ) * sigma);
+   SiR_cutg = new TCutG("right",53);
+   SiR_cutg->SetPoint(0,0,0.325777);
+   SiR_cutg->SetPoint(1,0.176091,0.325777);
+   SiR_cutg->SetPoint(2,0.176091,0.31409);
+   SiR_cutg->SetPoint(3,0.30103,0.31409);
+   SiR_cutg->SetPoint(4,0.30103,0.316238);
+   SiR_cutg->SetPoint(5,0.39794,0.316238);
+   SiR_cutg->SetPoint(6,0.39794,0.314057);
+   SiR_cutg->SetPoint(7,0.477121,0.314057);
+   SiR_cutg->SetPoint(8,0.477121,0.313126);
+   SiR_cutg->SetPoint(9,0.544068,0.313126);
+   SiR_cutg->SetPoint(10,0.544068,0.317628);
+   SiR_cutg->SetPoint(11,0.60206,0.317628);
+   SiR_cutg->SetPoint(12,0.60206,0.313673);
+   SiR_cutg->SetPoint(13,0.653213,0.313673);
+   SiR_cutg->SetPoint(14,0.653213,0.306342);
+   SiR_cutg->SetPoint(15,0.69897,0.306342);
+   SiR_cutg->SetPoint(16,0.69897,0.306031);
+   SiR_cutg->SetPoint(17,0.740363,0.306031);
+   SiR_cutg->SetPoint(18,0.740363,0.306819);
+   SiR_cutg->SetPoint(19,0.778151,0.306819);
+   SiR_cutg->SetPoint(20,0.778151,0.301657);
+   SiR_cutg->SetPoint(21,0.812913,0.301657);
+   SiR_cutg->SetPoint(22,0.812913,0.299958);
+   SiR_cutg->SetPoint(23,0.845098,0.299958);
+   SiR_cutg->SetPoint(24,0.845098,0.299003);
+   SiR_cutg->SetPoint(25,0.875061,0.299003);
+   SiR_cutg->SetPoint(26,0.875061,0.291806);
+   SiR_cutg->SetPoint(27,0.90309,0.291806);
+   SiR_cutg->SetPoint(28,0.90309,0.291006);
+   SiR_cutg->SetPoint(29,0.929419,0.291006);
+   SiR_cutg->SetPoint(30,0.929419,0.283458);
+   SiR_cutg->SetPoint(31,0.954243,0.283458);
+   SiR_cutg->SetPoint(32,0.954243,0.28613);
+   SiR_cutg->SetPoint(33,0.977724,0.28613);
+   SiR_cutg->SetPoint(34,0.977724,0.292055);
+   SiR_cutg->SetPoint(35,1,0.292055);
+   SiR_cutg->SetPoint(36,1,0.545801);
+   SiR_cutg->SetPoint(37,0.977724,0.545801);
+   SiR_cutg->SetPoint(38,0.977724,0.546931);
+   SiR_cutg->SetPoint(39,0.954243,0.546931);
+   SiR_cutg->SetPoint(40,0.954243,0.551506);
+   SiR_cutg->SetPoint(41,0.929419,0.551506);
+   SiR_cutg->SetPoint(42,0.929419,0.540567);
+   SiR_cutg->SetPoint(43,0.90309,0.540567);
+   SiR_cutg->SetPoint(44,0.90309,0.539397);
+   SiR_cutg->SetPoint(45,0.875061,0.539397);
+   SiR_cutg->SetPoint(46,0.875061,0.537827);
+   SiR_cutg->SetPoint(47,0.845098,0.537827);
+   SiR_cutg->SetPoint(48,0.845098,0.523948);
+   SiR_cutg->SetPoint(49,0.812913,0.523948);
+   SiR_cutg->SetPoint(50,0.812913,0.524472);
+   SiR_cutg->SetPoint(51,0.778151,0.524472);
+   SiR_cutg->SetPoint(52,0.778151,0.514817);
+   SiR_cutg->SetPoint(53,0.740363,0.514817);
+   SiR_cutg->SetPoint(54,0.740363,0.505916);
+   SiR_cutg->SetPoint(55,0.69897,0.505916);
+   SiR_cutg->SetPoint(56,0.69897,0.507663);
+   SiR_cutg->SetPoint(57,0.653213,0.507663);
+   SiR_cutg->SetPoint(58,0.653213,0.498447);
+   SiR_cutg->SetPoint(59,0.60206,0.498447);
+   SiR_cutg->SetPoint(60,0.60206,0.490391);
+   SiR_cutg->SetPoint(61,0.544068,0.490391);
+   SiR_cutg->SetPoint(62,0.544068,0.488872);
+   SiR_cutg->SetPoint(63,0.477121,0.488872);
+   SiR_cutg->SetPoint(64,0.477121,0.483566);
+   SiR_cutg->SetPoint(65,0.39794,0.483566);
+   SiR_cutg->SetPoint(66,0.39794,0.480657);
+   SiR_cutg->SetPoint(67,0.30103,0.480657);
+   SiR_cutg->SetPoint(68,0.30103,0.490433);
+   SiR_cutg->SetPoint(69,0.176091,0.490433);
+   SiR_cutg->SetPoint(70,0.176091,0.511148);
+   SiR_cutg->SetPoint(71,0,0.511148);
+   SiR_cutg->SetPoint(72,0,0.325777);
 }
 
-void TMETree::SlaveBegin(TTree* /*tree*/) {
+void TMETree::Begin(TTree * /*tree*/)
+{
+	// The Begin() function is called at the start of the query.
+	// When running with PROOF Begin() is only called on the client.
+	// The tree argument is deprecated (on PROOF 0 is passed).
 	TString option = GetOption();
-	tNNUnfolding = new TTree("tNNUnfolding", "NNUnfolding");
-	tNNUnfolding->Branch("SiL1_E", &SiL1_E, "SiL1_E/D");
-	tNNUnfolding->Branch("SiL3_E", &SiL3_E, "SiL3_E/D");
-	tNNUnfolding->Branch("SiR1_E", &SiR1_E, "SiR1_E/D");
-	tNNUnfolding->Branch("SiR2_E", &SiR2_E, "SiR2_E/D");
-	tNNUnfolding->Branch("SiR3_E", &SiR3_E, "SiR3_E/D");
-
-	hSiL_tDiff = new TH1D("hSiL_tDiff", "SiL tDiff; t [ns]", 1000, -10000, 10000);
-	hSiR_tDiff = new TH1D("hSiR_tDiff", "SiR tDiff; t [ns]", 1000, -10000, 10000);
-	hSiL_EvdE = new TH2D("hSiL_EvdE", "SiL EvdE; E+dE [MeV]; dE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
-	hSiL_EvdE_proton = new TH2D("hSiL_EvdE_proton", "SiL EvdE proton; E+dE [MeV]; dE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
-	hSiL_EvdE_deuteron = new TH2D("hSiL_EvdE_deuteron", "SiL EvdE deuteron; E+dE [MeV]; dE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
-	hSiL_EvdE_triton = new TH2D("hSiL_EvdE_triton", "SiL EvdE triton; E+dE [MeV]; dE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
-	hSiR_EvdE = new TH2D("hSiR_EvdE", "SiR EvdE; E+dE [MeV]; dE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
-	hSiR_EvdE_proton = new TH2D("hSiR_EvdE_proton", "SiR EvdE proton; E+dE [MeV]; dE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
-	hSiR_EvdE_deuteron = new TH2D("hSiR_EvdE_deuteron", "SiR EvdE deuteron; E+dE [MeV]; dE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
-	hSiR_EvdE_triton = new TH2D("hSiR_EvdE_triton", "SiR EvdE triton; E+dE [MeV]; dE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
-	hSiT_t = new TH1D("hSiT_t", "SiT time; t [ns]", 1000, -10000, 10000);
-	hSiT_E = new TH1D("hSiT_E", "SiT energy; E [MeV]", 4096, 0, 8.192);
-
-	TH1D *hSiL_PD_proton = new TH1D("h_SiL_PD_proton", "SiL proton probability distribution; dE [MeV]", 4096, 0, 8.192); 
-	TH1D *hSiL_PD_deuteron = new TH1D("h_SiL_PD_deuteron", "SiL deuteron probability distribution; dE [MeV]", 4096, 0, 8.192); 
-	TH1D *hSiL_PD_triton = new TH1D("h_SiL_PD_triton", "SiL triton probability distribution; dE [MeV]", 4096, 0, 8.192); 
-	TH1D *hSiR_PD_proton = new TH1D("h_SiR_PD_proton", "SiR proton probability distribution; dE [MeV]", 4096, 0, 8.192); 
-	TH1D *hSiR_PD_deuteron = new TH1D("h_SiR_PD_deuteron", "SiR deuteron probability distribution; dE [MeV]", 4096, 0, 8.192); 
-	TH1D *hSiR_PD_triton = new TH1D("h_SiR_PD_triton", "SiR triton probability distribution; dE [MeV]", 4096, 0, 8.192); 
-	hProbabilityDistribution["sil_proton"] = hSiL_PD_proton;
-	hProbabilityDistribution["sil_deuteron"] = hSiL_PD_deuteron;
-	hProbabilityDistribution["sil_triton"] = hSiL_PD_triton;
-	hProbabilityDistribution["sir_proton"] = hSiR_PD_proton;
-	hProbabilityDistribution["sir_deuteron"] = hSiR_PD_deuteron;
-	hProbabilityDistribution["sir_triton"] = hSiR_PD_triton;
-
-	std::vector<TH2D *> vSiL_time;
-	std::vector<TH2D *> vSiL_energy;
-	std::vector<TH2D *> vLLPL_proton;
-	std::vector<TH2D *> vLLPL_deuteron;
-	std::vector<TH2D *> vLLPL_triton;
-	for(int i=0; i<n_SiL1_channels; i++) {
-		TH2D *h = new TH2D(Form("hSiL1_%d_tDiff", i+2), Form("hSiL1_%d tDiff; t[ns]; E+dE [MeV]", i+2), 1000, -10000, 10000, 4096, 0, 8.192);
-		vSiL_time.push_back(h);
-		h = new TH2D(Form("hSiL1_%d_EvdE", i+2), Form("SiL1_%d EvdE; E+dE [MeV]; dE [MeV]", i+2), 4096, 0, 24.576, 4096, 0, 8.192);
-		vSiL_energy.push_back(h);
-		h = new TH2D(Form("hSiL1_%d_LLP_proton", i+2), Form("SiL1_%d LLP proton; E+dE [MeV]; dE [MeV]", i+2), 4096, 0, 24.576, 4096, 0, 8.192);
-		vLLPL_proton.push_back(h);
-		h = new TH2D(Form("hSiL1_%d_LLP_deuteron", i+2), Form("SiL1_%d LLP deuteron; E+dE [MeV]; dE [MeV]", i+2), 4096, 0, 24.576, 4096, 0, 8.192);
-		vLLPL_deuteron.push_back(h);
-		h = new TH2D(Form("hSiL1_%d_LLP_triton", i+2), Form("SiL1_%d LLP triton; E+dE [MeV]; dE [MeV]", i+2), 4096, 0, 24.576, 4096, 0, 8.192);
-		vLLPL_triton.push_back(h);
-	}
-	hSiL["time"] = vSiL_time;
-	hSiL["energy"] = vSiL_energy;
-	hSiL["llp_proton"] = vLLPL_proton;
-	hSiL["llp_deuteron"] = vLLPL_deuteron;
-	hSiL["llp_triton"] = vLLPL_triton;
-
-	std::vector<TH2D *> vSiR_time;
-	std::vector<TH2D *> vSiR_energy;
-	std::vector<TH2D *> vLLPR_proton;
-	std::vector<TH2D *> vLLPR_deuteron;
-	std::vector<TH2D *> vLLPR_triton;
-	for(int i=0; i<n_SiR1_channels; i++) {
-		TH2D *h = new TH2D(Form("hSiR1_%d_tDiff", i+1), Form("hSiR1_%d tDiff; t [ns]; E+dE [MeV]", i+1), 1000, -10000, 10000, 4096, 0, 8.192);
-		vSiR_time.push_back(h);
-		h = new TH2D(Form("hSiR1_%d_EvdE", i+1), Form("SiR1_%d EvdE; E+dE [MeV]; dE [MeV]", i+1), 4096, 0, 24.576, 4096, 0, 8.192);
-		vSiR_energy.push_back(h);
-		h = new TH2D(Form("hSiR1_%d_LLP_proton", i+1), Form("SiR1_%d LLP proton; E+dE [MeV]; dE [MeV]", i+1), 4096, 0, 24.576, 4096, 0, 8.192);
-		vLLPR_proton.push_back(h);
-		h = new TH2D(Form("hSiR1_%d_LLP_deuteron", i+1), Form("SiR1_%d LLP deuteron; E+dE [MeV]; dE [MeV]", i+1), 4096, 0, 24.576, 4096, 0, 8.192);
-		vLLPR_deuteron.push_back(h);
-		h = new TH2D(Form("hSiR1_%d_LLP_triton", i+1), Form("SiR1_%d LLP triton; E+dE [MeV]; dE [MeV]", i+1), 4096, 0, 24.576, 4096, 0, 8.192);
-		vLLPR_triton.push_back(h);
-	}
-	hSiR["time"] = vSiR_time;
-	hSiR["energy"] = vSiR_energy;
-	hSiR["llp_proton"] = vLLPR_proton;
-	hSiR["llp_deuteron"] = vLLPR_deuteron;
-	hSiR["llp_triton"] = vLLPR_triton;
-
-	std::vector<TH1D *> vSiT_time;
-	std::vector<TH1D *> vSiT_energy;
-	for(int i=0; i<n_SiT_channels; i++) {
-		TH1D *t = new TH1D(Form("hSiT%d_time", i+1), Form("hSiT%d time; t [ns]", i+1), 1000, -10000, 10000);
-		TH1D *e = new TH1D(Form("hSiT%d_energy", i+1), Form("hSiT%d energy; E [MeV]", i+1), 4096, 0, 10.24);
-		vSiT_time.push_back(t);
-		vSiT_energy.push_back(e);
-	}
-	hSiT["time"] = vSiT_time;
-	hSiT["energy"] = vSiT_energy;
-	hSiTCheck = new TH2D("hSiTCheck", "SiT Check; E [keV]; ADC value", 4096, 0, 10240, 4096, 0, 10240);
-
-	hGeLoGain["time"] = new TH1D("hGeLoGain_time", "GeLoGain time; t[ns]", 1000, -10000, 10000);
-	hGeLoGain["energy"] = new TH1D("hGeLoGain_energy", "GeLoGain energy; E [keV]", 16384, 0, 6200);
-	hGeLoGain["prompt"] = new TH1D("hGeLoGain_energy_prompt", "GeLoGain prompt energy; E [keV]", 16384, 0, 6200);
-	hGeLoGain["semiprompt"] = new TH1D("hGeLoGain_energy_semiprompt", "GeLoGain semiprompt energy; E [keV]", 16384, 0, 6200);
-	hGeLoGain["delayed"] = new TH1D("hGeLoGain_energy_delayed", "GeLoGain delayed energy; E [keV]", 16384, 0, 6200);
-	hGeHiGain["time"] = new TH1D("hGeHiGain_time", "GeHiGain time; t[ns]", 1000, -10000, 10000);
-	hGeHiGain["energy"] = new TH1D("hGeHiGain_energy", "GeHiGain energy; E [keV]", 16384, 0, 2800);
-	hGeHiGain["prompt"] = new TH1D("hGeHiGain_energy_prompt", "GeHiGain prompt energy; E [keV]", 16384, 0, 2800);
-	hGeHiGain["semiprompt"] = new TH1D("hGeHiGain_energy_semiprompt", "GeHiGain semiprompt energy; E [keV]", 16384, 0, 2800);
-	hGeHiGain["delayed"] = new TH1D("hGeHiGain_energy_delayed", "GeHiGain delayed energy; E [keV]", 16384, 0, 2800);
-
-	hGeLoGainDrift511 = new TH2D("hGeLoGainDrift511", "GeLoGain Drift 511keV; Run Id; E [keV]", 300, 9400, 9699, 200, 490, 529);
-	hGeHiGainDrift511 = new TH2D("hGeHiGainDrift511", "GeHiGain Drift 511keV; Run Id; E [keV]", 300, 9400, 9699, 200, 490, 529);
-	hGeLoGainDrift1460 = new TH2D("hGeLoGainDrift1460", "GeLoGain Drift K-40 1460keV; Run Id; E [keV]", 300, 9400, 9699, 400, 1400, 1499);
-	hGeHiGainDrift1460 = new TH2D("hGeHiGainDrift1460", "GeHiGain Drift K-40 1460keV; Run Id; E [keV]", 300, 9400, 9699, 400, 1400, 1499);
-
+	Info("Begin", "Output filename: %s", option.Data() );
 }
 
-Bool_t TMETree::Process(Long64_t entry) {
-	fChain->GetEntry(entry);
-	if(entry % 100000 == 0) {
-		Info("Process", "%llu / %llu", entry, fChain->GetEntries() );
+void TMETree::SlaveBegin(TTree * /*tree*/)
+{
+	Int_t run;
+	std::string channel;
+	Double_t mean;
+	TSQLiteServer *db = new TSQLiteServer("sqlite:///home/m-wong/alcap-analysis/calibration.sqlite");
+	TSQLiteResult * result = (TSQLiteResult*)db->Query("SELECT * FROM CoarseTimeOffset");
+	TSQLiteRow * row = (TSQLiteRow *) result->Next();
+	while (row != NULL) {
+		run = atoi(row->GetField(0) );
+		channel = row->GetField(1);
+		std::replace(channel.begin(), channel.end(), '-', '_');
+		channel = channel.substr(0, channel.length()-2);
+		mean = atof(row->GetField(2) );
+		calib[run][channel] = mean;
+		row = (TSQLiteRow*) result->Next();
 	}
-	if(anyDoubleCountedPulses) return kTRUE;
+	// The SlaveBegin() function is called after the Begin() function.
+	// When running with PROOF SlaveBegin() is called on each slave server.
+	// The tree argument is deprecated (on PROOF 0 is passed).
+	//int min=9410;
+	//int max=9682;
+	int min=9890;
+        int max=10127;
+	
+	h1D["runId"] = new TH1D("hRunId", "RunId", max-min+1, min, max+1);
+	h1D["runId-wPP"] = new TH1D("hRunIdwPP", "RunId", max-min+1, min, max+1);
+	h3D["SiL"] = new TH3D("hSiL", "SiL;E+#DeltaE [MeV];#DeltaE [MeV];t [ns]", 100, 0, 24., 100, 0, 8., 100, -20000, 20000);
+	h3D["SiR"] = new TH3D("hSiR", "SiR;E+#DeltaE [MeV];#DeltaE [MeV];t [ns]", 100, 0, 24., 100, 0, 8., 100, -20000, 20000);
+	h1D["SiL_tDiff"] = new TH1D("hSiL_tDiff", "SiL t_{diff}; t [ns]", 2000, -20000, 20000);
+	h1D["SiR_tDiff"] = new TH1D("hSiR_tDiff", "SiR t_{diff}; t [ns]", 2000, -20000, 20000);
+	h1D["SiL3_tTME"] = new TH1D("hSiL3_tTME", "SiL tTME;t [ns]", 2000, -10000, 10000);
+	h1D["SiR2_tTME"] = new TH1D("hSiR2_tTME", "SiR tTME;t [ns]", 2000, -10000, 10000);
+	h1D["Lg-SiL-proton-TME"] = new TH1D("hLg_SiL_proton_TME", "SiL proton time;t [ns]", 2000, -10000, 10000);
+	h1D["Lg-SiR-proton-TME"] = new TH1D("hLg_SiR_proton_TME", "SiR proton time;t [ns]", 2000, -10000, 10000);
+	h1D["Lg-SiL-proton-E"] = new TH1D("hLg_SiL_proton_E", "SiL proton energy;t [ns]", 20, 0, 10);
+	h1D["Lg-SiR-proton-E"] = new TH1D("hLg_SiR_proton_E", "SiR proton energy;t [ns]", 20, 0, 10);
+
+	h2D["SiL_EvdE"] = new TH2D("hSiL_EvDeltaE", "SiL Ev#DeltaE;E+#DeltaE [MeV];#DeltaE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
+	h2D["SiR_EvdE"] = new TH2D("hSiR_EvDeltaE", "SiR Ev#DeltaE;E+#DeltaE [MeV];#DeltaE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
+	h2D["Lg-SiL_EvdE"] = new TH2D("hLg_SiL_EvDeltaE", "SiL Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 500, -0.1, 1.5, 500, -0.9, 1.5);
+	h2D["Lg-SiR_EvdE"] = new TH2D("hLg_SiR_EvDeltaE", "SiR Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 500, -0.1, 1.5, 500, -0.9, 1.5);
+	h2D["SiL_EvdE-wPP"] = new TH2D("hSiL_EvDeltaE_wPP", "SiL Ev#DeltaE with PP;E+#DeltaE [MeV];#DeltaE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
+	h2D["SiR_EvdE-wPP"] = new TH2D("hSiR_EvDeltaE_wPP", "SiR Ev#DeltaE with PP;E+#DeltaE [MeV];#DeltaE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
+	h2D["SiL_EvdE-wPP-gt400ns"] = new TH2D("hSiL_EvDeltaE_wPP_gt400ns", "SiL Ev#DeltaE with PP & 400ns time cut;E+#DeltaE [MeV];#DeltaE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
+	h2D["SiR_EvdE-wPP-gt400ns"] = new TH2D("hSiR_EvDeltaE_wPP_gt400ns", "SiR Ev#DeltaE with PP & 400ns time cut;E+#DeltaE [MeV];#DeltaE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
+	h2D["Lg-SiL_EvdE-wPP-gt400ns"] = new TH2D("hLg_SiL_EvDeltaE_wPP_gt400ns", "SiL Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 500, -0.1, 1.5, 500, -0.9, 1.5);
+	h2D["Lg-SiR_EvdE-wPP-gt400ns"] = new TH2D("hLg_SiR_EvDeltaE_wPP_gt400ns", "SiR Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 500, -0.1, 1.5, 500, -0.9, 1.5);
+	h2D["SiL_EvdE_proton"] = new TH2D("hSiL_EvDeltaE_proton", "SiL Ev#DeltaE proton;E+#DeltaE [MeV];#DeltaE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
+	h2D["SiR_EvdE_proton"] = new TH2D("hSiR_EvDeltaE_proton", "SiR Ev#DeltaE proton;E+#DeltaE [MeV];#DeltaE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
+
+	h2D["SiT"] = new TH2D("hSiT", "SiT;t [ns];E [keV]", 2000, -20000, 20000, 4096, 0, 4096);
+	h2D["GeLoGain"] = new TH2D("hGeLoGain", "GeLoGain;t [ns];E [keV];", 2000, -20000, 20000, 6200, 0, 6200);
+	h2D["GeHiGain"] = new TH2D("hGeHiGain", "GeHiGain;t [ns];E [keV];", 2000, -20000, 20000, 2800, 0, 2800);
+	h2D["SiT-wPP"] = new TH2D("hSiTwPP", "SiT;t [ns];E [keV]", 2000, -20000, 20000, 4096, 0, 4096);
+	h2D["GeLoGain-wPP"] = new TH2D("hGeLoGainwPP", "GeLoGain;t [ns];E [keV];", 2000, -20000, 20000, 6200, 0, 6200);
+	h2D["GeHiGain-wPP"] = new TH2D("hGeHiGainwPP", "GeHiGain;t [ns];E [keV];", 2000, -20000, 20000, 2800, 0, 2800);
+
+	LoadAl50Cuts();
+}
+
+Bool_t TMETree::Process(Long64_t entry)
+{
+
+	// The Process() function is called for each entry in the tree (or possibly
+	// keyed object in the case of PROOF) to be processed. The entry argument
+	// specifies which entry in the currently loaded tree is to be processed.
+	// When processing keyed objects with PROOF, the object is already loaded
+	// and is available via the fObject pointer.
+	//
+	// This function should contain the \"body\" of the analysis. It can contain
+	// simple or elaborate selection criteria, run algorithms on the data
+	// of the event and typically fill histograms.
+	//
+	// The processing can be stopped by calling Abort().
+	//
+	// Use fStatus to set the return value of TTree::Process().
+	//
+	// The return value is currently not used.
+	fReader.SetEntry(entry);
+	h1D["runId"]->Fill(*runId);
+	if(*timeToPrevTME > 10e3 && *timeToNextTME > 10e3) {
+		h1D["runId-wPP"]->Fill(*runId);
+	}
 	std::vector<SimplePulse> vSiL1[n_SiL1_channels] = {
 		*SiL1_2, *SiL1_3, *SiL1_4, *SiL1_5, *SiL1_6,
 		*SiL1_7, *SiL1_8, *SiL1_9, *SiL1_10, *SiL1_11,
@@ -141,217 +296,152 @@ Bool_t TMETree::Process(Long64_t entry) {
 	std::vector<SimplePulse> vSiT[n_SiT_channels] = {
 		*SiT_1, *SiT_2, *SiT_3, *SiT_4
 	};
-	Double_t probability_cut = 1.1;
+	Double_t t1 = 0; 
+	Double_t t2 = 0;
+	Double_t dE = 0;
+	Double_t E=0;
 	if(SiL3->size() ) {
 		for(int i_chn=0 ; i_chn < n_SiL1_channels; i_chn++) {
-			SiL1_E=0; SiL3_E=0; SiR1_E=0; SiR2_E=0; SiR3_E=0;
-			//			if(vSiL1[i_chn].size() && vSiR1[0].size()==0 && vSiR1[1].size()==0 && vSiR1[2].size()==0 && vSiR1[3].size()==0) {
 			if(vSiL1[i_chn].size() ) {
-				Double_t t1 = vSiL1[i_chn].at(0).tTME;
-				Double_t t2 = SiL3->at(0).tTME;
-				//require if there is a hit in SiL then no hit in SiR and vice versa
-				//////
-				if(fabs(t2-t1) < 200.0f) {
-					//Double_t dE = vSiL1[i_chn].at(0).Amp * left_gradient_fix[i_chn] + left_offset_fix[i_chn];
-					Double_t dE = vSiL1[i_chn].at(0).Amp * 2.056969 + 1.370678;
-					Double_t E = SiL3->at(0).E;
-					dE = dE *0.001;
-					E = E *0.001;
-					if(dE>0.3f && E>0.1f) {
-						hSiL["time"].at(i_chn)->Fill(t2 - t1, E+dE);
-						hSiL["energy"].at(i_chn)->Fill(E+dE, dE);
-						hSiL_tDiff->Fill(t2 - t1);
-						hSiL_EvdE->Fill(E+dE, dE);
+				for(unsigned j=0; j < vSiL1[i_chn].size(); j++) {
+					for(unsigned k=0; k < SiL3->size(); k++) {
+//						t1 = vSiL1[i_chn].at(j).tTME + calib[*runId][all_SiL1_channel_names[i_chn] ]; //al100
+						t1 = vSiL1[i_chn].at(j).tTME; //al50
+						t2 = SiL3->at(k).tTME;
+//						dE = vSiL1[i_chn].at(j).E * 0.001; //al100
+						dE = (vSiL1[i_chn].at(j).Amp * 2.056969 + 1.370678) * 0.001; //al50
+						E = SiL3->at(k).E * 0.001;
+						h1D["SiL_tDiff"]->Fill(t2 - t1);
+						h1D["SiL3_tTME"]->Fill(t2);
+						h2D["SiL_EvdE"]->Fill(E+dE, dE);
+						h2D["Lg-SiL_EvdE"]->Fill(0.7071 * (TMath::Log10(E+dE) - TMath::Log10(dE) ), 0.7071 * (TMath::Log10(E+dE) + TMath::Log10(dE) ) );
+						if(t2-t1 > -1000 && t2-t1 < 1000) {
+							h2D["SiL_EvdE-wPP"]->Fill(E+dE, dE);
+							if(t2>400) {
+								h2D["SiL_EvdE-wPP-gt400ns"]->Fill(E+dE, dE);
+								h2D["Lg-SiL_EvdE-wPP-gt400ns"]->Fill(0.7071 * (TMath::Log10(E+dE) - TMath::Log10(dE) ), 0.7071 * (TMath::Log10(E+dE) + TMath::Log10(dE) ) );
+							}
+							//3 sigmas
+							if(SiL_cutg->IsInside(0.7071 * (TMath::Log10(E+dE) - TMath::Log10(dE) ), 0.7071 * (TMath::Log10(E+dE) + TMath::Log10(dE) ) ) ) {
+								h1D["Lg-SiL-proton-TME"]->Fill(t2);
+								h2D["SiL_EvdE_proton"]->Fill(E+dE, dE);
+								h1D["Lg-SiL-proton-E"]->Fill(E+dE);
 
-						hProbabilityDistribution["sil_proton"]->Fill(LikelihoodProbabilityCut(dE, fitFunctions["left_proton"]->Eval(E+dE), 0.08511) );
-						hProbabilityDistribution["sil_deuteron"]->Fill(LikelihoodProbabilityCut(dE, fitFunctions["left_deuteron"]->Eval(E+dE), 0.08511) );
-						hProbabilityDistribution["sil_triton"]->Fill(LikelihoodProbabilityCut(dE, fitFunctions["left_triton"]->Eval(E+dE), 0.08511) );
-						if(LikelihoodProbabilityCut(dE, fitFunctions["left_proton"]->Eval(E+dE), 0.08511) > probability_cut) {
-							hSiL_EvdE_proton->Fill(E+dE, dE);
-							hSiL["llp_proton"].at(i_chn)->Fill(E+dE, dE);
+							}
 						}
-						if(LikelihoodProbabilityCut(dE, fitFunctions["left_deuteron"]->Eval(E+dE), 0.08511) > probability_cut) {
-							hSiL_EvdE_deuteron->Fill(E+dE, dE);
-							hSiL["llp_deuteron"].at(i_chn)->Fill(E+dE, dE);
-						}
-						if(LikelihoodProbabilityCut(dE, fitFunctions["left_triton"]->Eval(E+dE), 0.08511) > probability_cut) {
-							hSiL_EvdE_triton->Fill(E+dE, dE);
-							hSiL["llp_triton"].at(i_chn)->Fill(E+dE, dE);
-						}
-
-						SiL1_E = dE; SiL3_E = E;
-						tNNUnfolding->Fill();
+						h3D["SiL"]->Fill(E+dE, dE, t2-t1);						
 					}
 				}
 			}
 		}
-		}
-		if(SiR2->size() ) {
-			for(int i_chn=0 ; i_chn < n_SiR1_channels; i_chn++) {
-				SiL1_E=0; SiL3_E=0; SiR1_E=0; SiR2_E=0; SiR3_E=0;
-				//			if(vSiR1[i_chn].size() && vSiL1[0].size()==0 && vSiL1[1].size()==0 && vSiL1[2].size()==0 && vSiL1[3].size()==0 && vSiL1[4].size()==0 && vSiL1[5].size()==0 && vSiL1[6].size()==0 && vSiL1[7].size()==0 && vSiL1[8].size()==0 && vSiL1[9].size()==0 && vSiL1[10].size()==0 && vSiL1[11].size()==0 && vSiL1[12].size()==0 && vSiL1[13].size()==0) {
-				if(vSiR1[i_chn].size() ) {
-					Double_t t1 = vSiR1[i_chn].at(0).tTME;
-					Double_t t2 = SiR2->at(0).tTME;
-					if(fabs(t2-t1) < 200.0f) {
-						Double_t dE = vSiR1[i_chn].at(0).E;
-						Double_t E = SiR2->at(0).E;
-						dE = dE *0.001;
-						E = E *0.001;
-						hSiR["time"].at(i_chn)->Fill(t2 - t1, E+dE);
-						hSiR["energy"].at(i_chn)->Fill(E+dE, dE);
-						hSiR_tDiff->Fill(t2 - t1);
-						hSiR_EvdE->Fill(E+dE, dE);
-
-						hProbabilityDistribution["sir_proton"]->Fill(LikelihoodProbabilityCut(dE, fitFunctions["right_proton"]->Eval(E+dE), 0.08511) );
-						hProbabilityDistribution["sir_deuteron"]->Fill(LikelihoodProbabilityCut(dE, fitFunctions["right_deuteron"]->Eval(E+dE), 0.08511) );
-						hProbabilityDistribution["sir_triton"]->Fill(LikelihoodProbabilityCut(dE, fitFunctions["right_triton"]->Eval(E+dE), 0.08511) );
-						if(LikelihoodProbabilityCut(dE, fitFunctions["right_proton"]->Eval(E+dE), 0.08511) > probability_cut) {
-							hSiR_EvdE_proton->Fill(E+dE, dE);
-							hSiR["llp_proton"].at(i_chn)->Fill(E+dE, dE);
+	}
+	t1 = 0; 
+	t2 = 0;
+	dE = 0;
+	E = 0;
+	if(SiR2->size() ) {
+		for(int i_chn=0 ; i_chn < n_SiR1_channels; i_chn++) {
+			if(vSiR1[i_chn].size() ) {
+				for(unsigned j=0; j < vSiR1[i_chn].size(); j++) {
+					for(unsigned k=0; k < SiR2->size(); k++) {
+						t1 = vSiR1[i_chn].at(j).tTME;
+						t2 = SiR2->at(k).tTME;
+						dE = vSiR1[i_chn].at(j).E * 0.001;
+						E = SiR2->at(k).E * 0.001;
+						h1D["SiR_tDiff"]->Fill(t2 - t1);
+						h1D["SiR2_tTME"]->Fill(t2);
+						h2D["SiR_EvdE"]->Fill(E+dE, dE);
+						h2D["Lg-SiR_EvdE"]->Fill(0.7071 * (TMath::Log10(E+dE) - TMath::Log10(dE) ), 0.7071 * (TMath::Log10(E+dE) + TMath::Log10(dE) ) );
+						if(t2-t1 > -1000 && t2-t1 < 1000) {
+							h2D["SiR_EvdE-wPP"]->Fill(E+dE, dE);
+							if(t2>400) {
+								h2D["SiR_EvdE-wPP-gt400ns"]->Fill(E+dE, dE);
+								h2D["Lg-SiR_EvdE-wPP-gt400ns"]->Fill(0.7071 * (TMath::Log10(E+dE) - TMath::Log10(dE) ), 0.7071 * (TMath::Log10(E+dE) + TMath::Log10(dE) ) );
+							}
+							//3 sigmas
+							if(SiR_cutg->IsInside(0.7071 * (TMath::Log10(E+dE) - TMath::Log10(dE) ), 0.7071 * (TMath::Log10(E+dE) + TMath::Log10(dE) ) ) ) {
+								h1D["Lg-SiR-proton-TME"]->Fill(t2);
+								h2D["SiR_EvdE_proton"]->Fill(E+dE, dE);
+								h1D["Lg-SiR-proton-E"]->Fill(E+dE);
+							}
 						}
-						if(LikelihoodProbabilityCut(dE, fitFunctions["right_deuteron"]->Eval(E+dE), 0.08511) > probability_cut) {
-							hSiR_EvdE_deuteron->Fill(E+dE, dE);
-							hSiR["llp_deuteron"].at(i_chn)->Fill(E+dE, dE);
-						}
-						if(LikelihoodProbabilityCut(dE, fitFunctions["right_triton"]->Eval(E+dE), 0.08511) > probability_cut) {
-							hSiR_EvdE_triton->Fill(E+dE, dE);
-							hSiR["llp_triton"].at(i_chn)->Fill(E+dE, dE);
-						}
-						SiR1_E = dE; SiR2_E = E; if(SiR3->size()>0) SiR3_E = SiR3->at(0).E * 0.001;
-						tNNUnfolding->Fill();
+						h3D["SiR"]->Fill(E+dE, dE, t2-t1);	
 					}
 				}
 			}
-			}
-			for(int i_chn=0; i_chn < n_SiT_channels; i_chn++) {
-				if(vSiT[i_chn].size() ) {
-					Double_t E = vSiT[i_chn].at(0).E * 0.001;
-					hSiT["time"].at(i_chn)->Fill(vSiT[i_chn].at(0).tTME);
-					hSiT["energy"].at(i_chn)->Fill(E);
-					hSiT_t->Fill(vSiT[i_chn].at(0).tTME);
-					hSiT_E->Fill(E);
-					hSiTCheck->Fill(vSiT[i_chn].at(0).E, vSiT[i_chn].at(0).Amp);
-				}
-			}
-			Double_t E=0;
-			Double_t tTME=0;
-			if(GeLoGain->size() ) {
-				E = GeLoGain->at(0).E;
-				tTME = GeLoGain->at(0).tTME;
-				hGeLoGain["time"]->Fill(GeLoGain->at(0).tTME);
-				hGeLoGain["energy"]->Fill(E);
-				if(E>490 && E<530)
-					hGeLoGainDrift511->Fill(runId, E);
-				if(tTME>=-200 && tTME<200)
-					hGeLoGain["prompt"]->Fill(GeLoGain->at(0).E);
-				if(tTME>=200 && tTME<4000)
-					hGeLoGain["semiprompt"]->Fill(GeLoGain->at(0).E);
-				if(tTME>=4000) {
-					hGeLoGain["delayed"]->Fill(GeLoGain->at(0).E);
-					if(E>1400 && E<1500)
-						hGeLoGainDrift1460->Fill(runId, E);
-				}
-			}
-			E=0;
-			tTME=0;
-			if(GeHiGain->size() ) {
-				E = GeHiGain->at(0).E;
-				tTME = GeHiGain->at(0).tTME;
-				hGeHiGain["time"]->Fill(GeHiGain->at(0).tTME);
-				hGeHiGain["energy"]->Fill(E);
-				if(E>490 && E<530)
-					hGeHiGainDrift511->Fill(runId, E);
-				if(tTME>=-200 && tTME<200)
-					hGeHiGain["prompt"]->Fill(GeHiGain->at(0).E);
-				if(tTME>=200 && tTME<4000)
-					hGeHiGain["semiprompt"]->Fill(GeHiGain->at(0).E);
-				if(tTME>=4000) {
-					hGeHiGain["delayed"]->Fill(GeHiGain->at(0).E);
-					if(E>1400 && E<1500)
-						hGeHiGainDrift1460->Fill(runId, E);
-				}
-			}
-			return kTRUE;
 		}
-
-		void TMETree::SlaveTerminate() {
-			// The SlaveTerminate() function is called after all entries or objects
-			// have been processed. When running with PROOF SlaveTerminate() is called
-			// on each slave server.
-			fOutput->Add(hSiL_tDiff);
-			fOutput->Add(hSiR_tDiff);
-			fOutput->Add(hSiL_EvdE);
-			fOutput->Add(hSiR_EvdE);
-			fOutput->Add(hSiT_t);
-			fOutput->Add(hSiT_E);
-			fOutput->Add(hSiL_EvdE_proton);
-			fOutput->Add(hSiL_EvdE_deuteron);
-			fOutput->Add(hSiL_EvdE_triton);
-			fOutput->Add(hSiR_EvdE_proton);
-			fOutput->Add(hSiR_EvdE_deuteron);
-			fOutput->Add(hSiR_EvdE_triton);
-
-			fOutput->Add(tNNUnfolding);
-
-			for(std::map<const char *, TH1D *>::iterator it = hProbabilityDistribution.begin(); it != hProbabilityDistribution.end(); it++) {
-				fOutput->Add(it->second);
-			}
-
-			for(int i=0; i<n_SiL1_channels; i++) {
-				fOutput->Add(hSiL["time"].at(i) );
-				fOutput->Add(hSiL["energy"].at(i) );
-				fOutput->Add(hSiL["llp_proton"].at(i) );
-				fOutput->Add(hSiL["llp_deuteron"].at(i) );
-				fOutput->Add(hSiL["llp_triton"].at(i) );
-			}
-			for(int i=0; i<n_SiR1_channels; i++) {
-				fOutput->Add(hSiR["time"].at(i) );
-				fOutput->Add(hSiR["energy"].at(i) );
-				fOutput->Add(hSiR["llp_proton"].at(i) );
-				fOutput->Add(hSiR["llp_deuteron"].at(i) );
-				fOutput->Add(hSiR["llp_triton"].at(i) );
-			}
-			for(int i=0; i<n_SiT_channels; i++) {
-				fOutput->Add(hSiT["time"].at(i) );
-				fOutput->Add(hSiT["energy"].at(i) );
-			}
-			fOutput->Add(hSiTCheck);
-
-			for(std::map<const char *, TH1D *>::iterator it = hGeLoGain.begin(); it != hGeLoGain.end(); it++) {
-				fOutput->Add(it->second);
-			}
-			for(std::map<const char *, TH1D *>::iterator it = hGeHiGain.begin(); it != hGeHiGain.end(); it++) {
-				fOutput->Add(it->second);
-			}
-
-			fOutput->Add(hGeLoGainDrift511);
-			fOutput->Add(hGeHiGainDrift511);
-			fOutput->Add(hGeLoGainDrift1460);
-			fOutput->Add(hGeHiGainDrift1460);
-		}
-
-		void TMETree::Terminate() {
-			try {
-				//		TCanvas *cMain = new TCanvas("General", "General");
-				//		cMain->Divide(2,2);
-				//		cMain->cd(1);
-				//		fOutput->FindObject("hSiL_tDiff")->Draw();
-				//		cMain->cd(2);
-				//		fOutput->FindObject("hSiR_tDiff")->Draw();
-				//		cMain->cd(3);
-				//		fOutput->FindObject("hSiL_EvdE")->Draw("colz");
-				//		cMain->cd(4);
-				//		fOutput->FindObject("hSiR_EvdE")->Draw("colz");
-
-				//Print everytihing in fOutput
-				fOutputFile = new TFile("tproof-output.root", "RECREATE");
-				for(Int_t i=0; i < fOutput->GetSize(); i++) {
-					gDirectory->Add(fOutput->At(i) );
+	}
+	E=0;
+	Double_t tTME=0;
+	for(int i_chn=0; i_chn < n_SiT_channels; i_chn++) {
+		if(vSiT[i_chn].size() ) {
+			for(unsigned i=0; i < vSiT[i_chn].size(); i++) {
+				E = vSiT[i_chn].at(i).E;
+				tTME = vSiT[i_chn].at(i).tTME;
+				h2D["SiT"]->Fill(tTME, E);
+				if(*timeToPrevTME > 10e3 && *timeToNextTME > 10e3) {
+					h2D["SiT-wPP"]->Fill(tTME, E);
 				}
-				fOutputFile->Write();
-			} catch (int e) {
-				cerr << "Exception: " << e << endl;
 			}
-
 		}
+	}
+	E=0;
+	tTME=0;
+	if(GeLoGain->size() ) {
+		for(unsigned i=0; i<GeLoGain->size(); i++) {
+			E = GeLoGain->at(i).E;
+			tTME = GeLoGain->at(i).tTME;
+			h2D["GeLoGain"]->Fill(tTME, E);
+			if(*timeToPrevTME > 10e3 && *timeToNextTME > 10e3) {
+				h2D["GeLoGain-wPP"]->Fill(tTME, E);
+			}
+		}
+	}
+	E=0;
+	tTME=0;
+	if(GeHiGain->size() ) {
+		for(unsigned i=0; i<GeHiGain->size(); i++) {
+			E = GeHiGain->at(i).E;
+			tTME = GeHiGain->at(i).tTME;
+			h2D["GeHiGain"]->Fill(tTME, E);
+			if(*timeToPrevTME > 10e3 && *timeToNextTME > 10e3) {
+				h2D["GeHiGain-wPP"]->Fill(tTME, E);
+			}
+		}
+	}
+	return kTRUE;
+}
+
+void TMETree::SlaveTerminate()
+{
+	// The SlaveTerminate() function is called after all entries or objects
+	// have been processed. When running with PROOF SlaveTerminate() is called
+	// on each slave server.
+	for(std::map<const char *, TH1D *>::iterator it = h1D.begin(); it != h1D.end(); it++) {
+		fOutput->Add(it->second);
+	}
+	for(std::map<const char *, TH2D *>::iterator it = h2D.begin(); it != h2D.end(); it++) {
+		fOutput->Add(it->second);
+	}
+	for(std::map<const char *, TH3D *>::iterator it = h3D.begin(); it != h3D.end(); it++) {
+		fOutput->Add(it->second);
+	}
+}
+
+void TMETree::Terminate()
+{
+	// The Terminate() function is the last function to be called during
+	// a query. It always runs on the client, it can be used to present
+	// the results graphically or save the results to file.
+	try {
+		//Print everytihing in fOutput
+		TString option = GetOption();
+		fOutputFile = new TFile(option.Data(), "RECREATE");
+		for(TObject* obj: *fOutput) {
+			gDirectory->Add(obj);
+		}
+		fOutputFile->Write();
+	} catch (int e) {
+		cerr << "Exception: " << e << endl;
+	}
+}
