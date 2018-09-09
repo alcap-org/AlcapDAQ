@@ -230,14 +230,14 @@ void TMETree::SlaveBegin(TTree * /*tree*/)
 	h1D["runId-wPP"] = new TH1D("hRunIdwPP", "RunId", max-min+1, min, max+1);
 	h3D["SiL"] = new TH3D("hSiL", "SiL;E+#DeltaE [MeV];#DeltaE [MeV];t [ns]", 100, 0, 24., 100, 0, 8., 100, -20000, 20000);
 	h3D["SiR"] = new TH3D("hSiR", "SiR;E+#DeltaE [MeV];#DeltaE [MeV];t [ns]", 100, 0, 24., 100, 0, 8., 100, -20000, 20000);
-	h1D["SiL_tDiff"] = new TH1D("hSiL_tDiff", "SiL t_{diff}; t [ns]", 2000, -20000, 20000);
-	h1D["SiR_tDiff"] = new TH1D("hSiR_tDiff", "SiR t_{diff}; t [ns]", 2000, -20000, 20000);
-	h1D["SiL3_tTME"] = new TH1D("hSiL3_tTME", "SiL tTME;t [ns]", 2000, -10000, 10000);
-	h1D["SiR2_tTME"] = new TH1D("hSiR2_tTME", "SiR tTME;t [ns]", 2000, -10000, 10000);
-	h1D["Lg-SiL-proton-TME"] = new TH1D("hLg_SiL_proton_TME", "SiL proton time;t [ns]", 2000, -10000, 10000);
-	h1D["Lg-SiR-proton-TME"] = new TH1D("hLg_SiR_proton_TME", "SiR proton time;t [ns]", 2000, -10000, 10000);
-	h1D["Lg-SiL-proton-E"] = new TH1D("hLg_SiL_proton_E", "SiL proton energy;t [ns]", 20, 0, 10);
-	h1D["Lg-SiR-proton-E"] = new TH1D("hLg_SiR_proton_E", "SiR proton energy;t [ns]", 20, 0, 10);
+	h1D["SiL_tDiff"] = new TH1D("hSiL_tDiff", "SiL t_{diff};t [ns];Counts/40 ns", 1000, -20000, 20000);
+	h1D["SiR_tDiff"] = new TH1D("hSiR_tDiff", "SiR t_{diff};t [ns];Counts/40 ns", 1000, -20000, 20000);
+	h1D["SiL3_tTME"] = new TH1D("hSiL3_tTME", "SiL tTME;t [ns];Counts/40 ns", 500, -10000, 10000);
+	h1D["SiR2_tTME"] = new TH1D("hSiR2_tTME", "SiR tTME;t [ns];Counts/40 ns", 500, -10000, 10000);
+	h1D["Lg-SiL-proton-TME"] = new TH1D("hLg_SiL_proton_TME", "SiL proton time;t [ns];Counts/40 ns", 500, -10000, 10000);
+	h1D["Lg-SiR-proton-TME"] = new TH1D("hLg_SiR_proton_TME", "SiR proton time;t [ns];Counts/40 ns", 500, -10000, 10000);
+	h1D["Lg-SiL-proton-E"] = new TH1D("hLg_SiL_proton_E", "SiL proton energy;E [MeV];Counts/0.5 MeV", 20, 0, 10);
+	h1D["Lg-SiR-proton-E"] = new TH1D("hLg_SiR_proton_E", "SiR proton energy;E [MeV];Counts/0.5 MeV", 20, 0, 10);
 
 	h2D["SiL_EvdE"] = new TH2D("hSiL_EvDeltaE", "SiL Ev#DeltaE;E+#DeltaE [MeV];#DeltaE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
 	h2D["SiR_EvdE"] = new TH2D("hSiR_EvDeltaE", "SiR Ev#DeltaE;E+#DeltaE [MeV];#DeltaE [MeV]", 4096, 0, 24.576, 4096, 0, 8.192);
