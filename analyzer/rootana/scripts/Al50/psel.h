@@ -1,3 +1,5 @@
+#pragma once
+
 #include "./scripts/Al50/util.h"
 
 #include "TF1.h"
@@ -10,6 +12,7 @@
 
 #include <string>
 #include <vector>
+
 
 static const string PFNAME("~/data/R15b/Proton_EvdE_MC.root");
 static const string DFNAME("~/data/R15b/Deuteron_EvdE_MC.root");
@@ -26,8 +29,35 @@ static const double EMIN_A  = 10e3;
 static const double EMIN[4] = { EMIN_P,  EMIN_D,    EMIN_T,  EMIN_A };
 namespace ParticleLikelihood {
 
+  class PSelPow {
+    double lim[2];
+    TF1* f[2];
+  public:
+    PSelPow(double a1, double a2, double k, double emin, double emax) :
+    lim{emin, emax} {
+      f[0] = new TF1("", "[0]*x^[1]", emin, emax);
+      f[1] = new TF1("", "[0]*x^[1]", emin, emax);
+      f[0]->SetParameters(a1, k);
+      f[1]->SetParameters(a2, k);
+    }
+    bool IsParticle(double E, double dE) const {
+      return lim[0] < E         && E < lim[1] &&
+             f[0]->Eval(E) < dE && dE < f[1]->Eval(E);
+    }
+  };
+
+  class PSelMZ2 {
+    double mz2_lim[2], e_lim[2];
+  public:
+    PSelMZ2(double mz2_0, double mz2_1, double e0, double e1) :
+    mz2_lim{mz2_0, mz2_1}, e_lim{e0, e1} {}
+    bool IsParticle(double E, double dE) const {
+      return e_lim[0] < E && E < e_lim[1] &&
+             mz2_lim[0] < E*dE && E*dE < mz2_lim[1];
+    }
+  };
+
   class PSelMC {
-    Particle p;
     TH2* H;
     TProfile* h;
     double lim, emin;
@@ -35,14 +65,13 @@ namespace ParticleLikelihood {
   public:
     PSelMC() {}
     // Takes ownership of H
-    PSelMC(const Particle* p, TH2* H=0x0,
-                         double lim=0., double emin=0., double res=0.) :
-    p(*p), H(H), h(0x0), lim(lim), emin(emin), res(res) {
+    PSelMC(TH2* H=0x0, double lim=0., double emin=0., double res=0.) :
+    H(H), h(0x0), lim(lim), emin(emin), res(res) {
       h = H->ProfileX("_pfx", 1, -1, "S");
       H->SetDirectory(0);
       h->SetDirectory(0);
     }
-    double Prob(double dE, double E) const {
+    double Prob(double E, double dE) const {
       if (E < emin) return 0.;
       int    b    = h->FindFixBin(E);
       double mu   = h->GetBinContent(b);
@@ -51,11 +80,11 @@ namespace ParticleLikelihood {
       double A    = 1./std::sqrt(2*TMath::Pi()*sig2);
       return A*std::exp(-0.5*(dE-mu)*(dE-mu)/sig2);
     }
-    double operator()(double dE, double E) const {
-      return Prob(dE, E);
+    double operator()(double E, double dE) const {
+      return Prob(E, dE);
     }
-    bool IsParticle(double dE, double E) const {
-      return Prob(dE, E) > lim;
+    bool IsParticle(double E, double dE) const {
+      return Prob(E, dE) > lim;
     }
     TH2*      GetHist()    { return H;   }
     TProfile* GetProfile() { return h;   }
@@ -63,7 +92,6 @@ namespace ParticleLikelihood {
   };
 
   class PSelData {
-    Particle p;
     TH2* H;
     TF1* f;
     TGraph df;
@@ -117,9 +145,9 @@ namespace ParticleLikelihood {
     }
   public:
     PSelData() {}
-    PSelData(const Particle* p, TH2* h, TF1* f, double lim,
-             double step, double Ebnd[2]) :
-    p(*p), H(h), f(f), lim(lim), Emin(Ebnd[0]), Emax(Ebnd[1]) {
+    PSelData(const Particle* p, TH2* h, TF1* f, double lim, double step,
+             double Ebnd[2]) :
+    H(h), f(f), lim(lim), Emin(Ebnd[0]), Emax(Ebnd[1]) {
       f->SetRange(h->GetXaxis()->GetXmin(), h->GetXaxis()->GetXmax());
       TVector2 x(Emin, f->Eval(Emin));
       vector<EvdEPoint> evde;
@@ -142,7 +170,7 @@ namespace ParticleLikelihood {
       }
       GlobalFit(evde);
     }
-    double Prob(double dE, double E) const {
+    double Prob(double E, double dE) const {
       if (E < Emin || Emax < E)
         return 0;
       TVector2 X = NearestPoint(E, dE);
@@ -153,16 +181,49 @@ namespace ParticleLikelihood {
       double   A = 1./std::sqrt(2*TMath::Pi()*s*s);
       return A*std::exp(-0.5*x*x);
     }
-    double operator()(double dE, double E) const { return Prob(dE, E);        }
-    bool   IsParticle(double dE, double E) const { return Prob(dE, E) > lim;  }
+    double operator()(double E, double dE) const { return Prob(E, dE);        }
+    bool   IsParticle(double E, double dE) const { return Prob(E, dE) > lim;  }
     TH2*   GetHist()                       const { return H;                  }
     double GetLim()                        const { return lim;                }
     TF1*   GetFcn()                        const { return f;                  }
     vector<TH1*>& GetHists()                     { return hists;              }
     vector<TF1*>& GetFits()                      { return fits;               }
     TGraph        SigGraph()               const { return df;                 }
-
   };
+
+  vector<PSelPow> LoadParticleLikelihoodsPow(char lr) {
+    double L[4][3] = { {85e4, 15e5, -0.85}, {15e5, 22e5, -0.85},
+                       {22e5, 30e5, -0.85}, {10e6, 16e6, -0.85} };
+    double R[4][3] = { {12e5, 22e5, -0.9}, {22e5, 35e5, -0.9},
+                       {35e5, 50e5, -0.9}, {21e6, 30e6, -0.9} };
+    vector<PSelPow> pls;
+    for (int i = 0; i < NPTYPE-1; ++i)
+      if (lr == 'l' || lr == 'L')
+        pls.push_back(PSelPow(L[i][0], L[i][1], L[i][2], 1.9e3, 17e3));
+      else if (lr == 'r' || lr == 'R')
+        pls.push_back(PSelPow(R[i][0], R[i][1], R[i][2], 1.9e3, 17e3));
+      else
+        PrintAndThrow("ParticleLikelihoodPow: Incorrect detector side!");
+    return pls;
+  }
+
+  vector<PSelMZ2> LoadParticleLikelihoodsMZ2(char lr) {
+    double L[4][2] = {
+      {3.0e6, 5.5e6}, {5.5e6, 10.0e6}, {10e6,  15e6}, {40e6,  70e6}
+    };
+    double R[4][2] = {
+      {2.8e6, 5.5e6}, {5.5e6, 8.5e6}, {8.5e6, 12e6}, {40e6, 70e6}
+    };
+    vector<PSelMZ2> pls;
+    for (int i = 0; i < NPTYPE-1; ++i)
+      if (lr == 'l' || lr == 'L')
+        pls.push_back(PSelMZ2(L[i][0], L[i][1], 1.9e3, 17e3));
+      else if (lr == 'r' || lr == 'R')
+        pls.push_back(PSelMZ2(R[i][0], R[i][1], 1.9e3, 17e3));
+      else
+        PrintAndThrow("ParticleLikelihoodMZ2: Incorrect detector side!");
+    return pls;
+  }
 
   vector<PSelData> LoadParticleLikelihoodsData(char lr) {
     static TFile* ifile = new TFile(DATAIFNAME.c_str(), "READ");
@@ -187,7 +248,7 @@ namespace ParticleLikelihood {
     vector<PSelData> pls;
     for (int i = 0; i < NPTYPE-1; ++i)
       pls.push_back(PSelData(PARTICLES[i], H2, f[i], 1e-4, 500.,
-                                           (lr=='l') ? L_BND[i] : R_BND[i]));
+                             (lr=='l') ? L_BND[i] : R_BND[i]));
     return pls;
   }
 
@@ -198,7 +259,7 @@ namespace ParticleLikelihood {
       char hname[64];
       sprintf(hname, "hEvdE_Si%c_stopped", std::toupper(lr));
       TH2F* H = (TH2F*)f.Get(hname);
-      pls.push_back(PSelMC(PARTICLES[i], H, 1e-4, EMIN[i], 30.));
+      pls.push_back(PSelMC(H, 1e-4, EMIN[i], 30.));
     }
     return pls;
   }

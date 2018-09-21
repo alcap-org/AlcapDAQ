@@ -20,7 +20,7 @@ using std::vector;
 // Run on all Al50: root -l -b -q R15b_Al50_EvdE.C+g\(false\)
 // On a specific run #: root -l -b -q R15b_Al50_EvdE.C+g\(#\)
 // The input files should be contain TMETrees from rootana output.
-static const char IFNAMEFMT[] = "~/R15bTME/Al50/tme%05d.root";
+static const char IFNAMEFMT[] = "~/R15bTME/%s/%s%05d.root";
 static const char OFNAMEFMT[] = "~/data/R15b/evde%05d.root";
 static const int  NSIR        = 4;
 static const int  NSIL        = 16;
@@ -140,23 +140,29 @@ void evde(TTree* tr, const char* ofname, bool usealllayers=true,
   ofile->Close();
 }
 
-void R15b_Al50_EvdE(int run, bool allsilayers=true, bool verbose=false) {
+// Run = 0 means compile only
+void R15b_Al50_EvdE(int run=0, bool allsilayers=true, bool verbose=false) {
+  char dataset[8], prefix[8];
+  if (run==0) {
+    return;
+  } else if (9410 <= run && run <= 9682) {
+    sprintf(dataset, "Al100");
+    sprintf(prefix, "out");
+  } else if (9890 <= run && run <= 10128) {
+    sprintf(dataset, "Al50");
+    sprintf(prefix, "tme");
+  } else {
+    PrintAndThrow("Unrecognized run");
+  }
+
   char ifname[128], ofname[128];
-  if (9890 <= run && run <= 10128)
-    sprintf(ifname, IFNAMEFMT, run);
-  else
-    throw "Unrecognized run";
+  sprintf(ifname, IFNAMEFMT, dataset, prefix, run);
   sprintf(ofname, OFNAMEFMT, run);
+
+  std::cout << ifname << std::endl << ofname << std::endl;
+
   TChain* ch = new TChain("TMETree/TMETree");
   ch->Add(ifname);
   if (ch->GetEntries() == 0) return;
   evde(ch, ofname, allsilayers, verbose);
-}
-
-// Dummy function for compiling
-void R15b_Al50_EvdE(bool compile_only=true, bool allsilayers=true,
-                    bool verbose=false) {
-  if (compile_only) return;
-  for (int i = 9890; i <= 10128; ++i)
-    R15b_Al50_EvdE(i, allsilayers, verbose);
 }

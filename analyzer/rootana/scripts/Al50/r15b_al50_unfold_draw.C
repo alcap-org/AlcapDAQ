@@ -7,27 +7,32 @@
 #include "TStyle.h"
 #include "TText.h"
 
+// Are these wrong?
 // p = 1.02, nmu_hi = 121e6
 // p = 1.03, nmu_hi = 30.3e6
+// all,      nmu_hi = 151.3e6
 
 void r15b_al50_unfold_draw(const char* ifname) {
 
-  const char* IFNAME = "~/data/R15b/enal50p_102.root";
-  TFile* ifile       = new TFile(IFNAME);
+  // const char* IFNAME = "~/data/R15b/enal50p_102.root";
+  TFile* ifile       = new TFile(ifname);
   TH1* hl            = (TH1*)ifile->Get("hl_e_reco");
   TH1* hr            = (TH1*)ifile->Get("hr_e_reco");
 
-  double nmu_hi  = 121e6;  // 1.02
-  // double nmu_hi  = 30.3e6; // 1.03
+  // double nmu_hi = 98.5e6; // 1.02 pp
+  // double nmu_hi = 23.8e6; // 1.03 pp
+  // double nmu_hi = 122e6; // All Al50
+  double nmu_hi = 105e6; // Al100
   // double nmu_lo  = 9.26e7;
-  double enmu_hi = 2.2e6; // NEEDS TO BE SET FOR EACH MOM. DATASET
+  double enmu_hi = 0.1*nmu_hi; // ? NEEDS TO BE SET FOR EACH MOM. DATASET
   // double enmu_lo = 0.15e7;
   double caprate = 0.609;
   // double nmu     = 0.5*(nmu_hi+nmu_lo);
   // double enmu    = sqrt(enmu_hi*enmu_hi+enmu_lo*enmu_lo)/2;
   TF1* ftime = new TF1("f", "exp([0]^2/(2*[1]^2)-x/[1])*erfc(([0]^2-[1]*x)/(sqrt(2)*[0]*[1]))", 0, 10000);
   ftime->SetParameters(52.7, 864.);
-  double tcuteff = ftime->Integral(400, 1e6)/ftime->Integral(0, 1e6);
+  double tcuteff = ftime->Integral(400, 1e6)/ftime->Integral(0, 1e6); // Al50
+  // double tcuteff = ftime->Integral(100, 1e6)/ftime->Integral(0, 1e6); // Al100
   // tcuteff = 1.;
 
   hl->Scale(1./(nmu_hi*caprate*tcuteff));
@@ -36,12 +41,13 @@ void r15b_al50_unfold_draw(const char* ifname) {
   hl->SetLineColor(kBlue);
   hr->SetLineColor(kRed);
 
-  hl->GetXaxis()->SetRangeUser(2.0e3, 15e3);
-  hr->GetXaxis()->SetRangeUser(2.0e3, 15e3);
+  double Emin = 2e3, Emax = 14e3;
+  hl->GetXaxis()->SetRangeUser(Emin, Emax);
+  hr->GetXaxis()->SetRangeUser(Emin, Emax);
 
-  TF1* fl = new TF1("flp", "[0]*(1-[1]/x)^[2]*exp(-x/[3])", 0, 15e3);
-  TF1* fr = new TF1("frp", "[0]*(1-[1]/x)^[2]*exp(-x/[3])", 0, 15e3);
-  TF1* fa = new TF1("fap", "[0]*(1-[1]/x)^[2]*exp(-x/[3])", 0, 15e3);
+  TF1* fl = new TF1("flp", "[0]*(1-[1]/x)^[2]*exp(-x/[3])", Emin, Emax);
+  TF1* fr = new TF1("frp", "[0]*(1-[1]/x)^[2]*exp(-x/[3])", Emin, Emax);
+  TF1* fa = new TF1("fap", "[0]*(1-[1]/x)^[2]*exp(-x/[3])", Emin, Emax);
   fl->SetParameters(0.05, 1500, 2, 2500);
   fr->SetParameters(0.05, 1500, 2, 2500);
   fa->SetParameters(0.05, 1500, 2, 2500);
@@ -55,7 +61,7 @@ void r15b_al50_unfold_draw(const char* ifname) {
   TLegend* l = new TLegend(0.7, 0.7, 0.9, 0.9);
   l->AddEntry(hl, "Left");
   l->AddEntry(hr, "Right");
-  hl->SetTitle("Reconstructed Proton Spectrum;E [keV];Counts [/(200 keV)]");
+  hl->SetTitle("Reconstructed Proton Spectrum;E [keV];Counts [/(500 keV)]");
   gStyle->SetOptStat(0);
   TCanvas* c = new TCanvas();
   // hr->Fit(fr);

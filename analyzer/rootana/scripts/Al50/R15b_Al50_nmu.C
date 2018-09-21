@@ -1,4 +1,6 @@
 #include "./scripts/TMETree/TMETreeBranches.h"
+#include "./scripts/TMETree/TMEUtils.h"
+#include "./scripts/Al50/util.h"
 #include "./src/plotters/SimplePulse.h"
 
 #include "TFile.h"
@@ -6,15 +8,12 @@
 #include "TTree.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-// USER MODIFIABLE VARIABLES
-// Compile only:  root -l -b -q R15b_Al50_nmu
-// A single run:  root -l -b -q R15b_Al50_nmu(#)
-// All Al50 runs: root -l -b -q R15b_Al50_nmu(-1)
-// The input trees should contain TMETrees from rootana output.
-static const char IFNAMEFMT[] = "~/R15bTME/Al50/tme%05d.root";
-static const char OFNAMEFMT[] = "~/data/R15b/nmu%05d.root";
+/// USER MODIFIABLE VARIABLES
 static const double PROMPT[]  = {-200., 200.}; // ns
 static const double XRAYE[]   = {340.,  360.}; // keV
+////////////////////////////////////////////////////////////////////////////////
+/// RUNNING
+/// R15b_Al50_nmu(ttree_fname, ofile_fname)
 ////////////////////////////////////////////////////////////////////////////////
 
 bool IsPrompt(const SimplePulse& p) {
@@ -24,14 +23,13 @@ bool IsAl2p1s(const SimplePulse& p) {
   return XRAYE[0] < p.E && p.E < XRAYE[1];
 }
 
-void R15b_Al50_nmu(int run=0) {
-  if (run==0) return;
-  char ifname[128], ofname[128];
+// pp = pileup protection time window. Set to 0 for no pp.
+void R15b_Al50_nmu(const char* ifname=nullptr, const char* ofname=nullptr,
+                   double pp=0) {
+  if (!ifname) return;
   TH1::SetDefaultSumw2(kTRUE);
-  sprintf(ifname, IFNAMEFMT, run);
-  sprintf(ofname, OFNAMEFMT, run);
   TFile* ifile = new TFile(ifname);
-  if (ifile->IsZombie()) throw "Can't find input file.";
+  if (ifile->IsZombie()) PrintAndThrow("Can't find input file.");
   TFile* ofile = new TFile(ofname, "RECREATE");
   TTree* tr    = (TTree*)ifile->Get("TMETree/TMETree");
   SetTMEBranchAddresses(tr);
@@ -46,6 +44,8 @@ void R15b_Al50_nmu(int run=0) {
 
   for (int i = 0; i < tr->GetEntries(); ++i) {
     tr->GetEntry(i);
+    if (pp && !TMECuts::PileupProtected(pp))
+      continue;
     hmu->Fill(centralMuonEnergy);
     for (int i = 0; i < GeHiGain->size(); ++i) {
       const SimplePulse& p = GeHiGain->at(i);
@@ -60,6 +60,6 @@ void R15b_Al50_nmu(int run=0) {
       if (IsAl2p1s(p)) hgelo_t_ecut->Fill(p.tTME);
     }
   }
-  // hmu_all->SetDirectory(ofile);
+
   ofile->Write();
 }

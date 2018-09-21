@@ -72,16 +72,14 @@ void ConstructFitFunctions(TF1*& hi, TF1*& lo) {
   lo = new TF1("fcn_lo",
                "pol1(0)+[2]*exp(-0.5*(x-[3])^2/[6]^2)+[4]*exp(-0.5*(x-[5])^2/[6]^2)",
                335, 355);
-  hi->SetParameters(1.5e3, 0., 10e3, 345., 2e3, 349.5, 1.);
-  lo->SetParameters(1.5e3, 0., 13e3, 344., 2e3, 348.5, 1.);
-  hi->SetParName(0, "Bkg y-int"); lo->SetParName(0, "Bkg y-int");
-  hi->SetParName(1, "Bkg Slope"); lo->SetParName(1, "Bkg Slope");
-  hi->SetParName(2, "Al Amp");    lo->SetParName(2, "Al Amp");
-  hi->SetParName(3, "Al Energy"); lo->SetParName(3, "Al Energy");
-  hi->SetParName(4, "Pb Amp");    lo->SetParName(4, "Pb Amp");
-  hi->SetParName(5, "Pb Energy"); lo->SetParName(5, "Pb Energy");
-  hi->SetParName(6, "Sigma");     lo->SetParName(6, "Sigma");
-  hi->SetLineColor(kRed);         lo->SetLineColor(kBlue);
+  // hi->SetParameters(1.5e3, 0., 10e3, 345., 2e3, 349.5, 1.); // Al50
+  // lo->SetParameters(1.5e3, 0., 13e3, 344., 2e3, 348.5, 1.); // Al50
+  hi->SetParameters(1e3, 0, 10e3, 345., 1e3, 349.5, 1); // Al100
+  lo->SetParameters(1e3, 0, 9e3,  346., 1e3, 350,   1); // Al100
+  hi->SetParNames("Bkg y-int", "Bkg Slope", "Al Amp", "Al Energy", "Pb Amp", "Pb Energy", "Sigma");
+  lo->SetParNames("Bkg y-int", "Bkg Slope", "Al Amp", "Al Energy", "Pb Amp", "Pb Energy", "Sigma");
+  hi->SetLineColor(kRed);
+  lo->SetLineColor(kBlue);
 }
 
 // Norm RooFitGeHist(TH1* h) {
@@ -119,11 +117,14 @@ void DrawPeakLabels() {
   pb->Draw();
 }
 
-void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo) {
+void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo, bool prompt_only) {
   TCanvas* c_fit = new TCanvas;
   hi->GetXaxis()->SetRangeUser(335., 355.);
   lo->GetXaxis()->SetRangeUser(335., 355.);
-  hi->SetTitle("X-Ray Spectrum (Al50 Target) #pm200ns;Energy [keV];Raw Count");
+  if (prompt_only)
+    hi->SetTitle("X-Ray Spectrum (Al50 Target) #pm200ns;Energy [keV];Raw Count");
+  else
+    hi->SetTitle("X-Ray Spectrum (Al50 Target) all time;Energy [keV];Raw Count");
   hi->GetXaxis()->SetTitleOffset(1.2);
   hi->GetYaxis()->SetTitleOffset(1.4);
   hi->SetLineColor(kRed);
@@ -159,7 +160,7 @@ void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo) {
   c_fit->SaveAs("img/ge_e_zoom.png");
 }
 
-void r15b_al50_nmu_draw (const char* ifname) {
+void r15b_al50_nmu_draw (const char* ifname, bool prompt_only=true) {
   TFile* f = new TFile(ifname);
   LoadHistograms(f);
   gStyle->SetOptStat("e");
@@ -169,16 +170,20 @@ void r15b_al50_nmu_draw (const char* ifname) {
 
   // Fit and draw Ge spectra
   // DrawFullScaleGeHistograms();
-  TH1* hhi = hgehi_e_tcut;
-  TH1* hlo = hgelo_e_tcut;
-  // TH1* hhi = hgehi_e_all;
-  // TH1* hlo = hgelo_e_all;
+  TH1 *hhi, *hlo;
+  if (prompt_only) {
+    hhi = hgehi_e_tcut;
+    hlo = hgelo_e_tcut;
+  } else {
+    hhi = hgehi_e_all;
+    hlo = hgelo_e_all;
+  }
 
   TF1 *fcn_hi, *fcn_lo;
   ConstructFitFunctions(fcn_hi, fcn_lo);
   Norm nhi = FitGeHist(hhi, fcn_hi);
   Norm nlo = FitGeHist(hlo, fcn_lo);
-  DrawFits(hhi, hlo, nhi, nlo);
+  DrawFits(hhi, hlo, nhi, nlo, prompt_only);
 
   printf("Hi chi2 %d/%d (%f), n %d +/- %f, nx %d +/- %f\n",
          nhi.Chi2(), nhi.Ndf(), nhi.Chi2_red(), nhi.n, nhi.en, nhi.nx, nhi.enx);

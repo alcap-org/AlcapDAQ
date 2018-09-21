@@ -21,9 +21,7 @@ using std::string;
 using std::vector;
 
 ////////////////////////////////////////////////////////////////////////////////
-// USER MODIFIABLE VARIABLES
 // Compile only:                   root -l -b -q R15b_Al50_TransferMatrix.C+g
-// Run specific particle and file: root -l -b -q R15b_Al50_MC_EvdE.C+g\(mode\)
 // Where mode is a char and one of (any other will compile only):
 //   p (Protons), d (Deuteron), t (Tritons), a (Alphas)
 // Input files should be output from g4sim with either p, d, t, or a generated
@@ -90,10 +88,10 @@ class Hit {
       string vol, double x, double y, double z) :
   isparticle(isparticle), stopped(stopped),
   seg(seg), edep(edep), vol(vol), x(x), y(y), z(z) {}
-  bool IsThick()      const { return vol == "SiL3" || vol == "SiR2" || vol == "SiR3"; }
+  bool IsThick()      const { return vol == "SiL3" || vol == "SiR2" /*|| vol == "SiR3"*/; }
   bool IsThin()       const { return vol == "SiL1" || vol == "SiR1"; }
   bool IsLeft()       const { return vol == "SiL1" || vol == "SiL3"; }
-  bool IsRight()      const { return vol == "SiR1" || vol == "SiR2" || vol == "SiR3"; }
+  bool IsRight()      const { return vol == "SiR1" || vol == "SiR2" /*|| vol == "SiR3"*/; }
   bool FiducialLeft() const {
     return (vol == "SiL1" && 2 <= seg && seg <= 15) || vol == "SiL3";
   }
@@ -104,7 +102,7 @@ class Hit {
   double X()          const { return x; }
   double Y()          const { return y; }
   double Z()          const { return z; }
-  bool IsADetectedParticle()       const { return isparticle && IsSiDet(); }
+  bool IsADetectedParticle()       const { return isparticle && IsSiDet() && SiUtils::OverThreshold(vol, seg, edep); }
   bool MatchedVolume(const Hit& h) const { return h.seg == seg && h.vol == vol; }
   int DetectorSegment()            const { return seg; }
   bool Valid()                     const { return !vol.empty(); }

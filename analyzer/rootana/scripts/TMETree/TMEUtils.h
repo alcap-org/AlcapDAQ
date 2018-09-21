@@ -3,6 +3,8 @@
 #include "./scripts/TMETree/TMETreeBranches.h"
 #include "./src/plotters/SimplePulse.h"
 
+#include <vector>
+
 namespace TMECuts {
   bool OnlyOneHit(const std::vector<SimplePulse>* sps) {
     return sps->size() == 1;
@@ -23,7 +25,7 @@ namespace TMECuts {
   bool Valid(const std::vector<SimplePulse>* sps) {
     return OnlyOneHit(sps);
   }
-  bool Valid(const std::vector<std::vector<SimplePulse>*> sps) {
+  bool Valid(const std::vector<std::vector<SimplePulse>*>& sps) {
     return OnlyOneHit(sps);
   }
   bool TCorr(double t1, double t2, double dt) {
@@ -35,7 +37,12 @@ namespace TMECuts {
   bool ValidCentralMuE(double elo, double ehi) {
     return elo < centralMuonEnergy && centralMuonEnergy < ehi;
   }
+  bool PileupProtected(double pp=20e3) {
+    // return SiT_1->size() + SiT_2->size() + SiT_3->size() + SiT_4->size() == 1;
+    return timeToPrevTME > pp && timeToNextTME > pp;
+  }
 }
+
 namespace TMECal {
   struct ECal {
     double e0, g;

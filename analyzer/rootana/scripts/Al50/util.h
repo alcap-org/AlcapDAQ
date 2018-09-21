@@ -158,6 +158,45 @@ namespace GeFcn {
 }
 
 namespace SiUtils {
+  // E in units of ke
+  bool OverThreshold(const std::string det, int seg, double E /*keV*/) {
+    double Eth = 100e3;
+    if (det == "SiL1") {
+      switch (seg) {
+        case 2:  Eth = 289.; break;
+        case 3:  Eth = 268.; break;
+        case 4:  Eth = 219.; break;
+        case 5:  Eth = 200.; break;
+        case 6:  Eth = 194.; break;
+        case 7:  Eth = 215.; break;
+        case 8:  Eth = 287.; break;
+        case 9:  Eth = 305.; break;
+        case 10: Eth = 227.; break;
+        case 11: Eth = 211.; break;
+        case 12: Eth = 207.; break;
+        case 13: Eth = 227.; break;
+        case 14: Eth = 227.; break;
+        case 15: Eth = 139.; break;
+        default: PrintAndThrow("Invalid SiL1 segment!");
+      }
+    } else if (det == "SiL3") {
+      Eth = 155.;
+    } else if (det == "SiR1") {
+      switch (seg) {
+        case 1: Eth = 80.;
+        case 2: Eth = 100;
+        case 3: Eth = 80;
+        case 4: Eth = 85;
+      }
+    } else if (det == "SiR2") {
+      Eth = 195.;
+    } else if (det == "SiR3") {
+      Eth = 250.;
+    } else {
+      PrintAndThrow("Invalid detector");
+    }
+    return E > Eth;
+  }
   double BetheStoppingPower(double dx/*m*/, double E/*keV*/, int pid) {
     // SiR1 dx = 58e-6 m
     // SiL1 dx = 52e-6 m
@@ -233,6 +272,57 @@ namespace SiUtils {
     double dT(int i, int j) const { return t[i] - t[j];    }
     bool ThreeHits() const { return e[0] > 0. && e[1] > 0. && e[2] > 0.; }
   };
+}
+
+
+namespace TMUtils {
+  void Rebin(RooUnfoldResponse* r, int n) {
+    r->Htruth()   ->Rebin(n);
+    r->Hmeasured()->Rebin(n);
+    r->Hfakes()   ->Rebin(n);
+    r->Hresponse()->Rebin2D(n, n);
+  }
+
+  // Requires fixed binning, anfd same bins in truth/measured dimensions.
+  // Undefined behavior otherwise
+  void SetRange(RooUnfoldResponse* r, double elo, double ehi) {
+    TH1* m   = (TH1*)r->Hmeasured()->Clone();
+    TH1* t   = (TH1*)r->Htruth()   ->Clone();
+    TH2 *tm  = (TH2*)r->Hresponse()->Clone();
+    TAxis* x = m->GetXaxis();
+    int bnd[2];
+    for (bnd[0] = 1; bnd[0] <= x->GetNbins(); ++bnd[0])
+      if (elo <= x->GetBinLowEdge(bnd[0]))
+        break;
+    for (bnd[1] = x->GetNbins(); bnd[1] >= 1; --bnd[1])
+      if (x->GetBinUpEdge(bnd[1]) <= ehi)
+        break;
+    TH1* m_new  = new TH1D("m_new", "m_new", bnd[1]-bnd[0]+1,
+                           x->GetBinLowEdge(bnd[0]), x->GetBinUpEdge(bnd[1]));
+    TH1* t_new  = new TH1D("t_new", "t_new", bnd[1]-bnd[0]+1,
+                           x->GetBinLowEdge(bnd[0]), x->GetBinUpEdge(bnd[1]));
+    TH2* tm_new = new TH2D("tm_new", "tm_new", bnd[1]-bnd[0]+1,
+                           x->GetBinLowEdge(bnd[0]), x->GetBinUpEdge(bnd[1]),
+                           bnd[1]-bnd[0]+1,
+                           x->GetBinLowEdge(bnd[0]), x->GetBinUpEdge(bnd[1]));
+    for (int i = 1; i <= bnd[1]-bnd[0]+1; ++i) {
+      int b = m->FindFixBin(m_new->GetXaxis()->GetBinCenter(i));
+      m_new->SetBinContent(i, m->GetBinContent(b));
+      m_new->SetBinError  (i, m->GetBinError  (b));
+      t_new->SetBinContent(i, t->GetBinContent(b));
+      t_new->SetBinError  (i, t->GetBinError  (b));
+      for (int j = 1; j <= bnd[1]-bnd[0]+1; ++j) {
+        int bb = tm->FindFixBin(tm_new->GetXaxis()->GetBinCenter(i),
+                                tm_new->GetYaxis()->GetBinCenter(j));
+        tm_new->SetBinContent(i, j, tm->GetBinContent(bb));
+        tm_new->SetBinError  (i, j, tm->GetBinError  (bb));
+      }
+    }
+    r->Setup(m_new, t_new, tm_new);
+    delete m;
+    delete t;
+    delete tm;
+  }
 }
 
 #endif // INCLUDE GUARD

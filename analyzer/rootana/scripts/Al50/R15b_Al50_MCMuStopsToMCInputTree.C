@@ -30,10 +30,8 @@ void R15b_Al50_MCMuStopsToMCInputTree(const char* ifname=nullptr,
   tr->SetBranchAddress("M_local_Oy",     &ys); // cm
   tr->SetBranchAddress("M_local_Oz",     &zs); // cm
 
-  Int_t    bins[3] = { 1000000, 1000000, 1000000 };
-  Double_t xmin[3] = { -50., -50., -50 }, xmax[3] = { 50., 50., 50. };
   TH3* h = new TH3I("mustopdist", "Muon Stopping Distribution",
-                    100, -50., 50., 100, -50., 50., 1000, -0.025, 0.025);
+                    100, -50., 50., 100, -50., 50., 2000, -0.050, 0.050);
   for (int i = 0; i < tr->GetEntries(); ++i) {
     tr->GetEntry(i);
     if (verbose && i % 10000 == 0)

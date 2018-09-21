@@ -39,8 +39,8 @@ using std::vector;
 // Input data files should be TME tree files output from rootana.
 // Input simulation (MC) files should be output from the
 // script R15b_Al50_MC_EvdE.C.
-static const char* IFNAMEFMT = "~/R15bTME/Al50/tme%05d.root";
-static const char* OFNAMEFMT = "~/data/R15b/psel%05d.root";
+static const char* IFNAMEFMT = "~/R15bTME/%s/%s%05d.root";
+static const char* OFNAMEFMT = "~/data/R15b/%s/psel%05d.root";
 ////////////////////////////////////////////////////////////////////////////////
 
 static const int NSIL = 16;
@@ -89,7 +89,7 @@ void ConstructAndSaveTrees(TFile* f, char lr,
 template <class T>
 int WhichParticle(const vector<T>& pls, double dE, double E) {
   for (int i = 0; i < pls.size(); ++i)
-    if (pls[i].IsParticle(dE, E))
+    if (pls[i].IsParticle(E, dE))
       return i;
   return pls.size();
 }
@@ -104,17 +104,17 @@ void CombineHistograms(vector< vector<T*> >& hs) {
 vector< vector<SimplePulse>* >& SiTs  = all_SiT_channels;
 vector< vector<SimplePulse>* >& SiR1s = all_SiR1_channels;
 vector< vector<SimplePulse>* >& SiL1s = all_SiL1_channels;
-void psel(TTree* tr, const char* ofname, bool usealllayers=true,
+void psel(TTree* tr, const char* ofname, bool usealllayers,
           bool verbose=false) {
   TFile* ofile = new TFile(ofname, "RECREATE");
   SetTMEBranchAddresses(tr);
   CollectChannels();
   TMECal::Init();
   vector< vector<PIDEvent> > vrpids(NPTYPE), vlpids(NPTYPE);
-  vector<ParticleLikelihood::PSelData> pls_r =
-    ParticleLikelihood::LoadParticleLikelihoodsData('r');
-  vector<ParticleLikelihood::PSelData> pls_l =
-    ParticleLikelihood::LoadParticleLikelihoodsData('l');
+  vector<ParticleLikelihood::PSelPow> pls_r =
+    ParticleLikelihood::LoadParticleLikelihoodsPow('r');
+  vector<ParticleLikelihood::PSelPow> pls_l =
+    ParticleLikelihood::LoadParticleLikelihoodsPow('l');
   for (int i = 0; i < tr->GetEntries(); ++i) {
     tr->GetEntry(i);
     if (verbose && i % 100000 == 0)
@@ -148,16 +148,9 @@ void psel(TTree* tr, const char* ofname, bool usealllayers=true,
 // run = 0: compile only
 // run is an Al50 run number: run on that single run in Al50 dataset
 // otherwise: fail
-void R15b_Al50_psel(int run=0, bool usealllayers=true, bool verbose=false) {
-  char ifname[128], ofname[128];
-  if (run == 0)
-    return;
-  if (9890 <= run && run <= 10128) {
-    sprintf(ifname, IFNAMEFMT, run);
-  } else {
-    PrintAndThrow("Unrecognized run");
-  }
-  sprintf(ofname, OFNAMEFMT, run);
+void R15b_Al50_psel(const char* ifname=nullptr, const char* ofname=nullptr,
+                    bool usealllayers=true, bool verbose=false) {
+  if (!ifname) return;
   TChain* ch = new TChain("TMETree/TMETree");
   ch->Add(ifname);
   if (ch->GetEntries() <= 0)
