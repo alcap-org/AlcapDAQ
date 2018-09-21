@@ -24,8 +24,13 @@ silicon = {
 	'SiR2-S_offsets' : [85.7855],
 	'SiR3-S_gains' : [5.90075],
 	'SiR3-S_offsets' : [35.8103],
+# Standard
 	'SiT-X-S_gains' : [2.07393, 1.96649, 1.99088, 2.00442],
 	'SiT-X-S_offsets' : [-33.4731, -12.673, -37.2894, -24.4704]
+# w/ 145 keV subtraction from Am241
+#    	'SiT-X-S_gains' : [2.02316, 1.91805, 1.94223, 1.95524],
+#	'SiT-X-S_offsets' : [-8.02, 12.48, -11.79, 0.85]
+
 }
 
 #Numbers from Eu125

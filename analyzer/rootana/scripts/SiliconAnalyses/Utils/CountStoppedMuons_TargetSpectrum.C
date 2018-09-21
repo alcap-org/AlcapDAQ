@@ -12,7 +12,7 @@ struct CountStoppedMuons_TargetSpectrumArgs {
   std::string infilename;
   std::string inhistname;
   std::string outfilename;
-  std::string outtreename;
+  std::string outdirname;
 
   double min_muon_time;
   double max_muon_time;
@@ -23,11 +23,20 @@ struct CountStoppedMuons_TargetSpectrumArgs {
 void CountStoppedMuons_TargetSpectrum(CountStoppedMuons_TargetSpectrumArgs& args) {
 
   TFile* file = new TFile(args.infilename.c_str(), "READ");
+  if (file->IsZombie()) {
+    std::cout << "Problem openeing file " << args.infilename.c_str() << std::endl;
+    return;
+  }
   TH2F* hEnergyTime = (TH2F*) file->Get(args.inhistname.c_str());
+  if (!hEnergyTime) {
+    std::cout << "Problem getting histogram " << args.inhistname.c_str() << std::endl;
+  }
 
+ 
   int min_time_bin = hEnergyTime->GetXaxis()->FindBin(args.min_muon_time);
   int max_time_bin = hEnergyTime->GetXaxis()->FindBin(args.max_muon_time)-1;
-  TH1F* hTarget_Spectrum = (TH1F*) hEnergyTime->ProjectionY("hTarget_Spectrum", min_time_bin, max_time_bin);
+  std::string outhistname = "hSpectrum";
+  TH1F* hTarget_Spectrum = (TH1F*) hEnergyTime->ProjectionY(outhistname.c_str(), min_time_bin, max_time_bin);
 
   int min_energy_bin = hTarget_Spectrum->FindBin(args.min_muon_energy);
   int max_energy_bin = hTarget_Spectrum->FindBin(args.max_muon_energy)-1;
@@ -43,7 +52,8 @@ void CountStoppedMuons_TargetSpectrum(CountStoppedMuons_TargetSpectrumArgs& args
 
   //  n_stopped_muons = fit->GetParameter(0) * fit->GetParameter(2) * (std::sqrt(2*3.14)/hTarget_Spectrum->GetXaxis()->GetBinWidth(1));
   //  std::cout << "AE: Direct Count (from fit) = " << n_stopped_muons << std::endl;
-  TTree* direct_count_tree = new TTree(args.outtreename.c_str(), "");
+  std::string treename = "counttree";
+  TTree* direct_count_tree = new TTree(treename.c_str(), "");
   direct_count_tree->Branch("n_stopped_muons", &n_stopped_muons);
   direct_count_tree->Branch("n_stopped_muons_error", &n_stopped_muons_error);
   direct_count_tree->Branch("min_muon_time", &args.min_muon_time);
@@ -53,6 +63,8 @@ void CountStoppedMuons_TargetSpectrum(CountStoppedMuons_TargetSpectrumArgs& args
   direct_count_tree->Fill();
   
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
+  TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());
+  outdir->cd();
   hTarget_Spectrum->Write();
   direct_count_tree->Write();
   outfile->Write();

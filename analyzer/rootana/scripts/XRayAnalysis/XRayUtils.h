@@ -27,14 +27,25 @@ struct XRay {
 #include <iostream>
 #include <sstream>
 
-int FillXRayInfo(XRay& xray) {
+int FillXRayInfo(XRay& xray, std::string channel) {
   if (xray.material == "Al") {
     std::cout << "Aluminium X-ray:" << std::endl;
     xray.transition = "2p-1s";
     xray.energy = 346.828;
     xray.intensity = 0.798;
     xray.intensity_error = 0.008;
-
+    if (channel == "GeLoGain") {
+      xray.efficiency = 6.6e-4;
+      xray.efficiency_error = 0.2e-4;
+    }
+    else if (channel == "GeHiGain") {
+      xray.efficiency = 6.6e-4;
+      xray.efficiency_error = 0.2e-4;
+    }
+    else {
+      std::cout << "Error: Unknown channel (" << channel << ")" << std::endl;
+      return 1;
+    }
     // For R13
     //    xray.efficiency = 5e-4;
     //    xray.efficiency_error = 0.1e-4;
@@ -46,11 +57,69 @@ int FillXRayInfo(XRay& xray) {
       xray.energy = 400.177;
       xray.intensity = 0.803;
       xray.intensity_error = 0.008;
+      if (channel == "GeLoGain") {
+	xray.efficiency = 5.88e-4;
+	xray.efficiency_error = 0.09e-4;
+      }
+      else if (channel == "GeHiGain") {
+	xray.efficiency = 6.15e-4;
+	xray.efficiency_error = 0.09e-4;
+      }
+      else {
+	std::cout << "Error: Unknown channel (" << channel << ")" << std::endl;
+	return 1;
+      }
     }
-    if (xray.transition == "3p-1s") {
+    else if (xray.transition == "3p-1s") {
       xray.energy = 476.8;
       xray.intensity = 0.074;
-      xray.intensity_error = 0.001;
+      xray.intensity_error = 0.001;//??
+      if (channel == "GeLoGain") {
+	xray.efficiency = 4.84e-4;
+	xray.efficiency_error = 0.26e-4;
+      }
+      else if (channel == "GeHiGain") {
+	xray.efficiency = 4.84e-4;
+	xray.efficiency_error = 0.26e-4;
+      }
+      else {
+	std::cout << "Error: Unknown channel (" << channel << ")" << std::endl;
+	return 1;
+      }
+    }
+    else if (xray.transition == "4p-1s") {
+      xray.energy = 503.58;
+      xray.intensity = 0.0427;
+      xray.intensity_error = 0.0001;//??
+      if (channel == "GeLoGain") {
+	xray.efficiency = 3.87e-4;
+	xray.efficiency_error = 0.45e-4;
+      }
+      else if (channel == "GeHiGain") {
+	xray.efficiency = 3.87e-4;
+	xray.efficiency_error = 0.45e-4;
+      }
+      else {
+	std::cout << "Error: Unknown channel (" << channel << ")" << std::endl;
+	return 1;
+      }
+    }
+    else if (xray.transition == "5p-1s") {
+      xray.energy = 515.97;
+      xray.intensity = 0.0383;
+      xray.intensity_error = 0.0001;//??
+      std::cout << "Warning: Unknown direct efficiency for this peak" << std::endl;
+    }
+    else if (xray.transition == "6p-1s") {
+      xray.energy = 522.74;
+      xray.intensity = 0.0229;
+      xray.intensity_error = 0.0001;//??
+      std::cout << "Warning: Unknown direct efficiency for this peak" << std::endl;
+    }
+    
+    else {
+      std::cout << "Error: Unknown transition (" << xray.transition << ")" << std::endl;
+      return 1;
     }
   }
   else if (xray.material == "Ti") {
@@ -69,7 +138,7 @@ int FillXRayInfo(XRay& xray) {
     xray.intensity_error = 0;
   }
   else {
-    std::cout << "Error: Unknown target material" << std::endl;
+    std::cout << "Error: Unknown target material (" << xray.material << ")" << std::endl;
     return 1;
   }
   std::cout << xray.material << " " << xray.transition << std::endl;
@@ -81,18 +150,33 @@ int FillXRayInfo(XRay& xray) {
 int FillGeEffParams(const std::string& channel, const int& run, double& a, double& b, double& delta_a, double& delta_b, double& corr) {
   if (channel == "GeLoGain") {
     if (run == 10319) {
-      // from GoogleSheet
-      //      a = 0.223417; delta_a = 0.0213393;
-      //      b = -0.919075; delta_b = 0.0151079;
-      //      corr = -0.995269;
-      a = 0.1792; delta_a = 0.01533;
-      b = -0.9332; delta_b = 0.01332;
-      corr = -0.867502;
+      // with Y88
+      //      a = 0.1792; delta_a = 0.01533;
+      //      b = -0.9332; delta_b = 0.01332;
+      //      corr = -0.867502;
+      // without Y88
+      //      a = 0.164449; delta_a = 0.0157128;
+      //      b = -0.919077; delta_b = 0.0151133;
+      //      corr = -0.995273;
+      // from elog:231 work
+      a = 0.144381; delta_a = 0.0138032;
+      b = -0.920011; delta_b = 0.0151194;
+      corr = -0.995257;
+    }
+    else if (run == 9685) {
+      // from elog:231 work
+      a = 0.143518; delta_a = 0.0187903;
+      b = -0.932379; delta_b = 0.0207396;
+      corr = -0.995257;
     }
     else if (run == 9302) {
-      a = 0.173809; delta_a = 0.0226852;
-      b = -0.91031; delta_b = 0.020632;
-      corr = -0.995468;
+      //      a = 0.173809; delta_a = 0.0226852;
+      //      b = -0.91031; delta_b = 0.020632;
+      //      corr = -0.995468;
+      // from elog:231 work
+      a = 0.127727; delta_a = 0.0166573;
+      b = -0.909965; delta_b = 0.0206178;
+      corr = -0.995418;
     }
     else {
       std::cout << "Error: FillGeEffParams has been given an unknown run (" << run << ")" << std::endl;
@@ -156,7 +240,7 @@ RooWorkspace* FitPeak(std::string wsname, double energy_low, double energy_high,
   n_fit_params += 3; // bkg_offset, bkg_slope, nbkg
 
   // Now the X-ray peak of interest
-  factory_cmd << "Gaussian::xraypeak_pdf(edep[" << energy_low << ", " << energy_high << "], xray_mean[" << xray->energy-2 << ", " << xray->energy+2 << "], xray_sigma[0.1, 10])"; // the x-ray peak itself
+  factory_cmd << "Gaussian::xraypeak_pdf(edep[" << energy_low << ", " << energy_high << "], xray_mean[" << xray->energy-3 << ", " << xray->energy+3 << "], xray_sigma[1.0, 10])"; // the x-ray peak itself
   ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
   sum_factory_cmd << ", xray_area[0,500000]*xraypeak_pdf";
   n_fit_params += 3; // xray_mean, xray_sigma, xray_area
@@ -169,14 +253,23 @@ RooWorkspace* FitPeak(std::string wsname, double energy_low, double energy_high,
     n_fit_params += 3; // bkg_mean, bkg_sigma, bkg_area
   }
 
+  if (xray->material == "Ti" && xray->transition == "2p-1s") {
+    factory_cmd << "Gaussian::bkgpeak_pdf(edep[" << energy_low << ", " << energy_high << "], bkg_mean[938,942], bkg_sigma[0.1, 10])";
+    ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
+    sum_factory_cmd << ", bkg_area[0,500000]*bkgpeak_pdf";
+    n_fit_params += 3; // bkg_mean, bkg_sigma, bkg_area
+  }
+
+  
   // Now create the SUM pdf
   sum_factory_cmd << ")";
   ws->factory(sum_factory_cmd.str().c_str()); sum_factory_cmd.str("");
 
   // Import the histogram into a RooFit data hist
   RooDataHist data("data", "Ge Spectrum", (ws->argSet("edep")), hSpectrum);
-  (ws->pdf("sum"))->fitTo(data);
+  RooFitResult* result = (ws->pdf("sum"))->fitTo(data, RooFit::Save(true), RooFit::Minimizer("Minuit2"));
   ws->import(data);
+  ws->import((TObject&)*result);
   //  std::cout << "Goodness of fit: " << Eframe->chiSquare(n_fit_params) << std::endl;
   
   return ws;

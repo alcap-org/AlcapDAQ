@@ -457,8 +457,13 @@ TH1F* ExportPulse::MakeHistTAP(TH1F* tpi_hist, const TAnalysedPulse* pulse, cons
 
       double time = tf_pulse->GetTime(); // CF time
       
-      //      double time_shift = 0;
-      double time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(pulse->GetSource());
+      double time_shift = 0;
+      try {
+	time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(pulse->GetSource());
+      }
+      catch (Except::InvalidDetector& e) {
+	time_shift = 0;
+      }
       double clock_tick_in_ns = TSetupData::Instance()->GetClockTick(info.bankname);
       int down_samp = TSetupData::GetDownSampling(info.bankname.c_str(), SetupNavigator::Instance()->GetRunNumber());
       double sample_time = (time - tf_pulse->GetTriggerTime()) / (clock_tick_in_ns * down_samp);
@@ -524,12 +529,18 @@ TH1F* ExportPulse::MakeHistTAP(TH1F* tpi_hist, const TAnalysedPulse* pulse, cons
       // do the conversion if needs be
       double time = pulse->GetTime();
       //      std::cout << "Time before conversion = " << time << std::endl;
+      double time_shift = 0;
+      try {
+	time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(pulse->GetSource());
+      }
+      catch (Except::InvalidDetector& e) {
+	time_shift = 0;
+      }
+
       if (fXAxis == kBlockTime) {
-	double time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(pulse->GetSource());
 	time += time_shift;
       }
       else if (fXAxis == kPulseTime) {
-	double time_shift = SetupNavigator::Instance()->GetCoarseTimeOffset(pulse->GetSource());
 	time -= pulse->GetTriggerTime();
 	time += time_shift;
       }

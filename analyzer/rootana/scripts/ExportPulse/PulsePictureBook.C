@@ -37,7 +37,8 @@ void PulsePictureBook() {
   out_file << "\\section{Picture Book}" << std::endl;
 
   std::stringstream filename;
-  filename << "/home/edmonds/data/out/local/out" << std::setw(5) << std::setfill('0') << run_number << "_template-fits_export-pulse_3.root";
+  //  filename << "/home/edmonds/data/out/local/out" << std::setw(5) << std::setfill('0') << run_number << "_template-fits_export-pulse_3.root";
+  filename << "/home/edmonds/data/out/local/out" << std::setw(5) << std::setfill('0') << run_number << "_template-fits_export-pulse_4.root";
   TFile* file = new TFile(filename.str().c_str(), "READ");
   if (file->IsZombie()) {
     std::cout << "Problem opening file " << filename << std::endl;

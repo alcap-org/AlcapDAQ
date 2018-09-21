@@ -26,14 +26,21 @@ Double_t Peak::I() {
   return i;
 }
 Double_t Peak::N() {
-  return TMath::Sqrt(2.*TMath::Pi())*A()*Std();
+  double N =  TMath::Sqrt(2.*TMath::Pi())*A()*Std();
+  std::cout << "A = " << A() << ", sigma = " << Std() << std::endl;
+  std::cout << "N = " << N << std::endl;
+  return N;
 }
 Double_t Peak::NErr() {
-  return N() * TMath::Sqrt(TMath::Power(AErr()/A(), 2) +
-			   TMath::Power(StdErr()/Std(), 2));
+  double NErr = N() * TMath::Sqrt(TMath::Power(AErr()/A(), 2) +
+				  TMath::Power(StdErr()/Std(), 2));
+  std::cout << "NErr = " << NErr << std::endl;
+    
+    return NErr;
 }
 Double_t Peak::Eff(Run run) {
-  return N()/(i*run.Decays());
+  std::cout << "Eff = " << N() << " / " << i << " * " << run.Decays() << " * " << run.DeadTime() << " = " << N()/(i*run.Decays()) * run.DeadTime() << std::endl;
+  return N()/(i*run.Decays()) * run.DeadTime();
 }
 Double_t Peak::EffErr(Run run) {
   return NErr()/N()*Eff(run);
@@ -96,11 +103,11 @@ void Peak::Fit(TH1* h, bool print) {
   Double_t mu  = fnc->GetParameter(1);
   Std(2.5 + 0.00127*mu); // Data snooping
   fnc->SetParLimits(2, 0., 20.);
-  h->GetXaxis()->SetRange(mu-6.*Std(), mu+6.*Std());
+  h->GetXaxis()->SetRangeUser(mu-6.*Std(), mu+6.*Std());
   fitresult = h->Fit(fnc, "+SMEQ");
   if (print && gPad) {
     char str[32]; sprintf(str, "%dkeV.png", (int)e);
-//    gPad->Print(str);
+    gPad->Print(str);
   }
   h->GetXaxis()->SetRange();
 }

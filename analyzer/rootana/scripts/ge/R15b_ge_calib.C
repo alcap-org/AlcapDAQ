@@ -4,6 +4,7 @@
 
 #include "TTimeStamp.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TFile.h"
 
 #include <iostream>
@@ -40,25 +41,25 @@ Run SelectRun(int run) {
 	       eu152, false, 2.16);
   case 9282: // Ge face
     return Run(9282, 4801,   TTimeStamp(2015, 11, 15, 0, 0, 0),
-	       eu152, false, 2.15);
+	       eu152, true,/*false,*/ 2.15);
   case 9284: // Ge face
     return Run(9284, 4571,   TTimeStamp(2015, 11, 15, 0, 0, 0),
 	       co60,  false, 2.14);
   case 9302: // Rough vacuum, first Al position
-    return Run(9302, 15102,  TTimeStamp(2015, 11, 16, 0, 0, 0),
-	       eu152, true,  2.15);
+    return Run(9302, 15100,  TTimeStamp(2015, 11, 16, 0, 0, 0),
+	       eu152, true,  2.15, 0.79);//1580);
   case 9684: // Ge face, prefill
     return Run(9684, 4106,   TTimeStamp(2015, 11, 18, 0, 0, 0),
-	       eu152, false, 2.15);
+	       eu152, true,/*false,*/ 2.15);
   case 9685: // Back Al100, prefill
-    return Run(9685, 15533,  TTimeStamp(2015, 11, 18, 0, 0, 0),
-	       eu152, true,  2.15);
+    return Run(9685, 15531,  TTimeStamp(2015, 11, 18, 0, 0, 0),
+	       eu152, true,  2.15, 0.77);//1524);
   case 9686: // Ge face, postfill
     return Run(9686, 9576,   TTimeStamp(2015, 11, 18, 0, 0, 0),
-	       eu152, false, 2.15);
+	       eu152, true,/*false,*/ 2.15);
   case 10319: // In empty target, rough vacuum
-    return Run(10319, 30303, TTimeStamp(2015, 11, 22, 0, 0, 0),
-	       eu152, true,  2.15);
+    return Run(10319, 30301, TTimeStamp(2015, 11, 22, 0, 0, 0),
+	       eu152, true,  2.15, 0.87);//2955);
   case 10320: // Empty target position, atmospheric, removed prematurely
     return Run(10320, 6353,  TTimeStamp(2015, 11, 22, 0, 0, 0),
 	       y88,   true, 2.16);
@@ -85,11 +86,27 @@ void R15b_ge_calib(const char* fname, int rnum, bool gehi = false) {
   os << rnum;
   TDirectory *directory = output->mkdir(os.str().c_str() );
   directory->cd();
-  TH1* spec = gehi ?
-//    (TH1*)f->Get("PlotTAP_Amplitude/hGeHiGain#MaxBinAPGenerator#any_Amplitude"):
-//    (TH1*)f->Get("PlotTAP_Amplitude/hGeLoGain#MaxBinAPGenerator#any_Amplitude");
-    (TH1*)f->Get("PlotTAP_Amplitude/hGeHiGain#MaxBinAPGenerator#{no_time_shift=true}_Amplitude") :
-    (TH1*)f->Get("PlotTAP_Amplitude/hGeLoGain#MaxBinAPGenerator#{no_time_shift=true}_Amplitude");
+
+  Run run = SelectRun(rnum);
+  
+  //  TH1* spec = gehi ?
+////    (TH1*)f->Get("PlotTAP_Amplitude/hGeHiGain#MaxBinAPGenerator#any_Amplitude"):
+////    (TH1*)f->Get("PlotTAP_Amplitude/hGeLoGain#MaxBinAPGenerator#any_Amplitude");
+//    (TH1*)f->Get("PlotTAP_Amplitude/hGeHiGain#MaxBinAPGenerator#{no_time_shift=true}_Amplitude") :
+//    (TH1*)f->Get("PlotTAP_Amplitude/hGeLoGain#MaxBinAPGenerator#{no_time_shift=true}_Amplitude");
+    
+  TH2* spec2D = gehi ?
+    (TH2*) f->Get("PlotTAP_AmplitudeTime/hGeHiGain#MaxBinAPGenerator#{no_time_shift=true}_AmplitudeTime") :
+    (TH2*) f->Get("PlotTAP_AmplitudeTime/hGeLoGain#MaxBinAPGenerator#{no_time_shift=true}_AmplitudeTime");
+  if (!spec2D) {
+    std::cout << "No spectrum found!" << std::endl;
+    return;
+  }
+  int min_time_bin = spec2D->GetYaxis()->FindBin(sync_pulse_cut_min);
+  int max_time_bin = spec2D->GetYaxis()->FindBin(sync_pulse_cut_max);
+
+  TH1D* spec = spec2D->ProjectionX("spec", min_time_bin, max_time_bin);
+  
   if (!spec) {
     std::cout << "No spectrum found!" << std::endl;
     return;
@@ -98,12 +115,13 @@ void R15b_ge_calib(const char* fname, int rnum, bool gehi = false) {
   sprintf(str, "Run %d Ge%s Spectrum;Energy (ADC)", rnum, gehi ? "Hi" : "Lo");
   spec->SetTitle(str);
   spec->Sumw2();
+  //  spec->Rebin(2);
+  //  spec->Scale(run.GetMeasurementTimeRatio());
 
-  Run run = SelectRun(rnum);
   Peaks peaks = initialize_peaks(run, gehi);
   peaks.EstimateParameters(spec);
   peaks.Fit(spec, true);
   peaks.Calibrate(run, true);
-  peaks.Save();
+  peaks.Save(rnum);
   output->Write();
 }

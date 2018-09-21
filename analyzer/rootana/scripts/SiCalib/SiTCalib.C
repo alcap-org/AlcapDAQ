@@ -39,7 +39,7 @@ void SiTCalib() {
   double frac_mesytec_uncert = 0; // ready just in case
 
   double calib_energies[n_calib_points] = 
-    { 5.486*convert_to_keV, // Am241
+    { 5.486*convert_to_keV - 145, // Am241
       mesytec*pulser_voltages[0], // 100 mV pulser put through mesytec box
       mesytec*pulser_voltages[1], //  50 mV pulser put through mesytec box
       mesytec*pulser_voltages[2],  // 150 mV pulser put through mesytec box
@@ -116,12 +116,17 @@ void SiTCalib() {
     si_channel_canvases[i_si_channel]->Divide(3, 2);
   }
 
+  std::string foldername = "/home/edmonds/data/out/local/";
   std::stringstream filename;
   std::stringstream histname;
   for (int i_calib_point = 0; i_calib_point < n_calib_points; ++i_calib_point) {
     filename.str("");
-    filename << "out" << std::setw(5) << std::setfill('0') << calib_run_numbers[i_calib_point] << ".root";
+    //    filename << "out" << std::setw(5) << std::setfill('0') << calib_run_numbers[i_calib_point] << ".root";
+    filename << foldername << "out" << std::setw(5) << std::setfill('0') << calib_run_numbers[i_calib_point] << ".root";
     TFile* file = new TFile(filename.str().c_str(), "READ");
+    if (file->IsZombie()) {
+      continue;
+    }
 
     canvasname.str("");
     canvasname << "c" << i_calib_point;
@@ -268,7 +273,7 @@ void SiTCalib() {
   for (int i_si_channel = 0; i_si_channel < n_si_channels; ++i_si_channel) {
     std::string canvasname = si_channel_canvases[i_si_channel]->GetName();
     std::string savename = "~/plots/2016-12-19/" + canvasname + ".pdf";
-    si_channel_canvases[i_si_channel]->SaveAs(savename.c_str());
+    //    si_channel_canvases[i_si_channel]->SaveAs(savename.c_str());
   }
 
   // Now write out the calibration constants

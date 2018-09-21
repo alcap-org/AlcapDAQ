@@ -10,7 +10,7 @@ struct XRaySpectrumArgs {
   std::string infilename;
   std::string treename;
   std::string outfilename;
-  std::string outhistname;
+  std::string outdirname;
   
   double min_energy;
   double max_energy;
@@ -27,9 +27,11 @@ void XRaySpectrum(XRaySpectrumArgs& args) {
   int n_energy_bins = (args.max_energy - args.min_energy) / args.energy_width;
   int n_time_bins = (args.max_time - args.min_time) / args.time_width;
 
-  TH2F* hEnergyTime = new TH2F(args.outhistname.c_str(), args.outhistname.c_str(), n_time_bins,args.min_time,args.max_time, n_energy_bins,args.min_energy,args.max_energy);
+  TH2F* hEnergyTime = new TH2F("hEnergyTime", "hEnergyTime", n_time_bins,args.min_time,args.max_time, n_energy_bins,args.min_energy,args.max_energy);
+  hEnergyTime->SetXTitle("Time [ns]");
+  hEnergyTime->SetYTitle("Energy [keV]");
 
-  std::string outtreename = args.outhistname + "_cuts";
+  std::string outtreename = "cuttree";
   TTree* cuttree = new TTree(outtreename.c_str(), outtreename.c_str());
 
   double energy;
@@ -47,9 +49,11 @@ void XRaySpectrum(XRaySpectrumArgs& args) {
     hEnergyTime->Fill(time, energy);
   }
   
-  std::cout << args.outhistname << " " << hEnergyTime->GetEntries() << " entries" << std::endl;
+  std::cout << hEnergyTime->GetName() << " " << hEnergyTime->GetEntries() << " entries" << std::endl;
   
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
+  TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());
+  outdir->cd();
   hEnergyTime->Write();
   cuttree->Fill();
   cuttree->Write();

@@ -1,0 +1,117 @@
+Si16b Analyses
+
+1) Produce subtrees
+=====================
+Creates the following "subtrees":
+ - siBlockTree_SiT ("thin" layer = SiT, "thick" layer = emtpy, "third" layer = empty)
+ - siBlockTree_Target ("thin" layer = SiL1, "thick" layer = SiR1, "third" layer = SiR2)
+ - siBlockTree_SiL ("thin" layer = SiL1, "thick" layer = SiL3, "third" layer = empty)
+   NB SiL3 is in its detector position and is not actually behind the target
+ - siBlockTree_SiR ("thin" layer = SiR1, "thick" layer = SiR2, "third" layer = SiR3)
+ 
+ - geTree_GeHiGain
+ - geTree_GeLoGain
+
+ - geTargetTree_GeHiGain
+ - geTargetTree_GeLoGain
+
+In file type: tmetree.root
+Out file type: subtrees.root
+
+To run:
+> root -l -b
+root[0] .L Si16b_TMELoop.C+
+root[1] Si16b_TMELoop()
+
+2) Plots
+=========
+Runs the following scripts to create plots, which have the given parameters, on the given subtrees:
+ - SiTEnergy.C
+   -- input subtree: siBlockTree_SiT
+   -- parameters: min energy, max energy, energy bin width  (for hSiTEnergy)
+      
+ - EvdEPlot.C
+   -- input subtree: siBlockTree_SiR
+   -- parameters: min x energy, max x energy, x energy bin width  (for hEvdE_TwoLayer, hEvdE_ThreeLayer_123, hEvdE_ThreeLayer_12)
+      		  min y energy, max y energy, y energy bin width  (for hEvdE_TwoLayer, hEvdE_ThreeLayer_123, hEvdE_ThreeLayer_12)
+		  min time, max time, time bin width   	   	  (for hTime)
+		  layer coincidence veto, layer coincidence time  (for hits between layers)
+		  early time veto, early time cut	    	  (for early time cut)
+		  do cut, cutfilename, cutname			  (for particle band cut)
+      
+ - XRaySpectrum.C
+   -- input subtrees: geTree_GeLoGain, geTree_GeHiGain
+   -- parameters: min energy, max energy, energy bin width  (for hEnergyTime)
+      		  min time, max time, time bin width 	    (for hEnergyTime)
+
+ - TargetSpectrum.C
+   -- input subtrees: siBlockTree_Target, siBlockTree_SiL
+   -- parameters: min energy, max energy, energy bin width	      (for hEnergyTime)
+      		  min time, max time, time bin width 	    	      (for hEnergyTime)
+		  required layer, veto layer, layer coincidence time  (for other datasets where we have layers in the target)
+		  
+ - XRaySpectrum_wTargetCoinc.C
+   -- input subtrees: geTargetTree_GeLoGain, geTargetTree_GeHiGain
+   -- parameters: min ge energy, max ge energy, ge energy bin width        (for hEnergyTime)
+      		  min ge time, max ge time, ge time bin width 	           (for hEnergyTime)
+		  min muon energy, max muon energy  			   (for muon hit definition)
+      		  min muon time, max muon time	     	 	  	   (for muon hit definition)
+		  layer name, veto layer, required layer	    	   (for the hit pattern in the target we want to be coincident with)
+
+In file type: subtrees.root
+Out file type: plots.root
+
+To run:
+> root -l -b
+root[0] .L Si16b_AllPlots.C+
+root[1] Si16b_AllPlots()
+
+
+2) Normalisation
+=================
+Runs the following scripts to count the number of stopped muons in various ways:
+
+ - CountStoppedMuons_XRaySpectrum.C
+   -- input plots: GeLoGain/hEnergyTime, GeHiGain/hEnergyTime       (from XRaySpectrum.C)
+    	    	   Ge{Lo/Hi}Gain_wTargetCoinc_MuonSlice/hEnergyTime (from XRaySpectrum_wTargetCoinc.C)
+   -- parameters: material, transition, ge eff run		    (for defining the X-ray energy and efficiency)
+      		  rebin factor, fit window min, fit window max      (for fitting the X-ray peak)
+		  min time, max time	   	    	   	    (for time cut)
+
+ - CountStoppedMuons_TargetSpectrum.C
+   -- input plots: Target/hEnergyTime		   (from TargetSpectrum.C)
+   -- parameters: min muon time, max muon time	   (for muon hit definition in target)
+      		  min muon energy, max muon energy (for muon hit definition in target)
+
+
+3) Lifetime
+============
+Runs the following script to fit the muonic atom lifetime to a time distribution:
+
+ - LifetimeFit.C
+   -- input plots: proton_SiR_timecut/hTime		   (from EvdEPlot.C)
+      	    	   SiL3/hEnergyTime			   (from TargetSpectrum.C)
+   -- parameters: min fit time, max fit time, rebin factor (for the fitting)
+      		  double exp, flat bkg	      	    	   (for the fit function)
+		  project X, project Y			   (for projecting onto a time axis if needs be)
+
+4) Raw Spectra
+===============
+Runs the following scripts to create raw energy spectra:
+
+ - RawSpectrum_fromEvdE.C
+   -- input plots: proton_SiR_timecut/hEvdE (from EvdEPlot.C)
+   -- parameters: vector of histograms      (for combining the two layer and three layer plots)
+      		  vector of scale rations   (because SiR3 has a lower acceptance than SiR2)
+
+ - RawSpectrum_fromEnergyTime.C
+   -- input plots: SiL3/hEnergyTime   (from TargetSpectrum.C)
+   -- parameters:  min time, max time (for time slice)
+
+5) Unfolds
+===========
+Unfolds the raw spectra
+
+6) Final Plots
+===============
+Makes the following pretty plots

@@ -1,0 +1,19 @@
+#include "scripts/SiliconAnalyses/Si16b_passive/normalisation/Si16b_CountStoppedMuons_XRaySpectrum.C"
+#include "scripts/SiliconAnalyses/Si16b_passive/normalisation/Si16b_CountStoppedMuons_TargetSpectrum.C"
+#include "scripts/SiliconAnalyses/Si16b_passive/normalisation/Si16b_CountStoppedMuons_XRaySpectrum_wTargetCoinc.C"
+
+#include <sstream>
+
+void Si16b_AllNormalisations() {
+
+  std::string infilename = "~/data/results/Si16b_passive/plots.root";
+  std::string outfilename = "~/data/results/Si16b_passive/normalisation.root";
+  
+  TFile* outfile = new TFile(outfilename.c_str(), "RECREATE");
+  outfile->Write();
+  outfile->Close();
+
+  Si16b_CountStoppedMuons_XRaySpectrum(infilename, outfilename);
+  Si16b_CountStoppedMuons_TargetSpectrum(infilename, outfilename);
+  Si16b_CountStoppedMuons_XRaySpectrum_wTargetCoinc(infilename, outfilename);
+}

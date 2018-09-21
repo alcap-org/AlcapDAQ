@@ -6,6 +6,8 @@
 #include "TH2.h"
 #include "TTree.h"
 
+#include "RooFitResult.h"
+
 #include "scripts/XRayAnalysis/XRayUtils.h"
 
 struct CountStoppedMuons_XRaySpectrumArgs {
@@ -13,13 +15,13 @@ struct CountStoppedMuons_XRaySpectrumArgs {
   std::string channel;
   std::string inhistname;
   std::string outfilename;
-  std::string outtreename;
-  std::string outwsname;
+  std::string outdirname;
   
   std::string material;
   std::string transition;
   int rebin_factor;
-  int ge_eff_run;
+  double fit_window_min;
+  double fit_window_max;
 
   double min_time;
   double max_time;
@@ -28,42 +30,51 @@ struct CountStoppedMuons_XRaySpectrumArgs {
 void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& args) {
 
   TFile* file = new TFile(args.infilename.c_str(), "READ");
+  if (file->IsZombie()) {
+    std::cout << "Problem openeing file " << args.infilename.c_str() << std::endl;
+    return;
+  }
   TH2F* hEnergyTime = (TH2F*) file->Get(args.inhistname.c_str());
+  if (!hEnergyTime) {
+    std::cout << "Problem getting histogram " << args.inhistname.c_str() << std::endl;
+  }
 
   // time cuts can go in here
   int min_time_bin = hEnergyTime->GetXaxis()->FindBin(args.min_time);
   int max_time_bin = hEnergyTime->GetXaxis()->FindBin(args.max_time)-1;
   TH1F* hGe_Spectrum = (TH1F*) hEnergyTime->ProjectionY("_py", min_time_bin, max_time_bin);
-  hGe_Spectrum->Rebin(args.rebin_factor);
-  
-  // Get germanium efficiency curves
-  double a, b, delta_a, delta_b, corr;
-  if (FillGeEffParams(args.channel, args.ge_eff_run, a, b, delta_a, delta_b, corr) == 1) {
-    std::cout << "Error from FillGeEffParams. Aborting..." << std::endl;
-    return;
-  }
-  TF1* ge_eff = NULL;
-  TF1* ge_eff_err = NULL;
-  if (FillGeEffFunctions(a, b, delta_a, delta_b, corr, ge_eff, ge_eff_err) == 1) {
-    std::cout << "Error from FillGeEffFunctions. Aborting..." << std::endl;
-    return;
-  }
+
   
   // Define the X-ray we want to look at
   XRay xray;
   xray.material = args.material;
   xray.transition = args.transition;
-  if (FillXRayInfo(xray) == 1) { // if we return an error code
+  if (FillXRayInfo(xray, args.channel) == 1) { // if we return an error code
     std::cout << "Error: Problem getting X-ray information" << std::endl;
     return;
   }
-  xray.efficiency = ge_eff->Eval(xray.energy);
-  xray.efficiency_error = ge_eff_err->Eval(xray.energy);
   std::cout << "Efficiency = " << xray.efficiency << " +/- " << xray.efficiency_error << std::endl;
 
-  double xray_energy_low = xray.energy-10;
-  double xray_energy_high = xray.energy+10;
-  RooWorkspace* ws = FitPeak(args.outwsname, xray_energy_low, xray_energy_high, hGe_Spectrum, &xray);
+  TH1F* hGe_OriginalBinning = (TH1F*) hGe_Spectrum->Clone("hGe_OriginalBinning");
+  int rebin_factor = args.rebin_factor;
+  RooFitResult* result = 0;
+  RooWorkspace* ws = 0;
+  do {
+    hGe_Spectrum = (TH1F*) hGe_OriginalBinning->Clone("hGe_Spectrum");
+    hGe_Spectrum->Rebin(rebin_factor);
+    double xray_energy_low = xray.energy+args.fit_window_min;
+    double xray_energy_high = xray.energy+args.fit_window_max;
+    ws = FitPeak("ws", xray_energy_low, xray_energy_high, hGe_Spectrum, &xray);
+    
+    result = (RooFitResult*)ws->genobj("fitresult_sum_data");
+    std::cout << "Rebin_Factor " << rebin_factor << ", Status = " << result->status() << std::endl;
+    ++rebin_factor;
+    int n_statuses = result->numStatusHistory();
+    std::cout << "AE: n_statuses = " << n_statuses << std::endl;
+    for (int i_status = 0; i_status < n_statuses; ++i_status) {
+      std::cout << result->statusLabelHistory(i_status) << " " << result->statusCodeHistory(i_status) << std::endl;
+    }
+  } while(result->status() != 0 && rebin_factor<=1);
 
   RooRealVar* area = ws->var("xray_area");
   double xray_count = area->getValV();
@@ -88,7 +99,9 @@ void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& ar
   std::cout << "Efficiency = " << xray.efficiency << " +/- " << xray.efficiency_error << " (" << (xray.efficiency_error / xray.efficiency) * 100 << "%)" << std::endl;
   std::cout << "Number of Stopped Muons = " << n_stopped_muons << " +- " << n_stopped_muons_error << " (" << (n_stopped_muons_error / n_stopped_muons) * 100 << "%)" << std::endl;
   
-  TTree* indirect_count_tree = new TTree(args.outtreename.c_str(), "");
+  TTree* indirect_count_tree = new TTree("counttree", "");
+  indirect_count_tree->Branch("min_time", args.min_time);
+  indirect_count_tree->Branch("max_time", args.max_time);
   indirect_count_tree->Branch("xray_count", &xray_count);
   indirect_count_tree->Branch("xray_count_error", &xray_count_error);
   indirect_count_tree->Branch("xray_energy", &xray.energy);
@@ -100,14 +113,13 @@ void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& ar
   indirect_count_tree->Branch("xray_efficiency_error", &xray.efficiency_error);
   indirect_count_tree->Branch("n_stopped_muons", &n_stopped_muons);
   indirect_count_tree->Branch("n_stopped_muons_error", &n_stopped_muons_error);
-
   indirect_count_tree->Fill();
-  
+
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
+  TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());
+  outdir->cd();
   hGe_Spectrum->Write();
   ws->Write();
-  ge_eff->Write();
-  ge_eff_err->Write();
   indirect_count_tree->Write();
   outfile->Write();
   outfile->Close();

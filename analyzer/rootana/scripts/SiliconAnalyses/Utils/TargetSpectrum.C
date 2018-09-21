@@ -15,9 +15,10 @@ struct TargetSpectrumArgs {
   std::string vetolayername;
   bool layerreqd; // if we want to have a hit in the same event
   std::string reqdlayername;
+  double layer_coincidence_time;
   
   std::string outfilename;
-  std::string outhistname;
+  std::string outdirname;
   
   double min_energy;
   double max_energy;
@@ -34,12 +35,12 @@ void TargetSpectrum(TargetSpectrumArgs& args) {
   int n_energy_bins = (args.max_energy - args.min_energy) / args.energy_width;
   int n_time_bins = (args.max_time - args.min_time) / args.time_width;
 
-  TH2F* hEnergyTime = new TH2F(args.outhistname.c_str(), args.outhistname.c_str(), n_time_bins,args.min_time,args.max_time, n_energy_bins,args.min_energy,args.max_energy);
+  TH2F* hEnergyTime = new TH2F("hEnergyTime", "hEnergyTime", n_time_bins,args.min_time,args.max_time, n_energy_bins,args.min_energy,args.max_energy);
   hEnergyTime->SetXTitle("Time [ns]");
   hEnergyTime->SetYTitle("Energy [keV]");
   hEnergyTime->SetZTitle("Raw Count");
 
-  std::string outtreename = args.outhistname + "_cuts";
+  std::string outtreename = "cuttree";
   TTree* cuttree = new TTree(outtreename.c_str(), outtreename.c_str());
 
   double energy;
@@ -52,18 +53,41 @@ void TargetSpectrum(TargetSpectrumArgs& args) {
   targettree->SetBranchAddress(time_var.c_str(), &time);
   targettree->SetBranchAddress(tpi_id_var.c_str(), &layer_tpi_id);
 
+  cuttree->Branch("energy_var", &energy_var);
+  cuttree->Branch("time_var", &time_var);
+  cuttree->Branch("tpi_id_var", &tpi_id_var);
+  
   int veto_tpi_id;
+  double veto_time;
+  std::string veto_tpi_id_var;
+  std::string veto_time_var;
   if (args.layerveto) {
-    std::string veto_var = args.vetolayername + "_tpi_id";
-    targettree->SetBranchAddress(veto_var.c_str(), &veto_tpi_id);
+    veto_tpi_id_var = args.vetolayername + "_tpi_id";
+    targettree->SetBranchAddress(veto_tpi_id_var.c_str(), &veto_tpi_id);
+    cuttree->Branch("veto_tpi_id_var", &veto_tpi_id_var);
+    
+    veto_time_var = args.vetolayername + "_time";
+    targettree->SetBranchAddress(veto_time_var.c_str(), &veto_time);
+    cuttree->Branch("veto_time_var", &veto_time_var);
+
+    cuttree->Branch("layer_coincidence_time", &args.layer_coincidence_time);
   }
   int reqd_tpi_id;
+  double reqd_time;
+  std::string reqd_tpi_id_var;
+  std::string reqd_time_var;
   if (args.layerreqd) {
-    std::string reqd_var = args.reqdlayername + "_tpi_id";
-    targettree->SetBranchAddress(reqd_var.c_str(), &reqd_tpi_id);
+    reqd_tpi_id_var = args.reqdlayername + "_tpi_id";
+    targettree->SetBranchAddress(reqd_tpi_id_var.c_str(), &reqd_tpi_id);
+    cuttree->Branch("reqd_tpi_id_var", &reqd_tpi_id_var);
+
+    reqd_time_var = args.reqdlayername + "_time";
+    targettree->SetBranchAddress(reqd_time_var.c_str(), &reqd_time);
+    cuttree->Branch("reqd_time_var", &reqd_time_var);
+
+    cuttree->Branch("layer_coincidence_time", &args.layer_coincidence_time);
   }
-  
-  
+    
   int n_entries = targettree->GetEntries();
   for (int i_entry = 0; i_entry < n_entries; ++i_entry) {
     targettree->GetEntry(i_entry);
@@ -71,28 +95,30 @@ void TargetSpectrum(TargetSpectrumArgs& args) {
       std::cout << i_entry << " / " << n_entries << std::endl;
     }
 
-    if (layer_tpi_id <0) {
+    if (layer_tpi_id<0) {
       continue; // no hit in this layer
     }
 
     if (args.layerveto) {
-      if (veto_tpi_id>-1) {
+      if (veto_tpi_id>-1 && std::fabs(veto_time - time)<args.layer_coincidence_time) {
 	continue; // to next entry
       }
     }
 
     if (args.layerreqd) {
-      if (reqd_tpi_id<0) {
+      if (reqd_tpi_id<0 || std::fabs(reqd_time - time)>args.layer_coincidence_time) {
 	continue; // to next entry
       }
     }
-
+    
     hEnergyTime->Fill(time, energy);
   }
   
-  std::cout << args.outhistname << " " << hEnergyTime->GetEntries() << " entries" << std::endl;
+  std::cout << hEnergyTime->GetName() << " " << hEnergyTime->GetEntries() << " entries" << std::endl;
   
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
+  TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());
+  outdir->cd();
   hEnergyTime->Write();
   cuttree->Fill();
   cuttree->Write();

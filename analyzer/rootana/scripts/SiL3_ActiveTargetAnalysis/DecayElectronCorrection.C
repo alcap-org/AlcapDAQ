@@ -41,7 +41,8 @@ void DecayElectronCorrection() {
   std::cout << "Fraction alive after " << max_time << " ns = " << fraction_alive_after_max_time << std::endl;
   std::cout << "Fraction lost in gate = " << fraction_lost_in_gate << std::endl;
 
-  std::string corr_filename = "scripts/SiL3_ActiveTargetAnalysis/hist_files/R15b_SiL3-ActiveTargetAnalysis_MC-Protons-100-MeV_Range-0-100-MeV_Binning-100keV.root";
+  //  std::string corr_filename = "scripts/SiL3_ActiveTargetAnalysis/hist_files/R15b_SiL3-ActiveTargetAnalysis_MC-Protons-100-MeV_Range-0-100-MeV_Binning-100keV.root";
+    std::string corr_filename = "scripts/SiL3_ActiveTargetAnalysis/hist_files/test.root";
   TFile* corr_file = new TFile(corr_filename.c_str(), "READ");
   TH1F* hEDep_muplus = (TH1F*) corr_file->Get("hEDep_muplus");
   hEDep_muplus->Rebin(rebin_factor);

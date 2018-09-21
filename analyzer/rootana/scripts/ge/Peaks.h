@@ -13,7 +13,7 @@ class TH1;
 class Peaks {
   std::vector<Peak> peaks;
   TF1 *enfcn, *efffcn;
-  TGraphErrors *engr, *effgr;
+  TGraphErrors *engr, *effgr, *fit_interval;
   TFitResultPtr enfitresult, efffitresult;
  public:
   Peaks(int n, const Double_t E[], const Double_t I[], const Double_t ADCs[]);
@@ -22,7 +22,7 @@ class Peaks {
   void EstimateParameters(TH1*);
   void Fit(TH1*, bool print = false);
   void Calibrate(Run, bool print = false);
-  void Save();
+  void Save(int run_number);
 };
 
 #endif /* PEAKS_H */

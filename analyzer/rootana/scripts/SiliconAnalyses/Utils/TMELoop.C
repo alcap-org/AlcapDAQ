@@ -12,8 +12,15 @@
 struct SiBlockInfo {
   std::string name;
   std::vector<std::vector<SimplePulse>** > layer1_channels;
+  std::vector<double> layer1_calibGains;
+  std::vector<double> layer1_calibOffsets;
   std::vector<std::vector<SimplePulse>** > layer2_channels;
+  std::vector<double> layer2_calibGains;
+  std::vector<double> layer2_calibOffsets;
   std::vector<std::vector<SimplePulse>** > layer3_channels;
+  std::vector<double> layer3_calibGains;
+  std::vector<double> layer3_calibOffsets;
+
 };
 
 struct SiBlockTreeInfo {
@@ -35,7 +42,13 @@ struct SiBlockTreeInfo {
   int third_tap_id;
   int thin_channel;
   int thick_channel;
-  int third_channel;  
+  int third_channel;
+  double thin_calib_gain;
+  double thin_calib_offset;
+  double thick_calib_gain;
+  double thick_calib_offset;
+  double third_calib_gain;
+  double third_calib_offset;
 } siBlockTreeInfo;
 
 struct SiBlockOutput {
@@ -49,6 +62,8 @@ struct SiBlockOutput {
 struct GeInfo {
   std::string name;
   std::vector<SimplePulse>** channel;
+  double calibGain;
+  double calibOffset;
 };
 
 struct GeTreeInfo {
@@ -60,6 +75,8 @@ struct GeTreeInfo {
   
   double energy;
   double time;
+  double calib_gain;
+  double calib_offset;
 } geTreeInfo;
 
 struct GeOutput {
@@ -80,6 +97,8 @@ struct GeTargetTreeInfo {
   int ge_tap_id;
   double ge_energy;
   double ge_time;
+  double ge_calib_gain;
+  double ge_calib_offset;
 
   double thin_energy;
   double thick_energy;
@@ -96,6 +115,12 @@ struct GeTargetTreeInfo {
   int thin_channel;
   int thick_channel;
   int third_channel;
+  double thin_calib_gain;
+  double thin_calib_offset;
+  double thick_calib_gain;
+  double thick_calib_offset;
+  double third_calib_gain;
+  double third_calib_offset;
 } geTargetTreeInfo;
 
 struct GeTargetOutput {
@@ -121,6 +146,7 @@ struct TMELoopArgs {
   GeInfo ge_lo_gain;
   GeInfo ge_hi_gain;
   SiBlockInfo target; // for active target runs
+  SiBlockInfo sit;
 
   bool left_arm_complete() const {
     if (!left_arm.layer1_channels.empty() && !left_arm.layer2_channels.empty()) { // only ever had two layers working in the left arm
@@ -202,6 +228,7 @@ void Setup(const TMELoopArgs& args) {
   final_output.siBlocks.push_back(SiBlockOutput(&args.left_arm));
   final_output.siBlocks.push_back(SiBlockOutput(&args.right_arm));
   final_output.siBlocks.push_back(SiBlockOutput(&args.target));
+  final_output.siBlocks.push_back(SiBlockOutput(&args.sit));
 
   final_output.ges.push_back(GeOutput(&args.ge_lo_gain));
   final_output.ges.push_back(GeOutput(&args.ge_hi_gain));
@@ -213,7 +240,7 @@ void Setup(const TMELoopArgs& args) {
   // Create the subtrees
   std::string tree_basename = "siBlockTree_";
   for (std::vector<SiBlockOutput>::iterator i_siBlock = final_output.siBlocks.begin(); i_siBlock != final_output.siBlocks.end(); ++i_siBlock) {
-      
+    
     std::string treename = tree_basename + i_siBlock->siBlockInfo->name;
     i_siBlock->siBlockTree = new TTree(treename.c_str(), treename.c_str());
     i_siBlock->siBlockTree->Branch("run_id", &siBlockTreeInfo.run_id);
@@ -225,18 +252,24 @@ void Setup(const TMELoopArgs& args) {
     i_siBlock->siBlockTree->Branch("thin_tpi_id", &siBlockTreeInfo.thin_tpi_id);
     i_siBlock->siBlockTree->Branch("thin_tap_id", &siBlockTreeInfo.thin_tap_id);
     i_siBlock->siBlockTree->Branch("thin_channel", &siBlockTreeInfo.thin_channel);
+    i_siBlock->siBlockTree->Branch("thin_calib_gain", &siBlockTreeInfo.thin_calib_gain);
+    i_siBlock->siBlockTree->Branch("thin_calib_offset", &siBlockTreeInfo.thin_calib_offset);
 
     i_siBlock->siBlockTree->Branch("thick_energy", &siBlockTreeInfo.thick_energy);
     i_siBlock->siBlockTree->Branch("thick_time", &siBlockTreeInfo.thick_time);
     i_siBlock->siBlockTree->Branch("thick_tpi_id", &siBlockTreeInfo.thick_tpi_id);
     i_siBlock->siBlockTree->Branch("thick_tap_id", &siBlockTreeInfo.thick_tap_id);
     i_siBlock->siBlockTree->Branch("thick_channel", &siBlockTreeInfo.thick_channel);
+    i_siBlock->siBlockTree->Branch("thick_calib_gain", &siBlockTreeInfo.thick_calib_gain);
+    i_siBlock->siBlockTree->Branch("thick_calib_offset", &siBlockTreeInfo.thick_calib_offset);
 
     i_siBlock->siBlockTree->Branch("third_energy", &siBlockTreeInfo.third_energy);
     i_siBlock->siBlockTree->Branch("third_time", &siBlockTreeInfo.third_time);
     i_siBlock->siBlockTree->Branch("third_tpi_id", &siBlockTreeInfo.third_tpi_id);
     i_siBlock->siBlockTree->Branch("third_tap_id", &siBlockTreeInfo.third_tap_id);
     i_siBlock->siBlockTree->Branch("third_channel", &siBlockTreeInfo.third_channel);
+    i_siBlock->siBlockTree->Branch("third_calib_gain", &siBlockTreeInfo.third_calib_gain);
+    i_siBlock->siBlockTree->Branch("third_calib_offset", &siBlockTreeInfo.third_calib_offset);
   }
 
   tree_basename = "geTree_";
@@ -250,6 +283,8 @@ void Setup(const TMELoopArgs& args) {
     i_ge->geTree->Branch("tap_id", &geTreeInfo.tap_id);
     i_ge->geTree->Branch("energy", &geTreeInfo.energy);
     i_ge->geTree->Branch("time", &geTreeInfo.time);
+    i_ge->geTree->Branch("calib_gain", &geTreeInfo.calib_gain);
+    i_ge->geTree->Branch("calib_offset", &geTreeInfo.calib_offset);
   }
 
   // Create the cross-correlation between the ge and the active target tree
@@ -265,24 +300,32 @@ void Setup(const TMELoopArgs& args) {
     i_geTarget->geTargetTree->Branch("ge_tap_id", &geTargetTreeInfo.ge_tap_id);
     i_geTarget->geTargetTree->Branch("ge_energy", &geTargetTreeInfo.ge_energy);
     i_geTarget->geTargetTree->Branch("ge_time", &geTargetTreeInfo.ge_time);
+    i_geTarget->geTargetTree->Branch("ge_calib_gain", &geTargetTreeInfo.ge_calib_gain);
+    i_geTarget->geTargetTree->Branch("ge_calib_offset", &geTargetTreeInfo.ge_calib_offset);
 
     i_geTarget->geTargetTree->Branch("thin_energy", &geTargetTreeInfo.thin_energy);
     i_geTarget->geTargetTree->Branch("thin_time", &geTargetTreeInfo.thin_time);
     i_geTarget->geTargetTree->Branch("thin_tpi_id", &geTargetTreeInfo.thin_tpi_id);
     i_geTarget->geTargetTree->Branch("thin_tap_id", &geTargetTreeInfo.thin_tap_id);
     i_geTarget->geTargetTree->Branch("thin_channel", &geTargetTreeInfo.thin_channel);
+    i_geTarget->geTargetTree->Branch("thin_calib_gain", &geTargetTreeInfo.thin_calib_gain);
+    i_geTarget->geTargetTree->Branch("thin_calib_offset", &geTargetTreeInfo.thin_calib_offset);
 
     i_geTarget->geTargetTree->Branch("thick_energy", &geTargetTreeInfo.thick_energy);
     i_geTarget->geTargetTree->Branch("thick_time", &geTargetTreeInfo.thick_time);
     i_geTarget->geTargetTree->Branch("thick_tpi_id", &geTargetTreeInfo.thick_tpi_id);
     i_geTarget->geTargetTree->Branch("thick_tap_id", &geTargetTreeInfo.thick_tap_id);
     i_geTarget->geTargetTree->Branch("thick_channel", &geTargetTreeInfo.thick_channel);
+    i_geTarget->geTargetTree->Branch("thick_calib_gain", &geTargetTreeInfo.thick_calib_gain);
+    i_geTarget->geTargetTree->Branch("thick_calib_offset", &geTargetTreeInfo.thick_calib_offset);
 
     i_geTarget->geTargetTree->Branch("third_energy", &geTargetTreeInfo.third_energy);
     i_geTarget->geTargetTree->Branch("third_time", &geTargetTreeInfo.third_time);
     i_geTarget->geTargetTree->Branch("third_tpi_id", &geTargetTreeInfo.third_tpi_id);
     i_geTarget->geTargetTree->Branch("third_tap_id", &geTargetTreeInfo.third_tap_id);
     i_geTarget->geTargetTree->Branch("third_channel", &geTargetTreeInfo.third_channel);
+    i_geTarget->geTargetTree->Branch("third_calib_gain", &geTargetTreeInfo.third_calib_gain);
+    i_geTarget->geTargetTree->Branch("third_calib_offset", &geTargetTreeInfo.third_calib_offset);
   }
   
 }
@@ -344,28 +387,37 @@ void TMELoop(const TMELoopArgs& args) {
 
     /////////////////////////////////
     // Fill SiBlock trees
-    siBlockTreeInfo.run_id = runId;
-    siBlockTreeInfo.block_id = blockId;
-    siBlockTreeInfo.tme_id = TMEId;
-    
-    // Reset these branches
-    siBlockTreeInfo.thick_energy = 0;
-    siBlockTreeInfo.thick_time = 0;
-    siBlockTreeInfo.thick_tpi_id = -1;
-    siBlockTreeInfo.thick_tap_id = -1;
-    siBlockTreeInfo.thick_channel = -1;
-    siBlockTreeInfo.thin_energy = 0;
-    siBlockTreeInfo.thin_time = 0;
-    siBlockTreeInfo.thin_tpi_id = -1;
-    siBlockTreeInfo.thin_tap_id = -1;
-    siBlockTreeInfo.thin_channel = -1;
-    siBlockTreeInfo.third_energy = 0;
-    siBlockTreeInfo.third_time = 0;
-    siBlockTreeInfo.third_tpi_id = -1;
-    siBlockTreeInfo.third_tap_id = -1;
-    siBlockTreeInfo.third_channel = -1;
 
     for (std::vector<SiBlockOutput>::iterator i_siBlock = final_output.siBlocks.begin(); i_siBlock != final_output.siBlocks.end(); ++i_siBlock) {
+
+      siBlockTreeInfo.run_id = runId;
+      siBlockTreeInfo.block_id = blockId;
+      siBlockTreeInfo.tme_id = TMEId;
+      
+      // Reset these branches
+      siBlockTreeInfo.thin_energy = 0;
+      siBlockTreeInfo.thin_time = 0;
+      siBlockTreeInfo.thin_tpi_id = -1;
+      siBlockTreeInfo.thin_tap_id = -1;
+      siBlockTreeInfo.thin_channel = -1;
+      siBlockTreeInfo.thin_calib_gain = 0;
+      siBlockTreeInfo.thin_calib_offset = 0;
+
+      siBlockTreeInfo.thick_energy = 0;
+      siBlockTreeInfo.thick_time = 0;
+      siBlockTreeInfo.thick_tpi_id = -1;
+      siBlockTreeInfo.thick_tap_id = -1;
+      siBlockTreeInfo.thick_channel = -1;
+      siBlockTreeInfo.thick_calib_gain = 0;
+      siBlockTreeInfo.thick_calib_offset = 0;
+      
+      siBlockTreeInfo.third_energy = 0;
+      siBlockTreeInfo.third_time = 0;
+      siBlockTreeInfo.third_tpi_id = -1;
+      siBlockTreeInfo.third_tap_id = -1;
+      siBlockTreeInfo.third_channel = -1;
+      siBlockTreeInfo.third_calib_gain = 0;
+      siBlockTreeInfo.third_calib_offset = 0;
 
       // First count all the pulses in each layer
       // Loop through layer 1 channels
@@ -400,36 +452,51 @@ void TMELoop(const TMELoopArgs& args) {
       // Now that we know how many total pulses there are, we can now fill the tree safely
       for (int i_thin_channel = 0; i_thin_channel < n_thin_channels; ++i_thin_channel) {
 	std::vector<SimplePulse>* i_thin_pulse_list = *(i_siBlock->siBlockInfo->layer1_channels.at(i_thin_channel));
+	double i_thin_calib_gain = i_siBlock->siBlockInfo->layer1_calibGains.at(i_thin_channel);
+	double i_thin_calib_offset = i_siBlock->siBlockInfo->layer1_calibOffsets.at(i_thin_channel);
 	int n_thin_pulses = i_thin_pulse_list->size();
 	// Loop through layer 2 channels
 	for (int i_thick_channel = 0; i_thick_channel < n_thick_channels; ++i_thick_channel) {
 	  std::vector<SimplePulse>* i_thick_pulse_list = *(i_siBlock->siBlockInfo->layer2_channels.at(i_thick_channel));
+	  double i_thick_calib_gain = i_siBlock->siBlockInfo->layer2_calibGains.at(i_thick_channel);
+	  double i_thick_calib_offset = i_siBlock->siBlockInfo->layer2_calibOffsets.at(i_thick_channel);
 	  int n_thick_pulses = i_thick_pulse_list->size();
 
 	  int n_third_channels = i_siBlock->siBlockInfo->layer3_channels.size();
 	  for (int i_third_channel = 0; i_third_channel < n_third_channels; ++i_third_channel) {
 	    std::vector<SimplePulse>* i_third_pulse_list = *(i_siBlock->siBlockInfo->layer3_channels.at(i_third_channel));
+	    double i_third_calib_gain = i_siBlock->siBlockInfo->layer3_calibGains.at(i_third_channel);
+	    double i_third_calib_offset = i_siBlock->siBlockInfo->layer3_calibOffsets.at(i_third_channel);
 	    int n_third_pulses = i_third_pulse_list->size();
 
 	    // If we have hits in all channels
 	    for (int i_thin_pulse = 0; i_thin_pulse < n_thin_pulses; ++i_thin_pulse) {
 	      siBlockTreeInfo.thin_time = i_thin_pulse_list->at(i_thin_pulse).tTME;
-	      siBlockTreeInfo.thin_energy = i_thin_pulse_list->at(i_thin_pulse).E;
+	      //	      siBlockTreeInfo.thin_energy = i_thin_pulse_list->at(i_thin_pulse).E;
+	      siBlockTreeInfo.thin_energy = i_thin_pulse_list->at(i_thin_pulse).Amp * i_thin_calib_gain + i_thin_calib_offset;
 	      siBlockTreeInfo.thin_tpi_id = i_thin_pulse_list->at(i_thin_pulse).tpi_id;
 	      siBlockTreeInfo.thin_tap_id = i_thin_pulse_list->at(i_thin_pulse).tap_id;
 	      siBlockTreeInfo.thin_channel = i_thin_channel;
+	      siBlockTreeInfo.thin_calib_gain = i_thin_calib_gain;
+	      siBlockTreeInfo.thin_calib_offset = i_thin_calib_offset;
 	      for (int i_thick_pulse = 0; i_thick_pulse < n_thick_pulses; ++i_thick_pulse) {
 		siBlockTreeInfo.thick_time = i_thick_pulse_list->at(i_thick_pulse).tTME;
-		siBlockTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).E;
+		//		siBlockTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).E;
+		siBlockTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).Amp * i_thick_calib_gain + i_thick_calib_offset;
 		siBlockTreeInfo.thick_tpi_id = i_thick_pulse_list->at(i_thick_pulse).tpi_id;
 		siBlockTreeInfo.thick_tap_id = i_thick_pulse_list->at(i_thick_pulse).tap_id;
 		siBlockTreeInfo.thick_channel = i_thick_channel;
+		siBlockTreeInfo.thick_calib_gain = i_thick_calib_gain;
+		siBlockTreeInfo.thick_calib_offset = i_thick_calib_offset;
 		for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
 		  siBlockTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
-		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		  //		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).Amp * i_third_calib_gain + i_third_calib_offset;
 		  siBlockTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
 		  siBlockTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
 		  siBlockTreeInfo.third_channel = i_third_channel;
+		  siBlockTreeInfo.third_calib_gain = i_third_calib_gain;
+		  siBlockTreeInfo.third_calib_offset = i_third_calib_offset;
 		  //		  std::cout << "==> Filling 123" << std::endl;
 		  i_siBlock->siBlockTree->Fill(); // filling when hits in layers 1,2,3
 		} // end loop through layer 3 pulses
@@ -441,10 +508,13 @@ void TMELoop(const TMELoopArgs& args) {
 	      if (n_total_thick_pulses == 0 && i_thick_channel == 0) {
 		for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
 		  siBlockTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
-		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		  //		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).Amp * i_third_calib_gain + i_third_calib_offset;
 		  siBlockTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
 		  siBlockTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
 		  siBlockTreeInfo.third_channel = i_third_channel;
+		  siBlockTreeInfo.third_calib_gain = i_third_calib_gain;
+		  siBlockTreeInfo.third_calib_offset = i_third_calib_offset;
 		  //		  std::cout << "==> Filling 13" << std::endl;
 		  i_siBlock->siBlockTree->Fill(); // filling when hits in layers 1
 		} // end loop through layer 3 pulses
@@ -459,16 +529,22 @@ void TMELoop(const TMELoopArgs& args) {
 	    if (n_total_thin_pulses == 0 && i_thin_channel == 0) {
 	      for (int i_thick_pulse = 0; i_thick_pulse < n_thick_pulses; ++i_thick_pulse) {
 		siBlockTreeInfo.thick_time = i_thick_pulse_list->at(i_thick_pulse).tTME;
-		siBlockTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).E;
+		//		siBlockTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).E;
+		siBlockTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).Amp * i_thick_calib_gain + i_thick_calib_offset;
 		siBlockTreeInfo.thick_tpi_id = i_thick_pulse_list->at(i_thick_pulse).tpi_id;
 		siBlockTreeInfo.thick_tap_id = i_thick_pulse_list->at(i_thick_pulse).tap_id;
 		siBlockTreeInfo.thick_channel = i_thick_channel;
+		siBlockTreeInfo.thick_calib_gain = i_thick_calib_gain;
+		siBlockTreeInfo.thick_calib_offset = i_thick_calib_offset;
 		for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
 		  siBlockTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
-		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		  //		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).Amp * i_third_calib_gain + i_third_calib_offset;
 		  siBlockTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
 		  siBlockTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
 		  siBlockTreeInfo.third_channel = i_third_channel;
+		  siBlockTreeInfo.third_calib_gain = i_third_calib_gain;
+		  siBlockTreeInfo.third_calib_offset = i_third_calib_offset;
 		  //		  std::cout << "==> Filling 23" << std::endl;
 		  i_siBlock->siBlockTree->Fill(); // filling when hits in layers 2,3
 		} // end loop through layer 3 pulses
@@ -480,10 +556,13 @@ void TMELoop(const TMELoopArgs& args) {
 	      if (n_total_thick_pulses == 0 && i_thick_channel == 0) {
 		for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
 		  siBlockTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
-		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		  //		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		  siBlockTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).Amp * i_third_calib_gain + i_third_calib_offset;
 		  siBlockTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
 		  siBlockTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
 		  siBlockTreeInfo.third_channel = i_third_channel;
+		  siBlockTreeInfo.third_calib_gain = i_third_calib_gain;
+		  siBlockTreeInfo.third_calib_offset = i_third_calib_offset;
 		  //		  std::cout << "==> Filling 3" << std::endl;
 		  i_siBlock->siBlockTree->Fill(); // filling when hits in layers 3
 		} // end loop through layer 3 pulses
@@ -506,14 +585,21 @@ void TMELoop(const TMELoopArgs& args) {
       geTreeInfo.time = 0;
       geTreeInfo.tpi_id = -1;
       geTreeInfo.tap_id = -1;
+      geTreeInfo.calib_gain = 0;
+      geTreeInfo.calib_offset = 0;
 
       std::vector<SimplePulse>* i_ge_pulse_list = *(i_ge->geInfo->channel);
+      double i_calib_gain = i_ge->geInfo->calibGain;
+      double i_calib_offset = i_ge->geInfo->calibOffset;
       int n_ge_pulses = i_ge_pulse_list->size();
       for (int i_ge_pulse = 0; i_ge_pulse < n_ge_pulses; ++i_ge_pulse) {
 	geTreeInfo.tpi_id = i_ge_pulse_list->at(i_ge_pulse).tpi_id;
 	geTreeInfo.tap_id = i_ge_pulse_list->at(i_ge_pulse).tap_id;
-	geTreeInfo.energy = i_ge_pulse_list->at(i_ge_pulse).E;
+	//	geTreeInfo.energy = i_ge_pulse_list->at(i_ge_pulse).E;
+	geTreeInfo.energy = i_ge_pulse_list->at(i_ge_pulse).Amp * i_ge->geInfo->calibGain + i_ge->geInfo->calibOffset;
 	geTreeInfo.time = i_ge_pulse_list->at(i_ge_pulse).tTME;
+	geTreeInfo.calib_gain = i_calib_gain;
+	geTreeInfo.calib_offset = i_calib_offset;
 	
 	i_ge->geTree->Fill();
       }      
@@ -530,31 +616,48 @@ void TMELoop(const TMELoopArgs& args) {
       geTargetTreeInfo.ge_tap_id = -1;
       geTargetTreeInfo.ge_energy = 0;
       geTargetTreeInfo.ge_time = 0;
+      geTargetTreeInfo.ge_calib_gain = 0;
+      geTargetTreeInfo.ge_calib_offset = 0;
+
       std::vector<SimplePulse>* i_ge_pulse_list = *(i_geTarget->geInfo->channel);
+      double i_ge_calib_gain = i_geTarget->geInfo->calibGain;
+      double i_ge_calib_offset = i_geTarget->geInfo->calibOffset;
       int n_ge_pulses = i_ge_pulse_list->size();
       for (int i_ge_pulse = 0; i_ge_pulse < n_ge_pulses; ++i_ge_pulse) {
-	double ge_energy = i_ge_pulse_list->at(i_ge_pulse).E;
+	//	double ge_energy = i_ge_pulse_list->at(i_ge_pulse).E;
+	double ge_energy = i_ge_pulse_list->at(i_ge_pulse).Amp * i_ge_calib_gain + i_ge_calib_offset;
 	double ge_time = i_ge_pulse_list->at(i_ge_pulse).tTME;
 	double ge_tpi_id = i_ge_pulse_list->at(i_ge_pulse).tpi_id;
 	geTargetTreeInfo.ge_tpi_id = ge_tpi_id;
 	geTargetTreeInfo.ge_energy = ge_energy;
 	geTargetTreeInfo.ge_time = ge_time;
+	geTargetTreeInfo.ge_calib_gain = i_ge_calib_gain;
+	geTargetTreeInfo.ge_calib_offset = i_ge_calib_offset;
+
+	geTargetTreeInfo.thin_energy = 0;
+	geTargetTreeInfo.thin_time = 0;
+	geTargetTreeInfo.thin_tpi_id = -1;
+	geTargetTreeInfo.thin_tap_id = -1;
+	geTargetTreeInfo.thin_channel = -1;
+	geTargetTreeInfo.thin_calib_gain = 0;
+	geTargetTreeInfo.thin_calib_offset = 0;
 
 	geTargetTreeInfo.thick_energy = 0;
 	geTargetTreeInfo.thick_time = 0;
 	geTargetTreeInfo.thick_tpi_id = -1;
 	geTargetTreeInfo.thick_tap_id = -1;
 	geTargetTreeInfo.thick_channel = -1;
-	geTargetTreeInfo.thin_energy = 0;
-	geTargetTreeInfo.thin_time = 0;
-	geTargetTreeInfo.thin_tpi_id = -1;
-	geTargetTreeInfo.thin_tap_id = -1;
-	geTargetTreeInfo.thin_channel = -1;
+	geTargetTreeInfo.thick_calib_gain = 0;
+	geTargetTreeInfo.thick_calib_offset = 0;
+	
 	geTargetTreeInfo.third_energy = 0;
 	geTargetTreeInfo.third_time = 0;
 	geTargetTreeInfo.third_tpi_id = -1;
 	geTargetTreeInfo.third_tap_id = -1;
 	geTargetTreeInfo.third_channel = -1;
+	geTargetTreeInfo.third_calib_gain = 0;
+	geTargetTreeInfo.third_calib_offset = 0;
+
 
 	// First count all the pulses in each layer
 	// Loop through layer 1 channels
@@ -589,36 +692,51 @@ void TMELoop(const TMELoopArgs& args) {
 	// Now that we know how many total pulses there are, we can now fill the tree safely
 	for (int i_thin_channel = 0; i_thin_channel < n_thin_channels; ++i_thin_channel) {
 	  std::vector<SimplePulse>* i_thin_pulse_list = *(i_geTarget->targetInfo->layer1_channels.at(i_thin_channel));
+	  double i_thin_calib_gain = i_geTarget->targetInfo->layer1_calibGains.at(i_thin_channel);
+	  double i_thin_calib_offset = i_geTarget->targetInfo->layer1_calibOffsets.at(i_thin_channel);
 	  int n_thin_pulses = i_thin_pulse_list->size();
 	  // Loop through layer 2 channels
 	  for (int i_thick_channel = 0; i_thick_channel < n_thick_channels; ++i_thick_channel) {
 	    std::vector<SimplePulse>* i_thick_pulse_list = *(i_geTarget->targetInfo->layer2_channels.at(i_thick_channel));
+	    double i_thick_calib_gain = i_geTarget->targetInfo->layer2_calibGains.at(i_thick_channel);
+	    double i_thick_calib_offset = i_geTarget->targetInfo->layer2_calibOffsets.at(i_thick_channel);
 	    int n_thick_pulses = i_thick_pulse_list->size();
 
 	    int n_third_channels = i_geTarget->targetInfo->layer3_channels.size();
 	    for (int i_third_channel = 0; i_third_channel < n_third_channels; ++i_third_channel) {
 	      std::vector<SimplePulse>* i_third_pulse_list = *(i_geTarget->targetInfo->layer3_channels.at(i_third_channel));
+	      double i_third_calib_gain = i_geTarget->targetInfo->layer3_calibGains.at(i_third_channel);
+	      double i_third_calib_offset = i_geTarget->targetInfo->layer3_calibOffsets.at(i_third_channel);
 	      int n_third_pulses = i_third_pulse_list->size();
 
 	      // If we have hits in all channels
 	      for (int i_thin_pulse = 0; i_thin_pulse < n_thin_pulses; ++i_thin_pulse) {
 		geTargetTreeInfo.thin_time = i_thin_pulse_list->at(i_thin_pulse).tTME;
-		geTargetTreeInfo.thin_energy = i_thin_pulse_list->at(i_thin_pulse).E;
+		//		geTargetTreeInfo.thin_energy = i_thin_pulse_list->at(i_thin_pulse).E;
+		geTargetTreeInfo.thin_energy = i_thin_pulse_list->at(i_thin_pulse).Amp * i_thin_calib_gain + i_thin_calib_offset;
 		geTargetTreeInfo.thin_tpi_id = i_thin_pulse_list->at(i_thin_pulse).tpi_id;
 		geTargetTreeInfo.thin_tap_id = i_thin_pulse_list->at(i_thin_pulse).tap_id;
 		geTargetTreeInfo.thin_channel = i_thin_channel;
+		geTargetTreeInfo.thin_calib_gain = i_thin_calib_gain;
+		geTargetTreeInfo.thin_calib_offset = i_thin_calib_offset;
 		for (int i_thick_pulse = 0; i_thick_pulse < n_thick_pulses; ++i_thick_pulse) {
 		  geTargetTreeInfo.thick_time = i_thick_pulse_list->at(i_thick_pulse).tTME;
-		  geTargetTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).E;
+		  //		  geTargetTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).E;
+		  geTargetTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).Amp * i_thick_calib_gain + i_thick_calib_offset;
 		  geTargetTreeInfo.thick_tpi_id = i_thick_pulse_list->at(i_thick_pulse).tpi_id;
 		  geTargetTreeInfo.thick_tap_id = i_thick_pulse_list->at(i_thick_pulse).tap_id;
 		  geTargetTreeInfo.thick_channel = i_thick_channel;
+		  geTargetTreeInfo.thick_calib_gain = i_thick_calib_gain;
+		  geTargetTreeInfo.thick_calib_offset = i_thick_calib_offset;
 		  for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
 		    geTargetTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
-		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		    //		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).Amp * i_third_calib_gain + i_third_calib_offset;
 		    geTargetTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
 		    geTargetTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
 		    geTargetTreeInfo.third_channel = i_third_channel;
+		    geTargetTreeInfo.third_calib_gain = i_third_calib_gain;
+		    geTargetTreeInfo.third_calib_offset = i_third_calib_offset;
 		    //		  std::cout << "==> Filling 123" << std::endl;
 		    i_geTarget->geTargetTree->Fill(); // filling when hits in layers 1,2,3
 		  } // end loop through layer 3 pulses
@@ -630,10 +748,13 @@ void TMELoop(const TMELoopArgs& args) {
 		if (n_total_thick_pulses == 0 && i_thick_channel == 0) {
 		  for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
 		    geTargetTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
-		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		    //		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).Amp * i_third_calib_gain + i_third_calib_offset;
 		    geTargetTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
 		    geTargetTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
 		    geTargetTreeInfo.third_channel = i_third_channel;
+		    geTargetTreeInfo.third_calib_gain = i_third_calib_gain;
+		    geTargetTreeInfo.third_calib_offset = i_third_calib_offset;
 		    //		  std::cout << "==> Filling 13" << std::endl;
 		    i_geTarget->geTargetTree->Fill(); // filling when hits in layers 1
 		  } // end loop through layer 3 pulses
@@ -648,16 +769,22 @@ void TMELoop(const TMELoopArgs& args) {
 	      if (n_total_thin_pulses == 0 && i_thin_channel == 0) {
 		for (int i_thick_pulse = 0; i_thick_pulse < n_thick_pulses; ++i_thick_pulse) {
 		  geTargetTreeInfo.thick_time = i_thick_pulse_list->at(i_thick_pulse).tTME;
-		  geTargetTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).E;
+		  //		  geTargetTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).E;
+		  geTargetTreeInfo.thick_energy = i_thick_pulse_list->at(i_thick_pulse).Amp * i_thick_calib_gain + i_thick_calib_offset;
 		  geTargetTreeInfo.thick_tpi_id = i_thick_pulse_list->at(i_thick_pulse).tpi_id;
 		  geTargetTreeInfo.thick_tap_id = i_thick_pulse_list->at(i_thick_pulse).tap_id;
 		  geTargetTreeInfo.thick_channel = i_thick_channel;
+		  geTargetTreeInfo.thick_calib_gain = i_thick_calib_gain;
+		  geTargetTreeInfo.thick_calib_offset = i_thick_calib_offset;
 		  for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
 		    geTargetTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
-		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		    //		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).Amp * i_third_calib_gain + i_third_calib_offset;
 		    geTargetTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
 		    geTargetTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
 		    geTargetTreeInfo.third_channel = i_third_channel;
+		    geTargetTreeInfo.third_calib_gain = i_third_calib_gain;
+		    geTargetTreeInfo.third_calib_offset = i_third_calib_offset;
 		    //		  std::cout << "==> Filling 23" << std::endl;
 		    i_geTarget->geTargetTree->Fill(); // filling when hits in layers 2,3
 		  } // end loop through layer 3 pulses
@@ -669,10 +796,13 @@ void TMELoop(const TMELoopArgs& args) {
 		if (n_total_thick_pulses == 0 && i_thick_channel == 0) {
 		  for (int i_third_pulse = 0; i_third_pulse < n_third_pulses; ++i_third_pulse) {
 		    geTargetTreeInfo.third_time = i_third_pulse_list->at(i_third_pulse).tTME;
-		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		    //		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).E;
+		    geTargetTreeInfo.third_energy = i_third_pulse_list->at(i_third_pulse).Amp * i_third_calib_gain + i_third_calib_offset;
 		    geTargetTreeInfo.third_tpi_id = i_third_pulse_list->at(i_third_pulse).tpi_id;
 		    geTargetTreeInfo.third_tap_id = i_third_pulse_list->at(i_third_pulse).tap_id;
 		    geTargetTreeInfo.third_channel = i_third_channel;
+		    geTargetTreeInfo.third_calib_gain = i_third_calib_gain;
+		    geTargetTreeInfo.third_calib_offset = i_third_calib_offset;
 		    //		  std::cout << "==> Filling 3" << std::endl;
 		    i_geTarget->geTargetTree->Fill(); // filling when hits in layers 3
 		  } // end loop through layer 3 pulses

@@ -2,12 +2,16 @@
 
 #include "TMath.h"
 
+#include <iostream>
+
 Source::Source(TTimeStamp t0, Double_t a0, Isotope iso)
   : t0(t0), a0(a0), iso(iso) {}
 
 Double_t Source::Activity(TTimeStamp t) const {
   Double_t dt = (t.GetSec() - t0.GetSec())/60./60./24./365.2425;
-  return a0*TMath::Power(0.5, dt/thalf[iso]);
+  double activity = a0*TMath::Power(0.5, dt/thalf[iso]);
+  std::cout << "Activity = " << activity << std::endl;
+  return activity;
 }
 
 Double_t Source::Decays(TTimeStamp t, Double_t lt) const {
