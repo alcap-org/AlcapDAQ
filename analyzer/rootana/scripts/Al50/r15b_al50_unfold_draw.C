@@ -23,17 +23,21 @@ void r15b_al50_unfold_draw(const char* ifname) {
   // double nmu_hi = 23.8e6; // 1.03 pp
   // double nmu_hi = 122e6; // All Al50
   double nmu_hi = 105e6; // Al100
-  // double nmu_lo  = 9.26e7;
   double enmu_hi = 0.1*nmu_hi; // ? NEEDS TO BE SET FOR EACH MOM. DATASET
-  // double enmu_lo = 0.15e7;
   double caprate = 0.609;
-  // double nmu     = 0.5*(nmu_hi+nmu_lo);
-  // double enmu    = sqrt(enmu_hi*enmu_hi+enmu_lo*enmu_lo)/2;
   TF1* ftime = new TF1("f", "exp([0]^2/(2*[1]^2)-x/[1])*erfc(([0]^2-[1]*x)/(sqrt(2)*[0]*[1]))", 0, 10000);
   ftime->SetParameters(52.7, 864.);
-  double tcuteff = ftime->Integral(400, 1e6)/ftime->Integral(0, 1e6); // Al50
+  // double tcuteff = ftime->Integral(400, 1e6)/ftime->Integral(0, 1e6); // Al50
   // double tcuteff = ftime->Integral(100, 1e6)/ftime->Integral(0, 1e6); // Al100
-  // tcuteff = 1.;
+  double tcuteff = 1.;
+
+
+  int nl_all  = hl->Integral();
+  int nr_all  = hr->Integral();
+  int nl_0_10 = hl->Integral(hl->FindFixBin(0),   hl->FindFixBin(10e3));
+  int nr_0_10 = hr->Integral(hr->FindFixBin(0),   hr->FindFixBin(10e3));
+  int nl_4_8  = hl->Integral(hl->FindFixBin(4e3), hl->FindFixBin(8e3));
+  int nr_4_8  = hr->Integral(hr->FindFixBin(4e3), hr->FindFixBin(8e3));
 
   hl->Scale(1./(nmu_hi*caprate*tcuteff));
   hr->Scale(1./(nmu_hi*caprate*tcuteff));
@@ -119,4 +123,12 @@ void r15b_al50_unfold_draw(const char* ifname) {
                                                h->FindFixBin(10e3)));
   printf("4-8 MeV:    %.3g/cap\n", h->Integral(h->FindFixBin(4e3),
                                                h->FindFixBin(8e3)));
+  printf("4-8 MeV (R): %.3g/cap\n", hr->Integral(hr->FindFixBin(4e3),
+                                                 hr->FindFixBin(8e3)));
+  printf("4-8 MeV (L): %.3g/cap\n", hl->Integral(hl->FindFixBin(4e3),
+                                                 hl->FindFixBin(8e3)));
+  printf("Count:\t\tLeft\tRight\n");
+  printf("All:\t\t%d\t%d\n", nl_all,  nr_all);
+  printf("0-10 MeV:\t%d\t%d\n", nl_0_10, nr_0_10);
+  printf("4-8 MeV:\t%d\t%d\n", nl_4_8,  nr_4_8);
 }

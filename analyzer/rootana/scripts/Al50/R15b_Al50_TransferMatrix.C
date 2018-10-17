@@ -33,18 +33,6 @@ using std::vector;
 
 static TRandom3 SMEAR;
 
-// Necessary since hadd doesn't know about RooUnfold objects
-void Merge(const char* ifnameprefix, int n) {
-  TFileMerger ofile;
-  for (Long_t i = 1; i <= n; ++i) {
-    TString ifname = TString(ifnameprefix) + '_' + i + ".root";
-    ofile.AddFile(ifname);
-  }
-  TString ofname = TString(ifnameprefix) + ".root";
-  ofile.OutputFile(ofname);
-  ofile.Merge();
-}
-
 class Arm {
   Side arm;
   RooUnfoldResponse* response;
@@ -53,8 +41,8 @@ class Arm {
 public:
   Arm() : arm(kLeft), response(nullptr), diffVe(nullptr) {}
   Arm(Side s) : arm(s), response(nullptr), diffVe(nullptr) {
-    int    NE   = 150;
-    double E[2] = {0., 15e3};
+    int    NE   = 200;
+    double E[2] = {0., 20e3};
     response = new RooUnfoldResponse(NE, E[0], E[1],
                                      TString::Format("Si%c_TM", s == kLeft ?
                                                      'L' : 'R'));
@@ -273,10 +261,25 @@ void TM(const char* ifname, const char* ofname, const Particle& p,
   ofile->Close();
 }
 
-void R15b_Al50_TransferMatrix(const char* ifprefix, int n) {
-  Merge(ifprefix, n);
+
+// The merging function
+void R15b_Al50_TransferMatrix(const char* ifnamefmt, const char* ofname,
+                              int n) {
+  // Example
+  // n          = 36;
+  // ifnamefmt = "data/Al100/tm%d.2layer.root";
+  // ofname    = "data/Al100/tm.2layer.root";
+  TFileMerger ofile;
+  for (int i = 1; i <= n; ++i) {
+    char ifname[256];
+    sprintf(ifname, ifnamefmt, i);
+    ofile.AddFile(ifname);
+  }
+  ofile.OutputFile(ofname);
+  ofile.Merge();
 }
 
+// The producing function
 void R15b_Al50_TransferMatrix(char mode='\0', const char* ifname=nullptr,
                               const char* ofname=nullptr, bool verbose=false) {
   Particle p;
