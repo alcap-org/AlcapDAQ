@@ -156,7 +156,7 @@ INT MDQ_IslandTimestamp_eor(INT run_number) {
 INT MDQ_IslandTimestamp(EVENT_HEADER *pheader, void *pevent)
 {
 	// Get the event number
-	int midas_event_number = pheader->serial_number;
+	// unused variable: int midas_event_number = pheader->serial_number;
 
 	// Some typedefs
 	typedef map<string, vector<TPulseIsland*> > TStringPulseIslandMap;

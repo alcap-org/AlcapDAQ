@@ -51,7 +51,7 @@ SetupNavigator::~SetupNavigator() {
 
 
 void SetupNavigator::Close() {
-  if(IsCalibRun()) 
+  if(IsCalibRun())
     OutputCalibCSV();
   fServer->Close();
   if (fThis)
@@ -78,7 +78,7 @@ void SetupNavigator::CacheCalibDB() {
     if (!IsCalibRun()) throw Except::MissingTable(fPedestalNoiseTableName.c_str());
   } else {
     if (!ReadPedestalAndNoiseValues()) {
-      std::cout << "SetupNavigator: ERROR: Table " << fPedestalNoiseTableName 
+      std::cout << "SetupNavigator: ERROR: Table " << fPedestalNoiseTableName
                 << " contains no calib data for this run ("<<GetRunNumber()<<")" << std::endl;
     if (!IsCalibRun()) throw Except::UncalibratedRun();
     }
@@ -88,7 +88,7 @@ void SetupNavigator::CacheCalibDB() {
     if(!IsCalibRun()) throw Except::MissingTable(fPedestalNoiseTableName.c_str());
   } else {
     if (!ReadCoarseTimeOffsetValues()) {
-      std::cout << "SetupNavigator: ERROR: Table " << fCoarseTimeOffsetTableName 
+      std::cout << "SetupNavigator: ERROR: Table " << fCoarseTimeOffsetTableName
                 << " contains no calib data for this run ("<<GetRunNumber()<<")" << std::endl;
     if (!IsCalibRun()) throw Except::UncalibratedRun();
     }
@@ -117,13 +117,13 @@ bool SetupNavigator::ReadPedestalAndNoiseValues() {
   query << "SELECT * FROM " << fPedestalNoiseTableName << " WHERE run=" << run_number << ";"; // get all the pedestals and noises
   TSQLiteResult* result = (TSQLiteResult*) fServer->Query(query.str().c_str());  // get the result of this query
   query.str(""); // clear the stringstream after use
-  
+
   TSQLiteRow* row = (TSQLiteRow*) result->Next(); // get the first row
   while (row != NULL) {
     channelname = row->GetField(1);
     pedestal = atof(row->GetField(2));
     noise = atof(row->GetField(3));
-    
+
     fPedestalValues[channelname] = pedestal;
     fNoiseValues[channelname] = noise;
     delete row;
@@ -138,7 +138,6 @@ bool SetupNavigator::ReadPedestalAndNoiseValues() {
 bool SetupNavigator::ReadCoarseTimeOffsetValues() {
   // The values that we will read in
   const std::vector<std::string> table = GetCoarseTimeOffsetColumns();
-for(unsigned i=0;i<table.size();++i) DEBUG_VALUE(i, table[i]);
 
   std::stringstream query;
   query << "SELECT channel";
@@ -181,7 +180,7 @@ bool SetupNavigator::ReadEnergyCalibrationConstants() {
   std::stringstream cmd;
   // // Ben:  In the future we will want to include generator parameters in the
   // // table to be able to calibrate multiple generators simultaneously:
-  // cmd << "SELECT channel,gen_params,gain,offset FROM " << fEnergyCalibrationConstantsTableName 
+  // cmd << "SELECT channel,gen_params,gain,offset FROM " << fEnergyCalibrationConstantsTableName
   cmd << "SELECT channel,gain,offset FROM " << fEnergyCalibrationConstantsTableName
       << " WHERE run==" << GetRunNumber();
   TSQLResult* res = fServer->Query(cmd.str().c_str());
@@ -252,7 +251,7 @@ void SetupNavigator::SetCoarseTimeOffset(const IDs::source& src, double dt) {
 double SetupNavigator::GetNoise(const IDs::channel& channel) const {
   return alcap::at<Except::InvalidDetector>(fNoiseValues,channel,channel.str().c_str());
 }
-double SetupNavigator::GetPedestal(const IDs::channel& channel) const { 
+double SetupNavigator::GetPedestal(const IDs::channel& channel) const {
   return alcap::at<Except::InvalidDetector>(fPedestalValues,channel,channel.str().c_str());
 }
 
@@ -265,6 +264,6 @@ double SetupNavigator::GetCoarseTimeOffset( IDs::source source) const {
  std::string conf=source.Generator().Config();
  unsigned curly_br=conf.find('}');
 if(curly_br!=std::string::npos){ source.Generator().Config(conf.substr(0,curly_br+1));}
- 
+
  return source.matches(IDs::channel("muSc")) ? 0. : alcap::at<Except::InvalidDetector>(fCoarseTimeOffset,source,source.str().c_str());
  }

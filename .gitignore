@@ -19,3 +19,5 @@ exptab
 /sqlite*/
 *.pyc
 *.pdf
+*.db
+*.ipynb

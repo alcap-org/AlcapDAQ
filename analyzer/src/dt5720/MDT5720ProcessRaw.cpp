@@ -190,7 +190,7 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
 	}
       //      printf("caen channel mask: 0x%08x (%i)\n",caen_channel_mask,nchannels);
       
-      uint32_t caen_event_counter = p32[2] & 0x00FFFFFF;
+      // unused variable: uint32_t caen_event_counter = p32[2] & 0x00FFFFFF;
       //      printf("caen event counter: %i\n",caen_event_counter);
       
       // PW: There seems to be a factor of 2 missing between the timestamp and real timestamp
@@ -207,7 +207,7 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
         
 	vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
 	std::vector<int> sample_vector;
-	int ichannel = bankNameIter - caen_boston_bank_names.begin();
+	unsigned int ichannel = bankNameIter - caen_boston_bank_names.begin();
 
 	//	printf("TGlobalData bank [%s] ----------------------------------------\n", (*bankNameIter).c_str());
 	//	printf("Number of TPulseIslands already existing = %d\n", pulse_islands.size());
@@ -219,7 +219,7 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
 	    unsigned int isample = 0;
 	    unsigned int nwords = nsamples/2;
 
-	    for (int iword=0; iword<nwords; iword++)
+	    for (unsigned int iword=0; iword<nwords; iword++)
 	      {
 		
 		for (int isubword=0; isubword<2; isubword++)
@@ -257,8 +257,8 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
 	 bankNameIter != caen_boston_bank_names.end(); bankNameIter++) {
       
       vector<TPulseIsland*>& pulse_islands = pulse_islands_map[*(bankNameIter)];
-      printf("TEST MESSAGE: Read %d events from bank %s in event %d\n",
-	     pulse_islands.size(),
+      printf("TEST MESSAGE: Read %u events from bank %s in event %d\n",
+	     (unsigned int)pulse_islands.size(),
 	     (*(bankNameIter)).c_str(),
 	     midas_event_number);
     }

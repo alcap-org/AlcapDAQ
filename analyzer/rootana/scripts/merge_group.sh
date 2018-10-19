@@ -18,7 +18,7 @@ splithere() {
     fi
 }
 
-datasets="Al100 Al50b Si16P SiR23pct SiR21pct Al50awithNDet2 Al50awithoutNDet2"
+datasets="Al100 Al50b Si16P SiR23pct SiR21pct Al50awithNDet2 Al50awithoutNDet2 SiR2"
 
 if [ $# -ne 5 ]; then
     echo "Usage: ./merge_group <GROUPSIZE> <PRODUCTIONDB> <CALIBRATIONDB> <ODBDIRECTORY> <ROOTFILEDIRECTORY>"
