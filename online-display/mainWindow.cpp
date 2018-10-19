@@ -64,6 +64,10 @@ struct screen_info screens[] = {
     {"Raw", "raw_parameter_display.C"},
     // Add more displays here after writing a ROOT macro, eg:
     {"ThinSiHeights", "thin_silicon_heights.C"},
+    {"ThickLeftFastSiHeights", "thick_left_fast_silicon_heights.C"},
+    {"ThickRightFastSiHeights", "thick_right_fast_silicon_heights.C"},
+    {"ThickLeftSlowSiHeights", "thick_left_slow_silicon_heights.C"},
+    {"ThickRightSlowSiHeights", "thick_right_slow_silicon_heights.C"},
     // {"FADC_display", "fadc_display.C"},
 };
 
