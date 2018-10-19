@@ -33,7 +33,7 @@ mkdir -p root-build root-install
 
 # Use cmake to create the Makefiles for your system
 cd root-build/
-cmake -Dminuit2=ON -Dsqlite=on -DSQLITE_INCLUDE_DIR=../sqlite-install/include -DSQLITE_LIBRARIES=../sqlite-install/lib/libsqlite3.so -DCMAKE_INSTALL_PREFIX=../root-install ../root/ 2>&1 |tee install_log.txt
+cmake -Dminuit2=ON -Dmathmore=ON -Dsqlite=on -DSQLITE_INCLUDE_DIR=../sqlite-install/include -DSQLITE_LIBRARIES=../sqlite-install/lib/libsqlite3.so -DCMAKE_INSTALL_PREFIX=../root-install ../root/ 2>&1 |tee install_log.txt
 
 # Now compile and install
 make 2>&1 |tee -a install_log.txt

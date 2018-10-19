@@ -45,6 +45,20 @@ double Algorithm::MaxBinTime::operator() (const TPulseIsland* tpi) const {
 
   return time;
 }
+/*
+int Algorithm::MaxBinAmplitude::GetTimeBin() (const TPulseIsland* tpi) const {
+
+  std::vector<int>pulseSamples = tpi->GetSamples();
+  std::vector<int>::iterator maxbin;
+
+  if(trigger_polarity == 1)
+    maxbin = std::max_element(pulseSamples.begin(), pulseSamples.end());
+  if(trigger_polarity == 0)
+    maxbin = std::min_element(pulseSamples.begin(), pulseSamples.end());
+
+  return maxbin;
+}
+*/
 
 double Algorithm::ConstantFractionTime::operator() (const TPulseIsland* tpi) const {
 

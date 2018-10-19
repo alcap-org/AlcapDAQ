@@ -95,6 +95,8 @@ struct Algorithm::IntegralRatio{
   double GetTail()const{return fTail;}
   
   void SetTailStart(int v){ fTailIntegrator.SetStart(v); fHeadIntegrator.SetStop(v);}
+  void SetHeadStart(int v){ fHeadIntegrator.SetStart(v);}
+  void SetTailStop(int v){ fTailIntegrator.SetStop(v);}
   void SetPedestal(double v){ fTailIntegrator.SetPedestal(v); fHeadIntegrator.SetPedestal(v);}
   void SetPedestalToMinimum(const TPulseIsland* tpi);
 
