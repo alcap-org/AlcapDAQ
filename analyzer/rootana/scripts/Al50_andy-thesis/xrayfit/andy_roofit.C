@@ -2,16 +2,16 @@
 
 void andy_roofit() {
 
-  const int rebin_factor = 2;
+  const int rebin_factor = 4;
 
-  //  TFile* file = new TFile("~/data/out/v101/Al100_nam_subset.root");
-  //  TH2* hGeEnergyTime = ((TH2*)file->Get("GeSpectrum/hTimeEnergy"));
-  //  TH1* hGeEnergyPrompt = hGeEnergyTime->ProjectionY("_py", hGeEnergyTime->GetXaxis()->FindBin(-500), hGeEnergyTime->GetXaxis()->FindBin(500));
-  //  hGeEnergyPrompt->Rebin(rebin_factor);
-
-  TFile* file = new TFile("Al100_Xray.root");
-  TH1* hGeEnergyPrompt = getCalSpec((TH1*)file->Get("hGeS_500ns"));
+  TFile* file = new TFile("~/data/out/v104/Al100_nam_subset.root");
+  TH2* hGeEnergyTime = ((TH2*)file->Get("GeSpectrum/hTimeEnergy"));
+  TH1* hGeEnergyPrompt = hGeEnergyTime->ProjectionY("_py", hGeEnergyTime->GetXaxis()->FindBin(-500), hGeEnergyTime->GetXaxis()->FindBin(500));
   hGeEnergyPrompt->Rebin(rebin_factor);
+
+  //  TFile* file = new TFile("Al100_Xray.root");
+  //  TH1* hGeEnergyPrompt = getCalSpec((TH1*)file->Get("hGeS_500ns"));
+  //  hGeEnergyPrompt->Rebin(rebin_factor);
 
   RooWorkspace* ws = new RooWorkspace("ws", kTRUE);
   ws->factory("Polynomial::pol1_bkg(edep[343.7, 355], {bkg_offset[-10, 100], bkg_slope[-0.1, 0.1]})");

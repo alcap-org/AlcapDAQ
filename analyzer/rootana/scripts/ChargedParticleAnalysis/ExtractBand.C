@@ -95,7 +95,8 @@ int ExtractBand(std::string filename, std::vector<Cut*>& cuts) {
 	      << hEvdEBand->ProjectionX()->Integral(bin_integral_low, bin_integral_high) << std::endl;
 
     // Draw
-    hEvdEBand->Draw("COLZ");
+    //    hEvdEBand->Draw("COLZ");
+    hEvdE->Draw("COLZ");
     c->SetLogz();
 
     // Also draw the cuts

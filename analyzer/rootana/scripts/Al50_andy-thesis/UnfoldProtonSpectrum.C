@@ -7,8 +7,8 @@ void UnfoldProtonSpectrum() {
   //  TFile* data_file = new TFile("result_Al50_data.root", "READ");
 
   //  TFile* proton_band_file = new TFile("~/g4sim_thesis/alcap/scripts/Al50_andy-thesis/proton_band.root", "READ");
-  //  TFile* proton_band_file = new TFile("~/g4sim_thesis/alcap/scripts/Al50_andy-thesis/proton_band_Al100_no-low-entry-cut.root", "READ");
-  TFile* proton_band_file = new TFile("~/g4sim_thesis/alcap/scripts/Al50_andy-thesis/proton_band_Al100_nam_subset.root", "READ");
+  TFile* proton_band_file = new TFile("~/g4sim_thesis/alcap/scripts/Al50_andy-thesis/proton_band_Al100_no-low-entry-cut.root", "READ");
+  //  TFile* proton_band_file = new TFile("~/g4sim_thesis/alcap/scripts/Al50_andy-thesis/proton_band_Al100_nam_subset.root", "READ");
   TFile* out_file = new TFile("unfolded.root", "RECREATE");
 
   const int n_arms = 2;
@@ -22,10 +22,10 @@ void UnfoldProtonSpectrum() {
   //  double proton_cut_purity[n_arms] = {0.96, 0.98}; // Al50
   //  double proton_cut_efficiency[n_arms] = {0.63, 0.63}; //Al100 (w time cut)
   //  double proton_cut_purity[n_arms] = {0.97, 0.98}; //Al100 (w time cut)
-  //  double proton_cut_efficiency[n_arms] = {0.69, 0.68}; //Al100 (no time cut)
-  //  double proton_cut_purity[n_arms] = {0.90, 0.93}; //Al100 (no time cut)
-  double proton_cut_efficiency[n_arms] = {0.69, 0.68}; //Al100 (nam subset)
-  double proton_cut_purity[n_arms] = {0.89, 0.92}; //Al100 (nam subset)
+  double proton_cut_efficiency[n_arms] = {0.69, 0.68}; //Al100 (no time cut)
+  double proton_cut_purity[n_arms] = {0.90, 0.93}; //Al100 (no time cut)
+  //  double proton_cut_efficiency[n_arms] = {0.69, 0.68}; //Al100 (nam subset)
+  //  double proton_cut_purity[n_arms] = {0.89, 0.92}; //Al100 (nam subset)
 
 
 

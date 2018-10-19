@@ -21,5 +21,6 @@ void DeuteronExtraction() {
   cuts.push_back(deuteron_cut); cuts.push_back(deuteron_upper_cut);
 
   //  ExtractBand("all-tin-absorber.root", cuts);
-  ExtractBand("~/data/out/v94/total.root", cuts);
+  //  ExtractBand("~/data/out/v94/total.root", cuts); // Andy Al50 analysis
+  ExtractBand("~/data/out/v96/Al100.root", cuts); // Andy Al100 analysis
 }

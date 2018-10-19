@@ -28,5 +28,7 @@ void ThesisExtraction() {
   cuts.push_back(electron_spot_cut); cuts.push_back(punch_through_cut); cuts.push_back(deuteron_cut);
 
   //  ExtractBand("all-tin-absorber.root", cuts);
-  ExtractBand("~/data/out/v94/total.root", cuts);
+  //  ExtractBand("~/data/out/v94/total.root", cuts); // Andy Al50 thesis
+  //  ExtractBand("~/data/out/v96/Al100_nam_subset.root", cuts); // Andy Al100
+  ExtractBand("~/data/out/v96/Al100.root", cuts); // Andy Al100
 }

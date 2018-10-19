@@ -133,6 +133,12 @@ int TME_Al50_EvdE::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     i_arm->h_Time->SetXTitle("Time [ns]");
     i_arm->h_Time->SetYTitle("Count");    
 
+    std::string vetoed_thin_energy_histname = i_arm->detname + "_Vetoed_Thin_EnergyTime";
+    std::string vetoed_thin_energy_histtitle = "The vetoed_thin_energy and time of hits in " + i_arm->detname;
+    i_arm->h_VetoedThinEnergyTime = new TH2F(vetoed_thin_energy_histname.c_str(), vetoed_thin_energy_histtitle.c_str(), 5000,-10000,10000, 100,0,5000);
+    i_arm->h_VetoedThinEnergyTime->SetYTitle("Energy [keV]");
+    i_arm->h_VetoedThinEnergyTime->SetXTitle("t_{thin} - t_{tme} [ns]");
+
     if (fStoppedProtonCut) {
       TTree* pid_cuts_tree = new TTree();
       std::string pid_cuts_filename = "/gpfs/home/edmonds_a/AlcapDAQ/analyzer/rootana/src/Al50/pid-cuts-" + i_arm->detname + ".txt";
@@ -188,18 +194,73 @@ int TME_Al50_EvdE::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
 
       // Loop through the arms and plots
       for (std::vector<Arm>::const_iterator i_arm = fArms.begin(); i_arm != fArms.end(); ++i_arm) {
-
 	// Check that there are pulses in both the thin and the thick silicon detectors
 	DetectorList si_thin = (*i_arm).thin;
 	IDs::channel* si_thick = (*i_arm).thick;
 
+	// Fill the vetoed thin energy plot
+	// Loop through the thin quadrants
+	for(DetectorList::const_iterator i_det=si_thin.begin();
+	    i_det!=si_thin.end(); ++i_det){
+	  
+	  // Get the thin quadrant and loop through its sources
+	  int si_thin_source_index=(*i_tme)->GetSourceIndex(*i_det);
+
+	  while(si_thin_source_index>-1){
+	    const IDs::source& si_thin_source=(*i_tme)->GetSource(si_thin_source_index);
+	    int n_si_thin = (*i_tme)->NumPulses(si_thin_source);
+	    
+	    // Loop through the pulses in this quadrant
+	    for(int i_thin_pulse=0; i_thin_pulse<n_si_thin; ++i_thin_pulse){
+	      const TDetectorPulse* tdp_si_thin=(*i_tme)->GetPulse(si_thin_source,i_thin_pulse);
+	      double thin_energy = tdp_si_thin->GetTAP(TDetectorPulse::kFast)->GetEnergy();
+	      double thin_time = tdp_si_thin->GetTime();
+
+	      //	      if (thin_energy < 500) {
+	      //		continue;
+	      //	      }
+	      /*	      std::cout << "TME: #" << i_tme - gMuonEvents.begin() << " "
+		        << i_arm->detname << " "
+			<< "Q" << i_det - si_thin.begin() << " "
+			<< "#" << i_thin_pulse << " "
+			<< thin_energy << " keV, t = " << thin_time << " ns" << std::endl;
+	      */
+	      //	      std::cout << "Time to central muon = " << thin_time - tme_time << std::endl;
+
+	      // Go through the thick detector and see if there's a hit within +- 5ns
+	      int si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick);
+
+	      // While there are thick detector sources still around
+	      bool veto = false;
+	      while (si_thick_source_index>-1) {
+		const IDs::source& si_thick_source=(*i_tme)->GetSource(si_thick_source_index);
+		int n_si_thick = (*i_tme)->NumPulses(si_thick_source);		
+		// Loop through the pulses in the thick detector
+		for (int i_thick_pulse=0; i_thick_pulse<n_si_thick; ++i_thick_pulse) {
+		  const TDetectorPulse* tdp_si_thick=(*i_tme)->GetPulse(si_thick_source,i_thick_pulse);
+		  double thick_time = tdp_si_thick->GetTime();
+		  if (std::fabs(thick_time - thin_time) <= 100) {
+		    veto = true;
+		    break;
+		  }
+		}
+		si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick,si_thick_source_index+1);
+	      }
+	      if (!veto) {
+		i_arm->h_VetoedThinEnergyTime->Fill(thin_time - tme_time, thin_energy);
+	      }
+	    }
+	    si_thin_source_index=(*i_tme)->GetSourceIndex(*i_det,si_thin_source_index+1);
+	  }
+	}
+	
 	// Get the thick detector
 	int si_thick_source_index=(*i_tme)->GetSourceIndex(*si_thick);
 
 	// While there are thick detector sources still around
 	while (si_thick_source_index>-1) {
 	  const IDs::source& si_thick_source=(*i_tme)->GetSource(si_thick_source_index);
-	  int n_si_thick = (*i_tme)->NumPulses(si_thick_source);
+	  int n_si_thick = (*i_tme)->NumPulses(si_thick_source);		
 
 	  // Loop through the pulses in the thick detector
 	  for (int i_thick_pulse=0; i_thick_pulse<n_si_thick; ++i_thick_pulse) {
