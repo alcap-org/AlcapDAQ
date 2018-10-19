@@ -27,21 +27,19 @@ CheckTMEs::~CheckTMEs(){
 
 int CheckTMEs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     using namespace IDs;
-    fDetectors.push_back(IDs::channel (kGeLoGain , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kGeHiGain , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiT_1    , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiT_2    , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiT_3    , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiT_4    , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiL1_1 , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiL1_2 , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiL1_3 , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiL1_4 , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiL1_5 , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiL1_6 , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiL1_7 , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiL1_8 , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiL1_9 , kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kGeLoGain, kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kGeHiGain, kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kScVe   ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kScGe   ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiL1_1 ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiL1_2 ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiL1_3 ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiL1_4 ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiL1_5 ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiL1_6 ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiL1_7 ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiL1_8 ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiL1_9 ,  kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiL1_10 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiL1_11 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiL1_12 , kNotApplicable ));
@@ -49,26 +47,26 @@ int CheckTMEs::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fDetectors.push_back(IDs::channel (kSiL1_14 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiL1_15 , kNotApplicable ));
     fDetectors.push_back(IDs::channel (kSiL1_16 , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiR1_1 , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiR1_2 , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiR1_3 , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiR1_4 , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiR2   , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiL2   , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiR3   , kNotApplicable ));
-    fDetectors.push_back(IDs::channel (kSiL3   , kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiR1_1 ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiR1_2 ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiR1_3 ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiR1_4 ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiR2   ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kSiL2   ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kMuSc   ,  kNotApplicable ));
+    fDetectors.push_back(IDs::channel (kMuScA  ,  kNotApplicable ));
 
     // Plot the total number of pulses
     fTotalPulses=new TH1F("hTotalPulses", "Total number of pulses per TME", 100, 0 ,100);
     fTotalPulses->SetXTitle("Number of pulses");
 
     // Plot the number of pulses per channel
-    fPulsesPerDetector=new TH2F("hPulsesPerChannel", "Pulses per channel per TME", 
+    fPulsesPerDetector=new TH2F("hPulsesPerChannel", "Pulses per channel per TME",
             50, 0 ,50,fDetectors.size(),0,fDetectors.size());
     fPulsesPerDetector->SetXTitle("Number of pulses");
     //fPulsesPerDetector->SetYTitle("Detector");
 
-    fTDiffPerDetector=new TH2F("hTDiffPerChannel", "TDiff to muSc for each channel per TME", 
+    fTDiffPerDetector=new TH2F("hTDiffPerChannel", "TDiff to muSc for each channel per TME",
             5000, -2.0e4,2.0e4,fDetectors.size(),0,fDetectors.size());
     fTDiffPerDetector->SetXTitle("TDiff to central muon (ns)");
 
@@ -132,7 +130,7 @@ int CheckTMEs::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
         if((*i_tme)->HasMuonPileup()) fFlags->Fill("Muon PileUp",1.);
         //if((*i_tme)->WasEarlyInEvent()) fFlags->Fill("Early",1.);
         //else if((*i_tme)->WasLateInEvent()) fFlags->Fill("Late",1.);
-        //else  
+        //else
             fFlags->Fill("Healthy",1.);
     }
   return 0;

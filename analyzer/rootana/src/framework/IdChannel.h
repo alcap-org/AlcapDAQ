@@ -10,26 +10,27 @@
 namespace IDs{
   class channel;
 
-  /// Enum for all possible detectors.  
+  /// Enum for all possible detectors.
   /// kAnyDetector will return true when compared to any other value
   /// kErrorDetector is used to flag an error identifying a detector
-  enum Detector_t { 
+  enum Detector_t {
     kErrorDetector=-1,
     kAnyDetector=0,
-		kGe       , kLiquidSc , kNDet          , kNDet2   , kScGe    , // 1-5
-		kScL      , kScR      , kScVe          , kSiL1_1  , kSiL1_2  , // 6-10
-		kSiL1_3   , kSiL1_4   , kSiL2          , kSiR1_1  , kSiR1_2  , // 11-15
-		kSiR1_3   , kSiR1_4   , kSiR1_sum      , kSiR2    , kMuSc    , // 16-20
-                kMuScA    , kTRollover, kTSync         , kTMuSc_Hi, kTMuSc_Lo, // 21-25
-                kTGe      , kTScVe    , kTProtonsOver10, kMuScan  , kSiL1_A  , // 26-30
-                kSiL1_B   , kSiT_1    , kSiT_2         , kSiT_3   , kSiT_4   , // 31-35
-                kSiL3     , kSiR3     , kGeLoGain      , kGeHiGain, kSiL1_5  , // 36-40
-                kSiL1_6   , kSiL1_7   , kSiL1_8        , kSiL1_9  , kSiL1_10 , // 41-45
-                kSiL1_11  , kSiL1_12  , kSiL1_13       , kSiL1_14 , kSiL1_15 , // 46-50
-                kSiL1_16  , kSync     , kTMuScA // 53
-  };                                              
-  /// Used by some algorithms to loop over all Detector_t enum values
-	const short num_detector_enums=53;
+    kGeLoGain, kGeHiGain,                                     // 2
+    kMuSc,     kScGe,           kMuScan,                      // 5
+    kSiT1_1,   kSiT1_2,         kSiT1_3,  kSiT1_4,            // 9
+    kSiL2,     kSiL3,           kSiR2,    kSiR3,              // 13
+    kSiR1_1,   kSiR1_2,         kSiR1_3,  kSiR1_4,            // 17
+    kSiL1_1,   kSiL1_2,         kSiL1_3,  kSiL1_4,
+    kSiL1_5,   kSiL1_6,         kSiL1_7,  kSiL1_8,
+    kSiL1_9,   kSiL1_10,        kSiL1_11, kSiL1_12,
+    kSiL1_13,  kSiL1_14,        kSiL1_15, kSiL1_16,           // 33
+    kSiL1_A,   kSiL1_B,                                       // 35
+    kScVe,     kMuScA                                         // 37
+    kTMuSc_Lo, kTMuSc_Hi,       kTMuScA,  kTRollover, kTSync, // 42
+    kSync,     kTProtonsOver10, kTScVe                        // 45
+  };
+	const short num_detector_enums=45;
 
   /// Enum for timing filter types applied to a channel
   /// As for Detector_t, kErrorSlowFast is used to mark an error
@@ -97,10 +98,10 @@ public:
   /// the string
   channel& operator=(const char* rhs){ return (*this=std::string(rhs));};
 
-  /// Returns true if this channel is the same as another 
+  /// Returns true if this channel is the same as another
   bool operator==(const channel& rhs)const;
 
-  /// Returns true if this channel is not the same as another 
+  /// Returns true if this channel is not the same as another
   bool operator!=(const channel& rhs)const{return !(this->operator==(rhs));};
   /// @brief Check if this channel is the same as another or has it's
   /// fields set to 'any'.
@@ -108,7 +109,7 @@ public:
   /// parts, either the rhs is the same as this one, or if either this
   /// or rhs has a corresponding Any flag set
   bool matches(const channel& rhs)const;
-	
+
   /// not intuitively meaningful but maybe useful for sorting
   bool operator<(const channel& rhs)const;
   /// not intuitively meaningful but maybe useful for sorting
@@ -172,7 +173,7 @@ inline bool IDs::channel::operator==(const IDs::channel& rhs)const{
 }
 
 inline bool IDs::channel::matches(const channel& rhs)const{
-  return (isWildCardDetector() || rhs.isWildCardDetector() || fDetector==rhs.fDetector) 
+  return (isWildCardDetector() || rhs.isWildCardDetector() || fDetector==rhs.fDetector)
     && (isWildCardSlowFast() || rhs.isWildCardSlowFast() || fSlowFast==rhs.fSlowFast) ;
 }
 

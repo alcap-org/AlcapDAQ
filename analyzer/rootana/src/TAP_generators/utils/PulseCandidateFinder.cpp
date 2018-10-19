@@ -47,13 +47,13 @@ PulseCandidateFinder::PulseCandidateFinder(std::string detname, modules::options
   if(opts->HasOption("n_sigma")){
      SetSigma( opts->GetInt("n_sigma"));
   } else if(opts->HasOption(detname+"_param")){
-    fParameterValue = opts->GetDouble(detname+"_param"); 
+    fParameterValue = opts->GetDouble(detname+"_param");
   }
-  
+
   // print debugging statements
   if (opts->GetFlag("debug")){
-    std::cout << "Parameter Value for " << fChannel 
-              << " PulseCandidateFinder is " 
+    std::cout << "Parameter Value for " << fChannel
+              << " PulseCandidateFinder is "
               << fParameterValue << std::endl; // would be nice to know which module this is for
   }
 }
@@ -92,7 +92,7 @@ void PulseCandidateFinder::FindPulseCandidates(const TPulseIsland* pulse) {
     }
     else { // We have a different algorithm for fast and slow pulses
       if (fChannel.isFast()) {
-	if (fChannel.Detector() != IDs::kGe) {
+	if (fChannel.Detector() != IDs::kGeHiGain) {
 	  FindCandidatePulses_Slow(fParameterValue); // use the slow algorithm for the fast silicon pulses because of the noisy pedestal
 	}
 	else {
@@ -121,7 +121,7 @@ void PulseCandidateFinder::GetPulseCandidates(std::vector<TPulseIsland*>& pulse_
   std::vector<int>::const_iterator start_new, stop_new;
   for (std::vector<Location>::const_iterator locationIter = fPulseCandidateLocations.begin();
           locationIter != fPulseCandidateLocations.end(); ++locationIter) {
-    
+
     // Get iterator to the start locations
     start_new=fPulseIsland->GetSamples().begin();
     std::advance(start_new,locationIter->start);
