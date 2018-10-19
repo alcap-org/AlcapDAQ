@@ -25,10 +25,10 @@ std::string IDs::channel::GetDetectorString(Detector_t det){
     case kMuSc           : return "muSc";
     case kScGe           : return "ScGe";
     case kMuScan         : return "muScan";
-    case kSiT1_1         : return "SiT1-1";
-    case kSiT1_2         : return "SiT1-2";
-    case kSiT1_3         : return "SiT1-3";
-    case kSiT1_4         : return "SiT1-4";
+    case kSiT_1          : return "SiT1-1";
+    case kSiT_2          : return "SiT1-2";
+    case kSiT_3          : return "SiT1-3";
+    case kSiT_4          : return "SiT1-4";
     case kScVe           : return "ScVe";
     case kSiL1_1         : return "SiL1-1";
     case kSiL1_2         : return "SiL1-2";

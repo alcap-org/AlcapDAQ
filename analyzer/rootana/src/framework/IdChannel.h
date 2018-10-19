@@ -18,7 +18,7 @@ namespace IDs{
     kAnyDetector=0,
     kGeLoGain, kGeHiGain,                                     // 2
     kMuSc,     kScGe,           kMuScan,                      // 5
-    kSiT1_1,   kSiT1_2,         kSiT1_3,  kSiT1_4,            // 9
+    kSiT_1,    kSiT_2,          kSiT_3,   kSiT_4,             // 9
     kSiL2,     kSiL3,           kSiR2,    kSiR3,              // 13
     kSiR1_1,   kSiR1_2,         kSiR1_3,  kSiR1_4,            // 17
     kSiL1_1,   kSiL1_2,         kSiL1_3,  kSiL1_4,
@@ -26,7 +26,7 @@ namespace IDs{
     kSiL1_9,   kSiL1_10,        kSiL1_11, kSiL1_12,
     kSiL1_13,  kSiL1_14,        kSiL1_15, kSiL1_16,           // 33
     kSiL1_A,   kSiL1_B,                                       // 35
-    kScVe,     kMuScA                                         // 37
+    kScVe,     kMuScA,                                        // 37
     kTMuSc_Lo, kTMuSc_Hi,       kTMuScA,  kTRollover, kTSync, // 42
     kSync,     kTProtonsOver10, kTScVe                        // 45
   };
