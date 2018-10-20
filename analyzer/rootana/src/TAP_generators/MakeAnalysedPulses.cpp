@@ -3,6 +3,8 @@
 #include "SetupNavigator.h"
 #include "TVAnalysedPulseGenerator.h"
 #include "TAPGeneratorFactory.h"
+#include "MaxBinAPGenerator.h"
+#include "TemplateAPGenerator.h"
 #include <iostream>
 #include <utility>
 #include <sstream>
@@ -118,9 +120,9 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetu
         // Get the TPIs
         thePulseIslands=&gData->fPulseIslandToChannelMap[(*generator)->GetBank()];
         if(thePulseIslands->empty() ){
-          if( Debug()) cout << "Event No: " 
-                            << EventNavigator::Instance().EntryNo() 
-                            <<": List of TPIs for '"<< detector 
+          if( Debug()) cout << "Event No: "
+                            << EventNavigator::Instance().EntryNo()
+                            <<": List of TPIs for '"<< detector
                             <<"' was empty "<< endl;
           continue;
         }
@@ -137,14 +139,14 @@ int MakeAnalysedPulses::ProcessEntry(TGlobalData *gData, const TSetupData* gSetu
         SourceAnalPulseMap::iterator it=gAnalysedPulseMap.find((*generator)->GetSource());
         if(it==gAnalysedPulseMap.end()){
             // source doesn't seem to exist in gAnalysedPulseMap
-          cout <<"Error: New TAP source \"" << (*generator)->GetSource() 
+          cout <<"Error: New TAP source \"" << (*generator)->GetSource()
                <<"\" seems to have been created during processing of pulses."
                <<endl;
             return 1;
         }
         // add the pulses into the map
         it->second=theAnalysedPulses;
-        
+
         (*generator)->CalibratePulses(it->second);
     }
     return 0;
@@ -226,4 +228,24 @@ bool MakeAnalysedPulses::AddGenerator(const string& detector,string generatorTyp
     return true;
 }
 
+TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& generatorType, TAPGeneratorOptions* opts){
+
+    // Select the generator type
+    TVAnalysedPulseGenerator* generator=NULL;
+    // As we develop newer techniques we can add to the list here
+    if (generatorType == "MaxBin"){
+	generator = new MaxBinAPGenerator();
+    } else if( generatorType == "PeakFitter") {
+	// Temporarily I'm putting this here so I can demo how the config file
+	// handles multiple generators.  Long term this will be removed
+	generator = new MaxBinAPGenerator();
+    } else if( generatorType == "Template") {
+        generator = new TemplateAPGenerator();
+    } else {
+	cout<<"Error: Unknown generator requested: "<<generatorType<<endl;
+	throw "Unknown generator requested";
+	return NULL;
+    }
+    return generator;
+}
 ALCAP_REGISTER_MODULE(MakeAnalysedPulses,slow_gen,fast_gen);
