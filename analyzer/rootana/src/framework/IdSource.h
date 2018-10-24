@@ -1,11 +1,14 @@
 #ifndef IDSOURCE_H_
 #define IDSOURCE_H_
 
-#include "TObject.h"
-#include <map>
-#include <string>
 #include "IdChannel.h"
 #include "IdGenerator.h"
+
+#include "TObject.h"
+
+#include <map>
+#include <ostream>
+#include <string>
 
 namespace IDs{
 	class source;
@@ -31,11 +34,11 @@ class IDs::source:public TObject{
     : fChannel(),fGenerator() {
         operator=(s);
     };
-    
+
   /// Construct using a given channel and generator ID
   source(const IDs::channel& ch,const IDs::generator& gen)
     : fChannel(ch),fGenerator(gen){};
-      
+
   /// Construct using strings for each argument of the contained generator and
   /// channel IDs.
   ///
@@ -56,18 +59,18 @@ class IDs::source:public TObject{
   /// @param cfg The generator's configuration
   source(Detector_t det, SlowFast_t type,const Generator_t& t ,const Config_t& c=IDs::kDefaultConfig)
   :  fChannel(det,type),fGenerator(t,c){};
-  
+
   virtual ~source(){};
 
   void Reset(){fChannel.Reset(); fGenerator.Reset();}
 
   /// Returns true if this source matches another
   bool operator==(const source& rhs)const;
-  
+
   /// Returns true if the generator part of this source matches
   /// another generator
   bool operator==(const generator& rhs)const{return fGenerator==rhs;};
-  
+
   /// Returns true if the channel part of this source matches another channel
   bool operator==(const channel& rhs)const{return fChannel==rhs;};
 
@@ -85,13 +88,13 @@ class IDs::source:public TObject{
 
   /// Get a reference to the generator ID in this source
   generator& Generator(){return fGenerator;};
-  
+
   /// Get a reference to the channel ID in this source
   channel& Channel(){return fChannel;};
-  
+
   /// Get a const reference to the generator ID in this source
   const generator& Generator()const{return fGenerator;};
-  
+
   /// Get a const reference to the channel ID in this source
   const channel& Channel()const{return fChannel;};
 
@@ -109,7 +112,7 @@ class IDs::source:public TObject{
   /// Check if this source ID is a wildcard (either Generator
   /// or Channel is a wildcard). User must interrogate further
   /// to find out which.
-  bool isWildCard() const 
+  bool isWildCard() const
   {return isWildCardChannel() || isWildCardGenerator();}
 
   /// Check if the Channel is fast
@@ -146,7 +149,7 @@ inline bool IDs::source::operator<(const source& rhs)const
   return fChannel<rhs.Channel() || (fChannel==rhs.Channel() && fGenerator < rhs.Generator());
 }
 
-ostream& operator<< (ostream& os ,const IDs::source& id);
+std::ostream& operator<< (std::ostream& os ,const IDs::source& id);
 
 #endif // IDSOURCE_H_
 

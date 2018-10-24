@@ -5,25 +5,25 @@
 #include <vector>
 #include <map>
 
-#include "FillHistBase.h"
+#include "BaseModule.h"
 #include "TGlobalData.h"
 #include "TSetupData.h"
 #include "ModulesOptions.h"
 
 class TPulseIsland;
 
-class TemplateCreatorModule : public FillHistBase{
+class TemplateCreatorModule : public BaseModule{
   typedef std::vector<TPulseIsland*> PulseIslandList_t;
   typedef std::map<std::string, PulseIslandList_t > BankPulseList_t;
 
  public:
   TemplateCreatorModule(modules::options* opts);
-  ~TemplateCreatorModule();
+  ~TemplateCreatorModule() {}
 
  private:
-  virtual int ProcessEntry(TGlobalData *gData, TSetupData *gSetup);
-  virtual int BeforeFirstEntry(TGlobalData* gData,TSetupData *setup);
-  //virtual int AfterLastEntry(TGlobalData* gData){return 0;};
+  virtual int ProcessEntry    (TGlobalData*, const TSetupData*);
+  virtual int BeforeFirstEntry(TGlobalData*, const TSetupData*) { return 0; }
+  virtual int AfterLastEntry  (TGlobalData*, const TSetupData*) { return 0; }
 
   modules::options* fOptions;
 

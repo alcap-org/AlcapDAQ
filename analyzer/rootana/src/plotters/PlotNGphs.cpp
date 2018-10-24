@@ -3,32 +3,38 @@
 //cut using TDiff method (use MuSc for timing) and integral ratio method.
 
 #include "PlotNGphs.h"
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <map>
-#include <algorithm>
-#include <cmath>
 
-#include "TAnalysedPulse.h"
-#include "RegisterModule.inc"
-#include "ModulesOptions.h"
 #include "definitions.h"
+#include "IdChannel.h"
+#include "ModulesOptions.h"
+#include "RegisterModule.inc"
 #include "SetupNavigator.h"
+#include "TAnalysedPulse.h"
 #include "TIntegralRatioAnalysedPulse.h"
 
-#include <TH1F.h>
+#include "TH1F.h"
 
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <map>
+#include <string>
+#include <sstream>
+
+using std::cout;
+using std::endl;
+using std::pair;
 using std::string;
 using std::vector;
-using std::pair;
+
 
 extern SourceAnalPulseMap gAnalysedPulseMap;
 
 PlotNGphs::PlotNGphs(modules::options* opts) :
   BaseModule("PlotNGphs", opts),
   ftCutMin(opts->GetDouble("tdiff_min", "x>=-10000")),
-  ftCutMax(opts->GetDouble("tdiff_max", "x<=10000")) {
+  ftCutMax(opts->GetDouble("tdiff_max", "x<=10000")),
+  ftPileUp(opts->GetDouble("tpileup", 10e3)) {
   //options for timing
   //any ideas for options leading to ratio cut or energy calibration?
 
@@ -59,14 +65,14 @@ int PlotNGphs::BeforeFirstEntry(TGlobalData *gData, const TSetupData *gSetup){
       fSourcesToPlot.push_back(tmp);
     }
   }
-  
-  if(SourcesToPlot.empty()){
+
+  if(fSourcesToPlot.empty()){
     cout<<"PlotNGphs::BeforeFirstEntry: Error: No sources in gAnalysedPulseMap match "<< fSource << endl;
     return 1;
   }
 
   return 0;
-  
+
 }
 
 int PlotNGphs::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
@@ -75,65 +81,65 @@ int PlotNGphs::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
   TIntegralRatioAnalysedPulse* pulse=0;
   for(SourceList_t::const_iterator i_source=fSourcesToPlot.begin(); i_source != fSourcesToPlot.end(); ++i_source){
 
-    AnalysedPulseList *musc;
-    musc = &gAnalysedPulseMap.at("muSc");
+    AnalysedPulseList *musc = &gAnalysedPulseMap.at(IDs::source("muSc"));
     AnalysedPulseList::iterator i_Musc;
-    
 
     const AnalysedPulseList& pulseList=gAnalysedPulseMap.at(i_source->src);
-    for(AnalysedPulseList::const_iterator i_pulse=pulseList.begin(); i_pulse != pulseList.end(); ++i_pulse){
+    for(AnalysedPulseList::const_iterator i_pulse=pulseList.begin();
+        i_pulse != pulseList.end(); ++i_pulse){
 
-      if(i_pulse==pulseList.begin()){
-	pulse = dynamic_cast<TIntegralRatioAnalysedPulse*>(*i_pulse);
-	if(!pulse){
-	  cout<<"PlotNGphs:ProcessEntry: Error: Pulses in "<<i_source->src << " aren't of type TIntegralRatioAnalysedPulse"<<endl;
-	  return2;
-	}
-      }
-      else{
-	pulse = static_cast<TIntegralRatioAnalysedPulse*>(*i_pulse);
+      if(i_pulse == pulseList.begin()) {
+        pulse = dynamic_cast<TIntegralRatioAnalysedPulse*>(*i_pulse);
+        if(!pulse) {
+          cout << "PlotNGphs:ProcessEntry: Error: Pulses in " << i_source->src
+               << " aren't of type TIntegralRatioAnalysedPulse" << endl;
+          return 2;
+        }
+      } else {
+        pulse = static_cast<TIntegralRatioAnalysedPulse*>(*i_pulse);
       }
       double ratio = pulse->GetIntegralRatio();
-      double amp = pulse->GetAmplitude();
-      double time = pulse->GetTime(); // need to check this and determine TDiff
+      double amp   = pulse->GetAmplitude();
+      double time  = pulse->GetTime(); // need to check this and determine TDiff
 
 
       int detector=0;
       //need to determine which detector
-      if(i_source->src->Channel() == "NDet")
-	detector=1;
-      if(i_source->src->Channel() == "NDet2")
-	detector=2;
-      if(detector==0){
-	cout << "PlotNGphs::ProcessEntry Error: " << i_source->src << " is not a neutron detector"<< endl;
-	return 3;
+      if(i_source->src.Channel().str() == "NDet")
+        detector=1;
+      if(i_source->src.Channel().str() == "NDet2")
+        detector=2;
+      if(detector==0) {
+        cout << "PlotNGphs::ProcessEntry Error: " << i_source->src
+             << " is not a neutron detector"<< endl;
+        return 3;
       }
 
 
       //for now exit if no MuSc data.  need to setup alternative process later
-      if(!gAnalysedPulseMap.count("muSc")){
-	cout << "PlotNGphs::ProcessEntry Error : No MuSc data analyzed" << endl;
-	return 4;
+      if(!gAnalysedPulseMap.count(IDs::source("muSc"))) {
+        cout << "PlotNGphs::ProcessEntry Error : No MuSc data analyzed" << endl;
+        return 4;
       }
 
 
       double tdiffTmp = time - (*i_Musc)->GetTime(), tdiff = 0;
       for(; (tdiffTmp > 0) && (i_Musc+1 < musc->end()); ++i_Musc) {
-	double mtime = (*i_Musc)->GetTime();
+        double mtime = (*i_Musc)->GetTime();
 
-	//check for pileup
-	if((*(i_Musc+1))->GetTime() - mtime < tPileUp){
-	  ++i_Musc;
-	  continue;
-	}
+	      //check for pileup
+        if((*(i_Musc+1))->GetTime() - mtime < ftPileUp){
+         ++i_Musc;
+         continue;
+        }
 
-	tdiffTmp = time - (*(i_Musc+1))->GetTime();
+        tdiffTmp = time - (*(i_Musc+1))->GetTime();
       }
-      tdiff = time - (*i_Musc)->GetTime(); 
+      tdiff = time - (*i_Musc)->GetTime();
 
       //check that the next muon isn't closer in time
       if(std::abs(tdiffTmp) < tdiff)
-	tdiff = std::abs(tdiffTmp);
+        tdiff = std::abs(tdiffTmp);
 
       i_Musc--;
 
@@ -141,35 +147,33 @@ int PlotNGphs::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
       //for each detector I need time cut and ratio cut values
       //I should include some means of selecting time cut in options
 
-      if((tdiff < tdiff_min) || (tdiff > tdiff_max))
-	continue;
+      if((tdiff < ftCutMin) || (tdiff > ftCutMax))
+        continue;
 
       double energy = 0;
 
       if(detector == 1){
-	energy = amp * 15 - 5; //double check calibration
-	double rCut1 = 0.15;//edit later with energy relation
-	if(ratio > rCut1){
-	  i_source->Neut.Fill(amp);
-	  i_source->NeutE.Fill(energy);
-	}
-	else if(ratio <= rCut1){
-	  i_source->Gam.Fill(amp);
-	  i_source->GamE.Fill(energy);
-	}
+        energy = amp * 15 - 5; //double check calibration
+	      double rCut1 = 0.15; //edit later with energy relation
+        if(ratio > rCut1){
+          i_source->Neut->Fill(amp);
+          i_source->NeutE->Fill(energy);
+        } else if(ratio <= rCut1){
+          i_source->Gam->Fill(amp);
+          i_source->GamE->Fill(energy);
+        }
       }//end detector 1
 
       if(detector == 2){
-	energy = amp * 15 - 5; //double check calibration
-	double rCut2 = 0.15;//edit later with energy relation
-	if(ratio > rCut2){
-	  i_source->Neut.Fill(amp);
-	  i_source->NeutE.Fill(energy);
-	}
-	else if(ratio <= rCut2){
-	  i_source->Gam.Fill(amp);
-	  i_source->GamE.Fill(energy);
-	}
+	      energy = amp * 15 - 5; //double check calibration
+	      double rCut2 = 0.15;//edit later with energy relation
+        if(ratio > rCut2){
+          i_source->Neut->Fill(amp);
+          i_source->NeutE->Fill(energy);
+        } else if(ratio <= rCut2){
+          i_source->Gam->Fill(amp);
+          i_source->GamE->Fill(energy);
+        }
       }//end detector 2
 
 

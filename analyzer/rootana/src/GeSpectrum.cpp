@@ -102,11 +102,6 @@ GeSpectrum::~GeSpectrum(){
 }
 
 int GeSpectrum::BeforeFirstEntry(TGlobalData* gData, const TSetupData *setup){
-
-  int n_energy_bins = (fMaxEnergy - fMinEnergy) / fEnergyBinWidth;
-  int n_time_bins = (fMaxTime - fMinTime) / fTimeBinWidth;
-  fHist_TimeEnergy   = new TH2D("hTimeEnergy", "Energy of Gammas vs Time Difference to Central Muon (PP);Time [ns];Energy [keV];Counts", n_time_bins,fMinTime,fMaxTime, n_energy_bins, fMinEnergy, fMaxEnergy);
-
   return 0;
 }
 

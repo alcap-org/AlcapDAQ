@@ -2,7 +2,9 @@
 #define IDCHANNEL_H_
 
 #include "TObject.h"
+
 #include <map>
+#include <ostream>
 #include <string>
 
 /// Namespace defining various identification objects used in the
@@ -10,10 +12,10 @@
 namespace IDs{
   class channel;
 
-  /// Enum for all possible detectors.  
+  /// Enum for all possible detectors.
   /// kAnyDetector will return true when compared to any other value
   /// kErrorDetector is used to flag an error identifying a detector
-  enum Detector_t { 
+  enum Detector_t {
     kErrorDetector=-1,
     kAnyDetector=0,
 		kGe       , kLiquidSc , kNDet     , kNDet2  , kScGe   , // 1-5
@@ -90,10 +92,10 @@ public:
   /// the string
   channel& operator=(const char* rhs){ return (*this=std::string(rhs));};
 
-  /// Returns true if this channel is the same as another 
+  /// Returns true if this channel is the same as another
   bool operator==(const channel& rhs)const;
 
-  /// Returns true if this channel is not the same as another 
+  /// Returns true if this channel is not the same as another
   bool operator!=(const channel& rhs)const{return !(this->operator==(rhs));};
   /// @brief Check if this channel is the same as another or has it's
   /// fields set to 'any'.
@@ -101,7 +103,7 @@ public:
   /// parts, either the rhs is the same as this one, or if either this
   /// or rhs has a corresponding Any flag set
   bool matches(const channel& rhs)const;
-	
+
   /// not intuitively meaningful but maybe useful for sorting
   bool operator<(const channel& rhs)const;
   /// not intuitively meaningful but maybe useful for sorting
@@ -165,7 +167,7 @@ inline bool IDs::channel::operator==(const IDs::channel& rhs)const{
 }
 
 inline bool IDs::channel::matches(const channel& rhs)const{
-  return (isWildCardDetector() || rhs.isWildCardDetector() || fDetector==rhs.fDetector) 
+  return (isWildCardDetector() || rhs.isWildCardDetector() || fDetector==rhs.fDetector)
     && (isWildCardSlowFast() || rhs.isWildCardSlowFast() || fSlowFast==rhs.fSlowFast) ;
 }
 
@@ -189,6 +191,6 @@ inline IDs::channel::channel(const std::string& channel ):fDetector(),fSlowFast(
   *this=channel;
 }
 
-std::ostream& operator<< (ostream& os ,const IDs::channel& id);
+std::ostream& operator<< (std::ostream& os ,const IDs::channel& id);
 
 #endif //IDCHANNEL_H_

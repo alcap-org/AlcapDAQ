@@ -5,7 +5,7 @@
 #include "TFitterMinuit.h"
 
 class TemplateFitter {
-  
+
  public:
   TemplateFitter();
   ~TemplateFitter();

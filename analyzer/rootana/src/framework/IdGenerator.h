@@ -2,7 +2,9 @@
 #define IDGENERATOR_H_
 
 #include "TObject.h"
+
 #include <map>
+#include <ostream>
 #include <string>
 
 namespace IDs{
@@ -10,7 +12,7 @@ namespace IDs{
 	typedef std::string Generator_t;
 	typedef std::string Config_t;
 
-	/// Standardize the value to use to represent any generator 
+	/// Standardize the value to use to represent any generator
 	const Generator_t kAnyGenerator="any";
 	/// Standardize the value to use to represent any configuration
 	const Config_t kAnyConfig="any";
@@ -26,7 +28,7 @@ class IDs::generator:public TObject{
 	public:
     /// @brief Constructor taking two strings for the Generator type and its
     /// configuration.
-	/// 
+	///
 	/// @param g The type of the generator
 	/// @param c The configuration of the generator
 	generator(Generator_t g , Config_t c);
@@ -68,7 +70,7 @@ class IDs::generator:public TObject{
 	/// Is this generator the different to another, and do both this and
 	/// the other id have fields not set to kAny
 	bool operator!=(const generator& rhs)const{return !(this->operator==(rhs));};
-	
+
 	/// Not intuitively meaningful but maybe useful for sorting
 	bool operator<(const generator& rhs)const;
 	/// Not intuitively meaningful but maybe useful for sorting
@@ -105,7 +107,7 @@ inline bool IDs::generator::operator==(const IDs::generator& rhs)const{
 }
 
 inline bool IDs::generator::matches(const generator& rhs)const{
-	return (isWildCardType() || rhs.isWildCardType() || fType==rhs.fType) 
+	return (isWildCardType() || rhs.isWildCardType() || fType==rhs.fType)
 		&& (isWildCardConfig() || rhs.isWildCardConfig() || fConfig==rhs.fConfig) ;
 }
 
@@ -123,7 +125,7 @@ inline IDs::generator::generator(Generator_t t , Config_t c):
 		if(fConfig=="") fConfig=kAnyConfig;
 }
 
-ostream& operator<< (ostream& os ,const IDs::generator& id) ;
+std::ostream& operator<< (std::ostream& os ,const IDs::generator& id) ;
 
 #endif //IDGENERATOR_H_
 

@@ -1,16 +1,18 @@
 #include "MakeAnalysedPulses.h"
-#include "ModulesParser.h"
-#include "SetupNavigator.h"
-#include "TVAnalysedPulseGenerator.h"
-#include "TAPGeneratorFactory.h"
-#include "MaxBinAPGenerator.h"
-#include "TemplateAPGenerator.h"
-#include <iostream>
-#include <utility>
-#include <sstream>
-#include "RegisterModule.inc"
-#include "EventNavigator.h"
+
 #include "debug_tools.h"
+#include "EventNavigator.h"
+#include "MaxBinAPGenerator.h"
+#include "ModulesParser.h"
+#include "RegisterModule.inc"
+#include "SetupNavigator.h"
+#include "TAPGeneratorFactory.h"
+#include "TVAnalysedPulseGenerator.h"
+
+#include <iostream>
+#include <sstream>
+#include <utility>
+
 
 using modules::parser::GetOneWord;
 using std::cout;
@@ -230,22 +232,12 @@ bool MakeAnalysedPulses::AddGenerator(const string& detector,string generatorTyp
 
 TVAnalysedPulseGenerator* MakeAnalysedPulses::MakeGenerator(const string& generatorType, TAPGeneratorOptions* opts){
 
-    // Select the generator type
-    TVAnalysedPulseGenerator* generator=NULL;
     // As we develop newer techniques we can add to the list here
     if (generatorType == "MaxBin"){
-	generator = new MaxBinAPGenerator();
-    } else if( generatorType == "PeakFitter") {
-	// Temporarily I'm putting this here so I can demo how the config file
-	// handles multiple generators.  Long term this will be removed
-	generator = new MaxBinAPGenerator();
-    } else if( generatorType == "Template") {
-        generator = new TemplateAPGenerator();
+        return new MaxBinAPGenerator(opts);
     } else {
-	cout<<"Error: Unknown generator requested: "<<generatorType<<endl;
-	throw "Unknown generator requested";
-	return NULL;
+       cout<<"Error: Unknown generator requested: "<<generatorType<<endl;
+       throw "Unknown generator requested";
     }
-    return generator;
 }
 ALCAP_REGISTER_MODULE(MakeAnalysedPulses,slow_gen,fast_gen);

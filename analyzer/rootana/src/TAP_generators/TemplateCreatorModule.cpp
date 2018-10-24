@@ -13,18 +13,12 @@ using std::endl;
 using std::string;
 
 TemplateCreatorModule::TemplateCreatorModule(modules::options* opts):
-   FillHistBase("TemplateCreatorModule",opts),fOptions(opts){
+   BaseModule("TemplateCreatorModule",opts),fOptions(opts){
 	dir->cd("/");
 }
 
-TemplateCreatorModule::~TemplateCreatorModule(){
-}
-
-int TemplateCreatorModule::BeforeFirstEntry(TGlobalData* gData,TSetupData *setup){
-    return 0;
-}
-
-int TemplateCreatorModule::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
+int TemplateCreatorModule::ProcessEntry(TGlobalData *gData,
+                                        const TSetupData *gSetup){
 
   // Loop over each detector
   string bankname, detname;
@@ -43,14 +37,14 @@ int TemplateCreatorModule::ProcessEntry(TGlobalData *gData, TSetupData *gSetup){
     if (thePulseIslands.size() == 0) continue; // no pulses here...
 
     // Create the template fitter and the template histogram itself
-    TH1D* hTemplate = NULL;
-    TemplateFitter* template_fitter = new TemplateFitter();
+    // TH1D* hTemplate = NULL;
+    // TemplateFitter* template_fitter = new TemplateFitter();
 
     // Now loop through the TPIs and create the templates
     for (PulseIslandList_t::const_iterator pulseIter = thePulseIslands.begin(); pulseIter != thePulseIslands.end(); ++pulseIter) {
 
       // See if there is more than one pulse on the TPI and only continue if there is one
-      
+
       // If this is the first pulse, just add it directly to the template (we may want to randomly choose an initial pulse)
 
       // Make an initial guess at the parameters

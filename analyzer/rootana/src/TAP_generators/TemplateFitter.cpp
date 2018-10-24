@@ -32,8 +32,8 @@ void TemplateFitter::FitPulse(TH1D* hTemplate, const TPulseIsland* pulse) {
   // Prepare for minimizations
   fMinuitFitter->Clear();
   HistogramFitFCN* fcn = (HistogramFitFCN*)fMinuitFitter->GetMinuitFCN();
-  fcn->SetH1(hTemplate);
-  fcn->SetH2(hPulse);
+  fcn->SetTemplateHist(hTemplate);
+  fcn->SetPulseHist(hPulse);
   double ped, amp, time;
   fMinuitFitter->SetParameter(0, "Pedestal", ped, 0.1, 0, 0);
   fMinuitFitter->SetParameter(1, "Amplitude", amp, 0.1, 0, 0);

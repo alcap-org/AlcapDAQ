@@ -11,7 +11,7 @@ namespace modules {class options;}
 class PlotNGphs : public BaseModule {
   struct SourcePlots_t{
     IDs::source src;
-    TH1F* Neut, NeutE, Gam, GamE;
+    TH1F *Neut, *NeutE, *Gam, *GamE;
   };
   typedef std::vector<SourcePlots_t> SourceList_t;
 
@@ -23,6 +23,7 @@ class PlotNGphs : public BaseModule {
 
   double ftCutMin;
   double ftCutMax;
+  double ftPileUp;
 
   virtual int ProcessEntry(TGlobalData *gData, const TSetupData *gSetup);
   virtual int BeforeFirstEntry(TGlobalData *gData, const TSetupData *gSetup);

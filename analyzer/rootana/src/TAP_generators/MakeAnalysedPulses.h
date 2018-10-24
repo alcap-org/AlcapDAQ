@@ -23,14 +23,17 @@ class MakeAnalysedPulses : public BaseModule{
   MakeAnalysedPulses(modules::options* opts);
   ~MakeAnalysedPulses();
 
-  bool AddGenerator(const std::string& detector,std::string generatorType,TAPGeneratorOptions* opts=NULL);
+  bool AddGenerator(const std::string& detector,std::string generatorType,
+                    TAPGeneratorOptions* opts=NULL);
+  TVAnalysedPulseGenerator* MakeGenerator(const std::string& generatorType,
+                                          TAPGeneratorOptions* opts);
   bool ParseGeneratorList(std::string generatorList, const std::vector<std::string>&);
 
   void SetAnalysedPulseMap(StringAnalPulseMap& aMap){fAnalysedPulseMap=&aMap;}
  private:
   virtual int ProcessEntry(TGlobalData *gData, const TSetupData* gSetup);
   virtual int BeforeFirstEntry(TGlobalData* gData, const TSetupData* setup);
-  virtual int AfterLastEntry(TGlobalData* gData,const TSetupData* setup){return 0;};
+  virtual int AfterLastEntry(TGlobalData*,const TSetupData*) { return 0; };
 
   void CalibratePulses(const TVAnalysedPulseGenerator* generator, AnalysedPulseList& theAnalysedPulses)const;
 
