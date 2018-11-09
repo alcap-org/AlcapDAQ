@@ -47,10 +47,16 @@ static const int NSIL = 16;
 static const int NSIR = 4;
 
 struct PIDEvent {
+  int run, block_id, tme_id, tpi_id1, tpi_id2, tpi_id3;
   double e1, e2, e3, t1, t2, t3;
   int seg;
-  PIDEvent (double e1=0, double e2=0, double e3=0,
-            double t1=0, double t2=0, double t3=0, int seg=0) :
+  PIDEvent() {}
+  PIDEvent(int run, int block_id, int tme_id,
+           int tpi_id1, int tpi_id2, int tpi_id3,
+           double e1, double e2, double e3,
+           double t1, double t2, double t3, int seg) :
+  run(run), block_id(block_id), tme_id(tme_id),
+  tpi_id1(tpi_id1), tpi_id2(tpi_id2), tpi_id3(tpi_id3),
   e1(e1), e2(e2), e3(e3), t1(t1), t2(t2), t3(t3), seg(seg) {}
 };
 
@@ -67,13 +73,19 @@ void ConstructAndSaveTrees(TFile* f, char lr,
         sprintf(trname, "PID_%cU", std::toupper(lr));
       TTree* tr = new TTree(trname, PARTICLES[i]->Name.c_str());
       PIDEvent pid;
-      tr->Branch("e1",  &pid.e1);
-      tr->Branch("e2",  &pid.e2);
-      tr->Branch("e3",  &pid.e3);
-      tr->Branch("t1",  &pid.t1);
-      tr->Branch("t2",  &pid.t2);
-      tr->Branch("t3",  &pid.t3);
-      tr->Branch("seg", &pid.seg);
+      tr->Branch("run",      &pid.run);
+      tr->Branch("block_id", &pid.block_id);
+      tr->Branch("tme_id",   &pid.tme_id);
+      tr->Branch("tpi_id1",  &pid.tpi_id1);
+      tr->Branch("tpi_id2",  &pid.tpi_id2);
+      tr->Branch("tpi_id3",  &pid.tpi_id3);
+      tr->Branch("e1",       &pid.e1);
+      tr->Branch("e2",       &pid.e2);
+      tr->Branch("e3",       &pid.e3);
+      tr->Branch("t1",       &pid.t1);
+      tr->Branch("t2",       &pid.t2);
+      tr->Branch("t3",       &pid.t3);
+      tr->Branch("seg",      &pid.seg);
       for (int j = 0; j < pids[i].size(); ++j) {
         pid = pids[i][j];
         tr->Fill();
@@ -124,7 +136,11 @@ void psel(TTree* tr, const char* ofname, bool usealllayers,
         SiEvent ev(SiR1s[j], SiR2, (usealllayers ? SiR3 : nullptr), nullptr);
         if (ev.Valid()) {
           int k = WhichParticle(pls_r, ev.dE(), ev.E());
-          vrpids[k].push_back(PIDEvent(ev.E(0), ev.E(1), ev.E(2),
+          vrpids[k].push_back(PIDEvent(runId, blockId, TMEId,
+                                       SiR1s[j]->at(0).tpi_id,
+                                       SiR2->at(0).tpi_id,
+                                       ev.E(2) == 0 ? -1 : SiR3->at(0).tpi_id,
+                                       ev.E(0), ev.E(1), ev.E(2),
                                        ev.T(0), ev.T(1), ev.T(2), j+1));
         }
       }
@@ -134,7 +150,11 @@ void psel(TTree* tr, const char* ofname, bool usealllayers,
         SiEvent ev(SiL1s[j], SiL3, nullptr, &TMECal::SiL1A2E[j]);
         if (ev.Valid()) {
           int k = WhichParticle(pls_l, ev.dE(), ev.E());
-          vlpids[k].push_back(PIDEvent(ev.E(0), ev.E(1), ev.E(2),
+          vlpids[k].push_back(PIDEvent(runId, blockId, TMEId,
+                                       SiL1s[j]->at(0).tpi_id,
+                                       SiL3->at(0).tpi_id,
+                                       -1,
+                                       ev.E(0), ev.E(1), ev.E(2),
                                        ev.T(0), ev.T(1), ev.T(2), j+1));
         }
       }
@@ -145,9 +165,6 @@ void psel(TTree* tr, const char* ofname, bool usealllayers,
   ofile->Write();
 }
 
-// run = 0: compile only
-// run is an Al50 run number: run on that single run in Al50 dataset
-// otherwise: fail
 void R15b_Al50_psel(const char* ifname=nullptr, const char* ofname=nullptr,
                     bool usealllayers=true, bool verbose=false) {
   if (!ifname) return;
