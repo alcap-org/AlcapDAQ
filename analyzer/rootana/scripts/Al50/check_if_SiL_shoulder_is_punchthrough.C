@@ -1,0 +1,30 @@
+{
+ TFile* f2 = new TFile("data/Al50/en.2layer.root");
+ TFile* f3 = new TFile("data/Al50/en.3layer.root");
+ TH1* h2l = (TH1*)f2->Get("hl_e_reco");
+ TH1* h2r = (TH1*)f2->Get("hr_e_reco");
+ TH1* h3r = (TH1*)f3->Get("hr_e_reco");
+ TH1* h3l = (TH1*)f3->Get("hl_e_reco");
+ h2r->SetLineColor(2);
+ h3r->SetLineColor(2);
+ h3l->SetLineColor(4);
+ h2r->SetLineStyle(9);
+ h3r->SetLineStyle(1);
+ h3l->SetLineStyle(1);
+ h2r->SetTitle("Al50 comparing w/ & w/o veto;e1+e2 [keV];counts/500 keV");
+ TLegend* leg = new TLegend(0.7, 0.7, 0.9, 0.9);
+ leg->AddEntry(h2r, "SiR #bar{3}");
+ leg->AddEntry(h3r, "SiR 3||#bar{3}");
+ leg->AddEntry(h3l, "SiL 3||#bar{3}");
+ TArrow* arr = new TArrow(14000, 150e3, 15500, 30e3);
+ TText* txt = new TText(11500, 160e3, "Shoulder remains in SiR");
+ gStyle->SetOptStat(0);
+ TCanvas* c = new TCanvas("c", "c");
+ h2r->Draw("HIST");
+ h3r->Draw("SAME HIST");
+ h3l->Draw("SAME HIST");
+ leg->Draw();
+ arr->Draw();
+ txt->Draw();
+ c->SaveAs("img/check_if_SiL_shoulder_is_punchthrough.png");
+}
