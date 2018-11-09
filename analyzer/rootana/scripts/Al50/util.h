@@ -8,6 +8,7 @@
 
 #include "TArrayD.h"
 #include "TAxis.h"
+#include "TF1.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TH1D.h"
@@ -56,6 +57,32 @@ enum ParticleType {
   kAlpha, kAllParticleTypes
 };
 
+namespace Normalization {
+  double nmu_hi_al50_p102 = 109e6;
+  double nmu_hi_al50_p103 = 27.2e6;
+  double nmu_hi_al50      = 137e6;
+  double nmu_hi_al100     = 105e6;
+  double caprate          = 0.609;
+  double TCutEfficiency(double prot_tcut,
+                        double sig=52.7, double lifetime=864) {
+    static TF1* ftime = new TF1("f", "exp([0]^2/(2*[1]^2)-x/[1])*TMath::Erfc(([0]^2-[1]*x)/(sqrt(2)*[0]*[1]))", 0, 10000);
+    ftime->SetParameters(sig, lifetime);
+    return ftime->Integral(400, 1e6)/ftime->Integral(0, 1e6);
+  }
+  double Al50_p102(double prot_tcut=400) {
+    return nmu_hi_al50_p102*caprate*TCutEfficiency(prot_tcut);
+  }
+  double Al50_p103(double prot_tcut=400) {
+    return nmu_hi_al50_p103*caprate*TCutEfficiency(prot_tcut);
+  }
+  double Al50(double prot_tcut=400) {
+    return nmu_hi_al50*caprate*TCutEfficiency(prot_tcut);
+  }
+  double Al100() {
+    return nmu_hi_al100*caprate*1;
+  }
+};
+
 namespace HistUtils {
   TH1* ProjectionXY(const TH2* h, double phi, double XP, double w) {
     std::string pname = h->GetName();
@@ -81,6 +108,17 @@ namespace HistUtils {
     for (int i = 0; i <= n; ++i)
       x[i] = i*dx+xlo;
     return x;
+  }
+  void ScaleXAxis(TH1* h, Double_t scale) {
+    TAxis* ax = h->GetXaxis();
+    if (ax->GetXbins()->GetSize()) {
+      TArrayD x(*ax->GetXbins());
+      for (int i = 0; i < x.GetSize(); ++i)
+        x[i] *= scale;
+      ax->Set(x.GetSize()-1, x.GetArray());
+    } else {
+      ax->Set(ax->GetNbins(), scale*ax->GetXmin(), scale*ax->GetXmax());
+    }
   }
 }
 
@@ -274,7 +312,7 @@ namespace SiUtils {
   };
 }
 
-
+// Transfer Matrix Utilities
 namespace TMUtils {
   void Rebin(RooUnfoldResponse* r, int n) {
     r->Htruth()   ->Rebin(n);
