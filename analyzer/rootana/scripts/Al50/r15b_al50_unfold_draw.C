@@ -14,30 +14,33 @@
 
 void r15b_al50_unfold_draw(const char* ifname) {
 
-  // const char* IFNAME = "~/data/R15b/enal50p_102.root";
   TFile* ifile       = new TFile(ifname);
-  TH1* hl            = (TH1*)ifile->Get("hl_e_reco");
-  TH1* hr            = (TH1*)ifile->Get("hr_e_reco");
+  TH1* hl            = (TH1*)ifile->Get("hl_e_reco_bay");
+  TH1* hr            = (TH1*)ifile->Get("hr_e_reco_bay");
 
-  // double nmu_hi = 98.5e6; // 1.02 pp
-  // double nmu_hi = 23.8e6; // 1.03 pp
-  // double nmu_hi = 122e6; // All Al50
-  double nmu_hi = 105e6; // Al100
+  // double nmu_hi = 109e6; // 1.02 pp
+  // double nmu_hi = 27.2e6; // 1.03 pp
+  double nmu_hi = 137e6;  // All Al50
+  // double nmu_hi = 105e6;  // Al100
   double enmu_hi = 0.1*nmu_hi; // ? NEEDS TO BE SET FOR EACH MOM. DATASET
   double caprate = 0.609;
-  TF1* ftime = new TF1("f", "exp([0]^2/(2*[1]^2)-x/[1])*erfc(([0]^2-[1]*x)/(sqrt(2)*[0]*[1]))", 0, 10000);
+  TF1* ftime = new TF1("f", "exp([0]^2/(2*[1]^2)-x/[1])*TMath::Erfc(([0]^2-[1]*x)/(sqrt(2)*[0]*[1]))", 0, 10000);
   ftime->SetParameters(52.7, 864.);
-  // double tcuteff = ftime->Integral(400, 1e6)/ftime->Integral(0, 1e6); // Al50
+  double tcuteff = ftime->Integral(400, 1e6)/ftime->Integral(0, 1e6); // Al50
   // double tcuteff = ftime->Integral(100, 1e6)/ftime->Integral(0, 1e6); // Al100
-  double tcuteff = 1.;
+  // double tcuteff = 1.;                                                // Al100
 
 
-  int nl_all  = hl->Integral();
-  int nr_all  = hr->Integral();
-  int nl_0_10 = hl->Integral(hl->FindFixBin(0),   hl->FindFixBin(10e3));
-  int nr_0_10 = hr->Integral(hr->FindFixBin(0),   hr->FindFixBin(10e3));
-  int nl_4_8  = hl->Integral(hl->FindFixBin(4e3), hl->FindFixBin(8e3));
-  int nr_4_8  = hr->Integral(hr->FindFixBin(4e3), hr->FindFixBin(8e3));
+  int nl_all   = hl->Integral();
+  int nr_all   = hr->Integral();
+  int nl_0_10  = hl->Integral(hl->FindFixBin(0),     hl->FindFixBin(10e3));
+  int nr_0_10  = hr->Integral(hr->FindFixBin(0),     hr->FindFixBin(10e3));
+  int nl_2_10  = hl->Integral(hl->FindFixBin(2e3),   hl->FindFixBin(10e3));
+  int nr_2_10  = hr->Integral(hr->FindFixBin(2e3),   hr->FindFixBin(10e3));
+  int nl_35_10 = hl->Integral(hl->FindFixBin(3.5e3), hl->FindFixBin(10e3));
+  int nr_35_10 = hr->Integral(hr->FindFixBin(3.5e3), hr->FindFixBin(10e3));
+  int nl_4_8   = hl->Integral(hl->FindFixBin(4e3),   hl->FindFixBin(8e3));
+  int nr_4_8   = hr->Integral(hr->FindFixBin(4e3),   hr->FindFixBin(8e3));
 
   hl->Scale(1./(nmu_hi*caprate*tcuteff));
   hr->Scale(1./(nmu_hi*caprate*tcuteff));
@@ -118,17 +121,37 @@ void r15b_al50_unfold_draw(const char* ifname) {
   cavg->SaveAs("img/proton_e_reco_avg.png");
   cavg->SaveAs("img/proton_e_reco_avg.root");
 
-  printf("Total rate: %.3g/cap\n", h->Integral());
-  printf("0-10 MeV:   %.3g/cap\n", h->Integral(h->FindFixBin(0),
-                                               h->FindFixBin(10e3)));
-  printf("4-8 MeV:    %.3g/cap\n", h->Integral(h->FindFixBin(4e3),
-                                               h->FindFixBin(8e3)));
-  printf("4-8 MeV (R): %.3g/cap\n", hr->Integral(hr->FindFixBin(4e3),
-                                                 hr->FindFixBin(8e3)));
-  printf("4-8 MeV (L): %.3g/cap\n", hl->Integral(hl->FindFixBin(4e3),
-                                                 hl->FindFixBin(8e3)));
+  printf("Total rate:     %.3g/cap\n", h ->Integral());
+  printf("Total rate (R): %.3g/cap\n", hr->Integral());
+  printf("Total rate (L): %.3g/cap\n", hl->Integral());
+  printf("0-10 MeV:       %.3g/cap\n", h ->Integral(h ->FindFixBin(0),
+                                                    h ->FindFixBin(10e3)));
+  printf("0-10 MeV (R):   %.3g/cap\n", hr->Integral(hr->FindFixBin(0),
+                                                    hr->FindFixBin(10e3)));
+  printf("0-10 MeV (L):   %.3g/cap\n", hl->Integral(hl->FindFixBin(0),
+                                                    hl->FindFixBin(10e3)));
+  printf("2-10 MeV:       %.3g/cap\n", h ->Integral(h ->FindFixBin(2e3),
+                                                    h ->FindFixBin(10e3)));
+  printf("2-10 MeV (R):   %.3g/cap\n", hr->Integral(hr->FindFixBin(2e3),
+                                                    hr->FindFixBin(10e3)));
+  printf("2-10 MeV (L):   %.3g/cap\n", hl->Integral(hl->FindFixBin(2e3),
+                                                    hl->FindFixBin(10e3)));
+  printf("3.5-10 MeV:     %.3g/cap\n", h ->Integral(h ->FindFixBin(3.5e3),
+                                                    h ->FindFixBin(10e3)));
+  printf("3.5-10 MeV (R): %.3g/cap\n", hr->Integral(hr->FindFixBin(3.5e3),
+                                                    hr->FindFixBin(10e3)));
+  printf("3.5-10 MeV (L): %.3g/cap\n", hl->Integral(hl->FindFixBin(3.5e3),
+                                                    hl->FindFixBin(10e3)));
+  printf("4-8 MeV:        %.3g/cap\n", h ->Integral(h ->FindFixBin(4e3),
+                                                    h ->FindFixBin(8e3)));
+  printf("4-8 MeV (R):    %.3g/cap\n", hr->Integral(hr->FindFixBin(4e3),
+                                                    hr->FindFixBin(8e3)));
+  printf("4-8 MeV (L):    %.3g/cap\n", hl->Integral(hl->FindFixBin(4e3),
+                                                    hl->FindFixBin(8e3)));
   printf("Count:\t\tLeft\tRight\n");
-  printf("All:\t\t%d\t%d\n", nl_all,  nr_all);
-  printf("0-10 MeV:\t%d\t%d\n", nl_0_10, nr_0_10);
-  printf("4-8 MeV:\t%d\t%d\n", nl_4_8,  nr_4_8);
+  printf("All:\t\t%d\t%d\n",      nl_all,   nr_all);
+  printf("0-10 MeV:\t%d\t%d\n",   nl_0_10,  nr_0_10);
+  printf("2-10 MeV:\t%d\t%d\n",   nl_2_10,  nr_2_10);
+  printf("3.5-10 MeV:\t%d\t%d\n", nl_35_10, nr_35_10);
+  printf("4-8 MeV:\t%d\t%d\n",    nl_4_8,   nr_4_8);
 }
