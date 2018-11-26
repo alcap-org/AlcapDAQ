@@ -7,8 +7,8 @@ void SiL3_Unfold_TimeCut(std::string infilename, std::string outfilename, double
 
   Unfold_TimeCutArgs args;
   args.infilename = infilename;
-  std::string indirname = "DecayElectronCorrection_" + time_slice_str.str();
-  args.inhistname = indirname + "/hCorrectedSpectrum";
+  std::string indirname = "RawSpectrum_fromEnergyTime_" + time_slice_str.str();
+  args.inhistname = indirname + "/hRawSpectrum";
 
   args.time_window_min = min_time_slice;
   args.time_window_max = max_time_slice;  

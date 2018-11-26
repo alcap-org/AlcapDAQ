@@ -10,14 +10,14 @@
 struct Unfold_FlatBackgroundArgs {
   std::string infilename;
   std::string inhistname;
+  std::string intreename;
 
   std::string outfilename;
   std::string outdirname;
 
   std::string corrfilename;
   std::string corrhistname;
-  double corr_time_cut_min;
-  double corr_time_cut_max;
+  std::string corrtreename;
 };
 
 void Unfold_FlatBackground(const Unfold_FlatBackgroundArgs& args) {
@@ -28,10 +28,22 @@ void Unfold_FlatBackground(const Unfold_FlatBackgroundArgs& args) {
     return;
   }
   TH1F* hRawSpectrum = (TH1F*) file->Get(args.inhistname.c_str());
-  hRawSpectrum->SetName("hInputSpectrum");
+  //  hRawSpectrum->SetName("hInputSpectrum");
   if (!hRawSpectrum) {
     std::cout << "Problem getting histogram " << args.inhistname.c_str() << std::endl;
+    return;
   }
+  TTree* incuttree = (TTree*) file->Get(args.intreename.c_str());
+  if (!incuttree) {
+    std::cout << "Problem getting tree " << args.intreename.c_str() << std::endl;
+    return;
+  }
+
+  double in_time_cut_min = 0;
+  double in_time_cut_max = 0;
+  incuttree->SetBranchAddress("min_time", &in_time_cut_min);
+  incuttree->SetBranchAddress("max_time", &in_time_cut_max);
+  incuttree->GetEntry(0);
 
   TFile* corrfile = new TFile(args.corrfilename.c_str(), "READ");
   if (corrfile->IsZombie()) {
@@ -44,11 +56,23 @@ void Unfold_FlatBackground(const Unfold_FlatBackgroundArgs& args) {
     return;
   }
   hCorrection->SetName("hCorrection");
-
+  TTree* outcuttree = (TTree*) file->Get(args.corrtreename.c_str());
+  if (!outcuttree) {
+    std::cout << "Problem getting tree " << args.corrtreename.c_str() << std::endl;
+    return;
+  }
+  double out_time_cut_min = 0;
+  double out_time_cut_max = 0;
+  outcuttree->SetBranchAddress("min_time", &out_time_cut_min);
+  outcuttree->SetBranchAddress("max_time", &out_time_cut_max);
+  outcuttree->GetEntry(0);
   
   TH1D* hCorrectedSpectrum = (TH1D*) hRawSpectrum->Clone("hCorrectedSpectrum");
+  // Scale to be the same time width
+  double scale_factor = (in_time_cut_max - in_time_cut_min) / (out_time_cut_max - out_time_cut_min);
+  hCorrection->Scale(scale_factor);
   hCorrectedSpectrum->Add(hCorrection, -1);
-
+    
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());
   outdir->cd();

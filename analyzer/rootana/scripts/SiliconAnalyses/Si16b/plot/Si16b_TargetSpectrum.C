@@ -23,15 +23,35 @@ void Si16b_TargetSpectrum(std::string infilename, std::string outfilename) {
   args.treename = "siBlockTree_SiL";
   args.layername = "thick";
   args.max_energy = 30000;
-  args.energy_width = 100;
-  args.time_width = 250;
+  args.energy_width = 50;
+  args.time_width = 10;
   args.layerreqd = false;
   args.layerveto = false;
   args.outdirname = "SiL3";
   TargetSpectrum(args);
 
+  args.treename = "siBlockTree_SiR";
+  args.layername = "thick";
+  args.max_energy = 30000;
+  args.energy_width = 50;
+  args.time_width = 10;
+  args.layerreqd = false;
+  args.layerveto = false;
+  args.outdirname = "SiR2";
+  TargetSpectrum(args);
+
+  args.vetolayername = "thin";
+  args.reqdlayername = "third";
+  args.layerreqd = true;
+  args.layerveto = true;
+  args.outdirname = "SiR23";
+  TargetSpectrum(args);
+
+  args.layerreqd = false;
+  args.layerveto = false;
+  args.treename = "siBlockTree_SiL";
   args.outdirname = "SiL3_FlatBkg";
   args.min_time = -20000;
-  args.max_time = -500;
+  args.max_time = -2000;  
   TargetSpectrum(args);
 }

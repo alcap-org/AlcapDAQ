@@ -1,11 +1,11 @@
 void SiL3_UnfoldCrossCheck() {
 
-  std::string filename = "~/data/results/SiL3_active/unfold.root";
+  std::string filename = "~/data/results/SiL3/unfold.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
-  double min_time_slice = 1500;
-  double max_time_slice = 3500;//3000;//5000;
-  double time_slice_step = 500;
+  double min_time_slice = 1000;
+  double max_time_slice = 1700;//3000;//5000;
+  double time_slice_step = 100;
   const int n_slices = 7;
   Int_t colours[n_slices] = {kBlue, kRed, kBlack, kMagenta, kSpring, kGray, kGreen+2};
 
@@ -14,7 +14,7 @@ void SiL3_UnfoldCrossCheck() {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
 
-  TLegend* leg = new TLegend(0.30,0.55,0.70,0.85);
+  TLegend* leg = new TLegend(0.50,0.55,0.90,0.85);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.03);
   leg->SetFillColor(kWhite);
@@ -29,10 +29,10 @@ void SiL3_UnfoldCrossCheck() {
     Int_t i_colour = colours[i_slice];
 
     std::string i_foldername = "TimeCut_" + time_slice_str.str();
-    std::string i_histname = i_foldername + "/hCorrectedSpectrum";
+    //    std::string i_histname = i_foldername + "/hCorrectedSpectrum";
     //    std::string i_foldername = "DecayElectronCorrection_" + time_slice_str.str();
     //    std::string i_histname = i_foldername + "/hCorrectedSpectrum";
-    //    //    std::string i_histname = i_foldername + "/hInputSpectrum";
+    std::string i_histname = i_foldername + "/hInputSpectrum";
 
     TH1F* spectrum = (TH1F*) file->Get(i_histname.c_str());
     if (!spectrum) {
@@ -41,6 +41,7 @@ void SiL3_UnfoldCrossCheck() {
     }
     //    spectrum->Sumw2();
     //    spectrum->Rebin(2);
+    spectrum->GetXaxis()->SetRangeUser(0,10000);
     spectrum->SetLineColor(i_colour);
     spectrum->Draw("HIST E SAMES");
 

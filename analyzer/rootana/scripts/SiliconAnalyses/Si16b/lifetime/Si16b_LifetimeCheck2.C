@@ -1,10 +1,13 @@
 void Si16b_LifetimeCheck2() {
 
-  std::string infilename = "~/data/results/Si16b_passive/lifetime.root";
+  std::string infilename = "~/data/results/Si16b/lifetime.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
   
-  //  std::string base_indirname = "SiL3";
-  std::string base_indirname = "SiL3_wFlatBkgRemoval";
+  std::string base_indirname = "SiL3_1000keVCut_wFlatBkg";
+  //  std::string base_indirname = "SiL3_wFlatBkgRemoval";
+  //  std::string base_indirname = "Deuteron_wTimeCut_SingleExp";
+  //  std::string base_indirname = "Triton_wTimeCut_SingleExp";
+  //  std::string base_indirname = "Alpha_wTimeCut_SingleExp";
   TCanvas* c_Lifetime = new TCanvas("c_Lifetime", "c_Lifetime");
   c_Lifetime->SetLogy();
 
@@ -23,10 +26,10 @@ void Si16b_LifetimeCheck2() {
   hLifetime->SetMarkerStyle(kFullCircle);
   hLifetime->SetMarkerColor(kBlack);
   hLifetime->SetLineColor(kBlack);
-  hLifetime->SetTitle("Si16b Dataset, Right Arm, Protons");
+  hLifetime->SetTitle("Si16b Dataset, Left Arm, Inclusive");
   hLifetime->SetStats(false);
   //  gStyle->SetOptFit(1);
-  hLifetime->GetXaxis()->SetRangeUser(0, 10000);
+  hLifetime->GetXaxis()->SetRangeUser(-1000, 20000);
   hLifetime->Draw("P E");
 
   fit->Draw("LSAME");

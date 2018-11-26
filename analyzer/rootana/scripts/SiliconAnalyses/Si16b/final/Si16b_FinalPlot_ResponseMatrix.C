@@ -1,14 +1,17 @@
 void Si16b_FinalPlot_ResponseMatrix() {
 
-  std::string infilename = "~/data/results/Si16b_passive/unfolds.root";
-  std::string inhistname = "hResponseMatrix_proton";
+  std::string infilename = "~/data/results/Si16b/unfold.root";
+  std::string particle = "alpha";
+  std::string inhistname = particle + "/hResponseMatrix";
   
   TFile* infile = new TFile(infilename.c_str(), "READ");
   TH2F* hResponseMatrix = (TH2F*) infile->Get(inhistname.c_str());
 
   TCanvas* c_Response = new TCanvas("c_Response", "c_Response");
 
-  hResponseMatrix->SetTitle("Si16b MC, Right Arm, Proton Response Matrix");
+  std::string histtitle;
+  histtitle = "Si16b MC, Right Arm, " + particle + " Response Matrix";
+  hResponseMatrix->SetTitle(histtitle.c_str());
   hResponseMatrix->SetStats(false);
   //  gStyle->SetOptFit(1);
   hResponseMatrix->GetYaxis()->SetTitleOffset(1.3);

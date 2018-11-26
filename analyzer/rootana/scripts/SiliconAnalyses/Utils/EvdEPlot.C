@@ -44,10 +44,12 @@ void EvdEPlot(EvdEPlotArgs& args) {
   TFile* in_file = new TFile(args.infilename.c_str(), "READ");
   if (in_file->IsZombie()) {
     std::cout << "Problem opening file " << args.infilename << std::endl;
+    return;
   }
   TTree* armtree = (TTree*) in_file->Get(args.treename.c_str());
   if (!armtree) {
     std::cout << "Problem getting tree " << args.treename << std::endl;
+    return;
   }
 
   int n_x_energy_bins = (args.max_x_energy - args.min_x_energy) / args.x_energy_width;

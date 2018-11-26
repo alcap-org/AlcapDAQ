@@ -1,7 +1,7 @@
 void SiL3_LifetimeCheck() {
 
-  std::string infilename = "~/data/results/SiL3_active/lifetime.root";
-  //  std::string infilename = "~/data/results/SiL3_active_no-templates/lifetime.root";
+  std::string infilename = "~/data/results/SiL3/lifetime.root";
+  //  std::string infilename = "~/data/results/SiL3_no-templates/lifetime.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
 
   TCanvas* c_Lifetime = new TCanvas("c_Lifetime", "c_Lifetime");

@@ -28,15 +28,23 @@ void RawSpectrum_fromEnergyTime(const RawSpectrum_fromEnergyTimeArgs& args) {
     std::cout << "Problem getting histogram " << args.inhistname.c_str() << std::endl;
   }
 
+  double min_time = args.min_time;
+  double max_time = args.max_time;
+  TTree* cuttree = new TTree("cuttree", "cuttree");
+  cuttree->Branch("min_time", &min_time);
+  cuttree->Branch("max_time", &max_time);
+  cuttree->Fill();
+
   int min_time_bin = hEnergyTime->GetXaxis()->FindBin(args.min_time);
   int max_time_bin = hEnergyTime->GetXaxis()->FindBin(args.max_time)-1;
   std::string outhistname = "hRawSpectrum";
   TH1D* hRawSpectrum = hEnergyTime->ProjectionY(outhistname.c_str(), min_time_bin, max_time_bin);
-
+  
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());
   outdir->cd();
   hRawSpectrum->Write();
+  cuttree->Write();
   outfile->Write();
   outfile->Close();
 }

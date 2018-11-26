@@ -26,14 +26,15 @@ void Unfold_TimeCut(const Unfold_TimeCutArgs& args) {
     return;
   }
   TH1F* hInputSpectrum = (TH1F*) file->Get(args.inhistname.c_str());
-  hInputSpectrum->SetName("hInputSpectrum");
   if (!hInputSpectrum) {
     std::cout << "Problem getting histogram " << args.inhistname.c_str() << std::endl;
+    return;
   }
+  hInputSpectrum->SetName("hInputSpectrum");
 
   double time_window_min = args.time_window_min;
   double time_window_max = args.time_window_max;
-  double decay_lifetime = 767;
+  double decay_lifetime = 756;
   double fraction_in_time_window = (TMath::Exp(-time_window_min/decay_lifetime) - TMath::Exp(-time_window_max/decay_lifetime));
 
   

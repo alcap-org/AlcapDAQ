@@ -2,7 +2,7 @@
 
 void SiL3_FinalPlot_2p1sFit_wTargetCoinc_SplitPeak() {
 
-  std::string norm_file_name = "/home/edmonds/data/results/SiL3_active/normalisation.root";
+  std::string norm_file_name = "/home/edmonds/data/results/SiL3/normalisation.root";
   TFile* norm_file = new TFile(norm_file_name.c_str(), "READ");
 
   std::string ge_channel = "GeLoGain";
@@ -10,11 +10,9 @@ void SiL3_FinalPlot_2p1sFit_wTargetCoinc_SplitPeak() {
   const int n_slices = 2;
   std::string norm_dir_names[n_slices] = {"_wSiL3Coinc_MuonSlice3000_4000", "_wSiL3Coinc_MuonSlice4000_5000"};
 
-  TCanvas* c_XRaySpectrum = new TCanvas("c_XRaySpectrum", "c_XRaySpectrum");
-  c_XRaySpectrum->Divide(2,1);
 
   for (int i_slice = 0; i_slice < n_slices; ++i_slice) {
-    c_XRaySpectrum->cd(i_slice+1);
+    TCanvas* c_XRaySpectrum = new TCanvas();
 
     std::string norm_dir_name = ge_channel + norm_dir_names[i_slice] + "_" + transition;
     std::string norm_ws_name = norm_dir_name + "/ws";
@@ -54,7 +52,6 @@ void SiL3_FinalPlot_2p1sFit_wTargetCoinc_SplitPeak() {
     Eframe->Draw();
 
     TLatex* latex = new TLatex();
-    latex->SetTextSize(0.035);
     latex->SetTextAlign(22);
     latex->DrawLatexNDC(0.30, 0.70, "AlCap Preliminary");
     

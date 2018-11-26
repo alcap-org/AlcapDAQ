@@ -23,7 +23,7 @@ struct RawSpectrum_fromEvdEArgs {
 void RawSpectrum_fromEvdE(RawSpectrum_fromEvdEArgs& args) {
 
   TFile* data_file = new TFile(args.datafilename.c_str(), "READ");
-  TTree* cut_tree = (TTree*) data_file->Get(args.datacuttreename.c_str());
+  TTree* cut_tree = ((TTree*) data_file->Get(args.datacuttreename.c_str()))->CloneTree();
   TH1D* raw_spectrum = NULL;
   for (std::vector<std::string>::const_iterator i_histname = args.datahistnames.begin(); i_histname != args.datahistnames.end(); ++i_histname) {
     TH2F* hEvdE = (TH2F*) data_file->Get(i_histname->c_str());
@@ -43,6 +43,13 @@ void RawSpectrum_fromEvdE(RawSpectrum_fromEvdEArgs& args) {
       raw_spectrum->Add(hEvdE->ProjectionX(), scale_ratio);
     }
   }
+
+  double integral_low = 0;
+  double integral_high = 10000;
+  int integral_bin_low = raw_spectrum->FindBin(integral_low);
+  int integral_bin_high = raw_spectrum->FindBin(integral_high);
+  std::cout << args.outdirname << ": " << integral_low << " -- " << integral_high << " keV: Integral = " << raw_spectrum->Integral(integral_bin_low, integral_bin_high) << std::endl;
+
   
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());

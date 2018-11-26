@@ -1,6 +1,7 @@
 #include "scripts/SiliconAnalyses/Ti50/plot/Ti50_SiTEnergy.C"
 #include "scripts/SiliconAnalyses/Ti50/plot/Ti50_EvdEPlot.C"
 #include "scripts/SiliconAnalyses/Ti50/plot/Ti50_XRaySpectrum.C"
+#include "scripts/SiliconAnalyses/Ti50/plot/Ti50_TargetSpectrum.C"
 
 void Ti50_AllPlots() {
 
@@ -14,4 +15,5 @@ void Ti50_AllPlots() {
   Ti50_SiTEnergy(infilename, outfilename);
   Ti50_EvdEPlot(infilename, outfilename);
   Ti50_XRaySpectrum(infilename, outfilename);
+  Ti50_TargetSpectrum(infilename, outfilename);
 }

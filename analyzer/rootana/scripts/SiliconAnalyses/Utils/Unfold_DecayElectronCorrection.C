@@ -33,9 +33,10 @@ void Unfold_DecayElectronCorrection(const Unfold_DecayElectronCorrectionArgs& ar
   }
   TH1F* hRawSpectrum = (TH1F*) file->Get(args.inhistname.c_str());
   hRawSpectrum->SetName("hInputSpectrum");
-  hRawSpectrum->Rebin(2);
+  //  hRawSpectrum->Rebin(2);
   if (!hRawSpectrum) {
     std::cout << "Problem getting histogram " << args.inhistname << std::endl;
+    return;
   }
 
   TFile* corrfile = new TFile(args.corrfilename.c_str(), "READ");

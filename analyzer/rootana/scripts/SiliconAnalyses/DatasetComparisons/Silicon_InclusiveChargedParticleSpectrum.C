@@ -1,10 +1,11 @@
 void Silicon_InclusiveChargedParticleSpectrum() {
 
   const int n_datasets = 2;
-  std::string datasetnames[n_datasets] = {"Si16b_passive", "SiL3_active"};
+  std::string datasetnames[n_datasets] = {"Si16b", "SiL3"};
   Int_t colours[n_datasets] = {kRed, kBlue};
-  const int n_spectra = 3;
-  std::string spectranames[n_spectra] = {"FlatBackground/hInputSpectrum", "FlatBackground/hCorrectedSpectrum", "DecayElectronCorrection/hCorrectedSpectrum"};
+  const int n_spectra = 2;
+  std::string foldernames[n_spectra] = {"DecayElectronCorrection", "DecayElectronCorrection"};
+  std::string spectranames[n_spectra] = {"hInputSpectrum", "hCorrectedSpectrum"};
   TCanvas* canvases[n_spectra] = {0};
 
   TLegend* leg = new TLegend(0.30,0.55,0.70,0.85);
@@ -22,7 +23,11 @@ void Silicon_InclusiveChargedParticleSpectrum() {
     TFile* file = new TFile(filename.c_str(), "READ");
 
     for (int i_spectra = 0; i_spectra < n_spectra; ++i_spectra) {
-      std::string i_spectraname = spectranames[i_spectra];
+      std::string i_foldername = foldernames[i_spectra];
+      if (i_datasetname == "SiL3") {
+	i_foldername += "_TimeSlice2000_2500";
+      }
+      std::string i_spectraname = i_foldername + "/" + spectranames[i_spectra];
       TCanvas* i_canvas = canvases[i_spectra];
 
       if (!i_canvas) {

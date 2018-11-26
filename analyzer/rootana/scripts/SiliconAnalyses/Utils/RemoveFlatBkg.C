@@ -77,8 +77,10 @@ void RemoveFlatBkg(const RemoveFlatBkgArgs& args) {
   TH2F* hEnergyTime_wFlatBkgRemoval = (TH2F*) hEnergyTime->Clone("hEnergyTime");
   hEnergyTime_wFlatBkgRemoval->Add(hFlatBkg_FullSize, -1);
   */
-  TH2F* hFlatBkg_FullSize = (TH2F*) hEnergyTime->Clone("hFlatBkg_FullSize");
+
+  /*TH2F* hFlatBkg_FullSize = (TH2F*) hEnergyTime->Clone("hFlatBkg_FullSize");
   hFlatBkg_FullSize->Reset();
+  // copy in the half that we've done
   for (int j_bin = 1; j_bin <= hFlatBkg->GetYaxis()->GetNbins(); ++j_bin) {
     for (int i_bin = 1; i_bin <= hFlatBkg->GetXaxis()->GetNbins(); ++i_bin) {
       double bin_x = hFlatBkg->GetXaxis()->GetBinCenter(i_bin);
@@ -89,10 +91,13 @@ void RemoveFlatBkg(const RemoveFlatBkgArgs& args) {
       //      if (original_content>0) {
       //	std::cout << "Old (" << i_bin << ", " << j_bin << ") = (" << bin_x << ", " << bin_y << ") ==> (" << i_bin_new << ", " << j_bin_new << ") = " << hFlatBkg_FullSize->GetXaxis()->GetBinCenter(i_bin_new) << ", " << hFlatBkg_FullSize->GetYaxis()->GetBinCenter(j_bin_new) << ": " << original_content << std::endl;
       //      }
-      hFlatBkg_FullSize->SetBinContent(i_bin_new, j_bin_new, original_content);
+      if (original_content>0) {
+	hFlatBkg_FullSize->SetBinContent(i_bin_new, j_bin_new, original_content);
+      }
     }
   }
 
+  // mirror it over onto the other side
   for (int j_bin = 1; j_bin <= hFlatBkg_FullSize->GetYaxis()->GetNbins(); ++j_bin) {
     for (int i_bin = 1; i_bin <= hFlatBkg_FullSize->GetXaxis()->GetNbins(); ++i_bin) {
       double original_content = hFlatBkg_FullSize->GetBinContent(i_bin, j_bin);
@@ -106,18 +111,22 @@ void RemoveFlatBkg(const RemoveFlatBkgArgs& args) {
       //      if (original_content>0) {
       //	std::cout << "Old (" << i_bin << ", " << j_bin << ") = (" << bin_x << ", " << bin_y << ") ==> (" << i_bin_new << ", " << j_bin_new << ") = " << hFlatBkg_FullSize->GetXaxis()->GetBinCenter(i_bin_new) << ", " << hFlatBkg_FullSize->GetYaxis()->GetBinCenter(j_bin_new) << ": " << original_content << std::endl;
       //      }
-      hFlatBkg_FullSize->SetBinContent(i_bin_new, j_bin_new, original_content);
+      if (original_content>0) {
+	hFlatBkg_FullSize->SetBinContent(i_bin_new, j_bin_new, original_content);
+      }
     }
   }
+  */
   TH2F* hEnergyTime_wFlatBkgRemoval = (TH2F*) hEnergyTime->Clone("hEnergyTime");
-  hEnergyTime_wFlatBkgRemoval->Add(hFlatBkg_FullSize, -1);
+  //  hEnergyTime_wFlatBkgRemoval->Add(hFlatBkg_FullSize, -1);
+  hEnergyTime_wFlatBkgRemoval->Add(hFlatBkg, -1);
   
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());
   outdir->cd();
   hEnergyTime->Write();
   hFlatBkg->Write();
-  hFlatBkg_FullSize->Write();
+  //  hFlatBkg_FullSize->Write();
   hEnergyTime_wFlatBkgRemoval->Write();
   outfile->Write();
   outfile->Close();

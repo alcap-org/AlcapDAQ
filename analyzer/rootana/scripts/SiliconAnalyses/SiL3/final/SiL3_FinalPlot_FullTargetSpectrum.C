@@ -1,12 +1,13 @@
 void SiL3_FinalPlot_FullTargetSpectrum() {
 
-  std::string plots_file_name = "~/data/results/SiL3_active/plots.root";
+  std::string plots_file_name = "~/data/results/SiL3/plots.root";
   std::string full_spectrum_name = "Target/hEnergyTime";
-  std::string norm_file_name = "/home/edmonds/data/results/SiL3_active/normalisation.root";
+  std::string norm_file_name = "/home/edmonds/data/results/SiL3/normalisation.root";
   std::string norm_ws_name = "ws_timecut";
     
   TFile* plots_file = new TFile(plots_file_name.c_str(), "READ");
-  TH1D* hTargetSpectrum = ((TH2F*) plots_file->Get(full_spectrum_name.c_str()))->ProjectionY();
+  TH2F* hEnergyTime = (TH2F*) plots_file->Get(full_spectrum_name.c_str());
+  TH1D* hTargetSpectrum = hEnergyTime->ProjectionY();
 
   //  TFile* norm_file = new TFile(norm_file_name.c_str(), "READ");
   //  RooWorkspace* ws = (RooWorkspace*) norm_file->Get(norm_ws_name.c_str());

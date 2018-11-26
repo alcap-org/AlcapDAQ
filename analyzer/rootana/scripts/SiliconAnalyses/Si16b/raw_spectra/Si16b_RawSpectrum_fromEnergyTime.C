@@ -21,8 +21,15 @@ void Si16b_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfil
 
     time_slice.str("");
     time_slice << "TimeSlice" << (int)args.min_time << "_" << (int)args.max_time;  
-    args.outdirname = "SiL3_all_" + time_slice.str();
+    args.outdirname = "SiL3_" + time_slice.str();
     
     RawSpectrum_fromEnergyTime(args);
   }
+
+  // Do the flat bkg
+  args.inhistname = "SiL3_FlatBkg/hEnergyTime";
+  args.min_time = -15000;
+  args.max_time = -10000;
+  args.outdirname = "RawSpectrum_fromEnergyTime_FlatBkg";
+  RawSpectrum_fromEnergyTime(args);
 }

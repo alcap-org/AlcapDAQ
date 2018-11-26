@@ -24,7 +24,7 @@ void SiL3_Unfold_DecayElectronCorrection(std::string infilename, std::string out
 
   args.outfilename = outfilename;
   args.outdirname = "DecayElectronCorrection_" + time_slice_str.str();
-  args.countfilename = "~/data/results/SiL3_active/normalisation.root";
+  args.countfilename = "~/data/results/SiL3/normalisation.root";
   args.counttreename = "XRaySpectrum_GeLoGain_wTimeCut/counttree";
   Unfold_DecayElectronCorrection(args);
 }

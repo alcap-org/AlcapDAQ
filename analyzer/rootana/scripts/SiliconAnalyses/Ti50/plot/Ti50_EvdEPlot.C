@@ -41,7 +41,7 @@ void Ti50_EvdEPlot(std::string infilename, std::string outfilename) {
     args.outdirname = "proton_" + this_arm;
     args.early_time_veto = false;
     args.do_cut = true;
-    args.cutfilename = "~/data/results/Si16b_passive/cuts_new_threelayer.root";
+    args.cutfilename = "~/data/results/Si16b/cuts_new_threelayer.root";
     args.cutname = "proton_cut";
     EvdEPlot(args);
 
@@ -53,7 +53,7 @@ void Ti50_EvdEPlot(std::string infilename, std::string outfilename) {
     args.outdirname = "deuteron_" + this_arm;
     args.early_time_veto = false;
     args.do_cut = true;
-    args.cutfilename = "~/data/results/Si16b_passive/cuts_new_threelayer.root";
+    args.cutfilename = "~/data/results/Si16b/cuts_new_threelayer.root";
     args.cutname = "deuteron_cut";
     EvdEPlot(args);
 
@@ -65,7 +65,7 @@ void Ti50_EvdEPlot(std::string infilename, std::string outfilename) {
     args.outdirname = "triton_" + this_arm;
     args.early_time_veto = false;
     args.do_cut = true;
-    args.cutfilename = "~/data/results/Si16b_passive/cuts_new_threelayer.root";
+    args.cutfilename = "~/data/results/Si16b/cuts_new_threelayer.root";
     args.cutname = "triton_cut";
     EvdEPlot(args);
 
@@ -77,7 +77,7 @@ void Ti50_EvdEPlot(std::string infilename, std::string outfilename) {
     args.outdirname = "alpha_" + this_arm;
     args.early_time_veto = false;
     args.do_cut = true;
-    args.cutfilename = "~/data/results/Si16b_passive/cuts_new_threelayer.root";
+    args.cutfilename = "~/data/results/Si16b/cuts_new_threelayer.root";
     args.cutname = "alpha_cut";
     EvdEPlot(args);
 

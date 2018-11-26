@@ -23,6 +23,8 @@ struct Unfold_ResponseMatrixArgs {
   int rebin_factor; // to get the folded spectrum to match the binning of the response matrix
 };
 
+void printIntegrals(TH1D* hUnfolded);
+
 void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
 
   TFile* data_file = new TFile(args.datafilename.c_str(), "READ");
@@ -88,12 +90,18 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   axislabel << "Unfolded Count / " << unfolded_spectrum->GetBinWidth(1) << " keV";
   unfolded_spectrum->SetYTitle(axislabel.str().c_str());
 
+  std::cout << "Before Time Cut Efficiency Correction: " << std::endl;
+  printIntegrals(unfolded_spectrum);
+
   unfolded_spectrum->Scale(1.0 / time_cut_efficiency);
+
+  std::cout << "After Time Cut Efficiency Correction: " << std::endl;
+  printIntegrals(unfolded_spectrum);
 
   folded_spectrum->SetLineColor(kRed);
   folded_spectrum->SetLineWidth(2);
   //  folded_spectrum->Draw("HIST E SAMES");
-  unfold.PrintTable(cout);
+  unfold.PrintTable(std::cout);
 
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());
@@ -102,30 +110,33 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   response_matrix->Write();
   folded_spectrum->Write();
   unfolded_spectrum->Write();
-  double integral_low = 0;
-  double integral_high = 10000;
-  int integral_bin_low = unfolded_spectrum->FindBin(integral_low);
-  int integral_bin_high = unfolded_spectrum->FindBin(integral_high);
-  std::cout << integral_low << " -- " << integral_high << " keV: Integral = " << unfolded_spectrum->Integral(integral_bin_low, integral_bin_high) << std::endl;
-
-  integral_low = 3000;
-  integral_high = 10000;
-  integral_bin_low = unfolded_spectrum->FindBin(integral_low);
-  integral_bin_high = unfolded_spectrum->FindBin(integral_high);
-  std::cout << integral_low << " -- " << integral_high << " keV: Integral = " << unfolded_spectrum->Integral(integral_bin_low, integral_bin_high) << std::endl;
-
-  integral_low = 4000;
-  integral_high = 8000;
-  integral_bin_low = unfolded_spectrum->FindBin(integral_low);
-  integral_bin_high = unfolded_spectrum->FindBin(integral_high);
-  std::cout << integral_low << " -- " << integral_high << " keV: Integral = " << unfolded_spectrum->Integral(integral_bin_low, integral_bin_high) << std::endl;
-
-  integral_low = 0;
-  integral_high = 15000;
-  integral_bin_low = unfolded_spectrum->FindBin(integral_low);
-  integral_bin_high = unfolded_spectrum->FindBin(integral_high);
-  std::cout << integral_low << " -- " << integral_high << " keV: Integral = " << unfolded_spectrum->Integral(integral_bin_low, integral_bin_high) << std::endl;
 
   outfile->Write();
   outfile->Close();
+}
+
+void printIntegrals(TH1D* hUnfolded) {
+  double integral_low = 0;
+  double integral_high = 10000;
+  int integral_bin_low = hUnfolded->FindBin(integral_low);
+  int integral_bin_high = hUnfolded->FindBin(integral_high);
+  std::cout << integral_low << " -- " << integral_high << " keV: Integral = " << hUnfolded->Integral(integral_bin_low, integral_bin_high) << std::endl;
+
+  integral_low = 3000;
+  integral_high = 10000;
+  integral_bin_low = hUnfolded->FindBin(integral_low);
+  integral_bin_high = hUnfolded->FindBin(integral_high);
+  std::cout << integral_low << " -- " << integral_high << " keV: Integral = " << hUnfolded->Integral(integral_bin_low, integral_bin_high) << std::endl;
+
+  integral_low = 4000;
+  integral_high = 8000;
+  integral_bin_low = hUnfolded->FindBin(integral_low);
+  integral_bin_high = hUnfolded->FindBin(integral_high);
+  std::cout << integral_low << " -- " << integral_high << " keV: Integral = " << hUnfolded->Integral(integral_bin_low, integral_bin_high) << std::endl;
+
+  integral_low = 0;
+  integral_high = 15000;
+  integral_bin_low = hUnfolded->FindBin(integral_low);
+  integral_bin_high = hUnfolded->FindBin(integral_high);
+  std::cout << integral_low << " -- " << integral_high << " keV: Integral = " << hUnfolded->Integral(integral_bin_low, integral_bin_high) << std::endl;
 }

@@ -2,13 +2,13 @@
 
 void SiL3_TMELoop() {
   TMELoopArgs args;
-  //  args.infilename = "~/data/out/v13/SiL3.root";
-  //  args.tmetreename = "TMETree/TMETree";
-  //  args.outfilename = "~/data/results/SiL3_active/subtrees.root";
-
-  args.infilename = "~/data/out/v5/SiL3_tmetree.root"; // without templates
+  args.infilename = "~/data/out/v13/SiL3.root";
   args.tmetreename = "TMETree/TMETree";
-  args.outfilename = "~/data/results/SiL3_active_no-templates/subtrees.root";
+  args.outfilename = "~/data/results/SiL3/subtrees.root";
+
+  //  args.infilename = "~/data/out/v5/SiL3_tmetree.root"; // without templates
+  //  args.tmetreename = "TMETree/TMETree";
+  //  args.outfilename = "~/data/results/SiL3_active_no-templates/subtrees.root";
   args.n_entries = -1;
 
   ///////////////////////////////////////////
@@ -34,9 +34,15 @@ void SiL3_TMELoop() {
   args.ge_hi_gain.calibOffset = GeHiGain_Offset;
 
   args.sit.name = "SiT";
-  args.sit.layer1_channels.push_back(&empty);
+  args.sit.layer1_channels.push_back(&muSc);
+  args.sit.layer1_calibGains.push_back(1.0);
+  args.sit.layer1_calibOffsets.push_back(0.0);
   args.sit.layer2_channels.push_back(&empty);
+  args.sit.layer2_calibGains.push_back(0);
+  args.sit.layer2_calibOffsets.push_back(0);
   args.sit.layer3_channels.push_back(&empty);
+  args.sit.layer3_calibGains.push_back(0);
+  args.sit.layer3_calibOffsets.push_back(0);
 
   args.right_arm.name = "SiR";
   args.right_arm.layer1_channels.push_back(&empty);

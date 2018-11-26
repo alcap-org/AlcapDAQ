@@ -9,43 +9,43 @@ void Si16a_TargetSpectrum(std::string infilename, std::string outfilename) {
   args.outfilename = outfilename;
   args.min_energy = 0;
   args.max_energy = 5000;
-  args.energy_width = 50;
-  args.min_time = -30000;
-  args.max_time = 30000;
-  args.time_width = 100;
-  args.layer_coincidence_time = 200;
+  args.energy_width = 10;
+  args.min_time = -20000;
+  args.max_time = 20000;
+  args.time_width = 10;
   
   args.layerreqd = false;
   args.layerveto = false;
-  args.outhistname = "hTarget_All";
+  args.outdirname = "Target_Thin_All";
   TargetSpectrum(args);
 
+  args.layer_coincidence_time = 200;
   args.layerveto = true;
   args.vetolayername = "thick";
-  args.outhistname = "hTarget_woutSiL3";
+  args.outdirname = "Target_Thin_wNoThick";
   TargetSpectrum(args);
 
   args.layerveto = false;
   args.layerreqd = true;
   args.reqdlayername = "thick";
-  args.outhistname = "hTarget_wSiL3";
+  args.outdirname = "Target_Thin_wThick";
   TargetSpectrum(args);
 
   args.layerveto = false;
   args.layerreqd = false;
   args.layername = "thick";
-  args.outhistname = "hThick_All";
+  args.outdirname = "Target_Thick_All";
   TargetSpectrum(args);
 
   args.layerveto = true;
   args.vetolayername = "thin";
-  args.outhistname = "hThick_woutSiL1";
+  args.outdirname = "Target_Thick_wNoThin";
   TargetSpectrum(args);
 
   args.layerveto = false;
   args.layerreqd = true;
   args.reqdlayername = "thin";
-  args.outhistname = "hThick_wSiL1";
+  args.outdirname = "Target_Thick_wThin";
   TargetSpectrum(args);
 
   args.layerveto = true;
@@ -53,7 +53,7 @@ void Si16a_TargetSpectrum(std::string infilename, std::string outfilename) {
   args.layername = "thick";
   args.vetolayername = "thin";
   args.layer_coincidence_time = 1000;
-  args.outhistname = "hThick_DecayProds";
+  args.outdirname = "Target_Thick_wNoThin_forDecayProds";
   args.min_energy = 0;
   args.max_energy = 30000;
   args.energy_width = 100;
@@ -63,10 +63,9 @@ void Si16a_TargetSpectrum(std::string infilename, std::string outfilename) {
   args.layerreqd = false;
   args.treename = "siBlockTree_SiT";
   args.layername = "thin";
-  args.outhistname = "hSiT_All";
+  args.outdirname = "SiT_All";
   args.min_energy = 0;
   args.max_energy = 1500;
-  args.energy_width = 25;
+  args.energy_width = 10;
   TargetSpectrum(args);
-  
 }

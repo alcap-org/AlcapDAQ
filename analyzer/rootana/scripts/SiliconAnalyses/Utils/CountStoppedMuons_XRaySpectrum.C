@@ -123,6 +123,7 @@ void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& ar
   indirect_count_tree->Write();
   outfile->Write();
   outfile->Close();
+  file->Close();
 }
 
 #endif

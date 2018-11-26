@@ -1,44 +1,36 @@
 void Si16b_FinalPlot_UnfoldedSpectra() {
 
-  std::string particle = "proton";
-  //  std::string particle = "deuteron";
-  std::string infilename = "~/data/results/Si16b_passive/unfold.root";
-  std::string folded_histname = particle + "/hFoldedSpectrum";
-  std::string unfolded_histname = particle + "/hUnfoldedSpectrum";
-  std::string outhisttitle = "Si16b Dataset, Right Arm, " + particle;
+  const int n_particles = 4;
+  std::string particle_names[n_particles] = {"proton", "deuteron", "triton", "alpha"};
+  Int_t colours[n_particles] = {kRed, kCyan, kMagenta, kSpring};
   
+  std::string infilename = "~/data/results/Si16b/unfold.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
-  TH1F* hFoldedSpectrum = (TH1F*) infile->Get(folded_histname.c_str());
-  TH1F* hUnfoldedSpectrum = (TH1F*) infile->Get(unfolded_histname.c_str());
 
-  TCanvas* c_Spectra = new TCanvas("c_Spectra", "c_Spectra");
-
-  hFoldedSpectrum->SetTitle(outhisttitle.c_str());
-  hFoldedSpectrum->SetStats(false);
-  hFoldedSpectrum->SetLineColor(kBlack);
-  hFoldedSpectrum->GetXaxis()->SetRangeUser(0, 15000);
-  hFoldedSpectrum->GetYaxis()->SetTitleOffset(1.3);
+  THStack* hStack = new THStack("hStack", "");
+  for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
+    std::string particle = particle_names[i_particle];
+    Int_t colour = colours[i_particle];
+    
+    std::string unfolded_histname = particle + "/hUnfoldedSpectrum";
+    std::string outhisttitle = "Si16b Dataset, Right Arm, " + particle;
   
-  hUnfoldedSpectrum->SetTitle("");
-  hUnfoldedSpectrum->SetStats(false);
-  hUnfoldedSpectrum->SetLineColor(kRed);
-  hUnfoldedSpectrum->GetXaxis()->SetRangeUser(0, 15000);
+    TH1F* hUnfoldedSpectrum = (TH1F*) infile->Get(unfolded_histname.c_str());
 
-  hFoldedSpectrum->Draw("HIST E");
+    hUnfoldedSpectrum->SetTitle("");
+    hUnfoldedSpectrum->SetStats(false);
+    hUnfoldedSpectrum->SetLineColor(colour);
+    hUnfoldedSpectrum->SetLineWidth(2);
+    hUnfoldedSpectrum->GetXaxis()->SetRangeUser(0, 15000);
+    
+    hStack->Add(hUnfoldedSpectrum);
+  }
+  
+  TCanvas* c_Spectra = new TCanvas("c_Spectra", "c_Spectra");
+  hStack->Draw("HIST E nostack");
+  hStack->GetXaxis()->SetRangeUser(0, 15000);
   c_Spectra->Update();
   
-  double rightmax = 1.1*hUnfoldedSpectrum->GetMaximum();
-  double scale = gPad->GetUymax()/rightmax;
-  hUnfoldedSpectrum->Scale(scale);
-  hUnfoldedSpectrum->Draw("HIST E SAME");
-  
-  TGaxis* axis = new TGaxis(gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmax(), gPad->GetUymax(),0,rightmax,510,"+L");
-  axis->SetLineColor(kRed);
-  axis->SetLabelColor(kRed);
-  axis->SetTitleColor(kRed);
-  axis->SetTitle(hUnfoldedSpectrum->GetYaxis()->GetTitle());
-  axis->Draw();
-
   TLatex* latex = new TLatex();
   latex->DrawLatexNDC(0.55, 0.65, "AlCap Preliminary");
 }

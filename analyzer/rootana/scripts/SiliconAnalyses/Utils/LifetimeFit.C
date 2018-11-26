@@ -26,7 +26,7 @@ struct LifetimeFitArgs {
 
 void LifetimeFit(const LifetimeFitArgs& args) {
   TFile* file = new TFile(args.infilename.c_str(), "READ");
-  TH1D* hTime;
+  TH1D* hTime = NULL;
   if (!args.project_x && !args.project_y) {
     hTime = (TH1D*) file->Get(args.inhistname.c_str());
     if (!hTime) {
@@ -62,6 +62,7 @@ void LifetimeFit(const LifetimeFitArgs& args) {
   }
   else if (args.project_x && args.project_y) {
     std::cout << "ERROR: can't project onto both x and y" << std::endl;
+    return;
   }
   
   hTime->Rebin(args.rebin_factor);
@@ -76,8 +77,8 @@ void LifetimeFit(const LifetimeFitArgs& args) {
     muonic_atom_lifetime->SetParameters(1000, 700);
   }
   else if (!args.double_exp && args.flat_bkg) {
-    muonic_atom_lifetime = new TF1("muonic_atom_lifetime", "[0]*TMath::Exp(-x/[1]) + [2]", args.min_fit_time, args.max_fit_time);
-    muonic_atom_lifetime->SetParameters(1000, 700, 10);
+    muonic_atom_lifetime = new TF1("muonic_atom_lifetime", "[0]*TMath::Exp(-x/[1]) + [2]*x + [3]", args.min_fit_time, args.max_fit_time);
+    muonic_atom_lifetime->SetParameters(1000, 700, -1e-3, 10);
   }
   else if (args.double_exp && !args.flat_bkg) {
     muonic_atom_lifetime = new TF1("muonic_atom_lifetime", "[0]*TMath::Exp(-x/[1]) + [2]*TMath::Exp(-x/[3])", args.min_fit_time, args.max_fit_time);

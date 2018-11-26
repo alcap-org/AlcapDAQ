@@ -1,15 +1,13 @@
 void SiL3_FinalPlot_CutTargetSpectrum_SplitPeak() {
 
-  std::string norm_file_name = "/home/edmonds/data/results/SiL3_active/normalisation.root";
+  std::string norm_file_name = "/home/edmonds/data/results/SiL3/normalisation.root";
 
   const int n_slices = 2;
   std::string dir_names[n_slices] = {"TargetSpectrum_forCrossCheck_MuonSlice3000_4000", "TargetSpectrum_forCrossCheck_MuonSlice4000_5000"};
 
-  TCanvas* c_TargetSpectrum = new TCanvas("c_TargetSpectrum", "c_TargetSpectrum");
-  c_TargetSpectrum->Divide(2,1);
 
   for (int i_slice = 0; i_slice < n_slices; ++i_slice) {
-    c_TargetSpectrum->cd(i_slice+1);
+      TCanvas* c_TargetSpectrum = new TCanvas();
     
     std::string i_dir_name = dir_names[i_slice];
     std::string cut_spectrum_name = i_dir_name + "/hSpectrum";
@@ -48,7 +46,6 @@ void SiL3_FinalPlot_CutTargetSpectrum_SplitPeak() {
     hTargetSpectrum->Draw("HIST E");
     
     TLatex* latex = new TLatex();
-    latex->SetTextSize(0.04);
     latex->DrawLatexNDC(0.50, 0.75, "AlCap Preliminary");
     
     std::stringstream text;
