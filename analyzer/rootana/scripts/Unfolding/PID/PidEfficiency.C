@@ -1,9 +1,10 @@
 #include <TMatrix.h>
-void PidEfficiency(const char *filename = "unfolding.pdt.localhisto.2m.root", const char *treeName="oTree") {
+void PidEfficiency(const char *filename = "unfolding.pdt.localhisto.2m.root", const char *treeName="oTree", Int_t sigma=1) {
+	std::cout << "Efficiency calculation for " << sigma << " sigma cut" << std::endl;
 	TFile *fCuts = new TFile("al50-cuts.root", "READ");
-	TCutG *SiL_cutg_p = (TCutG *)fCuts->Get("hLg_SiL_EvDeltaE_proton_3sigma");
-	TCutG *SiL_cutg_d = (TCutG *)fCuts->Get("hLg_SiL_EvDeltaE_deuteron_3sigma");
-	TCutG *SiL_cutg_t = (TCutG *)fCuts->Get("hLg_SiL_EvDeltaE_triton_3sigma");
+	TCutG *SiL_cutg_p = (TCutG *)fCuts->Get(Form("hLg_SiL_EvDeltaE_proton_%dsigma", sigma) );
+	TCutG *SiL_cutg_d = (TCutG *)fCuts->Get(Form("hLg_SiL_EvDeltaE_deuteron_%dsigma", sigma) );
+	TCutG *SiL_cutg_t = (TCutG *)fCuts->Get(Form("hLg_SiL_EvDeltaE_triton_%dsigma", sigma) );
 
 	TMatrixD eff(3,3);
 	TMatrixD Atrue(3,1);
