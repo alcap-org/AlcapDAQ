@@ -5,6 +5,7 @@ class TPulseIsland;
 #include <string>
 #include <vector>
 #include <TH1.h>
+#include <cmath>
 
 namespace functions{
 // Creates a histogram with sub-bin resolution
