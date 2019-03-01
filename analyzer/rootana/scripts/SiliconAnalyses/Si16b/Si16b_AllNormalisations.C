@@ -1,13 +1,13 @@
-#include "scripts/SiliconAnalyses/Si16b_passive/normalisation/Si16b_CountStoppedMuons_XRaySpectrum.C"
-#include "scripts/SiliconAnalyses/Si16b_passive/normalisation/Si16b_CountStoppedMuons_TargetSpectrum.C"
-#include "scripts/SiliconAnalyses/Si16b_passive/normalisation/Si16b_CountStoppedMuons_XRaySpectrum_wTargetCoinc.C"
+#include "scripts/SiliconAnalyses/Si16b/normalisation/Si16b_CountStoppedMuons_XRaySpectrum.C"
+#include "scripts/SiliconAnalyses/Si16b/normalisation/Si16b_CountStoppedMuons_TargetSpectrum.C"
+#include "scripts/SiliconAnalyses/Si16b/normalisation/Si16b_CountStoppedMuons_XRaySpectrum_wTargetCoinc.C"
 
 #include <sstream>
 
 void Si16b_AllNormalisations() {
 
-  std::string infilename = "~/data/results/Si16b_passive/plots.root";
-  std::string outfilename = "~/data/results/Si16b_passive/normalisation.root";
+  std::string infilename = "~/data/results/Si16b/plots.root";
+  std::string outfilename = "~/data/results/Si16b/normalisation.root";
   
   TFile* outfile = new TFile(outfilename.c_str(), "RECREATE");
   outfile->Write();

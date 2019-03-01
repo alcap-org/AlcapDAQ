@@ -30,5 +30,17 @@ void Si16b_CountStoppedMuons_XRaySpectrum(std::string infilename, std::string ou
     args.min_time = -20000;
     args.max_time = 20000;  
     CountStoppedMuons_XRaySpectrum(args);
+
+    args.transition = "3p-1s";
+
+    args.outdirname = "XRaySpectrum_" + args.channel + "_wTimeCut_3p1s";
+    args.min_time = -200;
+    args.max_time = 200;
+    CountStoppedMuons_XRaySpectrum(args);
+    
+    args.outdirname = "XRaySpectrum_" + args.channel + "_noTimeCut_3p1s";
+    args.min_time = -20000;
+    args.max_time = 20000;  
+    CountStoppedMuons_XRaySpectrum(args);
   }
 }

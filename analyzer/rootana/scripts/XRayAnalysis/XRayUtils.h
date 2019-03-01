@@ -129,6 +129,14 @@ int FillXRayInfo(XRay& xray, std::string channel) {
     xray.energy = 931; // elog:336 and Fig. 1b of the above
     xray.intensity = 0.752; 
     xray.intensity_error = 0.007;
+    if (channel == "GeLoGain") {
+      xray.efficiency = 2.6e-4;
+      xray.efficiency_error = 0.1e-4;
+    }
+    else if (channel == "GeHiGain") {
+      xray.efficiency = 2.6e-4;
+      xray.efficiency_error = 0.1e-4;
+    }
   }
   else if (xray.material == "511") {
     std::cout << "511 keV peak:" << std::endl;

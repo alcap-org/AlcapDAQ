@@ -13,10 +13,10 @@ void Si16b_RoughPlots() {
   
   TCanvas* c0 = new TCanvas("c0", "c0");
   int rebin_factor = 10;
-  double min_energy = 1000;
-  double max_energy = 10000;
+  double min_energy = 500;
+  double max_energy = 1000;
   double min_time_axis = -1000;
-  double max_time_axis = 10000;
+  double max_time_axis = 20000;
 
   TH2F* hSi16bBkg = (TH2F*) si16b_file->Get("SiR23/hEnergyTime");
 

@@ -5,7 +5,7 @@ void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
   args.infilename = infilename;
   args.outfilename = outfilename;
 
-  args.inhistname = "proton_SiR_timecut/hTime";
+  args.inhistname = "proton_SiR_timecut/hTime_12not3";
   args.min_fit_time = 200;
   args.max_fit_time = 20000;
   args.rebin_factor = 10;
@@ -32,7 +32,7 @@ void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
   args.flat_bkg = true;
   LifetimeFit(args);
 
-  args.inhistname = "deuteron_SiR_timecut/hTime";
+  args.inhistname = "deuteron_SiR_timecut/hTime_12not3";
   args.min_fit_time = 200;
   args.max_fit_time = 20000;
   args.rebin_factor = 10;
@@ -44,7 +44,7 @@ void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
   args.flat_bkg = false;
   LifetimeFit(args);
 
-  args.inhistname = "triton_SiR_timecut/hTime";
+  args.inhistname = "triton_SiR_timecut/hTime_12not3";
   args.min_fit_time = 200;
   args.max_fit_time = 20000;
   args.rebin_factor = 10;
@@ -56,7 +56,7 @@ void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
   args.flat_bkg = false;
   LifetimeFit(args);
 
-  args.inhistname = "alpha_SiR_timecut/hTime";
+  args.inhistname = "alpha_SiR_timecut/hTime_12not3";
   args.min_fit_time = 200;
   args.max_fit_time = 20000;
   args.rebin_factor = 10;
@@ -98,4 +98,24 @@ void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
     args.outdirname = "SiL3_" + energy_cut_str.str() + "keVCut_wFlatBkg";
     LifetimeFit(args);
   }
+
+
+  args.inhistname = "proton_SiR_timecut_wSiL1Coinc/hTime_12";
+  args.min_fit_time = 200;
+  args.max_fit_time = 20000;
+  args.rebin_factor = 10;
+  args.project_y = false;
+  args.project_x = false;
+  args.outdirname = "Proton_wTimeCut_wSiL1Coinc_12";
+  args.double_exp = false;
+  args.flat_bkg = false;
+  LifetimeFit(args);
+
+  args.inhistname = "proton_SiR_timecut_wSiL1Coinc/hTime_123";
+  args.outdirname = "Proton_wTimeCut_wSiL1Coinc_123";
+  LifetimeFit(args);
+
+  args.inhistname = "proton_SiR_timecut_wSiL1Coinc/hTime_12not3";
+  args.outdirname = "Proton_wTimeCut_wSiL1Coinc_12not3";
+  LifetimeFit(args);
 }

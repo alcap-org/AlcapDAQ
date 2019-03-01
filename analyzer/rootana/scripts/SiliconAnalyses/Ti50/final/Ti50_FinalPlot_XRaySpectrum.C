@@ -1,9 +1,11 @@
 void Ti50_FinalPlot_XRaySpectrum() {
 
-  std::string plots_file_name = "~/data/results/Ti50/plots_test.root";
-  std::string full_spectrum_name = "hXRaySpectrum_GeLoGain";
-  std::string norm_file_name = "/home/edmonds/data/results/Ti50/normalisation_test.root";
-  std::string norm_ws_name = "ws_timecut";
+  
+  std::string plots_file_name = "~/data/results/Ti50/plots.root";
+  std::string ge_channel = "GeHiGain";
+  std::string full_spectrum_name = ge_channel + "/hEnergyTime";
+  std::string norm_file_name = "/home/edmonds/data/results/Ti50/normalisation.root";
+  std::string norm_ws_name = "XRaySpectrum_" + ge_channel + "_noTimeCut/ws";
     
   TFile* plots_file = new TFile(plots_file_name.c_str(), "READ");
   TH1D* hXRaySpectrum = ((TH2F*) plots_file->Get(full_spectrum_name.c_str()))->ProjectionY();
@@ -61,6 +63,9 @@ void Ti50_FinalPlot_XRaySpectrum() {
   //  Eframe->SetMinimum(3000);
   (ws->data("data"))->plotOn(Eframe);
   (ws->pdf("sum"))->plotOn(Eframe);
+  (ws->pdf("sum"))->plotOn(Eframe, RooFit::Components("xraypeak_pdf"), RooFit::LineStyle(kDashed), RooFit::LineColor(kRed));
+  (ws->pdf("sum"))->plotOn(Eframe, RooFit::Components("bkgpeak_pdf"), RooFit::LineStyle(kDashed));
+  (ws->pdf("sum"))->plotOn(Eframe, RooFit::Components("pol1_bkg"), RooFit::LineStyle(kDashed));
 
   Eframe->Draw();
 

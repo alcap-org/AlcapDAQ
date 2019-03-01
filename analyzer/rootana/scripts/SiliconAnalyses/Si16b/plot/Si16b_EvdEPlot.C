@@ -18,12 +18,18 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
 
   args.treename = "siBlockTree_SiR";
   args.outfilename = outfilename;
+  args.thin_layer = "thin";
+  args.thick_layer = "thick";
+  args.third_layer = "third";
+  args.veto_layer = "";
 
   args.outdirname = "all_SiR";
-  args.layer_coincidence_veto = true;
-  args.layer_coincidence_time = 200;
+  args.layer_coincidence_vetos = true;
+  args.layer12_coincidence_time = 200;
+  args.layer23_coincidence_time = 200;
   args.early_time_veto = false;
   args.do_cut = false;
+  args.do_psel = false;
   EvdEPlot(args);
   
   args.outdirname = "all_SiR_timecut";
@@ -41,6 +47,31 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
   args.outdirname = "proton_SiR_timecut";
   args.early_time_veto = true;
   args.early_time_cut = 200;
+  EvdEPlot(args);
+
+  args.outdirname = "proton_SiR_timecut400ns";
+  args.early_time_veto = true;
+  args.early_time_cut = 400;
+  EvdEPlot(args);
+
+  args.outdirname = "proton_SiR_timecut600ns";
+  args.early_time_veto = true;
+  args.early_time_cut = 600;
+  EvdEPlot(args);
+
+  args.outdirname = "proton_SiR_timecut800ns";
+  args.early_time_veto = true;
+  args.early_time_cut = 800;
+  EvdEPlot(args);
+
+  args.outdirname = "proton_SiR_timecut1000ns";
+  args.early_time_veto = true;
+  args.early_time_cut = 1000;
+  EvdEPlot(args);
+
+  args.outdirname = "proton_SiR_timecut2000ns";
+  args.early_time_veto = true;
+  args.early_time_cut = 2000;
   EvdEPlot(args);
 
   args.outdirname = "deuteron_SiR";
@@ -78,4 +109,80 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
   args.early_time_veto = true;
   args.early_time_cut = 200;
   EvdEPlot(args);
+
+  args.do_cut = false;
+  args.do_psel = true;
+  args.psel_particle = proton;
+  args.outdirname = "proton_SiR_timecut_psel";
+  EvdEPlot(args);
+
+  args.psel_particle = deuteron;
+  args.outdirname = "deuteron_SiR_timecut_psel";
+  EvdEPlot(args);
+
+  args.psel_particle = triton;
+  args.outdirname = "triton_SiR_timecut_psel";
+  EvdEPlot(args);
+
+  args.psel_particle = alpha;
+  args.outdirname = "alpha_SiR_timecut_psel";
+  EvdEPlot(args);
+
+
+  args.do_psel = false;
+  args.treename = "siBlockTree_Target";
+  args.thin_layer = "thick";
+  args.thick_layer = "third";
+  args.third_layer = "thin";
+  args.veto_layer = "";
+  args.layer_coincidence_vetos = true;
+  args.layer12_coincidence_time = 200;
+  args.layer23_coincidence_time = 50000;
+
+  args.outdirname = "all_SiR_wSiL1Coinc";
+  args.early_time_veto = false;
+  EvdEPlot(args);
+
+  args.outdirname = "all_SiR_timecut_wSiL1Coinc";
+  args.early_time_veto = true;
+  args.early_time_cut = 200;
+  EvdEPlot(args);
+
+  args.outdirname = "proton_SiR_wSiL1Coinc";
+  args.early_time_veto = false;
+  args.do_cut = true;
+  args.cutfilename = "~/data/results/Si16b/cuts_new_threelayer.root";
+  args.cutname = "proton_cut";
+  EvdEPlot(args);
+
+  args.outdirname = "proton_SiR_timecut_wSiL1Coinc";
+  args.early_time_veto = true;
+  args.early_time_cut = 200;
+  EvdEPlot(args);
+
+  args.outdirname = "proton_SiR_timecut400ns_wSiL1Coinc";
+  args.early_time_veto = true;
+  args.early_time_cut = 400;
+  EvdEPlot(args);
+
+  args.outdirname = "proton_SiR_timecut600ns_wSiL1Coinc";
+  args.early_time_veto = true;
+  args.early_time_cut = 600;
+  EvdEPlot(args);
+
+  args.outdirname = "proton_SiR_timecut800ns_wSiL1Coinc";
+  args.early_time_veto = true;
+  args.early_time_cut = 800;
+  EvdEPlot(args);
+
+  args.outdirname = "proton_SiR_timecut1000ns_wSiL1Coinc";
+  args.early_time_veto = true;
+  args.early_time_cut = 1000;
+  EvdEPlot(args);
+
+  args.outdirname = "proton_SiR_timecut2000ns_wSiL1Coinc";
+  args.early_time_veto = true;
+  args.early_time_cut = 2000;
+  EvdEPlot(args);
+
 }

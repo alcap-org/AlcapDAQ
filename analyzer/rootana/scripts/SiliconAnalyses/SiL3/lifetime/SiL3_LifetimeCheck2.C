@@ -3,8 +3,8 @@ void SiL3_LifetimeCheck2() {
   std::string infilename = "~/data/results/SiL3/lifetime.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
   
-  std::string base_indirname = "Target";
-  //    std::string base_indirname = "Target_4500_30000";
+  //  std::string base_indirname = "Target";
+  std::string base_indirname = "Target_1000keVCut";
   TCanvas* c_Lifetime = new TCanvas("c_Lifetime", "c_Lifetime");
   c_Lifetime->SetLogy();
 
@@ -26,7 +26,7 @@ void SiL3_LifetimeCheck2() {
   hLifetime->SetTitle("SiL3 Dataset, Target");
   hLifetime->SetStats(false);
   //  gStyle->SetOptFit(1);
-  hLifetime->GetXaxis()->SetRangeUser(0, 20000);
+  hLifetime->GetXaxis()->SetRangeUser(-1000, 20000);
   hLifetime->Draw("P E");
 
   fit->Draw("LSAME");

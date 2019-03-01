@@ -12,7 +12,7 @@ void SiL3_TargetSpectrum(std::string infilename, std::string outfilename) {
 
   args.outdirname = "Target";
   args.min_energy = 0;
-  args.max_energy = 30000;
+  args.max_energy = 50000;
   args.energy_width = 50;
   args.min_time = -20000;
   args.max_time = 20000;

@@ -23,13 +23,13 @@
 
 void Si16b_NormalisationCrossCheck() {
 
-  std::string infilename = "~/data/results/Si16b_passive/normalisation.root";
+  std::string infilename = "~/data/results/Si16b/normalisation.root";
   TFile* file = new TFile(infilename.c_str(), "READ");
 
-  double min_slice = 500;
+  double min_slice = 0;
   double max_slice = 1500;
   double slice_step = 100;
-  const int n_slices = 10;
+  const int n_slices = 15;
   double muon_slices[n_slices];
   double muon_slice_errors[n_slices];
   for (int i_slice = 0; i_slice < n_slices; ++i_slice) {
@@ -172,49 +172,33 @@ void Si16b_NormalisationCrossCheck() {
   gre->GetYaxis()->SetTitle("Calculated Efficiency");
   gre->GetYaxis()->SetRangeUser(0, 10e-4);
 
-  const int n_ref_efficiencies = 3;
-  std::string ref_labels[n_ref_efficiencies] = {" run 9302", "  run 9685", " run 10139"};
-  int ge_eff_runs[n_ref_efficiencies] = {9302, 9685, 10319};
-  double ref_eff_val[n_ref_efficiencies];
-  double ref_eff_err[n_ref_efficiencies];
   TLatex* latex = new TLatex();
   latex->SetTextSize(0.03);
   double latex_x = 0;
   double latex_y = 0;
-  Int_t colours[n_ref_efficiencies] = {kBlack, kRed, kBlue};
   double energy = 400.177;
-  
-  for (int i_ref_eff = 0; i_ref_eff < n_ref_efficiencies; ++i_ref_eff) {
 
-    double a, b, delta_a, delta_b, corr;
-    FillGeEffParams(ge_channel, ge_eff_runs[i_ref_eff], a, b, delta_a, delta_b, corr);
-
-    TF1* ge_eff_fn = 0;
-    TF1* ge_eff_err_fn = 0;
-    FillGeEffFunctions(a, b, delta_a, delta_b, corr, ge_eff_fn, ge_eff_err_fn);
-
-    ref_eff_val[i_ref_eff] = ge_eff_fn->Eval(energy);
-    ref_eff_err[i_ref_eff] = ge_eff_err_fn->Eval(energy);
-
-    Int_t i_colour = colours[i_ref_eff];
+  double ref_eff_val = 5.88e-4;
+  double ref_eff_err = 0.09e-4;
+  Int_t i_colour = kBlack;
     
-    TBox* ref_eff_box = new TBox(gre->GetXaxis()->GetXmin(), ref_eff_val[i_ref_eff]-ref_eff_err[i_ref_eff], gre->GetXaxis()->GetXmax(), ref_eff_val[i_ref_eff]+ref_eff_err[i_ref_eff]);
-    ref_eff_box->SetFillStyle(3004);
-    ref_eff_box->SetFillColor(i_colour);
-    ref_eff_box->SetLineColor(i_colour);
-    ref_eff_box->Draw("LSAME");
+  TBox* ref_eff_box = new TBox(gre->GetXaxis()->GetXmin(), ref_eff_val-ref_eff_err, gre->GetXaxis()->GetXmax(), ref_eff_val+ref_eff_err);
+  ref_eff_box->SetFillStyle(3004);
+  ref_eff_box->SetFillColor(i_colour);
+  ref_eff_box->SetLineColor(i_colour);
+  ref_eff_box->Draw("LSAME");
 
-    TLine* ref_eff_line = new TLine(gre->GetXaxis()->GetXmin(), ref_eff_val[i_ref_eff], gre->GetXaxis()->GetXmax(), ref_eff_val[i_ref_eff]);
-    ref_eff_line->SetLineColor(i_colour);
-    ref_eff_line->SetLineWidth(2);
-    ref_eff_line->Draw("LSAME");
+  TLine* ref_eff_line = new TLine(gre->GetXaxis()->GetXmin(), ref_eff_val, gre->GetXaxis()->GetXmax(), ref_eff_val);
+  ref_eff_line->SetLineColor(i_colour);
+  ref_eff_line->SetLineWidth(2);
+  ref_eff_line->Draw("LSAME");
 
-    latex_x = gre->GetXaxis()->GetXmax();
-    latex_y = ref_eff_val[i_ref_eff];//+ref_eff_err[i_ref_eff];
-    latex->SetTextAlign(12);
-    latex->SetTextColor(i_colour);
-    latex->DrawLatex(latex_x, latex_y, ref_labels[i_ref_eff].c_str());
-  }  
+  latex_x = gre->GetXaxis()->GetXmax();
+  latex_y = ref_eff_val;//+ref_eff_err;
+  latex->SetTextAlign(12);
+  latex->SetTextColor(i_colour);
+  latex->DrawLatex(latex_x, latex_y, "ref");
+
 
   
     //  c_gres->SaveAs("~/plots/2018-04-24/AlCapData_NormalisationCrossCheck_SiL3Dataset.pdf");

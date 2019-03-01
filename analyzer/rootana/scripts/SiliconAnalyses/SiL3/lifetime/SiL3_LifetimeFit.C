@@ -4,7 +4,7 @@ void SiL3_LifetimeFit(std::string infilename, std::string outfilename) {
   LifetimeFitArgs args;
   args.infilename = infilename;
   args.outfilename = outfilename;
-  args.rebin_factor = 4;
+  args.rebin_factor = 20;
   args.double_exp = false;
   args.project_y = false;
   args.project_x = true;
@@ -23,8 +23,8 @@ void SiL3_LifetimeFit(std::string infilename, std::string outfilename) {
 
     args.min_energy_cut = i_min_energy_cut;
 
-    args.min_fit_time = 1000;
-    args.max_fit_time = 3000;
+    args.min_fit_time = 2000;
+    args.max_fit_time = 4000;
     args.double_exp = false;
     args.flat_bkg = false;
     args.outdirname = "Target_" + energy_cut_str.str() + "keVCut";
@@ -32,7 +32,7 @@ void SiL3_LifetimeFit(std::string infilename, std::string outfilename) {
 
     args.double_exp = false;
     args.flat_bkg = true;
-    args.min_fit_time = 1000;
+    args.min_fit_time = 2000;
     args.max_fit_time = 20000;
     args.outdirname = "Target_" + energy_cut_str.str() + "keVCut_wFlatBkg";
     LifetimeFit(args);

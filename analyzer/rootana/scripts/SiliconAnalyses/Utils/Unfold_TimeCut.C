@@ -10,12 +10,13 @@
 struct Unfold_TimeCutArgs {
   std::string infilename;
   std::string inhistname;
-
+  std::string incutfilename;
+  std::string incuttreename;
+  
   std::string outfilename;
   std::string outdirname;
 
-  double time_window_min;
-  double time_window_max;
+  double decay_lifetime;
 };
 
 void Unfold_TimeCut(const Unfold_TimeCutArgs& args) {
@@ -31,21 +32,45 @@ void Unfold_TimeCut(const Unfold_TimeCutArgs& args) {
     return;
   }
   hInputSpectrum->SetName("hInputSpectrum");
+  TFile* cutfile = new TFile(args.incutfilename.c_str(), "READ");
+  if (cutfile->IsZombie()) {
+    std::cout << "Problem openeing cutfile " << args.incutfilename.c_str() << std::endl;
+    return;
+  }
+  TTree* cuttree = (TTree*) cutfile->Get(args.incuttreename.c_str());
+  if (!cuttree) {
+    std::cout << "Problem getting cuttree " << args.incuttreename.c_str() << std::endl;
+    return;
+  }  
+  double time_window_min = 0;
+  double time_window_max = 0;
+  cuttree->SetBranchAddress("min_time", &time_window_min);
+  if (cuttree->GetListOfBranches()->FindObject("max_time")) {
+     cuttree->SetBranchAddress("max_time", &time_window_max);
+  }
+  else {
+    time_window_max = 20000;
+  }
+  cuttree->GetEntry(0);
 
-  double time_window_min = args.time_window_min;
-  double time_window_max = args.time_window_max;
-  double decay_lifetime = 756;
-  double fraction_in_time_window = (TMath::Exp(-time_window_min/decay_lifetime) - TMath::Exp(-time_window_max/decay_lifetime));
-
+  double fraction_in_time_window = 0;
+  TTree* efftree = new TTree("efftree", "efftree");
+  efftree->Branch("efficiency", &fraction_in_time_window);  
+  
+  fraction_in_time_window = (TMath::Exp(-time_window_min/args.decay_lifetime) - TMath::Exp(-time_window_max/args.decay_lifetime));
+  std::cout << time_window_min << " ns -- " << time_window_max << " ns: fraction in time window = " << fraction_in_time_window << std::endl;
   
   TH1D* hCorrectedSpectrum = (TH1D*) hInputSpectrum->Clone("hCorrectedSpectrum");
   hCorrectedSpectrum->Scale(1.0/fraction_in_time_window);
 
+  efftree->Fill();
+  
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());
   outdir->cd();
   hInputSpectrum->Write();
   hCorrectedSpectrum->Write();
+  efftree->Write();
   outfile->Write();
   outfile->Close();
 }

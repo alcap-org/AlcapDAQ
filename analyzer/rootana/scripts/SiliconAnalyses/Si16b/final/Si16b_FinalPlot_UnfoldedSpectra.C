@@ -12,7 +12,7 @@ void Si16b_FinalPlot_UnfoldedSpectra() {
     std::string particle = particle_names[i_particle];
     Int_t colour = colours[i_particle];
     
-    std::string unfolded_histname = particle + "/hUnfoldedSpectrum";
+    std::string unfolded_histname = "ResponseMatrix_" + particle + "/hUnfoldedSpectrum";
     std::string outhisttitle = "Si16b Dataset, Right Arm, " + particle;
   
     TH1F* hUnfoldedSpectrum = (TH1F*) infile->Get(unfolded_histname.c_str());
@@ -27,7 +27,8 @@ void Si16b_FinalPlot_UnfoldedSpectra() {
   }
   
   TCanvas* c_Spectra = new TCanvas("c_Spectra", "c_Spectra");
-  hStack->Draw("HIST E nostack");
+  //  hStack->Draw("HIST E nostack");
+  hStack->Draw("HIST E");
   hStack->GetXaxis()->SetRangeUser(0, 15000);
   c_Spectra->Update();
   

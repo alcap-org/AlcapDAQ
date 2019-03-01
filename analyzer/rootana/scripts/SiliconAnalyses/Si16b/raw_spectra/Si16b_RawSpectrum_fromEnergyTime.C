@@ -27,9 +27,38 @@ void Si16b_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfil
   }
 
   // Do the flat bkg
-  args.inhistname = "SiL3_FlatBkg/hEnergyTime";
+  args.inhistname = "SiL3/hEnergyTime";
   args.min_time = -15000;
   args.max_time = -10000;
-  args.outdirname = "RawSpectrum_fromEnergyTime_FlatBkg";
+  args.outdirname = "SiL3_FlatBkg";
+  RawSpectrum_fromEnergyTime(args);
+
+  // Now do SiR2
+  args.inhistname = "SiR2/hEnergyTime";
+  for (double min_time = start_time; min_time < end_time; min_time += time_step) {
+    double max_time = min_time + time_step;
+
+    args.min_time = min_time;
+    args.max_time = max_time;
+
+    time_slice.str("");
+    time_slice << "TimeSlice" << (int)args.min_time << "_" << (int)args.max_time;  
+    args.outdirname = "SiR2_" + time_slice.str();
+    
+    RawSpectrum_fromEnergyTime(args);
+  }
+
+  args.inhistname = "SiR2/hEnergyTime";
+  args.min_time = -15000;
+  args.max_time = -10000;
+  args.outdirname = "SiR2_FlatBkg";
+  RawSpectrum_fromEnergyTime(args);
+
+
+  // Here is the target
+  args.inhistname = "Target/hEnergyTime";
+  args.min_time = -300;
+  args.max_time = 300;
+  args.outdirname = "Target";
   RawSpectrum_fromEnergyTime(args);
 }

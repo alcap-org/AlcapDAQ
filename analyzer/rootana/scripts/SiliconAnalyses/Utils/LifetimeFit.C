@@ -77,8 +77,8 @@ void LifetimeFit(const LifetimeFitArgs& args) {
     muonic_atom_lifetime->SetParameters(1000, 700);
   }
   else if (!args.double_exp && args.flat_bkg) {
-    muonic_atom_lifetime = new TF1("muonic_atom_lifetime", "[0]*TMath::Exp(-x/[1]) + [2]*x + [3]", args.min_fit_time, args.max_fit_time);
-    muonic_atom_lifetime->SetParameters(1000, 700, -1e-3, 10);
+    muonic_atom_lifetime = new TF1("muonic_atom_lifetime", "[0]*TMath::Exp(-x/[1]) + [2]", args.min_fit_time, args.max_fit_time);
+    muonic_atom_lifetime->SetParameters(1000, 700, 10);
   }
   else if (args.double_exp && !args.flat_bkg) {
     muonic_atom_lifetime = new TF1("muonic_atom_lifetime", "[0]*TMath::Exp(-x/[1]) + [2]*TMath::Exp(-x/[3])", args.min_fit_time, args.max_fit_time);
@@ -90,7 +90,13 @@ void LifetimeFit(const LifetimeFitArgs& args) {
   }
 
   hTime->SetName("hTime");
-  hTime->Fit(muonic_atom_lifetime, "R");
+  hTime->Fit(muonic_atom_lifetime, "RQ");
+
+  std::cout << args.outdirname << ": tau_1 = " << muonic_atom_lifetime->GetParameter(1) << " +/- " << muonic_atom_lifetime->GetParError(1);
+  if (args.double_exp) {
+    std::cout << "\t tau_2 = " << muonic_atom_lifetime->GetParameter(3) << " +/- " << muonic_atom_lifetime->GetParError(3);
+  }
+  std::cout << std::endl;
   
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());

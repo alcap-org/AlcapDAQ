@@ -9,7 +9,7 @@ void Si16b_CountStoppedMuons_TargetSpectrum(std::string infilename, std::string 
   args.outdirname = "TargetSpectrum";
   args.min_muon_time = -200;
   args.max_muon_time = 200;
-  args.min_muon_energy = 700;
-  args.max_muon_energy = 1000;  
+  args.min_muon_energy = 500;
+  args.max_muon_energy = 1500;  
   CountStoppedMuons_TargetSpectrum(args);
 }

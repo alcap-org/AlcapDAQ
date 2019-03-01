@@ -12,6 +12,7 @@ struct RawSpectrum_fromEnergyTimeArgs {
 
   std::string outfilename;
   std::string outdirname;
+  
   double min_time;
   double max_time;
 };

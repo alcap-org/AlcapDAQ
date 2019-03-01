@@ -5,6 +5,8 @@
 
 #include "RooUnfoldResponse.h"
 #include "RooUnfoldBayes.h"
+#include "RooUnfoldBinByBin.h"
+#include "RooUnfoldSvd.h"
 
 #include <iostream>
 #include <sstream>
@@ -14,8 +16,8 @@ struct Unfold_ResponseMatrixArgs {
   std::string datafilename;
   std::string datahistname;
   std::string datacuttreename;
-  std::string lifetimefilename;
-  std::string lifetimefitfnname;
+  //  std::string lifetimefilename;
+  //  std::string lifetimefitfnname;
   std::string mcfilename;
   std::string mcresponsename;
   std::string outfilename;
@@ -39,6 +41,7 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
     return;
   }
 
+  /*
   TFile* lifetime_file = new TFile(args.lifetimefilename.c_str(), "READ");
   if (lifetime_file->IsZombie()) {
     std::cout << "Error: Problem opening lifetime file " << args.lifetimefilename << std::endl;
@@ -63,10 +66,14 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   double time_cut_efficiency = (lifetime_fn->Eval(time_cut) / lifetime_fn->GetParameter(0));
   std::cout << "Muonic Atom Lifetime (from fit) = " << lifetime_fn->GetParameter(1) << std::endl;
   std::cout << "For a " << time_cut << " ns time cut, efficiency = " << time_cut_efficiency << std::endl;
-
+  */
   RooUnfoldResponse* response = (RooUnfoldResponse*) mc_file->Get(args.mcresponsename.c_str());
 
   TH1D* folded_spectrum  = (TH1D*) data_file->Get(args.datahistname.c_str());
+  if (!folded_spectrum) {
+    std::cout << "Error: Problem finding histogram " << args.datahistname << std::endl;
+    return;
+  }
   std::string newname = "hFoldedSpectrum";
   folded_spectrum->SetName(newname.c_str());
   folded_spectrum->Rebin(args.rebin_factor);
@@ -79,6 +86,8 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   response_matrix->SetName(newname.c_str());
   
   RooUnfoldBayes unfold (response, folded_spectrum);
+  //  RooUnfoldBinByBin unfold (response, folded_spectrum);
+  //  RooUnfoldSvd unfold (response, folded_spectrum);
   
   TH1D* unfolded_spectrum = (TH1D*) unfold.Hreco();
   newname = "hUnfoldedSpectrum";
@@ -90,13 +99,13 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   axislabel << "Unfolded Count / " << unfolded_spectrum->GetBinWidth(1) << " keV";
   unfolded_spectrum->SetYTitle(axislabel.str().c_str());
 
-  std::cout << "Before Time Cut Efficiency Correction: " << std::endl;
+  //  std::cout << "Before Time Cut Efficiency Correction: " << std::endl;
   printIntegrals(unfolded_spectrum);
 
-  unfolded_spectrum->Scale(1.0 / time_cut_efficiency);
+  //  unfolded_spectrum->Scale(1.0 / time_cut_efficiency);
 
-  std::cout << "After Time Cut Efficiency Correction: " << std::endl;
-  printIntegrals(unfolded_spectrum);
+  //  std::cout << "After Time Cut Efficiency Correction: " << std::endl;
+  //  printIntegrals(unfolded_spectrum);
 
   folded_spectrum->SetLineColor(kRed);
   folded_spectrum->SetLineWidth(2);

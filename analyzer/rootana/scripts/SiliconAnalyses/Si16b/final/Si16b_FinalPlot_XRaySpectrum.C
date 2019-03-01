@@ -61,7 +61,6 @@ void Si16b_FinalPlot_XRaySpectrum() {
   //  Eframe->SetMinimum(3000);
   (ws->data("data"))->plotOn(Eframe);
   (ws->pdf("sum"))->plotOn(Eframe);
-
   Eframe->Draw();
 
 }

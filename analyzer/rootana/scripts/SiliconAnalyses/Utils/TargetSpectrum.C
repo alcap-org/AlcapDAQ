@@ -46,9 +46,15 @@ void TargetSpectrum(TargetSpectrumArgs& args) {
   double energy;
   double time;
   int layer_tpi_id;
-  std::string energy_var = args.layername + "_energy";
-  std::string time_var = args.layername + "_time";
-  std::string tpi_id_var = args.layername + "_tpi_id";
+  std::string energy_var = args.layername;
+  if (args.layername!="") { energy_var += "_"; }
+  energy_var += "energy";
+  std::string time_var = args.layername;
+  if (args.layername!="") { time_var += "_"; }
+  time_var += "time";
+  std::string tpi_id_var = args.layername;
+  if (args.layername!="") { tpi_id_var += "_"; }
+  tpi_id_var += "tpi_id";
   targettree->SetBranchAddress(energy_var.c_str(), &energy);
   targettree->SetBranchAddress(time_var.c_str(), &time);
   targettree->SetBranchAddress(tpi_id_var.c_str(), &layer_tpi_id);

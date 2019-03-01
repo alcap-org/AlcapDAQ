@@ -3,11 +3,11 @@ void SiL3_UnfoldCrossCheck() {
   std::string filename = "~/data/results/SiL3/unfold.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
-  double min_time_slice = 1000;
-  double max_time_slice = 1700;//3000;//5000;
-  double time_slice_step = 100;
-  const int n_slices = 7;
-  Int_t colours[n_slices] = {kBlue, kRed, kBlack, kMagenta, kSpring, kGray, kGreen+2};
+  double min_time_slice = 2000;
+  double max_time_slice = 4000;//3000;//5000;
+  double time_slice_step = 2000;
+  const int n_slices = 1;
+  Int_t colours[n_slices] = {kBlue};//, kRed};//, kBlack, kMagenta, kSpring, kGray, kGreen+2};
 
   std::stringstream time_slice_str;
 
@@ -28,11 +28,13 @@ void SiL3_UnfoldCrossCheck() {
     int i_slice = (i_min_time_slice - min_time_slice) / time_slice_step;
     Int_t i_colour = colours[i_slice];
 
-    std::string i_foldername = "TimeCut_" + time_slice_str.str();
+    //    std::string i_foldername = "TimeCut_" + time_slice_str.str();
     //    std::string i_histname = i_foldername + "/hCorrectedSpectrum";
     //    std::string i_foldername = "DecayElectronCorrection_" + time_slice_str.str();
     //    std::string i_histname = i_foldername + "/hCorrectedSpectrum";
-    std::string i_histname = i_foldername + "/hInputSpectrum";
+    std::string i_foldername = "ProtonEscapeCorrection_" + time_slice_str.str();
+    std::string i_histname = i_foldername + "/hUnfoldedSpectrum";
+    //    std::string i_histname = i_foldername + "/hInputSpectrum";
 
     TH1F* spectrum = (TH1F*) file->Get(i_histname.c_str());
     if (!spectrum) {
@@ -41,7 +43,8 @@ void SiL3_UnfoldCrossCheck() {
     }
     //    spectrum->Sumw2();
     //    spectrum->Rebin(2);
-    spectrum->GetXaxis()->SetRangeUser(0,10000);
+    spectrum->SetStats(false);
+    spectrum->GetXaxis()->SetRangeUser(0,50000);
     spectrum->SetLineColor(i_colour);
     spectrum->Draw("HIST E SAMES");
 
@@ -58,13 +61,13 @@ void SiL3_UnfoldCrossCheck() {
     leg->AddEntry(spectrum, time_slice_str.str().c_str(), "l");
   }
 
-  TLine* peak_line = new TLine(2500, spectrum->GetMinimum(), 2500, spectrum->GetMaximum());
+  /*  TLine* peak_line = new TLine(2500, spectrum->GetMinimum(), 2500, spectrum->GetMaximum());
   peak_line->SetLineColor(kBlack);
   peak_line->Draw("LSAME");
   
   TLine* trough_line = new TLine(1400, spectrum->GetMinimum(), 1400, spectrum->GetMaximum());
   trough_line->SetLineColor(kBlack);
   trough_line->Draw("LSAME");
-
+  */
   leg->Draw();
 }

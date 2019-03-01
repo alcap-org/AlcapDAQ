@@ -6,6 +6,8 @@ void SiL3_AllNormalisations() {
 
   std::string infilename = "~/data/results/SiL3/plots.root";
   std::string outfilename = "~/data/results/SiL3/normalisation.root";
+  //  std::string infilename = "~/data/results/SiL3/plots_wMuScCut_3000-3500ADC.root";
+  //  std::string outfilename = "~/data/results/SiL3/normalisation_wMuScCut_3000-3500ADC.root";
   //  std::string infilename = "~/data/results/SiL3_active_no-templates/plots.root";
   //  std::string outfilename = "~/data/results/SiL3_active_no-templates/normalisation.root";
 

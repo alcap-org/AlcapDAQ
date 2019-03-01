@@ -169,6 +169,11 @@ struct TMELoopArgs {
   bool veto_any_double_counts;
   bool veto_max_muon_channel_pulses;
   int max_muon_channel_pulses;
+
+  bool req_tgt_muon;
+  int min_tgt_pulses;
+  //  double muScCutLo;
+  //  double muScCutHi;
 };
 
 struct TMELoopOutput {
@@ -177,6 +182,8 @@ struct TMELoopOutput {
   std::vector<GeTargetOutput> geTargets;
 
   TTree* infotree;
+
+  TH1F* hCentralMuonTDiff;
 
   void Write() {
     for (std::vector<SiBlockOutput>::const_iterator i_siBlock = siBlocks.begin(); i_siBlock != siBlocks.end(); ++i_siBlock) {
@@ -201,6 +208,9 @@ struct TMELoopOutput {
       infotree->Fill();
       infotree->Write();
     }
+    if (hCentralMuonTDiff) {
+      hCentralMuonTDiff->Write();
+    }
   }
 } final_output;
 
@@ -222,6 +232,8 @@ int CheckArgs(const TMELoopArgs& args) {
 
 void Setup(const TMELoopArgs& args) {
   final_output.infotree = new TTree("infotree", "");
+  final_output.hCentralMuonTDiff = new TH1F("hCentralMuonTDiff", "", 200,0,1000000);
+  final_output.hCentralMuonTDiff->SetXTitle("| t_{#mu + 1} - t_{#mu} | [ns]");
 
   ///////////////////////////////////////////
   // Put everything into the final output
@@ -356,6 +368,8 @@ void TMELoop(const TMELoopArgs& args) {
   if (n_entries < 0) {
     n_entries = tmetree->GetEntries();
   }
+
+  double prevCentralMuonTime = -1;
   for (int i_tme = 0; i_tme < n_entries; ++i_tme) {
 
     ++n_total_tmes;
@@ -382,8 +396,25 @@ void TMELoop(const TMELoopArgs& args) {
 	continue; // to the next TME
       }
     }
+    //    double muSc_amp = (*args.muon_channels[0])->at(0).Amp;
+    //    if (muSc_amp < args.muScCutLo || muSc_amp>args.muScCutHi) {
+    //      continue; // to the next TME
+    //    }
+    if (args.req_tgt_muon) {
+      if( (*args.target.layer2_channels.at(0))->size() < args.min_tgt_pulses) {
+	continue; // to the next TME
+      }
+    }
 
     ++n_analysed_tmes;
+
+    if (prevCentralMuonTime < 0) {
+      prevCentralMuonTime = centralMuonTime;
+    }
+    else {
+      final_output.hCentralMuonTDiff->Fill(std::fabs(centralMuonTime - prevCentralMuonTime));
+      prevCentralMuonTime = centralMuonTime;
+    }
 
     /////////////////////////////////
     // Fill SiBlock trees

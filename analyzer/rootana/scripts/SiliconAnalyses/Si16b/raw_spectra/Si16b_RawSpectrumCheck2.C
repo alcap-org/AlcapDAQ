@@ -1,6 +1,6 @@
 void Si16b_RawSpectrumCheck2() {
 
-  std::string infilename = "~/data/results/Si16b_passive/raw_spectra.root";
+  std::string infilename = "~/data/results/Si16b/raw_spectra.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
   
   const int n_components = 4;

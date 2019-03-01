@@ -78,7 +78,7 @@ void Unfold_DecayElectronCorrection(const Unfold_DecayElectronCorrectionArgs& ar
   double geom_acceptance = args.geom_acceptance;
   double time_window_min = args.time_window_min;
   double time_window_max = args.time_window_max;
-  double decay_lifetime = 767;
+  double decay_lifetime = 756;
   double fraction_in_time_window = (TMath::Exp(-time_window_min/decay_lifetime) - TMath::Exp(-time_window_max/decay_lifetime));
   double scale = n_decay_muons*fraction_in_time_window*args.geom_acceptance;
   //  double scale = hRawSpectrum->GetBinContent(hRawSpectrum->GetXaxis()->FindBin(100)) / hCorrection->GetBinContent(hCorrection->GetXaxis()->FindBin(100));
@@ -92,6 +92,8 @@ void Unfold_DecayElectronCorrection(const Unfold_DecayElectronCorrectionArgs& ar
   std::cout << "AE: Integral (after scaling) = " << hCorrection->Integral() << std::endl;
   
   TH1D* hCorrectedSpectrum = (TH1D*) hRawSpectrum->Clone("hCorrectedSpectrum");
+  std::cout << "AE: hRawSpectrum Bin Width = " << hRawSpectrum->GetXaxis()->GetBinWidth(1) << " keV" << std::endl;
+  std::cout << "AE: hCorrection Bin Width = " << hCorrection->GetXaxis()->GetBinWidth(1) << " keV" << std::endl;
   hCorrectedSpectrum->Add(hCorrection, -1);
 
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
