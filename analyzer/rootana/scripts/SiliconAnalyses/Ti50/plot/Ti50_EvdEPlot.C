@@ -17,7 +17,11 @@ void Ti50_EvdEPlot(std::string infilename, std::string outfilename) {
   args.time_width = 10;
 
   args.outfilename = outfilename;  
-
+  args.thin_layer = "thin";
+  args.thick_layer = "thick";
+  args.third_layer = "third";
+  args.veto_layer = "";
+  
   const int n_arms = 2;
   std::string arms[n_arms] = {"SiR", "SiL"};
   
@@ -27,10 +31,12 @@ void Ti50_EvdEPlot(std::string infilename, std::string outfilename) {
     args.treename = "siBlockTree_" + this_arm;
 
     args.outdirname = "all_" + this_arm;
-    args.layer_coincidence_veto = true;
-    args.layer_coincidence_time = 200;
+    args.layer_coincidence_vetos = true;
+    args.layer12_coincidence_time = 200;
+    args.layer23_coincidence_time = 200;
     args.early_time_veto = false;
     args.do_cut = false;
+    args.do_psel = false;
     EvdEPlot(args);
 
     args.outdirname = "all_" + this_arm + "_timecut";
@@ -45,6 +51,36 @@ void Ti50_EvdEPlot(std::string infilename, std::string outfilename) {
     args.cutname = "proton_cut";
     EvdEPlot(args);
 
+    args.outdirname = "all_proton_" + this_arm;
+    args.early_time_veto = false;
+    args.do_cut = true;
+    if (this_arm == "SiL") {
+      args.cutfilename = "~/data/results/Ti50/cut_all_proton.root";
+    }
+    else if (this_arm == "SiR") {
+      args.cutfilename = "~/data/results/Ti50/cut_all_proton_tighter.root";
+    }
+    args.cutname = "all_proton";
+    EvdEPlot(args);
+
+    args.outdirname = "all_proton_" + this_arm + "_timecut";
+    args.early_time_veto = true;
+    args.early_time_cut = 200;
+    EvdEPlot(args);
+
+    args.outdirname = "all_charged_" + this_arm;
+    args.early_time_veto = false;
+    args.do_cut = true;
+    args.cutfilename = "~/data/results/Ti50/cut_all_charged.root";
+    args.cutname = "all_charged";
+    EvdEPlot(args);
+
+    args.outdirname = "all_charged_" + this_arm + "_timecut";
+    args.early_time_veto = true;
+    args.early_time_cut = 200;
+    EvdEPlot(args);
+
+    
     args.outdirname = "proton_" + this_arm + "_timecut";
     args.early_time_veto = true;
     args.early_time_cut = 200;

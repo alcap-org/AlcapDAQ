@@ -16,12 +16,11 @@ struct Unfold_DecayElectronCorrectionArgs {
 
   std::string corrfilename;
   std::string corrhistname;
-  double time_window_min;
-  double time_window_max;
-  double geom_acceptance;
 
   std::string countfilename;
   std::string counttreename;
+
+  double capture_fraction;
 };
 
 void Unfold_DecayElectronCorrection(const Unfold_DecayElectronCorrectionArgs& args) {
@@ -32,12 +31,12 @@ void Unfold_DecayElectronCorrection(const Unfold_DecayElectronCorrectionArgs& ar
     return;
   }
   TH1F* hRawSpectrum = (TH1F*) file->Get(args.inhistname.c_str());
-  hRawSpectrum->SetName("hInputSpectrum");
-  //  hRawSpectrum->Rebin(2);
   if (!hRawSpectrum) {
     std::cout << "Problem getting histogram " << args.inhistname << std::endl;
     return;
   }
+  //  hRawSpectrum->Rebin(2);
+  hRawSpectrum->SetName("hInputSpectrum");
 
   TFile* corrfile = new TFile(args.corrfilename.c_str(), "READ");
   if (corrfile->IsZombie()) {
@@ -51,14 +50,20 @@ void Unfold_DecayElectronCorrection(const Unfold_DecayElectronCorrectionArgs& ar
   }
 
   TH1F* hCorrection = (TH1F*) hMuPlusEDep->Clone("hCorrection"); //->ProjectionY("hCorrection", min_time_bin, max_time_bin);
-  hCorrection->Reset();
+  if (!hCorrection) {
+    std::cout << "Problem copying correction histogram" << std::endl;
+    return;
+  }
+  /*  hCorrection->Reset();
   // shift things to the right
-  int bin_shift = 0;
+  int bin_shift = 1;
   for (int i_bin = 1; i_bin < hMuPlusEDep->GetNbinsX(); ++i_bin) {
     double this_bin_content = hMuPlusEDep->GetBinContent(i_bin);
     hCorrection->SetBinContent(i_bin+bin_shift, this_bin_content);
   }
-
+  */
+  
+  
   TFile* countfile = new TFile(args.countfilename.c_str(), "READ");
   if (countfile->IsZombie()) {
     std::cout << "Problem opening countfile " << args.countfilename << std::endl;
@@ -73,27 +78,16 @@ void Unfold_DecayElectronCorrection(const Unfold_DecayElectronCorrectionArgs& ar
   counttree->SetBranchAddress("n_stopped_muons", &n_stopped_muons);
   counttree->GetEntry(0);
   
-  double capture_fraction = 0.658;
-  double n_decay_muons = (1-capture_fraction)*n_stopped_muons;
-  double geom_acceptance = args.geom_acceptance;
-  double time_window_min = args.time_window_min;
-  double time_window_max = args.time_window_max;
-  double decay_lifetime = 756;
-  double fraction_in_time_window = (TMath::Exp(-time_window_min/decay_lifetime) - TMath::Exp(-time_window_max/decay_lifetime));
-  double scale = n_decay_muons*fraction_in_time_window*args.geom_acceptance;
-  //  double scale = hRawSpectrum->GetBinContent(hRawSpectrum->GetXaxis()->FindBin(100)) / hCorrection->GetBinContent(hCorrection->GetXaxis()->FindBin(100));
-  std::cout << "AE: N Stop = " << n_stopped_muons << std::endl;
-  std::cout << "AE: N Decay = " << (1-capture_fraction) << "*" << n_stopped_muons << " = " << n_decay_muons << std::endl;
-  std::cout << "AE: Peak (before scaling) = " << hCorrection->GetMaximum() << std::endl;
-  std::cout << "AE: Integral (before scaling) = " << hCorrection->Integral() << std::endl;
-  std::cout << "AE: Scale = " << args.geom_acceptance << "*" << fraction_in_time_window << "*" << n_decay_muons << " = " << scale << std::endl;
+  double n_decay_muons = (1-args.capture_fraction)*n_stopped_muons;
+
+  double scale = n_decay_muons;
   hCorrection->Scale(scale);
-  std::cout << "AE: Peak (after scaling) = " << hCorrection->GetMaximum() << std::endl;
-  std::cout << "AE: Integral (after scaling) = " << hCorrection->Integral() << std::endl;
+  hCorrection->Rebin(2);
   
   TH1D* hCorrectedSpectrum = (TH1D*) hRawSpectrum->Clone("hCorrectedSpectrum");
-  std::cout << "AE: hRawSpectrum Bin Width = " << hRawSpectrum->GetXaxis()->GetBinWidth(1) << " keV" << std::endl;
-  std::cout << "AE: hCorrection Bin Width = " << hCorrection->GetXaxis()->GetBinWidth(1) << " keV" << std::endl;
+  std::cout << "Unfolding DecayElectron: n_stopped_muons = " << n_stopped_muons << ", n_decay_muons = " << n_decay_muons << std::endl;
+  std::cout << "Unfolding DecayElectron: hRawSpectrum Bin Width = " << hRawSpectrum->GetXaxis()->GetBinWidth(1) << " keV, Min = " << hRawSpectrum->GetXaxis()->GetXmin() << ", Max = " << hRawSpectrum->GetXaxis()->GetXmax() << std::endl;
+  std::cout << "Unfolding DecayElectron: hCorrection Bin Width = " << hCorrection->GetXaxis()->GetBinWidth(1) << " keV, Min = " << hCorrection->GetXaxis()->GetXmin() << ", Max = " << hCorrection->GetXaxis()->GetXmax() << std::endl;
   hCorrectedSpectrum->Add(hCorrection, -1);
 
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");

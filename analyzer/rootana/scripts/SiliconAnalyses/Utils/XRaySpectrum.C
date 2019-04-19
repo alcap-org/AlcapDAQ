@@ -48,8 +48,8 @@ void XRaySpectrum(XRaySpectrumArgs& args) {
 
     hEnergyTime->Fill(time, energy);
   }
-  
-  std::cout << hEnergyTime->GetName() << " " << hEnergyTime->GetEntries() << " entries" << std::endl;
+
+  std::cout << "XRaySpectrum (" << args.outdirname << "): " << hEnergyTime->GetName() << " " << hEnergyTime->GetEntries() << " entries" << std::endl;
   
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());

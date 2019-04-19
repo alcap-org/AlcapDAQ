@@ -58,7 +58,7 @@ void Unfold_TimeCut(const Unfold_TimeCutArgs& args) {
   efftree->Branch("efficiency", &fraction_in_time_window);  
   
   fraction_in_time_window = (TMath::Exp(-time_window_min/args.decay_lifetime) - TMath::Exp(-time_window_max/args.decay_lifetime));
-  std::cout << time_window_min << " ns -- " << time_window_max << " ns: fraction in time window = " << fraction_in_time_window << std::endl;
+  std::cout << "Unfolding TimeCut: " << time_window_min << " ns -- " << time_window_max << " ns: fraction in time window = " << fraction_in_time_window << std::endl;
   
   TH1D* hCorrectedSpectrum = (TH1D*) hInputSpectrum->Clone("hCorrectedSpectrum");
   hCorrectedSpectrum->Scale(1.0/fraction_in_time_window);

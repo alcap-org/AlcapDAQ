@@ -68,6 +68,10 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   std::cout << "For a " << time_cut << " ns time cut, efficiency = " << time_cut_efficiency << std::endl;
   */
   RooUnfoldResponse* response = (RooUnfoldResponse*) mc_file->Get(args.mcresponsename.c_str());
+  if (!response) {
+    std::cout << "Problem finding RooUnfoldResponse " << args.mcresponsename.c_str() << std::endl;
+    return;
+  }
 
   TH1D* folded_spectrum  = (TH1D*) data_file->Get(args.datahistname.c_str());
   if (!folded_spectrum) {
@@ -100,7 +104,7 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   unfolded_spectrum->SetYTitle(axislabel.str().c_str());
 
   //  std::cout << "Before Time Cut Efficiency Correction: " << std::endl;
-  printIntegrals(unfolded_spectrum);
+  //  printIntegrals(unfolded_spectrum);
 
   //  unfolded_spectrum->Scale(1.0 / time_cut_efficiency);
 
@@ -110,7 +114,7 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   folded_spectrum->SetLineColor(kRed);
   folded_spectrum->SetLineWidth(2);
   //  folded_spectrum->Draw("HIST E SAMES");
-  unfold.PrintTable(std::cout);
+  //  unfold.PrintTable(std::cout);
 
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());

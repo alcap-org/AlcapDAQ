@@ -19,11 +19,11 @@ void SiL3_FinalPlot_Unfolded_wSW() {
   leg->SetBorderSize(0);
   leg->SetTextSize(0.03);
   leg->SetFillColor(kWhite);
-  //  leg->AddEntry(SW_gre, "Sobottka-Wills", "pl");
+  leg->AddEntry(SW_gre, "Sobottka-Wills", "pl");
   SW_gre->GetFunction("tdr_fit")->SetLineColor(kBlack);
-  //  leg->AddEntry(SW_gre->GetFunction("tdr_fit"), "S-W Fit", "l");
+  leg->AddEntry(SW_gre->GetFunction("tdr_fit"), "S-W Fit", "l");
 
-  std::string norm_filename = "~/data/results/SiL3/normalisation.root";
+  std::string norm_filename = "~/data/results/SiL3/normalisation_geq1TgtPulse.root";
   //  std::string norm_filename = "~/data/results/SiL3/normalisation_wMuScCut_3000-3500ADC.root";
   TFile* norm_file = new TFile(norm_filename.c_str(), "READ");
   TTree* counttree = (TTree*) norm_file->Get("XRaySpectrum_GeLoGain_wTimeCut/counttree");
@@ -36,9 +36,9 @@ void SiL3_FinalPlot_Unfolded_wSW() {
   std::cout << "AE: n_stopped_muons = " << n_stopped_muons << std::endl;
   std::cout << "AE: n_captured_muons = " << n_captured_muons << std::endl;
 
-  //  std::string filename = "~/data/results/SiL3/unfold.root";
+  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse.root";
   //  std::string filename = "~/data/results/SiL3/unfold_wMuScCut_3000-3500ADC.root";
-  std::string filename = "~/data/results/SiL3/unfold_special.root";
+  //  std::string filename = "~/data/results/SiL3/unfold_special.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   /*
@@ -65,7 +65,8 @@ void SiL3_FinalPlot_Unfolded_wSW() {
 
     Int_t i_colour = colours[i_slice];
 
-    std::string i_histname = "TimeCut_" + time_slice_str.str() + "/hCorrectedSpectrum";
+    //    std::string i_histname = "TimeCut_" + time_slice_str.str() + "/hCorrectedSpectrum";
+    std::string i_histname = "DecayElectronCorrection_" + time_slice_str.str() + "/hCorrectedSpectrum";
     //    std::string i_histname = "ProtonEscapeCorrection_" + time_slice_str.str() + "/hUnfoldedSpectrum";
 
     TH1F* spectrum = (TH1F*) file->Get(i_histname.c_str());
@@ -80,12 +81,20 @@ void SiL3_FinalPlot_Unfolded_wSW() {
     spectrum->Rebin(rebin_factor);
     spectrum->Scale(1.0/rebin_factor);
     spectrum->Scale(1.0/n_captured_muons);
+    //    spectrum->Scale(0.1);
     spectrum->SetStats(false);
     //    spectrum->GetXaxis()->SetRangeUser(0,10000);
     spectrum->SetLineColor(i_colour);
     spectrum->Draw("HIST E SAMES");
     hFinalSpectrum = spectrum;
-    //    leg->AddEntry(spectrum, time_slice_str.str().c_str(), "l");
+    leg->AddEntry(spectrum, time_slice_str.str().c_str(), "l");
+
+    TF1* data_fit = new TF1("data_fit","[0]*(1 - [1]/x)^[2]*(exp(-x/[3]))",1400,27000);
+    data_fit->SetParameter(0, 0.1);
+    data_fit->SetParameter(1, 1431);
+    data_fit->SetParameter(2, 0.3264);
+    data_fit->SetParameter(3, 4581);
+    spectrum->Fit(data_fit);
 
     const int n_ranges = 5;
     double min_energies[n_ranges] = {1400,  5000,  5000,  3500, 4000};
@@ -153,13 +162,7 @@ void SiL3_FinalPlot_Unfolded_wSW() {
 
   leg->AddEntry(hTruth, "MC Truth", "l");
   leg->AddEntry(hMeas, "MC Measured", "l");
-  /*
-  TF1* tdr_fit = new TF1("tdr_fit","[0]*(1 - [1]/x)^[2]*(exp(-x/[3]))",1400,27000);
-  tdr_fit->SetParameter(0, 0.1);
-  tdr_fit->FixParameter(1, 1431);
-  tdr_fit->FixParameter(2, 0.3264);
-  tdr_fit->FixParameter(3, 4581);
-  */
+  
   //  hTruth->Fit(tdr_fit);
   //  SW_gre->Fit(tdr_fit);
   //  tdr_fit->Draw("LSAME");

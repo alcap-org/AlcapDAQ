@@ -72,12 +72,19 @@ void Unfold_FlatBackground(const Unfold_FlatBackgroundArgs& args) {
   outcuttree->SetBranchAddress("min_time", &out_time_cut_min);
   outcuttree->SetBranchAddress("max_time", &out_time_cut_max);
   outcuttree->GetEntry(0);
-  
+
+  //  int i_bin = 5;
+  //  std::cout << "Raw Spectrum: Bin # " << i_bin << " = " << hRawSpectrum->GetBinContent(i_bin) << " +/- " << hRawSpectrum->GetBinError(i_bin) << std::endl;
   TH1D* hCorrectedSpectrum = (TH1D*) hRawSpectrum->Clone("hCorrectedSpectrum");
+
   // Scale to be the same time width
+  //  std::cout << "Before Scaling: Bin #" << i_bin << " = " << hCorrection->GetBinContent(i_bin) << " +/- " << hCorrection->GetBinError(i_bin) << std::endl;
   double scale_factor = (in_time_cut_max - in_time_cut_min) / (out_time_cut_max - out_time_cut_min);
   hCorrection->Scale(scale_factor);
+  //  std::cout << "After Scaling: Bin #" << i_bin << " = " << hCorrection->GetBinContent(i_bin) << " +/- " << hCorrection->GetBinError(i_bin) << std::endl;
+  //  std::cout << "Before Subtraction: Bin # " << i_bin << " = " << hCorrectedSpectrum->GetBinContent(i_bin) << " +/- " << hCorrectedSpectrum->GetBinError(i_bin) << std::endl;
   hCorrectedSpectrum->Add(hCorrection, -1);
+  //  std::cout << "After Subtraction: Bin # " << i_bin << " = " << hCorrectedSpectrum->GetBinContent(i_bin) << " +/- " << hCorrectedSpectrum->GetBinError(i_bin) << std::endl;
 
   std::cout << "Unfolding FlatBackground: FlatBkg Histogram Has Time Cut = " << out_time_cut_min << " ns -- " << out_time_cut_max << " ns" << std::endl;
   std::cout << "Unfolding FlatBackground: RawSpectrum Histogram Has Time Cut = " << in_time_cut_min << " ns -- " << in_time_cut_max << " ns" << std::endl;

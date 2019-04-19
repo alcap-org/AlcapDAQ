@@ -1,9 +1,10 @@
 void Si16b_FinalPlot_XRaySpectrum() {
 
-  std::string plots_file_name = "~/data/results_old/Si16b_passive/plots.root";
-  std::string full_spectrum_name = "hXRaySpectrum_GeLoGain";
-  std::string norm_file_name = "/home/edmonds/data/results_old/Si16b_passive/normalisation.root";
-  std::string norm_ws_name = "ws_timecut";
+  std::string plots_file_name = "~/data/results/Si16b/plots.root";
+  std::string ge_channel = "GeLoGain";
+  std::string full_spectrum_name = ge_channel + "/hEnergyTime";
+  std::string norm_file_name = "/home/edmonds/data/results/Si16b/normalisation.root";
+  std::string norm_ws_name = "XRaySpectrum_" + ge_channel + "_noTimeCut/ws";
     
   TFile* plots_file = new TFile(plots_file_name.c_str(), "READ");
   TH1D* hXRaySpectrum = ((TH2F*) plots_file->Get(full_spectrum_name.c_str()))->ProjectionY();
@@ -27,7 +28,7 @@ void Si16b_FinalPlot_XRaySpectrum() {
   hXRaySpectrum->Draw("HIST E");
 
   TLatex* latex = new TLatex();
-  latex->DrawLatexNDC(0.30, 0.70, "AlCap Preliminary");
+  latex->DrawLatexNDC(0.17, 0.70, "AlCap Preliminary");
 
   double xray_energy = 400.177;
   int bin_2p1s = hXRaySpectrum->FindBin(xray_energy);
@@ -50,7 +51,7 @@ void Si16b_FinalPlot_XRaySpectrum() {
   latex->DrawLatex(xray_energy, arrow_y_start*1.12, text.str().c_str());
 
 
-  TPad* inset_pad = new TPad("inset", "inset", 0.47, 0.15, 0.92, 0.59);
+  TPad* inset_pad = new TPad("inset", "inset", 0.47, 0.45, 0.92, 0.90);
   inset_pad->SetFillStyle(0);
   inset_pad->Draw();
   inset_pad->cd();
@@ -62,5 +63,4 @@ void Si16b_FinalPlot_XRaySpectrum() {
   (ws->data("data"))->plotOn(Eframe);
   (ws->pdf("sum"))->plotOn(Eframe);
   Eframe->Draw();
-
 }

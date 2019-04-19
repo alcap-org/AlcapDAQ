@@ -116,11 +116,11 @@ void TargetSpectrum(TargetSpectrumArgs& args) {
 	continue; // to next entry
       }
     }
-    
+
     hEnergyTime->Fill(time, energy);
   }
   
-  std::cout << hEnergyTime->GetName() << " " << hEnergyTime->GetEntries() << " entries" << std::endl;
+  std::cout << "TargetSpectrum (" << args.outdirname << "): " << hEnergyTime->GetName() << " " << hEnergyTime->GetEntries() << " entries" << std::endl;
   
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());

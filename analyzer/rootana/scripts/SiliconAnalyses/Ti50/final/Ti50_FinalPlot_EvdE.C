@@ -1,14 +1,15 @@
 void Ti50_FinalPlot_EvdE() {
 
-  std::string infilename = "~/data/results_old/Ti50/plots_test.root";
+  std::string infilename = "~/data/results/Ti50/plots.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
 
   TCanvas* c_EvdE_two_layer = new TCanvas("c_EvdE_two_layer", "c_EvdE_two_layer");
   
-  std::string inhistname = "hEvdE_TwoLayer_all_SiL_timecut";
-  //  std::string tcutgname = "proton_cut_two_layer";
+  std::string inhistname = "all_SiL/hEvdE_TwoLayer_12";
+  //  std::string tcutgname = "proton_SiL/proton_cut_two_layer";
+  std::string tcutgname = "all_proton_SiL/all_proton_two_layer";
   TH2F* hEvdE = (TH2F*) infile->Get(inhistname.c_str());
-  //  TCutG* tCutG = (TCutG*) infile->Get(tcutgname.c_str());
+  TCutG* tCutG = (TCutG*) infile->Get(tcutgname.c_str());
 
   hEvdE->SetTitle("Ti50 Dataset, Left Arm");
   hEvdE->SetStats(false);
@@ -16,9 +17,9 @@ void Ti50_FinalPlot_EvdE() {
   hEvdE->GetYaxis()->SetRangeUser(0, 3000);
   hEvdE->Draw("COLZ");
 
-  //  tCutG->SetLineWidth(2);
-  //  tCutG->SetLineColor(kRed);
-  //  tCutG->Draw("SAME");
+  tCutG->SetLineWidth(2);
+  tCutG->SetLineColor(kRed);
+  tCutG->Draw("SAME");
 
   TLatex* latex = new TLatex();
   latex->DrawLatexNDC(0.55, 0.65, "AlCap Preliminary");
@@ -29,9 +30,9 @@ void Ti50_FinalPlot_EvdE() {
   //  latex->DrawLatex(2400, 2500, "d");
   //  latex->DrawLatex(3000, 2800, "t");
 
-  TCanvas* c_EvdE_three_layer_12 = new TCanvas("c_EvdE_three_layer_12", "c_EvdE_three_layer_12");
+  /*  TCanvas* c_EvdE_three_layer_12 = new TCanvas("c_EvdE_three_layer_12", "c_EvdE_three_layer_12");
 
-  inhistname = "hEvdE_ThreeLayer_12_all_SiL_timecut";
+  inhistname = "SiL_all/hEvdE_TwoLayer_123_timecut";
   //  tcutgname = "proton_cut_two_layer";
   TH2F* hEvdE_ThreeLayer_12 = (TH2F*) infile->Get(inhistname.c_str());
   //  TCutG* tCutG_ThreeLayer_12 = (TCutG*) infile->Get(tcutgname.c_str());
@@ -65,7 +66,7 @@ void Ti50_FinalPlot_EvdE() {
   //  tCutG_ThreeLayer_123->SetLineWidth(2);
   //  tCutG_ThreeLayer_123->SetLineColor(kRed);
   //  tCutG_ThreeLayer_123->Draw("SAME");
-
+  */
   latex->SetTextColor(kBlack);
   latex->DrawLatexNDC(0.25, 0.75, "AlCap Preliminary");
 }

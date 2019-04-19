@@ -40,7 +40,7 @@ void Silicon() {
   SW_gre->SetTitle("Charged Particle Emission");
   SW_gre->GetXaxis()->SetRangeUser(0,26000);
   SW_gre->GetXaxis()->SetTitle("Energy [keV]");
-  SW_gre->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture");
+  SW_gre->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
   SW_gre->GetFunction("tdr_fit")->SetLineColor(kBlack);
 
   TLegend* leg = new TLegend(0.50,0.55,0.90,0.85);
@@ -53,12 +53,12 @@ void Silicon() {
   SiAnalysis SiL3_target;
   SiL3_target.dataset = "SiL3";
   SiL3_target.analysis = "active target";
-  SiL3_target.filename = "~/data/results/SiL3/unfold.root";
-  SiL3_target.histname = "TimeCut_TimeSlice2000_4000/hCorrectedSpectrum"; //"ProtonEscapeCorrection_TimeSlice2000_4000/hUnfoldedSpectrum",
-  SiL3_target.rebin_factor = 1;
-  SiL3_target.colour = kGray;
-  SiL3_target.normfilename = "~/data/results/SiL3/normalisation.root";
-  SiL3_target.counttree = "XRaySpectrum_GeLoGain_wTimeCut/counttree";
+  SiL3_target.filename = "~/data/results/SiL3/unfold_geq2TgtPulse.root";
+  SiL3_target.histname = "DecayElectronCorrection_TimeSlice2000_4000/hCorrectedSpectrum"; //"ProtonEscapeCorrection_TimeSlice2000_4000/hUnfoldedSpectrum",
+  SiL3_target.rebin_factor = 5;
+  SiL3_target.colour = kRed;
+  SiL3_target.normfilename = "~/data/results/SiL3/normalisation_geq1TgtPulse.root";
+  SiL3_target.counttree = "XRaySpectrum_GeLoGain_noTimeCut/counttree";
   SiL3_target.capture_fraction = 0.658;
 
   SiAnalysis Si16b_right_protons;
@@ -71,6 +71,17 @@ void Silicon() {
   Si16b_right_protons.normfilename = "~/data/results/Si16b/normalisation.root";
   Si16b_right_protons.counttree = "XRaySpectrum_GeLoGain_wTimeCut/counttree";
   Si16b_right_protons.capture_fraction = 0.658;
+
+  SiAnalysis Si16b_right_deuterons;
+  Si16b_right_deuterons.dataset = "Si16b";
+  Si16b_right_deuterons.analysis = "SiR deuterons";
+  Si16b_right_deuterons.filename = "~/data/results/Si16b/unfold.root";
+  Si16b_right_deuterons.histname = "ResponseMatrix_deuteron/hUnfoldedSpectrum";
+  Si16b_right_deuterons.rebin_factor = 1;
+  Si16b_right_deuterons.colour = kCyan;
+  Si16b_right_deuterons.normfilename = "~/data/results/Si16b/normalisation.root";
+  Si16b_right_deuterons.counttree = "XRaySpectrum_GeLoGain_wTimeCut/counttree";
+  Si16b_right_deuterons.capture_fraction = 0.658;
 
   SiAnalysis Si16b_right_pdta;
   Si16b_right_pdta.dataset = "Si16b";
@@ -87,8 +98,9 @@ void Silicon() {
   Si16b_right_inclusive.dataset = "Si16b";
   Si16b_right_inclusive.analysis = "SiR2 inclusive";
   Si16b_right_inclusive.filename = "~/data/results/Si16b/unfold.root";
-  Si16b_right_inclusive.histname = "GeomAcceptance_SiR2/hCorrectedSpectrum",
-  Si16b_right_inclusive.rebin_factor = 5;
+  Si16b_right_inclusive.histname = "SiR2_GeomAcceptance_TimeSlice1000_5000/hCorrectedSpectrum",
+  //  Si16b_right_inclusive.histname = "ResponseMatrix_SiR2/hUnfoldedSpectrum",
+  Si16b_right_inclusive.rebin_factor = 1;
   Si16b_right_inclusive.colour = kCyan;
   Si16b_right_inclusive.normfilename = "~/data/results/Si16b/normalisation.root";
   Si16b_right_inclusive.counttree = "XRaySpectrum_GeLoGain_wTimeCut/counttree";
@@ -98,18 +110,21 @@ void Silicon() {
   Si16b_left_inclusive.dataset = "Si16b";
   Si16b_left_inclusive.analysis = "SiL3 inclusive";
   Si16b_left_inclusive.filename = "~/data/results/Si16b/unfold.root";
-  Si16b_left_inclusive.histname = "GeomAcceptance_SiL3/hCorrectedSpectrum";
-  Si16b_left_inclusive.rebin_factor = 5;
+  Si16b_left_inclusive.histname = "SiL3_GeomAcceptance_TimeSlice1000_5000/hCorrectedSpectrum";
+  //  Si16b_left_inclusive.histname = "SiL3_DecayElectronCorrection_TimeSlice1000_5000/hCorrectedSpectrum";
+  //  Si16b_left_inclusive.histname = "ResponseMatrix_SiL3/hUnfoldedSpectrum";
+  Si16b_left_inclusive.rebin_factor = 2;
   Si16b_left_inclusive.colour = kBlue;
   Si16b_left_inclusive.normfilename = "~/data/results/Si16b/normalisation.root";
-  Si16b_left_inclusive.counttree = "XRaySpectrum_GeLoGain_wTimeCut/counttree";
+  Si16b_left_inclusive.counttree = "XRaySpectrum_GeLoGain_noTimeCut/counttree";
   Si16b_left_inclusive.capture_fraction = 0.658;
 
   std::vector<SiAnalysis> siAnalyses;
   siAnalyses.push_back(SiL3_target);
-  siAnalyses.push_back(Si16b_right_protons);
-  siAnalyses.push_back(Si16b_right_pdta);
-  siAnalyses.push_back(Si16b_right_inclusive);
+  //  siAnalyses.push_back(Si16b_right_protons);
+  //  siAnalyses.push_back(Si16b_right_deuterons);
+  //  siAnalyses.push_back(Si16b_right_pdta);
+  //  siAnalyses.push_back(Si16b_right_inclusive);
   siAnalyses.push_back(Si16b_left_inclusive);
   
   for (std::vector<SiAnalysis>::iterator i_siAnalysis = siAnalyses.begin(); i_siAnalysis != siAnalyses.end(); ++ i_siAnalysis) {
@@ -143,11 +158,12 @@ void Silicon() {
       return;
     }
     i_siAnalysis->spectrum->Sumw2();
-    i_siAnalysis->spectrum->Scale(1.0 / (i_siAnalysis->spectrum->GetXaxis()->GetBinWidth(1)) ); // per keV
     i_siAnalysis->spectrum->Rebin(i_siAnalysis->rebin_factor);
-    i_siAnalysis->spectrum->Scale(1.0 / i_siAnalysis->rebin_factor); // rescale to per keV
+    std::cout << i_siAnalysis->analysis << ": Bin Width = " << i_siAnalysis->spectrum->GetXaxis()->GetBinWidth(1) << " keV" << std::endl;
+    i_siAnalysis->spectrum->Scale(1.0 / (i_siAnalysis->spectrum->GetXaxis()->GetBinWidth(1)) ); // scale to be per keV
     i_siAnalysis->spectrum->Scale(1.0 / i_siAnalysis->n_captured_muons); // now scale to per captured muon per keV
-
+    //    i_siAnalysis->spectrum->Scale(1.0 / 1.5);
+    
     i_siAnalysis->spectrum->SetStats(false);
     i_siAnalysis->spectrum->SetLineWidth(1);
     i_siAnalysis->spectrum->SetLineColor(i_siAnalysis->colour);
@@ -177,6 +193,7 @@ void Silicon() {
 	double previous_x = *(SW_gre->GetX()+i_element-1);
 	double this_x = *(SW_gre->GetX()+i_element);
 	double width_x = this_x - previous_x;
+
 	SW_integral += *(SW_gre->GetY()+i_element) * width_x;
       }
       if (*(SW_gre->GetX()+i_element) > max_energy) {
@@ -190,6 +207,24 @@ void Silicon() {
       int max_energy_bin = i_siAnalysis->spectrum->GetXaxis()->FindBin(max_energy) - 1;
       std::cout << "AlCap, " << i_siAnalysis->dataset << ", " << i_siAnalysis->analysis << ": Integral (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << i_siAnalysis->spectrum->Integral(min_energy_bin, max_energy_bin, "width") << std::endl;
     }
+  }
+
+  for (std::vector<SiAnalysis>::iterator i_siAnalysis = siAnalyses.begin(); i_siAnalysis != siAnalyses.end(); ++ i_siAnalysis) {
+    TF1* data_fit = new TF1("data_fit","[0]*(1 - [1]/x)^[2]*(exp(-x/[3]))",1400,27000);
+    data_fit->SetParName(0, "N");
+    data_fit->SetParName(1, "T_{th}");
+    data_fit->SetParName(2, "#alpha");
+    data_fit->SetParName(3, "T_{0}");
+    data_fit->SetParameter(0, 0.1);
+    data_fit->SetParameter(1, 1400);
+    data_fit->SetParLimits(1, 0, 5000);
+    data_fit->SetParameter(2, 1.328);
+    data_fit->SetParLimits(2, 0, 5);
+    data_fit->SetParameter(3, 4600);
+    i_siAnalysis->spectrum->Fit(data_fit, "R");
+    data_fit->SetLineColor(kRed);
+    data_fit->SetLineWidth(2);
+    data_fit->Draw("LSAME");
   }
 
   leg->Draw();

@@ -1,8 +1,9 @@
 void Si16b_FinalPlot_FoldedSpectra() {
 
   std::string infilename = "~/data/results/Si16b/unfold.root";
+  std::string folded_histname = "TimeCut_proton/hCorrectedSpectrum";
   //  std::string folded_histname = "GeomAcceptance_SiL3/hCorrectedSpectrum";
-  std::string folded_histname = "ResponseMatrix_alpha/hUnfoldedSpectrum";
+  //  std::string folded_histname = "ResponseMatrix_alpha/hUnfoldedSpectrum";
   //  std::string outhisttitle = "Si16b Dataset, Right Arm, " + particle;
   
   TFile* infile = new TFile(infilename.c_str(), "READ");

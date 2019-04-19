@@ -2,15 +2,16 @@
 
 void SiL3_TMELoop() {
   TMELoopArgs args;
+  //  args.infilename = "~/data/out/v13/SiL3.root";
   args.infilename = "~/data/out/v14/SiL3.root";
   args.tmetreename = "TMETree/TMETree";
-  args.outfilename = "~/data/results/SiL3/subtrees_wTgtMuon.root";
+  args.outfilename = "~/data/results/SiL3/subtrees_geq1TgtPulse.root";
 
   //  args.infilename = "~/data/out/v5/SiL3_tmetree.root"; // without templates
   //  args.tmetreename = "TMETree/TMETree";
-  //  args.outfilename = "~/data/results/SiL3_active_no-templates/subtrees.root";
+  //  args.outfilename = "~/data/results/SiL3_active_no-templates/subtrees_geq2TgtPulse.root";
   args.n_entries = -1;
-  //  args.n_entries = 10000000;
+  //  args.n_entries = 1000000;
 
   ///////////////////////////////////////////
   // Calibration Constants
@@ -109,9 +110,12 @@ void SiL3_TMELoop() {
 
 
   args.target.name = "Target";
-  args.target.layer1_channels.push_back(&muSc);
-  args.target.layer1_calibGains.push_back(1.0);
-  args.target.layer1_calibOffsets.push_back(0.0);
+  //  args.target.layer1_channels.push_back(&muSc);
+  //  args.target.layer1_calibGains.push_back(1.0);
+  //  args.target.layer1_calibOffsets.push_back(0.0);
+  args.target.layer1_channels.push_back(&empty);
+  args.target.layer1_calibGains.push_back(0);
+  args.target.layer1_calibOffsets.push_back(0);
   args.target.layer2_channels.push_back(&SiL3);
   args.target.layer2_calibGains.push_back(SiL3_Gain);
   args.target.layer2_calibOffsets.push_back(SiL3_Offset);
@@ -126,7 +130,7 @@ void SiL3_TMELoop() {
   args.max_muon_channel_pulses = 1;
 
   args.req_tgt_muon = true;
-  args.min_tgt_pulses = 2;
+  args.min_tgt_pulses = 1;
   //  args.muScCutLo = 3000;
   //  args.muScCutHi = 3500;
   

@@ -15,6 +15,8 @@ struct RawSpectrum_fromEnergyTimeArgs {
   
   double min_time;
   double max_time;
+
+  int rebin_factor;
 };
 
 void RawSpectrum_fromEnergyTime(const RawSpectrum_fromEnergyTimeArgs& args) {
@@ -27,6 +29,7 @@ void RawSpectrum_fromEnergyTime(const RawSpectrum_fromEnergyTimeArgs& args) {
   TH2F* hEnergyTime = (TH2F*) file->Get(args.inhistname.c_str());
   if (!hEnergyTime) {
     std::cout << "Problem getting histogram " << args.inhistname.c_str() << std::endl;
+    return;
   }
 
   double min_time = args.min_time;
@@ -40,6 +43,10 @@ void RawSpectrum_fromEnergyTime(const RawSpectrum_fromEnergyTimeArgs& args) {
   int max_time_bin = hEnergyTime->GetXaxis()->FindBin(args.max_time)-1;
   std::string outhistname = "hRawSpectrum";
   TH1D* hRawSpectrum = hEnergyTime->ProjectionY(outhistname.c_str(), min_time_bin, max_time_bin);
+  hRawSpectrum->Sumw2();
+  hRawSpectrum->Rebin(args.rebin_factor);
+  
+  std::cout << args.outdirname << ": " << hRawSpectrum->GetName() << " " << hRawSpectrum->GetEntries() << " entries" << std::endl;
   
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());

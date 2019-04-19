@@ -44,6 +44,14 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
   args.cutname = "proton_cut";
   EvdEPlot(args);
 
+  args.outdirname = "all_proton_SiR";
+  args.early_time_veto = false;
+  args.do_cut = true;
+  args.cutfilename = "~/data/results/Ti50/cut_all_proton_tighter.root";
+  args.cutname = "all_proton";
+  EvdEPlot(args);
+
+
   args.outdirname = "proton_SiR_timecut";
   args.early_time_veto = true;
   args.early_time_cut = 200;

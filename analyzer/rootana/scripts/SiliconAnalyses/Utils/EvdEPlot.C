@@ -134,11 +134,23 @@ void EvdEPlot(EvdEPlotArgs& args) {
   cuttree->Branch("do_cut", &args.do_cut);
   if (args.do_cut) {
     cutInfo.file = new TFile(args.cutfilename.c_str(), "READ");
+    if (cutInfo.file->IsZombie()) {
+      std::cout << "Error: Cut file " << args.cutfilename.c_str() << " was not opened correctly" << std::endl;
+      return;
+    }
     std::string two_layer_cutname = args.cutname + "_two_layer";
     cutInfo.tCutG_two_layer = (TCutG*) cutInfo.file->Get(two_layer_cutname.c_str());
-
+    if (!cutInfo.tCutG_two_layer) {
+      std::cout << "Error: Can't get TCutG " << two_layer_cutname.c_str() << std::endl;
+      return;
+    }
+    
     std::string three_layer_cutname = args.cutname + "_three_layer";
     cutInfo.tCutG_three_layer = (TCutG*) cutInfo.file->Get(three_layer_cutname.c_str());
+    if (!cutInfo.tCutG_three_layer) {
+      std::cout << "Error: Can't get TCutG " << three_layer_cutname.c_str() << std::endl;
+      //      return;
+    }
 
     cutInfo.file->Close();
   }

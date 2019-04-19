@@ -1,6 +1,6 @@
 void SiL3_FinalPlot_FoldedSpectra() {
 
-  std::string infilename = "~/data/results/SiL3/unfold.root";
+  std::string infilename = "~/data/results/SiL3/unfold_geq2TgtPulse.root";
   std::string folded_histname = "GeomAcceptance_TimeSlice2000_4000/hCorrectedSpectrum";
   //  std::string folded_histname = "ResponseMatrix_alpha/hUnfoldedSpectrum";
   //  std::string outhisttitle = "SiL3 Dataset, Right Arm, " + particle;

@@ -5,12 +5,16 @@
 
 void SiL3_AllPlots() {
 
-  std::string infilename = "~/data/results/SiL3/subtrees.root";
-  std::string outfilename = "~/data/results/SiL3/plots.root";
+  //  std::string infilename = "~/data/results/SiL3/subtrees.root";
+  //  std::string outfilename = "~/data/results/SiL3/plots.root";
+  //  std::string infilename = "~/data/results/SiL3/subtrees_v13.root";
+  //  std::string outfilename = "~/data/results/SiL3/plots_v13.root";
   //  std::string infilename = "~/data/results/SiL3/subtrees_wMuScCut_3000-3500ADC.root";
   //  std::string outfilename = "~/data/results/SiL3/plots_wMuScCut_3000-3500ADC.root";
-  //  std::string infilename = "~/data/results/SiL3_active_no-templates/subtrees.root";
-  //  std::string outfilename = "~/data/results/SiL3_active_no-templates/plots.root";
+  //  std::string infilename = "~/data/results/SiL3_active_no-templates/subtrees_geq1TgtPulse.root";
+  //  std::string outfilename = "~/data/results/SiL3_active_no-templates/plots_geq1TgtPulse.root";
+  std::string infilename = "~/data/results/SiL3/subtrees_geq1TgtPulse.root";
+  std::string outfilename = "~/data/results/SiL3/plots_geq1TgtPulse.root";
 
   TFile* outfile = new TFile(outfilename.c_str(), "RECREATE");
   outfile->Write();

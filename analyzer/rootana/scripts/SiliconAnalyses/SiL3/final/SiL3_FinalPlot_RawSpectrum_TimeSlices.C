@@ -1,59 +1,65 @@
 void SiL3_FinalPlot_RawSpectrum_TimeSlices() {
 
-  std::string filename = "~/data/results/SiL3/unfold.root";
+  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
-  double min_time_slice = 1000;
-  double max_time_slice = 5000;//3000;//5000;
-  double time_slice_step = 200;
+  const int n_slices = 4;
+  double min_time_slice = 2000;
+  double max_time_slice = 4000;//3000;//5000;
+  double time_slice_step = 500;
+  Int_t colours[n_slices] = {kBlue, kRed, kBlack, kMagenta};//, kSpring, kGray, kGreen+2};
 
+  TCanvas* c1 = new TCanvas("c1", "c1");
+  c1->SetLogy();
+  c1->SetGridx();
+  c1->SetGridy();
+
+  TLegend* leg = new TLegend(0.50,0.55,0.90,0.85);
+  leg->SetBorderSize(0);
+  leg->SetTextSize(0.03);
+  leg->SetFillStyle(0);
+  leg->SetFillColor(kWhite);
+
+  std::stringstream time_slice_str, histtitle, axistitle, leglabel;
   for (double i_min_time_slice = min_time_slice; i_min_time_slice < max_time_slice; i_min_time_slice += time_slice_step) {
 
     double i_max_time_slice = i_min_time_slice+time_slice_step;
-    double i_time_slice_step = 100;
-    const int n_slices = 2;
-    Int_t colours[n_slices] = {kBlue, kRed};//, kBlack, kMagenta, kSpring, kGray, kGreen+2};
-
-    std::stringstream time_slice_str;
+    int i_slice = (i_min_time_slice - min_time_slice) / time_slice_step;
     
-    TCanvas* c1 = new TCanvas("c1", "c1");
-    c1->SetLogy();
-
-    TLegend* leg = new TLegend(0.50,0.55,0.90,0.85);
-    leg->SetBorderSize(0);
-    leg->SetTextSize(0.03);
-    leg->SetFillStyle(0);
-    leg->SetFillColor(kWhite);
-
-    for (double j_min_time_slice = i_min_time_slice; j_min_time_slice < i_max_time_slice; j_min_time_slice += i_time_slice_step) {
-      double j_max_time_slice = j_min_time_slice + i_time_slice_step;
+    time_slice_str.str("");
+    time_slice_str << "TimeSlice" << i_min_time_slice << "_" << i_max_time_slice;
       
-      time_slice_str.str("");
-      time_slice_str << "TimeSlice" << j_min_time_slice << "_" << j_max_time_slice;
-      
-      int j_slice = (j_min_time_slice - i_min_time_slice) / i_time_slice_step;
-      Int_t j_colour = colours[j_slice];
+    std::string foldername = "TimeCut_" + time_slice_str.str();
+    //    std::string foldername = "DecayElectronCorrection_" + time_slice_str.str();
+    std::string histname = foldername + "/hCorrectedSpectrum";
 
-      std::string j_foldername = "TimeCut_" + time_slice_str.str();
-      std::string j_histname = j_foldername + "/hInputSpectrum";
-
-      TH1F* spectrum = (TH1F*) file->Get(j_histname.c_str());
-      if (!spectrum) {
-	std::cout << "Error: Problem getting spectrum " << j_histname << std::endl;
-	return;
-      }
-      spectrum->SetStats(false);
-      spectrum->SetMinimum(0.1);
-      spectrum->SetMaximum(5e4);
-      spectrum->GetXaxis()->SetRangeUser(0,10000);
-      spectrum->SetLineColor(j_colour);
-      spectrum->Draw("HIST E SAMES");
-
-      leg->AddEntry(spectrum, time_slice_str.str().c_str(), "l");
+    TH1F* spectrum = (TH1F*) file->Get(histname.c_str());
+    if (!spectrum) {
+      std::cout << "Error: Problem getting spectrum " << j_histname << std::endl;
+      return;
     }
-    leg->Draw();
+    spectrum->SetStats(false);
 
-    std::string pngname = "~/plots/2018-11-26/AlCapData_SiL3Dataset_" + time_slice_str.str() + ".png";
-    c1->SaveAs(pngname.c_str());
+    histtitle.str("");
+    histtitle << "SiL3 Dataset, Active Target Analysis, Energy Spectrum (time slices)";
+    spectrum->SetTitle(histtitle.str().c_str());
+    spectrum->Rebin(2);
+    //    spectrum->SetMinimum(0.1);
+    //    spectrum->SetMaximum(5e4);
+    axistitle.str("");
+    axistitle << "Count / " << spectrum->GetXaxis()->GetBinWidth(1) << " keV";
+    spectrum->GetXaxis()->SetRangeUser(0,30000);
+    spectrum->SetYTitle(axistitle.str().c_str());
+    spectrum->SetLineColor(colours[i_slice]);
+    spectrum->Draw("HIST E SAMES");
+
+    leglabel.str("");
+    leglabel << i_min_time_slice << " ns < t < " << i_max_time_slice << " ns";
+    leg->AddEntry(spectrum, leglabel.str().c_str(), "l");
   }
+
+  leg->Draw();
+
+  //    std::string pngname = "~/plots/2018-11-26/AlCapData_SiL3Dataset_" + time_slice_str.str() + ".png";
+  //    c1->SaveAs(pngname.c_str());
 }

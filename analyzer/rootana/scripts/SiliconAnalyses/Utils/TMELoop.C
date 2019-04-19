@@ -404,6 +404,16 @@ void TMELoop(const TMELoopArgs& args) {
       if( (*args.target.layer2_channels.at(0))->size() < args.min_tgt_pulses) {
 	continue; // to the next TME
       }
+      /*      else {
+	double calib_gain = args.target.layer2_calibGains.at(0);
+	double calib_offset = args.target.layer2_calibOffsets.at(0);
+	double time = (*args.target.layer2_channels.at(0))->at(0).tTME;
+	double energy = (*args.target.layer2_channels.at(0))->at(0).Amp * calib_gain + calib_offset;
+
+	if (time < -300 || time > 300 || energy < 3000 || energy > 6000) { // muon definition
+	  continue; // to the next TME
+	}
+	}*/
     }
 
     ++n_analysed_tmes;

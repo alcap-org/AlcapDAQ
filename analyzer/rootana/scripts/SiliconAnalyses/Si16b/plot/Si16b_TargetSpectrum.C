@@ -23,7 +23,7 @@ void Si16b_TargetSpectrum(std::string infilename, std::string outfilename) {
   // for the inclusive charged particle analysis (SiL3)
   args.treename = "siBlockTree_SiL";
   args.layername = "thick";
-  args.max_energy = 30000;
+  args.max_energy = 50000;
   args.energy_width = 50;
   args.time_width = 10;
   args.layerreqd = false;
@@ -34,7 +34,7 @@ void Si16b_TargetSpectrum(std::string infilename, std::string outfilename) {
   // for the inclusive charged particle analysis (SiR2)
   args.treename = "siBlockTree_SiR";
   args.layername = "thick";
-  args.max_energy = 30000;
+  args.max_energy = 50000;
   args.energy_width = 50;
   args.min_time = -20000;
   args.max_time = 20000;
@@ -48,6 +48,7 @@ void Si16b_TargetSpectrum(std::string infilename, std::string outfilename) {
   args.reqdlayername = "third";
   args.layerreqd = true;
   args.layerveto = true;
-  args.outdirname = "SiR23";
+  //  args.layer_coincidence_time = 200;
+  args.outdirname = "SiR2_Michels";
   TargetSpectrum(args);
 }

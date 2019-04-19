@@ -1,6 +1,6 @@
 void SiL3_FinalPlot_CutTargetSpectrum() {
 
-  std::string norm_file_name = "/home/edmonds/data/results/SiL3_active/normalisation.root";
+  std::string norm_file_name = "/home/edmonds/data/results/SiL3/normalisation_geq2TgtPulse.root";
   std::string dir_name = "TargetSpectrum_forCrossCheck_MuonSlice3000_6000";
   std::string cut_spectrum_name = dir_name + "/hSpectrum";
   std::string counttree_name = dir_name + "/counttree";

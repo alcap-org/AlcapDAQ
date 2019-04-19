@@ -19,6 +19,12 @@ void Ti50_TargetSpectrum(std::string infilename, std::string outfilename) {
   args.outdirname = "SiL3";
   TargetSpectrum(args);
 
+  args.vetolayername = "thin";
+  args.layerveto = true;
+  args.outdirname = "SiL3_Michels";
+  TargetSpectrum(args);
+
+  
   // for the integrated charged particle analysis
   args.treename = "siBlockTree_SiR";
   args.layername = "thick";
@@ -39,8 +45,12 @@ void Ti50_TargetSpectrum(std::string infilename, std::string outfilename) {
 
   
   args.outdirname = "SiL3_FlatBkg";
-  args.min_time = -2000;
-  args.max_time = 0;
+  args.treename = "siBlockTree_SiL";
+  args.layername = "thick";  
+  args.layerreqd = false;
+  args.layerveto = false;
+  args.min_time = -20000;
+  args.max_time = -2000;
   args.time_width = 10;
   TargetSpectrum(args);
 }

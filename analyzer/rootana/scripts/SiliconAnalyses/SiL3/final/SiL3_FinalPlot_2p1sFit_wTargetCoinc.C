@@ -2,10 +2,12 @@
 
 void SiL3_FinalPlot_2p1sFit_wTargetCoinc() {
 
-  std::string norm_file_name = "/home/edmonds/data/results/SiL3_active/normalisation.root";
-  std::string ge_channel = "GeHiGain";
-  std::string transition = "3p-1s";
-  std::string norm_dir_name = ge_channel + "_wSiL3Coinc_MuonSlice3000_6000_" + transition; 
+  //  std::string norm_file_name = "/home/edmonds/data/results/SiL3/normalisation_geq2TgtPulse_09040.root";
+  std::string norm_file_name = "/home/edmonds/data/results/SiL3/normalisation_v13.root";
+  std::string ge_channel = "GeLoGain";
+  std::string transition = "2p-1s";
+  std::string norm_dir_name = ge_channel + "_wSiL3Coinc_MuonSlice3000_6000_" + transition;
+  //  std::string norm_dir_name = "XRaySpectrum_GeLoGain_noTimeCut";
   std::string norm_ws_name = norm_dir_name + "/ws";
   std::string norm_tree_name = norm_dir_name + "/counttree";
 

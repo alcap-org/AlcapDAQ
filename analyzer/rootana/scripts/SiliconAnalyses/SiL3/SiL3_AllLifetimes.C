@@ -4,8 +4,10 @@
 
 void SiL3_AllLifetimes() {
 
-  std::string infilename = "~/data/results/SiL3/plots.root";
-  std::string outfilename = "~/data/results/SiL3/lifetime.root";
+  //  std::string infilename = "~/data/results/SiL3/plots.root";
+  //  std::string outfilename = "~/data/results/SiL3/lifetime.root";
+  std::string infilename = "~/data/results/SiL3/plots_wTgtMuon.root";
+  std::string outfilename = "~/data/results/SiL3/lifetime_wTgtMuon.root";
   //  std::string infilename = "~/data/results/SiL3_active_no-templates/plots.root";
   //  std::string outfilename = "~/data/results/SiL3_active_no-templates/lifetime.root";
   

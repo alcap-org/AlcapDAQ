@@ -40,6 +40,8 @@ void Unfold_GeometricAcceptance(const Unfold_GeometricAcceptanceArgs& args) {
   hCorrectedSpectrum->Scale(1.0/geom_acceptance);
 
   efftree->Fill();
+
+  std::cout << "Unfolding GeomAcceptance: " << geom_acceptance << std::endl;
   
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());

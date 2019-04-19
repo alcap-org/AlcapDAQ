@@ -2,7 +2,7 @@ void SiL3_RoughPlots() {
 
   gStyle->SetOptFit(1);
 
-  std::string sil3_filename = "~/data/results/SiL3/plots.root";
+  std::string sil3_filename = "~/data/results/SiL3/plots_wTgtMuon.root";
   TFile* sil3_file = new TFile(sil3_filename.c_str(), "READ");
 
   TH2F* hFull = (TH2F*) sil3_file->Get("Target/hEnergyTime");
