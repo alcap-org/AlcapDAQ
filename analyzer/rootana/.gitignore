@@ -1,2 +1,5 @@
 obj/
 rootana
+*.root
+scripts
+*.db

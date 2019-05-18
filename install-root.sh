@@ -26,7 +26,7 @@ fi
 
 # Unpack the ROOT tarball, this creates the root/ directory
 # using checkpoint and the pipe tricks is to reduce output down to ~20 lines
-tar --checkpoint -xzf root_v5.34.18.source.tar.gz  2>&1 | grep ".*000$"
+tar --checkpoint -xzf root_v6.08.00.source.tar.gz  2>&1 | grep ".*000$"
 
 # Create the other two directories
 mkdir -p root-build root-install

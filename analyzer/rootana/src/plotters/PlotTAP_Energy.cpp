@@ -60,7 +60,11 @@ int PlotTAP_Energy::ProcessEntry(TGlobalData *gData, const TSetupData* gSetup){
                gain  = SetupNavigator::Instance()->GetAdcToEnergyGain(    i_det->first.Channel());
                offset= SetupNavigator::Instance()->GetAdcToEnergyConstant(i_det->first.Channel());
             }catch( Except::InvalidDetector& e){};
-            TH1F* hEnergy = new TH1F(histname.c_str(), histtitle.str().c_str(), max_adc_value,0,gain*max_adc_value + offset);
+            TH1F* hEnergy;
+            if (histtitle.str().find("Integral") != std::string::npos) 
+              hEnergy = new TH1F(histname.c_str(), histtitle.str().c_str(), max_adc_value,0, 6*gain*max_adc_value + offset);
+            else
+              hEnergy = new TH1F(histname.c_str(), histtitle.str().c_str(), max_adc_value,0, gain*max_adc_value + offset);
             hEnergy->GetXaxis()->SetTitle("Energy (KeV)");
             hEnergy->GetYaxis()->SetTitle("Arbitrary Units");
             fEnergyPlots[keyname] = hEnergy;

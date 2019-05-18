@@ -56,12 +56,12 @@ PAWC_DEFINE(1000000);
 /* AlCap includes */
 #include "TGlobalData.h"
 #include "TSetupData.h"
-#include "TVacuumData.h"
+// #include "TVacuumData.h"
 
 /*-- Globals -------------------------------------------------------*/
 
 /* The analyzer name (client name) as seen by other MIDAS clients   */
-char *analyzer_name = "Analyzer";
+const char *analyzer_name = "Analyzer";
 
 /* analyzer_loop is called with this interval in ms (0 to disable)  */
 INT  analyzer_loop_period = 0;
@@ -79,7 +79,7 @@ TGlobalData* gData;
 TSetupData* gSetup;
 /// \brief
 /// Vacuum data slow control.
-TVacuumData* gVacuum;
+// TVacuumData* gVacuum;
 
 TSetupData* TSetupData::Instance()
 {
@@ -104,32 +104,32 @@ BANK_LIST ana_trigger_bank_list[] = {
 	{ "" },
 };
 
-BANK_LIST ana_vacuum_bank_list[] = {
+// BANK_LIST ana_vacuum_bank_list[] = {
 
-	{ "" },
-};
+	// { "" },
+// };
 
 /*-- Event request list --------------------------------------------*/
-extern ANA_MODULE MVacuumHisto_module;
-ANA_MODULE *Vacuum_module[] = {
-	&MVacuumHisto_module,
-	NULL };
+// extern ANA_MODULE MVacuumHisto_module;
+// ANA_MODULE *Vacuum_module[] = {
+	// &MVacuumHisto_module,
+	// NULL };
 
 ANALYZE_REQUEST analyze_request[] = {
 
-	{ "Vacuum",            /* equipment name */
-		{ 24,                    /* event ID */
-			TRIGGER_ALL,          /* trigger mask */
-			GET_SOME,             /* get some events */
-			"SYSTEM",             /* event buffer */
-			TRUE,                 /* enabled */
-			"", "", },
-		NULL,                 /* analyzer routine */
-		Vacuum_module,       /* module list */
-		ana_vacuum_bank_list,/* bank list */
-		1000,                 /* RWNT buffer size */
-		TRUE,                 /* Use tests for this event */
-	},
+	// { "Vacuum",            /* equipment name */
+	// 	{ 24,                    /* event ID */
+	// 		TRIGGER_ALL,          /* trigger mask */
+	// 		GET_SOME,             /* get some events */
+	// 		"SYSTEM",             /* event buffer */
+	// 		TRUE,                 /* enabled */
+	// 		"", "", },
+	// 	NULL,                 /* analyzer routine */
+	// 	Vacuum_module,       /* module list */
+	// 	ana_vacuum_bank_list,/* bank list */
+	// 	1000,                 /* RWNT buffer size */
+	// 	TRUE,                 /* Use tests for this event */
+	// },
 
 	{ "Trigger",            /* equipment name */
 		{ 1,                    /* event ID */
@@ -200,7 +200,7 @@ INT analyzer_init()
 	signal(SIGTERM , catastrophe);
 
 	// Initialize gVacuum
-	gVacuum = new TVacuumData();
+	// gVacuum = new TVacuumData();
 
 	return SUCCESS;
 }
@@ -219,10 +219,10 @@ INT analyzer_exit()
 		gSetup = NULL;
 	}
 
-	if(gVacuum) {
-		delete gVacuum;
-		gVacuum = NULL;
-	}
+	// if(gVacuum) {
+		// delete gVacuum;
+		// gVacuum = NULL;
+	// }
 
 	return CM_SUCCESS;
 }

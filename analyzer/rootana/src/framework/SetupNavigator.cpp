@@ -201,13 +201,13 @@ void SetupNavigator::OutputCalibCSV() {
   char r[6];
   sprintf(r, "%05d", GetRunNumber());
 
-  std::ofstream fPN((std::string("calib.run") + r + "." + fPedestalNoiseTableName + ".csv").c_str());
+  std::ofstream fPN((std::string("calib.db/calib.run") + r + "." + fPedestalNoiseTableName + ".csv").c_str());
   fPN << "run,channel,pedestal,noise" << std::endl;
   for (std::map<IDs::channel, double>::const_iterator i = fPedestalValues.begin(); i != fPedestalValues.end(); ++i)
     fPN << GetRunNumber() << "," << i->first.str() << ","
 	<< i->second << "," << fNoiseValues.at(i->first) << std::endl;
 
-  std::ofstream fTO((std::string("calib.run") + r + "." + fCoarseTimeOffsetTableName + ".csv").c_str());
+  std::ofstream fTO((std::string("calib.db/calib.run") + r + "." + fCoarseTimeOffsetTableName + ".csv").c_str());
   std::set<IDs::generator> gens;
   std::set<IDs::channel> chns;
   for (std::map<IDs::source, double>::const_iterator i = fCoarseTimeOffset.begin(); i != fCoarseTimeOffset.end(); ++i) {

@@ -41,6 +41,20 @@ std::string IDs::channel::GetDetectorString(Detector_t det){
             case kSiR2        : output="SiR2"     ; break ; 
             case kMuSc        : output="muSc"     ; break ; 
             case kMuScA       : output="muScA"    ; break ; 
+                                // R15a
+            case kSyncCrate4  : output="SyncCrate4"     ; break ; 
+            case kGeCHEH      : output="GeCHEH"   ; break ; 
+            case kGeCHEL      : output="GeCHEL"   ; break ; 
+            case kGeCHT       : output="GeCHT"    ; break ; 
+            case kTSc         : output="TSc"      ; break ; 
+            case kLaBr3       : output="LaBr3"    ; break ; 
+            case kSyncCrate7  : output="SyncCrate7"    ; break ; 
+            case kRollOver    : output="RollOver" ; break ; 
+            case kTSync       : output="TSync"    ; break ; 
+            case kTTSc        : output="TTSc"     ; break ; 
+            case kTGeCHT      : output="TGeCHT"   ; break ; 
+            case kTLaBr3      : output="TLaBr3"   ; break ; 
+            default           : output="Unknown"  ; break ;
 	}
      return output;
 }
@@ -52,12 +66,18 @@ IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
 	     "ScL"      , "ScR"      , "ScVe"     , "SiL1-1" , "SiL1-2" ,// 6-10  
 	     "SiL1-3"   , "SiL1-4"   , "SiL2"     , "SiR1-1" , "SiR1-2" ,// 11-15 
 	     "SiR1-3"   , "SiR1-4"   , "SiR1-sum" , "SiR2"   , "muSc"   ,// 16-20 
-	     "muScA" };                                                  // 21
+	     "muScA"                                                    ,// 21
+       "SyncCrate4"     , "GeCHEH" , "GeCHEL" , "GeCHT"    ,       // 25
+       "TSc"    , "LaBr3", "SyncCrate7", "RollOver", "TSync" ,// 30
+       "TTSc",  "TGeCHT", "TLaBr3"
+	      };
      for (int i=0;i<=IDs::num_detector_enums;i++){
-        if(modules::parser::iequals(det,names[i])) return (Detector_t)i;
+       if(modules::parser::iequals(det,names[i])) 
+         return (Detector_t)i;
      } 
      std::cout<<"Unknown detector name given to IDs::channel: '"<<det<<"'"<<std::endl;
-     throw Except::InvalidDetector(det.c_str());
+     // throw Except::InvalidDetector(det.c_str());
+     return (Detector_t)0;
 }
 
 IDs::channel& IDs::channel::operator=(const std::string& rhs){
