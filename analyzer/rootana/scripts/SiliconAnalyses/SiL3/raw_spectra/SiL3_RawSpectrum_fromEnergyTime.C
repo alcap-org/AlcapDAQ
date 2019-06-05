@@ -84,4 +84,13 @@ void SiL3_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfile
   args.max_time = -10000;
   args.outdirname = "SiL3_ActiveTarget_FlatBkg";
   RawSpectrum_fromEnergyTime(args);
+
+  // for MIP peak
+  args.inhistname = "Target/hEnergyTime";
+  args.min_time = -200;
+  args.max_time = 200;
+  time_slice.str("");
+  time_slice << "TimeSlice" << (int)args.min_time << "_" << (int)args.max_time;  
+  args.outdirname = "SiL3_ActiveTarget_" + time_slice.str();
+  RawSpectrum_fromEnergyTime(args);
 }

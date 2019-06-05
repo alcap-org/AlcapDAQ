@@ -44,6 +44,11 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
   args.cutname = "proton_cut";
   EvdEPlot(args);
 
+  args.outdirname = "proton_SiR_timecut";
+  args.early_time_veto = true;
+  args.early_time_cut = 200;
+  EvdEPlot(args);
+
   args.outdirname = "all_proton_SiR";
   args.early_time_veto = false;
   args.do_cut = true;
@@ -52,32 +57,32 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
   EvdEPlot(args);
 
 
-  args.outdirname = "proton_SiR_timecut";
+  args.outdirname = "all_proton_SiR_timecut";
   args.early_time_veto = true;
   args.early_time_cut = 200;
   EvdEPlot(args);
 
-  args.outdirname = "proton_SiR_timecut400ns";
+  args.outdirname = "all_proton_SiR_timecut400ns";
   args.early_time_veto = true;
   args.early_time_cut = 400;
   EvdEPlot(args);
 
-  args.outdirname = "proton_SiR_timecut600ns";
+  args.outdirname = "all_proton_SiR_timecut600ns";
   args.early_time_veto = true;
   args.early_time_cut = 600;
   EvdEPlot(args);
 
-  args.outdirname = "proton_SiR_timecut800ns";
+  args.outdirname = "all_proton_SiR_timecut800ns";
   args.early_time_veto = true;
   args.early_time_cut = 800;
   EvdEPlot(args);
 
-  args.outdirname = "proton_SiR_timecut1000ns";
+  args.outdirname = "all_proton_SiR_timecut1000ns";
   args.early_time_veto = true;
   args.early_time_cut = 1000;
   EvdEPlot(args);
 
-  args.outdirname = "proton_SiR_timecut2000ns";
+  args.outdirname = "all_proton_SiR_timecut2000ns";
   args.early_time_veto = true;
   args.early_time_cut = 2000;
   EvdEPlot(args);

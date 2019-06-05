@@ -51,6 +51,11 @@ void Ti50_EvdEPlot(std::string infilename, std::string outfilename) {
     args.cutname = "proton_cut";
     EvdEPlot(args);
 
+    args.outdirname = "proton_" + this_arm + "_timecut";
+    args.early_time_veto = true;
+    args.early_time_cut = 200;
+    EvdEPlot(args);
+
     args.outdirname = "all_proton_" + this_arm;
     args.early_time_veto = false;
     args.do_cut = true;
@@ -76,12 +81,6 @@ void Ti50_EvdEPlot(std::string infilename, std::string outfilename) {
     EvdEPlot(args);
 
     args.outdirname = "all_charged_" + this_arm + "_timecut";
-    args.early_time_veto = true;
-    args.early_time_cut = 200;
-    EvdEPlot(args);
-
-    
-    args.outdirname = "proton_" + this_arm + "_timecut";
     args.early_time_veto = true;
     args.early_time_cut = 200;
     EvdEPlot(args);

@@ -72,9 +72,7 @@ void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
 
   args.inhistname = "SiL3/hEnergyTime";
   args.max_energy_cut = -1;
-  args.min_fit_time = 1000;
-  args.max_fit_time = 20000;
-  args.rebin_factor = 20;
+  args.rebin_factor = 10;
   args.double_exp = false;
   args.project_y = false;
   args.project_x = true;
@@ -91,10 +89,16 @@ void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
     args.min_energy_cut = i_min_energy_cut;
 
     args.flat_bkg = false;
+    args.min_fit_time = 1000;
+    args.max_fit_time = 5000;
     args.outdirname = "SiL3_" + energy_cut_str.str() + "keVCut";
     LifetimeFit(args);
 
     args.flat_bkg = true;
+    args.min_fit_time = 1000;
+    args.max_fit_time = 20000;
+    args.min_flat_fit_time = 10000;
+    args.max_flat_fit_time = 20000;
     args.outdirname = "SiL3_" + energy_cut_str.str() + "keVCut_wFlatBkg";
     LifetimeFit(args);
   }

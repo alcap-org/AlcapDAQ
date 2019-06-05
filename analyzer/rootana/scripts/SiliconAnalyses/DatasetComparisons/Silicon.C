@@ -5,6 +5,7 @@
 #include "TH1.h"
 #include "TTree.h"
 #include "TF1.h"
+#include "TLatex.h"
 
 #include <iostream>
 
@@ -15,6 +16,7 @@ struct SiAnalysis {
 
   std::string filename;
   std::string histname;
+  std::string histtitle;
   int rebin_factor;
   Int_t colour;
 
@@ -54,12 +56,13 @@ void Silicon() {
   SiL3_target.dataset = "SiL3";
   SiL3_target.analysis = "active target";
   SiL3_target.filename = "~/data/results/SiL3/unfold_geq2TgtPulse.root";
-  SiL3_target.histname = "DecayElectronCorrection_TimeSlice2000_4000/hCorrectedSpectrum"; //"ProtonEscapeCorrection_TimeSlice2000_4000/hUnfoldedSpectrum",
+  SiL3_target.histname = "FinalNormalisation_TimeSlice2000_4000/hNormalisedSpectrum"; //"ProtonEscapeCorrection_TimeSlice2000_4000/hUnfoldedSpectrum",
+  SiL3_target.histtitle = "SiL3 Dataset, Active Target Analysis, Charged Particle Specrum";
   SiL3_target.rebin_factor = 5;
   SiL3_target.colour = kRed;
-  SiL3_target.normfilename = "~/data/results/SiL3/normalisation_geq1TgtPulse.root";
-  SiL3_target.counttree = "XRaySpectrum_GeLoGain_noTimeCut/counttree";
-  SiL3_target.capture_fraction = 0.658;
+  //  SiL3_target.normfilename = "~/data/results/SiL3/normalisation_geq1TgtPulse.root";
+  //  SiL3_target.counttree = "XRaySpectrum_GeLoGain_noTimeCut/counttree";
+  //  SiL3_target.capture_fraction = 0.658;
 
   SiAnalysis Si16b_right_protons;
   Si16b_right_protons.dataset = "Si16b";
@@ -98,9 +101,10 @@ void Silicon() {
   Si16b_right_inclusive.dataset = "Si16b";
   Si16b_right_inclusive.analysis = "SiR2 inclusive";
   Si16b_right_inclusive.filename = "~/data/results/Si16b/unfold.root";
-  Si16b_right_inclusive.histname = "SiR2_GeomAcceptance_TimeSlice1000_5000/hCorrectedSpectrum",
+  //  Si16b_right_inclusive.histname = "SiR2_GeomAcceptance_TimeSlice1000_5000/hCorrectedSpectrum",
+  Si16b_right_inclusive.histname = "SiR2_DecayElectron_TimeSlice1000_5000/hCorrectedSpectrum",
   //  Si16b_right_inclusive.histname = "ResponseMatrix_SiR2/hUnfoldedSpectrum",
-  Si16b_right_inclusive.rebin_factor = 1;
+  Si16b_right_inclusive.rebin_factor = 5;
   Si16b_right_inclusive.colour = kCyan;
   Si16b_right_inclusive.normfilename = "~/data/results/Si16b/normalisation.root";
   Si16b_right_inclusive.counttree = "XRaySpectrum_GeLoGain_wTimeCut/counttree";
@@ -110,10 +114,10 @@ void Silicon() {
   Si16b_left_inclusive.dataset = "Si16b";
   Si16b_left_inclusive.analysis = "SiL3 inclusive";
   Si16b_left_inclusive.filename = "~/data/results/Si16b/unfold.root";
-  Si16b_left_inclusive.histname = "SiL3_GeomAcceptance_TimeSlice1000_5000/hCorrectedSpectrum";
-  //  Si16b_left_inclusive.histname = "SiL3_DecayElectronCorrection_TimeSlice1000_5000/hCorrectedSpectrum";
+  //  Si16b_left_inclusive.histname = "SiL3_GeomAcceptance_TimeSlice1000_5000/hCorrectedSpectrum";
+  Si16b_left_inclusive.histname = "SiL3_DecayElectron_TimeSlice1000_5000/hCorrectedSpectrum";
   //  Si16b_left_inclusive.histname = "ResponseMatrix_SiL3/hUnfoldedSpectrum";
-  Si16b_left_inclusive.rebin_factor = 2;
+  Si16b_left_inclusive.rebin_factor = 5;
   Si16b_left_inclusive.colour = kBlue;
   Si16b_left_inclusive.normfilename = "~/data/results/Si16b/normalisation.root";
   Si16b_left_inclusive.counttree = "XRaySpectrum_GeLoGain_noTimeCut/counttree";
@@ -125,10 +129,11 @@ void Silicon() {
   //  siAnalyses.push_back(Si16b_right_deuterons);
   //  siAnalyses.push_back(Si16b_right_pdta);
   //  siAnalyses.push_back(Si16b_right_inclusive);
-  siAnalyses.push_back(Si16b_left_inclusive);
+  //  siAnalyses.push_back(Si16b_left_inclusive);
   
   for (std::vector<SiAnalysis>::iterator i_siAnalysis = siAnalyses.begin(); i_siAnalysis != siAnalyses.end(); ++ i_siAnalysis) {
 
+    /*
     TFile* norm_file = new TFile(i_siAnalysis->normfilename.c_str(), "READ");
     if (!norm_file) {
       std::cout << "Error: Problem getting normalisation file " << i_siAnalysis->normfilename << std::endl;
@@ -146,7 +151,7 @@ void Silicon() {
     i_siAnalysis->n_captured_muons = i_siAnalysis->n_stopped_muons * i_siAnalysis->capture_fraction;
     std::cout << "AE: n_stopped_muons = " << i_siAnalysis->n_stopped_muons << std::endl;
     std::cout << "AE: n_captured_muons = " << i_siAnalysis->n_captured_muons << std::endl;
-
+    */
     TFile* file = new TFile(i_siAnalysis->filename.c_str(), "READ");
     if (!file) {
       std::cout << "Error: Problem getting hist file " << i_siAnalysis->filename.c_str() << std::endl;
@@ -159,14 +164,17 @@ void Silicon() {
     }
     i_siAnalysis->spectrum->Sumw2();
     i_siAnalysis->spectrum->Rebin(i_siAnalysis->rebin_factor);
-    std::cout << i_siAnalysis->analysis << ": Bin Width = " << i_siAnalysis->spectrum->GetXaxis()->GetBinWidth(1) << " keV" << std::endl;
-    i_siAnalysis->spectrum->Scale(1.0 / (i_siAnalysis->spectrum->GetXaxis()->GetBinWidth(1)) ); // scale to be per keV
-    i_siAnalysis->spectrum->Scale(1.0 / i_siAnalysis->n_captured_muons); // now scale to per captured muon per keV
+    i_siAnalysis->spectrum->Scale(1.0 / i_siAnalysis->rebin_factor ); // scale to be per keV
+    //    std::cout << i_siAnalysis->analysis << ": Bin Width = " << i_siAnalysis->spectrum->GetXaxis()->GetBinWidth(1) << " keV" << std::endl;
+    //    i_siAnalysis->spectrum->Scale(1.0 / (i_siAnalysis->spectrum->GetXaxis()->GetBinWidth(1)) ); // scale to be per keV
+    //    i_siAnalysis->spectrum->Scale(1.0 / i_siAnalysis->n_captured_muons); // now scale to per captured muon per keV
     //    i_siAnalysis->spectrum->Scale(1.0 / 1.5);
-    
+
+    i_siAnalysis->spectrum->SetTitle(i_siAnalysis->histtitle.c_str());
     i_siAnalysis->spectrum->SetStats(false);
     i_siAnalysis->spectrum->SetLineWidth(1);
     i_siAnalysis->spectrum->SetLineColor(i_siAnalysis->colour);
+    i_siAnalysis->spectrum->GetXaxis()->SetRangeUser(0, 26000);
 
     i_siAnalysis->spectrum->Draw("HIST E SAMES");
 
@@ -176,15 +184,16 @@ void Silicon() {
   }
 
   
-  const int n_ranges = 5;
-  double min_energies[n_ranges] = {1400,  10000, 5000,   3500, 4000};
-  double max_energies[n_ranges] = {26000, 26000, 10000, 10000, 8000};
+  const int n_ranges = 6;
+  double min_energies[n_ranges] = {0,    1400,  10000, 5000,   3500, 4000};
+  double max_energies[n_ranges] = {26000,26000, 26000, 10000, 10000, 8000};
 
   for (int i_range = 0; i_range < n_ranges; ++i_range) {
     double min_energy = min_energies[i_range];
     double max_energy = max_energies[i_range];
     bool start_integral = false;
     double SW_integral = 0;
+    double SW_error = 0;
     for (int i_element = 0; i_element < SW_gre->GetN(); ++i_element) {
       if (*(SW_gre->GetX()+i_element) > min_energy) {
 	start_integral = true;
@@ -200,7 +209,7 @@ void Silicon() {
 	break;
       }
     }
-    std::cout << "S-W Integral (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << SW_integral << std::endl;
+    std::cout << "S-W Integral (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << SW_integral << " +/- " << SW_error << std::endl;
 
     for (std::vector<SiAnalysis>::iterator i_siAnalysis = siAnalyses.begin(); i_siAnalysis != siAnalyses.end(); ++ i_siAnalysis) {
       int min_energy_bin = i_siAnalysis->spectrum->GetXaxis()->FindBin(min_energy);
@@ -211,21 +220,34 @@ void Silicon() {
 
   for (std::vector<SiAnalysis>::iterator i_siAnalysis = siAnalyses.begin(); i_siAnalysis != siAnalyses.end(); ++ i_siAnalysis) {
     TF1* data_fit = new TF1("data_fit","[0]*(1 - [1]/x)^[2]*(exp(-x/[3]))",1400,27000);
+    //    TF1* data_fit = new TF1("data_fit","[0]*(1 - [1]/x)^[2]*(exp(-x/[3])+[4]*exp(-x/[5]))",1400,27000);
     data_fit->SetParName(0, "N");
     data_fit->SetParName(1, "T_{th}");
     data_fit->SetParName(2, "#alpha");
     data_fit->SetParName(3, "T_{0}");
-    data_fit->SetParameter(0, 0.1);
+    data_fit->SetParameter(0, 1e-6);
     data_fit->SetParameter(1, 1400);
     data_fit->SetParLimits(1, 0, 5000);
     data_fit->SetParameter(2, 1.328);
     data_fit->SetParLimits(2, 0, 5);
     data_fit->SetParameter(3, 4600);
-    i_siAnalysis->spectrum->Fit(data_fit, "R");
-    data_fit->SetLineColor(kRed);
+    //    data_fit->SetParName(4, "r");
+    //    data_fit->SetParName(5, "T_{1}");
+    //    data_fit->SetParameter(4, 0.5);
+    //    data_fit->SetParLimits(4, 0, 10);
+    //    data_fit->SetParameter(5, 3800);
+    //    data_fit->SetParLimits(5, 0, 5000);
+    i_siAnalysis->spectrum->Fit(data_fit, "RME");
+    data_fit->SetLineColor(i_siAnalysis->colour);
     data_fit->SetLineWidth(2);
-    data_fit->Draw("LSAME");
+    //    data_fit->Draw("LSAME");
   }
+  //  SW_gre->GetFunction("tdr_fit")->Draw("LSAME");
 
+  //  TLatex* latex = new TLatex();
+  //  latex->SetTextAlign(22);
+  //  latex->DrawLatexNDC(0.45, 0.7, "N #left(1 - #frac{T_{th}}{T}#right)^{#alpha} e^{-T/T_{0}}");
+  //  latex->DrawLatexNDC(0.40, 0.75, "N #left(1 - #frac{T_{th}}{T}#right)^{#alpha} #left(e^{-T/T_{0}} + r e^{-T/T_{1}}#right)");
+  
   leg->Draw();
 }

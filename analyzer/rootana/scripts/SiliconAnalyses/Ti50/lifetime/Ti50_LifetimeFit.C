@@ -5,69 +5,76 @@ void Ti50_LifetimeFit(std::string infilename, std::string outfilename) {
   args.infilename = infilename;
   args.outfilename = outfilename;
 
-  args.inhistname = "proton_SiR_timecut/hTime";
-  args.min_fit_time = 200;
-  args.max_fit_time = 20000;
-  args.rebin_factor = 10;
-  args.project_y = false;
-  args.project_x = false;
+  const int n_arms = 2;
+  std::string arms[n_arms] = {"SiR", "SiL"};
+  
+  for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
 
-  args.outdirname = "Proton_wTimeCut_SingleExp";
-  args.double_exp = false;
-  args.flat_bkg = false;
-  LifetimeFit(args);
+    std::string this_arm = arms[i_arm];
 
-  args.outdirname = "Proton_wTimeCut_DoubleExp";
-  args.double_exp = true;
-  args.flat_bkg = false;
-  LifetimeFit(args);
+    args.inhistname = "proton_" + this_arm + "_timecut/hTime_12not3";
+    args.min_fit_time = 200;
+    args.max_fit_time = 20000;
+    args.rebin_factor = 10;
+    args.project_y = false;
+    args.project_x = false;
 
-  args.outdirname = "Proton_wTimeCut_SingleExp_FlatBkg";
-  args.double_exp = false;
-  args.flat_bkg = true;
-  LifetimeFit(args);
+    args.outdirname = this_arm + "_Proton_wTimeCut_SingleExp";
+    args.double_exp = false;
+    args.flat_bkg = false;
+    LifetimeFit(args);
+    
+    args.outdirname = this_arm + "_Proton_wTimeCut_DoubleExp";
+    args.double_exp = true;
+    args.flat_bkg = false;
+    LifetimeFit(args);
+  
+    args.outdirname = this_arm + "_Proton_wTimeCut_SingleExp_FlatBkg";
+    args.double_exp = false;
+    args.flat_bkg = true;
+    LifetimeFit(args);
 
-  args.outdirname = "Proton_wTimeCut_DoubleExp_FlatBkg";
-  args.double_exp = true;
-  args.flat_bkg = true;
-  LifetimeFit(args);
+    args.outdirname = this_arm + "_Proton_wTimeCut_DoubleExp_FlatBkg";
+    args.double_exp = true;
+    args.flat_bkg = true;
+    LifetimeFit(args);
 
-  args.inhistname = "deuteron_SiR_timecut/hTime";
-  args.min_fit_time = 200;
-  args.max_fit_time = 20000;
-  args.rebin_factor = 10;
-  args.project_y = false;
-  args.project_x = false;
+    args.inhistname = "deuteron_" + this_arm + "_timecut/hTime_12not3";
+    args.min_fit_time = 200;
+    args.max_fit_time = 20000;
+    args.rebin_factor = 10;
+    args.project_y = false;
+    args.project_x = false;
 
-  args.outdirname = "Deuteron_wTimeCut_SingleExp";
-  args.double_exp = false;
-  args.flat_bkg = false;
-  LifetimeFit(args);
+    args.outdirname = this_arm + "_Deuteron_wTimeCut_SingleExp";
+    args.double_exp = false;
+    args.flat_bkg = false;
+    LifetimeFit(args);
 
-  args.inhistname = "triton_SiR_timecut/hTime";
-  args.min_fit_time = 200;
-  args.max_fit_time = 20000;
-  args.rebin_factor = 10;
-  args.project_y = false;
-  args.project_x = false;
+    args.inhistname = "triton_" + this_arm + "_timecut/hTime_12not3";
+    args.min_fit_time = 200;
+    args.max_fit_time = 20000;
+    args.rebin_factor = 10;
+    args.project_y = false;
+    args.project_x = false;
 
-  args.outdirname = "Triton_wTimeCut_SingleExp";
-  args.double_exp = false;
-  args.flat_bkg = false;
-  LifetimeFit(args);
+    args.outdirname = this_arm + "_Triton_wTimeCut_SingleExp";
+    args.double_exp = false;
+    args.flat_bkg = false;
+    LifetimeFit(args);
 
-  args.inhistname = "alpha_SiR_timecut/hTime";
-  args.min_fit_time = 200;
-  args.max_fit_time = 20000;
-  args.rebin_factor = 10;
-  args.project_y = false;
-  args.project_x = false;
+    args.inhistname = "alpha_" + this_arm + "_timecut/hTime_12not3";
+    args.min_fit_time = 200;
+    args.max_fit_time = 20000;
+    args.rebin_factor = 10;
+    args.project_y = false;
+    args.project_x = false;
 
-  args.outdirname = "Alpha_wTimeCut_SingleExp";
-  args.double_exp = false;
-  args.flat_bkg = false;
-  LifetimeFit(args);
-
+    args.outdirname = this_arm + "_Alpha_wTimeCut_SingleExp";
+    args.double_exp = false;
+    args.flat_bkg = false;
+    LifetimeFit(args);
+  }
 
 
   args.inhistname = "SiL3/hEnergyTime";

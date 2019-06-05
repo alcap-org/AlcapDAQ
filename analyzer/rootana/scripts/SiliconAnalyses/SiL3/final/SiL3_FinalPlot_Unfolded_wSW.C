@@ -12,8 +12,6 @@ void SiL3_FinalPlot_Unfolded_wSW() {
   SW_gre->GetXaxis()->SetRangeUser(0,26000);
   SW_gre->GetXaxis()->SetTitle("Energy [keV]");
   SW_gre->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
-  //  SW_gre->SetMarkerColor(kGray);
-  //  SW_gre->SetLineColor(kGray);
 
   TLegend* leg = new TLegend(0.50,0.55,0.90,0.85);
   leg->SetBorderSize(0);
@@ -23,37 +21,14 @@ void SiL3_FinalPlot_Unfolded_wSW() {
   SW_gre->GetFunction("tdr_fit")->SetLineColor(kBlack);
   leg->AddEntry(SW_gre->GetFunction("tdr_fit"), "S-W Fit", "l");
 
-  std::string norm_filename = "~/data/results/SiL3/normalisation_geq1TgtPulse.root";
-  //  std::string norm_filename = "~/data/results/SiL3/normalisation_wMuScCut_3000-3500ADC.root";
-  TFile* norm_file = new TFile(norm_filename.c_str(), "READ");
-  TTree* counttree = (TTree*) norm_file->Get("XRaySpectrum_GeLoGain_wTimeCut/counttree");
-  //  TTree* counttree = (TTree*) norm_file->Get("GeLoGain_wSiL3Coinc_MuonSlice3000_6000_2p-1s/counttree");
-  double n_stopped_muons = 0;
-  counttree->SetBranchAddress("n_stopped_muons", &n_stopped_muons);
-  counttree->GetEntry(0);
-  double capture_fraction = 0.658;
-  double n_captured_muons = n_stopped_muons * capture_fraction;
-  std::cout << "AE: n_stopped_muons = " << n_stopped_muons << std::endl;
-  std::cout << "AE: n_captured_muons = " << n_captured_muons << std::endl;
-
   std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse.root";
-  //  std::string filename = "~/data/results/SiL3/unfold_wMuScCut_3000-3500ADC.root";
-  //  std::string filename = "~/data/results/SiL3/unfold_special.root";
   TFile* file = new TFile(filename.c_str(), "READ");
-
-  /*
-  const int n_slices = 5;
-  double min_time_slices[n_slices] = {2000, 2000, 2500, 3000, 3500};
-  double max_time_slices[n_slices] = {4000, 2500, 3000, 3500, 4000};
-  Int_t colours[n_slices] = {kRed, kBlue, kMagenta, kSpring, kGray};//, kGray, kGreen+2};
-  */
   
   const int n_slices = 1;
   double min_time_slices[n_slices] = {2000};
   double max_time_slices[n_slices] = {4000};
   Int_t colours[n_slices] = {kRed};
-  
-  
+    
   std::stringstream time_slice_str;
   TH1F* hFinalSpectrum = 0;
   for (int i_slice = 0; i_slice < n_slices; ++i_slice) {
@@ -65,9 +40,7 @@ void SiL3_FinalPlot_Unfolded_wSW() {
 
     Int_t i_colour = colours[i_slice];
 
-    //    std::string i_histname = "TimeCut_" + time_slice_str.str() + "/hCorrectedSpectrum";
-    std::string i_histname = "DecayElectronCorrection_" + time_slice_str.str() + "/hCorrectedSpectrum";
-    //    std::string i_histname = "ProtonEscapeCorrection_" + time_slice_str.str() + "/hUnfoldedSpectrum";
+    std::string i_histname = "FinalNormalisation_" + time_slice_str.str() + "/hNormalisedSpectrum";
 
     TH1F* spectrum = (TH1F*) file->Get(i_histname.c_str());
     spectrum->Sumw2();
@@ -76,55 +49,15 @@ void SiL3_FinalPlot_Unfolded_wSW() {
       return;
     }
     //    spectrum->Sumw2();
-    spectrum->Scale(1.0 / (spectrum->GetXaxis()->GetBinWidth(1)) ); // per keV
     int rebin_factor = 2;
     spectrum->Rebin(rebin_factor);
     spectrum->Scale(1.0/rebin_factor);
-    spectrum->Scale(1.0/n_captured_muons);
-    //    spectrum->Scale(0.1);
     spectrum->SetStats(false);
     //    spectrum->GetXaxis()->SetRangeUser(0,10000);
     spectrum->SetLineColor(i_colour);
     spectrum->Draw("HIST E SAMES");
     hFinalSpectrum = spectrum;
     leg->AddEntry(spectrum, time_slice_str.str().c_str(), "l");
-
-    TF1* data_fit = new TF1("data_fit","[0]*(1 - [1]/x)^[2]*(exp(-x/[3]))",1400,27000);
-    data_fit->SetParameter(0, 0.1);
-    data_fit->SetParameter(1, 1431);
-    data_fit->SetParameter(2, 0.3264);
-    data_fit->SetParameter(3, 4581);
-    spectrum->Fit(data_fit);
-
-    const int n_ranges = 5;
-    double min_energies[n_ranges] = {1400,  5000,  5000,  3500, 4000};
-    double max_energies[n_ranges] = {26000, 26000, 8000, 10000, 8000};
-
-    for (int i_range = 0; i_range < n_ranges; ++i_range) {
-      double min_energy = min_energies[i_range];
-      double max_energy = max_energies[i_range];
-      bool start_integral = false;
-      double SW_integral = 0;
-      for (int i_element = 0; i_element < SW_gre->GetN(); ++i_element) {
-	if (*(SW_gre->GetX()+i_element) > min_energy) {
-	  start_integral = true;
-	}
-	if (start_integral) {
-	  double previous_x = *(SW_gre->GetX()+i_element-1);
-	  double this_x = *(SW_gre->GetX()+i_element);
-	  double width_x = this_x - previous_x;
-	  SW_integral += *(SW_gre->GetY()+i_element) * width_x;
-	}
-	if (*(SW_gre->GetX()+i_element) > max_energy) {
-	  break;
-	}
-      }
-      std::cout << "S-W Integral (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << SW_integral << std::endl;
-
-      int min_energy_bin = spectrum->GetXaxis()->FindBin(min_energy);
-      int max_energy_bin = spectrum->GetXaxis()->FindBin(max_energy) - 1;
-      std::cout << "AlCap Integral (" << i_min_time_slice << "ns -- " << i_max_time_slice << "ns, " << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << spectrum->Integral(min_energy_bin, max_energy_bin, "width") << std::endl;
-    }
   }
 
   

@@ -82,7 +82,7 @@ void Unfold_DecayElectronCorrection(const Unfold_DecayElectronCorrectionArgs& ar
 
   double scale = n_decay_muons;
   hCorrection->Scale(scale);
-  hCorrection->Rebin(2);
+  //  hCorrection->Rebin(2);
   
   TH1D* hCorrectedSpectrum = (TH1D*) hRawSpectrum->Clone("hCorrectedSpectrum");
   std::cout << "Unfolding DecayElectron: n_stopped_muons = " << n_stopped_muons << ", n_decay_muons = " << n_decay_muons << std::endl;

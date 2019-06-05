@@ -26,7 +26,8 @@ void Si16b_AllUnfolds() {
     std::string inhistname = i_particle_name + "/hRawSpectrum";
     std::string incuttreename = i_particle_name + "/cuttree";
     std::string outdirname = "TimeCut_" + i_particle_name;
-    Si16b_Unfold_TimeCut(infilename, outfilename, inhistname, infilename, incuttreename, outdirname);
+    double decay_lifetime = 756;
+    Si16b_Unfold_TimeCut(infilename, outfilename, inhistname, infilename, incuttreename, outdirname, decay_lifetime);
 
     std::string datahistname = outdirname + "/hCorrectedSpectrum";
     std::string mcfilename = "~/data/mc/Si16b/R15b_Si16b_response-matrix_500keV-bins_" + i_particle_name + "s_new_wBugFix.root";
@@ -110,8 +111,13 @@ void Si16b_AllUnfolds() {
       // Now scale to account for the time cut
       std::string incuttreename = indirname + "/cuttree";
       inhistname = outdirname + "/hCorrectedSpectrum";
+      double decay_lifetime = 775;
+      outdirname = detector + "_FalseTimeCut_" + time_slice_str.str();
+      Si16b_Unfold_TimeCut(outfilename, outfilename, inhistname, infilename, incuttreename, outdirname, decay_lifetime);
+
+      decay_lifetime = 756;
       outdirname = detector + "_TimeCut_" + time_slice_str.str();
-      Si16b_Unfold_TimeCut(outfilename, outfilename, inhistname, infilename, incuttreename, outdirname);
+      Si16b_Unfold_TimeCut(outfilename, outfilename, inhistname, infilename, incuttreename, outdirname, decay_lifetime);
       
       inhistname = outdirname + "/hCorrectedSpectrum";
       outdirname = detector + "_GeomAcceptance_" + time_slice_str.str();
@@ -119,7 +125,7 @@ void Si16b_AllUnfolds() {
 
       // decay electron correction
       inhistname = outdirname + "/hCorrectedSpectrum";
-      corrfilename = "~/data/mc/SiL3/decayCorr_10M_Geom-P1_muplus.root";
+      corrfilename = "~/data/mc/Si16b/decayCorr_test2.root";
       corrhistname = "hEDep_muplus";
       std::string countfilename = "~/data/results/Si16b/normalisation.root";
       std::string counttreename = "XRaySpectrum_GeLoGain_noTimeCut/counttree";

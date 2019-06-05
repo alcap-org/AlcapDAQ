@@ -19,7 +19,7 @@ void Ti50_FinalPlot_XRaySpectrum() {
   //  hXRaySpectrum->SetLineColor(kBlue);
   hXRaySpectrum->SetTitle("Ti50 Dataset, Full X-Ray Spectrum");
   hXRaySpectrum->SetStats(false);
-  hXRaySpectrum->GetXaxis()->SetRangeUser(50, 1200);
+  hXRaySpectrum->GetXaxis()->SetRangeUser(182, 1200);
 
   std::stringstream axislabel;
   axislabel << "Counts / " << hXRaySpectrum->GetBinWidth(1) << " keV";

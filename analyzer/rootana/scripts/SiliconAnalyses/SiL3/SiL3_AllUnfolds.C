@@ -3,6 +3,7 @@
 #include "scripts/SiliconAnalyses/SiL3/unfold/SiL3_Unfold_ResponseMatrix.C"
 #include "scripts/SiliconAnalyses/SiL3/unfold/SiL3_Unfold_TimeCut.C"
 #include "scripts/SiliconAnalyses/SiL3/unfold/SiL3_Unfold_GeometricAcceptance.C"
+#include "scripts/SiliconAnalyses/SiL3/unfold/SiL3_Unfold_FinalNormalisation.C"
 
 void SiL3_AllUnfolds() {
 
@@ -45,12 +46,24 @@ void SiL3_AllUnfolds() {
     std::string outdirname = "FlatBkg_" + time_slice_str.str();
     SiL3_Unfold_FlatBackground(infilename, inhistname, cutfilename, cuttreename, corrfilename, corrhistname, corrtreename, outfilename, outdirname);
 
-    // Now scale to account for the time cut
+    // Now scale to account for a false time cut
+    double decay_lifetime = 680;
     std::string incuttreename = indirname + "/cuttree";
     inhistname = outdirname + "/hCorrectedSpectrum";
-    outdirname = "TimeCut_" + time_slice_str.str();
-    SiL3_Unfold_TimeCut(outfilename, outfilename, inhistname, infilename, incuttreename, outdirname);
+    outdirname = "FalseTimeCut_" + time_slice_str.str();
+    SiL3_Unfold_TimeCut(outfilename, outfilename, inhistname, infilename, incuttreename, outdirname, decay_lifetime);
     //    SiL3_Unfold_TimeCut(infilename, outfilename, inhistname, infilename, incuttreename, outdirname);
+
+    // Now scale to account for a false time cut
+    decay_lifetime = 756;
+    outdirname = "TimeCut_" + time_slice_str.str();
+    SiL3_Unfold_TimeCut(outfilename, outfilename, inhistname, infilename, incuttreename, outdirname, decay_lifetime);
+
+    // Continue with correct time cut
+    inhistname = outdirname + "/hCorrectedSpectrum";
+    outdirname = "GeomAcceptance_" + time_slice_str.str();
+    SiL3_Unfold_GeometricAcceptance(outfilename, outfilename, inhistname, outdirname, 1);
+
     
     // Now take care of decay electron background
     inhistname = outdirname + "/hCorrectedSpectrum";
@@ -62,17 +75,20 @@ void SiL3_AllUnfolds() {
     //    corrfilename = "~/data/mc/SiL3/decayCorr_100k_Geom-P1_muplus_w1475umSiL3_wKFactor0-9.root";
     //    corrfilename = "~/data/mc/SiL3/decayCorr_test.root";
     corrhistname = "hEDep_muplus";
-    outdirname = "DecayElectronCorrection_" + time_slice_str.str();
-    SiL3_Unfold_DecayElectronCorrection(outfilename, inhistname, corrfilename, corrhistname, outfilename, outdirname);
-    
+    std::string countfilename = "~/data/results/SiL3/normalisation_geq1TgtPulse.root";
+    std::string counttreename = "XRaySpectrum_GeLoGain_noTimeCut/counttree";
+    outdirname = "DecayElectron_" + time_slice_str.str();
+    SiL3_Unfold_DecayElectronCorrection(outfilename, inhistname, corrfilename, corrhistname, countfilename, counttreename, outfilename, outdirname);
 
     inhistname = outdirname + "/hCorrectedSpectrum";
-    outdirname = "GeomAcceptance_" + time_slice_str.str();
-    SiL3_Unfold_GeometricAcceptance(outfilename, outfilename, inhistname, outdirname, 1);
+    outdirname = "FinalNormalisation_" + time_slice_str.str();
+    SiL3_Unfold_FinalNormalisation(outfilename, inhistname, countfilename, counttreename, outfilename, outdirname);
     
+    /*
     // Finally unfold the proton escape correction
     inhistname = "TimeCut_" + time_slice_str.str() + "/hCorrectedSpectrum";
     outdirname = "ProtonEscapeCorrection_" + time_slice_str.str();
     SiL3_Unfold_ResponseMatrix(outfilename, outfilename, inhistname, outdirname);
+    */
   }
 }

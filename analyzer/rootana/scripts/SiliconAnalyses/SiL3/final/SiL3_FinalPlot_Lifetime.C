@@ -1,9 +1,9 @@
 void SiL3_FinalPlot_Lifetime() {
 
-  std::string infilename = "~/data/results/SiL3/lifetime.root";
+  std::string infilename = "~/data/results/SiL3/lifetime_geq2TgtPulse.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
    
-  std::string base_indirname = "Target_2000keVCut";
+  std::string base_indirname = "Target_10000keVCut";
     
   TCanvas* c_Lifetime = new TCanvas("c_Lifetime", "c_Lifetime");
   c_Lifetime->SetLogy();
@@ -22,10 +22,10 @@ void SiL3_FinalPlot_Lifetime() {
   hLifetime->SetMarkerStyle(kFullCircle);
   hLifetime->SetMarkerColor(kBlack);
   hLifetime->SetLineColor(kBlack);
-  //  hLifetime->SetTitle("SiL3 Dataset, Target, E > 5000 keV (with flat bkg)");
+  hLifetime->SetTitle("SiL3 Dataset, Target, E > 10000 keV (without flat bkg)");
   hLifetime->SetStats(false);
   //  gStyle->SetOptFit(1);
-  hLifetime->GetXaxis()->SetRangeUser(0, 10000);
+  hLifetime->GetXaxis()->SetRangeUser(0, 20000);
   hLifetime->SetMinimum(0.5);
   hLifetime->SetMaximum(2e7);
   hLifetime->GetFunction("muonic_atom_lifetime")->SetBit(TF1::kNotDraw);

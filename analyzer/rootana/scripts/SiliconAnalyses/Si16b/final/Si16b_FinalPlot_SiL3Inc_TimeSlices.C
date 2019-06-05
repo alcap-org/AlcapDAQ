@@ -28,7 +28,7 @@ void Si16b_FinalPlot_SiL3Inc_TimeSlices() {
     time_slice_str.str("");
     time_slice_str << "TimeSlice" << i_min_time_slice << "_" << i_max_time_slice;
       
-    std::string foldername = "SiL3_TimeCut_" + time_slice_str.str();
+    std::string foldername = "SiL3_FalseTimeCut_" + time_slice_str.str();
     //    std::string foldername = "DecayElectronCorrection_" + time_slice_str.str();
     std::string histname = foldername + "/hCorrectedSpectrum";
 

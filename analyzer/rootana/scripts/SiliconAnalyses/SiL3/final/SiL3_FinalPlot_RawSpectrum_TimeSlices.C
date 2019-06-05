@@ -29,7 +29,8 @@ void SiL3_FinalPlot_RawSpectrum_TimeSlices() {
     time_slice_str.str("");
     time_slice_str << "TimeSlice" << i_min_time_slice << "_" << i_max_time_slice;
       
-    std::string foldername = "TimeCut_" + time_slice_str.str();
+    //    std::string foldername = "TimeCut_" + time_slice_str.str();
+    std::string foldername = "FalseTimeCut_" + time_slice_str.str();
     //    std::string foldername = "DecayElectronCorrection_" + time_slice_str.str();
     std::string histname = foldername + "/hCorrectedSpectrum";
 
@@ -48,7 +49,7 @@ void SiL3_FinalPlot_RawSpectrum_TimeSlices() {
     //    spectrum->SetMaximum(5e4);
     axistitle.str("");
     axistitle << "Count / " << spectrum->GetXaxis()->GetBinWidth(1) << " keV";
-    spectrum->GetXaxis()->SetRangeUser(0,30000);
+    spectrum->GetXaxis()->SetRangeUser(0,5000);
     spectrum->SetYTitle(axistitle.str().c_str());
     spectrum->SetLineColor(colours[i_slice]);
     spectrum->Draw("HIST E SAMES");

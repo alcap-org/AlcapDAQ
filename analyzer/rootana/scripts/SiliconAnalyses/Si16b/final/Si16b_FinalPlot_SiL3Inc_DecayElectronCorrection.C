@@ -49,7 +49,7 @@ void Si16b_FinalPlot_SiL3Inc_DecayElectronCorrection() {
       return;
     }
 
-    int rebin_factor = 5;
+    int rebin_factor = 2;
     raw_spectrum->Rebin(rebin_factor);
     correction->Rebin(rebin_factor);
     corrected_spectrum->Rebin(rebin_factor);

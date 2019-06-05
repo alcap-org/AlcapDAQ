@@ -6,7 +6,7 @@ void Si16b_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfil
   args.infilename = infilename;
   args.outfilename = outfilename;
 
-  args.rebin_factor = 2;
+  args.rebin_factor = 1;
 
 
   const int n_time_slices = 3;

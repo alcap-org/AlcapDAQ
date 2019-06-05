@@ -14,6 +14,8 @@ struct LifetimeFitArgs {
 
   double min_fit_time;
   double max_fit_time;
+  double min_flat_fit_time;
+  double max_flat_fit_time;
   int rebin_factor;
 
   bool project_x;
@@ -70,7 +72,14 @@ void LifetimeFit(const LifetimeFitArgs& args) {
   axislabel << "Count / " << hTime->GetXaxis()->GetBinWidth(1) << " ns";
   hTime->SetYTitle(axislabel.str().c_str());
   //  hTime->Scale(1.0 / hTime->GetXaxis()->GetBinWidth(1));
-    
+  hTime->SetName("hTime");
+  
+  TF1* flatbkg;
+  if (args.flat_bkg) {
+    flatbkg = new TF1("flatbkg", "[0]", args.min_flat_fit_time, args.max_flat_fit_time);
+    hTime->Fit(flatbkg, "RQ");
+  }
+  
   TF1* muonic_atom_lifetime;
   if (!args.double_exp && !args.flat_bkg) {
     muonic_atom_lifetime = new TF1("muonic_atom_lifetime", "[0]*TMath::Exp(-x/[1])", args.min_fit_time, args.max_fit_time);
@@ -79,6 +88,7 @@ void LifetimeFit(const LifetimeFitArgs& args) {
   else if (!args.double_exp && args.flat_bkg) {
     muonic_atom_lifetime = new TF1("muonic_atom_lifetime", "[0]*TMath::Exp(-x/[1]) + [2]", args.min_fit_time, args.max_fit_time);
     muonic_atom_lifetime->SetParameters(1000, 700, 10);
+    muonic_atom_lifetime->FixParameter(2, flatbkg->GetParameter(0));
   }
   else if (args.double_exp && !args.flat_bkg) {
     muonic_atom_lifetime = new TF1("muonic_atom_lifetime", "[0]*TMath::Exp(-x/[1]) + [2]*TMath::Exp(-x/[3])", args.min_fit_time, args.max_fit_time);
@@ -87,9 +97,8 @@ void LifetimeFit(const LifetimeFitArgs& args) {
   else if (args.double_exp && args.flat_bkg) {
     muonic_atom_lifetime = new TF1("muonic_atom_lifetime", "[0]*TMath::Exp(-x/[1]) + [2]*TMath::Exp(-x/[3]) + [4]", args.min_fit_time, args.max_fit_time);
     muonic_atom_lifetime->SetParameters(1000, 700, 1000, 100, 10);
+    muonic_atom_lifetime->FixParameter(4, flatbkg->GetParameter(0));
   }
-
-  hTime->SetName("hTime");
   hTime->Fit(muonic_atom_lifetime, "RQ");
 
   std::cout << args.outdirname << ": tau_1 = " << muonic_atom_lifetime->GetParameter(1) << " +/- " << muonic_atom_lifetime->GetParError(1);
@@ -103,6 +112,9 @@ void LifetimeFit(const LifetimeFitArgs& args) {
   outdir->cd();
   hTime->Write();
   muonic_atom_lifetime->Write();
+  if (args.flat_bkg && flatbkg) {
+    flatbkg->Write();
+  }
   outfile->Write();
   outfile->Close();
 

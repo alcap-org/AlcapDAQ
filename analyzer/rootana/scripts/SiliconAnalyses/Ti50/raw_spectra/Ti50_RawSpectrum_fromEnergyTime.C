@@ -10,9 +10,9 @@ void Ti50_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfile
 
   args.rebin_factor = 1;
 
-  const int n_time_slices = 6;
-  double min_time_slices[n_time_slices] = {200, 1000, 2000, 3000, 4000, 1000};
-  double max_time_slices[n_time_slices] = {400, 2000, 3000, 4000, 5000, 5000};
+  const int n_time_slices = 7;
+  double min_time_slices[n_time_slices] = {-200, 200, 1000, 2000, 3000, 4000, 1000};
+  double max_time_slices[n_time_slices] = {200, 400, 2000, 3000, 4000, 5000, 5000};
 
   std::stringstream time_slice;
 
