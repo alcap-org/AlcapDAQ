@@ -24,7 +24,7 @@ void lifetime(TTree *tree, Double_t *lifetimeError, TString arm = "SiR", TString
 
 	Int_t nbins = 40;
 	TH1D *hOne = new TH1D(Form("h300_%s_%s", arm.Data(), particle.Data() ), "300ns;E [keV];Counts / 500keV", nbins, 0, 20000); 
-	TH1D *hTwo = new TH1D(Form("h400_%s_%s", arm.Data(), particle.Data() ), "nbins0ns;E [keV];Counts / 500keV", nbins, 0, 20000); 
+	TH1D *hTwo = new TH1D(Form("h400_%s_%s", arm.Data(), particle.Data() ), "400ns;E [keV];Counts / 500keV", nbins, 0, 20000); 
 	TH1D *hThree = new TH1D(Form("h500_%s_%s", arm.Data(), particle.Data() ), "500ns;E [keV];Counts / 500keV", nbins, 0, 20000); 
 	TH1D *hFour = new TH1D(Form("h600_%s_%s", arm.Data(), particle.Data() ), "600ns;E [keV];Counts / 500keV", nbins, 0, 20000); 
 	for(Long64_t i=0; i < tree->GetEntries(); ++i) {
