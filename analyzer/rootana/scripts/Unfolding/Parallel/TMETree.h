@@ -12,14 +12,11 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <TTree.h>
-#include <TNtuple.h>
-#include <TH1D.h>
-#include <TH2D.h>
-#include <TH3D.h>
 #include <TCutG.h>
 #include <TSelector.h>
 #include <TTreeReader.h>
 #include <TTreeReaderValue.h>
+#include <TProofOutputFile.h>
 
 // Headers needed by this particular selector
 #include <string>
@@ -37,9 +34,10 @@
 class TMETree : public TSelector {
 public :
 
-   TFile *fOutputFile;
-   TTreeReader     fReader;  //!the tree reader
-   TTree          *fChain = 0;   //!pointer to the analyzed TTree or TChain
+   TFile            *fFile;
+   TProofOutputFile *fProofFile;
+   TTreeReader      fReader;  //!the tree reader
+   TTree            *fChain = 0;   //!pointer to the analyzed TTree or TChain
 
    // Readers to access the data (delete the ones you do not need).
    TTreeReaderValue<Int_t> runId = {fReader, "runId"};
@@ -54,9 +52,9 @@ public :
    TTreeReaderValue<Double_t> timeToNextTME = {fReader, "timeToNextTME"};
    TTreeReaderValue<Bool_t> anyDoubleCountedPulses = {fReader, "anyDoubleCountedPulses"};
    TTreeReaderValue<vector<SimplePulse> > SiT_1 = {fReader, "SiT_1"};
-   TTreeReaderValue<vector<SimplePulse> > SiT_2 = {fReader, "SiT_1"};
-   TTreeReaderValue<vector<SimplePulse> > SiT_3 = {fReader, "SiT_1"};
-   TTreeReaderValue<vector<SimplePulse> > SiT_4 = {fReader, "SiT_1"};
+   TTreeReaderValue<vector<SimplePulse> > SiT_2 = {fReader, "SiT_2"};
+   TTreeReaderValue<vector<SimplePulse> > SiT_3 = {fReader, "SiT_3"};
+   TTreeReaderValue<vector<SimplePulse> > SiT_4 = {fReader, "SiT_4"};
    TTreeReaderValue<vector<SimplePulse> > SiL1_2 = {fReader, "SiL1_2"};
    TTreeReaderValue<vector<SimplePulse> > SiL1_3 = {fReader, "SiL1_3"};
    TTreeReaderValue<vector<SimplePulse> > SiL1_4 = {fReader, "SiL1_4"};
@@ -81,20 +79,22 @@ public :
    TTreeReaderValue<vector<SimplePulse> > GeLoGain = {fReader, "GeLoGain"};
    TTreeReaderValue<vector<SimplePulse> > GeHiGain = {fReader, "GeHiGain"};
 
-//   TTree *tree;
-//   Int_t nRunId, nBlockId, nTMEId;
-//   Double_t nTMEWindowWidth, nCentralMuonEnergy, nCentralMuonTime, nTimeToPrevTME, nTimeToNextTME;
-//   Bool_t nAnyDoubleCountedPulses;
-   std::map<const char *, TH3D *> h3D;  
-   std::map<const char *, TH2D *> h2D;  
-   std::map<const char *, TH1D *> h1D;  
+   TTree *tree;
+   Int_t nRunId, nBlockId, nTMEId;
+   Double_t nTMEWindowWidth, nCentralMuonEnergy, nCentralMuonTime, nTimeToPrevTME, nTimeToNextTME;
+   Bool_t nAnyDoubleCountedPulses;
+
    std::map<Int_t, std::map<std::string, Double_t> >calib;
-   TCutG *SiR_cutg;
-   TCutG *SiL_cutg;
+   TString channel, sig1, sig2, sig3, sig4, quality;
+   Int_t tpi_id1, tpi_id2, tpi_id3;
+   Double_t a1, a2, a3, e1, e2, e3, t1, t2, t3;
+   std::vector<Int_t> silver;
 
+   std::map<const char *, std::map<const char *, TCutG *> > cutSiL;
+   std::map<const char *, std::map<const char *, TCutG *> > cutSiR;
 
-   TMETree(TTree * /*tree*/ =0) { }
-   virtual ~TMETree() { }
+   TMETree(TTree * /*tree*/ =0) : fFile(0), fProofFile(0), tree(0) { }
+   virtual ~TMETree(); 
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);
    virtual void    SlaveBegin(TTree *tree);
@@ -108,9 +108,9 @@ public :
    virtual TList  *GetOutputList() const { return fOutput; }
    virtual void    SlaveTerminate();
    virtual void    Terminate();
-
-           void    LoadAl50Cuts();
-           void    LoadAl100Cuts();
+           void    LoadCuts();
+           void    ResetValues();
+           void    RunQuality();
 
    ClassDef(TMETree,0);
 

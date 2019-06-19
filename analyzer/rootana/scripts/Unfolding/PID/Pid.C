@@ -2,15 +2,17 @@
 Bool_t debug = kTRUE;
 Double_t window = .06;
 Double_t ymin = .26; //y-limits chosen for protons
-Double_t ymax = .92;
+Double_t ymax = .87;
 std::map<TString, std::vector<Double_t> > results;
 std::map<TString, std::vector<Double_t> > results_err;
 std::map<int, TH1D *> Slice(TH2D *h) {
 	std::map<int, TH1D *> map;
-	for(int i=0; i < 30; i++) { //up to 10MeV
-		//store projections of different Lg #DeltaE+E segments in map, divided into equal portions of 1MeV
+	for(int i=0; i < 26; i++) { //SiR->27 and extra, SiL->26
+		//store projections of different Lg #DeltaE+E segments in map, divided into equal portions of 1MeV; +1 because it also includes the last bin so we don't double count
 		map[i] = h->ProjectionY(Form("%.3f_%.3f_py", (i+1)/2.+.5, (i+1)/2.+1.), h->GetXaxis()->FindBin(TMath::Log10((i+1)/2.+.5) )+1, h->GetXaxis()->FindBin(TMath::Log10((i+1)/2.+1.) ) );
 	}
+//	map[27] = h->ProjectionY("p27_py", h->GetXaxis()->FindBin(1.1613680)+1, h->GetXaxis()->FindBin(1.2) ); //switch on for SiR
+//	map[28] = h->ProjectionY("p28_py", h->GetXaxis()->FindBin(1.2)+1, h->GetXaxis()->FindBin(1.3) ); //switch on for SiR
 	return map;
 }
 void Fit(TH1D *h, Int_t sliceIndex) {
@@ -18,18 +20,18 @@ void Fit(TH1D *h, Int_t sliceIndex) {
 	h->GetXaxis()->SetTitle("Lg #DeltaE / #sqrt{2}");
 	h->GetXaxis()->SetTitleOffset(1.2);
 	h->GetYaxis()->SetTitle(Form("Counts/%f", h->GetBinWidth(0) ) );
-	h->Rebin(2);
 
 	//Use TSpectrum to find the peak candidates
 	TSpectrum *s = new TSpectrum(3);
-	Int_t nfound = s->Search(h, 3.3, "new", 0.25);
+	Int_t nfound = s->Search(h, 2, "", 0.05);
 	Double_t *xpeaks = s->GetPositionX();
+	if(xpeaks[2] < xpeaks[1]) xpeaks[2] = 0.74;
 	sort(xpeaks, xpeaks+3);
 
 	//This assumes the proton band produces the highest peak in the 2D plot
 	TF1 *fit = new TF1("fit", "gaus(0)+gaus(3)+gaus(6)+pol0(9)", ymin, ymax); //rough fit window chosen
 	//proton, deuteron, muon or punchthrough, in that order
-	fit->SetParameters(38, xpeaks[0], 0.04, 6.8, xpeaks[1], 0.031, 56, xpeaks[2], 0.026, 1); //Initial fit parameters
+	fit->SetParameters(38, xpeaks[0], 0.04, 6.8, xpeaks[1], 0.031, 56, xpeaks[2], .022, .1); //Initial fit parameters
 
 	fit->SetParName(0, "Pro. Constant");
 	fit->SetParName(1, "Pro. Mean");
@@ -44,7 +46,64 @@ void Fit(TH1D *h, Int_t sliceIndex) {
 	fit->SetParName(8, "Tri. Sigma");
 
 	fit->SetParName(9, "Pol0");
-	TFitResultPtr r = h->Fit(fit, "RS");
+
+	fit->SetParLimits(1, .35, 0.5);
+	fit->SetParLimits(2, 0.01, 0.5);
+	fit->SetParLimits(3, 0, 100);
+	fit->SetParLimits(4, .55, 0.65);
+	fit->SetParLimits(5, 0.02, 0.035);
+	fit->SetParLimits(6, 0, 100);
+	fit->SetParLimits(7, .64, .8);
+	fit->SetParLimits(8, 0.01, 0.025);
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+if(sliceIndex > 18) {	
+	s = new TSpectrum(2);
+	nfound = s->Search(h, 2, "", 0.05);
+	xpeaks = s->GetPositionX();
+	sort(xpeaks, xpeaks+2);
+
+	//This assumes the proton band produces the highest peak in the 2D plot
+	fit = new TF1("fit", "gaus(0)+gaus(3)+pol0(6)", ymin, ymax); //rough fit window chosen
+	//proton, deuteron, muon or punchthrough, in that order
+	fit->SetParameters(38, xpeaks[0], 0.04, 6.8, xpeaks[1], 0.031, .1); //Initial fit parameters
+
+	fit->SetParName(0, "Pro. Constant");
+	fit->SetParName(1, "Pro. Mean");
+	fit->SetParName(2, "Pro. Sigma");
+	fit->SetParLimits(2, 0.01, 0.5);
+
+	fit->SetParName(3, "Deu. Constant");
+	fit->SetParName(4, "Deu. Mean");
+	fit->SetParLimits(4, .55, 0.65);
+	fit->SetParName(5, "Deu. Sigma");
+	fit->SetParLimits(5, 0.01, 0.035);
+
+	fit->SetParName(6, "Pol0");
+} 
+
+if(sliceIndex > 26) {
+	s = new TSpectrum(1);
+	nfound = s->Search(h, 2, "", 0.1);
+	xpeaks = s->GetPositionX();
+
+	//This assumes the proton band produces the highest peak in the 2D plot
+	fit = new TF1("fit", "gaus(0)+pol0(3)", ymin, ymax); //rough fit window chosen
+	//proton, deuteron, muon or punchthrough, in that order
+	fit->SetParameters(38, xpeaks[0], 0.04, .1); //Initial fit parameters
+
+	fit->SetParName(0, "Pro. Constant");
+	fit->SetParName(1, "Pro. Mean");
+	fit->SetParLimits(1, .35, 0.5);
+	fit->SetParName(2, "Pro. Sigma");
+	fit->SetParLimits(2, 0.01, 0.5);
+	
+	fit->SetParName(3, "Pol0");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+	TFitResultPtr r = h->Fit(fit, "RSQ+");
+
 	TMatrixDSym cov = r->GetCovarianceMatrix();
 	//Get the covariance between sigma and constant parameters after fitting
 	Double_t sigmaAndConstantCovariance = cov.GetMatrixArray()[2];
@@ -67,12 +126,16 @@ void Fit(TH1D *h, Int_t sliceIndex) {
 	results["proton_constant"].push_back(fit->GetParameter(0) );
 	results["proton_mean"].push_back(fit->GetParameter(1) );
 	results["proton_sigma"].push_back(fit->GetParameter(2) );
+if(sliceIndex <= 26) {
 	results["deuteron_constant"].push_back(fit->GetParameter(3) );
 	results["deuteron_mean"].push_back(fit->GetParameter(4) );
 	results["deuteron_sigma"].push_back(fit->GetParameter(5) );
+}
+if(sliceIndex <= 16) {
 	results["triton_constant"].push_back(fit->GetParameter(6) );
 	results["triton_mean"].push_back(fit->GetParameter(7) );
 	results["triton_sigma"].push_back(fit->GetParameter(8) );
+}
 //	results["area"].push_back(area);
 	results_err["bin_width"].push_back(0.);
 	results_err["constant"].push_back(fit->GetParError(0) );
@@ -80,32 +143,69 @@ void Fit(TH1D *h, Int_t sliceIndex) {
 	results_err["sigma"].push_back(fit->GetParError(2) );
 //	results_err["area"].push_back(area_error);
 }
-TCutG * DefineCut(const char *sourceName, const char *species="proton") {
+void Rotate45clockwise(Double_t x, Double_t y, Double_t *rotated) {
+	rotated[0] = TMath::Power(10, 0.7071 * (x + y) );
+	rotated[1] = TMath::Power(10, 0.7071 * (-x + y) );
+}
+void DefineCut(const char *sourceName, const char *species="proton") {
+	TFile *fCut = new TFile("al50-cuts.root", "UPDATE");
 	TString meanStr = Form("%s_mean", species);
 	TString sigmaStr = Form("%s_sigma", species);
 	Int_t mapsize = results[meanStr].size();
-	Int_t sigma = 3;
-	sourceName = Form("%s_%s_%dsigma", sourceName, species, sigma);
-	TFile *fCut = new TFile("al50-cuts.root", "UPDATE");
-	if(fCut->GetListOfKeys()->Contains(sourceName) ) {
-		printf("Deleting cut with name: %s\n", sourceName);
-		gDirectory->Delete(Form("%s;1", sourceName) );    
+	const char *histoName = sourceName;
+
+	Double_t x, y;
+	Double_t *rotated;
+	for(int sigma = 1; sigma < 5; ++sigma) {
+		sourceName = Form("%s_%s_%dsigma", histoName, species, sigma);
+		if(fCut->GetListOfKeys()->Contains(sourceName) ) {
+			printf("Deleting cut with name: %s\n", sourceName);
+			gDirectory->Delete(Form("%s;1", sourceName) );    
+		}
+		TCutG *cutg = new TCutG(sourceName, 4*mapsize+1);
+		for(int i=0; i < mapsize; i++) {
+			if(i<=26) x = TMath::Log10((i+1)/2.+.5);
+			if(i==27) x = 1.1613680;
+			if(i==28) x = 1.2;
+			y = results[meanStr][i] - sigma*results[sigmaStr][i];
+			Rotate45clockwise(x, y, rotated);
+			//cutg->SetPoint(2*i, x, results[meanStr][i] - sigma*results[sigmaStr][i]);
+			cutg->SetPoint(2*i, rotated[0], rotated[1]);
+			if(i<=26) x = TMath::Log10((i+1)/2.+1.);
+			if(i==27) x = 1.2;
+			if(i==28) x = 1.3;
+			//y=y;
+			Rotate45clockwise(x, y, rotated);
+			//cutg->SetPoint(2*i+1, x, results[meanStr][i] - sigma*results[sigmaStr][i]);
+			cutg->SetPoint(2*i+1, rotated[0], rotated[1]);
+		}
+		for(int i=mapsize; i < 2*mapsize; i++) {
+			int c = 2*mapsize-i;
+			if(c<=26) x = TMath::Log10(c/2.+1.);
+			if(c==27) x = 1.2;
+			if(c==28) x = 1.3;
+			y = results[meanStr][c-1] + sigma*results[sigmaStr][c-1];
+			Rotate45clockwise(x, y, rotated);
+			//cutg->SetPoint(2*i, x, results[meanStr][c-1] + sigma*results[sigmaStr][c-1]);
+			cutg->SetPoint(2*i, rotated[0], rotated[1]);
+			if(c<=26) x = TMath::Log10(c/2.+.5);
+			if(c==27) x = 1.1613680;
+			if(c==28) x = 1.2;
+			//y=y
+			Rotate45clockwise(x, y, rotated);
+			//cutg->SetPoint(2*i+1, x, results[meanStr][c-1] + sigma*results[sigmaStr][c-1]);
+			cutg->SetPoint(2*i+1, rotated[0], rotated[1]);
+		}
+		x = TMath::Log10((0+1)/2.+.5);
+		y = results[meanStr][0] - sigma*results[sigmaStr][0];
+		Rotate45clockwise(x, y, rotated);
+		//cutg->SetPoint(4*mapsize, TMath::Log10((0+1)/2.+.5), results[meanStr][0] - sigma*results[sigmaStr][0]);
+		cutg->SetPoint(4*mapsize, rotated[0], rotated[1]);
+		cutg->SetLineColor(kRed);
+		cutg->SetLineWidth(2);
+		cutg->Write();
 	}
-	TCutG *cutg = new TCutG(sourceName, 4*mapsize+1);
-	for(int i=0; i < mapsize; i++) {
-		cutg->SetPoint(2*i, TMath::Log10((i+1)/2.+.5), results[meanStr][i] - sigma*results[sigmaStr][i]);
-		cutg->SetPoint(2*i+1, TMath::Log10((i+1)/2.+1.), results[meanStr][i] - sigma*results[sigmaStr][i]);
-	}
-	for(int i=mapsize; i < 2*mapsize; i++) {
-		int c = 2*mapsize-i;
-		cutg->SetPoint(2*i, TMath::Log10(c/2.+1.), results[meanStr][c-1] + sigma*results[sigmaStr][c-1]);
-		cutg->SetPoint(2*i+1, TMath::Log10(c/2.+.5), results[meanStr][c-1] + sigma*results[sigmaStr][c-1]);
-	}
-	cutg->SetPoint(4*mapsize, TMath::Log10((0+1)/2.+.5), results[meanStr][0] - sigma*results[sigmaStr][0]);
-	cutg->SetLineColor(kRed);
-	cutg->Write();
 	fCut->Close();
-	return cutg;
 }
 /**
   Get those Lg10 EvDeltaE plots from the TMETree processed ROOT file
@@ -116,33 +216,37 @@ TCutG * DefineCut(const char *sourceName, const char *species="proton") {
   A rough integral or plain sum over bins are done as another check on the gaussian integral
   The difference between the Entries var and Integral var is(should be) the Background var (pol0 * fit window size and corrected with the bin size)
   */
-void Pid(const char *filename="al50.root", Bool_t plotLeft=kTRUE, const char *treeName="oTree") {
+void Pid(const char *filename="al50.root", Bool_t plotLeft=kTRUE, const char *treeName="tree") {
 	gStyle->SetOptFit(1);
 	TFile *fData = new TFile(filename, "READ");
-	TH2D *hLg_SiL_EvDeltaE = new TH2D("hLg_SiL_EvDeltaE", "SiL Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 500, -0.1, 1.5, 500, -0.9, 1.5);
-	TH2D *hLg_SiR_EvDeltaE = new TH2D("hLg_SiR_EvDeltaE", "SiR Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 500, -0.1, 1.5, 500, -0.9, 1.5);
-	Double_t e1, e2, e3, t1, t2;
+	TH2D *hLg_SiL_EvDeltaE = new TH2D("hLg_SiL_EvDeltaE", "SiL Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 250, -0.1, 1.5, 100, ymin, ymax);
+	TH2D *hLg_SiR_EvDeltaE = new TH2D("hLg_SiR_EvDeltaE", "SiR Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 250, -0.1, 1.5, 100, ymin, ymax);
+	Double_t a1, a2, e1, e2, e3, t1, t2, timeToPrevTME, timeToNextTME;
 	TString *channel = new TString("");
-	TString *pid = new TString("");
 	TTree *tree = (TTree *)fData->Get(treeName);
-//	tree->SetBranchAddress("t1", &t1);
-//	tree->SetBranchAddress("t2", &t2);
+	tree->SetBranchAddress("timeToPrevTME", &timeToPrevTME);
+	tree->SetBranchAddress("timeToNextTME", &timeToNextTME);
+	tree->SetBranchAddress("a1", &a1);
+	tree->SetBranchAddress("a2", &a2);
+	tree->SetBranchAddress("t1", &t1);
+	tree->SetBranchAddress("t2", &t2);
 	tree->SetBranchAddress("e1", &e1);
 	tree->SetBranchAddress("e2", &e2);
 	tree->SetBranchAddress("e3", &e3);
 	tree->SetBranchAddress("channel", &channel);
-	tree->SetBranchAddress("pid", &pid);
 	for(Long64_t i=0; i < tree->GetEntries(); i++) {
 		tree->GetEntry(i);
-//		if(t2-t1 > 1000 || t2-t1 < -1000) continue;
-//		if(t2 < 400) continue;
-		e1 = e1 * 0.001;
-		e2 = e2 * 0.001;
-		e3 = e3 * 0.001;
+		if(timeToPrevTME<10e3 || timeToNextTME<10e3) continue;
+if(a2 > 3980) continue;
+		if(t1<0 || t1>10000) continue;
+		if(t2<0 || t2>10000) continue;
+		if(!TMath::IsNaN(e3) ) continue;
 		if(channel->Contains("SiL1") ) {
-			hLg_SiL_EvDeltaE->Fill(0.7071 * (TMath::Log10(e1+e2+e3) - TMath::Log10(e1) ), 0.7071 * (TMath::Log10(e1+e2+e3) + TMath::Log10(e1) ) );
+			if(t2-t1-13.4 < -25 || t2-t1 -13.4 > 25) continue;
+			hLg_SiL_EvDeltaE->Fill(0.7071 * (TMath::Log10(e1+e2) - TMath::Log10(e1) ), 0.7071 * (TMath::Log10(e1+e2) + TMath::Log10(e1) ) );
 		} else if(channel->Contains("SiR1") ) {
-			hLg_SiR_EvDeltaE->Fill(0.7071 * (TMath::Log10(e1+e2+e3) - TMath::Log10(e1) ), 0.7071 * (TMath::Log10(e1+e2+e3) + TMath::Log10(e1) ) );
+			if(t2-t1-13<-20 || t2-t1 - 13 > 20) continue;
+			hLg_SiR_EvDeltaE->Fill(0.7071 * (TMath::Log10(e1+e2) - TMath::Log10(e1) ), 0.7071 * (TMath::Log10(e1+e2) + TMath::Log10(e1) ) );
 		}
 	}
 	std::map<int, TH1D*>::iterator it;
@@ -151,7 +255,7 @@ void Pid(const char *filename="al50.root", Bool_t plotLeft=kTRUE, const char *tr
 	if(plotLeft) {
 		//Slicing via y-projection and storing in the std::map
 		std::map<int, TH1D*> map = Slice(hLg_SiL_EvDeltaE);
-		c->Divide(map.size()/4, 4);
+		c->Divide(map.size()/5, 5);
 
 		for(it=map.begin(); it != map.end(); it++) {
 			c->cd(i+1);
@@ -160,13 +264,13 @@ void Pid(const char *filename="al50.root", Bool_t plotLeft=kTRUE, const char *tr
 			Fit(hclone, i);
 			i++;
 		}
-		TCutG *cutg_p = DefineCut(hLg_SiL_EvDeltaE->GetName(), "proton");
-		TCutG *cutg_d = DefineCut(hLg_SiL_EvDeltaE->GetName(), "deuteron");
-		TCutG *cutg_t = DefineCut(hLg_SiL_EvDeltaE->GetName(), "triton");
+		DefineCut(hLg_SiL_EvDeltaE->GetName(), "proton");
+		DefineCut(hLg_SiL_EvDeltaE->GetName(), "deuteron");
+		DefineCut(hLg_SiL_EvDeltaE->GetName(), "triton");
 	} else {
 		//Slicing via y-projection and storing in the std::map
 		std::map<int, TH1D*> map = Slice(hLg_SiR_EvDeltaE);
-		c->Divide(map.size()/4, 4);
+		c->Divide(map.size()/5, 5);
 
 		for(it=map.begin(); it != map.end(); it++) {
 			c->cd(i+1);
@@ -175,8 +279,8 @@ void Pid(const char *filename="al50.root", Bool_t plotLeft=kTRUE, const char *tr
 			Fit(hclone, i);
 			i++;
 		}
-		TCutG *cutg_p = DefineCut(hLg_SiR_EvDeltaE->GetName(), "proton");
-		TCutG *cutg_d = DefineCut(hLg_SiR_EvDeltaE->GetName(), "deuteron");
-		TCutG *cutg_t = DefineCut(hLg_SiR_EvDeltaE->GetName(), "triton");
+		DefineCut(hLg_SiR_EvDeltaE->GetName(), "proton");
+		DefineCut(hLg_SiR_EvDeltaE->GetName(), "deuteron");
+		DefineCut(hLg_SiR_EvDeltaE->GetName(), "triton");
 	}
 }

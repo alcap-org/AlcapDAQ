@@ -1,8 +1,18 @@
-void runProof(bool debug=false)
+void runProof(const char * set="al50", bool debug=false)
 {
         std::vector<TString> dataFiles;
         TString dirname="/data/R15b/tme/Al50/";
-//        TString dirname="/home/m-wong/all/";
+	if(std::strcmp(set, "al100")==0 ) {
+		//dirname="/data/R15b/tme/Al100/";
+		//dirname="/data/ssd3/R15bAnalysis/m-wong/al100-extended/"; //extended experimental version
+		dirname="/data/ssd3/R15bAnalysis/m-wong/al100/";
+	} else if(std::strcmp(set, "al50")==0 ) {
+		dirname = "/data/ssd2/R15bAnalysis/tmetree/Al50/";
+		//dirname="/data/R15b/tme/Al50/";
+		//dirname="/data/ssd3/R15bAnalysis/m-wong/al50-extended/";
+	} else if(std::strcmp(set, "ti50")==0 ) {
+		dirname="/data/R15b/tme/Ti50/";
+	}
         TString ext=".root";
         TSystemDirectory dir(dirname, dirname);
         TList *files = dir.GetListOfFiles();
@@ -25,19 +35,19 @@ void runProof(bool debug=false)
 		TProof *p = TProof::Open("lite://", "workers=1");
 		p->SetBit(TProof::kUsingSessionGui);
 		TChain *chain = new TChain("TMETree/TMETree");
-                for(int i=0; i < 1; i++) {
+                for(int i=2; i < 5; i++) {
                         chain->Add(dataFiles.at(i) );
                 }
 		chain->SetProof();
-		chain->Process("TMETree.C+", "test-output.root", 100000);
+		chain->Process("TMETree.C+", "test", 100000);
 	} else {
-		TProof *p = TProof::Open("lite://", "workers=10");
+		TProof *p = TProof::Open("lite://", "workers=12");
 		p->SetBit(TProof::kUsingSessionGui);
 		TChain *chain = new TChain("TMETree/TMETree");
                 for(int i=0; i < dataFiles.size(); i++) {
                         chain->Add(dataFiles.at(i) );
                 }
 		chain->SetProof();
-		chain->Process("TMETree.C+", "al50-wPP-wCoincidence-gt400ns.root");
+		chain->Process("TMETree.C+", set);
 	}
 }
