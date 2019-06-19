@@ -71,7 +71,6 @@ void lifetime(TTree *tree, Double_t *lifetimeError, TString arm = "SiR", TString
 	for(int i=1; i<=nbins; ++i) { //ignore under and overflow bins
 		std::cout << (i-1)*500 << "\t|" << hOne->GetBinContent(i)/0.71 << "\t|" << hTwo->GetBinContent(i)/0.63 << "\t|" <<  hThree->GetBinContent(i)/0.56 << "\t|" << hFour->GetBinContent(i)/0.50 << std::endl;
 		lifetimeError[i] = abs(1- ((hTwo->GetBinContent(i)/0.63) / (hThree->GetBinContent(i)/0.56) ) );
-printf("%f %f %f\n", lifetimeError[i], hTwo->GetBinContent(i)/0.63, hThree->GetBinContent(i)/0.56);
 	}
 }
 
@@ -147,7 +146,7 @@ void dt(TTree *tree, Double_t *dtError, TString arm = "SiR", TString particle = 
 	std::cout << "E bin\t|" << "1σ\t|" << "2σ\t|" << "3σ\t|" << "4σ" << std::endl;
 	for(int i=1; i<=nbins; ++i) { //ignore under and overflow bins
 		std::cout << (i-1)*500 << "\t|" << hOne->GetBinContent(i)/0.682 << "\t|" << hTwo->GetBinContent(i)/0.954 << "\t|" <<  hThree->GetBinContent(i)/0.996 << "\t|" << hFour->GetBinContent(i)/0.998 << std::endl;
-		dtError[i] = abs(1- (hTwo->GetBinContent(i)/0.954 / hThree->GetBinContent(i)/0.996) );
+		dtError[i] = abs(1- ((hTwo->GetBinContent(i)/0.954) / (hThree->GetBinContent(i)/0.996) ) );
 	}
 }
 void Pid(TTree *tree, Double_t *pidError, TString arm = "SiR", TString particle = "proton") {
@@ -221,7 +220,7 @@ void Pid(TTree *tree, Double_t *pidError, TString arm = "SiR", TString particle 
 	std::cout << "E bin\t|" << "1σ\t|" << "2σ\t|" << "3σ\t|" << "4σ" << std::endl;
 	for(int i=1; i<=nbins; ++i) { //ignore under and overflow bins
 		std::cout << (i-1)*500 << "\t|" << hOne->GetBinContent(i)/0.682 << "\t|" << hTwo->GetBinContent(i)/0.954 << "\t|" <<  hThree->GetBinContent(i)/0.996 << "\t|" << hFour->GetBinContent(i)/0.998 << std::endl;
-		pidError[i] = abs(1- (hTwo->GetBinContent(i)/0.954 / hThree->GetBinContent(i)/0.996) );
+		pidError[i] = abs(1- ((hTwo->GetBinContent(i)/0.954) / (hThree->GetBinContent(i)/0.996) ) );
 	}
 }
 
@@ -250,7 +249,7 @@ void Finally(TTree *tree, Double_t *pidError, Double_t *dtError, Double_t *lifet
 	tree->SetBranchAddress("sig4", &sig4);
 
 	Int_t nbins = 40;
-	TH1D *hUncorrected = new TH1D(Form("hUncorrected_%s_%s", arm.Data(), particle.Data() ), "Corrected from 3#sigma and 500ns; E[keV];Counts / 500keV", nbins, 0, 20000);
+	TH1D *hUncorrected = new TH1D(Form("hUncorrected_%s_%s", arm.Data(), particle.Data() ), "Uncorrected; E[keV];Counts / 500keV", nbins, 0, 20000);
 	for(Long64_t i=0; i < tree->GetEntries(); ++i) {
 		tree->GetEntry(i);
 		if(timeToPrevTME < 10e3 || timeToNextTME < 10e3) continue;
@@ -297,7 +296,7 @@ void Finally(TTree *tree, Double_t *pidError, Double_t *dtError, Double_t *lifet
 	e->Write(); //canvases do not get written automatically since they are memory objects?
 }
 
-void FoldedSystematics(TString arm = "SiL", TString particle = "proton") {
+void FoldedSystematics(TString arm = "SiR", TString particle = "proton") {
 	gStyle->SetOptStat(0);
 	gStyle->SetStatY(0.9);                
 	gStyle->SetStatX(0.9);
