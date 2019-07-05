@@ -35,7 +35,7 @@ PulseViewer::ParameterKeys PulseViewer::fAvailableParams;
 PulseViewer::PulseKeys PulseViewer::fAvailablePulseTypes;
 
 PulseViewer::PulseViewer(modules::options* opts):
-    BaseModule("PulseViewer",opts),fTotalPlotted(0),fFormula(NULL),fEvent(0){
+    BaseModule("PulseViewer",opts),fTotalPlotted(0),fFormula(NULL),fEvent(-1){
         fRequestedSource=opts->GetString("source"); 
         fRequestedPulseType=opts->GetString("pulse_type","TAnalysedPulse"); 
         fSource.Channel()=fRequestedSource;
@@ -145,6 +145,8 @@ int PulseViewer::ParseTriggerString(const std::string& trigger_condition){
 }
 
 int PulseViewer::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
+  fEvent++;
+  
     // Have we drawn the number of pulses we were meant to?
     if(fMaxToPlot>0 && fTotalPlotted>=fMaxToPlot){
         if(fStopAtMax){
@@ -189,8 +191,6 @@ int PulseViewer::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 	    
     }
     if(retVal!=0) return retVal;
-
-    fEvent++;
 
   return 0;
 }
