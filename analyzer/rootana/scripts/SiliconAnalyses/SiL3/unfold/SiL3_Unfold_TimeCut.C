@@ -12,5 +12,7 @@ void SiL3_Unfold_TimeCut(std::string infilename, std::string outfilename, std::s
 
   args.outfilename = outfilename;
   args.outdirname = outdirname;
+  args.min_time_cut_branch = "min_time";
+  args.max_time_cut_branch = "max_time";
   Unfold_TimeCut(args);
 }

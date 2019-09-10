@@ -13,5 +13,7 @@ void SiL3_Unfold_FinalNormalisation(std::string infilename, std::string inhistna
   args.countfilename = countfilename;
   args.counttreename = counttreename;
   args.capture_fraction = 0.658;
+
+  args.rebin_factor = 1;
   Unfold_FinalNormalisation(args);
 }

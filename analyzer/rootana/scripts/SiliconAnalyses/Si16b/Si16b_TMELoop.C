@@ -4,8 +4,9 @@ void Si16b_TMELoop() {
   TMELoopArgs args;
   args.infilename = "~/data/out/v10/Si16b.root";
   args.tmetreename = "TMETree/TMETree";
-  args.outfilename = "~/data/results/Si16b/subtrees_wHist.root";
-  args.n_entries = -1; // run for all TMEs
+  args.outfilename = "~/data/results/Si16b/subtrees_newPP_test.root";
+  //  args.n_entries = -1; // run for all TMEs
+  args.n_entries = 1000000;
 
   ///////////////////////////////////////////
   // Calibration Constants
@@ -254,9 +255,17 @@ void Si16b_TMELoop() {
   args.sit.layer3_calibOffsets.push_back(0);
     
   // Event vetos
-  args.veto_any_double_counts = true;
-  args.veto_max_muon_channel_pulses = 1;
+  // old PP definition
+  /*  args.veto_any_double_counts = true;
+  args.veto_max_muon_channel_pulses = true;
   args.max_muon_channel_pulses = 1;
+  args.veto_pp_window = false;
+  */
+  // new PP definition
+  args.veto_any_double_counts = false;
+  args.veto_max_muon_channel_pulses = false;
+  args.veto_pp_window = true;
+  args.pp_window = 10000;
 
   TMELoop(args);
 }

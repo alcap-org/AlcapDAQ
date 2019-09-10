@@ -16,6 +16,9 @@ struct Unfold_TimeCutArgs {
   std::string outfilename;
   std::string outdirname;
 
+  std::string min_time_cut_branch;
+  std::string max_time_cut_branch;
+
   double decay_lifetime;
 };
 
@@ -44,13 +47,8 @@ void Unfold_TimeCut(const Unfold_TimeCutArgs& args) {
   }  
   double time_window_min = 0;
   double time_window_max = 0;
-  cuttree->SetBranchAddress("min_time", &time_window_min);
-  if (cuttree->GetListOfBranches()->FindObject("max_time")) {
-     cuttree->SetBranchAddress("max_time", &time_window_max);
-  }
-  else {
-    time_window_max = 20000;
-  }
+  cuttree->SetBranchAddress(args.min_time_cut_branch.c_str(), &time_window_min);
+  cuttree->SetBranchAddress(args.max_time_cut_branch.c_str(), &time_window_max);
   cuttree->GetEntry(0);
 
   double fraction_in_time_window = 0;

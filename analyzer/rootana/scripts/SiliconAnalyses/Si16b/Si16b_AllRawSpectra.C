@@ -3,8 +3,8 @@
 
 void Si16b_AllRawSpectra() {
 
-  std::string infilename = "~/data/results/Si16b/plots.root";
-  std::string outfilename = "~/data/results/Si16b/raw_spectra.root";
+  std::string infilename = "~/data/results/Si16b/plots_newPP.root";
+  std::string outfilename = "~/data/results/Si16b/raw_spectra_newPP.root";
   
   TFile* outfile = new TFile(outfilename.c_str(), "RECREATE");
   outfile->Write();

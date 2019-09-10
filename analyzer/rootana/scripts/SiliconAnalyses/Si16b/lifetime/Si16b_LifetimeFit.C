@@ -1,17 +1,33 @@
-#include "scripts/SiliconAnalyses/Utils/LifetimeFit.C"
+#include "../../Utils/LifetimeFit.C"
 
 void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
   LifetimeFitArgs args;
   args.infilename = infilename;
   args.outfilename = outfilename;
 
-  args.inhistname = "proton_SiR_timecut/hTime_12not3";
-  args.min_fit_time = 200;
-  args.max_fit_time = 20000;
+  args.min_fit_time = 400;
+  args.max_fit_time = 10000;
+  args.min_flat_fit_time = 15000;
+  args.max_flat_fit_time = 20000;
   args.rebin_factor = 10;
+  args.ignore_region_min = -1;
+  args.ignore_region_max = -1;
+  args.ignore_region_flat_min = -1;
+  args.ignore_region_flat_max = -1;
+  args.include_resolution = true;
+  /*
+  args.inhistname = "all_SiR_timecut400_10000ns_layerCoinc/hThickTime_12not3";
   args.project_y = false;
   args.project_x = false;
-
+  args.outdirname = "All_wTimeCut_SingleExp";
+  args.double_exp = false;
+  args.flat_bkg = false;
+  LifetimeFit(args);
+  */
+  
+  args.inhistname = "proton_SiR_timecut400_10000ns_layerCoinc/hThickTime_12not3";
+  args.project_y = false;
+  args.project_x = false;
   args.outdirname = "Proton_wTimeCut_SingleExp";
   args.double_exp = false;
   args.flat_bkg = false;
@@ -32,44 +48,32 @@ void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
   args.flat_bkg = true;
   LifetimeFit(args);
 
-  args.inhistname = "deuteron_SiR_timecut/hTime_12not3";
-  args.min_fit_time = 200;
-  args.max_fit_time = 20000;
-  args.rebin_factor = 10;
+  args.inhistname = "deuteron_SiR_timecut400_10000ns_layerCoinc/hThickTime_12not3";
   args.project_y = false;
   args.project_x = false;
-
   args.outdirname = "Deuteron_wTimeCut_SingleExp";
   args.double_exp = false;
   args.flat_bkg = false;
   LifetimeFit(args);
 
-  args.inhistname = "triton_SiR_timecut/hTime_12not3";
-  args.min_fit_time = 200;
-  args.max_fit_time = 20000;
-  args.rebin_factor = 10;
+  args.inhistname = "triton_SiR_timecut400_10000ns_layerCoinc/hThickTime_12not3";
   args.project_y = false;
   args.project_x = false;
-
   args.outdirname = "Triton_wTimeCut_SingleExp";
   args.double_exp = false;
   args.flat_bkg = false;
   LifetimeFit(args);
 
-  args.inhistname = "alpha_SiR_timecut/hTime_12not3";
-  args.min_fit_time = 200;
-  args.max_fit_time = 20000;
-  args.rebin_factor = 10;
+  args.inhistname = "alpha_SiR_timecut400_10000ns_layerCoinc/hThickTime_12not3";
   args.project_y = false;
   args.project_x = false;
-
   args.outdirname = "Alpha_wTimeCut_SingleExp";
   args.double_exp = false;
   args.flat_bkg = false;
   LifetimeFit(args);
 
 
-
+  /*
   args.inhistname = "SiL3/hEnergyTime";
   args.max_energy_cut = -1;
   args.rebin_factor = 10;
@@ -122,4 +126,5 @@ void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
   args.inhistname = "proton_SiR_timecut_wSiL1Coinc/hTime_12not3";
   args.outdirname = "Proton_wTimeCut_wSiL1Coinc_12not3";
   LifetimeFit(args);
+  */
 }

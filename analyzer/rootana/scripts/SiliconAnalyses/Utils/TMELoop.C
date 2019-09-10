@@ -27,6 +27,7 @@ struct SiBlockTreeInfo {
   int run_id;
   int block_id;
   int tme_id;
+  double central_muon_time;
   
   double thin_energy;
   double thick_energy;
@@ -72,6 +73,8 @@ struct GeTreeInfo {
   int tme_id;
   int tpi_id;
   int tap_id;
+
+  double central_muon_time;
   
   double energy;
   double time;
@@ -92,6 +95,7 @@ struct GeTargetTreeInfo {
   int run_id;
   int block_id;
   int tme_id;
+  double central_muon_time;
 
   int ge_tpi_id;
   int ge_tap_id;
@@ -170,10 +174,15 @@ struct TMELoopArgs {
   bool veto_max_muon_channel_pulses;
   int max_muon_channel_pulses;
 
+  bool veto_pp_window;
+  double pp_window;
+
   bool req_tgt_muon;
   int min_tgt_pulses;
   //  double muScCutLo;
   //  double muScCutHi;
+
+  int reqd_run_id;
 };
 
 struct TMELoopOutput {
@@ -224,7 +233,7 @@ int CheckArgs(const TMELoopArgs& args) {
     std::cout << "WARNING: not vetoing on any TMEs with any double counted events" << std::endl
 	      << "TMELoop.C does not currently accurately handle double counted pulses" << std::endl
 	      << "If you want to continue remove the return statement in this if branch and re-run" << std::endl;
-    return 1;
+    //    return 1;
   }
 
   return 0;
@@ -258,6 +267,7 @@ void Setup(const TMELoopArgs& args) {
     i_siBlock->siBlockTree->Branch("run_id", &siBlockTreeInfo.run_id);
     i_siBlock->siBlockTree->Branch("block_id", &siBlockTreeInfo.block_id);
     i_siBlock->siBlockTree->Branch("tme_id", &siBlockTreeInfo.tme_id);
+    i_siBlock->siBlockTree->Branch("central_muon_time", &siBlockTreeInfo.central_muon_time);
     
     i_siBlock->siBlockTree->Branch("thin_energy", &siBlockTreeInfo.thin_energy);
     i_siBlock->siBlockTree->Branch("thin_time", &siBlockTreeInfo.thin_time);
@@ -293,6 +303,7 @@ void Setup(const TMELoopArgs& args) {
     i_ge->geTree->Branch("tme_id", &geTreeInfo.tme_id);
     i_ge->geTree->Branch("tpi_id", &geTreeInfo.tpi_id);
     i_ge->geTree->Branch("tap_id", &geTreeInfo.tap_id);
+    i_ge->geTree->Branch("central_muon_time", &geTreeInfo.central_muon_time);
     i_ge->geTree->Branch("energy", &geTreeInfo.energy);
     i_ge->geTree->Branch("time", &geTreeInfo.time);
     i_ge->geTree->Branch("calib_gain", &geTreeInfo.calib_gain);
@@ -307,6 +318,7 @@ void Setup(const TMELoopArgs& args) {
     i_geTarget->geTargetTree->Branch("run_id", &geTargetTreeInfo.run_id);
     i_geTarget->geTargetTree->Branch("block_id", &geTargetTreeInfo.block_id);
     i_geTarget->geTargetTree->Branch("tme_id", &geTargetTreeInfo.tme_id);
+    i_geTarget->geTargetTree->Branch("central_muon_time", &geTargetTreeInfo.central_muon_time);
     
     i_geTarget->geTargetTree->Branch("ge_tpi_id", &geTargetTreeInfo.ge_tpi_id);
     i_geTarget->geTargetTree->Branch("ge_tap_id", &geTargetTreeInfo.ge_tap_id);
@@ -383,6 +395,11 @@ void TMELoop(const TMELoopArgs& args) {
 
     /////////////////////////////////////
     // Event Vetoes
+    if (args.reqd_run_id>0) {
+      if (runId != args.reqd_run_id) {
+	continue; // to the next TME
+      }
+    }
     if (args.veto_any_double_counts && anyDoubleCountedPulses) {
       continue; // to the next TME
     }
@@ -415,7 +432,12 @@ void TMELoop(const TMELoopArgs& args) {
 	}
 	}*/
     }
-
+    if (args.veto_pp_window) {
+      if (timeToNextTME < args.pp_window || timeToPrevTME < args.pp_window) {
+	continue; // to the next TME
+      }
+    }
+    
     ++n_analysed_tmes;
 
     if (prevCentralMuonTime < 0) {
@@ -434,6 +456,7 @@ void TMELoop(const TMELoopArgs& args) {
       siBlockTreeInfo.run_id = runId;
       siBlockTreeInfo.block_id = blockId;
       siBlockTreeInfo.tme_id = TMEId;
+      siBlockTreeInfo.central_muon_time = centralMuonTime;
       
       // Reset these branches
       siBlockTreeInfo.thin_energy = 0;
@@ -620,6 +643,7 @@ void TMELoop(const TMELoopArgs& args) {
       geTreeInfo.run_id = runId;
       geTreeInfo.block_id = blockId;
       geTreeInfo.tme_id = TMEId;
+      geTreeInfo.central_muon_time = centralMuonTime;
       
       // Reset these branches
       geTreeInfo.energy = 0;
@@ -652,6 +676,7 @@ void TMELoop(const TMELoopArgs& args) {
       geTargetTreeInfo.run_id = runId;
       geTargetTreeInfo.block_id = blockId;
       geTargetTreeInfo.tme_id = TMEId;
+      geTargetTreeInfo.central_muon_time = centralMuonTime;
 
       geTargetTreeInfo.ge_tpi_id = -1;
       geTargetTreeInfo.ge_tap_id = -1;

@@ -21,7 +21,7 @@ void SiL3_FinalPlot_Unfolded_wSW() {
   SW_gre->GetFunction("tdr_fit")->SetLineColor(kBlack);
   leg->AddEntry(SW_gre->GetFunction("tdr_fit"), "S-W Fit", "l");
 
-  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse.root";
+  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP.root";
   TFile* file = new TFile(filename.c_str(), "READ");
   
   const int n_slices = 1;

@@ -7,12 +7,15 @@ void Si16a_TMELoop() {
   int run_numbers[n_runs] = {9735, 9736, 9737, 9739, 9740, 9741, 9742, 9743}; // want to do all runs individually
 
   for (int i_run = 0; i_run < n_runs; ++i_run) {
+    int run_number = run_numbers[i_run];
+    
     std::stringstream run_str;
-    run_str << "0" << i_run;
+    run_str << "0" << run_number;
     TMELoopArgs args;
-    args.infilename = "~/data/out/v10/out" + run_str.str() + ".root";
+    //    args.infilename = "~/data/out/v10/out" + run_str.str() + ".root";
+    args.infilename = "~/data/out/v10/Si16a.root";
     args.tmetreename = "TMETree/TMETree";
-    args.outfilename = "~/data/results/Si16a/subtrees" + run_str.str() + ".root";
+    args.outfilename = "~/data/results/Si16a/subtrees" + run_str.str() + "_newPP.root";
     args.n_entries = -1; // run for all TMEs
     
     ///////////////////////////////////////////
@@ -213,10 +216,18 @@ void Si16a_TMELoop() {
 
 
     // Event vetos
-    args.veto_any_double_counts = true;
-    args.veto_max_muon_channel_pulses = 1;
-    args.max_muon_channel_pulses = 1;
+    // old PP definition
+    //    args.veto_any_double_counts = true;
+    //    args.veto_max_muon_channel_pulses = 1;
+    //    args.max_muon_channel_pulses = 1;
+    //      args.veto_pp_window = false;
 
+    // new PP definition
+    args.veto_any_double_counts = false;
+    args.veto_max_muon_channel_pulses = false;
+    args.veto_pp_window = true;
+    args.pp_window = 10000;
+    args.reqd_run_id = run_number;
   
     TMELoop(args);
   }

@@ -14,8 +14,8 @@ void Si16a_AllPlots() {
     std::stringstream run_str;
     run_str << "0" << run_numbers[i_run];
     
-    std::string infilename = "~/data/results/Si16a/subtrees" + run_str.str() + ".root";
-    std::string outfilename = "~/data/results/Si16a/plots" + run_str.str() + ".root";
+    std::string infilename = "~/data/results/Si16a/subtrees" + run_str.str() + "_newPP.root";
+    std::string outfilename = "~/data/results/Si16a/plots" + run_str.str() + "_newPP.root";
     
     TFile* outfile = new TFile(outfilename.c_str(), "RECREATE");
     outfile->Write();
@@ -24,6 +24,6 @@ void Si16a_AllPlots() {
     Si16a_EvdEPlot(infilename, outfilename);
     Si16a_XRaySpectrum(infilename, outfilename);
     Si16a_TargetSpectrum(infilename, outfilename);
-    Si16a_XRaySpectrum_wTargetCoinc(infilename, outfilename);
+    //    Si16a_XRaySpectrum_wTargetCoinc(infilename, outfilename);
   }
 }

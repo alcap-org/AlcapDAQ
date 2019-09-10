@@ -1,17 +1,20 @@
 void Si16b_FinalPlot_XRaySpectrum() {
 
-  std::string plots_file_name = "~/data/results/Si16b/plots.root";
-  std::string ge_channel = "GeLoGain";
-  std::string full_spectrum_name = ge_channel + "/hEnergyTime";
-  std::string norm_file_name = "/home/edmonds/data/results/Si16b/normalisation.root";
-  std::string norm_ws_name = "XRaySpectrum_" + ge_channel + "_noTimeCut/ws";
+  //  std::string plots_file_name = "~/data/results/Si16b/plots_newPP.root";
+  std::string ge_channel = "GeHiGain";
+  //  std::string full_spectrum_name = ge_channel + "/hEnergyTime";
+  std::string norm_file_name = "/home/edmonds/data/results/Si16b/normalisation_newPP.root";
+  std::string dirname = "XRaySpectrum_" + ge_channel + "_3p1s_200nsTimeCut";
+  std::string norm_ws_name = dirname + "/ws";
+  std::string full_spectrum_name = dirname + "/hGe_Spectrum";
     
-  TFile* plots_file = new TFile(plots_file_name.c_str(), "READ");
-  TH1D* hXRaySpectrum = ((TH2F*) plots_file->Get(full_spectrum_name.c_str()))->ProjectionY();
+  //  TFile* plots_file = new TFile(plots_file_name.c_str(), "READ");
+  //  TH1D* hXRaySpectrum = ((TH2F*) plots_file->Get(full_spectrum_name.c_str()))->ProjectionY();
 
   TFile* norm_file = new TFile(norm_file_name.c_str(), "READ");
   RooWorkspace* ws = (RooWorkspace*) norm_file->Get(norm_ws_name.c_str());
-  
+  TH1D* hXRaySpectrum = (TH1D*) norm_file->Get(full_spectrum_name.c_str());
+
   TCanvas* c_XRaySpectrum = new TCanvas("c_XRaySpectrum", "c_XRaySpectrum");
 
   hXRaySpectrum->Rebin(4);

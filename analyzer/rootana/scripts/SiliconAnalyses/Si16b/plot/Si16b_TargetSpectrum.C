@@ -20,6 +20,7 @@ void Si16b_TargetSpectrum(std::string infilename, std::string outfilename) {
   args.outdirname = "Target";
   TargetSpectrum(args);
 
+  /*
   // for the inclusive charged particle analysis (SiL3)
   args.treename = "siBlockTree_SiL";
   args.layername = "thick";
@@ -51,4 +52,5 @@ void Si16b_TargetSpectrum(std::string infilename, std::string outfilename) {
   //  args.layer_coincidence_time = 200;
   args.outdirname = "SiR2_Michels";
   TargetSpectrum(args);
+  */
 }

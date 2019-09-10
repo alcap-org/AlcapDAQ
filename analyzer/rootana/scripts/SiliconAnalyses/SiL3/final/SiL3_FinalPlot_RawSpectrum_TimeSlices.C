@@ -1,6 +1,6 @@
 void SiL3_FinalPlot_RawSpectrum_TimeSlices() {
 
-  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse.root";
+  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_slices = 4;
@@ -29,9 +29,9 @@ void SiL3_FinalPlot_RawSpectrum_TimeSlices() {
     time_slice_str.str("");
     time_slice_str << "TimeSlice" << i_min_time_slice << "_" << i_max_time_slice;
       
-    //    std::string foldername = "TimeCut_" + time_slice_str.str();
-    std::string foldername = "FalseTimeCut_" + time_slice_str.str();
-    //    std::string foldername = "DecayElectronCorrection_" + time_slice_str.str();
+    std::string foldername = "TimeCut_" + time_slice_str.str();
+    //    std::string foldername = "FalseTimeCut_" + time_slice_str.str();
+    //    std::string foldername = "DecayElectron_" + time_slice_str.str();
     std::string histname = foldername + "/hCorrectedSpectrum";
 
     TH1F* spectrum = (TH1F*) file->Get(histname.c_str());
@@ -42,7 +42,7 @@ void SiL3_FinalPlot_RawSpectrum_TimeSlices() {
     spectrum->SetStats(false);
 
     histtitle.str("");
-    histtitle << "SiL3 Dataset, Active Target Analysis, Energy Spectrum (time slices)";
+    histtitle << "SiL3 Dataset, Active Target Analysis, After Time Cut Correction";
     spectrum->SetTitle(histtitle.str().c_str());
     spectrum->Rebin(2);
     //    spectrum->SetMinimum(0.1);
@@ -50,6 +50,9 @@ void SiL3_FinalPlot_RawSpectrum_TimeSlices() {
     axistitle.str("");
     axistitle << "Count / " << spectrum->GetXaxis()->GetBinWidth(1) << " keV";
     spectrum->GetXaxis()->SetRangeUser(0,5000);
+    //    c1->SetLogy(0);
+    //    spectrum->GetXaxis()->SetRangeUser(0,20000);
+    //    spectrum->GetYaxis()->SetRangeUser(0,200e3);
     spectrum->SetYTitle(axistitle.str().c_str());
     spectrum->SetLineColor(colours[i_slice]);
     spectrum->Draw("HIST E SAMES");

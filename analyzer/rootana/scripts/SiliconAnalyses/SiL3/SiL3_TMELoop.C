@@ -2,10 +2,13 @@
 
 void SiL3_TMELoop() {
   TMELoopArgs args;
-  //  args.infilename = "~/data/out/v13/SiL3.root";
-  args.infilename = "~/data/out/v14/SiL3.root";
   args.tmetreename = "TMETree/TMETree";
-  args.outfilename = "~/data/results/SiL3/subtrees_geq1TgtPulse.root";
+  //  args.infilename = "~/data/out/v13/SiL3.root";
+
+  args.infilename = "~/data/out/v14/SiL3.root";
+  //  args.outfilename = "~/data/results/SiL3/subtrees_geq0TgtPulse_newPP20us.root";
+  args.reqd_run_id = 9040;
+  args.outfilename = "~/data/results/SiL3/subtrees09040_geq0TgtPulse_newPP20us.root";
 
   //  args.infilename = "~/data/out/v5/SiL3_tmetree.root"; // without templates
   //  args.tmetreename = "TMETree/TMETree";
@@ -125,12 +128,20 @@ void SiL3_TMELoop() {
   
   ///////////////////////////
   // Event vetos
-  args.veto_any_double_counts = true;
-  args.veto_max_muon_channel_pulses = 1;
+  // old PP definition
+  /*  args.veto_any_double_counts = true;
+  args.veto_max_muon_channel_pulses = true;
   args.max_muon_channel_pulses = 1;
+  args.veto_pp_window = false;
+  */
+  // new PP definition
+  args.veto_any_double_counts = false;
+  args.veto_max_muon_channel_pulses = false;
+  args.veto_pp_window = true;
+  args.pp_window = 20000;
 
   args.req_tgt_muon = true;
-  args.min_tgt_pulses = 1;
+  args.min_tgt_pulses = 0;
   //  args.muScCutLo = 3000;
   //  args.muScCutHi = 3500;
   

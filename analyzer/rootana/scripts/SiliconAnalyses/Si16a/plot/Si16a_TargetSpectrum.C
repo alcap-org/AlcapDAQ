@@ -8,7 +8,7 @@ void Si16a_TargetSpectrum(std::string infilename, std::string outfilename) {
   args.layername = "thin";
   args.outfilename = outfilename;
   args.min_energy = 0;
-  args.max_energy = 5000;
+  args.max_energy = 25000;
   args.energy_width = 10;
   args.min_time = -20000;
   args.max_time = 20000;

@@ -23,6 +23,8 @@ struct Unfold_ResponseMatrixArgs {
   std::string outfilename;
   std::string outdirname;
   int rebin_factor; // to get the folded spectrum to match the binning of the response matrix
+
+  std::string method;
 };
 
 void printIntegrals(TH1D* hUnfolded);
@@ -78,23 +80,37 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
     std::cout << "Error: Problem finding histogram " << args.datahistname << std::endl;
     return;
   }
-  std::string newname = "hFoldedSpectrum";
+  std::string newname = "hInputSpectrum";
   folded_spectrum->SetName(newname.c_str());
   folded_spectrum->Rebin(args.rebin_factor);
   std::stringstream axislabel;
   axislabel << "Folded Count / " << folded_spectrum->GetBinWidth(1) << " keV";
   folded_spectrum->SetYTitle(axislabel.str().c_str());
 
+
   TH2D* response_matrix = (TH2D*) response->Hresponse();
   newname = "hResponseMatrix";
   response_matrix->SetName(newname.c_str());
+
+  std::cout << "Unfolding ResponseMatrix: Input Bin Width = " << folded_spectrum->GetXaxis()->GetBinWidth(1) << ", Response Matrix Bin Width = " << response_matrix->GetXaxis()->GetBinWidth(1) << std::endl;
+
+  RooUnfold* unfold = 0;
+  if (args.method == "bayes") {
+    unfold = new RooUnfoldBayes(response, folded_spectrum);
+  }
+  else if (args.method == "svd") {
+    unfold = new RooUnfoldSvd(response, folded_spectrum);
+  }
+  else if (args.method == "bin-by-bin") {
+    unfold = new  RooUnfoldBinByBin(response, folded_spectrum);
+  }
+  else {
+    std::cout << "Unfold_ResponseMatrix: Unknown unfolding method " << args.method << std::endl;
+    return;
+  }
   
-  RooUnfoldBayes unfold (response, folded_spectrum);
-  //  RooUnfoldBinByBin unfold (response, folded_spectrum);
-  //  RooUnfoldSvd unfold (response, folded_spectrum);
-  
-  TH1D* unfolded_spectrum = (TH1D*) unfold.Hreco();
-  newname = "hUnfoldedSpectrum";
+  TH1D* unfolded_spectrum = (TH1D*) unfold->Hreco();
+  newname = "hCorrectedSpectrum";
   unfolded_spectrum->SetName(newname.c_str());
   //  unfolded_spectrum->Draw("HIST E SAMES");
   unfolded_spectrum->SetLineColor(kBlue);
@@ -114,7 +130,7 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   folded_spectrum->SetLineColor(kRed);
   folded_spectrum->SetLineWidth(2);
   //  folded_spectrum->Draw("HIST E SAMES");
-  //  unfold.PrintTable(std::cout);
+  //  unfold->PrintTable(std::cout);
 
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());

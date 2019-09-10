@@ -3,10 +3,9 @@
 void Si16a_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfilename) {
 
   RawSpectrum_fromEnergyTimeArgs args;
-  args.infilename = infilename;
-  args.inhistname = "Target_Thin_wNoThick/hEnergyTime";
-  
+  args.infilename = infilename;  
   args.outfilename = outfilename;
+  args.rebin_factor = 1;
 
   double min_time = -200;
   double max_time = 200;
@@ -16,15 +15,33 @@ void Si16a_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfil
 
   std::stringstream time_slice;
   time_slice.str("");
-  time_slice << "TimeSlice" << (int)args.min_time << "_" << (int)args.max_time;  
-  args.outdirname = "RawSpectrum_fromEnergyTime_Thin_wNoThick_" + time_slice.str();  
-  RawSpectrum_fromEnergyTime(args);
+  time_slice << "TimeSlice" << (int)args.min_time << "_" << (int)args.max_time;
 
   args.inhistname = "Target_Thin_All/hEnergyTime";
-  args.outdirname = "RawSpectrum_fromEnergyTime_Thin_All_" + time_slice.str();  
+  args.outdirname = "Thin_All_" + time_slice.str();  
+  RawSpectrum_fromEnergyTime(args);
+
+  args.inhistname = "Target_Thin_wNoThick/hEnergyTime";
+  args.outdirname = "Thin_wNoThick_" + time_slice.str();  
+  RawSpectrum_fromEnergyTime(args);
+
+  args.inhistname = "Target_Thin_wThick/hEnergyTime";
+  args.outdirname = "Thin_wThick_" + time_slice.str();  
   RawSpectrum_fromEnergyTime(args);
 
   args.inhistname = "SiT_All/hEnergyTime";
-  args.outdirname = "RawSpectrum_fromEnergyTime_SiT_All_" + time_slice.str();  
+  args.outdirname = "SiT_All_" + time_slice.str();  
+  RawSpectrum_fromEnergyTime(args);
+
+  args.inhistname = "Target_Thick_All/hEnergyTime";
+  args.outdirname = "Thick_All_" + time_slice.str();  
+  RawSpectrum_fromEnergyTime(args);
+
+  args.inhistname = "Target_Thick_wNoThin/hEnergyTime";
+  args.outdirname = "Thick_wNoThin_" + time_slice.str();  
+  RawSpectrum_fromEnergyTime(args);
+
+  args.inhistname = "Target_Thick_wThin/hEnergyTime";
+  args.outdirname = "Thick_wThin_" + time_slice.str();  
   RawSpectrum_fromEnergyTime(args);
 }

@@ -1,0 +1,115 @@
+void Si16b_FinalPlot_TwoLayer_TDiff() {
+
+  bool save_plots = true;
+  
+  std::string infilename = "~/data/results/Si16b/plots_newPP.root";
+  TFile* infile = new TFile(infilename.c_str(), "READ");
+  //  std::string histname = "SiR_LayerTDiff/hLayerTDiff";
+
+  const int n_particles = 5;
+  std::string particles[n_particles] = {"all", "proton", "deuteron", "triton", "alpha"};
+  std::string Particles[n_particles] = {"All", "Proton", "Deuteron", "Triton", "Alpha"};
+
+  const int n_fit_fns = 2;
+  TF1* fit_fns[n_fit_fns] = {0, 0};
+  std::string fit_names[n_fit_fns] = {"Double Gaussian Fit", "Single Gaussian Fit"};
+
+  for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
+
+    std::string particle = particles[i_particle];
+    std::string Particle = Particles[i_particle];
+    
+    std::string histname = particle + "_SiR_nolayercoinc/hTDiff_12not3";
+    std::string histtitle = Particle + " Hits (SiR1 && SiR && !SiR3)";
+
+    double layer_coinc_cut = 100;
+
+    //  gStyle->SetOptFit(1);
+
+    std::string canvasname = "c_tdiff_" + particle;
+    TCanvas* c_tdiff = new TCanvas(canvasname.c_str(), canvasname.c_str());
+    c_tdiff->SetLogy();
+  
+    TH1F* hLayerTDiff = (TH1F*) infile->Get(histname.c_str());
+
+    std::string fitname = "single_gaus_" + particle;
+    TF1* single_gaus = new TF1(fitname.c_str(), "[0]*TMath::Gaus(x,[1],[2])", -225,225);
+    single_gaus->SetParName(0, "Norm");
+    single_gaus->SetParName(1, "Mean");
+    single_gaus->SetParName(2, "Sigma");
+    single_gaus->SetParameters(100,0,100);
+    single_gaus->SetLineColor(kRed);
+    single_gaus->SetLineStyle(kDashed);
+
+    fitname = "double_gaus_" + particle;
+    TF1* double_gaus = new TF1(fitname.c_str(), "[0]*TMath::Gaus(x,[1],[2]) + [3]*TMath::Gaus(x,[4],[5])", -225,225);
+    double_gaus->SetParName(0, "Gaus 1 Norm");
+    double_gaus->SetParName(1, "Gaus 1 Mean");
+    double_gaus->SetParName(2, "Gaus 1 Sigma");
+    double_gaus->SetParName(3, "Gaus 2 Norm");
+    double_gaus->SetParName(4, "Gaus 2 Mean");
+    double_gaus->SetParName(5, "Gaus 2 Sigma");
+    double_gaus->SetParameters(100,0,100, 10,0,200);
+    double_gaus->SetLineColor(kBlue);
+    
+    std::stringstream text;
+    TLatex* latex = new TLatex();
+    latex->SetTextAlign(22);
+    
+    std::stringstream leglabel;
+    TLegend* leg = new TLegend(0.55,0.60,0.8,0.89);
+    leg->SetBorderSize(0);
+    leg->SetTextSize(0.03);
+    leg->SetFillColor(kWhite);
+    
+    hLayerTDiff->SetTitle(histtitle.c_str());
+    hLayerTDiff->SetStats(false);
+    hLayerTDiff->Draw("HIST E");
+    
+    fit_fns[0] = double_gaus; fit_fns[1] = single_gaus;
+    for (int i_fit_fn = 0; i_fit_fn < n_fit_fns; ++i_fit_fn) {
+      TF1* fit_fn = fit_fns[i_fit_fn];
+      TFitResultPtr result = hLayerTDiff->Fit(fit_fn, "R0S");
+      //      std::cout << "AE: " << result->Status() << std::endl;
+      //      result->Print();
+      if (result->Status() != 0) {
+	std::cout << "Failed fit" << std::endl;
+	continue;
+      }
+      
+      double total_integral = fit_fn->Integral(-2000,2000);
+      double integral_in_cut = fit_fn->Integral(-layer_coinc_cut, layer_coinc_cut);
+      double fraction = integral_in_cut / total_integral;
+      
+      std::cout << "AE: Fraction = " << integral_in_cut << " / " << total_integral << " = " << fraction << std::endl;
+      
+      fit_fn->Draw("LSAME");
+      
+      leglabel.str("");
+      leglabel << "#splitline{" << fit_names[i_fit_fn] << std::fixed << std::setprecision(2) << "}{#splitline{#chi^2 / ndf = " << fit_fn->GetChisquare() << " / " << fit_fn->GetNDF() << ", #sigma = " << fit_fn->GetParameter(2) << " ns}{Eff = " << fraction << "}}";
+      leg->AddEntry(fit_fn, leglabel.str().c_str(), "l");
+    }
+    leg->Draw();
+    
+    TLine* lower_cut = new TLine(-layer_coinc_cut, 0, -layer_coinc_cut, hLayerTDiff->GetMaximum());
+    lower_cut->SetLineWidth(2);
+    lower_cut->SetLineColor(kBlack);
+    lower_cut->Draw("LSAME");
+    TLine* upper_cut = new TLine(layer_coinc_cut, 0, layer_coinc_cut, hLayerTDiff->GetMaximum());
+    upper_cut->SetLineWidth(2);
+    upper_cut->SetLineColor(kBlack);
+    upper_cut->Draw("LSAME");
+    
+    text.str("");
+    text << std::fixed << std::setprecision(0) << -layer_coinc_cut << " ns < t_{diff} < " << layer_coinc_cut << " ns";
+    latex->DrawLatexNDC(0.275, 0.8, text.str().c_str());
+
+    if (save_plots) {
+      std::string plotname = "~/plots/2019-07-09/AlCapData_Si16bDataset_TwoLayer_LayerTDiff_" + Particle;
+      std::string pdfname = plotname + ".pdf";
+      std::string pngname = plotname + ".png";
+      c_tdiff->SaveAs(pdfname.c_str());
+      c_tdiff->SaveAs(pngname.c_str());
+    }
+  }
+}

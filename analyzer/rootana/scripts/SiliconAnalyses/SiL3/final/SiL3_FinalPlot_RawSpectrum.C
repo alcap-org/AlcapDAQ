@@ -1,6 +1,6 @@
 void SiL3_FinalPlot_RawSpectrum() {
 
-  std::string filename = "~/data/results/SiL3/raw_spectra_geq2TgtPulse.root";
+  std::string filename = "~/data/results/SiL3/raw_spectra_geq2TgtPulse_newPP20us.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_slices = 1;

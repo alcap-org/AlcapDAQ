@@ -18,6 +18,7 @@ struct Unfold_FinalNormalisationArgs {
   std::string counttreename;
 
   double capture_fraction;
+  int rebin_factor;
 };
 
 void Unfold_FinalNormalisation(const Unfold_FinalNormalisationArgs& args) {
@@ -55,14 +56,15 @@ void Unfold_FinalNormalisation(const Unfold_FinalNormalisationArgs& args) {
   hNormalisedSpectrum->Scale(scale);
   hNormalisedSpectrum->SetYTitle("Rate of Charged Particle Emission / captured muon");
 
+  hNormalisedSpectrum->Rebin(args.rebin_factor);
   scale = 1.0 / hNormalisedSpectrum->GetXaxis()->GetBinWidth(1);
   hNormalisedSpectrum->Scale(scale);
   hNormalisedSpectrum->SetYTitle("Rate of Charged Particle Emission / captured muon / keV");
   
   std::cout << "Unfolding FinalNormalisation: n_stopped_muons = " << n_stopped_muons << ", n_captured_muons = " << n_captured_muons << std::endl;
 
-  //  TF1* spectral_fit = new TF1("spectral_fit","[0]*(1 - [1]/x)^[2]*(exp(-x/[3]))",1400,30000);//27000);
-  TF1* spectral_fit = new TF1("spectral_fit","[0]*(1 - [1]/x)^[2]*(exp(-x/[3])+[4]*exp(-x/[5]))",1400,27000);
+  TF1* spectral_fit = new TF1("spectral_fit","[0]*(1 - [1]/x)^[2]*(exp(-x/[3]))",1400,30000);//27000);
+  //  TF1* spectral_fit = new TF1("spectral_fit","[0]*(1 - [1]/x)^[2]*(exp(-x/[3])+[4]*exp(-x/[5]))",1000,27000);
   spectral_fit->SetParName(0, "N");
   spectral_fit->SetParName(1, "T_{th}");
   spectral_fit->SetParName(2, "#alpha");
@@ -73,17 +75,17 @@ void Unfold_FinalNormalisation(const Unfold_FinalNormalisationArgs& args) {
   spectral_fit->SetParameter(2, 1.328);
   spectral_fit->SetParLimits(2, 0, 5);
   spectral_fit->SetParameter(3, 4600);
-  spectral_fit->SetParName(4, "r");
-  spectral_fit->SetParName(5, "T_{1}");
-  spectral_fit->SetParameter(4, 0.5);
-  spectral_fit->SetParLimits(4, 0, 10);
-  spectral_fit->SetParameter(5, 3800);
-  spectral_fit->SetParLimits(5, 0, 5000);
+  //  spectral_fit->SetParName(4, "r");
+  //  spectral_fit->SetParName(5, "T_{1}");
+  //  spectral_fit->SetParameter(4, 0.5);
+  //  spectral_fit->SetParLimits(4, 0, 100);
+  //  spectral_fit->SetParameter(5, 3800);
+  //  spectral_fit->SetParLimits(5, 0, 5000);
   TFitResultPtr fit_result = hNormalisedSpectrum->Fit(spectral_fit, "RMES");
-  if ( (Int_t) fit_result != 0) {
-    std::cout << "Unfolding FinalNormalisation: Fit Failed! Returning..." << std::endl;
-    return;
-  }
+  //  if ( (Int_t) fit_result != 0) {
+  //    std::cout << "Unfolding FinalNormalisation: Fit Failed! Returning..." << std::endl;
+  //    return;
+  //  }
   spectral_fit->SetLineWidth(2);
 
   
@@ -94,7 +96,12 @@ void Unfold_FinalNormalisation(const Unfold_FinalNormalisationArgs& args) {
   for (int i_range = 0; i_range < n_ranges; ++i_range) {
     double min_energy = min_energies[i_range];
     double max_energy = max_energies[i_range];
-    std::cout << "Integral (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << spectral_fit->Integral(min_energy, max_energy) << " #pm "  << spectral_fit->IntegralError(min_energy, max_energy) << std::endl;
+    std::cout << "Integral of fit (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << spectral_fit->Integral(min_energy, max_energy) << " #pm "  << spectral_fit->IntegralError(min_energy, max_energy) << std::endl;
+
+    int min_integral_bin = hNormalisedSpectrum->GetXaxis()->FindBin(min_energy);
+    int max_integral_bin = hNormalisedSpectrum->GetXaxis()->FindBin(max_energy);
+    double error = 0;
+    std::cout << "Integral of hist (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << hNormalisedSpectrum->IntegralAndError(min_integral_bin, max_integral_bin, error, "width") << " #pm "  << error << std::endl;
   }
 
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");

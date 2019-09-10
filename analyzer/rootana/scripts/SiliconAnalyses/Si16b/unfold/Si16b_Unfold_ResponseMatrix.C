@@ -13,5 +13,7 @@ void Si16b_Unfold_ResponseMatrix(std::string infilename, std::string outfilename
   args.mcresponsename = mcresponsename;
   args.rebin_factor = rebin_factor;
   args.outdirname = outdirname;
+  args.method = "bayes";
+  //  args.method = "svd";
   Unfold_ResponseMatrix(args);
 }

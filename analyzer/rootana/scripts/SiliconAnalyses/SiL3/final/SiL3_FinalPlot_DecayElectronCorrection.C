@@ -1,6 +1,6 @@
 void SiL3_FinalPlot_DecayElectronCorrection() {
 
-  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse.root";
+  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_slices = 1;
@@ -49,7 +49,7 @@ void SiL3_FinalPlot_DecayElectronCorrection() {
       return;
     }
 
-    int rebin_factor = 1;
+    int rebin_factor = 2;
     raw_spectrum->Rebin(rebin_factor);
     correction->Rebin(rebin_factor);
     corrected_spectrum->Rebin(rebin_factor);

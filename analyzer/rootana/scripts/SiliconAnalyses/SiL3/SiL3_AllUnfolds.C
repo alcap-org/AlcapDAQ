@@ -11,8 +11,8 @@ void SiL3_AllUnfolds() {
   //  std::string outfilename = "~/data/results/SiL3/unfold.root";
   //  std::string infilename = "~/data/results/SiL3/raw_spectra_wMuScCut_3000-3500ADC.root";
   //  std::string outfilename = "~/data/results/SiL3/unfold_wMuScCut_3000-3500ADC.root";
-  std::string infilename = "~/data/results/SiL3/raw_spectra_geq2TgtPulse.root";
-  std::string outfilename = "~/data/results/SiL3/unfold_geq2TgtPulse.root";
+  std::string infilename = "~/data/results/SiL3/raw_spectra_geq2TgtPulse_newPP20us.root";
+  std::string outfilename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
   //  std::string infilename = "~/data/results/SiL3/raw_spectra_v13.root";
   //  std::string outfilename = "~/data/results/SiL3/unfold_v13.root";
 
@@ -39,8 +39,8 @@ void SiL3_AllUnfolds() {
     std::string cutfilename = infilename;
     std::string cuttreename = indirname + "/cuttree";
     std::string corrfilename = infilename;
-    std::string corrdirname = "SiL3_ActiveTarget_FlatBkg";
-    //    std::string corrdirname = "SiL3_ActiveTarget_" + time_slice_str.str() + "_FlatBkg";
+    //    std::string corrdirname = "SiL3_ActiveTarget_FlatBkg";
+    std::string corrdirname = "SiL3_ActiveTarget_" + time_slice_str.str() + "_FlatBkg";
     std::string corrhistname = corrdirname + "/hRawSpectrum";
     std::string corrtreename = corrdirname + "/cuttree";
     std::string outdirname = "FlatBkg_" + time_slice_str.str();
@@ -68,27 +68,34 @@ void SiL3_AllUnfolds() {
     // Now take care of decay electron background
     inhistname = outdirname + "/hCorrectedSpectrum";
     //    corrfilename = "~/data/mc/SiL3/decayCorr_1M_Geom-P1_electrons-45-55MeV.root";
-    corrfilename = "~/data/mc/SiL3/decayCorr_10M_Geom-P1_muplus.root";
     //    corrfilename = "~/data/mc/SiL3/decayCorr_100k_Geom-P1_muplus_w1300umSiL3.root";
     //    corrfilename = "~/data/mc/SiL3/decayCorr_100k_Geom-P1_muplus_w1475umSiL3.root";
     //    corrfilename = "~/data/mc/SiL3/decayCorr_100k_Geom-P1_muplus_w2000umSiL3.root";
     //    corrfilename = "~/data/mc/SiL3/decayCorr_100k_Geom-P1_muplus_w1475umSiL3_wKFactor0-9.root";
     //    corrfilename = "~/data/mc/SiL3/decayCorr_test.root";
+    //        corrfilename = "~/data/mc/SiL3/decayCorr_10M_Geom-P1_muplus.root";
+    corrfilename = "~/data/mc/SiL3/decayCorr_1M_Geom-P1_muplus.root";
     corrhistname = "hEDep_muplus";
-    std::string countfilename = "~/data/results/SiL3/normalisation_geq1TgtPulse.root";
-    std::string counttreename = "XRaySpectrum_GeLoGain_noTimeCut/counttree";
+    std::string countfilename = "~/data/results/SiL3/normalisation_geq0TgtPulse_newPP20us.root";
+    std::string counttreename = "XRaySpectrum_GeLoGain_2p1s_200nsTimeCut/counttree";
     outdirname = "DecayElectron_" + time_slice_str.str();
     SiL3_Unfold_DecayElectronCorrection(outfilename, inhistname, corrfilename, corrhistname, countfilename, counttreename, outfilename, outdirname);
+    
+    // Finally unfold the proton escape correction
+    inhistname = outdirname + "/hCorrectedSpectrum";
+    outdirname = "ProtonEscape_" + time_slice_str.str();
+    SiL3_Unfold_ResponseMatrix(outfilename, outfilename, inhistname, outdirname, "proton");
+
+    //    inhistname = "DecayElectron_" + time_slice_str.str() + "/hCorrectedSpectrum";
+    //    outdirname = "DeuteronEscape_" + time_slice_str.str();
+    //    SiL3_Unfold_ResponseMatrix(outfilename, outfilename, inhistname, outdirname, "deuteron");
+
+    //    inhistname = "DecayElectron_" + time_slice_str.str() + "/hCorrectedSpectrum";
+    //    outdirname = "CombinedEscape_" + time_slice_str.str();
+    //    SiL3_Unfold_ResponseMatrix(outfilename, outfilename, inhistname, outdirname, "combined");
 
     inhistname = outdirname + "/hCorrectedSpectrum";
     outdirname = "FinalNormalisation_" + time_slice_str.str();
     SiL3_Unfold_FinalNormalisation(outfilename, inhistname, countfilename, counttreename, outfilename, outdirname);
-    
-    /*
-    // Finally unfold the proton escape correction
-    inhistname = "TimeCut_" + time_slice_str.str() + "/hCorrectedSpectrum";
-    outdirname = "ProtonEscapeCorrection_" + time_slice_str.str();
-    SiL3_Unfold_ResponseMatrix(outfilename, outfilename, inhistname, outdirname);
-    */
   }
 }

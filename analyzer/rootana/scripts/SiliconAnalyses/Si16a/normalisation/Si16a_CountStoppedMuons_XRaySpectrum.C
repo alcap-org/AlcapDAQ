@@ -17,7 +17,7 @@ void Si16a_CountStoppedMuons_XRaySpectrum(std::string infilename, std::string ou
 
     args.material = "Si";
     args.transition = "2p-1s";
-    args.rebin_factor = 1;
+    args.rebin_factor = 3;
     args.fit_window_min = -10;
     args.fit_window_max = 10;
 
@@ -27,8 +27,8 @@ void Si16a_CountStoppedMuons_XRaySpectrum(std::string infilename, std::string ou
     CountStoppedMuons_XRaySpectrum(args);
 
     args.outdirname = "XRaySpectrum_" + args.channel + "_noTimeCut";
-    args.min_time = -20000;
-    args.max_time = 20000;
+    args.min_time = -5000;
+    args.max_time = 5000;
     CountStoppedMuons_XRaySpectrum(args);
   }
 }

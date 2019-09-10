@@ -3,7 +3,7 @@ void SiL3_FinalPlot_NormalisedSpectrum() {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
     
-  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse.root";
+  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
   TFile* file = new TFile(filename.c_str(), "READ");
   
   const int n_slices = 1;
@@ -17,7 +17,7 @@ void SiL3_FinalPlot_NormalisedSpectrum() {
   leg->SetTextSize(0.035);
   leg->SetFillColor(kWhite);
   
-  int rebin_factor = 5;
+  int rebin_factor = 2;
   std::stringstream time_slice_str, leglabel;
   for (int i_slice = 0; i_slice < n_slices; ++i_slice) {
     double i_min_time_slice = min_time_slices[i_slice];
@@ -32,11 +32,11 @@ void SiL3_FinalPlot_NormalisedSpectrum() {
     std::string i_histname = i_dirname + "/hNormalisedSpectrum";
 
     TH1F* spectrum = (TH1F*) file->Get(i_histname.c_str());
-    spectrum->Sumw2();
     if (!spectrum) {
       std::cout << "Error: Problem getting spectrum " << i_histname << std::endl;
       return;
     }
+    spectrum->Sumw2();
 
     spectrum->SetTitle("SiL3 Dataset, Active Target Analysis, Charged Particle Emission Spectrum");
     spectrum->Rebin(rebin_factor);

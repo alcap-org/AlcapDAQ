@@ -64,7 +64,16 @@ void SiL3_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfile
   args.max_time = -min_time;
   args.outdirname = "SiL3_ActiveTarget_" + time_slice.str() + "_FlatBkg";  
   RawSpectrum_fromEnergyTime(args);
+  
+  args.inhistname = "Target/hEnergyTime";
+  args.min_time = -200;
+  args.max_time = 200;
+  time_slice.str("");
+  time_slice << "TimeSlice" << (int)args.min_time << "_" << (int)args.max_time;  
+  args.outdirname = "SiL3_ActiveTarget_" + time_slice.str();
+  RawSpectrum_fromEnergyTime(args);
 
+  /*
   args.min_time = 6000;
   args.max_time = 20000;
   time_slice.str("");
@@ -76,7 +85,9 @@ void SiL3_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfile
   args.max_time = -6000;
   args.outdirname = "SiL3_ActiveTarget_" + time_slice.str() + "_FlatBkg";  
   RawSpectrum_fromEnergyTime(args);
+  */
 
+  /*
   // Do the flat bkg
   //  args.inhistname = "FlatBkg/hEnergyTime";
   args.inhistname = "Target/hEnergyTime";
@@ -86,11 +97,5 @@ void SiL3_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfile
   RawSpectrum_fromEnergyTime(args);
 
   // for MIP peak
-  args.inhistname = "Target/hEnergyTime";
-  args.min_time = -200;
-  args.max_time = 200;
-  time_slice.str("");
-  time_slice << "TimeSlice" << (int)args.min_time << "_" << (int)args.max_time;  
-  args.outdirname = "SiL3_ActiveTarget_" + time_slice.str();
-  RawSpectrum_fromEnergyTime(args);
+  */
 }

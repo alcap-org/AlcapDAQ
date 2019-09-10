@@ -18,7 +18,7 @@ void SiL3_TargetSpectrum(std::string infilename, std::string outfilename) {
   args.energy_width = 25;
   args.min_time = -20000;
   args.max_time = 20000;
-  args.time_width = 100;
+  args.time_width = 50;
   TargetSpectrum(args);
 
   //  args.outdirname = "FlatBkg";

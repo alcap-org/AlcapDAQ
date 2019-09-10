@@ -1,8 +1,11 @@
 void Si16b_FinalPlot_ResponseMatrix() {
 
-  std::string infilename = "~/data/results/Si16b/unfold.root";
+  std::string infilename = "~/data/results/Si16b/unfold_newPP.root";
+  //  std::string particle = "proton";
+  //  std::string particle = "deuteron";
+  //  std::string particle = "triton";
   std::string particle = "alpha";
-  std::string inhistname = particle + "/hResponseMatrix";
+  std::string inhistname = "ResponseMatrix_" + particle + "_TCutG/hResponseMatrix";
   
   TFile* infile = new TFile(infilename.c_str(), "READ");
   TH2F* hResponseMatrix = (TH2F*) infile->Get(inhistname.c_str());

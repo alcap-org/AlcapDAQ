@@ -7,9 +7,16 @@ void Si16b_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfil
   args.outfilename = outfilename;
 
   args.rebin_factor = 1;
+  
+  // Here is the target
+  args.inhistname = "Target/hEnergyTime";
+  args.min_time = -200;
+  args.max_time = 200;
+  args.outdirname = "Target";
+  RawSpectrum_fromEnergyTime(args);
 
-
-  const int n_time_slices = 3;
+  /* No longer doing inclusive analyses
+  const int n_time_slices = 4;
   double min_time_slices[n_time_slices] = {1000, 2000, 1000};
   double max_time_slices[n_time_slices] = {2000, 5000, 5000};
   std::stringstream time_slice;
@@ -62,11 +69,5 @@ void Si16b_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfil
       RawSpectrum_fromEnergyTime(args);
     }
   }
-
-  // Here is the target
-  args.inhistname = "Target/hEnergyTime";
-  args.min_time = -300;
-  args.max_time = 300;
-  args.outdirname = "Target";
-  RawSpectrum_fromEnergyTime(args);
+  */
 }
