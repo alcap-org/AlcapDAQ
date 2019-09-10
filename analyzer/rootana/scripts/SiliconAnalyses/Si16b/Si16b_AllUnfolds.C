@@ -1,14 +1,14 @@
-#include "scripts/SiliconAnalyses/Si16b/unfold/Si16b_Unfold_ResponseMatrix.C"
-#include "scripts/SiliconAnalyses/Si16b/unfold/Si16b_Unfold_TimeCut.C"
-#include "scripts/SiliconAnalyses/Si16b/unfold/Si16b_Unfold_FlatBackground.C"
-#include "scripts/SiliconAnalyses/Si16b/unfold/Si16b_Unfold_DecayElectronCorrection.C"
-#include "scripts/SiliconAnalyses/Si16b/unfold/Si16b_Unfold_GeometricAcceptance.C"
-#include "scripts/SiliconAnalyses/Si16b/unfold/Si16b_Unfold_FinalNormalisation.C"
-#include "scripts/SiliconAnalyses/Si16b/unfold/Si16b_Unfold_PIDCutEfficiency.C"
+#include "unfold/Si16b_Unfold_ResponseMatrix.C"
+#include "unfold/Si16b_Unfold_TimeCut.C"
+#include "unfold/Si16b_Unfold_FlatBackground.C"
+#include "unfold/Si16b_Unfold_DecayElectronCorrection.C"
+#include "unfold/Si16b_Unfold_GeometricAcceptance.C"
+#include "unfold/Si16b_Unfold_FinalNormalisation.C"
+#include "unfold/Si16b_Unfold_PIDCutEfficiency.C"
 
 void Si16b_AllUnfolds() {
 
-  //  gROOT->ProcessLine(".L scripts/Unfolding/bayesian-unfolding/libRooUnfold.so");
+  gROOT->ProcessLine(".L ~/libRooUnfold.so");
 
   std::string infilename = "~/data/results/Si16b/raw_spectra_newPP.root";
   std::string outfilename = "~/data/results/Si16b/unfold_newPP.root";
@@ -64,6 +64,10 @@ void Si16b_AllUnfolds() {
 
       mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5-lowerE_" + i_particle_name + ".root";
       outdirname = "ResponseMatrix_" + i_particle_name + "_" + i_pid + "_lowerE";
+      Si16b_Unfold_ResponseMatrix(outfilename, outfilename, datahistname, mcfilename, mcresponsename, rebin_factor, outdirname);
+
+      mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5-lowestE_" + i_particle_name + ".root";
+      outdirname = "ResponseMatrix_" + i_particle_name + "_" + i_pid + "_lowestE";
       Si16b_Unfold_ResponseMatrix(outfilename, outfilename, datahistname, mcfilename, mcresponsename, rebin_factor, outdirname);
 
       mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5-1mmCloserSiR_" + i_particle_name + ".root";
