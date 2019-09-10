@@ -1,10 +1,10 @@
-#include "scripts/SiliconAnalyses/Utils/TMELoop.C"
+#include "../Utils/TMELoop.C"
 
 void Si16b_TMELoop() {
   TMELoopArgs args;
   args.infilename = "~/data/out/v10/Si16b.root";
   args.tmetreename = "TMETree/TMETree";
-  args.outfilename = "~/data/results/Si16b/subtrees_newPP_test.root";
+  args.outfilename = "~/data/results/Si16b/subtrees_newPP15us.root";
   //  args.n_entries = -1; // run for all TMEs
   args.n_entries = 1000000;
 
@@ -265,7 +265,8 @@ void Si16b_TMELoop() {
   args.veto_any_double_counts = false;
   args.veto_max_muon_channel_pulses = false;
   args.veto_pp_window = true;
-  args.pp_window = 10000;
+  //  args.pp_window = 10000;
+  args.pp_window = 15000;
 
   TMELoop(args);
 }

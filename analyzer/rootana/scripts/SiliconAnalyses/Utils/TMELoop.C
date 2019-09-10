@@ -4,8 +4,8 @@
 
 #include "TF1.h"
 
-#include "scripts/TMETree/AlCapConstants.h"
-#include "scripts/TMETree/TMETreeBranches.h"
+#include "../../TMETree/AlCapConstants.h"
+#include "../../TMETree/TMETreeBranches.h"
 
 #include <iostream>
 
