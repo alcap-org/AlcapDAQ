@@ -7,7 +7,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "scripts/Al50/psel.h"
+#include "../../Al50/psel.h"
 
 enum PSelParticle {invalid=-1, proton=0, deuteron, triton, alpha};
 

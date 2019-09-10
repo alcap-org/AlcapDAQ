@@ -1,4 +1,4 @@
-#include "../../Utils/Utils/XRaySpectrum_wTargetCoinc.C"
+#include "../../Utils/XRaySpectrum_wTargetCoinc.C"
 
 void Si16b_XRaySpectrum_wTargetCoinc(std::string infilename, std::string outfilename) {
 

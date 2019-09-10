@@ -1,8 +1,8 @@
 #ifndef AL50_UTIL_H_
 #define AL50_UTIL_H_
 
-#include "./scripts/TMETree/TMEUtils.h"
-#include "./src/plotters/SimplePulse.h"
+#include "../TMETree/TMEUtils.h"
+#include "../../src/plotters/SimplePulse.h"
 
 #include "TAxis.h"
 #include "TH1.h"

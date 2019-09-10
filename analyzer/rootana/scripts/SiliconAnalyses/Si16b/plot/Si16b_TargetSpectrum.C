@@ -1,4 +1,4 @@
-#include "../../Utils/Utils/TargetSpectrum.C"
+#include "../../Utils/TargetSpectrum.C"
 
 void Si16b_TargetSpectrum(std::string infilename, std::string outfilename) {
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./scripts/TMETree/TMETreeBranches.h"
-#include "./src/plotters/SimplePulse.h"
+#include "TMETreeBranches.h"
+#include "../../src/plotters/SimplePulse.h"
 
 namespace TMECuts {
   bool OnlyOneHit(const std::vector<SimplePulse>* sps) {

@@ -9,7 +9,7 @@
 #include "TTree.h"
 
 #include "AlCapConstants.h"
-#include "src/plotters/SimplePulse.h"
+#include "../../src/plotters/SimplePulse.h"
 
 #include "TBranch.h"
 #include "TTree.h"
