@@ -1,4 +1,4 @@
-#include "scripts/SiliconAnalyses/Utils/TargetSpectrum.C"
+#include "../../Utils/Utils/TargetSpectrum.C"
 
 void Si16b_TargetSpectrum(std::string infilename, std::string outfilename) {
 

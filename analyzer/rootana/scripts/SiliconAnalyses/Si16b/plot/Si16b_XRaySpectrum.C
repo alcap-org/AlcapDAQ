@@ -1,4 +1,4 @@
-#include "scripts/SiliconAnalyses/Utils/XRaySpectrum.C"
+#include "../../Utils/Utils/XRaySpectrum.C"
 
 void Si16b_XRaySpectrum(std::string infilename, std::string outfilename) {
 

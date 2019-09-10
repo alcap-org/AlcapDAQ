@@ -1,4 +1,4 @@
-#include "scripts/SiliconAnalyses/Utils/EvdEPlot.C"
+#include "../../Utils/Utils/EvdEPlot.C"
 
 struct Setting {
   Setting(std::string name, std::string cutfilename, std::string cutname, PSelParticle psel_part = invalid)
@@ -122,9 +122,9 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
 	outdirname.str("");
 	outdirname << i_setting->name << "_" << tree << "_timecut" << min_timecuts[i_timecut] << "_" << max_timecuts[i_timecut] << "ns_" << layer_coincidence;
 	args.outdirname = outdirname.str();
-	args.do_thin_time_cut = true;
-	args.min_thin_time_cut = min_timecuts[i_timecut];
-	args.max_thin_time_cut = max_timecuts[i_timecut];
+	args.do_thick_time_cut = true;
+	args.min_thick_time_cut = min_timecuts[i_timecut];
+	args.max_thick_time_cut = max_timecuts[i_timecut];
 	EvdEPlot(args);
 
 	if (i_setting->psel_part != invalid) {
@@ -142,7 +142,7 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
 	}
 	args.do_cut = original_do_cut;
       }
-      args.do_thin_time_cut = false;
+      args.do_thick_time_cut = false;
     }
 
     /*

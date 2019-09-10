@@ -1,4 +1,4 @@
-#include "scripts/SiliconAnalyses/Utils/SiTEnergy.C"
+#include "../../Utils/Utils/SiTEnergy.C"
 
 void Si16b_SiTEnergy(std::string infilename, std::string outfilename) {
 

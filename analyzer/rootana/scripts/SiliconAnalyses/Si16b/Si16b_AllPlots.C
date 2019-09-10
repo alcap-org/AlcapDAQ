@@ -1,10 +1,8 @@
-#include "scripts/SiliconAnalyses/Si16b/plot/Si16b_SiTEnergy.C"
-#include "scripts/SiliconAnalyses/Si16b/plot/Si16b_EvdEPlot.C"
-#include "scripts/SiliconAnalyses/Si16b/plot/Si16b_XRaySpectrum.C"
-#include "scripts/SiliconAnalyses/Si16b/plot/Si16b_TargetSpectrum.C"
-#include "scripts/SiliconAnalyses/Si16b/plot/Si16b_XRaySpectrum_wTargetCoinc.C"
-#include "scripts/SiliconAnalyses/Si16b/plot/Si16b_RemoveFlatBkg.C"
-#include "scripts/SiliconAnalyses/Si16b/plot/Si16b_LayerTDiff.C"
+#include "plot/Si16b_SiTEnergy.C"
+#include "plot/Si16b_EvdEPlot.C"
+#include "plot/Si16b_XRaySpectrum.C"
+#include "plot/Si16b_TargetSpectrum.C"
+#include "plot/Si16b_XRaySpectrum_wTargetCoinc.C"
 
 void Si16b_AllPlots() {
 
