@@ -1,11 +1,12 @@
-#include "scripts/SiliconAnalyses/Utils/CountStoppedMuons_XRaySpectrum.C"
-#include "scripts/SiliconAnalyses/Utils/CountStoppedMuons_TargetSpectrum.C"
+#include "../../Utils/CountStoppedMuons_XRaySpectrum.C"
+#include "../../Utils/CountStoppedMuons_TargetSpectrum.C"
 
 void Si16b_CountStoppedMuons_XRaySpectrum_wTargetCoinc(std::string infilename, std::string outfilename) {
 
   double first_muon_energy_slice = 0;
   double last_muon_energy_slice = 1500;
-  double muon_energy_slice = 100;
+  //  double muon_energy_slice = 100;
+  double muon_energy_slice = 1500;
   
   std::stringstream muon_slice;
   

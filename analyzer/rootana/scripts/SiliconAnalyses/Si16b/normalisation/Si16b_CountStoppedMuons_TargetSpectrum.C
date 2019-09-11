@@ -1,4 +1,4 @@
-#include "scripts/SiliconAnalyses/Utils/CountStoppedMuons_TargetSpectrum.C"
+#include "../../Utils/CountStoppedMuons_TargetSpectrum.C"
 
 void Si16b_CountStoppedMuons_TargetSpectrum(std::string infilename, std::string outfilename) {
 

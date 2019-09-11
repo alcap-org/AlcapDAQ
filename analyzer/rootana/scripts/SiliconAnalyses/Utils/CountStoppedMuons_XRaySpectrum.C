@@ -8,7 +8,7 @@
 
 #include "RooFitResult.h"
 
-#include "scripts/XRayAnalysis/XRayUtils.h"
+#include "../../XRayAnalysis/XRayUtils.h"
 
 struct CountStoppedMuons_XRaySpectrumArgs {
   std::string infilename;
@@ -64,6 +64,7 @@ void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& ar
     hGe_Spectrum->Rebin(rebin_factor);
     double xray_energy_low = xray.energy+args.fit_window_min;
     double xray_energy_high = xray.energy+args.fit_window_max;
+    
     ws = FitPeak("ws", xray_energy_low, xray_energy_high, hGe_Spectrum, &xray);
     
     result = (RooFitResult*)ws->genobj("fitresult_sum_data");

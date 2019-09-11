@@ -6,7 +6,7 @@
 #include "TH2.h"
 #include "TTree.h"
 
-#include "scripts/XRayAnalysis/XRayUtils.h"
+#include "../../XRayAnalysis/XRayUtils.h"
 
 struct CountStoppedMuons_TargetSpectrumArgs {
   std::string infilename;
@@ -30,6 +30,7 @@ void CountStoppedMuons_TargetSpectrum(CountStoppedMuons_TargetSpectrumArgs& args
   TH2F* hEnergyTime = (TH2F*) file->Get(args.inhistname.c_str());
   if (!hEnergyTime) {
     std::cout << "Problem getting histogram " << args.inhistname.c_str() << std::endl;
+    return;
   }
 
  

@@ -116,6 +116,40 @@ int FillXRayInfo(XRay& xray, std::string channel) {
       xray.intensity_error = 0.0001;//??
       std::cout << "Warning: Unknown direct efficiency for this peak" << std::endl;
     }
+    else if (xray.transition == "Capture843keV") {
+      xray.energy = 843.74;
+      xray.intensity = 0.099;
+      xray.intensity_error = 0.001;//??
+      if (channel == "GeLoGain") {
+	xray.efficiency = 2.90e-4;
+	xray.efficiency_error = 0.07e-4;
+      }
+      else if (channel == "GeHiGain") {
+	xray.efficiency = 2.88e-4;
+	xray.efficiency_error = 0.07e-4;
+      }
+      else {
+	std::cout << "Error: Unknown channel (" << channel << ")" << std::endl;
+	return 1;
+      }
+    }
+    else if (xray.transition == "Capture1014keV") {
+      xray.energy = 1014.42;
+      xray.intensity = 0.0921;
+      xray.intensity_error = 0.001;//??
+      if (channel == "GeLoGain") {
+	xray.efficiency = 2.44e-4;
+	xray.efficiency_error = 0.001e-4;//??
+      }
+      else if (channel == "GeHiGain") {
+	xray.efficiency = 2.42e-4;
+	xray.efficiency_error = 0.001e-4;//??
+      }
+      else {
+	std::cout << "Error: Unknown channel (" << channel << ")" << std::endl;
+	return 1;
+      }
+    }
     
     else {
       std::cout << "Error: Unknown transition (" << xray.transition << ")" << std::endl;
@@ -237,7 +271,7 @@ RooWorkspace* FitPeak(std::string wsname, double energy_low, double energy_high,
   int n_fit_params = 0;
 
   // Create the workspace and functions for fitting and create the summed pdf as we go
-  RooWorkspace* ws = new RooWorkspace(wsname.c_str(), kTRUE);
+  RooWorkspace* ws = new RooWorkspace(wsname.c_str(), kFALSE); // don't export to CINT
   std::stringstream factory_cmd, sum_factory_cmd;
   sum_factory_cmd << "SUM::sum(";
 

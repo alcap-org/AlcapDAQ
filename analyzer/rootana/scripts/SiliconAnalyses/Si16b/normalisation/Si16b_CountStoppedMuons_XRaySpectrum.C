@@ -1,4 +1,4 @@
-#include "scripts/SiliconAnalyses/Utils/CountStoppedMuons_XRaySpectrum.C"
+#include "../../Utils/CountStoppedMuons_XRaySpectrum.C"
 
 void Si16b_CountStoppedMuons_XRaySpectrum(std::string infilename, std::string outfilename) {
 
