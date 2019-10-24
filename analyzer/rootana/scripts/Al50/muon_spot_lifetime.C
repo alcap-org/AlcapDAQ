@@ -1,51 +1,112 @@
-{
-  TCanvas* c = new TCanvas();
-  TChain* ch = new TChain();
-  ch->Add("data/pselal50.root/PID_R1P");
-  ch->Add("data/pselal50.root/PID_R1D");
-  ch->Add("data/pselal50.root/PID_R1T");
-  ch->Add("data/pselal50.root/PID_R1A");
-  ch->Add("data/pselal50.root/PID_R1U");
-  ch->Add("data/pselal50.root/PID_R2P");
-  ch->Add("data/pselal50.root/PID_R2D");
-  ch->Add("data/pselal50.root/PID_R2T");
-  ch->Add("data/pselal50.root/PID_R2A");
-  ch->Add("data/pselal50.root/PID_R2U");
-  ch->Add("data/pselal50.root/PID_R3P");
-  ch->Add("data/pselal50.root/PID_R3D");
-  ch->Add("data/pselal50.root/PID_R3T");
-  ch->Add("data/pselal50.root/PID_R3A");
-  ch->Add("data/pselal50.root/PID_R3U");
-  ch->Add("data/pselal50.root/PID_R4P");
-  ch->Add("data/pselal50.root/PID_R4D");
-  ch->Add("data/pselal50.root/PID_R4T");
-  ch->Add("data/pselal50.root/PID_R4A");
-  ch->Add("data/pselal50.root/PID_R4U");
+#include "scripts/Al50/util.h"
 
-  TBox* muspot1 = new TBox(1200, 600, 2000, 1200);
-  TBox* muspot2 = new TBox(900, 300,  1500,  800);
-  muspot1->SetLineWidth(3);
-  muspot2->SetLineWidth(3);
-  ch->Draw("de:e>>hall(200, 0, 5e3, 108, 300, 3e3)");
-  ch->Draw("de:e>>hearly(200, 0, 5e3, 108, 300, 3e3)",  "t<400");
-  ch->Draw("de:e>>hlate(200, 0, 5e3, 108, 300, 3e3)",   "400<t");
-  ch->Draw("de:e>>hprompt(200, 0, 5e3, 108, 300, 3e3)", "-200<t && t<200");
-  ch->Draw("t>>htimemu1(150,-500,1000)",  "600<de && de<1200 && 1200<e && e<2000");
-  ch->Draw("t>>htimemu2(150,-500,1000)", "300<de && de<800  && 900<e  && e<1500");
+#include "TBox.h"
+#include "TCanvas.h"
+#include "TChain.h"
+#include "TDirectory.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TString.h"
+#include "TText.h"
+
+#include <iostream>
+#include <vector>
+
+TChain* BuildPIDTMEChain() {
+  TChain* ch = new TChain();
+  ch->Add("data/Al50/psel.3layer.root/PID_RP");
+  ch->Add("data/Al50/psel.3layer.root/PID_RD");
+  ch->Add("data/Al50/psel.3layer.root/PID_RT");
+  ch->Add("data/Al50/psel.3layer.root/PID_RA");
+  ch->Add("data/Al50/psel.3layer.root/PID_RU");
+  return ch;
+}
+
+TChain* BuildNonTMEChain() {
+  TChain* ch = new TChain("TMETree/NonTMETree");
+  // ch->Add("~/R15bTME/Al50/tme09890.root");
+  ch->Add("~/R15bTME/Al50/tme09891.root");
+  // ch->Add("~/R15bTME/Al50/tme*.root");
+  SetTMEBranchAddresses(ch);
+  CollectChannels();
+  return ch;
+}
+
+void BuildTMEdEvEHists(TChain* ch, TH2*& hall, TH2*& hearly, TH2*& hlate,
+                       TH2*& hprompt) {
+  ch->Draw("de:e>>hall(200, 0, 5e3, 108, 300, 3e3)",    "",                "goff");
+  ch->Draw("de:e>>hearly(200, 0, 5e3, 108, 300, 3e3)",  "t<400",           "goff");
+  ch->Draw("de:e>>hlate(200, 0, 5e3, 108, 300, 3e3)",   "400<t",           "goff");
+  ch->Draw("de:e>>hprompt(200, 0, 5e3, 108, 300, 3e3)", "-200<t && t<200", "goff");
+  hall    = (TH2*)gDirectory->Get("hall");
+  hearly  = (TH2*)gDirectory->Get("hearly");
+  hlate   = (TH2*)gDirectory->Get("hlate");
+  hprompt = (TH2*)gDirectory->Get("hprompt");
   hall    ->SetTitle("SiR dE vs E (No time cut);E [keV];dE [keV]");
   hprompt ->SetTitle("SiR dE vs E (-200ns<t && t<200ns);E [keV];dE [keV]");
   hearly  ->SetTitle("SiR dE vs E (t<400ns);E [keV];dE [keV]");
   hlate   ->SetTitle("SiR dE vs E (400ns<t);E [keV];dE [keV]");
+  HistUtils::MatchMaximums(std::vector<TH2*>{hall, hearly, hlate, hprompt});
+}
+
+void BuildNonTMEdEvEHist(TChain* ch, TH2*& hnontme) {
+  hnontme = new TH2D("hnontme", "SiR dE vs E (NonTME);E [keV];dE [keV]",
+                     200, 0, 5e3, 108, 300, 3e3);
+  for (int ev = 0; ev < ch->GetEntries(); ++ev) {
+    ch->GetEntry(ev);
+    std::cout << SiR2 << std::endl;
+    if (ev % 100000 == 0) std::cout << ev << "/" << ch->GetEntries() << std::endl;
+    for (int i = 0; i < SiR2->size(); ++i) {
+      for (int j = 0; j < all_SiR1_channels.size(); ++j) {
+        for (int k = 0; k < all_SiR1_channels[j]->size(); ++k) {
+          std::cout << SiR2->size() << " " << j << " " << all_SiR1_channels[j]->size() << std::endl;
+          if (std::abs(all_SiR1_channels[j]->at(k).tblock-SiR2->at(i).tblock)<200) {
+            hnontme->Fill(SiR2->at(i).E+all_SiR1_channels[j]->at(k).E,
+                          all_SiR1_channels[j]->at(k).E);
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
+void BuildTMETimeHists(TChain* ch, TH1*& htimemu1, TH1*& htimemu2) {
+  ch->Draw("t>>htimemu1(150,-500,1000)", "600<de && de<1200 && 1200<e && e<2000", "goff");
+  ch->Draw("t>>htimemu2(150,-500,1000)", "300<de && de<800  && 900<e  && e<1500", "goff");
+  htimemu1 = (TH1*)gDirectory->Get("htimemu1");
+  htimemu2 = (TH1*)gDirectory->Get("htimemu2");
   htimemu1->SetTitle("SiR Muon Spot Time;t [ns];Height Normalized");
   htimemu2->SetTitle("SiR Muon Spot Time;t [ns];Height Normalized");
   htimemu1->SetStats(false);
   htimemu2->SetStats(false);
   htimemu1->SetLineColor(1);
   htimemu2->SetLineColor(2);
-  muspot1->SetFillStyle(0);
-  muspot2->SetFillStyle(0);
-  muspot1->SetLineColor(1);
-  muspot2->SetLineColor(2);
+}
+
+void BuildMuSpotBoxes(TBox*& b1, TBox*& b2) {
+  b1 = new TBox(1200, 600, 2000, 1200);
+  b2 = new TBox(900, 300,  1500,  800);
+  b1->SetLineWidth(3);
+  b2->SetLineWidth(3);
+  b1->SetFillStyle(0);
+  b2->SetFillStyle(0);
+  b1->SetLineColor(1);
+  b2->SetLineColor(2);
+}
+
+void muon_spot_lifetime() {
+  TCanvas* c = new TCanvas();
+  TChain* tmes = BuildPIDTMEChain();
+  TChain* nontmes = BuildNonTMEChain();
+
+  TBox *muspot1, *muspot2;
+  BuildMuSpotBoxes(muspot1, muspot2);
+  TH2 *hall, *hearly, *hlate, *hprompt, *hnontme;
+  BuildTMEdEvEHists(tmes, hall, hearly, hlate, hprompt);
+  BuildNonTMEdEvEHist(nontmes, hnontme);
+  TH1 *htimemu1, *htimemu2;
+  BuildTMETimeHists(tmes, htimemu1, htimemu2);
 
   TCanvas* cevde = new TCanvas("cevde", "EvdE Plots", 1400, 1000);
   cevde  ->Divide(2,2);
@@ -58,6 +119,13 @@
   cevde  ->cd(4);
   hlate  ->Draw("COL");
   cevde  ->SaveAs("img/evde_r_tcuts.png");
+
+  TCanvas* cnontme = new TCanvas("cnontme", "EvdE Plots", 1400, 500);
+  cnontme->Divide(2);
+  cnontme->cd(1);
+  hall->Draw("COL");
+  cnontme->cd(2);
+  hnontme->Draw("COL");
 
   TCanvas* ct = new TCanvas("ct", "Muon Spots", 1400, 500);
   ct->Divide(2);

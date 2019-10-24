@@ -60,7 +60,7 @@ std::vector<SimplePulse>* SiL1_12 = 0;
 std::vector<SimplePulse>* SiL1_13 = 0;
 std::vector<SimplePulse>* SiL1_14 = 0;
 std::vector<SimplePulse>* SiL1_15 = 0;
-//std::vector<SimplePulse>* SiL1_16 = 0;
+std::vector<SimplePulse>* SiL1_16 = 0;
 std::vector< std::vector<SimplePulse>* > all_SiL1_channels(n_SiL1_channels);
 
 std::vector<SimplePulse>* SiL3 = 0;
@@ -82,188 +82,50 @@ std::vector< std::vector<SimplePulse>* > all_channels(n_all_channels);
 
 std::vector<SimplePulse>* empty = 0;
 
-
 void SetTMEBranchAddresses(TTree* tmetree) {
+  tmetree->SetBranchStatus("*", true);
 
-  TBranch* br_runId = tmetree->GetBranch("runId");
-  TBranch* br_blockId = tmetree->GetBranch("blockId");
-
-  TBranch* br_TMEId                  = tmetree->GetBranch("TMEId");
-  TBranch* br_TMEWindowWidth         = tmetree->GetBranch("TMEWindowWidth");
-  TBranch* br_centralMuonChannel     = tmetree->GetBranch("centralMuonChannel");
-  TBranch* br_centralMuonTPIID       = tmetree->GetBranch("centralMuonTPIID");
-  TBranch* br_centralMuonEnergy      = tmetree->GetBranch("centralMuonEnergy");
-  TBranch* br_centralMuonTime        = tmetree->GetBranch("centralMuonTime");
-  TBranch* br_timeToPrevTME          = tmetree->GetBranch("timeToPrevTME");
-  TBranch* br_timeToNextTME          = tmetree->GetBranch("timeToNextTME");
-  TBranch* br_anyDoubleCountedPulses = tmetree->GetBranch("anyDoubleCountedPulses");
-
-  TBranch* br_muSc = tmetree->GetBranch("muSc");
-
-  TBranch* br_SiT_1 = tmetree->GetBranch("SiT_1");
-  TBranch* br_SiT_2 = tmetree->GetBranch("SiT_2");
-  TBranch* br_SiT_3 = tmetree->GetBranch("SiT_3");
-  TBranch* br_SiT_4 = tmetree->GetBranch("SiT_4");
-
-  TBranch* br_SiL1_1 = tmetree->GetBranch("SiL1_1");
-  TBranch* br_SiL1_2 = tmetree->GetBranch("SiL1_2");
-  TBranch* br_SiL1_3 = tmetree->GetBranch("SiL1_3");
-  TBranch* br_SiL1_4 = tmetree->GetBranch("SiL1_4");
-  TBranch* br_SiL1_5 = tmetree->GetBranch("SiL1_5");
-  TBranch* br_SiL1_6 = tmetree->GetBranch("SiL1_6");
-  TBranch* br_SiL1_7 = tmetree->GetBranch("SiL1_7");
-  TBranch* br_SiL1_8 = tmetree->GetBranch("SiL1_8");
-  TBranch* br_SiL1_9 = tmetree->GetBranch("SiL1_9");
-  TBranch* br_SiL1_10 = tmetree->GetBranch("SiL1_10");
-  TBranch* br_SiL1_11 = tmetree->GetBranch("SiL1_11");
-  TBranch* br_SiL1_12 = tmetree->GetBranch("SiL1_12");
-  TBranch* br_SiL1_13 = tmetree->GetBranch("SiL1_13");
-  TBranch* br_SiL1_14 = tmetree->GetBranch("SiL1_14");
-  TBranch* br_SiL1_15 = tmetree->GetBranch("SiL1_15");
-  //  TBranch* br_SiL1_16 = tmetree->GetBranch("SiL1_16");
-
-  TBranch* br_SiL3 = tmetree->GetBranch("SiL3");
-
-  TBranch* br_SiR1_1 = tmetree->GetBranch("SiR1_1");
-  TBranch* br_SiR1_2 = tmetree->GetBranch("SiR1_2");
-  TBranch* br_SiR1_3 = tmetree->GetBranch("SiR1_3");
-  TBranch* br_SiR1_4 = tmetree->GetBranch("SiR1_4");
-
-  TBranch* br_SiR2 = tmetree->GetBranch("SiR2");
-
-  TBranch* br_SiR3 = tmetree->GetBranch("SiR3");
-
-  TBranch* br_GeLoGain = tmetree->GetBranch("GeLoGain");
-  TBranch* br_GeHiGain = tmetree->GetBranch("GeHiGain");
-
-  br_runId->SetAddress(&runId);
-  br_blockId->SetAddress(&blockId);
-  // Check these branches exist because we could be being passed the NonTMETree
-  if (br_TMEId) {
-    br_TMEId->SetAddress(&TMEId);
-  }
-  if (br_TMEWindowWidth) {
-    br_TMEWindowWidth->SetAddress(&TMEWindowWidth);
-  }
-  if (br_centralMuonChannel) {
-    br_centralMuonChannel->SetAddress(&centralMuonChannel);
-  }
-  if (br_centralMuonTPIID) {
-    br_centralMuonTPIID->SetAddress(&centralMuonTPIID);
-  }
-  if (br_centralMuonEnergy) {
-    br_centralMuonEnergy->SetAddress(&centralMuonEnergy);
-  }
-  if (br_centralMuonTime) {
-    br_centralMuonTime->SetAddress(&centralMuonTime);
-  }
-  if (br_timeToPrevTME) {
-    br_timeToPrevTME->SetAddress(&timeToPrevTME);
-  }
-  if (br_timeToNextTME) {
-    br_timeToNextTME->SetAddress(&timeToNextTME);
-  }
-  if (br_anyDoubleCountedPulses) {
-    br_anyDoubleCountedPulses->SetAddress(&anyDoubleCountedPulses);
-  }
-
-  if (br_muSc) {
-    br_muSc->SetAddress(&muSc);
-  }
-
-  if (br_SiT_1) {
-    br_SiT_1->SetAddress(&SiT_1);
-  }
-  if (br_SiT_2) {
-    br_SiT_2->SetAddress(&SiT_2);
-  }
-  if (br_SiT_3) {
-    br_SiT_3->SetAddress(&SiT_3);
-  }
-  if (br_SiT_4) {
-    br_SiT_4->SetAddress(&SiT_4);
-  }
-
-  if (br_SiL1_1) {
-    br_SiL1_1->SetAddress(&SiL1_1);
-  }
-  if (br_SiL1_2) {
-    br_SiL1_2->SetAddress(&SiL1_2);
-  }
-  if (br_SiL1_3) {
-    br_SiL1_3->SetAddress(&SiL1_3);
-  }
-  if (br_SiL1_4) {
-    br_SiL1_4->SetAddress(&SiL1_4);
-  }
-  if (br_SiL1_5) {
-    br_SiL1_5->SetAddress(&SiL1_5);
-  }
-  if (br_SiL1_6) {
-    br_SiL1_6->SetAddress(&SiL1_6);
-  }
-  if (br_SiL1_7) {
-    br_SiL1_7->SetAddress(&SiL1_7);
-  }
-  if (br_SiL1_8) {
-    br_SiL1_8->SetAddress(&SiL1_8);
-  }
-  if (br_SiL1_9) {
-    br_SiL1_9->SetAddress(&SiL1_9);
-  }
-  if (br_SiL1_10) {
-    br_SiL1_10->SetAddress(&SiL1_10);
-  }
-  if (br_SiL1_11) {
-    br_SiL1_11->SetAddress(&SiL1_11);
-  }
-  if (br_SiL1_12) {
-    br_SiL1_12->SetAddress(&SiL1_12);
-  }
-  if (br_SiL1_13) {
-    br_SiL1_13->SetAddress(&SiL1_13);
-  }
-  if (br_SiL1_14) {
-    br_SiL1_14->SetAddress(&SiL1_14);
-  }
-  if (br_SiL1_15) {
-    br_SiL1_15->SetAddress(&SiL1_15);
-  }
-  //  if (br_SiL1_16) {
-    //  br_SiL1_16->SetAddress(&SiL1_16);
-  //  }
-
-  if (br_SiL3) {
-    br_SiL3->SetAddress(&SiL3);
-  }
-
-  if (br_SiR1_1) {
-    br_SiR1_1->SetAddress(&SiR1_1);
-  }
-  if (br_SiR1_2) {
-    br_SiR1_2->SetAddress(&SiR1_2);
-  }
-  if (br_SiR1_3) {
-    br_SiR1_3->SetAddress(&SiR1_3);
-  }
-  if (br_SiR1_4) {
-    br_SiR1_4->SetAddress(&SiR1_4);
-  }
-
-  if (br_SiR2) {
-    br_SiR2->SetAddress(&SiR2);
-  }
-
-  if (br_SiR3) {
-    br_SiR3->SetAddress(&SiR3);
-  }
-
-  if (br_GeLoGain) {
-    br_GeLoGain->SetAddress(&GeLoGain);
-  }
-  if (br_GeHiGain) {
-    br_GeHiGain->SetAddress(&GeHiGain);
-  }
+  tmetree->SetBranchAddress("runId",                  &runId);
+  tmetree->SetBranchAddress("blockId",                &blockId);
+  tmetree->SetBranchAddress("TMEId",                  &TMEId);
+  tmetree->SetBranchAddress("TMEWindowWidth",         &TMEWindowWidth);
+  tmetree->SetBranchAddress("centralMuonChannel",     &centralMuonChannel);
+  tmetree->SetBranchAddress("centralMuonTPIID",       &centralMuonTPIID);
+  tmetree->SetBranchAddress("centralMuonEnergy",      &centralMuonEnergy);
+  tmetree->SetBranchAddress("centralMuonTime",        &centralMuonTime);
+  tmetree->SetBranchAddress("timeToPrevTME",          &timeToPrevTME);
+  tmetree->SetBranchAddress("timeToNextTME",          &timeToNextTME);
+  tmetree->SetBranchAddress("anyDoubleCountedPulses", &anyDoubleCountedPulses);
+  tmetree->SetBranchAddress("muSc",                   muSc);
+  tmetree->SetBranchAddress("SiT_1",                  &SiT_1);
+  tmetree->SetBranchAddress("SiT_2",                  &SiT_2);
+  tmetree->SetBranchAddress("SiT_3",                  &SiT_3);
+  tmetree->SetBranchAddress("SiT_4",                  &SiT_4);
+  tmetree->SetBranchAddress("SiL1_1",                 &SiL1_1);
+  tmetree->SetBranchAddress("SiL1_2",                 &SiL1_2);
+  tmetree->SetBranchAddress("SiL1_3",                 &SiL1_3);
+  tmetree->SetBranchAddress("SiL1_4",                 &SiL1_4);
+  tmetree->SetBranchAddress("SiL1_5",                 &SiL1_5);
+  tmetree->SetBranchAddress("SiL1_6",                 &SiL1_6);
+  tmetree->SetBranchAddress("SiL1_7",                 &SiL1_7);
+  tmetree->SetBranchAddress("SiL1_8",                 &SiL1_8);
+  tmetree->SetBranchAddress("SiL1_9",                 &SiL1_9);
+  tmetree->SetBranchAddress("SiL1_10",                &SiL1_10);
+  tmetree->SetBranchAddress("SiL1_11",                &SiL1_11);
+  tmetree->SetBranchAddress("SiL1_12",                &SiL1_12);
+  tmetree->SetBranchAddress("SiL1_13",                &SiL1_13);
+  tmetree->SetBranchAddress("SiL1_14",                &SiL1_14);
+  tmetree->SetBranchAddress("SiL1_15",                &SiL1_15);
+  tmetree->SetBranchAddress("SiL1_16",                &SiL1_16);
+  tmetree->SetBranchAddress("SiL3",                   &SiL3);
+  tmetree->SetBranchAddress("SiR1_1",                 &SiR1_1);
+  tmetree->SetBranchAddress("SiR1_2",                 &SiR1_2);
+  tmetree->SetBranchAddress("SiR1_3",                 &SiR1_3);
+  tmetree->SetBranchAddress("SiR1_4",                 &SiR1_4);
+  tmetree->SetBranchAddress("SiR2",                   &SiR2);
+  tmetree->SetBranchAddress("SiR3",                   &SiR3);
+  tmetree->SetBranchAddress("GeLoGain",               &GeLoGain);
+  tmetree->SetBranchAddress("GeHiGain",               &GeHiGain);
 
   tmetree->GetEntry(0); // This sets the addresses for CollectChannels
   empty = new std::vector<SimplePulse>;
@@ -354,7 +216,7 @@ void CollectChannels() {
   all_channels[i_counter++] = SiL1_13;
   all_channels[i_counter++] = SiL1_14;
   all_channels[i_counter++] = SiL1_15;
-  //  all_channels[i_counter++] = SiL1_16;
+  all_channels[i_counter++] = SiL1_16;
 
   all_channels[i_counter++] = SiL3;
 

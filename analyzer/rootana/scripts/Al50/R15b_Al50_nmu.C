@@ -10,22 +10,29 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// USER MODIFIABLE VARIABLES
 static const double PROMPT[]  = {-200., 200.}; // ns
+static const double DELAYED[] = {200,   4.e3};
 static const double XRAYE[]   = {340.,  360.}; // keV
 ////////////////////////////////////////////////////////////////////////////////
 /// RUNNING
-/// R15b_Al50_nmu(ttree_fname, ofile_fname)
+/// R15b_Al50_nmu(ofile_fname)
 ////////////////////////////////////////////////////////////////////////////////
 
 bool IsPrompt(const SimplePulse& p) {
-  return PROMPT[0] < p.tTME && p.tTME < PROMPT[1];
+  return PROMPT[0] <= p.tTME && p.tTME < PROMPT[1];
+}
+bool IsDelayed(const SimplePulse& p) {
+  return DELAYED[0] <= p.tTME && p.tTME < DELAYED[1];
+}
+bool IsOOT(const SimplePulse& p, double pp) {
+  return DELAYED[1] <= p.tTME && (pp ? p.tTME < pp : true);
 }
 bool IsAl2p1s(const SimplePulse& p) {
-  return XRAYE[0] < p.E && p.E < XRAYE[1];
+  return XRAYE[0] <= p.E && p.E < XRAYE[1];
 }
 
 // pp = pileup protection time window. Set to 0 for no pp.
 void R15b_Al50_nmu(const char* ifname=nullptr, const char* ofname=nullptr,
-                   double pp=0) {
+                   int run=0, double pp=0) {
   if (!ifname) return;
   TH1::SetDefaultSumw2(kTRUE);
   TFile* ifile = new TFile(ifname);
@@ -34,13 +41,17 @@ void R15b_Al50_nmu(const char* ifname=nullptr, const char* ofname=nullptr,
   TTree* tr    = (TTree*)ifile->Get("TMETree/TMETree");
   SetTMEBranchAddresses(tr);
   TH1::SetDefaultSumw2(kTRUE);
-  TH1D* hmu          = new TH1D("hemu",         "hemu",         4000, 0, 10e3);
-  TH1D* hgehi_e_all  = new TH1D("hgehi_e_all",  "hgehi_e",      5851, 0, 2e3);
-  TH1D* hgelo_e_all  = new TH1D("hgelo_e_all",  "hgelo_e",      5851, 0, 2e3);
-  TH1D* hgehi_e_tcut = new TH1D("hgehi_e_tcut", "hgehi_e_tcut", 5851, 0, 2e3);
-  TH1D* hgelo_e_tcut = new TH1D("hgelo_e_tcut", "hgelo_e_tcut", 5851, 0, 2e3);
-  TH1D* hgehi_t_ecut = new TH1D("hgehi_t_ecut", "hgehi_t_ecut", 500,  0, 5e3);
-  TH1D* hgelo_t_ecut = new TH1D("hgelo_t_ecut", "hgelo_t_ecut", 500,  0, 5e3);
+  TH1D* hmu             = new TH1D("hemu",            "hemu",            4000, 0, 10e3);
+  TH1D* hgehi_e_all     = new TH1D("hgehi_e_all",     "hgehi_e",         5851, 0, 2e3);
+  TH1D* hgelo_e_all     = new TH1D("hgelo_e_all",     "hgelo_e",         5851, 0, 2e3);
+  TH1D* hgehi_e_prompt  = new TH1D("hgehi_e_prompt",  "hgehi_e_prompt",  5851, 0, 2e3);
+  TH1D* hgelo_e_prompt  = new TH1D("hgelo_e_prompt",  "hgelo_e_prompt",  5851, 0, 2e3);
+  TH1D* hgehi_e_delayed = new TH1D("hgehi_e_delayed", "hgehi_e_delayed", 5851, 0, 2e3);
+  TH1D* hgelo_e_delayed = new TH1D("hgelo_e_delayed", "hgelo_e_delayed", 5851, 0, 2e3);
+  TH1D* hgehi_e_oot     = new TH1D("hgehi_e_oot",     "hgehi_e_oot",     5851, 0, 2e3);
+  TH1D* hgelo_e_oot     = new TH1D("hgelo_e_oot",     "hgelo_e_oot",     5851, 0, 2e3);
+  TH1D* hgehi_t_ecut    = new TH1D("hgehi_t_ecut",    "hgehi_t_ecut",    500,  0, 5e3);
+  TH1D* hgelo_t_ecut    = new TH1D("hgelo_t_ecut",    "hgelo_t_ecut",    500,  0, 5e3);
 
   for (int i = 0; i < tr->GetEntries(); ++i) {
     tr->GetEntry(i);
@@ -50,16 +61,29 @@ void R15b_Al50_nmu(const char* ifname=nullptr, const char* ofname=nullptr,
     for (int i = 0; i < GeHiGain->size(); ++i) {
       const SimplePulse& p = GeHiGain->at(i);
       hgehi_e_all->Fill(p.E);
-      if (IsPrompt(p)) hgehi_e_tcut->Fill(p.E);
-      if (IsAl2p1s(p)) hgehi_t_ecut->Fill(p.tTME);
+      if      (IsPrompt(p))  hgehi_e_prompt ->Fill(p.E);
+      else if (IsDelayed(p)) hgehi_e_delayed->Fill(p.E);
+      else if (IsOOT(p, pp)) hgehi_e_oot    ->Fill(p.E);
+      if      (IsAl2p1s(p))  hgehi_t_ecut   ->Fill(p.tTME);
     }
     for (int i = 0; i < GeLoGain->size(); ++i) {
       const SimplePulse& p = GeLoGain->at(i);
       hgelo_e_all->Fill(p.E);
-      if (IsPrompt(p)) hgelo_e_tcut->Fill(p.E);
-      if (IsAl2p1s(p)) hgelo_t_ecut->Fill(p.tTME);
+      if      (IsPrompt(p))  hgelo_e_prompt ->Fill(p.E);
+      else if (IsDelayed(p)) hgelo_e_delayed->Fill(p.E);
+      else if (IsOOT(p, pp)) hgelo_e_oot    ->Fill(p.E);
+      if      (IsAl2p1s(p))  hgelo_t_ecut   ->Fill(p.tTME);
     }
   }
-
+  TTree* otr = new TTree("configtree", "Config Tree");
+  otr->Branch("pileup_protection", &pp);
+  double PROMPT_TS[2]  = { PROMPT[0],  PROMPT[1] };
+  double DELAYED_TS[2] = { DELAYED[0], DELAYED[1] };
+  otr->Branch("prompt_tlo",        &PROMPT_TS[0]);
+  otr->Branch("prompt_thi",        &PROMPT_TS[1]);
+  otr->Branch("delayed_tlo",       &DELAYED_TS[0]);
+  otr->Branch("delayed_thi",       &DELAYED_TS[1]);
+  otr->Branch("run",               &run);
+  otr->Fill();
   ofile->Write();
 }

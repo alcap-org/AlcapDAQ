@@ -1,0 +1,39 @@
+{
+  // MC SiT volID 0-3 is upper right, then clockwise
+  // RL 1-4 starts in upper-left and goes counter-clockwise
+  TChain* trsim = new TChain("tree");
+  trsim->Add("~/data/R15b/mc/R15bAl50MuPreSiT_*.root");
+	// TFile* fsim = new TFile("~/data/R15b/mc/R15bAl50MuPreSiT_*.root");
+  TFile* fdat = new TFile("~/R15bTME/Al50/tme09890.root");
+  // TTree* trsim = (TTree*)fsim->Get("tree");
+  TTree* trdat = (TTree*)fdat->Get("TMETree/TMETree");
+  TH1* hsim = new TH1D("hsim", "hsim;E [keV];", 20, 0., 2.e3);
+  TH1* hdat = new TH1D("hdat", "hdat;E [keV];", 20, 0., 2.e3);
+  trsim->Draw("1e6*M_edep>>+hsim", "M_volName==\"SiT\" && M_particleName==\"mu-\"", "goff");
+  trdat->Draw("SiT_1.E>>+hdat", "", "goff");
+  trdat->Draw("SiT_2.E>>+hdat", "", "goff");
+  trdat->Draw("SiT_3.E>>+hdat", "", "goff");
+  trdat->Draw("SiT_4.E>>+hdat", "", "goff");
+  hsim->Scale(1./hsim->GetEntries());
+  hdat->Scale(1./hdat->GetEntries());
+
+  hsim->SetTitle("SiT Hits;Energy [keV];Normalized Counts");
+
+  hsim->SetLineColor(2);
+  hdat->SetLineColor(1);
+  // hsim->SetMinimum(0);
+  // hdat->SetMinimum(0);
+
+  TLegend* l = new TLegend(0.7, 0.7, 0.9, 0.9);
+  l->AddEntry(hdat, "Data");
+  l->AddEntry(hsim, "MC");
+
+  gStyle->SetOptStat(0);
+  TCanvas* c = new TCanvas("c", "c", 700, 500);
+  hsim->Draw("SAME");
+  hdat->Draw("SAME");
+  l->Draw();
+  c->SaveAs("img/sit_en_mc_data.png");
+  c->SetLogy();
+  c->SaveAs("img/sit_en_mc_data_log.png");
+}

@@ -1,10 +1,10 @@
 {
   //////////////////////////////////////////////////////////////////////////////
   // USER DEFINED VARIABLES
-  const char IFNAME_P[]     = "~/data/R15b/al50ptm.root";
-  const char IFNAME_D[]     = "~/data/R15b/al50dtm.root";
-  const char IFNAME_T[]     = "~/data/R15b/al50ttm.root";
-  const char IFNAME_A[]     = "~/data/R15b/al50atm.root";
+  const char IFNAME_P[]     = "data/Al50/tm.p.2layer.mudist.root";
+  // const char IFNAME_D[]     = "~/data/R15b/al50dtm.root";
+  // const char IFNAME_T[]     = "~/data/R15b/al50ttm.root";
+  // const char IFNAME_A[]     = "~/data/R15b/al50atm.root";
   //////////////////////////////////////////////////////////////////////////////
 
   TFile* fp = new TFile(IFNAME_P);
@@ -23,8 +23,12 @@
   // TH2* h_dl = resp_dl->Hresponse(); TH2* h_dr = resp_dr->Hresponse();
   // TH2* h_tl = resp_tl->Hresponse(); TH2* h_tr = resp_tr->Hresponse();
   // TH2* h_al = resp_al->Hresponse(); TH2* h_ar = resp_ar->Hresponse();
-  h_pl->SetTitle("SiL Proton Response;E_{true} [keV];E_{meas} [keV]");
-  h_pr->SetTitle("SiR Proton Response;E_{true} [keV];E_{meas} [keV]");
+  TPaveText* txt_pl = new TPaveText(10e3, 2e3, 14e3, 5e3);
+  TPaveText* txt_pr = new TPaveText(10e3, 2e3, 14e3, 5e3);
+  txt_pl->AddText("Al 50#mum Target");
+  txt_pr->AddText("Al 50#mum Target");
+  h_pl->SetTitle("Simulated Left Telescope Proton Response;E_{meas} [keV];E_{true} [keV]");
+  h_pr->SetTitle("Simulated Right Telescope Proton Response;E_{meas} [keV];E_{true} [keV]");
   // h_dl->SetTitle("SiL Deuteron Response;E_{meas} [keV];E_{true} [keV]");
   // h_dr->SetTitle("SiR Deuteron Response;E_{meas} [keV];E_{true} [keV]");
   // h_tl->SetTitle("SiL Triton Response;E_{meas} [keV];E_{true} [keV]");
@@ -45,8 +49,8 @@
   // h_al->GetYaxis()->SetTitleOffset(1.4);   h_ar->GetYaxis()->SetTitleOffset(1.4);
   gStyle->SetOptStat("e");
   TCanvas* c = new TCanvas();
-  h_pl->Draw("COL"); c->SaveAs("img/SiL_TM_p.png");
-  h_pr->Draw("COL"); c->SaveAs("img/SiR_TM_p.png");
+  h_pl->Draw("COL"); txt_pl->Draw(); c->SaveAs("img/SiL_TM_p.png");
+  h_pr->Draw("COL"); txt_pr->Draw(); c->SaveAs("img/SiR_TM_p.png");
   // h_dl->Draw("COL"); c->SaveAs("img/SiL_TM_d.png");
   // h_dr->Draw("COL"); c->SaveAs("img/SiR_TM_d.png");
   // h_tl->Draw("COL"); c->SaveAs("img/SiL_TM_t.png");

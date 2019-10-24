@@ -13,19 +13,25 @@
 
 namespace {
   TH1 *hemu;
-  TH1 *hgehi_e_all,  *hgelo_e_all;
-  TH1 *hgehi_e_tcut, *hgelo_e_tcut;
-  TH1 *hgehi_t_ecut, *hgelo_t_ecut;
+  TH1 *hgehi_e_all,     *hgelo_e_all;
+  TH1 *hgehi_e_prompt,  *hgelo_e_prompt;
+  TH1 *hgehi_e_delayed, *hgelo_e_delayed;
+  TH1 *hgehi_e_oot,     *hgelo_e_oot;
+  TH1 *hgehi_t_ecut,    *hgelo_t_ecut;
 }
 
 void LoadHistograms(TFile* f) {
-  hemu = (TH1*)f->Get("hemu");
-  hgehi_e_all  = (TH1*)f->Get("hgehi_e_all");
-  hgelo_e_all  = (TH1*)f->Get("hgelo_e_all");
-  hgehi_e_tcut = (TH1*)f->Get("hgehi_e_tcut");
-  hgelo_e_tcut = (TH1*)f->Get("hgelo_e_tcut");
-  hgehi_t_ecut = (TH1*)f->Get("hgehi_t_ecut");
-  hgelo_t_ecut = (TH1*)f->Get("hgelo_t_ecut");
+  hemu            = (TH1*)f->Get("hemu");
+  hgehi_e_all     = (TH1*)f->Get("hgehi_e_all");
+  hgelo_e_all     = (TH1*)f->Get("hgelo_e_all");
+  hgehi_e_prompt  = (TH1*)f->Get("hgehi_e_prompt");
+  hgelo_e_prompt  = (TH1*)f->Get("hgelo_e_prompt");
+  hgehi_e_delayed = (TH1*)f->Get("hgehi_e_delayed");
+  hgelo_e_delayed = (TH1*)f->Get("hgelo_e_delayed");
+  hgehi_e_oot     = (TH1*)f->Get("hgehi_e_oot");
+  hgelo_e_oot     = (TH1*)f->Get("hgelo_e_oot");
+  hgehi_t_ecut    = (TH1*)f->Get("hgehi_t_ecut");
+  hgelo_t_ecut    = (TH1*)f->Get("hgelo_t_ecut");
 }
 
 void DrawSiTHistograms() {
@@ -72,13 +78,23 @@ void ConstructFitFunctions(TF1*& hi, TF1*& lo) {
   lo = new TF1("fcn_lo",
                "pol1(0)+[2]*exp(-0.5*(x-[3])^2/[6]^2)+[4]*exp(-0.5*(x-[5])^2/[6]^2)",
                335, 355);
-  // hi->SetParameters(1.5e3, 0., 10e3, 345., 2e3, 349.5, 1.); // Al50
-  // lo->SetParameters(1.5e3, 0., 13e3, 344., 2e3, 348.5, 1.); // Al50
-  hi->SetParameters(1e3, 0, 10e3, 345., 1e3, 349.5, 1); // Al100
-  lo->SetParameters(1e3, 0, 9e3,  346., 1e3, 350,   1); // Al100
+  //////////////////////////////////////////////////////////////////////////////
+  // SWITCH
+  //////////////////////////////////////////////////////////////////////////////
+  hi->SetParameters(1.5e3, 0., 10e3, 345, 2e3, 349.5, 1.); // Al50 total
+  lo->SetParameters(1.5e3, 0., 13e3, 345, 2e3, 348.5, 1.); // Al50 total
+  // hi->SetParameters(20,    0., 200,  345, 31,  350,  1.); // Al100 29.9 MeV/c
+  // lo->SetParameters(20,    0., 200,  345, 31,  350,  1.); // Al100 29.9 MeV/c
+  // hi->SetParameters(20,    0., 200,  345, 31,  350,  1.); // Al100 26.2 MeV/c
+  // lo->SetParameters(20,    0., 200,  345, 31,  350,  1.); // Al100 26.2 MeV/c
+  // hi->SetParameters(100,   0., 690,  345, 111, 350,  1.); // Al100 26.4 MeV/c
+  // lo->SetParameters(100,   0., 690,  345, 111, 350,  1.); // Al100 26.4 MeV/c
+  // hi->SetParameters(1e3, 0, 10e3, 345., 1e3, 349.5, 1); // Al100
+  // lo->SetParameters(1e3, 0, 9e3,  346., 1e3, 350,   1); // Al100
   hi->SetParNames("Bkg y-int", "Bkg Slope", "Al Amp", "Al Energy", "Pb Amp", "Pb Energy", "Sigma");
   lo->SetParNames("Bkg y-int", "Bkg Slope", "Al Amp", "Al Energy", "Pb Amp", "Pb Energy", "Sigma");
-  hi->SetLineColor(kRed);
+  hi->SetLineColor(kBlack);
+  // hi->SetLineColor(kRed);
   lo->SetLineColor(kBlue);
 }
 
@@ -90,14 +106,16 @@ void ConstructFitFunctions(TF1*& hi, TF1*& lo) {
 Norm FitGeHist(TH1* h, TF1* f) {
   double I = 0.798, dI = 0.008, E = 347.;
   h->Fit(f, "RQ");
-  TFitResultPtr r = h->Fit(f, "SRQ");
+  TFitResultPtr r = h->Fit(f, "MESRQ");
+  double A  = r->Parameter(2);
+  double s  = r->Parameter(6);
+  double eA = r->ParError(2);
+  double es = r->ParError(6);
+  double db = h->GetBinWidth(1);
   Norm N = {
-    (int)GeFcn::NMuHi(r->Parameter(2), r->Parameter(6), h->GetBinWidth(1), I, E),
-    (int)GeFcn::GaussArea(r->Parameter(2), r->Parameter(6), h->GetBinWidth(1)),
-    GeFcn::NMuErrHi(r->Parameter(2), r->ParError(2), r->Parameter(6),
-                    r->ParError(6), h->GetBinWidth(0), I, dI, E),
-    GeFcn::GaussAreaErr(r->Parameter(2), r->ParError(2),
-                        r->Parameter(6), r->ParError(6), h->GetBinWidth(1)),
+    (int)GeFcn::NMuHi(A, s, db, I, E), (int)GeFcn::GaussArea(A, s, db),
+    GeFcn::NMuErrHi(A, eA, s, es, db, I, dI, E),
+    GeFcn::GaussAreaErr(A, eA, s, es, db),
     r->Chi2(), (double)r->Ndf() };
   return N;
 }
@@ -117,6 +135,15 @@ void DrawPeakLabels() {
   pb->Draw();
 }
 
+void SetStyle(TH1* h) {
+  h->GetXaxis()->SetLabelSize(0.040);
+  h->GetYaxis()->SetLabelSize(0.040);
+  h->GetXaxis()->SetTitleSize(0.040);
+  h->GetYaxis()->SetTitleSize(0.040);
+  // h->GetXaxis()->SetTitleOffset(1.02);
+  h->GetYaxis()->SetTitleOffset(1.35);
+}
+
 void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo, bool prompt_only) {
   TCanvas* c_fit = new TCanvas;
   hi->GetXaxis()->SetRangeUser(335., 355.);
@@ -125,15 +152,16 @@ void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo, bool prompt_only) {
     hi->SetTitle("X-Ray Spectrum (Al50 Target) #pm200ns;Energy [keV];Raw Count");
   else
     hi->SetTitle("X-Ray Spectrum (Al50 Target) all time;Energy [keV];Raw Count");
-  hi->GetXaxis()->SetTitleOffset(1.2);
-  hi->GetYaxis()->SetTitleOffset(1.4);
-  hi->SetLineColor(kRed);
+  SetStyle(hi);
+  hi->SetLineColor(kBlack);
+  // hi->SetLineColor(kRed);
   lo->SetLineColor(kBlue);
   gStyle->SetOptStat("n");
   gStyle->SetOptFit(111);
   hi->SetStats(kTRUE);
   lo->SetStats(kTRUE);
-  hi->SetName("GeHiGain");
+  // hi->SetName("GeHiGain");
+  hi->SetName("GeFit");
   lo->SetName("GeLoGain");
   hi->Draw();
   c_fit->Update();
@@ -141,18 +169,24 @@ void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo, bool prompt_only) {
   lo->Draw();
   c_fit->Update();
   TPaveStats* stats_lo = (TPaveStats*)lo->GetListOfFunctions()->FindObject("stats");
-  stats_hi->SetX1NDC(0.10); stats_hi->SetX2NDC(0.35);
-  stats_hi->SetY1NDC(0.50); stats_hi->SetY2NDC(0.90);
+  // stats_hi->SetX1NDC(0.10); stats_hi->SetX2NDC(0.35);
+  // stats_hi->SetY1NDC(0.50); stats_hi->SetY2NDC(0.90);
+  stats_hi->SetX1NDC(0.10); stats_hi->SetX2NDC(0.40);
+  stats_hi->SetY1NDC(0.20); stats_hi->SetY2NDC(0.90);
   stats_lo->SetX1NDC(0.10); stats_lo->SetX2NDC(0.35);
   stats_lo->SetY1NDC(0.10); stats_lo->SetY2NDC(0.50);
-  TLegend* l_fit = new TLegend(0.55, 0.70, 0.95, 0.90);
+  // TLegend* l_fit = new TLegend(0.55, 0.70, 0.95, 0.90);
+  TPaveText* l_fit = new TPaveText(348., 12e3, 355, 14e3);
   char l_fit_hi[64], l_fit_lo[64];
-  sprintf(l_fit_hi, "Ge High Gain (%.3g#pm%.2g #mu)", (double)nhi.n, nhi.en);
+  sprintf(l_fit_hi, "Ge (%04.3g#pm%.2g #mu)", (double)nhi.n, nhi.en);
+  // sprintf(l_fit_hi, "Ge High Gain (%.3g#pm%.2g #mu)", (double)nhi.n, nhi.en);
+  sprintf(l_fit_hi, "%.3g#pm%.2g #mu", (double)nhi.n, nhi.en);
   sprintf(l_fit_lo, "Ge Low Gain (%.3g#pm%.2g #mu)",  (double)nlo.n, nlo.en);
-  l_fit->AddEntry(hi, l_fit_hi);
-  l_fit->AddEntry(lo, l_fit_lo);
+  // l_fit->AddEntry(hi, l_fit_hi);
+  l_fit->AddText(l_fit_hi);
+  // l_fit->AddEntry(lo, l_fit_lo);
   hi->Draw();
-  lo->Draw("SAME");
+  // lo->Draw("SAME");
   l_fit->Draw();
   // DrawBlindedBox();
   DrawPeakLabels();
@@ -172,8 +206,8 @@ void r15b_al50_nmu_draw (const char* ifname, bool prompt_only=true) {
   // DrawFullScaleGeHistograms();
   TH1 *hhi, *hlo;
   if (prompt_only) {
-    hhi = hgehi_e_tcut;
-    hlo = hgelo_e_tcut;
+    hhi = hgehi_e_prompt;
+    hlo = hgelo_e_prompt;
   } else {
     hhi = hgehi_e_all;
     hlo = hgelo_e_all;

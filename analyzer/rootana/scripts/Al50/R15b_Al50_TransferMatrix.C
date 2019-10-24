@@ -31,7 +31,10 @@ using std::vector;
 // the position of the target it was generated in.
 ////////////////////////////////////////////////////////////////////////////////
 
-static TRandom3 SMEAR;
+namespace {
+  const double ERES[2] = {70., 30.}; //[Thin/Thick], keV
+  TRandom3 SMEAR;
+}
 
 class Arm {
   Side arm;
@@ -51,7 +54,7 @@ public:
                       NE, E[0], E[1], NE, E[0], E[1]/5);
   }
   void Hit(double emeas, double etrue) {
-    double e = SMEAR.Gaus(emeas, 70.); // ARBITRARY RESOLUTION, FIX
+    double e = SMEAR.Gaus(emeas, std::sqrt(ERES[0]*ERES[0]+ERES[1]*ERES[1]));
     response->Fill(e,     etrue);
     diffVe  ->Fill(etrue, etrue-e);
   }
@@ -102,27 +105,32 @@ class Hit {
 
 class MCEvent {
   int detseg;
-  double emeas, e0;
+  double emeas, demeas, e0;
   double x0, y0, z0;
  public:
-  MCEvent() : detseg(-1), emeas(0.), e0(0.), x0(0), y0(0), z0(0) {}
-  MCEvent(int detseg, double emeas, double e0,
+  MCEvent() : detseg(-1), emeas(0.), demeas(0.), e0(0.), x0(0), y0(0), z0(0) {}
+  MCEvent(int detseg, double emeas, double demeas, double e0,
           double x0, double y0, double z0) :
-  detseg(detseg), emeas(emeas), e0(e0), x0(x0), y0(y0), z0(z0) {
-    if (emeas > 0.)
-      emeas = SMEAR.Gaus(emeas, 70.);
+  detseg(detseg), emeas(emeas), demeas(demeas), e0(e0), x0(x0), y0(y0), z0(z0) {
+    if (emeas > 0.) {// Only if detected
+      double desig = SMEAR.Gaus(0, ERES[0]);
+      double esig  = SMEAR.Gaus(0, ERES[1]);
+      emeas  += desig + esig;
+      demeas += desig;
+    }
   }
   static void SaveAsTree(TFile* f, const char* trname,
                          const vector<MCEvent>& evs) {
     TTree* tr = new TTree(trname, trname);
     tr->SetDirectory(f);
     MCEvent ev;
-    tr->Branch("detseg",     &ev.detseg);
-    tr->Branch("e0",         &ev.e0);
-    tr->Branch("emeas",      &ev.emeas);
-    tr->Branch("x0",         &ev.x0);
-    tr->Branch("y0",         &ev.y0);
-    tr->Branch("z0",         &ev.z0);
+    tr->Branch("detseg", &ev.detseg);
+    tr->Branch("e0",     &ev.e0);
+    tr->Branch("emeas",  &ev.emeas);
+    tr->Branch("demeas", &ev.demeas);
+    tr->Branch("x0",     &ev.x0);
+    tr->Branch("y0",     &ev.y0);
+    tr->Branch("z0",     &ev.z0);
     for (int i = 0; i < evs.size(); ++i) {
       ev = evs[i];
       tr->Fill();
@@ -159,6 +167,8 @@ class MCProcessor {
   double E0()           const { return es->at(0)*1e6;             }
   double EL()           const { return hitEs[0][0]+hitEs[0][1];   }
   double ER()           const { return hitEs[1][0]+hitEs[1][1];   }
+  double dEL()          const { return hitEs[0][0];               }
+  double dER()          const { return hitEs[1][0];               }
   double X0()           const { return xs->at(0);                 }
   double Y0()           const { return ys->at(0);                 }
   double Z0()           const { return zs->at(0);                 }
@@ -226,24 +236,39 @@ void TM(const char* ifname, map<Side,Arm> arms, vector<MCEvent>& levs,
     if (evs.ValidLeftHit()) {
       arms[kLeft] .Hit(evs.EL(), evs.E0());
       arms[kRight].Miss(evs.E0());
-      levs.push_back(MCEvent(detseg,   evs.EL(), evs.E0(),
+      levs.push_back(MCEvent(detseg, evs.EL(), evs.dEL(), evs.E0(),
                              evs.X0(), evs.Y0(), evs.Z0()));
-      revs.push_back(MCEvent(0, 0, evs.E0(), evs.X0(), evs.Y0(), evs.Z0()));
+      revs.push_back(MCEvent(0, 0, 0, evs.E0(), evs.X0(), evs.Y0(), evs.Z0()));
     } else if (evs.ValidRightHit()) {
       arms[kRight].Hit(evs.ER(), evs.E0());
       arms[kLeft] .Miss(evs.E0());
-      levs.push_back(MCEvent(0, 0, evs.E0(), evs.X0(), evs.Y0(), evs.Z0()));
-      revs.push_back(MCEvent(detseg,   evs.ER(), evs.E0(),
+      levs.push_back(MCEvent(0, 0, 0, evs.E0(), evs.X0(), evs.Y0(), evs.Z0()));
+      revs.push_back(MCEvent(detseg, evs.ER(), evs.dER(), evs.E0(),
                              evs.X0(), evs.Y0(), evs.Z0()));
     } else {
       arms[kLeft] .Miss(evs.E0());
       arms[kRight].Miss(evs.E0());
-      levs.push_back(MCEvent(0, 0, evs.E0(), evs.X0(), evs.Y0(), evs.Z0()));
-      revs.push_back(MCEvent(0, 0, evs.E0(), evs.X0(), evs.Y0(), evs.Z0()));
+      levs.push_back(MCEvent(0, 0, 0, evs.E0(), evs.X0(), evs.Y0(), evs.Z0()));
+      revs.push_back(MCEvent(0, 0, 0, evs.E0(), evs.X0(), evs.Y0(), evs.Z0()));
     }
   }
   ifile->Close();
   delete ifile;
+}
+
+void SaveConfigTree(TFile* f, const Particle& p) {
+  TTree* tr = new TTree("config", "config");
+  tr->SetDirectory(f);
+  double thinressig, thickressig;
+  char particle;
+  tr->Branch("thinressig",  &thinressig);
+  tr->Branch("thickressig", &thickressig);
+  tr->Branch("particle",    &particle);
+  thinressig  = ERES[0];
+  thickressig = ERES[1];
+  particle    = p.Name[0];
+  tr->Fill();
+  tr->Write();
 }
 
 void TM(const char* ifname, const char* ofname, const Particle& p,
@@ -258,6 +283,7 @@ void TM(const char* ifname, const char* ofname, const Particle& p,
   arms[kRight].Write();
   MCEvent::SaveAsTree(ofile, "SiL_TransTree", levs);
   MCEvent::SaveAsTree(ofile, "SiR_TransTree", revs);
+  SaveConfigTree(ofile, p);
   ofile->Close();
 }
 

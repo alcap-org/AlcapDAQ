@@ -1,0 +1,3 @@
+{
+	TChain* tr = ew TChain("")
+}

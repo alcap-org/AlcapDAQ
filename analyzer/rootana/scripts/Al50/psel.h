@@ -2,12 +2,14 @@
 
 #include "./scripts/Al50/util.h"
 
+#include "RtypesCore.h"
 #include "TF1.h"
 #include "TFile.h"
 #include "TGraph.h"
 #include "TH2.h"
 #include "TH2F.h"
 #include "TH3.h"
+#include "TLine.h"
 #include "TProfile.h"
 
 #include <string>
@@ -29,9 +31,16 @@ static const double EMIN_A  = 10e3;
 static const double EMIN[4] = { EMIN_P,  EMIN_D,    EMIN_T,  EMIN_A };
 namespace ParticleLikelihood {
 
-  class PSelPow {
+  class PSel {
+    virtual bool IsParticle(double E, double dE) const = 0;
+    virtual void Draw      (Color_t, Style_t)          = 0;
+  };
+
+  class PSelPow : public PSel {
+  protected:
     double lim[2];
     TF1* f[2];
+    PSelPow(double emin, double emax) : lim{emin, emax}, f{nullptr, nullptr} {}
   public:
     PSelPow(double a1, double a2, double k, double emin, double emax) :
     lim{emin, emax} {
@@ -43,6 +52,42 @@ namespace ParticleLikelihood {
     bool IsParticle(double E, double dE) const {
       return lim[0] < E         && E < lim[1] &&
              f[0]->Eval(E) < dE && dE < f[1]->Eval(E);
+    }
+    bool Integral(double e1, double e2) {
+      return f[1]->Integral(e1, e2) - f[0]->Integral(e1, e2);
+    }
+    bool Integral() {
+      return Integral(lim[0], lim[1]);
+    }
+    void Draw(Color_t c=1, Style_t s=1) {
+      TLine* left  = new TLine(lim[0], f[0]->Eval(lim[0]), lim[0], f[1]->Eval(lim[0]));
+      TLine* right = new TLine(lim[1], f[0]->Eval(lim[1]), lim[1], f[1]->Eval(lim[1]));
+      left ->SetLineColor(c);
+      right->SetLineColor(c);
+      f[0] ->SetLineColor(c);
+      f[1] ->SetLineColor(c);
+      left ->SetLineStyle(s);
+      right->SetLineStyle(s);
+      f[0] ->SetLineStyle(s);
+      f[1] ->SetLineStyle(s);
+      left ->Draw("SAME");
+      right->Draw("SAME");
+      f[0] ->Draw("SAME");
+      f[1] ->Draw("SAME");
+    }
+  };
+
+  class PSelPow2: public PSelPow {
+  public:
+    PSelPow2(double alo, double ahi,
+             double klo1, double klo2, double khi1, double khi2,
+             double emin, double c, double emax) : PSelPow(emin, emax) {
+      f[0] = new TF1("", "(x<=[0])*[1]*x^[2]+(x>[0])*[1]*[0]^([2]-[3])*x^[3]",
+                     emin, emax);
+      f[1] = new TF1("", "(x<=[0])*[1]*x^[2]+(x>[0])*[1]*[0]^([2]-[3])*x^[3]",
+                     emin, emax);
+      f[0]->SetParameters(c, alo, klo1, klo2);
+      f[1]->SetParameters(c, ahi, khi1, khi2);
     }
   };
 
@@ -191,19 +236,48 @@ namespace ParticleLikelihood {
     TGraph        SigGraph()               const { return df;                 }
   };
 
-  vector<PSelPow> LoadParticleLikelihoodsPow(char lr) {
+  vector<PSelPow> LoadParticleLikelihoodsPow(char lr, double scale=1.) {
     double L[4][3] = { {85e4, 15e5, -0.85}, {15e5, 22e5, -0.85},
                        {22e5, 30e5, -0.85}, {10e6, 16e6, -0.85} };
-    double R[4][3] = { {12e5, 22e5, -0.9}, {22e5, 35e5, -0.9},
-                       {35e5, 50e5, -0.9}, {21e6, 30e6, -0.9} };
+    double R[4][3] = { {12e5, 22e5, -0.9},  {22e5, 35e5, -0.9},
+                       {35e5, 50e5, -0.9},  {21e6, 30e6, -0.9} };
+
     vector<PSelPow> pls;
-    for (int i = 0; i < NPTYPE-1; ++i)
-      if (lr == 'l' || lr == 'L')
-        pls.push_back(PSelPow(L[i][0], L[i][1], L[i][2], 1.9e3, 17e3));
-      else if (lr == 'r' || lr == 'R')
-        pls.push_back(PSelPow(R[i][0], R[i][1], R[i][2], 1.9e3, 17e3));
-      else
-        PrintAndThrow("ParticleLikelihoodPow: Incorrect detector side!");
+    for (int i = 0; i < NPTYPE-1; ++i) {
+      double elo = 1.9e3, ehi = 17e3;
+      double delo  = std::toupper(lr) == 'L' ? L[i][0] : R[i][0];
+      double dehi  = std::toupper(lr) == 'L' ? L[i][1] : R[i][1];
+      double decay = std::toupper(lr) == 'L' ? L[i][2] : R[i][2];
+      delo = (1+scale)/2*delo + (1-scale)/2*dehi;
+      dehi = (1-scale)/2*delo + (1+scale)/2*dehi;
+      pls.push_back(PSelPow(delo, dehi, decay, elo, ehi));
+    }
+    return pls;
+  }
+
+  vector<PSelPow2> LoadParticleLikelihoodsPow2(char lr, double scale=1.) {
+    double L[4][7] = { {35e5, 44e5, -1.02, -0.85, -1.00, -0.78},
+                       {15e5, 22e5, -0.85, -0.85, -0.85, -0.85},
+                       {22e5, 30e5, -0.85, -0.85, -0.85, -0.85},
+                       {10e6, 16e6, -0.85, -0.85, -0.85, -0.85} };
+    double R[4][7] = { {60e5, 11e6, -1.09, -0.95, -1.10, -0.85},
+                       {22e5, 35e5, -0.90, -0.90, -0.90, -0.90},
+                       {35e5, 50e5, -0.90, -0.90, -0.90, -0.90},
+                       {21e6, 30e6, -0.90, -0.90, -0.90, -0.90} };
+
+    vector<PSelPow2> pls;
+    for (int i = 0; i < NPTYPE-1; ++i) {
+      double elo = 1.9e3, emid = 4e3, ehi = 17e3;
+      double alo  = std::toupper(lr) == 'L' ? L[i][0] : R[i][0];
+      double ahi  = std::toupper(lr) == 'L' ? L[i][1] : R[i][1];
+      double klo1 = std::toupper(lr) == 'L' ? L[i][2] : R[i][2];
+      double klo2 = std::toupper(lr) == 'L' ? L[i][3] : R[i][3];
+      double khi1 = std::toupper(lr) == 'L' ? L[i][4] : R[i][4];
+      double khi2 = std::toupper(lr) == 'L' ? L[i][5] : R[i][5];
+      alo = (1+scale)/2*alo + (1-scale)/2*ahi;
+      ahi = (1-scale)/2*alo + (1+scale)/2*ahi;
+      pls.push_back(PSelPow2(alo, ahi, klo1, klo2, khi1, khi2, elo, emid, ehi));
+    }
     return pls;
   }
 

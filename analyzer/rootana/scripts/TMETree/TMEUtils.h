@@ -12,7 +12,8 @@ namespace TMECuts {
   bool OnlyOneHit(const std::vector<std::vector<SimplePulse>*>& sps) {
     int n = 0;
     for (int i = 0; i < sps.size(); ++i)
-      n += sps[i]->size();
+      if (sps[i])
+        n += sps[i]->size();
     return n == 1;
   }
   bool OnlyOneMuon() {
@@ -21,6 +22,15 @@ namespace TMECuts {
   }
   bool AtMostOneHit(const std::vector<SimplePulse>* sps) {
     return sps->size() <= 1;
+  }
+  bool AtLeastOneHit(const std::vector<SimplePulse>* sps) {
+    return !sps->empty();
+  }
+  bool NoHits(const std::vector< std::vector<SimplePulse>* > sps) {
+    for (int i = 0; i < sps.size(); ++i)
+      if (sps[i] && !sps[i]->empty())
+        return false;
+    return true;
   }
   bool Valid(const std::vector<SimplePulse>* sps) {
     return OnlyOneHit(sps);

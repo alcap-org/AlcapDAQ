@@ -131,24 +131,24 @@ void EvdE(const char* ifname, const char* ofname, const Particle& parttype,
                          stop[i_arm]);
   }
 
-  arms[0].BuildAndSaveTree(ofile, (parttype.Name+"_L").c_str());
-  arms[1].BuildAndSaveTree(ofile, (parttype.Name+"_R").c_str());
+  arms[0].BuildAndSaveTree(ofile, "PID_L");
+  arms[1].BuildAndSaveTree(ofile, "PID_R");
   ofile->Close();
   ifile->Close();
 }
 
-void R15b_Al50_MC_EvdE(int mode=0, const char* ifname=nullptr,
+void R15b_Al50_MC_EvdE(char mode='\0', const char* ifname=nullptr,
                        const char* ofname=nullptr, bool verbose=false) {
   Particle p;
   switch (mode) {
-    case 0:               return;
-    case 1: p = PROTON;   break;
-    case 2: p = DEUTERON; break;
-    case 3: p = TRITON;   break;
-    case 4: p = ALPHA;    break;
-    case 5: p = MUON;     break;
-    case 6: p = ELECTRON; break;
-    case 7: p = PHOTON;   break;
+    case '\0':               return;
+    case 'p': p = PROTON;   break;
+    case 'd': p = DEUTERON; break;
+    case 't': p = TRITON;   break;
+    case 'a': p = ALPHA;    break;
+    case 'u': p = MUON;     break;
+    case 'e': p = ELECTRON; break;
+    case 'g': p = PHOTON;   break;
   }
   EvdE(ifname, ofname, p, verbose);
 }

@@ -1,335 +1,182 @@
 #include "./scripts/Al50/R15b_Al50_psel.C"
 
 #include "TCanvas.h"
-#include "TF2.h"
+#include "TCut.h"
+#include "TF1.h"
+#include "TFile.h"
 #include "TLegend.h"
+#include "TLine.h"
+#include "TStyle.h"
+#include "TTree.h"
 
-#include <iostream>
-#include <vector>
+#include <cstdio>
 
-////////////////////////////////////////////////////////////////////////////////
-// USER DEFINED VARIABLE
-// This script was grown organically, so any attempt to understand variable
-// names is a fool's errand. Generaly
-// l/r represent left/right (except when l means TLegend)
-// p/d/t/a/u mean proton, deuteron, triton, alpha, and unclassified, except
-//   when p means profile or particle
-// f means function
-// h/p/s/e means histogram, profile (except where it means proton), selected,
-//   and energy
-// dat/fcn means data (derived form data file) and function (derived from
-//   simulation)
-// l/c means legend (except where it means left), and canvas
-// The first input file, PRAW, is the raw particle E vs dE data.
-// The second input file, PSEL, is the particle selection information.
-// That just means the simulated E vs dE plots, which are used to construct
-// particle select functions.
-static const char IFNAME_PRAW[] = "~/data/R15b/evdeal50.root";
-static const char IFNAME_PSEL[] = "~/data/R15b/pselal50.root";
-////////////////////////////////////////////////////////////////////////////////
+class PIDCut {
+  TF1* f[2];
+  TLine* l[2];
+public:
+  PIDCut(char lr) {
+    static const double elo = 1.9e3, ehi = 17e3;
+    f[0] = new TF1("", "(x<=[0])*[1]*x^[2]+(x>[0])*[1]*[0]^([2]-[3])*x^[3]",
+                   elo, ehi);
+    f[1] = new TF1("", "(x<=[0])*[1]*x^[2]+(x>[0])*[1]*[0]^([2]-[3])*x^[3]",
+                   elo, ehi);
+    if (lr == 'L') {
+      f[0]->SetParameters(4e3, 35e5, -1.02, -0.85);
+      f[1]->SetParameters(4e3, 44e5, -1.00, -0.78);
+    } else if (lr == 'R') {
+      f[0]->SetParameters(4e3, 60e5, -1.09, -0.95);
+      f[1]->SetParameters(4e3, 11e6, -1.10, -0.85);
+    } else {
+      throw "NOT LR";
+    }
+    l[0] = new TLine(elo, f[0]->Eval(elo), elo, f[1]->Eval(elo));
+    l[1] = new TLine(ehi, f[0]->Eval(ehi), ehi, f[1]->Eval(ehi));
+  }
+  void SetLineColor(Color_t c) {
+    f[0]->SetLineColor(c);
+    f[1]->SetLineColor(c);
+    l[0]->SetLineColor(c);
+    l[1]->SetLineColor(c);
+  }
+  void SetLineStyle(Style_t s) {
+    f[0]->SetLineStyle(s);
+    f[1]->SetLineStyle(s);
+    l[0]->SetLineStyle(s);
+    l[1]->SetLineStyle(s);
+  }
+  void Draw() {
+    f[0]->Draw("SAME");
+    f[1]->Draw("SAME");
+    l[0]->Draw("SAME");
+    l[1]->Draw("SAME");
+  }
+};
 
-
-vector<ParticleLikelihoodData> pls_l, pls_r;
-// vector<ParticleLikelihoodMC> pls_l, pls_r;
-// Proton, deuteron, triton, alpha; right, left
-Double_t pfcn_l(Double_t* x, Double_t* par) { return pls_l[0](x[1], x[0]); }
-Double_t pfcn_r(Double_t* x, Double_t* par) { return pls_r[0](x[1], x[0]); }
-Double_t dfcn_l(Double_t* x, Double_t* par) { return pls_l[1](x[1], x[0]); }
-Double_t dfcn_r(Double_t* x, Double_t* par) { return pls_r[1](x[1], x[0]); }
-Double_t tfcn_l(Double_t* x, Double_t* par) { return pls_l[2](x[1], x[0]); }
-Double_t tfcn_r(Double_t* x, Double_t* par) { return pls_r[2](x[1], x[0]); }
-Double_t afcn_l(Double_t* x, Double_t* par) { return pls_l[3](x[1], x[0]); }
-Double_t afcn_r(Double_t* x, Double_t* par) { return pls_r[3](x[1], x[0]); }
-
-TF2 *fpl, *fpr, *fdl, *fdr, *ftl, *ftr, *fal, *far;
-void init_fcns() {
-  static bool init = false;
-  if (init) return;
-  init = true;
-
-  pls_l = LoadParticleLikelihoodsData('L');
-  pls_r = LoadParticleLikelihoodsData('R');
-  // pls_l = LoadParticleLikelihoodsMC('L');
-  // pls_r = LoadParticleLikelihoodsMC('R');
-  fpl = new TF2("fpl", pfcn_l, 0., 20.e3, 0., 10.e3);
-  fpr = new TF2("fpr", pfcn_r, 0., 20.e3, 0., 10.e3);
-  fdl = new TF2("fdl", dfcn_l, 0., 20.e3, 0., 10.e3);
-  fdr = new TF2("fdr", dfcn_r, 0., 20.e3, 0., 10.e3);
-  ftl = new TF2("ftl", tfcn_l, 0., 20.e3, 0., 10.e3);
-  ftr = new TF2("ftr", tfcn_r, 0., 20.e3, 0., 10.e3);
-  fal = new TF2("fal", afcn_l, 0., 20.e3, 0., 10.e3);
-  far = new TF2("far", afcn_r, 0., 20.e3, 0., 10.e3);
-
-  Double_t fcont[1] = { 1.e-4 };
-  fpl->SetNpx(200); fpl->SetNpy(200); fpl->SetContour(1, fcont);
-  fpr->SetNpx(200); fpr->SetNpy(200); fpr->SetContour(1, fcont);
-  fdl->SetNpx(200); fdl->SetNpy(200); fdl->SetContour(1, fcont);
-  fdr->SetNpx(200); fdr->SetNpy(200); fdr->SetContour(1, fcont);
-  ftl->SetNpx(200); ftl->SetNpy(200); ftl->SetContour(1, fcont);
-  ftr->SetNpx(200); ftr->SetNpy(200); ftr->SetContour(1, fcont);
-  fal->SetNpx(200); fal->SetNpy(200); fal->SetContour(1, fcont);
-  far->SetNpx(200); far->SetNpy(200); far->SetContour(1, fcont);
-  fpl->SetLineColor(kRed);
-  fpr->SetLineColor(kRed);
-  fdl->SetLineColor(kGreen);
-  fdr->SetLineColor(kGreen);
-  ftl->SetLineColor(kBlue);
-  ftr->SetLineColor(kBlue);
-  fal->SetLineColor(kMagenta);
-  far->SetLineColor(kMagenta);
+TGraph* PIDTreeToGraph(TTree* tr) {
+  double e1, e2;
+  // tr->SetBranchStatus("*",  0);
+  // tr->SetBranchStatus("e1", 1);
+  // tr->SetBranchStatus("e2", 1);
+  tr->SetBranchAddress("e1", &e1);
+  tr->SetBranchAddress("e2", &e2);
+  TGraph* gr = new TGraph(tr->GetEntries());
+  for (int i = 0; i < tr->GetEntries(); ++i) {
+    tr->GetEntry(i);
+    gr->SetPoint(i, e1+e2, e1);
+  }
+  tr->ResetBranchAddresses();
+  return gr;
 }
 
-TH2      *hpl, *hpr, *hdl, *hdr, *htl, *htr, *hal, *har;
-TProfile *ppl, *ppr, *pdl, *pdr, *ptl, *ptr, *pal, *par;
-TH2      *spl, *spr, *sdl, *sdr, *stl, *str, *sal, *sar, *sul, *sur;
-TH1      *epl, *epr, *edl, *edr, *etl, *etr, *eal, *ear;
-void init_hists() {
-  static bool init = false;
-  if (init) return;
-  init = true;
-  TH1::SetDefaultSumw2();
-  init_fcns();
+void r15b_al50_psel_draw(const char* ifname) {
+  TFile* ifile = new TFile(ifname);
+  TTree* trp[2] = { (TTree*)ifile->Get("PID_LP"), (TTree*)ifile->Get("PID_RP") };
+  TTree* trd[2] = { (TTree*)ifile->Get("PID_LD"), (TTree*)ifile->Get("PID_RD") };
+  TTree* trt[2] = { (TTree*)ifile->Get("PID_LT"), (TTree*)ifile->Get("PID_RT") };
+  TTree* tra[2] = { (TTree*)ifile->Get("PID_LA"), (TTree*)ifile->Get("PID_RA") };
+  TTree* tru[2] = { (TTree*)ifile->Get("PID_LU"), (TTree*)ifile->Get("PID_RU") };
 
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
+  TGraph* grp[2] = { PIDTreeToGraph(trp[0]), PIDTreeToGraph(trp[1]) };
+  TGraph* grd[2] = { PIDTreeToGraph(trd[0]), PIDTreeToGraph(trd[1]) };
+  TGraph* grt[2] = { PIDTreeToGraph(trt[0]), PIDTreeToGraph(trt[1]) };
+  TGraph* gra[2] = { PIDTreeToGraph(tra[0]), PIDTreeToGraph(tra[1]) };
+  TGraph* gru[2] = { PIDTreeToGraph(tru[0]), PIDTreeToGraph(tru[1]) };
 
-  hpl = pls_l[0].GetHist();
-  hpr = pls_r[0].GetHist();
-  hdl = pls_l[1].GetHist();
-  hdr = pls_r[1].GetHist();
-  htl = pls_l[2].GetHist();
-  htr = pls_r[2].GetHist();
-  hal = pls_l[3].GetHist();
-  har = pls_r[3].GetHist();
+  TH1* hp[2] = { new TH1D("hpl", "Measured Proton Energy;E [keV];dE [/100keV]",   150, 2e3, 17e3),
+                 new TH1D("hpr", "Measured Proton Energy;E [keV];dE [/100keV]",   150, 2e3, 17e3) };
+  TH1* hd[2] = { new TH1D("hdl", "Raw Deuteron Spectrum (dt<200 && t>400 && e3==0);E [keV];dE [/100keV]", 150, 2e3, 17e3),
+                 new TH1D("hdr", "Raw Deuteron Spectrum (dt<200 && t>400 && e3==0);E [keV];dE [/100keV]", 150, 2e3, 17e3) };
+  TH1* ht[2] = { new TH1D("htl", "Raw Triton Spectrum (dt<200 && t>400 && e3==0);E [keV];dE [/100keV]",   150, 2e3, 17e3),
+                 new TH1D("htr", "Raw Triton Spectrum (dt<200 && t>400 && e3==0);E [keV];dE [/100keV]",   150, 2e3, 17e3) };
+  TH1* ha[2] = { new TH1D("hal", "Raw Alpha Spectrum (dt<200 && t>400 && e3==0);E [keV];dE [/100keV]",    150, 2e3, 17e3),
+                 new TH1D("har", "Raw Alpha Spectrum (dt<200 && t>400 && e3==0);E [keV];dE [/100keV]",    150, 2e3, 17e3) };
+  TCut tcut_veto("t>400 && abs(dt)<200 && e3==0");
+  trp[0]->Draw("e>>hpl", tcut_veto, "goff");
+  trp[1]->Draw("e>>hpr", tcut_veto, "goff");
+  trd[0]->Draw("e>>hdl", tcut_veto, "goff");
+  trd[1]->Draw("e>>hdr", tcut_veto, "goff");
+  trt[0]->Draw("e>>htl", tcut_veto, "goff");
+  trt[1]->Draw("e>>htr", tcut_veto, "goff");
+  tra[0]->Draw("e>>hal", tcut_veto, "goff");
+  tra[1]->Draw("e>>har", tcut_veto, "goff");
 
-  TFile* psel_file = new TFile(IFNAME_PSEL);
-  spl = (TH2*)psel_file->Get("evde_l0_proton");
-  spr = (TH2*)psel_file->Get("evde_r0_proton");
-  sdl = (TH2*)psel_file->Get("evde_l0_deuteron");
-  sdr = (TH2*)psel_file->Get("evde_r0_deuteron");
-  stl = (TH2*)psel_file->Get("evde_l0_triton");
-  str = (TH2*)psel_file->Get("evde_r0_triton");
-  sal = (TH2*)psel_file->Get("evde_l0_alpha");
-  sar = (TH2*)psel_file->Get("evde_r0_alpha");
-  sul = (TH2*)psel_file->Get("evde_l0_unclassified");
-  sur = (TH2*)psel_file->Get("evde_r0_unclassified");
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
+  grp[0]->SetTitle("SiL Proton PID Cut (50#mum Al Data);E [keV];dE [keV]");
+  grp[1]->SetTitle("SiR Proton PID Cut (50#mum Al Data);E [keV];dE [keV]");
+  grp[0]->GetYaxis()->SetRangeUser(0, 3e3);
+  grp[1]->GetYaxis()->SetRangeUser(0, 3e3);
 
+  PIDCut pids[2] = { PIDCut('L'), PIDCut('R') };
+  pids[0].SetLineColor(kRed);
+  pids[1].SetLineColor(kRed);
 
-  epl = spl->ProfileX();
-  epr = spr->ProfileX();
-  edl = sdl->ProfileX();
-  edr = sdr->ProfileX();
-  etl = stl->ProfileX();
-  etr = str->ProfileX();
-  eal = sal->ProfileX();
-  ear = sar->ProfileX();
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
+  hp[0]->SetLineColor(ACStyle::kACBlue);
+  hp[1]->SetLineColor(ACStyle::kACRed);
 
-  hpl->SetMarkerColor(kRed);
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
-  hpr->SetMarkerColor(kRed);
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
-  hdl->SetMarkerColor(kGreen);
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
-  hdr->SetMarkerColor(kGreen);
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
-  htl->SetMarkerColor(kBlue);
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
-  htr->SetMarkerColor(kBlue);
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
-  hal->SetMarkerColor(kMagenta);
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
-  har->SetMarkerColor(kMagenta);
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
+  gStyle->SetOptStat(0);
 
-  ppl->SetLineColor(kRed);
-  ppr->SetLineColor(kRed);
-  pdl->SetLineColor(kGreen);
-  pdr->SetLineColor(kGreen);
-  ptl->SetLineColor(kBlue);
-  ptr->SetLineColor(kBlue);
-  pal->SetLineColor(kMagenta);
-  par->SetLineColor(kMagenta);
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
+  TCanvas* cpidprot = new TCanvas("cpidprot", "cpidprot", 1400, 500);
+  cpidprot->Divide(2);
+  cpidprot->cd(1);
+  grp [0]->Draw("AP");
+  grd [0]->Draw("P SAME");
+  grt [0]->Draw("P SAME");
+  gra [0]->Draw("P SAME");
+  gru [0]->Draw("P SAME");
+  pids[0]. Draw();
+  cpidprot->cd(2);
+  grp [1]->Draw("AP");
+  grd [1]->Draw("P SAME");
+  grt [1]->Draw("P SAME");
+  gra [1]->Draw("P SAME");
+  gru [1]->Draw("P SAME");
+  pids[1]. Draw();
+  cpidprot->SaveAs("img/pidcut_prot.png");
 
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
-  spl->SetMarkerColor(kRed);
-  spr->SetMarkerColor(kRed);
-  sdl->SetMarkerColor(kGreen);
-  sdr->SetMarkerColor(kGreen);
-  stl->SetMarkerColor(kBlue);
-  str->SetMarkerColor(kBlue);
-  sal->SetMarkerColor(kMagenta);
-  sar->SetMarkerColor(kMagenta);
-  sul->SetMarkerColor(kBlack);
-  sur->SetMarkerColor(kBlack);
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
-
-  spl->SetLineColor(kRed);
-  spr->SetLineColor(kRed);
-  sdl->SetLineColor(kGreen);
-  sdr->SetLineColor(kGreen);
-  stl->SetLineColor(kBlue);
-  str->SetLineColor(kBlue);
-  sal->SetLineColor(kMagenta);
-  sar->SetLineColor(kMagenta);
-  sul->SetLineColor(kBlack);
-  sur->SetLineColor(kBlack);
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
-
-  epl->SetLineColor(kBlue);
-  epr->SetLineColor(kRed);
-  edl->SetLineColor(kBlue);
-  edr->SetLineColor(kRed);
-  etl->SetLineColor(kBlue);
-  etr->SetLineColor(kRed);
-  eal->SetLineColor(kBlue);
-  ear->SetLineColor(kRed);
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
-
-  hpl->SetStats(false);
-  hpr->SetStats(false);
-  hdl->SetStats(false);
-  hdr->SetStats(false);
-  htl->SetStats(false);
-  htr->SetStats(false);
-  hal->SetStats(false);
-  har->SetStats(false);
-
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
-  ppl->SetStats(false);
-  ppr->SetStats(false);
-  pdl->SetStats(false);
-  pdr->SetStats(false);
-  ptl->SetStats(false);
-  ptr->SetStats(false);
-  pal->SetStats(false);
-  par->SetStats(false);
-
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
-  spl->SetStats(false);
-  spr->SetStats(false);
-  sdl->SetStats(false);
-  sdr->SetStats(false);
-  stl->SetStats(false);
-  str->SetStats(false);
-  sal->SetStats(false);
-  sar->SetStats(false);
-  sul->SetStats(false);
-  sur->SetStats(false);
-
-  std::cout << __LINE__ << "!!!!!!!!!!!!!!!!!" << std::endl;
-  epl->SetStats(false);
-  epr->SetStats(false);
-  edl->SetStats(false);
-  edr->SetStats(false);
-  etl->SetStats(false);
-  etr->SetStats(false);
-  eal->SetStats(false);
-  ear->SetStats(false);
-
-  hpl->SetTitle("SiL MC;E_{tot} [keV];E_{thin} [keV]");
-  hpr->SetTitle("SiR MC;E_{tot} [keV];E_{thin} [keV]");
-  ppl->SetTitle("SiL MC Cut;E_{tot} [keV];E_{thin} [keV]");
-  ppr->SetTitle("SiR MC Cut;E_{tot} [keV];E_{thin} [keV]");
-  spl->SetTitle("SiL Particle Classification;E_{tot} [keV];dE [keV]");
-  spr->SetTitle("SiR Particle Classification;E_{tot} [keV];dE [keV]");
-  epl->SetTitle("Proton Raw Energy");
-  edl->SetTitle("Deuteron Raw Energy");
-  etl->SetTitle("Triton Raw Energy");
-  eal->SetTitle("Alpha Raw Energy");
-}
-
-void r15b_al50_psel_draw() {
-  init_hists();
   TLegend* l = new TLegend(0.7, 0.7, 0.9, 0.9);
-  l->AddEntry(ppl, "Proton",   "l");
-  l->AddEntry(pdl, "Deuteron", "l");
-  l->AddEntry(ptl, "Triton",   "l");
-  l->AddEntry(pal, "#alpha",   "l");
-  char legentry_l[32], legentry_r[32];
-  TLegend* lep = new TLegend(0.7, 0.7, 0.9, 0.9);
-  TLegend* led = new TLegend(0.7, 0.7, 0.9, 0.9);
-  TLegend* let = new TLegend(0.7, 0.7, 0.9, 0.9);
-  TLegend* lea = new TLegend(0.7, 0.7, 0.9, 0.9);
-  sprintf(legentry_l, "Left (%d)",  epl->GetEntries());
-  sprintf(legentry_r, "Right (%d)", epr->GetEntries());
-  lep->AddEntry(epl, legentry_l);
-  lep->AddEntry(epr, legentry_r);
-  sprintf(legentry_l, "Left (%d)",  edl->GetEntries());
-  sprintf(legentry_r, "Right (%d)", edr->GetEntries());
-  led->AddEntry(edl, legentry_l);
-  led->AddEntry(edr, legentry_r);
-  sprintf(legentry_l, "Left (%d)",  etl->GetEntries());
-  sprintf(legentry_r, "Right (%d)", etr->GetEntries());
-  let->AddEntry(epl, legentry_l);
-  let->AddEntry(epr, legentry_r);
-  sprintf(legentry_l, "Left (%d)",  eal->GetEntries());
-  sprintf(legentry_r, "Right (%d)", ear->GetEntries());
-  lea->AddEntry(eal, legentry_l);
-  lea->AddEntry(ear, legentry_r);
+  l->AddEntry(hp[0], "SiL");
+  l->AddEntry(hp[1], "SiR");
 
-  TCanvas* chl = new TCanvas;
-  hpl->Draw();
-  hdl->Draw("SAME");
-  htl->Draw("SAME");
-  hal->Draw("SAME");
+  TCanvas* ctmp = new TCanvas("ctmp", "ctmp", 1400, 500);
+  ctmp->Divide(2);
+  ctmp->cd(1);
+  grp [1]->Draw("AP");
+  grd [1]->Draw("P SAME");
+  grt [1]->Draw("P SAME");
+  gra [1]->Draw("P SAME");
+  gru [1]->Draw("P SAME");
+  pids[1]. Draw();
+  ctmp->cd(2);
+  hp[1]->Draw("E SAME");
+  hp[0]->Draw("E SAME");
   l->Draw();
-  TCanvas* chr = new TCanvas;
-  hpr->Draw();
-  hdr->Draw("SAME");
-  htr->Draw("SAME");
-  har->Draw("SAME");
-  l->Draw();
+  ctmp->SaveAs("img/dpf2019pid.png");
 
-  TFile* data_file = new TFile(IFNAME_PRAW);
-  TH2* datl = (TH2*)data_file->Get("evde_l0");
-  TH2* datr = (TH2*)data_file->Get("evde_r0");
-  datl->SetTitle("EvdE SiL;E_{tot}[keV];dE[keV]");
-  datr->SetTitle("EvdE SiR;E_{tot}[keV];dE[keV]");
-  datl->SetStats(0);
-  datr->SetStats(0);
-  TCanvas* cpl = new TCanvas();
-  ppl->GetYaxis()->SetRangeUser(0, 10e3);
-  datl->Draw();
-  ppl->Draw("SAME"); fpl->Draw("SAME CONT3");
-  pdl->Draw("SAME"); fdl->Draw("SAME CONT3");
-  ptl->Draw("SAME"); ftl->Draw("SAME CONT3");
-  pal->Draw("SAME"); fal->Draw("SAME CONT3");
+  TCanvas* cp = new TCanvas("cp", "cp", 700, 500);
+  hp[1]->Draw("E SAME");
+  hp[0]->Draw("E SAME");
   l->Draw();
-  TCanvas* cpr = new TCanvas();
-  ppr->GetYaxis()->SetRangeUser(0, 10e3);
-  datr->Draw();
-  ppr->Draw("SAME"); fpr->Draw("SAME CONT3");
-  pdr->Draw("SAME"); fdr->Draw("SAME CONT3");
-  ptr->Draw("SAME"); ftr->Draw("SAME CONT3");
-  par->Draw("SAME"); far->Draw("SAME CONT3");
-  l->Draw();
-  TCanvas* csl = new TCanvas();
-  spl->Draw();       sdl->Draw("SAME");
-  stl->Draw("SAME"); sal->Draw("SAME");
-  sul->Draw("SAME"); l->Draw();
-  TCanvas* csr = new TCanvas();
-  spr->Draw();       sdr->Draw("SAME");
-  str->Draw("SAME"); sar->Draw("SAME");
-  sur->Draw("SAME"); l->Draw();
-  TCanvas* cep = new TCanvas();
-  epl->Draw(); epr->Draw("SAME"); lep->Draw();
-  TCanvas* ced = new TCanvas();
-  edl->Draw(); edr->Draw("SAME"); led->Draw();
-  TCanvas* cet = new TCanvas();
-  etl->Draw(); etr->Draw("SAME"); let->Draw();
-  TCanvas* cea = new TCanvas();
-  eal->Draw(); ear->Draw("SAME"); lea->Draw();
+  cp->SaveAs("img/raw_prot.png");
 
-  chl->SaveAs("mc_evde_l_raw.png");
-  chr->SaveAs("mc_evde_r_raw.png");
-  cpl->SaveAs("mc_evde_l_cut.png");
-  cpr->SaveAs("mc_evde_r_cut.png");
-  csl->SaveAs("data_evde_l_classified.png");
-  csr->SaveAs("data_evde_r_classified.png");
-  cep->SaveAs("data_e_proton.png");
-  ced->SaveAs("data_e_deuteron.png");
-  cet->SaveAs("data_e_triton.png");
-  cea->SaveAs("data_e_alpha.png");
+  TCut ecut[3] = { "2e3<e && e<17e3", "3.5e3<e && e<10e3", "4e3<e && e<8e3"};
+  int ntot[2]  = { (int)trp[0]->GetEntries(tcut_veto && ecut[0]),
+                   (int)trp[1]->GetEntries(tcut_veto && ecut[0]) };
+  int nroi1[2] = { (int)trp[0]->GetEntries(tcut_veto && ecut[1]),
+                   (int)trp[1]->GetEntries(tcut_veto && ecut[1]) };
+  int nroi2[2] = { (int)trp[0]->GetEntries(tcut_veto && ecut[2]),
+                   (int)trp[1]->GetEntries(tcut_veto && ecut[2]) };
+  std::printf("\tTotal\t3.5-10MeV\t4-8MeV\n");
+  std::printf("SiL\t%d\t%d\t\t%d\n", ntot[0], nroi1[0], nroi2[0]);
+  std::printf("SiR\t%d\t%d\t\t%d\n", ntot[1], nroi1[1], nroi2[1]);
+
+  // chl->SaveAs("mc_evde_l_raw.png");
+  // chr->SaveAs("mc_evde_r_raw.png");
+  // cpl->SaveAs("mc_evde_l_cut.png");
+  // cpr->SaveAs("mc_evde_r_cut.png");
+  // csl->SaveAs("data_evde_l_classified.png");
+  // csr->SaveAs("data_evde_r_classified.png");
+  // cep->SaveAs("data_e_proton.png");
+  // ced->SaveAs("data_e_deuteron.png");
+  // cet->SaveAs("data_e_triton.png");
+  // cea->SaveAs("data_e_alpha.png");
 }
