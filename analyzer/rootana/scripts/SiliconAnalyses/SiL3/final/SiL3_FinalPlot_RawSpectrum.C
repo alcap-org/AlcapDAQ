@@ -34,7 +34,7 @@ void SiL3_FinalPlot_RawSpectrum() {
 
     TH1F* spectrum = (TH1F*) file->Get(histname.c_str());
     if (!spectrum) {
-      std::cout << "Error: Problem getting spectrum " << j_histname << std::endl;
+      std::cout << "Error: Problem getting spectrum " << histname << std::endl;
       return;
     }
     spectrum->SetStats(false);

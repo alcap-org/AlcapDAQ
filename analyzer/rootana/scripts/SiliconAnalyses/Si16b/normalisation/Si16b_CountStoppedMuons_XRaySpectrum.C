@@ -39,6 +39,9 @@ void Si16b_CountStoppedMuons_XRaySpectrum(std::string infilename, std::string ou
 	if (args.transition == "Capture843keV") {
 	  args.rebin_factor = 2;
 	}
+	//	else if (args.transition == "2p-1s") {
+	//	  args.rebin_factor = 3;
+	//	}
 	else {
 	  args.rebin_factor = 1;
 	}

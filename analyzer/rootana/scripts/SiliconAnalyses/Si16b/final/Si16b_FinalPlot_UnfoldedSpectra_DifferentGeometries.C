@@ -1,11 +1,11 @@
 void Si16b_FinalPlot_UnfoldedSpectra_DifferentGeometries() {
 
-  const int n_settings = 2;
-  std::string setting_names[n_settings] = {"", "_1mmCloserSiR"};
-  Int_t colours[n_settings] = {kRed, kBlue};
-  std::string leglabels[n_settings] = {"nominal", "SiR 1 mm closer"};
+  const int n_settings = 3;
+  std::string setting_names[n_settings] = {"", "_1mmCloserSiR", "_collXOffset0mm"};
+  Int_t colours[n_settings] = {kRed, kBlue, kMagenta};
+  std::string leglabels[n_settings] = {"nominal", "SiR 1 mm closer", "collimator x-offset = 0 mm"};
   
-  std::string infilename = "~/data/results/Si16b/unfold_newPP.root";
+  std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
 
   int rebin_factor = 5;

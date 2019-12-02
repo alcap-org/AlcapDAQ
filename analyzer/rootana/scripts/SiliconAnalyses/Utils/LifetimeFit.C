@@ -85,7 +85,8 @@ Double_t lifetime_doubleExp_flatBkg(Double_t* x, Double_t* par) {
 
 struct LifetimeFitArgs {
   std::string infilename;
-  std::string inhistname;
+  std::vector<std::string> datahistnames;
+  std::vector<double> scale_ratios;
   std::string outfilename;
   std::string outdirname;
 
@@ -112,42 +113,56 @@ struct LifetimeFitArgs {
 void LifetimeFit(const LifetimeFitArgs& args) {
   TFile* file = new TFile(args.infilename.c_str(), "READ");
   TH1D* hTime = NULL;
-  if (!args.project_x && !args.project_y) {
-    hTime = (TH1D*) file->Get(args.inhistname.c_str());
+  for (std::vector<std::string>::const_iterator i_histname = args.datahistnames.begin(); i_histname != args.datahistnames.end(); ++i_histname) {
+    TH1D* i_hist = NULL;
+    if (!args.project_x && !args.project_y) {
+      i_hist = (TH1D*) file->Get(i_histname->c_str());
+    }
+    else if (args.project_x && !args.project_y) {
+      TH2F* h2D = (TH2F*) file->Get(i_histname->c_str());
+      if (!h2D) {
+	std::cout << "Error: Problem getting h2D: " << i_histname->c_str() << std::endl;
+	return;
+      }
+      std::string projname = *(i_histname) + "_px";
+      int min_cut_bin = 1;
+      int max_cut_bin = h2D->GetYaxis()->GetNbins();
+      if (args.min_energy_cut > 0) {
+	min_cut_bin = h2D->GetYaxis()->FindBin(args.min_energy_cut);
+      }
+      if (args.max_energy_cut > 0) {
+	max_cut_bin = h2D->GetYaxis()->FindBin(args.max_energy_cut);
+      }
+      i_hist = h2D->ProjectionX(projname.c_str(), min_cut_bin, max_cut_bin);
+    }
+    else if (!args.project_x && args.project_y) {
+      TH2F* h2D = (TH2F*) file->Get(i_histname->c_str());
+      if (!h2D) {
+	std::cout << "Error: Problem getting h2D: " << i_histname->c_str() << std::endl;
+	return;
+      }
+      std::string projname = *(i_histname) + "_px";
+      i_hist = h2D->ProjectionY(projname.c_str(), 1, h2D->GetXaxis()->GetNbins());
+    }
+    else if (args.project_x && args.project_y) {
+      std::cout << "ERROR: can't project onto both x and y" << std::endl;
+      return;
+    }
+    if (!i_hist) {
+      std::cout << "Error: Problem getting hist: " << i_histname->c_str() << std::endl;
+      return;
+    }
+
+    double scale_ratio = args.scale_ratios.at(i_histname - args.datahistnames.begin());
+
     if (!hTime) {
-      std::cout << "Error: Problem getting hTime: " << args.inhistname.c_str() << std::endl;
-      return;
+      hTime = i_hist;
+      std::string newname = "hTime";
+      hTime->SetName(newname.c_str());
     }
-  }
-  else if (args.project_x && !args.project_y) {
-    TH2F* h2D = (TH2F*) file->Get(args.inhistname.c_str());
-    if (!h2D) {
-      std::cout << "Error: Problem getting h2D: " << args.inhistname.c_str() << std::endl;
-      return;
+    else {
+      hTime->Add(i_hist, scale_ratio);
     }
-    std::string projname = args.inhistname + "_px";
-    int min_cut_bin = 1;
-    int max_cut_bin = h2D->GetYaxis()->GetNbins();
-    if (args.min_energy_cut > 0) {
-      min_cut_bin = h2D->GetYaxis()->FindBin(args.min_energy_cut);
-    }
-    if (args.max_energy_cut > 0) {
-      max_cut_bin = h2D->GetYaxis()->FindBin(args.max_energy_cut);
-    }
-    hTime = h2D->ProjectionX(projname.c_str(), min_cut_bin, max_cut_bin);
-  }
-  else if (!args.project_x && args.project_y) {
-    TH2F* h2D = (TH2F*) file->Get(args.inhistname.c_str());
-    if (!h2D) {
-      std::cout << "Error: Problem getting h2D: " << args.inhistname.c_str() << std::endl;
-      return;
-    }
-    std::string projname = args.inhistname + "_px";
-    hTime = h2D->ProjectionY(projname.c_str(), 1, h2D->GetXaxis()->GetNbins());
-  }
-  else if (args.project_x && args.project_y) {
-    std::cout << "ERROR: can't project onto both x and y" << std::endl;
-    return;
   }
 
   //  hTime->Sumw2();
@@ -175,7 +190,7 @@ void LifetimeFit(const LifetimeFitArgs& args) {
     if (!args.include_resolution) {
       int npar = 4;
       muonic_atom_lifetime = new TF1("muonic_atom_lifetime", lifetime_singleExp, args.min_fit_time, args.max_fit_time, npar);
-      muonic_atom_lifetime->SetParameters(args.ignore_region_min, args.ignore_region_max, 1000, 700);
+      muonic_atom_lifetime->SetParameters(args.ignore_region_min, args.ignore_region_max, hTime->Integral(), 700);
       muonic_atom_lifetime->FixParameter(0, args.ignore_region_min);
       muonic_atom_lifetime->FixParameter(1, args.ignore_region_max);
       i_lifetime_par = 3;
@@ -187,21 +202,35 @@ void LifetimeFit(const LifetimeFitArgs& args) {
       conv->SetNofPointsFFT(1000);
       muonic_atom_lifetime = new TF1("muonic_atom_lifetime", *conv, args.min_fit_time, args.max_fit_time, conv->GetNpar());
       muonic_atom_lifetime->SetParameters(1000, 700, 100, 0, 20);
-      muonic_atom_lifetime->FixParameter(3, 0);
-      muonic_atom_lifetime->FixParameter(4, 20);
+      //      muonic_atom_lifetime->FixParameter(2, 100);
+      //      muonic_atom_lifetime->FixParameter(3, 1);
+      //      muonic_atom_lifetime->FixParameter(4, 20);
       i_lifetime_par = 1;
     }
   }
   else if (!args.double_exp && args.flat_bkg) {
-    int npar = 5;
-    muonic_atom_lifetime = new TF1("muonic_atom_lifetime", lifetime_singleExp_flatBkg, args.min_fit_time, args.max_fit_time, npar);
-    muonic_atom_lifetime->SetParameters(args.ignore_region_min, args.ignore_region_max, 1000, 700, 10);
-    muonic_atom_lifetime->FixParameter(0, args.ignore_region_min);
-    muonic_atom_lifetime->FixParameter(1, args.ignore_region_max);
-    //    muonic_atom_lifetime->FixParameter(4, flatbkg->GetParameter(0));
-    muonic_atom_lifetime->SetParameter(4, flatbkg->GetParameter(0));
-    muonic_atom_lifetime->SetParLimits(4, 0, 10000);
-    i_lifetime_par = 3;
+    if (!args.include_resolution) {
+      int npar = 5;
+      muonic_atom_lifetime = new TF1("muonic_atom_lifetime", lifetime_singleExp_flatBkg, args.min_fit_time, args.max_fit_time, npar);
+      muonic_atom_lifetime->SetParameters(args.ignore_region_min, args.ignore_region_max, 1000, 700, 10);
+      muonic_atom_lifetime->FixParameter(0, args.ignore_region_min);
+      muonic_atom_lifetime->FixParameter(1, args.ignore_region_max);
+      //    muonic_atom_lifetime->FixParameter(4, flatbkg->GetParameter(0));
+      muonic_atom_lifetime->SetParameter(4, flatbkg->GetParameter(0));
+      muonic_atom_lifetime->SetParLimits(4, 0, 10000);
+      i_lifetime_par = 3;
+    }
+    else {
+      int npar = 6;
+      TF1Convolution* conv = new TF1Convolution("[0]*TMath::Exp(-x/[1]) + [2]", "gaus", args.min_fit_time, args.max_fit_time, true);
+      conv->SetRange(args.min_fit_time, args.max_fit_time);
+      conv->SetNofPointsFFT(1000);
+      muonic_atom_lifetime = new TF1("muonic_atom_lifetime", *conv, args.min_fit_time, args.max_fit_time, conv->GetNpar());
+      muonic_atom_lifetime->SetParameters(1000, 700, 10, 100, 10, 20);
+      //      muonic_atom_lifetime->FixParameter(3, 0);
+      //      muonic_atom_lifetime->FixParameter(4, 20);
+      i_lifetime_par = 1;
+    }
   }
   else if (args.double_exp && !args.flat_bkg) {
     int npar = 6;

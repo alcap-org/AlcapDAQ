@@ -1,43 +1,46 @@
 void Si16b_FinalPlot_FoldedSpectra() {
 
-  const int n_PIDs = 2;
-  std::string PIDs[n_PIDs] = {"TCutG", "PSel"};
-  std::string leglabels[n_PIDs] = {"Mark's PID", "John's PID"};
-  Int_t colours[n_PIDs] = {kRed, kBlue};
+  const int n_particles = 4;
+  std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};
+  Int_t colours[n_particles] = {kRed, kCyan, kMagenta, kSpring};
 
   TCanvas* c_Spectra = new TCanvas("c_Spectra", "c_Spectra");
-  int rebin_factor = 25;
+  int rebin_factor = 1;
   std::stringstream axistitle;
 
-  TLegend* leg = new TLegend(0.50,0.45,0.80,0.75);
+  TLegend* leg = new TLegend(0.70,0.55,0.90,0.85);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.035);
   leg->SetFillColor(kWhite);
 
-  std::string infilename = "~/data/results/Si16b/unfold_newPP.root";
+  std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
-  for (int i_PID = 0; i_PID < n_PIDs; ++i_PID) {
-    std::string i_pid = PIDs[i_PID];
+  for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
+    std::string particle = particles[i_particle];
     
-    //    std::string folded_histname = "PIDCut_proton_" + i_pid + "/hInputSpectrum";
-    std::string folded_histname = "PIDCut_proton_" + i_pid + "/hCorrectedSpectrum";
+    std::string folded_histname = "PIDCut_" + particle + "_PSel/hInputSpectrum";
+    //    std::string folded_histname = "PIDCut_" + particle + "_PSel/hCorrectedSpectrum";
     TH1F* hFoldedSpectrum = (TH1F*) infile->Get(folded_histname.c_str());
-
+    if (!hFoldedSpectrum) {
+      std::cout << "Can't find histogram " << folded_histname << std::endl;
+      continue;
+    }
 
     //  hFoldedSpectrum->SetTitle(outhisttitle.c_str());
     hFoldedSpectrum->Rebin(rebin_factor);
     hFoldedSpectrum->SetStats(false);
-    hFoldedSpectrum->SetLineColor(colours[i_PID]);
-    hFoldedSpectrum->GetXaxis()->SetRangeUser(0, 15000);
+    hFoldedSpectrum->SetLineColor(colours[i_particle]);
+    hFoldedSpectrum->SetLineWidth(2);
+    hFoldedSpectrum->GetXaxis()->SetRangeUser(0, 26000);
     hFoldedSpectrum->GetYaxis()->SetTitleOffset(1.3);
     axistitle.str("");
     axistitle << "Raw Count / " << hFoldedSpectrum->GetXaxis()->GetBinWidth(1) << " keV";
-    hFoldedSpectrum->SetTitle("Si16b Dataset, Right Arm, Raw Spectrum (with eff correction)");
+    hFoldedSpectrum->SetTitle("Si16b Dataset, Right Arm, Raw Spectrum");
     hFoldedSpectrum->SetYTitle(axistitle.str().c_str());
   
     hFoldedSpectrum->Draw("HIST E SAME");
 
-    leg->AddEntry(hFoldedSpectrum, leglabels[i_PID].c_str(), "l");
+    leg->AddEntry(hFoldedSpectrum, particle.c_str(), "l");
     
     const int n_ranges = 5;
     double min_energies[n_ranges] = {1400,  10000, 5000,   3500, 4000};

@@ -1,5 +1,5 @@
-#include "scripts/SiliconAnalyses/Utils/CountStoppedMuons_XRaySpectrum.C"
-#include "scripts/SiliconAnalyses/Utils/CountStoppedMuons_TargetSpectrum.C"
+#include "../../Utils/CountStoppedMuons_XRaySpectrum.C"
+#include "../../Utils/CountStoppedMuons_TargetSpectrum.C"
 
 void SiL3_CountStoppedMuons_XRaySpectrum_wTargetCoinc(std::string infilename, std::string outfilename) {
 

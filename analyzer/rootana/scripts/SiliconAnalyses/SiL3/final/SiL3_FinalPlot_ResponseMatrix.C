@@ -12,7 +12,7 @@ void SiL3_FinalPlot_ResponseMatrix() {
   TCanvas* c_Response = new TCanvas("c_Response", "c_Response");
 
   std::string histtitle;
-  histtitle = "SiL3 MC, 1.5 mm Si Target, " + particle + " Escape Response Matrix";
+  histtitle = "SiL3 MC, " + particle + " Escape Response Matrix";
   hResponseMatrix->SetTitle(histtitle.c_str());
   hResponseMatrix->SetStats(false);
   //  gStyle->SetOptFit(1);

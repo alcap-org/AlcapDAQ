@@ -56,7 +56,7 @@ void SiL3_FinalPlot_DecayElectronCorrection() {
 
     raw_spectrum->SetTitle("SiL3 Dataset, Active Target Analysis, Decay Electron Correction");
     raw_spectrum->SetStats(false);
-    raw_spectrum->GetXaxis()->SetRangeUser(0,20000);
+    raw_spectrum->GetXaxis()->SetRangeUser(0,30000);
     raw_spectrum->SetLineColor(colours[i_slice]);
     
     std::stringstream axislabel;
@@ -76,11 +76,11 @@ void SiL3_FinalPlot_DecayElectronCorrection() {
 
     double min_energy = 350;
     double max_energy = 3000;
-    int min_energy_bin = hInputSpectrum->GetXaxis()->FindBin(min_energy);
-    int max_energy_bin = hInputSpectrum->GetXaxis()->FindBin(max_energy);
+    int min_energy_bin = raw_spectrum->GetXaxis()->FindBin(min_energy);
+    int max_energy_bin = raw_spectrum->GetXaxis()->FindBin(max_energy);
     
-    double full_integral = hInputSpectrum->Integral(min_energy_bin, max_energy_bin);
-    double decay_integral = hCorrection->Integral(min_energy_bin, max_energy_bin);
+    double full_integral = raw_spectrum->Integral(min_energy_bin, max_energy_bin);
+    double decay_integral = correction->Integral(min_energy_bin, max_energy_bin);
     
     std::cout << "Fraction of Spectrum below " << max_energy / 1000 << " MeV due to decay electron = " << decay_integral / full_integral << std::endl;
   }

@@ -7,6 +7,7 @@
 #include "RooUnfoldBayes.h"
 #include "RooUnfoldBinByBin.h"
 #include "RooUnfoldSvd.h"
+#include "RooUnfoldIds.h"
 
 #include <iostream>
 #include <sstream>
@@ -108,6 +109,7 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
     std::cout << "Unfold_ResponseMatrix: Unknown unfolding method " << args.method << std::endl;
     return;
   }
+  //  unfold->IncludeSystematics();
   
   TH1D* unfolded_spectrum = (TH1D*) unfold->Hreco();
   newname = "hCorrectedSpectrum";
@@ -118,7 +120,7 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   axislabel.str("");
   axislabel << "Unfolded Count / " << unfolded_spectrum->GetBinWidth(1) << " keV";
   unfolded_spectrum->SetYTitle(axislabel.str().c_str());
-
+  
   //  std::cout << "Before Time Cut Efficiency Correction: " << std::endl;
   //  printIntegrals(unfolded_spectrum);
 
@@ -139,7 +141,16 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   response_matrix->Write();
   folded_spectrum->Write();
   unfolded_spectrum->Write();
-
+  if (args.method == "svd") {
+    TSVDUnfold* tsvd = ((RooUnfoldSvd*)unfold)->Impl();
+    if (!tsvd) {
+      std::cout << "AE: An Issue!" << std::endl;
+      return;
+    }
+    TH1D* hD = (TH1D*) tsvd->GetD()->Clone("hD");
+    hD->Write();
+  }
+  
   outfile->Write();
   outfile->Close();
 }

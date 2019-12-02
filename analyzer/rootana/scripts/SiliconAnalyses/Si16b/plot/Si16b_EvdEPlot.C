@@ -36,13 +36,16 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
   //  Setting protons("proton", "~/data/results/Si16b/cuts_new_threelayer.root", "proton_cut", proton);
   //  Setting deuterons("deuteron", "~/data/results/Si16b/cuts_new_threelayer.root", "deuteron_cut", deuteron);
   //  Setting tritons("triton", "~/data/results/Si16b/cuts_new_threelayer.root", "triton_cut", triton);
-  Setting alphas("alpha", "~/data/results/Si16b/cuts_new_threelayer.root", "alpha_cut", alpha);
+  //  Setting alphas("alpha", "~/data/results/Si16b/cuts_new_threelayer.root", "alpha_cut", alpha);
   Setting protons("proton", "~/data/results/Si16b/mark-al50-cuts-keV.root", "hLg_SiR_EvDeltaE_proton_3sigma_keV", proton);
   Setting deuterons("deuteron", "~/data/results/Si16b/mark-al50-cuts-keV.root", "hLg_SiR_EvDeltaE_deuteron_3sigma_keV", deuteron);
   Setting tritons("triton", "~/data/results/Si16b/mark-al50-cuts-keV.root", "hLg_SiR_EvDeltaE_triton_3sigma_keV", triton);
+  Setting alphas("alpha", "~/data/results/Si16b/new_alpha_cut.root", "alpha_cut", alpha);
   Setting muspot_both("muspot_both", "~/data/results/Si16b/cut_muon-spots.root", "both");
   Setting muspot_lower("muspot_lower", "~/data/results/Si16b/cut_muon-spots.root", "lower");
   Setting muspot_upper("muspot_upper", "~/data/results/Si16b/cut_muon-spots.root", "upper");
+  //  Setting protons3L("proton3L", "~/data/results/Si16b/cuts_new_threelayer.root", "proton_cut", proton);
+    Setting protons3L("proton3L", "~/data/results/Si16b/proton_cut_threelayer.root", "proton_cut", proton);
   std::vector<Setting> settings;
   settings.push_back(all);
   //  settings.push_back(all_proton);
@@ -50,19 +53,20 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
   settings.push_back(deuterons);
   settings.push_back(tritons);
   settings.push_back(alphas);
+  settings.push_back(protons3L);
   //  settings.push_back(muspot_both);
   //  args.debug = true;
   //  settings.push_back(muspot_lower);
   //  settings.push_back(muspot_upper);
 
-  const int n_timecuts = 1;
-  double min_timecuts[n_timecuts] = {400};//200, 400, 600, 800, 1000, 2000};
-  double max_timecuts[n_timecuts] = {10000};//10000, 10000, 10000, 10000, 10000, 10000};
+  const int n_timecuts = 7;
+  double min_timecuts[n_timecuts] = {0, 200, 400, 600, 800, 1000, 2000};
+  double max_timecuts[n_timecuts] = {10000, 10000, 10000, 10000, 10000, 10000, 10000};
 
-  const int n_layer_coincidences = 1;
-  std::string layer_coincidences[n_layer_coincidences] = {"layerCoinc"};//{"noLayerCoinc", "layerCoinc"};//, "thickLateCoinc"};
-  double min_layer_coincidences[n_layer_coincidences] = {-100};//{-10000, -100};//, 200};
-  double max_layer_coincidences[n_layer_coincidences] = {100};//{10000, 100};//, 10000};
+  const int n_layer_coincidences = 3;
+  std::string layer_coincidences[n_layer_coincidences] = {"noLayerCoinc", "layerCoinc", "thickLateCoinc"};
+  double min_layer_coincidences[n_layer_coincidences] = {-10000, -100, 200};
+  double max_layer_coincidences[n_layer_coincidences] = {10000, 100, 10000};
 
   std::string tree = "SiR";
   std::stringstream outdirname;
@@ -75,6 +79,13 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
     args.thick_layer = "thick";
     args.third_layer = "third";
     args.veto_layer = "";
+
+    if (i_setting->name == "alpha") {
+      args.max_x_energy = 30000;
+    }
+    else {
+      args.max_x_energy = 25000;
+    }
 
     bool original_do_cut = false;
     if (i_setting->name == "all") {
@@ -94,6 +105,7 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
       args.do_cut = original_do_cut;
       args.do_psel = false;
       args.do_thin_channel_cut = false;
+      args.do_third_channel_cut = false;
 	
       // With and without layer coinc
       args.outdirname = i_setting->name + "_" + tree + "_" + layer_coincidence;
@@ -103,7 +115,19 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
       args.min_layer23_coincidence_time = min_layer_coincidences[i_layer_coincidence];
       args.max_layer23_coincidence_time = max_layer_coincidences[i_layer_coincidence];
       EvdEPlot(args);
-    
+
+      if (i_setting->psel_part != invalid) {
+	args.do_cut = false;
+	args.do_psel = true;
+	args.psel_particle = i_setting->psel_part;
+	
+	outdirname.str("");
+	outdirname << i_setting->name << "_" << tree << "_" << layer_coincidence << "_PSel";
+	args.outdirname = outdirname.str();
+	EvdEPlot(args);
+	args.do_psel = false;
+      }
+      
       // By thin-channel (for "all" only)
       //    if (i_setting->name == "all") {
       const int n_thin_channels = 4;
@@ -155,12 +179,28 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
     args.layer_coincidence_vetos = true;
     args.min_layer12_coincidence_time = -100;
     args.max_layer12_coincidence_time = 100;
-    args.min_layer23_coincidence_time = -50000;
-    args.max_layer23_coincidence_time = 50000;
+    args.min_layer23_coincidence_time = -10000; // third layer is SiL1, which we want to be before SiR2,
+    args.max_layer23_coincidence_time = 0;      // EvdEPlot.C does third layer - second lyaer
     args.do_thin_time_cut = true;
     args.min_thin_time_cut = 400;
     args.max_thin_time_cut = 10000;
 
+    // with any SiL1 channels
+    args.do_cut = original_do_cut;
+    args.do_psel = false;
+    args.do_third_channel_cut = true;
+    args.third_channel_cut = -1;
+    if (args.do_cut) {
+      args.cutfilename = i_setting->cutfilename;
+      args.cutname = i_setting->cutname;
+    }
+    outdirname.str("");
+    outdirname << i_setting->name << "_SiR_timecut" << args.min_thin_time_cut << "_" << args.max_thin_time_cut << "ns_layerCoinc"
+	       << "_wSiL1_XCoinc";
+    args.outdirname = outdirname.str();
+    EvdEPlot(args);
+    */
+    /*
     const int n_SiL1_channels = 14; // only analysed channels SiL1-2 to SiL1-15 in TMELoop (these are then numbered from 0 to 13 so I need to add 2)
     for (int i_SiL1_channel = 0; i_SiL1_channel < n_SiL1_channels; ++i_SiL1_channel) {
       args.do_cut = original_do_cut;

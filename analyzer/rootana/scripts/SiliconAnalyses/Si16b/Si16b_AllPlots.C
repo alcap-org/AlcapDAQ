@@ -6,8 +6,8 @@
 
 void Si16b_AllPlots() {
 
-  std::string infilename = "~/data/results/Si16b/subtrees_newPP.root";
-  std::string outfilename = "~/data/results/Si16b/plots_newPP_test.root";
+  std::string infilename = "~/data/results/Si16b/subtrees_newPP_geq1TgtPulse.root";
+  std::string outfilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse.root";
 
   TFile* outfile = new TFile(outfilename.c_str(), "RECREATE");
   outfile->Write();
@@ -17,7 +17,7 @@ void Si16b_AllPlots() {
   //  Si16b_SiTEnergy(infilename, outfilename);
   Si16b_EvdEPlot(infilename, outfilename);
   Si16b_XRaySpectrum(infilename, outfilename);
-  //  Si16b_TargetSpectrum(infilename, outfilename);
+  Si16b_TargetSpectrum(infilename, outfilename);
   //  Si16b_XRaySpectrum_wTargetCoinc(infilename, outfilename);
 
   //  Si16b_RemoveFlatBkg(infilename, outfilename);

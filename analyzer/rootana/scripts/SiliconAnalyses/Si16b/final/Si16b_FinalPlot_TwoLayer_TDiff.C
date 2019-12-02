@@ -1,26 +1,32 @@
 void Si16b_FinalPlot_TwoLayer_TDiff() {
 
-  bool save_plots = true;
+  bool save_plots = false;
   
-  std::string infilename = "~/data/results/Si16b/plots_newPP.root";
+  std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
   //  std::string histname = "SiR_LayerTDiff/hLayerTDiff";
 
-  const int n_particles = 5;
-  std::string particles[n_particles] = {"all", "proton", "deuteron", "triton", "alpha"};
-  std::string Particles[n_particles] = {"All", "Proton", "Deuteron", "Triton", "Alpha"};
+  const int n_particles = 6;
+  std::string particles[n_particles] = {"all", "proton", "deuteron", "triton", "alpha", "total"};
+  std::string Particles[n_particles] = {"All", "Proton", "Deuteron", "Triton", "Alpha", "All Selected"};
 
   const int n_fit_fns = 2;
   TF1* fit_fns[n_fit_fns] = {0, 0};
   std::string fit_names[n_fit_fns] = {"Double Gaussian Fit", "Single Gaussian Fit"};
 
+  TH1F* hTotal = 0;
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
 
     std::string particle = particles[i_particle];
     std::string Particle = Particles[i_particle];
     
-    std::string histname = particle + "_SiR_nolayercoinc/hTDiff_12not3";
-    std::string histtitle = Particle + " Hits (SiR1 && SiR && !SiR3)";
+    std::string histname = particle + "_SiR_timecut0_10000ns_noLayerCoinc";
+    if (particle != "all") {
+      histname += "_PSel";
+    }
+    //    histname += "/hTDiff_TwoLayer_12";
+    histname += "/hTDiff_ThreeLayer_123";
+    std::string histtitle = Particle + " Hits (no layer coincidence cuts)";
 
     double layer_coinc_cut = 100;
 
@@ -30,7 +36,26 @@ void Si16b_FinalPlot_TwoLayer_TDiff() {
     TCanvas* c_tdiff = new TCanvas(canvasname.c_str(), canvasname.c_str());
     c_tdiff->SetLogy();
   
-    TH1F* hLayerTDiff = (TH1F*) infile->Get(histname.c_str());
+    TH1F* hLayerTDiff = NULL;
+    if (particle != "total") {
+      hLayerTDiff = (TH1F*) infile->Get(histname.c_str());
+    }
+    else {
+      hLayerTDiff = hTotal;
+    }
+    if(!hLayerTDiff){
+      std::cout << "Can't find histogram " << histname << std::endl;
+      continue;
+    }
+    
+    if (particle != "all") {
+      if (!hTotal) {
+	hTotal = (TH1F*) hLayerTDiff->Clone("hTotal");
+      }
+      else {
+	hTotal->Add(hLayerTDiff);
+      }
+    }
 
     std::string fitname = "single_gaus_" + particle;
     TF1* single_gaus = new TF1(fitname.c_str(), "[0]*TMath::Gaus(x,[1],[2])", -225,225);
@@ -69,24 +94,34 @@ void Si16b_FinalPlot_TwoLayer_TDiff() {
     fit_fns[0] = double_gaus; fit_fns[1] = single_gaus;
     for (int i_fit_fn = 0; i_fit_fn < n_fit_fns; ++i_fit_fn) {
       TF1* fit_fn = fit_fns[i_fit_fn];
+      
       TFitResultPtr result = hLayerTDiff->Fit(fit_fn, "R0S");
-      //      std::cout << "AE: " << result->Status() << std::endl;
-      //      result->Print();
-      if (result->Status() != 0) {
-	std::cout << "Failed fit" << std::endl;
-	continue;
+      if (!result) {
+	std::cout << "Fit failed" << std::endl;
+	//      std::cout << "AE: " << result->Status() << std::endl;
+	//      result->Print();
+	if (result->Status() != 0) {
+	  std::cout << "Failed fit" << std::endl;
+	  continue;
+	}
       }
       
-      double total_integral = fit_fn->Integral(-2000,2000);
-      double integral_in_cut = fit_fn->Integral(-layer_coinc_cut, layer_coinc_cut);
-      double fraction = integral_in_cut / total_integral;
+      //      double total_integral = fit_fn->Integral(-2000,2000);
+      //      double integral_in_cut = fit_fn->Integral(-layer_coinc_cut, layer_coinc_cut);
+      double total_integral = hLayerTDiff->Integral();
+      int min_tdiff_bin = hLayerTDiff->GetXaxis()->FindBin(-layer_coinc_cut);
+      int max_tdiff_bin = hLayerTDiff->GetXaxis()->FindBin(layer_coinc_cut);
+      double integral_in_cut = hLayerTDiff->Integral(min_tdiff_bin, max_tdiff_bin);
       
-      std::cout << "AE: Fraction = " << integral_in_cut << " / " << total_integral << " = " << fraction << std::endl;
+      double fraction = integral_in_cut / total_integral;
+      double fraction_err = std::sqrt( (fraction*(1-fraction)) / total_integral );
+      
+      std::cout << "AE: Fraction = " << integral_in_cut << " / " << total_integral << " = " << fraction << " +/- " << fraction_err << std::endl;
       
       fit_fn->Draw("LSAME");
       
       leglabel.str("");
-      leglabel << "#splitline{" << fit_names[i_fit_fn] << std::fixed << std::setprecision(2) << "}{#splitline{#chi^2 / ndf = " << fit_fn->GetChisquare() << " / " << fit_fn->GetNDF() << ", #sigma = " << fit_fn->GetParameter(2) << " ns}{Eff = " << fraction << "}}";
+      leglabel << "#splitline{" << fit_names[i_fit_fn] << std::fixed << std::setprecision(4) << "}{#splitline{#chi^2 / ndf = " << fit_fn->GetChisquare() << " / " << fit_fn->GetNDF() << ", #sigma = " << fit_fn->GetParameter(2) << " ns}{Eff = " << fraction << " #pm " << fraction_err << "}}";
       leg->AddEntry(fit_fn, leglabel.str().c_str(), "l");
     }
     leg->Draw();

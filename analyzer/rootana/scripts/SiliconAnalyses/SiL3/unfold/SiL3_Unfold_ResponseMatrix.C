@@ -1,4 +1,4 @@
-#include "scripts/SiliconAnalyses/Utils/Unfold_ResponseMatrix.C"
+#include "../../Utils/Unfold_ResponseMatrix.C"
 
 void SiL3_Unfold_ResponseMatrix(std::string infilename, std::string outfilename, std::string inhistname, std::string outdirname, std::string particle) {
 
@@ -17,10 +17,12 @@ void SiL3_Unfold_ResponseMatrix(std::string infilename, std::string outfilename,
   //  args.mcresponsename = "Target_two_layer_response";
   //  args.mcfilename = "~/data/mc/SiL3/protonCorr_1M_Geom-P1_proton-flat.root";
   //  args.mcfilename = "~/data/mc/SiL3/protonCorr_1M_Geom-P1_proton-flat_Thresh0-1MeV.root";
-  //  args.mcfilename = "~/data/mc/SiL3/protonCorr_1M_Geom-P1_proton-sw.root";
+  //  args.mcfilename = "~/data/mc/SiL3/" + particle + "Corr_1M_Geom-P1_" + particle + "-sw.root";
   //  args.mcfilename = "~/data/mc/SiL3/protonCorr_1M_Geom-P1-3mm_proton-flat_Thresh0-1MeV.root";
   //  args.mcfilename = "~/data/mc/SiL3/" + particle + "Corr_1M_Geom-P1_" + particle + "-flat_Thresh1-4MeV.root";
   args.mcfilename = "~/data/mc/SiL3/" + particle + "Corr_1M_Geom-P1_" + particle + "-flat_Thresh0-1MeV.root";
+  //  args.mcfilename = "~/data/mc/SiL3/" + particle + "Corr_1M_Geom-P1_" + particle + "-flat_Thresh0-1MeV_cutObsE.root";
+  //  args.mcfilename = "~/data/mc/SiL3/" + particle + "Corr_1M_Geom-P1_" + particle + "-flat_Thresh0-1MeV_noPID.root";
   args.mcresponsename = "SiL_middle_layer_response";
   args.rebin_factor = 2;
   args.outdirname = outdirname;

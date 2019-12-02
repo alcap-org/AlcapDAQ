@@ -1,6 +1,6 @@
 #include "../..//Utils/Unfold_ResponseMatrix.C"
 
-void Si16b_Unfold_ResponseMatrix(std::string infilename, std::string outfilename, std::string datahistname, std::string mcfilename, std::string mcresponsename, int rebin_factor, std::string outdirname) {
+void Si16b_Unfold_ResponseMatrix(std::string infilename, std::string outfilename, std::string datahistname, std::string mcfilename, std::string mcresponsename, int rebin_factor, std::string outdirname, std::string method = "bayes") {
 
   //  gROOT->ProcessLine(".L scripts/Unfolding/bayesian-unfolding/libRooUnfold.so");
 
@@ -13,7 +13,7 @@ void Si16b_Unfold_ResponseMatrix(std::string infilename, std::string outfilename
   args.mcresponsename = mcresponsename;
   args.rebin_factor = rebin_factor;
   args.outdirname = outdirname;
-  args.method = "bayes";
+  args.method = method;
   //  args.method = "svd";
   Unfold_ResponseMatrix(args);
 }

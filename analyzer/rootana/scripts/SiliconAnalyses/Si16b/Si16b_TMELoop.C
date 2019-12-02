@@ -4,7 +4,7 @@ void Si16b_TMELoop() {
   TMELoopArgs args;
   args.infilename = "~/data/out/v10/Si16b.root";
   args.tmetreename = "TMETree/TMETree";
-  args.outfilename = "~/data/results/Si16b/subtrees_newPP15us.root";
+  args.outfilename = "~/data/results/Si16b/subtrees_newPP_0TgtPulse.root";
   args.n_entries = -1; // run for all TMEs
   //  args.n_entries = 1000000;
 
@@ -148,6 +148,7 @@ void Si16b_TMELoop() {
 
   // Target - Layer 1
   args.target.name = "Target";
+  
   args.target.layer1_channels.push_back(&SiL1_2);
   args.target.layer1_calibGains.push_back(SiL1_Gain);
   args.target.layer1_calibOffsets.push_back(SiL1_Offset);
@@ -167,15 +168,15 @@ void Si16b_TMELoop() {
   args.target.layer1_channels.push_back(&SiL1_6);
   args.target.layer1_calibGains.push_back(SiL1_Gain);
   args.target.layer1_calibOffsets.push_back(SiL1_Offset);
-
+  
   args.target.layer1_channels.push_back(&SiL1_7);
   args.target.layer1_calibGains.push_back(SiL1_Gain);
   args.target.layer1_calibOffsets.push_back(SiL1_Offset);
-
+  
   args.target.layer1_channels.push_back(&SiL1_8);
   args.target.layer1_calibGains.push_back(SiL1_Gain);
   args.target.layer1_calibOffsets.push_back(SiL1_Offset);
-
+  
   args.target.layer1_channels.push_back(&SiL1_9);
   args.target.layer1_calibGains.push_back(SiL1_Gain);
   args.target.layer1_calibOffsets.push_back(SiL1_Offset);
@@ -183,7 +184,7 @@ void Si16b_TMELoop() {
   args.target.layer1_channels.push_back(&SiL1_10);
   args.target.layer1_calibGains.push_back(SiL1_Gain);
   args.target.layer1_calibOffsets.push_back(SiL1_Offset);
-
+  
   args.target.layer1_channels.push_back(&SiL1_11);
   args.target.layer1_calibGains.push_back(SiL1_Gain);
   args.target.layer1_calibOffsets.push_back(SiL1_Offset);
@@ -199,11 +200,11 @@ void Si16b_TMELoop() {
   args.target.layer1_channels.push_back(&SiL1_14);
   args.target.layer1_calibGains.push_back(SiL1_Gain);
   args.target.layer1_calibOffsets.push_back(SiL1_Offset);
-
+  
   args.target.layer1_channels.push_back(&SiL1_15);
   args.target.layer1_calibGains.push_back(SiL1_Gain);
   args.target.layer1_calibOffsets.push_back(SiL1_Offset);
-
+  
   // Target - Layer 2
   args.target.layer2_channels.push_back(&SiR1_1);
   args.target.layer2_calibGains.push_back(SiR1_1_Gain);
@@ -267,8 +268,12 @@ void Si16b_TMELoop() {
   args.veto_any_double_counts = false;
   args.veto_max_muon_channel_pulses = false;
   args.veto_pp_window = true;
-  //  args.pp_window = 10000;
-  args.pp_window = 15000;
+  args.pp_window = 10000;
 
+  // require a hit in the target
+  args.req_tgt_muon = true;
+  args.tgt_layer = 1;
+  args.min_tgt_pulses = 0;
+  
   TMELoop(args);
 }

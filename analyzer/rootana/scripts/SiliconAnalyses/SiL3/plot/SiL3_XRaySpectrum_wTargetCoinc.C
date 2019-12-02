@@ -1,4 +1,4 @@
-#include "scripts/SiliconAnalyses/Utils/XRaySpectrum_wTargetCoinc.C"
+#include "../../Utils/XRaySpectrum_wTargetCoinc.C"
 
 void SiL3_XRaySpectrum_wTargetCoinc(std::string infilename, std::string outfilename) {
 

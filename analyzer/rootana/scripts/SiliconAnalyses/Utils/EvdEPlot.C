@@ -118,59 +118,93 @@ void EvdEPlot(EvdEPlotArgs& args) {
   hSingleDetAxes_ThreeLayer_13->SetXTitle("E_{3} [keV]");
   hSingleDetAxes_ThreeLayer_13->SetYTitle("E_{1} [keV]");
 
-  histname = "hThickTime_12";
+  histname = "hThickTime_TwoLayer_12";
   int n_time_bins = (args.max_time - args.min_time) / args.time_width;
-  TH1F* hThickTime_12 = new TH1F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time);
-  hThickTime_12->SetXTitle("t_{2} [ns]");
+  TH1F* hThickTime_TwoLayer_12 = new TH1F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time);
+  hThickTime_TwoLayer_12->SetXTitle("t_{2} [ns]");
   std::stringstream axislabel;
   axislabel << "Count / " << args.time_width << " ns";
-  hThickTime_12->SetYTitle(axislabel.str().c_str());
+  hThickTime_TwoLayer_12->SetYTitle(axislabel.str().c_str());
 
-  histname = "hThickTime_12not3";
-  TH1F* hThickTime_12not3 = new TH1F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time);
-  hThickTime_12not3->SetXTitle("t_{2} [ns]");
-  hThickTime_12not3->SetYTitle(axislabel.str().c_str());
+  histname = "hThickTime_TwoLayer_12not3";
+  TH1F* hThickTime_TwoLayer_12not3 = new TH1F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time);
+  hThickTime_TwoLayer_12not3->SetXTitle("t_{2} [ns]");
+  hThickTime_TwoLayer_12not3->SetYTitle(axislabel.str().c_str());
 
-  histname = "hThickTime_123";
-  TH1F* hThickTime_123 = new TH1F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time);
-  hThickTime_123->SetXTitle("t_{2} [ns]");
-  hThickTime_123->SetYTitle(axislabel.str().c_str());
+  histname = "hThickTime_TwoLayer_123";
+  TH1F* hThickTime_TwoLayer_123 = new TH1F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time);
+  hThickTime_TwoLayer_123->SetXTitle("t_{2} [ns]");
+  hThickTime_TwoLayer_123->SetYTitle(axislabel.str().c_str());
 
-  histname = "hThinTime_12";
-  TH1F* hThinTime_12 = new TH1F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time);
-  hThinTime_12->SetXTitle("t_{1} [ns]");
+  histname = "hThickTime_ThreeLayer_123";
+  TH1F* hThickTime_ThreeLayer_123 = new TH1F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time);
+  hThickTime_ThreeLayer_123->SetXTitle("t_{2} [ns]");
+  hThickTime_ThreeLayer_123->SetYTitle(axislabel.str().c_str());
+
+  histname = "hThinTime_TwoLayer_12";
+  TH1F* hThinTime_TwoLayer_12 = new TH1F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time);
+  hThinTime_TwoLayer_12->SetXTitle("t_{1} [ns]");
   axislabel.str("");
   axislabel << "Count / " << args.time_width << " ns";
-  hThinTime_12->SetYTitle(axislabel.str().c_str());
+  hThinTime_TwoLayer_12->SetYTitle(axislabel.str().c_str());
 
-  histname = "hThinTime_12not3";
-  TH1F* hThinTime_12not3 = new TH1F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time);
-  hThinTime_12not3->SetXTitle("t_{1} [ns]");
-  hThinTime_12not3->SetYTitle(axislabel.str().c_str());
+  histname = "hThinTime_TwoLayer_12not3";
+  TH1F* hThinTime_TwoLayer_12not3 = new TH1F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time);
+  hThinTime_TwoLayer_12not3->SetXTitle("t_{1} [ns]");
+  hThinTime_TwoLayer_12not3->SetYTitle(axislabel.str().c_str());
 
-  histname = "hThinTime_123";
-  TH1F* hThinTime_123 = new TH1F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time);
-  hThinTime_123->SetXTitle("t_{1} [ns]");
-  hThinTime_123->SetYTitle(axislabel.str().c_str());
+  histname = "hThinTime_TwoLayer_123";
+  TH1F* hThinTime_TwoLayer_123 = new TH1F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time);
+  hThinTime_TwoLayer_123->SetXTitle("t_{1} [ns]");
+  hThinTime_TwoLayer_123->SetYTitle(axislabel.str().c_str());
 
-  histname = "hTDiff_12";
+  histname = "hThinTime_ThreeLayer_123";
+  TH1F* hThinTime_ThreeLayer_123 = new TH1F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time);
+  hThinTime_ThreeLayer_123->SetXTitle("t_{1} [ns]");
+  hThinTime_ThreeLayer_123->SetYTitle(axislabel.str().c_str());
+
+  histname = "hTDiff_TwoLayer_12";
   int n_tdiff_bins = (args.max_tdiff - args.min_tdiff) / args.tdiff_width;
-  TH1F* hTDiff_12 = new TH1F(histname.c_str(), histname.c_str(), n_tdiff_bins,args.min_tdiff,args.max_tdiff);
-  hTDiff_12->SetXTitle("t_{2} - t_{1} [ns]");
+  TH1F* hTDiff_TwoLayer_12 = new TH1F(histname.c_str(), histname.c_str(), n_tdiff_bins,args.min_tdiff,args.max_tdiff);
+  hTDiff_TwoLayer_12->SetXTitle("t_{2} - t_{1} [ns]");
   axislabel.str("");
   axislabel << "Count / " << args.tdiff_width << " ns";
-  hTDiff_12->SetYTitle(axislabel.str().c_str());
+  hTDiff_TwoLayer_12->SetYTitle(axislabel.str().c_str());
 
-  histname = "hTDiff_12not3";
-  TH1F* hTDiff_12not3 = new TH1F(histname.c_str(), histname.c_str(), n_tdiff_bins,args.min_tdiff,args.max_tdiff);
-  hTDiff_12not3->SetXTitle("TDiff [ns]");
-  hTDiff_12not3->SetYTitle(axislabel.str().c_str());
+  histname = "hTDiff_TwoLayer_12not3";
+  TH1F* hTDiff_TwoLayer_12not3 = new TH1F(histname.c_str(), histname.c_str(), n_tdiff_bins,args.min_tdiff,args.max_tdiff);
+  hTDiff_TwoLayer_12not3->SetXTitle("TDiff [ns]");
+  hTDiff_TwoLayer_12not3->SetYTitle(axislabel.str().c_str());
 
-  histname = "hTDiff_123";
-  TH1F* hTDiff_123 = new TH1F(histname.c_str(), histname.c_str(), n_tdiff_bins,args.min_tdiff,args.max_tdiff);
-  hTDiff_123->SetXTitle("TDiff [ns]");
-  hTDiff_123->SetYTitle(axislabel.str().c_str());
+  histname = "hTDiff_TwoLayer_123";
+  TH1F* hTDiff_TwoLayer_123 = new TH1F(histname.c_str(), histname.c_str(), n_tdiff_bins,args.min_tdiff,args.max_tdiff);
+  hTDiff_TwoLayer_123->SetXTitle("TDiff [ns]");
+  hTDiff_TwoLayer_123->SetYTitle(axislabel.str().c_str());
 
+  histname = "hTDiff_ThreeLayer_123";
+  TH1F* hTDiff_ThreeLayer_123 = new TH1F(histname.c_str(), histname.c_str(), n_tdiff_bins,args.min_tdiff,args.max_tdiff);
+  hTDiff_ThreeLayer_123->SetXTitle("t_{3} - t_{2} [ns]");
+  hTDiff_ThreeLayer_123->SetYTitle(axislabel.str().c_str());
+
+  histname = "hEvt_TwoLayer_12";
+  TH2F* hEvt_TwoLayer_12 = new TH2F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time, n_x_energy_bins,args.min_x_energy,args.max_x_energy);
+  hEvt_TwoLayer_12->SetXTitle("t_{2} [ns]");
+  hEvt_TwoLayer_12->SetYTitle("E_{1} + E_{2} [keV]");
+
+  histname = "hEvt_TwoLayer_12not3";
+  TH2F* hEvt_TwoLayer_12not3 = new TH2F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time, n_x_energy_bins,args.min_x_energy,args.max_x_energy);
+  hEvt_TwoLayer_12not3->SetXTitle("t_{2} [ns]");
+  hEvt_TwoLayer_12not3->SetYTitle("E_{1} + E_{2} [keV]");
+
+  histname = "hEvt_TwoLayer_123";
+  TH2F* hEvt_TwoLayer_123 = new TH2F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time, n_x_energy_bins,args.min_x_energy,args.max_x_energy);
+  hEvt_TwoLayer_123->SetXTitle("t_{2} [ns]");
+  hEvt_TwoLayer_123->SetYTitle("E_{1} + E_{2} [keV]");
+
+  histname = "hEvt_ThreeLayer_123";
+  TH2F* hEvt_ThreeLayer_123 = new TH2F(histname.c_str(), histname.c_str(), n_time_bins,args.min_time,args.max_time, n_x_energy_bins,args.min_x_energy,args.max_x_energy);
+  hEvt_ThreeLayer_123->SetXTitle("t_{2} [ns]");
+  hEvt_ThreeLayer_123->SetYTitle("E_{1} + E_{2} + E_{3} [keV]");
 
   std::string outtreename = "cuttree";
   TTree* cuttree = new TTree(outtreename.c_str(), outtreename.c_str());
@@ -206,7 +240,7 @@ void EvdEPlot(EvdEPlotArgs& args) {
     }
     if (!cutInfo.tCutG_two_layer) {
       std::cout << "Error: Can't get TCutG " << two_layer_cutname.c_str() << std::endl;
-      return;
+      //      return;
     }
     
     std::string three_layer_cutname = args.cutname + "_three_layer";
@@ -227,7 +261,9 @@ void EvdEPlot(EvdEPlotArgs& args) {
     cuttree->Branch("third_channel_cut", &args.third_channel_cut);
   }
 
-  vector<ParticleLikelihood::PSelPow> pls_r = ParticleLikelihood::LoadParticleLikelihoodsPow('r');
+  bool is_si16b_analysis = true;
+  vector<ParticleLikelihood::PSelPow> pls_r = ParticleLikelihood::LoadParticleLikelihoodsPow('r', is_si16b_analysis);
+  vector<ParticleLikelihood::PSelPow> pls_r_3L = ParticleLikelihood::LoadThreeLayerParticleLikelihoodsPow('r', is_si16b_analysis);
   
   double thin_energy;
   double thin_time;
@@ -311,7 +347,8 @@ void EvdEPlot(EvdEPlotArgs& args) {
       }
       // check that this is the third channel we care about
       if (args.do_third_channel_cut) {
-	if (third_channel != args.third_channel_cut) {
+	// if third_channel_cut is less than 0, then just let it be any channel
+	if (args.third_channel_cut >=0 && third_channel != args.third_channel_cut) {
 	  continue; //to next arm event
 	}
       }
@@ -323,15 +360,29 @@ void EvdEPlot(EvdEPlotArgs& args) {
 	  is_particle = false;
 	}
       }
+      if (args.do_psel) { // only defined for protons
+	if (args.psel_particle==0) {
+	  if(!pls_r_3L[args.psel_particle].IsParticle(total_energy+third_energy, thin_energy+thick_energy)) {
+	    is_particle = false;
+	  }
+	}
+	else {
+	  is_particle = false;
+	}
+      }
       if (is_particle) {
 	hEvdE_ThreeLayer_123->Fill(total_energy+third_energy, thin_energy+thick_energy);
 	hSingleDetAxes_ThreeLayer_23->Fill(third_energy, thick_energy);
 	hSingleDetAxes_ThreeLayer_13->Fill(third_energy, thin_energy);
+	hThickTime_ThreeLayer_123->Fill(thick_time);
+	hThinTime_ThreeLayer_123->Fill(thin_time);
+	hTDiff_ThreeLayer_123->Fill(third_time - thick_time);
+	hEvt_ThreeLayer_123->Fill(thick_time, total_energy+third_energy);
       }
 
       // For the two layer plots, we care about whether it passes the two layer cut not the three layer plot
       is_particle = true;
-      if (args.do_cut) {
+      if (args.do_cut && cutInfo.tCutG_two_layer) {
 	if (!cutInfo.tCutG_two_layer->IsInside(total_energy, thin_energy) ) {
 	  is_particle = false;
 	}
@@ -343,15 +394,16 @@ void EvdEPlot(EvdEPlotArgs& args) {
       }
       if (is_particle) {
 	hEvdE_TwoLayer_123->Fill(total_energy, thin_energy);
-	hThickTime_123->Fill(thick_time);
-	hThinTime_123->Fill(thin_time);
-	hTDiff_123->Fill(thick_time - thin_time);
+	hThickTime_TwoLayer_123->Fill(thick_time);
+	hThinTime_TwoLayer_123->Fill(thin_time);
+	hTDiff_TwoLayer_123->Fill(thick_time - thin_time);
 	hSingleDetAxes_TwoLayer_123->Fill(thick_energy, thin_energy);
+	hEvt_TwoLayer_123->Fill(thick_time, total_energy);
       }
     }
     else { // this is essentially vetoing on the third layer
       bool is_particle = true;
-      if (args.do_cut) {
+      if (args.do_cut && cutInfo.tCutG_two_layer) {
 	if (!cutInfo.tCutG_two_layer->IsInside(total_energy, thin_energy) ) {
 	  is_particle = false;
 	}
@@ -363,9 +415,10 @@ void EvdEPlot(EvdEPlotArgs& args) {
       }
       if (is_particle) {
 	hEvdE_TwoLayer_12not3->Fill(total_energy, thin_energy);
-	hThickTime_12not3->Fill(thick_time);	
-	hThinTime_12not3->Fill(thin_time);
-	hTDiff_12not3->Fill(thick_time - thin_time);
+	hThickTime_TwoLayer_12not3->Fill(thick_time);	
+	hThinTime_TwoLayer_12not3->Fill(thin_time);
+	hTDiff_TwoLayer_12not3->Fill(thick_time - thin_time);
+	hEvt_TwoLayer_12not3->Fill(thick_time, total_energy);
 
 	if (args.debug) {
 	  std::cout << args.outdirname << ": Run #" << run_id << ", Block #" << block_id << ", TME #" << tme_id << ", SiR1-" << thin_channel+1 << " TPI #" << thin_tpi_id << ", SiR2 TPI #" << thick_tpi_id << std::endl;
@@ -374,7 +427,7 @@ void EvdEPlot(EvdEPlotArgs& args) {
     }
     
     bool is_particle = true;
-    if (args.do_cut) {
+    if (args.do_cut && cutInfo.tCutG_two_layer) {
       if (!cutInfo.tCutG_two_layer->IsInside(total_energy, thin_energy) ) {
 	is_particle = false;
       }
@@ -387,9 +440,10 @@ void EvdEPlot(EvdEPlotArgs& args) {
     if (is_particle) {
       hEvdE_TwoLayer_12->Fill(total_energy, thin_energy); // don't veto on the third layer for the two layer analysis
       hSingleDetAxes_TwoLayer_12->Fill(thick_energy, thin_energy); // don't veto on the third layer for the two layer analysis
-      hThickTime_12->Fill(thick_time);
-      hThinTime_12->Fill(thin_time);
-      hTDiff_12->Fill(thick_time - thin_time);
+      hThickTime_TwoLayer_12->Fill(thick_time);
+      hThinTime_TwoLayer_12->Fill(thin_time);
+      hTDiff_TwoLayer_12->Fill(thick_time - thin_time);
+      hEvt_TwoLayer_12->Fill(thick_time, total_energy);
     }
   }
 
@@ -403,19 +457,28 @@ void EvdEPlot(EvdEPlotArgs& args) {
   hEvdE_ThreeLayer_123->Write();
   hEvdE_TwoLayer_12not3->Write();
   hEvdE_TwoLayer_123->Write();
-  hThickTime_12->Write();
-  hThickTime_12not3->Write();
-  hThickTime_123->Write();
-  hThinTime_12->Write();
-  hThinTime_12not3->Write();
-  hThinTime_123->Write();
-  hTDiff_12->Write();
-  hTDiff_12not3->Write();
-  hTDiff_123->Write();
+  hThickTime_TwoLayer_12->Write();
+  hThickTime_TwoLayer_12not3->Write();
+  hThickTime_TwoLayer_123->Write();
+  hThickTime_ThreeLayer_123->Write();
+  hThinTime_TwoLayer_12->Write();
+  hThinTime_TwoLayer_12not3->Write();
+  hThinTime_TwoLayer_123->Write();
+  hThinTime_ThreeLayer_123->Write();
+  hTDiff_TwoLayer_12->Write();
+  hTDiff_TwoLayer_12not3->Write();
+  hTDiff_TwoLayer_123->Write();
+  hTDiff_ThreeLayer_123->Write();
+  hEvt_TwoLayer_12->Write();
+  hEvt_TwoLayer_12not3->Write();
+  hEvt_TwoLayer_123->Write();
+  hEvt_ThreeLayer_123->Write();
   cuttree->Fill();
   cuttree->Write();
   if (args.do_cut) {
-    cutInfo.tCutG_two_layer->Write();
+    if (cutInfo.tCutG_two_layer) {
+      cutInfo.tCutG_two_layer->Write();
+    }
     if (cutInfo.tCutG_three_layer) {
       cutInfo.tCutG_three_layer->Write();
     }
@@ -434,15 +497,22 @@ void EvdEPlot(EvdEPlotArgs& args) {
   delete hEvdE_ThreeLayer_123;
   delete hEvdE_TwoLayer_12not3;
   delete hEvdE_TwoLayer_123;
-  delete hThickTime_12;
-  delete hThickTime_12not3;
-  delete hThickTime_123;
-  delete hThinTime_12;
-  delete hThinTime_12not3;
-  delete hThinTime_123;
-  delete hTDiff_12;
-  delete hTDiff_12not3;
-  delete hTDiff_123;
+  delete hThickTime_TwoLayer_12;
+  delete hThickTime_TwoLayer_12not3;
+  delete hThickTime_TwoLayer_123;
+  delete hThickTime_ThreeLayer_123;
+  delete hThinTime_TwoLayer_12;
+  delete hThinTime_TwoLayer_12not3;
+  delete hThinTime_TwoLayer_123;
+  delete hThinTime_ThreeLayer_123;
+  delete hTDiff_TwoLayer_12;
+  delete hTDiff_TwoLayer_12not3;
+  delete hTDiff_TwoLayer_123;
+  delete hTDiff_ThreeLayer_123;
+  delete hEvt_TwoLayer_12;
+  delete hEvt_TwoLayer_12not3;
+  delete hEvt_TwoLayer_123;
+  delete hEvt_ThreeLayer_123;
   delete hSingleDetAxes_TwoLayer_12;
   delete hSingleDetAxes_TwoLayer_123;
   delete hSingleDetAxes_ThreeLayer_23;

@@ -37,6 +37,7 @@ void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& ar
   TH2F* hEnergyTime = (TH2F*) file->Get(args.inhistname.c_str());
   if (!hEnergyTime) {
     std::cout << "Problem getting histogram " << args.inhistname.c_str() << std::endl;
+    return;
   }
 
   // time cuts can go in here

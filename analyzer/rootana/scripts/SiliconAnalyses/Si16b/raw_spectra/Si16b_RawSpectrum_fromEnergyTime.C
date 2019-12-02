@@ -1,4 +1,4 @@
-#include "scripts/SiliconAnalyses/Utils/RawSpectrum_fromEnergyTime.C"
+#include "../../Utils/RawSpectrum_fromEnergyTime.C"
 
 void Si16b_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfilename) {
 
@@ -13,6 +13,19 @@ void Si16b_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfil
   args.min_time = -200;
   args.max_time = 200;
   args.outdirname = "Target";
+  RawSpectrum_fromEnergyTime(args);
+
+  
+  args.inhistname = "SiL3/hEnergyTime";
+  args.min_time = 0;
+  args.max_time = 10000;
+  args.outdirname = "SiL3";
+  RawSpectrum_fromEnergyTime(args);
+
+  args.inhistname = "SiL3/hEnergyTime";
+  args.min_time = -10000;
+  args.max_time = 0;
+  args.outdirname = "SiL3_FlatBkg";
   RawSpectrum_fromEnergyTime(args);
 
   /* No longer doing inclusive analyses

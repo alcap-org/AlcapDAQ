@@ -47,21 +47,33 @@ void Unfold_FinalNormalisation(const Unfold_FinalNormalisationArgs& args) {
     return;
   }
   double n_stopped_muons = 0;
+  double n_stopped_muons_error = 0;
   counttree->SetBranchAddress("n_stopped_muons", &n_stopped_muons);
+  counttree->SetBranchAddress("n_stopped_muons_error", &n_stopped_muons_error);
   counttree->GetEntry(0);
   
   double n_captured_muons = args.capture_fraction*n_stopped_muons;
+  double n_captured_muons_error = args.capture_fraction*n_stopped_muons_error;
+
+  TH1F* hScale = (TH1F*) hNormalisedSpectrum->Clone("hScale");
+  hScale->Reset();
+  for (int i_bin = 1; i_bin <= hScale->GetNbinsX(); ++i_bin) {
+    hScale->SetBinContent(i_bin, n_captured_muons);
+    hScale->SetBinError(i_bin, n_captured_muons_error);
+  }
   
-  double scale = 1.0 / n_captured_muons;
-  hNormalisedSpectrum->Scale(scale);
+  //  double scale = 1.0 / n_captured_muons;
+  //  hNormalisedSpectrum->Scale(scale);
+  hNormalisedSpectrum->Divide(hScale);
   hNormalisedSpectrum->SetYTitle("Rate of Charged Particle Emission / captured muon");
 
   hNormalisedSpectrum->Rebin(args.rebin_factor);
-  scale = 1.0 / hNormalisedSpectrum->GetXaxis()->GetBinWidth(1);
+  double scale = 1.0 / hNormalisedSpectrum->GetXaxis()->GetBinWidth(1);
   hNormalisedSpectrum->Scale(scale);
   hNormalisedSpectrum->SetYTitle("Rate of Charged Particle Emission / captured muon / keV");
   
-  std::cout << "Unfolding FinalNormalisation: n_stopped_muons = " << n_stopped_muons << ", n_captured_muons = " << n_captured_muons << std::endl;
+  std::cout << "Unfolding FinalNormalisation: n_stopped_muons = " << n_stopped_muons << " +/- " << n_stopped_muons_error << std::endl;
+  std::cout << "Unfolding FinalNormalisation: n_captured_muons = " << n_captured_muons << " +/- " << n_captured_muons_error << std::endl;
 
   TF1* spectral_fit = new TF1("spectral_fit","[0]*(1 - [1]/x)^[2]*(exp(-x/[3]))",1400,30000);//27000);
   //  TF1* spectral_fit = new TF1("spectral_fit","[0]*(1 - [1]/x)^[2]*(exp(-x/[3])+[4]*exp(-x/[5]))",1000,27000);
@@ -81,7 +93,7 @@ void Unfold_FinalNormalisation(const Unfold_FinalNormalisationArgs& args) {
   //  spectral_fit->SetParLimits(4, 0, 100);
   //  spectral_fit->SetParameter(5, 3800);
   //  spectral_fit->SetParLimits(5, 0, 5000);
-  TFitResultPtr fit_result = hNormalisedSpectrum->Fit(spectral_fit, "RMES");
+  //  TFitResultPtr fit_result = hNormalisedSpectrum->Fit(spectral_fit, "RMES");
   //  if ( (Int_t) fit_result != 0) {
   //    std::cout << "Unfolding FinalNormalisation: Fit Failed! Returning..." << std::endl;
   //    return;
@@ -109,6 +121,7 @@ void Unfold_FinalNormalisation(const Unfold_FinalNormalisationArgs& args) {
   outdir->cd();
   hUnfoldedSpectrum->Write();
   hNormalisedSpectrum->Write();
+  hScale->Write();
   spectral_fit->Write();
   outfile->Write();
   outfile->Close();

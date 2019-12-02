@@ -19,6 +19,16 @@ void convertCuts() {
     for (int i_point = 0; i_point < cut->GetN(); ++i_point) {
       double x, y;
       cut->GetPoint(i_point, x, y);
+      if (new_name.find("proton") != std::string::npos) {
+	if (x > 17) { // MeV
+	  x = 17;
+	}
+      }
+      if (new_name.find("deuteron") != std::string::npos) {
+	if (x > 17.5) { // MeV
+	  x = 17.5;
+	}
+      }
       new_cut->SetPoint(i_point, x*1000, y*1000);
     }
     new_cut->Write();

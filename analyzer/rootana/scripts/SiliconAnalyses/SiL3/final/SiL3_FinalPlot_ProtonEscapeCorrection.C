@@ -30,6 +30,7 @@ void SiL3_FinalPlot_ProtonEscapeCorrection() {
     time_slice_str << "TimeSlice" << i_min_time_slice << "_" << i_max_time_slice;
 
     std::string foldername = "ProtonEscape_" + time_slice_str.str();
+    //    std::string foldername = "CombinedEscape_" + time_slice_str.str();
     std::string histname = foldername + "/hInputSpectrum";
     TH1F* raw_spectrum = (TH1F*) file->Get(histname.c_str());
     if (!raw_spectrum) {
@@ -47,9 +48,9 @@ void SiL3_FinalPlot_ProtonEscapeCorrection() {
     raw_spectrum->Rebin(rebin_factor);
     corrected_spectrum->Rebin(rebin_factor);
 
-    raw_spectrum->SetTitle("SiL3 Dataset, Active Target Analysis, Proton Escape Correction");
+    raw_spectrum->SetTitle("SiL3 Dataset, Active Target Analysis, Combined Escape Correction");
     raw_spectrum->SetStats(false);
-    raw_spectrum->GetXaxis()->SetRangeUser(0,20000);
+    raw_spectrum->GetXaxis()->SetRangeUser(0,50000);
     raw_spectrum->SetLineColor(colours[i_slice]);
     
     std::stringstream axislabel;
@@ -62,7 +63,7 @@ void SiL3_FinalPlot_ProtonEscapeCorrection() {
     corrected_spectrum->Draw("HIST E SAME");
 
     leg->AddEntry(raw_spectrum, "Spectrum w/ Decay Electron Correction", "l");
-    leg->AddEntry(corrected_spectrum, "Corrected Spectrum", "l");
+    leg->AddEntry(corrected_spectrum, "Unfolded Spectrum", "l");
   }
 
   leg->Draw();

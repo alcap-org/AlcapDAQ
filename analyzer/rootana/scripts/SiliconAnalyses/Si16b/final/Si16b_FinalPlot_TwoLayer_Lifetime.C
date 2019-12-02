@@ -1,6 +1,6 @@
 void Si16b_FinalPlot_TwoLayer_Lifetime() {
 
-  std::string infilename = "~/data/results/Si16b/lifetime_newPP.root";
+  std::string infilename = "~/data/results/Si16b/lifetime_newPP_geq1TgtPulse.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
 
   TCanvas* c_time = new TCanvas("c_time", "c_time");
@@ -14,18 +14,20 @@ void Si16b_FinalPlot_TwoLayer_Lifetime() {
   std::stringstream leglabel;
   
   const int n_particles = 4;
-  std::string particles[n_particles] = { "Proton", "Deuteron", "Triton", "Alpha"};
+  std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};
   Int_t colours[n_particles] = {kRed, kCyan, kMagenta, kSpring};
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     std::string this_particle = particles[i_particle];
 
-    std::string dirname = this_particle + "_wTimeCut_SingleExp";
-    //    std::string dirname = this_particle + "_wTimeCut_DoubleExp";
+    std::string dirname = this_particle + "_SingleExp";
+    //    std::string dirname = this_particle + "_SingleExp_FlatBkg";
+    //    std::string dirname = this_particle + "_DoubleExp_FlatBkg";
     std::string histname = dirname + "/hTime";
     std::string fitname = dirname + "/muonic_atom_lifetime";
 
     TH1F* hTime = (TH1F*) infile->Get(histname.c_str());
     if (!hTime) {
+      std::cout << "Can't find histogram " << histname << std::endl;
       continue;
     }
     std::string histtitle = "Si16b Dataset, Time";
@@ -43,6 +45,8 @@ void Si16b_FinalPlot_TwoLayer_Lifetime() {
     leglabel.str("");
     leglabel << this_particle << std::fixed << std::setprecision(1) << " (#tau = " << fit->GetParameter(3) << " #pm " << fit->GetParError(3) << ")";
     leg->AddEntry(hTime, leglabel.str().c_str(), "l");
+
+    std::cout << leglabel.str() << ", flat bkg = " << fit->GetParameter(4) << " #pm " << fit->GetParError(4) << std::endl;
   }
   leg->Draw();
   TLatex* latex = new TLatex();

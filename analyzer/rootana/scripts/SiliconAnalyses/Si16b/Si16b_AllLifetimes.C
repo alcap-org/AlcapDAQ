@@ -4,8 +4,8 @@
 
 void Si16b_AllLifetimes() {
 
-  std::string infilename = "~/data/results/Si16b/plots_newPP.root";
-  std::string outfilename = "~/data/results/Si16b/lifetime_newPP.root";
+  std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse.root";
+  std::string outfilename = "~/data/results/Si16b/lifetime_newPP_geq1TgtPulse.root";
   
   TFile* outfile = new TFile(outfilename.c_str(), "RECREATE");
   outfile->Write();

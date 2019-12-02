@@ -10,7 +10,8 @@ void SiL3_FinalPlot_NormalisedSpectrum_wSW() {
   TGraphErrors* SW_gre = (TGraphErrors*) SW_file->Get("Graph");
   //  SW_gre->SetTitle("Charged Particle Emission (after decay electron correction)");
   //  SW_gre->SetTitle("Charged Particle Emission (after proton escape correction)");
-  SW_gre->SetTitle("Charged Particle Emission (after deuteron escape correction)");
+  //  SW_gre->SetTitle("Charged Particle Emission (after deuteron escape correction)");
+  SW_gre->SetTitle("Charged Particle Emission (after combined escape correction)");
   SW_gre->GetXaxis()->SetRangeUser(0,26000);
   SW_gre->GetXaxis()->SetTitle("Energy [keV]");
   SW_gre->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
@@ -37,10 +38,10 @@ void SiL3_FinalPlot_NormalisedSpectrum_wSW() {
   const int n_slices = 1;
   double min_time_slices[n_slices] = {2000};
   double max_time_slices[n_slices] = {4000};
-  Int_t colours[n_slices] = {kBlue};
+  Int_t colours[n_slices] = {kRed};
   std::string leglabels[n_slices] = {"SiL3 (active target)"};
 
-  int rebin_factor = 2;
+  int rebin_factor = 1;
   std::stringstream time_slice_str;
   for (int i_slice = 0; i_slice < n_slices; ++i_slice) {
     double i_min_time_slice = min_time_slices[i_slice];

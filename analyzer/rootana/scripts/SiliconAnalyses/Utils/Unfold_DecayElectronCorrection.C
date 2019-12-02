@@ -75,17 +75,28 @@ void Unfold_DecayElectronCorrection(const Unfold_DecayElectronCorrectionArgs& ar
     return;
   }
   double n_stopped_muons = 0;
+  double n_stopped_muons_error = 0;
   counttree->SetBranchAddress("n_stopped_muons", &n_stopped_muons);
+  counttree->SetBranchAddress("n_stopped_muons_error", &n_stopped_muons_error);
   counttree->GetEntry(0);
   
   double n_decay_muons = (1-args.capture_fraction)*n_stopped_muons;
+  double n_decay_muons_error = (1-args.capture_fraction)*n_stopped_muons_error; 
 
-  double scale = n_decay_muons;
-  hCorrection->Scale(scale);
+  //  double scale = n_decay_muons;
+  //  hCorrection->Scale(scale);
   //  hCorrection->Rebin(2);
+  TH1F* hScale = (TH1F*) hCorrection->Clone("hScale");
+  hScale->Reset();
+  for (int i_bin = 1; i_bin <= hScale->GetNbinsX(); ++i_bin) {
+    hScale->SetBinContent(i_bin, n_decay_muons);
+    hScale->SetBinError(i_bin, n_decay_muons_error);
+  }
+  hCorrection->Multiply(hScale);
   
   TH1D* hCorrectedSpectrum = (TH1D*) hRawSpectrum->Clone("hCorrectedSpectrum");
-  std::cout << "Unfolding DecayElectron: n_stopped_muons = " << n_stopped_muons << ", n_decay_muons = " << n_decay_muons << std::endl;
+  std::cout << "Unfolding DecayElectron: n_stopped_muons = " << n_stopped_muons << " +/- " << n_stopped_muons_error << std::endl;
+  std::cout << "Unfolding DecayElectron: n_decay_muons = " << n_decay_muons << " +/- " << n_decay_muons_error << std::endl;
   std::cout << "Unfolding DecayElectron: hRawSpectrum Bin Width = " << hRawSpectrum->GetXaxis()->GetBinWidth(1) << " keV, Min = " << hRawSpectrum->GetXaxis()->GetXmin() << ", Max = " << hRawSpectrum->GetXaxis()->GetXmax() << std::endl;
   std::cout << "Unfolding DecayElectron: hCorrection Bin Width = " << hCorrection->GetXaxis()->GetBinWidth(1) << " keV, Min = " << hCorrection->GetXaxis()->GetXmin() << ", Max = " << hCorrection->GetXaxis()->GetXmax() << std::endl;
   hCorrectedSpectrum->Add(hCorrection, -1);
@@ -96,6 +107,7 @@ void Unfold_DecayElectronCorrection(const Unfold_DecayElectronCorrectionArgs& ar
   hRawSpectrum->Write();
   hCorrection->Write();
   hCorrectedSpectrum->Write();
+  hScale->Write();
   outfile->Write();
   outfile->Close();
 }

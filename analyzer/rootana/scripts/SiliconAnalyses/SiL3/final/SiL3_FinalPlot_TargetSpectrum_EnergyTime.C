@@ -29,13 +29,26 @@ void SiL3_FinalPlot_TargetSpectrum_EnergyTime() {
   hEnergyTime->GetXaxis()->SetRangeUser(-20000, 20000);
   hEnergyTime->GetYaxis()->SetRangeUser(0, 100000);
 
+  double y_max = 30000;
   TCanvas* c_EnergyTime_Zoom = new TCanvas("c_EnergyTime_Zoom", "c_EnergyTime_Zoom");
   c_EnergyTime_Zoom->SetLogz();
-  TH1F* hEnergyTime_Zoom = hEnergyTime->Clone("hEnergyTime_Zoom");
+  TH2F* hEnergyTime_Zoom = (TH2F*) hEnergyTime->Clone("hEnergyTime_Zoom");
   hEnergyTime_Zoom->GetXaxis()->SetRangeUser(-1000, 10000);
-  hEnergyTime_Zoom->GetYaxis()->SetRangeUser(0, 30000);
+  hEnergyTime_Zoom->GetYaxis()->SetRangeUser(0, y_max);
   //  hEnergyTime_Zoom->GetXaxis()->SetRangeUser(2000, 10000);
   //  hEnergyTime_Zoom->GetYaxis()->SetRangeUser(10000, 30000);
   hEnergyTime_Zoom->Draw("COLZ");
+
+  double min_time = 2000;
+  double max_time = 4000;
+  TLine* min_time_line = new TLine(min_time, 0, min_time, y_max);
+  min_time_line->SetLineWidth(2);
+  min_time_line->SetLineColor(kRed);
+  min_time_line->Draw("LSAME");
+  TLine* max_time_line = new TLine(max_time, 0, max_time, y_max);
+  max_time_line->SetLineWidth(2);
+  max_time_line->SetLineColor(kRed);
+  max_time_line->Draw("LSAME");
+  
   latex->DrawLatexNDC(0.50, 0.70, "AlCap Preliminary");
 }

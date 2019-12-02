@@ -1,6 +1,6 @@
-#include "../..//Utils/Unfold_TimeCut.C"
+#include "../../Utils/Unfold_TimeCut.C"
 
-void Si16b_Unfold_TimeCut(std::string infilename, std::string outfilename, std::string inhistname, std::string incutfilename, std::string incuttreename, std::string outdirname, double decay_lifetime) {
+void Si16b_Unfold_TimeCut(std::string infilename, std::string outfilename, std::string inhistname, std::string incutfilename, std::string incuttreename, std::string outdirname, double decay_lifetime, std::string branch = "thick_time_cut", double extra_efficiency = 1) {
 
   Unfold_TimeCutArgs args;
   args.infilename = infilename;
@@ -12,7 +12,8 @@ void Si16b_Unfold_TimeCut(std::string infilename, std::string outfilename, std::
 
   args.outfilename = outfilename;
   args.outdirname = outdirname;
-  args.min_time_cut_branch = "min_thin_time_cut";
-  args.max_time_cut_branch = "max_thin_time_cut";
+  args.min_time_cut_branch = "min_" + branch;
+  args.max_time_cut_branch = "max_" + branch;
+  args.extra_efficiency = extra_efficiency;
   Unfold_TimeCut(args);
 }

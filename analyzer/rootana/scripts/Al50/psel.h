@@ -196,7 +196,7 @@ namespace ParticleLikelihood {
     TGraph        SigGraph()               const { return df;                 }
   };
 
-  std::vector<PSelPow> LoadParticleLikelihoodsPow(char lr) {
+  std::vector<PSelPow> LoadParticleLikelihoodsPow(char lr, bool si16b_analysis = false) {
     double L[4][3] = { {85e4, 15e5, -0.85}, {15e5, 22e5, -0.85},
                        {22e5, 30e5, -0.85}, {10e6, 16e6, -0.85} };
     double R[4][3] = { {12e5, 22e5, -0.9}, {22e5, 35e5, -0.9},
@@ -205,12 +205,63 @@ namespace ParticleLikelihood {
     for (int i = 0; i < NPTYPE-1; ++i)
       if (lr == 'l' || lr == 'L')
         pls.push_back(PSelPow(L[i][0], L[i][1], L[i][2], 1.9e3, 17e3));
-      else if (lr == 'r' || lr == 'R')
-        pls.push_back(PSelPow(R[i][0], R[i][1], R[i][2], 1.9e3, 17e3));
+      else if (lr == 'r' || lr == 'R') {
+	double emin = 1.9e3; double emax = 17e3;
+	if (si16b_analysis) {
+	  if (i==3) { // alpha
+	    emin = 9e3;
+	    emax = 19e3;
+	    //	    R[i][0] = 17e6;
+	  }
+	  if (i==2) { // triton
+	    emin = 3.0e3;
+	    emax = 17.4e3;
+	  }
+	  if (i==1) { // deuteron
+	    emin = 2.5e3;
+	    emax = 17.3e3;
+	  }
+	  if (i==0) { // proton
+	    emin = 2.0e3;
+	    //	    emax = 15e3;
+	  }
+	}
+	pls.push_back(PSelPow(R[i][0], R[i][1], R[i][2], emin, emax));
+      }
       else
         PrintAndThrow("ParticleLikelihoodPow: Incorrect detector side!");
     return pls;
   }
+
+  std::vector<PSelPow> LoadThreeLayerParticleLikelihoodsPow(char lr, bool si16b_analysis = false) {
+    double L[4][3] = { {0, 0, 0}, {0, 0, 0},
+                       {0, 0, 0}, {0, 0, 0} };
+    double R[4][3] = { {12e11, 15e11, -1.9}, {0, 0, 0},
+                       {0, 0, 0}, {0, 0, 0} };
+    std::vector<PSelPow> pls;
+    for (int i = 0; i < NPTYPE-1; ++i)
+      if (lr == 'l' || lr == 'L') {
+	std::cout << "WARNING: No parameter values for SiL" << std::endl;
+	continue;
+	//pls.push_back(PSelPow(L[i][0], L[i][1], L[i][2], 1.9e3, 17e3));
+      }
+      else if (lr == 'r' || lr == 'R') {
+	double emin = 1.9e3; double emax = 17e3;
+	if (i > 0) {
+	  std::cout << "WARNING: No parameter values for deuterons, tritons or alphas in SiR" << std::endl;
+	  continue;
+	}
+	else if (i == 0){
+	  emin = 15e3;
+	  emax = 18e3;
+	}
+	pls.push_back(PSelPow(R[i][0], R[i][1], R[i][2], emin, emax));
+      }
+      else
+        PrintAndThrow("ParticleLikelihoodPow: Incorrect detector side!");
+    return pls;
+  }
+
   /*
   std::vector<PSelMZ2> LoadParticleLikelihoodsMZ2(char lr) {
     double L[4][2] = {

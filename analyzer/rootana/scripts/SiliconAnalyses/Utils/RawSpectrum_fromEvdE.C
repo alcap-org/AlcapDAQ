@@ -14,6 +14,7 @@ struct RawSpectrum_fromEvdEArgs {
   std::string datafilename;
   std::vector<std::string> datahistnames;
   std::vector<double> scale_ratios;
+  std::vector<double> scale_ratio_errors;
   std::string datacuttreename;
 
   std::string outfilename;
@@ -46,6 +47,7 @@ void RawSpectrum_fromEvdE(RawSpectrum_fromEvdEArgs& args) {
     }
 
     double scale_ratio = args.scale_ratios.at(i_histname - args.datahistnames.begin());
+    double scale_ratio_error = args.scale_ratio_errors.at(i_histname - args.datahistnames.begin());
 
     if (!raw_spectrum) {
       if (args.projection_x) {
@@ -58,7 +60,21 @@ void RawSpectrum_fromEvdE(RawSpectrum_fromEvdEArgs& args) {
       raw_spectrum->SetName(newname.c_str());
     }
     else {
-      raw_spectrum->Add(hEvdE->ProjectionX(), scale_ratio);
+      //      raw_spectrum->Add(hEvdE->ProjectionX(), scale_ratio);
+      TH1F* hNext = (TH1F*) hEvdE->ProjectionX("hNext");
+      TH1F* hScale = (TH1F*) hNext->Clone("hScale");
+      hScale->Reset();
+      for (int i_bin = 1; i_bin <= hScale->GetNbinsX(); ++i_bin) {
+	hScale->SetBinContent(i_bin, scale_ratio);
+	hScale->SetBinError(i_bin, scale_ratio_error);
+      }
+      int debug_bin = raw_spectrum->FindBin(16000);
+      //      std::cout << "AE: DEBUG: hNext (before scale): " << hNext->GetBinContent(debug_bin) << " +/- " << hNext->GetBinError(debug_bin) << std::endl;
+      hNext->Multiply(hScale);
+      //      std::cout << "AE: DEBUG: hNext (after scale): " << hNext->GetBinContent(debug_bin) << " +/- " << hNext->GetBinError(debug_bin) << std::endl;
+      //      std::cout << "AE: DEBUG: raw_spectrum (before addition): " << raw_spectrum->GetBinContent(debug_bin) << " +/- " << raw_spectrum->GetBinError(debug_bin) << std::endl;
+      raw_spectrum->Add(hNext);
+      //      std::cout << "AE: DEBUG: raw_spectrum (after addition): " << raw_spectrum->GetBinContent(debug_bin) << " +/- " << raw_spectrum->GetBinError(debug_bin) << std::endl;
     }
   }
   double integral_low = 0;

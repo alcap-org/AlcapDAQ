@@ -178,6 +178,7 @@ struct TMELoopArgs {
   double pp_window;
 
   bool req_tgt_muon;
+  int tgt_layer;
   int min_tgt_pulses;
   //  double muScCutLo;
   //  double muScCutHi;
@@ -418,7 +419,22 @@ void TMELoop(const TMELoopArgs& args) {
     //      continue; // to the next TME
     //    }
     if (args.req_tgt_muon) {
-      if( (*args.target.layer2_channels.at(0))->size() < args.min_tgt_pulses) {
+      const std::vector<std::vector<SimplePulse>** >* tgt_channels_ptr = NULL;
+      if (args.tgt_layer == 1) {
+	tgt_channels_ptr = &args.target.layer1_channels;
+      }
+      else if (args.tgt_layer == 2) {
+	tgt_channels_ptr = &args.target.layer2_channels;
+      }
+      else { std::cout << "ERROR: Invalid args.tgt_layer (" << args.tgt_layer << ")" << std::endl; return;
+      }
+      std::vector<std::vector<SimplePulse>** > tgt_channels = *tgt_channels_ptr;
+      // count all the target pulses
+      int n_total_tgt_pulses = 0;
+      for (int i_tgt_channel = 0; i_tgt_channel < tgt_channels.size(); ++i_tgt_channel) {
+	n_total_tgt_pulses += (*tgt_channels.at(i_tgt_channel))->size();
+      }
+      if( n_total_tgt_pulses < args.min_tgt_pulses) {
 	continue; // to the next TME
       }
       /*      else {

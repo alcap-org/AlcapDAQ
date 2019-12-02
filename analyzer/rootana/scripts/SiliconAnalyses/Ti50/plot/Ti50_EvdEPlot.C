@@ -24,6 +24,7 @@ void Ti50_EvdEPlot(std::string infilename, std::string outfilename) {
   
   const int n_arms = 2;
   std::string arms[n_arms] = {"SiR", "SiL"};
+  int n_thin_channels[n_arms] = {4, 16};
   
   for (int i_arm = 0; i_arm < n_arms; ++i_arm) {
 
@@ -37,7 +38,19 @@ void Ti50_EvdEPlot(std::string infilename, std::string outfilename) {
     args.early_time_veto = false;
     args.do_cut = false;
     args.do_psel = false;
+    args.do_thin_channel_cut = false;
     EvdEPlot(args);
+
+    std::stringstream outdirname;
+    for (int i_channel = 0; i_channel < n_thin_channels[i_arm]; ++i_channel) {
+      outdirname.str("");
+      outdirname << "all_" << this_arm << "1_" << i_channel+1;
+      args.outdirname = outdirname.str();
+      args.do_thin_channel_cut = true;
+      args.thin_channel_cut = i_channel;
+      EvdEPlot(args);
+    }
+    args.do_thin_channel_cut = false;
 
     args.outdirname = "all_" + this_arm + "_timecut";
     args.early_time_veto = true;

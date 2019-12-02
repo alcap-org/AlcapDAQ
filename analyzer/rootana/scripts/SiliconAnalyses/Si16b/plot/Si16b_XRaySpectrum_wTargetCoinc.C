@@ -31,7 +31,8 @@ void Si16b_XRaySpectrum_wTargetCoinc(std::string infilename, std::string outfile
 
     double first_muon_energy_slice = 0;
     double last_muon_energy_slice = 1500;
-    double muon_energy_slice = 100;
+    //    double muon_energy_slice = 100;
+    double muon_energy_slice = 1500;
     std::stringstream muon_slice;
     for (double min_muon_energy = first_muon_energy_slice; min_muon_energy < last_muon_energy_slice; min_muon_energy += muon_energy_slice) {
       double max_muon_energy = min_muon_energy + muon_energy_slice;

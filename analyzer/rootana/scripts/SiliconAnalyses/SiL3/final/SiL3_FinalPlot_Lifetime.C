@@ -1,9 +1,9 @@
 void SiL3_FinalPlot_Lifetime() {
 
-  bool save = true;
+  bool save = false;
   std::string base_savename = "~/plots/2019-07-17/";
     
-  std::string infilename = "~/data/results/SiL3/lifetime_geq2TgtPulse_newPP.root";
+  std::string infilename = "~/data/results/SiL3/lifetime_geq2TgtPulse_newPP20us.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
 
   const int n_fits = 2;
@@ -11,9 +11,9 @@ void SiL3_FinalPlot_Lifetime() {
   std::string fit_fns[n_fits] = {"expo only", "expo + pol0"};
   Int_t fit_colours[n_fits] = {kBlue, kRed};
   
-  double min_energy_cut = 0;
+  double min_energy_cut = 15000;
   double max_energy_cut = 30500;
-  double energy_cut_step = 500;
+  double energy_cut_step = 30500;
   std::stringstream energy_cut_str;
   for (double energy_cut = min_energy_cut; energy_cut < max_energy_cut; energy_cut += energy_cut_step) {
 

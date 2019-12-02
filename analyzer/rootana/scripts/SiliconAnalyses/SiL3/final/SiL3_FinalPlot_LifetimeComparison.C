@@ -17,6 +17,10 @@ void SiL3_FinalPlot_LifetimeComparison() {
   Int_t colours[n_settings] = {kBlue, kRed};
   Int_t markerstyles[n_settings] = {kFullCircle, kFullTriangleUp};
 
+  double min_energy_cut = 500;
+  double max_energy_cut = 30500;
+  double energy_cut_step = 500;
+  const int n_cuts = 60;
   for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
 
     std::string infilename = "~/data/results/SiL3/lifetime_geq2TgtPulse_newPP20us.root";
@@ -25,10 +29,6 @@ void SiL3_FinalPlot_LifetimeComparison() {
     //    std::string infilename = "~/data/results/SiL3/lifetime_geq2TgtPulse_newPP" + settings[i_setting] + ".root";
     TFile* infile = new TFile(infilename.c_str(), "READ");
   
-    double min_energy_cut = 500;
-    double max_energy_cut = 30500;
-    double energy_cut_step = 500;
-    const int n_cuts = 60;
     double energy_cuts[n_cuts];
     double lifetimes[n_cuts];
     double lifetime_errors[n_cuts];

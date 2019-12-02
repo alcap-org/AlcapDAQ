@@ -1,4 +1,4 @@
-#include "scripts/SiliconAnalyses/Utils/RawSpectrum_fromEnergyTime.C"
+#include "../../Utils/RawSpectrum_fromEnergyTime.C"
 
 void SiL3_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfilename) {
 
@@ -64,7 +64,12 @@ void SiL3_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfile
   args.max_time = -min_time;
   args.outdirname = "SiL3_ActiveTarget_" + time_slice.str() + "_FlatBkg";  
   RawSpectrum_fromEnergyTime(args);
-  
+
+  args.min_time = -10000;
+  args.max_time = -6000;
+  args.outdirname = "SiL3_ActiveTarget_FlatBkg";  
+  RawSpectrum_fromEnergyTime(args);
+
   args.inhistname = "Target/hEnergyTime";
   args.min_time = -200;
   args.max_time = 200;

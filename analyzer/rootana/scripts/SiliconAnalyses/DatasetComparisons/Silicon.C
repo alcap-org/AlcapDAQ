@@ -55,10 +55,10 @@ void Silicon() {
   SiAnalysis SiL3_target;
   SiL3_target.dataset = "SiL3";
   SiL3_target.analysis = "active target";
-  SiL3_target.filename = "~/data/results/SiL3/unfold_geq2TgtPulse.root";
+  SiL3_target.filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
   SiL3_target.histname = "FinalNormalisation_TimeSlice2000_4000/hNormalisedSpectrum"; //"ProtonEscapeCorrection_TimeSlice2000_4000/hUnfoldedSpectrum",
   SiL3_target.histtitle = "SiL3 Dataset, Active Target Analysis, Charged Particle Specrum";
-  SiL3_target.rebin_factor = 5;
+  SiL3_target.rebin_factor = 2;
   SiL3_target.colour = kRed;
   //  SiL3_target.normfilename = "~/data/results/SiL3/normalisation_geq1TgtPulse.root";
   //  SiL3_target.counttree = "XRaySpectrum_GeLoGain_noTimeCut/counttree";
@@ -214,7 +214,8 @@ void Silicon() {
     for (std::vector<SiAnalysis>::iterator i_siAnalysis = siAnalyses.begin(); i_siAnalysis != siAnalyses.end(); ++ i_siAnalysis) {
       int min_energy_bin = i_siAnalysis->spectrum->GetXaxis()->FindBin(min_energy);
       int max_energy_bin = i_siAnalysis->spectrum->GetXaxis()->FindBin(max_energy) - 1;
-      std::cout << "AlCap, " << i_siAnalysis->dataset << ", " << i_siAnalysis->analysis << ": Integral (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << i_siAnalysis->spectrum->Integral(min_energy_bin, max_energy_bin, "width") << std::endl;
+      double error = -1;
+      std::cout << "AlCap, " << i_siAnalysis->dataset << ", " << i_siAnalysis->analysis << ": Integral (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << i_siAnalysis->spectrum->IntegralAndError(min_energy_bin, max_energy_bin, error, "width") << " +/- " << error << std::endl;
     }
   }
 

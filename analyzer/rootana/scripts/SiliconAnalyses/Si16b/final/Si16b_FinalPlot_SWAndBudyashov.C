@@ -10,6 +10,9 @@ void Si16b_FinalPlot_SWAndBudyashov() {
   TGraph* axis_gre = new TGraph(n_points, axis_limits, ys);
   axis_gre->Draw("AP");
   axis_gre->GetYaxis()->SetRangeUser(1e-8, 4e-3);
+  axis_gre->SetTitle("Charged Particle Emission");
+  axis_gre->GetXaxis()->SetTitle("Energy [keV]");
+  axis_gre->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
   
 
   std::string SW_filename = "~/data/results/SiL3/SW-plots.root";
@@ -17,10 +20,7 @@ void Si16b_FinalPlot_SWAndBudyashov() {
   TFile* SW_file = new TFile(SW_filename.c_str(), "READ");
   TGraphErrors* SW_gre = (TGraphErrors*) SW_file->Get("Graph");
   SW_gre->Draw("PE SAME");
-  SW_gre->SetTitle("Charged Particle Emission");
   SW_gre->GetXaxis()->SetRangeUser(0,x_max);
-  SW_gre->GetXaxis()->SetTitle("Energy [keV]");
-  SW_gre->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
 
   TLegend* leg = new TLegend(0.50,0.55,0.90,0.85);
   leg->SetBorderSize(0);
@@ -33,6 +33,29 @@ void Si16b_FinalPlot_SWAndBudyashov() {
 
   std::string Budyashov_filename = "~/data/results/Si16b/Budyashov-plots.root";
   TFile* Budyashov_file = new TFile(Budyashov_filename.c_str(), "READ");
+
+  TGraphErrors* Budyashov_gre_proton = (TGraphErrors*) Budyashov_file->Get("proton");
+  Budyashov_gre_proton->SetMarkerColor(kRed);
+  Budyashov_gre_proton->SetMarkerStyle(7);
+  Budyashov_gre_proton->SetLineColor(kRed);
+  Budyashov_gre_proton->Draw("PE SAME");
+  Budyashov_gre_proton->SetTitle("Charged Particle Emission");
+  Budyashov_gre_proton->GetXaxis()->SetRangeUser(0,26000);
+  Budyashov_gre_proton->GetXaxis()->SetTitle("Energy [keV]");
+  Budyashov_gre_proton->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
+  leg->AddEntry(Budyashov_gre_proton, "Budyashov et al. (proton)", "pl");
+
+  TGraphErrors* Budyashov_gre_deuteron = (TGraphErrors*) Budyashov_file->Get("deuteron");
+  Budyashov_gre_deuteron->SetMarkerColor(kCyan);
+  Budyashov_gre_deuteron->SetMarkerStyle(7);
+  Budyashov_gre_deuteron->SetLineColor(kCyan);
+  Budyashov_gre_deuteron->Draw("PE SAME");
+  Budyashov_gre_deuteron->SetTitle("Charged Particle Emission");
+  Budyashov_gre_deuteron->GetXaxis()->SetRangeUser(0,26000);
+  Budyashov_gre_deuteron->GetXaxis()->SetTitle("Energy [keV]");
+  Budyashov_gre_deuteron->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
+  leg->AddEntry(Budyashov_gre_deuteron, "Budyashov et al. (deuteron)", "pl");
+
   TGraphErrors* Budyashov_gre = (TGraphErrors*) Budyashov_file->Get("sum");
   Budyashov_gre->SetMarkerColor(kBlue);
   Budyashov_gre->SetMarkerStyle(7);
@@ -42,7 +65,7 @@ void Si16b_FinalPlot_SWAndBudyashov() {
   Budyashov_gre->GetXaxis()->SetRangeUser(0,x_max);
   Budyashov_gre->GetXaxis()->SetTitle("Energy [keV]");
   Budyashov_gre->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
-  leg->AddEntry(Budyashov_gre, "Budyashov et al.", "pl");
+  leg->AddEntry(Budyashov_gre, "Budyashov et al. (p + d)", "pl");
     
   leg->Draw();
 }
