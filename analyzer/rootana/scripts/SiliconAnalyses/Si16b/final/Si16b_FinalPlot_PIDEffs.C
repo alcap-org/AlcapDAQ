@@ -190,6 +190,7 @@ void Si16b_FinalPlot_PIDEffs() {
 	data_fit->SetLineColor(kBlue);
 	data_fit->SetParameter(1, hProjYMC->GetFunction(mc_fit_fn.c_str())->GetParameter(1));
 	data_fit->SetParameter(2, hProjYMC->GetFunction(mc_fit_fn.c_str())->GetParameter(2));
+	//	data_fit->SetParLimits(2, hProjYMC->GetFunction(mc_fit_fn.c_str())->GetParameter(2)-hProjYMC->GetFunction(mc_fit_fn.c_str())->GetParError(2), hProjYMC->GetFunction(mc_fit_fn.c_str())->GetParameter(2)+hProjYMC->GetFunction(mc_fit_fn.c_str())->GetParError(2));
 	std::string data_fit_fn = "data_fit";
 	TFitResultPtr data_result = hProjY->Fit(data_fit_fn.c_str(), "QSLR");
 	if (!hProjY->GetFunction(data_fit_fn.c_str())) {

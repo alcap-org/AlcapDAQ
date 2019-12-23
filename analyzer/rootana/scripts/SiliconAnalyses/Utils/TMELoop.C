@@ -435,6 +435,7 @@ void TMELoop(const TMELoopArgs& args) {
 	n_total_tgt_pulses += (*tgt_channels.at(i_tgt_channel))->size();
       }
       if( n_total_tgt_pulses < args.min_tgt_pulses) {
+      //      if( n_total_tgt_pulses != args.min_tgt_pulses) {
 	continue; // to the next TME
       }
       /*      else {

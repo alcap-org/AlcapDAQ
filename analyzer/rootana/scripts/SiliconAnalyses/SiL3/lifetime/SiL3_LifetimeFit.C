@@ -1,4 +1,4 @@
-#include "scripts/SiliconAnalyses/Utils/LifetimeFit.C"
+#include "../../Utils/LifetimeFit.C"
 
 void SiL3_LifetimeFit(std::string infilename, std::string outfilename) {
   LifetimeFitArgs args;
@@ -8,13 +8,20 @@ void SiL3_LifetimeFit(std::string infilename, std::string outfilename) {
   args.double_exp = false;
   args.project_y = false;
   args.project_x = true;
-  args.inhistname = "Target/hEnergyTime";
+
+  args.datahistnames.clear();
+  args.scale_ratios.clear();
+  std::string inhistname = "Target_noRecoil/hEnergyTime";
+  double scale_ratio = 1;
+  args.datahistnames.push_back(inhistname);
+  args.scale_ratios.push_back(scale_ratio);
+  
   //  args.inhistname = "Target_wFlatBkgRemoval/hEnergyTime";
 
   double pp_window = 20000;
   double start_fit = 2000;
   double start_ignore = 4000;
-  double end_ignore = 6000;//12000;
+  double end_ignore = 12000;
   
   //  double pp_window = 10000;
   //  double start_fit = 2000;

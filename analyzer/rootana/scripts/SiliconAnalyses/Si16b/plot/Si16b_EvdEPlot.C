@@ -37,15 +37,15 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
   //  Setting deuterons("deuteron", "~/data/results/Si16b/cuts_new_threelayer.root", "deuteron_cut", deuteron);
   //  Setting tritons("triton", "~/data/results/Si16b/cuts_new_threelayer.root", "triton_cut", triton);
   //  Setting alphas("alpha", "~/data/results/Si16b/cuts_new_threelayer.root", "alpha_cut", alpha);
-  Setting protons("proton", "~/data/results/Si16b/mark-al50-cuts-keV.root", "hLg_SiR_EvDeltaE_proton_3sigma_keV", proton);
-  Setting deuterons("deuteron", "~/data/results/Si16b/mark-al50-cuts-keV.root", "hLg_SiR_EvDeltaE_deuteron_3sigma_keV", deuteron);
-  Setting tritons("triton", "~/data/results/Si16b/mark-al50-cuts-keV.root", "hLg_SiR_EvDeltaE_triton_3sigma_keV", triton);
-  Setting alphas("alpha", "~/data/results/Si16b/new_alpha_cut.root", "alpha_cut", alpha);
+  Setting protons("proton", "~/data/results/Si16b/mark-al50-cuts-keV.root", "hLg_SiR_EvDeltaE_proton_1sigma_keV", proton);
+  Setting deuterons("deuteron", "~/data/results/Si16b/mark-al50-cuts-keV.root", "hLg_SiR_EvDeltaE_deuteron_1sigma_keV", deuteron);
+  Setting tritons("triton", "~/data/results/Si16b/mark-al50-cuts-keV.root", "hLg_SiR_EvDeltaE_triton_1sigma_keV", triton);
+  Setting alphas("alpha", "~/data/results/Si16b/new_alpha_cut_9MeV.root", "alpha_cut", alpha);
   Setting muspot_both("muspot_both", "~/data/results/Si16b/cut_muon-spots.root", "both");
   Setting muspot_lower("muspot_lower", "~/data/results/Si16b/cut_muon-spots.root", "lower");
   Setting muspot_upper("muspot_upper", "~/data/results/Si16b/cut_muon-spots.root", "upper");
   //  Setting protons3L("proton3L", "~/data/results/Si16b/cuts_new_threelayer.root", "proton_cut", proton);
-    Setting protons3L("proton3L", "~/data/results/Si16b/proton_cut_threelayer.root", "proton_cut", proton);
+  Setting protons3L("proton3L", "~/data/results/Si16b/proton_cut_threelayer.root", "proton_cut", proton);
   std::vector<Setting> settings;
   settings.push_back(all);
   //  settings.push_back(all_proton);
@@ -96,7 +96,7 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
       args.cutfilename = i_setting->cutfilename;
       args.cutname = i_setting->cutname;
     }
-    
+
     for (int i_layer_coincidence = 0; i_layer_coincidence < n_layer_coincidences; ++i_layer_coincidence) {
       std::string layer_coincidence = layer_coincidences[i_layer_coincidence];
 
@@ -108,7 +108,7 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
       args.do_third_channel_cut = false;
 	
       // With and without layer coinc
-      args.outdirname = i_setting->name + "_" + tree + "_" + layer_coincidence;
+      args.outdirname = i_setting->name + "_" + tree + "_" + layer_coincidence + "_TCutG";
       args.layer_coincidence_vetos = true;
       args.min_layer12_coincidence_time = min_layer_coincidences[i_layer_coincidence];
       args.max_layer12_coincidence_time = max_layer_coincidences[i_layer_coincidence];
@@ -126,6 +126,7 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
 	args.outdirname = outdirname.str();
 	EvdEPlot(args);
 	args.do_psel = false;
+	args.do_cut = original_do_cut;
       }
       
       // By thin-channel (for "all" only)
@@ -133,7 +134,7 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
       const int n_thin_channels = 4;
       for (int i_channel = 0; i_channel < n_thin_channels; ++i_channel) {
 	outdirname.str("");
-	outdirname << i_setting->name << "_SiR1_" << i_channel+1 << "_" << layer_coincidence;
+	outdirname << i_setting->name << "_SiR1_" << i_channel+1 << "_" << layer_coincidence << "_TCutG";
 	args.outdirname = outdirname.str();
 	args.do_thin_channel_cut = true;
 	args.thin_channel_cut = i_channel;
@@ -163,8 +164,8 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
 	  EvdEPlot(args);
 
 	  args.do_psel = false;
+	  args.do_cut = original_do_cut;
 	}
-	args.do_cut = original_do_cut;
       }
       args.do_thick_time_cut = false;
     }

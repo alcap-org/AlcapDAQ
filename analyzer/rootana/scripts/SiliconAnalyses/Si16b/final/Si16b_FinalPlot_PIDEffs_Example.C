@@ -9,8 +9,8 @@ void Si16b_FinalPlot_PIDEffs_Example() {
   std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};
   Int_t colours[n_particles] = {kRed, kCyan, kMagenta, kSpring};
   
-  double energy = 15500;
-  double bin_width = 1000;
+  double energy = 15000;
+  double bin_width = 2000;
   double half_bin_width = 0.5*bin_width;
   int layercfg = 0;
 

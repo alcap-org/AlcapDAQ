@@ -175,6 +175,7 @@ void SiTCalib() {
 	std::cout << "SiT-" << i_si_channel+1 << "-S, Calib Point #" << i_calib_point << " (" << calib_energies[i_calib_point] << " keV) fit failed" << std::endl;
       }
       hist->GetFunction("gaussian")->SetLineWidth(1);
+      hist->GetFunction("gaussian")->Draw("LSAME");
 
       hist->SetTitle(calib_labels[i_calib_point].c_str());
     }

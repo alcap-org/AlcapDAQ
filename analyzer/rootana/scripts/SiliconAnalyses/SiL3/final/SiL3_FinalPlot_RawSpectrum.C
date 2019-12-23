@@ -1,4 +1,4 @@
-void SiL3_FinalPlot_RawSpectrum() {
+void SiL3_FinalPlot_RawSpectrum(std::string savedir = "") {
 
   std::string filename = "~/data/results/SiL3/raw_spectra_geq2TgtPulse_newPP20us.root";
   TFile* file = new TFile(filename.c_str(), "READ");
@@ -29,7 +29,7 @@ void SiL3_FinalPlot_RawSpectrum() {
     time_slice_str.str("");
     time_slice_str << "TimeSlice" << i_min_time_slice << "_" << i_max_time_slice;
       
-    std::string foldername = "SiL3_ActiveTarget_" + time_slice_str.str();
+    std::string foldername = "SiL3_ActiveTarget_" + time_slice_str.str() + "_noRecoil";
     std::string histname = foldername + "/hRawSpectrum";
 
     TH1F* spectrum = (TH1F*) file->Get(histname.c_str());
@@ -51,8 +51,21 @@ void SiL3_FinalPlot_RawSpectrum() {
     spectrum->SetLineColor(colours[i_slice]);
     spectrum->Draw("HIST E SAMES");
 
+    alcaphistogram(spectrum);
+    alcapPreliminary(spectrum);
+    spectrum->SetLineWidth(1);
+    spectrum->SetDrawOption("HIST E");
+    
     leg->AddEntry(spectrum, time_slice_str.str().c_str(), "l");
   }
 
+  if (savedir != "") {
+    std::string savename = savedir + "AlCapData_SiL3Dataset_ActiveTarget_RawSpectrum";
+    
+    std::string pdfname = savename + ".pdf";
+    c1->SaveAs(pdfname.c_str());
+    std::string pngname = savename + ".png";
+    c1->SaveAs(pngname.c_str());
+  }
   //  leg->Draw();
 }

@@ -1,8 +1,8 @@
-void SiL3_FinalPlot_LifetimeComparison() {
+void SiL3_FinalPlot_LifetimeComparison(std::string savedir = "") {
 
 
   TCanvas* c_Lifetime = new TCanvas("c_Lifetime", "c_Lifetime");
-  TLegend* leg = new TLegend(0.5,0.75,0.9,0.85);
+  TLegend* leg = new TLegend(0.30,0.75,0.70,0.85);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.03);
   leg->SetFillColor(kWhite);
@@ -86,4 +86,13 @@ void SiL3_FinalPlot_LifetimeComparison() {
   leg->AddEntry(box, "Literature Value", "f");
   
   leg->Draw();
+
+  if (savedir != "") {
+    std::string savename = savedir + "AlCapData_SiL3Dataset_ActiveTarget_LifetimeComparison";
+    
+    std::string pdfname = savename + ".pdf";
+    c_Lifetime->SaveAs(pdfname.c_str());
+    std::string pngname = savename + ".png";
+    c_Lifetime->SaveAs(pngname.c_str());
+  }
 }

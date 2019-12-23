@@ -81,7 +81,7 @@ void Peaks::Calibrate(Run run, bool print) {
     efffitresult = effgr->Fit(efffcn, "SEQM");
 
     double start = 100;
-    double end = 1500;
+    double end = 2000;//1500;
     double point_step = 1;
     int n_points = (end - start)/point_step;
     fit_interval = new TGraphErrors(n_points);

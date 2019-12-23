@@ -11,8 +11,11 @@ void Si16b_FinalPlot_EvdE_DataVsMC() {
   std::string layers = "ThreeLayer";
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     std::string particle = particles[i_particle];
-    std::string infilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + particle + "_500keVBins.root";
+    std::string infilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + particle + "_1000keVBins.root";
     TFile* infile = new TFile(infilename.c_str(), "READ");
+    if (infile->IsZombie()) {
+      continue;
+    }
 
     std::string basehistname = "SiR_";
     if (layers=="TwoLayer") {

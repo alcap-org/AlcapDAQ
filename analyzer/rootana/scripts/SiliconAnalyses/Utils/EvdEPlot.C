@@ -302,7 +302,8 @@ void EvdEPlot(EvdEPlotArgs& args) {
       std::cout << i_entry << " / " << n_entries << std::endl;
     }
 
-    double total_energy = thin_energy+thick_energy;
+    double total_energy = (thin_energy+thick_energy);
+    double total_3L_energy = (thin_energy+thick_energy+third_energy);
 
     // make sure we have at least a thin and a thick hit
     if (thin_tpi_id<0 || thick_tpi_id<0) {
@@ -371,13 +372,13 @@ void EvdEPlot(EvdEPlotArgs& args) {
 	}
       }
       if (is_particle) {
-	hEvdE_ThreeLayer_123->Fill(total_energy+third_energy, thin_energy+thick_energy);
+	hEvdE_ThreeLayer_123->Fill(total_3L_energy, thin_energy+thick_energy);
 	hSingleDetAxes_ThreeLayer_23->Fill(third_energy, thick_energy);
 	hSingleDetAxes_ThreeLayer_13->Fill(third_energy, thin_energy);
 	hThickTime_ThreeLayer_123->Fill(thick_time);
 	hThinTime_ThreeLayer_123->Fill(thin_time);
 	hTDiff_ThreeLayer_123->Fill(third_time - thick_time);
-	hEvt_ThreeLayer_123->Fill(thick_time, total_energy+third_energy);
+	hEvt_ThreeLayer_123->Fill(thick_time, total_3L_energy);
       }
 
       // For the two layer plots, we care about whether it passes the two layer cut not the three layer plot

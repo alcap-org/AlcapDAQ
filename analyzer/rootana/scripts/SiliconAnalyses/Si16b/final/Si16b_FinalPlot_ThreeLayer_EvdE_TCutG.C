@@ -1,4 +1,4 @@
-void Si16b_FinalPlot_ThreeLayer_EvdE_TCutG() {
+void Si16b_FinalPlot_ThreeLayer_EvdE_TCutG(std::string savedir = "") {
 
   std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
@@ -25,15 +25,17 @@ void Si16b_FinalPlot_ThreeLayer_EvdE_TCutG() {
   hEvdE->Draw("COLZ");
 
   TLatex* latex = new TLatex();
-  latex->DrawLatexNDC(0.25, 0.65, "AlCap Preliminary");
-
   latex->SetTextColor(kRed);
   //  latex->DrawLatex(1000, 1200, "#mu^{-}");
   latex->DrawLatex(15500, 16000, "p");
   latex->DrawLatex(22000, 18000, "d");
   //  latex->DrawLatex(2800, 2900, "t");
   //  latex->DrawLatex(8000, 7500, "#alpha");
-  
+
+  alcaphistogram(hEvdE);
+  alcapPreliminary(hEvdE);
+  hEvdE->SetDrawOption("COLZ");
+
   // Draw the particle cuts
   const int n_particles = 4;
   std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};
@@ -45,10 +47,18 @@ void Si16b_FinalPlot_ThreeLayer_EvdE_TCutG() {
     TCutG* tCutG = (TCutG*) infile->Get(tcutgname.c_str());
     if (!tCutG) {
       std::cout << "Error: Can't get " << tcutgname << std::endl;
-      return;
+      continue;
     }
     tCutG->SetLineWidth(2);
     tCutG->SetLineColor(kRed);
     tCutG->Draw("SAME");
   }
+
+  if (savedir != "") {
+    std::string savename = savedir + "AlCapData_Si16bDataset_ThreeLayer_EvdE_TCutG";
+
+    std::string pngname = savename + ".png";
+    c_EvdE->SaveAs(pngname.c_str());
+  }
+
 }

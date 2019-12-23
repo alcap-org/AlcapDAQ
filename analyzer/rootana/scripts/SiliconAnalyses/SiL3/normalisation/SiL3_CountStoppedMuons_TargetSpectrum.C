@@ -7,9 +7,9 @@ void SiL3_CountStoppedMuons_TargetSpectrum(std::string infilename, std::string o
   args.inhistname = "Target/hEnergyTime";
   args.outfilename = outfilename;
   args.outdirname = "TargetSpectrum";
-  args.min_muon_time = -200;
-  args.max_muon_time = 200;
-  args.min_muon_energy = 3000;
-  args.max_muon_energy = 6000;
+  args.min_muon_time = -300;
+  args.max_muon_time = 300;
+  args.min_muon_energy = 0;//3000;
+  args.max_muon_energy = 30000;//6000;
   CountStoppedMuons_TargetSpectrum(args);
 }

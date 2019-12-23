@@ -79,7 +79,7 @@ void Unfold_DecayElectronCorrection(const Unfold_DecayElectronCorrectionArgs& ar
   counttree->SetBranchAddress("n_stopped_muons", &n_stopped_muons);
   counttree->SetBranchAddress("n_stopped_muons_error", &n_stopped_muons_error);
   counttree->GetEntry(0);
-  
+
   double n_decay_muons = (1-args.capture_fraction)*n_stopped_muons;
   double n_decay_muons_error = (1-args.capture_fraction)*n_stopped_muons_error; 
 

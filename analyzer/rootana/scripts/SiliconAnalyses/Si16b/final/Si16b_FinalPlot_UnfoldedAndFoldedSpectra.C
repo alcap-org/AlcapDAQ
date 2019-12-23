@@ -1,62 +1,77 @@
-void Si16b_FinalPlot_UnfoldedAndFoldedSpectra() {
+void Si16b_FinalPlot_UnfoldedAndFoldedSpectra(std::string savedir = "") {
 
-  std::string particle = "proton";
-  //  std::string particle = "deuteron";
-  //  std::string particle = "triton";
-  //    std::string particle = "alpha";
-  std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse.root";
-  std::string indirname = "ResponseMatrix_" + particle + "_PSel";
-  std::string folded_histname = indirname + "/hInputSpectrum";
-  std::string unfolded_histname = indirname + "/hCorrectedSpectrum";
-  std::string outhisttitle = "Si16b Dataset, Right Arm, " + particle;
-  int rebin_factor = 1;
-  double x_max = 25000;
-  
-  TFile* infile = new TFile(infilename.c_str(), "READ");
-  TH1F* hFoldedSpectrum = (TH1F*) infile->Get(folded_histname.c_str());
-  if (!hFoldedSpectrum) {
-    std::cout << "Can't find histogram " << folded_histname.c_str() << std::endl;
-    return;
+  const int n_particles = 4;
+  std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};
+
+  for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
+    std::string particle = particles[i_particle];
+    std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse.root";
+    std::string indirname = "ResponseMatrix_" + particle + "_TCutG";
+    std::string folded_histname = indirname + "/hInputSpectrum";
+    std::string unfolded_histname = indirname + "/hCorrectedSpectrum";
+    std::string outhisttitle = "Si16b Dataset, Right Arm, " + particle;
+    int rebin_factor = 1;
+    double x_max = 25000;
+    
+    TFile* infile = new TFile(infilename.c_str(), "READ");
+    TH1F* hFoldedSpectrum = (TH1F*) infile->Get(folded_histname.c_str());
+    if (!hFoldedSpectrum) {
+      std::cout << "Can't find histogram " << folded_histname.c_str() << std::endl;
+      return;
+    }
+    TH1F* hUnfoldedSpectrum = (TH1F*) infile->Get(unfolded_histname.c_str());
+    
+    TCanvas* c_Spectra = new TCanvas();
+    std::stringstream axistitle;
+    
+    hFoldedSpectrum->SetTitle(outhisttitle.c_str());
+    hFoldedSpectrum->SetStats(false);
+    hFoldedSpectrum->SetLineColor(kBlack);
+    hFoldedSpectrum->Rebin(rebin_factor);
+    hFoldedSpectrum->GetXaxis()->SetRangeUser(0, x_max);
+    axistitle.str(""); axistitle << "Folded Count / " << hFoldedSpectrum->GetXaxis()->GetBinWidth(1) << " keV";
+    hFoldedSpectrum->SetYTitle(axistitle.str().c_str());
+    hFoldedSpectrum->GetYaxis()->SetTitleOffset(1.3);
+    
+    hUnfoldedSpectrum->SetTitle("");
+    hUnfoldedSpectrum->SetStats(false);
+    hUnfoldedSpectrum->SetLineColor(kRed);
+    hUnfoldedSpectrum->Rebin(rebin_factor);
+    hUnfoldedSpectrum->GetXaxis()->SetRangeUser(0, x_max);
+    axistitle.str(""); axistitle << "Unfolded Count / " << hUnfoldedSpectrum->GetXaxis()->GetBinWidth(1) << " keV";
+    hUnfoldedSpectrum->SetYTitle(axistitle.str().c_str());
+    
+    hFoldedSpectrum->Draw("HIST E");
+    c_Spectra->Update();
+    
+    double rightmax = 1.1*hUnfoldedSpectrum->GetMaximum();
+    double scale = gPad->GetUymax()/rightmax;
+    hUnfoldedSpectrum->Scale(scale);
+    hUnfoldedSpectrum->Draw("HIST E SAME");
+    
+    TGaxis* axis = new TGaxis(gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmax(), gPad->GetUymax(),0,rightmax,510,"+L");
+    axis->SetLineColor(kRed);
+    axis->SetLabelColor(kRed);
+    axis->SetTitleColor(kRed);
+    axis->SetTitle(hUnfoldedSpectrum->GetYaxis()->GetTitle());
+    axis->Draw();
+
+    alcaphistogram(hFoldedSpectrum);
+    alcaphistogram(hUnfoldedSpectrum);
+    alcapPreliminary(hUnfoldedSpectrum);
+    hFoldedSpectrum->SetDrawOption("HIST E1");
+    hUnfoldedSpectrum->SetDrawOption("HIST E1 SAME");
+
+    if (savedir != "") {
+      std::string savename = savedir + "AlCapData_Si16bDataset_UnfoldedAndFoldedSpectra_" + particle;
+      
+      std::string pdfname = savename + ".pdf";
+      c_Spectra->SaveAs(pdfname.c_str());
+      std::string pngname = savename + ".png";
+      c_Spectra->SaveAs(pngname.c_str());
+    }
+
   }
-  TH1F* hUnfoldedSpectrum = (TH1F*) infile->Get(unfolded_histname.c_str());
-
-  TCanvas* c_Spectra = new TCanvas("c_Spectra", "c_Spectra");
-  std::stringstream axistitle;
-  
-  hFoldedSpectrum->SetTitle(outhisttitle.c_str());
-  hFoldedSpectrum->SetStats(false);
-  hFoldedSpectrum->SetLineColor(kBlack);
-  hFoldedSpectrum->Rebin(rebin_factor);
-  hFoldedSpectrum->GetXaxis()->SetRangeUser(0, x_max);
-  axistitle.str(""); axistitle << "Folded Count / " << hFoldedSpectrum->GetXaxis()->GetBinWidth(1) << " keV";
-  hFoldedSpectrum->SetYTitle(axistitle.str().c_str());
-  hFoldedSpectrum->GetYaxis()->SetTitleOffset(1.3);
-  
-  hUnfoldedSpectrum->SetTitle("");
-  hUnfoldedSpectrum->SetStats(false);
-  hUnfoldedSpectrum->SetLineColor(kRed);
-  hUnfoldedSpectrum->Rebin(rebin_factor);
-  hUnfoldedSpectrum->GetXaxis()->SetRangeUser(0, x_max);
-  axistitle.str(""); axistitle << "Unfolded Count / " << hUnfoldedSpectrum->GetXaxis()->GetBinWidth(1) << " keV";
-  hUnfoldedSpectrum->SetYTitle(axistitle.str().c_str());
-
-  hFoldedSpectrum->Draw("HIST E");
-  c_Spectra->Update();
-  
-  double rightmax = 1.1*hUnfoldedSpectrum->GetMaximum();
-  double scale = gPad->GetUymax()/rightmax;
-  hUnfoldedSpectrum->Scale(scale);
-  hUnfoldedSpectrum->Draw("HIST E SAME");
-  
-  TGaxis* axis = new TGaxis(gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmax(), gPad->GetUymax(),0,rightmax,510,"+L");
-  axis->SetLineColor(kRed);
-  axis->SetLabelColor(kRed);
-  axis->SetTitleColor(kRed);
-  axis->SetTitle(hUnfoldedSpectrum->GetYaxis()->GetTitle());
-  axis->Draw();
-
-  TLatex* latex = new TLatex();
-  latex->DrawLatexNDC(0.55, 0.65, "AlCap Preliminary");
 
   /*
   double trust_at_observed = 11000;

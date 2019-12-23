@@ -1,4 +1,4 @@
-void SiL3_FinalPlot_ProtonEscapeCorrection() {
+void SiL3_FinalPlot_EscapeCorrection(std::string savedir = "") {
 
   std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
   TFile* file = new TFile(filename.c_str(), "READ");
@@ -29,8 +29,8 @@ void SiL3_FinalPlot_ProtonEscapeCorrection() {
     time_slice_str.str("");
     time_slice_str << "TimeSlice" << i_min_time_slice << "_" << i_max_time_slice;
 
-    std::string foldername = "ProtonEscape_" + time_slice_str.str();
-    //    std::string foldername = "CombinedEscape_" + time_slice_str.str();
+    //    std::string foldername = "ProtonEscape_" + time_slice_str.str();
+    std::string foldername = "CombinedEscape_" + time_slice_str.str() + "_allRecoil";
     std::string histname = foldername + "/hInputSpectrum";
     TH1F* raw_spectrum = (TH1F*) file->Get(histname.c_str());
     if (!raw_spectrum) {
@@ -50,7 +50,7 @@ void SiL3_FinalPlot_ProtonEscapeCorrection() {
 
     raw_spectrum->SetTitle("SiL3 Dataset, Active Target Analysis, Combined Escape Correction");
     raw_spectrum->SetStats(false);
-    raw_spectrum->GetXaxis()->SetRangeUser(0,50000);
+    raw_spectrum->GetXaxis()->SetRangeUser(0,30000);
     raw_spectrum->SetLineColor(colours[i_slice]);
     
     std::stringstream axislabel;
@@ -58,16 +58,27 @@ void SiL3_FinalPlot_ProtonEscapeCorrection() {
     raw_spectrum->SetYTitle(axislabel.str().c_str());
 
     corrected_spectrum->SetLineColor(kRed);
-    
+
+    alcaphistogram(raw_spectrum);
+    alcaphistogram(corrected_spectrum);
+
     raw_spectrum->Draw("HIST E");
     corrected_spectrum->Draw("HIST E SAME");
 
-    leg->AddEntry(raw_spectrum, "Spectrum w/ Decay Electron Correction", "l");
+    alcapPreliminary(raw_spectrum);
+
+    leg->AddEntry(raw_spectrum, "Spectrum (w/ decay electron correction)", "l");
     leg->AddEntry(corrected_spectrum, "Unfolded Spectrum", "l");
   }
 
   leg->Draw();
 
-  //    std::string pngname = "~/plots/2018-11-26/AlCapData_SiL3Dataset_" + time_slice_str.str() + ".png";
-  //    c1->SaveAs(pngname.c_str());
+  if (savedir != "") {
+    std::string savename = savedir + "AlCapData_SiL3Dataset_ActiveTarget_EscapeCorrection";
+    
+    std::string pdfname = savename + ".pdf";
+    c1->SaveAs(pdfname.c_str());
+    std::string pngname = savename + ".png";
+    c1->SaveAs(pngname.c_str());
+  }
 }

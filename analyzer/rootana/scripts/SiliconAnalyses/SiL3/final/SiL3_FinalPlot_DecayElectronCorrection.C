@@ -1,4 +1,4 @@
-void SiL3_FinalPlot_DecayElectronCorrection() {
+void SiL3_FinalPlot_DecayElectronCorrection(std::string savedir = "") {
 
   std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
   TFile* file = new TFile(filename.c_str(), "READ");
@@ -14,7 +14,7 @@ void SiL3_FinalPlot_DecayElectronCorrection() {
   c1->SetGridx();
   c1->SetGridy();
 
-  TLegend* leg = new TLegend(0.50,0.55,0.90,0.85);
+  TLegend* leg = new TLegend(0.45,0.55,0.85,0.85);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.03);
   leg->SetFillStyle(0);
@@ -29,7 +29,7 @@ void SiL3_FinalPlot_DecayElectronCorrection() {
     time_slice_str.str("");
     time_slice_str << "TimeSlice" << i_min_time_slice << "_" << i_max_time_slice;
 
-    std::string foldername = "DecayElectron_" + time_slice_str.str();
+    std::string foldername = "DecayElectron_" + time_slice_str.str() + "_allRecoil";
     std::string histname = foldername + "/hInputSpectrum";
     TH1F* raw_spectrum = (TH1F*) file->Get(histname.c_str());
     if (!raw_spectrum) {
@@ -66,11 +66,17 @@ void SiL3_FinalPlot_DecayElectronCorrection() {
     correction->SetLineColor(kBlue);
     corrected_spectrum->SetLineColor(kRed);
     
+    alcaphistogram(raw_spectrum);
+    alcaphistogram(correction);
+    alcaphistogram(corrected_spectrum);
+    
     raw_spectrum->Draw("HIST E");
     correction->Draw("HIST E SAME");
     corrected_spectrum->Draw("HIST E SAME");
 
-    leg->AddEntry(raw_spectrum, "Spectrum w/ Flat Bkg Correction", "l");
+    alcapPreliminary(raw_spectrum);
+
+    leg->AddEntry(raw_spectrum, "Spectrum (w/ flat bkg correction)", "l");
     leg->AddEntry(correction, "Decay Electron Correction", "l");
     leg->AddEntry(corrected_spectrum, "Corrected Spectrum", "l");
 
@@ -87,6 +93,12 @@ void SiL3_FinalPlot_DecayElectronCorrection() {
 
   leg->Draw();
 
-  //    std::string pngname = "~/plots/2018-11-26/AlCapData_SiL3Dataset_" + time_slice_str.str() + ".png";
-  //    c1->SaveAs(pngname.c_str());
+   if (savedir != "") {
+    std::string savename = savedir + "AlCapData_SiL3Dataset_ActiveTarget_DecayElectronCorrection";
+    
+    std::string pdfname = savename + ".pdf";
+    c1->SaveAs(pdfname.c_str());
+    std::string pngname = savename + ".png";
+    c1->SaveAs(pngname.c_str());
+  }
 }

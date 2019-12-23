@@ -1,4 +1,4 @@
-void Si16b_FinalPlot_RawSpectra_SiR3Veto() {
+void Si16b_FinalPlot_RawSpectra_SiR3Veto(std::string savedir = "") {
 
   std::string particle = "proton";
   //  std::string particle = "deuteron";
@@ -14,7 +14,8 @@ void Si16b_FinalPlot_RawSpectra_SiR3Veto() {
   leg->SetBorderSize(0);
   leg->SetTextSize(0.035);
   leg->SetFillColor(kWhite);
-  
+
+  TCanvas* c1 = new TCanvas();
   std::stringstream axistitle;
   int rebin_factor = 50;
   for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
@@ -39,12 +40,12 @@ void Si16b_FinalPlot_RawSpectra_SiR3Veto() {
     hFoldedSpectrum->SetLineWidth(2);
     //    hFoldedSpectrum->GetXaxis()->SetRangeUser(0, 15000);
     
-    hFoldedSpectrum->Draw("HIST E SAME");
+    hFoldedSpectrum->Draw("HIST E1 SAME");
 
     std::stringstream leglabel;
     leglabel.str("");
     leglabel.str("");
-    leglabel << leglabels[i_setting] << " (" << hFoldedSpectrum->Integral() << " entries)";
+    leglabel << leglabels[i_setting];// << " (" << hFoldedSpectrum->Integral() << " entries)";
     leg->AddEntry(hFoldedSpectrum, leglabel.str().c_str(), "l");
 
     double before_drop = 15000;
@@ -54,10 +55,35 @@ void Si16b_FinalPlot_RawSpectra_SiR3Veto() {
     std::cout << leglabel.str() << std::endl;
     std::cout << "Count before drop = " << hFoldedSpectrum->GetBinContent(bin_before_drop) << std::endl;
     std::cout << "Count after drop = " << hFoldedSpectrum->GetBinContent(bin_after_drop) << std::endl;
+
+    alcaphistogram(hFoldedSpectrum);
+    if (i_setting == 0) {
+      alcapPreliminary(hFoldedSpectrum);
+    }
+    else {
+      hFoldedSpectrum->SetDrawOption("HIST E1 SAME");
+    }
   }
 
   leg->Draw();
-  
-  TLatex* latex = new TLatex();
-  latex->DrawLatexNDC(0.55, 0.80, "AlCap Preliminary");
+
+  if (savedir != "") {
+    std::string savename = savedir + "AlCapData_Si16bDataset_RawSpectra_SiR3Veto";
+
+    std::string pdfname = savename + ".pdf";
+    c1->SaveAs(pdfname.c_str());
+    std::string pngname = savename + ".png";
+    c1->SaveAs(pngname.c_str());
+
+    c1->SetLogy();
+    savename = savedir + "AlCapData_Si16bDataset_RawSpectra_SiR3Veto_LogY";
+
+    pdfname = savename + ".pdf";
+    c1->SaveAs(pdfname.c_str());
+    pngname = savename + ".png";
+    c1->SaveAs(pngname.c_str());
+  }
+
+  //  TLatex* latex = new TLatex();
+  //  latex->DrawLatexNDC(0.55, 0.80, "AlCap Preliminary");
 }

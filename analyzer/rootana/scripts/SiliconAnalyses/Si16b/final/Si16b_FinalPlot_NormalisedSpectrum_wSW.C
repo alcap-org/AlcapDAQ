@@ -1,4 +1,4 @@
-void Si16b_FinalPlot_NormalisedSpectrum_wSW() {
+void Si16b_FinalPlot_NormalisedSpectrum_wSW(std::string savedir = "") {
 
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
@@ -18,13 +18,14 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSW() {
   SW_gre->GetXaxis()->SetTitle("Energy [keV]");
   SW_gre->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
 
-  TLegend* leg = new TLegend(0.50,0.55,0.90,0.85);
+  TLegend* leg = new TLegend(0.50,0.55,0.85,0.85);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.03);
   leg->SetFillColor(kWhite);
   leg->AddEntry(SW_gre, "Sobottka-Wills", "pl");
-  SW_gre->GetFunction("tdr_fit")->SetLineColor(kBlack);
-  leg->AddEntry(SW_gre->GetFunction("tdr_fit"), "S-W Fit", "l");
+  SW_gre->GetFunction("tdr_fit")->SetBit(TF1::kNotDraw);
+  //  SW_gre->GetFunction("tdr_fit")->SetLineColor(kBlack);
+  //  leg->AddEntry(SW_gre->GetFunction("tdr_fit"), "S-W Fit", "l");
 
   for (int i_range = 0; i_range < n_ranges; ++i_range) {
     double min_energy = min_energies[i_range];
@@ -77,12 +78,12 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSW() {
   
   const int n_settings = 5;
   std::string particle_names[n_settings] = {"proton", "deuteron", "triton", "alpha", "SiL3"};
-  Int_t colours[n_settings] = {kRed, kCyan, kSpring, kMagenta, kGray};
-  std::string leglabels[n_settings] = {"Si16b (proton)", "Si16b (deuterons)", "Si16b (tritons)", "Si16b (alphas)", "Si16b (SiL3 inc.)"};
+  Int_t colours[n_settings] = {kRed, kCyan, kMagenta, kSpring, kGray};
+  std::string leglabels[n_settings] = {"AlCap (proton)", "AlCap (deuterons)", "AlCap (tritons)", "AlCap (alphas)", "AlCap (SiL3 inc.)"};
   double rates[n_settings][n_ranges] = {0};
   double rate_errs[n_settings][n_ranges] = {0};
 
-  int rebin_factor = 5;
+  int rebin_factor = 1;
   THStack* hStack = new THStack("hStack", "");
   for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
 
@@ -95,8 +96,8 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSW() {
       dirname += "_TCutG";
     }
     //    std::string dirname = "FinalNormalisation_" + i_particle_name + "_TCutG";
-    //  std::string i_histname = dirname + "/hNormalisedSpectrum";
-    std::string i_histname = dirname + "_retune/hNormalisedSpectrum";
+    std::string i_histname = dirname + "/hNormalisedSpectrum";
+    //    std::string i_histname = dirname + "_retune/hNormalisedSpectrum";
 
     TH1F* spectrum = (TH1F*) file->Get(i_histname.c_str());
     if (!spectrum) {
@@ -110,7 +111,7 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSW() {
     spectrum->Scale(1.0/rebin_factor);
     spectrum->SetStats(false);
     spectrum->SetLineColor(i_colour);
-    //    spectrum->SetFillStyle(0);
+    spectrum->SetFillStyle(0);
     spectrum->SetLineWidth(2);
     //    spectrum->SetLineColor(kBlack);
     //    spectrum->SetFillColor(i_colour);
@@ -129,6 +130,11 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSW() {
       hStack->Add(spectrum);
     }
 
+    alcaphistogram(spectrum);
+    if (i_setting == 0) {
+      alcapPreliminary(spectrum);
+    }
+    
     for (int i_range = 0; i_range < n_ranges; ++i_range) {
       double min_energy = min_energies[i_range];
       double max_energy = max_energies[i_range];
@@ -170,6 +176,18 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSW() {
 
   
   //  hStack->Draw("HIST E SAMES nostack");
-  hStack->Draw("HIST E SAMES");  
+  hStack->Draw("HIST E SAMES");
+  SW_gre->Draw("PE SAME");
   leg->Draw();
+
+  gPad->RedrawAxis();
+
+  if (savedir != "") {
+    std::string savename = savedir + "AlCapData_Si16bDataset_NormalisedSpectrum_wSW";
+
+    std::string pdfname = savename + ".pdf";
+    c1->SaveAs(pdfname.c_str());
+    std::string pngname = savename + ".png";
+    c1->SaveAs(pngname.c_str());
+  }
 }

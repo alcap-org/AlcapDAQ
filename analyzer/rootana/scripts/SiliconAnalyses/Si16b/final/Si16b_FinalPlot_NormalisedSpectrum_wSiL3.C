@@ -1,18 +1,18 @@
-void Si16b_FinalPlot_NormalisedSpectrum_wSiL3() {
+void Si16b_FinalPlot_NormalisedSpectrum_wSiL3(std::string savedir = "") {
 
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
 
   const int n_ranges = 5;
-  double min_energies[n_ranges] = {15000, 15000, 16000, 15000, 16000};//3500, 4000, 3500};//0,    1400,  10000, 5000,   3500, 4000, 3500, 14000};
-  double max_energies[n_ranges] = {16000, 17000, 17000, 18000, 18000};//10000, 8000, 15000};//26000,26000, 26000, 10000, 10000, 8000, 14000, 15000};
+  double min_energies[n_ranges] = {15000, 15000, 16000, 15000, 14000};//3500, 4000, 3500};//0,    1400,  10000, 5000,   3500, 4000, 3500, 14000};
+  double max_energies[n_ranges] = {16000, 17000, 17000, 18000, 15000};//10000, 8000, 15000};//26000,26000, 26000, 10000, 10000, 8000, 14000, 15000};
   double SiL3_rate[n_ranges] = {0};
   double SiL3_rate_err[n_ranges] = {0};
 
   std::string SiL3_filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
   TFile* SiL3_file = new TFile(SiL3_filename.c_str(), "READ");
-  TH1F* SiL3_hist = (TH1F*) SiL3_file->Get("FinalNormalisation_TimeSlice2000_4000/hNormalisedSpectrum");
-  int rebin_SiL3 = 5;
+  TH1F* SiL3_hist = (TH1F*) SiL3_file->Get("FinalNormalisation_TimeSlice2000_4000_allRecoil/hNormalisedSpectrum");
+  int rebin_SiL3 = 2;
   SiL3_hist->Rebin(rebin_SiL3);
   SiL3_hist->Scale(1.0 / rebin_SiL3);
   SiL3_hist->Draw("HIST E");
@@ -36,7 +36,7 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSiL3() {
   }
 
 
-  TLegend* leg = new TLegend(0.50,0.55,0.90,0.85);
+  TLegend* leg = new TLegend(0.50,0.55,0.85,0.85);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.03);
   leg->SetFillColor(kWhite);
@@ -66,12 +66,12 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSiL3() {
     std::string dirname = "FinalNormalisation_" + i_particle_name;
     if (i_particle_name != "SiL3") {
       if (i_particle_name == "alpha") {
-	//	dirname += "_TCutG";
-	dirname += "_PSel";
+	dirname += "_TCutG";
+	//	dirname += "_PSel";
       }
       else {
-	dirname += "_PSel";
-	//	dirname += "_TCutG";
+	//	dirname += "_PSel";
+	dirname += "_TCutG";
       }
     }
     //    else {
@@ -87,7 +87,7 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSiL3() {
       continue;
     }
     spectrum->Sumw2();
-
+    
     int rebin_factor = rebin_factors[i_setting];
     spectrum->Rebin(rebin_factor);
     spectrum->Scale(1.0/rebin_factor);
@@ -121,6 +121,22 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSiL3() {
     }
 
     if (i_particle_name != "SiL3") {
+
+      /*
+      double additional_error = 0.50;
+      for (int i_bin = 1; i_bin <= spectrum->GetNbinsX(); ++i_bin) {
+	double old_bin_content = spectrum->GetBinContent(i_bin);
+	double old_bin_error = spectrum->GetBinError(i_bin);
+	double old_bin_frac_error = old_bin_error / old_bin_content;
+	double new_bin_frac_error = std::sqrt(additional_error*additional_error + old_bin_frac_error*old_bin_frac_error);
+	double new_bin_error = new_bin_frac_error*old_bin_content;
+	std::cout << "Old: " << old_bin_content << " +/- " << old_bin_error << " (" << old_bin_frac_error*100 << "%)" << std::endl;
+	std::cout << "New: " << old_bin_content << " +/- " << new_bin_error << " (" << new_bin_frac_error*100 << "%)" << std::endl;
+	spectrum->SetBinError(i_bin, new_bin_error);
+      }
+      */
+
+      alcaphistogram(spectrum);
       hStack->Add(spectrum);
 
       if (!hSi16b_Total) {
@@ -202,19 +218,70 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSiL3() {
     */
   }
 
-  //  hStack->GetXaxis()->SetRangeUser(0,26000);
   //  hStack->GetXaxis()->SetTitle("Energy [keV]");
   //  hStack->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
   hStack->SetMaximum(1e-3);
   hStack->SetMinimum(1e-8);
-  hStack->Draw("HIST E SAMES nostack");
-  //  hStack->Draw("HIST E");
+  //  hStack->SetMaximum(0.035e-3);
+  //  hStack->SetMinimum(0);
+  //  hStack->Draw("HIST E SAMES nostack");
+
+  TCanvas* c_stacked = new TCanvas();
+  c_stacked->SetLogy();
+  hStack->Draw("HIST E");
+  hStack->GetXaxis()->SetRangeUser(0,26000);
   if (hSi16b_SiL3Inc) {
     hSi16b_SiL3Inc->Draw("HIST E SAME");
   }
   //  hSi16b_Total->Draw("HIST E SAME");
   SiL3_hist->Draw("HIST E SAME");
+  alcapPreliminary(SiL3_hist);
+  leg->Draw();
+  
+  TCanvas* c_unstacked = new TCanvas();
+  c_unstacked->SetLogy();
+  hStack->Draw("HIST E nostack");
+  hStack->GetXaxis()->SetRangeUser(0,26000);
+  if (hSi16b_SiL3Inc) {
+    hSi16b_SiL3Inc->Draw("HIST E SAME");
+  }
+  //  hSi16b_Total->Draw("HIST E SAME");
+  SiL3_hist->Draw("HIST E SAME");
+  alcapPreliminary(SiL3_hist);
+  leg->Draw();
+ 
+  if (savedir != "") {
+    std::string savename = savedir + "AlCapData_NormalisedSpectraComparison_Stacked";
+    std::string pdfname = savename + ".pdf";
+    c_stacked->SaveAs(pdfname.c_str());
+    std::string pngname = savename + ".png";
+    c_stacked->SaveAs(pngname.c_str());
 
+    savename = savedir + "AlCapData_NormalisedSpectraComparison_Unstacked";    
+    pdfname = savename + ".pdf";
+    c_unstacked->SaveAs(pdfname.c_str());
+    pngname = savename + ".png";
+    c_unstacked->SaveAs(pngname.c_str());
+  }
+
+  /*
+  std::string Si16b_filename = "~/data/results/Si16b/unfold_newPP20us_geq2TgtPulse.root";
+  TFile* Si16b_file = new TFile(Si16b_filename.c_str(), "READ");
+  TH1F* Si16b_hist = (TH1F*) Si16b_file->Get("FinalNormalisation_Active/hNormalisedSpectrum");
+  int rebin_Si16b = 1;
+  Si16b_hist->Rebin(rebin_Si16b);
+  Si16b_hist->Scale(1.0 / rebin_Si16b);
+  Si16b_hist->Draw("HIST E SAME");
+  Si16b_hist->SetStats(false);
+  Si16b_hist->SetLineColor(kBlack);
+  Si16b_hist->SetTitle("Charged Particle Emission");
+  Si16b_hist->GetXaxis()->SetRangeUser(0,26000);
+  Si16b_hist->GetXaxis()->SetTitle("Energy [keV]");
+  Si16b_hist->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
+  Si16b_hist->SetMaximum(1e-3);
+  Si16b_hist->SetMinimum(1e-8);
+  */
+  
   /*
   std::string Budyashov_filename = "~/data/results/Si16b/Budyashov-plots.root";
   TFile* Budyashov_file = new TFile(Budyashov_filename.c_str(), "READ");
@@ -251,5 +318,4 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSiL3() {
   Budyashov_gre_sum->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
   leg->AddEntry(Budyashov_gre_sum, "Budyashov et al. (sum)", "pl");
   */
-  leg->Draw();
 }

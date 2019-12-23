@@ -26,6 +26,8 @@ struct TargetSpectrumArgs {
   double min_time;
   double max_time;
   double time_width;
+
+  double recoil_fraction;
 };
 
 void TargetSpectrum(TargetSpectrumArgs& args) {
@@ -62,6 +64,9 @@ void TargetSpectrum(TargetSpectrumArgs& args) {
   cuttree->Branch("energy_var", &energy_var);
   cuttree->Branch("time_var", &time_var);
   cuttree->Branch("tpi_id_var", &tpi_id_var);
+
+  double recoil_fraction = args.recoil_fraction;
+  cuttree->Branch("recoil_fraction", &recoil_fraction);
   
   int veto_tpi_id;
   double veto_time;
@@ -117,7 +122,7 @@ void TargetSpectrum(TargetSpectrumArgs& args) {
       }
     }
 
-    hEnergyTime->Fill(time, energy);
+    hEnergyTime->Fill(time, energy/(1+recoil_fraction));
   }
   
   std::cout << "TargetSpectrum (" << args.outdirname << "): " << hEnergyTime->GetName() << " " << hEnergyTime->GetEntries() << " entries" << std::endl;

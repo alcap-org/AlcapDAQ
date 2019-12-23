@@ -6,6 +6,7 @@
 #include "TFitResult.h"
 #include "TPad.h"
 #include "TH1.h"
+#include "TStyle.h"
 
 Peak::Peak(Double_t e, Double_t i, Double_t adc)
   : e(e), i(i) {
@@ -109,5 +110,6 @@ void Peak::Fit(TH1* h, bool print) {
     char str[32]; sprintf(str, "%dkeV.png", (int)e);
     gPad->Print(str);
   }
+  std::cout << "chi^2 / ndf = " << fitresult->Chi2() << " / " << fitresult->Ndf() << std::endl;
   h->GetXaxis()->SetRange();
 }

@@ -1,6 +1,4 @@
-void Si16b_FinalPlot_TwoLayer_TDiff() {
-
-  bool save_plots = false;
+void Si16b_FinalPlot_TwoLayer_TDiff(std::string savedir = "") {
   
   std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
@@ -10,10 +8,15 @@ void Si16b_FinalPlot_TwoLayer_TDiff() {
   std::string particles[n_particles] = {"all", "proton", "deuteron", "triton", "alpha", "total"};
   std::string Particles[n_particles] = {"All", "Proton", "Deuteron", "Triton", "Alpha", "All Selected"};
 
+  /*
   const int n_fit_fns = 2;
   TF1* fit_fns[n_fit_fns] = {0, 0};
   std::string fit_names[n_fit_fns] = {"Double Gaussian Fit", "Single Gaussian Fit"};
-
+  */
+  const int n_fit_fns = 1;
+  TF1* fit_fns[n_fit_fns] = {0};
+  std::string fit_names[n_fit_fns] = {"Single Gaussian Fit"};
+  
   TH1F* hTotal = 0;
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
 
@@ -24,8 +27,8 @@ void Si16b_FinalPlot_TwoLayer_TDiff() {
     if (particle != "all") {
       histname += "_PSel";
     }
-    //    histname += "/hTDiff_TwoLayer_12";
-    histname += "/hTDiff_ThreeLayer_123";
+    histname += "/hTDiff_TwoLayer_12";
+    //    histname += "/hTDiff_ThreeLayer_123";
     std::string histtitle = Particle + " Hits (no layer coincidence cuts)";
 
     double layer_coinc_cut = 100;
@@ -90,8 +93,13 @@ void Si16b_FinalPlot_TwoLayer_TDiff() {
     hLayerTDiff->SetTitle(histtitle.c_str());
     hLayerTDiff->SetStats(false);
     hLayerTDiff->Draw("HIST E");
+
+    alcaphistogram(hLayerTDiff);
+    alcapPreliminary(hLayerTDiff);
+    hLayerTDiff->SetDrawOption("HIST E");
     
-    fit_fns[0] = double_gaus; fit_fns[1] = single_gaus;
+    //    fit_fns[0] = double_gaus; fit_fns[1] = single_gaus;
+    fit_fns[0] = single_gaus;
     for (int i_fit_fn = 0; i_fit_fn < n_fit_fns; ++i_fit_fn) {
       TF1* fit_fn = fit_fns[i_fit_fn];
       
@@ -106,22 +114,24 @@ void Si16b_FinalPlot_TwoLayer_TDiff() {
 	}
       }
       
-      //      double total_integral = fit_fn->Integral(-2000,2000);
-      //      double integral_in_cut = fit_fn->Integral(-layer_coinc_cut, layer_coinc_cut);
-      double total_integral = hLayerTDiff->Integral();
+      double total_integral = fit_fn->Integral(-2000,2000);
+      double integral_in_cut = fit_fn->Integral(-layer_coinc_cut, layer_coinc_cut);
+      double fraction_from_fit = integral_in_cut / total_integral;
+      double fraction_from_fit_err = std::sqrt( (fraction_from_fit*(1-fraction_from_fit)) / total_integral );
+
+      double total_integral_hist = hLayerTDiff->Integral();
       int min_tdiff_bin = hLayerTDiff->GetXaxis()->FindBin(-layer_coinc_cut);
       int max_tdiff_bin = hLayerTDiff->GetXaxis()->FindBin(layer_coinc_cut);
-      double integral_in_cut = hLayerTDiff->Integral(min_tdiff_bin, max_tdiff_bin);
+      double integral_in_cut_hist = hLayerTDiff->Integral(min_tdiff_bin, max_tdiff_bin);
+      double fraction_from_hist = integral_in_cut_hist / total_integral_hist;
+      double fraction_from_hist_err = std::sqrt( (fraction_from_hist*(1-fraction_from_hist)) / total_integral );      
       
-      double fraction = integral_in_cut / total_integral;
-      double fraction_err = std::sqrt( (fraction*(1-fraction)) / total_integral );
-      
-      std::cout << "AE: Fraction = " << integral_in_cut << " / " << total_integral << " = " << fraction << " +/- " << fraction_err << std::endl;
+      std::cout << "AE: Fraction = " << integral_in_cut << " / " << total_integral << " = " << fraction_from_fit << " +/- " << fraction_from_fit_err << std::endl;
       
       fit_fn->Draw("LSAME");
       
       leglabel.str("");
-      leglabel << "#splitline{" << fit_names[i_fit_fn] << std::fixed << std::setprecision(4) << "}{#splitline{#chi^2 / ndf = " << fit_fn->GetChisquare() << " / " << fit_fn->GetNDF() << ", #sigma = " << fit_fn->GetParameter(2) << " ns}{Eff = " << fraction << " #pm " << fraction_err << "}}";
+      leglabel << "#splitline{" << fit_names[i_fit_fn] << std::fixed << std::setprecision(0) << "}{#splitline{#chi^2 / ndf = " << fit_fn->GetChisquare() << " / " << fit_fn->GetNDF() << ", #sigma = " << fit_fn->GetParameter(2) << " ns}{#splitline{Eff (from fit) = " << std::setprecision(4) << fraction_from_fit << " #pm " << fraction_from_fit_err << "}{Eff (from hist) = " << std::setprecision(4) << fraction_from_hist << " #pm " << fraction_from_hist_err << "}}}";
       leg->AddEntry(fit_fn, leglabel.str().c_str(), "l");
     }
     leg->Draw();
@@ -139,8 +149,8 @@ void Si16b_FinalPlot_TwoLayer_TDiff() {
     text << std::fixed << std::setprecision(0) << -layer_coinc_cut << " ns < t_{diff} < " << layer_coinc_cut << " ns";
     latex->DrawLatexNDC(0.275, 0.8, text.str().c_str());
 
-    if (save_plots) {
-      std::string plotname = "~/plots/2019-07-09/AlCapData_Si16bDataset_TwoLayer_LayerTDiff_" + Particle;
+    if (savedir != "" && particle=="total") {
+      std::string plotname = savedir + "AlCapData_Si16bDataset_TwoLayer_LayerTDiff_" + particle;
       std::string pdfname = plotname + ".pdf";
       std::string pngname = plotname + ".png";
       c_tdiff->SaveAs(pdfname.c_str());

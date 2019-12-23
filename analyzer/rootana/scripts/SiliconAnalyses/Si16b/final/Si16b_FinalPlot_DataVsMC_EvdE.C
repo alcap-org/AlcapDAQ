@@ -4,8 +4,8 @@ void Si16b_FinalPlot_DataVsMC_EvdE() {
   //  std::string histnames[n_settings] = {"Thin_wNoThick_TimeSlice-200_200/hRawSpectrum", "muonbeam/hRawSpectrum"};
   //  std::string histnames[n_settings] = {"muonbeam_thickStop/hRawSpectrum", "muonbeam_thinStop/hRawSpectrum"};
   std::string filenames[n_settings] = {"~/data/results/Si16b/plots_newPP.root",
-				       "~/data/mc/Si16b/respMatrix_10M_Geom-P5_proton.root",
-				       "~/data/mc/Si16b/respMatrix_10M_Geom-P5_proton.root",
+				       "~/data/mc/Si16b/respMatrix_10M_Geom-P5_proton_1000keVBins_frontDL.root",
+				       "~/data/mc/Si16b/respMatrix_10M_Geom-P5_proton_1000keVBins_frontDL.root",
 				       "~/data/mc/Si16b/respMatrix_10M_Geom-P5_deuteron.root",
 				       "~/data/mc/Si16b/respMatrix_10M_Geom-P5_deuteron.root",
 				       "~/data/mc/Si16b/respMatrix_10M_Geom-P5_triton.root"};

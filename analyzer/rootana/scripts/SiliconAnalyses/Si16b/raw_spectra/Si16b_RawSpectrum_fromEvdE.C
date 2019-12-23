@@ -16,7 +16,7 @@ void Si16b_RawSpectrum_fromEvdE(std::string infilename, std::string outfilename)
   const int n_timecuts = 2;
   std::string timecuts[n_timecuts] = {"", "_noTimeCut"};
   double min_times[n_timecuts] = {400, 0};
-  
+
   // For protons, deuterons etc
   const int n_particles = 5;
   std::string particle_names[n_particles] = {"all", "proton", "deuteron", "triton", "alpha"};//, "proton_combined"};
@@ -45,11 +45,11 @@ void Si16b_RawSpectrum_fromEvdE(std::string infilename, std::string outfilename)
 	    indirname += "_" + pid;
 	  }			    
 	  args.datacuttreename = indirname + "/cuttree";
-
+	  
 	  args.datahistnames.clear();
 	  args.scale_ratios.clear();
 	  args.scale_ratio_errors.clear();
-      
+	  
 	  std::string datahistname = indirname + "/" + histname + "_TwoLayer_12not3";
 	  double scale_ratio = 1;
 	  double scale_ratio_error = 0;
@@ -67,10 +67,10 @@ void Si16b_RawSpectrum_fromEvdE(std::string infilename, std::string outfilename)
 	    double scale_factor_err = (SiR3_veto_eff_uncertainty/SiR3_veto_efficiency)*scale_factor;
 	    args.scale_ratios.push_back(scale_factor);
 	    args.scale_ratio_errors.push_back(scale_factor_err);
-
+	    
 	    if (pid == "PSel") {
 	      args.datahistnames.push_back(i_particle_name + "_SiR_timecut" + min_time.str() + "_10000ns_layerCoinc_" + pid + "/" + histname + "_TwoLayer_123");
-
+		
 	      double scale_factor = (1-SiR3_veto_efficiency)/(SiR3_veto_efficiency);
 	      double scale_factor_err = (SiR3_veto_eff_uncertainty/SiR3_veto_efficiency)*scale_factor;
 	      args.scale_ratios.push_back(-1*scale_factor);

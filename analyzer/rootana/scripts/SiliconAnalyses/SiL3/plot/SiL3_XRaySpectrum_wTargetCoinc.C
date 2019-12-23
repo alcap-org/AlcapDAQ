@@ -5,9 +5,9 @@ void SiL3_XRaySpectrum_wTargetCoinc(std::string infilename, std::string outfilen
   const int n_ge_channels = 2;
   std::string ge_channels[n_ge_channels] = {"GeLoGain", "GeHiGain"};
 
-  const int n_slices = 3;
-  double min_muon_energies[n_slices] = {3000, 3000, 4000};
-  double max_muon_energies[n_slices] = {6000, 4000, 5000};
+  const int n_slices = 4;
+  double min_muon_energies[n_slices] = {0, 3000, 3000, 4000};
+  double max_muon_energies[n_slices] = {30000, 6000, 4000, 5000};
 
   for (int i_ge_channel = 0; i_ge_channel < n_ge_channels; ++i_ge_channel) {
 

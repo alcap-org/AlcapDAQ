@@ -130,8 +130,8 @@ void SiL3Calib() {
     si_channel_canvases->cd(i_calib_point+1);
 
     histname.str("");
-    //    histname << "PlotTAP_Amplitude_wTimeCuts/hSiL3-S#MaxBinAPGenerator#{no_time_shift=true}_Amplitude_wTimeCuts";
-    histname << "PlotTAP_Amplitude_wTimeCuts/hSiL3-S#TemplateFitAPGenerator#{template_archive=templates_SiL3Dataset.root}{constant_fraction= 0.20}{no_time_shift= true}_Amplitude_wTimeCuts";
+    histname << "PlotTAP_Amplitude_wTimeCuts/hSiL3-S#MaxBinAPGenerator#{no_time_shift=true}_Amplitude_wTimeCuts";
+    //    histname << "PlotTAP_Amplitude_wTimeCuts/hSiL3-S#TemplateFitAPGenerator#{template_archive=templates_SiL3Dataset.root}{constant_fraction= 0.20}{no_time_shift= true}_Amplitude_wTimeCuts";
     TH1F* hist = (TH1F*) file->Get(histname.str().c_str());
     hist->SetDirectory(0);
     hist->Rebin(calib_rebin_factors[i_calib_point]);
@@ -172,6 +172,7 @@ void SiL3Calib() {
       std::cout << "SiL3-S, Calib Point #" << i_calib_point << " (" << calib_energies[i_calib_point] << " keV) fit failed" << std::endl;
     }
     hist->GetFunction("gaussian")->SetLineWidth(1);
+    hist->GetFunction("gaussian")->Draw("LSAME");
 
     hist->SetTitle(calib_labels[i_calib_point].c_str());
 

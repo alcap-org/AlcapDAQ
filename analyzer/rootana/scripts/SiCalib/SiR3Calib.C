@@ -36,7 +36,7 @@ void SiR3Calib() {
   double frac_mesytec_uncert = 0; // ready just in case
 
   double calib_energies[n_calib_points] = 
-    { 5.486*convert_to_keV, // Am241
+    { 5.486*convert_to_keV - 145, // Am241
       mesytec*pulser_voltages[0], // 50 mV pulser put through mesytec box
       mesytec*pulser_voltages[1], // 150 mV pulser put through mesytec box
       mesytec*pulser_voltages[2] // 200 mV pulser put through mesytec box
@@ -103,11 +103,12 @@ void SiR3Calib() {
   si_channel_canvases = new TCanvas(canvasname.str().c_str(), canvasname.str().c_str());
   si_channel_canvases->Divide(3, 2);
 
+  std::string foldername = "/home/edmonds/data/out/local/";
   std::stringstream filename;
   std::stringstream histname;
   for (int i_calib_point = 0; i_calib_point < n_calib_points; ++i_calib_point) {
     filename.str("");
-    filename << "out" << std::setw(5) << std::setfill('0') << calib_run_numbers[i_calib_point] << ".root";
+    filename << foldername << "out" << std::setw(5) << std::setfill('0') << calib_run_numbers[i_calib_point] << ".root";
     TFile* file = new TFile(filename.str().c_str(), "READ");
 
     canvasname.str("");
@@ -157,6 +158,7 @@ void SiR3Calib() {
       std::cout << "SiR3-S, Calib Point #" << i_calib_point << " (" << calib_energies[i_calib_point] << " keV) fit failed" << std::endl;
     }
     hist->GetFunction("gaussian")->SetLineWidth(1);
+    hist->GetFunction("gaussian")->Draw("LSAME");
 
     hist->SetTitle(calib_labels[i_calib_point].c_str());
 
@@ -248,7 +250,7 @@ void SiR3Calib() {
 
   std::string canvas_name = si_channel_canvases->GetName();
   std::string savename = "~/plots/2016-12-19/" + canvas_name + ".pdf";
-  si_channel_canvases->SaveAs(savename.c_str());
+  //  si_channel_canvases->SaveAs(savename.c_str());
 
   // Now write out the calibration constants
   std::ofstream calib_script;

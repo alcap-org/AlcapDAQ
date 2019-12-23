@@ -5,7 +5,7 @@ void Si16b_FinalPlot_XRaySpectrum() {
   Int_t colours[n_settings] = {kBlue, kRed};
   std::string leglabels[n_settings] = {"|t| < 5000 ns", "|t| < 200 ns"};
 
-  TLegend* leg = new TLegend(0.50,0.55,0.90,0.85);
+  TLegend* leg = new TLegend(0.50,0.55,0.85,0.85);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.03);
   leg->SetFillColor(kWhite);
@@ -28,7 +28,7 @@ void Si16b_FinalPlot_XRaySpectrum() {
     std::string histtitle = "Si16b Dataset, Full X-Ray Spectrum, " + ge_channel;
     hXRaySpectrum->SetTitle(histtitle.c_str());
     hXRaySpectrum->SetStats(false);
-    hXRaySpectrum->GetXaxis()->SetRangeUser(50, 1200);
+    hXRaySpectrum->GetXaxis()->SetRangeUser(50, 900);
 
     std::stringstream axislabel;
     axislabel << "Counts / " << hXRaySpectrum->GetBinWidth(1) << " keV";
@@ -36,10 +36,18 @@ void Si16b_FinalPlot_XRaySpectrum() {
     hXRaySpectrum->GetYaxis()->SetTitleOffset(1.3);
   
     hXRaySpectrum->Draw("HIST E SAME");
+    alcaphistogram(hXRaySpectrum);
+    if (i_setting == 0) {
+      hXRaySpectrum->SetDrawOption("HIST E1");
+      alcapPreliminary(hXRaySpectrum);
+    }
+    else {
+      hXRaySpectrum->SetDrawOption("HIST E1 SAME");
+    }
 
     leg->AddEntry(hXRaySpectrum, leglabels[i_setting].c_str(), "l");
   }
   leg->Draw();
-  TLatex* latex = new TLatex();
-  latex->DrawLatexNDC(0.17, 0.70, "AlCap Preliminary");
+  //  TLatex* latex = new TLatex();
+  //  latex->DrawLatexNDC(0.17, 0.70, "AlCap Preliminary");
 }

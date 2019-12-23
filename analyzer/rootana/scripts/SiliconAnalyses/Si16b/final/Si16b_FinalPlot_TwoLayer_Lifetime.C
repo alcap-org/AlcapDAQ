@@ -1,4 +1,4 @@
-void Si16b_FinalPlot_TwoLayer_Lifetime() {
+void Si16b_FinalPlot_TwoLayer_Lifetime(std::string savedir = "") {
 
   std::string infilename = "~/data/results/Si16b/lifetime_newPP_geq1TgtPulse.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
@@ -43,13 +43,27 @@ void Si16b_FinalPlot_TwoLayer_Lifetime() {
     fit->Draw("LSAME");
 
     leglabel.str("");
-    leglabel << this_particle << std::fixed << std::setprecision(1) << " (#tau = " << fit->GetParameter(3) << " #pm " << fit->GetParError(3) << ")";
+    leglabel << this_particle << std::fixed << std::setprecision(1) << " (#tau = " << fit->GetParameter(3) << " #pm " << fit->GetParError(3) << " ns)";
     leg->AddEntry(hTime, leglabel.str().c_str(), "l");
 
     std::cout << leglabel.str() << ", flat bkg = " << fit->GetParameter(4) << " #pm " << fit->GetParError(4) << std::endl;
+
+    alcaphistogram(hTime);
+    if (i_particle == 0) {
+      alcapPreliminary(hTime);
+    }
+    else {
+      hTime->SetDrawOption("E1 SAME");
+    }
   }
   leg->Draw();
-  TLatex* latex = new TLatex();
-  latex->DrawLatexNDC(0.35, 0.80, "AlCap Preliminary");
 
+  if (savedir != "") {
+    std::string savename = savedir + "AlCapData_Si16bDataset_TwoLayer_Lifetime";
+
+    std::string pdfname = savename + ".pdf";
+    c_time->SaveAs(pdfname.c_str());
+    std::string pngname = savename + ".png";
+    c_time->SaveAs(pngname.c_str());
+  }
 }

@@ -7,7 +7,7 @@
 void Si16b_AllPlots() {
 
   std::string infilename = "~/data/results/Si16b/subtrees_newPP_geq1TgtPulse.root";
-  std::string outfilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse.root";
+  std::string outfilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse_1sigma.root";
 
   TFile* outfile = new TFile(outfilename.c_str(), "RECREATE");
   outfile->Write();

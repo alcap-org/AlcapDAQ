@@ -12,10 +12,21 @@ void Si16b_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfil
   args.inhistname = "Target/hEnergyTime";
   args.min_time = -200;
   args.max_time = 200;
-  args.outdirname = "Target";
+  args.outdirname = "TargetMuons";
   RawSpectrum_fromEnergyTime(args);
 
-  
+  args.inhistname = "Target/hEnergyTime";
+  args.min_time = 6000;
+  args.max_time = 10000;
+  args.outdirname = "ActiveTarget";
+  RawSpectrum_fromEnergyTime(args);
+
+  args.inhistname = "Target/hEnergyTime";
+  args.min_time = -10000;
+  args.max_time = -6000;
+  args.outdirname = "ActiveTarget_FlatBkg";
+  RawSpectrum_fromEnergyTime(args);
+
   args.inhistname = "SiL3/hEnergyTime";
   args.min_time = 0;
   args.max_time = 10000;

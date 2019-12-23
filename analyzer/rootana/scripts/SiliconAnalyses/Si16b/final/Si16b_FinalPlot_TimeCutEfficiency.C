@@ -1,4 +1,4 @@
-void Si16b_FinalPlot_TimeCutEfficiency() {
+void Si16b_FinalPlot_TimeCutEfficiency(std::string savedir = "") {
 
   double min_total_time = -1000;
   double max_total_time = 10000;
@@ -113,4 +113,18 @@ void Si16b_FinalPlot_TimeCutEfficiency() {
   text.str("");
   text << " = " << std::setprecision(3) << total_eff << " #pm " << std::setprecision(1) << total_eff_error;
   latex->DrawLatexNDC(0.77, 0.70, text.str().c_str());
+
+  alcaphistogram(hTotal);
+  alcapPreliminary(hTotal);
+  //  hTotal->SetDrawOption("COLZ");
+
+  if (savedir != "") {
+    std::string savename = savedir + "AlCapData_Si16bDataset_TimeCutEfficiency";
+
+    std::string pdfname = savename + ".pdf";
+    c_time->SaveAs(pdfname.c_str());
+    std::string pngname = savename + ".png";
+    c_time->SaveAs(pngname.c_str());
+  }
+
 }

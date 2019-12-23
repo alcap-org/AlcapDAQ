@@ -1,4 +1,4 @@
-void Si16b_FinalPlot_NormalisedSpectrum_wBudyashov() {
+void Si16b_FinalPlot_NormalisedSpectrum_wBudyashov(std::string savedir = "") {
 
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
@@ -7,7 +7,7 @@ void Si16b_FinalPlot_NormalisedSpectrum_wBudyashov() {
   double min_energies[n_ranges] = {15000, 15000, 16000, 15000, 16000};//3500, 4000, 3500};//0,    1400,  10000, 5000,   3500, 4000, 3500, 14000};
   double max_energies[n_ranges] = {16000, 17000, 17000, 18000, 18000};//10000, 8000, 15000};//26000,26000, 26000, 10000, 10000, 8000, 14000, 15000};
 
-  TLegend* leg = new TLegend(0.50,0.55,0.90,0.85);
+  TLegend* leg = new TLegend(0.50,0.55,0.85,0.85);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.03);
   leg->SetFillColor(kWhite);
@@ -39,14 +39,14 @@ void Si16b_FinalPlot_NormalisedSpectrum_wBudyashov() {
   //    std::string filename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_SiL1-2--6.root";
   TFile* file = new TFile(filename.c_str(), "READ");
   
-  const int n_settings = 5;
-  std::string particle_names[n_settings] = {"proton", "deuteron", "triton", "alpha", "SiL3"};
-  Int_t colours[n_settings] = {kRed, kCyan, kMagenta, kSpring, kGray};
-  std::string leglabels[n_settings] = {"Si16b (proton)", "Si16b (deuterons)", "Si16b (tritons)", "Si16b (alphas)", "Si16b (SiL3 inc.)"};
+  const int n_settings = 2;
+  std::string particle_names[n_settings] = {"proton", "deuteron"};//, "triton", "alpha", "SiL3"};
+  Int_t colours[n_settings] = {kRed, kCyan};//, kMagenta, kSpring, kGray};
+  std::string leglabels[n_settings] = {"AlCap (proton)", "AlCap (deuterons)"};//, "AlCap (tritons)", "AlCap (alphas)", "AlCap (SiL3 inc.)"};
   double rates[n_settings][n_ranges] = {0};
   double rate_errs[n_settings][n_ranges] = {0};
   
-  int rebin_factors[n_settings] = {1, 1, 1, 1, 1};
+  int rebin_factors[n_settings] = {1, 1};//, 1, 1, 1};
   THStack* hStack = new THStack("hStack", "");
   TH1F* hSi16b_SiL3Inc = NULL;
   for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
@@ -57,12 +57,12 @@ void Si16b_FinalPlot_NormalisedSpectrum_wBudyashov() {
     std::string dirname = "FinalNormalisation_" + i_particle_name;
     if (i_particle_name != "SiL3") {
       if (i_particle_name == "alpha") {
-	//	dirname += "_TCutG";
-	dirname += "_PSel";
+	dirname += "_TCutG";
+	//	dirname += "_PSel";
       }
       else {
-	dirname += "_PSel";
-	//	dirname += "_TCutG";
+	//	dirname += "_PSel";
+	dirname += "_TCutG";
       }
     }
     //    else {
@@ -92,6 +92,10 @@ void Si16b_FinalPlot_NormalisedSpectrum_wBudyashov() {
     //    spectrum->Draw("HIST E SAMES");
     leg->AddEntry(spectrum, leglabels[i_setting].c_str(), "l");
 
+    alcaphistogram(spectrum);
+    if (i_setting == 0) {
+      alcapPreliminary(spectrum);
+    }
     /*    std::string fitname = dirname + "/spectral_fit";
     TF1* fit = (TF1*) file->Get(fitname.c_str());
     if (fit) {
@@ -180,4 +184,13 @@ void Si16b_FinalPlot_NormalisedSpectrum_wBudyashov() {
   leg->AddEntry(Budyashov_gre_sum, "Budyashov et al. (sum)", "pl");
   */
   leg->Draw();
+
+  if (savedir != "") {
+    std::string savename = savedir + "AlCapData_Si16bDataset_NormalisedSpectrum_wBudyashov";
+
+    std::string pdfname = savename + ".pdf";
+    c1->SaveAs(pdfname.c_str());
+    std::string pngname = savename + ".png";
+    c1->SaveAs(pngname.c_str());
+  }
 }

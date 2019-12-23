@@ -43,7 +43,7 @@ void SiL3_EvdEPlot(std::string infilename, std::string outfilename) {
   std::vector<Setting> settings;
   settings.push_back(all);
   //  settings.push_back(all_proton);
-  //  settings.push_back(proton);
+  settings.push_back(proton);
   //  settings.push_back(deuteron);
   //  settings.push_back(triton);
   //  settings.push_back(alpha);

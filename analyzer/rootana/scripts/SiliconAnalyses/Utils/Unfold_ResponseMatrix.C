@@ -83,6 +83,12 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   }
   std::string newname = "hInputSpectrum";
   folded_spectrum->SetName(newname.c_str());
+  /*  for (int i_bin = 1; i_bin <= folded_spectrum->GetNbinsX(); ++i_bin) {
+    if (folded_spectrum->GetBinCenter(i_bin) < 1400) {
+      folded_spectrum->SetBinContent(i_bin, 0);
+      folded_spectrum->SetBinError(i_bin, 0);
+    }
+  }*/
   folded_spectrum->Rebin(args.rebin_factor);
   std::stringstream axislabel;
   axislabel << "Folded Count / " << folded_spectrum->GetBinWidth(1) << " keV";
@@ -92,6 +98,18 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   TH2D* response_matrix = (TH2D*) response->Hresponse();
   newname = "hResponseMatrix";
   response_matrix->SetName(newname.c_str());
+
+  /*
+  for (int i_bin = 1; i_bin < response_matrix->GetXaxis()->GetNbins(); ++i_bin) {
+    for (int j_bin = 1; j_bin < response_matrix->GetYaxis()->GetNbins(); ++j_bin) {
+      double true_E = response_matrix->GetYaxis()->GetBinCenter(j_bin);
+      if (true_E < 4000) {
+	response_matrix->SetBinContent(i_bin, j_bin, 0);
+	response_matrix->SetBinError(i_bin, j_bin, 0);
+      }
+    }
+  }
+  */
 
   std::cout << "Unfolding ResponseMatrix: Input Bin Width = " << folded_spectrum->GetXaxis()->GetBinWidth(1) << ", Response Matrix Bin Width = " << response_matrix->GetXaxis()->GetBinWidth(1) << std::endl;
 
@@ -153,6 +171,8 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   
   outfile->Write();
   outfile->Close();
+
+  data_file->Close();
 }
 
 void printIntegrals(TH1D* hUnfolded) {

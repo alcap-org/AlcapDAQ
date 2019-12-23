@@ -6,8 +6,8 @@ void SiL3_AllNormalisations() {
 
   //  std::string infilename = "~/data/results/SiL3/plots.root";
   //  std::string outfilename = "~/data/results/SiL3/normalisation.root";
-  std::string infilename = "~/data/results/SiL3/plots_geq1TgtPulse_newPP20us.root";
-  std::string outfilename = "~/data/results/SiL3/normalisation_geq1TgtPulse_newPP20us.root";
+  std::string infilename = "~/data/results/SiL3/plots_geq0TgtPulse_newPP20us.root";
+  std::string outfilename = "~/data/results/SiL3/normalisation_geq0TgtPulse_newPP20us.root";
   //  std::string infilename = "~/data/results/SiL3/plots_wMuScCut_3000-3500ADC.root";
   //  std::string outfilename = "~/data/results/SiL3/normalisation_wMuScCut_3000-3500ADC.root";
   //  std::string infilename = "~/data/results/SiL3_active_no-templates/plots.root";
@@ -18,6 +18,6 @@ void SiL3_AllNormalisations() {
   outfile->Close();
 
   SiL3_CountStoppedMuons_XRaySpectrum(infilename, outfilename);
-  //  SiL3_CountStoppedMuons_TargetSpectrum(infilename, outfilename);
-  //  SiL3_CountStoppedMuons_XRaySpectrum_wTargetCoinc(infilename, outfilename);
+  SiL3_CountStoppedMuons_TargetSpectrum(infilename, outfilename);
+  SiL3_CountStoppedMuons_XRaySpectrum_wTargetCoinc(infilename, outfilename);
 }

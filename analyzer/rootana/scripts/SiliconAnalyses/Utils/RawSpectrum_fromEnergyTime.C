@@ -9,6 +9,7 @@
 struct RawSpectrum_fromEnergyTimeArgs {
   std::string infilename;
   std::string inhistname;
+  std::string incuttreename;
 
   std::string outfilename;
   std::string outdirname;
@@ -31,12 +32,22 @@ void RawSpectrum_fromEnergyTime(const RawSpectrum_fromEnergyTimeArgs& args) {
     std::cout << "Problem getting histogram " << args.inhistname.c_str() << std::endl;
     return;
   }
-
+  TTree* incuttree = (TTree*) file->Get(args.incuttreename.c_str());
+  if (!incuttree) {
+    std::cout << "Problem getting TTree " << args.incuttreename.c_str() << std::endl;
+    return;
+  }
+  double recoil_fraction = 0;
+  incuttree->SetBranchAddress("recoil_fraction", &recoil_fraction);
+  incuttree->GetEntry(0);
+  
   double min_time = args.min_time;
   double max_time = args.max_time;
+  double recoil_fraction_out = recoil_fraction;
   TTree* cuttree = new TTree("cuttree", "cuttree");
   cuttree->Branch("min_time", &min_time);
   cuttree->Branch("max_time", &max_time);
+  cuttree->Branch("recoil_fraction", &recoil_fraction_out);
   cuttree->Fill();
 
   int min_time_bin = hEnergyTime->GetXaxis()->FindBin(args.min_time);

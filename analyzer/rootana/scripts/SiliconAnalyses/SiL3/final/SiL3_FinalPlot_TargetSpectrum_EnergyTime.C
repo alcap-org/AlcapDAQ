@@ -1,9 +1,9 @@
-void SiL3_FinalPlot_TargetSpectrum_EnergyTime() {
+void SiL3_FinalPlot_TargetSpectrum_EnergyTime(std::string savedir = "") {
 
   //  std::string plots_file_name = "~/data/results/SiL3/plots_geq2TgtPulse.root";
   //  std::string plots_file_name = "~/data/results/SiL3_active_no-templates/plots_geq2TgtPulse.root";
   std::string plots_file_name = "~/data/results/SiL3/plots_geq2TgtPulse_newPP20us.root";
-  std::string full_spectrum_name = "Target/hEnergyTime";
+  std::string full_spectrum_name = "Target_noRecoil/hEnergyTime";
     
   TFile* plots_file = new TFile(plots_file_name.c_str(), "READ");
   TH2F* hEnergyTime = (TH2F*) plots_file->Get(full_spectrum_name.c_str());
@@ -20,15 +20,16 @@ void SiL3_FinalPlot_TargetSpectrum_EnergyTime() {
   //  std::cout << "Counts / " << hEnergyTime->GetYaxis()->GetBinWidth(1) << " keV" << std::endl;
   //  hEnergyTime->SetYTitle(axislabel.str().c_str());
   //  hEnergyTime->GetYaxis()->SetTitleOffset(1.3);
-  
+
+  hEnergyTime->GetXaxis()->SetRangeUser(-20000, 20000);
+  hEnergyTime->GetYaxis()->SetRangeUser(0, 50000);
   hEnergyTime->Draw("COLZ");
 
-  TLatex* latex = new TLatex();
-  latex->DrawLatexNDC(0.15, 0.70, "AlCap Preliminary");
-  
-  hEnergyTime->GetXaxis()->SetRangeUser(-20000, 20000);
-  hEnergyTime->GetYaxis()->SetRangeUser(0, 100000);
+  alcaphistogram(hEnergyTime);
+  alcapPreliminary(hEnergyTime);
+  hEnergyTime->SetDrawOption("COLZ");
 
+  
   double y_max = 30000;
   TCanvas* c_EnergyTime_Zoom = new TCanvas("c_EnergyTime_Zoom", "c_EnergyTime_Zoom");
   c_EnergyTime_Zoom->SetLogz();
@@ -39,6 +40,10 @@ void SiL3_FinalPlot_TargetSpectrum_EnergyTime() {
   //  hEnergyTime_Zoom->GetYaxis()->SetRangeUser(10000, 30000);
   hEnergyTime_Zoom->Draw("COLZ");
 
+  alcaphistogram(hEnergyTime_Zoom);
+  alcapPreliminary(hEnergyTime_Zoom);
+  hEnergyTime_Zoom->SetDrawOption("COLZ");
+  
   double min_time = 2000;
   double max_time = 4000;
   TLine* min_time_line = new TLine(min_time, 0, min_time, y_max);
@@ -50,5 +55,13 @@ void SiL3_FinalPlot_TargetSpectrum_EnergyTime() {
   max_time_line->SetLineColor(kRed);
   max_time_line->Draw("LSAME");
   
-  latex->DrawLatexNDC(0.50, 0.70, "AlCap Preliminary");
+  if (savedir != "") {
+    std::string savename = savedir + "AlCapData_SiL3Dataset_ActiveTarget_EnergyTime";
+    std::string pngname = savename + ".png";
+    c_EnergyTime->SaveAs(pngname.c_str());
+
+    savename = savedir + "AlCapData_SiL3Dataset_ActiveTarget_EnergyTime_Zoom";
+    pngname = savename + ".png";
+    c_EnergyTime_Zoom->SaveAs(pngname.c_str());
+  }
 }

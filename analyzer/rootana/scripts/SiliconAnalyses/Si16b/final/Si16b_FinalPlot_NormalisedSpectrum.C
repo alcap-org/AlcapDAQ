@@ -1,4 +1,4 @@
-void Si16b_FinalPlot_NormalisedSpectrum() {
+void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "") {
 
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
@@ -26,7 +26,7 @@ void Si16b_FinalPlot_NormalisedSpectrum() {
   double rates[n_settings][n_ranges] = {0};
   double rate_errs[n_settings][n_ranges] = {0};
 
-  TLegend* leg = new TLegend(0.60,0.65,0.90,0.85);
+  TLegend* leg = new TLegend(0.60,0.65,0.85,0.85);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.035);
   leg->SetFillColor(kWhite);
@@ -37,7 +37,7 @@ void Si16b_FinalPlot_NormalisedSpectrum() {
     std::string i_particle_name = particle_names[i_setting];
     Int_t i_colour = colours[i_setting];
 
-    std::string i_dirname = "FinalNormalisation_" + i_particle_name + "_PSel";
+    std::string i_dirname = "FinalNormalisation_" + i_particle_name + "_TCutG";
     std::string i_histname = i_dirname + "/hNormalisedSpectrum";
 
     TH1F* spectrum = (TH1F*) file->Get(i_histname.c_str());
@@ -53,9 +53,19 @@ void Si16b_FinalPlot_NormalisedSpectrum() {
     spectrum->SetStats(false);
     spectrum->SetLineColor(i_colour);
     spectrum->GetXaxis()->SetRangeUser(0,26000);
+    //    spectrum->GetXaxis()->SetRangeUser(2000,16000);
     spectrum->SetMinimum(1e-8);
     spectrum->SetMaximum(3e-5);
     spectrum->Draw("HIST E SAMES");
+
+    alcaphistogram(spectrum);
+    if (i_setting == 0) {
+      alcapPreliminary(spectrum);
+      spectrum->SetDrawOption("HIST E1");
+    }
+    else {
+      spectrum->SetDrawOption("HIST E1 SAME");
+    }
 
     /*
     std::string i_fitname = i_dirname + "/spectral_fit";
@@ -111,4 +121,13 @@ void Si16b_FinalPlot_NormalisedSpectrum() {
   }
   
   leg->Draw();
+
+  if (savedir != "") {
+    std::string savename = savedir + "AlCapData_Si16bDataset_NormalisedSpectrum";
+
+    std::string pdfname = savename + ".pdf";
+    c1->SaveAs(pdfname.c_str());
+    std::string pngname = savename + ".png";
+    c1->SaveAs(pngname.c_str());
+  }
 }

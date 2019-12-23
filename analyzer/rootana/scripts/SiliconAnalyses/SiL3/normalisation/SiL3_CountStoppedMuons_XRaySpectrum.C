@@ -5,10 +5,10 @@ void SiL3_CountStoppedMuons_XRaySpectrum(std::string infilename, std::string out
   const int n_ge_channels = 2;
   std::string ge_channels[n_ge_channels] = {"GeLoGain", "GeHiGain"};
 
-  const int n_time_cuts = 3;
-  double min_times[n_time_cuts] = {-20000, -10000, -200};
-  double max_times[n_time_cuts] = {20000, 10000, 200};
-  std::string time_cuts[n_time_cuts] = {"noTimeCut", "10000nsTimeCut", "200nsTimeCut"};
+  const int n_time_cuts = 4;
+  double min_times[n_time_cuts] = {-20000, -10000, -5000, -200};
+  double max_times[n_time_cuts] = {20000, 10000, 5000, 200};
+  std::string time_cuts[n_time_cuts] = {"noTimeCut", "10000nsTimeCut", "5000nsTimeCut", "200nsTimeCut"};
 
   const int n_transitions = 4;
   std::string transitions[n_transitions] = {"2p-1s", "3p-1s", "Capture843keV", "Capture1014keV"};

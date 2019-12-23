@@ -12,8 +12,9 @@ void EfficiencyComparisons() {
 
   const int n_useful_energies = 6;
   double useful_energies[n_useful_energies] = {400.177, 476.8, 346.828, 412.87, 931, 1122};
-  double energy_2p1s = 477;
+  //  double energy_2p1s = 477;
   //  double energy_2p1s = 347;
+  double energy_2p1s = 1014.42;
     
   TLegend* leg = new TLegend(0.25,0.55,0.65,0.85);
   leg->SetBorderSize(0);
@@ -28,7 +29,8 @@ void EfficiencyComparisons() {
 
     //    std::string filename = "noCorrections/" + basename.str() + ".root";
     //    std::string filename = "tBlock96ms_" + ge_channel + "/" + basename.str() + ".root";
-    std::string filename = "tBlock96ms_wExtraDeadTime_" + ge_channel + "/" + basename.str() + ".root";
+    //    std::string filename = "tBlock96ms_wExtraDeadTime_" + ge_channel + "/" + basename.str() + ".root";
+    std::string filename = "tBlock96ms_wExtraDeadTime_" + ge_channel + "_LongerAxis/" + basename.str() + ".root";
     //    std::string filename = basename.str() + ".root";
     TFile* file = new TFile(filename.c_str(), "READ");
 
@@ -80,7 +82,7 @@ void EfficiencyComparisons() {
     }
 
     leglabel.str("");
-    leglabel << "Run " << run_numbers[i_run] << ", #varepsilon(" << std::fixed << std::setprecision(0) << energy_2p1s << " keV) = (" << std::setprecision(1) << eff->Eval(energy_2p1s)*1e4 << " #pm " << std::setprecision(1) << eu_err*1e4 << ") #times 10^{-4}";
+    leglabel << "Run " << run_numbers[i_run] << ", #varepsilon(" << std::fixed << std::setprecision(0) << energy_2p1s << " keV) = (" << std::setprecision(2) << eff->Eval(energy_2p1s)*1e4 << " #pm " << std::setprecision(2) << eu_err*1e4 << ") #times 10^{-4}";
 
     leg->AddEntry(gre, leglabel.str().c_str(), "lpf");
 
@@ -120,7 +122,7 @@ void EfficiencyComparisons() {
   gre_mean_eu->SetLineWidth(2);
   gre_mean_eu->Draw("PE SAME");
   leglabel.str("");
-  leglabel << "Mean Eu Runs, #varepsilon(" << std::fixed << std::setprecision(0) << energy_2p1s << " keV) = (" << std::setprecision(1) << mean_eu_eff*1e4 << " #pm " << std::setprecision(1) << mean_eu_eff_err*1e4 << ") #times 10^{-4}";
+  leglabel << "Mean Eu Runs, #varepsilon(" << std::fixed << std::setprecision(0) << energy_2p1s << " keV) = (" << std::setprecision(2) << mean_eu_eff*1e4 << " #pm " << std::setprecision(2) << mean_eu_eff_err*1e4 << ") #times 10^{-4}";
   std::cout << leglabel.str() << std::endl;
   leg->AddEntry(gre_mean_eu, leglabel.str().c_str(), "p");
 

@@ -119,9 +119,10 @@ void SiR1Calib() {
 
   std::stringstream filename;
   std::stringstream histname;
+  std::string basename = "~/data/out/local/";
   for (int i_calib_point = 0; i_calib_point < n_calib_points; ++i_calib_point) {
     filename.str("");
-    filename << "out" << std::setw(5) << std::setfill('0') << calib_run_numbers[i_calib_point] << ".root";
+    filename << basename << "out" << std::setw(5) << std::setfill('0') << calib_run_numbers[i_calib_point] << ".root";
     TFile* file = new TFile(filename.str().c_str(), "READ");
 
     canvasname.str("");
@@ -171,6 +172,7 @@ void SiR1Calib() {
 	std::cout << "SiR1-" << i_si_channel+1 << "-S, Calib Point #" << i_calib_point << " (" << calib_energies[i_calib_point] << " keV) fit failed" << std::endl;
       }
       hist->GetFunction("gaussian")->SetLineWidth(1);
+      hist->GetFunction("gaussian")->Draw("LSAME");
 
       hist->SetTitle(calib_labels[i_calib_point].c_str());
     }
@@ -267,9 +269,9 @@ void SiR1Calib() {
   //  c_gr->SaveAs("/gpfs/home/edmonds_a/plots/2016-11-07/SiR1-3-S_EnergyCalibrationCurve_Test.pdf");
 
   for (int i_si_channel = 0; i_si_channel < n_si_channels; ++i_si_channel) {
-    std::string canvasname = si_channel_canvases[i_si_channel]->GetName();
-    std::string savename = "~/plots/2016-12-19/" + canvasname + ".pdf";
-    si_channel_canvases[i_si_channel]->SaveAs(savename.c_str());
+    std::string canvasname2 = si_channel_canvases[i_si_channel]->GetName();
+    std::string savename = "~/plots/2016-12-19/" + canvasname2 + ".pdf";
+    //    si_channel_canvases[i_si_channel]->SaveAs(savename.c_str());
   }
 
   // Now write out the calibration constants
