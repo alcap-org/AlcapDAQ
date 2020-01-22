@@ -1,5 +1,4 @@
 //Some global variable for convenience
-Bool_t debug = kTRUE;
 Double_t window = .06;
 Double_t ymin = .26; //y-limits chosen for protons
 Double_t ymax = 1.4;
@@ -22,9 +21,9 @@ void Fit(TH1D *h, Int_t sliceIndex, bool plotLeft = kFALSE) {
 
 	//Use TSpectrum to find the peak candidates
 	TSpectrum *s = new TSpectrum(4);
-	Int_t nfound = s->Search(h, 2, "", 0.05);
+	Int_t nfound = s->Search(h, 2, "", 0.005);
 	Double_t *xpeaks = s->GetPositionX();
-	if(xpeaks[2] < xpeaks[1]) xpeaks[2] = 0.74;
+//	if(xpeaks[2] < xpeaks[1]) xpeaks[2] = 0.74;
 	sort(xpeaks, xpeaks+nfound);
 
 	TF1 *fit = new TF1("fit", "gaus(0)+gaus(3)+gaus(6)+pol0(9)", ymin, ymax);
@@ -68,7 +67,7 @@ void Fit(TH1D *h, Int_t sliceIndex, bool plotLeft = kFALSE) {
 	fit->SetParName(8, "Tri. Sigma");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-	Int_t tritonLimit = 17;
+	Int_t tritonLimit = 11;
 	if(plotLeft) {
 		tritonLimit = 12;
 	}
@@ -129,7 +128,7 @@ void RotateCutGPoints(TCutG *cut) {
 }
 
 void DefineCut(const char *sourceName, const char *species="proton", bool plotLeft=kFALSE) {
-	TFile *fCut = new TFile("al100-cuts.root", "UPDATE");
+	TFile *fCut = new TFile("si16b-cuts.root", "UPDATE");
 	TString meanStr = Form("%s_mean", species);
 	TString sigmaStr = Form("%s_sigma", species);
 	Int_t mapsize = results[meanStr].size();
@@ -142,7 +141,7 @@ void DefineCut(const char *sourceName, const char *species="proton", bool plotLe
 			mod = 18;
 		}
 		if(std::strcmp(species, "triton")==0) {
-			mod = 17;
+			mod = 11;
 		}
 		if(std::strcmp(species, "alpha")==0) {
 			mod = 3;
@@ -207,7 +206,7 @@ void DefineCut(const char *sourceName, const char *species="proton", bool plotLe
   A rough integral or plain sum over bins are done as another check on the gaussian integral
   The difference between the Entries var and Integral var is(should be) the Background var (pol0 * fit window size and corrected with the bin size)
   */
-void Pid100(const char *filename="al100.root", Bool_t plotLeft=kFALSE, const char *treeName="tree") {
+void PidSi16b(const char *filename="si16b.root", Bool_t plotLeft=kFALSE, const char *treeName="tree") {
 	gStyle->SetOptFit(1);
 	TFile *fData = new TFile(filename, "READ");
 	TH2D *hLg_SiL_EvDeltaE = new TH2D("hLg_SiL_EvDeltaE", "SiL Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 250, -0.1, 1.5, 100, ymin, ymax);
