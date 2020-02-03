@@ -37,6 +37,7 @@ static const int   BAYESPAR = 4;
 static const int   SVDPAR   = 15;
 ////////////////////////////////////////////////////////////////////////////////
 
+// IS ERROR CALCULATED CORRECTLY?
 void ApplyPIDCorrection(TH1* hraw[2]) {
   TFile* ifile = new TFile("data/Al50/corranderr/pid.root");
   TH1* hcorr[2] = { (TH1*)ifile->Get("hlpidcorrerr"),
@@ -202,7 +203,7 @@ void R15b_Al50_Unfold(char mode='\0', const char* ifname_tm=nullptr,
                       const char* ofname=nullptr,
                       double pp=10e3, double t=400, double dt=200,
                       int rebin=5, double elo=2e3, double ehi=12e3,
-                      int bayiter=5, bool pidcorrect=true, const std::string& noise="") {
+                      int bayiter=4, bool pidcorrect=true, const std::string& noise="") {
   switch(mode) {
     case 'p': unfold(ifname_tm, ifname_data, ofname, pp, t, dt, rebin, elo, ehi, bayiter, pidcorrect, noise); return;
     case 'd': unfold(ifname_tm, ifname_data, ofname, pp, t, dt, rebin, elo, ehi, bayiter, pidcorrect, noise); return;

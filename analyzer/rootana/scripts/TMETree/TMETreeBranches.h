@@ -96,7 +96,7 @@ void SetTMEBranchAddresses(TTree* tmetree) {
   tmetree->SetBranchAddress("timeToPrevTME",          &timeToPrevTME);
   tmetree->SetBranchAddress("timeToNextTME",          &timeToNextTME);
   tmetree->SetBranchAddress("anyDoubleCountedPulses", &anyDoubleCountedPulses);
-  tmetree->SetBranchAddress("muSc",                   muSc);
+  tmetree->SetBranchAddress("muSc",                   &muSc);
   tmetree->SetBranchAddress("SiT_1",                  &SiT_1);
   tmetree->SetBranchAddress("SiT_2",                  &SiT_2);
   tmetree->SetBranchAddress("SiT_3",                  &SiT_3);
@@ -216,7 +216,7 @@ void CollectChannels() {
   all_channels[i_counter++] = SiL1_13;
   all_channels[i_counter++] = SiL1_14;
   all_channels[i_counter++] = SiL1_15;
-  all_channels[i_counter++] = SiL1_16;
+  // all_channels[i_counter++] = SiL1_16;
 
   all_channels[i_counter++] = SiL3;
 

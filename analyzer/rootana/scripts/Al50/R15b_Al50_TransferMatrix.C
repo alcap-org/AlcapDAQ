@@ -1,5 +1,7 @@
 #include "./scripts/Al50/util.h"
 
+#include "RooUnfoldResponse.h"
+
 #include "TBranch.h"
 #include "TFile.h"
 #include "TFileMerger.h"
@@ -8,7 +10,6 @@
 #include "TRandom3.h"
 #include "TTree.h"
 
-#include "RooUnfoldResponse.h"
 
 #include <algorithm>
 #include <cmath>

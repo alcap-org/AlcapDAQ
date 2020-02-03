@@ -77,27 +77,27 @@ void SaveErrorsToFile(vector<vector<TH1*>> hs) {
 
 void make_unfolded_spectra() {
   double pp =10e3, tcut = 400, dtcut = 200, rebin = 1, ehicut = 12e3, bayiter = 4;
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2000keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.0e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2100keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.1e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2200keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.2e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2300keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.3e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2400keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.4e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2500keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.5e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2600keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.6e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2700keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.7e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2800keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.8e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2900keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.9e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo3000keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.0e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo3100keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.1e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo3200keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.2e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo3300keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.3e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo3400keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.4e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo3500keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.5e3, ehicut, bayiter);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2000keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.0e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2100keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.1e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2200keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.2e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2300keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.3e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2400keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.4e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2500keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.5e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2600keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.6e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2700keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.7e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2800keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.8e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo2900keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.9e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo3000keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.0e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo3100keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.1e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo3200keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.2e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo3300keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.3e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo3400keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.4e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin1.pp10us.elo3500keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.5e3, ehicut, bayiter, true);
   rebin = 5;
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin5.pp10us.elo2000keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.0e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin5.pp10us.elo2500keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.5e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin5.pp10us.elo3000keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.0e3, ehicut, bayiter);
-  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin5.pp10us.elo3500keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.5e3, ehicut, bayiter);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin5.pp10us.elo2000keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.0e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin5.pp10us.elo2500keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 2.5e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin5.pp10us.elo3000keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.0e3, ehicut, bayiter, true);
+  R15b_Al50_Unfold('p', "data/Al50/tm.p.2layer.mudist.root", "data/Al50/psel.3layer.pidpow2.root", "data/Al50/elo_study/en.p.2layer.t400ns.dt200ns.rebin5.pp10us.elo3500keV.ehi12000keV.root", pp, tcut, dtcut, rebin, 3.5e3, ehicut, bayiter, true);
 }
 
 void unfolding_cutoff(bool unfold_first=false) {
@@ -239,7 +239,8 @@ void unfolding_cutoff(bool unfold_first=false) {
   TCanvas* c = new TCanvas("c", "c", 1400, 500);
   c->Divide(2);
   c->cd(1);
-  hs[0][0] ->DrawClone("SAME PLC");
+  hs[0][0] ->Draw("SAME PLC");
+  // hs[0][0] ->DrawClone("SAME PLC");
   hs[1][0] ->Draw("SAME PLC");
   hs[2][0] ->Draw("SAME PLC");
   hs[3][0] ->Draw("SAME PLC");
@@ -257,7 +258,8 @@ void unfolding_cutoff(bool unfold_first=false) {
   // hs[15][0]->Draw("SAME PLC");
   leg     ->Draw();
   c->cd(2);
-  hs[0][1] ->DrawClone("SAME PLC");
+  hs[0][1] ->Draw("SAME PLC");
+  // hs[0][1] ->DrawClone("SAME PLC");
   hs[1][1] ->Draw("SAME PLC");
   hs[2][1] ->Draw("SAME PLC");
   hs[3][1] ->Draw("SAME PLC");
@@ -363,9 +365,9 @@ void unfolding_cutoff(bool unfold_first=false) {
   ysig[0] = std::sqrt(ysig[0]);
   ysig[1] = std::sqrt(ysig[1]);
   ysig[2] = std::sqrt(ysig[2]);
-  printf("Left Std. Dev:  %g (%g%%)\n", ysig[0], 100*ysig[0]/ymean[0]);
-  printf("Right Std. Dev: %g (%g%%)\n", ysig[1], 100*ysig[1]/ymean[1]);
-  printf("Avg Std. Dev:   %g (%g%%)\n", ysig[2], 100*ysig[2]/ymean[2]);
+  printf("Left Std. Dev:  %g (%g%%)%%\n", ysig[0], 100*ysig[0]/ymean[0]);
+  printf("Right Std. Dev: %g (%g%%)%%\n", ysig[1], 100*ysig[1]/ymean[1]);
+  printf("Avg Std. Dev:   %g (%g%%)%%\n", ysig[2], 100*ysig[2]/ymean[2]);
 
   SaveErrorsToFile(hs);
 

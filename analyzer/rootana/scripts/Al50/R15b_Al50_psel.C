@@ -108,14 +108,17 @@ vector< vector<SimplePulse>* >& SiL1s = all_SiL1_channels;
 void psel(TTree* tr, const char* ofname, double pp, double bandwidthscale,
           bool usealllayers, bool verbose=false) {
   TFile* ofile = new TFile(ofname, "RECREATE");
+
   SetTMEBranchAddresses(tr);
   CollectChannels();
   TMECal::Init();
+
   vector< vector<PIDEvent> > vrpids(NPTYPE), vlpids(NPTYPE);
-  vector<ParticleLikelihood::PSelPow> pls_r =
+  vector<ParticleLikelihood::PSelPow2> pls_r =
     ParticleLikelihood::LoadParticleLikelihoodsPow2('R', bandwidthscale);
-  vector<ParticleLikelihood::PSelPow> pls_l =
+  vector<ParticleLikelihood::PSelPow2> pls_l =
     ParticleLikelihood::LoadParticleLikelihoodsPow2('L', bandwidthscale);
+
   for (int i = 0; i < tr->GetEntries(); ++i) {
     tr->GetEntry(i);
     if(pp && !TMECuts::PileupProtected(pp))
@@ -160,7 +163,6 @@ void psel(TTree* tr, const char* ofname, double pp, double bandwidthscale,
   otr->Fill();
   ofile->Write();
   ofile->Close();
-  delete ofile;
 }
 
 void R15b_Al50_psel(const char* ifname=nullptr, const char* ofname=nullptr,

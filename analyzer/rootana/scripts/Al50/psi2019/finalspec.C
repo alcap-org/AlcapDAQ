@@ -158,7 +158,7 @@ void finalspec() {
   leg->AddEntry(hasig2, "2#sigma", "f");
   leg->Draw();
   // l->Draw();
-  DrawPreliminaryBox(5400., 0.0025);
+  // DrawPreliminaryBox(5400., 0.0025);
   // avgrate->Draw();
   // fap->Draw("SAME");
   // cavg->SetLogy();

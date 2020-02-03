@@ -5,16 +5,82 @@
 #include "TDirectory.h"
 #include "TF1.h"
 #include "TFile.h"
+#include "TFitResult.h"
+#include "TFitResultPtr.h"
 #include "TH1.h"
 #include "TLegend.h"
 #include "TPaveText.h"
 #include "TStyle.h"
 #include "TText.h"
+#include "TVirtualFitter.h"
 
+#include <array>
 #include <cmath>
 #include <vector>
 
+using std::array;
 using std::vector;
+
+array<double,2> ExtendEnergy(TH1* h) {
+  double x1 = 5e3, x2 = 10e3;
+  double y1 = h->GetBinContent(h->FindFixBin(x1));
+  double y2 = h->GetBinContent(h->FindFixBin(x2));
+  double par[2] = { (x1*std::log(y2)-x2*std::log(y1))/(x1-x2),
+                    std::log(y1/y2)/(x1-x2) };
+  TF1* f = new TF1("fspec", "expo", 5e3, 10e3);
+  f->SetParameters(par);
+  TFitResultPtr res = h->Fit(f, "SEMR");
+  std::cout << "Chi2 of extension: " << res->Chi2() << "/" << res->Ndf() << std::endl;
+  return array<double,2>{f->Integral(10e3, 150e3)/h->GetBinWidth(1),
+                         f->IntegralError(10e3, 150e3)/h->GetBinWidth(1)};
+}
+
+void DrawExtendedEnergyRange(TH1* h) {
+  TF1* ffit = (TF1*)h->FindObject("fspec");
+  TF1* fext = (TF1*)ffit->Clone("fspecext");
+  h->SetLineColor(kBlack);
+  h->SetFillColor(kBlack);
+  ffit->SetLineColor(kRed);
+  ffit->SetLineStyle(1);
+  fext->SetLineColor(kRed);
+  fext->SetLineStyle(2);
+  fext->SetRange(10e3, 20e3);
+
+  TH1* hext95 = new TH1D("hext95", "hext95", 40, 10e3, 20e3);
+  TH1* hext68 = new TH1D("hext68", "hext68", 40, 10e3, 20e3);
+  hext95->SetFillColor(kGreen);
+  hext68->SetFillColor(kYellow);
+  hext95->SetFillStyle(3004);
+  hext68->SetFillStyle(3004);
+  hext95->SetStats(false);
+  hext68->SetStats(false);
+  (TVirtualFitter::GetFitter())->GetConfidenceIntervals(hext95, 0.95);
+  (TVirtualFitter::GetFitter())->GetConfidenceIntervals(hext68, 0.68);
+
+  TH1* hbg = new TH1D("hbg", "hbg", 36, 2e3, 20e3);
+  hbg->SetTitle("Extrapolated Proton Emission Spectrum");
+  hbg->GetXaxis()->SetTitle(h->GetXaxis()->GetTitle());
+  hbg->GetYaxis()->SetTitle(h->GetYaxis()->GetTitle());
+  hbg->GetYaxis()->SetTitleOffset(h->GetYaxis()->GetTitleOffset());
+  hbg->SetMaximum(0.005);
+  hbg->SetMinimum(0.0001);
+
+  TLegend* leg = new TLegend(0.52, 0.52, 0.9, 0.9);
+  leg->AddEntry(h, "Data (1#sigma errors)", "p");
+  leg->AddEntry(ffit, "Exponential fit", "l");
+  leg->AddEntry(hext68, "Extrapolated fit (68% C.L.)");
+  leg->AddEntry(hext95, "Extrapolated fit (95% C.L.)");
+
+  TCanvas* cext = new TCanvas("cext", "cext", 700, 500);
+  hbg->Draw();
+  hext95->Draw("E3 SAME");
+  hext68->Draw("E3 SAME");
+  h->Draw("SAME");
+  leg->Draw("SAME");
+  // fext->Draw("SAME");
+  cext->SetLogy();
+  cext->SaveAs("img/proton_e_reco_avg_extrap.png");
+}
 
 void PropagateFractionalError(TH1* h, double err) {
   if (err < 0 || 1 < err) throw "Invalid fractional error!";
@@ -51,8 +117,14 @@ void CombineWithError(TH1* hl, TH1* hr) {
     { (TH1*)ferr[4]->Get("hl"),           (TH1*)ferr[4]->Get("hr")           }
   };
   for (int i = 0; i < N; ++i) {
-    hl->Divide(herr[i][0]);
-    hr->Divide(herr[i][1]);
+    // ASSUMES CORRECT DIMESNIONS
+    for (int b = 1; b <= hl->GetNbinsX(); ++b) {
+      double err[2] = {
+        herr[i][0]->GetBinError(b), herr[i][1]->GetBinError(b)
+      };
+      hl->SetBinError(b, hl->GetBinContent(b)*std::sqrt(std::pow(hl->GetBinError(b)/hl->GetBinContent(b), 2)+err[0]*err[0]));
+      hr->SetBinError(b, hr->GetBinContent(b)*std::sqrt(std::pow(hr->GetBinError(b)/hr->GetBinContent(b), 2)+err[1]*err[1]));
+    }
   }
   // hl->Divide(herr[3][0]);
   // hr->Divide(herr[3][1]);
@@ -104,8 +176,10 @@ void r15b_al50_unfold_draw(const char* ifname, double prot_tcut=400., bool adder
                                       nr_4_8_err);
 
   if (norm) {
-    hl->Scale(1./(Normalization::Al50(prot_tcut)));
-    hr->Scale(1./(Normalization::Al50(prot_tcut)));
+    // hl->Scale(1./(Normalization::Al50(prot_tcut)));
+    // hr->Scale(1./(Normalization::Al50(prot_tcut)));
+    hl->Scale(1./(Normalization::Al100(prot_tcut)));
+    hr->Scale(1./(Normalization::Al100(prot_tcut)));
   } else {
     hl->Scale(1./(Normalization::TCutEfficiency(prot_tcut)));
     hr->Scale(1./(Normalization::TCutEfficiency(prot_tcut)));
@@ -210,8 +284,10 @@ void r15b_al50_unfold_draw(const char* ifname, double prot_tcut=400., bool adder
     hasig1->SetFillColor(kYellow);
     hasig2->SetFillColor(kGreen);
     ha    ->SetMarkerStyle(kFullCircle);
-    hasig2->Draw("E4");
-    hasig1->Draw("E4 SAME");
+    hasig2->GetXaxis()->SetRangeUser(2e3, 12e3);
+    hasig2->SetMinimum(0);
+    hasig2->Draw("E3");
+    hasig1->Draw("E3 SAME");
     ha    ->Draw("HIST P SAME");
     TLegend* leg = new TLegend(0.65, 0.62, 0.95, 0.92);
     leg->AddEntry(ha,     "Rate",           "p");
@@ -222,10 +298,10 @@ void r15b_al50_unfold_draw(const char* ifname, double prot_tcut=400., bool adder
     ha->Draw("SAME");
   }
   // l->Draw();
-  if (norm)
-    DrawPreliminaryBox(5400., 0.0025);
-  else
-    DrawPreliminaryBox(5250., 225e3);
+  // if (norm)
+  //   DrawPreliminaryBox(5400., 0.0025);
+  // else
+  //   DrawPreliminaryBox(5250., 225e3);
   // avgrate->Draw();
   // fap->Draw("SAME");
   // cavg->SetLogy();
@@ -298,4 +374,9 @@ void r15b_al50_unfold_draw(const char* ifname, double prot_tcut=400., bool adder
   printf("4-8 MeV:\t%d (%d)\t%d (%d)\n",    nl_4_8,   (int)nl_4_8_err,   nr_4_8,   (int)nr_4_8_err);
 
   std::cout << "Proton stat error 3.5-10MeV average: " << na_35_10_err/na_35_10 << std::endl;
+
+
+  array<double,2> nfit = ExtendEnergy(ha);
+  DrawExtendedEnergyRange(ha);
+  std::cout << nfit[0] << " " << nfit[1] << std::endl;
 }

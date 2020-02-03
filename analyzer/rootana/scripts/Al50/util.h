@@ -72,7 +72,7 @@ namespace Normalization {
   double nmu_hi_al50_p102 = 128e6;
   double nmu_hi_al50_p103 = 37.0e6;
   double nmu_hi_al50      = 160e6;
-  double nmu_hi_al100     = 105e6; // UPDATE
+  double nmu_hi_al100     = 134e6; // UPDATE
   double caprate          = 0.609;
   double TCutEfficiency(double prot_tcut, double sig=52.7,
                         double lifetime=864.) {
@@ -89,8 +89,8 @@ namespace Normalization {
   double Al50(double prot_tcut=400, double sig=52.7, double lt=864.) {
     return nmu_hi_al50*caprate*TCutEfficiency(prot_tcut, sig, lt);
   }
-  double Al100() {
-    return nmu_hi_al100*caprate*1;
+  double Al100(double prot_tcut=400, double sig=52.7, double lt=864.) {
+    return nmu_hi_al100*caprate*TCutEfficiency(prot_tcut, sig, lt);
   }
 };
 
@@ -390,6 +390,8 @@ namespace SiUtils {
     double dT(int i, int j) const { return t[i] - t[j];    }
     bool ThreeHits() const { return e[0] > 0. && e[1] > 0. && e[2] > 0.; }
   };
+
+
   class ECal {
     double g, b, eg, eb, chi2;
   public:
