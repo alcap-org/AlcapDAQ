@@ -24,17 +24,30 @@ xrays per muon stop is 0.79. Thus, the stopping rate is
 (8377,'2015-11-10 18:46:11','Eu-152 calibration, source on Ge face (crate 5 disabled)','AE JQ MW JM AP','C','-','-','-','2015-11-10 18:54:55',5111,2000500000,NULL,NULL)
 **/
 
+#include "TCanvas.h"
+#include "TF1.h"
+#include "TFile.h"
+#include "TFitResult.h"
+#include "TGraphErrors.h"
+#include "TH1.h"
+#include "TPaveText.h"
+#include "TTimeStamp.h"
+
 void R15b_ge_eu152_calib() {
   // The file to run on run R15b 8377, 8367
-  TFile* f = new TFile("calib.root", "READ");
+  // TFile* f = new TFile("calib.root", "READ");
   //TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGe-S#FirstComplete#{constant_fraction=0.60}{no_time_shift=true}_Amplitude");
-  TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGeLoGain#FirstComplete#{constant_fraction=0.60}{no_time_shift=true}_Amplitude");
+  // TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGeLoGain#FirstComplete#{constant_fraction=0.60}{no_time_shift=true}_Amplitude");
 //  TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGeLoGain#MaxBinAPGenerator#any_Amplitude");
+
+
+  TFile* f = new TFile("data/GeCalib/out10319.root", "READ");
+  TH1* spec = (TH1*)f->Get("PlotTAP_Amplitude/hGeHiGain#FirstComplete_RoughSyncPulseCut#{constant_fraction=0.20}{no_time_shift=true}_Amplitude");
   spec->Sumw2();
 
   // Activity
-  unsigned int src_date[] = {1, 3, 2000}; // 1 March 2000?
-  unsigned int meas_date[] = {17, 11, 2015} // 17 Nov 2015
+  unsigned int src_date[]  = {1,   3, 2000}; // 1 March 2000?
+  unsigned int meas_date[] = {17, 11, 2015}; // 17 Nov 2015
   Double_t age = 15.8; // Years according to WolframAlpha
   Double_t halflife = 13.537;
   Double_t activity0 = 21380; // RunPSI2015:273
@@ -48,42 +61,11 @@ void R15b_ge_eu152_calib() {
   // Spectrum
   const unsigned int NPeaks = 10;
   const unsigned int Peak511Index = 5, Peak122Index = 0;
-  Double_t Energy[NPeaks]    = {
-	244.6975,
-	344.2785,
-	411.1163, 
-	443.965, 
-	778.904, 
-	867.378, 
-	964.079,
-	1085.9,
-	1112.1,
-	1408.0
-	};
-  Double_t Intensity[NPeaks] = { 
-	0.0758,
-	0.265,
-	0.0223,   
-	0.031,
-	0.1294, 
-	0.0425, 
-	0.146,
-	0.102,
-	0.136,
-	0.21};
-  Double_t LogEnergy[NPeaks];        for (unsigned int i = 0; i < NPeaks; ++i)   LogEnergy[i]      = TMath::Log(Energy[i]);
+  Double_t Energy[NPeaks]    = { 244.6975, 344.2785, 411.1163, 443.965, 778.904, 867.378, 964.079, 1085.9, 1112.1, 1408.0 };
+  Double_t Intensity[NPeaks] = { 0.0758,      0.265,   0.0223,   0.031,  0.1294,  0.0425,   0.146,  0.102,  0.136,   0.21 };
+  Double_t LogEnergy[NPeaks];      for (unsigned int i = 0; i < NPeaks; ++i) LogEnergy[i]      = TMath::Log(Energy[i]);
   Double_t ExpectedCounts[NPeaks]; for (unsigned int i = 0; i < NPeaks; ++i) ExpectedCounts[i] = events*Intensity[i];
-  Double_t ADC[NPeaks]       = {  
-	628.15,  
-	880.52,  
-	1050.6,  
-	1133.09, 
-	1983.39, 
-	2208.58, 
-	2454.11, 
-	2763.74,
-	2829.81,
-	3581.92};
+  Double_t ADC[NPeaks]       = { 628.15, 880.52, 1050.6, 1133.09, 1983.39, 2208.58, 2454.11, 2763.74, 2829.81, 3581.92 };
   Double_t ADC_Meas[NPeaks];
   const char* Functions[NPeaks]       = {
 					  "gaus(0)+[3]*x+[4]",
@@ -98,7 +80,7 @@ void R15b_ge_eu152_calib() {
 					  "gaus(0)+[3]*x+[4]",
 					  };
   const unsigned int NParam[NPeaks]   = { 5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
-  const unsigned int FitWindow[NPeaks] = {10.,10.,30.,30.,30.,8.,30.,8.,30.,30.}; 
+  const Double_t FitWindow[NPeaks] = {10.,10.,30.,30.,30.,8.,30.,8.,30.,30.}; 
   const Double_t FitParam[NPeaks][11] = { 
 					  {4829.69, ADC[0],  3.720,   -3.50,  3048.72, 0., 0., 0., 0., 0., 0.},
 					  {11933.9, ADC[1],  3.998,    2.60, -1450.83, 0., 0., 0., 0., 0., 0.},
