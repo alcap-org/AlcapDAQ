@@ -240,6 +240,7 @@ else
 GOALS         = $(filter-out clean cleanbin help,$(MAKECMDGOALS))
 endif
 
+CPPFLAGS     += -std=c++11
 CPPFLAGS     += -DMAKEBUILD
 ifneq ($(findstring g++,$(CXX)),)
 MFLAGS        = -MM

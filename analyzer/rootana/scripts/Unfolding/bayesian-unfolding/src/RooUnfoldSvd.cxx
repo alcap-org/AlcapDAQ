@@ -26,6 +26,7 @@ END_HTML */
 #include <iomanip>
 
 #include "TClass.h"
+#include "TBuffer.h"
 #include "TNamed.h"
 #include "TH1.h"
 #include "TH2.h"

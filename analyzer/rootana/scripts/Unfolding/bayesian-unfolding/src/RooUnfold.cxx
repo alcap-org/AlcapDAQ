@@ -71,6 +71,7 @@ END_HTML */
 #include <vector>
 
 #include "TClass.h"
+#include "TBuffer.h"
 #include "TMatrixD.h"
 #include "TNamed.h"
 #include "TH1.h"
