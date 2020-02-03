@@ -28,8 +28,8 @@ www/html/trend/*
 *.so
 *.a
 *.d
+*.dwx
 *.root
-*.class
 *.idx
 *.idf
 *.hst
@@ -39,3 +39,9 @@ www/html/trend/*
 *rdict.pcm
 analyzer/work/damien/
 ._*
+
+# MQL. Some .java files are, actually, in the repo.
+*.class
+*.java
+*.jj
+*.jar
