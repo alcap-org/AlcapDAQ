@@ -28,9 +28,9 @@ namespace IDs{
     kSiL1_A,   kSiL1_B,                                       // 35
     kScVe,     kMuScA,                                        // 37
     kTMuSc_Lo, kTMuSc_Hi,       kTMuScA,  kTRollover, kTSync, // 42
-    kSync,     kTProtonsOver10, kTScVe                        // 45
+    kSync,     kTProtonsOver10, kTScVe,   kTGe                // 46
   };
-	const short num_detector_enums=45;
+	const short num_detector_enums=46;
 
   /// Enum for timing filter types applied to a channel
   /// As for Detector_t, kErrorSlowFast is used to mark an error

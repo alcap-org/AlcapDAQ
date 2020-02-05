@@ -49,11 +49,10 @@ int GetRunNumber(const std::string& file_name)
   /// where 'a' is any character
   ///       'S' is any non-numeric character
   ///       'n' is the run number (includes '+' '-' '.')
-  ///       'x' is any character excluding '.' 
+  ///       'x' is any character excluding '.'
 
   //remove the extension
   std::string name = file_name.substr(0,file_name.find_last_of('.'));
-
   //find the last numbers
   name = name.substr(name.find_last_not_of("01234566789")+1);
 
@@ -61,7 +60,7 @@ int GetRunNumber(const std::string& file_name)
   int number (-1);
   std::stringstream(name) >> number;
   if (number == -1) {
-    std::cerr << "Unable to deduce run number from \"" << name 
+    std::cerr << "Unable to deduce run number from \"" << name
               << "\" in \"" << file_name << "\"" << std::endl;
     throw std::invalid_argument("not a valid int");
   }
@@ -73,24 +72,24 @@ int check_arguments(ARGUMENTS& arguments){
   if(arguments.stop > 0){
     if (arguments.stop <= arguments.start){
       std::cerr << "ERROR: Cannot process events from "
-                << arguments.start << " to " << arguments.stop 
-                << " because " << arguments.start << ">=" << arguments.stop 
+                << arguments.start << " to " << arguments.stop
+                << " because " << arguments.start << ">=" << arguments.stop
                 << std::endl;
       return 1;
     }
   }
-  
+
   if(arguments.infile.size() == 0){
     std::cerr << "ERROR: Empty input file name."
               <<"  Did you specify the -i option?"  << std::endl;
     return 2;
   }
-  
+
   if(arguments.outfile.size() == 0){
     std::cerr << "ERROR: Empty output file name."
               << "  Did you specify the -o option?\n" << std::endl;
     return 3;
-  }  
+  }
 
   if(arguments.run == -1){
     // No run number has been set, obtain it from the filename
@@ -147,8 +146,8 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
       help_command_line(argv[0]);
       return 1;
     }
-    
-   if(strlen(&argv[i][1]) != 1){ 
+
+   if(strlen(&argv[i][1]) != 1){
      std::cerr << "ERROR: All options must be single characters, "
                << "separated with a space and prefixed with a '-'"
                << std::endl;
@@ -179,7 +178,7 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
        help_command_line(argv[0]);   return 1;
      }
      break;
-     
+
      //----------
    case 'o':
      if(i+1 < argc){
@@ -205,7 +204,7 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
      break;
 
      //----------
-   case 'n': 
+   case 'n':
      {
        //detemine how many integer arguments are associated with the -n
        int nArgs = 0;
@@ -214,12 +213,12 @@ int analyze_command_line (int argc, char **argv, ARGUMENTS& arguments)
          ++nArgs;
        }
        if ( nArgs > 2 || nArgs < 1) {
-         std::cerr << "ERROR: " << nArgs 
+         std::cerr << "ERROR: " << nArgs
                    << " non-negative integer arguments passed to"
                    << " -n option, which accepts only one or two";
-         help_command_line(argv[0]);   return 1;        
+         help_command_line(argv[0]);   return 1;
        }
-       arguments.start = (nArgs==2) ? atoi(argv[i+1]) : 0; 
+       arguments.start = (nArgs==2) ? atoi(argv[i+1]) : 0;
        arguments.stop = (nArgs==2) ? atoi(argv[i+2]) : atoi(argv[i+1]);
        i += (nArgs+1);
      }
@@ -284,7 +283,7 @@ int load_config_file(const char* filename){
     opts->DumpOptions("  ");
     mods[i] = mgr->createModule(name,opts);
   }
-  
+
   return 0;
 }
 

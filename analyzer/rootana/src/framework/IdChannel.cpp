@@ -25,10 +25,10 @@ std::string IDs::channel::GetDetectorString(Detector_t det){
     case kMuSc           : return "muSc";
     case kScGe           : return "ScGe";
     case kMuScan         : return "muScan";
-    case kSiT_1          : return "SiT1-1";
-    case kSiT_2          : return "SiT1-2";
-    case kSiT_3          : return "SiT1-3";
-    case kSiT_4          : return "SiT1-4";
+    case kSiT_1          : return "SiT-1";
+    case kSiT_2          : return "SiT-2";
+    case kSiT_3          : return "SiT-3";
+    case kSiT_4          : return "SiT-4";
     case kScVe           : return "ScVe";
     case kSiL1_1         : return "SiL1-1";
     case kSiL1_2         : return "SiL1-2";
@@ -57,34 +57,35 @@ std::string IDs::channel::GetDetectorString(Detector_t det){
     case kSiR2           : return "SiR2";
     case kSiR3           : return "SiR3";
     case kMuScA          : return "muScA";
-    case kTMuSc_Lo       : return "TMuScLo";
-    case kTMuSc_Hi       : return "TMuScHi";
+    case kTMuSc_Lo       : return "TMuSc-Lo";
+    case kTMuSc_Hi       : return "TMuSc-Hi";
     case kTMuScA         : return "TMuScA";
     case kTRollover      : return "TRollover";
     case kTSync          : return "TSync";
     case kSync           : return "Sync";
     case kTProtonsOver10 : return "TProtonsOver10";
     case kTScVe          : return "TScVe";
+    case kTGe            : return "TGe";
   }
   return "";
 }
 
 IDs::Detector_t IDs::channel::GetDetectorEnum(const std::string& det){
   const char* names[1+IDs::num_detector_enums]={
-    "*",                                                          // 0
-    "GeLoGain", "GeHiGain" ,                                      // 2
-    "MuSc",     "ScGe",           "MuScan",                       // 5
-    "SiT1-1",   "SiT1-2",         "SiT1-3",  "SiT1-4",            // 9
-    "SiL2",     "SiL3",           "SiR2",    "SiR3",              // 13
-    "SiR1-1",   "SiR1-2",         "SiR1-3",  "SiR1-4",            // 17
-    "SiL1-1",   "SiL1-2",         "SiL1-3",  "SiL1-4",            // 21
-    "SiL1_5",   "SiL1_6",         "SiL1_7",  "SiL1_8",            // 25
-    "SiL1_9",   "SiL1_10",        "SiL1_11", "SiL1_12",           // 29
-    "SiL1_13",  "SiL1_14",        "SiL1_15", "SiL1_16",           // 33
-    "SiL1_A",   "SiL1_B",                                         // 35
-    "ScVe",     "MuScA"                                           // 37
-    "TMuScLo",  "TMuScHi",        "TMuScA", "TRollover", "TSync", // 42
-    "Sync",     "TProtonsOver10", "TScVe"                         // 45
+    "*",                                                           // 0
+    "GeLoGain", "GeHiGain" ,                                       // 2
+    "MuSc",     "ScGe",           "MuScan",                        // 5
+    "SiT-1",    "SiT-2",          "SiT-3",   "SiT-4",              // 9
+    "SiL2",     "SiL3",           "SiR2",    "SiR3",               // 13
+    "SiR1-1",   "SiR1-2",         "SiR1-3",  "SiR1-4",             // 17
+    "SiL1-1",   "SiL1-2",         "SiL1-3",  "SiL1-4",             // 21
+    "SiL1_5",   "SiL1_6",         "SiL1_7",  "SiL1_8",             // 25
+    "SiL1_9",   "SiL1_10",        "SiL1_11", "SiL1_12",            // 29
+    "SiL1_13",  "SiL1_14",        "SiL1_15", "SiL1_16",            // 33
+    "SiL1_A",   "SiL1_B",                                          // 35
+    "ScVe",     "MuScA",                                           // 37
+    "TMuSc-Lo", "TMuSc-Hi",        "TMuScA", "TRollover", "TSync", // 42
+    "Sync",     "TProtonsOver10",  "TScVe",  "TGe"                 // 46
   };
   for (int i=0;i<=IDs::num_detector_enums;i++){
     if(modules::parser::iequals(det,names[i])) return (Detector_t)i;

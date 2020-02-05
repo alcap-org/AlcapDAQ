@@ -19,7 +19,7 @@ namespace modules {class options;}
 /// This module loops over TPulseIsland and plots the mean and RMS of the first n_samples into a
 /// 2D histogram.
 /// At the end of the run, it writes the mean values of each axis to an SQLite database along
-/// with the channel and bank names. This SQLite database can then be used by PulseCandidateFinder to 
+/// with the channel and bank names. This SQLite database can then be used by PulseCandidateFinder to
 /// set parameter values based on a certain number of sigma.
 ////////////////////////////////////////////////////////////////////////////////
 class PlotTPI_PedestalAndNoise : public BaseModule {
@@ -40,9 +40,9 @@ class PlotTPI_PedestalAndNoise : public BaseModule {
  private:
   /// \brief
   /// In every event, we loop over all the detectors and all the TPulseIslands
-  /// and calculate the RMS and mean of the first fNSamples samples in the 
+  /// and calculate the RMS and mean of the first fNSamples samples in the
   /// digitised pulse (i.e. the noise and the pedestal respectively)
-  /// 
+  ///
   /// \param[in] gData See BaseModule::ProcessEntry
   /// \param[in] gSetup See BaseModule::ProcessEntry
   /// \return Non-zero to indicate a problem.
@@ -57,13 +57,15 @@ class PlotTPI_PedestalAndNoise : public BaseModule {
   virtual int BeforeFirstEntry(TGlobalData* gData,const  TSetupData *setup);
 
   /// \brief
-  /// After each run, we write the mean and RMS of the first fNSamples to 
+  /// After each run, we write the mean and RMS of the first fNSamples to
   /// an SQLite database via SetupNavigator
   ///
   /// \param[in] gData See BaseModule::AfterLastEntry
   /// \param[in] setup See BaseModule::AfterLastEntry
   /// \return Non-zero to indicate a problem.
   virtual int AfterLastEntry(TGlobalData* gData,const  TSetupData *setup);
+
+  void BookHistogram(const std::string& bank, const std::string& det);
 
   /// \brief
   /// The map that we store the pedestal vs. noise histograms for each channel

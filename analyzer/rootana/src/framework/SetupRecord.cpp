@@ -73,11 +73,11 @@ int SetupRecord::InitMetaData(const TSetupData* setup_data)
   const StrIntMap& bit_map = setup_data->fBankToBitMap;
   if (bit_map.size() > lut_size){
     BankInfo_t blank;
-    blank.ID = ChannelID(IDs::kErrorDetector, 
+    blank.ID = ChannelID(IDs::kErrorDetector,
                          IDs::kErrorSlowFast);
     fInfoLookup.resize(bit_map.size(), blank);
   }
-  
+
   //Assume all of these maps have the same length.  If not they wil
   //record default values, and it probably does not matter
   for (StrIntIt it = bit_map.begin(); it != bit_map.end(); ++it){
@@ -85,8 +85,8 @@ int SetupRecord::InitMetaData(const TSetupData* setup_data)
     if (fNameOrderLookup.count(name) == 0){
       fNameOrderLookup.insert(make_pair(name, lut_size));
       ++lut_size;
-    }  
-    
+    }
+
     BankInfo_t& info = BankInfo(name);
     name.copy(info.Name, 4);    info.Name[4] = '\0';
     info.TickLength = setup_data->GetClockTick(name);
@@ -103,7 +103,7 @@ int SetupRecord::InitMetaData(const TSetupData* setup_data)
 
 
 //----------------------------------------------------------------------
-const SetupRecord::BankInfo_t& 
+const SetupRecord::BankInfo_t&
 SetupRecord::BankInfo(const std::string& bankname) const
 {
   std::map<std::string, UInt_t>::const_iterator it;
@@ -114,7 +114,7 @@ SetupRecord::BankInfo(const std::string& bankname) const
 
 
 //----------------------------------------------------------------------
-const SetupRecord::BankInfo_t& 
+const SetupRecord::BankInfo_t&
 SetupRecord::BankInfo(const ChannelID& cid) const
 {
   std::map<ChannelID, unsigned int>::const_iterator it;
@@ -125,8 +125,8 @@ SetupRecord::BankInfo(const ChannelID& cid) const
 
 
 //----------------------------------------------------------------------
-SetupRecord::BankInfo_t& 
-SetupRecord::BankInfo(const std::string& bankname) 
+SetupRecord::BankInfo_t&
+SetupRecord::BankInfo(const std::string& bankname)
 {
   const SetupRecord* c_this = this;
   return const_cast<BankInfo_t&>(c_this->BankInfo(bankname));
@@ -134,7 +134,7 @@ SetupRecord::BankInfo(const std::string& bankname)
 
 
 //----------------------------------------------------------------------
-SetupRecord::BankInfo_t& 
+SetupRecord::BankInfo_t&
 SetupRecord::BankInfo(const ChannelID& cid)
 {
   const SetupRecord* c_this = this;
@@ -145,16 +145,16 @@ SetupRecord::BankInfo(const ChannelID& cid)
 //======================================================================
 void SetupRecord::BankInfo_t::Print() const
 {
-  std::cout << ID << " at bank " << Name 
+  std::cout << ID << " at bank " << Name
             << (Enabled>0 ? "   (enabled)" : "  (disabled)")
             << "\n" << "- - - - - - - - - - - - - - - - - - - - -"
             << "\n" << "  Tick:         " << TickLength
             << "\n" << "  Time offset:  " << TimeFromMuSc
-            << "\n" << "  ADC depth:    " << ADCDepth 
+            << "\n" << "  ADC depth:    " << ADCDepth
             << " [Max: " << (1<<ADCDepth) << "]"
             << "\n" << "  Pedestal:     " << Pedestal
             << "\n" << "  Polarity:     " << (Polarity>0 ? "+" : "-")
-    //        << "\n" << "  (Calibration: " << LinearWidthLSB 
+    //        << "\n" << "  (Calibration: " << LinearWidthLSB
     //        << " * C + " << LinearZeroPoint << ")"
             << std::endl;
 }
