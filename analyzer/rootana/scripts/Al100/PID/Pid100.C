@@ -32,13 +32,15 @@ void Fit(TH1D *h, Int_t sliceIndex, bool plotLeft = kFALSE) {
 		fit = new TF1("fit", "gaus(0)+gaus(3)+gaus(6)+gaus(9)+pol0(12)", ymin, ymax);
 	}
 	//proton, deuteron, tritons, alphas
-	fit->SetParameters(38, xpeaks[0], 0.04, 6.8, xpeaks[1], 0.031, 30, xpeaks[2], .01);
+	fit->SetParameters(38, xpeaks[0], 0.04, 6.8, xpeaks[1], 0.031, 30, xpeaks[2], .022);
 	if(nfound == 4) {
 		fit->SetParName(9, "Alp. Constant");
 		fit->SetParName(10, "Alp. Mean");
 		fit->SetParName(11, "Alp. Sigma");
 		fit->SetParName(12, "Pol0");
 
+		fit->SetParLimits(6, 0, 50);
+		fit->SetParLimits(8, 0.015, 0.03);
 		fit->SetParameter(9, 10);
 		fit->SetParameter(10, xpeaks[3]);
 		fit->SetParameter(11, .022);
@@ -52,7 +54,7 @@ void Fit(TH1D *h, Int_t sliceIndex, bool plotLeft = kFALSE) {
 		fit->SetParameter(9, 1);
 		fit->SetParLimits(6, 0, 50);
 		fit->SetParameter(8, 0.01);
-		fit->SetParLimits(8, 0.005, 0.03);
+		fit->SetParLimits(8, 0.015, 0.03);
 	}
 
 	fit->SetParName(0, "Pro. Constant");
@@ -135,7 +137,7 @@ void DefineCut(const char *sourceName, const char *species="proton", bool plotLe
 	Int_t mapsize = results[meanStr].size();
 	const char *histoName = sourceName;
 	//SiR 22, SiL 16
-	int mod = 22;
+	int mod;
 	if(!plotLeft) {
 		mod = 22;
 		if(std::strcmp(species, "deuteron")==0) {
@@ -148,7 +150,7 @@ void DefineCut(const char *sourceName, const char *species="proton", bool plotLe
 			mod = 3;
 		}
 	} else {
-		mod = 18;
+		mod = 16;
 		if(std::strcmp(species, "deuteron")==0) {
 			mod = 18;
 		}
@@ -207,7 +209,7 @@ void DefineCut(const char *sourceName, const char *species="proton", bool plotLe
   A rough integral or plain sum over bins are done as another check on the gaussian integral
   The difference between the Entries var and Integral var is(should be) the Background var (pol0 * fit window size and corrected with the bin size)
   */
-void Pid100(const char *filename="al100.root", Bool_t plotLeft=kFALSE, const char *treeName="tree") {
+void Pid100(const char *filename="al100.root", Bool_t plotLeft=kTRUE, const char *treeName="tree") {
 	gStyle->SetOptFit(1);
 	TFile *fData = new TFile(filename, "READ");
 	TH2D *hLg_SiL_EvDeltaE = new TH2D("hLg_SiL_EvDeltaE", "SiL Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 250, -0.1, 1.5, 100, ymin, ymax);
