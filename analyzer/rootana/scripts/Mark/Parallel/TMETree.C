@@ -43,11 +43,17 @@ void TMETree::LoadCuts()
 //	electronCut->SetPoint(4, 0.0891429, -0.447298);
 
 	TFile *fCuts = new TFile("/home/m-wong/tree/al100-cuts.root", "READ");
+	TFile *fSiR3Cuts = 0;
 	TString option = GetOption();
 	if(option.CompareTo("al50") == 0) {
 		fCuts = new TFile("/home/m-wong/tree/al50-cuts.root", "READ");
+		fSiR3Cuts = new TFile("/home/m-wong/tree/al50-sir3-cuts.root", "READ");
+	} else if(option.CompareTo("si16b") == 0) {
+		fCuts = new TFile("/home/m-wong/tree/si16b-cuts.root", "READ");
+		fSiR3Cuts = new TFile("/home/m-wong/tree/si16b-sir3-cuts.root", "READ");
+	} else if(option.CompareTo("ti50") == 0) {
+
 	}
-	TFile *fSiR3Cuts = new TFile("/home/m-wong/tree/al50-sir3-cuts.root", "READ");
 //	TFile *fMuonCuts = new TFile("/home/m-wong/tree/muon-cuts.root", "READ");
 //	TFile *fAlphaCuts = new TFile("/home/m-wong/tree/alpha-cuts.root", "READ");
 	for(int sigma=1; sigma < 5; ++sigma) {
@@ -55,21 +61,25 @@ void TMETree::LoadCuts()
 		cutSiL["proton"][sigmaStr] = (TCutG *)fCuts->Get(Form("hLg_SiL_EvDeltaE_proton_%dsigma", sigma) );
 		cutSiL["deuteron"][sigmaStr] = (TCutG *)fCuts->Get(Form("hLg_SiL_EvDeltaE_deuteron_%dsigma", sigma) );
 		cutSiL["triton"][sigmaStr] = (TCutG *)fCuts->Get(Form("hLg_SiL_EvDeltaE_triton_%dsigma", sigma) );
-//		cutSiL["alpha"][Form("%dsigma", sigma)] = (TCutG *)fAlphaCuts->Get(Form("hLg_SiL_EvDeltaE_alpha_%dsigma", sigma) );
-
+		cutSiL["alpha"][sigmaStr] = (TCutG *)fCuts->Get(Form("hLg_SiL_EvDeltaE_alpha_%dsigma", sigma) );
 
 //		cutSiR["electron"][Form("%dsigma", sigma)] = electronCut;
 //		cutSiR["muon"][Form("%dsigma", sigma)] = (TCutG *)fMuonCuts->Get(Form("hLg_SiR_EvDeltaE_muon_%dsigma", sigma) );
 		cutSiR["proton"][sigmaStr] = (TCutG *)fCuts->Get(Form("hLg_SiR_EvDeltaE_proton_%dsigma", sigma) );
 		cutSiR["deuteron"][sigmaStr] = (TCutG *)fCuts->Get(Form("hLg_SiR_EvDeltaE_deuteron_%dsigma", sigma) );
 		cutSiR["triton"][sigmaStr] = (TCutG *)fCuts->Get(Form("hLg_SiR_EvDeltaE_triton_%dsigma", sigma) );
-//		cutSiR["alpha"][Form("%dsigma", sigma)] = (TCutG *)fAlphaCuts->Get(Form("hLg_SiR_EvDeltaE_alpha_%dsigma", sigma) );
+		cutSiR["alpha"][sigmaStr] = (TCutG *)fCuts->Get(Form("hLg_SiR_EvDeltaE_alpha_%dsigma", sigma) );
 	
-		cutSiRPT["proton"][sigmaStr] = (TCutG *)fSiR3Cuts->Get(Form("sir3_hLg_SiR_EvDeltaE_proton_%dsigma", sigma) );
-		cutSiRPT["extended"][sigmaStr] = (TCutG *)fSiR3Cuts->Get(Form("sir3_pt_hLg_SiR_EvDeltaE_proton_%dsigma", sigma) );
+//		cutSiRPT["proton"][sigmaStr] = (TCutG *)fSiR3Cuts->Get(Form("sir3_hLg_SiR_EvDeltaE_proton_%dsigma", sigma) );
+//		cutSiRPT["extended"][sigmaStr] = (TCutG *)fSiR3Cuts->Get(Form("sir3_pt_hLg_SiR_EvDeltaE_proton_%dsigma", sigma) );
 	}
 	//check
 	for(std::map<const char *, std::map<const char *, TCutG *> >::iterator it = cutSiR.begin(); it != cutSiR.end(); ++it) {
+		for(std::map<const char *, TCutG *>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+			std::cout << it->first << " " << it2->first << " " << it2->second->GetName() << std::endl;
+		}
+	}
+	for(std::map<const char *, std::map<const char *, TCutG *> >::iterator it = cutSiRPT.begin(); it != cutSiRPT.end(); ++it) {
 		for(std::map<const char *, TCutG *>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
 			std::cout << it->first << " " << it2->first << " " << it2->second->GetName() << std::endl;
 		}
@@ -296,16 +306,16 @@ Bool_t TMETree::Process(Long64_t entry)
 								e3 = SiR3->at(p).E * 0.001;
 								a3 = SiR3->at(p).Amp;
 
-								for(std::map<const char *, std::map<const char *, TCutG *> >::iterator _it = cutSiRPT.begin(); _it != cutSiRPT.end(); ++_it) {
-									for(std::map<const char *, TCutG *>::iterator _it2 = _it->second.begin(); _it2 != _it->second.end(); ++_it2) {
-										if((_it2->second)->IsInside(0.7071 * (TMath::Log10(e2+e3) - TMath::Log10(e2) ), 0.7071 * (TMath::Log10(e2+e3) + TMath::Log10(e2) ) ) ) {
-											if(strcmp(_it2->first, "1sigma") == 0) pt1.Append(_it->first);
-											if(strcmp(_it2->first, "2sigma") == 0) pt2.Append(_it->first);
-											if(strcmp(_it2->first, "3sigma") == 0) pt3.Append(_it->first);
-											if(strcmp(_it2->first, "4sigma") == 0) pt4.Append(_it->first);
-										}
-									}
-								}
+//								for(std::map<const char *, std::map<const char *, TCutG *> >::iterator _it = cutSiRPT.begin(); _it != cutSiRPT.end(); ++_it) {
+//									for(std::map<const char *, TCutG *>::iterator _it2 = _it->second.begin(); _it2 != _it->second.end(); ++_it2) {
+//										if((_it2->second)->IsInside(0.7071 * (TMath::Log10(e2+e3) - TMath::Log10(e2) ), 0.7071 * (TMath::Log10(e2+e3) + TMath::Log10(e2) ) ) ) {
+//											if(strcmp(_it2->first, "1sigma") == 0) pt1.Append(_it->first);
+//											if(strcmp(_it2->first, "2sigma") == 0) pt2.Append(_it->first);
+//											if(strcmp(_it2->first, "3sigma") == 0) pt3.Append(_it->first);
+//											if(strcmp(_it2->first, "4sigma") == 0) pt4.Append(_it->first);
+//										}
+//									}
+//								}
 							}
 						}
 
@@ -329,7 +339,11 @@ Bool_t TMETree::Process(Long64_t entry)
 		for(unsigned i=0; i<GeLoGain->size(); i++) {
 			tpi_id1 = GeLoGain->at(i).tpi_id;
 			a1 = GeLoGain->at(i).Amp;
-			e1 = GeLoGain->at(i).Amp * calib[nRunId]["GeLoGain"] + 0.2387;
+			if(calib[nRunId]["GeLoGain"]) {
+				e1 = GeLoGain->at(i).Amp * calib[nRunId]["GeLoGain"] + 0.2387;
+			} else {
+				e1 = GeLoGain->at(i).E;
+			}
 			t1 = GeLoGain->at(i).tTME;
 			channel = TString("GeLoGain");
 			tree->Fill();
@@ -340,7 +354,11 @@ Bool_t TMETree::Process(Long64_t entry)
 		for(unsigned i=0; i<GeHiGain->size(); i++) {
 			tpi_id1 = GeHiGain->at(i).tpi_id;
 			a1 = GeHiGain->at(i).Amp;
-			e1 = GeHiGain->at(i).Amp * calib[nRunId]["GeHiGain"] + 0.1238;
+			if(calib[nRunId]["GeHiGain"]) {
+				e1 = GeHiGain->at(i).Amp * calib[nRunId]["GeHiGain"] + 0.1238;
+			} else {
+				e1 = GeHiGain->at(i).E;
+			}
 			t1 = GeHiGain->at(i).tTME;
 			channel = TString("GeHiGain");
 			tree->Fill();

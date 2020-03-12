@@ -3,10 +3,7 @@ void runProof(const char * set="al100", bool debug=false)
         std::vector<TString> dataFiles;
         TString dirname="/data/R15b/tme/Al50/";
 	if(std::strcmp(set, "al100")==0 ) {
-		//dirname="/data/R15b/tme/Al100/";
-		//dirname="/data/ssd3/R15bAnalysis/m-wong/al100-extended/"; //extended experimental version
-		dirname="/data/ssd3/R15bAnalysis/m-wong/al100-fixTimeAlign/";
-		//dirname="/data/ssd2/R15bAnalysis/tmetree/Al100/"; //original
+		dirname = "/data/ssd3/R15bAnalysis/m-wong/al100/";
 	} else if(std::strcmp(set, "MT") == 0 ) {
 		dirname = "/data/ssd3/R15bAnalysis/m-wong/MT/tme/";
 	} else if(std::strcmp(set, "al50")==0 ) {
@@ -14,8 +11,10 @@ void runProof(const char * set="al100", bool debug=false)
 		//dirname="/data/R15b/tme/Al50/";
 		//dirname="/data/ssd3/R15bAnalysis/m-wong/al50-extended/";
 	} else if(std::strcmp(set, "ti50")==0 ) {
-		dirname="/data/R15b/tme/Ti50/";
-	}
+		dirname="/data/ssd3/R15bAnalysis/m-wong/Ti50/";
+	} else if(std::strcmp(set, "si16b")==0 ) {
+                dirname="/data/ssd3/R15bAnalysis/m-wong/Si16b/tme/";
+        }
         TString ext=".root";
         TSystemDirectory dir(dirname, dirname);
         TList *files = dir.GetListOfFiles();
