@@ -118,7 +118,7 @@ void Lifetime(const char *target = "al50", const char *particle = "proton", cons
 			hpSiRRes->GetYaxis()->CenterTitle();
 			pc->cd();
 			const char *FigsDir = getenv("R15b_OUT");
-			pc->SaveAs(Form("%s/AlCapData_Al50Dataset_%stime_RightArm.pdf", FigsDir, particle) );
+			pc->SaveAs(Form("%s/AlCapData_Al50Dataset_%sTime_RightArm.pdf", FigsDir, particle) );
 		} else if(strcmp(particle, "deuteron") == 0) {
 			TF1 *fit = new TF1("fit", "expo(0)+pol0(2)", min, max);
 			fit->SetLineColor(kBlue);
@@ -180,7 +180,7 @@ void Lifetime(const char *target = "al50", const char *particle = "proton", cons
 			hdSiRRes->GetYaxis()->CenterTitle();
 			dc->cd();
 			const char *FigsDir = getenv("R15b_OUT");
-			dc->SaveAs(Form("%s/AlCapData_Al50Dataset_%stime_RightArm.pdf", FigsDir, particle) );
+			dc->SaveAs(Form("%s/AlCapData_Al50Dataset_%sTime_RightArm.pdf", FigsDir, particle) );
 		} else if(strcmp(particle, "triton") == 0) {
 			TF1 *fit = new TF1("fit", "expo(0)+pol0(2)", min, max);
 			fit->SetLineColor(kBlue);
@@ -242,7 +242,7 @@ void Lifetime(const char *target = "al50", const char *particle = "proton", cons
 			htSiRRes->GetYaxis()->CenterTitle();
 			tc->cd();
 			const char *FigsDir = getenv("R15b_OUT");
-			tc->SaveAs(Form("%s/AlCapData_Al50Dataset_%stime_RightArm.pdf", FigsDir, particle) );
+			tc->SaveAs(Form("%s/AlCapData_Al50Dataset_%sTime_RightArm.pdf", FigsDir, particle) );
 		} else if(strcmp(particle, "alpha") == 0) {
 			TF1 *fit = new TF1("fit", "expo(0)+pol0(2)", min, max);
 			fit->SetLineColor(kBlue);
@@ -304,7 +304,7 @@ void Lifetime(const char *target = "al50", const char *particle = "proton", cons
 			haSiRRes->GetYaxis()->CenterTitle();
 			ac->cd();
 			const char *FigsDir = getenv("R15b_OUT");
-			ac->SaveAs(Form("%s/AlCapData_Al50Dataset_%stime_RightArm.pdf", FigsDir, particle) );
+			ac->SaveAs(Form("%s/AlCapData_Al50Dataset_%sTime_RightArm.pdf", FigsDir, particle) );
 		}
 	} else if(strcmp(arm, "SiL") == 0) {
 		if(strcmp(particle, "proton") == 0 ) {
@@ -368,7 +368,7 @@ void Lifetime(const char *target = "al50", const char *particle = "proton", cons
 			hpSiLRes->GetYaxis()->CenterTitle();
 			pc->cd();
 			const char *FigsDir = getenv("R15b_OUT");
-			pc->SaveAs(Form("%s/AlCapData_Al50Dataset_%stime_LeftArm.pdf", FigsDir, particle) );
+			pc->SaveAs(Form("%s/AlCapData_Al50Dataset_%sTime_LeftArm.pdf", FigsDir, particle) );
 		} else if(strcmp(particle, "deuteron") == 0) {
 			TF1 *fit = new TF1("fit", "expo(0)+pol0(2)", min, max);
 			fit->SetLineColor(kBlue);
@@ -430,7 +430,7 @@ void Lifetime(const char *target = "al50", const char *particle = "proton", cons
 			hdSiLRes->GetYaxis()->CenterTitle();
 			dc->cd();
 			const char *FigsDir = getenv("R15b_OUT");
-			dc->SaveAs(Form("%s/AlCapData_Al50Dataset_%stime_LeftArm.pdf", FigsDir, particle) );
+			dc->SaveAs(Form("%s/AlCapData_Al50Dataset_%sTime_LeftArm.pdf", FigsDir, particle) );
 		} else if(strcmp(particle, "triton") == 0) {
 			TF1 *fit = new TF1("fit", "expo(0)+pol0(2)", min, max);
 			fit->SetLineColor(kBlue);
@@ -492,7 +492,7 @@ void Lifetime(const char *target = "al50", const char *particle = "proton", cons
 			htSiLRes->GetYaxis()->CenterTitle();
 			tc->cd();
 			const char *FigsDir = getenv("R15b_OUT");
-			tc->SaveAs(Form("%s/AlCapData_Al50Dataset_%stime_LeftArm.pdf", FigsDir, particle) );
+			tc->SaveAs(Form("%s/AlCapData_Al50Dataset_%sTime_LeftArm.pdf", FigsDir, particle) );
 		} else if(strcmp(particle, "alpha") == 0) {
 			TF1 *fit = new TF1("fit", "expo(0)+pol0(2)", min, max);
 			fit->SetLineColor(kBlue);
@@ -554,7 +554,7 @@ void Lifetime(const char *target = "al50", const char *particle = "proton", cons
 			haSiLRes->GetYaxis()->CenterTitle();
 			ac->cd();
 			const char *FigsDir = getenv("R15b_OUT");
-			ac->SaveAs(Form("%s/AlCapData_Al50Dataset_%stime_LeftArm.pdf", FigsDir, particle) );
+			ac->SaveAs(Form("%s/AlCapData_Al50Dataset_%sTime_LeftArm.pdf", FigsDir, particle) );
 		}
 	}
 }
