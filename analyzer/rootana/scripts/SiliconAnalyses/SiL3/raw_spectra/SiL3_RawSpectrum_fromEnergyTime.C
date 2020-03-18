@@ -9,8 +9,8 @@ void SiL3_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfile
   double time_step = 0;
   std::stringstream time_slice;
   
-  const int n_recoils = 8;
-  std::string recoil_names[n_recoils] = {"noRecoil", "pRecoil", "dRecoil", "tRecoil", "aRecoil", "allRecoil", "lowAllRecoil", "highAllRecoil"};
+  const int n_recoils = 9;
+  std::string recoil_names[n_recoils] = {"noRecoil", "nuRecoil", "pRecoil", "dRecoil", "tRecoil", "aRecoil", "allRecoil", "lowAllRecoil", "highAllRecoil"};
 
   for (int i_recoil = 0; i_recoil < n_recoils; ++i_recoil) {
     

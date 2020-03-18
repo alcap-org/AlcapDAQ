@@ -8,6 +8,7 @@ void SiL3_LifetimeFit(std::string infilename, std::string outfilename) {
   args.double_exp = false;
   args.project_y = false;
   args.project_x = true;
+  args.include_resolution = false;
 
   args.datahistnames.clear();
   args.scale_ratios.clear();

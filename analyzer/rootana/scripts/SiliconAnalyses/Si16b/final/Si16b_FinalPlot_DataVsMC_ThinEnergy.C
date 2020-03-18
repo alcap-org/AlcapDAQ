@@ -1,4 +1,4 @@
-void Si16b_FinalPlot_DataVsMC_ThinEnergy() {
+void Si16b_FinalPlot_DataVsMC_ThinEnergy(std::string savedir = "") {
   /*  
   const int n_runs = 8;
   int run_numbers[n_runs] = {9735, 9736, 9737, 9739, 9740, 9741, 9742, 9743}; // want to do all runs individually
@@ -8,15 +8,20 @@ void Si16b_FinalPlot_DataVsMC_ThinEnergy() {
   int run_numbers[n_runs] = {10404}; // want to do all runs individually
   double scale_factors[n_runs] = {1.02};
 
-  const int n_settings = 2;
+  const int n_settings = 4;
   //  std::string histnames[n_settings] = {"Thin_wNoThick_TimeSlice-200_200/hRawSpectrum", "muonbeam/hRawSpectrum"};
   //  std::string histnames[n_settings] = {"muonbeam_thickStop/hRawSpectrum", "muonbeam_thinStop/hRawSpectrum"};
-  std::string filenames[n_settings] = {"~/data/results/Si16b/raw_spectra_newPP.root",
-				       "~/data/mc/BeamPos/MC_raw_spectra10404.root"};
-  std::string leglabels[n_settings] = {"Data", "MC"};
-  Int_t colours[n_settings] = {kBlack, kRed};
-  int rebin_factors[n_settings] = {5, 5};
-  std::string inhistnames[n_settings] = { "Thin_All_TimeSlice-200_200/hRawSpectrum", "hThinEnergy_noVeto_SiL"};
+  std::string filenames[n_settings] = {"~/data/results/Si16b/raw_spectra_newPP_geq1TgtPulse.root",
+				       "~/data/mc/Si16b/MC_Si16b_BeamEDep.root",
+				       "~/data/mc/Si16b/MC_Si16b_BeamEDep_higherE.root",
+				       "~/data/mc/Si16b/MC_Si16b_BeamEDep_lowerE.root"};
+  //				       "~/data/mc/BeamPos/MC_raw_spectra10404.root"};
+  std::string leglabels[n_settings] = {"Data", "MC (nominal)", "MC (higher E)", "MC (lower E)"};
+  Int_t colours[n_settings] = {kBlack, kRed, kBlue, kMagenta};
+  //  int rebin_factors[n_settings] = {5, 5};
+  //  std::string inhistnames[n_settings] = { "Thin_All_TimeSlice-200_200/hRawSpectrum", "hThinEnergy_noVeto_SiL"};
+  int rebin_factors[n_settings] = {1, 1, 1, 1};
+  std::string inhistnames[n_settings] = { "TargetMuons/hRawSpectrum", "hEDep_beam", "hEDep_beam", "hEDep_beam"};
 
   TLegend* leg = new TLegend(0.40,0.45,0.80,0.75);
   leg->SetBorderSize(0);
@@ -24,6 +29,8 @@ void Si16b_FinalPlot_DataVsMC_ThinEnergy() {
   leg->SetFillStyle(0);
   leg->SetFillColor(kWhite);
 
+  TCanvas* c = new TCanvas();
+  
   std::stringstream run_str, sf_str, axislabel, leglabel;
   for (int i_run = 0; i_run < n_runs; ++i_run) {
   //    TCanvas* c = new TCanvas();
@@ -49,28 +56,49 @@ void Si16b_FinalPlot_DataVsMC_ThinEnergy() {
       }
 
       std::string histtitle;
-      histtitle = "Si16a Dataset, Run " + run_str.str() + ", SF = " + sf_str.str();
+      histtitle = "Si16b Dataset, SF = " + sf_str.str();
       hEnergy->SetTitle(histtitle.c_str());
       hEnergy->Sumw2();
       hEnergy->SetStats(false);
       hEnergy->SetMarkerColor(colours[i_setting]);
       hEnergy->SetLineColor(colours[i_setting]);
       hEnergy->SetLineStyle(1);
+      hEnergy->SetLineWidth(2);
       hEnergy->GetXaxis()->SetTitle("Energy [keV]");
       hEnergy->Rebin(rebin_factors[i_setting]);
-      hEnergy->Scale(1.0 / hEnergy->Integral());
+      //      hEnergy->Scale(1.0 / hEnergy->Integral());
+      hEnergy->Scale(1.0 / hEnergy->GetMaximum());
       hEnergy->GetXaxis()->SetRangeUser(0,5000);
+      hEnergy->GetXaxis()->SetTitleOffset(0.9);
       
       axislabel.str("");
-      axislabel << "Counts / " << hEnergy->GetXaxis()->GetBinWidth(1) << " keV";
+      axislabel << "Peak Normalised / " << hEnergy->GetXaxis()->GetBinWidth(1) << " keV";
       hEnergy->GetYaxis()->SetTitle(axislabel.str().c_str());
+      hEnergy->GetYaxis()->SetTitleOffset(0.9);
 
       hEnergy->Draw("HIST E SAME");
+
+      alcaphistogram(hEnergy);
+      if (i_setting == 0) {
+	hEnergy->SetDrawOption("HIST E1");
+	alcapPreliminary(hEnergy);
+      }
+      else {
+	hEnergy->SetDrawOption("HIST E1 SAME");
+      }
 
       leglabel.str("");
       leglabel << leglabels[i_setting];
       leg->AddEntry(hEnergy, leglabel.str().c_str(), "l");
     }
     leg->Draw();
+  }
+
+  if (savedir != "") {
+    std::string savename = savedir + "AlCapDataVsMC_Si16bDataset_ThinEnergy_MuonStopSystematic";
+    std::string pdfname = savename + ".pdf";
+    c->SaveAs(pdfname.c_str());
+    std::string pngname = savename + ".png";
+    c->SaveAs(pngname.c_str());
   }
 }

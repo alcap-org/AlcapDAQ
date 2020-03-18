@@ -6,11 +6,11 @@ void Si16b_FinalPlot_RawSpectra_SiR3Veto(std::string savedir = "") {
   //  std::string particle = "alpha";
   
   const int n_settings = 2;
-  std::string setting_names[n_settings] = {"", "_noCorr"};
+  std::string setting_names[n_settings] = {"_3sigma", "_noCorr"};
   Int_t colours[n_settings] = {kRed, kBlue};
   std::string leglabels[n_settings] = {"w/ SiR3 Veto Correction", "w/o SiR3 Veto Correction"};
   
-  TLegend* leg = new TLegend(0.50,0.45,0.80,0.75);
+  TLegend* leg = new TLegend(0.50,0.60,0.80,0.85);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.035);
   leg->SetFillColor(kWhite);
@@ -25,7 +25,7 @@ void Si16b_FinalPlot_RawSpectra_SiR3Veto(std::string savedir = "") {
     std::string infilename = "~/data/results/Si16b/raw_spectra_newPP_geq1TgtPulse" + setting + ".root";
     TFile* infile = new TFile(infilename.c_str(), "READ");
     
-    std::string folded_histname = particle + "_PSel_noTimeCut/hRawSpectrum";
+    std::string folded_histname = particle + "_TCutG_noTimeCut/hRawSpectrum";
     std::string outhisttitle = "Si16b Dataset, Right Arm, " + particle;
   
     TH1F* hFoldedSpectrum = (TH1F*) infile->Get(folded_histname.c_str());
@@ -38,7 +38,9 @@ void Si16b_FinalPlot_RawSpectra_SiR3Veto(std::string savedir = "") {
     hFoldedSpectrum->SetStats(false);
     hFoldedSpectrum->SetLineColor(colour);
     hFoldedSpectrum->SetLineWidth(2);
-    //    hFoldedSpectrum->GetXaxis()->SetRangeUser(0, 15000);
+    hFoldedSpectrum->GetXaxis()->SetRangeUser(0, 20000);
+    hFoldedSpectrum->GetXaxis()->SetTitleOffset(0.9);
+    hFoldedSpectrum->GetYaxis()->SetTitleOffset(0.9);
     
     hFoldedSpectrum->Draw("HIST E1 SAME");
 

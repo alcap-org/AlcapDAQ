@@ -1,6 +1,6 @@
 #include "../../../XRayAnalysis/XRayUtils.h"
 
-void Si16b_FinalPlot_XRaySpectrum_wFit(std::string savedir) {
+void Si16b_FinalPlot_XRaySpectrum_wFit(std::string savedir = "", std::ostream& numbers_file = std::cout) {
 
   const int n_ge_channels = 2;
   std::string ge_channels[n_ge_channels] = {"GeLoGain", "GeHiGain"};
@@ -9,6 +9,7 @@ void Si16b_FinalPlot_XRaySpectrum_wFit(std::string savedir) {
   int transition_starts[n_transitions] = {2, 3};
   double fit_bin_widths[n_transitions] = {0.5, 0.5};
 
+  numbers_file << "% From Si16b_FinalPlot_XRaySpectrum_wFit.C" << std::endl;
   for (int i_transition = 0; i_transition < n_transitions; ++i_transition) {
     XRay xray;
     std::stringstream text;
@@ -62,10 +63,10 @@ void Si16b_FinalPlot_XRaySpectrum_wFit(std::string savedir) {
       alcapPreliminary(hXRaySpectrum);
       hXRaySpectrum->SetLineWidth(1);
       hXRaySpectrum->SetDrawOption("HIST E");
-      alcaplabel(ge_channel, hXRaySpectrum);
+      //      alcaplabel(ge_channel, hXRaySpectrum);
     
-      //    TLatex* latex = new TLatex();
-      //    latex->DrawLatexNDC(0.55, 0.30, "AlCap Preliminary");
+      TLatex* latex = new TLatex();
+      latex->DrawLatexNDC(0.17, 0.79, ge_channel.c_str());
 
       xray.material = "Si";
       int min_transition = transition_start;
@@ -116,11 +117,36 @@ void Si16b_FinalPlot_XRaySpectrum_wFit(std::string savedir) {
       (ws->pdf("sum"))->plotOn(Eframe);
       Eframe->Draw();
 
+      double n_xrays = 0;
+      double n_xrays_error = 0;
       double n_stopped_muons = 0;
       double n_stopped_muons_error = 0;
+      counttree->SetBranchAddress("xray_count", &n_xrays);
+      counttree->SetBranchAddress("xray_count_error", &n_xrays_error);
       counttree->SetBranchAddress("n_stopped_muons", &n_stopped_muons);
       counttree->SetBranchAddress("n_stopped_muons_error", &n_stopped_muons_error);
       counttree->GetEntry(0);
+
+      double capture_fraction = 0.658;
+      double n_captured_muons = n_stopped_muons * capture_fraction;
+      double n_captured_muons_error = (n_stopped_muons_error / n_stopped_muons) * n_captured_muons;
+      
+      numbers_file << "\\newcommand\\Sib" << ge_channel << "NXRays";
+      if (transition_start > 2) {
+	numbers_file << "Alternate";
+      }
+      numbers_file << std::fixed << std::setprecision(0) << "{$" << n_xrays << " \\pm " << n_xrays_error << "$}" << std::endl;
+      
+      numbers_file << "\\newcommand\\Sib" << ge_channel << "NStoppedMuons";
+      if (transition_start > 2) {
+	numbers_file << "Alternate";
+      }
+      numbers_file << std::fixed << std::setprecision(1) << "{$(" << n_stopped_muons/1e6 << " \\pm " << std::setprecision(1) << n_stopped_muons_error/1e6 << ") \\times 10^{6}$}" << std::endl;;
+      numbers_file << "\\newcommand\\Sib" << ge_channel << "NCapturedMuons";
+      if (transition_start > 2) {
+	numbers_file << "Alternate";
+      }
+      numbers_file << std::fixed << std::setprecision(1) << "{$(" << n_captured_muons/1e6 << " \\pm " << std::setprecision(1) << n_captured_muons_error/1e6 << ") \\times 10^{6}$}" << std::endl;;
       TLatex* count = new TLatex();
       //    count->SetTextAlign(22);
       text.str("");
@@ -153,6 +179,8 @@ void Si16b_FinalPlot_XRaySpectrum_wFit(std::string savedir) {
       pull_frame->addPlotable(pull, "P");
       pull_frame->Draw(); 
       std::cout << Eframe->chiSquare() << std::endl;
+      
     }
   }
+  numbers_file << std::endl;
 }

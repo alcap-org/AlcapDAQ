@@ -1,4 +1,4 @@
-void Si16b_FinalPlot_TwoLayer_EvdE() {
+void Si16b_FinalPlot_TwoLayer_EvdE(std::string outdir = "") {
 
   std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");

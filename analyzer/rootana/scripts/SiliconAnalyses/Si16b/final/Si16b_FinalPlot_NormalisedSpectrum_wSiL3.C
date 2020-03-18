@@ -3,37 +3,43 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSiL3(std::string savedir = "") {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
 
-  const int n_ranges = 5;
-  double min_energies[n_ranges] = {15000, 15000, 16000, 15000, 14000};//3500, 4000, 3500};//0,    1400,  10000, 5000,   3500, 4000, 3500, 14000};
-  double max_energies[n_ranges] = {16000, 17000, 17000, 18000, 15000};//10000, 8000, 15000};//26000,26000, 26000, 10000, 10000, 8000, 14000, 15000};
-  double SiL3_rate[n_ranges] = {0};
-  double SiL3_rate_err[n_ranges] = {0};
+  // const int n_ranges = 5;
+  // double min_energies[n_ranges] = {15000, 15000, 16000, 15000, 14000};//3500, 4000, 3500};//0,    1400,  10000, 5000,   3500, 4000, 3500, 14000};
+  // double max_energies[n_ranges] = {16000, 17000, 17000, 18000, 15000};//10000, 8000, 15000};//26000,26000, 26000, 10000, 10000, 8000, 14000, 15000};
+  // double SiL3_rate[n_ranges] = {0};
+  // double SiL3_rate_err[n_ranges] = {0};
 
-  std::string SiL3_filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
+  std::string SiL3_filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us.root";
   TFile* SiL3_file = new TFile(SiL3_filename.c_str(), "READ");
-  TH1F* SiL3_hist = (TH1F*) SiL3_file->Get("FinalNormalisation_TimeSlice2000_4000_allRecoil/hNormalisedSpectrum");
-  int rebin_SiL3 = 2;
-  SiL3_hist->Rebin(rebin_SiL3);
-  SiL3_hist->Scale(1.0 / rebin_SiL3);
-  SiL3_hist->Draw("HIST E");
-  SiL3_hist->SetStats(false);
+  std::string SiL3_dirname = "FinalSystPlot_TimeSlice2000_4000_allRecoil_500keVBins";
+  //  std::string SiL3_dirname = "FinalSystPlot_TimeSlice2000_4000_noRecoil_500keVBins";
+  //  std::string SiL3_dirname = "FinalSystPlot_TimeSlice2000_4000_nuRecoil_500keVBins";
+  std::string SiL3_histname = SiL3_dirname + "/hFinalStatSyst";
+  TGraphAsymmErrors* SiL3_hist = (TGraphAsymmErrors*) SiL3_file->Get(SiL3_histname.c_str());
+  SiL3_hist->Draw("APE");
+  //  SiL3_hist->SetStats(false);
+  SiL3_hist->SetLineWidth(2);
   SiL3_hist->SetLineColor(kBlack);
   SiL3_hist->SetTitle("Charged Particle Emission");
   SiL3_hist->GetXaxis()->SetRangeUser(0,26000);
   SiL3_hist->GetXaxis()->SetTitle("Energy [keV]");
-  SiL3_hist->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
-  SiL3_hist->SetMaximum(1e-3);
-  SiL3_hist->SetMinimum(1e-8);
-  for (int i_range = 0; i_range < n_ranges; ++i_range) {
-    double min_energy = min_energies[i_range];
-    double max_energy = max_energies[i_range];
-    int min_energy_bin = SiL3_hist->GetXaxis()->FindBin(min_energy);
-    int max_energy_bin = SiL3_hist->GetXaxis()->FindBin(max_energy) - 1;
-    double error = -1;
-    double integral = SiL3_hist->IntegralAndError(min_energy_bin, max_energy_bin, error, "width");
-    SiL3_rate[i_range] = integral;
-    SiL3_rate_err[i_range] = error;
-  }
+  SiL3_hist->GetXaxis()->SetTitle("Energy [keV]");
+  SiL3_hist->GetYaxis()->SetTitle("Charged Particles / muon capture / keV");
+  SiL3_hist->GetXaxis()->SetTitleOffset(0.9);
+  SiL3_hist->GetYaxis()->SetTitleOffset(0.9);
+  SiL3_hist->GetYaxis()->SetRangeUser(1e-8, 1e-3);
+  //  SiL3_hist->SetMaximum(1e-3);
+  //  SiL3_hist->SetMinimum(1e-8);
+  // for (int i_range = 0; i_range < n_ranges; ++i_range) {
+  //   double min_energy = min_energies[i_range];
+  //   double max_energy = max_energies[i_range];
+  //   int min_energy_bin = SiL3_hist->GetXaxis()->FindBin(min_energy);
+  //   int max_energy_bin = SiL3_hist->GetXaxis()->FindBin(max_energy) - 1;
+  //   double error = -1;
+  //   double integral = SiL3_hist->IntegralAndError(min_energy_bin, max_energy_bin, error, "width");
+  //   SiL3_rate[i_range] = integral;
+  //   SiL3_rate_err[i_range] = error;
+  // }
 
 
   TLegend* leg = new TLegend(0.50,0.55,0.85,0.85);
@@ -43,62 +49,43 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSiL3(std::string savedir = "") {
   leg->AddEntry(SiL3_hist, "SiL3 (active target)", "l");
 
   //  std::string filename = "~/data/results/Si16b/unfold_newPP.root";
-  std::string filename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse.root";
+  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_3sigma.root";
   //    std::string filename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_SiL1-2--6.root";
   TFile* file = new TFile(filename.c_str(), "READ");
   
   const int n_settings = 5;
-  std::string particle_names[n_settings] = {"proton", "deuteron", "triton", "alpha", "SiL3"};
-  Int_t colours[n_settings] = {kRed, kCyan, kMagenta, kSpring, kGray};
-  std::string leglabels[n_settings] = {"Si16b (proton)", "Si16b (deuterons)", "Si16b (tritons)", "Si16b (alphas)", "Si16b (SiL3 inc.)"};
-  double rates[n_settings][n_ranges] = {0};
-  double rate_errs[n_settings][n_ranges] = {0};
+  std::string particle_names[n_settings] = {"proton", "deuteron", "triton", "alpha", "Sum"};
+  Int_t colours[n_settings] = {kRed, kCyan, kMagenta, kSpring, kBlue};
+  std::string leglabels[n_settings] = {"Si16b (proton)", "Si16b (deuterons)", "Si16b (tritons)", "Si16b (alphas)", "Si16b (sum)"};
+  // double rates[n_settings][n_ranges] = {0};
+  // double rate_errs[n_settings][n_ranges] = {0};
   
-  int rebin_factors[n_settings] = {1, 1, 1, 1, 1};
+  //  int rebin_factors[n_settings] = {1, 1, 1, 1, 1};
   THStack* hStack = new THStack("hStack", "");
-  TH1F* hSi16b_Total = NULL;
-  TH1F* hSi16b_SiL3Inc = NULL;
+  //  TH1F* hSi16b_Total = NULL;
+  //  TH1F* hSi16b_SiL3Inc = NULL;
   for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
 
     std::string i_particle_name = particle_names[i_setting];
     Int_t i_colour = colours[i_setting];
 
-    std::string dirname = "FinalNormalisation_" + i_particle_name;
-    if (i_particle_name != "SiL3") {
-      if (i_particle_name == "alpha") {
-	dirname += "_TCutG";
-	//	dirname += "_PSel";
-      }
-      else {
-	//	dirname += "_PSel";
-	dirname += "_TCutG";
-      }
-    }
-    //    else {
-    //      dirname += "_PSel";
-    //    }
-    //    std::string i_histname = dirname + "_retune/hNormalisedSpectrum";
-    std::string i_histname = dirname + "/hNormalisedSpectrum";
+    std::string dirname = "FinalSystPlot_" + i_particle_name + "_TCutG";
+    std::string i_histname = dirname + "/hFinalStatSyst";
 
-    TH1F* spectrum = (TH1F*) file->Get(i_histname.c_str());
+    TGraphAsymmErrors* spectrum = (TGraphAsymmErrors*) file->Get(i_histname.c_str());
     if (!spectrum) {
       std::cout << "Error: Problem getting spectrum " << i_histname << std::endl;
       //      return;
       continue;
     }
-    spectrum->Sumw2();
-    
-    int rebin_factor = rebin_factors[i_setting];
-    spectrum->Rebin(rebin_factor);
-    spectrum->Scale(1.0/rebin_factor);
-    spectrum->SetStats(false);
+    //    spectrum->SetStats(false);
     spectrum->SetLineColor(i_colour);
     spectrum->SetFillStyle(0);
     spectrum->SetFillColor(0);
     spectrum->SetLineWidth(2);
     //    spectrum->SetLineColor(kBlack);
     //    spectrum->SetFillColor(i_colour);
-    //    spectrum->Draw("HIST E SAMES");
+    spectrum->Draw("PE SAMEs");
     leg->AddEntry(spectrum, leglabels[i_setting].c_str(), "l");
 
     /*    std::string fitname = dirname + "/spectral_fit";
@@ -109,159 +96,117 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSiL3(std::string savedir = "") {
       fit->Draw("LSAME");
     }
     */
-    for (int i_range = 0; i_range < n_ranges; ++i_range) {
-      double min_energy = min_energies[i_range];
-      double max_energy = max_energies[i_range];
-      int min_energy_bin = spectrum->GetXaxis()->FindBin(min_energy);
-      int max_energy_bin = spectrum->GetXaxis()->FindBin(max_energy) - 1;
-      double error = -1;
-      double integral = spectrum->IntegralAndError(min_energy_bin, max_energy_bin, error, "width");
-      rates[i_setting][i_range] = integral;
-      rate_errs[i_setting][i_range] = error;
-    }
+    // for (int i_range = 0; i_range < n_ranges; ++i_range) {
+    //   double min_energy = min_energies[i_range];
+    //   double max_energy = max_energies[i_range];
+    //   int min_energy_bin = spectrum->GetXaxis()->FindBin(min_energy);
+    //   int max_energy_bin = spectrum->GetXaxis()->FindBin(max_energy) - 1;
+    //   double error = -1;
+    //   double integral = spectrum->IntegralAndError(min_energy_bin, max_energy_bin, error, "width");
+    //   rates[i_setting][i_range] = integral;
+    //   rate_errs[i_setting][i_range] = error;
+    // }
 
-    if (i_particle_name != "SiL3") {
+    //    alcaphistogram(spectrum);
+    //      hStack->Add(spectrum);
 
-      /*
-      double additional_error = 0.50;
-      for (int i_bin = 1; i_bin <= spectrum->GetNbinsX(); ++i_bin) {
-	double old_bin_content = spectrum->GetBinContent(i_bin);
-	double old_bin_error = spectrum->GetBinError(i_bin);
-	double old_bin_frac_error = old_bin_error / old_bin_content;
-	double new_bin_frac_error = std::sqrt(additional_error*additional_error + old_bin_frac_error*old_bin_frac_error);
-	double new_bin_error = new_bin_frac_error*old_bin_content;
-	std::cout << "Old: " << old_bin_content << " +/- " << old_bin_error << " (" << old_bin_frac_error*100 << "%)" << std::endl;
-	std::cout << "New: " << old_bin_content << " +/- " << new_bin_error << " (" << new_bin_frac_error*100 << "%)" << std::endl;
-	spectrum->SetBinError(i_bin, new_bin_error);
-      }
-      */
-
-      alcaphistogram(spectrum);
-      hStack->Add(spectrum);
-
-      if (!hSi16b_Total) {
-	hSi16b_Total = (TH1F*) spectrum->Clone("hSi16b_Total");
-	hSi16b_Total->SetLineColor(kBlack);
-      }
-      else {
-	hSi16b_Total->Add(spectrum);
-      }
-      
-      //      spectrum->Draw("HIST E SAME");
-      /*
-      if (i_particle_name != "alpha") {
-	spectrum->Fit("expo", "+", "", 5000, 15000);
-      }
-      else {
-	spectrum->Fit("expo", "+", "", 17000, 18000);
-      }
-      if (spectrum->GetFunction("expo")) {
-	double eval_lo = spectrum->GetFunction("expo")->Eval(min_energies[0]);
-	double eval_hi = spectrum->GetFunction("expo")->Eval(max_energies[0]);
-	std::cout << "from Fit: " << ((eval_lo + eval_hi)/2.0) * 1000 << std::endl;
-	spectrum->GetFunction("expo")->Draw("LSAME");
-      }
-      */
-    }
-    else {
-      hSi16b_SiL3Inc = spectrum;
-    }
   }
+  leg->Draw();
 
-  double total_rates[n_ranges] = {0};
-  double total_rate_errs[n_ranges] = {0};
-  for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
-    for (int i_range = 0; i_range < n_ranges; ++i_range) {
-      double min_energy = min_energies[i_range];
-      double max_energy = max_energies[i_range];
+  // double total_rates[n_ranges] = {0};
+  // double total_rate_errs[n_ranges] = {0};
+  // for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
+  //   for (int i_range = 0; i_range < n_ranges; ++i_range) {
+  //     double min_energy = min_energies[i_range];
+  //     double max_energy = max_energies[i_range];
       
-      std::cout << "AlCap, " << leglabels[i_setting] << ": Integral (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << rates[i_setting][i_range] << " +/- " << rate_errs[i_setting][i_range] << std::endl;
+  //     std::cout << "AlCap, " << leglabels[i_setting] << ": Integral (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << rates[i_setting][i_range] << " +/- " << rate_errs[i_setting][i_range] << std::endl;
       
-      if (particle_names[i_setting] != "SiL3") {
-	total_rates[i_range] += rates[i_setting][i_range];	  
-	total_rate_errs[i_range] += (rate_errs[i_setting][i_range]*rate_errs[i_setting][i_range]);
-      }	
-    }
-  }
+  //     if (particle_names[i_setting] != "SiL3") {
+  // 	total_rates[i_range] += rates[i_setting][i_range];	  
+  // 	total_rate_errs[i_range] += (rate_errs[i_setting][i_range]*rate_errs[i_setting][i_range]);
+  //     }	
+  //   }
+  // }
   
-  for (int i_range = 0; i_range < n_ranges; ++i_range) {
-    double min_energy = min_energies[i_range];
-    double max_energy = max_energies[i_range];
+  // for (int i_range = 0; i_range < n_ranges; ++i_range) {
+  //   double min_energy = min_energies[i_range];
+  //   double max_energy = max_energies[i_range];
 
-    total_rate_errs[i_range] = std::sqrt(total_rate_errs[i_range]);
+  //   total_rate_errs[i_range] = std::sqrt(total_rate_errs[i_range]);
 
-    std::cout << "Total SiL3 integral ("  << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << SiL3_rate[i_range] << " +/- " << SiL3_rate_err[i_range] << std::endl;
-    std::cout << "Total Si16b: Integral (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << total_rates[i_range] << " +/- " << total_rate_errs[i_range] << std::endl;
+  //   std::cout << "Total SiL3 integral ("  << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << SiL3_rate[i_range] << " +/- " << SiL3_rate_err[i_range] << std::endl;
+  //   std::cout << "Total Si16b: Integral (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << total_rates[i_range] << " +/- " << total_rate_errs[i_range] << std::endl;
 
-    for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
-      if (particle_names[i_setting] != "SiL3") {
-	std::cout << "Ratio (" << leglabels[i_setting] << ") = " << rates[i_setting][i_range] / total_rates[i_range] << std::endl;
-      }
-    }
+  //   for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
+  //     if (particle_names[i_setting] != "SiL3") {
+  // 	std::cout << "Ratio (" << leglabels[i_setting] << ") = " << rates[i_setting][i_range] / total_rates[i_range] << std::endl;
+  //     }
+  //   }
 
-    int min_bin_stack = hSi16b_Total->GetXaxis()->FindBin(min_energy);
-    int max_bin_stack = hSi16b_Total->GetXaxis()->FindBin(max_energy)-1;
-    double stack_integral_error = 0;
-    double stack_integral = hSi16b_Total->IntegralAndError(min_bin_stack, max_bin_stack, stack_integral_error, "width");
-    std::cout << "hSi16b_Total (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << stack_integral << " +/- " << stack_integral_error << std::endl;
+  //   int min_bin_stack = hSi16b_Total->GetXaxis()->FindBin(min_energy);
+  //   int max_bin_stack = hSi16b_Total->GetXaxis()->FindBin(max_energy)-1;
+  //   double stack_integral_error = 0;
+  //   double stack_integral = hSi16b_Total->IntegralAndError(min_bin_stack, max_bin_stack, stack_integral_error, "width");
+  //   std::cout << "hSi16b_Total (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << stack_integral << " +/- " << stack_integral_error << std::endl;
 
-    /*
-    TLine* min_line = new TLine(min_energy, 0, min_energy, 1);
-    min_line->SetLineColor(kRed);
-    min_line->SetLineWidth(2);
-    min_line->Draw("LSAME");
+  //   /*
+  //   TLine* min_line = new TLine(min_energy, 0, min_energy, 1);
+  //   min_line->SetLineColor(kRed);
+  //   min_line->SetLineWidth(2);
+  //   min_line->Draw("LSAME");
 
-    TLine* max_line = new TLine(max_energy, 0, max_energy, 1);
-    max_line->SetLineColor(kRed);
-    max_line->SetLineWidth(2);
-    max_line->Draw("LSAME");
-    */
-  }
+  //   TLine* max_line = new TLine(max_energy, 0, max_energy, 1);
+  //   max_line->SetLineColor(kRed);
+  //   max_line->SetLineWidth(2);
+  //   max_line->Draw("LSAME");
+  //   */
+  // }
 
   //  hStack->GetXaxis()->SetTitle("Energy [keV]");
   //  hStack->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
-  hStack->SetMaximum(1e-3);
-  hStack->SetMinimum(1e-8);
+  //  hStack->SetMaximum(1e-3);
+  //  hStack->SetMinimum(1e-8);
   //  hStack->SetMaximum(0.035e-3);
   //  hStack->SetMinimum(0);
   //  hStack->Draw("HIST E SAMES nostack");
 
-  TCanvas* c_stacked = new TCanvas();
-  c_stacked->SetLogy();
-  hStack->Draw("HIST E");
-  hStack->GetXaxis()->SetRangeUser(0,26000);
-  if (hSi16b_SiL3Inc) {
-    hSi16b_SiL3Inc->Draw("HIST E SAME");
-  }
-  //  hSi16b_Total->Draw("HIST E SAME");
-  SiL3_hist->Draw("HIST E SAME");
-  alcapPreliminary(SiL3_hist);
-  leg->Draw();
+  // TCanvas* c_stacked = new TCanvas();
+  // c_stacked->SetLogy();
+  // hStack->Draw("HIST E");
+  // hStack->GetXaxis()->SetRangeUser(0,26000);
+  // if (hSi16b_SiL3Inc) {
+  //   hSi16b_SiL3Inc->Draw("HIST E SAME");
+  // }
+  // //  hSi16b_Total->Draw("HIST E SAME");
+  // SiL3_hist->Draw("HIST E SAME");
+  // alcapPreliminary(SiL3_hist);
+  // leg->Draw();
   
-  TCanvas* c_unstacked = new TCanvas();
-  c_unstacked->SetLogy();
-  hStack->Draw("HIST E nostack");
-  hStack->GetXaxis()->SetRangeUser(0,26000);
-  if (hSi16b_SiL3Inc) {
-    hSi16b_SiL3Inc->Draw("HIST E SAME");
-  }
-  //  hSi16b_Total->Draw("HIST E SAME");
-  SiL3_hist->Draw("HIST E SAME");
-  alcapPreliminary(SiL3_hist);
-  leg->Draw();
+  // TCanvas* c_unstacked = new TCanvas();
+  // c_unstacked->SetLogy();
+  // hStack->Draw("HIST E nostack");
+  // hStack->GetXaxis()->SetRangeUser(0,26000);
+  // if (hSi16b_SiL3Inc) {
+  //   hSi16b_SiL3Inc->Draw("HIST E SAME");
+  // }
+  // //  hSi16b_Total->Draw("HIST E SAME");
+  // SiL3_hist->Draw("HIST E SAME");
+  // alcapPreliminary(SiL3_hist);
+  // leg->Draw();
  
   if (savedir != "") {
-    std::string savename = savedir + "AlCapData_NormalisedSpectraComparison_Stacked";
+    std::string savename = savedir + "AlCapData_NormalisedSpectraComparison";
     std::string pdfname = savename + ".pdf";
-    c_stacked->SaveAs(pdfname.c_str());
+    c1->SaveAs(pdfname.c_str());
     std::string pngname = savename + ".png";
-    c_stacked->SaveAs(pngname.c_str());
+    c1->SaveAs(pngname.c_str());
 
-    savename = savedir + "AlCapData_NormalisedSpectraComparison_Unstacked";    
-    pdfname = savename + ".pdf";
-    c_unstacked->SaveAs(pdfname.c_str());
-    pngname = savename + ".png";
-    c_unstacked->SaveAs(pngname.c_str());
+    // savename = savedir + "AlCapData_NormalisedSpectraComparison_Unstacked";    
+    // pdfname = savename + ".pdf";
+    // //    c_unstacked->SaveAs(pdfname.c_str());
+    // pngname = savename + ".png";
+    // //    c_unstacked->SaveAs(pngname.c_str());
   }
 
   /*

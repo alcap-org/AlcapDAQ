@@ -206,6 +206,38 @@ void EvdEPlot(EvdEPlotArgs& args) {
   hEvt_ThreeLayer_123->SetXTitle("t_{2} [ns]");
   hEvt_ThreeLayer_123->SetYTitle("E_{1} + E_{2} + E_{3} [keV]");
 
+
+  double rotated_energy_width = 0.01;
+  double min_rotated_x_energy = -1.5;
+  double max_rotated_x_energy = 2.0;
+  int n_rotated_x_energy_bins = (max_rotated_x_energy - min_rotated_x_energy) / rotated_energy_width;
+  double min_rotated_y_energy = -1.5;
+  double max_rotated_y_energy = 2.0;
+  int n_rotated_y_energy_bins = (max_rotated_y_energy - min_rotated_y_energy) / rotated_energy_width;
+  histname = "hRotatedEvdE_TwoLayer_12";
+  TH2F* hRotatedEvdE_TwoLayer_12 = new TH2F(histname.c_str(), histname.c_str(), n_rotated_x_energy_bins,min_rotated_x_energy,max_rotated_x_energy,
+					    n_rotated_y_energy_bins,min_rotated_y_energy,max_rotated_y_energy);
+  hRotatedEvdE_TwoLayer_12->SetXTitle("0.7071*(TMath::Log10(E_{1} + E_{2})-TMath::Log10(E_{1}))");
+  hRotatedEvdE_TwoLayer_12->SetYTitle("0.7071*(TMath::Log10(E_{1} + E_{2})+TMath::Log10(E_{1}))");
+
+  histname = "hRotatedEvdE_TwoLayer_12not3";
+  TH2F* hRotatedEvdE_TwoLayer_12not3 = new TH2F(histname.c_str(), histname.c_str(), n_rotated_x_energy_bins,min_rotated_x_energy,max_rotated_x_energy,
+					    n_rotated_y_energy_bins,min_rotated_y_energy,max_rotated_y_energy);
+  hRotatedEvdE_TwoLayer_12not3->SetXTitle("0.7071*(TMath::Log10(E_{1} + E_{2})-TMath::Log10(E_{1}))");
+  hRotatedEvdE_TwoLayer_12not3->SetYTitle("0.7071*(TMath::Log10(E_{1} + E_{2})+TMath::Log10(E_{1}))");
+
+  histname = "hRotatedEvdE_TwoLayer_123";
+  TH2F* hRotatedEvdE_TwoLayer_123 = new TH2F(histname.c_str(), histname.c_str(), n_rotated_x_energy_bins,min_rotated_x_energy,max_rotated_x_energy,
+					    n_rotated_y_energy_bins,min_rotated_y_energy,max_rotated_y_energy);
+  hRotatedEvdE_TwoLayer_123->SetXTitle("0.7071*(TMath::Log10(E_{1} + E_{2})-TMath::Log10(E_{1}))");
+  hRotatedEvdE_TwoLayer_123->SetYTitle("0.7071*(TMath::Log10(E_{1} + E_{2})+TMath::Log10(E_{1}))");
+
+  histname = "hRotatedEvdE_ThreeLayer_123";
+  TH2F* hRotatedEvdE_ThreeLayer_123 = new TH2F(histname.c_str(), histname.c_str(), n_rotated_x_energy_bins,min_rotated_x_energy,max_rotated_x_energy,
+					    n_rotated_y_energy_bins,min_rotated_y_energy,max_rotated_y_energy);
+  hRotatedEvdE_ThreeLayer_123->SetXTitle("0.7071*(TMath::Log10(E_{1} + E_{2} + E_{3})-TMath::Log10(E_{1} + E_{2}))");
+  hRotatedEvdE_ThreeLayer_123->SetYTitle("0.7071*(TMath::Log10(E_{1} + E_{2} + E_{3})+TMath::Log10(E_{1} + E_{2}))");
+
   std::string outtreename = "cuttree";
   TTree* cuttree = new TTree(outtreename.c_str(), outtreename.c_str());
   cuttree->Branch("layer_coincidence_vetos", &args.layer_coincidence_vetos);
@@ -243,7 +275,7 @@ void EvdEPlot(EvdEPlotArgs& args) {
       //      return;
     }
     
-    std::string three_layer_cutname = args.cutname + "_three_layer";
+    std::string three_layer_cutname = args.cutname;// + "_three_layer";
     cutInfo.tCutG_three_layer = (TCutG*) cutInfo.file->Get(three_layer_cutname.c_str());
     if (!cutInfo.tCutG_three_layer) {
       std::cout << "Error: Can't get TCutG " << three_layer_cutname.c_str() << std::endl;
@@ -379,6 +411,7 @@ void EvdEPlot(EvdEPlotArgs& args) {
 	hThinTime_ThreeLayer_123->Fill(thin_time);
 	hTDiff_ThreeLayer_123->Fill(third_time - thick_time);
 	hEvt_ThreeLayer_123->Fill(thick_time, total_3L_energy);
+	hRotatedEvdE_ThreeLayer_123->Fill(0.7071*(TMath::Log10(total_3L_energy/1e3)-TMath::Log10((thin_energy+thick_energy)/1e3)), 0.7071*(TMath::Log10(total_3L_energy/1e3)+TMath::Log10((thin_energy+thick_energy)/1e3)));
       }
 
       // For the two layer plots, we care about whether it passes the two layer cut not the three layer plot
@@ -400,6 +433,7 @@ void EvdEPlot(EvdEPlotArgs& args) {
 	hTDiff_TwoLayer_123->Fill(thick_time - thin_time);
 	hSingleDetAxes_TwoLayer_123->Fill(thick_energy, thin_energy);
 	hEvt_TwoLayer_123->Fill(thick_time, total_energy);
+	hRotatedEvdE_TwoLayer_123->Fill(0.7071*(TMath::Log10(total_energy/1e3)-TMath::Log10(thin_energy/1e3)), 0.7071*(TMath::Log10(total_energy/1e3)+TMath::Log10(thin_energy/1e3)));
       }
     }
     else { // this is essentially vetoing on the third layer
@@ -420,7 +454,8 @@ void EvdEPlot(EvdEPlotArgs& args) {
 	hThinTime_TwoLayer_12not3->Fill(thin_time);
 	hTDiff_TwoLayer_12not3->Fill(thick_time - thin_time);
 	hEvt_TwoLayer_12not3->Fill(thick_time, total_energy);
-
+	hRotatedEvdE_TwoLayer_12not3->Fill(0.7071*(TMath::Log10(total_energy/1e3)-TMath::Log10(thin_energy/1e3)), 0.7071*(TMath::Log10(total_energy/1e3)+TMath::Log10(thin_energy/1e3)));
+      
 	if (args.debug) {
 	  std::cout << args.outdirname << ": Run #" << run_id << ", Block #" << block_id << ", TME #" << tme_id << ", SiR1-" << thin_channel+1 << " TPI #" << thin_tpi_id << ", SiR2 TPI #" << thick_tpi_id << std::endl;
 	}
@@ -445,6 +480,7 @@ void EvdEPlot(EvdEPlotArgs& args) {
       hThinTime_TwoLayer_12->Fill(thin_time);
       hTDiff_TwoLayer_12->Fill(thick_time - thin_time);
       hEvt_TwoLayer_12->Fill(thick_time, total_energy);
+      hRotatedEvdE_TwoLayer_12->Fill(0.7071*(TMath::Log10(total_energy/1e3)-TMath::Log10(thin_energy/1e3)), 0.7071*(TMath::Log10(total_energy/1e3)+TMath::Log10(thin_energy/1e3)));
     }
   }
 
@@ -488,6 +524,10 @@ void EvdEPlot(EvdEPlotArgs& args) {
   hSingleDetAxes_TwoLayer_123->Write();
   hSingleDetAxes_ThreeLayer_23->Write();
   hSingleDetAxes_ThreeLayer_13->Write();
+  hRotatedEvdE_TwoLayer_12->Write();
+  hRotatedEvdE_ThreeLayer_123->Write();
+  hRotatedEvdE_TwoLayer_12not3->Write();
+  hRotatedEvdE_TwoLayer_123->Write();
 
   outfile->Write();
   outfile->Close();
@@ -518,5 +558,9 @@ void EvdEPlot(EvdEPlotArgs& args) {
   delete hSingleDetAxes_TwoLayer_123;
   delete hSingleDetAxes_ThreeLayer_23;
   delete hSingleDetAxes_ThreeLayer_13;
+  delete hRotatedEvdE_TwoLayer_12;
+  delete hRotatedEvdE_ThreeLayer_123;
+  delete hRotatedEvdE_TwoLayer_12not3;
+  delete hRotatedEvdE_TwoLayer_123;
   delete in_file;
 }

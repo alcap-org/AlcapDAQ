@@ -1,5 +1,7 @@
-void SiL3_FinalPlot_FlatBkgCorrection(std::string savedir = "") {
+void SiL3_FinalPlot_FlatBkgCorrection(std::string savedir = "", std::ostream& numbers_file = std::cout) {
 
+  numbers_file << "% SiL3_FinalPlot_FlatBkgCorrection.C" << std::endl;
+  
   std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
@@ -52,6 +54,8 @@ void SiL3_FinalPlot_FlatBkgCorrection(std::string savedir = "") {
     raw_spectrum->SetTitle("SiL3 Dataset, Active Target Analysis, Flat Background Correction");
     raw_spectrum->SetStats(false);
     raw_spectrum->GetXaxis()->SetRangeUser(0,30000);
+    raw_spectrum->GetXaxis()->SetTitleOffset(0.9);
+    raw_spectrum->GetYaxis()->SetTitleOffset(0.9);
     raw_spectrum->SetLineColor(colours[i_slice]);
 
     std::stringstream axislabel;
@@ -74,6 +78,8 @@ void SiL3_FinalPlot_FlatBkgCorrection(std::string savedir = "") {
     leg->AddEntry(raw_spectrum, "Raw Spectrum (w/ recoil)", "l");
     leg->AddEntry(correction, "Flat Bkg Correction (w/ no recoil)", "l");
     leg->AddEntry(corrected_spectrum, "Corrected Spectrum", "l");
+
+    numbers_file << "\\newcommand\\SiLFlatBkgSlice{\\SI{-4000}{\\nano\\second} $<t<$ \\SI{-2000}{\\nano\\second}}" << std::endl;
   }
 
   leg->Draw();
@@ -86,4 +92,5 @@ void SiL3_FinalPlot_FlatBkgCorrection(std::string savedir = "") {
     std::string pngname = savename + ".png";
     c1->SaveAs(pngname.c_str());
   }
+  numbers_file << std::endl;
 }

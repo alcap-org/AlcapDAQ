@@ -2,7 +2,7 @@ void SiL3_FinalPlot_LifetimeComparison(std::string savedir = "") {
 
 
   TCanvas* c_Lifetime = new TCanvas("c_Lifetime", "c_Lifetime");
-  TLegend* leg = new TLegend(0.30,0.75,0.70,0.85);
+  TLegend* leg = new TLegend(0.25,0.70,0.70,0.85);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.03);
   leg->SetFillColor(kWhite);
@@ -68,9 +68,15 @@ void SiL3_FinalPlot_LifetimeComparison(std::string savedir = "") {
   gres[0]->Draw("APE");
   gres[0]->SetTitle("Fitted lifetime as a function of energy cut");
   gres[0]->GetXaxis()->SetTitle("Energy Cut [keV]");
+  gres[0]->GetYaxis()->SetTitle("Fitted Lifetime [ns]");
   gres[0]->GetYaxis()->SetRangeUser(650,850);
-
+  gres[0]->GetXaxis()->SetTitleOffset(0.9);
+  gres[0]->GetYaxis()->SetTitleOffset(0.9);
+  
   gres[1]->Draw("PE SAME");
+
+  TLatex* latex = new TLatex();
+  latex->DrawLatexNDC(0.2, 0.2, "AlCap #bf{#it{Preliminary}}");
 
   double literature_lifetime = 756.0;
   double literature_lifetime_error = 1.0;
@@ -81,9 +87,11 @@ void SiL3_FinalPlot_LifetimeComparison(std::string savedir = "") {
   line->Draw("LSAME");
   TBox* box = new TBox(0, literature_lifetime-literature_lifetime_error, max_energy_cut-energy_cut_step, literature_lifetime+literature_lifetime_error);
   box->SetLineColor(kBlack);
+  //  box->SetLineStyle(kDashed);
   box->SetFillStyle(0);
   box->Draw("LSAME");
-  leg->AddEntry(box, "Literature Value", "f");
+  leg->AddEntry(line, "Literature Value", "l");
+  leg->AddEntry(box, "Literature Uncertainty", "f");
   
   leg->Draw();
 

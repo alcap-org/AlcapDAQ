@@ -20,8 +20,9 @@ void Si16b_RawSpectrum_fromEvdE(std::string infilename, std::string outfilename)
   // For protons, deuterons etc
   const int n_particles = 5;
   std::string particle_names[n_particles] = {"all", "proton", "deuteron", "triton", "alpha"};//, "proton_combined"};
-  double SiR3_veto_efficiency = 0.67;//0.68;
-  double SiR3_veto_eff_uncertainty = 0.03;//0.0
+  double max_energy_cutoffs[n_particles] = {100000, 17000, 17000, 17000, 19000};
+  double SiR3_veto_efficiency = 1.00;//0.67;//0.68;
+  double SiR3_veto_eff_uncertainty = 0.00;//0.03;//0.0
   
   for (int i_hist = 0; i_hist < n_hists; ++i_hist) {
     std::string histname = histnames[i_hist];
@@ -45,6 +46,7 @@ void Si16b_RawSpectrum_fromEvdE(std::string infilename, std::string outfilename)
 	    indirname += "_" + pid;
 	  }			    
 	  args.datacuttreename = indirname + "/cuttree";
+	  args.max_energy_cutoff = max_energy_cutoffs[i_particle];
 	  
 	  args.datahistnames.clear();
 	  args.scale_ratios.clear();
@@ -70,12 +72,14 @@ void Si16b_RawSpectrum_fromEvdE(std::string infilename, std::string outfilename)
 	    
 	    if (pid == "PSel") {
 	      args.datahistnames.push_back(i_particle_name + "_SiR_timecut" + min_time.str() + "_10000ns_layerCoinc_" + pid + "/" + histname + "_TwoLayer_123");
-		
-	      double scale_factor = (1-SiR3_veto_efficiency)/(SiR3_veto_efficiency);
-	      double scale_factor_err = (SiR3_veto_eff_uncertainty/SiR3_veto_efficiency)*scale_factor;
-	      args.scale_ratios.push_back(-1*scale_factor);
-	      args.scale_ratio_errors.push_back(scale_factor_err);
 	    }
+	    else {
+	      args.datahistnames.push_back(i_particle_name + "_SiR_timecut" + min_time.str() + "_10000ns_layerCoinc/" + histname + "_TwoLayer_123");
+	    }
+	    scale_factor = (1-SiR3_veto_efficiency)/(SiR3_veto_efficiency);
+	    scale_factor_err = (SiR3_veto_eff_uncertainty/SiR3_veto_efficiency)*scale_factor;
+	    args.scale_ratios.push_back(-1*scale_factor);
+	    args.scale_ratio_errors.push_back(scale_factor_err);
 	  }
 	  args.projection_x = true;
 	  RawSpectrum_fromEvdE(args);

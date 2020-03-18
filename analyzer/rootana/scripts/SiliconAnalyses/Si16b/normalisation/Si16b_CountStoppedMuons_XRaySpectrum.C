@@ -5,7 +5,7 @@ void Si16b_CountStoppedMuons_XRaySpectrum(std::string infilename, std::string ou
   const int n_ge_channels = 2;
   std::string ge_channels[n_ge_channels] = {"GeLoGain", "GeHiGain"};
 
-    const int n_time_cuts = 3;
+  const int n_time_cuts = 3;
   double min_times[n_time_cuts] = {-20000, -5000, -200};
   double max_times[n_time_cuts] = {20000, 5000, 200};
   std::string time_cuts[n_time_cuts] = {"noTimeCut", "5000nsTimeCut", "200nsTimeCut"};

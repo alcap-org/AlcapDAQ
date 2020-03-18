@@ -28,7 +28,7 @@ void Si16b_FinalPlot_Target_RawSpectrum(std::string savedir = "") {
   std::string histtitle = "Si16b Dataset, Target Spectrum, Energy";
   hRawSpectrum->SetTitle(histtitle.c_str());
   hRawSpectrum->SetStats(false);
-  hRawSpectrum->GetXaxis()->SetRangeUser(0,10000);
+  hRawSpectrum->GetXaxis()->SetRangeUser(0,4000);
   hRawSpectrum->GetXaxis()->SetTitleOffset(0.9);
   
   std::stringstream axislabel;

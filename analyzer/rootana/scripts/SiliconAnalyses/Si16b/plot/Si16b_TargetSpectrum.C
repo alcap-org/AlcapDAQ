@@ -14,7 +14,7 @@ void Si16b_TargetSpectrum(std::string infilename, std::string outfilename) {
   args.min_time = -20000;
   args.max_time = 20000;
   args.time_width = 100;
-  args.recoil_factor = 1.0;
+  args.recoil_fraction = 0.0;
   
   args.layerreqd = false;
   args.layerveto = false;

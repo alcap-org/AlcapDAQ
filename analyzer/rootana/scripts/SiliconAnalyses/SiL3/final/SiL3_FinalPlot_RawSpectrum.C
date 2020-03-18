@@ -47,6 +47,8 @@ void SiL3_FinalPlot_RawSpectrum(std::string savedir = "") {
     axistitle.str("");
     axistitle << "Count / " << spectrum->GetXaxis()->GetBinWidth(1) << " keV";
     spectrum->GetXaxis()->SetRangeUser(0,30000);
+    spectrum->GetXaxis()->SetTitleOffset(0.9);
+    spectrum->GetYaxis()->SetTitleOffset(0.9);
     spectrum->SetYTitle(axistitle.str().c_str());
     spectrum->SetLineColor(colours[i_slice]);
     spectrum->Draw("HIST E SAMES");

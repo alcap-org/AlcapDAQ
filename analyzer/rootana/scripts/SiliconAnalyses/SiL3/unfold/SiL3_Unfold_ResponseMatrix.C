@@ -1,6 +1,9 @@
+#ifndef SiL3_Unfold_ResponseMatrix_
+#define SiL3_Unfold_ResponseMatrix_
+
 #include "../../Utils/Unfold_ResponseMatrix.C"
 
-void SiL3_Unfold_ResponseMatrix(std::string infilename, std::string outfilename, std::string inhistname, std::string outdirname, std::string particle) {
+void SiL3_Unfold_ResponseMatrix(std::string infilename, std::string outfilename, std::string inhistname, std::string outdirname, std::string particle, int reg_parameter = 250) {
 
   //  gROOT->ProcessLine(".L scripts/Unfolding/bayesian-unfolding/libRooUnfold.so");
 
@@ -27,8 +30,11 @@ void SiL3_Unfold_ResponseMatrix(std::string infilename, std::string outfilename,
   args.mcfilename = "~/data/mc/SiL3/" + particle + "Corr_1M_Geom-P1_" + particle + "-flat_Thresh0-1MeV.root";
   args.mcresponsename = "SiL_middle_layer_response";
   args.rebin_factor = 2;
+  args.reg_parameter = reg_parameter;
   args.outdirname = outdirname;
   args.method = "svd";
   //  args.method = "bayes";
   Unfold_ResponseMatrix(args);
 }
+
+#endif

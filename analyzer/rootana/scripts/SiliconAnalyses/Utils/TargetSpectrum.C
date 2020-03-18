@@ -27,7 +27,7 @@ struct TargetSpectrumArgs {
   double max_time;
   double time_width;
 
-  double recoil_fraction;
+  double recoil_fraction; // if >=0 then it's a fraction, if it's <0 then it's an absolute value that needs to be subtracted
 };
 
 void TargetSpectrum(TargetSpectrumArgs& args) {
@@ -122,7 +122,12 @@ void TargetSpectrum(TargetSpectrumArgs& args) {
       }
     }
 
-    hEnergyTime->Fill(time, energy/(1+recoil_fraction));
+    if (recoil_fraction>=0) {
+      hEnergyTime->Fill(time, energy/(1+recoil_fraction));
+    }
+    else {
+      hEnergyTime->Fill(time, energy - recoil_fraction);
+    }
   }
   
   std::cout << "TargetSpectrum (" << args.outdirname << "): " << hEnergyTime->GetName() << " " << hEnergyTime->GetEntries() << " entries" << std::endl;

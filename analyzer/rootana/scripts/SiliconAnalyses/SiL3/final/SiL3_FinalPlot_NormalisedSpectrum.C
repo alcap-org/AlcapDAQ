@@ -1,12 +1,23 @@
-void SiL3_FinalPlot_NormalisedSpectrum() {
+#include "../../Utils/IntegrateRates.C"
 
-  TCanvas* c1 = new TCanvas("c1", "c1");
-  c1->SetLogy();
+void SiL3_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& numbers_file = std::cout) {
     
-  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
+  std::string filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
+  const int n_bin_widths = 2;
+  std::string bin_widths[n_bin_widths] = {"100keVBins", "500keVBins"};
   
+  const int n_ranges = 2;
+  double min_energies[n_ranges] = {15000, 1400};
+  double max_energies[n_ranges] = {16000, 26000};
+  int i_bin_width_to_use[n_ranges] = {1, 0};
+    
+  double rates[n_ranges] = {0};
+  double total_stat_errors[n_ranges] = {0};
+  double total_low_syst_errors[n_ranges] = {0};
+  double total_high_syst_errors[n_ranges] = {0};
+
   const int n_slices = 1;
   double min_time_slices[n_slices] = {2000};
   double max_time_slices[n_slices] = {4000};
@@ -27,6 +38,7 @@ void SiL3_FinalPlot_NormalisedSpectrum() {
   
   int rebin_factor = 1;
   std::stringstream time_slice_str, leglabel;
+  numbers_file << "% SiL3_FinalPlot_NormalisedSpectrum.C" << std::endl;
   for (int i_slice = 0; i_slice < n_slices; ++i_slice) {
     double i_min_time_slice = min_time_slices[i_slice];
     double i_max_time_slice = max_time_slices[i_slice];
@@ -36,41 +48,115 @@ void SiL3_FinalPlot_NormalisedSpectrum() {
 
     Int_t i_colour = colours[i_slice];
 
-    std::string i_dirname = "FinalNormalisation_" + time_slice_str.str();
-    std::string i_histname = i_dirname + "/hNormalisedSpectrum";
+    for (int i_bin_width = 0; i_bin_width < n_bin_widths; ++i_bin_width) {
+      std::string bin_width = bin_widths[i_bin_width];
 
-    TH1F* spectrum = (TH1F*) file->Get(i_histname.c_str());
-    if (!spectrum) {
-      std::cout << "Error: Problem getting spectrum " << i_histname << std::endl;
-      return;
-    }
-    spectrum->Sumw2();
+      TCanvas* c1 = new TCanvas("c1", "c1");
+      c1->SetLogy();
+      for (int i_range = 0; i_range < n_ranges; ++i_range) {      
+	rates[i_range] = 0;
+	total_stat_errors[i_range] = 0;
+	total_low_syst_errors[i_range] = 0;
+	total_high_syst_errors[i_range] = 0;
+      }
+      
+      std::string i_dirname = "FinalSystPlot_" + time_slice_str.str() + "_allRecoil_" + bin_width;
+      //    std::string i_dirname = "FinalSystPlot_" + time_slice_str.str() + "_nuRecoil_500keVBins";
+      std::string i_statname = i_dirname + "/hFinalStat";
+      TGraphAsymmErrors* stat_spectrum = (TGraphAsymmErrors*) file->Get(i_statname.c_str());
+      if (!stat_spectrum) {
+	std::cout << "Error: Problem getting stat_spectrum " << i_statname << std::endl;
+	return;
+      }
 
-    spectrum->SetTitle("SiL3 Dataset, Active Target Analysis, Charged Particle Emission Spectrum");
-    spectrum->Rebin(rebin_factor);
-    spectrum->Scale(1.0/rebin_factor);
-    spectrum->SetStats(false);
-    spectrum->SetLineColor(i_colour);
-    spectrum->GetXaxis()->SetRangeUser(0,30000);
-    spectrum->Draw("HIST E SAMES");
+      std::string i_systname = i_dirname + "/hFinalSyst";
+      TGraphAsymmErrors* syst_spectrum = (TGraphAsymmErrors*) file->Get(i_systname.c_str());
+      if (!syst_spectrum) {
+	std::cout << "Error: Problem getting syst_spectrum " << i_systname << std::endl;
+	return;
+      }
 
-    /*
-    std::string i_fitname = i_dirname + "/spectral_fit";
-    TF1* spectral_fit = (TF1*) file->Get(i_fitname.c_str());
-    spectral_fit->SetLineColor(i_colour);
-    spectral_fit->Draw("LSAME");
-    */
+      std::string i_statsystname = i_dirname + "/hFinalStatSyst";
+      TGraphAsymmErrors* statsyst_spectrum = (TGraphAsymmErrors*) file->Get(i_statsystname.c_str());
+      if (!statsyst_spectrum) {
+	std::cout << "Error: Problem getting statsyst_spectrum " << i_statsystname << std::endl;
+	return;
+      }
+      
+      stat_spectrum->SetFillColor(kGreen);
+      statsyst_spectrum->SetFillColor(kYellow);
+      stat_spectrum->SetLineColor(kGreen);
+      statsyst_spectrum->SetLineColor(kYellow);
+      stat_spectrum->SetLineWidth(2);
+      statsyst_spectrum->SetLineWidth(2);
     
-    leglabel.str("");
-    /*    leglabel << "#splitline{" << leglabels[i_slice] << "}{"
-	     << std::fixed << std::setprecision(2) << "(T_{th} = " << spectral_fit->GetParameter(1)/1000 << " #pm " << spectral_fit->GetParError(1)/1000 << " MeV, "
-	     << std::fixed << std::setprecision(2) << " #alpha = " << spectral_fit->GetParameter(2) << " #pm " << spectral_fit->GetParError(2) << ", "
-	     << std::fixed << std::setprecision(2) << " T_{0} = " << spectral_fit->GetParameter(3)/1000 << " #pm " << spectral_fit->GetParError(3)/1000 << " MeV)}";
-    */
-    leglabel << leglabels[i_slice];
-    std::cout << leglabel.str() << std::endl;
-    leg->AddEntry(spectrum, leglabel.str().c_str(), "l");
+      statsyst_spectrum->Draw("APE");
+      statsyst_spectrum->GetXaxis()->SetTitle("Energy [keV]");
+      statsyst_spectrum->GetYaxis()->SetTitle("Charged Particles / captured muon / keV");
+      statsyst_spectrum->GetXaxis()->SetRangeUser(0, 26000);
+      statsyst_spectrum->GetYaxis()->SetRangeUser(1e-8, 1e-3);
+      stat_spectrum->Draw("PE SAME");
+
+      if (i_bin_width == 0) {
+	leglabel.str("");
+	//      leglabel << leglabels[i_setting];
+	leglabel << "stat. errors";
+	leg->AddEntry(stat_spectrum, leglabel.str().c_str(), "l");
+	
+	leglabel.str("");
+	leglabel << "stat. and syst. errors";
+	leg->AddEntry(statsyst_spectrum, leglabel.str().c_str(), "l");
+      }
+
+      for (int i_range = 0; i_range < n_ranges; ++i_range) {
+      
+	double& rate = rates[i_range];
+	double& total_stat_error = total_stat_errors[i_range];
+	double& total_low_syst_error = total_low_syst_errors[i_range];
+	double& total_high_syst_error = total_high_syst_errors[i_range];
+	double min_energy = min_energies[i_range];
+	double max_energy = max_energies[i_range];
+
+	IntegrateRates_wStatAndSystSpectra(stat_spectrum, syst_spectrum, min_energy, max_energy,
+					   rate, total_stat_error, total_high_syst_error, total_low_syst_error);
+
+	std::cout << "SiL3 Rate (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << rate << " \\pm " << total_stat_error << " (stat.) (" << total_stat_error/rate * 100 << "%) + " << total_high_syst_error << " (" << total_high_syst_error/rate * 100 << "%) - " << total_low_syst_error << " (syst.) (" << total_low_syst_error/rate * 100 << "%)" << std::endl << std::endl;
+
+	if (min_energy==15000 && max_energy==16000 && i_bin_width==i_bin_width_to_use[i_range]) {
+	  numbers_file << std::fixed << std::setprecision(2);
+	  numbers_file << "\\newcommand\\SiLCompRateBare{" << "" << rates[i_range]/1e-3 << "}" << std::endl;
+	  numbers_file << "\\newcommand\\SiLCompStatErrBare{" << total_stat_errors[i_range]/1e-3 << "}" << std::endl;
+	  numbers_file << "\\newcommand\\SiLCompHighSystErrBare{" << total_high_syst_errors[i_range]/1e-3 << "}" << std::endl;
+	  numbers_file << "\\newcommand\\SiLCompLowSystErrBare{" << total_low_syst_errors[i_range]/1e-3 << "}" << std::endl;
+	  numbers_file << "\\newcommand\\SiLCompSystFracUncertainty{$^{+" << (total_high_syst_errors[i_range]/rate)*100 << "\\%}_{-" << (total_low_syst_errors[i_range]/rate)*100 << "\\%}$}" << std::endl;
+	  numbers_file << "\\newcommand\\SiLCompRateFull{$(\\SiLCompRateBare \\pm \\SiLCompStatErrBare ~\\text{(stat.)} ^{+\\SiLCompHighSystErrBare}_{-\\SiLCompLowSystErrBare}~\\text{(syst.)}) \\times 10^{-3}$}" << std::endl;
+	}
+	if (min_energy==1400 && max_energy==26000 && i_bin_width==i_bin_width_to_use[i_range]) {
+	  numbers_file << std::fixed << std::setprecision(1);
+	  numbers_file << "\\newcommand\\SiLActiveRange{" << min_energy/1000 << " -- " << std::setprecision(0) << max_energy/1000 << "}" << std::endl;
+	  numbers_file << std::fixed << std::setprecision(4);
+	  numbers_file << "\\newcommand\\SiLActiveRateBare{" << "" << rates[i_range] << "}" << std::endl;
+	  numbers_file << "\\newcommand\\SiLActiveStatErrBare{" << total_stat_errors[i_range] << "}" << std::endl;
+	  numbers_file << "\\newcommand\\SiLActiveHighSystErrBare{" << total_high_syst_errors[i_range] << "}" << std::endl;
+	  numbers_file << "\\newcommand\\SiLActiveLowSystErrBare{" << total_low_syst_errors[i_range] << "}" << std::endl;
+	  numbers_file << std::fixed << std::setprecision(2);
+	  numbers_file << "\\newcommand\\SiLActiveSystFracUncertainty{$^{+" << (total_high_syst_errors[i_range]/rate)*100 << "\\%}_{-" << (total_low_syst_errors[i_range]/rate)*100 << "\\%}$}" << std::endl;
+	  numbers_file << "\\newcommand\\SiLActiveRate{$\\SiLActiveRateBare \\pm \\SiLActiveStatErrBare ~\\text{(stat.)} ^{+\\SiLActiveHighSystErrBare}_{-\\SiLActiveLowSystErrBare}~\\text{(syst.)}$}" << std::endl;
+	}
+      }
+
+      leg->Draw();
+
+      if (savedir != "") {
+	std::string savename = savedir + "AlCapData_SiL3Dataset_NormalisedSpectrum_StatSystErrors_" + bin_width;
+
+	std::string pdfname = savename + ".pdf";
+	c1->SaveAs(pdfname.c_str());
+	std::string pngname = savename + ".png";
+	c1->SaveAs(pngname.c_str());
+      }
+    }
   }
 
-  leg->Draw();
+  numbers_file << std::endl;
 }

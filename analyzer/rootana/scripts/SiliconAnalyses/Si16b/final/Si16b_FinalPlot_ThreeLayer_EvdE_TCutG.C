@@ -1,6 +1,6 @@
 void Si16b_FinalPlot_ThreeLayer_EvdE_TCutG(std::string savedir = "") {
 
-  std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse.root";
+  std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse_3sigma.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
 
   std::string dirname = "all_SiR_timecut0_10000ns_layerCoinc";
@@ -20,8 +20,10 @@ void Si16b_FinalPlot_ThreeLayer_EvdE_TCutG(std::string savedir = "") {
   hEvdE->SetStats(false);
   hEvdE->Rebin2D(10, 10);
   hEvdE->GetXaxis()->SetRangeUser(0, 25000);
+  hEvdE->GetXaxis()->SetTitleOffset(0.9);
   //  hEvdE->GetYaxis()->SetRangeUser(0, 3000);
   hEvdE->GetYaxis()->SetRangeUser(0, 20000);
+  hEvdE->GetYaxis()->SetTitleOffset(0.9);
   hEvdE->Draw("COLZ");
 
   TLatex* latex = new TLatex();
@@ -43,7 +45,8 @@ void Si16b_FinalPlot_ThreeLayer_EvdE_TCutG(std::string savedir = "") {
     std::string this_particle = particles[i_particle];
     
     c_EvdE->cd();
-    std::string tcutgname = this_particle + "3L_SiR_timecut0_10000ns_layerCoinc/" + this_particle + "_cut_three_layer";
+    //    std::string tcutgname = this_particle + "3L_SiR_timecut0_10000ns_layerCoinc/" + this_particle + "_cut_three_layer";
+    std::string tcutgname = this_particle + "3L_SiR_timecut0_10000ns_layerCoinc/r_sir3_hLg_SiR_EvDeltaE_" + this_particle + "_3sigma_keV";
     TCutG* tCutG = (TCutG*) infile->Get(tcutgname.c_str());
     if (!tCutG) {
       std::cout << "Error: Can't get " << tcutgname << std::endl;

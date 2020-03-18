@@ -1,4 +1,4 @@
-void SiL3_FinalPlot_NormalisedSpectrum_Systematics() {
+void SiL3_FinalPlot_NormalisedSpectrum_ParticleCompositionSystematic() {
 
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
@@ -6,7 +6,8 @@ void SiL3_FinalPlot_NormalisedSpectrum_Systematics() {
   std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
-  
+
+  const int i_central = 0; // the element that is the central value
   const int n_settings = 3;
   std::string recoils[n_settings] = {"allRecoil", "lowAllRecoil", "highAllRecoil"};
   //  std::string responses[n_settings] = {"", "_CombinedLow", "_CombinedHigh"};

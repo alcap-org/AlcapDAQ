@@ -1,15 +1,23 @@
 #include "../../../XRayAnalysis/XRayUtils.h"
 
-void SiL3_FinalPlot_RawSpectrum_RecoilComparison(std::string savedir = "") {
+void SiL3_FinalPlot_RawSpectrum_RecoilComparison(std::string savedir = "", std::ostream& numbers_file = std::cout) {
 
+  numbers_file << "% SiL3_FinalPlot_RawSpectrum_RecoilComparison.C" << std::endl;
+  
   TCanvas* c_FoldedSpectrum = new TCanvas("c_FoldedSpectrum", "c_FoldedSpectrum");
   c_FoldedSpectrum->SetLogy();
   
+  // const int n_spectra = 7;
+  // std::string settings[n_spectra] = {"noRecoil", "nuRecoil", "pRecoil", "dRecoil", "tRecoil", "aRecoil", "allRecoil"};
+  // std::string leglabels[n_spectra] = {"no recoil", "#nu recoil", "p recoil", "d recoil", "t recoil", "#alpha recoil", "combined recoil"};
+  // Int_t colours[n_spectra] = {kBlack, kRed, kCyan, kMagenta, kSpring, kBlue, kSpring+7};
+
   const int n_spectra = 6;
   std::string settings[n_spectra] = {"noRecoil", "pRecoil", "dRecoil", "tRecoil", "aRecoil", "allRecoil"};
   std::string leglabels[n_spectra] = {"no recoil", "p recoil", "d recoil", "t recoil", "#alpha recoil", "combined recoil"};
   Int_t colours[n_spectra] = {kBlack, kRed, kCyan, kMagenta, kSpring, kBlue};
 
+  
   TLegend* leg = new TLegend(0.40,0.55,0.80,0.85);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.035);
@@ -41,6 +49,8 @@ void SiL3_FinalPlot_RawSpectrum_RecoilComparison(std::string savedir = "") {
     hFoldedSpectrum->SetStats(false);
     hFoldedSpectrum->GetXaxis()->SetRangeUser(0, 30000);
     hFoldedSpectrum->SetLineColor(colours[i_spectra]);
+    hFoldedSpectrum->GetXaxis()->SetTitleOffset(0.9);
+    hFoldedSpectrum->GetYaxis()->SetTitleOffset(0.9);
 
     std::stringstream axislabel;
     axislabel << "Counts / " << hFoldedSpectrum->GetBinWidth(1) << " keV";
@@ -53,6 +63,12 @@ void SiL3_FinalPlot_RawSpectrum_RecoilComparison(std::string savedir = "") {
     leglabel << leglabels[i_spectra];
     if (recoil_fraction>0) {
       leglabel << " (" << std::fixed << std::setprecision(1) << recoil_fraction*100 << "%)";
+      if (i_setting == "allRecoil") {
+	numbers_file << std::fixed << std::setprecision(1) << "\\newcommand\\allRecoil{$" << recoil_fraction*100 << "\\%$}" << std::endl;
+      }
+    }
+    else if (recoil_fraction<0) {
+      leglabel << " (" << recoil_fraction << " keV)";
     }
     leg->AddEntry(hFoldedSpectrum, leglabel.str().c_str(), "l");
 
@@ -81,5 +97,5 @@ void SiL3_FinalPlot_RawSpectrum_RecoilComparison(std::string savedir = "") {
     std::string pngname = savename + ".png";
     c_FoldedSpectrum->SaveAs(pngname.c_str());
   }
-
+  numbers_file << std::endl;
 }

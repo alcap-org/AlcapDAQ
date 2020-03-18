@@ -58,7 +58,9 @@ void SiL3_FinalPlot_DecayElectronCorrection(std::string savedir = "") {
     raw_spectrum->SetStats(false);
     raw_spectrum->GetXaxis()->SetRangeUser(0,30000);
     raw_spectrum->SetLineColor(colours[i_slice]);
-    
+    raw_spectrum->GetXaxis()->SetTitleOffset(0.9);
+    raw_spectrum->GetYaxis()->SetTitleOffset(0.9);
+
     std::stringstream axislabel;
     axislabel << "Counts / " << raw_spectrum->GetBinWidth(1) << " keV";
     raw_spectrum->SetYTitle(axislabel.str().c_str());

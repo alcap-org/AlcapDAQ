@@ -1,6 +1,6 @@
 void Si16b_FinalPlot_TwoLayer_Lifetime(std::string savedir = "") {
 
-  std::string infilename = "~/data/results/Si16b/lifetime_newPP_geq1TgtPulse.root";
+  std::string infilename = "~/data/results/Si16b/lifetime_newPP_geq1TgtPulse_3sigma.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
 
   TCanvas* c_time = new TCanvas("c_time", "c_time");
@@ -36,6 +36,8 @@ void Si16b_FinalPlot_TwoLayer_Lifetime(std::string savedir = "") {
     hTime->SetLineColor(colours[i_particle]);
     hTime->SetMarkerColor(colours[i_particle]);
     hTime->GetXaxis()->SetRangeUser(0, 10000);
+    hTime->GetXaxis()->SetTitleOffset(0.9);
+    hTime->GetYaxis()->SetTitleOffset(0.9);
     hTime->Draw("P E SAME");
 
     TF1* fit = (TF1*) infile->Get(fitname.c_str());
@@ -50,7 +52,9 @@ void Si16b_FinalPlot_TwoLayer_Lifetime(std::string savedir = "") {
 
     alcaphistogram(hTime);
     if (i_particle == 0) {
-      alcapPreliminary(hTime);
+      //      alcapPreliminary(hTime);
+      TLatex* latex = new TLatex();
+      latex->DrawLatexNDC(0.25, 0.8, "AlCap #it{#bf{Preliminary}}");
     }
     else {
       hTime->SetDrawOption("E1 SAME");

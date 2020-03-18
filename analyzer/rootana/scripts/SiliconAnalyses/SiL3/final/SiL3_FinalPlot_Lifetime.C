@@ -1,5 +1,7 @@
-void SiL3_FinalPlot_Lifetime(std::string savedir = "") {
+void SiL3_FinalPlot_Lifetime(std::string savedir = "", std::ostream& numbers_file = std::cout) {
 
+  numbers_file << "% SiL3_FinalPlot_Lifetime.C" << std::endl;
+  
   std::string infilename = "~/data/results/SiL3/lifetime_geq2TgtPulse_newPP20us.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
 
@@ -13,7 +15,8 @@ void SiL3_FinalPlot_Lifetime(std::string savedir = "") {
   double max_energy_cut = 30500;
   double energy_cut_step = 30500;
   std::stringstream energy_cut_str;
-
+  bool written_to_numbers_file = false;
+  
   for (int i_energy_cut = 0; i_energy_cut < n_energy_cuts; ++i_energy_cut) {
     double min_energy_cut = min_energy_cuts[i_energy_cut];
 
@@ -56,10 +59,16 @@ void SiL3_FinalPlot_Lifetime(std::string savedir = "") {
 	  hLifetime->SetMaximum(2e7);
 	  hLifetime->GetFunction("muonic_atom_lifetime")->SetBit(TF1::kNotDraw);
 	  hLifetime->Draw("HIST E");
-
+	  hLifetime->GetXaxis()->SetTitleOffset(0.9);
+	  hLifetime->GetYaxis()->SetTitleOffset(0.9);
 
 	  alcaphistogram(hLifetime);
-	  alcapPreliminary(hLifetime);
+	  //	  alcapPreliminary(hLifetime);
+	  TLatex* latex = new TLatex();
+	  latex->SetTextAlign(22);
+	  latex->DrawLatexNDC(0.4, 0.8, "AlCap #bf{#it{Preliminary}}");
+	  std::string text = "E > " + cut_str.str() + " keV";
+	  latex->DrawLatexNDC(0.4, 0.7, text.c_str());
 	  hLifetime->SetDrawOption("HIST E");
 	}
 
@@ -68,6 +77,14 @@ void SiL3_FinalPlot_Lifetime(std::string savedir = "") {
 	double min_range, max_range;
 	fit->GetRange(min_range, max_range);
 	std::cout << "AE: " << min_range << ", " << max_range << std::endl;
+	if (!written_to_numbers_file) {
+	  numbers_file << "\\newcommand\\SiLTimeFitStart{\\SI{" << min_range << "}{\\nano\\second}}" << std::endl;
+	  numbers_file << "\\newcommand\\SiLTimeFitEnd{\\SI{" << max_range << "}{\\nano\\second}}" << std::endl;
+	  numbers_file << "\\newcommand\\SiLTimeFitIgnoreStart{\\SI{" << fit->GetParameter(0) << "}{\\nano\\second}}" << std::endl;
+	  numbers_file << "\\newcommand\\SiLTimeFitIgnoreEnd{\\SI{" << fit->GetParameter(1) << "}{\\nano\\second}}" << std::endl;
+	  written_to_numbers_file = true;
+	}
+
 	TF1* draw_fit = new TF1("draw_fit", "[0]*TMath::Exp(-x/[1]) + [2]", min_range, max_range);
 	draw_fit->SetParameters(fit->GetParameter(2), fit->GetParameter(3), fit->GetParameter(4));
 	draw_fit->SetLineColor(fit_colour);
@@ -164,4 +181,5 @@ void SiL3_FinalPlot_Lifetime(std::string savedir = "") {
       c_Lifetime->SaveAs(pngname.c_str());
     }
   }
+  numbers_file << std::endl;
 }

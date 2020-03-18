@@ -1,17 +1,21 @@
 void SiL3_FinalPlot_ResponseMatrix_Systematics(std::string savedir = "") {
 
   
-  std::string infilename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
+  std::string infilename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
 
-  const int n_particles = 3;
-  std::string particles[n_particles] = {"Combined", "CombinedLow", "CombinedHigh"};
+  const int n_particles = 2;
+  std::string particles[n_particles] = {"lowAllRecoil", "highAllRecoil"};
+  std::string labels[n_particles] = {"\"low\" scenario", "\"high\" scenario"};
 
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     std::string particle = particles[i_particle];
-    std::string inhistname = particle + "Escape_TimeSlice2000_4000_allRecoil/hResponseMatrix";
+    std::string inhistname = "CombinedEscape_TimeSlice2000_4000_" + particle + "_allRecoilSyst/hResponseMatrix";
   
     TH2F* hResponseMatrix = (TH2F*) infile->Get(inhistname.c_str());
+    if (!hResponseMatrix) {
+      std::cout << "Can't find histogram " << inhistname << std::endl;
+    }
 
     TCanvas* c_Response = new TCanvas();
     c_Response->SetLogz();
@@ -26,8 +30,12 @@ void SiL3_FinalPlot_ResponseMatrix_Systematics(std::string savedir = "") {
     hResponseMatrix->Draw("COLZ");
 
     alcaphistogram(hResponseMatrix);
-    alcapSimulation(hResponseMatrix);
-    alcaplabel(particle, hResponseMatrix);
+    //    alcapSimulation(hResponseMatrix);
+    //    alcaplabel(particle, hResponseMatrix);
+    TLatex* latex = new TLatex();
+    latex->SetTextAlign(22);
+    latex->DrawLatexNDC(0.7, 0.5, "AlCap #bf{#it{Simulation}}");
+    latex->DrawLatexNDC(0.7, 0.45, labels[i_particle].c_str());
     hResponseMatrix->SetDrawOption("COLZ");
 
     if (savedir != "") {
@@ -37,7 +45,6 @@ void SiL3_FinalPlot_ResponseMatrix_Systematics(std::string savedir = "") {
       c_Response->SaveAs(pngname.c_str());
     }
     
-    TLatex* latex = new TLatex();
     //  latex->DrawLatexNDC(0.55, 0.45, "AlCap Monte Carlo");
 
     TCanvas* c_MeasAndTrue = new TCanvas();

@@ -1,3 +1,6 @@
+#ifndef Unfold_ResponseMatrix_
+#define Unfold_ResponseMatrix_
+
 #include "TFile.h"
 #include "TTree.h"
 #include "TH2.h"
@@ -26,6 +29,7 @@ struct Unfold_ResponseMatrixArgs {
   int rebin_factor; // to get the folded spectrum to match the binning of the response matrix
 
   std::string method;
+  int reg_parameter; // either the number of iterations for Bayes, or the regularisation parameter for SVD
 };
 
 void printIntegrals(TH1D* hUnfolded);
@@ -115,10 +119,10 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
 
   RooUnfold* unfold = 0;
   if (args.method == "bayes") {
-    unfold = new RooUnfoldBayes(response, folded_spectrum);
+    unfold = new RooUnfoldBayes(response, folded_spectrum, args.reg_parameter);
   }
   else if (args.method == "svd") {
-    unfold = new RooUnfoldSvd(response, folded_spectrum);
+    unfold = new RooUnfoldSvd(response, folded_spectrum, args.reg_parameter);
   }
   else if (args.method == "bin-by-bin") {
     unfold = new  RooUnfoldBinByBin(response, folded_spectrum);
@@ -200,3 +204,4 @@ void printIntegrals(TH1D* hUnfolded) {
   integral_bin_high = hUnfolded->FindBin(integral_high);
   std::cout << integral_low << " -- " << integral_high << " keV: Integral = " << hUnfolded->Integral(integral_bin_low, integral_bin_high) << std::endl;
 }
+#endif

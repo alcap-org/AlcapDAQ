@@ -13,6 +13,8 @@ void Si16b_FinalPlot_Budyashov(std::string savedir = "") {
   axis_gre->SetTitle("Budyashov et al.");
   axis_gre->GetXaxis()->SetTitle("Energy [keV]");
   axis_gre->GetYaxis()->SetTitle("Counts per Muon Capture per keV");
+  axis_gre->GetXaxis()->SetTitleOffset(0.9);
+  axis_gre->GetYaxis()->SetTitleOffset(0.9);
   
 
 
@@ -26,8 +28,9 @@ void Si16b_FinalPlot_Budyashov(std::string savedir = "") {
 
   TGraphErrors* Budyashov_gre_proton = (TGraphErrors*) Budyashov_file->Get("proton");
   Budyashov_gre_proton->SetMarkerColor(kRed);
-  Budyashov_gre_proton->SetMarkerStyle(7);
+  Budyashov_gre_proton->SetMarkerStyle(kFullTriangleUp);
   Budyashov_gre_proton->SetLineColor(kRed);
+  Budyashov_gre_proton->SetLineWidth(2);
   Budyashov_gre_proton->Draw("PE SAME");
   Budyashov_gre_proton->SetTitle("Charged Particle Emission");
   Budyashov_gre_proton->GetXaxis()->SetRangeUser(0,26000);
@@ -37,8 +40,9 @@ void Si16b_FinalPlot_Budyashov(std::string savedir = "") {
 
   TGraphErrors* Budyashov_gre_deuteron = (TGraphErrors*) Budyashov_file->Get("deuteron");
   Budyashov_gre_deuteron->SetMarkerColor(kCyan);
-  Budyashov_gre_deuteron->SetMarkerStyle(7);
+  Budyashov_gre_deuteron->SetMarkerStyle(kFullTriangleUp);
   Budyashov_gre_deuteron->SetLineColor(kCyan);
+  Budyashov_gre_deuteron->SetLineWidth(2);
   Budyashov_gre_deuteron->Draw("PE SAME");
   Budyashov_gre_deuteron->SetTitle("Charged Particle Emission");
   Budyashov_gre_deuteron->GetXaxis()->SetRangeUser(0,26000);
@@ -48,8 +52,9 @@ void Si16b_FinalPlot_Budyashov(std::string savedir = "") {
 
   TGraphErrors* Budyashov_gre = (TGraphErrors*) Budyashov_file->Get("sum");
   Budyashov_gre->SetMarkerColor(kBlack);
-  Budyashov_gre->SetMarkerStyle(7);
+  Budyashov_gre->SetMarkerStyle(kFullTriangleUp);
   Budyashov_gre->SetLineColor(kBlack);
+  Budyashov_gre->SetLineWidth(2);
   Budyashov_gre->Draw("PE SAME");
   Budyashov_gre->SetTitle("Charged Particle Emission");
   Budyashov_gre->GetXaxis()->SetRangeUser(0,x_max);

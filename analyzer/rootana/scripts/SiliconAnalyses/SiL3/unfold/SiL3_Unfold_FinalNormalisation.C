@@ -1,3 +1,6 @@
+#ifndef SiL3_Unfold_FinalNormalisation_
+#define SiL3_Unfold_FinalNormalisation_
+
 #include "../../Utils/Unfold_FinalNormalisation.C"
 
 void SiL3_Unfold_FinalNormalisation(std::string infilename, std::string inhistname, std::string countfilename, std::string counttreename, std::string outfilename, std::string outdirname) {
@@ -8,12 +11,22 @@ void SiL3_Unfold_FinalNormalisation(std::string infilename, std::string inhistna
 
 
   args.outfilename = outfilename;
-  args.outdirname = outdirname;
   
   args.countfilename = countfilename;
   args.counttreename = counttreename;
   args.capture_fraction = 0.658;
 
+  args.outdirname = outdirname + "_100keVBins";
   args.rebin_factor = 1;
   Unfold_FinalNormalisation(args);
+
+  args.outdirname = outdirname + "_200keVBins";
+  args.rebin_factor = 2;
+  Unfold_FinalNormalisation(args);
+
+  args.outdirname = outdirname + "_500keVBins";
+  args.rebin_factor = 5;
+  Unfold_FinalNormalisation(args);
 }
+
+#endif

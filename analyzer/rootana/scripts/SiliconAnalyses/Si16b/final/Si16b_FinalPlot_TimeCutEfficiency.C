@@ -1,4 +1,4 @@
-void Si16b_FinalPlot_TimeCutEfficiency(std::string savedir = "") {
+void Si16b_FinalPlot_TimeCutEfficiency(std::string savedir = "", std::ostream& numbers_file = std::cout) {
 
   double min_total_time = -1000;
   double max_total_time = 10000;
@@ -66,6 +66,10 @@ void Si16b_FinalPlot_TimeCutEfficiency(std::string savedir = "") {
   double total_eff_error = std::sqrt( (total_eff*(1-total_eff)) / total_denom );
   std::cout << "total: time cut efficiency = " << total_eff << " +/- " << total_eff_error << std::endl;
 
+  numbers_file << "% From Si16b_FinalPlot_TimeCutEfficiency.C" << std::endl;
+  numbers_file << "\\newcommand\\SibTimeCutEff{$" << std::fixed << std::setprecision(3) << total_eff << " \\pm " << total_eff_error << "$}" << std::endl;
+  numbers_file << std::endl;
+
   TCanvas* c_time = new TCanvas("c_time", "c_time");
   c_time->SetLogy(1);
 
@@ -78,6 +82,8 @@ void Si16b_FinalPlot_TimeCutEfficiency(std::string savedir = "") {
   axistitle.str("");
   axistitle << "Count / " << hTotal->GetXaxis()->GetBinWidth(1) << " ns";
   hTotal->SetYTitle(axistitle.str().c_str());
+  hTotal->GetXaxis()->SetTitleOffset(0.9);
+  hTotal->GetYaxis()->SetTitleOffset(0.9);
   hTotal->Draw("HIST E");
 
   TLine* min_total_line = new TLine(min_total_time, 0, min_total_time, hTotal->GetMaximum());

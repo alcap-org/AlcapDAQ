@@ -1,6 +1,6 @@
 #include "../../../XRayAnalysis/XRayUtils.h"
 
-void SiL3_FinalPlot_XRaySpectrum_wFit(std::string savedir = "") {
+void SiL3_FinalPlot_XRaySpectrum_wFit(std::string savedir = "", std::ostream& numbers_file = std::cout) {
 
   const int n_ge_channels = 2;
   std::string ge_channels[n_ge_channels] = {"GeLoGain", "GeHiGain"};
@@ -8,6 +8,7 @@ void SiL3_FinalPlot_XRaySpectrum_wFit(std::string savedir = "") {
   int transition_starts[n_transitions] = {2, 3};
   double fit_bin_widths[n_transitions] = {0.5, 0.5};
 
+  numbers_file << "% From SiL3_FinalPlot_XRaySpectrum_wFit.C" << std::endl;
   for (int i_transition = 0; i_transition < n_transitions; ++i_transition) {
     XRay xray;
     std::stringstream text;
@@ -46,30 +47,33 @@ void SiL3_FinalPlot_XRaySpectrum_wFit(std::string savedir = "") {
 
       std::string canvasname = "c_XRaySpectrum_" + ge_channel;
       TCanvas* c_XRaySpectrum = new TCanvas(canvasname.c_str(), canvasname.c_str());
-      c_XRaySpectrum->SetLogy();
-      hXRaySpectrum->Rebin(4);
+      //      c_XRaySpectrum->SetLogy();
+      hXRaySpectrum->Rebin(2);
       //  hXRaySpectrum->SetLineColor(kBlue);
       std::string histtitle = "SiL3 Dataset, Full X-Ray Spectrum (" + ge_channel + ")";
       hXRaySpectrum->SetTitle(histtitle.c_str());
       hXRaySpectrum->SetStats(false);
-      hXRaySpectrum->GetXaxis()->SetRangeUser(250, 1200);
-      hXRaySpectrum->SetMaximum(3e4);
-
+      //      hXRaySpectrum->GetXaxis()->SetRangeUser(250, 1200);
+      hXRaySpectrum->SetMaximum(6e3);
+      
       std::stringstream axislabel;
       axislabel.str("");
       axislabel << "Counts / " << hXRaySpectrum->GetBinWidth(1) << " keV";
       hXRaySpectrum->SetYTitle(axislabel.str().c_str());
       hXRaySpectrum->GetYaxis()->SetTitleOffset(0.9);
-      hXRaySpectrum->Draw("HIST E");
 
+      hXRaySpectrum->Draw("HIST E");
       alcaphistogram(hXRaySpectrum);
       alcapPreliminary(hXRaySpectrum);
       hXRaySpectrum->SetLineWidth(1);
       hXRaySpectrum->SetDrawOption("HIST E");
-      alcaplabel(ge_channel, hXRaySpectrum);
+      //      alcaplabel(ge_channel, hXRaySpectrum);
 
+      hXRaySpectrum->SetMaximum(7e3);
 
       TLatex* latex = new TLatex();
+      latex->DrawLatexNDC(0.17, 0.72, ge_channel.c_str());
+
       //  latex->DrawLatexNDC(0.50, 0.70, "AlCap Preliminary");
       //  latex->SetTextAngle(45);
       //      latex->DrawLatexNDC(0.15, 0.20, "AlCap Preliminary");
@@ -97,14 +101,14 @@ void SiL3_FinalPlot_XRaySpectrum_wFit(std::string savedir = "") {
 	arrow->Draw();
 
 	text.str("");
-	text << "#splitline{     " << transition_str.str() << "}{(" << xray.energy << " keV)}";
+	text << "#splitline{     " << std::fixed << std::setprecision(3) << transition_str.str() << "}{(" << xray.energy << " keV)}";
 	latex->SetTextAlign(21);
 	latex->SetTextSize(0.03);
 	latex->DrawLatex(xray.energy, arrow_y_start+100, text.str().c_str());
       }
 
       TPad* inset_pad = new TPad("inset", "inset", 0.40, 0.37, 0.87, 0.87);
-      //      inset_pad->SetFillStyle(0);
+      inset_pad->SetLineStyle(0);
       inset_pad->SetFillColor(kWhite);
       inset_pad->Draw();
       inset_pad->cd();
@@ -126,11 +130,37 @@ void SiL3_FinalPlot_XRaySpectrum_wFit(std::string savedir = "") {
       //    std::cout << "AE: status = " << result->status() << std::endl;
       Eframe->Draw();
 
+      double n_xrays = 0;
+      double n_xrays_error = 0;
       double n_stopped_muons = 0;
       double n_stopped_muons_error = 0;
+      counttree->SetBranchAddress("xray_count", &n_xrays);
+      counttree->SetBranchAddress("xray_count_error", &n_xrays_error);
       counttree->SetBranchAddress("n_stopped_muons", &n_stopped_muons);
       counttree->SetBranchAddress("n_stopped_muons_error", &n_stopped_muons_error);
       counttree->GetEntry(0);
+
+      double capture_fraction = 0.658;
+      double n_captured_muons = n_stopped_muons * capture_fraction;
+      double n_captured_muons_error = (n_stopped_muons_error / n_stopped_muons) * n_captured_muons;
+
+      numbers_file << "\\newcommand\\SiL" << ge_channel << "NXRays";
+      if (transition_start > 2) {
+	numbers_file << "Alternate";
+      }
+      numbers_file << std::fixed << std::setprecision(0) << "{$" << n_xrays << " \\pm " << n_xrays_error << "$}" << std::endl;
+      
+      numbers_file << "\\newcommand\\SiL" << ge_channel << "NStoppedMuons";
+      if (transition_start > 2) {
+	numbers_file << "Alternate";
+      }
+      numbers_file << std::fixed << std::setprecision(1) << "{$(" << n_stopped_muons/1e6 << " \\pm " << std::setprecision(1) << n_stopped_muons_error/1e6 << ") \\times 10^{6}$}" << std::endl;;
+      numbers_file << "\\newcommand\\SiL" << ge_channel << "NCapturedMuons";
+      if (transition_start > 2) {
+	numbers_file << "Alternate";
+      }
+      numbers_file << std::fixed << std::setprecision(1) << "{$(" << n_captured_muons/1e6 << " \\pm " << std::setprecision(1) << n_captured_muons_error/1e6 << ") \\times 10^{6}$}" << std::endl;
+      
       TLatex* count = new TLatex();
       //    count->SetTextAlign(22);
       text.str("");
@@ -143,12 +173,12 @@ void SiL3_FinalPlot_XRaySpectrum_wFit(std::string savedir = "") {
       std::cout << text.str() << std::endl;
       count->DrawLatexNDC(0.60, 0.7, text.str().c_str());
     
-      TCanvas* c2 = new TCanvas();
-      RooHist* pull = Eframe->pullHist();
-      RooPlot* pull_frame = (ws->var("edep"))->frame();
-      pull_frame->addPlotable(pull, "P");
-      pull_frame->Draw(); 
-      std::cout << Eframe->chiSquare() << std::endl;
+      // TCanvas* c2 = new TCanvas();
+      // RooHist* pull = Eframe->pullHist();
+      // RooPlot* pull_frame = (ws->var("edep"))->frame();
+      // pull_frame->addPlotable(pull, "P");
+      // pull_frame->Draw(); 
+      // std::cout << Eframe->chiSquare() << std::endl;
     
       if (savedir != "") {
 	std::string savename = savedir + "AlCapData_SiL3Dataset_FullXRaySpectrum_" + ge_channel;
@@ -164,4 +194,5 @@ void SiL3_FinalPlot_XRaySpectrum_wFit(std::string savedir = "") {
       }
     }
   }
+  numbers_file << std::endl;
 }

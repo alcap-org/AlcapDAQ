@@ -1,4 +1,4 @@
-void Si16b_FinalPlot_TwoLayer_TDiff(std::string savedir = "") {
+void Si16b_FinalPlot_TwoLayer_TDiff(std::string savedir = "", std::ostream& numbers_file = std::cout) {
   
   std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
@@ -92,6 +92,8 @@ void Si16b_FinalPlot_TwoLayer_TDiff(std::string savedir = "") {
     
     hLayerTDiff->SetTitle(histtitle.c_str());
     hLayerTDiff->SetStats(false);
+    hLayerTDiff->GetYaxis()->SetTitleOffset(0.9);
+    hLayerTDiff->GetXaxis()->SetTitleOffset(0.9);
     hLayerTDiff->Draw("HIST E");
 
     alcaphistogram(hLayerTDiff);
@@ -131,8 +133,16 @@ void Si16b_FinalPlot_TwoLayer_TDiff(std::string savedir = "") {
       fit_fn->Draw("LSAME");
       
       leglabel.str("");
-      leglabel << "#splitline{" << fit_names[i_fit_fn] << std::fixed << std::setprecision(0) << "}{#splitline{#chi^2 / ndf = " << fit_fn->GetChisquare() << " / " << fit_fn->GetNDF() << ", #sigma = " << fit_fn->GetParameter(2) << " ns}{#splitline{Eff (from fit) = " << std::setprecision(4) << fraction_from_fit << " #pm " << fraction_from_fit_err << "}{Eff (from hist) = " << std::setprecision(4) << fraction_from_hist << " #pm " << fraction_from_hist_err << "}}}";
+      //      leglabel << "#splitline{" << fit_names[i_fit_fn] << std::fixed << std::setprecision(0) << "}{#splitline{#chi^2 / ndf = " << fit_fn->GetChisquare() << " / " << fit_fn->GetNDF() << ", #sigma = " << fit_fn->GetParameter(2) << " ns}{#splitline{Eff (from fit) = " << std::setprecision(4) << fraction_from_fit << " #pm " << fraction_from_fit_err << "}{Eff (from hist) = " << std::setprecision(4) << fraction_from_hist << " #pm " << fraction_from_hist_err << "}}}";
+      leglabel << "#splitline{" << fit_names[i_fit_fn] << std::fixed << std::setprecision(0) << "}{#splitline{#chi^2 / ndf = " << fit_fn->GetChisquare() << " / " << fit_fn->GetNDF() << ", #sigma = " << fit_fn->GetParameter(2) << " ns}{Efficiency = " << std::setprecision(4) << fraction_from_fit << " #pm " << fraction_from_fit_err << "}}";
       leg->AddEntry(fit_fn, leglabel.str().c_str(), "l");
+
+      if (particle == "total") {
+	numbers_file << "% From Si16b_FinalPlot_TwoLayer_TDiff.C" << std::endl;
+	numbers_file << "\\newcommand\\SibLayerCoincEffFit{$" << std::setprecision(4) << fraction_from_fit << " \\pm " << fraction_from_fit_err << "$}" << std::endl;
+	numbers_file << "\\newcommand\\SibLayerCoincEffHist{$" << std::setprecision(4) << fraction_from_hist << " \\pm " << fraction_from_hist_err << "$}" << std::endl;
+	numbers_file << std::endl;
+      }
     }
     leg->Draw();
     

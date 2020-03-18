@@ -37,15 +37,18 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
   //  Setting deuterons("deuteron", "~/data/results/Si16b/cuts_new_threelayer.root", "deuteron_cut", deuteron);
   //  Setting tritons("triton", "~/data/results/Si16b/cuts_new_threelayer.root", "triton_cut", triton);
   //  Setting alphas("alpha", "~/data/results/Si16b/cuts_new_threelayer.root", "alpha_cut", alpha);
-  Setting protons("proton", "~/data/results/Si16b/mark-al50-cuts-keV.root", "hLg_SiR_EvDeltaE_proton_1sigma_keV", proton);
-  Setting deuterons("deuteron", "~/data/results/Si16b/mark-al50-cuts-keV.root", "hLg_SiR_EvDeltaE_deuteron_1sigma_keV", deuteron);
-  Setting tritons("triton", "~/data/results/Si16b/mark-al50-cuts-keV.root", "hLg_SiR_EvDeltaE_triton_1sigma_keV", triton);
-  Setting alphas("alpha", "~/data/results/Si16b/new_alpha_cut_9MeV.root", "alpha_cut", alpha);
+  Setting protons("proton", "~/data/results/Si16b/mark-si16b-cuts-keV.root", "r_hLg_SiR_EvDeltaE_proton_3sigma_keV", proton);
+  Setting deuterons("deuteron", "~/data/results/Si16b/mark-si16b-cuts-keV.root", "r_hLg_SiR_EvDeltaE_deuteron_3sigma_keV", deuteron);
+  Setting tritons("triton", "~/data/results/Si16b/mark-si16b-cuts-keV.root", "r_hLg_SiR_EvDeltaE_triton_3sigma_keV", triton);
+  Setting alphas("alpha", "~/data/results/Si16b/mark-si16b-cuts-keV.root", "r_hLg_SiR_EvDeltaE_alpha_3sigma_keV", alpha);
+  //  Setting alphas("alpha", "~/data/results/Si16b/new_alpha_cut_9MeV.root", "alpha_cut", alpha);
   Setting muspot_both("muspot_both", "~/data/results/Si16b/cut_muon-spots.root", "both");
   Setting muspot_lower("muspot_lower", "~/data/results/Si16b/cut_muon-spots.root", "lower");
   Setting muspot_upper("muspot_upper", "~/data/results/Si16b/cut_muon-spots.root", "upper");
   //  Setting protons3L("proton3L", "~/data/results/Si16b/cuts_new_threelayer.root", "proton_cut", proton);
-  Setting protons3L("proton3L", "~/data/results/Si16b/proton_cut_threelayer.root", "proton_cut", proton);
+  //  Setting protons3L("proton3L", "~/data/results/Si16b/proton_cut_threelayer.root", "proton_cut", proton);
+  //  Setting protons3L("proton3L", "~/data/results/Si16b/mark-al50-sir3-cuts-keV.root", "r_sir3_hLg_SiR_EvDeltaE_proton_3sigma_keV", proton);
+  Setting protons3L("proton3L", "~/data/results/Si16b/mark-si16b-sir3-cuts-keV.root", "r_sir3_hLg_SiR_EvDeltaE_proton_3sigma_keV", proton);
   std::vector<Setting> settings;
   settings.push_back(all);
   //  settings.push_back(all_proton);
@@ -54,10 +57,10 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
   settings.push_back(tritons);
   settings.push_back(alphas);
   settings.push_back(protons3L);
-  //  settings.push_back(muspot_both);
-  //  args.debug = true;
-  //  settings.push_back(muspot_lower);
-  //  settings.push_back(muspot_upper);
+  // //  settings.push_back(muspot_both);
+  // //  args.debug = true;
+  // //  settings.push_back(muspot_lower);
+  // //  settings.push_back(muspot_upper);
 
   const int n_timecuts = 7;
   double min_timecuts[n_timecuts] = {0, 200, 400, 600, 800, 1000, 2000};

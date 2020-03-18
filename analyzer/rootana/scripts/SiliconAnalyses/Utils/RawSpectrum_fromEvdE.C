@@ -21,6 +21,7 @@ struct RawSpectrum_fromEvdEArgs {
   std::string outdirname;
 
   bool projection_x;
+  double max_energy_cutoff;
 };
 
 void RawSpectrum_fromEvdE(RawSpectrum_fromEvdEArgs& args) {
@@ -77,6 +78,15 @@ void RawSpectrum_fromEvdE(RawSpectrum_fromEvdEArgs& args) {
       //      std::cout << "AE: DEBUG: raw_spectrum (after addition): " << raw_spectrum->GetBinContent(debug_bin) << " +/- " << raw_spectrum->GetBinError(debug_bin) << std::endl;
     }
   }
+
+  for (int i_bin = 1; i_bin <= raw_spectrum->GetNbinsX(); ++i_bin) {
+    double bin_centre = raw_spectrum->GetBinCenter(i_bin);
+    if (bin_centre > args.max_energy_cutoff) {
+      raw_spectrum->SetBinContent(i_bin, 0);
+      raw_spectrum->SetBinError(i_bin, 0);
+    }
+  }
+  
   double integral_low = 0;
   double integral_high = 10000;
   int integral_bin_low = raw_spectrum->FindBin(integral_low);

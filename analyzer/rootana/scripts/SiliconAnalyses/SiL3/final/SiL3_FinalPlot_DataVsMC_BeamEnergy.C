@@ -1,16 +1,17 @@
-void SiL3_FinalPlot_DataVsMC_BeamEnergy() {
+void SiL3_FinalPlot_DataVsMC_BeamEnergy(std::string savedir = "") {
 
   const int n_runs = 1;
   int run_numbers[n_runs] = {9040}; // want to do all runs individually
   double scale_factors[n_runs] = {1.12};
 
-  const int n_settings = 2;
-  std::string prefilenames[n_settings] = {"~/data/results/SiL3/raw_spectra", "~/data/mc/SiL3/MC_raw_spectra"};
-  std::string postfilenames[n_settings] = {"_geq0TgtPulse_newPP20us.root", ".root"};
-  std::string leglabels[n_settings] = {"Data", "MC"};
-  Int_t colours[n_settings] = {kBlack, kRed};
+  const int n_settings = 4;
+  std::string prefilenames[n_settings] = {"~/data/results/SiL3/raw_spectra", "~/data/mc/SiL3/MC_raw_spectra", "~/data/mc/SiL3/MC_raw_spectra", "~/data/mc/SiL3/MC_raw_spectra"};
+  //  std::string postfilenames[n_settings] = {"_geq0TgtPulse_newPP20us.root", ".root"};
+  std::string postfilenames[n_settings] = {"_geq1TgtPulse_newPP20us.root", "09040_nominal.root", "09040_lowerE.root", "09040_higherE.root"};
+  std::string leglabels[n_settings] = {"Data", "MC (nominal)", "MC (lowerE)", "MC (higherE)"};
+  Int_t colours[n_settings] = {kBlack, kRed, kBlue, kMagenta};
   
-  TLegend* leg = new TLegend(0.40,0.45,0.80,0.75);
+  TLegend* leg = new TLegend(0.20,0.45,0.40,0.75);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.03);
   leg->SetFillStyle(0);
@@ -25,8 +26,10 @@ void SiL3_FinalPlot_DataVsMC_BeamEnergy() {
   std::string plot_names[n_plots] = {"all thick hits"};
   std::string xaxis_labels[n_plots] = {"SiL3 Energy [keV]"};
 
-  int rebin_factors[n_plots][n_settings] = { {1, 2}  };
-  const char* inhistnames[n_plots][n_settings] = { { "SiL3_ActiveTarget_TimeSlice-200_200/hRawSpectrum", "hThickEnergy_noVeto_SiL" }  };
+  //  int rebin_factors[n_plots][n_settings] = { {1, 2}  };
+  //  const char* inhistnames[n_plots][n_settings] = { { "SiL3_ActiveTarget_TimeSlice-200_200/hRawSpectrum", "hThickEnergy_noVeto_SiL" }  };
+  int rebin_factors[n_plots][n_settings] = { {1, 1, 1, 1}  };
+  const char* inhistnames[n_plots][n_settings] = { { "SiL3_ActiveTarget_TimeSlice-200_200/hRawSpectrum", "hEDep_beam", "hEDep_beam", "hEDep_beam" }  };
 
   std::stringstream run_str, sf_str, axislabel;
   for (int i_run = 0; i_run < n_runs; ++i_run) {
@@ -42,7 +45,8 @@ void SiL3_FinalPlot_DataVsMC_BeamEnergy() {
       std::cout << "New Canvas for plot " << plot_names[i_plot] << std::endl;
       for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
 
-	std::string infilename = prefilenames[i_setting] + run_str.str() + postfilenames[i_setting];
+	//	std::string infilename = prefilenames[i_setting] + run_str.str() + postfilenames[i_setting];
+	std::string infilename = prefilenames[i_setting] + postfilenames[i_setting];
 	TFile* infile = new TFile(infilename.c_str(), "READ");
 	if (infile->IsZombie()) {
 	  std::cout << "ERROR: Can't find file " << infilename << std::endl;
@@ -65,6 +69,8 @@ void SiL3_FinalPlot_DataVsMC_BeamEnergy() {
 	hEnergy->SetLineColor(colours[i_setting]);
 	hEnergy->SetLineStyle(1);
 	hEnergy->GetXaxis()->SetTitle(xaxis_labels[i_plot].c_str());
+	hEnergy->GetXaxis()->SetTitleOffset(0.9);
+	hEnergy->GetYaxis()->SetTitleOffset(0.9);
 	hEnergy->Rebin(rebin_factors[i_plot][i_setting]);
 	hEnergy->Scale(1.0 / hEnergy->GetMaximum());
 	hEnergy->GetXaxis()->SetRangeUser(0,7500);
@@ -76,6 +82,14 @@ void SiL3_FinalPlot_DataVsMC_BeamEnergy() {
 	hEnergy->Draw("HIST E SAME");
       }
       leg->Draw();
+
+      if (savedir != "") {
+	std::string savename = savedir + "AlCapDataVsMC_SiL3Dataset_BeamEnergy_MuonStopSystematic";
+	std::string pdfname = savename + ".pdf";
+	c->SaveAs(pdfname.c_str());
+	std::string pngname = savename + ".png";
+	c->SaveAs(pngname.c_str());
+      }
     }
   }
 }

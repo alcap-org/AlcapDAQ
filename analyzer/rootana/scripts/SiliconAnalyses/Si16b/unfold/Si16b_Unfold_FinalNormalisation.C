@@ -1,3 +1,6 @@
+#ifndef Si16b_Unfold_FinalNormalisation_
+#define Si16b_Unfold_FinalNormalisation_
+
 #include "../../Utils/Unfold_FinalNormalisation.C"
 
 void Si16b_Unfold_FinalNormalisation(std::string infilename, std::string inhistname, std::string countfilename, std::string counttreename, std::string outfilename, std::string outdirname) {
@@ -17,3 +20,5 @@ void Si16b_Unfold_FinalNormalisation(std::string infilename, std::string inhistn
   args.rebin_factor = 1;
   Unfold_FinalNormalisation(args);
 }
+
+#endif

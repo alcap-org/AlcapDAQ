@@ -14,7 +14,7 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSW(std::string savedir = "") {
   TGraphErrors* SW_gre = (TGraphErrors*) SW_file->Get("Graph");
   SW_gre->Draw("APE");
   SW_gre->SetTitle("Charged Particle Emission");
-  SW_gre->GetXaxis()->SetRangeUser(0,26000);
+  SW_gre->GetXaxis()->SetRangeUser(0,20000);
   SW_gre->GetXaxis()->SetTitle("Energy [keV]");
   SW_gre->GetYaxis()->SetTitle("Rate of Charged Particle Emission per Muon Capture per keV");
 
@@ -69,17 +69,18 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSW(std::string savedir = "") {
   }
 
   //  std::string filename = "~/data/results/Si16b/unfold_newPP.root";
-  std::string filename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse.root";
+  //  std::string filename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse.root";
   //  std::string filename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_SiL1-2--6.root";
   //  std::string filename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_SiL1-7--10.root";
   //  std::string filename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_SiL1-11--15.root";
   //  std::string filename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_SiL1-2--14.root";
+  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_3sigma.root";
   TFile* file = new TFile(filename.c_str(), "READ");
   
-  const int n_settings = 5;
-  std::string particle_names[n_settings] = {"proton", "deuteron", "triton", "alpha", "SiL3"};
-  Int_t colours[n_settings] = {kRed, kCyan, kMagenta, kSpring, kGray};
-  std::string leglabels[n_settings] = {"AlCap (proton)", "AlCap (deuterons)", "AlCap (tritons)", "AlCap (alphas)", "AlCap (SiL3 inc.)"};
+  const int n_settings = 1;//5;
+  std::string particle_names[n_settings] = {"Sum"};//proton", "deuteron", "triton", "alpha", "SiL3"};
+  Int_t colours[n_settings] = {kBlue};//kRed, kCyan, kMagenta, kSpring, kGray};
+  std::string leglabels[n_settings] = {"AlCap (sum)"};//, "AlCap (deuterons)", "AlCap (tritons)", "AlCap (alphas)", "AlCap (SiL3 inc.)"};
   double rates[n_settings][n_ranges] = {0};
   double rate_errs[n_settings][n_ranges] = {0};
 
@@ -90,32 +91,25 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSW(std::string savedir = "") {
     std::string i_particle_name = particle_names[i_setting];
     Int_t i_colour = colours[i_setting];
 
-    std::string dirname = "FinalNormalisation_" + i_particle_name;
-    if (i_particle_name != "SiL3") {
-      //      dirname += "_PSel";
-      dirname += "_TCutG";
-    }
-    //    std::string dirname = "FinalNormalisation_" + i_particle_name + "_TCutG";
-    std::string i_histname = dirname + "/hNormalisedSpectrum";
-    //    std::string i_histname = dirname + "_retune/hNormalisedSpectrum";
+    std::string dirname = "FinalSystPlot_" + i_particle_name + "_TCutG";
+    std::string i_histname = dirname + "/hFinalStatSyst";
 
-    TH1F* spectrum = (TH1F*) file->Get(i_histname.c_str());
+    TGraphAsymmErrors* spectrum = (TGraphAsymmErrors*) file->Get(i_histname.c_str());
     if (!spectrum) {
       std::cout << "Error: Problem getting spectrum " << i_histname << std::endl;
       //      return;
       continue;
     }
-    spectrum->Sumw2();
-
-    spectrum->Rebin(rebin_factor);
-    spectrum->Scale(1.0/rebin_factor);
-    spectrum->SetStats(false);
+    //    spectrum->SetStats(false);
     spectrum->SetLineColor(i_colour);
     spectrum->SetFillStyle(0);
+    spectrum->SetFillColor(0);
     spectrum->SetLineWidth(2);
     //    spectrum->SetLineColor(kBlack);
     //    spectrum->SetFillColor(i_colour);
-    //    spectrum->Draw("HIST E SAMES");
+    spectrum->Draw("PE SAMEs");
+
+
     leg->AddEntry(spectrum, leglabels[i_setting].c_str(), "l");
 
     /*    std::string fitname = dirname + "/spectral_fit";
@@ -126,57 +120,13 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSW(std::string savedir = "") {
       fit->Draw("LSAME");
     }
     */
-    if (i_particle_name != "SiL3") {
-      hStack->Add(spectrum);
-    }
 
-    alcaphistogram(spectrum);
-    if (i_setting == 0) {
-      alcapPreliminary(spectrum);
-    }
-    
-    for (int i_range = 0; i_range < n_ranges; ++i_range) {
-      double min_energy = min_energies[i_range];
-      double max_energy = max_energies[i_range];
-      int min_energy_bin = spectrum->GetXaxis()->FindBin(min_energy);
-      int max_energy_bin = spectrum->GetXaxis()->FindBin(max_energy) - 1;
-      double error = -1;
-      double integral = spectrum->IntegralAndError(min_energy_bin, max_energy_bin, error, "width");
-      rates[i_setting][i_range] = integral;
-      rate_errs[i_setting][i_range] = error;
-    }
+    // alcaphistogram(spectrum);
+    // if (i_setting == 0) {
+    //   alcapPreliminary(spectrum);
+    // }
   }
 
-  double total_rates[n_ranges] = {0};
-  double total_rate_errs[n_ranges] = {0};
-  for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
-    for (int i_range = 0; i_range < n_ranges; ++i_range) {
-      double min_energy = min_energies[i_range];
-      double max_energy = max_energies[i_range];
-
-      std::cout << "AlCap, " << leglabels[i_setting] << ": Integral (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << rates[i_setting][i_range] << " +/- " << rate_errs[i_setting][i_range] << std::endl;
-      total_rates[i_range] += rates[i_setting][i_range];
-
-      total_rate_errs[i_range] += (rate_errs[i_setting][i_range]*rate_errs[i_setting][i_range]);
-    }
-  }
-  
-  for (int i_range = 0; i_range < n_ranges; ++i_range) {
-    double min_energy = min_energies[i_range];
-    double max_energy = max_energies[i_range];
-
-    total_rate_errs[i_range] = std::sqrt(total_rate_errs[i_range]);
-    
-    std::cout << "Total AlCap: Integral (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << total_rates[i_range] << " +/- " << total_rate_errs[i_range] << std::endl;
-
-    for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
-      std::cout << "Ratio (" << leglabels[i_setting] << ") = " << rates[i_setting][i_range] / total_rates[i_range] << std::endl;
-    }
-  }
-
-  
-  //  hStack->Draw("HIST E SAMES nostack");
-  hStack->Draw("HIST E SAMES");
   SW_gre->Draw("PE SAME");
   leg->Draw();
 

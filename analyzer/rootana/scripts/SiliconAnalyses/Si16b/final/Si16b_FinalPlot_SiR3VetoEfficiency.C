@@ -1,5 +1,6 @@
-void Si16b_FinalPlot_SiR3VetoEfficiency(std::string savedir = "") {
-  std::string filename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse.root";
+void Si16b_FinalPlot_SiR3VetoEfficiency(std::string savedir = "", std::ostream& numbers_file = std::cout) {
+
+  std::string filename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse_3sigma.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_hists = 4;
@@ -37,6 +38,8 @@ void Si16b_FinalPlot_SiR3VetoEfficiency(std::string savedir = "") {
     hEvdE->Rebin2D(rebin_factors[i_hist], rebin_factors[i_hist]);
     hEvdE->GetXaxis()->SetRangeUser(0, max_x_axis[i_hist]);
     hEvdE->GetYaxis()->SetRangeUser(0, max_y_axis[i_hist]);
+    hEvdE->GetXaxis()->SetTitleOffset(0.9);
+    hEvdE->GetYaxis()->SetTitleOffset(0.9);
     hEvdE->SetTitle(histtitles[i_hist].c_str());
     hEvdE->SetStats(false);
     hEvdE->Draw("COLZ");
@@ -85,4 +88,8 @@ void Si16b_FinalPlot_SiR3VetoEfficiency(std::string savedir = "") {
   double ratio = integrals[1] / integrals[0];
   double ratio_error = std::sqrt( (ratio*(1-ratio)) / integrals[0] );
   std::cout << "Ratio = " << ratio << " +/- " << ratio_error << std::endl;
+
+  numbers_file << "% From Si16b_FinalPlot_SiR3VetoEfficiency.C" << std::endl;
+  numbers_file << "\\newcommand\\SibVetoEff{$" << std::fixed << std::setprecision(2) << ratio << " \\pm " << ratio_error << "$}" << std::endl;
+  numbers_file << std::endl;
 }

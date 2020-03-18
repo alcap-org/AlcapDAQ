@@ -1,7 +1,7 @@
 void Si16b_FinalPlot_ResponseMatrix(std::string savedir = "") {
 
   bool demo = false;
-  std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse.root";
+  std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_3sigma.root";
 
   const int n_particles = 4;
   std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};

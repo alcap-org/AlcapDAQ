@@ -1,7 +1,9 @@
 #include "../../../XRayAnalysis/XRayUtils.h"
 
-void SiL3_FinalPlot_RawSpectrum_RecoilComparisonSystematic(std::string savedir = "") {
+void SiL3_FinalPlot_RawSpectrum_RecoilComparisonSystematic(std::string savedir = "", std::ostream& numbers_file = std::cout) {
 
+  numbers_file << "% SiL3_FinalPlot_RawSpectrum_RecoilComparisonSystematic.C" << std::endl;
+  
   TCanvas* c_FoldedSpectrum = new TCanvas("c_FoldedSpectrum", "c_FoldedSpectrum");
   c_FoldedSpectrum->SetLogy();
   
@@ -9,6 +11,12 @@ void SiL3_FinalPlot_RawSpectrum_RecoilComparisonSystematic(std::string savedir =
   std::string settings[n_spectra] = {"allRecoil", "lowAllRecoil", "highAllRecoil"};
   std::string leglabels[n_spectra] = {"combined recoil", "low", "high"};
   Int_t colours[n_spectra] = {kBlue, kRed, kMagenta};
+
+  //   const int n_spectra = 4;
+  // std::string settings[n_spectra] = {"allRecoil", "lowAllRecoil", "highAllRecoil", "noRecoil"};
+  // std::string leglabels[n_spectra] = {"combined recoil", "low", "high", "none"};
+  // Int_t colours[n_spectra] = {kBlue, kRed, kMagenta, kBlack};
+
 
   TLegend* leg = new TLegend(0.40,0.55,0.80,0.85);
   leg->SetBorderSize(0);
@@ -40,6 +48,8 @@ void SiL3_FinalPlot_RawSpectrum_RecoilComparisonSystematic(std::string savedir =
     hFoldedSpectrum->SetTitle(histtitle.c_str());
     hFoldedSpectrum->SetStats(false);
     hFoldedSpectrum->GetXaxis()->SetRangeUser(0, 30000);
+    hFoldedSpectrum->GetXaxis()->SetTitleOffset(0.9);
+    hFoldedSpectrum->GetYaxis()->SetTitleOffset(0.9);
     hFoldedSpectrum->SetLineColor(colours[i_spectra]);
 
     std::stringstream axislabel;
@@ -53,6 +63,10 @@ void SiL3_FinalPlot_RawSpectrum_RecoilComparisonSystematic(std::string savedir =
     leglabel << leglabels[i_spectra];
     if (recoil_fraction>0) {
       leglabel << " (" << std::fixed << std::setprecision(1) << recoil_fraction*100 << "%)";
+
+      if (i_spectra > 0) {
+	numbers_file << std::fixed << std::setprecision(1) << "\\newcommand\\" << i_setting << "{$" << recoil_fraction*100 << "\\%$}" << std::endl;
+      }
     }
     leg->AddEntry(hFoldedSpectrum, leglabel.str().c_str(), "l");
 
@@ -81,5 +95,5 @@ void SiL3_FinalPlot_RawSpectrum_RecoilComparisonSystematic(std::string savedir =
     std::string pngname = savename + ".png";
     c_FoldedSpectrum->SaveAs(pngname.c_str());
   }
-
+  numbers_file << std::endl;
 }

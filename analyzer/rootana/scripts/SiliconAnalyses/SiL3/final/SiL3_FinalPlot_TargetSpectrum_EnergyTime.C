@@ -1,5 +1,6 @@
-void SiL3_FinalPlot_TargetSpectrum_EnergyTime(std::string savedir = "") {
-
+void SiL3_FinalPlot_TargetSpectrum_EnergyTime(std::string savedir = "", std::ostream& numbers_file = std::cout) {
+  numbers_file << "% SiL3_FinalPlot_TargetSpectrum_EnergyTime.C" << std::endl;
+  
   //  std::string plots_file_name = "~/data/results/SiL3/plots_geq2TgtPulse.root";
   //  std::string plots_file_name = "~/data/results/SiL3_active_no-templates/plots_geq2TgtPulse.root";
   std::string plots_file_name = "~/data/results/SiL3/plots_geq2TgtPulse_newPP20us.root";
@@ -23,10 +24,14 @@ void SiL3_FinalPlot_TargetSpectrum_EnergyTime(std::string savedir = "") {
 
   hEnergyTime->GetXaxis()->SetRangeUser(-20000, 20000);
   hEnergyTime->GetYaxis()->SetRangeUser(0, 50000);
+  hEnergyTime->GetXaxis()->SetTitleOffset(0.9);
+  hEnergyTime->GetYaxis()->SetTitleOffset(0.9);
   hEnergyTime->Draw("COLZ");
 
   alcaphistogram(hEnergyTime);
-  alcapPreliminary(hEnergyTime);
+  //  alcapPreliminary(hEnergyTime);
+  TLatex* latex = new TLatex();
+  latex->DrawLatexNDC(0.6, 0.6, "AlCap #bf{#it{Preliminary}}");
   hEnergyTime->SetDrawOption("COLZ");
 
   
@@ -41,7 +46,9 @@ void SiL3_FinalPlot_TargetSpectrum_EnergyTime(std::string savedir = "") {
   hEnergyTime_Zoom->Draw("COLZ");
 
   alcaphistogram(hEnergyTime_Zoom);
-  alcapPreliminary(hEnergyTime_Zoom);
+  //  alcapPreliminary(hEnergyTime_Zoom);
+  //  TLatex* latex = new TLatex();
+  latex->DrawLatexNDC(0.6, 0.6, "AlCap #bf{#it{Preliminary}}");
   hEnergyTime_Zoom->SetDrawOption("COLZ");
   
   double min_time = 2000;
@@ -54,6 +61,8 @@ void SiL3_FinalPlot_TargetSpectrum_EnergyTime(std::string savedir = "") {
   max_time_line->SetLineWidth(2);
   max_time_line->SetLineColor(kRed);
   max_time_line->Draw("LSAME");
+
+  numbers_file << "\\newcommand\\SiLTimeSlice{\\SI{" << min_time << "}{\\nano\\second} $<t<$ \\SI{" << max_time << "}{\\nano\\second}}" << std::endl;
   
   if (savedir != "") {
     std::string savename = savedir + "AlCapData_SiL3Dataset_ActiveTarget_EnergyTime";
@@ -64,4 +73,5 @@ void SiL3_FinalPlot_TargetSpectrum_EnergyTime(std::string savedir = "") {
     pngname = savename + ".png";
     c_EnergyTime_Zoom->SaveAs(pngname.c_str());
   }
+  numbers_file << std::endl;
 }

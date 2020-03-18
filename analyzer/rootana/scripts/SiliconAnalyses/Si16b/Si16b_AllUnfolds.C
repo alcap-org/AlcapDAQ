@@ -23,6 +23,9 @@ void Si16b_AllUnfolds() {
   // Have two different PID methods
   const int n_PIDs = 2;
   std::string PIDs[n_PIDs] = {"TCutG", "PSel"};
+  //  double sigma_efficiency = 0.997;//3sigma
+  //  double sigma_efficiency = 0.95;//2sigma
+  double sigma_efficiency = 0.68;//1sigma
   //  double pid_efficiencies[n_PIDs] = {0.9779, 0.986};
   
   // For protons, deuterons etc
@@ -38,6 +41,7 @@ void Si16b_AllUnfolds() {
 
       //      std::string indirname = i_particle_name + "_" + i_pid;
       std::string indirname = i_particle_name + "_" + i_pid + "_noTimeCut";
+      std::cout << indirname << std::endl;
       std::string inhistname = indirname + "/hRawSpectrum";
 
       std::string outdirname = "PIDCut_" + i_particle_name + "_" + i_pid;
@@ -53,7 +57,7 @@ void Si16b_AllUnfolds() {
       double extra_efficiency = 0.941;
       std::string datafilename = "";
       if (i_pid == "TCutG") { // do PID cut correction here
-	extra_efficiency *= 0.68;//0.95;//0.997;//0.986; // PID cut
+	extra_efficiency *= sigma_efficiency; // PID cut
 	datafilename = infilename;
       }
       else if (i_pid == "PSel") {
@@ -79,34 +83,14 @@ void Si16b_AllUnfolds() {
 	rebin_factor = 1;//2;
       }
       
-      //      mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + ".root";
-      //      std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_500keVBins.root";
-      //      std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_500keVBins_newGaps.root";
       std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins.root";
-      //      std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_cutObsE.root";
-      //      std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_truth.root";
-      //            std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_higherE.root";
-      //      std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_2000keVBins.root";
-      //	std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_withRecoil.root";
       //      rebin_factor = 50;
       if (i_particle_name == "alpha") {
-	//	mcfilename = "~/data/mc/Si16b/respMatrix_12M_Geom-P5_" + i_particle_name + "_500keVBins.root";
 	mcfilename = "~/data/mc/Si16b/respMatrix_12M_Geom-P5_" + i_particle_name + "_1000keVBins.root";
-	//	mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_newGaps.root";
-	//	mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_noDeadLayers.root";
-	//	mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_higherE.root";
-	//	mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_cutObsE.root";
-	//	mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_saturation.root";
-	//	mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_2000keVBins.root";
-	  //      	rebin_factor = 100;
+	//      	rebin_factor = 100;
       }
       if (i_particle_name == "triton" || i_particle_name == "deuteron") {
-	//	mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_500keVBins.root";
 	mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins.root";
-	//      	mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_newGaps.root";
-	//	mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_cutObsE.root";	
-	//	mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_2000keVBins.root";
-	//      	rebin_factor = 100;
       }
       if (i_pid == "TCutG") {
 	rebin_factor *= 100; // because didn't rebin for PID effs
@@ -175,6 +159,16 @@ void Si16b_AllUnfolds() {
   outdirname = "FinalNormalisation_Active";
   Si16b_Unfold_FinalNormalisation(outfilename, inhistname, countfilename, counttreename, outfilename, outdirname);
 
+  /*
+      //      mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + ".root";
+      //      std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_500keVBins.root";
+      //      std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_500keVBins_newGaps.root";
+      //      std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_cutObsE.root";
+      //      std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_truth.root";
+      //            std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_higherE.root";
+      //      std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_2000keVBins.root";
+      //	std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + i_particle_name + "_1000keVBins_withRecoil.root";
+      */
         /*
       std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5-higherE_" + i_particle_name + ".root";
       outdirname = "ResponseMatrix_" + i_particle_name + "_" + i_pid + "_higherE";

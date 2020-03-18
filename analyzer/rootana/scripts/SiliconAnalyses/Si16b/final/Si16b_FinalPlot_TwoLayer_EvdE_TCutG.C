@@ -1,6 +1,6 @@
-void Si16b_FinalPlot_TwoLayer_EvdE_TCutG(std::string savedir = "") {
+void Si16b_FinalPlot_TwoLayer_EvdE_TCutG(std::string savedir = "", std::ostream& numbers_file = std::cout) {
 
-  std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse.root";
+  std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse_3sigma.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
 
   std::string dirname = "all_SiR_timecut0_10000ns_layerCoinc";
@@ -63,7 +63,7 @@ void Si16b_FinalPlot_TwoLayer_EvdE_TCutG(std::string savedir = "") {
     for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
       std::string this_particle = particles[i_particle];
       
-      std::string tcutgname = this_particle + "_SiR_timecut0_10000ns_layerCoinc/hLg_SiR_EvDeltaE_" + this_particle + "_3sigma_keV";
+      std::string tcutgname = this_particle + "_SiR_timecut0_10000ns_layerCoinc/r_hLg_SiR_EvDeltaE_" + this_particle + "_3sigma_keV";
       TCutG* tCutG = (TCutG*) infile->Get(tcutgname.c_str());
       if (!tCutG) {
 	// try the other
@@ -90,4 +90,19 @@ void Si16b_FinalPlot_TwoLayer_EvdE_TCutG(std::string savedir = "") {
     c_EvdE_incAlpha->SaveAs(pngname.c_str());
   }
 
+  numbers_file << "% From Si16b_FinalPlot_TwoLayer_EvdE_TCutG.C" << std::endl;
+  std::string treename = dirname + "/cuttree";
+  TTree* cuttree = (TTree*) infile->Get(treename.c_str());
+  double layer12_coinc = 0;
+  double min_time = 0;
+  double max_time = 0;
+  cuttree->SetBranchAddress("max_layer12_coincidence_time", &layer12_coinc);
+  cuttree->SetBranchAddress("min_thick_time_cut", &min_time);
+  cuttree->SetBranchAddress("max_thick_time_cut", &max_time);
+  cuttree->GetEntry(0);
+  numbers_file << "\\newcommand\\SibLayerCoincCut{" << layer12_coinc << "}" << std::endl;
+  numbers_file << "\\newcommand\\SibMinTimeCut{" << min_time << "}" << std::endl;
+  numbers_file << "\\newcommand\\SibMaxTimeCut{" << max_time << "}" << std::endl;
+  numbers_file << "\\newcommand\\SibTimeCut{$\\SibMinTimeCut~\\text{ns} < t_{2} < \\SibMaxTimeCut~\\text{ns}$}" << std::endl;
+  numbers_file << std::endl;
 }

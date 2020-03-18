@@ -7,6 +7,7 @@ void Si16b_RawSpectrum_fromEnergyTime(std::string infilename, std::string outfil
   args.outfilename = outfilename;
 
   args.rebin_factor = 1;
+  args.incuttreename = "Target/cuttree";
   
   // Here is the target
   args.inhistname = "Target/hEnergyTime";

@@ -19,15 +19,19 @@ void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
 
   const int n_particles = 5;
   std::string particle_names[n_particles] = {"all", "proton", "deuteron", "triton", "alpha"};
-
+  double max_energy_cutoffs[n_particles] = {100000, 17000, 17000, 17000, 19000};
+  
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     std::string i_particle_name = particle_names[i_particle];
 
     args.datahistnames.clear();
     args.scale_ratios.clear();
 
-    std::string histname = "hThickTime_TwoLayer_12not3";
-    std::string inhistname = i_particle_name + "_SiR_timecut0_10000ns_layerCoinc_PSel/" + histname;
+    //    std::string histname = "hThickTime_TwoLayer_12not3";
+    std::string histname = "hEvt_TwoLayer_12not3";
+    std::string inhistname = i_particle_name + "_SiR_timecut0_10000ns_layerCoinc/" + histname;
+    args.max_energy_cut = max_energy_cutoffs[i_particle];
+    
     double scale_ratio = 1;
     args.datahistnames.push_back(inhistname);
     args.scale_ratios.push_back(scale_ratio);
@@ -35,7 +39,7 @@ void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
     /*
     if (i_particle_name == "proton") {
       histname = "hThickTime_ThreeLayer_123";
-      inhistname = i_particle_name + "_SiR_timecut0_10000ns_layerCoinc_PSel/" + histname;
+      inhistname = i_particle_name + "_SiR_timecut0_10000ns_layerCoinc/" + histname;
       scale_ratio = 1.0 / 0.71;
       args.datahistnames.push_back(inhistname);
       args.scale_ratios.push_back(scale_ratio);
@@ -43,7 +47,7 @@ void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
     */
     
     args.project_y = false;
-    args.project_x = false;
+    args.project_x = true;
     args.outdirname = i_particle_name + "_SingleExp";
     args.double_exp = false;
     args.flat_bkg = false;
@@ -75,13 +79,13 @@ void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
       energy_cut_str.str("");
       energy_cut_str << args.min_energy_cut << "_" << args.max_energy_cut;
       
-      std::string inhistname = i_particle_name + "_SiR_timecut0_10000ns_layerCoinc_PSel/" + histname;
+      std::string inhistname = i_particle_name + "_SiR_timecut0_10000ns_layerCoinc/" + histname;
       args.outdirname = i_particle_name + "_SingleExp_" + energy_cut_str.str();
       args.double_exp = false;
       args.flat_bkg = false;
       LifetimeFit(args);
       
-      std::string inhistname = i_particle_name + "_SiR_timecut0_10000ns_layerCoinc_PSel/" + histname;
+      std::string inhistname = i_particle_name + "_SiR_timecut0_10000ns_layerCoinc/" + histname;
       args.outdirname = i_particle_name + "_SingleExp_FlatBkg_" + energy_cut_str.str();
       args.double_exp = false;
       args.flat_bkg = true;
@@ -129,23 +133,23 @@ void Si16b_LifetimeFit(std::string infilename, std::string outfilename) {
   }
 
 
-  std::string inhistname = "proton_SiR_timecut_wSiL1Coinc_PSel/hTime_12";
+  std::string inhistname = "proton_SiR_timecut_wSiL1Coinc/hTime_12";
   args.min_fit_time = 200;
   args.max_fit_time = 20000;
   args.rebin_factor = 10;
   args.project_y = false;
-  args.project_x = false;
-  args.outdirname = "Proton_wSiL1Coinc_PSel_12";
+  args.project_x = true;
+  args.outdirname = "Proton_wSiL1Coinc_12";
   args.double_exp = false;
   args.flat_bkg = false;
   LifetimeFit(args);
 
-  std::string inhistname = "proton_SiR_timecut_wSiL1Coinc_PSel/hTime_123";
-  args.outdirname = "Proton_wSiL1Coinc_PSel_123";
+  std::string inhistname = "proton_SiR_timecut_wSiL1Coinc/hTime_123";
+  args.outdirname = "Proton_wSiL1Coinc_123";
   LifetimeFit(args);
 
-  std::string inhistname = "proton_SiR_timecut_wSiL1Coinc_PSel/hTime_TwoLayer_12not3";
-  args.outdirname = "Proton_wSiL1Coinc_PSel_TwoLayer_12not3";
+  std::string inhistname = "proton_SiR_timecut_wSiL1Coinc/hTime_TwoLayer_12not3";
+  args.outdirname = "Proton_wSiL1Coinc_TwoLayer_12not3";
   LifetimeFit(args);
   */
 }

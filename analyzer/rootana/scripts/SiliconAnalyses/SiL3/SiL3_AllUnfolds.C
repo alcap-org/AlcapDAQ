@@ -27,8 +27,8 @@ void SiL3_AllUnfolds() {
   double min_time_slices[n_time_slices] = {2000, 2500, 3000, 3500, 2000};
   double max_time_slices[n_time_slices] = {2500, 3000, 3500, 4000, 4000};
 
-  const int n_recoils = 8;
-  std::string recoil_names[n_recoils] = {"noRecoil", "pRecoil", "dRecoil", "tRecoil", "aRecoil", "allRecoil", "lowAllRecoil", "highAllRecoil"};
+  const int n_recoils = 9;
+  std::string recoil_names[n_recoils] = {"noRecoil", "nuRecoil", "pRecoil", "dRecoil", "tRecoil", "aRecoil", "allRecoil", "lowAllRecoil", "highAllRecoil"};
 
   for (int i_recoil = 0; i_recoil < n_recoils; ++i_recoil) {
     std::string recoil_name = recoil_names[i_recoil];
@@ -91,12 +91,12 @@ void SiL3_AllUnfolds() {
       outdirname = "DecayElectron_" + time_slice_str.str() + "_" + recoil_name;
       SiL3_Unfold_DecayElectronCorrection(outfilename, inhistname, corrfilename, corrhistname, countfilename, counttreename, outfilename, outdirname);
       
-    
+      
       // Finally unfold the proton escape correction    
       inhistname = outdirname + "/hCorrectedSpectrum";
       outdirname = "ProtonEscape_" + time_slice_str.str() + "_" + recoil_name;
       SiL3_Unfold_ResponseMatrix(outfilename, outfilename, inhistname, outdirname, "proton");
-	    
+
       inhistname = "DecayElectron_" + time_slice_str.str() + "_" + recoil_name + "/hCorrectedSpectrum";
       outdirname = "DeuteronEscape_" + time_slice_str.str() + "_" + recoil_name;
       SiL3_Unfold_ResponseMatrix(outfilename, outfilename, inhistname, outdirname, "deuteron");
@@ -107,8 +107,8 @@ void SiL3_AllUnfolds() {
       
       inhistname = "DecayElectron_" + time_slice_str.str() + "_" + recoil_name + "/hCorrectedSpectrum";
       outdirname = "AlphaEscape_" + time_slice_str.str() + "_" + recoil_name;
-      SiL3_Unfold_ResponseMatrix(outfilename, outfilename, inhistname, outdirname, "alpha");
-     
+      SiL3_Unfold_ResponseMatrix(outfilename, outfilename, inhistname, outdirname, "alpha");      
+      
       inhistname = "DecayElectron_" + time_slice_str.str()  + "_" + recoil_name + "/hCorrectedSpectrum";
       outdirname = "CombinedEscape_" + time_slice_str.str() + "_" + recoil_name;
       SiL3_Unfold_ResponseMatrix(outfilename, outfilename, inhistname, outdirname, "combined");
@@ -116,23 +116,7 @@ void SiL3_AllUnfolds() {
       inhistname = outdirname + "/hCorrectedSpectrum";
       outdirname = "FinalNormalisation_" + time_slice_str.str() + "_" + recoil_name;
       SiL3_Unfold_FinalNormalisation(outfilename, inhistname, countfilename, counttreename, outfilename, outdirname);
-
-      // Systematics
-      inhistname = "DecayElectron_" + time_slice_str.str()  + "_" + recoil_name + "/hCorrectedSpectrum";
-      outdirname = "CombinedLowEscape_" + time_slice_str.str() + "_" + recoil_name;
-      SiL3_Unfold_ResponseMatrix(outfilename, outfilename, inhistname, outdirname, "combinedLow");
       
-      inhistname = outdirname + "/hCorrectedSpectrum";
-      outdirname = "FinalNormalisation_CombinedLow_" + time_slice_str.str() + "_" + recoil_name;
-      SiL3_Unfold_FinalNormalisation(outfilename, inhistname, countfilename, counttreename, outfilename, outdirname);
-
-      inhistname = "DecayElectron_" + time_slice_str.str()  + "_" + recoil_name + "/hCorrectedSpectrum";
-      outdirname = "CombinedHighEscape_" + time_slice_str.str() + "_" + recoil_name;
-      SiL3_Unfold_ResponseMatrix(outfilename, outfilename, inhistname, outdirname, "combinedHigh");
-      
-      inhistname = outdirname + "/hCorrectedSpectrum";
-      outdirname = "FinalNormalisation_CombinedHigh_" + time_slice_str.str() + "_" + recoil_name;
-      SiL3_Unfold_FinalNormalisation(outfilename, inhistname, countfilename, counttreename, outfilename, outdirname);
     }
   }
 }

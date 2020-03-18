@@ -1,4 +1,4 @@
-#include "scripts/SiliconAnalyses/Utils/XRaySpectrum.C"
+#include "../../Utils/XRaySpectrum.C"
 
 void Ti50_XRaySpectrum(std::string infilename, std::string outfilename) {
 
@@ -17,8 +17,8 @@ void Ti50_XRaySpectrum(std::string infilename, std::string outfilename) {
     args.min_energy = 0;
     args.max_energy = 2000;
     args.energy_width = 0.5;
-    args.min_time = -30000;
-    args.max_time = 30000;
+    args.min_time = -20000;
+    args.max_time = 20000;
     args.time_width = 10;
     XRaySpectrum(args);
   }

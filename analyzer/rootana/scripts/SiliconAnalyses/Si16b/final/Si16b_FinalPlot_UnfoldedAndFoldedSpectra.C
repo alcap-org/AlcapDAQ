@@ -2,16 +2,24 @@ void Si16b_FinalPlot_UnfoldedAndFoldedSpectra(std::string savedir = "") {
 
   const int n_particles = 4;
   std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};
-
+  //  double x_maxes[n_particles] = {17000, 17000, 17000, 19000};
+  double x_maxes[n_particles] = {25000, 25000, 25000, 25000};
+  Int_t unfolded_colours[n_particles] = {kRed, kCyan, kMagenta, kSpring};
+  
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
+    TLegend* leg = new TLegend(0.55,0.60,0.85,0.85);
+    leg->SetBorderSize(0);
+    leg->SetTextSize(0.035);
+    leg->SetFillColor(kWhite);
+
     std::string particle = particles[i_particle];
-    std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse.root";
+    std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_3sigma.root";
     std::string indirname = "ResponseMatrix_" + particle + "_TCutG";
     std::string folded_histname = indirname + "/hInputSpectrum";
     std::string unfolded_histname = indirname + "/hCorrectedSpectrum";
     std::string outhisttitle = "Si16b Dataset, Right Arm, " + particle;
     int rebin_factor = 1;
-    double x_max = 25000;
+    double x_max = x_maxes[i_particle];
     
     TFile* infile = new TFile(infilename.c_str(), "READ");
     TH1F* hFoldedSpectrum = (TH1F*) infile->Get(folded_histname.c_str());
@@ -31,15 +39,20 @@ void Si16b_FinalPlot_UnfoldedAndFoldedSpectra(std::string savedir = "") {
     hFoldedSpectrum->GetXaxis()->SetRangeUser(0, x_max);
     axistitle.str(""); axistitle << "Folded Count / " << hFoldedSpectrum->GetXaxis()->GetBinWidth(1) << " keV";
     hFoldedSpectrum->SetYTitle(axistitle.str().c_str());
-    hFoldedSpectrum->GetYaxis()->SetTitleOffset(1.3);
+    hFoldedSpectrum->SetXTitle("Energy [keV]");
+    hFoldedSpectrum->GetXaxis()->SetTitleOffset(0.9);
+    hFoldedSpectrum->GetYaxis()->SetTitleOffset(0.9);
     
     hUnfoldedSpectrum->SetTitle("");
     hUnfoldedSpectrum->SetStats(false);
-    hUnfoldedSpectrum->SetLineColor(kRed);
+    hUnfoldedSpectrum->SetLineColor(unfolded_colours[i_particle]);
     hUnfoldedSpectrum->Rebin(rebin_factor);
     hUnfoldedSpectrum->GetXaxis()->SetRangeUser(0, x_max);
     axistitle.str(""); axistitle << "Unfolded Count / " << hUnfoldedSpectrum->GetXaxis()->GetBinWidth(1) << " keV";
     hUnfoldedSpectrum->SetYTitle(axistitle.str().c_str());
+    hUnfoldedSpectrum->SetXTitle("Energy [keV]");
+    hUnfoldedSpectrum->GetXaxis()->SetTitleOffset(0.9);
+    hUnfoldedSpectrum->GetYaxis()->SetTitleOffset(0.9);
     
     hFoldedSpectrum->Draw("HIST E");
     c_Spectra->Update();
@@ -50,18 +63,24 @@ void Si16b_FinalPlot_UnfoldedAndFoldedSpectra(std::string savedir = "") {
     hUnfoldedSpectrum->Draw("HIST E SAME");
     
     TGaxis* axis = new TGaxis(gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmax(), gPad->GetUymax(),0,rightmax,510,"+L");
-    axis->SetLineColor(kRed);
-    axis->SetLabelColor(kRed);
-    axis->SetTitleColor(kRed);
+    axis->SetLineColor(unfolded_colours[i_particle]);
+    axis->SetLabelColor(unfolded_colours[i_particle]);
+    axis->SetTitleColor(unfolded_colours[i_particle]);
     axis->SetTitle(hUnfoldedSpectrum->GetYaxis()->GetTitle());
     axis->Draw();
 
     alcaphistogram(hFoldedSpectrum);
     alcaphistogram(hUnfoldedSpectrum);
-    alcapPreliminary(hUnfoldedSpectrum);
     hFoldedSpectrum->SetDrawOption("HIST E1");
     hUnfoldedSpectrum->SetDrawOption("HIST E1 SAME");
+    alcapPreliminary(hFoldedSpectrum);
 
+    std::string leglabel = "folded " + particle + "s";
+    leg->AddEntry(hFoldedSpectrum, leglabel.c_str(), "l");
+    leglabel = "unfolded " + particle + "s";
+    leg->AddEntry(hUnfoldedSpectrum, leglabel.c_str(), "l");
+    leg->Draw();
+      
     if (savedir != "") {
       std::string savename = savedir + "AlCapData_Si16bDataset_UnfoldedAndFoldedSpectra_" + particle;
       

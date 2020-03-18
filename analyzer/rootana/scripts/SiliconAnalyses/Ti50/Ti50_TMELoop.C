@@ -1,10 +1,11 @@
-#include "scripts/SiliconAnalyses/Utils/TMELoop.C"
+#include "../Utils/TMELoop.C"
 
 void Ti50_TMELoop() {
   TMELoopArgs args;
-  args.infilename = "/data/R15b/tme/Ti50/Ti50.root";
+  //  args.infilename = "/data/R15b/tme/Ti50/Ti50.root";
+  args.infilename = "/data/ssd2/R15bAnalysis/tmetree/Ti50/Ti50.root";
   args.tmetreename = "TMETree/TMETree";
-  args.outfilename = "~/data/results/Ti50/subtrees.root";
+  args.outfilename = "~/data/results/Ti50/subtrees_newPP.root";
   args.n_entries = -1; // run for all TMEs
 
   ///////////////////////////////////////////
@@ -184,9 +185,25 @@ void Ti50_TMELoop() {
   args.sit.layer3_calibOffsets.push_back(0);
   
   // Event vetos
+  // old PP definition
+  /*
   args.veto_any_double_counts = true;
   args.veto_max_muon_channel_pulses = 1;
   args.max_muon_channel_pulses = 1;
+  */
+  // new PP definition
+  args.reqd_run_id = -1;
+  args.req_tgt_muon = false;
+  args.veto_any_double_counts = false;
+  args.veto_max_muon_channel_pulses = false;
+  args.veto_pp_window = true;
+  args.pp_window = 10000;
+  //  args.pp_window = 20000;
+
+  // don't require a hit in the target
+  args.req_tgt_muon = false;
+  //  args.tgt_layer = 1;
+  //  args.min_tgt_pulses = 1;
 
   TMELoop(args);
 }
