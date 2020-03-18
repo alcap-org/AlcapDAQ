@@ -40,10 +40,11 @@ void Process(RooUnfoldResponse *response, TH1D *hMeas, const char *arm = "SiL", 
 	std::cout << arm << " 3500-10000keV: " << integral << " ± " << error << std::endl;
 
 }
-void RooUnfoldAlCap(std::string target = "al100", std::string particle="proton", bool normalise = kFALSE)
+void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", bool normalise = kFALSE)
 {
 	TFile *fData = 0;
-	const char *path = "/home/m-wong/data";
+	const char *dataPath = getenv("R15b_DATA");
+	const char *transferMatrixPath = getenv("R15b_TM");
 //	if(target.compare("al50")==0) {
 //		fData = new TFile(Form("%s/R15b/al50.root", path), "READ");
 //	} else if(target.compare("al100") ==0 ) {
@@ -51,17 +52,17 @@ void RooUnfoldAlCap(std::string target = "al100", std::string particle="proton",
 //	} else if(target.compare("ti50") ==0) {
 //		fData = new TFile(Form("%s/R15b/ti50.root", path), "READ");
 //	}
-	fData = new TFile(Form("%s/R15b/%s.root", path, target.c_str() ), "READ");
+	fData = new TFile(Form("%s/%s.root", dataPath, target.c_str() ), "READ");
 	TFile *responseMatrixFile = 0;
 	if(target.compare("al50") ==0) {
-		responseMatrixFile = new TFile(Form("%s/transfer/transfer.sf1.02.al50.%s.root", path, particle.c_str() ), "READ");
+		responseMatrixFile = new TFile(Form("%s/transfer.sf1.02.al50.%s.root", transferMatrixPath, particle.c_str() ), "READ");
 		if(particle.compare("proton") == 0) {
-			responseMatrixFile = new TFile(Form("%s/transfer/transfer.sf1.02.al50.%s3.root", path, particle.c_str() ), "READ");
+			responseMatrixFile = new TFile(Form("%s/transfer.sf1.02.al50.%s3.root", transferMatrixPath, particle.c_str() ), "READ");
 		}
 	} else if(target.compare("al100") ==0 ) {
-		responseMatrixFile = new TFile(Form("%s/transfer/transfer.sf1.035.al100.%s.root", path, particle.c_str() ), "READ");
+		responseMatrixFile = new TFile(Form("%s/transfer.sf1.035.al100.%s.root", transferMatrixPath, particle.c_str() ), "READ");
 	} else if(target.compare("ti50") ==0) {
-		responseMatrixFile = new TFile(Form("%s/transfer.sf1.03.ti50.proton.root", path), "READ");
+		responseMatrixFile = new TFile(Form("%s/transfer.sf1.03.ti50.proton.root", transferMatrixPath), "READ");
 	}
 	std::cout << "Loading data: " << fData->GetName() << " Loading MC: " << responseMatrixFile->GetName() << std::endl;
 
@@ -142,7 +143,7 @@ void RooUnfoldAlCap(std::string target = "al100", std::string particle="proton",
 
 	RooUnfoldResponse *L_TM = (RooUnfoldResponse *)responseMatrixFile->Get("SiL500_TM");
 	RooUnfoldResponse *R_TM = (RooUnfoldResponse *)responseMatrixFile->Get("SiR500_TM");
-	TFile *fOutputFile = new TFile(Form("%s/unfolded.%s.root", path, target.c_str() ), "UPDATE");
+	TFile *fOutputFile = new TFile(Form("%s/unfolded.%s.root", getenv("R15b_OUT"), target.c_str() ), "UPDATE");
 
 	const char *sourceName = Form("h%s_SiL", particle.c_str() );
 	if(fOutputFile->GetListOfKeys()->Contains(sourceName) ) {

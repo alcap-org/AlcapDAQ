@@ -47,7 +47,7 @@ void GetFits(std::map<Int_t, Double_t> &totAdcShift, TH2D hGe, Int_t min = 1260,
 	}
 }
 void GeGainDrift(std::string target) {
-	TFile *fData = new TFile(Form("%s.root", target.c_str() ), "READ");
+	TFile *fData = new TFile(Form("%s/%s.root", getenv("R15b_DATA"), target.c_str() ), "READ");
 	if(!fData) {
 		printf("%s.root does not exist.", target.c_str() );
 		exit;

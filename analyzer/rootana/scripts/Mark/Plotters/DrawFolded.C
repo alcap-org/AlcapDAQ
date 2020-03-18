@@ -1,5 +1,5 @@
 void DrawFolded() {
-	TFile *fData = new TFile("al50.root", "READ");
+	TFile *fData = new TFile(Form("%s/al50.root", getenv("R15b_DATA") ), "READ");
 	TTree *tree = (TTree *)fData->Get("tree");
 	Double_t t1, t2, t3, e1, e2, e3, timeToPrevTME, timeToNextTME;
 	Int_t a1, a2, a3;
@@ -68,12 +68,12 @@ void DrawFolded() {
 
 		}
 	}
-std::cout << "SiL\tSiR" << std::endl;
-std::cout << hpSiL->GetEntries() << "\t" << hpSiR->GetEntries() << std::endl;
-std::cout << hdSiL->GetEntries() << "\t" << hdSiR->GetEntries() << std::endl;
-std::cout << htSiL->GetEntries() << "\t" << htSiR->GetEntries() << std::endl;
-std::cout << haSiL->GetEntries() << "\t" << haSiR->GetEntries() << std::endl;
-const char *FigsDir = "/home/wong/Desktop/report/alcap-priv/R15b_UpdateMay2019/aluminum/figs";
+	std::cout << "SiL\tSiR" << std::endl;
+	std::cout << hpSiL->GetEntries() << "\t" << hpSiR->GetEntries() << std::endl;
+	std::cout << hdSiL->GetEntries() << "\t" << hdSiR->GetEntries() << std::endl;
+	std::cout << htSiL->GetEntries() << "\t" << htSiR->GetEntries() << std::endl;
+	std::cout << haSiL->GetEntries() << "\t" << haSiR->GetEntries() << std::endl;
+	const char *FigsDir = getenv("R15b_OUT");
 {
 	TCanvas *c = new TCanvas("r", "r");
 	c->SetLogy();

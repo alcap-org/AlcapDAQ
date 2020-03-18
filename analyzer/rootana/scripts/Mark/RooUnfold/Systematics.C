@@ -7,9 +7,9 @@
 #endif
 
 TH1D * Process(TH1D *hMeas, TString arm, TString particle, TString cutDescription) {
-	TFile *responseMatrixFile = new TFile(Form("transfer.sf1.02.al50.%s.root", particle.Data() ), "READ");
+	TFile *responseMatrixFile = new TFile(Form("/home/m-wong/data/transfer/transfer.sf1.02.al50.%s.root", particle.Data() ), "READ");
 	if(particle.CompareTo("proton") == 0) {
-		responseMatrixFile = new TFile(Form("transfer.sf1.02.al50.%s3.root", particle.Data() ), "READ");
+		responseMatrixFile = new TFile(Form("/home/m-wong/data/transfer/transfer.sf1.02.al50.%s3.root", particle.Data() ), "READ");
 	}
 
 	RooUnfoldResponse *L_TM = (RooUnfoldResponse *)responseMatrixFile->Get("SiL500_TM");
@@ -36,7 +36,9 @@ TH1D * Process(TH1D *hMeas, TString arm, TString particle, TString cutDescriptio
 	return hReco;
 }
 void lifetime(TTree *tree, Double_t *lifetimeError, TString arm, TString particle) {
-	Double_t t1, t2, t3, a1, a2, a3, e1, e2, e3, timeToPrevTME, timeToNextTME;
+	Double_t scale = 1/0.77;
+	Double_t t1, t2, t3, e1, e2, e3, timeToPrevTME, timeToNextTME;
+	Int_t a2;
 	TString *channel = new TString();
 	TString *sig1 = new TString();
 	TString *sig2 = new TString();
@@ -51,6 +53,7 @@ void lifetime(TTree *tree, Double_t *lifetimeError, TString arm, TString particl
 	tree->SetBranchAddress("e1", &e1);
 	tree->SetBranchAddress("t1", &t1);
 	tree->SetBranchAddress("e2", &e2);
+	tree->SetBranchAddress("a2", &a2);
 	tree->SetBranchAddress("t2", &t2);
 	tree->SetBranchAddress("e3", &e3);
 	tree->SetBranchAddress("t3", &t3);
@@ -69,6 +72,10 @@ void lifetime(TTree *tree, Double_t *lifetimeError, TString arm, TString particl
 	TH1D *hTwo = new TH1D(Form("h400_%s_%s", arm.Data(), particle.Data() ), "400ns;E [keV];Counts / 500keV", nbins, 0, 20000); 
 	TH1D *hThree = new TH1D(Form("h500_%s_%s", arm.Data(), particle.Data() ), "500ns;E [keV];Counts / 500keV", nbins, 0, 20000); 
 	TH1D *hFour = new TH1D(Form("h600_%s_%s", arm.Data(), particle.Data() ), "600ns;E [keV];Counts / 500keV", nbins, 0, 20000); 
+	TH1D *hOne3 = new TH1D(Form("h300_%s_%s3", arm.Data(), particle.Data() ), "300ns;E [keV];Counts / 500keV", nbins, 0, 20000); 
+	TH1D *hTwo3 = new TH1D(Form("h400_%s_%s3", arm.Data(), particle.Data() ), "400ns;E [keV];Counts / 500keV", nbins, 0, 20000); 
+	TH1D *hThree3 = new TH1D(Form("h500_%s_%s3", arm.Data(), particle.Data() ), "500ns;E [keV];Counts / 500keV", nbins, 0, 20000); 
+	TH1D *hFour3 = new TH1D(Form("h600_%s_%s3", arm.Data(), particle.Data() ), "600ns;E [keV];Counts / 500keV", nbins, 0, 20000); 
 	for(Long64_t i=0; i < tree->GetEntries(); ++i) {
 		tree->GetEntry(i);
 		e1 *= 1e3;
@@ -76,28 +83,38 @@ void lifetime(TTree *tree, Double_t *lifetimeError, TString arm, TString particl
 		e3 *= 1e3;
 		if(abs(t2)>10e3) continue;
 		if(timeToPrevTME < 10e3 || timeToNextTME < 10e3) continue;
+		if(abs(t2-t1-13) > 23 * 4) continue;
 		if(TMath::IsNaN(e3) ) {
-			if(abs(t2-t1-12) > 60) continue;
-			if(!sig3->Contains(particle) ) continue;
+			if(!sig2->Contains(particle) ) continue;
 			if(arm.CompareTo("SiR") == 0 ) {
-				if(channel->Contains("SiL") ) continue;
-				//remove saturated pulses
+				if(a2 > 3986) continue; //remove saturation
+				if(!channel->Contains("SiR") ) continue;
 			} else {
-				if(channel->Contains("SiR") ) continue;
+				if(a2 > 3982) continue; //remove saturation
+				if(!channel->Contains("SiL") ) continue;
 			}
+			
 			if(t2 > 400) hOne->Fill(e1+e2);
 			if(t2 > 500) hTwo->Fill(e1+e2);
 			if(t2 > 600) hThree->Fill(e1+e2);
 			if(t2 > 700) hFour->Fill(e1+e2);
 		} else {
-			if(!pt3->Contains(particle) ) continue;
-
-			if(t2 > 400) hOne->Fill(e1+e2+e3);
-			if(t2 > 500) hTwo->Fill(e1+e2+e3);
-			if(t2 > 600) hThree->Fill(e1+e2+e3);
-			if(t2 > 700) hFour->Fill(e1+e2+e3);
+			if(!pt2->Contains(particle) ) continue;
+			if(t2 > 400) hOne3->Fill(e1+e2+e3);
+			if(t2 > 500) hTwo3->Fill(e1+e2+e3);
+			if(t2 > 600) hThree3->Fill(e1+e2+e3);
+			if(t2 > 700) hFour3->Fill(e1+e2+e3);
 		}
 	}
+	hOne3->Scale(scale);
+	hOne->Add(hOne3);
+	hTwo3->Scale(scale);
+	hTwo->Add(hTwo3);
+	hThree3->Scale(scale);
+	hThree->Add(hThree3);
+	hFour3->Scale(scale);
+	hFour->Add(hFour3);
+
 	TH1D *hOneUnf = Process(hOne, arm, particle, "300ns");
 	TH1D *hTwoUnf = Process(hTwo, arm, particle, "400ns");
 	TH1D *hThreeUnf = Process(hThree, arm, particle, "500ns");
@@ -115,7 +132,7 @@ void lifetime(TTree *tree, Double_t *lifetimeError, TString arm, TString particl
 		std::cout << (j-1)*500 << "\t|" << hOneUnf->GetBinContent(j)/0.71 << "\t|" << hTwoUnf->GetBinContent(j)/0.63 << "\t|" <<  hThreeUnf->GetBinContent(j)/0.56 << "\t|" << hFourUnf->GetBinContent(j)/0.50 << std::endl;
 		//elog:294
 		if(hOneUnf->GetBinContent(j) != 0) {
-			lifetimeError[j] = 1- ((hFourUnf->GetBinContent(j)/0.45) / (hOneUnf->GetBinContent(j)/0.63) );
+			lifetimeError[j] = 1- ((hFourUnf->GetBinContent(j)/0.50) / (hOneUnf->GetBinContent(j)/0.71) );
 		} else {
 			lifetimeError[j] = 0;
 		}
@@ -125,15 +142,15 @@ void dtFill(Double_t t2, Double_t t1, Double_t E, TH1D *h1, TH1D *h2, TH1D *h3, 
 	if(particle.CompareTo("proton") == 0 ) {
 		if(arm.CompareTo("SiR") == 0) {
 			if(E<3000) {
-				if(abs(t2-t1 - 8.31123) <   15.9492) h1->Fill(E);
-				if(abs(t2-t1 - 8.31123) < 2*15.9492) h2->Fill(E);
-				if(abs(t2-t1 - 8.31123) < 3*15.9492) h3->Fill(E);
-				if(abs(t2-t1 - 8.31123) < 4*15.9492) h4->Fill(E);
+				if(abs(t2-t1 - 8.19758) <   15.1644) h1->Fill(E);
+				if(abs(t2-t1 - 8.19758) < 2*15.1644) h2->Fill(E);
+				if(abs(t2-t1 - 8.19758) < 3*15.1644) h3->Fill(E);
+				if(abs(t2-t1 - 8.19758) < 4*15.1644) h4->Fill(E);
 			}
-			const int c = 8;
-			int energy[c] =   {3500,  4500,  5500,  6500, 7500,  8500, 9500, 10500};
-			double mean[c] =  {12.0452, 13.9437, 14.8337, 15.4478, 15.5178, 14.9985, 11.9798, 12.544};
-			double sigma[c] = {14.6326, 17.2193, 19.9066, 23.1122, 25.6022, 28.4722, 30.5675, 34.3171};
+			const int c = 10;
+			int energy[c] =   {3500,  4500,  5500,  6500, 7500,  8500, 9500, 10500, 11500, 12500};
+			double mean[c] =  {12.0452, 13.9437, 14.8337, 15.4478, 15.5178, 14.9985, 11.9798, 12.544, 21.9398, 21.0489};
+			double sigma[c] = {14.6326, 17.2193, 19.9066, 23.1122, 25.6022, 28.4722, 30.5675, 34.3171, 51.4912, 50.2579};
 			for(int i=0; i < c; ++i) {
 				if(abs(E-energy[i])<500) {
 					if(abs(t2-t1 - mean[i]) < sigma[i]) h1->Fill(E);
@@ -142,13 +159,13 @@ void dtFill(Double_t t2, Double_t t1, Double_t E, TH1D *h1, TH1D *h2, TH1D *h3, 
 					if(abs(t2-t1 - mean[i]) < 4*sigma[i]) h4->Fill(E);
 				}
 			}
-			if(E>11000) {
-				if(abs(t2-t1 - 30.3376) <   42.6461) h1->Fill(E);
-				if(abs(t2-t1 - 30.3376) < 2*42.6461) h2->Fill(E);
-				if(abs(t2-t1 - 30.3376) < 3*42.6461) h3->Fill(E);
-				if(abs(t2-t1 - 30.3376) < 4*42.6461) h4->Fill(E);
+			if(E>13000) {
+				if(abs(t2-t1 - 34.3982) <   42.8872) h1->Fill(E);
+				if(abs(t2-t1 - 34.3982) < 2*42.8872) h2->Fill(E);
+				if(abs(t2-t1 - 34.3982) < 3*42.8872) h3->Fill(E);
+				if(abs(t2-t1 - 34.3982) < 4*42.8872) h4->Fill(E);
 			}
-		} else {
+		} else { //SiL
 			if(E<3000) {
 				if(abs(t2-t1 - 8.77) < 20.62) h1->Fill(E);
 				if(abs(t2-t1 - 8.77) < 2*20.62) h2->Fill(E);
@@ -174,7 +191,7 @@ void dtFill(Double_t t2, Double_t t1, Double_t E, TH1D *h1, TH1D *h2, TH1D *h3, 
 				if(abs(t2-t1 - 18.88) < 4*29.82) h4->Fill(E);
 			}
 		}
-	} else { //deuteron
+	} else if(particle.CompareTo("deuteron") == 0) { //deuteron
 		if(arm.CompareTo("SiR") == 0) {
 			const int c = 5;
 			int energy[c] =   {4000, 6000, 8000, 10000, 12000};
@@ -194,32 +211,43 @@ void dtFill(Double_t t2, Double_t t1, Double_t E, TH1D *h1, TH1D *h2, TH1D *h3, 
 				if(abs(t2-t1 - 4.73) < 3*35.53) h3->Fill(E);
 				if(abs(t2-t1 - 4.73) < 4*35.53) h4->Fill(E);
 			}
+		} else { //SiL
+			if(abs(t2-t1 - 12.7294) <   22.0637) h1->Fill(E);
+			if(abs(t2-t1 - 12.7294) < 2*22.0637) h2->Fill(E);
+			if(abs(t2-t1 - 12.7294) < 3*22.0637) h3->Fill(E);
+			if(abs(t2-t1 - 12.7294) < 4*22.0637) h4->Fill(E);
+		}
+	} else if(particle.CompareTo("triton") == 0) {
+		if(arm.CompareTo("SiR") == 0) {
+			if(abs(t2-t1 - 11.5054) <   14.6790) h1->Fill(E);
+			if(abs(t2-t1 - 11.5054) < 2*14.6790) h2->Fill(E);
+			if(abs(t2-t1 - 11.5054) < 3*14.6790) h3->Fill(E);
+			if(abs(t2-t1 - 11.5054) < 4*14.6790) h4->Fill(E);
 		} else {
-			const int c = 5;
-			int energy[c] = {4000, 6000, 8000, 10000, 12000};
-			double mean[c] = {12.68, 14.38, 15.25, 9.37, 9.78};
-			double sigma[c] = {22.33, 30.94, 21.09, 19.79, 24.85};
-			for(int i=0; i < c; ++i) {
-				if(abs(E-energy[i])<1000) {
-					if(abs(t2-t1 - mean[i]) <   sigma[i]) h1->Fill(E);
-					if(abs(t2-t1 - mean[i]) < 2*sigma[i]) h2->Fill(E);
-					if(abs(t2-t1 - mean[i]) < 3*sigma[i]) h3->Fill(E);
-					if(abs(t2-t1 - mean[i]) < 4*sigma[i]) h4->Fill(E);
-				}
-			}
-			if(E>13000) {
-				if(abs(t2-t1 - 6.15) < 24.21) h1->Fill(E);
-				if(abs(t2-t1 - 6.15) < 2*24.21) h2->Fill(E);
-				if(abs(t2-t1 - 6.15) < 3*24.21) h3->Fill(E);
-				if(abs(t2-t1 - 6.15) < 4*24.21) h4->Fill(E);
-			}
-
+			if(abs(t2-t1 - 12.3712) <   20.4712) h1->Fill(E);
+			if(abs(t2-t1 - 12.3712) < 2*20.4712) h2->Fill(E);
+			if(abs(t2-t1 - 12.3712) < 3*20.4712) h3->Fill(E);
+			if(abs(t2-t1 - 12.3712) < 4*20.4712) h4->Fill(E);
+		}
+	} else if(particle.CompareTo("alpha") == 0) {
+		if(arm.CompareTo("SiR") == 0) {
+			if(abs(t2-t1 - 20.0349) <   6.90189) h1->Fill(E);
+			if(abs(t2-t1 - 20.0349) < 2*6.90189) h2->Fill(E);
+			if(abs(t2-t1 - 20.0349) < 3*6.90189) h3->Fill(E);
+			if(abs(t2-t1 - 20.0349) < 4*6.90189) h4->Fill(E);
+		} else {
+			if(abs(t2-t1 - 15.0798) <   18.7265) h1->Fill(E);
+			if(abs(t2-t1 - 15.0798) < 2*18.7265) h2->Fill(E);
+			if(abs(t2-t1 - 15.0798) < 3*18.7265) h3->Fill(E);
+			if(abs(t2-t1 - 15.0798) < 4*18.7265) h4->Fill(E);
 		}
 	}
 }
 
 void dt(TTree *tree, Double_t *dtError, TString arm, TString particle) {
-	Double_t t1, t2, t3, a1, a2, a3, e1, e2, e3, timeToPrevTME, timeToNextTME;
+	Double_t scale = 1/0.77;
+	Double_t t1, t2, t3, e1, e2, e3, timeToPrevTME, timeToNextTME;
+	Int_t a2;
 	TString *channel = new TString();
 	TString *sig1 = new TString();
 	TString *sig2 = new TString();
@@ -235,6 +263,7 @@ void dt(TTree *tree, Double_t *dtError, TString arm, TString particle) {
 	tree->SetBranchAddress("t1", &t1);
 	tree->SetBranchAddress("e2", &e2);
 	tree->SetBranchAddress("t2", &t2);
+	tree->SetBranchAddress("a2", &a2);
 	tree->SetBranchAddress("e3", &e3);
 	tree->SetBranchAddress("t3", &t3);
 	tree->SetBranchAddress("channel", &channel);
@@ -252,6 +281,10 @@ void dt(TTree *tree, Double_t *dtError, TString arm, TString particle) {
 	TH1D *hTwo = new TH1D(Form("hdt_2_%s_%s", arm.Data(), particle.Data() ), "2#sigma;E [keV];Counts / 500keV", nbins, 0, 20000); 
 	TH1D *hThree = new TH1D(Form("hdt_3_%s_%s", arm.Data(), particle.Data() ), "3#sigma;E [keV];Counts / 500keV", nbins, 0, 20000); 
 	TH1D *hFour = new TH1D(Form("hdt_4_%s_%s", arm.Data(), particle.Data() ), "4#sigma;E [keV];Counts / 500keV", nbins, 0, 20000); 
+	TH1D *hOne3 = new TH1D(Form("hdt_1_%s_%s3", arm.Data(), particle.Data() ), "1#sigma;E [keV];Counts / 500keV", nbins, 0, 20000); 
+	TH1D *hTwo3 = new TH1D(Form("hdt_2_%s_%s3", arm.Data(), particle.Data() ), "2#sigma;E [keV];Counts / 500keV", nbins, 0, 20000); 
+	TH1D *hThree3 = new TH1D(Form("hdt_3_%s_%s3", arm.Data(), particle.Data() ), "3#sigma;E [keV];Counts / 500keV", nbins, 0, 20000); 
+	TH1D *hFour3 = new TH1D(Form("hdt_4_%s_%s3", arm.Data(), particle.Data() ), "4#sigma;E [keV];Counts / 500keV", nbins, 0, 20000); 
 	for(Long64_t i=0; i < tree->GetEntries(); ++i) {
 		tree->GetEntry(i);
 		e1 *= 1e3;
@@ -261,19 +294,29 @@ void dt(TTree *tree, Double_t *dtError, TString arm, TString particle) {
 		if(t2<500) continue;
 		if(abs(t2)>10e3) continue;
 		if(TMath::IsNaN(e3) )  {
-			if(!sig3->Contains(particle) ) continue;
+			if(!sig2->Contains(particle) ) continue;
 			if(arm.CompareTo("SiR") == 0 ) {
-				if(channel->Contains("SiL") ) continue;
+				if(a2 > 3986) continue; //remove saturation
+				if(!channel->Contains("SiR") ) continue;
 			} else {
-				if(channel->Contains("SiR") ) continue;
+				if(a2 > 3982) continue; //remove saturation
+				if(!channel->Contains("SiL") ) continue;
 			}
 			dtFill(t2, t1, e1+e2, hOne, hTwo, hThree, hFour, arm, particle);
 		} else {
-			if(!pt3->Contains(particle) ) continue;
-
-			dtFill(t2, t1, e1+e2+e3, hOne, hTwo, hThree, hFour, arm, particle);
+			if(!pt2->Contains(particle) ) continue;
+			dtFill(t2, t1, e1+e2+e3, hOne3, hTwo3, hThree3, hFour3, arm, particle);
 		}
 	}
+	hOne3->Scale(scale);
+	hOne->Add(hOne3);
+	hTwo3->Scale(scale);
+	hTwo->Add(hTwo3);
+	hThree3->Scale(scale);
+	hThree->Add(hThree3);
+	hFour3->Scale(scale);
+	hFour->Add(hFour3);
+
 	TH1D *hOneUnf = Process(hOne, arm, particle, "1#sigma");
 	TH1D *hTwoUnf = Process(hTwo, arm, particle, "2#sigma");
 	TH1D *hThreeUnf = Process(hThree, arm, particle, "3#sigma");
@@ -291,14 +334,16 @@ void dt(TTree *tree, Double_t *dtError, TString arm, TString particle) {
 		std::cout << (j-1)*500 << "\t|" << hOneUnf->GetBinContent(j)/0.682 << "\t|" << hTwoUnf->GetBinContent(j)/0.954 << "\t|" <<  hThreeUnf->GetBinContent(j)/0.996 << "\t|" << hFourUnf->GetBinContent(j)/0.998 << std::endl;
 		//.682, .954, .996
 		if(hThreeUnf->GetBinContent(j) != 0) {
-			dtError[j] = 1- ((hOneUnf->GetBinContent(j)/0.682) / (hThreeUnf->GetBinContent(j)/0.996) );
+			dtError[j] = 1- ((hOneUnf->GetBinContent(j)/0.682) / (hTwoUnf->GetBinContent(j)/0.954) );
 		} else {
 			dtError[j] = 0;
 		}
 	}
 }
 void Pid(TTree *tree, Double_t *pidError, TString arm, TString particle) {
-	Double_t t1, t2, t3, a1, a2, a3, e1, e2, e3, timeToPrevTME, timeToNextTME;
+	Double_t scale = 1/0.77;
+	Double_t t1, t2, t3, e1, e2, e3, timeToPrevTME, timeToNextTME;
+	Int_t a2;
 	TString *channel = new TString();
 	TString *sig1 = new TString();
 	TString *sig2 = new TString();
@@ -312,6 +357,7 @@ void Pid(TTree *tree, Double_t *pidError, TString arm, TString particle) {
 	tree->SetBranchAddress("timeToNextTME", &timeToNextTME);
 	tree->SetBranchAddress("e1", &e1);
 	tree->SetBranchAddress("t1", &t1);
+	tree->SetBranchAddress("a2", &a2);
 	tree->SetBranchAddress("e2", &e2);
 	tree->SetBranchAddress("t2", &t2);
 	tree->SetBranchAddress("e3", &e3);
@@ -331,6 +377,10 @@ void Pid(TTree *tree, Double_t *pidError, TString arm, TString particle) {
 	TH1D *hTwo = new TH1D(Form("hPid_2_%s_%s", arm.Data(), particle.Data() ), "2#sigma;E [keV];Counts / 500keV", nbins, 0, 20000); 
 	TH1D *hThree = new TH1D(Form("hPid_3_%s_%s", arm.Data(), particle.Data() ), "3#sigma;E [keV];Counts / 500keV", nbins, 0, 20000); 
 	TH1D *hFour = new TH1D(Form("hPid_4_%s_%s", arm.Data(), particle.Data() ), "4#sigma;E [keV];Counts / 500keV", nbins, 0, 20000); 
+	TH1D *hOne3 = new TH1D(Form("hPid_1_%s_%s3", arm.Data(), particle.Data() ), "1#sigma;E [keV];Counts / 500keV", nbins, 0, 20000); 
+	TH1D *hTwo3 = new TH1D(Form("hPid_2_%s_%s3", arm.Data(), particle.Data() ), "2#sigma;E [keV];Counts / 500keV", nbins, 0, 20000); 
+	TH1D *hThree3 = new TH1D(Form("hPid_3_%s_%s3", arm.Data(), particle.Data() ), "3#sigma;E [keV];Counts / 500keV", nbins, 0, 20000); 
+	TH1D *hFour3 = new TH1D(Form("hPid_4_%s_%s3", arm.Data(), particle.Data() ), "4#sigma;E [keV];Counts / 500keV", nbins, 0, 20000); 
 	for(Long64_t i=0; i < tree->GetEntries(); ++i) {
 		tree->GetEntry(i);
 		e1 *= 1e3;
@@ -339,24 +389,35 @@ void Pid(TTree *tree, Double_t *pidError, TString arm, TString particle) {
 		if(timeToPrevTME < 10e3 || timeToNextTME < 10e3) continue;
 		if(t2<500) continue;
 		if(abs(t2)>10e3) continue;
-		if(abs(t2-t1-12) > 60 ) continue;
+		if(abs(t2-t1-13) > 23 * 4 ) continue;
 		if(TMath::IsNaN(e3) ) {
-			if(!arm.CompareTo("SiR") ) {
-				if(channel->Contains("SiL") ) continue;
+			if(arm.CompareTo("SiR") ) {
+				if(a2 > 3986) continue; //remove saturation
+				if(!channel->Contains("SiR") ) continue;
 			} else {
-				if(channel->Contains("SiR") ) continue;
+				if(a2 > 3982) continue; //remove saturation
+				if(!channel->Contains("SiL") ) continue;
 			}
 			if(sig1->Contains(particle) ) hOne->Fill(e1+e2);
 			if(sig2->Contains(particle) ) hTwo->Fill(e1+e2);
 			if(sig3->Contains(particle) ) hThree->Fill(e1+e2);
 			if(sig4->Contains(particle) ) hFour->Fill(e1+e2);
 		} else {
-			if(pt1->Contains(particle) ) hOne->Fill(e1+e2+e3);
-			if(pt2->Contains(particle) ) hTwo->Fill(e1+e2+e3);
-			if(pt3->Contains(particle) ) hThree->Fill(e1+e2+e3);
-			if(pt4->Contains(particle) ) hFour->Fill(e1+e2+e3);
+			if(pt1->Contains(particle) ) hOne3->Fill(e1+e2+e3);
+			if(pt2->Contains(particle) ) hTwo3->Fill(e1+e2+e3);
+			if(pt3->Contains(particle) ) hThree3->Fill(e1+e2+e3);
+			if(pt4->Contains(particle) ) hFour3->Fill(e1+e2+e3);
 		}
 	}
+	hOne3->Scale(scale);
+	hOne->Add(hOne3);
+	hTwo3->Scale(scale);
+	hTwo->Add(hTwo3);
+	hThree3->Scale(scale);
+	hThree->Add(hThree3);
+	hFour3->Scale(scale);
+	hFour->Add(hFour3);
+
 	TH1D *hOneUnf = Process(hOne, arm, particle, "1#sigma");
 	TH1D *hTwoUnf = Process(hTwo, arm, particle, "2#sigma");
 	TH1D *hThreeUnf = Process(hThree, arm, particle, "3#sigma");
@@ -373,7 +434,7 @@ void Pid(TTree *tree, Double_t *pidError, TString arm, TString particle) {
 	for(int k=1; k<=nbins; ++k) { //ignore under and overflow bins
 		std::cout << (k-1)*500 << "\t|" << hOneUnf->GetBinContent(k)/0.682 << "\t|" << hTwoUnf->GetBinContent(k)/0.954 << "\t|" <<  hThreeUnf->GetBinContent(k)/0.996 << "\t|" << hFourUnf->GetBinContent(k)/0.998 << std::endl;
 		if(hThreeUnf->GetBinContent(k) != 0) {
-			pidError[k] = 1- ((hOneUnf->GetBinContent(k)/0.682) / (hTwoUnf->GetBinContent(k)/0.95) );
+			pidError[k] = 1- ((hOneUnf->GetBinContent(k)/0.682) / (hTwoUnf->GetBinContent(k)/0.954) );
 		} else {
 			pidError[k] = 0;
 		}
@@ -385,29 +446,35 @@ void Finally(Double_t *pidError, Double_t *dtError, Double_t *lifetimeError, TSt
 	Int_t nbins = 40;
 	TH1D *hPid = new TH1D("hPid", "PID;E [keV]", nbins, 0, 20000); hPid->SetFillColor(kRed);
 	TH1D *hDt = new TH1D("hDt", "t_{2}-t_{1};E [keV]", nbins, 0, 20000); hDt->SetFillColor(kGreen);
-	TH1D *hLifetime = new TH1D("hLifetime", "#tae;E [keV]", nbins, 0, 20000); hLifetime->SetFillColor(kBlue);
+	TH1D *hLifetime = new TH1D("hLifetime", "#tau;E [keV]", nbins, 0, 20000); hLifetime->SetFillColor(kBlue);
 	for(int i=1; i<=nbins; ++i) {
-		hPid->SetBinContent(i, pidError[i]);
-		hDt->SetBinContent(i, dtError[i]);
-		hLifetime->SetBinContent(i,lifetimeError[i]);
+		hPid->SetBinContent(i, abs(pidError[i]) );
+		hDt->SetBinContent(i, abs(dtError[i]) );
+		hLifetime->SetBinContent(i, abs(lifetimeError[i]) );
 	}
 	THStack *hSystematics = new THStack("hSystematics", "Systematic errors");
 	hSystematics->Add(hPid);
 	hSystematics->Add(hDt);
 	hSystematics->Add(hLifetime);
 
-	TLegend *legend = new TLegend(.240, .598, .652, .868, "#bf{#it{Al50} right} systematics");
+//TLegend *legend = new TLegend(.240, .598, .652, .868);
+TLegend *legend = new TLegend(0.266476, 0.598739, 0.593123, 0.869748); //deuteron, triton
+//TLegend *legend = new TLegend(0.146132, 0.598739, 0.434097, 0.869748); //alpha
+
+
+	legend->SetHeader(Form("#bf{AlCap} #it{Al50} %s Systematics", arm.Data() ) );
 	legend->AddEntry(hPid, "Pid", "F");
 	legend->AddEntry(hDt, "t_{2}-t_{1}", "F");
 	legend->AddEntry(hLifetime, "#tau", "F");
 
 	TCanvas *cFinal = new TCanvas("c", "c");
 	hSystematics->Draw();
-	hSystematics->SetTitle(Form("%s unfolded %s", arm.Data(), particle.Data() ) );
+	hSystematics->GetXaxis()->SetTitle("E[keV]");
+	hSystematics->GetYaxis()->SetTitle("Fractional");
 	legend->Draw("SAME");
 	cFinal->Draw();
-	const char *FigsDir = "/home/wong/Desktop/report/alcap-priv/R15b_UpdateMay2019/aluminum/figs";
-	cFinal->SaveAs(Form("AlCapData_Al50Dataset_%s-Systematics.pdf", particle.Data() ) );
+	const char *FigsDir = ".";
+	cFinal->SaveAs(Form("AlCapData_Al50Dataset_%s_%s-Systematics.pdf", arm.Data(), particle.Data() ) );
 }
 
 void Systematics(TString arm = "SiR", TString particle = "proton") {
@@ -421,7 +488,7 @@ void Systematics(TString arm = "SiR", TString particle = "proton") {
 	Double_t lifetimeError[nbins] = {};
 	Double_t pidError[nbins] = {};
 
-	TFile *fData = new TFile("al50.root", "READ");
+	TFile *fData = new TFile("/home/m-wong/data/R15b/al50.root", "READ");
 	TTree *tree = (TTree *)fData->Get("tree");
 
 	lifetime(tree, lifetimeError, arm, particle);

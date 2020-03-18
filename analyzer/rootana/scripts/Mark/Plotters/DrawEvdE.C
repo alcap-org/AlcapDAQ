@@ -1,5 +1,5 @@
 void Construct(TH2D *hSiL, TH2D *hSiR, TH2D *hLg_SiL_EvDeltaE, TH2D *hLg_SiR_EvDeltaE) {
-	TFile *fData = new TFile("al50.root", "READ");
+	TFile *fData = new TFile(Form("%s/al50.root", getenv("R15b_DATA") ), "READ");
 	TTree *tree = (TTree *)fData->Get("tree");
         Double_t t1, t2, t3, a1, a2, a3, e1, e2, e3, timeToPrevTME, timeToNextTME;
         TString *channel = new TString();
@@ -46,7 +46,7 @@ void Construct(TH2D *hSiL, TH2D *hSiR, TH2D *hLg_SiL_EvDeltaE, TH2D *hLg_SiR_EvD
 }
 
 void DrawEvdE() {
-	const char *al50FigsDir = "/home/wong/Desktop/report/alcap-priv/R15b_UpdateMay2019/aluminum/figs";
+	const char *al50FigsDir = getenv("R15b_OUT");
         TH2D *hSiL = new TH2D("hSiL", "SiL;E [MeV];#DeltaE [MeV]", 200, 0, 20, 200, 0, 8);
         TH2D *hSiR = new TH2D("hSiR", "SiR;E [MeV];#DeltaE [MeV]", 200, 0, 20, 200, 0, 8);
 	TH2D *hLg_SiL_EvDeltaE = new TH2D("hLg_SiL_EvDeltaE", ";LgE-Lg#DeltaE / #sqrt{2};LgE+Lg#DeltaE / #sqrt{2}", 250, -0.1, 1.5, 100, .26, 1.4);

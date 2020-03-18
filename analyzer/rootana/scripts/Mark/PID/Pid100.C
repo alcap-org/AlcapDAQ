@@ -209,9 +209,9 @@ void DefineCut(const char *sourceName, const char *species="proton", bool plotLe
   A rough integral or plain sum over bins are done as another check on the gaussian integral
   The difference between the Entries var and Integral var is(should be) the Background var (pol0 * fit window size and corrected with the bin size)
   */
-void Pid100(const char *filename="al100.root", Bool_t plotLeft=kTRUE, const char *treeName="tree") {
+void Pid(const char *target="al100", Bool_t plotLeft=kTRUE, const char *treeName="tree") {
 	gStyle->SetOptFit(1);
-	TFile *fData = new TFile(filename, "READ");
+	TFile *fData = new TFile(Form("%s/%s.root", getenv("R15b_DATA"), target), "READ");
 	TH2D *hLg_SiL_EvDeltaE = new TH2D("hLg_SiL_EvDeltaE", "SiL Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 250, -0.1, 1.5, 100, ymin, ymax);
 	TH2D *hLg_SiR_EvDeltaE = new TH2D("hLg_SiR_EvDeltaE", "SiR Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 250, -0.1, 1.5, 100, ymin, ymax);
 	Double_t e1, e2, e3, t1, t2, timeToPrevTME, timeToNextTME;

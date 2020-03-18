@@ -1,6 +1,6 @@
 void DrawUnfolded() {
-	const char *FigsDir = "/home/wong/Desktop/report/alcap-priv/R15b_UpdateMay2019/aluminum/figs";
-	TFile *fData = new TFile("unfolded.al50.root", "READ");
+	const char *FigsDir = getenv("R15b_OUT");
+	TFile *fData = new TFile(Form("%s/unfolded.al50.root", getenv("R15b_OUT") ), "READ");
 	TH1D *hpSiL = (TH1D *)fData->Get("hproton_SiL"); hpSiL->GetYaxis()->SetMaxDigits(3);
 	TH1D *hpSiR = (TH1D *)fData->Get("hproton_SiR"); hpSiR->GetYaxis()->SetMaxDigits(3);
 	TH1D *hdSiL = (TH1D *)fData->Get("hdeuteron_SiL"); hdSiL->GetYaxis()->SetMaxDigits(3);
