@@ -8,8 +8,6 @@ void runProof(const char * set="al100", bool debug=false)
 		dirname = "/data/ssd3/R15bAnalysis/m-wong/MT/tme/";
 	} else if(std::strcmp(set, "al50")==0 ) {
 		dirname = "/data/ssd2/R15bAnalysis/tmetree/Al50/";
-		//dirname="/data/R15b/tme/Al50/";
-		//dirname="/data/ssd3/R15bAnalysis/m-wong/al50-extended/";
 	} else if(std::strcmp(set, "ti50")==0 ) {
 		dirname="/data/ssd3/R15bAnalysis/m-wong/Ti50/";
 	} else if(std::strcmp(set, "si16b")==0 ) {

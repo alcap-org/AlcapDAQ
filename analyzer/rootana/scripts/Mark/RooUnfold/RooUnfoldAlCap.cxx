@@ -42,9 +42,9 @@ void Process(RooUnfoldResponse *response, TH1D *hMeas, const char *arm = "SiL", 
 }
 void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", bool normalise = kFALSE)
 {
-	TFile *fData = new TFile(Form("%s/%s.root", dataPath, target.c_str() ), "READ");
 	const char *dataPath = getenv("R15b_DATA");
 	const char *transferMatrixPath = getenv("R15b_TM");
+	TFile *fData = new TFile(Form("%s/%s.root", dataPath, target.c_str() ), "READ");
 	TFile *responseMatrixFile = 0;
 	if(target.compare("al50") ==0) {
 		responseMatrixFile = new TFile(Form("%s/transfer.sf1.02.al50.%s.root", transferMatrixPath, particle.c_str() ), "READ");

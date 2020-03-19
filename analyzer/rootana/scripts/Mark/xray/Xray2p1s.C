@@ -1,5 +1,5 @@
 void Xray2p1s(const char *target) {
-	TFile *fData = new TFile(Form("%s.root", target), "READ");
+	TFile *fData = new TFile(Form("%s/%s.root", getenv("R15b_DATA"), target), "READ");
 	TTree *tree = (TTree *)fData->Get("tree");
 	Double_t t1, e1, timeToPrevTME, timeToNextTME;
 	TString * channel = new TString("");
@@ -117,6 +117,6 @@ void Xray2p1s(const char *target) {
 	hGeHiGainRes->GetYaxis()->CenterTitle();
 	c->cd();
 
-	const char *FigsDir = "/home/wong/Desktop/report/alcap-priv/R15b_UpdateMay2019/aluminum/figs";
+	const char *FigsDir = getenv("R15b_OUT");
 	c->SaveAs(Form("%s/AlCapData_Al50Dataset_2p1sXray.pdf", FigsDir) );
 }
