@@ -1,12 +1,12 @@
 void Si16a_FinalPlot_DataVsMC_BeamEnergySame() {
 
-  //  const int n_runs = 1;
-  //  int run_numbers[n_runs] = {9740}; // want to do all runs individually
-  //  double scale_factors[n_runs] = {1.02};
+   const int n_runs = 1;
+   int run_numbers[n_runs] = {9740}; // want to do all runs individually
+   double scale_factors[n_runs] = {1.02};
 
-  const int n_runs = 4;
-  int run_numbers[n_runs] = {9740, 9741, 9742, 9743}; // want to do all runs individually
-  double scale_factors[n_runs] = {1.02, 1.03, 1.04, 1.05};
+  // const int n_runs = 4;
+  // int run_numbers[n_runs] = {9740, 9741, 9742, 9743}; // want to do all runs individually
+  // double scale_factors[n_runs] = {1.02, 1.03, 1.04, 1.05};
 
   const int n_settings = 2;
   std::string prefilenames[n_settings] = {"~/data/results/Si16a/raw_spectra", "~/data/mc/Si16a/MC_raw_spectra"};
@@ -33,8 +33,11 @@ void Si16a_FinalPlot_DataVsMC_BeamEnergySame() {
 					     {5, 5}
   };
   const char* inhistnames[n_plots][n_settings] = { { "Thin_All_TimeSlice-200_200/hRawSpectrum", "hThinEnergy_noVeto_SiL" },
-						   { "Thick_All_TimeSlice-200_200/hRawSpectrum", "hThickEnergy_noVeto_SiL" }
+  						   { "Thick_All_TimeSlice-200_200/hRawSpectrum", "hThickEnergy_noVeto_SiL" }
   };
+  // const char* inhistnames[n_plots][n_settings] = { { "Thin_wNoThick_TimeSlice-200_200/hRawSpectrum", "hThinEnergy_Veto_SiL" },
+  // 						   { "Thick_wThin_TimeSlice-200_200/hRawSpectrum", "hThickEnergy_noVeto_SiL" }
+  // };
   double scales[n_settings] = {-1, -1};
   int n_entries[n_plots][n_settings] = { {0, 0}, {0, 0} };
 

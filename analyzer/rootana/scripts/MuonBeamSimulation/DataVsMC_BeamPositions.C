@@ -1,12 +1,17 @@
-void DataVsMC_BeamPositions() {
+void DataVsMC_BeamPositions(std::string outdir = "") {
   /*  
   const int n_runs = 8;
   int run_numbers[n_runs] = {9735, 9736, 9737, 9739, 9740, 9741, 9742, 9743}; // want to do all runs individually
   double scale_factors[n_runs] = {1.035, 0.99, 0.98, 1.01, 1.02, 1.03, 1.04, 1.05};
   */
+  /*
   const int n_runs = 7;
   int run_numbers[n_runs] = {10404, 10473, 10477, 9740, 9741, 9742, 9743}; // want to do all runs individually
   std::string dirs[n_runs] = {"BeamPos/", "BeamPos/", "BeamPos/", "Si16a/", "Si16a/", "Si16a/", "Si16a/"};
+  */
+  const int n_runs = 3;
+  int run_numbers[n_runs] = {10404, 10473, 10477};
+  std::string dirs[n_runs] = {"BeamPos/", "BeamPos/", "BeamPos/"};
   //
   const int n_settings = 2;
   std::string folders[n_settings] = {"~/data/results/", "~/data/mc/"};
@@ -24,14 +29,18 @@ void DataVsMC_BeamPositions() {
     run_str << std::fixed << std::setw(5) << std::setfill('0') << run_numbers[i_run];
     std::cout << "Run " << run_str.str() << std::endl;
     
-    TLegend* leg = new TLegend(0.40,0.35,0.80,0.65);
+    TLegend* leg = new TLegend(0.15,0.65,0.40,0.90);
     leg->SetBorderSize(0);
     leg->SetTextSize(0.03);
     leg->SetFillStyle(0);
     leg->SetFillColor(kWhite);
     
     for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
-      std::string infilename = folders[i_setting] + dirs[i_run] + files[i_setting] + run_str.str() + ".root";
+      std::string infilename = folders[i_setting] + dirs[i_run] + files[i_setting] + run_str.str();
+      if (i_setting == 1 && run_numbers[i_run]==10473) {
+       	infilename += "_original";
+      }
+      infilename += ".root";
       TFile* infile = new TFile(infilename.c_str(), "READ");
       if (infile->IsZombie()) {
 	std::cout << "ERROR: Can't find file " << infilename << std::endl;
@@ -55,7 +64,8 @@ void DataVsMC_BeamPositions() {
       hBeamPos->SetLineStyle(1);
       hBeamPos->GetXaxis()->SetTitle("Strip Number");
       hBeamPos->Scale(1.0 / hBeamPos->Integral(1, 14));
-      hBeamPos->SetMaximum(0.1);
+      hBeamPos->GetYaxis()->SetTitle("Unit Area (strips 1 - 14)");
+      hBeamPos->SetMaximum(0.15);
       hBeamPos->Draw("HIST E SAME");
 
       std::string fit_fn_name = "gaus";
@@ -74,7 +84,20 @@ void DataVsMC_BeamPositions() {
       leglabel.str("");
       leglabel << leglabels[i_setting] << " Fit: #left(#splitline{mean = " << std::fixed << std::setprecision(2) << mean << " #pm " << mean_error << "}{sigma = " << sigma << " #pm " << sigma_error << "}#right)";
       leg->AddEntry(hBeamPos, leglabel.str().c_str(), "l");
+
     }
+
+    TLatex* latex = new TLatex();
+    latex->SetTextAlign(22);
+    std::string text = "Run " + run_str.str();
+    latex->DrawLatexNDC(0.65, 0.75, text.c_str());
+
     leg->Draw();
+
+    if (outdir != "") {
+      std::string savename = outdir + "/AlCapDataVsMC_Run" + run_str.str() + "_BeamPosition";
+      std::string pdfname = savename + ".pdf";
+      c->SaveAs(pdfname.c_str());
+    }
   }
 }

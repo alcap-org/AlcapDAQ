@@ -10,8 +10,8 @@ void Si16a_FinalPlot_DataVsMC_BeamEnergy_ThinStop() {
   double scale_factors[n_runs] = {1.02, 1.03, 1.05};
   */
   const int n_runs = 1;
-  int run_numbers[n_runs] = {9743}; // want to do all runs individually
-  double scale_factors[n_runs] = {1.05};
+  int run_numbers[n_runs] = {9740}; // want to do all runs individually
+  double scale_factors[n_runs] = {1.02};
 
   const int n_settings = 2;
   //  std::string histnames[n_settings] = {"Thin_wNoThick_TimeSlice-200_200/hRawSpectrum", "muonbeam/hRawSpectrum"};
@@ -20,8 +20,8 @@ void Si16a_FinalPlot_DataVsMC_BeamEnergy_ThinStop() {
   std::string postfilenames[n_settings] = {"_newPP.root", ".root"};
   std::string leglabels[n_settings] = {"Data", "MC"};
   Int_t colours[n_settings] = {kBlack, kRed};
-  int rebin_factors[n_settings] = {5, 2};
-  std::string inhistnames[n_settings] = {"Thin_wNoThick_TimeSlice-200_200/hRawSpectrum", "hThinEnergy_noThickHit_SiL"};
+  int rebin_factors[n_settings] = {5, 5};
+  std::string inhistnames[n_settings] = {"Thin_wNoThick_TimeSlice-200_200/hRawSpectrum", "hThinEnergy_Veto_SiL"};
 
   std::stringstream run_str, sf_str, axislabel, leglabel;
   for (int i_run = 0; i_run < n_runs; ++i_run) {

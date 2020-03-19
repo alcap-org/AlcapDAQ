@@ -1,17 +1,17 @@
-void Si16a_FinalPlot_DataVsMC_BeamEnergy_ThinAll() {
+void Si16a_FinalPlot_DataVsMC_BeamEnergy_ThinAll(std::string outdir = "") {
   /*  
   const int n_runs = 8;
   int run_numbers[n_runs] = {9735, 9736, 9737, 9739, 9740, 9741, 9742, 9743}; // want to do all runs individually
   double scale_factors[n_runs] = {1.035, 0.99, 0.98, 1.01, 1.02, 1.03, 1.04, 1.05};
   */
-  /*
+  
   const int n_runs = 3;
   int run_numbers[n_runs] = {9740, 9741, 9743}; // want to do all runs individually
   double scale_factors[n_runs] = {1.02, 1.03, 1.05};
-  */
-  const int n_runs = 1;
-  int run_numbers[n_runs] = {9743}; // want to do all runs individually
-  double scale_factors[n_runs] = {1.05};
+  
+  // const int n_runs = 1;
+  // int run_numbers[n_runs] = {9740}; // want to do all runs individually
+  // double scale_factors[n_runs] = {1.02};
 
   const int n_settings = 2;
   //  std::string histnames[n_settings] = {"Thin_wNoThick_TimeSlice-200_200/hRawSpectrum", "muonbeam/hRawSpectrum"};
@@ -20,7 +20,7 @@ void Si16a_FinalPlot_DataVsMC_BeamEnergy_ThinAll() {
   std::string postfilenames[n_settings] = {"_newPP.root", ".root"};
   std::string leglabels[n_settings] = {"Data", "MC"};
   Int_t colours[n_settings] = {kBlack, kRed};
-  int rebin_factors[n_settings] = {5, 2};
+  int rebin_factors[n_settings] = {5, 5};
   std::string inhistnames[n_settings] = {"Thin_All_TimeSlice-200_200/hRawSpectrum", "hThinEnergy_noVeto_SiL"};
 
   std::stringstream run_str, sf_str, axislabel, leglabel;
@@ -77,5 +77,17 @@ void Si16a_FinalPlot_DataVsMC_BeamEnergy_ThinAll() {
       leg->AddEntry(hEnergy, leglabel.str().c_str(), "l");
     }
     leg->Draw();
+
+    TLatex* latex = new TLatex();
+    latex->SetTextAlign(22);
+    //    latex->DrawLatexNDC(0.7, 0.55, "AlCap #bf{#it{Preliminary}}");
+    std::string text = "Run " + run_str.str() + ", SF = " + sf_str.str();
+    latex->DrawLatexNDC(0.7, 0.5, text.c_str());
+
+    if (outdir != "") {
+      std::string savename = outdir + "/AlCapDataVsMC_Si16aDataset_Run" + run_str.str() + "_BeamEnergy_ThinAll";
+      std::string pdfname = savename + ".pdf";
+      c->SaveAs(pdfname.c_str());
+    }
   }
 }
