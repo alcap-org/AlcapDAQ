@@ -5,7 +5,6 @@ export R15b_TM=/home/m-wong/data/transfer
 export R15b_OUT=/home/m-wong/data/out
 MC /data/hdd4/R15bMC/
 Code /home/m-wong/AlcapDAQ/analyzer/rootana/scripts/Al100/ or https://github.com/alcap-org/AlcapDAQ/tree/MW_R15b/analyzer/rootana/scripts/Mark
-commit d740164bd4a69b973f588533af043379c7a3ab4c (HEAD -> MW_R15b, origin/MW_R15b)
 Tested with al50, al100 (ti50, si16b, mt soon)
 
 Al100 note: A (2a1+a2)>350 amplitude cut was used when preparing the TMETree (PlotTAP_TDiff).
