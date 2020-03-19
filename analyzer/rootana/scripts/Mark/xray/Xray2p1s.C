@@ -1,4 +1,4 @@
-void Xray2p1s(const char *target) {
+void Xray2p1s(const char *target, const char *uChannel = "GeHiGain") {
 	TFile *fData = new TFile(Form("%s/%s.root", getenv("R15b_DATA"), target), "READ");
 	TTree *tree = (TTree *)fData->Get("tree");
 	Double_t t1, e1, timeToPrevTME, timeToNextTME;
@@ -9,9 +9,16 @@ void Xray2p1s(const char *target) {
 	tree->SetBranchAddress("t1", &t1);
 	tree->SetBranchAddress("channel", &channel);
 
-	Int_t min = 919, max = 953;
+	Int_t min, max;
+	if(strcmp(target, "al50") == 0 || strcmp(target, "al100") == 0) {
+		min = 334;
+		max = 358;
+	else if(strcmp(target, "ti50") == 0) {
+		min = 919;
+		max = 953;
+	}
 	Int_t bins = max-min;
-	TH1D *hGeHiGain = new TH1D("hGeHiGain", "GeHiGain;;Counts / 1 keV", bins, min, max);
+	TH1D *hGeHiGain = new TH1D("hGeHiGain", ";;Counts / 1 keV", bins, min, max);
 
 	TH1D *hGeHiGainRes = new TH1D("hGeHiGainRes", "GeHiGain Residual;E[keV];#frac{Entries-Fit}{Entries}[%]", bins, min, max);
 	for(Long64_t i=0; i < tree->GetEntries(); ++i) {
@@ -19,7 +26,7 @@ void Xray2p1s(const char *target) {
 		if(timeToPrevTME < 10e3 || timeToNextTME < 10e3) continue;
 		if(abs(t1)>10e3) continue;
 		if(e1 < min || e1 > max) continue;
-		if(channel->Contains("GeHiGain") ) {
+		if(channel->Contains(uChannel) ) {
 			hGeHiGain->Fill(e1);
 		}
 	}
@@ -62,7 +69,7 @@ void Xray2p1s(const char *target) {
 	fit->SetLineColor(kBlue);
 	hGeHiGain->Fit("fit", "SR+");
 	Double_t areaGeHiGain = TMath::Sqrt(2*3.142) * fit->GetParameter(0) * fit->GetParameter(2);
-	printf("areaGeHiGain %f\n", areaGeHiGain);
+	printf("Area\t%f\n", areaGeHiGain);
 	Double_t areaErrGeHiGain = TMath::Sqrt(2*TMath::Pi() ) * areaGeHiGain * ( fit->GetParError(0)/fit->GetParameter(0) + fit->GetParError(2)/fit->GetParameter(2) );
 	for(int i=1; i<hGeHiGain->GetSize()- 1; ++i) {
 		Double_t res = 100 * (hGeHiGain->GetBinContent(i) - fit->Eval(min+i-0.5) )/hGeHiGain->GetBinContent(i);
