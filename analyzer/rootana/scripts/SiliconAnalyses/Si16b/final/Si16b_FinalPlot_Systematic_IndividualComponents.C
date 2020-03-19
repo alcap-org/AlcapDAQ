@@ -9,7 +9,7 @@ void Si16b_FinalPlot_Systematic_IndividualComponents(std::string savedir = "", s
   std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};
   std::string Particles[n_particles] = {"Proton", "Deuteron", "Triton", "Alpha"};
   double min_best_energy[n_particles] = {3000, 5000, 5000, 15000};
-  double max_best_energy[n_particles] = {17000, 14000, 17000, 16000};
+  double max_best_energy[n_particles] = {17000, 17000, 17000, 20000};
 
   // const int n_systematics = 5;
   // std::string systematics[n_systematics] = {"MuStopPos", "NIter", "BinW", "SiRPos", "PID"};

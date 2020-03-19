@@ -16,6 +16,9 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
   std::string Particle_names[n_settings] = {"Proton", "Deuteron", "Triton", "Alpha"};
   Int_t colours[n_settings] = {kRed, kCyan, kMagenta, kSpring};
   std::string leglabels[n_settings] = {"protons", "deuterons", "tritons", "alphas"};
+  double min_best_ranges[n_settings] = {3000, 5000, 5000, 15000};
+  double max_best_ranges[n_settings] = {17000, 17000, 17000, 20000};
+
   TCanvas* particle_canvases[n_settings] = {0};
   TH2F* hAllRates[n_settings] = {0};
   TH2F* hAllStatErrors[n_settings] = {0};
@@ -246,8 +249,13 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
 	}
       }
     }
-    double min_energy = hAllRates[i_setting]->GetXaxis()->GetBinLowEdge(i_best_bin);
-    double max_energy = hAllRates[i_setting]->GetXaxis()->GetBinUpEdge(j_best_bin);
+
+    double min_energy = min_best_ranges[i_setting];//hAllRates[i_setting]->GetXaxis()->GetBinLowEdge(i_best_bin);
+    double max_energy = max_best_ranges[i_setting];//hAllRates[i_setting]->GetXaxis()->GetBinUpEdge(j_best_bin);
+    i_best_bin = hAllRates[i_setting]->GetXaxis()->FindBin(min_energy);
+    j_best_bin = hAllRates[i_setting]->GetYaxis()->FindBin(max_energy)-1;
+    //    double min_energy = hAllRates[i_setting]->GetXaxis()->GetBinLowEdge(i_best_bin);
+    //    double max_energy = hAllRates[i_setting]->GetXaxis()->GetBinUpEdge(j_best_bin);
     double rate = hAllRates[i_setting]->GetBinContent(i_best_bin, j_best_bin);
     double stat_error = hAllStatErrors[i_setting]->GetBinContent(i_best_bin, j_best_bin);
     double high_syst_error = hAllHighSystErrors[i_setting]->GetBinContent(i_best_bin, j_best_bin);
