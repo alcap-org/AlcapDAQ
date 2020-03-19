@@ -1,4 +1,4 @@
-void runProof(const char * set="al100", bool debug=false)
+void runProof(const char * set="ti50", bool debug=false)
 {
         std::vector<TString> dataFiles;
         TString dirname="/data/R15b/tme/Al50/";
@@ -9,7 +9,7 @@ void runProof(const char * set="al100", bool debug=false)
 	} else if(std::strcmp(set, "al50")==0 ) {
 		dirname = "/data/ssd2/R15bAnalysis/tmetree/Al50/";
 	} else if(std::strcmp(set, "ti50")==0 ) {
-		dirname="/data/ssd3/R15bAnalysis/m-wong/Ti50/";
+		dirname="/data/ssd3/R15bAnalysis/m-wong/ti50/";
 	} else if(std::strcmp(set, "si16b")==0 ) {
                 dirname="/data/ssd3/R15bAnalysis/m-wong/Si16b/tme/";
         }
@@ -22,7 +22,7 @@ void runProof(const char * set="al100", bool debug=false)
                 TIter next(files);
                 while ((file=(TSystemFile*)next())) {
                         fname = file->GetName();
-                        if (!file->IsDirectory() && fname.EndsWith(ext) && fname!="tme10128.root" && fname!="Ti50.root") {
+                        if (!file->IsDirectory() && fname.EndsWith(ext) && fname!="tme10128.root") {
                                 dataFiles.push_back(dirname + fname);
                         }
                 }

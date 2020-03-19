@@ -54,7 +54,7 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 	} else if(target.compare("al100") ==0 ) {
 		responseMatrixFile = new TFile(Form("%s/transfer.sf1.035.al100.%s.root", transferMatrixPath, particle.c_str() ), "READ");
 	} else if(target.compare("ti50") ==0) {
-		responseMatrixFile = new TFile(Form("%s/transfer.sf1.03.ti50.proton.root", transferMatrixPath), "READ");
+		responseMatrixFile = new TFile(Form("%s/transfer.sf1.03.ti50.%s.root", transferMatrixPath, particle.c_str() ), "READ");
 	}
 	std::cout << "Loading data: " << fData->GetName() << " Loading MC: " << responseMatrixFile->GetName() << std::endl;
 

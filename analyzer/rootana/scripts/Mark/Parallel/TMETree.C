@@ -34,17 +34,18 @@
 
 void TMETree::LoadCuts()
 {
-	TFile *fCuts = new TFile("/home/m-wong/tree/al100-cuts.root", "READ");
+	TFile *fCuts = new TFile(Form("%s/Parallel/al100-cuts.root", getenv("ANALYSIS_HOME") ), "READ");
 	TFile *fSiR3Cuts = 0;
 	TString option = GetOption();
 	if(option.CompareTo("al50") == 0) {
-		fCuts = new TFile("/home/m-wong/tree/al50-cuts.root", "READ");
-		fSiR3Cuts = new TFile("/home/m-wong/tree/al50-sir3-cuts.root", "READ");
+		fCuts = new TFile(Form("%s/Parallel/al50-cuts.root", getenv("ANALYSIS_HOME") ), "READ");
+		fSiR3Cuts = new TFile(Form("%s/Parallel/al50-sir3-cuts.root", getenv("ANALYSIS_HOME") ), "READ");
 	} else if(option.CompareTo("si16b") == 0) {
-		fCuts = new TFile("/home/m-wong/tree/si16b-cuts.root", "READ");
-		fSiR3Cuts = new TFile("/home/m-wong/tree/si16b-sir3-cuts.root", "READ");
+		fCuts = new TFile(Form("%s/Parallel/si16b-cuts.root", getenv("ANALYSIS_HOME") ), "READ");
+		fSiR3Cuts = new TFile(Form("%s/Parallel/si16b-sir3-cuts.root", getenv("ANALYSIS_HOME") ), "READ");
 	} else if(option.CompareTo("ti50") == 0) {
-
+		fCuts = new TFile(Form("%s/Parallel/ti50-cuts.root", getenv("ANALYSIS_HOME") ), "READ");
+		fSiR3Cuts = new TFile(Form("%s/Parallel/ti50-sir3-cuts.root", getenv("ANALYSIS_HOME") ), "READ");
 	}
 	for(int sigma=1; sigma < 5; ++sigma) {
 		const char * sigmaStr = Form("%dsigma", sigma);
@@ -58,7 +59,7 @@ void TMETree::LoadCuts()
 		cutSiR["triton"][sigmaStr] = (TCutG *)fCuts->Get(Form("hLg_SiR_EvDeltaE_triton_%dsigma", sigma) );
 		cutSiR["alpha"][sigmaStr] = (TCutG *)fCuts->Get(Form("hLg_SiR_EvDeltaE_alpha_%dsigma", sigma) );
 	
-		if(option.CompareTo("al50") == 0) {
+		if(option.CompareTo("al100") != 0) {
 			cutSiRPT["proton"][sigmaStr] = (TCutG *)fSiR3Cuts->Get(Form("sir3_hLg_SiR_EvDeltaE_proton_%dsigma", sigma) );
 			cutSiRPT["extended"][sigmaStr] = (TCutG *)fSiR3Cuts->Get(Form("sir3_pt_hLg_SiR_EvDeltaE_proton_%dsigma", sigma) );
 		}
@@ -233,7 +234,7 @@ Bool_t TMETree::Process(Long64_t entry)
 				tpi_id1 = vSiL1[i_chn].at(j).tpi_id;
 				t1 = vSiL1[i_chn].at(j).tTME - SiL1TimeFineTuneMean;
 				e1 = vSiL1[i_chn].at(j).E * 0.001; //al100
-				if(option.CompareTo("al50") == 0) {
+				if(option.CompareTo("al50") == 0 || option.CompareTo("ti50") == 0) {
 					e1 = (vSiL1[i_chn].at(j).Amp * 2.056969 + 1.370678) * 0.001; //al50
 				}
 				a1 = vSiL1[i_chn].at(j).Amp;
@@ -291,7 +292,7 @@ Bool_t TMETree::Process(Long64_t entry)
 							}
 						}
 
-						if(option.CompareTo("al50") == 0) {
+						if(option.CompareTo("al100") != 0) {
 							if(SiR3->size() ) {
 								for(unsigned p=0; p < SiR3->size(); p++) {
 									tpi_id3 = SiR3->at(p).tpi_id;
