@@ -58,8 +58,10 @@ void TMETree::LoadCuts()
 		cutSiR["triton"][sigmaStr] = (TCutG *)fCuts->Get(Form("hLg_SiR_EvDeltaE_triton_%dsigma", sigma) );
 		cutSiR["alpha"][sigmaStr] = (TCutG *)fCuts->Get(Form("hLg_SiR_EvDeltaE_alpha_%dsigma", sigma) );
 	
-		cutSiRPT["proton"][sigmaStr] = (TCutG *)fSiR3Cuts->Get(Form("sir3_hLg_SiR_EvDeltaE_proton_%dsigma", sigma) );
-		cutSiRPT["extended"][sigmaStr] = (TCutG *)fSiR3Cuts->Get(Form("sir3_pt_hLg_SiR_EvDeltaE_proton_%dsigma", sigma) );
+		if(option.CompareTo("al50") == 0) {
+			cutSiRPT["proton"][sigmaStr] = (TCutG *)fSiR3Cuts->Get(Form("sir3_hLg_SiR_EvDeltaE_proton_%dsigma", sigma) );
+			cutSiRPT["extended"][sigmaStr] = (TCutG *)fSiR3Cuts->Get(Form("sir3_pt_hLg_SiR_EvDeltaE_proton_%dsigma", sigma) );
+		}
 	}
 	//check
 	for(std::map<const char *, std::map<const char *, TCutG *> >::iterator it = cutSiR.begin(); it != cutSiR.end(); ++it) {
@@ -67,11 +69,13 @@ void TMETree::LoadCuts()
 			std::cout << it->first << " " << it2->first << " " << it2->second->GetName() << std::endl;
 		}
 	}
-	for(std::map<const char *, std::map<const char *, TCutG *> >::iterator it = cutSiRPT.begin(); it != cutSiRPT.end(); ++it) {
-		for(std::map<const char *, TCutG *>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
-			std::cout << it->first << " " << it2->first << " " << it2->second->GetName() << std::endl;
+		if(option.CompareTo("al50") == 0) {
+			for(std::map<const char *, std::map<const char *, TCutG *> >::iterator it = cutSiRPT.begin(); it != cutSiRPT.end(); ++it) {
+				for(std::map<const char *, TCutG *>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+					std::cout << it->first << " " << it2->first << " " << it2->second->GetName() << std::endl;
+				}
+			}
 		}
-	}
 }
 void TMETree::RunQuality()
 {
@@ -158,7 +162,7 @@ void TMETree::SlaveBegin(TTree * /*tree*/)
 	RunQuality();
 
 	//Ge 511keV gain shift
-        TSQLiteServer *db = new TSQLiteServer("sqlite:///home/m-wong/tree/finetune.db");
+        TSQLiteServer *db = new TSQLiteServer(Form("sqlite://%s/finetune.db", getenv("PWD") ) );
         TSQLiteResult * result = (TSQLiteResult*)db->Query("SELECT * FROM FineGeCalib;");
         TSQLiteRow * row = (TSQLiteRow *) result->Next();
 	Int_t run; std::string channel; Double_t gain;
@@ -287,20 +291,22 @@ Bool_t TMETree::Process(Long64_t entry)
 							}
 						}
 
-						if(SiR3->size() ) {
-							for(unsigned p=0; p < SiR3->size(); p++) {
-								tpi_id3 = SiR3->at(p).tpi_id;
-								t3 = SiR3->at(p).tTME - SiR3TimeFineTuneMean;
-								e3 = SiR3->at(p).E * 0.001;
-								a3 = SiR3->at(p).Amp;
+						if(option.CompareTo("al50") == 0) {
+							if(SiR3->size() ) {
+								for(unsigned p=0; p < SiR3->size(); p++) {
+									tpi_id3 = SiR3->at(p).tpi_id;
+									t3 = SiR3->at(p).tTME - SiR3TimeFineTuneMean;
+									e3 = SiR3->at(p).E * 0.001;
+									a3 = SiR3->at(p).Amp;
 
-								for(std::map<const char *, std::map<const char *, TCutG *> >::iterator _it = cutSiRPT.begin(); _it != cutSiRPT.end(); ++_it) {
-									for(std::map<const char *, TCutG *>::iterator _it2 = _it->second.begin(); _it2 != _it->second.end(); ++_it2) {
-										if((_it2->second)->IsInside(0.7071 * (TMath::Log10(e2+e3) - TMath::Log10(e2) ), 0.7071 * (TMath::Log10(e2+e3) + TMath::Log10(e2) ) ) ) {
-											if(strcmp(_it2->first, "1sigma") == 0) pt1.Append(_it->first);
-											if(strcmp(_it2->first, "2sigma") == 0) pt2.Append(_it->first);
-											if(strcmp(_it2->first, "3sigma") == 0) pt3.Append(_it->first);
-											if(strcmp(_it2->first, "4sigma") == 0) pt4.Append(_it->first);
+									for(std::map<const char *, std::map<const char *, TCutG *> >::iterator _it = cutSiRPT.begin(); _it != cutSiRPT.end(); ++_it) {
+										for(std::map<const char *, TCutG *>::iterator _it2 = _it->second.begin(); _it2 != _it->second.end(); ++_it2) {
+											if((_it2->second)->IsInside(0.7071 * (TMath::Log10(e2+e3) - TMath::Log10(e2) ), 0.7071 * (TMath::Log10(e2+e3) + TMath::Log10(e2) ) ) ) {
+												if(strcmp(_it2->first, "1sigma") == 0) pt1.Append(_it->first);
+												if(strcmp(_it2->first, "2sigma") == 0) pt2.Append(_it->first);
+												if(strcmp(_it2->first, "3sigma") == 0) pt3.Append(_it->first);
+												if(strcmp(_it2->first, "4sigma") == 0) pt4.Append(_it->first);
+											}
 										}
 									}
 								}
