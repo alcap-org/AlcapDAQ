@@ -1,7 +1,8 @@
 void Construct(TH2D *hSiL, TH2D *hSiR, TH2D *hLg_SiL_EvDeltaE, TH2D *hLg_SiR_EvDeltaE) {
 	TFile *fData = new TFile(Form("%s/al50.root", getenv("R15b_DATA") ), "READ");
 	TTree *tree = (TTree *)fData->Get("tree");
-        Double_t t1, t2, t3, a1, a2, a3, e1, e2, e3, timeToPrevTME, timeToNextTME;
+        Double_t t1, t2, t3, e1, e2, e3, timeToPrevTME, timeToNextTME;
+	Int_t a1, a2, a3;
         TString *channel = new TString();
         TString *sig1 = new TString();
         TString *sig2 = new TString();

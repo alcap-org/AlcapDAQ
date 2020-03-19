@@ -7,9 +7,9 @@
 #endif
 
 TH1D * Process(TH1D *hMeas, TString arm, TString particle, TString cutDescription) {
-	TFile *responseMatrixFile = new TFile(Form("/home/m-wong/data/transfer/transfer.sf1.02.al50.%s.root", particle.Data() ), "READ");
+	TFile *responseMatrixFile = new TFile(Form("%s/transfer.sf1.02.al50.%s.root", getenv("R15b_TM"), particle.Data() ), "READ");
 	if(particle.CompareTo("proton") == 0) {
-		responseMatrixFile = new TFile(Form("/home/m-wong/data/transfer/transfer.sf1.02.al50.%s3.root", particle.Data() ), "READ");
+		responseMatrixFile = new TFile(Form("%s/transfer.sf1.02.al50.%s3.root", getenv("R15b_TM"), particle.Data() ), "READ");
 	}
 
 	RooUnfoldResponse *L_TM = (RooUnfoldResponse *)responseMatrixFile->Get("SiL500_TM");
@@ -473,8 +473,8 @@ TLegend *legend = new TLegend(0.266476, 0.598739, 0.593123, 0.869748); //deutero
 	hSystematics->GetYaxis()->SetTitle("Fractional");
 	legend->Draw("SAME");
 	cFinal->Draw();
-	const char *FigsDir = ".";
-	cFinal->SaveAs(Form("AlCapData_Al50Dataset_%s_%s-Systematics.pdf", arm.Data(), particle.Data() ) );
+	const char *FigsDir = getenv("R15b_OUT");
+	cFinal->SaveAs(Form("%s/AlCapData_Al50Dataset_%s_%s-Systematics.pdf", FigsDir, arm.Data(), particle.Data() ) );
 }
 
 void Systematics(TString arm = "SiR", TString particle = "proton") {
@@ -488,7 +488,7 @@ void Systematics(TString arm = "SiR", TString particle = "proton") {
 	Double_t lifetimeError[nbins] = {};
 	Double_t pidError[nbins] = {};
 
-	TFile *fData = new TFile("/home/m-wong/data/R15b/al50.root", "READ");
+	TFile *fData = new TFile(Form("%s/al50.root", getenv("R15b_DATA") ), "READ");
 	TTree *tree = (TTree *)fData->Get("tree");
 
 	lifetime(tree, lifetimeError, arm, particle);
