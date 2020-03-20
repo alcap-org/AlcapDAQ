@@ -1,5 +1,6 @@
-void DrawTimeCoin() {
-	TFile *fData = new TFile(Form("%s/al50.root", getenv("R15b_DATA") ), "READ");
+void DrawTimeCoin(std::string target) {
+	TFile *fData = new TFile(Form("%s/%s.root", getenv("R15b_DATA"), target.c_str() ), "READ");
+	target[0] = toupper(target[0]);
 	TTree *tree = (TTree *)fData->Get("tree");
 	Double_t t1, t2, t3, e1, e2, e3, timeToPrevTME, timeToNextTME;
 	Int_t a1, a2, a3;
@@ -55,14 +56,14 @@ void DrawTimeCoin() {
 	htSiR->Draw("SAME"); htSiR->SetLineColor(kGreen);
 	haSiR->Draw("SAME"); haSiR->SetLineColor(kMagenta);
 	TLegend *legend = new TLegend(0.606017, 0.624204, 0.859599, 0.85138);
-	legend->SetHeader("#bf{AlCap} #it{Preliminary}");
-	legend->AddEntry("", "50#mum (Right 2#sigma)","");
+	legend->SetHeader("#bf{AlCap} TOF");
+	legend->AddEntry("", Form("%s#mum (Right 2#sigma)", target.c_str() ),"");
 	legend->AddEntry(hpSiR, "proton","l");
 	legend->AddEntry(hdSiR, "deuteron","l");
 	legend->AddEntry(htSiR, "triton","l");
 	legend->AddEntry(haSiR, "alpha","l");
 	legend->Draw();
-	r->SaveAs(Form("%s/AlCapData_Al50Dataset_TimeCoincidence_RightArm.pdf", FigsDir) );
+	r->SaveAs(Form("%s/AlCapData_%sDataset_TimeCoincidence_RightArm.pdf", FigsDir, target.c_str() ) );
 
 	TCanvas *l = new TCanvas("l", "l");
 	hpSiL->Draw();       hpSiL->SetLineColor(kRed);
@@ -70,12 +71,12 @@ void DrawTimeCoin() {
 	htSiL->Draw("SAME"); htSiL->SetLineColor(kGreen);
 	haSiL->Draw("SAME"); haSiL->SetLineColor(kMagenta);
 	TLegend *legend1 = new TLegend(0.606017, 0.624204, 0.859599, 0.85138);
-	legend1->SetHeader("#bf{AlCap} #it{Preliminary}");
-	legend1->AddEntry("", "50#mum (Left 2#sigma)","");
+	legend1->SetHeader("#bf{AlCap} TOF");
+	legend1->AddEntry("", Form("%s#mum (Left 2#sigma)", target.c_str() ),"");
 	legend1->AddEntry(hpSiL, "proton","l");
 	legend1->AddEntry(hdSiL, "deuteron","l");
 	legend1->AddEntry(htSiL, "triton","l");
 	legend1->AddEntry(haSiL, "alpha","l");
 	legend1->Draw();
-	l->SaveAs(Form("%s/AlCapData_Al50Dataset_TimeCoincidence_LeftArm.pdf", FigsDir) );
+	l->SaveAs(Form("%s/AlCapData_%sDataset_TimeCoincidence_LeftArm.pdf", FigsDir, target.c_str() ) );
 }
