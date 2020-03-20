@@ -13,7 +13,7 @@ void Xray2p1s(const char *target, const char *uChannel = "GeHiGain") {
 	if(strcmp(target, "al50") == 0 || strcmp(target, "al100") == 0) {
 		min = 334;
 		max = 358;
-	else if(strcmp(target, "ti50") == 0) {
+	} else if(strcmp(target, "ti50") == 0) {
 		min = 919;
 		max = 953;
 	}
@@ -70,14 +70,15 @@ void Xray2p1s(const char *target, const char *uChannel = "GeHiGain") {
 	hGeHiGain->Fit("fit", "SR+");
 	Double_t areaGeHiGain = TMath::Sqrt(2*3.142) * fit->GetParameter(0) * fit->GetParameter(2);
 	printf("Area\t%f\n", areaGeHiGain);
+	printf("Chi2 / NDF %f / %d \n", fit->GetChisquare(), fit->GetNDF() );
 	Double_t areaErrGeHiGain = TMath::Sqrt(2*TMath::Pi() ) * areaGeHiGain * ( fit->GetParError(0)/fit->GetParameter(0) + fit->GetParError(2)/fit->GetParameter(2) );
-	for(int i=1; i<hGeHiGain->GetSize()- 1; ++i) {
+	for(int i=0; i<hGeHiGain->GetSize()- 1; ++i) {
 		Double_t res = 100 * (hGeHiGain->GetBinContent(i) - fit->Eval(min+i-0.5) )/hGeHiGain->GetBinContent(i);
-		hGeHiGainRes->SetBinContent(i-1, res);
+		hGeHiGainRes->SetBinContent(i, res);
 	}
 
-	Double_t xrayIntensity = 0.798, xrayIntensityErr = 0.008;
-	Double_t geHiEfficiency = 6.63e-4, geEfficiencyErr = 0.1e-4;
+	Double_t xrayIntensity = 0.752, xrayIntensityErr = 0.008;
+	Double_t geHiEfficiency = 2.60e-4, geEfficiencyErr = 0.1e-4;
 	Double_t finalErrGeHiGain = TMath::Power((areaErrGeHiGain/areaGeHiGain), 2) + TMath::Power((xrayIntensityErr/xrayIntensity), 2) + TMath::Power((geEfficiencyErr/geHiEfficiency), 2);
 	finalErrGeHiGain = areaGeHiGain/xrayIntensity/geHiEfficiency * TMath::Sqrt(finalErrGeHiGain);
 
@@ -98,7 +99,7 @@ void Xray2p1s(const char *target, const char *uChannel = "GeHiGain") {
 	p2->Draw();
 
 	p1->cd();
-	hGeHiGain->Draw("E");
+	hGeHiGain->Draw("E1");
 	result->Draw("SAME");
 	hGeHiGain->SetMarkerStyle(kCircle);
 	hGeHiGain->GetYaxis()->SetRangeUser(1, hGeHiGain->GetMaximum() * 1.1);
@@ -116,9 +117,9 @@ void Xray2p1s(const char *target, const char *uChannel = "GeHiGain") {
 	} else if(strcmp(target, "al100") == 0 ) {
 		legend->AddEntry((TObject*)0, "N_{#mu} = 2.28 #times 10^{8}", "");
 	} else if(strcmp(target, "ti50") == 0 ) {
-		legend->AddEntry((TObject*)0, "N_{#mu} = ??? #times 10^{8}", "");
+		legend->AddEntry((TObject*)0, "N_{#mu} = 1.88 #times 10^{8}", "");
 	}
-	legend->AddEntry(hGeHiGain, "Ge data", "E");
+	legend->AddEntry(hGeHiGain, "Ge data", "EP");
 	legend->AddEntry(fit, "Total fit", "L");
 	legend->AddEntry(result, Form("N_{stop} = %.2f(%.0f) #times 10^{8}", areaGeHiGain/xrayIntensity/geHiEfficiency/1e8, finalErrGeHiGain/1e6), "L");
 	legend->Draw("SAME");
@@ -145,10 +146,10 @@ void Xray2p1s(const char *target, const char *uChannel = "GeHiGain") {
 
 	const char *FigsDir = getenv("R15b_OUT");
 	if(strcmp(target, "al50") == 0 ) {
-		c->SaveAs(Form("%s/AlCapData_Al50Dataset_2p1sXray.pdf", FigsDir) );
+		c->SaveAs(Form("%s/AlCapData_Al50Dataset_2p1sXray_%s.pdf", FigsDir, uChannel) );
 	} else if(strcmp(target, "al100") == 0 ) {
-		c->SaveAs(Form("%s/AlCapData_Al100Dataset_2p1sXray.pdf", FigsDir) );
+		c->SaveAs(Form("%s/AlCapData_Al100Dataset_2p1sXray_%s.pdf", FigsDir, uChannel) );
 	} else if(strcmp(target, "ti50") == 0 ) {
-		c->SaveAs(Form("%s/AlCapData_Ti50Dataset_2p1sXray.pdf", FigsDir) );
+		c->SaveAs(Form("%s/AlCapData_Ti50Dataset_2p1sXray_%s.pdf", FigsDir, uChannel) );
 	}
 }
