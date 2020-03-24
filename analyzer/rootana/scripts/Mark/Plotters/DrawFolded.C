@@ -1,3 +1,8 @@
+Double_t GetIntegral(TH1D *h, Double_t min=4., Double_t max=8.) {
+	Double_t error;
+	Double_t integral = h->IntegralAndError(h->GetXaxis()->FindBin(min), h->GetXaxis()->FindBin(max), error);
+	return integral;
+}
 void DrawFolded(std::string target) {
 	TFile *fData = new TFile(Form("%s/%s.root", getenv("R15b_DATA"), target.c_str() ), "READ");
 	target[0] = toupper(target[0]);
@@ -34,7 +39,7 @@ void DrawFolded(std::string target) {
 		if(timeToPrevTME < 10e3 || timeToNextTME < 10e3) continue;
 		if(t2<500) continue;
 		if(t2>10e3) continue;
-		if(t2-t1-13 > 60 || t2-t1-13 < -60) continue;
+		if(abs(t2-t1-13) > 60) continue;
 		if(!TMath::IsNaN(e3) ) continue;
 		if(a2>3980) continue;
 		if(channel->Contains("SiR") ) {
@@ -70,46 +75,48 @@ void DrawFolded(std::string target) {
 
 		}
 	}
-	std::cout << "SiL\tSiR" << std::endl;
-	std::cout << "p : " << hpSiL->GetEntries() << "\t " << hpSiR->GetEntries() << std::endl;
-	std::cout << "d : " << hdSiL->GetEntries() << "\t " << hdSiR->GetEntries() << std::endl;
-	std::cout << "t : " << htSiL->GetEntries() << "\t " << htSiR->GetEntries() << std::endl;
-	std::cout << "a : " << haSiL->GetEntries() << "\t " << haSiR->GetEntries() << std::endl;
+	std::cout << "SiL\tSiR 4-8MeV" << std::endl;
+	std::cout << "p : " << GetIntegral(hpSiL, 4., 7.5) << "\t " << GetIntegral(hpSiR, 4., 7.5) << std::endl;
+	std::cout << "d : " << GetIntegral(hdSiL, 4., 7.5) << "\t " << GetIntegral(hdSiR, 4., 7.5) << std::endl;
+	std::cout << "t : " << GetIntegral(htSiL, 4., 7.5) << "\t " << GetIntegral(htSiR, 4., 7.5) << std::endl;
+	std::cout << "a : " << GetIntegral(haSiL, 4., 7.5) << "\t " << GetIntegral(haSiR, 4., 7.5) << std::endl;
+	std::cout << "SiL\tSiR 3.5-10MeV" << std::endl;
+	std::cout << "p : " << GetIntegral(hpSiL, 3., 9.5) << "\t " << GetIntegral(hpSiR, 3., 9.5) << std::endl;
+	std::cout << "d : " << GetIntegral(hdSiL, 3., 9.5) << "\t " << GetIntegral(hdSiR, 3., 9.5) << std::endl;
+	std::cout << "t : " << GetIntegral(htSiL, 3., 9.5) << "\t " << GetIntegral(htSiR, 3., 9.5) << std::endl;
+	std::cout << "a : " << GetIntegral(haSiL, 3., 9.5) << "\t " << GetIntegral(haSiR, 3., 9.5) << std::endl;
 	const char *FigsDir = getenv("R15b_OUT");
-	{
-		TCanvas *c = new TCanvas("r", "r");
-		c->SetLogy();
-		hpSiR->Draw();       hpSiR->SetLineColor(kRed);
-		hdSiR->Draw("SAME"); hdSiR->SetLineColor(kBlue);
-		htSiR->Draw("SAME"); htSiR->SetLineColor(kGreen);
-		haSiR->Draw("SAME"); haSiR->SetLineColor(kMagenta);
-		TLegend *legend = new TLegend(0.65, 0.66, 0.86, 0.85);
-		legend->SetHeader("#bf{AlCap} Folded");
-		legend->AddEntry("", Form("%s#mum (Right 2#sigma)", target.c_str() ),"");
-		legend->AddEntry(hpSiR, "proton","l");
-		legend->AddEntry(hdSiR, "deuteron","l");
-		legend->AddEntry(htSiR, "triton","l");
-		legend->AddEntry(haSiR, "alpha","l");
-		legend->Draw();
-		c->SaveAs(Form("%s/AlCapData_%sDataset_Folded_RightArm.pdf", FigsDir, target.c_str() ) );
-	}
-	{
-		TCanvas *c = new TCanvas("l", "l");
-		c->SetLogy();
-		hpSiL->Draw();       hpSiL->SetLineColor(kRed);
-		hdSiL->Draw("SAME"); hdSiL->SetLineColor(kBlue);
-		htSiL->Draw("SAME"); htSiL->SetLineColor(kGreen);
-		haSiL->Draw("SAME"); haSiL->SetLineColor(kMagenta);
-		TLegend *legend = new TLegend(0.65, 0.66, 0.86, 0.85);
-		legend->SetHeader("#bf{AlCap} #it{Preliminary}");
-		legend->AddEntry("", Form("%s#mum (Left 2#sigma)", target.c_str() ),"");
-		legend->AddEntry(hpSiL, "proton","l");
-		legend->AddEntry(hdSiL, "deuteron","l");
-		legend->AddEntry(htSiL, "triton","l");
-		legend->AddEntry(haSiL, "alpha","l");
-		legend->Draw();
-		c->SaveAs(Form("%s/AlCapData_%sDataset_Folded_LeftArm.pdf", FigsDir, target.c_str() ) );
-	}
+	TCanvas *c = new TCanvas("r", "r");
+	c->SetLogy();
+	hpSiR->Draw();       hpSiR->SetLineColor(kRed);
+	hdSiR->Draw("SAME"); hdSiR->SetLineColor(kBlue);
+	htSiR->Draw("SAME"); htSiR->SetLineColor(kGreen);
+	haSiR->Draw("SAME"); haSiR->SetLineColor(kMagenta);
+	TLegend *legend = new TLegend(0.65, 0.66, 0.86, 0.85);
+	legend->SetHeader("#bf{AlCap} Folded");
+	legend->AddEntry("", Form("%s#mum (Right 2#sigma)", target.c_str() ),"");
+	legend->AddEntry(hpSiR, "proton","l");
+	legend->AddEntry(hdSiR, "deuteron","l");
+	legend->AddEntry(htSiR, "triton","l");
+	legend->AddEntry(haSiR, "alpha","l");
+	legend->Draw("SAME");
+	c->SaveAs(Form("%s/AlCapData_%sDataset_Folded_RightArm.pdf", FigsDir, target.c_str() ) );
+
+	TCanvas *d = new TCanvas("l", "l");
+	d->SetLogy();
+	hpSiL->Draw();       hpSiL->SetLineColor(kRed);
+	hdSiL->Draw("SAME"); hdSiL->SetLineColor(kBlue);
+	htSiL->Draw("SAME"); htSiL->SetLineColor(kGreen);
+	haSiL->Draw("SAME"); haSiL->SetLineColor(kMagenta);
+	TLegend *legend1 = new TLegend(0.65, 0.66, 0.86, 0.85);
+	legend1->SetHeader("#bf{AlCap} Folded");
+	legend1->AddEntry("", Form("%s#mum (Left 2#sigma)", target.c_str() ),"");
+	legend1->AddEntry(hpSiL, "proton","l");
+	legend1->AddEntry(hdSiL, "deuteron","l");
+	legend1->AddEntry(htSiL, "triton","l");
+	legend1->AddEntry(haSiL, "alpha","l");
+	legend1->Draw("SAME");
+	d->SaveAs(Form("%s/AlCapData_%sDataset_Folded_LeftArm.pdf", FigsDir, target.c_str() ) );
 	fOutput->Write();
 	fOutput->Close();
 }
