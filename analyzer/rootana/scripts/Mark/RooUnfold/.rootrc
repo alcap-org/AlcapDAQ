@@ -1,0 +1,2 @@
+# ACLiC include path for RooUnfold headers.
+ACLiC.IncludePaths: -I$(PWD)/src
