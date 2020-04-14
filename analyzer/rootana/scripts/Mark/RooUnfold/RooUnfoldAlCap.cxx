@@ -56,7 +56,8 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 	} else if(target.compare("ti50") ==0) {
 		responseMatrixFile = new TFile(Form("%s/transfer.sf1.03.ti50.%s.root", transferMatrixPath, particle.c_str() ), "READ");
 	}
-	std::cout << "Loading data: " << fData->GetName() << " Loading MC: " << responseMatrixFile->GetName() << std::endl;
+	std::cout << "Loading data: " << fData->GetName() << std::endl;
+	std::cout << "Loading MC: " << responseMatrixFile->GetName() << std::endl;
 
 	Double_t e1, e2, e3, t1, t2, timeToPrevTME, timeToNextTME;
 	Int_t a2;
@@ -133,7 +134,7 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 	RooUnfoldResponse *R_TM = (RooUnfoldResponse *)responseMatrixFile->Get("SiR500_TM");
 	TFile *fOutputFile = new TFile(Form("%s/unfolded.%s.root", getenv("R15b_OUT"), target.c_str() ), "UPDATE");
 
-	const char *sourceName = Form("h%s_SiL", particle.c_str() );
+	const char *sourceName = Form("h%s", particle.c_str() );
 	if(fOutputFile->GetListOfKeys()->Contains(sourceName) ) {
 		printf("Deleting histogram with name: %s\n", sourceName);
 		gDirectory->Delete(Form("%s", sourceName) );
@@ -142,11 +143,6 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 
 	hMeasDataRight3->Scale(1/0.77);
 	hMeasDataRight->Add(hMeasDataRight3);
-	sourceName = Form("h%s_SiR", particle.c_str() );
-	if(fOutputFile->GetListOfKeys()->Contains(sourceName) ) {
-		printf("Deleting histogram with name: %s\n", sourceName);
-		gDirectory->Delete(Form("%s", sourceName) );
-	}
 	Process(R_TM, hMeasDataRight, "SiR", target, particle.c_str(), normalise);
 
 	fOutputFile->Write();

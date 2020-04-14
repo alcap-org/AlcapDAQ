@@ -1,5 +1,5 @@
-void Xray2p1s(const char *target, const char *uChannel = "GeHiGain") {
-	TFile *fData = new TFile(Form("%s/%s.root", getenv("R15b_DATA"), target), "READ");
+void Xray2p1s(std::string target, std::string uChannel = "GeHiGain") {
+	TFile *fData = new TFile(Form("%s/%s.root", getenv("R15b_DATA"), target.c_str() ), "READ");
 	TTree *tree = (TTree *)fData->Get("tree");
 	Double_t t1, e1, timeToPrevTME, timeToNextTME;
 	TString * channel = new TString("");
@@ -10,10 +10,10 @@ void Xray2p1s(const char *target, const char *uChannel = "GeHiGain") {
 	tree->SetBranchAddress("channel", &channel);
 
 	Int_t min, max;
-	if(strcmp(target, "al50") == 0 || strcmp(target, "al100") == 0) {
+	if(target.compare("al50") == 0 || target.compare("al100") == 0) {
 		min = 334;
 		max = 358;
-	} else if(strcmp(target, "ti50") == 0) {
+	} else if(target.compare("ti50") == 0) {
 		min = 919;
 		max = 953;
 	}
@@ -39,7 +39,7 @@ void Xray2p1s(const char *target, const char *uChannel = "GeHiGain") {
 	fit->SetParName(5, "Bkg. const.");
 	fit->SetParName(6, "Bkg. slope");
 
-	if(strcmp(target, "al50") == 0 || strcmp(target, "al100") == 0) {
+	if(target.compare("al50") == 0 || target.compare("al100") == 0) {
 		fit->SetParameter(0,  3.59928e+04);
 		fit->SetParameter(1,  3.45373e+02);
 		fit->SetParameter(2,  9.95034e-01);
@@ -50,7 +50,7 @@ void Xray2p1s(const char *target, const char *uChannel = "GeHiGain") {
 		fit->SetParLimits(1, 340, 348);
 		fit->SetParLimits(2, 0, 2);
 		fit->SetParLimits(4, 348, 352);
-	} else if(strcmp(target, "ti50") == 0) {
+	} else if(target.compare("ti50") == 0) {
 		fit->SetParameter(0, 3.57101e+03);
 		fit->SetParameter(1, 9.31683e+02);
 		fit->SetParameter(2, 1.98952e+00);
@@ -62,8 +62,8 @@ void Xray2p1s(const char *target, const char *uChannel = "GeHiGain") {
 		fit->SetParLimits(2, 1, 2.5);
 		fit->SetParLimits(4, 936, 939);
 	}
-	gStyle->SetOptFit(1);
-	gStyle->SetOptStat(1000000001); //only name of histogram
+//	gStyle->SetOptFit(1);
+//	gStyle->SetOptStat(1000000001); //only name of histogram
 
 	//GeHiGain fit
 	fit->SetLineColor(kBlue);
@@ -76,9 +76,19 @@ void Xray2p1s(const char *target, const char *uChannel = "GeHiGain") {
 		Double_t res = 100 * (hGeHiGain->GetBinContent(i) - fit->Eval(min+i-0.5) )/hGeHiGain->GetBinContent(i);
 		hGeHiGainRes->SetBinContent(i, res);
 	}
-
-	Double_t xrayIntensity = 0.752, xrayIntensityErr = 0.008;
-	Double_t geHiEfficiency = 2.60e-4, geEfficiencyErr = 0.1e-4;
+	Double_t xrayIntensity, xrayIntensityErr;
+	Double_t geHiEfficiency, geEfficiencyErr;
+	if(target.compare("al50") == 0 || target.compare("al100") == 0) {
+		xrayIntensity = 0.798;
+		xrayIntensityErr = 0.008;
+		geHiEfficiency = 6.63e-4;
+		geEfficiencyErr = 0.1e-4;
+	} else if(target.compare("ti50") == 0) {
+		xrayIntensity = 0.752;
+		xrayIntensityErr = 0.008;
+		geHiEfficiency = 2.60e-4;
+		geEfficiencyErr = 0.1e-4;
+	}
 	Double_t finalErrGeHiGain = TMath::Power((areaErrGeHiGain/areaGeHiGain), 2) + TMath::Power((xrayIntensityErr/xrayIntensity), 2) + TMath::Power((geEfficiencyErr/geHiEfficiency), 2);
 	finalErrGeHiGain = areaGeHiGain/xrayIntensity/geHiEfficiency * TMath::Sqrt(finalErrGeHiGain);
 
@@ -111,15 +121,16 @@ void Xray2p1s(const char *target, const char *uChannel = "GeHiGain") {
 	hGeHiGain->GetYaxis()->SetLabelFont(63);
 	hGeHiGain->GetYaxis()->SetLabelSize(16);
 
-	TLegend *legend = new TLegend(.6, .5, .87, .87, "#bf{AlCap} #it{#muAl 2p #rightarrow 1s}");
-	if(strcmp(target, "al50") == 0 ) {
+	target[0] = toupper(target[0]);
+	TLegend *legend = new TLegend(.6, .5, .87, .87, "#bf{AlCap} #it{2p #rightarrow 1s}");
+	if(target.compare("Al50") == 0 ) {
 		legend->AddEntry((TObject*)0, "N_{#mu} = 4.21 #times 10^{8}", "");
-	} else if(strcmp(target, "al100") == 0 ) {
+	} else if(target.compare("Al100") == 0 ) {
 		legend->AddEntry((TObject*)0, "N_{#mu} = 2.28 #times 10^{8}", "");
-	} else if(strcmp(target, "ti50") == 0 ) {
+	} else if(target.compare("Ti50") == 0 ) {
 		legend->AddEntry((TObject*)0, "N_{#mu} = 1.88 #times 10^{8}", "");
 	}
-	legend->AddEntry(hGeHiGain, "Ge data", "EP");
+	legend->AddEntry(hGeHiGain, Form("%s#mum data", target.c_str() ), "EP");
 	legend->AddEntry(fit, "Total fit", "L");
 	legend->AddEntry(result, Form("N_{stop} = %.2f(%.0f) #times 10^{8}", areaGeHiGain/xrayIntensity/geHiEfficiency/1e8, finalErrGeHiGain/1e6), "L");
 	legend->Draw("SAME");
@@ -145,11 +156,5 @@ void Xray2p1s(const char *target, const char *uChannel = "GeHiGain") {
 	c->cd();
 
 	const char *FigsDir = getenv("R15b_OUT");
-	if(strcmp(target, "al50") == 0 ) {
-		c->SaveAs(Form("%s/AlCapData_Al50Dataset_2p1sXray_%s.pdf", FigsDir, uChannel) );
-	} else if(strcmp(target, "al100") == 0 ) {
-		c->SaveAs(Form("%s/AlCapData_Al100Dataset_2p1sXray_%s.pdf", FigsDir, uChannel) );
-	} else if(strcmp(target, "ti50") == 0 ) {
-		c->SaveAs(Form("%s/AlCapData_Ti50Dataset_2p1sXray_%s.pdf", FigsDir, uChannel) );
-	}
+	c->SaveAs(Form("%s/AlCapData_%sDataset_2p1sXray_%s.pdf", FigsDir, target.c_str(), uChannel.c_str() ) );
 }
