@@ -21,11 +21,11 @@ void Process(RooUnfoldResponse *response, TH1D *hMeas, const char *arm = "SiL", 
 	RooUnfoldBayes unfold(response, hMeas);
 	TH1D* hReco= (TH1D*) unfold.Hreco();
 	hReco->SetName(Form("h%s_%s", particle, arm) );
-
+	std::cout << std::fixed;
 	Double_t error, integral;
-	integral = hMeas->IntegralAndError(hMeas->GetXaxis()->FindBin(4000), hMeas->GetXaxis()->FindBin(7500), error); 
+	integral = hMeas->IntegralAndError(hMeas->GetXaxis()->FindBin(4), hMeas->GetXaxis()->FindBin(7.5), error); 
 	std::cout << "folded " << arm << " 4000-8000keV: " << integral << " ± " << error << std::endl;
-	integral = hMeas->IntegralAndError(hMeas->GetXaxis()->FindBin(3500), hMeas->GetXaxis()->FindBin(9500), error); 
+	integral = hMeas->IntegralAndError(hMeas->GetXaxis()->FindBin(3.5), hMeas->GetXaxis()->FindBin(9.5), error); 
 	std::cout << "folded " << arm << " 3500-10000keV: " << integral << " ± " << error << std::endl;
 	if(normalise) {
 		if(target.compare("al50")==0) {
@@ -34,9 +34,9 @@ void Process(RooUnfoldResponse *response, TH1D *hMeas, const char *arm = "SiL", 
 			hReco->Scale(1/(0.56*0.609*1.37E+8 * 1.0482180) ); //al100
 		}
 	}
-	integral = hReco->IntegralAndError(hReco->GetXaxis()->FindBin(4000), hReco->GetXaxis()->FindBin(7500), error);
+	integral = hReco->IntegralAndError(hReco->GetXaxis()->FindBin(4), hReco->GetXaxis()->FindBin(7.5), error);
 	std::cout << arm << " 4000-8000keV: " << integral << " ± " << error << std::endl;
-	integral = hReco->IntegralAndError(hReco->GetXaxis()->FindBin(3500), hReco->GetXaxis()->FindBin(9500), error);
+	integral = hReco->IntegralAndError(hReco->GetXaxis()->FindBin(3.5), hReco->GetXaxis()->FindBin(9.5), error);
 	std::cout << arm << " 3500-10000keV: " << integral << " ± " << error << std::endl;
 
 }
@@ -61,12 +61,11 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 	Double_t e1, e2, e3, t1, t2, timeToPrevTME, timeToNextTME;
 	Int_t a2;
 	TString *channel = new TString("");
-	TString  *sig2 = new TString("");
-	TString  *pt2 = new TString("");
-	TString  *pt3 = new TString("");
-	TH1D *hMeasDataLeft = new TH1D("hMeasDataLeft", "hMeasDataLeft;E [keV]", 40, 0, 20000);
-	TH1D *hMeasDataRight = new TH1D("hMeasDataRight", "hMeasDataRight;E [keV]", 40, 0, 20000);
-	TH1D *hMeasDataRight3 = new TH1D("hMeasDataRight3", "hMeasDataRight3;E [keV]", 40, 0, 20000);
+	TString  *sig = new TString("");
+	TString  *pt = new TString("");
+	TH1D *hMeasDataLeft = new TH1D("hMeasDataLeft", "hMeasDataLeft;E [keV]", 50, 0, 25);
+	TH1D *hMeasDataRight = new TH1D("hMeasDataRight", "hMeasDataRight;E [keV]", 50, 0, 25);
+	TH1D *hMeasDataRight3 = new TH1D("hMeasDataRight3", "hMeasDataRight3;E [keV]", 50, 0, 25);
 	TTree *tree = (TTree *)fData->Get("tree");
 	tree->SetBranchAddress("timeToPrevTME", &timeToPrevTME);
 	tree->SetBranchAddress("timeToNextTME", &timeToNextTME);
@@ -77,37 +76,34 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 	tree->SetBranchAddress("t1", &t1);
 	tree->SetBranchAddress("t2", &t2);
 	tree->SetBranchAddress("channel", &channel);
-	tree->SetBranchAddress("sig2", &sig2);
-	tree->SetBranchAddress("pt2", &pt2);
+	tree->SetBranchAddress("sig3", &sig);
+	tree->SetBranchAddress("pt3", &pt);
 	for(Long64_t i=0; i < tree->GetEntries(); i++) {
 		tree->GetEntry(i);
 		if(a2 > 3980) continue; //remove saturation
-		e1 = e1*1e3;
-		e2 = e2*1e3;
-		e3 = e3*1e3;
+//		e1 = e1*1e3;
+//		e2 = e2*1e3;
+//		e3 = e3*1e3;
 		if(timeToPrevTME < 10e3 || timeToNextTME < 10e3) continue;
-		if(t2<500) continue;
+		if(t2<400) continue;
 		if(t2>10e3) continue;
 		if(target.compare("al50") == 0) {
 			if(abs(t2-t1-12)> 60) continue; //Al50
 		}
+		if(target.compare("al100") == 0) {
+			if(abs(t2-t1) > 1000) continue;
+		}
 		if(channel->Contains("SiL") ) {
-			if(target.compare("al100") == 0) {
-				if(abs(t2-t1+567) > 75) continue;
-			}
-			if(sig2->Contains(particle) ) {
+			if(sig->Contains(particle) ) {
 				hMeasDataLeft->Fill(e1+e2);
 			}
 		} else if(channel->Contains("SiR") ) {
-			if(target.compare("al100") == 0) {
-				if(abs(t2-t1-210) > 94) continue;
-			}
 			if(TMath::IsNaN(e3) ) {
-				if(sig2->Contains(particle ) ) {
+				if(sig->Contains(particle ) ) {
 					hMeasDataRight->Fill(e1+e2);
 				}
 			} else {
-				if(pt2->Contains(particle ) ) {
+				if(pt->Contains(particle ) ) {
 					hMeasDataRight3->Fill(e1+e2+e3);
 				}
 			}
