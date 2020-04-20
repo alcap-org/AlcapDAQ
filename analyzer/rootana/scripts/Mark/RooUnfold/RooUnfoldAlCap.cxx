@@ -27,11 +27,16 @@ void Process(RooUnfoldResponse *response, TH1D *hMeas, const char *arm = "SiL", 
 	std::cout << "folded " << arm << " 4000-8000keV: " << integral << " ± " << error << std::endl;
 	integral = hMeas->IntegralAndError(hMeas->GetXaxis()->FindBin(3.5), hMeas->GetXaxis()->FindBin(9.5), error); 
 	std::cout << "folded " << arm << " 3500-10000keV: " << integral << " ± " << error << std::endl;
+
+	integral = hReco->IntegralAndError(hReco->GetXaxis()->FindBin(4), hReco->GetXaxis()->FindBin(7.5), error);
+	std::cout << "No correction " << arm << " 4-8MeV: " << integral << " ± " << error << std::endl;
+	integral = hReco->IntegralAndError(hReco->GetXaxis()->FindBin(3.5), hReco->GetXaxis()->FindBin(9.5), error);
+	std::cout << "No correction " << arm << " 3.5-10MeV: " << integral << " ± " << error << std::endl;
 	if(normalise) {
 		if(target.compare("al50")==0) {
-			hReco->Scale(1/(0.56*0.609*1.71E+8 * 1.0482180) ); //al50 (lifetime, capture rate, muon count, 2 sigma selection)
+			hReco->Scale(1/(0.63*0.609*1.62E+8) ); //al50 (lifetime, capture rate, muon count, 3 sigma selection)
 		} else if(target.compare("al100")==0) {
-			hReco->Scale(1/(0.56*0.609*1.37E+8 * 1.0482180) ); //al100
+			hReco->Scale(1/(0.63*0.609*1.31E+8) ); //al100
 		}
 	}
 	integral = hReco->IntegralAndError(hReco->GetXaxis()->FindBin(4), hReco->GetXaxis()->FindBin(7.5), error);
@@ -40,7 +45,7 @@ void Process(RooUnfoldResponse *response, TH1D *hMeas, const char *arm = "SiL", 
 	std::cout << arm << " 3500-10000keV: " << integral << " ± " << error << std::endl;
 
 }
-void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", bool normalise = kFALSE)
+void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", bool normalise = kTRUE)
 {
 	const char *dataPath = getenv("R15b_DATA");
 	const char *transferMatrixPath = getenv("R15b_TM");
@@ -89,10 +94,12 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 		if(t2<400) continue;
 		if(t2>10e3) continue;
 		if(target.compare("al50") == 0) {
-			if(abs(t2-t1-12)> 60) continue; //Al50
+			if(abs(t2-t1-12) > 20 * 5) continue; //Al50
+			//if(abs(t2-t1)> 200) continue; //Al50
 		}
 		if(target.compare("al100") == 0) {
-			if(abs(t2-t1) > 1000) continue;
+			if(channel->Contains("SiL") ) {if(abs(t2-t1 + 493) > 116 *5) continue; }
+			if(channel->Contains("SiR") ) {if(abs(t2-t1 - 216) > 53 *5) continue; }
 		}
 		if(channel->Contains("SiL") ) {
 			if(sig->Contains(particle) ) {
