@@ -9,7 +9,8 @@
 TH1D * Process(TH1D *hMeas, TString arm, TString particle, TString cutDescription) {
 	TFile *responseMatrixFile = new TFile(Form("%s/transfer.sf1.02.al50.%s.root", getenv("R15b_TM"), particle.Data() ), "READ");
 	if(particle.CompareTo("proton") == 0) {
-		responseMatrixFile = new TFile(Form("%s/transfer.sf1.02.al50.%s3.root", getenv("R15b_TM"), particle.Data() ), "READ");
+//original		responseMatrixFile = new TFile(Form("%s/transfer.sf1.02.al50.%s3.root", getenv("R15b_TM"), particle.Data() ), "READ");
+		responseMatrixFile = new TFile(Form("/home/m-wong/g4sim/alcap/transfer.sf1.02.al50.%s.root", particle.Data() ), "READ");
 	}
 
 	RooUnfoldResponse *L_TM = (RooUnfoldResponse *)responseMatrixFile->Get("SiL500_TM");

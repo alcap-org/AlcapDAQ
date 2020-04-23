@@ -1,19 +1,26 @@
-Bool_t debug = true;
 double M = 938.27;
-void Training(const char * particle, TTree *trainingTree) {
+void Training(const char * particle, TTree *tTraining) {
 	std::cout << "==========Training neural network==========" << std::endl;
 	TChain *g4sim = new TChain("tree");
-	g4sim->AddFile("/home/mark/montecarlo/electron.0-18.200k.target.100.leftright.root");
-	g4sim->AddFile("/home/mark/montecarlo/muon.1-30.200k.target.100.leftright.root");
-	g4sim->AddFile("/home/mark/montecarlo/pion.1-30.200k.target.100.leftright.root");
-	g4sim->AddFile("/home/mark/montecarlo/proton.0-24.200k.target.200.leftright.root");
-	g4sim->AddFile("/home/mark/montecarlo/deuteron.0-24.200k.target.200.leftright.root");
-	g4sim->AddFile("/home/mark/montecarlo/triton.0-24.200k.target.200.leftright.root");
-	g4sim->AddFile("/home/mark/montecarlo/alpha.0-24.200k.target.200.leftright.root");
+//	g4sim->AddFile("/data/R15bMC/electron.0-18.200k.target.100.leftright.root");
+//	g4sim->AddFile("/data/R15bMC/muon.1-30.200k.target.100.leftright.root");
+//	g4sim->AddFile("/data/R15bMC/pion.1-30.200k.target.100.leftright.root");
+	g4sim->AddFile("/data/hdd4/R15bMC/protons/sf1.02.al50.proton.root");
+	g4sim->AddFile("/data/hdd4/R15bMC/deuterons/sf1.02.al50.deuteron.root");
+	g4sim->AddFile("/data/hdd4/R15bMC/tritons/sf1.02.al50.triton.root");
+	g4sim->AddFile("/data/hdd4/R15bMC/alphas/sf1.02.al50.alpha.root");
 
-	const std::vector<double> *edep;
-	std::vector<int> *stopped;
-	std::vector<std::string> *volName, *ovolName, *oprocess, *particleName;
+	std::vector<std::string>* particleName = 0;
+	std::vector<std::string>* volName = 0;
+	std::vector<std::string>* ovolName = 0;
+	std::vector<std::string>* oprocess = 0;
+	std::vector<int> *stopped = 0;
+	std::vector<double>* edep = 0;
+	std::vector<double>* Ox = 0;
+	std::vector<double>* Oy = 0;
+	std::vector<double>* Oz = 0;
+	std::vector<double>* Ot = 0;
+	double px=0, py=0, pz=0;
 	g4sim->SetBranchAddress("M_edep"	, &edep);
 	g4sim->SetBranchAddress("M_ovolName"	, &ovolName);
 	g4sim->SetBranchAddress("M_volName"	, &volName);
@@ -22,8 +29,11 @@ void Training(const char * particle, TTree *trainingTree) {
 	g4sim->SetBranchAddress("M_particleName", &particleName);
 
 	Int_t type = 0;
-	Double_t SiL1_E, SiL3_E;
-	Double_t SiR1_E, SiR2_E, SiR3_E;
+	Double_t SiL1_E = 0;
+	Double_t SiL3_E = 0;
+	Double_t SiR1_E = 0; 
+	Double_t SiR2_E = 0; 
+        Double_t SiR3_E = 0;
 	//Tree to store neural network training data
 	tTraining->Branch("SiR1_E", &SiR1_E, "SiR1_E/D");
 	tTraining->Branch("SiR2_E", &SiR2_E, "SiR2_E/D");
@@ -31,11 +41,10 @@ void Training(const char * particle, TTree *trainingTree) {
 	tTraining->Branch("SiL1_E", &SiL1_E, "SiL1_E/D");
 	tTraining->Branch("SiL3_E", &SiL3_E, "SiL3_E/D");
 	tTraining->Branch("type", &type, "type/I");
-	Long64_t numOfEntries = (debug) ? 1000 : g4sim->GetEntries();
-	for(int i=0; i<numOfEntries; i++) {
+	for(int i=0; i<g4sim->GetEntries(); i++) {
 		SiL1_E=0; SiL3_E=0; type=0;
 		SiR1_E=0; SiR2_E=0;
-		if(i % 10000 == 0) std::cout << i << "/" << g4sim->GetEntries() << std::endl;
+		if(i % 1000000 == 0) std::cout << i << "/" << g4sim->GetEntries() << std::endl;
 		g4sim->GetEvent(i);
 		if(volName->size() == 0) continue;
 		for (unsigned iElement = 0; iElement < particleName->size(); ++iElement) {
@@ -61,8 +70,11 @@ void Training(const char * particle, TTree *trainingTree) {
 }
 void Test(TMultiLayerPerceptron *mlp, TTree *tTraining, TTree *tTest) {
 	std::cout << "==========Generating test data==========" << std::endl;
-	Double_t SiL1_E, SiL3_E;
-	Double_t SiR1_E, SiR2_E, SiR3_E;
+	Double_t SiL1_E = 0;
+	Double_t SiL3_E = 0;
+	Double_t SiR1_E = 0; 
+	Double_t SiR2_E = 0; 
+        Double_t SiR3_E = 0;
 	tTraining->SetBranchAddress("SiR1_E", &SiR1_E);
 	tTraining->SetBranchAddress("SiR2_E", &SiR2_E);
 	tTraining->SetBranchAddress("SiR3_E", &SiR3_E);
@@ -70,8 +82,11 @@ void Test(TMultiLayerPerceptron *mlp, TTree *tTraining, TTree *tTest) {
 	tTraining->SetBranchAddress("SiL3_E", &SiL3_E);
 
 	//Tree to store neural network test data
-	Double_t tSiL1_E, tSiL3_E;
-	Double_t tSiR1_E, tSiR2_E, tSiR3_E;
+	Double_t tSiL1_E = 0;
+	Double_t tSiL3_E = 0;
+	Double_t tSiR1_E = 0; 
+	Double_t tSiR2_E = 0; 
+        Double_t tSiR3_E = 0;
 	tTest->Branch("SiR1_E", &tSiR1_E, "SiR1_E/D");
 	tTest->Branch("SiR2_E", &tSiR2_E, "SiR2_E/D");
 	tTest->Branch("SiR3_E", &tSiR2_E, "SiR3_E/D");
@@ -205,7 +220,7 @@ void Data(TMultiLayerPerceptron *mlp) {
 	fNNOutput->Write();
 }
 void R15b_NNClassifier(const char * particle = "proton", Int_t training_epoch=10) {
-	if (particle == "proton") M = 938.27;
+	if (strcmp(particle, "proton")==0) M = 938.27;
 	if( !gROOT->GetClass("TMultiLayerPerceptron") ) {
 		gSystem->Load("libMLP");
 	}
@@ -214,11 +229,7 @@ void R15b_NNClassifier(const char * particle = "proton", Int_t training_epoch=10
 	Training(particle, tTraining);
 
 	TMultiLayerPerceptron *mlp = new TMultiLayerPerceptron("SiL1_E,SiL3_E:20:type!", tTraining);
-//	TMultiLayerPerceptron *mlp = new TMultiLayerPerceptron("SiR1_E,SiR2_E:20:type!", simu);
-	mlp->LoadWeights("proton-SiL-weights");
-//	mlp->Train(training_epoch, "text update=100"); //text, graph
-//	mlp->DumpWeights();
-//	mlp->Write();
+//	mlp->LoadWeights("proton-SiL-weights");
 
 	TCanvas *mlpa_canvas = new TCanvas("mlpa_canvas", "Network analysis");
 	mlpa_canvas->Divide(2,2);

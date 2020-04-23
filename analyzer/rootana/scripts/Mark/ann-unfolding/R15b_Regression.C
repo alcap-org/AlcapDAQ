@@ -1,23 +1,21 @@
-Bool_t debug = false;
 double M = 938.27;
 void LoadTraining(TTree * tTraining, const char * particle) {
 	std::cout << "==========Training neural network==========" << std::endl;
 	TChain *g4sim = new TChain("tree");
-	//	g4sim->AddFile("data/electrons-100k.root");
-	//	g4sim->AddFile("data/muons-100k.root");
-	//	g4sim->AddFile("data/pions-100k.root");
-	g4sim->AddFile("/home/mark/montecarlo/proton.0-24.200k.target.200.leftright.root");
-	//	g4sim->AddFile("data/deuterons-100k.root");
-	//	g4sim->AddFile("data/tritons-100k.root");
-	//	g4sim->AddFile("data/alphas-100k.root");
-	//	TFile *s = new TFile("data/training-100k.root", "READ");
-	//
-	//	TTree *g4sim = (TTree *)s->Get("tree");
+	g4sim->AddFile("/data/hdd4/R15bMC/protons/sf1.02.al50.proton.root");
 
-	const std::vector<double> *Ot, *edep;
+	std::vector<std::string>* particleName = 0;
+	std::vector<std::string>* volName = 0;
+	std::vector<std::string>* ovolName = 0;
+	std::vector<std::string>* oprocess = 0;
+	std::vector<int> *stopped = 0;
+	std::vector<double>* edep = 0;
+	std::vector<double>* Ox = 0;
+	std::vector<double>* Oy = 0;
+	std::vector<double>* Oz = 0;
+	std::vector<double>* Ot = 0;
 	double px=0, py=0, pz=0;
-	std::vector<int> *stopped;
-	std::vector<std::string> *volName, *ovolName, *oprocess, *particleName;
+
 	g4sim->SetBranchAddress("M_edep"	, &edep);
 	g4sim->SetBranchAddress("M_ovolName"	, &ovolName);
 	g4sim->SetBranchAddress("M_volName"	, &volName);
@@ -38,14 +36,13 @@ void LoadTraining(TTree * tTraining, const char * particle) {
 
 	bool stop = false;
 	std::cout << "Loading training trees..." << std::endl;
-	Long64_t numOfEntries = (debug) ? 1000 : g4sim->GetEntries();
-	for(int i=0; i<numOfEntries; i++) {
-		if(i % 100000 == 0) std::cout << i << "/" << g4sim->GetEntries() << std::endl;
+	for(int i=0; i<g4sim->GetEntries(); i++) {
+if(i>1e6) continue;
+		if(i % 1000000 == 0) std::cout << i << "/" << g4sim->GetEntries() << std::endl;
 		g4sim->GetEvent(i);
 		if(volName->size() == 0) continue;
 		for (unsigned iElement = 0; iElement < particleName->size(); ++iElement) {
 			if(oprocess->at(iElement)!="NULL" && ovolName->at(iElement)!="Target") continue;
-			//			if(particleName->at(iElement) == particle && volName->at(iElement)=="SiR2" && stopped->at(iElement) ) { } else continue;
 			double i_edep = edep->at(iElement)*1e3;
 			if(volName->at(iElement)=="SiL3"){
 				SiL3_E += i_edep;
@@ -62,7 +59,7 @@ void LoadTraining(TTree * tTraining, const char * particle) {
 		}
 		if(stop) { 
 			truth_E = sqrt(pz*pz + py*py + px*px + M*M) - M;
-			if(SiL1_E!=0 && SiL3_E!=0) {
+			if(SiL1_E>0.2 && SiL3_E>0.2) {
 				tTraining->Fill();
 			}
 		}
@@ -75,14 +72,19 @@ void LoadTraining(TTree * tTraining, const char * particle) {
 void LoadTest(TMultiLayerPerceptron *mlp, const char * particle, TTree *tTest) {
 	gStyle->SetOptStat(0);
 	std::cout << "==========Generating test data==========" << std::endl;
-	//TFile *test_file = new TFile("data/old-data-exponential-depth/regression-test-proton-uniform_0-10MeV.root", "READ");
-	TFile *fTest = new TFile("/home/mark/montecarlo/proton.5expo2.20k.target.100.leftright.root", "READ");
-	//TFile *test_file = new TFile("data/regression-test-proton-6MeV-sigma2.root", "READ");
+	TFile *fTest = new TFile("/data/hdd4/R15bMC/protons/sf1.02.al50.proton.root", "READ");
 	TTree *g4sim = (TTree *)fTest->Get("tree");
-	const std::vector<double> *Ot, *edep;
+	std::vector<std::string>* particleName = 0;
+	std::vector<std::string>* volName = 0;
+	std::vector<std::string>* ovolName = 0;
+	std::vector<std::string>* oprocess = 0;
+	std::vector<int> *stopped = 0;
+	std::vector<double>* edep = 0;
+	std::vector<double>* Ox = 0;
+	std::vector<double>* Oy = 0;
+	std::vector<double>* Oz = 0;
+	std::vector<double>* Ot = 0;
 	double px=0, py=0, pz=0;
-	std::vector<int> *stopped;
-	std::vector<std::string> *volName, *ovolName, *oprocess, *particleName;
 	g4sim->SetBranchAddress("M_edep"	, &edep);
 	g4sim->SetBranchAddress("M_ovolName"	, &ovolName);
 	g4sim->SetBranchAddress("M_volName"	, &volName);
@@ -93,7 +95,12 @@ void LoadTest(TMultiLayerPerceptron *mlp, const char * particle, TTree *tTest) {
 	g4sim->SetBranchAddress("i_py"          , &py);
 	g4sim->SetBranchAddress("i_pz"          , &pz);
 
-	Double_t SiR1_E, SiR2_E, SiR3_E, SiL1_E, SiL3_E, truth_E;
+	Double_t SiL1_E=0;
+	Double_t SiL3_E=0;
+	Double_t SiR1_E=0;
+	Double_t SiR2_E=0;
+	Double_t SiR3_E=0; 
+	Double_t truth_E=0;
 	tTest->Branch("SiR1_E", &SiR1_E, "SiR1_E/D");
 	tTest->Branch("SiR2_E", &SiR2_E, "SiR2_E/D");
 	tTest->Branch("SiR3_E", &SiR3_E, "SiR3_E/D");
@@ -103,7 +110,7 @@ void LoadTest(TMultiLayerPerceptron *mlp, const char * particle, TTree *tTest) {
 
 	bool stop = false;
 	for(int i=0; i<g4sim->GetEntries(); i++) {
-		if(i % 1000 == 0) std::cout << i << "/" << g4sim->GetEntries() << std::endl;
+		if(i % 100000 == 0) std::cout << i << "/" << g4sim->GetEntries() << std::endl;
 		g4sim->GetEvent(i);
 		if(volName->size() == 0) continue;
 		for (unsigned iElement = 0; iElement < particleName->size(); ++iElement) {
@@ -133,9 +140,9 @@ void LoadTest(TMultiLayerPerceptron *mlp, const char * particle, TTree *tTest) {
 		SiL1_E=0; SiL3_E=0;
 		SiR1_E=0; SiR2_E=0; SiR3_E=0;
 	}
-	TH1F *hUnfold = new TH1F("hUnfold", "Unfolded data; Energy [MeV]", 24, 0, 24);
-	TH1F *hEval = new TH1F("hEval", "Fake data; Energy [MeV]", 24, 0, 24);
-	TH1F *hTrue = new TH1F("htTrue", "Truth; Energy [MeV]", 24, 0, 24);
+	TH1F *hUnfold = new TH1F("hUnfold", "Unfolded data; Energy [MeV]", 25, 0, 25);
+	TH1F *hEval = new TH1F("hEval", "Fake data; Energy [MeV]", 25, 0, 25);
+	TH1F *hTrue = new TH1F("htTrue", "Truth; Energy [MeV]", 25, 0, 25);
 	Double_t params[2];
 	for(int i=0; i < tTest->GetEntries(); i++) {
 		tTest->GetEntry(i);
@@ -145,72 +152,97 @@ void LoadTest(TMultiLayerPerceptron *mlp, const char * particle, TTree *tTest) {
 		hTrue->Fill(truth_E);
 		hEval->Fill(SiL1_E+SiL3_E);
 	}
-	TCanvas *cTest = new TCanvas("Test set", "Test set");
-	TPad *pad1 = new TPad("pad1","This is pad1",0.02,0.29,0.98,0.97);
-	TPad *pad2 = new TPad("pad2","This is pad2",0.02,0.02,0.98,0.27);
-	pad1->Draw();
-	pad2->Draw();
-
-	pad1->cd();
-	hUnfold->Draw("E");
-	hEval->Draw("SAME");
-	hEval->SetLineColor(kMagenta);
-	hTrue->Draw("SAME");
-	hTrue->SetLineColor(kGreen);
-	hEval->SetTitle("Neural network unfolding validation");
-
-	pad2->cd();
-	TH1 *hUnfold_clone = hUnfold->Clone();
-	hUnfold_clone->SetTitle(";;"); 
-	hUnfold_clone->GetYaxis()->SetLabelSize(0.1);
-	hUnfold_clone->GetXaxis()->SetLabelSize(0.1);
-	hUnfold_clone->GetYaxis()->SetTitle("Difference");
-	hUnfold_clone->GetYaxis()->SetTitleSize(0.1);
-	hUnfold_clone->GetYaxis()->SetTitleOffset(0.25);
-	TH1 *hTrue_clone = hTrue->Clone();
-	hUnfold_clone->Add(hTrue_clone, -1);
-	hUnfold_clone->Divide(hTrue_clone);
-	hUnfold_clone->Scale(100);
-	hUnfold_clone->Draw("E");
-	TLine *line = new TLine(0, 0, 24, 0);
-	line->Draw("SAME");
+//	TCanvas *cTest = new TCanvas("Test set", "Test set");
+//	TPad *pad1 = new TPad("pad1","This is pad1",0.02,0.29,0.98,0.97);
+//	TPad *pad2 = new TPad("pad2","This is pad2",0.02,0.02,0.98,0.27);
+//	pad1->Draw();
+//	pad2->Draw();
+//
+//	pad1->cd();
+//	hUnfold->Draw("E");
+//	hEval->Draw("SAME");
+//	hEval->SetLineColor(kMagenta);
+//	hTrue->Draw("SAME");
+//	hTrue->SetLineColor(kGreen);
+//	hEval->SetTitle("Neural network unfolding validation");
+//
+//	pad2->cd();
+//	TH1 *hUnfold_clone = (TH1*) hUnfold->Clone();
+//	hUnfold_clone->SetTitle(";;"); 
+//	hUnfold_clone->GetYaxis()->SetLabelSize(0.1);
+//	hUnfold_clone->GetXaxis()->SetLabelSize(0.1);
+//	hUnfold_clone->GetYaxis()->SetTitle("Difference");
+//	hUnfold_clone->GetYaxis()->SetTitleSize(0.1);
+//	hUnfold_clone->GetYaxis()->SetTitleOffset(0.25);
+//	TH1 *hTrue_clone = (TH1 *)hTrue->Clone();
+//	hUnfold_clone->Add(hTrue_clone, -1);
+//	hUnfold_clone->Divide(hTrue_clone);
+//	hUnfold_clone->Scale(100);
+//	hUnfold_clone->Draw("E");
+//	TLine *line = new TLine(0, 0, 24, 0);
+//	line->Draw("SAME");
 	
 }
 void LoadData(TMultiLayerPerceptron *mlp, const char * particle) {
 	std::cout << "==========Unfolding data==========" << std::endl;
-	TFile *fData= new TFile("NNclassifier-output.root", "READ");
-	TTree *tData = (TTree *)fData->Get("tNNClassifierOutput");
-
-	Double_t SiL1_E, SiL3_E, SiR1_E, SiR2_E, SiR3_E; 
-	tData->SetBranchAddress("SiL1_E", &SiL1_E);
-	tData->SetBranchAddress("SiL3_E", &SiL3_E);
-	tData->SetBranchAddress("SiR1_E", &SiR1_E);
-	tData->SetBranchAddress("SiR2_E", &SiR2_E);
-	tData->SetBranchAddress("SiR3_E", &SiR3_E);
-
-	TH1D *hUnfold = new TH1D("hEval", "Unfolded data; Energy [MeV]", 24, 0, 24);
-	TH1D *hMeas = new TH1D("hMeas", "Data; Energy [MeV]", 24, 0, 24);
-	TH1D *hTrue = new TH1D("hTrue", "Truth; Energy [MeV]", 24, 0, 24);
-	TH2D *hEvdE = new TH2D("hEvdE", "Data EvdE; E [MeV]; dE [MeV]", 128, 0, 24, 128, 0, 8);
-	Double_t params[2];
-	for(int i=0; i < tData->GetEntries(); i++) {
-		tData->GetEntry(i);
-		params[0] = SiL1_E;
-		params[1] = SiL3_E;
-		hUnfold->Fill(mlp->Evaluate(0, params) );
-		hMeas->Fill(SiL1_E+SiL3_E);
-		hEvdE->Fill(SiL1_E+SiL3_E, SiL1_E);
+	TFile *fData= new TFile("/home/m-wong/data/R15b/al50.root", "READ");
+	TTree *tData = (TTree *)fData->Get("tree");
+	Double_t e1, e2, e3, t1, t2, timeToPrevTME, timeToNextTME;
+	Int_t a2;
+	TString *channel = new TString("");
+	TString  *sig = new TString("");
+	TString  *pt = new TString("");
+	TH1D *hMeasDataLeft = new TH1D("hMeasDataLeft", "hMeasDataLeft;E [keV]", 50, 0, 25);
+	TH1D *hMeasDataRight = new TH1D("hMeasDataRight", "hMeasDataRight;E [keV]", 50, 0, 25);
+	TH1D *hMeasDataRight3 = new TH1D("hMeasDataRight3", "hMeasDataRight3;E [keV]", 50, 0, 25);
+Double_t params[2];
+TH1D *hUnfold = new TH1D("hUnfold", "Unfolded data; Energy [MeV]", 50, 0, 25);
+	TTree *tree = (TTree *)fData->Get("tree");
+	tree->SetBranchAddress("timeToPrevTME", &timeToPrevTME);
+	tree->SetBranchAddress("timeToNextTME", &timeToNextTME);
+	tree->SetBranchAddress("e1", &e1);
+	tree->SetBranchAddress("e2", &e2);
+	tree->SetBranchAddress("a2", &a2);
+	tree->SetBranchAddress("e3", &e3);
+	tree->SetBranchAddress("t1", &t1);
+	tree->SetBranchAddress("t2", &t2);
+	tree->SetBranchAddress("channel", &channel);
+	tree->SetBranchAddress("sig3", &sig);
+	tree->SetBranchAddress("pt3", &pt);
+	for(Long64_t i=0; i < tree->GetEntries(); i++) {
+		tree->GetEntry(i);
+		if(a2 > 3980) continue; //remove saturation
+//		e1 = e1*1e3;
+//		e2 = e2*1e3;
+//		e3 = e3*1e3;
+		if(timeToPrevTME < 10e3 || timeToNextTME < 10e3) continue;
+		if(t2<400) continue;
+		if(t2>10e3) continue;
+		if(abs(t2-t1-12) > 20 * 5) continue; //Al50
+		if(channel->Contains("SiL") ) {
+			if(sig->Contains(particle) ) {
+				hMeasDataLeft->Fill(e1+e2);
+params[0] = e1;
+params[1] = e2;
+hUnfold->Fill(mlp->Evaluate(0, params) );				
+			}
+		} else if(channel->Contains("SiR") ) {
+			if(TMath::IsNaN(e3) ) {
+				if(sig->Contains(particle ) ) {
+					hMeasDataRight->Fill(e1+e2);
+				}
+			} else {
+				if(pt->Contains(particle ) ) {
+					hMeasDataRight3->Fill(e1+e2+e3);
+				}
+			}
+		}
 	}
-	TCanvas *cData = new TCanvas("Data set", "Data set");
-	hUnfold->Draw("E");
-	hMeas->Draw("SAME");
-	hMeas->SetLineColor(kMagenta);
-	cData->BuildLegend();
-	TCanvas *debug = new TCanvas("Debug", "Debug");
-	hEvdE->Draw("colz");
+	hUnfold->Draw();
+	hMeasDataLeft->Draw("SAME");
 }
 void R15b_Regression(const char * particle = "proton", Int_t training_epoch=10) {
-	if (particle == "proton") M = 938.27;
+	if (strcmp(particle, "proton") == 0) M = 938.27;
 	if( !gROOT->GetClass("TMultiLayerPerceptron") ) {
 		gSystem->Load("libMLP");
 	}
@@ -219,40 +251,36 @@ void R15b_Regression(const char * particle = "proton", Int_t training_epoch=10) 
 	TTree *tTraining= new TTree("Training", "Training");
 	LoadTraining(tTraining, particle);
 
-//	TMultiLayerPerceptron *mlp = new TMultiLayerPerceptron("SiL1_E,SiL3_E:2:truth_E", training, "Entry$%2", "(Entry$%2)==0", TNeuron::kSigmoid); 
 	TMultiLayerPerceptron *mlp = new TMultiLayerPerceptron("SiL1_E,SiL3_E:2:truth_E", tTraining);
-	mlp->LoadWeights("unfolding-proton-SiL-weights");
-//	mlp->SetLearningMethod(TMultiLayerPerceptron::kBFGS);
-//	mlp->Train(training_epoch, "text,graph update=100"); //text, graph
-//	mlp->DumpWeights();
+	mlp->Train(100);
+//	mlp->LoadWeights("unfolding-proton-SiL-weights");
 
 	// analyze it
-	TCanvas* cIO=new TCanvas("TruthDeviation", "TruthDeviation");
-	cIO->Divide(2,2);
-	TMLPAnalyzer* mlpa=new TMLPAnalyzer(mlp);
-	mlpa->GatherInformations();
-	mlpa->CheckNetwork();
-//	mlpa->DrawDInputs();
+	//TCanvas* cIO=new TCanvas("TruthDeviation", "TruthDeviation");
+	//cIO->Divide(2,2);
+	//TMLPAnalyzer* mlpa=new TMLPAnalyzer(mlp);
+	//mlpa->GatherInformations();
+	//mlpa->CheckNetwork();
 
 	// draw statistics shows the quality of the ANN's approximation
-	cIO->cd(1);
+	//cIO->cd(1);
 	// draw the difference between the ANN's output for (x,y) and 
 	// the true value f(x,y), vs. f(x,y), as TProfiles
-	mlpa->DrawTruthDeviations();
+	//mlpa->DrawTruthDeviations();
 
-	cIO->cd(2);
+	//cIO->cd(2);
 	// draw the difference between the ANN's output for (x,y) and 
 	// the true value f(x,y), vs. x, and vs. y, as TProfiles
-	mlpa->DrawTruthDeviationInsOut();
+	//mlpa->DrawTruthDeviationInsOut();
 
-	cIO->cd(3);
-      // draw a box plot of the ANN's output for (x,y) vs f(x,y)
-	mlpa->GetIOTree()->Draw("Out.Out0-True.True0:True.True0>>hDelta","","goff");
-	TH2F* hDelta=(TH2F*)gDirectory->Get("hDelta");
-	hDelta->SetTitle("Difference between ANN output and truth vs. truth");
-	hDelta->Draw("E");
+	//cIO->cd(3);
+        //draw a box plot of the ANN's output for (x,y) vs f(x,y)
+	//mlpa->GetIOTree()->Draw("Out.Out0-True.True0:True.True0>>hDelta","","goff");
+	//TH2F* hDelta=(TH2F*)gDirectory->Get("hDelta");
+	//hDelta->SetTitle("Difference between ANN output and truth vs. truth");
+	//hDelta->Draw("E");
 
-	Bool_t run_test = true;
+	Bool_t run_test = false;
 	if(run_test) {
 		TTree *tTest = new TTree("Test", "Test");
 		LoadTest(mlp, particle, tTest);
@@ -260,6 +288,5 @@ void R15b_Regression(const char * particle = "proton", Int_t training_epoch=10) 
 	//////Data//////
 	LoadData(mlp, particle);
 	fOutputFile->Write();
-
 	fOutputFile->Close();
 }

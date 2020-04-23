@@ -139,6 +139,7 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 
 	RooUnfoldResponse *L_TM = (RooUnfoldResponse *)responseMatrixFile->Get("SiL500_TM");
 	RooUnfoldResponse *R_TM = (RooUnfoldResponse *)responseMatrixFile->Get("SiR500_TM");
+
 	TFile *fOutputFile = new TFile(Form("%s/unfolded.%s.root", getenv("R15b_OUT"), target.c_str() ), "UPDATE");
 
 	const char *sourceName = Form("h%s", particle.c_str() );
