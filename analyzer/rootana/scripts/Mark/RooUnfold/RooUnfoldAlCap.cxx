@@ -17,8 +17,23 @@
 #include "RooUnfoldBayes.h"
 #endif
 
+void PiecewiseFit(TH1D *hReco, Double_t low, Double_t high) {
+        //currently no physical motivation for this function
+        TF1 *fit = new TF1("fit", "[0]*exp(-(x-[1])*[2]) + [3]*exp(-(x-[4])*[5])", low, high);
+        fit->SetParameter(0, 5.49525e-03);
+//        fit->SetParameter(1, 3.44865e+00);
+fit->FixParameter(1, 4);
+        fit->SetParameter(2, 5.91451e-01);
+        fit->SetParameter(3, 1.21979e-03);
+//        fit->SetParameter(4, 7.54185e+00);
+fit->FixParameter(4, 8);
+        fit->SetParameter(5, 1.79100e-01);
+        fit->SetParLimits(0, 0, 1000);
+        hReco->Fit("fit", "SR");
+        std::cout << "chi2/ndf: " << fit->GetChisquare() << "/" << fit->GetNDF() << std::endl;
+}
 void Process(RooUnfoldResponse *response, TH1D *hMeas, const char *arm = "SiL", std::string target = "al50", const char * particle = "proton", bool normalise = kFALSE) {
-	RooUnfoldBayes unfold(response, hMeas);
+	RooUnfoldBayes unfold(response, hMeas, 4);
 	TH1D* hReco= (TH1D*) unfold.Hreco();
 	hReco->SetName(Form("h%s_%s", particle, arm) );
 	std::cout << std::fixed;
@@ -29,14 +44,16 @@ void Process(RooUnfoldResponse *response, TH1D *hMeas, const char *arm = "SiL", 
 	std::cout << "folded " << arm << " 3500-10000keV: " << integral << " ± " << error << std::endl;
 
 	integral = hReco->IntegralAndError(hReco->GetXaxis()->FindBin(4), hReco->GetXaxis()->FindBin(7.5), error);
-	std::cout << "No correction " << arm << " 4-8MeV: " << integral << " ± " << error << std::endl;
+	std::cout << "\033[0;32m" << "No correction " << arm << " 4-8MeV: " << integral << " ± " << error << "\033[0m" << std::endl;
 	integral = hReco->IntegralAndError(hReco->GetXaxis()->FindBin(3.5), hReco->GetXaxis()->FindBin(9.5), error);
-	std::cout << "No correction " << arm << " 3.5-10MeV: " << integral << " ± " << error << std::endl;
+	std::cout << "\033[0;32m" << "No correction " << arm << " 3.5-10MeV: " << integral << " ± " << error << "\033[0m" << std::endl;
 	if(normalise) {
 		if(target.compare("al50")==0) {
 			hReco->Scale(1/(0.63*0.609*1.62E+8) ); //al50 (lifetime, capture rate, muon count, 3 sigma selection)
 		} else if(target.compare("al100")==0) {
 			hReco->Scale(1/(0.63*0.609*1.31E+8) ); //al100
+		} else if(target.compare("ti50")==0) {
+			hReco->Scale(1/(0.2968*0.8529*8.02E+7) );
 		}
 	}
 	integral = hReco->IntegralAndError(hReco->GetXaxis()->FindBin(4), hReco->GetXaxis()->FindBin(7.5), error);
@@ -44,6 +61,11 @@ void Process(RooUnfoldResponse *response, TH1D *hMeas, const char *arm = "SiL", 
 	integral = hReco->IntegralAndError(hReco->GetXaxis()->FindBin(3.5), hReco->GetXaxis()->FindBin(9.5), error);
 	std::cout << arm << " 3500-10000keV: " << integral << " ± " << error << std::endl;
 
+	if(strcmp(arm, "SiR")==0 && (target.compare("al50")==0 || target.compare("ti50")==0 ) && strcmp(particle, "proton")==0) {
+		PiecewiseFit(hReco, 4., 20.);
+	} else {
+		PiecewiseFit(hReco, 4., 16.);
+	}
 }
 void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", bool normalise = kTRUE)
 {
@@ -53,9 +75,6 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 	TFile *responseMatrixFile = 0;
 	if(target.compare("al50") ==0) {
 		responseMatrixFile = new TFile(Form("%s/transfer.sf1.02.al50.%s.root", transferMatrixPath, particle.c_str() ), "READ");
-		if(particle.compare("proton") == 0) {
-			responseMatrixFile = new TFile(Form("%s/transfer.sf1.02.al50.%s3.root", transferMatrixPath, particle.c_str() ), "READ");
-		}
 	} else if(target.compare("al100") ==0 ) {
 		responseMatrixFile = new TFile(Form("%s/transfer.sf1.035.al100.%s.root", transferMatrixPath, particle.c_str() ), "READ");
 	} else if(target.compare("ti50") ==0) {
@@ -93,13 +112,13 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 		if(timeToPrevTME < 10e3 || timeToNextTME < 10e3) continue;
 		if(t2<400) continue;
 		if(t2>10e3) continue;
-		if(target.compare("al50") == 0) {
-			if(abs(t2-t1-12) > 20 * 5) continue; //Al50
-			//if(abs(t2-t1)> 200) continue; //Al50
+		if(target.compare("al50") == 0 || target.compare("ti50") ) {
+			//if(abs(t2-t1-12) > 20 * 5) continue; //Al50
+			if(abs(t2-t1)> 200) continue; //Al50
 		}
 		if(target.compare("al100") == 0) {
-			if(channel->Contains("SiL") ) {if(abs(t2-t1 + 493) > 116 *5) continue; }
-			if(channel->Contains("SiR") ) {if(abs(t2-t1 - 216) > 53 *5) continue; }
+			if(channel->Contains("SiL") ) {if(abs(t2-t1 + 567) > 24 *3) continue; }
+			if(channel->Contains("SiR") ) {if(abs(t2-t1 - 211) > 32 *3) continue; }
 		}
 		if(channel->Contains("SiL") ) {
 			if(sig->Contains(particle) ) {
