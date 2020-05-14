@@ -16,13 +16,13 @@
 #include <vector>
 
 
-static const string PFNAME("~/data/R15b/Proton_EvdE_MC.root");
-static const string DFNAME("~/data/R15b/Deuteron_EvdE_MC.root");
-static const string TFNAME("~/data/R15b/Triton_EvdE_MC.root");
-static const string AFNAME("~/data/R15b/Alpha_EvdE_MC.root");
+static const std::string PFNAME("~/data/R15b/Proton_EvdE_MC.root");
+static const std::string DFNAME("~/data/R15b/Deuteron_EvdE_MC.root");
+static const std::string TFNAME("~/data/R15b/Triton_EvdE_MC.root");
+static const std::string AFNAME("~/data/R15b/Alpha_EvdE_MC.root");
 static const int NPTYPE  = 5;
-static const string* MCIFNAMES[4] = { &PFNAME, &DFNAME, &TFNAME, &AFNAME };
-static const string DATAIFNAME("~/data/R15b/evdeal50.root");
+static const std::string* MCIFNAMES[4] = { &PFNAME, &DFNAME, &TFNAME, &AFNAME };
+static const std::string DATAIFNAME("~/data/R15b/evdeal50.root");
 
 static const double EMIN_P  = 2e3;
 static const double EMIN_D  = 2.5e3;
@@ -30,8 +30,11 @@ static const double EMIN_T  = 4e3;
 static const double EMIN_A  = 10e3;
 static const double EMIN[4] = { EMIN_P,  EMIN_D,    EMIN_T,  EMIN_A };
 namespace ParticleLikelihood {
+  using std::vector;
+  using std::unique_ptr;
 
   class PSel {
+  public:
     virtual bool IsParticle(double E, double dE) const = 0;
     virtual void Draw      (Color_t, Style_t)          = 0;
   };
@@ -91,7 +94,7 @@ namespace ParticleLikelihood {
     }
   };
 
-  class PSelMZ2 {
+  class PSelMZ2 : public PSel {
     double mz2_lim[2], e_lim[2];
   public:
     PSelMZ2(double mz2_0, double mz2_1, double e0, double e1) :
@@ -100,17 +103,20 @@ namespace ParticleLikelihood {
       return e_lim[0] < E && E < e_lim[1] &&
              mz2_lim[0] < E*dE && E*dE < mz2_lim[1];
     }
+    void Draw(Color_t, Style_t) {
+      PrintAndThrow("ERROR: PSelMZ2::Draw not yet implemented.");
+    }
   };
 
-  class PSelMC {
+  class PSelMC : public PSel {
     TH2* H;
     TProfile* h;
     double lim, emin;
     double res;
   public:
-    PSelMC() {}
+    PSelMC() : PSel() {}
     // Takes ownership of H
-    PSelMC(TH2* H=0x0, double lim=0., double emin=0., double res=0.) :
+    PSelMC(TH2* H=0x0, double lim=0., double emin=0., double res=0.) : PSel(),
     H(H), h(0x0), lim(lim), emin(emin), res(res) {
       h = H->ProfileX("_pfx", 1, -1, "S");
       H->SetDirectory(0);
@@ -131,12 +137,15 @@ namespace ParticleLikelihood {
     bool IsParticle(double E, double dE) const {
       return Prob(E, dE) > lim;
     }
+    void Draw(Color_t, Style_t) {
+      PrintAndThrow("ERROR: PSelMC::Draw not yet implemented.");
+    }
     TH2*      GetHist()    { return H;   }
     TProfile* GetProfile() { return h;   }
     double    GetLim()     { return lim; }
   };
 
-  class PSelData {
+  class PSelData : public PSel {
     TH2* H;
     TF1* f;
     TGraph df;
@@ -149,6 +158,9 @@ namespace ParticleLikelihood {
       EvdEPoint(double E0, double phi, double Ep0, double dEp0, double sig) :
       E0(E0), phi(phi), Ep0(Ep0), dEp0(dEp0), sig(sig) {}
     };
+    void Draw(Color_t, Style_t) {
+      PrintAndThrow("ERROR: PSelData::Draw not yet implemented.");
+    }
   private:
     TF1* Fit(TH1* H, double x0) {
       double A = H->GetBinContent(H->FindFixBin(x0));
@@ -189,9 +201,9 @@ namespace ParticleLikelihood {
       return NearestPoint(x.X(), x.Y());
     }
   public:
-    PSelData() {}
+    PSelData() : PSel() {}
     PSelData(const Particle* p, TH2* h, TF1* f, double lim, double step,
-             double Ebnd[2]) :
+             double Ebnd[2]) : PSel(),
     H(h), f(f), lim(lim), Emin(Ebnd[0]), Emax(Ebnd[1]) {
       f->SetRange(h->GetXaxis()->GetXmin(), h->GetXaxis()->GetXmax());
       TVector2 x(Emin, f->Eval(Emin));
@@ -236,13 +248,13 @@ namespace ParticleLikelihood {
     TGraph        SigGraph()               const { return df;                 }
   };
 
-  vector<PSelPow> LoadParticleLikelihoodsPow(char lr, double scale=1.) {
+  vector<unique_ptr<PSel>> LoadParticleLikelihoodsPow(char lr, double scale=1.) {
     double L[4][3] = { {85e4, 15e5, -0.85}, {15e5, 22e5, -0.85},
                        {22e5, 30e5, -0.85}, {10e6, 16e6, -0.85} };
     double R[4][3] = { {12e5, 22e5, -0.9},  {22e5, 35e5, -0.9},
                        {35e5, 50e5, -0.9},  {21e6, 30e6, -0.9} };
 
-    vector<PSelPow> pls;
+    vector<unique_ptr<PSel>> pls;
     for (int i = 0; i < NPTYPE-1; ++i) {
       double elo = 1.9e3, ehi = 17e3;
       double delo  = std::toupper(lr) == 'L' ? L[i][0] : R[i][0];
@@ -250,12 +262,13 @@ namespace ParticleLikelihood {
       double decay = std::toupper(lr) == 'L' ? L[i][2] : R[i][2];
       delo = (1+scale)/2*delo + (1-scale)/2*dehi;
       dehi = (1-scale)/2*delo + (1+scale)/2*dehi;
-      pls.push_back(PSelPow(delo, dehi, decay, elo, ehi));
+      pls.emplace_back(new PSelPow(delo, dehi, decay, elo, ehi));
     }
     return pls;
   }
 
-  vector<PSelPow2> LoadParticleLikelihoodsPow2(char lr, double scale=1.) {
+  vector<unique_ptr<PSel>> LoadParticleLikelihoodsPow2(char lr,
+                                                           double scale=1.) {
     double L[4][7] = { {35e5, 44e5, -1.02, -0.85, -1.00, -0.78},
                        {15e5, 22e5, -0.85, -0.85, -0.85, -0.85},
                        {22e5, 30e5, -0.85, -0.85, -0.85, -0.85},
@@ -265,7 +278,7 @@ namespace ParticleLikelihood {
                        {35e5, 50e5, -0.90, -0.90, -0.90, -0.90},
                        {21e6, 30e6, -0.90, -0.90, -0.90, -0.90} };
 
-    vector<PSelPow2> pls;
+    vector<unique_ptr<PSel>> pls;
     for (int i = 0; i < NPTYPE-1; ++i) {
       double elo = 1.9e3, emid = 4e3, ehi = 17e3;
       double alo  = std::toupper(lr) == 'L' ? L[i][0] : R[i][0];
@@ -276,30 +289,31 @@ namespace ParticleLikelihood {
       double khi2 = std::toupper(lr) == 'L' ? L[i][5] : R[i][5];
       alo = (1+scale)/2*alo + (1-scale)/2*ahi;
       ahi = (1-scale)/2*alo + (1+scale)/2*ahi;
-      pls.push_back(PSelPow2(alo, ahi, klo1, klo2, khi1, khi2, elo, emid, ehi));
+      pls.emplace_back(new PSelPow2(alo, ahi, klo1, klo2, khi1, khi2,
+                                    elo, emid, ehi));
     }
     return pls;
   }
 
-  vector<PSelMZ2> LoadParticleLikelihoodsMZ2(char lr) {
+  vector<unique_ptr<PSel>> LoadParticleLikelihoodsMZ2(char lr) {
     double L[4][2] = {
       {3.0e6, 5.5e6}, {5.5e6, 10.0e6}, {10e6,  15e6}, {40e6,  70e6}
     };
     double R[4][2] = {
       {2.8e6, 5.5e6}, {5.5e6, 8.5e6}, {8.5e6, 12e6}, {40e6, 70e6}
     };
-    vector<PSelMZ2> pls;
+    vector<unique_ptr<PSel>> pls;
     for (int i = 0; i < NPTYPE-1; ++i)
       if (lr == 'l' || lr == 'L')
-        pls.push_back(PSelMZ2(L[i][0], L[i][1], 1.9e3, 17e3));
+        pls.emplace_back(new PSelMZ2(L[i][0], L[i][1], 1.9e3, 17e3));
       else if (lr == 'r' || lr == 'R')
-        pls.push_back(PSelMZ2(R[i][0], R[i][1], 1.9e3, 17e3));
+        pls.emplace_back(new PSelMZ2(R[i][0], R[i][1], 1.9e3, 17e3));
       else
         PrintAndThrow("ParticleLikelihoodMZ2: Incorrect detector side!");
     return pls;
   }
 
-  vector<PSelData> LoadParticleLikelihoodsData(char lr) {
+  vector<unique_ptr<PSel>> LoadParticleLikelihoodsData(char lr) {
     static TFile* ifile = new TFile(DATAIFNAME.c_str(), "READ");
     TH3* H3 = (TH3*)ifile->Get(lr == 'l' ? "evde_l0" : "evde_r0");
     H3->GetZaxis()->SetRangeUser(400., 100e3);
@@ -319,22 +333,32 @@ namespace ParticleLikelihood {
                                     {3.4e3,  18e3}, {8.5e3,  18e3} };
     for (int i = 0; i < NPTYPE-1; ++i)
       f[i]->SetParameters(lr == 'l' ? L_PAR[i] : R_PAR[i]);
-    vector<PSelData> pls;
+    vector<unique_ptr<PSel>> pls;
     for (int i = 0; i < NPTYPE-1; ++i)
-      pls.push_back(PSelData(PARTICLES[i], H2, f[i], 1e-4, 500.,
-                             (lr=='l') ? L_BND[i] : R_BND[i]));
+      pls.emplace_back(new PSelData(PARTICLES[i], H2, f[i], 1e-4, 500.,
+                                (lr=='l') ? L_BND[i] : R_BND[i]));
     return pls;
   }
 
-  vector<PSelMC> LoadParticleLikelihoodsMC(char lr) {
-    vector<PSelMC> pls;
+  vector<unique_ptr<PSel>> LoadParticleLikelihoodsMC(char lr) {
+    vector<unique_ptr<PSel>> pls;
     for (int i = 0; i < NPTYPE-1; ++i) {
       TFile f(MCIFNAMES[i]->c_str());
       char hname[64];
       sprintf(hname, "hEvdE_Si%c_stopped", std::toupper(lr));
       TH2F* H = (TH2F*)f.Get(hname);
-      pls.push_back(PSelMC(H, 1e-4, EMIN[i], 30.));
+      pls.emplace_back(new PSelMC(H, 1e-4, EMIN[i], 30.));
     }
     return pls;
+  }
+
+  vector<unique_ptr<PSel>> LoadParticleLikelihoods(char lr, string method,
+                                                   double opt) {
+    if      (method == "pow")  return LoadParticleLikelihoodsPow(lr);
+    else if (method == "pow2") return LoadParticleLikelihoodsPow2(lr, opt);
+    else if (method == "data") return LoadParticleLikelihoodsData(lr);
+    else if (method == "mc")   return LoadParticleLikelihoodsMC(lr);
+    else if (method == "mz2")  return LoadParticleLikelihoodsMZ2(lr);
+    else PrintAndThrow("ERROR: Unknown PID method: " + method);
   }
 }

@@ -1,0 +1,578 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"Ca",
+				"CalculateNMuRelativeErr"
+			],
+			[
+				"Build",
+				"BuildDisjointFitFcnsTi"
+			],
+			[
+				"Load",
+				"LoadParticleLikelihoodsMZ2"
+			],
+			[
+				"LoadParticle",
+				"LoadParticleLikelihoodsMC"
+			],
+			[
+				"LoadParti",
+				"LoadParticleLikelihoodsData"
+			],
+			[
+				"Unfol",
+				"UnfoldConfig_t"
+			],
+			[
+				"Avg",
+				"AvgAndStd"
+			],
+			[
+				"draw",
+				"drawfit"
+			],
+			[
+				"LoadData_",
+				"LoadData_IndvidualSeg"
+			],
+			[
+				"RooUnfold",
+				"RooUnfoldResponse"
+			],
+			[
+				"TGrap",
+				"TGraphErrors"
+			],
+			[
+				"compare",
+				"compare_proton_tcut_raw"
+			],
+			[
+				"stopvols",
+				"stopvols_detected"
+			],
+			[
+				"Crea",
+				"CreateAndFitSiTEnergyHistogram"
+			],
+			[
+				"Roo",
+				"RooUnfoldBayes"
+			],
+			[
+				"Cons",
+				"ConstructAndSaveTrees"
+			],
+			[
+				"Fit",
+				"FitGeHist"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "scripts/cppaper/al50_norm.C",
+			"settings":
+			{
+				"buffer_size": 7935,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "scripts/cppaper/al100_norm.C",
+			"settings":
+			{
+				"buffer_size": 7889,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "scripts/cppaper/si16b_norm.C",
+			"settings":
+			{
+				"buffer_size": 7603,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "scripts/cppaper/sirtm_unf.C",
+			"settings":
+			{
+				"buffer_size": 94,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"Snippet: ",
+				"Snippet: Tabular"
+			],
+			[
+				"install pa",
+				"Package Control: Install Package"
+			],
+			[
+				"packa",
+				"Package Control: Install Package"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"Remove ",
+				"Package Control: Remove Package"
+			],
+			[
+				"Dart: C",
+				"Dart: Check Configuration"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 412.0
+	},
+	"console":
+	{
+		"height": 130.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '6f4c264a24d933ce70df5dedcf1dcaee' + 'ebe013ee18cced0ef93d5f746d80ef60'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana"
+	],
+	"file_history":
+	[
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/cppaper.sublime-project",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/R15b_Al50_TransferMatrix.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/R15b_Al50_Unfold.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/R15b_Al50_psel.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/blocks_and_tmes.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/r15b_al50_psel_draw.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/compare_ti50_tranches.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/R15b_Al50_nmu.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/r15b_al50_nmu_draw.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/img/ti_tranche2_cmp/fit_t1.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/img/ti_tranche2_cmp/fit_e1.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/tmp.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/img/sit_tranche2_cmp/fit.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/r15b_al50_tm_draw.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/r15b_al50_unfold_draw.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/compare_al100_al50.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/make_trend_plots.sh",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/plot_trends.gnuplot",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/plotters/PlotTAP_TDiff.cpp",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/plotters/PlotTAP_TDiff.h",
+		"/Users/jrquirk/remotes/mu2e/data/R15b/ped_toff_ti50_2.C",
+		"/Users/jrquirk/remotes/mu2e/data/R15b/merge_ped_toff.sh",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/configurations/R15b_tme-tree.cfg",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/test.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/psel.h",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/configurations/timeoffset_calib.cfg",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/configurations/pedestalsandnoise_calib.cfg",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/TAP_generators/FirstComplete_RoughSyncPulseCutAPGenerator.cpp",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/rootlogon.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/framework/SetupNavigator.cpp",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/src/common/TSetupData.cpp",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/src/common/TSetupData.h",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/data_quality/IslandAmplitude.cpp",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/data_quality/IslandLength.cpp",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/plotters/PlotTPI_PedestalAndNoise.cpp",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/insert_energy_calibration.py",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/merge_calibration_database.py",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/framework/SetupNavigator.h",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/TMETree/TMEUtils.h",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/batch/jobscripts/mu2e_bu_utils.py",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/batch/jobscripts/run_production.py",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/batch/jobscripts/initializeProductionDB.py",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/framework/EventNavigator.cpp",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/framework/SetupRecord.cpp",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/framework/IdChannel.h",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/framework/IdChannel.cpp",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/framework/CommandLine.cpp",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/TAP_generators/MakeAnalysedPulses.cpp",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/framework/EventNavigator.h",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/util.h",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/systematics/individual_errors.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/r15b_al50_psel_eff.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/work/jrquirk/trees/ti50.odb",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/src/framework/SetupRecord.h",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/systematics/unfolding_cutoff.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/draw_nice_deve.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/compare_momscan.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/individual_errors.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/unfold_segments.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/JQ_Thesis/5/ge_calib.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/psi2019/finalspec.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/unfold_in_subgroups.C",
+		"/Users/jrquirk/remotes/mu2e/tmp/tcut_tres.C",
+		"/Users/jrquirk/remotes/mu2e/tmp/EPdists.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/compare/raw.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/compare/tms.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/stopping_depth_mc_different_p.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/stopping_rates_different_p.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/rootana.sublime-project",
+		"/Users/jrquirk/alcap/phdthesis/thesis/6_Discussion/outlook.tex",
+		"/Users/jrquirk/alcap/phdthesis/thesis/5_Analysis/systematics.tex",
+		"/Users/jrquirk/alcap/phdthesis/thesis/5_Analysis/pid.tex",
+		"/Users/jrquirk/alcap/phdthesis/thesis/thesis.sublime-project",
+		"/Users/jrquirk/alcap/phdthesis/thesis/4_Data/electronics.tex",
+		"/Users/jrquirk/alcap/phdthesis/thesis/0_Prelim/prelim.tex",
+		"/Users/jrquirk/alcap/alcap-priv/R15b_UpdateMay2019/aluminum/Al50.tex",
+		"/Users/jrquirk/alcap/phdthesis/thesis/4_Data/rootana.tex",
+		"/Users/jrquirk/alcap/phdthesis/thesis/4_Data/tme.tex",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/JQ_Thesis/draw_si_ge_pulses.C",
+		"/Users/jrquirk/alcap/phdthesis/thesis/thesis.tex",
+		"/Users/jrquirk/alcap/phdthesis/thesis/5_Analysis/analysis.tex",
+		"/Users/jrquirk/alcap/phdthesis/thesis/5_Analysis/results.tex",
+		"/Users/jrquirk/alcap/phdthesis/thesis/5_Analysis/unfolding.tex",
+		"/Users/jrquirk/alcap/phdthesis/thesis/5_Analysis/mc.tex",
+		"/Users/jrquirk/alcap/phdthesis/thesis/5_Analysis/norm.tex",
+		"/Users/jrquirk/alcap/phdthesis/thesis/thesis.bib",
+		"/Users/jrquirk/alcap/alcap-priv/R15b_UpdateMay2019/main.bib",
+		"/Users/jrquirk/alcap/alcap-priv/R15b_UpdateMay2019/aluminum/conclusion.tex",
+		"/Users/jrquirk/alcap/alcap-priv/R15b_UpdateMay2019/aluminum/Al100.tex",
+		"/Users/jrquirk/alcap/alcap-priv/R15b_UpdateMay2019/aluminum/overview.tex",
+		"/Users/jrquirk/alcap/alcap-priv/R15b_UpdateMay2019/main.tex",
+		"/Users/jrquirk/alcap/alcap-priv/R15b_UpdateMay2019/overview.tex",
+		"/Users/jrquirk/alcap/alcap-priv/.gitignore",
+		"/Users/jrquirk/alcap/alcap-priv/R15b_UpdateMay2019/aluminum.tex",
+		"/Users/jrquirk/remotes/mu2e/g4sim/cmake/CMakeLists.txt",
+		"/Users/jrquirk/remotes/mu2e/tmp/6.16",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/plot_dts.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/JQ_Thesis/draw_pulses.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/src/common/DataLibraryLinkDef.h",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/src/common/DataLibraryClasses.list",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/src/common/TPulseIsland.h",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/work/jrquirk/draw_pulses.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/work/jrquirk/MODULES",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/work/jrquirk/Makefile",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/src/diagnostics/MExportShapes.cpp",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/JQ_Thesis/draw_labelled_pulse.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/src/common/TGlobalData.h",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/work/jrquirk/DataLibraryDict.cpp",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/Makefile",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/michel_electrons.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/compare_proton_tcut.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/tres_SiR23.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/tres_eslice.C",
+		"/Users/jrquirk/remotes/mu2e/g4sim/alcap/configure/geometry_R2015b/right-package_P2",
+		"/Users/jrquirk/remotes/mu2e/g4sim/alcap/configure/geometry_R2015b/left-package_P2",
+		"/Users/jrquirk/remotes/mu2e/g4sim/alcap/configure/geometry_R2015b/geometry_P3",
+		"/Users/jrquirk/remotes/mu2e/g4sim/alcap/configure/gen/R15b_gen_mu_Si16b",
+		"/Users/jrquirk/remotes/mu2e/g4sim/alcap/configure/geometry_R2015b/Al50",
+		"/Users/jrquirk/remotes/mu2e/g4sim/alcap/configure/gen/R15b_gen_alpha_target_al50_mudist",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/check_new_Si_thicknesses.C",
+		"/Users/jrquirk/remotes/mu2e/g4sim/env.sh",
+		"/Users/jrquirk/remotes/mu2e/g4sim/alcap/configure/geometry_R2015b/geometry_P5",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/michel_electrons_timeres.C",
+		"/Users/jrquirk/remotes/mu2e/g4sim/alcap/configure/gen/R15b_gen_proton_target_mudist",
+		"/Users/jrquirk/remotes/mu2e/g4sim/alcap/configure/gen/R15b_gen_mu_preSiT",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/michel_electrons_fit.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/tres_simulate_res_2exp.C",
+		"/Users/jrquirk/remotes/mu2e/AlcapDAQ/analyzer/rootana/scripts/Al50/michel_electrons_tslice_e_lifetime.C"
+	],
+	"find":
+	{
+		"height": 26.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"SetRan",
+			"45",
+			"Scale",
+			"50"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 2,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "scripts/cppaper/al50_norm.C",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7935,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2833,
+								2833
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2712.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "scripts/cppaper/al100_norm.C",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7889,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2864,
+								2864
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 20.0,
+						"translation.y": 1311.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "scripts/cppaper/si16b_norm.C",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7603,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								120,
+								120
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 1.0,
+						"translation.y": 6.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "scripts/cppaper/sirtm_unf.C",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 94,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								93,
+								93
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"syntax": "Packages/C++/C++.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 26.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.dart.config.check":
+	{
+		"height": 108.0
+	},
+	"output.exec":
+	{
+		"height": 108.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.sftp":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "cppaper.sublime-project",
+	"replace":
+	{
+		"height": 48.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"~/remotes/mu2e/AlcapDAQ/analyzer/work/jrquirk/trees/ti50.odb"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 224.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

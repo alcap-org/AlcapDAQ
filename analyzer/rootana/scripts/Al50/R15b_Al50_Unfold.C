@@ -56,15 +56,17 @@ void FillMeasuredHists(RooUnfoldResponse* r[2], TTree* tr[2],
   const TAxis* ax[2] = { r[0]->Htruth()->GetXaxis(),
                          r[1]->Htruth()->GetXaxis() };
   char cmd[2][64];
-  char cut[64];
+  char cut[2][64];
   std::sprintf(cmd[0], "e1+e2>>hle(%d,%f,%f)", ax[0]->GetNbins(),
                ax[0]->GetBinLowEdge(1), ax[0]->GetBinUpEdge(ax[0]->GetNbins()));
   std::sprintf(cmd[1], "e1+e2>>hre(%d,%f,%f)", ax[1]->GetNbins(),
                ax[1]->GetBinLowEdge(1), ax[1]->GetBinUpEdge(ax[1]->GetNbins()));
-  std::sprintf(cut, "%g<t && t<%g && abs(dt)<%g && e3==0", t, pp, dt);
-  std::printf("%s\n", cut);
-  tr[0]->Draw(cmd[0], cut, "goff");
-  tr[1]->Draw(cmd[1], cut, "goff");
+  std::sprintf(cut[0], "%g<t2 && t2<%g && abs(t2-t1)<%g && e3==0",
+               t, pp, dt);
+  std::sprintf(cut[1], "%g<t2 && t2<%g && abs(t2-t1)<%g && e3==0",
+               t, pp, dt);
+  tr[0]->Draw(cmd[0], cut[0], "goff");
+  tr[1]->Draw(cmd[1], cut[1], "goff");
   hle = (TH1*)gDirectory->Get("hle");
   hre = (TH1*)gDirectory->Get("hre");
 }
@@ -88,15 +90,28 @@ void PoissonShake(TH1* h) {
     h->SetBinContent(i, r.Poisson(h->GetBinContent(i)));
 }
 
-void unfold(const char* ifname_tm, const char* ifname_data,
-            const char* ofname, double pp, double t, double dt,
-            int rebin, double elo, double ehi, int bayiter,
+void unfold(TFile* fmctm, TFile* fdata, const char* ofname,
+            double t, double dt,
+            double elo, double ehi, int rebin, int bayiter,
             bool pidcorrect, const std::string& noise) {
   TH1::SetDefaultSumw2(kTRUE);
-  TFile* fdata = new TFile(ifname_data);
-  TFile* fmctm = new TFile(ifname_tm);
   RooUnfoldResponse* resp[2] = { (RooUnfoldResponse*)fmctm->Get("SiL_TM"),
                                  (RooUnfoldResponse*)fmctm->Get("SiR_TM") };
+  if (!resp[0] || !resp[1]) {
+    std::printf("Cannot open at least one TM file! %p %p\n", resp[0], resp[1]);
+    return;
+  }
+
+  TMConfig_t   tmconf  ((TTree*)fmctm->Get("config"));
+  PSelConfig_t pselconf((TTree*)fdata->Get("config"));
+  if (!Sanity::CompatibleConfigs(tmconf, pselconf)) {
+    tmconf  .Print();
+    pselconf.Print();
+    PrintAndThrow("ERROR: Incompatible configs.");
+  }
+  Particle P(tmconf.particle);
+
+
   if (rebin > 1) {
     TMUtils::Rebin(resp[0], rebin);
     TMUtils::Rebin(resp[1], rebin);
@@ -108,9 +123,25 @@ void unfold(const char* ifname_tm, const char* ifname_data,
     std::printf("Not setting range because of inputs elo=%g and ehi=%g\n",
                 elo, ehi);
   }
-  TTree* tr[2] = { (TTree*)fdata->Get("PID_LP"), (TTree*)fdata->Get("PID_RP") };
+
+  TTree* tr[2];
+  if (P == PROTON) {
+    tr[0] = (TTree*)fdata->Get("PID_LP");
+    tr[1] = (TTree*)fdata->Get("PID_RP");
+  } else if (P == DEUTERON) {
+    tr[0] = (TTree*)fdata->Get("PID_LD");
+    tr[1] = (TTree*)fdata->Get("PID_RD");
+  } else if (P == TRITON) {
+    tr[0] = (TTree*)fdata->Get("PID_LT");
+    tr[1] = (TTree*)fdata->Get("PID_RT");
+  } else if (P == ALPHA) {
+    tr[0] = (TTree*)fdata->Get("PID_LA");
+    tr[1] = (TTree*)fdata->Get("PID_RA");
+  } else {
+    throw "UNKNOWN PARTICLE";
+  }
   TH1* he_raw[2];
-  FillMeasuredHists(resp, tr, he_raw[0], he_raw[1], pp, t, dt);
+  FillMeasuredHists(resp, tr, he_raw[0], he_raw[1], pselconf.pp, t, dt);
   if (noise == "poisson") {
     PoissonShake(he_raw[0]);
     PoissonShake(he_raw[1]);
@@ -182,32 +213,41 @@ void unfold(const char* ifname_tm, const char* ifname_data,
   bbb[0]->Write("rul_bbb");
   bbb[1]->Write("rur_bbb");
 
-  TTree* inputs = new TTree("inputs", "inputs");
-  std::string nse = noise;
-  inputs->Branch("pp",         &pp);
-  inputs->Branch("t",          &t);
-  inputs->Branch("dt",         &dt);
-  inputs->Branch("rebin",      &rebin);
-  inputs->Branch("elo",        &elo);
-  inputs->Branch("ehi",        &ehi);
-  inputs->Branch("pidcorrect", &pidcorrect);
-  inputs->Branch("noisetype",  &nse);
-  inputs->Fill();
-
+  TTree* config = new TTree("config", "config");
+  std::string nse = noise, prtcle = tmconf.particle, dset = tmconf.dataset;
+  config->Branch("pidcorrect",     &pidcorrect);
+  config->Branch("usealllayers",   &pselconf.usealllayers);
+  config->Branch("rebin",          &rebin);
+  config->Branch("pp",             &pselconf.pp);
+  config->Branch("t",              &t);
+  config->Branch("dt",             &dt);
+  config->Branch("elo",            &elo);
+  config->Branch("ehi",            &ehi);
+  config->Branch("thinres",        &tmconf.thinres);
+  config->Branch("thickres",       &tmconf.thickres);
+  config->Branch("bandwidthscale", &pselconf.bandwidthscale);
+  config->Branch("noisetype",      &nse);
+  config->Branch("particle",       &prtcle);
+  config->Branch("dataset",        &dset);
+  config->Branch("t1lerr",         &pselconf.terr.t1[0]);
+  config->Branch("t2lerr",         &pselconf.terr.t2[0]);
+  config->Branch("t3lerr",         &pselconf.terr.t3[0]);
+  config->Branch("t1rerr",         &pselconf.terr.t1[1]);
+  config->Branch("t2rerr",         &pselconf.terr.t2[1]);
+  config->Branch("t3rerr",         &pselconf.terr.t3[1]);
+  config->Fill();
   ofile->Write();
   ofile->Close();
 }
 
-void R15b_Al50_Unfold(char mode='\0', const char* ifname_tm=nullptr,
+void R15b_Al50_Unfold(const char* ifname_tm=nullptr,
                       const char* ifname_data=nullptr,
                       const char* ofname=nullptr,
-                      double pp=10e3, double t=400, double dt=200,
-                      int rebin=5, double elo=2e3, double ehi=12e3,
+                      double t=400, double dt=500,
+                      double elo=2e3, double ehi=12e3, int rebin=5,
                       int bayiter=4, bool pidcorrect=true, const std::string& noise="") {
-  switch(mode) {
-    case 'p': unfold(ifname_tm, ifname_data, ofname, pp, t, dt, rebin, elo, ehi, bayiter, pidcorrect, noise); return;
-    case 'd': unfold(ifname_tm, ifname_data, ofname, pp, t, dt, rebin, elo, ehi, bayiter, pidcorrect, noise); return;
-    case 't': unfold(ifname_tm, ifname_data, ofname, pp, t, dt, rebin, elo, ehi, bayiter, pidcorrect, noise); return;
-    case 'a': unfold(ifname_tm, ifname_data, ofname, pp, t, dt, rebin, elo, ehi, bayiter, pidcorrect, noise); return;
-  }
+  if (!ifname_tm)
+    return;
+  unfold(new TFile(ifname_tm), new TFile(ifname_data), ofname,
+         t, dt, elo, ehi, rebin, bayiter, pidcorrect, noise);
 }

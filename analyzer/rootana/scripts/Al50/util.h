@@ -14,6 +14,7 @@
 #include "TH2.h"
 #include "TH1D.h"
 #include "TMath.h"
+#include "TTree.h"
 #include "TVector2.h"
 
 #include <cmath>
@@ -21,6 +22,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+
 
 
 void PrintAndThrow(const char* err) {
@@ -31,18 +33,224 @@ void PrintAndThrow(const std::string& err) {
   PrintAndThrow(err.c_str());
 }
 
+enum Side      { kRight, kLeft, kNSides, kInvalidSide };
+enum Layer     { kThin,  kThick };
+enum Dataset_t { kAl50, kAl100, kTi50 };
+
+struct TimeOffset_t {
+  // Applied directly, so this is ADDED to the time.
+  // Indexed left/right, so L=0, R=1
+  double t1[2], t2[2], t3[2];
+  TimeOffset_t() : t1{0.,0.}, t2{0.,0.}, t3{0.,0.} {}
+  TimeOffset_t(const std::string dataset) {
+    if (dataset == "Al50") {
+      t1[0] = 0., t2[0] = 0., t3[0] = 0.;
+      t1[1] = 0., t2[1] = 0., t3[1] = 0.;
+    } else if (dataset == "Al100") {
+      t1[0] = 650., t2[0] = 90,   t3[0] = 0.;
+      t1[1] = -130, t2[1] = 100., t3[1] = 0.;
+    } else if (dataset == "Ti50") {
+      t1[0] = 0., t2[0] = 0., t3[0] = 0.;
+      t1[1] = 0., t2[1] = 0., t3[1] = 0.;
+    } else if (dataset == "Si16b") {
+      t1[0] = 0., t2[0] = 0., t3[0] = 0.;
+      t1[1] = 0., t2[1] = 0., t3[1] = 0.;
+    } else {
+      PrintAndThrow("Error: Unknown dataset "+dataset);
+    }
+  }
+  void Apply() {
+    // for (int i = 0; i < SiL1_1 ->size(); ++i) SiL1_1 ->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiL1_2 ->size(); ++i) SiL1_2 ->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiL1_3 ->size(); ++i) SiL1_3 ->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiL1_4 ->size(); ++i) SiL1_4 ->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiL1_5 ->size(); ++i) SiL1_5 ->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiL1_6 ->size(); ++i) SiL1_6 ->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiL1_7 ->size(); ++i) SiL1_7 ->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiL1_8 ->size(); ++i) SiL1_8 ->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiL1_9 ->size(); ++i) SiL1_9 ->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiL1_10->size(); ++i) SiL1_10->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiL1_11->size(); ++i) SiL1_11->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiL1_12->size(); ++i) SiL1_12->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiL1_13->size(); ++i) SiL1_13->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiL1_14->size(); ++i) SiL1_14->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiL1_15->size(); ++i) SiL1_15->at(i).tTME -= t1[0];
+    // for (int i = 0; i < SiL1_16->size(); ++i) SiL1_16->at(i).tTME -= t1[0];
+    for (int i = 0; i < SiR1_1 ->size(); ++i) SiR1_1 ->at(i).tTME -= t1[1];
+    for (int i = 0; i < SiR1_2 ->size(); ++i) SiR1_2 ->at(i).tTME -= t1[1];
+    for (int i = 0; i < SiR1_3 ->size(); ++i) SiR1_3 ->at(i).tTME -= t1[1];
+    for (int i = 0; i < SiR1_4 ->size(); ++i) SiR1_4 ->at(i).tTME -= t1[1];
+    for (int i = 0; i < SiL3   ->size(); ++i) SiL3   ->at(i).tTME -= t2[0];
+    // for (int i = 0; i < SiL2   ->size(); ++i) SiL2   ->at(i).tTME -= t3[0];
+    for (int i = 0; i < SiR2   ->size(); ++i) SiR2   ->at(i).tTME -= t2[1];
+    for (int i = 0; i < SiR3   ->size(); ++i) SiR3   ->at(i).tTME -= t3[1];
+  }
+};
+
+struct NMuConfig_t {
+  int run;
+  double prompt_t1, prompt_t2;
+  double delayed_t1, delayed_t2;
+  double tofflo, toffhi;
+  std::string dataset;
+  NMuConfig_t(TTree* tr) {
+    std::string* pdataset = &dataset;
+    tr->SetBranchAddress("run",        &run);
+    tr->SetBranchAddress("prompt_t1",  &prompt_t1);
+    tr->SetBranchAddress("prompt_t2",  &prompt_t2);
+    tr->SetBranchAddress("delayed_t1", &delayed_t1);
+    tr->SetBranchAddress("delayed_t2", &delayed_t2);
+    tr->SetBranchAddress("tofflo",     &tofflo);
+    tr->SetBranchAddress("toffhi",     &toffhi);
+    tr->SetBranchAddress("dataset",    &pdataset);
+    tr->GetEntry(0);
+    tr->ResetBranchAddresses();
+  }
+  void Print() {
+    std::cout << "NMuConfig:"
+              << "\nRun: " << run
+              << "\nPrompt cut:  " << prompt_t1  << " < t < " << prompt_t2
+              << "\nDelayed cut: " << delayed_t1 << " < t < " << delayed_t2
+              << "\nGeLo TOff:   " << tofflo
+              << "\nGeHi TOff:   " << toffhi
+              << "\nDataset:     " << dataset
+              << std::endl;
+  }
+};
+
+struct PSelConfig_t {
+  bool usealllayers;
+  double pp, bandwidthscale;
+  std::string dataset;
+  TimeOffset_t terr;
+  PSelConfig_t(TTree* tr) {
+    std::string *pdataset = &dataset;
+    tr->SetBranchAddress("pileup_protection", &pp);
+    tr->SetBranchAddress("bandwidthscale",    &bandwidthscale);
+    tr->SetBranchAddress("usealllayers",      &usealllayers);
+    tr->SetBranchAddress("dataset",           &pdataset);
+    tr->SetBranchAddress("t1lerr",            &terr.t1[0]);
+    tr->SetBranchAddress("t2lerr",            &terr.t2[0]);
+    tr->SetBranchAddress("t3lerr",            &terr.t3[0]);
+    tr->SetBranchAddress("t1rerr",            &terr.t1[1]);
+    tr->SetBranchAddress("t2rerr",            &terr.t2[1]);
+    tr->SetBranchAddress("t3rerr",            &terr.t3[1]);
+    tr->GetEntry(0);
+    tr->ResetBranchAddresses();
+  }
+  void Print() const {
+    std::cout << "PSelConfig:"
+              << "\nThird layer: " << usealllayers
+              << "\nPP:          " << pp
+              << "\nBandwidth X: " << bandwidthscale
+              << "\nDataset:     " << dataset
+              << "\nSiL1 toff:   " << terr.t1[0]
+              << "\nSiL3 toff:   " << terr.t2[0]
+              << "\nSiL2 toff:   " << terr.t3[0]
+              << "\nSiR1 toff:   " << terr.t1[1]
+              << "\nSiR2 toff:   " << terr.t2[1]
+              << "\nSiR3 toff:   " << terr.t3[1]
+              << std::endl;
+  }
+};
+
+struct TMConfig_t {
+  double thinres, thickres;
+  std::string particle, dataset;
+  TMConfig_t(TTree* tr) {
+    std::string *pparticle = &particle, *pdataset = &dataset;
+    tr->SetBranchAddress("thinressig",  &thinres);
+    tr->SetBranchAddress("thickressig", &thickres);
+    tr->SetBranchAddress("particle",    &pparticle);
+    tr->SetBranchAddress("dataset",     &pdataset);
+    tr->GetEntry(0);
+    tr->ResetBranchAddresses();
+  }
+  void Print() const {
+    std::cout << "TMConfig:"
+              << "\nThin Res.:  " << thinres
+              << "\nThick Res.: " << thickres
+              << "\nParticle:   " << particle
+              << "\nDataset:    " << dataset
+              << std::endl;
+  }
+};
+
+struct UnfoldConfig_t {
+  bool pidcorrect, usealllayers;
+  int rebin;
+  double pp, t, dt, elo, ehi;
+  double thinres, thickres, bandwidthscale;
+  TimeOffset_t terr;
+  std::string noise, particle, dataset;
+  UnfoldConfig_t(TTree* tr) {
+    std::string *pnoise = &noise, *pparticle = &particle, *pdataset = &dataset;
+    tr->SetBranchAddress("pidcorrect",      &pidcorrect);
+    tr->SetBranchAddress("usealllayers",    &usealllayers);
+    tr->SetBranchAddress("rebin",           &rebin);
+    tr->SetBranchAddress("pp",              &pp);
+    tr->SetBranchAddress("t",               &t);
+    tr->SetBranchAddress("dt",              &dt);
+    tr->SetBranchAddress("elo",             &elo);
+    tr->SetBranchAddress("ehi",             &ehi);
+    tr->SetBranchAddress("thinres",         &thinres);
+    tr->SetBranchAddress("thickres",        &thickres);
+    tr->SetBranchAddress("bandwidthscale",  &bandwidthscale);
+    tr->SetBranchAddress("noisetype",       &pnoise);
+    tr->SetBranchAddress("particle",        &pparticle);
+    tr->SetBranchAddress("dataset",         &pdataset);
+    tr->SetBranchAddress("t1lerr",          &terr.t1[0]);
+    tr->SetBranchAddress("t2lerr",          &terr.t2[0]);
+    tr->SetBranchAddress("t3lerr",          &terr.t3[0]);
+    tr->SetBranchAddress("t1rerr",          &terr.t1[1]);
+    tr->SetBranchAddress("t2rerr",          &terr.t2[1]);
+    tr->SetBranchAddress("t3rerr",          &terr.t3[1]);
+    tr->GetEntry(0);
+    tr->ResetBranchAddresses();
+  }
+  void Print() const {
+    std::cout << "TMConfig:"
+              << "\nPID Correction: " << pidcorrect
+              << "\nThird layer:    " << usealllayers
+              << "\nRebin:          " << rebin
+              << "\nPP:             " << pp
+              << "\nt-cut:          " << t
+              << "\ndt-cut:         " << dt
+              << "\nEnergy range:   " << elo << "-" << ehi << " keV"
+              << "\nThin Res.:      " << thinres
+              << "\nThick Res.:     " << thickres
+              << "\nBandwidth X:    " << bandwidthscale
+              << "\nNoise:          " << noise
+              << "\nParticle:       " << particle
+              << "\nDataset:        " << dataset
+              << std::endl;
+  }
+};
+
 namespace ACStyle {
   // Colors from http://colorbrewer2.org/?type=diverging&scheme=RdBu&n=3
   Int_t kACBlue = TColor::GetColor("#67a9cf");
   Int_t kACRed  = TColor::GetColor("#ef8a62");
 }
 
-enum Side  { kRight, kLeft, kNSides, kInvalidSide };
-enum Layer { kThin,  kThick };
+
+namespace Sanity {
+  bool IsValidDataset(const std::string ds) {
+    if (ds == "Ti50" || ds == "Al50" || ds == "Al100" || ds == "Si16b")
+      return true;
+    else
+      return false;
+  }
+  bool CompatibleConfigs(const TMConfig_t& tm, const PSelConfig_t& psel) {
+    return tm.dataset == psel.dataset;
+  }
+}
 
 struct Particle {
   std::string Name;
   double M; /*GeV*/
+  Particle(const std::string& p="null");
+  Particle(const char* name, double m) : Name(name), M(m) {}
   double P2E(double px, double py, double pz) const {
     return sqrt(px*px+py*py+pz*pz+M*M);
   }
@@ -68,11 +276,28 @@ enum ParticleType {
   kAlpha, kAllParticleTypes
 };
 
+Particle::Particle(const std::string& p) {
+  if      (p == NULLPARTICLE.Name) *this = NULLPARTICLE;
+  else if (p == PROTON.Name)       *this = PROTON;
+  else if (p == DEUTERON.Name)     *this = DEUTERON;
+  else if (p == TRITON.Name)       *this = TRITON;
+  else if (p == ALPHA.Name)        *this = ALPHA;
+  else PrintAndThrow("ERROR: Unknown particle: " + p);
+}
+
+class Dataset {
+  double mom;
+  class Tranch {
+  };
+};
+
+
 namespace Normalization {
   double nmu_hi_al50_p102 = 128e6;
   double nmu_hi_al50_p103 = 37.0e6;
   double nmu_hi_al50      = 160e6;
   double nmu_hi_al100     = 134e6; // UPDATE
+  double nmu_hi_ti50      = 62.6e6;
   double caprate          = 0.609;
   double TCutEfficiency(double prot_tcut, double sig=52.7,
                         double lifetime=864.) {
@@ -80,17 +305,20 @@ namespace Normalization {
     ftime->SetParameters(sig, lifetime);
     return ftime->Integral(prot_tcut, 1e6)/ftime->Integral(-1e4, 1e6);
   }
-  double Al50_p102(double prot_tcut=400, double sig=52.7, double lt=864.) {
+  double Al50_p102(double prot_tcut, double sig=52.7, double lt=864.) {
     return nmu_hi_al50_p102*caprate*TCutEfficiency(prot_tcut, sig, lt);
   }
-  double Al50_p103(double prot_tcut=400, double sig=52.7, double lt=864.) {
+  double Al50_p103(double prot_tcut, double sig=52.7, double lt=864.) {
     return nmu_hi_al50_p103*caprate*TCutEfficiency(prot_tcut, sig, lt);
   }
-  double Al50(double prot_tcut=400, double sig=52.7, double lt=864.) {
+  double Al50(double prot_tcut, double sig=52.7, double lt=864.) {
     return nmu_hi_al50*caprate*TCutEfficiency(prot_tcut, sig, lt);
   }
-  double Al100(double prot_tcut=400, double sig=52.7, double lt=864.) {
+  double Al100(double prot_tcut, double sig=52.7, double lt=864.) {
     return nmu_hi_al100*caprate*TCutEfficiency(prot_tcut, sig, lt);
+  }
+  double Ti50(double prot_tcut, double sig=52.7, double lt=329.3) {
+    return nmu_hi_ti50*caprate*TCutEfficiency(prot_tcut, sig, lt);
   }
 };
 
@@ -204,47 +432,66 @@ namespace GeFcn {
   double GaussAreaErr(double A, double dA, double S, double dS, double db) {
     return GaussArea(A, S, db) * sqrt(dA*dA/(A*A) + dS*dS/(S*S));
   }
-  double GeHiEff(double E) {
-    static const double a = 0.193,   b = -0.944;
-    return a*pow(E, b);
+  double GeHiEff(const std::string& dataset) {
+    // static const double a = 0.193,   b = -0.944;
+    // return a*pow(E, b);
+    if      (dataset.substr(0, 2) == "Al") return 6.6e-4;
+    else if (dataset.substr(0, 2) == "Ti") return 2.6e-4;
+    PrintAndThrow("Unknown dataset: "+dataset);
   }
-  double GeHiEffErr(double E) {
-    static const double a = 0.193, b = -0.944, c = -0.995306,
-                       da = 0.016, db = 0.013;
-    return sqrt(pow(E, 2*b) * (da*da + log(E)*a*db*(a*db*log(E) + 2*c*da)));
+  double GeHiEffErr(const std::string& dataset) {
+    // static const double a = 0.193, b = -0.944, c = -0.995306,
+    //                    da = 0.016, db = 0.013;
+    // return sqrt(pow(E, 2*b) * (da*da + log(E)*a*db*(a*db*log(E) + 2*c*da)));
+    if      (dataset.substr(0, 2) == "Al") return 0.2e-4;
+    else if (dataset.substr(0, 2) == "Ti") return 0.2e-4;
+    PrintAndThrow("Unknown dataset: "+dataset);
   }
-  double GeLoEff(double E) {
-    static const double a = 0.179, b = -0.933;
-    return a*pow(E, b);
+  double GeLoEff(const std::string& dataset) {
+    // static const double a = 0.179, b = -0.933;
+    // return a*pow(E, b);
+    if      (dataset.substr(0, 2) == "Al") return 6.6e-4;
+    else if (dataset.substr(0, 2) == "Ti") return 2.6e-4;
+    PrintAndThrow("Unknown dataset: "+dataset);
   }
-  double GeLoEffErr(double E) {
-    static const double a = 0.179, b = -0.933, c = -0.995269,
-                       da = 0.015, db = 0.013;
-    return sqrt(pow(E, 2*b) * (da*da + log(E)*a*db*(a*db*log(E) + 2*c*da)));
+  double GeLoEffErr(const std::string& dataset) {
+    // static const double a = 0.179, b = -0.933, c = -0.995269,
+    //                    da = 0.015, db = 0.013;
+    // return sqrt(pow(E, 2*b) * (da*da + log(E)*a*db*(a*db*log(E) + 2*c*da)));
+    if      (dataset.substr(0, 2) == "Al") return 0.2e-4;
+    else if (dataset.substr(0, 2) == "Ti") return 0.2e-4;
+    PrintAndThrow("Unknown dataset: "+dataset);
   }
-  double NMuHi(double A, double S, double db, double I, double E) {
-    return GaussArea(A, S, db)/I/6.6e-4;//GeHiEff(E);
+  double NMuHi(double A, double S, double db, double I,
+               const std::string& dataset) {
+    return GaussArea(A, S, db)/I/GeHiEff(dataset);
   }
   double NMuErrHi(double A, double dA, double S, double dS, double db,
-                  double I, double dI, double E) {
+                  double I, double dI, const std::string& dataset) {
     double area  = GaussArea(A, S, db);
     double darea = GaussAreaErr(A, dA, S, dS, db);
-    double e     = 6.6e-4;//GeHiEff(E);
-    double de    = 0.2e-4;//GeHiEffErr(E);
-    return NMuHi(A, S, db, I, E)*sqrt(darea*darea/(area*area)+
-                                      dI*dI/(I*I)+de*de/(e*e));
+    // double e     = 6.6e-4; // Al
+    // double de    = 0.2e-4; // Al
+    double e     = GeHiEff(dataset);
+    double de    = GeHiEffErr(dataset);
+    return NMuHi(A, S, db, I, dataset)*sqrt(darea*darea/(area*area)+
+                                            dI*dI/(I*I)+de*de/(e*e));
   }
-  double NMuLo(double A, double S, double db, double I, double E) {
-    return GaussArea(A, S, db)/I/6.6e-4;//GeLoEff(E);
+  double NMuLo(double A, double S, double db, double I, const string& dataset) {
+    double eff;
+    if      (dataset.substr(0, 2) == "Al") eff = 6.6e-4;
+    else if (dataset.substr(0, 2) == "Ti") eff = 2.6e-4;
+    else    PrintAndThrow("Unknown dataset: "+dataset);
+    return GaussArea(A, S, db)/I/eff;
   }
   double NMuErrLo(double A, double dA, double S, double dS, double db,
-                  double I, double dI, double E) {
+                  double I, double dI, const std::string& dataset) {
     double area  = GaussArea(A, S, db);
     double darea = GaussAreaErr(A, dA, S, dS, db);
-    double e     = 6.6e-4;//GeLoEff(E);
-    double de    = 0.2e-4;//GeLoEffErr(E);
-    return NMuLo(A, S, db, I, E)*sqrt(darea*darea/(area*area)+
-                                      dI*dI/(I*I)+de*de/(e*e));
+    double e     = GeLoEff(dataset);
+    double de    = GeLoEffErr(dataset);
+    return NMuLo(A, S, db, I, dataset)*sqrt(darea*darea/(area*area)+
+                                            dI*dI/(I*I)+de*de/(e*e));
   }
   Double_t GePeak(Double_t* x, Double_t* par) {
     double y    = (x[0]-par[1])/par[2];
@@ -265,43 +512,96 @@ namespace GeFcn {
 
 namespace SiUtils {
   // E in units of keV
-  bool OverThreshold(const std::string det, int seg, double E /*keV*/) {
-    double Eth = 100e3;
+  bool WithinThreshold(const std::string det, int seg, double E /*keV*/) {
+    double Emin = 100e3, Emax = 100e3;
     if (det == "SiL1") {
       switch (seg) {
-        case 2:  Eth = 289.; break;
-        case 3:  Eth = 268.; break;
-        case 4:  Eth = 219.; break;
-        case 5:  Eth = 200.; break;
-        case 6:  Eth = 194.; break;
-        case 7:  Eth = 215.; break;
-        case 8:  Eth = 287.; break;
-        case 9:  Eth = 305.; break;
-        case 10: Eth = 227.; break;
-        case 11: Eth = 211.; break;
-        case 12: Eth = 207.; break;
-        case 13: Eth = 227.; break;
-        case 14: Eth = 227.; break;
-        case 15: Eth = 139.; break;
+        case 2:  Emin = 289.; break;
+        case 3:  Emin = 268.; break;
+        case 4:  Emin = 219.; break;
+        case 5:  Emin = 200.; break;
+        case 6:  Emin = 194.; break;
+        case 7:  Emin = 215.; break;
+        case 8:  Emin = 287.; break;
+        case 9:  Emin = 305.; break;
+        case 10: Emin = 227.; break;
+        case 11: Emin = 211.; break;
+        case 12: Emin = 207.; break;
+        case 13: Emin = 227.; break;
+        case 14: Emin = 227.; break;
+        case 15: Emin = 139.; break;
         default: PrintAndThrow("Invalid SiL1 segment!");
       }
     } else if (det == "SiL3") {
-      Eth = 155.;
+      Emin = 155.; Emax = 17e3;
     } else if (det == "SiR1") {
       switch (seg) {
-        case 1: Eth = 80.;
-        case 2: Eth = 100;
-        case 3: Eth = 80;
-        case 4: Eth = 85;
+        case 1: Emin = 80.;
+        case 2: Emin = 100;
+        case 3: Emin = 80;
+        case 4: Emin = 85;
       }
     } else if (det == "SiR2") {
-      Eth = 195.;
+      Emin = 195.; Emax = 17e3;
     } else if (det == "SiR3") {
-      Eth = 250.;
+      Emin = 250.;
     } else {
       PrintAndThrow("Invalid detector");
     }
-    return E > Eth;
+    return Emin < E && E < Emax;
+  }
+  double ERes(const std::string& det, int seg=0) {
+    // Naming and segment numbering uses experiment schema,
+    // not simulation schema (which has different segment/quadrant ordering).
+    if (det == "SiL1") {
+      switch (seg) {
+        case 1:  return 15.01;
+        case 2:  return 14.85;
+        case 3:  return 15.10;
+        case 4:  return 12.69;
+        case 5:  return 14.20;
+        case 6:  return 13.81;
+        case 7:  return 14.46;
+        case 8:  return 14.94;
+        case 9:  return 14.15;
+        case 10: return 13.67;
+        case 11: return 15.37;
+        case 12: return 13.42;
+        case 13: return 14.29;
+        case 14: return 14.43;
+        case 15: return 15.38;
+        case 16: return 18.02;
+        default PrintAndThrow("SiUtils::Eres: Invalid SiL1 segment: " +
+                              char(i+48));
+      }
+    } else if (det == "SiR1") {
+      switch (seg) {
+        case 1: return 23.51;
+        case 2: return 20.90;
+        case 3: return 22.19;
+        case 4: return 23.85;
+        default PrintAndThrow("SiUtils::Eres: Invalid SiR1 segment: " +
+                              char(i+48));
+      }
+    } else if (det == "SiL3") {
+      return 7.076;
+    } else if (det == "SiR2") {
+      return 7.503;
+    } else if (det == "SiR3") {
+      return 10.81;
+    }
+    PrintAndThrow("SiUtils::ERes: Unrecognized detector: " + det);
+  }
+  int MCSegToExpSeg(std::string& det, int mcseg) {
+    if (det == "SiL1") {
+      // Inverted or normal?
+      return mcseg;
+      // return 17-mcseg;
+    } else if (det == "SiR1") {
+      static const quadmap[4] = {4, 1, 2, 3}
+      return quadmap[mcseg-1];
+    }
+    PrintAndThrow("SiUtils::MCSegToExpSeg: Unrecognized detector: " + det);
   }
   double BetheStoppingPower(double dx/*m*/, double E/*keV*/, int pid) {
     // SiR1 dx = 58e-6 m
@@ -390,69 +690,68 @@ namespace SiUtils {
     double dT(int i, int j) const { return t[i] - t[j];    }
     bool ThreeHits() const { return e[0] > 0. && e[1] > 0. && e[2] > 0.; }
   };
-
-
-  class ECal {
-    double g, b, eg, eb, chi2;
-  public:
-    ECal(double g, double b, double eg, double eb, double chi2=1) :
-    g(g), b(b), eg(eg*std::sqrt(chi2)), eb(eb*std::sqrt(chi2)) {}
-    double E(double adc) const {
-      return g*adc+b;
-    }
-    double ADC(double E) const {
-      return (E-b)/g;
-    }
-    double Eerr(double E) const {
-      return std::sqrt((eg*eg)/(g*g)*(E-b)*(E-b)+eb*eb);
-    }
-    static ECal ConstructECal(const std::string& det) {
-      if      (det == "SiT-1")   return ECal(2.02, -8.01, 0.02, 18.7, 5.   /3);
-      else if (det == "SiT-2")   return ECal(1.92, 12.5,  0.02, 18.6, 3.65 /3);
-      else if (det == "SiT-3")   return ECal(1.94, -11.8, 0.02, 18.8, 5.42 /3);
-      else if (det == "SiT-4")   return ECal(1.96, 0.85,  0.02, 18.7, 3.82 /3);
-      else if (det == "SiR1-1")  return ECal(1.77, -23.1, 0.02, 18.8, 7.97 /3);
-      else if (det == "SiR1-2")  return ECal(1.76, -9.26, 0.02, 18.7, 4.96 /3);
-      else if (det == "SiR1-3")  return ECal(1.79, -36.5, 0.02, 19.0, 11.26/3);
-      else if (det == "SiR1-4")  return ECal(1.76, -50.5, 0.02, 19.1, 15.78/3);
-      else if (det == "SiR2")    return ECal(4.24, 107.3, 0.04, 18.4, 23.96/2);
-      else if (det == "SiR3")    return ECal(5.75, 58.5,  0.06, 18.9, 15.60/2);
-      // else if (det == "SiL1-1")  return ECal();
-      else if (det == "SiL1-2")  return ECal(2.31, 79.7,  0.04, 61.6);
-      else if (det == "SiL1-3")  return ECal(2.49, 78.4,  0.04, 61.6);
-      else if (det == "SiL1-4")  return ECal(2.47, 68.3,  0.04, 61.7);
-      else if (det == "SiL1-5")  return ECal(2.43, 60.8,  0.04, 61.8);
-      else if (det == "SiL1-6")  return ECal(2.41, 54.9,  0.04, 61.9);
-      else if (det == "SiL1-7")  return ECal(2.45, 64.1,  0.04, 61.8);
-      else if (det == "SiL1-8")  return ECal(2.40, 45.0,  0.04, 62.0);
-      else if (det == "SiL1-9")  return ECal(2.44, 59.7,  0.04, 61.8);
-      else if (det == "SiL1-10") return ECal(2.44, 48.2,  0.04, 62.0);
-      else if (det == "SiL1-11") return ECal(2.48, 59.9,  0.04, 61.8);
-      else if (det == "SiL1-12") return ECal(2.52, 58.8,  0.04, 61.9);
-      else if (det == "SiL1-13") return ECal(2.52, 70.6,  0.04, 61.7);
-      else if (det == "SiL1-14") return ECal(2.41, 51.5,  0.04, 62.0);
-      else if (det == "SiL1-15") return ECal(2.45, 52.7,  0.04, 62.0);
-      // else if (det == "SiL1-16") return ECal();
-      // else if (det == "SiL2")    return ECal();
-      else if (det == "SiL3")    return ECal(4.37, 35.2, 0.04, 18.3, 5.55/3);
-      else PrintAndThrow("Invalid SiUtils::Ecal selection: " + det);
-    }
-    // static double WorstSiLError(double e) {
-    //   static const ECal l1 = ECal::ConstructECal("SiL1-2");
-    //   static const ECal l2 = ECal::ConstructECal("SiL3");
-    //   double err1 = l1.Eerr(e);
-    //   double err2 = l2.Eerr(e);
-    //   return std::sqrt(err1*err1+err2*err2);
-    // }
-    // static double WorstSiRError(double e) {
-    //   static const ECal r1 = ECal::ConstructECal("SiR1-4");
-    //   static const ECal r2 = ECal::ConstructECal("SiR3");
-    //   double err1 = r1.Eerr(e);
-    //   double err2 = r2.Eerr(e);
-    //   return std::sqrt(err1*err1+err2*err2);
-    // }
-  };
 }
+
+class ECal {
+  double g, b, eg, eb, chi2;
+public:
+  ECal(double g, double b, double eg, double eb, double chi2=1) :
+  g(g), b(b), eg(eg*std::sqrt(chi2)), eb(eb*std::sqrt(chi2)) {}
+  double E         (double adc) const { return g*adc+b; }
+  double ADC       (double E)   const { return (E-b)/g; }
+  double operator()(double adc) const { return E(adc);  }
+  double Eerr(double E) const {
+    return std::sqrt((eg*eg)/(g*g)*(E-b)*(E-b)+eb*eb);
+  }
+  double G() const { return g; }
+  static ECal ConstructECal(const std::string& det) {
+    if      (det == "SiT-1")    return ECal(2.02, -8.01, 0.02, 18.7, 5.   /3);
+    else if (det == "SiT-2")    return ECal(1.92, 12.5,  0.02, 18.6, 3.65 /3);
+    else if (det == "SiT-3")    return ECal(1.94, -11.8, 0.02, 18.8, 5.42 /3);
+    else if (det == "SiT-4")    return ECal(1.96, 0.85,  0.02, 18.7, 3.82 /3);
+    else if (det == "SiR1-1")   return ECal(1.77, -23.1, 0.02, 18.8, 7.97 /3);
+    else if (det == "SiR1-2")   return ECal(1.76, -9.26, 0.02, 18.7, 4.96 /3);
+    else if (det == "SiR1-3")   return ECal(1.79, -36.5, 0.02, 19.0, 11.26/3);
+    else if (det == "SiR1-4")   return ECal(1.76, -50.5, 0.02, 19.1, 15.78/3);
+    else if (det == "SiR2")     return ECal(4.24, 107.3, 0.04, 18.4, 23.96/2);
+    else if (det == "SiR3")     return ECal(5.75, 58.5,  0.06, 18.9, 15.60/2);
+    // else if (det == "SiL1-1")   return ECal();
+    else if (det == "SiL1-2")   return ECal(2.31, 79.7,  0.04, 61.6);
+    else if (det == "SiL1-3")   return ECal(2.49, 78.4,  0.04, 61.6);
+    else if (det == "SiL1-4")   return ECal(2.47, 68.3,  0.04, 61.7);
+    else if (det == "SiL1-5")   return ECal(2.43, 60.8,  0.04, 61.8);
+    else if (det == "SiL1-6")   return ECal(2.41, 54.9,  0.04, 61.9);
+    else if (det == "SiL1-7")   return ECal(2.45, 64.1,  0.04, 61.8);
+    else if (det == "SiL1-8")   return ECal(2.40, 45.0,  0.04, 62.0);
+    else if (det == "SiL1-9")   return ECal(2.44, 59.7,  0.04, 61.8);
+    else if (det == "SiL1-10")  return ECal(2.44, 48.2,  0.04, 62.0);
+    else if (det == "SiL1-11")  return ECal(2.48, 59.9,  0.04, 61.8);
+    else if (det == "SiL1-12")  return ECal(2.52, 58.8,  0.04, 61.9);
+    else if (det == "SiL1-13")  return ECal(2.52, 70.6,  0.04, 61.7);
+    else if (det == "SiL1-14")  return ECal(2.41, 51.5,  0.04, 62.0);
+    else if (det == "SiL1-15")  return ECal(2.45, 52.7,  0.04, 62.0);
+    // else if (det == "SiL1-16")  return ECal();
+    // else if (det == "SiL2")     return ECal();
+    else if (det == "SiL3")     return ECal(4.37, 35.2, 0.04, 18.3, 5.55/3);
+    else if (det == "GeLoGain") return ECal(0.396515, 0.261953,  1.29689e-06, 0.020722);
+    else if (det == "GeHiGain") return ECal(0.184892, -0.896645, 5.43024e-06, 0.0407438);
+    PrintAndThrow("Invalid Ecal selection: " + det);
+  }
+  // static double WorstSiLError(double e) {
+  //   static const ECal l1 = ECal::ConstructECal("SiL1-2");
+  //   static const ECal l2 = ECal::ConstructECal("SiL3");
+  //   double err1 = l1.Eerr(e);
+  //   double err2 = l2.Eerr(e);
+  //   return std::sqrt(err1*err1+err2*err2);
+  // }
+  // static double WorstSiRError(double e) {
+  //   static const ECal r1 = ECal::ConstructECal("SiR1-4");
+  //   static const ECal r2 = ECal::ConstructECal("SiR3");
+  //   double err1 = r1.Eerr(e);
+  //   double err2 = r2.Eerr(e);
+  //   return std::sqrt(err1*err1+err2*err2);
+  // }
+};
 
 // Transfer Matrix Utilities
 namespace TMUtils {

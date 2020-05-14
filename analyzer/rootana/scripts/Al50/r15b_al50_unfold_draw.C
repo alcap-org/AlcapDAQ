@@ -12,30 +12,77 @@
 #include "TPaveText.h"
 #include "TStyle.h"
 #include "TText.h"
+#include "TTree.h"
 #include "TVirtualFitter.h"
 
 #include <array>
 #include <cmath>
+#include <iostream>
+#include <memory>
+#include <string>
 #include <vector>
 
 using std::array;
+using std::string;
 using std::vector;
 
-array<double,2> ExtendEnergy(TH1* h) {
-  double x1 = 5e3, x2 = 10e3;
+struct Stats_t {
+  double elo, ehi;
+  double nl, nr, enl, enr;
+  double rl, rr, ra, erl, err, era;
+  Stats_t(double elo=0, double ehi=-1) : elo(elo), ehi(ehi) {
+  }
+  void SetCount(TH1* hl, TH1* hr) {
+    if (ehi == 0) {
+      nl = hl->IntegralAndError(1, hl->GetNbinsX(), enl);
+      nr = hr->IntegralAndError(1, hr->GetNbinsX(), enr);
+    } else {
+      nl = hl->IntegralAndError(hl->FindFixBin(elo), hl->FindFixBin(ehi)-1, enl);
+      nr = hr->IntegralAndError(hr->FindFixBin(elo), hr->FindFixBin(ehi)-1, enr);
+    }
+  }
+  void SetRate(TH1* hl, TH1* hr, TH1* ha) {
+    if (ehi == 0) {
+      rl = hl->IntegralAndError(1, hl->GetNbinsX(), erl);
+      rr = hr->IntegralAndError(1, hr->GetNbinsX(), err);
+      ra = ha->IntegralAndError(1, ha->GetNbinsX(), era);
+    } else {
+      rl = hl->IntegralAndError(hl->FindFixBin(elo), hl->FindFixBin(ehi)-1, erl);
+      rr = hr->IntegralAndError(hr->FindFixBin(elo), hr->FindFixBin(ehi)-1, err);
+      ra = ha->IntegralAndError(ha->FindFixBin(elo), ha->FindFixBin(ehi)-1, era);
+    }
+  }
+  void Print() {
+    std::cout << elo << "-" << ehi << "keV:\tLeft\tRight\tAvg" << std::endl
+              << "Count:\t" << nl << "(" << enl << ")\t"
+              << nr << "("  << enr << ")" << std::endl
+              << "Rate:\t"  << rl << "(" << erl << ")\t"
+              << rr << "("  << err << ")\t"
+              << ra << "("  << era << ")" << std::endl;
+  }
+};
+
+
+array<double,2> ExtendEnergy(TH1* h, const UnfoldConfig_t& conf) {
+  double x1, x2;
+  if      (conf.particle == "proton")   x1 = 5e3,  x2 = 10e3;
+  else if (conf.particle == "deuteron") x1 = 7e3,  x2 = 12e3;
   double y1 = h->GetBinContent(h->FindFixBin(x1));
   double y2 = h->GetBinContent(h->FindFixBin(x2));
   double par[2] = { (x1*std::log(y2)-x2*std::log(y1))/(x1-x2),
                     std::log(y1/y2)/(x1-x2) };
-  TF1* f = new TF1("fspec", "expo", 5e3, 10e3);
+  TF1* f = new TF1("fspec", "expo", x1, x2);
   f->SetParameters(par);
   TFitResultPtr res = h->Fit(f, "SEMR");
   std::cout << "Chi2 of extension: " << res->Chi2() << "/" << res->Ndf() << std::endl;
-  return array<double,2>{f->Integral(10e3, 150e3)/h->GetBinWidth(1),
-                         f->IntegralError(10e3, 150e3)/h->GetBinWidth(1)};
+  return array<double,2>{f->Integral(x2, 150e3)/h->GetBinWidth(1),
+                         f->IntegralError(x2, 150e3)/h->GetBinWidth(1)};
 }
 
-void DrawExtendedEnergyRange(TH1* h) {
+void DrawExtendedEnergyRange(TH1* h, const UnfoldConfig_t& conf) {
+  double x2, x3;
+  if      (conf.particle == "proton")   x2 = 10e3, x3 = 20e3;
+  else if (conf.particle == "deuteron") x2 = 12e3, x3 = 22e3;
   TF1* ffit = (TF1*)h->FindObject("fspec");
   TF1* fext = (TF1*)ffit->Clone("fspecext");
   h->SetLineColor(kBlack);
@@ -44,10 +91,10 @@ void DrawExtendedEnergyRange(TH1* h) {
   ffit->SetLineStyle(1);
   fext->SetLineColor(kRed);
   fext->SetLineStyle(2);
-  fext->SetRange(10e3, 20e3);
+  fext->SetRange(x2, x3);
 
-  TH1* hext95 = new TH1D("hext95", "hext95", 40, 10e3, 20e3);
-  TH1* hext68 = new TH1D("hext68", "hext68", 40, 10e3, 20e3);
+  TH1* hext95 = new TH1D("hext95", "hext95", 40, x2, x3);
+  TH1* hext68 = new TH1D("hext68", "hext68", 40, x2, x3);
   hext95->SetFillColor(kGreen);
   hext68->SetFillColor(kYellow);
   hext95->SetFillStyle(3004);
@@ -57,8 +104,8 @@ void DrawExtendedEnergyRange(TH1* h) {
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(hext95, 0.95);
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(hext68, 0.68);
 
-  TH1* hbg = new TH1D("hbg", "hbg", 36, 2e3, 20e3);
-  hbg->SetTitle("Extrapolated Proton Emission Spectrum");
+  TH1* hbg = new TH1D("hbg", "hbg", 36, 2e3, x3);
+  hbg->SetTitle(("Extrapolated "+conf.particle+" Emission Spectrum").c_str());
   hbg->GetXaxis()->SetTitle(h->GetXaxis()->GetTitle());
   hbg->GetYaxis()->SetTitle(h->GetYaxis()->GetTitle());
   hbg->GetYaxis()->SetTitleOffset(h->GetYaxis()->GetTitleOffset());
@@ -79,7 +126,8 @@ void DrawExtendedEnergyRange(TH1* h) {
   leg->Draw("SAME");
   // fext->Draw("SAME");
   cext->SetLogy();
-  cext->SaveAs("img/proton_e_reco_avg_extrap.png");
+  cext->SaveAs(("img/"+conf.particle+"_e_reco_avg_extrap.png").c_str());
+  cext->SaveAs(("img/"+conf.particle+"_e_reco_avg_extrap.C").c_str());
 }
 
 void PropagateFractionalError(TH1* h, double err) {
@@ -130,60 +178,46 @@ void CombineWithError(TH1* hl, TH1* hr) {
   // hr->Divide(herr[3][1]);
 }
 
-void r15b_al50_unfold_draw(const char* ifname, double prot_tcut=400., bool adderr=false, bool norm=false) {
+void r15b_al50_unfold_draw(const char* ifname, bool adderr=false, bool norm=false) {
 
   TFile* ifile       = new TFile(ifname);
   TH1* hl            = (TH1*)ifile->Get("hl_e_reco_bay");
   TH1* hr            = (TH1*)ifile->Get("hr_e_reco_bay");
 
+  UnfoldConfig_t config((TTree*)ifile->Get("config"));
+  // UnfoldConfig_t config((TTree*)ifile->Get("inputs"));
+
   TH1* ha_stat = (TH1*)hl->Clone("ha_stat_e_reco_bay");
   ha_stat->Add(hr);
 
-  Double_t nl_all_err, nr_all_err, na_all_err, nl_0_10_err, nr_0_10_err,
-  na_0_10_err, nl_2_10_err, nr_2_10_err, na_2_10_err, nl_35_10_err,
-  nr_35_10_err, na_35_10_err, nl_4_8_err, nr_4_8_err, na_4_8_err;
-  int nl_all   = hl->IntegralAndError(1, hl->GetNbinsX(), nl_all_err);
-  int nr_all   = hr->IntegralAndError(1, hr->GetNbinsX(), nr_all_err);
-  int nl_0_10  = hl->IntegralAndError(hl->FindFixBin(0),
-                                      hl->FindFixBin(10e3)-1,
-                                      nl_0_10_err);
-  int nr_0_10  = hr->IntegralAndError(hr->FindFixBin(0),
-                                      hr->FindFixBin(10e3)-1,
-                                      nr_0_10_err);
-  int na_0_10  = ha_stat->IntegralAndError(ha_stat->FindFixBin(0),
-                                      ha_stat->FindFixBin(10e3)-1,
-                                      na_0_10_err);
-  int nl_2_10  = hl->IntegralAndError(hl->FindFixBin(2e3),
-                                      hl->FindFixBin(10e3)-1,
-                                      nl_2_10_err);
-  int nr_2_10  = hr->IntegralAndError(hr->FindFixBin(2e3),
-                                      hr->FindFixBin(10e3)-1,
-                                      nr_2_10_err);
-  int nl_35_10 = hl->IntegralAndError(hl->FindFixBin(3.5e3),
-                                      hl->FindFixBin(10e3)-1,
-                                      nl_35_10_err);
-  int nr_35_10 = hr->IntegralAndError(hr->FindFixBin(3.5e3),
-                                      hr->FindFixBin(10e3)-1,
-                                      nr_35_10_err);
-  int na_35_10 = ha_stat->IntegralAndError(ha_stat->FindFixBin(3.5e3),
-                                           ha_stat->FindFixBin(10e3)-1,
-                                           na_35_10_err);
-  int nl_4_8   = hl->IntegralAndError(hl->FindFixBin(4e3),
-                                      hl->FindFixBin(8e3)-1,
-                                      nl_4_8_err);
-  int nr_4_8   = hr->IntegralAndError(hr->FindFixBin(4e3),
-                                      hr->FindFixBin(8e3)-1,
-                                      nr_4_8_err);
+  Stats_t stat_all, stat_0_10(0, 10e3), stat_2_10(2e3, 10e3),
+          stat_35_10(3.5e3, 10e3), stat_4_8(4e3, 8e3),
+          stat_6_10(6e3, 10e3), stat_55_12(5.5e3, 12e3);
+  stat_all  .SetCount(hl, hr);
+  stat_0_10 .SetCount(hl, hr);
+  stat_2_10 .SetCount(hl, hr);
+  stat_35_10.SetCount(hl, hr);
+  stat_4_8  .SetCount(hl, hr);
+  stat_6_10 .SetCount(hl, hr);
+  stat_55_12.SetCount(hl, hr);
 
-  if (norm) {
-    // hl->Scale(1./(Normalization::Al50(prot_tcut)));
-    // hr->Scale(1./(Normalization::Al50(prot_tcut)));
-    hl->Scale(1./(Normalization::Al100(prot_tcut)));
-    hr->Scale(1./(Normalization::Al100(prot_tcut)));
+  std::cout << "Dataset: " << config.dataset << std::endl;
+  if (norm && config.dataset == "Al50") {
+    hl->Scale(1./(Normalization::Al50(config.t)));
+    hr->Scale(1./(Normalization::Al50(config.t)));
+  } else if (norm && config.dataset == "Al100") {
+    hl->Scale(1./(Normalization::Al100(config.t)));
+    hr->Scale(1./(Normalization::Al100(config.t)));
+  } else if (norm && config.dataset == "Ti50") {
+    hl->Scale(1./(Normalization::Ti50(config.t)));
+    hr->Scale(1./(Normalization::Ti50(config.t)));
+  } else if (config.t > 0) {
+    hl->Scale(1./(Normalization::TCutEfficiency(config.t)));
+    hr->Scale(1./(Normalization::TCutEfficiency(config.t)));
   } else {
-    hl->Scale(1./(Normalization::TCutEfficiency(prot_tcut)));
-    hr->Scale(1./(Normalization::TCutEfficiency(prot_tcut)));
+    PrintAndThrow("Unknown dataset: "+config.dataset);
   }
+
   if (adderr) {
     CombineWithError(hl, hr);
   }
@@ -196,12 +230,12 @@ void r15b_al50_unfold_draw(const char* ifname, double prot_tcut=400., bool adder
   // PropagateFractionalError(hl, 0.1); // nmu error ~10%?
   // PropagateFractionalError(hr, 0.1); // nmu error ~10%?
 
-  hl->SetTitle("Unfolded Proton Spectrum;E [keV];Count [p/500 keV]");
-  hr->SetTitle("Unfolded Proton Spectrum;E [keV];Count [p/500 keV]");
+  hl->SetTitle(("Unfolded "+config.particle+" Spectrum;E [keV];Count [p/500 keV]").c_str());
+  hr->SetTitle(("Unfolded "+config.particle+" Spectrum;E [keV];Count [p/500 keV]").c_str());
   if (norm)
-    ha->SetTitle("Proton Emission Rate;E [keV];p/#mu-cap/500 keV");
+    ha->SetTitle((config.particle+" Emission Rate;E [keV];p/#mu-cap/500 keV").c_str());
   else
-    ha->SetTitle("Unfolded Proton Spectrum;E [keV];Count [p/500 keV]");
+    ha->SetTitle(("Unfolded "+config.particle+" Spectrum;E [keV];Count [p/500 keV]").c_str());
   hl->GetYaxis()->SetTitleOffset(1.45);
   hr->GetYaxis()->SetTitleOffset(1.45);
   ha->GetYaxis()->SetTitleOffset(1.45);
@@ -249,8 +283,8 @@ void r15b_al50_unfold_draw(const char* ifname, double prot_tcut=400., bool adder
   // fr->Draw("SAME");
   // fl->Draw("SAME");
 
-  c->SaveAs("img/proton_e_reco_lr.png");
-  c->SaveAs("img/proton_e_reco_lr.root");
+  c->SaveAs(("img/"+config.particle+"_e_reco_lr.png").c_str());
+  c->SaveAs(("img/"+config.particle+"_e_reco_lr.C").c_str());
 
   TCanvas* cavg = new TCanvas();
   // for (int i = 1; i <= h->GetNbinsX(); ++i) {
@@ -305,78 +339,26 @@ void r15b_al50_unfold_draw(const char* ifname, double prot_tcut=400., bool adder
   // avgrate->Draw();
   // fap->Draw("SAME");
   // cavg->SetLogy();
-  cavg->SaveAs("img/proton_e_reco_avg.png");
-  cavg->SaveAs("img/proton_e_reco_avg.root");
+  cavg->SaveAs(("img/"+config.particle+"_e_reco_avg.png").c_str());
+  cavg->SaveAs(("img/"+config.particle+"_e_reco_avg.C").c_str());
 
-  Double_t r_all_err, rl_all_err, rr_all_err, r_0_10_err, rl_0_10_err,
-  rr_0_10_err, r_2_10_err, rl_2_10_err, rr_2_10_err, r_35_10_err, rl_35_10_err,
-  rr_35_10_err, r_4_8_err, rl_4_8_err, rr_4_8_err;
-  double r_all    = ha->IntegralAndError(1, ha->GetNbinsX(), r_all_err);
-  double rl_all   = hl->IntegralAndError(1, hl->GetNbinsX(), rl_all_err);
-  double rr_all   = hr->IntegralAndError(1, hr->GetNbinsX(), rr_all_err);
-  double r_0_10   = ha->IntegralAndError(ha->FindFixBin(0),
-                                         ha->FindFixBin(10e3)-1,
-                                         r_0_10_err);
-  double rl_0_10  = hl->IntegralAndError(hl->FindFixBin(0),
-                                         hl->FindFixBin(10e3)-1,
-                                         rl_0_10_err);
-  double rr_0_10  = hr->IntegralAndError(hr->FindFixBin(0),
-                                         hr->FindFixBin(10e3)-1,
-                                         rr_0_10_err);
-  double r_2_10   = ha->IntegralAndError(ha->FindFixBin(2e3),
-                                         ha->FindFixBin(10e3)-1,
-                                         r_2_10_err);
-  double rl_2_10  = hl->IntegralAndError(hl->FindFixBin(2e3),
-                                         hl->FindFixBin(10e3)-1,
-                                         rl_2_10_err);
-  double rr_2_10  = hr->IntegralAndError(hr->FindFixBin(2e3),
-                                         hr->FindFixBin(10e3)-1,
-                                         rr_2_10_err);
-  double r_35_10  = ha->IntegralAndError(ha->FindFixBin(3.5e3),
-                                         ha->FindFixBin(10e3)-1,
-                                         r_35_10_err);
-  double rl_35_10 = hl->IntegralAndError(hl->FindFixBin(3.5e3),
-                                         hl->FindFixBin(10e3)-1,
-                                         rl_35_10_err);
-  double rr_35_10 = hr->IntegralAndError(hr->FindFixBin(3.5e3),
-                                         hr->FindFixBin(10e3)-1,
-                                         rr_35_10_err);
-  double r_4_8    = ha->IntegralAndError(ha->FindFixBin(4e3),
-                                         ha->FindFixBin(8e3)-1,
-                                         r_4_8_err);
-  double rl_4_8   = hl->IntegralAndError(hl->FindFixBin(4e3),
-                                         hl->FindFixBin(8e3)-1,
-                                         rl_4_8_err);
-  double rr_4_8   = hr->IntegralAndError(hr->FindFixBin(4e3),
-                                         hr->FindFixBin(8e3)-1,
-                                         rr_4_8_err);
+  stat_all  .SetRate(hl, hr, ha);
+  stat_0_10 .SetRate(hl, hr, ha);
+  stat_2_10 .SetRate(hl, hr, ha);
+  stat_35_10.SetRate(hl, hr, ha);
+  stat_4_8  .SetRate(hl, hr, ha);
+  stat_6_10 .SetRate(hl, hr, ha);
+  stat_55_12.SetRate(hl, hr, ha);
 
-  printf("Total rate:     %.4g+/-%.3g/cap\n", r_all,    r_all_err);
-  printf("Total rate (R): %.4g+/-%.3g/cap\n", rr_all,   rr_all_err);
-  printf("Total rate (L): %.4g+/-%.3g/cap\n", rl_all,   rl_all_err);
-  printf("0-10 MeV:       %.4g+/-%.3g/cap\n", r_0_10,   r_0_10_err);
-  printf("0-10 MeV (R):   %.4g+/-%.3g/cap\n", rr_0_10,  rr_0_10_err);
-  printf("0-10 MeV (L):   %.4g+/-%.3g/cap\n", rl_0_10,  rl_0_10_err);
-  printf("2-10 MeV:       %.4g+/-%.3g/cap\n", r_2_10,   r_2_10_err);
-  printf("2-10 MeV (R):   %.4g+/-%.3g/cap\n", rr_2_10,  rr_2_10_err);
-  printf("2-10 MeV (L):   %.4g+/-%.3g/cap\n", rl_2_10,  rl_2_10_err);
-  printf("3.5-10 MeV:     %.4g+/-%.3g/cap\n", r_35_10,  r_35_10_err);
-  printf("3.5-10 MeV (R): %.4g+/-%.3g/cap\n", rr_35_10, rr_35_10_err);
-  printf("3.5-10 MeV (L): %.4g+/-%.3g/cap\n", rl_35_10, rl_35_10_err);
-  printf("4-8 MeV:        %.4g+/-%.3g/cap\n", r_4_8,    r_4_8_err);
-  printf("4-8 MeV (R):    %.4g+/-%.3g/cap\n", rr_4_8,   rr_4_8_err);
-  printf("4-8 MeV (L):    %.4g+/-%.3g/cap\n", rl_4_8,   rl_4_8_err);
-  printf("Count:\t\tLeft\tRight\n");
-  printf("All:\t\t%d (%d)\t%d (%d)\n",      nl_all,   (int)nl_all_err,   nr_all,   (int)nr_all_err);
-  printf("0-10 MeV:\t%d (%d)\t%d (%d)\n",   nl_0_10,  (int)nl_0_10_err,  nr_0_10,  (int)nr_0_10_err);
-  printf("2-10 MeV:\t%d  (%d)\t%d (%d)\n",  nl_2_10,  (int)nl_2_10_err,  nr_2_10,  (int)nr_2_10_err);
-  printf("3.5-10 MeV:\t%d (%d)\t%d (%d)\n", nl_35_10, (int)nl_35_10_err, nr_35_10, (int)nr_35_10_err);
-  printf("4-8 MeV:\t%d (%d)\t%d (%d)\n",    nl_4_8,   (int)nl_4_8_err,   nr_4_8,   (int)nr_4_8_err);
+  stat_all  .Print();
+  stat_0_10 .Print();
+  stat_2_10 .Print();
+  stat_35_10.Print();
+  stat_4_8  .Print();
+  stat_6_10 .Print();
+  stat_55_12.Print();
 
-  std::cout << "Proton stat error 3.5-10MeV average: " << na_35_10_err/na_35_10 << std::endl;
-
-
-  array<double,2> nfit = ExtendEnergy(ha);
-  DrawExtendedEnergyRange(ha);
+  array<double,2> nfit = ExtendEnergy(ha, config);
+  DrawExtendedEnergyRange(ha, config);
   std::cout << nfit[0] << " " << nfit[1] << std::endl;
 }

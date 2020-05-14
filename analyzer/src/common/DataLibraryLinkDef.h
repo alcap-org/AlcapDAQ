@@ -1,5 +1,6 @@
 #ifdef __CINT__
 
+#include <utility>
 #include <vector>
 #include <string>
 #include <map>
@@ -10,6 +11,7 @@
 
 #pragma link C++ class TGlobalData+;
 
+#pragma link C++ class vector<int>+;
 #pragma link C++ class TPulseIsland+;
 #pragma link C++ class vector<TPulseIsland*>+;
 #pragma link C++ class vector<TPulseIsland*>::iterator;
@@ -17,6 +19,7 @@
 #pragma link C++ class map<string, vector<TPulseIsland*> >+;
 #pragma link C++ class map<string, vector<TPulseIsland*> >::iterator;
 #pragma link C++ class pair<string,vector<TPulseIsland*> >+;
+#pragma link C++ class map<string,vector<int64_t> >+;
 
 #pragma link C++ class TSetupData+;
 

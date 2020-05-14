@@ -1,4 +1,4 @@
-{
+void compare_{
   TFile* fal50     = new TFile("data/Al50/en.2layer.root");
   TFile* fal100    = new TFile("data/Al100/en.2layer.root");
   TH1* hal50[2]    = { (TH1*)fal50 ->Get("hl_e_reco"),

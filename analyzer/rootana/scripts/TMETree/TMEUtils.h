@@ -47,7 +47,7 @@ namespace TMECuts {
   bool ValidCentralMuE(double elo, double ehi) {
     return elo < centralMuonEnergy && centralMuonEnergy < ehi;
   }
-  bool PileupProtected(double pp=20e3) {
+  bool PileupProtected(double pp=10e3) {
     // return SiT_1->size() + SiT_2->size() + SiT_3->size() + SiT_4->size() == 1;
     return timeToPrevTME > pp && timeToNextTME > pp;
   }

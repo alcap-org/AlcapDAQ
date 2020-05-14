@@ -14,10 +14,14 @@
 #include "TStyle.h"
 
 #include <cmath>
+#include <string>
+#include <vector>
 using std::erfc;
 using std::exp;
 using std::pow;
 using std::sqrt;
+using std::string;
+using std::vector;
 
 namespace {
   TH1 *hemu;
@@ -92,41 +96,47 @@ struct Norm {
   int NXrays()      { return nx;                 }
 };
 
-void ConstructFitFunctions(TF1*& hi, TF1*& lo) {
-  hi = new TF1("fcn_hi",
-               "pol1(0)+[2]*exp(-0.5*(x-[3])^2/[6]^2)+[4]*exp(-0.5*(x-[5])^2/[6]^2)",
-               335, 355);
-  lo = new TF1("fcn_lo",
-               "pol1(0)+[2]*exp(-0.5*(x-[3])^2/[6]^2)+[4]*exp(-0.5*(x-[5])^2/[6]^2)",
-               335, 355);
+void ConstructFitFunctions(TF1*& hi, TF1*& lo, const string& dataset) {
+  double elo, ehi;
+  if      (dataset.substr(0, 2) == "Al") {
+    elo = 335.; ehi = 355.;
+    hi = new TF1("fcn_hi",
+                 "pol1(0)+gaus(2)+2*[2]*exp(-0.5*(x-([3]+0.266))^2/[4]^2)+"
+                 "[5]*exp(-0.5*(x-[6])^2/[4]^2)",
+                 elo, ehi);
+    hi->SetParNames("Bkg y-int", "Bkg Slope",
+                    "Al 2p_{1/2}-1s Amp", "Al 2p_{1/2}-1s Energy",
+                    "Resolution (#sigma)", "Pb Amp.", "Pb Energy");
+    lo = (TF1*)hi->Clone("fcn_lo");
+  } else if (dataset.substr(0, 2) == "Ti") {
+    elo = 915.;
+    ehi = 950.;
+    hi = new TF1("fcn_hi",
+                 "pol1(0)+gaus(2)+2*[2]*exp(-0.5*(x-([3]+2.2))^2/[4]^2)+"
+                 "[5]*exp(-0.5*(x-[6])^2/[4]^2)",
+                 elo, ehi);
+    hi->SetParNames("Bkg y-int", "Bkg Slope",
+                    "Ti 2p_{1/2}-1s Amp", "Ti 2p_{1/2}-1s Energy",
+                    "Resolution (#sigma)", "Pb Amp", "Pb Energy");
+    lo = (TF1*)hi->Clone("fcn_lo");
+  } else {
+    PrintAndThrow("Error: Unknown dataset: "+dataset);
+  }
+
   // hi = new TF1("fcn_hi", FitFcn, 335, 355, 9);
   // lo = new TF1("fcn_hi", FitFcn, 335, 355, 9);
 
-  //////////////////////////////////////////////////////////////////////////////
-  // SWITCH
-  //////////////////////////////////////////////////////////////////////////////
-  // hi->SetParameters(1.5e3, 0., 10e3, 345, 2e3, 349.5, 1.); // Al50 total
-  // lo->SetParameters(1.5e3, 0., 13e3, 345, 2e3, 348.5, 1.); // Al50 total
-  hi->SetParameters(1e3, 0., 10e3, 345, 1e3, 349.5, 1.); // Al100 total
-  lo->SetParameters(1e3, 0., 8e3,  347, 1e3, 350.,  1.); // Al100 total
-  hi->SetParLimits(8, -3.2, 3.2);
-  lo->SetParLimits(8, -3.2, 3.2);
-  hi->SetParLimits(9, 0, 200);
-  lo->SetParLimits(9, 0, 200);
-  // hi->SetParameters(1.5e3, 0., 10e3, 345, 2e3, 349.5, 1., 0.1, 0.1); // Al50 total
-  // lo->SetParameters(1.5e3, 0., 13e3, 345, 2e3, 348.5, 1., 0.1, 0.1); // Al50 total
-  // hi->SetParameters(20,    0., 200,  345, 31,  350,  1.); // Al100 29.9 MeV/c
-  // lo->SetParameters(20,    0., 200,  345, 31,  350,  1.); // Al100 29.9 MeV/c
-  // hi->SetParameters(20,    0., 200,  345, 31,  350,  1.); // Al100 26.2 MeV/c
-  // lo->SetParameters(20,    0., 200,  345, 31,  350,  1.); // Al100 26.2 MeV/c
-  // hi->SetParameters(100,   0., 690,  345, 111, 350,  1.); // Al100 26.4 MeV/c
-  // lo->SetParameters(100,   0., 690,  345, 111, 350,  1.); // Al100 26.4 MeV/c
-  // hi->SetParameters(1e3, 0, 10e3, 345., 1e3, 349.5, 1); // Al100
-  // lo->SetParameters(1e3, 0, 9e3,  346., 1e3, 350,   1); // Al100
-  hi->SetParNames("Bkg y-int", "Bkg Slope", "Al Amp", "Al Energy", "Pb Amp", "Pb Energy", "Sigma");
-  lo->SetParNames("Bkg y-int", "Bkg Slope", "Al Amp", "Al Energy", "Pb Amp", "Pb Energy", "Sigma");
+  if        (dataset == "Al50") {
+    hi->SetParameters(1e3, 0., 3e3, 345., 2., 1e3, 350.); // Al50 total
+    lo->SetParameters(3e3, 0., 5e3, 345., 2., 2e3, 350.); // Al50 total
+  } else if (dataset == "Al100") {
+    hi->SetParameters(1e3, 0., 8e3, 345., 2., 1e3, 350.); // Al100 total
+    lo->SetParameters(1e3, 0., 8e3, 345., 2., 1e3, 350.); // Al100 total
+  } else if (dataset == "Ti50") {
+    hi->SetParameters(300.,   0., 1100., 929., 1., 1500., 937.); // Ti50
+    lo->SetParameters(250.,   0., 700.,  923., 1., 1200., 932.); // Ti50
+  }
   hi->SetLineColor(kBlack);
-  // hi->SetLineColor(kRed);
   lo->SetLineColor(kBlue);
 }
 
@@ -135,26 +145,29 @@ void ConstructFitFunctions(TF1*& hi, TF1*& lo) {
 //   ws.factory
 // }
 
-Norm FitGeHist(TH1* h, TF1* f) {
-  double I = 0.798, dI = 0.008, E = 347.;
+Norm FitGeHist(TH1* h, TF1* f, const string& dataset) {
+  double I, dI, E;
+  if      (dataset.substr(0, 2) == "Al") { I = 0.798;  dI = 0.008; E = 347.; }
+  else if (dataset.substr(0, 2) == "Ti") { I = 0.90;   dI = 0.04;  E = 929.; }
   h->Fit(f, "R");
   TFitResultPtr r = h->Fit(f, "MESRL");
-  double A  = r->Parameter(2);
-  double s  = r->Parameter(6);
-  double eA = r->ParError(2);
-  double es = r->ParError(6);
+  double A  = r->Parameter  (2);
+  double s  = r->Parameter  (4);
+  double eA = r->ParError   (2);
+  double es = r->ParError   (4);
   double db = h->GetBinWidth(1);
-  if (r->Parameter(5) < r->Parameter(3)) {
-    A  = r->Parameter(4);
-    s  = r->Parameter(6);
-    eA = r->ParError(4);
-    es = r->ParError(6);
-    db = h->GetBinWidth(1);
+  if (r->Parameter(6) < r->Parameter(3)) {
+    A  = r->Parameter(5);
+    eA = r->ParError (5);
   }
+  double fsscale = 1.;
+  if (dataset.substr(0, 2) == "Ti" || dataset.substr(0, 2) == "Al")
+    fsscale = 3.; // Measure 2p_1/2, which is 1/3 total xrays
   Norm N = {
-    (int)GeFcn::NMuHi(A, s, db, I, E), (int)GeFcn::GaussArea(A, s, db),
-    GeFcn::NMuErrHi(A, eA, s, es, db, I, dI, E),
-    GeFcn::GaussAreaErr(A, eA, s, es, db),
+    (int)(fsscale*GeFcn::NMuHi    (A, s, db, I, dataset)),
+    (int)(fsscale*GeFcn::GaussArea(A, s, db)),
+    fsscale*GeFcn::NMuErrHi       (A, eA, s, es, db, I, dI, dataset),
+    fsscale*GeFcn::GaussAreaErr   (A, eA, s, es, db),
     r->Chi2(), (double)r->Ndf() };
   return N;
 }
@@ -183,17 +196,55 @@ void SetStyle(TH1* h) {
   h->GetYaxis()->SetTitleOffset(1.35);
 }
 
-void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo, bool prompt_only) {
+vector<TF1*> BuildDisjointFitFcns(const TF1* fit, const string& dataset) {
+  double dE = 0., mA = 0.;
+  if      (dataset.substr(0, 2) == "Al") { dE = 0.266; mA = 2.; }
+  else if (dataset.substr(0, 2) == "Ti") { dE = 2.2;   mA = 2.; }
+  vector<TF1*> fcns(4, nullptr);
+  double elo, ehi;
+  fit->GetRange(elo, ehi);
+  fcns[0] = new TF1("fitfcn_contbg",  "pol1(0)", elo, ehi);
+  fcns[1] = new TF1("fitfcn_2p1shf1", "gaus(0)", elo, ehi);
+  fcns[2] = new TF1("fitfcn_2p1shf2", "gaus(0)", elo, ehi);
+  fcns[3] = new TF1("fitfcn_pbbg",    "gaus(0)", elo, ehi);
+  fcns[0]->SetLineColor(kRed);
+  fcns[1]->SetLineColor(kGreen);
+  fcns[2]->SetLineColor(kBlue);
+  fcns[3]->SetLineColor(kMagenta);
+  fcns[0]->SetParameters(fit->GetParameter(0),   fit->GetParameter(1));
+  fcns[1]->SetParameters(fit->GetParameter(2),   fit->GetParameter(3),
+                         fit->GetParameter(4));
+  fcns[2]->SetParameters(mA*fit->GetParameter(2), dE+fit->GetParameter(3),
+                         fit->GetParameter(4));
+  fcns[3]->SetParameters(fit->GetParameter(5), fit->GetParameter(6),
+                         fit->GetParameter(4));
+  fcns[0]->SetParNames(fit->GetParName(0), fit->GetParName(1));
+  fcns[1]->SetParNames(fit->GetParName(2), fit->GetParName(3),
+                       fit->GetParName(4));
+  fcns[2]->SetParNames("2p_{3/2}-1s Amp", "2p_{3/2}-1s Energy",
+                       fit->GetParName(4));
+  fcns[3]->SetParNames(fit->GetParName(5), fit->GetParName(6),
+                       fit->GetParName(4));
+  return fcns;
+}
+
+void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo,
+              vector<TF1*> fits_hi, vector<TF1*> fits_lo,
+              const string& dataset, bool prompt_only) {
   TCanvas* c_fit = new TCanvas;
-  hi->GetXaxis()->SetRangeUser(335., 355.);
-  lo->GetXaxis()->SetRangeUser(335., 355.);
-  if (prompt_only) {
-    hi->SetTitle("X-Ray Spectrum (Al50 Target) #pm200ns;Energy [keV];Raw Count");
-    lo->SetTitle("X-Ray Spectrum (Al50 Target) #pm200ns;Energy [keV];Raw Count");
-  } else {
-    hi->SetTitle("X-Ray Spectrum (Al50 Target) all time;Energy [keV];Raw Count");
-    lo->SetTitle("X-Ray Spectrum (Al50 Target) all time;Energy [keV];Raw Count");
-  }
+  double elo, ehi;
+  if      (dataset.substr(0, 2) == "Al") { elo = 335.; ehi = 355.; }
+  else if (dataset.substr(0, 2) == "Ti") { elo = 915.; ehi = 950.; }
+  hi->GetXaxis()->SetRangeUser(elo, ehi);
+  lo->GetXaxis()->SetRangeUser(elo, ehi);
+  hi->SetMinimum(0);
+  lo->SetMinimum(0);
+  string htitle("X-Ray Spectrum ("+dataset+") ");
+  if (prompt_only) htitle += "#pm200ns";
+  else             htitle += "all time";
+  htitle += ";Energy [keV];Raw Count";
+  hi->SetTitle(htitle.c_str());
+  lo->SetTitle(htitle.c_str());
   SetStyle(hi);
   hi->SetLineColor(kBlack);
   // hi->SetLineColor(kRed);
@@ -214,8 +265,8 @@ void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo, bool prompt_only) {
   stats_hi->SetY1NDC(0.50); stats_hi->SetY2NDC(0.90);
   // stats_hi->SetX1NDC(0.10); stats_hi->SetX2NDC(0.40);
   // stats_hi->SetY1NDC(0.20); stats_hi->SetY2NDC(0.90);
-  stats_lo->SetX1NDC(0.10); stats_lo->SetX2NDC(0.35);
-  stats_lo->SetY1NDC(0.10); stats_lo->SetY2NDC(0.50);
+  // stats_lo->SetX1NDC(0.10); stats_lo->SetX2NDC(0.35);
+  // stats_lo->SetY1NDC(0.10); stats_lo->SetY2NDC(0.50);
   TLegend* l_fit = new TLegend(0.55, 0.70, 0.95, 0.90);
   // TPaveText* l_fit = new TPaveText(348., 12e3, 355, 14e3);
   char l_fit_hi[64], l_fit_lo[64];
@@ -225,13 +276,16 @@ void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo, bool prompt_only) {
   // l_fit->AddText(l_fit_hi);
   l_fit->AddEntry(lo, l_fit_lo);
   hi->Draw();
-  lo->Draw("SAME");
-  l_fit->Draw();
+  for (int i = 0; i < fits_hi.size(); ++i)
+    fits_hi[i]->Draw("SAME");
+  // lo->Draw("SAME");
+  // for (int i = 0; i < fits_lo.size(); ++i)
+  //   fits_lo[i]->Draw("SAME");
+  // l_fit->Draw();
   // DrawBlindedBox();
   DrawPeakLabels();
   c_fit->Update();
   c_fit->SaveAs("img/ge_e_zoom.png");
-
 
   stats_lo->SetX1NDC(0.10); stats_lo->SetX2NDC(0.40);
   stats_lo->SetY1NDC(0.30); stats_lo->SetY2NDC(0.90);
@@ -250,6 +304,8 @@ void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo, bool prompt_only) {
   c_res->Update();
   c_res->SaveAs("img/xrawfit_residuals.png");
 
+  return; // NEED TO UPDATE PASSED HERE
+
   stats_lo->SetX1NDC(0.10); stats_lo->SetX2NDC(0.40);
   stats_lo->SetY1NDC(0.70); stats_lo->SetY2NDC(0.90);
   stats_hi->SetX1NDC(0.10); stats_hi->SetX2NDC(0.40);
@@ -262,10 +318,10 @@ void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo, bool prompt_only) {
   hresdiff[1]->SetTitle("GeHi Fit Diff;Energy [keV];hist-fit");
   lo->SetTitle("GeLo Spectrum");
   hi->SetTitle("GeHi Spectrum");
-  lo         ->GetYaxis()->SetRangeUser(1e3, 13e3);
-  hresdiff[0]->GetYaxis()->SetRangeUser(-9e2, 7e2);
-  hi         ->GetYaxis()->SetRangeUser(1e3, 15e3);
-  hresdiff[1]->GetYaxis()->SetRangeUser(-7e2, 7e2);
+  // lo         ->GetYaxis()->SetRangeUser(1e3, 13e3);
+  // hresdiff[0]->GetYaxis()->SetRangeUser(-9e2, 7e2);
+  // hi         ->GetYaxis()->SetRangeUser(1e3, 15e3);
+  // hresdiff[1]->GetYaxis()->SetRangeUser(-7e2, 7e2);
   TPave* boxspec[2] = { new TPave(341.,  1e3, 347.,  13e3, 0, "NB"),
                         new TPave(342.,  1e3, 348.,  15e3, 0, "NB") };
   TPave* boxdiff[2] = { new TPave(341., -900., 347., 700., 0, "NB"),
@@ -319,9 +375,10 @@ void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo, bool prompt_only) {
 
 }
 
-void r15b_al50_nmu_draw(const char* ifname, bool prompt_only=true) {
+void r15b_al50_nmu_draw(const char* ifname, bool prompt_only=false) {
   TFile* f = new TFile(ifname);
   LoadHistograms(f);
+  NMuConfig_t conf((TTree*)f->Get("configtree"));
   gStyle->SetOptStat("e");
 
   // Draw SiT energy spectrum (muons)
@@ -337,12 +394,16 @@ void r15b_al50_nmu_draw(const char* ifname, bool prompt_only=true) {
     hhi = hgehi_e_all;
     hlo = hgelo_e_all;
   }
+  // hgehi_e_all->Rebin(2);
+  // hgelo_e_all->Rebin(2);
 
   TF1 *fcn_hi, *fcn_lo;
-  ConstructFitFunctions(fcn_hi, fcn_lo);
-  Norm nhi = FitGeHist(hhi, fcn_hi);
-  Norm nlo = FitGeHist(hlo, fcn_lo);
-  DrawFits(hhi, hlo, nhi, nlo, prompt_only);
+  ConstructFitFunctions(fcn_hi, fcn_lo, conf.dataset);
+  Norm nhi = FitGeHist(hhi, fcn_hi, conf.dataset);
+  Norm nlo = FitGeHist(hlo, fcn_lo, conf.dataset);
+  vector<TF1*> fits_hi = BuildDisjointFitFcns(fcn_hi, conf.dataset);
+  vector<TF1*> fits_lo = BuildDisjointFitFcns(fcn_lo, conf.dataset);
+  DrawFits(hhi, hlo, nhi, nlo, fits_hi, fits_lo, conf.dataset, prompt_only);
 
   printf("Hi chi2 %d/%d (%f), n %d +/- %f, nx %d +/- %f\n",
          nhi.Chi2(), nhi.Ndf(), nhi.Chi2_red(), nhi.n, nhi.en, nhi.nx, nhi.enx);

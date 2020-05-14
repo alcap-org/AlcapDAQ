@@ -23,6 +23,7 @@
 #include <cctype>
 #include <cmath>
 #include <iostream>
+#include <memory>
 #include <numeric>
 #include <string>
 #include <vector>
@@ -81,16 +82,16 @@ void ConstructAndSaveTrees(TFile* f, char lr,
       }
       tr->SetAlias("e",  "e1+e2+e3");
       tr->SetAlias("de", "e1");
-      tr->SetAlias("t",  "t1");
+      tr->SetAlias("t",  "t2");
       tr->SetAlias("dt", "t2-t1");
     }
   cwd->cd();
 }
 
 template <class T>
-int WhichParticle(const vector<T>& pls, double dE, double E) {
+int WhichParticle(const vector<std::unique_ptr<T>>& pls, double dE, double E) {
   for (int i = 0; i < pls.size(); ++i)
-    if (pls[i].IsParticle(E, dE))
+    if (pls[i]->IsParticle(E, dE))
       return i;
   return pls.size();
 }
@@ -105,22 +106,26 @@ void CombineHistograms(vector< vector<T*> >& hs) {
 vector< vector<SimplePulse>* >& SiTs  = all_SiT_channels;
 vector< vector<SimplePulse>* >& SiR1s = all_SiR1_channels;
 vector< vector<SimplePulse>* >& SiL1s = all_SiL1_channels;
-void psel(TTree* tr, const char* ofname, double pp, double bandwidthscale,
-          bool usealllayers, bool verbose=false) {
+void psel(TTree* tr, const char* ofname, const std::string& dataset, double pp,
+          const std::string& method, double bandwidthscale, bool usealllayers,
+          bool verbose) {
   TFile* ofile = new TFile(ofname, "RECREATE");
 
   SetTMEBranchAddresses(tr);
   CollectChannels();
   TMECal::Init();
 
+  TimeOffset_t terr(dataset);
+
   vector< vector<PIDEvent> > vrpids(NPTYPE), vlpids(NPTYPE);
-  vector<ParticleLikelihood::PSelPow2> pls_r =
-    ParticleLikelihood::LoadParticleLikelihoodsPow2('R', bandwidthscale);
-  vector<ParticleLikelihood::PSelPow2> pls_l =
-    ParticleLikelihood::LoadParticleLikelihoodsPow2('L', bandwidthscale);
+  vector<std::unique_ptr<ParticleLikelihood::PSel>> pls_r =
+    ParticleLikelihood::LoadParticleLikelihoods('R', method, bandwidthscale);
+  vector<std::unique_ptr<ParticleLikelihood::PSel>> pls_l =
+    ParticleLikelihood::LoadParticleLikelihoods('L', method, bandwidthscale);
 
   for (int i = 0; i < tr->GetEntries(); ++i) {
     tr->GetEntry(i);
+    terr.Apply();
     if(pp && !TMECuts::PileupProtected(pp))
       continue;
     if (verbose && i % 100000 == 0)
@@ -156,22 +161,35 @@ void psel(TTree* tr, const char* ofname, double pp, double bandwidthscale,
   }
   ConstructAndSaveTrees(ofile, 'r', vrpids);
   ConstructAndSaveTrees(ofile, 'l', vlpids);
-  TTree* otr = new TTree("configtree", "Config Tree");
+  std::string dset = dataset;
+  std::string meth = method;
+  TTree* otr = new TTree("config", "Config Tree");
   otr->Branch("pileup_protection", &pp);
   otr->Branch("bandwidthscale",    &bandwidthscale);
   otr->Branch("usealllayers",      &usealllayers);
+  otr->Branch("dataset",           &dset);
+  otr->Branch("pidmethod",         &meth);
+  otr->Branch("t1lerr",            &terr.t1[0]);
+  otr->Branch("t2lerr",            &terr.t2[0]);
+  otr->Branch("t3lerr",            &terr.t3[0]);
+  otr->Branch("t1rerr",            &terr.t1[1]);
+  otr->Branch("t2rerr",            &terr.t2[1]);
+  otr->Branch("t3rerr",            &terr.t3[1]);
   otr->Fill();
   ofile->Write();
   ofile->Close();
 }
 
 void R15b_Al50_psel(const char* ifname=nullptr, const char* ofname=nullptr,
-                    double pp=10e3, double bandwidthscale=1.,
+                    std::string dataset="", double pp=10e3,
+                    std::string method="", double bandwidthscale=1.,
                     bool usealllayers=true, bool verbose=false) {
   if (!ifname) return;
+  if (!Sanity::IsValidDataset(dataset))
+    std::cout << "ERROR: Invalid dataset: " << dataset << std::endl;
   TChain* ch = new TChain("TMETree/TMETree");
   ch->Add(ifname);
   if (ch->GetEntries() <= 0)
     PrintAndThrow("No files to process!");
-  psel(ch, ofname, pp, bandwidthscale, usealllayers, verbose);
+  psel(ch, ofname, dataset, pp, method, bandwidthscale, usealllayers, verbose);
 }

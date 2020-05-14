@@ -1,0 +1,10 @@
+{
+	"folders":
+	[
+		{
+			"path": "..",
+			"file_exclude_patterns": ["._*", "*.pcm", "*.d", "*.root", "rootana"],
+			"folder_exclude_patterns": []
+		}
+	]
+}
