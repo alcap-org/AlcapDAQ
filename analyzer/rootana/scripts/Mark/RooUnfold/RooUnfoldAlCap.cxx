@@ -61,10 +61,14 @@ void Process(RooUnfoldResponse *response, TH1D *hMeas, const char *arm = "SiL", 
 	integral = hReco->IntegralAndError(hReco->GetXaxis()->FindBin(3.5), hReco->GetXaxis()->FindBin(9.5), error);
 	std::cout << arm << " 3500-10000keV: " << integral << " ± " << error << std::endl;
 
-	if(strcmp(arm, "SiR")==0 && (target.compare("al50")==0 || target.compare("ti50")==0 ) && strcmp(particle, "proton")==0) {
-		PiecewiseFit(hReco, 4., 20.);
+	if(strcmp(particle, "proton") == 0) {
+		if(strcmp(arm, "SiR")==0 && (target.compare("al50")==0 || target.compare("ti50")==0 ) ) {
+			PiecewiseFit(hReco, 4., 20.);
+		} else {
+			PiecewiseFit(hReco, 4., 16.);
+		}
 	} else {
-		PiecewiseFit(hReco, 4., 16.);
+		PiecewiseFit(hReco, 6., 18.);
 	}
 }
 void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", bool normalise = kTRUE)
@@ -106,13 +110,10 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 	for(Long64_t i=0; i < tree->GetEntries(); i++) {
 		tree->GetEntry(i);
 		if(a2 > 3980) continue; //remove saturation
-//		e1 = e1*1e3;
-//		e2 = e2*1e3;
-//		e3 = e3*1e3;
 		if(timeToPrevTME < 10e3 || timeToNextTME < 10e3) continue;
 		if(t2<400) continue;
 		if(t2>10e3) continue;
-		if(target.compare("al50") == 0 || target.compare("ti50") ) {
+		if(target.compare("al50") == 0 || target.compare("ti50") == 0 ) {
 			//if(abs(t2-t1-12) > 20 * 5) continue; //Al50
 			if(abs(t2-t1)> 200) continue; //Al50
 		}

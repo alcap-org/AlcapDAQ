@@ -170,7 +170,7 @@ void dtFill(Double_t t2, Double_t t1, Double_t E, TH1D *h1, TH1D *h2, TH1D *h3, 
 			}
 			const int c = 12;
 			double energy[c] =   {3.500, 4.500, 5.500,  6.500, 7.500,  8.500, 9.500, 10.500, 11.500, 12.500, 13.500, 14.500};
-			double mean[c]   =   {-5.68465e+02,-5.66751e+02,-5.67283e+02,-5.67391e+02,-5.67668e+02,-5.68393e+02,-5.67110e+02,-5.65988e+02,-5.62315e+02,-5.60232e+02,-5.52439e+02,-5.44861e+02};
+			double mean[c]   =   {-5.68465e+02, -5.66751e+02, -5.67283e+02, -5.67391e+02, -5.67668e+02, -5.68393e+02, -5.67110e+02, -5.65988e+02, -5.62315e+02, -5.60232e+02, -5.52439e+02, -5.44861e+02};
 			double sigma[c]  =   { 1.99205e+01, 2.05535e+01, 2.13026e+01, 2.30468e+01, 2.37264e+01, 2.52898e+01, 2.74964e+01, 2.85066e+01, 3.12856e+01, 3.25803e+01, 3.11072e+01, 3.69043e+01};
 			for(int i=0; i < c; ++i) {
 				if(abs(E-energy[i])<.5) {
@@ -189,29 +189,43 @@ void dtFill(Double_t t2, Double_t t1, Double_t E, TH1D *h1, TH1D *h2, TH1D *h3, 
 		}
 	} else if(particle.CompareTo("deuteron") == 0) { //deuteron
 		if(arm.CompareTo("SiR") == 0) {
-			const int c = 5;
-			double energy[c] =   {4.000, 6.000, 8.000, 10.000, 12.000};
-			double mean[c] = {12.66, 12.08, 9.79, 8.58, 7.36};
-			double sigma[c] = {10.81, 13.10, 17.22, 18.57, 24.30};
+			const int c = 12;
+			double energy[c] =   {3.500,             4.500,       5.500,       6.500,       7.500,       8.500,       9.500,      10.500,      11.500,      12.500,      13.500,      14.500};
+			double mean[c]   =   {2.02048e+02, 2.04298e+02, 2.06706e+02, 2.05925e+02, 2.08258e+02, 2.04351e+02, 2.05291e+02, 2.02974e+02, 2.03582e+02, 2.03325e+02, 2.01155e+02, 2.05418e+02};
+			double sigma[c]  =   {2.07768e+01, 1.85590e+01, 2.11972e+01, 2.12487e+01, 2.23483e+01, 2.61471e+01, 2.42041e+01, 2.59959e+01, 2.96122e+01, 3.31580e+01, 3.90417e+01, 3.51477e+01};
 			for(int i=0; i < c; ++i) {
-				if(abs(E-energy[i])<1000) {
-					if(abs(t2-t1 - mean[i]) <   sigma[i]) h1->Fill(E);
+				if(abs(E-energy[i])<.5) {
+					if(abs(t2-t1 - mean[i]) < sigma[i]) h1->Fill(E);
 					if(abs(t2-t1 - mean[i]) < 2*sigma[i]) h2->Fill(E);
 					if(abs(t2-t1 - mean[i]) < 3*sigma[i]) h3->Fill(E);
 					if(abs(t2-t1 - mean[i]) < 4*sigma[i]) h4->Fill(E);
 				}
 			}
-			if(E>13.000) {
-				if(abs(t2-t1 - 4.73) < 35.53) h1->Fill(E);
-				if(abs(t2-t1 - 4.73) < 2*35.53) h2->Fill(E);
-				if(abs(t2-t1 - 4.73) < 3*35.53) h3->Fill(E);
-				if(abs(t2-t1 - 4.73) < 4*35.53) h4->Fill(E);
+			if(E>15.000) {
+				if(abs(t2-t1 - 2.17410e+02) <   3.74541e+01) h1->Fill(E);
+				if(abs(t2-t1 - 2.17410e+02) < 2*3.74541e+01) h2->Fill(E);
+				if(abs(t2-t1 - 2.17410e+02) < 3*3.74541e+01) h3->Fill(E);
+				if(abs(t2-t1 - 2.17410e+02) < 4*3.74541e+01) h4->Fill(E);
 			}
 		} else { //SiL
-			if(abs(t2-t1 - 12.7294) <   22.0637) h1->Fill(E);
-			if(abs(t2-t1 - 12.7294) < 2*22.0637) h2->Fill(E);
-			if(abs(t2-t1 - 12.7294) < 3*22.0637) h3->Fill(E);
-			if(abs(t2-t1 - 12.7294) < 4*22.0637) h4->Fill(E);
+			const int c = 12;
+			double energy[c] =   {3.500       ,        4.500,        5.500,        6.500,        7.500,        8.500,        9.500,       10.500,       11.500,       12.500,       13.500,       14.500};
+			double mean[c]   =   {-5.70697e+02, -5.66322e+02, -5.65257e+02, -5.66662e+02, -5.65310e+02, -5.67597e+02, -5.69034e+02, -5.72863e+02, -5.74804e+02, -5.71815e+02, -5.73689e+02, -5.74401e+02};
+			double sigma[c]  =   { 2.04009e+01,  1.91148e+01,  1.83256e+01,  1.88325e+01,  2.07188e+01,  1.95376e+01,  2.27581e+01,  2.26845e+01,  2.32077e+01,  2.24143e+01,  2.28877e+01,  3.13415e+01};
+			for(int i=0; i < c; ++i) {
+				if(abs(E-energy[i])<.5) {
+					if(abs(t2-t1 - mean[i]) < sigma[i]) h1->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 2*sigma[i]) h2->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 3*sigma[i]) h3->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 4*sigma[i]) h4->Fill(E);
+				}
+			}
+			if(E>15.000) {
+				if(abs(t2-t1 + 5.61400e+02) <   2.50616e+01) h1->Fill(E);
+				if(abs(t2-t1 + 5.61400e+02) < 2*2.50616e+01) h2->Fill(E);
+				if(abs(t2-t1 + 5.61400e+02) < 3*2.50616e+01) h3->Fill(E);
+				if(abs(t2-t1 + 5.61400e+02) < 4*2.50616e+01) h4->Fill(E);
+			}
 		}
 	} else if(particle.CompareTo("triton") == 0) {
 		if(arm.CompareTo("SiR") == 0) {
@@ -464,13 +478,8 @@ TLegend *legend = new TLegend(.120, .598, .392, .868);
 
 void Combined(Double_t *pidError, Double_t *dtError, Double_t *lifetimeError, TString arm, TString particle) {
 	TFile *fUnfolded = new TFile(Form("%s/unfolded.al100.root", getenv("R15b_OUT") ), "READ");
-        TH1D *hUncorrected = 0;
+        TH1D *hUncorrected = (TH1D *)fUnfolded->Get(Form("h%s_%s", particle.Data(), arm.Data() ) );
 	TFile *fOutput = new TFile("al100-systematics.root", "UPDATE");
-        if(arm.CompareTo("SiL") == 0) {
-                hUncorrected = (TH1D *)fUnfolded->Get("hproton_SiL");
-        } else {
-                hUncorrected = (TH1D *)fUnfolded->Get("hproton_SiR");
-        }
 
 	TH1D *hSystematics = (TH1D *) hUncorrected->Clone();
 	hSystematics->SetName(Form("h%s_%s_al100", particle.Data(), arm.Data() ) );

@@ -69,5 +69,5 @@ void WeightedAverage() {
 
 	std::cout << "4 - 8MeV: " << hWeightedAverage->Integral(hWeightedAverage->FindBin(4), hWeightedAverage->FindBin(7.5) ) << std::endl;
 	std::cout << "3.5 - 10MeV: " << hWeightedAverage->Integral(hWeightedAverage->FindBin(3.5), hWeightedAverage->FindBin(9.5) ) << std::endl;
-	std::cout << "Fit 4 - 20MeV: " << fit->Integral(3.5, 20)/.5 << std::endl;
+	std::cout << "Fit 4 - 40MeV: " << fit->Integral(3.5, 40)/.5 << std::endl;
 }

@@ -188,29 +188,43 @@ void dtFill(Double_t t2, Double_t t1, Double_t E, TH1D *h1, TH1D *h2, TH1D *h3, 
 		}
 	} else if(particle.CompareTo("deuteron") == 0) { //deuteron
 		if(arm.CompareTo("SiR") == 0) {
-			const int c = 5;
-			double energy[c] =   {4.000, 6.000, 8.000, 10.000, 12.000};
-			double mean[c] = {12.66, 12.08, 9.79, 8.58, 7.36};
-			double sigma[c] = {10.81, 13.10, 17.22, 18.57, 24.30};
+			const int c = 10;
+			double energy[c] = {3.500,             4.500,       5.500,       6.500,       7.500,       8.500,       9.500,      10.500,      11.500, 12.500};
+			double mean[c]   = {1.83581e+01, 2.15843e+01, 2.27206e+01, 2.05585e+01, 2.12236e+01, 2.02963e+01, 1.82605e+01, 1.78672e+01, 1.52147e+01, 1.22812e+01};
+			double sigma[c]  = {1.77465e+01, 1.71013e+01, 1.76720e+01, 1.87732e+01, 1.91656e+01, 2.21686e+01, 2.46626e+01, 2.28983e+01, 2.77650e+01, 2.64014e+01};
 			for(int i=0; i < c; ++i) {
-				if(abs(E-energy[i])<1) {
-					if(abs(t2-t1 - mean[i]) <   sigma[i]) h1->Fill(E);
+				if(abs(E-energy[i])<.5) {
+					if(abs(t2-t1 - mean[i]) < sigma[i]) h1->Fill(E);
 					if(abs(t2-t1 - mean[i]) < 2*sigma[i]) h2->Fill(E);
 					if(abs(t2-t1 - mean[i]) < 3*sigma[i]) h3->Fill(E);
 					if(abs(t2-t1 - mean[i]) < 4*sigma[i]) h4->Fill(E);
 				}
 			}
 			if(E>13.000) {
-				if(abs(t2-t1 - 4.73) < 35.53) h1->Fill(E);
-				if(abs(t2-t1 - 4.73) < 2*35.53) h2->Fill(E);
-				if(abs(t2-t1 - 4.73) < 3*35.53) h3->Fill(E);
-				if(abs(t2-t1 - 4.73) < 4*35.53) h4->Fill(E);
+				if(abs(t2-t1 - 2.36543e+01) <   3.19809e+01) h1->Fill(E);
+				if(abs(t2-t1 - 2.36543e+01) < 2*3.19809e+01) h2->Fill(E);
+				if(abs(t2-t1 - 2.36543e+01) < 3*3.19809e+01) h3->Fill(E);
+				if(abs(t2-t1 - 2.36543e+01) < 4*3.19809e+01) h4->Fill(E);
 			}
 		} else { //SiL
-			if(abs(t2-t1 - 12.7294) <   22.0637) h1->Fill(E);
-			if(abs(t2-t1 - 12.7294) < 2*22.0637) h2->Fill(E);
-			if(abs(t2-t1 - 12.7294) < 3*22.0637) h3->Fill(E);
-			if(abs(t2-t1 - 12.7294) < 4*22.0637) h4->Fill(E);
+			const int c = 10;
+			double energy[c] = {3.500,             4.500,       5.500,       6.500,       7.500,       8.500,       9.500,      10.500,      11.500, 12.500};
+			double mean[c]   = {2.71494e+01, 2.57243e+01, 2.72705e+01, 2.38837e+01, 2.27320e+01, 2.38872e+01, 2.29913e+01, 1.97209e+01, 1.84823e+01, 2.30038e+01};
+			double sigma[c]  = {2.83634e+01, 3.07353e+01, 2.57226e+01, 2.52980e+01, 2.85097e+01, 2.41038e+01, 2.41038e+01, 2.65672e+01, 2.50039e+01, 3.55600e+01};
+			for(int i=0; i < c; ++i) {
+				if(abs(E-energy[i])<.5) {
+					if(abs(t2-t1 - mean[i]) < sigma[i]) h1->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 2*sigma[i]) h2->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 3*sigma[i]) h3->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 4*sigma[i]) h4->Fill(E);
+				}
+			}
+			if(E>13.000) {
+				if(abs(t2-t1 - 2.67732e+01) <   2.95573e+01) h1->Fill(E);
+				if(abs(t2-t1 - 2.67732e+01) < 2*2.95573e+01) h2->Fill(E);
+				if(abs(t2-t1 - 2.67732e+01) < 3*2.95573e+01) h3->Fill(E);
+				if(abs(t2-t1 - 2.67732e+01) < 4*2.95573e+01) h4->Fill(E);
+			}
 		}
 	} else if(particle.CompareTo("triton") == 0) {
 		if(arm.CompareTo("SiR") == 0) {
@@ -476,13 +490,7 @@ TLegend *legend = new TLegend(.240, .598, .512, .868);
 
 void Combined(Double_t *pidError, Double_t *dtError, Double_t *lifetimeError, TString arm, TString particle) {
 	TFile *fUnfolded = new TFile(Form("%s/unfolded.ti50.root", getenv("R15b_OUT") ), "READ");
-        TH1D *hUncorrected = 0;
-        if(arm.CompareTo("SiL") == 0) {
-                hUncorrected = (TH1D *)fUnfolded->Get("hproton_SiL");
-        } else {
-                hUncorrected = (TH1D *)fUnfolded->Get("hproton_SiR");
-        }
-
+        TH1D *hUncorrected = (TH1D *)fUnfolded->Get(Form("h%s_%s", particle.Data(), arm.Data() ) );
 	TH1D *hSystematics = (TH1D *) hUncorrected->Clone();
 	for(int i=8; i<=40; ++i) { //instead of 8, 50
 		Double_t centralValue = hUncorrected->GetBinContent(i);
