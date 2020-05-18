@@ -18,19 +18,50 @@ void UnfoldingUncertainties(TH1D *hMeas, TString arm, TString particle, Double_t
 	if(arm.CompareTo("SiR") == 0) {
 		response = R_TM;
 	}
+
+//	TCanvas *iterCanvas = new TCanvas("iterCanvas", "iterCanvas");
+//	for (int iter=1; iter < 10; iter++) {
+//		TH1D *hReco = 0;
+//		TH1D *hRecoError = new TH1D(Form("hRecoError_%d", iter), Form("RecoError_%d", iter), 50, 0, 25);
+//		RooUnfoldBayes unfold(response, hMeas, iter);
+//		hReco = (TH1D*) unfold.Hreco();
+//		TVectorD error = unfold.ErecoV(RooUnfold::ErrorTreatment::kCovariance); //diagonals of the cov matrix
+//		for(int i=0; i < error.GetNoElements(); ++i) {
+//			hRecoError->SetBinContent(i, error[i]);
+//		}
+//		hRecoError->SetMarkerStyle(iter+20);
+//		if(iter ==1) hRecoError->Draw();
+//		if(iter !=1) hRecoError->Draw("SAME");
+//	}
+//	iterCanvas->BuildLegend();
+//	iterCanvas->Draw();
+
+//	TCanvas *test = new TCanvas("test", "test");
+//	for (int iter=1; iter < 10; iter++) {
+//		TH1D *hReco = new TH1D(Form("hReco_%d", iter), Form("Reco_%d", iter), 50, 0, 25);
+//		RooUnfoldBayes unfold(response, hMeas, iter);
+//		hReco = (TH1D*) unfold.Hreco();
+//		hReco->SetMarkerStyle(iter+20);
+//		if(iter ==1) hReco->Draw();
+//		if(iter !=1) hReco->Draw("SAME");
+//	}
+//	test->BuildLegend();
+//	test->Draw();
+
+
 	TH1D *hReco = 0;
-	RooUnfoldBayes unfold(response, hMeas, 4);
+	RooUnfoldBayes unfold(response, hMeas, 1);
 	hReco = (TH1D*) unfold.Hreco();
 	TVectorD error = unfold.ErecoV(RooUnfold::ErrorTreatment::kCovariance); //diagonals of the cov matrix
 	std::cout << "unfolding errors" << std::endl;
 	std::cout << "E bin\t|" << "error" << std::endl;
-	for(int i=0; i < error.GetNoElements(); ++i) {
+	for(int i=0; i <= error.GetNoElements(); ++i) {
 		if(hReco->GetBinContent(i) != 0) {
 			unfoldingError[i] = error[i] / hReco->GetBinContent(i);
 		} else {
 			unfoldingError[i] = 0;
 		}
-		std::cout << i*.5 << "\t|" << unfoldingError[i] << std::endl;
+		std::cout << (i-1)*.5 << "\t|" << unfoldingError[i] << " " << error[i] << " " << hReco->GetBinContent(i) << std::endl;
 	}
 }
 
@@ -44,7 +75,7 @@ TH1D * Process(TH1D *hMeas, TString arm, TString particle, TString cutDescriptio
 	}
 	TH1D *hReco = 0;
 	if(algorithm.CompareTo("Bayes") == 0) {
-		RooUnfoldBayes unfold(response, hMeas); //unbiased but incomplete regularisation
+		RooUnfoldBayes unfold(response, hMeas, 1); //unbiased but incomplete regularisation
 		hReco = (TH1D*) unfold.Hreco();
 	} else if(algorithm.CompareTo("SVD") == 0 ) {
 		RooUnfoldSvd unfold(response, hMeas); //regularized decomposition
@@ -446,11 +477,11 @@ void Pid(TTree *tree, Double_t *pidError, Double_t *unfoldingError, TString arm,
 	for(Long64_t i=0; i < tree->GetEntries(); ++i) {
 		tree->GetEntry(i);
 		if(timeToPrevTME < 10e3 || timeToNextTME < 10e3) continue;
-		if(t2<500) continue;
+		if(t2<400) continue;
 		if(abs(t2)>10e3) continue;
 		if(abs(t2-t1-13) > 23 * 4 ) continue;
 		if(TMath::IsNaN(e3) ) {
-			if(arm.CompareTo("SiR") ) {
+			if(arm.CompareTo("SiR") == 0 ) {
 				if(a2 > 3986) continue; //remove saturation
 				if(!channel->Contains("SiR") ) continue;
 			} else {
@@ -506,28 +537,29 @@ void Finally(Double_t *unfoldingError, Double_t *pidError, Double_t *dtError, Do
 	TString target = "al50";
 	Int_t nbins = 50;
 	//where does this error come from?
-	TH1D *hUnfolding = new TH1D("hUnfolding", "Unfolding;E [keV]", nbins, 0, 25); hUnfolding->SetFillColor(kOrange);
 	TH1D *hPid = new TH1D("hPid", "PID;E [keV]", nbins, 0, 25); hPid->SetFillColor(kRed);
 	TH1D *hDt = new TH1D("hDt", "t_{2}-t_{1};E [keV]", nbins, 0, 25); hDt->SetFillColor(kGreen);
 	TH1D *hLifetime = new TH1D("hLifetime", "#tau;E [keV]", nbins, 0, 25); hLifetime->SetFillColor(kBlue);
-	for(int i=1; i<=nbins; ++i) {
-		hUnfolding->SetBinContent(i, unfoldingError[i]);
-		hPid->SetBinContent(i, pidError[i]);
-		hDt->SetBinContent(i, dtError[i]);
-		hLifetime->SetBinContent(i, lifetimeError[i]);
+	TH1D *hUnfolding = new TH1D("hUnfolding", "Unfolding;E [keV]", nbins, 0, 25); hUnfolding->SetFillColor(kOrange);
+//	for(int i=1; i<=nbins; ++i) {
+	for(int i=8; i<=40; ++i) {
+		hPid->SetBinContent(i, abs(pidError[i]) );
+		hDt->SetBinContent(i, abs(dtError[i]) );
+		hLifetime->SetBinContent(i, abs(lifetimeError[i]) );
+		hUnfolding->SetBinContent(i, abs(unfoldingError[i] ));
 	}
 	THStack *hSystematics = new THStack("hSystematics", "Systematic errors");
-	hSystematics->Add(hUnfolding);
 	hSystematics->Add(hPid);
 	hSystematics->Add(hDt);
 	hSystematics->Add(hLifetime);
+	hSystematics->Add(hUnfolding);
 
 	TLegend *legend = new TLegend(.240, .598, .512, .868);
 	legend->SetHeader(Form("#bf{AlCap} #it{Al50} %s Systematics", arm.Data() ) );
-	legend->AddEntry(hUnfolding, "Unfolding", "F");
 	legend->AddEntry(hPid, "PID", "F");
 	legend->AddEntry(hDt, "#Delta t", "F");
 	legend->AddEntry(hLifetime, "#tau", "F");
+	legend->AddEntry(hUnfolding, "Unfolding", "F");
 
 	TCanvas *cFinal = new TCanvas("c", "c");
 	cFinal->SetGridx();
@@ -536,7 +568,6 @@ void Finally(Double_t *unfoldingError, Double_t *pidError, Double_t *dtError, Do
 	hSystematics->GetXaxis()->SetTitle("E[MeV]");
 	hSystematics->GetYaxis()->SetTitle("Fractional");
 	legend->Draw("SAME");
-hSystematics->GetXaxis()->SetRangeUser(4., 20.);
 	cFinal->Draw();
 	const char *FigsDir = getenv("R15b_OUT");
 	cFinal->SaveAs(Form("%s/AlCapData_Al50Dataset_%s_%s-Systematics.pdf", FigsDir, arm.Data(), particle.Data() ) );
@@ -565,6 +596,8 @@ void Combined(Double_t *unfoldingError, Double_t *pidError, Double_t *dtError, D
 	legend->AddEntry(hUncorrected, "Statistical", "F");
 
 	TCanvas *system = new TCanvas("system", "system");
+	system->SetGridx();
+	system->SetGridy();
 	hUnfoldSys->Draw("E3");
 	hUnfoldSys->GetXaxis()->SetTitle("E[MeV]");
 	hUnfoldSys->GetYaxis()->SetTitle(Form("%ss per captured muon per 0.5 MeV", particle.Data() )  );
