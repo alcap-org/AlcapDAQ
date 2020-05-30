@@ -6,6 +6,30 @@
 #include "RooUnfoldBayes.h"
 #endif
 
+void UnfoldingUncertainties(TH1D *hMeas, TString arm, TString particle, Double_t *unfoldingError) {
+	TFile *responseMatrixFile = new TFile(Form("%s/transfer.sf1.03.ti50.%s.root", getenv("R15b_TM"), particle.Data() ), "READ");
+	RooUnfoldResponse *L_TM = (RooUnfoldResponse *)responseMatrixFile->Get("SiL500_TM");
+	RooUnfoldResponse *R_TM = (RooUnfoldResponse *)responseMatrixFile->Get("SiR500_TM");
+	RooUnfoldResponse *response = L_TM;
+	if(arm.CompareTo("SiR") == 0) {
+		response = R_TM;
+	}
+
+	TH1D *hReco = 0;
+	RooUnfoldBayes unfold(response, hMeas, 1);
+	hReco = (TH1D*) unfold.Hreco();
+	TVectorD error = unfold.ErecoV(RooUnfold::ErrorTreatment::kCovariance); //diagonals of the cov matrix
+	std::cout << "unfolding errors" << std::endl;
+	std::cout << "E bin\t|" << "error" << std::endl;
+	for(int i=0; i <= error.GetNoElements(); ++i) {
+		if(hReco->GetBinContent(i) != 0) {
+			unfoldingError[i] = error[i] / hReco->GetBinContent(i);
+		} else {
+			unfoldingError[i] = 0;
+		}
+	}
+}
+
 TH1D * Process(TH1D *hMeas, TString arm, TString particle, TString cutDescription) {
 	TFile *responseMatrixFile = new TFile(Form("%s/transfer.sf1.03.ti50.%s.root", getenv("R15b_TM"), particle.Data() ), "READ");
 	RooUnfoldResponse *L_TM = (RooUnfoldResponse *)responseMatrixFile->Get("SiL500_TM");
@@ -14,7 +38,7 @@ TH1D * Process(TH1D *hMeas, TString arm, TString particle, TString cutDescriptio
 	if(arm.CompareTo("SiR") == 0) {
 		response = R_TM;
 	}
-	RooUnfoldBayes unfold(response, hMeas);
+	RooUnfoldBayes unfold(response, hMeas, 1);
 	TH1D* hReco= (TH1D*) unfold.Hreco();
 	hReco->SetTitle(Form("Unfolded %s %s %s", arm.Data(), particle.Data(), cutDescription.Data() ) );
 	std::cout << arm << " " << particle << std::endl;
@@ -349,7 +373,7 @@ void dt(TTree *tree, Double_t *dtError, TString arm, TString particle) {
 		}
 	}
 }
-void Pid(TTree *tree, Double_t *pidError, TString arm, TString particle) {
+void Pid(TTree *tree, Double_t *pidError, Double_t *unfoldingError, TString arm, TString particle) {
 	Double_t scale = 1/0.77;
 	Double_t t1, t2, t3, e1, e2, e3, timeToPrevTME, timeToNextTME;
 	Int_t a2;
@@ -400,7 +424,7 @@ void Pid(TTree *tree, Double_t *pidError, TString arm, TString particle) {
 		if(abs(t2)>10e3) continue;
 		if(abs(t2-t1-13) > 23 * 4 ) continue;
 		if(TMath::IsNaN(e3) ) {
-			if(arm.CompareTo("SiR") ) {
+			if(arm.CompareTo("SiR") == 0) {
 				if(a2 > 3986) continue; //remove saturation
 				if(!channel->Contains("SiR") ) continue;
 			} else {
@@ -432,6 +456,8 @@ void Pid(TTree *tree, Double_t *pidError, TString arm, TString particle) {
 	TH1D *hThreeUnf = Process(hThree, arm, particle, "3#sigma");
 	TH1D *hFourUnf = Process(hFour, arm, particle, "4#sigma");
 
+	UnfoldingUncertainties(hThree, arm, particle, unfoldingError);
+
 	std::cout << "PID" << std::endl;
 	std::cout << "E bin\t|" << "1σ\t|" << "2σ\t|" << "3σ\t|" << "4σ" << std::endl;
 	for(int j=1; j<=nbins; ++j) { //ignore under and overflow bins
@@ -450,30 +476,33 @@ void Pid(TTree *tree, Double_t *pidError, TString arm, TString particle) {
 	}
 }
 
-void Finally(Double_t *pidError, Double_t *dtError, Double_t *lifetimeError, TString arm, TString particle) {
+void Finally(Double_t *unfoldingError, Double_t *pidError, Double_t *dtError, Double_t *lifetimeError, TString arm, TString particle) {
 	Int_t nbins = 50;
+	//where does this error come from?
 	TH1D *hPid = new TH1D("hPid", "PID;E [keV]", nbins, 0, 25); hPid->SetFillColor(kRed);
 	TH1D *hDt = new TH1D("hDt", "t_{2}-t_{1};E [keV]", nbins, 0, 25); hDt->SetFillColor(kGreen);
 	TH1D *hLifetime = new TH1D("hLifetime", "#tau;E [keV]", nbins, 0, 25); hLifetime->SetFillColor(kBlue);
-	for(int i=1; i<=nbins; ++i) {
-		hPid->SetBinContent(i, pidError[i]);
-		hDt->SetBinContent(i, dtError[i]);
-		hLifetime->SetBinContent(i, lifetimeError[i]);
+	TH1D *hUnfolding = new TH1D("hUnfolding", "Unfolding;E [keV]", nbins, 0, 25); hUnfolding->SetFillColor(kOrange);
+	int drawlimit = 40;
+	if(arm.CompareTo("SiL") == 0) drawlimit = 32;
+	for(int i=8; i<=drawlimit; ++i) {
+		hPid->SetBinContent(i, abs(pidError[i]) );
+		hDt->SetBinContent(i, abs(dtError[i]) );
+		hLifetime->SetBinContent(i, abs(lifetimeError[i]) );
+		hUnfolding->SetBinContent(i, abs(unfoldingError[i] ));
 	}
 	THStack *hSystematics = new THStack("hSystematics", "Systematic errors");
 	hSystematics->Add(hPid);
 	hSystematics->Add(hDt);
 	hSystematics->Add(hLifetime);
+	hSystematics->Add(hUnfolding);
 
-TLegend *legend = new TLegend(.240, .598, .512, .868);
-//TLegend *legend = new TLegend(0.266476, 0.598739, 0.593123, 0.869748); //deuteron, triton
-//TLegend *legend = new TLegend(0.146132, 0.598739, 0.434097, 0.869748); //alpha
-
-
+	TLegend *legend = new TLegend(.240, .598, .512, .868);
 	legend->SetHeader(Form("#bf{AlCap} #it{Ti50} %s Systematics", arm.Data() ) );
 	legend->AddEntry(hPid, "PID", "F");
 	legend->AddEntry(hDt, "#Delta t", "F");
 	legend->AddEntry(hLifetime, "#tau", "F");
+	legend->AddEntry(hUnfolding, "Unfolding", "F");
 
 	TCanvas *cFinal = new TCanvas("c", "c");
 	cFinal->SetGridx();
@@ -488,26 +517,38 @@ TLegend *legend = new TLegend(.240, .598, .512, .868);
 	cFinal->SaveAs(Form("%s/AlCapData_Ti50Dataset_%s_%s-Systematics.png", FigsDir, arm.Data(), particle.Data() ) );
 }
 
-void Combined(Double_t *pidError, Double_t *dtError, Double_t *lifetimeError, TString arm, TString particle) {
+void Combined(Double_t *unfoldingError, Double_t *pidError, Double_t *dtError, Double_t *lifetimeError, TString arm, TString particle) {
 	TFile *fUnfolded = new TFile(Form("%s/unfolded.ti50.root", getenv("R15b_OUT") ), "READ");
         TH1D *hUncorrected = (TH1D *)fUnfolded->Get(Form("h%s_%s", particle.Data(), arm.Data() ) );
+	TFile *fOutput = new TFile("ti50-systematics.root", "UPDATE");
+
 	TH1D *hSystematics = (TH1D *) hUncorrected->Clone();
-	for(int i=8; i<=40; ++i) { //instead of 8, 50
+	TH1D *hUnfoldSys = (TH1D *) hUncorrected->Clone();
+	hSystematics->SetName(Form("h%s_%s_ti50", particle.Data(), arm.Data() ) );
+	int drawlimit = 40;
+	if(arm.CompareTo("SiL") == 0) drawlimit = 32;
+	for(int i=8; i<=drawlimit; ++i) {
 		Double_t centralValue = hUncorrected->GetBinContent(i);
-		Double_t withCombinedUncertainties = centralValue * TMath::Sqrt(hUncorrected->GetBinError(i) + TMath::Power(pidError[i], 2) + TMath::Power(dtError[i], 2) + TMath::Power(lifetimeError[i], 2) + 2*(pidError[i]*dtError[i] + pidError[i]*lifetimeError[i]+ dtError[i]*lifetimeError[i]) );
-		hSystematics->SetBinError(i, withCombinedUncertainties); //with systematic uncertainties
+		Double_t withCombinedCutSystematics = hUncorrected->GetBinError(i) + centralValue * TMath::Sqrt(TMath::Power(pidError[i], 2) + TMath::Power(dtError[i], 2) + TMath::Power(lifetimeError[i], 2) + 2*(pidError[i]*dtError[i] + pidError[i]*lifetimeError[i]+ dtError[i]*lifetimeError[i]) );
+		hSystematics->SetBinError(i, withCombinedCutSystematics); //with systematic uncertainties
+		hUnfoldSys->SetBinError(i, withCombinedCutSystematics + centralValue * unfoldingError[i]);
 	}
 
 	TLegend *legend = new TLegend(.640, .598, .852, .868);
 	legend->SetHeader(Form("#bf{AlCap} #it{Ti50} %s", arm.Data() ) );
+	legend->AddEntry(hUnfoldSys, "Unfolding", "F");
 	legend->AddEntry(hSystematics, "Systematics", "F");
 	legend->AddEntry(hUncorrected, "Statistical", "F");
 
 	TCanvas *system = new TCanvas("system", "system");
-	hSystematics->Draw("E3");
-	hSystematics->GetXaxis()->SetTitle("E[MeV]");
-	hSystematics->GetYaxis()->SetTitle(Form("%ss per captured muon per 0.5 MeV", particle.Data() )  );
-	hSystematics->GetYaxis()->SetMaxDigits(3);
+	system->SetGridx();
+	system->SetGridy();
+	hUnfoldSys->Draw("E3");
+	hUnfoldSys->GetXaxis()->SetTitle("E[MeV]");
+	hUnfoldSys->GetYaxis()->SetTitle(Form("%ss per captured muon per 0.5 MeV", particle.Data() )  );
+	hUnfoldSys->GetYaxis()->SetMaxDigits(3);
+	hUnfoldSys->SetFillColor(kOrange);
+	hSystematics->Draw("E3 SAME");
 	hSystematics->SetFillColor(kYellow);
 	hUncorrected->Draw("E3 SAME");
 	hUncorrected->SetFillColor(kGreen);
@@ -515,6 +556,7 @@ void Combined(Double_t *pidError, Double_t *dtError, Double_t *lifetimeError, TS
 	system->Draw();
 	system->SaveAs(Form("%s/AlCapData_Ti50Dataset_%s_%s-Systematics-Combined.pdf", getenv("R15b_OUT"), arm.Data(), particle.Data() ) );
 	system->SaveAs(Form("%s/AlCapData_Ti50Dataset_%s_%s-Systematics-Combined.png", getenv("R15b_OUT"), arm.Data(), particle.Data() ) );
+	fOutput->Write();
 }
 
 void SystematicsTi(TString arm = "SiR", TString particle = "proton") {
@@ -527,15 +569,16 @@ void SystematicsTi(TString arm = "SiR", TString particle = "proton") {
 	Double_t dtError[nbins] = {0}; //0 -> 25MeV with 500keV bins
 	Double_t lifetimeError[nbins] = {0};
 	Double_t pidError[nbins] = {0};
+	Double_t unfoldingError[nbins] = {0};
 
 	TFile *fData = new TFile(Form("%s/ti50.root", getenv("R15b_DATA") ), "READ");
 	TTree *tree = (TTree *)fData->Get("tree");
 
 	lifetime(tree, lifetimeError, arm, particle);
 	dt(tree, dtError, arm, particle);
-	Pid(tree, pidError, arm, particle);
-	Finally(pidError, dtError, lifetimeError, arm, particle);
-	Combined(pidError, dtError, lifetimeError, arm, particle);
+	Pid(tree, pidError, unfoldingError, arm, particle);
+	Finally(unfoldingError, pidError, dtError, lifetimeError, arm, particle);
+	Combined(unfoldingError, pidError, dtError, lifetimeError, arm, particle);
 
 	delete tree;
 }

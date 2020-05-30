@@ -33,7 +33,7 @@ fit->FixParameter(4, 8);
         std::cout << "chi2/ndf: " << fit->GetChisquare() << "/" << fit->GetNDF() << std::endl;
 }
 void Process(RooUnfoldResponse *response, TH1D *hMeas, const char *arm = "SiL", std::string target = "al50", const char * particle = "proton", bool normalise = kFALSE) {
-	RooUnfoldBayes unfold(response, hMeas, 1);
+	RooUnfoldBayes unfold(response, hMeas);
 	TH1D* hReco= (TH1D*) unfold.Hreco();
 	hReco->SetName(Form("h%s_%s", particle, arm) );
 	std::cout << std::fixed;
