@@ -289,7 +289,7 @@ void dtFill(Double_t t2, Double_t t1, Double_t E, TH1D *h1, TH1D *h2, TH1D *h3, 
 				if(abs(t2-t1 - 8.14451e+00) < 4*1.82157e+01) h4->Fill(E);
 			}
 			for(int i=0; i < c; ++i) {
-				if(abs(E-energy[i])<1) {
+				if(abs(E-energy[i])<.5) {
 					if(abs(t2-t1 - mean[i]) <   sigma[i]) h1->Fill(E);
 					if(abs(t2-t1 - mean[i]) < 2*sigma[i]) h2->Fill(E);
 					if(abs(t2-t1 - mean[i]) < 3*sigma[i]) h3->Fill(E);
@@ -314,7 +314,7 @@ void dtFill(Double_t t2, Double_t t1, Double_t E, TH1D *h1, TH1D *h2, TH1D *h3, 
 				if(abs(t2-t1 - 5.72919e+00 ) < 4*2.47974e+01) h4->Fill(E);
 			}
 			for(int i=0; i < c; ++i) {
-				if(abs(E-energy[i])<1) {
+				if(abs(E-energy[i])<.5) {
 					if(abs(t2-t1 - mean[i]) <   sigma[i]) h1->Fill(E);
 					if(abs(t2-t1 - mean[i]) < 2*sigma[i]) h2->Fill(E);
 					if(abs(t2-t1 - mean[i]) < 3*sigma[i]) h3->Fill(E);
@@ -330,27 +330,107 @@ void dtFill(Double_t t2, Double_t t1, Double_t E, TH1D *h1, TH1D *h2, TH1D *h3, 
 		}
 	} else if(particle.CompareTo("triton") == 0) {
 		if(arm.CompareTo("SiR") == 0) {
-			if(abs(t2-t1 - 11.5054) <   14.6790) h1->Fill(E);
-			if(abs(t2-t1 - 11.5054) < 2*14.6790) h2->Fill(E);
-			if(abs(t2-t1 - 11.5054) < 3*14.6790) h3->Fill(E);
-			if(abs(t2-t1 - 11.5054) < 4*14.6790) h4->Fill(E);
+			const int c = 7;
+			double energy[c] = {5.         , 7.         , 9.         , 11.        , 13.        , 15.        , 17.        };
+			double mean[c]   = {1.43615e+01, 1.41943e+01, 1.12490e+01, 9.18983e+00, 8.85546e+00, 4.39997e+00, 4.81629e+00};
+			double sigma[c]  = {1.03597e+01, 1.11212e+01, 1.38507e+01, 1.65536e+01, 1.93905e+01, 2.58679e+01, 2.34997e+01};
+			if(E<4.0) {
+				if(abs(t2-t1 - 9.47768e+00 ) <   1.44954e+01) h1->Fill(E);
+				if(abs(t2-t1 - 9.47768e+00 ) < 2*1.44954e+01) h2->Fill(E);
+				if(abs(t2-t1 - 9.47768e+00 ) < 3*1.44954e+01) h3->Fill(E);
+				if(abs(t2-t1 - 9.47768e+00 ) < 4*1.44954e+01) h4->Fill(E);
+			}
+			for(int i=0; i < c; ++i) {
+				if(abs(E-energy[i])<1.) {
+					if(abs(t2-t1 - mean[i]) <   sigma[i]) h1->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 2*sigma[i]) h2->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 3*sigma[i]) h3->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 4*sigma[i]) h4->Fill(E);
+				}
+			}
+			if(E>18.000) {
+				if(abs(t2-t1 + 2.85782e+00 ) <   4.20486e+01) h1->Fill(E);
+				if(abs(t2-t1 + 2.85782e+00 ) < 2*4.20486e+01) h2->Fill(E);
+				if(abs(t2-t1 + 2.85782e+00 ) < 3*4.20486e+01) h3->Fill(E);
+				if(abs(t2-t1 + 2.85782e+00 ) < 4*4.20486e+01) h4->Fill(E);
+			}
 		} else {
-			if(abs(t2-t1 - 12.3712) <   20.4712) h1->Fill(E);
-			if(abs(t2-t1 - 12.3712) < 2*20.4712) h2->Fill(E);
-			if(abs(t2-t1 - 12.3712) < 3*20.4712) h3->Fill(E);
-			if(abs(t2-t1 - 12.3712) < 4*20.4712) h4->Fill(E);
+			const int c = 7;
+			double energy[c] = {5.         , 7.         , 9.         , 11.        , 13.        , 15.        , 17.        };
+			double mean[c]   = {1.34600e+01, 1.48010e+01, 1.52866e+01, 7.37621e+00, 5.18502e+00, 4.36898e+00, 1.42361e+01};
+			double sigma[c]  = {1.89357e+01, 1.80846e+01, 1.92937e+01, 1.99088e+01, 2.21445e+01, 2.44698e+01, 3.29257e+01};
+			if(E<4.0) {
+				if(abs(t2-t1 - 1.01630e+01 ) <   2.07438e+01) h1->Fill(E);
+				if(abs(t2-t1 - 1.01630e+01 ) < 2*2.07438e+01) h2->Fill(E);
+				if(abs(t2-t1 - 1.01630e+01 ) < 3*2.07438e+01) h3->Fill(E);
+				if(abs(t2-t1 - 1.01630e+01 ) < 4*2.07438e+01) h4->Fill(E);
+			}
+			for(int i=0; i < c; ++i) {
+				if(abs(E-energy[i])<1.) {
+					if(abs(t2-t1 - mean[i]) <   sigma[i]) h1->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 2*sigma[i]) h2->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 3*sigma[i]) h3->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 4*sigma[i]) h4->Fill(E);
+				}
+			}
+			if(E>18.000) {
+				if(abs(t2-t1 - 1.08323e+01 ) <   3.10974e+01) h1->Fill(E);
+				if(abs(t2-t1 - 1.08323e+01 ) < 2*3.10974e+01) h2->Fill(E);
+				if(abs(t2-t1 - 1.08323e+01 ) < 3*3.10974e+01) h3->Fill(E);
+				if(abs(t2-t1 - 1.08323e+01 ) < 4*3.10974e+01) h4->Fill(E);
+			}
 		}
 	} else if(particle.CompareTo("alpha") == 0) {
 		if(arm.CompareTo("SiR") == 0) {
-			if(abs(t2-t1 - 20.0349) <   6.90189) h1->Fill(E);
-			if(abs(t2-t1 - 20.0349) < 2*6.90189) h2->Fill(E);
-			if(abs(t2-t1 - 20.0349) < 3*6.90189) h3->Fill(E);
-			if(abs(t2-t1 - 20.0349) < 4*6.90189) h4->Fill(E);
+			const int c = 4;
+			double energy[c] = {11.        , 13.        , 15.        , 17.        };
+			double mean[c]   = {2.33144e+01, 2.20304e+01, 1.63956e+01, 1.23506e+01};
+			double sigma[c]  = {4.58768e+00, 5.85964e+00, 3.89140e+00, 6.19020e+00};
+			if(E<10.0) {
+				if(abs(t2-t1 - 2.37704e+01 ) <   6.34680e+00) h1->Fill(E);
+				if(abs(t2-t1 - 2.37704e+01 ) < 2*6.34680e+00) h2->Fill(E);
+				if(abs(t2-t1 - 2.37704e+01 ) < 3*6.34680e+00) h3->Fill(E);
+				if(abs(t2-t1 - 2.37704e+01 ) < 4*6.34680e+00) h4->Fill(E);
+			}
+			for(int i=0; i < c; ++i) {
+				if(abs(E-energy[i])<1.) {
+					if(abs(t2-t1 - mean[i]) <   sigma[i]) h1->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 2*sigma[i]) h2->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 3*sigma[i]) h3->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 4*sigma[i]) h4->Fill(E);
+				}
+			}
+			if(E>18.000) {
+				if(abs(t2-t1 - 5.85122e+00 ) <   1.59851e+01) h1->Fill(E);
+				if(abs(t2-t1 - 5.85122e+00 ) < 2*1.59851e+01) h2->Fill(E);
+				if(abs(t2-t1 - 5.85122e+00 ) < 3*1.59851e+01) h3->Fill(E);
+				if(abs(t2-t1 - 5.85122e+00 ) < 4*1.59851e+01) h4->Fill(E);
+			}
 		} else {
-			if(abs(t2-t1 - 15.0798) <   18.7265) h1->Fill(E);
-			if(abs(t2-t1 - 15.0798) < 2*18.7265) h2->Fill(E);
-			if(abs(t2-t1 - 15.0798) < 3*18.7265) h3->Fill(E);
-			if(abs(t2-t1 - 15.0798) < 4*18.7265) h4->Fill(E);
+			const int c = 4;
+			double energy[c] = {11.        , 13.        , 15.        , 17.        };
+			double mean[c]   = {1.72773e+01, 9.35924e+00, 4.71938e+00, 1.11704e+01};
+			double sigma[c]  = {1.98657e+01, 2.58570e+01, 3.03777e+01, 2.99396e+01};
+			if(E<10.0) {
+				if(abs(t2-t1 - 2.01136e+01) <   1.98342e+01) h1->Fill(E);
+				if(abs(t2-t1 - 2.01136e+01) < 2*1.98342e+01) h2->Fill(E);
+				if(abs(t2-t1 - 2.01136e+01) < 3*1.98342e+01) h3->Fill(E);
+				if(abs(t2-t1 - 2.01136e+01) < 4*1.98342e+01) h4->Fill(E);
+			}
+			for(int i=0; i < c; ++i) {
+				if(abs(E-energy[i])<1.) {
+					if(abs(t2-t1 - mean[i]) <   sigma[i]) h1->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 2*sigma[i]) h2->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 3*sigma[i]) h3->Fill(E);
+					if(abs(t2-t1 - mean[i]) < 4*sigma[i]) h4->Fill(E);
+				}
+			}
+			if(E>18.000) {
+				if(abs(t2-t1 - 1.62286e+01 ) <   1.87028e+01) h1->Fill(E);
+				if(abs(t2-t1 - 1.62286e+01 ) < 2*1.87028e+01) h2->Fill(E);
+				if(abs(t2-t1 - 1.62286e+01 ) < 3*1.87028e+01) h3->Fill(E);
+				if(abs(t2-t1 - 1.62286e+01 ) < 4*1.87028e+01) h4->Fill(E);
+			}
 		}
 	}
 }
@@ -558,27 +638,27 @@ void Finally(Double_t *unfoldingError, Double_t *pidError, Double_t *dtError, Do
 	TH1D *hPid = new TH1D("hPid", "PID;E [keV]", nbins, 0, 25); hPid->SetFillColor(kRed);
 	TH1D *hDt = new TH1D("hDt", "t_{2}-t_{1};E [keV]", nbins, 0, 25); hDt->SetFillColor(kGreen);
 	TH1D *hLifetime = new TH1D("hLifetime", "#tau;E [keV]", nbins, 0, 25); hLifetime->SetFillColor(kBlue);
-	TH1D *hUnfolding = new TH1D("hUnfolding", "Unfolding;E [keV]", nbins, 0, 25); hUnfolding->SetFillColor(kOrange);
+//	TH1D *hUnfolding = new TH1D("hUnfolding", "Unfolding;E [keV]", nbins, 0, 25); hUnfolding->SetFillColor(kOrange);
 	int drawlimit = 40;
 	if(arm.CompareTo("SiL") == 0) drawlimit = 32;
 	for(int i=8; i<=drawlimit; ++i) {
 		hPid->SetBinContent(i, abs(pidError[i]) );
 		hDt->SetBinContent(i, abs(dtError[i]) );
 		hLifetime->SetBinContent(i, abs(lifetimeError[i]) );
-		hUnfolding->SetBinContent(i, abs(unfoldingError[i] ));
+//		hUnfolding->SetBinContent(i, abs(unfoldingError[i] ));
 	}
 	THStack *hSystematics = new THStack("hSystematics", "Systematic errors");
 	hSystematics->Add(hPid);
 	hSystematics->Add(hDt);
 	hSystematics->Add(hLifetime);
-	hSystematics->Add(hUnfolding);
+//	hSystematics->Add(hUnfolding);
 
 	TLegend *legend = new TLegend(.240, .598, .512, .868);
 	legend->SetHeader(Form("#bf{AlCap} #it{Al50} %s Systematics", arm.Data() ) );
 	legend->AddEntry(hPid, "PID", "F");
 	legend->AddEntry(hDt, "#Delta t", "F");
 	legend->AddEntry(hLifetime, "#tau", "F");
-	legend->AddEntry(hUnfolding, "Unfolding", "F");
+//	legend->AddEntry(hUnfolding, "Unfolding", "F");
 
 	TCanvas *cFinal = new TCanvas("c", "c");
 	cFinal->SetGridx();
@@ -599,7 +679,7 @@ void Combined(Double_t *unfoldingError, Double_t *pidError, Double_t *dtError, D
 	TFile *fOutput = new TFile("al50-systematics.root", "UPDATE");
 
 	TH1D *hSystematics = (TH1D *) hUncorrected->Clone();
-	TH1D *hUnfoldSys = (TH1D *) hUncorrected->Clone();
+//	TH1D *hUnfoldSys = (TH1D *) hUncorrected->Clone();
 	hSystematics->SetName(Form("h%s_%s_al50", particle.Data(), arm.Data() ) );
 	int drawlimit = 40;
 	if(arm.CompareTo("SiL") == 0) drawlimit = 32;
@@ -607,24 +687,24 @@ void Combined(Double_t *unfoldingError, Double_t *pidError, Double_t *dtError, D
 		Double_t centralValue = hUncorrected->GetBinContent(i);
 		Double_t withCombinedCutSystematics = hUncorrected->GetBinError(i) + centralValue * TMath::Sqrt(TMath::Power(pidError[i], 2) + TMath::Power(dtError[i], 2) + TMath::Power(lifetimeError[i], 2) + 2*(pidError[i]*dtError[i] + pidError[i]*lifetimeError[i]+ dtError[i]*lifetimeError[i]) );
 		hSystematics->SetBinError(i, withCombinedCutSystematics); //with systematic uncertainties
-		hUnfoldSys->SetBinError(i, withCombinedCutSystematics + centralValue * unfoldingError[i]);
+//		hUnfoldSys->SetBinError(i, withCombinedCutSystematics + centralValue * unfoldingError[i]);
 	}
 
 	TLegend *legend = new TLegend(.640, .598, .852, .868);
 	legend->SetHeader(Form("#bf{AlCap} #it{Al50} %s", arm.Data() ) );
-	legend->AddEntry(hUnfoldSys, "Unfolding", "F");
+//	legend->AddEntry(hUnfoldSys, "Unfolding", "F");
 	legend->AddEntry(hSystematics, "Systematics", "F");
 	legend->AddEntry(hUncorrected, "Statistical", "F");
 
 	TCanvas *system = new TCanvas("system", "system");
 	system->SetGridx();
 	system->SetGridy();
-	hUnfoldSys->Draw("E3");
-	hUnfoldSys->GetXaxis()->SetTitle("E[MeV]");
-	hUnfoldSys->GetYaxis()->SetTitle(Form("%ss per captured muon per 0.5 MeV", particle.Data() )  );
-	hUnfoldSys->GetYaxis()->SetMaxDigits(3);
-	hUnfoldSys->SetFillColor(kOrange);
-	hSystematics->Draw("E3 SAME");
+//	hUnfoldSys->Draw("E3");
+//	hUnfoldSys->GetXaxis()->SetTitle("E[MeV]");
+//	hUnfoldSys->GetYaxis()->SetTitle(Form("%ss per captured muon per 0.5 MeV", particle.Data() )  );
+//	hUnfoldSys->GetYaxis()->SetMaxDigits(3);
+//	hUnfoldSys->SetFillColor(kOrange);
+	hSystematics->Draw("E3");
 	hSystematics->SetFillColor(kYellow);
 	hUncorrected->Draw("E3 SAME");
 	hUncorrected->SetFillColor(kGreen);
@@ -650,11 +730,11 @@ void Systematics(TString arm = "SiR", TString particle = "proton") {
 	TFile *fData = new TFile(Form("%s/al50.root", getenv("R15b_DATA") ), "READ");
 	TTree *tree = (TTree *)fData->Get("tree");
 
-//	lifetime(tree, lifetimeError, arm, particle);
-//	dt(tree, dtError, arm, particle);
+	lifetime(tree, lifetimeError, arm, particle);
+	dt(tree, dtError, arm, particle);
 	Pid(tree, pidError, unfoldingError, arm, particle);
-//	Finally(unfoldingError, pidError, dtError, lifetimeError, arm, particle);
-//	Combined(unfoldingError, pidError, dtError, lifetimeError, arm, particle);
+	Finally(unfoldingError, pidError, dtError, lifetimeError, arm, particle);
+	Combined(unfoldingError, pidError, dtError, lifetimeError, arm, particle);
 
 	delete tree;
 }

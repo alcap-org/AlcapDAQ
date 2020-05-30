@@ -61,15 +61,15 @@ void Process(RooUnfoldResponse *response, TH1D *hMeas, const char *arm = "SiL", 
 	integral = hReco->IntegralAndError(hReco->GetXaxis()->FindBin(3.5), hReco->GetXaxis()->FindBin(9.5), error);
 	std::cout << arm << " 3500-10000keV: " << integral << " ± " << error << std::endl;
 
-	if(strcmp(particle, "proton") == 0) {
-		if(strcmp(arm, "SiR")==0 && (target.compare("al50")==0 || target.compare("ti50")==0 ) ) {
-			PiecewiseFit(hReco, 4., 20.);
-		} else {
-			PiecewiseFit(hReco, 4., 16.);
-		}
-	} else {
-		PiecewiseFit(hReco, 6., 18.);
-	}
+//	if(strcmp(particle, "proton") == 0) {
+//		if(strcmp(arm, "SiR")==0 && (target.compare("al50")==0 || target.compare("ti50")==0 ) ) {
+//			PiecewiseFit(hReco, 4., 20.);
+//		} else {
+//			PiecewiseFit(hReco, 4., 16.);
+//		}
+//	} else {
+//		PiecewiseFit(hReco, 6., 18.);
+//	}
 }
 void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", bool normalise = kTRUE)
 {
