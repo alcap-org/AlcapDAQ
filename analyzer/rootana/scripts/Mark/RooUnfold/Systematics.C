@@ -676,7 +676,7 @@ void Finally(Double_t *unfoldingError, Double_t *pidError, Double_t *dtError, Do
 void Combined(Double_t *unfoldingError, Double_t *pidError, Double_t *dtError, Double_t *lifetimeError, TString arm, TString particle) {
 	TFile *fUnfolded = new TFile(Form("%s/unfolded.al50.root", getenv("R15b_OUT") ), "READ");
         TH1D *hUncorrected = (TH1D *)fUnfolded->Get(Form("h%s_%s", particle.Data(), arm.Data() ) );
-	TFile *fOutput = new TFile("al50-systematics.root", "UPDATE");
+//	TFile *fOutput = new TFile("al50-systematics.root", "UPDATE");
 
 	TH1D *hSystematics = (TH1D *) hUncorrected->Clone();
 //	TH1D *hUnfoldSys = (TH1D *) hUncorrected->Clone();
@@ -689,6 +689,14 @@ void Combined(Double_t *unfoldingError, Double_t *pidError, Double_t *dtError, D
 		hSystematics->SetBinError(i, withCombinedCutSystematics); //with systematic uncertainties
 //		hUnfoldSys->SetBinError(i, withCombinedCutSystematics + centralValue * unfoldingError[i]);
 	}
+
+	Double_t psum = 0, lsum=0.,dsum=0.;
+	for(int i=8; i<=drawlimit; ++i) {
+		psum += abs(pidError[i]);
+		lsum += abs(lifetimeError[i]);
+		dsum += abs(dtError[i]);
+	}
+	std::cout << "Avg errors: " <<"Avg errors: " <<"Avg errors: " <<   psum/(drawlimit - 8) << " " << lsum/(drawlimit - 8) << " " << dsum/(drawlimit - 8) << " " << std::endl;
 
 	TLegend *legend = new TLegend(.640, .598, .852, .868);
 	legend->SetHeader(Form("#bf{AlCap} #it{Al50} %s", arm.Data() ) );
@@ -712,7 +720,7 @@ void Combined(Double_t *unfoldingError, Double_t *pidError, Double_t *dtError, D
 	system->Draw();
 	system->SaveAs(Form("%s/AlCapData_Al50Dataset_%s_%s-Systematics-Combined.pdf", getenv("R15b_OUT"), arm.Data(), particle.Data() ) );
 	system->SaveAs(Form("%s/AlCapData_Al50Dataset_%s_%s-Systematics-Combined.png", getenv("R15b_OUT"), arm.Data(), particle.Data() ) );
-	fOutput->Write();
+//	fOutput->Write();
 }
 
 void Systematics(TString arm = "SiR", TString particle = "proton") {
