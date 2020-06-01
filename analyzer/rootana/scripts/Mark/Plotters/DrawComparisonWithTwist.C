@@ -205,4 +205,5 @@ void DrawComparisonWithTwist() {
 	legend->Draw("SAME");
 	
 	c->Draw();
+	c->SaveAs(Form("%s/AlCapData_TWIST_Al100_Al50_Comparison_Log.pdf", getenv("R15b_OUT") ) );
 }
