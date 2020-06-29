@@ -218,7 +218,7 @@ void Pid(const char *target="al50", Bool_t plotLeft=kTRUE, const char *treeName=
 	TH2D *hLg_SiL_EvDeltaE = new TH2D("hLg_SiL_EvDeltaE", "SiL Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 250, -0.1, 1.5, 100, ymin, ymax);
 	TH2D *hLg_SiR_EvDeltaE = new TH2D("hLg_SiR_EvDeltaE", "SiR Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 250, -0.1, 1.5, 100, ymin, ymax);
 	Double_t e1, e2, e3, t1, t2, timeToPrevTME, timeToNextTME;
-	Double_t a1, a2;
+	Int_t a1, a2;
 	TString *channel = new TString("");
 	TTree *tree = (TTree *)fData->Get(treeName);
 	tree->SetBranchAddress("timeToPrevTME", &timeToPrevTME);
@@ -246,10 +246,10 @@ void Pid(const char *target="al50", Bool_t plotLeft=kTRUE, const char *treeName=
 //		e2 = e2 * 0.001;
 //		e3 = e3 * 0.001;
 		if(channel->Contains("SiL") ) {
-			if(abs(t2-t1) > 1000) continue;
+			if(abs(t2-t1) > 500) continue;
 			hLg_SiL_EvDeltaE->Fill(0.7071 * (TMath::Log10(e1+e2) - TMath::Log10(e1) ), 0.7071 * (TMath::Log10(e1+e2) + TMath::Log10(e1) ) );
 		} else if(channel->Contains("SiR") ) {
-			if(abs(t2-t1) > 200) continue;
+			if(abs(t2-t1) > 500) continue;
 			hLg_SiR_EvDeltaE->Fill(0.7071 * (TMath::Log10(e1+e2) - TMath::Log10(e1) ), 0.7071 * (TMath::Log10(e1+e2) + TMath::Log10(e1) ) );
 		}
 	}

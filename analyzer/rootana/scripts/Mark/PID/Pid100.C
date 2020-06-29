@@ -243,10 +243,10 @@ void Pid(const char *target="al100", Bool_t plotLeft=kTRUE, const char *treeName
 //		e2 = e2 * 0.001;
 //		e3 = e3 * 0.001;
 		if(channel->Contains("SiL") ) {
-			if(abs(t2-t1) > 1000) continue;
+			if(abs(t2-t1) > 500) continue;
 			hLg_SiL_EvDeltaE->Fill(0.7071 * (TMath::Log10(e1+e2) - TMath::Log10(e1) ), 0.7071 * (TMath::Log10(e1+e2) + TMath::Log10(e1) ) );
 		} else if(channel->Contains("SiR") ) {
-			if(abs(t2-t1) > 200) continue;
+			if(abs(t2-t1) > 500) continue;
 			hLg_SiR_EvDeltaE->Fill(0.7071 * (TMath::Log10(e1+e2) - TMath::Log10(e1) ), 0.7071 * (TMath::Log10(e1+e2) + TMath::Log10(e1) ) );
 		}
 	}

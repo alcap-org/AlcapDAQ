@@ -103,7 +103,8 @@ void lifetime(TTree *tree, Double_t *lifetimeError, TString arm, TString particl
 //		e3 *= 1e3;
 		if(abs(t2)>10e3) continue;
 		if(timeToPrevTME < 10e3 || timeToNextTME < 10e3) continue;
-		if(abs(t2-t1-13) > 23 * 3) continue;
+		//if(abs(t2-t1-13) > 23 * 3) continue;
+		if(abs(t2-t1) > 500) continue;
 		if(TMath::IsNaN(e3) ) {
 			if(!sig3->Contains(particle) ) continue;
 			if(arm.CompareTo("SiR") == 0 ) {
@@ -335,10 +336,18 @@ void dt(TTree *tree, Double_t *dtError, TString arm, TString particle) {
 				if(a2 > 3982) continue; //remove saturation
 				if(!channel->Contains("SiL") ) continue;
 			}
-			dtFill(t2, t1, e1+e2, hOne, hTwo, hThree, hFour, arm, particle);
+			if(abs(t2-t1) < 300) hOne->Fill(e1+e2);
+			if(abs(t2-t1) < 400) hTwo->Fill(e1+e2);
+			if(abs(t2-t1) < 500) hThree->Fill(e1+e2);
+			if(abs(t2-t1) < 600) hFour->Fill(e1+e2);
+//			dtFill(t2, t1, e1+e2, hOne, hTwo, hThree, hFour, arm, particle);
 		} else {
 			if(!pt3->Contains(particle) ) continue;
-			dtFill(t2, t1, e1+e2+e3, hOne3, hTwo3, hThree3, hFour3, arm, particle);
+			if(abs(t2-t1) < 300) hOne3->Fill(e1+e2+e3);
+			if(abs(t2-t1) < 400) hTwo3->Fill(e1+e2+e3);
+			if(abs(t2-t1) < 500) hThree3->Fill(e1+e2+e3);
+			if(abs(t2-t1) < 600) hFour3->Fill(e1+e2+e3);
+//			dtFill(t2, t1, e1+e2+e3, hOne3, hTwo3, hThree3, hFour3, arm, particle);
 		}
 	}
 	hOne3->Scale(scale);
@@ -356,18 +365,22 @@ void dt(TTree *tree, Double_t *dtError, TString arm, TString particle) {
 	TH1D *hFourUnf = Process(hFour, arm, particle, "4#sigma");
 	
 	std::cout << "dt" << std::endl;
-	std::cout << "E bin\t|" << "1σ\t|" << "2σ\t|" << "3σ\t|" << "4σ" << std::endl;
+	//std::cout << "E bin\t|" << "1σ\t|" << "2σ\t|" << "3σ\t|" << "4σ" << std::endl;
+	std::cout << "E bin\t|" << "300ns\t|" << "400ns\t|" << "500ns\t|" << "600ns" << std::endl;
 	for(int k=1; k<=nbins; ++k) { //ignore under and overflow bins
-		std::cout << (k-1)*500 << "\t|" << hOneUnf->GetBinContent(k) << "\t" << hTwoUnf->GetBinContent(k) << "\t|" <<  hThreeUnf->GetBinContent(k) << "\t|" << hFourUnf->GetBinContent(k) << std::endl;
+		std::cout << (k-1)*500 << "\t|" << hOneUnf->GetBinContent(k) << "\t|" << hTwoUnf->GetBinContent(k) << "\t|" <<  hThreeUnf->GetBinContent(k) << "\t|" << hFourUnf->GetBinContent(k) << std::endl;
 	}
 	std::cout << std::endl;
+//zero differences expected
 	std::cout << "dt Corrected" << std::endl;
-	std::cout << "E bin\t|" << "1σ\t|" << "2σ\t|" << "3σ\t|" << "4σ" << std::endl;
+	//std::cout << "E bin\t|" << "1σ\t|" << "2σ\t|" << "3σ\t|" << "4σ" << std::endl;
+	std::cout << "E bin\t|" << "300ns\t|" << "400ns\t|" << "500ns\t|" << "600ns" << std::endl;
 	for(int j=1; j<=nbins; ++j) { //ignore under and overflow bins
-		std::cout << (j-1)*500 << "\t|" << hOneUnf->GetBinContent(j)/0.682 << "\t|" << hTwoUnf->GetBinContent(j)/0.954 << "\t|" <<  hThreeUnf->GetBinContent(j)/0.996 << "\t|" << hFourUnf->GetBinContent(j)/0.998 << std::endl;
+		//std::cout << (j-1)*500 << "\t|" << hOneUnf->GetBinContent(j)/0.682 << "\t|" << hTwoUnf->GetBinContent(j)/0.954 << "\t|" <<  hThreeUnf->GetBinContent(j)/0.996 << "\t|" << hFourUnf->GetBinContent(j)/0.998 << std::endl;
 		//.682, .954, .996
 		if(hThreeUnf->GetBinContent(j) != 0) {
-			dtError[j] = 1- ((hOneUnf->GetBinContent(j)/0.682) / (hThreeUnf->GetBinContent(j)/0.996) );
+			//dtError[j] = 1- ((hOneUnf->GetBinContent(j)/0.682) / (hThreeUnf->GetBinContent(j)/0.996) );
+			dtError[j] = 1- (hOneUnf->GetBinContent(j) / hThreeUnf->GetBinContent(j) );
 		} else {
 			dtError[j] = 0;
 		}
@@ -422,7 +435,8 @@ void Pid(TTree *tree, Double_t *pidError, Double_t *unfoldingError, TString arm,
 		if(timeToPrevTME < 10e3 || timeToNextTME < 10e3) continue;
 		if(t2<400) continue;
 		if(abs(t2)>10e3) continue;
-		if(abs(t2-t1-13) > 23 * 4 ) continue;
+		//if(abs(t2-t1-13) > 23 * 4 ) continue;
+		if(abs(t2-t1) > 500 ) continue;
 		if(TMath::IsNaN(e3) ) {
 			if(arm.CompareTo("SiR") == 0) {
 				if(a2 > 3986) continue; //remove saturation
@@ -482,27 +496,27 @@ void Finally(Double_t *unfoldingError, Double_t *pidError, Double_t *dtError, Do
 	TH1D *hPid = new TH1D("hPid", "PID;E [keV]", nbins, 0, 25); hPid->SetFillColor(kRed);
 	TH1D *hDt = new TH1D("hDt", "t_{2}-t_{1};E [keV]", nbins, 0, 25); hDt->SetFillColor(kGreen);
 	TH1D *hLifetime = new TH1D("hLifetime", "#tau;E [keV]", nbins, 0, 25); hLifetime->SetFillColor(kBlue);
-	TH1D *hUnfolding = new TH1D("hUnfolding", "Unfolding;E [keV]", nbins, 0, 25); hUnfolding->SetFillColor(kOrange);
+//	TH1D *hUnfolding = new TH1D("hUnfolding", "Unfolding;E [keV]", nbins, 0, 25); hUnfolding->SetFillColor(kOrange);
 	int drawlimit = 40;
 	if(arm.CompareTo("SiL") == 0) drawlimit = 32;
 	for(int i=8; i<=drawlimit; ++i) {
 		hPid->SetBinContent(i, abs(pidError[i]) );
 		hDt->SetBinContent(i, abs(dtError[i]) );
 		hLifetime->SetBinContent(i, abs(lifetimeError[i]) );
-		hUnfolding->SetBinContent(i, abs(unfoldingError[i] ));
+//		hUnfolding->SetBinContent(i, abs(unfoldingError[i] ));
 	}
 	THStack *hSystematics = new THStack("hSystematics", "Systematic errors");
 	hSystematics->Add(hPid);
 	hSystematics->Add(hDt);
 	hSystematics->Add(hLifetime);
-	hSystematics->Add(hUnfolding);
+//	hSystematics->Add(hUnfolding);
 
 	TLegend *legend = new TLegend(.240, .598, .512, .868);
 	legend->SetHeader(Form("#bf{AlCap} #it{Ti50} %s Systematics", arm.Data() ) );
 	legend->AddEntry(hPid, "PID", "F");
 	legend->AddEntry(hDt, "#Delta t", "F");
 	legend->AddEntry(hLifetime, "#tau", "F");
-	legend->AddEntry(hUnfolding, "Unfolding", "F");
+//	legend->AddEntry(hUnfolding, "Unfolding", "F");
 
 	TCanvas *cFinal = new TCanvas("c", "c");
 	cFinal->SetGridx();

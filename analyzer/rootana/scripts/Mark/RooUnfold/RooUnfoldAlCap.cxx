@@ -49,11 +49,11 @@ void Process(RooUnfoldResponse *response, TH1D *hMeas, const char *arm = "SiL", 
 	std::cout << "\033[0;32m" << "No correction " << arm << " 3.5-10MeV: " << integral << " ± " << error << "\033[0m" << std::endl;
 	if(normalise) {
 		if(target.compare("al50")==0) {
-			hReco->Scale(1/(0.63*0.609*1.62E+8) ); //al50 (lifetime, capture rate, muon count, 3 sigma selection)
+			hReco->Scale(1/(0.95*0.63*0.609*1.62E+8) ); //al50 (lifetime, capture rate, muon count, 2 sigma selection)
 		} else if(target.compare("al100")==0) {
-			hReco->Scale(1/(0.63*0.609*1.31E+8) ); //al100
+			hReco->Scale(1/(0.95*0.63*0.609*1.31E+8) ); //al100
 		} else if(target.compare("ti50")==0) {
-			hReco->Scale(1/(0.2968*0.8529*8.02E+7) );
+			hReco->Scale(1/(0.95*0.2968*0.8529*8.02E+7) );
 		}
 	}
 	integral = hReco->IntegralAndError(hReco->GetXaxis()->FindBin(4), hReco->GetXaxis()->FindBin(7.5), error);
@@ -105,8 +105,8 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 	tree->SetBranchAddress("t1", &t1);
 	tree->SetBranchAddress("t2", &t2);
 	tree->SetBranchAddress("channel", &channel);
-	tree->SetBranchAddress("sig3", &sig);
-	tree->SetBranchAddress("pt3", &pt);
+	tree->SetBranchAddress("sig2", &sig);
+	tree->SetBranchAddress("pt2", &pt);
 	for(Long64_t i=0; i < tree->GetEntries(); i++) {
 		tree->GetEntry(i);
 		if(a2 > 3980) continue; //remove saturation
@@ -115,11 +115,11 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 		if(t2>10e3) continue;
 		if(target.compare("al50") == 0 || target.compare("ti50") == 0 ) {
 			//if(abs(t2-t1-12) > 20 * 5) continue; //Al50
-			if(abs(t2-t1)> 200) continue; //Al50
+			if(abs(t2-t1)> 500) continue; //Al50
 		}
 		if(target.compare("al100") == 0) {
-			if(channel->Contains("SiL") ) {if(abs(t2-t1 + 567) > 24 *3) continue; }
-			if(channel->Contains("SiR") ) {if(abs(t2-t1 - 211) > 32 *3) continue; }
+			if(channel->Contains("SiL") ) {if(abs(t2-t1 + 567) > 500) continue; }
+			if(channel->Contains("SiR") ) {if(abs(t2-t1 - 211) > 500) continue; }
 		}
 		if(channel->Contains("SiL") ) {
 			if(sig->Contains(particle) ) {
