@@ -127,7 +127,7 @@ class TPulseIsland : public TObject {
   /// Assignment is made explicitly private since we do not need it yet.
   TPulseIsland operator=(const TPulseIsland& rhs); 
 
-  ClassDef(TPulseIsland, 2);
+  ClassDef(TPulseIsland, 3);
 };
 
 #endif

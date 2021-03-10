@@ -34,3 +34,7 @@ www/html/trend/*
 *.hst
 
 analyzer/work/damien/
+
+# source for newer versions of ROOT are too large.
+root_v5.34.20.source.tar.gz
+root_v6.*.tar.gz
