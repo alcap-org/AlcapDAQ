@@ -21,7 +21,7 @@ void DrawTransferMatrix(std::string target, std::string particle) {
 	TH2 *hl = L_TM->Hresponse();
 	hl->GetYaxis()->SetMaxDigits(3);
 	hl->GetXaxis()->SetMaxDigits(3);
-	hl->SetTitle(";E_{meas}[keV];E_{true}[keV]");
+	hl->SetTitle(";E_{meas}[MeV];E_{true}[MeV]");
 	hl->Draw("col");
 	TLegend *legend = new TLegend(0.600287, 0.218487, 0.810888, 0.407563);
 
@@ -33,15 +33,17 @@ void DrawTransferMatrix(std::string target, std::string particle) {
 	
 	TCanvas *r = new TCanvas("r", "r");
 	TH2 *hr = R_TM->Hresponse();
+	hr->RebinX(1);
+	hr->RebinY(1);
 	hr->GetYaxis()->SetMaxDigits(3);
 	hr->GetXaxis()->SetMaxDigits(3);
-	hr->SetTitle(";E_{meas}[keV];E_{true}[keV]");
-	hr->Draw("col");
+	hr->SetTitle(";E_{meas}[MeV];E_{true}[MeV]");
+	hr->Draw("colz");
 	TLegend *legend1 = new TLegend(0.600287, 0.218487, 0.810888, 0.407563);
 	legend1->SetHeader("#bf{AlCap} Transfer matrix");
 	legend1->AddEntry("", Form("%s#mum %s  (Right)", target.c_str(), particle.c_str() ),"");
 	legend1->AddEntry(hl, Form("Entries = %.0f", hr->GetEntries() ), "p");
-	legend1->Draw();
+	//legend1->Draw();
 	r->SaveAs(Form("%s/AlCapMC_%s_TM_%s_Right.pdf", FigsDir, target.c_str(), particle.c_str() ) );
 
 	delete l;

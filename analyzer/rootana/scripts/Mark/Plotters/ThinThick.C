@@ -11,25 +11,31 @@ void ThinThick() {
 	hpAl50SiR->Rebin(2);
 	hpAl100SiL->Rebin(2);
 	hpAl100SiR->Rebin(2);
-	hpAl50SiR->GetXaxis()->SetRangeUser(4, 20);
-	hpAl50SiL->GetXaxis()->SetRangeUser(4, 16);
-	hpAl100SiL->GetXaxis()->SetRangeUser(4, 16);
-	hpAl100SiR->GetXaxis()->SetRangeUser(4, 16);
+	hpAl50SiR->GetXaxis()->SetRangeUser(3, 20);
+	hpAl50SiL->GetXaxis()->SetRangeUser(3, 16);
+	hpAl100SiL->GetXaxis()->SetRangeUser(3, 16);
+	hpAl100SiR->GetXaxis()->SetRangeUser(3, 16);
 
-	hpAl50SiR->SetTitle(";E [MeV];Protons / muons captured / MeV");
+	hpAl50SiR->SetTitle(";Energy [MeV];Protons / muons capture / MeV");
 
 	TCanvas *c = new TCanvas("c", "c");
 	hpAl50SiR->Draw("E1");
+hpAl50SiR->GetXaxis()->SetLabelSize(0.05);
+hpAl50SiR->GetYaxis()->SetLabelSize(0.05);
+hpAl50SiR->GetXaxis()->SetTitleSize(0.05);
+hpAl50SiR->GetYaxis()->SetTitleSize(0.05);
 	hpAl50SiL->Draw("E1 SAME");
 	hpAl100SiL->Draw("E1 SAME");
 	hpAl100SiR->Draw("E1 SAME");
 
-	TLegend *legend = new TLegend(0.65, 0.66, 0.86, 0.85);
+	TLegend *legend = new TLegend(0.616046, 0.616034, 0.859599, 0.850211);
+gStyle->SetLegendTextSize(0.035);
+	legend->SetHeader("AlCap Al");
 	legend->AddEntry(hpAl50SiL, "50 #mum left","lep");
 	legend->AddEntry(hpAl50SiR, "50 #mum right","lep");
 	legend->AddEntry(hpAl100SiL, "100 #mum left","lep");
 	legend->AddEntry(hpAl100SiR, "100 #mum right","lep");
 	legend->Draw("SAME");
 
-	c->SaveAs(Form("%s/AlCapData_ThickThinAl.png", getenv("R15b_OUT") ) );
+	c->SaveAs(Form("%s/AlCapData_ThickThinAl.pdf", getenv("R15b_OUT") ) );
 }

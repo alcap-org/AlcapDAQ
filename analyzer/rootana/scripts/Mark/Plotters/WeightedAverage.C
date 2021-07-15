@@ -1,4 +1,4 @@
-TH1D * Plot(const char *particle = "proton", Bool_t drawFit = kFALSE) {
+TH1D * Plot(TH1D *hStats, const char *particle = "proton", Bool_t drawFit = kTRUE) {
 	//statistical errors
 	TFile *fUnfoldedAl50_stat = new TFile(Form("%s/unfolded.al50.root", getenv("R15b_OUT") ) );
 	TH1D *hSiR_al50_stat = (TH1D *) fUnfoldedAl50_stat->Get(Form("h%s_SiR", particle) );
@@ -17,13 +17,13 @@ TH1D * Plot(const char *particle = "proton", Bool_t drawFit = kFALSE) {
 
 	std::string capitalized = std::string(particle);
 	capitalized[0] = toupper(capitalized[0]);
-	TH1D *hWeightedAverage= new TH1D("hWeightedAverage", ";E[MeV];Particles / muon capture / MeV", 40, 0, 20);
+	TH1D *hWeightedAverage= new TH1D("hWeightedAverage", ";Energy [MeV];Particles / muon capture / MeV", 40, 0, 20);
 	hWeightedAverage->GetYaxis()->SetMaxDigits(3);
-	TH1D *hStats= new TH1D("hStats", ";E[MeV];Particles / muon capture / MeV", 40, 0, 20);
+	//TH1D *hStats= new TH1D("hStats", ";Energy [MeV];Particles / muon capture / MeV", 40, 0, 20);
 	hStats->GetYaxis()->SetMaxDigits(3);
 	hStats->SetLineWidth(2);
 
-	for(int i = 9; i <= 40; ++i) { //lower than the 9th bin, the uncertainty are great due to many reasons
+	for(int i = 1; i <= 40; ++i) { //lower than the 9th bin, the uncertainty are great due to many reasons
 	
 		//syst errors from unfolded.{al50, al100}.root
 		Double_t stat_a = hSiR_al50_stat->GetBinError(i);
@@ -47,6 +47,7 @@ TH1D * Plot(const char *particle = "proton", Bool_t drawFit = kFALSE) {
 		Double_t c = hSiR_al100->GetBinContent(i);
 		Double_t d = hSiL_al100->GetBinContent(i);
 
+		//weighted mean
 		Double_t mean = (a*(1/TMath::Power(err_a, 2) ) + b*(1/TMath::Power(err_b, 2) ) + c*(1/TMath::Power(err_c, 2) ) + d*(1/TMath::Power(err_d, 2) ) ) / reciprocal_sum_of_squares;
 		Double_t variance = 1 / reciprocal_sum_of_squares;	
 
@@ -71,61 +72,80 @@ TH1D * Plot(const char *particle = "proton", Bool_t drawFit = kFALSE) {
         //currently no physical motivation for this function
 	TF1 *fit = 0;
 	if(strcmp(particle, "proton") == 0) {
-        	fit = new TF1("fit", "[0]*exp(-(x)*[2]) + [3]*exp(-(x-[4])*[5])", 4, 20);
-		fit->SetParameter(0, 5.49525e-03);
-		fit->SetParameter(2, 5.91451e-01);
-		fit->SetParameter(3, 1.21979e-03);
-		fit->SetParameter(4, 7.54185e+00);
-		fit->SetParameter(5, 1.79100e-01);
-		fit->SetParLimits(0, 0, 1000);
+		fit = new TF1("fit", "[0]*exp(-(x)/[1])", 3, 17);
+		fit->SetParameter(1, 1);
+        //	fit = new TF1("fit", "[0]*exp(-(x)*[2]) + [3]*exp(-(x-[4])*[5])", 4, 20);
+	//	fit->SetParameter(0, 5.49525e-03);
+	//	fit->SetParameter(2, 5.91451e-01);
+	//	fit->SetParameter(3, 1.21979e-03);
+	//	fit->SetParameter(4, 7.54185e+00);
+	//	fit->SetParameter(5, 1.79100e-01);
+	//	fit->SetParLimits(0, 0, 1000);
 	} else if(strcmp(particle, "deuteron") == 0) {
-		fit = new TF1("fit", "[0]*exp(-(x)*[2]) + [3]*exp(-(x-[4])*[5])", 5, 18);
-		fit->SetParameter(0, 5.49525e-03);
-		fit->SetParameter(2, 5.91451e-01);
-		fit->SetParameter(3, 1.21979e-03);
-		fit->SetParameter(4, 7.54185e+00);
-		fit->SetParameter(5, 1.79100e-01);
-		fit->SetParLimits(0, 0, 1000);
+		fit = new TF1("fit", "[0]*exp(-(x)/[1])", 5, 17);
+		fit->SetParameter(1, 1);
+	//	fit = new TF1("fit", "[0]*exp(-(x)*[2]) + [3]*exp(-(x-[4])*[5])", 5, 18);
+	//	fit->SetParameter(0, 5.49525e-03);
+	//	fit->SetParameter(2, 5.91451e-01);
+	//	fit->SetParameter(3, 1.21979e-03);
+	//	fit->SetParameter(4, 7.54185e+00);
+	//	fit->SetParameter(5, 1.79100e-01);
+	//	fit->SetParLimits(0, 0, 1000);
 	} else if(strcmp(particle, "triton") == 0) {
-		fit = new TF1("fit", "[0]*exp(-(x)*[2]) + [3]*exp(-(x-[4])*[5])", 6, 18);
-		fit->SetParameter(0, 5.49525e-03);
-		fit->SetParameter(2, 5.91451e-01);
-		fit->SetParameter(3, 1.21979e-03);
-		fit->SetParameter(4, 7.54185e+00);
-		fit->SetParameter(5, 1.79100e-01);
-		fit->SetParLimits(0, 0, 1000);
+		fit = new TF1("fit", "[0]*exp(-(x)/[1])", 5, 17);
+		fit->SetParameter(1, 1);
+	//	fit = new TF1("fit", "[0]*exp(-(x)*[2]) + [3]*exp(-(x-[4])*[5])", 6, 18);
+	//	fit->SetParameter(0, 5.49525e-03);
+	//	fit->SetParameter(2, 5.91451e-01);
+	//	fit->SetParameter(3, 1.21979e-03);
+	//	fit->SetParameter(4, 7.54185e+00);
+	//	fit->SetParameter(5, 1.79100e-01);
+	//	fit->SetParLimits(0, 0, 1000);
 	} else {
-        	fit = new TF1("fit", "[0]*exp(-(x)*[2])", 15, 19);
-		fit->SetParameter(0, 5.49525e-03);
-		fit->SetParameter(2, 5.91451e-01);
+        	fit = new TF1("fit", "[0]*exp(-(x)/[1])", 15, 20);
+		fit->SetParameter(1, 1);
 	}
 
-	hWeightedAverage->GetXaxis()->SetRangeUser(2, 20);
+//	hWeightedAverage->GetXaxis()->SetRangeUser(2, 20);
+//	if(strcmp(particle, "proton") == 0) {
+//		hWeightedAverage->Draw("LE2");
+//	} else {
+//		hWeightedAverage->Draw("LE2 SAME");
+//	}
 	if(strcmp(particle, "proton") == 0) {
-		hWeightedAverage->Draw("E2");
-	} else {
-		hWeightedAverage->Draw("E2 SAME");
-	}
-	if(strcmp(particle, "proton") == 0) {
-		hWeightedAverage->GetYaxis()->SetRangeUser(1e-5, 8e-3);
-		hStats->GetXaxis()->SetRangeUser(4, 20);
-		hWeightedAverage->SetFillColor(kRed);
+//		hWeightedAverage->GetYaxis()->SetRangeUser(1e-5, 1e-1);
+//		hStats->GetXaxis()->SetRangeUser(2, 20);
+//		hWeightedAverage->SetLineColor(kRed);
+//		hWeightedAverage->SetMarkerColor(kRed);
+//		hWeightedAverage->SetMarkerStyle(kFullCircle);
 	} else if(strcmp(particle, "deuteron") == 0) {
-		hWeightedAverage->GetXaxis()->SetRangeUser(5, 20);
-		hStats->GetXaxis()->SetRangeUser(5, 20);
-		hWeightedAverage->SetFillColor(kBlue);
+//		hWeightedAverage->GetXaxis()->SetRangeUser(5, 20);
+//		hStats->GetXaxis()->SetRangeUser(3, 20);
+//		hWeightedAverage->SetLineColor(kBlue);
+//		hWeightedAverage->SetMarkerColor(kBlue);
+//		hWeightedAverage->SetMarkerStyle(kStar);
 	} else if(strcmp(particle, "triton") == 0) {
-		hWeightedAverage->GetXaxis()->SetRangeUser(6, 20);
-		hStats->GetXaxis()->SetRangeUser(6, 20);
-		hWeightedAverage->SetFillColor(kGreen);
+//		hWeightedAverage->GetXaxis()->SetRangeUser(6, 20);
+//		hStats->GetXaxis()->SetRangeUser(3, 20);
+//		hWeightedAverage->SetLineColor(kGreen);
+//		hWeightedAverage->SetMarkerColor(kGreen);
+//		hWeightedAverage->SetMarkerStyle(kFullSquare);
 	} else {
-		hWeightedAverage->GetXaxis()->SetRangeUser(15, 20);
-		hStats->GetXaxis()->SetRangeUser(15, 20);
-		hWeightedAverage->SetFillColor(kMagenta);
+//		hWeightedAverage->GetXaxis()->SetRangeUser(15, 20);
+//		hStats->GetXaxis()->SetRangeUser(10, 20);
+//		hWeightedAverage->SetLineColor(kMagenta);
+//		hWeightedAverage->SetMarkerColor(kMagenta);
+//		hWeightedAverage->SetMarkerStyle(kFullTriangleUp);
 	}
-	hStats->Draw("SAME");
-	if(drawFit) TFitResultPtr fitResult = hWeightedAverage->Fit("fit", "RS");
-	printf("%s : %.2fe^{-(x)%.2f} + %.2fe^{-(x-%.2f)%.2f\n", particle, 1e3*fit->GetParameter(0), 1e3*fit->GetParameter(2), 1e3*fit->GetParameter(3), 1e3*fit->GetParameter(4), 1e3*fit->GetParameter(5) );
+//	hStats->Draw("LE1 SAME");
+	if(drawFit) {
+		TFitResultPtr fitResult = hWeightedAverage->Fit("fit", "RS");
+		auto covMatrix = fitResult->GetCovarianceMatrix();
+		Double_t sigma_integral = fit->IntegralError(3, 80, fitResult->GetParams(), covMatrix.GetMatrixArray() );
+		std::cout << sigma_integral << std::endl;
+	}
+	//printf("%s : %.2fe^{-(x)%.2f}\n", particle, fit->GetParameter(0), fit->GetParameter(1) );
+	//printf("%s : %.2fe^{-(x)%.2f} + %.2fe^{-(x-%.2f)%.2f\n", particle, 1e3*fit->GetParameter(0), 1e3*fit->GetParameter(2), 1e3*fit->GetParameter(3), 1e3*fit->GetParameter(4), 1e3*fit->GetParameter(5) );
 //	fit->Draw("SAME"); fit->SetLineColor(kBlack); fit->SetLineStyle(kDashed);
 //	fit2->Draw("SAME"); fit2->SetLineColor(kBlue);
 	
@@ -140,27 +160,24 @@ TH1D * Plot(const char *particle = "proton", Bool_t drawFit = kFALSE) {
 	if(drawFit) {
 		if(strcmp(particle, "proton") == 0) {
 			Double_t stats_error, syst_error;
-			hStats->IntegralAndError(hStats->FindBin(4), hStats->FindBin(18), stats_error);
-			std::cout << "4 - 18MeV: " << hWeightedAverage->IntegralAndError(hWeightedAverage->FindBin(4), hWeightedAverage->FindBin(18.), syst_error ) << " ± " << stats_error << " ± " << (syst_error-stats_error )<< std::endl;
-			std::cout << "Fit 4 - 40MeV: " << fit->Integral(4, 40) << " ± ";
+			hStats->IntegralAndError(hStats->FindBin(3), hStats->FindBin(16), stats_error);
+			std::cout << "3 - 17MeV: " << hWeightedAverage->IntegralAndError(hWeightedAverage->FindBin(3), hWeightedAverage->FindBin(16.), syst_error ) *1e3 << " ± " << stats_error*1e3 << " ± " << (syst_error-stats_error )*1e3 << std::endl;
+			std::cout << "Fit 3 - 80MeV: " << fit->Integral(3, 80) << std::endl;
 
-	//		auto covMatrix = fitResult->GetCovarianceMatrix();
-	//		Double_t sigma_integral = fit->IntegralError(4, 40, fitResult->GetParams(), covMatrix.GetMatrixArray() );
-	//		std::cout << sigma_integral << std::endl;
 		} else if(strcmp(particle, "deuteron") == 0) {
 			Double_t stats_error, syst_error;
-			hStats->IntegralAndError(hStats->FindBin(5), hStats->FindBin(18), stats_error);
-			std::cout << "5 - 18MeV: " << hWeightedAverage->IntegralAndError(hWeightedAverage->FindBin(5), hWeightedAverage->FindBin(18.), syst_error ) << " ± " << stats_error << " ± " << (syst_error-stats_error )<<  std::endl;
+			hStats->IntegralAndError(hStats->FindBin(5), hStats->FindBin(16), stats_error);
+			std::cout << "5 - 17MeV: " << hWeightedAverage->IntegralAndError(hWeightedAverage->FindBin(3), hWeightedAverage->FindBin(16.), syst_error ) *1e3 << " ± " << stats_error*1e3 << " ± " << (syst_error-stats_error )*1e3 << std::endl;
 			std::cout << "Fit 5 - 40MeV: " << fit->Integral(5, 40) << std::endl;
 		} else if(strcmp(particle, "triton") == 0) {
 			Double_t stats_error, syst_error;
-			hStats->IntegralAndError(hStats->FindBin(6), hStats->FindBin(18), stats_error);
-			std::cout << "6 - 18MeV: " << hWeightedAverage->IntegralAndError(hWeightedAverage->FindBin(6), hWeightedAverage->FindBin(18.), syst_error ) << " ±"  << stats_error << " ± " << (syst_error-stats_error )<<  std::endl;
+			hStats->IntegralAndError(hStats->FindBin(5), hStats->FindBin(16), stats_error);
+			std::cout << "5 - 17MeV: " << hWeightedAverage->IntegralAndError(hWeightedAverage->FindBin(3), hWeightedAverage->FindBin(16.), syst_error ) *1e3 << " ± " << stats_error*1e3 << " ± " << (syst_error-stats_error )*1e3 << std::endl;
 			std::cout << "Fit 6 - 40MeV: " << fit->Integral(6, 40) << std::endl;
 		} else {
 			Double_t stats_error, syst_error;
 			hStats->IntegralAndError(hStats->FindBin(15), hStats->FindBin(19), stats_error);
-			std::cout << "15 - 18MeV: " << hWeightedAverage->IntegralAndError(hWeightedAverage->FindBin(15), hWeightedAverage->FindBin(19.), syst_error ) << " ± " << stats_error << " ± " << (syst_error-stats_error )<<  std::endl;
+			std::cout << "15 - 20MeV: " << hWeightedAverage->IntegralAndError(hWeightedAverage->FindBin(15), hWeightedAverage->FindBin(19.), syst_error )*1e3 << " ± " << stats_error*1e3 << " ± " << (syst_error-stats_error )*1e3<<  std::endl;
 			std::cout << "Fit 15 - 40MeV: " << fit->Integral(15, 40) << std::endl;
 		}
 	}
@@ -168,21 +185,109 @@ TH1D * Plot(const char *particle = "proton", Bool_t drawFit = kFALSE) {
 }
 
 void WeightedAverage() {
+	TH1D *hStats= new TH1D("hStats", ";Energy [MeV];Particles / muon capture / MeV", 40, 0, 20);
+	TH1D *hp = Plot(hStats, "proton");
+	TGraphErrors *gProton = new TGraphErrors(hp);
+	TGraphErrors *gPStat = new TGraphErrors(hStats);
+	for(int i=0; i<3; ++i) {
+		gProton->RemovePoint(0);
+		gPStat->RemovePoint(0);
+	}
+	gProton->SetLineColor(kRed);
+	gPStat->SetMarkerStyle(kFullCircle);
+	gPStat->SetMarkerColor(kRed);
+	
+	hStats= new TH1D("hStats", ";Energy [MeV];Particles / muon capture / MeV", 40, 0, 20);
+	TH1D *hd = Plot(hStats, "deuteron");
+	TGraphErrors *gDeuteron = new TGraphErrors(hd);
+	TGraphErrors *gDStat = new TGraphErrors(hStats);
+	for(int i=0; i<4; ++i) {
+		gDeuteron->RemovePoint(0);
+		gDStat->RemovePoint(0);
+	}
+	gDeuteron->RemovePoint(gDeuteron->GetN()-1);
+	gDStat->RemovePoint(gDStat->GetN()-1);
+	gDeuteron->RemovePoint(gDeuteron->GetN()-1);
+	gDStat->RemovePoint(gDStat->GetN()-1);
+	gDeuteron->SetLineColor(kBlue);
+	gDStat->SetMarkerStyle(kStar);
+	gDStat->SetMarkerColor(kBlue);
+
+	hStats= new TH1D("hStats", ";Energy [MeV];Particles / muon capture / MeV", 40, 0, 20);
+	TH1D *ht = Plot(hStats, "triton");
+	TGraphErrors *gTriton = new TGraphErrors(ht);
+	TGraphErrors *gTStat = new TGraphErrors(hStats);
+	for(int i=0; i<5; ++i) {
+		gTriton->RemovePoint(0);
+		gTStat->RemovePoint(0);
+	}
+	gTriton->RemovePoint(gTriton->GetN()-1);
+	gTStat->RemovePoint(gTStat->GetN()-1);
+	gTriton->SetLineColor(kGreen);
+	gTStat->SetMarkerStyle(kFullSquare);
+	gTStat->SetMarkerColor(kGreen);
+
+	hStats= new TH1D("hStats", ";Energy [MeV];Particles / muon capture / MeV", 40, 0, 20);
+	TH1D *ha = Plot(hStats, "alpha");
+	TGraphErrors *gAlpha = new TGraphErrors(ha);
+	TGraphErrors *gAStat = new TGraphErrors(hStats);
+	for(int i=0; i<13; ++i) {
+		gAlpha->RemovePoint(0);
+		gAStat->RemovePoint(0);
+	}
+	gAlpha->SetLineColor(kMagenta);
+	gAStat->SetMarkerStyle(kFullTriangleUp);
+	gAStat->SetMarkerColor(kMagenta);
+
+	TMultiGraph *g = new TMultiGraph();
+	g->SetTitle(";Energy [MeV];Particles / muon capture / MeV;");
+	g->Add(gProton);
+	g->Add(gDeuteron);
+	g->Add(gTriton);
+	g->Add(gAlpha);
+
+	TMultiGraph *gs = new TMultiGraph();
+	gs->SetTitle(";Energy [MeV];Particles / muon capture / MeV;");
+	gs->Add(gPStat);
+	gs->Add(gDStat);
+	gs->Add(gTStat);
+	gs->Add(gAStat);
 
 	TCanvas *c = new TCanvas("c", "c");
 	c->SetLogy();
-	TH1D * hp = Plot("proton");
-	TH1D * hd = Plot("deuteron");
-	TH1D * ht = Plot("triton");
-	TH1D * ha = Plot("alpha");
+	g->Draw("APEL");
+	gs->Draw("PE");
+	g->GetYaxis()->SetRangeUser(1e-5, 1e-1);
+	g->GetXaxis()->SetRangeUser(2, 20);
 
-	TLegend *legend = new TLegend(0.133238, 0.144374, 0.406877, 0.394904);
-	legend->AddEntry(hp, "protons", "f");
-	legend->AddEntry(hd, "deuterons", "f");
-	legend->AddEntry(ht, "tritons", "f");
-	legend->AddEntry(ha, "alphas", "f");
+	TLegend *legend = new TLegend(0.58596 , 0.592437, 0.859599, 0.842437);
+	legend->SetHeader("AlCap Al");
+	legend->AddEntry(gPStat, "protons", "pl");
+	legend->AddEntry(gDStat, "deuterons", "pl");
+	legend->AddEntry(gTStat, "tritons", "pl");
+	legend->AddEntry(gAStat, "alphas", "pl");
 	legend->Draw("SAME");
-	
 	c->Draw();
-	c->SaveAs(Form("%s/AlCapData_Al_weighted_average.png", getenv("R15b_OUT") ) );
+	c->SaveAs(Form("%s/AlCapData_Al_weighted_average.pdf", getenv("R15b_OUT") ) );
 }
+//void WeightedAverage() {
+//
+//	TCanvas *c = new TCanvas("c", "c");
+//	c->SetLogy();
+//	TH1D * hp = Plot("proton");
+//	hp->GetXaxis()->SetRangeUser(2, 20);
+//	TH1D * hd = Plot("deuteron");
+//	TH1D * ht = Plot("triton");
+//	TH1D * ha = Plot("alpha");
+//
+//	TLegend *legend = new TLegend(0.58596 , 0.592437, 0.859599, 0.842437);
+//	legend->SetHeader("AlCap Al");
+//	legend->AddEntry(hp, "protons", "pl");
+//	legend->AddEntry(hd, "deuterons", "pl");
+//	legend->AddEntry(ht, "tritons", "pl");
+//	legend->AddEntry(ha, "alphas", "pl");
+//	legend->Draw("SAME");
+//	
+//	c->Draw();
+//	c->SaveAs(Form("%s/AlCapData_Al_weighted_average.pdf", getenv("R15b_OUT") ) );
+//}

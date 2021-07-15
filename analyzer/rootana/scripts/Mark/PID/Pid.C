@@ -7,7 +7,7 @@ std::map<TString, std::vector<Double_t> > results;
 std::map<TString, std::vector<Double_t> > results_err;
 std::map<int, TH1D *> Slice(TH2D *h) {
 	std::map<int, TH1D *> map;
-	for(int i=0; i < 45; i++) { //sliceIndexes Al50 SiR 35, SiL 30 //Al100 SiL 27 SiR 35
+	for(int i=0; i < 35; i++) { //sliceIndexes Al50 SiR 35, SiL 30 //Al100 SiL 27 SiR 35
 		//store projections of different Lg #DeltaE+E segments in map, divided into equal portions of 1MeV
 		map[i] = h->ProjectionY(Form("%.3f_%.3f_py", (i+1)/2.+.5, (i+1)/2.+1.), h->GetXaxis()->FindBin(TMath::Log10((i+1)/2.+.5) )+1, h->GetXaxis()->FindBin(TMath::Log10((i+1)/2.+1.) ) );
 	}
@@ -16,9 +16,10 @@ std::map<int, TH1D *> Slice(TH2D *h) {
 void Fit(TH1D *h, Int_t sliceIndex, bool plotLeft = kFALSE) {
 	std::cout << "Processing sliceIndex: " << sliceIndex << std::endl;
 	std::cout << "==========================" << std::endl;
-	h->GetXaxis()->SetTitle("Lg #DeltaE / #sqrt{2}");
-	h->GetXaxis()->SetTitleOffset(1.2);
-	h->GetYaxis()->SetTitle(Form("Counts/%f", h->GetBinWidth(0) ) );
+	h->GetXaxis()->SetTitle("Log #DeltaE / #sqrt{2}");
+//	h->GetXaxis()->SetTitleOffset(1.2);
+//	h->GetYaxis()->SetTitle(Form("Counts/%f", h->GetBinWidth(0) ) );
+	h->GetYaxis()->SetTitle("Counts");
 
 	//Use TSpectrum to find the peak candidates
 	TSpectrum *s = new TSpectrum(4);
@@ -97,8 +98,12 @@ void Fit(TH1D *h, Int_t sliceIndex, bool plotLeft = kFALSE) {
 		fit->SetParLimits(3, 0, 100);
 		fit->SetParLimits(5, 0.02, 0.035);
 	}
-
-	TFitResultPtr r = h->Fit(fit, "RS");
+fit->SetLineColor(kRed);
+fit->SetLineWidth(2);
+	TFitResultPtr r = h->Fit(fit, "QRS");
+	if(r) {
+		std::cout << r->Chi2() << " / " << r->Ndf() << std::endl;
+	}
 	results["bin_width"].push_back(h->GetBinWidth(0) );
 	results["proton_constant"].push_back(fit->GetParameter(0) );
 	results["proton_mean"].push_back(fit->GetParameter(1) );
@@ -212,8 +217,8 @@ void DefineCut(const char *sourceName, const char *species="proton", bool plotLe
   A rough integral or plain sum over bins are done as another check on the gaussian integral
   The difference between the Entries var and Integral var is(should be) the Background var (pol0 * fit window size and corrected with the bin size)
   */
-void Pid(const char *target="al50", Bool_t plotLeft=kTRUE, const char *treeName="tree") {
-	gStyle->SetOptFit(1);
+void Pid(const char *target="al50", Bool_t plotLeft=kFALSE, const char *treeName="tree") {
+	gStyle->SetOptFit(0);
 	TFile *fData = new TFile(Form("%s/%s.root", getenv("R15b_DATA"), target), "READ");
 	TH2D *hLg_SiL_EvDeltaE = new TH2D("hLg_SiL_EvDeltaE", "SiL Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 250, -0.1, 1.5, 100, ymin, ymax);
 	TH2D *hLg_SiR_EvDeltaE = new TH2D("hLg_SiR_EvDeltaE", "SiR Ev#DeltaE;Lg E+#DeltaE / #sqrt{2} [MeV];Lg #DeltaE / #sqrt{2} [MeV]", 250, -0.1, 1.5, 100, ymin, ymax);

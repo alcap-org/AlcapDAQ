@@ -1,15 +1,15 @@
 void Lifetime(const char *target = "al50", const char *particle = "proton", const char *arm= "SiR") {
 	ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(10000);
 	ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit");
-	const Int_t min = 500;
-	const Int_t max = 10000;
+	const Int_t min = 400;
+	const Int_t max = 5000;
 	const Int_t nbins = (max-min)/40;
 	TFile *fData = new TFile(Form("%s/%s.root", getenv("R15b_DATA"), target), "READ");
 	Double_t e3, t1, t2, timeToPrevTME, timeToNextTME;
 	TString *channel = new TString("");
 	TString *sig2 = new TString("");
 	TH1D *hpSiL = new TH1D("hpSiL", ";;Counts/40ns", nbins, min, max);
-	TH1D *hpSiR = new TH1D("hpSiR", ";;Counts/40ns", nbins, min, max);
+	TH1D *hpSiR = new TH1D("hpSiR", ";t_{2}[ns];Counts/40ns", nbins, min, max);
 	TH1D *hdSiL = new TH1D("hdSiL", ";;Counts/40ns", nbins, min, max);
 	TH1D *hdSiR = new TH1D("hdSiR", ";;Counts/40ns", nbins, min, max);
 	TH1D *htSiL = new TH1D("htSiL", ";;Counts/40ns", nbins, min, max);
@@ -26,8 +26,8 @@ void Lifetime(const char *target = "al50", const char *particle = "proton", cons
 	tree->SetBranchAddress("sig2", &sig2);
 	for(Long64_t i=0; i < tree->GetEntries(); i++) {
 		tree->GetEntry(i);
-		if(abs(t2-t1) > 200) continue;
 		if(timeToPrevTME < 10e3 || timeToNextTME < 10e3) continue;
+		if(abs(t2-t1) > 500) continue;
 		if(t2>10e3) continue;
 //		if(!TMath::IsNaN(e3) ) continue;
 		if(sig2->Contains("proton") ) {
@@ -59,7 +59,7 @@ void Lifetime(const char *target = "al50", const char *particle = "proton", cons
 	if(strcmp(arm, "SiR") == 0) {
 		if(strcmp(particle, "proton") == 0 ) {
 			TF1 *fit = new TF1("fit", "expo(0)+pol0(2)", min, max);
-			fit->SetLineColor(kBlue);
+			fit->SetLineColor(kRed);
 			fit->SetParameter(0, 4.31791e+00);
 			fit->SetParLimits(1, fit->GetParameter(1)*1.1, fit->GetParameter(1)*0.9);
 			fit->SetParameter(2, 8.51382e-01);
@@ -75,48 +75,47 @@ void Lifetime(const char *target = "al50", const char *particle = "proton", cons
 				}
 			}
 			TCanvas *pc = new TCanvas("pr", "pr");
-			TPad *p1 = new TPad("p1", "p1",0,0.3,1,1, kWhite, 0, 0);
-			p1->SetBottomMargin(0.05);
-			p1->Draw();
-			TPad *p2 = new TPad("p2", "p2",0,0.0,1,0.3 , kWhite, 0, 0);
-			p2->SetTopMargin(0.00001);
-			p2->SetBottomMargin(0.2);
-			p2->Draw();
-
-			p1->cd();
+//			TPad *p1 = new TPad("p1", "p1",0,0.3,1,1, kWhite, 0, 0);
+//			p1->SetBottomMargin(0.05);
+//			p1->Draw();
+//			TPad *p2 = new TPad("p2", "p2",0,0.0,1,0.3 , kWhite, 0, 0);
+//			p2->SetTopMargin(0.00001);
+//			p2->SetBottomMargin(0.2);
+//			p2->Draw();
+//
+//			p1->cd();
 			gPad->SetLogy();
-			hpSiR->Draw("E1");
-			hpSiR->GetXaxis()->SetLabelSize(0);
-			hpSiR->GetYaxis()->SetMaxDigits(3);
-			hpSiR->GetYaxis()->SetTitleSize(.05);
-			hpSiR->GetYaxis()->SetTitleOffset(.8);
-			hpSiR->GetYaxis()->SetLabelFont(63);
-			hpSiR->GetYaxis()->SetLabelSize(16);
+			hpSiR->Draw("E"); hpSiR->SetMarkerStyle(kCircle);
+//			hpSiR->GetXaxis()->SetLabelSize(0);
+//			hpSiR->GetYaxis()->SetMaxDigits(3);
+//			hpSiR->GetYaxis()->SetTitleSize(.05);
+//			hpSiR->GetYaxis()->SetTitleOffset(.8);
+//			hpSiR->GetYaxis()->SetLabelFont(63);
+//			hpSiR->GetYaxis()->SetLabelSize(16);
 
 			TLegend *legend = new TLegend(0.522923, 0.66879, 0.848138, 0.861996);
-			legend->SetHeader("#bf{AlCap} #it{Preliminary}");
-			legend->AddEntry("", "50#mum (Right 2#sigma)","");
-			legend->AddEntry(hpSiR, "proton", "e");
+			legend->SetHeader("AlCap Al 50#mum proton");
+			legend->AddEntry(hpSiR, "Data", "pe");
 			legend->AddEntry(fit, Form("#tau_{#muAl} %.2f#pm%.2f ns", -1./par[1], 1./(par[1]*par[1]) * fit->GetParError(1) ), "l");
 			legend->Draw();
-			p2->cd();
-			p2->SetGridx();
-			p2->SetGridy();
-			hpSiRRes->Draw();
-			hpSiRRes->GetXaxis()->SetMaxDigits(3);
-			hpSiRRes->GetXaxis()->SetLabelFont(63);
-			hpSiRRes->GetXaxis()->SetLabelSize(15);
-			hpSiRRes->GetXaxis()->SetTitleSize(.1);
-			hpSiRRes->GetXaxis()->SetTitleOffset(.7);
-			hpSiRRes->SetFillColor(38);
-			hpSiRRes->SetLineColor(kWhite);
-			hpSiRRes->GetYaxis()->SetNdivisions(10, 2, 0);
-			hpSiRRes->GetYaxis()->SetLabelFont(63);
-			hpSiRRes->GetYaxis()->SetLabelSize(16);
-			hpSiRRes->GetYaxis()->SetTitleSize(.1);
-			hpSiRRes->GetYaxis()->SetTitleOffset(.4);
-			hpSiRRes->GetYaxis()->CenterTitle();
-			pc->cd();
+//			p2->cd();
+//			p2->SetGridx();
+//			p2->SetGridy();
+//			hpSiRRes->Draw();
+//			hpSiRRes->GetXaxis()->SetMaxDigits(3);
+//			hpSiRRes->GetXaxis()->SetLabelFont(63);
+//			hpSiRRes->GetXaxis()->SetLabelSize(15);
+//			hpSiRRes->GetXaxis()->SetTitleSize(.1);
+//			hpSiRRes->GetXaxis()->SetTitleOffset(.7);
+//			hpSiRRes->SetFillColor(38);
+//			hpSiRRes->SetLineColor(kWhite);
+//			hpSiRRes->GetYaxis()->SetNdivisions(10, 2, 0);
+//			hpSiRRes->GetYaxis()->SetLabelFont(63);
+//			hpSiRRes->GetYaxis()->SetLabelSize(16);
+//			hpSiRRes->GetYaxis()->SetTitleSize(.1);
+//			hpSiRRes->GetYaxis()->SetTitleOffset(.4);
+//			hpSiRRes->GetYaxis()->CenterTitle();
+//			pc->cd();
 			const char *FigsDir = getenv("R15b_OUT");
 			pc->SaveAs(Form("%s/AlCapData_Al50Dataset_%sTime_RightArm.pdf", FigsDir, particle) );
 		} else if(strcmp(particle, "deuteron") == 0) {

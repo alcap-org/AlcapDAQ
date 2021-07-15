@@ -17,9 +17,9 @@ TH1D * Plot(const char *particle = "proton") {
 
 	std::string capitalized = std::string(particle);
 	capitalized[0] = toupper(capitalized[0]);
-	TH1D *hWeightedAverage= new TH1D("hWeightedAverage", ";E[MeV];Particles / muon capture / MeV", 40, 0, 20);
+	TH1D *hWeightedAverage= new TH1D("hWeightedAverage", ";Energy [MeV];Particles / muon capture / MeV", 40, 0, 20);
 	hWeightedAverage->GetYaxis()->SetMaxDigits(3);
-	TH1D *hStats= new TH1D("hStats", ";E[MeV];Particles / muon capture / MeV", 40, 0, 20);
+	TH1D *hStats= new TH1D("hStats", ";Energy [MeV];Particles / muon capture / MeV", 40, 0, 20);
 	hStats->GetYaxis()->SetMaxDigits(3);
 	hStats->SetLineWidth(2);
 
@@ -104,16 +104,24 @@ TH1D * Plot(const char *particle = "proton") {
 //	if(strcmp(particle, "proton") == 0) {
 //		hWeightedAverage->Draw("E2");
 //	} else {
-		hWeightedAverage->Draw("E2 SAME");
+//		hWeightedAverage->Draw("E1 SAME");
 //	}
 	if(strcmp(particle, "proton") == 0) {
 		hWeightedAverage->GetYaxis()->SetRangeUser(1e-5, 8e-3);
 		hStats->GetXaxis()->SetRangeUser(4, 20);
-		hWeightedAverage->SetFillColor(kRed);
+		hStats->SetLineColor(kRed);
+//		hStats->SetMarkerStyle(kFullCircle);
+		hStats->SetMarkerColor(kRed);
+		hWeightedAverage->SetMarkerColor(kRed);
+		hWeightedAverage->SetLineColor(kRed);
 	} else if(strcmp(particle, "deuteron") == 0) {
-		hWeightedAverage->GetXaxis()->SetRangeUser(5, 20);
-		hStats->GetXaxis()->SetRangeUser(5, 20);
-		hWeightedAverage->SetFillColor(kBlue);
+		hWeightedAverage->GetXaxis()->SetRangeUser(4, 20);
+		hStats->GetXaxis()->SetRangeUser(4, 18);
+		hStats->SetLineColor(kBlue);
+//		hStats->SetMarkerStyle(kStar);
+		hStats->SetMarkerColor(kBlue);
+		hWeightedAverage->SetMarkerColor(kBlue);
+		hWeightedAverage->SetLineColor(kBlue);
 	} else if(strcmp(particle, "triton") == 0) {
 		hWeightedAverage->GetXaxis()->SetRangeUser(6, 20);
 		hStats->GetXaxis()->SetRangeUser(6, 20);
@@ -163,6 +171,7 @@ void DrawComparisonWithTwist() {
 	}
 	TGraphErrors *gTProtons = new TGraphErrors(26, twist_protons_E, scale_y, 0, scale_erry);
 	gTProtons->SetFillColor(kGreen);
+	gTProtons->SetFillStyle(3002);
 
 	Double_t twist_deuterons_x[32] = {132.773, 137.255, 142.297, 147.339, 152.941, 157.983, 162.465, 167.507, 172.549, 177.591, 182.633, 187.675, 192.717, 197.199, 202.801, 207.843, 212.885, 217.367, 222.409, 227.451, 232.493, 237.535, 242.577, 247.619, 252.661, 257.143, 262.185, 267.787, 272.269, 277.311, 282.353, 286.835}; 
 	Double_t twist_deuterons_y[32] = {0.000106953, 0.000111834, 0.000114941, 0.000114053, 0.000110947, 0.000106065, 0.000101627, 9.71893e-05, 9.23077e-05, 8.87574e-05, 8.47633e-05, 8.1213e-05 , 7.76627e-05, 7.5e-05 , 7.14497e-05, 6.78994e-05, 6.52367e-05, 6.12426e-05, 5.90237e-05, 5.54734e-05, 5.28107e-05, 4.92604e-05, 4.65976e-05, 4.34911e-05, 4.03846e-05, 3.81657e-05, 3.5503e-05, 3.28402e-05, 3.06213e-05, 2.84024e-05, 2.66272e-05, 2.44083e-05}; 
@@ -177,33 +186,40 @@ void DrawComparisonWithTwist() {
 	}
 	TGraphErrors *gTDeuterons = new TGraphErrors(32, twist_deuterons_E, scale_deuteron_y, 0, scale_deuteron_erry);
 	gTDeuterons->SetFillColor(kGreen-6);
+	gTDeuterons->SetFillStyle(3002);
 
 	TCanvas *c = new TCanvas("c", "c");
-	c->SetLogy();
+//	c->SetLogy();
 	TMultiGraph *mg = new TMultiGraph();
 	mg->Add(gTProtons);
 	mg->Add(gTDeuterons);
-	mg->Draw("A4");
+	mg->Draw("A3");
 
 	TH1D * hp = Plot("proton");
 	TH1D * hd = Plot("deuteron");
 
 	mg->GetXaxis()->SetRangeUser(4, 20);
 	mg->GetYaxis()->SetTitle("Particles / muon capture / MeV");
-	mg->GetXaxis()->SetTitle("E [MeV]");
+	mg->GetXaxis()->SetTitle("Energy [MeV]");
+	mg->GetYaxis()->SetMaxDigits(3);
 
-//	TH1D * ht = Plot("triton");
+	TH1D * ht = Plot("triton");
 //	TH1D * ha = Plot("alpha");
 
 
 	TLegend *legend = new TLegend(0.571633, 0.636943, 0.861032, 0.872611);
 
-	legend->AddEntry(hp, "AlCap Protons", "f");
-	legend->AddEntry(hd, "AlCap Deuterons", "f");
+	legend->AddEntry(hp, "AlCap Protons", "lep");
+	legend->AddEntry(hd, "AlCap Deuterons", "lep");
+	legend->AddEntry(ht, "AlCap Tritons", "lep");
 	legend->AddEntry(gTProtons, "TWIST Protons", "f");
 	legend->AddEntry(gTDeuterons, "TWIST Deuterons", "f");
 	legend->Draw("SAME");
+
+	TLatex prelim;
+	//prelim.DrawLatex(5, 2e-4, "AlCap Preliminary"); //Log position
+	prelim.DrawLatex(5, 0.0077, "AlCap Preliminary"); //Linear position
 	
 	c->Draw();
-	c->SaveAs(Form("%s/AlCapData_TWIST_Al100_Al50_Comparison_Log.pdf", getenv("R15b_OUT") ) );
+	c->SaveAs(Form("%s/AlCapData_TWIST_Al100_Al50_Comparison.png", getenv("R15b_OUT") ) );
 }

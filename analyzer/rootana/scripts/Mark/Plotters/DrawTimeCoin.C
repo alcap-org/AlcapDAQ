@@ -19,14 +19,14 @@ void DrawTimeCoin(std::string target) {
 	tree->SetBranchAddress("t3", &t3);
 	tree->SetBranchAddress("channel", &channel);
 	tree->SetBranchAddress("sig2", &sig2);
-	TH1D *hpSiR = new TH1D("hpSiR", ";t_{2}-t_{1}[ns];Counts", 100, -300, 300);
-	TH1D *hdSiR = new TH1D("hdSiR", ";t_{2}-t_{1}[ns];Counts", 100, -300, 300);
-	TH1D *htSiR = new TH1D("htSiR", ";t_{2}-t_{1}[ns];Counts", 100, -300, 300);
-	TH1D *haSiR = new TH1D("haSiR", ";t_{2}-t_{1}[ns];Counts", 100, -300, 300);
-	TH1D *hpSiL = new TH1D("hpSiL", ";t_{2}-t_{1}[ns];Counts", 100, -300, 300);
-	TH1D *hdSiL = new TH1D("hdSiL", ";t_{2}-t_{1}[ns];Counts", 100, -300, 300);
-	TH1D *htSiL = new TH1D("htSiL", ";t_{2}-t_{1}[ns];Counts", 100, -300, 300);
-	TH1D *haSiL = new TH1D("haSiL", ";t_{2}-t_{1}[ns];Counts", 100, -300, 300);
+	TH1D *hpSiR = new TH1D("hpSiR", ";t_{2}-t_{1}[ns];Counts", 100, -250, 250);
+	TH1D *hdSiR = new TH1D("hdSiR", ";t_{2}-t_{1}[ns];Counts", 100, -250, 250);
+	TH1D *htSiR = new TH1D("htSiR", ";t_{2}-t_{1}[ns];Counts", 100, -250, 250);
+	TH1D *haSiR = new TH1D("haSiR", ";t_{2}-t_{1}[ns];Counts", 100, -250, 250);
+	TH1D *hpSiL = new TH1D("hpSiL", ";t_{2}-t_{1}[ns];Counts", 100, -250, 250);
+	TH1D *hdSiL = new TH1D("hdSiL", ";t_{2}-t_{1}[ns];Counts", 100, -250, 250);
+	TH1D *htSiL = new TH1D("htSiL", ";t_{2}-t_{1}[ns];Counts", 100, -250, 250);
+	TH1D *haSiL = new TH1D("haSiL", ";t_{2}-t_{1}[ns];Counts", 100, -250, 250);
 	for(Int_t i=0; i < tree->GetEntries(); ++i) {
 		tree->GetEntry(i);
 		if(timeToPrevTME < 10e3 || timeToNextTME < 10e3) continue;
@@ -56,8 +56,8 @@ void DrawTimeCoin(std::string target) {
 	htSiR->Draw("SAME"); htSiR->SetLineColor(kGreen);
 	haSiR->Draw("SAME"); haSiR->SetLineColor(kMagenta);
 	TLegend *legend = new TLegend(0.606017, 0.624204, 0.859599, 0.85138);
-	legend->SetHeader("#bf{AlCap} TOF");
-	legend->AddEntry("", Form("%s#mum (Right 2#sigma)", target.c_str() ),"");
+	legend->SetHeader("#bf{AlCap} Al 50#mum");
+	//legend->AddEntry("", Form("%s#mum (Right 2#sigma)", target.c_str() ),"");
 	legend->AddEntry(hpSiR, "proton","l");
 	legend->AddEntry(hdSiR, "deuteron","l");
 	legend->AddEntry(htSiR, "triton","l");

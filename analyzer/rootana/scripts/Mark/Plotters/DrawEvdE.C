@@ -37,10 +37,10 @@ void Construct(const char * target, TH2D *hSiL, TH2D *hSiR, TH2D *hLg_SiL_EvDelt
 			if(channel->Contains("SiR1_3") && a1>3956. ) continue;
 			if(channel->Contains("SiR1_4") && a1>3986. ) continue;
 			hSiR->Fill(e1+e2, e1);
-			hLg_SiR_EvDeltaE->Fill(0.7071 * (TMath::Log10(e1+e2) - TMath::Log10(e1) ), 0.7071 * (TMath::Log10(e1+e2) + TMath::Log10(e1) ) );
+//			hLg_SiR_EvDeltaE->Fill(0.7071 * (TMath::Log10(e1+e2) - TMath::Log10(e1) ), 0.7071 * (TMath::Log10(e1+e2) + TMath::Log10(e1) ) );
 		} else {
-			hSiL->Fill(e1+e2, e1);
-			hLg_SiL_EvDeltaE->Fill(0.7071 * (TMath::Log10(e1+e2) - TMath::Log10(e1) ), 0.7071 * (TMath::Log10(e1+e2) + TMath::Log10(e1) ) );
+//			hSiL->Fill(e1+e2, e1);
+//			hLg_SiL_EvDeltaE->Fill(0.7071 * (TMath::Log10(e1+e2) - TMath::Log10(e1) ), 0.7071 * (TMath::Log10(e1+e2) + TMath::Log10(e1) ) );
 		}
 	}
 
@@ -48,10 +48,10 @@ void Construct(const char * target, TH2D *hSiL, TH2D *hSiR, TH2D *hLg_SiL_EvDelt
 
 void DrawEvdE(std::string target) {
 	const char *FigsDir = getenv("R15b_OUT");
-        TH2D *hSiL = new TH2D("hSiL", "SiL;E [MeV];#DeltaE [MeV]", 200, 0, 20, 200, 0, 8);
-        TH2D *hSiR = new TH2D("hSiR", "SiR;E [MeV];#DeltaE [MeV]", 200, 0, 20, 200, 0, 8);
-	TH2D *hLg_SiL_EvDeltaE = new TH2D("hLg_SiL_EvDeltaE", ";LgE-Lg#DeltaE / #sqrt{2};LgE+Lg#DeltaE / #sqrt{2}", 250, -0.1, 1.5, 100, .26, 1.4);
-	TH2D *hLg_SiR_EvDeltaE = new TH2D("hLg_SiR_EvDeltaE", ";LgE-Lg#DeltaE / #sqrt{2};LgE+Lg#DeltaE / #sqrt{2}", 250, -0.1, 1.5, 100, .26, 1.4);
+        TH2D *hSiL = new TH2D("hSiL", "SiL;E [MeV];#DeltaE [MeV]", 20, 0, 20, 20, 0, 8);
+        TH2D *hSiR = new TH2D("hSiR", "SiR;E [MeV];#DeltaE [MeV]", 20, 0, 20, 20, 0, 8);
+	TH2D *hLg_SiL_EvDeltaE = new TH2D("hLg_SiL_EvDeltaE", ";LogE-Log#DeltaE / #sqrt{2};LogE+Log#DeltaE / #sqrt{2}", 250, -0.1, 1.5, 100, .26, 1.4);
+	TH2D *hLg_SiR_EvDeltaE = new TH2D("hLg_SiR_EvDeltaE", ";LogE-Log#DeltaE / #sqrt{2};LogE+Log#DeltaE / #sqrt{2}", 250, -0.1, 1.5, 100, .26, 1.4);
 	Construct(target.c_str(), hSiL, hSiR, hLg_SiL_EvDeltaE, hLg_SiR_EvDeltaE);
 	TFile *fCuts = new TFile(Form("%s-cuts.root", target.c_str() ), "READ");
 	TCutG *p_lg_SiR = (TCutG *)fCuts->Get("hLg_SiR_EvDeltaE_proton_2sigma");
@@ -72,40 +72,41 @@ void DrawEvdE(std::string target) {
 	TCutG *aSiL = (TCutG *)fCuts->Get("r_hLg_SiL_EvDeltaE_alpha_2sigma");
 
 	target[0] = toupper(target[0]);
-	{
-		TCanvas *lg_r = new TCanvas("lg_r", "r");
-		hLg_SiR_EvDeltaE->Draw();
-		p_lg_SiR->Draw("SAME"); p_lg_SiR->SetLineColor(kRed);
-		d_lg_SiR->Draw("SAME"); d_lg_SiR->SetLineColor(kBlue);
-		t_lg_SiR->Draw("SAME"); t_lg_SiR->SetLineColor(kGreen);
-		a_lg_SiR->Draw("SAME"); a_lg_SiR->SetLineColor(kMagenta);
-		TLegend *legend = new TLegend(0.64, 0.57, 0.87, 0.75);
-		legend->SetHeader("#bf{AlCap} Log Rotated PID");
-		legend->AddEntry("", Form("%s#mum (Right 2#sigma)", target.c_str() ),"");
-		legend->AddEntry(p_lg_SiR,"proton","l");
-		legend->AddEntry(d_lg_SiR,"deuteron","l");
-		legend->AddEntry(d_lg_SiR,"triton","l");
-		legend->AddEntry(a_lg_SiR,"alpha","l");
-		legend->Draw();
-		lg_r->SaveAs(Form("%s/AlCapData_%sDataset_TwoLayer_Log_EvdE_RightArm.pdf", FigsDir, target.c_str() ) );
-	}
-	{
-		TCanvas *lg_l = new TCanvas("lg_l", "l");
-		hLg_SiL_EvDeltaE->Draw();
-		p_lg_SiL->Draw("SAME"); p_lg_SiL->SetLineColor(kRed);
-		d_lg_SiL->Draw("SAME"); d_lg_SiL->SetLineColor(kBlue);
-		t_lg_SiL->Draw("SAME"); t_lg_SiL->SetLineColor(kGreen);
-		a_lg_SiL->Draw("SAME"); a_lg_SiL->SetLineColor(kMagenta);
-		TLegend *legend = new TLegend(0.64, 0.57, 0.87, 0.75);
-		legend->SetHeader("#bf{AlCap} Log Rotated PID");
-		legend->AddEntry("", Form("%s#mum (Left 2#sigma)", target.c_str() ),"");
-		legend->AddEntry(p_lg_SiL,"proton","l");
-		legend->AddEntry(d_lg_SiL,"deuteron","l");
-		legend->AddEntry(d_lg_SiL,"triton","l");
-		legend->AddEntry(a_lg_SiL,"alpha","l");
-		legend->Draw();
-		lg_l->SaveAs(Form("%s/AlCapData_%sDataset_TwoLayer_Log_EvdE_LeftArm.pdf", FigsDir, target.c_str() ) );
-	}
+//	{
+//		TCanvas *lg_r = new TCanvas("lg_r", "r");
+//		hLg_SiR_EvDeltaE->Draw();
+//		p_lg_SiR->Draw("SAME"); p_lg_SiR->SetLineColor(kRed);
+//		d_lg_SiR->Draw("SAME"); d_lg_SiR->SetLineColor(kBlue);
+//		t_lg_SiR->Draw("SAME"); t_lg_SiR->SetLineColor(kGreen);
+//		a_lg_SiR->Draw("SAME"); a_lg_SiR->SetLineColor(kMagenta);
+//		TLegend *legend = new TLegend(0.6, 0.55, 0.87, 0.75);
+//		legend->SetHeader("#bf{AlCap} Log Rotated PID");
+//		legend->AddEntry("", Form("%s#mum (Right 2#sigma)", target.c_str() ),"");
+//		legend->AddEntry(p_lg_SiR,"proton","l");
+//		legend->AddEntry(d_lg_SiR,"deuteron","l");
+//		legend->AddEntry(t_lg_SiR,"triton","l");
+//		legend->AddEntry(a_lg_SiR,"alpha","l");
+//		legend->Draw();
+//		lg_r->SaveAs(Form("%s/AlCapData_%sDataset_TwoLayer_Log_EvdE_RightArm.pdf", FigsDir, target.c_str() ) );
+//		lg_r->SaveAs("log.root");
+//	}
+//	{
+//		TCanvas *lg_l = new TCanvas("lg_l", "l");
+//		hLg_SiL_EvDeltaE->Draw();
+//		p_lg_SiL->Draw("SAME"); p_lg_SiL->SetLineColor(kRed);
+//		d_lg_SiL->Draw("SAME"); d_lg_SiL->SetLineColor(kBlue);
+//		t_lg_SiL->Draw("SAME"); t_lg_SiL->SetLineColor(kGreen);
+//		a_lg_SiL->Draw("SAME"); a_lg_SiL->SetLineColor(kMagenta);
+//		TLegend *legend = new TLegend(0.64, 0.57, 0.87, 0.75);
+//		legend->SetHeader("#bf{AlCap} Log Rotated PID");
+//		legend->AddEntry("", Form("%s#mum (Left 2#sigma)", target.c_str() ),"");
+//		legend->AddEntry(p_lg_SiL,"proton","l");
+//		legend->AddEntry(d_lg_SiL,"deuteron","l");
+//		legend->AddEntry(t_lg_SiL,"triton","l");
+//		legend->AddEntry(a_lg_SiL,"alpha","l");
+//		legend->Draw();
+//		lg_l->SaveAs(Form("%s/AlCapData_%sDataset_TwoLayer_Log_EvdE_LeftArm.pdf", FigsDir, target.c_str() ) );
+//	}
 	{
 		TCanvas *r = new TCanvas("r", "r");
 		hSiR->Draw();
@@ -118,26 +119,26 @@ void DrawEvdE(std::string target) {
 		legend->AddEntry("", Form("%s#mum (Right 2#sigma)", target.c_str() ),"");
 		legend->AddEntry(pSiR,"proton","l");
 		legend->AddEntry(dSiR,"deuteron","l");
-		legend->AddEntry(dSiR,"triton","l");
+		legend->AddEntry(tSiR,"triton","l");
 		legend->AddEntry(aSiR,"alpha","l");
 		legend->Draw();
 		r->SaveAs(Form("%s/AlCapData_%sDataset_TwoLayer_EvdE_RightArm.pdf", FigsDir, target.c_str() ) );
 	}
-	{
-		TCanvas *l = new TCanvas("l", "l");
-		hSiL->Draw();
-		pSiL->Draw("SAME"); pSiL->SetLineColor(kRed);
-		dSiL->Draw("SAME"); dSiL->SetLineColor(kBlue);
-		tSiL->Draw("SAME"); tSiL->SetLineColor(kGreen);
-		aSiL->Draw("SAME"); aSiL->SetLineColor(kMagenta);
-		TLegend *legend = new TLegend(0.64, 0.66, 0.85, 0.85);
-		legend->SetHeader("#bf{AlCap} PID");
-		legend->AddEntry("", Form("%s#mum (Left 2#sigma)", target.c_str() ),"");
-		legend->AddEntry(pSiL,"proton","l");
-		legend->AddEntry(dSiL,"deuteron","l");
-		legend->AddEntry(dSiL,"triton","l");
-		legend->AddEntry(aSiL,"alpha","l");
-		legend->Draw();
-		l->SaveAs(Form("%s/AlCapData_%sDataset_TwoLayer_EvdE_LeftArm.pdf", FigsDir, target.c_str() ) );
-	}
+//	{
+//		TCanvas *l = new TCanvas("l", "l");
+//		hSiL->Draw();
+//		pSiL->Draw("SAME"); pSiL->SetLineColor(kRed);
+//		dSiL->Draw("SAME"); dSiL->SetLineColor(kBlue);
+//		tSiL->Draw("SAME"); tSiL->SetLineColor(kGreen);
+//		aSiL->Draw("SAME"); aSiL->SetLineColor(kMagenta);
+//		TLegend *legend = new TLegend(0.64, 0.66, 0.85, 0.85);
+//		legend->SetHeader("#bf{AlCap} PID");
+//		legend->AddEntry("", Form("%s#mum (Left 2#sigma)", target.c_str() ),"");
+//		legend->AddEntry(pSiL,"proton","l");
+//		legend->AddEntry(dSiL,"deuteron","l");
+//		legend->AddEntry(tSiL,"triton","l");
+//		legend->AddEntry(aSiL,"alpha","l");
+//		legend->Draw();
+//		l->SaveAs(Form("%s/AlCapData_%sDataset_TwoLayer_EvdE_LeftArm.pdf", FigsDir, target.c_str() ) );
+//	}
 }

@@ -15,6 +15,7 @@
 #include "TH1D.h"
 #include "RooUnfoldResponse.h"
 #include "RooUnfoldBayes.h"
+#include "RooUnfoldSvd.h"
 #endif
 
 void PiecewiseFit(TH1D *hReco, Double_t low, Double_t high) {
@@ -34,6 +35,10 @@ fit->FixParameter(4, 8);
 }
 void Process(RooUnfoldResponse *response, TH1D *hMeas, const char *arm = "SiL", std::string target = "al50", const char * particle = "proton", bool normalise = kFALSE) {
 	RooUnfoldBayes unfold(response, hMeas);
+	
+//	RooUnfoldSvd unfold(response, hMeas);
+
+//	unfold.IncludeSystematics(1);
 	TH1D* hReco= (TH1D*) unfold.Hreco();
 	hReco->SetName(Form("h%s_%s", particle, arm) );
 	std::cout << std::fixed;
@@ -94,6 +99,7 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 	TString  *pt = new TString("");
 	TH1D *hMeasDataLeft = new TH1D("hMeasDataLeft", "hMeasDataLeft;E [keV]", 50, 0, 25);
 	TH1D *hMeasDataRight = new TH1D("hMeasDataRight", "hMeasDataRight;E [keV]", 50, 0, 25);
+	TH1D *hSubtract = new TH1D("hSubtract", "hSubtract;E [keV]", 50, 0, 25);
 	TH1D *hMeasDataRight3 = new TH1D("hMeasDataRight3", "hMeasDataRight3;E [keV]", 50, 0, 25);
 	TTree *tree = (TTree *)fData->Get("tree");
 	tree->SetBranchAddress("timeToPrevTME", &timeToPrevTME);
@@ -133,6 +139,7 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 			} else {
 				if(pt->Contains(particle ) ) {
 					hMeasDataRight3->Fill(e1+e2+e3);
+					hSubtract->Fill(e1+e2);
 				}
 			}
 		}
@@ -169,8 +176,10 @@ void RooUnfoldAlCap(std::string target = "al50", std::string particle="proton", 
 	}
 	Process(L_TM, hMeasDataLeft, "SiL", target, particle.c_str(), normalise);
 
-	hMeasDataRight3->Scale(1/0.77);
+	hMeasDataRight3->Scale(1/0.81);
 	hMeasDataRight->Add(hMeasDataRight3);
+	hSubtract->Scale((1/0.81) * (1-0.81) );
+	hMeasDataRight->Add(hSubtract, -1);
 	Process(R_TM, hMeasDataRight, "SiR", target, particle.c_str(), normalise);
 
 	fOutputFile->Write();
