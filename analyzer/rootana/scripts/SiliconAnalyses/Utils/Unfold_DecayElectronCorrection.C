@@ -110,4 +110,8 @@ void Unfold_DecayElectronCorrection(const Unfold_DecayElectronCorrectionArgs& ar
   hScale->Write();
   outfile->Write();
   outfile->Close();
+
+  file->Close();
+  corrfile->Close();
+  countfile->Close();
 }

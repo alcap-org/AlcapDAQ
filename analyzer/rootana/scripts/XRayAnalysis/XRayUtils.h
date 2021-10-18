@@ -277,6 +277,7 @@ RooWorkspace* FitPeak(std::string wsname, double energy_low, double energy_high,
 
   // First, the linear background
   factory_cmd << "Polynomial::pol1_bkg(edep[" << energy_low << ", " << energy_high << "], {bkg_offset[-10, 100], bkg_slope[-0.1, 0.1]})";
+  //  factory_cmd << "Exponential::pol1_bkg(edep[" << energy_low << ", " << energy_high << "], expo_slope[-1, -0.00001])";
   ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
   sum_factory_cmd << "nbkg[0, 500000]*pol1_bkg";
   n_fit_params += 3; // bkg_offset, bkg_slope, nbkg
@@ -289,18 +290,32 @@ RooWorkspace* FitPeak(std::string wsname, double energy_low, double energy_high,
 
   // For Al 2p-1s, we also have a second peak that's a background
   if (xray->material == "Al" && xray->transition == "2p-1s") {
-    factory_cmd << "Gaussian::bkgpeak_pdf(edep[" << energy_low << ", " << energy_high << "], bkg_mean[351,352], bkg_sigma[0.1, 10])";
+    factory_cmd << "Gaussian::bkgpeak_pdf(edep[" << energy_low << ", " << energy_high << "], bkg_mean[349,352], bkg_sigma[0.1, 10])";
     ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
     sum_factory_cmd << ", bkg_area[0,500000]*bkgpeak_pdf";
     n_fit_params += 3; // bkg_mean, bkg_sigma, bkg_area
   }
 
   if (xray->material == "Ti" && xray->transition == "2p-1s") {
-    factory_cmd << "Gaussian::bkgpeak_pdf(edep[" << energy_low << ", " << energy_high << "], bkg_mean[938,942], bkg_sigma[0.1, 10])";
+    //    factory_cmd << "Gaussian::bkgpeak_pdf(edep[" << energy_low << ", " << energy_high << "], bkg_mean[938,942], bkg_sigma[0.1, 10])";
+    factory_cmd << "Gaussian::bkgpeak_pdf(edep[" << energy_low << ", " << energy_high << "], bkg_mean[938,942], xray_sigma)";
     ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
     sum_factory_cmd << ", bkg_area[0,500000]*bkgpeak_pdf";
-    n_fit_params += 3; // bkg_mean, bkg_sigma, bkg_area
+    n_fit_params += 2;//3; // bkg_mean, bkg_sigma, bkg_area
+
+    // add the x-ray fine splitting
+    factory_cmd << "Gaussian::xraypeak2_pdf(edep[" << energy_low << ", " << energy_high << "], xray_mean2[" << xray->energy-3 << ", " << xray->energy+3 << "], xray_sigma)"; // the x-ray peak itself
+    ws->factory(factory_cmd.str().c_str()); factory_cmd.str("");
+    sum_factory_cmd << ", xray_area2[0,500000]*xraypeak2_pdf";
+    n_fit_params += 3; // xray_mean2, xray_area2
   }
+
+  /* if (xray->material == "Si" && xray->transition == "2p-1s") { */
+  /*   factory_cmd << "Gaussian::xraypeak2_pdf(edep[" << energy_low << ", " << energy_high << "], xray_mean2[" << xray->energy-3 << ", " << xray->energy+1 << "], xray_sigma)"; // the x-ray peak itself */
+  /*   ws->factory(factory_cmd.str().c_str()); factory_cmd.str(""); */
+  /*   sum_factory_cmd << ", xray_area2[0,500000]*xraypeak2_pdf"; */
+  /*   n_fit_params += 3; // xray_mean2, xray_area2 */
+  /* } */
 
   
   // Now create the SUM pdf

@@ -37,7 +37,7 @@ TemplateCreator::TemplateCreator(modules::options* opts):
     fIntegralRatioMax=opts->GetDouble("max_ratio");
     fIntegralRatioMin=opts->GetDouble("min_ratio");
   }
-
+  fSinglePulse = opts->GetBool("single_pulse", false);
 }
 
 TemplateCreator::~TemplateCreator(){
@@ -115,7 +115,7 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
   for(ChannelList::iterator i_ch=fChannels.begin(); i_ch!=fChannels.end(); ++i_ch){
 
     // See if we already have a converged template for this detector
-    if (i_ch->template_pulse->HasConverged()) {
+    if (i_ch->template_pulse->HasConverged() || (fSinglePulse && !i_ch->template_pulse->Empty())) {
       no_converged++;
       continue;
     }
@@ -242,7 +242,12 @@ int TemplateCreator::ProcessEntry(TGlobalData* gData, const TSetupData* setup){
 
 	  }
 	}
-        continue;
+	if (fSinglePulse) {
+	  break; // we only want a one-pulse template so go to the next channel
+	}
+	else {
+	  continue; // add more pulses
+	}
       }
 
 

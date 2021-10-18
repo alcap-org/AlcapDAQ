@@ -71,12 +71,14 @@ void Systematic_FinalPlot(const Systematic_FinalPlotArgs& args) {
     std::string systhistname = args.syst_val_histnames.at(i_systematic) + "/hSystematic";
     std::cout << args.syst_val_histnames.at(i_systematic) << std::endl;
     TH1F* hSyst = (TH1F*) syst_file->Get(systhistname.c_str());
+    if (!hSyst) {
+      std::cout << "Problem getting systematic histogram " << systhistname << std::endl;
+    }
     hSyst->SetName(args.syst_val_histnames.at(i_systematic).c_str());
 
     for (int i_bin = 1; i_bin <= central_hist->GetNbinsX(); ++i_bin) {
       double& old_low_error2 = rate_low_errs.at(i_bin-1);
       double& old_high_error2 = rate_high_errs.at(i_bin-1);
-      //      std::cout << "Old Rate = " << rates.at(i_bin-1) << " + " << std::sqrt(old_high_error2) << " - " << std::sqrt(old_low_error2) << std::endl;
 
       double& old_low_syst_error2 = rate_low_syst_errs.at(i_bin-1);
       double& old_high_syst_error2 = rate_high_syst_errs.at(i_bin-1);
@@ -99,8 +101,13 @@ void Systematic_FinalPlot(const Systematic_FinalPlotArgs& args) {
 	old_low_error2 = old_low_error2 + syst_error*syst_error;
 	old_low_syst_error2 = old_low_syst_error2 + syst_error*syst_error;
       }
-      
-      //      std::cout << "New Rate = " << rates.at(i_bin-1) << " + " << std::sqrt(old_high_error2) << " - " << std::sqrt(old_low_error2) << std::endl;
+
+      // if (rates.at(i_bin-1) > 0) {
+      // 	std::cout << "E = " << central_hist->GetBinCenter(i_bin) << std::endl;
+      // 	std::cout << "Old Rate = " << rates.at(i_bin-1) << " + " << std::sqrt(old_high_error2) << " - " << std::sqrt(old_low_error2) << std::endl;
+      // 	std::cout << "syst error = " << hSyst->GetBinContent(i_bin) << "% = " << syst_error << std::endl;
+      // 	std::cout << "New Rate = " << rates.at(i_bin-1) << " + " << std::sqrt(old_high_error2) << " - " << std::sqrt(old_low_error2) << std::endl;
+      // }
 
       // double current_error = hFinalSystHist->GetBinError(i_bin);
       // double new_error = std::sqrt(current_error*current_error + syst_error*syst_error);

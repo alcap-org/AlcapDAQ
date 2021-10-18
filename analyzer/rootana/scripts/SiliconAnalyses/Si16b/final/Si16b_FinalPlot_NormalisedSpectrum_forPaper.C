@@ -2,23 +2,28 @@
 
 void Si16b_FinalPlot_NormalisedSpectrum_forPaper(std::string savedir = "", std::ostream& numbers_file = std::cout) {
     
-  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_3sigma.root";
+  //  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_1.root";
+  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_2.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
-  double x_min = 2000;
-  double x_max = 17000;
+  double x_min = 0;
+  double x_max = 20;//17;
   
   const int n_ranges = 1;
-  double min_energies[n_ranges] = {15000};
-  double max_energies[n_ranges] = {16000};
+  double min_energies[n_ranges] = {15};
+  double max_energies[n_ranges] = {17};
   
   const int n_settings = 4;
   std::string particle_names[n_settings] = {"proton", "deuteron", "triton", "alpha"};
   std::string Particle_names[n_settings] = {"Proton", "Deuteron", "Triton", "Alpha"};
-  Int_t colours[n_settings] = {kRed, kCyan, kMagenta, kSpring};
+  Int_t colours[n_settings] = {kRed, kBlue, kGreen, kMagenta};//{kRed, kCyan, kMagenta, kSpring};
+  Int_t fill_styles[n_settings] = {3244, 3315, 3351, 3481};
+  Int_t marker_styles[n_settings] = {kFullCircle, kStar, kFullSquare, kFullTriangleUp};
   std::string leglabels[n_settings] = {"protons", "deuterons", "tritons", "alphas"};
-  double min_best_ranges[n_settings] = {3000, 5000, 5000, 15000};
-  double max_best_ranges[n_settings] = {17000, 17000, 17000, 20000};
+  double min_drawn_ranges[n_settings] = {2, 3, 3, 10};
+  double max_drawn_ranges[n_settings] = {20, 19, 18, 20};
+  double min_best_ranges[n_settings] = {3, 5, 5, 15};
+  double max_best_ranges[n_settings] = {17, 17, 17, 20};
   
   TH2F* hAllRates[n_settings] = {0};
   TH2F* hAllStatErrors[n_settings] = {0};
@@ -35,15 +40,16 @@ void Si16b_FinalPlot_NormalisedSpectrum_forPaper(std::string savedir = "", std::
   double sum_low_syst_errors[n_ranges] = {0};
   double sum_high_syst_errors[n_ranges] = {0};
   
-  TLegend* leg = new TLegend(0.60,0.65,0.85,0.85);
+  TLegend* leg = new TLegend(0.70,0.5,0.85,0.85);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.035);
   leg->SetFillColor(kWhite);
 
-  TLegend* leg_for_all = new TLegend(0.45,0.65,0.80,0.85);
+  TLegend* leg_for_all = new TLegend(0.60,0.60,0.85,0.85);
   leg_for_all->SetBorderSize(0);
   leg_for_all->SetTextSize(0.035);
   leg_for_all->SetFillColor(kWhite);
+  leg_for_all->SetHeader("AlCap Si");
 
   std::stringstream leglabel;
   TCanvas* c_all_lin = new TCanvas();
@@ -57,8 +63,9 @@ void Si16b_FinalPlot_NormalisedSpectrum_forPaper(std::string savedir = "", std::
     std::string particle = particle_names[i_setting];
     std::string Particle = Particle_names[i_setting];
     Int_t i_colour = colours[i_setting];
+    Int_t i_marker_style = marker_styles[i_setting];
 
-    std::string i_dirname = "FinalSystPlot_" + particle + "_TCutG";
+    std::string i_dirname = "FinalSystPlot_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_BinW500keV";
 
     std::string i_statname = i_dirname + "/hFinalStat";
     TGraphAsymmErrors* stat_spectrum = (TGraphAsymmErrors*) file->Get(i_statname.c_str());
@@ -81,8 +88,18 @@ void Si16b_FinalPlot_NormalisedSpectrum_forPaper(std::string savedir = "", std::
       return;
     }
 
-    stat_spectrum->SetFillColor(kGreen);
-    statsyst_spectrum->SetFillColor(kOrange);
+    // Remove 18 MeV deuteron point
+    if (particle == "deuteron") {
+      for (int i_point = 0; i_point < stat_spectrum->GetN(); ++i_point) {
+	if ( *(stat_spectrum->GetX()+i_point) > 18 && *(stat_spectrum->GetX()+i_point) < 19) {
+	  stat_spectrum->RemovePoint(i_point);
+	  statsyst_spectrum->RemovePoint(i_point);	  
+	}
+      }
+    }
+    
+    //    stat_spectrum->SetFillColor(kGreen);
+    //    statsyst_spectrum->SetFillColor(kOrange);
     stat_spectrum->SetLineColor(kGreen);
     statsyst_spectrum->SetLineColor(kOrange);
     stat_spectrum->SetLineWidth(2);
@@ -90,8 +107,8 @@ void Si16b_FinalPlot_NormalisedSpectrum_forPaper(std::string savedir = "", std::
     
     //    statsyst_spectrum->Draw("APE");
     statsyst_spectrum->GetXaxis()->SetRangeUser(x_min, x_max);
-    statsyst_spectrum->GetXaxis()->SetTitle("Energy [keV]");
-    statsyst_spectrum->GetYaxis()->SetTitle("Particles / muon capture / keV");
+    statsyst_spectrum->GetXaxis()->SetTitle("Energy [MeV]");
+    statsyst_spectrum->GetYaxis()->SetTitle("Particles / muon capture / MeV");
     statsyst_spectrum->GetXaxis()->SetTitleOffset(1.0);
     statsyst_spectrum->GetYaxis()->SetTitleOffset(1.0);
     //    stat_spectrum->Draw("PE SAME");
@@ -116,27 +133,48 @@ void Si16b_FinalPlot_NormalisedSpectrum_forPaper(std::string savedir = "", std::
     c_all_lin->cd();
     TGraphErrors* for_all = (TGraphErrors*) statsyst_spectrum->Clone("for_all");
     for_all->SetLineColor(i_colour);
+    for_all->SetLineWidth(2);
+    for_all->SetMarkerStyle(i_marker_style);
+    for_all->SetMarkerColor(i_colour);
+    for (int i_point = 0; i_point < for_all->GetN(); ++i_point) {
+      if (*(for_all->GetX()+i_point) < min_drawn_ranges[i_setting]
+	  || *(for_all->GetX()+i_point) > max_drawn_ranges[i_setting]) {
+	for_all->RemovePoint(i_point);
+	--i_point;
+      }
+    }
+    //    for_all->SetFillColor(i_colour);
+    //    for_all->SetFillStyle(fill_styles[i_setting]);
+    TGraphErrors* for_all_stats = (TGraphErrors*) stat_spectrum->Clone("for_all_stats");
+    //    for_all_stats->SetLineColor(kBlack);
+    for_all_stats->SetLineColor(i_colour);
+    //    for_all_stats->SetMarkerColor(kBlack);
+    for_all_stats->SetMarkerColor(i_colour);
+    for_all_stats->SetMarkerStyle(i_marker_style);
     leglabel.str("");
-    leglabel << leglabels[i_setting] << " (stat.+syst. errors)";
-    leg_for_all->AddEntry(for_all, leglabel.str().c_str(), "l");
+    leglabel << leglabels[i_setting];// << " (stat.+syst. errors)";
+    leg_for_all->AddEntry(for_all, leglabel.str().c_str(), "lp");
     if (i_setting==0) {
-      for_all->Draw("APE");
+      for_all->Draw("APEL");
     }
     else {
-      for_all->Draw("PE SAME");
+      for_all->Draw("PEL SAME");
     }
-    latex->DrawLatexNDC(0.6, 0.5, "AlCap #bf{#it{Preliminary} }");
+    for_all_stats->Draw("PE SAME");
+    //    latex->DrawLatexNDC(0.6, 0.5, "AlCap #bf{#it{Preliminary} }");
+
 
     c_all_log->cd();
     TGraphErrors* for_all_log = (TGraphErrors*) for_all->Clone("for_all_log");
     if (i_setting==0) {
-      for_all_log->Draw("APE");
-      for_all_log->GetYaxis()->SetRangeUser(1e-8, 1e-3);
-      latex->DrawLatexNDC(0.17, 0.75, "AlCap #bf{#it{Preliminary} }");
+      for_all_log->Draw("APEL");
+      for_all_log->GetYaxis()->SetRangeUser(1e-5, 1e-1);
+      //      latex->DrawLatexNDC(0.17, 0.75, "AlCap #bf{#it{Preliminary} }");
     }
     else {
-      for_all_log->Draw("PE SAME");
+      for_all_log->Draw("PEL SAME");
     }
+    for_all_stats->Draw("PE SAME");
     //    arrow->Draw();
     //    arrow_latex->DrawLatex(arrow_latex_x, arrow_latex_y, text.str().c_str());
     
@@ -161,9 +199,9 @@ void Si16b_FinalPlot_NormalisedSpectrum_forPaper(std::string savedir = "", std::
     }
 
     double min_range = 0;
-    double max_range = 25000;
-    double max_range_step = 25000;
-    double min_range_step = 1000;
+    double max_range = 25;
+    double max_range_step = 25;
+    double min_range_step = 1;
     int n_bins = (max_range - min_range) / min_range_step;
     std::string histname = "hAllRates_" + particle;
     hAllRates[i_setting] = new TH2F(histname.c_str(), "", n_bins,min_range,max_range, n_bins,min_range,max_range);
@@ -188,13 +226,13 @@ void Si16b_FinalPlot_NormalisedSpectrum_forPaper(std::string savedir = "", std::
 	if (max_energy > max_range) {
 	  continue;
 	}
-	else if (particle == "proton" && max_energy>17000) {
+	else if (particle == "proton" && max_energy>17) {
 	  continue;
 	}
-	else if (particle == "deuteron" && max_energy>17000) {
+	else if (particle == "deuteron" && max_energy>17) {
 	  continue;
 	}
-	else if (particle == "triton" && max_energy>17000) {
+	else if (particle == "triton" && max_energy>17) {
 	  continue;
 	}
 
@@ -204,11 +242,11 @@ void Si16b_FinalPlot_NormalisedSpectrum_forPaper(std::string savedir = "", std::
 	double total_low_syst_error = 0;
 	IntegrateRates_wStatAndSystSpectra(stat_spectrum, syst_spectrum, min_energy, max_energy,
 					   rate, total_stat_error, total_high_syst_error, total_low_syst_error);
-	//	std::cout << particle << ": Rate (" << min_energy/1000 << " -- " << max_energy/1000 << " MeV) = " << rate << std::endl;
-	hAllRates[i_setting]->Fill(min_energy,max_energy-500,rate);
-	hAllStatErrors[i_setting]->Fill(min_energy,max_energy-500,total_stat_error);
-	hAllHighSystErrors[i_setting]->Fill(min_energy,max_energy-500,total_high_syst_error);
-	hAllLowSystErrors[i_setting]->Fill(min_energy,max_energy-500,total_low_syst_error);
+	//	std::cout << particle << ": Rate (" << min_energy << " -- " << max_energy << " MeV) = " << rate << std::endl;
+	hAllRates[i_setting]->Fill(min_energy,max_energy-0.500,rate);
+	hAllStatErrors[i_setting]->Fill(min_energy,max_energy-0.500,total_stat_error);
+	hAllHighSystErrors[i_setting]->Fill(min_energy,max_energy-0.500,total_high_syst_error);
+	hAllLowSystErrors[i_setting]->Fill(min_energy,max_energy-0.500,total_low_syst_error);
       }
     }
     double min_frac_uncertainty = 99999;
@@ -287,13 +325,23 @@ void Si16b_FinalPlot_NormalisedSpectrum_forPaper(std::string savedir = "", std::
     // latex2->DrawLatexNDC(0.5, 0.35, rate_text.str().c_str());
 
     numbers_file << std::fixed << std::setprecision(0);
-    numbers_file << "\\newcommand\\Sib" << Particle << "BestRange{" << min_energy/1000 << " -- " << max_energy/1000 << "}" << std::endl;
+    numbers_file << "\\newcommand\\Sib" << Particle << "BestRange{" << min_energy << " -- " << max_energy << "}" << std::endl;
     numbers_file << std::fixed << std::setprecision(2);
     numbers_file << "\\newcommand\\Sib" << Particle << "BestRateBare{" << "" << rate/1e-3 << "}" << std::endl;
     numbers_file << "\\newcommand\\Sib" << Particle << "BestStatErrBare{" << stat_error/1e-3 << "}" << std::endl;
     numbers_file << "\\newcommand\\Sib" << Particle << "BestHighSystErrBare{" << high_syst_error/1e-3 << "}" << std::endl;
     numbers_file << "\\newcommand\\Sib" << Particle << "BestLowSystErrBare{" << low_syst_error/1e-3 << "}" << std::endl;
-    numbers_file << "\\newcommand\\Sib" << Particle << "BestRateFull{$(\\Sib" << Particle << "BestRateBare \\pm \\Sib" << Particle << "BestStatErrBare ~\\text{(stat.)} ^{+\\Sib" << Particle << "BestHighSystErrBare}_{-\\Sib" << Particle << "BestLowSystErrBare}~\\text{(syst.)}) \\times 10^{-3}$}" << std::endl;
+
+    //    numbers_file << "\\newcommand\\Sib" << Particle << "BestRateFull{$(\\Sib" << Particle << "BestRateBare \\pm \\Sib" << Particle << "BestStatErrBare ~\\text{(stat.)} ^{+\\Sib" << Particle << "BestHighSystErrBare}_{-\\Sib" << Particle << "BestLowSystErrBare}~\\text{(syst.)}) \\times 10^{-3}$}" << std::endl;
+    numbers_file << "\\newcommand\\Sib" << Particle << "BestRateFull{$\\Sib" << Particle << "BestRateBare \\pm \\Sib" << Particle << "BestStatErrBare ~\\text{(stat.)} \\pm";
+    if (high_syst_error > low_syst_error){
+      numbers_file << " \\Sib" << Particle << "BestHighSystErrBare";
+    }
+    else {
+      numbers_file << " \\Sib" << Particle << "BestLowSystErrBare";
+    }
+    numbers_file << "~\\text{(syst.)}$}" << std::endl;//) \\times 10^{-3}$}" << std::endl;
+    
     numbers_file << "\\newcommand\\Sib" << Particle << "BestStatFracUncertainty{$\\pm" << (stat_error/rate)*100 << "\\%$}" << std::endl;
     numbers_file << "\\newcommand\\Sib" << Particle << "BestSystFracUncertainty{$^{+" << (high_syst_error/rate)*100 << "\\%}_{-" << (low_syst_error/rate)*100 << "\\%}$}" << std::endl;
     numbers_file << std::setprecision(1);

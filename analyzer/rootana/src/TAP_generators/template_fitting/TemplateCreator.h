@@ -86,7 +86,8 @@ class TemplateCreator : public BaseModule{
   bool fAnalyseAllChannels;
   ChannelList fChannels;
   std::vector<std::string> fRequestedChannels;
-
+  bool fSinglePulse;
+  
   bool fCutIntegralRatio;
   double fIntegralMax, fIntegralMin;
   double fIntegralRatioMax, fIntegralRatioMin;

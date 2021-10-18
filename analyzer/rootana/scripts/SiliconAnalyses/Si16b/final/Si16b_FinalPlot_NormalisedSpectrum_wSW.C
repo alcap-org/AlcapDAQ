@@ -8,7 +8,8 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSW(std::string savedir = "") {
   double max_energies[n_ranges] = {26000,26000, 26000, 10000, 10000, 8000, 14000, 15000};
   double SW_rate[n_ranges] = {0};
     
-  std::string SW_filename = "~/data/results/SiL3/SW-plots.root";
+  //  std::string SW_filename = "~/data/results/SiL3/SW-plots.root";
+  std::string SW_filename = "~/data/results/SiL3/SW-plots_betterErrors.root";
   //  std::string SW_filename = "~/data/results/Si16b/SW-plots-above1400keV.root";
   TFile* SW_file = new TFile(SW_filename.c_str(), "READ");
   TGraphErrors* SW_gre = (TGraphErrors*) SW_file->Get("Graph");

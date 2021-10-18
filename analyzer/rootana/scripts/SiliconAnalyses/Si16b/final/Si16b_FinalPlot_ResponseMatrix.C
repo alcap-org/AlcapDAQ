@@ -1,14 +1,16 @@
 void Si16b_FinalPlot_ResponseMatrix(std::string savedir = "") {
 
   bool demo = false;
-  std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_3sigma.root";
+  //  std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_covError_1.root";
+    std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_JohnVetoEff_1MTests_1.root";
 
-  const int n_particles = 4;
-  std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};
+    const int n_particles = 1;//4;
+    std::string particles[n_particles] = {"proton"};//, "deuteron", "triton", "alpha"};
 
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     std::string particle = particles[i_particle];
-    std::string inhistname = "ResponseMatrix_" + particle + "_TCutG/hResponseMatrix";
+    //    std::string inhistname = "ResponseMatrix_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns/hResponseMatrix";
+    std::string inhistname = "ResponseMatrix_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_BinW1MeV/hResponseMatrix";
   
     TFile* infile = new TFile(infilename.c_str(), "READ");
     TH2F* hResponseMatrix = (TH2F*) infile->Get(inhistname.c_str());
@@ -29,16 +31,16 @@ void Si16b_FinalPlot_ResponseMatrix(std::string savedir = "") {
     hResponseMatrix->SetDrawOption("COLZ");
     
     if (particle == "alpha" && demo == true) {
-      double trust_observed = 10000;
-      double y_max = 30000;
+      double trust_observed = 10;
+      double y_max = 30;
       TLine* observed_line = new TLine(trust_observed, 0, trust_observed, y_max);
       observed_line->SetLineWidth(2);
       observed_line->SetLineColor(kBlack);
       observed_line->Draw("LSAME");
       
-      double trust_true = 18000;
-      double bin_width = 1000;
-      double x_max = 30000;
+      double trust_true = 18;
+      double bin_width = 1;
+      double x_max = 30;
       TBox* good_box = new TBox(trust_observed, trust_true, x_max, trust_true+bin_width);
       good_box->SetLineWidth(2);
       good_box->SetLineColor(kSpring);

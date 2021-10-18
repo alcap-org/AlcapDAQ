@@ -20,9 +20,9 @@ void Ti50_FinalPlot_XRaySpectrum_wFit(std::string savedir = "", std::ostream& nu
     start_str.str("");
     start_str << transition_start << "p";
     for (int i_ge_channel = 0; i_ge_channel < n_ge_channels; ++i_ge_channel) {
-      std::string norm_file_name = "/home/edmonds/data/results/Ti50/normalisation_newPP_rebin2.root";
+      std::string norm_file_name = "/home/edmonds/data/results/Ti50/normalisation_newPP_rebin2_largerFitWindow.root";
       std::string ge_channel = ge_channels[i_ge_channel];
-      std::string dirname = "XRaySpectrum_" + ge_channel + "_" + start_str.str() + "1s_200nsTimeCut";
+      std::string dirname = "XRaySpectrum_" + ge_channel + "_" + start_str.str() + "1s_5000nsTimeCut";
       std::string norm_ws_name = dirname + "/ws";
       std::string full_spectrum_name = dirname + "/hGe_Spectrum";
     
@@ -47,7 +47,8 @@ void Ti50_FinalPlot_XRaySpectrum_wFit(std::string savedir = "", std::ostream& nu
 
       std::string canvasname = "c_XRaySpectrum_" + ge_channel;
       TCanvas* c_XRaySpectrum = new TCanvas(canvasname.c_str(), canvasname.c_str());
-      hXRaySpectrum->Rebin(4);
+      int rebin_factor = 1;//4;
+      hXRaySpectrum->Rebin(rebin_factor);
       std::string histtitle = "Ti50 Dataset, Full X-Ray Spectrum (" + ge_channel + ")";
       hXRaySpectrum->SetTitle(histtitle.c_str());
       hXRaySpectrum->SetStats(false);
@@ -117,6 +118,10 @@ void Ti50_FinalPlot_XRaySpectrum_wFit(std::string savedir = "", std::ostream& nu
       (ws->pdf("sum"))->plotOn(Eframe);
       Eframe->Draw();
 
+      RooHist* pull = Eframe->pullHist();
+      RooPlot* pull_frame = (ws->var("edep"))->frame();
+      double chi2_ndf = Eframe->chiSquare();
+      
       double n_xrays = 0;
       double n_xrays_error = 0;
       double n_stopped_muons = 0;
@@ -155,12 +160,13 @@ void Ti50_FinalPlot_XRaySpectrum_wFit(std::string savedir = "", std::ostream& nu
       count->DrawLatexNDC(0.15, 0.7, text.str().c_str());
 
       text.str("");
-      text << "#chi^2 / ndf = " << Eframe->chiSquare();
+      text << "#chi^2 / ndf = " << chi2_ndf;
       std::cout << text.str() << std::endl;
       count->DrawLatexNDC(0.60, 0.7, text.str().c_str());
 
       (ws->pdf("sum"))->plotOn(Eframe, RooFit::Components("xraypeak_pdf"), RooFit::LineColor(kRed), RooFit::LineStyle(kDashed));
       (ws->pdf("sum"))->plotOn(Eframe, RooFit::Components("bkgpeak_pdf"), RooFit::LineColor(kBlue), RooFit::LineStyle(kDashed));
+      (ws->pdf("sum"))->plotOn(Eframe, RooFit::Components("pol1_bkg"), RooFit::LineColor(kBlue), RooFit::LineStyle(kDashed));
       Eframe->Draw();
       
       if (savedir != "") {
@@ -178,8 +184,6 @@ void Ti50_FinalPlot_XRaySpectrum_wFit(std::string savedir = "", std::ostream& nu
 
       
       TCanvas* c2 = new TCanvas();
-      RooHist* pull = Eframe->pullHist();
-      RooPlot* pull_frame = (ws->var("edep"))->frame();
       pull_frame->addPlotable(pull, "P");
       pull_frame->Draw(); 
       std::cout << Eframe->chiSquare() << std::endl;

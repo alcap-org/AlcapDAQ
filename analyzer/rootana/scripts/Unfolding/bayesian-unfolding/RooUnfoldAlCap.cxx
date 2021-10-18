@@ -25,22 +25,25 @@ using std::endl;
 //==============================================================================
 // Global definitions
 //==============================================================================
-const char * responseMatrixFilename = "/home/mark/montecarlo/unfolding.proton.0-24.200k.target.200.leftright.root";
-const char * validationTestFilename = "/home/mark/montecarlo/unfolding.proton.5expo2.20k.target.100.leftright.root";
+const char * responseMatrixFilename = "R15b_Si16b_full-dir-response-matrix.root";
+//const char * responseMatrixFilename = "R15b_Si16b_restricted-dir-response-matrix.root";
+//const char * responseMatrixFilename = "/home/mark/montecarlo/unfolding.proton.0-24.200k.target.200.leftright.root";
+const char * validationTestFilename = "";///home/mark/montecarlo/unfolding.proton.5expo2.20k.target.100.leftright.root";
 //const char * validationTestFilename = "/home/mark/montecarlo/unfolding.proton.uniform0-10.20k.target.100.leftright.root";
 //const char * validationTestFilename = "test_data/unfolding.proton.6sigma2.20k.target.100.leftright.root";
 //const char * validationTestFilename = "test_data/unfolding.proton.16sigma2.20k.target.100.leftright.root";
 
-const char * dataFilename = "tproof-output.root";
+const char * dataFilename = "Andy_Si16b_EvdEPlot.root";
 
-void Unfold(const char *descriptor, TH2D* hTransferMatrix, TH2D* hEvdE)
+void Unfold(const char *descriptor, /*RooUnfoldResponse* response,*/ TH2D* hTransferMatrix, TH2D* hEvdE)
 {       
         gStyle->SetOptStat(0);
-        hEvdE->RebinY(170);
-        hEvdE->RebinX(170);
+        hEvdE->RebinY(10);
+        hEvdE->RebinX(10);
         TH1D *hMeas = hEvdE->ProjectionX();
-        RooUnfoldResponse response(0, 0, hTransferMatrix);
-        RooUnfoldBayes unfold(&response, hMeas, 6);
+	RooUnfoldResponse response(0, 0, hTransferMatrix);
+	RooUnfoldBayes unfold(&response, hMeas, 6);
+	//	RooUnfoldBayes unfold(response, hMeas, 6);
         TH1D* hReco= (TH1D*) unfold.Hreco(); 
         TCanvas *c = new TCanvas(descriptor, descriptor);
         hReco->Draw();
@@ -49,6 +52,14 @@ void Unfold(const char *descriptor, TH2D* hTransferMatrix, TH2D* hEvdE)
         hMeas->Draw("SAME");
         c->BuildLegend();
         hReco->SetTitle("Unfolding validation");
+
+	double integral_min = 4000;
+	double integral_max = 8000;
+	int integral_bin_min = hReco->FindBin(integral_min);
+	int integral_bin_max = hReco->FindBin(integral_max);
+	double integral, error;
+	integral = hReco->IntegralAndError(integral_bin_min, integral_bin_max, error);
+	std::cout << "Integral (" << integral_min << " -- " << integral_max << " keV): " << integral << " +- " << error << std::endl;
 }
 
 void Validation(const char *descriptor, TH2D* hTransferMatrix/* transfer matrix */, TH1D* hMeas /* fake measured data with known truth distribution*/, TH1F* hInput /* truth distribution */, TH1F* hAcceptance /* truth hits detector assuming 100% efficiency */)
@@ -110,46 +121,49 @@ void Validation(const char *descriptor, TH2D* hTransferMatrix/* transfer matrix 
 void RooUnfoldAlCap()
 {
 	TFile *fMC = new TFile(responseMatrixFilename, "READ");
-	TFile *fFake = new TFile(validationTestFilename, "READ");
+	//	TFile *fFake = new TFile(validationTestFilename, "READ");
 	std::cout << "Using response matrix from: " << responseMatrixFilename << std::endl;
 
-	std::cout << "=====Right stopped=====" << std::endl;
+	/*	std::cout << "=====Right stopped=====" << std::endl;
 	TH2D *hTransferMatrixRight = (TH2D *)fMC->Get("SiR/hTransferRight");
-	TH2D *hEvdE_stopped_right = (TH2D *)fFake->Get("SiR/hEvdE_stopped_right");
+	//	TH2D *hEvdE_stopped_right = (TH2D *)fFake->Get("SiR/hEvdE_stopped_right");
 	TH1D *hMeasRight = hEvdE_stopped_right->ProjectionX();
-	TH1F *hInputRight = (TH1F *)fFake->Get("SiR/hInputRight");
-        TH1F *hAcceptanceRight = (TH1F *)fFake->Get("SiR/hAcceptanceRight");
+	//	TH1F *hInputRight = (TH1F *)fFake->Get("SiR/hInputRight");
+	//        TH1F *hAcceptanceRight = (TH1F *)fFake->Get("SiR/hAcceptanceRight");
 	Validation("Right stopped", hTransferMatrixRight, hMeasRight, hInputRight, hAcceptanceRight);
 
 	std::cout << "=====Right punch through=====" << std::endl;
 	TH2D *hTransferMatrixPTRight = (TH2D *)fMC->Get("SiR/hTransferPTRight");
-	TH2D *hEvdE_punch_right= (TH2D *)fFake->Get("SiR/hEvdE_punch_right");
+	//	TH2D *hEvdE_punch_right= (TH2D *)fFake->Get("SiR/hEvdE_punch_right");
 	TH1D *hMeasPTRight = hEvdE_punch_right->ProjectionX();
 	Validation("Right punch through", hTransferMatrixPTRight, hMeasPTRight, hInputRight, hAcceptanceRight);
 
 	std::cout << "=====Left stopped=====" << std::endl;
-	TH2D *hTransferMatrixLeft = (TH2D *)fFake->Get("SiL/hTransferLeft");
-	TH2D *hEvdE_stopped_left = (TH2D *)fFake->Get("SiL/hEvdE_stopped_left");
+	//	TH2D *hTransferMatrixLeft = (TH2D *)fFake->Get("SiL/hTransferLeft");
+	//	TH2D *hEvdE_stopped_left = (TH2D *)fFake->Get("SiL/hEvdE_stopped_left");
 	TH1D *hMeasLeft = hEvdE_stopped_left->ProjectionX();
-	TH1F *hInputLeft = (TH1F *)fFake->Get("SiL/hInputLeft");
-        TH1F *hAcceptanceLeft = (TH1F *)fFake->Get("SiL/hAcceptanceLeft");
+	//	TH1F *hInputLeft = (TH1F *)fFake->Get("SiL/hInputLeft");
+	//        TH1F *hAcceptanceLeft = (TH1F *)fFake->Get("SiL/hAcceptanceLeft");
 	Validation("Left stopped", hTransferMatrixLeft, hMeasLeft, hInputLeft, hAcceptanceLeft);
 
 	std::cout << "=====Left punch through=====" << std::endl;
 	TH2D *hTransferMatrixPTLeft = (TH2D *)fMC->Get("SiL/hTransferPTLeft");
-	TH2D *hEvdE_punch_left= (TH2D *)fFake->Get("SiL/hEvdE_punch_left");
+	//	TH2D *hEvdE_punch_left= (TH2D *)fFake->Get("SiL/hEvdE_punch_left");
 	TH1D *hMeasPTLeft = hEvdE_punch_left->ProjectionX();
 	Validation("Left punch through", hTransferMatrixPTLeft, hMeasPTLeft, hInputLeft, hAcceptanceLeft);
-
-        std::cout << "=====Left proton data=====" << std::endl;
+	*/
+	
+	/*        std::cout << "=====Left proton data=====" << std::endl;
         TFile *fData = new TFile(dataFilename, "READ");
         TH2D *hMeasData = (TH2D *)fData->Get("hSiL_EvdE_proton");
         Unfold("Left proton stopped", hTransferMatrixRight, hMeasData);
-
+	*/
         std::cout << "=====Right proton data=====" << std::endl;
         TFile *fData = new TFile(dataFilename, "READ");
-        TH2D *hMeasData = (TH2D *)fData->Get("hSiR_EvdE_proton");
-        Unfold("Right proton stopped", hTransferMatrixRight, hMeasData);
+	RooUnfoldResponse* response = (RooUnfoldResponse*) fMC->Get("SiR_response");
+	TH2D *hTransferMatrixRight = response->Hresponse();//(TH2D *)fMC->Get("SiR/hTransferRight");
+        TH2D *hMeasData = (TH2D *)fData->Get("hEvdE_Si16b_Proton_Veto");
+        Unfold("Right proton stopped", /*response,*/hTransferMatrixRight, hMeasData);
 }
 
 #ifndef __CINT__

@@ -1,6 +1,6 @@
 #include "../../../XRayAnalysis/XRayUtils.h"
 
-void SiL3_FinalPlot_XRaySpectrum_wFit(std::string savedir = "", std::ostream& numbers_file = std::cout) {
+void SiL3_FinalPlot_XRaySpectrum_wFit(std::string SiL3_tag = "geq0TgtPulse_newPP20us_1", std::string savedir = "", std::ostream& numbers_file = std::cout) {
 
   const int n_ge_channels = 2;
   std::string ge_channels[n_ge_channels] = {"GeLoGain", "GeHiGain"};
@@ -19,7 +19,7 @@ void SiL3_FinalPlot_XRaySpectrum_wFit(std::string savedir = "", std::ostream& nu
     start_str.str("");
     start_str << transition_start << "p";
     for (int i_ge_channel = 0; i_ge_channel < n_ge_channels; ++i_ge_channel) {
-      std::string norm_file_name = "/home/edmonds/data/results/SiL3/normalisation_geq0TgtPulse_newPP20us.root";
+      std::string norm_file_name = "/home/edmonds/data/results/SiL3/normalisation_" + SiL3_tag + ".root";
       std::string ge_channel = ge_channels[i_ge_channel];
       std::string dirname = "XRaySpectrum_" + ge_channel + "_" + start_str.str() + "1s_5000nsTimeCut";
       std::string full_spectrum_name = dirname + "/hGe_Spectrum";
@@ -148,19 +148,53 @@ void SiL3_FinalPlot_XRaySpectrum_wFit(std::string savedir = "", std::ostream& nu
       if (transition_start > 2) {
 	numbers_file << "Alternate";
       }
-      numbers_file << std::fixed << std::setprecision(0) << "{$" << n_xrays << " \\pm " << n_xrays_error << "$}" << std::endl;
+      numbers_file << "{\\num[round-precision=3, round-mode=figures, scientific-notation=engineering]{" << n_xrays << "\\pm" << n_xrays_error << "}}" << std::endl;
       
       numbers_file << "\\newcommand\\SiL" << ge_channel << "NStoppedMuons";
       if (transition_start > 2) {
 	numbers_file << "Alternate";
       }
-      numbers_file << std::fixed << std::setprecision(1) << "{$(" << n_stopped_muons/1e6 << " \\pm " << std::setprecision(1) << n_stopped_muons_error/1e6 << ") \\times 10^{6}$}" << std::endl;;
+      numbers_file << "{\\num[round-precision=3, round-mode=figures, scientific-notation=engineering]{" << n_stopped_muons << " \\pm " << n_stopped_muons_error << "}}" << std::endl;;
       numbers_file << "\\newcommand\\SiL" << ge_channel << "NCapturedMuons";
       if (transition_start > 2) {
 	numbers_file << "Alternate";
       }
-      numbers_file << std::fixed << std::setprecision(1) << "{$(" << n_captured_muons/1e6 << " \\pm " << std::setprecision(1) << n_captured_muons_error/1e6 << ") \\times 10^{6}$}" << std::endl;
+      numbers_file << "{\\num[round-precision=3, round-mode=figures, scientific-notation=engineering]{" << n_captured_muons << " \\pm " << n_captured_muons_error << "}}" << std::endl;;
+
+            numbers_file << "\\newcommand\\SiL" << ge_channel << "NXRaysTab";
+      if (transition_start > 2) {
+	numbers_file << "Alternate";
+      }
+      numbers_file << "{\\num[round-precision=3, round-mode=figures]{" << n_xrays/1e3 << "}(\\num[round-precision=1, round-mode=figures]{" << n_xrays_error/1e2 << "})}" << std::endl;
       
+      numbers_file << "\\newcommand\\SiL" << ge_channel << "NStoppedMuonsTab";
+      if (transition_start > 2) {
+	numbers_file << "Alternate";
+      }
+      numbers_file << "{\\num[round-precision=3, round-mode=figures]{" << n_stopped_muons/1e6 << "}(\\num[round-precision=1, round-mode=figures]{" << n_stopped_muons_error/1e5 << "})}" << std::endl;;
+      numbers_file << "\\newcommand\\SiL" << ge_channel << "NCapturedMuonsTab";
+      if (transition_start > 2) {
+	numbers_file << "Alternate";
+      }
+      numbers_file << "{\\num[round-precision=3, round-mode=figures]{" << n_captured_muons/1e6 << "}(\\num[round-precision=1, round-mode=figures]{" << n_captured_muons_error/1e5 << "})}" << std::endl;;
+      // // Add versions without +/- sign
+      // numbers_file << "\\newcommand\\SiL" << ge_channel << "NXRays";
+      // if (transition_start > 2) {
+      // 	numbers_file << "Alternate";
+      // }
+      // numbers_file << "NoPM" << std::fixed << std::setprecision(1) << "{$" << n_xrays/1e3 << "(" << std::setprecision(0) << (n_xrays_error/1e3)*10 << ") \\times 10^{3}$}" << std::endl;
+      
+      // numbers_file << "\\newcommand\\SiL" << ge_channel << "NStoppedMuons";
+      // if (transition_start > 2) {
+      // 	numbers_file << "Alternate";
+      // }
+      // numbers_file << "NoPM" << std::fixed << std::setprecision(1) << "{$" << n_stopped_muons/1e6 << "(" << std::setprecision(0) << (n_stopped_muons_error/1e6)*10 << ") \\times 10^{6}$}" << std::endl;;
+      // numbers_file << "\\newcommand\\SiL" << ge_channel << "NCapturedMuons";
+      // if (transition_start > 2) {
+      // 	numbers_file << "Alternate";
+      // }
+      // numbers_file << "NoPM" << std::fixed << std::setprecision(1) << "{$" << n_captured_muons/1e6 << "(" << std::setprecision(0) << (n_captured_muons_error/1e6)*10 << ") \\times 10^{6}$}" << std::endl;
+
       TLatex* count = new TLatex();
       //    count->SetTextAlign(22);
       text.str("");

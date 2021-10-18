@@ -42,6 +42,7 @@ void SiL3_CountStoppedMuons_XRaySpectrum_wTargetCoinc(std::string infilename, st
 	xray_args.max_time = 20000;
 	xray_args.fit_window_min = -10;
 	xray_args.fit_window_max = 10;
+	xray_args.is2DHist = true;
 	CountStoppedMuons_XRaySpectrum(xray_args);
       }
     }

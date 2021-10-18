@@ -20,7 +20,8 @@ void Si16b_FinalPlot_XRaySpectrum_wFit(std::string savedir = "", std::ostream& n
     start_str.str("");
     start_str << transition_start << "p";
     for (int i_ge_channel = 0; i_ge_channel < n_ge_channels; ++i_ge_channel) {
-      std::string norm_file_name = "/home/edmonds/data/results/Si16b/normalisation_newPP_geq1TgtPulse.root";
+      std::string norm_file_name = "/home/edmonds/data/results/Si16b/normalisation_newPP_geq1TgtPulse_1.root";
+      //      std::string norm_file_name = "/home/edmonds/data/results/Si16b/normalisation_newPP.root";//_geq0TgtPulse.root";
       std::string ge_channel = ge_channels[i_ge_channel];
       std::string dirname = "XRaySpectrum_" + ge_channel + "_" + start_str.str() + "1s_5000nsTimeCut";
       std::string norm_ws_name = dirname + "/ws";
@@ -46,7 +47,7 @@ void Si16b_FinalPlot_XRaySpectrum_wFit(std::string savedir = "", std::ostream& n
       }
 
       std::string canvasname = "c_XRaySpectrum_" + ge_channel;
-      TCanvas* c_XRaySpectrum = new TCanvas(canvasname.c_str(), canvasname.c_str());
+      TCanvas* c_XRaySpectrum = new TCanvas();//canvasname.c_str(), canvasname.c_str());
       hXRaySpectrum->Rebin(4);
       std::string histtitle = "Si16b Dataset, Full X-Ray Spectrum (" + ge_channel + ")";
       hXRaySpectrum->SetTitle(histtitle.c_str());
@@ -130,23 +131,63 @@ void Si16b_FinalPlot_XRaySpectrum_wFit(std::string savedir = "", std::ostream& n
       double capture_fraction = 0.658;
       double n_captured_muons = n_stopped_muons * capture_fraction;
       double n_captured_muons_error = (n_stopped_muons_error / n_stopped_muons) * n_captured_muons;
-      
+
+      numbers_file << std::fixed;
       numbers_file << "\\newcommand\\Sib" << ge_channel << "NXRays";
       if (transition_start > 2) {
 	numbers_file << "Alternate";
       }
-      numbers_file << std::fixed << std::setprecision(0) << "{$" << n_xrays << " \\pm " << n_xrays_error << "$}" << std::endl;
+      numbers_file << "{\\num[round-precision=3, round-mode=figures, scientific-notation=engineering]{" << n_xrays << "\\pm" << n_xrays_error << "}}" << std::endl;
       
       numbers_file << "\\newcommand\\Sib" << ge_channel << "NStoppedMuons";
       if (transition_start > 2) {
 	numbers_file << "Alternate";
       }
-      numbers_file << std::fixed << std::setprecision(1) << "{$(" << n_stopped_muons/1e6 << " \\pm " << std::setprecision(1) << n_stopped_muons_error/1e6 << ") \\times 10^{6}$}" << std::endl;;
+      numbers_file << "{\\num[round-precision=3, round-mode=figures, scientific-notation=engineering]{" << n_stopped_muons << " \\pm " << n_stopped_muons_error << "}}" << std::endl;;
+      
       numbers_file << "\\newcommand\\Sib" << ge_channel << "NCapturedMuons";
       if (transition_start > 2) {
 	numbers_file << "Alternate";
       }
-      numbers_file << std::fixed << std::setprecision(1) << "{$(" << n_captured_muons/1e6 << " \\pm " << std::setprecision(1) << n_captured_muons_error/1e6 << ") \\times 10^{6}$}" << std::endl;;
+      numbers_file << "{\\num[round-precision=3, round-mode=figures, scientific-notation=engineering]{" << n_captured_muons << " \\pm " << n_captured_muons_error << "}}" << std::endl;;
+
+      // rounded figures for table
+      numbers_file << "\\newcommand\\Sib" << ge_channel << "NXRaysTab";
+      if (transition_start > 2) {
+	numbers_file << "Alternate";
+      }
+      numbers_file << "{\\num[round-precision=3, round-mode=figures]{" << n_xrays/1e3 << "}(\\num[round-precision=1, round-mode=figures]{" << n_xrays_error/1e2 << "})}" << std::endl;
+      
+      numbers_file << "\\newcommand\\Sib" << ge_channel << "NStoppedMuonsTab";
+      if (transition_start > 2) {
+	numbers_file << "Alternate";
+      }
+      numbers_file << "{\\num[round-precision=3, round-mode=figures]{" << n_stopped_muons/1e6 << "}(\\num[round-precision=1,round-mode=figures]{" << n_stopped_muons_error/1e5 << "})}" << std::endl;;
+      
+      numbers_file << "\\newcommand\\Sib" << ge_channel << "NCapturedMuonsTab";
+      if (transition_start > 2) {
+	numbers_file << "Alternate";
+      }
+      numbers_file << "{\\num[round-precision=3, round-mode=figures, scientific-notation=engineering]{" << n_captured_muons << " \\pm " << n_captured_muons_error << "}}" << std::endl;;
+
+      // Write out numebrs without \pm
+      // numbers_file << "\\newcommand\\Sib" << ge_channel << "NXRays";
+      // if (transition_start > 2) {
+      // 	numbers_file << "Alternate";
+      // }
+      // numbers_file << "NoPM{$" <<std::fixed << std::setprecision(1) << n_xrays/1e3 << "(" << std::setprecision(0) << (n_xrays_error/1e3)*10 << ") \\times 10^{3}$}" << std::endl;
+      
+      // numbers_file << "\\newcommand\\Sib" << ge_channel << "NStoppedMuons";
+      // if (transition_start > 2) {
+      //  	numbers_file << "Alternate";
+      // }
+      // numbers_file << "NoPM" << std::fixed << std::setprecision(1) << "{$" << n_stopped_muons/1e6 << "(" << std::setprecision(0) << (n_stopped_muons_error/1e6)*10 << ") \\times 10^{6}$}" << std::endl;;
+      // numbers_file << "\\newcommand\\Sib" << ge_channel << "NCapturedMuons";
+      // if (transition_start > 2) {
+      //  	numbers_file << "Alternate";
+      // }
+      // numbers_file << "NoPM" << std::fixed << std::setprecision(1) << "{$" << n_captured_muons/1e6 << "(" << std::setprecision(0) << (n_captured_muons_error/1e6)*10 << ") \\times 10^{6}$}" << std::endl;;
+
       TLatex* count = new TLatex();
       //    count->SetTextAlign(22);
       text.str("");

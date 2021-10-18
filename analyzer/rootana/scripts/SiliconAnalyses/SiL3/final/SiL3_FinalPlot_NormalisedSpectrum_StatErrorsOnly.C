@@ -3,7 +3,7 @@ void SiL3_FinalPlot_NormalisedSpectrum_StatErrorsOnly() {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
     
-  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
+  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us_1.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   
@@ -36,7 +36,7 @@ void SiL3_FinalPlot_NormalisedSpectrum_StatErrorsOnly() {
 
     Int_t i_colour = colours[i_slice];
 
-    std::string i_dirname = "FinalNormalisation_" + time_slice_str.str();
+    std::string i_dirname = "FinalNormalisation_" + time_slice_str.str() + "_allRecoil_100keVBins";
     std::string i_histname = i_dirname + "/hNormalisedSpectrum";
 
     TH1F* spectrum = (TH1F*) file->Get(i_histname.c_str());
@@ -51,7 +51,7 @@ void SiL3_FinalPlot_NormalisedSpectrum_StatErrorsOnly() {
     spectrum->Scale(1.0/rebin_factor);
     spectrum->SetStats(false);
     spectrum->SetLineColor(i_colour);
-    spectrum->GetXaxis()->SetRangeUser(0,30000);
+    spectrum->GetXaxis()->SetRangeUser(0,30);
     spectrum->Draw("HIST E SAMES");
 
     /*

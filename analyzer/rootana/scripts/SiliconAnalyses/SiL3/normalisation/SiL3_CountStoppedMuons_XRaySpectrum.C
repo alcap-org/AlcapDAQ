@@ -21,6 +21,7 @@ void SiL3_CountStoppedMuons_XRaySpectrum(std::string infilename, std::string out
   args.fit_window_min = -10;
   args.fit_window_max = 10;
   args.outfilename = outfilename;
+  args.is2DHist = true;
     
   for (int i_ge_channel = 0; i_ge_channel < n_ge_channels; ++i_ge_channel) {
     std::string this_ge_channel = ge_channels[i_ge_channel];

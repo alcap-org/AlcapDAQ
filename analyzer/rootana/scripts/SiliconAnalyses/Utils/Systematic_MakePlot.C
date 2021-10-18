@@ -18,6 +18,7 @@ struct Systematic_MakePlotArgs {
   std::string syst_val_histname;
 
   int rebin_factor;
+  int central_rebin_factor;
   
   std::string outfilename;
   std::string outdirname;
@@ -48,6 +49,9 @@ void Systematic_MakePlot(const Systematic_MakePlotArgs& args) {
     return;
   }
   syst_hist->SetName("syst_hist");
+
+  central_hist->Rebin(args.central_rebin_factor);
+  central_hist->Scale(1.0 / args.central_rebin_factor);
   syst_hist->Rebin(args.rebin_factor);
   syst_hist->Scale(1.0 / args.rebin_factor);
 
@@ -56,9 +60,10 @@ void Systematic_MakePlot(const Systematic_MakePlotArgs& args) {
   hSystematic->Divide(central_hist);
   hSystematic->Scale(100);
   hSystematic->SetYTitle("Systematic Error [%]");
-
   
   std::cout << "Systematic " << args.outdirname << std::endl;
+  std::cout << "Central Val: File = " << args.central_val_filename << ", Hist = " << args.central_val_histname << std::endl;
+  std::cout << "Syst Val: File = " << args.syst_val_filename << ", Hist = " << args.syst_val_histname << std::endl;
 
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());

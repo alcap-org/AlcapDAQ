@@ -1,10 +1,10 @@
 void Si16b_FinalPlot_TwoLayer_EvdE_NoVeto_forPaper(std::string outdir = "") {
 
-  std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse.root";
+  std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse_1.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
 
   //  std::string dirname = "alpha_SiR_timecut0_10000ns_layerCoinc";
-  std::string dirname = "all_SiR_timecut0_10000ns_layerCoinc";
+  std::string dirname = "all_SiR_timecut0_10000ns_layerCoinc500ns";
   //  std::string dirname = "proton_SiR_timecut0_10000ns_layerCoinc_PSel";
   std::string layer1 = "SiR1"; std::string layer2 = "SiR2"; std::string layer3 = "SiR3";
   //  std::string dirname = "all_SiR_nolayercoinc"; std::string layer1 = "SiR1"; std::string layer2 = "SiR2"; std::string layer3 = "SiR3";
@@ -15,8 +15,8 @@ void Si16b_FinalPlot_TwoLayer_EvdE_NoVeto_forPaper(std::string outdir = "") {
   std::string histtitle = "Si16b Dataset, Right Arm (" + layer1 + " && " + layer2 + " && " + layer3 + " && SiL1)";
   hEvdE->SetTitle(histtitle.c_str());
   hEvdE->SetStats(false);
-  hEvdE->GetXaxis()->SetRangeUser(0, 18000);
-  hEvdE->GetYaxis()->SetRangeUser(0, 3000);
+  hEvdE->GetXaxis()->SetRangeUser(0, 18);
+  hEvdE->GetYaxis()->SetRangeUser(0, 3);
   hEvdE->GetXaxis()->SetTitleOffset(1.0);
   hEvdE->GetYaxis()->SetTitleOffset(1.0);
   hEvdE->GetXaxis()->SetLabelSize(0.04);
@@ -49,8 +49,8 @@ void Si16b_FinalPlot_TwoLayer_EvdE_NoVeto_forPaper(std::string outdir = "") {
   TCanvas* c_EvdEZoom = new TCanvas("c_EvdEZoom", "c_EvdEZoom");
   TH2F* hEvdEZoom = (TH2F*) hEvdE->Clone("hEvdEZoom");
   hEvdEZoom->Rebin2D(5, 5);
-  hEvdEZoom->GetXaxis()->SetRangeUser(0, 20000);
-  hEvdEZoom->GetYaxis()->SetRangeUser(0, 10000);
+  hEvdEZoom->GetXaxis()->SetRangeUser(0, 20);
+  hEvdEZoom->GetYaxis()->SetRangeUser(0, 10);
   hEvdEZoom->Draw("");
 
   // latex->SetTextSize(0.04);

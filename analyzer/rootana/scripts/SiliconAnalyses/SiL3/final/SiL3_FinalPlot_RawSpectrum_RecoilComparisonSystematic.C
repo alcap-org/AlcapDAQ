@@ -23,11 +23,11 @@ void SiL3_FinalPlot_RawSpectrum_RecoilComparisonSystematic(std::string savedir =
   leg->SetTextSize(0.035);
   leg->SetFillColor(kWhite);
 
-  std::string plots_file_name = "~/data/results/SiL3/raw_spectra_geq2TgtPulse_newPP20us.root";
+  std::string plots_file_name = "~/data/results/SiL3/raw_spectra_geq2TgtPulse_newPP20us_1.root";
   TFile* plots_file = new TFile(plots_file_name.c_str(), "READ");
   for (int i_spectra = 0; i_spectra < n_spectra; ++i_spectra) {
     std::string i_setting = settings[i_spectra];
-    std::string dirname = "SiL3_ActiveTarget_TimeSlice2000_4000_" + i_setting;
+    std::string dirname = "SiL3_ActiveTarget_TimeSlice3000_4000_" + i_setting;
     std::string full_spectrum_name = dirname + "/hRawSpectrum";
 
     //    std::string newname = i_setting;
@@ -44,10 +44,10 @@ void SiL3_FinalPlot_RawSpectrum_RecoilComparisonSystematic(std::string savedir =
 
     hFoldedSpectrum->Rebin(5);
     //  hFoldedSpectrum->SetLineColor(kBlue);
-    std::string histtitle = "SiL3 Dataset, Target Spectrum (2000 ns < t < 4000 ns), Recoil Effects";
+    std::string histtitle = "SiL3 Dataset, Target Spectrum (3000 ns < t < 4000 ns), Recoil Effects";
     hFoldedSpectrum->SetTitle(histtitle.c_str());
     hFoldedSpectrum->SetStats(false);
-    hFoldedSpectrum->GetXaxis()->SetRangeUser(0, 30000);
+    hFoldedSpectrum->GetXaxis()->SetRangeUser(0, 30);
     hFoldedSpectrum->GetXaxis()->SetTitleOffset(0.9);
     hFoldedSpectrum->GetYaxis()->SetTitleOffset(0.9);
     hFoldedSpectrum->SetLineColor(colours[i_spectra]);

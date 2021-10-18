@@ -108,6 +108,7 @@ class TAnalysedPulse : public TObject {
   double GetPedestal()const{return fPedestal;};
   double GetTriggerTime()const{return fTriggerTime;};
   const IDs::source& GetSource()const{return fSource.GetValue();};
+  //  const std::vector<int>& GetSamples() const{ return fSamples; }
   //@}
 
   /// \name Setters
@@ -160,6 +161,7 @@ class TAnalysedPulse : public TObject {
   double fTriggerTime;
   //IDs::source fSource;
   FlyWeight<IDs::source,Tag> fSource;
+  //  std::vector<int> fSamples;
 
   /// \brief
   /// To enable sanity checks, we have an unphysical value that all

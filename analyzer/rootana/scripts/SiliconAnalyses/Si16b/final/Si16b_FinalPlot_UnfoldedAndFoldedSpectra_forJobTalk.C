@@ -1,10 +1,10 @@
 void Si16b_FinalPlot_UnfoldedAndFoldedSpectra_forJobTalk(std::string savedir = "") {
 
-  const int n_particles = 4;
-  std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};
-  double x_maxes[n_particles] = {17000, 17000, 17000, 19000};
-  //  double x_maxes[n_particles] = {25000, 25000, 25000, 25000};
-  Int_t unfolded_colours[n_particles] = {kRed, kCyan, kMagenta, kSpring};
+  const int n_particles = 1;//4;
+  std::string particles[n_particles] = {"proton"};//{"proton"};//, "deuteron", "triton", "alpha"};
+  double x_maxes[n_particles] = {25};//{17, 17, 17, 19};
+  //  double x_maxes[n_particles] = {25, 25, 25, 25};
+  Int_t unfolded_colours[n_particles] = {kRed};//, kCyan, kMagenta, kSpring};
   
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     TLegend* leg = new TLegend(0.55,0.60,0.85,0.85);
@@ -13,8 +13,10 @@ void Si16b_FinalPlot_UnfoldedAndFoldedSpectra_forJobTalk(std::string savedir = "
     leg->SetFillColor(kWhite);
 
     std::string particle = particles[i_particle];
-    std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_3sigma.root";
-    std::string indirname = "ResponseMatrix_" + particle + "_TCutG";
+    //    std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_JohnVetoEff_1.root";
+    //    std::string indirname = "ResponseMatrix_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns";
+    std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_JohnVetoEff_100MTests_1.root";
+    std::string indirname = "ResponseMatrix_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_BinW500keV";
     std::string folded_histname = indirname + "/hInputSpectrum";
     std::string unfolded_histname = indirname + "/hCorrectedSpectrum";
     std::string outhisttitle = "Si16b Dataset, Right Arm, " + particle;
@@ -37,27 +39,53 @@ void Si16b_FinalPlot_UnfoldedAndFoldedSpectra_forJobTalk(std::string savedir = "
     hFoldedSpectrum->SetLineColor(kBlack);
     hFoldedSpectrum->Rebin(rebin_factor);
     hFoldedSpectrum->GetXaxis()->SetRangeUser(0, x_max);
-    axistitle.str(""); axistitle << "Folded Count / " << hFoldedSpectrum->GetXaxis()->GetBinWidth(1) << " keV";
+    axistitle.str(""); axistitle << "Folded Count / " << hFoldedSpectrum->GetXaxis()->GetBinWidth(1) << " MeV";
     hFoldedSpectrum->SetYTitle(axistitle.str().c_str());
-    hFoldedSpectrum->SetXTitle("Energy [keV]");
+    hFoldedSpectrum->SetXTitle("Energy [MeV]");
     hFoldedSpectrum->GetXaxis()->SetTitleOffset(1.0);
     hFoldedSpectrum->GetYaxis()->SetTitleOffset(1.0);
     hFoldedSpectrum->GetXaxis()->SetLabelSize(0.04);
     hFoldedSpectrum->GetYaxis()->SetLabelSize(0.04);
-    
+    std::string newname = hFoldedSpectrum->GetName();
+    newname += "_Ratio";
+    TH1F* hRatio = (TH1F*) hFoldedSpectrum->Clone(newname.c_str());
+    hRatio->Reset();
+    for (int i_bin = 1; i_bin <= hFoldedSpectrum->GetNbinsX(); ++i_bin) {
+      std::cout << "Bin #" << i_bin << ": " << hFoldedSpectrum->GetBinContent(i_bin) << " +/- " << hFoldedSpectrum->GetBinError(i_bin) << " (" << (hFoldedSpectrum->GetBinError(i_bin) / hFoldedSpectrum->GetBinContent(i_bin))*100 << "%, sqrt(N) = " << std::sqrt(hFoldedSpectrum->GetBinContent(i_bin)) << ")" << std::endl;
+      if (i_bin > 1) {
+	if (hFoldedSpectrum->GetBinContent(i_bin-1)>0) {
+	  hRatio->SetBinContent(i_bin, hFoldedSpectrum->GetBinContent(i_bin)/hFoldedSpectrum->GetBinContent(i_bin-1));
+	}
+      }
+    }
+    TCanvas* cRatio = new TCanvas();
+    hRatio->Draw("HIST");
+
+    c_Spectra->cd();
     hUnfoldedSpectrum->SetTitle("");
     hUnfoldedSpectrum->SetStats(false);
     hUnfoldedSpectrum->SetLineColor(unfolded_colours[i_particle]);
     hUnfoldedSpectrum->Rebin(rebin_factor);
     hUnfoldedSpectrum->GetXaxis()->SetRangeUser(0, x_max);
-    axistitle.str(""); axistitle << "Unfolded Count / " << hUnfoldedSpectrum->GetXaxis()->GetBinWidth(1) << " keV";
+    axistitle.str(""); axistitle << "Unfolded Count / " << hUnfoldedSpectrum->GetXaxis()->GetBinWidth(1) << " MeV";
     hUnfoldedSpectrum->SetYTitle(axistitle.str().c_str());
-    hUnfoldedSpectrum->SetXTitle("Energy [keV]");
+    hUnfoldedSpectrum->SetXTitle("Energy [MeV]");
     hUnfoldedSpectrum->GetXaxis()->SetTitleOffset(1.0);
     hUnfoldedSpectrum->GetYaxis()->SetTitleOffset(1.0);
     hUnfoldedSpectrum->GetXaxis()->SetLabelSize(0.04);
     hUnfoldedSpectrum->GetYaxis()->SetLabelSize(0.04);
-    
+    for (int i_bin = 1; i_bin <= hUnfoldedSpectrum->GetNbinsX(); ++i_bin) {
+      std::cout << "Unf Bin #" << i_bin << ": " << hUnfoldedSpectrum->GetBinContent(i_bin) << " +/- " << hUnfoldedSpectrum->GetBinError(i_bin) << " (" << (hUnfoldedSpectrum->GetBinError(i_bin) / hUnfoldedSpectrum->GetBinContent(i_bin))*100 << "%)" << std::endl;
+    }
+
+    double minE = 5;
+    double maxE = 17;
+    double error = 0;
+    //    std::cout << "AE: " << hUnfoldedSpectrum->GetMaximum() << std::endl;
+    int minE_bin = hUnfoldedSpectrum->FindBin(minE);
+    int maxE_bin = hUnfoldedSpectrum->FindBin(maxE)-1;
+    double n_cap = 2.06848e+07;
+    std::cout << "Integral = " << hUnfoldedSpectrum->IntegralAndError(minE_bin,maxE_bin,error)/n_cap << " +/- " << error/n_cap << std::endl;    
     hFoldedSpectrum->Draw("HIST E");
     c_Spectra->Update();
     
@@ -99,17 +127,16 @@ void Si16b_FinalPlot_UnfoldedAndFoldedSpectra_forJobTalk(std::string savedir = "
       std::string pngname = savename + ".png";
       c_Spectra->SaveAs(pngname.c_str());
     }
-
   }
 
   /*
-  double trust_at_observed = 11000;
-  double up_to = 15000;
+  double trust_at_observed = 11;
+  double up_to = 15;
   int trust_bin = hFoldedSpectrum->GetXaxis()->FindBin(trust_at_observed);
   int up_to_bin = hFoldedSpectrum->GetXaxis()->FindBin(up_to);
   int max_bin = hFoldedSpectrum->GetXaxis()->FindBin(x_max);
-  std::cout << "Folded Spectrum (0 -- " << trust_at_observed/1000 << " MeV) = " << hFoldedSpectrum->Integral(1, trust_bin) << std::endl;
-  std::cout << "Folded Spectrum (" << trust_at_observed/1000 << " -- " << x_max/1000 << " MeV) = " << hFoldedSpectrum->Integral(trust_bin, max_bin) << std::endl;
-  std::cout << "Folded Spectrum (" << trust_at_observed/1000 << " -- " << up_to/1000 << " MeV) = " << hFoldedSpectrum->Integral(trust_bin, up_to_bin) << std::endl;
+  std::cout << "Folded Spectrum (0 -- " << trust_at_observed << " MeV) = " << hFoldedSpectrum->Integral(1, trust_bin) << std::endl;
+  std::cout << "Folded Spectrum (" << trust_at_observed << " -- " << x_max << " MeV) = " << hFoldedSpectrum->Integral(trust_bin, max_bin) << std::endl;
+  std::cout << "Folded Spectrum (" << trust_at_observed << " -- " << up_to << " MeV) = " << hFoldedSpectrum->Integral(trust_bin, up_to_bin) << std::endl;
   */
 }

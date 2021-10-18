@@ -67,13 +67,13 @@ void Systematic_SumPlot(const Systematic_SumPlotArgs& args) {
 	double& old_rate = sum_rates.at(i_element);
 	double& old_rate_high_error = sum_rate_high_errs.at(i_element);
 	double& old_rate_low_error = sum_rate_low_errs.at(i_element);
-	std::cout << "Old Rate = " << old_rate << " + " << std::sqrt(old_rate_high_error) << " - " << std::sqrt(old_rate_low_error) << std::endl;
+	//	std::cout << "Old Rate = " << old_rate << " + " << std::sqrt(old_rate_high_error) << " - " << std::sqrt(old_rate_low_error) << std::endl;
 
 	old_rate += this_rate;
 	old_rate_high_error += this_high_rate_err*this_high_rate_err;
 	old_rate_low_error += this_low_rate_err*this_low_rate_err;
 
-	std::cout << "New Rate = " << old_rate << " + " << std::sqrt(old_rate_high_error) << " - " << std::sqrt(old_rate_low_error) << std::endl;
+	//	std::cout << "New Rate = " << old_rate << " + " << std::sqrt(old_rate_high_error) << " - " << std::sqrt(old_rate_low_error) << std::endl;
       }
     }
   }
@@ -89,7 +89,7 @@ void Systematic_SumPlot(const Systematic_SumPlotArgs& args) {
   hFinalStatSyst->SetName("hFinalStatSyst");
 
 
-  std::cout << "Systematic_SiuPlot " << args.outdirname << std::endl;
+  std::cout << "Systematic_SumPlot " << args.outdirname << std::endl;
 
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());

@@ -5,7 +5,7 @@ void Si16b_FinalPlot_TimeCutEfficiency(std::string savedir = "", std::ostream& n
   double min_time_cut = 0;
   double max_time_cut = max_total_time;
   
-  std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse.root";
+  std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse_1.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
 
   TLegend* leg = new TLegend(0.50,0.45,0.90,0.75);
@@ -22,7 +22,8 @@ void Si16b_FinalPlot_TimeCutEfficiency(std::string savedir = "", std::ostream& n
   TH1F* hTotal = 0;
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     std::string this_particle = particles[i_particle];
-    std::string dirname = this_particle + "_SiR_layerCoinc_PSel";
+    //    std::string dirname = this_particle + "_SiR_layerCoinc_PSel";
+    std::string dirname = this_particle + "_2sig_SiR_layerCoinc500ns_TCutG";
     std::string histname = dirname + "/hEvt_TwoLayer_12not3";
 
     TH2F* hEvt = (TH2F*) infile->Get(histname.c_str());
@@ -67,7 +68,7 @@ void Si16b_FinalPlot_TimeCutEfficiency(std::string savedir = "", std::ostream& n
   std::cout << "total: time cut efficiency = " << total_eff << " +/- " << total_eff_error << std::endl;
 
   numbers_file << "% From Si16b_FinalPlot_TimeCutEfficiency.C" << std::endl;
-  numbers_file << "\\newcommand\\SibTimeCutEff{$" << std::fixed << std::setprecision(3) << total_eff << " \\pm " << total_eff_error << "$}" << std::endl;
+  numbers_file << "\\newcommand\\SibTimeCutEff{\\num[round-precision=3, round-mode=figures]{" << std::fixed << std::setprecision(3) << total_eff << " \\pm " << total_eff_error << "}}" << std::endl;
   numbers_file << std::endl;
 
   TCanvas* c_time = new TCanvas("c_time", "c_time");

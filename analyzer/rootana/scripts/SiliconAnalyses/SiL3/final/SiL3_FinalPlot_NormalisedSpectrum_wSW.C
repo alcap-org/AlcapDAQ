@@ -4,8 +4,9 @@ void SiL3_FinalPlot_NormalisedSpectrum_wSW(std::string savedir = "") {
   c_log->SetLogy();
   TCanvas* c_lin = new TCanvas("c_lin", "c_lin");
   
-  std::string SW_filename = "~/data/results/SiL3/SW-plots.root";
+  //  std::string SW_filename = "~/data/results/SiL3/SW-plots.root";
   //  std::string SW_filename = "~/data/results/SiL3/SW-plots-above1400keV.root";
+    std::string SW_filename = "~/data/results/SiL3/SW-plots_betterErrors.root";
   TFile* SW_file = new TFile(SW_filename.c_str(), "READ");
   TGraphErrors* SW_gre = (TGraphErrors*) SW_file->Get("Graph");
   //  SW_gre->SetTitle("Charged Particle Emission (after decay electron correction)");

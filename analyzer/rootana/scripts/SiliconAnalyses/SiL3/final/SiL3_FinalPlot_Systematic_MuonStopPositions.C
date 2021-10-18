@@ -3,14 +3,15 @@ void SiL3_FinalPlot_Systematic_MuonStopPositions(std::string savedir = "") {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
     
-  std::string filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us.root";
+  std::string filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us_1_KFactor0-85_test.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_positions = 3;
-  std::string positions[n_positions] = {"", "HigherE", "LowerE"};
+  std::string positions[n_positions] = {"", "higherE", "lowerE"};
   Int_t colours[n_positions] = {kBlack, kBlue, kRed};
   std::string leglabels[n_positions] = {"central value", "higherE", "lowerE"};
 
+  std::string bin_width = "500keVBins";//"500keVBins";
 
   TH1F* hSpectra[n_positions] = {0};
   //  TH1F* hSpectra[n_positions][n_settings] = {{0}};
@@ -35,7 +36,7 @@ void SiL3_FinalPlot_Systematic_MuonStopPositions(std::string savedir = "") {
     std::string position = positions[i_position];
     Int_t i_colour = colours[i_position];
     
-    std::string i_dirname = "FinalNormalisation_TimeSlice2000_4000_allRecoil_MuStopPos" + position + "_500keVBins";
+    std::string i_dirname = "FinalNormalisation_TimeSlice3000_4000_allRecoil_MuStopPos" + position + "_" + bin_width;
     std::string i_histname = i_dirname + "/hNormalisedSpectrum";
     //      std::string i_dirname = "ResponseMatrix_" + position + "_TCutG_" + setting;
     //      std::string i_histname = i_dirname + "/hInputSpectrum";
@@ -63,7 +64,7 @@ void SiL3_FinalPlot_Systematic_MuonStopPositions(std::string savedir = "") {
     leg->AddEntry(spectrum, leglabel.str().c_str(), "l");
        
     c_all_systs->cd();
-    i_dirname = "FinalNormalisation_TimeSlice2000_4000_allRecoil_MuStopPos" + position + "_500keVBins_SystPlot";
+    i_dirname = "FinalNormalisation_TimeSlice3000_4000_allRecoil_MuStopPos" + position + "_" + bin_width + "_SystPlot";
     i_histname = i_dirname + "/hSystematic";
 
     std::cout << i_dirname << std::endl;

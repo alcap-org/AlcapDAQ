@@ -2,22 +2,22 @@
 
 void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& numbers_file = std::cout) {
     
-  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_3sigma.root";
+  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_2.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
-  double x_max = 25000;
+  double x_max = 25;
   
   const int n_ranges = 1;
-  double min_energies[n_ranges] = {15000};
-  double max_energies[n_ranges] = {16000};
+  double min_energies[n_ranges] = {15};
+  double max_energies[n_ranges] = {17};
   
   const int n_settings = 4;
   std::string particle_names[n_settings] = {"proton", "deuteron", "triton", "alpha"};
   std::string Particle_names[n_settings] = {"Proton", "Deuteron", "Triton", "Alpha"};
   Int_t colours[n_settings] = {kRed, kCyan, kMagenta, kSpring};
   std::string leglabels[n_settings] = {"protons", "deuterons", "tritons", "alphas"};
-  double min_best_ranges[n_settings] = {3000, 5000, 5000, 15000};
-  double max_best_ranges[n_settings] = {17000, 17000, 17000, 20000};
+  double min_best_ranges[n_settings] = {3, 5, 5, 15};
+  double max_best_ranges[n_settings] = {17, 17, 17, 20};
 
   TCanvas* particle_canvases[n_settings] = {0};
   TH2F* hAllRates[n_settings] = {0};
@@ -59,7 +59,7 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
     std::string Particle = Particle_names[i_setting];
     Int_t i_colour = colours[i_setting];
 
-    std::string i_dirname = "FinalSystPlot_" + particle + "_TCutG";
+    std::string i_dirname = "FinalSystPlot_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_BinW500keV";
 
     std::string i_statname = i_dirname + "/hFinalStat";
     TGraphAsymmErrors* stat_spectrum = (TGraphAsymmErrors*) file->Get(i_statname.c_str());
@@ -91,8 +91,8 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
     
     statsyst_spectrum->Draw("APE");
     statsyst_spectrum->GetXaxis()->SetRangeUser(0, x_max);
-    statsyst_spectrum->GetXaxis()->SetTitle("Energy [keV]");
-    statsyst_spectrum->GetYaxis()->SetTitle("Charged particles per muon capture per keV");
+    statsyst_spectrum->GetXaxis()->SetTitle("Energy [MeV]");
+    statsyst_spectrum->GetYaxis()->SetTitle("Charged particles per muon capture per MeV");
     statsyst_spectrum->GetXaxis()->SetTitleOffset(0.9);
     statsyst_spectrum->GetYaxis()->SetTitleOffset(0.9);
     stat_spectrum->Draw("PE SAME");
@@ -127,25 +127,31 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
 
     c_all_lin->cd();
     TGraphErrors* for_all = (TGraphErrors*) statsyst_spectrum->Clone("for_all");
+    TGraphErrors* for_all_stat = (TGraphErrors*) stat_spectrum->Clone("for_all_stat");
+    for_all->SetFillColor(i_colour);
+    //    for_all->SetFillStyle(3004);
     for_all->SetLineColor(i_colour);
+    for_all_stat->SetLineColor(kBlack);
     leglabel.str("");
     leglabel << leglabels[i_setting];
-    leg_for_all->AddEntry(for_all, leglabel.str().c_str(), "l");
+    leg_for_all->AddEntry(for_all, leglabel.str().c_str(), "f");
     if (i_setting==0) {
-      for_all->Draw("APE");
+      for_all->Draw("APE2");
     }
     else {
-      for_all->Draw("PE SAME");
+      for_all->Draw("PE2 SAME");
     }
+    for_all_stat->Draw("PE SAME");
     latex->DrawLatexNDC(0.6, 0.5, "AlCap #bf{#it{Preliminary} }");
 
     c_all_log->cd();
     if (i_setting==0) {
-      for_all->Draw("APE");
+      for_all->Draw("APE2");
     }
     else {
-      for_all->Draw("PE SAME");
+      for_all->Draw("PE2 SAME");
     }
+    for_all_stat->Draw("PE SAME");
     latex->DrawLatexNDC(0.6, 0.5, "AlCap #bf{#it{Preliminary} }");
 
     for (int i_range = 0; i_range < n_ranges; ++i_range) {
@@ -160,7 +166,7 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
       IntegrateRates_wStatAndSystSpectra(stat_spectrum, syst_spectrum, min_energy, max_energy,
 					 rate, total_stat_error, total_high_syst_error, total_low_syst_error);
       //    rate[i_range] = rate;
-      //      std::cout << particle << " Rate (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << rate << " \\pm " << total_stat_error << " (stat.) (" << total_stat_error/rate * 100 << "%) + " << total_high_syst_error << " (" << total_high_syst_error/rate * 100 << "%) - " << total_low_syst_error << " (syst.) (" << total_low_syst_error/rate * 100 << "%)" << std::endl << std::endl;
+      std::cout << particle << " Rate (" << min_energy << " MeV -- " << max_energy << " MeV) = " << rate << " \\pm " << total_stat_error << " (stat.) (" << total_stat_error/rate * 100 << "%) + " << total_high_syst_error << " (" << total_high_syst_error/rate * 100 << "%) - " << total_low_syst_error << " (syst.) (" << total_low_syst_error/rate * 100 << "%)" << std::endl << std::endl;
 
       sum_rates[i_range] += rate;
       sum_low_syst_errors[i_range] += total_low_syst_error*total_low_syst_error;
@@ -169,9 +175,9 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
     }
 
     double min_range = 0;
-    double max_range = 25000;
-    double max_range_step = 25000;
-    double min_range_step = 1000;
+    double max_range = 25;
+    double max_range_step = 25;
+    double min_range_step = 1;
     int n_bins = (max_range - min_range) / min_range_step;
     std::string histname = "hAllRates_" + particle;
     hAllRates[i_setting] = new TH2F(histname.c_str(), "", n_bins,min_range,max_range, n_bins,min_range,max_range);
@@ -196,13 +202,13 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
 	if (max_energy > max_range) {
 	  continue;
 	}
-	else if (particle == "proton" && max_energy>17000) {
+	else if (particle == "proton" && max_energy>17) {
 	  continue;
 	}
-	else if (particle == "deuteron" && max_energy>17000) {
+	else if (particle == "deuteron" && max_energy>17) {
 	  continue;
 	}
-	else if (particle == "triton" && max_energy>17000) {
+	else if (particle == "triton" && max_energy>17) {
 	  continue;
 	}
 
@@ -212,11 +218,11 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
 	double total_low_syst_error = 0;
 	IntegrateRates_wStatAndSystSpectra(stat_spectrum, syst_spectrum, min_energy, max_energy,
 					   rate, total_stat_error, total_high_syst_error, total_low_syst_error);
-	//	std::cout << particle << ": Rate (" << min_energy/1000 << " -- " << max_energy/1000 << " MeV) = " << rate << std::endl;
-	hAllRates[i_setting]->Fill(min_energy,max_energy-500,rate);
-	hAllStatErrors[i_setting]->Fill(min_energy,max_energy-500,total_stat_error);
-	hAllHighSystErrors[i_setting]->Fill(min_energy,max_energy-500,total_high_syst_error);
-	hAllLowSystErrors[i_setting]->Fill(min_energy,max_energy-500,total_low_syst_error);
+	//	std::cout << particle << ": Rate (" << min_energy << " -- " << max_energy << " MeV) = " << rate << std::endl;
+	hAllRates[i_setting]->Fill(min_energy,max_energy-0.5,rate);
+	hAllStatErrors[i_setting]->Fill(min_energy,max_energy-0.5,total_stat_error);
+	hAllHighSystErrors[i_setting]->Fill(min_energy,max_energy-0.5,total_high_syst_error);
+	hAllLowSystErrors[i_setting]->Fill(min_energy,max_energy-0.5,total_low_syst_error);
       }
     }
     double min_frac_uncertainty = 99999;
@@ -241,7 +247,7 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
 	double frac_uncertainty = std::sqrt(stat_error*stat_error + high_syst_error*high_syst_error + low_syst_error*low_syst_error);
 	//	double frac_uncertainty = std::sqrt(stat_error*stat_error + largest_syst_error*largest_syst_error);
 	frac_uncertainty /= rate;
-	//	std::cout << particle << ": Rate (" << min_energy/1000 << " -- " << max_energy/1000 << " MeV) = " << rate << " (" << frac_uncertainty*100 << "%)" << std::endl;
+	//	std::cout << particle << ": Rate (" << min_energy << " -- " << max_energy << " MeV) = " << rate << " (" << frac_uncertainty*100 << "%)" << std::endl;
 	if (frac_uncertainty < min_frac_uncertainty) {
 	  min_frac_uncertainty = frac_uncertainty;
 	  i_best_bin = i_bin;
@@ -260,11 +266,11 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
     double stat_error = hAllStatErrors[i_setting]->GetBinContent(i_best_bin, j_best_bin);
     double high_syst_error = hAllHighSystErrors[i_setting]->GetBinContent(i_best_bin, j_best_bin);
     double low_syst_error = hAllLowSystErrors[i_setting]->GetBinContent(i_best_bin, j_best_bin);
-    //    std::cout << "Best: (" << min_energy/1000 << " -- " << max_energy/1000 << " MeV) = " << rate << " +/- " << stat_error << " (stat.) + " << high_syst_error << " - " << low_syst_error << " (syst.): " << min_frac_uncertainty*100 << "%" << std::endl;
+    //    std::cout << "Best: (" << min_energy << " -- " << max_energy << " MeV) = " << rate << " +/- " << stat_error << " (stat.) + " << high_syst_error << " - " << low_syst_error << " (syst.): " << min_frac_uncertainty*100 << "%" << std::endl;
 
     // particle_canvases[i_setting]->cd();
     // //    std::cout << "\tAE: " << std::fixed << std::setprecision(5) << hAllRates[i_setting]->GetBinContent(i_best_bin, i_best_bin) << std::endl;
-    // double line_max_y = hAllRates[i_setting]->GetBinContent(i_best_bin, i_best_bin)/1000.0;
+    // double line_max_y = hAllRates[i_setting]->GetBinContent(i_best_bin, i_best_bin);
     // TLine* best_line_min = new TLine(min_energy, 0, min_energy, line_max_y);
     // best_line_min->SetLineColor(colours[i_setting]);
     // best_line_min->SetLineWidth(2);
@@ -287,7 +293,7 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
     // latex2->SetTextColor(colours[i_setting]);
     // std::stringstream rate_text;
     // rate_text.str("");
-    // rate_text << std::fixed << std::setprecision(0) << min_energy/1000 << " MeV -- " << max_energy/1000 << " MeV";
+    // rate_text << std::fixed << std::setprecision(0) << min_energy << " MeV -- " << max_energy << " MeV";
     // std::cout << rate_text.str() << std::endl;
     // latex2->DrawLatexNDC(0.5, 0.4, rate_text.str().c_str());
 
@@ -297,7 +303,7 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
     // latex2->DrawLatexNDC(0.5, 0.35, rate_text.str().c_str());
 
     numbers_file << std::fixed << std::setprecision(0);
-    numbers_file << "\\newcommand\\Sib" << Particle << "BestRange{" << min_energy/1000 << " -- " << max_energy/1000 << "}" << std::endl;
+    numbers_file << "\\newcommand\\Sib" << Particle << "BestRange{" << min_energy << " -- " << max_energy << "}" << std::endl;
     numbers_file << std::fixed << std::setprecision(2);
     numbers_file << "\\newcommand\\Sib" << Particle << "BestRateBare{" << "" << rate/1e-3 << "}" << std::endl;
     numbers_file << "\\newcommand\\Sib" << Particle << "BestStatErrBare{" << stat_error/1e-3 << "}" << std::endl;
@@ -316,20 +322,20 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
   c_all_log->cd();
   leg_for_all->Draw();
   
-  double min_comp_energy = 15000;
-  double max_comp_energy = 16000;
+  double min_comp_energy = 15;
+  double max_comp_energy = 17;
   for (int i_range = 0; i_range < n_ranges; ++i_range) {
     sum_low_syst_errors[i_range] = std::sqrt(sum_low_syst_errors[i_range]);
     sum_high_syst_errors[i_range] = std::sqrt(sum_high_syst_errors[i_range]);
     sum_stat_errors[i_range] = std::sqrt(sum_stat_errors[i_range]);
     
-    //    std::cout << "Sum Rate (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << sum_rates[i_range] << " \\pm " << sum_stat_errors[i_range] << " (stat.) (" << sum_stat_errors[i_range]/sum_rates[i_range] * 100 << "%) + " << sum_high_syst_errors[i_range] << " (" << sum_high_syst_errors[i_range]/sum_rates[i_range] * 100 << "%) - " << sum_low_syst_errors[i_range] << " (syst.) (" << sum_low_syst_errors[i_range]/sum_rates[i_range] * 100 << "%)" << std::endl << std::endl;
+    //    std::cout << "Sum Rate (" << min_energy << " MeV -- " << max_energy << " MeV) = " << sum_rates[i_range] << " \\pm " << sum_stat_errors[i_range] << " (stat.) (" << sum_stat_errors[i_range]/sum_rates[i_range] * 100 << "%) + " << sum_high_syst_errors[i_range] << " (" << sum_high_syst_errors[i_range]/sum_rates[i_range] * 100 << "%) - " << sum_low_syst_errors[i_range] << " (syst.) (" << sum_low_syst_errors[i_range]/sum_rates[i_range] * 100 << "%)" << std::endl << std::endl;
 
     double min_energy = min_energies[i_range];
     double max_energy = max_energies[i_range];
     if (min_energy == min_comp_energy && max_energy == max_comp_energy) {
       numbers_file << std::fixed << std::setprecision(0);
-      numbers_file << "\\newcommand\\SiCompRange{" << min_energy/1000 << " -- " << max_energy/1000 << "}" << std::endl;
+      numbers_file << "\\newcommand\\SiCompRange{" << min_energy << " -- " << max_energy << "}" << std::endl;
 
       numbers_file << std::fixed << std::setprecision(2);
       numbers_file << "\\newcommand\\SibSumCompRateBare{" << "" << sum_rates[i_range]/1e-3 << "}" << std::endl;
@@ -396,8 +402,8 @@ void Si16b_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& 
       }
 
       // std::cout << std::setprecision(6);
-      // std::cout << "FOUND: Range " << min_energy/1000 << " MeV -- " << max_energy/1000 << " MeV: " << rates[i_range][i_setting] << " +/- " << total_stat_errors[i_range][i_setting] << " (stat.) + " << total_high_syst_errors[i_range][i_setting] << " - " << total_low_syst_errors[i_range][i_setting] << " (syst.)" << std::endl;      
-      // std::cout << particle << " Rate (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << rate << " \\pm " << total_stat_error << " (stat.) (" << total_stat_error/rate * 100 << "%) + " << total_high_syst_error << " (" << total_high_syst_error/rate * 100 << "%) - " << total_low_syst_error << " (syst.) (" << total_low_syst_error/rate * 100 << "%)" << std::endl << std::endl;
+      // std::cout << "FOUND: Range " << min_energy << " MeV -- " << max_energy << " MeV: " << rates[i_range][i_setting] << " +/- " << total_stat_errors[i_range][i_setting] << " (stat.) + " << total_high_syst_errors[i_range][i_setting] << " - " << total_low_syst_errors[i_range][i_setting] << " (syst.)" << std::endl;      
+      // std::cout << particle << " Rate (" << min_energy << " MeV -- " << max_energy << " MeV) = " << rate << " \\pm " << total_stat_error << " (stat.) (" << total_stat_error/rate * 100 << "%) + " << total_high_syst_error << " (" << total_high_syst_error/rate * 100 << "%) - " << total_low_syst_error << " (syst.) (" << total_low_syst_error/rate * 100 << "%)" << std::endl << std::endl;
     }
   }
   numbers_file << std::endl;

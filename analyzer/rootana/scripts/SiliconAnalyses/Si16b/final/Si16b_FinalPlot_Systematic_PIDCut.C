@@ -3,7 +3,7 @@ void Si16b_FinalPlot_Systematic_PIDCut(std::string savedir = "") {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
     
-  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_3sigma.root";
+  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_1.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_particles = 4;
@@ -29,7 +29,7 @@ void Si16b_FinalPlot_Systematic_PIDCut(std::string savedir = "") {
   leg2->SetFillColor(kWhite);
 
   int rebin_factor = 1;
-  double x_max = 25000;
+  double x_max = 25;
   std::stringstream leglabel;
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     std::string particle = particles[i_particle];
@@ -42,7 +42,7 @@ void Si16b_FinalPlot_Systematic_PIDCut(std::string savedir = "") {
       Int_t i_colour = colours[i_setting];
       leglabels[i_setting] = std::to_string(sigmas[i_setting]) + "#sigma";
     
-      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_" + setting + "_SystPlot";
+      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_" + setting + "_SystPlot";
       std::string i_histname = i_dirname + "/syst_hist";
 
       std::cout << i_dirname << std::endl;
@@ -88,7 +88,7 @@ void Si16b_FinalPlot_Systematic_PIDCut(std::string savedir = "") {
 
       std::string setting = "PID" + std::to_string(sigmas[i_setting]) + "sigma";
       Int_t i_colour = colours[i_setting];
-      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_" + setting + "_SystPlot";
+      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_" + setting + "_SystPlot";
       std::string i_histname = i_dirname + "/hSystematic";
 
       std::cout << i_dirname << std::endl;

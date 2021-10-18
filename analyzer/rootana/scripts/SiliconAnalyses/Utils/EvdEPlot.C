@@ -334,6 +334,11 @@ void EvdEPlot(EvdEPlotArgs& args) {
       std::cout << i_entry << " / " << n_entries << std::endl;
     }
 
+    // convert to MeV
+    thin_energy = thin_energy*1e-3;
+    thick_energy = thick_energy*1e-3;
+    third_energy = third_energy*1e-3;
+    
     double total_energy = (thin_energy+thick_energy);
     double total_3L_energy = (thin_energy+thick_energy+third_energy);
 

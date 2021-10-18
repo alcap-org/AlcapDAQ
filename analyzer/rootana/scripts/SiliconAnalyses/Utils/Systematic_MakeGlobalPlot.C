@@ -1,3 +1,5 @@
+#ifndef Systematic_MakeGlobalPlot_
+#define Systematic_MakeGlobalPlot_
 #include "TFile.h"
 #include "TTree.h"
 #include "TH2.h"
@@ -50,3 +52,4 @@ void Systematic_MakeGlobalPlot(const Systematic_MakeGlobalPlotArgs& args) {
   outfile->Write();
   outfile->Close();
 }
+#endif

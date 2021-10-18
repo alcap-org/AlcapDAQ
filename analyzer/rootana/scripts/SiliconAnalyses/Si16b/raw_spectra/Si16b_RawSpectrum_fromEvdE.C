@@ -10,19 +10,27 @@ void Si16b_RawSpectrum_fromEvdE(std::string infilename, std::string outfilename)
   std::string histnames[n_hists] = {"hEvdE", "hEvt"};
   std::string outdirnames[n_hists] = {"", "Time_"};
 
-  const int n_pids = 2;
-  std::string pids[n_pids] = {"TCutG", "PSel"};
+  const int n_pids = 1;//2;
+  std::string pids[n_pids] = {"TCutG"};//, "PSel"};
 
+  const int n_sigmas = 3;
+  std::string sigmas[n_sigmas] = {"3", "2", "1"};
+
+  const int n_layer_coincs = 2;
+  std::string layer_coincs[n_layer_coincs] = {"200ns", "500ns"};
+  
   const int n_timecuts = 2;
-  std::string timecuts[n_timecuts] = {"", "_noTimeCut"};
+  std::string timecuts[n_timecuts] = {"400ns", "0ns"};
   double min_times[n_timecuts] = {400, 0};
 
   // For protons, deuterons etc
-  const int n_particles = 5;
-  std::string particle_names[n_particles] = {"all", "proton", "deuteron", "triton", "alpha"};//, "proton_combined"};
-  double max_energy_cutoffs[n_particles] = {100000, 17000, 17000, 17000, 19000};
-  double SiR3_veto_efficiency = 1.00;//0.67;//0.68;
-  double SiR3_veto_eff_uncertainty = 0.00;//0.03;//0.0
+  const int n_particles = 4;
+  std::string particle_names[n_particles] = {"proton", "deuteron", "triton", "alpha"};//, "proton_combined"};
+  double max_energy_cutoffs[n_particles] = {25,17.3,17.3,25};//{25, 25, 25, 25};//{20, 17, 17, 20};//{100, 20, 20, 20, 20};//17, 17, 17, 19};
+  //  std::string particle_names[n_particles] = {"all", "proton", "deuteron", "triton", "alpha"};//, "proton_combined"};
+  //  double max_energy_cutoffs[n_particles] = {100, 20, 20, 20, 20};//17, 17, 17, 19};
+  double SiR3_veto_efficiency = 0.74;//0.81;//1.00;//0.71;//0.68;//0.67;//0.68;
+  double SiR3_veto_eff_uncertainty = 0.07;//0.05;//0.02;//0.02;//0.03;//0.0
   
   for (int i_hist = 0; i_hist < n_hists; ++i_hist) {
     std::string histname = histnames[i_hist];
@@ -39,50 +47,86 @@ void Si16b_RawSpectrum_fromEvdE(std::string infilename, std::string outfilename)
 	for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
 	  std::string i_particle_name = particle_names[i_particle];
 
-	  // Get the raw spectrum
-	  args.outdirname = outdirname + i_particle_name + "_" + pid + timecut;
-	  std::string indirname = i_particle_name + "_SiR_timecut" + min_time.str() + "_10000ns_layerCoinc";
-	  if (pid == "PSel" && i_particle_name != "all") {
-	    indirname += "_" + pid;
-	  }			    
-	  args.datacuttreename = indirname + "/cuttree";
-	  args.max_energy_cutoff = max_energy_cutoffs[i_particle];
+	  for (int i_sigma = 0; i_sigma < n_sigmas; ++i_sigma) {
+	    std::string sigma = sigmas[i_sigma];
+
+	    for (int i_layer_coinc = 0; i_layer_coinc < n_layer_coincs; ++i_layer_coinc) {
+	      std::string layer_coinc = layer_coincs[i_layer_coinc];
 	  
-	  args.datahistnames.clear();
-	  args.scale_ratios.clear();
-	  args.scale_ratio_errors.clear();
+	      // Get the raw spectrum
+	      args.outdirname = outdirname + i_particle_name + "_" + pid + "_" + sigma + "sig_layerCoinc" + layer_coinc + "_" + "tGT" + timecut;
+	      std::string indirname = i_particle_name + "_" + sigma + "sig_SiR_timecut" + min_time.str() + "_10000ns_layerCoinc" + layer_coinc;
+	      if (pid == "PSel" && i_particle_name != "all") {
+		indirname += "_" + pid;
+	      }			    
+	      args.datacuttreename = indirname + "/cuttree";
+	      args.max_energy_cutoff = max_energy_cutoffs[i_particle];
 	  
-	  std::string datahistname = indirname + "/" + histname + "_TwoLayer_12not3";
-	  double scale_ratio = 1;
-	  double scale_ratio_error = 0;
-	  args.datahistnames.push_back(datahistname);
-	  args.scale_ratios.push_back(scale_ratio);
-	  args.scale_ratio_errors.push_back(scale_ratio_error);
-	  if (i_particle_name == "proton") {
-	    if (pid == "TCutG") {
-	      args.datahistnames.push_back(i_particle_name + "3L_SiR_timecut" + min_time.str() + "_10000ns_layerCoinc/" + histname + "_ThreeLayer_123");
+	      args.datahistnames.clear();
+	      args.scale_ratios.clear();
+	      args.scale_ratio_errors.clear();
+	      
+	      std::string datahistname = indirname + "/" + histname + "_TwoLayer_12not3";
+	      double scale_ratio = 1;
+	      double scale_ratio_error = 0;
+	      args.datahistnames.push_back(datahistname);
+	      args.scale_ratios.push_back(scale_ratio);
+	      args.scale_ratio_errors.push_back(scale_ratio_error);
+	      if (i_particle_name == "proton") {
+		if (pid == "TCutG") {
+		  args.datahistnames.push_back(i_particle_name + "3L_" + sigma + "sig_SiR_timecut" + min_time.str() + "_10000ns_layerCoinc" + layer_coinc + "/" + histname + "_ThreeLayer_123");
+		}
+		else {
+		  args.datahistnames.push_back(i_particle_name + "_" + sigma + "sig_SiR_timecut" + min_time.str() + "_10000ns_layerCoinc" + layer_coinc + "_" + pid + "/" + histname + "_ThreeLayer_123");
+		}
+		double scale_factor = SiR3_veto_efficiency;
+		double scale_factor_err = (SiR3_veto_eff_uncertainty);///SiR3_veto_efficiency)*scale_factor;
+		args.scale_ratios.push_back(scale_factor);
+		args.scale_ratio_errors.push_back(scale_factor_err);
+		
+		if (pid == "PSel") {
+		  args.datahistnames.push_back(i_particle_name + "_" + sigma + "sig_SiR_timecut" + min_time.str() + "_10000ns_layerCoinc" + layer_coinc + "_" + pid + "/" + histname + "_TwoLayer_123");
+		}
+		else {
+		  args.datahistnames.push_back(i_particle_name + "_" + sigma + "sig_SiR_timecut" + min_time.str() + "_10000ns_layerCoinc" + layer_coinc + "/" + histname + "_TwoLayer_123");
+		}
+		scale_factor = (SiR3_veto_efficiency)/(1-SiR3_veto_efficiency);
+		scale_factor_err = std::sqrt( (SiR3_veto_eff_uncertainty*SiR3_veto_eff_uncertainty)*( 1/(1-SiR3_veto_efficiency) + 2/(SiR3_veto_efficiency*(1-SiR3_veto_efficiency))) );//(SiR3_veto_eff_uncertainty/SiR3_veto_efficiency)*scale_factor;
+		args.scale_ratios.push_back(-1*scale_factor);
+		args.scale_ratio_errors.push_back(scale_factor_err);
+
+		args.min_add_error_energy = 15.5;
+		args.max_add_error_energy = 16.5;
+		args.additional_error = 0.10; // add 10% due to dead layer uncertainty
+
+		// Correct for SiR3 punch-throughs
+		args.energies_to_scale.clear();
+		args.scales.clear();
+		args.err_scales.clear();
+		args.energies_to_scale.push_back(16); args.scales.push_back(0.052); args.err_scales.push_back(0.10);
+		args.energies_to_scale.push_back(16.5); args.scales.push_back(0.001); args.err_scales.push_back(0.10);
+		args.energies_to_scale.push_back(17); args.scales.push_back(0.001); args.err_scales.push_back(0.10);
+		args.energies_to_scale.push_back(17.5); args.scales.push_back(0.049); args.err_scales.push_back(0.10);
+		args.energies_to_scale.push_back(18); args.scales.push_back(0.110); args.err_scales.push_back(0.10);
+		args.energies_to_scale.push_back(18.5); args.scales.push_back(0.097); args.err_scales.push_back(0.10);
+		args.energies_to_scale.push_back(19); args.scales.push_back(0.086); args.err_scales.push_back(0.10);
+		args.energies_to_scale.push_back(19.5); args.scales.push_back(0.059); args.err_scales.push_back(0.10);
+		args.energies_to_scale.push_back(20); args.scales.push_back(0.054); args.err_scales.push_back(0.10);
+		args.energies_to_scale.push_back(20.5); args.scales.push_back(0.077); args.err_scales.push_back(0.10);
+	      }
+	      else {
+		args.min_add_error_energy = 1000000;
+		args.max_add_error_energy = 1000000;
+		args.additional_error = 1;
+
+		args.energies_to_scale.clear();
+		args.scales.clear();
+		args.err_scales.clear();
+	      }
+	      args.projection_x = true;
+	      RawSpectrum_fromEvdE(args);
 	    }
-	    else {
-	      args.datahistnames.push_back(i_particle_name + "_SiR_timecut" + min_time.str() + "_10000ns_layerCoinc_" + pid + "/" + histname + "_ThreeLayer_123");
-	    }
-	    double scale_factor = 1.0/SiR3_veto_efficiency;
-	    double scale_factor_err = (SiR3_veto_eff_uncertainty/SiR3_veto_efficiency)*scale_factor;
-	    args.scale_ratios.push_back(scale_factor);
-	    args.scale_ratio_errors.push_back(scale_factor_err);
-	    
-	    if (pid == "PSel") {
-	      args.datahistnames.push_back(i_particle_name + "_SiR_timecut" + min_time.str() + "_10000ns_layerCoinc_" + pid + "/" + histname + "_TwoLayer_123");
-	    }
-	    else {
-	      args.datahistnames.push_back(i_particle_name + "_SiR_timecut" + min_time.str() + "_10000ns_layerCoinc/" + histname + "_TwoLayer_123");
-	    }
-	    scale_factor = (1-SiR3_veto_efficiency)/(SiR3_veto_efficiency);
-	    scale_factor_err = (SiR3_veto_eff_uncertainty/SiR3_veto_efficiency)*scale_factor;
-	    args.scale_ratios.push_back(-1*scale_factor);
-	    args.scale_ratio_errors.push_back(scale_factor_err);
 	  }
-	  args.projection_x = true;
-	  RawSpectrum_fromEvdE(args);
 	}
       }
     }

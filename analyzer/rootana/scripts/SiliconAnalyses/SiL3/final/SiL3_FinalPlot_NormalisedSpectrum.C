@@ -2,15 +2,15 @@
 
 void SiL3_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& numbers_file = std::cout) {
     
-  std::string filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us.root";
+  std::string filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us_1_KFactor0-85_test.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
-  const int n_bin_widths = 2;
-  std::string bin_widths[n_bin_widths] = {"100keVBins", "500keVBins"};
+  const int n_bin_widths = 1;
+  std::string bin_widths[n_bin_widths] = {"100keVBins"};//, "500keVBins"};
   
   const int n_ranges = 2;
-  double min_energies[n_ranges] = {15000, 1400};
-  double max_energies[n_ranges] = {16000, 26000};
+  double min_energies[n_ranges] = {15, 1.4};
+  double max_energies[n_ranges] = {17, 26};
   int i_bin_width_to_use[n_ranges] = {1, 0};
     
   double rates[n_ranges] = {0};
@@ -19,7 +19,7 @@ void SiL3_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& n
   double total_high_syst_errors[n_ranges] = {0};
 
   const int n_slices = 1;
-  double min_time_slices[n_slices] = {2000};
+  double min_time_slices[n_slices] = {3000};
   double max_time_slices[n_slices] = {4000};
   Int_t colours[n_slices] = {kRed};
   std::string leglabels[n_slices] = {"SiL3 (active target)"};
@@ -62,6 +62,7 @@ void SiL3_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& n
       
       std::string i_dirname = "FinalSystPlot_" + time_slice_str.str() + "_allRecoil_" + bin_width;
       //    std::string i_dirname = "FinalSystPlot_" + time_slice_str.str() + "_nuRecoil_500keVBins";
+      std::cout << "AE: " << i_dirname << std::endl;
       std::string i_statname = i_dirname + "/hFinalStat";
       TGraphAsymmErrors* stat_spectrum = (TGraphAsymmErrors*) file->Get(i_statname.c_str());
       if (!stat_spectrum) {
@@ -93,8 +94,8 @@ void SiL3_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& n
       statsyst_spectrum->Draw("APE");
       statsyst_spectrum->GetXaxis()->SetTitle("Energy [keV]");
       statsyst_spectrum->GetYaxis()->SetTitle("Charged Particles / captured muon / keV");
-      statsyst_spectrum->GetXaxis()->SetRangeUser(0, 26000);
-      statsyst_spectrum->GetYaxis()->SetRangeUser(1e-8, 1e-3);
+      statsyst_spectrum->GetXaxis()->SetRangeUser(0, 26);
+      statsyst_spectrum->GetYaxis()->SetRangeUser(1e-5, 1);
       stat_spectrum->Draw("PE SAME");
 
       if (i_bin_width == 0) {
@@ -120,9 +121,9 @@ void SiL3_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& n
 	IntegrateRates_wStatAndSystSpectra(stat_spectrum, syst_spectrum, min_energy, max_energy,
 					   rate, total_stat_error, total_high_syst_error, total_low_syst_error);
 
-	std::cout << "SiL3 Rate (" << min_energy / 1000 << " MeV -- " << max_energy / 1000 << " MeV) = " << rate << " \\pm " << total_stat_error << " (stat.) (" << total_stat_error/rate * 100 << "%) + " << total_high_syst_error << " (" << total_high_syst_error/rate * 100 << "%) - " << total_low_syst_error << " (syst.) (" << total_low_syst_error/rate * 100 << "%)" << std::endl << std::endl;
+	std::cout << "SiL3 Rate (" << min_energy << " MeV -- " << max_energy << " MeV) = " << rate << " \\pm " << total_stat_error << " (stat.) (" << total_stat_error/rate * 100 << "%) + " << total_high_syst_error << " (" << total_high_syst_error/rate * 100 << "%) - " << total_low_syst_error << " (syst.) (" << total_low_syst_error/rate * 100 << "%)" << std::endl << std::endl;
 
-	if (min_energy==15000 && max_energy==16000 && i_bin_width==i_bin_width_to_use[i_range]) {
+	if (min_energy==15 && max_energy==17 && i_bin_width==i_bin_width_to_use[i_range]) {
 	  numbers_file << std::fixed << std::setprecision(2);
 	  numbers_file << "\\newcommand\\SiLCompRateBare{" << "" << rates[i_range]/1e-3 << "}" << std::endl;
 	  numbers_file << "\\newcommand\\SiLCompStatErrBare{" << total_stat_errors[i_range]/1e-3 << "}" << std::endl;
@@ -131,9 +132,9 @@ void SiL3_FinalPlot_NormalisedSpectrum(std::string savedir = "", std::ostream& n
 	  numbers_file << "\\newcommand\\SiLCompSystFracUncertainty{$^{+" << (total_high_syst_errors[i_range]/rate)*100 << "\\%}_{-" << (total_low_syst_errors[i_range]/rate)*100 << "\\%}$}" << std::endl;
 	  numbers_file << "\\newcommand\\SiLCompRateFull{$(\\SiLCompRateBare \\pm \\SiLCompStatErrBare ~\\text{(stat.)} ^{+\\SiLCompHighSystErrBare}_{-\\SiLCompLowSystErrBare}~\\text{(syst.)}) \\times 10^{-3}$}" << std::endl;
 	}
-	if (min_energy==1400 && max_energy==26000 && i_bin_width==i_bin_width_to_use[i_range]) {
+	if (min_energy==1.4 && max_energy==26 && i_bin_width==i_bin_width_to_use[i_range]) {
 	  numbers_file << std::fixed << std::setprecision(1);
-	  numbers_file << "\\newcommand\\SiLActiveRange{" << min_energy/1000 << " -- " << std::setprecision(0) << max_energy/1000 << "}" << std::endl;
+	  numbers_file << "\\newcommand\\SiLActiveRange{" << min_energy << " -- " << std::setprecision(0) << max_energy << "}" << std::endl;
 	  numbers_file << std::fixed << std::setprecision(4);
 	  numbers_file << "\\newcommand\\SiLActiveRateBare{" << "" << rates[i_range] << "}" << std::endl;
 	  numbers_file << "\\newcommand\\SiLActiveStatErrBare{" << total_stat_errors[i_range] << "}" << std::endl;

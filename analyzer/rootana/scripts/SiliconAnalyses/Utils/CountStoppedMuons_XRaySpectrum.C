@@ -25,6 +25,7 @@ struct CountStoppedMuons_XRaySpectrumArgs {
 
   double min_time;
   double max_time;
+  bool is2DHist;
 };
 
 void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& args) {
@@ -34,16 +35,26 @@ void CountStoppedMuons_XRaySpectrum(const CountStoppedMuons_XRaySpectrumArgs& ar
     std::cout << "Problem openeing file " << args.infilename.c_str() << std::endl;
     return;
   }
-  TH2F* hEnergyTime = (TH2F*) file->Get(args.inhistname.c_str());
-  if (!hEnergyTime) {
-    std::cout << "Problem getting histogram " << args.inhistname.c_str() << std::endl;
+  TH1F* hGe_Spectrum = 0;
+  if (args.is2DHist) {
+    TH2F* hEnergyTime = (TH2F*) file->Get(args.inhistname.c_str());
+    if (!hEnergyTime) {
+      std::cout << "Problem getting histogram " << args.inhistname.c_str() << std::endl;
+      return;
+    }
+  
+    // time cuts can go in here
+    int min_time_bin = hEnergyTime->GetXaxis()->FindBin(args.min_time);
+    int max_time_bin = hEnergyTime->GetXaxis()->FindBin(args.max_time)-1;
+    hGe_Spectrum = (TH1F*) hEnergyTime->ProjectionY("_py", min_time_bin, max_time_bin);
+  }
+  else {
+    hGe_Spectrum = (TH1F*) file->Get(args.inhistname.c_str());
+  }
+  if (!hGe_Spectrum) {
+    std::cout << "Problem getting histogram" << std::endl;
     return;
   }
-
-  // time cuts can go in here
-  int min_time_bin = hEnergyTime->GetXaxis()->FindBin(args.min_time);
-  int max_time_bin = hEnergyTime->GetXaxis()->FindBin(args.max_time)-1;
-  TH1F* hGe_Spectrum = (TH1F*) hEnergyTime->ProjectionY("_py", min_time_bin, max_time_bin);
 
   
   // Define the X-ray we want to look at

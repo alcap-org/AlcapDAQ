@@ -51,4 +51,6 @@ void Unfold_GeometricAcceptance(const Unfold_GeometricAcceptanceArgs& args) {
   efftree->Write();
   outfile->Write();
   outfile->Close();
+
+  file->Close();
 }

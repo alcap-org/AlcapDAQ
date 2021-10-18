@@ -3,15 +3,23 @@ void SiL3_FinalPlot_Systematic_TimeSlice(std::string savedir = "") {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
     
-  std::string filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us.root";
+  std::string filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us_1_KFactor0-85_test.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
-  const int n_time_slices = 5;
-  double min_time_slices[n_time_slices] = {2000, 2000, 2500, 3000, 3500};
-  double max_time_slices[n_time_slices] = {4000, 2500, 3000, 3500, 4000};
-  Int_t colours[n_time_slices] = {kBlack, kBlue, kRed, kMagenta, kSpring};
+  // const int n_time_slices = 5;
+  // double min_time_slices[n_time_slices] = {2000, 2000, 2500, 3000, 3500};
+  // double max_time_slices[n_time_slices] = {4000, 2500, 3000, 3500, 4000};
+  // const int n_time_slices = 3;
+  // double min_time_slices[n_time_slices] = {2000, 2500, 3000};
+  // double max_time_slices[n_time_slices] = {4000, 4000, 4000};
+  const int n_time_slices = 2;
+  double min_time_slices[n_time_slices] = {3000, 3500};
+  double max_time_slices[n_time_slices] = {3500, 4000};
+
+  Int_t colours[n_time_slices] = {kBlack, kBlue};//, kRed};//, kMagenta, kSpring};
   std::string leglabels[n_time_slices] = {};
 
+  std::string bin_width = "100keVBins";//"500keVBins";
 
   TH1F* hSpectra[n_time_slices] = {0};
   //  TH1F* hSpectra[n_time_slices][n_settings] = {{0}};
@@ -41,7 +49,8 @@ void SiL3_FinalPlot_Systematic_TimeSlice(std::string savedir = "") {
 
     Int_t i_colour = colours[i_time_slice];
     
-    std::string i_dirname = "FinalNormalisation_" + syst_time_slice.str() + "_TimeSlice2000_4000Syst_allRecoil_500keVBins_SystPlot";
+    std::string i_dirname = "FinalNormalisation_" + syst_time_slice.str() + "_TimeSlice3000_4000Syst_allRecoil_" + bin_width + "_SystPlot";
+    //    std::string i_dirname = "DecayElectron_" + syst_time_slice.str() + "_TimeSlice3000_4000Syst_allRecoil_" + bin_width + "_SystPlot";
     std::string i_histname = i_dirname + "/syst_hist";
     //      std::string i_dirname = "ResponseMatrix_" + time_slice + "_TCutG_" + setting;
     //      std::string i_histname = i_dirname + "/hInputSpectrum";
@@ -71,7 +80,8 @@ void SiL3_FinalPlot_Systematic_TimeSlice(std::string savedir = "") {
 
     if (i_time_slice > 0) {
       c_all_systs->cd();
-      i_dirname = "FinalNormalisation_" + syst_time_slice.str() + "_TimeSlice2000_4000Syst_allRecoil_500keVBins_SystPlot";
+      i_dirname = "FinalNormalisation_" + syst_time_slice.str() + "_TimeSlice3000_4000Syst_allRecoil_" + bin_width + "_SystPlot";
+      //      i_dirname = "DecayElectron_" + syst_time_slice.str() + "_TimeSlice3000_4000Syst_allRecoil_100keVBins_SystPlot";
       i_histname = i_dirname + "/hSystematic";
       
       std::cout << i_dirname << std::endl;

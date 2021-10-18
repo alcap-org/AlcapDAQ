@@ -19,7 +19,7 @@ void Ti50_FinalPlot_RawSpectra() {
     Int_t colour = colours[i_particle];
     
     //    std::string folded_histname = particle + "_PSel/hRawSpectrum";
-    //    std::string folded_histname = particle + "_TCutG_noTimeCut_SiR/hRawSpectrum";
+    //    std::string folded_histname = particle + "_TCutG_noTimeCut_SiL/hRawSpectrum";
     std::string folded_histname = particle + "_TCutG_SiL/hRawSpectrum";
     std::string outhisttitle = "Ti50 Dataset, Right Arm, " + particle;
   

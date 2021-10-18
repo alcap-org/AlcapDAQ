@@ -43,7 +43,7 @@ void DrawFullScaleHistograms() {
   hgehi_e_all->Draw();
   hgelo_e_all->Draw("SAME");
   l_all->Draw();
-  c_all->SaveAs("img/ge_e.png");
+  c_all->SaveAs("~/data/results/Al50/normalisation/ge_e.png");
 }
 
 struct Norm {
@@ -61,8 +61,8 @@ void ConstructFitFunctions(TF1*& hi, TF1*& lo) {
   lo = new TF1("fcn_lo",
                "pol1(0)+[2]*exp(-0.5*(x-[3])^2/[6]^2)+[4]*exp(-0.5*(x-[5])^2/[6]^2)",
                335, 355);
-  hi->SetParameters(1.5e3, 0., 10e3, 345., 2e3, 349.5, 1.);
-  lo->SetParameters(1.5e3, 0., 13e3, 344., 2e3, 348.5, 1.);
+  hi->SetParameters(1.5e3, 0., 10e3, 345., 2e3, 347.5, 1.);
+  lo->SetParameters(1.5e3, 0., 13e3, 344., 2e3, 349.5, 1.);
   hi->SetParName(0, "Bkg y-int"); lo->SetParName(0, "Bkg y-int");
   hi->SetParName(1, "Bkg Slope"); lo->SetParName(1, "Bkg Slope");
   hi->SetParName(2, "Al Amp");    lo->SetParName(2, "Al Amp");
@@ -80,10 +80,10 @@ Norm FitGeHist(TH1* h, TF1* f) {
   Double_t pars[7];
   f->GetParameters(pars);
   printf("%g %g %g %g %g %g %g\n", pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6]);
-  h->Fit(f);
+  h->Fit(f, "R");
   f->GetParameters(pars);
   printf("%g %g %g %g %g %g %g\n", pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], pars[6]);
-  TFitResultPtr r = h->Fit(f, "S");
+  TFitResultPtr r = h->Fit(f, "SR");
   Norm N = {
     (int)GeFcn::NMuHi(r->Parameter(2), r->Parameter(6), h->GetBinWidth(1), I, E),
     GeFcn::NMuErrHi(r->Parameter(2), r->ParError(2), r->Parameter(6),
@@ -127,11 +127,11 @@ void DrawFits(TH1* hi, TH1* lo, Norm& nhi, Norm& nlo) {
   lo->Draw("SAME");
   l_fit->Draw();
   c_fit->Update();
-  c_fit->SaveAs("img/ge_e_zoom.png");
+  c_fit->SaveAs("~/data/results/Al50/normalisation/ge_e_zoom.png");
 }
 
 void r15b_al50_nmu_draw () {
-  const char IFNAME[] = "~/data/R15b/nmual50.root";
+  const char IFNAME[] = "~/data/results/Al50/normalisation/nmual50.root";
   TFile* f = new TFile(IFNAME);
   LoadHistograms(f);
 

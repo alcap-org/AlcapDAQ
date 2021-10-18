@@ -15,11 +15,11 @@ void SiL3_EvdEPlot(std::string infilename, std::string outfilename) {
   args.outfilename = outfilename;
 
   args.min_x_energy = 0;
-  args.max_x_energy = 25000;
-  args.x_energy_width = 50;
+  args.max_x_energy = 25;
+  args.x_energy_width = 0.050;
   args.min_y_energy = 0;
-  args.max_y_energy = 25000;
-  args.y_energy_width = 50;
+  args.max_y_energy = 25;
+  args.y_energy_width = 0.050;
 
   args.min_time = -30000;
   args.max_time = 30000;

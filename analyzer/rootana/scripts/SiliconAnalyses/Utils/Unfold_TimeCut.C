@@ -73,4 +73,7 @@ void Unfold_TimeCut(const Unfold_TimeCutArgs& args) {
   efftree->Write();
   outfile->Write();
   outfile->Close();
+
+  file->Close();
+  cutfile->Close();
 }

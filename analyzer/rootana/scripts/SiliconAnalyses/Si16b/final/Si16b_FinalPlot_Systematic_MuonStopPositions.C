@@ -3,7 +3,7 @@ void Si16b_FinalPlot_Systematic_MuonStopPositions(std::string savedir = "") {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
     
-  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_3sigma.root";
+  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_2.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_particles = 4;
@@ -11,11 +11,12 @@ void Si16b_FinalPlot_Systematic_MuonStopPositions(std::string savedir = "") {
   std::string Particles[n_particles] = {"Proton", "Deuteron", "Triton", "Alpha"};
   
   const int n_settings = 3;
-  std::string positions[n_settings] = {"", "_higherE", "_lowerE"};
+  std::string positions[n_settings] = {"", "_midLowE", "_midHighE"};//"_higherE", "_lowerE"};
   Int_t colours[n_settings] = {kBlack, kRed, kBlue};
-  std::string leglabels[n_settings] = {"nominal", "higher energy", "lower energy"};
+  std::string leglabels[n_settings] = {"nominal", "lower muon energy", "higher muon energy"};
 
-  TH1F* hSpectra[n_particles][n_settings] = {{0}, {0}, {0}, {0}};
+  //  TH1F* hSpectra[n_particles][n_settings] = {{0}, {0}, {0}, {0}};
+  TH1F* hSpectra[n_particles][n_settings] = {{0}};
   //  TH1F* hSpectra[n_particles][n_settings] = {{0}};
   
   TLegend* leg = new TLegend(0.65,0.65,0.85,0.85);
@@ -30,7 +31,7 @@ void Si16b_FinalPlot_Systematic_MuonStopPositions(std::string savedir = "") {
 
   
   int rebin_factor = 1;
-  double x_max = 25000;
+  double x_max = 25.000;
   std::stringstream leglabel;
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     std::string particle = particles[i_particle];
@@ -42,7 +43,7 @@ void Si16b_FinalPlot_Systematic_MuonStopPositions(std::string savedir = "") {
       std::string setting = "MuStopPos" + positions[i_setting];
       Int_t i_colour = colours[i_setting];
     
-      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_" + setting;
+      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_BinW500keV_" + setting;
       std::string i_histname = i_dirname + "/hNormalisedSpectrum";
       //      std::string i_dirname = "ResponseMatrix_" + particle + "_TCutG_" + setting;
       //      std::string i_histname = i_dirname + "/hInputSpectrum";
@@ -87,7 +88,7 @@ void Si16b_FinalPlot_Systematic_MuonStopPositions(std::string savedir = "") {
     for (int i_setting = n_settings-1; i_setting >= 1; --i_setting) {
       std::string setting = "MuStopPos" + positions[i_setting];
       Int_t i_colour = colours[i_setting];
-      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_" + setting + "_SystPlot";
+      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_BinW500keV_" + setting + "_SystPlot";
       std::string i_histname = i_dirname + "/hSystematic";
       
       std::cout << i_dirname << std::endl;

@@ -4,41 +4,47 @@
 
 void Si16b_Systematic_UnfoldingBinWidths(std::string infilename, std::string outfilename,
 					 std::string countfilename, std::string counttreename,
-					 std::string pid, std::string particle_name) {
+					 std::string pid, std::string particle_name,
+					 std::string sigma, std::string layer_coinc,
+					 std::string timecut, std::string inbinw) {
 
   // Number of bin widths
-  const int n_bin_widths = 2;
-  int bin_widths[n_bin_widths] = {500, 1000};
+  const int n_bin_widths = 1;
+  int bin_widths[n_bin_widths] = {100};
+  std::string BinWs[n_bin_widths] = {"100keV"};
 
   for (int i_bin_width = 0; i_bin_width < n_bin_widths; ++i_bin_width) {
-    int bin_width = bin_widths[i_bin_width];
-    int rebin_factor = bin_width/10;
-	
-    std::string indirname = "TimeCut_" + particle_name + "_" + pid;
-    std::string inhistname = indirname + "/hCorrectedSpectrum";
+    std::string binw = BinWs[i_bin_width];
 
-    std::string outdirname = "ResponseMatrix_" + particle_name + "_" + pid + "_BinW" + std::to_string(bin_width);
+    std::string outdirname = "FinalNormalisation_" + particle_name + "_" + pid + "_" + sigma + "_" + layer_coinc + "_" + timecut + "_BinW" + binw;
+    // convert previously unfolded spectrum to correct binning
+    TFile* infile = new TFile(infilename.c_str(), "READ");
+    std::string centralhistname = "FinalNormalisation_" + particle_name + "_" + pid + "_" + sigma + "_" + layer_coinc + "_" + timecut + "_" + inbinw + "/hNormalisedSpectrum";
+    std::string systhistname = "FinalNormalisation_" + particle_name + "_" + pid + "_" + sigma + "_" + layer_coinc + "_" + timecut + "_BinW" + binw + "/hNormalisedSpectrum";
 
-    std::string mcresponsename = "SiR_two_layer_response";
-    if (particle_name == "proton") {
-      mcresponsename = "SiR_three_layer_response";
+    TH1F* hCentralHist = (TH1F*) infile->Get(centralhistname.c_str());
+    TH1F* hSystHist = (TH1F*) infile->Get(systhistname.c_str());
+    TH1F* hSystHistNewBin = (TH1F*) hCentralHist->Clone("hNormalisedSpectrum");
+    for (int i_bin = 1; i_bin <= hSystHistNewBin->GetNbinsX(); ++i_bin) {
+      double E = hSystHistNewBin->GetBinCenter(i_bin);
+      double new_bin_content = hSystHist->GetBinContent(hSystHist->FindBin(E));
+      double new_bin_error = hSystHist->GetBinError(hSystHist->FindBin(E));
+      hSystHistNewBin->SetBinContent(i_bin, new_bin_content);
+      hSystHistNewBin->SetBinError(i_bin, new_bin_error);
     }
-
-    std::string mcfilename = "~/data/mc/Si16b/respMatrix_10M_Geom-P5_" + particle_name + "_" + std::to_string(bin_width) + "keVBins.root";
-    if (particle_name == "alpha") {
-      mcfilename = "~/data/mc/Si16b/respMatrix_12M_Geom-P5_" + particle_name + "_" + std::to_string(bin_width) + "keVBins.root";
-    }
-
-    Si16b_Unfold_ResponseMatrix(infilename, outfilename, inhistname, mcfilename, mcresponsename, rebin_factor, outdirname, "bayes");
-
-    inhistname = outdirname + "/hCorrectedSpectrum";
-    outdirname = "FinalNormalisation_" + particle_name + "_" + pid + "_BinW" + std::to_string(bin_width);
-    Si16b_Unfold_FinalNormalisation(outfilename, inhistname, countfilename, counttreename, outfilename, outdirname);
-
+    TFile* outfile = new TFile(outfilename.c_str(), "UPDATE");
+    TDirectory* outdir = outfile->mkdir(outdirname.c_str());
+    outdir->cd();
+    hSystHistNewBin->Write();
+    outfile->Write();
+    outfile->Close();
+    infile->Close();
+    
     Systematic_MakePlotArgs args;
     args.central_val_filename = infilename;
-    args.central_val_histname = "FinalNormalisation_" + particle_name + "_" + pid + "/hNormalisedSpectrum";
-    args.rebin_factor = 1000 / bin_width; // need to rebin the 500 keV to be 1 MeV to see any change in rates
+    args.central_val_histname = centralhistname;
+    args.rebin_factor = 1; // need to rebin the 500 keV to be 1 MeV to see any change in rates
+    args.central_rebin_factor = args.rebin_factor;
     args.syst_val_filename = outfilename;
     args.syst_val_histname = outdirname + "/hNormalisedSpectrum";
     args.outfilename = outfilename;

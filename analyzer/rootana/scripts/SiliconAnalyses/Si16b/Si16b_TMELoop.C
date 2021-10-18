@@ -4,7 +4,7 @@ void Si16b_TMELoop() {
   TMELoopArgs args;
   args.infilename = "~/data/out/v10/Si16b.root";
   args.tmetreename = "TMETree/TMETree";
-  args.outfilename = "~/data/results/Si16b/subtrees_newPP20us_geq1TgtPulse.root";
+  args.outfilename = "~/data/results/Si16b/subtrees_newPP_geq1TgtPulse_1.root";
   args.n_entries = -1; // run for all TMEs
   //  args.n_entries = 1000000;
 
@@ -268,8 +268,8 @@ void Si16b_TMELoop() {
   args.veto_any_double_counts = false;
   args.veto_max_muon_channel_pulses = false;
   args.veto_pp_window = true;
-  //  args.pp_window = 10000;
-  args.pp_window = 20000;
+  args.pp_window = 10000;
+  //  args.pp_window = 20000;
 
   // require a hit in the target
   args.req_tgt_muon = true;

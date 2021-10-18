@@ -1,4 +1,6 @@
-#include "scripts/ExportPulse/DrawTPIAndTemplateTAPs_fromPulseViewer.C"
+//#include "scripts/ExportPulse/DrawTPIAndTemplateTAPs_fromPulseViewer.C"
+#include "DrawTPIAndTemplateTAPs_fromPulseViewer.C"
+#include "DrawTPIsAndTAPs_fromPulseViewer.C"
 
 #include <fstream>
 #include <sstream>
@@ -16,8 +18,8 @@ void FillPulsesToDraw(std::vector<PulseToDraw>& pulses);
 
 void PulsePictureBook() {
 
-  int run_number = 9040;
-  //  int run_number = 10404;
+  //  int run_number = 9040;
+  int run_number = 10404;
   //  int run_number = 9041;
 
   std::ofstream out_file;
@@ -38,7 +40,11 @@ void PulsePictureBook() {
 
   std::stringstream filename;
   //  filename << "/home/edmonds/data/out/local/out" << std::setw(5) << std::setfill('0') << run_number << "_template-fits_export-pulse_3.root";
-  filename << "/home/edmonds/data/out/local/out" << std::setw(5) << std::setfill('0') << run_number << "_template-fits_export-pulse_4.root";
+  //  filename << "/home/edmonds/data/out/local/out" << std::setw(5) << std::setfill('0') << run_number << "_template-fits_export-pulse_4.root";
+  //  filename << "/home/edmonds/data/out/local/out" << std::setw(5) << std::setfill('0') << run_number << "_template-fits_export-pulse_5.root";
+  //  filename << "/home/edmonds/data/out/local/out" << std::setw(5) << std::setfill('0') << run_number << "_template-fits_export-pulse_single-pulse.root"; // for paper (templates)
+  //  filename << "/home/edmonds/data/out/local/out" << std::setw(5) << std::setfill('0') << run_number << "_template-fits_export-pulse_refine-factor-2.root";
+  filename << "/home/edmonds/data/out/local/out" << std::setw(5) << std::setfill('0') << run_number << "_paper_export-pulse.root";
   TFile* file = new TFile(filename.str().c_str(), "READ");
   if (file->IsZombie()) {
     std::cout << "Problem opening file " << filename << std::endl;
@@ -46,16 +52,22 @@ void PulsePictureBook() {
 
   std::vector<PulseToDraw> pulses_to_draw;
   FillPulsesToDraw(pulses_to_draw);
-  std::stringstream histname;
+  std::stringstream histname, histtitle;
 
   for (std::vector<PulseToDraw>::const_iterator i_pulse = pulses_to_draw.begin(); i_pulse != pulses_to_draw.end(); ++i_pulse) {
     histname.str("");
     histname << "Pulse_" << i_pulse->detname << "_" << i_pulse->event_number << "_" << i_pulse->pulse_number;
+
+    histtitle.str("");
+    histtitle << "SiL3 Dataset, Detector: " << i_pulse->detname << ", Event: " << i_pulse->event_number << ", Pulse: " << i_pulse->pulse_number;
     TCanvas c1("c1", "c1", 1200, 800);
-    if (DrawTPIAndTemplateTAPs_fromPulseViewer_file(file, histname.str(), c1)) {
+    //    if (DrawTPIAndTemplateTAPs_fromPulseViewer_file(file, histname.str(), c1, histtitle.str())) {
+    if (DrawTPIsAndTAPs_fromPulseViewer_file(file, histname.str(), c1, histtitle.str())) {
       
       std::string pdfname = "figs/" + histname.str() + ".pdf";
-      std::string savename = "picture-book/" + pdfname;
+      //      std::string savename = "picture-book/" + pdfname;
+      std::string savename = "picture-book-paper/" + pdfname;
+      c1.SetFillColor(kWhite);
       c1.SaveAs(savename.c_str());
       
       out_file << "\\begin{frame}" << std::endl;
@@ -72,13 +84,15 @@ void PulsePictureBook() {
 
 void FillPulsesToDraw(std::vector<PulseToDraw>& pulses) {
 
+  //  pulses.push_back(PulseToDraw("SiL3_S", 0, 195)); // active target (for paper)
+  pulses.push_back(PulseToDraw("SiR2_S", 1, 10)); // standard (for paper)
   // Interesting ones for SiL3 dataset (run 9040)
-  for (int i_event = 0; i_event < 20; ++i_event) {
-    for (int i_pulse = 0; i_pulse < 1100; ++i_pulse) {
-      pulses.push_back(PulseToDraw("SiL3_S", i_event, i_pulse));
-      //    pulses.push_back(PulseToDraw("muSc", 0, i_pulse));
-    }
-  }
+  // for (int i_event = 0; i_event < 20; ++i_event) {
+  //   for (int i_pulse = 0; i_pulse < 1100; ++i_pulse) {
+  //     pulses.push_back(PulseToDraw("SiL3_S", i_event, i_pulse));
+  //     //    pulses.push_back(PulseToDraw("muSc", 0, i_pulse));
+  //   }
+  // }
   
 
   // Interesting one for Si16b datset (run 10404);

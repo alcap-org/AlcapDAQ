@@ -106,6 +106,9 @@ void TargetSpectrum(TargetSpectrumArgs& args) {
       std::cout << i_entry << " / " << n_entries << std::endl;
     }
 
+    // Convert energy to MeV
+    energy = energy * 1e-3;
+
     if (layer_tpi_id<0) {
       continue; // no hit in this layer
     }

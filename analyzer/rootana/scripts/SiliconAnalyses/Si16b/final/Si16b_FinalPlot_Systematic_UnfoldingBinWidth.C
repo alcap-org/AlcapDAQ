@@ -3,17 +3,18 @@ void Si16b_FinalPlot_Systematic_UnfoldingBinWidth(std::string savedir = "") {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
     
-  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_3sigma.root";
+  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_2.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_particles = 4;
   std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};
   std::string Particles[n_particles] = {"Proton", "Deuteron", "Triton", "Alpha"};
   
-  const int n_settings = 2;
-  int bin_widths[n_settings] {500, 1000};
-  Int_t colours[n_settings] = {kRed, kBlack};
+  const int n_settings = 1;
+  int bin_widths[n_settings] {1000};
+  Int_t colours[n_settings] = {kBlack};
   std::string leglabels[n_settings] = {};
+  std::string settings [n_settings] = {"BinW1MeV"};
 
   TH1F* hSpectra[n_particles][n_settings] = {{0}, {0}, {0}, {0}};
   //  TH1F* hSpectra[n_particles][n_settings] = {{0}};
@@ -24,75 +25,78 @@ void Si16b_FinalPlot_Systematic_UnfoldingBinWidth(std::string savedir = "") {
   leg->SetFillColor(kWhite);
 
   int rebin_factor = 1;
-  double x_max = 20000;
+  double x_max = 20;
   std::stringstream leglabel;
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     std::string particle = particles[i_particle];
     std::string Particle = Particles[i_particle];
 
-    TCanvas* c_all_spectra = new TCanvas();
+  //   TCanvas* c_all_spectra = new TCanvas();
 
-    for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
-      std::string setting = "BinW" + std::to_string(bin_widths[i_setting]);
-      Int_t i_colour = colours[i_setting];
-      leglabels[i_setting] = std::to_string(bin_widths[i_setting]) + " keV Bins";
+  //   for (int i_setting = 0; i_setting < n_settings; ++i_setting) {
+  //     //      std::string setting = "BinW" + std::to_string(bin_widths[i_setting]) + "MeV";
+  //     std::string setting = settings[i_setting];
+  //     Int_t i_colour = colours[i_setting];
+  //     leglabels[i_setting] = std::to_string(bin_widths[i_setting]) + " keV Bins";
     
-      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_" + setting;
-      std::string i_histname = i_dirname + "/hNormalisedSpectrum";
-      //      std::string i_dirname = "ResponseMatrix_" + particle + "_TCutG_" + setting;
-      //      std::string i_histname = i_dirname + "/hInputSpectrum";
-      //      std::string i_histname = i_dirname + "/hCorrectedSpectrum";
+  //     std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_" + setting;
+  //     std::string i_histname = i_dirname + "/hNormalisedSpectrum";
+  //     //      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_" + setting;
+  //     //      std::string i_histname = i_dirname + "/hNormalisedSpectrum";
+  //     //      std::string i_dirname = "ResponseMatrix_" + particle + "_TCutG_" + setting;
+  //     //      std::string i_histname = i_dirname + "/hInputSpectrum";
+  //     //      std::string i_histname = i_dirname + "/hCorrectedSpectrum";
 
-      std::cout << i_dirname << std::endl;
-      TH1F* spectrum = (TH1F*) file->Get(i_histname.c_str());
-      if (!spectrum) {
-	std::cout << "Error: Problem getting spectrum " << i_histname << std::endl;
-	return;
-      }
-      spectrum->Sumw2();
+  //     std::cout << i_dirname << std::endl;
+  //     TH1F* spectrum = (TH1F*) file->Get(i_histname.c_str());
+  //     if (!spectrum) {
+  // 	std::cout << "Error: Problem getting spectrum " << i_histname << std::endl;
+  // 	return;
+  //     }
+  //     spectrum->Sumw2();
       
 
-      spectrum->SetTitle("Si16b Dataset, Unfolding Bin Widths");
-      // if (i_setting == 0) {
-      // 	rebin_factor = 2;
-      // }
-      // else {
-      // 	rebin_factor = 1;
-      // }
-      spectrum->Rebin(rebin_factor);
-      spectrum->Scale(1.0/rebin_factor);
-      spectrum->SetStats(false);
-      spectrum->SetLineColor(i_colour);
-      spectrum->GetXaxis()->SetRangeUser(0,x_max);
-      spectrum->GetXaxis()->SetTitle("Energy [keV]");
-      spectrum->Draw("HIST E SAMES");
+  //     spectrum->SetTitle("Si16b Dataset, Unfolding Bin Widths");
+  //     // if (i_setting == 0) {
+  //     // 	rebin_factor = 2;
+  //     // }
+  //     // else {
+  //     // 	rebin_factor = 1;
+  //     // }
+  //     spectrum->Rebin(rebin_factor);
+  //     spectrum->Scale(1.0/rebin_factor);
+  //     spectrum->SetStats(false);
+  //     spectrum->SetLineColor(i_colour);
+  //     spectrum->GetXaxis()->SetRangeUser(0,x_max);
+  //     spectrum->GetXaxis()->SetTitle("Energy [keV]");
+  //     spectrum->Draw("HIST E SAMES");
 
-      alcaphistogram(spectrum);
-      if (i_setting == 0) {
-	spectrum->SetDrawOption("HIST E1");
-	alcapPreliminary(spectrum);
-      }
-      else {
-	spectrum->SetDrawOption("HIST E1 SAME");
-      }
+  //     alcaphistogram(spectrum);
+  //     if (i_setting == 0) {
+  // 	spectrum->SetDrawOption("HIST E1");
+  // 	alcapPreliminary(spectrum);
+  //     }
+  //     else {
+  // 	spectrum->SetDrawOption("HIST E1 SAME");
+  //     }
 
-      hSpectra[i_particle][i_setting] = (TH1F*) spectrum->Clone();
+  //     hSpectra[i_particle][i_setting] = (TH1F*) spectrum->Clone();
       
-      leglabel.str("");
-      leglabel << leglabels[i_setting];
-      std::cout << leglabel.str() << std::endl;
-      if (i_particle == 0) {
-	leg->AddEntry(spectrum, leglabel.str().c_str(), "l");
-      }
-    }
+  //     leglabel.str("");
+  //     leglabel << leglabels[i_setting];
+  //     std::cout << leglabel.str() << std::endl;
+  //     if (i_particle == 0) {
+  // 	leg->AddEntry(spectrum, leglabel.str().c_str(), "l");
+  //     }
+  //   }
 
-    leg->Draw();
+  //   leg->Draw();
 
     TCanvas* c_all_systs = new TCanvas();
     int i_setting = 0;
-    std::string setting = "BinW" + std::to_string(bin_widths[i_setting]);
+    std::string setting = settings[i_setting];//"BinW" + std::to_string(bin_widths[i_setting]);
     Int_t i_colour = colours[i_setting];
-    std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_" + setting + "_SystPlot";
+    std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_" + setting + "_SystPlot";
     std::string i_histname = i_dirname + "/hSystematic";
 
     std::cout << i_dirname << std::endl;
@@ -106,6 +110,13 @@ void Si16b_FinalPlot_Systematic_UnfoldingBinWidth(std::string savedir = "") {
     hSyst->GetXaxis()->SetRangeUser(0,x_max);
     hSyst->GetXaxis()->SetTitle("Energy [keV]");
     hSyst->Draw("HIST E");
+        if (particle == "proton") {
+      for (int i_bin = 1; i_bin <= hSyst->GetNbinsX(); ++i_bin) {
+	double E = hSyst->GetBinCenter(i_bin);
+	std::cout << E << " MeV: " << hSyst->GetBinContent(i_bin) << std::endl;
+      }
+    }
+
 
     alcaphistogram(hSyst);
     hSyst->SetDrawOption("HIST E1");
@@ -115,9 +126,9 @@ void Si16b_FinalPlot_Systematic_UnfoldingBinWidth(std::string savedir = "") {
     if (savedir != "") {
       std::string savename = savedir + "AlCapData_Si16bDataset_NormalisedSpectrum_UnfoldingBinWidth_" + Particle;
       std::string pdfname = savename + ".pdf";
-      c_all_spectra->SaveAs(pdfname.c_str());
+      //      c_all_spectra->SaveAs(pdfname.c_str());
       std::string pngname = savename + ".png";
-      c_all_spectra->SaveAs(pngname.c_str());
+      //      c_all_spectra->SaveAs(pngname.c_str());
 
       savename = savedir + "AlCapData_Si16bDataset_Systematic_UnfoldingBinWidth_" + Particle;
       pdfname = savename + ".pdf";

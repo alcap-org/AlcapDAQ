@@ -5,14 +5,16 @@
 #include "TH1D.h"
 #include "TTree.h"
 
+#include <iostream>
+
 ////////////////////////////////////////////////////////////////////////////////
 // USER MODIFIABLE VARIABLES
 // Compile only:  root -l -b -q R15b_Al50_nmu
 // A single run:  root -l -b -q R15b_Al50_nmu(#)
 // All Al50 runs: root -l -b -q R15b_Al50_nmu(-1)
 // The input trees should contain TMETrees from rootana output.
-static const char IFNAMEFMT[] = "~/R15bTME/Al50/tme%05d.root";
-static const char OFNAMEFMT[] = "~/data/R15b/nmu%05d.root";
+static const char IFNAMEFMT[] = "/data/ssd2/R15bAnalysis/tmetree/Al50/tme%05d.root";
+static const char OFNAMEFMT[] = "~/data/results/Al50/normalisation/nmu%05d.root";
 static const double PROMPT[]  = {-200., 200.}; // ns
 static const double XRAYE[]   = {340.,  360.}; // keV
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,18 +27,22 @@ bool IsAl2p1s(const SimplePulse& p) {
 }
 
 void R15b_Al50_nmu(int run=0) {
-  if (run == 0) // Compile only
+  if (run == 0) {// Compile only
     return;
-  else if (run < 0) // Run on all
-    for (int i = 9890; i <= 10128; ++i)
-      R15b_Al50_nmu(run);
+  }
+  else if (run < 0) {// Run on all
+    for (int i = 9890; i <= 10128; ++i) {
+      std::cout << "Run " << i << " / " << 10128 << std::endl;
+      R15b_Al50_nmu(i);
+    }
+  }
 
   char ifname[128], ofname[128];
   TH1::SetDefaultSumw2(kTRUE);
   sprintf(ifname, IFNAMEFMT, run);
   sprintf(ofname, OFNAMEFMT, run);
   TFile* ifile = new TFile(ifname);
-  if (ifile->IsZombie()) throw "Can't find input file.";
+  if (ifile->IsZombie()) { std::cout << "Can't find input file." << std::endl; return;}
   TFile* ofile = new TFile(ofname, "RECREATE");
   TTree* tr    = (TTree*)ifile->Get("TMETree/TMETree");
   SetTMEBranchAddresses(tr);
@@ -51,6 +57,9 @@ void R15b_Al50_nmu(int run=0) {
 
   for (int i = 0; i < tr->GetEntries(); ++i) {
     tr->GetEntry(i);
+    if (i % 10000 == 0) {
+      std::cout << i << " / " << tr->GetEntries() << std::endl;
+    }
     hmu->Fill(centralMuonEnergy);
     for (int i = 0; i < GeHiGain->size(); ++i) {
       const SimplePulse& p = GeHiGain->at(i);
@@ -67,4 +76,5 @@ void R15b_Al50_nmu(int run=0) {
   }
   // hmu_all->SetDirectory(ofile);
   ofile->Write();
+  ifile->Close();
 }

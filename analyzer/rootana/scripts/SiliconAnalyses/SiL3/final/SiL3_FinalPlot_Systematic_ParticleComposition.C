@@ -3,13 +3,18 @@ void SiL3_FinalPlot_Systematic_ParticleComposition(std::string savedir = "") {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
     
-  std::string filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us.root";
+  //  std::string filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us_1_KFactor0-85_test.root";
+  std::string filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us_2.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_recoils = 3;
-  std::string recoils[n_recoils] = {"allRecoil", "lowAllRecoil", "highAllRecoil"};
-  Int_t colours[n_recoils] = {kBlack, kBlue, kRed};
-  std::string leglabels[n_recoils] = {"central value", "\"low\" scenario", "\"high\" scenario"};//"1 Iteration", "2 Iterations"};
+  //  std::string recoils[n_recoils] = {"allRecoil", "lowAllRecoil", "highAllRecoil", "noRecoil"};
+  std::string recoils[n_recoils] = {"allRecoil", "pRecoil", "aRecoil"};//, "noRecoil"};
+  Int_t colours[n_recoils] = {kBlack, kBlue, kRed};//, kMagenta};
+  //  std::string leglabels[n_recoils] = {"central value", "\"low\" scenario", "\"high\" scenario", "no recoil"};//"1 Iteration", "2 Iterations"};
+  std::string leglabels[n_recoils] = {"central value", "proton-only scenario", "alpha-only scenario"};
+
+  std::string bin_width = "500keVBins";//"500keVBins";
 
   //   const int n_recoils = 4;
   // std::string recoils[n_recoils] = {"allRecoil", "lowAllRecoil", "highAllRecoil", "noRecoil"};
@@ -40,7 +45,7 @@ void SiL3_FinalPlot_Systematic_ParticleComposition(std::string savedir = "") {
     std::string recoil = recoils[i_recoil];
     Int_t i_colour = colours[i_recoil];
     
-    std::string i_dirname = "FinalNormalisation_TimeSlice2000_4000_" + recoil + "_allRecoilSyst_500keVBins";
+    std::string i_dirname = "FinalNormalisation_TimeSlice3000_4000_" + recoil + "_allRecoilSyst_" + bin_width;
     std::string i_histname = i_dirname + "/hNormalisedSpectrum";
     //      std::string i_dirname = "ResponseMatrix_" + recoil + "_TCutG_" + setting;
     //      std::string i_histname = i_dirname + "/hInputSpectrum";
@@ -70,7 +75,7 @@ void SiL3_FinalPlot_Systematic_ParticleComposition(std::string savedir = "") {
 
     if (i_recoil > 0) {
       c_all_systs->cd();
-      i_dirname = "FinalNormalisation_TimeSlice2000_4000_" + recoil + "_allRecoilSyst_500keVBins_SystPlot";
+      i_dirname = "FinalNormalisation_TimeSlice3000_4000_" + recoil + "_allRecoilSyst_" + bin_width + "_SystPlot";
       i_histname = i_dirname + "/hSystematic";
       
       std::cout << i_dirname << std::endl;

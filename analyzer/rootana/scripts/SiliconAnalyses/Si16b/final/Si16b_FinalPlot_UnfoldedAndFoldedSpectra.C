@@ -1,11 +1,13 @@
-void Si16b_FinalPlot_UnfoldedAndFoldedSpectra(std::string savedir = "") {
+void Si16b_FinalPlot_UnfoldedAndFoldedSpectra(std::string savedir = "", std::ostream& numbers_file = std::cout) {
 
   const int n_particles = 4;
   std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};
+  std::string Particles[n_particles] = {"Proton", "Deuteron", "Triton", "Alpha"};
   //  double x_maxes[n_particles] = {17000, 17000, 17000, 19000};
-  double x_maxes[n_particles] = {25000, 25000, 25000, 25000};
+  double x_maxes[n_particles] = {25, 25, 25, 25};
   Int_t unfolded_colours[n_particles] = {kRed, kCyan, kMagenta, kSpring};
-  
+
+  numbers_file << "% from Si16b_FinalPlot_UnfoldedAndFoldedSpectra.C" << std::endl;
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     TLegend* leg = new TLegend(0.55,0.60,0.85,0.85);
     leg->SetBorderSize(0);
@@ -13,8 +15,9 @@ void Si16b_FinalPlot_UnfoldedAndFoldedSpectra(std::string savedir = "") {
     leg->SetFillColor(kWhite);
 
     std::string particle = particles[i_particle];
-    std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_3sigma.root";
-    std::string indirname = "ResponseMatrix_" + particle + "_TCutG";
+    std::string Particle = Particles[i_particle];
+    std::string infilename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_2.root";
+    std::string indirname = "ResponseMatrix_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_BinW500keV";
     std::string folded_histname = indirname + "/hInputSpectrum";
     std::string unfolded_histname = indirname + "/hCorrectedSpectrum";
     std::string outhisttitle = "Si16b Dataset, Right Arm, " + particle;
@@ -55,6 +58,21 @@ void Si16b_FinalPlot_UnfoldedAndFoldedSpectra(std::string savedir = "") {
     hUnfoldedSpectrum->GetYaxis()->SetTitleOffset(0.9);
     
     hFoldedSpectrum->Draw("HIST E");
+    double raw_count = hFoldedSpectrum->GetEntries();
+    double raw_count_error = std::sqrt(raw_count);
+    numbers_file << "\\newcommand\\SibNRaw" << Particle << "{\\num[round-precision=3, round-mode=figures, scientific-notation=engineering]{" << raw_count << "\\pm" << raw_count_error << "}}" << std::endl;
+    numbers_file << "\\newcommand\\SibNRaw" << Particle << "Tab{\\num[round-precision=3, round-mode=figures]{" << raw_count/1e3 << "}(\\num[";
+    int round_precision = 1;
+    if (raw_count < 1000) {
+      round_precision = 2;
+    }
+    numbers_file << "round-precision=" << round_precision << ", round-mode=figures]{";
+    double raw_count_error_print = raw_count_error/1e3;
+    while (raw_count_error_print < std::pow(10,round_precision-1)) { raw_count_error_print *= 10;}
+    numbers_file << raw_count_error_print << "})}" << std::endl;
+    //    numbers_file << std::fixed << std::setprecision(0) << "\\newcommand\\SibNRaw" << Particle << "Count{\\num{" << raw_count << "}}" << std::endl;
+    //    numbers_file << std::fixed << std::setprecision(0) << "\\newcommand\\SibNRaw" << Particle << "Error{\\num{" << raw_count_error << "}}" << std::endl;
+    //    numbers_file << std::fixed << std::setprecision(0) << "\\newcommand\\SibNRaw" << Particle << "{$\\SibNRaw" << Particle << "Count \\pm \\SibNRaw" << Particle << "Error$}" << std::endl;
     c_Spectra->Update();
     
     double rightmax = 1.1*hUnfoldedSpectrum->GetMaximum();
@@ -89,8 +107,8 @@ void Si16b_FinalPlot_UnfoldedAndFoldedSpectra(std::string savedir = "") {
       std::string pngname = savename + ".png";
       c_Spectra->SaveAs(pngname.c_str());
     }
-
   }
+  numbers_file << std::endl;
 
   /*
   double trust_at_observed = 11000;

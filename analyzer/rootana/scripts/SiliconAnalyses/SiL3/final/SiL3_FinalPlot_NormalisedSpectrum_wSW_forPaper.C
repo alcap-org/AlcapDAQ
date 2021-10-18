@@ -4,17 +4,18 @@ void SiL3_FinalPlot_NormalisedSpectrum_wSW_forPaper(std::string savedir = "") {
   c_log->SetLogy();
   TCanvas* c_lin = new TCanvas("c_lin", "c_lin");
   
-  std::string SW_filename = "~/data/results/SiL3/SW-plots.root";
+  //  std::string SW_filename = "~/data/results/SiL3/SW-plots.root";
   //  std::string SW_filename = "~/data/results/SiL3/SW-plots-above1400keV.root";
+  std::string SW_filename = "~/data/results/SiL3/SW-plots_betterErrors_MeV.root";
   TFile* SW_file = new TFile(SW_filename.c_str(), "READ");
   TGraphErrors* SW_gre = (TGraphErrors*) SW_file->Get("Graph");
   //  SW_gre->SetTitle("Charged Particle Emission (after decay electron correction)");
   //  SW_gre->SetTitle("Charged Particle Emission (after proton escape correction)");
   //  SW_gre->SetTitle("Charged Particle Emission (after deuteron escape correction)");
   SW_gre->SetTitle("Charged Particle Emission");
-  SW_gre->GetXaxis()->SetRangeUser(0,26000);
-  SW_gre->GetXaxis()->SetTitle("Energy [keV]");
-  SW_gre->GetYaxis()->SetTitle("Particles / muon capture / keV");
+  SW_gre->GetXaxis()->SetRangeUser(0,26);
+  SW_gre->GetXaxis()->SetTitle("Energy [MeV]");
+  SW_gre->GetYaxis()->SetTitle("Particles / muon capture / MeV");
   SW_gre->GetXaxis()->SetTitleOffset(0.9);
   SW_gre->GetYaxis()->SetTitleOffset(0.9);
   SW_gre->SetMarkerColor(kRed);
@@ -37,7 +38,7 @@ void SiL3_FinalPlot_NormalisedSpectrum_wSW_forPaper(std::string savedir = "") {
   leg->AddEntry(SW_gre, "Sobottka-Wills", "pl");
   //  leg->AddEntry(SW_gre->GetFunction("tdr_fit"), "S-W Fit", "l");
 
-  std::string filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us.root";
+  std::string filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us_1_newTimeSlice_test.root";
   TFile* file = new TFile(filename.c_str(), "READ");
   
   const int n_slices = 1;
@@ -63,7 +64,7 @@ void SiL3_FinalPlot_NormalisedSpectrum_wSW_forPaper(std::string savedir = "") {
       Int_t i_colour = colours[i_recoil];
 
       std::string i_dirname = "FinalSystPlot_" + time_slice_str.str() + "_" + recoil + "_500keVBins";
-      //    std::string i_dirname = "FinalSystPlot_" + time_slice_str.str() + "_noRecoil_100keVBins";
+      //      std::string i_dirname = "FinalSystPlot_" + time_slice_str.str() + "_noRecoil_100keVBins";
       std::string i_statsystname = i_dirname + "/hFinalStatSyst";
       TGraphAsymmErrors* statsyst_spectrum = (TGraphAsymmErrors*) file->Get(i_statsystname.c_str());
       if (!statsyst_spectrum) {
@@ -72,9 +73,9 @@ void SiL3_FinalPlot_NormalisedSpectrum_wSW_forPaper(std::string savedir = "") {
       }
       statsyst_spectrum->SetLineColor(i_colour);
       statsyst_spectrum->SetLineWidth(2);
-      statsyst_spectrum->GetXaxis()->SetTitle("Energy [keV]");
-      statsyst_spectrum->GetYaxis()->SetTitle("Charged Particles / captured muon / keV");
-      statsyst_spectrum->GetXaxis()->SetRangeUser(0, 26000);
+      statsyst_spectrum->GetXaxis()->SetTitle("Energy [MeV]");
+      statsyst_spectrum->GetYaxis()->SetTitle("Charged Particles / captured muon / MeV");
+      statsyst_spectrum->GetXaxis()->SetRangeUser(0, 26);
       statsyst_spectrum->GetYaxis()->SetRangeUser(1e-8, 1e-3);
       c_log->cd();
       statsyst_spectrum->Draw("PE SAME");

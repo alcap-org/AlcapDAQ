@@ -20,8 +20,9 @@ void Si16b_CountStoppedMuons_XRaySpectrum(std::string infilename, std::string ou
   args.rebin_factor = 1;
   args.fit_window_min = -10;
   args.fit_window_max = 10;
+  args.is2DHist = true;
   args.outfilename = outfilename;
-    
+  
   for (int i_ge_channel = 0; i_ge_channel < n_ge_channels; ++i_ge_channel) {
     std::string this_ge_channel = ge_channels[i_ge_channel];
     args.channel = this_ge_channel;

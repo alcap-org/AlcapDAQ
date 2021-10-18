@@ -1,9 +1,9 @@
 void Si16b_FinalPlot_ThreeLayer_EvdE_TCutG_2sigma(std::string savedir = "") {
 
-  std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse_2sigma.root";
+  std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse_1.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
 
-  std::string dirname = "all_SiR_timecut0_10000ns_layerCoinc";
+  std::string dirname = "all_SiR_timecut0_10000ns_layerCoinc500ns";
   //  std::string dirname = "all_SiR_timecut400_10000ns_layerCoinc_wSiL1_14Coinc";
   std::string layer1 = "SiR1"; std::string layer2 = "SiR2"; std::string layer3 = "SiR3";
   //  std::string dirname = "all_SiR_nolayercoinc"; std::string layer1 = "SiR1"; std::string layer2 = "SiR2"; std::string layer3 = "SiR3";
@@ -39,15 +39,20 @@ void Si16b_FinalPlot_ThreeLayer_EvdE_TCutG_2sigma(std::string savedir = "") {
   hEvdE->SetDrawOption("COLZ");
 
   // Draw the particle cuts
-  const int n_particles = 4;
-  std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};
+  const int n_particles = 1;//4;
+  std::string particles[n_particles] = {"proton"};//, "deuteron", "triton", "alpha"};
+  //  TFile* cuts_file = new TFile("si16b-sir3-cuts.root", "READ");
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     std::string this_particle = particles[i_particle];
     
     c_EvdE->cd();
     //    std::string tcutgname = this_particle + "3L_SiR_timecut0_10000ns_layerCoinc/" + this_particle + "_cut_three_layer";
-    std::string tcutgname = this_particle + "3L_SiR_timecut0_10000ns_layerCoinc/r_sir3_hLg_SiR_EvDeltaE_" + this_particle + "_2sigma_keV";
+    std::string tcutgname = this_particle + "3L_2sig_SiR_timecut0_10000ns_layerCoinc500ns/r_hLg_SiR_EvDeltaE_" + this_particle + "_2sigma";
     TCutG* tCutG = (TCutG*) infile->Get(tcutgname.c_str());
+
+    //    std::string tcutgname = "r_hLg_SiR_EvDeltaE_" + this_particle + "_2sigma";
+    //    TCutG* tCutG = (TCutG*) cuts_file->Get(tcutgname.c_str());
+
     if (!tCutG) {
       std::cout << "Error: Can't get " << tcutgname << std::endl;
       continue;

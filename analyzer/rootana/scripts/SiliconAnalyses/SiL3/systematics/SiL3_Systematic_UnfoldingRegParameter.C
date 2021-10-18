@@ -16,7 +16,8 @@ void SiL3_Systematic_UnfoldingRegParameter(std::string infilename, std::string o
     std::string inhistname = "DecayElectron_" + time_slice_str  + "_" + recoil + "/hCorrectedSpectrum";
     std::string outdirname = "ResponseMatrix_" + time_slice_str + "_" + recoil + "_KReg" + std::to_string(reg_parameter);
 
-    SiL3_Unfold_ResponseMatrix(infilename, outfilename, inhistname, outdirname, "combined", reg_parameter);
+    std::string setting = ""; // central setting
+    SiL3_Unfold_ResponseMatrix(infilename, outfilename, inhistname, outdirname, "combined", setting, reg_parameter);
 
     inhistname = outdirname + "/hCorrectedSpectrum";
     outdirname = "FinalNormalisation_" + time_slice_str + "_" + recoil + "_KReg" + std::to_string(reg_parameter);

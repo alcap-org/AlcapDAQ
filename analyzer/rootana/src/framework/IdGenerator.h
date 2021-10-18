@@ -123,7 +123,7 @@ inline IDs::generator::generator(Generator_t t , Config_t c):
 		if(fConfig=="") fConfig=kAnyConfig;
 }
 
-ostream& operator<< (ostream& os ,const IDs::generator& id) ;
+std::ostream& operator<< (std::ostream& os ,const IDs::generator& id) ;
 
 #endif //IDGENERATOR_H_
 

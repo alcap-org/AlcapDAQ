@@ -6,7 +6,7 @@ void SiL3_TMELoop() {
   //  args.infilename = "~/data/out/v13/SiL3.root";
 
   args.infilename = "~/data/out/v14/SiL3.root";
-  args.outfilename = "~/data/results/SiL3/subtrees_geq1TgtPulse_newPP20us.root";
+  args.outfilename = "~/data/results/SiL3/subtrees_geq0TgtPulse_newPP20us_1.root";
   //  args.reqd_run_id = 9040;
   //  args.outfilename = "~/data/results/SiL3/subtrees09040_geq0TgtPulse_newPP20us.root";
 
@@ -142,9 +142,9 @@ void SiL3_TMELoop() {
   args.veto_pp_window = true;
   args.pp_window = 20000;
 
-  args.req_tgt_muon = true;
+  args.req_tgt_muon = false;//true;
   args.tgt_layer = 2;
-  args.min_tgt_pulses = 1;
+  args.min_tgt_pulses = 0;
   //  args.muScCutLo = 3000;
   //  args.muScCutHi = 3500;
   

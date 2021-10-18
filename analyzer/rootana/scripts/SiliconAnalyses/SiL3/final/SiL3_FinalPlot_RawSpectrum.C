@@ -1,12 +1,12 @@
-void SiL3_FinalPlot_RawSpectrum(std::string savedir = "") {
+void SiL3_FinalPlot_RawSpectrum(std::string SiL3_tag = "geq2TgtPulse_newPP20us_1", std::string savedir = "", std::ostream& numbers_file = std::cout) {
 
-  std::string filename = "~/data/results/SiL3/raw_spectra_geq2TgtPulse_newPP20us.root";
+  std::string filename = "~/data/results/SiL3/raw_spectra_" + SiL3_tag + ".root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_slices = 1;
-  double min_time_slice = 2000;
+  double min_time_slice = 3000;
   double max_time_slice = 4000;//3000;//5000;
-  double time_slice_step = 2000;
+  double time_slice_step = 1000;
   Int_t colours[n_slices] = {kBlue};
 
   TCanvas* c1 = new TCanvas("c1", "c1");
@@ -20,6 +20,8 @@ void SiL3_FinalPlot_RawSpectrum(std::string savedir = "") {
   leg->SetFillStyle(0);
   leg->SetFillColor(kWhite);
 
+  numbers_file << "% from SiL3_FinalPlot_RawSpectrum.C" << std::endl;
+  
   std::stringstream time_slice_str, histtitle, axistitle;
   for (double i_min_time_slice = min_time_slice; i_min_time_slice < max_time_slice; i_min_time_slice += time_slice_step) {
 
@@ -29,7 +31,7 @@ void SiL3_FinalPlot_RawSpectrum(std::string savedir = "") {
     time_slice_str.str("");
     time_slice_str << "TimeSlice" << i_min_time_slice << "_" << i_max_time_slice;
       
-    std::string foldername = "SiL3_ActiveTarget_" + time_slice_str.str() + "_noRecoil";
+    std::string foldername = "SiL3_ActiveTarget_" + time_slice_str.str() + "_allRecoil";
     std::string histname = foldername + "/hRawSpectrum";
 
     TH1F* spectrum = (TH1F*) file->Get(histname.c_str());
@@ -45,14 +47,26 @@ void SiL3_FinalPlot_RawSpectrum(std::string savedir = "") {
     //    spectrum->SetMinimum(0.1);
     //    spectrum->SetMaximum(5e4);
     axistitle.str("");
-    axistitle << "Count / " << spectrum->GetXaxis()->GetBinWidth(1) << " keV";
-    spectrum->GetXaxis()->SetRangeUser(0,30000);
+    axistitle << "Count / " << spectrum->GetXaxis()->GetBinWidth(1) << " MeV";
+    spectrum->GetXaxis()->SetRangeUser(0,30);
     spectrum->GetXaxis()->SetTitleOffset(0.9);
     spectrum->GetYaxis()->SetTitleOffset(0.9);
+    spectrum->SetXTitle("Energy [MeV]");
     spectrum->SetYTitle(axistitle.str().c_str());
     spectrum->SetLineColor(colours[i_slice]);
     spectrum->Draw("HIST E SAMES");
 
+    float n_total_count = spectrum->GetEntries();
+    float n_total_count_error = std::sqrt(n_total_count);
+    numbers_file << std::fixed << "\\newcommand\\SiLNTotalCount{\\num{" << n_total_count << "\\pm" << n_total_count_error << "}}" << std::endl;
+    numbers_file << std::fixed << "\\newcommand\\SiLNTotalCountTab{\\num[round-precision=4,round-mode=figures]{" << n_total_count/1e3 << "}(\\num[round-precision=1,round-mode=figures]{";
+    if (n_total_count_error/1e3 > 1) {
+      numbers_file << n_total_count_error/1e3 << "})}" << std::endl;
+    }
+    else {
+      numbers_file << n_total_count_error/1e3 * 10<< "})}" << std::endl;
+    }
+    
     alcaphistogram(spectrum);
     alcapPreliminary(spectrum);
     spectrum->SetLineWidth(1);
@@ -69,5 +83,6 @@ void SiL3_FinalPlot_RawSpectrum(std::string savedir = "") {
     std::string pngname = savename + ".png";
     c1->SaveAs(pngname.c_str());
   }
+  numbers_file << std::endl;
   //  leg->Draw();
 }

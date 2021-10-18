@@ -6,8 +6,8 @@
 
 void Si16b_AllNormalisations() {
 
-  std::string infilename = "~/data/results/Si16b/plots_newPP20us_geq1TgtPulse.root";
-  std::string outfilename = "~/data/results/Si16b/normalisation_newPP20us_geq1TgtPulse.root";
+  std::string infilename = "~/data/results/Si16b/plots_newPP_geq1TgtPulse_1.root";
+  std::string outfilename = "~/data/results/Si16b/normalisation_newPP_geq1TgtPulse_1.root";
   
   TFile* outfile = new TFile(outfilename.c_str(), "RECREATE");
   outfile->Write();

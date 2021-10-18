@@ -146,7 +146,7 @@ inline bool IDs::source::operator<(const source& rhs)const
   return fChannel<rhs.Channel() || (fChannel==rhs.Channel() && fGenerator < rhs.Generator());
 }
 
-ostream& operator<< (ostream& os ,const IDs::source& id);
+std::ostream& operator<< (std::ostream& os ,const IDs::source& id);
 
 #endif // IDSOURCE_H_
 

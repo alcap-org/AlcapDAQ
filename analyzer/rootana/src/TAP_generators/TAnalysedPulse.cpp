@@ -80,4 +80,8 @@ void TAnalysedPulse::SetParentTPIProperties(const TPulseIslandID& id,
   }
   SetTPILength(pulse->GetPulseLength());
   SetTriggerTime(pulse->GetTimeStamp()*pulse->GetClockTickInNs());
+  // const std::vector<int>& samples = pulse->GetSamples();
+  // for (int i_sample = 0; i_sample < samples.size(); ++i_sample) {
+  //   fSamples.push_back(samples.at(i_sample));
+  // }
 }

@@ -3,7 +3,7 @@ void Si16b_FinalPlot_Systematic_SiRPosition(std::string savedir = "") {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
     
-  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_3sigma.root";
+  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_1.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_particles = 4;
@@ -29,7 +29,7 @@ void Si16b_FinalPlot_Systematic_SiRPosition(std::string savedir = "") {
   leg2->SetFillColor(kWhite);
 
   int rebin_factor = 1;
-  double x_max = 25000;
+  double x_max = 25.000;
   std::stringstream leglabel;
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     std::string particle = particles[i_particle];
@@ -41,7 +41,7 @@ void Si16b_FinalPlot_Systematic_SiRPosition(std::string savedir = "") {
       std::string setting = "SiRPos" + positions[i_setting];
       Int_t i_colour = colours[i_setting];
     
-      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_" + setting;
+      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_" + setting;
       std::string i_histname = i_dirname + "/hNormalisedSpectrum";
       //      std::string i_dirname = "ResponseMatrix_" + particle + "_TCutG_" + setting;
       //      std::string i_histname = i_dirname + "/hInputSpectrum";
@@ -86,7 +86,7 @@ void Si16b_FinalPlot_Systematic_SiRPosition(std::string savedir = "") {
     for (int i_setting = n_settings-1; i_setting >= 1; --i_setting) {
       std::string setting = "SiRPos" + positions[i_setting];
       Int_t i_colour = colours[i_setting];
-      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_" + setting + "_SystPlot";
+      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_" + setting + "_SystPlot";
       std::string i_histname = i_dirname + "/hSystematic";
       
       std::cout << i_dirname << std::endl;

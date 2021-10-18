@@ -1,12 +1,14 @@
 void SiL3_FinalPlot_DecayElectronCorrection(std::string savedir = "") {
 
-  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
+  //  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us_1_test.root";
+  //  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us_1_test_KFactor1-00.root";
+  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us_1_test_KFactor0-85.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_slices = 1;
-  double min_time_slice = 2000;
+  double min_time_slice = 3000;
   double max_time_slice = 4000;
-  double time_slice_step = 2000;
+  double time_slice_step = 1000;
   Int_t colours[n_slices] = {kBlack};
 
   TCanvas* c1 = new TCanvas("c1", "c1");
@@ -49,21 +51,22 @@ void SiL3_FinalPlot_DecayElectronCorrection(std::string savedir = "") {
       return;
     }
 
-    int rebin_factor = 2;
+    int rebin_factor = 1;
     raw_spectrum->Rebin(rebin_factor);
     correction->Rebin(rebin_factor);
     corrected_spectrum->Rebin(rebin_factor);
 
     raw_spectrum->SetTitle("SiL3 Dataset, Active Target Analysis, Decay Electron Correction");
     raw_spectrum->SetStats(false);
-    raw_spectrum->GetXaxis()->SetRangeUser(0,30000);
+    raw_spectrum->GetXaxis()->SetRangeUser(0,30);
     raw_spectrum->SetLineColor(colours[i_slice]);
     raw_spectrum->GetXaxis()->SetTitleOffset(0.9);
     raw_spectrum->GetYaxis()->SetTitleOffset(0.9);
 
     std::stringstream axislabel;
-    axislabel << "Counts / " << raw_spectrum->GetBinWidth(1) << " keV";
+    axislabel << "Counts / " << raw_spectrum->GetBinWidth(1) << " MeV";
     raw_spectrum->SetYTitle(axislabel.str().c_str());
+    raw_spectrum->SetXTitle("Energy [MeV]");
 
     correction->SetLineColor(kBlue);
     corrected_spectrum->SetLineColor(kRed);
@@ -82,15 +85,15 @@ void SiL3_FinalPlot_DecayElectronCorrection(std::string savedir = "") {
     leg->AddEntry(correction, "Decay Electron Correction", "l");
     leg->AddEntry(corrected_spectrum, "Corrected Spectrum", "l");
 
-    double min_energy = 350;
-    double max_energy = 3000;
+    double min_energy = 0.350;
+    double max_energy = 3.000;
     int min_energy_bin = raw_spectrum->GetXaxis()->FindBin(min_energy);
     int max_energy_bin = raw_spectrum->GetXaxis()->FindBin(max_energy);
     
     double full_integral = raw_spectrum->Integral(min_energy_bin, max_energy_bin);
     double decay_integral = correction->Integral(min_energy_bin, max_energy_bin);
     
-    std::cout << "Fraction of Spectrum below " << max_energy / 1000 << " MeV due to decay electron = " << decay_integral / full_integral << std::endl;
+    std::cout << "Fraction of Spectrum below " << max_energy << " MeV due to decay electron = " << decay_integral / full_integral << std::endl;
   }
 
   leg->Draw();

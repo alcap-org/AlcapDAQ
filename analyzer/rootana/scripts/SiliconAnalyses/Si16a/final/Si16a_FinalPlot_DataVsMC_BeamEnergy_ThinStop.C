@@ -4,14 +4,14 @@ void Si16a_FinalPlot_DataVsMC_BeamEnergy_ThinStop() {
   int run_numbers[n_runs] = {9735, 9736, 9737, 9739, 9740, 9741, 9742, 9743}; // want to do all runs individually
   double scale_factors[n_runs] = {1.035, 0.99, 0.98, 1.01, 1.02, 1.03, 1.04, 1.05};
   */
-  /*
+  
   const int n_runs = 3;
   int run_numbers[n_runs] = {9740, 9741, 9743}; // want to do all runs individually
   double scale_factors[n_runs] = {1.02, 1.03, 1.05};
-  */
-  const int n_runs = 1;
-  int run_numbers[n_runs] = {9740}; // want to do all runs individually
-  double scale_factors[n_runs] = {1.02};
+  
+  // const int n_runs = 1;
+  // int run_numbers[n_runs] = {9740}; // want to do all runs individually
+  // double scale_factors[n_runs] = {1.02};
 
   const int n_settings = 2;
   //  std::string histnames[n_settings] = {"Thin_wNoThick_TimeSlice-200_200/hRawSpectrum", "muonbeam/hRawSpectrum"};

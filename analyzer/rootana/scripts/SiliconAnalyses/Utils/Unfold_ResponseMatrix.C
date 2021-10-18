@@ -26,7 +26,11 @@ struct Unfold_ResponseMatrixArgs {
   std::string mcresponsename;
   std::string outfilename;
   std::string outdirname;
-  int rebin_factor; // to get the folded spectrum to match the binning of the response matrix
+  //  int rebin_factor; // to get the folded spectrum to match the binning of the response matrix
+  double bin_width; // the bin width we want to get to
+  double lowE_cut; // where to cut spectrum and response matrix at
+  double highE_cut; // where to cut spectrum and response matrix at
+  double n_gen_events; // number of events that were generated
 
   std::string method;
   int reg_parameter; // either the number of iterations for Bayes, or the regularisation parameter for SVD
@@ -87,39 +91,62 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   }
   std::string newname = "hInputSpectrum";
   folded_spectrum->SetName(newname.c_str());
-  /*  for (int i_bin = 1; i_bin <= folded_spectrum->GetNbinsX(); ++i_bin) {
-    if (folded_spectrum->GetBinCenter(i_bin) < 1400) {
+  for (int i_bin = 1; i_bin <= folded_spectrum->GetNbinsX(); ++i_bin) {
+    if (folded_spectrum->GetBinCenter(i_bin) < args.lowE_cut ||
+	folded_spectrum->GetBinCenter(i_bin) > args.highE_cut)  {
       folded_spectrum->SetBinContent(i_bin, 0);
       folded_spectrum->SetBinError(i_bin, 0);
     }
-  }*/
-  folded_spectrum->Rebin(args.rebin_factor);
+  }
+  int spec_rebin_factor = args.bin_width / folded_spectrum->GetBinWidth(1);
+  //  folded_spectrum->Rebin(args.rebin_factor);
+  folded_spectrum->Rebin(spec_rebin_factor);
   std::stringstream axislabel;
   axislabel << "Folded Count / " << folded_spectrum->GetBinWidth(1) << " keV";
   folded_spectrum->SetYTitle(axislabel.str().c_str());
 
+  // if (args.bin_width == 0.5){
+  //   for (int i_bin = 1; i_bin <= folded_spectrum->GetNbinsX(); ++i_bin) {
+  //     double bin_center = folded_spectrum->GetBinCenter(i_bin);
+  //     if (bin_center > 15.5 && bin_center < 16) {
+  // 	folded_spectrum->SetBinContent(i_bin, folded_spectrum->GetBinContent(i_bin)*(1/0.90));
+  //     }
+  //     else if (bin_center > 16 && bin_center < 16.5) {
+  // 	folded_spectrum->SetBinContent(i_bin, folded_spectrum->GetBinContent(i_bin)*(1/1.04));
+  //     }
+  //     else if (bin_center > 16.5 && bin_center < 17) {
+  // 	folded_spectrum->SetBinContent(i_bin, folded_spectrum->GetBinContent(i_bin)*(1/1.06));
+  //     }
+  //   }
+  // }
 
   TH2D* response_matrix = (TH2D*) response->Hresponse();
   newname = "hResponseMatrix";
   response_matrix->SetName(newname.c_str());
-
-  /*
-  for (int i_bin = 1; i_bin < response_matrix->GetXaxis()->GetNbins(); ++i_bin) {
-    for (int j_bin = 1; j_bin < response_matrix->GetYaxis()->GetNbins(); ++j_bin) {
+  int resp_rebin_factor = args.bin_width / response_matrix->GetXaxis()->GetBinWidth(1);
+  response_matrix->Rebin2D(resp_rebin_factor, resp_rebin_factor);
+  for (int i_bin = 1; i_bin <= response_matrix->GetXaxis()->GetNbins(); ++i_bin) {
+    for (int j_bin = 1; j_bin <= response_matrix->GetYaxis()->GetNbins(); ++j_bin) {
       double true_E = response_matrix->GetYaxis()->GetBinCenter(j_bin);
-      if (true_E < 4000) {
+      if (true_E <= args.lowE_cut || true_E >= args.highE_cut) {
 	response_matrix->SetBinContent(i_bin, j_bin, 0);
 	response_matrix->SetBinError(i_bin, j_bin, 0);
       }
     }
   }
-  */
+  TH1D* hMeasured = (TH1D*) response->Hmeasured();
+  hMeasured->Rebin(resp_rebin_factor);
+  TH1D* hTruth = (TH1D*) response->Htruth();
+  hTruth->Rebin(resp_rebin_factor);
+  //  RooUnfoldResponse* new_response = new RooUnfoldResponse(response_matrix->ProjectionX(), response_matrix->ProjectionY(), response_matrix); 
+  RooUnfoldResponse* new_response = new RooUnfoldResponse(hMeasured, hTruth, response_matrix);
 
   std::cout << "Unfolding ResponseMatrix: Input Bin Width = " << folded_spectrum->GetXaxis()->GetBinWidth(1) << ", Response Matrix Bin Width = " << response_matrix->GetXaxis()->GetBinWidth(1) << std::endl;
 
   RooUnfold* unfold = 0;
   if (args.method == "bayes") {
-    unfold = new RooUnfoldBayes(response, folded_spectrum, args.reg_parameter);
+    //    unfold = new RooUnfoldBayes(response, folded_spectrum, args.reg_parameter);
+    unfold = new RooUnfoldBayes(new_response, folded_spectrum, args.reg_parameter);
   }
   else if (args.method == "svd") {
     unfold = new RooUnfoldSvd(response, folded_spectrum, args.reg_parameter);
@@ -132,8 +159,8 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
     return;
   }
   //  unfold->IncludeSystematics();
-  
-  TH1D* unfolded_spectrum = (TH1D*) unfold->Hreco();
+  TH1D* unfolded_spectrum = (TH1D*) unfold->Hreco(RooUnfold::kCovariance);
+  //TH1D* unfolded_spectrum = (TH1D*) unfold->Hreco(RooUnfold::kCovToy);
   newname = "hCorrectedSpectrum";
   unfolded_spectrum->SetName(newname.c_str());
   //  unfolded_spectrum->Draw("HIST E SAMES");
@@ -143,13 +170,14 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   axislabel << "Unfolded Count / " << unfolded_spectrum->GetBinWidth(1) << " keV";
   unfolded_spectrum->SetYTitle(axislabel.str().c_str());
   
-  //  std::cout << "Before Time Cut Efficiency Correction: " << std::endl;
-  //  printIntegrals(unfolded_spectrum);
-
-  //  unfolded_spectrum->Scale(1.0 / time_cut_efficiency);
-
-  //  std::cout << "After Time Cut Efficiency Correction: " << std::endl;
-  //  printIntegrals(unfolded_spectrum);
+  //  double geom_efficiency = response_matrix->GetEntries() / args.n_gen_events;
+  std::cout << args.outdirname << std::endl;
+  //  std::cout << unfolded_spectrum->GetMaximum() << std::endl;
+  //  std::cout << "Geom Eff = " << geom_efficiency << std::endl;
+  std::cout << "Spectrum Rebin Factor = " << spec_rebin_factor << std::endl;
+  std::cout << "Response Matrix Rebin Factor = " << resp_rebin_factor << std::endl;
+  //  unfolded_spectrum->Scale(1.0 / geom_efficiency);
+  //  std::cout << unfolded_spectrum->GetMaximum() << std::endl;
 
   folded_spectrum->SetLineColor(kRed);
   folded_spectrum->SetLineWidth(2);
@@ -159,7 +187,10 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   TFile* outfile = new TFile(args.outfilename.c_str(), "UPDATE");
   TDirectory* outdir = outfile->mkdir(args.outdirname.c_str());
   outdir->cd();
+  unfold->SetName("unfold");
+  unfold->Write();
   response->Write();
+  new_response->Write();
   response_matrix->Write();
   folded_spectrum->Write();
   unfolded_spectrum->Write();
@@ -177,6 +208,7 @@ void Unfold_ResponseMatrix(Unfold_ResponseMatrixArgs& args) {
   outfile->Close();
 
   data_file->Close();
+  mc_file->Close();
 }
 
 void printIntegrals(TH1D* hUnfolded) {

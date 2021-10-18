@@ -21,7 +21,7 @@ void Si16a_FinalPlot_DataVsMC_BeamEnergy_SiT() {
   std::string leglabels[n_settings] = {"Data", "MC"};
   Int_t colours[n_settings] = {kBlack, kRed};
   int rebin_factors[n_settings] = {2, 1};
-  std::string inhistnames[n_settings] = {"SiT_All_TimeSlice-200_200/hRawSpectrum", "hThinEnergy_noThickHit_SiT"};
+  std::string inhistnames[n_settings] = {"SiT_All_TimeSlice-200_200/hRawSpectrum", "hThinEnergy_noVeto_SiT"};
 
   std::stringstream run_str, sf_str, axislabel, leglabel;
   for (int i_run = 0; i_run < n_runs; ++i_run) {

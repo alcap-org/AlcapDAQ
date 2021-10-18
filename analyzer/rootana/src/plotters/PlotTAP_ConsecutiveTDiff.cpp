@@ -106,7 +106,9 @@ int PlotTAP_ConsecutiveTDiff::ProcessEntry(TGlobalData *gData, const TSetupData*
         const AnalysedPulseList *pulses =& i_det->second;
         //if(Debug() && pulses->empty()) DEBUG_PREFIX<<" no pulses to fill for "<<i_det->first<<std::endl;
 	//	double amp_threshold = 455;//90;//455; GeLoGain
-	double amp_threshold = 180;//980;//180; // GeHiGain
+	//	double amp_threshold = 180;//980;//180; // GeHiGain
+	//	double amp_threshold = 1500; // muSc, run 9040
+	double amp_threshold = 0; // SiR2-S
 	if (pulses->size()>1) {
 	  double last_time = -1000;
 	  

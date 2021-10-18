@@ -14,13 +14,15 @@ void Si16b_FinalPlot_FoldedSpectra_DifferentPIDCuts() {
   leg->SetTextSize(0.035);
   leg->SetFillColor(kWhite);
 
-  std::string infilename = "~/data/results/Si16b/unfold_newPP.root";
+  //  std::string infilename = "~/data/results/Si16b/unfold_newPP.root";
+  std::string infilename = "~/data/results/Si16b/raw_spectra_newPP_geq1TgtPulse_3sigma.root";
   TFile* infile = new TFile(infilename.c_str(), "READ");
   for (int i_PID = 0; i_PID < n_PIDs; ++i_PID) {
     std::string i_pid = PIDs[i_PID];
     
     //    std::string folded_histname = "PIDCut_proton_" + i_pid + "/hInputSpectrum";
-    std::string folded_histname = "PIDCut_proton_" + i_pid + "/hCorrectedSpectrum";
+    //    std::string folded_histname = "PIDCut_proton_" + i_pid + "/hCorrectedSpectrum";
+    std::string folded_histname = "proton_" + i_pid + "/hRawSpectrum";
     TH1F* hFoldedSpectrum = (TH1F*) infile->Get(folded_histname.c_str());
 
 

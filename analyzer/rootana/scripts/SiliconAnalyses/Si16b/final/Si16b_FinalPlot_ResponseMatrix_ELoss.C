@@ -4,13 +4,13 @@ void Si16b_FinalPlot_ResponseMatrix_ELoss(std::string savedir = "") {
   std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};
   std::string Particles[n_particles] = {"Proton", "Deuteron", "Triton", "Alpha"};
   int n_sim_particles[n_particles] = {10, 10, 10, 12};
-  double zoomed_max_y[n_particles] = {2500, 3000, 3500, 10000};
+  double zoomed_max_y[n_particles] = {2.5, 3, 3.5, 10};
   
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     std::string particle = particles[i_particle];
     std::string Particle = Particles[i_particle];
     std::string n_M = std::to_string(n_sim_particles[i_particle]);
-    std::string infilename = "~/data/mc/Si16b/respMatrix_" + n_M + "M_Geom-P5_" + particle + "_1000keVBins.root";
+    std::string infilename = "~/data/mc/Si16b/respMatrix_" + n_M + "M_Geom-P5_" + particle + "_1MeVBins.root";
     std::string inhistname = "SiR_hELoss";
   
     TFile* infile = new TFile(infilename.c_str(), "READ");
@@ -29,8 +29,8 @@ void Si16b_FinalPlot_ResponseMatrix_ELoss(std::string savedir = "") {
     hResponseMatrix->GetYaxis()->SetLabelSize(0.045);
     hResponseMatrix->GetXaxis()->SetTitleSize(0.05);
     hResponseMatrix->GetYaxis()->SetTitleSize(0.05);
-    hResponseMatrix->SetXTitle("True Energy [keV]");
-    hResponseMatrix->SetYTitle("Energy Loss [keV]");
+    hResponseMatrix->SetXTitle("True Energy [MeV]");
+    hResponseMatrix->SetYTitle("Energy Loss [MeV]");
     hResponseMatrix->Draw("COLZ");
     
     //    alcaphistogram(hResponseMatrix);

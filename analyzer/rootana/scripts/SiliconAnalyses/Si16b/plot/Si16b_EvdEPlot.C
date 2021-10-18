@@ -15,11 +15,11 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
   args.infilename = infilename;
 
   args.min_x_energy = 0;
-  args.max_x_energy = 25000;
-  args.x_energy_width = 10;
+  args.max_x_energy = 25;
+  args.x_energy_width = 0.01;
   args.min_y_energy = 0;
-  args.max_y_energy = 20000;
-  args.y_energy_width = 10;
+  args.max_y_energy = 20;
+  args.y_energy_width = 0.01;
 
   args.min_time = -30000;
   args.max_time = 30000;
@@ -37,10 +37,10 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
   //  Setting deuterons("deuteron", "~/data/results/Si16b/cuts_new_threelayer.root", "deuteron_cut", deuteron);
   //  Setting tritons("triton", "~/data/results/Si16b/cuts_new_threelayer.root", "triton_cut", triton);
   //  Setting alphas("alpha", "~/data/results/Si16b/cuts_new_threelayer.root", "alpha_cut", alpha);
-  Setting protons("proton", "~/data/results/Si16b/mark-si16b-cuts-keV.root", "r_hLg_SiR_EvDeltaE_proton_3sigma_keV", proton);
-  Setting deuterons("deuteron", "~/data/results/Si16b/mark-si16b-cuts-keV.root", "r_hLg_SiR_EvDeltaE_deuteron_3sigma_keV", deuteron);
-  Setting tritons("triton", "~/data/results/Si16b/mark-si16b-cuts-keV.root", "r_hLg_SiR_EvDeltaE_triton_3sigma_keV", triton);
-  Setting alphas("alpha", "~/data/results/Si16b/mark-si16b-cuts-keV.root", "r_hLg_SiR_EvDeltaE_alpha_3sigma_keV", alpha);
+  Setting protons_3sig("proton_3sig", "~/data/results/Si16b/si16b-cuts-cutoff.root", "r_hLg_SiR_EvDeltaE_proton_3sigma_cutoff", proton);
+  Setting deuterons_3sig("deuteron_3sig", "~/data/results/Si16b/si16b-cuts-cutoff.root", "r_hLg_SiR_EvDeltaE_deuteron_3sigma_cutoff", deuteron);
+  Setting tritons_3sig("triton_3sig", "~/data/results/Si16b/si16b-cuts-cutoff.root", "r_hLg_SiR_EvDeltaE_triton_3sigma_cutoff", triton);
+  Setting alphas_3sig("alpha_3sig", "~/data/results/Si16b/si16b-cuts-cutoff.root", "r_hLg_SiR_EvDeltaE_alpha_3sigma_cutoff", alpha);
   //  Setting alphas("alpha", "~/data/results/Si16b/new_alpha_cut_9MeV.root", "alpha_cut", alpha);
   Setting muspot_both("muspot_both", "~/data/results/Si16b/cut_muon-spots.root", "both");
   Setting muspot_lower("muspot_lower", "~/data/results/Si16b/cut_muon-spots.root", "lower");
@@ -48,28 +48,55 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
   //  Setting protons3L("proton3L", "~/data/results/Si16b/cuts_new_threelayer.root", "proton_cut", proton);
   //  Setting protons3L("proton3L", "~/data/results/Si16b/proton_cut_threelayer.root", "proton_cut", proton);
   //  Setting protons3L("proton3L", "~/data/results/Si16b/mark-al50-sir3-cuts-keV.root", "r_sir3_hLg_SiR_EvDeltaE_proton_3sigma_keV", proton);
-  Setting protons3L("proton3L", "~/data/results/Si16b/mark-si16b-sir3-cuts-keV.root", "r_sir3_hLg_SiR_EvDeltaE_proton_3sigma_keV", proton);
+  //  Setting protons3L_3sig("proton3L_3sig", "~/data/results/Si16b/mark-si16b-sir3-cuts.root", "r_sir3_hLg_SiR_EvDeltaE_proton_3sigma_cut", proton);
+  Setting protons3L_3sig("proton3L_3sig", "~/data/results/Si16b/si16b-sir3-cuts.root", "r_hLg_SiR_EvDeltaE_proton_3sigma", proton);
+
+  Setting protons_2sig("proton_2sig", "~/data/results/Si16b/si16b-cuts-cutoff.root", "r_hLg_SiR_EvDeltaE_proton_2sigma_cutoff", proton);
+  Setting deuterons_2sig("deuteron_2sig", "~/data/results/Si16b/si16b-cuts-cutoff.root", "r_hLg_SiR_EvDeltaE_deuteron_2sigma_cutoff", deuteron);
+  Setting tritons_2sig("triton_2sig", "~/data/results/Si16b/si16b-cuts-cutoff.root", "r_hLg_SiR_EvDeltaE_triton_2sigma_cutoff", triton);
+  Setting alphas_2sig("alpha_2sig", "~/data/results/Si16b/si16b-cuts-cutoff.root", "r_hLg_SiR_EvDeltaE_alpha_2sigma_cutoff", alpha);
+  //  Setting protons3L_2sig("proton3L_2sig", "~/data/results/Si16b/mark-si16b-sir3-cuts.root", "r_sir3_hLg_SiR_EvDeltaE_proton_2sigma", proton);
+  Setting protons3L_2sig("proton3L_2sig", "~/data/results/Si16b/si16b-sir3-cuts.root", "r_hLg_SiR_EvDeltaE_proton_2sigma", proton);
+
+  Setting protons_1sig("proton_1sig", "~/data/results/Si16b/si16b-cuts-cutoff.root", "r_hLg_SiR_EvDeltaE_proton_1sigma_cutoff", proton);
+  Setting deuterons_1sig("deuteron_1sig", "~/data/results/Si16b/si16b-cuts-cutoff.root", "r_hLg_SiR_EvDeltaE_deuteron_1sigma_cutoff", deuteron);
+  Setting tritons_1sig("triton_1sig", "~/data/results/Si16b/si16b-cuts-cutoff.root", "r_hLg_SiR_EvDeltaE_triton_1sigma_cutoff", triton);
+  Setting alphas_1sig("alpha_1sig", "~/data/results/Si16b/si16b-cuts-cutoff.root", "r_hLg_SiR_EvDeltaE_alpha_1sigma_cutoff", alpha);
+  //  Setting protons3L_1sig("proton3L_1sig", "~/data/results/Si16b/mark-si16b-sir3-cuts.root", "r_sir3_hLg_SiR_EvDeltaE_proton_1sigma", proton);
+  Setting protons3L_1sig("proton3L_1sig", "~/data/results/Si16b/si16b-sir3-cuts.root", "r_hLg_SiR_EvDeltaE_proton_1sigma", proton);
+
   std::vector<Setting> settings;
   settings.push_back(all);
   //  settings.push_back(all_proton);
-  settings.push_back(protons);
-  settings.push_back(deuterons);
-  settings.push_back(tritons);
-  settings.push_back(alphas);
-  settings.push_back(protons3L);
+  settings.push_back(protons_3sig);
+  settings.push_back(deuterons_3sig);
+  settings.push_back(tritons_3sig);
+  settings.push_back(alphas_3sig);
+  settings.push_back(protons3L_3sig);
+  settings.push_back(protons_2sig);
+  settings.push_back(deuterons_2sig);
+  settings.push_back(tritons_2sig);
+  settings.push_back(alphas_2sig);
+  settings.push_back(protons3L_2sig);
+  settings.push_back(protons_1sig);
+  settings.push_back(deuterons_1sig);
+  settings.push_back(tritons_1sig);
+  settings.push_back(alphas_1sig);
+  settings.push_back(protons3L_1sig);
   // //  settings.push_back(muspot_both);
   // //  args.debug = true;
   // //  settings.push_back(muspot_lower);
   // //  settings.push_back(muspot_upper);
 
+  
   const int n_timecuts = 7;
   double min_timecuts[n_timecuts] = {0, 200, 400, 600, 800, 1000, 2000};
   double max_timecuts[n_timecuts] = {10000, 10000, 10000, 10000, 10000, 10000, 10000};
 
-  const int n_layer_coincidences = 3;
-  std::string layer_coincidences[n_layer_coincidences] = {"noLayerCoinc", "layerCoinc", "thickLateCoinc"};
-  double min_layer_coincidences[n_layer_coincidences] = {-10000, -100, 200};
-  double max_layer_coincidences[n_layer_coincidences] = {10000, 100, 10000};
+  const int n_layer_coincidences = 4;
+  std::string layer_coincidences[n_layer_coincidences] = {"noLayerCoinc", "layerCoinc200ns", "layerCoinc500ns", "thickLateCoinc"};
+  double min_layer_coincidences[n_layer_coincidences] = {-10000, -200, -500, 200};
+  double max_layer_coincidences[n_layer_coincidences] = {10000, 200, 500, 10000};
 
   std::string tree = "SiR";
   std::stringstream outdirname;
@@ -84,10 +111,10 @@ void Si16b_EvdEPlot(std::string infilename, std::string outfilename) {
     args.veto_layer = "";
 
     if (i_setting->name == "alpha") {
-      args.max_x_energy = 30000;
+      args.max_x_energy = 30;
     }
     else {
-      args.max_x_energy = 25000;
+      args.max_x_energy = 25;
     }
 
     bool original_do_cut = false;

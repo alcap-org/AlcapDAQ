@@ -15,11 +15,11 @@ void SiL3_FinalPlot_UnfoldedSpectra_RecoilComparison() {
   leg->SetTextSize(0.035);
   leg->SetFillColor(kWhite);
 
-  std::string plots_file_name = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
+  std::string plots_file_name = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us_1_test_KFactor0-85.root";
   TFile* plots_file = new TFile(plots_file_name.c_str(), "READ");
   for (int i_spectra = 0; i_spectra < n_spectra; ++i_spectra) {
     std::string i_setting = settings[i_spectra];
-    std::string full_spectrum_name = "FinalNormalisation_TimeSlice2000_4000_" + i_setting + "/hNormalisedSpectrum";
+    std::string full_spectrum_name = "FinalNormalisation_TimeSlice3000_4000_" + i_setting + "_500keVBins/hNormalisedSpectrum";
 
     //    std::string newname = i_setting;
     TH1F* hUnfoldedSpectrum = (TH1F*) plots_file->Get(full_spectrum_name.c_str());
@@ -32,7 +32,7 @@ void SiL3_FinalPlot_UnfoldedSpectra_RecoilComparison() {
     hUnfoldedSpectrum->Rebin(rebin_factor);
     hUnfoldedSpectrum->Scale(1.0 / rebin_factor);
     //  hUnfoldedSpectrum->SetLineColor(kBlue);
-    std::string histtitle = "SiL3 Dataset, Normalised Spectrum (2000 ns < t < 4000 ns), Recoil Effects";
+    std::string histtitle = "SiL3 Dataset, Normalised Spectrum (3000 ns < t < 4000 ns), Recoil Effects";
     hUnfoldedSpectrum->SetTitle(histtitle.c_str());
     hUnfoldedSpectrum->SetStats(false);
     hUnfoldedSpectrum->GetXaxis()->SetRangeUser(0, 30000);
@@ -55,6 +55,7 @@ void SiL3_FinalPlot_UnfoldedSpectra_RecoilComparison() {
     else {
       hUnfoldedSpectrum->Draw("HIST E SAME");
     }
+    std::cout << hUnfoldedSpectrum->GetBinContent(hUnfoldedSpectrum->FindBin(15)) << std::endl;
   }
   
   TLatex* latex = new TLatex();

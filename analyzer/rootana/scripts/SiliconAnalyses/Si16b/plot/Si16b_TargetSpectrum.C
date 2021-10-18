@@ -9,8 +9,8 @@ void Si16b_TargetSpectrum(std::string infilename, std::string outfilename) {
   args.layername = "thin";
   args.outfilename = outfilename;
   args.min_energy = 0;
-  args.max_energy = 25000;
-  args.energy_width = 50;
+  args.max_energy = 25;
+  args.energy_width = 0.05;
   args.min_time = -20000;
   args.max_time = 20000;
   args.time_width = 100;
@@ -25,8 +25,8 @@ void Si16b_TargetSpectrum(std::string infilename, std::string outfilename) {
   // for the inclusive charged particle analysis (SiL3)
   args.treename = "siBlockTree_SiL";
   args.layername = "thick";
-  args.max_energy = 25000;
-  args.energy_width = 50;
+  args.max_energy = 25;
+  args.energy_width = 0.050;
   args.time_width = 10;
   args.layerreqd = false;
   args.layerveto = false;

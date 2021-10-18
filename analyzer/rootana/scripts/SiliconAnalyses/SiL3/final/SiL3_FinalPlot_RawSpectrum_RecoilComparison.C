@@ -1,6 +1,6 @@
 #include "../../../XRayAnalysis/XRayUtils.h"
 
-void SiL3_FinalPlot_RawSpectrum_RecoilComparison(std::string savedir = "", std::ostream& numbers_file = std::cout) {
+void SiL3_FinalPlot_RawSpectrum_RecoilComparison(std::string SiL3_tag = "geq2TgtPulse_newPP20us_1", std::string savedir = "", std::ostream& numbers_file = std::cout) {
 
   numbers_file << "% SiL3_FinalPlot_RawSpectrum_RecoilComparison.C" << std::endl;
   
@@ -23,11 +23,11 @@ void SiL3_FinalPlot_RawSpectrum_RecoilComparison(std::string savedir = "", std::
   leg->SetTextSize(0.035);
   leg->SetFillColor(kWhite);
 
-  std::string plots_file_name = "~/data/results/SiL3/raw_spectra_geq2TgtPulse_newPP20us.root";
+  std::string plots_file_name = "~/data/results/SiL3/raw_spectra_" + SiL3_tag + ".root";
   TFile* plots_file = new TFile(plots_file_name.c_str(), "READ");
   for (int i_spectra = 0; i_spectra < n_spectra; ++i_spectra) {
     std::string i_setting = settings[i_spectra];
-    std::string dirname = "SiL3_ActiveTarget_TimeSlice2000_4000_" + i_setting;
+    std::string dirname = "SiL3_ActiveTarget_TimeSlice3000_4000_" + i_setting;
     std::string full_spectrum_name = dirname + "/hRawSpectrum";
 
     //    std::string newname = i_setting;
@@ -42,19 +42,19 @@ void SiL3_FinalPlot_RawSpectrum_RecoilComparison(std::string savedir = "", std::
     cuttree->SetBranchAddress("recoil_fraction", &recoil_fraction);
     cuttree->GetEntry(0);
 
-    hFoldedSpectrum->Rebin(5);
+    hFoldedSpectrum->Rebin(2);
     //  hFoldedSpectrum->SetLineColor(kBlue);
-    std::string histtitle = "SiL3 Dataset, Target Spectrum (2000 ns < t < 4000 ns), Recoil Effects";
+    std::string histtitle = "SiL3 Dataset, Target Spectrum (3000 ns < t < 4000 ns), Recoil Effects";
     hFoldedSpectrum->SetTitle(histtitle.c_str());
     hFoldedSpectrum->SetStats(false);
-    hFoldedSpectrum->GetXaxis()->SetRangeUser(0, 30000);
+    hFoldedSpectrum->GetXaxis()->SetRangeUser(0, 30);
     hFoldedSpectrum->SetLineColor(colours[i_spectra]);
     hFoldedSpectrum->GetXaxis()->SetTitleOffset(0.9);
     hFoldedSpectrum->GetYaxis()->SetTitleOffset(0.9);
 
     std::stringstream axislabel;
-    axislabel << "Counts / " << hFoldedSpectrum->GetBinWidth(1) << " keV";
-    std::cout << "AE: " << axislabel.str() << std::endl;
+    axislabel << "Counts / " << hFoldedSpectrum->GetBinWidth(1) << " MeV";
+    //    std::cout << "AE: " << axislabel.str() << std::endl;
     hFoldedSpectrum->SetYTitle(axislabel.str().c_str());
     //    hFoldedSpectrum->GetYaxis()->SetTitleOffset(1.3);
 
@@ -82,6 +82,14 @@ void SiL3_FinalPlot_RawSpectrum_RecoilComparison(std::string savedir = "", std::
     else {
       hFoldedSpectrum->Draw("HIST E SAME");
     }
+
+    double min_energy = 1.4;
+    double max_energy = 26;
+    int min_energy_bin = hFoldedSpectrum->GetXaxis()->FindBin(min_energy);
+    int max_energy_bin = hFoldedSpectrum->GetXaxis()->FindBin(max_energy)-1;
+    double error = 0;
+    double rate = hFoldedSpectrum->IntegralAndError(min_energy_bin, max_energy_bin, error);
+    std::cout << leglabels[i_spectra] << " (" << min_energy << " -- " << max_energy << ") = " << rate << " +/-" << error << std::endl;
   }
   
   TLatex* latex = new TLatex();

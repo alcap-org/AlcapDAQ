@@ -74,7 +74,6 @@ int TAPTree::BeforeFirstEntry(TGlobalData* gData,const TSetupData *setup){
     fTAPTree->Branch("runId", &fRunId);
     fTAPTree->Branch("blockId", &fBlockId);
     fTAPTree->Branch("TAPId", &fTAPId);
-
    
     for (DetectorList::const_iterator i_det=fAllDets.begin(); i_det!=fAllDets.end(); ++i_det){
       
@@ -107,7 +106,7 @@ int TAPTree::ProcessEntry(TGlobalData* gData,const TSetupData *setup){
       for (AnalysedPulseList::const_iterator i_tap = tap_list->begin(); i_tap != tap_list->end(); ++i_tap) {
 	fTAPId = i_tap - tap_list->begin();
 
-	SimplePulse pulse((*i_tap)->GetParentID(), (*i_tap)->GetTAPID(), (*i_tap)->GetEnergy(), (*i_tap)->GetAmplitude(), (*i_tap)->GetTime(), 0, 0);
+	SimplePulse pulse((*i_tap)->GetParentID(), (*i_tap)->GetTAPID(), (*i_tap)->GetEnergy(), (*i_tap)->GetAmplitude(), (*i_tap)->GetTime(), 0, 0);//, (*i_tap)->GetSamples());
 
 	// Check to see if this is a "cut-off" pulse
 	if (dynamic_cast<const TTemplateFitAnalysedPulse*>((*i_tap))) {

@@ -7,13 +7,14 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSiL3_forPaper(std::string savedir = "")
   std::string recoils[n_recoils] = {"allRecoil"};//, "noRecoil"};
   std::string leglabels[n_recoils] = {"active Si target"};//, "without recoil correction"};
   Int_t colours[n_recoils] = {kBlack};
-  std::string SiL3_filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us.root";
+  std::string SiL3_filename = "~/data/results/SiL3/systematics_geq2TgtPulse_newPP20us_1.root";
   TFile* SiL3_file = new TFile(SiL3_filename.c_str(), "READ");
 
   TLegend* leg = new TLegend(0.45,0.65,0.80,0.85);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.04);
   leg->SetFillColor(kWhite);
+  leg->SetHeader("AlCap Si");
   
   for (int i_recoil = 0; i_recoil < n_recoils; ++i_recoil) {
     std::string recoil = recoils[i_recoil];
@@ -34,13 +35,15 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSiL3_forPaper(std::string savedir = "")
     SiL3_hist->SetLineWidth(2);
     SiL3_hist->SetLineColor(colour);
     SiL3_hist->SetTitle("Charged Particle Emission");
-    SiL3_hist->GetXaxis()->SetRangeUser(2000,17000);
-    SiL3_hist->GetXaxis()->SetTitle("Energy [keV]");
-    SiL3_hist->GetYaxis()->SetTitle("Particles / muon capture / keV");
-    SiL3_hist->GetXaxis()->SetTitleOffset(1.0);
+    SiL3_hist->GetXaxis()->SetRangeUser(2,17);
+    SiL3_hist->GetXaxis()->SetTitle("Energy [MeV]");
+    SiL3_hist->GetYaxis()->SetTitle("Particles / muon capture / MeV");
+    SiL3_hist->GetXaxis()->SetTitleOffset(0.9);
     SiL3_hist->GetYaxis()->SetTitleOffset(1.0);
     //    SiL3_hist->GetYaxis()->SetRangeUser(1e-8, 1e-3);
-    SiL3_hist->GetYaxis()->SetRangeUser(5e-7, 1e-4);
+    //    SiL3_hist->GetYaxis()->SetRangeUser(5e-4, 1e-1);
+    SiL3_hist->GetYaxis()->SetRangeUser(5e-4, 5e-2);
+    SiL3_hist->SetMarkerStyle(kFullCircle);
     //  SiL3_hist->SetMaximum(1e-3);
     //  SiL3_hist->SetMinimum(1e-8);
     // for (int i_range = 0; i_range < n_ranges; ++i_range) {
@@ -55,11 +58,11 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSiL3_forPaper(std::string savedir = "")
     // }
 
     std::string leglabel = leglabels[i_recoil];
-    leg->AddEntry(SiL3_hist, leglabel.c_str(), "l");
+    leg->AddEntry(SiL3_hist, leglabel.c_str(), "lp");
   }
   
   //  std::string filename = "~/data/results/Si16b/unfold_newPP.root";
-  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_3sigma.root";
+  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_1.root";
   //    std::string filename = "~/data/results/Si16b/unfold_newPP_geq1TgtPulse_SiL1-2--6.root";
   TFile* file = new TFile(filename.c_str(), "READ");
   
@@ -73,7 +76,7 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSiL3_forPaper(std::string savedir = "")
     std::string i_particle_name = particle_names[i_setting];
     Int_t i_colour = colours[i_setting];
 
-    std::string dirname = "FinalSystPlot_" + i_particle_name + "_TCutG";
+    std::string dirname = "FinalSystPlot_" + i_particle_name + "_TCutG_2sig_layerCoinc500ns_tGT0ns";
     std::string i_histname = dirname + "/hFinalStatSyst";
 
     TGraphAsymmErrors* spectrum = (TGraphAsymmErrors*) file->Get(i_histname.c_str());
@@ -87,16 +90,18 @@ void Si16b_FinalPlot_NormalisedSpectrum_wSiL3_forPaper(std::string savedir = "")
     spectrum->SetFillStyle(0);
     spectrum->SetFillColor(0);
     spectrum->SetLineWidth(2);
+    spectrum->SetMarkerStyle(kOpenCircle);
+    spectrum->SetMarkerColor(kRed);
     //    spectrum->SetLineColor(kBlack);
     //    spectrum->SetFillColor(i_colour);
     spectrum->Draw("PE SAMEs");
-    leg->AddEntry(spectrum, leglabels_Si16b[i_setting].c_str(), "l");
+    leg->AddEntry(spectrum, leglabels_Si16b[i_setting].c_str(), "lp");
 
   }
   leg->Draw();
 
   TLatex* latex = new TLatex();
-  latex->DrawLatexNDC(0.17, 0.75, "AlCap #bf{#it{Preliminary}}");
+  //  latex->DrawLatexNDC(0.17, 0.75, "AlCap #bf{#it{Preliminary}}");
   
   if (savedir != "") {
     std::string savename = savedir + "AlCapData_Si16bDataset_NormalisedSpectra_wSiL3_forPaper";

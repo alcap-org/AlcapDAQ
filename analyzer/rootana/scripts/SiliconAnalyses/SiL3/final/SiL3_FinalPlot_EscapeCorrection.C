@@ -1,6 +1,6 @@
 void SiL3_FinalPlot_EscapeCorrection(std::string savedir = "") {
 
-  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
+  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us_1.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_slices = 1;
@@ -31,6 +31,7 @@ void SiL3_FinalPlot_EscapeCorrection(std::string savedir = "") {
 
     //    std::string foldername = "ProtonEscape_" + time_slice_str.str();
     std::string foldername = "CombinedEscape_" + time_slice_str.str() + "_allRecoil";
+
     std::string histname = foldername + "/hInputSpectrum";
     TH1F* raw_spectrum = (TH1F*) file->Get(histname.c_str());
     if (!raw_spectrum) {
@@ -50,13 +51,14 @@ void SiL3_FinalPlot_EscapeCorrection(std::string savedir = "") {
 
     raw_spectrum->SetTitle("SiL3 Dataset, Active Target Analysis, Combined Escape Correction");
     raw_spectrum->SetStats(false);
-    raw_spectrum->GetXaxis()->SetRangeUser(0,30000);
+    raw_spectrum->GetXaxis()->SetRangeUser(0,30);
+    //    raw_spectrum->GetYaxis()->SetRangeUser(1e-3, 1e7);
     raw_spectrum->SetLineColor(colours[i_slice]);
     raw_spectrum->GetXaxis()->SetTitleOffset(0.9);
     raw_spectrum->GetYaxis()->SetTitleOffset(0.9);
 
     std::stringstream axislabel;
-    axislabel << "Counts / " << raw_spectrum->GetBinWidth(1) << " keV";
+    axislabel << "Counts / " << raw_spectrum->GetBinWidth(1) << " MeV";
     raw_spectrum->SetYTitle(axislabel.str().c_str());
 
     corrected_spectrum->SetLineColor(kRed);
@@ -68,7 +70,7 @@ void SiL3_FinalPlot_EscapeCorrection(std::string savedir = "") {
     corrected_spectrum->Draw("HIST E SAME");
 
     alcapPreliminary(raw_spectrum);
-
+    
     leg->AddEntry(raw_spectrum, "Spectrum (w/ decay electron correction)", "l");
     leg->AddEntry(corrected_spectrum, "Unfolded Spectrum", "l");
   }

@@ -3,8 +3,8 @@ void SiL3_FinalPlot_TargetSpectrum_EnergyTime(std::string savedir = "", std::ost
   
   //  std::string plots_file_name = "~/data/results/SiL3/plots_geq2TgtPulse.root";
   //  std::string plots_file_name = "~/data/results/SiL3_active_no-templates/plots_geq2TgtPulse.root";
-  std::string plots_file_name = "~/data/results/SiL3/plots_geq2TgtPulse_newPP20us.root";
-  std::string full_spectrum_name = "Target_noRecoil/hEnergyTime";
+  std::string plots_file_name = "~/data/results/SiL3/plots_geq2TgtPulse_newPP20us_1.root";
+  std::string full_spectrum_name = "Target_allRecoil/hEnergyTime";
     
   TFile* plots_file = new TFile(plots_file_name.c_str(), "READ");
   TH2F* hEnergyTime = (TH2F*) plots_file->Get(full_spectrum_name.c_str());
@@ -19,11 +19,11 @@ void SiL3_FinalPlot_TargetSpectrum_EnergyTime(std::string savedir = "", std::ost
   //  std::stringstream axislabel;
   //  std::cout << "Counts / " << hEnergyTime->GetXaxis()->GetBinWidth(1) << " ns" << std::endl;
   //  std::cout << "Counts / " << hEnergyTime->GetYaxis()->GetBinWidth(1) << " keV" << std::endl;
-  //  hEnergyTime->SetYTitle(axislabel.str().c_str());
+  hEnergyTime->SetYTitle("Energy [MeV]");
   //  hEnergyTime->GetYaxis()->SetTitleOffset(1.3);
 
   hEnergyTime->GetXaxis()->SetRangeUser(-20000, 20000);
-  hEnergyTime->GetYaxis()->SetRangeUser(0, 50000);
+  hEnergyTime->GetYaxis()->SetRangeUser(0, 50.000);
   hEnergyTime->GetXaxis()->SetTitleOffset(0.9);
   hEnergyTime->GetYaxis()->SetTitleOffset(0.9);
   hEnergyTime->Draw("COLZ");
@@ -35,7 +35,7 @@ void SiL3_FinalPlot_TargetSpectrum_EnergyTime(std::string savedir = "", std::ost
   hEnergyTime->SetDrawOption("COLZ");
 
   
-  double y_max = 30000;
+  double y_max = 30.000;
   TCanvas* c_EnergyTime_Zoom = new TCanvas("c_EnergyTime_Zoom", "c_EnergyTime_Zoom");
   c_EnergyTime_Zoom->SetLogz();
   TH2F* hEnergyTime_Zoom = (TH2F*) hEnergyTime->Clone("hEnergyTime_Zoom");

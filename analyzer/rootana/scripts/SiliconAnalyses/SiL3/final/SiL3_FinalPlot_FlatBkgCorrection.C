@@ -2,13 +2,13 @@ void SiL3_FinalPlot_FlatBkgCorrection(std::string savedir = "", std::ostream& nu
 
   numbers_file << "% SiL3_FinalPlot_FlatBkgCorrection.C" << std::endl;
   
-  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us.root";
+  std::string filename = "~/data/results/SiL3/unfold_geq2TgtPulse_newPP20us_1_test_KFactor0-85.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_slices = 1;
-  double min_time_slice = 2000;
+  double min_time_slice = 3000;
   double max_time_slice = 4000;
-  double time_slice_step = 2000;
+  double time_slice_step = 1000;
   Int_t colours[n_slices] = {kBlack};
 
   TCanvas* c1 = new TCanvas("c1", "c1");
@@ -53,15 +53,16 @@ void SiL3_FinalPlot_FlatBkgCorrection(std::string savedir = "", std::ostream& nu
 
     raw_spectrum->SetTitle("SiL3 Dataset, Active Target Analysis, Flat Background Correction");
     raw_spectrum->SetStats(false);
-    raw_spectrum->GetXaxis()->SetRangeUser(0,30000);
+    raw_spectrum->GetXaxis()->SetRangeUser(0,30);
     raw_spectrum->GetXaxis()->SetTitleOffset(0.9);
     raw_spectrum->GetYaxis()->SetTitleOffset(0.9);
     raw_spectrum->SetLineColor(colours[i_slice]);
 
     std::stringstream axislabel;
-    axislabel << "Counts / " << raw_spectrum->GetBinWidth(1) << " keV";
+    axislabel << "Counts / " << raw_spectrum->GetBinWidth(1) << " MeV";
     raw_spectrum->SetYTitle(axislabel.str().c_str());
-
+    raw_spectrum->SetXTitle("Energy [MeV]");
+    
     correction->SetLineColor(kBlue);
     corrected_spectrum->SetLineColor(kRed);
 

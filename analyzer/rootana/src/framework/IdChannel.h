@@ -196,6 +196,6 @@ inline IDs::channel::channel(const std::string& channel ):fDetector(),fSlowFast(
   *this=channel;
 }
 
-std::ostream& operator<< (ostream& os ,const IDs::channel& id);
+std::ostream& operator<< (std::ostream& os ,const IDs::channel& id);
 
 #endif //IDCHANNEL_H_

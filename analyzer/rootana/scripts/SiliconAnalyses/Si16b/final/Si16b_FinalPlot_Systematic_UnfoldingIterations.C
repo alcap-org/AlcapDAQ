@@ -3,16 +3,16 @@ void Si16b_FinalPlot_Systematic_UnfoldingIterations(std::string savedir = "") {
   TCanvas* c1 = new TCanvas("c1", "c1");
   c1->SetLogy();
     
-  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_3sigma.root";
+  std::string filename = "~/data/results/Si16b/systematics_newPP_geq1TgtPulse_2.root";
   TFile* file = new TFile(filename.c_str(), "READ");
 
   const int n_particles = 4;
   std::string particles[n_particles] = {"proton", "deuteron", "triton", "alpha"};
   std::string Particles[n_particles] = {"Proton", "Deuteron", "Triton", "Alpha"};
   
-  const int n_settings = 7;
-  int iterations[n_settings] = {100, 10, 5, 4, 3, 2, 1};//{1, 2, 3, 4, 5, 10, 100};
-  Int_t colours[n_settings] = {kBlue, kRed, kMagenta, kSpring, kBlack, kYellow, kGray};
+  const int n_settings = 2;
+  int iterations[n_settings] = {4, 20};//{1, 2, 3, 4, 5, 10, 100};
+  Int_t colours[n_settings] = {kBlue, kRed};//, kMagenta, kSpring, kBlack, kYellow, kGray};
   std::string leglabels[n_settings] = {};//"1 Iteration", "2 Iterations"};
 
   TH1F* hSpectra[n_particles][n_settings] = {{0}, {0}, {0}, {0}};
@@ -24,7 +24,7 @@ void Si16b_FinalPlot_Systematic_UnfoldingIterations(std::string savedir = "") {
   leg->SetFillColor(kWhite);
   
   int rebin_factor = 1;
-  double x_max = 25000;
+  double x_max = 25;
   std::stringstream leglabel;
   for (int i_particle = 0; i_particle < n_particles; ++i_particle) {
     std::string particle = particles[i_particle];
@@ -37,7 +37,7 @@ void Si16b_FinalPlot_Systematic_UnfoldingIterations(std::string savedir = "") {
       Int_t i_colour = colours[i_setting];
       leglabels[i_setting] = std::to_string(iterations[i_setting]) + " iterations";
     
-      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_" + setting;
+      std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_BinW500keV_" + setting;
       std::string i_histname = i_dirname + "/hNormalisedSpectrum";
       //      std::string i_dirname = "ResponseMatrix_" + particle + "_TCutG_" + setting;
       //      std::string i_histname = i_dirname + "/hInputSpectrum";
@@ -81,10 +81,10 @@ void Si16b_FinalPlot_Systematic_UnfoldingIterations(std::string savedir = "") {
        
 
     TCanvas* c_all_systs = new TCanvas();
-    int i_setting = 0;
+    int i_setting = 1;
     std::string setting = "NIter" + std::to_string(iterations[i_setting]);
     Int_t i_colour = colours[i_setting];
-    std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_" + setting + "_SystPlot";
+    std::string i_dirname = "FinalNormalisation_" + particle + "_TCutG_2sig_layerCoinc500ns_tGT0ns_BinW500keV_" + setting + "_SystPlot";
     std::string i_histname = i_dirname + "/hSystematic";
 
     std::cout << i_dirname << std::endl;
@@ -96,11 +96,19 @@ void Si16b_FinalPlot_Systematic_UnfoldingIterations(std::string savedir = "") {
 
     hSyst->GetXaxis()->SetRangeUser(0, x_max);
     hSyst->SetLineColor(i_colour);
-    hSyst->GetXaxis()->SetTitle("Energy [keV]");
-    hSyst->Draw("HIST E");
+    hSyst->GetXaxis()->SetTitle("Energy [MeV]");
+    hSyst->Draw("HIST");
+
+    if (particle == "proton") {
+      for (int i_bin = 1; i_bin <= hSyst->GetNbinsX(); ++i_bin) {
+	double E = hSyst->GetBinCenter(i_bin);
+	std::cout << E << " MeV: " << hSyst->GetBinContent(i_bin) << std::endl;
+      }
+    }
+
 
     alcaphistogram(hSyst);
-    hSyst->SetDrawOption("HIST E1");
+    hSyst->SetDrawOption("HIST");
     alcapPreliminary(hSyst);
 
     //    leg->Draw();
