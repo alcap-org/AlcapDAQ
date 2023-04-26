@@ -36,5 +36,5 @@ Timing/MTScTCorrWFD
 Timing/MTDCWFDMatchEff
 
 #Mandatory
-vacuum/MVacuumHisto
-#common/MTreeOutput
+#vacuum/MVacuumHisto
+common/MTreeOutput
