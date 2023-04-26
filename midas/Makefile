@@ -306,6 +306,14 @@ else
     MYSQL_LIBS=/usr/lib/mysql/libmysqlclient.so
 endif
 
+# update for Ubuntu 14.04 64 bit
+ifeq ($(shell lsb_release -si), Ubuntu)
+ifeq ($(shell lsb_release -sr), 14.04)
+ifeq ($(shell uname -m),x86_64)
+	MYSQL_LIBS=/usr/lib/x86_64-linux-gnu/libmysqlclient.so
+endif
+endif
+endif
 
 
 #####################################################################
