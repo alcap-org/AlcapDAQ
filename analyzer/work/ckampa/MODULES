@@ -1,0 +1,12 @@
+common/MUnCompressRawData
+
+v1724/MV1724ProcessRaw
+v1290/MV1290ProcessRaw
+dt5730/MDT5730ProcessRaw
+dt5720/MDT5720ProcessRaw
+#vacuum/MVacuumHisto
+
+# Isert your modules here
+# Modules are loaded from the context
+# of the AlcapDAQ/analyzer/src directory.
+common/MTreeOutput
