@@ -22,7 +22,6 @@ Calibration/MIdentifySyncPulse
 Timing/MSyncCount
 Scaler/MTDCHitCounter
 data_quality/MDQ_IslandCounter
-Energy/MEnergyPlots
 
 Timing/MTDCHitTime
 #data_quality/MDQ_IslandTimestamp

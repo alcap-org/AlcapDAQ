@@ -1,118 +1,27 @@
-Warning in <TH1::TH1>: nbins is <=0 - set to nbins = 1
-Warning in <TH1::TH1>: nbins is <=0 - set to nbins = 1
-Error in <TDirectory::Cd>: Unknown directory DataQuality_IntegralRatio
-This file indicates the run number is 7195
+This file indicates the run number is 7204
 Cannot open message log file /data/alcap/R15a/mid/midas.log
-gMiasTreeOutputFileName = /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/tree07195.root
+gMiasTreeOutputFileName = /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/tree07204.root
 sizes are 52
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D400 (SyncCrate4)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D401 (V1724_1)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D402 (V1724_2)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D403 (V1724_3)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D404 (V1724_4)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D405 (V1724_5)
-TDC bank T410, WFD bank D406, Detector GeCHEH
-TDC bank T410, WFD bank D407, Detector GeCHEL
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D500 (SyncCrate5)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D501 (LYSOC)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D502 (LYSOM)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D503 (DT5720_3)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D700 (BROKEN)
-TDC bank T410, WFD bank D701, Detector GeCHT
-TDC bank T407, WFD bank D702, Detector TSc
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D703 (DT5730_3)
-TDC bank T408, WFD bank D704, Detector NdetD
-TDC bank T409, WFD bank D705, Detector NdetU
-TDC bank T412, WFD bank D706, Detector LaBr3
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D707 (SyncCrate7)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D800 (V1720_0)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D801 (V1720_1)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D802 (V1720_2)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D803 (LYSOO)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D804 (V1720_4)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D805 (LYSOT)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D806 (V1720_6)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D807 (V1720_7)
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D400
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D401
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D402
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D403
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D404
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D405
-TDC bank T410, WFD bank D406, Detector GeCHEH
-TDC bank T410, WFD bank D407, Detector GeCHEL
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D500
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D501
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D502
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D503
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D700
-TDC bank T410, WFD bank D701, Detector GeCHT
-TDC bank T407, WFD bank D702, Detector TSc
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D703
-TDC bank T408, WFD bank D704, Detector NdetD
-TDC bank T409, WFD bank D705, Detector NdetU
-TDC bank T412, WFD bank D706, Detector LaBr3
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D707
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D800
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D801
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D802
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D803
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D804
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D805
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D806
-INFO: MTDCWFDTCorr: No corresponding TDC for bank D807
 Running analyzer offline. Stop with "!"
 Set run number 2015 in ODB
 Cannot open message log file /data/alcap/R15a/mid/midas.log
 Analyzer saw beginning of run 2015
-Set run number 7195 in ODB
+Set run number 7204 in ODB
 Cannot open message log file /data/alcap/R15a/mid/midas.log
-TEST MESSAGE: Read 0 events from bank D500 in event 1
-TEST MESSAGE: Read 0 events from bank D501 in event 1
-TEST MESSAGE: Read 0 events from bank D502 in event 1
-TEST MESSAGE: Read 0 events from bank D503 in event 1
 TEST MESSAGE: Read 0 events from bank D700 in event 1
-TEST MESSAGE: Read 49 events from bank D701 in event 1
-TEST MESSAGE: Read 4 events from bank D702 in event 1
-TEST MESSAGE: Read 0 events from bank D703 in event 1
+TEST MESSAGE: Read 36 events from bank D701 in event 1
+TEST MESSAGE: Read 8 events from bank D702 in event 1
+TEST MESSAGE: Read 1 events from bank D703 in event 1
 TEST MESSAGE: Read 16 events from bank D704 in event 1
-TEST MESSAGE: Read 79 events from bank D705 in event 1
-TEST MESSAGE: Read 163 events from bank D706 in event 1
-TEST MESSAGE: Read 56 events from bank D707 in event 1
-TEST MESSAGE: Read 63 events from bank D400 in event 1
-TEST MESSAGE: Read 0 events from bank D401 in event 1
-TEST MESSAGE: Read 0 events from bank D402 in event 1
-TEST MESSAGE: Read 0 events from bank D403 in event 1
-TEST MESSAGE: Read 63 events from bank D404 in event 1
-TEST MESSAGE: Read 0 events from bank D405 in event 1
-TEST MESSAGE: Read 63 events from bank D406 in event 1
-TEST MESSAGE: Read 63 events from bank D407 in event 1
-TEST MESSAGE: Read 57 events from bank D800 in event 1
-TEST MESSAGE: Read 57 events from bank D801 in event 1
-TEST MESSAGE: Read 57 events from bank D802 in event 1
-TEST MESSAGE: Read 57 events from bank D803 in event 1
-TEST MESSAGE: Read 0 events from bank D804 in event 1
-TEST MESSAGE: Read 0 events from bank D805 in event 1
-TEST MESSAGE: Read 0 events from bank D806 in event 1
-TEST MESSAGE: Read 0 events from bank D807 in event 1
-TEST MESSAGE: Read 157556 events from bank T400 in event 1
-TEST MESSAGE: Read 874 events from bank T401 in event 1
-TEST MESSAGE: Read 36 events from bank T402 in event 1
-TEST MESSAGE: Read 0 events from bank T403 in event 1
-TEST MESSAGE: Read 595 events from bank T404 in event 1
-TEST MESSAGE: Read 68 events from bank T405 in event 1
-TEST MESSAGE: Read 32 events from bank T406 in event 1
-TEST MESSAGE: Read 52 events from bank T407 in event 1
-TEST MESSAGE: Read 442 events from bank T408 in event 1
-TEST MESSAGE: Read 1237 events from bank T409 in event 1
-TEST MESSAGE: Read 107 events from bank T410 in event 1
-TEST MESSAGE: Read 55 events from bank T411 in event 1
-TEST MESSAGE: Read 2546 events from bank T412 in event 1
-TEST MESSAGE: Read 335 events from bank T413 in event 1
-TEST MESSAGE: Read 29 events from bank T414 in event 1
-TEST MESSAGE: Read 1 events from bank T415 in event 1
-/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:100  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:99  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:200  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:199  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:300  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:299  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:400  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:399  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:500  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:499  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:600  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:599  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:700  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:699  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:800  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:799  eventsV1290 Analyzer: Found non-measurement TDC data! (c0001f0c) data size 10864 pos. 440
-/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:900  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:899  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:1000  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:999  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:1100  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:1099  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:1200  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:1199  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:1300  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:1299  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:1400  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:1399  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:1500  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:1499  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:1600  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:1599  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:1700  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:1699  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:1800  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:1799  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:1900  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:1899  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:2000  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:1999  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:2100  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:2099  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:2200  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:2199  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:2300  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:2299  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:2400  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:2399  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:2500  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:2499  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:2600  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:2599  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:2700  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:2699  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:2800  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:2799  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:2900  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:2899  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:3000  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:2999  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:3100  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:3099  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:3200  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:3199  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:3300  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:3299  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:3400  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:3399  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:3500  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:3499  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:3600  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:3599  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:3700  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:3699  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:3800  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:3799  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:3900  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:3899  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:4000  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:3999  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:4100  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:4099  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:4200  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:4199  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:4300  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:4299  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.AmBe_36MeV_C.run07195.mid:4373  /home/ckampa/data/ckampa/AlCap_2015a/output_alcapana/hist07195.root:4371  events, 85.76s
-Analyzer saw end of run 7195
+TEST MESSAGE: Read 10 events from bank D705 in event 1
+TEST MESSAGE: Read 127 events from bank D706 in event 1
+TEST MESSAGE: Read 55 events from bank D707 in event 1
+Info in <TCanvas::MakeDefCanvas>:  created default TCanvas with name c1
+/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:100  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:99  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:200  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:199  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:300  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:299  eventsNon-modulo 2 check
+/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:400  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:399  eventsNon-modulo 2 check
+/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:500  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:499  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:600  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:599  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:700  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:699  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:800  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:799  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:900  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:899  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:1000  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:999  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:1100  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:1099  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:1200  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:1199  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:1300  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:1299  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:1400  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:1399  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:1500  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:1499  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:1600  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:1599  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:1700  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:1699  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:1800  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:1799  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:1900  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:1899  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:2000  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:1999  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:2100  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:2099  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:2200  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:2199  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:2300  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:2299  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:2400  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:2399  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:2500  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:2499  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:2600  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:2599  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:2700  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:2699  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:2800  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:2799  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:2900  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:2899  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:3000  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:2999  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:3100  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:3099  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:3200  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:3199  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:3300  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:3299  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:3400  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:3399  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:3500  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:3499  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:3600  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:3599  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:3700  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:3699  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:3800  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:3799  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:3900  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:3899  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:4000  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:3999  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:4100  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:4099  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:4200  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:4199  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:4300  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:4299  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:4400  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:4399  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:4500  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:4499  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:4600  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:4599  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:4700  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:4699  eventsNon-modulo 2 check
+Non-modulo 2 check
+/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:4800  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:4799  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:4900  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:4899  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:5000  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:4999  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:5100  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:5099  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:5200  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:5199  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:5300  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:5299  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:5400  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:5399  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:5500  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:5499  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:5600  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:5599  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:5700  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:5699  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:5800  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:5799  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:5900  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:5899  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:6000  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:5999  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:6100  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:6099  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:6200  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:6199  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:6300  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:6299  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:6400  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:6399  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:6500  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:6499  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:6600  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:6599  events/home/ckampa/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_C.run07204.mid:6653  /home/ckampa/data/ckampa/AlCap_2015a/output_EnergyPlots/hist07204.root:6651  events, 95.02s
+Analyzer saw end of run 7204
 Cannot open message log file /data/alcap/R15a/mid/midas.log
 

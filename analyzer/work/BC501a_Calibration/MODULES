@@ -1,0 +1,50 @@
+#common/MUnCompressRawData
+#dt5720/MDT5720ProcessRaw
+# dt5730/MDT5730ProcessRaw
+#v1724/MV1724ProcessRaw
+#v1720/MV1720ProcessRaw
+#v1290/MV1290ProcessRaw
+
+dt5730/MDT5730ProcessRaw
+
+#common/MWFDSort
+#common/MTDCSort
+#caen/MCAENPulseIslandStitch
+
+#Diagnostics
+#dt5720/MDT5720Errors
+#dt5730/MDT5730Errors
+#data_quality/MDQ_DigitizerOverflow
+
+#Calibrations
+#Scaler/MMuonCounter
+#Calibration/MIdentifySyncPulse
+
+#Analysis
+#Timing/MSyncCount
+#Scaler/MTDCHitCounter
+#data_quality/MDQ_IslandCounter
+
+# USED FOR CALIBRATION
+# original
+# Energy/MEnergyPlots
+# with edits -- Cole
+Energy/MEnergyPlotsRedux
+
+#Timing/MTDCHitTime
+#data_quality/MDQ_IslandTimestamp
+#data_quality/MDQ_IslandLength
+#data_quality/MDQ_Amplitude
+#data_quality/MDQ_Integral
+#data_quality/MDQ_IntegralRatio
+
+#Timing/MTDCWFDTCorr
+#Timing/MTTScTCorrTDC
+#Timing/MTScTCorrWFD
+#Timing/MTDCWFDMatchEff
+
+#Mandatory
+#vacuum/MVacuumHisto
+
+
+common/MTreeOutput

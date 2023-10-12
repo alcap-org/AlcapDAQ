@@ -6,19 +6,20 @@
 # NdetU
 # RunNumbers=( 7196 )
 # NdetD
-# RunNumbers=( 7197 )
+RunNumbers=( 7197 )
 # AmBe C
 # NdetU 7194, 7195
 # NdetD 7192, 7193
-RunNumbers=( 7192 7193 7194 7195 )
+# RunNumbers=( 7192 7193 7194 7195 )
 
 RawDataDir="$HOME/data/ckampa/AlCap_2015a/raw"
 ODBDataDir="$HOME/data/ckampa/AlCap_2015a/odb"
-DataDir="$HOME/data/ckampa/AlCap_2015a/output_alcapana"
+# DataDir="$HOME/data/ckampa/AlCap_2015a/output_alcapana"
+DataDir="$HOME/data/ckampa/AlCap_2015a/output_EnergyPlots" # 09-12-23 testing existing EnergyPlots module
 # FIXME! This will not work when looking at data from other datasets.
 # FileStub="$RawDataDir/raw.rhbob.AlCapR2015a.Al2mm_36MeV_Y."
-# FileStub="$RawDataDir/raw.rhbob.AlCapR2015a.None_36MeV_C."
-FileStub="$RawDataDir/raw.rhbob.AlCapR2015a.AmBe_36MeV_C."
+FileStub="$RawDataDir/raw.rhbob.AlCapR2015a.None_36MeV_C."
+# FileStub="$RawDataDir/raw.rhbob.AlCapR2015a.AmBe_36MeV_C."
 mkdir -p $DataDir
 AlcapanaPath="$HOME/coding/AlcapDAQ/analyzer/work/data_quality"
 
