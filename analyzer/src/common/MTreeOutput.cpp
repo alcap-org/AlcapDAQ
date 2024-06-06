@@ -40,6 +40,7 @@ extern TSetupData* gSetup;
 extern char *gMiasTreeOutputFileName;
 
 static TFile *fTreeFile = NULL;
+//TFile *fTreeFile = NULL;
 static TTree *fEventTree = NULL;
 static TBranch *fEventBranch = NULL;
 static TTree *fSetupTree = NULL;
@@ -75,6 +76,7 @@ INT MTreeOutput_init()
   }
     
   if(gMiasTreeOutputFileName){
+    printf("MTreeOutput: Attempting to recreate tree file %s.\n", gMiasTreeOutputFileName);
     fTreeFile = TFile::Open(gMiasTreeOutputFileName, "recreate");
     if(!fTreeFile || fTreeFile->IsZombie()){
       printf("Could not open tree file %s!\n", gMiasTreeOutputFileName);

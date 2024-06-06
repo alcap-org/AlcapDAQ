@@ -73,6 +73,7 @@ ANA_MODULE MDT5730ProcessRaw_module =
 
 /*--module init routine --------------------------------------------*/
 INT module_init() {
+  printf("MDT5730ProcessRaw_init\n");
 
   std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
   for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin();

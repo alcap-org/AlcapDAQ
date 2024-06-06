@@ -124,7 +124,9 @@ INT MEnergyPlotsRedux_BookHistograms()
     //TNtuple* ntuple = new TNtuple(ntupname.c_str(), ntuptitle.c_str(), "Integral:Amplitude:iMax:nSamp:SIntegral:LIntegral:SIntegral_pedsub:LIntegral_pedsub:IntegralRatio:status_IntegralRatio");
     // debugging short and long integrals
     //TNtuple* ntuple = new TNtuple(ntupname.c_str(), ntuptitle.c_str(), "Integral:Amplitude:iMax:nSamp:SIntegral:LIntegral:SIntegral_pedsub:LIntegral_pedsub:IntegralRatio:status_IntegralRatio:Polarity:pedBegin:pedEnd:pedX0:pedSlope:pedInt");
-    TNtuple* ntuple = new TNtuple(ntupname.c_str(), ntuptitle.c_str(), "Integral:Amplitude:iMax:nSamp:SIntegral:LIntegral:SIntegral_pedsub:LIntegral_pedsub:IntegralRatio:status_IntegralRatio:Polarity:pedBegin:pedEnd:pedX0:pedSlope:pedInt:pedIntS:pedIntL");
+    TNtuple* ntuple = new TNtuple(ntupname.c_str(), ntuptitle.c_str(), "Event:iPulse:Integral:Amplitude:iMax:nSamp:SIntegral:LIntegral:SIntegral_pedsub:LIntegral_pedsub:IntegralRatio:status_IntegralRatio:Polarity:pedBegin:pedEnd:pedX0:pedSlope:pedInt:pedIntS:pedIntL");
+    // turn off autosave
+    ntuple->SetAutoSave(0);
     Ntuple_map[bankname] = ntuple;
 
     //hIntegral_[detname]_[bankname]
@@ -200,6 +202,8 @@ INT MEnergyPlotsRedux_eor(INT run_number)
 
 INT MEnergyPlotsRedux(EVENT_HEADER *pheader, void *pevent)
 {
+  // Get the event number
+  int midas_event_number = pheader->serial_number;
   if(EnergyPlotsRedux_firstEvent == true){
     MEnergyPlotsRedux_BookHistograms();
     EnergyPlotsRedux_firstEvent = false;
@@ -215,7 +219,6 @@ INT MEnergyPlotsRedux(EVENT_HEADER *pheader, void *pevent)
     int nbits = gSetup->GetNBits(bankname);
     const int max_adc = std::pow(2, gSetup->GetNBits(bankname));
 
-    /*  
     if(detname != "TSc"
        && detname != "GeCHEH"
        && detname != "GeCHEL"
@@ -223,17 +226,22 @@ INT MEnergyPlotsRedux(EVENT_HEADER *pheader, void *pevent)
        && detname != "NdetU"
        && detname != "LaBr3")
       continue;
-    */
+    /*
     if(detname != "NdetD"
        && detname != "NdetU")
       continue;
+    */
 
    
     //int threshold = 60;  //threshold (from baseline) for integration
     //float pct = 0.2;
+    int iPulse = 0;
 
     for(std::vector<TPulseIsland*>::const_iterator pIter = pulses.begin(); pIter != pulses.end(); pIter++){
+      // FIXME! Can this check go in the outer loop? This would be more efficient      
       if(IntegralEnergy_map.find(bankname) == IntegralEnergy_map.end()) continue;
+
+      iPulse++;
 
       float integral = 0, sintegral = 0, lintegral = 0;
       float integral_ps = 0, sintegral_ps = 0, lintegral_ps = 0;
@@ -255,7 +263,9 @@ INT MEnergyPlotsRedux(EVENT_HEADER *pheader, void *pevent)
       const int nSamp = samples.size();
       // PEDESTAL      
       float pedBegin=0, pedEnd=0, pedSlope=0, pedX0=0, pedY0=0;
-      int nstart=9, nend=9;
+      //int nstart=9, nend=9;
+      // flat pedestal -- nend = -1 flag
+      int nstart=9, nend=-1;
       // set the parameters
       MEnergyPlotsRedux_SetPedestalParams(samples, nstart, nend, detname, pedBegin, pedEnd, pedSlope, pedX0, pedY0);
       // now calculate the integral
@@ -370,7 +380,7 @@ INT MEnergyPlotsRedux(EVENT_HEADER *pheader, void *pevent)
       // debug long & short integrals
       // "Integral:Amplitude:iMax:nSamp:SIntegral:LIntegral:SIntegral_pedsub:LIntegral_pedsub:IntegralRatio:status_IntegralRatio:Polarity:pedBegin:pedEnd:pedX0:pedSlope:pedInt:pedIntS:pedIntL"
       //const float vals [18] = {integral_ps,max,tMax,nSamp,polarity*sintegral,polarity*lintegral,sintegral_ps,lintegral_ps,integral_ratio,integral_ratio_status,polarity,pedBegin,pedEnd,pedX0,pedSlope,pedInt,pedIntS,pedIntL};
-      const float vals [18] = {integral_ps,max,tMax,nSamp,sintegral,lintegral,sintegral_ps,lintegral_ps,integral_ratio,integral_ratio_status,polarity,pedBegin,pedEnd,pedX0,pedSlope,pedInt,pedIntS,pedIntL};
+      const float vals [20] = {midas_event_number, iPulse, integral_ps,max,tMax,nSamp,sintegral,lintegral,sintegral_ps,lintegral_ps,integral_ratio,integral_ratio_status,polarity,pedBegin,pedEnd,pedX0,pedSlope,pedInt,pedIntS,pedIntL};
       Ntuple_map[bankname]->Fill(vals);
       // fails if n args > 15 !!      
       //Ntuple_map[bankname]->Fill(integral_ps,max,tMax,nSamp,polarity*sintegral,polarity*lintegral,sintegral_ps,lintegral_ps,integral_ratio,integral_ratio_status,polarity,pedBegin,pedEnd,pedX0,pedSlope,pedInt);
@@ -433,19 +443,26 @@ void MEnergyPlotsRedux_SetPedestalParams(const std::vector<int>& samples, int ns
 	    pedBegin += (*pulse_begin);
 	    pedBeginSamp += 1;
     }
-
-    //for(std::vector<int>::const_iterator pulse_end = samples.end() - 9; pulse_end != samples.end(); pulse_end++){
-    for(std::vector<int>::const_iterator pulse_end = samples.end() - nend; pulse_end != samples.end(); pulse_end++){
-	    pedEnd += (*pulse_end);
-	    pedEndSamp += 1;
-    }
-
     // checking i have the indexing correct
     if (pedBeginSamp != nstart) {
       std::cout << "pedBeginSamp!=nstart: " << pedBeginSamp << "!=" << nstart << std::endl;
     }
-    if (pedEndSamp != nend) {
-      std::cout << "peEndSamp!=nend: " << pedEndSamp << "!=" << nend << std::endl;
+    
+    // if nend<0, slope of pedestal = 0, and definition is only based on first samples
+    if (nend < 0){
+      pedEnd = pedBegin;
+      pedEndSamp = pedBeginSamp;      
+    }
+    else {
+      //for(std::vector<int>::const_iterator pulse_end = samples.end() - 9; pulse_end != samples.end(); pulse_end++){
+      for(std::vector<int>::const_iterator pulse_end = samples.end() - nend; pulse_end != samples.end(); pulse_end++){
+	      pedEnd += (*pulse_end);
+	      pedEndSamp += 1;
+      }
+      // checking i have the indexing correct
+      if (pedEndSamp != nend) {
+        std::cout << "peEndSamp!=nend: " << pedEndSamp << "!=" << nend << std::endl;
+      }
     }
   }
 
@@ -490,12 +507,12 @@ float MEnergyPlotsRedux_GetIntegral(const std::vector<int>& samples, int start_i
     //nInt ++;
     lastSamp++;
   }
-  if(nSamp_ % 2 == 1){
-    std::cout << "Non-modulo 2 check" << std:: endl;
+  //if(nSamp_ % 2 == 1){
+    //std::cout << "Non-modulo 2 check" << std:: endl;
     // Cole -- I think this double counts contribution from the final bin. Should be a small effect, but good to correct it.  
     //integral += 0.5 * (samples.at(nSamp-1) + samples.at(nSamp));
     //nInt++;
-  }
+  //}
 
   return integral;
 }

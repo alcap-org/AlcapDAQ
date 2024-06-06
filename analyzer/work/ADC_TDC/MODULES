@@ -1,0 +1,73 @@
+#common/MUnCompressRawData
+#dt5720/MDT5720ProcessRaw
+# dt5730/MDT5730ProcessRaw
+#v1724/MV1724ProcessRaw
+#v1720/MV1720ProcessRaw
+#v1290/MV1290ProcessRaw
+
+# crate 7 -- TSc, NdetD, NdetU, LaBr3, GeCHT, Sync
+dt5730/MDT5730ProcessRaw
+# crate 4 -- GeCHEH, GeCHEL, Sync
+v1724/MV1724ProcessRaw
+# TDC
+v1290/MV1290ProcessRaw
+
+#common/MWFDSort
+#common/MTDCSort
+#caen/MCAENPulseIslandStitch
+
+#Diagnostics
+#dt5720/MDT5720Errors
+#dt5730/MDT5730Errors
+#data_quality/MDQ_DigitizerOverflow
+
+#Calibrations
+Scaler/MMuonCounter
+#Calibration/MIdentifySyncPulse
+# note: MMuonCoutner must be run first, otherwise normalization plots don't make sense.
+# I renamed Directory to IdentifySyncPulseOriginal for making comparisons.
+# Note this must come first, so that the values stored in TGD get replaced by the newer analyzer below.
+# ntuples added at this stage, again for comparison
+Calibration/MIdentifySyncPulse
+# first pass at improving IdentifySyncPulse
+# includes ntuple per crate to import the SyncPulse in python.
+Calibration/MIdentifySyncPulseRedux
+
+#Analysis
+#Timing/MSyncCount
+#Scaler/MTDCHitCounter
+#data_quality/MDQ_IslandCounter
+
+# Waveform pulse dumper (ntuple) for MIdentifySyncPulse algorithm development (python)
+Timing/MWaveformTimeNtupler
+
+# USED FOR CALIBRATION
+# original
+# Energy/MEnergyPlots
+# with edits -- Cole
+Energy/MEnergyPlotsRedux
+
+# Fill histograms with hit times in the TDCs.
+#Timing/MTDCHitTime
+# same as above, but fills an ntuple as well -- tick of hit (timestamp), time of hit (timestamp), Block (event), iHit
+Timing/MTDCHitTimeRedux
+
+####
+#data_quality/MDQ_IslandTimestamp
+#data_quality/MDQ_IslandLength
+#data_quality/MDQ_Amplitude
+#data_quality/MDQ_Integral
+#data_quality/MDQ_IntegralRatio
+
+#Timing/MTDCWFDTCorr
+#Timing/MTTScTCorrTDC
+#Timing/MTScTCorrWFD
+#Timing/MTDCWFDMatchEff
+
+#Mandatory
+#vacuum/MVacuumHisto
+
+common/MTreeOutput
+# "UPDATE" tree file.
+# this is now done in a script.
+# Timing/MTDCTreeFill

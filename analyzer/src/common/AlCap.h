@@ -11,6 +11,7 @@ namespace AlCap {
   				    0., 2.,  4.,
   				    0.}; // ns
   const double TICKTDC          = 1./(40.96);   // ns
+  const float fTICKTDC          = 1./(40.96);   // ns
   const int BITSWFDADC[NCRATE]  = { 0,  0,  0,
 				    0, 14, 12,
 				    0, 14, 12,

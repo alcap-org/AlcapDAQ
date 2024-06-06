@@ -51,6 +51,7 @@ ANA_MODULE MV1290ProcessRaw_module =
 
 /*--module init routine --------------------------------------------*/
 INT module_init_tdc() {
+  printf("MV1290ProcessRaw_init\n");
   std::map<std::string, std::string> bank_to_detector_map = gSetup->fBankToDetectorMap;
   for(std::map<std::string, std::string>::iterator mapIter = bank_to_detector_map.begin();
       mapIter != bank_to_detector_map.end(); mapIter++) {

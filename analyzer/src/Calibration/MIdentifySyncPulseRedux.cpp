@@ -40,9 +40,9 @@ using std::string;
 using std::vector;
 using std::map;
 
-static INT MIdentifySyncPulse_init(void);
-static INT MIdentifySyncPulse_eor(INT);
-static INT MIdentifySyncPulse(EVENT_HEADER*, void*);
+static INT MIdentifySyncPulseRedux_init(void);
+static INT MIdentifySyncPulseRedux_eor(INT);
+static INT MIdentifySyncPulseRedux(EVENT_HEADER*, void*);
 static vector<double> calculate_and_sort_times(const vector<TPulseIsland*>&, double);
 static vector<double> calculate_and_sort_times(const vector<int64_t>&, double);
 
@@ -52,21 +52,22 @@ namespace {
   // TH1* vvhNumMatches[NCRATE][10];
   // TH1* vvhIdentifySyncPulseJut[NCRATE][10];
   TNtuple* ntupIdentifySyncPulse[NCRATE];
-  const double COINC_WINDOW = 50000.; // +/- ns
+  //const double COINC_WINDOW = 50000.; // +/- ns
+  const double COINC_WINDOW = 10000.; // +/- ns
   string WFD_CORRESPONDING_TDC_CHAN[NCRATE][10];
   string WFD_BANK_NAME[NCRATE][10];
   string WFD_SYNC_CHAN[NCRATE];
   string TDC_SYNC_CHAN;
 }
 
-ANA_MODULE MIdentifySyncPulse_module =
+ANA_MODULE MIdentifySyncPulseRedux_module =
 {
-  "MIdentifySyncPulse",    /* module name           */
+  "MIdentifySyncPulseRedux",    /* module name           */
   "John R Quirk",          /* author                */
-  MIdentifySyncPulse,      /* event routine         */
+  MIdentifySyncPulseRedux,      /* event routine         */
   NULL,                    /* BOR routine           */
-  MIdentifySyncPulse_eor,  /* EOR routine           */
-  MIdentifySyncPulse_init, /* init routine          */
+  MIdentifySyncPulseRedux_eor,  /* EOR routine           */
+  MIdentifySyncPulseRedux_init, /* init routine          */
   NULL,                    /* exit routine          */
   NULL,                    /* parameter structure   */
   0,                       /* structure size        */
@@ -74,9 +75,9 @@ ANA_MODULE MIdentifySyncPulse_module =
 };
 
 /*--module init routine --------------------------------------------*/
-INT MIdentifySyncPulse_init() {
+INT MIdentifySyncPulseRedux_init() {
   TDirectory* cwd = gDirectory;
-  DIR = gDirectory->mkdir("IdentifySyncPulseOriginal/");
+  DIR = gDirectory->mkdir("IdentifySyncPulse/");
   DIR->cd();
 
 
@@ -102,7 +103,6 @@ INT MIdentifySyncPulse_init() {
       // sprintf(name, "hIdentifySyncPulseJut_%s", bank);
       // sprintf(title, "Factor %s pulses matched over asynchronous;Factor", det);
       // vvhIdentifySyncPulseJut[icrate][ich] = new TH1D(name, title, 1e4, 0, 1e4);
-
       // Record which TDC channel is matched with which WFD channel
       if (strncmp("Ge", det, 2) == 0)
 	WFD_CORRESPONDING_TDC_CHAN[icrate][ich] = gSetup->GetBankName("TGeCHT");
@@ -127,7 +127,7 @@ INT MIdentifySyncPulse_init() {
   return SUCCESS;
 }
 
-INT MIdentifySyncPulse_eor(INT run_number) {
+INT MIdentifySyncPulseRedux_eor(INT run_number) {
   TDirectory* cwd = gDirectory;
   DIR->cd();
   for (int icrate = 0; icrate < NCRATE; ++icrate) {
@@ -145,7 +145,7 @@ INT MIdentifySyncPulse_eor(INT run_number) {
 }
 
 /*-- module event routine -----------------------------------------*/
-INT MIdentifySyncPulse(EVENT_HEADER *pheader, void *pevent) {
+INT MIdentifySyncPulseRedux(EVENT_HEADER *pheader, void *pevent) {
   // Get the event number
   int midas_event_number = pheader->serial_number;
   const std::map< std::string, std::vector<TPulseIsland*> >& wfd_map =
@@ -241,7 +241,10 @@ std::vector<double> calculate_and_sort_times(const std::vector<TPulseIsland*>& t
   ts.reserve(tpis.size());
   for (int i = 0; i < tpis.size(); ++i)
     if (tpis[i]->GetPulseHeight() > PULSE_HEIGHT_CUT)
-      ts.push_back(tick*(tpis[i]->GetTimeStamp() + tpis[i]->GetPeakSample()));
+      // shift time by peak location time -- I think this is wrong      
+      //ts.push_back(tick*(tpis[i]->GetTimeStamp() + tpis[i]->GetPeakSample()));
+      // use Timestamp directly
+      ts.push_back(tick*(tpis[i]->GetTimeStamp()));
   std::sort(ts.begin(), ts.end());
   return ts;
 }
