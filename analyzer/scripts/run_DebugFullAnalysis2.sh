@@ -15,15 +15,20 @@
 
 # ALL CALIBRATIONS (NdetD and NdetU)
 # key: (AmBeD, AmBeD, AmBeU, AmBeU, CsU, CsD, NaU, NaD, YU, YD, BiU, BiD, BKG)
-#RunNumbers=( 7192 7193 7194 7195 7196 7197 7198 7199 7200 7201 7202 7203 7204 )
+# RunNumbers=( 7192 7193 7194 7195 7196 7197 7198 7199 7200 7201 7202 7203 7204 )
 # TEST
 # RunNumbers=( 7192 7193 )
 # Rerun failed - Cs U
 # RunNumbers=( 7196 )
-#RunNumbers=( 6892 )
-# Rerun failed - Cs D, Na U
-RunNumbers=( 7197 7198 )
+# Al golden
+RunNumbers=( 6892 )
+# Ndet Calibrations, Al Golden
+#RunNumbers=( 6892 7192 7193 7194 7195 7196 7197 7198 7199 7200 7201 7202 7203 7204 )
+# Ge Calibrations
+#RunNumbers=( 7238 7239 )
+# Bkg
+#RunNumbers=( 7204 )
 
 for Run in ${RunNumbers[@]}; do
-    bash BC501aCal_Base.sh $Run &
+    bash DebugFullAnalysis2_Base.sh $Run &
 done

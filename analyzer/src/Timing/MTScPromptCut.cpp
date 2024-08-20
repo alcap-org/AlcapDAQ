@@ -53,6 +53,8 @@ INT MTScPromptCut(EVENT_HEADER *pheader, void *pevent) {
   std::map< std::string, std::vector<TPulseIsland*> >& pulses_map =
     gData->fPulseIslandToChannelMap;
 
+  std::map< std::string, std::vector<int64_t> >& hits_map = gData->fTDCHitsToChannelMap;
+
   // Clear all bank this module creates.
   // Do not delete TPulseIslands since those are taken care of in
   // the ProcessRaws take care of that.
@@ -67,11 +69,12 @@ INT MTScPromptCut(EVENT_HEADER *pheader, void *pevent) {
   }
 
   const std::string mu_bank = gSetup->GetBankName("TTSc");
-  if (!pulsess_map.count(mu_bank)) {
+  if (!pulses_map.count(mu_bank)) {
     printf("MTScPromptCut: No TSc pulses to cut in bank %s!\n", mu_bank.c_str());
     return SUCCESS;
   }
   const std::vector<int64_t>& mu_pulses = hits_map[mu_bank];
+  //const std::vector<int64_t>& mu_pulses = pulses_map[mu_bank];
   const double mu_tick = gSetup->GetClockTick(mu_bank);
 
   std::map< std::string, std::vector<TPulseIsland*> >::const_iterator ipulmap;
@@ -86,7 +89,8 @@ INT MTScPromptCut(EVENT_HEADER *pheader, void *pevent) {
     for (int ipulse = 0, imu = 0; ipulse < pulses.size(); ++ipulse) {
       const double tpulse = pulse_tick * pulses[ipulse]->GetTimeStamp();
       for (; imu < mu_pulses.size(); ++imu) {
-        const double tmu = mu_tick * mu_pulses[imu]->GetTimeStamp();
+        //const double tmu = mu_tick * mu_pulses[imu]->GetTimeStamp();
+        const double tmu = mu_tick * mu_pulses[imu];
         if(tmu < tpulse - TIME_BEFORE)
           continue;
         else if (tmu < tpulse + TIME_AFTER)

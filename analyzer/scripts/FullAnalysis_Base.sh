@@ -3,14 +3,13 @@
 Run=$1
 RunDir="run_$Run"
 
-RawDataDir="$HOME/raw_rename_VM"
-ODBDataDir="$HOME/data/ckampa/AlCap_2015a/odb"
-# DataDir="$HOME/data/ckampa/AlCap_2015a/output_EnergyPlots_trun" # 09-12-23 testing existing EnergyPlots module
-# DataDir="$HOME/data/ckampa/AlCap_2015a/output_EnergyPlots" # 10-06-23 testing keeping more of the pulse in full integral (EnergyPlots module)
-DataDir="$HOME/data/ckampa/AlCap_2015a/output_Timing" # 03-08-24 adding TDC processing and IdentitySyncPulses
+# RawDataDir="$HOME/raw_rename_VM"
+# ODBDataDir="$HOME/data/ckampa/AlCap_2015a/odb"
+RawDataDir="/data/ckampa/AlCap_2015a/raw_rename"
+ODBDataDir="/data/ckampa/AlCap_2015a/odb"
+DataDir="/data/ckampa/AlCap_2015a/output_full_analysis_first" # 08-20-24 adding pulse timing analysis (no ADC to TDC pulse matching)
 mkdir -p $DataDir
-# AlcapanaPath="$HOME/coding/AlcapDAQ/analyzer/work/BC501a_Calibration"
-AlcapanaPath="$HOME/coding/AlcapDAQ/analyzer/work/ADC_TDC"
+AlcapanaPath="/home/ckampa/coding/AlcapDAQ/analyzer/work/full_analysis_first"
 
 echo Now running $Run
 # mkdir and chng dir -- to allow running many at once

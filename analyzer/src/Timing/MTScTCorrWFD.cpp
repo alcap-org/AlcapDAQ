@@ -38,7 +38,9 @@ extern TSetupData* gSetup;
 
 using namespace AlCap;
 namespace {
-  const double TIME_LOW = -20e3, TIME_HIGH = 20e3;
+  //const double TIME_LOW = -20e3, TIME_HIGH = 20e3;
+  //const double TIME_LOW = -3000, TIME_HIGH = 3000;
+  const double TIME_LOW = -2500., TIME_HIGH = 7500.; // ns
   TH1* vvhTScTCorrWFD[NCRATE][MAXNCHANWFD];
   TH1* vvhTScTCorrWFD_Norm[NCRATE][MAXNCHANWFD];
   std::string WFDBANKS[NCRATE][MAXNCHANWFD];
@@ -68,12 +70,14 @@ INT MTScTCorrWFD_init() {
       char bank[5]; sprintf(bank, "D%d%02d", icrate, ich);
       char histname[64]; sprintf(histname, "hTScTCorrWFD_%s", bank);
       char histtitle[64]; sprintf(histtitle, "TSc TCorr with %s", gSetup->GetDetectorName(bank).c_str());
-      vvhTScTCorrWFD[icrate][ich] = new TH1D(histname, histtitle, 20000, TIME_LOW, TIME_HIGH);
+      //vvhTScTCorrWFD[icrate][ich] = new TH1D(histname, histtitle, 1000, TIME_LOW, TIME_HIGH); // 10 ns
+      vvhTScTCorrWFD[icrate][ich] = new TH1D(histname, histtitle, 10000, TIME_LOW, TIME_HIGH); // 1 ns
       vvhTScTCorrWFD[icrate][ich]->GetXaxis()->SetTitle("Timing Difference WFD-TSc (ns)");
-      vvhTScTCorrWFD[icrate][ich]->Sumw2();
+      //vvhTScTCorrWFD[icrate][ich]->Sumw2();
       sprintf(histname, "hTScTCorrWFD_%s_norm", bank);
       sprintf(histtitle, "TSc TCorr with %s (Normalized)", gSetup->GetDetectorName(bank).c_str());
-      vvhTScTCorrWFD_Norm[icrate][ich] = new TH1D(histname, histtitle, 20000, TIME_LOW, TIME_HIGH);
+      //vvhTScTCorrWFD_Norm[icrate][ich] = new TH1D(histname, histtitle, 1000, TIME_LOW, TIME_HIGH); // 10 ns
+      vvhTScTCorrWFD_Norm[icrate][ich] = new TH1D(histname, histtitle, 10000, TIME_LOW, TIME_HIGH); // 1 ns
       vvhTScTCorrWFD_Norm[icrate][ich]->GetXaxis()->SetTitle("Timing Difference WFD-TSc (ns)");
       vvhTScTCorrWFD_Norm[icrate][ich]->Sumw2();
       WFDBANKS[icrate][ich] = bank;

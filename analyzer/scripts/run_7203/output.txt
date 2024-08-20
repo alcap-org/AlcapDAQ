@@ -1,0 +1,74 @@
+This file indicates the run number is 7203
+gMiasTreeOutputFileName = /data/ckampa/AlCap_2015a/output_full_analysis_first/tree07203.root
+sizes are 52
+MDT5730ProcessRaw_init
+MV1290ProcessRaw_init
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D400 (SyncCrate4)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D401 (V1724_1)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D402 (V1724_2)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D403 (V1724_3)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D404 (V1724_4)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D405 (V1724_5)
+TDC bank T410, WFD bank D406, Detector GeCHEH
+TDC bank T410, WFD bank D407, Detector GeCHEL
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D500 (SyncCrate5)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D501 (LYSOC)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D502 (LYSOM)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D503 (DT5720_3)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D700 (BROKEN)
+TDC bank T410, WFD bank D701, Detector GeCHT
+TDC bank T407, WFD bank D702, Detector TSc
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D703 (DT5730_3)
+TDC bank T408, WFD bank D704, Detector NdetD
+TDC bank T409, WFD bank D705, Detector NdetU
+TDC bank T412, WFD bank D706, Detector LaBr3
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D707 (SyncCrate7)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D800 (V1720_0)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D801 (V1720_1)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D802 (V1720_2)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D803 (LYSOO)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D804 (V1720_4)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D805 (LYSOT)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D806 (V1720_6)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D807 (V1720_7)
+MTreeOutput: Attempting to recreate tree file /data/ckampa/AlCap_2015a/output_full_analysis_first/tree07203.root.
+Cannot open statistics record, probably other analyzer is using it
+Running analyzer offline. Stop with "!"
+Set run number 2015 in ODB
+Analyzer saw beginning of run 2015
+Set run number 7203 in ODB
+TEST MESSAGE: Read 0 events from bank D700 in event 1
+TEST MESSAGE: Read 41 events from bank D701 in event 1
+TEST MESSAGE: Read 3 events from bank D702 in event 1
+TEST MESSAGE: Read 1 events from bank D703 in event 1
+TEST MESSAGE: Read 3537 events from bank D704 in event 1
+TEST MESSAGE: Read 50 events from bank D705 in event 1
+TEST MESSAGE: Read 231 events from bank D706 in event 1
+TEST MESSAGE: Read 56 events from bank D707 in event 1
+TEST MESSAGE: Read 85 events from bank D400 in event 1
+TEST MESSAGE: Read 0 events from bank D401 in event 1
+TEST MESSAGE: Read 0 events from bank D402 in event 1
+TEST MESSAGE: Read 0 events from bank D403 in event 1
+TEST MESSAGE: Read 85 events from bank D404 in event 1
+TEST MESSAGE: Read 0 events from bank D405 in event 1
+TEST MESSAGE: Read 85 events from bank D406 in event 1
+TEST MESSAGE: Read 85 events from bank D407 in event 1
+TEST MESSAGE: Read 158416 events from bank T400 in event 1
+TEST MESSAGE: Read 880 events from bank T401 in event 1
+TEST MESSAGE: Read 34 events from bank T402 in event 1
+TEST MESSAGE: Read 0 events from bank T403 in event 1
+TEST MESSAGE: Read 217 events from bank T404 in event 1
+TEST MESSAGE: Read 25729 events from bank T405 in event 1
+TEST MESSAGE: Read 24 events from bank T406 in event 1
+TEST MESSAGE: Read 51 events from bank T407 in event 1
+TEST MESSAGE: Read 62607 events from bank T408 in event 1
+TEST MESSAGE: Read 968 events from bank T409 in event 1
+TEST MESSAGE: Read 286 events from bank T410 in event 1
+TEST MESSAGE: Read 87 events from bank T411 in event 1
+TEST MESSAGE: Read 4155 events from bank T412 in event 1
+TEST MESSAGE: Read 467 events from bank T413 in event 1
+TEST MESSAGE: Read 42 events from bank T414 in event 1
+TEST MESSAGE: Read 1 events from bank T415 in event 1
+Info in <TCanvas::MakeDefCanvas>:  created default TCanvas with name c1
+/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.Bi207_36MeV_C.run07203.mid:100  /data/ckampa/AlCap_2015a/output_full_analysis_first/hist07203.root:99  events/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.Bi207_36MeV_C.run07203.mid:200  /data/ckampa/AlCap_2015a/output_full_analysis_first/hist07203.root:199  events/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.Bi207_36MeV_C.run07203.mid:300  /data/ckampa/AlCap_2015a/output_full_analysis_first/hist07203.root:299  events/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.Bi207_36MeV_C.run07203.mid:400  /data/ckampa/AlCap_2015a/output_full_analysis_first/hist07203.root:399  events/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.Bi207_36MeV_C.run07203.mid:500  /data/ckampa/AlCap_2015a/output_full_analysis_first/hist07203.root:499  events/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.Bi207_36MeV_C.run07203.mid:600  /data/ckampa/AlCap_2015a/output_full_analysis_first/hist07203.root:599  events/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.Bi207_36MeV_C.run07203.mid:700  /data/ckampa/AlCap_2015a/output_full_analysis_first/hist07203.root:699  events/data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.Bi207_36MeV_C.run07203.mid:800  /data/ckampa/AlCap_2015a/output_full_analysis_first/hist07203.root:799  events[odb.c:1612:db_lock_database] cannot lock database, ss_mutex_wait_for() status 408, aborting...
+Caught signal 6, exiting...

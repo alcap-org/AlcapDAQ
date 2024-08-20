@@ -20,6 +20,7 @@
 /* AlCap includes */
 #include "TGlobalData.h"
 #include "TSetupData.h"
+#include "AlCap.h"
 
 
 /*-- Module declaration --------------------------------------------*/
@@ -55,6 +56,8 @@ INT MTTScPromptCut(EVENT_HEADER *pheader, void *pevent) {
   std::map< std::string, std::vector<int64_t> >& hits_map =
     gData->fTDCHitsToChannelMap;
 
+
+  //printf("DEBUG! MTTScPromptCut Before pulse initializations.\n");
   // Clear all bank this module creates.
   // Do not delete TPulseIslands since those are taken care of in
   // the ProcessRaws take care of that.
@@ -68,26 +71,40 @@ INT MTTScPromptCut(EVENT_HEADER *pheader, void *pevent) {
       ipulses->second.clear();
   }
 
+  //printf("DEBUG! MTTScPromptCut Through pulse initializations.\n");
+
   const std::string mu_bank = gSetup->GetBankName("TTSc");
   if (!hits_map.count(mu_bank)) {
     printf("MGePromptCut: No TTSc hits to cut in bank %s!\n", mu_bank.c_str());
     return SUCCESS;
   }
   const std::vector<int64_t>& mu_hits = hits_map[mu_bank];
+  //const double tdc_tick = gSetup->GetClockTick(mu_bank);
+
+  //printf("DEBUG! MTTScPromptCut Grabbed mu_hits.\n");
 
   std::map< std::string, std::vector<TPulseIsland*> >::const_iterator ipulmap;
   for (ipulmap = pulses_map.begin(); ipulmap != pulses_map.end(); ++ipulmap) {
     if (ipulmap->first.length() != 4) continue;
+
+    //printf("Bank %s\n", ipulmap->first.c_str());
 
     const std::string filtered_bank = filtered_bank_prefix + ipulmap->first;
     const std::vector<TPulseIsland*>& pulses = ipulmap->second;
     std::vector<TPulseIsland*>& filtered_pulses = pulses_map[filtered_bank];
 
     for (int ipulse = 0, imu = 0; ipulse < pulses.size(); ++ipulse) {
+    //for (int ipulse = 0; ipulse < pulses.size(); ++ipulse) {
+      //if (ipulse == 0) printf("DEBUG! MTTScPromptCut first pulse.\n");
+      //if (ipulmap->first == "D707") printf("%d:\n", ipulse);
       const double tpulse = pulses[ipulse]->GetPulseTime();
+      //int imu = 0;
       for (; imu < mu_hits.size(); ++imu) {
-        static const double tdc_tick = 0.025; // ns
-        const double tmu = tdc_tick * mu_hits[imu];
+        //if (imu == 0) printf("DEBUG! MTTScPromptCut first TSc hit.\n");
+        //if (ipulmap->first == "D707") printf("%d, ", imu);
+        //static const double tdc_tick = 0.025; // ns
+        //const double tmu = tdc_tick * mu_hits[imu];
+        const double tmu = AlCap::TICKTDC * mu_hits[imu];
         if(tmu < tpulse - TIME_BEFORE)
           continue;
         else if (tmu < tpulse + TIME_AFTER)
@@ -96,8 +113,12 @@ INT MTTScPromptCut(EVENT_HEADER *pheader, void *pevent) {
       }
       if (imu == mu_hits.size())
         filtered_pulses.push_back(pulses[ipulse]);
+      //if (ipulse == 0) printf("DEBUG! MTTScPromptCut first pulse, through TSc hits loop.\n");
+      //if (ipulmap->first == "D707") printf("\n");
     }
   }
+
+  //printf("Successfully ran MTTScPromptCut.\n");
 
   return SUCCESS;
 }

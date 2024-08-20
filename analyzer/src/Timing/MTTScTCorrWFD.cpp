@@ -41,8 +41,10 @@ using std::map;
 using std::vector;
 namespace {
   TDirectory* DIR;
-  const double TIME_LOW = -3000., TIME_HIGH = 3000.;
-  TH2* vvhTTScTCorrWFDT[NCRATE][MAXNCHANWFD];
+  //const double TIME_LOW = -3000., TIME_HIGH = 3000.;
+  const double TIME_LOW = -2500., TIME_HIGH = 7500.; // ns
+  //TH2* vvhTTScTCorrWFDT[NCRATE][MAXNCHANWFD];
+  TH1* vvhTTScTCorrWFDT[NCRATE][MAXNCHANWFD];
   TH2* vvhTTScTCorrWFDE[NCRATE][MAXNCHANWFD];
   TH2* vvhTTScTCorrWFDT_Norm[NCRATE][MAXNCHANWFD];
   TH2* vvhTTScTCorrWFDE_Norm[NCRATE][MAXNCHANWFD];
@@ -80,10 +82,11 @@ INT MTTScTCorrWFD_init() {
       sprintf(title,
               "TTSc timing correlation %s;WFD-TTSc Time (ns);Time WFD (ns)",
               gSetup->GetDetectorName(bank).c_str());
-      vvhTTScTCorrWFDT[icrate][ich] = new TH2D(name, title,
-					       1000, TIME_LOW, TIME_HIGH,
-					       200,  0.,       120.e6);
-      vvhTTScTCorrWFDT[icrate][ich]->Sumw2();
+      //vvhTTScTCorrWFDT[icrate][ich] = new TH2D(name, title,
+			//		       1000, TIME_LOW, TIME_HIGH,
+			//		       200,  0.,       120.e6);
+      vvhTTScTCorrWFDT[icrate][ich] = new TH1D(name, title, 10000, TIME_LOW, TIME_HIGH); // 1 ns
+      //vvhTTScTCorrWFDT[icrate][ich]->Sumw2();
       
       sprintf(name, "hTTScTCorrWFD_%s_E", bank);
       sprintf(title,
@@ -169,7 +172,8 @@ INT MTTScTCorrWFD(EVENT_HEADER *pheader, void *pevent) {
           if (dt < TIME_LOW) {
             break;
 	  } else if (dt < TIME_HIGH) {
-            vvhTTScTCorrWFDT[icrate][ich]->Fill(dt, t);
+            //vvhTTScTCorrWFDT[icrate][ich]->Fill(dt, t);
+            vvhTTScTCorrWFDT[icrate][ich]->Fill(dt);
 	    vvhTTScTCorrWFDE[icrate][ich]->Fill(dt, e);
             vvhTTScTCorrWFDT_Norm[icrate][ich]->Fill(dt, t, norm);
 	    vvhTTScTCorrWFDE_Norm[icrate][ich]->Fill(dt, e, norm);

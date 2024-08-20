@@ -46,7 +46,8 @@ static INT MTDCWFDTCorr(EVENT_HEADER*, void*);
 
 namespace {
   TDirectory * DIR;
-  const double TIME_LOW = -1e5, TIME_HIGH = 5e5; //ns
+  //const double TIME_LOW = -1e5, TIME_HIGH = 5e5; //ns
+  const double TIME_LOW = -2500, TIME_HIGH = 7500; //ns
   TH2* vvhTDCWFDTCorrT[NCRATE][MAXNCHANWFD];
   TH2* vvhTDCWFDTCorrE[NCRATE][MAXNCHANWFD];
   TH2* vvhTDCWFDTCorrT_Norm[NCRATE][MAXNCHANWFD];
@@ -99,7 +100,8 @@ INT MTDCWFDTCorr_init() {
 	     tdc_bank, wfd_bank, det.c_str());
       char hist[128];
       sprintf(hist, "hTDCWFDTCorr_%s_T", det.c_str());
-      vvhTDCWFDTCorrT[icrate][ich] = new TH2D(hist, hist, 2000, TIME_LOW, TIME_HIGH, 200, 0., 100.e6);
+      //vvhTDCWFDTCorrT[icrate][ich] = new TH2D(hist, hist, 2000, TIME_LOW, TIME_HIGH, 200, 0., 100.e6);
+      vvhTDCWFDTCorrT[icrate][ich] = new TH2D(hist, hist, 40000, TIME_LOW, TIME_HIGH, 200, 0., 100.e6);
       vvhTDCWFDTCorrT[icrate][ich]->Sumw2();
       vvhTDCWFDTCorrT[icrate][ich]->SetTitle("Timing Correlation");
       vvhTDCWFDTCorrT[icrate][ich]->GetXaxis()->SetTitle("Timing Difference TDC-WFD (ns)");

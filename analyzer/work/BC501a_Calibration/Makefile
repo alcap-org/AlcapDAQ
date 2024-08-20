@@ -1,4 +1,5 @@
-all: alcapana libDataClasses.so libDataClasses.rootmap
+all: alcapana libDataClasses.so
+# all: alcapana libDataClasses.so libDataClasses.rootmap
 
 .PHONY: clean print all
 
@@ -108,8 +109,8 @@ DataLibraryDict.cpp: $(DATA_LIBRARY_HEADERS) ../../src/common/DataLibraryLinkDef
 libDataClasses.so: $(DATA_LIBRARY_OBJS) DataLibraryDict.o
 	$(CXX) $(ICCLIBS) $(ROOT_LIBS) -shared -o libDataClasses.so $(shell root-config --ldflags) -I$(ROOTSYS)/include $^ -lMinuit -lPhysics
 
-libDataClasses.rootmap: libDataClasses.so ../../src/common/DataLibraryLinkDef.h
-	rlibmap -f -o libDataClasses.rootmap -l libDataClasses.so -d libCore -c ../../src/common/DataLibraryLinkDef.h
+# libDataClasses.rootmap: libDataClasses.so ../../src/common/DataLibraryLinkDef.h
+# 	rlibmap -f -o libDataClasses.rootmap -l libDataClasses.so -d libCore -c ../../src/common/DataLibraryLinkDef.h
 
 #$(INCLUDE_DIRS)/DataLibraryLinkDef.h
 
@@ -119,7 +120,9 @@ decompressor.o: decompressor.c
 
 clean: 
 	rm -f *.d *.o *Dict.cpp *Dict.h MODULES.h Makefile.MODULES \
-	alcapana libDataClasses.so libDataClasses.rootmap
+	alcapana libDataClasses.so
+
+	# alcapana libDataClasses.so libDataClasses.rootmap
 
 print: 
 	@echo "DATA_CLASSES = $(DATA_CLASSES)"; echo

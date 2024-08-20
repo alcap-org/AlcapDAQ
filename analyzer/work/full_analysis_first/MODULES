@@ -1,10 +1,3 @@
-#common/MUnCompressRawData
-#dt5720/MDT5720ProcessRaw
-# dt5730/MDT5730ProcessRaw
-#v1724/MV1724ProcessRaw
-#v1720/MV1720ProcessRaw
-#v1290/MV1290ProcessRaw
-
 # crate 7 -- TSc, NdetD, NdetU, LaBr3, GeCHT, Sync
 dt5730/MDT5730ProcessRaw
 # crate 4 -- GeCHEH, GeCHEL, Sync
@@ -12,18 +5,12 @@ v1724/MV1724ProcessRaw
 # TDC
 v1290/MV1290ProcessRaw
 
+# sort pulses
 common/MWFDSort
 common/MTDCSort
-#caen/MCAENPulseIslandStitch
-
-#Diagnostics
-#dt5720/MDT5720Errors
-#dt5730/MDT5730Errors
-#data_quality/MDQ_DigitizerOverflow
 
 #Calibrations
 Scaler/MMuonCounter
-#Calibration/MIdentifySyncPulse
 # note: MMuonCoutner must be run first, otherwise normalization plots don't make sense.
 # I renamed Directory to IdentifySyncPulseOriginal for making comparisons.
 # Note this must come first, so that the values stored in TGD get replaced by the newer analyzer below.
@@ -33,15 +20,10 @@ Calibration/MIdentifySyncPulse
 # includes ntuple per crate to import the SyncPulse in python.
 Calibration/MIdentifySyncPulseRedux
 
-#Analysis
-#Timing/MSyncCount
-#Scaler/MTDCHitCounter
-#data_quality/MDQ_IslandCounter
-
 # Waveform pulse dumper (ntuple) for MIdentifySyncPulse algorithm development (python)
-Timing/MWaveformTimeNtupler
+#Timing/MWaveformTimeNtupler
 
-# USED FOR CALIBRATION
+# USED FOR CALIBRATION AND GENERAL ENERGY OF PULSES
 # original
 # Energy/MEnergyPlots
 # with edits -- Cole
@@ -53,7 +35,7 @@ Energy/MEnergyPlotsRedux
 Timing/MTDCHitTimeRedux
 
 # TDC WFD alignment (Fig 5.10)
-physics/MTDCWFDMatch
+###physics/MTDCWFDMatch
 # pulling from timing below -- matching to plots in thesis
 # Fig 5.10 might better be derived from here
 Timing/MTDCWFDTCorr
@@ -61,7 +43,7 @@ Timing/MTDCWFDTCorr
 # includes vetos (which are TDC only)
 Timing/MTTScTCorrTDC
 # same as previous, but including only the "best" (closest) correlation for each TDC pulse, rather than an entry for every TTSc hit.
-Timing/MTTScTCorrTDCBest
+###Timing/MTTScTCorrTDCBest
 # no plot, but related to the above, for WFD offsets
 # revisiting this after 8/5/24 meeting. Andy mentioned ADC/TDC pulse matching never worked in 2015b.
 # this module compares ADC to ADC, which may be enough.
@@ -70,29 +52,8 @@ Timing/MTScTCorrWFD
 # same as above, but use the TSc TDC
 Timing/MTTScTCorrWFD
 
-### OTHER TIMING TESTS
-# simple prompt cut (TSc) from John Quirk. Does not account for the time offsets b/w detector and TSc
-# uses only the WFD (pulse) Timestamps, not the TDC.
-#Timing/MTTScPromptCut
-# plot the previous, adding pulse height histogram after the cut
-#Timing/MTTScPromptCutPlot
-
-####
-#data_quality/MDQ_IslandTimestamp
-#data_quality/MDQ_IslandLength
-#data_quality/MDQ_Amplitude
-#data_quality/MDQ_Integral
-#data_quality/MDQ_IntegralRatio
-
-#Timing/MTDCWFDTCorr
-#Timing/MTTScTCorrTDC
-#Timing/MTScTCorrWFD
-#Timing/MTDCWFDMatchEff
+# Timing analysis: finding nearest TSc pulses, nearest vetos, etc.
+Timing/MTTScWFDTimeNtupler
 
 #Mandatory
-#vacuum/MVacuumHisto
-
 common/MTreeOutput
-# "UPDATE" tree file.
-# this is now done in a script.
-# Timing/MTDCTreeFill

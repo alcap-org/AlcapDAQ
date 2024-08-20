@@ -3,17 +3,19 @@
 Run=$1
 RunDir="run_$Run"
 
-# RawDataDir="$HOME/raw_rename_VM"
-# ODBDataDir="$HOME/data/ckampa/AlCap_2015a/odb"
-# # DataDir="$HOME/data/ckampa/AlCap_2015a/output_EnergyPlots_trun" # 09-12-23 testing existing EnergyPlots module
-# DataDir="$HOME/data/ckampa/AlCap_2015a/output_EnergyPlots" # 10-06-23 testing keeping more of the pulse in full integral (EnergyPlots module)
-# mkdir -p $DataDir
-# AlcapanaPath="$HOME/coding/AlcapDAQ/analyzer/work/BC501a_Calibration"
-
+#RawDataDir="$HOME/raw_rename_VM"
+#ODBDataDir="$HOME/data/ckampa/AlCap_2015a/odb"
 RawDataDir="/data/ckampa/AlCap_2015a/raw_rename"
 ODBDataDir="/data/ckampa/AlCap_2015a/odb"
-DataDir="/data/ckampa/AlCap_2015a/output_EnergyPlots" # revived 08-01-24 for running in container
-AlcapanaPath="/home/ckampa/coding/AlcapDAQ/analyzer/work/BC501a_Calibration" # trailing / ?
+# DataDir="$HOME/data/ckampa/AlCap_2015a/output_EnergyPlots_trun" # 09-12-23 testing existing EnergyPlots module
+# DataDir="$HOME/data/ckampa/AlCap_2015a/output_EnergyPlots" # 10-06-23 testing keeping more of the pulse in full integral (EnergyPlots module)
+#DataDir="$HOME/data/ckampa/AlCap_2015a/output_Timing" # 03-08-24 adding TDC processing and IdentitySyncPulses
+#DataDir="$HOME/data/ckampa/AlCap_2015a/output_debug" # 03-08-24 adding TDC processing and IdentitySyncPulses
+DataDir="/data/ckampa/AlCap_2015a/output_debug" # 03-08-24 adding TDC processing and IdentitySyncPulses
+mkdir -p $DataDir
+# AlcapanaPath="$HOME/coding/AlcapDAQ/analyzer/work/BC501a_Calibration"
+#AlcapanaPath="$HOME/coding/AlcapDAQ/analyzer/work/ADC_TDC"
+AlcapanaPath="/home/ckampa/coding/AlcapDAQ/analyzer/work/ADC_TDC"
 
 echo Now running $Run
 # mkdir and chng dir -- to allow running many at once

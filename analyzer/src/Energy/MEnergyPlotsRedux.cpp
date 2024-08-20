@@ -490,10 +490,13 @@ float MEnergyPlotsRedux_GetPedestalIntegral(int start, int end, float& pedSlope,
 float MEnergyPlotsRedux_GetIntegral(const std::vector<int>& samples, int start_ind, int end_ind){
   float integral = 0.0;  
   //int nInt = 0;
-  int lastSamp = 0;
+  // needed for Simpsons
+  //int lastSamp = 0;
   const int nSamp = samples.size();
   if(start_ind == -1000) start_ind=0;
   if(end_ind == -1000) end_ind=nSamp;
+  // Simpsons
+  /*
   const int nSamp_ = end_ind - start_ind;
   for(int i = start_ind; i+2 < end_ind; i += 2){
     //if(samples.at(i) == 0 || samples.at(i+1) == 0) overflow = true;
@@ -513,9 +516,17 @@ float MEnergyPlotsRedux_GetIntegral(const std::vector<int>& samples, int start_i
     //integral += 0.5 * (samples.at(nSamp-1) + samples.at(nSamp));
     //nInt++;
   //}
+  */
+  // sum
+  for(int i = start_ind; i < end_ind; i++){
+    //if(samples.at(i) == 0 || samples.at(i+1) == 0) overflow = true;
+    //if(samples.at(i) == std::pow(2, nbits) || samples.at(i+1) == std::pow(2, nbits)) overflow = true;
+    integral += samples.at(i);
+    //nInt += 2;
+    //lastSamp = i+2;
+  }
 
   return integral;
 }
-
 
 
