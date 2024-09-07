@@ -6,8 +6,8 @@
 // I have noticed variations in some of the offset values between targets. This should be investigated later.
 
 
-// Typical ordering: NdetD, NdetU, NdetDV, NdetUV (veto not always present)
-// FIXME! Need to add Ge detector and veto, TScV, and TSc
+// Typical ordering: NdetD, NdetU, NdetDV, NdetUV, TVSc (veto not always present)
+// FIXME! Need to add Ge detector and veto, and TSc (pulse matching)
 namespace AlCap {
   // Timing/MTDCWFDTCorr.cpp
   // dt = detTDC - detADC
@@ -20,5 +20,5 @@ namespace AlCap {
   const double detADC_min_TScTDC[2] = {42.37, 20.78};
   // Timing/MTTScTCorrTDC.cpp
   // dt = detTDC - TScTDC
-  const double detTDC_min_TScTDC[4] = {57.93, 39.57, 2.65, 7.56};
+  const double detTDC_min_TScTDC[5] = {57.93, 39.57, 2.65, 7.56, 9.05};
 }

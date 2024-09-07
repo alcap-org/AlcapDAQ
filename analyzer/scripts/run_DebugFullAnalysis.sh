@@ -38,7 +38,7 @@
 # rerunning some
 #RunNumbers=( 6892 6905 7050 7188 7202 7240 7311 7426 )
 # rerunning again
-RunNumbers=( 7360 7205 7284 7203 7384 )
+#RunNumbers=( 7360 7205 7284 7203 7384 )
 ####
 # Ndet Calibrations, Al Golden
 #RunNumbers=( 6892 7192 7193 7194 7195 7196 7197 7198 7199 7200 7201 7202 7203 7204 )
@@ -46,6 +46,8 @@ RunNumbers=( 7360 7205 7284 7203 7384 )
 #RunNumbers=( 7238 7239 )
 # Bkg
 #RunNumbers=( 7204 )
+# Pb test
+RunNumbers=( 5433 )
 
 for Run in ${RunNumbers[@]}; do
     bash DebugFullAnalysis_Base.sh $Run &
