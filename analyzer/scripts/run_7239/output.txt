@@ -1,0 +1,34 @@
+This file indicates the run number is 7239
+gMiasTreeOutputFileName = /data/ckampa/AlCap_2015a/output_full_analysis_first_CF/tree07239.root
+sizes are 52
+MDT5730ProcessRaw_init
+MV1290ProcessRaw_init
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D400 (SyncCrate4)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D401 (V1724_1)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D402 (V1724_2)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D403 (V1724_3)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D404 (V1724_4)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D405 (V1724_5)
+TDC bank T410, WFD bank D406, Detector GeCHEH
+TDC bank T410, WFD bank D407, Detector GeCHEL
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D500 (SyncCrate5)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D501 (LYSOC)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D502 (LYSOM)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D503 (DT5720_3)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D700 (BROKEN)
+TDC bank T410, WFD bank D701, Detector GeCHT
+TDC bank T407, WFD bank D702, Detector TSc
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D703 (DT5730_3)
+TDC bank T408, WFD bank D704, Detector NdetD
+TDC bank T409, WFD bank D705, Detector NdetU
+TDC bank T412, WFD bank D706, Detector LaBr3
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D707 (SyncCrate7)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D800 (V1720_0)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D801 (V1720_1)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D802 (V1720_2)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D803 (LYSOO)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D804 (V1720_4)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D805 (LYSOT)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D806 (V1720_6)
+INFO: MTDCWFDTCorr: No corresponding TDC for bank D807 (V1720_7)
+MTreeOutput: Attempting to recreate tree file /data/ckampa/AlCap_2015a/output_full_analysis_first_CF/tree07239.root.

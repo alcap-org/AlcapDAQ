@@ -180,6 +180,21 @@ INT module_event_caen_std(uint32_t* p32, const int nbytes) {
       std::vector<int> sample_vector;
       const int ichannel = bankNameIter - bank_names.begin();
 
+      // bool CF_time = true;
+      // apply to all DT5730 dets except pulser
+      // std::string detname = gSetup->GetDetectorName(*bankNameIter);
+      // if (detname.find("Sync") != std::string::npos) {
+      //   CF_time = false;
+      // }
+      // alternative: only select few detectors to apply CF
+      // std::string detname = gSetup->GetDetectorName(*bankNameIter);
+      // bool CF_time = false;
+      // if ((detname.find("Ndet") != std::string::npos) || (detname.find("TSc") != std::string::npos) || (detname.find("Ge") != std::string::npos)) {
+      //   CF_time = true;
+      // }
+      // do not apply
+      bool CF_time = false;
+
       if (caen_channel_mask & (1<<ichannel)) {
         for (int iword=0; iword<nwords; ++iword, ++p32) {
           for (int isample=0; isample<2; ++isample) {
@@ -187,7 +202,7 @@ INT module_event_caen_std(uint32_t* p32, const int nbytes) {
             sample_vector.push_back(adc);
           }
         }
-        pulse_islands.push_back(new TPulseIsland(caen_trigger_time, sample_vector, *bankNameIter));
+        pulse_islands.push_back(new TPulseIsland(caen_trigger_time, sample_vector, *bankNameIter, CF_time));
       }
     }
   }
@@ -219,12 +234,27 @@ INT module_event_caen_dpp(uint32_t* p32, const int nbytes) {
       if (board.channel_enabled(ich)) {
         char bankname[5];
         sprintf(bankname, "D7%02d", ich);
+        // bool CF_time = true;
+        // // apply to all DT5730 dets except pulser
+        // std::string detname = gSetup->GetDetectorName(bankname);
+        // if (detname.find("Sync") != std::string::npos) {
+        //   CF_time = false;
+        // }
+        // alternative: only select few detectors to apply CF
+        // std::string detname = gSetup->GetDetectorName(bankname);
+        // bool CF_time = false;
+        // if ((detname.find("Ndet") != std::string::npos) || (detname.find("TSc") != std::string::npos) || (detname.find("Ge") != std::string::npos)) {
+        //   CF_time = true;
+        // }
+        // do not apply
+        bool CF_time = false;
+
         std::vector<TPulseIsland*>& pulses = pulses_map[bankname];
         const DT5730ChannelData& channel = board.channel_data(ich);
         for (int ievt = 0; ievt < channel.num_events(); ++ievt) {
           pulses.push_back(new TPulseIsland(channel.time_tag(ievt),
                                             channel.waveform(ievt),
-                                            bankname));
+                                            bankname, CF_time));
         }
       }
     }

@@ -198,9 +198,26 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
 
       char bankname[5];
       sprintf(bankname, "D4%02d", ich);
+      // bool CF_time = true;
+      // apply to all V1724 dets except pulser
+      // std::string detname = gSetup->GetDetectorName(bankname);
+      // if (detname.find("Sync") != std::string::npos) {
+      //   CF_time = false;
+      // }
+      // alternative: only select few detectors to apply CF
+      std::string detname = gSetup->GetDetectorName(bankname);
+      bool CF_time = false;
+      if (detname.find("Ge") != std::string::npos) {
+        CF_time = true;
+      }
+
       std::vector<TPulseIsland*>& pulse_islands = pulse_islands_map[bankname];
-	    pulse_islands.push_back(new TPulseIsland(caen_trigger_time - nPreSamples,
-                                               sample_vector, bankname));
+	    // correct for presample size
+      // pulse_islands.push_back(new TPulseIsland(caen_trigger_time - nPreSamples,
+      //                                          sample_vector, bankname, CF_time));
+      // don't correct for presample size -- consistent with DT5730
+      pulse_islands.push_back(new TPulseIsland(caen_trigger_time,
+                                               sample_vector, bankname, CF_time));
     }
 
     // align the event by two bytes.

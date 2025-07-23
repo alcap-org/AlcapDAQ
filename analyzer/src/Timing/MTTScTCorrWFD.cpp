@@ -42,7 +42,8 @@ using std::vector;
 namespace {
   TDirectory* DIR;
   //const double TIME_LOW = -3000., TIME_HIGH = 3000.;
-  const double TIME_LOW = -2500., TIME_HIGH = 7500.; // ns
+  // const double TIME_LOW = -2500., TIME_HIGH = 7500.; // ns
+  const double TIME_LOW = -7500, TIME_HIGH = 7500; //ns lower end for Ge after CF
   //TH2* vvhTTScTCorrWFDT[NCRATE][MAXNCHANWFD];
   TH1* vvhTTScTCorrWFDT[NCRATE][MAXNCHANWFD];
   TH2* vvhTTScTCorrWFDE[NCRATE][MAXNCHANWFD];
@@ -165,7 +166,14 @@ INT MTTScTCorrWFD(EVENT_HEADER *pheader, void *pevent) {
 
       const double norm = 1./tpis.size();
       for (int i = 0, j0 = 0; i < tpis.size(); ++i) {
-        const double t = TICKWFD[icrate] * tpis[i]->GetTimeStamp() + toff;
+        double wfd_timestamp = 0;
+        if (tpis[i]->HasCFTime()) {
+          wfd_timestamp = tpis[i]->GetTimeStampCF();
+        } else {
+          wfd_timestamp = (double)tpis[i]->GetTimeStamp();
+        }
+        const double t = TICKWFD[icrate] * wfd_timestamp + toff;
+        //const double t = TICKWFD[icrate] * tpis[i]->GetTimeStamp() + toff;
 	const double e = tpis[i]->GetPulseHeight();
         for (int j = j0; j < hits.size(); ++j) {
 	  const double dt = t - TICKTDC * hits[j];

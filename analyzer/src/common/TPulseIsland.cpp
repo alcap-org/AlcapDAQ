@@ -9,23 +9,40 @@
 #include "TF1.h"
 #include "TSetupData.h"
 
+extern TSetupData* gSetup;
+
+/* AlCap includes */
+#include "tOffsets.h"
+
 using std::vector;
 using std::string;
 
-TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fBankName(""), fTDCTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
+TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fTimeStampCF(-1), fBankName(""), fTDCTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
 }
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>::const_iterator& first,
         const vector<int>::const_iterator& last, string bank_name) :
-  fSamples(first,last), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
+  fSamples(first,last), fTimeStamp(timestamp), fTimeStampCF(-1), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
 }
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name) :
-  fSamples(samples_vector), fTimeStamp(timestamp), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
+  fSamples(samples_vector), fTimeStamp(timestamp), fTimeStampCF(-1), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
+}
+
+// CF time bool
+TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name, bool do_CF) :
+  fSamples(samples_vector), fTimeStamp(timestamp), fTimeStampCF(-1), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
+
+    if (do_CF) {
+      string detname = gSetup->GetDetectorName(bank_name);
+      SetTimeStampCF(0.5, detname);
+    }
+
 }
 
 void TPulseIsland::Reset(Option_t* o) {
   fTimeStamp = 0;
+  fTimeStampCF = -1;
   fSamples.clear();
   fBankName = "";
   fTDCTime = -1;
@@ -37,6 +54,7 @@ void TPulseIsland::Reset(Option_t* o) {
   fEnergy = 0;
 }
 
+// GETTERS
 // GetAmplitude()
 // -- Gets the amplitude of the pulse
 double TPulseIsland::GetAmplitude() const {
@@ -77,6 +95,10 @@ double TPulseIsland::GetPulseHeight() const {
 
 double TPulseIsland::GetPulseTime() const {
   return fTimeStamp * GetClockTickInNs();
+}
+
+double TPulseIsland::GetPulseTimeCF() const {
+  return fTimeStampCF * GetClockTickInNs();
 }
 
 // GetPulseWaveform()
@@ -237,3 +259,48 @@ double TPulseIsland::GetEnergyFit(double fit) const{
   return energy;
 }
 
+// SETTERS
+void TPulseIsland::SetTimeStampCF(double frac, string detname) {
+  // FIXME! I think this is the same for each detector but may want an explicit check
+  //const int pretrigger = 40;
+  //const double pretrigger = 40;
+  // get pedestal, amp, polarity
+  const double ped = GetPedestal(10);
+  const int pol = GetTriggerPolarity();
+  const std::vector<int> samples = fSamples; // ADC indexed by tick number
+  double amp = GetAmplitude();
+  double cf = frac * amp; // threshold value
+
+  // loop until hitting threhsold
+  int t1 = 0;
+  int t2 = 1;
+  double s1 = (double)pol * ((double)samples[t1] - ped);
+  double s2 = (double)pol * ((double)samples[t2] - ped);
+
+  // loop until we bracket the cf value
+  while (t2 < (int)samples.size() && s2 < cf) {
+    ++t1;
+    ++t2;
+    s1 = (double)pol * ((double)samples[t1] - ped);
+    s2 = (double)pol * ((double)samples[t2] - ped);
+  }
+
+  // interpolate
+  double t_CF;
+  if (t2 >= (int)samples.size() || s2 == s1) {
+    t_CF = (double)t1;
+  } else {
+    // diff from cf threshold and value at leading edge, divided by slope gives interpolation correction
+    t_CF = (cf - s1) / (s2 - s1) + (double)t1;
+  }
+
+  // report timestamp w.r.t. DAQ fTimeStamp, which is triggered at absolute value of the pulse
+  //fTimeStampCF = fTimeStamp + t_CF;
+  // correct for pretrigger
+  // FIXME! I think this is the same for each detector but may want an explicit check
+  //fTimeStampCF = fTimeStamp - (double)AlCap::pretrigger + t_CF;
+  // double pretrigger = AlCap::fDetectorToPretriggerMap[detname]; // DOES NOT EXPLICITLY CHECK THAT KEY EXISTS!
+  double pretrigger = AlCap::fDetectorToPretriggerMap.at(detname); // throws out_of_range if key is missing
+  fTimeStampCF = fTimeStamp - pretrigger + t_CF;
+
+}

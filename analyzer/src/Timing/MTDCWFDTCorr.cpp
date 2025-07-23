@@ -47,7 +47,8 @@ static INT MTDCWFDTCorr(EVENT_HEADER*, void*);
 namespace {
   TDirectory * DIR;
   //const double TIME_LOW = -1e5, TIME_HIGH = 5e5; //ns
-  const double TIME_LOW = -2500, TIME_HIGH = 7500; //ns
+  //const double TIME_LOW = -2500, TIME_HIGH = 7500; //ns
+  const double TIME_LOW = -7500, TIME_HIGH = 7500; //ns lower end for Ge after CF
   TH2* vvhTDCWFDTCorrT[NCRATE][MAXNCHANWFD];
   TH2* vvhTDCWFDTCorrE[NCRATE][MAXNCHANWFD];
   TH2* vvhTDCWFDTCorrT_Norm[NCRATE][MAXNCHANWFD];
@@ -173,12 +174,18 @@ INT MTDCWFDTCorr(EVENT_HEADER *pheader, void *pevent) {
       for (int t = 0, p0 = 0; t < times.size(); ++t) {
 	const double norm = 2./(times.size()+pulses.size());
         for (int p = p0; p < pulses.size(); ++p) {
-	  double time_wfd = 0;
+	  //double time_wfd = 0; // UNUSED
 	  const vector<int>& samples = pulses[p]->GetSamples();
+    double wfd_timestamp = 0;
+    if (pulses[p]->HasCFTime()) {
+      wfd_timestamp = pulses[p]->GetTimeStampCF();
+    } else {
+      wfd_timestamp = (double)pulses[p]->GetTimeStamp();
+    }
 
 
           const double dt = TICKTDC*times[t] -
-                            TICKWFD[icrate]*pulses[p]->GetTimeStamp() -
+                            TICKWFD[icrate]*wfd_timestamp -
 	                    toff;
           if (dt < TIME_LOW) {
             break;

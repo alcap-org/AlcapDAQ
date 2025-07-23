@@ -40,7 +40,9 @@ using namespace AlCap;
 namespace {
   //const double TIME_LOW = -20e3, TIME_HIGH = 20e3;
   //const double TIME_LOW = -3000, TIME_HIGH = 3000;
-  const double TIME_LOW = -2500., TIME_HIGH = 7500.; // ns
+  // const double TIME_LOW = -2500., TIME_HIGH = 7500.; // ns
+  const double TIME_LOW = -7500, TIME_HIGH = 7500; //ns lower end for Ge after CF
+  // const double TIME_LOW = -5000, TIME_HIGH = 10000; //ns Ge high end increased (test)
   TH1* vvhTScTCorrWFD[NCRATE][MAXNCHANWFD];
   TH1* vvhTScTCorrWFD_Norm[NCRATE][MAXNCHANWFD];
   std::string WFDBANKS[NCRATE][MAXNCHANWFD];
@@ -115,7 +117,13 @@ INT MTScTCorrWFD(EVENT_HEADER *pheader, void *pevent) {
       const std::vector<TPulseIsland*>& tpis = wfd_map.at(WFDBANKS[icrate][ich]);
       const double norm = 1./tpis.size();
       for (int i = 0, j0 = 0; i < tpis.size(); ++i) {
-        const double t = TICKWFD[icrate] * tpis[i]->GetTimeStamp();
+        double wfd_timestamp = 0;
+        if (tpis[i]->HasCFTime()) {
+          wfd_timestamp = tpis[i]->GetTimeStampCF();
+        } else {
+          wfd_timestamp = (double)tpis[i]->GetTimeStamp();
+        }
+        const double t = TICKWFD[icrate] * wfd_timestamp;
         for (int j = j0; j < ref_tpis.size(); ++j) {
           const double dt = t - tickref * ref_tpis[j]->GetTimeStamp();
           if (dt < TIME_LOW) {

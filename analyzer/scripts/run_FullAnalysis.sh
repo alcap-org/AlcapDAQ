@@ -2,7 +2,10 @@
 
 # ALL CALIBRATIONS (NdetD and NdetU)
 # key: (AmBeD, AmBeD, AmBeU, AmBeU, CsU, CsD, NaU, NaD, YU, YD, BiU, BiD, BKG)
-# RunNumbers=( 7192 7193 7194 7195 7196 7197 7198 7199 7200 7201 7202 7203 7204 )
+#RunNumbers=( 7192 7193 7194 7195 7196 7197 7198 7199 7200 7201 7202 7203 7204 )
+RunNumbers=( 7192 7193 7194 7195 7204 )
+# rerun
+#RunNumbers=( 7201 )
 # TEST
 # RunNumbers=( 7192 7193 )
 # Rerun failed - Cs U
@@ -81,7 +84,7 @@
 ###
 ####
 # Pb Runs
-RunNumbers=( 5433 5434 5435 5436 5437 5438 5439 5440 5441 5442 )
+#RunNumbers=( 5433 5434 5435 5436 5437 5438 5439 5440 5441 5442 )
 ###
 #RunNumbers=( 5433 )
 #RunNumbers=( 5434 5435 5436 5437 5438 5439 5440 5441 5442 )

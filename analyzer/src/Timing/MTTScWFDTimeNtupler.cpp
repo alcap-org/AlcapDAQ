@@ -40,13 +40,16 @@
 using namespace AlCap;
 //using namespace std;
 namespace {
+  // ntuples for timing of different detectors
   std::map<std::string, TNtuple*> Ntuple_map;
+  // ntuple for number of hits in the event from TTSc
+  TNtuple* Ntuple_Nhits;
   bool firstEvent = true;
   std::string TTSCBANK;
   std::string TVSCBANK;
   // time offset maps
-  std::map<std::string, double> detADC_min_TScTDC_map{{"NdetD", detADC_min_TScTDC[0]}, {"NdetU", detADC_min_TScTDC[1]}};
-  std::map<std::string, double> detTDC_min_TScTDC_map{{"TNdetDV", detTDC_min_TScTDC[2]}, {"TNdetUV", detTDC_min_TScTDC[3]}, {"TVSc", detTDC_min_TScTDC[4]}};
+  std::map<std::string, double> detADC_min_TScTDC_map{{"NdetD", detADC_min_TScTDC[0]}, {"NdetU", detADC_min_TScTDC[1]}, {"GeCHEH", detADC_min_TScTDC[2]}};
+  std::map<std::string, double> detTDC_min_TScTDC_map{{"TNdetDV", detTDC_min_TScTDC[2]}, {"TNdetUV", detTDC_min_TScTDC[3]}, {"TVSc", detTDC_min_TScTDC[4]}, {"TGeV", detTDC_min_TScTDC[6]}};
   double PU=10000.; // +-10 micros
   //double PU=2000.; // +-2 micros
   // PUV
@@ -107,7 +110,8 @@ INT MTTScWFDTimeNtupler_BookHistograms()
     std::string bankname = mIter->first;
     std::string detname = gSetup->GetDetectorName(bankname);
 
-    if (detname != "NdetD" && detname != "NdetU") continue;
+    //if (detname != "NdetD" && detname != "NdetU") continue;
+    if (detname != "NdetD" && detname != "NdetU" && detname != "GeCHEH") continue;
 
     // ntuple
     // stores: Integral, Amplitude
@@ -121,6 +125,12 @@ INT MTTScWFDTimeNtupler_BookHistograms()
     Ntuple_map[bankname] = ntuple;
     
   }
+  // setup ntuple for Nhits
+  std::string nname = "ntup_NHits_TTSc";
+  std::string ntitle = "ntuple for N Hits in TTSc";
+  TNtuple* ntuple_hits = new TNtuple(nname.c_str(), ntitle.c_str(), "Event:N_TTSc:N_TVSc:N_TTSc_PU:N_TTSc_PUV");
+  ntuple_hits->SetAutoSave(0);
+  Ntuple_Nhits = ntuple_hits;
   // extra setup
   // bankname for TSc
   TTSCBANK = gSetup->GetBankName("TTSc");
@@ -137,6 +147,9 @@ INT MTTScWFDTimeNtupler_eor(INT run_number)
 
 INT MTTScWFDTimeNtupler(EVENT_HEADER *pheader, void *pevent)
 {
+  // DEBUG
+  // std::cout << "in MTTScWFDTimeNtupler()" << std::endl;
+
   // Get the event number
   int midas_event_number = pheader->serial_number;
   if(firstEvent == true){
@@ -158,6 +171,13 @@ INT MTTScWFDTimeNtupler(EVENT_HEADER *pheader, void *pevent)
   const std::vector<int64_t>& TTSc_hits_PUV = TVSc_Pileup_Cut(TTSc_hits_PU, TVSc_hits, detTDC_min_TScTDC_map.at("TVSc"), PUV);
   // grab veto in the loop
 
+  // fill Nhits ntuple
+  //TNtuple* ntuple_hits = new TNtuple("ntup_NHits_TTSc".c_str(), "ntuple for N Hits in TTSc".c_str(), "Event:N_TTSc:N_TVSc:N_TTSc_PU:N_TTSc_PUV");
+  //ntuple_hits->SetAutoSave(0);
+  //Ntuple_Nhits = ntuple_hits;
+  const float vals_hits [5] = {midas_event_number, TTSc_hits.size(), TVSc_hits.size(), TTSc_hits_PU.size(), TTSc_hits_PUV.size()};
+  Ntuple_Nhits->Fill(vals_hits);
+
   for(std::map<std::string, std::vector<TPulseIsland*> >::const_iterator mIter = tpi_map.begin(); mIter != tpi_map.end(); mIter++){
     const std::string bankname = mIter->first;
     const int icrate = std::stoi(bankname.substr(1, 1));
@@ -170,23 +190,35 @@ INT MTTScWFDTimeNtupler(EVENT_HEADER *pheader, void *pevent)
     // index = -1 is the flag for failed sync
     const int iSync = gData->fTDCSynchronizationPulseIndex[icrate];
 
-    if (detname != "NdetD" && detname != "NdetU") continue;
+    if (detname != "NdetD" && detname != "NdetU" && detname != "GeCHEH") continue;
 
     // veto information
-    const std::string vdetname = "T" + detname + "V";
+    std::string dn_v;
+    if (detname == "GeCHEH") {
+      dn_v = "Ge";
+    } else {
+      dn_v = detname;
+    }
+    const std::string vdetname = "T" + dn_v + "V";
     const std::string vbankname = gSetup->GetBankName(vdetname);
     // hits
     const std::vector<int64_t>& veto_hits = tdc_map.at(vbankname);
 
     int iPulse=0;
-    int Timestamp_tick;
+    //int Timestamp_tick;
+    double Timestamp_tick;
     double fTimestamp_raw, fTimestamp, fTimestamp_TTSc, fTimestamp_Veto;
     double Amplitude;
 
     for(std::vector<TPulseIsland*>::const_iterator pIter = pulses.begin(); pIter != pulses.end(); pIter++){
       iPulse++;
       // pulse time
-      Timestamp_tick = (*pIter)->GetTimeStamp();
+      // CF for Ge
+      if ((*pIter)->HasCFTime()) {
+        Timestamp_tick = (*pIter)->GetTimeStampCF();
+      } else {
+        Timestamp_tick = (double)(*pIter)->GetTimeStamp();
+      }
       // convert to ns
       fTimestamp_raw = TICKWFD[icrate]*Timestamp_tick;
       // add SyncPulseOffset (all times are w.r.t. TDC)

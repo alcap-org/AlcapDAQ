@@ -1,0 +1,59 @@
+# crate 7 -- TSc, NdetD, NdetU, LaBr3, GeCHT, Sync
+dt5730/MDT5730ProcessRaw
+# crate 4 -- GeCHEH, GeCHEL, Sync
+v1724/MV1724ProcessRaw
+# TDC
+v1290/MV1290ProcessRaw
+
+# sort pulses
+common/MWFDSort
+common/MTDCSort
+
+#Calibrations
+Scaler/MMuonCounter
+# note: MMuonCoutner must be run first, otherwise normalization plots don't make sense.
+# I renamed Directory to IdentifySyncPulseOriginal for making comparisons.
+# Note this must come first, so that the values stored in TGD get replaced by the newer analyzer below.
+# ntuples added at this stage, again for comparison
+Calibration/MIdentifySyncPulse
+# first pass at improving IdentifySyncPulse
+# includes ntuple per crate to import the SyncPulse in python.
+Calibration/MIdentifySyncPulseRedux
+
+# Waveform pulse dumper (ntuple) for MIdentifySyncPulse algorithm development (python)
+#Timing/MWaveformTimeNtupler
+
+# USED FOR CALIBRATION AND GENERAL ENERGY OF PULSES
+# original
+# Energy/MEnergyPlots
+# with edits -- Cole
+Energy/MEnergyPlotsRedux
+
+# Fill histograms with hit times in the TDCs.
+#Timing/MTDCHitTime
+# same as above, but fills an ntuple as well -- tick of hit (timestamp), time of hit (timestamp), Block (event), iHit
+Timing/MTDCHitTimeRedux
+
+# TDC WFD alignment (Fig 5.10)
+###physics/MTDCWFDMatch
+# pulling from timing below -- matching to plots in thesis
+# Fig 5.10 might better be derived from here
+Timing/MTDCWFDTCorr
+# 5.11, correlation between TSc and various detectors (TDC) -- sets offset b/w TSc and detector TDCs.
+# includes vetos (which are TDC only)
+Timing/MTTScTCorrTDC
+# same as previous, but including only the "best" (closest) correlation for each TDC pulse, rather than an entry for every TTSc hit.
+###Timing/MTTScTCorrTDCBest
+# no plot, but related to the above, for WFD offsets
+# revisiting this after 8/5/24 meeting. Andy mentioned ADC/TDC pulse matching never worked in 2015b.
+# this module compares ADC to ADC, which may be enough.
+# only item that we need TDC for sure is the vetos.
+Timing/MTScTCorrWFD
+# same as above, but use the TSc TDC
+Timing/MTTScTCorrWFD
+
+# Timing analysis: finding nearest TSc pulses, nearest vetos, etc.
+Timing/MTTScWFDTimeNtupler
+
+#Mandatory
+common/MTreeOutput

@@ -28,6 +28,7 @@ class TPulseIsland : public TObject {
   std::vector<int> fSamples;
   /// The time, in sample clock ticks, of the first samples
   int fTimeStamp;
+  double fTimeStampCF;
   /// The name describing the digitizer channel the pulse originated
   std::string fBankName;
   // variables added by Damien
@@ -40,6 +41,10 @@ class TPulseIsland : public TObject {
  public:
   /// This defaultconstructor I believe exists so ROOT can load these from file and is not used explcitly.
   TPulseIsland();
+  /// New constructor with bool to specify whether to calculate CF time
+  TPulseIsland(int timestamp, const std::vector<int>& samples_vector,
+               std::string bank_name, bool do_CF);
+
   /// The constructor we should use.
   ///
   /// @param[in] timestamp The time in units of clock ticks of the first sample in the pulse
@@ -68,6 +73,8 @@ class TPulseIsland : public TObject {
   //@{
   const std::vector<int>& GetSamples() const { return fSamples; }
   int GetTimeStamp() const { return fTimeStamp; }
+  // CF timestamp
+  double GetTimeStampCF() const { return fTimeStampCF; }
   const std::string& GetBankName() const { return fBankName; }
   int64_t GetTDCTime() const { return fTDCTime; }
   double GetWFDTime() const {return fWFDTime; }
@@ -87,6 +94,9 @@ class TPulseIsland : public TObject {
   double GetPulseHeight() const;
   /// @return Time in nanoseconds of the peak of the pulse.
   double GetPulseTime() const;  
+  /// CF Time in nanoseconds
+  bool HasCFTime() const {return fTimeStampCF >= 0; }
+  double GetPulseTimeCF() const;
   /// @return An histogram representing the pulse for drawing or fitting.
   TH1I* GetPulseWaveform(std::string histname, std::string histtitle) const;
   int GetPulseLength() const { return fSamples.size(); }
@@ -112,6 +122,8 @@ class TPulseIsland : public TObject {
 
   void SetBankName(const std::string& name ){fBankName=name;}
   void SetTimeStamp(int t ){fTimeStamp=t;}
+  // CF calculation using timestamp index
+  void SetTimeStampCF(double frac, std::string detname);
   void SetSamples( const std::vector<int>::const_iterator& first,
           const std::vector<int>::const_iterator& last){fSamples.assign(first,last);}
   void SetTDCTime(int64_t t)  { fTDCTime = t; }

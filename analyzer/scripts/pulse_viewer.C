@@ -150,7 +150,7 @@ void view_pulses(std::string fname) {
 	pulse.SetBinContent(iSample + 1, samps[iSample]);
       pulse.Draw();
       // To draw the constant fraction line, uncomment the following line
-      //double cft = GetCFTime(gSetup, pulses.at(iPulse)); TLine l(cft, 0, cft, max); l.Draw("SAME");
+      double cft = GetCFTime(gSetup, pulses.at(iPulse)); TLine l(cft, 0, cft, max); l.Draw("SAME");
       can.Update();
       char in = GetInput();
       switch (in) {
