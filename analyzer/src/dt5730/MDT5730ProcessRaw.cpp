@@ -202,7 +202,7 @@ INT module_event_caen_std(uint32_t* p32, const int nbytes) {
             sample_vector.push_back(adc);
           }
         }
-        pulse_islands.push_back(new TPulseIsland(caen_trigger_time, sample_vector, *bankNameIter, CF_time));
+        pulse_islands.push_back(new TPulseIsland(caen_trigger_time, sample_vector, *bankNameIter, CF_time, gSetup));
       }
     }
   }
@@ -254,7 +254,7 @@ INT module_event_caen_dpp(uint32_t* p32, const int nbytes) {
         for (int ievt = 0; ievt < channel.num_events(); ++ievt) {
           pulses.push_back(new TPulseIsland(channel.time_tag(ievt),
                                             channel.waveform(ievt),
-                                            bankname, CF_time));
+                                            bankname, CF_time, gSetup));
         }
       }
     }

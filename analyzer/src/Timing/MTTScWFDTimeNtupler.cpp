@@ -50,7 +50,10 @@ namespace {
   // time offset maps
   std::map<std::string, double> detADC_min_TScTDC_map{{"NdetD", detADC_min_TScTDC[0]}, {"NdetU", detADC_min_TScTDC[1]}, {"GeCHEH", detADC_min_TScTDC[2]}};
   std::map<std::string, double> detTDC_min_TScTDC_map{{"TNdetDV", detTDC_min_TScTDC[2]}, {"TNdetUV", detTDC_min_TScTDC[3]}, {"TVSc", detTDC_min_TScTDC[4]}, {"TGeV", detTDC_min_TScTDC[6]}};
-  double PU=10000.; // +-10 micros
+  // FIXME! Target dependent PU cut?
+  // double PU=10000.; // +-10 micros -- charged emission value; Damien's thesis value
+  double PU=5000.; // +-5 micros
+  //double PU=3500.; // +-3.5 micros ~ 4 lifetimes (Al)
   //double PU=2000.; // +-2 micros
   // PUV
   double PUV=PU; // same as TTSc
@@ -73,6 +76,12 @@ std::vector<double> WFD_find_nearest_TTSc(double, const std::vector<int64_t>&);
 // find nearest veto hit times -- 2 vals: [tnear_positive, tnear_negative]
 // WFD hit time that is passed in should already have the appropriate time offset applied.
 std::vector<double> WFD_find_nearest_Veto(double, const std::vector<int64_t>&);
+// find nearest sync pulse (ADC)
+// for vetoing pulses coincident with sync pulses in Ge
+// WFD_time is raw fTimeStamp (no offsets, we are looking in the same crate)
+// Sync_pulses is raw fTimeStamp of sync hits from that crate
+std::vector<double> WFD_find_nearest_Sync(double, const std::vector<TPulseIsland*>&, const double);
+std::vector<double> WFD_find_nearest_TSync(double, const std::vector<int64_t>&, double);
 
 extern HNDLE hDB;
 extern TGlobalData* gData;
@@ -119,7 +128,7 @@ INT MTTScWFDTimeNtupler_BookHistograms()
     std::string ntuptitle = "ntuple for " + detname;
     // define ntuple
     // dev notes: Amplitude not strictly necessary, but wanting to check when comparing to EnergyPlots ntuple.
-    TNtuple* ntuple = new TNtuple(ntupname.c_str(), ntuptitle.c_str(), "Event:iPulse:Amplitude:TSWFDtick:TSWFD_raw:iSync:SyncOff:TSWFD:TSWFD_toff_TTSc:TTSc0p:TTSc0n:TTSc1p:TTSc1n:TTSc0pPU:TTSc0nPU:TTSc1pPU:TTSc1nPU:TTSc0pPUV:TTSc0nPUV:TTSc1pPUV:TTSc1nPUV:TSWFD_toff_Veto:TVeto0p:TVeto0n");
+    TNtuple* ntuple = new TNtuple(ntupname.c_str(), ntuptitle.c_str(), "Event:iPulse:Amplitude:TSWFDtick:TSWFD_raw:TSWFD_raw_noCF:iSync:SyncOff:TSWFD:TSWFD_toff_TTSc:TTSc0p:TTSc0n:TTSc1p:TTSc1n:TTSc0pPU:TTSc0nPU:TTSc1pPU:TTSc1nPU:TTSc0pPUV:TTSc0nPUV:TTSc1pPUV:TTSc1nPUV:TSWFD_toff_Veto:TVeto0p:TVeto0n:Sync0p:Sync0n:TSync0p:TSync0n");
     // turn off autosave
     ntuple->SetAutoSave(0);
     Ntuple_map[bankname] = ntuple;
@@ -180,9 +189,20 @@ INT MTTScWFDTimeNtupler(EVENT_HEADER *pheader, void *pevent)
 
   for(std::map<std::string, std::vector<TPulseIsland*> >::const_iterator mIter = tpi_map.begin(); mIter != tpi_map.end(); mIter++){
     const std::string bankname = mIter->first;
-    const int icrate = std::stoi(bankname.substr(1, 1));
+    const std::string icrate_str = bankname.substr(1, 1);
+    const int icrate = std::stoi(icrate_str);
     const std::string detname = gSetup->GetDetectorName(bankname);
     const std::vector<TPulseIsland*>& pulses = mIter->second;
+    // WFD tick time
+    const double TICKWFD_crate = TICKWFD[icrate];
+    // Sync pulses
+    const std::string detsync = "SyncCrate" + icrate_str;
+    const std::string banksync = gSetup->GetBankName(detsync);
+    const std::vector<TPulseIsland*>& Sync_pulses = tpi_map.at(banksync);
+    // TSync hits
+    const std::string dettsync = "TSync";
+    const std::string banktsync = gSetup->GetBankName(dettsync);
+    const std::vector<int64_t>& TSync_hits = tdc_map.at(banktsync);
     // SyncPulse
     // toff = synctdc - syncwfd, so wfd+toff puts time on equal footing to TDC.
     // note: if index=-1, toff ~ 0 (closest numerical float value to zero)
@@ -206,21 +226,33 @@ INT MTTScWFDTimeNtupler(EVENT_HEADER *pheader, void *pevent)
 
     int iPulse=0;
     //int Timestamp_tick;
-    double Timestamp_tick;
-    double fTimestamp_raw, fTimestamp, fTimestamp_TTSc, fTimestamp_Veto;
+    double Timestamp_tick, Timestamp_tick_noCF;
+    double fTimestamp_raw, fTimestamp_raw_noCF, fTimestamp, fTimestamp_TTSc, fTimestamp_Veto;
     double Amplitude;
 
     for(std::vector<TPulseIsland*>::const_iterator pIter = pulses.begin(); pIter != pulses.end(); pIter++){
       iPulse++;
+      // pulse length too short, continue (matches filter in EnergyPlotsRedux)
+      // get the samples
+      // const std::vector<int>& samples = (*pIter)->GetSamples();
+      // if(samples.size() < 8) continue;
+      const int samples_size = (*pIter)->GetSamples().size();
+      if(samples_size < 8) continue;
       // pulse time
       // CF for Ge
       if ((*pIter)->HasCFTime()) {
         Timestamp_tick = (*pIter)->GetTimeStampCF();
+        Timestamp_tick_noCF = (double)(*pIter)->GetTimeStamp();
+        // convert to ns
+        fTimestamp_raw = TICKWFD_crate*Timestamp_tick;
+        fTimestamp_raw_noCF = TICKWFD_crate*Timestamp_tick_noCF;
       } else {
         Timestamp_tick = (double)(*pIter)->GetTimeStamp();
+        Timestamp_tick_noCF = Timestamp_tick;
+        // convert to ns
+        fTimestamp_raw = TICKWFD_crate*Timestamp_tick;
+        fTimestamp_raw_noCF = fTimestamp_raw;
       }
-      // convert to ns
-      fTimestamp_raw = TICKWFD[icrate]*Timestamp_tick;
       // add SyncPulseOffset (all times are w.r.t. TDC)
       fTimestamp = fTimestamp_raw + toff;
       Amplitude = (*pIter)->GetPulseHeight();
@@ -237,15 +269,21 @@ INT MTTScWFDTimeNtupler(EVENT_HEADER *pheader, void *pevent)
       // dt = detTDC - TScTDC
       fTimestamp_Veto = fTimestamp - detTDC_min_TScTDC_map.at(vdetname);
       // find nearest veto
+      // FIXME! Need to adjust veto_hits to match TTSc time?
       std::vector<double> veto_vals = WFD_find_nearest_Veto(fTimestamp_Veto, veto_hits);
-
+      // find nearest sync pulse (Ge cut)
+      // ADC
+      //std::vector<double> Sync_vals = WFD_find_nearest_Sync(fTimestamp_raw, Sync_pulses, TICKWFD_crate);
+      std::vector<double> Sync_vals = WFD_find_nearest_Sync(fTimestamp_raw_noCF, Sync_pulses, TICKWFD_crate);
+      // TDC
+      std::vector<double> TSync_vals = WFD_find_nearest_TSync(fTimestamp_raw_noCF+toff, TSync_hits, toff);
       // find nearest Veto (positive and negative)
       // find nearest det TDC
       // --> if this appears to work well (do some studies), should consider make another version of the ntupler that looks for nearest w.r.t. det TDC, not ADC -- e.g. MTTScTDCTimeNtupler.cpp
 
       // fill the ntuple
-      //TNtuple* ntuple = new TNtuple(ntupname.c_str(), ntuptitle.c_str(), "Event:iPulse:Amplitude:TSWFDtick:TSWFD_raw:iSync:SyncOff:TSWFD:TSWFD_toff_TTSc:TTSc0p:TTSc0n:TTSc1p:TTSc1n:TTSc0pPU:TTSc0nPU:TTSc1pPU:TTSc1nPU:TTSc0pPUV:TTSc0nPUV:TTSc1pPUV:TTSc1nPUV:TSWFD_toff_Veto:TVeto0p:TVeto0n");
-      const float vals [24] = {midas_event_number, iPulse, Amplitude, Timestamp_tick, fTimestamp_raw, iSync, toff, fTimestamp, fTimestamp_TTSc, TTSc_vals[0], TTSc_vals[1], TTSc_vals[2], TTSc_vals[3], TTSc_vals_PU[0], TTSc_vals_PU[1], TTSc_vals_PU[2], TTSc_vals_PU[3], TTSc_vals_PUV[0], TTSc_vals_PUV[1], TTSc_vals_PUV[2], TTSc_vals_PUV[3], fTimestamp_Veto, veto_vals[0], veto_vals[1]};
+      //TNtuple* ntuple = new TNtuple(ntupname.c_str(), ntuptitle.c_str(), "Event:iPulse:Amplitude:TSWFDtick:TSWFD_raw:TSWFD_raw_noCF:iSync:SyncOff:TSWFD:TSWFD_toff_TTSc:TTSc0p:TTSc0n:TTSc1p:TTSc1n:TTSc0pPU:TTSc0nPU:TTSc1pPU:TTSc1nPU:TTSc0pPUV:TTSc0nPUV:TTSc1pPUV:TTSc1nPUV:TSWFD_toff_Veto:TVeto0p:TVeto0n:Sync0p:Sync0n:TSync0p:TSync0n");
+      const float vals [29] = {midas_event_number, iPulse, Amplitude, Timestamp_tick, fTimestamp_raw, fTimestamp_raw_noCF, iSync, toff, fTimestamp, fTimestamp_TTSc, TTSc_vals[0], TTSc_vals[1], TTSc_vals[2], TTSc_vals[3], TTSc_vals_PU[0], TTSc_vals_PU[1], TTSc_vals_PU[2], TTSc_vals_PU[3], TTSc_vals_PUV[0], TTSc_vals_PUV[1], TTSc_vals_PUV[2], TTSc_vals_PUV[3], fTimestamp_Veto, veto_vals[0], veto_vals[1], Sync_vals[0], Sync_vals[1], TSync_vals[0], TSync_vals[1]};
       Ntuple_map[bankname]->Fill(vals);
     }
   }
@@ -411,4 +449,86 @@ std::vector<double> WFD_find_nearest_Veto(double WFD_time, const std::vector<int
   veto_vals.push_back(t0p);
   veto_vals.push_back(t0n);
   return veto_vals;
+}
+
+// for vetoing pulses coincident with sync pulses in Ge
+// WFD_time is raw fTimeStamp (no offsets, we are looking in the same crate)
+// Sync_pulses is raw fTimeStamp of sync hits from that crate
+std::vector<double> WFD_find_nearest_Sync(double WFD_time, const std::vector<TPulseIsland*>& Sync_pulses, const double TICKWFD_crate) {
+  double t0p=1e10, t0n=-1e10;
+  double dt, dt_p_best=1e10, dt_n_best=-1e10;
+  std::vector<double> Sync_vals;
+  Sync_vals.reserve(2);
+  //int64_t hit;
+  double hit_time;
+  // loop through Sync pulses
+  for(std::vector<TPulseIsland*>::const_iterator pIter = Sync_pulses.begin(); pIter != Sync_pulses.end(); pIter++){
+    //iPulse++;
+    // use CF
+    // double Timestamp_tick;
+    // if ((*pIter)->HasCFTime()) {
+    //   Timestamp_tick = (*pIter)->GetTimeStampCF();
+    // } else {
+    //   Timestamp_tick = (double)(*pIter)->GetTimeStamp();
+    // }
+    // don't use CF
+    double Timestamp_tick = (double)(*pIter)->GetTimeStamp();
+    //
+    hit_time = TICKWFD_crate * Timestamp_tick;
+    dt = WFD_time - hit_time;
+    // dt > 0.
+    if (dt > 0.) {
+      // check if better than t0p
+      if (dt < dt_p_best) {
+        dt_p_best = dt;
+        t0p = hit_time;
+      }
+    }
+    // dt <= 0.
+    else {
+      // check if better than t0n
+      if (dt > dt_n_best) {
+        dt_n_best = dt;
+        t0n = hit_time;
+      }
+    }
+  }
+  // fill the vector
+  Sync_vals.push_back(t0p);
+  Sync_vals.push_back(t0n);
+  return Sync_vals;
+}
+
+std::vector<double> WFD_find_nearest_TSync(double WFD_time, const std::vector<int64_t>& TSync_hits, double toff) {
+  double t0p=1e10, t0n=-1e10;
+  double dt, dt_p_best=1e10, dt_n_best=-1e10;
+  std::vector<double> TSync_vals;
+  TSync_vals.reserve(2);
+  //int64_t hit;
+  double hit_time;
+  // loop through TSync hits
+  for (int i = 0; i < TSync_hits.size(); ++i) {
+    hit_time = TICKTDC * TSync_hits[i];
+    dt = WFD_time - hit_time;
+    // dt > 0.
+    if (dt > 0.) {
+      // check if better than t0p
+      if (dt < dt_p_best) {
+        dt_p_best = dt;
+        t0p = hit_time;
+      }
+    }
+    // dt < 0.
+    else {
+      // check if better than t0n
+      if (dt > dt_n_best) {
+        dt_n_best = dt;
+        t0n = hit_time;
+      }
+    }
+  }
+  // fill the vector
+  TSync_vals.push_back(t0p - toff);
+  TSync_vals.push_back(t0n - toff);
+  return TSync_vals;
 }

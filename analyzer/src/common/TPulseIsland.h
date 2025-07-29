@@ -24,6 +24,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 class TPulseIsland : public TObject {
  private:
+  // SetupData object (must be set by user)
+  TSetupData* gSetup = nullptr;
+  // const TSetupData* gSetup;
   /// Time ordered ADC samples of the pulse.
   std::vector<int> fSamples;
   /// The time, in sample clock ticks, of the first samples
@@ -43,7 +46,7 @@ class TPulseIsland : public TObject {
   TPulseIsland();
   /// New constructor with bool to specify whether to calculate CF time
   TPulseIsland(int timestamp, const std::vector<int>& samples_vector,
-               std::string bank_name, bool do_CF);
+               std::string bank_name, bool do_CF, TSetupData* setup);
 
   /// The constructor we should use.
   ///
@@ -52,7 +55,7 @@ class TPulseIsland : public TObject {
   /// @param[in] bank_name The (4 character long) name identifying the digitizer channel
   /// the pulse originated.
   TPulseIsland(int timestamp, const std::vector<int>& samples_vector, 
-               std::string bank_name);
+               std::string bank_name, TSetupData* setup);
 
   /// @brief Construct a TPI from a sub-range of an existing vector of ints
   /// @details Copies all samples in the range [first,last[
@@ -63,7 +66,7 @@ class TPulseIsland : public TObject {
   /// @param[in] bank_name The (4 character long) name identifying the digitizer channel
   /// the pulse originated.
   TPulseIsland(int timestamp, const std::vector<int>::const_iterator& first,
-          const std::vector<int>::const_iterator& last, std::string bank_name);
+          const std::vector<int>::const_iterator& last, std::string bank_name, TSetupData* setup);
 
   /// The TPI goes to the state the default constructor would set it to. Not generally used.
   void Reset(Option_t* o = "");
@@ -119,7 +122,8 @@ class TPulseIsland : public TObject {
   float GetEnergy() const { return fEnergy; }
 
 
-
+  // SETTERS
+  void SetSetupData(TSetupData* setup) { gSetup = setup; }
   void SetBankName(const std::string& name ){fBankName=name;}
   void SetTimeStamp(int t ){fTimeStamp=t;}
   // CF calculation using timestamp index

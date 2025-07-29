@@ -1,0 +1,8 @@
+Now running 6037
+Input file symlink: /data/ckampa/AlCap_2015a/raw_rename/run06037.mid
+Input file full path: /data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_Y.run06037.mid
+6037
+"/Logger/Data dir = /data/alcap/R15a/mid" in file "currentRun.odb" does not exist locally,
+set anyhow? (y/[n]): 
+Running alcapana...
+/home/ckampa/coding/AlcapDAQ/analyzer/work/full_analysis_first_CF/alcapana -i /data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.None_36MeV_Y.run06037.mid -o /data/ckampa/AlCap_2015a/output_full_analysis_first_CF/hist06037.root -T /data/ckampa/AlCap_2015a/output_full_analysis_first_CF/tree06037.root 2>&1 |tee /data/ckampa/AlCap_2015a/output_full_analysis_first_CF/textOutput6037 > output.txt

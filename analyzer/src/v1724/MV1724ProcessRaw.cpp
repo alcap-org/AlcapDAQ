@@ -217,7 +217,7 @@ INT module_event_caen(EVENT_HEADER *pheader, void *pevent)
       //                                          sample_vector, bankname, CF_time));
       // don't correct for presample size -- consistent with DT5730
       pulse_islands.push_back(new TPulseIsland(caen_trigger_time,
-                                               sample_vector, bankname, CF_time));
+                                               sample_vector, bankname, CF_time, gSetup));
     }
 
     // align the event by two bytes.

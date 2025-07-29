@@ -9,7 +9,7 @@
 #include "TF1.h"
 #include "TSetupData.h"
 
-extern TSetupData* gSetup;
+//extern TSetupData* gSetup;
 
 /* AlCap includes */
 #include "tOffsets.h"
@@ -17,21 +17,21 @@ extern TSetupData* gSetup;
 using std::vector;
 using std::string;
 
-TPulseIsland::TPulseIsland() : fSamples(), fTimeStamp(0), fTimeStampCF(-1), fBankName(""), fTDCTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
+TPulseIsland::TPulseIsland() : gSetup(nullptr), fSamples(), fTimeStamp(0), fTimeStampCF(-1), fBankName(""), fTDCTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
 }
 
 TPulseIsland::TPulseIsland(int timestamp, const vector<int>::const_iterator& first,
-        const vector<int>::const_iterator& last, string bank_name) :
-  fSamples(first,last), fTimeStamp(timestamp), fTimeStampCF(-1), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
+        const vector<int>::const_iterator& last, string bank_name, TSetupData* setup) :
+  gSetup(setup), fSamples(first,last), fTimeStamp(timestamp), fTimeStampCF(-1), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
 }
 
-TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name) :
-  fSamples(samples_vector), fTimeStamp(timestamp), fTimeStampCF(-1), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
+TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name, TSetupData* setup) :
+  gSetup(setup), fSamples(samples_vector), fTimeStamp(timestamp), fTimeStampCF(-1), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
 }
 
 // CF time bool
-TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name, bool do_CF) :
-  fSamples(samples_vector), fTimeStamp(timestamp), fTimeStampCF(-1), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
+TPulseIsland::TPulseIsland(int timestamp, const vector<int>& samples_vector, string bank_name, bool do_CF, TSetupData* setup) :
+  gSetup(setup), fSamples(samples_vector), fTimeStamp(timestamp), fTimeStampCF(-1), fBankName(bank_name), fTDCTime(-1), fWFDTime(-1), fPSD_parameter(-1), fVetoPulse(false), fPileupPulse(false), fDoublePulse(false), fEnergy(0) {
 
     if (do_CF) {
       string detname = gSetup->GetDetectorName(bank_name);

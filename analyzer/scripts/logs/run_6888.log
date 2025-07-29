@@ -1,0 +1,7 @@
+Now running 6888
+Input file symlink: /data/ckampa/AlCap_2015a/raw_rename/run06888.mid
+Input file full path: /data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.Al2mm_36MeV_Y.run06888.mid
+6888
+
+Running alcapana...
+/home/ckampa/coding/AlcapDAQ/analyzer/work/full_analysis_first_CF/alcapana -i /data/ckampa/AlCap_2015a/raw/raw.rhbob.AlCapR2015a.Al2mm_36MeV_Y.run06888.mid -o /data/ckampa/AlCap_2015a/output_full_analysis_first_CF/hist06888.root -T /data/ckampa/AlCap_2015a/output_full_analysis_first_CF/tree06888.root 2>&1 |tee /data/ckampa/AlCap_2015a/output_full_analysis_first_CF/textOutput6888 > output.txt

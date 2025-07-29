@@ -84,6 +84,8 @@ INT MTDCWFDTCorr_init() {
       const std::string det = gSetup->GetDetectorName(wfd_bank);
       if (det.substr(0, 2) == "Ge")
 	sprintf(tdc_bank, "%s", gSetup->GetBankName("TGeCHT").c_str());
+      else if (det.substr(0,9) == "SyncCrate")
+  sprintf(tdc_bank, "%s", gSetup->GetBankName("TSync").c_str());
       else
 	sprintf(tdc_bank, "%s", gSetup->GetBankName("T"+det).c_str());
 

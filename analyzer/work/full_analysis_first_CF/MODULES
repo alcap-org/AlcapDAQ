@@ -51,6 +51,11 @@ Timing/MTTScTCorrTDC
 Timing/MTScTCorrWFD
 # same as above, but use the TSc TDC
 Timing/MTTScTCorrWFD
+# find correlation of Ge WFD with Sync pulses
+# nearest Ge to each Sync
+Timing/MGeCHEHTCorrSync
+# nearest Sync to each Ge
+Timing/MSyncTCorrGeCHEH
 
 # Timing analysis: finding nearest TSc pulses, nearest vetos, etc.
 Timing/MTTScWFDTimeNtupler
